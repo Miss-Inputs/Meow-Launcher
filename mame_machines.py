@@ -7,7 +7,7 @@ import config
 import common
 import launchers
 
-debug = False
+debug = '--debug' in sys.argv
 
 def find_main_cpu(machine):
 	for chip in machine.findall('chip'):
@@ -205,7 +205,7 @@ def get_mame_xml(driver):
 
 	return ElementTree.fromstring(output)
 
-def process_arcade(_debug):
+def process_arcade():
 	#Fuck iterparse by the way, if you stumble across this script and think "oh you should use iterparse instead of this
 	#kludge!" you are wrong
 	#(Okay, if you want an attempt at a reason why: I've tried it, and MAME's machine elements are actually more
@@ -213,7 +213,6 @@ def process_arcade(_debug):
 	#individual -listxml)
 	#Could it be faster to use -verifyroms globally and parse the output somehow and then get individual XML from
 	#successful results?
-	debug = _debug
 
 	for driver, source_file in get_mame_drivers():
 		if source_file in config.too_slow_drivers:

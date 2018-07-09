@@ -7,7 +7,7 @@ import collections
 import config
 import launchers
 
-debug = False
+debug = '--debug' in sys.argv
 
 #TODO Add X-Ambiguous-Name and X-Disambiguator fields (or something named a bit
 #better)
@@ -116,8 +116,7 @@ def fix_duplicate_names(method):
 		else:
 			resolve_duplicates(v, method)
 	
-def disambiguate_names(_debug):
-	debug = _debug
+def disambiguate_names():
 	fix_duplicate_names('platform')
 	fix_duplicate_names('tags')
 	fix_duplicate_names('extension')

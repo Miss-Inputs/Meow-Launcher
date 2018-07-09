@@ -7,7 +7,7 @@ import archives
 import launchers
 import common
 
-debug = False
+debug = '--debug' in sys.argv
 
 year_regex = re.compile(r'\(([x\d]{4})\)')
 def get_metadata_from_filename_tags(tags):
@@ -446,7 +446,7 @@ def sort_m3u_first():
 	return Sorter
 
 used_m3u_filenames = []
-def process_emulator(emulator, _debug):
+def process_emulator(emulator):
 	for root, dirs, files in os.walk(emulator['rom_dir']):
 		if common.starts_with_any(root + os.sep, config.ignored_directories):
 			continue

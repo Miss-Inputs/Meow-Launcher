@@ -16,33 +16,29 @@ import organize_folders
 #though - I guess I'd assume disk 1 is the boot disk, and other disks are not, and build command lines
 #programmatically.  Even if I don't do this, maybe I should only create a launcher for disk 1?
 
-debug = False
+debug = '--debug' in sys.argv
 
 overall_time_started = time.perf_counter()
 
 if os.path.isdir(config.output_folder):
-	#shutil.rmtree(output_folder)
 	for f in os.listdir(config.output_folder):
 		os.unlink(os.path.join(config.output_folder, f))
 os.makedirs(config.output_folder, exist_ok=True)
 
-if '--debug' in sys.argv:
-	debug = True
-
 if '--no-arcade' not in sys.argv:
 	time_started = time.perf_counter()
-	mame_machines.process_arcade(debug)
+	mame_machines.process_arcade()
 	time_ended = time.perf_counter()
 	print('Arcade finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
 for emulator in config.emulator_configs:
 	time_started = time.perf_counter()
-	roms.process_emulator(emulator, debug)
+	roms.process_emulator(emulator)
 	time_ended = time.perf_counter()
 	print(emulator['name'], 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
 time_started = time.perf_counter()
-disambiguate.disambiguate_names(debug)
+disambiguate.disambiguate_names()
 time_ended = time.perf_counter()
 print('Name disambiguation finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
