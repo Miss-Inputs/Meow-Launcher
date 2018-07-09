@@ -2,6 +2,7 @@ import subprocess
 import xml.etree.ElementTree as ElementTree
 import configparser
 import os
+import sys
 
 import config
 import common
