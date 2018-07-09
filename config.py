@@ -148,7 +148,7 @@ skip_fruit_machines = ['mpu3', 'mpu4', 'mpu5', 'bfm_', 'pluto5', 'maygay', 'jpmi
 #cfa3000 is kinda fine but it counts as a BBC Micro so it counts as not fine
 okay_to_have_software = ['vii', 'snspell', 'tntell']
 
-output_folder = os.path.join('/tmp', 'meow')
+output_folder = os.path.join('/tmp', 'crappy_game_launcher')
 
 #For when I do a hecking disagreement about how names should be formatted, and if subtitles should be in the title or not. This probably annoys purists, but I think it makes things less confusing at the end of the day
 #When has anyone mentioned a game called "Space Invaders M", anyway?
