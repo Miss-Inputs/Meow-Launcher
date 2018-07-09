@@ -300,7 +300,7 @@ indent-after-paren=1
 indent-string='\t'
 
 # Maximum number of characters on a single line.
-max-line-length=100
+max-line-length=120
 
 # Maximum number of lines in a module
 max-module-lines=1000
