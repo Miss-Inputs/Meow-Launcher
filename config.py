@@ -256,6 +256,8 @@ name_replacement = [
 	('Q-Bert', 'Q*bert'), #To be fair, this is just a technical restriction on filenames that isn't relevant when using a MAME display name
 	('Robotron - 2084', 'Robotron 2084'), 
 	('Sangokushi 3', 'Sangokushi III'), 
+	('Sim Ant', 'SimAnt'),
+	('Sim City', 'SimCity'),
 	('Super Boy 3', 'Super Boy III'), 
 	("Street Fighter II'", 'Street Fighter II'), 
 	('Twin Bee', 'TwinBee'),
@@ -288,12 +290,7 @@ subtitle_removal = [('After Burner Complete ~ After Burner', 'After Burner Compl
 	('Miner 2049er Starring Bounty Bob', 'Miner 2049er'),
 	("Montezuma's Revenge featuring Panama Joe", "Montezuma's Revenge"),
 	("Montezuma's Revenge - Featuring Panama Joe", "Montezuma's Revenge"),
-	('Parodius - Shinwa kara Owarai e', 'Parodius'), #Technically wrong, Parodius is the first game on MSX and Parodius DA!  is the sequel but it's called just Parodius in
-                                                  #Europe which is annoying and I've already gotten rid of the DA!  as
-                                                                                                   #above and
-                                                                                                                                                    #everything
-                                                                                                                                                                                                     #is
-                                                                                                                                                                                                     #confusing
+	('Parodius - Shinwa kara Owarai e', 'Parodius'), #Technically wrong, Parodius is the first game on MSX and Parodius DA!  is the sequel but it's called Parodius in Europe which is annoying and I've already gotten rid of the DA! as above and everything confusing
 	('Pitfall II - Lost Caverns', 'Pitfall II'),
 	('Pitfall II - The Lost Caverns', 'Pitfall II'),
 	("Pitfall! - Pitfall Harry's Jungle Adventure", "Pitfall!"),
