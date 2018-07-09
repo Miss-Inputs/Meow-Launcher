@@ -9,6 +9,9 @@ CATLIST_PATH = '/media/Stuff/Roms/Arcade/Categories/catlist.ini'
 LANGUAGES_PATH = '/media/Stuff/Roms/Arcade/Categories/languages.ini'
 is_toaster = socket.gethostname() == 'Bridgette'
 pce_module = 'pce_fast' if is_toaster else 'pce'
+basilisk_ii_shared_folder = '/media/Things/Mac_OS_Stuff/Shared'
+
+mac_disk_images = ['/media/Things/Mac_OS_Stuff/Games 68k.hfv']
 
 emulator_configs = [
 	{'name': 'Game Boy', 'command_line': 'gambatte_qt --full-screen {0}', 'rom_dir': '/media/Stuff/Roms/Gameboy', 'supported_extensions': ['gb', 'gbc'], 'supported_compression': ['zip']},

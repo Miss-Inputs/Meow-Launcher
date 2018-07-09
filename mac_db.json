@@ -1,0 +1,1372 @@
+[
+	{
+		"name": "3 in Three",
+		"app_name": "3 in Three",
+		"creator_code": "3in3",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Puzzle",
+		"notes": "Released as freeware: http://www.fools-errand.com/04-3T/index.htm",
+		"compat_notes": "If using only 2 colours only needs 700K of RAM; runs on Plus, Classic, SE, LC and II family",
+		"colours": 256,
+		"colours_compat": "required",
+		"required_hardware": {
+			"free_ram": 1536000
+		},
+		"required_software": {
+			"os": "6.0.5"
+		}
+	},
+	{
+		"name": "3D Hearts Deluxe",
+		"app_name": "3D Hearts Deluxe",
+		"creator_code": "HDLX",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Tabletop",
+		"subgenre": "Cards"
+	},
+	{
+		"name": "NASCAR Pinball",
+		"app_name": " NASCAR Pinball",
+		"creator_code": "PB4!",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Pinball",
+		"subgenre": "Fantasy",
+		"min_players": 1,
+		"max_players": 1,
+		"controls": {
+			"player_1": {
+				"left_flipper": ["left_shift", "left_shoulder"],
+				"right_flipper": ["left_shift", "right_shoulder"],
+				"plunger": ["down_arrow", "primary_button"],
+				"nudge_left": ["z", "secondary_button"],
+				"nudge_center": ["space", "aux_secondary_button"],
+				"nudge_right": ["/", "aux_primary_button"],
+				"pause": ["p", "start"]
+			}
+		},
+		"notes": "Supports InputSprockets; 6-button gamepad controls: left flipper = left shoulder, right flipper = right shoulder, plunger = A, left nudge = X, center nudge = Y, right nudge = B; control mapping here has been set up to emulate this on a 4-button pad as C and Z aren't used anyway"
+	},
+	{
+		"name": "A Day at Work",
+		"app_name": "Day at Work",
+		"creator_code": "CcoP",
+		"arch": "68k",
+		"category": "Games",
+		"runs_in_window": true,
+		"min_players": 1,
+		"max_players": 1,
+		"controls": {
+			"player_1": {
+				"move_up": ["up_arrow", "dpad_up"],
+				"move_down": ["down_arrow", "dpad_down"],
+				"move_left": ["left_arrow", "dpad_left"],
+				"move_right": ["right_arrow", "dpad_right"],
+				"use": ["space", "primary_button"],
+				"fire": ["s", "secondary_button"],
+				"rocket_launcher": ["r", "left_shoulder"],
+				"explosive": ["e", "right_shoulder"],
+				"money": ["m", "aux_primary_button"]
+			}
+		},
+		"compat_notes": "Author doesn't know system requirements specifically, but was made with Mac OS 8.1. May require System 7 or greater, and colour monitor"
+	},
+	{
+		"name": "Chuck Yeager's Air Combat",
+		"app_name": "Air Combat",
+		"creator_code": "CYAC",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Simulation",
+		"subgenre": "Flight"
+	},
+	{
+		"name": "3D Klondike",
+		"app_name": "3D Klondike v.1.0a",
+		"creator_code": "3dKl",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Tabletop",
+		"subgenre": "Cards"
+	},
+	{
+		"name": "Apeiron",
+		"app_name": "Apeiron",
+		"creator_code": "????",
+		"arch": "68k",
+		"category": "Games",
+		"clone_of": "Centipede",
+		"genre": "Shooter",
+		"subgenre": "Fixed",
+		"compat_notes": "256 colours or grayscale (will switch automatically to 256 if more), 640x480 or larger",
+		"min_players": 1,
+		"max_players": 1,
+		"notes": "Mouse controls: Use mouse to move around, click button to fire; also use Caps Lock to pause and escape to abort. v1.0.3 uses InputSprockets, TODO list keyboard/gamepad controls",
+		"resolution": "empty_space",
+		"width": 640,
+		"height": 480,
+		"required_software": {
+			"os": "6.0.7"
+		}
+	},
+	{
+		"name": "Arkanoid",
+		"app_name": "Arkanoid",
+		"creator_code": "????",
+		"arch": "68k",
+		"category": "Games",
+		"clone_of": "Breakout",
+		"notes": "Official version by Taito",
+		"compat_notes": "Very old, might not even run on 68030"
+	},
+	{
+		"name": "Blackjack",
+		"app_name": "Blackjack",
+		"creator_code": "aplt",
+		"arch": "68k",
+		"category": "Games",
+		"notes": "Part of AppleScript Games compilation",
+		"runs_in_window": true
+	},
+	{
+		"name": "Crazy Eights",
+		"app_name": "Crazy Eights",
+		"creator_code": "aplt",
+		"arch": "68k",
+		"category": "Games",
+		"notes": "Part of AppleScript Games compilation",
+		"runs_in_window": true
+	},
+	{
+		"name": "Echo",
+		"app_name": "Echo",
+		"creator_code": "aplt",
+		"arch": "68k",
+		"category": "Games",
+		"notes": "Part of AppleScript Games compilation",
+		"runs_in_window": true
+	},
+	{
+		"name": "Eight Ball",
+		"app_name": "Eight Ball",
+		"creator_code": "aplt",
+		"arch": "68k",
+		"category": "Games",
+		"notes": "Part of AppleScript Games compilation",
+		"runs_in_window": true
+	},
+	{
+		"name": "Guess the Number!",
+		"app_name": "Guess the Number!",
+		"creator_code": "aplt",
+		"arch": "68k",
+		"category": "Games",
+		"notes": "Part of AppleScript Games compilation",
+		"runs_in_window": true
+	},
+	{
+		"name": "Hangman",
+		"app_name": "Hangman",
+		"creator_code": "aplt",
+		"arch": "68k",
+		"category": "Games",
+		"notes": "Part of AppleScript Games compilation",
+		"runs_in_window": true
+	},
+	{
+		"name": "Matcher",
+		"app_name": "Matcher",
+		"creator_code": "aplt",
+		"arch": "68k",
+		"category": "Games",
+		"notes": "Part of AppleScript Games compilation",
+		"runs_in_window": true
+	},
+	{
+		"name": "Pico-Fermi-Bagels",
+		"app_name": "Pico-Fermi-Bagels",
+		"creator_code": "aplt",
+		"arch": "68k",
+		"category": "Games",
+		"notes": "Part of AppleScript Games compilation",
+		"runs_in_window": true
+	},
+	{
+		"name": "Poker",
+		"app_name": "Poker",
+		"creator_code": "aplt",
+		"arch": "68k",
+		"category": "Games",
+		"notes": "Part of AppleScript Games compilation",
+		"runs_in_window": true
+	},
+	{
+		"name": "Rock, Paper, AppleScript",
+		"app_name": "Rock, Paper, AppleScript™",
+		"creator_code": "aplt",
+		"arch": "68k",
+		"category": "Games",
+		"notes": "Part of AppleScript Games compilation",
+		"runs_in_window": true
+	},
+	{
+		"name": "Scrambler",
+		"app_name": "Scrambler",
+		"creator_code": "aplt",
+		"arch": "68k",
+		"category": "Games",
+		"notes": "Part of AppleScript Games compilation",
+		"runs_in_window": true
+	},
+	{
+		"name": "Tic-Tac-Toe",
+		"app_name": "Tic-Tac-Toe",
+		"creator_code": "aplt",
+		"arch": "68k",
+		"category": "Games",
+		"notes": "Part of AppleScript Games compilation",
+		"runs_in_window": true
+	},
+	{
+		"name": "War",
+		"app_name": "War",
+		"creator_code": "aplt",
+		"arch": "68k",
+		"category": "Games",
+		"notes": "Part of AppleScript Games compilation",
+		"runs_in_window": true
+	},
+	{
+		"name": "Ares",
+		"app_name": "Ares",
+		"creator_code": "ar12",
+		"arch": "68k",
+		"category": "Games",
+		"notes": "Now released under GPL"
+	},
+	{
+		"name": "At the Carnival",
+		"app_name": "Puzzle Gallery",
+		"creator_code": " pg ",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Avara",
+		"app_name": "Avara",
+		"creator_code": "AVAR",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Barrack",
+		"app_name": "Barrack",
+		"creator_code": "b8ck",
+		"arch": "fat",
+		"category": "Games",
+		"clone_of": "JezzBall",
+		"compat_notes": "256 colours, 13 inch monitor (640x480?) or greater; 68040 or PPC recommended",
+		"notes": "Mouse controls: Move with mouse, click to fire a barrier, press orientation key to change orientation, caps lock to pause, escape to abort",
+		"required_hardware": {
+			"free_ram": 3984588
+		}
+	},
+	{
+		"name": "BattleShip",
+		"app_name": "BattleShip 4.5.2",
+		"creator_code": "PsBs",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Beat the Dragon",
+		"app_name": "Beat the Dragon 2.5",
+		"creator_code": "BtD2",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Tabletop",
+		"subgenre": "Cards"
+	},
+	{
+		"name": "Bub & Bob",
+		"app_name": "Bub & Bob",
+		"creator_code": "SEBi",
+		"arch": "68k",
+		"category": "Games",
+		"clone_of": "Bubble Bobble",
+		"width": 640,
+		"height": 480,
+		"colours": 256,
+		"resolution_compat": "nag",
+		"colours_compat": "required",
+		"min_players": 1,
+		"max_players": 2,
+		"controls": {
+			"player_1": {
+				"jump": "up_arrow",
+				"move_left": "left_arrow",
+				"move_right": "right_arrow",
+				"fire": "down_arrow"
+			},
+			"player_2": {
+				"jump": "8_numpad",
+				"move_left": "4_numpad",
+				"move_right": "6_numpad",
+				"fire": "0_numpad"
+			}
+		}
+	},
+	{
+		"name": "Bubble Trouble",
+		"app_name": "Bubble Trouble",
+		"creator_code": "Bubb",
+		"arch": "fat",
+		"category": "Games",
+		"clone_of": "Pengo",
+		"genre": "Maze",
+		"subgenre": "Block Push",
+		"compat_notes": "640x480 screen, 256 colours/grays or more",
+		"required_hardware": {
+			"cpu": "68020",
+			"free_ram": 3174400
+		},
+		"required_software": {
+			"os": "7.0",
+			"extensions": ["Sound Manager"]
+		}
+	},
+	{
+		"name": "Buried in Time (demo)",
+		"app_name": "Buried in Time™ Demo",
+		"creator_code": "PJ93",
+		"arch": "68k",
+		"category": "Trials"
+	},
+	{
+		"name": "Burning Monkey Solitaire",
+		"app_name": "Burning Monkey Solitaire",
+		"creator_code": "BnMk",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Tabletop",
+		"subgenre": "Cards"
+	},
+	{
+		"name": "Card 99",
+		"app_name": "Card 99",
+		"creator_code": "CDNN",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Tabletop",
+		"subgenre": "Cards"
+	},
+	{
+		"name": "Where in the World is Carmen Sandiego? (Deluxe)",
+		"app_name": "Carmen World Deluxe",
+		"creator_code": "SHSD",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "CartoonShy",
+		"app_name": "CartoonShy",
+		"creator_code": "GunS",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Tabletop",
+		"subgenre": "Mahjong Solitaire"
+	},
+	{
+		"name": "ChessWorks",
+		"app_name": "ChessWorks",
+		"creator_code": "chWk",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Tabletop",
+		"subgenre": "Chess"
+	},
+	{
+		"name": "Chiral",
+		"app_name": "Chiral",
+		"creator_code": "MolT",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Puzzle",
+		"compat_notes": "256 colours, 1.5MB RAM",
+		"required_hardware": {
+			"free_ram": 1572864
+		}
+	},
+	{
+		"name": "ChristmasTime",
+		"app_name": "ChristmasTime 3.0",
+		"creator_code": "Xmas",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Early Childhood",
+		"notes": "Mouse controls based around clicking and dragging objects, as is usually the case with this genre"
+	},
+	{
+		"name": "Chronicle of Ekan",
+		"app_name": "Chronicle of Ekan",
+		"creator_code": "Wild",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Cortex",
+		"app_name": "CORTEX",
+		"creator_code": "ABCX",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "CrashBall",
+		"app_name": "CrashBall 2.0 An",
+		"creator_code": "CED/",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Cricket",
+		"app_name": "Cricket v4.0",
+		"creator_code": "CKT.",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Sports",
+		"subgenre": "Cricket",
+		"notes": "Unregistered with no known serials"
+	},
+	{
+		"name": "Cube Strategy",
+		"app_name": "Cube Strategy v2.3",
+		"creator_code": "CbWr",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Cyberopoly",
+		"app_name": "Cyberopoly",
+		"creator_code": "¥∫r",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Tabletop",
+		"subgenre": "Board",
+		"clone_of": "Monopoly",
+		"min_players": 1,
+		"max_players": 6
+	},
+	{
+		"name": "Cyberopoly: The Alfred University Edition",
+		"app_name": "The Alfred University Edition",
+		"creator_code": "¥∫r",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Tabletop",
+		"subgenre": "Board",
+		"clone_of": "Monopoly",
+		"min_players": 1,
+		"max_players": 6
+	},
+	{
+		"name": "Cythera",
+		"app_name": "Cythera",
+		"creator_code": "Delv",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Dart Board",
+		"app_name": "Dart Board v1.02",
+		"creator_code": "DtBd",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Sports",
+		"subgenre": "Darts"
+	},
+	{
+		"name": "Desert Trek",
+		"app_name": "Desert Trek 1.02",
+		"creator_code": "DTRK",
+		"arch": "68k",
+		"category": "Games",
+		"runs_in_window": true,
+		"compat_notes": "Will definitely run on System 6 and maybe older. Complains about too many colours (claims to not have enough memory), but unsure of how many colours it wants exactly, or if this message is caused by some other issue"
+	},
+	{
+		"name": "Dirt Bike",
+		"app_name": "Dirt Bike 3.1",
+		"creator_code": "MBbq",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Divine Right",
+		"app_name": "Divine Right 7.0.9",
+		"creator_code": "DVRT",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Divinity",
+		"app_name": "Divinity",
+		"creator_code": "scen",
+		"arch": "68k",
+		"category": "Applications",
+		"genre": "Game Utility",
+		"subgenre": "Level Editor",
+		"notes": "Scenario editor for Realmz"
+	},
+	{
+		"name": "Dollhouse Time",
+		"app_name": "Dollhouse Time",
+		"creator_code": "Sand",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Early Childhood"
+	},
+	{
+		"name": "Duke Nukem 3D (68k) (shareware)",
+		"app_name": "Duke Nukem 3D Demo (68k)",
+		"creator_code": "Duke",
+		"arch": "68k",
+		"category": "Trials",
+		"genre": "Shooter",
+		"subgenre": "FPS",
+		"notes": "Contains first three levels",
+		"colours": 256,
+		"colours_compat": "required",
+		"compat_notes": "Screen size options go from 320x200 to 1024x768, and otherwise will display a black screen; there's an option to switch the resolution automatically. Surprisingly does work in BasiliskII though"
+	},
+	{
+		"name": "Elf Forest",
+		"app_name": "Elf Forest",
+		"creator_code": "CRMI",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Eric's Ultimate Solitaire",
+		"app_name": "Eric’s Ultimate Solitaire",
+		"creator_code": "EUs∆",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Tabletop",
+		"subgenre": "Cards"
+	},
+	{
+		"name": "Escape Velocity",
+		"app_name": "Escape Velocity",
+		"creator_code": "Mërc",
+		"arch": "fat",
+		"category": "Games",
+		"compat_notes": "Game uses entire screen so theoretically supports any resolution, but needs at least 640x480 and 256 colours; recommends 68040 or PPC",
+		"required_hardware": {
+			"free_ram": 6291456
+		},
+		"min_players": 1,
+		"max_players": 1,
+		"controls": {
+			"player_1": {
+				"move_forward": ["up_arrow", "dpad_up"],
+				"reverse": ["down_arrow", "dpad_down"],
+				"turn_left": ["left_arrow", "dpad_left"],
+				"turn_right": ["right_arrow", "dpad_right"],
+				"afterburner": ["z", null],
+				"autopilot": ["a", null],
+				"hyper_mode": ["h", null],
+				"hyper_select": ["\\", null],
+				"hyperspace_jump": ["j", null],
+				"nav_off": ["~", null],
+				"escort_retarget": ["f", null],
+				"recall_escort": ["c", null],
+				"escort_hold_pos": ["v", null],
+				"fire_primary": ["space", null],
+				"fire_secondary": ["left_shift", null],
+				"select_secondary_weapon": ["w", null],
+				"weapon_safety": ["s", null],
+				"select_target": ["tab", null],
+				"closest_target": ["r", null],
+				"pause": ["escape", "start"],
+				"acknowledge": ["enter", null],
+				"communicate": ["y", null],
+				"land": ["l", null],
+				"jettison": ["command+k", null],
+				"board": ["b", null],
+				"eject": ["command+e", null],
+				"self_destruct": ["command+d", null],
+				"map": ["m", null],
+				"player_info": ["p", null],
+				"mission_infp": ["i", null],
+				"cloak": ["v", null],
+				"frameskip": ["caps_lock", null]
+			}
+		}
+	},
+	{
+		"name": "EV Override",
+		"app_name": "EV Override 1.0.0",
+		"creator_code": "EsçO",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Exile Editor",
+		"app_name": "Exile.editor v1.1.2",
+		"creator_code": "EXED",
+		"arch": "68k",
+		"category": "Applications",
+		"genre": "Game Utility"
+	},
+	{
+		"name": "Exile",
+		"app_name": "Exile v2.0.1",
+		"creator_code": "EXLE",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Faces...Tris III (demo)",
+		"app_name": "Color Faces Demo",
+		"creator_code": "DK•1",
+		"arch": "68k",
+		"category": "Trials"
+	},
+	{
+		"name": "Factory",
+		"app_name": "Factory 1.3",
+		"creator_code": "FabP",
+		"arch": "68k",
+		"category": "Games",
+		"colours": 256,
+		"colours_compat": "required",
+		"compat_notes": "Must use 2, 16, or 256 colours",
+		"required_software": {
+			"os": "6.0.5"
+		},
+		"notes": "Mouse point and click controls; what genre would I call this?"
+	},
+	{
+		"name": "Fluffy's Adventure",
+		"app_name": "Fluffy's Adventure 1.2",
+		"creator_code": "gFAa",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Foobar vs. the DEA",
+		"app_name": "Foobar Versus the DEA",
+		"creator_code": "Foo1",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Food Chain",
+		"app_name": "Food Chain",
+		"creator_code": "FdCn",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Frog Xing",
+		"app_name": "Frog Xing 1.3",
+		"other_app_names": [
+			"Frog Xing 1.2"
+		],
+		"creator_code": "QnFX",
+		"arch": "68k",
+		"category": "Games",
+		"clone_of": "Frogger"
+	},
+	{
+		"name": "Galaxis",
+		"app_name": "Galaxis 1.2",
+		"creator_code": "Glxs",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Garcia's Guitars",
+		"app_name": "Garcia's Guitars",
+		"creator_code": "AHjD",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Gearheads (demo)",
+		"app_name": "Gearheads Demo",
+		"creator_code": "mrn!",
+		"arch": "68k",
+		"category": "Trials"
+	},
+	{
+		"name": "George Stock Game",
+		"app_name": "GSG1.0",
+		"creator_code": "GSGF",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Glider Pro",
+		"app_name": "Glider PRO™",
+		"creator_code": "ozm5",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Foundation Mover",
+		"app_name": "Foundation Mover",
+		"creator_code": "ozFM",
+		"arch": "68k",
+		"category": "Applications",
+		"notes": "For Glider Pro. Slides an entire house around if you run out of room"
+	},
+	{
+		"name": "Moving Van",
+		"app_name": "Moving Van",
+		"creator_code": "GPmv",
+		"arch": "68k",
+		"category": "Applications",
+		"notes": "For Glider Pro. Moves graphics/sound between houses and libraries"
+	},
+	{
+		"name": "Gold Edit",
+		"app_name": "Gold Edit",
+		"creator_code": "GDED",
+		"arch": "68k",
+		"category": "Applications",
+		"genre": "Game Utility",
+		"subgenre": "Level Editor",
+		"notes": "Level editor for GoldPusher"
+	},
+	{
+		"name": "GoldPusher",
+		"app_name": "GoldPusher",
+		"creator_code": "GOUD",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "GopherGolf",
+		"app_name": "GopherGolf",
+		"creator_code": "BB01",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Sports",
+		"subgenre": "Minigolf"
+	},
+	{
+		"name": "Grag & Thog Bonkheads",
+		"app_name": "BONKHEADS",
+		"creator_code": "BkHd",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Greebles",
+		"app_name": "Greebles",
+		"creator_code": "GRBL",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Maze",
+		"subgenre": "Block Push"
+	},
+	{
+		"name": "Gryphon Bricks",
+		"app_name": "Gryphon Bricks™",
+		"creator_code": "ARQL",
+		"arch": "68k",
+		"category": "Educational"
+	},
+	{
+		"name": "KidBricks",
+		"app_name": "KidBricks™",
+		"creator_code": "ARQK",
+		"arch": "68k",
+		"category": "Educational",
+		"notes": "Part of Gryphon Bricks, but this is Duplo instead of Lego or something"
+	},
+	{
+		"name": "Harry Editor",
+		"app_name": "Harry Editor 1.0.0b3",
+		"creator_code": "????",
+		"arch": "68k",
+		"category": "Applications",
+		"genre": "Game Utility",
+		"subgenre": "Level Editor"
+	},
+	{
+		"name": "Harry the Handsome Executive",
+		"app_name": "Harry 1.0.1",
+		"creator_code": "Hary",
+		"arch": "fat",
+		"category": "Games",
+		"compat_notes": "Requires PPC for some graphical effects",
+		"genre": "Action-Adventure"
+	},
+	{
+		"name": "Hello Kitty Big Fun",
+		"app_name": "HELLO KITTY BIG FUN",
+		"creator_code": "PJ93",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "IQ Test",
+		"app_name": "IQ Test",
+		"creator_code": "IQsa",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Jewelbox",
+		"app_name": "Jewelbox 1.0",
+		"creator_code": "Rj01",
+		"arch": "68k",
+		"category": "Games",
+		"clone_of": "Columns",
+		"genre": "Puzzle",
+		"subgenre": "Tile Matching"
+	},
+	{
+		"name": "Jingle Bell Mac",
+		"app_name": "Jingle Bell Mac™",
+		"creator_code": "JBMC",
+		"arch": "68k",
+		"category": "Software Toys"
+	},
+	{
+		"name": "Josh's Apple Game",
+		"app_name": "Josh's Apple Game 1.0.1",
+		"creator_code": "Alli",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "King of Parking",
+		"app_name": "King of Parking 1.1",
+		"creator_code": "JR02",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Puzzle",
+		"subgenre": "Sliding"
+	},
+	{
+		"name": "King's Quest V",
+		"app_name": "King's Quest V",
+		"creator_code": "SCIk",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Little Red Wagon",
+		"app_name": "Little Red Wagon®",
+		"creator_code": "STND",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Early Childhood"
+	},
+	{
+		"name": "Live & Kicking: Show Maker",
+		"app_name": "Live & Kicking",
+		"creator_code": "PJ97",
+		"arch": "68k",
+		"category": "Games",
+		"requires_cd": true
+	},
+	{
+		"name": "MacFoxes",
+		"app_name": "MACFOXES",
+		"creator_code": "MMPB",
+		"arch": "68k",
+		"category": "Games",
+		"adult": true,
+		"compat_notes": "Runs too fast on BasiliskII, might be designed for Mac Plus or earlier"
+	},
+	{
+		"name": "Pop a Penguin",
+		"app_name": "macpeng",
+		"creator_code": "PJ93",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Whack-a-Mole",
+		"notes": "Minigame from Stay Tooned!"
+	},
+	{
+		"name": "MacPipes",
+		"app_name": "MacPipes 2.2.3",
+		"creator_code": "McPP",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "MacPlaymate II",
+		"app_name": "MacPlaymate II",
+		"creator_code": "MMPB",
+		"arch": "68k",
+		"category": "Games",
+		"adult": true
+	},
+	{
+		"name": "MacPlaymate",
+		"app_name": "MacPlaymate™",
+		"creator_code": "MMTE",
+		"arch": "68k",
+		"category": "Games",
+		"adult": true
+	},
+	{
+		"name": "Populous II",
+		"app_name": "MacPopulousII",
+		"creator_code": "Pop2",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "MacQubic",
+		"app_name": "MacQubic 2.3",
+		"creator_code": "QBIC",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "MacSnack",
+		"app_name": "MacSnack 1",
+		"creator_code": "PJ95",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Theme Park",
+		"app_name": "MacThemePark (256)",
+		"creator_code": "STP1",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Simulation",
+		"subgenre": "Construction"
+	},
+	{
+		"name": "Maelstrom",
+		"app_name": "Maelstrom",
+		"creator_code": "Mael",
+		"arch": "68k",
+		"category": "Games",
+		"clone_of": "Asteroids"
+	},
+	{
+		"name": "Mario Teaches Typing",
+		"app_name": "Mario Teaches Typing",
+		"creator_code": "MRTT",
+		"arch": "68k",
+		"category": "Educational",
+		"genre": "Typing"
+	},
+	{
+		"name": "MegaSimpsonHomer",
+		"app_name": "MegaSimpsonHomer",
+		"creator_code": "MSH1",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "MemoryPict",
+		"app_name": "MemoryPict 6.1",
+		"creator_code": "PJ97",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Mille Bornes",
+		"app_name": "Mille Bornes",
+		"creator_code": "&Mil",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Tabletop",
+		"subgenre": "Board"
+	},
+	{
+		"name": "MineSweeper Pro",
+		"app_name": "MineSweeper Pro",
+		"creator_code": "MINP",
+		"arch": "68k",
+		"category": "Games",
+		"clone_of": "Minesweeper"
+	},
+	{
+		"name": "Missions of the Reliant II",
+		"app_name": "Missions of the Reliant! 2.0.1",
+		"creator_code": "MotR",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Ms. MacPerson (demo)",
+		"app_name": "Ms.MacPerson Demo 1.1",
+		"creator_code": "gi03",
+		"arch": "68k",
+		"category": "Games",
+		"clone_of": "Ms. Pacman"
+	},
+	{
+		"name": "NameThatGame",
+		"app_name": "NameThatGame 1.0",
+		"creator_code": "PJ97",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Odyssey: The Legend of Nemesis",
+		"app_name": "Odyssey 1.1",
+		"creator_code": "ODYS",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "PacMac Deluxe",
+		"app_name": "PacMac Deluxe",
+		"creator_code": "DPac",
+		"arch": "68k",
+		"category": "Games",
+		"clone_of": "Pac-Man"
+	},
+	{
+		"name": "Pararena",
+		"app_name": "Pararena 1.3",
+		"creator_code": "sd21",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Pararena 2",
+		"app_name": "Pararena 2.06M",
+		"creator_code": "RenA",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "PowerPoker",
+		"app_name": "PowerPOKER",
+		"creator_code": "rdp ",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Tabletop",
+		"subgenre": "Cards"
+	},
+	{
+		"name": "Prometheus",
+		"app_name": "Prometheus 1.2",
+		"creator_code": "QnPr",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "PuyoPuyo",
+		"app_name": "PuyoPuyo",
+		"creator_code": "Püÿö",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Puzzle",
+		"subgenre": "Tile Matching",
+		"notes": "Unauthorized port"
+	},
+	{
+		"name": "Qwirks",
+		"app_name": "Qwirks",
+		"creator_code": "Qwrk",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Puzzle",
+		"subgenre": "Tile Matching",
+		"clone_of": "Puyo Puyo"
+	},
+	{
+		"name": "Realmz Character Editor (demo)",
+		"app_name": "Character Editor 7.1 DEMO",
+		"creator_code": "PCED",
+		"arch": "68k",
+		"category": "Applications",
+		"genre": "Game Utility"
+	},
+	{
+		"name": "Realmz",
+		"app_name": "Realmz 7.1.2",
+		"creator_code": "RLMZ",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "RPG"
+	},
+	{
+		"name": "Ricochet",
+		"app_name": "Ricochet",
+		"creator_code": "rruR",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "robotfindskitten",
+		"app_name": "robotfindskitten",
+		"creator_code": "XRFK",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Rogue",
+		"app_name": "Rogue",
+		"creator_code": "ßßRg",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Royal Flush",
+		"app_name": "Royal Flush 1.2.1",
+		"other_app_names": [
+			"Royal Flush 1.0",
+			"Royal Flush 1.2.1(68K)",
+			"Royal Flush 1.2.1(PPC)"
+		],
+		"creator_code": "aXrF",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Pinball",
+		"subgenre": "Simulation",
+		"emu_compat": {
+			"basilisk_ii": false
+		}
+	},
+	{
+		"name": "Scarab of RA",
+		"app_name": "Scarab of RA 1.4",
+		"creator_code": "SSRA",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Sim Cinema Deluxe",
+		"app_name": "Sim Cinema Deluxe v2.5 68k",
+		"creator_code": "SCIN",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Simulation",
+		"subgenre": "Management"
+	},
+	{
+		"name": "SimAnt",
+		"app_name": "SimAnt™",
+		"creator_code": "SANT",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "SimCity 2000",
+		"app_name": "SimCity 2000® 1.2",
+		"creator_code": "SCDH",
+		"arch": "fat",
+		"category": "Games",
+		"genre": "Simulation",
+		"subgenre": "Construction",
+		"compat_notes": "PPC required for max speed mode"
+	},
+	{
+		"name": "SimCity Urban Renewal Kit",
+		"app_name": "Urban Renewal Kit",
+		"creator_code": "SCRK",
+		"arch": "68k",
+		"category": "Applications",
+		"genre": "Game Utility"
+	},
+	{
+		"name": "SimEarth",
+		"app_name": "SimEarth Color",
+		"creator_code": "MYCR",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "SimFarm",
+		"app_name": "SimFarm",
+		"creator_code": "Farm",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Simulation",
+		"subgenre": "Farming"
+	},
+	{
+		"name": "SimLife",
+		"app_name": "SimLife™ Color",
+		"creator_code": "SMLS",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "SimTown",
+		"app_name": "SimTown",
+		"creator_code": "TOWN",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Simulation",
+		"subgenre": "Construction"
+	},
+	{
+		"name": "Skittles",
+		"app_name": "Skittles",
+		"creator_code": "pyo+",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "Puzzle",
+		"subgenre": "Tile Matching",
+		"clone_of": "Puyo Puyo"
+	},
+	{
+		"name": "Slithereens",
+		"app_name": "Slithereens",
+		"creator_code": "SrpC",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Smashing Windows II",
+		"app_name": "Smashing Windows II",
+		"creator_code": "∑^~∂",
+		"arch": "68k",
+		"category": "Games",
+		"clone_of": "Space Invaders",
+		"genre": "Shooter",
+		"subgenre": "Fixed",
+		"notes": "Mouse controls; move left and right by moving mouse and click to fire"
+	},
+	{
+		"name": "Space Cab",
+		"app_name": "Space Cab",
+		"creator_code": "SpCb",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Spaceway 2000",
+		"app_name": "Spaceway 2000™",
+		"creator_code": "JnJr",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Spectre VR (demo)",
+		"app_name": "Spectre VR Demo",
+		"creator_code": "Spe2",
+		"arch": "68k",
+		"category": "Trials"
+	},
+	{
+		"name": "Squish",
+		"app_name": "Squish 2.6.8",
+		"creator_code": "SQSH",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Swoop",
+		"app_name": "Swoop",
+		"creator_code": "Flit",
+		"arch": "68k",
+		"category": "Games",
+		"clone_of": "Galaga"
+	},
+	{
+		"name": "The Fantastic War",
+		"app_name": "The Fantastic War",
+		"creator_code": "FnWr",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "The Great LightBulb Adventure",
+		"app_name": "The Great LightBulb Adventure",
+		"creator_code": "TGLA",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "The Virtual Stock Market",
+		"app_name": "The Virtual Stock Market",
+		"creator_code": "Wild",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Tomato Head",
+		"app_name": "Tomato Head",
+		"creator_code": "STND",
+		"arch": "68k",
+		"category": "Educational"
+	},
+	{
+		"name": "Trainset",
+		"app_name": "trainset +10.big",
+		"creator_code": "TNSC",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Ultima III",
+		"app_name": "Ultima III",
+		"creator_code": "Ult3",
+		"arch": "68k",
+		"category": "Games",
+		"genre": "RPG"
+	},
+	{
+		"name": "Underwear Girl",
+		"app_name": "Underwear Girl",
+		"creator_code": "PJ93",
+		"arch": "68k",
+		"category": "Games",
+		"adult": true
+	},
+	{
+		"name": "Underwear Girl 2",
+		"app_name": "Underwear Girl 2",
+		"creator_code": "PJ95",
+		"arch": "68k",
+		"category": "Games",
+		"adult": true
+	},
+	{
+		"name": "Virtual Veronika",
+		"app_name": "Veronika",
+		"creator_code": "PJ95",
+		"arch": "68k",
+		"category": "Games",
+		"adult": true
+	},
+	{
+		"name": "Virtual Hamster",
+		"app_name": "VirtualHamster1.3.2",
+		"creator_code": "????",
+		"arch": "68k",
+		"category": "Software Toys",
+		"genre": "Virtual Pet",
+		"subgenre": "Hamster"
+	},
+	{
+		"name": "Wanderer I: The Cult of Misery",
+		"app_name": "Wanderer I- The Cult of Misery",
+		"creator_code": "Cult",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Wrath of the Aliens",
+		"app_name": "Wrath of the Aliens",
+		"creator_code": "WOTA",
+		"arch": "68k",
+		"category": "Games"
+	},
+	{
+		"name": "Wrath of the Gods",
+		"app_name": "Wrath of the Gods",
+		"creator_code": "PJ93",
+		"arch": "68k",
+		"category": "Games"
+	}
+]

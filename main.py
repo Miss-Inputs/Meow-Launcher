@@ -9,6 +9,7 @@ import roms
 import mame_machines
 import disambiguate
 import organize_folders
+import mac
 
 #TODO: For floppy based systems that use MAME (well, currently using MAME for all computers) and have more than one
 #floppy drive, for multi-disk games insert all the disks of the game all at once.  I _think_ that works anyway, at
@@ -37,6 +38,14 @@ for emulator in config.emulator_configs:
 	time_ended = time.perf_counter()
 	print(emulator['name'], 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
+#This is turned off by the default because it's a bit experimental which is a nice way of saying it's a bit shit, needs hfsutils and parses command line output and ughhhh that's a bit gross hey
+if '--with-mac' in sys.argv:
+	time_started = time.perf_counter()
+	for mac_volume in config.mac_disk_images:
+		mac.create_launchers_from_mac_volume(mac_volume)
+	time_ended = time.perf_counter()
+	print('Mac finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+
 time_started = time.perf_counter()
 disambiguate.disambiguate_names()
 time_ended = time.perf_counter()
@@ -47,7 +56,6 @@ if '--organize-folders' in sys.argv:
 	organize_folders.move_into_folders()
 	time_ended = time.perf_counter()
 	print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-
 
 overall_time_ended = time.perf_counter()
 print('Whole thing finished in', str(datetime.timedelta(seconds=overall_time_ended - overall_time_started)))

@@ -25,7 +25,13 @@
     <Compile Include="disambiguate.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="hfs.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="launchers.py" />
+    <Compile Include="mac.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="main.py" />
     <Compile Include="mame_machines.py" />
     <Compile Include="organize_folders.py">
