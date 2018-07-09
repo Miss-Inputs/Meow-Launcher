@@ -10,7 +10,8 @@ LANGUAGES_PATH = '/media/Stuff/Roms/Arcade/Categories/languages.ini'
 is_toaster = socket.gethostname() == 'Bridgette'
 pce_module = 'pce_fast' if is_toaster else 'pce'
 
-emulator_configs = [{'name': 'Game Boy', 'command_line': 'gambatte_qt --full-screen {0}', 'rom_dir': '/media/Stuff/Roms/Gameboy', 'supported_extensions': ['gb', 'gbc'], 'supported_compression': ['zip']},
+emulator_configs = [
+	{'name': 'Game Boy', 'command_line': 'gambatte_qt --full-screen {0}', 'rom_dir': '/media/Stuff/Roms/Gameboy', 'supported_extensions': ['gb', 'gbc'], 'supported_compression': ['zip']},
 	#--gba-cgb-mode[=0] and --force-dmg-mode[=0] may be useful in obscure situations
 	{'name': 'GBA', 'command_line': 'mgba-qt -f {0}', 'rom_dir': '/media/Stuff/Roms/GBA', 'supported_extensions': ['gba', 'srl', 'bin', 'mb'], 'supported_compression': ['zip', '7z']}, 
 	#Use -C useBios=0 for homebrew with bad checksum/logo that won't boot on real hardware.  Some intensive games (e.g.
@@ -135,7 +136,8 @@ emulator_configs = [{'name': 'Game Boy', 'command_line': 'gambatte_qt --full-scr
 ]
 
 if not is_toaster:
-	emulator_configs.extend([{'name': 'PlayStation', 'command_line': 'mednafen -video.fs 1 {0}', 'rom_dir': '/media/Stuff/Roms/Playstation', 'supported_extensions': ['iso', 'cue', 'exe', 'toc', 'ccd', 'm3u'], 'supported_compression': ['gz', 'zip']}, 
+	emulator_configs.extend([
+		{'name': 'PlayStation', 'command_line': 'mednafen -video.fs 1 {0}', 'rom_dir': '/media/Stuff/Roms/Playstation', 'supported_extensions': ['iso', 'cue', 'exe', 'toc', 'ccd', 'm3u'], 'supported_compression': ['gz', 'zip']}, 
 		#Seems like some PAL games don't run at the resolution Mednafen thinks they should, so they need per-game configs
 		#that override the scanline start/end settings
 		{'name': 'GameCube', 'command_line': 'dolphin-emu -b -e {0}', 'rom_dir': '/media/Stuff/Roms/Gamecube', 'supported_extensions': ['iso', 'gcz', 'elf', 'dol'], 'supported_compression': []},
@@ -179,7 +181,8 @@ if not is_toaster:
 		#Hey!!  We finally have floppies working!!  Because they boot automatically!  Assumes that they will all work fine
 		#though without any other disks, and this will need to be updated if we see any cartridges (MAME says it has a cart
 		#slot)...
-		{'name': 'Sharp X68000', 'command_line': 'mame x68000 -skip_gameinfo -ui_active -flop1 {0}', 'rom_dir': '/media/Stuff/Roms/Sharp X68000', 'supported_extensions': ['xdf', 'dim', 'hdm', '2hd', 'd77', 'd88', '1dd', 'dfi', 'hfe', 'imd', 'ipf', 'mfi', 'mfm', 'td0', 'cqm', 'cqi', 'dsk'], 'supported_compression': ['7z', 'zip']},])
+		{'name': 'Sharp X68000', 'command_line': 'mame x68000 -skip_gameinfo -ui_active -flop1 {0}', 'rom_dir': '/media/Stuff/Roms/Sharp X68000', 'supported_extensions': ['xdf', 'dim', 'hdm', '2hd', 'd77', 'd88', '1dd', 'dfi', 'hfe', 'imd', 'ipf', 'mfi', 'mfm', 'td0', 'cqm', 'cqi', 'dsk'], 'supported_compression': ['7z', 'zip']},
+	])
 
 with open(os.path.join(os.path.dirname(__file__), 'ignored_directories.txt'), 'rt') as ignored_txt:
 	ignored_directories = ignored_txt.read().splitlines()
@@ -224,7 +227,8 @@ organized_output_folder = os.path.expanduser("~/Apps")
 #When has anyone mentioned a game called "Space Invaders M", anyway?
 #TODO: Review the practicality of just changing normalize_name to remove all spaces and punctuation.  Would that cause
 #any false positives at all?  Though there would still be use for this part here
-name_replacement = [('240p Test Suite GX', '240p Suite'), 
+name_replacement = [
+	('240p Test Suite GX', '240p Suite'), 
 	('Arkanoid - Revenge of DOH', 'Arkanoid II - Revenge of Doh'), #What the hell?
 	('Bad Lands', 'BadLands'),
 	('Battle Zone', 'Battlezone'), 
@@ -251,11 +255,14 @@ name_replacement = [('240p Test Suite GX', '240p Suite'),
 	('Sangokushi 3', 'Sangokushi III'), 
 	('Super Boy 3', 'Super Boy III'), 
 	("Street Fighter II'", 'Street Fighter II'), 
-	('Twin Bee', 'TwinBee'),]
+	('Twin Bee', 'TwinBee'),
+]
 
 #Add "The " in front of these things (but not if there's already "The " in front of them of course)
-add_the = ['Lion King', 
-	'Goonies',]
+add_the = [
+	'Lion King', 
+	'Goonies',
+]
 
 #Only check for this at the start of a thing
 subtitle_removal = [('After Burner Complete ~ After Burner', 'After Burner Complete'),

@@ -212,8 +212,7 @@ def detect_region_from_filename(name):
 		return 'world'
 	elif 'ntsc' in tags or 'usa' in tags or '(us)' in tags or 'japan' in tags:
 		return 'ntsc'
-	elif 'pal' in tags or 'europe' in tags or 'netherlands' in tags or 'spain' in tags or 'germany' in tags or 'australia' in tags: #Shit, I'm gonna have to put every single European/otherwise PAL country in there.  That's all that I need to put in
-                                                                                                                                 #here so far, though
+	elif 'pal' in tags or 'europe' in tags or 'netherlands' in tags or 'spain' in tags or 'germany' in tags or 'australia' in tags: #Shit, I'm gonna have to put every single European/otherwise PAL country in there.  That's all that I need to put in here so far, though
 		return 'pal'
 	else:
 		return None
@@ -251,7 +250,8 @@ def build_atari7800_command_line(path, compressed_entry=None):
 		if debug:
 			print('Something is wrong with', path, ', has region byte of', region_byte)
 		return None #MAME can't do anything with unheadered ROMs (or stuff with invalid region byte), so these won't be any good to us
-	def build_vic20_command_line(path, name, compressed_entry=None):
+
+def build_vic20_command_line(path, name, compressed_entry=None):
 	size = get_real_size(path, compressed_entry)
 	if size > ((8 * 1024) + 2):
 		#It too damn big (only likes 8KB with 2 byte header at most)
@@ -326,20 +326,14 @@ def build_c64_command_line(path, name, compressed_entry=None):
 	
 	#with open(path, 'rb') as f:
 	rom_data = read_file(path, compressed_entry)
-	#if f.read(16) == b'"C64 CARTRIDGE "':
 	if rom_data[:16] == b'C64 CARTRIDGE   ':
 		#Just gonna make sure we're actually dealing with the CCS64 header format thingy first (see:
 		#http://unusedino.de/ec64/technical/formats/crt.html)
 		#It's okay if it doesn't, though; just means we won't be able to be clever here
-		#f.seek(0x16)
-		#cart_type = int.from_bytes(f.read(2), 'big')
 		cart_type = int.from_bytes(rom_data[22:24], 'big')
 		
 		if cart_type == 15: #Commodore C64GS System 3 cart
-			#For some reason, these carts don't work on a regular C64 in MAME, and we have to use...  the thing specifically
-                     			#designed for playing games (but we normally wouldn't use this, since some cartridge games still need the keyboard,
-                     			#even if just for the menus, and that's why it actually sucks titty balls IRL.  But if it weren't for that, we totes
-                     			#heckin would)
+			#For some reason, these carts don't work on a regular C64 in MAME, and we have to use...  the thing specifically designed for playing games (but we normally wouldn't use this, since some cartridge games still need the keyboard, even if just for the menus, and that's why it actually sucks titty balls IRL.  But if it weren't for that, we totes heckin would)
 			return base_command_line % 'c64gs'
 	
 	region = detect_region_from_filename(name)
@@ -365,6 +359,8 @@ def process_file(emulator, root, name):
 			meta_xml = ElementTree.parse(os.path.join(root, 'meta.xml'))
 			name_we = meta_xml.findtext('name')
 		
+		#TODO: Make these variable names make more sense
+		entry = None
 		the_entry = None
 		if ext in emulator['supported_extensions']:
 			is_unsupported_compression = False
