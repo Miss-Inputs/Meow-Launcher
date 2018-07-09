@@ -8,8 +8,8 @@ import sys
 import config
 import roms
 import mame_machines
+import disambiguate
 
-#TODO Add X-Ambiguous-Name and X-Disambiguator fields (or something named a bit better)
 #TODO: For floppy based systems that use MAME (well, currently using MAME for all computers) and have more than one floppy drive, for multi-disk games insert all the disks of the game all at once. I _think_ that works anyway, at least where number_of_disks <= number_of_drives which seems to be the case most of the time. This would be tricky though - I guess I'd assume disk 1 is the boot disk, and other disks are not, and build command lines programmatically. Even if I don't do this, maybe I should only create a launcher for disk 1?
 
 
@@ -37,6 +37,11 @@ for emulator in config.emulator_configs:
 	roms.process_emulator(emulator, debug)
 	time_ended = time.perf_counter()
 	print(emulator['name'], 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+
+time_started = time.perf_counter()
+disambiguate.disambiguate_names(debug)
+time_ended = time.perf_counter()
+print('Name disambiguation finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
 
 overall_time_ended = time.perf_counter()
