@@ -37,17 +37,17 @@ def base_make_desktop(command, display_name, comment, platform, categories=[], t
 		f.write('Exec=%s\n' % command)
 		f.write('X-Platform=%s\n' % platform)
 
-		if len(categories) > 0:
+		if categories:
 			f.write('X-Categories=%s\n' % (';'.join(categories)))
 
-		if len(tags) > 0:
+		if tags:
 			f.write('X-Filename-Tags=%s\n' % (';'.join(tags)))
 
 		for k, v in metadata.items():
 			if v:
 				f.write('X-{0}={1}\n'.format(k.replace('_', '-'), v))
 		
-		if len(ext) > 0:
+		if ext:
 			f.write('X-Extension=%s\n' % ext)
 
 		os.chmod(path, 0o7777)

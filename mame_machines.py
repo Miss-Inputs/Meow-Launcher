@@ -21,6 +21,7 @@ def find_main_cpu(machine):
 			return chip
 
 	#Alto I and HP 2100 have no chips, apparently. Huh? Oh well
+	return None
 
 def mame_verifyroms(basename):
 	#FIXME Okay this is way too fuckin' slow
@@ -177,7 +178,7 @@ def get_mame_drivers():
 	output = process.stdout
 	if status != 0:
 		print('Shit')
-		return
+		return []
 
 	for line in output.splitlines():
 		try:		
@@ -195,7 +196,7 @@ def get_mame_xml(driver):
 	output = process.stdout
 	if status != 0:
 		print('Fucking hell ' + driver)
-		return
+		return None
 
 	return ElementTree.fromstring(output)
 

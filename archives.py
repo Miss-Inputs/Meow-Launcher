@@ -9,15 +9,16 @@ class Bad7zException(Exception):
 	pass
 	
 def zip_list(path):
-	with zipfile.ZipFile(path, 'r') as z:
-		return z.namelist()
+	with zipfile.ZipFile(path, 'r') as zip_file:
+		return zip_file.namelist()
 
 sevenzip_path_reg = re.compile(r'^Path\s+=\s+(.+)$', flags=re.IGNORECASE)
 def sevenzip_list(path):
 	#FIXME This is slow actually
 	proc = subprocess.run(['7z', 'l', '-slt', path], stdout=subprocess.PIPE, universal_newlines=True)
 	if proc.returncode != 0:
-		raise Bad7zException('Something went wrong in sevenzip_list {0}: {1} {2}'.format(path, proc.returncode, output))
+		exception_message = 'Something went wrong in sevenzip_list {0}: {1} {2}'.format(path, proc.returncode, proc.stdout)
+		raise Bad7zException(exception_message)
 		
 	files = []
 	found_file_line = False
@@ -41,16 +42,15 @@ def compressed_list(path):
 	return sevenzip_list(path)
 	
 def zip_getsize(path, filename):
-	with zipfile.ZipFile(path, 'r') as z:
-		return z.getinfo(filename).file_size
+	with zipfile.ZipFile(path, 'r') as zip_file:
+		return zip_file.getinfo(filename).file_size
 
 sevenzip_size_reg = re.compile(r'^Size\s+=\s+(\d+)$', flags=re.IGNORECASE)
 def sevenzip_getsize(path, filename):
 	proc = subprocess.run(['7z', 'l', '-slt', path, filename], stdout=subprocess.PIPE, universal_newlines=True)
 	if proc.returncode != 0:
-		raise Bad7zException('Something went wrong in sevenzip_getsize {0}: {1} {2}'.format(path, proc.returncode, output))
+		raise Bad7zException('Something went wrong in sevenzip_getsize {0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
 		
-	files = []
 	found_file_line = False
 	for line in proc.stdout.splitlines():
 		if line.startswith('------'):
@@ -71,9 +71,9 @@ def sevenzip_get(path, filename):
 	return process.stdout
 	
 def zip_get(path, filename):
-	with zipfile.ZipFile(path) as z:
-		with z.open(filename, 'r') as zf:
-			return zf.read()
+	with zipfile.ZipFile(path) as zip_file:
+		with zip_file.open(filename, 'r') as file:
+			return file.read()
 
 def compressed_get(path, filename):
 	if path.lower().endswith('.zip'):

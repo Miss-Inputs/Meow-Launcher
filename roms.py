@@ -49,7 +49,7 @@ def get_metadata_from_filename_tags(tags):
 			metadata['languages'] = 'Finnish'
 		elif tags[0] == '(Norway)':
 			metadata['languages'] = 'Norwegian'
-		elif tags[0] in ('(Brazil)','(Portugal)'):
+		elif tags[0] in ('(Brazil)', '(Portugal)'):
 			metadata['languages'] = 'Portugese'
 	else:
 		if '(En)' in tags or '(en)' in tags:
@@ -261,18 +261,18 @@ def build_a800_command_line(path, name, compressed_entry=None):
 	if rom_data[:4] == b'CART':
 		cart_type = int.from_bytes(rom_data[4:8], 'big')
 		#See also: https://github.com/dmlloyd/atari800/blob/master/DOC/cart.txt, https://github.com/mamedev/mame/blob/master/src/devices/bus/a800/a800_slot.cpp
-		if cart_type == 13 or cart_type == 14 or cart_type == 23 or cart_type == 24 or cart_type == 25 or (cart_type >= 33 and cart_type <= 38):
+		if cart_type in (13, 14, 23, 24, 25) or (cart_type >= 33 and cart_type <= 38):
 			if debug:
 				print(path, 'is actually a XEGS ROM which is not supported by MAME yet, cart type is', cart_type)
 			return None
 			
 		#You probably think this is a bad way to do this... I guess it is, but hopefully I can take some out as they become supported (even if I have to use some other emulator or something to do it)
-		if cart_type == 5 or cart_type == 17 or cart_type == 22 or (cart_type >= 26 and cart_type <= 32) or cart_type == 41 or cart_type == 42 or cart_type == 43 or cart_type == 45 or cart_type == 46 or cart_type == 47 or cart_type == 48 or cart_type == 49 or cart_type == 53 or (cart_type >= 54 and cart_type <= 56) or cart_type == 57 or cart_type == 58 or cart_type == 59 or cart_type == 60 or cart_type >= 61:
+		if cart_type in (5, 17, 22, 41, 42, 43, 45, 46, 47, 48, 49, 53, 57, 58, 59, 60, 61) or (cart_type >= 26 and cart_type <= 32) or (cart_type >= 54 and cart_type <= 56):
 			if debug:
 				print(path, "won't work as cart type is", cart_type)
 			return None
 
-		if cart_type == 4 or cart_type == 6 or cart_type == 7 or cart_type == 16 or cart_type == 19 or cart_type == 20:
+		if cart_type in (4, 6, 7, 16, 19, 20):
 			if debug:
 				print(path, "is an Atari 5200 ROM ya goose!! It won't work as an Atari 800 ROM as the type is", cart_type)
 			return None
@@ -334,7 +334,7 @@ def process_file(emulator, root, name):
 		name_we, ext = os.path.splitext(name)
 		ext = ext[1:].lower()
 		categories = [i for i in root.replace(emulator['rom_dir'], '').split('/') if i]
-		if len(categories) == 0:
+		if not categories:
 			categories = [emulator['name']]
 		if ext == 'pbp':
 			#EBOOT is not a helpful launcher name
