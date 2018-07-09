@@ -1,6 +1,5 @@
 import configparser
 import os
-import sys
 import re
 import itertools
 import collections
@@ -21,15 +20,15 @@ def get_field(desktop, name):
 	entry = desktop['Desktop Entry']
 	if name in entry:
 		return entry[name]
-	else:
-		return None
+	
+	return None
 
 def get_array(desktop, name):
 	field = get_field(desktop, name)
 	if field is None:
 		return []
-	else:
-		return field.split(';')
+	
+	return field.split(';')
 
 def update_name(desktop, new_name):
 	desktop[1]['Desktop Entry']['Name'] = new_name
@@ -79,7 +78,7 @@ def resolve_duplicates_by_filename_tags(group):
 			if not all([tag in rest_tag for rest_tag in rest_tags]):
 				differentiator_candidates.append(tag)
 		
-		if len(differentiator_candidates) > 0:
+		if differentiator_candidates:
 			update_name(dup, '{0} {1}'.format(name, ' '.join(differentiator_candidates)))
 		
 def resolve_duplicates_by_extension(group):
@@ -142,4 +141,3 @@ def disambiguate_names(_debug):
 	fix_duplicate_names('extension')
 	if debug:
 		fix_duplicate_names('check')
-
