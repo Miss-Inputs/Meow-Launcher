@@ -28,6 +28,9 @@
     <Compile Include="launchers.py" />
     <Compile Include="main.py" />
     <Compile Include="mame_machines.py" />
+    <Compile Include="organize_folders.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="roms.py" />
   </ItemGroup>
   <ItemGroup>
