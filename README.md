@@ -10,6 +10,8 @@ It is just here in the unlikely event that it is useful to anyone; it will proba
 
 Basically, it's my plan that you change everything you need in config.py, and then run main.py, and then everything just happens in the simplest way possible.
 
+Create a file called "ignored_directories.txt" next to config.py with each line being a full path ending with a slash, and you can skip over directories that you don't want turned into launchers even if they have ROMs in them.
+
 I'm really bad at wording things, so hopefully that all made sense.
 
 Well, so far, there is one way in which it actually tries to run on more than one computer: You will see multiple references to "toasters" in the code, which refers to a computer that is horrendously underpowered (in my case, it is a netbook).

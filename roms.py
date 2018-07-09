@@ -431,7 +431,7 @@ def sort_m3u_first():
 used_m3u_filenames = []
 def process_emulator(emulator, _debug):
 	for root, dirs, files in os.walk(emulator['rom_dir']):
-		if (root + os.sep).startswith(config.ignored_directories):
+		if common.starts_with_any(root + os.sep, config.ignored_directories):
 			continue
 		for name in sorted(files, key=sort_m3u_first()):
 			path = os.path.join(root, name)

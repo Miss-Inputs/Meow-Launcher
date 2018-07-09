@@ -38,5 +38,6 @@ for emulator in config.emulator_configs:
 	time_ended = time.perf_counter()
 	print(emulator['name'], 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
+
 overall_time_ended = time.perf_counter()
 print('Whole thing finished in', str(datetime.timedelta(seconds=overall_time_ended - overall_time_started)))

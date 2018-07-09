@@ -127,28 +127,8 @@ if not is_toaster:
 		{'name': 'Sharp X68000', 'command_line': 'mame x68000 -skip_gameinfo -ui_active -flop1 {0}', 'rom_dir': '/media/Stuff/Roms/Sharp X68000', 'supported_extensions': ['xdf', 'dim', 'hdm', '2hd', 'd77', 'd88', '1dd', 'dfi', 'hfe', 'imd', 'ipf', 'mfi', 'mfm', 'td0', 'cqm', 'cqi', 'dsk'], 'supported_compression': ['7z', 'zip']},
 	])
 
-ignored_directories = (
-	'/media/Stuff/Roms/Atari 5200/Test ROMs/Acid5200 standalone tests/',
-	'/media/Stuff/Roms/Doom/PWADs/', 
-	'/media/Stuff/Roms/DS/DSiWare/', 
-	'/media/Stuff/Roms/DS/Emulators/', 
-	'/media/Stuff/Roms/DS/wifi from Pokemon Battle Revolution/', 
-	'/media/Stuff/Roms/Gameboy/Test ROMs/AntonioND/', 
-	'/media/Stuff/Roms/Gameboy/Test ROMs/blargg/', 
-	'/media/Stuff/Roms/Gameboy/Test ROMs/mooneye-gb_hwtests/', 
-	'/media/Stuff/Roms/GBA/Multiboot from Gamecube/', 
-	'/media/Stuff/Roms/Megadrive/Sega Channel prototypes/', 
-	'/media/Stuff/Roms/Megadrive/Unsorted prototypes/', 
-	'/media/Stuff/Roms/N64/64DD/', 
-	'/media/Stuff/Roms/N64/Emulators/', 
-	'/media/Stuff/Roms/N64/Game Gear conversions/', 
-	'/media/Stuff/Roms/N64/Peripheral BIOS/',
-	'/media/Stuff/Roms/NES/Test ROMs/Holy Driver Batman!/', 
-	'/media/Stuff/Roms/NES/Saves/', #FDS disks get saved into here as entire FDS files
-	'/media/Stuff/Roms/NES/Sunsoft Dev Disks/',
-	'/media/Stuff/Roms/Wii/Wii System Files/',
-	'/media/Stuff/Roms/Wii/Emulators/',
-)
+with open(os.path.join(os.path.dirname(__file__), 'ignored_directories.txt'), 'rt') as ignored_txt:
+	ignored_directories = ignored_txt.read().splitlines()
 
 #These just kinda don't work entirely (namcos10, namcos11 might be fine?) or in the case of aleck64 and seattle, are too cool to run on normal PCs affordable by normal people
 #model2: Daytona, Sonic the Fighters; model3: Daytona 2; aleck64: Vivid Dolls; namcos10: ??; namcos11: Tekken; namcos23: Time Crisis 2; chihiro: Outrun 2; naomi: Virtua Tennis, Puyo Puyo Fever, Azumanga Daioh Puzzle Bobble; hikaru: ?; 3do: One prototype game called "Orbatak" that I've never heard of ; konamim2: ?; ksys573: DDR; hng64: ?; seattle: CarnEvil (very close to full speed!); viper: Pop'n' Music 9, Jurassic Park 3; 39in1: weird MAME bootlegs; taitowlf: Psychic Force 2012
