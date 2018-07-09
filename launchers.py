@@ -1,9 +1,30 @@
 import re
 import os
 import shlex
+import configparser
 
 import config
 import common
+
+def convert_desktop(path):
+	parser = configparser.ConfigParser(interpolation=None)
+	parser.optionxform = str #Can you actually fuck off?
+	parser.read(path)
+	return {section: {k: v for k, v in parser.items(section)} for section in parser.sections()}
+
+def get_field(desktop, name):
+	entry = desktop['Desktop Entry']
+	if name in entry:
+		return entry[name]
+	
+	return None
+
+def get_array(desktop, name):
+	field = get_field(desktop, name)
+	if field is None:
+		return []
+	
+	return field.split(';')
 
 remove_brackety_things_for_filename = re.compile(r'[]([)]')
 clean_for_filename = re.compile(r'[^A-Za-z0-9_]')

@@ -5,30 +5,12 @@ import itertools
 import collections
 
 import config
+import launchers
 
 debug = False
 
 #TODO Add X-Ambiguous-Name and X-Disambiguator fields (or something named a bit
 #better)
-def convert_desktop(path):
-	parser = configparser.ConfigParser(interpolation=None)
-	parser.optionxform = str #Can you actually fuck off?
-	parser.read(path)
-	return {section: {k: v for k, v in parser.items(section)} for section in parser.sections()}
-
-def get_field(desktop, name):
-	entry = desktop['Desktop Entry']
-	if name in entry:
-		return entry[name]
-	
-	return None
-
-def get_array(desktop, name):
-	field = get_field(desktop, name)
-	if field is None:
-		return []
-	
-	return field.split(';')
 
 def update_name(desktop, new_name):
 	desktop[1]['Desktop Entry']['Name'] = new_name
@@ -41,10 +23,10 @@ def update_name(desktop, new_name):
 		writer.write(f)
 		
 def resolve_duplicates_by_platform(group):
-	platform_counter = collections.Counter(get_field(d[1], 'X-Platform') for d in group)
+	platform_counter = collections.Counter(launchers.get_field(d[1], 'X-Platform') for d in group)
 	for dup in group:
-		platform = get_field(dup[1], 'X-Platform')
-		name = get_field(dup[1], 'Name')
+		platform = launchers.get_field(dup[1], 'X-Platform')
+		name = launchers.get_field(dup[1], 'Name')
 			
 		#See if this launcher is unique in this group (of launchers with the same
 		#name) for its platform.  If it's the only launcher for this platform, we can
@@ -68,12 +50,12 @@ def resolve_duplicates_by_platform(group):
 def resolve_duplicates_by_filename_tags(group):
 	for dup in group:
 		the_rest = [d for d in group if d[0] != dup[0]]
-		tags = get_array(dup[1], 'X-Filename-Tags')
-		name = get_field(dup[1], 'Name')
+		tags = launchers.get_array(dup[1], 'X-Filename-Tags')
+		name = launchers.get_field(dup[1], 'Name')
 		
 		differentiator_candidates = []
 		
-		rest_tags = [get_array(rest[1], 'X-Filename-Tags') for rest in the_rest]
+		rest_tags = [launchers.get_array(rest[1], 'X-Filename-Tags') for rest in the_rest]
 		for tag in tags:
 			if not all([tag in rest_tag for rest_tag in rest_tags]):
 				differentiator_candidates.append(tag)
@@ -82,10 +64,10 @@ def resolve_duplicates_by_filename_tags(group):
 			update_name(dup, '{0} {1}'.format(name, ' '.join(differentiator_candidates)))
 		
 def resolve_duplicates_by_extension(group):
-	extension_counter = collections.Counter(get_field(d[1], 'X-Extension') for d in group)
+	extension_counter = collections.Counter(launchers.get_field(d[1], 'X-Extension') for d in group)
 	for dup in group:
-		ext = get_field(dup[1], 'X-Extension')
-		name = get_field(dup[1], 'Name')
+		ext = launchers.get_field(dup[1], 'X-Extension')
+		name = launchers.get_field(dup[1], 'Name')
 			
 		if extension_counter[ext] == 1:
 			update_name(dup, '{0} (.{1})'.format(name, ext))
@@ -118,9 +100,9 @@ def normalize_name(n):
 	return n
 
 def fix_duplicate_names(method):
-	files = [(path, convert_desktop(path)) for path in [os.path.join(config.output_folder, f) for f in os.listdir(config.output_folder)]]
+	files = [(path, launchers.convert_desktop(path)) for path in [os.path.join(config.output_folder, f) for f in os.listdir(config.output_folder)]]
 
-	keyfunc = lambda f: normalize_name(get_field(f[1], 'Name'))
+	keyfunc = lambda f: normalize_name(launchers.get_field(f[1], 'Name'))
 	files.sort(key=keyfunc)
 	duplicates = {}
 	for key, group in itertools.groupby(files, key=keyfunc):
