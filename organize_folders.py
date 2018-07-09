@@ -43,8 +43,8 @@ def move_into_folders():
 				desktop = launchers.convert_desktop(path)
 				platform = launchers.get_field(desktop, 'X-Platform')
 				categories = launchers.get_array(desktop, 'X-Categories')
-				languages = launchers.get_array(desktop, 'X-language')
-				year = launchers.get_field(desktop, 'X-year')
+				languages = launchers.get_array(desktop, 'X-Languages')
+				year = launchers.get_field(desktop, 'X-Year')
 
 				if categories:
 					category = categories[0]
@@ -76,10 +76,10 @@ def move_into_folders():
 								
 					#Wouldn't be in this extra part if I could generate these for more than
 					#just arcade games
-					genre = launchers.get_field(desktop, 'X-genre')
-					subgenre = launchers.get_field(desktop, 'X-subgenre')
-					author = launchers.get_field(desktop, 'X-author')
-					emulation_status = launchers.get_field(desktop, 'X-emulation-status')
+					genre = launchers.get_field(desktop, 'X-Genre')
+					subgenre = launchers.get_field(desktop, 'X-Subgenre')
+					author = launchers.get_field(desktop, 'X-Author')
+					emulation_status = launchers.get_field(desktop, 'X-Emulation-Status')
 
 					if genre:
 						copy_to_folder(path, config.organized_output_folder, 'By genre', sanitize_name(genre))
@@ -91,10 +91,10 @@ def move_into_folders():
 						copy_to_folder(path, config.organized_output_folder, 'By emulation status', sanitize_name(emulation_status))
 					
 					#Would still be in this extra part
-					main_input = launchers.get_field(desktop, 'X-main-input')
-					main_cpu = launchers.get_field(desktop, 'X-main-cpu')
-					source_file = launchers.get_field(desktop, 'X-source-file')
-					family = launchers.get_field(desktop, 'X-family')
+					main_input = launchers.get_field(desktop, 'X-Main-Input')
+					main_cpu = launchers.get_field(desktop, 'X-Main-CPU')
+					source_file = launchers.get_field(desktop, 'X-Source-File')
+					family = launchers.get_field(desktop, 'X-Family')
 					
 					if main_input:
 						copy_to_folder(path, config.organized_output_folder, 'By input method', sanitize_name(main_input))

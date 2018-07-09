@@ -25,144 +25,144 @@ def get_metadata_from_filename_tags(tags):
 		
 		if tags[0] in ('(USA)', '(Australia)', '(UK)', '(Europe)', '(USA, Europe)', '(USA, Australia)', '(Europe, Australia)'):
 			#Europe in theory could be any number of languages, but by itself it's assumed to be in English
-			metadata['languages'] = 'English'
+			metadata['Languages'] = 'English'
 		elif tags[0] == '(Japan)':
-			metadata['languages'] = 'Japanese'
+			metadata['Languages'] = 'Japanese'
 		elif tags[0] == '(Italy)':
-			metadata['languages'] = 'Italian'
+			metadata['Languages'] = 'Italian'
 		elif tags[0] == '(France)': #Canada sometimes is French, sometimes it is not, that's not consistent across all naming standards which one is
                               #implied and which one should be specified
-			metadata['languages'] = 'French'
+			metadata['Languages'] = 'French'
 		elif tags[0] == '(Russia)':
-			metadata['languages'] = 'Russian'
+			metadata['Languages'] = 'Russian'
 		elif tags[0] == '(Germany)':
-			metadata['languages'] = 'German'
+			metadata['Languages'] = 'German'
 		elif tags[0] == '(China)':
-			metadata['languages'] = 'Chinese'
+			metadata['Languages'] = 'Chinese'
 		elif tags[0] == '(Sweden)':
-			metadata['languages'] = 'Swedish'
+			metadata['Languages'] = 'Swedish'
 		elif tags[0] == '(Spain)':
-			metadata['languages'] = 'Spanish'
+			metadata['Languages'] = 'Spanish'
 		elif tags[0] == '(Netherlands)':
-			metadata['languages'] = 'Dutch'
+			metadata['Languages'] = 'Dutch'
 		elif tags[0] == '(Denmark)':
-			metadata['languages'] = 'Danish'
+			metadata['Languages'] = 'Danish'
 		elif tags[0] == '(Poland)':
-			metadata['languages'] = 'Polish'
+			metadata['Languages'] = 'Polish'
 		elif tags[0] == '(Finland)':
-			metadata['languages'] = 'Finnish'
+			metadata['Languages'] = 'Finnish'
 		elif tags[0] == '(Norway)':
-			metadata['languages'] = 'Norwegian'
+			metadata['Languages'] = 'Norwegian'
 		elif tags[0] in ('(Brazil)', '(Portugal)'):
-			metadata['languages'] = 'Portugese'
+			metadata['Languages'] = 'Portugese'
 	else:
 		if '(En)' in tags or '(en)' in tags:
-			metadata['languages'] = 'English'
+			metadata['Languages'] = 'English'
 		elif '(en-ja)' in tags or '(En,Ja)' in tags:
-			metadata['languages'] = 'English;Japanese'
+			metadata['Languages'] = 'English;Japanese'
 		elif '(En,Es)' in tags:
-			metadata['languages'] = 'English;Spanish'
+			metadata['Languages'] = 'English;Spanish'
 		elif '(En,Es,It)' in tags:
-			metadata['languages'] = 'English;Spanish;Italian'
+			metadata['Languages'] = 'English;Spanish;Italian'
 		elif '(En,Es,Pt)' in tags:
-			metadata['languages'] = 'English;Spanish;Portugese'
+			metadata['Languages'] = 'English;Spanish;Portugese'
 		elif '(En,Fr)' in tags:
-			metadata['languages'] = 'English;French'
+			metadata['Languages'] = 'English;French'
 		elif '(En,Fr,De)' in tags:
-			metadata['languages'] = 'English;French;German'
+			metadata['Languages'] = 'English;French;German'
 		elif '(En,Fr,De,Es)' in tags:
-			metadata['languages'] = 'English;French;German;Spanish'
+			metadata['Languages'] = 'English;French;German;Spanish'
 		elif '(En,Fr,De,Es,It)' in tags:
-			metadata['languages'] = 'English;French;German;Spanish;Italian'
+			metadata['Languages'] = 'English;French;German;Spanish;Italian'
 		elif '(En,Fr,De,Es,It,Da)' in tags:
-			metadata['languages'] = 'English;French;German;Spanish;Italian;Danish'
+			metadata['Languages'] = 'English;French;German;Spanish;Italian;Danish'
 		elif '(En,Fr,De,Es,It,Nl)' in tags:
-			metadata['languages'] = 'English;French;German;Spanish;Italian;Dutch'
+			metadata['Languages'] = 'English;French;German;Spanish;Italian;Dutch'
 		elif '(En,Fr,De,Es,It,Nl,Pl,Ru)' in tags:
-			metadata['languages'] = 'English;French;German;Spanish;Italian;Polish;Russian'
+			metadata['Languages'] = 'English;French;German;Spanish;Italian;Polish;Russian'
 		elif '(En,Fr,De,Es,It,Nl,Pt)' in tags:
-			metadata['languages'] = 'English;French;German;Spanish;Italian;Dutch;Portugese'
+			metadata['Languages'] = 'English;French;German;Spanish;Italian;Dutch;Portugese'
 		elif '(En,Fr,De,Es,It,Nl,Pt,No,Da,Fi,Ru)' in tags:
-			metadata['languages'] = 'English;French;German;Spanish;Italian;Dutch;Portugese;Norwegian;Danish;Finnish;Russian'
+			metadata['Languages'] = 'English;French;German;Spanish;Italian;Dutch;Portugese;Norwegian;Danish;Finnish;Russian'
 		elif '(En,Fr,De,Es,It,Nl,Pt,Ru)' in tags:
-			metadata['languages'] = 'English;French;German;Spanish;Italian;Dutch;Portugese;Russian'
+			metadata['Languages'] = 'English;French;German;Spanish;Italian;Dutch;Portugese;Russian'
 		elif '(En,Fr,De,Es,It,Nl,Pt,Sv,Da)' in tags:
-			metadata['languages'] = 'English;French;German;Spanish;Italian;Dutch;Portugese;Swedish;Danish'
+			metadata['Languages'] = 'English;French;German;Spanish;Italian;Dutch;Portugese;Swedish;Danish'
 		elif '(En,Fr,De,Es,It,Nl,Pt,Sv,No,Da)' in tags:
-			metadata['languages'] = 'English;French;German;Spanish;Italian;Dutch;Portugese;Swedish;Norwegian;Danish'
+			metadata['Languages'] = 'English;French;German;Spanish;Italian;Dutch;Portugese;Swedish;Norwegian;Danish'
 		elif '(En,Fr,De,Es,It,Nl,Pt,Sv,No,Da,Fi)' in tags:
-			metadata['languages'] = 'English;French;German;Spanish;Italian;Dutch;Portugese;Swedish;Norwegian;Danish;Finnish'
+			metadata['Languages'] = 'English;French;German;Spanish;Italian;Dutch;Portugese;Swedish;Norwegian;Danish;Finnish'
 		elif '(En,Fr,De,Es,It,Pt)' in tags:
-			metadata['languages'] = 'English;French;German;Spanish;Italian;Portugese'
+			metadata['Languages'] = 'English;French;German;Spanish;Italian;Portugese'
 		elif '(En,Fr,De,Es,It,Sv)' in tags:
-			metadata['languages'] = 'English;French;German;Spanish;Italian;Swedish'
+			metadata['Languages'] = 'English;French;German;Spanish;Italian;Swedish'
 		elif '(En,Fr,De,Es,Sv)' in tags:
-			metadata['languages'] = 'English;French;German;Spanish;Swedish'
+			metadata['Languages'] = 'English;French;German;Spanish;Swedish'
 		elif '(En,Fr,De,It)' in tags:
-			metadata['languages'] = 'English;French;German;Italian'
+			metadata['Languages'] = 'English;French;German;Italian'
 		elif '(En,Fr,De,It,Nl,Sv)' in tags:
-			metadata['languages'] = 'English;French;German;Italian;Dutch;Swedish'
+			metadata['Languages'] = 'English;French;German;Italian;Dutch;Swedish'
 		elif '(En,Fr,De,Nl)' in tags:
-			metadata['languages'] = 'English;French;German;Dutch'
+			metadata['Languages'] = 'English;French;German;Dutch'
 		elif '(En,Fr,Es)' in tags:
-			metadata['languages'] = 'English;French;Spanish'
+			metadata['Languages'] = 'English;French;Spanish'
 		elif '(En,Fr,Es,It)' in tags:
-			metadata['languages'] = 'English;French;Spanish;Italian'
+			metadata['Languages'] = 'English;French;Spanish;Italian'
 		elif '(En,Fr,Es,Nl,Pt)' in tags:
-			metadata['languages'] = 'English;French;Spanish;Dutch;Portugese'
+			metadata['Languages'] = 'English;French;Spanish;Dutch;Portugese'
 		elif '(En,Fr,Es,Pt)' in tags:
-			metadata['languages'] = 'English;French;Spanish;Portugese'
+			metadata['Languages'] = 'English;French;Spanish;Portugese'
 		elif '(En,Fr,It)' in tags:
-			metadata['languages'] = 'English;French;Italian'
+			metadata['Languages'] = 'English;French;Italian'
 		elif '(En,It)' in tags:
-			metadata['languages'] = 'English;Italian'
+			metadata['Languages'] = 'English;Italian'
 		elif '(En,Ja,Fr)' in tags:
-			metadata['languages'] = 'English;Japanese;French'
+			metadata['Languages'] = 'English;Japanese;French'
 		elif '(En,Ja,Fr,De)' in tags:
-			metadata['languages'] = 'English;Japanese;French;German'
+			metadata['Languages'] = 'English;Japanese;French;German'
 		elif '(En,Ja,Fr,De,Es)' in tags:
-			metadata['languages'] = 'English;Japanese;French;German;Spanish'
+			metadata['Languages'] = 'English;Japanese;French;German;Spanish'
 		elif '(En,Ja,Fr,De,Es,It)' in tags:
-			metadata['languages'] = 'English;Japanese;French;German;Spanish;Italian'
+			metadata['Languages'] = 'English;Japanese;French;German;Spanish;Italian'
 		elif '(En,Ja,Fr,De,Es,It,Ko)' in tags:
-			metadata['languages'] = 'English;Japanese;French;German;Spanish;Italian;Korean'
+			metadata['Languages'] = 'English;Japanese;French;German;Spanish;Italian;Korean'
 		elif '(En,Ja,Fr,De,Es,It,Zh,Ko)' in tags:
-			metadata['languages'] = 'English;Japanese;French;German;Spanish;Italian;Chinese;Korean'
+			metadata['Languages'] = 'English;Japanese;French;German;Spanish;Italian;Chinese;Korean'
 		elif '(En,Ja,Fr,De,Es,Zh)' in tags:
-			metadata['languages'] = 'English;Japanese;French;German;Spanish;Chinese'
+			metadata['Languages'] = 'English;Japanese;French;German;Spanish;Chinese'
 		elif '(En,Nl)' in tags:
-			metadata['languages'] = 'English;Dutch'
+			metadata['Languages'] = 'English;Dutch'
 		elif '(En,No,Da,Fi)' in tags:
-			metadata['languages'] = 'English;Norwegian;Danish;Finnish'
+			metadata['Languages'] = 'English;Norwegian;Danish;Finnish'
 		elif '(En,Pt)' in tags or '(en-pt)' in tags:
-			metadata['languages'] = 'English;Portugese'
+			metadata['Languages'] = 'English;Portugese'
 		elif '(En,Sv)' in tags:
-			metadata['languages'] = 'English;Swedish'
+			metadata['Languages'] = 'English;Swedish'
 		elif '(En,Sv,No,Da,Fi)' in tags:
-			metadata['languages'] = 'English;Swedish;Norwegian;Danish;Finnish'
+			metadata['Languages'] = 'English;Swedish;Norwegian;Danish;Finnish'
 		elif '(Fr,De)' in tags:
-			metadata['languages'] = 'French;German'
+			metadata['Languages'] = 'French;German'
 		elif '(Fr,De,Es)' in tags:
-			metadata['languages'] = 'French;German;Spanish'
+			metadata['Languages'] = 'French;German;Spanish'
 		elif '(Fr,De,Es,It)' in tags:
-			metadata['languages'] = 'French;German;Spanish;Italian'
+			metadata['Languages'] = 'French;German;Spanish;Italian'
 		elif '(Fr,De,Nl)' in tags:
-			metadata['languages'] = 'French;German;Dutch'
+			metadata['Languages'] = 'French;German;Dutch'
 		elif '(It,Sv)' in tags:
-			metadata['languages'] = 'Italian;Swedish'
+			metadata['Languages'] = 'Italian;Swedish'
 		elif '(ja)' in tags or '(Ja)' in tags:
-			metadata['languages'] = 'French;German;Dutch'
+			metadata['Languages'] = 'French;German;Dutch'
 			
 		for tag in tags:
 			if tag.startswith('[tr en') and tag.endswith(']'):
-				metadata['languages'] = 'English'
+				metadata['Languages'] = 'English'
 			if (tag.startswith('[T+En') or tag.startswith('[T-En')) or tag.endswith(']'):
-				metadata['languages'] = 'English'
+				metadata['Languages'] = 'English'
 	
 	for tag in tags:
 		if year_regex.match(tag):
 			#TODO Ensure only one tag matches
-			metadata['year'] = year_regex.match(tag).group(1)
+			metadata['Year'] = year_regex.match(tag).group(1)
 	
 	return metadata
 	
@@ -194,9 +194,9 @@ def get_metadata(emulator_name, path, name, compressed_entry=None):
 	
 	if emulator_name in ('Gamate', 'Epoch Game Pocket Computer', 'Mega Duck', 'Watara Supervision'):
 		#Well, you sure won't be seeing anything weird out of these
-		metadata['main_input'] = 'Normal'
+		metadata['Main-Input'] = 'Normal'
 	elif emulator_name == 'Virtual Boy':
-		metadata['main_input'] = 'Twin Joystick'
+		metadata['Main-Input'] = 'Twin Joystick'
 	
 	tags = common.find_filename_tags.findall(name)
 	for k, v in get_metadata_from_filename_tags(tags).items():

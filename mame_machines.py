@@ -157,17 +157,17 @@ def process_machine(machine):
 		category += ' untranslated'
 	
 	metadata = {
-		'main_cpu': None if maincpu is None else maincpu.attrib['name'], 
-		'main_input': input_type, 
-		'emulation_status': machine.find('driver').attrib['status'], 
-		'source_file': source_file, 
-		'genre': genre, 
-		'subgenre': subgenre, 
-		'nsfw': is_nsfw, 
-		'languages': language, 
-		'family': family,
-		'year': machine.findtext('year'),
-		'author': machine.findtext('manufacturer'),
+		'Main-CPU': None if maincpu is None else maincpu.attrib['name'], 
+		'Main-Input': input_type, 
+		'Emulation-Status': machine.find('driver').attrib['status'], 
+		'Source-File': source_file, 
+		'Genre': genre, 
+		'Subgenre': subgenre, 
+		'NSFW': is_nsfw, 
+		'Languages': language, 
+		'Family': family,
+		'Year': machine.findtext('year'),
+		'Author': machine.findtext('manufacturer'),
 		#Some other things we could get from XML if we decide we care about it:
 		#Display type/resolution/refresh rate/number of screens
 		#Sound channels
