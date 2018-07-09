@@ -20,7 +20,7 @@ def find_main_cpu(machine):
 		if chip.attrib['type'] == 'cpu':
 			return chip
 
-	#Alto I and HP 2100 have no chips, apparently. Huh? Oh well
+	#Alto I and HP 2100 have no chips, apparently.  Huh?  Oh well
 	return None
 
 def mame_verifyroms(basename):
@@ -106,13 +106,16 @@ def process_machine(machine):
 		control_element = input_element.find('control')
 		if control_element is None:
 			if 'players' not in input_element.attrib or input_element.attrib['players'] == '0':
-				#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all); this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
+				#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
+				#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
 				if debug:
 					print('Skipping %s (%s) as it has no controls' % (basename, name))
 				return
 			else:
 				input_type = 'Custom'
-				#Sometimes you get some games with 1 or more players, but no control type defined. This usually happens with pinball games and weird stuff like a clock, but also some genuine games like Crazy Fight that are more or less playable just fine, so we'll leave them in
+				#Sometimes you get some games with 1 or more players, but no control type defined.  This usually happens with
+				#pinball games and weird stuff like a clock, but also some genuine games like Crazy Fight that are more or less
+				#playable just fine, so we'll leave them in
 		else:
 			input_type = control_element.attrib['type']
 			if input_type:
@@ -133,9 +136,11 @@ def process_machine(machine):
 	elif source_file == 'nss':
 		platform = 'Nintendo Super System'
 	elif category == 'Game Console':
-		platform = 'Plug & Play' #Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug & play system
+		platform = 'Plug & Play' #Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug &
+                           #play system
 	elif category == 'Handheld':
-		platform = 'Handheld' #Could also be a tabletop system which takes AC input, but since catlist.ini doesn't take that into account, I don't really have a way of doing so either
+		platform = 'Handheld' #Could also be a tabletop system which takes AC input, but since catlist.ini doesn't take that into account, I don't
+                        #really have a way of doing so either
 	elif category == 'Misc.':
 		platform = genre
 	elif category == 'Computer':
@@ -201,9 +206,13 @@ def get_mame_xml(driver):
 	return ElementTree.fromstring(output)
 
 def process_arcade(_debug):
-	#Fuck iterparse by the way, if you stumble across this script and think "oh you should use iterparse instead of this kludge!" you are wrong
-	#(Okay, if you want an attempt at a reason why: I've tried it, and MAME's machine elements are actually more complicated and seemingly refer to other machine elements that are displayed alongside the main one with an individual -listxml)
-	#Could it be faster to use -verifyroms globally and parse the output somehow and then get individual XML from successful results?
+	#Fuck iterparse by the way, if you stumble across this script and think "oh you should use iterparse instead of this
+	#kludge!" you are wrong
+	#(Okay, if you want an attempt at a reason why: I've tried it, and MAME's machine elements are actually more
+	#complicated and seemingly refer to other machine elements that are displayed alongside the main one with an
+	#individual -listxml)
+	#Could it be faster to use -verifyroms globally and parse the output somehow and then get individual XML from
+	#successful results?
 	debug = _debug
 
 	for driver, source_file in get_mame_drivers():
@@ -211,10 +220,14 @@ def process_arcade(_debug):
 			continue
 			
 		if common.starts_with_any(source_file, config.skip_fruit_machines):
-			#Get those fruit machines outta here (they take too long to process and verify that we don't have them, and tend to not work anyway, otherwise I'd consider still including them)
+			#Get those fruit machines outta here (they take too long to process and verify that we don't have them, and tend to
+			#not work anyway, otherwise I'd consider still including them)
 			continue
 
-		#You probably think this is why it's slow, right? You think "Oh, that's silly, you're verifying every single romset in existence before just getting the XML", that's what you're thinking, right? Well, I am doing that, but as it turns out if I do the verification inside process_machine it takes a whole lot longer. I don't fully understand why but I'll have you know I actually profiled it
+		#You probably think this is why it's slow, right?  You think "Oh, that's silly, you're verifying every single romset
+		#in existence before just getting the XML", that's what you're thinking, right?  Well, I am doing that, but as it
+		#turns out if I do the verification inside process_machine it takes a whole lot longer.  I don't fully understand why
+		#but I'll have you know I actually profiled it
 		if not mame_verifyroms(driver):
 			continue
 

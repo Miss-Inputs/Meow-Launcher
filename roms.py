@@ -15,10 +15,12 @@ def get_metadata_from_filename_tags(tags):
 	#TODO: Make case insensitive
 	#TODO: Refactor mercilessly, could probably use some kind of dict here
 	if len(tags) == 1:
-		#TODO: Refactor this so that it works if there is more than one tags, but not if there are more than one specifying the region (to avoid confuzzlion)
+		#TODO: Refactor this so that it works if there is more than one tags, but not if there are more than one specifying
+		#the region (to avoid confuzzlion)
 		#TODO: Multiple languages
-		#Not associated with any particular language necessarily: 
-		#(World) (although that's usually English); (Asia); (Brazil) is just as much English as it is Portugese it seems; (Brazil, Korea); (Japan, Europe); (Japan, Korea) might be Japanese; (Japan, Korea, Asia); (Japan, USA), etc
+		#Not associated with any particular language necessarily:
+		#(World) (although that's usually English); (Asia); (Brazil) is just as much English as it is Portugese it seems;
+		#(Brazil, Korea); (Japan, Europe); (Japan, Korea) might be Japanese; (Japan, Korea, Asia); (Japan, USA), etc
 		
 		if tags[0] in ('(USA)', '(Australia)', '(UK)', '(Europe)', '(USA, Europe)', '(USA, Australia)', '(Europe, Australia)'):
 			#Europe in theory could be any number of languages, but by itself it's assumed to be in English
@@ -27,7 +29,8 @@ def get_metadata_from_filename_tags(tags):
 			metadata['languages'] = 'Japanese'
 		elif tags[0] == '(Italy)':
 			metadata['languages'] = 'Italian'
-		elif tags[0] == '(France)': #Canada sometimes is French, sometimes it is not, that's not consistent across all naming standards which one is implied and which one should be specified
+		elif tags[0] == '(France)': #Canada sometimes is French, sometimes it is not, that's not consistent across all naming standards which one is
+                              #implied and which one should be specified
 			metadata['languages'] = 'French'
 		elif tags[0] == '(Russia)':
 			metadata['languages'] = 'Russian'
@@ -163,21 +166,28 @@ def get_metadata_from_filename_tags(tags):
 	return metadata
 	
 def get_metadata(emulator_name, path, name, compressed_entry=None):
-	#TODO: Link this back to process_file in other ways: Could be useful to read a ROM and change the command line (to use a different emulator that supports something not supported in the usual one, etc), for example
+	#TODO: Link this back to process_file in other ways: Could be useful to read a ROM and change the command line (to use
+	#a different emulator that supports something not supported in the usual one, etc), for example
 	#Metadata used in arcade: main_input, emulation_status, genre, subgenre, nsfw, language, year, author
 	#If we can get these from somewhere for non-arcade things: Great!!
 	#main_cpu, source_file and family aren't really relevant
-	#Gamecube, 3DS, Wii can sorta find the languages (or at least the title/banner stuff) by examining the ROM itself... though as you have .gcz files for the former, that gets a bit involved, actually yeah any of what I'm thinking would be difficult without a solid generic file handling thing, but still
+	#Gamecube, 3DS, Wii can sorta find the languages (or at least the title/banner stuff) by examining the ROM itself...
+	#though as you have .gcz files for the former, that gets a bit involved, actually yeah any of what I'm thinking would
+	#be difficult without a solid generic file handling thing, but still
 	#Can get these from the ROM/disc/etc itself:
 	#	main_input: Megadrive family, Atari 7800 (all through lookup table)
 	#		Somewhat Game Boy, GBA (if type from product code = K or R, uses motion controls)
-	#	year: Megadrive family (usually; via copyright), FDS, GameCube, Satellaview, homebrew SMS/Game Gear, Atari 5200 (sometimes), Vectrex, ColecoVersion (sometimes), homebrew Wii
+	#	year: Megadrive family (usually; via copyright), FDS, GameCube, Satellaview, homebrew SMS/Game Gear, Atari 5200
+	#	(sometimes), Vectrex, ColecoVersion (sometimes), homebrew Wii
 	#	author: Homebrew SMS/Game Gear, ColecoVision (in uppercase, sometimes), homebrew Wii
-	#		With a giant lookup table: GBA, Game Boy, SNES, Satellaview, Megadrive family, commercial SMS/Game Gear, Virtual Boy, FDS, Wonderswan, GameCube, 3DS, Wii, DS
+	#		With a giant lookup table: GBA, Game Boy, SNES, Satellaview, Megadrive family, commercial SMS/Game Gear, Virtual
+	#		Boy, FDS, Wonderswan, GameCube, 3DS, Wii, DS
 	#		Neo Geo Pocket can say if SNK, but nothing specific if not SNK
 	#	language: 3DS, DS, GameCube somewhat (can see title languages, though this isn't a complete indication)
-	#	nsfw: Sort of; Wii/3DS can do this but only to show that a game is 18+ in a given country etc, but not why it's that rating and of course different countries can have odd reasons
-	#Maybe MAME software list could say something? If nothing else, it could give us emulation_status (supported=partial, supported=no) where we use MAME for that platform
+	#	nsfw: Sort of; Wii/3DS can do this but only to show that a game is 18+ in a given country etc, but not why it's that
+	#	rating and of course different countries can have odd reasons
+	#Maybe MAME software list could say something?  If nothing else, it could give us emulation_status (supported=partial,
+	#supported=no) where we use MAME for that platform
 
 	metadata = {}
 	
@@ -202,7 +212,8 @@ def detect_region_from_filename(name):
 		return 'world'
 	elif 'ntsc' in tags or 'usa' in tags or '(us)' in tags or 'japan' in tags:
 		return 'ntsc'
-	elif 'pal' in tags or 'europe' in tags or 'netherlands' in tags or 'spain' in tags or 'germany' in tags or 'australia' in tags: #Shit, I'm gonna have to put every single European/otherwise PAL country in there. That's all that I need to put in here so far, though
+	elif 'pal' in tags or 'europe' in tags or 'netherlands' in tags or 'spain' in tags or 'germany' in tags or 'australia' in tags: #Shit, I'm gonna have to put every single European/otherwise PAL country in there.  That's all that I need to put in
+                                                                                                                                 #here so far, though
 		return 'pal'
 	else:
 		return None
@@ -214,7 +225,8 @@ def get_real_size(path, compressed_entry=None):
 	return archives.compressed_getsize(path, compressed_entry)
 	
 def read_file(path, compressed_entry=None):
-	#TODO: Do a thing where we can just read a small part of the file instead of slurping the whole thing (impossible if it's compressed, though)
+	#TODO: Do a thing where we can just read a small part of the file instead of slurping the whole thing (impossible if
+	#it's compressed, though)
 	if compressed_entry is None:
 		with open(path, 'rb') as f:
 			return f.read() 
@@ -239,8 +251,7 @@ def build_atari7800_command_line(path, compressed_entry=None):
 		if debug:
 			print('Something is wrong with', path, ', has region byte of', region_byte)
 		return None #MAME can't do anything with unheadered ROMs (or stuff with invalid region byte), so these won't be any good to us
-	
-def build_vic20_command_line(path, name, compressed_entry=None):
+	def build_vic20_command_line(path, name, compressed_entry=None):
 	size = get_real_size(path, compressed_entry)
 	if size > ((8 * 1024) + 2):
 		#It too damn big (only likes 8KB with 2 byte header at most)
@@ -260,13 +271,15 @@ def build_a800_command_line(path, name, compressed_entry=None):
 	rom_data = read_file(path, compressed_entry)
 	if rom_data[:4] == b'CART':
 		cart_type = int.from_bytes(rom_data[4:8], 'big')
-		#See also: https://github.com/dmlloyd/atari800/blob/master/DOC/cart.txt, https://github.com/mamedev/mame/blob/master/src/devices/bus/a800/a800_slot.cpp
+		#See also: https://github.com/dmlloyd/atari800/blob/master/DOC/cart.txt,
+		#https://github.com/mamedev/mame/blob/master/src/devices/bus/a800/a800_slot.cpp
 		if cart_type in (13, 14, 23, 24, 25) or (cart_type >= 33 and cart_type <= 38):
 			if debug:
 				print(path, 'is actually a XEGS ROM which is not supported by MAME yet, cart type is', cart_type)
 			return None
 			
-		#You probably think this is a bad way to do this... I guess it is, but hopefully I can take some out as they become supported (even if I have to use some other emulator or something to do it)
+		#You probably think this is a bad way to do this...  I guess it is, but hopefully I can take some out as they become
+		#supported (even if I have to use some other emulator or something to do it)
 		if cart_type in (5, 17, 22, 41, 42, 43, 45, 46, 47, 48, 49, 53, 57, 58, 59, 60, 61) or (cart_type >= 26 and cart_type <= 32) or (cart_type >= 54 and cart_type <= 56):
 			if debug:
 				print(path, "won't work as cart type is", cart_type)
@@ -302,23 +315,31 @@ def build_a800_command_line(path, name, compressed_entry=None):
 		return base_command_line % 'a800'
 	
 def build_c64_command_line(path, name, compressed_entry=None):
-	#While we're here building a command line, should mention that you have to manually put a joystick in the first joystick port, because by default there's only a joystick in the second port. Why the fuck is that the default? Most games use the first port (although, just to be annoying, some do indeed use the second... why????)
-	#Anyway, might as well use this "Boostergrip" thingy, or really it's like using the C64GS joystick, because it just gives us two extra buttons for any software that uses it (probably nothing), and the normal fire button works as normal. _Should_ be fine
+	#While we're here building a command line, should mention that you have to manually put a joystick in the first
+	#joystick port, because by default there's only a joystick in the second port.  Why the fuck is that the default?
+	#Most games use the first port (although, just to be annoying, some do indeed use the second...  why????)
+	#Anyway, might as well use this "Boostergrip" thingy, or really it's like using the C64GS joystick, because it just
+	#gives us two extra buttons for any software that uses it (probably nothing), and the normal fire button works as
+	#normal.  _Should_ be fine
 	#(Super cool pro tip: Bind F1 to Start)
 	base_command_line = 'mame %s -joy1 joybstr -joy2 joybstr -skip_gameinfo -ui_active -cart {0}'
 	
 	#with open(path, 'rb') as f:
 	rom_data = read_file(path, compressed_entry)
-	#if f.read(16) == b'"C64 CARTRIDGE   "':
+	#if f.read(16) == b'"C64 CARTRIDGE "':
 	if rom_data[:16] == b'C64 CARTRIDGE   ':
-		#Just gonna make sure we're actually dealing with the CCS64 header format thingy first (see: http://unusedino.de/ec64/technical/formats/crt.html)
+		#Just gonna make sure we're actually dealing with the CCS64 header format thingy first (see:
+		#http://unusedino.de/ec64/technical/formats/crt.html)
 		#It's okay if it doesn't, though; just means we won't be able to be clever here
 		#f.seek(0x16)
 		#cart_type = int.from_bytes(f.read(2), 'big')
 		cart_type = int.from_bytes(rom_data[22:24], 'big')
 		
 		if cart_type == 15: #Commodore C64GS System 3 cart
-			#For some reason, these carts don't work on a regular C64 in MAME, and we have to use... the thing specifically designed for playing games (but we normally wouldn't use this, since some cartridge games still need the keyboard, even if just for the menus, and that's why it actually sucks titty balls IRL. But if it weren't for that, we totes heckin would)
+			#For some reason, these carts don't work on a regular C64 in MAME, and we have to use...  the thing specifically
+                     			#designed for playing games (but we normally wouldn't use this, since some cartridge games still need the keyboard,
+                     			#even if just for the menus, and that's why it actually sucks titty balls IRL.  But if it weren't for that, we totes
+                     			#heckin would)
 			return base_command_line % 'c64gs'
 	
 	region = detect_region_from_filename(name)
@@ -442,7 +463,7 @@ def process_emulator(emulator, _debug):
 				used_m3u_filenames.extend(parse_m3u(path))
 			else:
 				#Avoid adding part of a multi-disc game if we've already added the whole thing via m3u
-				#This is why we have to make sure m3u files are added first, though... not really a nice way around this
+				#This is why we have to make sure m3u files are added first, though...  not really a nice way around this
 				if name in used_m3u_filenames or path in used_m3u_filenames:
 					continue
 			

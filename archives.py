@@ -3,8 +3,9 @@ import subprocess
 import re
 
 COMPRESSED_EXTS = ['7z', 'zip', 'gz', 'bz2', 'tar', 'tgz', 'tbz'] 
-#7z supports more, but I don't expect to see them (in the case of things like .rar, I don't want them to be treated as valid archive types because they're evil proprietary formats and I want to eradicate them, and the case of things like .iso I'd rather they not be treated as archives)
-
+#7z supports more, but I don't expect to see them (in the case of things like .rar, I don't want them to be treated as
+#valid archive types because they're evil proprietary formats and I want to eradicate them, and the case of things
+#like .iso I'd rather they not be treated as archives)
 class Bad7zException(Exception):
 	pass
 	
@@ -23,7 +24,7 @@ def sevenzip_list(path):
 	files = []
 	found_file_line = False
 	for line in proc.stdout.splitlines():
-		#Ugghhh... this part is annoying.
+		#Ugghhh...  this part is annoying.
 		if line.startswith('------'):
 			found_file_line = True
 			continue

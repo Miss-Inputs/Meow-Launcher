@@ -86,7 +86,8 @@ def make_display_name(name):
 	return display_name
 
 def make_desktop(platform, command, path, name, categories=[], metadata={}, ext='', compressed_entry=None):
-	#Use compressed_entry for manual decompression, don't do it if the compression format is natively supported by the emulator
+	#Use compressed_entry for manual decompression, don't pass that if the compression format is natively supported by the
+	#emulator
 	if compressed_entry:
 		extracted_path = os.path.join('/tmp/crappyromlauncher', compressed_entry)
 		inner_cmd = command.format(shlex.quote(extracted_path))

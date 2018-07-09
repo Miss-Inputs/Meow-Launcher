@@ -16,6 +16,6 @@ Create a file called "ignored_directories.txt" next to config.py with each line 
 
 I'm really bad at wording things, so hopefully that all made sense.
 
-Well, so far, there is one way in which it actually tries to run on more than one computer: You will see multiple references to "toasters" in the code, which refers to a computer that is horrendously underpowered (in my case, it is a netbook).
+Well, so far, there is one way in which it actually tries to run on more than one computer: You will see multiple references to "toasters" in the code, which refers to a computer that is horrendously underpowered (in my case, it is a netbook). You may want to adjust what your definition of a toaster is according to power of computers in your network that you plan to run this on.
 
 Note that PokeMini is wrapped in a shell script named "PokeMini.sh" that temporarily goes to ~/.config/PokeMini because otherwise it just dumps its config right in whatever the current directory is, and I don't like that nor do I know how it would even work out with .desktop files. Other emulators are used untouched, and you can look in config.py to see what it uses (or change them to something else of your liking).

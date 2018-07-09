@@ -11,13 +11,13 @@ debug = False
 
 #TODO Add X-Ambiguous-Name and X-Disambiguator fields (or something named a bit
 #better)
-
 def update_name(desktop, new_name):
 	desktop[1]['Desktop Entry']['Name'] = new_name
 	writer = configparser.ConfigParser(interpolation=None)
-	writer.optionxform = str #You don't fucking understand .desktop files are case sensitive you're fucking
-                          #them up by fucking up the case for fucks sake stop it who asked you to do
-                          #that you stupid fuckwit
+	writer.optionxform = str 
+	#You don't fucking understand .desktop files are case sensitive you're fucking
+	#them up by fucking up the case for fucks sake stop it who asked you to do
+	#that you stupid fuckwit
 	writer.read_dict(desktop[1])
 	with open(desktop[0], 'wt') as f:
 		writer.write(f)
