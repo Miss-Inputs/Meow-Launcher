@@ -165,7 +165,7 @@ if not is_toaster:
 		
 		{'name': 'Wii', 'command_line': 'dolphin-emu -b -e {0}', 'rom_dir': '/media/Stuff/Roms/Wii', 'supported_extensions': ['iso', 'gcz', 'wad', 'elf', 'dol'], 'supported_compression': []}, 
 		#Gonna have to map these motion controls somehow
-		{'name': 'Saturn', 'command_line': 'mednafen -video.fs 1 {0}', 'rom_dir': '/media/Stuff/Roms/Saturn', 'supported_extensions': ['iso', 'cue', 'toc', 'ccd', 'm3u'], 'supported_compression': []}, 
+		{'name': 'Saturn', 'command_line': 'mednafen -video.fs 1 {0}', 'rom_dir': '/media/Stuff/Roms/Saturn', 'supported_extensions': ['cue', 'toc', 'ccd', 'm3u'], 'supported_compression': []}, 
 		#Not the most easily mappable of controllers due to having both 6 face buttons and 2 shoulder buttons
 
 		{'name': 'Tomy Tutor', 'command_line': 'mame tutor -skip_gameinfo -ui_active -cart {0}', 'rom_dir': '/media/Stuff/Roms/Tomy Tutor', 'supported_extensions': ['bin'], 'supported_compression': ['7z', 'zip']}, 
