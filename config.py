@@ -243,6 +243,8 @@ name_replacement = [
 	('Cosmo Gang the Video', 'Cosmo Gang - The Video'), 
 	('Donkey Kong Junior', 'Donkey Kong Jr.'), 
 	('Final Fantasy 4', 'Final Fantasy IV'),
+	('James Pond 2 - Codename RoboCod', 'James Pond II - Codename RoboCod'),
+	('James Pond II - Codename - Robocod', 'James Pond II - Codename RoboCod'),
 	("John Romero's Daikatana", 'Daikatana'),
 	('Mario Brothers', 'Mario Bros.'), 
 	('Mega Man III', 'Mega Man 3'),
@@ -258,9 +260,13 @@ name_replacement = [
 	('Sangokushi 3', 'Sangokushi III'), 
 	('Sim Ant', 'SimAnt'),
 	('Sim City', 'SimCity'),
+	('Sim Earth', 'SimEarth'),
 	('Super Boy 3', 'Super Boy III'), 
 	("Street Fighter II'", 'Street Fighter II'), 
 	('Twin Bee', 'TwinBee'),
+	('Ultima 3', 'Ultima III'),
+	('Where in the World is Carmen Sandiego?', 'Where in the World is Carmen Sandiego'), #Hmm... yeah, maybe I really should just remove ? in disambiguate.normalize_name...
+	('Wolfenstein 3-D', 'Wolfenstein 3D'),
 ]
 
 #Add "The " in front of these things (but not if there's already "The " in front of them of course)
@@ -300,10 +306,12 @@ subtitle_removal = [('After Burner Complete ~ After Burner', 'After Burner Compl
 	('Shadow Squadron ~ Stellar Assault', 'Stellar Assault'),
 	('SimAnt - The Electronic Ant Colony', 'SimAnt'), 
 	('SimCity 2000 - The Ultimate City Simulator', 'SimCity 2000'), 
+	('SimEarth - The Living Planet', 'SimEarth'), 
 	("Sonic 3D Blast ~ Sonic 3D Flickies' Island", 'Sonic 3D Blast'),
 	('Space Invaders / Space Invaders M', 'Space Invaders'),
 	('Street Fighter II: The World Warrior', 'Street Fighter II'), 
 	('Super Street Fighter II: The New Challengers', 'Super Street Fighter II'), 
 	('Who Wants to Be a Millionaire - 2nd Edition', 'Who Wants to Be a Millionaire'), #This is not even a 2nd edition of anything, it's just the GBC version
+	('Ys III - Wanderers from Ys', 'Ys III'),
 ]
 
