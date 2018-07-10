@@ -39,20 +39,19 @@ def make_launcher(path, game_config):
 	
 	metadata = {}
 	if 'genre' in game_config:
-		metadata['genre'] = game_config['genre']
+		metadata['Genre'] = game_config['genre']
 	if 'subgenre' in game_config:
-		metadata['subgenre'] = game_config['subgenre']
+		metadata['Subgenre'] = game_config['subgenre']
 	if 'adult' in game_config:
-		metadata['nsfw'] = game_config['adult']
+		metadata['NSFW'] = game_config['adult']
 	if 'notes' in game_config:
-		metadata['notes'] = game_config['notes']
-		#print('Notes for', path, ':', game_config['notes'])
+		metadata['Notes'] = game_config['notes']
 	if 'compat_notes' in game_config:
-		metadata['compat_notes'] = game_config['compat_notes']
+		metadata['Compat-Notes'] = game_config['compat_notes']
 		print('Compatibility notes for', path, ':', game_config['compat_notes'])
 	if 'requires_cd' in game_config:
 		print(path, 'requires a CD in the drive. It will probably not work with this launcher at the moment')
-		metadata['requires_cd'] = game_config['requires_cd']
+		metadata['Requires-CD'] = game_config['requires_cd']
 	
 	#Extra metadata because we have nothing else to do with it right now
 	#TODO: If arch == ppc, we shouldn't use BasiliskII, and either reject the app or use SheepShaver (as much as I don't wanna because of the vm.mmap_min_addr thing)
