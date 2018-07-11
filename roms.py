@@ -215,8 +215,8 @@ def detect_region_from_filename(name):
 		return 'ntsc'
 	elif 'pal' in tags or 'europe' in tags or 'netherlands' in tags or 'spain' in tags or 'germany' in tags or 'australia' in tags: #Shit, I'm gonna have to put every single European/otherwise PAL country in there.  That's all that I need to put in here so far, though
 		return 'pal'
-	else:
-		return None
+
+	return None
 		
 def get_real_size(path, compressed_entry=None):
 	if compressed_entry is None:
@@ -264,8 +264,8 @@ def build_vic20_command_line(path, name, compressed_entry=None):
 	region = detect_region_from_filename(name)
 	if region == 'pal':
 		return base_command_line % 'vic20p'
-	else:
-		return base_command_line % 'vic20'
+	
+	return base_command_line % 'vic20'
 		
 def build_a800_command_line(path, name, compressed_entry=None):
 	is_left = True
@@ -312,8 +312,8 @@ def build_a800_command_line(path, name, compressed_entry=None):
 	if region == 'pal':
 		#Atari 800 should be fine for everything, and I don't feel like the XL/XE series to see in which ways they don't work
 		return base_command_line % 'a800p'
-	else:
-		return base_command_line % 'a800'
+
+	return base_command_line % 'a800'
 	
 def build_c64_command_line(path, name, compressed_entry=None):
 	#While we're here building a command line, should mention that you have to manually put a joystick in the first
@@ -341,8 +341,8 @@ def build_c64_command_line(path, name, compressed_entry=None):
 	#Don't think we really need c64c unless we really want the different SID chip
 	if region == 'pal':
 		return base_command_line % 'c64p'
-	else:
-		return base_command_line % 'c64'
+
+	return base_command_line % 'c64'
 
 def process_file(emulator, root, name):
 	path = os.path.join(root, name)

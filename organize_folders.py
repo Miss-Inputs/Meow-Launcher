@@ -196,5 +196,4 @@ def move_into_folders():
 						copy_to_folder(path, config.organized_output_folder, 'By MAME source file', sanitize_name(source_file))
 					if family:
 						copy_to_folder(path, config.organized_output_folder, 'By parent-clone family', sanitize_name(family))
-				
-
+	

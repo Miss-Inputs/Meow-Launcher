@@ -314,4 +314,3 @@ subtitle_removal = [('After Burner Complete ~ After Burner', 'After Burner Compl
 	('Who Wants to Be a Millionaire - 2nd Edition', 'Who Wants to Be a Millionaire'), #This is not even a 2nd edition of anything, it's just the GBC version
 	('Ys III - Wanderers from Ys', 'Ys III'),
 ]
-
