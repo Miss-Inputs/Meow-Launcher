@@ -37,7 +37,7 @@ def compressed_list(path):
 	if path.lower().endswith('.zip'):
 		try:
 			return zip_list(path)
-		except:
+		except zipfile.BadZipFile:
 			pass
 			
 	return sevenzip_list(path)
