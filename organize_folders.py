@@ -82,7 +82,7 @@ console_cpus = {
 	"Lynx": lookup_system_cpu('lynx'),
 	"Mac": lookup_system_cpu('macqd700'), #Correct for now, since we aren't emulating PPC games yet, nor are we falling back to earlier systems in case of really old games
 	"Master System": lookup_system_cpu('sms'),
-	"Mega Drive": lookup_system_cpu('megacd'),
+	"Mega CD": lookup_system_cpu('megacd'),
 	"Mega Drive": lookup_system_cpu('megadriv'),
 	"Mega Duck": lookup_system_cpu('megaduck'),
 	"MSX": lookup_system_cpu('fsa1wsx'),
@@ -108,7 +108,7 @@ console_cpus = {
 	"Tomy Tutor": lookup_system_cpu('tutor'),
 	"Vectrex": lookup_system_cpu('vectrex'),
 	"VIC-10": lookup_system_cpu('vic10'),
-	"VIC-10": lookup_system_cpu('vic20'),
+	"VIC-20": lookup_system_cpu('vic20'),
 	"Virtual Boy": lookup_system_cpu('vboy'),
 	"Watara Supervision": lookup_system_cpu('svision'),
 	"Wii": lookup_system_cpu('tvcapcom'), #Yes that's not a Wii, but it runs on Wii hardware, and a real Wii isn't even a skeleton driver yet. I really just don't feel like hardcoding things today
