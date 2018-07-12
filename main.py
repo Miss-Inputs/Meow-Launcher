@@ -41,8 +41,7 @@ for emulator in config.emulator_configs:
 #This is turned off by the default because it's a bit experimental which is a nice way of saying it's a bit shit, needs hfsutils and parses command line output and ughhhh that's a bit gross hey
 if '--with-mac' in sys.argv:
 	time_started = time.perf_counter()
-	for mac_volume in config.mac_disk_images:
-		mac.create_launchers_from_mac_volume(mac_volume)
+	mac.do_mac_stuff()
 	time_ended = time.perf_counter()
 	print('Mac finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

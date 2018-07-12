@@ -11,17 +11,18 @@ import hfs
 
 debug = '--debug' in sys.argv
 
-if not os.path.exists(config.mac_db_path):
-	print("You don't have mac_db.json which is required for this to work. Let me get that for you.")
-	#TODO: Is this the wrong way to do this? I think it most certainly is
-	with urllib.request.urlopen('https://raw.githubusercontent.com/Zowayix/computer-software-db/master/mac_db.json') as mac_db_url:
-		mac_db_data = mac_db_url.read().decode('utf-8')
-	with open(config.mac_db_path, 'wt') as mac_db_local_file:
-		game_list = json.loads(mac_db_data)
-		mac_db_local_file.write(mac_db_data)
-else:
-	with open(config.mac_db_path, 'rt') as mac_db_file:
-		game_list = json.load(mac_db_file)
+def init_game_list():
+	if not os.path.exists(config.mac_db_path):
+		print("You don't have mac_db.json which is required for this to work. Let me get that for you.")
+		#TODO: Is this the wrong way to do this? I think it most certainly is
+		with urllib.request.urlopen('https://raw.githubusercontent.com/Zowayix/computer-software-db/master/mac_db.json') as mac_db_url:
+			mac_db_data = mac_db_url.read().decode('utf-8')
+		with open(config.mac_db_path, 'wt') as mac_db_local_file:
+			mac_db_local_file.write(mac_db_data)
+			return json.loads(mac_db_data)
+	else:
+		with open(config.mac_db_path, 'rt') as mac_db_file:
+			return json.load(mac_db_file)
 
 def make_launcher(path, game_config):
 	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that.
@@ -71,7 +72,12 @@ def make_launcher(path, game_config):
 	
 	launchers.base_make_desktop(command, display_name, comment, 'Mac', categories, tags, metadata)
 
-def create_launchers_from_mac_volume(path):
+def do_mac_stuff():
+	game_list = init_game_list()
+	for mac_volume in config.mac_disk_images:
+		create_launchers_from_mac_volume(mac_volume, game_list)
+
+def create_launchers_from_mac_volume(path, game_list):
 	for f in hfs.list_hfv(path):
 		if f['file_type'] != 'APPL':
 			continue
