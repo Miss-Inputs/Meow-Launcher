@@ -2,6 +2,7 @@ import sys
 import os
 import shlex
 import json
+import urllib.request
 
 import launchers
 import common
@@ -10,8 +11,17 @@ import hfs
 
 debug = '--debug' in sys.argv
 
-with open(os.path.join(os.path.dirname(__file__), 'mac_db.json')) as mac_db_file:
-	game_list = json.load(mac_db_file)
+if not os.path.exists(config.mac_db_path):
+	print("You don't have mac_db.json which is required for this to work. Let me get that for you.")
+	#TODO: Is this the wrong way to do this? I think it most certainly is
+	with urllib.request.urlopen('https://raw.githubusercontent.com/Zowayix/computer-software-db/master/mac_db.json') as mac_db_url:
+		mac_db_data = mac_db_url.read().decode('utf-8')
+	with open(config.mac_db_path, 'wt') as mac_db_local_file:
+		game_list = json.loads(mac_db_data)
+		mac_db_local_file.write(mac_db_data)
+else:
+	with open(config.mac_db_path, 'rt') as mac_db_file:
+		game_list = json.load(mac_db_file)
 
 def make_launcher(path, game_config):
 	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that.
