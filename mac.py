@@ -19,10 +19,24 @@ def init_game_list():
 			mac_db_data = mac_db_url.read().decode('utf-8')
 		with open(config.mac_db_path, 'wt') as mac_db_local_file:
 			mac_db_local_file.write(mac_db_data)
-			return json.loads(mac_db_data)
+			game_list = json.loads(mac_db_data)
 	else:
 		with open(config.mac_db_path, 'rt') as mac_db_file:
-			return json.load(mac_db_file)
+			game_list = json.load(mac_db_file)
+
+	for game_name, game in game_list.items():
+		if 'parent' in game:
+			parent_name = game['parent']
+			if parent_name in game_list:
+				parent = game_list[parent_name]
+				for key in parent.keys():
+					if key not in game:
+						game_list[game_name][key] = parent[key]
+			else:
+				if debug:
+					print('Oh no! {0} refers to undefined parent game {1}'.format(game_name, parent_name))
+
+	return game_list
 
 def make_launcher(path, game_name, game_config):
 	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that.
@@ -101,5 +115,5 @@ def create_launchers_from_mac_volume(path, game_list):
 				make_launcher(f['path'], *possible_games_by_name[0])
 			else:
 				if debug:
-					print(f['path'], 'could be', list(game['name'] for game in possible_games_by_name), 'using first one for now')
+					print(f['path'], 'could be', list(game_name for game_name, game in possible_games_by_name), 'using first one for now')
 				make_launcher(f['path'], *possible_games_by_name[0])
