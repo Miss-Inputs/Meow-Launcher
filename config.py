@@ -2,7 +2,7 @@ import socket
 import os
 
 DOOM_SAVE_DIR = '/media/Stuff/Roms/Doom/Saves'
-SUFAMI_BIOS_PATH = '/media/Stuff/Roms/SNES/BIOS/Sufami Turbo (Japan).sfc'
+SUFAMI_TURBO_BIOS_PATH = '/media/Stuff/Roms/SNES/BIOS/Sufami Turbo (Japan).sfc'
 BSX_BIOS_PATH = '/media/Stuff/Roms/SNES/BIOS/BS-X BIOS/BS-X BIOS (English) [No DRM] [2016 v1.3].sfc'
 CATLIST_PATH = '/media/Stuff/Roms/Arcade/Categories/catlist.ini'
 LANGUAGES_PATH = '/media/Stuff/Roms/Arcade/Categories/languages.ini'
@@ -14,17 +14,11 @@ mac_disk_images = ['/media/Things/Mac_OS_Stuff/Games 68k.hfv']
 mac_db_path = os.path.join(os.path.dirname(__file__), 'mac_db.json')
 
 class SystemConfig():
-	def __init__(self, name, rom_dir, chosen_emulator, save_dir=None):
+	def __init__(self, name, rom_dir, chosen_emulator, other_config=None):
 		self.name = name
 		self.rom_dir = rom_dir
 		self.chosen_emulator = chosen_emulator
-		self.save_dir = save_dir
-
-#TODO: Refactor until we can use these:
-	#{'name': 'Doom', 'rom_dir': '/media/Stuff/Roms/Doom', 'save_dir': DOOM_SAVE_DIR},
-#		{'name': 'Sufami Turbo',  'rom_dir': '/media/Stuff/Roms/SNES/Sufami Turbo'},
-#		System('Satellaview', '/media/Stuff/Roms/SNES/Satellaview'), 
-
+		self.other_config = {} if other_config is None else other_config
 
 system_configs = [
 	SystemConfig('Game Boy', '/media/Stuff/Roms/Gameboy', 'gambatte'),
@@ -65,6 +59,7 @@ system_configs = [
 	SystemConfig('Channel F', '/media/Stuff/Roms/Channel F', 'mame-channelf'), 
 	SystemConfig('Lynx', '/media/Stuff/Roms/Atari Lynx', 'mednafen-lynx'), 
 	SystemConfig('WonderSwan', '/media/Stuff/Roms/WonderSwan', 'mednafen-wonderswan'), 
+	SystemConfig('Doom', '/media/Stuff/Roms/Doom/', 'prboom-plus', {'save_dir': DOOM_SAVE_DIR}),
 	
 	SystemConfig('MSX', '/media/Stuff/Roms/MSX', 'mame-msx2'), 
 	SystemConfig('MSX2', '/media/Stuff/Roms/MSX2', 'mame-msx2'), 
@@ -85,6 +80,8 @@ if not is_toaster:
 		#Kega Fusion almost runs 32X well on toaster, but not enough games run at full speed for me to bother...
 		SystemConfig('CD-i', '/media/Stuff/Roms/CD-i', 'mame-cdi'),
 		SystemConfig('Game.com', '/media/Stuff/Roms/Game.com', 'mame-game-com'),
+		SystemConfig('Sufami Turbo', '/media/Stuff/Roms/SNES/Sufami Turbo', 'mame-sufami-turbo', {'bios_path': SUFAMI_TURBO_BIOS_PATH}),
+		SystemConfig('Satellaview', '/media/Stuff/Roms/SNES/Satellaview', 'mame-satellaview', {'bios_path': BSX_BIOS_PATH}),
 
 		SystemConfig('Wii', '/media/Stuff/Roms/Wii', 'dolphin'), 
 		#Gonna have to map these motion controls somehow

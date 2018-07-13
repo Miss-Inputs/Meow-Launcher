@@ -1,4 +1,5 @@
 import sys
+import shlex
 
 import common
 
@@ -10,9 +11,9 @@ class Emulator():
 		self.supported_extensions = supported_extensions
 		self.supported_compression = supported_compression
 
-	def get_command_line(self, rom):
+	def get_command_line(self, rom, other_config):
 		if callable(self.command_line):
-			return self.command_line(rom)
+			return self.command_line(rom, other_config)
 		
 		return self.command_line
 
@@ -32,7 +33,7 @@ def make_mame_command_line(driver, slot=None, slot_options=None, has_keyboard=Fa
 			command_line += ' -' + name + ' ' + value
 
 	if slot:
-		command_line += ' -' + slot + '{0}'
+		command_line += ' -' + slot + ' {0}'
 
 	return command_line
 
@@ -43,18 +44,6 @@ class MameSystem(Emulator):
 MAME_CDROM_FORMATS = ['iso', 'chd', 'cue', 'toc', 'nrg', 'cdr', 'gdi']
 #Some drivers have custom floppy formats, but these seem to be available for all
 MAME_FLOPPY_FORMATS = ['d77', 'd88', '1dd', 'dfi', 'hfe', 'imd', 'ipf', 'mfi', 'mfm', 'td0', 'cqm', 'cqi', 'dsk']
-
-#TODO: Figure out how to put PrBoom+ in here nicely:
-#'command_line': 'prboom-plus -save %s -iwad {0}' % shlex.quote(DOOM_SAVE_DIR), 'supported_extensions': ['wad'], 'supported_compression': []
-	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where
-	#it doesn't really like running in fullscreen when more than one monitor is around.  Can I maybe utilize some kind of
-	#wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard
-#And Sufami Turbo and Satellaview:
-#'command_line': 'mame snes -skip_gameinfo -cart %s -cart2 {0}' % shlex.quote(SUFAMI_BIOS_PATH), , 'supported_extensions': ['st'], 'supported_compression': ['zip', '7z']
-#		#Snes9x's GTK+ port doesn't let us load carts with slots for other carts from the command line yet, so this will have
-		#to do, but unfortunately it's a tad slower
-#'command_line': 'mame snes -skip_gameinfo -cart %s -cart2 {0}' % shlex.quote(BSX_BIOS_PATH), 'supported_extensions': ['bs'], 'supported_compression': ['zip', '7z']
-		#Still have to go to the house and talk to the floating television, yes I took my meds		
 		
 def detect_region_from_filename(name):
 	#TODO Make this more robust, and maybe consolidate with roms.get_metadata_from_filename_tags
@@ -69,7 +58,7 @@ def detect_region_from_filename(name):
 
 	return None
 
-def build_atari7800_command_line(rom):
+def build_atari7800_command_line(rom, _):
 	#TODO: New plan: Split 'mame-atari-7800' emulator info into 'mame-atari-7800-ntsc' and 'mame-atari-7800-pal', then rewrite get_metadata (or some function similar to it) that gets the region in a more unified way (to allow for getting the language more sensibly etc), then pick which emulator to use here
 	#Hmm... how would you specify the usage of MAME in config.py though? Maybe if preferred emulator is 'mame-atari-7800', do auto-region-thingo, otherwise don't do that
 	#Or perhaps there's no need to split emulators, but just put a 'region' attribute on Rom that this reads instead of doing the detection itself
@@ -92,7 +81,7 @@ def build_atari7800_command_line(rom):
 			print('Something is wrong with', rom.path, ', has region byte of', region_byte)
 		return None
 
-def build_vic20_command_line(rom):
+def build_vic20_command_line(rom, _):
 	size = common.get_real_size(rom.path, rom.compressed_entry)
 	if size > ((8 * 1024) + 2):
 		#It too damn big (only likes 8KB with 2 byte header at most)
@@ -107,7 +96,7 @@ def build_vic20_command_line(rom):
 	
 	return base_command_line % 'vic20'
 		
-def build_a800_command_line(rom):
+def build_a800_command_line(rom, _):
 	is_left = True
 	rom_data = common.read_file(rom.path, rom.compressed_entry)
 	if rom_data[:4] == b'CART':
@@ -156,7 +145,7 @@ def build_a800_command_line(rom):
 
 	return base_command_line % 'a800'
 	
-def build_c64_command_line(rom):
+def build_c64_command_line(rom, _):
 	#While we're here building a command line, should mention that you have to manually put a joystick in the first
 	#joystick port, because by default there's only a joystick in the second port.  Why the fuck is that the default?
 	#Most games use the first port (although, just to be annoying, some do indeed use the second...  why????)
@@ -184,6 +173,21 @@ def build_c64_command_line(rom):
 
 	return base_command_line % 'c64'
 
+def make_snes_addon_cart_command_line(rom, other_config):
+	if 'bios_path' not in other_config:
+		if debug:
+			#TODO Only print this once!
+			print("You can't do", rom.path, "because you haven't set up the BIOS for it yet, check config.py")
+		return None
+	return make_mame_command_line('snes', 'cart2', {'cart': shlex.quote(other_config['bios_path'])}, False)
+
+def make_prboom_plus_command_line(rom, other_config):
+	#'command_line': 'prboom-plus -save %s -iwad {0}' % shlex.quote(DOOM_SAVE_DIR), 'supported_extensions': ['wad'], 'supported_compression': []
+	if 'save_dir' in other_config:
+		return 'prboom-plus -save %s -iwad {0}' % shlex.quote(other_config['save_dir'])
+	else:
+		#Fine don't save then, nerd
+		return 'prboom-plus -iwad {0}'
 
 emulators = {
 	'gambatte': Emulator('gambatte_qt --full-screen {0}', ['gb', 'gbc'], ['zip']),
@@ -248,6 +252,8 @@ emulators = {
 	#Based on bsnes v0.059, probably not so great on toasters. Not sure how well it works necessarily, probably doesn't do Sufami Turbo or Satellaview
 	'mednafen-snes_faust': MednafenModule('snes_faust', ['sfc', 'smc', 'swc']),
 	#Experimental and doesn't support expansion chips
+	'prboom-plus': Emulator(make_prboom_plus_command_line, ['wad'], []),
+	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
 
 	#TODO: Should this be refactored somehow? I feel like it should - in config.py, we're duplicating information (namely, what the driver is named), and it also feels like I should just be able to say "mame" as the preferred emulator in config.py rather than being specific (but needs the mame_driver field in config.py to do that of course), but then maybe I shouldn't do that
 	'mame-atari-5200': MameSystem(make_mame_command_line('a5200', 'cart'), ['bin', 'rom', 'car', 'a52']),
@@ -353,6 +359,11 @@ emulators = {
 	'mame-virtual-boy': MameSystem(make_mame_command_line('vboy', 'cart'), ['bin', 'vb']),
 	#Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there; no ROMs required though so that's neat
 	'mame-wonderswan': MameSystem(make_mame_command_line('wscolor', 'cart'), ['ws', 'wsc', 'bin']),
+	'mame-sufami-turbo': MameSystem(make_snes_addon_cart_command_line, ['st']),
+	#Snes9x's GTK+ port doesn't let us load carts with slots for other carts from the command line yet, so this will have
+		#to do, but unfortunately it's a tad slower
+	'mame-satellaview': MameSystem(make_snes_addon_cart_command_line, ['bs']),
+	#Also you still have to go through all the menus and stuff for BS-X/Satellaview/whatsitcalled
 
 	#Other systems that MAME can do but I'm too lazy to do them yet because they'd need a command line generator function:
 	#Lynx: Need to select -quick for .o files and -cart otherwise
