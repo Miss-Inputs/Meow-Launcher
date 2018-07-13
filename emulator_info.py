@@ -255,7 +255,6 @@ emulators = {
 	'prboom-plus': Emulator(make_prboom_plus_command_line, ['wad'], []),
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
 
-	#TODO: Should this be refactored somehow? I feel like it should - in config.py, we're duplicating information (namely, what the driver is named), and it also feels like I should just be able to say "mame" as the preferred emulator in config.py rather than being specific (but needs the mame_driver field in config.py to do that of course), but then maybe I shouldn't do that
 	'mame-atari-5200': MameSystem(make_mame_command_line('a5200', 'cart'), ['bin', 'rom', 'car', 'a52']),
 	#Analog stuff like Gorf doesn't really work that well, but it doesn't in real life either; could use -sio casette
 	#-cass *.wav if there was ever a game that came as a .wav which apparently could be a thing in theory
