@@ -31,8 +31,9 @@ def get_metadata_from_filename_tags(tags):
 			metadata['Languages'] = 'Japanese'
 		elif tags[0] == '(Italy)':
 			metadata['Languages'] = 'Italian'
-		elif tags[0] == '(France)': #Canada sometimes is French, sometimes it is not, that's not consistent across all naming standards which one is
-                              #implied and which one should be specified
+		elif tags[0] == '(France)': 
+			#Canada sometimes is French, sometimes it is not, that's not consistent across all naming standards which one is
+			#implied and which one should be specified
 			metadata['Languages'] = 'French'
 		elif tags[0] == '(Russia)':
 			metadata['Languages'] = 'Russian'
@@ -284,11 +285,11 @@ def process_file(system_config, root, name):
 	if rom.warn_about_multiple_files and debug:
 		print('Warning!', rom.path, 'has more than one file and that may cause unexpected behaviour, as I only look at the first file')
 
-
 	command_line = emulator.get_command_line(rom)
 	if command_line is None:
 		return
 			
+	#TODO: Stuff like this should go into somewhere like get_metadata
 	platform = system_config.name
 	if platform == 'NES' and rom.extension == 'fds':
 		platform = 'FDS'

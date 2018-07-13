@@ -137,11 +137,13 @@ def process_machine(machine):
 	elif source_file == 'nss':
 		platform = 'Nintendo Super System'
 	elif category == 'Game Console':
-		platform = 'Plug & Play' #Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug &
-                           #play system
+		platform = 'Plug & Play' 
+		#Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug &
+        #play system
 	elif category == 'Handheld':
-		platform = 'Handheld' #Could also be a tabletop system which takes AC input, but since catlist.ini doesn't take that into account, I don't
-                        #really have a way of doing so either
+		platform = 'Handheld' 
+		#Could also be a tabletop system which takes AC input, but since catlist.ini doesn't take that into account, I don't
+		#really have a way of doing so either
 	elif category == 'Misc.':
 		platform = genre
 	elif category == 'Computer':

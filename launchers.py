@@ -89,9 +89,11 @@ def make_desktop(platform, command, path, name, categories=[], metadata={}, ext=
 	#Use compressed_entry for manual decompression, don't pass that if the compression format is natively supported by the
 	#emulator
 	if compressed_entry:
-		extracted_path = os.path.join('/tmp/crappyromlauncher', compressed_entry)
+		temp_folder = '/tmp/temporary_rom_extract'
+		#TODO: Should I get the inner shell to ensure this directory exists, or to make a new one entirely?
+		extracted_path = os.path.join(temp_folder, compressed_entry)
 		inner_cmd = command.format(shlex.quote(extracted_path))
-		cmd = 'sh -c {0}'.format(shlex.quote('7z x -o/tmp/crappyromlauncher {0}; {1}; rm -rf /tmp/crappyromlauncher'.format(shlex.quote(path), inner_cmd)))	
+		cmd = 'sh -c {0}'.format(shlex.quote('7z x -o{2} {0}; {1}; rm -rf {2}'.format(shlex.quote(path), inner_cmd, temp_folder)))	
 	else:
 		cmd = command.format(shlex.quote(path))
 

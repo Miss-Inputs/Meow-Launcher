@@ -70,6 +70,9 @@ def detect_region_from_filename(name):
 	return None
 
 def build_atari7800_command_line(rom):
+	#TODO: New plan: Split 'mame-atari-7800' emulator info into 'mame-atari-7800-ntsc' and 'mame-atari-7800-pal', then rewrite get_metadata (or some function similar to it) that gets the region in a more unified way (to allow for getting the language more sensibly etc), then pick which emulator to use here
+	#Hmm... how would you specify the usage of MAME in config.py though? Maybe if preferred emulator is 'mame-atari-7800', do auto-region-thingo, otherwise don't do that
+	#Or perhaps there's no need to split emulators, but just put a 'region' attribute on Rom that this reads instead of doing the detection itself
 	base_command_line = 'mame -skip_gameinfo %s -cart {0}'
 	#TODO: Put read_file and get_real_size in roms.Rom()
 	rom_data = common.read_file(rom.path, rom.compressed_entry)
@@ -87,7 +90,7 @@ def build_atari7800_command_line(rom):
 	else:
 		if debug:
 			print('Something is wrong with', rom.path, ', has region byte of', region_byte)
-		return None #MAME can't do anything with unheadered ROMs (or stuff with invalid region byte), so these won't be any good to us
+		return None
 
 def build_vic20_command_line(rom):
 	size = common.get_real_size(rom.path, rom.compressed_entry)
@@ -145,7 +148,8 @@ def build_a800_command_line(rom):
 	else:
 		base_command_line = 'mame %s -skip_gameinfo -ui_active -cart2 {0}'
 
-	region = detect_region_from_filename(rom.display_name) #Why do these CCS64 and CART and whatever else thingies never frickin' store the TV type?
+	region = detect_region_from_filename(rom.display_name) 
+	#Why do these CCS64 and CART and whatever else thingies never frickin' store the TV type?
 	if region == 'pal':
 		#Atari 800 should be fine for everything, and I don't feel like the XL/XE series to see in which ways they don't work
 		return base_command_line % 'a800p'
@@ -238,7 +242,7 @@ emulators = {
 	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes"
 	'mednafen-master-system': MednafenModule('gg', ['gg']),
 	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes"
-	'mednafen-megadrive': MednafenModule('md', ['md', 'bin', 'gen' , 'smd', 'sgd']),
+	'mednafen-megadrive': MednafenModule('md', ['md', 'bin', 'gen', 'smd', 'sgd']),
 	#Apparently "should still be considered experimental; there are still likely timing bugs in the 68K emulation code, the YM2612 emulation code is not particularly accurate, and the VDP code has timing-related issues."
 	'mednafen-snes': MednafenModule('snes', ['sfc', 'smc', 'swc']),
 	#Based on bsnes v0.059, probably not so great on toasters. Not sure how well it works necessarily, probably doesn't do Sufami Turbo or Satellaview

@@ -15,8 +15,9 @@ def init_game_list():
 	if not os.path.exists(config.mac_db_path):
 		print("You don't have mac_db.json which is required for this to work. Let me get that for you.")
 		#TODO: Is this the wrong way to do this? I think it most certainly is
-		with urllib.request.urlopen('https://raw.githubusercontent.com/Zowayix/computer-software-db/master/mac_db.json') as mac_db_url:
-			mac_db_data = mac_db_url.read().decode('utf-8')
+		mac_db_url = 'https://raw.githubusercontent.com/Zowayix/computer-software-db/master/mac_db.json'
+		with urllib.request.urlopen(mac_db_url) as mac_db_request:
+			mac_db_data = mac_db_request.read().decode('utf-8')
 		with open(config.mac_db_path, 'wt') as mac_db_local_file:
 			mac_db_local_file.write(mac_db_data)
 			game_list = json.loads(mac_db_data)
@@ -57,7 +58,8 @@ def make_launcher(path, game_name, game_config):
 	#Or controls... but I swear I will find a way!!!!
 	
 	#If you're not using an SDL2 build of BasiliskII, you probably want to change dga to window! Well you really want to get an SDL2 build of BasiliskII, honestly
-	inner_command = 'echo {0} > {1} && BasiliskII --screen dga/{2}/{3} && rm {1}'.format(shlex.quote(path), shlex.quote(autoboot_txt_path), width, height)
+	actual_emulator_command = 'BasiliskII --screen dga/{2}/{3}'.format(width, height)
+	inner_command = 'echo {0} > {1} && {2} && rm {1}'.format(shlex.quote(path), shlex.quote(autoboot_txt_path), actual_emulator_command)
 	command = 'sh -c {0}'.format(shlex.quote(inner_command))
 	display_name = common.remove_filename_tags(game_name)
 	comment = path
