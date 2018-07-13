@@ -230,6 +230,20 @@ emulators = {
 	#Has a few problems.  Takes some time to load the interface so at first it might look like it's not working; take out --fullboot if it forbids any homebrew stuff (but it should be fine, and Katamari Damacy needs it).  ELF still doesn't work, though it'd need a different command line anyway
 	'mednafen-saturn': MednafenModule('ss', ['cue', 'toc', 'ccd', 'm3u']),
 	#Doesn't do .iso for whatever strange reason, which is a bit unfortunate. Might do .bin executables? Probably not
+	'mednafen-game-boy': MednafenModule('gb', ['gb', 'gbc']),
+	#Would not recommend due to this being based on VisualBoyAdvance, it's just here for completeness
+	'mednafen-gba': MednafenModule('gba', ['gba']),
+	#Would not recommend due to this being based on VisualBoyAdvance, it's just here for completeness
+	'mednafen-game-gear': MednafenModule('gg', ['gg']),
+	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes"
+	'mednafen-master-system': MednafenModule('gg', ['gg']),
+	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes"
+	'mednafen-megadrive': MednafenModule('md', ['md', 'bin', 'gen' , 'smd', 'sgd']),
+	#Apparently "should still be considered experimental; there are still likely timing bugs in the 68K emulation code, the YM2612 emulation code is not particularly accurate, and the VDP code has timing-related issues."
+	'mednafen-snes': MednafenModule('snes', ['sfc', 'smc', 'swc']),
+	#Based on bsnes v0.059, probably not so great on toasters. Not sure how well it works necessarily, probably doesn't do Sufami Turbo or Satellaview
+	'mednafen-snes_faust': MednafenModule('snes_faust', ['sfc', 'smc', 'swc']),
+	#Experimental and doesn't support expansion chips
 
 	#TODO: Should this be refactored somehow? I feel like it should - in config.py, we're duplicating information (namely, what the driver is named), and it also feels like I should just be able to say "mame" as the preferred emulator in config.py rather than being specific (but needs the mame_driver field in config.py to do that of course), but then maybe I shouldn't do that
 	'mame-atari-5200': MameSystem(make_mame_command_line('a5200', 'cart'), ['bin', 'rom', 'car', 'a52']),
@@ -322,5 +336,27 @@ emulators = {
 	#new SID chip, but that might break compatibility I dunno; could also use sx64 for some portable version, there's a
 	#whole bunch of models; c64gs doesn't really have much advantages (just like in real life) except for those few
 	#cartridges that were made for it specifically.
-	'mame-atari-7800': MameSystem(build_atari7800_command_line, ['bin', 'a78'])
+	'mame-atari-7800': MameSystem(build_atari7800_command_line, ['bin', 'a78']),
+	'mame-game-boy': MameSystem(make_mame_command_line('gbpocket', 'cart'), ['bin', 'gb', 'gbc']),
+	'mame-super-game-boy': MameSystem(make_mame_command_line('supergb2', 'cart'), ['bin', 'gb', 'gbc']),
+	'mame-game-boy-color': MameSystem(make_mame_command_line('gbcolor', 'cart'), ['bin', 'gb', 'gbc']),
+	'mame-gba': MameSystem(make_mame_command_line('gba', 'cart'), ['bin', 'gba']),
+	'mame-game-gear': MameSystem(make_mame_command_line('gamegear', 'cart'), ['bin', 'gg']),
+	'mame-ngp': MameSystem(make_mame_command_line('ngpc', 'cart'), ['bin', 'ngp', 'npc', 'ngc']),
+	'mame-pokemon-mini': MameSystem(make_mame_command_line('pokemini', 'cart'), ['bin', 'min']),
+	#Wouldn't recommend yet as it has no sound, even if most people would probably turn the sound off in real life
+	'mame-sg1000': MameSystem(make_mame_command_line('sg1000', 'cart'), ['bin', 'sg']),
+	'mame-virtual-boy': MameSystem(make_mame_command_line('vboy', 'cart'), ['bin', 'vb']),
+	#Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there; no ROMs required though so that's neat
+	'mame-wonderswan': MameSystem(make_mame_command_line('wscolor', 'cart'), ['ws', 'wsc', 'bin']),
+
+	#Other systems that MAME can do but I'm too lazy to do them yet because they'd need a command line generator function:
+	#Lynx: Need to select -quick for .o files and -cart otherwise
+	#SC-3000: Need to select -cart for carts and -cass for cassettes (.wav .bit); I'm not sure Kega Fusion can do .sc or cassettes yet
+	#SF-7000: Need to select -flop for disk images (sf7 + normal MAME disk formats) and -cass for cassettes (.wav .bit); very sure Kega Fusion can't do this
+	#NES, SMS, Megadrive, SNES, Atari 2600: Need to detect region 
+	#	(Notable that Megadrive and SNES support lock-on carts, i.e. Sonic & Knuckles, Sufami Turbo respectively)
+	#N64: Does not do PAL at all. The game might even tell you off if it's a PAL release
+	#PC Engine: Need to select between pce and tg16 depending on region, -cdrom and -cart slots, and sgx accordingly
+
 }
