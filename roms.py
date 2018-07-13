@@ -208,41 +208,34 @@ def get_metadata(emulator_name, rom):
 	return metadata
 
 class Rom():
-	def __init__(self, rom_file):
-		self.file = rom_file
+	def __init__(self, path):
 		self.categories = []
-		self.path = rom_file.path
+		self.path = path
 		self.warn_about_multiple_files = False
-		self.extension = rom_file.extension
+		self.original_name = os.path.basename(path)
+		self.name_without_extension, self.original_extension = os.path.splitext(self.original_name)
+		if self.original_extension.startswith('.'):
+			self.original_extension = self.original_extension[1:]
+		self.original_extension = self.original_extension.lower()
 
-		if self.extension in archives.COMPRESSED_EXTS:
+		if self.original_extension in archives.COMPRESSED_EXTS:
 			self.is_compressed = True
 
 			found_file_already = False
-			for entry in archives.compressed_list(self.file.path):
+			for entry in archives.compressed_list(self.path):
 				if found_file_already:
 					self.warn_about_multiple_files = True
 					continue
 				found_file_already = True
 				
 				self.display_name, self.extension = os.path.splitext(entry)
-				if self.extension.startswith('.'):
-					self.extension = self.extension[1:]
-				self.extension = self.extension.lower()
 				self.compressed_entry = entry
 		else:
 			self.is_compressed = False
 			self.compressed_entry = None
-			self.display_name = rom_file.name_without_extension
+			self.display_name = self.name_without_extension
+			self.extension = self.original_extension
 
-
-
-class RomFile():
-#TODO: Do I need this class? It's just initialized and then passed straight off to Rom(), could just use original_extension field there
-	def __init__(self, path):
-		self.path = path
-		self.name = os.path.basename(path)
-		self.name_without_extension, self.extension = os.path.splitext(self.name)
 		if self.extension.startswith('.'):
 			self.extension = self.extension[1:]
 		self.extension = self.extension.lower()
@@ -258,8 +251,7 @@ def process_file(system_config, root, name):
 
 	emulator = emulator_info.emulators[emulator_name]
 
-	rom_file = RomFile(path)
-	rom = Rom(rom_file)
+	rom = Rom(path)
 
 	#TODO This looks weird, but is there a better way to do this? (Get subfolders we're in from rom_dir)
 	rom.categories = [i for i in root.replace(system_config.rom_dir, '').split('/') if i]
@@ -299,7 +291,7 @@ def process_file(system_config, root, name):
 			
 	metadata = get_metadata(system_config.name, rom)
 			
-	is_unsupported_compression = rom.is_compressed and (rom.file.extension in emulator.supported_compression)
+	is_unsupported_compression = rom.is_compressed and (rom.original_extension not in emulator.supported_compression)
 
 	if is_unsupported_compression:
 		#TODO: Mmmmm don't like this should be refactored
