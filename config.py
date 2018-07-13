@@ -13,12 +13,11 @@ basilisk_ii_shared_folder = '/media/Things/Mac_OS_Stuff/Shared'
 mac_disk_images = ['/media/Things/Mac_OS_Stuff/Games 68k.hfv']
 mac_db_path = os.path.join(os.path.dirname(__file__), 'mac_db.json')
 
-class System():
-	def __init__(self, name, rom_dir, chosen_emulator, mame_driver=None, save_dir=None):
+class SystemConfig():
+	def __init__(self, name, rom_dir, chosen_emulator, save_dir=None):
 		self.name = name
 		self.rom_dir = rom_dir
 		self.chosen_emulator = chosen_emulator
-		self.mame_driver = mame_driver
 		self.save_dir = save_dir
 
 #TODO: Refactor until we can use these:
@@ -28,84 +27,75 @@ class System():
 
 
 system_configs = [
-	System('Game Boy', '/media/Stuff/Roms/Gameboy', 'gambatte', 'gbcolor'),
-	System('GBA', '/media/Stuff/Roms/GBA', 'mgba', 'gba'), 
-	System('SNES', '/media/Stuff/Roms/SNES', 'snes9x', 'snes'),
-	System('N64', '/media/Stuff/Roms/N64', 'mupen64plus', 'n64'), 
-	System('Mega Drive', '/media/Stuff/Roms/Megadrive', 'kega-fusion', 'megadriv'),
-	System('Game Gear', '/media/Stuff/Roms/Game Gear', 'kega-fusion', 'gamegear'),
-	System('Master System', '/media/Stuff/Roms/Master System', 'kega-fusion', 'sms'),
-	System('PSP', '/media/Stuff/Roms/PSP', 'ppsspp', None),
-	System('Neo Geo Pocket', '/media/Stuff/Roms/Neo Geo Pocket', 'mednafen-ngp', 'ngpc'),
-	System('Atari 2600', '/media/Stuff/Roms/Atari 2600', 'stella', 'a2600'), 
-	System('Pokemon Mini', '/media/Stuff/Roms/Pokemon Mini', 'pokemini-wrapper', 'pokemini'),
-	System('NES', '/media/Stuff/Roms/NES', 'mednafen-nes', 'nes'),
-	System('Mega CD', '/media/Stuff/Roms/Mega CD', 'kega-fusion', 'megacd'), 
-	System('SG-1000', '/media/Stuff/Roms/Sega SG-1000', 'kega-fusion', 'sg1000'),
-	System('PC Engine', '/media/Stuff/Roms/PC Engine', pce_emulator, 'pce'), 
-	System('PC Engine CD', '/media/Stuff/Roms/PC Engine CD', pce_emulator, 'pce'), 
-	System('Virtual Boy', '/media/Stuff/Roms/Virtual Boy', 'mednafen-vb', 'vboy'),
-	System('Atari 7800', '/media/Stuff/Roms/Atari 7800', 'mame-atari-7800', 'a7800'), 
-	System('Neo Geo CD', '/media/Stuff/Roms/Neo Geo CD', 'mame-neo-geo-cd', 'neocdz'),
-	System('Atari 5200', '/media/Stuff/Roms/Atari 5200', 'mame-atari-5200', 'a5200'), 
+	SystemConfig('Game Boy', '/media/Stuff/Roms/Gameboy', 'gambatte'),
+	SystemConfig('GBA', '/media/Stuff/Roms/GBA', 'mgba'), 
+	SystemConfig('SNES', '/media/Stuff/Roms/SNES', 'snes9x'),
+	SystemConfig('N64', '/media/Stuff/Roms/N64', 'mupen64plus'), 
+	SystemConfig('Mega Drive', '/media/Stuff/Roms/Megadrive', 'kega-fusion'),
+	SystemConfig('Game Gear', '/media/Stuff/Roms/Game Gear', 'kega-fusion'),
+	SystemConfig('Master System', '/media/Stuff/Roms/Master System', 'kega-fusion'),
+	SystemConfig('PSP', '/media/Stuff/Roms/PSP', 'ppsspp'),
+	SystemConfig('Neo Geo Pocket', '/media/Stuff/Roms/Neo Geo Pocket', 'mednafen-ngp'),
+	SystemConfig('Atari 2600', '/media/Stuff/Roms/Atari 2600', 'stella'), 
+	SystemConfig('Pokemon Mini', '/media/Stuff/Roms/Pokemon Mini', 'pokemini-wrapper'),
+	SystemConfig('NES', '/media/Stuff/Roms/NES', 'mednafen-nes'),
+	SystemConfig('Mega CD', '/media/Stuff/Roms/Mega CD', 'kega-fusion'), 
+	SystemConfig('SG-1000', '/media/Stuff/Roms/Sega SG-1000', 'kega-fusion'),
+	SystemConfig('PC Engine', '/media/Stuff/Roms/PC Engine', pce_emulator), 
+	SystemConfig('PC Engine CD', '/media/Stuff/Roms/PC Engine CD', pce_emulator), 
+	SystemConfig('Virtual Boy', '/media/Stuff/Roms/Virtual Boy', 'mednafen-vb'),
+	SystemConfig('Atari 7800', '/media/Stuff/Roms/Atari 7800', 'mame-atari-7800'), 
+	SystemConfig('Neo Geo CD', '/media/Stuff/Roms/Neo Geo CD', 'mame-neo-geo-cd'),
+	SystemConfig('Atari 5200', '/media/Stuff/Roms/Atari 5200', 'mame-atari-5200'), 
 
-	System('Watara Supervision', '/media/Stuff/Roms/Watara Supervision', 'mame-watara-supervision', 'svision'), 
-	System('Casio PV-1000', '/media/Stuff/Roms/Casio PV-1000', 'mame-pv-1000', 'pv1000'),
-	System('Arcadia 2001', '/media/Stuff/Roms/Arcadia 2001', 'mame-arcadia-2001', 'arcadia'), 
-	System('Entex Adventure Vision', '/media/Stuff/Roms/Adventure Vision', 'mame-adventure-vision', 'advision'), 
-	System('Vectrex', '/media/Stuff/Roms/Vectrex', 'mame-vectrex', 'vectrex'), 
-	System('Mega Duck', '/media/Stuff/Roms/Mega Duck', 'mame-mega-duck', 'megaduck'), 
-	System('Amstrad GX4000', '/media/Stuff/Roms/Amstrad GX4000', 'mame-amstrad-gx4000', 'gx4000'), 
-	System('Gamate', '/media/Stuff/Roms/Gamate', 'mame-gamate', 'gamate'),
-	System('Epoch Game Pocket Computer', '/media/Stuff/Roms/Game Pocket Computer', 'mame-game-pocket-computer', 'gamepock'),
+	SystemConfig('Watara Supervision', '/media/Stuff/Roms/Watara Supervision', 'mame-watara-supervision'), 
+	SystemConfig('Casio PV-1000', '/media/Stuff/Roms/Casio PV-1000', 'mame-pv-1000'),
+	SystemConfig('Arcadia 2001', '/media/Stuff/Roms/Arcadia 2001', 'mame-arcadia-2001'), 
+	SystemConfig('Entex Adventure Vision', '/media/Stuff/Roms/Adventure Vision', 'mame-adventure-vision'), 
+	SystemConfig('Vectrex', '/media/Stuff/Roms/Vectrex', 'mame-vectrex'), 
+	SystemConfig('Mega Duck', '/media/Stuff/Roms/Mega Duck', 'mame-mega-duck'), 
+	SystemConfig('Amstrad GX4000', '/media/Stuff/Roms/Amstrad GX4000', 'mame-amstrad-gx4000'), 
+	SystemConfig('Gamate', '/media/Stuff/Roms/Gamate', 'mame-gamate', 'gamate'),
+	SystemConfig('Epoch Game Pocket Computer', '/media/Stuff/Roms/Game Pocket Computer', 'mame-game-pocket-computer'),
 
-	#These ones may have control schemes that don't actually map too easily to a normal XInput controller or any other
-	#controller that looks like the kind of controller that's standard these days (y'know what I mean), or other weirdness
-	System('Colecovision', '/media/Stuff/Roms/Colecovision', 'mame-colecovision', 'coleco'), 
-	System('Intellivison', '/media/Stuff/Roms/Intellivision', 'mame-intellivision-voice', 'intv'), 
-	System('APF-MP1000', '/media/Stuff/Roms/APF-MP1000', 'mame-apfm1000', 'apfm1000'),
-	System('Astrocade', '/media/Stuff/Roms/Astrocade', 'mame-astrocade', 'astrocde'), 
-	System('Channel F', '/media/Stuff/Roms/Channel F', 'mame-channelf', 'channelf'), 
-	System('Lynx', '/media/Stuff/Roms/Atari Lynx', 'mednafen-lynx', 'lynx'), 
-	System('WonderSwan', '/media/Stuff/Roms/WonderSwan', 'mednafen-wonderswan', 'wscolor'), 
+	SystemConfig('Colecovision', '/media/Stuff/Roms/Colecovision', 'mame-colecovision'), 
+	SystemConfig('Intellivison', '/media/Stuff/Roms/Intellivision', 'mame-intellivision-voice'), 
+	SystemConfig('APF-MP1000', '/media/Stuff/Roms/APF-MP1000', 'mame-apfm1000'),
+	SystemConfig('Astrocade', '/media/Stuff/Roms/Astrocade', 'mame-astrocade'), 
+	SystemConfig('Channel F', '/media/Stuff/Roms/Channel F', 'mame-channelf'), 
+	SystemConfig('Lynx', '/media/Stuff/Roms/Atari Lynx', 'mednafen-lynx'), 
+	SystemConfig('WonderSwan', '/media/Stuff/Roms/WonderSwan', 'mednafen-wonderswan'), 
 	
-	#Computers!  These actually aren't that bad control-wise because most sensible games would use a simple one-button
-	#joystick, and most of the time MAME lets you attach one.  But some of them don't!  And the ones that don't just use
-	#any damn keys they want!  And some software might only work properly with particular models of a computer within an
-	#allegedly compatible family!  Yaaaay!  But they have games, so let's put them in here
-	#I avoid using anything which requires me to input arcane commands or hear arcane sounds here or wait for arcane
-	#times, though I suppose I _could_ do that, it just doesn't feel like a nicely organized bunch of launcher scripts if
-	#I do that
-	System('MSX', '/media/Stuff/Roms/MSX', 'mame-msx2', 'fsa1wsx'), 
-	System('MSX2', '/media/Stuff/Roms/MSX2', 'mame-msx2', 'fsa1wsx'), 
-	System('VIC-20', '/media/Stuff/Roms/Commodore VIC-20', 'mame-vic-20', 'vic20'),
-	System('Casio PV-2000', '/media/Stuff/Roms/Casio PV-2000', 'mame-pv-2000', 'pv2000'), 
-	System('Sord M5', '/media/Stuff/Roms/Sord M5', 'mame-sord-m5', 'm5'), 
-	System('Atari 8-bit', '/media/Stuff/Roms/Atari 8-bit', 'mame-atari-8bit', 'a800'), 
+	SystemConfig('MSX', '/media/Stuff/Roms/MSX', 'mame-msx2'), 
+	SystemConfig('MSX2', '/media/Stuff/Roms/MSX2', 'mame-msx2'), 
+	SystemConfig('VIC-20', '/media/Stuff/Roms/Commodore VIC-20', 'mame-vic-20'),
+	SystemConfig('Casio PV-2000', '/media/Stuff/Roms/Casio PV-2000', 'mame-pv-2000'), 
+	SystemConfig('Sord M5', '/media/Stuff/Roms/Sord M5', 'mame-sord-m5'), 
+	SystemConfig('Atari 8-bit', '/media/Stuff/Roms/Atari 8-bit', 'mame-atari-8bit'), 
 ]
 
 if not is_toaster:
 	system_configs.extend([
-		System('PlayStation', '/media/Stuff/Roms/Playstation', 'mednafen-ps1', 'psj'), 
-		System('GameCube', '/media/Stuff/Roms/Gamecube', 'dolphin', 'gcjp'),
-		System('3DS', '/media/Stuff/Roms/3DS', 'citra', None), 
-		System('DS', '/media/Stuff/Roms/DS', 'medusa', None),
-		System('PS2', '/media/Stuff/Roms/PS2', 'pcsx2', None), 
-		System('32X', '/media/Stuff/Roms/32X', 'kega-fusion', '32x'), 
+		SystemConfig('PlayStation', '/media/Stuff/Roms/Playstation', 'mednafen-ps1'), 
+		SystemConfig('GameCube', '/media/Stuff/Roms/Gamecube', 'dolphin'),
+		SystemConfig('3DS', '/media/Stuff/Roms/3DS', 'citra'), 
+		SystemConfig('DS', '/media/Stuff/Roms/DS', 'medusa'),
+		SystemConfig('PS2', '/media/Stuff/Roms/PS2', 'pcsx2'), 
+		SystemConfig('32X', '/media/Stuff/Roms/32X', 'kega-fusion'), 
 		#Kega Fusion almost runs 32X well on toaster, but not enough games run at full speed for me to bother...
-		System('CD-i', '/media/Stuff/Roms/CD-i', 'mame-cdi', 'cdimono1'),
-		System('Game.com', '/media/Stuff/Roms/Game.com', 'mame-game-com', 'gamecom'),
+		SystemConfig('CD-i', '/media/Stuff/Roms/CD-i', 'mame-cdi'),
+		SystemConfig('Game.com', '/media/Stuff/Roms/Game.com', 'mame-game-com'),
 
-		System('Wii', '/media/Stuff/Roms/Wii', 'dolphin', None), 
+		SystemConfig('Wii', '/media/Stuff/Roms/Wii', 'dolphin'), 
 		#Gonna have to map these motion controls somehow
-		System('Saturn', '/media/Stuff/Roms/Saturn', 'mednafen-saturn', 'saturn'), 
+		SystemConfig('Saturn', '/media/Stuff/Roms/Saturn', 'mednafen-saturn'), 
 		#Not the most easily mappable of controllers due to having both 6 face buttons and 2 shoulder buttons
 
-		System('Tomy Tutor', '/media/Stuff/Roms/Tomy Tutor', 'mame-tomy-tutor', 'tutor'), 
-		System('C64', '/media/Stuff/Roms/Commodore 64', 'mame-c64', 'c64'),
-		System('VIC-10', '/media/Stuff/Roms/Commodore VIC-10', 'mame-vic-10', 'vic10'), 
-		System('Sharp X1', '/media/Stuff/Roms/Sharp X1', 'mame-sharp-x1', 'x1'), 
-		System('Sharp X68000', '/media/Stuff/Roms/Sharp X68000', 'mame-sharp-x68k', 'x68000'),
+		SystemConfig('Tomy Tutor', '/media/Stuff/Roms/Tomy Tutor', 'mame-tomy-tutor'), 
+		SystemConfig('C64', '/media/Stuff/Roms/Commodore 64', 'mame-c64'),
+		SystemConfig('VIC-10', '/media/Stuff/Roms/Commodore VIC-10', 'mame-vic-10'), 
+		SystemConfig('Sharp X1', '/media/Stuff/Roms/Sharp X1', 'mame-sharp-x1'), 
+		SystemConfig('Sharp X68000', '/media/Stuff/Roms/Sharp X68000', 'mame-sharp-x68k'),
 	])
 
 with open(os.path.join(os.path.dirname(__file__), 'ignored_directories.txt'), 'rt') as ignored_txt:
