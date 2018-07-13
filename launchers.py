@@ -95,7 +95,8 @@ def make_desktop(platform, command, path, name, categories=None, metadata=None, 
 		#TODO: Should I get the inner shell to ensure this directory exists, or to make a new one entirely?
 		extracted_path = os.path.join(temp_folder, compressed_entry)
 		inner_cmd = command.format(shlex.quote(extracted_path))
-		cmd = 'sh -c {0}'.format(shlex.quote('7z x -o{2} {0}; {1}; rm -rf {2}'.format(shlex.quote(path), inner_cmd, temp_folder)))	
+		shell_command = shlex.quote('7z x -o{2} {0}; {1}; rm -rf {2}'.format(shlex.quote(path), inner_cmd, temp_folder))
+		cmd = 'sh -c {0}'.format(shell_command)
 	else:
 		cmd = command.format(shlex.quote(path))
 
