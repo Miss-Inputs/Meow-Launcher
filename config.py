@@ -163,7 +163,8 @@ name_replacement = [
 	('Parodius DA!', 'Parodius'),
 	('Pitfall 2', 'Pitfall II'),
 	('Puyo Puyo Tsuu', 'Puyo Puyo 2'), 
-	('Q-Bert', 'Q*bert'), #To be fair, this is just a technical restriction on filenames that isn't relevant when using a MAME display name
+	('Q-Bert', 'Q*bert'), 
+	#To be fair, this is just a technical restriction on filenames that isn't relevant when using a MAME display name
 	('Robotron - 2084', 'Robotron 2084'), 
 	('Sangokushi 3', 'Sangokushi III'), 
 	('Sim Ant', 'SimAnt'),
@@ -173,7 +174,8 @@ name_replacement = [
 	("Street Fighter II'", 'Street Fighter II'), 
 	('Twin Bee', 'TwinBee'),
 	('Ultima 3', 'Ultima III'),
-	('Where in the World is Carmen Sandiego?', 'Where in the World is Carmen Sandiego'), #Hmm... yeah, maybe I really should just remove ? in disambiguate.normalize_name...
+	('Where in the World is Carmen Sandiego?', 'Where in the World is Carmen Sandiego'), 
+	#Hmm... yeah, maybe I really should just remove ? in disambiguate.normalize_name...
 	('Wolfenstein 3-D', 'Wolfenstein 3D'),
 ]
 

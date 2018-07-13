@@ -50,7 +50,7 @@ def lookup_system_cpu(driver_name):
 	return None
 
 console_cpus = {
-	#TODO: Ideally, we'd put this in config.py along with the emulators, but I guess it's not really important
+	#TODO: TODO: Look this up from system_info.py, except where not available or hardcoding is otherwise needed
 	#I look up things from MAME here (even when MAME doesn't really support the system and it's just a skeleton driver, as long as it knows the CPU) so the wording and naming and stuff is consistent with arcade games, which already have their CPU known
 	"3DS": "ARM11",
 	"32X": "Hitachi SH-2",
@@ -80,7 +80,8 @@ console_cpus = {
 	"GBA": lookup_system_cpu('gba'),
 	"Intellivision": lookup_system_cpu('intv'),
 	"Lynx": lookup_system_cpu('lynx'),
-	"Mac": lookup_system_cpu('macqd700'), #Correct for now, since we aren't emulating PPC games yet, nor are we falling back to earlier systems in case of really old games
+	"Mac": lookup_system_cpu('macqd700'), 
+	#Correct for now, since we aren't emulating PPC games yet, nor are we falling back to earlier systems in case of really old games
 	"Master System": lookup_system_cpu('sms'),
 	"Mega CD": lookup_system_cpu('megacd'),
 	"Mega Drive": lookup_system_cpu('megadriv'),
@@ -111,7 +112,8 @@ console_cpus = {
 	"VIC-20": lookup_system_cpu('vic20'),
 	"Virtual Boy": lookup_system_cpu('vboy'),
 	"Watara Supervision": lookup_system_cpu('svision'),
-	"Wii": lookup_system_cpu('tvcapcom'), #Yes that's not a Wii, but it runs on Wii hardware, and a real Wii isn't even a skeleton driver yet. I really just don't feel like hardcoding things today
+	"Wii": lookup_system_cpu('tvcapcom'), 
+	#Yes that's not a Wii, but it runs on Wii hardware, and a real Wii isn't even a skeleton driver yet. I really just don't feel like hardcoding things today
 	"WonderSwan": lookup_system_cpu('wscolor'),
 }
 
