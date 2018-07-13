@@ -1,5 +1,4 @@
 import socket
-import shlex
 import os
 
 DOOM_SAVE_DIR = '/media/Stuff/Roms/Doom/Saves'

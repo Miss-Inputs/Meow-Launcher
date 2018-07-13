@@ -62,7 +62,7 @@ def list_recursively(hfv_path, unescaped_name=None):
 def list_hfv(hfv_path):
 	mount_proc = subprocess.run(['hmount', hfv_path], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 	if mount_proc.returncode != 0:
-		raise Error(mount_proc.stderr)
+		raise Exception(mount_proc.stderr)
 		
 	try:
 		pwd_proc = subprocess.run('hpwd', stdout=subprocess.PIPE, encoding='mac-roman')

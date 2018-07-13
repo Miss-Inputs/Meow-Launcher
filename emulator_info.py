@@ -13,8 +13,8 @@ class Emulator():
 	def get_command_line(self, path, name=None, compressed_entry=None):
 		if callable(self.command_line):
 			return self.command_line(path, name, compressed_entry)
-		else:
-			return self.command_line
+		
+		return self.command_line
 
 class MednafenModule(Emulator):
 	def __init__(self, module, supported_extensions):
@@ -224,7 +224,7 @@ emulators = {
 	#, 'command_line': 'citra-qt {0}', 'supported_extensions': , 'supported_compression': []
 	'citra': Emulator('citra-qt {0}', ['3ds', 'cxi', '3dsx'], []),
 	#Will not run full screen from the command line and you always have to set it manually whether you like it or not (I
-		#do not)
+	#do not)
 	'medusa': Emulator('medusa-emu-qt -f {0}', ['nds'], ['7z', 'zip']),
 	'pcsx2': Emulator('pcsx2 --nogui --fullscreen --fullboot {0}', ['iso', 'cso', 'bin'], ['gz']),
 	#Has a few problems.  Takes some time to load the interface so at first it might look like it's not working; take out --fullboot if it forbids any homebrew stuff (but it should be fine, and Katamari Damacy needs it).  ELF still doesn't work, though it'd need a different command line anyway
@@ -298,8 +298,8 @@ emulators = {
 	#I don't know what the other cart slot does, or if you can use two at once, or how that would work if you could. Hopefully I don't need it for anything
 	'mame-tomy-tutor': MameSystem(make_mame_command_line('tutor', 'cart', has_keyboard=True), ['bin']),
 	#Well, at least there's no region crap, though there is pyuuta if you want to read Japanese instead.  The controls in
-		#the menus are a bit wack but I think I've set them up so it should work relatively smoothly, also there's not really
-		#a way to skip the "Graphics/BASIC/Cartridge" screen that I know of so you'll always have to select that
+	#the menus are a bit wack but I think I've set them up so it should work relatively smoothly, also there's not really
+	#a way to skip the "Graphics/BASIC/Cartridge" screen that I know of so you'll always have to select that
 	'mame-vic-10': MameSystem(make_mame_command_line('vic10', 'cart', {'joy1': 'joy', 'joy2': 'joy'}, has_keyboard=True), ['crt', '80', 'e0']),
 	#More similar to the C64 than the VIC-20, need to plug a joystick into both ports because once again games can use
 	#either port and thanks I hate it.  At least there's only one TV type

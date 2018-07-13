@@ -308,7 +308,7 @@ def sort_m3u_first():
 
 used_m3u_filenames = []
 def process_system(system_config):
-	for root, dirs, files in os.walk(system_config.rom_dir):
+	for root, _, files in os.walk(system_config.rom_dir):
 		if common.starts_with_any(root + os.sep, config.ignored_directories):
 			continue
 		for name in sorted(files, key=sort_m3u_first()):

@@ -118,7 +118,7 @@ console_cpus = {
 def move_into_folders():
 	delete_existing_output_dir()
 	
-	for root, dirs, files in os.walk(config.output_folder):
+	for root, _, files in os.walk(config.output_folder):
 		for f in files:
 			if f.endswith('.desktop'):
 				path = os.path.join(root, f)
