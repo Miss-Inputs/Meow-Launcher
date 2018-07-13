@@ -7,6 +7,7 @@ import config
 import archives
 import launchers
 import common
+import emulator_info
 
 debug = '--debug' in sys.argv
 
@@ -205,157 +206,26 @@ def get_metadata(emulator_name, path, name, compressed_entry=None):
 	
 	return metadata
 	
-def detect_region_from_filename(name):
-	#TODO Make this more robust, and maybe consolidate with get_metadata_from_filename_tags
-	tags = ''.join(common.find_filename_tags.findall(name)).lower()
-	
-	if 'world' in tags or ('ntsc' in tags and 'pal' in tags):
-		return 'world'
-	elif 'ntsc' in tags or 'usa' in tags or '(us)' in tags or 'japan' in tags:
-		return 'ntsc'
-	elif 'pal' in tags or 'europe' in tags or 'netherlands' in tags or 'spain' in tags or 'germany' in tags or 'australia' in tags: #Shit, I'm gonna have to put every single European/otherwise PAL country in there.  That's all that I need to put in here so far, though
-		return 'pal'
-
-	return None
-		
-def get_real_size(path, compressed_entry=None):
-	if compressed_entry is None:
-		return os.path.getsize(path)
-		
-	return archives.compressed_getsize(path, compressed_entry)
-	
-def read_file(path, compressed_entry=None):
-	#TODO: Do a thing where we can just read a small part of the file instead of slurping the whole thing (impossible if
-	#it's compressed, though)
-	if compressed_entry is None:
-		with open(path, 'rb') as f:
-			return f.read() 
-	else:
-		return archives.compressed_get(path, compressed_entry)
-	
-def build_atari7800_command_line(path, compressed_entry=None):
-	base_command_line = 'mame -skip_gameinfo %s -cart {0}' 
-	rom_data = read_file(path, compressed_entry)
-	if rom_data[1:10] != b'ATARI7800':
-		if debug:
-			print(path, 'has no header and is therefore unsupported')
-		return None
-	
-	region_byte = rom_data[57]
-		
-	if region_byte == 1:
-		return base_command_line % 'a7800p'
-	elif region_byte == 0:
-		return base_command_line % 'a7800'
-	else:
-		if debug:
-			print('Something is wrong with', path, ', has region byte of', region_byte)
-		return None #MAME can't do anything with unheadered ROMs (or stuff with invalid region byte), so these won't be any good to us
-
-def build_vic20_command_line(path, name, compressed_entry=None):
-	size = get_real_size(path, compressed_entry)
-	if size > ((8 * 1024) + 2):
-		#It too damn big (only likes 8KB with 2 byte header at most)
-		if debug:
-			print('Bugger!', path, 'is too big for MAME at the moment, it is', size)
-		return None
-	
-	base_command_line = 'mame %s -skip_gameinfo -ui_active -cart {0}'
-	region = detect_region_from_filename(name)
-	if region == 'pal':
-		return base_command_line % 'vic20p'
-	
-	return base_command_line % 'vic20'
-		
-def build_a800_command_line(path, name, compressed_entry=None):
-	is_left = True
-	rom_data = read_file(path, compressed_entry)
-	if rom_data[:4] == b'CART':
-		cart_type = int.from_bytes(rom_data[4:8], 'big')
-		#See also: https://github.com/dmlloyd/atari800/blob/master/DOC/cart.txt,
-		#https://github.com/mamedev/mame/blob/master/src/devices/bus/a800/a800_slot.cpp
-		if cart_type in (13, 14, 23, 24, 25) or (cart_type >= 33 and cart_type <= 38):
-			if debug:
-				print(path, 'is actually a XEGS ROM which is not supported by MAME yet, cart type is', cart_type)
-			return None
-			
-		#You probably think this is a bad way to do this...  I guess it is, but hopefully I can take some out as they become
-		#supported (even if I have to use some other emulator or something to do it)
-		if cart_type in (5, 17, 22, 41, 42, 43, 45, 46, 47, 48, 49, 53, 57, 58, 59, 60, 61) or (cart_type >= 26 and cart_type <= 32) or (cart_type >= 54 and cart_type <= 56):
-			if debug:
-				print(path, "won't work as cart type is", cart_type)
-			return None
-
-		if cart_type in (4, 6, 7, 16, 19, 20):
-			if debug:
-				print(path, "is an Atari 5200 ROM ya goose!! It won't work as an Atari 800 ROM as the type is", cart_type)
-			return None
-			
-		if cart_type == 21: #59 goes in the right slot as well, but that's not supported
-			if debug:
-				print(path, 'goes in right slot')
-			is_left = False
-	else:
-		size = get_real_size(path, compressed_entry)
-		#Treat 8KB files as type 1, 16KB as type 2, everything else is unsupported for now
-		if size > ((16 * 1024) + 16):
-			if debug:
-				print(path, 'may actually be a XL/XE/XEGS cartridge, please check it as it has no header and a size of', size)
-			return None
-	
-	if is_left:
-		base_command_line = 'mame %s -skip_gameinfo -ui_active -cart1 {0}'
-	else:
-		base_command_line = 'mame %s -skip_gameinfo -ui_active -cart2 {0}'
-
-	region = detect_region_from_filename(name) #Why do these CCS64 and CART and whatever else thingies never frickin' store the TV type?
-	if region == 'pal':
-		#Atari 800 should be fine for everything, and I don't feel like the XL/XE series to see in which ways they don't work
-		return base_command_line % 'a800p'
-
-	return base_command_line % 'a800'
-	
-def build_c64_command_line(path, name, compressed_entry=None):
-	#While we're here building a command line, should mention that you have to manually put a joystick in the first
-	#joystick port, because by default there's only a joystick in the second port.  Why the fuck is that the default?
-	#Most games use the first port (although, just to be annoying, some do indeed use the second...  why????)
-	#Anyway, might as well use this "Boostergrip" thingy, or really it's like using the C64GS joystick, because it just
-	#gives us two extra buttons for any software that uses it (probably nothing), and the normal fire button works as
-	#normal.  _Should_ be fine
-	#(Super cool pro tip: Bind F1 to Start)
-	base_command_line = 'mame %s -joy1 joybstr -joy2 joybstr -skip_gameinfo -ui_active -cart {0}'
-	
-	#with open(path, 'rb') as f:
-	rom_data = read_file(path, compressed_entry)
-	if rom_data[:16] == b'C64 CARTRIDGE   ':
-		#Just gonna make sure we're actually dealing with the CCS64 header format thingy first (see:
-		#http://unusedino.de/ec64/technical/formats/crt.html)
-		#It's okay if it doesn't, though; just means we won't be able to be clever here
-		cart_type = int.from_bytes(rom_data[22:24], 'big')
-		
-		if cart_type == 15: #Commodore C64GS System 3 cart
-			#For some reason, these carts don't work on a regular C64 in MAME, and we have to use...  the thing specifically designed for playing games (but we normally wouldn't use this, since some cartridge games still need the keyboard, even if just for the menus, and that's why it actually sucks titty balls IRL.  But if it weren't for that, we totes heckin would)
-			return base_command_line % 'c64gs'
-	
-	region = detect_region_from_filename(name)
-	#Don't think we really need c64c unless we really want the different SID chip
-	if region == 'pal':
-		return base_command_line % 'c64p'
-
-	return base_command_line % 'c64'
-
-def process_file(emulator, root, name):
+def process_file(system_config, root, name):
 	path = os.path.join(root, name)
+	
+	emulator_name = system_config.chosen_emulator
+	if emulator_name not in emulator_info.emulators:
+		#TODO: Only warn about this once!
+		print(system_config.name, 'is trying to use emulator', emulator_name, 'which does not exist!')
+		return
+
+	emulator = emulator_info.emulators[emulator_name]
 	try:
 		name_we, ext = os.path.splitext(name)
 		ext = ext[1:].lower()
-		categories = [i for i in root.replace(emulator['rom_dir'], '').split('/') if i]
+		categories = [i for i in root.replace(system_config.rom_dir, '').split('/') if i]
 		if not categories:
-			categories = [emulator['name']]
+			categories = [system_config.name]
 		if ext == 'pbp':
 			#EBOOT is not a helpful launcher name
 			name_we = categories[-1]
-		if emulator['name'] == 'Wii' and os.path.isfile(os.path.join(root, 'meta.xml')):
+		if system_config.name == 'Wii' and os.path.isfile(os.path.join(root, 'meta.xml')):
 			#boot is not a helpful launcher name
 			meta_xml = ElementTree.parse(os.path.join(root, 'meta.xml'))
 			name_we = meta_xml.findtext('name')
@@ -363,7 +233,7 @@ def process_file(emulator, root, name):
 		#TODO: Make these variable names make more sense
 		entry = None
 		the_entry = None
-		if ext in emulator['supported_extensions']:
+		if ext in emulator.supported_extensions:
 			is_unsupported_compression = False
 			is_compressed = False
 			extension = ext
@@ -378,8 +248,8 @@ def process_file(emulator, root, name):
 				
 				entry_we, entry_ext = os.path.splitext(entry)
 				entry_ext = entry_ext[1:]
-				if entry_ext in emulator['supported_extensions']:
-					if ext in emulator['supported_compression']: 
+				if entry_ext in emulator.supported_extensions:
+					if ext in emulator.supported_compression: 
 						is_unsupported_compression = False
 						is_compressed = True
 						extension = entry_ext
@@ -395,29 +265,19 @@ def process_file(emulator, root, name):
 					return
 		else:
 			return
-			
-		if emulator['name'] == 'Atari 7800':
-			command_line = build_atari7800_command_line(path, the_entry)
-		elif emulator['name'] == 'C64':
-			command_line = build_c64_command_line(path, the_name, the_entry)
-		elif emulator['name'] == 'VIC-20':
-			command_line = build_vic20_command_line(path, the_name, the_entry)
-		elif emulator['name'] == 'Atari 8-bit':
-			command_line = build_a800_command_line(path, the_name, the_entry)
-		else:
-			command_line = emulator['command_line']
-		
+
+		command_line = emulator.get_command_line(path, the_name, the_entry)
 		if command_line is None:
 			return
 			
-		platform = emulator['name']
+		platform = system_config.name
 		if platform == 'NES' and extension == 'fds':
 			platform = 'FDS'
 			
 		if extension == 'gbc':
 			platform = 'Game Boy Color'
 			
-		metadata = get_metadata(emulator['name'], path, the_name, the_entry)
+		metadata = get_metadata(system_config.name, path, the_name, the_entry)
 			
 		if is_unsupported_compression:
 			launchers.make_desktop(platform, command_line, path, the_name, categories, metadata, extension, entry)
@@ -447,8 +307,8 @@ def sort_m3u_first():
 	return Sorter
 
 used_m3u_filenames = []
-def process_emulator(emulator):
-	for root, dirs, files in os.walk(emulator['rom_dir']):
+def process_system(system_config):
+	for root, dirs, files in os.walk(system_config.rom_dir):
 		if common.starts_with_any(root + os.sep, config.ignored_directories):
 			continue
 		for name in sorted(files, key=sort_m3u_first()):
@@ -464,5 +324,5 @@ def process_emulator(emulator):
 				if name in used_m3u_filenames or path in used_m3u_filenames:
 					continue
 			
-			process_file(emulator, root, name)
+			process_file(system_config, root, name)
 			

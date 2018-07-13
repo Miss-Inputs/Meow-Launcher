@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import datetime
 import time
 import os
@@ -32,11 +33,11 @@ if '--no-arcade' not in sys.argv:
 	time_ended = time.perf_counter()
 	print('Arcade finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
-for emulator in config.emulator_configs:
+for system in config.system_configs:
 	time_started = time.perf_counter()
-	roms.process_emulator(emulator)
+	roms.process_system(system)
 	time_ended = time.perf_counter()
-	print(emulator['name'], 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+	print(system.name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
 #This is turned off by the default because it's a bit experimental which is a nice way of saying it's a bit shit, needs hfsutils and parses command line output and ughhhh that's a bit gross hey
 if '--with-mac' in sys.argv:
