@@ -37,7 +37,7 @@ def make_filename(name):
 	return name
 
 used_filenames = []
-def base_make_desktop(command, display_name, comment, platform, categories=[], tags=[], metadata={}, ext=''):
+def base_make_desktop(command, display_name, comment, platform, categories=None, tags=None, metadata=None, ext=''):
 	base_filename = make_filename(display_name)
 	filename = base_filename + '.desktop'
 	
@@ -58,15 +58,17 @@ def base_make_desktop(command, display_name, comment, platform, categories=[], t
 		f.write('Exec=%s\n' % command)
 		f.write('X-Platform=%s\n' % platform)
 
+		#TODO: Categories, tags should be part of metadata anyway
 		if categories:
 			f.write('X-Categories=%s\n' % (';'.join(categories)))
 
 		if tags:
 			f.write('X-Filename-Tags=%s\n' % (';'.join(tags)))
 
-		for k, v in metadata.items():
-			if v:
-				f.write('X-{0}={1}\n'.format(k.replace('_', '-'), v))
+		if metadata:
+			for k, v in metadata.items():
+				if v:
+					f.write('X-{0}={1}\n'.format(k.replace('_', '-'), v))
 		
 		if ext:
 			f.write('X-Extension=%s\n' % ext)
@@ -85,7 +87,7 @@ def make_display_name(name):
 			
 	return display_name
 
-def make_desktop(platform, command, path, name, categories=[], metadata={}, ext='', compressed_entry=None):
+def make_desktop(platform, command, path, name, categories=None, metadata=None, ext='', compressed_entry=None):
 	#Use compressed_entry for manual decompression, don't pass that if the compression format is natively supported by the
 	#emulator
 	if compressed_entry:
