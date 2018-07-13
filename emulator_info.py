@@ -10,9 +10,9 @@ class Emulator():
 		self.supported_extensions = supported_extensions
 		self.supported_compression = supported_compression
 
-	def get_command_line(self, path, name=None, compressed_entry=None):
+	def get_command_line(self, rom):
 		if callable(self.command_line):
-			return self.command_line(path, name, compressed_entry)
+			return self.command_line(rom)
 		
 		return self.command_line
 
@@ -69,12 +69,13 @@ def detect_region_from_filename(name):
 
 	return None
 
-def build_atari7800_command_line(path, _, compressed_entry=None):
-	base_command_line = 'mame -skip_gameinfo %s -cart {0}' 
-	rom_data = common.read_file(path, compressed_entry)
+def build_atari7800_command_line(rom):
+	base_command_line = 'mame -skip_gameinfo %s -cart {0}'
+	#TODO: Put read_file and get_real_size in roms.Rom()
+	rom_data = common.read_file(rom.path, rom.compressed_entry)
 	if rom_data[1:10] != b'ATARI7800':
 		if debug:
-			print(path, 'has no header and is therefore unsupported')
+			print(rom.path, 'has no header and is therefore unsupported')
 		return None
 	
 	region_byte = rom_data[57]
@@ -85,58 +86,58 @@ def build_atari7800_command_line(path, _, compressed_entry=None):
 		return base_command_line % 'a7800'
 	else:
 		if debug:
-			print('Something is wrong with', path, ', has region byte of', region_byte)
+			print('Something is wrong with', rom.path, ', has region byte of', region_byte)
 		return None #MAME can't do anything with unheadered ROMs (or stuff with invalid region byte), so these won't be any good to us
 
-def build_vic20_command_line(path, name, compressed_entry=None):
-	size = common.get_real_size(path, compressed_entry)
+def build_vic20_command_line(rom):
+	size = common.get_real_size(rom.path, rom.compressed_entry)
 	if size > ((8 * 1024) + 2):
 		#It too damn big (only likes 8KB with 2 byte header at most)
 		if debug:
-			print('Bugger!', path, 'is too big for MAME at the moment, it is', size)
+			print('Bugger!', rom.path, 'is too big for MAME at the moment, it is', size)
 		return None
 	
 	base_command_line = 'mame %s -skip_gameinfo -ui_active -cart {0}'
-	region = detect_region_from_filename(name)
+	region = detect_region_from_filename(rom.display_name)
 	if region == 'pal':
 		return base_command_line % 'vic20p'
 	
 	return base_command_line % 'vic20'
 		
-def build_a800_command_line(path, name, compressed_entry=None):
+def build_a800_command_line(rom):
 	is_left = True
-	rom_data = common.read_file(path, compressed_entry)
+	rom_data = common.read_file(rom.path, rom.compressed_entry)
 	if rom_data[:4] == b'CART':
 		cart_type = int.from_bytes(rom_data[4:8], 'big')
 		#See also: https://github.com/dmlloyd/atari800/blob/master/DOC/cart.txt,
 		#https://github.com/mamedev/mame/blob/master/src/devices/bus/a800/a800_slot.cpp
 		if cart_type in (13, 14, 23, 24, 25) or (cart_type >= 33 and cart_type <= 38):
 			if debug:
-				print(path, 'is actually a XEGS ROM which is not supported by MAME yet, cart type is', cart_type)
+				print(rom.path, 'is actually a XEGS ROM which is not supported by MAME yet, cart type is', cart_type)
 			return None
 			
 		#You probably think this is a bad way to do this...  I guess it is, but hopefully I can take some out as they become
 		#supported (even if I have to use some other emulator or something to do it)
 		if cart_type in (5, 17, 22, 41, 42, 43, 45, 46, 47, 48, 49, 53, 57, 58, 59, 60, 61) or (cart_type >= 26 and cart_type <= 32) or (cart_type >= 54 and cart_type <= 56):
 			if debug:
-				print(path, "won't work as cart type is", cart_type)
+				print(rom.path, "won't work as cart type is", cart_type)
 			return None
 
 		if cart_type in (4, 6, 7, 16, 19, 20):
 			if debug:
-				print(path, "is an Atari 5200 ROM ya goose!! It won't work as an Atari 800 ROM as the type is", cart_type)
+				print(rom.path, "is an Atari 5200 ROM ya goose!! It won't work as an Atari 800 ROM as the type is", cart_type)
 			return None
 			
 		if cart_type == 21: #59 goes in the right slot as well, but that's not supported
 			if debug:
-				print(path, 'goes in right slot')
+				print(rom.path, 'goes in right slot')
 			is_left = False
 	else:
-		size = common.get_real_size(path, compressed_entry)
+		size = common.get_real_size(rom.path, rom.compressed_entry)
 		#Treat 8KB files as type 1, 16KB as type 2, everything else is unsupported for now
 		if size > ((16 * 1024) + 16):
 			if debug:
-				print(path, 'may actually be a XL/XE/XEGS cartridge, please check it as it has no header and a size of', size)
+				print(rom.path, 'may actually be a XL/XE/XEGS cartridge, please check it as it has no header and a size of', size)
 			return None
 	
 	if is_left:
@@ -144,14 +145,14 @@ def build_a800_command_line(path, name, compressed_entry=None):
 	else:
 		base_command_line = 'mame %s -skip_gameinfo -ui_active -cart2 {0}'
 
-	region = detect_region_from_filename(name) #Why do these CCS64 and CART and whatever else thingies never frickin' store the TV type?
+	region = detect_region_from_filename(rom.display_name) #Why do these CCS64 and CART and whatever else thingies never frickin' store the TV type?
 	if region == 'pal':
 		#Atari 800 should be fine for everything, and I don't feel like the XL/XE series to see in which ways they don't work
 		return base_command_line % 'a800p'
 
 	return base_command_line % 'a800'
 	
-def build_c64_command_line(path, name, compressed_entry=None):
+def build_c64_command_line(rom):
 	#While we're here building a command line, should mention that you have to manually put a joystick in the first
 	#joystick port, because by default there's only a joystick in the second port.  Why the fuck is that the default?
 	#Most games use the first port (although, just to be annoying, some do indeed use the second...  why????)
@@ -161,8 +162,7 @@ def build_c64_command_line(path, name, compressed_entry=None):
 	#(Super cool pro tip: Bind F1 to Start)
 	base_command_line = 'mame %s -joy1 joybstr -joy2 joybstr -skip_gameinfo -ui_active -cart {0}'
 	
-	#with open(path, 'rb') as f:
-	rom_data = common.read_file(path, compressed_entry)
+	rom_data = common.read_file(rom.path, rom.compressed_entry)
 	if rom_data[:16] == b'C64 CARTRIDGE   ':
 		#Just gonna make sure we're actually dealing with the CCS64 header format thingy first (see:
 		#http://unusedino.de/ec64/technical/formats/crt.html)
@@ -173,7 +173,7 @@ def build_c64_command_line(path, name, compressed_entry=None):
 			#For some reason, these carts don't work on a regular C64 in MAME, and we have to use...  the thing specifically designed for playing games (but we normally wouldn't use this, since some cartridge games still need the keyboard, even if just for the menus, and that's why it actually sucks titty balls IRL.  But if it weren't for that, we totes heckin would)
 			return base_command_line % 'c64gs'
 	
-	region = detect_region_from_filename(name)
+	region = detect_region_from_filename(rom.display_name)
 	#Don't think we really need c64c unless we really want the different SID chip
 	if region == 'pal':
 		return base_command_line % 'c64p'

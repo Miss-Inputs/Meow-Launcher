@@ -167,7 +167,7 @@ def get_metadata_from_filename_tags(tags):
 	
 	return metadata
 	
-def get_metadata(emulator_name, path, name, compressed_entry=None):
+def get_metadata(emulator_name, rom):
 	#TODO: Link this back to process_file in other ways: Could be useful to read a ROM and change the command line (to use
 	#a different emulator that supports something not supported in the usual one, etc), for example
 	#Metadata used in arcade: main_input, emulation_status, genre, subgenre, nsfw, language, year, author
@@ -199,13 +199,53 @@ def get_metadata(emulator_name, path, name, compressed_entry=None):
 	elif emulator_name == 'Virtual Boy':
 		metadata['Main-Input'] = 'Twin Joystick'
 	
-	tags = common.find_filename_tags.findall(name)
+	tags = common.find_filename_tags.findall(rom.display_name)
 	for k, v in get_metadata_from_filename_tags(tags).items():
 		if k not in metadata:
 			metadata[k] = v
 	
 	return metadata
-	
+
+class Rom():
+	def __init__(self, rom_file):
+		self.file = rom_file
+		self.categories = []
+		self.path = rom_file.path
+		self.warn_about_multiple_files = False
+		self.extension = rom_file.extension
+
+		if self.extension in archives.COMPRESSED_EXTS:
+			self.is_compressed = True
+
+			found_file_already = False
+			for entry in archives.compressed_list(self.file.path):
+				if found_file_already:
+					self.warn_about_multiple_files = True
+					continue
+				found_file_already = True
+				
+				self.display_name, self.extension = os.path.splitext(entry)
+				if self.extension.startswith('.'):
+					self.extension = self.extension[1:]
+				self.extension = self.extension.lower()
+				self.compressed_entry = entry
+		else:
+			self.is_compressed = False
+			self.compressed_entry = None
+			self.display_name = rom_file.name_without_extension
+
+
+
+class RomFile():
+#TODO: Do I need this class? It's just initialized and then passed straight off to Rom(), could just use original_extension field there
+	def __init__(self, path):
+		self.path = path
+		self.name = os.path.basename(path)
+		self.name_without_extension, self.extension = os.path.splitext(self.name)
+		if self.extension.startswith('.'):
+			self.extension = self.extension[1:]
+		self.extension = self.extension.lower()
+		
 def process_file(system_config, root, name):
 	path = os.path.join(root, name)
 	
@@ -216,73 +256,56 @@ def process_file(system_config, root, name):
 		return
 
 	emulator = emulator_info.emulators[emulator_name]
+
 	try:
-		name_we, ext = os.path.splitext(name)
-		ext = ext[1:].lower()
-		categories = [i for i in root.replace(system_config.rom_dir, '').split('/') if i]
-		if not categories:
-			categories = [system_config.name]
-		if ext == 'pbp':
+		rom_file = RomFile(path)
+		rom = Rom(rom_file)
+
+		#TODO This looks weird, but is there a better way to do this? (Get subfolders we're in from rom_dir)
+		rom.categories = [i for i in root.replace(system_config.rom_dir, '').split('/') if i]
+		if not rom.categories:
+			rom.categories = [system_config.name]
+		if rom.extension == 'pbp':
 			#EBOOT is not a helpful launcher name
-			name_we = categories[-1]
+			#TODO: This should be in somewhere like system_info or emulator_info or perhaps get_metadata, ideally
+			rom.display_name = rom.categories[-1]
 		if system_config.name == 'Wii' and os.path.isfile(os.path.join(root, 'meta.xml')):
 			#boot is not a helpful launcher name
-			meta_xml = ElementTree.parse(os.path.join(root, 'meta.xml'))
-			name_we = meta_xml.findtext('name')
-		
-		#TODO: Make these variable names make more sense
-		entry = None
-		the_entry = None
-		if ext in emulator.supported_extensions:
-			is_unsupported_compression = False
-			is_compressed = False
-			extension = ext
-			the_name = name_we
-		elif ext in archives.COMPRESSED_EXTS:
-			found_file_already = False
-			for entry in archives.compressed_list(path):
+			try:
+				meta_xml = ElementTree.parse(os.path.join(root, 'meta.xml'))
+				rom.display_name = meta_xml.findtext('name')
+			except ElementTree.ParseError as etree_error:
 				if debug:
-					if found_file_already:
-						print('Warning!', path, 'has more than one file and that may cause problems')
-					found_file_already = True
-				
-				entry_we, entry_ext = os.path.splitext(entry)
-				entry_ext = entry_ext[1:]
-				if entry_ext in emulator.supported_extensions:
-					if ext in emulator.supported_compression: 
-						is_unsupported_compression = False
-						is_compressed = True
-						extension = entry_ext
-						the_name = entry_we
-						the_entry = entry
-					else:
-						is_unsupported_compression = True
-						is_compressed = True
-						extension = entry_ext
-						the_name = entry_we
-						the_entry = entry
-				else:
-					return
-		else:
+					print('Ah bugger', path, etree_error)
+				rom.display_name = rom.categories[-1]
+		
+		if rom.extension not in emulator.supported_extensions:
 			return
 
-		command_line = emulator.get_command_line(path, the_name, the_entry)
+		if rom.warn_about_multiple_files and debug:
+			print('Warning!', rom.path, 'has more than one file and that may cause unexpected behaviour, as I only look at the first file')
+
+
+		command_line = emulator.get_command_line(rom)
 		if command_line is None:
 			return
 			
 		platform = system_config.name
-		if platform == 'NES' and extension == 'fds':
+		if platform == 'NES' and rom.extension == 'fds':
 			platform = 'FDS'
 			
-		if extension == 'gbc':
+		if rom.extension == 'gbc':
 			platform = 'Game Boy Color'
 			
-		metadata = get_metadata(system_config.name, path, the_name, the_entry)
+		metadata = get_metadata(system_config.name, rom)
 			
+		is_unsupported_compression = rom.is_compressed and (rom.file.extension in emulator.supported_compression)
+
 		if is_unsupported_compression:
-			launchers.make_desktop(platform, command_line, path, the_name, categories, metadata, extension, entry)
+			#TODO: Mmmmm don't like this should be refactored
+			launchers.make_desktop(platform, command_line, rom.path, rom.display_name, rom.categories, metadata, rom.extension, rom.compressed_entry)
 		else:
-			launchers.make_desktop(platform, command_line, path, the_name, categories, metadata, extension)
+			launchers.make_desktop(platform, command_line, rom.path, rom.display_name, rom.categories, metadata, rom.extension)
 
 	except Exception as e:
 		print('Fuck stupid bullshit', path, 'fucking', e)
@@ -320,9 +343,8 @@ def process_system(system_config):
 				used_m3u_filenames.extend(parse_m3u(path))
 			else:
 				#Avoid adding part of a multi-disc game if we've already added the whole thing via m3u
-				#This is why we have to make sure m3u files are added first, though...  not really a nice way around this
+				#This is why we have to make sure m3u files are added first, though...  not really a nice way around this, unless we scan the whole directory for files first and then rule out stuff?
 				if name in used_m3u_filenames or path in used_m3u_filenames:
 					continue
 			
 			process_file(system_config, root, name)
-			
