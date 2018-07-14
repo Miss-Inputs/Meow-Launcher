@@ -58,6 +58,7 @@ def make_launcher(path, game_name, game_config):
 	#Or controls... but I swear I will find a way!!!!
 	
 	#If you're not using an SDL2 build of BasiliskII, you probably want to change dga to window! Well you really want to get an SDL2 build of BasiliskII, honestly
+	#TODO: Should put BasiliskII in emulator_info.py so it can get the command line from there
 	actual_emulator_command = 'BasiliskII --screen dga/{0}/{1}'.format(width, height)
 	inner_command = 'echo {0} > {1} && {2} && rm {1}'.format(shlex.quote(path), shlex.quote(autoboot_txt_path), actual_emulator_command)
 	command = 'sh -c {0}'.format(shlex.quote(inner_command))
@@ -67,7 +68,7 @@ def make_launcher(path, game_name, game_config):
 	else:
 		categories = []
 	
-	metadata = {}
+	metadata = {'Emulator': 'BasiliskII'}
 	if 'genre' in game_config:
 		metadata['Genre'] = game_config['genre']
 	if 'subgenre' in game_config:

@@ -151,6 +151,7 @@ def get_metadata(machine, basename):
 		'Languages': language, 
 		'Year': machine.findtext('year'),
 		'Author': machine.findtext('manufacturer'),
+		'Emulator': 'MAME',
 		#Some other things we could get from XML if we decide we care about it:
 		#Display type/resolution/refresh rate/number of screens
 		#Sound channels

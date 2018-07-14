@@ -304,6 +304,12 @@ def process_file(system_config, root, name):
 		platform = 'Game Boy Color'
 			
 	metadata = get_metadata(system_config.name, rom)
+	if isinstance(emulator, emulator_info.MameSystem):
+		metadata['Emulator'] = 'MAME'
+	elif isinstance(emulator, emulator_info.MednafenModule):
+		metadata['Emulator'] = 'Mednafen'
+	else:
+		metadata['Emulator'] = emulator_name 
 			
 	is_unsupported_compression = rom.is_compressed and (rom.original_extension not in emulator.supported_compression)
 

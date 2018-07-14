@@ -138,6 +138,7 @@ def move_into_folders():
 					emulation_status = launchers.get_field(desktop, 'X-Emulation-Status')
 					is_nsfw = launchers.get_field(desktop, "X-NSFW") == 'True'
 					clone_of = launchers.get_field(desktop, "X-clone-of")
+					emulator = launchers.get_field(desktop, "X-Emulator")
 
 					if genre:
 						copy_to_folder(path, config.organized_output_folder, 'By genre', sanitize_name(genre))
@@ -151,7 +152,8 @@ def move_into_folders():
 						copy_to_folder(path, config.organized_output_folder, 'NSFW')
 					if clone_of:
 						copy_to_folder(path, config.organized_output_folder, 'Clone of', sanitize_name(clone_of))
-
+					if emulator:
+						copy_to_folder(path, config.organized_output_folder, 'By emulator used', sanitize_name(emulator))
 
 					#Would still be in this extra part
 					main_input = launchers.get_field(desktop, 'X-Main-Input')
