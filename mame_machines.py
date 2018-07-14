@@ -51,7 +51,7 @@ def get_category(basename):
 		if basename in catlist[section]:
 			cat = section
 			break
-	if cat is None:
+	if not cat:
 		return 'Unknown', 'Unknown', 'Unknown', 'Unknown'
 
 	if ':' in cat:
@@ -63,9 +63,9 @@ def get_category(basename):
 			subgenre = subgenre.replace('* Mature *', '')
 		
 		return category, genre, subgenre, is_nsfw
-	else:
-		category, genre = cat.split(' / ', 1)
-		return category, genre, None, False
+	
+	category, genre = cat.split(' / ', 1)
+	return category, genre, None, False
 		
 def get_language(basename):
 	lang = None
