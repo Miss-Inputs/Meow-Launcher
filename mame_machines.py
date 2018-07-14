@@ -75,29 +75,8 @@ def get_language(basename):
 			break
 			
 	return lang
-	
-def process_machine(machine):
-	if machine.attrib['runnable'] == 'no':
-		return
-	if machine.attrib['isbios'] == 'yes':
-		return
-	if machine.attrib['isdevice'] == 'yes':
-		return
 
-	basename = machine.attrib['name']
-	family = machine.attrib['cloneof'] if 'cloneof' in machine.attrib else basename
-	name = machine.findtext('description')
-	
-	category, genre, subgenre, is_nsfw = get_category(basename)
-	language = get_language(basename)
-
-	if not (machine.find('softwarelist') is None) and family not in config.okay_to_have_software:
-		return
-
-	source_file = os.path.splitext(machine.attrib['sourcefile'])[0]
-	
-	maincpu = find_main_cpu(machine)
-
+def get_input_type(machine):
 	input_element = machine.find('input')
 	if input_element is None:
 		#Seems like this doesn't actually happen
@@ -107,12 +86,8 @@ def process_machine(machine):
 	else:
 		control_element = input_element.find('control')
 		if control_element is None:
-			if 'players' not in input_element.attrib or input_element.attrib['players'] == '0':
-				#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
-				#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
-				if debug:
-					print('Skipping %s (%s) as it has no controls' % (basename, name))
-				return
+			if 'players' not in input_element.attrib or input_element.attrib['players'] == '0':				
+				return None
 			else:
 				input_type = 'Custom'
 				#Sometimes you get some games with 1 or more players, but no control type defined.  This usually happens with
@@ -127,6 +102,13 @@ def process_machine(machine):
 					input_type = 'Normal'
 				else:
 					input_type = input_type.replace('_', ' ').capitalize()
+
+def get_metadata(machine, basename):
+	category, genre, subgenre, is_nsfw = get_category(basename)
+	language = get_language(basename)
+	source_file = os.path.splitext(machine.attrib['sourcefile'])[0]
+	
+	maincpu = find_main_cpu(machine)
 		
 	platform = 'Arcade'
 	if source_file == 'megatech':
@@ -158,10 +140,9 @@ def process_machine(machine):
 		
 	if language is not None and language != 'English':
 		category += ' untranslated'
-	
+
 	metadata = {
 		'Main-CPU': None if maincpu is None else maincpu.attrib['name'], 
-		'Main-Input': input_type, 
 		'Emulation-Status': machine.find('driver').attrib['status'], 
 		'Source-File': source_file, 
 		'Genre': genre, 
@@ -176,6 +157,42 @@ def process_machine(machine):
 		#Sound channels
 		#Number of players
 	}
+	return metadata, category, platform
+	
+	
+def should_process_machine(machine):
+	if machine.attrib['runnable'] == 'no':
+		return False
+
+	if machine.attrib['isbios'] == 'yes':
+		return False
+
+	if machine.attrib['isdevice'] == 'yes':
+		return False
+
+	return True
+
+def process_machine(machine):
+	if not should_process_machine(machine):
+		return
+	
+	basename = machine.attrib['name']
+	family = machine.attrib['cloneof'] if 'cloneof' in machine.attrib else basename
+	name = machine.findtext('description')
+	
+	if not (machine.find('softwarelist') is None) and family not in config.okay_to_have_software:
+		return
+
+	input_type = get_input_type(machine)
+	if not input_type:
+		#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
+		#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
+		if debug:
+			print('Skipping %s (%s) as it has no controls' % (basename, name))
+		return None
+	
+	metadata, category, platform = get_metadata(machine, basename)
+	metadata['Main-Input'] = input_type
 
 	command_line = emulator_info.make_mame_command_line(basename)
 	launchers.make_launcher(platform, command_line, name, [category, genre, source_file], metadata)
