@@ -60,7 +60,7 @@ def get_category(basename):
 		is_nsfw = False
 		if subgenre.endswith('* Mature *'):
 			is_nsfw = True
-			subgenre = subgenre.replace('* Mature *', '')
+			subgenre = subgenre[:-10]
 		
 		return category, genre, subgenre, is_nsfw
 	
