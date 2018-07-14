@@ -306,9 +306,9 @@ emulators = {
 	#RAM expansion won't hurt?  Some games (Chicken) seem to be broken anyway with expansion or without whoops
 	'mame-channelf': MameSystem(make_mame_command_line('channelf', 'cart'), ['bin', 'chf']),
 	#How the fuck do these controls work?  Am I just too much of a millenial?
-	'mame-msx1': MameSystem(make_mame_command_line('svi738', 'cart', has_keyboard=True), ['bin', 'rom']),
+	'mame-msx1': MameSystem(make_mame_command_line('svi738', 'cart1', has_keyboard=True), ['bin', 'rom']),
 	#Note that MSX2 is backwards compatible anyway, so there's not much reason to use this, unless you do have some reason. This model in particular is used because it should be completely in English and if anything goes wrong I'd be able to understand it. I still don't know how disks work (they don't autoboot), or if there's even a consistent command to use to boot them.
-	'mame-msx2': MameSystem(make_mame_command_line('fsa1wsx', 'cart', has_keyboard=True), ['bin', 'rom']),
+	'mame-msx2': MameSystem(make_mame_command_line('fsa1wsx', 'cart1', has_keyboard=True), ['bin', 'rom']),
 	#This includes MSX2+ because do you really want me to make those two separate things? Turbo-R doesn't work in MAME though, so that'd have to be its own thing. This model is used just because I looked it up and it seems like the best one, the MSX2/MSX2+ systems in MAME are all in Japanese (the systems were only really released in Japan, after all) so you can't avoid that part. Still don't understand disks.
 	'mame-pv-2000': MameSystem(make_mame_command_line('pv2000', 'cart', has_keyboard=True), ['bin']),
 	#Not the same as the PV-1000!  Although it might as well be, except it's a computer, and they aren't compatible with each other.  MAME says it
