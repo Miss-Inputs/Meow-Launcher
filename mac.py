@@ -5,7 +5,6 @@ import json
 import urllib.request
 
 import launchers
-import common
 import config
 import hfs
 
@@ -89,7 +88,7 @@ def make_launcher(path, game_name, game_config):
 		if extra_metadata in game_config:
 			metadata[extra_metadata] = game_config[extra_metadata]
 
-	launchers.make_launcher('Mac', command, display_name, categories, metadata)
+	launchers.make_launcher('Mac', command, game_name, categories, metadata)
 
 def do_mac_stuff():
 	game_list = init_game_list()
