@@ -36,17 +36,25 @@ def delete_existing_output_dir():
 			else:
 				os.unlink(path)
 
+lookup_system_cpu_cache = {}
 def lookup_system_cpu(driver_name):
+	if driver_name in lookup_system_cpu_cache:
+		return lookup_system_cpu_cache[driver_name]
+
 	xml = mame_machines.get_mame_xml(driver_name)
 	if not xml:
+		lookup_system_cpu_cache[driver_name] = None
 		return None
 	machine = xml.find('machine')
 	if not machine:
+		lookup_system_cpu_cache[driver_name] = None
 		return None
 
 	main_cpu = mame_machines.find_main_cpu(machine)
 	if main_cpu is not None: #"if main_cpu: doesn't work. Frig! Why not! Wanker! Sodding bollocks!
-		return main_cpu.attrib['name']
+		main_cpu_name = main_cpu.attrib['name']
+		lookup_system_cpu_cache[driver_name] = main_cpu_name
+		return main_cpu_name
 
 	return None
 
@@ -68,6 +76,7 @@ platform_cpu_list = {
 def get_cpu_for_platform(platform):
 	#I look up things from MAME here (even when MAME doesn't really support the system and it's just a skeleton driver, as long as it knows the CPU) so the wording and naming and stuff is consistent with arcade games, which already have their CPU known
 	#TODO: This should be done when the launcher is generated (add X-Main-CPU), not when it's being sorted by this frontend specifically
+
 	if platform in platform_cpu_list:
 		return platform_cpu_list[platform]
 
