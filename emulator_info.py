@@ -63,8 +63,6 @@ def build_atari7800_command_line(rom, _):
 	#TODO: New plan: Split 'mame-atari-7800' emulator info into 'mame-atari-7800-ntsc' and 'mame-atari-7800-pal', then rewrite get_metadata (or some function similar to it) that gets the region in a more unified way (to allow for getting the language more sensibly etc), then pick which emulator to use here
 	#Hmm... how would you specify the usage of MAME in config.py though? Maybe if preferred emulator is 'mame-atari-7800', do auto-region-thingo, otherwise don't do that
 	#Or perhaps there's no need to split emulators, but just put a 'region' attribute on Rom that this reads instead of doing the detection itself
-	#TODO: At any rate, merge with make_mame_command_line
-	base_command_line = 'mame -skip_gameinfo %s -cart $<path>'
 	#TODO: Put read_file and get_real_size in roms.Rom()
 	rom_data = common.read_file(rom.path, rom.compressed_entry)
 	if rom_data[1:10] != b'ATARI7800':
@@ -75,13 +73,15 @@ def build_atari7800_command_line(rom, _):
 	region_byte = rom_data[57]
 		
 	if region_byte == 1:
-		return base_command_line % 'a7800p'
+		system = 'a7800p'
 	elif region_byte == 0:
-		return base_command_line % 'a7800'
+		system = 'a7800'
 	else:
 		if debug:
 			print('Something is wrong with', rom.path, ', has region byte of', region_byte)
 		return None
+
+	return make_mame_command_line(system, 'cart')
 
 def build_vic20_command_line(rom, _):
 	size = common.get_real_size(rom.path, rom.compressed_entry)
@@ -91,12 +91,13 @@ def build_vic20_command_line(rom, _):
 			print('Bugger!', rom.path, 'is too big for MAME at the moment, it is', size)
 		return None
 	
-	base_command_line = 'mame %s -skip_gameinfo -ui_active -cart $<path>'
 	region = detect_region_from_filename(rom.name)
 	if region == 'pal':
-		return base_command_line % 'vic20p'
-	
-	return base_command_line % 'vic20'
+		system = 'vic20p'
+	else:
+		system = 'vic20'
+
+	return make_mame_command_line(system, 'cart', has_keyboard=True)
 		
 def build_a800_command_line(rom, _):
 	is_left = True
@@ -134,18 +135,38 @@ def build_a800_command_line(rom, _):
 				print(rom.path, 'may actually be a XL/XE/XEGS cartridge, please check it as it has no header and a size of', size)
 			return None
 	
-	if is_left:
-		base_command_line = 'mame %s -skip_gameinfo -ui_active -cart1 $<path>'
-	else:
-		base_command_line = 'mame %s -skip_gameinfo -ui_active -cart2 $<path>'
+	slot = 'cart1' if is_left else 'cart2'
 
 	region = detect_region_from_filename(rom.name) 
 	#Why do these CCS64 and CART and whatever else thingies never frickin' store the TV type?
 	if region == 'pal':
 		#Atari 800 should be fine for everything, and I don't feel like the XL/XE series to see in which ways they don't work
-		return base_command_line % 'a800p'
+		system = 'a800p'
+	else:
+		system = 'a800'
 
-	return base_command_line % 'a800'
+	return mmake_mame_command_line(system, slot, has_keyboard=True)
+
+def find_c64_system(rom):
+	rom_data = common.read_file(rom.path, rom.compressed_entry)
+	if rom_data[:16] == b'C64 CARTRIDGE   ':
+		#Just gonna make sure we're actually dealing with the CCS64 header format thingy first (see:
+		#http://unusedino.de/ec64/technical/formats/crt.html)
+		#It's okay if it doesn't, though; just means we won't be able to know if it's C64GS
+		#TODO: Can we detect other cart types that might be completely unsupported?
+		cart_type = int.from_bytes(rom_data[22:24], 'big')
+		
+		if cart_type == 15: #Commodore C64GS System 3 cart
+			#For some reason, these carts don't work on a regular C64 in MAME, and we have to use...  the thing specifically designed for playing games (but we normally wouldn't use this, since some cartridge games still need the keyboard, even if just for the menus, and that's why it actually sucks titty balls IRL.  But if it weren't for that, we totes heckin would)
+			#Note that C64GS doesn't really work properly in MAME anyway, but the carts... not work... less than in the regular C64 driver
+			return 'c64gs'
+	
+	region = detect_region_from_filename(rom.name)
+	#Don't think we really need c64c unless we really want the different SID chip
+	if region == 'pal':
+		return 'c64p'
+	else:
+		return 'c64'
 	
 def build_c64_command_line(rom, _):
 	#While we're here building a command line, should mention that you have to manually put a joystick in the first
@@ -155,25 +176,10 @@ def build_c64_command_line(rom, _):
 	#gives us two extra buttons for any software that uses it (probably nothing), and the normal fire button works as
 	#normal.  _Should_ be fine
 	#(Super cool pro tip: Bind F1 to Start)
-	base_command_line = 'mame %s -joy1 joybstr -joy2 joybstr -skip_gameinfo -ui_active -cart $<path>'
 	
-	rom_data = common.read_file(rom.path, rom.compressed_entry)
-	if rom_data[:16] == b'C64 CARTRIDGE   ':
-		#Just gonna make sure we're actually dealing with the CCS64 header format thingy first (see:
-		#http://unusedino.de/ec64/technical/formats/crt.html)
-		#It's okay if it doesn't, though; just means we won't be able to be clever here
-		cart_type = int.from_bytes(rom_data[22:24], 'big')
-		
-		if cart_type == 15: #Commodore C64GS System 3 cart
-			#For some reason, these carts don't work on a regular C64 in MAME, and we have to use...  the thing specifically designed for playing games (but we normally wouldn't use this, since some cartridge games still need the keyboard, even if just for the menus, and that's why it actually sucks titty balls IRL.  But if it weren't for that, we totes heckin would)
-			return base_command_line % 'c64gs'
+	system = find_c64_system(rom)
+	return make_mame_command_line(system, 'cart', {'joy1': 'joybstr', 'joy2': 'joybstr'}, True)
 	
-	region = detect_region_from_filename(rom.name)
-	#Don't think we really need c64c unless we really want the different SID chip
-	if region == 'pal':
-		return base_command_line % 'c64p'
-
-	return base_command_line % 'c64'
 
 def make_snes_addon_cart_command_line(rom, other_config):
 	if 'bios_path' not in other_config:
