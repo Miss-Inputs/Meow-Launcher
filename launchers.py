@@ -81,7 +81,7 @@ def make_display_name(name):
 			
 	return display_name
 
-def make_launcher(platform, command, name, categories=None, metadata=None, extension=''):
+def make_launcher(platform, command, name, categories=None, metadata=None):
 	comment = name
 	#TODO: Hmm... do I like the comment field being used like this....
 	display_name = make_display_name(name)
@@ -89,6 +89,5 @@ def make_launcher(platform, command, name, categories=None, metadata=None, exten
 	metadata['Platform'] = platform
 	metadata['Categories'] = categories
 	metadata['Filename-Tags'] = filename_tags
-	metadata['Extension'] = extension
 	#For very future use, this is where the underlying host platform is abstracted away. make_launcher is for everything, base_make_desktop is for Linux .desktop files specifically. Perhaps there are other things that could be output as well.
 	base_make_desktop(command, display_name, comment, metadata)

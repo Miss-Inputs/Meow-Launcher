@@ -193,7 +193,7 @@ def get_metadata(emulator_name, rom):
 	#Maybe MAME software list could say something?  If nothing else, it could give us emulation_status (supported=partial,
 	#supported=no) where we use MAME for that platform
 
-	metadata = {}
+	metadata = {'Extension': rom.extension}
 	
 	if emulator_name in ('Gamate', 'Epoch Game Pocket Computer', 'Mega Duck', 'Watara Supervision'):
 		#Well, you sure won't be seeing anything weird out of these
@@ -252,7 +252,7 @@ def make_emulated_launcher(platform, base_command_line, rom, metadata, is_unsupp
 	else:
 		command_line = base_command_line.replace('$<path>', shlex.quote(rom.path))
 	
-	launchers.make_launcher(platform, command_line, rom.name, rom.categories, metadata, rom.extension)
+	launchers.make_launcher(platform, command_line, rom.name, rom.categories, metadata)
 		
 def process_file(system_config, root, name):
 	path = os.path.join(root, name)
