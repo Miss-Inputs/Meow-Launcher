@@ -81,7 +81,7 @@ def get_input_type(machine):
 	if input_element is None:
 		#Seems like this doesn't actually happen
 		if debug:
-			print('Oi m8', basename, '/', name, 'has no input')
+			print('Oi m8', machine.attrib['name'], '/', machine.findtext('description'), 'has no input')
 		return 'No input somehow'
 
 	control_element = input_element.find('control')
