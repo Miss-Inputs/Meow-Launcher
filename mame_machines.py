@@ -103,6 +103,10 @@ def get_input_type(machine):
 				
 		return input_type.replace('_', ' ').capitalize()
 
+	if debug:
+		print("This shouldn't happen either but for", machine.attrib['name'], "it did")
+	return None
+
 def get_metadata(machine, basename):
 	category, genre, subgenre, is_nsfw = get_category(basename)
 	language = get_language(basename)
@@ -189,7 +193,7 @@ def process_machine(machine):
 		#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
 		if debug:
 			print('Skipping %s (%s) as it has no controls' % (basename, name))
-		return None
+		return
 	
 	metadata, category, platform = get_metadata(machine, basename)
 	metadata['Main-Input'] = input_type
