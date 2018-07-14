@@ -5,6 +5,7 @@ import sys
 import config
 import launchers
 import mame_machines
+import system_info
 
 #This is sort of considered separate from the main launcher generator.
 #Consider it to be its own kind of frontend, perhaps.
@@ -49,73 +50,34 @@ def lookup_system_cpu(driver_name):
 
 	return None
 
-console_cpus = {
-	#TODO: TODO: Look this up from system_info.py, except where not available or hardcoding is otherwise needed
-	#I look up things from MAME here (even when MAME doesn't really support the system and it's just a skeleton driver, as long as it knows the CPU) so the wording and naming and stuff is consistent with arcade games, which already have their CPU known
+platform_cpu_list = {
+	#Usually just look up system_info.systems, but this is here where they aren't in systems or there isn't a MAME driver so we can't get the CPU from there or where MAME gets it wrong because the CPU we want to return isn't considered the main CPU
 	"3DS": "ARM11",
 	"32X": "Hitachi SH-2",
-	"Amstrad GX4000": lookup_system_cpu('gx4000'),
-	"APF-MP1000": lookup_system_cpu('apfm1000'),
-	"Arcadia 2001": lookup_system_cpu('apfm1000'),
-	"Astrocade": lookup_system_cpu('astrocde'),
-	"Atari 8-bit": lookup_system_cpu('a800'),
-	"Atari 2600": lookup_system_cpu('a2600'),
-	"Atari 5200": lookup_system_cpu('a5200'),
-	"Atari 7800": lookup_system_cpu('a7800'),
-	"C64": lookup_system_cpu('c64'),
-	"Casio PV-1000": lookup_system_cpu('pv1000'),
-	"Casio PV-2000": lookup_system_cpu('pv2000'),
-	"CD-i": lookup_system_cpu('cdimono1'),
-	"Channel F": lookup_system_cpu('channelf'),
-	"Colecovision": lookup_system_cpu('coleco'),
 	"DS": 'ARM9',
-	"Entex Adventure Vision": lookup_system_cpu('advision'),
-	"Epoch Game Pocket Computer": lookup_system_cpu('gamepock'),
 	"FDS": lookup_system_cpu('fds'),
-	"Gamate": lookup_system_cpu('gamate'),
-	"Game Boy": lookup_system_cpu('gameboy'),
 	"Game Boy Color": lookup_system_cpu('gbcolor'),
-	"GameCube": lookup_system_cpu('gcjp'),
-	"Game Gear": lookup_system_cpu('gamegear'),
-	"GBA": lookup_system_cpu('gba'),
-	"Intellivision": lookup_system_cpu('intv'),
-	"Lynx": lookup_system_cpu('lynx'),
 	"Mac": lookup_system_cpu('macqd700'), 
 	#Correct for now, since we aren't emulating PPC games yet, nor are we falling back to earlier systems in case of really old games
-	"Master System": lookup_system_cpu('sms'),
 	"Mega CD": lookup_system_cpu('megacd'),
-	"Mega Drive": lookup_system_cpu('megadriv'),
-	"Mega Duck": lookup_system_cpu('megaduck'),
-	"MSX": lookup_system_cpu('fsa1wsx'),
-	"MSX2": lookup_system_cpu('fsa1wsx'),
-	"N64": lookup_system_cpu('n64'),
-	"Neo Geo CD": lookup_system_cpu('neocdz'),
-	"Neo Geo Pocket": lookup_system_cpu('ngpc'),
-	"NES": lookup_system_cpu('nes'),
-	"PC Engine": lookup_system_cpu('pce'),
-	"PC Engine CD": lookup_system_cpu('pce'),
-	"PlayStation": lookup_system_cpu('psj'),
-	"Pokemon Mini": lookup_system_cpu('pokemini'),
-	"PS2": lookup_system_cpu('ps2'),
+	#For this purpose it's correct but it technically isn't: This is returning the CPU from the Megadrive instead of the actual Mega CD's CPU, but they're both 68000 so it's fine to just get the name
 	"PSP": "Allegrex",
-	"Satellaview": lookup_system_cpu('snes'),
-	"Saturn": lookup_system_cpu('saturn'),
-	"SG-1000": lookup_system_cpu('sg1000'),
-	"Sharp X1": lookup_system_cpu('x1'),
-	"Sharp X68000": lookup_system_cpu('x68000'),
-	"SNES": lookup_system_cpu('snes'),
-	"Sord M5": lookup_system_cpu('m5'),
-	"Sufami Turbo": lookup_system_cpu('snes'),
-	"Tomy Tutor": lookup_system_cpu('tutor'),
-	"Vectrex": lookup_system_cpu('vectrex'),
-	"VIC-10": lookup_system_cpu('vic10'),
-	"VIC-20": lookup_system_cpu('vic20'),
-	"Virtual Boy": lookup_system_cpu('vboy'),
-	"Watara Supervision": lookup_system_cpu('svision'),
-	"Wii": lookup_system_cpu('tvcapcom'), 
-	#Yes that's not a Wii, but it runs on Wii hardware, and a real Wii isn't even a skeleton driver yet. I really just don't feel like hardcoding things today
-	"WonderSwan": lookup_system_cpu('wscolor'),
+	"Wii": "IBM PowerPC 603", 
 }
+
+def get_cpu_for_platform(platform):
+	#I look up things from MAME here (even when MAME doesn't really support the system and it's just a skeleton driver, as long as it knows the CPU) so the wording and naming and stuff is consistent with arcade games, which already have their CPU known
+	#TODO: This should be done when the launcher is generated (add X-Main-CPU), not when it's being sorted by this frontend specifically
+	if platform in platform_cpu_list:
+		return platform_cpu_list[platform]
+
+	for system in system_info.systems:
+		if platform == system.name:
+			mame_driver = system.mame_driver
+			if mame_driver:
+				return lookup_system_cpu(mame_driver)
+
+	return None
 
 def move_into_folders():
 	delete_existing_output_dir()
@@ -192,8 +154,10 @@ def move_into_folders():
 						copy_to_folder(path, config.organized_output_folder, 'By input method', sanitize_name(main_input))
 					if main_cpu:
 						copy_to_folder(path, config.organized_output_folder, 'By main CPU', sanitize_name(main_cpu))
-					elif platform in console_cpus:
-						copy_to_folder(path, config.organized_output_folder, 'By main CPU', sanitize_name(console_cpus[platform]))
+					else:
+						cpu = get_cpu_for_platform(platform)
+						if cpu:
+							copy_to_folder(path, config.organized_output_folder, 'By main CPU', sanitize_name(cpu))
 					if source_file:
 						copy_to_folder(path, config.organized_output_folder, 'By MAME source file', sanitize_name(source_file))
 					if family:

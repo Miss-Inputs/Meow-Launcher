@@ -4,7 +4,7 @@ class System():
 		self.mame_driver = mame_driver
 		self.mame_software_lists = mame_software_lists
 
-system_configs = [
+systems = [
 	System('Game Boy', 'gbcolor', ['gameboy', 'gbcolor']),
 	System('GBA', 'gba', ['gba']), 
 	System('SNES', 'snes', ['snes']),
