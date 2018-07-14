@@ -80,28 +80,28 @@ def get_input_type(machine):
 	input_element = machine.find('input')
 	if input_element is None:
 		#Seems like this doesn't actually happen
-		input_type = 'No input somehow'
 		if debug:
 			print('Oi m8', basename, '/', name, 'has no input')
-	else:
-		control_element = input_element.find('control')
-		if control_element is None:
-			if 'players' not in input_element.attrib or input_element.attrib['players'] == '0':				
-				return None
-			else:
-				input_type = 'Custom'
-				#Sometimes you get some games with 1 or more players, but no control type defined.  This usually happens with
-				#pinball games and weird stuff like a clock, but also some genuine games like Crazy Fight that are more or less
-				#playable just fine, so we'll leave them in
-		else:
-			input_type = control_element.attrib['type']
-			if input_type:
-				if input_type == 'doublejoy':
-					input_type = 'Twin Joystick'
-				elif input_type == 'joy':
-					input_type = 'Normal'
-				else:
-					input_type = input_type.replace('_', ' ').capitalize()
+		return 'No input somehow'
+
+	control_element = input_element.find('control')
+	if control_element is None:
+		if 'players' not in input_element.attrib or input_element.attrib['players'] == '0':				
+			return None
+			
+		return 'Custom'
+		#Sometimes you get some games with 1 or more players, but no control type defined.  This usually happens with
+		#pinball games and weird stuff like a clock, but also some genuine games like Crazy Fight that are more or less
+		#playable just fine, so we'll leave them in
+
+	input_type = control_element.attrib['type']
+	if input_type:
+		if input_type == 'doublejoy':
+			return 'Twin Joystick'
+		elif input_type == 'joy':
+			return 'Normal'
+				
+		return input_type.replace('_', ' ').capitalize()
 
 def get_metadata(machine, basename):
 	category, genre, subgenre, is_nsfw = get_category(basename)
