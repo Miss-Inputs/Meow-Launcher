@@ -54,9 +54,9 @@ def get_category(basename):
 	if not cat:
 		return 'Unknown', 'Unknown', 'Unknown', 'Unknown'
 
-	if ':' in cat:
-		category, genres = cat.split(': ', 1)
-		genre, subgenre = genres.split(' / ', 1)
+	if ': ' in cat:
+		category, _, genres = cat.partition(': ', 1)
+		genre, _, subgenre = genres.partition(' / ', 1)
 		is_nsfw = False
 		if subgenre.endswith('* Mature *'):
 			is_nsfw = True
