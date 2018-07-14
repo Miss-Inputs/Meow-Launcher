@@ -195,7 +195,7 @@ def process_machine(machine):
 	metadata['Family'] = family
 
 	command_line = emulator_info.make_mame_command_line(basename)
-	launchers.make_launcher(platform, command_line, name, [category, genre, source_file], metadata)
+	launchers.make_launcher(platform, command_line, name, [category], metadata)
 		
 def get_mame_drivers():
 	drivers = []
