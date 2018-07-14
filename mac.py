@@ -62,7 +62,6 @@ def make_launcher(path, game_name, game_config):
 	actual_emulator_command = 'BasiliskII --screen dga/{0}/{1}'.format(width, height)
 	inner_command = 'echo {0} > {1} && {2} && rm {1}'.format(shlex.quote(path), shlex.quote(autoboot_txt_path), actual_emulator_command)
 	command = 'sh -c {0}'.format(shlex.quote(inner_command))
-	display_name = common.remove_filename_tags(game_name)
 	if 'category' in game_config:
 		categories = [game_config['category']]
 	else:
