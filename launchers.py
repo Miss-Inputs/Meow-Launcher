@@ -1,6 +1,5 @@
 import re
 import os
-import shlex
 import configparser
 
 import config
@@ -93,4 +92,3 @@ def make_launcher(platform, command, name, categories=None, metadata=None, exten
 	metadata['Extension'] = extension
 	#For very future use, this is where the underlying host platform is abstracted away. make_launcher is for everything, base_make_desktop is for Linux .desktop files specifically. Perhaps there are other things that could be output as well.
 	base_make_desktop(command, display_name, comment, metadata)
-

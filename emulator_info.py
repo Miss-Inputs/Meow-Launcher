@@ -145,7 +145,7 @@ def build_a800_command_line(rom, _):
 	else:
 		system = 'a800'
 
-	return mmake_mame_command_line(system, slot, has_keyboard=True)
+	return make_mame_command_line(system, slot, has_keyboard=True)
 
 def find_c64_system(rom):
 	rom_data = common.read_file(rom.path, rom.compressed_entry)
@@ -165,8 +165,8 @@ def find_c64_system(rom):
 	#Don't think we really need c64c unless we really want the different SID chip
 	if region == 'pal':
 		return 'c64p'
-	else:
-		return 'c64'
+	
+	return 'c64'
 	
 def build_c64_command_line(rom, _):
 	#While we're here building a command line, should mention that you have to manually put a joystick in the first
@@ -189,13 +189,12 @@ def make_snes_addon_cart_command_line(rom, other_config):
 		return None
 	return make_mame_command_line('snes', 'cart2', {'cart': shlex.quote(other_config['bios_path'])}, False)
 
-def make_prboom_plus_command_line(rom, other_config):
-	#'command_line': 'prboom-plus -save %s -iwad {0}' % shlex.quote(DOOM_SAVE_DIR), 'supported_extensions': ['wad'], 'supported_compression': []
+def make_prboom_plus_command_line(_, other_config):
 	if 'save_dir' in other_config:
 		return 'prboom-plus -save %s -iwad $<path>' % shlex.quote(other_config['save_dir'])
-	else:
-		#Fine don't save then, nerd
-		return 'prboom-plus -iwad $<path>'
+
+	#Fine don't save then, nerd
+	return 'prboom-plus -iwad $<path>'
 
 emulators = {
 	'gambatte': Emulator('gambatte_qt --full-screen $<path>', ['gb', 'gbc'], ['zip']),
