@@ -183,7 +183,7 @@ def process_machine(machine):
 def get_mame_drivers():
 	drivers = []
 
-	process = subprocess.run(['mame', '-listsource'], capture_output=True, text=True)
+	process = subprocess.run(['mame', '-listsource'], stdout=subprocess.PIPE, universal_newlines=True)
 	status = process.returncode
 	output = process.stdout
 	if status != 0:
@@ -201,7 +201,7 @@ def get_mame_drivers():
 	return drivers
 	
 def get_mame_xml(driver):
-	process = subprocess.run(['mame', '-listxml', driver], capture_output=True)
+	process = subprocess.run(['mame', '-listxml', driver], stdout=subprocess.PIPE)
 	status = process.returncode
 	output = process.stdout
 	if status != 0:
