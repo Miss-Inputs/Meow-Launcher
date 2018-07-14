@@ -149,7 +149,6 @@ def get_metadata(machine, basename):
 		'Subgenre': subgenre, 
 		'NSFW': is_nsfw, 
 		'Languages': language, 
-		'Family': family,
 		'Year': machine.findtext('year'),
 		'Author': machine.findtext('manufacturer'),
 		#Some other things we could get from XML if we decide we care about it:
@@ -193,6 +192,7 @@ def process_machine(machine):
 	
 	metadata, category, platform = get_metadata(machine, basename)
 	metadata['Main-Input'] = input_type
+	metadata['Family'] = family
 
 	command_line = emulator_info.make_mame_command_line(basename)
 	launchers.make_launcher(platform, command_line, name, [category, genre, source_file], metadata)
