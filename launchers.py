@@ -37,7 +37,7 @@ def make_filename(name):
 	return name
 
 used_filenames = []
-def base_make_desktop(command, display_name, comment, platform, categories=None, tags=None, metadata=None, ext=''):
+def base_make_desktop(command, display_name, comment, metadata=None):
 	base_filename = make_filename(display_name)
 	filename = base_filename + '.desktop'
 	
@@ -56,22 +56,17 @@ def base_make_desktop(command, display_name, comment, platform, categories=None,
 		f.write('Name=%s\n' % display_name)
 		f.write('Comment=%s\n' % comment)
 		f.write('Exec=%s\n' % command)
-		f.write('X-Platform=%s\n' % platform)
-
-		#TODO: Categories, tags should be part of metadata anyway
-		if categories:
-			f.write('X-Categories=%s\n' % (';'.join(categories)))
-
-		if tags:
-			f.write('X-Filename-Tags=%s\n' % (';'.join(tags)))
 
 		if metadata:
 			for k, v in metadata.items():
 				if v:
-					f.write('X-{0}={1}\n'.format(k.replace('_', '-'), v))
+					if isinstance(v, list):
+						value_as_string = ';'.join(v)
+					else:
+						value_as_string = v
+
+					f.write('X-{0}={1}\n'.format(k.replace('_', '-'), value_as_string))
 		
-		if ext:
-			f.write('X-Extension=%s\n' % ext)
 
 		os.chmod(path, 0o7777)
 
@@ -87,20 +82,15 @@ def make_display_name(name):
 			
 	return display_name
 
-def make_desktop(platform, command, path, name, categories=None, metadata=None, ext='', compressed_entry=None):
-	#Use compressed_entry for manual decompression, don't pass that if the compression format is natively supported by the
-	#emulator
-	if compressed_entry:
-		temp_folder = '/tmp/temporary_rom_extract'
-		#TODO: Should I get the inner shell to ensure this directory exists, or to make a new one entirely?
-		extracted_path = os.path.join(temp_folder, compressed_entry)
-		inner_cmd = command.format(shlex.quote(extracted_path))
-		shell_command = shlex.quote('7z x -o{2} {0}; {1}; rm -rf {2}'.format(shlex.quote(path), inner_cmd, temp_folder))
-		cmd = 'sh -c {0}'.format(shell_command)
-	else:
-		cmd = command.format(shlex.quote(path))
-
-	display_name = make_display_name(name)
+def make_launcher(platform, command, name, categories=None, metadata=None, extension=''):
 	comment = name
+	#TODO: Hmm... do I like the comment field being used like this....
+	display_name = make_display_name(name)
 	filename_tags = common.find_filename_tags.findall(name)
-	base_make_desktop(cmd, display_name, comment, platform, categories, filename_tags, metadata, ext)
+	metadata['Platform'] = platform
+	metadata['Categories'] = categories
+	metadata['Filename-Tags'] = filename_tags
+	metadata['Extension'] = extension
+	#For very future use, this is where the underlying host platform is abstracted away. make_launcher is for everything, base_make_desktop is for Linux .desktop files specifically. Perhaps there are other things that could be output as well.
+	base_make_desktop(command, display_name, comment, metadata)
+

@@ -12,6 +12,7 @@ class Emulator():
 		self.supported_compression = supported_compression
 
 	def get_command_line(self, rom, other_config):
+		#You might think sinc I have rom here, I should just insert the path into the command line here too. I don't though, in case the final path that gets passed to the emulator needs to be different than the ROM's path (in case of temporary extracted files for emulators not supporting compression, for example)
 		if callable(self.command_line):
 			return self.command_line(rom, other_config)
 		
@@ -19,7 +20,7 @@ class Emulator():
 
 class MednafenModule(Emulator):
 	def __init__(self, module, supported_extensions):
-		Emulator.__init__(self, 'mednafen -video.fs 1 -force_module %s {0}' % module, supported_extensions, ['zip', 'gz'])
+		Emulator.__init__(self, 'mednafen -video.fs 1 -force_module %s $<path>' % module, supported_extensions, ['zip', 'gz'])
 
 def make_mame_command_line(driver, slot=None, slot_options=None, has_keyboard=False):
 	command_line = 'mame -skip_gameinfo'
@@ -33,7 +34,7 @@ def make_mame_command_line(driver, slot=None, slot_options=None, has_keyboard=Fa
 			command_line += ' -' + name + ' ' + value
 
 	if slot:
-		command_line += ' -' + slot + ' {0}'
+		command_line += ' -' + slot + ' $<path>'
 
 	return command_line
 
@@ -62,7 +63,8 @@ def build_atari7800_command_line(rom, _):
 	#TODO: New plan: Split 'mame-atari-7800' emulator info into 'mame-atari-7800-ntsc' and 'mame-atari-7800-pal', then rewrite get_metadata (or some function similar to it) that gets the region in a more unified way (to allow for getting the language more sensibly etc), then pick which emulator to use here
 	#Hmm... how would you specify the usage of MAME in config.py though? Maybe if preferred emulator is 'mame-atari-7800', do auto-region-thingo, otherwise don't do that
 	#Or perhaps there's no need to split emulators, but just put a 'region' attribute on Rom that this reads instead of doing the detection itself
-	base_command_line = 'mame -skip_gameinfo %s -cart {0}'
+	#TODO: At any rate, merge with make_mame_command_line
+	base_command_line = 'mame -skip_gameinfo %s -cart $<path>'
 	#TODO: Put read_file and get_real_size in roms.Rom()
 	rom_data = common.read_file(rom.path, rom.compressed_entry)
 	if rom_data[1:10] != b'ATARI7800':
@@ -89,8 +91,8 @@ def build_vic20_command_line(rom, _):
 			print('Bugger!', rom.path, 'is too big for MAME at the moment, it is', size)
 		return None
 	
-	base_command_line = 'mame %s -skip_gameinfo -ui_active -cart {0}'
-	region = detect_region_from_filename(rom.display_name)
+	base_command_line = 'mame %s -skip_gameinfo -ui_active -cart $<path>'
+	region = detect_region_from_filename(rom.name)
 	if region == 'pal':
 		return base_command_line % 'vic20p'
 	
@@ -133,11 +135,11 @@ def build_a800_command_line(rom, _):
 			return None
 	
 	if is_left:
-		base_command_line = 'mame %s -skip_gameinfo -ui_active -cart1 {0}'
+		base_command_line = 'mame %s -skip_gameinfo -ui_active -cart1 $<path>'
 	else:
-		base_command_line = 'mame %s -skip_gameinfo -ui_active -cart2 {0}'
+		base_command_line = 'mame %s -skip_gameinfo -ui_active -cart2 $<path>'
 
-	region = detect_region_from_filename(rom.display_name) 
+	region = detect_region_from_filename(rom.name) 
 	#Why do these CCS64 and CART and whatever else thingies never frickin' store the TV type?
 	if region == 'pal':
 		#Atari 800 should be fine for everything, and I don't feel like the XL/XE series to see in which ways they don't work
@@ -153,7 +155,7 @@ def build_c64_command_line(rom, _):
 	#gives us two extra buttons for any software that uses it (probably nothing), and the normal fire button works as
 	#normal.  _Should_ be fine
 	#(Super cool pro tip: Bind F1 to Start)
-	base_command_line = 'mame %s -joy1 joybstr -joy2 joybstr -skip_gameinfo -ui_active -cart {0}'
+	base_command_line = 'mame %s -joy1 joybstr -joy2 joybstr -skip_gameinfo -ui_active -cart $<path>'
 	
 	rom_data = common.read_file(rom.path, rom.compressed_entry)
 	if rom_data[:16] == b'C64 CARTRIDGE   ':
@@ -166,7 +168,7 @@ def build_c64_command_line(rom, _):
 			#For some reason, these carts don't work on a regular C64 in MAME, and we have to use...  the thing specifically designed for playing games (but we normally wouldn't use this, since some cartridge games still need the keyboard, even if just for the menus, and that's why it actually sucks titty balls IRL.  But if it weren't for that, we totes heckin would)
 			return base_command_line % 'c64gs'
 	
-	region = detect_region_from_filename(rom.display_name)
+	region = detect_region_from_filename(rom.name)
 	#Don't think we really need c64c unless we really want the different SID chip
 	if region == 'pal':
 		return base_command_line % 'c64p'
@@ -184,29 +186,29 @@ def make_snes_addon_cart_command_line(rom, other_config):
 def make_prboom_plus_command_line(rom, other_config):
 	#'command_line': 'prboom-plus -save %s -iwad {0}' % shlex.quote(DOOM_SAVE_DIR), 'supported_extensions': ['wad'], 'supported_compression': []
 	if 'save_dir' in other_config:
-		return 'prboom-plus -save %s -iwad {0}' % shlex.quote(other_config['save_dir'])
+		return 'prboom-plus -save %s -iwad $<path>' % shlex.quote(other_config['save_dir'])
 	else:
 		#Fine don't save then, nerd
-		return 'prboom-plus -iwad {0}'
+		return 'prboom-plus -iwad $<path>'
 
 emulators = {
-	'gambatte': Emulator('gambatte_qt --full-screen {0}', ['gb', 'gbc'], ['zip']),
+	'gambatte': Emulator('gambatte_qt --full-screen $<path>', ['gb', 'gbc'], ['zip']),
 	#--gba-cgb-mode[=0] and --force-dmg-mode[=0] may be useful in obscure situations
-	'mgba': Emulator('mgba-qt -f {0}', ['gb', 'gbc', 'gba', 'srl', 'bin', 'mb'], ['7z', 'zip']),
+	'mgba': Emulator('mgba-qt -f $<path>', ['gb', 'gbc', 'gba', 'srl', 'bin', 'mb'], ['7z', 'zip']),
 	#Use -C useBios=0 for homebrew with bad checksum/logo that won't boot on real hardware.  Some intensive games (e.g.
 	#Doom) will not run at full speed on toaster, but generally it's fine
-	'snes9x': Emulator('snes9x-gtk {0}', ['sfc', 'smc', 'swc'], ['zip', 'gz']),
+	'snes9x': Emulator('snes9x-gtk $<path>', ['sfc', 'smc', 'swc'], ['zip', 'gz']),
 	#Slows down on toaster for a lot of intensive games e.g.  SuperFX.  Can't set fullscreen mode from the command line so you have
 	#to set up that yourself; GTK port can't do Sufami Turbo due to lacking multi-cart support that Windows has, MAME can
 	#emulate this but it's too slow on toasters so we do that later; GTK port can do Satellaview but not directly from the
 	#command line
-	'mupen64plus': Emulator('env MESA_GL_VERSION_OVERRIDE=3.3COMPAT mupen64plus --nosaveoptions --fullscreen {0}', ['z64', 'v64', 'n64'], []),
+	'mupen64plus': Emulator('env MESA_GL_VERSION_OVERRIDE=3.3COMPAT mupen64plus --nosaveoptions --fullscreen $<path>', ['z64', 'v64', 'n64'], []),
 	#Often pretty slow on toaster but okay for turn-based games; environment variable is needed for GLideN64 which sometimes is
 	#preferred over Rice and sometimes not (the latter wins at speed and not much else).  Do I still need that environment
 	#variable?  I think I might
-	'kega-fusion': Emulator('kega-fusion -fullscreen {0}', ['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', '32x'], ['zip']),
+	'kega-fusion': Emulator('kega-fusion -fullscreen $<path>', ['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', '32x'], ['zip']),
 	#May support other CD formats for Mega CD other than iso, cue?
-	'ppsspp': Emulator('ppsspp-qt {0}', ['iso', 'pbp', 'cso'], []),
+	'ppsspp': Emulator('ppsspp-qt $<path>', ['iso', 'pbp', 'cso'], []),
 	'mednafen-ngp': MednafenModule('ngp', ['ngp', 'npc', 'ngc']),
 	'mednafen-pce': MednafenModule('pce', ['pce', 'sgx', 'iso', 'cue', 'ccd', 'toc', 'm3u']),
 	#Mednafen assumes that there is only 1 gamepad and it's the 6 button kind, so button mapping is kind of weird when I
@@ -214,9 +216,9 @@ emulators = {
 	'mednafen-pce_fast': MednafenModule('pce_fast', ['pce', 'sgx', 'iso', 'cue', 'ccd', 'toc', 'm3u']),
 	'mednafen-nes': MednafenModule('nes', ['nes', 'fds', 'unf']),
 	'mednafen-vb': MednafenModule('vb', ['bin', 'vb']),
-	'stella': Emulator('stella -fullscreen 1 {0}', ['a26', 'bin', 'rom'], ['gz', 'zip']),
-	'pokemini': Emulator('PokeMini -fullscreen {0}', ['min'], ['zip']),
-	'pokemini-wrapper': Emulator('PokeMini.sh -fullscreen {0}', ['min'], ['zip']),
+	'stella': Emulator('stella -fullscreen 1 $<path>', ['a26', 'bin', 'rom'], ['gz', 'zip']),
+	'pokemini': Emulator('PokeMini -fullscreen $<path>', ['min'], ['zip']),
+	'pokemini-wrapper': Emulator('PokeMini.sh -fullscreen $<path>', ['min'], ['zip']),
 	'mednafen-lynx': MednafenModule('lynx', ['lnx', 'lyx', 'o']),
 	#Sorta has like...  2 sets of A and B buttons, and 3 buttons on one side and 2 on the other?  It's supposed to be
 	#ambidextrous or something which is cool in real life but not so great here, I might need to look more into it and
@@ -228,13 +230,13 @@ emulators = {
 	'mednafen-ps1': MednafenModule('psx', ['iso', 'cue', 'exe', 'toc', 'ccd', 'm3u']),
 	#Seems like some PAL games don't run at the resolution Mednafen thinks they should, so they need per-game configs
 	#that override the scanline start/end settings
-	'dolphin': Emulator('dolphin-emu -b -e {0}', ['iso', 'gcz', 'elf', 'dol', 'wad'], []),
+	'dolphin': Emulator('dolphin-emu -b -e $<path>', ['iso', 'gcz', 'elf', 'dol', 'wad'], []),
 	#, 'command_line': 'citra-qt {0}', 'supported_extensions': , 'supported_compression': []
-	'citra': Emulator('citra-qt {0}', ['3ds', 'cxi', '3dsx'], []),
+	'citra': Emulator('citra-qt $<path>', ['3ds', 'cxi', '3dsx'], []),
 	#Will not run full screen from the command line and you always have to set it manually whether you like it or not (I
 	#do not)
-	'medusa': Emulator('medusa-emu-qt -f {0}', ['nds'], ['7z', 'zip']),
-	'pcsx2': Emulator('pcsx2 --nogui --fullscreen --fullboot {0}', ['iso', 'cso', 'bin'], ['gz']),
+	'medusa': Emulator('medusa-emu-qt -f $<path>', ['nds'], ['7z', 'zip']),
+	'pcsx2': Emulator('pcsx2 --nogui --fullscreen --fullboot $<path>', ['iso', 'cso', 'bin'], ['gz']),
 	#Has a few problems.  Takes some time to load the interface so at first it might look like it's not working; take out --fullboot if it forbids any homebrew stuff (but it should be fine, and Katamari Damacy needs it).  ELF still doesn't work, though it'd need a different command line anyway
 	'mednafen-saturn': MednafenModule('ss', ['cue', 'toc', 'ccd', 'm3u']),
 	#Doesn't do .iso for whatever strange reason, which is a bit unfortunate. Might do .bin executables? Probably not

@@ -2,6 +2,7 @@ import re
 import os
 import xml.etree.ElementTree as ElementTree
 import sys
+import shlex
 
 import config
 import archives
@@ -200,7 +201,7 @@ def get_metadata(emulator_name, rom):
 	elif emulator_name == 'Virtual Boy':
 		metadata['Main-Input'] = 'Twin Joystick'
 	
-	tags = common.find_filename_tags.findall(rom.display_name)
+	tags = common.find_filename_tags.findall(rom.name)
 	for k, v in get_metadata_from_filename_tags(tags).items():
 		if k not in metadata:
 			metadata[k] = v
@@ -228,17 +229,30 @@ class Rom():
 					continue
 				found_file_already = True
 				
-				self.display_name, self.extension = os.path.splitext(entry)
+				self.name, self.extension = os.path.splitext(entry)
 				self.compressed_entry = entry
 		else:
 			self.is_compressed = False
 			self.compressed_entry = None
-			self.display_name = self.name_without_extension
+			self.name = self.name_without_extension
 			self.extension = self.original_extension
 
 		if self.extension.startswith('.'):
 			self.extension = self.extension[1:]
 		self.extension = self.extension.lower()
+
+def make_emulated_launcher(platform, base_command_line, rom, metadata, is_unsupported_compression):
+	if is_unsupported_compression:
+		temp_folder = '/tmp/temporary_rom_extract'
+		#TODO: Use mktemp inside shell_command to ensure we always have a nice unique directory
+		extracted_path = os.path.join(temp_folder, rom.compressed_entry)
+		inner_cmd = base_command_line.replace('$<path>', shlex.quote(extracted_path))
+		shell_command = shlex.quote('7z x -o{2} {0}; {1}; rm -rf {2}'.format(shlex.quote(rom.path), inner_cmd, temp_folder))
+		command_line = 'sh -c {0}'.format(shell_command)
+	else:
+		command_line = base_command_line.replace('$<path>', shlex.quote(rom.path))
+	
+	launchers.make_launcher(platform, command_line, rom.name, rom.categories, metadata, rom.extension)
 		
 def process_file(system_config, root, name):
 	path = os.path.join(root, name)
@@ -260,27 +274,27 @@ def process_file(system_config, root, name):
 	if rom.extension == 'pbp':
 		#EBOOT is not a helpful launcher name
 		#TODO: This should be in somewhere like system_info or emulator_info or perhaps get_metadata, ideally
-		rom.display_name = rom.categories[-1]
+		rom.name = rom.categories[-1]
 	if system_config.name == 'Wii' and os.path.isfile(os.path.join(root, 'meta.xml')):
 		#boot is not a helpful launcher name
 		try:
 			meta_xml = ElementTree.parse(os.path.join(root, 'meta.xml'))
-			rom.display_name = meta_xml.findtext('name')
+			rom.name = meta_xml.findtext('name')
 		except ElementTree.ParseError as etree_error:
 			if debug:
 				print('Ah bugger', path, etree_error)
-			rom.display_name = rom.categories[-1]
+			rom.name = rom.categories[-1]
 		
 	if rom.extension not in emulator.supported_extensions:
 		return
 
 	if rom.warn_about_multiple_files and debug:
 		print('Warning!', rom.path, 'has more than one file and that may cause unexpected behaviour, as I only look at the first file')
-
-	command_line = emulator.get_command_line(rom, system_config.other_config)
-	if command_line is None:
-		return
 			
+	command_line = emulator.get_command_line(rom, system_config.other_config)
+	if not command_line:
+		return
+
 	#TODO: Stuff like this should go into somewhere like get_metadata
 	platform = system_config.name
 	if platform == 'NES' and rom.extension == 'fds':
@@ -293,11 +307,7 @@ def process_file(system_config, root, name):
 			
 	is_unsupported_compression = rom.is_compressed and (rom.original_extension not in emulator.supported_compression)
 
-	if is_unsupported_compression:
-		#TODO: Mmmmm don't like this should be refactored
-		launchers.make_desktop(platform, command_line, rom.path, rom.display_name, rom.categories, metadata, rom.extension, rom.compressed_entry)
-	else:
-		launchers.make_desktop(platform, command_line, rom.path, rom.display_name, rom.categories, metadata, rom.extension)
+	make_emulated_launcher(platform, command_line, rom, metadata, is_unsupported_compression)
 
 def parse_m3u(path):
 	with open(path, 'rt') as f:

@@ -90,8 +90,8 @@ def make_launcher(path, game_name, game_config):
 	for extra_metadata in ('min_players', 'max_players', 'emu_compat', 'controls', 'required_hardware', 'required_software', 'colours', 'colours_compat', 'resolution_compat', 'clone_of', 'runs_in_window'):
 		if extra_metadata in game_config:
 			metadata[extra_metadata] = game_config[extra_metadata]
-	
-	launchers.base_make_desktop(command, display_name, comment, 'Mac', categories, tags, metadata)
+
+	launchers.make_launcher('Mac', command, display_name, categories, metadata)
 
 def do_mac_stuff():
 	game_list = init_game_list()

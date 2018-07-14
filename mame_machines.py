@@ -7,6 +7,7 @@ import sys
 import config
 import common
 import launchers
+import emulator_info
 
 debug = '--debug' in sys.argv
 
@@ -176,7 +177,8 @@ def process_machine(machine):
 		#Number of players
 	}
 
-	launchers.make_desktop(platform, 'mame -skip_gameinfo {0}', basename, name, [category, genre, source_file], metadata)
+	command_line = emulator_info.make_mame_command_line(basename)
+	launchers.make_launcher(platform, command_line, name, [category, genre, source_file], metadata)
 		
 def get_mame_drivers():
 	drivers = []
