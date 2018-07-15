@@ -95,8 +95,8 @@ class Rom():
 			self.extension = self.extension[1:]
 		self.extension = self.extension.lower()
 
-	def read(self):
-		return common.read_file(self.path, self.compressed_entry)
+	def read(self, seek_to=0, amount=-1):
+		return common.read_file(self.path, self.compressed_entry, seek_to, amount)
 
 	def get_size(self):
 		return common.get_real_size(self.path, self.compressed_entry)

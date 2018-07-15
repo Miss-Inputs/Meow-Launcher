@@ -30,7 +30,7 @@ debug = '--debug' in sys.argv
 #supported=no) where we use MAME for that platform
 
 def add_atari7800_metadata(game):
-	rom_data = game.rom.read()
+	rom_data = game.rom.read(amount=128)
 	if rom_data[1:10] != b'ATARI7800':
 		if debug:
 			print(game.rom.path, 'has no header and is therefore unsupported')
