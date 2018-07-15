@@ -1,4 +1,6 @@
 import sys
+import os
+import xml.etree.ElementTree as ElementTree
 
 from region_info import TVSystem
 
@@ -32,6 +34,7 @@ def add_atari7800_metadata(game):
 	if rom_data[1:10] != b'ATARI7800':
 		if debug:
 			print(game.rom.path, 'has no header and is therefore unsupported')
+			#TODO: Hmm... it's only MAME that can't deal with lack of headers...
 			game.unrunnable = True
 			return
 
@@ -46,6 +49,36 @@ def add_atari7800_metadata(game):
 			print('Something is wrong with', game.rom.path, ', has region byte of', region_byte)
 		game.unrunnable = True
 
+def add_psp_metadata(game):
+	if game.rom.extension == 'pbp':
+		#These are basically always named EBOOT.PBP (due to how PSPs work I guess), so that's not a very good launcher name, and use the folder it's stored in instead
+		game.rom.name = os.path.basename(game.folder)
+
+def add_wii_metadata(game):
+	xml_path = os.path.join(game.folder, 'meta.xml')
+	if os.path.isfile(xml_path):
+		#boot is not a helpful launcher name
+		try:
+			meta_xml = ElementTree.parse(xml_path)
+			game.rom.name = meta_xml.findtext('name')
+		except ElementTree.ParseError as etree_error:
+			if debug:
+				print('Ah bugger', game.rom.path, etree_error)
+			game.rom.name = os.path.basename(game.folder)
+
+def add_nes_metadata(game):
+	if game.rom.extension == 'fds':
+		game.platform = 'FDS'
+
+def add_gameboy_metadata(game):
+	if game.rom.extension == 'gbc':
+		game.platform = 'Game Boy Color'
+
+
 helpers = {
 	'Atari 7800': add_atari7800_metadata,
+	'PSP': add_psp_metadata,
+	'Wii': add_wii_metadata,
+	'NES': add_nes_metadata,
+	'Game Boy': add_gameboy_metadata,
 }
