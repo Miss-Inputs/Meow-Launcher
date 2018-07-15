@@ -114,3 +114,17 @@ def get_tv_system_from_regions(regions):
 	
 	#If there are multiple distinct systems, it must be agnostic (since we only have NTSC, PAL, and agnostic (both) for now)
 	return region_info.TVSystem.Agnostic
+
+def get_tv_system_from_filename_tags(tags):
+	#You should look for regions instead if you can. This just looks at the presence of (NTSC) or (PAL) directly (both No-Intro and TOSEC style filenames sometimes do this).
+	for tag in tags:
+		tag = tag.upper()
+		if tag == '(NTSC)':
+			return region_info.TVSystem.NTSC
+		elif tag == '(PAL)':
+			return region_info.TVSystem.PAL
+		elif tag == '(NTSC-PAL)' or tag == '(PAL-NTSC)':
+			return region_info.TVSystem.Agnostic
+
+	return None
+

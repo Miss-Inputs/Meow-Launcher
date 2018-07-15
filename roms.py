@@ -42,6 +42,7 @@ def add_metadata(game):
 	if game.platform in platform_metadata.helpers:
 		platform_metadata.helpers[game.platform](game)
 
+	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = common.find_filename_tags.findall(game.rom.name)
 	for k, v in get_metadata_from_filename_tags(tags).items():
 		if k not in game.metadata:
@@ -52,6 +53,10 @@ def add_metadata(game):
 	if not game.tv_type:
 		if game.regions:
 			game.tv_type = region_detect.get_tv_system_from_regions(game.regions)
+		else:
+			tv_type = region_detect.get_tv_system_from_filename_tags(tags)
+			if tv_type:
+				game.tv_type = tv_type
 	
 	if game.regions:
 		game.metadata['Regions'] = [region.name if region else 'None!' for region in game.regions]
