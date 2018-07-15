@@ -15,8 +15,9 @@ class Language():
 		self.short_code = short_code
 
 class Region():
-	def __init__(self, name, tv_system, language):
+	def __init__(self, name, short_code, tv_system, language):
 		self.name = name
+		self.short_code = short_code
 		self.tv_system = tv_system
 		self.language = language
 
@@ -43,30 +44,30 @@ languages = [
 ]
 
 regions = [
-	Region('Australia', TVSystem.PAL, 'English'),
-	Region('Brazil', TVSystem.NTSC, 'Portugese'),
-	Region('Canada', TVSystem.NTSC, None), #Might have English or French
-	Region('China', TVSystem.PAL, 'Chinese'),
-	Region('Denmark', TVSystem.PAL, 'Danish'),
-	Region('Europe', TVSystem.PAL, 'English'), #Actually could be any number of languages, but in filenames (by No-Intro's convention anyway) it's assumed to be English unless otherwise specified
-	Region('Finland', TVSystem.PAL, 'Finnish'),
-	Region('France', TVSystem.PAL, 'French'),
-	Region('Germany', TVSystem.PAL, 'German'),
-	Region('Greece', TVSystem.PAL, 'Greek'),
-	Region('Hong Kong', TVSystem.PAL, None), #Might have Chinese or English
-	Region('Italy', TVSystem.PAL, 'Italian'),
-	Region('Japan', TVSystem.NTSC, 'Japanese'),
-	Region('Korea', TVSystem.NTSC, 'Korean'), #For the purpose of video games, we can assume South Korea is the only Korea and North Korea doesn't exist. Oof, that sounds horrible, doesn't it? (If North Korea ever does have games, they use PAL)
-	Region('Netherlands', TVSystem.PAL, 'Dutch'),
-	Region('Norway', TVSystem.PAL, 'Norwegian'),
-	Region('Poland', TVSystem.PAL, 'Polish'),
-	Region('Portugal', TVSystem.PAL, 'Portugese'),
-	Region('Russia', TVSystem.PAL, 'Russian'),
-	Region('Spain', TVSystem.PAL, 'Spanish'),
-	Region('Sweden', TVSystem.PAL, 'Swedish'),
-	Region('Taiwan', TVSystem.NTSC, 'Chinese'),
-	Region('UK', TVSystem.PAL, 'English'),
-	Region('USA', TVSystem.NTSC, 'English'),
+	Region('Australia', 'AU', TVSystem.PAL, 'English'),
+	Region('Brazil', 'BR', TVSystem.NTSC, 'Portugese'),
+	Region('Canada', 'CA', TVSystem.NTSC, None), #Might have English or French
+	Region('China', 'CN', TVSystem.PAL, 'Chinese'),
+	Region('Denmark', 'DK', TVSystem.PAL, 'Danish'),
+	Region('Europe', 'EU', TVSystem.PAL, 'English'), #Actually could be any number of languages, but in filenames (by No-Intro's convention anyway) it's assumed to be English unless otherwise specified
+	Region('Finland', 'FI', TVSystem.PAL, 'Finnish'),
+	Region('France', 'FR', TVSystem.PAL, 'French'),
+	Region('Germany', 'DE', TVSystem.PAL, 'German'),
+	Region('Greece', 'GR', TVSystem.PAL, 'Greek'),
+	Region('Hong Kong', 'HK', TVSystem.PAL, None), #Might have Chinese or English
+	Region('Italy', 'IT', TVSystem.PAL, 'Italian'),
+	Region('Japan', 'JP', TVSystem.NTSC, 'Japanese'),
+	Region('Korea', 'KR', TVSystem.NTSC, 'Korean'), #For the purpose of video games, we can assume South Korea is the only Korea and North Korea doesn't exist. Oof, that sounds horrible, doesn't it? (If North Korea ever does have games, they use PAL)
+	Region('Netherlands', 'NL', TVSystem.PAL, 'Dutch'),
+	Region('Norway', 'NO', TVSystem.PAL, 'Norwegian'),
+	Region('Poland', 'PL', TVSystem.PAL, 'Polish'),
+	Region('Portugal', 'PT', TVSystem.PAL, 'Portugese'),
+	Region('Russia', 'RU', TVSystem.PAL, 'Russian'),
+	Region('Spain', 'ES', TVSystem.PAL, 'Spanish'),
+	Region('Sweden', 'SE', TVSystem.PAL, 'Swedish'),
+	Region('Taiwan', 'TW', TVSystem.NTSC, 'Chinese'),
+	Region('UK', 'GB', TVSystem.PAL, 'English'),
+	Region('USA', 'US', TVSystem.NTSC, 'English'),
 
 	Region('World', TVSystem.Agnostic, None), 
 	#Though it's probably in English; No-Intro uses this as shorthand for (Japan, USA, Europe) because nobody told them that's not the only three regions in the world. It is safe to say that anything released in those three regions would indeed need to be TV-agnostic though
