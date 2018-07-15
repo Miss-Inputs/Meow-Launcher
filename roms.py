@@ -117,19 +117,6 @@ class Rom():
 	def get_size(self):
 		return common.get_real_size(self.path, self.compressed_entry)
 
-def make_emulated_launcher(platform, base_command_line, rom, metadata, is_unsupported_compression):
-	if is_unsupported_compression:
-		temp_folder = '/tmp/temporary_rom_extract'
-		#TODO: Use mktemp inside shell_command to ensure we always have a nice unique directory
-		extracted_path = os.path.join(temp_folder, rom.compressed_entry)
-		inner_cmd = base_command_line.replace('$<path>', shlex.quote(extracted_path))
-		shell_command = shlex.quote('7z x -o{2} {0}; {1}; rm -rf {2}'.format(shlex.quote(rom.path), inner_cmd, temp_folder))
-		command_line = 'sh -c {0}'.format(shell_command)
-	else:
-		command_line = base_command_line.replace('$<path>', shlex.quote(rom.path))
-	
-	launchers.make_launcher(platform, command_line, rom.name, rom.categories, metadata)
-
 class Game():
 	def __init__(self, rom, emulator, platform):
 		self.rom = rom
