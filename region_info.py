@@ -71,6 +71,6 @@ regions = [
 	Region('UK', 'GB', TVSystem.PAL, 'English'),
 	Region('USA', 'US', TVSystem.NTSC, 'English'),
 
-	Region('World', TVSystem.Agnostic, None), 
+	Region('World', None, TVSystem.Agnostic, None), 
 	#Though it's probably in English; No-Intro uses this as shorthand for (Japan, USA, Europe) because nobody told them that's not the only three regions in the world. It is safe to say that anything released in those three regions would indeed need to be TV-agnostic though
 ]
