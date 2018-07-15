@@ -75,7 +75,6 @@ platform_cpu_list = {
 
 def get_cpu_for_platform(platform):
 	#I look up things from MAME here (even when MAME doesn't really support the system and it's just a skeleton driver, as long as it knows the CPU) so the wording and naming and stuff is consistent with arcade games, which already have their CPU known
-	#TODO: This should be done when the launcher is generated (add X-Main-CPU), not when it's being sorted by this frontend specifically
 
 	if platform in platform_cpu_list:
 		return platform_cpu_list[platform]

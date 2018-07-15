@@ -1,8 +1,6 @@
 import subprocess
 import re
 
-#TODO: Eventually, we're gonna have to rewrite this to access HFS images properly. It may well require writing a separate library, but having the Mac part of this project require a separate library is probably better than requiring an ancient command line toolset.
-
 DIRECTORY_REGEX = re.compile(r'^d(?: +i)? +(?:(?P<num_items>\d+) items|1 item) +(?P<date>\w{3} [\d ]{2} (?: \d{4}|\d{2}:\d{2})) (?P<name>.+)$')
 FILE_REGEX = re.compile(r'^(?:f|F) +(?P<type>.{4})/(?P<creator>.{4}) +(?P<resource_size>\d+) +(?P<data_size>\d+) (?P<date>\w{3} [\d ]{2} (?: \d{4}|\d{2}:\d{2})) (?P<name>.+)$')
 def parse_list_item(line, path):

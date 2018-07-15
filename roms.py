@@ -118,7 +118,6 @@ class Game():
 
 		if is_unsupported_compression:
 			temp_folder = '/tmp/temporary_rom_extract'
-			#TODO: Use mktemp inside shell_command to ensure we always have a nice unique directory
 			extracted_path = os.path.join(temp_folder, self.rom.compressed_entry)
 			inner_cmd = base_command_line.replace('$<path>', shlex.quote(extracted_path))
 			shell_command = shlex.quote('7z x -o{2} {0}; {1}; rm -rf {2}'.format(shlex.quote(self.rom.path), inner_cmd, temp_folder))

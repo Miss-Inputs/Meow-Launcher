@@ -70,7 +70,6 @@ def get_languages_from_filename_tags(tags):
 			#TODO: Has there ever been a fan translation into multiple languages?
 			return [get_language_by_short_code(translation_match.group(1))]
 
-		#TODO: Make this match (en) (en-ja) etc with lowercase that TOSEC uses
 		language_list_match = language_list_regex.match(tag)
 		if language_list_match:
 			languages = []

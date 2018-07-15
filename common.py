@@ -25,8 +25,6 @@ def get_real_size(path, compressed_entry=None):
 	return archives.compressed_getsize(path, compressed_entry)
 	
 def read_file(path, compressed_entry=None):
-	#TODO: Do a thing where we can just read a small part of the file instead of slurping the whole thing (impossible if
-	#it's compressed, though)
 	if compressed_entry is None:
 		with open(path, 'rb') as f:
 			return f.read() 

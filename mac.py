@@ -47,7 +47,7 @@ def make_launcher(path, game_name, game_config):
 	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that.
 	#Ideally, HFS manipulation would be powerful enough that we could just slip an alias into the Startup Items folder ourselves and delete it afterward. That doesn't fix the problem of automatically shutting down (still need a script for that), unless we don't create an alias at all and we create a script or something on the fly that launches that path and then shuts down, but yeah. Stuff and things.
 	autoboot_txt_path = os.path.join(config.basilisk_ii_shared_folder, 'autoboot.txt')
-	width = 1920 #TODO: Get desktop resolution
+	width = 1920
 	height = 1080
 	if 'width' in game_config:
 		width = game_config['width']
@@ -57,7 +57,6 @@ def make_launcher(path, game_name, game_config):
 	#Or controls... but I swear I will find a way!!!!
 	
 	#If you're not using an SDL2 build of BasiliskII, you probably want to change dga to window! Well you really want to get an SDL2 build of BasiliskII, honestly
-	#TODO: Should put BasiliskII in emulator_info.py so it can get the command line from there
 	actual_emulator_command = 'BasiliskII --screen dga/{0}/{1}'.format(width, height)
 	inner_command = 'echo {0} > {1} && {2} && rm {1}'.format(shlex.quote(path), shlex.quote(autoboot_txt_path), actual_emulator_command)
 	command = 'sh -c {0}'.format(shlex.quote(inner_command))
@@ -83,7 +82,6 @@ def make_launcher(path, game_name, game_config):
 		metadata['Requires-CD'] = game_config['requires_cd']
 	
 	#Extra metadata because we have nothing else to do with it right now
-	#TODO: If arch == ppc, we shouldn't use BasiliskII, and either reject the app or use SheepShaver (as much as I don't wanna because of the vm.mmap_min_addr thing)
 	for extra_metadata in ('min_players', 'max_players', 'emu_compat', 'controls', 'required_hardware', 'required_software', 'colours', 'colours_compat', 'resolution_compat', 'clone_of', 'runs_in_window'):
 		if extra_metadata in game_config:
 			metadata[extra_metadata] = game_config[extra_metadata]
@@ -100,8 +98,6 @@ def create_launchers_from_mac_volume(path, game_list):
 		if f['file_type'] != 'APPL':
 			continue
 	
-		#TODO: Should handle the case with other_app_names, so Blah 1.2 and Blah 1.3 that have the same creator code won't cause ambiguity here
-		#This will require changing the structure of mac_db.json. As an example, Frog Xing 1.2 and Frog Xing 1.3 both have a creator code of QnFx which is unique, but they both end up with a launcher called "Frog Xing" and there's no way for disambiguate.py to handle that. What I'd need to do is change the name of Frog Xing's config to "Frog Xing (1.3)", and convert each item in other_app_names to an array so it's like ["Frog Xing 1.2", "Frog Xing (1.2)"] and then that'd work out. Or implement some parent/clone system, perhaps. In JSON. Somehow. Hmm. Hmmm..... HMM......
 		possible_games = [(game_name, game) for game_name, game in game_list.items() if game['creator_code'] == f['creator']]
 		if not possible_games:
 			if debug:

@@ -68,7 +68,6 @@ systems = [
 	System('CD-i', 'cdimono1', ['cdi']),
 	System('Game.com', 'gamecom', ['gamecom']),
 	
-	#TODO: These two shouldn't be systems, and there should just be SNES and this has an autodetection thing to switch to MAME if Snes9x GTK would otherwise be used (because it can't do these from the command line just yet) when encountering .bs or .st files
 	System('Sufami Turbo', 'snes', ['snes_strom']),
 	System('Satellaview', 'snes', ['snes_bspack']),
 

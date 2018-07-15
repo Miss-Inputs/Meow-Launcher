@@ -10,8 +10,6 @@ import launchers
 
 debug = '--debug' in sys.argv
 
-#TODO Add X-Ambiguous-Name and X-Disambiguator fields (or something named a bit
-#better)
 def update_name(desktop, new_name):
 	desktop[1]['Desktop Entry']['Name'] = new_name
 	writer = configparser.ConfigParser(interpolation=None)
