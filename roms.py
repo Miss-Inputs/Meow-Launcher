@@ -129,7 +129,7 @@ class Game():
 			extract_cmd = '7z x -o"$temp_extract_folder" {0}'.format(shlex.quote(self.rom.path))
 			remove_dir_cmd = 'rm -rf "$temp_extract_folder"'
 			all_commands = [set_temp_folder_cmd, extract_cmd, inner_cmd, remove_dir_cmd]
-			shell_command = shlex.quote(all_commands.join(';'))
+			shell_command = shlex.quote(';'.join(all_commands))
 			command_line = 'sh -c {0}'.format(shell_command)
 		else:
 			command_line = base_command_line.replace('$<path>', shlex.quote(self.rom.path))
