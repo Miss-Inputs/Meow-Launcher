@@ -10,6 +10,8 @@ def get_language_by_short_code(code):
 		if language.short_code == code:
 			return language
 
+	return None #TODO: Would it be better to throw an exception instead?
+
 def get_language_by_english_name(name):
 	for language in region_info.languages:
 		if language.english_name == name:

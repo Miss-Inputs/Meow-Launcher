@@ -9,7 +9,6 @@ import archives
 import launchers
 import common
 import emulator_info
-import region_info
 import region_detect
 
 debug = '--debug' in sys.argv
