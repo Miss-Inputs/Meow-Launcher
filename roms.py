@@ -9,158 +9,20 @@ import archives
 import launchers
 import common
 import emulator_info
+import region_info
+import region_detect
 
 debug = '--debug' in sys.argv
 
 year_regex = re.compile(r'\(([x\d]{4})\)')
+
 def get_metadata_from_filename_tags(tags):
 	metadata = {}
-	#TODO: Make case insensitive
-	#TODO: Refactor mercilessly, could probably use some kind of dict here
-	if len(tags) == 1:
-		#TODO: Refactor this so that it works if there is more than one tags, but not if there are more than one specifying
-		#the region (to avoid confuzzlion)
-		#TODO: Multiple languages
-		#Not associated with any particular language necessarily:
-		#(World) (although that's usually English); (Asia); (Brazil) is just as much English as it is Portugese it seems;
-		#(Brazil, Korea); (Japan, Europe); (Japan, Korea) might be Japanese; (Japan, Korea, Asia); (Japan, USA), etc
-		
-		if tags[0] in ('(USA)', '(Australia)', '(UK)', '(Europe)', '(USA, Europe)', '(USA, Australia)', '(Europe, Australia)'):
-			#Europe in theory could be any number of languages, but by itself it's assumed to be in English
-			metadata['Languages'] = 'English'
-		elif tags[0] == '(Japan)':
-			metadata['Languages'] = 'Japanese'
-		elif tags[0] == '(Italy)':
-			metadata['Languages'] = 'Italian'
-		elif tags[0] == '(France)': 
-			#Canada sometimes is French, sometimes it is not, that's not consistent across all naming standards which one is
-			#implied and which one should be specified
-			metadata['Languages'] = 'French'
-		elif tags[0] == '(Russia)':
-			metadata['Languages'] = 'Russian'
-		elif tags[0] == '(Germany)':
-			metadata['Languages'] = 'German'
-		elif tags[0] == '(China)':
-			metadata['Languages'] = 'Chinese'
-		elif tags[0] == '(Sweden)':
-			metadata['Languages'] = 'Swedish'
-		elif tags[0] == '(Spain)':
-			metadata['Languages'] = 'Spanish'
-		elif tags[0] == '(Netherlands)':
-			metadata['Languages'] = 'Dutch'
-		elif tags[0] == '(Denmark)':
-			metadata['Languages'] = 'Danish'
-		elif tags[0] == '(Poland)':
-			metadata['Languages'] = 'Polish'
-		elif tags[0] == '(Finland)':
-			metadata['Languages'] = 'Finnish'
-		elif tags[0] == '(Norway)':
-			metadata['Languages'] = 'Norwegian'
-		elif tags[0] in ('(Brazil)', '(Portugal)'):
-			metadata['Languages'] = 'Portugese'
-	else:
-		if '(En)' in tags or '(en)' in tags:
-			metadata['Languages'] = 'English'
-		elif '(en-ja)' in tags or '(En,Ja)' in tags:
-			metadata['Languages'] = 'English;Japanese'
-		elif '(En,Es)' in tags:
-			metadata['Languages'] = 'English;Spanish'
-		elif '(En,Es,It)' in tags:
-			metadata['Languages'] = 'English;Spanish;Italian'
-		elif '(En,Es,Pt)' in tags:
-			metadata['Languages'] = 'English;Spanish;Portugese'
-		elif '(En,Fr)' in tags:
-			metadata['Languages'] = 'English;French'
-		elif '(En,Fr,De)' in tags:
-			metadata['Languages'] = 'English;French;German'
-		elif '(En,Fr,De,Es)' in tags:
-			metadata['Languages'] = 'English;French;German;Spanish'
-		elif '(En,Fr,De,Es,It)' in tags:
-			metadata['Languages'] = 'English;French;German;Spanish;Italian'
-		elif '(En,Fr,De,Es,It,Da)' in tags:
-			metadata['Languages'] = 'English;French;German;Spanish;Italian;Danish'
-		elif '(En,Fr,De,Es,It,Nl)' in tags:
-			metadata['Languages'] = 'English;French;German;Spanish;Italian;Dutch'
-		elif '(En,Fr,De,Es,It,Nl,Pl,Ru)' in tags:
-			metadata['Languages'] = 'English;French;German;Spanish;Italian;Polish;Russian'
-		elif '(En,Fr,De,Es,It,Nl,Pt)' in tags:
-			metadata['Languages'] = 'English;French;German;Spanish;Italian;Dutch;Portugese'
-		elif '(En,Fr,De,Es,It,Nl,Pt,No,Da,Fi,Ru)' in tags:
-			metadata['Languages'] = 'English;French;German;Spanish;Italian;Dutch;Portugese;Norwegian;Danish;Finnish;Russian'
-		elif '(En,Fr,De,Es,It,Nl,Pt,Ru)' in tags:
-			metadata['Languages'] = 'English;French;German;Spanish;Italian;Dutch;Portugese;Russian'
-		elif '(En,Fr,De,Es,It,Nl,Pt,Sv,Da)' in tags:
-			metadata['Languages'] = 'English;French;German;Spanish;Italian;Dutch;Portugese;Swedish;Danish'
-		elif '(En,Fr,De,Es,It,Nl,Pt,Sv,No,Da)' in tags:
-			metadata['Languages'] = 'English;French;German;Spanish;Italian;Dutch;Portugese;Swedish;Norwegian;Danish'
-		elif '(En,Fr,De,Es,It,Nl,Pt,Sv,No,Da,Fi)' in tags:
-			metadata['Languages'] = 'English;French;German;Spanish;Italian;Dutch;Portugese;Swedish;Norwegian;Danish;Finnish'
-		elif '(En,Fr,De,Es,It,Pt)' in tags:
-			metadata['Languages'] = 'English;French;German;Spanish;Italian;Portugese'
-		elif '(En,Fr,De,Es,It,Sv)' in tags:
-			metadata['Languages'] = 'English;French;German;Spanish;Italian;Swedish'
-		elif '(En,Fr,De,Es,Sv)' in tags:
-			metadata['Languages'] = 'English;French;German;Spanish;Swedish'
-		elif '(En,Fr,De,It)' in tags:
-			metadata['Languages'] = 'English;French;German;Italian'
-		elif '(En,Fr,De,It,Nl,Sv)' in tags:
-			metadata['Languages'] = 'English;French;German;Italian;Dutch;Swedish'
-		elif '(En,Fr,De,Nl)' in tags:
-			metadata['Languages'] = 'English;French;German;Dutch'
-		elif '(En,Fr,Es)' in tags:
-			metadata['Languages'] = 'English;French;Spanish'
-		elif '(En,Fr,Es,It)' in tags:
-			metadata['Languages'] = 'English;French;Spanish;Italian'
-		elif '(En,Fr,Es,Nl,Pt)' in tags:
-			metadata['Languages'] = 'English;French;Spanish;Dutch;Portugese'
-		elif '(En,Fr,Es,Pt)' in tags:
-			metadata['Languages'] = 'English;French;Spanish;Portugese'
-		elif '(En,Fr,It)' in tags:
-			metadata['Languages'] = 'English;French;Italian'
-		elif '(En,It)' in tags:
-			metadata['Languages'] = 'English;Italian'
-		elif '(En,Ja,Fr)' in tags:
-			metadata['Languages'] = 'English;Japanese;French'
-		elif '(En,Ja,Fr,De)' in tags:
-			metadata['Languages'] = 'English;Japanese;French;German'
-		elif '(En,Ja,Fr,De,Es)' in tags:
-			metadata['Languages'] = 'English;Japanese;French;German;Spanish'
-		elif '(En,Ja,Fr,De,Es,It)' in tags:
-			metadata['Languages'] = 'English;Japanese;French;German;Spanish;Italian'
-		elif '(En,Ja,Fr,De,Es,It,Ko)' in tags:
-			metadata['Languages'] = 'English;Japanese;French;German;Spanish;Italian;Korean'
-		elif '(En,Ja,Fr,De,Es,It,Zh,Ko)' in tags:
-			metadata['Languages'] = 'English;Japanese;French;German;Spanish;Italian;Chinese;Korean'
-		elif '(En,Ja,Fr,De,Es,Zh)' in tags:
-			metadata['Languages'] = 'English;Japanese;French;German;Spanish;Chinese'
-		elif '(En,Nl)' in tags:
-			metadata['Languages'] = 'English;Dutch'
-		elif '(En,No,Da,Fi)' in tags:
-			metadata['Languages'] = 'English;Norwegian;Danish;Finnish'
-		elif '(En,Pt)' in tags or '(en-pt)' in tags:
-			metadata['Languages'] = 'English;Portugese'
-		elif '(En,Sv)' in tags:
-			metadata['Languages'] = 'English;Swedish'
-		elif '(En,Sv,No,Da,Fi)' in tags:
-			metadata['Languages'] = 'English;Swedish;Norwegian;Danish;Finnish'
-		elif '(Fr,De)' in tags:
-			metadata['Languages'] = 'French;German'
-		elif '(Fr,De,Es)' in tags:
-			metadata['Languages'] = 'French;German;Spanish'
-		elif '(Fr,De,Es,It)' in tags:
-			metadata['Languages'] = 'French;German;Spanish;Italian'
-		elif '(Fr,De,Nl)' in tags:
-			metadata['Languages'] = 'French;German;Dutch'
-		elif '(It,Sv)' in tags:
-			metadata['Languages'] = 'Italian;Swedish'
-		elif '(ja)' in tags or '(Ja)' in tags:
-			metadata['Languages'] = 'French;German;Dutch'
-			
-		for tag in tags:
-			if tag.startswith('[tr en') and tag.endswith(']'):
-				metadata['Languages'] = 'English'
-			if (tag.startswith('[T+En') or tag.startswith('[T-En')) or tag.endswith(']'):
-				metadata['Languages'] = 'English'
+
+	languages = region_detect.get_languages_from_filename_tags(tags)
+	if languages:
+		#TODO: Should this use native_name instead?
+		metadata['Languages'] = [language.english_name for language in languages]
 	
 	for tag in tags:
 		if year_regex.match(tag):
