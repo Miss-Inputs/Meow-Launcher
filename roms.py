@@ -342,9 +342,6 @@ def process_file(system_config, root, name):
 		rom_launcher.metadata['Emulator'] = emulator_name 
 			
 	rom_launcher.make_launcher(system_config)
-	#is_unsupported_compression = rom.is_compressed and (rom.original_extension not in emulator.supported_compression)
-	
-	#make_emulated_launcher(platform, command_line, rom, metadata, is_unsupported_compression)
 
 def parse_m3u(path):
 	with open(path, 'rt') as f:
