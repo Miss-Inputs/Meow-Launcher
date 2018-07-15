@@ -7,6 +7,7 @@ class TVSystem(Enum):
 	NTSC = auto()
 	PAL = auto()
 	Agnostic = auto()
+	Indeterminate = auto()
 
 class Language():
 	def __init__(self, english_name, native_name, short_code):
