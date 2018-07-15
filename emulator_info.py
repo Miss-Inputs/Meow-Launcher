@@ -2,6 +2,7 @@ import sys
 import shlex
 
 import common
+from region_info import TVSystem
 
 debug = '--debug' in sys.argv
 
@@ -11,10 +12,10 @@ class Emulator():
 		self.supported_extensions = supported_extensions
 		self.supported_compression = supported_compression
 
-	def get_command_line(self, rom, other_config):
-		#You might think sinc I have rom here, I should just insert the path into the command line here too. I don't though, in case the final path that gets passed to the emulator needs to be different than the ROM's path (in case of temporary extracted files for emulators not supporting compression, for example)
+	def get_command_line(self, game, other_config):
+		#You might think sinc I have game.rom here, I should just insert the path into the command line here too. I don't though, in case the final path that gets passed to the emulator needs to be different than the ROM's path (in case of temporary extracted files for emulators not supporting compression, for example)
 		if callable(self.command_line):
-			return self.command_line(rom, other_config)
+			return self.command_line(game, other_config)
 		
 		return self.command_line
 
@@ -46,27 +47,12 @@ MAME_CDROM_FORMATS = ['iso', 'chd', 'cue', 'toc', 'nrg', 'cdr', 'gdi']
 #Some drivers have custom floppy formats, but these seem to be available for all
 MAME_FLOPPY_FORMATS = ['d77', 'd88', '1dd', 'dfi', 'hfe', 'imd', 'ipf', 'mfi', 'mfm', 'td0', 'cqm', 'cqi', 'dsk']
 		
-def detect_region_from_filename(name):
-	#TODO Make this more robust, and maybe consolidate with roms.get_metadata_from_filename_tags
-	tags = ''.join(common.find_filename_tags.findall(name)).lower()
-	
-	if 'world' in tags or ('ntsc' in tags and 'pal' in tags):
-		return 'world'
-	elif 'ntsc' in tags or 'usa' in tags or '(us)' in tags or 'japan' in tags:
-		return 'ntsc'
-	elif 'pal' in tags or 'europe' in tags or 'netherlands' in tags or 'spain' in tags or 'germany' in tags or 'australia' in tags: #Shit, I'm gonna have to put every single European/otherwise PAL country in there.  That's all that I need to put in here so far, though
-		return 'pal'
-
-	return None
-
-def build_atari7800_command_line(rom, _):
-	#TODO: New plan: Split 'mame-atari-7800' emulator info into 'mame-atari-7800-ntsc' and 'mame-atari-7800-pal', then rewrite get_metadata (or some function similar to it) that gets the region in a more unified way (to allow for getting the language more sensibly etc), then pick which emulator to use here
-	#Hmm... how would you specify the usage of MAME in config.py though? Maybe if preferred emulator is 'mame-atari-7800', do auto-region-thingo, otherwise don't do that
-	#Or perhaps there's no need to split emulators, but just put a 'region' attribute on Rom that this reads instead of doing the detection itself
-	rom_data = rom.read()
+def build_atari7800_command_line(game, _):
+	#TODO: Move the region byte reading into roms.py under somewhere in get_metadata
+	rom_data = game.rom.read()
 	if rom_data[1:10] != b'ATARI7800':
 		if debug:
-			print(rom.path, 'has no header and is therefore unsupported')
+			print(game.rom.path, 'has no header and is therefore unsupported')
 		return None
 	
 	region_byte = rom_data[57]
@@ -77,68 +63,65 @@ def build_atari7800_command_line(rom, _):
 		system = 'a7800'
 	else:
 		if debug:
-			print('Something is wrong with', rom.path, ', has region byte of', region_byte)
+			print('Something is wrong with', game.rom.path, ', has region byte of', region_byte)
 		return None
 
 	return make_mame_command_line(system, 'cart')
 
-def build_vic20_command_line(rom, _):
-	size = rom.get_size()
+def build_vic20_command_line(game, _):
+	size = game.rom.get_size()
 	if size > ((8 * 1024) + 2):
 		#It too damn big (only likes 8KB with 2 byte header at most)
 		if debug:
-			print('Bugger!', rom.path, 'is too big for MAME at the moment, it is', size)
+			print('Bugger!', game.rom.path, 'is too big for MAME at the moment, it is', size)
 		return None
 	
-	region = detect_region_from_filename(rom.name)
-	if region == 'pal':
+	if game.tv_type == TVSystem.PAL:
 		system = 'vic20p'
 	else:
 		system = 'vic20'
 
 	return make_mame_command_line(system, 'cart', has_keyboard=True)
 		
-def build_a800_command_line(rom, _):
+def build_a800_command_line(game, _):
 	is_left = True
-	rom_data = rom.read()
+	rom_data = game.rom.read()
 	if rom_data[:4] == b'CART':
 		cart_type = int.from_bytes(rom_data[4:8], 'big')
 		#See also: https://github.com/dmlloyd/atari800/blob/master/DOC/cart.txt,
 		#https://github.com/mamedev/mame/blob/master/src/devices/bus/a800/a800_slot.cpp
 		if cart_type in (13, 14, 23, 24, 25) or (cart_type >= 33 and cart_type <= 38):
 			if debug:
-				print(rom.path, 'is actually a XEGS ROM which is not supported by MAME yet, cart type is', cart_type)
+				print(game.rom.path, 'is actually a XEGS ROM which is not supported by MAME yet, cart type is', cart_type)
 			return None
 			
 		#You probably think this is a bad way to do this...  I guess it is, but hopefully I can take some out as they become
 		#supported (even if I have to use some other emulator or something to do it)
 		if cart_type in (5, 17, 22, 41, 42, 43, 45, 46, 47, 48, 49, 53, 57, 58, 59, 60, 61) or (cart_type >= 26 and cart_type <= 32) or (cart_type >= 54 and cart_type <= 56):
 			if debug:
-				print(rom.path, "won't work as cart type is", cart_type)
+				print(game.rom.path, "won't work as cart type is", cart_type)
 			return None
 
 		if cart_type in (4, 6, 7, 16, 19, 20):
 			if debug:
-				print(rom.path, "is an Atari 5200 ROM ya goose!! It won't work as an Atari 800 ROM as the type is", cart_type)
+				print(game.rom.path, "is an Atari 5200 ROM ya goose!! It won't work as an Atari 800 ROM as the type is", cart_type)
 			return None
 			
 		if cart_type == 21: #59 goes in the right slot as well, but that's not supported
 			if debug:
-				print(rom.path, 'goes in right slot')
+				print(game.rom.path, 'goes in right slot')
 			is_left = False
 	else:
-		size = rom.get_size()
+		size = game.rom.get_size()
 		#Treat 8KB files as type 1, 16KB as type 2, everything else is unsupported for now
 		if size > ((16 * 1024) + 16):
 			if debug:
-				print(rom.path, 'may actually be a XL/XE/XEGS cartridge, please check it as it has no header and a size of', size)
+				print(game.rom.path, 'may actually be a XL/XE/XEGS cartridge, please check it as it has no header and a size of', size)
 			return None
 	
 	slot = 'cart1' if is_left else 'cart2'
 
-	region = detect_region_from_filename(rom.name) 
-	#Why do these CCS64 and CART and whatever else thingies never frickin' store the TV type?
-	if region == 'pal':
+	if game.tv_type == TVSystem.PAL:
 		#Atari 800 should be fine for everything, and I don't feel like the XL/XE series to see in which ways they don't work
 		system = 'a800p'
 	else:
@@ -146,8 +129,8 @@ def build_a800_command_line(rom, _):
 
 	return make_mame_command_line(system, slot, has_keyboard=True)
 
-def find_c64_system(rom):
-	rom_data = rom.read()
+def find_c64_system(game):
+	rom_data = game.rom.read()
 	if rom_data[:16] == b'C64 CARTRIDGE   ':
 		#Just gonna make sure we're actually dealing with the CCS64 header format thingy first (see:
 		#http://unusedino.de/ec64/technical/formats/crt.html)
@@ -160,14 +143,14 @@ def find_c64_system(rom):
 			#Note that C64GS doesn't really work properly in MAME anyway, but the carts... not work... less than in the regular C64 driver
 			return 'c64gs'
 	
-	region = detect_region_from_filename(rom.name)
 	#Don't think we really need c64c unless we really want the different SID chip
-	if region == 'pal':
+	
+	if game.tv_type == TVSystem.PAL:
 		return 'c64p'
 	
 	return 'c64'
 	
-def build_c64_command_line(rom, _):
+def build_c64_command_line(game, _):
 	#While we're here building a command line, should mention that you have to manually put a joystick in the first
 	#joystick port, because by default there's only a joystick in the second port.  Why the fuck is that the default?
 	#Most games use the first port (although, just to be annoying, some do indeed use the second...  why????)
@@ -176,15 +159,16 @@ def build_c64_command_line(rom, _):
 	#normal.  _Should_ be fine
 	#(Super cool pro tip: Bind F1 to Start)
 	
-	system = find_c64_system(rom)
+	system = find_c64_system(game)
 	return make_mame_command_line(system, 'cart', {'joy1': 'joybstr', 'joy2': 'joybstr'}, True)
 	
 
-def make_snes_addon_cart_command_line(rom, other_config):
+def make_snes_addon_cart_command_line(game, other_config):
+	#Just because this confused my eyes for a bit: game being unused other than in the error message is correct. The command line stays the same regardless of the content or region or whatever of the game, which is all we're preparing at the moment
 	if 'bios_path' not in other_config:
 		if debug:
 			#TODO Only print this once!
-			print("You can't do", rom.path, "because you haven't set up the BIOS for it yet, check config.py")
+			print("You can't do", game.rom.path, "because you haven't set up the BIOS for it yet, check config.py")
 		return None
 	return make_mame_command_line('snes', 'cart2', {'cart': shlex.quote(other_config['bios_path'])}, False)
 

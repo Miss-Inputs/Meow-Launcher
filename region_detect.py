@@ -84,3 +84,32 @@ def get_languages_from_filename_tags(tags):
 			return languages
 
 	return None
+
+def get_regions_from_filename_tags(tags):
+	regions = []
+	for tag in tags:
+		if tag.startswith('['):
+			continue
+		tag = tag.lstrip('(').rstrip(')')
+
+		if ', ' in tag:
+			multiple_regions = tag.split(', ')
+			for region_name in multiple_regions:
+				region = get_region_by_name(region_name)
+				if region:
+					regions.append(region)
+		else:
+			region = get_region_by_name(tag)
+			if region:
+				regions = [region]
+
+		if regions and any(regions):
+			return regions
+
+def get_tv_system_from_regions(regions):
+	tv_systems = {region.tv_system for region in regions}
+	if len(tv_systems) == 1:
+		return tv_systems.pop()
+	
+	#If there are multiple distinct systems, it must be agnostic (since we only have NTSC, PAL, and agnostic (both) for now)
+	return region_info.TVSystem.Agnostic

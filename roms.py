@@ -30,7 +30,7 @@ def get_metadata_from_filename_tags(tags):
 	
 	return metadata
 	
-def get_metadata(emulator_name, rom):
+def add_metadata(game):
 	#TODO: Link this back to process_file in other ways: Could be useful to read a ROM and change the command line (to use
 	#a different emulator that supports something not supported in the usual one, etc), for example
 	#Metadata used in arcade: main_input, emulation_status, genre, subgenre, nsfw, language, year, author
@@ -54,27 +54,37 @@ def get_metadata(emulator_name, rom):
 	#Maybe MAME software list could say something?  If nothing else, it could give us emulation_status (supported=partial,
 	#supported=no) where we use MAME for that platform
 
-	metadata = {'Extension': rom.extension}
+	game.metadata['Extension'] = game.rom.extension
 	
-	if emulator_name in ('Gamate', 'Epoch Game Pocket Computer', 'Mega Duck', 'Watara Supervision'):
+	if game.platform in ('Gamate', 'Epoch Game Pocket Computer', 'Mega Duck', 'Watara Supervision'):
 		#Well, you sure won't be seeing anything weird out of these
-		metadata['Main-Input'] = 'Normal'
-	elif emulator_name == 'Virtual Boy':
-		metadata['Main-Input'] = 'Twin Joystick'
+		game.metadata['Main-Input'] = 'Normal'
+	elif game.platform == 'Virtual Boy':
+		game.metadata['Main-Input'] = 'Twin Joystick'
 	
-	tags = common.find_filename_tags.findall(rom.name)
+
+	tags = common.find_filename_tags.findall(game.rom.name)
 	for k, v in get_metadata_from_filename_tags(tags).items():
-		if k not in metadata:
-			metadata[k] = v
+		if k not in game.metadata:
+			game.metadata[k] = v
+
+	if not game.regions:
+		game.regions = region_detect.get_regions_from_filename_tags(tags)	
+	if not game.tv_type:
+		if game.regions:
+			game.tv_type = region_detect.get_tv_system_from_regions(game.regions)
 	
-	return metadata
+	if game.regions:
+		game.metadata['Regions'] = [region.name if region else 'None!' for region in game.regions]
+	if game.tv_type:
+		game.metadata['TV-Type'] = str(game.tv_type)
 
 class Rom():
 	def __init__(self, path):
 		self.path = path
 		self.warn_about_multiple_files = False
 		self.original_name = os.path.basename(path)
-		self.name_without_extension, self.original_extension = os.path.splitext(self.original_name)
+		name_without_extension, self.original_extension = os.path.splitext(self.original_name)
 		if self.original_extension.startswith('.'):
 			self.original_extension = self.original_extension[1:]
 		self.original_extension = self.original_extension.lower()
@@ -94,7 +104,7 @@ class Rom():
 		else:
 			self.is_compressed = False
 			self.compressed_entry = None
-			self.name = self.name_without_extension
+			self.name = name_without_extension
 			self.extension = self.original_extension
 
 		if self.extension.startswith('.'):
@@ -127,9 +137,11 @@ class Game():
 		self.emulator = emulator
 		self.categories = []
 		self.metadata = {}
+		self.regions = []
+		self.tv_type = None
 
 	def get_command_line(self, system_config):
-		return self.emulator.get_command_line(self.rom, system_config.other_config)
+		return self.emulator.get_command_line(self, system_config.other_config)
 
 	def make_launcher(self, system_config):
 		base_command_line = self.get_command_line(system_config)
@@ -183,6 +195,8 @@ def process_file(system_config, root, name):
 
 	if rom.warn_about_multiple_files and debug:
 		print('Warning!', rom.path, 'has more than one file and that may cause unexpected behaviour, as I only look at the first file')
+
+	add_metadata(game)
 			
 	if not game.get_command_line(system_config):
 		return
@@ -194,7 +208,6 @@ def process_file(system_config, root, name):
 	if game.platform == 'Game Boy' and rom.extension == 'gbc':
 		game.platform = 'Game Boy Color'
 			
-	game.metadata = get_metadata(system_config.name, rom)
 	if isinstance(game.emulator, emulator_info.MameSystem):
 		game.metadata['Emulator'] = 'MAME'
 	elif isinstance(game.emulator, emulator_info.MednafenModule):
