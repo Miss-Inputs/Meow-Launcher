@@ -46,7 +46,7 @@ def add_atari7800_metadata(game):
 		game.tv_type = TVSystem.NTSC
 	else:
 		if debug:
-			print('Something is wrong with', game.rom.path, ', has region byte of', region_byte)
+			print('Something is wrong with', game.rom.path, ', has TV type byte of', tv_type)
 		game.unrunnable = True
 
 def add_psp_metadata(game):

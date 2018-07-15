@@ -106,6 +106,8 @@ def get_regions_from_filename_tags(tags):
 		if regions and any(regions):
 			return regions
 
+	return None
+
 def get_tv_system_from_regions(regions):
 	tv_systems = {region.tv_system for region in regions}
 	if len(tv_systems) == 1:
