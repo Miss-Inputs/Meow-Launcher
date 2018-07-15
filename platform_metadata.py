@@ -30,15 +30,26 @@ debug = '--debug' in sys.argv
 #supported=no) where we use MAME for that platform
 
 def add_atari7800_metadata(game):
-	rom_data = game.rom.read(amount=128)
-	if rom_data[1:10] != b'ATARI7800':
+	header = game.rom.read(amount=128)
+	if header[1:10] != b'ATARI7800':
 		if debug:
 			print(game.rom.path, 'has no header and is therefore unsupported')
 			#TODO: Hmm... it's only MAME that can't deal with lack of headers...
 			game.unrunnable = True
 			return
 
-	tv_type = rom_data[57]
+	input_type = header[55] #I guess we only care about player 1. They should be the same anyway
+	#Although... would that help us know the number of players? Is controller 2 set to none for singleplayer games?
+	if input_type == 1:
+		game.metadata['Main-Input'] = 'Normal'
+	elif input_type == 2:
+		game.metadata['Main-Input'] = 'Light Gun'
+	elif input_type == 3:
+		game.metadata['Main-Input'] = 'Paddle'
+	elif input_type == 4:
+		game.metadata['Main-Input'] = 'Trackball'
+	
+	tv_type = header[57]
 
 	if tv_type == 1:
 		game.tv_type = TVSystem.PAL
@@ -48,6 +59,8 @@ def add_atari7800_metadata(game):
 		if debug:
 			print('Something is wrong with', game.rom.path, ', has TV type byte of', tv_type)
 		game.unrunnable = True
+
+	#Only other thing worth noting is save type at header[58]: 0 = none, 1 = High Score Cartridge, 2 = SaveKey
 
 def add_psp_metadata(game):
 	if game.rom.extension == 'pbp':
