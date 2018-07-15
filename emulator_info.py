@@ -218,7 +218,7 @@ emulators = {
 	'Mednafen (PC Engine)': MednafenModule('pce', ['pce', 'sgx', 'iso', 'cue', 'ccd', 'toc', 'm3u']),
 	#Mednafen assumes that there is only 1 gamepad and it's the 6 button kind, so button mapping is kind of weird when I
 	#was perfectly fine just using 2 buttons
-	'Mednafen (PC Engine fast)': MednafenModule('pce_fast', ['pce', 'sgx', 'iso', 'cue', 'ccd', 'toc', 'm3u']),
+	'Mednafen (PC Engine Fast)': MednafenModule('pce_fast', ['pce', 'sgx', 'iso', 'cue', 'ccd', 'toc', 'm3u']),
 	'Mednafen (NES)': MednafenModule('nes', ['nes', 'fds', 'unf']),
 	'Mednafen (Virtual Boy)': MednafenModule('vb', ['bin', 'vb']),
 	'Stella': Emulator('stella -fullscreen 1 $<path>', ['a26', 'bin', 'rom'], ['gz', 'zip']),
