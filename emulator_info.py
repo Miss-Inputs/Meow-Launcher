@@ -46,24 +46,11 @@ MAME_CDROM_FORMATS = ['iso', 'chd', 'cue', 'toc', 'nrg', 'cdr', 'gdi']
 #Some drivers have custom floppy formats, but these seem to be available for all
 MAME_FLOPPY_FORMATS = ['d77', 'd88', '1dd', 'dfi', 'hfe', 'imd', 'ipf', 'mfi', 'mfm', 'td0', 'cqm', 'cqi', 'dsk']
 		
-def build_atari7800_command_line(game, _):
-	#TODO: Move the region byte reading into roms.py under somewhere in get_metadata
-	rom_data = game.rom.read()
-	if rom_data[1:10] != b'ATARI7800':
-		if debug:
-			print(game.rom.path, 'has no header and is therefore unsupported')
-		return None
-	
-	region_byte = rom_data[57]
-		
-	if region_byte == 1:
+def build_atari7800_command_line(game, _):		
+	if game.tv_type == TVSystem.PAL:
 		system = 'a7800p'
-	elif region_byte == 0:
-		system = 'a7800'
 	else:
-		if debug:
-			print('Something is wrong with', game.rom.path, ', has region byte of', region_byte)
-		return None
+		system = 'a7800'
 
 	return make_mame_command_line(system, 'cart')
 

@@ -10,6 +10,7 @@ import launchers
 import common
 import emulator_info
 import region_detect
+import platform_metadata
 
 debug = '--debug' in sys.argv
 
@@ -31,29 +32,6 @@ def get_metadata_from_filename_tags(tags):
 	return metadata
 	
 def add_metadata(game):
-	#TODO: Link this back to process_file in other ways: Could be useful to read a ROM and change the command line (to use
-	#a different emulator that supports something not supported in the usual one, etc), for example
-	#Metadata used in arcade: main_input, emulation_status, genre, subgenre, nsfw, language, year, author
-	#If we can get these from somewhere for non-arcade things: Great!!
-	#main_cpu, source_file and family aren't really relevant
-	#Gamecube, 3DS, Wii can sorta find the languages (or at least the title/banner stuff) by examining the ROM itself...
-	#though as you have .gcz files for the former, that gets a bit involved, actually yeah any of what I'm thinking would
-	#be difficult without a solid generic file handling thing, but still
-	#Can get these from the ROM/disc/etc itself:
-	#	main_input: Megadrive family, Atari 7800 (all through lookup table)
-	#		Somewhat Game Boy, GBA (if type from product code = K or R, uses motion controls)
-	#	year: Megadrive family (usually; via copyright), FDS, GameCube, Satellaview, homebrew SMS/Game Gear, Atari 5200
-	#	(sometimes), Vectrex, ColecoVersion (sometimes), homebrew Wii
-	#	author: Homebrew SMS/Game Gear, ColecoVision (in uppercase, sometimes), homebrew Wii
-	#		With a giant lookup table: GBA, Game Boy, SNES, Satellaview, Megadrive family, commercial SMS/Game Gear, Virtual
-	#		Boy, FDS, Wonderswan, GameCube, 3DS, Wii, DS
-	#		Neo Geo Pocket can say if SNK, but nothing specific if not SNK
-	#	language: 3DS, DS, GameCube somewhat (can see title languages, though this isn't a complete indication)
-	#	nsfw: Sort of; Wii/3DS can do this but only to show that a game is 18+ in a given country etc, but not why it's that
-	#	rating and of course different countries can have odd reasons
-	#Maybe MAME software list could say something?  If nothing else, it could give us emulation_status (supported=partial,
-	#supported=no) where we use MAME for that platform
-
 	game.metadata['Extension'] = game.rom.extension
 	
 	if game.platform in ('Gamate', 'Epoch Game Pocket Computer', 'Mega Duck', 'Watara Supervision'):
@@ -61,7 +39,9 @@ def add_metadata(game):
 		game.metadata['Main-Input'] = 'Normal'
 	elif game.platform == 'Virtual Boy':
 		game.metadata['Main-Input'] = 'Twin Joystick'
-	
+
+	if game.platform in platform_metadata.helpers:
+		platform_metadata.helpers[game.platform](game)
 
 	tags = common.find_filename_tags.findall(game.rom.name)
 	for k, v in get_metadata_from_filename_tags(tags).items():
@@ -126,6 +106,7 @@ class Game():
 		self.metadata = {}
 		self.regions = []
 		self.tv_type = None
+		self.unrunnable = False
 
 	def get_command_line(self, system_config):
 		return self.emulator.get_command_line(self, system_config.other_config)
@@ -184,6 +165,9 @@ def process_file(system_config, root, name):
 		print('Warning!', rom.path, 'has more than one file and that may cause unexpected behaviour, as I only look at the first file')
 
 	add_metadata(game)
+
+	if game.unrunnable:
+		return
 			
 	if not game.get_command_line(system_config):
 		return

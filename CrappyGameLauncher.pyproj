@@ -38,6 +38,9 @@
     <Compile Include="organize_folders.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="platform_metadata.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="region_detect.py">
       <SubType>Code</SubType>
     </Compile>
