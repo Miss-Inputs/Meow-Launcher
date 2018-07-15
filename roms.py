@@ -122,8 +122,14 @@ class Game():
 		is_unsupported_compression = self.rom.is_compressed and (self.rom.original_extension not in self.emulator.supported_compression)
 
 		if is_unsupported_compression:
-			inner_cmd = base_command_line.replace('$<path>', os.path.join('$temp_extract_folder/' + shlex.quote(self.rom.compressed_entry)))
-			shell_command = shlex.quote('temp_extract_folder=$(mktemp -d); 7z x -o"$temp_extract_folder" {0}; {1}; rm -rf "$temp_extract_folder"'.format(shlex.quote(self.rom.path), inner_cmd))
+			extracted_path = os.path.join('$temp_extract_folder/' + shlex.quote(self.rom.compressed_entry))
+			inner_cmd = base_command_line.replace('$<path>', extracted_path)
+			
+			set_temp_folder_cmd = 'temp_extract_folder=$(mktemp -d)'
+			extract_cmd = '7z x -o"$temp_extract_folder" {0}'.format(shlex.quote(self.rom.path))
+			remove_dir_cmd = 'rm -rf "$temp_extract_folder"'
+			all_commands = [set_temp_folder_cmd, extract_cmd, inner_cmd, remove_dir_cmd]
+			shell_command = shlex.quote(all_commands.join(';'))
 			command_line = 'sh -c {0}'.format(shell_command)
 		else:
 			command_line = base_command_line.replace('$<path>', shlex.quote(self.rom.path))
