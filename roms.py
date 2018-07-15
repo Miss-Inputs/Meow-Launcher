@@ -120,7 +120,7 @@ def make_emulated_launcher(platform, base_command_line, rom, metadata, is_unsupp
 	
 	launchers.make_launcher(platform, command_line, rom.name, rom.categories, metadata)
 
-class RomLauncher():
+class Game():
 	def __init__(self, rom, emulator, platform):
 		self.rom = rom
 		self.platform = platform
@@ -158,16 +158,16 @@ def process_file(system_config, root, name):
 		return
 	
 	rom = Rom(path)
-	rom_launcher = RomLauncher(rom, emulator_info.emulators[emulator_name], system_config.name)
+	game = Game(rom, emulator_info.emulators[emulator_name], system_config.name)
 
 	#TODO This looks weird, but is there a better way to do this? (Get subfolders we're in from rom_dir)
-	rom_launcher.categories = [i for i in root.replace(system_config.rom_dir, '').split('/') if i]
-	if not rom_launcher.categories:
-		rom_launcher.categories = [system_config.name]
+	game.categories = [i for i in root.replace(system_config.rom_dir, '').split('/') if i]
+	if not game.categories:
+		game.categories = [system_config.name]
 	if rom.extension == 'pbp':
 		#EBOOT is not a helpful launcher name
 		#TODO: This should be in somewhere like system_info or emulator_info or perhaps get_metadata, ideally
-		rom.name = rom_launcher.categories[-1]
+		rom.name = game.categories[-1]
 	if system_config.name == 'Wii' and os.path.isfile(os.path.join(root, 'meta.xml')):
 		#boot is not a helpful launcher name
 		try:
@@ -176,33 +176,33 @@ def process_file(system_config, root, name):
 		except ElementTree.ParseError as etree_error:
 			if debug:
 				print('Ah bugger', path, etree_error)
-			rom.name = rom_launcher.categories[-1]
+			rom.name = game.categories[-1]
 		
-	if rom.extension not in rom_launcher.emulator.supported_extensions:
+	if rom.extension not in game.emulator.supported_extensions:
 		return
 
 	if rom.warn_about_multiple_files and debug:
 		print('Warning!', rom.path, 'has more than one file and that may cause unexpected behaviour, as I only look at the first file')
 			
-	if not rom_launcher.get_command_line(system_config):
+	if not game.get_command_line(system_config):
 		return
 
 	#TODO: Stuff like this should go into somewhere like get_metadata
-	if rom_launcher.platform == 'NES' and rom.extension == 'fds':
-		rom_launcher.platform = 'FDS'
+	if game.platform == 'NES' and rom.extension == 'fds':
+		game.platform = 'FDS'
 			
-	if rom_launcher.platform == 'Game Boy' and rom.extension == 'gbc':
-		rom_launcher.platform = 'Game Boy Color'
+	if game.platform == 'Game Boy' and rom.extension == 'gbc':
+		game.platform = 'Game Boy Color'
 			
-	rom_launcher.metadata = get_metadata(system_config.name, rom)
-	if isinstance(rom_launcher.emulator, emulator_info.MameSystem):
-		rom_launcher.metadata['Emulator'] = 'MAME'
-	elif isinstance(rom_launcher.emulator, emulator_info.MednafenModule):
-		rom_launcher.metadata['Emulator'] = 'Mednafen'
+	game.metadata = get_metadata(system_config.name, rom)
+	if isinstance(game.emulator, emulator_info.MameSystem):
+		game.metadata['Emulator'] = 'MAME'
+	elif isinstance(game.emulator, emulator_info.MednafenModule):
+		game.metadata['Emulator'] = 'Mednafen'
 	else:
-		rom_launcher.metadata['Emulator'] = emulator_name 
+		game.metadata['Emulator'] = emulator_name 
 			
-	rom_launcher.make_launcher(system_config)
+	game.make_launcher(system_config)
 
 def parse_m3u(path):
 	with open(path, 'rt') as f:
