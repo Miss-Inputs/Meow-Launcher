@@ -210,7 +210,6 @@ def get_metadata(emulator_name, rom):
 
 class Rom():
 	def __init__(self, path):
-		self.categories = []
 		self.path = path
 		self.warn_about_multiple_files = False
 		self.original_name = os.path.basename(path)
@@ -259,7 +258,35 @@ def make_emulated_launcher(platform, base_command_line, rom, metadata, is_unsupp
 		command_line = base_command_line.replace('$<path>', shlex.quote(rom.path))
 	
 	launchers.make_launcher(platform, command_line, rom.name, rom.categories, metadata)
-		
+
+class RomLauncher():
+	def __init__(self, rom, emulator, platform):
+		self.rom = rom
+		self.platform = platform
+		self.emulator = emulator
+		self.categories = []
+		self.metadata = {}
+
+	def get_command_line(self, system_config):
+		return self.emulator.get_command_line(self.rom, system_config.other_config)
+
+	def make_launcher(self, system_config):
+		base_command_line = self.get_command_line(system_config)
+
+		is_unsupported_compression = self.rom.is_compressed and (self.rom.original_extension not in self.emulator.supported_compression)
+
+		if is_unsupported_compression:
+			temp_folder = '/tmp/temporary_rom_extract'
+			#TODO: Use mktemp inside shell_command to ensure we always have a nice unique directory
+			extracted_path = os.path.join(temp_folder, self.rom.compressed_entry)
+			inner_cmd = base_command_line.replace('$<path>', shlex.quote(extracted_path))
+			shell_command = shlex.quote('7z x -o{2} {0}; {1}; rm -rf {2}'.format(shlex.quote(self.rom.path), inner_cmd, temp_folder))
+			command_line = 'sh -c {0}'.format(shell_command)
+		else:
+			command_line = base_command_line.replace('$<path>', shlex.quote(self.rom.path))
+
+		launchers.make_launcher(self.platform, command_line, self.rom.name, self.categories, self.metadata)
+
 def process_file(system_config, root, name):
 	path = os.path.join(root, name)
 	
@@ -268,19 +295,18 @@ def process_file(system_config, root, name):
 		#TODO: Only warn about this once!
 		print(system_config.name, 'is trying to use emulator', emulator_name, 'which does not exist!')
 		return
-
-	emulator = emulator_info.emulators[emulator_name]
-
+	
 	rom = Rom(path)
+	rom_launcher = RomLauncher(rom, emulator_info.emulators[emulator_name], system_config.name)
 
 	#TODO This looks weird, but is there a better way to do this? (Get subfolders we're in from rom_dir)
-	rom.categories = [i for i in root.replace(system_config.rom_dir, '').split('/') if i]
-	if not rom.categories:
-		rom.categories = [system_config.name]
+	rom_launcher.categories = [i for i in root.replace(system_config.rom_dir, '').split('/') if i]
+	if not rom_launcher.categories:
+		rom_launcher.categories = [system_config.name]
 	if rom.extension == 'pbp':
 		#EBOOT is not a helpful launcher name
 		#TODO: This should be in somewhere like system_info or emulator_info or perhaps get_metadata, ideally
-		rom.name = rom.categories[-1]
+		rom.name = rom_launcher.categories[-1]
 	if system_config.name == 'Wii' and os.path.isfile(os.path.join(root, 'meta.xml')):
 		#boot is not a helpful launcher name
 		try:
@@ -289,37 +315,36 @@ def process_file(system_config, root, name):
 		except ElementTree.ParseError as etree_error:
 			if debug:
 				print('Ah bugger', path, etree_error)
-			rom.name = rom.categories[-1]
+			rom.name = rom_launcher.categories[-1]
 		
-	if rom.extension not in emulator.supported_extensions:
+	if rom.extension not in rom_launcher.emulator.supported_extensions:
 		return
 
 	if rom.warn_about_multiple_files and debug:
 		print('Warning!', rom.path, 'has more than one file and that may cause unexpected behaviour, as I only look at the first file')
 			
-	command_line = emulator.get_command_line(rom, system_config.other_config)
-	if not command_line:
+	if not rom_launcher.get_command_line(system_config):
 		return
 
 	#TODO: Stuff like this should go into somewhere like get_metadata
-	platform = system_config.name
-	if platform == 'NES' and rom.extension == 'fds':
-		platform = 'FDS'
+	if rom_launcher.platform == 'NES' and rom.extension == 'fds':
+		rom_launcher.platform = 'FDS'
 			
-	if rom.extension == 'gbc':
-		platform = 'Game Boy Color'
+	if rom_launcher.platform == 'Game Boy' and rom.extension == 'gbc':
+		rom_launcher.platform = 'Game Boy Color'
 			
-	metadata = get_metadata(system_config.name, rom)
-	if isinstance(emulator, emulator_info.MameSystem):
-		metadata['Emulator'] = 'MAME'
-	elif isinstance(emulator, emulator_info.MednafenModule):
-		metadata['Emulator'] = 'Mednafen'
+	rom_launcher.metadata = get_metadata(system_config.name, rom)
+	if isinstance(rom_launcher.emulator, emulator_info.MameSystem):
+		rom_launcher.metadata['Emulator'] = 'MAME'
+	elif isinstance(rom_launcher.emulator, emulator_info.MednafenModule):
+		rom_launcher.metadata['Emulator'] = 'Mednafen'
 	else:
-		metadata['Emulator'] = emulator_name 
+		rom_launcher.metadata['Emulator'] = emulator_name 
 			
-	is_unsupported_compression = rom.is_compressed and (rom.original_extension not in emulator.supported_compression)
-
-	make_emulated_launcher(platform, command_line, rom, metadata, is_unsupported_compression)
+	rom_launcher.make_launcher(system_config)
+	#is_unsupported_compression = rom.is_compressed and (rom.original_extension not in emulator.supported_compression)
+	
+	#make_emulated_launcher(platform, command_line, rom, metadata, is_unsupported_compression)
 
 def parse_m3u(path):
 	with open(path, 'rt') as f:
