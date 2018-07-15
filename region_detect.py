@@ -127,4 +127,3 @@ def get_tv_system_from_filename_tags(tags):
 			return region_info.TVSystem.Agnostic
 
 	return None
-
