@@ -63,8 +63,7 @@ def build_atari7800_command_line(rom, _):
 	#TODO: New plan: Split 'mame-atari-7800' emulator info into 'mame-atari-7800-ntsc' and 'mame-atari-7800-pal', then rewrite get_metadata (or some function similar to it) that gets the region in a more unified way (to allow for getting the language more sensibly etc), then pick which emulator to use here
 	#Hmm... how would you specify the usage of MAME in config.py though? Maybe if preferred emulator is 'mame-atari-7800', do auto-region-thingo, otherwise don't do that
 	#Or perhaps there's no need to split emulators, but just put a 'region' attribute on Rom that this reads instead of doing the detection itself
-	#TODO: Put read_file and get_real_size in roms.Rom()
-	rom_data = common.read_file(rom.path, rom.compressed_entry)
+	rom_data = rom.read()
 	if rom_data[1:10] != b'ATARI7800':
 		if debug:
 			print(rom.path, 'has no header and is therefore unsupported')
@@ -84,7 +83,7 @@ def build_atari7800_command_line(rom, _):
 	return make_mame_command_line(system, 'cart')
 
 def build_vic20_command_line(rom, _):
-	size = common.get_real_size(rom.path, rom.compressed_entry)
+	size = rom.get_size()
 	if size > ((8 * 1024) + 2):
 		#It too damn big (only likes 8KB with 2 byte header at most)
 		if debug:
@@ -101,7 +100,7 @@ def build_vic20_command_line(rom, _):
 		
 def build_a800_command_line(rom, _):
 	is_left = True
-	rom_data = common.read_file(rom.path, rom.compressed_entry)
+	rom_data = rom.read()
 	if rom_data[:4] == b'CART':
 		cart_type = int.from_bytes(rom_data[4:8], 'big')
 		#See also: https://github.com/dmlloyd/atari800/blob/master/DOC/cart.txt,
@@ -128,7 +127,7 @@ def build_a800_command_line(rom, _):
 				print(rom.path, 'goes in right slot')
 			is_left = False
 	else:
-		size = common.get_real_size(rom.path, rom.compressed_entry)
+		size = rom.get_size()
 		#Treat 8KB files as type 1, 16KB as type 2, everything else is unsupported for now
 		if size > ((16 * 1024) + 16):
 			if debug:
@@ -148,7 +147,7 @@ def build_a800_command_line(rom, _):
 	return make_mame_command_line(system, slot, has_keyboard=True)
 
 def find_c64_system(rom):
-	rom_data = common.read_file(rom.path, rom.compressed_entry)
+	rom_data = rom.read()
 	if rom_data[:16] == b'C64 CARTRIDGE   ':
 		#Just gonna make sure we're actually dealing with the CCS64 header format thingy first (see:
 		#http://unusedino.de/ec64/technical/formats/crt.html)

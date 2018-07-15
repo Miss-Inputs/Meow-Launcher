@@ -241,6 +241,12 @@ class Rom():
 			self.extension = self.extension[1:]
 		self.extension = self.extension.lower()
 
+	def read(self):
+		return common.read_file(self.path, self.compressed_entry)
+
+	def get_size(self):
+		return common.get_real_size(self.path, self.compressed_entry)
+
 def make_emulated_launcher(platform, base_command_line, rom, metadata, is_unsupported_compression):
 	if is_unsupported_compression:
 		temp_folder = '/tmp/temporary_rom_extract'
