@@ -4,6 +4,7 @@ import region_info
 
 language_list_regex = re.compile(r'\(((?:[A-Z][a-z],)*(?:[A-Z][a-z]))\)')
 translated_regex = re.compile(r'\[(?:tr |T-|T\+)([A-Z][a-z])(?: (?:by )?[^]]+)?\]')
+tosec_language_regex = re.compile(r'\(([a-z][a-z])(?:-([a-z][a-z]))?\)')
 
 def get_language_by_short_code(code):
 	for language in region_info.languages:
@@ -81,6 +82,19 @@ def get_languages_from_filename_tags(tags):
 					languages.append(language)
 	
 			return languages
+
+		tosec_languages_match = tosec_language_regex.match(tag)
+		if tosec_languages_match:
+			first_language_code = tosec_languages_match[1].capitalize()
+			first_language = get_language_by_short_code(first_language_code)
+			if first_language:
+				if tosec_languages_match[2]:
+					second_language_code = tosec_languages_match[2].capitalize()
+					second_language = get_language_by_short_code(second_language_code)
+					if second_language:
+						return [first_language, second_language]
+				else:
+					return [first_language]
 
 	return None
 
