@@ -283,8 +283,34 @@ def add_megadrive_metadata(game):
 	header = game.rom.read(0x100, 0x100)
 	#TODO: Parse copyright at header[16:32] to get author (from giant lookup table) and year if possible
 	peripherals = [c for c in header[144:160].decode('ascii', errors='ignore') if c != '\x00' and c != ' ']
-	game.metadata.specific_info['Peripherals'] = peripherals
-
+	#TODO Definitely needs a hecking rewrite to have multiple input methods
+	if 'M' in peripherals:
+		game.metadata.input_method = 'Mouse'
+	elif 'V' in peripherals:
+		game.metadata.input_method = 'Paddle'
+	elif 'A' in peripherals:
+		game.metadata.input_method = 'Stick'
+	elif 'G' in peripherals:
+		game.metadata.input_method = 'Light Gun'
+	elif 'K' in peripherals:
+		game.metadata.input_method = 'Keyboard'
+	else:
+		if 'J' in peripherals:
+			game.metadata.input_method = 'Normal'
+		elif '6' in peripherals:
+			game.metadata_input_method = 'Normal'
+			game.metadata.specific_info['Uses-6-Button-Controller'] = True
+	#Other peripheral characters of interest:
+	#4 = Team Play
+	#B = "Control Ball" (trackball?)
+	#C = CD-ROM
+	#F = Floppy drive
+	#L = Activator
+	#O = J-Cart
+	#P = Printer
+	#R = Serial
+	#T = Tablet
+	
 def nothing_interesting(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 	game.metadata.input_method = 'Normal'
