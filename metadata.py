@@ -12,6 +12,7 @@ class SaveType(Enum):
 	Floppy = auto()
 	MemoryCard = auto()
 	Internal = auto()
+	Unknown = auto()
 
 #TODO: Can you please think of a less verbose way to word this
 class SystemSpecificInfo():
