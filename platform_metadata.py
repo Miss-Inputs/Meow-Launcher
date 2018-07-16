@@ -273,6 +273,12 @@ def add_commodore_64_metadata(game):
 	else:
 		game.metadata.specific_info['Headered'] = False		
 
+def add_vectrex_metadata(game):
+	game.metadata.tv_type = TVSystem.Agnostic
+	game.metadata.input_method = 'Normal'
+
+	game.metadata.year = game.rom.read(seek_to=6, amount=4).decode('ascii', errors='ignore')
+
 def nothing_interesting(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 	game.metadata.input_method = 'Normal'
@@ -293,7 +299,7 @@ helpers = {
 	'NES': add_nes_metadata,
 	'Pokemon Mini': nothing_interesting,
 	'PSP': add_psp_metadata,
-	'Vectrex': nothing_interesting,
+	'Vectrex': add_vectrex_metadata,
 	'Virtual Boy': add_virtual_boy_metadata,
 	'Watara Supervision': nothing_interesting,
 	'Wii': add_wii_metadata,
