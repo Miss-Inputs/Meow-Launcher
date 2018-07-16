@@ -62,7 +62,7 @@ def base_make_desktop(command, display_name, comment, fields=None):
 					if isinstance(v, list):
 						value_as_string = ';'.join(['None' if item is None else item for item in v])
 					else:
-						value_as_string = v
+						value_as_string = str(v)
 
 					f.write('X-{0}={1}\n'.format(k.replace('_', '-'), value_as_string))
 		

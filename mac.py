@@ -7,7 +7,7 @@ import urllib.request
 import launchers
 import config
 import hfs
-from metadata import Metadata, SystemSpecificInfo, lookup_system_cpu
+from metadata import Metadata, lookup_system_cpu
 
 debug = '--debug' in sys.argv
 
@@ -77,13 +77,13 @@ def make_launcher(path, game_name, game_config):
 	if 'adult' in game_config:
 		metadata.nsfw = game_config['adult']
 	if 'notes' in game_config:
-		metadata.system_specific_info.append(SystemSpecificInfo('Notes', game_config['notes'], True))
+		metadata.specific_info['Notes'] = game_config['notes']
 	if 'compat_notes' in game_config:
-		metadata.system_specific_info.append(SystemSpecificInfo('Compatibility-Notes', game_config['compat_notes'], True))
+		metadata.specific_info['Compatibility-Notes'] = game_config['compat_notes']
 		print('Compatibility notes for', path, ':', game_config['compat_notes'])
 	if 'requires_cd' in game_config:
 		print(path, 'requires a CD in the drive. It will probably not work with this launcher at the moment')
-		metadata.system_specific_info.append(SystemSpecificInfo('Requires-CD', game_config['requires_cd'], True))
+		metadata.specific_info['Requires-CD'] = game_config['requires_cd']
 	
 	launchers.make_launcher(command, game_name, metadata)
 

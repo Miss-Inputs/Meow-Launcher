@@ -8,7 +8,7 @@ import config
 import common
 import launchers
 import emulator_info
-from metadata import Metadata, SystemSpecificInfo, EmulationStatus
+from metadata import Metadata, EmulationStatus
 
 debug = '--debug' in sys.argv
 
@@ -117,7 +117,7 @@ def add_metadata(metadata, machine):
 	language = get_language(basename)
 
 	source_file = os.path.splitext(machine.attrib['sourcefile'])[0]
-	metadata.system_specific_info.append(SystemSpecificInfo('Source-File', source_file, True))
+	metadata.specific_info['Source-File'] = source_file
 	
 	main_cpu = find_main_cpu(machine)
 	if main_cpu:
@@ -213,7 +213,7 @@ def process_machine(machine):
 	metadata = Metadata()
 	add_metadata(metadata, machine)
 	metadata.input_method = input_type
-	metadata.system_specific_info.append(SystemSpecificInfo('Family', family, True))
+	metadata.specific_info['Family'] = family
 
 	command_line = emulator_info.make_mame_command_line(basename)
 	launchers.make_launcher(command_line, name, metadata)

@@ -5,7 +5,6 @@ import binascii
 from enum import Enum, auto
 
 from region_info import TVSystem
-from metadata import SystemSpecificInfo
 
 debug = '--debug' in sys.argv
 
@@ -35,7 +34,7 @@ debug = '--debug' in sys.argv
 def add_atari7800_metadata(game):
 	header = game.rom.read(amount=128)
 	if header[1:10] != b'ATARI7800':
-		game.metadata.system_specific_info.append(SystemSpecificInfo('Headerless', True, False))
+		game.metadata.specific_info['Headerless'] = True
 		return
 
 	input_type = header[55] #I guess we only care about player 1. They should be the same anyway
@@ -60,7 +59,7 @@ def add_atari7800_metadata(game):
 	else:
 		if debug:
 			print('Something is wrong with', game.rom.path, ', has TV type byte of', tv_type)
-		game.metadata.system_specific_info.append(SystemSpecificInfo('Invalid-TV-Type', True, False))
+		game.metadata.specific_info['Invalid-TV-Type'] = True
 
 	#Only other thing worth noting is save type at header[58]: 0 = none, 1 = High Score Cartridge, 2 = SaveKey
 
@@ -152,13 +151,13 @@ def add_gameboy_metadata(game):
 	header = game.rom.read(seek_to=0x100, amount=0x50)
 	nintendo_logo = header[4:0x34]
 	nintendo_logo_valid = binascii.crc32(nintendo_logo) == nintendo_logo_crc32
-	game.metadata.system_specific_info.append(SystemSpecificInfo('Nintendo-Logo-Valid', nintendo_logo_valid, True))
+	game.metadata.specific_info['Nintendo-Logo-Valid'] = nintendo_logo_valid
 	
 	#TODO: Get author from licensee code
-	game.metadata.system_specific_info.append(SystemSpecificInfo('SGB-Enhanced', header[0x46] == 3, True))
+	game.metadata.specific_info['SGB-Enhanced'] = header[0x46] == 3
 	if header[0x47] in game_boy_mappers:
 		mapper = game_boy_mappers[header[0x47]]
-		game.metadata.system_specific_info.append(SystemSpecificInfo('Mapper', mapper, True))
+		game.metadata.specific_info['Mapper'] = mapper
 
 	#TODO: Calculate header checksum, add system specific info if invalid
 
