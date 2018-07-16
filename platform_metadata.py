@@ -2,7 +2,6 @@ import sys
 import os
 import xml.etree.ElementTree as ElementTree
 import binascii
-from enum import Enum, auto
 
 from region_info import TVSystem
 from metadata import SaveType
