@@ -78,6 +78,10 @@ def add_wii_metadata(game):
 		try:
 			meta_xml = ElementTree.parse(xml_path)
 			game.rom.name = meta_xml.findtext('name')
+			coder = meta_xml.findtext('coder')
+			if not coder:
+				coder = meta_xml.findtext('author')
+			game.metadata.author = coder
 		except ElementTree.ParseError as etree_error:
 			if debug:
 				print('Ah bugger', game.rom.path, etree_error)
