@@ -50,6 +50,7 @@ extra_subfolders = {
 	'By TV type': 'X-TV-Type',
 	'By extension': 'X-Extension',
 	'Has force feedback': 'X-Force-Feedback',
+	'Testing': 'X-Peripherals', 
 }
 
 def move_into_extra_subfolder(path, desktop, subfolder, key):

@@ -246,7 +246,7 @@ def add_wonderswan_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 
 def add_virtual_boy_metadata(game):
-	game.metadata.tv_type = TVSystem.Agnostic4
+	game.metadata.tv_type = TVSystem.Agnostic
 
 def add_atari_8bit_metadata(game):
 	if game.rom.extension in ['bin', 'rom', 'car']:
@@ -279,12 +279,19 @@ def add_vectrex_metadata(game):
 
 	game.metadata.year = game.rom.read(seek_to=6, amount=4).decode('ascii', errors='ignore')
 
+def add_megadrive_metadata(game):
+	header = game.rom.read(0x100, 0x100)
+	#TODO: Parse copyright at header[16:32] to get author (from giant lookup table) and year if possible
+	peripherals = [c for c in header[144:160].decode('ascii', errors='ignore') if c != '\x00' and c != ' ']
+	game.metadata.specific_info['Peripherals'] = peripherals
+
 def nothing_interesting(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 	game.metadata.input_method = 'Normal'
 
 
 helpers = {
+	'32X': add_megadrive_metadata,
 	'3DS': add_3ds_metadata,
 	'Atari 7800': add_atari7800_metadata,
 	'Atari 8-bit': add_atari_8bit_metadata,
@@ -294,6 +301,7 @@ helpers = {
 	'Gamate': nothing_interesting,
 	'Game Boy': add_gameboy_metadata,
 	'GBA': add_gba_metadata,
+	'Mega Drive': add_megadrive_metadata,
 	'Mega Duck': nothing_interesting,
 	'Neo Geo Pocket': add_ngp_metadata,
 	'NES': add_nes_metadata,
