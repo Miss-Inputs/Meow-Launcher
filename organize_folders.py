@@ -156,7 +156,7 @@ def move_into_folders():
 						copy_to_folder(path, config.organized_output_folder, 'By emulator used', sanitize_name(emulator))
 
 					#Would still be in this extra part
-					main_input = launchers.get_field(desktop, 'X-Main-Input')
+					main_input = launchers.get_field(desktop, 'X-Input-Method')
 					main_cpu = launchers.get_field(desktop, 'X-Main-CPU')
 					source_file = launchers.get_field(desktop, 'X-Source-File')
 					family = launchers.get_field(desktop, 'X-Family')

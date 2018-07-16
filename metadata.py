@@ -53,7 +53,7 @@ class Metadata():
 			'Year': self.year,
 			'Author': self.author,
 			'Main-CPU': self.main_cpu,
-			'Main-Input': self.input_method,
+			'Input-Method': self.input_method,
 			'Emulator': self.emulator_name,
 			'Extension': self.extension,
 			'Categories': self.categories,
