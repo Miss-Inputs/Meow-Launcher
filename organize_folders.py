@@ -109,49 +109,6 @@ def move_into_subfolders(path):
 		for k, v in extra_subfolders.items():
 			move_into_extra_subfolder(path, desktop, k, v)
 
-		#ext = launchers.get_field(desktop, 'X-Extension')	
-		#if ext:
-		#	copy_to_folder(path, config.organized_output_folder, 'By extension', sanitize_name(ext))
-								
-		#Wouldn't be in this extra part if I could generate these for every platform
-		#genre = launchers.get_field(desktop, 'X-Genre')
-		#subgenre = launchers.get_field(desktop, 'X-Subgenre')
-		#author = launchers.get_field(desktop, 'X-Author')
-		#emulation_status = launchers.get_field(desktop, 'X-Emulation-Status')
-		#is_nsfw = launchers.get_field(desktop, "X-NSFW") == 'True'
-		#clone_of = launchers.get_field(desktop, "X-clone-of")
-		#emulator = launchers.get_field(desktop, "X-Emulator")
-
-		#if genre:
-		#	copy_to_folder(path, config.organized_output_folder, 'By genre', sanitize_name(genre))
-		#if genre and subgenre:
-		#	copy_to_folder(path, config.organized_output_folder, 'By subgenre', sanitize_name(genre) + ' - ' + sanitize_name(subgenre))
-		#if author:
-		#	copy_to_folder(path, config.organized_output_folder, 'By author', sanitize_name(author))
-		#if emulation_status:
-		#	copy_to_folder(path, config.organized_output_folder, 'By emulation status', sanitize_name(emulation_status))
-		#if is_nsfw:
-		#	copy_to_folder(path, config.organized_output_folder, 'NSFW')
-		#if clone_of:
-		#	copy_to_folder(path, config.organized_output_folder, 'Clone of', sanitize_name(clone_of))
-		#if emulator:
-		#	copy_to_folder(path, config.organized_output_folder, 'By emulator used', sanitize_name(emulator))
-
-		#Would still be in this extra part
-		#main_input = launchers.get_field(desktop, 'X-Input-Method')
-		#main_cpu = launchers.get_field(desktop, 'X-Main-CPU')
-		#source_file = launchers.get_field(desktop, 'X-Source-File')
-		#family = launchers.get_field(desktop, 'X-Family')
-					
-		#if main_input:
-		#	copy_to_folder(path, config.organized_output_folder, 'By input method', sanitize_name(main_input))
-		#if main_cpu:
-		#	copy_to_folder(path, config.organized_output_folder, 'By main CPU', sanitize_name(main_cpu))
-		#if source_file:
-		#	copy_to_folder(path, config.organized_output_folder, 'By MAME source file', sanitize_name(source_file))
-		#if family:
-		#	copy_to_folder(path, config.organized_output_folder, 'By parent-clone family', sanitize_name(family))
-
 def move_into_folders():
 	delete_existing_output_dir()
 	
