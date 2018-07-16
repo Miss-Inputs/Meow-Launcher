@@ -256,9 +256,37 @@ def add_psp_metadata(game):
 		#These are basically always named EBOOT.PBP (due to how PSPs work I guess), so that's not a very good launcher name, and use the folder it's stored in instead
 		game.rom.name = os.path.basename(game.folder)
 
+def add_gamecube_wii_disc_metadata(game):
+	header = game.rom.read(amount=32)
+	#Actually, the header is quite a bit bigger than that. We don't really need the disc name or filesystem offset or anything like that, though.
+	#Prodct code: header[:4]
+	
+	try:
+		licensee_code = header[4:6].decode('ascii')
+		if licensee_code in nintendo_licensee_codes:
+			game.metadata.author = nintendo_licensee_codes[licensee_code]
+	except UnicodeDecodeError:
+		pass
+	
+	pass
+
+def add_gamecube_metadata(game):
+	if game.rom.extension == 'gcz' or game.rom.extension == 'tgc':
+		#Nuh uh. Not touching weird formats. Not today.
+		return
+	
+	if game.rom.extension == 'iso':
+		add_gamecube_wii_disc_metadata(game)
+
 def add_wii_metadata(game):
 	game.metadata.main_cpu = 'IBM PowerPC 603'
 
+	if game.rom.extension == 'iso':
+		add_gamecube_wii_disc_metadata(game)
+
+	#TODO WiiWare wad
+	
+	#TODO: Only do this if ext = dol or elf, not that you'd expect to see meta.xml anywhere else but who knows
 	xml_path = os.path.join(game.folder, 'meta.xml')
 	if os.path.isfile(xml_path):
 		#boot is not a helpful launcher name
