@@ -7,7 +7,8 @@ import urllib.request
 import launchers
 import config
 import hfs
-from metadata import Metadata, lookup_system_cpu
+from metadata import Metadata
+from mame_machines import lookup_system_cpu
 
 debug = '--debug' in sys.argv
 

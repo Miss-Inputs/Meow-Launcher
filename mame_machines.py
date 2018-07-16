@@ -12,6 +12,29 @@ from metadata import Metadata, EmulationStatus
 
 debug = '--debug' in sys.argv
 
+
+_lookup_system_cpu_cache = {}
+def lookup_system_cpu(driver_name):
+	if driver_name in _lookup_system_cpu_cache:
+		return _lookup_system_cpu_cache[driver_name]
+
+	xml = get_mame_xml(driver_name)
+	if not xml:
+		_lookup_system_cpu_cache[driver_name] = None
+		return None
+	machine = xml.find('machine')
+	if not machine:
+		_lookup_system_cpu_cache[driver_name] = None
+		return None
+
+	main_cpu = find_main_cpu(machine)
+	if main_cpu is not None: #"if main_cpu: doesn't work. Frig! Why not! Wanker! Sodding bollocks!
+		main_cpu_name = main_cpu.attrib['name']
+		_lookup_system_cpu_cache[driver_name] = main_cpu_name
+		return main_cpu_name
+
+	return None
+
 def find_main_cpu(machine):
 	for chip in machine.findall('chip'):
 		tag = chip.attrib['tag']

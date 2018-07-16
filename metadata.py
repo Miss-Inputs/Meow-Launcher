@@ -62,27 +62,3 @@ class Metadata():
 			fields[k] = v.name if isinstance(v, Enum) else v
 
 		return fields
-
-lookup_system_cpu_cache = {}
-def lookup_system_cpu(driver_name):
-	from mame_machines import get_mame_xml, find_main_cpu
-
-	if driver_name in lookup_system_cpu_cache:
-		return lookup_system_cpu_cache[driver_name]
-
-	xml = get_mame_xml(driver_name)
-	if not xml:
-		lookup_system_cpu_cache[driver_name] = None
-		return None
-	machine = xml.find('machine')
-	if not machine:
-		lookup_system_cpu_cache[driver_name] = None
-		return None
-
-	main_cpu = find_main_cpu(machine)
-	if main_cpu is not None: #"if main_cpu: doesn't work. Frig! Why not! Wanker! Sodding bollocks!
-		main_cpu_name = main_cpu.attrib['name']
-		lookup_system_cpu_cache[driver_name] = main_cpu_name
-		return main_cpu_name
-
-	return None
