@@ -373,7 +373,9 @@ def add_gameboy_metadata(game):
 		game.metadata.save_type = SaveType.Cart if mapper.has_battery else SaveType.Nothing
 		game.metadata.specific_info['Force-Feedback'] = mapper.has_rumble
 		game.metadata.input_method = 'Motion Controls' if mapper.has_accelerometer else 'Normal'
-
+	
+	#Can get product code from header[0x3f:0x43] if and only if it exists. It might not, it's only for newer games. Has to exist for GBC only games, but then homebrew doesn't follow your rules of course.
+	#Can also get destination code from header[0x4a]. 0 means Japan and 1 means not Japan. Not sure how reliable that is.
 	#TODO: Calculate header checksum, add system specific info if invalid
 	licensee_code = header[0x4b]
 	if licensee_code == 0x33:
