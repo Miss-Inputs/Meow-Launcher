@@ -6,6 +6,13 @@ class EmulationStatus(Enum):
 	Broken = auto()
 	Unknown = auto()
 
+class SaveType(Enum):
+	Nothing = auto()
+	Cart = auto()
+	Floppy = auto()
+	MemoryCard = auto()
+	Internal = auto()
+
 #TODO: Can you please think of a less verbose way to word this
 class SystemSpecificInfo():
 	def __init__(self, name, value, should_output_in_launcher):
@@ -29,6 +36,7 @@ class Metadata():
 		self.extension = None
 		self.platform = None
 		self.categories = []
+		self.save_type = None
 
 		#Not part of the little standard I invented on the wiki
 		self.system_specific_info = []
@@ -58,6 +66,7 @@ class Metadata():
 			'Extension': self.extension,
 			'Categories': self.categories,
 			'Platform': self.platform,
+			'Save-Type': ('Memory Card' if self.save_type == SaveType.MemoryCard else self.save_type.name) if self.save_type else 'Nothing',
 	
 			'Regions': [region.name if region else 'None!' for region in self.regions],
 			'TV-Type': self.tv_type.name if self.tv_type else None,
