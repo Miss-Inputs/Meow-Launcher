@@ -239,6 +239,10 @@ function-naming-style=snake_case
 good-names=i,
            j,
            k,
+		   s,
+		   v,
+		   hi,
+		   lo
 
 # Include a hint for the correct naming format with invalid-name
 include-naming-hint=no
