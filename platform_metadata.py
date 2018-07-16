@@ -63,11 +63,15 @@ def add_atari7800_metadata(game):
 	#Only other thing worth noting is save type at header[58]: 0 = none, 1 = High Score Cartridge, 2 = SaveKey
 
 def add_psp_metadata(game):
+	game.metadata.main_cpu = 'Allegrex'
+
 	if game.rom.extension == 'pbp':
 		#These are basically always named EBOOT.PBP (due to how PSPs work I guess), so that's not a very good launcher name, and use the folder it's stored in instead
 		game.rom.name = os.path.basename(game.folder)
 
 def add_wii_metadata(game):
+	game.metadata.main_cpu = 'IBM PowerPC 603'
+
 	xml_path = os.path.join(game.folder, 'meta.xml')
 	if os.path.isfile(xml_path):
 		#boot is not a helpful launcher name
@@ -87,8 +91,15 @@ def add_gameboy_metadata(game):
 	if game.rom.extension == 'gbc':
 		game.metadata.platform = 'Game Boy Color'
 
+def add_3ds_metadata(game):
+	game.metadata.main_cpu = 'ARM11'
+
+def add_ds_metadata(game):
+	game.metadata.main_cpu = 'ARM946E-S'
+
 def nothing_interesting(game):
 	game.metadata.input_method = 'Normal'
+
 
 helpers = {
 	'Atari 7800': add_atari7800_metadata,
@@ -100,4 +111,6 @@ helpers = {
 	'Watara Supervision': nothing_interesting,
 	'Epoch Game Pocket Computer': nothing_interesting,
 	'Mega Duck': nothing_interesting,
+	'DS', add_ds_metadata,
+	'3DS', add_3ds_metadata,
 }

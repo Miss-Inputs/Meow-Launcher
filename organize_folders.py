@@ -38,15 +38,11 @@ def delete_existing_output_dir():
 
 platform_cpu_list = {
 	#Usually just look up system_info.systems, but this is here where they aren't in systems or there isn't a MAME driver so we can't get the CPU from there or where MAME gets it wrong because the CPU we want to return isn't considered the main CPU
-	"3DS": "ARM11",
 	"32X": "Hitachi SH-2",
-	"DS": 'ARM9',
 	"FDS": lookup_system_cpu('fds'),
 	"Game Boy Color": lookup_system_cpu('gbcolor'),
 	"Mega CD": lookup_system_cpu('megacd'),
 	#For this purpose it's correct but it technically isn't: This is returning the CPU from the Megadrive instead of the actual Mega CD's CPU, but they're both 68000 so it's fine to just get the name
-	"PSP": "Allegrex",
-	"Wii": "IBM PowerPC 603", 
 }
 
 def get_cpu_for_platform(platform):
