@@ -42,9 +42,9 @@ class MameSystem(Emulator):
 	def __init__(self, command_line, supported_extensions):
 		Emulator.__init__(self, command_line, supported_extensions, ['7z', 'zip'])
 
-MAME_CDROM_FORMATS = ['iso', 'chd', 'cue', 'toc', 'nrg', 'cdr', 'gdi']
+mame_cdrom_formats = ['iso', 'chd', 'cue', 'toc', 'nrg', 'cdr', 'gdi']
 #Some drivers have custom floppy formats, but these seem to be available for all
-MAME_FLOPPY_FORMATS = ['d77', 'd88', '1dd', 'dfi', 'hfe', 'imd', 'ipf', 'mfi', 'mfm', 'td0', 'cqm', 'cqi', 'dsk']
+mame_floppy_formats = ['d77', 'd88', '1dd', 'dfi', 'hfe', 'imd', 'ipf', 'mfi', 'mfm', 'td0', 'cqm', 'cqi', 'dsk']
 		
 def build_atari7800_command_line(game, _):
 	if game.metadata.get_system_specific_info('Headerless', False):
@@ -260,7 +260,7 @@ emulators = {
 	#Just in case I change my mind on that. cpc464p is a different CPC+ model but I'm not sure that would be useful?
 	'MAME (Gamate)': MameSystem(make_mame_command_line('gamate', 'cart'), ['bin']),
 	'MAME (Game Pocket Computer)': MameSystem(make_mame_command_line('gamepock', 'cart'), ['bin']),
-	'MAME (Neo Geo CD)': MameSystem(make_mame_command_line('neocdz', 'cdrom'), MAME_CDROM_FORMATS),
+	'MAME (Neo Geo CD)': MameSystem(make_mame_command_line('neocdz', 'cdrom'), mame_cdrom_formats),
 	#This is interesting, because this runs alright on toasters, but Neo Geo-based arcade games do not (both being
 	#emulated in MAME); meaning I am probably doing something wrong.  Don't think it has region lock so I should never
 	#need to use neocdzj? (neocd doesn't work, apparently because it thinks it has the drive tray open constantly)
@@ -296,7 +296,7 @@ emulators = {
 	'MAME (Sord M5)': MameSystem(make_mame_command_line('m5', 'cart', {'ramsize': '64K'}, True), ['bin']),
 	#Apparently has joysticks with no fire button?  Usually space seems to be fire but sometimes 1 is, which is usually
 	#for starting games.  I hate everything.
-	'MAME (CD-i)': MameSystem(make_mame_command_line('cdimono1', 'cdrom'), MAME_CDROM_FORMATS),
+	'MAME (CD-i)': MameSystem(make_mame_command_line('cdimono1', 'cdrom'), mame_cdrom_formats),
 	#This is the only CD-i model that works, and it says it's not working, but it seems fine
 	'MAME (Game.com)': MameSystem(make_mame_command_line('gamecom', 'cart1'), ['bin', 'tgc']),
 	#I don't know what the other cart slot does, or if you can use two at once, or how that would work if you could. Hopefully I don't need it for anything
@@ -307,11 +307,11 @@ emulators = {
 	'MAME (VIC-10)': MameSystem(make_mame_command_line('vic10', 'cart', {'joy1': 'joy', 'joy2': 'joy'}, has_keyboard=True), ['crt', '80', 'e0']),
 	#More similar to the C64 than the VIC-20, need to plug a joystick into both ports because once again games can use
 	#either port and thanks I hate it.  At least there's only one TV type
-	'MAME (Sharp X1)': MameSystem(make_mame_command_line('x1turbo40', 'flop1', has_keyboard=True), MAME_FLOPPY_FORMATS + ['2d']),
+	'MAME (Sharp X1)': MameSystem(make_mame_command_line('x1turbo40', 'flop1', has_keyboard=True), mame_floppy_formats + ['2d']),
 	#Hey!!  We finally have floppies working!!  Because they boot automatically!  Assumes that they will all work fine
 	#though without any other disks, and this will need to be updated if we see any cartridges (MAME says it has a cart
 	#slot)...
-	'MAME (Sharp X68000)': MameSystem(make_mame_command_line('x68000', 'flop1', has_keyboard=True), MAME_FLOPPY_FORMATS + ['xdf', 'hdm', '2hd', 'dim']),	
+	'MAME (Sharp X68000)': MameSystem(make_mame_command_line('x68000', 'flop1', has_keyboard=True), mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim']),	
 	'MAME (Atari 8-bit)': MameSystem(build_a800_command_line, ['bin', 'rom', 'car']),
 	#Might get a bit of slowdown on toaster if you open the MAME menu, but usually you'd want to do that when paused
 	#anyway, and the games themselves run fine	

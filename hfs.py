@@ -1,11 +1,11 @@
 import subprocess
 import re
 
-DIRECTORY_REGEX = re.compile(r'^d(?: +i)? +(?:(?P<num_items>\d+) items|1 item) +(?P<date>\w{3} [\d ]{2} (?: \d{4}|\d{2}:\d{2})) (?P<name>.+)$')
-FILE_REGEX = re.compile(r'^(?:f|F) +(?P<type>.{4})/(?P<creator>.{4}) +(?P<resource_size>\d+) +(?P<data_size>\d+) (?P<date>\w{3} [\d ]{2} (?: \d{4}|\d{2}:\d{2})) (?P<name>.+)$')
+directory_regex = re.compile(r'^d(?: +i)? +(?:(?P<num_items>\d+) items|1 item) +(?P<date>\w{3} [\d ]{2} (?: \d{4}|\d{2}:\d{2})) (?P<name>.+)$')
+file_regex = re.compile(r'^(?:f|F) +(?P<type>.{4})/(?P<creator>.{4}) +(?P<resource_size>\d+) +(?P<data_size>\d+) (?P<date>\w{3} [\d ]{2} (?: \d{4}|\d{2}:\d{2})) (?P<name>.+)$')
 def parse_list_item(line, path):
 	if line.startswith('d'):
-		match = DIRECTORY_REGEX.match(line)
+		match = directory_regex.match(line)
 		if match is None:
 			raise Exception(line)
 
@@ -18,7 +18,7 @@ def parse_list_item(line, path):
 			'date': match.group('date')
 		}
 	elif line.lower().startswith('f'):
-		match = FILE_REGEX.match(line)
+		match = file_regex.match(line)
 		if match is None:
 			raise Exception(line)
 

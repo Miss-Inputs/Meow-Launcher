@@ -57,7 +57,7 @@ class Rom():
 			self.original_extension = self.original_extension[1:]
 		self.original_extension = self.original_extension.lower()
 
-		if self.original_extension in archives.COMPRESSED_EXTS:
+		if self.original_extension in archives.compressed_exts:
 			self.is_compressed = True
 
 			found_file_already = False

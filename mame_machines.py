@@ -34,13 +34,13 @@ def mame_verifyroms(basename):
 def get_catlist():
 	parser = configparser.ConfigParser(interpolation=None, allow_no_value=True)
 	parser.optionxform = str
-	parser.read(config.CATLIST_PATH)
+	parser.read(config.catlist_path)
 	return parser
 	
 def get_languages():
 	parser = configparser.ConfigParser(interpolation=None, allow_no_value=True)
 	parser.optionxform = str
-	parser.read(config.LANGUAGES_PATH)
+	parser.read(config.languages_path)
 	return parser
 
 catlist = get_catlist()
