@@ -10,59 +10,43 @@ import common
 import emulator_info
 import region_detect
 import platform_metadata
+import metadata
 
 debug = '--debug' in sys.argv
 
 year_regex = re.compile(r'\(([x\d]{4})\)')
-
-def get_metadata_from_filename_tags(tags):
-	metadata = {}
-
-	languages = region_detect.get_languages_from_filename_tags(tags)
-	if languages:
-		#TODO: Should this use native_name instead?
-		metadata['Languages'] = [language.english_name for language in languages]
-	
-	for tag in tags:
-		if year_regex.match(tag):
-			#TODO Ensure only one tag matches
-			metadata['Year'] = year_regex.match(tag).group(1)
-	
-	return metadata
 	
 def add_metadata(game):
-	game.metadata['Extension'] = game.rom.extension
+	game.metadata.extension = game.rom.extension
 	
-	if game.platform in ('Gamate', 'Epoch Game Pocket Computer', 'Mega Duck', 'Watara Supervision'):
-		#Well, you sure won't be seeing anything weird out of these
-		game.metadata['Main-Input'] = 'Normal'
-	elif game.platform == 'Virtual Boy':
-		game.metadata['Main-Input'] = 'Twin Joystick'
-
-	if game.platform in platform_metadata.helpers:
-		platform_metadata.helpers[game.platform](game)
+	if game.metadata.platform in platform_metadata.helpers:
+		platform_metadata.helpers[game.metadata.platform](game)
 
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = common.find_filename_tags.findall(game.rom.name)
-	for k, v in get_metadata_from_filename_tags(tags).items():
-		if k not in game.metadata:
-			game.metadata[k] = v
+	
+	#TODO: Detect regions first, and then languages, and then infer languages from regions if still unspecified
+	languages = region_detect.get_languages_from_filename_tags(tags)
+	if languages:
+		game.metadata.languages = [language.english_name for language in languages]
 
-	if not game.regions:
-		game.regions = region_detect.get_regions_from_filename_tags(tags)	
-	if not game.tv_type:
-		if game.regions:
-			game.tv_type = region_detect.get_tv_system_from_regions(game.regions)
+	for tag in tags:
+		if year_regex.match(tag):
+			#TODO Ensure only one tag matches
+			game.metadata.year = year_regex.match(tag).group(1)
+
+	if not game.metadata.regions:
+		regions = region_detect.get_regions_from_filename_tags(tags)
+		if regions:
+			game.metadata.regions = regions
+	if not game.metadata.tv_type:
+		if game.metadata.regions:
+			game.metadata.tv_type = region_detect.get_tv_system_from_regions(game.metadata.regions)
 		else:
 			tv_type = region_detect.get_tv_system_from_filename_tags(tags)
 			if tv_type:
-				game.tv_type = tv_type
+				game.metadata.tv_type = tv_type
 	
-	if game.regions:
-		game.metadata['Regions'] = [region.name if region else 'None!' for region in game.regions]
-	if game.tv_type:
-		game.metadata['TV-Type'] = str(game.tv_type)
-
 class Rom():
 	def __init__(self, path):
 		self.path = path
@@ -104,13 +88,10 @@ class Rom():
 class Game():
 	def __init__(self, rom, emulator, platform, folder):
 		self.rom = rom
-		self.platform = platform
 		self.emulator = emulator
-		self.categories = []
-		self.metadata = {}
-		self.regions = []
-		self.tv_type = None
-		self.unrunnable = False
+		self.metadata = metadata.Metadata()
+		self.metadata.platform = platform
+		self.metadata.categories = []
 		self.folder = folder
 
 	def get_command_line(self, system_config):
@@ -134,7 +115,7 @@ class Game():
 		else:
 			command_line = base_command_line.replace('$<path>', shlex.quote(self.rom.path))
 
-		launchers.make_launcher(self.platform, command_line, self.rom.name, self.categories, self.metadata)
+		launchers.make_launcher(command_line, self.rom.name, self.metadata)
 
 def process_file(system_config, root, name):
 	path = os.path.join(root, name)
@@ -150,9 +131,9 @@ def process_file(system_config, root, name):
 
 
 	#TODO This looks weird, but is there a better way to do this? (Get subfolders we're in from rom_dir)
-	game.categories = [i for i in root.replace(system_config.rom_dir, '').split('/') if i]
-	if not game.categories:
-		game.categories = [game.platform]
+	game.metadata.categories = [i for i in root.replace(system_config.rom_dir, '').split('/') if i]
+	if not game.metadata.categories:
+		game.metadata.categories = [game.metadata.platform]
 
 	if rom.extension not in game.emulator.supported_extensions:
 		return
@@ -162,18 +143,15 @@ def process_file(system_config, root, name):
 
 	add_metadata(game)
 
-	if game.unrunnable:
-		return
-			
 	if not game.get_command_line(system_config):
 		return
 
 	if isinstance(game.emulator, emulator_info.MameSystem):
-		game.metadata['Emulator'] = 'MAME'
+		game.metadata.emulator_name = 'MAME'
 	elif isinstance(game.emulator, emulator_info.MednafenModule):
-		game.metadata['Emulator'] = 'Mednafen'
+		game.metadata.emulator_name = 'Mednafen'
 	else:
-		game.metadata['Emulator'] = emulator_name 
+		game.metadata.emulator_name = emulator_name 
 			
 	game.make_launcher(system_config)
 

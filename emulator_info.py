@@ -46,8 +46,13 @@ MAME_CDROM_FORMATS = ['iso', 'chd', 'cue', 'toc', 'nrg', 'cdr', 'gdi']
 #Some drivers have custom floppy formats, but these seem to be available for all
 MAME_FLOPPY_FORMATS = ['d77', 'd88', '1dd', 'dfi', 'hfe', 'imd', 'ipf', 'mfi', 'mfm', 'td0', 'cqm', 'cqi', 'dsk']
 		
-def build_atari7800_command_line(game, _):		
-	if game.tv_type == TVSystem.PAL:
+def build_atari7800_command_line(game, _):
+	if game.metadata.get_system_specific_info('Headerless', False):
+		if debug:
+			print(game.rom.path, 'has no header and is therefore unsupported')
+		return None
+
+	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'a7800p'
 	else:
 		system = 'a7800'
@@ -62,7 +67,7 @@ def build_vic20_command_line(game, _):
 			print('Bugger!', game.rom.path, 'is too big for MAME at the moment, it is', size)
 		return None
 	
-	if game.tv_type == TVSystem.PAL:
+	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'vic20p'
 	else:
 		system = 'vic20'
@@ -107,7 +112,7 @@ def build_a800_command_line(game, _):
 	
 	slot = 'cart1' if is_left else 'cart2'
 
-	if game.tv_type == TVSystem.PAL:
+	if game.metadata.tv_type == TVSystem.PAL:
 		#Atari 800 should be fine for everything, and I don't feel like the XL/XE series to see in which ways they don't work
 		system = 'a800p'
 	else:
@@ -131,7 +136,7 @@ def find_c64_system(game):
 	
 	#Don't think we really need c64c unless we really want the different SID chip
 	
-	if game.tv_type == TVSystem.PAL:
+	if game.metadata.tv_type == TVSystem.PAL:
 		return 'c64p'
 	
 	return 'c64'

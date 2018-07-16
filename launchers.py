@@ -36,7 +36,7 @@ def make_filename(name):
 	return name
 
 used_filenames = []
-def base_make_desktop(command, display_name, comment, metadata=None):
+def base_make_desktop(command, display_name, comment, fields=None):
 	base_filename = make_filename(display_name)
 	filename = base_filename + '.desktop'
 	
@@ -56,11 +56,11 @@ def base_make_desktop(command, display_name, comment, metadata=None):
 		f.write('Comment=%s\n' % comment)
 		f.write('Exec=%s\n' % command)
 
-		if metadata:
-			for k, v in metadata.items():
+		if fields:
+			for k, v in fields.items():
 				if v:
 					if isinstance(v, list):
-						value_as_string = ';'.join(v)
+						value_as_string = ';'.join(['None' if item is None else item for item in v])
 					else:
 						value_as_string = v
 
@@ -81,13 +81,12 @@ def make_display_name(name):
 			
 	return display_name
 
-def make_launcher(platform, command, name, categories=None, metadata=None):
+def make_launcher(command, name, metadata):
 	comment = name
-	#TODO: Hmm... do I like the comment field being used like this....
+	#TODO: Hmm... do I like the comment field being used like this.... maybe I just want an X-Full-Name field
 	display_name = make_display_name(name)
 	filename_tags = common.find_filename_tags.findall(name)
-	metadata['Platform'] = platform
-	metadata['Categories'] = categories
-	metadata['Filename-Tags'] = filename_tags
+	fields = metadata.to_launcher_fields()
+	fields['Filename-Tags'] = filename_tags
 	#For very future use, this is where the underlying host platform is abstracted away. make_launcher is for everything, base_make_desktop is for Linux .desktop files specifically. Perhaps there are other things that could be output as well.
-	base_make_desktop(command, display_name, comment, metadata)
+	base_make_desktop(command, display_name, comment, fields)

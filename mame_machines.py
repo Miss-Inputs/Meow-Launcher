@@ -8,6 +8,7 @@ import config
 import common
 import launchers
 import emulator_info
+from metadata import EmulationStatus, Metadata, SystemSpecificInfo
 
 debug = '--debug' in sys.argv
 
@@ -107,61 +108,73 @@ def get_input_type(machine):
 		print("This shouldn't happen either but for", machine.attrib['name'], "it did")
 	return None
 
-def get_metadata(machine, basename):
-	category, genre, subgenre, is_nsfw = get_category(basename)
+def add_metadata(metadata, machine):
+	basename = machine.attrib['name']
+
+	category, genre, subgenre, metadata.nsfw = get_category(basename)
 	language = get_language(basename)
+
 	source_file = os.path.splitext(machine.attrib['sourcefile'])[0]
+	metadata.system_specific_info.append(SystemSpecificInfo('Source-File', source_file, True))
 	
-	maincpu = find_main_cpu(machine)
+	main_cpu = find_main_cpu(machine)
+	if main_cpu:
+		metadata.main_cpu = main_cpu.attrib['name']
 		
-	platform = 'Arcade'
+	metadata.platform = 'Arcade'
 	if source_file == 'megatech':
-		platform = 'Mega-Tech'
+		metadata.platform = 'Mega-Tech'
 	elif source_file == 'megaplay':
-		platform = 'Mega-Play'
+		metadata.platform = 'Mega-Play'
 	elif source_file == 'playch10':
-		platform = 'PlayChoice-10'
+		metadata.platform = 'PlayChoice-10'
 	elif source_file == 'nss':
-		platform = 'Nintendo Super System'
+		metadata.platform = 'Nintendo Super System'
 	elif category == 'Game Console':
-		platform = 'Plug & Play' 
+		metadata.platform = 'Plug & Play' 
 		#Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug &
         #play system
 	elif category == 'Handheld':
-		platform = 'Handheld' 
+		metadata.platform = 'Handheld' 
 		#Could also be a tabletop system which takes AC input, but since catlist.ini doesn't take that into account, I don't
 		#really have a way of doing so either
 	elif category == 'Misc.':
-		platform = genre
+		metadata.platform = genre
 	elif category == 'Computer':
-		platform = 'Computer'
+		metadata.platform = 'Computer'
 	elif genre == 'Electromechanical' and subgenre == 'Reels':
-		platform = 'Pokies'
+		metadata.platform = 'Pokies'
 		category = 'Pokies'
 	elif genre == 'Electromechanical' and subgenre == 'Pinball':
-		platform = 'Pinball'
+		metadata.platform = 'Pinball'
 		category = 'Pinball'
-		
+
 	if language is not None and language != 'English':
 		category += ' untranslated'
 
-	metadata = {
-		'Main-CPU': None if maincpu is None else maincpu.attrib['name'], 
-		'Emulation-Status': machine.find('driver').attrib['status'], 
-		'Source-File': source_file, 
-		'Genre': genre, 
-		'Subgenre': subgenre, 
-		'NSFW': is_nsfw, 
-		'Languages': language, 
-		'Year': machine.findtext('year'),
-		'Author': machine.findtext('manufacturer'),
-		'Emulator': 'MAME',
-		#Some other things we could get from XML if we decide we care about it:
-		#Display type/resolution/refresh rate/number of screens
-		#Sound channels
-		#Number of players
-	}
-	return metadata, category, platform
+	if category:
+		metadata.categories = [category]
+	if language:
+		metadata.languages = [language]
+	metadata.genre = genre
+	metadata.subgenre = subgenre
+
+	metadata.emulator_name = 'MAME'
+	metadata.year = machine.findtext('year')
+	metadata.author = machine.findtext('manufacturer')
+	
+	emulation_status = machine.find('driver').attrib['status']
+	if emulation_status == 'good':
+		metadata.emulation_status = EmulationStatus.Good
+	elif emulation_status == 'imperfect':
+		metadata.emulation_status = EmulationStatus.Imperfect
+	elif emulation_status == 'preliminary':
+		metadata.emulation_status = EmulationStatus.Broken
+
+	#Some other things we could get from XML if we decide we care about it:
+	#Display type/resolution/refresh rate/number of screens
+	#Sound channels
+	#Number of players
 	
 	
 def should_process_machine(machine):
@@ -195,12 +208,13 @@ def process_machine(machine):
 			print('Skipping %s (%s) as it has no controls' % (basename, name))
 		return
 	
-	metadata, category, platform = get_metadata(machine, basename)
-	metadata['Main-Input'] = input_type
-	metadata['Family'] = family
+	metadata = Metadata()
+	add_metadata(metadata, machine)
+	metadata.input_method = input_type
+	metadata.system_specific_info.append(SystemSpecificInfo('Family', family, True))
 
 	command_line = emulator_info.make_mame_command_line(basename)
-	launchers.make_launcher(platform, command_line, name, [category], metadata)
+	launchers.make_launcher(command_line, name, metadata)
 		
 def get_mame_drivers():
 	drivers = []

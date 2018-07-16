@@ -3,6 +3,7 @@ import os
 import xml.etree.ElementTree as ElementTree
 
 from region_info import TVSystem
+from metadata import SystemSpecificInfo
 
 debug = '--debug' in sys.argv
 
@@ -32,33 +33,32 @@ debug = '--debug' in sys.argv
 def add_atari7800_metadata(game):
 	header = game.rom.read(amount=128)
 	if header[1:10] != b'ATARI7800':
-		if debug:
-			print(game.rom.path, 'has no header and is therefore unsupported')
-			#TODO: Hmm... it's only MAME that can't deal with lack of headers...
-			game.unrunnable = True
-			return
+		game.metadata.system_specific_info.append(SystemSpecificInfo('Headerless', True, False))
+		return
 
 	input_type = header[55] #I guess we only care about player 1. They should be the same anyway
 	#Although... would that help us know the number of players? Is controller 2 set to none for singleplayer games?
-	if input_type == 1:
-		game.metadata['Main-Input'] = 'Normal'
+	if input_type == 0:
+		game.metadata.input_method = 'Nothing'
+	elif input_type == 1:
+		game.metadata.input_method = 'Normal'
 	elif input_type == 2:
-		game.metadata['Main-Input'] = 'Light Gun'
+		game.metadata.input_method = 'Light Gun'
 	elif input_type == 3:
-		game.metadata['Main-Input'] = 'Paddle'
+		game.metadata.input_method = 'Paddle'
 	elif input_type == 4:
-		game.metadata['Main-Input'] = 'Trackball'
+		game.metadata.input_method = 'Trackball'
 	
 	tv_type = header[57]
 
 	if tv_type == 1:
-		game.tv_type = TVSystem.PAL
+		game.metadata.tv_type = TVSystem.PAL
 	elif tv_type == 0:
-		game.tv_type = TVSystem.NTSC
+		game.metadata.tv_type = TVSystem.NTSC
 	else:
 		if debug:
 			print('Something is wrong with', game.rom.path, ', has TV type byte of', tv_type)
-		game.unrunnable = True
+		game.metadata.system_specific_info.append(SystemSpecificInfo('Invalid-TV-Type', True, False))
 
 	#Only other thing worth noting is save type at header[58]: 0 = none, 1 = High Score Cartridge, 2 = SaveKey
 
@@ -81,12 +81,14 @@ def add_wii_metadata(game):
 
 def add_nes_metadata(game):
 	if game.rom.extension == 'fds':
-		game.platform = 'FDS'
+		game.metadata.platform = 'FDS'
 
 def add_gameboy_metadata(game):
 	if game.rom.extension == 'gbc':
-		game.platform = 'Game Boy Color'
+		game.metadata.platform = 'Game Boy Color'
 
+def nothing_interesting(game):
+	game.metadata.input_method = 'Normal'
 
 helpers = {
 	'Atari 7800': add_atari7800_metadata,
@@ -94,4 +96,8 @@ helpers = {
 	'Wii': add_wii_metadata,
 	'NES': add_nes_metadata,
 	'Game Boy': add_gameboy_metadata,
+	'Gamate': nothing_interesting,
+	'Watara Supervision': nothing_interesting,
+	'Epoch Game Pocket Computer': nothing_interesting,
+	'Mega Duck': nothing_interesting,
 }

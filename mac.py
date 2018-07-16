@@ -7,6 +7,7 @@ import urllib.request
 import launchers
 import config
 import hfs
+from metadata import Metadata, SystemSpecificInfo
 
 debug = '--debug' in sys.argv
 
@@ -60,33 +61,29 @@ def make_launcher(path, game_name, game_config):
 	actual_emulator_command = 'BasiliskII --screen dga/{0}/{1}'.format(width, height)
 	inner_command = 'echo {0} > {1} && {2} && rm {1}'.format(shlex.quote(path), shlex.quote(autoboot_txt_path), actual_emulator_command)
 	command = 'sh -c {0}'.format(shlex.quote(inner_command))
-	if 'category' in game_config:
-		categories = [game_config['category']]
-	else:
-		categories = []
 	
-	metadata = {'Emulator': 'BasiliskII'}
+	metadata = Metadata()
+	metadata.emulator_name = 'BasiliskII'
+	metadata.platform = 'Mac'
+	if 'category' in game_config:
+		metadata.categories = [game_config['category']]
+	
 	if 'genre' in game_config:
-		metadata['Genre'] = game_config['genre']
+		metadata.genre = game_config['genre']
 	if 'subgenre' in game_config:
-		metadata['Subgenre'] = game_config['subgenre']
+		metadata.subgenre = game_config['subgenre']
 	if 'adult' in game_config:
-		metadata['NSFW'] = game_config['adult']
+		metadata.nsfw = game_config['adult']
 	if 'notes' in game_config:
-		metadata['Notes'] = game_config['notes']
+		metadata.system_specific_info.append(SystemSpecificInfo('Notes', game_config['notes'], True))
 	if 'compat_notes' in game_config:
-		metadata['Compat-Notes'] = game_config['compat_notes']
+		metadata.system_specific_info.append(SystemSpecificInfo('Compatibility-Notes', game_config['compat_notes'], True))
 		print('Compatibility notes for', path, ':', game_config['compat_notes'])
 	if 'requires_cd' in game_config:
 		print(path, 'requires a CD in the drive. It will probably not work with this launcher at the moment')
-		metadata['Requires-CD'] = game_config['requires_cd']
+		metadata.system_specific_info.append(SystemSpecificInfo('Requires-CD', game_config['requires_cd'], True))
 	
-	#Extra metadata because we have nothing else to do with it right now
-	for extra_metadata in ('min_players', 'max_players', 'emu_compat', 'controls', 'required_hardware', 'required_software', 'colours', 'colours_compat', 'resolution_compat', 'clone_of', 'runs_in_window'):
-		if extra_metadata in game_config:
-			metadata[extra_metadata] = game_config[extra_metadata]
-
-	launchers.make_launcher('Mac', command, game_name, categories, metadata)
+	launchers.make_launcher(command, game_name, metadata)
 
 def do_mac_stuff():
 	game_list = init_game_list()
