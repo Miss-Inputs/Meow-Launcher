@@ -268,8 +268,6 @@ def add_gamecube_wii_disc_metadata(game):
 	except UnicodeDecodeError:
 		pass
 	
-	pass
-
 def add_gamecube_metadata(game):
 	if game.rom.extension == 'gcz' or game.rom.extension == 'tgc':
 		#Nuh uh. Not touching weird formats. Not today.
