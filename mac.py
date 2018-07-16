@@ -7,7 +7,7 @@ import urllib.request
 import launchers
 import config
 import hfs
-from metadata import Metadata, SystemSpecificInfo
+from metadata import Metadata, SystemSpecificInfo, lookup_system_cpu
 
 debug = '--debug' in sys.argv
 
@@ -65,6 +65,8 @@ def make_launcher(path, game_name, game_config):
 	metadata = Metadata()
 	metadata.emulator_name = 'BasiliskII'
 	metadata.platform = 'Mac'
+	metadata.main_cpu = lookup_system_cpu('macqd700')
+	#Correct for now, since we aren't emulating PPC games yet, nor are we falling back to earlier systems in case of really old games
 	if 'category' in game_config:
 		metadata.categories = [game_config['category']]
 	

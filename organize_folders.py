@@ -36,28 +36,6 @@ def delete_existing_output_dir():
 			else:
 				os.unlink(path)
 
-lookup_system_cpu_cache = {}
-def lookup_system_cpu(driver_name):
-	if driver_name in lookup_system_cpu_cache:
-		return lookup_system_cpu_cache[driver_name]
-
-	xml = mame_machines.get_mame_xml(driver_name)
-	if not xml:
-		lookup_system_cpu_cache[driver_name] = None
-		return None
-	machine = xml.find('machine')
-	if not machine:
-		lookup_system_cpu_cache[driver_name] = None
-		return None
-
-	main_cpu = mame_machines.find_main_cpu(machine)
-	if main_cpu is not None: #"if main_cpu: doesn't work. Frig! Why not! Wanker! Sodding bollocks!
-		main_cpu_name = main_cpu.attrib['name']
-		lookup_system_cpu_cache[driver_name] = main_cpu_name
-		return main_cpu_name
-
-	return None
-
 platform_cpu_list = {
 	#Usually just look up system_info.systems, but this is here where they aren't in systems or there isn't a MAME driver so we can't get the CPU from there or where MAME gets it wrong because the CPU we want to return isn't considered the main CPU
 	"3DS": "ARM11",
@@ -65,8 +43,6 @@ platform_cpu_list = {
 	"DS": 'ARM9',
 	"FDS": lookup_system_cpu('fds'),
 	"Game Boy Color": lookup_system_cpu('gbcolor'),
-	"Mac": lookup_system_cpu('macqd700'), 
-	#Correct for now, since we aren't emulating PPC games yet, nor are we falling back to earlier systems in case of really old games
 	"Mega CD": lookup_system_cpu('megacd'),
 	#For this purpose it's correct but it technically isn't: This is returning the CPU from the Megadrive instead of the actual Mega CD's CPU, but they're both 68000 so it's fine to just get the name
 	"PSP": "Allegrex",
