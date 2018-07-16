@@ -167,13 +167,28 @@ def add_gameboy_metadata(game):
 	if game.rom.extension == 'gbc':
 		game.metadata.platform = 'Game Boy Color'
 
+def add_gba_metadata(game):
+	game.metadata.tv_type = TVSystem.Agnostic
+
 def add_3ds_metadata(game):
+	game.metadata.tv_type = TVSystem.Agnostic
 	game.metadata.main_cpu = 'ARM11'
 
 def add_ds_metadata(game):
+	game.metadata.tv_type = TVSystem.Agnostic
 	game.metadata.main_cpu = 'ARM946E-S'
 
+def add_ngp_metadata(game):
+	game.metadata.tv_type = TVSystem.Agnostic
+
+def add_wonderswan_metadata(game):
+	game.metadata.tv_type = TVSystem.Agnostic
+
+def add_virtual_boy_metadata(game):
+	game.metadata.tv_type = TVSystem.Agnostic
+
 def nothing_interesting(game):
+	game.metadata.tv_type = TVSystem.Agnostic
 	game.metadata.input_method = 'Normal'
 
 
@@ -187,6 +202,12 @@ helpers = {
 	'Watara Supervision': nothing_interesting,
 	'Epoch Game Pocket Computer': nothing_interesting,
 	'Mega Duck': nothing_interesting,
+	'Pokemon Mini': nothing_interesting,
+	'Vectrex': nothing_interesting,
 	'DS': add_ds_metadata,
 	'3DS': add_3ds_metadata,
+	'GBA': add_gba_metadata,
+	'Neo Geo Pocket': add_ngp_metadata,
+	'WonderSwan': add_wonderswan_metadata,
+	'Virtual Boy': add_virtual_boy_metadata,
 }
