@@ -502,6 +502,11 @@ def add_virtual_boy_metadata(game):
 	except UnicodeDecodeError:
 		pass
 	product_code = header[27:32]
+	
+	try:
+		game.metadata.specific_info['Product-Code'] = product_code.decode('ascii')
+	except UnicodeDecodeError:
+		pass
 	#Can get country from product_code[3] if needed
 
 def add_atari_8bit_metadata(game):
