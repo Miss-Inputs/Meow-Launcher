@@ -416,7 +416,13 @@ def add_gba_metadata(game):
 	except UnicodeDecodeError:
 		#Well, shit. If the product code's invalid for whatever reason, then we can't derive much info from it anyway. Anything officially licensed should be alphanumeric.
 		pass
-	#TODO: Get author from licensee code
+	
+	try:
+		licensee_code = header[0xb0:0xb2].decode('ascii')
+		if licensee_code in nintendo_licensee_codes:
+			game.metadata.author = nintendo_licensee_codes[licensee_code]
+	except UnicodeDecodeError:
+		pass
 	
 	has_save = False
 	save_strings = [b'EEPROM_V', b'SRAM_V', b'SRAM_F_V', b'FLASH_V', b'FLASH512_V', b'FLASH1M_V']
