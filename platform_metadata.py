@@ -5,6 +5,7 @@ import binascii
 from enum import Enum, auto
 
 from region_info import TVSystem
+from metadata import SaveType
 
 debug = '--debug' in sys.argv
 
@@ -158,6 +159,9 @@ def add_gameboy_metadata(game):
 	if header[0x47] in game_boy_mappers:
 		mapper = game_boy_mappers[header[0x47]]
 		game.metadata.specific_info['Mapper'] = mapper
+		game.metadata.save_type = SaveType.Cart if mapper.has_battery else SaveType.Nothing
+		game.metadata.specific_info['Force-Feedback'] = mapper.has_rumble
+		game.metadata.input_method = 'Motion Controls' if mapper.has_accelerometer else 'Normal'
 
 	#TODO: Calculate header checksum, add system specific info if invalid
 
