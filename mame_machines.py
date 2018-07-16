@@ -120,7 +120,7 @@ def add_metadata(metadata, machine):
 	metadata.specific_info['Source-File'] = source_file
 	
 	main_cpu = find_main_cpu(machine)
-	if main_cpu:
+	if main_cpu is not None: #Why?
 		metadata.main_cpu = main_cpu.attrib['name']
 		
 	metadata.platform = 'Arcade'
