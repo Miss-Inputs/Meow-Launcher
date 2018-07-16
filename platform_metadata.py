@@ -373,7 +373,19 @@ def add_gameboy_metadata(game):
 		game.metadata.input_method = 'Motion Controls' if mapper.has_accelerometer else 'Normal'
 
 	#TODO: Calculate header checksum, add system specific info if invalid
-
+	licensee_code = header[0x4b]
+	if licensee_code == 0x33:
+		try:
+			licensee_code = header[0x44:0x46].decode('ascii')
+			if licensee_code in nintendo_licensee_codes:
+				game.metadata.author = nintendo_licensee_codes[licensee_code]
+		except UnicodeDecodeError:
+			pass
+	else:
+		licensee_code = '{0:X2}'.format(licensee_code)
+		if licensee_code in nintendo_licensee_codes:
+			game.metadata.author = nintendo_licensee_codes[licensee_code]
+	
 	if game.rom.extension == 'gbc':
 		game.metadata.platform = 'Game Boy Color'
 
