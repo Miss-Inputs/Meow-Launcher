@@ -1,6 +1,7 @@
 import sys
 import os
 import xml.etree.ElementTree as ElementTree
+import binascii
 
 from region_info import TVSystem
 from metadata import SystemSpecificInfo
@@ -91,7 +92,22 @@ def add_nes_metadata(game):
 	if game.rom.extension == 'fds':
 		game.metadata.platform = 'FDS'
 
+nintendo_logo_crc32 = 0x46195417
 def add_gameboy_metadata(game):
+	game.metadata.tv_type = TVSystem.Agnostic
+
+	header = game.rom.read(seek_to=0x100, amount=0x50)
+	nintendo_logo = header[4:0x34]
+	nintendo_logo_valid = binascii.crc32(nintendo_logo) == nintendo_logo_crc32
+	game.metadata.system_specific_info.append(SystemSpecificInfo('Nintendo-Logo-Valid', nintendo_logo_valid, True))
+	
+	#TODO: Get author from licensee code
+	game.metadata.system_specific_info.append(SystemSpecificInfo('SGB-Enhanced', header[0x46] == 3, True))
+	#TODO: Have this as an enum instead
+	game.metadata.system_specific_info.append(SystemSpecificInfo('Mapper', header[0x47], True))
+
+	#TODO: Calculate header checksum, add system specific info if invalid
+
 	if game.rom.extension == 'gbc':
 		game.metadata.platform = 'Game Boy Color'
 
