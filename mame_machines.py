@@ -101,6 +101,8 @@ def get_input_type(machine):
 			return 'Twin Joystick'
 		elif input_type == 'joy':
 			return 'Normal'
+		elif input_type == 'lightgun':
+			return 'Light Gun'
 				
 		return input_type.replace('_', ' ').capitalize()
 
