@@ -111,6 +111,6 @@ helpers = {
 	'Watara Supervision': nothing_interesting,
 	'Epoch Game Pocket Computer': nothing_interesting,
 	'Mega Duck': nothing_interesting,
-	'DS', add_ds_metadata,
-	'3DS', add_3ds_metadata,
+	'DS': add_ds_metadata,
+	'3DS': add_3ds_metadata,
 }
