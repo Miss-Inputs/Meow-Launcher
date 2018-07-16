@@ -37,7 +37,7 @@ class Metadata():
 		self.extension = None
 		self.platform = None
 		self.categories = []
-		self.save_type = None
+		self.save_type = SaveType.Unknown
 
 		#Not part of the little standard I invented on the wiki
 		self.system_specific_info = []

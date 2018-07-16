@@ -93,6 +93,58 @@ def add_nes_metadata(game):
 	if game.rom.extension == 'fds':
 		game.metadata.platform = 'FDS'
 
+class GameBoyMapper():
+	def __init__(self, name, has_ram=False, has_battery=False, has_rtc=False, has_rumble=False, has_accelerometer=False):
+		self.name = name
+		self.has_ram = has_ram
+		self.has_battery = has_battery
+		self.has_rtc = has_rtc
+		self.has_rumble = has_rumble
+		self.has_accelerometer = has_accelerometer
+
+	def __str__(self):
+		return self.name
+
+game_boy_mappers = {
+	0: GameBoyMapper("ROM only"),
+	8: GameBoyMapper("ROM only", has_ram=True),
+	9: GameBoyMapper("ROM only", has_ram=True, has_battery=True),
+	
+	1: GameBoyMapper('MBC1'),
+	2: GameBoyMapper('MBC1', has_ram=True),
+	3: GameBoyMapper('MBC1', has_ram=True, has_battery=True),
+	
+	5: GameBoyMapper('MBC2'),
+	6: GameBoyMapper('MBC2', has_ram=True, has_battery=True),
+	
+	11: GameBoyMapper('MMM01'),
+	12: GameBoyMapper('MMM01', has_ram=True),
+	13: GameBoyMapper('MMM01', has_ram=True, has_battery=True),
+
+	15: GameBoyMapper('MBC3', has_battery=True, has_rtc=True),
+	16: GameBoyMapper('MBC3', has_ram=True, has_battery=True, has_rtc=True),
+	17: GameBoyMapper('MBC3'),
+	18: GameBoyMapper('MBC3', has_ram=True),
+	19: GameBoyMapper('MBC3', has_battery=True),
+
+	#MBC4 might not exist. Hmm...
+
+	25: GameBoyMapper('MBC5'),
+	26: GameBoyMapper('MBC5', has_ram=True),
+	27: GameBoyMapper('MBC5', has_ram=True, has_battery=True),
+	28: GameBoyMapper('MBC5', has_rumble=True),
+	29: GameBoyMapper('MBC5', has_rumble=True, has_ram=True),
+	30: GameBoyMapper('MBC5', has_rumble=True, has_ram=True, has_battery=True),
+
+	32: GameBoyMapper('MBC6', has_ram=True, has_battery=True),
+	34: GameBoyMapper('MBC7', has_ram=True, has_battery=True, has_accelerometer=True), #Might have rumble? Don't think it does
+	252: GameBoyMapper('Pocket Camera', has_ram=True, has_battery=True),
+	253: GameBoyMapper('Bandai TAMA5'),
+	254: GameBoyMapper('HuC3'),
+	255: GameBoyMapper('HuC1', has_ram=True, has_battery=True),
+}
+		
+
 nintendo_logo_crc32 = 0x46195417
 def add_gameboy_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -104,8 +156,9 @@ def add_gameboy_metadata(game):
 	
 	#TODO: Get author from licensee code
 	game.metadata.system_specific_info.append(SystemSpecificInfo('SGB-Enhanced', header[0x46] == 3, True))
-	#TODO: Have this as an enum instead
-	game.metadata.system_specific_info.append(SystemSpecificInfo('Mapper', header[0x47], True))
+	if header[0x47] in game_boy_mappers:
+		mapper = game_boy_mappers[header[0x47]]
+		game.metadata.system_specific_info.append(SystemSpecificInfo('Mapper', mapper, True))
 
 	#TODO: Calculate header checksum, add system specific info if invalid
 
