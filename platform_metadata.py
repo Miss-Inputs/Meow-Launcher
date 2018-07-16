@@ -364,7 +364,6 @@ def add_gameboy_metadata(game):
 	nintendo_logo_valid = binascii.crc32(nintendo_logo) == nintendo_logo_crc32
 	game.metadata.specific_info['Nintendo-Logo-Valid'] = nintendo_logo_valid
 	
-	#TODO: Get author from licensee code
 	game.metadata.specific_info['SGB-Enhanced'] = header[0x46] == 3
 	if header[0x47] in game_boy_mappers:
 		mapper = game_boy_mappers[header[0x47]]
