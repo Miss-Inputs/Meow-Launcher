@@ -117,8 +117,9 @@ def move_into_folders():
 				if year:
 					copy_to_folder(path, config.organized_output_folder, 'By year', sanitize_name(year.replace('x', '?')))
 			
+				copy_to_folder(path, config.organized_output_folder, 'By platform and category', sanitize_name(platform) + ' - ' + sanitize_name(category))
+
 				if '--extra-folders' in sys.argv:
-					copy_to_folder(path, config.organized_output_folder, 'By platform and category', sanitize_name(platform) + ' - ' + sanitize_name(category))
 					if len(languages) == 1:
 						copy_to_folder(path, config.organized_output_folder, 'By language', sanitize_name(languages[0]) + ' only')
 				
