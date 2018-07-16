@@ -383,7 +383,7 @@ def add_gameboy_metadata(game):
 		except UnicodeDecodeError:
 			pass
 	else:
-		licensee_code = '{0:X2}'.format(licensee_code)
+		licensee_code = '{:02X}'.format(licensee_code)
 		if licensee_code in nintendo_licensee_codes:
 			game.metadata.author = nintendo_licensee_codes[licensee_code]
 	
