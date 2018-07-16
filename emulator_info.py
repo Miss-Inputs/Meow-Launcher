@@ -75,19 +75,14 @@ def build_vic20_command_line(game, _):
 	return make_mame_command_line(system, 'cart', has_keyboard=True)
 		
 def build_a800_command_line(game, _):
-	is_left = True
-	rom_data = game.rom.read()
-	if rom_data[:4] == b'CART':
-		cart_type = int.from_bytes(rom_data[4:8], 'big')
-		#See also: https://github.com/dmlloyd/atari800/blob/master/DOC/cart.txt,
-		#https://github.com/mamedev/mame/blob/master/src/devices/bus/a800/a800_slot.cpp
+	if game.metadata.specific_info.get('Headered', False):
+		cart_type = game.metadata.specific_info['Cart-Type']
 		if cart_type in (13, 14, 23, 24, 25) or (cart_type >= 33 and cart_type <= 38):
 			if debug:
 				print(game.rom.path, 'is actually a XEGS ROM which is not supported by MAME yet, cart type is', cart_type)
 			return None
 			
-		#You probably think this is a bad way to do this...  I guess it is, but hopefully I can take some out as they become
-		#supported (even if I have to use some other emulator or something to do it)
+		#You probably think this is a bad way to do this...  I guess it is, but hopefully I can take some out as they become supported
 		if cart_type in (5, 17, 22, 41, 42, 43, 45, 46, 47, 48, 49, 53, 57, 58, 59, 60, 61) or (cart_type >= 26 and cart_type <= 32) or (cart_type >= 54 and cart_type <= 56):
 			if debug:
 				print(game.rom.path, "won't work as cart type is", cart_type)
@@ -96,12 +91,7 @@ def build_a800_command_line(game, _):
 		if cart_type in (4, 6, 7, 16, 19, 20):
 			if debug:
 				print(game.rom.path, "is an Atari 5200 ROM ya goose!! It won't work as an Atari 800 ROM as the type is", cart_type)
-			return None
-			
-		if cart_type == 21: #59 goes in the right slot as well, but that's not supported
-			if debug:
-				print(game.rom.path, 'goes in right slot')
-			is_left = False
+			return None		
 	else:
 		size = game.rom.get_size()
 		#Treat 8KB files as type 1, 16KB as type 2, everything else is unsupported for now
@@ -110,7 +100,7 @@ def build_a800_command_line(game, _):
 				print(game.rom.path, 'may actually be a XL/XE/XEGS cartridge, please check it as it has no header and a size of', size)
 			return None
 	
-	slot = 'cart1' if is_left else 'cart2'
+	slot = 'cart1' if game.metadata.specific_info.get('Slot', 'Left') == 'Left' else 'cart2'
 
 	if game.metadata.tv_type == TVSystem.PAL:
 		#Atari 800 should be fine for everything, and I don't feel like the XL/XE series to see in which ways they don't work
@@ -121,18 +111,11 @@ def build_a800_command_line(game, _):
 	return make_mame_command_line(system, slot, has_keyboard=True)
 
 def find_c64_system(game):
-	rom_data = game.rom.read()
-	if rom_data[:16] == b'C64 CARTRIDGE   ':
-		#Just gonna make sure we're actually dealing with the CCS64 header format thingy first (see:
-		#http://unusedino.de/ec64/technical/formats/crt.html)
-		#It's okay if it doesn't, though; just means we won't be able to know if it's C64GS
-		#TODO: Can we detect other cart types that might be completely unsupported?
-		cart_type = int.from_bytes(rom_data[22:24], 'big')
-		
-		if cart_type == 15: #Commodore C64GS System 3 cart
-			#For some reason, these carts don't work on a regular C64 in MAME, and we have to use...  the thing specifically designed for playing games (but we normally wouldn't use this, since some cartridge games still need the keyboard, even if just for the menus, and that's why it actually sucks titty balls IRL.  But if it weren't for that, we totes heckin would)
-			#Note that C64GS doesn't really work properly in MAME anyway, but the carts... not work... less than in the regular C64 driver
-			return 'c64gs'
+	#TODO: Are other cart types known to be completely unsupported?
+	if game.metadata.platform == 'C64GS':	
+		#For some reason, C64GS carts don't work on a regular C64 in MAME, and we have to use...  the thing specifically designed for playing games (but we normally wouldn't use this, since some cartridge games still need the keyboard, even if just for the menus, and that's why it actually sucks titty balls IRL.  But if it weren't for that, we totes heckin would)
+		#Note that C64GS doesn't really work properly in MAME anyway, but the carts... not work... less than in the regular C64 driver
+		return 'c64gs'
 	
 	#Don't think we really need c64c unless we really want the different SID chip
 	

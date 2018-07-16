@@ -246,7 +246,32 @@ def add_wonderswan_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 
 def add_virtual_boy_metadata(game):
-	game.metadata.tv_type = TVSystem.Agnostic
+	game.metadata.tv_type = TVSystem.Agnostic4
+
+def add_atari_8bit_metadata(game):
+	if game.rom.extension in ['bin', 'rom', 'car']:
+		header = game.rom.read(amount=16)
+		magic = header[:4]
+		if magic == b'CART':
+			game.metadata.specific_info['Headered'] = True
+			cart_type = int.from_bytes(header[4:8], 'big')
+			#TODO: Have nice table of cart types like with Game Boy mappers; also set platform to XEGS/XL/XE/etc accordingly
+			game.metadata.specific_info['Cart-Type'] = cart_type
+			game.metadata.specific_info['Slot'] = 'Right' if cart_type in [21, 59] else 'Left'
+		else:
+			game.metadata.specific_info['Headered'] = False
+
+def add_commodore_64_metadata(game):
+	header = game.rom.read(amount=64)
+	magic = header[:16]
+	if magic == b'C64 CARTRIDGE   ':
+		game.metadata.specific_info['Headered'] = True
+		cart_type = int.from_bytes(header[22:24], 'big')
+		game.metadata.specific_info['Cart-Type'] = cart_type
+		if cart_type == 15:
+			game.metadata.platform = 'C64GS'
+	else:
+		game.metadata.specific_info['Headered'] = False		
 
 def nothing_interesting(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -256,6 +281,8 @@ def nothing_interesting(game):
 helpers = {
 	'3DS': add_3ds_metadata,
 	'Atari 7800': add_atari7800_metadata,
+	'Atari 8-bit': add_atari_8bit_metadata,
+	'C64': add_commodore_64_metadata,
 	'DS': add_ds_metadata,
 	'Epoch Game Pocket Computer': nothing_interesting,
 	'Gamate': nothing_interesting,
