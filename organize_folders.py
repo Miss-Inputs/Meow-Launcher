@@ -4,8 +4,6 @@ import sys
 
 import config
 import launchers
-import mame_machines
-import system_info
 
 #This is sort of considered separate from the main launcher generator.
 #Consider it to be its own kind of frontend, perhaps.
@@ -35,29 +33,6 @@ def delete_existing_output_dir():
 				shutil.rmtree(path, ignore_errors=True)
 			else:
 				os.unlink(path)
-
-platform_cpu_list = {
-	#Usually just look up system_info.systems, but this is here where they aren't in systems or there isn't a MAME driver so we can't get the CPU from there or where MAME gets it wrong because the CPU we want to return isn't considered the main CPU
-	"32X": "Hitachi SH-2",
-	"FDS": lookup_system_cpu('fds'),
-	"Game Boy Color": lookup_system_cpu('gbcolor'),
-	"Mega CD": lookup_system_cpu('megacd'),
-	#For this purpose it's correct but it technically isn't: This is returning the CPU from the Megadrive instead of the actual Mega CD's CPU, but they're both 68000 so it's fine to just get the name
-}
-
-def get_cpu_for_platform(platform):
-	#I look up things from MAME here (even when MAME doesn't really support the system and it's just a skeleton driver, as long as it knows the CPU) so the wording and naming and stuff is consistent with arcade games, which already have their CPU known
-
-	if platform in platform_cpu_list:
-		return platform_cpu_list[platform]
-
-	for system in system_info.systems:
-		if platform == system.name:
-			mame_driver = system.mame_driver
-			if mame_driver:
-				return lookup_system_cpu(mame_driver)
-
-	return None
 
 def move_into_folders():
 	delete_existing_output_dir()
@@ -137,10 +112,6 @@ def move_into_folders():
 						copy_to_folder(path, config.organized_output_folder, 'By input method', sanitize_name(main_input))
 					if main_cpu:
 						copy_to_folder(path, config.organized_output_folder, 'By main CPU', sanitize_name(main_cpu))
-					else:
-						cpu = get_cpu_for_platform(platform)
-						if cpu:
-							copy_to_folder(path, config.organized_output_folder, 'By main CPU', sanitize_name(cpu))
 					if source_file:
 						copy_to_folder(path, config.organized_output_folder, 'By MAME source file', sanitize_name(source_file))
 					if family:

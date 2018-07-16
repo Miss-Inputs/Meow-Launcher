@@ -1,7 +1,5 @@
 from enum import Enum, auto
 
-from mame_machines import get_mame_xml
-
 class EmulationStatus(Enum):
 	Good = auto()
 	Imperfect = auto()
@@ -73,6 +71,8 @@ class Metadata():
 
 lookup_system_cpu_cache = {}
 def lookup_system_cpu(driver_name):
+	from mame_machines import get_mame_xml, find_main_cpu
+
 	if driver_name in lookup_system_cpu_cache:
 		return lookup_system_cpu_cache[driver_name]
 
@@ -85,7 +85,7 @@ def lookup_system_cpu(driver_name):
 		lookup_system_cpu_cache[driver_name] = None
 		return None
 
-	main_cpu = mame_machines.find_main_cpu(machine)
+	main_cpu = find_main_cpu(machine)
 	if main_cpu is not None: #"if main_cpu: doesn't work. Frig! Why not! Wanker! Sodding bollocks!
 		main_cpu_name = main_cpu.attrib['name']
 		lookup_system_cpu_cache[driver_name] = main_cpu_name

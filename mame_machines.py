@@ -8,7 +8,7 @@ import config
 import common
 import launchers
 import emulator_info
-from metadata import EmulationStatus, Metadata, SystemSpecificInfo
+from metadata import Metadata, SystemSpecificInfo, EmulationStatus
 
 debug = '--debug' in sys.argv
 

@@ -11,16 +11,36 @@ import emulator_info
 import region_detect
 import platform_metadata
 import metadata
+import system_info
 
 debug = '--debug' in sys.argv
 
 year_regex = re.compile(r'\(([x\d]{4})\)')
-	
+
+cpu_overrides = {
+	#Usually just look up system_info.systems, but this is here where they aren't in systems or there isn't a MAME driver so we can't get the CPU from there or where MAME gets it wrong because the CPU we want to return isn't considered the main CPU
+	"32X": "Hitachi SH-2",
+	"FDS": metadata.lookup_system_cpu('fds'),
+	"Game Boy Color": metadata.lookup_system_cpu('gbcolor'),
+	"Mega CD": metadata.lookup_system_cpu('megacd'),
+	#For this purpose it's correct but it technically isn't: This is returning the CPU from the Megadrive instead of the actual Mega CD's CPU, but they're both 68000 so it's fine to just get the name
+}
+
 def add_metadata(game):
 	game.metadata.extension = game.rom.extension
 	
 	if game.metadata.platform in platform_metadata.helpers:
 		platform_metadata.helpers[game.metadata.platform](game)
+
+	if not game.metadata.main_cpu:
+		if game.metadata.platform in cpu_overrides:
+			game.metadata.main_cpu = cpu_overrides[game.metadata.platform]
+		else:
+			for system in system_info.systems:
+				if game.metadata.platform == system.name:
+					mame_driver = system.mame_driver
+					if mame_driver:
+						game.metadata.main_cpu = metadata.lookup_system_cpu(mame_driver)
 
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = common.find_filename_tags.findall(game.rom.name)

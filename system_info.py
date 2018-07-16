@@ -5,7 +5,7 @@ class System():
 		self.mame_software_lists = mame_software_lists
 
 systems = [
-	System('Game Boy', 'gbcolor', ['gameboy', 'gbcolor']),
+	System('Game Boy', 'gbpocket', ['gameboy', 'gbcolor']),
 	System('GBA', 'gba', ['gba']), 
 	System('SNES', 'snes', ['snes']),
 	System('N64', 'n64', ['n64']), 
@@ -16,7 +16,7 @@ systems = [
 	System('Neo Geo Pocket', 'ngpc', ['ngp', 'ngpc']),
 	System('Atari 2600', 'a2600', ['a2600', 'a2600_cass']), 
 	System('Pokemon Mini', 'pokemini', ['pokemini']),
-	System('NES', 'nes', ['nes', 'nes_ade', 'nes_datach', 'nes_kstudio', 'nes_ntbrom']),
+	System('NES', 'nes', ['nes', 'nes_ade', 'nes_datach', 'nes_kstudio', 'nes_ntbrom', 'famicom_cass']),
 	System('Mega CD', 'megacd', ['megacd', 'megacdj', 'segacd']), 
 	System('SG-1000', 'sg1000', ['sg1000', 'sc3000_cart', 'sc3000_cass', 'sf7000']),
 	System('PC Engine', 'pce', ['pce', 'sgx']), 
