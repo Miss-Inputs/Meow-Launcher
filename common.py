@@ -30,8 +30,8 @@ def read_file(path, compressed_entry=None, seek_to=0, amount=-1):
 			f.seek(seek_to)
 			if amount < 0:
 				return f.read()
-			else:
-				return f.read(amount)
+			
+			return f.read(amount)
 	
 	
 	data = archives.compressed_get(path, compressed_entry)
