@@ -9,19 +9,17 @@ from metadata import SaveType
 debug = '--debug' in sys.argv
 
 #For roms.py, gets metadata in ways specific to certain platforms
+#I guess this is duplicating a lot of ROMniscience code, huh? Well, it's my project, and I'll use it for reference for my other project if I want. But I guess there is duplication there. I mean, it's C# and Python, so I can't really combine them directly, but it makes me think... it makes me overthink. That's the best kind of think.
 
 #Metadata used in arcade: main_input, emulation_status, genre, subgenre, nsfw, language, year, author
-#If we can get these from somewhere for non-arcade things: Great!!
-#main_cpu, source_file and family aren't really relevant
 #Gamecube, 3DS, Wii can sorta find the languages (or at least the title/banner stuff) by examining the ROM itself...
 #though as you have .gcz files for the former, that gets a bit involved, actually yeah any of what I'm thinking would
 #be difficult without a solid generic file handling thing, but still
 #Can get these from the ROM/disc/etc itself:
 #	main_input: Megadrive family, Atari 7800 (all through lookup table)
-#		Somewhat Game Boy, GBA (if type from product code = K or R, uses motion controls)
 #	year: Megadrive family (usually; via copyright), FDS, GameCube, Satellaview, homebrew SMS/Game Gear, Atari 5200
 #	(sometimes), Vectrex, ColecoVersion (sometimes), homebrew Wii
-#	author: Homebrew SMS/Game Gear, ColecoVision (in uppercase, sometimes), homebrew Wii
+#	author: Homebrew SMS/Game Gear, ColecoVision (in uppercase, sometimes)
 #		With a giant lookup table: GBA, Game Boy, SNES, Satellaview, Megadrive family, commercial SMS/Game Gear, Virtual
 #		Boy, FDS, Wonderswan, GameCube, 3DS, Wii, DS
 #		Neo Geo Pocket can say if SNK, but nothing specific if not SNK
@@ -167,8 +165,39 @@ def add_gameboy_metadata(game):
 	if game.rom.extension == 'gbc':
 		game.metadata.platform = 'Game Boy Color'
 
+nintendo_gba_logo_crc32 = 0xD0BEB55E
 def add_gba_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
+
+	entire_cart = game.rom.read()
+	header = entire_cart[0:0xc0]
+
+	nintendo_logo = header[4:0xa0]
+	nintendo_logo_valid = binascii.crc32(nintendo_logo) == nintendo_gba_logo_crc32
+	game.metadata.specific_info['Nintendo-Logo-Valid'] = nintendo_logo_valid
+
+	try:
+		product_code = header[0xac:0xb0].decode('ascii')
+		game_type = product_code[0]
+		if game_type[0] == 'K' or game_type == 'R':
+			game.metadata.input_method = 'Motion Controls'
+		else:
+			game.metadata.input_method = 'Normal'
+		game.metadata.specific_info['Force-Feedback'] = game_type in ('R', 'V')
+		#TODO: Maybe get region from product_code[3]?
+	except UnicodeDecodeError:
+		#Well, shit. If the product code's invalid for whatever reason, then we can't derive much info from it anyway. Anything officially licensed should be alphanumeric.
+		pass
+	#TODO: Get author from licensee code
+	
+	has_save = False
+	save_strings = [b'EEPROM_V', b'SRAM_V', b'SRAM_F_V', b'FLASH_V', b'FLASH512_V', b'FLASH1M_V']
+	for string in save_strings:
+		if string in entire_cart:
+			has_save = True
+			break
+	#Can also look for SIIRTC_V in entire_cart to detect RTC if desired
+	game.metadata.save_type = SaveType.Cart if has_save else SaveType.Nothing
 
 def add_3ds_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
