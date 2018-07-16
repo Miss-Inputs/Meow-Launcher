@@ -170,10 +170,16 @@ def make_prboom_plus_command_line(_, other_config):
 	#Fine don't save then, nerd
 	return 'prboom-plus -iwad $<path>'
 
+def make_mgba_command_line(game, _):
+	command_line = 'mgba-qt -f'
+	if game.metadata.platform == 'GBA' and not game.metadata.specific_info.get('Nintendo-Logo-Valid', True):
+		command_line += ' -C useBios=0'
+	return command_line + ' $<path>'
+
 emulators = {
 	'Gambatte': Emulator('gambatte_qt --full-screen $<path>', ['gb', 'gbc'], ['zip']),
 	#--gba-cgb-mode[=0] and --force-dmg-mode[=0] may be useful in obscure situations
-	'mGBA': Emulator('mgba-qt -f $<path>', ['gb', 'gbc', 'gba', 'srl', 'bin', 'mb'], ['7z', 'zip']),
+	'mGBA': Emulator(make_mgba_command_line, ['gb', 'gbc', 'gba', 'srl', 'bin', 'mb'], ['7z', 'zip']),
 	#Use -C useBios=0 for homebrew with bad checksum/logo that won't boot on real hardware.  Some intensive games (e.g.
 	#Doom) will not run at full speed on toaster, but generally it's fine
 	'Snes9x': Emulator('snes9x-gtk $<path>', ['sfc', 'smc', 'swc'], ['zip', 'gz']),
