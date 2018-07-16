@@ -176,8 +176,22 @@ def make_mgba_command_line(game, _):
 		command_line += ' -C useBios=0'
 	return command_line + ' $<path>'
 
+def make_gambatte_command_line(game, _):
+	mapper = game.metadata.specific_info.get('Mapper', None)
+	if not mapper:
+		#If there was a problem detecting the mapper, or it's something invalid, it probably won't run
+		if debug:
+			print('Skipping', game.rom.path, 'because it has no mapper')
+		return None
+	if mapper.name in ['Bandai TAMA5', 'HuC3', 'MBC6', 'MBC7', 'Pocket Camera']:
+		if debug:
+			print('Skipping', game.rom.path, 'because it has unsupported mapper:', mapper.name)
+		return None		
+
+	return 'gambatte_qt --full-screen $<path>'
+
 emulators = {
-	'Gambatte': Emulator('gambatte_qt --full-screen $<path>', ['gb', 'gbc'], ['zip']),
+	'Gambatte': Emulator(make_gambatte_command_line, ['gb', 'gbc'], ['zip']),
 	#--gba-cgb-mode[=0] and --force-dmg-mode[=0] may be useful in obscure situations
 	'mGBA': Emulator(make_mgba_command_line, ['gb', 'gbc', 'gba', 'srl', 'bin', 'mb'], ['7z', 'zip']),
 	#Use -C useBios=0 for homebrew with bad checksum/logo that won't boot on real hardware.  Some intensive games (e.g.
