@@ -301,6 +301,7 @@ def add_megadrive_metadata(game):
 			game.metadata_input_method = 'Normal'
 			game.metadata.specific_info['Uses-6-Button-Controller'] = True
 	#Other peripheral characters of interest:
+	#0 = SMS gamepad
 	#4 = Team Play
 	#B = "Control Ball" (trackball?)
 	#C = CD-ROM
@@ -310,6 +311,13 @@ def add_megadrive_metadata(game):
 	#P = Printer
 	#R = Serial
 	#T = Tablet
+
+	save_id = header[0xb0:0xb4]
+	#Apparently... what the heck
+	game.metadata.save_type = SaveType.Cart if save_id[:2] == b'RA' else SaveType.Nothing
+	
+
+	#Hmm... get regions from [0xfd:0xff] or nah
 	
 def nothing_interesting(game):
 	game.metadata.tv_type = TVSystem.Agnostic
