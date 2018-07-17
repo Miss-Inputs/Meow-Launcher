@@ -26,6 +26,7 @@ cpu_overrides = {
 	"FDS": lookup_system_cpu('fds'),
 	"Game Boy Color": lookup_system_cpu('gbcolor'),
 	"Mega CD": lookup_system_cpu('segacd_us'),
+	"C64GS": lookup_system_cpu('c64gs'),
 }
 
 def add_metadata(game):
