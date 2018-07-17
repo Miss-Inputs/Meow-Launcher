@@ -47,7 +47,7 @@ mame_cdrom_formats = ['iso', 'chd', 'cue', 'toc', 'nrg', 'cdr', 'gdi']
 mame_floppy_formats = ['d77', 'd88', '1dd', 'dfi', 'hfe', 'imd', 'ipf', 'mfi', 'mfm', 'td0', 'cqm', 'cqi', 'dsk']
 		
 def build_atari7800_command_line(game, _):
-	if game.metadata.specific_info.get('Headerless', False):
+	if not game.metadata.specific_info.get('Headered', False):
 		if debug:
 			print(game.rom.path, 'has no header and is therefore unsupported')
 		return None

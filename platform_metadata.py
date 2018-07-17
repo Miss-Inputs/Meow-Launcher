@@ -219,8 +219,10 @@ nintendo_licensee_codes = {
 def add_atari7800_metadata(game):
 	header = game.rom.read(amount=128)
 	if header[1:10] != b'ATARI7800':
-		game.metadata.specific_info['Headerless'] = True
+		game.metadata.specific_info['Headered'] = False
 		return
+
+	game.metadata.specific_info['Headered'] = True
 
 	input_type = header[55] #I guess we only care about player 1. They should be the same anyway
 	#Although... would that help us know the number of players? Is controller 2 set to none for singleplayer games?
