@@ -31,9 +31,8 @@ def lookup_system_cpu(driver_name):
 
 	main_cpu = find_main_cpu(machine)
 	if main_cpu is not None: #"if main_cpu: doesn't work. Frig! Why not! Wanker! Sodding bollocks!
-		main_cpu_name = main_cpu.attrib['name']
-		_lookup_system_cpu_cache[driver_name] = main_cpu_name
-		return main_cpu_name
+		_lookup_system_cpu_cache[driver_name] = main_cpu
+		return main_cpu
 
 	return None
 

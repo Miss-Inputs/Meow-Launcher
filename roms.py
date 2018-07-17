@@ -36,13 +36,14 @@ def add_metadata(game):
 
 	if not game.metadata.main_cpu:
 		if game.metadata.platform in cpu_overrides:
-			game.metadata.main_cpu = cpu_overrides[game.metadata.platform]
+			game.metadata.main_cpu = cpu_overrides[game.metadata.platform].attrib['name']
 		else:
 			for system in system_info.systems:
 				if game.metadata.platform == system.name:
 					mame_driver = system.mame_driver
 					if mame_driver:
-						game.metadata.main_cpu = lookup_system_cpu(mame_driver)
+						cpu = lookup_system_cpu(mame_driver)
+						game.metadata.main_cpu = cpu.attrib['name']
 
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = common.find_filename_tags.findall(game.rom.name)
