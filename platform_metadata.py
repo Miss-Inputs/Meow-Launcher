@@ -266,6 +266,12 @@ def add_atari7800_metadata(game):
 def add_psp_metadata(game):
 	game.metadata.main_cpu = 'Sony CXD2962GG'
 	game.metadata.clock_speed = '333 MHz'
+	game.metadata.number_of_screens = 1
+	game.metadata.screen_resolution = '480x272'
+	game.metadata.refresh_rate = '60 Hz' #I presume so, anyway... good luck finding actual information
+	game.metadata.aspect_ratio = '30:17'
+	
+
 
 	if game.rom.extension == 'pbp':
 		#These are basically always named EBOOT.PBP (due to how PSPs work I guess), so that's not a very good launcher name, and use the folder it's stored in instead
@@ -289,6 +295,10 @@ def add_gamecube_wii_disc_metadata(game):
 def add_gamecube_metadata(game):
 	game.metadata.main_cpu = 'IBM PowerPC 603'
 	game.metadata.clock_speed = '485 MHz'
+	game.metadata.number_of_screens = 1
+	game.metadata.screen_resolution = '640x480'
+	game.metadata.refresh_rate = '60 Hz'
+	game.metadata.aspect_ratio = '4:3'
 
 	if game.rom.extension == 'gcz' or game.rom.extension == 'tgc':
 		#Nuh uh. Not touching weird formats. Not today.
@@ -300,6 +310,10 @@ def add_gamecube_metadata(game):
 def add_wii_metadata(game):
 	game.metadata.main_cpu = 'IBM PowerPC 603'
 	game.metadata.clock_speed = '729 MHz'
+	game.metadata.number_of_screens = 1
+	game.metadata.screen_resolution = '640x480' #Let's just go with that. PAL consoles can do 576i and interlacing confuses me (720x576?)
+	game.metadata.refresh_rate = '60 Hz'
+	game.metadata.aspect_ratio = '4:3' #Anamorphic widescreen doesn't count
 
 	if game.rom.extension == 'iso':
 		add_gamecube_wii_disc_metadata(game)
@@ -487,11 +501,19 @@ def add_3ds_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 	game.metadata.main_cpu = 'ARM11'
 	game.metadata.clock_speed = '268 MHz' #New 3DS is 804 MHz
+	game.metadata.number_of_screens = 2
+	game.metadata.screen_resolution = '400x240 + 320x240' #Let's ignore the existence of 3D to make things easier
+	game.metadata.refresh_rate = '59.834 Hz + 59.834 Hz'
+	game.metadata.aspect_ratio = '5:3 + 4:3'
 
 def add_ds_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 	game.metadata.main_cpu = 'ARM946ES'
 	game.metadata.clock_speed = '67 MHz'
+	game.metadata.number_of_screens = 2
+	game.metadata.screen_resolution = '256x192 + 256x192'
+	game.metadata.refresh_rate = '59.8261 Hz + 59.8261 Hz'
+	game.metadata.aspect_ratio = '4:3 + 4:3'
 
 	header = game.rom.read(amount=0x200)
 	

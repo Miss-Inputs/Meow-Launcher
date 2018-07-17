@@ -14,7 +14,7 @@ import region_detect
 import platform_metadata
 import metadata
 import system_info
-from mame_machines import lookup_system_cpu, format_clock_speed
+from mame_machines import lookup_system_cpu, format_clock_speed, lookup_system_displays, find_aspect_ratio
 
 debug = '--debug' in sys.argv
 
@@ -27,6 +27,12 @@ cpu_overrides = {
 	"Game Boy Color": lookup_system_cpu('gbcolor'),
 	"Mega CD": lookup_system_cpu('segacd_us'),
 	"C64GS": lookup_system_cpu('c64gs'),
+}
+
+display_overrides = {
+	'FDS': lookup_system_displays('fds'),
+	'Game Boy Color': lookup_system_displays('gbcolor'),
+	'C64GS': lookup_system_displays('c64gs'),	
 }
 
 def add_metadata(game):
@@ -57,7 +63,47 @@ def add_metadata(game):
 							except ValueError:
 								pass
 
-
+	if not game.metadata.screen_resolution:
+		displays = None
+		if game.metadata.platform in display_overrides:
+			displays = display_overrides[game.metadata.platform]
+		else:	
+			for system in system_info.systems:
+				if game.metadata.platform == system.name:
+					mame_driver = system.mame_driver
+					if mame_driver:
+						displays = lookup_system_displays(mame_driver)
+		#Yeah okay I'm literally just copying code from mame_machines.py here. Really shows I need to refactor. Sorry...
+		if displays is not None:
+			resolutions = []
+			refresh_rates = []
+			aspect_ratia = []
+			for display in displays:
+				game.metadata.number_of_screens += 1
+				display_type = display.attrib['type']
+				if display_type == 'raster' or display_type == 'lcd':
+					width = display.attrib['width']
+					height = display.attrib['height']
+					resolutions.append('{0}x{1}'.format(width, height))
+					try:
+						aspect_ratia.append(find_aspect_ratio(float(width), float(height)))
+					except ValueError:
+						pass
+				else:
+					#Vector or SVG-based LCD
+					resolutions.append(display_type.capitalize())	
+		
+				if 'refresh' in display.attrib:
+					try:
+						refresh_rates.append(format_clock_speed(float(display.attrib['refresh']), 4))
+					except ValueError:
+						#Hasn't happened so far, but just in case
+						refresh_rates.append(display.attrib['refresh'])
+			game.metadata.screen_resolution = ' + '.join(resolutions)
+			game.metadata.refresh_rate = ' + '.join(refresh_rates)
+			game.metadata.aspect_ratio = ' + '.join(aspect_ratia)
+		
+	
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = common.find_filename_tags.findall(game.rom.name)
 	
