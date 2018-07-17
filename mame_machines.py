@@ -194,7 +194,7 @@ def format_clock_speed(hertz, precision=3):
 		return ('{0:.' + str(precision) + 'g} Hz').format(hertz)
 
 def find_aspect_ratio(width, height):
-	for i in reversed(range(1, max(width, height) + 1)):
+	for i in reversed(range(1, max(int(width), int(height)) + 1)):
 		if (width % i) == 0 and (height % i) == 0:
 			return '{0}:{1}'.format(width // i, height // i)
 
