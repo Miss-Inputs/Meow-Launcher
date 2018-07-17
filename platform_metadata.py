@@ -216,7 +216,6 @@ nintendo_licensee_codes = {
 }
 
 
-
 def add_atari7800_metadata(game):
 	header = game.rom.read(amount=128)
 	if header[1:10] != b'ATARI7800':
@@ -259,8 +258,11 @@ def add_psp_metadata(game):
 def add_gamecube_wii_disc_metadata(game):
 	header = game.rom.read(amount=32)
 	#Actually, the header is quite a bit bigger than that. We don't really need the disc name or filesystem offset or anything like that, though.
-	#Prodct code: header[:4]
-	
+	try:
+		game.metadata.specific_info['Product-Code'] = header[:4].decode('ascii')
+	except UnicodeDecodeError:
+		pass	
+
 	try:
 		licensee_code = header[4:6].decode('ascii')
 		if licensee_code in nintendo_licensee_codes:
@@ -438,6 +440,8 @@ def add_gba_metadata(game):
 		else:
 			game.metadata.input_method = 'Normal'
 		game.metadata.specific_info['Force-Feedback'] = game_type in ('R', 'V')
+		
+		game.metadata.specific_info['Product-Code'] = product_code
 		#TODO: Maybe get region from product_code[3]?
 	except UnicodeDecodeError:
 		#Well, shit. If the product code's invalid for whatever reason, then we can't derive much info from it anyway. Anything officially licensed should be alphanumeric.
@@ -468,7 +472,13 @@ def add_ds_metadata(game):
 	game.metadata.main_cpu = 'ARM946E-S'
 
 	header = game.rom.read(amount=0x160)
-	#Product code: header[12:16]
+	
+	try:
+		product_code = header[12:16].decode('ascii')
+		game.metadata.specific_info['Product-Code'] = product_code
+	except UnicodeDecodeError:
+		pass
+
 	try:
 		licensee_code = header[16:18].decode('ascii')
 		if licensee_code in nintendo_licensee_codes:
