@@ -132,7 +132,18 @@ def build_c64_command_line(game, _):
 	#gives us two extra buttons for any software that uses it (probably nothing), and the normal fire button works as
 	#normal.  _Should_ be fine
 	#(Super cool pro tip: Bind F1 to Start)
-	
+
+	#For supported cart types, see: https://github.com/mamedev/mame/blob/master/src/lib/formats/cbm_crt.cpp
+	#15 (System 3/C64GS) does seem to be a bit weird too, oh well
+	#Maybe check the software list for compatibility
+	if game.metadata.specific_info.get('Cart-Type', None) == 18:
+		#Sega (Zaxxon/Super Zaxxon), nothing in the source there that says it's unsupported, but it consistently segfaults every time I try to launch it, so I guess it doesn't actually work
+		return None
+	if game.metadata.specific_info.get('Cart-Type', None) == 32:
+		#EasyFlash. Well, at least it doesn't segfault. Just doesn't boot, even if I play with the dip switch that says "Boot". Maybe I'm missing something here?
+		#There's a Prince of Persia cart in c64_cart.xml that uses easyflash type and is listed as being perfectly supported, but maybe it's one of those things where it'll work from the software list but not as a normal ROM (it's broken up into multiple ROMs)
+		return None	
+
 	system = find_c64_system(game)
 	return make_mame_command_line(system, 'cart', {'joy1': 'joybstr', 'joy2': 'joybstr'}, True)
 	
