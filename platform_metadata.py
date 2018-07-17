@@ -5,6 +5,7 @@ import binascii
 
 from region_info import TVSystem
 from metadata import SaveType
+from region_detect import get_region_by_name
 
 debug = '--debug' in sys.argv
 
@@ -482,7 +483,7 @@ def add_ds_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 	game.metadata.main_cpu = 'ARM946E-S'
 
-	header = game.rom.read(amount=0x160)
+	header = game.rom.read(amount=0x200)
 	
 	try:
 		product_code = header[12:16].decode('ascii')
@@ -496,6 +497,44 @@ def add_ds_metadata(game):
 			game.metadata.author = nintendo_licensee_codes[licensee_code]
 	except UnicodeDecodeError:
 		pass
+
+	is_dsi = False
+	unit_code = header[18]
+	if unit_code == 0:
+		game.metadata.specific_info['DSi-Enhanced'] = False
+	elif unit_code == 2:
+		is_dsi = True
+		game.metadata.specific_info['DSi-Enhanced'] = True
+	elif unit_code == 3:
+		is_dsi = True
+		game.metadata.platform = "DSi"
+
+	if is_dsi:
+		region_flags = int.from_bytes(header[0x1b0:0x1b4], 'little')
+		if region_flags < 0xffff0000:
+			#If they're set any higher than this, it's region free
+			#GBATEK says region free is 0xffffffff specifically but Pokemon gen 5 is 0xffffffef so who knows
+			regions = []
+			if region_flags & 1:
+				regions.append(get_region_by_name('Japan'))
+			elif region_flags & 2:
+				regions.append(get_region_by_name('USA'))
+			elif region_flags & 4:
+				regions.append(get_region_by_name('Europe'))
+			elif region_flags & 8:
+				regions.append(get_region_by_name('Australia'))
+			elif region_flags & 16:
+				regions.append(get_region_by_name('China'))
+			elif region_flags & 32:
+				regions.append(get_region_by_name('Korea'))
+			game.metadata.regions = regions
+	else:
+		region = header[29]
+		if region == 0x40:
+			game.metadata.regions = [get_region_by_name('Korea')]
+		elif region == 0x80:
+			game.metadata.regions = [get_region_by_name('China')]
+		#If 0, could be anywhere else
 
 def add_ngp_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
