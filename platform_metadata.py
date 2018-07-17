@@ -286,6 +286,9 @@ def add_gamecube_wii_disc_metadata(game):
 		pass
 	
 def add_gamecube_metadata(game):
+	game.metadata.main_cpu = 'IBM PowerPC 603'
+	game.metadata.clock_speed = '485 MHz'
+
 	if game.rom.extension == 'gcz' or game.rom.extension == 'tgc':
 		#Nuh uh. Not touching weird formats. Not today.
 		return
