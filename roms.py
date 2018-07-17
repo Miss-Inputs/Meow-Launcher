@@ -22,7 +22,7 @@ year_regex = re.compile(r'\(([x\d]{4})\)')
 
 cpu_overrides = {
 	#Usually just look up system_info.systems, but this is here where they aren't in systems or there isn't a MAME driver so we can't get the CPU from there or where MAME gets it wrong because the CPU we want to return isn't considered the main CPU
-	"32X": "Hitachi SH-2",
+	"32X": lookup_system_cpu('sega_32x_ntsc'),
 	"FDS": lookup_system_cpu('fds'),
 	"Game Boy Color": lookup_system_cpu('gbcolor'),
 	"Mega CD": lookup_system_cpu('segacd_us'),
