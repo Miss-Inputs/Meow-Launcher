@@ -481,10 +481,12 @@ def add_gba_metadata(game):
 def add_3ds_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 	game.metadata.main_cpu = 'ARM11'
+	game.metadata.clock_speed = '268 MHz' #New 3DS is 804 MHz
 
 def add_ds_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 	game.metadata.main_cpu = 'ARM946ES'
+	game.metadata.clock_speed = '67 MHz'
 
 	header = game.rom.read(amount=0x200)
 	
@@ -511,6 +513,8 @@ def add_ds_metadata(game):
 	elif unit_code == 3:
 		is_dsi = True
 		game.metadata.platform = "DSi"
+		#We won't set this upgraded clock speed for DSi-enhanced DS games for now, since nothing emulates them in that mode
+		game.metadata.clock_speed = '133 MHz'
 
 	if is_dsi:
 		region_flags = int.from_bytes(header[0x1b0:0x1b4], 'little')
