@@ -187,9 +187,6 @@ def add_metadata(machine):
 		machine.metadata.platform = 'Pinball'
 		category = 'Pinball'
 
-	if language is not None and language != 'English':
-		category += ' untranslated'
-
 	if category:
 		machine.metadata.categories = [category]
 	if language:
