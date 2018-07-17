@@ -169,6 +169,9 @@ def add_machine_platform(machine):
 		machine.metadata.platform = 'Handheld' 
 		#Could also be a tabletop system which takes AC input, but since catlist.ini doesn't take that into account, I don't
 		#really have a way of doing so either
+		if machine.name.startswith('Game & Watch: '):
+			#Source file is hh_sm510 so we can't detect the Game & Watchiness of a handheld game from that
+			machine.metadata.platform, _, machine.name = machine.name.partition(': ')
 	elif category == 'Misc.':
 		machine.metadata.platform = machine.metadata.genre
 	elif category == 'Computer':
