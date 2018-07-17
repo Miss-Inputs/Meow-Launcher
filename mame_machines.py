@@ -196,7 +196,7 @@ def format_clock_speed(hertz, precision=3):
 def find_aspect_ratio(width, height):
 	for i in reversed(range(1, max(int(width), int(height)) + 1)):
 		if (width % i) == 0 and (height % i) == 0:
-			return '{0}:{1}'.format(width // i, height // i)
+			return '{0:.0f}:{1:.0f}'.format(width // i, height // i)
 
 	#This wouldn't happen unless one of the arguments is 0 or something silly like that
 	return None
