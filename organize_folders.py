@@ -36,6 +36,7 @@ def delete_existing_output_dir():
 
 extra_subfolders = {
 	'By genre': 'X-Genre',
+	'By platform and genre': ['X-Platform', 'X-Genre'],
 	'By subgenre': ['X-Genre', 'X-Subgenre'],
 	'By author': 'X-Author',
 	'By emulation status': 'X-Emulation-Status',
@@ -49,6 +50,8 @@ extra_subfolders = {
 	'By save type': 'X-Save-Type',
 	'By TV type': 'X-TV-Type',
 	'By extension': 'X-Extension',
+	'By cart type': 'X-Cart-Type',
+	'Has header': 'X-Headered',
 	'Has force feedback': 'X-Force-Feedback',
 }
 
