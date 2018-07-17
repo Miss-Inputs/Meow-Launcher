@@ -233,7 +233,7 @@ def get_system_config_by_name(name):
 			return system
 	raise ValueError(system_name + ' not found')
 
-if __name__ == '__main__':
+def main():
 	os.makedirs(config.output_folder, exist_ok=True)
 	individual_systems = []
 	for arg in sys.argv:
@@ -246,3 +246,7 @@ if __name__ == '__main__':
 			process_system(get_system_config_by_name(system_name))
 	else:
 		process_systems()
+
+
+if __name__ == '__main__':
+	main()	
