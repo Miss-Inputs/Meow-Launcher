@@ -264,7 +264,8 @@ def add_atari7800_metadata(game):
 		game.metadata.save_type = SaveType.MemoryCard
 
 def add_psp_metadata(game):
-	game.metadata.main_cpu = 'Allegrex'
+	game.metadata.main_cpu = 'Sony CXD2962GG'
+	game.metadata.clock_speed = '333 MHz'
 
 	if game.rom.extension == 'pbp':
 		#These are basically always named EBOOT.PBP (due to how PSPs work I guess), so that's not a very good launcher name, and use the folder it's stored in instead
