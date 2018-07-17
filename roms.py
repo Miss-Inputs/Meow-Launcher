@@ -231,7 +231,7 @@ def get_system_config_by_name(name):
 	for system in config.system_configs:
 		if system.name == name:
 			return system
-	raise ValueError(system_name + ' not found')
+	raise ValueError(name + ' not found')
 
 def main():
 	os.makedirs(config.output_folder, exist_ok=True)
