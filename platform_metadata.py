@@ -246,7 +246,16 @@ def add_atari7800_metadata(game):
 			print('Something is wrong with', game.rom.path, ', has TV type byte of', tv_type)
 		game.metadata.specific_info['Invalid-TV-Type'] = True
 
-	#Only other thing worth noting is save type at header[58]: 0 = none, 1 = High Score Cartridge, 2 = SaveKey
+	save_type = header[58]
+	if save_type == 0:
+		game.metadata.save_type = SaveType.Nothing
+	elif save_type == 1:
+		#High Score Cart, an unreleased device that ends up being supported by some games (apparently). Just saves high scores so don't get too excited. It doesn't seem to be supported by MAME which is the only 7800 emulator we use anyway.
+		#You plug the High Score Cart into the 7800 and then the game into the High Score Cart, so I guess this is the easiest thing to call it.
+		game.metadata.save_type = SaveType.Internal
+	elif save_type == 2:
+		#AtariVox/SaveKey. Both are third party products which plug into the controller port, so what else can you call them except memory cards?
+		game.metadata.save_type = SaveType.MemoryCard
 
 def add_psp_metadata(game):
 	game.metadata.main_cpu = 'Allegrex'
