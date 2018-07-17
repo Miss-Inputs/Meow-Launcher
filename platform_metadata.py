@@ -600,6 +600,19 @@ def add_megadrive_metadata(game):
 	
 
 	#Hmm... get regions from [0xfd:0xff] or nah
+
+def add_pokemini_metadata(game):
+	game.metadata.tv_type = TVSystem.Agnostic
+	game.metadata.input_method = 'Normal'
+	
+	#There really isn't much else here, other than maybe the title. I don't think I can do anything with all those IRQs.
+	product_code_bytes = game.rom.read(seek_to=0x21a4, amount=4)
+	try:
+		product_code =  product_code_bytes.decode('ascii')
+		game.metadata.specific_info['Product-Code'] = product_code
+	except UnicodeDecodeError:
+		pass
+	
 	
 def nothing_interesting(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -621,7 +634,7 @@ helpers = {
 	'Mega Duck': nothing_interesting,
 	'Neo Geo Pocket': add_ngp_metadata,
 	'NES': add_nes_metadata,
-	'Pokemon Mini': nothing_interesting,
+	'Pokemon Mini': add_pokemini_metadata,
 	'PSP': add_psp_metadata,
 	'Vectrex': add_vectrex_metadata,
 	'Virtual Boy': add_virtual_boy_metadata,
