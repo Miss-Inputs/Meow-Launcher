@@ -29,6 +29,7 @@ class Metadata():
 		self.screen_resolution = None
 		self.refresh_rate = None
 		self.number_of_screens = 0
+		self.aspect_ratio = None
 		self.input_method = None
 		self.emulator_name = None
 		self.extension = None
@@ -55,6 +56,7 @@ class Metadata():
 			'Screen-Resolution': self.screen_resolution,
 			'Refresh-Rate': self.refresh_rate,
 			'Number-of-Screens': self.number_of_screens,
+			'Aspect-Ratio': self.aspect_ratio,
 			'Input-Method': self.input_method,
 			'Emulator': self.emulator_name,
 			'Extension': self.extension,

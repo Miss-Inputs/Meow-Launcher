@@ -192,6 +192,14 @@ def format_clock_speed(hertz, precision=3):
 		return ('{0:.' + str(precision) + 'g} KHz').format(hertz / 1_000)
 	else:
 		return ('{0:.' + str(precision) + 'g} Hz').format(hertz)
+
+def find_aspect_ratio(width, height):
+	for i in reversed(range(1, max(width, height) + 1)):
+		if (width % i) == 0 and (height % i) == 0:
+			return '{0}:{1}'.format(width // i, height // i)
+
+	#This wouldn't happen unless one of the arguments is 0 or something silly like that
+	return None
 	
 def add_metadata(machine):
 	category, genre, subgenre, nsfw = get_category(machine.basename)
@@ -211,6 +219,7 @@ def add_metadata(machine):
 
 	resolutions = []
 	refresh_rates = []
+	aspect_ratia = []
 	for display in machine.xml.findall('display'):
 		machine.metadata.number_of_screens += 1
 		display_type = display.attrib['type']
@@ -218,6 +227,10 @@ def add_metadata(machine):
 			width = display.attrib['width']
 			height = display.attrib['height']
 			resolutions.append('{0}x{1}'.format(width, height))
+			try:
+				machine.metadata.aspect_ratio = find_aspect_ratio(float(width), float(height))
+			except ValueError:
+				pass
 		else:
 			resolutions.append(display_type.capitalize())	
 		
