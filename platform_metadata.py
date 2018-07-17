@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ElementTree
 import binascii
 import subprocess
 import hashlib
+import re
 
 from region_info import TVSystem
 from metadata import SaveType
@@ -700,6 +701,19 @@ stella_input_methods = {
 	'COMPUMATE': 'Keyboard', #Kinda, it's an entire goddamn computer
 }	
 
+stella_display_format_line_regex = re.compile(r'^\s*Display Format:\s*(PAL|NTSC)\*')
+def autodetect_from_stella(game):
+	proc = subprocess.run(['stella', '-rominfo', game.rom.path], stdout=subprocess.PIPE, universal_newlines=True)
+	if proc.returncode != 0:
+		return
+
+	lines = proc.stdout.splitlines()
+	for line in lines:
+		display_format_match = stella_display_format_line_regex.match(line)
+		if display_format_match:
+			game.tv_type = TVSystem[display_format_match.group(1)]
+		#Can also get bankswitch type from here if needed. Controller 0 and Controller 1 too, but then it's probably better to just get that from the database
+
 _stella_db = None
 def add_atari_2600_metadata(game):
 	global _stella_db 
@@ -759,8 +773,27 @@ def add_atari_2600_metadata(game):
 				game.metadata.tv_type = TVSystem.NTSC
 			elif display_format == 'PAL':
 				game.metadata_tv_type = TVSystem.PAL
+			elif display_format == 'AUTO':
+				#Yeah, I guess we're just reading the whole ROM again after already reading it once to get the MD5. Oh well. They aren't too big.
+				#TODO: Actually... what if we run -rominfo first, get MD5 from there, and then if it's in stella_db add more values?
+				autodetect_from_stella(game)
 			#TODO: Can also be SECAM, NTSC50, PAL60, or SECAM60
+	else:
+		autodetect_from_stella(game)
 	
+def add_n64_metadata(game):
+	header = game.rom.read(amount=64)
+	magic = header[:4]
+	if magic == b'\x80\x37\x12\x40':
+		#Z64
+		#TODO: Detect format and add as metadata. This'll be useful because some emulators won't even try and launch the thing if the first four bytes don't match something expected, even if it is a raw non-swapped dump that just happens to have weird values there
+		try:
+			product_code = header[59:63].decode('ascii')
+			game.metadata.specific_info['Product-Code'] = product_code
+		except UnicodeDecodeError:
+			pass
+		
+
 def nothing_interesting(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 	game.metadata.input_method = 'Normal'
@@ -780,6 +813,7 @@ helpers = {
 	'GBA': add_gba_metadata,
 	'Mega Drive': add_megadrive_metadata,
 	'Mega Duck': nothing_interesting,
+	'N64': add_n64_metadata,
 	'Neo Geo Pocket': add_ngp_metadata,
 	'NES': add_nes_metadata,
 	'Pokemon Mini': add_pokemini_metadata,
