@@ -37,14 +37,27 @@ def lookup_system_cpu(driver_name):
 
 	return None
 
-def find_main_cpu(machine):
-	for chip in machine.findall('chip'):
+class Machine():
+	def __init__(self, xml):
+		self.xml = xml
+		self.basename = xml.attrib['name']
+		self.family = xml.attrib['cloneof'] if 'cloneof' in xml.attrib else self.basename
+		self.name = xml.findtext('description')
+		self.metadata = Metadata()
+
+	def make_launcher(self):
+		command_line = emulator_info.make_mame_command_line(self.basename)
+		launchers.make_launcher(command_line, self.name, self.metadata)
+
+
+def find_main_cpu(machine_xml):
+	for chip in machine_xml.findall('chip'):
 		tag = chip.attrib['tag']
 		if tag == 'maincpu' or tag == 'mainpcb:maincpu':
 			return chip
 
 	#If no maincpu, just grab the first CPU chip
-	for chip in machine.findall('chip'):
+	for chip in machine_xml.findall('chip'):
 		if chip.attrib['type'] == 'cpu':
 			return chip
 
@@ -103,11 +116,11 @@ def get_language(basename):
 	return lang
 
 def get_input_type(machine):
-	input_element = machine.find('input')
+	input_element = machine.xml.find('input')
 	if input_element is None:
 		#Seems like this doesn't actually happen
 		if debug:
-			print('Oi m8', machine.attrib['name'], '/', machine.findtext('description'), 'has no input')
+			print('Oi m8', machine.basename, '/', machine.name, 'has no input')
 		return 'No input somehow'
 
 	control_element = input_element.find('control')
@@ -132,71 +145,69 @@ def get_input_type(machine):
 		return input_type.replace('_', ' ').capitalize()
 
 	if debug:
-		print("This shouldn't happen either but for", machine.attrib['name'], "it did")
+		print("This shouldn't happen either but for", machine.basename, "it did")
 	return None
 
-def add_metadata(metadata, machine):
-	basename = machine.attrib['name']
+def add_metadata(machine):
+	category, genre, subgenre, machine.metadata.nsfw = get_category(machine.basename)
+	language = get_language(machine.basename)
 
-	category, genre, subgenre, metadata.nsfw = get_category(basename)
-	language = get_language(basename)
-
-	source_file = os.path.splitext(machine.attrib['sourcefile'])[0]
-	metadata.specific_info['Source-File'] = source_file
+	source_file = os.path.splitext(machine.xml.attrib['sourcefile'])[0]
+	machine.metadata.specific_info['Source-File'] = source_file
 	
-	main_cpu = find_main_cpu(machine)
+	main_cpu = find_main_cpu(machine.xml)
 	if main_cpu is not None: #Why?
-		metadata.main_cpu = main_cpu.attrib['name']
+		machine.metadata.main_cpu = main_cpu.attrib['name']
 		
-	metadata.platform = 'Arcade'
+	machine.metadata.platform = 'Arcade'
 	if source_file == 'megatech':
-		metadata.platform = 'Mega-Tech'
+		machine.metadata.platform = 'Mega-Tech'
 	elif source_file == 'megaplay':
-		metadata.platform = 'Mega-Play'
+		machine.metadata.platform = 'Mega-Play'
 	elif source_file == 'playch10':
-		metadata.platform = 'PlayChoice-10'
+		machine.metadata.platform = 'PlayChoice-10'
 	elif source_file == 'nss':
-		metadata.platform = 'Nintendo Super System'
+		machine.metadata.platform = 'Nintendo Super System'
 	elif category == 'Game Console':
-		metadata.platform = 'Plug & Play' 
+		machine.metadata.platform = 'Plug & Play' 
 		#Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug &
         #play system
 	elif category == 'Handheld':
-		metadata.platform = 'Handheld' 
+		machine.metadata.platform = 'Handheld' 
 		#Could also be a tabletop system which takes AC input, but since catlist.ini doesn't take that into account, I don't
 		#really have a way of doing so either
 	elif category == 'Misc.':
-		metadata.platform = genre
+		machine.metadata.platform = genre
 	elif category == 'Computer':
-		metadata.platform = 'Computer'
+		machine.metadata.platform = 'Computer'
 	elif genre == 'Electromechanical' and subgenre == 'Reels':
-		metadata.platform = 'Pokies'
+		machine.metadata.platform = 'Pokies'
 		category = 'Pokies'
 	elif genre == 'Electromechanical' and subgenre == 'Pinball':
-		metadata.platform = 'Pinball'
+		machine.metadata.platform = 'Pinball'
 		category = 'Pinball'
 
 	if language is not None and language != 'English':
 		category += ' untranslated'
 
 	if category:
-		metadata.categories = [category]
+		machine.metadata.categories = [category]
 	if language:
-		metadata.languages = [language]
-	metadata.genre = genre
-	metadata.subgenre = subgenre
+		machine.metadata.languages = [language]
+	machine.metadata.genre = genre
+	machine.metadata.subgenre = subgenre
 
-	metadata.emulator_name = 'MAME'
-	metadata.year = machine.findtext('year')
-	metadata.author = machine.findtext('manufacturer')
+	machine.metadata.emulator_name = 'MAME'
+	machine.metadata.year = machine.xml.findtext('year')
+	machine.metadata.author = machine.xml.findtext('manufacturer')
 	
-	emulation_status = machine.find('driver').attrib['status']
+	emulation_status = machine.xml.find('driver').attrib['status']
 	if emulation_status == 'good':
-		metadata.emulation_status = EmulationStatus.Good
+		machine.metadata.emulation_status = EmulationStatus.Good
 	elif emulation_status == 'imperfect':
-		metadata.emulation_status = EmulationStatus.Imperfect
+		machine.metadata.emulation_status = EmulationStatus.Imperfect
 	elif emulation_status == 'preliminary':
-		metadata.emulation_status = EmulationStatus.Broken
+		machine.metadata.emulation_status = EmulationStatus.Broken
 
 	#Some other things we could get from XML if we decide we care about it:
 	#Display type/resolution/refresh rate/number of screens
@@ -205,13 +216,13 @@ def add_metadata(metadata, machine):
 	
 	
 def should_process_machine(machine):
-	if machine.attrib['runnable'] == 'no':
+	if machine.xml.attrib['runnable'] == 'no':
 		return False
 
-	if machine.attrib['isbios'] == 'yes':
+	if machine.xml.attrib['isbios'] == 'yes':
 		return False
 
-	if machine.attrib['isdevice'] == 'yes':
+	if machine.xml.attrib['isdevice'] == 'yes':
 		return False
 
 	return True
@@ -219,12 +230,8 @@ def should_process_machine(machine):
 def process_machine(machine):
 	if not should_process_machine(machine):
 		return
-	
-	basename = machine.attrib['name']
-	family = machine.attrib['cloneof'] if 'cloneof' in machine.attrib else basename
-	name = machine.findtext('description')
-	
-	if not (machine.find('softwarelist') is None) and family not in config.okay_to_have_software:
+		
+	if not (machine.xml.find('softwarelist') is None) and machine.family not in config.okay_to_have_software:
 		return
 
 	input_type = get_input_type(machine)
@@ -232,16 +239,13 @@ def process_machine(machine):
 		#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
 		#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
 		if debug:
-			print('Skipping %s (%s) as it has no controls' % (basename, name))
+			print('Skipping %s (%s) as it has no controls' % (machine.basename, machine.name))
 		return
-	
-	metadata = Metadata()
-	add_metadata(metadata, machine)
-	metadata.input_method = input_type
-	metadata.specific_info['Family'] = family
+	machine.metadata.input_method = input_type
+	machine.metadata.specific_info['Family'] = machine.family
 
-	command_line = emulator_info.make_mame_command_line(basename)
-	launchers.make_launcher(command_line, name, metadata)
+	add_metadata(machine)
+	machine.make_launcher()
 		
 def get_mame_drivers():
 	drivers = []
@@ -301,7 +305,7 @@ def process_arcade():
 		xml = get_mame_xml(driver)
 		if xml is None:
 			continue
-		process_machine(xml.find('machine'))
+		process_machine(Machine(xml.find('machine')))
 
 if __name__ == '__main__':
 	os.makedirs(config.output_folder, exist_ok=True)
