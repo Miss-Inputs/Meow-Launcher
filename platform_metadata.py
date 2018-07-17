@@ -484,7 +484,7 @@ def add_3ds_metadata(game):
 
 def add_ds_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
-	game.metadata.main_cpu = 'ARM946E-S'
+	game.metadata.main_cpu = 'ARM946ES'
 
 	header = game.rom.read(amount=0x200)
 	
