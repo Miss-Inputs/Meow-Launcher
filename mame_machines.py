@@ -178,6 +178,16 @@ def add_machine_platform(machine):
 	elif machine.metadata.genre == 'Electromechanical' and machine.metadata.subgenre == 'Pinball':
 		machine.metadata.platform = 'Pinball'
 
+def format_clock_speed(hertz):
+	if hertz >= 1_000_000_000:
+		return '{0:.3g} GHz'.format(hertz / 1_000_000_000)
+	elif hertz >= 1_000_000:
+		return '{0:.3g} MHz'.format(hertz / 1_000_000)
+	elif hertz >= 1_000:
+		return '{0:.3g} KHz'.format(hertz / 1_000)
+	else:
+		return '{0:.3g} Hz'.format(hertz)
+	
 def add_metadata(machine):
 	category, genre, subgenre, nsfw = get_category(machine.basename)
 	machine.metadata.categories = [category] if category else ['Unknown']
@@ -191,6 +201,11 @@ def add_metadata(machine):
 	main_cpu = find_main_cpu(machine.xml)
 	if main_cpu is not None: #Why?
 		machine.metadata.main_cpu = main_cpu.attrib['name']
+		if 'clock' in main_cpu.attrib:
+			try:
+				machine.metadata.clock_speed = format_clock_speed(int(main_cpu.attrib['clock']))
+			except ValueError:
+				pass
 		
 	add_machine_platform(machine)
 

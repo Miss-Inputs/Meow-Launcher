@@ -25,6 +25,7 @@ class Metadata():
 		self.year = None
 		self.author = None
 		self.main_cpu = None
+		self.clock_speed = None
 		self.input_method = None
 		self.emulator_name = None
 		self.extension = None
@@ -47,6 +48,7 @@ class Metadata():
 			'Year': self.year,
 			'Author': self.author,
 			'Main-CPU': self.main_cpu,
+			'Clock-Speed': self.clock_speed,
 			'Input-Method': self.input_method,
 			'Emulator': self.emulator_name,
 			'Extension': self.extension,
