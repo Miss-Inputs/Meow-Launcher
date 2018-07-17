@@ -810,6 +810,7 @@ helpers = {
 	'Epoch Game Pocket Computer': nothing_interesting,
 	'Gamate': nothing_interesting,
 	'Game Boy': add_gameboy_metadata,
+	'GameCube': add_gamecube_metadata,
 	'GBA': add_gba_metadata,
 	'Mega Drive': add_megadrive_metadata,
 	'Mega Duck': nothing_interesting,
