@@ -45,6 +45,10 @@ class Machine():
 		self.name = xml.findtext('description')
 		self.metadata = Metadata()
 
+		self.source_file = os.path.splitext(xml.attrib['sourcefile'])[0]
+		self.metadata.specific_info['Source-File'] = self.source_file
+	
+
 	def make_launcher(self):
 		command_line = emulator_info.make_mame_command_line(self.basename)
 		launchers.make_launcher(command_line, self.name, self.metadata)
@@ -151,15 +155,14 @@ def get_input_type(machine):
 def add_machine_platform(machine):
 	machine.metadata.platform = 'Arcade'
 	category = machine.metadata.categories[0]
-	source_file = machine.metadata.specific_info['Source-File']
 
-	if source_file == 'megatech':
+	if machine.source_file == 'megatech':
 		machine.metadata.platform = 'Mega-Tech'
-	elif source_file == 'megaplay':
+	elif machine.source_file == 'megaplay':
 		machine.metadata.platform = 'Mega-Play'
-	elif source_file == 'playch10':
+	elif machine.source_file == 'playch10':
 		machine.metadata.platform = 'PlayChoice-10'
-	elif source_file == 'nss':
+	elif machine.source_file == 'nss':
 		machine.metadata.platform = 'Nintendo Super System'
 	elif category == 'Game Console':
 		machine.metadata.platform = 'Plug & Play' 
@@ -198,9 +201,6 @@ def add_metadata(machine):
 	machine.metadata.subgenre = subgenre
 	machine.metadata.nsfw = nsfw
 
-	source_file = os.path.splitext(machine.xml.attrib['sourcefile'])[0]
-	machine.metadata.specific_info['Source-File'] = source_file
-	
 	main_cpu = find_main_cpu(machine.xml)
 	if main_cpu is not None: #Why?
 		machine.metadata.main_cpu = main_cpu.attrib['name']
