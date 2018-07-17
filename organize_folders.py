@@ -46,6 +46,8 @@ extra_subfolders = {
 	'By emulator used': 'X-Emulator',
 	'By input method': 'X-Input-Method',
 	'By main CPU': 'X-Main-CPU',
+	'By clock speed': 'X-Clock-Speed',
+	'By main CPU and clock speed': ['X-Main-CPU', 'X-Clock-Speed'],
 	'By MAME source file': 'X-Source-File',
 	'By parent-clone family': 'X-Family',
 	'By mapper': 'X-Mapper',
