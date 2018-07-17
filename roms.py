@@ -14,7 +14,7 @@ import region_detect
 import platform_metadata
 import metadata
 import system_info
-from mame_machines import lookup_system_cpu
+from mame_machines import lookup_system_cpu, format_clock_speed
 
 debug = '--debug' in sys.argv
 
@@ -36,7 +36,13 @@ def add_metadata(game):
 
 	if not game.metadata.main_cpu:
 		if game.metadata.platform in cpu_overrides:
-			game.metadata.main_cpu = cpu_overrides[game.metadata.platform].attrib['name']
+			cpu = cpu_overrides[game.metadata.platform]
+			game.metadata.main_cpu = cpu.attrib['name']
+			if 'clock' in cpu.attrib:
+				try:
+					game.metadata.clock_speed = format_clock_speed(int(cpu.attrib['clock']))
+				except ValueError:
+					pass
 		else:
 			for system in system_info.systems:
 				if game.metadata.platform == system.name:
@@ -44,6 +50,12 @@ def add_metadata(game):
 					if mame_driver:
 						cpu = lookup_system_cpu(mame_driver)
 						game.metadata.main_cpu = cpu.attrib['name']
+						if 'clock' in cpu.attrib:
+							try:
+								game.metadata.clock_speed = format_clock_speed(int(cpu.attrib['clock']))
+							except ValueError:
+								pass
+
 
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = common.find_filename_tags.findall(game.rom.name)
