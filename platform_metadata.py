@@ -299,6 +299,7 @@ def add_gamecube_metadata(game):
 
 def add_wii_metadata(game):
 	game.metadata.main_cpu = 'IBM PowerPC 603'
+	game.metadata.clock_speed = '729 MHz'
 
 	if game.rom.extension == 'iso':
 		add_gamecube_wii_disc_metadata(game)
