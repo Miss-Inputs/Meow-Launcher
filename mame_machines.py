@@ -148,18 +148,11 @@ def get_input_type(machine):
 		print("This shouldn't happen either but for", machine.basename, "it did")
 	return None
 
-def add_metadata(machine):
-	category, genre, subgenre, machine.metadata.nsfw = get_category(machine.basename)
-	language = get_language(machine.basename)
-
-	source_file = os.path.splitext(machine.xml.attrib['sourcefile'])[0]
-	machine.metadata.specific_info['Source-File'] = source_file
-	
-	main_cpu = find_main_cpu(machine.xml)
-	if main_cpu is not None: #Why?
-		machine.metadata.main_cpu = main_cpu.attrib['name']
-		
+def add_machine_platform(machine):
 	machine.metadata.platform = 'Arcade'
+	category = machine.metadata.categories[0]
+	source_file = machine.metadata.specific_info['Source-File']
+
 	if source_file == 'megatech':
 		machine.metadata.platform = 'Mega-Tech'
 	elif source_file == 'megaplay':
@@ -177,23 +170,34 @@ def add_metadata(machine):
 		#Could also be a tabletop system which takes AC input, but since catlist.ini doesn't take that into account, I don't
 		#really have a way of doing so either
 	elif category == 'Misc.':
-		machine.metadata.platform = genre
+		machine.metadata.platform = machine.metadata.genre
 	elif category == 'Computer':
 		machine.metadata.platform = 'Computer'
-	elif genre == 'Electromechanical' and subgenre == 'Reels':
+	elif machine.metadata.genre == 'Electromechanical' and machine.metadata.subgenre == 'Reels':
 		machine.metadata.platform = 'Pokies'
-		category = 'Pokies'
-	elif genre == 'Electromechanical' and subgenre == 'Pinball':
+	elif machine.metadata.genre == 'Electromechanical' and machine.metadata.subgenre == 'Pinball':
 		machine.metadata.platform = 'Pinball'
-		category = 'Pinball'
 
-	if category:
-		machine.metadata.categories = [category]
-	if language:
-		machine.metadata.languages = [language]
+def add_metadata(machine):
+	category, genre, subgenre, nsfw = get_category(machine.basename)
+	machine.metadata.categories = [category] if category else ['Unknown']
 	machine.metadata.genre = genre
 	machine.metadata.subgenre = subgenre
+	machine.metadata.nsfw = nsfw
 
+	source_file = os.path.splitext(machine.xml.attrib['sourcefile'])[0]
+	machine.metadata.specific_info['Source-File'] = source_file
+	
+	main_cpu = find_main_cpu(machine.xml)
+	if main_cpu is not None: #Why?
+		machine.metadata.main_cpu = main_cpu.attrib['name']
+		
+	add_machine_platform(machine)
+
+	language = get_language(machine.basename)
+	if language:
+		machine.metadata.languages = [language]
+	
 	machine.metadata.emulator_name = 'MAME'
 	machine.metadata.year = machine.xml.findtext('year')
 	machine.metadata.author = machine.xml.findtext('manufacturer')
@@ -204,13 +208,7 @@ def add_metadata(machine):
 	elif emulation_status == 'imperfect':
 		machine.metadata.emulation_status = EmulationStatus.Imperfect
 	elif emulation_status == 'preliminary':
-		machine.metadata.emulation_status = EmulationStatus.Broken
-
-	#Some other things we could get from XML if we decide we care about it:
-	#Display type/resolution/refresh rate/number of screens
-	#Sound channels
-	#Number of players
-	
+		machine.metadata.emulation_status = EmulationStatus.Broken	
 	
 def should_process_machine(machine):
 	if machine.xml.attrib['runnable'] == 'no':
