@@ -228,7 +228,7 @@ def add_metadata(machine):
 			height = display.attrib['height']
 			resolutions.append('{0}x{1}'.format(width, height))
 			try:
-				machine.metadata.aspect_ratio = find_aspect_ratio(float(width), float(height))
+				aspect_ratia.append(find_aspect_ratio(float(width), float(height)))
 			except ValueError:
 				pass
 		else:
@@ -243,6 +243,7 @@ def add_metadata(machine):
 				refresh_rates.append(display.attrib['refresh'])
 	machine.metadata.screen_resolution = ' + '.join(resolutions)
 	machine.metadata.refresh_rate = ' + '.join(refresh_rates)
+	machine.metadata.aspect_ratio = ' + '.join(aspect_ratia)
 		
 	add_machine_platform(machine)
 
