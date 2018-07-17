@@ -665,8 +665,8 @@ def get_stella_database():
 
 	columns = {}
 	column_names = first_line.split('|')
-	for i in range(0, len(column_names)):
-		columns[i] = column_names[i]
+	for i, column_name in enumerate(column_names):
+		columns[i] = column_name
 	
 	games = {}
 	for line in lines:
@@ -674,12 +674,12 @@ def get_stella_database():
 		game = {}
 
 		md5 = None
-		for i in range(0, len(game_columns)):
+		for i, game_column in enumerate(game_columns):
 			if i in columns:
 				if columns[i] == 'Cartridge_MD5':
-					md5 = game_columns[i].lower()
-				elif game_columns[i]:
-					game[columns[i]] = game_columns[i]
+					md5 = game_column.lower()
+				elif game_column:
+					game[columns[i]] = game_column
 	
 		if md5:
 			games[md5] = game
