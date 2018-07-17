@@ -223,7 +223,7 @@ def add_metadata(machine):
 	for display in machine.xml.findall('display'):
 		machine.metadata.number_of_screens += 1
 		display_type = display.attrib['type']
-		if display_type == 'raster':
+		if display_type == 'raster' or display_type == 'lcd':
 			width = display.attrib['width']
 			height = display.attrib['height']
 			resolutions.append('{0}x{1}'.format(width, height))
@@ -232,6 +232,7 @@ def add_metadata(machine):
 			except ValueError:
 				pass
 		else:
+			#Vector or SVG-based LCD
 			resolutions.append(display_type.capitalize())	
 		
 		if 'refresh' in display.attrib:
