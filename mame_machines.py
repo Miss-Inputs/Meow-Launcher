@@ -203,7 +203,7 @@ def add_metadata(machine):
 	main_cpu = find_main_cpu(machine.xml)
 	if main_cpu is not None: #Why?
 		machine.metadata.main_cpu = main_cpu.attrib['name']
-		if 'clock' in main_cpu.attrib:
+		if main_cpu.attrib['name'] != 'Netlist CPU Device' and 'clock' in main_cpu.attrib:
 			try:
 				machine.metadata.clock_speed = format_clock_speed(int(main_cpu.attrib['clock']))
 			except ValueError:
