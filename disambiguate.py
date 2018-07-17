@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import configparser
 import os
 import re
@@ -121,3 +123,6 @@ def disambiguate_names():
 	fix_duplicate_names('extension')
 	if debug:
 		fix_duplicate_names('check')
+
+if __name__ == '__main__':
+	disambiguate_names()

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import subprocess
 import xml.etree.ElementTree as ElementTree
 import configparser
@@ -300,3 +302,7 @@ def process_arcade():
 		if xml is None:
 			continue
 		process_machine(xml.find('machine'))
+
+if __name__ == '__main__':
+	os.makedirs(config.output_folder, exist_ok=True)
+	process_arcade()

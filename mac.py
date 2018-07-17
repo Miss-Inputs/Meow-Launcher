@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 import os
 import shlex
@@ -117,3 +119,7 @@ def create_launchers_from_mac_volume(path, game_list):
 				if debug:
 					print(f['path'], 'could be', list(game_name for game_name, game in possible_games_by_name), 'using first one for now')
 				make_launcher(f['path'], *possible_games_by_name[0])
+
+if __name__ == '__main__':
+	os.makedirs(config.output_folder, exist_ok=True)
+	do_mac_stuff()

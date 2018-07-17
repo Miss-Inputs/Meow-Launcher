@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import re
 import os
 import sys
@@ -214,3 +216,33 @@ def process_system(system_config):
 					continue
 			
 			process_file(system_config, root, name)
+
+def process_systems():
+	excluded_systems = []
+	for arg in sys.argv:
+		if arg.startswith('--exclude='):
+			excluded_systems.append(arg.partition('=')[2])
+	
+	for system in config.system_configs:
+		if system.name not in excluded_systems:
+			process_system(system)
+
+def get_system_config_by_name(name):
+	for system in config.system_configs:
+		if system.name == name:
+			return system
+	raise ValueError(system_name + ' not found')
+
+if __name__ == '__main__':
+	os.makedirs(config.output_folder, exist_ok=True)
+	individual_systems = []
+	for arg in sys.argv:
+		#TODO: May want to use some kind of proper argument handling library. Hmm...
+		if arg.startswith('--system='):
+			individual_systems.append(arg.partition('=')[2])
+		
+	if individual_systems:
+		for system_name in individual_systems:
+			process_system(get_system_config_by_name(system_name))
+	else:
+		process_systems()

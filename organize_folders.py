@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 import shutil
 import sys
@@ -121,3 +123,6 @@ def move_into_folders():
 				copy_to_folder(path, config.organized_output_folder, 'Ungrouped')
 			
 				move_into_subfolders(path)
+
+if __name__ == '__main__':
+	move_into_folders()
