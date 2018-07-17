@@ -652,7 +652,6 @@ def add_pokemini_metadata(game):
 	except UnicodeDecodeError:
 		pass
 	
-	
 def nothing_interesting(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 	game.metadata.input_method = 'Normal'
