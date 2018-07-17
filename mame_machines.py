@@ -183,15 +183,15 @@ def add_machine_platform(machine):
 	elif machine.metadata.genre == 'Electromechanical' and machine.metadata.subgenre == 'Pinball':
 		machine.metadata.platform = 'Pinball'
 
-def format_clock_speed(hertz):
+def format_clock_speed(hertz, precision=3):
 	if hertz >= 1_000_000_000:
-		return '{0:.3g} GHz'.format(hertz / 1_000_000_000)
+		return ('{0:.' + str(precision) + 'g} GHz').format(hertz / 1_000_000_000)
 	elif hertz >= 1_000_000:
-		return '{0:.3g} MHz'.format(hertz / 1_000_000)
+		return ('{0:.' + str(precision) + 'g} MHz').format(hertz / 1_000_000)
 	elif hertz >= 1_000:
-		return '{0:.3g} KHz'.format(hertz / 1_000)
+		return ('{0:.' + str(precision) + 'g} KHz').format(hertz / 1_000)
 	else:
-		return '{0:.3g} Hz'.format(hertz)
+		return ('{0:.' + str(precision) + 'g} Hz').format(hertz)
 	
 def add_metadata(machine):
 	category, genre, subgenre, nsfw = get_category(machine.basename)
@@ -208,6 +208,27 @@ def add_metadata(machine):
 				machine.metadata.clock_speed = format_clock_speed(int(main_cpu.attrib['clock']))
 			except ValueError:
 				pass
+
+	resolutions = []
+	refresh_rates = []
+	for display in machine.xml.findall('display'):
+		machine.metadata.number_of_screens += 1
+		display_type = display.attrib['type']
+		if display_type == 'raster':
+			width = display.attrib['width']
+			height = display.attrib['height']
+			resolutions.append('{0}x{1}'.format(width, height))
+		else:
+			resolutions.append(display_type.capitalize())	
+		
+		if 'refresh' in display.attrib:
+			try:
+				refresh_rates.append(format_clock_speed(float(display.attrib['refresh']), 4))
+			except ValueError:
+				#Hasn't happened so far, but just in case
+				refresh_rates.append(display.attrib['refresh'])
+	machine.metadata.screen_resolution = ' + '.join(resolutions)
+	machine.metadata.refresh_rate = ' + '.join(refresh_rates)
 		
 	add_machine_platform(machine)
 

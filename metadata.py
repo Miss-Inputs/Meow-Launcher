@@ -26,6 +26,9 @@ class Metadata():
 		self.author = None
 		self.main_cpu = None
 		self.clock_speed = None
+		self.screen_resolution = None
+		self.refresh_rate = None
+		self.number_of_screens = 0
 		self.input_method = None
 		self.emulator_name = None
 		self.extension = None
@@ -49,6 +52,9 @@ class Metadata():
 			'Author': self.author,
 			'Main-CPU': self.main_cpu,
 			'Clock-Speed': self.clock_speed,
+			'Screen-Resolution': self.screen_resolution,
+			'Refresh-Rate': self.refresh_rate,
+			'Number-of-Screens': self.number_of_screens,
 			'Input-Method': self.input_method,
 			'Emulator': self.emulator_name,
 			'Extension': self.extension,
