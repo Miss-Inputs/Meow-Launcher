@@ -25,8 +25,7 @@ cpu_overrides = {
 	"32X": "Hitachi SH-2",
 	"FDS": lookup_system_cpu('fds'),
 	"Game Boy Color": lookup_system_cpu('gbcolor'),
-	"Mega CD": lookup_system_cpu('megacd'),
-	#For this purpose it's correct but it technically isn't: This is returning the CPU from the Megadrive instead of the actual Mega CD's CPU, but they're both 68000 so it's fine to just get the name
+	"Mega CD": lookup_system_cpu('segacd_us'),
 }
 
 def add_metadata(game):
