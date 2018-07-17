@@ -647,7 +647,7 @@ def add_pokemini_metadata(game):
 	#There really isn't much else here, other than maybe the title. I don't think I can do anything with all those IRQs.
 	product_code_bytes = game.rom.read(seek_to=0x21a4, amount=4)
 	try:
-		product_code =  product_code_bytes.decode('ascii')
+		product_code = product_code_bytes.decode('ascii')
 		game.metadata.specific_info['Product-Code'] = product_code
 	except UnicodeDecodeError:
 		pass
