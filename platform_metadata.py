@@ -668,7 +668,7 @@ def add_virtual_boy_metadata(game):
 			game.metadata.author = nintendo_licensee_codes[licensee_code]
 	except UnicodeDecodeError:
 		pass
-	product_code = header[27:32]
+	product_code = header[27:31]
 	
 	try:
 		game.metadata.specific_info['Product-Code'] = product_code.decode('ascii')
