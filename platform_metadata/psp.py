@@ -21,6 +21,7 @@ def add_psp_system_info(game):
 	game.metadata.screen_info = screen_info
 
 def add_psp_metadata(game):
+	game.metadata.tv_type = TVSystem.Agnostic
 	add_psp_system_info(game)
 
 	if game.rom.extension == 'pbp':
