@@ -4,6 +4,20 @@ class System():
 		self.mame_driver = mame_driver
 		self.mame_software_lists = mame_software_lists
 
+def get_system_by_name(name):
+	for system in systems:
+		if system.name == name:
+			return system
+
+	return None
+
+def get_mame_driver_by_system_name(name):
+	for system in systems:
+		if system.name == name:
+			return system.mame_driver
+
+	return None
+
 systems = [
 	System('Game Boy', 'gbpocket', ['gameboy', 'gbcolor']),
 	System('GBA', 'gba', ['gba']), 

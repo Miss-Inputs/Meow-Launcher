@@ -10,7 +10,7 @@ import config
 import common
 import launchers
 import emulator_info
-from metadata import Metadata, EmulationStatus
+from metadata import Metadata, EmulationStatus, CPUInfo, ScreenInfo
 
 debug = '--debug' in sys.argv
 
@@ -31,8 +31,11 @@ def lookup_system_cpu(driver_name):
 
 	main_cpu = find_main_cpu(machine)
 	if main_cpu is not None: #"if main_cpu: doesn't work. Frig! Why not! Wanker! Sodding bollocks!
-		_lookup_system_cpu_cache[driver_name] = main_cpu
-		return main_cpu
+		cpu_info = CPUInfo()
+		cpu_info.load_from_xml(main_cpu)
+
+		_lookup_system_cpu_cache[driver_name] = cpu_info
+		return cpu_info
 
 	return None
 
@@ -51,8 +54,10 @@ def lookup_system_displays(driver_name):
 		return None
 
 	displays = machine.findall('display')
-	_lookup_system_display_cache[driver_name] = displays
-	return displays
+	screen_info = ScreenInfo()
+	screen_info.load_from_xml_list(displays)
+	_lookup_system_display_cache[driver_name] = screen_info
+	return screen_info
 
 class Machine():
 	def __init__(self, xml):
@@ -201,24 +206,6 @@ def add_machine_platform(machine):
 	elif machine.metadata.genre == 'Electromechanical' and machine.metadata.subgenre == 'Pinball':
 		machine.metadata.platform = 'Pinball'
 
-def format_clock_speed(hertz, precision=3):
-	if hertz >= 1_000_000_000:
-		return ('{0:.' + str(precision) + 'g} GHz').format(hertz / 1_000_000_000)
-	elif hertz >= 1_000_000:
-		return ('{0:.' + str(precision) + 'g} MHz').format(hertz / 1_000_000)
-	elif hertz >= 1_000:
-		return ('{0:.' + str(precision) + 'g} KHz').format(hertz / 1_000)
-	else:
-		return ('{0:.' + str(precision) + 'g} Hz').format(hertz)
-
-def find_aspect_ratio(width, height):
-	for i in reversed(range(1, max(int(width), int(height)) + 1)):
-		if (width % i) == 0 and (height % i) == 0:
-			return '{0:.0f}:{1:.0f}'.format(width // i, height // i)
-
-	#This wouldn't happen unless one of the arguments is 0 or something silly like that
-	return None
-	
 def add_metadata(machine):
 	category, genre, subgenre, nsfw = get_category(machine.basename)
 	machine.metadata.categories = [category] if category else ['Unknown']
@@ -228,41 +215,14 @@ def add_metadata(machine):
 
 	main_cpu = find_main_cpu(machine.xml)
 	if main_cpu is not None: #Why?
-		machine.metadata.main_cpu = main_cpu.attrib['name']
-		if main_cpu.attrib['name'] != 'Netlist CPU Device' and 'clock' in main_cpu.attrib:
-			try:
-				machine.metadata.clock_speed = format_clock_speed(int(main_cpu.attrib['clock']))
-			except ValueError:
-				pass
+		machine.metadata.cpu_info = CPUInfo()
+		machine.metadata.cpu_info.load_from_xml(main_cpu)
 
-	resolutions = []
-	refresh_rates = []
-	aspect_ratia = []
-	for display in machine.xml.findall('display'):
-		machine.metadata.number_of_screens += 1
-		display_type = display.attrib['type']
-		if display_type == 'raster' or display_type == 'lcd':
-			width = display.attrib['width']
-			height = display.attrib['height']
-			resolutions.append('{0}x{1}'.format(width, height))
-			try:
-				aspect_ratia.append(find_aspect_ratio(float(width), float(height)))
-			except ValueError:
-				pass
-		else:
-			#Vector or SVG-based LCD
-			resolutions.append(display_type.capitalize())	
+	machine.metadata.screen_info = ScreenInfo()
+	displays = machine.xml.findall('display')
+	machine.metadata.screen_info.load_from_xml_list(displays)
 		
-		if 'refresh' in display.attrib:
-			try:
-				refresh_rates.append(format_clock_speed(float(display.attrib['refresh']), 4))
-			except ValueError:
-				#Hasn't happened so far, but just in case
-				refresh_rates.append(display.attrib['refresh'])
-	machine.metadata.screen_resolution = ' + '.join(resolutions)
-	machine.metadata.refresh_rate = ' + '.join(refresh_rates)
-	machine.metadata.aspect_ratio = ' + '.join(aspect_ratia)
-		
+	
 	add_machine_platform(machine)
 
 	language = get_language(machine.basename)

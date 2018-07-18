@@ -53,6 +53,8 @@ extra_subfolders = {
 	'By screen resolution and refresh rate': ['X-Screen-Resolution', 'X-Refresh-Rate'],
 	'By aspect ratio': 'X-Aspect-Ratio',
 	'By number of screens': 'X-Number-of-Screens',
+	'By screen type': 'X-Screen-Type',
+	'By screen tag': 'X-Screen-Tag',
 	'By MAME source file': 'X-Source-File',
 	'By parent-clone family': 'X-Family',
 	'By mapper': 'X-Mapper',

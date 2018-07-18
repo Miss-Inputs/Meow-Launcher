@@ -14,7 +14,7 @@ import region_detect
 import platform_metadata
 import metadata
 import system_info
-from mame_machines import lookup_system_cpu, format_clock_speed, lookup_system_displays, find_aspect_ratio
+from mame_machines import lookup_system_cpu, lookup_system_displays
 
 debug = '--debug' in sys.argv
 
@@ -41,68 +41,28 @@ def add_metadata(game):
 	if game.metadata.platform in platform_metadata.helpers:
 		platform_metadata.helpers[game.metadata.platform](game)
 
-	if not game.metadata.main_cpu:
+	if not game.metadata.cpu_info:
+		cpu = None
 		if game.metadata.platform in cpu_overrides:
-			cpu = cpu_overrides[game.metadata.platform]
-			game.metadata.main_cpu = cpu.attrib['name']
-			if 'clock' in cpu.attrib:
-				try:
-					game.metadata.clock_speed = format_clock_speed(int(cpu.attrib['clock']))
-				except ValueError:
-					pass
+			cpu = cpu_overrides[game.metadata.platform]			
 		else:
-			for system in system_info.systems:
-				if game.metadata.platform == system.name:
-					mame_driver = system.mame_driver
-					if mame_driver:
-						cpu = lookup_system_cpu(mame_driver)
-						game.metadata.main_cpu = cpu.attrib['name']
-						if 'clock' in cpu.attrib:
-							try:
-								game.metadata.clock_speed = format_clock_speed(int(cpu.attrib['clock']))
-							except ValueError:
-								pass
+			mame_driver = system_info.get_mame_driver_by_system_name(game.metadata.platform)
+			if mame_driver:
+				cpu = lookup_system_cpu(mame_driver)
 
-	if not game.metadata.screen_resolution:
+		if cpu:
+			game.metadata.cpu_info = cpu
+
+	if not game.metadata.screen_info:
 		displays = None
 		if game.metadata.platform in display_overrides:
 			displays = display_overrides[game.metadata.platform]
 		else:	
-			for system in system_info.systems:
-				if game.metadata.platform == system.name:
-					mame_driver = system.mame_driver
-					if mame_driver:
-						displays = lookup_system_displays(mame_driver)
-		#Yeah okay I'm literally just copying code from mame_machines.py here. Really shows I need to refactor. Sorry...
-		if displays is not None:
-			resolutions = []
-			refresh_rates = []
-			aspect_ratia = []
-			for display in displays:
-				game.metadata.number_of_screens += 1
-				display_type = display.attrib['type']
-				if display_type == 'raster' or display_type == 'lcd':
-					width = display.attrib['width']
-					height = display.attrib['height']
-					resolutions.append('{0}x{1}'.format(width, height))
-					try:
-						aspect_ratia.append(find_aspect_ratio(float(width), float(height)))
-					except ValueError:
-						pass
-				else:
-					#Vector or SVG-based LCD
-					resolutions.append(display_type.capitalize())	
-		
-				if 'refresh' in display.attrib:
-					try:
-						refresh_rates.append(format_clock_speed(float(display.attrib['refresh']), 4))
-					except ValueError:
-						#Hasn't happened so far, but just in case
-						refresh_rates.append(display.attrib['refresh'])
-			game.metadata.screen_resolution = ' + '.join(resolutions)
-			game.metadata.refresh_rate = ' + '.join(refresh_rates)
-			game.metadata.aspect_ratio = ' + '.join(aspect_ratia)
-		
+			mame_driver = system_info.get_mame_driver_by_system_name(game.metadata.platform)
+			if mame_driver:
+				displays = lookup_system_displays(mame_driver)
+		if displays:
+			game.metadata.screen_info = displays
 	
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = common.find_filename_tags.findall(game.rom.name)

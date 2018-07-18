@@ -7,7 +7,7 @@ import hashlib
 import re
 
 from region_info import TVSystem
-from metadata import SaveType
+from metadata import SaveType, CPUInfo, ScreenInfo, Screen
 from region_detect import get_region_by_name
 
 debug = '--debug' in sys.argv
@@ -263,15 +263,25 @@ def add_atari7800_metadata(game):
 		#AtariVox/SaveKey. Both are third party products which plug into the controller port, so what else can you call them except memory cards?
 		game.metadata.save_type = SaveType.MemoryCard
 
-def add_psp_metadata(game):
-	game.metadata.main_cpu = 'Sony CXD2962GG'
-	game.metadata.clock_speed = '333 MHz'
-	game.metadata.number_of_screens = 1
-	game.metadata.screen_resolution = '480x272'
-	game.metadata.refresh_rate = '60 Hz' #I presume so, anyway... good luck finding actual information
-	game.metadata.aspect_ratio = '30:17'
-	
+def add_psp_system_info(game):
+	cpu_info = CPUInfo()
+	cpu_info.main_cpu = 'Sony CXD2962GG'
+	cpu_info.clock_speed = 333 * 1000 * 1000
+	game.metadata.cpu_info = cpu_info
 
+	screen = Screen()
+	screen.width = 480
+	screen.height = 272
+	screen.type = 'lcd'
+	screen.tag = 'screen'
+	screen.refresh_rate = 60  #I presume so, anyway... good luck finding actual information. I bet it's not really exactly 60Hz
+	
+	screen_info = ScreenInfo()
+	screen_info.screens = [screen]
+	game.metadata.screen_info = screen_info
+
+def add_psp_metadata(game):
+	add_psp_system_info(game)
 
 	if game.rom.extension == 'pbp':
 		#These are basically always named EBOOT.PBP (due to how PSPs work I guess), so that's not a very good launcher name, and use the folder it's stored in instead
@@ -291,14 +301,26 @@ def add_gamecube_wii_disc_metadata(game):
 			game.metadata.author = nintendo_licensee_codes[licensee_code]
 	except UnicodeDecodeError:
 		pass
+
+def add_gamecube_system_info(game):
+	cpu_info = CPUInfo()
+	cpu_info.main_cpu = 'IBM PowerPC 603'
+	cpu_info.clock_speed = 485 * 1000 * 1000
+	game.metadata.cpu_info = cpu_info
+
+	screen = Screen()
+	screen.width = 640
+	screen.height = 480
+	screen.type = 'raster'
+	screen.tag = 'screen'
+	screen.refresh_rate = 60  
+
+	screen_info = ScreenInfo()
+	screen_info.screens = [screen]
+	game.metadata.screen_info = screen_info
 	
 def add_gamecube_metadata(game):
-	game.metadata.main_cpu = 'IBM PowerPC 603'
-	game.metadata.clock_speed = '485 MHz'
-	game.metadata.number_of_screens = 1
-	game.metadata.screen_resolution = '640x480'
-	game.metadata.refresh_rate = '60 Hz'
-	game.metadata.aspect_ratio = '4:3'
+	add_gamecube_system_info(game)
 
 	if game.rom.extension == 'gcz' or game.rom.extension == 'tgc':
 		#Nuh uh. Not touching weird formats. Not today.
@@ -307,14 +329,27 @@ def add_gamecube_metadata(game):
 	if game.rom.extension == 'iso':
 		add_gamecube_wii_disc_metadata(game)
 
-def add_wii_metadata(game):
-	game.metadata.main_cpu = 'IBM PowerPC 603'
-	game.metadata.clock_speed = '729 MHz'
-	game.metadata.number_of_screens = 1
-	game.metadata.screen_resolution = '640x480' #Let's just go with that. PAL consoles can do 576i and interlacing confuses me (720x576?)
-	game.metadata.refresh_rate = '60 Hz'
-	game.metadata.aspect_ratio = '4:3' #Anamorphic widescreen doesn't count
+def add_wii_system_info(game):
+	cpu_info = CPUInfo()
+	cpu_info.main_cpu = 'IBM PowerPC 603'
+	cpu_info.clock_speed = 729 * 1000 * 1000
+	game.metadata.cpu_info = cpu_info
 
+	screen = Screen()
+	screen.width = 640 
+	screen.height = 480
+	#Let's just go with that. PAL consoles can do 576i and interlacing confuses me (720x576?)
+	#Also anamorphic widescreen doesn't count
+	screen.type = 'raster'
+	screen.tag = 'screen'
+	screen.refresh_rate = 60  
+
+	screen_info = ScreenInfo()
+	screen_info.screens = [screen]
+	game.metadata.screen_info = screen_info
+
+def add_wii_metadata(game):
+	add_wii_system_info(game)
 	if game.rom.extension == 'iso':
 		add_gamecube_wii_disc_metadata(game)
 
@@ -497,23 +532,61 @@ def add_gba_metadata(game):
 	#Can also look for SIIRTC_V in entire_cart to detect RTC if desired
 	game.metadata.save_type = SaveType.Cart if has_save else SaveType.Nothing
 
+def add_3ds_system_info(game):
+	cpu_info = CPUInfo()
+	cpu_info.main_cpu = 'ARM11'
+	cpu_info.clock_speed = 268 * 1000 * 1000 #New 3DS is 804 MHz	
+	game.metadata.cpu_info = cpu_info
+
+	top_screen = Screen()
+	top_screen.width = 400
+	top_screen.height = 200
+	top_screen.type = 'lcd'
+	top_screen.tag = 'top'
+	top_screen.refresh_rate = 59.834
+	
+	bottom_screen = Screen()
+	bottom_screen.width = 320
+	bottom_screen.height = 200
+	bottom_screen.type = 'lcd'
+	bottom_screen.tag = 'bottom'
+	bottom_screen.refresh_rate = 59.834
+	
+	screen_info = ScreenInfo()
+	screen_info.screens = [top_screen, bottom_screen]
+	game.metadata.screen_info = screen_info
+
 def add_3ds_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
-	game.metadata.main_cpu = 'ARM11'
-	game.metadata.clock_speed = '268 MHz' #New 3DS is 804 MHz
-	game.metadata.number_of_screens = 2
-	game.metadata.screen_resolution = '400x240 + 320x240' #Let's ignore the existence of 3D to make things easier
-	game.metadata.refresh_rate = '59.834 Hz + 59.834 Hz'
-	game.metadata.aspect_ratio = '5:3 + 4:3'
+	add_3ds_system_info(game)
+
+def add_ds_system_info(game):
+	cpu_info = CPUInfo()
+	cpu_info.main_cpu = 'ARM946ES'
+	cpu_info.clock_speed = 67 * 1000 * 1000
+	game.metadata.cpu_info = cpu_info
+
+	top_screen = Screen()
+	top_screen.width = 256
+	top_screen.height = 192
+	top_screen.type = 'lcd'
+	top_screen.tag = 'top'
+	top_screen.refresh_rate = 59.8261
+	
+	bottom_screen = Screen()
+	bottom_screen.width = 256
+	bottom_screen.height = 192
+	bottom_screen.type = 'lcd'
+	bottom_screen.tag = 'bottom'
+	bottom_screen.refresh_rate = 59.8261
+	
+	screen_info = ScreenInfo()
+	screen_info.screens = [top_screen, bottom_screen]
+	game.metadata.screen_info = screen_info
 
 def add_ds_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
-	game.metadata.main_cpu = 'ARM946ES'
-	game.metadata.clock_speed = '67 MHz'
-	game.metadata.number_of_screens = 2
-	game.metadata.screen_resolution = '256x192 + 256x192'
-	game.metadata.refresh_rate = '59.8261 Hz + 59.8261 Hz'
-	game.metadata.aspect_ratio = '4:3 + 4:3'
+	add_ds_system_info(game)
 
 	header = game.rom.read(amount=0x200)
 	
@@ -541,7 +614,7 @@ def add_ds_metadata(game):
 		is_dsi = True
 		game.metadata.platform = "DSi"
 		#We won't set this upgraded clock speed for DSi-enhanced DS games for now, since nothing emulates them in that mode
-		game.metadata.clock_speed = '133 MHz'
+		game.metadata.cpu_info.clock_speed = '133 MHz'
 
 	if is_dsi:
 		region_flags = int.from_bytes(header[0x1b0:0x1b4], 'little')
