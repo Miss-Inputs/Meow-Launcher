@@ -157,6 +157,10 @@ class Game():
 		else:
 			command_line = base_command_line.replace('$<path>', shlex.quote(self.rom.path))
 
+		if self.emulator.wrap_in_shell and not is_unsupported_compression:
+			#Don't need to wrap in sh -c if we've already done that
+			command_line = 'sh -c {0}'.format(shlex.quote(command_line))
+
 		launchers.make_launcher(command_line, self.rom.name, self.metadata)
 
 def process_file(system_config, root, name):

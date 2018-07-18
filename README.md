@@ -20,6 +20,4 @@ I'm really bad at wording things, so hopefully that all made sense.
 
 Well, so far, there is one way in which it actually tries to run on more than one computer: You will see multiple references to "toasters" in the code, which refers to a computer that is horrendously underpowered (in my case, it is a netbook). You may want to adjust what your definition of a toaster is according to power of computers in your network that you plan to run this on.
 
-Note that PokeMini is wrapped in a shell script named "PokeMini.sh" that temporarily goes to ~/.config/PokeMini because otherwise it just dumps its config right in whatever the current directory is, and I don't like that nor do I know how it would even work out with .desktop files. Other emulators are used untouched, and you can look in config.py to see what it uses (or change them to something else of your liking).
-
 Use [https://gist.github.com/Zowayix/f511490865bc5aa8a66ad0776ae066df](this) to regenerate nintendo_licensee_codes from ROMniscience's source if you need to (adjusting the local path to the source file accordingly). Not that anyone would probably want this project if I got hit by a bus, but maybe someone wants to know how to do that. I'm not cool enough to have any sort of automated build steps or whatever.

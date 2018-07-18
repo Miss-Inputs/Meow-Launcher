@@ -6,10 +6,11 @@ from info.region_info import TVSystem
 debug = '--debug' in sys.argv
 
 class Emulator():
-	def __init__(self, command_line, supported_extensions, supported_compression):
+	def __init__(self, command_line, supported_extensions, supported_compression, wrap_in_shell=False):
 		self.command_line = command_line
 		self.supported_extensions = supported_extensions
 		self.supported_compression = supported_compression
+		self.wrap_in_shell = wrap_in_shell
 
 	def get_command_line(self, game, other_config):
 		#You might think sinc I have game.rom here, I should just insert the path into the command line here too. I don't though, in case the final path that gets passed to the emulator needs to be different than the ROM's path (in case of temporary extracted files for emulators not supporting compression, for example)
@@ -211,7 +212,8 @@ emulators = {
 	'Mednafen (Virtual Boy)': MednafenModule('vb', ['bin', 'vb']),
 	'Stella': Emulator('stella -fullscreen 1 $<path>', ['a26', 'bin', 'rom'], ['gz', 'zip']),
 	'PokeMini': Emulator('PokeMini -fullscreen $<path>', ['min'], ['zip']),
-	'PokeMini (wrapper)': Emulator('PokeMini.sh -fullscreen $<path>', ['min'], ['zip']),
+	#Puts all the config files in the current directory, which is why there's a wrapper below which you probably want to use instead of this
+	'PokeMini (wrapper)': Emulator('mkdir -p ~/.config/PokeMini && cd ~/.config/PokeMini && PokeMini -fullscreen $<path>', ['min'], ['zip'], True),
 	'Mednafen (Lynx)': MednafenModule('lynx', ['lnx', 'lyx', 'o']),
 	#Sorta has like...  2 sets of A and B buttons, and 3 buttons on one side and 2 on the other?  It's supposed to be
 	#ambidextrous or something which is cool in real life but not so great here, I might need to look more into it and
