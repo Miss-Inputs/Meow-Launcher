@@ -9,4 +9,3 @@ def add_commodore_64_metadata(game):
 			game.metadata.platform = 'C64GS'
 	else:
 		game.metadata.specific_info['Headered'] = False		
-

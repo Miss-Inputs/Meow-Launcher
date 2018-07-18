@@ -12,4 +12,3 @@ def add_n64_metadata(game):
 		except NotAlphanumericException:
 			pass
 		
-

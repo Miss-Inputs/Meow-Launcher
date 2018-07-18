@@ -3,4 +3,3 @@ from info.region_info import TVSystem
 
 def add_wonderswan_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
-

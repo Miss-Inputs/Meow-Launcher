@@ -12,4 +12,3 @@ def add_pokemini_metadata(game):
 		game.metadata.specific_info['Product-Code'] = product_code
 	except NotAlphanumericException:
 		pass
-

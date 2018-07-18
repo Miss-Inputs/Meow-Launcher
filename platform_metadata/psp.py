@@ -26,4 +26,3 @@ def add_psp_metadata(game):
 	if game.rom.extension == 'pbp':
 		#These are basically always named EBOOT.PBP (due to how PSPs work I guess), so that's not a very good launcher name, and use the folder it's stored in instead
 		game.rom.name = os.path.basename(game.folder)
-
