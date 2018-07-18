@@ -27,8 +27,8 @@ class CPUInfo():
 			return ('{0:.' + str(precision) + 'g} MHz').format(hertz / 1_000_000)
 		elif hertz >= 1_000:
 			return ('{0:.' + str(precision) + 'g} KHz').format(hertz / 1_000)
-		else:
-			return ('{0:.' + str(precision) + 'g} Hz').format(hertz)
+		
+		return ('{0:.' + str(precision) + 'g} Hz').format(hertz)
 
 	def get_formatted_clock_speed(self):
 		if self.clock_speed:
