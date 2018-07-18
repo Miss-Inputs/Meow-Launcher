@@ -15,23 +15,8 @@ debug = '--debug' in sys.argv
 #For roms.py, gets metadata in ways specific to certain platforms
 #I guess this is duplicating a lot of ROMniscience code, huh? Well, it's my project, and I'll use it for reference for my other project if I want. But I guess there is duplication there. I mean, it's C# and Python, so I can't really combine them directly, but it makes me think... it makes me overthink. That's the best kind of think.
 
-#Metadata used in arcade: main_input, emulation_status, genre, subgenre, nsfw, language, year, author
-#Gamecube, 3DS, Wii can sorta find the languages (or at least the title/banner stuff) by examining the ROM itself...
-#though as you have .gcz files for the former, that gets a bit involved, actually yeah any of what I'm thinking would
-#be difficult without a solid generic file handling thing, but still
-#Can get these from the ROM/disc/etc itself:
-#	main_input: Megadrive family, Atari 7800 (all through lookup table)
-#	year: Megadrive family (usually; via copyright), FDS, GameCube, Satellaview, homebrew SMS/Game Gear, Atari 5200
-#	(sometimes), Vectrex, ColecoVersion (sometimes), homebrew Wii
-#	author: Homebrew SMS/Game Gear, ColecoVision (in uppercase, sometimes)
-#		With a giant lookup table: GBA, Game Boy, SNES, Satellaview, Megadrive family, commercial SMS/Game Gear, Virtual
-#		Boy, FDS, Wonderswan, GameCube, 3DS, Wii, DS
-#		Neo Geo Pocket can say if SNK, but nothing specific if not SNK
-#	language: 3DS, DS, GameCube somewhat (can see title languages, though this isn't a complete indication)
-#	nsfw: Sort of; Wii/3DS can do this but only to show that a game is 18+ in a given country etc, but not why it's that
-#	rating and of course different countries can have odd reasons
-#Maybe MAME software list could say something?  If nothing else, it could give us emulation_status (supported=partial,
-#supported=no) where we use MAME for that platform
+#TODO: Get year from homebrew SMS/GG; Atari 5200, Wii homebrew, GameCube, Satellaview, Megadrive/32X
+#TODO: Get author from SMS/Game Gear, ColecoVision, SNES, Satellaview, 3DS, WonderSwan, Megadrive/32X
 
 #Sorry about this taking up a lot of space in the module. Not sure how I'd organize everything in future.
 nintendo_licensee_codes = {
