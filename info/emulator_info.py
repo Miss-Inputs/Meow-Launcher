@@ -112,7 +112,6 @@ def build_a800_command_line(game, _):
 	return make_mame_command_line(system, slot, has_keyboard=True)
 
 def find_c64_system(game):
-	#TODO: Are other cart types known to be completely unsupported?
 	if game.metadata.platform == 'C64GS':	
 		#For some reason, C64GS carts don't work on a regular C64 in MAME, and we have to use...  the thing specifically designed for playing games (but we normally wouldn't use this, since some cartridge games still need the keyboard, even if just for the menus, and that's why it actually sucks titty balls IRL.  But if it weren't for that, we totes heckin would)
 		#Note that C64GS doesn't really work properly in MAME anyway, but the carts... not work... less than in the regular C64 driver
