@@ -73,9 +73,10 @@ def add_metadata(game):
 		game.metadata.languages = [language.english_name for language in languages]
 
 	for tag in tags:
-		if year_regex.match(tag):
-			#TODO Ensure only one tag matches
-			game.metadata.year = year_regex.match(tag).group(1)
+		found_year = False
+		year_match = year_regex.match(tag)
+		if year_match and not found_year:
+			game.metadata.year = year_match.group(1)
 
 	if not game.metadata.regions:
 		regions = region_detect.get_regions_from_filename_tags(tags)
