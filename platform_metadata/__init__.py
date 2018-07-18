@@ -34,8 +34,18 @@ debug = '--debug' in sys.argv
 #For roms.py, gets metadata in ways specific to certain platforms
 #I guess this is duplicating a lot of ROMniscience code, huh? Well, it's my project, and I'll use it for reference for my other project if I want. But I guess there is duplication there. I mean, it's C# and Python, so I can't really combine them directly, but it makes me think... it makes me overthink. That's the best kind of think.
 
-#TODO: Get year from homebrew SMS/GG; Atari 5200, Wii homebrew, GameCube, Satellaview, Megadrive/32X
-#TODO: Get author from SMS/Game Gear, ColecoVision, SNES, Satellaview, 3DS, WonderSwan, Megadrive/32X
+#TODO: Stuff I know we can get due to being implemented in ROMniscience
+#Atari 5200: Year (unreliable, has Y2K bug. It's actually just the 3rd and 4th digit stored as 5200 characters, and then printing 19 + those characters)
+#ColecoVision: Year (unreliable, from copyright string on title screen), author (also unreliable and from copyright string; and in uppercase so you'd probably wanna call .titlecase() or whatsitcalled or something)
+#Master System/Game Gear: Regions/device type (i.e. SMS or GG, Japanese or export or international), product code (official games), author (official Game Gear and homebrew both), year (homebrew)
+#SNES: Author, region (perhaps), save type (cart or nothing) (either by ROM type, or save size), expansion chip usage, product code (be sure to check for XBND and MENU)
+#Satellaview: Author
+#Sufami Turbo: Save type (cart or nothing, or does it save to the Sufami Turbo cart itself? Anyway there's a save size field), can we assume author is always Bandai?
+#WiiWare: Product code, author, region (in terms of region locking)
+
+#Stuff which would require robust CD handling:
+#Saturn: Input method (normal/analog/mouse/keyboard/wheel, multiple supported), region, author, product code, year
+#Mega CD: Reuse Megadrive stuff
 
 def nothing_interesting(game):
 	game.metadata.tv_type = TVSystem.Agnostic

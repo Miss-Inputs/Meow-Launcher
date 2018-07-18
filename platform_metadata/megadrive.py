@@ -4,6 +4,7 @@ from metadata import SaveType
 def add_megadrive_metadata(game):
 	header = game.rom.read(0x100, 0x100)
 	#TODO: Parse copyright at header[16:32] to get author (from giant lookup table) and year if possible
+	#TODO: Get product code too
 	peripherals = [c for c in header[144:160].decode('ascii', errors='ignore') if c != '\x00' and c != ' ']
 	#TODO Definitely needs a hecking rewrite to have multiple input methods
 	if 'M' in peripherals:

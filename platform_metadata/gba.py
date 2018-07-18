@@ -5,6 +5,8 @@ from metadata import SaveType
 from info.region_info import TVSystem
 from platform_metadata.nintendo_common import nintendo_licensee_codes
 
+#TODO: If product code is invalid, ignore the licensee code; and also if licensee code is invalid or 00 (so not unknown, actually invalid) ignore the product code too. Well, don't try and read anything from the product code. Actually, do that for all Nintendo systems that have both product code + licensee code.
+
 nintendo_gba_logo_crc32 = 0xD0BEB55E
 def add_gba_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic

@@ -4,6 +4,16 @@ from metadata import CPUInfo, ScreenInfo, Screen
 from common import convert_alphanumeric, NotAlphanumericException
 from platform_metadata.nintendo_common import nintendo_licensee_codes
 
+#TODO: Can get the following info:
+#Presence of executable content (need that), electronic manual, Download Play child, and update data
+#Author (from licensee list). Can also get publisher name from SMDH
+#Product code (should skip if CTR-P-CTAP)
+#Executable content partition is executable (one of these things differentiates things like update data in .cxi format, so I can say hey don't make a launcher for the SSB4 1.1.6 patch that's silly)
+#Region locking info (inside ExeFS filesystem which may be a bit involved, or in .smdh file next to homebrew)
+
+#Save type is either SaveType.MemoryCard (for SD card saves) or SaveType.Internal. So... hmm... there's some flags in SMDH about warning about save data when closing... hmm... are there even games/software that wouldn't save at all?
+
+
 def add_3ds_system_info(game):
 	cpu_info = CPUInfo()
 	cpu_info.main_cpu = 'ARM11'

@@ -5,6 +5,9 @@ import sys
 from metadata import CPUInfo, ScreenInfo, Screen
 from platform_metadata.gamecube import add_gamecube_wii_disc_metadata
 
+#TODO: Get year for homebrew... although, the date format isn't consistent, so good luck with that.
+#Could get region code info too, I guess
+
 debug = '--debug' in sys.argv
 
 def add_wii_system_info(game):

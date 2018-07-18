@@ -3,6 +3,8 @@ import os
 from info.region_info import TVSystem
 from metadata import CPUInfo, ScreenInfo, Screen
 
+#You can get product code, disc number, number of discs, and a whole lot of other stuff... for PBP files. Maybe there's an ISO9660 library we can use, just for this kind of thing...
+
 def add_psp_system_info(game):
 	cpu_info = CPUInfo()
 	cpu_info.main_cpu = 'Sony CXD2962GG'

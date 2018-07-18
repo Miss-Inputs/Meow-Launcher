@@ -8,4 +8,5 @@ def add_ngp_metadata(game):
 		game.metadata.author = 'SNK'
 	#Otherwise it'd say " LICENSED BY SNK CORPORATION" and that could be any dang third party which isn't terribly useful
 	#There's really not much here, so I didn't even bother reading the whole header
-	#At offset 36, you could get the colour flag, and if equal to 0x10 set platform to "Neo Geo Pocket Color" if you really wanted
+	#At offset 35, you could get the colour flag, and if equal to 0x10 set platform to "Neo Geo Pocket Color" if you really wanted
+	#TODO: Get product code at offset 32

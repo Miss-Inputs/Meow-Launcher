@@ -3,6 +3,8 @@ from metadata import CPUInfo, ScreenInfo, Screen
 from common import convert_alphanumeric, NotAlphanumericException
 from platform_metadata.nintendo_common import nintendo_licensee_codes
 
+#TODO: Get year from apploader date (GameCube specific, Wii doesn't have this)
+#Maybe get disc number and region code?
 
 def add_gamecube_wii_disc_metadata(game):
 	header = game.rom.read(amount=32)

@@ -5,6 +5,9 @@ from metadata import CPUInfo, ScreenInfo, Screen
 from common import convert_alphanumeric, NotAlphanumericException
 from platform_metadata.nintendo_common import nintendo_licensee_codes
 
+#TODO: Detect PassMe carts, and reject the rest of the header if so (well, product code and publisher)
+#For DSiWare, we can get public.sav and private.sav filesize, and that tells us if SaveType = Internal or Nothing. But we won't worry about DSiWare for now due to lack of accessible emulation at the moment.
+
 def add_ds_system_info(game):
 	cpu_info = CPUInfo()
 	cpu_info.main_cpu = 'ARM946ES'
