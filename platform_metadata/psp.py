@@ -1,7 +1,7 @@
 import os
 
 from info.region_info import TVSystem
-from metadata import SaveType, CPUInfo, ScreenInfo, Screen
+from metadata import CPUInfo, ScreenInfo, Screen
 
 def add_psp_system_info(game):
 	cpu_info = CPUInfo()

@@ -1,6 +1,5 @@
 from common import convert_alphanumeric, NotAlphanumericException
 from metadata import SaveType
-from info.region_info import TVSystem
 
 def add_megadrive_metadata(game):
 	header = game.rom.read(0x100, 0x100)

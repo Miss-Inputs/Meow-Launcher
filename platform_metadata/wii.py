@@ -2,8 +2,7 @@ import os
 import xml.etree.ElementTree as ElementTree
 import sys
 
-from info.region_info import TVSystem
-from metadata import SaveType, CPUInfo, ScreenInfo, Screen
+from metadata import CPUInfo, ScreenInfo, Screen
 from platform_metadata.gamecube import add_gamecube_wii_disc_metadata
 
 debug = '--debug' in sys.argv

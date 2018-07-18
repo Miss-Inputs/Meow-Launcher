@@ -1,7 +1,4 @@
 from common import convert_alphanumeric, NotAlphanumericException
-from metadata import SaveType
-from info.region_info import TVSystem
-from platform_metadata.nintendo_common import nintendo_licensee_codes
 
 def add_n64_metadata(game):
 	header = game.rom.read(amount=64)

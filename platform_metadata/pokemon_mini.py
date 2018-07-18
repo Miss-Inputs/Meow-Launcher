@@ -1,7 +1,5 @@
 from common import convert_alphanumeric, NotAlphanumericException
-from metadata import SaveType
 from info.region_info import TVSystem
-from platform_metadata.nintendo_common import nintendo_licensee_codes
 
 def add_pokemini_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
