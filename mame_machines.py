@@ -9,7 +9,7 @@ import sys
 import config
 import common
 import launchers
-import emulator_info
+from info import emulator_info
 from metadata import Metadata, EmulationStatus, CPUInfo, ScreenInfo
 
 debug = '--debug' in sys.argv

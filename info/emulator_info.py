@@ -1,7 +1,7 @@
 import sys
 import shlex
 
-from region_info import TVSystem
+from info.region_info import TVSystem
 
 debug = '--debug' in sys.argv
 

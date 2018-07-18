@@ -25,8 +25,11 @@
     <Compile Include="disambiguate.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="emulator_info.py" />
+    <Compile Include="info\emulator_info.py" />
     <Compile Include="hfs.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="info\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="launchers.py" />
@@ -41,23 +44,87 @@
     <Compile Include="organize_folders.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="platform_metadata.py">
+    <Compile Include="platform_metadata\atari_2600.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\atari_8_bit.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\commodore_64.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\ds.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\megadrive.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\n64.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\neo_geo_pocket.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\pokemon_mini.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\vectrex.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\virtual_boy.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\wonderswan.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\_3ds.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\atari_7800.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\game_boy.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\gamecube.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\gba.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\nes.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\nintendo_common.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\psp.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\wii.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="platform_metadata\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="region_detect.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="region_info.py">
+    <Compile Include="info\region_info.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="roms.py" />
-    <Compile Include="system_info.py">
+    <Compile Include="info\system_info.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include=".pylintrc" />
     <Content Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="info\" />
+    <Folder Include="platform_metadata\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>

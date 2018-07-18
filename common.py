@@ -44,3 +44,15 @@ def read_file(path, compressed_entry=None, seek_to=0, amount=-1):
 		return data[:amount]
 
 	return data	
+
+class NotAlphanumericException(Exception):
+	pass
+
+def convert_alphanumeric(bytes):
+	string = ''
+	for byte in bytes:
+		char = chr(byte)
+		if char not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789':
+			raise NotAlphanumericException(char)
+		string += char
+	return string

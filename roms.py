@@ -9,11 +9,11 @@ import config
 import archives
 import launchers
 import common
-import emulator_info
 import region_detect
 import platform_metadata
 import metadata
-import system_info
+
+from info import system_info, emulator_info
 from mame_machines import lookup_system_cpu, lookup_system_displays
 
 debug = '--debug' in sys.argv
