@@ -1,4 +1,4 @@
-import binascii
+from zlib import crc32
 
 from common import convert_alphanumeric, NotAlphanumericException
 from metadata import SaveType
@@ -13,7 +13,7 @@ def add_gba_metadata(game):
 	header = entire_cart[0:0xc0]
 
 	nintendo_logo = header[4:0xa0]
-	nintendo_logo_valid = binascii.crc32(nintendo_logo) == nintendo_gba_logo_crc32
+	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_gba_logo_crc32
 	game.metadata.specific_info['Nintendo-Logo-Valid'] = nintendo_logo_valid
 
 	try:
