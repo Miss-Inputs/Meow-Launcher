@@ -48,9 +48,9 @@ def read_file(path, compressed_entry=None, seek_to=0, amount=-1):
 class NotAlphanumericException(Exception):
 	pass
 
-def convert_alphanumeric(bytes):
+def convert_alphanumeric(byte_array):
 	string = ''
-	for byte in bytes:
+	for byte in byte_array:
 		char = chr(byte)
 		if char not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789':
 			raise NotAlphanumericException(char)
