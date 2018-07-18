@@ -19,6 +19,7 @@ class CPUInfo():
 		self.main_cpu = None
 		self.clock_speed = None
 
+	@staticmethod
 	def format_clock_speed(hertz, precision=4):
 		if hertz >= 1_000_000_000:
 			return ('{0:.' + str(precision) + 'g} GHz').format(hertz / 1_000_000_000)
@@ -79,6 +80,7 @@ class Screen():
 			return Screen.find_aspect_ratio(self.width, self.height)
 		return None
 
+	@staticmethod
 	def find_aspect_ratio(width, height):
 		for i in reversed(range(1, max(int(width), int(height)) + 1)):
 			if (width % i) == 0 and (height % i) == 0:
