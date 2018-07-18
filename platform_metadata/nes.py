@@ -1,5 +1,4 @@
 
-from info.region_info import TVSystem
 from metadata import SaveType
 from platform_metadata.nintendo_common import nintendo_licensee_codes
 
