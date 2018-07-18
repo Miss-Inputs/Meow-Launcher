@@ -204,6 +204,18 @@ nintendo_licensee_codes = {
 	'WY': 'WayForward',
 }
 
+class NotAlphanumericException(Exception):
+	pass
+
+def convert_alphanumeric(bytes):
+	string = ''
+	for byte in bytes:
+		char = chr(byte)
+		if char not in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789':
+			raise NotAlphanumericException(char)
+		string += char
+	return string
+
 
 def add_atari7800_metadata(game):
 	header = game.rom.read(amount=128)
@@ -276,15 +288,15 @@ def add_gamecube_wii_disc_metadata(game):
 	header = game.rom.read(amount=32)
 	#Actually, the header is quite a bit bigger than that. We don't really need the disc name or filesystem offset or anything like that, though.
 	try:
-		game.metadata.specific_info['Product-Code'] = header[:4].decode('ascii')
-	except UnicodeDecodeError:
-		pass	
+		game.metadata.specific_info['Product-Code'] = convert_alphanumeric(header[:4])
+	except NotAlphanumericException:
+		pass
 
 	try:
-		licensee_code = header[4:6].decode('ascii')
+		licensee_code = convert_alphanumeric(header[4:6])
 		if licensee_code in nintendo_licensee_codes:
 			game.metadata.author = nintendo_licensee_codes[licensee_code]
-	except UnicodeDecodeError:
+	except NotAlphanumericException:
 		pass
 
 def add_gamecube_system_info(game):
@@ -462,10 +474,10 @@ def add_gameboy_metadata(game):
 	licensee_code = header[0x4b]
 	if licensee_code == 0x33:
 		try:
-			licensee_code = header[0x44:0x46].decode('ascii')
+			licensee_code = convert_alphanumeric(header[0x44:0x46])
 			if licensee_code in nintendo_licensee_codes:
 				game.metadata.author = nintendo_licensee_codes[licensee_code]
-		except UnicodeDecodeError:
+		except NotAlphanumericException:
 			pass
 	else:
 		licensee_code = '{:02X}'.format(licensee_code)
@@ -487,7 +499,7 @@ def add_gba_metadata(game):
 	game.metadata.specific_info['Nintendo-Logo-Valid'] = nintendo_logo_valid
 
 	try:
-		product_code = header[0xac:0xb0].decode('ascii')
+		product_code = convert_alphanumeric(header[0xac:0xb0])
 		game_type = product_code[0]
 		if game_type[0] == 'K' or game_type == 'R':
 			game.metadata.input_method = 'Motion Controls'
@@ -497,15 +509,15 @@ def add_gba_metadata(game):
 		
 		game.metadata.specific_info['Product-Code'] = product_code
 		#TODO: Maybe get region from product_code[3]?
-	except UnicodeDecodeError:
+	except NotAlphanumericException:
 		#Well, shit. If the product code's invalid for whatever reason, then we can't derive much info from it anyway. Anything officially licensed should be alphanumeric.
 		pass
 	
 	try:
-		licensee_code = header[0xb0:0xb2].decode('ascii')
+		licensee_code = convert_alphanumeric(header[0xb0:0xb2])
 		if licensee_code in nintendo_licensee_codes:
 			game.metadata.author = nintendo_licensee_codes[licensee_code]
-	except UnicodeDecodeError:
+	except NotAlphanumericException:
 		pass
 	
 	has_save = False
@@ -576,16 +588,16 @@ def add_ds_metadata(game):
 	header = game.rom.read(amount=0x200)
 	
 	try:
-		product_code = header[12:16].decode('ascii')
+		product_code = convert_alphanumeric(header[12:16])
 		game.metadata.specific_info['Product-Code'] = product_code
-	except UnicodeDecodeError:
+	except NotAlphanumericException:
 		pass
 
 	try:
-		licensee_code = header[16:18].decode('ascii')
+		licensee_code = convert_alphanumeric(header[16:18])
 		if licensee_code in nintendo_licensee_codes:
 			game.metadata.author = nintendo_licensee_codes[licensee_code]
-	except UnicodeDecodeError:
+	except NotAlphanumericException:
 		pass
 
 	is_dsi = False
@@ -648,16 +660,15 @@ def add_virtual_boy_metadata(game):
 	header_start_position = rom_size - 544 #Yeah I dunno
 	header = game.rom.read(seek_to=header_start_position, amount=32)
 	try:
-		licensee_code = header[25:27].decode('ascii')
+		licensee_code = convert_alphanumeric(header[25:27])
 		if licensee_code in nintendo_licensee_codes:
 			game.metadata.author = nintendo_licensee_codes[licensee_code]
-	except UnicodeDecodeError:
+	except NotAlphanumericException:
 		pass
-	product_code = header[27:31]
-	
+
 	try:
-		game.metadata.specific_info['Product-Code'] = product_code.decode('ascii')
-	except UnicodeDecodeError:
+		game.metadata.specific_info['Product-Code'] = convert_alphanumeric(header[27:31])
+	except NotAlphanumericException:
 		pass
 	#Can get country from product_code[3] if needed
 
@@ -739,9 +750,9 @@ def add_pokemini_metadata(game):
 	#There really isn't much else here, other than maybe the title. I don't think I can do anything with all those IRQs.
 	product_code_bytes = game.rom.read(seek_to=0x21a4, amount=4)
 	try:
-		product_code = product_code_bytes.decode('ascii')
+		product_code = convert_alphanumeric(product_code_bytes)
 		game.metadata.specific_info['Product-Code'] = product_code
-	except UnicodeDecodeError:
+	except NotAlphanumericException:
 		pass
 
 def get_stella_database():
@@ -877,9 +888,9 @@ def add_n64_metadata(game):
 		#Z64
 		#TODO: Detect format and add as metadata. This'll be useful because some emulators won't even try and launch the thing if the first four bytes don't match something expected, even if it is a raw non-swapped dump that just happens to have weird values there
 		try:
-			product_code = header[59:63].decode('ascii')
+			product_code = convert_alphanumeric(header[59:63])
 			game.metadata.specific_info['Product-Code'] = product_code
-		except UnicodeDecodeError:
+		except NotAlphanumericException:
 			pass
 		
 
