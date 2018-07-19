@@ -35,6 +35,8 @@ ram_rom_sizes = make_ram_rom_sizes()
 rom_layouts = {
 	0x20: "LoROM",
 	0x21: "HiROM",
+	0x22: "LoROM + S-DD1",
+	0x23: "LoROM + SA-1",
 	0x30: "LoROM + FastROM",
 	0x31: "HiROM + FastROM",
 	0x32: "ExLoROM",
