@@ -62,6 +62,9 @@ extra_subfolders = {
 	'By TV type': 'X-TV-Type',
 	'By extension': 'X-Extension',
 	'By cart type': 'X-Cart-Type',
+	'By expansion chip': 'X-Expansion-Chip',
+	'By regions': 'X-Regions',
+	'By genre and input method': ['X-Genre', 'X-Input-Method'],
 	'Has header': 'X-Headered',
 	'Has force feedback': 'X-Force-Feedback',
 }
