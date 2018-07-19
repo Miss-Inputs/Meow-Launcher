@@ -24,6 +24,7 @@ import platform_metadata.neo_geo_pocket
 import platform_metadata.nes
 import platform_metadata.pokemon_mini
 import platform_metadata.psp
+import platform_metadata.snes
 import platform_metadata.vectrex
 import platform_metadata.virtual_boy
 import platform_metadata.wii
@@ -38,9 +39,6 @@ debug = '--debug' in sys.argv
 #Atari 5200: Year (unreliable, has Y2K bug. It's actually just the 3rd and 4th digit stored as 5200 characters, and then printing 19 + those characters)
 #ColecoVision: Year (unreliable, from copyright string on title screen), author (also unreliable and from copyright string; and in uppercase so you'd probably wanna call .titlecase() or whatsitcalled or something)
 #Master System/Game Gear: Regions/device type (i.e. SMS or GG, Japanese or export or international), product code (official games), author (official Game Gear and homebrew both), year (homebrew)
-#SNES: Author, region (perhaps), save type (cart or nothing) (either by ROM type, or save size), expansion chip usage, product code (be sure to check for XBND and MENU)
-#Satellaview: Author
-#Sufami Turbo: Save type (cart or nothing, or does it save to the Sufami Turbo cart itself? Anyway there's a save size field), can we assume author is always Bandai?
 #WiiWare: Product code, author, region (in terms of region locking)
 
 #Stuff which would require robust CD handling:
@@ -71,6 +69,7 @@ helpers = {
 	'NES': nes.add_nes_metadata,
 	'Pokemon Mini': pokemon_mini.add_pokemini_metadata,
 	'PSP': psp.add_psp_metadata,
+	'SNES': snes.add_snes_metadata,
 	'Vectrex': vectrex.add_vectrex_metadata,
 	'Virtual Boy': virtual_boy.add_virtual_boy_metadata,
 	'Watara Supervision': nothing_interesting,
