@@ -27,6 +27,13 @@ def get_region_by_name(name):
 
 	return None #TODO: Would it be better to throw exception and make callers use try/except?
 
+def get_region_by_short_code(short_code):
+	for region in region_info.regions:
+		if region.short_code == short_code:
+			return region
+
+	return None #TODO: Would it be better to throw exception and make callers use try/except?
+
 def get_languages_from_regions(regions):
 	common_language = None
 	#If all the regions here have the same language, we can infer the language of the game. Otherwise, we sorta can't
@@ -82,16 +89,30 @@ def get_regions_from_filename_tags(tags):
 			continue
 		tag = tag.lstrip('(').rstrip(')')
 
+		multiple_region_separator = None
 		if ', ' in tag:
-			multiple_regions = tag.split(', ')
+			multiple_region_separator = ', '
+		elif '-' in tag:
+			multiple_region_separator = '-'
+
+		if multiple_region_separator:
+			multiple_regions = tag.split(multiple_region_separator)
 			for region_name in multiple_regions:
 				region = get_region_by_name(region_name)
 				if region:
 					regions.append(region)
+				else:
+					region = get_region_by_short_code(region_name)
+					if region:
+						regions.append(region)
 		else:
 			region = get_region_by_name(tag)
 			if region:
 				regions = [region]
+			else:
+				region = get_region_by_short_code(tag)
+				if region:
+					regions.append(region)
 
 		if regions and any(regions):
 			return regions
