@@ -42,6 +42,7 @@ languages = [
 	
 	Language('Russian', 'Pусский', 'Ru'),
 	Language('Greek', 'ελληνικά', 'El'),
+	Language('Indonesian', 'Bahasa Indonesia', 'In'), #There's Malay as well, which apparently involves "macrolanguages", so I'm confused. I just hope this is the right thing here
 ]
 
 regions = [
@@ -57,6 +58,7 @@ regions = [
 	Region('Germany', 'DE', TVSystem.PAL, 'German'),
 	Region('Greece', 'GR', TVSystem.PAL, 'Greek'),
 	Region('Hong Kong', 'HK', TVSystem.PAL, None), #Might have Chinese or English
+	Region('Indonesia', 'ID', TVSystem.PAL, 'Indonesian'),
 	Region('Italy', 'IT', TVSystem.PAL, 'Italian'),
 	Region('Japan', 'JP', TVSystem.NTSC, 'Japanese'),
 	Region('Korea', 'KR', TVSystem.NTSC, 'Korean'), #For the purpose of video games, we can assume South Korea is the only Korea and North Korea doesn't exist. Oof, that sounds horrible, doesn't it? (If North Korea ever does have games, they use PAL)
