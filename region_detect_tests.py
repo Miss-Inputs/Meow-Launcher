@@ -107,7 +107,32 @@ tests = [
 	Test("No-Intro filename with explicit languages", "Cool Game (Germany) (En,De)", ['Germany'], ['English', 'German'], TVSystem.PAL),
 	Test("No-Intro filename with only one explicit language", "Cool Game (Japan) (En)", ['Japan'], ['English'], TVSystem.NTSC),
 	Test("Non-standard filename with explicit TV type", "Cool Game (NTSC)", None, None, TVSystem.NTSC),
+	Test("TOSEC filename with nothing", "Cool Game (1992)(CoolSoft)", None, None, None),
+	Test("TOSEC filename with explicit TV type", "Cool Game (1992)(CoolSoft)(NTSC)", None, None, TVSystem.NTSC),
+	Test("TOSEC filename with region", "Cool Game (1992)(CoolSoft)(JP)", ['Japan'], ['Japanese'], TVSystem.NTSC),
+	Test("TOSEC filename with two regions", "Cool Game (1992)(CoolSoft)(JP-US)", ['Japan', 'USA'], None, TVSystem.NTSC),
+	Test("TOSEC filename with language but no region", "Cool Game (1992)(CoolSoft)(pt)", None, ['Portugese'], None),
+	Test("TOSEC filename with two languages but no region", "Cool Game (1992)(CoolSoft)(en-fr)", None, ['English', 'French'], None),
+	Test("TOSEC filename with region and language", "Cool Game (1992)(CoolSoft)(JP)(en)", ['Japan'], ['English'], TVSystem.NTSC),	
+	Test("TOSEC filename with region and two languages", "Cool Game (1992)(CoolSoft)(JP)(en-fr)", ['Japan'], ['English', 'French'], TVSystem.NTSC),	
+	Test("TOSEC filename with two regions and two languages", "Cool Game (1992)(CoolSoft)(JP-US)(en-ja)", ['Japan', 'USA'], ['English', 'Japanese'], TVSystem.NTSC),
+	Test("Name of a region in name but not tags", "Cool Adventures in Japan (USA)", ['USA'], ['English'], TVSystem.NTSC),
 ]
 
 for test in tests:
 	test.run()
+
+#TODO Test failures:
+#Oh no! No-Intro filename with region but also unrelated tag failed: Languages = None, expected = ['Japanese']
+#Oh no! TOSEC filename with region failed: Regions = None, expected = ['Japan']
+#Oh no! TOSEC filename with region failed: Languages = None, expected = ['Japanese']
+#Oh no! TOSEC filename with region failed: TV type = None, expected = TVSystem.NTSC
+#Oh no! TOSEC filename with two regions failed: Regions = None, expected = ['Japan', 'USA']
+#Oh no! TOSEC filename with two regions failed: TV type = None, expected = TVSystem.NTSC
+#Oh no! TOSEC filename with region and language failed: Regions = None, expected = ['Japan']
+#Oh no! TOSEC filename with region and language failed: TV type = None, expected = TVSystem.NTSC
+#Oh no! TOSEC filename with region and two languages failed: Regions = None, expected = ['Japan']
+#Oh no! TOSEC filename with region and two languages failed: TV type = None, expected = TVSystem.NTSC
+#Oh no! TOSEC filename with two regions and two languages failed: Regions = None, expected = ['Japan', 'USA']
+#Oh no! TOSEC filename with two regions and two languages failed: TV type = None, expected = TVSystem.NTSC
+
