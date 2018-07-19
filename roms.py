@@ -67,11 +67,7 @@ def add_metadata(game):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = common.find_filename_tags.findall(game.rom.name)
 	
-	#TODO: Detect regions first, and then languages, and then infer languages from regions if still unspecified
-	languages = region_detect.get_languages_from_filename_tags(tags)
-	if languages:
-		game.metadata.languages = [language.english_name for language in languages]
-
+	
 	for tag in tags:
 		found_year = False
 		year_match = year_regex.match(tag)
@@ -82,6 +78,14 @@ def add_metadata(game):
 		regions = region_detect.get_regions_from_filename_tags(tags)
 		if regions:
 			game.metadata.regions = regions
+
+	if not game.metadata.languages:
+		languages = region_detect.get_languages_from_filename_tags(tags)
+		if languages:
+			game.metadata.languages = [language.english_name for language in languages]
+		elif game.metadata.regions:
+			languages = region_detect.get_languages_from_regions(regions)
+
 	if not game.metadata.tv_type:
 		if game.metadata.regions:
 			game.metadata.tv_type = region_detect.get_tv_system_from_regions(game.metadata.regions)

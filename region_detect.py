@@ -27,21 +27,7 @@ def get_region_by_name(name):
 
 	return None #TODO: Would it be better to throw exception and make callers use try/except?
 
-def get_language_from_single_tag(tag):
-	regions = []
-	if ', ' in tag:
-		multiple_region_names = tag.split(', ')
-		for region_name in multiple_region_names:
-			region = get_region_by_name(region_name)
-			if not region:
-				return None
-			regions.append(region)
-	else:
-		region = get_region_by_name(tag)
-		if not region:
-			return None
-		regions = [region]
-		
+def get_languages_from_regions(regions):
 	common_language = None
 	#If all the regions here have the same language, we can infer the language of the game. Otherwise, we sorta can't
 	#e.g. We know (USA, Australia) is English, but (Japan, USA) could be Japanese or English
@@ -52,16 +38,9 @@ def get_language_from_single_tag(tag):
 			if region.language != common_language.english_name:
 				return None
 
-	return common_language
+	return [common_language]
 
 def get_languages_from_filename_tags(tags):
-	if len(tags) == 1:
-		#This will (probably) be the country the game was released in, so we might be able to infer the language from that
-		#TODO: This won't work if it's like Cool Game (Japan) (Promo) or something like that... hmm, maybe detect common tags like (Promo) or (Unl) or [b] that have no bearing on region/language and ignore those?
-		tag = tags[0].lstrip('(').rstrip(')')
-		language = get_language_from_single_tag(tag)
-		if language:
-			return [language]
 
 	for tag in tags:
 		translation_match = translated_regex.match(tag)

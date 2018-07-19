@@ -87,6 +87,8 @@ class Test():
 				print('Oh no! {0} failed: Regions = {1}, expected = {2}'.format(self.name, regions, self.expected_regions))
 
 			languages = get_languages_from_filename_tags(tags)
+			if regions and not languages:
+				languages = get_languages_from_regions(regions)
 			if not language_array_equal(languages, self.expected_languages):
 				print('Oh no! {0} failed: Languages = {1}, expected = {2}'.format(self.name, languages, self.expected_languages))
 
@@ -123,7 +125,6 @@ for test in tests:
 	test.run()
 
 #TODO Test failures:
-#Oh no! No-Intro filename with region but also unrelated tag failed: Languages = None, expected = ['Japanese']
 #Oh no! TOSEC filename with region failed: Regions = None, expected = ['Japan']
 #Oh no! TOSEC filename with region failed: Languages = None, expected = ['Japanese']
 #Oh no! TOSEC filename with region failed: TV type = None, expected = TVSystem.NTSC
