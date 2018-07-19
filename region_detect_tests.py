@@ -2,7 +2,7 @@
 #I can't be stuffed figuring out if there's some fancy unit test thing that all the cool kids use so I'm just gonna do my own thing
 
 from info.region_info import TVSystem, Region, Language
-from region_detect import *
+from region_detect import get_languages_from_filename_tags, get_languages_from_regions, get_regions_from_filename_tags, get_tv_system_from_filename_tags, get_tv_system_from_regions
 from common import find_filename_tags
 
 def regions_equal(region, other_region):
@@ -21,11 +21,11 @@ def region_array_equal(regions, other_regions):
 	if regions == other_regions:
 		return True
 
-	if regions == None:
-		return other_regions == None
+	if regions is None:
+		return other_regions is None
 
-	if other_regions == None:
-		return regions == None
+	if other_regions is None:
+		return regions is None
 
 	length = len(regions)
 	if len(other_regions) != length:
@@ -53,11 +53,11 @@ def language_array_equal(languages, other_languages):
 	if languages == other_languages:
 		return True
 
-	if languages == None:
-		return other_languages == None
+	if languages is None:
+		return other_languages is None
 
-	if other_languages == None:
-		return languages == None
+	if other_languages is None:
+		return languages is None
 
 	length = len(languages)
 	if len(other_languages) != length:
