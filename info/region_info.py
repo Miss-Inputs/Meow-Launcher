@@ -48,13 +48,13 @@ languages = [
 regions = [
 	Region('Asia', 'AS', TVSystem.Indeterminate, None),
 	Region('Australia', 'AU', TVSystem.PAL, 'English'),
-	Region('Brazil', 'BR', TVSystem.NTSC, 'Portugese'),
+	Region('Brazil', 'BR', TVSystem.NTSC, 'Portugese'), #Uses PAL-M actually, but that's effectively NTSC
 	Region('Canada', 'CA', TVSystem.NTSC, None), #Might have English or French
 	Region('China', 'CN', TVSystem.PAL, 'Chinese'),
 	Region('Denmark', 'DK', TVSystem.PAL, 'Danish'),
 	Region('Europe', 'EU', TVSystem.PAL, 'English'), #Actually could be any number of languages, but in filenames (by No-Intro's convention anyway) it's assumed to be English unless otherwise specified
 	Region('Finland', 'FI', TVSystem.PAL, 'Finnish'),
-	Region('France', 'FR', TVSystem.PAL, 'French'),
+	Region('France', 'FR', TVSystem.PAL, 'French'), #Uses SECAM actually, but that's effectively the same as PAL
 	Region('Germany', 'DE', TVSystem.PAL, 'German'),
 	Region('Greece', 'GR', TVSystem.PAL, 'Greek'),
 	Region('Hong Kong', 'HK', TVSystem.PAL, None), #Might have Chinese or English
