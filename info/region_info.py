@@ -15,12 +15,25 @@ class Language():
 		self.native_name = native_name
 		self.short_code = short_code
 
+	def __str__(self):
+		return '{0} ({1}) ({2})'.format(self.native_name, self.english_name, self.short_code)
+
+	def __repr__(self):
+		return 'Language({1!r}, {0!r}, {2!r})'.format(self.native_name, self.english_name, self.short_code)
+
+
 class Region():
 	def __init__(self, name, short_code, tv_system, language):
 		self.name = name
 		self.short_code = short_code
 		self.tv_system = tv_system
 		self.language = language
+
+	def __str__(self):
+		return '{0} ({1}) ({2}) ({3})'.format(self.name, self.short_code, self.tv_system, self.language)
+
+	def __repr__(self):
+		return 'Region({0!r}, {1!r}, {2!r}, {3!r})'.format(self.name, self.short_code, self.tv_system, self.language)
 
 languages = [
 	#These languages are specified in the No-Intro convention as being in this order, in case that ends up mattering:

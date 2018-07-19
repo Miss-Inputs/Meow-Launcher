@@ -55,8 +55,6 @@ def get_language_from_single_tag(tag):
 	return common_language
 
 def get_languages_from_filename_tags(tags):
-	#TODO: This could use some kinda unit testing thing, even the most basic and half-assed of unit tests
-
 	if len(tags) == 1:
 		#This will (probably) be the country the game was released in, so we might be able to infer the language from that
 		#TODO: This won't work if it's like Cool Game (Japan) (Promo) or something like that... hmm, maybe detect common tags like (Promo) or (Unl) or [b] that have no bearing on region/language and ignore those?
