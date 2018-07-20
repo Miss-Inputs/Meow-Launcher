@@ -11,6 +11,7 @@ import common
 import launchers
 from info import emulator_info
 from metadata import Metadata, EmulationStatus, CPUInfo, ScreenInfo
+from region_detect import get_language_by_english_name
 
 debug = '--debug' in sys.argv
 
@@ -139,7 +140,7 @@ def get_language(basename):
 			lang = section
 			break
 			
-	return lang
+	return get_language_by_english_name(lang)
 
 def get_input_type(machine):
 	input_element = machine.xml.find('input')
