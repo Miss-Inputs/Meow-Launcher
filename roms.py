@@ -82,7 +82,7 @@ def add_metadata(game):
 	if not game.metadata.languages:
 		languages = region_detect.get_languages_from_filename_tags(tags)
 		if languages:
-			game.metadata.languages = [language.english_name for language in languages]
+			game.metadata.languages = languages
 		elif game.metadata.regions:
 			game.metadata.languages = region_detect.get_languages_from_regions(game.metadata.regions)
 
