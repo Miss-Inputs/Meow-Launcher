@@ -84,7 +84,10 @@ def add_metadata(game):
 		if languages:
 			game.metadata.languages = languages
 		elif game.metadata.regions:
-			game.metadata.languages = region_detect.get_languages_from_regions(game.metadata.regions)
+			languages = region_detect.get_languages_from_regions(game.metadata.regions)
+			if languages:
+				game.metadata.languages = languages
+		
 
 	if not game.metadata.tv_type:
 		if game.metadata.regions:
