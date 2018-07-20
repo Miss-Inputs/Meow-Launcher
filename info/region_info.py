@@ -56,6 +56,12 @@ languages = [
 	Language('Russian', 'Pусский', 'Ru'),
 	Language('Greek', 'ελληνικά', 'El'),
 	Language('Indonesian', 'Bahasa Indonesia', 'In'), #There's Malay as well, which apparently involves "macrolanguages", so I'm confused. I just hope this is the right thing here
+	Language('Turkish', 'Türkçe', 'Tr'),
+	Language('Czech', 'Čeština', 'Cs'),
+	Language('Arabic', 'العربية', 'Ar'), #Another macrolanguage
+	Language('Catalan', 'Català', 'Ca'),
+	Language('Hungarian', 'Magyar', 'Hu'),
+	Language('Romanian', 'Română', 'Ro'),
 ]
 
 regions = [
@@ -64,6 +70,7 @@ regions = [
 	Region('Brazil', 'BR', TVSystem.NTSC, 'Portugese'), #Uses PAL-M actually, but that's effectively NTSC
 	Region('Canada', 'CA', TVSystem.NTSC, None), #Might have English or French
 	Region('China', 'CN', TVSystem.PAL, 'Chinese'),
+	Region('Czechia', 'CZ', TVSystem.PAL, 'Czech'),
 	Region('Denmark', 'DK', TVSystem.PAL, 'Danish'),
 	Region('Europe', 'EU', TVSystem.PAL, 'English'), #Actually could be any number of languages, but in filenames (by No-Intro's convention anyway) it's assumed to be English unless otherwise specified
 	Region('Finland', 'FI', TVSystem.PAL, 'Finnish'),
@@ -83,6 +90,7 @@ regions = [
 	Region('Spain', 'ES', TVSystem.PAL, 'Spanish'),
 	Region('Sweden', 'SE', TVSystem.PAL, 'Swedish'),
 	Region('Taiwan', 'TW', TVSystem.NTSC, 'Chinese'),
+	Region('Turkey', 'TR', TVSystem.PAL, 'Turkish'),
 	Region('UK', 'GB', TVSystem.PAL, 'English'),
 	Region('USA', 'US', TVSystem.NTSC, 'English'),
 
