@@ -151,7 +151,7 @@ class Metadata():
 			'Genre': self.genre,
 			'Subgenre': self.subgenre,
 			'NSFW': self.nsfw,
-			'Languages': self.languages,
+			'Languages': [languge.name if language else 'None!' for language in self.languges],
 			'Year': self.year,
 			'Author': self.author,
 			'Input-Method': self.input_method,
