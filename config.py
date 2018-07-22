@@ -11,10 +11,10 @@ name_consistency_path = os.path.join(os.path.dirname(__file__), 'name_consistenc
 emulator_config_path = os.path.join(config_dir, 'emulators.ini')
 
 class SystemConfig():
-	def __init__(self, name, rom_dirs, chosen_emulator, other_config=None):
+	def __init__(self, name, rom_dirs, chosen_emulators, other_config=None):
 		self.name = name
 		self.rom_dirs = rom_dirs
-		self.chosen_emulator = chosen_emulator
+		self.chosen_emulators = chosen_emulators
 		self.other_config = {} if other_config is None else other_config
 
 #Normally, we'd skip over anything that has software because that indicates it's a system you plug games into and not
@@ -99,21 +99,23 @@ def load_emulator_configs():
 		rom_dirs = parser[system]['rom_dirs'].split(';')
 		if not rom_dirs:
 			continue
-		emulator = parser[system]['emulator']
+		emulators = parser[system]['emulators'].split(';')
 
-		if emulator not in emulator_info.emulators:
-			print('Warning! System {0} is configured to use {1} but that is not known as an emulator'.format(system, emulator))
+		for emulator in emulators:
+			if emulator not in emulator_info.emulators:
+				print('Warning! System {0} is configured to use {1} but that is not known as an emulator'.format(system, emulator))
 
 		info = system_info.get_system_by_name(system)
 		if info:
-			if emulator not in info.emulators:
-				print('Warning! System {0} is configured to use {1} which does not support {0}'.format(system, emulator))
+			for emulator in emulators:
+				if emulator not in info.emulators:
+					print('Warning! System {0} is configured to use {1} which does not support {0}'.format(system, emulator))
 		else:
 			print('Warning! System {0} is configured but might not exist'.format(system))
 
-		other_config = {k: v for k, v in parser[system].items() if k not in ('rom_dirs', 'emulator')}
+		other_config = {k: v for k, v in parser[system].items() if k not in ('rom_dirs', 'emulators')}
 
-		system_configs.append(SystemConfig(system, rom_dirs, emulator, other_config))
+		system_configs.append(SystemConfig(system, rom_dirs, emulators, other_config))
 			
 load_config()
 with open(ignored_dirs_path, 'rt') as ignored_txt:

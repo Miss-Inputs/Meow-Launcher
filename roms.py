@@ -171,16 +171,11 @@ class Game():
 
 		launchers.make_launcher(command_line, self.rom.name, self.metadata)
 
-def process_file(system_config, rom_dir, root, name):
+def try_emulator(system_config, emulator, rom_dir, root, name):
 	path = os.path.join(root, name)
-	
-	emulator_name = system_config.chosen_emulator
-	if emulator_name not in emulator_info.emulators:
-		return
-	
-	rom = Rom(path)
-	game = Game(rom, emulator_info.emulators[emulator_name], system_config.name, root)
 
+	rom = Rom(path)
+	game = Game(rom, emulator, system_config.name, root)
 
 	#TODO This looks weird, but is there a better way to do this? (Get subfolders we're in from rom_dir)
 	game.metadata.categories = [i for i in root.replace(rom_dir, '').split('/') if i]
@@ -188,7 +183,7 @@ def process_file(system_config, rom_dir, root, name):
 		game.metadata.categories = [game.metadata.platform]
 
 	if rom.extension not in game.emulator.supported_extensions:
-		return
+		return None
 
 	if rom.warn_about_multiple_files and debug:
 		print('Warning!', rom.path, 'has more than one file and that may cause unexpected behaviour, as I only look at the first file')
@@ -196,6 +191,22 @@ def process_file(system_config, rom_dir, root, name):
 	add_metadata(game)
 
 	if not game.get_command_line(system_config):
+		return None
+
+	return game
+
+def process_file(system_config, rom_dir, root, name):
+	game = None
+	
+	emulator_names = system_config.chosen_emulators
+	for emulator_name in emulator_names:
+		if emulator_name not in emulator_info.emulators:
+			continue
+		game = try_emulator(system_config, emulator_info.emulators[emulator_name], rom_dir, root, name)
+		if game:
+			break
+
+	if not game:
 		return
 
 	if isinstance(game.emulator, emulator_info.MameSystem):
