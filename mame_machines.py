@@ -109,7 +109,7 @@ def get_category(basename):
 		
 		return category, genre, subgenre, is_nsfw
 	
-	category, genre = cat.split(' / ', 1)
+	category, _, genre = cat.partition(' / ')
 	return category, genre, None, False
 		
 def get_language(basename):
