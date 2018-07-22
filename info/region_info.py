@@ -62,6 +62,8 @@ languages = [
 	Language('Catalan', 'Català', 'Ca'),
 	Language('Hungarian', 'Magyar', 'Hu'),
 	Language('Romanian', 'Română', 'Ro'),
+	Language('Croatian', 'Hrvatski jezik', 'Hr'),
+	Language('Slovak', 'Slovenčina', 'Sk'),
 ]
 
 regions = [
