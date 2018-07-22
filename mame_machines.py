@@ -7,7 +7,6 @@ import os
 import sys
 
 import config
-import common
 import launchers
 from info import emulator_info
 from metadata import Metadata, EmulationStatus, CPUInfo, ScreenInfo
