@@ -198,16 +198,6 @@ emulators =
 rom_dirs = 
 emulators = 
 
-[Sufami Turbo]
-rom_dirs = 
-emulators = 
-bios_path = 
-
-[Satellaview]
-rom_dirs = 
-emulators = 
-bios_path = 
-
 [Wii]
 rom_dirs = 
 emulators = 
