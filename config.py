@@ -96,10 +96,10 @@ def load_emulator_configs():
 	parser.read(emulator_config_path)
 
 	for system in parser.sections():
-		rom_dirs = parser[system]['rom_dirs'].split(';')
+		rom_dirs = [dir for dir in parser[system]['rom_dirs'].strip().split(';') if dir]
 		if not rom_dirs:
 			continue
-		emulators = parser[system]['emulators'].split(';')
+		emulators = [emulator for emulator in parser[system]['emulators'].strip().split(';') if emulator]
 
 		for emulator in emulators:
 			if emulator not in emulator_info.emulators:
