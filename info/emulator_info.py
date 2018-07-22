@@ -204,7 +204,7 @@ def make_mame_snes_command_line(game, other_config):
 
 	return make_mame_command_line(system, 'cart')
 
-def make_mame_nes_command_line(game, other_config):
+def make_mame_nes_command_line(game, _):
 	if game.rom.extension == 'fds':
 		#We don't need to detect TV type because the FDS was only released in Japan and so the Famicom can be used for everything
 		return make_mame_command_line('fds', 'flop')
@@ -219,7 +219,7 @@ def make_mame_nes_command_line(game, other_config):
 
 	return make_mame_command_line(system, 'cart')
 
-def make_mame_atari_2600_command_line(game, other_config):
+def make_mame_atari_2600_command_line(game, _):
 	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'a2600p'
 	else:
