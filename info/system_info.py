@@ -32,7 +32,7 @@ systems = [
 	System('CD-i', 'cdimono1', ['cdi'], ['MAME (CD-i)']),
 	System('DS', None, [], ['Medusa']),
 	System('Entex Adventure Vision', 'advision', ['advision'], ['MAME (Entex Adventure Vision)']), 
-	System('Epoch Game Pocket Computer', 'gamepock', ['gamepock'], ['MAME (Game Pocket Computer']),
+	System('Epoch Game Pocket Computer', 'gamepock', ['gamepock'], ['MAME (Game Pocket Computer)']),
 	System('Gamate', 'gamate', ['gamate'], ['MAME (Gamate)']),
 	System('Game Boy', 'gbpocket', ['gameboy', 'gbcolor'], ['Gambatte', 'mGBA', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'MAME (Game Boy Color)', 'MAME (Super Game Boy)']),
 	System('Game.com', 'gamecom', ['gamecom'], ['MAME (Game.com)']),
