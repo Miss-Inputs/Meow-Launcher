@@ -147,16 +147,6 @@ def build_c64_command_line(game, _):
 	system = find_c64_system(game)
 	return make_mame_command_line(system, 'cart', {'joy1': 'joybstr', 'joy2': 'joybstr'}, True)
 	
-
-def make_snes_addon_cart_command_line(game, other_config):
-	#Just because this confused my eyes for a bit: game being unused other than in the error message is correct. The command line stays the same regardless of the content or region or whatever of the game, which is all we're preparing at the moment
-	if 'bios_path' not in other_config:
-		if debug:
-			#TODO Only print this once!
-			print("You can't do", game.rom.path, "because you haven't set up the BIOS for it yet, check config.py")
-		return None
-	return make_mame_command_line('snes', 'cart2', {'cart': shlex.quote(other_config['bios_path'])}, False)
-
 def make_prboom_plus_command_line(_, other_config):
 	if 'save_dir' in other_config:
 		return 'prboom-plus -save %s -iwad $<path>' % shlex.quote(other_config['save_dir'])
@@ -183,6 +173,36 @@ def make_gambatte_command_line(game, _):
 		return None		
 
 	return 'gambatte_qt --full-screen $<path>'
+
+def make_mame_snes_command_line(game, other_config):
+	#Snes9x's GTK+ port doesn't let us load carts with slots for other carts from the command line yet, so this will have
+	#to do, but unfortunately it's a tad slower
+	if game.rom.extension == 'st':
+		if 'sufami_turbo_bios_path' not in other_config:
+			if debug:
+				#TODO Only print this once!
+				print("You can't do", game.rom.path, "because you haven't set up the BIOS for it yet, check config.py")
+			return None
+
+		#We don't need to detect TV type because the Sufami Turbo (and also BS-X) was only released in Japan and so the Super Famicom can be used for everything
+		return make_mame_command_line('snes', 'cart2', {'cart': shlex.quote(other_config['sufami_turbo_bios_path'])}, False)
+	
+	if game.rom.extension == 'bs':
+		if 'bsx_bios_path' not in other_config:
+			if debug:
+				#TODO Only print this once!
+				print("You can't do", game.rom.path, "because you haven't set up the BIOS for it yet, check config.py")
+			return None
+
+		return make_mame_command_line('snes', 'cart2', {'cart': shlex.quote(other_config['bsx_bios_path'])}, False)
+	
+	if game.metadata.tv_type == TVSystem.PAL:
+		system = 'snespal'
+	else:
+		#American SNES and Super Famicom are considered to be the same system, so that works out nicely
+		system = 'snes'
+
+	return make_mame_command_line(system, 'cart')
 
 emulators = {
 	'Citra': Emulator('citra-qt $<path>', ['3ds', 'cxi', '3dsx'], []),
@@ -326,6 +346,7 @@ emulators = {
 	#though without any other disks, and this will need to be updated if we see any cartridges (MAME says it has a cart
 	#slot)...
 	'MAME (Sharp X68000)': MameSystem(make_mame_command_line('x68000', 'flop1', has_keyboard=True), mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim']),	
+	'MAME (SNES)': MameSystem(make_mame_snes_command_line, ['sfc', 'bs', 'st']),
 	'MAME (Sord M5)': MameSystem(make_mame_command_line('m5', 'cart', {'ramsize': '64K'}, True), ['bin']),
 	#Apparently has joysticks with no fire button?  Usually space seems to be fire but sometimes 1 is, which is usually
 	#for starting games.  I hate everything.
@@ -354,24 +375,16 @@ emulators = {
 	#the colours look even worse (they're all inverted and shit)
 	'MAME (WonderSwan)': MameSystem(make_mame_command_line('wscolor', 'cart'), ['ws', 'wsc', 'bin']),
 
-	#TODO: Should just be part of MAME (SNES) except I haven't done that yet
-	'MAME (Sufami Turbo)': MameSystem(make_snes_addon_cart_command_line, ['st']),
-	#Snes9x's GTK+ port doesn't let us load carts with slots for other carts from the command line yet, so this will have
-		#to do, but unfortunately it's a tad slower
-	'MAME (Satellaview)': MameSystem(make_snes_addon_cart_command_line, ['bs']),
-	#Also you still have to go through all the menus and stuff for BS-X/Satellaview/whatsitcalled
-
 	#Other systems that MAME can do but I'm too lazy to do them yet because they'd need a command line generator function:
 	#Lynx: Need to select -quick for .o files and -cart otherwise
 	#SC-3000: Need to select -cart for carts and -cass for cassettes (.wav .bit); I'm not sure Kega Fusion can do .sc or cassettes yet
 	#SF-7000: Need to select -flop for disk images (sf7 + normal MAME disk formats) and -cass for cassettes (.wav .bit); very sure Kega Fusion can't do this
-	#NES, SMS, Megadrive, SNES, Atari 2600: Need to detect region 
-	#	(Notable that Megadrive and SNES support lock-on carts, i.e. Sonic & Knuckles, Sufami Turbo respectively)
+	#NES, SMS, Megadrive, Atari 2600: Need to detect region 
+	#	(Notable that Megadrive can do Sonic & Knuckles)
 	#N64: Does not do PAL at all. The game might even tell you off if it's a PAL release
 	#PC Engine: Need to select between pce and tg16 depending on region, -cdrom and -cart slots, and sgx accordingly
 
 	'PrBoom+': Emulator(make_prboom_plus_command_line, ['wad'], []),
 	#TODO: Not an emulator, it's a game engine, should be organized differently. It won't really matter though until we start getting into other game engines that sort of work out like emulators and ROMs and consoles.
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
-
 }

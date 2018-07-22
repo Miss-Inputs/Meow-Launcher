@@ -53,7 +53,7 @@ systems = [
 	System('PS2', 'ps2', [], ['PCSX2']), 
 	System('PSP', None, [], ['PPSSPP']),
 	System('SG-1000', 'sg1000', ['sg1000', 'sc3000_cart', 'sc3000_cass', 'sf7000'], ['Kega Fusion', 'MAME (SG-1000)']),
-	System('SNES', 'snes', ['snes'], ['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)']),
+	System('SNES', 'snes', ['snes', 'snes_bspack', 'snes_strom'], ['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)']),
 	System('Vectrex', 'vectrex', ['vectrex'], ['MAME (Vectrex)']), 
 	System('Virtual Boy', 'vboy', ['vboy'], ['Mednafen (Virtual Boy)', 'MAME (Virtual Boy)']),
 	System('Watara Supervision', 'svision', ['svision'], ['MAME (Watara Supervision)']), 
@@ -71,7 +71,6 @@ systems = [
 	#Not the most easily mappable of controllers due to having both 6 face buttons and 2 shoulder buttons
 	System('Wii', None, [], ['Dolphin']), 
 	System('WonderSwan', 'wscolor', ['wswan', 'wscolor'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)']), 
-
 
 	#Computers!  These actually aren't that bad control-wise because most sensible games would use a simple one-button
 	#joystick, and most of the time MAME lets you attach one.  But some of them don't!  And the ones that don't just use
@@ -91,10 +90,6 @@ systems = [
 	System('Tomy Tutor', 'tutor', ['tutor'], ['MAME (Tomy Tutor)']), 
 	System('VIC-10', 'vic10', ['vic10'], ['MAME (VIC-10)']), 
 	System('VIC-20', 'vic20', ['vic1001_cart', 'vic1001_cass', 'vic1001_flop'], ['MAME (VIC-20)']),
-
-	#These shouldn't actually be systems, but anyway, I have a Github issue for that I think so leave me alone
-	System('Satellaview', 'snes', ['snes_bspack'], ['MAME (Satellaview)']),
-	System('Sufami Turbo', 'snes', ['snes_strom'], ['MAME (Sufami Turbo)']),
 ]
 
 #TODO: Those should just be considered emulated systems, need to add these as well:
