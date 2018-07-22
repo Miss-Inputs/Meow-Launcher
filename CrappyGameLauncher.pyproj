@@ -126,6 +126,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include=".pylintrc" />
+    <Content Include="config.ini.template" />
+    <Content Include="emulators.ini.template" />
+    <Content Include="LICENSE" />
     <Content Include="name_consistency.ini" />
     <Content Include="README.md" />
   </ItemGroup>
