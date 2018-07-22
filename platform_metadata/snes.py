@@ -8,6 +8,7 @@ from common import convert_alphanumeric, NotAlphanumericException
 def parse_sufami_turbo_header(game):
 	#There's a "B2" in the licensee field of the Sufami Turbo BIOS cart itself, so I guess we can safely say all Sufami Turbo games are by Bandai
 	game.metadata.author = 'Bandai'
+	game.metadata.platform = 'Sufami Turbo'
 
 	header = game.rom.read(amount=56)
 	#Magic: 0:14 Should be "BANDAI SFC-ADX"
@@ -208,7 +209,7 @@ def add_normal_snes_header(game):
 
 def add_satellaview_metadata(game):
 	#TODO. Can't be bothered at the moment, we can get author from here but not much else useful
-	pass
+	game.metadata.platform = 'Satellaview'
 
 def add_snes_metadata(game):
 	if game.rom.extension in ['sfc', 'smc', 'swc']:

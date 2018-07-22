@@ -27,12 +27,16 @@ cpu_overrides = {
 	"Game Boy Color": lookup_system_cpu('gbcolor'),
 	"Mega CD": lookup_system_cpu('segacd_us'),
 	"C64GS": lookup_system_cpu('c64gs'),
+	'Satellaview': lookup_system_cpu('snes'),
+	'Sufami Turbo': lookup_system_cpu('snes'),
 }
 
 display_overrides = {
 	'FDS': lookup_system_displays('fds'),
 	'Game Boy Color': lookup_system_displays('gbcolor'),
 	'C64GS': lookup_system_displays('c64gs'),	
+	'Satellaview': lookup_system_displays('snes'),
+	'Sufami Turbo': lookup_system_cpu('snes'),
 }
 
 def add_metadata(game):
