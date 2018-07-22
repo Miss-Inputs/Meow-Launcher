@@ -11,9 +11,9 @@ name_consistency_path = os.path.join(os.path.dirname(__file__), 'name_consistenc
 emulator_config_path = os.path.join(config_dir, 'emulators.ini')
 
 class SystemConfig():
-	def __init__(self, name, rom_dir, chosen_emulator, other_config=None):
+	def __init__(self, name, rom_dirs, chosen_emulator, other_config=None):
 		self.name = name
-		self.rom_dir = rom_dir
+		self.rom_dirs = rom_dirs
 		self.chosen_emulator = chosen_emulator
 		self.other_config = {} if other_config is None else other_config
 
@@ -96,8 +96,8 @@ def load_emulator_configs():
 	parser.read(emulator_config_path)
 
 	for system in parser.sections():
-		rom_dir = parser[system]['rom_dir']
-		if not rom_dir:
+		rom_dirs = parser[system]['rom_dirs'].split(';')
+		if not rom_dirs:
 			continue
 		emulator = parser[system]['emulator']
 
@@ -111,9 +111,9 @@ def load_emulator_configs():
 		else:
 			print('Warning! System {0} is configured but might not exist'.format(system))
 
-		other_config = {k: v for k, v in parser[system].items() if k not in ('rom_dir', 'emulator')}
+		other_config = {k: v for k, v in parser[system].items() if k not in ('rom_dirs', 'emulator')}
 
-		system_configs.append(SystemConfig(system, rom_dir, emulator, other_config))
+		system_configs.append(SystemConfig(system, rom_dirs, emulator, other_config))
 			
 load_config()
 with open(ignored_dirs_path, 'rt') as ignored_txt:

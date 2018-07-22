@@ -171,7 +171,7 @@ class Game():
 
 		launchers.make_launcher(command_line, self.rom.name, self.metadata)
 
-def process_file(system_config, root, name):
+def process_file(system_config, rom_dir, root, name):
 	path = os.path.join(root, name)
 	
 	emulator_name = system_config.chosen_emulator
@@ -183,7 +183,7 @@ def process_file(system_config, root, name):
 
 
 	#TODO This looks weird, but is there a better way to do this? (Get subfolders we're in from rom_dir)
-	game.metadata.categories = [i for i in root.replace(system_config.rom_dir, '').split('/') if i]
+	game.metadata.categories = [i for i in root.replace(rom_dir, '').split('/') if i]
 	if not game.metadata.categories:
 		game.metadata.categories = [game.metadata.platform]
 
@@ -228,23 +228,24 @@ def sort_m3u_first():
 
 used_m3u_filenames = []
 def process_system(system_config):
-	for root, _, files in os.walk(system_config.rom_dir):
-		if common.starts_with_any(root + os.sep, config.ignored_directories):
-			continue
-		for name in sorted(files, key=sort_m3u_first()):
-			path = os.path.join(root, name)
-			if name.startswith('[BIOS]'):
-				continue			
+	for rom_dir in system_config.rom_dirs:
+		for root, _, files in os.walk(rom_dir):
+			if common.starts_with_any(root + os.sep, config.ignored_directories):
+				continue
+			for name in sorted(files, key=sort_m3u_first()):
+				path = os.path.join(root, name)
+				if name.startswith('[BIOS]'):
+					continue			
 				
-			if name.lower().endswith('.m3u'):
-				used_m3u_filenames.extend(parse_m3u(path))
-			else:
-				#Avoid adding part of a multi-disc game if we've already added the whole thing via m3u
-				#This is why we have to make sure m3u files are added first, though...  not really a nice way around this, unless we scan the whole directory for files first and then rule out stuff?
-				if name in used_m3u_filenames or path in used_m3u_filenames:
-					continue
+				if name.lower().endswith('.m3u'):
+					used_m3u_filenames.extend(parse_m3u(path))
+				else:
+					#Avoid adding part of a multi-disc game if we've already added the whole thing via m3u
+					#This is why we have to make sure m3u files are added first, though...  not really a nice way around this, unless we scan the whole directory for files first and then rule out stuff?
+					if name in used_m3u_filenames or path in used_m3u_filenames:
+						continue
 			
-			process_file(system_config, root, name)
+				process_file(system_config, rom_dir, root, name)
 
 def process_systems():
 	excluded_systems = []
