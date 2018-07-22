@@ -123,8 +123,11 @@ def find_main_cpu(machine_xml):
 
 def mame_verifyroms(basename):
 	#FIXME Okay this is way too fuckin' slow
-	status = subprocess.run(['mame', '-verifyroms', basename], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode
-	return status == 0
+	try:
+		subprocess.run(['mame', '-verifyroms', basename], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+		return True
+	except subprocess.CalledProcessError:
+		return False	
 
 def get_catlist():
 	parser = configparser.ConfigParser(interpolation=None, allow_no_value=True)
