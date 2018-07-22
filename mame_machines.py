@@ -13,52 +13,9 @@ from info import emulator_info
 from metadata import Metadata, EmulationStatus, CPUInfo, ScreenInfo
 from region_detect import get_language_by_english_name
 
+from mame_helpers import get_mame_xml, find_main_cpu
+
 debug = '--debug' in sys.argv
-
-
-_lookup_system_cpu_cache = {}
-def lookup_system_cpu(driver_name):
-	if driver_name in _lookup_system_cpu_cache:
-		return _lookup_system_cpu_cache[driver_name]
-
-	xml = get_mame_xml(driver_name)
-	if not xml:
-		_lookup_system_cpu_cache[driver_name] = None
-		return None
-	machine = xml.find('machine')
-	if not machine:
-		_lookup_system_cpu_cache[driver_name] = None
-		return None
-
-	main_cpu = find_main_cpu(machine)
-	if main_cpu is not None: #"if main_cpu: doesn't work. Frig! Why not! Wanker! Sodding bollocks!
-		cpu_info = CPUInfo()
-		cpu_info.load_from_xml(main_cpu)
-
-		_lookup_system_cpu_cache[driver_name] = cpu_info
-		return cpu_info
-
-	return None
-
-_lookup_system_display_cache = {}
-def lookup_system_displays(driver_name):
-	if driver_name in _lookup_system_display_cache:
-		return _lookup_system_display_cache[driver_name]
-
-	xml = get_mame_xml(driver_name)
-	if not xml:
-		_lookup_system_display_cache[driver_name] = []
-		return None
-	machine = xml.find('machine')
-	if not machine:
-		_lookup_system_display_cache[driver_name] = []
-		return None
-
-	displays = machine.findall('display')
-	screen_info = ScreenInfo()
-	screen_info.load_from_xml_list(displays)
-	_lookup_system_display_cache[driver_name] = screen_info
-	return screen_info
 
 icon_line_regex = re.compile(r'^icons_directory\s+(.+)$')
 def get_icon_directories():
@@ -109,20 +66,6 @@ class Machine():
 
 		command_line = emulator_info.make_mame_command_line(self.basename)
 		launchers.make_launcher(command_line, self.name, self.metadata, icon)
-
-def find_main_cpu(machine_xml):
-	for chip in machine_xml.findall('chip'):
-		tag = chip.attrib['tag']
-		if tag == 'maincpu' or tag == 'mainpcb:maincpu':
-			return chip
-
-	#If no maincpu, just grab the first CPU chip
-	for chip in machine_xml.findall('chip'):
-		if chip.attrib['type'] == 'cpu':
-			return chip
-
-	#Alto I and HP 2100 have no chips, apparently.  Huh?  Oh well
-	return None
 
 def mame_verifyroms(basename):
 	#FIXME Okay this is way too fuckin' slow
@@ -329,16 +272,6 @@ def get_mame_drivers():
 			continue	
 
 	return drivers
-	
-def get_mame_xml(driver):
-	process = subprocess.run(['mame', '-listxml', driver], stdout=subprocess.PIPE)
-	status = process.returncode
-	output = process.stdout
-	if status != 0:
-		print('Fucking hell ' + driver)
-		return None
-
-	return ElementTree.fromstring(output)
 
 def process_arcade():
 	#Fuck iterparse by the way, if you stumble across this script and think "oh you should use iterparse instead of this

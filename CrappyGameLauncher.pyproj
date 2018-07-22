@@ -37,6 +37,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="main.py" />
+    <Compile Include="mame_helpers.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="mame_machines.py" />
     <Compile Include="metadata.py">
       <SubType>Code</SubType>

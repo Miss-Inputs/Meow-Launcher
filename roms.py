@@ -14,7 +14,7 @@ import platform_metadata
 import metadata
 
 from info import system_info, emulator_info
-from mame_machines import lookup_system_cpu, lookup_system_displays
+from mame_helpers import lookup_system_cpu, lookup_system_displays
 
 debug = '--debug' in sys.argv
 
