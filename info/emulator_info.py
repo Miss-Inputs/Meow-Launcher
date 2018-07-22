@@ -204,6 +204,29 @@ def make_mame_snes_command_line(game, other_config):
 
 	return make_mame_command_line(system, 'cart')
 
+def make_mame_nes_command_line(game, other_config):
+	if game.rom.extension == 'fds':
+		#We don't need to detect TV type because the FDS was only released in Japan and so the Famicom can be used for everything
+		return make_mame_command_line('fds', 'flop')
+	#TODO: Use dendy or sb486 drivers if we know the game uses it	
+	#TODO: Set up controller ports if game uses Zapper, etc
+	if game.metadata.tv_type == TVSystem.PAL:
+		system = 'nespal'
+	else:
+		#There's both a "famicom" driver and also a "nes" driver which does include the Famicom (as well as NTSC NES), so that's weird
+		#Gonna presume this works, though
+		system = 'nes'
+
+	return make_mame_command_line(system, 'cart')
+
+def make_mame_atari_2600_command_line(game, other_config):
+	if game.metadata.tv_type == TVSystem.PAL:
+		system = 'a2600p'
+	else:
+		system = 'a2600'
+
+	return make_mame_command_line(system, 'cart')
+
 emulators = {
 	'Citra': Emulator('citra-qt $<path>', ['3ds', 'cxi', '3dsx'], []),
 	#Will not run full screen from the command line and you always have to set it manually whether you like it or not (I
@@ -282,6 +305,7 @@ emulators = {
 	#There's a keypad there which is used for game selection/setup, otherwise it just uses a paddle with a button (the
 	#actual controllers IRL were wacky, but for emulation purposes are otherwise pretty normal).  Hopefully adding that
 	#RAM expansion won't hurt?  Some games (Chicken) seem to be broken anyway with expansion or without whoops
+	'MAME (Atari 2600)': MameSystem(make_mame_a2600_command_line, ['bin', 'a26']),
 	'MAME (Atari 5200)': MameSystem(make_mame_command_line('a5200', 'cart'), ['bin', 'rom', 'car', 'a52']),
 	#Analog stuff like Gorf doesn't really work that well, but it doesn't in real life either; could use -sio casette
 	#-cass *.wav if there was ever a game that came as a .wav which apparently could be a thing in theory
@@ -333,6 +357,7 @@ emulators = {
 	#emulated in MAME); meaning I am probably doing something wrong.  Don't think it has region lock so I should never
 	#need to use neocdzj? (neocd doesn't work, apparently because it thinks it has the drive tray open constantly)
 	'MAME (Neo Geo Pocket)': MameSystem(make_mame_command_line('ngpc', 'cart'), ['bin', 'ngp', 'npc', 'ngc']),
+	'MAME (NES)': MameSystem(make_mame_nes_command_line, ['nes', 'unf', 'unif', 'fds']),
 	'MAME (Pokemon Mini)': MameSystem(make_mame_command_line('pokemini', 'cart'), ['bin', 'min']),
 	#Wouldn't recommend yet as it has no sound, even if most people would probably turn the sound off in real life
 	'MAME (PV-1000)': MameSystem(make_mame_command_line('pv1000', 'cart'), ['bin']),
@@ -375,11 +400,11 @@ emulators = {
 	#the colours look even worse (they're all inverted and shit)
 	'MAME (WonderSwan)': MameSystem(make_mame_command_line('wscolor', 'cart'), ['ws', 'wsc', 'bin']),
 
-	#Other systems that MAME can do but I'm too lazy to do them yet because they'd need a command line generator function:
+	#Other systems that MAME can do but I'm too lazy to do them yet because they'd need a command line generator function or other:
 	#Lynx: Need to select -quick for .o files and -cart otherwise
 	#SC-3000: Need to select -cart for carts and -cass for cassettes (.wav .bit); I'm not sure Kega Fusion can do .sc or cassettes yet
 	#SF-7000: Need to select -flop for disk images (sf7 + normal MAME disk formats) and -cass for cassettes (.wav .bit); very sure Kega Fusion can't do this
-	#NES, SMS, Megadrive, Atari 2600: Need to detect region 
+	#SMS, Megadrive: Need to detect region (beyond TV type)
 	#	(Notable that Megadrive can do Sonic & Knuckles)
 	#N64: Does not do PAL at all. The game might even tell you off if it's a PAL release
 	#PC Engine: Need to select between pce and tg16 depending on region, -cdrom and -cart slots, and sgx accordingly
