@@ -36,7 +36,7 @@ def make_filename(name):
 	return name
 
 used_filenames = []
-def base_make_desktop(command, display_name, comment, fields=None):
+def base_make_desktop(command, display_name, comment, fields=None, icon=None):
 	base_filename = make_filename(display_name)
 	filename = base_filename + '.desktop'
 	
@@ -55,6 +55,11 @@ def base_make_desktop(command, display_name, comment, fields=None):
 		f.write('Name=%s\n' % display_name)
 		f.write('Comment=%s\n' % comment)
 		f.write('Exec=%s\n' % command)
+
+		if icon:
+			if isinstance(icon, str):
+				f.write('Icon=%s\n' % icon)
+			#else: TODO
 
 		if fields:
 			for k, v in fields.items():
@@ -81,7 +86,7 @@ def make_display_name(name):
 			
 	return display_name
 
-def make_launcher(command, name, metadata):
+def make_launcher(command, name, metadata, icon=None):
 	comment = name
 	#TODO: Hmm... do I like the comment field being used like this.... maybe I just want an X-Full-Name field
 	display_name = make_display_name(name)
@@ -89,4 +94,4 @@ def make_launcher(command, name, metadata):
 	fields = metadata.to_launcher_fields()
 	fields['Filename-Tags'] = filename_tags
 	#For very future use, this is where the underlying host platform is abstracted away. make_launcher is for everything, base_make_desktop is for Linux .desktop files specifically. Perhaps there are other things that could be output as well.
-	base_make_desktop(command, display_name, comment, fields)
+	base_make_desktop(command, display_name, comment, fields, icon)

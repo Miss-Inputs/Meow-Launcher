@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ElementTree
 import configparser
 import os
 import sys
+import re
 
 import config
 import launchers
@@ -59,6 +60,29 @@ def lookup_system_displays(driver_name):
 	_lookup_system_display_cache[driver_name] = screen_info
 	return screen_info
 
+icon_line_regex = re.compile(r'^icons_directory\s+(.+)$')
+def get_icon_directory():
+	ui_config_path = os.path.expanduser('~/.mame/ui.ini')
+	if not os.path.isfile(ui_config_path):
+		return None
+
+	with open(ui_config_path, 'rt') as ui_config:
+		for line in ui_config.readlines():
+			icon_line_match = icon_line_regex.match(line)
+			if icon_line_match:
+				return icon_line_match[1]
+
+	return None
+
+icon_directory = get_icon_directory()
+
+def get_icon(name):
+	for icon_file in os.listdir(icon_directory):
+		if icon_file.lower() == (name.lower() + '.ico'):
+			return os.path.join(icon_directory, icon_file)
+	
+	return None
+	
 class Machine():
 	def __init__(self, xml):
 		self.xml = xml
@@ -69,12 +93,16 @@ class Machine():
 
 		self.source_file = os.path.splitext(xml.attrib['sourcefile'])[0]
 		self.metadata.specific_info['Source-File'] = self.source_file
-	
 
 	def make_launcher(self):
-		command_line = emulator_info.make_mame_command_line(self.basename)
-		launchers.make_launcher(command_line, self.name, self.metadata)
+		icon = None
+		if icon_directory:
+			icon = get_icon(self.basename)
+			if not icon:
+				icon = get_icon(self.family)
 
+		command_line = emulator_info.make_mame_command_line(self.basename)
+		launchers.make_launcher(command_line, self.name, self.metadata, icon)
 
 def find_main_cpu(machine_xml):
 	for chip in machine_xml.findall('chip'):
