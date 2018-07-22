@@ -76,13 +76,16 @@ def get_icon_directory():
 
 icon_directory = get_icon_directory()
 
-def get_icon(name):
+def load_icons():
+	icons = {}
 	for icon_file in os.listdir(icon_directory):
-		if icon_file.lower() == (name.lower() + '.ico'):
-			return os.path.join(icon_directory, icon_file)
+		name, ext = os.path.splitext(icon_file)
+		if ext == '.ico':
+			icons[name] = os.path.join(icon_directory, icon_file)
 	
-	return None
-	
+	return icons
+icons = load_icons()
+
 class Machine():
 	def __init__(self, xml):
 		self.xml = xml
@@ -97,9 +100,9 @@ class Machine():
 	def make_launcher(self):
 		icon = None
 		if icon_directory:
-			icon = get_icon(self.basename)
+			icon = icons.get(self.basename)
 			if not icon:
-				icon = get_icon(self.family)
+				icon = icons.get(self.family)
 
 		command_line = emulator_info.make_mame_command_line(self.basename)
 		launchers.make_launcher(command_line, self.name, self.metadata, icon)
