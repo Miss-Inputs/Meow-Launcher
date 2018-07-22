@@ -61,7 +61,7 @@ def lookup_system_displays(driver_name):
 	return screen_info
 
 icon_line_regex = re.compile(r'^icons_directory\s+(.+)$')
-def get_icon_directory():
+def get_icon_directories():
 	ui_config_path = os.path.expanduser('~/.mame/ui.ini')
 	if not os.path.isfile(ui_config_path):
 		return None
@@ -70,18 +70,21 @@ def get_icon_directory():
 		for line in ui_config.readlines():
 			icon_line_match = icon_line_regex.match(line)
 			if icon_line_match:
-				return icon_line_match[1]
+				#I ain't about that relative path life fam
+				return [dir for dir in icon_line_match[1].split(';') if dir.startswith('/')]
 
 	return None
 
-icon_directory = get_icon_directory()
+icon_directories = get_icon_directories()
 
 def load_icons():
 	icons = {}
-	for icon_file in os.listdir(icon_directory):
-		name, ext = os.path.splitext(icon_file)
-		if ext == '.ico':
-			icons[name] = os.path.join(icon_directory, icon_file)
+	for icon_directory in icon_directories:
+		if os.path.isdir(icon_directory):
+			for icon_file in os.listdir(icon_directory):
+				name, ext = os.path.splitext(icon_file)
+				if ext == '.ico':
+					icons[name] = os.path.join(icon_directory, icon_file)
 	
 	return icons
 icons = load_icons()
@@ -99,7 +102,7 @@ class Machine():
 
 	def make_launcher(self):
 		icon = None
-		if icon_directory:
+		if icons:
 			icon = icons.get(self.basename)
 			if not icon:
 				icon = icons.get(self.family)
