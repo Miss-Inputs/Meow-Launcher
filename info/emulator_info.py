@@ -305,7 +305,7 @@ emulators = {
 	#There's a keypad there which is used for game selection/setup, otherwise it just uses a paddle with a button (the
 	#actual controllers IRL were wacky, but for emulation purposes are otherwise pretty normal).  Hopefully adding that
 	#RAM expansion won't hurt?  Some games (Chicken) seem to be broken anyway with expansion or without whoops
-	'MAME (Atari 2600)': MameSystem(make_mame_a2600_command_line, ['bin', 'a26']),
+	'MAME (Atari 2600)': MameSystem(make_mame_atari_2600_command_line, ['bin', 'a26']),
 	'MAME (Atari 5200)': MameSystem(make_mame_command_line('a5200', 'cart'), ['bin', 'rom', 'car', 'a52']),
 	#Analog stuff like Gorf doesn't really work that well, but it doesn't in real life either; could use -sio casette
 	#-cass *.wav if there was ever a game that came as a .wav which apparently could be a thing in theory
