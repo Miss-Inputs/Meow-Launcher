@@ -20,6 +20,7 @@ def get_mame_driver_by_system_name(name):
 	return None
 
 systems = [
+	#TODO: Convert to dict where name = key
 	System('32X', '32x', ['32x'], ['Kega Fusion']), 
 	System('3DS', None, [], ['Citra']), 
 	System('Amstrad GX4000', 'gx4000', ['gx4000'], ['MAME (Amstrad GX4000)', 'MAME (Amstrad CPC+)']), 
@@ -67,6 +68,7 @@ systems = [
 	System('Lynx', 'lynx', ['lynx'], ['Mednafen (Lynx)']), 
 	System('N64', 'n64', ['n64'], ['Mupen64Plus']), 
 	System('Saturn', 'saturn', ['saturn', 'sat_cart', 'sat_vccart'], ['Mednafen (Saturn)']), 
+	#Not the most easily mappable of controllers due to having both 6 face buttons and 2 shoulder buttons
 	System('Wii', None, [], ['Dolphin']), 
 	System('WonderSwan', 'wscolor', ['wswan', 'wscolor'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)']), 
 

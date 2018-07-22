@@ -126,6 +126,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include=".pylintrc" />
+    <Content Include="name_consistency.ini" />
     <Content Include="README.md" />
   </ItemGroup>
   <ItemGroup>

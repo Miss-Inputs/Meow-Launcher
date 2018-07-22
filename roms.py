@@ -176,8 +176,6 @@ def process_file(system_config, root, name):
 	
 	emulator_name = system_config.chosen_emulator
 	if emulator_name not in emulator_info.emulators:
-		#TODO: Only warn about this once!
-		print(system_config.name, 'is trying to use emulator', emulator_name, 'which does not exist!')
 		return
 	
 	rom = Rom(path)

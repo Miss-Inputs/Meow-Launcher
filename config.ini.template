@@ -1,0 +1,15 @@
+[General]
+output_folder = 
+organized_output_folder = 
+
+[Mac]
+basilisk_ii_shared_folder = 
+#Separated by ;
+mac_disk_images = 
+mac_db_path = 
+
+[Arcade]
+catlist_path = 
+languages_path = 
+#Separated by ;
+skipped_source_files = 

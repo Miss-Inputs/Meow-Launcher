@@ -314,12 +314,7 @@ def process_arcade():
 	#successful results?
 
 	for driver, source_file in get_mame_drivers():
-		if source_file in config.too_slow_drivers:
-			continue
-			
-		if common.starts_with_any(source_file, config.skip_fruit_machines):
-			#Get those fruit machines outta here (they take too long to process and verify that we don't have them, and tend to
-			#not work anyway, otherwise I'd consider still including them)
+		if source_file in config.skipped_source_files:
 			continue
 
 		#You probably think this is why it's slow, right?  You think "Oh, that's silly, you're verifying every single romset

@@ -1,0 +1,242 @@
+[Amstrad GX4000]
+rom_dir = 
+emulator = 
+
+[Arcadia 2001]
+rom_dir = 
+emulator = 
+
+[Atari 2600]
+rom_dir = 
+emulator = 
+
+[Atari 5200]
+rom_dir = 
+emulator = 
+
+[Atari 7800]
+rom_dir = 
+emulator = 
+
+[Casio PV-1000]
+rom_dir = 
+emulator = 
+
+[Entex Adventure Vision]
+rom_dir = 
+emulator = 
+
+[Epoch Game Pocket Computer]
+rom_dir = 
+emulator = 
+
+[Gamate]
+rom_dir = 
+emulator = 
+
+[Game Boy]
+rom_dir = 
+emulator = 
+
+[Game Gear]
+rom_dir = 
+emulator = 
+
+[GBA]
+rom_dir = 
+emulator = 
+
+[Master System]
+rom_dir = 
+emulator = 
+
+[Mega CD]
+rom_dir = 
+emulator = 
+
+[Mega Drive]
+rom_dir = 
+emulator = 
+
+[Mega Duck]
+rom_dir = 
+emulator = 
+
+[N64]
+rom_dir = 
+emulator = 
+
+[Neo Geo CD]
+rom_dir = 
+emulator = 
+
+[Neo Geo Pocket]
+rom_dir = 
+emulator = 
+
+[NES]
+rom_dir = 
+emulator = 
+
+[PC Engine]
+rom_dir = 
+emulator = 
+
+[PC Engine CD]
+rom_dir = 
+emulator = 
+
+[Pokemon Mini]
+rom_dir = 
+emulator = 
+
+[PSP]
+rom_dir = 
+emulator = 
+
+[SG-1000]
+rom_dir = 
+emulator = 
+
+[SNES]
+rom_dir = 
+emulator = 
+
+[Vectrex]
+rom_dir = 
+emulator = 
+
+[Virtual Boy]
+rom_dir = 
+emulator = 
+
+[Watara Supervision]
+rom_dir = 
+emulator = 
+
+[Colecovision]
+rom_dir = 
+emulator = 
+
+[Intellivison]
+rom_dir = 
+emulator = 
+
+[APF-MP1000]
+rom_dir = 
+emulator = 
+
+[Astrocade]
+rom_dir = 
+emulator = 
+
+[Channel F]
+rom_dir = 
+emulator = 
+
+[Lynx]
+rom_dir = 
+emulator = 
+
+[WonderSwan]
+rom_dir = 
+emulator = 
+
+[MSX]
+rom_dir = 
+emulator = 
+
+[MSX2]
+rom_dir = 
+emulator = 
+
+[VIC-20]
+rom_dir = 
+emulator = 
+
+[Casio PV-2000]
+rom_dir = 
+emulator = 
+
+[Sord M5]
+rom_dir = 
+emulator = 
+
+[Atari 8-bit]
+rom_dir = 
+emulator = 
+
+[PlayStation]
+rom_dir = 
+emulator = 
+
+[GameCube]
+rom_dir = 
+emulator = 
+
+[3DS]
+rom_dir = 
+emulator = 
+
+[DS]
+rom_dir = 
+emulator = 
+
+[PS2]
+rom_dir = 
+emulator = 
+
+[32X]
+rom_dir = 
+emulator = 
+
+[CD-i]
+rom_dir = 
+emulator = 
+
+[Game.com]
+rom_dir = 
+emulator = 
+
+[Sufami Turbo]
+rom_dir = 
+emulator = 
+bios_path = 
+
+[Satellaview]
+rom_dir = 
+emulator = 
+bios_path = 
+
+[Wii]
+rom_dir = 
+emulator = 
+
+[Saturn]
+rom_dir = 
+emulator = 
+
+[Tomy Tutor]
+rom_dir = 
+emulator = 
+
+[C64]
+rom_dir = 
+emulator = 
+
+[VIC-10]
+rom_dir = 
+emulator = 
+
+[Sharp X1]
+rom_dir = 
+emulator = 
+
+[Sharp X68000]
+rom_dir = 
+emulator = 
+
+[Doom]
+rom_dir = 
+emulator = 
+save_dir = 

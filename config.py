@@ -1,18 +1,14 @@
-import socket
 import os
+import configparser
 
-doom_save_dir = '/media/Stuff/Roms/Doom/Saves'
-sufami_turbo_bios_path = '/media/Stuff/Roms/SNES/BIOS/Sufami Turbo (Japan).sfc'
-bsx_bios_path = '/media/Stuff/Roms/SNES/BIOS/BS-X BIOS/BS-X BIOS (English) [No DRM] [2016 v1.3].sfc'
-catlist_path = '/media/Stuff/Roms/Arcade/Categories/catlist.ini'
-languages_path = '/media/Stuff/Roms/Arcade/Categories/languages.ini'
+from info import system_info, emulator_info
 
-is_toaster = socket.gethostname() == 'Bridgette'
-pce_emulator = 'Mednafen (PC Engine Fast)' if is_toaster else 'Mednafen (PC Engine)'
-basilisk_ii_shared_folder = '/media/Things/Mac_OS_Stuff/Shared'
-
-mac_disk_images = ['/media/Things/Mac_OS_Stuff/Games 68k.hfv']
-mac_db_path = os.path.join(os.path.dirname(__file__), 'mac_db.json')
+#TODO: Get this in a less hardcody cross-platform way.
+config_dir = os.path.expanduser('~/.config/CrappyGameLauncher/')
+config_path = os.path.join(config_dir, 'config.ini')
+ignored_dirs_path = os.path.join(config_dir, 'ignored_directories.txt')
+name_consistency_path = os.path.join(os.path.dirname(__file__), 'name_consistency.ini')
+emulator_config_path = os.path.join(config_dir, 'emulators.ini')
 
 class SystemConfig():
 	def __init__(self, name, rom_dir, chosen_emulator, other_config=None):
@@ -21,109 +17,6 @@ class SystemConfig():
 		self.chosen_emulator = chosen_emulator
 		self.other_config = {} if other_config is None else other_config
 
-system_configs = [
-	SystemConfig('Game Boy', '/media/Stuff/Roms/Gameboy', 'Gambatte'),
-	SystemConfig('GBA', '/media/Stuff/Roms/GBA', 'mGBA'), 
-	SystemConfig('SNES', '/media/Stuff/Roms/SNES', 'Snes9x'),
-	SystemConfig('N64', '/media/Stuff/Roms/N64', 'Mupen64Plus'), 
-	SystemConfig('Mega Drive', '/media/Stuff/Roms/Megadrive', 'Kega Fusion'),
-	SystemConfig('Game Gear', '/media/Stuff/Roms/Game Gear', 'Kega Fusion'),
-	SystemConfig('Master System', '/media/Stuff/Roms/Master System', 'Kega Fusion'),
-	SystemConfig('PSP', '/media/Stuff/Roms/PSP', 'PPSSPP'),
-	SystemConfig('Neo Geo Pocket', '/media/Stuff/Roms/Neo Geo Pocket', 'Mednafen (Neo Geo Pocket)'),
-	SystemConfig('Atari 2600', '/media/Stuff/Roms/Atari 2600', 'Stella'), 
-	SystemConfig('Pokemon Mini', '/media/Stuff/Roms/Pokemon Mini', 'PokeMini (wrapper)'),
-	SystemConfig('NES', '/media/Stuff/Roms/NES', 'Mednafen (NES)'),
-	SystemConfig('Mega CD', '/media/Stuff/Roms/Mega CD', 'Kega Fusion'), 
-	SystemConfig('SG-1000', '/media/Stuff/Roms/Sega SG-1000', 'Kega Fusion'),
-	SystemConfig('PC Engine', '/media/Stuff/Roms/PC Engine', pce_emulator), 
-	SystemConfig('PC Engine CD', '/media/Stuff/Roms/PC Engine CD', pce_emulator), 
-	SystemConfig('Virtual Boy', '/media/Stuff/Roms/Virtual Boy', 'Mednafen (Virtual Boy)'),
-	SystemConfig('Atari 7800', '/media/Stuff/Roms/Atari 7800', 'MAME (Atari 7800)'), 
-	SystemConfig('Neo Geo CD', '/media/Stuff/Roms/Neo Geo CD', 'MAME (Neo Geo CD)'),
-	SystemConfig('Atari 5200', '/media/Stuff/Roms/Atari 5200', 'MAME (Atari 5200)'), 
-
-	SystemConfig('Watara Supervision', '/media/Stuff/Roms/Watara Supervision', 'MAME (Watara Supervision)'), 
-	SystemConfig('Casio PV-1000', '/media/Stuff/Roms/Casio PV-1000', 'MAME (PV-1000)'),
-	SystemConfig('Arcadia 2001', '/media/Stuff/Roms/Arcadia 2001', 'MAME (Arcadia 2001)'), 
-	SystemConfig('Entex Adventure Vision', '/media/Stuff/Roms/Adventure Vision', 'MAME (Entex Adventure Vision)'), 
-	SystemConfig('Vectrex', '/media/Stuff/Roms/Vectrex', 'MAME (Vectrex)'), 
-	SystemConfig('Mega Duck', '/media/Stuff/Roms/Mega Duck', 'MAME (Mega Duck)'), 
-	SystemConfig('Amstrad GX4000', '/media/Stuff/Roms/Amstrad GX4000', 'MAME (Amstrad GX4000)'), 
-	SystemConfig('Gamate', '/media/Stuff/Roms/Gamate', 'MAME (Gamate)'),
-	SystemConfig('Epoch Game Pocket Computer', '/media/Stuff/Roms/Game Pocket Computer', 'MAME (Game Pocket Computer)'),
-
-	SystemConfig('Colecovision', '/media/Stuff/Roms/Colecovision', 'MAME (ColecoVision)'), 
-	SystemConfig('Intellivison', '/media/Stuff/Roms/Intellivision', 'MAME (Intellivoice)'), 
-	SystemConfig('APF-MP1000', '/media/Stuff/Roms/APF-MP1000', 'MAME (APF-MP1000)'),
-	SystemConfig('Astrocade', '/media/Stuff/Roms/Astrocade', 'MAME (Astrocade)'), 
-	SystemConfig('Channel F', '/media/Stuff/Roms/Channel F', 'MAME (Channel F)'), 
-	SystemConfig('Lynx', '/media/Stuff/Roms/Atari Lynx', 'Mednafen (Lynx)'), 
-	SystemConfig('WonderSwan', '/media/Stuff/Roms/WonderSwan', 'Mednafen (WonderSwan)'), 
-	SystemConfig('Doom', '/media/Stuff/Roms/Doom/', 'PrBoom+', {'save_dir': doom_save_dir}),
-	
-	SystemConfig('MSX', '/media/Stuff/Roms/MSX', 'MAME (MSX2)'), 
-	SystemConfig('MSX2', '/media/Stuff/Roms/MSX2', 'MAME (MSX2)'), 
-	SystemConfig('VIC-20', '/media/Stuff/Roms/Commodore VIC-20', 'MAME (VIC-20)'),
-	SystemConfig('Casio PV-2000', '/media/Stuff/Roms/Casio PV-2000', 'MAME (PV-2000)'), 
-	SystemConfig('Sord M5', '/media/Stuff/Roms/Sord M5', 'MAME (Sord M5)'), 
-	SystemConfig('Atari 8-bit', '/media/Stuff/Roms/Atari 8-bit', 'MAME (Atari 8-bit)'), 
-]
-
-if not is_toaster:
-	system_configs.extend([
-		SystemConfig('PlayStation', '/media/Stuff/Roms/Playstation', 'Mednafen (PS1)'), 
-		SystemConfig('GameCube', '/media/Stuff/Roms/Gamecube', 'Dolphin'),
-		SystemConfig('3DS', '/media/Stuff/Roms/3DS', 'Citra'), 
-		SystemConfig('DS', '/media/Stuff/Roms/DS', 'Medusa'),
-		SystemConfig('PS2', '/media/Stuff/Roms/PS2', 'PCSX2'), 
-		SystemConfig('32X', '/media/Stuff/Roms/32X', 'Kega Fusion'), 
-		#Kega Fusion almost runs 32X well on toaster, but not enough games run at full speed for me to bother...
-		SystemConfig('CD-i', '/media/Stuff/Roms/CD-i', 'MAME (CD-i)'),
-		SystemConfig('Game.com', '/media/Stuff/Roms/Game.com', 'MAME (Game.com)'),
-		SystemConfig('Sufami Turbo', '/media/Stuff/Roms/SNES/Sufami Turbo', 'MAME (Sufami Turbo)', {'bios_path': sufami_turbo_bios_path}),
-		SystemConfig('Satellaview', '/media/Stuff/Roms/SNES/Satellaview', 'MAME (Satellaview)', {'bios_path': bsx_bios_path}),
-
-		SystemConfig('Wii', '/media/Stuff/Roms/Wii', 'Dolphin'), 
-		#Gonna have to map these motion controls somehow
-		SystemConfig('Saturn', '/media/Stuff/Roms/Saturn', 'Mednafen (Saturn)'), 
-		#Not the most easily mappable of controllers due to having both 6 face buttons and 2 shoulder buttons
-
-		SystemConfig('Tomy Tutor', '/media/Stuff/Roms/Tomy Tutor', 'MAME (Tomy Tutor)'), 
-		SystemConfig('C64', '/media/Stuff/Roms/Commodore 64', 'MAME (C64)'),
-		SystemConfig('VIC-10', '/media/Stuff/Roms/Commodore VIC-10', 'MAME (VIC-10)'), 
-		SystemConfig('Sharp X1', '/media/Stuff/Roms/Sharp X1', 'MAME (Sharp X1)'), 
-		SystemConfig('Sharp X68000', '/media/Stuff/Roms/Sharp X68000', 'MAME (Sharp X68000)'),
-	])
-
-with open(os.path.join(os.path.dirname(__file__), 'ignored_directories.txt'), 'rt') as ignored_txt:
-	ignored_directories = ignored_txt.read().splitlines()
-
-#These just kinda don't work entirely (namcos10, namcos11 might be fine?) or in the case of aleck64 and seattle, are
-#too cool to run on normal PCs affordable by normal people
-#model2: Daytona, Sonic the Fighters; model3: Daytona 2; aleck64: Vivid Dolls; namcos10: ??; namcos11: Tekken;
-#namcos23: Time Crisis 2; chihiro: Outrun 2; naomi: Virtua Tennis, Puyo Puyo Fever, Azumanga Daioh Puzzle Bobble;
-#hikaru: ?; 3do: One prototype game called "Orbatak" that I've never heard of ; konamim2: ?; ksys573: DDR; hng64: ?;
-#seattle: CarnEvil (very close to full speed!); viper: Pop'n' Music 9, Jurassic Park 3; 39in1: weird MAME bootlegs;
-#taitowlf: Psychic Force 2012; alien: Donkey Kong Banana Kingdom, Pingu's Ice Block
-too_slow_drivers = ['model2', 'model3', 'aleck64', 'namcos10', 'namcos11', 'namcos12', 'namcos23', 'chihiro', 'naomi', 'hikaru', '3do', 'konamim2', 'ksys573', 'hng64', 'seattle', 'viper', '39in1', 'taitowlf', 'alien']
-if is_toaster:
-	#These won't go to well on anything in the toaster tier of performance due to being 3D or whatever, but otherwise they
-	#should work well enough
-	#stv: Puyo Puyo Sun; jaguar: Area 51; namcos22: Time Crisis, Ridge Racer; namcos12: Tekken 3, Point Blank 2; konamigv:
-	#Simpsons Bowling; vegas: Gauntlet Legends
-	too_slow_drivers.extend(['stv', 'jaguar', 'namcos22', 'namcos12', 'konamigv', 'vegas'])
-	#These ones would probably work with just a bit more oomph...  if I get an upgrade of any kind I should try them again
-	#m62 is an otherwise normal 8-bit system but the slowdown has to do with analogue sound, so it may need samples
-	#fuukifg3: Asura Blade; segac2: Puyo Puyo; segas18: Michael Jackson's Moonwalker; segas32: Outrunners, SegaSonic;
-	#namconb1: Point Blank; konamigx: Sexy Parodius (it thinks it doesn't work); megatech & megaplay: Arcadified Megadrive
-	#games; segaorun: Outrun; taito_f3: Puzzle Bobble 2; m62: Lode Runner; neogeo: Metal Slug X; pong: Pong, Breakout;
-	#atarisy2: like Paperboy or something I think; midtunit: Mortal Kombat 2; midwunit: Mortal Kombat 3 midyunit: NARC,
-	#Smash TV, Mortal Kombat 1
-	too_slow_drivers.extend(['fuukifg3', 'segac2', 'segas18', 'segas32', 'namconb1', 'konamigx', 'megatech', 'megaplay', 'segaorun', 'taito_f3', 'm62', 'neogeo', 'pong', 'atarisy2', 'midtunit', 'midwunit', 'midyunit', '1945kiii'])
-	
-skip_fruit_machines = ['mpu3', 'mpu4', 'mpu5', 'bfm_', 'pluto5', 'maygay', 'jpmimpctsw', 'peplus', 'ecoinf', 'arist', 'acesp']
-	
 #Normally, we'd skip over anything that has software because that indicates it's a system you plug games into and not
 #usable by itself.  But these are things that are really just standalone things, but they have an expansion for
 #whatever reason and are actually fine
@@ -131,98 +24,99 @@ skip_fruit_machines = ['mpu3', 'mpu4', 'mpu5', 'bfm_', 'pluto5', 'maygay', 'jpmi
 #parent/clone family
 okay_to_have_software = ['vii', 'snspell', 'tntell']
 
-output_folder = os.path.join('/tmp', 'crappy_game_launcher')
-organized_output_folder = os.path.expanduser("~/Apps")
+output_folder = None
+organized_output_folder = None
 
+basilisk_ii_shared_folder = None
+mac_disk_images = []
+mac_db_path = None
+
+catlist_path = None
+languages_path = None
+skipped_source_files = None
+
+ignored_directories = []
 #For when I do a hecking disagreement about how names should be formatted, and if subtitles should be in the title or
 #not.  This probably annoys purists, but I think it makes things less confusing at the end of the day
-#When has anyone mentioned a game called "Space Invaders M", anyway?
 #TODO: Review the practicality of just changing normalize_name to remove all spaces and punctuation.  Would that cause
 #any false positives at all?  Though there would still be use for this part here
-name_replacement = [
-	('240p Test Suite GX', '240p Suite'), 
-	('Arkanoid - Revenge of DOH', 'Arkanoid II - Revenge of Doh'), #What the hell?
-	('Bad Lands', 'BadLands'),
-	('Battle Zone', 'Battlezone'), 
-	('Block Out', 'Blockout'), 
-	('Bomber Man', 'Bomberman'),
-	('Bubsy in - Claws Encounters of the Furred Kind', 'Bubsy in Claws Encounters of the Furred Kind'),	
-	('Burger Time', 'BurgerTime'), 
-	('Chuck Norris - Super Kicks', 'Chuck Norris Superkicks'), 
-	('Cosmo Gang the Video', 'Cosmo Gang - The Video'), 
-	('Donkey Kong Junior', 'Donkey Kong Jr.'), 
-	('Final Fantasy 4', 'Final Fantasy IV'),
-	('James Pond 2 - Codename RoboCod', 'James Pond II - Codename RoboCod'),
-	('James Pond II - Codename - Robocod', 'James Pond II - Codename RoboCod'),
-	("John Romero's Daikatana", 'Daikatana'),
-	('Mario Brothers', 'Mario Bros.'), 
-	('Mega Man III', 'Mega Man 3'),
-	("Miner 2049'er", 'Miner 2049er'),
-	('OutRun', 'Out Run'), 
-	('Pacman', 'Pac-Man'), 
-	('Pac Man', 'Pac-Man'), 
-	('Parodius DA!', 'Parodius'),
-	('Pitfall 2', 'Pitfall II'),
-	('Puyo Puyo Tsuu', 'Puyo Puyo 2'), 
-	('Q-Bert', 'Q*bert'), 
-	#To be fair, this is just a technical restriction on filenames that isn't relevant when using a MAME display name
-	('Robotron - 2084', 'Robotron 2084'), 
-	('Sangokushi 3', 'Sangokushi III'), 
-	('Sim Ant', 'SimAnt'),
-	('Sim City', 'SimCity'),
-	('Sim Earth', 'SimEarth'),
-	('Super Boy 3', 'Super Boy III'), 
-	("Street Fighter II'", 'Street Fighter II'), 
-	('Twin Bee', 'TwinBee'),
-	('Ultima 3', 'Ultima III'),
-	('Where in the World is Carmen Sandiego?', 'Where in the World is Carmen Sandiego'), 
-	#Hmm... yeah, maybe I really should just remove ? in disambiguate.normalize_name...
-	('Wolfenstein 3-D', 'Wolfenstein 3D'),
-]
-
+name_replacement = []
 #Add "The " in front of these things (but not if there's already "The " in front of them of course)
-add_the = [
-	'Lion King', 
-	'Goonies',
-]
-
+add_the = []
 #Only check for this at the start of a thing
-subtitle_removal = [('After Burner Complete ~ After Burner', 'After Burner Complete'),
-	('Art of Fighting / Ryuuko no Ken', 'Art of Fighting'), 
-	('Batman Forever The Arcade Game', 'Batman Forever'),
-	('Breakout ~ Breakaway IV', 'Breakout'),
-	("Chaotix ~ Knuckles' Chaotix", "Knuckles' Chaotix"),
-	('Chaotix Featuring Knuckles the Echidna', "Knuckles' Chaotix"),
-	('Circus / Acrobat TV', 'Circus'),
-	('Circus Atari', 'Circus'),
-	('Cyber Brawl ~ Cosmic Carnage', 'Cosmic Carnage'),
-	('Galaga - Demons of Death', 'Galaga'),
-	('G-Sonic ~ Sonic Blast', 'Sonic Blast'),
-	("Ironman Ivan Stewart's Super Off-Road", "Super Off-Road"), 
-	("Ivan 'Ironman' Stewart's Super Off Road", "Super Off-Road"),
-	('MegaMania - A Space Nightmare', 'MegaMania'),
-	('Metal Slug 2 - Super Vehicle-001/II', 'Metal Slug 2'),
-	('Metal Slug X - Super Vehicle-001', 'Metal Slug X'),
-	('Miner 2049er - Starring Bounty Bob', 'Miner 2049er'),
-	('Miner 2049er Starring Bounty Bob', 'Miner 2049er'),
-	("Montezuma's Revenge featuring Panama Joe", "Montezuma's Revenge"),
-	("Montezuma's Revenge - Featuring Panama Joe", "Montezuma's Revenge"),
-	('Parodius - Shinwa kara Owarai e', 'Parodius'), 
-	#Technically wrong, Parodius is the first game on MSX and Parodius DA!  is the sequel but it's called Parodius in Europe which is annoying and I've already gotten rid of the DA! as above and everything confusing
-	('Pitfall II - Lost Caverns', 'Pitfall II'),
-	('Pitfall II - The Lost Caverns', 'Pitfall II'),
-	("Pitfall! - Pitfall Harry's Jungle Adventure", "Pitfall!"),
-	('Puzzle Bobble 2 / Bust-A-Move Again', 'Puzzle Bobble 2'),
-	('Puzzle Bobble / Bust-A-Move', 'Puzzle Bobble'), #Fuck you America
-	('Q*bert for Game Boy', 'Q*bert'), #This wouldn't be confusing if there wasn't another Q*Bert for Game Boy Color
-	('Shadow Squadron ~ Stellar Assault', 'Stellar Assault'),
-	('SimAnt - The Electronic Ant Colony', 'SimAnt'), 
-	('SimCity 2000 - The Ultimate City Simulator', 'SimCity 2000'), 
-	('SimEarth - The Living Planet', 'SimEarth'), 
-	("Sonic 3D Blast ~ Sonic 3D Flickies' Island", 'Sonic 3D Blast'),
-	('Space Invaders / Space Invaders M', 'Space Invaders'),
-	('Street Fighter II: The World Warrior', 'Street Fighter II'), 
-	('Super Street Fighter II: The New Challengers', 'Super Street Fighter II'), 
-	('Who Wants to Be a Millionaire - 2nd Edition', 'Who Wants to Be a Millionaire'), #This is not even a 2nd edition of anything, it's just the GBC version
-	('Ys III - Wanderers from Ys', 'Ys III'),
-]
+subtitle_removal = []
+
+system_configs = []
+
+def load_config():
+	#TODO: Load overrides from command line
+	parser = configparser.ConfigParser()
+	parser.optionxform = str
+	if not os.path.isfile(config_path):
+		print('oh no')
+		return
+	parser.read(config_path)
+	global output_folder, organized_output_folder, basilisk_ii_shared_folder, mac_disk_images, mac_db_path, catlist_path, languages_path, skipped_source_files
+
+	output_folder = os.path.expanduser(parser['General']['output_folder'])
+	organized_output_folder = os.path.expanduser(parser['General']['organized_output_folder'])
+	
+	basilisk_ii_shared_folder = os.path.expanduser(parser['Mac']['basilisk_ii_shared_folder'])
+	mac_disk_images = [os.path.expanduser(path) for path in parser['Mac']['mac_disk_images'].split(';')]
+	mac_db_path = os.path.expanduser(parser['Mac']['mac_db_path'])
+
+	catlist_path = os.path.expanduser(parser['Arcade']['catlist_path'])
+	languages_path = os.path.expanduser(parser['Arcade']['languages_path'])
+	skipped_source_files = parser['Arcade']['skipped_source_files'].split(';')
+
+def load_name_replacement():
+	#Sometimes, we want to mess around with : being in the title, so that can't be a delimiter since it needs to appear inside "keys". I'd have to restructure the whole config file to not be an .ini at all otherwise. Hopefully, nothing will have an equals sign in the title.
+	parser = configparser.ConfigParser(delimiters=('='), allow_no_value=True)
+	parser.optionxform = str
+	if not os.path.isfile(name_consistency_path):
+		print('oh no')
+		return
+	parser.read(name_consistency_path)
+	
+	for k, v in parser['Name Replacement'].items():
+		name_replacement.append((k, v))
+	for k, v in parser['Add "The"'].items():
+		add_the.append(k)
+	for k, v in parser['Subtitle Removal'].items():
+		subtitle_removal.append((k, v))
+
+def load_emulator_configs():
+	global system_configs
+
+	parser = configparser.ConfigParser(delimiters=('='), allow_no_value=True)
+	parser.optionxform = str
+	if not os.path.isfile(emulator_config_path):
+		print('oh no')
+		return
+	parser.read(emulator_config_path)
+
+	for system in parser.sections():
+		rom_dir = parser[system]['rom_dir']
+		if not rom_dir:
+			continue
+		emulator = parser[system]['emulator']
+
+		if emulator not in emulator_info.emulators:
+			print('Warning! System {0} is configured to use {1} but that is not known as an emulator'.format(system, emulator))
+
+		info = system_info.get_system_by_name(system)
+		if info:
+			if emulator not in info.emulators:
+				print('Warning! System {0} is configured to use {1} which does not support {0}'.format(system, emulator))
+		else:
+			print('Warning! System {0} is configured but might not exist'.format(system))
+
+		other_config = {k: v for k, v in parser[system].items() if k not in ('rom_dir', 'emulator')}
+
+		system_configs.append(SystemConfig(system, rom_dir, emulator, other_config))
+			
+load_config()
+with open(ignored_dirs_path, 'rt') as ignored_txt:
+	ignored_directories = ignored_txt.read().splitlines()
+load_name_replacement()
+load_emulator_configs()
