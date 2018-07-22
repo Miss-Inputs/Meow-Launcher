@@ -202,11 +202,13 @@ def try_emulator(system_config, emulator, rom_dir, root, name):
 def process_file(system_config, rom_dir, root, name):
 	game = None
 	
-	emulator_names = system_config.chosen_emulators
-	for emulator_name in emulator_names:
-		if emulator_name not in emulator_info.emulators:
+	emulator_name = None
+	potential_emulators = system_config.chosen_emulators
+	for potential_emulator in potential_emulators:
+		if potential_emulator not in emulator_info.emulators:
 			continue
-		game = try_emulator(system_config, emulator_info.emulators[emulator_name], rom_dir, root, name)
+		emulator_name = potential_emulator
+		game = try_emulator(system_config, emulator_info.emulators[potential_emulator], rom_dir, root, name)
 		if game:
 			break
 
