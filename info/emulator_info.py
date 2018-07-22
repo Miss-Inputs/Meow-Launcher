@@ -234,7 +234,7 @@ emulators = {
 	'Dolphin': Emulator('dolphin-emu -b -e $<path>', ['iso', 'gcz', 'elf', 'dol', 'wad'], []),
 	'Gambatte': Emulator(make_gambatte_command_line, ['gb', 'gbc'], ['zip']),
 	#--gba-cgb-mode[=0] and --force-dmg-mode[=0] may be useful in obscure situations
-	'Kega Fusion': Emulator('kega-fusion -fullscreen $<path>', ['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', '32x'], ['zip']),
+	'Kega Fusion': Emulator('kega-fusion -fullscreen $<path>', ['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', 'sc', '32x'], ['zip']),
 	#May support other CD formats for Mega CD other than iso, cue?
 	'Medusa': Emulator('medusa-emu-qt -f $<path>', ['nds'], ['7z', 'zip']),
 	'mGBA': Emulator(make_mgba_command_line, ['gb', 'gbc', 'gba', 'srl', 'bin', 'mb'], ['7z', 'zip']),
