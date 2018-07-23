@@ -194,6 +194,12 @@ class InputInfo():
 	def known(self):
 		return self.players or self.console_buttons or self._known 
 
+	@property
+	def player_buttons(self):
+		if self.players:
+			return max(player.buttons for player in self.players)
+		return 0
+
 	def describe(self):
 		if not self.players:
 			return 'Nothing'
@@ -262,6 +268,7 @@ class Metadata():
 
 		if self.input_info.known:
 			fields['Number-of-Players'] = len(self.input_info.players)
+			fields['Number-of-Buttons'] = self.input_info.player_buttons
 			fields['Console-Buttons'] = self.input_info.console_buttons
 			fields['Input-Methods'] = self.input_info.describe()
 		

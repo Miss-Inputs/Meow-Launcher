@@ -37,6 +37,7 @@ def delete_existing_output_dir():
 				os.unlink(path)
 
 extra_subfolders = {
+#What am I doing with my life?
 	'By genre': 'X-Genre',
 	'By platform and genre': ['X-Platform', 'X-Genre'],
 	'By subgenre': ['X-Genre', 'X-Subgenre'],
@@ -46,6 +47,7 @@ extra_subfolders = {
 	'By emulator used': 'X-Emulator',
 	'By input method': 'X-Input-Methods',
 	'By number of players': 'X-Number-of-Players',
+	'By number of buttons': 'X-Number-of-Buttons',
 	'By main CPU': 'X-Main-CPU',
 	'By clock speed': 'X-Clock-Speed',
 	'By main CPU and clock speed': ['X-Main-CPU', 'X-Clock-Speed'],
@@ -65,7 +67,7 @@ extra_subfolders = {
 	'By cart type': 'X-Cart-Type',
 	'By expansion chip': 'X-Expansion-Chip',
 	'By regions': 'X-Regions',
-	'By genre and input method': ['X-Genre', 'X-Input-Method'],
+	'By genre and input method': ['X-Genre', 'X-Input-Methods'],
 	'Has header': 'X-Headered',
 	'Has force feedback': 'X-Force-Feedback',
 }
