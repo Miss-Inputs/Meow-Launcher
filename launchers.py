@@ -33,6 +33,8 @@ def make_filename(name):
 	name = clean_for_filename.sub('-', name)
 	while name.startswith('-'):
 		name = name[1:]
+	if not name:
+		name = 'blank'
 	return name
 
 used_filenames = []
