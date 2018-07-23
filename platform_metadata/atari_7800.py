@@ -27,9 +27,9 @@ def add_atari7800_metadata(game):
 	if left_input_type != 0:
 		player = PlayerInput()
 		if left_input_type in input_types:
-			type, buttons = input_types[left_input_type]
+			input_type, buttons = input_types[left_input_type]
 			player.buttons = buttons
-			player.inputs = [type]
+			player.inputs = [input_type]
 		else:
 			player.inputs = [InputType.Custom]
 		game.metadata.input_info.players.append(player)
@@ -37,9 +37,9 @@ def add_atari7800_metadata(game):
 		#TODO: Refactor to avoid duplication
 		player = PlayerInput()
 		if right_input_type in input_types:
-			type, buttons = input_types[right_input_type]
+			input_type, buttons = input_types[right_input_type]
 			player.buttons = buttons
-			player.inputs = [type]
+			player.inputs = [input_type]
 		else:
 			player.inputs = [InputType.Custom]
 		game.metadata.input_info.players.append(player)

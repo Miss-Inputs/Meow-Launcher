@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import subprocess
-import xml.etree.ElementTree as ElementTree
 import configparser
 import os
 import sys
@@ -35,15 +34,15 @@ def get_icon_directories():
 icon_directories = get_icon_directories()
 
 def load_icons():
-	icons = {}
+	d = {}
 	for icon_directory in icon_directories:
 		if os.path.isdir(icon_directory):
 			for icon_file in os.listdir(icon_directory):
 				name, ext = os.path.splitext(icon_file)
 				if ext == '.ico':
-					icons[name] = os.path.join(icon_directory, icon_file)
+					d[name] = os.path.join(icon_directory, icon_file)
 	
-	return icons
+	return d
 icons = load_icons()
 
 class Machine():
@@ -197,6 +196,7 @@ def add_metadata(machine):
 		machine.metadata.emulation_status = EmulationStatus.Broken	
 
 def add_input_info(machine):
+	#TODO: Yeah, yeah... should actually have a setter on the class
 	machine.metadata.input_info._known = True
 	input_element = machine.xml.find('input')
 	if input_element is None:
@@ -241,57 +241,57 @@ def add_input_info(machine):
 			buttons = int(control.attrib['buttons'])
 
 		#TODO: This very much needs some refactoring, I just can't really brain think at the moment
-		type = control.attrib['type']
-		if type == 'only_buttons':
+		input_type = control.attrib['type']
+		if input_type == 'only_buttons':
 			player.buttons += buttons
-		elif type == 'joy':
+		elif input_type == 'joy':
 			player.buttons += buttons
 			player.inputs.append(InputType.Digital)
-		elif type == 'doublejoy':
+		elif input_type == 'doublejoy':
 			player.buttons += buttons
 			player.inputs += [InputType.Digital] * 2
-		elif type == 'triplejoy':
+		elif input_type == 'triplejoy':
 			player.buttons += buttons
 			player.inputs += [InputType.Digital] * 3
-		elif type == 'paddle':
+		elif input_type == 'paddle':
 			player.buttons += buttons
 			if machine.metadata.genre == 'Driving':
 				#Yeah this looks weird and hardcody and dodgy but am I wrong
 				player.inputs.append(InputType.SteeringWheel)
 			else:
 				player.inputs.append(InputType.Paddle)
-		elif type == 'stick':
+		elif input_type == 'stick':
 			player.buttons += buttons
 			player.inputs.append(InputType.Analog)
-		elif type == 'pedal':
+		elif input_type == 'pedal':
 			player.buttons += buttons
 			player.inputs.append(InputType.Pedal)
-		elif type == 'lightgun':
+		elif input_type == 'lightgun':
 			player.buttons += buttons
 			#TODO: See if we can be clever and detect if this is actually a touchscreen, like platform = handheld or something
 			player.inputs.append(InputType.LightGun)
-		elif type == 'positional':
+		elif input_type == 'positional':
 			player.buttons += buttons
 			#What _is_ a positional exactly
 			player.inputs.append(InputType.Positional)
-		elif type == 'dial':
+		elif input_type == 'dial':
 			player.buttons += buttons
 			player.inputs.append(InputType.Dial)
-		elif type == 'trackball':
+		elif input_type == 'trackball':
 			player.buttons += buttons
 			player.inputs.append(InputType.Trackball)
-		elif type == 'mouse':
+		elif input_type == 'mouse':
 			player.buttons += buttons
 			player.inputs.append(InputType.Mouse)
-		elif type == 'keypad':
+		elif input_type == 'keypad':
 			player.inputs.append(InputType.Keypad)
-		elif type == 'keyboard':
+		elif input_type == 'keyboard':
 			player.inputs.append(InputType.Keyboard)
-		elif type == 'mahjong':
+		elif input_type == 'mahjong':
 			player.inputs.append(InputType.Mahjong)
-		elif type == 'hanafuda':
+		elif input_type == 'hanafuda':
 			player.inputs.append(InputType.Hanafuda)
-		elif type == 'gambling':
+		elif input_type == 'gambling':
 			player.buttons += buttons
 			player.inputs.append(InputType.Gambling)
 		else:
@@ -322,7 +322,7 @@ def process_machine(machine):
 
 	add_metadata(machine)
 	add_input_info(machine)
-	if len(machine.metadata.input_info.players) == 0:
+	if not machine.metadata.input_info.players:
 		#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
 		#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
 		if debug:

@@ -1,9 +1,7 @@
-import os
 import subprocess
 import xml.etree.ElementTree as ElementTree
-import re
 
-from metadata import Metadata, EmulationStatus, CPUInfo, ScreenInfo
+from metadata import CPUInfo, ScreenInfo
 
 _lookup_system_cpu_cache = {}
 def lookup_system_cpu(driver_name):

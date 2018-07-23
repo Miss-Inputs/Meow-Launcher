@@ -173,15 +173,15 @@ class PlayerInput():
 
 		input_set = set(self.inputs)
 		description = set()
-		for input in input_set:
-			if input == InputType.LightGun:
+		for my_input in input_set:
+			if my_input == InputType.LightGun:
 				description.add('Light Gun')
-			elif input == InputType.MotionControls:
+			elif my_input == InputType.MotionControls:
 				description.add('Motion Controls')
-			elif input == InputType.SteeringWheel:
+			elif my_input == InputType.SteeringWheel:
 				description.add('Steering Wheel')
 			else:
-				description.add(input.name)
+				description.add(my_input.name)
 		return list(description)
 
 class InputInfo():
@@ -195,11 +195,11 @@ class InputInfo():
 		return self.players or self.console_buttons or self._known 
 
 	def describe(self):
-		if len(self.players) == 0:
+		if not self.players:
 			return 'Nothing'
-		else:
-			#This flatten syntax hurts my brain immensely
-			return list({input for player in self.players for input in player.describe()})
+		
+		#This flatten syntax hurts my brain immensely
+		return list({input for player in self.players for input in player.describe()})
 
 class Metadata():
 	def __init__(self):
