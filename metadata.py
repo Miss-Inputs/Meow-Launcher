@@ -142,16 +142,39 @@ class PlayerInput():
 	def __init__(self):
 		self.buttons = 0
 		self.inputs = []
+	
+	@property
+	def is_standard(self):
+		"""
+		If this input setup is compatible with a standard modern controller: 4 face buttons, 2 shoulder buttons, 2 analog triggers, 2 analog sticks, one dpad, start + select. Dunno how I feel about clickable analog sticks. Also any "guide" or "home" button doesn't count, because that should be free for emulator purposes instead of needing the game to map to it. Hmm. Maybe analog triggers aren't that standard. Some modern gamepads just have 2 more shoulder buttons instead, after all.
+		So if your gamepad has more stuff than this "standard" one, which it probably does, that's great, it just means it can support non-standard emulated controls.
+		"""
+		#TODO: Get more involved with the placement of buttons, analog triggers, all of that stuff. Go all out.
+		#Right now, 6 buttons all placed in a single row would be considered fine, even though they wouldn't, and even though I would have to invent some representation of a button layout in code (but I would totes be down for that). Also analog triggers are not fine.
+		#Also some EPROM programmers are listed as "standard". I mean... I guess? They got two buttons? But like... no
+		digitals = len([input for input in self.inputs if input == InputType.Digital])
+		analogs = len([input for input in self.inputs if input == InputType.Analog])
+		anything_else = [input for input in self.inputs if input not in (InputType.Analog, InputType.Digital)]
+		if anything_else:
+			return False
+		
+		if analogs > 2:
+			return False
+		if digitals > 1:
+			if (digitals + analogs) > 3:
+				#It's okay to have two digital joysticks if one can just be mapped to one of the analog sticks
+				return False
+
+		return self.buttons <= 6
 
 	def describe(self):
-		if self.buttons and not self.inputs:
-			return ['Normal'] #Only buttons isn't really normal but let's say it is
+		if self.is_standard:
+			return ['Standard']
+
 		input_set = set(self.inputs)
 		description = set()
 		for input in input_set:
-			if input in (InputType.Digital, InputType.Analog):
-				description.add('Normal')
-			elif input == InputType.LightGun:
+			if input == InputType.LightGun:
 				description.add('Light Gun')
 			elif input == InputType.MotionControls:
 				description.add('Motion Controls')
