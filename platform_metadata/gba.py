@@ -1,7 +1,7 @@
 from zlib import crc32
 
 from common import convert_alphanumeric, NotAlphanumericException
-from metadata import SaveType
+from metadata import SaveType, PlayerInput, InputType
 from info.region_info import TVSystem
 from platform_metadata.nintendo_common import nintendo_licensee_codes
 
@@ -9,6 +9,10 @@ from platform_metadata.nintendo_common import nintendo_licensee_codes
 
 nintendo_gba_logo_crc32 = 0xD0BEB55E
 def add_gba_metadata(game):
+	player = PlayerInput()
+	player.buttons = 6 #A + B + L + R + Select + Start
+	player.inputs = [InputType.Digital]
+	game.metadata.input_info.players.append(player)
 	game.metadata.tv_type = TVSystem.Agnostic
 
 	entire_cart = game.rom.read()
@@ -22,9 +26,8 @@ def add_gba_metadata(game):
 		product_code = convert_alphanumeric(header[0xac:0xb0])
 		game_type = product_code[0]
 		if game_type[0] == 'K' or game_type == 'R':
-			game.metadata.input_method = 'Motion Controls'
-		else:
-			game.metadata.input_method = 'Normal'
+			player.inputs.append(InputType.MotionControls)
+
 		game.metadata.specific_info['Force-Feedback'] = game_type in ('R', 'V')
 		
 		game.metadata.specific_info['Product-Code'] = product_code

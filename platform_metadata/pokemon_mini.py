@@ -1,9 +1,14 @@
 from common import convert_alphanumeric, NotAlphanumericException
 from info.region_info import TVSystem
+from metadata import PlayerInput, InputType
 
 def add_pokemini_metadata(game):
+	player = PlayerInput()
+	player.buttons = 5 #A + B + C + start + select
+	player.inputs = [InputType.Digital]
+	#Technically you could say Motion Controls because of the shake detection, but not all games use it, and you can't really tell which do and which don't programmatically
+	game.metadata.input_info.players.append(player)
 	game.metadata.tv_type = TVSystem.Agnostic
-	game.metadata.input_method = 'Normal'
 
 	game.metadata.specific_info['Force-Feedback'] = True
 	

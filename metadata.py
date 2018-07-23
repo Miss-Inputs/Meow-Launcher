@@ -117,7 +117,61 @@ class ScreenInfo():
 	def get_display_tags(self):
 		return ' + '.join(screen.tag for screen in self.screens if screen.tag)
 
-	
+class InputType(Enum):
+	Digital = auto()
+	Analog = auto()
+	Biological = auto() #e.g. MindLink for 2600 (which actually just senses your eyebrow muscles) or N64 heart rate sensor
+	Dial = auto()
+	Gambling = auto()
+	Hanafuda = auto()
+	Keyboard = auto()
+	Keypad = auto()
+	LightGun = auto()
+	Mahjong = auto()
+	MotionControls = auto()
+	Mouse = auto()
+	Paddle = auto()
+	Pedal = auto()
+	Positional = auto()
+	SteeringWheel = auto()
+	Touchscreen = auto()
+	Trackball = auto()
+	Custom = auto()
+
+class PlayerInput():
+	def __init__(self):
+		self.buttons = 0
+		self.inputs = []
+
+	def describe(self):
+		if self.buttons and not self.inputs:
+			return ['Normal'] #Only buttons isn't really normal but let's say it is
+		input_set = set(self.inputs)
+		description = set()
+		for input in input_set:
+			if input in (InputType.Digital, InputType.Analog):
+				description.add('Normal')
+			elif input == InputType.LightGun:
+				description.add('Light Gun')
+			elif input == InputType.MotionControls:
+				description.add('Motion Controls')
+			elif input == InputType.SteeringWheel:
+				description.add('Steering Wheel')
+			else:
+				description.add(input.name)
+		return list(description)
+
+class InputInfo():
+	def __init__(self):
+		self.players = []
+		self.console_buttons = 0
+
+	def describe(self):
+		if len(self.players) == 0:
+			return 'Nothing'
+		else:
+			#This flatten syntax hurts my brain immensely
+			return list({input for player in self.players for input in player.describe()})
 
 class Metadata():
 	def __init__(self):
@@ -129,7 +183,6 @@ class Metadata():
 		self.languages = []
 		self.year = None
 		self.author = None
-		self.input_method = None
 		self.emulator_name = None
 		self.extension = None
 		self.platform = None
@@ -139,6 +192,7 @@ class Metadata():
 		#Set this up later with the respective objects
 		self.cpu_info = None
 		self.screen_info = None
+		self.input_info = InputInfo()
 
 		#Not part of the little standard I invented on the wiki
 		self.specific_info = {} #Stuff specific to indivdidual systems
@@ -154,7 +208,6 @@ class Metadata():
 			'Languages': [language.native_name if language else 'None!' for language in self.languages],
 			'Year': self.year,
 			'Author': self.author,
-			'Input-Method': self.input_method,
 			'Emulator': self.emulator_name,
 			'Extension': self.extension,
 			'Categories': self.categories,
@@ -178,6 +231,9 @@ class Metadata():
 			fields['Screen-Type'] = self.screen_info.get_display_types()
 			fields['Screen-Tag'] = self.screen_info.get_display_tags()
 
+		fields['Number-of-Players'] = len(self.input_info.players)
+		fields['Console-Buttons'] = self.input_info.console_buttons
+		fields['Input-Methods'] = self.input_info.describe()
 		
 		for k, v in self.specific_info.items():
 			fields[k] = v.name if isinstance(v, Enum) else v

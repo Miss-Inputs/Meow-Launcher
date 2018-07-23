@@ -6,6 +6,7 @@ import hashlib
 import re
 
 from info.region_info import TVSystem
+from metadata import PlayerInput, InputType
 
 #I don't know why I have to import things from myself. Why? That sucks.
 #Well, I guess if that's the only thing that sucks, it could be worse... but still, this _really_ sucks. This can't be right, can it? Surely there's some trick that nobody thought to put in documentation
@@ -46,8 +47,11 @@ debug = '--debug' in sys.argv
 #Mega CD: Reuse Megadrive stuff
 
 def nothing_interesting(game):
+	#TODO: Gonna have to dismantle this to add number of buttons
 	game.metadata.tv_type = TVSystem.Agnostic
-	game.metadata.input_method = 'Normal'
+	player = PlayerInput()
+	player.inputs = [InputType.Digital]
+	game.metadata.input_info.players.append(player)
 
 helpers = {
 	'32X': megadrive.add_megadrive_metadata,

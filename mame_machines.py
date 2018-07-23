@@ -10,7 +10,7 @@ import re
 import config
 import launchers
 from info import emulator_info
-from metadata import Metadata, EmulationStatus, CPUInfo, ScreenInfo
+from metadata import Metadata, EmulationStatus, CPUInfo, ScreenInfo, PlayerInput, InputType
 from region_detect import get_language_by_english_name
 
 from mame_helpers import get_mame_xml, find_main_cpu
@@ -121,39 +121,6 @@ def get_language(basename):
 			
 	return get_language_by_english_name(lang)
 
-def get_input_type(machine):
-	input_element = machine.xml.find('input')
-	if input_element is None:
-		#Seems like this doesn't actually happen
-		if debug:
-			print('Oi m8', machine.basename, '/', machine.name, 'has no input')
-		return 'No input somehow'
-
-	control_element = input_element.find('control')
-	if control_element is None:
-		if 'players' not in input_element.attrib or input_element.attrib['players'] == '0':				
-			return None
-			
-		return 'Custom'
-		#Sometimes you get some games with 1 or more players, but no control type defined.  This usually happens with
-		#pinball games and weird stuff like a clock, but also some genuine games like Crazy Fight that are more or less
-		#playable just fine, so we'll leave them in
-
-	input_type = control_element.attrib['type']
-	if input_type:
-		if input_type == 'doublejoy':
-			return 'Twin Joystick'
-		elif input_type == 'joy':
-			return 'Normal'
-		elif input_type == 'lightgun':
-			return 'Light Gun'
-				
-		return input_type.replace('_', ' ').capitalize()
-
-	if debug:
-		print("This shouldn't happen either but for", machine.basename, "it did")
-	return None
-
 def add_machine_platform(machine):
 	machine.metadata.platform = 'Arcade'
 	category = machine.metadata.categories[0]
@@ -220,6 +187,108 @@ def add_metadata(machine):
 		machine.metadata.emulation_status = EmulationStatus.Imperfect
 	elif emulation_status == 'preliminary':
 		machine.metadata.emulation_status = EmulationStatus.Broken	
+
+def add_input_info(machine):
+	input_element = machine.xml.find('input')
+	if input_element is None:
+		#Seems like this doesn't actually happen
+		if debug:
+			print('Oi m8', machine.basename, '/', machine.name, 'has no input')
+		return
+
+	if 'players' not in input_element.attrib:
+		return
+
+	num_players = int(input_element.attrib['players'])
+	if num_players == 0:
+		return
+
+	if machine.metadata.platform == 'Arcade':
+		#We shouldn't assume this, but let's assume that all arcade games have one coin slot and one start button, although that's not necessarily the case anyway.
+		#If it's some other kind of system, feels like I'm assuming nothing at all
+		machine.metadata.input_info.console_buttons += 2
+	
+	for i in range(num_players):
+		machine.metadata.input_info.players.append(PlayerInput())
+
+	control_elements = input_element.findall('control')
+	if not control_elements:
+		#Sometimes you get some games with 1 or more players, but no control type defined.  This usually happens with
+		#pinball games and weird stuff like a clock, but also some genuine games like Crazy Fight that are more or less
+		#playable just fine, so we'll leave them in
+		for i in range(num_players):
+			machine.metadata.input_info.players[i].inputs = [InputType.Custom]
+		return
+
+	for control in control_elements:
+		player_num = 1
+		#The player number isn't really specified if there's only one, so assume player 1 by default
+		if 'player' in control.attrib:
+			player_num = int(control.attrib['player'])
+		player = machine.metadata.input_info.players[player_num - 1]
+
+		buttons = 0
+		if 'buttons' in control.attrib:
+			buttons = int(control.attrib['buttons'])
+
+		#TODO: This very much needs some refactoring, I just can't really brain think at the moment
+		type = control.attrib['type']
+		if type == 'only_buttons':
+			player.buttons += buttons
+		elif type == 'joy':
+			player.buttons += buttons
+			player.inputs.append(InputType.Digital)
+		elif type == 'doublejoy':
+			player.buttons += buttons
+			player.inputs += [InputType.Digital] * 2
+		elif type == 'triplejoy':
+			player.buttons += buttons
+			player.inputs += [InputType.Digital] * 3
+		elif type == 'paddle':
+			player.buttons += buttons
+			if machine.metadata.genre == 'Driving':
+				#Yeah this looks weird and hardcody and dodgy but am I wrong
+				player.inputs.append(InputType.SteeringWheel)
+			else:
+				player.inputs.append(InputType.Paddle)
+		elif type == 'stick':
+			player.buttons += buttons
+			player.inputs.append(InputType.Analog)
+		elif type == 'pedal':
+			player.buttons += buttons
+			player.inputs.append(InputType.Pedal)
+		elif type == 'lightgun':
+			player.buttons += buttons
+			#TODO: See if we can be clever and detect if this is actually a touchscreen, like platform = handheld or something
+			player.inputs.append(InputType.LightGun)
+		elif type == 'positional':
+			player.buttons += buttons
+			#What _is_ a positional exactly
+			player.inputs.append(InputType.Positional)
+		elif type == 'dial':
+			player.buttons += buttons
+			player.inputs.append(InputType.Dial)
+		elif type == 'trackball':
+			player.buttons += buttons
+			player.inputs.append(InputType.Trackball)
+		elif type == 'mouse':
+			player.buttons += buttons
+			player.inputs.append(InputType.Mouse)
+		elif type == 'keypad':
+			player.inputs.append(InputType.Keypad)
+		elif type == 'keyboard':
+			player.inputs.append(InputType.Keyboard)
+		elif type == 'mahjong':
+			player.inputs.append(InputType.Mahjong)
+		elif type == 'hanafuda':
+			player.inputs.append(InputType.Hanafuda)
+		elif type == 'gambling':
+			player.buttons += buttons
+			player.inputs.append(InputType.Gambling)
+		else:
+			player.buttons += buttons
+			player.inputs.append(InputType.Custom)
+		
 	
 def should_process_machine(machine):
 	if machine.xml.attrib['runnable'] == 'no':
@@ -240,17 +309,17 @@ def process_machine(machine):
 	if not (machine.xml.find('softwarelist') is None) and machine.family not in config.okay_to_have_software:
 		return
 
-	input_type = get_input_type(machine)
-	if not input_type:
+	machine.metadata.specific_info['Family'] = machine.family
+
+	add_metadata(machine)
+	add_input_info(machine)
+	if len(machine.metadata.input_info.players) == 0:
 		#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
 		#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
 		if debug:
 			print('Skipping %s (%s) as it has no controls' % (machine.basename, machine.name))
 		return
-	machine.metadata.input_method = input_type
-	machine.metadata.specific_info['Family'] = machine.family
 
-	add_metadata(machine)
 	machine.make_launcher()
 		
 def get_mame_drivers():

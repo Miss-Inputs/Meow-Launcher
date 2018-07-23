@@ -14,7 +14,7 @@ import platform_metadata
 import metadata
 
 from info import system_info, emulator_info
-from mame_helpers import lookup_system_cpu, lookup_system_displays
+from mame_helpers import lookup_system_cpu, lookup_system_displays, get_mame_xml
 
 debug = '--debug' in sys.argv
 
@@ -70,7 +70,6 @@ def add_metadata(game):
 	
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = common.find_filename_tags.findall(game.rom.name)
-	
 	
 	for tag in tags:
 		found_year = False

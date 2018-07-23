@@ -1,7 +1,7 @@
 from zlib import crc32
 
 from common import convert_alphanumeric, NotAlphanumericException
-from metadata import SaveType
+from metadata import SaveType, PlayerInput, InputType
 from info.region_info import TVSystem
 from platform_metadata.nintendo_common import nintendo_licensee_codes
 
@@ -59,6 +59,10 @@ game_boy_mappers = {
 
 nintendo_logo_crc32 = 0x46195417
 def add_gameboy_metadata(game):
+	player = PlayerInput()
+	player.buttons = 4 #A + B + Select + Start
+	player.inputs = [InputType.Digital]
+	game.metadata.input_info.players.append(player)
 	game.metadata.tv_type = TVSystem.Agnostic
 
 	header = game.rom.read(seek_to=0x100, amount=0x50)
@@ -72,7 +76,8 @@ def add_gameboy_metadata(game):
 		game.metadata.specific_info['Mapper'] = mapper
 		game.metadata.save_type = SaveType.Cart if mapper.has_battery else SaveType.Nothing
 		game.metadata.specific_info['Force-Feedback'] = mapper.has_rumble
-		game.metadata.input_method = 'Motion Controls' if mapper.has_accelerometer else 'Normal'
+		if mapper.has_accelerometer:
+			player.inputs.append(InputType.MotionControls)
 	
 	#Can get product code from header[0x3f:0x43] if and only if it exists. It might not, it's only for newer games. Has to exist for GBC only games, but then homebrew doesn't follow your rules of course.
 	#Can also get destination code from header[0x4a]. 0 means Japan and 1 means not Japan. Not sure how reliable that is.
