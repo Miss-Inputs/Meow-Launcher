@@ -72,15 +72,15 @@ def add_ds_metadata(game):
 			regions = []
 			if region_flags & 1:
 				regions.append(get_region_by_name('Japan'))
-			elif region_flags & 2:
+			if region_flags & 2:
 				regions.append(get_region_by_name('USA'))
-			elif region_flags & 4:
+			if region_flags & 4:
 				regions.append(get_region_by_name('Europe'))
-			elif region_flags & 8:
+			if region_flags & 8:
 				regions.append(get_region_by_name('Australia'))
-			elif region_flags & 16:
+			if region_flags & 16:
 				regions.append(get_region_by_name('China'))
-			elif region_flags & 32:
+			if region_flags & 32:
 				regions.append(get_region_by_name('Korea'))
 			game.metadata.regions = regions
 	else:
