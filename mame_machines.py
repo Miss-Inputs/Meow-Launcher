@@ -10,7 +10,7 @@ import re
 import config
 import launchers
 from info import emulator_info
-from metadata import Metadata, EmulationStatus, CPUInfo, ScreenInfo, PlayerInput, InputType
+from metadata import Metadata, EmulationStatus, CPUInfo, ScreenInfo, PlayerInput, InputType, SaveType
 from region_detect import get_language_by_english_name
 
 from mame_helpers import get_mame_xml, find_main_cpu
@@ -153,6 +153,11 @@ def add_machine_platform(machine):
 	elif machine.metadata.genre == 'Electromechanical' and machine.metadata.subgenre == 'Pinball':
 		machine.metadata.platform = 'Pinball'
 
+#Some games have memory card slots, but they don't actually support saving, it's just that the arcade system board thing they use always has that memory card slot there. So let's not delude ourselves into thinking that games which don't save let you save, because that might result in emotional turmoil.
+#Fatal Fury 2, Fatal Fury Special, Fatal Fury 3, and The Last Blade apparently only save in Japanese or something? That might be something to be aware of
+#Also shocktro has a set 2 (shocktroa), and shocktr2 has a bootleg (lans2004), so I should look into if those clones don't save either. They probably don't, though, and it's probably best to expect that something doesn't save and just playing it like any other arcade game, rather than thinking it does and then finding out the hard way that it doesn't. I mean, you could always use savestates, I guess. If those are supported. Might not be. That's another story.
+not_actually_save_supported = ['neobombe', 'pbobbl2n', 'popbounc', 'shocktro', 'shocktr2', 'irrmaze']
+
 def add_metadata(machine):
 	category, genre, subgenre, nsfw = get_category(machine.basename)
 	machine.metadata.categories = [category] if category else ['Unknown']
@@ -168,7 +173,10 @@ def add_metadata(machine):
 	machine.metadata.screen_info = ScreenInfo()
 	displays = machine.xml.findall('display')
 	machine.metadata.screen_info.load_from_xml_list(displays)
-		
+	
+	memory_cards = [device for device in machine.xml.findall('device') if device.find('instance') is not None and device.find('instance').attrib['name'] == 'memcard']
+	machine.metadata.save_type = SaveType.MemoryCard if memory_cards and (machine.family not in not_actually_save_supported) else SaveType.Nothing
+	#TODO: Some machines that aren't arcade systems might plausibly have something describable as SaveType.Cart or SaveType.Internal... anyway, I guess I'll burn that bridge when I see it
 	
 	add_machine_platform(machine)
 
