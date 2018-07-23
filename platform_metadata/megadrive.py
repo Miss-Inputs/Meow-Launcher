@@ -9,7 +9,8 @@ def add_megadrive_metadata(game):
 	header = game.rom.read(0x100, 0x100)
 	#TODO: Parse copyright at header[16:32] to get author (from giant lookup table) and year if possible
 	#TODO: Get product code too
-
+	
+	game.metadata.input_info.console_buttons = 1 #Reset button counts as a button because games can use it apparently
 	player = PlayerInput()
 	player.buttons = 3
 	peripherals = [c for c in header[144:160].decode('ascii', errors='ignore') if c != '\x00' and c != ' ']

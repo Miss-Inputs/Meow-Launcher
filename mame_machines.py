@@ -197,6 +197,7 @@ def add_metadata(machine):
 		machine.metadata.emulation_status = EmulationStatus.Broken	
 
 def add_input_info(machine):
+	machine.metadata.input_info._known = True
 	input_element = machine.xml.find('input')
 	if input_element is None:
 		#Seems like this doesn't actually happen

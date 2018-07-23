@@ -188,6 +188,11 @@ class InputInfo():
 	def __init__(self):
 		self.players = []
 		self.console_buttons = 0
+		self._known = False
+
+	@property
+	def known(self):
+		return self.players or self.console_buttons or self._known 
 
 	def describe(self):
 		if len(self.players) == 0:
@@ -213,6 +218,7 @@ class Metadata():
 		self.save_type = SaveType.Unknown
 		
 		#Set this up later with the respective objects
+		#TODO: Set cpu_info and screen_info up right here, and just keep track of whether they're "known" or not like input_info does
 		self.cpu_info = None
 		self.screen_info = None
 		self.input_info = InputInfo()
@@ -254,9 +260,10 @@ class Metadata():
 			fields['Screen-Type'] = self.screen_info.get_display_types()
 			fields['Screen-Tag'] = self.screen_info.get_display_tags()
 
-		fields['Number-of-Players'] = len(self.input_info.players)
-		fields['Console-Buttons'] = self.input_info.console_buttons
-		fields['Input-Methods'] = self.input_info.describe()
+		if self.input_info.known:
+			fields['Number-of-Players'] = len(self.input_info.players)
+			fields['Console-Buttons'] = self.input_info.console_buttons
+			fields['Input-Methods'] = self.input_info.describe()
 		
 		for k, v in self.specific_info.items():
 			fields[k] = v.name if isinstance(v, Enum) else v
