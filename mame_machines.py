@@ -181,7 +181,7 @@ def add_machine_platform(machine):
 		machine.metadata.platform = machine.metadata.genre
 	elif category == 'Computer':
 		machine.metadata.platform = 'Computer'
-	elif machine.metadata.genre == 'Electromechanical' and machine.metadata.subgenre == 'Reels':
+	elif machine.metadata.genre in ('Electromechanical', 'Slot Machine') and machine.metadata.subgenre == 'Reels':
 		machine.metadata.platform = 'Pokies'
 	elif machine.metadata.genre == 'Electromechanical' and machine.metadata.subgenre == 'Pinball':
 		machine.metadata.platform = 'Pinball'
