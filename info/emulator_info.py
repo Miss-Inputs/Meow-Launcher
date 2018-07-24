@@ -73,7 +73,7 @@ def build_vic20_command_line(game, _):
 	else:
 		system = 'vic20'
 
-	return make_mame_command_line(system, 'cart', has_keyboard=True)
+	return make_mame_command_line(system, 'cart', {'iec8': '""'}, has_keyboard=True)
 		
 def build_a800_command_line(game, _):
 	if game.metadata.specific_info.get('Headered', False):
