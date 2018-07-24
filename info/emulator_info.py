@@ -145,7 +145,7 @@ def build_c64_command_line(game, _):
 		return None	
 
 	system = find_c64_system(game)
-	return make_mame_command_line(system, 'cart', {'joy1': 'joybstr', 'joy2': 'joybstr'}, True)
+	return make_mame_command_line(system, 'cart', {'joy1': 'joybstr', 'joy2': 'joybstr', 'iec8': '""'}, True)
 	
 def make_prboom_plus_command_line(_, other_config):
 	if 'save_dir' in other_config:
