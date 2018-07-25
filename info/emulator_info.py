@@ -220,6 +220,11 @@ def make_mame_nes_command_line(game, _):
 	return make_mame_command_line(system, 'cart')
 
 def make_mame_atari_2600_command_line(game, _):
+	if game.rom.get_size() > (512 * 1024):
+		if debug:
+			print(game.rom.path, "can't be run by MAME a2600 as it's too big")
+		return None
+
 	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'a2600p'
 	else:
