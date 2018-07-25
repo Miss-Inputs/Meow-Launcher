@@ -5,6 +5,7 @@ from metadata import SaveType, PlayerInput, InputType
 
 debug = '--debug' in sys.argv
 
+acceptablePeripherals = set('046ABCDFGJKLMPRTV')
 def add_megadrive_metadata(game):
 	header = game.rom.read(0x100, 0x100)
 	#TODO: Parse copyright at header[16:32] to get author (from giant lookup table) and year if possible
@@ -16,35 +17,38 @@ def add_megadrive_metadata(game):
 	peripherals = [c for c in header[144:160].decode('ascii', errors='ignore') if c != '\x00' and c != ' ']
 	num_players = 2 #Assumed, becuase we can't really tell if it's 1 or 2 players
 	#TODO: Whoops I can't have a single amount of buttons for all inputs I need to rethink everything including what I'm doing with my life
-	#TODO: Ignore everything if the peripherals contain invalid bullshit characters
-	if 'M' in peripherals:
-		player.inputs.append(InputType.Mouse)
-	elif 'V' in peripherals:
-		player.inputs.append(InputType.Paddle)
-	elif 'A' in peripherals:
-		player.inputs.append(InputType.Analog)
-	elif 'G' in peripherals:
-		player.inputs.append(InputType.LightGun)
-	elif 'K' in peripherals:
-		player.inputs.append(InputType.Keyboard)
-	elif 'J' in peripherals:
-		player.inputs.append(InputType.Digital)
-	elif '6' in peripherals:
-		player.buttons = 6
-		player.inputs.append(InputType.Digital)
-		game.metadata.specific_info['Uses-6-Button-Controller'] = True
-	elif '0' in peripherals:
-		#SMS gamepad
-		player.buttons = 2
-		player.inputs.append(InputType.Digital)
-	elif 'L' in peripherals:
-		#Activator
-		player.inputs.append(InputType.MotionControls)	
-	elif '4' in peripherals or 'O' in peripherals:
-		#Team Play and J-Cart respectively
-		num_players = 4
-	elif 'C' in peripherals:
-		game.metadata.specific_info['Uses-CD'] = True
+	if set(peripherals) <= acceptablePeripherals:
+		if 'M' in peripherals:
+			player.inputs.append(InputType.Mouse)
+		elif 'V' in peripherals:
+			player.inputs.append(InputType.Paddle)
+		elif 'A' in peripherals:
+			player.inputs.append(InputType.Analog)
+		elif 'G' in peripherals:
+			player.inputs.append(InputType.LightGun)
+		elif 'K' in peripherals:
+			player.inputs.append(InputType.Keyboard)
+		elif 'J' in peripherals:
+			player.inputs.append(InputType.Digital)
+		elif '6' in peripherals:
+			player.buttons = 6
+			player.inputs.append(InputType.Digital)
+			game.metadata.specific_info['Uses-6-Button-Controller'] = True
+		elif '0' in peripherals:
+			#SMS gamepad
+			player.buttons = 2
+			player.inputs.append(InputType.Digital)
+		elif 'L' in peripherals:
+			#Activator
+			player.inputs.append(InputType.MotionControls)	
+		elif '4' in peripherals or 'O' in peripherals:
+			#Team Play and J-Cart respectively
+			num_players = 4
+		elif 'C' in peripherals:
+			game.metadata.specific_info['Uses-CD'] = True
+	else:
+		if debug:
+			print(game.rom.path, 'has weird peripheral chars:', set(peripherals) - acceptablePeripherals)
 	if debug:
 		#Other peripheral characters of interest that I dunno what to do with
 		#A lot of homebrew has D in there. There's some Megadrive documentation that says "Just put JD in here and don't ask questions". It doesn't say what the D is. What does the D do? Why the D?
