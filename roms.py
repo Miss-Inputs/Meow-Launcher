@@ -71,11 +71,12 @@ def add_metadata(game):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = common.find_filename_tags.findall(game.rom.name)
 	
-	for tag in tags:
-		found_year = False
-		year_match = year_regex.match(tag)
-		if year_match and not found_year:
-			game.metadata.year = year_match.group(1)
+	if not game.metadata.year:
+		for tag in tags:
+			found_year = False
+			year_match = year_regex.match(tag)
+			if year_match and not found_year:
+				game.metadata.year = year_match.group(1)
 
 	if not game.metadata.regions:
 		regions = region_detect.get_regions_from_filename_tags(tags)
