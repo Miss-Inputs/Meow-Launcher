@@ -5,7 +5,7 @@ from metadata import SaveType, PlayerInput, InputType
 
 debug = '--debug' in sys.argv
 
-acceptablePeripherals = set('046ABCDFGJKLMPRTV')
+acceptable_peripherals = set('046ABCDFGJKLMPRTV')
 def add_megadrive_metadata(game):
 	header = game.rom.read(0x100, 0x100)
 	#TODO: Parse copyright at header[16:32] to get author (from giant lookup table) and year if possible
@@ -17,7 +17,7 @@ def add_megadrive_metadata(game):
 	peripherals = [c for c in header[144:160].decode('ascii', errors='ignore') if c != '\x00' and c != ' ']
 	num_players = 2 #Assumed, becuase we can't really tell if it's 1 or 2 players
 	#TODO: Whoops I can't have a single amount of buttons for all inputs I need to rethink everything including what I'm doing with my life
-	if set(peripherals) <= acceptablePeripherals:
+	if set(peripherals) <= acceptable_peripherals:
 		if 'M' in peripherals:
 			player.inputs.append(InputType.Mouse)
 		elif 'V' in peripherals:
@@ -48,7 +48,7 @@ def add_megadrive_metadata(game):
 			game.metadata.specific_info['Uses-CD'] = True
 	else:
 		if debug:
-			print(game.rom.path, 'has weird peripheral chars:', set(peripherals) - acceptablePeripherals)
+			print(game.rom.path, 'has weird peripheral chars:', set(peripherals) - acceptable_peripherals)
 	if debug:
 		#Other peripheral characters of interest that I dunno what to do with
 		#A lot of homebrew has D in there. There's some Megadrive documentation that says "Just put JD in here and don't ask questions". It doesn't say what the D is. What does the D do? Why the D?
