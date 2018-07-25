@@ -5,8 +5,6 @@ from metadata import SaveType, PlayerInput, InputType
 from info.region_info import TVSystem
 from platform_metadata.nintendo_common import nintendo_licensee_codes
 
-#TODO: If product code is invalid, ignore the licensee code; and also if licensee code is invalid or 00 (so not unknown, actually invalid) ignore the product code too. Well, don't try and read anything from the product code. Actually, do that for all Nintendo systems that have both product code + licensee code.
-
 nintendo_gba_logo_crc32 = 0xD0BEB55E
 def add_gba_metadata(game):
 	player = PlayerInput()
@@ -22,26 +20,32 @@ def add_gba_metadata(game):
 	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_gba_logo_crc32
 	game.metadata.specific_info['Nintendo-Logo-Valid'] = nintendo_logo_valid
 
+	product_code = None
+	can_trust_header_data = nintendo_logo_valid
 	try:
 		product_code = convert_alphanumeric(header[0xac:0xb0])
+		#TODO: Maybe get region from product_code[3]?
+	except NotAlphanumericException:
+		#Well, shit. If the product code's invalid for whatever reason, then we can't derive much info from it anyway. Anything officially licensed should be alphanumeric.
+		can_trust_header_data = False
+
+	licensee_code = None	
+	try:
+		licensee_code = convert_alphanumeric(header[0xb0:0xb2])
+	except NotAlphanumericException:
+		can_trust_header_data = False
+	if licensee_code == '00':
+		can_trust_header_data = False
+
+	if can_trust_header_data:
 		game_type = product_code[0]
 		if game_type[0] == 'K' or game_type == 'R':
 			player.inputs.append(InputType.MotionControls)
 
-		game.metadata.specific_info['Force-Feedback'] = game_type in ('R', 'V')
-		
 		game.metadata.specific_info['Product-Code'] = product_code
-		#TODO: Maybe get region from product_code[3]?
-	except NotAlphanumericException:
-		#Well, shit. If the product code's invalid for whatever reason, then we can't derive much info from it anyway. Anything officially licensed should be alphanumeric.
-		pass
-	
-	try:
-		licensee_code = convert_alphanumeric(header[0xb0:0xb2])
+		game.metadata.specific_info['Force-Feedback'] = game_type in ('R', 'V')
 		if licensee_code in nintendo_licensee_codes:
 			game.metadata.author = nintendo_licensee_codes[licensee_code]
-	except NotAlphanumericException:
-		pass
 	
 	has_save = False
 	save_strings = [b'EEPROM_V', b'SRAM_V', b'SRAM_F_V', b'FLASH_V', b'FLASH512_V', b'FLASH1M_V']
