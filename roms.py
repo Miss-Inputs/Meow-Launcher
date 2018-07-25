@@ -229,7 +229,7 @@ def parse_m3u(path):
 		
 def sort_m3u_first():
 	class Sorter:
-		def __init__(self, obj, *args):
+		def __init__(self, obj, *_):
 			self.o = obj
 		def __lt__(self, other):
 			return self.o.lower().endswith('.m3u')
