@@ -165,13 +165,15 @@ class PlayerInput():
 				#It's okay to have two digital joysticks if one can just be mapped to one of the analog sticks
 				return False
 
-		return self.buttons <= 6
+		return self.buttons > 0 and self.buttons <= 6
 
 	def describe(self):
 		if self.is_standard:
 			return ['Standard']
 
 		input_set = set(self.inputs)
+		if not input_set:
+			return ['Nothing'] if self.buttons else ['Only Buttons']
 		description = set()
 		for my_input in input_set:
 			if my_input == InputType.LightGun:
