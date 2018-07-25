@@ -13,7 +13,7 @@ def add_vectrex_metadata(game):
 	
 	try:
 		year = convert_alphanumeric(game.rom.read(seek_to=6, amount=4))
-		if year.isdigit():
+		if year.isdigit() and year != "0000":
 			game.metadata.year = year
 	except NotAlphanumericException:
 		pass
