@@ -36,14 +36,19 @@ def delete_existing_output_dir():
 			else:
 				os.unlink(path)
 
-extra_subfolders = {
-#What am I doing with my life?
+more_subfolders = {
+	#These subfolders are enabled by an optional argument, because the information is unavailable for all platforms. Otherwise it would be there
 	'By genre': 'X-Genre',
-	'By platform and genre': ['X-Platform', 'X-Genre'],
 	'By subgenre': ['X-Genre', 'X-Subgenre'],
 	'By author': 'X-Author',
-	'By emulation status': 'X-Emulation-Status',
+	'By platform and genre': ['X-Platform', 'X-Genre'],
+	'By platform and year': ['X-Platform', 'X-Year'],
 	'Is NSFW': 'X-NSFW',
+}
+
+extra_subfolders = {
+#These subfolders are enabled with an optional argument because most people wouldn't have any use for them (or would they? I'm just presuming they're of interest to people like me only)
+	'By emulation status': 'X-Emulation-Status',
 	'By emulator used': 'X-Emulator',
 	'By input method': 'X-Input-Methods',
 	'By number of players': 'X-Number-of-Players',
@@ -116,6 +121,10 @@ def move_into_subfolders(path):
 		copy_to_folder(path, config.organized_output_folder, 'By year', sanitize_name(year.replace('x', '?')))
 			
 	copy_to_folder(path, config.organized_output_folder, 'By platform and category', sanitize_name(platform) + ' - ' + sanitize_name(category))
+
+	if '--more-folders' in sys.argv:
+		for k, v in more_subfolders.items():
+			move_into_extra_subfolder(path, desktop, k, v)
 
 	if '--extra-folders' in sys.argv:
 		if len(languages) == 1:
