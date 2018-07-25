@@ -156,7 +156,7 @@ def make_prboom_plus_command_line(_, other_config):
 
 def make_mgba_command_line(game, _):
 	command_line = 'mgba-qt -f'
-	if game.metadata.platform == 'GBA' and not game.metadata.specific_info.get('Nintendo-Logo-Valid', True):
+	if not game.metadata.specific_info.get('Nintendo-Logo-Valid', True):
 		command_line += ' -C useBios=0'
 	return command_line + ' $<path>'
 
