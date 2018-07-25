@@ -15,8 +15,11 @@ def add_nes_metadata(game):
 		if licensee_code in nintendo_licensee_codes:
 			game.metadata.author = nintendo_licensee_codes[licensee_code]
 		
-		#Uses Showa years (hence 1925), in theory... but then some disks (notably Zelda) seem to use 19xx years, as it has an actual value of 0x86 which results in it being Showa 86 = 2011, but it should be [Feb 21] 1986, so... hmm. I guess I could say anything after the Showa perioud (1989) is just plain years? Who's out there developing homebrew in the new millenium anyway
-		game.metadata.year = 1925 + decode_bcd(header[31])
+		#Uses Showa years (hence 1925), in theory... but then some disks (notably Zelda) seem to use 19xx years, as it has an actual value of 0x86 which results in it being Showa 86 = 2011, but it should be [Feb 21] 1986, so... hmm
+		year = decode_bcd(header[31])
+		if year >= 61: #Showa 61 = 1986 when the FDS was released
+			year = 1925 + year
+			game.metadata.year = year
 	else:
 		header = game.rom.read(amount=16)
 		magic = header[:4]
