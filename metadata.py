@@ -242,7 +242,7 @@ class Metadata():
 			'Genre': self.genre,
 			'Subgenre': self.subgenre,
 			'NSFW': self.nsfw,
-			'Languages': [language.native_name if language else 'None!' for language in self.languages],
+			'Languages': [language.native_name for language in self.languages if language],
 			'Year': self.year,
 			'Author': self.author,
 			'Emulator': self.emulator_name,
