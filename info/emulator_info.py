@@ -330,6 +330,9 @@ emulators = {
 	'MAME (ColecoVision)': MameSystem(make_mame_command_line('coleco', 'cart'), ['bin', 'col', 'rom']),
 	#Controls are actually fine in-game, just requires a keypad to select levels/start games and that's not consistent at
 	#all so good luck with that (but mapping 1 to Start seems to work well).  All carts are either USA or combination USA/Europe and are required by Coleco to run on both regions, so why play in 50Hz when we don't have to
+	'MAME (Coleco Adam)': MameSystem(make_mame_command_line('adam', 'cass1'), ['wav', 'ddp']),
+	#Uses tapes, but they just boot automatically, so it's fine I guess.
+	#TODO: Do disks as well, if I had any. Also Adam-specific carts I guess? Not sure how those work, or if the cartridge port is just there for Colecovision compatibility and I'm a doofus
 	'MAME (Entex Adventure Vision)': MameSystem(make_mame_command_line('advision', 'cart'), ['bin']),
 	#Doesn't work with the "Code Red" demo last time I tried
 	'MAME (Gamate)': MameSystem(make_mame_command_line('gamate', 'cart'), ['bin']),
