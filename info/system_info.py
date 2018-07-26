@@ -140,8 +140,11 @@ systems = [
 	System('Super Casette Vision', 'scv', ['scv'], []),
 	#Only supports some games (e.g. with RAM enhancements) via software list, there's no way to override the cart type or anything like that. 
 	System('SVI-3x8', 'svi328', ['svi318_cart', 'svi318_cass', 'svi318_flop'], []),
+	#Works well, just needs to autoboot tapes, and that might be tricky because you have BLOAD and CLOAD
 	System('ZX Spectrum', 'spectrum', ['spectrum_cart', 'spectrum_cass', 'specpls3_flop'], []),
+	#Works... I mean it does work, just need to autoboot tapes and wrangle the controls, but..
 	System('ZX81', 'zx81', ['zx80_cass', 'zx81_cass'], []),
+	#Not even gonna try testing any more software without autobooting it, though I'm not sure it does work from the one I did. Anyway, gotta press J and then Shift+P twice to type LOAD "" and then enter, and then start the tape, and then wait and then press run, and it seems if you screw up any step at all you gotta reset the whole thing, and even then it's like.... meh....
 
 	#Might just be me doing something wrong, but seemingly doesn't work so I'll just put them here until I figure out if they definitely don't work, or they actually do
 	System('Radio 86-RK', 'radio86', ['radio86_cart', 'radio86_cass'], []),
