@@ -18,8 +18,7 @@ def sevenzip_list(path):
 	#FIXME This is slow actually
 	proc = subprocess.run(['7z', 'l', '-slt', path], stdout=subprocess.PIPE, universal_newlines=True)
 	if proc.returncode != 0:
-		exception_message = 'Something went wrong in sevenzip_list {0}: {1} {2}'.format(path, proc.returncode, proc.stdout)
-		raise Bad7zException(exception_message)
+		raise Bad7zException('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
 		
 	files = []
 	found_file_line = False
@@ -50,7 +49,7 @@ sevenzip_size_reg = re.compile(r'^Size\s+=\s+(\d+)$', flags=re.IGNORECASE)
 def sevenzip_getsize(path, filename):
 	proc = subprocess.run(['7z', 'l', '-slt', path, filename], stdout=subprocess.PIPE, universal_newlines=True)
 	if proc.returncode != 0:
-		raise Bad7zException('Something went wrong in sevenzip_getsize {0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
+		raise Bad7zException('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
 		
 	found_file_line = False
 	for line in proc.stdout.splitlines():
