@@ -90,10 +90,89 @@ systems = [
 	System('Tomy Tutor', 'tutor', ['tutor'], ['MAME (Tomy Tutor)']), 
 	System('VIC-10', 'vic10', ['vic10'], ['MAME (VIC-10)']), 
 	System('VIC-20', 'vic20', ['vic1001_cart', 'vic1001_cass', 'vic1001_flop'], ['MAME (VIC-20)']),
+
+	#No emulators that are cool enough on Linux. Yet. Maybe? That I know of. They're here for completeness.
+	#They are also here to remind me to check up on them every now and again to make sure they indeed don't work or if I was just being stupid all along
+	System('3DO', '3do', [], []),
+	#4DO doesn't like Wine and has no native Linux version (just libretro and meh), Phoenix Emu has no command line support
+	System('Bandai Playdia', None, [], []),
+	System('Casio Loopy', 'casloopy', ['casloopy'], []),
+	System('FM Towns Marty', 'fmtmarty', ['fmtowns_cd', 'fmtowns_flop'], []),
+	#MAME driver has corrupted graphics in a lot of things. These games do work with FM Towns Not-Marty but then I'm using a computer instead of a console, so I'd have to verify that everything would still work the way I expect, and I think it doesn't...
+	System('GameKing', 'gameking', ['gameking'], []),
+	System('GameKing 3', 'gamekin3', ['gameking3'], []),
+	System('GP32', 'gp32', ['gp32'], []),
+	System('Hartung Game Master', 'gmaster', ['gmaster'], []),
+	System('IBM PCjr', 'ibmpcjr', ['ibmpcjr_cart'], []),
+	#For the carts, because otherwise we'd just call the software DOS or PC Booter. Has the same problem as PC booter disks in that the joystick tends to play up.
+	System('Jaguar', 'jaguar', ['jaguar'], []),
+	#Virtual Jaguar doesn't like gamepads seemingly, and Phoenix Emu has no command line support;
+	System('Konami Picno', 'picno', ['picno'], []),
+	System('Leapster', 'leapster', ['gameking'], []),
+	System('Microvision', 'microvsn', ['microvision'], []),
+	System('N-Gage', None, [], []),
+	System('PC Booter', 'ibm5150', [], []),
+	#This one is a bit tricky... both MAME and PCem have issues emulating a joystick. Do the games actually just suck like that? I don't know. The majority of these games assume a 4.77MHz CPU, of course. The software list is ibm5150 but that has some DOS games too, just to be confusing.
+	System('Pippin', 'pippin', ['pippin', 'pippin_flop'], []),
+	#Games don't just boot in a PPC Mac, unfortunately
+	System("Super A'Can", 'supracan', ['supracan'], []),
+	System('V.Smile', 'vsmile', ['vsmile_cart', 'vsmile_cd', 'vsmileb_cart', 'vsmilem_cart'], []),
+	System('Xbox 360', None, [], []),
+	#Xenia requires Windows 8 + Vulkan, somehow I don't think it'd ever run under Wine either
+	System('ZAPit GameWave', None, [], []),
+
+	#My computer isn't cool enough to emulate these systems, so I can't verify how they work or how well they work just yet
+	System('Uzebox', 'uzebox', ['uzebox'], []),
+	#MAME looks like it works, but at like 50% speed
+	System('Wii U', None, [], []),
+	#Decaf requires OpenGL 4.5
+
+	#Things that have usability issues
+	System('Cybiko', 'cybikov1', [], []),
+	#Quickload slot doesn't seem to actually quickload anything, and seems to require setup each time. V2 and Extreme have same problems
+	System('Mattel Aquarius', 'aquarius', [], []),
+	#Controllers aren't emulated yet
+	System('PocketStation', 'pockstat', [], []),
+	#Makes you set time and date each time
+	System('Dreamcast VMU', 'svmu', ['svmu'], []),
+	#Makes you set time and date each time; also supposed to have sound apparently but I don't hear any
+	System('Super Casette Vision', 'scv', ['scv'], []),
+	#Only supports some games (e.g. with RAM enhancements) via software list, there's no way to override the cart type or anything like that. 
+	System('SVI-3x8', 'svi328', ['svi318_cart', 'svi318_cass', 'svi318_flop'], []),
+	System('ZX Spectrum', 'spectrum', ['spectrum_cart', 'spectrum_cass', 'specpls3_flop'], []),
+	System('ZX81', 'zx81', ['zx80_cass', 'zx81_cass'], []),
+
+	#Might just be me doing something wrong, but seemingly doesn't work so I'll just put them here until I figure out if they definitely don't work, or they actually do
+	System('Radio 86-RK', 'radio86', ['radio86_cart', 'radio86_cass'], []),
+	System('Mikrosha', 'mikrosha', ['mikrosha_cart', 'mikrosha_cass'], []),
+	System('Apogey BK-01', 'apogee', ['apogee'], []),
+	System('Partner 01.01', 'partner', ['partner_cass', 'partner_flop'], []),
+	System('Orion 128', 'orion128', ['orion_cart', 'orion_cass', 'orion_flop'], []),
+	System('PC-6001', 'pc6001', [], []),
+	System('PC-FX', 'pcfx', ['pcfx'], []),
+	System('FM-7', 'fm7', ['fm7_cass', 'fm7_disk', 'fm77av'], []),
+
+	#Where I don't know what I'm doing, so I have no idea if things are actually working or not
+	System('VC 4000', 'vc4000', ['vc4000'], []),
+	System('Benesse Pocket Challenge V2', None, ['pockchalv2'], []),
+	#Should work with Mednafen + WonderSwan if module is forced, just like... wha?
+	System('CreatiVision', 'crvision', ['crvision'], []),
+
+	#Gonna try these again but they weren't working last time I checked
+	System('Apple IIgs', 'apple2gs', ['apple2gs'], []),
+	#MAME 0.200 was released the other day with a lot of Apple IIgs fixes, so yeah I definitely need to try that out
+	System('Dreamcast', 'dc', ['dc'], []),
+	#MAME requires a much better computer than what I have now to emulate at full speed; there are also Reicast and a few others; lxdream wouldn't compile
+	System('Magnavox Odyssey²', 'odyssey2', ['odyssey2'], []),
+	#O2EM doesn't really work; MAME should though, there's nothing that suggests emulation is inaccurate or some software is unsupported
+	System('PC-88', 'pc8801', ['pc8801_cass', 'pc8801_flop', 'pc8201', 'pc88va'], []),
+	#On the wiki I said "too many various issues with various games" which isn't really a good enough description of why it does or doesn't work
+	System('RCA Studio 2', 'studio2', ['studio2'], []),
 ]
 
 #TODO: Those should just be considered emulated systems, need to add these as well:
 #Arcade: I guess it's not an array, it's just MAME
-#Engines: Doom
+#Engines: Doom, later ScummVM and Quake... these may need to be thought about differently
 #Computers: Mac, DOS (well, they're emulated too, but differently than the above systems)
+#Other: J2ME, Flash
 #This allows us to organize supported emulators easily and such
