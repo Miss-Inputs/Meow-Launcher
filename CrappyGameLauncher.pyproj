@@ -126,6 +126,9 @@
     <Compile Include="info\system_info.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="scummvm.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include=".pylintrc" />
