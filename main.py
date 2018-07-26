@@ -11,6 +11,7 @@ import mame_machines
 import disambiguate
 import organize_folders
 import mac
+import scummvm
 
 debug = '--debug' in sys.argv
 
@@ -39,6 +40,11 @@ if '--with-mac' in sys.argv:
 	mac.do_mac_stuff()
 	time_ended = time.perf_counter()
 	print('Mac finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+
+time_started = time.perf_counter()
+scummvm.add_scummvm_games()
+time_ended = time.perf_counter()
+print('ScummVM finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
 time_started = time.perf_counter()
 disambiguate.disambiguate_names()
