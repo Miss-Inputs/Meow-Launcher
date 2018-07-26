@@ -232,6 +232,24 @@ def make_mame_atari_2600_command_line(game, _):
 
 	return make_mame_command_line(system, 'cart')
 
+def make_mame_speccy_command_line(game, _):
+	#TODO: Add casettes and ROMs; former will require autoboot_script, I don't know enough about the latter but it seems to use exp = intf2
+	#Maybe quickload things? Do those do anything useful?
+	options = {}
+	if game.rom.extension in mame_floppy_formats:
+		system = 'specpls3'
+		slot = 'flop1'
+		#If only one floppy is needed, you can add -upd765:1 "" to the commmand line and use just "flop" instead of "flop1".
+		#Seemingly the "exp" port doesn't do anything, so we can't attach a Kempston interface. Otherwise, we could use this for snapshots and tape games too.
+	else:
+		#No harm in using this for 48K games, it works fine, and saves us from having to detect which model a game is designed for. Seems to be completely backwards compatible, which is a relief.
+		#We do need to plug in the Kempston interface ourselves, though; that's fine. Apparently how the ZX Interface 2 works is that it just maps joystick input to keyboard input, so we don't really need it, but I could be wrong and thinking of something else entirely.
+		system = 'spec128'
+		slot = 'dump'
+		options['exp'] = 'kempjoy'
+
+	return make_mame_command_line(system, slot, options, True)
+	
 emulators = {
 	'Citra': Emulator('citra-qt $<path>', ['3ds', 'cxi', '3dsx'], []),
 	#Will not run full screen from the command line and you always have to set it manually whether you like it or not (I
@@ -407,6 +425,7 @@ emulators = {
 	#I've been told the sound is that horrible on a real system; there are "TV Link" variant systems but that just makes
 	#the colours look even worse (they're all inverted and shit)
 	'MAME (WonderSwan)': MameSystem(make_mame_command_line('wscolor', 'cart'), ['ws', 'wsc', 'bin']),
+	'MAME (ZX Spectrum)': MameSystem(make_mame_speccy_command_line, ['ach', 'frz', 'plusd', 'prg', 'sem', 'sit', 'sna', 'snp', 'snx', 'sp', 'z80', 'zx'] + mame_floppy_formats),
 
 	#Other systems that MAME can do but I'm too lazy to do them yet because they'd need a command line generator function or other:
 	#Lynx: Need to select -quick for .o files and -cart otherwise
