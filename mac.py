@@ -5,6 +5,7 @@ import os
 import shlex
 import json
 import urllib.request
+import configparser
 
 import launchers
 import config
@@ -88,36 +89,78 @@ def make_launcher(path, game_name, game_config):
 	
 	launchers.make_launcher(command, game_name, metadata)
 
-def do_mac_stuff():
+def make_mac_launchers():
 	game_list = init_game_list()
-	for mac_volume in config.mac_disk_images:
-		create_launchers_from_mac_volume(mac_volume, game_list)
+	if not os.path.isfile(config.mac_config_path):
+		return
 
-def create_launchers_from_mac_volume(path, game_list):
+	parser = configparser.ConfigParser(delimiters=('='), allow_no_value=True)
+	parser.optionxform = str
+	parser.read(config.mac_config_path)
+
+	for path, config_name in parser.items('Apps'):
+		if config_name not in game_list:
+			print('Oh no!', path, 'refers to', config_name, "but that isn't known")
+			continue
+		game_config = game_list[config_name]
+		make_launcher(path, config_name, game_config)
+
+	#TODO: Optionally, attempt to do unknown apps as well. I mean, we could.
+
+
+def scan_app(app, game_list, unknown_games, found_games, ambiguous_games):
+	possible_games = [(game_name, game_config) for game_name, game_config in game_list.items() if game_config['creator_code'] == app['creator']]
+	if not possible_games:
+		unknown_games.append(app['path'])
+	elif len(possible_games) == 1:
+		found_games[app['path']] = possible_games[0][0]
+	else:
+		possible_games = [(game_name, game_config) for game_name, game_config in possible_games if game_config['app_name'] == app['name']]
+		if not possible_games:
+			unknown_games.append(app['path'])
+		elif len(possible_games) == 1:
+			found_games[app['path']] = possible_games[0][0]
+		else:
+			ambiguous_games[app['path']] = [game_name for game_name, game_config in possible_games]
+
+def scan_mac_volume(path, game_list, unknown_games, found_games, ambiguous_games):
 	for f in hfs.list_hfv(path):
 		if f['file_type'] != 'APPL':
 			continue
+		scan_app(f, game_list, unknown_games, found_games, ambiguous_games)
+
+def scan_mac_volumes():
+	unknown_games = []
+	found_games = {}
+	ambiguous_games = {}
+
+	game_list = init_game_list()
+	for mac_volume in config.mac_disk_images:
+		scan_mac_volume(mac_volume, game_list, unknown_games, found_games, ambiguous_games)
+
+	configwriter = configparser.ConfigParser()
+	configwriter.optionxform = str
+	configwriter['Apps'] = {}
+	configwriter['Ambiguous'] = {}
+	configwriter['Unknown'] = {}
+	for k, v in found_games.items():
+		configwriter['Apps'][k] = v
+	for k, v in ambiguous_games.items():
+		configwriter['Ambiguous'][k] = ';'.join(v)
+	for unknown in unknown_games:
+		configwriter['Unknown'][unknown] = ''
+	with open(config.mac_config_path, 'wt') as config_file:
+		configwriter.write(config_file)
 	
-		possible_games = [(game_name, game) for game_name, game in game_list.items() if game['creator_code'] == f['creator']]
-		if not possible_games:
-			if debug:
-				print('Unknown game, using default config:', f['path'])
-			make_launcher(f['path'], f['name'], {})
-		elif len(possible_games) == 1:
-			make_launcher(f['path'], *possible_games[0])
-		else:
-			possible_games_by_name = [(game_name, game) for game_name, game in possible_games if game['app_name'] == f['name']]
-			if not possible_games_by_name:
-				if debug:
-					print('Unknown game (but known creator code', f['creator'], ')', 'using default config:', f['path'])
-				make_launcher(f['path'], f['name'], {})
-			elif len(possible_games_by_name) == 1:
-				make_launcher(f['path'], *possible_games_by_name[0])
-			else:
-				if debug:
-					print(f['path'], 'could be', list(game_name for game_name, game in possible_games_by_name), 'using first one for now')
-				make_launcher(f['path'], *possible_games_by_name[0])
+	print('Scan results have been written to', config.mac_config_path)
+	print('Because not everything can be autodetected, some may be unrecognized')
+	print('and you will have to configure them yourself, or may be one of several')
+	print('apps and you will have to specify which is which, until I think of')
+	print('a better way to do this.')
 
 if __name__ == '__main__':
 	os.makedirs(config.output_folder, exist_ok=True)
-	do_mac_stuff()
+	if '--scan' in sys.argv:
+		scan_mac_volumes()
+	else:
+		make_mac_launchers()

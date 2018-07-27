@@ -37,7 +37,7 @@ for system in config.system_configs:
 #This is turned off by the default because it's a bit experimental which is a nice way of saying it's a bit shit, needs hfsutils and parses command line output and ughhhh that's a bit gross hey
 if '--with-mac' in sys.argv:
 	time_started = time.perf_counter()
-	mac.do_mac_stuff()
+	mac.make_mac_launchers()
 	time_ended = time.perf_counter()
 	print('Mac finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

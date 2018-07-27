@@ -30,6 +30,7 @@ organized_output_folder = None
 basilisk_ii_shared_folder = None
 mac_disk_images = []
 mac_db_path = None
+mac_config_path = os.path.join(config_dir, 'mac.ini')
 
 catlist_path = None
 languages_path = None
