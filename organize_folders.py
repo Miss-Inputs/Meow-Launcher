@@ -28,13 +28,23 @@ def sanitize_name(s):
 	return s
 
 def delete_existing_output_dir():
+	def rmdir_recursive(path):
+		for f in os.listdir(path):
+			file_path = os.path.join(path, f)
+			if os.path.isdir(file_path):
+				rmdir_recursive(file_path)
+			else:
+				os.unlink(file_path)
+		try:
+			os.rmdir(path)
+		except FileNotFoundError:
+			pass
+	
 	if os.path.isdir(config.organized_output_folder):
 		for f in os.listdir(config.organized_output_folder):
 			path = os.path.join(config.organized_output_folder, f)
-			if os.path.isdir(path):
-				shutil.rmtree(path, ignore_errors=True)
-			else:
-				os.unlink(path)
+			rmdir_recursive(path)
+			#Only files here, no directories
 
 more_subfolders = {
 	#These subfolders are enabled by an optional argument, because the information is unavailable for all platforms. Otherwise it would be there
