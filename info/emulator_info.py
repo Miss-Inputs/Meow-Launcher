@@ -169,8 +169,6 @@ def make_gambatte_command_line(game, _):
 			print('Skipping', game.rom.path, '(by Gambatte) because mapper is unrecognized')
 		return None
 	if mapper.name in ['Bandai TAMA5', 'HuC3', 'MBC6', 'MBC7', 'Pocket Camera']:
-		if debug:
-			print('Skipping', game.rom.path, 'because mapper is unsupported by Gambatte:', mapper.name)
 		return None		
 
 	return 'gambatte_qt --full-screen $<path>'
