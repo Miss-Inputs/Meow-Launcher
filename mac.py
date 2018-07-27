@@ -2,7 +2,6 @@
 
 import sys
 import os
-import shlex
 import json
 import urllib.request
 import configparser
@@ -49,10 +48,10 @@ def init_game_list():
 	return game_list
 
 class MacApp:
-	def __init__(self, path, name, config):
+	def __init__(self, path, name, app_config):
 		self.path = path
 		self.name = name
-		self.config = config
+		self.config = app_config
 
 	def make_launcher(self, mac_config):
 		metadata = Metadata()
