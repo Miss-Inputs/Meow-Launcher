@@ -141,9 +141,9 @@ def scan_mac_volumes():
 	found_games = {}
 	ambiguous_games = {}
 
-	if 'Mac' not in config.system_configs:
+	mac_config = config.get_system_config_by_name('Mac')
+	if not mac_config:
 		return
-	mac_config = config.system_configs['Mac']
 
 	game_list = init_game_list()
 	#for mac_volume in config.mac_disk_images:
