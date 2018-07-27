@@ -231,6 +231,14 @@ paths =
 emulators = 
 save_dir = 
 
+[Coleco Adam]
+paths = 
+emulators = 
+
+[ZX Spectrum]
+paths = 
+emulators = 
+
 [Mac]
 paths =
 emulators =
