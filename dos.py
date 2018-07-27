@@ -8,7 +8,6 @@ import configparser
 
 import launchers
 import config
-import hfs
 from info.emulator_info import dos_emulators
 from metadata import Metadata
 

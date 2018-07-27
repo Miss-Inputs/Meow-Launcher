@@ -489,7 +489,7 @@ class DOSEmulator():
 		
 		return self.command_line
 
-def get_dosbox_command_line(app, other_config):
+def get_dosbox_command_line(app, _):
 	return "dosbox -noautoexec -fullscreen {0}".format(app.path)
 
 dos_emulators = {
