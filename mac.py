@@ -48,43 +48,48 @@ def init_game_list():
 
 	return game_list
 
-def make_launcher(mac_config, path, game_name, game_config):
-	metadata = Metadata()
-	metadata.platform = 'Mac'
+class MacApp:
+	def __init__(self, path, name, config):
+		self.path = path
+		self.name = name
+		self.config = config
 
-	if 'category' in game_config:
-		metadata.categories = [game_config['category']]
+	def make_launcher(self, mac_config):
+		metadata = Metadata()
+		metadata.platform = 'Mac'
+		#TODO Add input_info and whatnot
+
+		if 'category' in self.config:
+			metadata.categories = [self.config['category']]
 	
-	if 'genre' in game_config:
-		metadata.genre = game_config['genre']
-	if 'subgenre' in game_config:
-		metadata.subgenre = game_config['subgenre']
-	if 'adult' in game_config:
-		metadata.nsfw = game_config['adult']
-	if 'notes' in game_config:
-		metadata.specific_info['Notes'] = game_config['notes']
-	if 'compat_notes' in game_config:
-		metadata.specific_info['Compatibility-Notes'] = game_config['compat_notes']
-		print('Compatibility notes for', path, ':', game_config['compat_notes'])
-	if 'requires_cd' in game_config:
-		print(path, 'requires a CD in the drive. It will probably not work with this launcher at the moment')
-		metadata.specific_info['Requires-CD'] = game_config['requires_cd']
+		if 'genre' in self.config:
+			metadata.genre = self.config['genre']
+		if 'subgenre' in self.config:
+			metadata.subgenre = self.config['subgenre']
+		if 'adult' in self.config:
+			metadata.nsfw = self.config['adult']
+		if 'notes' in self.config:
+			metadata.specific_info['Notes'] = self.config['notes']
+		if 'compat_notes' in self.config:
+			metadata.specific_info['Compatibility-Notes'] = self.config['compat_notes']
+			print('Compatibility notes for', self.name, ':', self.config['compat_notes'])
+		if 'requires_cd' in self.config:
+			print(self.name, 'requires a CD in the drive. It will probably not work with this launcher at the moment')
+			metadata.specific_info['Requires-CD'] = self.config['requires_cd']
 
-	emulator_name = None
-	command = None
-	for emulator in mac_config.chosen_emulators:
-		emulator_name = emulator
-		print('mew', emulator_name)
-		command = mac_emulators[emulator].get_command_line(path, game_config, mac_config.other_config)
-		print('mewtwo', command)
-		if command:
-			break
+		emulator_name = None
+		command = None
+		for emulator in mac_config.chosen_emulators:
+			emulator_name = emulator
+			command = mac_emulators[emulator].get_command_line(self, mac_config.other_config)
+			if command:
+				break
 
-	if not command:
-		return
+		if not command:
+			return
 
-	metadata.emulator_name = emulator_name
-	launchers.make_launcher(command, game_name, metadata)
+		metadata.emulator_name = emulator_name
+		launchers.make_launcher(command, self.name, metadata)
 
 def make_mac_launchers():
 	mac_config = config.get_system_config_by_name('Mac')
@@ -105,11 +110,11 @@ def make_mac_launchers():
 			print('Oh no!', path, 'refers to', config_name, "but that isn't known")
 			continue
 		game_config = game_list[config_name]
-		make_launcher(mac_config, path, config_name, game_config)
+		MacApp(path, config_name, game_config).make_launcher(mac_config)
 
 	if config.launchers_for_unknown_mac_apps:
 		for unknown, _ in parser.items('Unknown'):
-			make_launcher(mac_config, unknown, unknown.split(':')[-1], {})
+			MacApp(unknown, unknown.split(':')[-1], {}).make_launcher(mac_config)
 
 def scan_app(app, game_list, unknown_games, found_games, ambiguous_games):
 	possible_games = [(game_name, game_config) for game_name, game_config in game_list.items() if game_config['creator_code'] == app['creator']]

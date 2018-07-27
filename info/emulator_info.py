@@ -442,32 +442,31 @@ emulators = {
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
 }
 
-def make_basilisk_ii_command_line(path, game_config, other_config):
+def make_basilisk_ii_command_line(app, other_config):
 	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that. Okay, so I don't want that.
 	#Ideally, HFS manipulation would be powerful enough that we could just slip an alias into the Startup Items folder ourselves and delete it afterward. That doesn't fix the problem of automatically shutting down (still need a script for that), unless we don't create an alias at all and we create a script or something on the fly that launches that path and then shuts down, but yeah. Stuff and things.
 	autoboot_txt_path = os.path.join(other_config['shared_folder'], 'autoboot.txt')
 	width = 1920
 	height = 1080
-	if 'width' in game_config:
-		width = game_config['width']
-	if 'height' in game_config:
-		height = game_config['height']
+	if 'width' in app.config:
+		width = app.config['width']
+	if 'height' in app.config:
+		height = app.config['height']
 	#Can't do anything about colour depth at the moment (displaycolordepth is functional on some SDL1 builds, but not SDL2)
 	#Or controls... but I swear I will find a way!!!!
 	
 	#If you're not using an SDL2 build of BasiliskII, you probably want to change dga to window! Well you really want to get an SDL2 build of BasiliskII, honestly
 	actual_emulator_command = 'BasiliskII --screen dga/{0}/{1}'.format(width, height)
-	inner_command = 'echo {0} > {1} && {2} && rm {1}'.format(shlex.quote(path), shlex.quote(autoboot_txt_path), actual_emulator_command)
+	inner_command = 'echo {0} > {1} && {2} && rm {1}'.format(shlex.quote(app.path), shlex.quote(autoboot_txt_path), actual_emulator_command)
 	return 'sh -c {0}'.format(shlex.quote(inner_command))
-	
 
 class MacEmulator():
 	def __init__(self, command_line):
 		self.command_line = command_line
 
-	def get_command_line(self, path, game_config, other_config):
+	def get_command_line(self, app, other_config):
 		if callable(self.command_line):
-			return self.command_line(path, game_config, other_config)
+			return self.command_line(app, other_config)
 		
 		return self.command_line
 
