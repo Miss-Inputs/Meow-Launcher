@@ -34,12 +34,10 @@ for system in config.system_configs:
 	time_ended = time.perf_counter()
 	print(system.name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
-#This is turned off by the default because it's a bit experimental which is a nice way of saying it's a bit shit, needs hfsutils and parses command line output and ughhhh that's a bit gross hey
-if '--with-mac' in sys.argv:
-	time_started = time.perf_counter()
-	mac.make_mac_launchers()
-	time_ended = time.perf_counter()
-	print('Mac finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+time_started = time.perf_counter()
+mac.make_mac_launchers()
+time_ended = time.perf_counter()
+print('Mac finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
 time_started = time.perf_counter()
 scummvm.add_scummvm_games()

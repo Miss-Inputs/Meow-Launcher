@@ -92,6 +92,7 @@ def make_launcher(path, game_name, game_config):
 def make_mac_launchers():
 	game_list = init_game_list()
 	if not os.path.isfile(config.mac_config_path):
+		#TODO: Perhaps notify user they have to do ./mac.py --scan to do the thing
 		return
 
 	parser = configparser.ConfigParser(delimiters=('='), allow_no_value=True)
