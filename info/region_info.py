@@ -67,6 +67,7 @@ languages = [
 ]
 
 regions = [
+	Region('Argentina', 'AR', TVSystem.PAL, 'Spanish'),
 	Region('Asia', 'AS', TVSystem.Indeterminate, None),
 	Region('Australia', 'AU', TVSystem.PAL, 'English'),
 	Region('Brazil', 'BR', TVSystem.NTSC, 'Portugese'), #Uses PAL-M actually, but that's effectively NTSC
