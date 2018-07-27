@@ -1,232 +1,237 @@
 [Amstrad GX4000]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Arcadia 2001]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Atari 2600]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Atari 5200]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Atari 7800]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Casio PV-1000]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Entex Adventure Vision]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Epoch Game Pocket Computer]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Gamate]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Game Boy]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Game Gear]
-rom_dirs = 
+paths = 
 emulators = 
 
 [GBA]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Master System]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Mega CD]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Mega Drive]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Mega Duck]
-rom_dirs = 
+paths = 
 emulators = 
 
 [N64]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Neo Geo CD]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Neo Geo Pocket]
-rom_dirs = 
+paths = 
 emulators = 
 
 [NES]
-rom_dirs = 
+paths = 
 emulators = 
 
 [PC Engine]
-rom_dirs = 
+paths = 
 emulators = 
 
 [PC Engine CD]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Pokemon Mini]
-rom_dirs = 
+paths = 
 emulators = 
 
 [PSP]
-rom_dirs = 
+paths = 
 emulators = 
 
 [SG-1000]
-rom_dirs = 
+paths = 
 emulators = 
 
 [SNES]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Vectrex]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Virtual Boy]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Watara Supervision]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Colecovision]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Intellivison]
-rom_dirs = 
+paths = 
 emulators = 
 
 [APF-MP1000]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Astrocade]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Channel F]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Lynx]
-rom_dirs = 
+paths = 
 emulators = 
 
 [WonderSwan]
-rom_dirs = 
+paths = 
 emulators = 
 
 [MSX]
-rom_dirs = 
+paths = 
 emulators = 
 
 [MSX2]
-rom_dirs = 
+paths = 
 emulators = 
 
 [VIC-20]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Casio PV-2000]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Sord M5]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Atari 8-bit]
-rom_dirs = 
+paths = 
 emulators = 
 
 [PlayStation]
-rom_dirs = 
+paths = 
 emulators = 
 
 [GameCube]
-rom_dirs = 
+paths = 
 emulators = 
 
 [3DS]
-rom_dirs = 
+paths = 
 emulators = 
 
 [DS]
-rom_dirs = 
+paths = 
 emulators = 
 
 [PS2]
-rom_dirs = 
+paths = 
 emulators = 
 
 [32X]
-rom_dirs = 
+paths = 
 emulators = 
 
 [CD-i]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Game.com]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Wii]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Saturn]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Tomy Tutor]
-rom_dirs = 
+paths = 
 emulators = 
 
 [C64]
-rom_dirs = 
+paths = 
 emulators = 
 
 [VIC-10]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Sharp X1]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Sharp X68000]
-rom_dirs = 
+paths = 
 emulators = 
 
 [Doom]
-rom_dirs = 
+paths = 
 emulators = 
 save_dir = 
+
+[Mac]
+paths =
+emulators =
+shared_folder =

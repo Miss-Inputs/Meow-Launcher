@@ -10,6 +10,7 @@ import configparser
 import launchers
 import config
 import hfs
+from info.emulator_info import mac_emulators
 from metadata import Metadata
 
 debug = '--debug' in sys.argv
@@ -47,26 +48,8 @@ def init_game_list():
 
 	return game_list
 
-def make_launcher(path, game_name, game_config):
-	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that.
-	#Ideally, HFS manipulation would be powerful enough that we could just slip an alias into the Startup Items folder ourselves and delete it afterward. That doesn't fix the problem of automatically shutting down (still need a script for that), unless we don't create an alias at all and we create a script or something on the fly that launches that path and then shuts down, but yeah. Stuff and things.
-	autoboot_txt_path = os.path.join(config.basilisk_ii_shared_folder, 'autoboot.txt')
-	width = 1920
-	height = 1080
-	if 'width' in game_config:
-		width = game_config['width']
-	if 'height' in game_config:
-		height = game_config['height']
-	#Can't do anything about colour depth at the moment (displaycolordepth is functional on some SDL1 builds, but not SDL2)
-	#Or controls... but I swear I will find a way!!!!
-	
-	#If you're not using an SDL2 build of BasiliskII, you probably want to change dga to window! Well you really want to get an SDL2 build of BasiliskII, honestly
-	actual_emulator_command = 'BasiliskII --screen dga/{0}/{1}'.format(width, height)
-	inner_command = 'echo {0} > {1} && {2} && rm {1}'.format(shlex.quote(path), shlex.quote(autoboot_txt_path), actual_emulator_command)
-	command = 'sh -c {0}'.format(shlex.quote(inner_command))
-	
+def make_launcher(mac_config, path, game_name, game_config):
 	metadata = Metadata()
-	metadata.emulator_name = 'BasiliskII'
 	metadata.platform = 'Mac'
 
 	if 'category' in game_config:
@@ -86,10 +69,28 @@ def make_launcher(path, game_name, game_config):
 	if 'requires_cd' in game_config:
 		print(path, 'requires a CD in the drive. It will probably not work with this launcher at the moment')
 		metadata.specific_info['Requires-CD'] = game_config['requires_cd']
-	
+
+	emulator_name = None
+	command = None
+	for emulator in mac_config.chosen_emulators:
+		emulator_name = emulator
+		print('mew', emulator_name)
+		command = mac_emulators[emulator].get_command_line(path, game_config, mac_config.other_config)
+		print('mewtwo', command)
+		if command:
+			break
+
+	if not command:
+		return
+
+	metadata.emulator_name = emulator_name
 	launchers.make_launcher(command, game_name, metadata)
 
 def make_mac_launchers():
+	mac_config = config.get_system_config_by_name('Mac')
+	if not mac_config:
+		return
+
 	game_list = init_game_list()
 	if not os.path.isfile(config.mac_config_path):
 		#TODO: Perhaps notify user they have to do ./mac.py --scan to do the thing
@@ -104,11 +105,11 @@ def make_mac_launchers():
 			print('Oh no!', path, 'refers to', config_name, "but that isn't known")
 			continue
 		game_config = game_list[config_name]
-		make_launcher(path, config_name, game_config)
+		make_launcher(mac_config, path, config_name, game_config)
 
 	if config.launchers_for_unknown_mac_apps:
 		for unknown, _ in parser.items('Unknown'):
-			make_launcher(unknown, unknown.split(':')[-1], {})
+			make_launcher(mac_config, unknown, unknown.split(':')[-1], {})
 
 def scan_app(app, game_list, unknown_games, found_games, ambiguous_games):
 	possible_games = [(game_name, game_config) for game_name, game_config in game_list.items() if game_config['creator_code'] == app['creator']]
@@ -136,8 +137,13 @@ def scan_mac_volumes():
 	found_games = {}
 	ambiguous_games = {}
 
+	if 'Mac' not in config.system_configs:
+		return
+	mac_config = config.system_configs['Mac']
+
 	game_list = init_game_list()
-	for mac_volume in config.mac_disk_images:
+	#for mac_volume in config.mac_disk_images:
+	for mac_volume in mac_config.paths:
 		scan_mac_volume(mac_volume, game_list, unknown_games, found_games, ambiguous_games)
 
 	configwriter = configparser.ConfigParser()

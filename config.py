@@ -11,9 +11,9 @@ name_consistency_path = os.path.join(os.path.dirname(__file__), 'name_consistenc
 emulator_config_path = os.path.join(config_dir, 'emulators.ini')
 
 class SystemConfig():
-	def __init__(self, name, rom_dirs, chosen_emulators, other_config=None):
+	def __init__(self, name, paths, chosen_emulators, other_config=None):
 		self.name = name
-		self.rom_dirs = rom_dirs
+		self.paths = paths
 		self.chosen_emulators = chosen_emulators
 		self.other_config = {} if other_config is None else other_config
 
@@ -27,8 +27,6 @@ okay_to_have_software = ['vii', 'snspell', 'tntell']
 output_folder = None
 organized_output_folder = None
 
-basilisk_ii_shared_folder = None
-mac_disk_images = []
 mac_db_path = None
 mac_config_path = os.path.join(config_dir, 'mac.ini')
 launchers_for_unknown_mac_apps = False
@@ -50,6 +48,13 @@ subtitle_removal = []
 
 system_configs = []
 
+def get_system_config_by_name(name):
+	for system_config in system_configs:
+		if system_config.name == name:
+			return system_config
+
+	return None
+
 def load_config():
 	#TODO: Load overrides from command line
 	parser = configparser.ConfigParser()
@@ -58,13 +63,11 @@ def load_config():
 		print('oh no')
 		return
 	parser.read(config_path)
-	global output_folder, organized_output_folder, basilisk_ii_shared_folder, mac_disk_images, mac_db_path, launchers_for_unknown_mac_apps, catlist_path, languages_path, skipped_source_files
+	global output_folder, organized_output_folder, mac_db_path, launchers_for_unknown_mac_apps, catlist_path, languages_path, skipped_source_files
 
 	output_folder = os.path.expanduser(parser['General']['output_folder'])
 	organized_output_folder = os.path.expanduser(parser['General']['organized_output_folder'])
 	
-	basilisk_ii_shared_folder = os.path.expanduser(parser['Mac']['basilisk_ii_shared_folder'])
-	mac_disk_images = [os.path.expanduser(path) for path in parser['Mac']['mac_disk_images'].split(';')]
 	mac_db_path = os.path.expanduser(parser['Mac']['mac_db_path'])
 	launchers_for_unknown_mac_apps = parser['Mac'].getboolean('launchers_for_unknown_apps', False)
 	
@@ -99,14 +102,16 @@ def load_emulator_configs():
 	parser.read(emulator_config_path)
 
 	for system in parser.sections():
-		rom_dirs = [dir for dir in parser[system]['rom_dirs'].strip().split(';') if dir]
-		if not rom_dirs:
+		paths = [dir for dir in parser[system]['paths'].strip().split(';') if dir]
+		if not paths:
 			continue
 		emulators = [emulator for emulator in parser[system]['emulators'].strip().split(';') if emulator]
 
+		#TODO: Do validation of config separately
 		for emulator in emulators:
 			if emulator not in emulator_info.emulators:
-				print('Warning! System {0} is configured to use {1} but that is not known as an emulator'.format(system, emulator))
+				if system == 'Mac' and emulator not in emulator_info.mac_emulators:
+					print('Warning! System {0} is configured to use {1} but that is not known as an emulator'.format(system, emulator))
 
 		info = system_info.get_system_by_name(system)
 		if info:
@@ -114,11 +119,12 @@ def load_emulator_configs():
 				if emulator not in info.emulators:
 					print('Warning! System {0} is configured to use {1} which does not support {0}'.format(system, emulator))
 		else:
-			print('Warning! System {0} is configured but might not exist'.format(system))
+			if system not in ('Mac'):
+				print('Warning! System {0} is configured but might not exist'.format(system))
 
-		other_config = {k: v for k, v in parser[system].items() if k not in ('rom_dirs', 'emulators')}
+		other_config = {k: v for k, v in parser[system].items() if k not in ('paths', 'emulators')}
 
-		system_configs.append(SystemConfig(system, rom_dirs, emulators, other_config))
+		system_configs.append(SystemConfig(system, paths, emulators, other_config))
 			
 load_config()
 with open(ignored_dirs_path, 'rt') as ignored_txt:

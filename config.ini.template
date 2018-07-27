@@ -3,10 +3,8 @@ output_folder =
 organized_output_folder = 
 
 [Mac]
-basilisk_ii_shared_folder = 
-#Separated by ;
-mac_disk_images = 
 mac_db_path = 
+launchers_for_unknown_apps = 
 
 [Arcade]
 catlist_path = 
