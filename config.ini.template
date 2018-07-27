@@ -6,6 +6,10 @@ organized_output_folder =
 mac_db_path = 
 launchers_for_unknown_apps = 
 
+[DOS]
+dos_db_path = 
+launchers_for_unknown_apps = 
+
 [Arcade]
 catlist_path = 
 languages_path = 

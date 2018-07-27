@@ -12,6 +12,7 @@ import disambiguate
 import organize_folders
 import mac
 import scummvm
+import dos
 
 debug = '--debug' in sys.argv
 
@@ -38,6 +39,11 @@ time_started = time.perf_counter()
 mac.make_mac_launchers()
 time_ended = time.perf_counter()
 print('Mac finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+
+time_started = time.perf_counter()
+dos.make_dos_launchers()
+time_ended = time.perf_counter()
+print('DOS finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
 time_started = time.perf_counter()
 scummvm.add_scummvm_games()

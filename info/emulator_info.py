@@ -478,3 +478,20 @@ mac_emulators = {
 	'BasiliskII': MacEmulator(make_basilisk_ii_command_line),
 	#TODO: Add SheepShaver here, even if we would have to do the vm.mmap thingy
 }
+
+class DOSEmulator():
+	def __init__(self, command_line):
+		self.command_line = command_line
+
+	def get_command_line(self, app, other_config):
+		if callable(self.command_line):
+			return self.command_line(app, other_config)
+		
+		return self.command_line
+
+def get_dosbox_command_line(app, other_config):
+	return "dosbox -noautoexec -fullscreen {0}".format(app.path)
+
+dos_emulators = {
+	'DOSBox/SDL2': DOSEmulator(get_dosbox_command_line)
+}

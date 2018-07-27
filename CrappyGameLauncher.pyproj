@@ -25,6 +25,9 @@
     <Compile Include="disambiguate.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="dos.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="info\emulator_info.py" />
     <Compile Include="hfs.py">
       <SubType>Code</SubType>

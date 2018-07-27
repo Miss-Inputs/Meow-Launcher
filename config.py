@@ -31,6 +31,10 @@ mac_db_path = None
 mac_config_path = os.path.join(config_dir, 'mac.ini')
 launchers_for_unknown_mac_apps = False
 
+dos_db_path = None
+dos_config_path = os.path.join(config_dir, 'dos.ini')
+launchers_for_unknown_dos_apps = False
+
 catlist_path = None
 languages_path = None
 skipped_source_files = None
@@ -63,13 +67,16 @@ def load_config():
 		print('oh no')
 		return
 	parser.read(config_path)
-	global output_folder, organized_output_folder, mac_db_path, launchers_for_unknown_mac_apps, catlist_path, languages_path, skipped_source_files
+	global output_folder, organized_output_folder, mac_db_path, launchers_for_unknown_mac_apps, dos_db_path, launchers_for_unknown_dos_apps, catlist_path, languages_path, skipped_source_files
 
 	output_folder = os.path.expanduser(parser['General']['output_folder'])
 	organized_output_folder = os.path.expanduser(parser['General']['organized_output_folder'])
 	
 	mac_db_path = os.path.expanduser(parser['Mac']['mac_db_path'])
 	launchers_for_unknown_mac_apps = parser['Mac'].getboolean('launchers_for_unknown_apps', False)
+
+	dos_db_path = os.path.expanduser(parser['DOS']['dos_db_path'])
+	launchers_for_unknown_dos_apps = parser['DOS'].getboolean('launchers_for_unknown_apps', False)
 	
 	catlist_path = os.path.expanduser(parser['Arcade']['catlist_path'])
 	languages_path = os.path.expanduser(parser['Arcade']['languages_path'])
@@ -111,7 +118,8 @@ def load_emulator_configs():
 		for emulator in emulators:
 			if emulator not in emulator_info.emulators:
 				if system == 'Mac' and emulator not in emulator_info.mac_emulators:
-					print('Warning! System {0} is configured to use {1} but that is not known as an emulator'.format(system, emulator))
+					if system == 'DOS' and emulator not in emulator_info.dos_emulators:
+						print('Warning! System {0} is configured to use {1} but that is not known as an emulator'.format(system, emulator))
 
 		info = system_info.get_system_by_name(system)
 		if info:
@@ -119,7 +127,7 @@ def load_emulator_configs():
 				if emulator not in info.emulators:
 					print('Warning! System {0} is configured to use {1} which does not support {0}'.format(system, emulator))
 		else:
-			if system not in ('Mac', 'Doom'):
+			if system not in ('Mac', 'Doom', 'DOS'):
 				print('Warning! System {0} is configured but might not exist'.format(system))
 
 		other_config = {k: v for k, v in parser[system].items() if k not in ('paths', 'emulators')}
