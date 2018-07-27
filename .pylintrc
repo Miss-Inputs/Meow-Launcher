@@ -190,14 +190,14 @@ argument-naming-style=snake_case
 
 # Regular expression matching correct argument names. Overrides argument-
 # naming-style
-#argument-rgx=
+argument-rgx=(([a-z_][a-z0-9_]+)|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$
 
 # Naming style matching correct attribute names
 attr-naming-style=snake_case
 
 # Regular expression matching correct attribute names. Overrides attr-naming-
 # style
-#attr-rgx=
+attr-rgx=(([a-z_][a-z0-9_]+)|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$
 
 # Bad variable names which should always be refused, separated by a comma
 bad-names=foo,
@@ -222,7 +222,7 @@ const-naming-style=snake_case
 
 # Regular expression matching correct constant names. Overrides const-naming-
 # style
-#const-rgx=
+const-rgx=(([a-z_][a-z0-9_]+)|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$
 
 # Minimum line length for functions/classes that require docstrings, shorter
 # ones are exempt.
@@ -233,7 +233,7 @@ function-naming-style=snake_case
 
 # Regular expression matching correct function names. Overrides function-
 # naming-style
-#function-rgx=
+function-rgx=(([a-z_][a-z0-9_]+)|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$
 
 # Good variable names which should always be accepted, separated by a comma
 good-names=i,
@@ -245,7 +245,7 @@ good-names=i,
 		   lo
 
 # Include a hint for the correct naming format with invalid-name
-include-naming-hint=no
+include-naming-hint=yes
 
 # Naming style matching correct inline iteration names
 inlinevar-naming-style=any
@@ -259,14 +259,14 @@ method-naming-style=snake_case
 
 # Regular expression matching correct method names. Overrides method-naming-
 # style
-#method-rgx=
+method-rgx=(([a-z_][a-z0-9_]+)|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$
 
 # Naming style matching correct module names
 module-naming-style=snake_case
 
 # Regular expression matching correct module names. Overrides module-naming-
 # style
-#module-rgx=
+module-rgx=(([a-z_][a-z0-9_]+)|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$
 
 # Colon-delimited sets of names that determine each other's naming style when
 # the name regexes allow several styles.
@@ -285,7 +285,7 @@ variable-naming-style=snake_case
 
 # Regular expression matching correct variable names. Overrides variable-
 # naming-style
-#variable-rgx=
+variable-rgx=(([a-z_][a-z0-9_]+)|(_[a-z0-9_]*)|(__[a-z][a-z0-9_]+__))$
 
 
 [FORMAT]
@@ -350,7 +350,7 @@ ignore-comments=yes
 ignore-docstrings=yes
 
 # Ignore imports when computing similarities.
-ignore-imports=no
+ignore-imports=yes
 
 # Minimum lines number of a similarity.
 min-similarity-lines=4
