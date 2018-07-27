@@ -119,7 +119,7 @@ def load_emulator_configs():
 				if emulator not in info.emulators:
 					print('Warning! System {0} is configured to use {1} which does not support {0}'.format(system, emulator))
 		else:
-			if system not in ('Mac'):
+			if system not in ('Mac', 'Doom'):
 				print('Warning! System {0} is configured but might not exist'.format(system))
 
 		other_config = {k: v for k, v in parser[system].items() if k not in ('paths', 'emulators')}
