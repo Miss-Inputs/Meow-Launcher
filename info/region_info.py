@@ -73,7 +73,7 @@ regions = [
 	Region('Brazil', 'BR', TVSystem.NTSC, 'Portugese'), #Uses PAL-M actually, but that's effectively NTSC
 	Region('Canada', 'CA', TVSystem.NTSC, None), #Might have English or French
 	Region('China', 'CN', TVSystem.PAL, 'Chinese'),
-	Region('Czechia', 'CZ', TVSystem.PAL, 'Czech'),
+	Region('Czech Republic', 'CZ', TVSystem.PAL, 'Czech'),
 	Region('Denmark', 'DK', TVSystem.PAL, 'Danish'),
 	Region('Europe', 'EU', TVSystem.PAL, 'English'), #Actually could be any number of languages, but in filenames (by No-Intro's convention anyway) it's assumed to be English unless otherwise specified
 	Region('Finland', 'FI', TVSystem.PAL, 'Finnish'),
