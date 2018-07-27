@@ -106,8 +106,9 @@ def make_mac_launchers():
 		game_config = game_list[config_name]
 		make_launcher(path, config_name, game_config)
 
-	#TODO: Optionally, attempt to do unknown apps as well. I mean, we could.
-
+	if config.launchers_for_unknown_mac_apps:
+		for unknown, _ in parser.items('Unknown'):
+			make_launcher(unknown, unknown.split(':')[-1], {})
 
 def scan_app(app, game_list, unknown_games, found_games, ambiguous_games):
 	possible_games = [(game_name, game_config) for game_name, game_config in game_list.items() if game_config['creator_code'] == app['creator']]

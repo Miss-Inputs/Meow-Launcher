@@ -31,6 +31,7 @@ basilisk_ii_shared_folder = None
 mac_disk_images = []
 mac_db_path = None
 mac_config_path = os.path.join(config_dir, 'mac.ini')
+launchers_for_unknown_mac_apps = False
 
 catlist_path = None
 languages_path = None
@@ -57,7 +58,7 @@ def load_config():
 		print('oh no')
 		return
 	parser.read(config_path)
-	global output_folder, organized_output_folder, basilisk_ii_shared_folder, mac_disk_images, mac_db_path, catlist_path, languages_path, skipped_source_files
+	global output_folder, organized_output_folder, basilisk_ii_shared_folder, mac_disk_images, mac_db_path, launchers_for_unknown_mac_apps, catlist_path, languages_path, skipped_source_files
 
 	output_folder = os.path.expanduser(parser['General']['output_folder'])
 	organized_output_folder = os.path.expanduser(parser['General']['organized_output_folder'])
@@ -65,7 +66,8 @@ def load_config():
 	basilisk_ii_shared_folder = os.path.expanduser(parser['Mac']['basilisk_ii_shared_folder'])
 	mac_disk_images = [os.path.expanduser(path) for path in parser['Mac']['mac_disk_images'].split(';')]
 	mac_db_path = os.path.expanduser(parser['Mac']['mac_db_path'])
-
+	launchers_for_unknown_mac_apps = parser['Mac'].getboolean('launchers_for_unknown_apps', False)
+	
 	catlist_path = os.path.expanduser(parser['Arcade']['catlist_path'])
 	languages_path = os.path.expanduser(parser['Arcade']['languages_path'])
 	skipped_source_files = parser['Arcade']['skipped_source_files'].split(';')
