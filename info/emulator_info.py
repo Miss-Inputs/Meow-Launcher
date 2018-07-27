@@ -488,7 +488,7 @@ class DOSEmulator():
 		return self.command_line
 
 def get_dosbox_command_line(app, _):
-	return "dosbox -noautoexec -fullscreen {0}".format(app.path)
+	return "dosbox -exit -noautoexec -fullscreen {0}".format(app.path)
 
 dos_emulators = {
 	'DOSBox/SDL2': DOSEmulator(get_dosbox_command_line)
