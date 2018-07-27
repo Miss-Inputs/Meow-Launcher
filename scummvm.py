@@ -26,6 +26,9 @@ class ScummVMGame():
 		launchers.make_launcher(command, name, metadata)
 
 def add_scummvm_games():
+	if not os.path.isfile(config_path):
+		return	
+
 	parser = configparser.ConfigParser()
 	parser.optionxform = str
 	parser.read(config_path)
