@@ -63,7 +63,7 @@ class DOSApp:
 		if 'year' in self.config:
 			metadata.year = self.config['year']
 
-		metadata.extension = os.path.splitext(self.path)[1][1:]
+		metadata.extension = os.path.splitext(self.path)[1][1:].lower()
 
 		if 'category' in self.config:
 			metadata.categories = [self.config['category']]
