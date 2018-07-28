@@ -225,7 +225,7 @@ def make_mame_atari_2600_command_line(game, _):
 		if debug:
 			print(game.rom.path, "can't be run by MAME a2600 as it's too big")
 		return None
-
+	#TODO: Switch based on input type
 	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'a2600p'
 	else:
