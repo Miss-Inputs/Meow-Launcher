@@ -399,7 +399,7 @@ emulators = {
 	#slot)...
 	'MAME (Sharp X68000)': MameSystem(make_mame_command_line('x68000', 'flop1', has_keyboard=True), mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim']),	
 	'MAME (SNES)': MameSystem(make_mame_snes_command_line, ['sfc', 'bs', 'st']),
-	'MAME (Sord M5)': MameSystem(make_mame_command_line('m5', 'cart', {'ramsize': '64K'}, True), ['bin']),
+	'MAME (Sord M5)': MameSystem(make_mame_command_line('m5', 'cart', {'ramsize': '64K', 'upd765:0': '""'}, True), ['bin']),
 	#Apparently has joysticks with no fire button?  Usually space seems to be fire but sometimes 1 is, which is usually
 	#for starting games.  I hate everything.
 	'MAME (Super Game Boy)': MameSystem(make_mame_command_line('supergb2', 'cart'), ['bin', 'gb', 'gbc']),
