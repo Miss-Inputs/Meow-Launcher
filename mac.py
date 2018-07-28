@@ -58,6 +58,13 @@ class MacApp:
 		metadata.platform = 'Mac'
 		#TODO Add input_info and whatnot
 
+		if 'publisher' in self.config:
+			metadata.author = self.config['publisher']
+		elif 'developer' in self.config:
+			metadata.author = self.config['developer']
+		if 'year' in self.config:
+			metadata.year = self.config['year']
+
 		if 'category' in self.config:
 			metadata.categories = [self.config['category']]
 	

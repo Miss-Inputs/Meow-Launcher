@@ -55,7 +55,15 @@ class DOSApp:
 	def make_launcher(self, dos_config):
 		metadata = Metadata()
 		metadata.platform = 'DOS'
-		#TODO Add input_info and whatnot
+			
+		if 'publisher' in self.config:
+			metadata.author = self.config['publisher']
+		elif 'developer' in self.config:
+			metadata.author = self.config['developer']
+		if 'year' in self.config:
+			metadata.year = self.config['year']
+
+		metadata.extension = os.path.splitext(self.path)[1][1:]
 
 		if 'category' in self.config:
 			metadata.categories = [self.config['category']]
