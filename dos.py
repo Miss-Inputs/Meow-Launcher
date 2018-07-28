@@ -124,10 +124,6 @@ def scan_app(path, exe_name, game_list, unknown_games, found_games, ambiguous_ga
 		ambiguous_games[path] = [game_name for game_name, game_config in possible_games]
 
 def scan_dos_folder(path, game_list, unknown_games, found_games, ambiguous_games):
-	#for f in hfs.list_hfv(path):
-	#	if f['file_type'] != 'APPL':
-	#		continue
-	#	scan_app(f, game_list, unknown_games, found_games, ambiguous_games)
 	for root, _, files in os.walk(path):
 		for name in files:
 			ext = os.path.splitext(name)[1][1:].lower()
