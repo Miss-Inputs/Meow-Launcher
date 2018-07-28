@@ -247,3 +247,4 @@ shared_folder =
 [DOS]
 paths = 
 emulators =
+slow_cpu_cycles = 

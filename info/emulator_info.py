@@ -1,7 +1,9 @@
 import sys
 import shlex
 import os
+import configparser
 
+import config
 from info.region_info import TVSystem
 
 debug = '--debug' in sys.argv
@@ -487,8 +489,50 @@ class DOSEmulator():
 		
 		return self.command_line
 
-def get_dosbox_command_line(app, _):
-	return "dosbox -exit -noautoexec -fullscreen {0}".format(app.path)
+def get_dos_config(app):
+	if not os.path.isdir(config.dos_configs_path):
+		return None	
+
+	for conf in os.listdir(config.dos_configs_path):
+		path = os.path.join(config.dos_configs_path, conf)
+		name, _ = os.path.splitext(conf)
+		if app.name in (name, name.replace(' - ', ': ')):
+			return path
+
+	return None
+
+def make_dos_config(app, other_config):
+	configwriter = configparser.ConfigParser()
+	configwriter.optionxform = str
+
+	configwriter['sdl'] = {}
+	configwriter['sdl']['fullscreen'] = 'true'
+	configwriter['sdl']['fullresolution'] = 'desktop'
+	#TODO: Set mapper file, which will of course require another separate directory
+	#TODO: Might have to set autoexec instead of just pointing to the file as a command line argument for some versions of DOSBox
+
+	if 'required_hardware' in app.config:
+		if 'for_xt' in app.config['required_hardware']:
+			if app.config['required_hardware']['for_xt']:
+				configwriter['cpu'] = {}
+				configwriter['cpu']['cycles'] = other_config['slow_cpu_cycles']
+
+	#TODO: Perform other sanity checks on name
+	name = app.name.replace(': ', ' - ') + '.ini'
+	path = os.path.join(config.dos_configs_path, name)
+
+	os.makedirs(config.dos_configs_path, exist_ok=True)
+	with open(path, 'wt') as config_file:
+		configwriter.write(config_file)
+
+	return path
+
+def get_dosbox_command_line(app, other_config):
+	conf = get_dos_config(app)
+	if ('--regen-dos-config' in sys.argv) or not conf:
+		conf = make_dos_config(app, other_config)
+	actual_command = "dosbox -exit -noautoexec -userconf -conf {1} {0}".format(shlex.quote(app.path), shlex.quote(conf))
+	return actual_command
 
 dos_emulators = {
 	'DOSBox/SDL2': DOSEmulator(get_dosbox_command_line)

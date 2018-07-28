@@ -34,6 +34,8 @@ launchers_for_unknown_mac_apps = False
 dos_db_path = None
 dos_config_path = os.path.join(config_dir, 'dos.ini')
 launchers_for_unknown_dos_apps = False
+#It is at this point in variable naming that I realise I have made a mistake
+dos_configs_path = None
 
 catlist_path = None
 languages_path = None
@@ -67,7 +69,7 @@ def load_config():
 		print('oh no')
 		return
 	parser.read(config_path)
-	global output_folder, organized_output_folder, mac_db_path, launchers_for_unknown_mac_apps, dos_db_path, launchers_for_unknown_dos_apps, catlist_path, languages_path, skipped_source_files
+	global output_folder, organized_output_folder, mac_db_path, launchers_for_unknown_mac_apps, dos_db_path, launchers_for_unknown_dos_apps, dos_configs_path, catlist_path, languages_path, skipped_source_files
 
 	output_folder = os.path.expanduser(parser['General']['output_folder'])
 	organized_output_folder = os.path.expanduser(parser['General']['organized_output_folder'])
@@ -77,6 +79,7 @@ def load_config():
 
 	dos_db_path = os.path.expanduser(parser['DOS']['dos_db_path'])
 	launchers_for_unknown_dos_apps = parser['DOS'].getboolean('launchers_for_unknown_apps', False)
+	dos_configs_path = os.path.expanduser(parser['DOS']['dos_config_path'])
 	
 	catlist_path = os.path.expanduser(parser['Arcade']['catlist_path'])
 	languages_path = os.path.expanduser(parser['Arcade']['languages_path'])
