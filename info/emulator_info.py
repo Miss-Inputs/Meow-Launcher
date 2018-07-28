@@ -392,7 +392,7 @@ emulators = {
 	#Not the same as the PV-1000!  Although it might as well be, except it's a computer, and they aren't compatible with each other.  MAME says it
 	#doesn't work but it seems alright, other than it's supposed to have joysticks and doesn't (so you just set up a
 	#gamepad to map to emulated cursor keys) which maybe is why they say it's preliminary
-	'MAME (SG-1000)': MameSystem(make_mame_command_line('sg1000', 'cart'), ['bin', 'sg']),
+	'MAME (SG-1000)': MameSystem(make_mame_command_line('sg1000', 'cart', {'sgexp': 'fm'}), ['bin', 'sg']),
 	'MAME (Sharp X1)': MameSystem(make_mame_command_line('x1turbo40', 'flop1', has_keyboard=True), mame_floppy_formats + ['2d']),
 	#Hey!!  We finally have floppies working!!  Because they boot automatically!  Assumes that they will all work fine
 	#though without any other disks, and this will need to be updated if we see any cartridges (MAME says it has a cart
