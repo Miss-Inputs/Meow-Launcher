@@ -245,8 +245,6 @@ class Metadata():
 			'NSFW': self.nsfw,
 			'Languages': [language.native_name for language in self.languages if language],
 			'Year': self.year,
-			'Developer': self.developer,
-			'Publisher': self.publisher,
 			'Emulator': self.emulator_name,
 			'Extension': self.extension,
 			'Categories': self.categories,
@@ -256,6 +254,17 @@ class Metadata():
 			'Regions': [region.name if region else 'None!' for region in self.regions],
 			'TV-Type': self.tv_type.name if self.tv_type else None,
 		}
+
+		if self.publisher:
+			fields['Publisher'] = self.publisher
+		elif self.developer:
+			fields['Publisher'] = self.developer
+
+		if self.developer:
+			fields['Developer'] = self.developer
+		elif self.publisher:
+			fields['Developer'] = self.publisher
+
 
 		if self.cpu_info:
 			fields['Main-CPU'] = self.cpu_info.main_cpu
