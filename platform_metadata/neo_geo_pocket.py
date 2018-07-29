@@ -3,7 +3,7 @@ from info.region_info import TVSystem
 def add_ngp_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 	
-	header = game.rom.read(amount=28)
+	header = game.rom.read(amount=64)
 	copyright_string = header[:28].decode('ascii', errors='ignore')
 	if copyright_string == 'COPYRIGHT BY SNK CORPORATION':
 		game.metadata.publisher = 'SNK'
