@@ -24,7 +24,7 @@ nintendo_licensee_codes = {
 	'3E': 'Gremlin',
 	'41': 'Ubisoft',
 	'44': 'Malibu',
-	'47': 'Bullet-Proof Software/Spectrum Holobyte',
+	'47': 'Spectrum Holobyte',
 	'49': 'Irem',
 	'4A': 'Gakken',
 	'4B': 'Raya Systems',
