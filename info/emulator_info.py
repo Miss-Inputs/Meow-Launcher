@@ -517,6 +517,11 @@ def make_dos_config(app, other_config):
 				configwriter['cpu'] = {}
 				configwriter['cpu']['cycles'] = other_config['slow_cpu_cycles']
 
+		if 'graphics' in app.config['required_hardware']:
+			configwriter['dosbox'] = {}
+			graphics = app.config['required_hardware']['graphics']
+			configwriter['dosbox']['machine'] = 'svga_s3' if graphics == 'svga' else graphics
+
 	#TODO: Perform other sanity checks on name
 	name = app.name.replace(': ', ' - ') + '.ini'
 	path = os.path.join(config.dos_configs_path, name)
