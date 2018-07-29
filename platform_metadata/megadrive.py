@@ -16,8 +16,7 @@ def add_megadrive_metadata(game):
 	#TODO:Verify console name is valid as per TMSS, ignore everything overwise
 	#TODO: Get product code too
 	try:
-		copyright = header[16:32].decode('ascii')
-		copyright_match = copyright_regex.match(copyright)
+		copyright_match = copyright_regex.match(header[16:32].decode('ascii'))
 		if copyright_match:
 			maker = copyright_match[1].strip().rstrip(',')
 			maker = t_with_zero.sub('T-', maker)
