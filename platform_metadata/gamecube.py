@@ -17,7 +17,7 @@ def add_gamecube_wii_disc_metadata(game):
 	try:
 		licensee_code = convert_alphanumeric(header[4:6])
 		if licensee_code in nintendo_licensee_codes:
-			game.metadata.author = nintendo_licensee_codes[licensee_code]
+			game.metadata.publisher = nintendo_licensee_codes[licensee_code]
 	except NotAlphanumericException:
 		pass
 

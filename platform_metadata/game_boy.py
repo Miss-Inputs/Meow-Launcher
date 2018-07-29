@@ -87,13 +87,13 @@ def add_gameboy_metadata(game):
 		try:
 			licensee_code = convert_alphanumeric(header[0x44:0x46])
 			if licensee_code in nintendo_licensee_codes:
-				game.metadata.author = nintendo_licensee_codes[licensee_code]
+				game.metadata.publisher = nintendo_licensee_codes[licensee_code]
 		except NotAlphanumericException:
 			pass
 	else:
 		licensee_code = '{:02X}'.format(licensee_code)
 		if licensee_code in nintendo_licensee_codes:
-			game.metadata.author = nintendo_licensee_codes[licensee_code]
+			game.metadata.publisher = nintendo_licensee_codes[licensee_code]
 	
 	if game.rom.extension == 'gbc':
 		game.metadata.platform = 'Game Boy Color'

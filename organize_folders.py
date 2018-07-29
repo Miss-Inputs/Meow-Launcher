@@ -50,7 +50,7 @@ more_subfolders = {
 	#These subfolders are enabled by an optional argument, because the information is unavailable for all platforms. Otherwise it would be there
 	'By genre': 'X-Genre',
 	'By subgenre': ['X-Genre', 'X-Subgenre'],
-	'By author': 'X-Author',
+	'By publisher': 'X-Publisher',
 	'By platform and genre': ['X-Platform', 'X-Genre'],
 	'By platform and year': ['X-Platform', 'X-Year'],
 	'Is NSFW': 'X-NSFW',

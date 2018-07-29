@@ -185,7 +185,7 @@ def add_metadata(machine):
 	
 	machine.metadata.emulator_name = 'MAME'
 	machine.metadata.year = machine.xml.findtext('year')
-	machine.metadata.author = machine.xml.findtext('manufacturer')
+	machine.metadata.publisher = machine.xml.findtext('manufacturer')
 	
 	emulation_status = machine.xml.find('driver').attrib['status']
 	if emulation_status == 'good':

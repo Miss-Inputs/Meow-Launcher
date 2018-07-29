@@ -115,7 +115,7 @@ def parse_stella_db(game, game_info):
 	#TODO: Get year out of name	
 	if 'Cartridge_Manufacturer' in game_info:
 		#TODO: Includes the programmer as well, which is nice, but inconsistent with how X-Author is used elsewhere, maybe split by ', '?
-		game.metadata.author = game_info['Cartridge_Manufacturer']
+		game.metadata.publisher = game_info['Cartridge_Manufacturer']
 	if 'Cartridge_ModelNo' in game_info:
 		game.metadata.specific_info['Product-Code'] = game_info['Cartridge_ModelNo']
 	if 'Cartridge_Note' in game_info:

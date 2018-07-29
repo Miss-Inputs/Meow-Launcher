@@ -7,7 +7,7 @@ from common import convert_alphanumeric, NotAlphanumericException
 
 def parse_sufami_turbo_header(game):
 	#There's a "B2" in the licensee field of the Sufami Turbo BIOS cart itself, so I guess we can safely say all Sufami Turbo games are by Bandai
-	game.metadata.author = 'Bandai'
+	game.metadata.publisher = 'Bandai'
 	game.metadata.platform = 'Sufami Turbo'
 
 	header = game.rom.read(amount=56)
@@ -202,7 +202,7 @@ def add_normal_snes_header(game):
 			game.metadata.save_type = SaveType.Cart if rom_type.has_battery else SaveType.Nothing
 		licensee = header_data.get('Licensee')
 		if licensee is not None and licensee in nintendo_licensee_codes:
-			game.metadata.author = nintendo_licensee_codes[licensee]
+			game.metadata.publisher = nintendo_licensee_codes[licensee]
 		country = header_data.get('Country')
 		if country:
 			game.metadata.regions = [country]

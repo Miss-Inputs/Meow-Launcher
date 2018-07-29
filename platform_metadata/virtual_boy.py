@@ -11,7 +11,7 @@ def add_virtual_boy_metadata(game):
 	try:
 		licensee_code = convert_alphanumeric(header[25:27])
 		if licensee_code in nintendo_licensee_codes:
-			game.metadata.author = nintendo_licensee_codes[licensee_code]
+			game.metadata.publisher = nintendo_licensee_codes[licensee_code]
 	except NotAlphanumericException:
 		pass
 

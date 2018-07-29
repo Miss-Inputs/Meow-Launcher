@@ -45,7 +45,7 @@ def add_gba_metadata(game):
 		game.metadata.specific_info['Product-Code'] = product_code
 		game.metadata.specific_info['Force-Feedback'] = game_type in ('R', 'V')
 		if licensee_code in nintendo_licensee_codes:
-			game.metadata.author = nintendo_licensee_codes[licensee_code]
+			game.metadata.publisher = nintendo_licensee_codes[licensee_code]
 	
 	has_save = False
 	save_strings = [b'EEPROM_V', b'SRAM_V', b'SRAM_F_V', b'FLASH_V', b'FLASH512_V', b'FLASH1M_V']

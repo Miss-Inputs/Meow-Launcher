@@ -57,7 +57,7 @@ def add_wonderswan_metadata(game):
 
 	publisher_code = header[0]
 	if publisher_code in publishers:
-		game.metadata.author = publishers[publisher_code]
+		game.metadata.publisher = publishers[publisher_code]
 	#Is colour: header[1] == 1
 	
 	game.metadata.specific_info['Product-Code'] = str(header[2])
