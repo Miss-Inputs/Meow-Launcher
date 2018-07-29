@@ -1,15 +1,33 @@
 import sys
+import re
 
 from common import convert_alphanumeric, NotAlphanumericException
 from metadata import SaveType, PlayerInput, InputType
+from platform_metadata.sega_common import licensee_codes
 
 debug = '--debug' in sys.argv
 
+copyright_regex = re.compile(r'\(C\)(\S{4}.)(\d{4})\.(.{3})')
+t_with_zero = re.compile('^T-0')
+t_not_followed_by_dash = re.compile('^T(?!-)')
 acceptable_peripherals = set('046ABCDFGJKLMPRTV')
 def add_megadrive_metadata(game):
 	header = game.rom.read(0x100, 0x100)
-	#TODO: Parse copyright at header[16:32] to get author (from giant lookup table) and year if possible
+	#TODO:Verify console name is valid as per TMSS, ignore everything overwise
 	#TODO: Get product code too
+	try:
+		copyright = header[16:32].decode('ascii')
+		copyright_match = copyright_regex.match(copyright)
+		if copyright_match:
+			maker = copyright_match[1].strip().rstrip(',')
+			maker = t_with_zero.sub('T-', maker)
+			maker = t_not_followed_by_dash('T-', maker)
+			if maker in licensee_codes:
+				game.metadata.publisher = licensee_codes[maker]
+			game.metadata.year = copyright_match[2]
+			#Month = group 3
+	except UnicodeDecodeError:
+		pass
 	
 	game.metadata.input_info.console_buttons = 1 #Reset button counts as a button because games can use it apparently
 	player = PlayerInput()
