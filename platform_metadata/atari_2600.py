@@ -114,8 +114,11 @@ def add_controller_info(game, controller):
 def parse_stella_db(game, game_info):
 	#TODO: Get year out of name	
 	if 'Cartridge_Manufacturer' in game_info:
-		#TODO: Includes the programmer as well, which is nice, but inconsistent with how X-Author is used elsewhere, maybe split by ', '?
-		game.metadata.publisher = game_info['Cartridge_Manufacturer']
+		manufacturer = game_info['Cartridge_Manufacturer']
+		if ', ' in manufacturer:
+			game.metadata.publisher, _, game.metadata.developer = manufacturer.partition(', ')
+		else:
+			game.metadata.publisher = manufacturer
 	if 'Cartridge_ModelNo' in game_info:
 		game.metadata.specific_info['Product-Code'] = game_info['Cartridge_ModelNo']
 	if 'Cartridge_Note' in game_info:
