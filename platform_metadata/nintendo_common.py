@@ -110,7 +110,7 @@ nintendo_licensee_codes = {
 	'A7': 'Takara',
 	'A8': 'Royal Industries',
 	'A9': 'Technos Japan',
-	'AA': 'Broderbund',
+	'AA': 'Brøderbund',
 	'AC': 'Toei Animation',
 	'AD': 'Toho',
 	'AF': '[Bandai] Namco',
