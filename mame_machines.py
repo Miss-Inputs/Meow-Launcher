@@ -96,7 +96,7 @@ def get_category(basename):
 			cat = section
 			break
 	if not cat:
-		return 'Unknown', 'Unknown', 'Unknown', 'Unknown'
+		return 'Unknown', 'Unknown', 'Unknown', False
 
 	if ': ' in cat:
 		category, _, genres = cat.partition(': ')
