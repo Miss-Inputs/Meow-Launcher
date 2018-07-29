@@ -19,6 +19,7 @@ from mame_helpers import lookup_system_cpu, lookup_system_displays
 debug = '--debug' in sys.argv
 
 year_regex = re.compile(r'\(([x\d]{4})\)')
+revision_regex = re.compile(r'\(Rev ([A-Z\d]+?)\)')
 
 cpu_overrides = {
 	#Usually just look up system_info.systems, but this is here where they aren't in systems or there isn't a MAME driver so we can't get the CPU from there or where MAME gets it wrong because the CPU we want to return isn't considered the main CPU
@@ -71,13 +72,22 @@ def add_metadata(game):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = common.find_filename_tags.findall(game.rom.name)
 	
+	found_year = True
+	found_revision = True
 	if not game.metadata.year:
-		for tag in tags:
-			found_year = False
-			year_match = year_regex.match(tag)
-			if year_match and not found_year:
-				game.metadata.year = year_match.group(1)
-
+		found_year = False
+	if not game.metadata.revision:
+		found_revision = False
+	for tag in tags:
+		year_match = year_regex.match(tag)
+		revision_match = revision_regex.match(tag)
+		if year_match and not found_year:
+			game.metadata.year = year_match[1]
+			found_year = True
+		if revision_match and not found_revision:
+			game.metadata.revision = revision_match[1]
+			found_revision = True		
+	
 	if not game.metadata.regions:
 		regions = region_detect.get_regions_from_filename_tags(tags)
 		if regions:
