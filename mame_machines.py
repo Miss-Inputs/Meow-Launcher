@@ -156,7 +156,7 @@ def add_machine_platform(machine):
 #Fatal Fury 2, Fatal Fury Special, Fatal Fury 3, and The Last Blade apparently only save in Japanese or something? That might be something to be aware of
 #Also shocktro has a set 2 (shocktroa), and shocktr2 has a bootleg (lans2004), so I should look into if those clones don't save either. They probably don't, though, and it's probably best to expect that something doesn't save and just playing it like any other arcade game, rather than thinking it does and then finding out the hard way that it doesn't. I mean, you could always use savestates, I guess. If those are supported. Might not be. That's another story.
 not_actually_save_supported = ['neobombe', 'pbobbl2n', 'popbounc', 'shocktro', 'shocktr2', 'irrmaze']
-
+licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
 def add_metadata(machine):
 	category, genre, subgenre, nsfw = get_category(machine.basename)
 	machine.metadata.categories = [category] if category else ['Unknown']
@@ -185,7 +185,13 @@ def add_metadata(machine):
 	
 	machine.metadata.emulator_name = 'MAME'
 	machine.metadata.year = machine.xml.findtext('year')
-	machine.metadata.publisher = machine.xml.findtext('manufacturer')
+	manufacturer = machine.xml.findtext('manufacturer')
+	match = licensed_arcade_game_regex.fullmatch(manufacturer)
+	if match:
+		machine.metadata.developer = match[1]
+		machine.metadata.publisher = match[2]
+	else:
+		machine.metadata.publisher = manufacturer
 	
 	emulation_status = machine.xml.find('driver').attrib['status']
 	if emulation_status == 'good':
