@@ -153,7 +153,7 @@ def parse_snes_header(game, base_offset):
 	licensee = header[0xda]
 	#Hmm.. not sure if I should validate that, but... it shouldn't be 0x00 or 0xff, maybe?
 	
-	game.metadata.revision = header[0xdb]
+	metadata['Revision'] = header[0xdb]
 	
 	inverse_checksum = int.from_bytes(header[0xdc:0xde], 'little')
 	checksum = int.from_bytes(header[0xde:0xe0], 'little')
@@ -207,6 +207,7 @@ def add_normal_snes_header(game):
 		country = header_data.get('Country')
 		if country:
 			game.metadata.regions = [country]
+		game.metadata.revision = header_data.get('Revision')
 
 def add_satellaview_metadata(game):
 	#TODO. Can't be bothered at the moment, we can get author from here but not much else useful
