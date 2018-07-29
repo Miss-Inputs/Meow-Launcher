@@ -21,7 +21,7 @@ def add_gamecube_wii_disc_metadata(game):
 	except NotAlphanumericException:
 		pass
 
-	version = header[7]
+	game.metadata.revision = header[7]
 
 def add_gamecube_system_info(game):
 	cpu_info = CPUInfo()
