@@ -20,7 +20,7 @@ def add_megadrive_metadata(game):
 		if copyright_match:
 			maker = copyright_match[1].strip().rstrip(',')
 			maker = t_with_zero.sub('T-', maker)
-			maker = t_not_followed_by_dash('T-', maker)
+			maker = t_not_followed_by_dash.sub('T-', maker)
 			if maker in licensee_codes:
 				game.metadata.publisher = licensee_codes[maker]
 			game.metadata.year = copyright_match[2]
