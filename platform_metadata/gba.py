@@ -55,5 +55,5 @@ def add_gba_metadata(game):
 		if string in entire_cart:
 			has_save = True
 			break
-	#Can also look for SIIRTC_V in entire_cart to detect RTC if desired
+	game.metadata.specific_info['Has-RTC'] = b'SIIRTC_V' in entire_cart
 	game.metadata.save_type = SaveType.Cart if has_save else SaveType.Nothing

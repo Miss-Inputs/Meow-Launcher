@@ -76,6 +76,7 @@ def add_gameboy_metadata(game):
 		game.metadata.specific_info['Mapper'] = mapper
 		game.metadata.save_type = SaveType.Cart if mapper.has_battery else SaveType.Nothing
 		game.metadata.specific_info['Force-Feedback'] = mapper.has_rumble
+		game.metadata.specific_info['Has-RTC'] = mapper.has_rtc
 		if mapper.has_accelerometer:
 			player.inputs.append(InputType.MotionControls)
 	

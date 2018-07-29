@@ -68,6 +68,7 @@ def add_wonderswan_metadata(game):
 	#If >= 10, contains EEPROM, if >0 and < 10, contains SRAM; number determines size by arbitrary lookup table but that's not that important for our purposes I guess
 	game.metadata.save_type = SaveType.Cart if save_info > 0 else SaveType.Nothing
 
+	game.metadata.specific_info['Has-RTC'] = header[7] == 1
 	#Flags: header[6], screen orientation = flags bit 0
 	#Has RTC: header[7] == 1
 	#Checksum schmecksum
