@@ -218,6 +218,7 @@ class Metadata():
 		self.nsfw = False
 		self.languages = []
 		self.year = None
+		self.developer = None
 		self.publisher = None
 		self.emulator_name = None
 		self.extension = None
@@ -244,7 +245,8 @@ class Metadata():
 			'NSFW': self.nsfw,
 			'Languages': [language.native_name for language in self.languages if language],
 			'Year': self.year,
-			'Publisher': self.metadata,
+			'Developer': self.developer,
+			'Publisher': self.publisher,
 			'Emulator': self.emulator_name,
 			'Extension': self.extension,
 			'Categories': self.categories,
