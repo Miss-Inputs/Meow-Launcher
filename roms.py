@@ -245,6 +245,8 @@ def sort_m3u_first():
 
 used_m3u_filenames = []
 def process_system(system_config):
+	if system_config.name in ('Mac', 'DOS'):
+		return
 	for rom_dir in system_config.paths:
 		for root, _, files in os.walk(rom_dir):
 			if common.starts_with_any(root + os.sep, config.ignored_directories):
