@@ -95,5 +95,7 @@ def add_gameboy_metadata(game):
 		if licensee_code in nintendo_licensee_codes:
 			game.metadata.publisher = nintendo_licensee_codes[licensee_code]
 	
+	game.metadata.revision = header[0x4c]
+	
 	if game.rom.extension == 'gbc':
 		game.metadata.platform = 'Game Boy Color'

@@ -225,6 +225,7 @@ class Metadata():
 		self.platform = None
 		self.categories = []
 		self.save_type = SaveType.Unknown
+		self.revision = None
 		
 		#Set this up later with the respective objects
 		#TODO: Set cpu_info and screen_info up right here, and just keep track of whether they're "known" or not like input_info does
@@ -250,6 +251,7 @@ class Metadata():
 			'Categories': self.categories,
 			'Platform': self.platform,
 			'Save-Type': ('Memory Card' if self.save_type == SaveType.MemoryCard else self.save_type.name) if self.save_type else 'Nothing',
+			'Revision': self.revision,
 	
 			'Regions': [region.name if region else 'None!' for region in self.regions],
 			'TV-Type': self.tv_type.name if self.tv_type else None,

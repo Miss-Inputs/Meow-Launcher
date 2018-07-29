@@ -90,3 +90,4 @@ def add_ds_metadata(game):
 		elif region == 0x80:
 			game.metadata.regions = [get_region_by_name('China')]
 		#If 0, could be anywhere else
+	game.metadata.revision = header[30]

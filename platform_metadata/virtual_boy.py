@@ -20,3 +20,5 @@ def add_virtual_boy_metadata(game):
 	except NotAlphanumericException:
 		pass
 	#Can get country from product_code[3] if needed
+	
+	game.metadata.revision = header[31]

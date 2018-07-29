@@ -21,6 +21,8 @@ def add_gamecube_wii_disc_metadata(game):
 	except NotAlphanumericException:
 		pass
 
+	version = header[7]
+
 def add_gamecube_system_info(game):
 	cpu_info = CPUInfo()
 	cpu_info.main_cpu = 'IBM PowerPC 603'

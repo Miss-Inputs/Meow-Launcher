@@ -62,7 +62,7 @@ def add_wonderswan_metadata(game):
 	
 	game.metadata.specific_info['Product-Code'] = str(header[2])
 
-	#Version: header[3]
+	game.metadata.revision = header[3]
 
 	save_info = header[5]
 	#If >= 10, contains EEPROM, if >0 and < 10, contains SRAM; number determines size by arbitrary lookup table but that's not that important for our purposes I guess

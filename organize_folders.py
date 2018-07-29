@@ -54,6 +54,7 @@ more_subfolders = {
 	'By publisher': 'X-Publisher',
 	'By platform and genre': ['X-Platform', 'X-Genre'],
 	'By platform and year': ['X-Platform', 'X-Year'],
+	'By revision': 'X-Revision',
 	'Is NSFW': 'X-NSFW',
 }
 

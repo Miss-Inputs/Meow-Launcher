@@ -14,7 +14,7 @@ acceptable_peripherals = set('046ABCDFGJKLMPRTV')
 def add_megadrive_metadata(game):
 	header = game.rom.read(0x100, 0x100)
 	#TODO:Verify console name is valid as per TMSS, ignore everything overwise
-	#TODO: Get product code too
+	#TODO: Get product code and version from serial too
 	try:
 		copyright_match = copyright_regex.match(header[16:32].decode('ascii'))
 		if copyright_match:

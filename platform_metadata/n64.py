@@ -12,4 +12,4 @@ def add_n64_metadata(game):
 			game.metadata.specific_info['Product-Code'] = product_code
 		except NotAlphanumericException:
 			pass
-		
+		game.metadata.revision = header[63]

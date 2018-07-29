@@ -153,7 +153,7 @@ def parse_snes_header(game, base_offset):
 	licensee = header[0xda]
 	#Hmm.. not sure if I should validate that, but... it shouldn't be 0x00 or 0xff, maybe?
 	
-	#Version = 0xdb, though that really can be anything
+	game.metadata.revision = header[0xdb]
 	
 	inverse_checksum = int.from_bytes(header[0xdc:0xde], 'little')
 	checksum = int.from_bytes(header[0xde:0xe0], 'little')
