@@ -11,7 +11,7 @@ def add_nes_metadata(game):
 	if game.rom.extension == 'fds':
 		game.metadata.platform = 'FDS'
 		header = game.rom.read(amount=56)
-		if header[:16] == b'FDS\x1a':
+		if header[:4] == b'FDS\x1a':
 			header = game.rom.read(seek_to=16, amount=56)
 
 		licensee_code = '{:02X}'.format(header[15])
