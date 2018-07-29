@@ -58,8 +58,8 @@ class DOSApp:
 			
 		if 'publisher' in self.config:
 			metadata.publisher = self.config['publisher']
-		elif 'developer' in self.config:
-			metadata.publisher = self.config['developer']
+		if 'developer' in self.config:
+			metadata.developer = self.config['developer']
 		if 'year' in self.config:
 			metadata.year = self.config['year']
 
