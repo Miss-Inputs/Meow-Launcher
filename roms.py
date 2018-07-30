@@ -18,7 +18,7 @@ from mame_helpers import lookup_system_cpu, lookup_system_displays
 
 debug = '--debug' in sys.argv
 
-year_regex = re.compile(r'\(([x\d]{4})\)')
+year_regex = re.compile(r'\(([x\d]{4})\)|\((\d{4})-\d{2}-\d{2}\)|\(\d{2}\.\d{2}\.(\d{4})\)')
 revision_regex = re.compile(r'\(Rev ([A-Z\d]+?)\)')
 
 cpu_overrides = {
