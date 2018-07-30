@@ -81,20 +81,24 @@ def add_metadata(game):
 	for tag in tags:
 		year_match = year_regex.match(tag)
 		revision_match = revision_regex.match(tag)
-		if year_match and not found_year:
-			game.metadata.year = year_match[1]
-			found_year = True
-		if revision_match and not found_revision:
-			game.metadata.revision = revision_match[1]
-			found_revision = True		
+		if year_match:
+			game.metadata.ignored_filename_tags.append(tag)
+			if not found_year:
+				game.metadata.year = year_match[1]
+				found_year = True
+		if revision_match:
+			game.metadata.ignored_filename_tags.append(tag)
+			if not found_revision:
+				game.metadata.revision = revision_match[1]
+				found_revision = True		
 	
 	if not game.metadata.regions:
-		regions = region_detect.get_regions_from_filename_tags(tags)
+		regions = region_detect.get_regions_from_filename_tags(tags, game.metadata.ignored_filename_tags)
 		if regions:
 			game.metadata.regions = regions
 
 	if not game.metadata.languages:
-		languages = region_detect.get_languages_from_filename_tags(tags)
+		languages = region_detect.get_languages_from_filename_tags(tags, game.metadata.ignored_filename_tags)
 		if languages:
 			game.metadata.languages = languages
 		elif game.metadata.regions:
@@ -107,7 +111,7 @@ def add_metadata(game):
 		if game.metadata.regions:
 			game.metadata.tv_type = region_detect.get_tv_system_from_regions(game.metadata.regions)
 		else:
-			tv_type = region_detect.get_tv_system_from_filename_tags(tags)
+			tv_type = region_detect.get_tv_system_from_filename_tags(tags, game.metadata.ignored_filename_tags)
 			if tv_type:
 				game.metadata.tv_type = tv_type
 	

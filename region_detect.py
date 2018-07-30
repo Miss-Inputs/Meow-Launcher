@@ -47,8 +47,7 @@ def get_languages_from_regions(regions):
 
 	return [common_language]
 
-def get_languages_from_filename_tags(tags):
-
+def get_languages_from_filename_tags(tags, ignored_tags=None):
 	for tag in tags:
 		translation_match = translated_regex.match(tag)
 		if translation_match:
@@ -57,14 +56,19 @@ def get_languages_from_filename_tags(tags):
 
 		language_list_match = language_list_regex.match(tag)
 		if language_list_match:
+			good_tag = False
 			languages = []
 
 			language_list = language_list_match.group(1).split(',')
 			for language_code in language_list:
 				language = get_language_by_short_code(language_code)
 				if language:
+					good_tag = True
 					languages.append(language)
-	
+			
+			if good_tag and ignored_tags:
+				ignored_tags.append(tag)
+
 			return languages
 
 		tosec_languages_match = tosec_language_regex.match(tag)
@@ -76,13 +80,18 @@ def get_languages_from_filename_tags(tags):
 					second_language_code = tosec_languages_match[2].capitalize()
 					second_language = get_language_by_short_code(second_language_code)
 					if second_language:
+						if ignored_tags:
+							ignored_tags.append(tag)
+
 						return [first_language, second_language]
 				else:
+					if ignored_tags:
+							ignored_tags.append(tag)
 					return [first_language]
 
 	return None
 
-def get_regions_from_filename_tags(tags):
+def get_regions_from_filename_tags(tags, ignored_tags=None):
 	regions = []
 	for tag in tags:
 		if tag.startswith('['):
@@ -96,22 +105,31 @@ def get_regions_from_filename_tags(tags):
 			multiple_region_separator = '-'
 
 		if multiple_region_separator:
+			good_tag = False
 			multiple_regions = tag.split(multiple_region_separator)
 			for region_name in multiple_regions:
 				region = get_region_by_name(region_name)
 				if region:
+					good_tag = True
 					regions.append(region)
 				else:
 					region = get_region_by_short_code(region_name)
 					if region:
+						good_tag = True
 						regions.append(region)
+			if good_tag and ignored_tags:
+				ignored_tags.append(tag)
 		else:
 			region = get_region_by_name(tag)
 			if region:
+				if ignored_tags:
+					ignored_tags.append(tag)
 				regions = [region]
 			else:
 				region = get_region_by_short_code(tag)
 				if region:
+					if ignored_tags:
+						ignored_tags.append(tag)
 					regions.append(region)
 
 		if regions and any(regions):
@@ -127,15 +145,21 @@ def get_tv_system_from_regions(regions):
 	#If there are multiple distinct systems, it must be agnostic (since we only have NTSC, PAL, and agnostic (both) for now)
 	return region_info.TVSystem.Agnostic
 
-def get_tv_system_from_filename_tags(tags):
+def get_tv_system_from_filename_tags(tags, ignored_tags=None):
 	#You should look for regions instead if you can. This just looks at the presence of (NTSC) or (PAL) directly (both No-Intro and TOSEC style filenames sometimes do this).
 	for tag in tags:
 		tag = tag.upper()
 		if tag == '(NTSC)':
+			if ignored_tags:
+				ignored_tags.append(tag)
 			return region_info.TVSystem.NTSC
 		elif tag == '(PAL)':
+			if ignored_tags:
+				ignored_tags.append(tag)
 			return region_info.TVSystem.PAL
 		elif tag == '(NTSC-PAL)' or tag == '(PAL-NTSC)':
+			if ignored_tags:
+				ignored_tags.append(tag)
 			return region_info.TVSystem.Agnostic
 
 	return None
