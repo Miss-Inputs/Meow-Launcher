@@ -7,8 +7,11 @@ from platform_metadata.nintendo_common import nintendo_licensee_codes
 #Maybe get disc number and region code?
 
 def add_gamecube_wii_disc_metadata(game):
-	header = game.rom.read(amount=32)
-	#Actually, the header is quite a bit bigger than that. We don't really need the disc name or filesystem offset or anything like that, though.
+	header = game.rom.read(amount=64)
+	internal_title = header[32:64] #Potentially quite a lot bigger but we don't need that much out of it
+	if internal_title[:28] == b'GAMECUBE HOMEBREW BOOTLOADER':
+		return
+	#Actually, the header is quite a bit bigger than that. We don't really need the filesystem offset or anything like that, though.
 	try:
 		game.metadata.specific_info['Product-Code'] = convert_alphanumeric(header[:4])
 	except NotAlphanumericException:
