@@ -11,8 +11,11 @@ import config
 import launchers
 
 debug = '--debug' in sys.argv
+super_debug = '--super-debug' in sys.argv
 
 def update_name(desktop, new_name):
+	if super_debug:
+		print('Disambiguating', desktop[1]['Desktop Entry']['Name'], 'to', new_name)
 	desktop[1]['Desktop Entry']['Name'] = new_name
 	writer = configparser.ConfigParser(interpolation=None)
 	writer.optionxform = str 
