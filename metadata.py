@@ -254,6 +254,7 @@ class Metadata():
 			'Save-Type': ('Memory Card' if self.save_type == SaveType.MemoryCard else self.save_type.name) if self.save_type else 'Nothing',
 			'Revision': self.revision,
 	
+			'Ignored-Tags': self.ignored_filename_tags,
 			'Regions': [region.name if region else 'None!' for region in self.regions],
 			'TV-Type': self.tv_type.name if self.tv_type else None,
 		}
