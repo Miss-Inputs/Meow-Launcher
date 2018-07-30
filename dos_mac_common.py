@@ -6,11 +6,9 @@ import config
 
 def init_game_list(platform):
 	db_path = config.mac_db_path if platform == 'mac' else config.dos_db_path if platform == 'dos' else None
-	if db_path is None:
-		return
 
 	if not os.path.exists(db_path):
-		print("You don't have mac_db.json which is required for this to work. Let me get that for you.")
+		print("You don't have {0}_db.json which is required for this to work. Let me get that for you.".format(platform))
 		#TODO: Is this the wrong way to do this? I think it most certainly is
 		db_url = 'https://raw.githubusercontent.com/Zowayix/computer-software-db/master/{0}_db.json'.format(platform)
 		with urllib.request.urlopen(db_url) as mac_db_request:
