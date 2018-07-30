@@ -76,9 +76,19 @@ def resolve_duplicates_by_filename_tags(group):
 		if differentiator_candidates:
 			update_name(dup, ' '.join(differentiator_candidates), 'tags')
 
+def resolve_duplicates_by_dev_status(group):
+	for dup in group:
+		tags = launchers.get_array(dup[1], 'X-Filename-Tags')
+
+		for tag in tags:
+			if tag.lower().startswith(('(beta', '(sample)', '(proto', '(alpha', '(preview', '(pre-release', '(demo)', '(multiboot demo)')):
+				update_name(dup, tag, 'dev status')
+
 def resolve_duplicates(group, method, format_function=None):
 	if method == 'tags':
 		resolve_duplicates_by_filename_tags(group)
+	elif method == 'dev-status':
+		resolve_duplicates_by_dev_status(group)
 	else:
 		resolve_duplicates_by_metadata(group, method, format_function)
 
@@ -124,6 +134,7 @@ def revision_disambiguate(rev):
 	
 def disambiguate_names():
 	fix_duplicate_names('X-Platform')
+	fix_duplicate_names('dev-status')
 	fix_duplicate_names('X-Regions', lambda regions: '({0})'.format(regions.replace(';', ', ')))
 	fix_duplicate_names('X-Publisher')
 	fix_duplicate_names('X-Developer')
