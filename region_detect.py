@@ -86,7 +86,7 @@ def get_languages_from_filename_tags(tags, ignored_tags=None):
 						return [first_language, second_language]
 				else:
 					if ignored_tags:
-							ignored_tags.append(tag)
+						ignored_tags.append(tag)
 					return [first_language]
 
 	return None

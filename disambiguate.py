@@ -65,7 +65,6 @@ def resolve_duplicates_by_filename_tags(group):
 	for dup in group:
 		the_rest = [d for d in group if d[0] != dup[0]]
 		tags = launchers.get_array(dup[1], 'X-Filename-Tags')
-		name = launchers.get_field(dup[1], 'Name')
 		
 		differentiator_candidates = []
 		
@@ -132,7 +131,7 @@ def disambiguate_names():
 	fix_duplicate_names('X-Year')
 	fix_duplicate_names('X-Languages', lambda languages: '({0})'.format(languages.replace(';', ', ')))
 	fix_duplicate_names('tags')
-	fix_duplicate_names('X-Extension', lambda ext: '(.{0})'.format(ext))
+	fix_duplicate_names('X-Extension', '(.{0})'.format)
 	if debug:
 		fix_duplicate_names('check')
 
