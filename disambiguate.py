@@ -85,14 +85,14 @@ def resolve_duplicates(group, method, format_function=None):
 def normalize_name(name):
 	name = name.lower()
 	name = re.sub(r'\.\B', '', name)
-	name = name.replace('3-D', '3D')
+	name = name.replace('3-d', '3d')
 	name = name.replace('&', 'and')
 	name = name.replace(" 'n", "'n")
 	name = re.sub(r'\b-\b', ' ', name)
 	name = name.replace(': ', ' - ')
 	name = name.replace('é', 'e')
 	name = name.replace('!', '')
-	name = name.replace('Dr. ', 'Dr ')
+	name = name.replace('dr. ', 'dr ')
 	
 	return name
 
