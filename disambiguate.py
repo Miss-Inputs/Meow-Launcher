@@ -33,31 +33,31 @@ def update_name(desktop, disambiguator, disambiguation_method):
 	writer.read_dict(desktop[1])
 	with open(desktop[0], 'wt') as f:
 		writer.write(f)
-		
-def resolve_duplicates_by_platform(group):
-	platform_counter = collections.Counter(launchers.get_field(d[1], 'X-Platform') for d in group)
+
+def resolve_duplicates_by_metadata(group, field, format):
+	value_counter = collections.Counter(launchers.get_field(d[1], field) for d in group)
 	for dup in group:
-		platform = launchers.get_field(dup[1], 'X-Platform')
+		field_value = launchers.get_field(dup[1], field)
 		name = launchers.get_field(dup[1], 'Name')
 			
 		#See if this launcher is unique in this group (of launchers with the same
-		#name) for its platform.  If it's the only launcher for this platform, we can
-		#use Thing (Platform) as the final display name to avoid ambiguity
-		if platform_counter[platform] == 1:
-			if platform != name and platform is not None:
+		#name) for its field.  If it's the only launcher for this field, we can
+		#use Thing (Field) as the final display name to avoid ambiguity
+		if value_counter[field_value] == 1:
+			if field_value != name and field_value is not None:
 				#Avoid "Doom (Doom)" and "Blah (None)" and such
-				update_name(dup, '({0})'.format(platform), 'platform')
+				update_name(dup, format.format(field_value), field)
 		else:
-			if platform_counter[platform] == len(group):
-				#Platform is the same across the whole group.  Need to disambiguate some
+			if value_counter[field_value] == len(group):
+				#Field is the same across the whole group.  Need to disambiguate some
 				#other way
 				pass
 			else:
-				#Platform is different, but still requires disambiguation.  That is to say,
-				#there is something else with the same platform in this group, but we still
-				#need to append the platform to disambiguate it from other stuff
-				if platform != name and platform is not None:
-					update_name(dup, '({0})'.format(platform), 'platform')
+				#Field is different, but still requires disambiguation.  That is to say,
+				#there is something else with the same field in this group, but we still
+				#need to append the field to disambiguate it from other stuff
+				if field_value != name and field_value is not None:
+					update_name(dup, format.format(field_value), field)
 				
 def resolve_duplicates_by_filename_tags(group):
 	for dup in group:
@@ -74,28 +74,12 @@ def resolve_duplicates_by_filename_tags(group):
 		
 		if differentiator_candidates:
 			update_name(dup, ' '.join(differentiator_candidates), 'tags')
-		
-def resolve_duplicates_by_extension(group):
-	extension_counter = collections.Counter(launchers.get_field(d[1], 'X-Extension') for d in group)
-	for dup in group:
-		ext = launchers.get_field(dup[1], 'X-Extension')
-		name = launchers.get_field(dup[1], 'Name')
-			
-		if extension_counter[ext] == 1:
-			update_name(dup, '(.{1})'.format(ext), 'extension')
-		else:
-			if extension_counter[ext] == len(group):
-				pass
-			else:
-				update_name(dup, '(.{1})'.format(ext), 'extension')
 
-def resolve_duplicates(group, method):
-	if method == 'platform':
-		resolve_duplicates_by_platform(group)
-	elif method == 'tags':
+def resolve_duplicates(group, method, format):
+	if method == 'tags':
 		resolve_duplicates_by_filename_tags(group)
-	elif method == 'extension':
-		resolve_duplicates_by_extension(group)
+	else:
+		resolve_duplicates_by_metadata(group, method, format)
 
 def normalize_name(name):
 	name = name.lower()
@@ -111,7 +95,7 @@ def normalize_name(name):
 	
 	return name
 
-def fix_duplicate_names(method):
+def fix_duplicate_names(method, format):
 	files = [(path, launchers.convert_desktop(path)) for path in [os.path.join(config.output_folder, f) for f in os.listdir(config.output_folder)]]
 
 	keyfunc = lambda f: normalize_name(launchers.get_field(f[1], 'Name'))
@@ -126,12 +110,12 @@ def fix_duplicate_names(method):
 		if method == 'check':
 			print('Duplicate name still remains: ', k, [d[1]['Desktop Entry']['Comment'] for d in v])
 		else:
-			resolve_duplicates(v, method)
+			resolve_duplicates(v, method, format)
 	
 def disambiguate_names():
-	fix_duplicate_names('platform')
-	fix_duplicate_names('tags')
-	fix_duplicate_names('extension')
+	fix_duplicate_names('X-Platform', '({0})')
+	fix_duplicate_names('tags', None)
+	fix_duplicate_names('X-Extension', '(.{0})')
 	if debug:
 		fix_duplicate_names('check')
 
