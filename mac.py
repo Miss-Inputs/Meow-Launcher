@@ -2,8 +2,6 @@
 
 import sys
 import os
-import json
-import urllib.request
 import configparser
 
 import launchers
