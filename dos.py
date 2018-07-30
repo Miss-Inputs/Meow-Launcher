@@ -3,7 +3,6 @@
 import sys
 import os
 import json
-import urllib.request
 import configparser
 
 import launchers
@@ -11,41 +10,9 @@ import config
 from info.emulator_info import dos_emulators
 from metadata import Metadata
 import common
+import dos_mac_common
 
 debug = '--debug' in sys.argv
-
-def init_game_list():
-	if not os.path.exists(config.dos_db_path):
-		print("You don't have dos_db.json which is required for this to work. Let me get that for you.")
-		#TODO: Is this the wrong way to do this? I think it most certainly is
-		dos_db_url = 'https://raw.githubusercontent.com/Zowayix/computer-software-db/master/dos_db.json'
-		with urllib.request.urlopen(dos_db_url) as dos_db_request:
-			dos_db_data = dos_db_request.read().decode('utf-8')
-		with open(config.dos_db_path, 'wt') as dos_db_local_file:
-			dos_db_local_file.write(dos_db_data)
-			game_list = json.loads(dos_db_data)
-	else:
-		with open(config.dos_db_path, 'rt') as dos_db_file:
-			game_list = json.load(dos_db_file)
-
-	for game_name, game in game_list.items():
-		if 'parent' in game:
-			parent_name = game['parent']
-			if parent_name in game_list:
-				parent = game_list[parent_name]
-				for key in parent.keys():
-					if key == "notes":
-						if key in game:
-							game_list[game_name][key] = parent[key] + ";" + game_list[game_name][key]
-						else:
-							game_list[game_name][key] = parent[key]
-					elif key not in game:
-						game_list[game_name][key] = parent[key]
-			else:
-				if debug:
-					print('Oh no! {0} refers to undefined parent game {1}'.format(game_name, parent_name))
-
-	return game_list
 
 class DOSApp:
 	def __init__(self, path, name, app_config):
@@ -103,7 +70,7 @@ def make_dos_launchers():
 	if not dos_config:
 		return
 
-	game_list = init_game_list()
+	game_list = dos_mac_common.init_game_list('dos')
 	if not os.path.isfile(config.dos_config_path):
 		#TODO: Perhaps notify user they have to do ./dos.py --scan to do the thing
 		return
@@ -154,7 +121,7 @@ def scan_dos_folders():
 	if not dos_config:
 		return
 
-	game_list = init_game_list()
+	game_list = dos_mac_common.init_game_list('dos')
 	for dos_folder in dos_config.paths:
 		scan_dos_folder(dos_folder, game_list, unknown_games, found_games, ambiguous_games)
 

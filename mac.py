@@ -11,41 +11,9 @@ import config
 import hfs
 from info.emulator_info import mac_emulators
 from metadata import Metadata
+import dos_mac_common
 
 debug = '--debug' in sys.argv
-
-def init_game_list():
-	if not os.path.exists(config.mac_db_path):
-		print("You don't have mac_db.json which is required for this to work. Let me get that for you.")
-		#TODO: Is this the wrong way to do this? I think it most certainly is
-		mac_db_url = 'https://raw.githubusercontent.com/Zowayix/computer-software-db/master/mac_db.json'
-		with urllib.request.urlopen(mac_db_url) as mac_db_request:
-			mac_db_data = mac_db_request.read().decode('utf-8')
-		with open(config.mac_db_path, 'wt') as mac_db_local_file:
-			mac_db_local_file.write(mac_db_data)
-			game_list = json.loads(mac_db_data)
-	else:
-		with open(config.mac_db_path, 'rt') as mac_db_file:
-			game_list = json.load(mac_db_file)
-
-	for game_name, game in game_list.items():
-		if 'parent' in game:
-			parent_name = game['parent']
-			if parent_name in game_list:
-				parent = game_list[parent_name]
-				for key in parent.keys():
-					if key == "notes":
-						if key in game:
-							game_list[game_name][key] = parent[key] + ";" + game_list[game_name][key]
-						else:
-							game_list[game_name][key] = parent[key]
-					elif key not in game:
-						game_list[game_name][key] = parent[key]
-			else:
-				if debug:
-					print('Oh no! {0} refers to undefined parent game {1}'.format(game_name, parent_name))
-
-	return game_list
 
 class MacApp:
 	def __init__(self, path, name, app_config):
@@ -102,7 +70,7 @@ def make_mac_launchers():
 	if not mac_config:
 		return
 
-	game_list = init_game_list()
+	game_list = dos_mac_common.init_game_list('mac')
 	if not os.path.isfile(config.mac_config_path):
 		#TODO: Perhaps notify user they have to do ./mac.py --scan to do the thing
 		return
@@ -152,8 +120,7 @@ def scan_mac_volumes():
 	if not mac_config:
 		return
 
-	game_list = init_game_list()
-	#for mac_volume in config.mac_disk_images:
+	game_list = dos_mac_common.init_game_list('mac')
 	for mac_volume in mac_config.paths:
 		scan_mac_volume(mac_volume, game_list, unknown_games, found_games, ambiguous_games)
 
