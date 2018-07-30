@@ -13,10 +13,18 @@ import launchers
 debug = '--debug' in sys.argv
 super_debug = '--super-debug' in sys.argv
 
-def update_name(desktop, new_name):
+def update_name(desktop, disambiguator, disambiguation_method):
+	entry = desktop[1]['Desktop Entry']
 	if super_debug:
-		print('Disambiguating', desktop[1]['Desktop Entry']['Name'], 'to', new_name)
-	desktop[1]['Desktop Entry']['Name'] = new_name
+		print('Disambiguating', entry['Name'], 'with', disambiguator, 'using', disambiguation_method)
+	if 'X-Ambiguous-Name' not in entry:
+		entry['X-Ambiguous-Name'] = entry['Name']
+	if 'X-Disambiguator' not in entry:
+		entry['X-Disambiguator'] = disambiguator
+	else:
+		entry['X-Disambiguator'] += ';' + disambiguator
+	entry['Name'] += ' ' + disambiguator
+		
 	writer = configparser.ConfigParser(interpolation=None)
 	writer.optionxform = str 
 	#You don't fucking understand .desktop files are case sensitive you're fucking
@@ -38,7 +46,7 @@ def resolve_duplicates_by_platform(group):
 		if platform_counter[platform] == 1:
 			if platform != name and platform is not None:
 				#Avoid "Doom (Doom)" and "Blah (None)" and such
-				update_name(dup, '{0} ({1})'.format(name, platform))
+				update_name(dup, '({0})'.format(platform), 'platform')
 		else:
 			if platform_counter[platform] == len(group):
 				#Platform is the same across the whole group.  Need to disambiguate some
@@ -49,7 +57,7 @@ def resolve_duplicates_by_platform(group):
 				#there is something else with the same platform in this group, but we still
 				#need to append the platform to disambiguate it from other stuff
 				if platform != name and platform is not None:
-					update_name(dup, '{0} ({1})'.format(name, platform))
+					update_name(dup, '({0})'.format(platform), 'platform')
 				
 def resolve_duplicates_by_filename_tags(group):
 	for dup in group:
@@ -65,7 +73,7 @@ def resolve_duplicates_by_filename_tags(group):
 				differentiator_candidates.append(tag)
 		
 		if differentiator_candidates:
-			update_name(dup, '{0} {1}'.format(name, ' '.join(differentiator_candidates)))
+			update_name(dup, ' '.join(differentiator_candidates), 'tags')
 		
 def resolve_duplicates_by_extension(group):
 	extension_counter = collections.Counter(launchers.get_field(d[1], 'X-Extension') for d in group)
@@ -74,12 +82,12 @@ def resolve_duplicates_by_extension(group):
 		name = launchers.get_field(dup[1], 'Name')
 			
 		if extension_counter[ext] == 1:
-			update_name(dup, '{0} (.{1})'.format(name, ext))
+			update_name(dup, '(.{1})'.format(ext), 'extension')
 		else:
 			if extension_counter[ext] == len(group):
 				pass
 			else:
-				update_name(dup, '{0} (.{1})'.format(name, ext))	
+				update_name(dup, '(.{1})'.format(ext), 'extension')
 
 def resolve_duplicates(group, method):
 	if method == 'platform':
