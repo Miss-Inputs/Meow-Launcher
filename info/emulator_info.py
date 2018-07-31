@@ -182,7 +182,7 @@ def make_mame_snes_command_line(game, other_config):
 		if 'sufami_turbo_bios_path' not in other_config:
 			if debug:
 				#TODO Only print this once!
-				print("You can't do", game.rom.path, "because you haven't set up the BIOS for it yet, check config.py")
+				print("You can't do", game.rom.path, "because you haven't set up the BIOS for it yet, check emulators.ini")
 			return None
 
 		#We don't need to detect TV type because the Sufami Turbo (and also BS-X) was only released in Japan and so the Super Famicom can be used for everything
@@ -192,7 +192,7 @@ def make_mame_snes_command_line(game, other_config):
 		if 'bsx_bios_path' not in other_config:
 			if debug:
 				#TODO Only print this once!
-				print("You can't do", game.rom.path, "because you haven't set up the BIOS for it yet, check config.py")
+				print("You can't do", game.rom.path, "because you haven't set up the BIOS for it yet, check emulators.ini")
 			return None
 
 		return make_mame_command_line('snes', 'cart2', {'cart': shlex.quote(other_config['bsx_bios_path'])}, False)
