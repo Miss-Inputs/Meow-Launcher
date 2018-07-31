@@ -118,18 +118,18 @@ def get_regions_from_filename_tags(tags, ignored_tags=None):
 						good_tag = True
 						regions.append(region)
 			if good_tag and ignored_tags:
-				ignored_tags.append(tag)
+				ignored_tags.append('(' + tag + ')')
 		else:
 			region = get_region_by_name(tag)
 			if region:
 				if ignored_tags:
-					ignored_tags.append(tag)
+					ignored_tags.append('(' + tag + ')')
 				regions = [region]
 			else:
 				region = get_region_by_short_code(tag)
 				if region:
 					if ignored_tags:
-						ignored_tags.append(tag)
+						ignored_tags.append('(' + tag + ')')
 					regions.append(region)
 
 		if regions and any(regions):
