@@ -65,6 +65,9 @@
     <Compile Include="platform_metadata\ds.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="platform_metadata\master_system.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="platform_metadata\megadrive.py">
       <SubType>Code</SubType>
     </Compile>

@@ -19,6 +19,7 @@ import platform_metadata.ds
 import platform_metadata.game_boy
 import platform_metadata.gamecube
 import platform_metadata.gba
+import platform_metadata.master_system
 import platform_metadata.megadrive
 import platform_metadata.n64
 import platform_metadata.neo_geo_pocket
@@ -65,7 +66,9 @@ helpers = {
 	'Gamate': nothing_interesting,
 	'Game Boy': game_boy.add_gameboy_metadata,
 	'GameCube': gamecube.add_gamecube_metadata,
+	'Game Gear': master_system.get_sms_metadata,
 	'GBA': gba.add_gba_metadata,
+	'Master System': master_system.get_sms_metadata,
 	'Mega Drive': megadrive.add_megadrive_metadata,
 	'Mega Duck': nothing_interesting,
 	'N64': n64.add_n64_metadata,
