@@ -260,8 +260,12 @@ def get_dolphin_command_line(game, _):
 def get_citra_command_line(game, _):
 	if game.rom.extension != '3dsx':
 		if not game.metadata.specific_info.get('Decrypted', True):
+			if debug:
+				print('Skipping', game.rom.path, 'because encrypted')
 			return None
 		if not game.metadata.specific_info.get('Is-CXI', True):
+			if debug:
+				print('Skipping', game.rom.path, 'because not CXI')
 			return None
 	return 'citra-qt $<path>'
 	

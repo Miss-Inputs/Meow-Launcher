@@ -93,7 +93,7 @@ def parse_ncch(game, offset):
 def parse_plain_region(game, offset, length):
 	#Plain region contains libraries used and such, it's pretty dang cool actually and could be useful here but also mysterious
 	plain_region = game.rom.read(seek_to=offset, amount=length)
-	game.metadata.specific_info['Plain-Region-Test'] = [lib.decode('ascii', errors='backslashreplace') for lib in plain_region.split(b'\x00') if lib]
+	game.metadata.specific_info['Libraries'] = [lib.decode('ascii', errors='backslashreplace') for lib in plain_region.split(b'\x00') if lib]
 
 def parse_exefs(game, offset):
 	header = game.rom.read(seek_to=offset, amount=0x200)
