@@ -2,6 +2,7 @@ import calendar
 
 from region_detect import get_region_by_name
 from platform_metadata.sega_common import licensee_codes
+from info.region_info import TVSystem
 
 def decode_bcd(i):
 	if not isinstance(i, int):
@@ -117,3 +118,6 @@ def get_sms_metadata(game):
 		parse_sdsc_header(game, sdsc_header[4:])
 
 	try_parse_standard_header(game)
+
+	if game.metadata.platform == 'Game Gear':
+		game.metadata.tv_type = TVSystem.Agnostic
