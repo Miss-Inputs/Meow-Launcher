@@ -84,11 +84,61 @@ def resolve_duplicates_by_dev_status(group):
 			if tag.lower().startswith(('(beta', '(sample)', '(proto', '(alpha', '(preview', '(pre-release', '(demo)', '(multiboot demo)')):
 				update_name(dup, tag, 'dev status')
 
+def resolve_duplicates_by_date(group):
+	year_counter = collections.Counter(launchers.get_field(d[1], 'X-Year') for d in group)
+	month_counter = collections.Counter(launchers.get_field(d[1], 'X-Month') for d in group)
+	day_counter = collections.Counter(launchers.get_field(d[1], 'X-Day') for d in group)
+	for dup in group:
+		year = launchers.get_field(dup[1], 'X-Year')
+		month = launchers.get_field(dup[1], 'X-Month')
+		day = launchers.get_field(dup[1], 'X-Day')
+		if year is None or (month is None and day is None):
+			continue
+			
+		disambiguator = {'Day': None, 'Month': None, 'Year': None}
+		disambiguated = False
+		if year_counter[year] != len(group):
+			disambiguated = True
+			if year is None:
+				disambiguator['Year'] = '(No year)'
+			else:
+				disambiguator['Year'] = year			
+		
+		if month_counter[month] != len(group):
+			disambiguated = True
+			if month is None:
+				disambiguator['Month'] = '(No month)'
+			else:
+				disambiguator['Month'] = month
+
+		if day_counter[day] != len(group):
+			disambiguated = True
+			if day is None:
+				disambiguator['Day'] = '(No day)'
+			else:
+				disambiguator['Day'] = day
+
+		if disambiguated:
+			#Just having the day by itself would look weird, so put the year etc in always
+			year_disambig = disambiguator['Year'] if disambiguator['Year'] else year
+			month_disambig = disambiguator['Month'] if disambiguator['Month'] else month
+			day_disambig = disambiguator['Day'] if disambiguator['Day'] else day
+			if disambiguator['Month'] or disambiguator['Day']:
+				date_string = '{0} {1} {2}'.format(day_disambig, month_disambig, year_disambig)
+			else:
+				if disambiguator['Year'] is None:
+					continue
+				date_string = year_disambig
+			
+			update_name(dup, '(' + date_string + ')', 'date')
+
 def resolve_duplicates(group, method, format_function=None):
 	if method == 'tags':
 		resolve_duplicates_by_filename_tags(group)
 	elif method == 'dev-status':
 		resolve_duplicates_by_dev_status(group)
+	elif method == 'date':
+		resolve_duplicates_by_date(group)
 	else:
 		resolve_duplicates_by_metadata(group, method, format_function)
 
@@ -139,7 +189,7 @@ def disambiguate_names():
 	fix_duplicate_names('X-Publisher')
 	fix_duplicate_names('X-Developer')
 	fix_duplicate_names('X-Revision', revision_disambiguate)
-	fix_duplicate_names('X-Year')
+	fix_duplicate_names('date')
 	fix_duplicate_names('X-Languages', lambda languages: '({0})'.format(languages.replace(';', ', ')))
 	fix_duplicate_names('tags')
 	fix_duplicate_names('X-Extension', '(.{0})'.format)

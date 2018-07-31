@@ -56,6 +56,7 @@ more_subfolders = {
 	'By platform and year': ['X-Platform', 'X-Year'],
 	'By revision': 'X-Revision',
 	'Is NSFW': 'X-NSFW',
+	'By date': ['X-Year', 'X-Month', 'X-Day'],
 }
 
 extra_subfolders = {
