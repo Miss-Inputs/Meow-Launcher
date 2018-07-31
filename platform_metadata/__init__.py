@@ -1,10 +1,3 @@
-import sys
-import os
-import binascii
-import subprocess
-import hashlib
-import re
-
 from info.region_info import TVSystem
 from metadata import PlayerInput, InputType
 
@@ -31,8 +24,6 @@ import platform_metadata.vectrex
 import platform_metadata.virtual_boy
 import platform_metadata.wii
 import platform_metadata.wonderswan
-
-debug = '--debug' in sys.argv
 
 #For roms.py, gets metadata in ways specific to certain platforms
 #I guess this is duplicating a lot of ROMniscience code, huh? Well, it's my project, and I'll use it for reference for my other project if I want. But I guess there is duplication there. I mean, it's C# and Python, so I can't really combine them directly, but it makes me think... it makes me overthink. That's the best kind of think.
