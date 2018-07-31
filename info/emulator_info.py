@@ -4,7 +4,7 @@ import os
 import configparser
 
 import config
-from info.region_info import TVSystem
+from .region_info import TVSystem
 
 debug = '--debug' in sys.argv
 
