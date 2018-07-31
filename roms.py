@@ -87,6 +87,35 @@ def get_year_revision_from_filename_tags(game, tags):
 				game.metadata.revision = revision_match[1]
 				found_revision = True
 
+def get_metadata_from_tags(game):
+	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
+	tags = common.find_filename_tags.findall(game.rom.name)
+
+	get_year_revision_from_filename_tags(game, tags)
+	
+	if not game.metadata.regions:
+		regions = region_detect.get_regions_from_filename_tags(tags, game.metadata.ignored_filename_tags)
+		if regions:
+			game.metadata.regions = regions
+
+	if not game.metadata.languages:
+		languages = region_detect.get_languages_from_filename_tags(tags, game.metadata.ignored_filename_tags)
+		if languages:
+			game.metadata.languages = languages
+		elif game.metadata.regions:
+			languages = region_detect.get_languages_from_regions(game.metadata.regions)
+			if languages:
+				game.metadata.languages = languages
+		
+
+	if not game.metadata.tv_type:
+		if game.metadata.regions:
+			game.metadata.tv_type = region_detect.get_tv_system_from_regions(game.metadata.regions)
+		else:
+			tv_type = region_detect.get_tv_system_from_filename_tags(tags, game.metadata.ignored_filename_tags)
+			if tv_type:
+				game.metadata.tv_type = tv_type
+
 def add_metadata(game):
 	game.metadata.extension = game.rom.extension
 	
@@ -116,34 +145,8 @@ def add_metadata(game):
 		if displays:
 			game.metadata.screen_info = displays
 	
-	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
-	tags = common.find_filename_tags.findall(game.rom.name)
+	get_metadata_from_tags(game)
 
-	get_year_revision_from_filename_tags(game, tags)
-	
-	if not game.metadata.regions:
-		regions = region_detect.get_regions_from_filename_tags(tags, game.metadata.ignored_filename_tags)
-		if regions:
-			game.metadata.regions = regions
-
-	if not game.metadata.languages:
-		languages = region_detect.get_languages_from_filename_tags(tags, game.metadata.ignored_filename_tags)
-		if languages:
-			game.metadata.languages = languages
-		elif game.metadata.regions:
-			languages = region_detect.get_languages_from_regions(game.metadata.regions)
-			if languages:
-				game.metadata.languages = languages
-		
-
-	if not game.metadata.tv_type:
-		if game.metadata.regions:
-			game.metadata.tv_type = region_detect.get_tv_system_from_regions(game.metadata.regions)
-		else:
-			tv_type = region_detect.get_tv_system_from_filename_tags(tags, game.metadata.ignored_filename_tags)
-			if tv_type:
-				game.metadata.tv_type = tv_type
-	
 class Rom():
 	def __init__(self, path):
 		self.path = path
