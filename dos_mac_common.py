@@ -1,8 +1,12 @@
 import json
 import os
 import urllib.request
+import sys
 
 import config
+
+debug = '--debug' in sys.argv
+
 
 def init_game_list(platform):
 	db_path = config.mac_db_path if platform == 'mac' else config.dos_db_path if platform == 'dos' else None
