@@ -189,8 +189,8 @@ def disambiguate_names():
 	fix_duplicate_names('X-Publisher')
 	fix_duplicate_names('X-Developer')
 	fix_duplicate_names('X-Revision', revision_disambiguate)
-	fix_duplicate_names('date')
 	fix_duplicate_names('X-Languages', lambda languages: '({0})'.format(languages.replace(';', ', ')))
+	fix_duplicate_names('date')
 	fix_duplicate_names('tags')
 	fix_duplicate_names('X-Extension', '(.{0})'.format)
 	if debug:
