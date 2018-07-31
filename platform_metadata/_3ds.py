@@ -2,7 +2,7 @@
 from info.region_info import TVSystem
 from metadata import CPUInfo, ScreenInfo, Screen, SaveType
 from common import convert_alphanumeric, NotAlphanumericException
-from platform_metadata.nintendo_common import nintendo_licensee_codes
+from .nintendo_common import nintendo_licensee_codes
 
 def add_3ds_system_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic

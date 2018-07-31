@@ -3,7 +3,7 @@ from zlib import crc32
 from common import convert_alphanumeric, NotAlphanumericException
 from metadata import SaveType, PlayerInput, InputType
 from info.region_info import TVSystem
-from platform_metadata.nintendo_common import nintendo_licensee_codes
+from .nintendo_common import nintendo_licensee_codes
 
 nintendo_gba_logo_crc32 = 0xD0BEB55E
 def add_gba_metadata(game):

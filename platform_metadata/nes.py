@@ -1,7 +1,7 @@
 import calendar
 
 from metadata import SaveType
-from platform_metadata.nintendo_common import nintendo_licensee_codes
+from .nintendo_common import nintendo_licensee_codes
 
 def decode_bcd(i):
 	hi = (i & 0xf0) >> 4

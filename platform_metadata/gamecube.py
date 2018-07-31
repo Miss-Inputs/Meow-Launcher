@@ -2,7 +2,7 @@ from datetime import datetime
 
 from metadata import CPUInfo, ScreenInfo, Screen
 from common import convert_alphanumeric, NotAlphanumericException
-from platform_metadata.nintendo_common import nintendo_licensee_codes
+from .nintendo_common import nintendo_licensee_codes
 
 #TODO: Maybe get disc number and region code?
 

@@ -1,7 +1,7 @@
 import calendar
 
 from region_detect import get_region_by_name
-from platform_metadata.sega_common import licensee_codes
+from .sega_common import licensee_codes
 from info.region_info import TVSystem
 
 def decode_bcd(i):

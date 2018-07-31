@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 
 from metadata import SaveType, PlayerInput, InputType
-from platform_metadata.sega_common import licensee_codes
+from .sega_common import licensee_codes
 
 debug = '--debug' in sys.argv
 

@@ -3,7 +3,7 @@ from zlib import crc32
 from common import convert_alphanumeric, NotAlphanumericException
 from metadata import SaveType, PlayerInput, InputType
 from info.region_info import TVSystem
-from platform_metadata.nintendo_common import nintendo_licensee_codes
+from .nintendo_common import nintendo_licensee_codes
 
 class GameBoyMapper():
 	def __init__(self, name, has_ram=False, has_battery=False, has_rtc=False, has_rumble=False, has_accelerometer=False):

@@ -2,7 +2,7 @@ from enum import Enum, auto
 
 from metadata import SaveType
 from region_detect import get_region_by_name
-from platform_metadata.nintendo_common import nintendo_licensee_codes
+from .nintendo_common import nintendo_licensee_codes
 from common import convert_alphanumeric, NotAlphanumericException
 
 def parse_sufami_turbo_header(game):

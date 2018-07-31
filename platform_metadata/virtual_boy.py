@@ -1,6 +1,6 @@
 from common import convert_alphanumeric, NotAlphanumericException
 from info.region_info import TVSystem
-from platform_metadata.nintendo_common import nintendo_licensee_codes
+from .nintendo_common import nintendo_licensee_codes
 
 def add_virtual_boy_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
