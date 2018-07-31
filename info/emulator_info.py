@@ -250,12 +250,18 @@ def make_mame_speccy_command_line(game, _):
 		options['exp'] = 'kempjoy'
 
 	return make_mame_command_line(system, slot, options, True)
+
+def get_dolphin_command_line(game, _):
+	if game.metadata.specific_info['No-Disc-Magic']:
+		return None
+
+	return 'dolphin-emu -b -e $<path>'
 	
 emulators = {
 	'Citra': Emulator('citra-qt $<path>', ['3ds', 'cxi', '3dsx'], []),
 	#Will not run full screen from the command line and you always have to set it manually whether you like it or not (I
 	#do not, but eh, it works and that's really cool)
-	'Dolphin': Emulator('dolphin-emu -b -e $<path>', ['iso', 'gcz', 'elf', 'dol', 'wad'], []),
+	'Dolphin': Emulator(get_dolphin_command_line, ['iso', 'gcz', 'elf', 'dol', 'wad'], []),
 	'Gambatte': Emulator(make_gambatte_command_line, ['gb', 'gbc'], ['zip']),
 	#--gba-cgb-mode[=0] and --force-dmg-mode[=0] may be useful in obscure situations
 	'Kega Fusion': Emulator('kega-fusion -fullscreen $<path>', ['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', 'sc', '32x'], ['zip']),
