@@ -4,65 +4,17 @@ import sys
 import os
 import configparser
 
-import launchers
 import config
 from info.emulator_info import dos_emulators
-from metadata import Metadata
 import common
 import dos_mac_common
 
 debug = '--debug' in sys.argv
 
-class DOSApp:
-	def __init__(self, path, name, app_config):
-		self.path = path
-		self.name = name
-		self.config = app_config
-
-	def make_launcher(self, dos_config):
-		metadata = Metadata()
+class DOSApp(dos_mac_common.App):
+	def additional_metadata(self, metadata):
 		metadata.platform = 'DOS'
-			
-		if 'publisher' in self.config:
-			metadata.publisher = self.config['publisher']
-		if 'developer' in self.config:
-			metadata.developer = self.config['developer']
-		if 'year' in self.config:
-			metadata.year = self.config['year']
-
 		metadata.extension = os.path.splitext(self.path)[1][1:].lower()
-
-		if 'category' in self.config:
-			metadata.categories = [self.config['category']]
-	
-		if 'genre' in self.config:
-			metadata.genre = self.config['genre']
-		if 'subgenre' in self.config:
-			metadata.subgenre = self.config['subgenre']
-		if 'adult' in self.config:
-			metadata.nsfw = self.config['adult']
-		if 'notes' in self.config:
-			metadata.specific_info['Notes'] = self.config['notes']
-		if 'compat_notes' in self.config:
-			metadata.specific_info['Compatibility-Notes'] = self.config['compat_notes']
-			print('Compatibility notes for', self.name, ':', self.config['compat_notes'])
-		if 'requires_cd' in self.config:
-			print(self.name, 'requires a CD in the drive. It will probably not work with this launcher at the moment')
-			metadata.specific_info['Requires-CD'] = self.config['requires_cd']
-
-		emulator_name = None
-		command = None
-		for emulator in dos_config.chosen_emulators:
-			emulator_name = emulator
-			command = dos_emulators[emulator].get_command_line(self, dos_config.other_config)
-			if command:
-				break
-
-		if not command:
-			return
-
-		metadata.emulator_name = emulator_name
-		launchers.make_launcher(command, self.name, metadata)
 
 def make_dos_launchers():
 	dos_config = config.get_system_config_by_name('DOS')
@@ -83,11 +35,11 @@ def make_dos_launchers():
 			print('Oh no!', path, 'refers to', config_name, "but that isn't known")
 			continue
 		game_config = game_list[config_name]
-		DOSApp(path, config_name, game_config).make_launcher(dos_config)
+		DOSApp(path, config_name, game_config).make_launcher(dos_config, dos_emulators)
 
 	if config.launchers_for_unknown_dos_apps:
 		for unknown, _ in parser.items('Unknown'):
-			DOSApp(unknown, unknown.split(':')[-1], {}).make_launcher(dos_config)
+			DOSApp(unknown, unknown.split(':')[-1], {}).make_launcher(dos_config, dos_emulators)
 
 def scan_app(path, exe_name, game_list, unknown_games, found_games, ambiguous_games):
 	possible_games = [(game_name, game_config) for game_name, game_config in game_list.items() if game_config['app_name'].lower() == exe_name]
