@@ -252,7 +252,7 @@ def make_mame_speccy_command_line(game, _):
 	return make_mame_command_line(system, slot, options, True)
 
 def get_dolphin_command_line(game, _):
-	if game.metadata.specific_info['No-Disc-Magic']:
+	if game.metadata.specific_info.get('No-Disc-Magic', False):
 		return None
 
 	return 'dolphin-emu -b -e $<path>'
