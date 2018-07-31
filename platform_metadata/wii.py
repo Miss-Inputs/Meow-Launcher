@@ -36,18 +36,18 @@ def add_wii_metadata(game):
 
 	#TODO WiiWare wad
 	
-	#TODO: Only do this if ext = dol or elf, not that you'd expect to see meta.xml anywhere else but who knows
-	xml_path = os.path.join(game.folder, 'meta.xml')
-	if os.path.isfile(xml_path):
-		#boot is not a helpful launcher name
-		try:
-			meta_xml = ElementTree.parse(xml_path)
-			game.rom.name = meta_xml.findtext('name')
-			coder = meta_xml.findtext('coder')
-			if not coder:
-				coder = meta_xml.findtext('author')
-			game.metadata.developer = coder
-		except ElementTree.ParseError as etree_error:
-			if debug:
-				print('Ah bugger', game.rom.path, etree_error)
-			game.rom.name = os.path.basename(game.folder)
+	if game.rom.extension in ('dol', 'elf'):
+		xml_path = os.path.join(game.folder, 'meta.xml')
+		if os.path.isfile(xml_path):
+			#boot is not a helpful launcher name
+			try:
+				meta_xml = ElementTree.parse(xml_path)
+				game.rom.name = meta_xml.findtext('name')
+				coder = meta_xml.findtext('coder')
+				if not coder:
+					coder = meta_xml.findtext('author')
+				game.metadata.developer = coder
+			except ElementTree.ParseError as etree_error:
+				if debug:
+					print('Ah bugger', game.rom.path, etree_error)
+				game.rom.name = os.path.basename(game.folder)
