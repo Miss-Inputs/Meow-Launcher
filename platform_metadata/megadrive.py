@@ -22,7 +22,6 @@ def add_megadrive_metadata(game):
 	if not console_name.startswith('SEGA') and not console_name.startswith(' SEGA'):
 		return
 
-	#TODO: Get product code and version from serial too
 	try:
 		copyright_match = copyright_regex.match(header[16:32].decode('ascii'))
 		if copyright_match:
@@ -39,6 +38,22 @@ def add_megadrive_metadata(game):
 				pass
 	except UnicodeDecodeError:
 		pass
+	
+	try:
+		#There's a space at header[130] apparently, so I guess that might be part of the thing, but eh
+		serial = header[131:142].decode('ascii')
+		game.metadata.specific_info['Product-Code'] = serial[:8]
+		#- in between
+		version = serial[-2]
+		if version.isdigit():
+			game.metadata.revision = int(version)
+	except UnicodeDecodeError:
+		pass
+	#0
+	#Product code 131:139
+	#- 139
+	#Version: header[140:142]
+	#Checksum: header[142:144]
 	
 	game.metadata.input_info.console_buttons = 1 #Reset button counts as a button because games can use it apparently
 	player = PlayerInput()
