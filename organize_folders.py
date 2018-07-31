@@ -88,6 +88,8 @@ extra_subfolders = {
 	'By genre and input method': ['X-Genre', 'X-Input-Methods'],
 	'Has header': 'X-Headered',
 	'Has force feedback': 'X-Force-Feedback',
+	'Has RTC': 'X-Has-RTC',
+	'Has product code': 'X-Product-Code',
 }
 
 def move_into_extra_subfolder(path, desktop, subfolder, key):
