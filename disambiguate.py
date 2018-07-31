@@ -92,7 +92,7 @@ def resolve_duplicates_by_date(group):
 		year = launchers.get_field(dup[1], 'X-Year')
 		month = launchers.get_field(dup[1], 'X-Month')
 		day = launchers.get_field(dup[1], 'X-Day')
-		if year is None or (month is None and day is None):
+		if year is None or (year is None and month is None and day is None):
 			continue
 			
 		disambiguator = {'Day': None, 'Month': None, 'Year': None}
