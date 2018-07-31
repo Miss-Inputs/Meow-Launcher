@@ -1,3 +1,4 @@
+import calendar
 
 from metadata import SaveType
 from platform_metadata.nintendo_common import nintendo_licensee_codes
@@ -24,6 +25,13 @@ def add_nes_metadata(game):
 		if year >= 61 and year <= 99: #Showa 61 = 1986 when the FDS was released. Year > 99 wouldn't be valid BCD, so... I'll check back in 2025 to see if anyone's written homebrew for the FDS in that year and then I'll figure out what I'm doing. But homebrew right now seems to leave the year as 00 anyway, though
 			year = 1925 + year
 			game.metadata.year = year
+		month = decode_bcd(header[32])
+		if month >= 1 and month <= 12:
+			game.metadata.month = calendar.month_name[month]
+		day = decode_bcd(header[33])
+		if day >= 1 and day <= 28:
+			game.metadata.day = day
+
 	else:
 		header = game.rom.read(amount=16)
 		magic = header[:4]
