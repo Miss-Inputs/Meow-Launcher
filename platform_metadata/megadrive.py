@@ -1,5 +1,6 @@
 import sys
 import re
+from datetime import datetime
 
 from common import convert_alphanumeric, NotAlphanumericException
 from metadata import SaveType, PlayerInput, InputType
@@ -31,7 +32,11 @@ def add_megadrive_metadata(game):
 			if maker in licensee_codes:
 				game.metadata.publisher = licensee_codes[maker]
 			game.metadata.year = copyright_match[2]
-			#Month = group 3
+			try:
+				game.metadata.month = datetime.strptime(copyright_match[3], '%b').strftime('%B')
+			except ValueError:
+				#There are other spellings such as JUR, JLY out there, but oh well
+				pass
 	except UnicodeDecodeError:
 		pass
 	
