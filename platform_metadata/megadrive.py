@@ -2,7 +2,6 @@ import sys
 import re
 from datetime import datetime
 
-from common import convert_alphanumeric, NotAlphanumericException
 from metadata import SaveType, PlayerInput, InputType
 from platform_metadata.sega_common import licensee_codes
 
