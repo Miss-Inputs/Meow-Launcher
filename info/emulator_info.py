@@ -256,9 +256,17 @@ def get_dolphin_command_line(game, _):
 		return None
 
 	return 'dolphin-emu -b -e $<path>'
+
+def get_citra_command_line(game, _):
+	if game.rom.extension != '3dsx':
+		if not game.metadata.specific_info.get('Decrypted', True):
+			return None
+		if not game.metadata.specific_info.get('Is-CXI', True):
+			return None
+	return 'citra-qt $<path>'
 	
 emulators = {
-	'Citra': Emulator('citra-qt $<path>', ['3ds', 'cxi', '3dsx'], []),
+	'Citra': Emulator(get_citra_command_line, ['3ds', 'cxi', '3dsx'], []),
 	#Will not run full screen from the command line and you always have to set it manually whether you like it or not (I
 	#do not, but eh, it works and that's really cool)
 	'Dolphin': Emulator(get_dolphin_command_line, ['iso', 'gcz', 'elf', 'dol', 'wad'], []),
