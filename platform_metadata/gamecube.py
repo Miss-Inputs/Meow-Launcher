@@ -1,13 +1,13 @@
+from datetime import datetime
 
 from metadata import CPUInfo, ScreenInfo, Screen
 from common import convert_alphanumeric, NotAlphanumericException
 from platform_metadata.nintendo_common import nintendo_licensee_codes
 
-#TODO: Get year from apploader date (GameCube specific, Wii doesn't have this)
-#Maybe get disc number and region code?
+#TODO: Maybe get disc number and region code?
 
 def add_gamecube_wii_disc_metadata(game):
-	header = game.rom.read(amount=64)
+	header = game.rom.read(amount=0x2450)
 	internal_title = header[32:64] #Potentially quite a lot bigger but we don't need that much out of it
 	if internal_title[:28] == b'GAMECUBE HOMEBREW BOOTLOADER':
 		return
@@ -25,6 +25,27 @@ def add_gamecube_wii_disc_metadata(game):
 		pass
 
 	game.metadata.revision = header[7]
+	is_wii = header[0x18:0x1c] == b']\x1c\x9e\xa3'
+	is_gamecube = header[0x1c:0x20] == b'\xc23\x9f='
+	#Is this ever set to both? In theory no, but... hmm
+
+	if is_gamecube:
+		game.metadata.platform = 'GameCube'
+		try:
+			apploader_date = header[0x2440:0x2450].decode('ascii').rstrip('\x00')
+			try:
+				actual_date = datetime.strptime(apploader_date, '%Y/%m/%d')
+				game.metadata.year = actual_date.year
+				game.metadata.month = actual_date.strftime('%B')
+				game.metadata.day = actual_date.day
+			except ValueError:
+				pass
+		except UnicodeDecodeError:
+			pass
+	elif is_wii:
+		game.metadata.platform = 'Wii'
+	else:
+		game.metadata.specific_info['No-Disc-Magic'] = True
 
 def add_gamecube_system_info(game):
 	cpu_info = CPUInfo()
