@@ -4,6 +4,7 @@ import sys
 
 from metadata import CPUInfo, ScreenInfo, Screen
 from platform_metadata.gamecube import add_gamecube_wii_disc_metadata
+from .nintendo_common import nintendo_licensee_codes
 
 #TODO: Get year for homebrew... although, the date format isn't consistent, so good luck with that.
 #Could get region code info too, I guess
@@ -29,14 +30,67 @@ def add_wii_system_info(game):
 	screen_info.screens = [screen]
 	game.metadata.screen_info = screen_info
 
+def round_up_to_multiple(num, factor):
+	multiple = num % factor
+	remainder = num - multiple
+	#I feel like those variable names are swapped around, but eh, as long as it does the thing
+	if multiple > (factor / 2):
+		remainder += factor
+	return remainder
+
+def parse_tmd(game, tmd):
+	#Stuff that I dunno about: 0 - 388
+	#IOS version: 388-396
+	#Title ID: 396-400
+	try:
+		product_code = tmd[400:404].decode('ascii')
+		game.metadata.specific_info['Product-Code'] = product_code
+	except UnicodeDecodeError:
+		pass
+	#Product code format is like that of GameCube/Wii discs, we could get country or type from it I guess
+	#Title flags: 404-408
+	try:
+		maker_code = tmd[408:410].decode('ascii')
+		if maker_code in nintendo_licensee_codes:
+			game.metadata.publisher = nintendo_licensee_codes[maker_code]
+	except UnicodeDecodeError:
+		pass
+	#Unused: 410-412
+	#Region code: 412-414, should I do that? (Can't really infer game.metadata.regions though, I guess we can infer TV-Type but that's not really relevant on Wii, you'd want region locking stuff if anything)
+	#Ratings: 414-430 (could use this for game.metadata.nsfw I guess)
+	#Reserved: 430-442
+	#IPC mask: 442-454 (wat?)
+	#Reserved 2: 454-472
+	#Access rights: 472-476
+	game.metadata.revision = int.from_bytes(tmd[476:478], 'big')
+
+def add_wad_metadata(game):
+	header = game.rom.read(amount=0x40)
+	#Header size: 0-4 (do I need that?)
+	#WAD type: 4-8
+	cert_chain_size = int.from_bytes(header[8:12], 'big')
+	#Reserved: 12-16
+	ticket_size = int.from_bytes(header[16:20], 'big')
+	tmd_size = int.from_bytes(header[20:24], 'big')
+	#Data size: 24-28
+	#Footer size: 28-32
+
+	#All blocks are stored in that order: header > cert chain > ticket > TMD > data; aligned to multiple of 64 bytes
+	#Should this be (round_up_to_multiple(header size)) + round_up_to_multiple(cert size) + round_up_to_multiple(ticket size)?
+	tmd_offset = 64 + round_up_to_multiple(cert_chain_size, 64) + round_up_to_multiple(ticket_size, 64)
+
+	tmd = game.rom.read(seek_to=tmd_offset, amount=round_up_to_multiple(tmd_size, 64))
+	parse_tmd(game, tmd)
+
 def add_wii_metadata(game):
 	add_wii_system_info(game)
 	if game.rom.extension == 'iso':
 		add_gamecube_wii_disc_metadata(game)
 
-	#TODO WiiWare wad
+	elif game.rom.extension == 'wad':
+		add_wad_metadata(game)
 	
-	if game.rom.extension in ('dol', 'elf'):
+	elif game.rom.extension in ('dol', 'elf'):
 		xml_path = os.path.join(game.folder, 'meta.xml')
 		if os.path.isfile(xml_path):
 			#boot is not a helpful launcher name
