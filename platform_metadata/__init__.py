@@ -40,7 +40,6 @@ debug = '--debug' in sys.argv
 #TODO: Stuff I know we can get due to being implemented in ROMniscience
 #Atari 5200: Year (unreliable, has Y2K bug. It's actually just the 3rd and 4th digit stored as 5200 characters, and then printing 19 + those characters)
 #ColecoVision: Year (unreliable, from copyright string on title screen), author (also unreliable and from copyright string; and in uppercase so you'd probably wanna call .titlecase() or whatsitcalled or something)
-#Master System/Game Gear: Regions/device type (i.e. SMS or GG, Japanese or export or international), product code (official games), author (official Game Gear and homebrew both), year (homebrew)
 #WiiWare: Product code, author, region (in terms of region locking)
 
 #Stuff which would require robust CD handling:
