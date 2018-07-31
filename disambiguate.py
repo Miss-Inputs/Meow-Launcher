@@ -190,11 +190,22 @@ def disambiguate_names():
 	fix_duplicate_names('X-Developer')
 	fix_duplicate_names('X-Revision', revision_disambiguate)
 	fix_duplicate_names('X-Languages', lambda languages: '({0})'.format(languages.replace(';', ', ')))
+	fix_duplicate_names('X-TV-Type')
 	fix_duplicate_names('date')
 	fix_duplicate_names('tags')
 	fix_duplicate_names('X-Extension', '(.{0})'.format)
 	if debug:
 		fix_duplicate_names('check')
+	#Other things which may be a good or not good at all idea to disambiguate by:
+	#X-Save-Type
+	#X-NSFW
+	#X-Genre (probably would not work out so well)
+	#X-Number-of-Players
+	#X-Product-Code
+	#X-Force-Feedback
+	#X-Has-RTC
+	#DS: X-DSi-Enhanced
+	#GB: X-SGB-Enhanced, X-Mapper
 
 if __name__ == '__main__':
 	disambiguate_names()
