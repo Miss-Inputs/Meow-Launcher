@@ -2,8 +2,8 @@ from enum import Enum, auto
 
 from metadata import SaveType
 from region_detect import get_region_by_name
-from .nintendo_common import nintendo_licensee_codes
 from common import convert_alphanumeric, NotAlphanumericException
+from .nintendo_common import nintendo_licensee_codes
 
 def parse_sufami_turbo_header(game):
 	#There's a "B2" in the licensee field of the Sufami Turbo BIOS cart itself, so I guess we can safely say all Sufami Turbo games are by Bandai

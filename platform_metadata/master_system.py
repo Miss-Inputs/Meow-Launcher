@@ -1,8 +1,8 @@
 import calendar
 
 from region_detect import get_region_by_name
-from .sega_common import licensee_codes
 from info.region_info import TVSystem
+from .sega_common import licensee_codes
 
 def decode_bcd(i):
 	if not isinstance(i, int):
