@@ -48,10 +48,6 @@ def add_megadrive_metadata(game):
 			game.metadata.revision = int(version)
 	except UnicodeDecodeError:
 		pass
-	#0
-	#Product code 131:139
-	#- 139
-	#Version: header[140:142]
 	#Checksum: header[142:144]
 	
 	game.metadata.input_info.console_buttons = 1 #Reset button counts as a button because games can use it apparently
