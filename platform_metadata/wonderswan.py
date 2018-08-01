@@ -70,5 +70,4 @@ def add_wonderswan_metadata(game):
 
 	game.metadata.specific_info['Has-RTC'] = header[7] == 1
 	#Flags: header[6], screen orientation = flags bit 0
-	#Has RTC: header[7] == 1
 	#Checksum schmecksum
