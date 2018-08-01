@@ -57,3 +57,9 @@ def add_gba_metadata(game):
 			break
 	game.metadata.specific_info['Has-RTC'] = b'SIIRTC_V' in entire_cart
 	game.metadata.save_type = SaveType.Cart if has_save else SaveType.Nothing
+
+	if b'AUDIO ERROR, too many notes on channel 0.increase polyphony RAM' in entire_cart:
+		game.metadata.specific_info['Sound-Driver'] = 'Rare'
+		#I mean it's not wrong
+		game.metadata.developer = 'Rare'
+		#TODO: Detect the other sound drivers, should I feel inclined
