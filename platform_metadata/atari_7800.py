@@ -65,3 +65,5 @@ def add_atari7800_metadata(game):
 	elif save_type == 2:
 		#AtariVox/SaveKey. Both are third party products which plug into the controller port, so what else can you call them except memory cards?
 		game.metadata.save_type = SaveType.MemoryCard
+	elif debug:
+		print(game.rom.path, 'has save type byte of ', save_type)
