@@ -64,7 +64,7 @@ class Machine():
 				icon = icons.get(self.family)
 
 		command_line = emulator_info.make_mame_command_line(self.basename)
-		launchers.make_launcher(command_line, self.name, self.metadata, icon)
+		launchers.make_launcher(command_line, self.name, self.metadata, {'Basename': self.basename} icon)
 
 def mame_verifyroms(basename):
 	#FIXME Okay this is way too fuckin' slow

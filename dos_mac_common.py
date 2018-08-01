@@ -95,4 +95,4 @@ class App:
 			return
 
 		metadata.emulator_name = emulator_name
-		launchers.make_launcher(command, self.name, metadata)
+		launchers.make_launcher(command, self.name, metadata, {'Path': self.path})

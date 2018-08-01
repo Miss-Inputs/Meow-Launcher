@@ -89,11 +89,13 @@ def make_display_name(name):
 			
 	return display_name
 
-def make_launcher(command, name, metadata, icon=None):
+def make_launcher(command, name, metadata, other_fields=None, icon=None):
 	display_name = make_display_name(name)
 	filename_tags = common.find_filename_tags.findall(name)
 	fields = metadata.to_launcher_fields()
 	fields['Filename-Tags'] = [tag for tag in filename_tags if tag not in metadata.ignored_filename_tags]
 	fields['Original-Name'] = name
+	if other_fields:
+		fields.update(other_fields)
 	#For very future use, this is where the underlying host platform is abstracted away. make_launcher is for everything, base_make_desktop is for Linux .desktop files specifically. Perhaps there are other things that could be output as well.
 	base_make_desktop(command, display_name, comment, fields, icon)

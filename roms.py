@@ -219,7 +219,7 @@ class Game():
 			#Don't need to wrap in sh -c if we've already done that
 			command_line = 'sh -c {0}'.format(shlex.quote(command_line))
 
-		launchers.make_launcher(command_line, self.rom.name, self.metadata)
+		launchers.make_launcher(command_line, self.rom.name, self.metadata, {'Full-Path': self.rom.path})
 
 def try_emulator(system_config, emulator, rom_dir, root, name):
 	path = os.path.join(root, name)

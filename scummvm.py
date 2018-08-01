@@ -23,7 +23,7 @@ class ScummVMGame():
 		metadata.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
 		#TODO: publisher, categories, languages, nsfw, regions, subgenre, year... somehow
 		#Others are left deliberately blank because they refer to emulators and not engines
-		launchers.make_launcher(command, name, metadata)
+		launchers.make_launcher(command, name, metadata, {'Game-ID', self.name})
 
 def add_scummvm_games():
 	if not os.path.isfile(config_path):
