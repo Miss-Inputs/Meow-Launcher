@@ -169,7 +169,7 @@ def fix_duplicate_names(method, format_function=None):
 
 	for k, v in duplicates.items():
 		if method == 'check':
-			print('Duplicate name still remains: ', k, [d[1]['Desktop Entry']['Comment'] for d in v])
+			print('Duplicate name still remains: ', k, [d[1]['Desktop Entry']['X-Original-Name'] for d in v])
 		else:
 			resolve_duplicates(v, method, format_function)
 
