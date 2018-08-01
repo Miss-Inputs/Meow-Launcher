@@ -169,7 +169,18 @@ def parse_snes_header(game, base_offset):
 		except NotAlphanumericException:
 			raise BadSNESHeaderException('Licensee code in extended header not alphanumeric')
 
-		#TODO Product code: b2:b6 (sometimes 2 characters with spaces, sometimes 4 characters)
+		try:
+			product_code = convert_alphanumeric(header[0xb2:0xb6])
+			metadata['Product code'] = product_code
+		except NotAlphanumericException:
+			if header[0xb4:0xb6] == b'  ':
+				try:
+					product_code = convert_alphanumeric(header[0xb2:0xb4])
+					metadata['Product code'] = product_code
+				except NotAlphanumericException:
+					raise BadSNESHeaderException('2 char product code not alphanumeric')
+			else:
+				raise BadSNESHeaderException('4 char product code not alphanumeric')
 	else:
 		metadata['Licensee'] = '{:02X}'.format(licensee)
 
@@ -208,6 +219,9 @@ def add_normal_snes_header(game):
 		if country:
 			game.metadata.regions = [country]
 		game.metadata.revision = header_data.get('Revision')
+		product_code = header_data.get('Product code')
+		if product_code:
+			game.metadata.specific_info['Product-Code'] = product_code
 
 def add_satellaview_metadata(game):
 	#TODO. Can't be bothered at the moment, we can get author from here but not much else useful
