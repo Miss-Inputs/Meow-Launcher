@@ -531,7 +531,7 @@ def make_dos_config(app, other_config):
 		if 'for_xt' in app.config['required_hardware']:
 			if app.config['required_hardware']['for_xt']:
 				configwriter['cpu'] = {}
-				configwriter['cpu']['cycles'] = other_config['slow_cpu_cycles']
+				configwriter['cpu']['cycles'] = other_config.get('slow_cpu_cycles', 400)
 
 		if 'max_graphics' in app.config['required_hardware']:
 			configwriter['dosbox'] = {}
