@@ -470,10 +470,8 @@ def make_basilisk_ii_command_line(app, other_config):
 	autoboot_txt_path = os.path.join(other_config['shared_folder'], 'autoboot.txt')
 	width = 1920
 	height = 1080
-	if 'width' in app.config:
-		width = app.config['width']
-	if 'height' in app.config:
-		height = app.config['height']
+	if 'max_resolution' in app.config:
+		width, height = app.config['max_resolution']
 	#Can't do anything about colour depth at the moment (displaycolordepth is functional on some SDL1 builds, but not SDL2)
 	#Or controls... but I swear I will find a way!!!!
 	
@@ -535,9 +533,9 @@ def make_dos_config(app, other_config):
 				configwriter['cpu'] = {}
 				configwriter['cpu']['cycles'] = other_config['slow_cpu_cycles']
 
-		if 'graphics' in app.config['required_hardware']:
+		if 'max_graphics' in app.config['required_hardware']:
 			configwriter['dosbox'] = {}
-			graphics = app.config['required_hardware']['graphics']
+			graphics = app.config['required_hardware']['max_graphics']
 			configwriter['dosbox']['machine'] = 'svga_s3' if graphics == 'svga' else graphics
 
 	#TODO: Perform other sanity checks on name
