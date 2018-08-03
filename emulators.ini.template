@@ -243,6 +243,8 @@ emulators =
 paths =
 emulators =
 shared_folder =
+default_width = 
+default_height = 
 
 [DOS]
 paths = 

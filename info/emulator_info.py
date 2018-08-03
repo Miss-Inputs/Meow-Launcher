@@ -468,8 +468,8 @@ def make_basilisk_ii_command_line(app, other_config):
 	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that. Okay, so I don't want that.
 	#Ideally, HFS manipulation would be powerful enough that we could just slip an alias into the Startup Items folder ourselves and delete it afterward. That doesn't fix the problem of automatically shutting down (still need a script for that), unless we don't create an alias at all and we create a script or something on the fly that launches that path and then shuts down, but yeah. Stuff and things.
 	autoboot_txt_path = os.path.join(other_config['shared_folder'], 'autoboot.txt')
-	width = 1920
-	height = 1080
+	width = other_config.get('default_width', 1920)
+	height = other_config.get('default_height', 1080)
 	if 'max_resolution' in app.config:
 		width, height = app.config['max_resolution']
 	#Can't do anything about colour depth at the moment (displaycolordepth is functional on some SDL1 builds, but not SDL2)
