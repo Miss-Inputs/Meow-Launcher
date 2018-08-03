@@ -257,22 +257,13 @@ class Metadata():
 			'Platform': self.platform,
 			'Save-Type': ('Memory Card' if self.save_type == SaveType.MemoryCard else self.save_type.name) if self.save_type else 'Nothing',
 			'Revision': self.revision,
-	
+			'Publisher': self.publisher,
+			'Developer': self.developer,	
+
 			'Ignored-Tags': self.ignored_filename_tags,
 			'Regions': [region.name if region else 'None!' for region in self.regions],
 			'TV-Type': self.tv_type.name if self.tv_type else None,
 		}
-
-		if self.publisher:
-			fields['Publisher'] = self.publisher
-		elif self.developer:
-			fields['Publisher'] = self.developer
-
-		if self.developer:
-			fields['Developer'] = self.developer
-		elif self.publisher:
-			fields['Developer'] = self.publisher
-
 
 		if self.cpu_info:
 			fields['Main-CPU'] = self.cpu_info.main_cpu
