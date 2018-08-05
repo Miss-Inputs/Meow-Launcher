@@ -228,7 +228,6 @@ class Metadata():
 		self.categories = []
 		self.save_type = SaveType.Unknown
 		self.revision = None
-		self.ignored_filename_tags = []
 		
 		#Set this up later with the respective objects
 		#TODO: Set cpu_info and screen_info up right here, and just keep track of whether they're "known" or not like input_info does
@@ -240,6 +239,7 @@ class Metadata():
 		self.specific_info = {} #Stuff specific to indivdidual systems
 		self.regions = []
 		self.tv_type = None
+		self.ignored_filename_tags = []
 
 	def to_launcher_fields(self):
 		fields = {
