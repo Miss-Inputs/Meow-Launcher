@@ -10,7 +10,8 @@ import config
 import launchers
 from info import emulator_info
 from metadata import Metadata, EmulationStatus, CPUInfo, ScreenInfo, PlayerInput, InputType, SaveType
-from region_detect import get_language_by_english_name
+from region_detect import get_language_by_english_name, get_regions_from_filename_tags
+from common import find_filename_tags
 
 from mame_helpers import get_mame_xml, find_main_cpu
 
@@ -182,6 +183,8 @@ def add_metadata(machine):
 	language = get_language(machine.basename)
 	if language:
 		machine.metadata.languages = [language]
+
+	machine.metadata.regions = get_regions_from_filename_tags(find_filename_tags(machine.name))
 	
 	machine.metadata.emulator_name = 'MAME'
 	machine.metadata.year = machine.xml.findtext('year')
