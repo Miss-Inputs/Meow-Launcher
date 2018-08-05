@@ -191,6 +191,9 @@ def add_metadata(machine):
 		machine.metadata.developer = match[1]
 		machine.metadata.publisher = match[2]
 	else:
+		if not manufacturer.startswith(('bootleg', 'hack')):
+			#TODO: Not always correct in cases where manufacturer is formatted as "Developer / Publisher", but then it never was correct, so it's just less not correct, which is fine
+			machine.metadata.developer = manufacturer
 		machine.metadata.publisher = manufacturer
 	
 	emulation_status = machine.xml.find('driver').attrib['status']
