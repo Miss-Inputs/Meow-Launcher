@@ -261,7 +261,7 @@ class Metadata():
 			'Developer': self.developer,	
 
 			'Ignored-Tags': self.ignored_filename_tags,
-			'Regions': [region.name if region else 'None!' for region in self.regions],
+			'Regions': [region.name if region else 'None!' for region in self.regions] if self.regions else [],
 			'TV-Type': self.tv_type.name if self.tv_type else None,
 		}
 
