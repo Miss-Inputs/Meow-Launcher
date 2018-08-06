@@ -184,7 +184,7 @@ def add_metadata(machine):
 	if language:
 		machine.metadata.languages = [language]
 
-	machine.metadata.regions = get_regions_from_filename_tags(find_filename_tags(machine.name))
+	machine.metadata.regions = get_regions_from_filename_tags(find_filename_tags.findall(machine.name))
 	
 	machine.metadata.emulator_name = 'MAME'
 	machine.metadata.year = machine.xml.findtext('year')
