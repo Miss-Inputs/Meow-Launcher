@@ -160,6 +160,9 @@ def normalize_name(name):
 
 def fix_duplicate_names(method, format_function=None):
 	files = [(path, launchers.convert_desktop(path)) for path in [os.path.join(config.output_folder, f) for f in os.listdir(config.output_folder)]]
+	if method == 'dev-status':
+		resolve_duplicates_by_dev_status(files)
+		return
 
 	keyfunc = lambda f: normalize_name(launchers.get_field(f[1], 'Name'))
 	files.sort(key=keyfunc)
