@@ -142,13 +142,15 @@ def resolve_duplicates(group, method, format_function=None):
 	else:
 		resolve_duplicates_by_metadata(group, method, format_function)
 
+dot_not_before_word = re.compile(r'\.\B')
+hyphen_inside_word = re.compile(r'\b-\b')
 def normalize_name(name):
 	name = name.lower()
-	name = re.sub(r'\.\B', '', name)
+	name = dot_not_before_word.sub('', name)
 	name = name.replace('3-d', '3d')
 	name = name.replace('&', 'and')
 	name = name.replace(" 'n", "'n")
-	name = re.sub(r'\b-\b', ' ', name)
+	name = hyphen_inside_word.sub(' ', name)
 	name = name.replace(': ', ' - ')
 	name = name.replace('é', 'e')
 	name = name.replace('!', '')
