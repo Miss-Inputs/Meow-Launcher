@@ -42,6 +42,7 @@ rom_layouts = {
 	0x31: "HiROM + FastROM",
 	0x32: "ExLoROM",
 	0x35: "ExHiROM",
+	0x3a: 'ExHiROM + FastROM + SPC7110',
 }
 
 class ExpansionChip(Enum):
@@ -122,29 +123,30 @@ def parse_snes_header(game, base_offset):
 	try:
 		header[0xc0:0xd5].decode('shift_jis')
 	except UnicodeDecodeError:
-		raise BadSNESHeaderException('Title not ASCII or Shift-JIS')
+		raise BadSNESHeaderException('Title not ASCII or Shift-JIS: %s' % header[0xc0:0xd5].decode('shift_jis', errors='backslashreplace'))
 
 	metadata = {}
 
 	rom_layout = header[0xd5]
 	if rom_layout in rom_layouts:
 		metadata['ROM layout'] = rom_layouts[rom_layout]
+		#FIXME: HAL's Hole in Golf has 70 here, because that's the letter F, and the title immediately preceding this is "HAL HOLE IN ONE GOL". Looks like they overwrote this part of the header with the letter F. Whoops.
 	else:
-		raise BadSNESHeaderException('ROM layout is weird')
+		raise BadSNESHeaderException('ROM layout is weird: %d' % rom_layout)
 
 	rom_type = header[0xd6]
 	if rom_type in rom_types:
 		metadata['ROM type'] = rom_types[rom_type]
 	else:
-		raise BadSNESHeaderException('ROM type is weird')
+		raise BadSNESHeaderException('ROM type is weird: %d' % rom_type)
 
 	rom_size = header[0xd7]
 	if rom_size not in ram_rom_sizes:
-		raise BadSNESHeaderException('ROM size is weird')
+		raise BadSNESHeaderException('ROM size is weird: %d' % rom_size)
 	ram_size = header[0xd8]
 	#We'll just use ROM type to detect presence of save data rather than this
 	if ram_size not in ram_rom_sizes:
-		raise BadSNESHeaderException('RAM size is weird')
+		raise BadSNESHeaderException('RAM size is weird: %d' % ram_size)
 	country = header[0xd9]
 	#Dunno if I want to validate against countries, honestly. Might go wrong
 	if country in countries:
@@ -159,7 +161,7 @@ def parse_snes_header(game, base_offset):
 	checksum = int.from_bytes(header[0xde:0xe0], 'little')
 	#Can't be arsed calculating the checksum because it's complicated (especially with some weird ROM sizes), but we know they have to add up to 0xffff
 	if (checksum | inverse_checksum) != 0xffff:
-		raise BadSNESHeaderException("Checksum and inverse checksum don't add up")
+		raise BadSNESHeaderException("Checksum and inverse checksum don't add up: %d %d" % (checksum, inverse_checksum))
 
 	if licensee == 0x33:
 		#TODO: If title[-1] == 00, this is an early version that only indicates the chipset subtype. It's only used for ST010/11 games anyway though... apparently
@@ -167,7 +169,7 @@ def parse_snes_header(game, base_offset):
 			maker_code = convert_alphanumeric(header[0xb0:0xb2])
 			metadata['Licensee'] = maker_code
 		except NotAlphanumericException:
-			raise BadSNESHeaderException('Licensee code in extended header not alphanumeric')
+			raise BadSNESHeaderException('Licensee code in extended header not alphanumeric: %s' % header[0xb0:0xb2].decode('ascii', errors='backslashreplace'))
 
 		try:
 			product_code = convert_alphanumeric(header[0xb2:0xb6])
@@ -178,9 +180,9 @@ def parse_snes_header(game, base_offset):
 					product_code = convert_alphanumeric(header[0xb2:0xb4])
 					metadata['Product code'] = product_code
 				except NotAlphanumericException:
-					raise BadSNESHeaderException('2 char product code not alphanumeric')
+					raise BadSNESHeaderException('2 char product code not alphanumeric: %s' % header[0xb2:0xb4].decode('ascii', errors='backslashreplace'))
 			else:
-				raise BadSNESHeaderException('4 char product code not alphanumeric')
+				raise BadSNESHeaderException('4 char product code not alphanumeric: %s' % header[0xb2:0xb6].decode('ascii', errors='backslashreplace'))
 	else:
 		metadata['Licensee'] = '{:02X}'.format(licensee)
 
@@ -202,7 +204,8 @@ def add_normal_snes_header(game):
 		try:
 			header_data = parse_snes_header(game, possible_offset)
 			break
-		except BadSNESHeaderException:
+		except BadSNESHeaderException as ex:
+			print(game.rom.path, hex(rom_size), hex(possible_offset), ex)
 			continue
 
 	if header_data:
