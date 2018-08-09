@@ -205,7 +205,6 @@ def add_normal_snes_header(game):
 			header_data = parse_snes_header(game, possible_offset)
 			break
 		except BadSNESHeaderException as ex:
-			print(game.rom.path, hex(rom_size), hex(possible_offset), ex)
 			continue
 
 	if header_data:
