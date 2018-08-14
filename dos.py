@@ -14,7 +14,13 @@ debug = '--debug' in sys.argv
 class DOSApp(dos_mac_common.App):
 	def additional_metadata(self, metadata):
 		metadata.platform = 'DOS'
-		metadata.extension = os.path.splitext(self.path)[1][1:].lower()
+		basename, extension = os.path.splitext(self.path)
+		metadata.extension = extension[1][1:].lower()
+		basename = os.path.basename(basename).lower()
+		base_dir = os.path.dirname(self.path)
+		for f in os.listdir(base_dir):
+			if f.lower() == basename + '.ico':
+				self.icon = os.path.join(base_dir, f)
 
 def make_dos_launchers():
 	dos_config = config.get_system_config_by_name('DOS')

@@ -49,6 +49,7 @@ class App:
 		self.path = path
 		self.name = name
 		self.config = app_config
+		self.icon = None
 
 	def additional_metadata(self, metadata):
 		pass
@@ -95,4 +96,4 @@ class App:
 			return
 
 		metadata.emulator_name = emulator_name
-		launchers.make_launcher(command, self.name, metadata, {'Path': self.path})
+		launchers.make_launcher(command, self.name, metadata, {'Path': self.path}, icon=self.icon)
