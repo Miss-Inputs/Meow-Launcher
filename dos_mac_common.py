@@ -59,10 +59,13 @@ class App:
 		#TODO Add input_info and whatnot
 		self.additional_metadata(metadata)
 
-		if 'publisher' in self.config:
-			metadata.publisher = self.config['publisher']
 		if 'developer' in self.config:
 			metadata.developer = self.config['developer']
+		if 'publisher' in self.config:
+			metadata.publisher = self.config['publisher']
+		elif 'developer' in self.config:
+			metadata.developer = self.config['developer']
+
 		if 'year' in self.config:
 			metadata.year = self.config['year']
 
