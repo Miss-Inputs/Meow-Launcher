@@ -19,7 +19,8 @@ class DOSApp(dos_mac_common.App):
 		basename = os.path.basename(basename).lower()
 		base_dir = os.path.dirname(self.path)
 		for f in os.listdir(base_dir):
-			if f.lower() == basename + '.ico':
+			f_lowercase = f.lower()
+			if f_lowercase in (basename + '.ico', 'game.ico', 'icon.ico') or (f_lowercase.startswith('goggame') and f_lowercase.endswith('.ico')):
 				self.icon = os.path.join(base_dir, f)
 
 def make_dos_launchers():
