@@ -204,7 +204,7 @@ def add_normal_snes_header(game):
 		try:
 			header_data = parse_snes_header(game, possible_offset)
 			break
-		except BadSNESHeaderException as ex:
+		except BadSNESHeaderException:
 			continue
 
 	if header_data:
