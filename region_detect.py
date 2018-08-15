@@ -66,7 +66,7 @@ def get_languages_from_filename_tags(tags, ignored_tags=None):
 					good_tag = True
 					languages.append(language)
 			
-			if good_tag and ignored_tags:
+			if good_tag and (ignored_tags is not None):
 				ignored_tags.append(tag)
 
 			return languages
@@ -80,12 +80,12 @@ def get_languages_from_filename_tags(tags, ignored_tags=None):
 					second_language_code = tosec_languages_match[2].capitalize()
 					second_language = get_language_by_short_code(second_language_code)
 					if second_language:
-						if ignored_tags:
+						if (ignored_tags is not None):
 							ignored_tags.append(tag)
 
 						return [first_language, second_language]
 				else:
-					if ignored_tags:
+					if (ignored_tags is not None):
 						ignored_tags.append(tag)
 					return [first_language]
 
@@ -117,18 +117,18 @@ def get_regions_from_filename_tags(tags, ignored_tags=None):
 					if region:
 						good_tag = True
 						regions.append(region)
-			if good_tag and ignored_tags:
+			if good_tag and (ignored_tags is not None):
 				ignored_tags.append('(' + tag + ')')
 		else:
 			region = get_region_by_name(tag)
 			if region:
-				if ignored_tags:
+				if (ignored_tags is not None):
 					ignored_tags.append('(' + tag + ')')
 				regions = [region]
 			else:
 				region = get_region_by_short_code(tag)
 				if region:
-					if ignored_tags:
+					if (ignored_tags is not None):
 						ignored_tags.append('(' + tag + ')')
 					regions.append(region)
 
@@ -150,15 +150,15 @@ def get_tv_system_from_filename_tags(tags, ignored_tags=None):
 	for tag in tags:
 		tag = tag.upper()
 		if tag == '(NTSC)':
-			if ignored_tags:
+			if (ignored_tags is not None):
 				ignored_tags.append(tag)
 			return region_info.TVSystem.NTSC
 		elif tag == '(PAL)':
-			if ignored_tags:
+			if (ignored_tags is not None):
 				ignored_tags.append(tag)
 			return region_info.TVSystem.PAL
 		elif tag == '(NTSC-PAL)' or tag == '(PAL-NTSC)':
-			if ignored_tags:
+			if (ignored_tags is not None):
 				ignored_tags.append(tag)
 			return region_info.TVSystem.Agnostic
 
