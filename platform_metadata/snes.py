@@ -226,8 +226,20 @@ def add_normal_snes_header(game):
 			game.metadata.specific_info['Product-Code'] = product_code
 
 def add_satellaview_metadata(game):
-	#TODO. Can't be bothered at the moment, we can get author from here but not much else useful
+	#TODO, can't be bothered at the moment; still requires finding the location of the thing
 	game.metadata.platform = 'Satellaview'
+	#-16 - -14: Publisher
+	#0-16: Name
+	#16-20: Block allocation flags
+	#20-22: Boots left (boots_left & 0x8000 = unlimited)
+	#22-23: Month
+	#23-24: Day
+	#24-25: Mapper
+	#25-26: Flags (SoundLink enabled, execution area, skip intro)
+	#27-28: Version but in some weird format
+	#28-30: Checksum
+	#30-32: Inverse checksum
+	
 
 def add_snes_metadata(game):
 	if game.rom.extension in ['sfc', 'smc', 'swc']:
