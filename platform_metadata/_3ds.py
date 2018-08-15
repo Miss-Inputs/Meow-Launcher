@@ -107,8 +107,10 @@ def parse_exefs(game, offset):
 		if filename == 'icon':
 			parse_smdh(game, file_offset, file_length)
 		#Logo contains some stuff, banner contains 3D graphics and sounds for the home menu, .code contains actual executable
+
 		
 def parse_smdh(game, offset=0, length=-1):
+	game.metadata.specific_info['Has-SMDH'] = True
 	#At this point it's fine to just read in the whole thing
 	smdh = game.rom.read(seek_to=offset, amount=length)
 	#Magic = 0-4
