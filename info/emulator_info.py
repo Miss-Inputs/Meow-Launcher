@@ -214,9 +214,30 @@ def make_mame_nes_command_line(game, _):
 	if game.rom.extension == 'fds':
 		#We don't need to detect TV type because the FDS was only released in Japan and so the Famicom can be used for everything
 		return make_mame_command_line('fds', 'flop')
-	#TODO: Use dendy or sb486 drivers if we know the game uses it	
+	
+	uses_sb486 = False
+
+	#27 and 103 might be unsupported too?
+	unsupported_ines_mappers = (29, 30, 55, 59, 60, 81, 84, 98,
+	99, 100, 101, 102, 109, 110, 111, 122, 124, 125, 127, 128, 
+	129, 130, 131, 135, 151, 161, 169, 170, 174, 181, 219, 220, 
+	236, 237, 239, 247, 248, 251, 253)
+	if game.metadata.specific_info.get('Header-Format', None) == 'iNES':
+		mapper = game.metadata.specific_info['Mapper-Number']
+		if mapper in unsupported_ines_mappers:
+			#if debug:
+			#	print(game.rom.path, 'contains unsupported mapper', game.metadata.specific_info['Mapper'], '(%s)' % mapper)
+			return None
+		if mapper == 167:
+			#This might not be true for all games with this mapper, I dunno, hopefully it's about right.
+			#At any rate, Subor - English Word Blaster needs to be used with the keyboard thing it's designed for
+			uses_sb486 = True
+		
+	#TODO: Use dendy if we can know the game uses it	
 	#TODO: Set up controller ports if game uses Zapper, etc
-	if game.metadata.tv_type == TVSystem.PAL:
+	if uses_sb486:
+		system = 'sb486'
+	elif game.metadata.tv_type == TVSystem.PAL:
 		system = 'nespal'
 	else:
 		#There's both a "famicom" driver and also a "nes" driver which does include the Famicom (as well as NTSC NES), so that's weird
