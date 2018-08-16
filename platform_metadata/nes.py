@@ -36,12 +36,13 @@ def add_nes_metadata(game):
 		header = game.rom.read(amount=16)
 		magic = header[:4]
 		if magic == b'NES\x00' or magic == b'NES\x1a':
-			game.metadata.specific_info['Headered'] = False
+			game.metadata.specific_info['Headered'] = True
 			#Some emulators are okay with not having a header if they have something like an internal database, others are not.
 			#Note that \x00 at the end instead of \x1a indicates this is actually Wii U VC, but it's still the same header format
 			flags = header[6]
 			has_battery = (flags & 2) > 0
 			game.metadata.save_type = SaveType.Cart if has_battery else SaveType.Nothing
+			mapper_lower_nibble = (flags & 0b1111_0000) >> 4
 
 			more_flags = header[7]
 			if more_flags & 1:
@@ -49,7 +50,14 @@ def add_nes_metadata(game):
 			elif more_flags & 2:
 				game.metadata.platform = 'PlayChoice-10'
 			
-			#Could get the mapper here, I suppose, but then it gets tricky when you involve NES 2.0 (which has the same header format for the first few bytes)
+			mapper_upper_nibble = more_flags & 0b1111_0000
+			is_nes_2_0 = ((more_flags & 0b_00_00_11_00) >> 2) == 2
+			if is_nes_2_0:
+				game.metadata.specific_info['Header-Format'] = 'NES 2.0'
+			else:
+				game.metadata.specific_info['Header-Format'] = 'iNES'
+				mapper = mapper_lower_nibble | mapper_upper_nibble
+				game.metadata.specific_info['Mapper'] = mapper
 			#TV type apparently isn't used much despite it being part of the iNES specification, and looking at a lot of headered ROMs it does seem that they are all NTSC other than a few that say PAL that shouldn't be, so yeah, I wouldn't rely on it. Might as well just use the filename.
 		else:
 			game.metadata.specific_info['Headered'] = False
