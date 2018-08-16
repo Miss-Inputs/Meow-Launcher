@@ -39,9 +39,15 @@ def add_nes_metadata(game):
 			game.metadata.specific_info['Headered'] = False
 			#Some emulators are okay with not having a header if they have something like an internal database, others are not.
 			#Note that \x00 at the end instead of \x1a indicates this is actually Wii U VC, but it's still the same header format
-			flags = header[7]
+			flags = header[6]
 			has_battery = (flags & 2) > 0
 			game.metadata.save_type = SaveType.Cart if has_battery else SaveType.Nothing
+
+			more_flags = header[7]
+			if more_flags & 1:
+				game.metadata.platform = 'VS Unisystem'
+			elif more_flags & 2:
+				game.metadata.platform = 'PlayChoice-10'
 			
 			#Could get the mapper here, I suppose, but then it gets tricky when you involve NES 2.0 (which has the same header format for the first few bytes)
 			#TV type apparently isn't used much despite it being part of the iNES specification, and looking at a lot of headered ROMs it does seem that they are all NTSC other than a few that say PAL that shouldn't be, so yeah, I wouldn't rely on it. Might as well just use the filename.
