@@ -8,14 +8,13 @@ ines_mappers = {
 	#29 is for homebrew but doesn't really have a name
 	#31 is for homebrew musicdisks specifically
 	#51, 53, 55, 126, 162, 197, 204, 213, 214, 217, 236, 244, 251 are unknown/undocumented pirate mappers
-	#63, 103, 108, 117, 120, 134, 170, 179, 216 are even more unknown
+	#63, 103, 108, 117, 120, 170, 179, 216 are even more unknown
 	#160 is unknown (well, undocumented) Sachen mapper; 56, 142, 175 are undocumented Kaiser mappers; 198, 223, 249 are undocumented Waixing mappers
-	#98, 102, 109, 110, 122, 124, 127, 128, 129, 130, 131, 135, 161, 239, 247 are unassigned supposedly (I bet someone's assigned them by now)
-	#112 used by Huang Di, San Guo Zhi
+	#98, 102, 109, 110, 122, 124, 127, 128, 129, 130, 131, 161, 239, 247 are unassigned supposedly (I bet someone's assigned them by now)
 	#12, 14, 45, 74, 106, 114, 115, 116, 165, 182, 191, 192, 194, 195, 196, 205, 238, 245 are pirate MMC3 clones (interestingly 196 seems to be used for hacks where the protagonist is now Mario)
 	#150 is some invalid Sachen thing apparently
 	#151 is invalid, but used for VRC1 on VS System
-	#78, 87, 88, 92, 152 are used by misc official games but don't seem to have a particular name
+	#87, 92, 152 are used by misc official games but don't seem to have a particular name
 	#15, 84, 91, 112, 164, 173, 176, 177, 178, 189, 199, 200, 201, 202, 203, 209, 211, 220, 222, 225, 226, 227, 230, 231, 233, 240, 242, 246, 250, 252, 253 are used for misc unlicensed carts but don't seem to have a particular name
 	#100, 101, 181, 241. 248 are basically junk
 	
@@ -56,7 +55,7 @@ ines_mappers = {
 	42: 'FDS to cartridge hacks',
 	43: 'SMB2J cartridge hack (43)', #Mr. Mary 2
 	44: 'Super Big 7-in-1',
-	46: 'Rumble Station',
+	46: 'Game Station',
 	47: "Super Spike V'Ball + Nintendo World Cup",
 	48: 'Taito TC0690',
 	49: 'Super HIK 4-in-1',
@@ -82,6 +81,7 @@ ines_mappers = {
 	75: 'Konami VRC1',
 	76: 'NAMCOT-3446',
 	77: 'Napoleon Senki',
+	78: 'Irem 74HC161',
 	79: 'American Video Entertainment NINA-03, NINA-06',
 	80: 'Taito X1-005',
 	81: 'NTDEC Super Gun',
@@ -89,6 +89,7 @@ ines_mappers = {
 	83: 'Cony',
 	85: 'Konami VRC7',
 	86: 'Jaleco JF-13',
+	88: 'Namco 118',
 	89: 'Sunsoft-2 IC on Sunsoft-3 board',
 	90: 'JY Company',
 	93: 'Sunsoft-2 IC on Sunsoft-3R board',
@@ -101,7 +102,8 @@ ines_mappers = {
 	105: 'NES-EVENT',
 	107: 'Magic Dragon',
 	111: 'GTROM', #Homebrew board
-	113: 'HES multicart',
+	112: 'Asder',
+	113: 'MB-91',
 	118: 'MMC3 (TKSROM, TLSROM)',
 	119: 'TQROM',
 	121: '卡聖 A9711, A9713',
@@ -109,6 +111,8 @@ ines_mappers = {
 	125: 'Whirlwind Manu Monty on the Run cartridge hack',
 	132: 'TXC UNL-22211',
 	133: 'Sachen 3009',
+	134: 'Sachen 74LS374N',
+	135: 'Sachen 8259A',
 	136: 'Sachen 3011',
 	137: 'Sachen 8259D',
 	138: 'Sachen 8259B',
@@ -116,7 +120,7 @@ ines_mappers = {
 	140: 'Jaleco JF-11, JF-14',
 	141: 'Sachen 8259A',
 	143: 'NROM with Sachen copy protection',
-	144: 'Death Race', #Intentionnally broken Color Dreams board
+	144: 'AGCI 50282',
 	145: 'Sachen SA-72007',
 	146: 'Sachen Galactic Crusader',
 	147: 'Sachen 3018',
