@@ -37,6 +37,7 @@ publishers = {
 	43: 'Tom Create',
 	45: 'Namco',
 	46: 'Movic',
+	49: 'Vanguard',
 	50: 'Megatron',
 	51: 'Wiz',
 	54: 'Capcom',
@@ -45,7 +46,6 @@ publishers = {
 	#37: Layup or Upstar
 	#39: Shall Luck or Cocktail Soft
 	#47: E3 Staff or Gust
-	#49: Vanguard or Elorg
 }
 
 def add_wonderswan_metadata(game):
