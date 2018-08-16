@@ -22,9 +22,14 @@ class Emulator():
 		
 		return self.command_line
 
+def make_mednafen_command_line(module):
+	return 'mednafen -video.fs 1 -force_module %s $<path>' % module
+
 class MednafenModule(Emulator):
-	def __init__(self, module, supported_extensions):
-		Emulator.__init__(self, 'mednafen -video.fs 1 -force_module %s $<path>' % module, supported_extensions, ['zip', 'gz'])
+	def __init__(self, module, supported_extensions, command_line=None):
+		if not command_line:
+			command_line = make_mednafen_command_line(module)
+		Emulator.__init__(self, command_line, supported_extensions, ['zip', 'gz'])
 
 def make_mame_command_line(driver, slot=None, slot_options=None, has_keyboard=False):
 	command_line = 'mame -skip_gameinfo'
@@ -281,6 +286,28 @@ def get_kega_fusion_command_line(game, _):
 		#Prefer the .cue of .bin/.cue images
 		return None
 	return 'kega-fusion -fullscreen $<path>'
+
+def get_mednafen_nes_command_line(game, _):
+	#Yeah okay, I need a cleaner way of doing this
+	unsupported_ines_mappers = (14, 20, 27, 28, 29, 30, 31, 35, 36, 39, 43, 50, 
+		53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 81, 83, 84, 91, 98, 100, 
+		102, 103, 104, 106, 108, 109, 110, 111, 116, 136, 137, 138, 139, 141, 
+		142, 143, 181, 183, 186, 187, 188, 191, 192, 211, 212, 213, 214, 216,
+		218, 219, 220, 221, 223, 224, 225, 226, 227, 229, 230, 231, 233, 235,
+		236, 237, 238, 239, 243, 245)
+	unsupported_ines_mappers += tuple(range(120, 133))
+	unsupported_ines_mappers += tuple(range(145, 150))
+	unsupported_ines_mappers += tuple(range(161, 180))
+	unsupported_ines_mappers += tuple(range(194, 206))
+	
+	if game.metadata.specific_info.get('Header-Format', None) == 'iNES':
+		mapper = game.metadata.specific_info['Mapper-Number']
+		if mapper in unsupported_ines_mappers:
+			#if debug:
+			#	print(game.rom.path, 'contains unsupported mapper', game.metadata.specific_info['Mapper'], '(%s)' % mapper)
+			return None
+
+	return make_mednafen_command_line('nes')
 	
 emulators = {
 	'Citra': Emulator(get_citra_command_line, ['3ds', 'cxi', '3dsx'], []),
@@ -327,7 +354,7 @@ emulators = {
 	'Mednafen (Mega Drive)': MednafenModule('md', ['md', 'bin', 'gen', 'smd', 'sgd']),
 	#Apparently "should still be considered experimental; there are still likely timing bugs in the 68K emulation code, the YM2612 emulation code is not particularly accurate, and the VDP code has timing-related issues."
 	'Mednafen (Neo Geo Pocket)': MednafenModule('ngp', ['ngp', 'npc', 'ngc']),
-	'Mednafen (NES)': MednafenModule('nes', ['nes', 'fds', 'unf']),
+	'Mednafen (NES)': MednafenModule('nes', ['nes', 'fds', 'unf'], get_mednafen_nes_command_line),
 	'Mednafen (PC Engine)': MednafenModule('pce', ['pce', 'sgx', 'iso', 'cue', 'ccd', 'toc', 'm3u']),
 	#Mednafen assumes that there is only 1 gamepad and it's the 6 button kind, so button mapping is kind of weird when I
 	#was perfectly fine just using 2 buttons
