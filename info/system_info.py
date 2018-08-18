@@ -48,6 +48,7 @@ systems = [
 	System('NES', 'nes', ['nes', 'nes_ade', 'nes_datach', 'nes_kstudio', 'nes_ntbrom', 'famicom_cass', 'famicom_flop'], ['Mednafen (NES)', 'MAME (NES)']),
 	System('PC Engine CD', 'pce', ['pcecd'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)']), 
 	System('PC Engine', 'pce', ['pce', 'sgx'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)']), 
+	System('PC-FX', 'pcfx', ['pcfx'], ['Mednafen (PC-FX)']),
 	System('PlayStation', 'psj', ['psx'], ['Mednafen (PS1)']), 
 	System('Pokemon Mini', 'pokemini', ['pokemini'], ['PokeMini', 'PokeMini (wrapper)', 'MAME (Pokemon Mini)']),
 	System('PS2', 'ps2', [], ['PCSX2']), 
@@ -153,7 +154,6 @@ systems = [
 	System('Partner 01.01', 'partner', ['partner_cass', 'partner_flop'], []),
 	System('Orion 128', 'orion128', ['orion_cart', 'orion_cass', 'orion_flop'], []),
 	System('PC-6001', 'pc6001', [], []),
-	System('PC-FX', 'pcfx', ['pcfx'], []),
 	System('FM-7', 'fm7', ['fm7_cass', 'fm7_disk', 'fm77av'], []),
 
 	#Where I don't know what I'm doing, so I have no idea if things are actually working or not

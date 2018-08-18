@@ -86,6 +86,10 @@ emulators =
 paths = 
 emulators = 
 
+[PC-FX]
+paths = 
+emulators = 
+
 [Pokemon Mini]
 paths = 
 emulators = 

@@ -380,6 +380,7 @@ emulators = {
 	#Mednafen assumes that there is only 1 gamepad and it's the 6 button kind, so button mapping is kind of weird when I
 	#was perfectly fine just using 2 buttons
 	'Mednafen (PC Engine Fast)': MednafenModule('pce_fast', ['pce', 'sgx', 'iso', 'cue', 'ccd', 'toc', 'm3u']),
+	'Mednafen (PC-FX)': MednafenModule('psx', ['iso', 'cue', 'toc', 'ccd', 'm3u']), #Do NOT specify a FX-SCSI BIOS
 	'Mednafen (PS1)': MednafenModule('psx', ['iso', 'cue', 'exe', 'toc', 'ccd', 'm3u']),
 	#Seems like some PAL games don't run at the resolution Mednafen thinks they should, so they need per-game configs
 	#that override the scanline start/end settings
