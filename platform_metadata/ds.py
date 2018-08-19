@@ -46,7 +46,7 @@ def decode_icon(bitmap, palette):
 	for i, colour in enumerate(palette):
 		#Convert from DS colour format to normal RGB
 		red = (colour & 0b_00000_00000_11111) << 3
-		green = (colour & 0b_00000_11111_00000) >> 2;
+		green = (colour & 0b_00000_11111_00000) >> 2
 		blue = (colour & 0b_11111_00000_00000) >> 7
 
 		alpha = 0xff
