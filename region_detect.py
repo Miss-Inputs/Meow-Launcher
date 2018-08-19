@@ -100,7 +100,7 @@ def get_regions_from_filename_tags(tags, ignored_tags=None, loose=False):
 		if loose:
 			tag_ignored_already = False
 			for region in region_info.regions:
-				if re.search(r"\b" + re.escape(region) + r"\b", tag):
+				if re.search(r'\b' + re.escape(region.name) + r'\b', tag):
 					regions.append(region)
 				if ignored_tags is not None and not tag_ignored_already:
 					ignored_tags.append('(' + tag + ')')
