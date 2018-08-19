@@ -63,6 +63,8 @@ systems = [
 	#controller that looks like the kind of controller that's standard these days (y'know what I mean), or other weirdness
 	System('APF-MP1000', 'apfm1000', ['apfm1000'], ['MAME (APF-MP1000)']),
 	System('Astrocade', 'astrocde', ['astrocde'], ['MAME (Astrocade)']), 
+	System('Benesse Pocket Challenge V2', None, ['pockchalv2'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)']),
+	#Controls are mapped even worse than regular WonderSwan games, even with rotation auto-adjust you still end up using a stick/dpad as buttons and it gets weird, also the module must be forced or else it won't be recognized. But it works though
 	System('Channel F', 'channelf', ['channelf'], ['MAME (Channel F)']), 
 	System('Colecovision', 'coleco', ['coleco'], ['MAME (ColecoVision)']), 
 	System('Intellivison', 'intv', ['intv', 'intvecs'], ['MAME (Intellivision)', 'MAME (Intellivoice)', 'MAME (Intellivision ECS)', 'MAME (Intellivision Keyboard)']), 
@@ -119,6 +121,7 @@ systems = [
 	#This one is a bit tricky... both MAME and PCem have issues emulating a joystick. Do the games actually just suck like that? I don't know. The majority of these games assume a 4.77MHz CPU, of course. The software list is ibm5150 but that has some DOS games too, just to be confusing.
 	System('Pippin', 'pippin', ['pippin', 'pippin_flop'], []),
 	#Games don't just boot in a PPC Mac, unfortunately
+	System('RCA Studio 2', 'studio2', ['studio2'], []),
 	System("Super A'Can", 'supracan', ['supracan'], []),
 	System('V.Smile', 'vsmile', ['vsmile_cart', 'vsmile_cd', 'vsmileb_cart', 'vsmilem_cart'], []),
 	System('Xbox 360', None, [], []),
@@ -132,6 +135,8 @@ systems = [
 	#Decaf requires OpenGL 4.5
 
 	#Things that have usability issues
+	System('Apple IIgs', 'apple2gs', ['apple2gs'], []),
+	#Some games require a hard disk with an OS install and they won't tell you this because of course not, and if you want to autoboot the floppies with a hard drive still in there you have to set it to always boot from slot 5 and it's really annoying and I hate it
 	System('Cybiko', 'cybikov1', [], []),
 	#Quickload slot doesn't seem to actually quickload anything, and seems to require setup each time. V2 and Extreme have same problems
 	System('Mattel Aquarius', 'aquarius', [], []),
@@ -158,20 +163,16 @@ systems = [
 
 	#Where I don't know what I'm doing, so I have no idea if things are actually working or not
 	System('VC 4000', 'vc4000', ['vc4000'], []),
-	System('Benesse Pocket Challenge V2', None, ['pockchalv2'], []),
 	#Should work with Mednafen + WonderSwan if module is forced, just like... wha?
 	System('CreatiVision', 'crvision', ['crvision'], []),
 
 	#Gonna try these again but they weren't working last time I checked
-	System('Apple IIgs', 'apple2gs', ['apple2gs'], []),
-	#MAME 0.200 was released the other day with a lot of Apple IIgs fixes, so yeah I definitely need to try that out
 	System('Dreamcast', 'dc', ['dc'], []),
 	#MAME requires a much better computer than what I have now to emulate at full speed; there are also Reicast and a few others; lxdream wouldn't compile
 	System('Magnavox Odyssey²', 'odyssey2', ['odyssey2'], []),
 	#O2EM doesn't really work; MAME should though, there's nothing that suggests emulation is inaccurate or some software is unsupported
 	System('PC-88', 'pc8801', ['pc8801_cass', 'pc8801_flop', 'pc8201', 'pc88va'], []),
 	#On the wiki I said "too many various issues with various games" which isn't really a good enough description of why it does or doesn't work
-	System('RCA Studio 2', 'studio2', ['studio2'], []),
 ]
 
 #TODO: Those should just be considered emulated systems, need to add these as well:

@@ -243,6 +243,10 @@ emulators =
 paths = 
 emulators = 
 
+[Benesse Pocket Challenge V2]
+paths = 
+emulators = 
+
 [Mac]
 paths =
 emulators =
