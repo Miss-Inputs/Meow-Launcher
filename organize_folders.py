@@ -87,6 +87,7 @@ extra_subfolders = {
 	'By regions': 'X-Regions',
 	'By genre and input method': ['X-Genre', 'X-Input-Methods'],
 	'Has header': 'X-Headered',
+	'Has icon': 'Icon',
 	'Has force feedback': 'X-Force-Feedback',
 	'Has RTC': 'X-Has-RTC',
 	'Has product code': 'X-Product-Code',
