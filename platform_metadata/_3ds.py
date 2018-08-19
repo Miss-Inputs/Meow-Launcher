@@ -4,6 +4,8 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
+import os
+
 from info.region_info import TVSystem
 from metadata import CPUInfo, ScreenInfo, Screen, SaveType
 from common import convert_alphanumeric, NotAlphanumericException
@@ -118,7 +120,9 @@ def parse_smdh(game, offset=0, length=-1):
 	game.metadata.specific_info['Has-SMDH'] = True
 	#At this point it's fine to just read in the whole thing
 	smdh = game.rom.read(seek_to=offset, amount=length)
-	#Magic = 0-4
+	parse_smdh_data(game, smdh)
+
+def parse_smdh_data(game, smdh):
 	magic = smdh[:4]
 	if magic != b'SMDH':
 		return
@@ -218,6 +222,27 @@ def parse_ncsd(game):
 	game.metadata.specific_info['Title-Version'] = int.from_bytes(card_info_header[0x210:0x212], 'little')
 	game.metadata.specific_info['Card-Version'] = int.from_bytes(card_info_header[0x212:0x214], 'little')
 
+def parse_3dsx(game):
+	header = game.rom.read(amount=0x20)
+	header_size = int.from_bytes(header[4:6], 'little')
+	has_extended_header = header_size > 32
+
+	look_for_smdh_file = True
+	if has_extended_header:
+		extended_header = game.rom.read(seek_to=0x20, amount=12)
+		smdh_offset = int.from_bytes(extended_header[0:4], 'little')
+		smdh_size = int.from_bytes(extended_header[4:8], 'little')
+		
+		if smdh_size:
+			look_for_smdh_file = False
+			parse_smdh(game, smdh_offset, smdh_size)
+	
+	if look_for_smdh_file:
+		smdh_name = os.path.splitext(game.rom.path)[0] + '.smdh'
+		if os.path.isfile(smdh_name):
+			with open(smdh_name, 'rb') as smdh_file:
+				parse_smdh_data(game, smdh_file.read())
+
 def add_3ds_metadata(game):
 	add_3ds_system_info(game)
 	magic = game.rom.read(seek_to=0x100, amount=4)
@@ -227,5 +252,4 @@ def add_3ds_metadata(game):
 	elif magic == b'NCCH':
 		parse_ncch(game, 0)
 	elif game.rom.extension == '3dsx':
-		#TODO Really just to check if there's an embedded SMDH, or to look for a sibling SMDH
-		pass
+		parse_3dsx(game)
