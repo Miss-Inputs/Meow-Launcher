@@ -62,37 +62,7 @@ def scan_mac_volume(path, game_list, unknown_games, found_games, ambiguous_games
 		scan_app(f, game_list, unknown_games, found_games, ambiguous_games)
 
 def scan_mac_volumes():
-	unknown_games = []
-	found_games = {}
-	ambiguous_games = {}
-
-	mac_config = config.get_system_config_by_name('Mac')
-	if not mac_config:
-		return
-
-	game_list = dos_mac_common.init_game_list('mac')
-	for mac_volume in mac_config.paths:
-		scan_mac_volume(mac_volume, game_list, unknown_games, found_games, ambiguous_games)
-
-	configwriter = configparser.ConfigParser()
-	configwriter.optionxform = str
-	configwriter['Apps'] = {}
-	configwriter['Ambiguous'] = {}
-	configwriter['Unknown'] = {}
-	for k, v in found_games.items():
-		configwriter['Apps'][k] = v
-	for k, v in ambiguous_games.items():
-		configwriter['Ambiguous'][k] = ';'.join(v)
-	for unknown in unknown_games:
-		configwriter['Unknown'][unknown] = ''
-	with open(config.mac_config_path, 'wt') as config_file:
-		configwriter.write(config_file)
-	
-	print('Scan results have been written to', config.mac_config_path)
-	print('Because not everything can be autodetected, some may be unrecognized')
-	print('and you will have to configure them yourself, or may be one of several')
-	print('apps and you will have to specify which is which, until I think of')
-	print('a better way to do this.')
+	dos_mac_common.scan_folders('Mac', config.mac_config_path, scan_mac_volume)
 
 if __name__ == '__main__':
 	os.makedirs(config.output_folder, exist_ok=True)

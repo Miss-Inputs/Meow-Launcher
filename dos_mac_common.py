@@ -2,6 +2,7 @@ import json
 import os
 import urllib.request
 import sys
+import configparser
 
 import config
 from metadata import Metadata
@@ -100,3 +101,36 @@ class App:
 
 		metadata.emulator_name = emulator_name
 		launchers.make_launcher(command, self.name, metadata, {'Path': self.path}, icon=self.icon)
+
+def scan_folders(platform, config_path, scan_function):
+	unknown_games = []
+	found_games = {}
+	ambiguous_games = {}
+
+	system_config = config.get_system_config_by_name(platform)
+	if not system_config:
+		return
+
+	game_list = init_game_list(platform.lower())
+	for folder in system_config.paths:
+		scan_function(folder, game_list, unknown_games, found_games, ambiguous_games)
+
+	configwriter = configparser.ConfigParser()
+	configwriter.optionxform = str
+	configwriter['Apps'] = {}
+	configwriter['Ambiguous'] = {}
+	configwriter['Unknown'] = {}
+	for k, v in found_games.items():
+		configwriter['Apps'][k] = v
+	for k, v in ambiguous_games.items():
+		configwriter['Ambiguous'][k] = ';'.join(v)
+	for unknown in unknown_games:
+		configwriter['Unknown'][unknown] = ''
+	with open(config_path, 'wt') as config_file:
+		configwriter.write(config_file)
+	
+	print('Scan results have been written to', config_path)
+	print('Because not everything can be autodetected, some may be unrecognized')
+	print('and you will have to configure them yourself, or may be one of several')
+	print('apps and you will have to specify which is which, until I think of')
+	print('a better way to do this.')
