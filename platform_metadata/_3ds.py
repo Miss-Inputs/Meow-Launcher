@@ -1,3 +1,8 @@
+try:
+	from PIL import Image
+	have_pillow = True
+except ModuleNotFoundError:
+	have_pillow = False
 
 from info.region_info import TVSystem
 from metadata import CPUInfo, ScreenInfo, Screen, SaveType
@@ -148,7 +153,40 @@ def parse_smdh(game, offset=0, length=-1):
 	#CEC: 0x2034-0x2038
 	#Reserved: 0x2038-0x2040
 	#Smol icon (24x24): 0x2040-0x24c0
-	#Large icon (48x48): 0x24c0-0x36c0
+	
+	#Go with the 48x48 icon
+	if have_pillow:
+		large_icon = smdh[0x24c0:0x36c0]
+		game.icon = decode_icon(large_icon, 48)
+		
+tile_order = [
+	#What the actual balls?
+	0, 1, 8, 9, 2, 3, 10, 11,
+	16, 17, 24, 25, 18, 19, 26, 27,
+	4, 5, 12, 13, 6, 7, 14, 15,
+	20, 21, 28, 29, 22, 23, 30, 31,
+	32, 33, 40, 41, 34, 35, 42, 43,
+	48, 49, 56, 57, 50, 51, 58, 59,
+	36, 37, 44, 45, 38, 39, 46, 47,
+	52, 53, 60, 61, 54, 55, 62, 63
+]
+def decode_icon(icon_data, size):
+	#Assumes RGB565, which everything so far uses. Supposedly there can be other encodings, but I'll believe that when I see it
+	icon = Image.new('RGB', (size, size))
+	
+	i = 0
+	for tile_y in range(0, size, 8):
+		for tile_x in range(0, size, 8):
+			for tile in range(0, 8 * 8):
+				x = tile_x + (tile_order[tile] & 0b0000_0111);
+				y = tile_y + ((tile_order[tile] & 0b1111_1000) >> 3);
+				pixel = icon_data[i] | (icon_data[i + 1] << 8);
+				blue = ((pixel >> 0) & 0x1f) << 3;
+				green = ((pixel >> 5) & 0x3f) << 2;
+				red = ((pixel >> 11) & 0x1f) << 3;
+				icon.putpixel((x, y), (red, green, blue));
+				i += 2;
+	return icon
 
 def parse_ncsd(game):
 	#Assuming CCI (.3ds) here
