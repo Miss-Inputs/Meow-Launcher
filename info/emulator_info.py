@@ -391,7 +391,7 @@ emulators = {
 	'Mednafen (SNES-Faust)': MednafenModule('snes_faust', ['sfc', 'smc', 'swc']),
 	#Experimental and doesn't support expansion chips
 	'Mednafen (Virtual Boy)': MednafenModule('vb', ['bin', 'vb']),
-	'Mednafen (WonderSwan)': MednafenModule('wswan', ['ws', 'wsc', 'bin']),
+	'Mednafen (WonderSwan)': MednafenModule('wswan', ['ws', 'wsc', 'bin', 'pc2']),
 	#Oof this is just super mega weird because you can turn the thing sideways and it still does a thing.  I'll need some
 	#point of reference to figure out how to set this up for a normal-ish gamepad...
 
@@ -508,7 +508,7 @@ emulators = {
 	'MAME (Watara Supervision)': MameSystem(make_mame_command_line('svision', 'cart'), ['bin', 'ws', 'sv']),
 	#I've been told the sound is that horrible on a real system; there are "TV Link" variant systems but that just makes
 	#the colours look even worse (they're all inverted and shit)
-	'MAME (WonderSwan)': MameSystem(make_mame_command_line('wscolor', 'cart'), ['ws', 'wsc', 'bin']),
+	'MAME (WonderSwan)': MameSystem(make_mame_command_line('wscolor', 'cart'), ['ws', 'wsc', 'bin', 'pc2']),
 	'MAME (ZX Spectrum)': MameSystem(make_mame_speccy_command_line, ['ach', 'frz', 'plusd', 'prg', 'sem', 'sit', 'sna', 'snp', 'snx', 'sp', 'z80', 'zx'] + mame_floppy_formats),
 
 	#Other systems that MAME can do but I'm too lazy to do them yet because they'd need a command line generator function or other:
