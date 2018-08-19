@@ -182,14 +182,14 @@ def decode_icon(icon_data, size):
 	for tile_y in range(0, size, 8):
 		for tile_x in range(0, size, 8):
 			for tile in range(0, 8 * 8):
-				x = tile_x + (tile_order[tile] & 0b0000_0111);
-				y = tile_y + ((tile_order[tile] & 0b1111_1000) >> 3);
-				pixel = icon_data[i] | (icon_data[i + 1] << 8);
-				blue = ((pixel >> 0) & 0x1f) << 3;
-				green = ((pixel >> 5) & 0x3f) << 2;
-				red = ((pixel >> 11) & 0x1f) << 3;
-				icon.putpixel((x, y), (red, green, blue));
-				i += 2;
+				x = tile_x + (tile_order[tile] & 0b0000_0111)
+				y = tile_y + ((tile_order[tile] & 0b1111_1000) >> 3)
+				pixel = icon_data[i] | (icon_data[i + 1] << 8)
+				blue = ((pixel >> 0) & 0x1f) << 3
+				green = ((pixel >> 5) & 0x3f) << 2
+				red = ((pixel >> 11) & 0x1f) << 3
+				icon.putpixel((x, y), (red, green, blue))
+				i += 2
 	return icon
 
 def parse_ncsd(game):
