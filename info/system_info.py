@@ -24,9 +24,7 @@ systems = [
 	System('32X', '32x', ['32x'], ['Kega Fusion']), 
 	System('3DS', None, [], ['Citra']), 
 	System('Amstrad GX4000', 'gx4000', ['gx4000'], ['MAME (Amstrad GX4000)', 'MAME (Amstrad CPC+)']), 
-	System('Arcadia 2001', 'arcadia', ['arcadia'], ['MAME (Arcadia 2001)']), 
 	System('Atari 2600', 'a2600', ['a2600', 'a2600_cass'], ['Stella', 'MAME (Atari 2600)']), 
-	System('Atari 5200', 'a5200', ['a5200'], ['MAME (Atari 5200)']), 
 	System('Atari 7800', 'a7800', ['a7800'], ['MAME (Atari 7800)']), 
 	System('Casio PV-1000', 'pv1000', ['pv1000'], ['MAME (PV-1000)']),
 	System('CD-i', 'cdimono1', ['cdi'], ['MAME (CD-i)']),
@@ -74,7 +72,9 @@ systems = [
 
 	#Hecking keypads, but I guess they're fine if you're using a keyboard with a keypad
 	System('APF-MP1000', 'apfm1000', ['apfm1000'], ['MAME (APF-MP1000)']),
+	System('Arcadia 2001', 'arcadia', ['arcadia'], ['MAME (Arcadia 2001)']), 
 	System('Astrocade', 'astrocde', ['astrocde'], ['MAME (Astrocade)']), 
+	System('Atari 5200', 'a5200', ['a5200'], ['MAME (Atari 5200)']), 
 	System('Colecovision', 'coleco', ['coleco'], ['MAME (ColecoVision)']), 
 	System('Intellivison', 'intv', ['intv', 'intvecs'], ['MAME (Intellivision)', 'MAME (Intellivoice)', 'MAME (Intellivision ECS)', 'MAME (Intellivision Keyboard)']), 
 	System('VC 4000', 'vc4000', ['vc4000'], ['MAME (VC 4000)']),
