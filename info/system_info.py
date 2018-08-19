@@ -163,7 +163,6 @@ systems = [
 
 	#Where I don't know what I'm doing, so I have no idea if things are actually working or not
 	System('VC 4000', 'vc4000', ['vc4000'], []),
-	#Should work with Mednafen + WonderSwan if module is forced, just like... wha?
 	System('CreatiVision', 'crvision', ['crvision'], []),
 
 	#Gonna try these again but they weren't working last time I checked
