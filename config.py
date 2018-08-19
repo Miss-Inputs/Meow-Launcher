@@ -26,6 +26,7 @@ okay_to_have_software = ['vii', 'snspell', 'tntell']
 
 output_folder = None
 organized_output_folder = None
+icon_folder = None
 
 mac_db_path = None
 mac_config_path = os.path.join(config_dir, 'mac.ini')
@@ -69,10 +70,11 @@ def load_config():
 		print('oh no')
 		return
 	parser.read(config_path)
-	global output_folder, organized_output_folder, mac_db_path, launchers_for_unknown_mac_apps, dos_db_path, launchers_for_unknown_dos_apps, dos_configs_path, catlist_path, languages_path, skipped_source_files
+	global output_folder, organized_output_folder, icon_folder, mac_db_path, launchers_for_unknown_mac_apps, dos_db_path, launchers_for_unknown_dos_apps, dos_configs_path, catlist_path, languages_path, skipped_source_files
 
 	output_folder = os.path.expanduser(parser['General']['output_folder'])
 	organized_output_folder = os.path.expanduser(parser['General']['organized_output_folder'])
+	icon_folder = os.path.expanduser(parser['General']['icon_folder'])
 	
 	mac_db_path = os.path.expanduser(parser['Mac']['mac_db_path'])
 	launchers_for_unknown_mac_apps = parser['Mac'].getboolean('launchers_for_unknown_apps', False)

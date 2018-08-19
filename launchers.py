@@ -60,7 +60,10 @@ def base_make_desktop(command, display_name, fields=None, icon=None):
 		if icon:
 			if isinstance(icon, str):
 				f.write('Icon=%s\n' % icon)
-			#else: TODO
+			elif config.icon_folder: #assume PIL/Pillow image
+				icon_path = os.path.join(config.icon_folder, filename + '.png')
+				icon.save(icon_path, 'png')
+				f.write('Icon=%s\n' % icon_path)
 
 		if fields:
 			for k, v in fields.items():

@@ -1,6 +1,7 @@
 [General]
 output_folder = 
 organized_output_folder = 
+icon_folder = 
 
 [Mac]
 mac_db_path = 

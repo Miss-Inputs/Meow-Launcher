@@ -196,6 +196,7 @@ class Game():
 		self.metadata.platform = platform
 		self.metadata.categories = []
 		self.folder = folder
+		self.icon = None
 
 	def get_command_line(self, system_config):
 		return self.emulator.get_command_line(self, system_config.other_config)
@@ -222,7 +223,7 @@ class Game():
 			#Don't need to wrap in sh -c if we've already done that
 			command_line = 'sh -c {0}'.format(shlex.quote(command_line))
 
-		launchers.make_launcher(command_line, self.rom.name, self.metadata, {'Full-Path': self.rom.path})
+		launchers.make_launcher(command_line, self.rom.name, self.metadata, {'Full-Path': self.rom.path}, self.icon)
 
 def try_emulator(system_config, emulator, rom_dir, root, name):
 	path = os.path.join(root, name)

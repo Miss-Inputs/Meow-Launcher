@@ -1,3 +1,10 @@
+try:
+	from PIL import Image
+	have_pillow = True
+except ModuleNotFoundError:
+	have_pillow = False
+
+import struct
 
 from info.region_info import TVSystem
 from region_detect import get_region_by_name
@@ -31,6 +38,33 @@ def add_ds_system_info(game):
 	screen_info = ScreenInfo()
 	screen_info.screens = [top_screen, bottom_screen]
 	game.metadata.screen_info = screen_info
+
+def decode_icon(bitmap, palette):
+	icon = Image.new('RGBA', (32, 32))
+	
+	rgb_palette = [None] * 16
+	for i, colour in enumerate(palette):
+		#Convert from DS colour format to normal RGB
+		red = (colour & 0b_00000_00000_11111) << 3
+		green = (colour & 0b_00000_11111_00000) >> 2;
+		blue = (colour & 0b_11111_00000_00000) >> 7
+
+		alpha = 0xff
+		if i == 0:
+			alpha = 0
+		rgb_palette[i] = (red, green, blue, alpha)
+
+	pos = 0
+	for tile_y in range(0, 4):
+		for tile_x in range(0, 4):
+			for y in range(0, 8):
+				for x in range(0, 4):
+					pixel_x = (x * 2) + (8 * tile_x)
+					pixel_y = y + (8 * tile_y)
+					icon.putpixel((pixel_x, pixel_y), rgb_palette[bitmap[pos] & 0x0f])
+					icon.putpixel((pixel_x + 1, pixel_y), rgb_palette[(bitmap[pos] & 0xf0) >> 4])
+					pos += 1
+	return icon
 
 def add_ds_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -91,3 +125,16 @@ def add_ds_metadata(game):
 			game.metadata.regions = [get_region_by_name('China')]
 		#If 0, could be anywhere else
 	game.metadata.revision = header[30]
+
+	banner_offset = int.from_bytes(header[0x68:0x6C], 'little')
+	if banner_offset:
+		#TODO: amount = header[0x208] if is_dsi, though the extended part of the banner contains animated icon frames, so we don't really need it
+		banner = game.rom.read(seek_to=banner_offset, amount=0xA00)
+		version = int.from_bytes(banner[0:2], 'little')
+		game.metadata.specific_info['Banner-Version'] = version
+		if version in (1, 2, 3, 0x103):
+			#game.metadata.specific_info['Banner-Text-English'] = banner[0x340:0x440].decode('utf-16-le', errors='backslashreplace').rstrip('\0')
+			if have_pillow:
+				icon_bitmap = banner[0x20:0x220]
+				icon_palette = struct.unpack('H' * 16, banner[0x220:0x240])
+				game.icon = decode_icon(icon_bitmap, icon_palette)
