@@ -61,19 +61,27 @@ systems = [
 
 	#These ones may have control schemes that don't actually map too easily to a normal XInput controller or any other
 	#controller that looks like the kind of controller that's standard these days (y'know what I mean), or other weirdness
-	System('APF-MP1000', 'apfm1000', ['apfm1000'], ['MAME (APF-MP1000)']),
-	System('Astrocade', 'astrocde', ['astrocde'], ['MAME (Astrocade)']), 
 	System('Benesse Pocket Challenge V2', None, ['pockchalv2'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)']),
 	#Controls are mapped even worse than regular WonderSwan games, even with rotation auto-adjust you still end up using a stick/dpad as buttons and it gets weird, also the module must be forced or else it won't be recognized. But it works though
 	System('Channel F', 'channelf', ['channelf'], ['MAME (Channel F)']), 
+	#It has some sort of knob that you twist up and down or something? What the fuck
+	System('Lynx', 'lynx', ['lynx'], ['Mednafen (Lynx)']), 
+	#uhhh it's like ambidextrous or something? Remind me to look into this again later
+	System('Wii', None, [], ['Dolphin']), 
+	#Heckin motion controls, what are you gonna do... how do you replicate 3D movement without having 3D movement, really. Of course you could argue 3DS has the same problem but motion controls are used a lot less there. I think I heard something about Dolphin implementing per-game controller profiles or somethinig like that though, so once that all works nicely I might move Wii out of this category
+	System('WonderSwan', 'wscolor', ['wswan', 'wscolor'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)']), 
+	#Rotates around so that sometimes the dpad becomes buttons and vice versa and there's like two dpads??? but if you use Mednafen's rotation auto-adjust thing it kinda works
+
+	#Hecking keypads, but I guess they're fine if you're using a keyboard with a keypad
+	System('APF-MP1000', 'apfm1000', ['apfm1000'], ['MAME (APF-MP1000)']),
+	System('Astrocade', 'astrocde', ['astrocde'], ['MAME (Astrocade)']), 
 	System('Colecovision', 'coleco', ['coleco'], ['MAME (ColecoVision)']), 
 	System('Intellivison', 'intv', ['intv', 'intvecs'], ['MAME (Intellivision)', 'MAME (Intellivoice)', 'MAME (Intellivision ECS)', 'MAME (Intellivision Keyboard)']), 
-	System('Lynx', 'lynx', ['lynx'], ['Mednafen (Lynx)']), 
+	System('VC 4000', 'vc4000', ['vc4000'], []),
+	
+	#More than 6 buttons, would be okay if you have an older gamepad that had 6 face buttons before the industry decided 4 face buttons was the way to go (N64 or Saturn controllers with USB adapters work well, even for each other's control schemes; or one of those late 90s gamepads like the kind I have lying around)
 	System('N64', 'n64', ['n64'], ['Mupen64Plus']), 
 	System('Saturn', 'saturn', ['saturn', 'sat_cart', 'sat_vccart'], ['Mednafen (Saturn)']), 
-	#Not the most easily mappable of controllers due to having both 6 face buttons and 2 shoulder buttons
-	System('Wii', None, [], ['Dolphin']), 
-	System('WonderSwan', 'wscolor', ['wswan', 'wscolor'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)']), 
 
 	#Computers!  These actually aren't that bad control-wise because most sensible games would use a simple one-button
 	#joystick, and most of the time MAME lets you attach one.  But some of them don't!  And the ones that don't just use
@@ -108,11 +116,13 @@ systems = [
 	System('GameKing', 'gameking', ['gameking'], []),
 	System('GameKing 3', 'gamekin3', ['gameking3'], []),
 	System('GP32', 'gp32', ['gp32'], []),
+	#Runs too slow to verify if anything else works, but all documentation points to not
 	System('Hartung Game Master', 'gmaster', ['gmaster'], []),
+	#No sound (but seems to work fine otherwise? maybe)
 	System('IBM PCjr', 'ibmpcjr', ['ibmpcjr_cart'], []),
 	#For the carts, because otherwise we'd just call the software DOS or PC Booter. Has the same problem as PC booter disks in that the joystick tends to play up.
 	System('Jaguar', 'jaguar', ['jaguar'], []),
-	#Virtual Jaguar doesn't like gamepads seemingly, and Phoenix Emu has no command line support;
+	#Virtual Jaguar doesn't like gamepads seemingly, and Phoenix Emu has no command line support
 	System('Konami Picno', 'picno', ['picno'], []),
 	System('Leapster', 'leapster', ['gameking'], []),
 	System('Microvision', 'microvsn', ['microvision'], []),
@@ -132,13 +142,15 @@ systems = [
 	System('Uzebox', 'uzebox', ['uzebox'], []),
 	#MAME looks like it works, but at like 50% speed
 	System('Wii U', None, [], []),
-	#Decaf requires OpenGL 4.5
+	#Decaf requires OpenGL 4.5 (even for software rendering it seems)
 
 	#Things that have usability issues
 	System('Apple IIgs', 'apple2gs', ['apple2gs'], []),
 	#Some games require a hard disk with an OS install and they won't tell you this because of course not, and if you want to autoboot the floppies with a hard drive still in there you have to set it to always boot from slot 5 and it's really annoying and I hate it
 	System('Cybiko', 'cybikov1', [], []),
 	#Quickload slot doesn't seem to actually quickload anything, and seems to require setup each time. V2 and Extreme have same problems
+	System('CreatiVision', 'crvision', ['crvision'], []),
+	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it
 	System('Mattel Aquarius', 'aquarius', [], []),
 	#Controllers aren't emulated yet
 	System('PocketStation', 'pockstat', [], []),
@@ -160,10 +172,6 @@ systems = [
 	System('Orion 128', 'orion128', ['orion_cart', 'orion_cass', 'orion_flop'], []),
 	System('PC-6001', 'pc6001', [], []),
 	System('FM-7', 'fm7', ['fm7_cass', 'fm7_disk', 'fm77av'], []),
-
-	#Where I don't know what I'm doing, so I have no idea if things are actually working or not
-	System('VC 4000', 'vc4000', ['vc4000'], []),
-	System('CreatiVision', 'crvision', ['crvision'], []),
 
 	#Gonna try these again but they weren't working last time I checked
 	System('Dreamcast', 'dc', ['dc'], []),
