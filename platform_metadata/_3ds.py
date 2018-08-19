@@ -100,7 +100,25 @@ def parse_ncch(game, offset):
 def parse_plain_region(game, offset, length):
 	#Plain region contains libraries used and such, it's pretty dang cool actually and could be useful here but also mysterious
 	plain_region = game.rom.read(seek_to=offset, amount=length)
-	game.metadata.specific_info['Libraries'] = [lib.decode('ascii', errors='backslashreplace') for lib in plain_region.split(b'\x00') if lib]
+	libraries = [lib.decode('ascii', errors='backslashreplace') for lib in plain_region.split(b'\x00') if lib]
+
+	#TODO: If a game has an update which adds functionality identified by one of these library names, then that'll be a separate file, so it's like... how do we know that Super Smash Bros the .3ds file has amiibo support when Super Smash Bros 1.1.7 update data the .cxi is where it says that, because with and only with the update data it would support amiibos, etc; if that all makes sense
+	#Unless like... I search ~/.local/share/citra-emu/sdmc/Nintendo 3DS for what update CIAs are installed and... aaaaaaaaaaaaaaaa
+	for library in libraries:
+		if library.startswith('[SDK+ISP:QRDec'):
+			game.metadata.specific_info['Reads-QR-Codes'] = True
+		elif library.startswith('[SDK+ISP:QREnc'):
+			game.metadata.specific_info['Makes-QR-Codes'] = True
+		elif library == '[SDK+NINTENDO:ExtraPad]':
+			#TODO: Fiddle with metadata input stuff for this and gyroscope
+			game.metadata.specific_info['Uses-Circle-Pad-Pro'] = True
+		elif library.startswith == '[SDK+NINTENDO:Gyroscope]':
+			game.metadata.specific_info['Uses-Gyroscope'] = True
+		elif library == '[SDK+NINTENDO:IsRunOnSnake]':
+			#There's also an IsRunOnSnakeForApplet found in some not-completely-sure-what-they-are builtin apps and amiibo Settings. Not sure if it does what I think it does
+			game.metadata.specific_info['New-3DS-Enhanced'] = True
+		elif library == '[SDK+NINTENDO:NFP]':
+			game.metadata.specific_info['Uses-Amiibo'] = True
 
 def parse_exefs(game, offset):
 	header = game.rom.read(seek_to=offset, amount=0x200)
