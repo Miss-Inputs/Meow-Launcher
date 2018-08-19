@@ -12,3 +12,4 @@ def add_ngp_metadata(game):
 	#At offset 35, you could get the colour flag, and if equal to 0x10 set platform to "Neo Geo Pocket Color" if you really wanted
 	game.metadata.specific_info['Product-Code'] = int.from_bytes(header[32:34], 'little')
 	game.metadata.revision = header[34]
+	game.metadata.specific_info['Is-Colour'] = header[35] == 0x10

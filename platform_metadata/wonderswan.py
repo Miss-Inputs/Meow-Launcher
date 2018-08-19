@@ -58,8 +58,8 @@ def add_wonderswan_metadata(game):
 	publisher_code = header[0]
 	if publisher_code in publishers:
 		game.metadata.publisher = publishers[publisher_code]
-	#Is colour: header[1] == 1
-	
+	game.metadata.specific_info['Is-Colour'] = header[1] == 1
+
 	game.metadata.specific_info['Product-Code'] = str(header[2])
 
 	game.metadata.revision = header[3]
@@ -69,5 +69,6 @@ def add_wonderswan_metadata(game):
 	game.metadata.save_type = SaveType.Cart if save_info > 0 else SaveType.Nothing
 
 	game.metadata.specific_info['Has-RTC'] = header[7] == 1
-	#Flags: header[6], screen orientation = flags bit 0
+	flags = header[6]
+	game.metadata.specific_info['Screen-Orientation'] = 'Vertical' if flags & 1 else 'Horizontal'
 	#Checksum schmecksum
