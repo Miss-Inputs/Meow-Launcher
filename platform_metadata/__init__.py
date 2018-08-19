@@ -49,6 +49,7 @@ helpers = {
 	'Atari 2600': add_atari_2600_metadata,
 	'Atari 7800': add_atari7800_metadata,
 	'Atari 8-bit': add_atari_8bit_metadata,
+	'Benesse Pocket Challenge V2': add_wonderswan_metadata,
 	'C64': add_commodore_64_metadata,
 	'DS': add_ds_metadata,
 	'Epoch Game Pocket Computer': nothing_interesting,
