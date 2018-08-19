@@ -115,11 +115,11 @@ def scan_folders(platform, config_path, scan_function):
 	configwriter['Apps'] = {}
 	configwriter['Ambiguous'] = {}
 	configwriter['Unknown'] = {}
-	for k, v in found_games.items():
-		configwriter['Apps'][k] = v
-	for k, v in ambiguous_games.items():
-		configwriter['Ambiguous'][k] = ';'.join(v)
-	for unknown in unknown_games:
+	for k in sorted(found_games.keys()):
+		configwriter['Apps'][k] = found_games[k]
+	for k in sorted(ambiguous_games.keys()):
+		configwriter['Ambiguous'][k] = ';'.join(ambiguous_games[k])
+	for unknown in sorted(unknown_games):
 		configwriter['Unknown'][unknown] = ''
 	with open(config_path, 'wt') as config_file:
 		configwriter.write(config_file)
