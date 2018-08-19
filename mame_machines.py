@@ -137,23 +137,21 @@ def add_machine_platform(machine):
 		machine.metadata.platform = 'Plug & Play' 
 		#Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug &
         #play system
-	elif category == 'Handheld':
-		machine.metadata.platform = 'Handheld' 
-		#Could also be a tabletop system which takes AC input, but since catlist.ini doesn't take that into account, I don't
-		#really have a way of doing so either
-		if machine.name.startswith(('Game & Watch: ', 'Select-A-Game: ', 'R-Zone: ')):
+	elif machine.name.startswith(('Game & Watch: ', 'Select-A-Game: ', 'R-Zone: ')):
 			#Source file is hh_sm510 so we can't detect the Game & Watchiness of a handheld game from that
 			machine.metadata.platform, _, machine.name = machine.name.partition(': ')
 	elif category == 'Misc.':
 		machine.metadata.platform = machine.metadata.genre
-	elif category == 'Computer':
-		machine.metadata.platform = 'Computer'
-	elif category == 'Calculator':
-		machine.metadata.platform = 'Calculator'
+	elif category in ('Computer', 'Calculator', 'Handheld'):
+		#"Handheld" could also be a tabletop system which takes AC input, but since catlist.ini doesn't take that into account, I don't
+		#really have a way of doing so either
+		machine.metadata.platform = category
 	elif machine.metadata.genre in ('Electromechanical', 'Slot Machine') and machine.metadata.subgenre == 'Reels':
 		machine.metadata.platform = 'Pokies'
 	elif machine.metadata.genre == 'Electromechanical' and machine.metadata.subgenre == 'Pinball':
 		machine.metadata.platform = 'Pinball'
+	elif machine.metadata.genre in ('Chess Machine', 'EPROM Programmer'):
+		machine.metadata.platform = machine.metadata.genre
 
 #Some games have memory card slots, but they don't actually support saving, it's just that the arcade system board thing they use always has that memory card slot there. So let's not delude ourselves into thinking that games which don't save let you save, because that might result in emotional turmoil.
 #Fatal Fury 2, Fatal Fury Special, Fatal Fury 3, and The Last Blade apparently only save in Japanese or something? That might be something to be aware of
