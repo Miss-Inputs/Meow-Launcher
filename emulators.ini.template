@@ -247,6 +247,10 @@ emulators =
 paths = 
 emulators = 
 
+[VC 4000]
+paths = 
+emulators = 
+
 [Mac]
 paths =
 emulators =

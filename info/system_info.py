@@ -77,7 +77,7 @@ systems = [
 	System('Astrocade', 'astrocde', ['astrocde'], ['MAME (Astrocade)']), 
 	System('Colecovision', 'coleco', ['coleco'], ['MAME (ColecoVision)']), 
 	System('Intellivison', 'intv', ['intv', 'intvecs'], ['MAME (Intellivision)', 'MAME (Intellivoice)', 'MAME (Intellivision ECS)', 'MAME (Intellivision Keyboard)']), 
-	System('VC 4000', 'vc4000', ['vc4000'], []),
+	System('VC 4000', 'vc4000', ['vc4000'], ['MAME (VC 4000)']),
 	
 	#More than 6 buttons, would be okay if you have an older gamepad that had 6 face buttons before the industry decided 4 face buttons was the way to go (N64 or Saturn controllers with USB adapters work well, even for each other's control schemes; or one of those late 90s gamepads like the kind I have lying around)
 	System('N64', 'n64', ['n64'], ['Mupen64Plus']), 

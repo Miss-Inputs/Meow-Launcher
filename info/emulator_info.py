@@ -487,6 +487,9 @@ emulators = {
 	#Well, at least there's no region crap, though there is pyuuta if you want to read Japanese instead.  The controls in
 	#the menus are a bit wack but I think I've set them up so it should work relatively smoothly, also there's not really
 	#a way to skip the "Graphics/BASIC/Cartridge" screen that I know of so you'll always have to select that
+	'MAME (VC 4000)': MameSystem(make_mame_command_line('vc4000', 'cart'), ['bin', 'rom']),
+	#There's like 30 different clones of this, and most of them aren't even clones in the MAME sense, they're literally hardware clones. But they're apparently all software-compatible, although the cartridges aren't hardware-compatible, they just contain the same software... so this all gets confusing. Anyway, the software list with all these is named "vc4000" so I guess that's the "main" one, so we'll use that. I'm not sure if there are any PAL/NTSC differences to worry about.
+	#TODO: Quickload slot (.pgm, .tvc)
 	'MAME (Vectrex)': MameSystem(make_mame_command_line('vectrex', 'cart'), ['bin', 'gam', 'vec']),
 	#I wonder if there's a way to set the overlay programmatically...  doesn't look like there's a command line option to
 	#do that.  Also the buttons are kinda wack I must admit, as they're actually a horizontal row of 4
