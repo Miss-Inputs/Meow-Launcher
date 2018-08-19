@@ -32,12 +32,7 @@ def init_game_list(platform):
 			if parent_name in game_list:
 				parent = game_list[parent_name]
 				for key in parent.keys():
-					if key == "notes":
-						if key in game:
-							game_list[game_name][key] = parent[key] + ";" + game_list[game_name][key]
-						else:
-							game_list[game_name][key] = parent[key]
-					elif key not in game:
+					if key not in game:
 						game_list[game_name][key] = parent[key]
 			else:
 				if debug:
