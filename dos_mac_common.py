@@ -3,6 +3,7 @@ import os
 import urllib.request
 import sys
 import configparser
+import collections
 
 import config
 from metadata import Metadata
@@ -123,6 +124,10 @@ def scan_folders(platform, config_path, scan_function):
 		configwriter['Unknown'][unknown] = ''
 	with open(config_path, 'wt') as config_file:
 		configwriter.write(config_file)
+
+	found_counter = collections.Counter(found_games.values())
+	for value in [value for value, count in found_counter.items() if count > 1]:
+		print('Warning: {0} appears more than once: {1}'.format(value, [key for key, game_config_name in found_games.items() if value == game_config_name]))
 	
 	print('Scan results have been written to', config_path)
 	print('Because not everything can be autodetected, some may be unrecognized')
