@@ -91,12 +91,21 @@ def get_languages_from_filename_tags(tags, ignored_tags=None):
 
 	return None
 
-def get_regions_from_filename_tags(tags, ignored_tags=None):
+def get_regions_from_filename_tags(tags, ignored_tags=None, loose=False):
 	regions = []
 	for tag in tags:
 		if tag.startswith('['):
 			continue
 		tag = tag.lstrip('(').rstrip(')')
+		if loose:
+			tag_ignored_already = False
+			for region in region_info.regions:
+				if re.search(r"\b" + re.escape(region) + r"\b", tag):
+					regions.append(region)
+				if ignored_tags is not None and not tag_ignored_already:
+					ignored_tags.append('(' + tag + ')')
+					tag_ignored_already = True
+			continue
 
 		multiple_region_separator = None
 		if ', ' in tag:
