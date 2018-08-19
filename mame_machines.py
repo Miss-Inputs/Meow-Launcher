@@ -138,8 +138,8 @@ def add_machine_platform(machine):
 		#Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug &
         #play system
 	elif machine.name.startswith(('Game & Watch: ', 'Select-A-Game: ', 'R-Zone: ')):
-			#Source file is hh_sm510 so we can't detect the Game & Watchiness of a handheld game from that
-			machine.metadata.platform, _, machine.name = machine.name.partition(': ')
+		#Source file is hh_sm510 so we can't detect the Game & Watchiness of a handheld game from that
+		machine.metadata.platform, _, machine.name = machine.name.partition(': ')
 	elif category == 'Misc.':
 		machine.metadata.platform = machine.metadata.genre
 	elif category in ('Computer', 'Calculator', 'Handheld'):
