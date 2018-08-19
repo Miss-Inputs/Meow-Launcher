@@ -173,12 +173,14 @@ def add_metadata(machine):
 	machine.metadata.screen_info = ScreenInfo()
 	displays = machine.xml.findall('display')
 	machine.metadata.screen_info.load_from_xml_list(displays)
-	
-	memory_cards = [device for device in machine.xml.findall('device') if device.find('instance') is not None and device.find('instance').attrib['name'] == 'memcard']
-	machine.metadata.save_type = SaveType.MemoryCard if memory_cards and (machine.family not in not_actually_save_supported) else SaveType.Nothing
-	#TODO: Some machines that aren't arcade systems might plausibly have something describable as SaveType.Cart or SaveType.Internal... anyway, I guess I'll burn that bridge when I see it
-	
+
 	add_machine_platform(machine)
+	
+	if machine.metadata.platform == 'Arcade':
+		memory_cards = [device for device in machine.xml.findall('device') if device.find('instance') is not None and device.find('instance').attrib['name'] == 'memcard']
+		machine.metadata.save_type = SaveType.MemoryCard if memory_cards and (machine.family not in not_actually_save_supported) else SaveType.Nothing
+		#TODO: Some machines that aren't arcade systems might plausibly have something describable as SaveType.Cart or SaveType.Internal... anyway, I guess I'll burn that bridge when I see it
+	
 
 	language = get_language(machine.basename)
 	if language:
