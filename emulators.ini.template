@@ -251,6 +251,10 @@ emulators =
 paths = 
 emulators = 
 
+[Dreamcast]
+paths = 
+emulators = 
+
 [Mac]
 paths =
 emulators =

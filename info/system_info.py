@@ -28,6 +28,7 @@ systems = [
 	System('Atari 7800', 'a7800', ['a7800'], ['MAME (Atari 7800)']), 
 	System('Casio PV-1000', 'pv1000', ['pv1000'], ['MAME (PV-1000)']),
 	System('CD-i', 'cdimono1', ['cdi'], ['MAME (CD-i)']),
+	System('Dreamcast', 'dc', ['dc'], ['Reicast']),
 	System('DS', None, [], ['Medusa']),
 	System('Entex Adventure Vision', 'advision', ['advision'], ['MAME (Entex Adventure Vision)']), 
 	System('Epoch Game Pocket Computer', 'gamepock', ['gamepock'], ['MAME (Game Pocket Computer)']),
@@ -174,8 +175,6 @@ systems = [
 	System('FM-7', 'fm7', ['fm7_cass', 'fm7_disk', 'fm77av'], []),
 
 	#Gonna try these again but they weren't working last time I checked
-	System('Dreamcast', 'dc', ['dc'], []),
-	#MAME requires a much better computer than what I have now to emulate at full speed; there are also Reicast and a few others; lxdream wouldn't compile
 	System('Magnavox Odyssey²', 'odyssey2', ['odyssey2'], []),
 	#O2EM doesn't really work; MAME should though, there's nothing that suggests emulation is inaccurate or some software is unsupported
 	System('PC-88', 'pc8801', ['pc8801_cass', 'pc8801_flop', 'pc8201', 'pc88va'], []),

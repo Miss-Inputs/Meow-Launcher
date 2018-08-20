@@ -353,6 +353,7 @@ emulators = {
 	#Puts all the config files in the current directory, which is why there's a wrapper below which you probably want to use instead of this
 	'PokeMini (wrapper)': Emulator('mkdir -p ~/.config/PokeMini && cd ~/.config/PokeMini && PokeMini -fullscreen $<path>', ['min'], ['zip'], True),
 	'PPSSPP': Emulator('ppsspp-qt $<path>', ['iso', 'pbp', 'cso'], []),
+	'Reicast': Emulator('reicast -config x11:fullscreen=1 $<path>', ['gdi', 'cdi', 'chd'], []),
 	'Snes9x': Emulator('snes9x-gtk $<path>', ['sfc', 'smc', 'swc'], ['zip', 'gz']),
 	#Slows down on toaster for a lot of intensive games e.g.  SuperFX.  Can't set fullscreen mode from the command line so you have
 	#to set up that yourself; GTK port can't do Sufami Turbo due to lacking multi-cart support that Windows has, MAME can
@@ -512,6 +513,7 @@ emulators = {
 	'MAME (ZX Spectrum)': MameSystem(make_mame_speccy_command_line, ['ach', 'frz', 'plusd', 'prg', 'sem', 'sit', 'sna', 'snp', 'snx', 'sp', 'z80', 'zx'] + mame_floppy_formats),
 
 	#Other systems that MAME can do but I'm too lazy to do them yet because they'd need a command line generator function or other:
+	#Dreamcast: Region, and also runs slow on my computer so I don't feel like it
 	#Lynx: Need to select -quick for .o files and -cart otherwise
 	#SC-3000: Need to select -cart for carts and -cass for cassettes (.wav .bit); I'm not sure Kega Fusion can do .sc or cassettes yet
 	#SF-7000: Need to select -flop for disk images (sf7 + normal MAME disk formats) and -cass for cassettes (.wav .bit); very sure Kega Fusion can't do this
