@@ -6,7 +6,7 @@ import common
 from metadata import SaveType
 from .sega_common import licensee_codes
 
-gdi_regex = re.compile(r"^(?P<trackNumber>\d+)\s+(?P<unknown1>\S+)\s+(?P<type>\d)\s+(?P<sectorSize>\d+)\s+(?:""(?P<name>.+)""|(?P<name_unquoted>\S+))\s+(?P<unknown2>.+)$")
+gdi_regex = re.compile(r'^(?P<trackNumber>\d+)\s+(?P<unknown1>\S+)\s+(?P<type>\d)\s+(?P<sectorSize>\d+)\s+(?:"(?P<name>.+)"|(?P<name_unquoted>\S+))\s+(?P<unknown2>.+)$')
 
 def add_peripherals_info(game, peripherals):
 	game.metadata.specific_info['Uses-Windows-CE'] = (peripherals & 1) > 0
@@ -34,8 +34,9 @@ def add_peripherals_info(game, peripherals):
 		
 
 def add_info_from_main_track(game, track_path, sector_size):
-	if sector_size != 2048:
-		#Not now. I need to do some kind of automatic CD handling thing...
+	try:
+		header = common.read_mode_1_cd(track_path, sector_size, amount=128)
+	except NotImplementedError:
 		return
 
 	#16-32 Copyright: Seems to always be "SEGA ENTERPRISES" but may or may not be mandatory?
@@ -45,10 +46,10 @@ def add_info_from_main_track(game, track_path, sector_size):
 	#96-112 Boot filename
 	#128-256 Internal name
 
-	header = common.read_file(track_path, amount=128)
 	hardware_id = header[0:16].decode('ascii', errors='ignore')
 	if hardware_id != 'SEGA SEGAKATANA ':
 		#Won't boot on a real Dreamcast. I should check how much emulators care...
+		game.metadata.specific_info['Hardware-ID'] = hardware_id
 		game.metadata.specific_info['Invalid-Hardware-ID'] = True
 		return
 	
@@ -90,7 +91,7 @@ def add_info_from_gdi(game):
 			track_number = int(match['trackNumber'])
 			is_data = match['type'] == '4'
 			sector_size = int(match['sectorSize'])
-			filename = match['name'] if match['name'] else match['name_unquoted']
+			filename = match['name_unquoted'] if match['name_unquoted'] else match['name']
 			#print(game.rom.path, track_number, is_data, sector_size, filename)
 			if track_number == 3:
 				full_name = filename if filename.startswith('/') else os.path.join(game.folder, filename)
