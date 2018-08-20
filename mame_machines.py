@@ -142,7 +142,7 @@ def add_machine_platform(machine):
 		machine.metadata.platform, _, machine.name = machine.name.partition(': ')
 	elif category == 'Misc.':
 		machine.metadata.platform = machine.metadata.genre
-	elif category == 'Handheld' and genre == "Plug n' Play TV Game":
+	elif category == 'Handheld' and machine.metadata.genre == "Plug n' Play TV Game":
 		machine.metadata.platform = "Plug & Play"
 	elif category in ('Computer', 'Calculator', 'Handheld'):
 		#"Handheld" could also be a tabletop system which takes AC input, but since catlist.ini doesn't take that into account, I don't

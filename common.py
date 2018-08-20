@@ -44,7 +44,7 @@ def sectored_read(path, raw_header_size, raw_footer_size, data_size, seek_to=0, 
 	raw_end = cooked_position_to_real(end, raw_header_size, raw_footer_size, data_size)
 	raw_count = (raw_end - start) + 1 
 
-	number_of_sectors = int(math.ceil ((raw_count - amount) / ((raw_header_size + raw_footer_size) + 1) ))
+	number_of_sectors = int(math.ceil((raw_count - amount) / ((raw_header_size + raw_footer_size) + 1)))
 	
 	if number_of_sectors == 1:
 		return read_file(path, seek_to=start, amount=amount)
@@ -60,18 +60,18 @@ def sectored_read(path, raw_header_size, raw_footer_size, data_size, seek_to=0, 
 	
 	#Read any sectors between start and end
 	for i in range(0, number_of_sectors - 2):
-		this_sector_start = cooked_position_to_real(data_size * (start_sector + i + 1))
+		this_sector_start = cooked_position_to_real(data_size * (start_sector + i + 1), raw_header_size, raw_footer_size, data_size)
 		result += read_file(path, seek_to=this_sector_start, amount=data_size)
 		
 	#Read as much out of the end sector as needed
-	end_sector_start = cooked_position_to_real(data_size * end_sector)
+	end_sector_start = cooked_position_to_real(data_size * end_sector, raw_header_size, raw_footer_size, data_size)
 	result += read_file(path, seek_to=end_sector_start, amount=end_offset_in_sector + 1)
 	return result
 
 def cooked_position_to_real(cooked_position, raw_header_size, raw_footer_size, cooked_sector_size):
 	sector_count = int(math.ceil(cooked_position / cooked_sector_size))
 	total_header_size = raw_header_size * (sector_count + 1)
-	total_footer_size = raw_header_size * sector_count
+	total_footer_size = raw_footer_size * sector_count
 	return cooked_position + total_header_size + total_footer_size
 	
 def read_file(path, compressed_entry=None, seek_to=0, amount=-1):

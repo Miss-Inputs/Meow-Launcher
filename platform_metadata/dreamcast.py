@@ -89,7 +89,7 @@ def add_info_from_gdi(game):
 		match = gdi_regex.match(line)
 		if match:
 			track_number = int(match['trackNumber'])
-			is_data = match['type'] == '4'
+			#is_data = match['type'] == '4'
 			sector_size = int(match['sectorSize'])
 			filename = match['name_unquoted'] if match['name_unquoted'] else match['name']
 			#print(game.rom.path, track_number, is_data, sector_size, filename)
