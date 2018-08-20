@@ -62,6 +62,9 @@
     <Compile Include="platform_metadata\commodore_64.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="platform_metadata\dreamcast.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="platform_metadata\ds.py">
       <SubType>Code</SubType>
     </Compile>
