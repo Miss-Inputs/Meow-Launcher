@@ -25,6 +25,47 @@ def get_real_size(path, compressed_entry=None):
 		
 	return archives.compressed_getsize(path, compressed_entry)
 
+#<type> is BINARY for little endian, MOTOROLA for big endian, or AIFF/WAV/MP3. Generally only BINARY will be used (even audio tracks are usually ripped as raw binary)
+cue_file_line_regex = re.compile(r'^\s*FILE\s+(?:"(?P<name>.+)"|(?P<name_unquoted>\S+))\s+(?P<type>.+)\s*$', flags=re.RegexFlag.IGNORECASE)
+#<mode> is defined here: https://www.gnu.org/software/ccd2cue/manual/html_node/MODE-_0028Compact-Disc-fields_0029.html#MODE-_0028Compact-Disc-fields_0029 but generally only AUDIO, MODE1/<size>, and MODE2/<size> are used
+cue_track_line_regex = re.compile(r'^\s*TRACK\s+(?P<number>\d+)\s+(?P<mode>.+)\s*$', flags=re.RegexFlag.IGNORECASE)
+
+def parse_cue_sheet(cue_path):
+	#TODO compressed cue sheet I guess, but who does that?
+	files = []
+
+	data = read_file(cue_path).decode('utf8', errors='backslashreplace')
+	
+	current_file = None
+	current_mode = None
+
+	for line in data.splitlines():
+		
+		file_match = cue_file_line_regex.match(line)
+		if file_match:
+			if current_file and current_mode:
+				files.append((current_file, sector_size_from_cue_mode(current_mode)))
+				current_file = None
+				current_mode = None
+
+			current_file = file_match['name'] if file_match['name'] else file_match['name_unquoted']
+		else:
+			#Hhhhhhhhh what am I even doing here? This is like... assuming 1 mode for each file? That can't be right
+			if not current_mode:
+				track_match = cue_track_line_regex.match(line)
+				if track_match:
+					current_mode = track_match['mode']
+		
+	files.append((current_file, sector_size_from_cue_mode(current_mode)))
+
+	return files
+
+def sector_size_from_cue_mode(mode):
+	try:
+		return int(mode.split('/')[-1])
+	except ValueError:
+		return 0
+
 def read_mode_1_cd(path, sector_size, seek_to=0, amount=1):
 	if sector_size == 2048:
 		return read_file(path, seek_to=seek_to, amount=amount)
@@ -45,7 +86,7 @@ def sectored_read(path, raw_header_size, raw_footer_size, data_size, seek_to=0, 
 	raw_count = (raw_end - start) + 1 
 
 	number_of_sectors = int(math.ceil((raw_count - amount) / ((raw_header_size + raw_footer_size) + 1)))
-	
+
 	if number_of_sectors == 1:
 		return read_file(path, seek_to=start, amount=amount)
 	
@@ -69,7 +110,7 @@ def sectored_read(path, raw_header_size, raw_footer_size, data_size, seek_to=0, 
 	return result
 
 def cooked_position_to_real(cooked_position, raw_header_size, raw_footer_size, cooked_sector_size):
-	sector_count = int(math.ceil(cooked_position / cooked_sector_size))
+	sector_count = cooked_position // cooked_sector_size
 	total_header_size = raw_header_size * (sector_count + 1)
 	total_footer_size = raw_footer_size * sector_count
 	return cooked_position + total_header_size + total_footer_size

@@ -1,7 +1,9 @@
 import sys
 import re
 from datetime import datetime
+import os
 
+import common
 from metadata import SaveType, PlayerInput, InputType
 from .sega_common import licensee_codes
 
@@ -11,8 +13,8 @@ copyright_regex = re.compile(r'\(C\)(\S{4}.)(\d{4})\.(.{3})')
 t_with_zero = re.compile('^T-0')
 t_not_followed_by_dash = re.compile('^T(?!-)')
 acceptable_peripherals = set('046ABCDFGJKLMPRTV')
-def add_megadrive_metadata(game):
-	header = game.rom.read(0x100, 0x100)
+
+def add_megadrive_info(game, header):
 	try:
 		console_name = header[:16].decode('ascii')
 	except UnicodeDecodeError:
@@ -110,7 +112,24 @@ def add_megadrive_metadata(game):
 
 	save_id = header[0xb0:0xb4]
 	#Apparently... what the heck
+	#FIXME: This seems to be different on Mega CD. I need to handle it differently anyway, since it should be SaveType.Internal
 	game.metadata.save_type = SaveType.Cart if save_id[:2] == b'RA' else SaveType.Nothing
 	
 
 	#Hmm... get regions from [0xfd:0xff] or nah
+
+def add_megadrive_metadata(game):
+	if game.rom.extension == 'cue':
+		cue_files = [(f, sector_size) for f, sector_size in common.parse_cue_sheet(game.rom.path) if sector_size]
+		if not cue_files:
+			#The disc probably won't work, but I'll burn that bridge when it happens
+			return
+		#I think track 1 is always what we want.. seems like it's the only non-data track, anyway, this should do the trick
+		first_track, sector_size = cue_files[0]
+		if not first_track.startswith('/'):
+			first_track = os.path.join(game.folder, first_track)
+		header = common.read_mode_1_cd(first_track, sector_size, 0x100, 0x100)
+	else:
+		header = game.rom.read(0x100, 0x100)
+	
+	add_megadrive_info(game, header)

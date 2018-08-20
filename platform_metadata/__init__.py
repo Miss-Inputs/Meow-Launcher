@@ -32,10 +32,7 @@ from platform_metadata.wonderswan import add_wonderswan_metadata
 #TODO: Stuff I know we can get due to being implemented in ROMniscience
 #Atari 5200: Year (unreliable, has Y2K bug. It's actually just the 3rd and 4th digit stored as 5200 characters, and then printing 19 + those characters)
 #ColecoVision: Year (unreliable, from copyright string on title screen), author (also unreliable and from copyright string; and in uppercase so you'd probably wanna call .titlecase() or whatsitcalled or something)
-
-#Stuff which would require robust CD handling:
 #Saturn: Input method (normal/analog/mouse/keyboard/wheel, multiple supported), region, author, product code, year
-#Mega CD: Reuse Megadrive stuff
 
 def nothing_interesting(game):
 	#TODO: Gonna have to dismantle this to add number of buttons
@@ -61,6 +58,7 @@ helpers = {
 	'Game Gear': get_sms_metadata,
 	'GBA': add_gba_metadata,
 	'Master System': get_sms_metadata,
+	'Mega CD': add_megadrive_metadata,
 	'Mega Drive': add_megadrive_metadata,
 	'Mega Duck': nothing_interesting,
 	'N64': add_n64_metadata,
