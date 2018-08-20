@@ -329,6 +329,13 @@ def get_mednafen_nes_command_line(game, _):
 			return None
 
 	return make_mednafen_command_line('nes')
+
+def get_reicast_command_line(game, _):
+	if game.metadata.specific_info.get('Uses-Windows-CE', False):
+		if debug:
+			print(game.rom.path, 'is not supported because it uses Windows CE')
+		return None
+	return 'reicast -config x11:fullscreen=1 $<path>'
 	
 emulators = {
 	'Citra': Emulator(get_citra_command_line, ['3ds', 'cxi', '3dsx'], []),
@@ -353,7 +360,7 @@ emulators = {
 	#Puts all the config files in the current directory, which is why there's a wrapper below which you probably want to use instead of this
 	'PokeMini (wrapper)': Emulator('mkdir -p ~/.config/PokeMini && cd ~/.config/PokeMini && PokeMini -fullscreen $<path>', ['min'], ['zip'], True),
 	'PPSSPP': Emulator('ppsspp-qt $<path>', ['iso', 'pbp', 'cso'], []),
-	'Reicast': Emulator('reicast -config x11:fullscreen=1 $<path>', ['gdi', 'cdi', 'chd'], []),
+	'Reicast': Emulator(get_reicast_command_line, ['gdi', 'cdi', 'chd'], []),
 	'Snes9x': Emulator('snes9x-gtk $<path>', ['sfc', 'smc', 'swc'], ['zip', 'gz']),
 	#Slows down on toaster for a lot of intensive games e.g.  SuperFX.  Can't set fullscreen mode from the command line so you have
 	#to set up that yourself; GTK port can't do Sufami Turbo due to lacking multi-cart support that Windows has, MAME can
