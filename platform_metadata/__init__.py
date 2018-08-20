@@ -20,6 +20,7 @@ from platform_metadata.neo_geo_pocket import add_ngp_metadata
 from platform_metadata.nes import add_nes_metadata
 from platform_metadata.pokemon_mini import add_pokemini_metadata
 from platform_metadata.psp import add_psp_metadata
+from platform_metadata.saturn import add_saturn_metadata
 from platform_metadata.snes import add_snes_metadata
 from platform_metadata.vectrex import add_vectrex_metadata
 from platform_metadata.virtual_boy import add_virtual_boy_metadata
@@ -32,7 +33,6 @@ from platform_metadata.wonderswan import add_wonderswan_metadata
 #TODO: Stuff I know we can get due to being implemented in ROMniscience
 #Atari 5200: Year (unreliable, has Y2K bug. It's actually just the 3rd and 4th digit stored as 5200 characters, and then printing 19 + those characters)
 #ColecoVision: Year (unreliable, from copyright string on title screen), author (also unreliable and from copyright string; and in uppercase so you'd probably wanna call .titlecase() or whatsitcalled or something)
-#Saturn: Input method (normal/analog/mouse/keyboard/wheel, multiple supported), region, author, product code, year
 
 def nothing_interesting(game):
 	#TODO: Gonna have to dismantle this to add number of buttons
@@ -66,6 +66,7 @@ helpers = {
 	'NES': add_nes_metadata,
 	'Pokemon Mini': add_pokemini_metadata,
 	'PSP': add_psp_metadata,
+	'Saturn': add_saturn_metadata,
 	'SNES': add_snes_metadata,
 	'Vectrex': add_vectrex_metadata,
 	'Virtual Boy': add_virtual_boy_metadata,
