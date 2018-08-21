@@ -1,5 +1,6 @@
 import math
 import re
+import os
 
 from common import read_file
 
@@ -43,6 +44,17 @@ def sector_size_from_cue_mode(mode):
 		return int(mode.split('/')[-1])
 	except ValueError:
 		return 0
+
+def get_first_data_cue_track(cue_path):
+	cue_files = [(f, sector_size) for f, sector_size in parse_cue_sheet(cue_path) if sector_size]
+	if not cue_files:
+		#The disc probably won't work, but I'll burn that bridge when it happens
+		return None
+	first_track, sector_size = cue_files[0]
+	if not first_track.startswith('/'):
+		first_track = os.path.join(os.path.dirname(cue_path), first_track)
+
+	return first_track, sector_size
 
 def read_mode_1_cd(path, sector_size, seek_to=0, amount=1):
 	if sector_size == 2048:

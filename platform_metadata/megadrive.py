@@ -120,14 +120,10 @@ def add_megadrive_info(game, header):
 
 def add_megadrive_metadata(game):
 	if game.rom.extension == 'cue':
-		cue_files = [(f, sector_size) for f, sector_size in cd_read.parse_cue_sheet(game.rom.path) if sector_size]
-		if not cue_files:
-			#The disc probably won't work, but I'll burn that bridge when it happens
+		first_track, sector_size = cd_read.get_first_data_cue_track(game.rom.path)
+		if not os.path.isfile(first_track):
+			print(game.rom.path, 'has invalid cuesheet')
 			return
-		#I think track 1 is always what we want.. seems like it's the only non-data track, anyway, this should do the trick
-		first_track, sector_size = cue_files[0]
-		if not first_track.startswith('/'):
-			first_track = os.path.join(game.folder, first_track)
 		try:
 			header = cd_read.read_mode_1_cd(first_track, sector_size, 0x100, 0x100)
 		except NotImplementedError:
