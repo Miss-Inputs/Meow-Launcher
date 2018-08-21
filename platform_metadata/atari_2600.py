@@ -138,18 +138,21 @@ def parse_stella_db(game, game_info):
 		left_controller = game_info['Controller_Left']
 	
 	right_controller = None
+	no_save = True
 	if 'Controller_Right' in game_info:
 		right_controller = game_info['Controller_Right']
 		if right_controller in ('ATARIVOX', 'SAVEKEY'):
 			game.metadata.save_type = SaveType.MemoryCard
 			#If these devices are plugged in, they aren't controllers
 			right_controller = None
-		else:
-			game.metadata.save_type = SaveType.Nothing
+			no_save = False
 
 		if right_controller == 'KIDVID':
 			game.metadata.specific_info['Uses-Kid-Vid'] = True
 			right_controller = None
+	
+	if no_save:
+		game.metadata.save_type = SaveType.Nothing
 	
 	swap_ports = False
 	if 'Controller_SwapPorts' in game_info:
