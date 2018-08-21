@@ -1,7 +1,7 @@
 import os
 import calendar
 
-import common
+import cd_read
 from .sega_common import licensee_codes
 
 def add_saturn_info(game, header):
@@ -49,7 +49,7 @@ def add_saturn_info(game, header):
 
 def add_saturn_metadata(game):
 	if game.rom.extension == 'cue':
-		cue_files = [(f, sector_size) for f, sector_size in common.parse_cue_sheet(game.rom.path) if sector_size]
+		cue_files = [(f, sector_size) for f, sector_size in cd_read.parse_cue_sheet(game.rom.path) if sector_size]
 		if not cue_files:
 			#The disc probably won't work, but I'll burn that bridge when it happens
 			return
@@ -62,14 +62,14 @@ def add_saturn_metadata(game):
 			print(game.rom.path, 'has invalid cuesheet')
 			return
 		try:
-			header = common.read_mode_1_cd(first_track, sector_size, seek_to=0, amount=256)
+			header = cd_read.read_mode_1_cd(first_track, sector_size, seek_to=0, amount=256)
 		except NotImplementedError:
 			return
 	elif game.rom.extension == 'ccd':
 		img_file = os.path.splitext(game.rom.path)[0] + '.img'
 		#I thiiiiiiiiink .ccd/.img always has 2352-byte sectors?
 		try:
-			header = common.read_mode_1_cd(img_file, 2352, seek_to=0, amount=256)
+			header = cd_read.read_mode_1_cd(img_file, 2352, seek_to=0, amount=256)
 		except NotImplementedError:
 			return
 	elif game.rom.extension == 'iso':

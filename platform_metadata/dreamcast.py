@@ -2,7 +2,7 @@ import re
 import os
 import calendar
 
-import common
+import cd_read
 from metadata import SaveType
 from .sega_common import licensee_codes
 
@@ -35,7 +35,7 @@ def add_peripherals_info(game, peripherals):
 
 def add_info_from_main_track(game, track_path, sector_size):
 	try:
-		header = common.read_mode_1_cd(track_path, sector_size, amount=128)
+		header = cd_read.read_mode_1_cd(track_path, sector_size, amount=128)
 	except NotImplementedError:
 		return
 
