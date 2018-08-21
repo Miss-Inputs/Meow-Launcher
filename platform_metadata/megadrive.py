@@ -128,7 +128,10 @@ def add_megadrive_metadata(game):
 		first_track, sector_size = cue_files[0]
 		if not first_track.startswith('/'):
 			first_track = os.path.join(game.folder, first_track)
-		header = common.read_mode_1_cd(first_track, sector_size, 0x100, 0x100)
+		try:
+			header = common.read_mode_1_cd(first_track, sector_size, 0x100, 0x100)
+		except NotImplementedError:
+			return
 	else:
 		header = game.rom.read(0x100, 0x100)
 	

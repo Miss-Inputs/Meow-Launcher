@@ -61,12 +61,17 @@ def add_saturn_metadata(game):
 		if not os.path.isfile(first_track):
 			print(game.rom.path, 'has invalid cuesheet')
 			return
-
-		header = common.read_mode_1_cd(first_track, sector_size, seek_to=0, amount=256)
+		try:
+			header = common.read_mode_1_cd(first_track, sector_size, seek_to=0, amount=256)
+		except NotImplementedError:
+			return
 	elif game.rom.extension == 'ccd':
 		img_file = os.path.splitext(game.rom.path)[0] + '.img'
 		#I thiiiiiiiiink .ccd/.img always has 2352-byte sectors?
-		header = common.read_mode_1_cd(img_file, 2352, seek_to=0, amount=256)
+		try:
+			header = common.read_mode_1_cd(img_file, 2352, seek_to=0, amount=256)
+		except NotImplementedError:
+			return
 	elif game.rom.extension == 'iso':
 		header = game.rom.read(seek_to=0, amount=256)
 	else:
