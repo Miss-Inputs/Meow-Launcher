@@ -3,15 +3,14 @@ from datetime import datetime
 from metadata import CPUInfo, ScreenInfo, Screen
 from common import convert_alphanumeric, NotAlphanumericException
 from .nintendo_common import nintendo_licensee_codes
+import cd_read
 
 #TODO: Maybe get disc number and region code?
 
-def add_gamecube_wii_disc_metadata(game):
-	header = game.rom.read(amount=0x2450)
+def add_gamecube_wii_disc_metadata(game, header):
 	internal_title = header[32:64] #Potentially quite a lot bigger but we don't need that much out of it
 	if internal_title[:28] == b'GAMECUBE HOMEBREW BOOTLOADER':
 		return
-	#Actually, the header is quite a bit bigger than that. We don't really need the filesystem offset or anything like that, though.
 	try:
 		game.metadata.specific_info['Product-Code'] = convert_alphanumeric(header[:4])
 	except NotAlphanumericException:
@@ -67,9 +66,11 @@ def add_gamecube_system_info(game):
 def add_gamecube_metadata(game):
 	add_gamecube_system_info(game)
 
-	if game.rom.extension == 'gcz' or game.rom.extension == 'tgc':
-		#Nuh uh. Not touching weird formats. Not today.
-		return
-	
-	if game.rom.extension == 'iso':
-		add_gamecube_wii_disc_metadata(game)
+	#TODO: TGC, dol
+
+	if game.rom.extension in ('gcz', 'iso'):
+		if game.rom.extension == 'gcz':
+			header = cd_read.read_gcz(game.rom.path, amount=0x2450)
+		elif game.rom.extension == 'iso':
+			header = game.rom.read(amount=0x2450)
+		add_gamecube_wii_disc_metadata(game, header)

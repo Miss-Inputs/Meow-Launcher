@@ -2,6 +2,7 @@ import os
 import xml.etree.ElementTree as ElementTree
 import sys
 
+import cd_read
 from metadata import CPUInfo, ScreenInfo, Screen
 from platform_metadata.gamecube import add_gamecube_wii_disc_metadata
 from .nintendo_common import nintendo_licensee_codes
@@ -84,12 +85,16 @@ def add_wad_metadata(game):
 
 def add_wii_metadata(game):
 	add_wii_system_info(game)
-	if game.rom.extension == 'iso':
-		add_gamecube_wii_disc_metadata(game)
-
+	if game.rom.extension in ('gcz', 'iso'):
+		if game.rom.extension == 'gcz':
+			#Can be a format for Wii discs, though not recommended and uncommon
+			header = cd_read.read_gcz(game.rom.path, amount=0x2450)
+		elif game.rom.extension == 'iso':
+			header = game.rom.read(amount=0x2450)
+	
+		add_gamecube_wii_disc_metadata(game, header)
 	elif game.rom.extension == 'wad':
 		add_wad_metadata(game)
-	
 	elif game.rom.extension in ('dol', 'elf'):
 		xml_path = os.path.join(game.folder, 'meta.xml')
 		if os.path.isfile(xml_path):

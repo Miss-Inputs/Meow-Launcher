@@ -1,6 +1,8 @@
 import math
 import re
 import os
+import struct
+import zlib
 
 from common import read_file
 
@@ -103,3 +105,57 @@ def cooked_position_to_real(cooked_position, raw_header_size, raw_footer_size, c
 	total_header_size = raw_header_size * (sector_count + 1)
 	total_footer_size = raw_footer_size * sector_count
 	return cooked_position + total_header_size + total_footer_size
+
+def read_gcz(path, seek_to=0, amount=-1):
+	gcz_header = read_file(path, amount=32)
+	compressed_size = int.from_bytes(gcz_header[8:16], 'little')
+	num_blocks = int.from_bytes(gcz_header[28:32], 'little')
+	block_size = int.from_bytes(gcz_header[24:28], 'little')
+	
+	#High bit indicates if compressed
+	block_pointers = struct.unpack('<' + ('Q' * num_blocks), read_file(path, seek_to=32, amount=8 * num_blocks))
+
+	first_block = seek_to // block_size
+	end = seek_to + amount
+	blocks_to_read = (((end - 1) // block_size) + 1) - first_block
+	remaining = amount
+
+	data = b''
+
+	for i in range(first_block, first_block + blocks_to_read):
+		position_in_block = seek_to - (i * block_size)
+		bytes_to_read = block_size - position_in_block
+		if bytes_to_read > remaining:
+			bytes_to_read = remaining
+		
+		block = get_gcz_block(path, compressed_size, block_pointers, i)
+		data += block[position_in_block:position_in_block + bytes_to_read]
+
+		remaining -= bytes_to_read
+
+	return data
+
+def get_compressed_gcz_block_size(compressed_size, block_pointers, block_num):
+	start = block_pointers[block_num]
+	if block_num < (len(block_pointers) - 1):
+		return block_pointers[block_num + 1] - start
+	else:
+		return compressed_size - start
+
+def get_gcz_block(gcz_path, compressed_size, block_pointers, block_num):
+	#Right after the pointers and then the hashes
+	data_offset = 32 + (8 * len(block_pointers)) + (4 * len(block_pointers))
+	
+	compressed = True
+	compressed_block_size = get_compressed_gcz_block_size(compressed_size, block_pointers, block_num)
+	offset = data_offset + block_pointers[block_num]
+	
+	if offset & (1 << 63):
+		compressed = False
+		offset &= ~(1 << 63)
+
+	buf = read_file(gcz_path, seek_to=offset, amount=compressed_block_size)
+
+	if compressed:
+		return zlib.decompress(buf)
+	return buf

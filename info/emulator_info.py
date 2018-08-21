@@ -279,6 +279,8 @@ def make_mame_speccy_command_line(game, _):
 
 def get_dolphin_command_line(game, _):
 	if game.metadata.specific_info.get('No-Disc-Magic', False):
+		if debug:
+			print(game.rom.path, 'has no disc magic')
 		return None
 
 	return 'dolphin-emu -b -e $<path>'
