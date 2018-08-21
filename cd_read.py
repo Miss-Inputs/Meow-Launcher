@@ -139,8 +139,8 @@ def get_compressed_gcz_block_size(compressed_size, block_pointers, block_num):
 	start = block_pointers[block_num]
 	if block_num < (len(block_pointers) - 1):
 		return block_pointers[block_num + 1] - start
-	else:
-		return compressed_size - start
+	
+	return compressed_size - start
 
 def get_gcz_block(gcz_path, compressed_size, block_pointers, block_num):
 	#Right after the pointers and then the hashes

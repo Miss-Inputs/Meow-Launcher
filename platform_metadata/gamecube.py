@@ -1,9 +1,9 @@
 from datetime import datetime
 
+import cd_read
 from metadata import CPUInfo, ScreenInfo, Screen
 from common import convert_alphanumeric, NotAlphanumericException
 from .nintendo_common import nintendo_licensee_codes
-import cd_read
 
 #TODO: Maybe get disc number and region code?
 
