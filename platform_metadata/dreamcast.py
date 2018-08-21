@@ -28,9 +28,7 @@ def add_peripherals_info(game, peripherals):
 	game.metadata.specific_info['Uses-Analog-Vertical'] = (peripherals & (1 << 22)) > 0
 	game.metadata.specific_info['Uses-Expanded-Analog-Horizontal'] = (peripherals & (1 << 23)) > 0
 	game.metadata.specific_info['Uses-Expanded-Analog-Vertical'] = (peripherals & (1 << 24)) > 0
-	game.metadata.specific_info['Supports-Gun'] = (peripherals & (1 << 25)) > 0
-	game.metadata.specific_info['Supports-Mouse'] = (peripherals & (1 << 26)) > 0
-	game.metadata.specific_info['Supports-Keyboard'] = (peripherals & (1 << 27)) > 0
+	game.metadata.specific_info['Supports-Keyboard'] = (peripherals & (1 << 25)) > 0
 		
 
 def add_info_from_main_track(game, track_path, sector_size):
