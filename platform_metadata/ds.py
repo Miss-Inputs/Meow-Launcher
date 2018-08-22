@@ -39,20 +39,19 @@ def add_ds_system_info(game):
 	screen_info.screens = [top_screen, bottom_screen]
 	game.metadata.screen_info = screen_info
 
+def convert_ds_colour_to_rgba(colour, is_transparent):
+	red = (colour & 0b_00000_00000_11111) << 3
+	green = (colour & 0b_00000_11111_00000) >> 2
+	blue = (colour & 0b_11111_00000_00000) >> 7
+	
+	return (red, green, blue, 0 if is_transparent else 0xff)
+
 def decode_icon(bitmap, palette):
 	icon = Image.new('RGBA', (32, 32))
 	
 	rgb_palette = [None] * 16
 	for i, colour in enumerate(palette):
-		#Convert from DS colour format to normal RGB
-		red = (colour & 0b_00000_00000_11111) << 3
-		green = (colour & 0b_00000_11111_00000) >> 2
-		blue = (colour & 0b_11111_00000_00000) >> 7
-
-		alpha = 0xff
-		if i == 0:
-			alpha = 0
-		rgb_palette[i] = (red, green, blue, alpha)
+		rgb_palette[i] = convert_ds_colour_to_rgba(colour, i == 0)
 
 	pos = 0
 	for tile_y in range(0, 4):
@@ -65,6 +64,22 @@ def decode_icon(bitmap, palette):
 					icon.putpixel((pixel_x + 1, pixel_y), rgb_palette[(bitmap[pos] & 0xf0) >> 4])
 					pos += 1
 	return icon
+
+def parse_dsi_region_flags(region_flags):
+	regions = []
+	if region_flags & 1:
+		regions.append(get_region_by_name('Japan'))
+	if region_flags & 2:
+		regions.append(get_region_by_name('USA'))
+	if region_flags & 4:
+		regions.append(get_region_by_name('Europe'))
+	if region_flags & 8:
+		regions.append(get_region_by_name('Australia'))
+	if region_flags & 16:
+		regions.append(get_region_by_name('China'))
+	if region_flags & 32:
+		regions.append(get_region_by_name('Korea'))
+	return regions
 
 def add_ds_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -103,26 +118,15 @@ def add_ds_metadata(game):
 		if region_flags < 0xffff0000:
 			#If they're set any higher than this, it's region free
 			#GBATEK says region free is 0xffffffff specifically but Pokemon gen 5 is 0xffffffef so who knows
-			regions = []
-			if region_flags & 1:
-				regions.append(get_region_by_name('Japan'))
-			if region_flags & 2:
-				regions.append(get_region_by_name('USA'))
-			if region_flags & 4:
-				regions.append(get_region_by_name('Europe'))
-			if region_flags & 8:
-				regions.append(get_region_by_name('Australia'))
-			if region_flags & 16:
-				regions.append(get_region_by_name('China'))
-			if region_flags & 32:
-				regions.append(get_region_by_name('Korea'))
-			game.metadata.regions = regions
+			#TODO: Wait should I set region to World if it's a region free thing or nah
+			game.metadata.regions = parse_dsi_region_flags(region_flags)
 	else:
 		region = header[29]
 		if region == 0x40:
 			game.metadata.regions = [get_region_by_name('Korea')]
 		elif region == 0x80:
 			game.metadata.regions = [get_region_by_name('China')]
+			game.metadata.specific_info['Is-iQue'] = True
 		#If 0, could be anywhere else
 	game.metadata.revision = header[30]
 
