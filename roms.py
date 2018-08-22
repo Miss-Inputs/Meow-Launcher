@@ -150,6 +150,78 @@ def add_metadata(game):
 	
 	get_metadata_from_tags(game)
 
+
+def add_engine_metadata(game):
+	game.metadata.extension = game.file.extension
+	
+	if game.metadata.platform in platform_metadata.helpers:
+		platform_metadata.helpers[game.metadata.platform](game)
+
+class EngineFile():
+	def __init__(self, path):
+		self.path = path
+		self.original_name = os.path.basename(path)
+		self.name, self.extension = os.path.splitext(self.original_name)
+
+		if self.extension.startswith('.'):
+			self.extension = self.extension[1:]
+		self.extension = self.extension.lower()
+
+class EngineGame():
+	def __init__(self, file, engine, folder):
+		self.file = file
+		self.engine = engine
+		self.metadata = metadata.Metadata()
+		self.metadata.categories = []
+		self.folder = folder
+		self.icon = None
+
+	def get_command_line(self, system_config):
+		return self.engine.get_command_line(self, system_config.other_config)
+
+	def make_launcher(self, system_config):
+		command_line = self.get_command_line(system_config)
+
+		launchers.make_launcher(command_line, self.file.name, self.metadata, {'Full-Path': self.file.path}, self.icon)
+
+def try_engine(system_config, engine, base_dir, root, name):
+	path = os.path.join(root, name)
+
+	file = EngineFile(path)
+	game = EngineGame(file, engine, root)
+
+	game.metadata.categories = [i for i in root.replace(base_dir, '').split('/') if i]
+
+	if not engine.is_game_data(file):
+		return None
+
+	add_engine_metadata(game)
+
+	if not game.get_command_line(system_config):
+		return None
+
+	return game
+
+def process_engine_file(system_config, file_dir, root, name):
+	game = None
+	
+	engine_name = None
+	potential_engines = system_config.chosen_emulators
+	for potential_engine in potential_engines:
+		if potential_engine not in emulator_info.engines:
+			continue
+		engine_name = potential_engine
+		game = try_engine(system_config, emulator_info.engines[potential_engine], file_dir, root, name)
+		if game:
+			break
+
+	if not game:
+		return
+
+	game.metadata.emulator_name = engine_name 
+			
+	game.make_launcher(system_config)
+
 class Rom():
 	def __init__(self, path):
 		self.path = path
@@ -294,9 +366,7 @@ def sort_m3u_first():
 	return Sorter
 
 used_m3u_filenames = []
-def process_system(system_config):
-	if system_config.name in ('Mac', 'DOS'):
-		return
+def process_emulated_system(system_config):
 	for rom_dir in system_config.paths:
 		for root, _, files in os.walk(rom_dir):
 			if common.starts_with_any(root + os.sep, config.ignored_directories):
@@ -315,6 +385,24 @@ def process_system(system_config):
 						continue
 			
 				process_file(system_config, rom_dir, root, name)
+
+def process_engine_system(system_config, game_info):
+	for file_dir in system_config.paths:
+		if game_info.uses_folders:
+			for root, dirs, _ in os.walk(file_dir):
+				for d in dirs:
+					process_engine_file(system_config, file_dir, root, d)
+		else:
+			for root, _, files in os.walk(file_dir):
+				for f in files:
+					process_engine_file(system_config, file_dir, root, f)
+
+def process_system(system_config):
+	if system_config.name in [system.name for system in system_info.systems]:
+		process_emulated_system(system_config)
+	elif system_config.name in system_info.games_with_engines:
+		process_engine_system(system_config, system_info.games_with_engines[system_config.name])	
+	#TODO: Perhaps warn user if system_config.name is not one of these, but also not arcade/DOS/Mac/etc
 
 def process_systems():
 	excluded_systems = []

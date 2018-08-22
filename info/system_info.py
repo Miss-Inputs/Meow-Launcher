@@ -178,9 +178,17 @@ systems = [
 	System('FM-7', 'fm7', ['fm7_cass', 'fm7_disk', 'fm77av'], []),
 ]
 
+class GameWithEngine():
+	def __init__(self, name, engines, uses_folders):
+		self.name = name
+		self.engines = engines	
+		self.uses_folders = uses_folders
+games_with_engines = {
+	'Doom': GameWithEngine('Doom', ['PrBoom+'], False),
+}
+
 #TODO: Those should just be considered emulated systems, need to add these as well:
 #Arcade: I guess it's not an array, it's just MAME
-#Engines: Doom, later ScummVM and Quake... these may need to be thought about differently
 #Computers: Mac, DOS (well, they're emulated too, but differently than the above systems)
 #Other: J2ME, Flash
 #This allows us to organize supported emulators easily and such

@@ -154,13 +154,6 @@ def build_c64_command_line(game, _):
 
 	system = find_c64_system(game)
 	return make_mame_command_line(system, 'cart', {'joy1': 'joybstr', 'joy2': 'joybstr', 'iec8': '""'}, True)
-	
-def make_prboom_plus_command_line(_, other_config):
-	if 'save_dir' in other_config:
-		return 'prboom-plus -save %s -iwad $<path>' % shlex.quote(other_config['save_dir'])
-
-	#Fine don't save then, nerd
-	return 'prboom-plus -iwad $<path>'
 
 def make_mgba_command_line(game, _):
 	command_line = 'mgba-qt -f'
@@ -532,9 +525,29 @@ emulators = {
 	#	(Notable that Megadrive can do Sonic & Knuckles)
 	#N64: Does not do PAL at all. The game might even tell you off if it's a PAL release
 	#PC Engine: Need to select between pce and tg16 depending on region, -cdrom and -cart slots, and sgx accordingly
+}
 
-	'PrBoom+': Emulator(make_prboom_plus_command_line, ['wad'], []),
-	#TODO: Not an emulator, it's a game engine, should be organized differently. It won't really matter though until we start getting into other game engines that sort of work out like emulators and ROMs and consoles.
+def make_prboom_plus_command_line(_, other_config):
+	if 'save_dir' in other_config:
+		return 'prboom-plus -save %s -iwad $<path>' % shlex.quote(other_config['save_dir'])
+
+	#Fine don't save then, nerd
+	return 'prboom-plus -iwad $<path>'
+
+class GameEngine():
+	#Not really emulators, but files come in and games come out. 
+	def __init__(self, command_line, is_game_data):
+		self.command_line = command_line
+		self.is_game_data = is_game_data #This is supposed to be a lambda but I can't figure out how to word it so that's apparent at first glance
+
+	def get_command_line(self, game, other_config):
+		if callable(self.command_line):
+			return self.command_line(game, other_config)
+		
+		return self.command_line
+
+engines = {
+	'PrBoom+': GameEngine(make_prboom_plus_command_line, lambda file: file.extension == 'wad')
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
 }
 
