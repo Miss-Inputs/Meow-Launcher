@@ -547,8 +547,10 @@ class GameEngine():
 		return self.command_line
 
 engines = {
-	'PrBoom+': GameEngine(make_prboom_plus_command_line, lambda file: file.extension == 'wad')
+	'PrBoom+': GameEngine(make_prboom_plus_command_line, lambda file: file.extension == 'wad'),
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
+	'Darkplaces': GameEngine('darkplaces-glx -nostdout -fullscreen -basedir $<path>', lambda folder: folder.contains_subfolder('id1'))
+	#TODO: Make this work with expansion packs and stuff (this will most definitely only work with base Quake), I haven't bought them yet
 }
 
 def make_basilisk_ii_command_line(app, other_config):

@@ -235,6 +235,10 @@ paths =
 emulators = 
 save_dir = 
 
+[Quake]
+paths = 
+emulators = 
+
 [Coleco Adam]
 paths = 
 emulators = 

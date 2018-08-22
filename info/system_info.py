@@ -10,6 +10,10 @@ def get_system_by_name(name):
 		if system.name == name:
 			return system
 
+	for k, v in games_with_engines.items():
+		if k == name:
+			return v
+
 	return None
 
 def get_mame_driver_by_system_name(name):
@@ -185,6 +189,7 @@ class GameWithEngine():
 		self.uses_folders = uses_folders
 games_with_engines = {
 	'Doom': GameWithEngine('Doom', ['PrBoom+'], False),
+	'Quake': GameWithEngine('Quake', ['Darkplaces'], True),
 }
 
 #TODO: Those should just be considered emulated systems, need to add these as well:

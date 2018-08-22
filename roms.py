@@ -167,6 +167,12 @@ class EngineFile():
 			self.extension = self.extension[1:]
 		self.extension = self.extension.lower()
 
+	def contains_subfolder(self, name):
+		if not os.path.isdir(self.path):
+			return
+
+		return os.path.isdir(os.path.join(self.path, name))
+
 class EngineGame():
 	def __init__(self, file, engine, folder):
 		self.file = file
@@ -180,7 +186,8 @@ class EngineGame():
 		return self.engine.get_command_line(self, system_config.other_config)
 
 	def make_launcher(self, system_config):
-		command_line = self.get_command_line(system_config)
+		base_command_line = self.get_command_line(system_config)
+		command_line = base_command_line.replace('$<path>', shlex.quote(self.file.path))
 
 		launchers.make_launcher(command_line, self.file.name, self.metadata, {'Full-Path': self.file.path}, self.icon)
 
