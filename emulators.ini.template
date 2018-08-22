@@ -255,6 +255,10 @@ emulators =
 paths = 
 emulators = 
 
+[PC-88]
+paths = 
+emulators = 
+
 [Mac]
 paths =
 emulators =

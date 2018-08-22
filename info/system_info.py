@@ -97,6 +97,7 @@ systems = [
 	System('Coleco Adam', 'adam', ['adam_cart', 'adam_cass', 'adam_flop'], ['MAME (Coleco Adam)']),
 	System('MSX2', 'fsa1wsx', ['msx2_cart', 'msx2_cass', 'msx2_flop'], ['MAME (MSX2)']), 
 	System('MSX', 'svi738', ['msx1_cart', 'msx1_cass', 'msx1_flop'], ['MAME (MSX1)', 'MAME (MSX2)']), 
+	System('PC-88', 'pc8801', ['pc8801_cass', 'pc8801_flop', 'pc8201', 'pc88va'], ['MAME (PC-88)']),
 	System('Sharp X1', 'x1', ['x1_cass', 'x1_flop'], ['MAME (Sharp X1)']), 
 	System('Sharp X68000', 'x68000', ['x68k_flop'], ['MAME (Sharp X68000)']),
 	System('Sord M5', 'm5', ['m5_cart', 'm5_cass', 'm5_flop'], ['MAME (Sord M5)']), 
@@ -128,6 +129,8 @@ systems = [
 	System('Leapster', 'leapster', ['gameking'], []),
 	System('Microvision', 'microvsn', ['microvision'], []),
 	System('N-Gage', None, [], []),
+	System('Magnavox Odyssey²', 'odyssey2', ['odyssey2'], []),
+	#O2EM doesn't really work; MAME isn't completely broken but a lot of games have broken graphics so like... ehh
 	System('PC Booter', 'ibm5150', [], []),
 	#This one is a bit tricky... both MAME and PCem have issues emulating a joystick. Do the games actually just suck like that? I don't know. The majority of these games assume a 4.77MHz CPU, of course. The software list is ibm5150 but that has some DOS games too, just to be confusing.
 	System('Pippin', 'pippin', ['pippin', 'pippin_flop'], []),
@@ -153,7 +156,7 @@ systems = [
 	System('CreatiVision', 'crvision', ['crvision'], []),
 	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it
 	System('Mattel Aquarius', 'aquarius', [], []),
-	#Controllers aren't emulated yet
+	#Controllers aren't emulated yet (and they're necessary for a lot of things)
 	System('PocketStation', 'pockstat', [], []),
 	#Makes you set time and date each time
 	System('Dreamcast VMU', 'svmu', ['svmu'], []),
@@ -173,12 +176,6 @@ systems = [
 	System('Orion 128', 'orion128', ['orion_cart', 'orion_cass', 'orion_flop'], []),
 	System('PC-6001', 'pc6001', [], []),
 	System('FM-7', 'fm7', ['fm7_cass', 'fm7_disk', 'fm77av'], []),
-
-	#Gonna try these again but they weren't working last time I checked
-	System('Magnavox Odyssey²', 'odyssey2', ['odyssey2'], []),
-	#O2EM doesn't really work; MAME should though, there's nothing that suggests emulation is inaccurate or some software is unsupported
-	System('PC-88', 'pc8801', ['pc8801_cass', 'pc8801_flop', 'pc8201', 'pc88va'], []),
-	#On the wiki I said "too many various issues with various games" which isn't really a good enough description of why it does or doesn't work
 ]
 
 #TODO: Those should just be considered emulated systems, need to add these as well:

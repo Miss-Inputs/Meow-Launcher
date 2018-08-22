@@ -477,6 +477,8 @@ emulators = {
 	'MAME (NES)': MameSystem(make_mame_nes_command_line, ['nes', 'unf', 'unif', 'fds']),
 	'MAME (Pokemon Mini)': MameSystem(make_mame_command_line('pokemini', 'cart'), ['bin', 'min']),
 	#Wouldn't recommend yet as it has no sound, even if most people would probably turn the sound off in real life
+	'MAME (PC-88)': MameSystem(make_mame_command_line('pc8801', 'flop1'), mame_floppy_formats),
+	#TODO: Tapes, and potentially look into other models. All the PC-88 models claim to be broken, but the base one plays the games, so that's good enough in my book. Some might use BASIC though so I'd have to specially handle that?
 	'MAME (PV-1000)': MameSystem(make_mame_command_line('pv1000', 'cart'), ['bin']),
 	'MAME (PV-2000)': MameSystem(make_mame_command_line('pv2000', 'cart', has_keyboard=True), ['bin']),
 	#Not the same as the PV-1000!  Although it might as well be, except it's a computer, and they aren't compatible with each other.  MAME says it
