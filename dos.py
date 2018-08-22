@@ -2,7 +2,6 @@
 
 import sys
 import os
-import configparser
 
 import config
 from info.emulator_info import dos_emulators
