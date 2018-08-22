@@ -169,7 +169,7 @@ class EngineFile():
 
 	def contains_subfolder(self, name):
 		if not os.path.isdir(self.path):
-			return
+			return False
 
 		return os.path.isdir(os.path.join(self.path, name))
 
