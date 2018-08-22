@@ -200,7 +200,7 @@ def add_fds_metadata(game):
 	if day >= 1 and day <= 28:
 		game.metadata.day = day
 
-def add_ines_metadata(game):
+def add_ines_metadata(game, header):
 	game.metadata.specific_info['Headered'] = True
 	#Some emulators are okay with not having a header if they have something like an internal database, others are not.
 	#Note that \x00 at the end instead of \x1a indicates this is actually Wii U VC, but it's still the same header format
@@ -237,6 +237,6 @@ def add_nes_metadata(game):
 		header = game.rom.read(amount=16)
 		magic = header[:4]
 		if magic == b'NES\x00' or magic == b'NES\x1a':
-			add_ines_metadata(game)
+			add_ines_metadata(game, header)
 		else:
 			game.metadata.specific_info['Headered'] = False
