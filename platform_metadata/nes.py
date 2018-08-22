@@ -177,61 +177,66 @@ def decode_bcd(i):
 	lo = i & 0x0f
 	return (hi * 10) + lo
 
+def add_fds_metadata(game):
+	game.metadata.platform = 'FDS'
+	header = game.rom.read(amount=56)
+	if header[:4] == b'FDS\x1a':
+		header = game.rom.read(seek_to=16, amount=56)
+
+	licensee_code = '{:02X}'.format(header[15])
+	if licensee_code in nintendo_licensee_codes:
+		game.metadata.publisher = nintendo_licensee_codes[licensee_code]
+		
+	game.metadata.revision = header[20]
+	#Uses Showa years (hence 1925), in theory... but then some disks (notably Zelda) seem to use 19xx years, as it has an actual value of 0x86 which results in it being Showa 86 = 2011, but it should be [Feb 21] 1986, so... hmm
+	year = decode_bcd(header[31])
+	if year >= 61 and year <= 99: #Showa 61 = 1986 when the FDS was released. Year > 99 wouldn't be valid BCD, so... I'll check back in 2025 to see if anyone's written homebrew for the FDS in that year and then I'll figure out what I'm doing. But homebrew right now seems to leave the year as 00 anyway, though
+		year = 1925 + year
+		game.metadata.year = year
+	month = decode_bcd(header[32])
+	if month >= 1 and month <= 12:
+		game.metadata.month = calendar.month_name[month]
+	day = decode_bcd(header[33])
+	if day >= 1 and day <= 28:
+		game.metadata.day = day
+
+def add_ines_metadata(game):
+	game.metadata.specific_info['Headered'] = True
+	#Some emulators are okay with not having a header if they have something like an internal database, others are not.
+	#Note that \x00 at the end instead of \x1a indicates this is actually Wii U VC, but it's still the same header format
+	flags = header[6]
+	has_battery = (flags & 2) > 0
+	game.metadata.save_type = SaveType.Cart if has_battery else SaveType.Nothing
+	mapper_lower_nibble = (flags & 0b1111_0000) >> 4
+
+	more_flags = header[7]
+	if more_flags & 1:
+		game.metadata.platform = 'VS Unisystem'
+	elif more_flags & 2:
+		game.metadata.platform = 'PlayChoice-10'
+			
+	mapper_upper_nibble = more_flags & 0b1111_0000
+	is_nes_2_0 = ((more_flags & 0b_00_00_11_00) >> 2) == 2
+	if is_nes_2_0:
+		game.metadata.specific_info['Header-Format'] = 'NES 2.0'
+		#Heck
+	else:
+		game.metadata.specific_info['Header-Format'] = 'iNES'
+		mapper = mapper_lower_nibble | mapper_upper_nibble
+		game.metadata.specific_info['Mapper-Number'] = mapper
+		if mapper in ines_mappers:
+			game.metadata.specific_info['Mapper'] = ines_mappers[mapper]
+		else:
+			game.metadata.specific_info['Mapper'] = 'iNES Mapper %d' % mapper
+	#TV type apparently isn't used much despite it being part of the iNES specification, and looking at a lot of headered ROMs it does seem that they are all NTSC other than a few that say PAL that shouldn't be, so yeah, I wouldn't rely on it. Might as well just use the filename.
+
 def add_nes_metadata(game):
 	if game.rom.extension == 'fds':
-		game.metadata.platform = 'FDS'
-		header = game.rom.read(amount=56)
-		if header[:4] == b'FDS\x1a':
-			header = game.rom.read(seek_to=16, amount=56)
-
-		licensee_code = '{:02X}'.format(header[15])
-		if licensee_code in nintendo_licensee_codes:
-			game.metadata.publisher = nintendo_licensee_codes[licensee_code]
-		
-		game.metadata.revision = header[20]
-		#Uses Showa years (hence 1925), in theory... but then some disks (notably Zelda) seem to use 19xx years, as it has an actual value of 0x86 which results in it being Showa 86 = 2011, but it should be [Feb 21] 1986, so... hmm
-		year = decode_bcd(header[31])
-		if year >= 61 and year <= 99: #Showa 61 = 1986 when the FDS was released. Year > 99 wouldn't be valid BCD, so... I'll check back in 2025 to see if anyone's written homebrew for the FDS in that year and then I'll figure out what I'm doing. But homebrew right now seems to leave the year as 00 anyway, though
-			year = 1925 + year
-			game.metadata.year = year
-		month = decode_bcd(header[32])
-		if month >= 1 and month <= 12:
-			game.metadata.month = calendar.month_name[month]
-		day = decode_bcd(header[33])
-		if day >= 1 and day <= 28:
-			game.metadata.day = day
-
+		add_fds_metadata(game)
 	else:
 		header = game.rom.read(amount=16)
 		magic = header[:4]
 		if magic == b'NES\x00' or magic == b'NES\x1a':
-			game.metadata.specific_info['Headered'] = True
-			#Some emulators are okay with not having a header if they have something like an internal database, others are not.
-			#Note that \x00 at the end instead of \x1a indicates this is actually Wii U VC, but it's still the same header format
-			flags = header[6]
-			has_battery = (flags & 2) > 0
-			game.metadata.save_type = SaveType.Cart if has_battery else SaveType.Nothing
-			mapper_lower_nibble = (flags & 0b1111_0000) >> 4
-
-			more_flags = header[7]
-			if more_flags & 1:
-				game.metadata.platform = 'VS Unisystem'
-			elif more_flags & 2:
-				game.metadata.platform = 'PlayChoice-10'
-			
-			mapper_upper_nibble = more_flags & 0b1111_0000
-			is_nes_2_0 = ((more_flags & 0b_00_00_11_00) >> 2) == 2
-			if is_nes_2_0:
-				game.metadata.specific_info['Header-Format'] = 'NES 2.0'
-				#Heck
-			else:
-				game.metadata.specific_info['Header-Format'] = 'iNES'
-				mapper = mapper_lower_nibble | mapper_upper_nibble
-				game.metadata.specific_info['Mapper-Number'] = mapper
-				if mapper in ines_mappers:
-					game.metadata.specific_info['Mapper'] = ines_mappers[mapper]
-				else:
-					game.metadata.specific_info['Mapper'] = 'iNES Mapper %d' % mapper
-			#TV type apparently isn't used much despite it being part of the iNES specification, and looking at a lot of headered ROMs it does seem that they are all NTSC other than a few that say PAL that shouldn't be, so yeah, I wouldn't rely on it. Might as well just use the filename.
+			add_ines_metadata(game)
 		else:
 			game.metadata.specific_info['Headered'] = False
