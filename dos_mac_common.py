@@ -134,3 +134,29 @@ def scan_folders(platform, config_path, scan_function):
 	print('and you will have to configure them yourself, or may be one of several')
 	print('apps and you will have to specify which is which, until I think of')
 	print('a better way to do this.')
+
+def make_launchers(system_config_name, config_path, app_class, emulator_list):
+	system_config = config.get_system_config_by_name(system_config_name)
+	if not system_config:
+		return
+
+	game_list = init_game_list(system_config_name.lower())
+	if not os.path.isfile(config_path):
+		#TODO: Perhaps notify user they have to do ./blah.py --scan to do the thing
+		return
+
+	parser = configparser.ConfigParser(delimiters=('='), allow_no_value=True)
+	parser.optionxform = str
+	parser.read(config_path)
+
+	for path, config_name in parser.items('Apps'):
+		if config_name not in game_list:
+			print('Oh no!', path, 'refers to', config_name, "but that isn't known")
+			continue
+		game_config = game_list[config_name]
+		app_class(path, config_name, game_config).make_launcher(system_config, emulator_list)
+
+	do_unknown = config.launchers_for_unknown_dos_apps if system_config_name == 'DOS' else config.launchers_for_unknown_mac_apps if system_config_name == 'Mac' else False
+	if do_unknown:
+		for unknown, _ in parser.items('Unknown'):
+			app_class(unknown, unknown.split(':')[-1], {}).make_launcher(system_config, emulator_list)

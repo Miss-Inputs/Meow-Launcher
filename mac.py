@@ -16,29 +16,7 @@ class MacApp(dos_mac_common.App):
 		metadata.platform = 'Mac'
 
 def make_mac_launchers():
-	mac_config = config.get_system_config_by_name('Mac')
-	if not mac_config:
-		return
-
-	game_list = dos_mac_common.init_game_list('mac')
-	if not os.path.isfile(config.mac_config_path):
-		#TODO: Perhaps notify user they have to do ./mac.py --scan to do the thing
-		return
-
-	parser = configparser.ConfigParser(delimiters=('='), allow_no_value=True)
-	parser.optionxform = str
-	parser.read(config.mac_config_path)
-
-	for path, config_name in parser.items('Apps'):
-		if config_name not in game_list:
-			print('Oh no!', path, 'refers to', config_name, "but that isn't known")
-			continue
-		game_config = game_list[config_name]
-		MacApp(path, config_name, game_config).make_launcher(mac_config, mac_emulators)
-
-	if config.launchers_for_unknown_mac_apps:
-		for unknown, _ in parser.items('Unknown'):
-			MacApp(unknown, unknown.split(':')[-1], {}).make_launcher(mac_config, mac_emulators)
+	dos_mac_common.make_launchers('Mac', config.mac_config_path, MacApp, mac_emulators)
 
 def scan_app(app, game_list, unknown_games, found_games, ambiguous_games):
 	possible_games = [(game_name, game_config) for game_name, game_config in game_list.items() if game_config['creator_code'] == app['creator']]

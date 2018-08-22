@@ -24,29 +24,7 @@ class DOSApp(dos_mac_common.App):
 				self.icon = os.path.join(base_dir, f)
 
 def make_dos_launchers():
-	dos_config = config.get_system_config_by_name('DOS')
-	if not dos_config:
-		return
-
-	game_list = dos_mac_common.init_game_list('dos')
-	if not os.path.isfile(config.dos_config_path):
-		#TODO: Perhaps notify user they have to do ./dos.py --scan to do the thing
-		return
-
-	parser = configparser.ConfigParser(delimiters=('='), allow_no_value=True)
-	parser.optionxform = str
-	parser.read(config.dos_config_path)
-
-	for path, config_name in parser.items('Apps'):
-		if config_name not in game_list:
-			print('Oh no!', path, 'refers to', config_name, "but that isn't known")
-			continue
-		game_config = game_list[config_name]
-		DOSApp(path, config_name, game_config).make_launcher(dos_config, dos_emulators)
-
-	if config.launchers_for_unknown_dos_apps:
-		for unknown, _ in parser.items('Unknown'):
-			DOSApp(unknown, unknown.split(':')[-1], {}).make_launcher(dos_config, dos_emulators)
+	dos_mac_common.make_launchers('DOS', config.dos_config_path, DOSApp, dos_emulators)
 
 def scan_app(path, exe_name, game_list, unknown_games, found_games, ambiguous_games):
 	possible_games = [(game_name, game_config) for game_name, game_config in game_list.items() if game_config['app_name'].lower() == exe_name]
