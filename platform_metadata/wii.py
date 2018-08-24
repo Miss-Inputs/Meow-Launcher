@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ElementTree
 import sys
 
 import cd_read
+from common import convert_alphanumeric, NotAlphanumericException
 from metadata import CPUInfo, ScreenInfo, Screen
 from platform_metadata.gamecube import add_gamecube_wii_disc_metadata
 from .nintendo_common import nintendo_licensee_codes
@@ -51,12 +52,12 @@ def parse_tmd(game, tmd):
 	#Product code format is like that of GameCube/Wii discs, we could get country or type from it I guess
 	#Title flags: 404-408
 	try:
-		maker_code = tmd[408:410].decode('ascii')
+		maker_code = convert_alphanumeric(tmd[408:410])
 		if maker_code in nintendo_licensee_codes:
 			game.metadata.publisher = nintendo_licensee_codes[maker_code]
 		elif maker_code != '00':
 			game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(maker_code)
-	except UnicodeDecodeError:
+	except NotAlphanumericException:
 		pass
 	#Unused: 410-412
 	#Region code: 412-414, should I do that? (Can't really infer game.metadata.regions though, I guess we can infer TV-Type but that's not really relevant on Wii, you'd want region locking stuff if anything)
