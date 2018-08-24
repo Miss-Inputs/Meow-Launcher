@@ -142,6 +142,7 @@ systems = [
 	System('RCA Studio 2', 'studio2', ['studio2'], []),
 	System("Super A'Can", 'supracan', ['supracan'], []),
 	System('V.Smile', 'vsmile', ['vsmile_cart', 'vsmile_cd', 'vsmileb_cart', 'vsmilem_cart'], []),
+	System('Xbox', 'xbox', [], []),
 	System('Xbox 360', None, [], []),
 	#Xenia requires Windows 8 + Vulkan, somehow I don't think it'd ever run under Wine either
 	System('ZAPit GameWave', None, [], []),
@@ -153,14 +154,20 @@ systems = [
 	#Decaf requires OpenGL 4.5 (even for software rendering it seems)
 
 	#Things that have usability issues
+	System('64DD', 'n64dd', ['n64dd'], []),
+	#Mupen64Plus would work, but right now it has issues with usability that it says right in the readme (so it's not just me picking on them, they say it themselves). Basically you have to have a cart inserted which has the same properties as the 64DD software you want to emulate, and that wouldn't work for our launchering purposes
 	System('Apple IIgs', 'apple2gs', ['apple2gs'], []),
 	#Some games require a hard disk with an OS install and they won't tell you this because of course not, and if you want to autoboot the floppies with a hard drive still in there you have to set it to always boot from slot 5 and it's really annoying and I hate it
 	System('Cybiko', 'cybikov1', [], []),
 	#Quickload slot doesn't seem to actually quickload anything, and seems to require setup each time. V2 and Extreme have same problems
 	System('CreatiVision', 'crvision', ['crvision'], []),
 	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it
+	System('e-Reader', None, ['gba_ereader'], []),
+	#VBA-M works (nothing else emulates e-Reader that I know of), but you have to swipe the card manually, which doesn't really work for a nice launcher thing... and there's not really a way around that at this point in time.
 	System('Mattel Aquarius', 'aquarius', [], []),
 	#Controllers aren't emulated yet (and they're necessary for a lot of things)
+	System('Sega Pico', 'pico', ['pico'], []),
+	#Emulation works in Kega Fusion and MAME, but they don't display the actual book, which would be needed for most of the software to make any sense. Kega Fusion doesn't even have controls to turn the pages, which is needed for stuff
 	System('PocketStation', 'pockstat', [], []),
 	#Makes you set time and date each time
 	System('Dreamcast VMU', 'svmu', ['svmu'], []),
@@ -180,6 +187,34 @@ systems = [
 	System('Orion 128', 'orion128', ['orion_cart', 'orion_cass', 'orion_flop'], []),
 	System('PC-6001', 'pc6001', [], []),
 	System('FM-7', 'fm7', ['fm7_cass', 'fm7_disk', 'fm77av'], []),
+
+	#TODO: Me being lazy, need to check if these actually work or not:
+	System('Amiga', 'a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench', 'cd32', 'cdtv'], []),	
+	System('Apple I', 'apple1', ['apple1'], []),
+	System('Apple II', 'apple2', ['apple2', 'apple2_cass'], []),
+	System('Apple Lisa', 'lisa', ['lisa'], []),
+	System('Atari ST', 'st', ['st_flop', 'st_cart'], []),
+	System('Commodore PET', 'pet4032', [], []),
+	#Unsure which one the "main" driver is, or if some of them count as separate systems. This will require autoboot scripts to do stuff anyway
+	System('G7400', 'g7400', ['g7400'], []),
+	#Probably just has the same problems as Odyssey 2...
+	System('Galaksija', 'galaxyp', ['galaxy'], []),
+	System('VZ-200', 'vz200', ['vz_cass'], []),
+	#There are many different systems in this family, but I'll go with this one, because the software list is named after it
+	System('Luxor ABC80', 'abc80', ['abc80_cass', 'abc80_flop'], []),
+	System('Sam Coupe', 'samcoupe', ['samcoupe_cass', 'samcoupe_flop'], []),
+	System('Tandy CoCo', 'coco3', ['coco_cart', 'coco_flop'], []),
+	#Did I want coco/coco2 instead? Hmm	
+	
+	#Other todos:
+	#Is Acorn Electron the same as BBC Micro for emulation purposes?
+	#Should Amiga CD32 and Commodore CDTV just count as Amiga?
+	#APF Imagination Machine just APF-MP1000 or different?
+	#Are Oric-1 and Oric Atmos software compatible or different things?
+	#Which of Sharp MZ series are software compatible with which?
+	#Which of TI calculators are software compatible with which?
+	#Figure out Thomson MO/TO stuff as well. My head hurts and I feel dizzy so I'm not going to right now
+	#Which TRS-80 model is which?
 ]
 
 class GameWithEngine():
