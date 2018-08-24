@@ -205,11 +205,11 @@ def add_metadata(machine):
 	
 	emulation_status = machine.xml.find('driver').attrib['status']
 	if emulation_status == 'good':
-		machine.metadata.emulation_status = EmulationStatus.Good
+		machine.metadata.specific_info['MAME-Emulation-Status'] = EmulationStatus.Good
 	elif emulation_status == 'imperfect':
-		machine.metadata.emulation_status = EmulationStatus.Imperfect
+		machine.metadata.specific_info['MAME-Emulation-Status'] = EmulationStatus.Imperfect
 	elif emulation_status == 'preliminary':
-		machine.metadata.emulation_status = EmulationStatus.Broken	
+		machine.metadata.specific_info['MAME-Emulation-Status'] = EmulationStatus.Broken	
 
 def add_input_info(machine):
 	#TODO: Yeah, yeah... should actually have a setter on the class

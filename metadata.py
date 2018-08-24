@@ -212,7 +212,6 @@ class InputInfo():
 class Metadata():
 	def __init__(self):
 		#Watch pylint whine that I have "too many instance attributes", I'm calling it now
-		self.emulation_status = EmulationStatus.Unknown
 		self.genre = None
 		self.subgenre = None
 		self.nsfw = False
@@ -243,7 +242,6 @@ class Metadata():
 
 	def to_launcher_fields(self):
 		fields = {
-			'Emulation-Status': self.emulation_status.name if self.emulation_status else None,
 			'Genre': self.genre,
 			'Subgenre': self.subgenre,
 			'NSFW': self.nsfw,
