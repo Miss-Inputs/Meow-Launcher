@@ -39,6 +39,8 @@ def add_ds_system_info(game):
 	screen_info.screens = [top_screen, bottom_screen]
 	game.metadata.screen_info = screen_info
 
+	game.metadata.tv_type = TVSystem.Agnostic
+
 def convert_ds_colour_to_rgba(colour, is_transparent):
 	red = (colour & 0b_00000_00000_11111) << 3
 	green = (colour & 0b_00000_11111_00000) >> 2
@@ -82,7 +84,6 @@ def parse_dsi_region_flags(region_flags):
 	return regions
 
 def add_ds_metadata(game):
-	game.metadata.tv_type = TVSystem.Agnostic
 	add_ds_system_info(game)
 
 	header = game.rom.read(amount=0x200)
