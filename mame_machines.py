@@ -121,6 +121,21 @@ def get_language(basename):
 			
 	return get_language_by_english_name(lang)
 
+def consistentify_manufacturer(manufacturer):
+	#Sometimes, MAME uses two different variations on what is the same exact company. Or formats the name in a way that nobody else does anywhere else.
+	#I'm not going to count regional branches of a company, though.
+	return {
+		'Data East Corporation': 'Data East',
+		'Hudson': 'Hudson Soft',
+		'Kaneko Elc. Co.': 'Kaneko',
+		'Palm': 'Palm Inc',
+		'Sigma Enterprises Inc.': 'Sigma',
+		'Square': 'Squaresoft', #Which is the frickin' right one?
+		'Taito Corporation': 'Taito',
+		'Taito Corporation Japan': 'Taito',
+		'Taito America Corporation': 'Taito America',
+	}.get(manufacturer, manufacturer)
+
 def add_machine_platform(machine):
 	machine.metadata.platform = 'Arcade'
 	category = machine.metadata.categories[0]
@@ -195,14 +210,18 @@ def add_metadata(machine):
 	manufacturer = machine.xml.findtext('manufacturer')
 	match = licensed_arcade_game_regex.fullmatch(manufacturer)
 	if match:
-		machine.metadata.developer = match[1]
-		machine.metadata.publisher = match[2]
+		developer = match[1]
+		publisher = match[2]
 	else:
 		if not manufacturer.startswith(('bootleg', 'hack')):
 			#TODO: Not always correct in cases where manufacturer is formatted as "Developer / Publisher", but then it never was correct, so it's just less not correct, which is fine
-			machine.metadata.developer = manufacturer
-		machine.metadata.publisher = manufacturer
-	
+			developer = manufacturer
+		else:
+			developer = None #It'd be the original not-bootleg game's developer but we can't get that programmatically
+		publisher = manufacturer
+	machine.metadata.developer = consistentify_manufacturer(developer)
+	machine.metadata.publisher = consistentify_manufacturer(publisher)
+
 	emulation_status = machine.xml.find('driver').attrib['status']
 	if emulation_status == 'good':
 		machine.metadata.specific_info['MAME-Emulation-Status'] = EmulationStatus.Good
