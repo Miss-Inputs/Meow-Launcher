@@ -33,6 +33,17 @@ from platform_metadata.wonderswan import add_wonderswan_metadata
 #TODO: Stuff I know we can get due to being implemented in ROMniscience
 #Atari 5200: Year (unreliable, has Y2K bug. It's actually just the 3rd and 4th digit stored as 5200 characters, and then printing 19 + those characters)
 #ColecoVision: Year (unreliable, from copyright string on title screen), author (also unreliable and from copyright string; and in uppercase so you'd probably wanna call .titlecase() or whatsitcalled or something)
+#PSP homebrew: Uhh, product code I guess; retail discs would need me to parse ISO9660 filesystems
+
+#If I had them emulated there can be metadatum extracted, but there's no point implementing them here yet:
+#64DD: Publisher, product code, version
+#e-Reader: Hmm. Not a lot actually, but which "region" (Japan, export, Japan+) would end up being necessary I think
+#Konami Picno: Product code
+#RCA Studio 2 (community-developed .st2 header): developer, product code
+#Sega Pico (same as Megadrive)
+#Wii U: Publisher, icon (if Pillow can do .tga or if that can just be put in .desktop files as an icon natively)
+#Xbox: Publisher, year/month/day; albeit just for executables and not discs
+#Xbox 360: Publisher, icon (for XBLA), number of players (for XBLA), genre (for XBLA)
 
 def nothing_interesting(game):
 	#TODO: Gonna have to dismantle this to add number of buttons
