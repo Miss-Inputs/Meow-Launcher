@@ -31,7 +31,12 @@ class MednafenModule(Emulator):
 			command_line = make_mednafen_command_line(module)
 		Emulator.__init__(self, command_line, supported_extensions, ['zip', 'gz'])
 
-def make_mame_command_line(driver, slot=None, slot_options=None, has_keyboard=False):
+def get_autoboot_script_by_name(name):
+	this_package = os.path.dirname(__file__)
+	root_package = os.path.dirname(this_package)
+	return os.path.join(root_package, 'mame_autoboot', name + '.lua')
+
+def make_mame_command_line(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None):
 	command_line = 'mame -skip_gameinfo'
 	if has_keyboard:
 		command_line += ' -ui_active'
@@ -44,6 +49,9 @@ def make_mame_command_line(driver, slot=None, slot_options=None, has_keyboard=Fa
 
 	if slot:
 		command_line += ' -' + slot + ' $<path>'
+
+	if autoboot_script:
+		command_line += ' -autoboot_script ' + shlex.quote(get_autoboot_script_by_name(autoboot_script))
 
 	return command_line
 
@@ -488,7 +496,7 @@ emulators = {
 	#Apparently has joysticks with no fire button?  Usually space seems to be fire but sometimes 1 is, which is usually
 	#for starting games.  I hate everything.
 	'MAME (Super Game Boy)': MameSystem(make_mame_command_line('supergb2', 'cart'), ['bin', 'gb', 'gbc']),
-	'MAME (Tomy Tutor)': MameSystem(make_mame_command_line('tutor', 'cart', has_keyboard=True), ['bin']),
+	'MAME (Tomy Tutor)': MameSystem(make_mame_command_line('tutor', 'cart', has_keyboard=True, autoboot_script='tomy_tutor'), ['bin']),
 	#Well, at least there's no region crap, though there is pyuuta if you want to read Japanese instead.  The controls in
 	#the menus are a bit wack but I think I've set them up so it should work relatively smoothly, also there's not really
 	#a way to skip the "Graphics/BASIC/Cartridge" screen that I know of so you'll always have to select that

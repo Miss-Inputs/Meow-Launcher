@@ -156,11 +156,13 @@
     <Content Include="config.ini.template" />
     <Content Include="emulators.ini.template" />
     <Content Include="LICENSE" />
+    <Content Include="mame_autoboot\tomy_tutor.lua" />
     <Content Include="name_consistency.ini" />
     <Content Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="info\" />
+    <Folder Include="mame_autoboot\" />
     <Folder Include="platform_metadata\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
