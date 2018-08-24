@@ -497,16 +497,13 @@ emulators = {
 	#for starting games.  I hate everything.
 	'MAME (Super Game Boy)': MameSystem(make_mame_command_line('supergb2', 'cart'), ['bin', 'gb', 'gbc']),
 	'MAME (Tomy Tutor)': MameSystem(make_mame_command_line('tutor', 'cart', has_keyboard=True, autoboot_script='tomy_tutor'), ['bin']),
-	#Well, at least there's no region crap, though there is pyuuta if you want to read Japanese instead.  The controls in
-	#the menus are a bit wack but I think I've set them up so it should work relatively smoothly, also there's not really
-	#a way to skip the "Graphics/BASIC/Cartridge" screen that I know of so you'll always have to select that
+	#Well, at least there's no region crap, though there is pyuuta if you want to read Japanese instead
 	'MAME (VC 4000)': MameSystem(make_mame_command_line('vc4000', 'cart'), ['bin', 'rom']),
 	#There's like 30 different clones of this, and most of them aren't even clones in the MAME sense, they're literally hardware clones. But they're apparently all software-compatible, although the cartridges aren't hardware-compatible, they just contain the same software... so this all gets confusing. Anyway, the software list with all these is named "vc4000" so I guess that's the "main" one, so we'll use that. I'm not sure if there are any PAL/NTSC differences to worry about.
 	#TODO: Quickload slot (.pgm, .tvc)
 	'MAME (Vectrex)': MameSystem(make_mame_command_line('vectrex', 'cart'), ['bin', 'gam', 'vec']),
 	#I wonder if there's a way to set the overlay programmatically...  doesn't look like there's a command line option to
 	#do that.  Also the buttons are kinda wack I must admit, as they're actually a horizontal row of 4
-	#, 'command_line': 'mame megaduck -skip_gameinfo -cart {0}', 'supported_extensions': ['bin'], 'supported_compression': ['7z', 'zip']
 	'MAME (VIC-10)': MameSystem(make_mame_command_line('vic10', 'cart', {'joy1': 'joy', 'joy2': 'joy'}, has_keyboard=True), ['crt', '80', 'e0']),
 	#More similar to the C64 than the VIC-20, need to plug a joystick into both ports because once again games can use
 	#either port and thanks I hate it.  At least there's only one TV type
