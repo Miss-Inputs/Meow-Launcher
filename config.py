@@ -128,8 +128,9 @@ def load_emulator_configs():
 
 		info = system_info.get_system_by_name(system)
 		if info:
+			valid_emulators = info.emulators if isinstance(info, system_info.System) else info.engines if isinstance(info, system_info.GameWithEngine) else []
 			for emulator in emulators:
-				if emulator not in (info.emulators if isinstance(info, system_info.System) else info.engines if isinstance(info, system_info.GameWithEngine) else []):
+				if emulator not in valid_emulators:
 					print('Warning! System {0} is configured to use {1} which does not support {0}'.format(system, emulator))
 		else:
 			if system not in ('Mac', 'DOS'):
