@@ -76,12 +76,16 @@ def mame_verifyroms(basename):
 		return False	
 
 def get_catlist():
+	if not config.catlist_path:
+		return None
 	parser = configparser.ConfigParser(interpolation=None, allow_no_value=True)
 	parser.optionxform = str
 	parser.read(config.catlist_path)
 	return parser
 	
 def get_languages():
+	if not config.languages_path:
+		return None
 	parser = configparser.ConfigParser(interpolation=None, allow_no_value=True)
 	parser.optionxform = str
 	parser.read(config.languages_path)
@@ -92,10 +96,11 @@ languages = get_languages()
 
 def get_category(basename):
 	cat = None
-	for section in catlist.sections():
-		if basename in catlist[section]:
-			cat = section
-			break
+	if catlist:
+		for section in catlist.sections():
+			if basename in catlist[section]:
+				cat = section
+				break
 	if not cat:
 		return 'Unknown', 'Unknown', 'Unknown', False
 
@@ -113,6 +118,9 @@ def get_category(basename):
 	return category, genre, None, False
 		
 def get_language(basename):
+	if not languages:
+		return None
+
 	lang = None
 	for section in languages.sections():
 		if basename in languages[section]:
