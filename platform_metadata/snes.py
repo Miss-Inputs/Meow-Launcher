@@ -215,8 +215,11 @@ def add_normal_snes_header(game):
 			game.metadata.save_type = SaveType.Cart if rom_type.has_battery else SaveType.Nothing
 			game.metadata.specific_info['Has-RTC'] = rom_type.has_rtc
 		licensee = header_data.get('Licensee')
-		if licensee is not None and licensee in nintendo_licensee_codes:
-			game.metadata.publisher = nintendo_licensee_codes[licensee]
+		if licensee is not None:
+			if licensee in nintendo_licensee_codes:
+				game.metadata.publisher = nintendo_licensee_codes[licensee]
+			elif licensee != '00':
+				game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(licensee)
 		country = header_data.get('Country')
 		if country:
 			game.metadata.regions = [country]

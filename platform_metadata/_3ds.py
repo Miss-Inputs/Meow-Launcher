@@ -48,6 +48,8 @@ def parse_ncch(game, offset):
 		maker = convert_alphanumeric(header[12:14])
 		if maker in nintendo_licensee_codes:
 			game.metadata.publisher = nintendo_licensee_codes[maker]
+		elif maker != '00':
+			game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(maker)
 	except NotAlphanumericException:
 		pass
 	#NCCH version: 14-16 (always 2?)

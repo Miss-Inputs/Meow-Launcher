@@ -46,6 +46,8 @@ def add_gba_metadata(game):
 		game.metadata.specific_info['Force-Feedback'] = game_type in ('R', 'V')
 		if licensee_code in nintendo_licensee_codes:
 			game.metadata.publisher = nintendo_licensee_codes[licensee_code]
+		else:
+			game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(licensee_code)
 
 		game.metadata.revision = header[0xbc]
 	

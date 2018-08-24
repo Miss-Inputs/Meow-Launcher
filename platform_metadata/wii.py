@@ -54,6 +54,8 @@ def parse_tmd(game, tmd):
 		maker_code = tmd[408:410].decode('ascii')
 		if maker_code in nintendo_licensee_codes:
 			game.metadata.publisher = nintendo_licensee_codes[maker_code]
+		elif maker_code != '00':
+			game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(maker_code)
 	except UnicodeDecodeError:
 		pass
 	#Unused: 410-412
