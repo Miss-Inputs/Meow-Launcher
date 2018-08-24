@@ -237,7 +237,7 @@ def make_mame_nes_command_line(game, _):
 		#Gonna presume this works, though
 		system = 'nes'
 
-	return make_mame_command_line(system, 'cart')
+	return make_mame_command_line(system, 'cart', has_keyboard=uses_sb486)
 
 def make_mame_atari_2600_command_line(game, _):
 	if game.rom.get_size() > (512 * 1024):
