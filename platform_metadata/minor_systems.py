@@ -24,7 +24,14 @@ def add_gamate_info(game):
 	player.buttons = 2
 	game.metadata.input_info.players.append(player)
 	game.metadata.input_info.console_buttons = 2
-	
+
+def add_casio_pv1000_info(game):
+	game.metadata.tv_type = TVSystem.NTSC #Japan only. I won't assume the region in case some maniac decides to make homebrew for it or something, but it could only ever be NTSC
+	player = PlayerInput()
+	player.inputs = [InputType.Digital]
+	player.buttons = 4 #Start, select, A, and B. And to think some things out there say it only has 1 button... Well, I've also heard start and select are on the console, so maybe MAME is being a bit weird
+	game.metadata.input_info.players.append(player)
+	game.metadata.input_info.players.append(player)
 
 def add_mega_duck_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic

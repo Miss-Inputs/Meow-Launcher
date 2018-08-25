@@ -55,6 +55,7 @@ helpers = {
 	'Atari 8-bit': add_atari_8bit_metadata,
 	'Benesse Pocket Challenge V2': add_wonderswan_metadata,
 	'C64': add_commodore_64_metadata,
+	'Casio PV-1000': add_casio_pv1000_info,
 	'Dreamcast': add_dreamcast_metadata,
 	'DS': add_ds_metadata,
 	'Epoch Game Pocket Computer': add_game_pocket_computer_info,
