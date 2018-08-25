@@ -23,6 +23,13 @@ def get_mame_driver_by_system_name(name):
 
 	return None
 
+def get_mame_software_list_names_by_system_name(name):
+	for system in systems:
+		if system.name == name:
+			return system.mame_software_lists
+
+	return None
+
 systems = [
 	#TODO: Convert to dict where name = key
 	System('32X', '32x', ['32x'], ['Kega Fusion']), 
