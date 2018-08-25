@@ -10,7 +10,7 @@ def get_software_list_entry(game):
 	software_list_names = get_mame_software_list_names_by_system_name(game.metadata.platform)
 	software_lists = get_software_lists_by_names(software_list_names)
 	
-	crc32 = '{:8x}'.format(zlib.crc32(game.rom.read()))
+	crc32 = '{:08x}'.format(zlib.crc32(game.rom.read()))
 	return find_in_software_lists(software_lists, crc=crc32)
 
 def add_generic_software_list_info(game, software):
