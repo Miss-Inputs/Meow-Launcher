@@ -131,7 +131,8 @@ def add_device_hardware_metadata(game):
 		source_file = get_mame_xml(mame_driver).find('machine').attrib['sourcefile']
 	elif game.metadata.platform in source_file_overrides:
 		source_file = source_file_overrides[game.metadata.platform]
-	game.metadata.specific_info['Source-File'] = os.path.splitext(source_file)[0]
+	if source_file:
+		game.metadata.specific_info['Source-File'] = os.path.splitext(source_file)[0]
 
 	if not game.metadata.cpu_info:
 		cpu = None
