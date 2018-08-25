@@ -498,6 +498,8 @@ emulators = {
 	'MAME (Super Game Boy)': MameSystem(make_mame_command_line('supergb2', 'cart'), ['bin', 'gb', 'gbc']),
 	'MAME (Tomy Tutor)': MameSystem(make_mame_command_line('tutor', 'cart', has_keyboard=True, autoboot_script='tomy_tutor'), ['bin']),
 	#Well, at least there's no region crap, though there is pyuuta if you want to read Japanese instead
+	'MAME (Uzebox)': MameSystem(make_mame_command_line('uzebox', 'cart'), ['bin', 'uze']),
+	#Runs really slowly, but it works, also heck it
 	'MAME (VC 4000)': MameSystem(make_mame_command_line('vc4000', 'cart'), ['bin', 'rom']),
 	#There's like 30 different clones of this, and most of them aren't even clones in the MAME sense, they're literally hardware clones. But they're apparently all software-compatible, although the cartridges aren't hardware-compatible, they just contain the same software... so this all gets confusing. Anyway, the software list with all these is named "vc4000" so I guess that's the "main" one, so we'll use that. I'm not sure if there are any PAL/NTSC differences to worry about.
 	#TODO: Quickload slot (.pgm, .tvc)

@@ -58,6 +58,7 @@ systems = [
 	System('PSP', None, [], ['PPSSPP']),
 	System('SG-1000', 'sg1000', ['sg1000', 'sc3000_cart', 'sc3000_cass', 'sf7000'], ['Kega Fusion', 'MAME (SG-1000)']),
 	System('SNES', 'snes', ['snes', 'snes_bspack', 'snes_strom'], ['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)']),
+	System('Uzebox', 'uzebox', ['uzebox'], ['MAME (Uzebox)']),
 	System('Vectrex', 'vectrex', ['vectrex'], ['MAME (Vectrex)']), 
 	System('Virtual Boy', 'vboy', ['vboy'], ['Mednafen (Virtual Boy)', 'MAME (Virtual Boy)']),
 	System('Watara Supervision', 'svision', ['svision'], ['MAME (Watara Supervision)']), 
@@ -150,8 +151,6 @@ systems = [
 	System('ZAPit GameWave', None, [], []),
 
 	#My computer isn't cool enough to emulate these systems, so I can't verify how they work or how well they work just yet
-	System('Uzebox', 'uzebox', ['uzebox'], []),
-	#MAME looks like it works, but at like 50% speed
 	System('Wii U', None, [], []),
 	#Decaf requires OpenGL 4.5 (even for software rendering it seems)
 

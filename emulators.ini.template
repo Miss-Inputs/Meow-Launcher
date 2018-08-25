@@ -263,6 +263,10 @@ emulators =
 paths = 
 emulators = 
 
+[Uzebox]
+paths = 
+emulators = 
+
 [Mac]
 paths =
 emulators =
