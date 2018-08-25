@@ -3,18 +3,12 @@ import xml.etree.ElementTree as ElementTree
 
 from metadata import CPUInfo, ScreenInfo
 
-_lookup_system_cpu_cache = {}
 def lookup_system_cpu(driver_name):
-	if driver_name in _lookup_system_cpu_cache:
-		return _lookup_system_cpu_cache[driver_name]
-
 	xml = get_mame_xml(driver_name)
 	if not xml:
-		_lookup_system_cpu_cache[driver_name] = None
 		return None
 	machine = xml.find('machine')
 	if not machine:
-		_lookup_system_cpu_cache[driver_name] = None
 		return None
 
 	main_cpu = find_main_cpu(machine)
@@ -22,32 +16,28 @@ def lookup_system_cpu(driver_name):
 		cpu_info = CPUInfo()
 		cpu_info.load_from_xml(main_cpu)
 
-		_lookup_system_cpu_cache[driver_name] = cpu_info
 		return cpu_info
 
 	return None
 
-_lookup_system_display_cache = {}
 def lookup_system_displays(driver_name):
-	if driver_name in _lookup_system_display_cache:
-		return _lookup_system_display_cache[driver_name]
-
 	xml = get_mame_xml(driver_name)
 	if not xml:
-		_lookup_system_display_cache[driver_name] = []
 		return None
 	machine = xml.find('machine')
 	if not machine:
-		_lookup_system_display_cache[driver_name] = []
 		return None
 
 	displays = machine.findall('display')
 	screen_info = ScreenInfo()
 	screen_info.load_from_xml_list(displays)
-	_lookup_system_display_cache[driver_name] = screen_info
 	return screen_info
 
+_get_xml_cache = {}
 def get_mame_xml(driver):
+	if driver in _get_xml_cache:
+		return _get_xml_cache[driver]
+
 	process = subprocess.run(['mame', '-listxml', driver], stdout=subprocess.PIPE)
 	status = process.returncode
 	output = process.stdout
@@ -55,7 +45,9 @@ def get_mame_xml(driver):
 		print('Fucking hell ' + driver)
 		return None
 
-	return ElementTree.fromstring(output)
+	xml = ElementTree.fromstring(output)
+	_get_xml_cache[driver] = xml
+	return xml
 
 def find_main_cpu(machine_xml):
 	for chip in machine_xml.findall('chip'):

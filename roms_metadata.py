@@ -111,12 +111,13 @@ def get_metadata_from_tags(game):
 				game.metadata.tv_type = tv_type
 
 def add_device_hardware_metadata(game):
+	mame_driver = system_info.get_mame_driver_by_system_name(game.metadata.platform)
+
 	if not game.metadata.cpu_info:
 		cpu = None
 		if game.metadata.platform in cpu_overrides:
 			cpu = cpu_overrides[game.metadata.platform]			
 		else:
-			mame_driver = system_info.get_mame_driver_by_system_name(game.metadata.platform)
 			if mame_driver:
 				cpu = lookup_system_cpu(mame_driver)
 
@@ -128,7 +129,6 @@ def add_device_hardware_metadata(game):
 		if game.metadata.platform in display_overrides:
 			displays = display_overrides[game.metadata.platform]
 		else:	
-			mame_driver = system_info.get_mame_driver_by_system_name(game.metadata.platform)
 			if mame_driver:
 				displays = lookup_system_displays(mame_driver)
 		if displays:
