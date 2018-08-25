@@ -50,6 +50,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="mame_machines.py" />
+    <Compile Include="mame_metadata.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="metadata.py">
       <SubType>Code</SubType>
     </Compile>
