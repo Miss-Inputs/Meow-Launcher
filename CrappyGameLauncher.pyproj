@@ -77,6 +77,9 @@
     <Compile Include="platform_metadata\megadrive.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="platform_metadata\minor_systems.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="platform_metadata\n64.py">
       <SubType>Code</SubType>
     </Compile>

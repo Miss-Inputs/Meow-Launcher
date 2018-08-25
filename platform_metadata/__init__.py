@@ -27,6 +27,8 @@ from platform_metadata.virtual_boy import add_virtual_boy_metadata
 from platform_metadata.wii import add_wii_metadata
 from platform_metadata.wonderswan import add_wonderswan_metadata
 
+from platform_metadata.minor_systems import *
+
 #For roms.py, gets metadata in ways specific to certain platforms
 #I guess this is duplicating a lot of ROMniscience code, huh? Well, it's my project, and I'll use it for reference for my other project if I want. But I guess there is duplication there. I mean, it's C# and Python, so I can't really combine them directly, but it makes me think... it makes me overthink. That's the best kind of think.
 
@@ -45,13 +47,6 @@ from platform_metadata.wonderswan import add_wonderswan_metadata
 #Xbox: Publisher, year/month/day; albeit just for executables and not discs
 #Xbox 360: Publisher, icon (for XBLA), number of players (for XBLA), genre (for XBLA)
 
-def nothing_interesting(game):
-	#TODO: Gonna have to dismantle this to add number of buttons
-	game.metadata.tv_type = TVSystem.Agnostic
-	player = PlayerInput()
-	player.inputs = [InputType.Digital]
-	game.metadata.input_info.players.append(player)
-
 helpers = {
 	'32X': add_megadrive_metadata,
 	'3DS': add_3ds_metadata,
@@ -62,8 +57,8 @@ helpers = {
 	'C64': add_commodore_64_metadata,
 	'Dreamcast': add_dreamcast_metadata,
 	'DS': add_ds_metadata,
-	'Epoch Game Pocket Computer': nothing_interesting,
-	'Gamate': nothing_interesting,
+	'Epoch Game Pocket Computer': add_game_pocket_computer_info,
+	'Gamate': add_gamate_info,
 	'Game Boy': add_gameboy_metadata,
 	'GameCube': add_gamecube_metadata,
 	'Game Gear': get_sms_metadata,
@@ -71,7 +66,7 @@ helpers = {
 	'Master System': get_sms_metadata,
 	'Mega CD': add_megadrive_metadata,
 	'Mega Drive': add_megadrive_metadata,
-	'Mega Duck': nothing_interesting,
+	'Mega Duck': add_mega_duck_info,
 	'N64': add_n64_metadata,
 	'Neo Geo Pocket': add_ngp_metadata,
 	'NES': add_nes_metadata,
@@ -81,7 +76,7 @@ helpers = {
 	'SNES': add_snes_metadata,
 	'Vectrex': add_vectrex_metadata,
 	'Virtual Boy': add_virtual_boy_metadata,
-	'Watara Supervision': nothing_interesting,
+	'Watara Supervision': add_watara_supervision_info,
 	'Wii': add_wii_metadata,
 	'WonderSwan': add_wonderswan_metadata,
 }

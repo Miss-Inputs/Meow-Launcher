@@ -31,6 +31,7 @@ cpu_overrides = {
 	"C64GS": lookup_system_cpu('c64gs'),
 	'Satellaview': lookup_system_cpu('snes'),
 	'Sufami Turbo': lookup_system_cpu('snes'),
+	#TODO: Figure out Benesse Pocket Challenge V2. No MAME driver, would it just be the same CPU and display as Wonderswan?
 }
 
 display_overrides = {
