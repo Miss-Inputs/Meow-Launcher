@@ -1,7 +1,7 @@
 #For mildly uninteresting systems that I still want to add system info for etc
 import zlib
 
-from metadata import PlayerInput, InputType, EmulationStatus
+from metadata import PlayerInput, InputType, EmulationStatus, SaveType
 from info.region_info import TVSystem
 from info.system_info import get_mame_software_list_names_by_system_name
 from mame_helpers import get_software_lists_by_names, find_in_software_lists
@@ -12,6 +12,13 @@ def get_software_list_entry(game):
 	
 	crc32 = '{:08x}'.format(zlib.crc32(game.rom.read()))
 	return find_in_software_lists(software_lists, crc=crc32)
+
+def get_software_info(software, name):
+	for info in software.findall('info'):
+		if info.attrib.get('name') == name:
+			return info.text
+
+	return None
 
 def add_generic_software_list_info(game, software):
 	game.metadata.specific_info['MAME-Software-Name'] = software.attrib.get('name')
@@ -25,7 +32,6 @@ def add_generic_software_list_info(game, software):
 		elif supported == 'no':
 			emulation_status = EmulationStatus.Broken
 	game.metadata.specific_info['MAME-Emulation-Status'] = emulation_status
-	#TODO: Get product code from info tag with attrib name = "serial" (or is that not that generic)
 
 def add_entex_adventure_vision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -34,9 +40,13 @@ def add_entex_adventure_vision_info(game):
 	player.buttons = 4 #Physically, they're on both sides of the system, but those are duplicates (for ambidextrousity)
 	game.metadata.input_info.players.append(player)
 
+	#I don't think so mate
+	game.metadata.save_type = SaveType.Nothing
+
 	software = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
+		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
 
 def add_game_pocket_computer_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -44,10 +54,14 @@ def add_game_pocket_computer_info(game):
 	player.inputs = [InputType.Digital]
 	player.buttons = 4
 	game.metadata.input_info.players.append(player)
+
+	#Until proven otherwise
+	game.metadata.save_type = SaveType.Nothing
 	
 	software = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
+		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
 
 def add_gamate_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -56,10 +70,14 @@ def add_gamate_info(game):
 	player.buttons = 2
 	game.metadata.input_info.players.append(player)
 	game.metadata.input_info.console_buttons = 2
+
+	#Until proven otherwise
+	game.metadata.save_type = SaveType.Nothing
 	
 	software = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
+		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
 
 def add_casio_pv1000_info(game):
 	game.metadata.tv_type = TVSystem.NTSC #Japan only. I won't assume the region in case some maniac decides to make homebrew for it or something, but it could only ever be NTSC
@@ -68,10 +86,14 @@ def add_casio_pv1000_info(game):
 	player.buttons = 4 #Start, select, A, and B. And to think some things out there say it only has 1 button... Well, I've also heard start and select are on the console, so maybe MAME is being a bit weird
 	game.metadata.input_info.players.append(player)
 	game.metadata.input_info.players.append(player)
+
+	#Until proven otherwise
+	game.metadata.save_type = SaveType.Nothing
 	
 	software = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
+		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
 
 def add_mega_duck_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -80,10 +102,14 @@ def add_mega_duck_info(game):
 	player.buttons = 2
 	game.metadata.input_info.players.append(player)
 	game.metadata.input_info.console_buttons = 2
+
+	#Until proven otherwise
+	game.metadata.save_type = SaveType.Nothing
 	
 	software = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
+		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
 	
 def add_watara_supervision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -92,10 +118,14 @@ def add_watara_supervision_info(game):
 	player.buttons = 2
 	game.metadata.input_info.players.append(player)
 	game.metadata.input_info.console_buttons = 2
+
+	#Until proven otherwise
+	game.metadata.save_type = SaveType.Nothing
 	
 	software = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
+		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
 
 def add_lynx_info(game):
 	#TODO .lnx files should have a header with something in them, so eventually, Lynx will get its own module here
