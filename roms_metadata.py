@@ -39,12 +39,12 @@ display_overrides = {
 source_file_overrides = {
 	#This won't happen often; if there's no MAME driver we should just leave the X-Source-File field blank by definition
 	#Basically, this is when something in platform_metadata changes what game.metadata.platform is, which means we can no longer just look up that platform in system_info because it won't be in there
-	"FDS": get_mame_xml('fds').find('machine').attrib('sourcefile'),
-	"Game Boy Color": get_mame_xml('gbcolor').find('machine').attrib('sourcefile'),
-	"C64GS": get_mame_xml('c64gs').find('machine').attrib('sourcefile'),
-	'Satellaview': get_mame_xml('snes').find('machine').attrib('sourcefile'),
-	'Sufami Turbo': get_mame_xml('snes').find('machine').attrib('sourcefile'),
-	'PlayChoice-10': get_mame_xml('playch10').find('machine').attrib('sourcefile'),
+	"FDS": get_mame_xml('fds').find('machine').attrib['sourcefile'],
+	"Game Boy Color": get_mame_xml('gbcolor').find('machine').attrib['sourcefile'],
+	"C64GS": get_mame_xml('c64gs').find('machine').attrib['sourcefile'],
+	'Satellaview': get_mame_xml('snes').find('machine').attrib['sourcefile'],
+	'Sufami Turbo': get_mame_xml('snes').find('machine').attrib['sourcefile'],
+	'PlayChoice-10': get_mame_xml('playch10').find('machine').attrib['sourcefile'],
 	'VS Unisystem': 'vsnes.cpp', #All the VS Unisystem games are in there, but there's no specific BIOS or anything
 }
 
@@ -128,7 +128,7 @@ def add_device_hardware_metadata(game):
 	
 	source_file = None
 	if mame_driver:
-		source_file = get_mame_xml(mame_driver).find('machine').attrib('sourcefile')
+		source_file = get_mame_xml(mame_driver).find('machine').attrib['sourcefile']
 	elif game.metadata.platform in source_file_overrides:
 		source_file = source_file_overrides[game.metadata.platform]
 	game.metadata.specific_info['Source-File'] = os.path.splitext(source_file)[0]
