@@ -58,6 +58,7 @@ helpers = {
 	'Casio PV-1000': add_casio_pv1000_info,
 	'Dreamcast': add_dreamcast_metadata,
 	'DS': add_ds_metadata,
+	'Entex Adventure Vision': add_entex_adventure_vision_info,
 	'Epoch Game Pocket Computer': add_game_pocket_computer_info,
 	'Gamate': add_gamate_info,
 	'Game Boy': add_gameboy_metadata,
