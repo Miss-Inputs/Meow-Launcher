@@ -32,6 +32,7 @@ def add_generic_software_list_info(game, software):
 		elif supported == 'no':
 			emulation_status = EmulationStatus.Broken
 	game.metadata.specific_info['MAME-Emulation-Status'] = emulation_status
+	game.metadata.specific_info['Notes'] = get_software_info(software, 'usage')
 
 def add_entex_adventure_vision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -126,6 +127,61 @@ def add_watara_supervision_info(game):
 	if software:
 		add_generic_software_list_info(game, software)
 		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
+
+def add_apfm1000_info(game):
+	#TODO: Input info should always be keypad... I think?
+
+	#Until proven otherwise
+	game.metadata.save_type = SaveType.Nothing
+
+	software = get_software_list_entry(game)
+	if software:
+		add_generic_software_list_info(game, software)
+		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
+		#There's not really anything in there which tells us if we need the Imagination Machine for a particular cart. There's something about RAM, though.
+
+def add_arcadia_info(game):
+	#TODO: Input info should always be keypad... I think?
+
+	#Until proven otherwise
+	game.metadata.save_type = SaveType.Nothing
+
+	software = get_software_list_entry(game)
+	if software:
+		add_generic_software_list_info(game, software)
+		#Nothing really here other than alt titles (for other languages). I guess this proves that the Bandai Arcadia really isn't different.
+
+def add_astrocade_info(game):
+	#TODO: Input info should always be keypad... I think?
+
+	#Until proven otherwise
+	game.metadata.save_type = SaveType.Nothing
+
+	software = get_software_list_entry(game)
+	if software:
+		add_generic_software_list_info(game, software)
+
+def add_casio_pv2000_info(game):
+	#Input info is keyboard and joystick I guess? Maybe only one of them sometimes?
+
+	#Until proven otherwise
+	game.metadata.save_type = SaveType.Nothing
+
+	software = get_software_list_entry(game)
+	if software:
+		add_generic_software_list_info(game, software)
+		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
+
+def add_channel_f_info(game):
+	#Input info is uhhh that weird twisty thing I guess
+
+	#Until proven otherwise
+	game.metadata.save_type = SaveType.Nothing
+
+	software = get_software_list_entry(game)
+	if software:
+		add_generic_software_list_info(game, software)
+
 
 def add_lynx_info(game):
 	#TODO .lnx files should have a header with something in them, so eventually, Lynx will get its own module here
