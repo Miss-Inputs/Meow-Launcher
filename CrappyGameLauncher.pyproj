@@ -150,6 +150,9 @@
     <Compile Include="info\system_info.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="roms_metadata.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="scummvm.py">
       <SubType>Code</SubType>
     </Compile>
