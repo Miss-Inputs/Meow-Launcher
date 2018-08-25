@@ -13,7 +13,7 @@ from metadata import Metadata, EmulationStatus, CPUInfo, ScreenInfo, PlayerInput
 from region_detect import get_language_by_english_name, get_regions_from_filename_tags
 from common import find_filename_tags
 
-from mame_helpers import get_mame_xml, find_main_cpu
+from mame_helpers import get_mame_xml, find_main_cpu, get_full_name
 
 debug = '--debug' in sys.argv
 
@@ -367,7 +367,8 @@ def process_machine(machine):
 	if not (machine.xml.find('softwarelist') is None) and machine.family not in config.okay_to_have_software:
 		return
 
-	machine.metadata.specific_info['Family'] = machine.family
+	machine.metadata.specific_info['Family-Basename'] = machine.family
+	machine.metadata.specific_info['Family'] = get_full_name(machine.family)
 
 	add_metadata(machine)
 	add_input_info(machine)

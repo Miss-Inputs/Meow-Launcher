@@ -3,6 +3,13 @@ import xml.etree.ElementTree as ElementTree
 
 from metadata import CPUInfo, ScreenInfo
 
+def get_full_name(driver_name):
+	xml = get_mame_xml(driver_name)
+	if not xml:
+		return None
+
+	return xml.find('machine').findtext('description')
+
 def lookup_system_cpu(driver_name):
 	xml = get_mame_xml(driver_name)
 	if not xml:
