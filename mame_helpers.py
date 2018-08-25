@@ -38,7 +38,7 @@ def get_software_list_by_name(name):
 	list_path = os.path.join(hash_path, name + '.xml')
 	if not os.path.isfile(list_path):
 		return None
-	return ElementTree.parse()
+	return ElementTree.parse(list_path)
 
 def get_full_name(driver_name):
 	xml = get_mame_xml(driver_name)
