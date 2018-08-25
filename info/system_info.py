@@ -135,6 +135,8 @@ systems = [
 	System('N-Gage', None, [], []),
 	System('Magnavox Odyssey²', 'odyssey2', ['odyssey2'], []),
 	#O2EM doesn't really work; MAME isn't completely broken but a lot of games have broken graphics so like... ehh
+	System('G7400', 'g7400', ['g7400'], []),
+	#just has the same problems as Odyssey 2...
 	System('PC Booter', 'ibm5150', [], []),
 	#This one is a bit tricky... both MAME and PCem have issues emulating a joystick. Do the games actually just suck like that? I don't know. The majority of these games assume a 4.77MHz CPU, of course. The software list is ibm5150 but that has some DOS games too, just to be confusing.
 	System('Pippin', 'pippin', ['pippin', 'pippin_flop'], []),
@@ -196,8 +198,6 @@ systems = [
 	System('Atari ST', 'st', ['st_flop', 'st_cart'], []),
 	System('Commodore PET', 'pet4032', [], []),
 	#Unsure which one the "main" driver is, or if some of them count as separate systems. This will require autoboot scripts to do stuff anyway
-	System('G7400', 'g7400', ['g7400'], []),
-	#Probably just has the same problems as Odyssey 2...
 	System('Galaksija', 'galaxyp', ['galaxy'], []),
 	System('VZ-200', 'vz200', ['vz_cass'], []),
 	#There are many different systems in this family, but I'll go with this one, because the software list is named after it
