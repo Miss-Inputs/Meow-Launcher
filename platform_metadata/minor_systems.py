@@ -14,6 +14,7 @@ def get_software_list_entry(game):
 	return find_in_software_lists(software_lists, crc=crc32)
 
 def add_generic_software_list_info(game, software):
+	game.metadata.specific_info['MAME-Software-Name'] = software.attrib.get('name')
 	game.metadata.publisher = software.findtext('publisher')
 	game.metadata.year = software.findtext('year')
 	emulation_status = EmulationStatus.Good
