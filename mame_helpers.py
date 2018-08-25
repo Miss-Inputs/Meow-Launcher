@@ -30,12 +30,15 @@ def find_in_software_lists(software_lists, crc=None, sha1=None):
 def get_software_lists_by_names(names):
 	if not names:
 		return []
-	return [get_software_list_by_name(name) for name in names]
+	return [software_list for in [get_software_list_by_name(name) for name in names] if software_list]
 
 def get_software_list_by_name(name):
 	hash_path = '/usr/lib/mame/hash'
 	#TODO: Get this from MAME config instead
-	return ElementTree.parse(os.path.join(hash_path, name + '.xml'))
+	list_path = os.path.join(hash_path, name + '.xml')
+	if not os.path.isfile(list_path):
+		return None
+	return ElementTree.parse()
 
 def get_full_name(driver_name):
 	xml = get_mame_xml(driver_name)
