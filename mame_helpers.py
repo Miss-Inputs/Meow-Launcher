@@ -6,6 +6,7 @@ from metadata import CPUInfo, ScreenInfo
 
 def find_in_software_lists(software_lists, crc=None, sha1=None):
 	#TODO: Handle hash collisions. Could happen, even if we're narrowing down to specific software lists
+	#TODO: Return tuple that also contains part
 	for software_list in software_lists:
 		for software in software_list.findall('software'):
 			for part in software.findall('part'):
