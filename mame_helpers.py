@@ -46,7 +46,7 @@ def find_in_software_lists(software_lists, crc=None, sha1=None):
 def get_software_lists_by_names(names):
 	if not names:
 		return []
-	return [software_list for in [get_software_list_by_name(name) for name in names] if software_list]
+	return [software_list for software_list in [get_software_list_by_name(name) for name in names] if software_list]
 
 def get_software_list_by_name(name):
 	hash_path = '/usr/lib/mame/hash'
