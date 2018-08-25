@@ -243,8 +243,8 @@ def parse_satellaview_header(game, base_offset):
 	except UnicodeDecodeError:
 		raise BadSNESHeaderException('Title not ASCII or Shift-JIS: %s' % header[0xc0:0xd0].decode('shift_jis', errors='backslashreplace'))
 
-	month = (header[0xd6] & 0b_1111_0000) >> 4;
-	day = (header[0xd7] & 0b_1111_1000) >> 3;
+	month = (header[0xd6] & 0b_1111_0000) >> 4
+	day = (header[0xd7] & 0b_1111_1000) >> 3
 	if month == 0 or month > 12:
 		raise BadSNESHeaderException('Month not valid: %d' % month)
 	if day > 31:
