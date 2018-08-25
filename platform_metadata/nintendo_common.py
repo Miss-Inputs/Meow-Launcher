@@ -9,7 +9,7 @@ nintendo_licensee_codes = {
 	'1F': 'Virgin Japan',
 	'1M': 'Micro Cabin',
 	'1Q': 'TDK (Japan)',
-	'20': 'Zoo',
+	'20': 'Destination Software',
 	'29': 'Seta',
 	'2L': 'Tamsoft',
 	'2N': 'Smilesoft',
@@ -60,6 +60,7 @@ nintendo_licensee_codes = {
 	'79': 'Accolade',
 	'7F': 'Kemco',
 	'7G': 'Rage Software',
+	'7J': 'Zoo Digital Publishing',
 	'7L': 'Simon & Schuster',
 	'82': 'Namcot',
 	'8B': 'Bullet-Proof Software',
@@ -130,6 +131,7 @@ nintendo_licensee_codes = {
 	'KM': 'Deep Silver',
 	'RW': 'RealNetworks',
 	'WY': 'WayForward',
+	'XN': 'Netflix',
 
 	#hmmmmmmmm
 	'4Q': 'Disney',
@@ -137,6 +139,7 @@ nintendo_licensee_codes = {
 	'5Z': 'Classified Games',
 	'70': 'Infogrames/Atari, SA',
 	'7D': 'Vivendi/Sierra',
+	'CE': 'Pony Canyon/FCI',
 
 	#Relatively unverified
 	'AC': 'Toei Animation',
@@ -170,10 +173,12 @@ nintendo_licensee_codes = {
 	'F3': 'Extreme Entertainment',
 	'GN': 'OG International',
 	'GY': 'The Game Factory',
+	'JT': 'Empty Clip Studios',
 	'RG': 'Romino Games',
 	'TL': 'Telltale',
 	'WB': 'Google',
+	'WD': 'Amazon',
 	'WR': 'Warner Bros',
-	'XN': 'Netflix',
+	'XB': 'Hulu',
 	'YV': 'KnapNok Games',
 }
