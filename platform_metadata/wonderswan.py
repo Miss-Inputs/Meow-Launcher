@@ -50,6 +50,7 @@ publishers = {
 
 def add_wonderswan_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
+	#TODO: Add input info, noting that Benessee Pocket Challenge V2 is different
 	
 	rom_size = game.rom.get_size()
 	header_start_position = rom_size - 10

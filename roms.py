@@ -31,7 +31,9 @@ cpu_overrides = {
 	"C64GS": lookup_system_cpu('c64gs'),
 	'Satellaview': lookup_system_cpu('snes'),
 	'Sufami Turbo': lookup_system_cpu('snes'),
-	#TODO: Figure out Benesse Pocket Challenge V2. No MAME driver, would it just be the same CPU and display as Wonderswan?
+	'Benesse Pocket Challenge V2': lookup_system_cpu('wswan'), #Should be about right
+	'PlayChoice-10': lookup_system_cpu('nes'), #lookup_system_cpu('playch10') returns Zilog Z80, the N2A03 is the "cart" cpu
+	'VS Unisystem': lookup_system_cpu('nes'),
 }
 
 display_overrides = {
@@ -40,6 +42,9 @@ display_overrides = {
 	'C64GS': lookup_system_displays('c64gs'),	
 	'Satellaview': lookup_system_displays('snes'),
 	'Sufami Turbo': lookup_system_displays('snes'),
+	'Benesse Pocket Challenge V2': lookup_system_displays('wswan'),
+	'PlayChoice-10': lookup_system_displays('playch10'),
+	'VS Unisystem': lookup_system_displays('nes'),
 }
 
 def get_year_revision_from_filename_tags(game, tags):
