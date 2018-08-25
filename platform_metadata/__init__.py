@@ -91,7 +91,7 @@ helpers = {
 	'Sharp X1': add_sharp_x1_info,
 	'Sharp X68000': add_sharp_68k_info,
 	'Tomy Tutor': add_tomy_tutor_info,
-	'VC 4000': aadd_vc4000_info,
+	'VC 4000': add_vc4000_info,
 	'Vectrex': add_vectrex_metadata,
 	'Virtual Boy': add_virtual_boy_metadata,
 	'Watara Supervision': add_watara_supervision_info,
