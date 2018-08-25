@@ -72,7 +72,7 @@ def add_info_from_main_track(game, track_path, sector_size):
 		maker = header[112:128].decode('ascii').rstrip()
 		if maker == 'SEGA ENTERPRISES':
 			game.metadata.publisher = 'Sega'
-		elif maker.startswith('SEGA LC-'):
+		elif maker.startswith(('SEGA LC-', 'SEGA-LC-')):
 			maker_code = maker[len('SEGA LC-'):]
 			if maker_code in licensee_codes:
 				game.metadata.publisher = licensee_codes[maker_code]
