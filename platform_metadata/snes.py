@@ -228,21 +228,75 @@ def add_normal_snes_header(game):
 		if product_code:
 			game.metadata.specific_info['Product-Code'] = product_code
 
-def add_satellaview_metadata(game):
-	#TODO, can't be bothered at the moment; still requires finding the location of the thing
-	game.metadata.platform = 'Satellaview'
-	#-16 - -14: Publisher
-	#0-16: Name
-	#16-20: Block allocation flags
-	#20-22: Boots left (boots_left & 0x8000 = unlimited)
-	#22-23: Month
-	#23-24: Day
-	#24-25: Mapper
-	#25-26: Flags (SoundLink enabled, execution area, skip intro)
-	#27-28: Version but in some weird format
-	#28-30: Checksum
-	#30-32: Inverse checksum
+def parse_satellaview_header(game, base_offset):
+	header = game.rom.read(seek_to=base_offset, amount=0xe0)
+	metadata = {}
+
+	try:
+		publisher = convert_alphanumeric(header[0xb0:0xb2])
+		metadata['Publisher'] = publisher
+	except NotAlphanumericException:
+		raise BadSNESHeaderException("Publisher not alphanumeric")
 	
+	try:
+		header[0xc0:0xd0].decode('shift_jis')
+	except UnicodeDecodeError:
+		raise BadSNESHeaderException('Title not ASCII or Shift-JIS: %s' % header[0xc0:0xd0].decode('shift_jis', errors='backslashreplace'))
+
+	month = (header[0xd6] & 0b_1111_0000) >> 4;
+	day = (header[0xd7] & 0b_1111_1000) >> 3;
+	if month == 0 or month > 12:
+		raise BadSNESHeaderException('Month not valid: %d' % month)
+	if day > 31:
+		raise BadSNESHeaderException('Day not valid: %d' % day)
+	metadata['Month'] = month
+	metadata['Day'] = day
+
+	rom_layout = header[0xd8]
+	if rom_layout not in rom_layouts:
+		raise BadSNESHeaderException('ROM layout is weird: %d' % rom_layout)
+	metadata['ROM layout'] = rom_layouts[rom_layout]
+
+	return metadata
+	#0xd0-0xd4: Block allocation flags
+	#0xd4-0xd6: Boots left (boots_left & 0x8000 = unlimited)
+	#0xd9-0xda: Flags (SoundLink enabled, execution area, skip intro)
+	#0xda-0xdb: Always 0x33
+	#0xdb-0xdc: Version but in some weird format
+	#0xdc-0xde: Checksum
+	#0xde-0xe0: Inverse checksum
+	
+
+def add_satellaview_metadata(game):
+	game.metadata.platform = 'Satellaview'
+	possible_offsets = [0x7f00, 0xff00, 0x40ff00]
+	rom_size = game.rom.get_size()
+
+	if rom_size % 1024 == 512:
+		possible_offsets = [0x8100, 0x10100, 0x410100]
+		#Not sure what kind of bonehead puts copier headers on a Satellaview game, but I can easily handle that edge case, so I will
+	
+	header_data = None
+	for possible_offset in possible_offsets:
+		if possible_offset >= rom_size:
+			continue
+
+		try:
+			header_data = parse_satellaview_header(game, possible_offset)
+			break
+		except BadSNESHeaderException:
+			continue
+	
+	if header_data:
+		game.metadata.specific_info['Mapper'] = header_data.get('ROM layout')
+		publisher = header_data.get('Publisher')
+		if publisher is not None:
+			if publisher in nintendo_licensee_codes:
+				game.metadata.publisher = nintendo_licensee_codes[publisher]
+			elif publisher != '00':
+				game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(publisher)
+		game.metadata.day = header_data.get('Day')
+		game.metadata.month = header_data.get('Month')
 
 def add_snes_metadata(game):
 	if game.rom.extension in ['sfc', 'smc', 'swc']:
