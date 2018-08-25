@@ -4,6 +4,21 @@ import os
 
 from metadata import CPUInfo, ScreenInfo
 
+def consistentify_manufacturer(manufacturer):
+	#Sometimes, MAME uses two different variations on what is the same exact company. Or formats the name in a way that nobody else does anywhere else.
+	#I'm not going to count regional branches of a company, though.
+	return {
+		'Data East Corporation': 'Data East',
+		'Hudson': 'Hudson Soft',
+		'Kaneko Elc. Co.': 'Kaneko',
+		'Palm': 'Palm Inc',
+		'Sigma Enterprises Inc.': 'Sigma',
+		'Square': 'Squaresoft', #Which is the frickin' right one?
+		'Taito Corporation': 'Taito',
+		'Taito Corporation Japan': 'Taito',
+		'Taito America Corporation': 'Taito America',
+	}.get(manufacturer, manufacturer)
+
 def find_in_software_lists(software_lists, crc=None, sha1=None):
 	#TODO: Handle hash collisions. Could happen, even if we're narrowing down to specific software lists
 	#TODO: Return tuple that also contains part

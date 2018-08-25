@@ -4,7 +4,7 @@ import zlib
 from metadata import PlayerInput, InputType, EmulationStatus, SaveType
 from info.region_info import TVSystem
 from info.system_info import get_mame_software_list_names_by_system_name
-from mame_helpers import get_software_lists_by_names, find_in_software_lists
+from mame_helpers import get_software_lists_by_names, find_in_software_lists, consistentify_manufacturer
 
 #Not in here for various reasons:
 #Atari 5200, Colecovision: Try parsing title screen from ROM first
@@ -30,7 +30,7 @@ def get_software_info(software, name):
 
 def add_generic_software_list_info(game, software):
 	game.metadata.specific_info['MAME-Software-Name'] = software.attrib.get('name')
-	game.metadata.publisher = software.findtext('publisher')
+	game.metadata.publisher = consistentify_manufacturer(software.findtext('publisher'))
 	game.metadata.year = software.findtext('year')
 	emulation_status = EmulationStatus.Good
 	if 'supported' in software.attrib:

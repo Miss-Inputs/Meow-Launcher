@@ -64,21 +64,6 @@ def get_language(basename):
 			
 	return get_language_by_english_name(lang)
 
-def consistentify_manufacturer(manufacturer):
-	#Sometimes, MAME uses two different variations on what is the same exact company. Or formats the name in a way that nobody else does anywhere else.
-	#I'm not going to count regional branches of a company, though.
-	return {
-		'Data East Corporation': 'Data East',
-		'Hudson': 'Hudson Soft',
-		'Kaneko Elc. Co.': 'Kaneko',
-		'Palm': 'Palm Inc',
-		'Sigma Enterprises Inc.': 'Sigma',
-		'Square': 'Squaresoft', #Which is the frickin' right one?
-		'Taito Corporation': 'Taito',
-		'Taito Corporation Japan': 'Taito',
-		'Taito America Corporation': 'Taito America',
-	}.get(manufacturer, manufacturer)
-
 def add_machine_platform(machine):
 	machine.metadata.platform = 'Arcade'
 	category = machine.metadata.categories[0]
