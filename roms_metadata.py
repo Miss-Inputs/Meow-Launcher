@@ -4,7 +4,7 @@ import common
 
 import region_detect
 import platform_metadata
-from mame_helpers import lookup_system_cpu, lookup_system_displays
+from mame_helpers import lookup_system_cpu, lookup_system_displays, get_mame_xml
 from info import system_info
 
 date_regex = re.compile(r'\((?P<year>[x\d]{4})\)|\((?P<year2>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})\)|\((?P<day2>\d{2})\.(?P<month2>\d{2})\.(?P<year3>\d{4})\)')
@@ -33,6 +33,18 @@ display_overrides = {
 	'Benesse Pocket Challenge V2': lookup_system_displays('wswan'),
 	'PlayChoice-10': lookup_system_displays('playch10'),
 	'VS Unisystem': lookup_system_displays('nes'),
+}
+
+source_file_overrides = {
+	#This won't happen often; if there's no MAME driver we should just leave the X-Source-File field blank by definition
+	#Basically, this is when something in platform_metadata changes what game.metadata.platform is, which means we can no longer just look up that platform in system_info because it won't be in there
+	"FDS": get_mame_xml('fds').find('machine').attrib('sourcefile'),
+	"Game Boy Color": get_mame_xml('gbcolor').find('machine').attrib('sourcefile'),
+	"C64GS": get_mame_xml('c64gs').find('machine').attrib('sourcefile'),
+	'Satellaview': get_mame_xml('snes').find('machine').attrib('sourcefile'),
+	'Sufami Turbo': get_mame_xml('snes').find('machine').attrib('sourcefile'),
+	'PlayChoice-10': get_mame_xml('playch10').find('machine').attrib('sourcefile'),
+	'VS Unisystem': 'vsnes.cpp', #All the VS Unisystem games are in there, but there's no specific BIOS or anything
 }
 
 def get_year_revision_from_filename_tags(game, tags):
@@ -112,6 +124,13 @@ def get_metadata_from_tags(game):
 
 def add_device_hardware_metadata(game):
 	mame_driver = system_info.get_mame_driver_by_system_name(game.metadata.platform)
+	
+	source_file = None
+	if mame_driver:
+		source_file = get_mame_xml(mame_driver).find('machine').attrib('sourcefile')
+	elif game.metadata.platform in source_file_overrides:
+		source_file = source_file_overrides[game.metadata.platform]
+	game.metadata.specific_info['Source-File'] = os.path.splitext(source_file)[0]
 
 	if not game.metadata.cpu_info:
 		cpu = None
