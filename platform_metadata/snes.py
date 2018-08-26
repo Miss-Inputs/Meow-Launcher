@@ -5,6 +5,7 @@ from metadata import SaveType
 from region_detect import get_region_by_name
 from common import convert_alphanumeric, NotAlphanumericException
 from .nintendo_common import nintendo_licensee_codes
+from .software_list_info import add_generic_software_list_info, get_software_list_entry
 
 def parse_sufami_turbo_header(game):
 	software, part = get_software_list_entry(game)

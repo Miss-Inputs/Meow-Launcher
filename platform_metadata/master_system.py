@@ -3,6 +3,7 @@ import calendar
 from region_detect import get_region_by_name
 from info.region_info import TVSystem
 from .sega_common import licensee_codes
+from .software_list_info import add_generic_software_list_info, get_software_list_entry
 
 def decode_bcd(i):
 	if not isinstance(i, int):
