@@ -1,4 +1,5 @@
 from enum import Enum, auto
+import calendar
 
 from metadata import SaveType
 from region_detect import get_region_by_name
@@ -249,7 +250,7 @@ def parse_satellaview_header(game, base_offset):
 		raise BadSNESHeaderException('Month not valid: %d' % month)
 	if day > 31:
 		raise BadSNESHeaderException('Day not valid: %d' % day)
-	metadata['Month'] = month
+	metadata['Month'] = calendar.month_name[month]
 	metadata['Day'] = day
 
 	rom_layout = header[0xd8]
