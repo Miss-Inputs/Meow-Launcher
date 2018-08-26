@@ -7,7 +7,7 @@ import re
 
 import config
 import launchers
-from info import emulator_info
+from info import emulator_command_lines
 from mame_helpers import get_mame_xml, get_full_name
 from mame_metadata import add_input_info, add_metadata
 from metadata import Metadata
@@ -61,7 +61,7 @@ class Machine():
 			if not icon:
 				icon = icons.get(self.family)
 
-		command_line = emulator_info.make_mame_command_line(self.basename)
+		command_line = emulator_command_lines.mame_command_line(self.basename)
 		launchers.make_launcher(command_line, self.name, self.metadata, {'Basename': self.basename}, icon)
 
 def mame_verifyroms(basename):

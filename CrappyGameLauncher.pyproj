@@ -34,6 +34,9 @@
     <Compile Include="dos_mac_common.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="info\emulator_command_lines.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="info\emulator_info.py" />
     <Compile Include="hfs.py">
       <SubType>Code</SubType>
