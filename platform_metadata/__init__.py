@@ -79,6 +79,7 @@ helpers = {
 	'Mega CD': add_megadrive_metadata,
 
 	#Just get basic system info and software list stuff for now (see minor_systems.py). Not as fun as the others.
+	'Amstrad GX4000': add_gx4000_info,
 	'APF-MP1000': add_apfm1000_info,
 	'Arcadia 2001': add_arcadia_info,
 	'Astrocade': add_astrocade_info,
