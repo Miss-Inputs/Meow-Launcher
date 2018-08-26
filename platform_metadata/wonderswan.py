@@ -1,6 +1,5 @@
 from info.region_info import TVSystem
 from metadata import SaveType
-#TODO stuff and things
 
 publishers = {
 	1: 'Bandai',
