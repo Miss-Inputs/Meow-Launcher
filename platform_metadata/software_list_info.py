@@ -10,7 +10,6 @@ from mame_helpers import get_software_lists_by_names, find_in_software_lists, co
 #Neo Geo CD, CD-i, PC Engine CD, PC-FX: Not sure how well that would work with disc images, since MAME uses <diskarea> and chds there
 #Atari 7800: Has header, need to skip it
 #NES: Has header, but is stored as split prg/chr inside software lists, need to separate that
-#Neo Geo Pocket, Pokemon Mini, Vectrex: TODO
 #Master System: Hmm, already has a publisher for Game Gear and homebrew... year too
 #N64: Not sure if want, this would take 5 hours especially when 7zipped
 #Uzebox: .uze files have a header, need to get onto those actually

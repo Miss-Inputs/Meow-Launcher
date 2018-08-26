@@ -1,5 +1,6 @@
 from info.region_info import TVSystem
 from metadata import PlayerInput, InputType
+from .software_list_info import add_generic_software_list_info, get_software_info, get_software_list_entry, get_part_feature
 
 def add_ngp_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -18,3 +19,9 @@ def add_ngp_metadata(game):
 	game.metadata.specific_info['Product-Code'] = int.from_bytes(header[32:34], 'little')
 	game.metadata.revision = header[34]
 	game.metadata.specific_info['Is-Colour'] = header[35] == 0x10
+
+	software, part = get_software_list_entry(game)
+	if software:
+		#This will overwrite the publisher and product code that we were so cool for reading from the thing, oh well
+		add_generic_software_list_info(game, software)
+		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
