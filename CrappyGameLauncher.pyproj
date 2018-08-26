@@ -101,6 +101,9 @@
     <Compile Include="platform_metadata\snes.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="platform_metadata\software_list_info.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="platform_metadata\vectrex.py">
       <SubType>Code</SubType>
     </Compile>
