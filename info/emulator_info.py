@@ -339,6 +339,33 @@ def get_reicast_command_line(game, _):
 			print(game.rom.path, 'is not supported because it uses Windows CE')
 		return None
 	return 'reicast -config x11:fullscreen=1 $<path>'
+
+def make_mame_sg1000_command_line(game, _):
+	#TODO: SC-3000 casettes (wav bit)
+	slot_options = {}
+	has_keyboard = False
+
+	ext = game.rom.extension
+	if ext in mame_floppy_formats or ext == 'sf7':
+		system = 'sf7000'
+		slot = 'flop'
+		has_keyboard = True
+		#There are standard Centronics and RS-232 ports/devices available with this, but would I really need them?
+	elif ext == 'sc':
+		#SC-3000H is supposedly identical except it has a mechanical keyboard. Not sure why sc3000h is a separate driver, but oh well
+		system = 'sc3000' 
+		slot = 'cart'
+		has_keyboard = True
+	elif ext in ('bin', 'sg'):
+		#Use original system here. Mark II seems to have no expansion and it should just run Othello Multivision stuff?
+		system = 'sg1000'
+		slot = 'cart'
+		slot_options['sgexp'] = 'fm' #Can also put sk1100 in here. Can't detect yet what uses which though
+	else:
+		return None #This shouldn't happen
+
+
+	return make_mame_command_line(system, slot, slot_options, has_keyboard)
 	
 emulators = {
 	'Citra': Emulator(get_citra_command_line, ['3ds', 'cxi', '3dsx'], []),
@@ -485,7 +512,7 @@ emulators = {
 	#Not the same as the PV-1000!  Although it might as well be, except it's a computer, and they aren't compatible with each other.  MAME says it
 	#doesn't work but it seems alright, other than it's supposed to have joysticks and doesn't (so you just set up a
 	#gamepad to map to emulated cursor keys) which maybe is why they say it's preliminary
-	'MAME (SG-1000)': MameSystem(make_mame_command_line('sg1000', 'cart', {'sgexp': 'fm'}), ['bin', 'sg']),
+	'MAME (SG-1000)': MameSystem(make_mame_sg1000_command_line, ['bin', 'sg', 'sc', 'sf7'] + mame_floppy_formats),
 	'MAME (Sharp X1)': MameSystem(make_mame_command_line('x1turbo40', 'flop1', has_keyboard=True), mame_floppy_formats + ['2d']),
 	#Hey!!  We finally have floppies working!!  Because they boot automatically!  Assumes that they will all work fine
 	#though without any other disks, and this will need to be updated if we see any cartridges (MAME says it has a cart
@@ -531,8 +558,6 @@ emulators = {
 	#Other systems that MAME can do but I'm too lazy to do them yet because they'd need a command line generator function or other:
 	#Dreamcast: Region, and also runs slow on my computer so I don't feel like it
 	#Lynx: Need to select -quick for .o files and -cart otherwise
-	#SC-3000: Need to select -cart for carts and -cass for cassettes (.wav .bit); I'm not sure Kega Fusion can do .sc or cassettes yet
-	#SF-7000: Need to select -flop for disk images (sf7 + normal MAME disk formats) and -cass for cassettes (.wav .bit); very sure Kega Fusion can't do this
 	#SMS, Megadrive: Need to detect region (beyond TV type)
 	#	(Notable that Megadrive can do Sonic & Knuckles)
 	#N64: Does not do PAL at all. The game might even tell you off if it's a PAL release
