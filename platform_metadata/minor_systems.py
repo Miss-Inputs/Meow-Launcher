@@ -55,8 +55,7 @@ def add_casio_pv1000_info(game):
 	player = PlayerInput()
 	player.inputs = [InputType.Digital]
 	player.buttons = 4 #Start, select, A, and B. And to think some things out there say it only has 1 button... Well, I've also heard start and select are on the console, so maybe MAME is being a bit weird
-	game.metadata.input_info.players.append(player)
-	game.metadata.input_info.players.append(player)
+	game.metadata.input_info.players.append([player] * 2)
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
@@ -167,17 +166,27 @@ def add_pc88_info(game):
 		game.metadata.specific_info['Floppy-ID'] = get_part_feature(part, 'part_id')
 
 def add_sg1000_info(game):
-	#Input info is mostly just the standard 2-button gamepad, but maybe there was other peripherals?
-
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
+	uses_tablet = False
 	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
+		uses_tablet = get_part_feature(part, 'peripheral') == 'tablet'
 		#There doesn't seem to be a way to know if software is a SC-3000 cart, unless I just say whichever one has the .sc extension. Maybe Uranai Angel Cutie is just compatible anyway? I forgot
-		#TOO: Get feature > peripheral = "tablet" in part to get input info
+	
+	player = PlayerInput()
+	if uses_tablet:
+		#A drawing tablet, but that's more or less a touchscreen
+		#No buttons here?
+		player.inputs = [InputType.Touchscreen]
+	else:
+		player.inputs = [InputType.Digital]
+		player.buttons = 2
+	game.metadata.input_info.players += [player] * 2
+	game.metadata.input_info.console_buttons = 2 #Reset, Pause/Hold
 
 def add_sharp_x1_info(game):
 	software, part = get_software_list_entry(game)
