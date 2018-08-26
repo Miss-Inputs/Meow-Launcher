@@ -24,7 +24,7 @@ def get_software_list_entry(game):
 def get_software_info(software, name):
 	for info in software.findall('info'):
 		if info.attrib.get('name') == name:
-			return info.text
+			return info.attrib.get('value')
 
 	return None
 
