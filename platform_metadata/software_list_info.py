@@ -55,3 +55,5 @@ def add_generic_software_list_info(game, software):
 	game.metadata.developer = get_software_info(software, 'developer')
 	if not game.metadata.developer:
 		game.metadata.developer = get_software_info(software, 'author')
+	if not game.metadata.developer:
+		game.metadata.developer = get_software_info(software, 'programmer')
