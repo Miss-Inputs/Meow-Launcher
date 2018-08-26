@@ -7,8 +7,11 @@ from common import convert_alphanumeric, NotAlphanumericException
 from .nintendo_common import nintendo_licensee_codes
 
 def parse_sufami_turbo_header(game):
-	#There's a "B2" in the licensee field of the Sufami Turbo BIOS cart itself, so I guess we can safely say all Sufami Turbo games are by Bandai
-	game.metadata.publisher = 'Bandai'
+	software, part = get_software_list_entry(game)
+	if software:
+		add_generic_software_list_info(game, software)
+		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
+
 	game.metadata.platform = 'Sufami Turbo'
 
 	header = game.rom.read(amount=56)
