@@ -41,7 +41,10 @@ def add_generic_software_list_info(game, software):
 			emulation_status = EmulationStatus.Broken
 	game.metadata.specific_info['MAME-Emulation-Status'] = emulation_status
 	game.metadata.specific_info['Notes'] = get_software_info(software, 'usage')
-	game.metadata.developer = get_software_info(software, 'author')
+	game.metadata.developer = get_software_info(software, 'developer')
+	if not game.metadata.developer:
+		game.metadata.developer = get_software_info(software, 'author')
+
 
 def add_entex_adventure_vision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
