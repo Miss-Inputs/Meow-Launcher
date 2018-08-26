@@ -7,16 +7,53 @@ from metadata import CPUInfo, ScreenInfo
 def consistentify_manufacturer(manufacturer):
 	#Sometimes, MAME uses two different variations on what is the same exact company. Or formats the name in a way that nobody else does anywhere else.
 	#I'm not going to count regional branches of a company, though.
+	#TODO: Are ATW > ATW USA Inc. the same or a regional branch?
+	#Should NEC Avenue and NEC Home Electronics just be called NEC?
+	#Should Sony Computer Entertainment Inc and Sony Imagesoft be just Sony?
 	return {
+		'Bally Gaming Co': 'Bally',
+		'BPS': 'Bullet-Proof Software', #I hope nobody else uses that acronym
 		'Data East Corporation': 'Data East',
+		'Entex Industries': 'Entex',
+		'HAL Kenkyuujo': 'HAL', #Literally "HAL Laboratory"
 		'Hudson': 'Hudson Soft',
 		'Kaneko Elc. Co.': 'Kaneko',
-		'Palm': 'Palm Inc',
+		'MicroCabin': 'Micro Cabin', #Annoying alternate spelling because they officially use both just to be annoying
+		'Nihon Telenet': 'Telenet', #I guess
+		'Omori Electric Co., Ltd.': 'Omori',
+		'Palm Inc': 'Palm',
 		'Sigma Enterprises Inc.': 'Sigma',
 		'Square': 'Squaresoft', #Which is the frickin' right one?
 		'Taito Corporation': 'Taito',
 		'Taito Corporation Japan': 'Taito',
 		'Taito America Corporation': 'Taito America',
+		'UA Ltd.': 'UA Limited', #MAME uses the former (for Arcadia 2001 lists), Stella uses the latter in its database
+
+		#For some reason, some Japanese computer software lists have the Japanese name and then the English one in brackets. Everywhere else the English name is used even when the whole thing is Japanese. Anyway, fine, I can deal with that
+		'B·P·S (Bullet-Proof Software)': 'Bullet-Proof Software',
+		'アイレム (Irem)': 'Irem',
+		'アスキー (ASCII)': 'ASCII',
+		'イマジニア (Imagineer)': 'Imagineer',
+		'エニックス (Enix)': 'Enix',
+		'カプコン (Capcom)': 'Capcom',
+		'コナミ (Konami)': 'Konami',
+		'システムサコム (System Sacom)': 'System Sacom',
+		'システムソフト (System Soft)': 'System Soft',
+		'シャープ (Sharp)': 'Sharp',
+		'スタークラフト (Starcraft)': 'Starcraft',
+		'ソフトプロ (Soft Pro)': 'Soft Pro',
+		'デービーソフト (dB-Soft)': 'dB-Soft',
+		'ハドソン (Hudson Soft)': 'Hudson Soft',
+		'ブラザー工業 (Brother Kougyou)': 'Brother Kougyou',
+		'ホームデータ (Home Data)': 'Home Data',
+		'マカダミアソフト (Macadamia Soft)': 'Macadamia Soft',
+		'日本ファルコム (Nihon Falcom)': 'Nihon Falcom',
+		'電波新聞社 (Dempa Shinbunsha)': 'Dempa Shinbunsha',
+
+		#These ones are basically just typos...
+		'enix': 'Enix',
+		'GTC Inc.': 'GTC Inc',
+		'Pack-In-Video': 'Pack-In Video',
 	}.get(manufacturer, manufacturer)
 
 def find_in_software_lists(software_lists, crc=None, sha1=None):
