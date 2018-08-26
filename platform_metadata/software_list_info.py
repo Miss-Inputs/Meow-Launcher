@@ -5,14 +5,13 @@ from info.system_info import get_mame_software_list_names_by_system_name
 from mame_helpers import get_software_lists_by_names, find_in_software_lists, consistentify_manufacturer
 
 #TODO:
-#Atari 5200, Colecovision: Try parsing title screen from ROM first
+#Colecovision: Software list splits 16K roms into multiple halves, making that tricky to deal with. Anyway, can get info unreliably from the title screen info in the ROM
 #Intellivison: .int is actually a custom headered file format I think, so that might be tricky to deal with
 #Neo Geo CD, CD-i, PC Engine CD, PC-FX: Not sure how well that would work with disc images, since MAME uses <diskarea> and chds there
 #Atari 7800: Has header, need to skip it
 #NES: Has header, but is stored as split prg/chr inside software lists, need to separate that
 #Master System: Hmm, already has a publisher for Game Gear and homebrew... year too
 #N64: Not sure if want, this would take 5 hours especially when 7zipped
-#Uzebox: .uze files have a header, need to get onto those actually
 #ZX Spectrum: All +3 software in MAME is in .ipf format, which seems hardly ever used in all honesty (.z80 files don't have a software list)
 
 def get_software_list_entry(game, skip_header=0):

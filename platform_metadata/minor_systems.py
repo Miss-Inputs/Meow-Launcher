@@ -219,7 +219,39 @@ def add_vc4000_info(game):
 		add_generic_software_list_info(game, software)
 		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
 
-#-- Beyond this point, there may be unexplored things which may result in these systems being spun off into their own module. Maybe. It just seems likely.
+#-- Beyond this point, there may be unexplored things which may result in these systems being spun off into their own module. Maybe. It just seems likely. Or maybe I do know full well they have a header, and either I haven't explored it yet, or I'm just a lazy bugger
+
+def add_atari_5200_info(game):
+	#Can get the title screen information from inside the ROM to get the year (and also title). But that's hella unreliable, won't work properly for homebrews released after 2000, and requires implementing the 5200 title screen's custom character set (which I do know, it's just a pain in the arse)
+
+	uses_trackball = False
+	software, part = get_software_list_entry(game)
+	if software:
+		add_generic_software_list_info(game, software)
+		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
+		uses_trackball = get_part_feature(part, 'peripheral') == 'trackball'
+
+	game.metadata.save_type = SaveType.Nothing #Probably
+	
+	#This doesn't really matter anyway, because MAME doesn't let you select controller type by slot device yet; and none of the other 5200 emulators are cool
+	game.metadata.specific_info['Uses-Trackball'] = uses_trackball
+	player = PlayerInput()
+	if uses_trackball:
+		player.inputs = [InputType.Trackball]
+	else:
+		player.inputs = [InputType.Analog]
+	player.buttons = 5 #1, 2, Pause, Reset, Start I think? I think it works the same way for trackballs
+	game.metadata.input_info.players += [player] * 4 #wew
+	#No console buttons actually, apart from power which hardly counts
+
+def add_uzebox_info(game):
+	#TODO: .uze files have 512-byte header, just not much info that we can't already get from software lists
+	#But there is an icon at 0x4e:0x14d, just apparently never used; and SNES mouse usage at 0x152
+
+	software, part = get_software_list_entry(game)
+	if software:
+		add_generic_software_list_info(game, software)
+		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
 
 def add_pce_info(game):
 	#Input could be 2 buttons or 6 buttons, usually the former. Might be other types too?
