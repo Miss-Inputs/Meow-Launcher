@@ -492,6 +492,8 @@ emulators = {
 	#The ECS module does, in fact, break some existing games (I've heard so anyway, don't know which ones), but it is here for usage anyway
 	'MAME (Intellivision Keyboard)': MameSystem(make_mame_command_line('intvkbd', 'cart'), ['bin', 'int', 'rom', 'itv']),
 	#This was unreleased, but there are dumps of the keyboard-using games out there
+	'MAME (Juice Box)': MameSystem(make_mame_command_line('juicebox', 'memcard'), ['smc']),
+	#Oh also this is slow by the way, should warn y'all
 	'MAME (Mega Duck)': MameSystem(make_mame_command_line('megaduck', 'cart'), ['bin']),
 	'MAME (MSX1)': MameSystem(make_mame_command_line('svi738', 'cart1', {'fdc:0': '""'}, has_keyboard=True), ['bin', 'rom']),
 	#Note that MSX2 is backwards compatible anyway, so there's not much reason to use this, unless you do have some reason. This model in particular is used because it should be completely in English and if anything goes wrong I'd be able to understand it. I still don't know how disks work (they don't autoboot), or if there's even a consistent command to use to boot them.

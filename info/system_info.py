@@ -50,6 +50,8 @@ systems = [
 	System('Game Gear', 'gamegear', ['gamegear'], ['Kega Fusion', 'Mednafen (Game Gear)', 'MAME (Game Gear)']),
 	System('GBA', 'gba', ['gba'], ['mGBA', 'Mednafen (GBA)', 'MAME (GBA)', 'Medusa']), 
 	System('Master System', 'sms', ['sms'], ['Kega Fusion', 'Mednafen (Master System)']),
+	System('Mattel Juice Box', 'juicebox', ['juicebox'], ['MAME (Juice Box)']),
+	#Now for those who actually do know what this is, you may be thinking: But doesn't that just play videos? Isn't this really pointless? And the answer is yes, yes it is. I love pointless.
 	System('Mega CD', 'megacd', ['megacd', 'megacdj', 'segacd'], ['Kega Fusion']), 
 	System('Mega Drive', 'megadriv', ['megadriv'], ['Kega Fusion', 'Mednafen (Mega Drive)']),
 	System('Mega Duck', 'megaduck', ['megaduck'], ['MAME (Mega Duck)']), 

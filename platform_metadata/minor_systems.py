@@ -235,6 +235,13 @@ def add_sord_m5_info(game):
 
 #-- Beyond this point, there may be unexplored things which may result in these systems being spun off into their own module. Maybe. It just seems likely. Or maybe I do know full well they have a header, and either I haven't explored it yet, or I'm just a lazy bugger
 
+def add_juicebox_info(game):
+	#Hmm... apparently there's 0x220 bytes at the beginning which need to be copied from retail carts to get homebrew test ROMs to boot
+	software, part = get_software_list_entry(game)
+	if software:
+		add_generic_software_list_info(game, software)
+		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
+
 def add_atari_5200_info(game):
 	#Can get the title screen information from inside the ROM to get the year (and also title). But that's hella unreliable, won't work properly for homebrews released after 2000, and requires implementing the 5200 title screen's custom character set (which I do know, it's just a pain in the arse)
 
