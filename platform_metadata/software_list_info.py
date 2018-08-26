@@ -5,6 +5,7 @@ from info.system_info import get_mame_software_list_names_by_system_name
 from mame_helpers import get_software_lists_by_names, find_in_software_lists, consistentify_manufacturer
 
 #TODO:
+#C64, VIC-20, Atari 8-bit: Headers are weird
 #Colecovision: Software list splits 16K roms into multiple halves, making that tricky to deal with. Anyway, can get info unreliably from the title screen info in the ROM
 #Intellivison: .int is actually a custom headered file format I think, so that might be tricky to deal with
 #Neo Geo CD, CD-i, PC Engine CD, PC-FX: Not sure how well that would work with disc images, since MAME uses <diskarea> and chds there

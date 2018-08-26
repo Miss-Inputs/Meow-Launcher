@@ -16,6 +16,7 @@ def consistentify_manufacturer(manufacturer):
 		'Data East Corporation': 'Data East',
 		'Entex Industries': 'Entex',
 		'HAL Kenkyuujo': 'HAL', #Literally "HAL Laboratory"
+		'HAL Laboratory': 'HAL',
 		'Hudson': 'Hudson Soft',
 		'Kaneko Elc. Co.': 'Kaneko',
 		'MicroCabin': 'Micro Cabin', #Annoying alternate spelling because they officially use both just to be annoying

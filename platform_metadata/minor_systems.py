@@ -219,6 +219,20 @@ def add_vc4000_info(game):
 		add_generic_software_list_info(game, software)
 		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
 
+def add_vic10_info(game):
+	software, part = get_software_list_entry(game)
+	if software:
+		add_generic_software_list_info(game, software)
+		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
+		#What the heck is an "assy"?
+
+def add_sord_m5_info(game):
+	software, part = get_software_list_entry(game)
+	if software:
+		add_generic_software_list_info(game, software)
+		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
+		#Take note of info > usage = requiring 36K RAM, though we just set our M5 to have max RAM anyway, seems to be harmless
+
 #-- Beyond this point, there may be unexplored things which may result in these systems being spun off into their own module. Maybe. It just seems likely. Or maybe I do know full well they have a header, and either I haven't explored it yet, or I'm just a lazy bugger
 
 def add_atari_5200_info(game):
