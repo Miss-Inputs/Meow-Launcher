@@ -140,7 +140,7 @@ systems = [
 	System('Jaguar', 'jaguar', ['jaguar'], []),
 	#Virtual Jaguar doesn't like gamepads seemingly, and Phoenix Emu has no command line support
 	System('Konami Picno', 'picno', ['picno'], []),
-	System('Leapster', 'leapster', ['gameking'], []),
+	System('Leapster', 'leapster', ['leapste'], []),
 	System('Mattel HyperScan', 'hs', ['hyperscan'], []),
 	System('Microvision', 'microvsn', ['microvision'], []),
 	System('N-Gage', None, [], []),
