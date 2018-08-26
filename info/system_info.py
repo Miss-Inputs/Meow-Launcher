@@ -116,6 +116,8 @@ systems = [
 	System('Tomy Tutor', 'tutor', ['tutor'], ['MAME (Tomy Tutor)']), 
 	System('VIC-10', 'vic10', ['vic10'], ['MAME (VIC-10)']), 
 	System('VIC-20', 'vic20', ['vic1001_cart', 'vic1001_cass', 'vic1001_flop'], ['MAME (VIC-20)']),
+	System('VZ-200', 'vz200', ['vz_cass'], ['MAME (VZ-200)']),
+	#There are many different systems in this family, but I'll go with this one, because the software list is named after it
 	System('ZX Spectrum', 'spectrum', ['spectrum_cart', 'spectrum_cass', 'specpls3_flop'], ['MAME (ZX Spectrum)']),
 	#Joystick interface is non-standard so not all games support it and might decide to use the keyboard instead, but eh. It works I guess.
 
@@ -205,8 +207,6 @@ systems = [
 	System('Commodore PET', 'pet4032', [], []),
 	#Unsure which one the "main" driver is, or if some of them count as separate systems. This will require autoboot scripts to do stuff anyway
 	System('Galaksija', 'galaxyp', ['galaxy'], []),
-	System('VZ-200', 'vz200', ['vz_cass'], []),
-	#There are many different systems in this family, but I'll go with this one, because the software list is named after it
 	System('Luxor ABC80', 'abc80', ['abc80_cass', 'abc80_flop'], []),
 	System('Sam Coupe', 'samcoupe', ['samcoupe_cass', 'samcoupe_flop'], []),
 	System('Tandy CoCo', 'coco3', ['coco_cart', 'coco_flop'], []),

@@ -267,6 +267,10 @@ emulators =
 paths = 
 emulators = 
 
+[VZ-200]
+paths = 
+emulators = 
+
 [Mac]
 paths =
 emulators =

@@ -517,6 +517,11 @@ emulators = {
 	#"Paddle Reverse" in "Analog Controls" for some reason
 	'MAME (Virtual Boy)': MameSystem(make_mame_command_line('vboy', 'cart'), ['bin', 'vb']),
 	#Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there; no ROMs required though so that's neat
+	'MAME (VZ-200)': MameSystem(make_mame_command_line('vz200', 'dump', {'io': 'joystick', 'mem': 'laser_64k'}, True),  ['vz']),
+	#In the Laser 200/Laser 210 family, but Dick Smith variant should do.
+	#TODO see if casettes (wav cas) or disks (mame_floppy_formats, mem slot = floppy) work nicely
+	#Joystick interface doesn't seem to be used by any games, but I guess it does more than leaving the IO slot unfilled. That sucks, because otherwise no game ever uses the keyboard consistently, because of course not. Even modern homebrew games. Why y'all gotta be like that?
+	#Some games will need you to type RUN to run them, not sure how to detect that.
 	'MAME (Watara Supervision)': MameSystem(make_mame_command_line('svision', 'cart'), ['bin', 'ws', 'sv']),
 	#I've been told the sound is that horrible on a real system; there are "TV Link" variant systems but that just makes
 	#the colours look even worse (they're all inverted and shit)
