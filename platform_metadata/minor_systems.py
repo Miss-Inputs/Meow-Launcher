@@ -14,7 +14,7 @@ def add_entex_adventure_vision_info(game):
 	#I don't think so mate
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
@@ -29,7 +29,7 @@ def add_game_pocket_computer_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 	
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
@@ -45,7 +45,7 @@ def add_gamate_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 	
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
@@ -61,7 +61,7 @@ def add_casio_pv1000_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 	
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
@@ -77,7 +77,7 @@ def add_mega_duck_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 	
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
@@ -93,7 +93,7 @@ def add_watara_supervision_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 	
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
@@ -104,7 +104,7 @@ def add_apfm1000_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
@@ -116,7 +116,7 @@ def add_arcadia_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 		#Nothing really here other than alt titles (for other languages). I guess this proves that the Bandai Arcadia really isn't different.
@@ -127,7 +127,7 @@ def add_astrocade_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 
@@ -137,7 +137,7 @@ def add_casio_pv2000_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
@@ -148,20 +148,20 @@ def add_channel_f_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 
 def add_msx_info(game):
 	#I'll use this for MSX2 as well for now
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)	
 		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
 		#Other info you can get from carts here: PCB, slot (something like ascii8 or whatever), mapper
 
 def add_pc88_info(game):
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 		#TODO: Get the relevant part and get its feature > part_id. Of course, because I'm intelligent and good at forward thinking, I just return the whole software, so now I don't know which part I've just matched, unless I want to re-hash the disk and look for it again.
@@ -172,7 +172,7 @@ def add_sg1000_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
@@ -180,14 +180,14 @@ def add_sg1000_info(game):
 		#TOO: Get feature > peripheral = "tablet" in part to get input info
 
 def add_sharp_x1_info(game):
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 		#TODO: Get the relevant part and get its feature > part_id. Of course, because I'm intelligent and good at forward thinking, I just return the whole software, so now I don't know which part I've just matched, unless I want to re-hash the disk and look for it again.
 
 def add_sharp_x68k_info(game):
 	#Many games are known to have SaveType.Floppy, but can't tell programmatically...
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 		#TODO: Get the relevant part and get its feature > part_id. Of course, because I'm intelligent and good at forward thinking, I just return the whole software, so now I don't know which part I've just matched, unless I want to re-hash the disk and look for it again.
@@ -196,7 +196,7 @@ def add_tomy_tutor_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
@@ -205,7 +205,7 @@ def add_vc4000_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
@@ -215,7 +215,7 @@ def add_vc4000_info(game):
 def add_pce_info(game):
 	#Input could be 2 buttons or 6 buttons, usually the former. Might be other types too?
 	#Some games should have saving via TurboBooster-Plus (Wii U VC seems to let me save in Neutopia anyway without passwords or savestates), which I guess would be SaveType.Internal
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 		#Other info: alt_title, release (that seems to be a date, I'm not sure if it always is though)
@@ -232,7 +232,7 @@ def add_game_com_info(game):
 	
 	#Might have saving, actually. I'm just not sure about how it works.
 
-	software = get_software_list_entry(game)
+	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
 		#This will tell you that nothing is supported. I think that sometimes the MAME devs are too hard on themselves. Someone needs to cheer them up a bit.

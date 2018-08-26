@@ -21,7 +21,6 @@ def consistentify_manufacturer(manufacturer):
 
 def find_in_software_lists(software_lists, crc=None, sha1=None):
 	#TODO: Handle hash collisions. Could happen, even if we're narrowing down to specific software lists
-	#TODO: Return tuple that also contains part
 	for software_list in software_lists:
 		for software in software_list.findall('software'):
 			for part in software.findall('part'):
@@ -36,12 +35,12 @@ def find_in_software_lists(software_lists, crc=None, sha1=None):
 					for rom in roms:
 						if sha1:
 							if 'sha1' in rom.attrib and rom.attrib['sha1'] == sha1:
-								return software
+								return software, part
 						if crc:
 							if 'crc' in rom.attrib and rom.attrib['crc'] == crc:
-								return software
+								return software, part
 
-	return None
+	return None, None
 
 def get_software_lists_by_names(names):
 	if not names:
