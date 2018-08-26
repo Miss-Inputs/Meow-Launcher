@@ -2,7 +2,7 @@
 
 from metadata import PlayerInput, InputType, SaveType
 from info.region_info import TVSystem
-from .software_list_info import add_generic_software_list_info, get_software_info, get_software_list_entry
+from .software_list_info import add_generic_software_list_info, get_software_info, get_software_list_entry, get_part_feature
 
 def add_entex_adventure_vision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -164,7 +164,7 @@ def add_pc88_info(game):
 	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
-		#TODO: Get the relevant part and get its feature > part_id. Of course, because I'm intelligent and good at forward thinking, I just return the whole software, so now I don't know which part I've just matched, unless I want to re-hash the disk and look for it again.
+		game.metadata.specific_info['Floppy-ID'] = get_part_feature(part, 'part_id')
 
 def add_sg1000_info(game):
 	#Input info is mostly just the standard 2-button gamepad, but maybe there was other peripherals?
@@ -183,14 +183,14 @@ def add_sharp_x1_info(game):
 	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
-		#TODO: Get the relevant part and get its feature > part_id. Of course, because I'm intelligent and good at forward thinking, I just return the whole software, so now I don't know which part I've just matched, unless I want to re-hash the disk and look for it again.
+		game.metadata.specific_info['Floppy-ID'] = get_part_feature(part, 'part_id')
 
 def add_sharp_x68k_info(game):
 	#Many games are known to have SaveType.Floppy, but can't tell programmatically...
 	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
-		#TODO: Get the relevant part and get its feature > part_id. Of course, because I'm intelligent and good at forward thinking, I just return the whole software, so now I don't know which part I've just matched, unless I want to re-hash the disk and look for it again.
+		game.metadata.specific_info['Floppy-ID'] = get_part_feature(part, 'part_id')
 
 def add_tomy_tutor_info(game):
 	#Until proven otherwise

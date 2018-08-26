@@ -19,6 +19,14 @@ def get_software_list_entry(game):
 	crc32 = '{:08x}'.format(zlib.crc32(game.rom.read()))
 	return find_in_software_lists(software_lists, crc=crc32)
 
+def get_part_feature(part, name):
+	#TODO: Get sharedfeat from software as well. This isn't used as much though
+	for feature in part.findall('feature'):
+		if feature.attrib.get('name') == name:
+			return feature.attrib.get('value')
+
+	return None
+
 def get_software_info(software, name):
 	for info in software.findall('info'):
 		if info.attrib.get('name') == name:
