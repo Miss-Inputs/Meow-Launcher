@@ -11,9 +11,12 @@ def consistentify_manufacturer(manufacturer):
 	#Should NEC Avenue and NEC Home Electronics just be called NEC?
 	#Should Sony Computer Entertainment Inc and Sony Imagesoft be just Sony?
 	return {
+		'Alpha Denshi Co.': 'ADK', #Renamed in 1993, but let's not make this confusing
 		'Bally Gaming Co.': 'Bally',
 		'BPS': 'Bullet-Proof Software', #I hope nobody else uses that acronym
+		'Brøderbund Software Inc': 'Brøderbund',
 		'Data East Corporation': 'Data East',
+		'Dempa Shinbunsha': 'Dempa',
 		'Entex Industries': 'Entex',
 		'HAL Kenkyuujo': 'HAL', #Literally "HAL Laboratory"
 		'HAL Laboratory': 'HAL',
@@ -49,7 +52,7 @@ def consistentify_manufacturer(manufacturer):
 		'ホームデータ (Home Data)': 'Home Data',
 		'マカダミアソフト (Macadamia Soft)': 'Macadamia Soft',
 		'日本ファルコム (Nihon Falcom)': 'Nihon Falcom',
-		'電波新聞社 (Dempa Shinbunsha)': 'Dempa Shinbunsha',
+		'電波新聞社 (Dempa Shinbunsha)': 'Dempa',
 
 		#These ones are basically just typos...
 		'enix': 'Enix',
