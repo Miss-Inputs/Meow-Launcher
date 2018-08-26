@@ -134,7 +134,7 @@ systems = [
 	System('GP32', 'gp32', ['gp32'], []),
 	#Runs too slow to verify if anything else works, but all documentation points to not
 	System('Hartung Game Master', 'gmaster', ['gmaster'], []),
-	#No sound (but seems to work fine otherwise? maybe)
+	#No sound (but some software isn't marked as supported="no" so that's good)
 	System('IBM PCjr', 'ibmpcjr', ['ibmpcjr_cart'], []),
 	#For the carts, because otherwise we'd just call the software DOS or PC Booter. Has the same problem as PC booter disks in that the joystick tends to play up.
 	System('Jaguar', 'jaguar', ['jaguar'], []),
@@ -151,8 +151,8 @@ systems = [
 	#This one is a bit tricky... both MAME and PCem have issues emulating a joystick. Do the games actually just suck like that? I don't know. The majority of these games assume a 4.77MHz CPU, of course. The software list is ibm5150 but that has some DOS games too, just to be confusing.
 	System('Pippin', 'pippin', ['pippin', 'pippin_flop'], []),
 	#Games don't just boot in a PPC Mac, unfortunately
-	System('RCA Studio 2', 'studio2', ['studio2'], []),
 	System("Super A'Can", 'supracan', ['supracan'], []),
+	#Some things work in MAME, except with no sound, so... nah
 	System('V.Smile', 'vsmile', ['vsmile_cart', 'vsmile_cd', 'vsmileb_cart', 'vsmilem_cart'], []),
 	System('Xbox', 'xbox', [], []),
 	System('Xbox 360', None, [], []),
@@ -165,7 +165,7 @@ systems = [
 
 	#Things that have usability issues
 	System('64DD', 'n64dd', ['n64dd'], []),
-	#Mupen64Plus would work, but right now it has issues with usability that it says right in the readme (so it's not just me picking on them, they say it themselves). Basically you have to have a cart inserted which has the same properties as the 64DD software you want to emulate, and that wouldn't work for our launchering purposes
+	#Mupen64Plus would work, but right now it has issues with usability that it says right in the readme (so it's not just me picking on them, they say it themselves). Basically you have to have a cart inserted which has the same properties as the 64DD software you want to emulate, and that wouldn't work for our launchering purposes. MAME doesn't seem to work with .ndd format dumps
 	System('Apple IIgs', 'apple2gs', ['apple2gs'], []),
 	#Some games require a hard disk with an OS install and they won't tell you this because of course not, and if you want to autoboot the floppies with a hard drive still in there you have to set it to always boot from slot 5 and it's really annoying and I hate it
 	System('Cybiko', 'cybikov1', [], []),
@@ -176,6 +176,8 @@ systems = [
 	#VBA-M works (nothing else emulates e-Reader that I know of), but you have to swipe the card manually, which doesn't really work for a nice launcher thing... and there's not really a way around that at this point in time.
 	System('Mattel Aquarius', 'aquarius', [], []),
 	#Controllers aren't emulated yet (and they're necessary for a lot of things)
+	System('RCA Studio 2', 'studio2', ['studio2'], []),
+	#Due to the console's terrible design, asinine keypad sequences are needed to boot games any further than weird static or a black screen. They're so asinine that even if I look at the info usage in the software list, and do the thing, it still doesn't work. So if it's that complicated that I can't work it out manually, how can I do it programmatically? So yeah, shit
 	System('Sega Pico', 'pico', ['pico'], []),
 	#Emulation works in Kega Fusion and MAME, but they don't display the actual book, which would be needed for most of the software to make any sense. Kega Fusion doesn't even have controls to turn the pages, which is needed for stuff
 	System('PocketStation', 'pockstat', [], []),
@@ -204,8 +206,9 @@ systems = [
 	System('Apple II', 'apple2', ['apple2', 'apple2_cass'], []),
 	System('Apple Lisa', 'lisa', ['lisa'], []),
 	System('Atari ST', 'st', ['st_flop', 'st_cart'], []),
-	System('Commodore PET', 'pet4032', [], []),
+	System('Commodore PET', 'pet4032', ['pet_cass', 'pet_flop', 'pet_hdd', 'pet_quik', 'pet_rom'], []),
 	#Unsure which one the "main" driver is, or if some of them count as separate systems. This will require autoboot scripts to do stuff anyway
+	#TODO: This can work with -quik and autoboot though
 	System('Galaksija', 'galaxyp', ['galaxy'], []),
 	System('Luxor ABC80', 'abc80', ['abc80_cass', 'abc80_flop'], []),
 	System('Sam Coupe', 'samcoupe', ['samcoupe_cass', 'samcoupe_flop'], []),
@@ -217,7 +220,7 @@ systems = [
 	#Should Amiga CD32 and Commodore CDTV just count as Amiga?
 	#APF Imagination Machine just APF-MP1000 or different?
 	#Are Oric-1 and Oric Atmos software compatible or different things?
-	#Which of Sharp MZ series are software compatible with which?
+	#Which of Sharp MZ series are software compatible with which? (Software lists: MZ-700, MZ-800, MZ-2000)
 	#Which of TI calculators are software compatible with which?
 	#Figure out Thomson MO/TO stuff as well. My head hurts and I feel dizzy so I'm not going to right now
 	#Which TRS-80 model is which?
