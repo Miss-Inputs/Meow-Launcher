@@ -11,7 +11,7 @@ def consistentify_manufacturer(manufacturer):
 	#Should NEC Avenue and NEC Home Electronics just be called NEC?
 	#Should Sony Computer Entertainment Inc and Sony Imagesoft be just Sony?
 	return {
-		'Bally Gaming Co': 'Bally',
+		'Bally Gaming Co.': 'Bally',
 		'BPS': 'Bullet-Proof Software', #I hope nobody else uses that acronym
 		'Data East Corporation': 'Data East',
 		'Entex Industries': 'Entex',
