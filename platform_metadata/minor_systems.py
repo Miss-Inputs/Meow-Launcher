@@ -313,4 +313,8 @@ def add_lynx_info(game):
 	player.buttons = 4 #Option 1, Option 2, A, B; these are flipped so you might think there's 8
 	game.metadata.input_info.players.append(player)
 	game.metadata.input_info.console_buttons = 1 #Pause
-	#Because of that aforementioned header, we can't really look up software... unless I get off my lazy ass and skip the 128 bytes
+
+	software, part = get_software_list_entry(game, skip_header=64)
+	if software:
+		add_generic_software_list_info(game, software)
+		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
