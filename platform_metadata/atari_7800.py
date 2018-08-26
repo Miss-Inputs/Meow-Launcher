@@ -12,7 +12,7 @@ input_types = {
 	4: (InputType.Trackball, 1),
 }
 
-def add_atari7800_metadata(game):
+def add_atari_7800_metadata(game):
 	game.metadata.input_info.console_buttons = 3 #Pause, select, reset
 
 	header = game.rom.read(amount=128)
