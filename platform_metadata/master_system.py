@@ -121,3 +121,10 @@ def get_sms_metadata(game):
 
 	if game.metadata.platform == 'Game Gear':
 		game.metadata.tv_type = TVSystem.Agnostic
+
+	software, part = get_software_list_entry(game)
+	if software:
+		#This will overwrite all that hard work we did to get year and publisher, oh well
+		add_generic_software_list_info(game, software)
+		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
+		#Input info will be tricky, as nothing tells me if things need light guns, or there are even games like Action Fighter which support the SK-1100 keyboard optionally
