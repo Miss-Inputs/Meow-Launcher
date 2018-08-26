@@ -1,7 +1,7 @@
 from common import convert_alphanumeric, NotAlphanumericException
 from info.region_info import TVSystem
 from metadata import PlayerInput, InputType
-from .software_list_info import add_generic_software_list_info, get_software_info, get_software_list_entry, get_part_feature
+from .software_list_info import add_generic_software_list_info, get_software_list_entry
 
 
 def add_pokemini_metadata(game):
