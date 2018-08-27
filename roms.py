@@ -135,6 +135,7 @@ class Game():
 		self.folder = folder
 		self.icon = None
 		self.subroms = None
+		self.software_lists = None
 
 	def get_command_line(self, system_config):
 		return self.emulator.get_command_line(self, system_config.other_config)

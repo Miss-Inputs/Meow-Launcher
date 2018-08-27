@@ -5,7 +5,7 @@ import os
 import common
 import region_detect
 import platform_metadata
-from mame_helpers import lookup_system_cpu, lookup_system_displays, get_mame_xml
+from mame_helpers import lookup_system_cpu, lookup_system_displays, get_mame_xml, get_software_lists_by_names
 from info import system_info
 
 date_regex = re.compile(r'\((?P<year>[x\d]{4})\)|\((?P<year2>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})\)|\((?P<day2>\d{2})\.(?P<month2>\d{2})\.(?P<year3>\d{4})\)')
@@ -158,6 +158,10 @@ def add_device_hardware_metadata(game):
 def add_metadata(game):
 	game.metadata.extension = game.rom.extension
 	
+	software_list_names = system_info.get_mame_software_list_names_by_system_name(game.metadata.platform)
+	if software_list_names:
+		game.software_lists = get_software_lists_by_names(software_list_names)
+
 	if game.metadata.platform in platform_metadata.helpers:
 		platform_metadata.helpers[game.metadata.platform](game)
 
