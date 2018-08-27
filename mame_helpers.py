@@ -16,6 +16,7 @@ def consistentify_manufacturer(manufacturer):
 		'Bally Gaming Co.': 'Bally',
 		'BPS': 'Bullet-Proof Software', #I hope nobody else uses that acronym
 		'Brøderbund Software Inc': 'Brøderbund',
+		'Coconuts Japan Entertainment': 'Coconuts Japan',
 		'Data East Corporation': 'Data East',
 		'Dempa Shinbunsha': 'Dempa',
 		'Entex Industries': 'Entex',
