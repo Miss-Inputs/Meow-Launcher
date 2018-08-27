@@ -9,7 +9,6 @@ from mame_helpers import get_software_lists_by_names, consistentify_manufacturer
 
 #Because I haven't yet:
 #Atari 2600: I guess because Stella's database achieves the same purpose, but yeah, it might be faster actually...
-#FDS
 
 #Has no software list:
 #3DS
@@ -40,7 +39,6 @@ from mame_helpers import get_software_lists_by_names, consistentify_manufacturer
 #Other difficulties:
 #Colecovision: Software list splits 16K roms into multiple halves, making that tricky to deal with. Anyway, can get info unreliably from the title screen info in the ROM
 #Intellivison: .int is actually a custom headered file format I think, so that might be tricky to deal with, but I forgot how it works
-#NES: Has header, but is stored as split prg/chr inside software lists, need to separate that myself
 
 
 class Software():

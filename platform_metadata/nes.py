@@ -1,6 +1,7 @@
 import calendar
 
 from metadata import SaveType
+from software_list_info import get_software_list_entry
 from .nintendo_common import nintendo_licensee_codes
 
 ines_mappers = {
@@ -181,7 +182,12 @@ def add_fds_metadata(game):
 	game.metadata.platform = 'FDS'
 	header = game.rom.read(amount=56)
 	if header[:4] == b'FDS\x1a':
+		game.metadata.specific_info['Headered'] = True
+		game.metadata.specific_info['Header-Format'] = 'fwNES'
 		header = game.rom.read(seek_to=16, amount=56)
+	else:
+		game.metadata.specific_info['Headered'] = False
+
 
 	licensee_code = '{:02X}'.format(header[15])
 	if licensee_code in nintendo_licensee_codes:
@@ -207,8 +213,12 @@ def add_ines_metadata(game, header):
 	game.metadata.specific_info['Headered'] = True
 	#Some emulators are okay with not having a header if they have something like an internal database, others are not.
 	#Note that \x00 at the end instead of \x1a indicates this is actually Wii U VC, but it's still the same header format
+	prg_size = header[4]
+	chr_size = header[5]
+
 	flags = header[6]
 	has_battery = (flags & 2) > 0
+	#Bit 4: Contains 512-byte trainer before PRG
 	game.metadata.save_type = SaveType.Cart if has_battery else SaveType.Nothing
 	mapper_lower_nibble = (flags & 0b1111_0000) >> 4
 
@@ -231,7 +241,10 @@ def add_ines_metadata(game, header):
 			game.metadata.specific_info['Mapper'] = ines_mappers[mapper]
 		else:
 			game.metadata.specific_info['Mapper'] = 'iNES Mapper %d' % mapper
-	#TV type apparently isn't used much despite it being part of the iNES specification, and looking at a lot of headered ROMs it does seem that they are all NTSC other than a few that say PAL that shouldn't be, so yeah, I wouldn't rely on it. Might as well just use the filename.
+
+		game.metadata.specific_info['PRG-Size'] = prg_size * 16 * 1024
+		game.metadata.specific_info['CHR-Size'] = chr_size * 8 * 1024
+		#TV type apparently isn't used much despite it being part of the iNES specification, and looking at a lot of headered ROMs it does seem that they are all NTSC other than a few that say PAL that shouldn't be, so yeah, I wouldn't rely on it. Might as well just use the filename.
 
 def add_nes_metadata(game):
 	if game.rom.extension == 'fds':
@@ -243,3 +256,41 @@ def add_nes_metadata(game):
 			add_ines_metadata(game, header)
 		else:
 			game.metadata.specific_info['Headered'] = False
+
+	software = None
+	if not game.metadata.specific_info.get('Headered', False):
+		software = get_software_list_entry(game)
+	else:
+		if game.metadata.specific_info.get('Header-Format') == 'fwNES':
+			software = get_software_list_entry(game, skip_header=16)
+		elif game.metadata.specific_info.get('Header-Format') in ('iNES', 'NES 2.0'):
+			if game.metadata.specific_info.get('CHR-Size') == 0:
+				#TODO: Take into account 512-byte trainer (who even has one of those?)
+				#TODO: More importantly, if there's a CHR part of the ROM, that'll be another dataarea in the MAME software list, so it won't be detected... we need to  split it up ourselves. This won't be easy
+				software = get_software_list_entry(game, skip_header=16)
+
+	if software:
+		software.add_generic_info(game)
+		game.metadata.product_code = software.get_info('serial')
+		#FIXME: Acktually, you can have multiple feature = peripherals
+		#See also: SMB / Duck Hunt / World Class Track Meet multicart, with both zapper and powerpad
+		peripheral = software.get_part_feature('peripheral')
+		game.metadata.specific_info['Uses-Zapper'] = peripheral == 'zapper'
+		game.metadata.specific_info['Uses-3D-Glasses'] = peripheral == '3dglasses'
+		game.metadata.specific_info['Uses-Arkanoid-Paddle'] = peripheral == 'vaus'
+		game.metadata.specific_info['Uses-Power-Pad'] = peripheral in ('powerpad', 'ftrainer', 'fffitness') #I'm pretty sure those are all the same thing, right?
+		game.metadata.specific_info['Uses-Power-Glove'] = peripheral == 'powerglove' #Hell yeah, that's so bad
+		game.metadata.specific_info['Uses-ROB'] = peripheral == 'rob'
+		game.metadata.specific_info['Uses-Keyboard'] = peripheral in ('fc_keyboard', 'subor_keyboard')
+		#Actually, maybe I should be more specific there... hmm... I mean, for input info it doesn't matter, but for compatibility I don't think they're the same at all
+		game.metadata.specific_info['Uses-Piano'] = peripheral == 'mpiano'
+		#There's a "battlebox" which Armadillo (Japan) uses?
+		#Barcode World (Japan) uses "barcode"
+		#The Best Play Pro Yakyuu (Japan), Derby Stallion - Zenkokuban (Japan), some others use "turbofile"
+		#Peripheral = 4p_adapter: 4 players
+		#Gimmi a Break stuff: "partytap"?
+		#Hyper Olympic (Japan): "hypershot"
+		#Ide Yousuke Meijin no Jissen Mahjong (Jpn, Rev. A): "mjcontroller" (mahjong controller?)
+		#RacerMate Challenge 2: "racermate"
+		#Top Rider (Japan): "toprider"
+		#TODO: Input info stuff, instead of one million different specific info fields
