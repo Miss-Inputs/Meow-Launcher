@@ -90,7 +90,7 @@ def add_ds_metadata(game):
 	
 	try:
 		product_code = convert_alphanumeric(header[12:16])
-		game.metadata.specific_info['Product-Code'] = product_code
+		game.metadata.product_code = product_code
 	except NotAlphanumericException:
 		pass
 

@@ -112,7 +112,7 @@ def add_gameboy_metadata(game):
 		game.metadata.specific_info['Has-RTC'] = software.get_part_feature('rtc') == 'yes'
 		game.metadata.save_type = SaveType.Cart if software.has_data_area('nvram') else SaveType.Nothing
 		#Note that the product code here will have the DMG- or CGB- in front, and something like -USA -EUR at the end
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 		#Feature "slot" would get you the mapper (in MAME format e.g. rom_mbc5), but nothing can really make use of that, so nah
 		#But that would be good though if stuff could make use of overrides on the command line, because then we can get bootleg mappers, or stuff like rom_mbc1col for Mortal Kombat 1 + 2
 		#Sure, we could put Mapper specific info in here anyway. But if a game specifies it has Mapper X (or no valid mapper at all) in the header, then emulators will see it as having Mapper X, even if we know from the software list that it really has Mapper Y

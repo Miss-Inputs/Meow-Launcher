@@ -101,7 +101,7 @@ def try_parse_standard_header(game):
 
 	if header_data:
 		game.metadata.revision = header_data['Revision']
-		game.metadata.specific_info['Product-Code'] = header_data['Product code']
+		game.metadata.product_code = header_data['Product code']
 		if header_data['Region'] == 'Japanese':
 			game.metadata.regions = [get_region_by_name('Japan')]
 		
@@ -126,5 +126,5 @@ def get_sms_metadata(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 		#Input info will be tricky, as nothing tells me if things need light guns, or there are even games like Action Fighter which support the SK-1100 keyboard optionally

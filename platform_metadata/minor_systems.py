@@ -17,7 +17,7 @@ def add_entex_adventure_vision_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 
 def add_game_pocket_computer_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -32,7 +32,7 @@ def add_game_pocket_computer_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 
 def add_gamate_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -48,7 +48,7 @@ def add_gamate_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 
 def add_casio_pv1000_info(game):
 	game.metadata.tv_type = TVSystem.NTSC #Japan only. I won't assume the region in case some maniac decides to make homebrew for it or something, but it could only ever be NTSC
@@ -63,7 +63,7 @@ def add_casio_pv1000_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 
 def add_mega_duck_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -79,7 +79,7 @@ def add_mega_duck_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 	
 def add_watara_supervision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -95,7 +95,7 @@ def add_watara_supervision_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 
 def add_apfm1000_info(game):
 	#TODO: Input info should always be keypad... I think?
@@ -106,7 +106,7 @@ def add_apfm1000_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 		#There's not really anything in there which tells us if we need the Imagination Machine for a particular cart. There's something about RAM, though.
 
 def add_arcadia_info(game):
@@ -139,7 +139,7 @@ def add_casio_pv2000_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 
 def add_channel_f_info(game):
 	#Input info is uhhh that weird twisty thing I guess
@@ -156,7 +156,7 @@ def add_msx_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 		#Other info you can get from carts here: PCB, slot (something like ascii8 or whatever), mapper
 
 def add_pc88_info(game):
@@ -173,7 +173,7 @@ def add_sg1000_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 		uses_tablet = software.get_part_feature('peripheral') == 'tablet'
 		#There doesn't seem to be a way to know if software is a SC-3000 cart, unless I just say whichever one has the .sc extension. So I'll do that
 	
@@ -208,7 +208,7 @@ def add_tomy_tutor_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 
 def add_vc4000_info(game):
 	#Until proven otherwise
@@ -217,13 +217,13 @@ def add_vc4000_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 
 def add_vic10_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 		#What the heck is an "assy"?
 
 def add_vic20_info(game):
@@ -233,14 +233,14 @@ def add_vic20_info(game):
 	software = get_software_list_entry(game, skip_header=2 if has_header else 0)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 		#TODO: Get sharedfeat = compatibility to get TV type		
 
 def add_sord_m5_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 		#Take note of info > usage = requiring 36K RAM, though we just set our M5 to have max RAM anyway, seems to be harmless
 
 def add_gx4000_info(game):
@@ -255,7 +255,7 @@ def add_juicebox_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 
 def add_atari_5200_info(game):
 	#Can get the title screen information from inside the ROM to get the year (and also title). But that's hella unreliable, won't work properly for homebrews released after 2000, and requires implementing the 5200 title screen's custom character set (which I do know, it's just a pain in the arse)
@@ -264,7 +264,7 @@ def add_atari_5200_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 		uses_trackball = software.get_part_feature('peripheral') == 'trackball'
 
 	game.metadata.save_type = SaveType.Nothing #Probably
@@ -289,7 +289,7 @@ def add_uzebox_info(game):
 		software.add_generic_info(game)
 		if game.metadata.publisher == 'Belogic':
 			game.metadata.publisher = game.metdata.developer
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 
 def add_pce_info(game):
 	#Input could be 2 buttons or 6 buttons, usually the former. Might be other types too?
@@ -298,7 +298,7 @@ def add_pce_info(game):
 	if software:
 		software.add_generic_info(game)
 		#Other info: alt_title, release (that seems to be a date, I'm not sure if it always is though)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 
 def add_game_com_info(game):
 	#Could have its own header. I think it does, but like.. who's gonna document such a thing? The wide community of Game.com enthusiasts?
@@ -315,7 +315,7 @@ def add_game_com_info(game):
 	if software:
 		software.add_generic_info(game)
 		#This will tell you that nothing is supported. I think that sometimes the MAME devs are too hard on themselves. Someone needs to cheer them up a bit.
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 
 def add_lynx_info(game):
 	#TODO .lnx files should have a header with something in them, so eventually, Lynx will get its own module here
@@ -329,4 +329,4 @@ def add_lynx_info(game):
 	software = get_software_list_entry(game, skip_header=64)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')

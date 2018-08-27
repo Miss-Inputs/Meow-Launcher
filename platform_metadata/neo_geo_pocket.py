@@ -16,11 +16,11 @@ def add_ngp_metadata(game):
 	#Otherwise it'd say " LICENSED BY SNK CORPORATION" and that could be any dang third party which isn't terribly useful
 	#There's really not much here, so I didn't even bother reading the whole header
 	#At offset 35, you could get the colour flag, and if equal to 0x10 set platform to "Neo Geo Pocket Color" if you really wanted
-	game.metadata.specific_info['Product-Code'] = int.from_bytes(header[32:34], 'little')
+	game.metadata.product_code = int.from_bytes(header[32:34], 'little')
 	game.metadata.revision = header[34]
 	game.metadata.specific_info['Is-Colour'] = header[35] == 0x10
 
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')

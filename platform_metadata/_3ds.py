@@ -60,7 +60,7 @@ def parse_ncch(game, offset):
 	#Logo region hash: 44-76
 	try:
 		product_code = header[76:86].decode('ascii')
-		game.metadata.specific_info['Product-Code'] = product_code
+		game.metadata.product_code = product_code
 		#As usual, can get country and type from here, but it has more letters and as such you can also get category as well, or like... type 2 electric boogaloo. This also means we can't use convert_alphanumeric because it contains dashes, so I guess I need to fiddle with that method if I want to use it like that
 		#(To be precise: P = retail/cart, N = digital only, M = DLC, T = demos, U = patches)
 		#Should ignore everything if it's CTR-P-CTAP

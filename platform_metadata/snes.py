@@ -11,7 +11,7 @@ def parse_sufami_turbo_header(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
 
 	game.metadata.platform = 'Sufami Turbo'
 
@@ -231,7 +231,7 @@ def add_normal_snes_header(game):
 		game.metadata.revision = header_data.get('Revision')
 		product_code = header_data.get('Product code')
 		if product_code:
-			game.metadata.specific_info['Product-Code'] = product_code
+			game.metadata.product_code = product_code
 
 def parse_satellaview_header(game, base_offset):
 	header = game.rom.read(seek_to=base_offset, amount=0xe0)

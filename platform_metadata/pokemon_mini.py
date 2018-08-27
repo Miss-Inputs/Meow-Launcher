@@ -17,7 +17,7 @@ def add_pokemini_metadata(game):
 	product_code_bytes = game.rom.read(seek_to=0x21ac, amount=4)
 	try:
 		product_code = convert_alphanumeric(product_code_bytes)
-		game.metadata.specific_info['Product-Code'] = product_code
+		game.metadata.product_code = product_code
 	except NotAlphanumericException:
 		pass
 

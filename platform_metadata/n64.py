@@ -9,7 +9,7 @@ def add_n64_metadata(game):
 		#TODO: Check Mupen64Plus's database (/usr/local/share/mupen64plus/mupen64plus.ini). That will take 5 hours because it's indexed by MD5 and not something like internal name or product code, but eh... it has the things. For ROMs it knows about. Hmm. I guess it's all we can do, unless you want to make a whole database of N64 ROMs yourself, young lady.
 		try:
 			product_code = convert_alphanumeric(header[59:63])
-			game.metadata.specific_info['Product-Code'] = product_code
+			game.metadata.product_code = product_code
 		except NotAlphanumericException:
 			pass
 		game.metadata.revision = header[63]

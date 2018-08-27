@@ -44,7 +44,7 @@ def add_megadrive_info(game, header):
 	try:
 		#There's a space at header[130] apparently, so I guess that might be part of the thing, but eh
 		serial = header[131:142].decode('ascii')
-		game.metadata.specific_info['Product-Code'] = serial[:8]
+		game.metadata.product_code = serial[:8]
 		#- in between
 		version = serial[-2]
 		if version.isdigit():
@@ -138,7 +138,7 @@ def add_megadrive_metadata(game):
 		software = get_software_list_entry(game)
 		if software:
 			software.add_generic_info(game)
-			game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+			game.metadata.product_code = software.get_info('serial')
 			game.metadata.specific_info['Uses-SVP'] = software.get_shared_feature('addon') == 'SVP'
 			game.metadata.specific_info['Bad-TMSS'] = software.get_shared_feature('incompatibility') == 'TMSS'
 			#TODO: A lot of >2MB Megadrive games are split into multiple parts in the software lists. Can we do anything about that?

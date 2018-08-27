@@ -42,7 +42,7 @@ def add_gba_metadata(game):
 		if game_type[0] == 'K' or game_type == 'R':
 			player.inputs.append(InputType.MotionControls)
 
-		game.metadata.specific_info['Product-Code'] = product_code
+		game.metadata.product_code = product_code
 		game.metadata.specific_info['Force-Feedback'] = game_type in ('R', 'V')
 		if licensee_code in nintendo_licensee_codes:
 			game.metadata.publisher = nintendo_licensee_codes[licensee_code]

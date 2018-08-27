@@ -12,7 +12,7 @@ def add_gamecube_wii_disc_metadata(game, header):
 	if internal_title[:28] == b'GAMECUBE HOMEBREW BOOTLOADER':
 		return
 	try:
-		game.metadata.specific_info['Product-Code'] = convert_alphanumeric(header[:4])
+		game.metadata.product_code = convert_alphanumeric(header[:4])
 	except NotAlphanumericException:
 		pass
 

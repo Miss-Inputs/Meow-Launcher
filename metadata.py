@@ -227,6 +227,8 @@ class Metadata():
 		self.categories = []
 		self.save_type = SaveType.Unknown
 		self.revision = None
+		self.product_code = None
+		self.regions = []
 		
 		#Set this up later with the respective objects
 		#TODO: Set cpu_info and screen_info up right here, and just keep track of whether they're "known" or not like input_info does
@@ -234,9 +236,8 @@ class Metadata():
 		self.screen_info = None
 		self.input_info = InputInfo()
 
-		#Not part of the little standard I invented on the wiki
+		#I guess you could call this internal use only
 		self.specific_info = {} #Stuff specific to indivdidual systems
-		self.regions = []
 		self.tv_type = None
 		self.ignored_filename_tags = []
 
@@ -257,9 +258,10 @@ class Metadata():
 			'Revision': self.revision,
 			'Publisher': self.publisher,
 			'Developer': self.developer,	
+			'Product-Code': self.product_code,
+			'Regions': [region.name if region else 'None!' for region in self.regions] if self.regions else [],
 
 			'Ignored-Tags': self.ignored_filename_tags,
-			'Regions': [region.name if region else 'None!' for region in self.regions] if self.regions else [],
 			'TV-Type': self.tv_type.name if self.tv_type else None,
 		}
 

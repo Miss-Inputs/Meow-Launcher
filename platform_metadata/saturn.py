@@ -33,7 +33,7 @@ def add_saturn_info(game, header):
 		pass
 
 	try:
-		game.metadata.specific_info['Product-Code'] = header[32:42].decode('ascii').rstrip()
+		game.metadata.product_code = header[32:42].decode('ascii').rstrip()
 	except UnicodeDecodeError:
 		pass
 

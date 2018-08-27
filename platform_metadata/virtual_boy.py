@@ -20,7 +20,7 @@ def add_virtual_boy_metadata(game):
 		pass
 
 	try:
-		game.metadata.specific_info['Product-Code'] = convert_alphanumeric(header[27:31])
+		game.metadata.product_code = convert_alphanumeric(header[27:31])
 	except NotAlphanumericException:
 		pass
 	#Can get country from product_code[3] if needed

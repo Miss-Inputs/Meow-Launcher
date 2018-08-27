@@ -120,7 +120,7 @@ def parse_stella_db(game, game_info):
 		else:
 			game.metadata.publisher = manufacturer
 	if 'Cartridge_ModelNo' in game_info:
-		game.metadata.specific_info['Product-Code'] = game_info['Cartridge_ModelNo']
+		game.metadata.product_code = game_info['Cartridge_ModelNo']
 	if 'Cartridge_Note' in game_info:
 		#TODO: Ignore things like "Uses the Paddle Controllers" and "Console ports are swapped" that are already specified by other fields
 		#TODO: Do something with "AKA blah blah blah" (X-Alternate-Name?) or ignore that

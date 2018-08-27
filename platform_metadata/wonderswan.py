@@ -60,7 +60,7 @@ def add_wonderswan_metadata(game):
 		game.metadata.publisher = publishers[publisher_code]
 	game.metadata.specific_info['Is-Colour'] = header[1] == 1
 
-	game.metadata.specific_info['Product-Code'] = str(header[2])
+	game.metadata.product_code = str(header[2])
 
 	game.metadata.revision = header[3]
 

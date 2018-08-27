@@ -46,7 +46,7 @@ def parse_tmd(game, tmd):
 	#Title ID: 396-400
 	try:
 		product_code = tmd[400:404].decode('ascii')
-		game.metadata.specific_info['Product-Code'] = product_code
+		game.metadata.product_code = product_code
 	except UnicodeDecodeError:
 		pass
 	#Product code format is like that of GameCube/Wii discs, we could get country or type from it I guess

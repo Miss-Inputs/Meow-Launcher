@@ -57,7 +57,7 @@ def add_info_from_main_track(game, track_path, sector_size):
 	except ValueError:
 		pass
 	
-	game.metadata.specific_info['Product-Code'] = header[64:74].decode('ascii', errors='backslashreplace').rstrip()
+	game.metadata.product_code = header[64:74].decode('ascii', errors='backslashreplace').rstrip()
 	
 	release_date = header[80:96].decode('ascii', errors='backslashreplace').rstrip()
 	
