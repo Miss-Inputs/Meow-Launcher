@@ -12,6 +12,8 @@ from mame_helpers import get_software_lists_by_names, consistentify_manufacturer
 #WonderSwan (and Benesse Pocket Challenge V2)
 #Coleco Adam
 #SNES, Satellaview (but take out copier header if it's there in 2018)
+#FDS
+#C64GS
 
 #Has no software list:
 #3DS
@@ -30,11 +32,6 @@ from mame_helpers import get_software_lists_by_names, consistentify_manufacturer
 #PC-FX
 #PS1
 #Saturn
-
-#Because I change the platform at runtime, and that won't work without me refactoring stuff:
-#Game Boy Color
-#FDS
-#C64GS
 
 #Need to skip header and haven't bothered doing that yet:
 #C64, Atari 8-bit (for carts)
