@@ -205,18 +205,23 @@ systems = [
 
 	#TODO: Me being lazy, need to check if these actually work or not:
 	System('Amiga', 'a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench', 'cd32', 'cdtv'], []),	
+	#MAME is known to not work here
 	System('Apple I', 'apple1', ['apple1'], []),
 	System('Apple II', 'apple2', ['apple2', 'apple2_cass'], []),
 	System('Apple Lisa', 'lisa', ['lisa'], []),
 	System('Atari ST', 'st', ['st_flop', 'st_cart'], []),
-	System('Commodore PET', 'pet4032', ['pet_cass', 'pet_flop', 'pet_hdd', 'pet_quik', 'pet_rom'], []),
-	#Unsure which one the "main" driver is, or if some of them count as separate systems. This will require autoboot scripts to do stuff anyway
-	#TODO: This can work with -quik and autoboot though
-	System('Galaksija', 'galaxyp', ['galaxy'], []),
+	#MAME is known to not work here, and Hatari is known to have usability issues... is there anything else?
 	System('Luxor ABC80', 'abc80', ['abc80_cass', 'abc80_flop'], []),
 	System('Sam Coupe', 'samcoupe', ['samcoupe_cass', 'samcoupe_flop'], []),
 	System('Tandy CoCo', 'coco3', ['coco_cart', 'coco_flop'], []),
 	#Did I want coco/coco2 instead? Hmm	
+
+	#TODO: Me being lazy, I know if these work or not:
+	System('Commodore PET', 'pet4032', ['pet_cass', 'pet_flop', 'pet_hdd', 'pet_quik', 'pet_rom'], []),
+	#Unsure which one the "main" driver is, or if some of them count as separate systems. This will require autoboot scripts to do stuff anyway
+	#TODO: This can work with -quik and autoboot though
+	System('Galaksija', 'galaxyp', ['galaxy'], []),
+	#This needs tape control automation to work with tapes (type OLD, then play tape, then RUN); dumps just need to press enter because MAME will type "RUN" for you. But not enter for you. Dunno why.
 	
 	#Other todos:
 	#Is Acorn Electron the same as BBC Micro for emulation purposes?
