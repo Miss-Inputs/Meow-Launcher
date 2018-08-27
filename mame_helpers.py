@@ -7,42 +7,75 @@ from metadata import CPUInfo, ScreenInfo
 def consistentify_manufacturer(manufacturer):
 	#Sometimes, MAME uses two different variations on what is the same exact company. Or formats the name in a way that nobody else does anywhere else.
 	#I'm not going to count regional branches of a company, though.
-	#Sometimes I don't know which out of the two variations is what I should go with... I just want only one of them
+	#Sometimes I don't know which out of the two variations is what I should go with... I just want only one of them. If any people out there are experts on the field of company names, then by all means tell me off.
 	#TODO: Are ATW > ATW USA Inc. the same or a regional branch?
 	#Should NEC Avenue and NEC Home Electronics just be called NEC?
 	#Should Sony Computer Entertainment Inc and Sony Imagesoft be just Sony?
 	#Toshiba EMI > Toshiba?
+	#Are CBS Electronics and CBS Software the same? Or are they just two different companies with the same name
+	#Are Fox Interactive, Fox Video Games, 20th Century Fox all the same?
+	#HesWare == HES?
+	#Human, Human Amusement, Human Entertainment?
+	#Ultra, Ultra Games, Konami (Ultra Games)?
+	#Universal == Universal Video Gaes?
+	#Is PonyCa some weird abbreviation of Pony Canyon?
+	#The SNES game Super Godzilla (USA) has a publisher of literally "Super Godzilla". Wait what? That can't be right. Should be Toho right? Same with Tetris (Japan) for Megadrive. Unless they meant The Tetris Company there.
 	#Leave Atari Games > Atari and Midway Games > Midway alone, because if I try to comperehend the timeline of which is what and who owned the rights to which brand name and who owned who at any given time, I would die of confusion
 	return {
+		'Absolute Entertainment, Inc': 'Absolute Entertainment',
+		'Absolute Entertainment, Inc.': 'Absolute Entertainment',
 		'Acclaim Entertainment': 'Acclaim',
 		'Alpha Denshi Co.': 'ADK', #Renamed in 1993, but let's not make this confusing
+		'American Softworks Company': 'American Softworks',
+		'ASCII Entertainment': 'ASCII',
+		'Atarisoft': 'Atari', #Atarisoft is just a brand name and not an actual company, so I guess I'll do this
 		'Bally Gaming Co.': 'Bally',
 		'BPS': 'Bullet-Proof Software', #I hope nobody else uses that acronym
 		'Brøderbund Software Inc': 'Brøderbund',
 		'Coconuts Japan Entertainment': 'Coconuts Japan',
+		'Creative Software': 'Creative', #Gonna guess this isn't the sound card company. Would be an interesting predicament if they made software that was in the software lists, huh
+		'Cryo': 'Cryo Interactive',
 		'Data East Corporation': 'Data East',
 		'Dempa Shinbunsha': 'Dempa',
+		'Disney Interactive': 'Disney',
+		'Eidos Interactive': 'Eidos',
 		'Elite': 'Elite Systems',
 		'Entex Industries': 'Entex',
 		'HAL Kenkyuujo': 'HAL', #Literally "HAL Laboratory"
 		'HAL Laboratory': 'HAL',
+		'Hasbro Interactive': 'Hasbro',
 		'HiCom': 'Hi-Com',
 		'Hudson': 'Hudson Soft',
+		'JoWooD Entertainment AG': 'JoWooD Entertainment',
 		'Kaneko Elc. Co.': 'Kaneko',
+		'LEGO Media': 'Lego',
+		'Mattel Interactive': 'Mattel',
+		'Mattel Media': 'Mattel',
 		'MicroCabin': 'Micro Cabin', #Annoying alternate spelling because they officially use both just to be annoying
 		'Nihon Telenet': 'Telenet', #I guess
+		'Nihon Bussan': 'Nichibutsu', #C'mon, use their preferred name
 		'Ocean Software': 'Ocean',
+		'Omage Micott, Inc.': 'Omega Micott', #I have a feeling I'm the one who's wrong here. Never did quality check the Wonderswan licensees
 		'Omori Electric Co., Ltd.': 'Omori',
 		'Palm Inc': 'Palm',
+		'Playmates Interactive': 'Playmates',
 		'ProSoft': 'Prosoft',
-		'Sigma Enterprises Inc.': 'Sigma',
+		'Sammy Entertainment': 'Sammy',
+		'Sierra On-Line': 'Sierra',
+		'Sigma Enterprises Inc.': 'Sigma', #Every time I see this line I keep thinking "sigma balls", just thought you should know
+		'Software Toolworks': 'The Software Toolworks', #It doesn't seem right that the "correct" one is the latter, but it's used more often, so I guess it is
+		'Spinnaker Software': 'Spinnaker',
 		'Square': 'Squaresoft', #Which is the frickin' right one?
 		'Taito Corporation': 'Taito',
 		'Taito Corporation Japan': 'Taito',
 		'Taito America Corporation': 'Taito America',
+		'T*HQ': 'THQ', #Why.
 		'Titus Software': 'Titus',
 		'UA Ltd.': 'UA Limited', #MAME uses the former (for Arcadia 2001 lists), Stella uses the latter in its database
+		'Ubi Soft': 'Ubisoft', #I hate that they used to spell their name with a space so this is valid. But then, don't we all hate Ubisoft for one reason or another?
+		'V.Fame': 'Vast Fame',
 		'Viacom New Media': 'Viacom',
+		'Virgin Games': 'Virgin',
 		'Virgin Interactive': 'Virgin',
 		'Williams Entertainment': 'Williams',
 
@@ -67,12 +100,19 @@ def consistentify_manufacturer(manufacturer):
 		'日本ファルコム (Nihon Falcom)': 'Nihon Falcom',
 		'電波新聞社 (Dempa Shinbunsha)': 'Dempa',
 
-		#These ones are basically just typos...
+		#These ones are probably just typos... I wonder if I can just like, send a pull request or something. But then I might actually be wrong
+		'BEC': 'Bec',
+		'Dreamworks': 'DreamWorks',
+		'Elite System': 'Elite Systems',
 		'enix': 'Enix',
 		'EPYX': 'Epyx',
 		'GTC Inc.': 'GTC Inc',
 		'Hi Tech Expressions': 'Hi-Tech Expressions',
+		'Microprose': 'Microprose',
+		'Mindscapce': 'Mindscape', #Yeah okay, that _definitely_ is a typo
 		'Pack-In-Video': 'Pack-In Video',
+		'SpectraVideo': 'Spectravideo',
+		'VAP': 'Vap',
 	}.get(manufacturer, manufacturer)
 
 def get_software_lists_by_names(names):
