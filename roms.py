@@ -134,6 +134,7 @@ class Game():
 		self.metadata.categories = []
 		self.folder = folder
 		self.icon = None
+		self.subroms = None
 
 	def get_command_line(self, system_config):
 		return self.emulator.get_command_line(self, system_config.other_config)
@@ -167,6 +168,11 @@ def try_emulator(system_config, emulator, rom_dir, root, name):
 
 	rom = Rom(path)
 	game = Game(rom, emulator, system_config.name, root)
+
+	if game.rom.extension == 'm3u':
+		lines = game.rom.read().decode('utf-8').splitlines()
+		filenames = [line if line.startswith('/') else os.path.join(game.folder, line) for line in lines if not line.startswith("#")]
+		game.subroms = [Rom(referenced_file) for referenced_file in filenames]
 
 	#TODO This looks weird, but is there a better way to do this? (Get subfolders we're in from rom_dir)
 	game.metadata.categories = [i for i in root.replace(rom_dir, '').split('/') if i]

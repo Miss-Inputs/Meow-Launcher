@@ -339,3 +339,13 @@ def mame_sg1000(game, _):
 
 
 	return mame_command_line(system, slot, slot_options, has_keyboard)
+
+def mame_sharp_x68000(game, _):
+	if game.subroms:
+		#FIXME: This won't work if the referenced m3u files have weird compression formats supported by 7z but not by MAME; but maybe that's your own fault
+		floppy_slots = {}
+		for i, individual_floppy in enumerate(game.subroms):
+			floppy_slots['flop%d' % (i + 1)] = shlex.quote(individual_floppy.path)
+
+		return mame_command_line('x68000', slot=None, slot_options=floppy_slots, has_keyboard=True)
+	return mame_command_line('x68000', 'flop1', has_keyboard=True)

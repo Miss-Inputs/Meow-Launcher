@@ -189,7 +189,8 @@ emulators = {
 	#Hey!!  We finally have floppies working!!  Because they boot automatically!  Assumes that they will all work fine
 	#though without any other disks, and this will need to be updated if we see any cartridges (MAME says it has a cart
 	#slot)...
-	'MAME (Sharp X68000)': MameSystem(command_lines.mame_command_line('x68000', 'flop1', has_keyboard=True), mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim']),	
+	'MAME (Sharp X68000)': MameSystem(command_lines.mame_sharp_x68000, mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim', 'm3u']),
+	#It doesn't	really support m3u, but I'm going to make it so it does
 	'MAME (SNES)': MameSystem(command_lines.mame_snes, ['sfc', 'bs', 'st']),
 	'MAME (Sord M5)': MameSystem(command_lines.mame_command_line('m5', 'cart1', {'ramsize': '64K', 'upd765:0': '""'}, True), ['bin']),
 	#Apparently has joysticks with no fire button?  Usually space seems to be fire but sometimes 1 is, which is usually
