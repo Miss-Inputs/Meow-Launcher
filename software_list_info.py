@@ -101,7 +101,12 @@ class Software():
 	def add_generic_info(self, game):
 		game.metadata.specific_info['MAME-Software-Name'] = self.xml.attrib.get('name')
 		game.metadata.specific_info['MAME-Software-Full-Name'] = self.xml.findtext('description')
-		game.metadata.publisher = consistentify_manufacturer(self.xml.findtext('publisher'))
+
+		publisher = consistentify_manufacturer(self.xml.findtext('publisher'))
+		already_has_publisher = game.metadata.publisher and not game.metadata.publisher.startswith('<unknown')
+		if not (already_has_publisher and (publisher == '<unknown>')):
+			game.metadata.publisher = publisher
+
 		game.metadata.year = self.xml.findtext('year')
 		game.metadata.specific_info['MAME-Emulation-Status'] = self.emulation_status
 		game.metadata.specific_info['Notes'] = self.get_info('usage')
