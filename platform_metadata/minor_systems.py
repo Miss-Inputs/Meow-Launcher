@@ -287,6 +287,8 @@ def add_uzebox_info(game):
 	software, part = get_software_list_entry(game)
 	if software:
 		add_generic_software_list_info(game, software)
+		if game.metadata.publisher == 'Belogic':
+			game.metadata.publisher = game.metdata.developer
 		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
 
 def add_pce_info(game):
