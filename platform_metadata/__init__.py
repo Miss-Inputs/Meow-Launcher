@@ -106,5 +106,6 @@ helpers = {
 	'Uzebox': add_uzebox_info,
 	'VC 4000': add_vc4000_info,
 	'VIC-10': add_vic10_info,
+	'VIC-20': add_vic20_info,
 	'Watara Supervision': add_watara_supervision_info,
 }

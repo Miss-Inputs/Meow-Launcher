@@ -14,7 +14,6 @@ from mame_helpers import get_software_lists_by_names, find_in_software_lists, co
 #Master System: Hmm, already has a publisher for Game Gear and homebrew... year too
 #N64: Not sure if want, this would take 5 hours especially when 7zipped
 #VZ-200: .vz doesn't have a software list
-#VIC-20: Cart may have 2-byte header which we would skip over
 #ZX Spectrum: All +3 software in MAME is in .ipf format, which seems hardly ever used in all honesty (.z80 files don't have a software list)
 
 def get_software_list_entry(game, skip_header=0):

@@ -226,6 +226,16 @@ def add_vic10_info(game):
 		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
 		#What the heck is an "assy"?
 
+def add_vic20_info(game):
+	#TODO: Is it possible that .a0 etc might have the header too? It shouldn't, but y'know
+	#This won't work with >8KB carts at the moment, because MAME stores those in the software list as two separate ROMs. But then they won't have launchers anyway because our only emulator for VIC-20 is MAME itself, and it doesn't let us just put the two ROMs together ourselves, those games are basically software list only at the moment (because it won't let us have one single file above 8KB).
+	has_header = game.rom.extension in ('prg', 'crt') and (game.rom.get_size() % 256) == 2
+	software, part = get_software_list_entry(game, skip_header=2 if has_header else 0)
+	if software:
+		add_generic_software_list_info(game, software)
+		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
+		#TODO: Get sharedfeat = compatibility to get TV type		
+
 def add_sord_m5_info(game):
 	software, part = get_software_list_entry(game)
 	if software:
