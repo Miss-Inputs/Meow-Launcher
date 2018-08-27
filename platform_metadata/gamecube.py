@@ -11,19 +11,29 @@ def add_gamecube_wii_disc_metadata(game, header):
 	internal_title = header[32:64] #Potentially quite a lot bigger but we don't need that much out of it
 	if internal_title[:28] == b'GAMECUBE HOMEBREW BOOTLOADER':
 		return
+
+	product_code = None
 	try:
-		game.metadata.product_code = convert_alphanumeric(header[:4])
+		product_code = convert_alphanumeric(header[:4])
 	except NotAlphanumericException:
 		pass
 
+	publisher = None
 	try:
 		licensee_code = convert_alphanumeric(header[4:6])
 		if licensee_code in nintendo_licensee_codes:
-			game.metadata.publisher = nintendo_licensee_codes[licensee_code]
+			publisher = nintendo_licensee_codes[licensee_code]
 		elif licensee_code != '00':
-			game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(licensee_code)
+			publisher = '<unknown Nintendo licensee {0}>'.format(licensee_code)
 	except NotAlphanumericException:
 		pass
+
+	if product_code == 'RELS' and licensee_code == 'AB':
+		#This is found on a few prototype discs, it's not valid
+		return
+	
+	game.metadata.product_code = product_code
+	game.metadata.publisher = publisher
 
 	game.metadata.revision = header[7]
 	is_wii = header[0x18:0x1c] == b']\x1c\x9e\xa3'
