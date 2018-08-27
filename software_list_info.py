@@ -72,28 +72,43 @@ class Software():
 		if not game.metadata.developer:
 			game.metadata.developer = self.get_info('programmer')
 
+def _does_rom_match(rom, crc, sha1):
+	if sha1:
+		if 'sha1' in rom.attrib and rom.attrib['sha1'] == sha1:
+			return True
+	if crc:
+		if 'crc' in rom.attrib and rom.attrib['crc'] == crc:
+			return True
+	return False
+
+def _does_part_match(part, crc, sha1):
+	for data_area in part.findall('dataarea'):
+		roms = data_area.findall('rom')
+		if not roms:
+			#Ignore data areas such as "sram" that don't have any ROMs associated with them.
+			#Note that data area's name attribute can be anything like "rom" or "flop" depending on the kind of media, but the element inside will always be called "rom"
+			continue
+		for rom in roms:
+			if _does_rom_match(rom, crc, sha1):
+				return True
+
+	return False
+
+def find_in_sofware_list(software_list, crc=None, sha1=None):
+	for software in software_list.findall('software'):
+		for part in software.findall('part'):
+			#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
+			#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
+			if _does_part_match(part, crc, sha1):
+				return Software(software)	
+	return None
 
 def find_in_software_lists(software_lists, crc=None, sha1=None):
 	#TODO: Handle hash collisions. Could happen, even if we're narrowing down to specific software lists
 	for software_list in software_lists:
-		for software in software_list.findall('software'):
-			for part in software.findall('part'):
-				#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
-				#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
-				for data_area in part.findall('dataarea'):
-					roms = data_area.findall('rom')
-					if not roms:
-						#Ignore data areas such as "sram" that don't have any ROMs associated with them.
-						#Note that data area's name attribute can be anything like "rom" or "flop" depending on the kind of media, but the element inside will always be called "rom"
-						continue
-					for rom in roms:
-						if sha1:
-							if 'sha1' in rom.attrib and rom.attrib['sha1'] == sha1:
-								return Software(software)
-						if crc:
-							if 'crc' in rom.attrib and rom.attrib['crc'] == crc:
-								return Software(software)
-
+		software = find_in_sofware_list(software_list, crc, sha1)
+		if software:
+			return software
 	return None
 
 def get_software_list_entry(game, skip_header=0):
