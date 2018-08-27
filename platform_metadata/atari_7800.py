@@ -2,6 +2,7 @@ import sys
 
 from metadata import SaveType, InputType, PlayerInput
 from info.region_info import TVSystem
+from software_list_info import get_software_list_entry
 
 debug = '--debug' in sys.argv
 
@@ -12,16 +13,7 @@ input_types = {
 	4: (InputType.Trackball, 1),
 }
 
-def add_atari_7800_metadata(game):
-	game.metadata.input_info.console_buttons = 3 #Pause, select, reset
-
-	header = game.rom.read(amount=128)
-	if header[1:10] != b'ATARI7800':
-		game.metadata.specific_info['Headered'] = False
-		return
-
-	game.metadata.specific_info['Headered'] = True
-
+def _add_atari_7800_header_info(game, header):
 	left_input_type = header[55]
 	right_input_type = header[56]
 	if left_input_type != 0:
@@ -67,3 +59,21 @@ def add_atari_7800_metadata(game):
 		game.metadata.save_type = SaveType.MemoryCard
 	elif debug:
 		print(game.rom.path, 'has save type byte of ', save_type)
+
+def add_atari_7800_metadata(game):
+	game.metadata.input_info.console_buttons = 3 #Pause, select, reset
+
+	header = game.rom.read(amount=128)
+	if header[1:10] == b'ATARI7800':
+		headered = True
+		_add_atari_7800_header_info(game, header)
+	else:
+		headered = False
+
+	game.metadata.specific_info['Headered'] = headered
+
+	software = get_software_list_entry(game, skip_header = 128 if headered else 0)
+	if software:
+		software.add_generic_info(game)
+		game.metadata.product_code = software.get_info('serial')
+		#Don't need sharedfeat > compatibility to get TV type or feature > peripheral, unheadered roms won't work anyway

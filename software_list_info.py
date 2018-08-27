@@ -29,10 +29,6 @@ from mame_helpers import get_software_lists_by_names, consistentify_manufacturer
 #PS1
 #Saturn
 
-#Need to skip header and haven't bothered doing that yet:
-#C64 (and C64GS), Atari 8-bit (for carts)
-#Atari 7800
-
 #Has a software list, but not for the formats we use:
 #VZ-200: .vz doesn't have a software list
 #ZX Spectrum: All +3 software in MAME is in .ipf format, which seems hardly ever used in all honesty (.z80 files don't have a software list)
