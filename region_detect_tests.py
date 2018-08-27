@@ -2,7 +2,7 @@
 #I can't be stuffed figuring out if there's some fancy unit test thing that all the cool kids use so I'm just gonna do my own thing
 
 from info.region_info import TVSystem, Region, Language
-from region_detect import get_languages_from_filename_tags, get_languages_from_regions, get_regions_from_filename_tags, get_tv_system_from_filename_tags, get_tv_system_from_regions
+from region_detect import *
 from common import find_filename_tags
 
 def regions_equal(region, other_region):

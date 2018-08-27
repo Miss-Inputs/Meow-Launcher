@@ -51,10 +51,12 @@ def add_gamate_info(game):
 		game.metadata.product_code = software.get_info('serial')
 
 def add_casio_pv1000_info(game):
-	game.metadata.tv_type = TVSystem.NTSC #Japan only. I won't assume the region in case some maniac decides to make homebrew for it or something, but it could only ever be NTSC
+	game.metadata.tv_type = TVSystem.NTSC 
+	#Japan only. I won't assume the region in case some maniac decides to make homebrew for it or something, but it could only ever be NTSC
 	player = PlayerInput()
 	player.inputs = [InputType.Digital]
-	player.buttons = 4 #Start, select, A, and B. And to think some things out there say it only has 1 button... Well, I've also heard start and select are on the console, so maybe MAME is being a bit weird
+	player.buttons = 4 
+	#Start, select, A, and B. And to think some things out there say it only has 1 button... Well, I've also heard start and select are on the console, so maybe MAME is being a bit weird
 	game.metadata.input_info.players += [player] * 2
 
 	#Until proven otherwise

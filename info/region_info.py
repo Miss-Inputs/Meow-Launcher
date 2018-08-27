@@ -55,7 +55,8 @@ languages = [
 	
 	Language('Russian', 'Pусский', 'Ru'),
 	Language('Greek', 'ελληνικά', 'El'),
-	Language('Indonesian', 'Bahasa Indonesia', 'In'), #There's Malay as well, which apparently involves "macrolanguages", so I'm confused. I just hope this is the right thing here
+	Language('Indonesian', 'Bahasa Indonesia', 'In'), 
+	#There's Malay as well, which apparently involves "macrolanguages", so I'm confused. I just hope this is the right thing here
 	Language('Turkish', 'Türkçe', 'Tr'),
 	Language('Czech', 'Čeština', 'Cs'),
 	Language('Arabic', 'العربية', 'Ar'), #Another macrolanguage
@@ -75,7 +76,8 @@ regions = [
 	Region('China', 'CN', TVSystem.PAL, 'Chinese'),
 	Region('Czech Republic', 'CZ', TVSystem.PAL, 'Czech'),
 	Region('Denmark', 'DK', TVSystem.PAL, 'Danish'),
-	Region('Europe', 'EU', TVSystem.PAL, 'English'), #Actually could be any number of languages, but in filenames (by No-Intro's convention anyway) it's assumed to be English unless otherwise specified
+	Region('Europe', 'EU', TVSystem.PAL, 'English'),
+	#Actually could be any number of languages, but in filenames (by No-Intro's convention anyway) it's assumed to be English unless otherwise specified
 	Region('Finland', 'FI', TVSystem.PAL, 'Finnish'),
 	Region('France', 'FR', TVSystem.PAL, 'French'), #Uses SECAM actually, but that's effectively the same as PAL
 	Region('Germany', 'DE', TVSystem.PAL, 'German'),
@@ -84,7 +86,8 @@ regions = [
 	Region('Indonesia', 'ID', TVSystem.PAL, 'Indonesian'),
 	Region('Italy', 'IT', TVSystem.PAL, 'Italian'),
 	Region('Japan', 'JP', TVSystem.NTSC, 'Japanese'),
-	Region('Korea', 'KR', TVSystem.NTSC, 'Korean'), #For the purpose of video games, we can assume South Korea is the only Korea and North Korea doesn't exist. Oof, that sounds horrible, doesn't it? (If North Korea ever does have games, they use PAL)
+	Region('Korea', 'KR', TVSystem.NTSC, 'Korean'), 
+	#For the purpose of video games, we can assume South Korea is the only Korea and North Korea doesn't exist. Oof, that sounds horrible, doesn't it? (If North Korea ever does have games, they use PAL)
 	Region('Netherlands', 'NL', TVSystem.PAL, 'Dutch'),
 	Region('Norway', 'NO', TVSystem.PAL, 'Norwegian'),
 	Region('Poland', 'PL', TVSystem.PAL, 'Polish'),

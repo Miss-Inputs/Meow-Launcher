@@ -76,7 +76,8 @@ rom_types = {
 	5: ROMType(ExpansionChip.DSP_1, has_ram=True, has_battery=True),
 	18: ROMType(has_battery=True), #Might not be used...
 	19: ROMType(ExpansionChip.SuperFX),
-	20: ROMType(ExpansionChip.SuperFX2), #Well, it's a different value from 19. 19 is seen in Star Fox, this is seen in Doom... could be GSU-1 and GSU-2, I dunno
+	20: ROMType(ExpansionChip.SuperFX2), 
+	#Well, it's a different value from 19. 19 is seen in Star Fox, this is seen in Doom... could be GSU-1 and GSU-2, I dunno
 	21: ROMType(ExpansionChip.SuperFX, has_battery=True),
 	26: ROMType(ExpansionChip.SuperFX2, has_battery=True),
 	37: ROMType(ExpansionChip.OBC_1),
