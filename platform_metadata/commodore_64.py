@@ -15,7 +15,7 @@ def add_commodore_64_metadata(game):
 	game.metadata.specific_info['Headered'] = headered
 
 	#TODO: Make this work where there are multiple CHIP entries in a CCS64 file... hmm...
-	software = get_software_list_entry(game, skip_header = 80 if headered else 0)
+	software = get_software_list_entry(game, skip_header=80 if headered else 0)
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')

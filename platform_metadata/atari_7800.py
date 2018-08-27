@@ -72,7 +72,7 @@ def add_atari_7800_metadata(game):
 
 	game.metadata.specific_info['Headered'] = headered
 
-	software = get_software_list_entry(game, skip_header = 128 if headered else 0)
+	software = get_software_list_entry(game, skip_header=128 if headered else 0)
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')

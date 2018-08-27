@@ -15,7 +15,7 @@ def add_atari_8bit_metadata(game):
 
 	game.metadata.specific_info['Headered'] = headered
 
-	software = get_software_list_entry(game, skip_header = 16 if headered else 0)
+	software = get_software_list_entry(game, skip_header=16 if headered else 0)
 	if software:
 		software.add_generic_info(game)
 		compatibility = software.get_shared_feature('compatibility')
