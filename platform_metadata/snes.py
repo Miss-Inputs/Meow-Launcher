@@ -8,11 +8,6 @@ from software_list_info import get_software_list_entry
 from .nintendo_common import nintendo_licensee_codes
 
 def parse_sufami_turbo_header(game):
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
-
 	game.metadata.platform = 'Sufami Turbo'
 
 	header = game.rom.read(amount=56)
@@ -310,3 +305,12 @@ def add_snes_metadata(game):
 		add_satellaview_metadata(game)
 	elif game.rom.extension == 'st':
 		parse_sufami_turbo_header(game)
+
+	#TODO: Some larger SNES carts are split into multiple ROMs in the software list. But then some aren't. Alright, so maybe it's not because of size.. but see Donkey Kong Country (Europe) for example
+	#Worth doing sharedfeat compatibility = NTSC or PAL here?
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+		#We can actually get lorom/hirom from feature = slot. Hmm...
+		if not game.metadata.product_code:
+			game.metadata.product_code = software.get_info('serial')

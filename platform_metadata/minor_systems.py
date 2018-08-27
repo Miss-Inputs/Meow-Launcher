@@ -248,6 +248,12 @@ def add_gx4000_info(game):
 	if software:
 		software.add_generic_info(game)
 
+def add_coleco_adam_info(game):
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+		game.metadata.product_code = software.get_info('serial')
+
 #-- Beyond this point, there may be unexplored things which may result in these systems being spun off into their own module. Maybe. It just seems likely. Or maybe I do know full well they have a header, and either I haven't explored it yet, or I'm just a lazy bugger
 
 def add_juicebox_info(game):

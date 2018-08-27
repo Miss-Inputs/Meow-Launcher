@@ -9,11 +9,7 @@ from mame_helpers import get_software_lists_by_names, consistentify_manufacturer
 
 #Because I haven't yet:
 #Atari 2600: I guess because Stella's database achieves the same purpose, but yeah, it might be faster actually...
-#WonderSwan (and Benesse Pocket Challenge V2)
-#Coleco Adam
-#SNES, Satellaview (but take out copier header if it's there in 2018)
 #FDS
-#C64GS
 
 #Has no software list:
 #3DS
@@ -34,7 +30,7 @@ from mame_helpers import get_software_lists_by_names, consistentify_manufacturer
 #Saturn
 
 #Need to skip header and haven't bothered doing that yet:
-#C64, Atari 8-bit (for carts)
+#C64 (and C64GS), Atari 8-bit (for carts)
 #Atari 7800
 
 #Has a software list, but not for the formats we use:
@@ -104,6 +100,7 @@ class Software():
 
 	def add_generic_info(self, game):
 		game.metadata.specific_info['MAME-Software-Name'] = self.xml.attrib.get('name')
+		game.metadata.specific_info['MAME-Software-Full-Name'] = self.xml.findtext('description')
 		game.metadata.publisher = consistentify_manufacturer(self.xml.findtext('publisher'))
 		game.metadata.year = self.xml.findtext('year')
 		game.metadata.specific_info['MAME-Emulation-Status'] = self.emulation_status
