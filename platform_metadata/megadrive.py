@@ -5,6 +5,7 @@ import os
 
 import cd_read
 from metadata import SaveType, PlayerInput, InputType
+from software_list_info import get_software_list_entry
 from .sega_common import licensee_codes
 
 debug = '--debug' in sys.argv
@@ -115,7 +116,6 @@ def add_megadrive_info(game, header):
 	#FIXME: This seems to be different on Mega CD. I need to handle it differently anyway, since it should be SaveType.Internal
 	game.metadata.save_type = SaveType.Cart if save_id[:2] == b'RA' else SaveType.Nothing
 	
-
 	#Hmm... get regions from [0xfd:0xff] or nah
 
 def add_megadrive_metadata(game):
@@ -132,3 +132,13 @@ def add_megadrive_metadata(game):
 		header = game.rom.read(0x100, 0x100)
 	
 	add_megadrive_info(game, header)
+	
+	if game.metadata.platform != 'Mega CD':
+		#Mega CD software lists have CHDs and whatnot and they're weird to deal with so I won't right now
+		software = get_software_list_entry(game)
+		if software:
+			software.add_generic_info(game)
+			game.metadata.specific_info['Product-Code'] = software.get_info('serial')
+			game.metadata.specific_info['Uses-SVP'] = software.get_shared_feature('addon') == 'SVP'
+			game.metadata.specific_info['Bad-TMSS'] = software.get_shared_feature('incompatibility') == 'TMSS'
+			#TODO: A lot of >2MB Megadrive games are split into multiple parts in the software lists. Can we do anything about that?

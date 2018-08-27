@@ -4,17 +4,55 @@ from metadata import EmulationStatus
 from info.system_info import get_mame_software_list_names_by_system_name
 from mame_helpers import get_software_lists_by_names, consistentify_manufacturer
 
-#TODO:
-#C64, Atari 8-bit: Cart headers are weird
-#Colecovision: Software list splits 16K roms into multiple halves, making that tricky to deal with. Anyway, can get info unreliably from the title screen info in the ROM
-#Intellivison: .int is actually a custom headered file format I think, so that might be tricky to deal with
-#Neo Geo CD, CD-i, PC Engine CD, PC-FX, Sega CD, PS1: Not sure how well that would work with disc images, since MAME uses <diskarea> and chds there
-#Atari 7800: Has header, need to skip it
-#NES: Has header, but is stored as split prg/chr inside software lists, need to separate that
-#Master System: Hmm, already has a publisher for Game Gear and homebrew... year too
-#N64: Not sure if want, this would take 5 hours especially when 7zipped
+#TODO: Ideally, every platform wants to be able to get software list info.
+#We currently do this by putting a block of code inside each platform_metadata helper that does the same thing. I guess I should genericize that one day. Anyway, it's not always possible.
+
+#Because I haven't yet:
+#Atari 2600: I guess because Stella's database achieves the same purpose, but yeah, it might be faster actually...
+#WonderSwan (and Benesse Pocket Challenge V2)
+#Coleco Adam
+#SNES, Satellaview (but take out copier header if it's there in 2018)
+#Virtual Boi
+
+#Has no software list:
+#3DS
+#DS
+#GameCube
+#PS2
+#PSP
+#Wii
+
+#Is optical disc-based, which involves messing around with CHDs (and for that matter, would take a while to calculate the hash):
+#CD-i
+#Dreamcast
+#Mega CD
+#Neo Geo CD
+#PC Engine CD
+#PC-FX
+#PS1
+#Saturn
+
+#Because I change the platform at runtime, and that won't work without me refactoring stuff:
+#Game Boy Color
+#FDS
+#C64GS
+
+#Need to skip header and haven't bothered doing that yet:
+#C64, Atari 8-bit (for carts)
+#Atari 7800
+
+#Has a software list, but not for the formats we use:
 #VZ-200: .vz doesn't have a software list
 #ZX Spectrum: All +3 software in MAME is in .ipf format, which seems hardly ever used in all honesty (.z80 files don't have a software list)
+
+#Roms are big boi and might take a while, especially as they are commonly 7zipped:
+#GBA
+#N64
+
+#Other difficulties:
+#Colecovision: Software list splits 16K roms into multiple halves, making that tricky to deal with. Anyway, can get info unreliably from the title screen info in the ROM
+#Intellivison: .int is actually a custom headered file format I think, so that might be tricky to deal with, but I forgot how it works
+#NES: Has header, but is stored as split prg/chr inside software lists, need to separate that myself
 
 
 class Software():

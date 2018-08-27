@@ -125,7 +125,6 @@ def get_sms_metadata(game):
 
 	software = get_software_list_entry(game)
 	if software:
-		#This will overwrite all that hard work we did to get year and publisher, oh well
 		software.add_generic_info(game)
 		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
 		#Input info will be tricky, as nothing tells me if things need light guns, or there are even games like Action Fighter which support the SK-1100 keyboard optionally

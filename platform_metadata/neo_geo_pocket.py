@@ -22,6 +22,5 @@ def add_ngp_metadata(game):
 
 	software = get_software_list_entry(game)
 	if software:
-		#This will overwrite the publisher and product code that we were so cool for reading from the thing, oh well
 		software.add_generic_info(game)
 		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
