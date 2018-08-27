@@ -11,7 +11,10 @@ def consistentify_manufacturer(manufacturer):
 	#TODO: Are ATW > ATW USA Inc. the same or a regional branch?
 	#Should NEC Avenue and NEC Home Electronics just be called NEC?
 	#Should Sony Computer Entertainment Inc and Sony Imagesoft be just Sony?
+	#Toshiba EMI > Toshiba?
+	#Leave Atari Games > Atari and Midway Games > Midway alone, because if I try to comperehend the timeline of which is what and who owned the rights to which brand name and who owned who at any given time, I would die of confusion
 	return {
+		'Acclaim Entertainment': 'Acclaim',
 		'Alpha Denshi Co.': 'ADK', #Renamed in 1993, but let's not make this confusing
 		'Bally Gaming Co.': 'Bally',
 		'BPS': 'Bullet-Proof Software', #I hope nobody else uses that acronym
@@ -19,6 +22,7 @@ def consistentify_manufacturer(manufacturer):
 		'Coconuts Japan Entertainment': 'Coconuts Japan',
 		'Data East Corporation': 'Data East',
 		'Dempa Shinbunsha': 'Dempa',
+		'Elite': 'Elite Systems',
 		'Entex Industries': 'Entex',
 		'HAL Kenkyuujo': 'HAL', #Literally "HAL Laboratory"
 		'HAL Laboratory': 'HAL',
@@ -38,6 +42,9 @@ def consistentify_manufacturer(manufacturer):
 		'Taito America Corporation': 'Taito America',
 		'Titus Software': 'Titus',
 		'UA Ltd.': 'UA Limited', #MAME uses the former (for Arcadia 2001 lists), Stella uses the latter in its database
+		'Viacom New Media': 'Viacom',
+		'Virgin Interactive': 'Virgin',
+		'Williams Entertainment': 'Williams',
 
 		#For some reason, some Japanese computer software lists have the Japanese name and then the English one in brackets. Everywhere else the English name is used even when the whole thing is Japanese. Anyway, fine, I can deal with that
 		'B·P·S (Bullet-Proof Software)': 'Bullet-Proof Software',
@@ -64,6 +71,7 @@ def consistentify_manufacturer(manufacturer):
 		'enix': 'Enix',
 		'EPYX': 'Epyx',
 		'GTC Inc.': 'GTC Inc',
+		'Hi Tech Expressions': 'Hi-Tech Expressions',
 		'Pack-In-Video': 'Pack-In Video',
 	}.get(manufacturer, manufacturer)
 
