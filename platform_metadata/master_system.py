@@ -2,8 +2,8 @@ import calendar
 
 from region_detect import get_region_by_name
 from info.region_info import TVSystem
+from software_list_info import get_software_list_entry
 from .sega_common import licensee_codes
-from .software_list_info import add_generic_software_list_info, get_software_info, get_software_list_entry
 
 def decode_bcd(i):
 	if not isinstance(i, int):
@@ -123,9 +123,9 @@ def get_sms_metadata(game):
 	if game.metadata.platform == 'Game Gear':
 		game.metadata.tv_type = TVSystem.Agnostic
 
-	software, part = get_software_list_entry(game)
+	software = get_software_list_entry(game)
 	if software:
 		#This will overwrite all that hard work we did to get year and publisher, oh well
-		add_generic_software_list_info(game, software)
-		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
+		software.add_generic_info(game)
+		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
 		#Input info will be tricky, as nothing tells me if things need light guns, or there are even games like Action Fighter which support the SK-1100 keyboard optionally

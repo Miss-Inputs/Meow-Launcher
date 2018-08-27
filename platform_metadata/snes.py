@@ -4,14 +4,14 @@ import calendar
 from metadata import SaveType
 from region_detect import get_region_by_name
 from common import convert_alphanumeric, NotAlphanumericException
+from software_list_info import get_software_list_entry
 from .nintendo_common import nintendo_licensee_codes
-from .software_list_info import add_generic_software_list_info, get_software_info, get_software_list_entry
 
 def parse_sufami_turbo_header(game):
-	software, part = get_software_list_entry(game)
+	software = get_software_list_entry(game)
 	if software:
-		add_generic_software_list_info(game, software)
-		game.metadata.specific_info['Product-Code'] = get_software_info(software, 'serial')
+		software.add_generic_info(game)
+		game.metadata.specific_info['Product-Code'] = software.get_info('serial')
 
 	game.metadata.platform = 'Sufami Turbo'
 

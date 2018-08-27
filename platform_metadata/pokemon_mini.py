@@ -1,8 +1,7 @@
 from common import convert_alphanumeric, NotAlphanumericException
 from info.region_info import TVSystem
 from metadata import PlayerInput, InputType
-from .software_list_info import add_generic_software_list_info, get_software_list_entry
-
+from software_list_info import get_software_list_entry
 
 def add_pokemini_metadata(game):
 	player = PlayerInput()
@@ -22,7 +21,7 @@ def add_pokemini_metadata(game):
 	except NotAlphanumericException:
 		pass
 
-	software, part = get_software_list_entry(game)
+	software = get_software_list_entry(game)
 	if software:
-		add_generic_software_list_info(game, software)
+		software.add_generic_info(game)
 		

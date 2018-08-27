@@ -66,29 +66,6 @@ def consistentify_manufacturer(manufacturer):
 		'Pack-In-Video': 'Pack-In Video',
 	}.get(manufacturer, manufacturer)
 
-def find_in_software_lists(software_lists, crc=None, sha1=None):
-	#TODO: Handle hash collisions. Could happen, even if we're narrowing down to specific software lists
-	for software_list in software_lists:
-		for software in software_list.findall('software'):
-			for part in software.findall('part'):
-				#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
-				#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
-				for data_area in part.findall('dataarea'):
-					roms = data_area.findall('rom')
-					if not roms:
-						#Ignore data areas such as "sram" that don't have any ROMs associated with them.
-						#Note that data area's name attribute can be anything like "rom" or "flop" depending on the kind of media, but the element inside will always be called "rom"
-						continue
-					for rom in roms:
-						if sha1:
-							if 'sha1' in rom.attrib and rom.attrib['sha1'] == sha1:
-								return software, part
-						if crc:
-							if 'crc' in rom.attrib and rom.attrib['crc'] == crc:
-								return software, part
-
-	return None, None
-
 def get_software_lists_by_names(names):
 	if not names:
 		return []

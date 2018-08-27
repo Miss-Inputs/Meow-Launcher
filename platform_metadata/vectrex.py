@@ -1,7 +1,7 @@
 from info.region_info import TVSystem
 from common import convert_alphanumeric, NotAlphanumericException
 from metadata import PlayerInput, InputType
-from .software_list_info import add_generic_software_list_info, get_software_list_entry
+from software_list_info import get_software_list_entry
 
 def add_vectrex_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -11,9 +11,9 @@ def add_vectrex_metadata(game):
 	#TODO: There's also a light pen
 	game.metadata.input_info.players += [player] * 2
 	
-	software, part = get_software_list_entry(game)
+	software = get_software_list_entry(game)
 	if software:
-		add_generic_software_list_info(game, software)
+		software.add_generic_info(game)
 
 	if not game.metadata.year:
 		#Only do things the wrong way if we can't find year by software list
