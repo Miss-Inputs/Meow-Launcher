@@ -4,7 +4,7 @@ from metadata import EmulationStatus
 from info.system_info import get_mame_software_list_names_by_system_name
 from mame_helpers import get_software_lists_by_names, consistentify_manufacturer
 
-#TODO: Ideally, every platform wants to be able to get software list info.
+#TODO: Ideally, every platform wants to be able to get software list info. If available, it will always be preferred over what we can extract from inside the ROMs, as it's more reliable, and avoids the problem of bootlegs/hacks with invalid/missing header data, or publisher/developers that merge and change names and whatnot.
 #We currently do this by putting a block of code inside each platform_metadata helper that does the same thing. I guess I should genericize that one day. Anyway, it's not always possible.
 
 #Because I haven't yet:
@@ -12,7 +12,6 @@ from mame_helpers import get_software_lists_by_names, consistentify_manufacturer
 #WonderSwan (and Benesse Pocket Challenge V2)
 #Coleco Adam
 #SNES, Satellaview (but take out copier header if it's there in 2018)
-#Virtual Boi
 
 #Has no software list:
 #3DS
@@ -86,6 +85,14 @@ class Software():
 				return feature.attrib.get('value')
 
 		return None
+
+	def has_data_area(self, name, part_name=None):
+		part = self.get_part(part_name)
+		for data_area in part.findall('dataarea'):
+			if data_area.attrib.get('name') == name:
+				return True
+
+		return False
 
 	@property
 	def emulation_status(self):

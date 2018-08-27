@@ -1,5 +1,7 @@
 from common import convert_alphanumeric, NotAlphanumericException
 from info.region_info import TVSystem
+from software_list_info import get_software_list_entry
+from metadata import SaveType
 from .nintendo_common import nintendo_licensee_codes
 
 def add_virtual_boy_metadata(game):
@@ -24,3 +26,11 @@ def add_virtual_boy_metadata(game):
 	#Can get country from product_code[3] if needed
 	
 	game.metadata.revision = header[31]
+
+	#TODO: Input info, should always be the same
+
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+		#We won't need to get serial here I guess
+		game.metadata.save_type = SaveType.Cart if software.has_data_area('eeprom') else SaveType.Nothing
