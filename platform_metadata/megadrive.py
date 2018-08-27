@@ -19,9 +19,11 @@ def add_megadrive_info(game, header):
 	try:
 		console_name = header[:16].decode('ascii')
 	except UnicodeDecodeError:
+		game.metadata.specific_info['Bad-TMSS'] = True
 		return
 
 	if not console_name.startswith('SEGA') and not console_name.startswith(' SEGA'):
+		game.metadata.specific_info['Bad-TMSS'] = True
 		return
 
 	try:
