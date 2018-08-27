@@ -169,7 +169,7 @@ nintendo_licensee_codes = {
 	'E1': 'Towa Chiki',
 	'E8': 'Asmik',
 	'EA': 'King Records',
-	'EC': 'Epic/Sony Records',
+	'EC': 'Epic / Sony Records',
 	'F3': 'Extreme Entertainment',
 	'GN': 'OG International',
 	'GY': 'The Game Factory',
