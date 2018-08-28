@@ -97,7 +97,7 @@ class Software():
 		game.metadata.specific_info['MAME-Software-Full-Name'] = self.xml.findtext('description')
 
 		publisher = consistentify_manufacturer(self.xml.findtext('publisher'))
-		already_has_publisher = game.metadata.publisher and not game.metadata.publisher.startswith('<unknown')
+		already_has_publisher = game.metadata.publisher and (not game.metadata.publisher.startswith('<unknown'))
 		if not (already_has_publisher and (publisher == '<unknown>')):
 			game.metadata.publisher = publisher
 
