@@ -4,6 +4,7 @@
 ignored_directories.txt
 mac_db.json
 dos_db.json
+cprofile_results
 
 # User-specific files
 *.suo
