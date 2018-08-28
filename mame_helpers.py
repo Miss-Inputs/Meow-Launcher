@@ -12,13 +12,11 @@ def consistentify_manufacturer(manufacturer):
 	#Should NEC Avenue and NEC Home Electronics just be called NEC?
 	#Should Sony Computer Entertainment Inc and Sony Imagesoft be just Sony?
 	#Toshiba EMI > Toshiba?
-	#Are CBS Electronics and CBS Software the same? Or are they just two different companies with the same name
+	#Are CBS Electronics and CBS Software the same? Seems like they're both owned by CBS the American TV company, the former is for various Atari 2600/5200/7800 games they published and distributing the ColecoVision outside USA; and the latter is basically licensed Sesame Street games?
 	#Are Fox Interactive, Fox Video Games, 20th Century Fox all the same?
-	#HesWare == HES?
-	#Human, Human Amusement, Human Entertainment?
+	#Human == Human Amusement?
 	#Ultra, Ultra Games, Konami (Ultra Games)?
-	#Universal == Universal Video Gaes?
-	#Is PonyCa some weird abbreviation of Pony Canyon?
+	#Universal == Universal Video Games?
 	#The SNES game Super Godzilla (USA) has a publisher of literally "Super Godzilla". Wait what? That can't be right. Should be Toho right? Same with Tetris (Japan) for Megadrive. Unless they meant The Tetris Company there.
 	#Leave Atari Games > Atari and Midway Games > Midway alone, because if I try to comperehend the timeline of which is what and who owned the rights to which brand name and who owned who at any given time, I would die of confusion
 	return {
@@ -46,6 +44,7 @@ def consistentify_manufacturer(manufacturer):
 		'Hasbro Interactive': 'Hasbro',
 		'HiCom': 'Hi-Com',
 		'Hudson': 'Hudson Soft',
+		'Human Entertainment': 'Human',
 		'JoWooD Entertainment AG': 'JoWooD Entertainment',
 		'Kaneko Elc. Co.': 'Kaneko',
 		'LEGO Media': 'Lego',
@@ -59,6 +58,7 @@ def consistentify_manufacturer(manufacturer):
 		'Omori Electric Co., Ltd.': 'Omori',
 		'Palm Inc': 'Palm',
 		'Playmates Interactive': 'Playmates',
+		'PonyCa': 'Pony Canyon',
 		'ProSoft': 'Prosoft',
 		'Sammy Entertainment': 'Sammy',
 		'Sierra On-Line': 'Sierra',
@@ -108,7 +108,7 @@ def consistentify_manufacturer(manufacturer):
 		'EPYX': 'Epyx',
 		'GTC Inc.': 'GTC Inc',
 		'Hi Tech Expressions': 'Hi-Tech Expressions',
-		'Microprose': 'Microprose',
+		'Microprose': 'MicroProse',
 		'Mindscapce': 'Mindscape', #Yeah okay, that _definitely_ is a typo
 		'Pack-In-Video': 'Pack-In Video',
 		'SpectraVideo': 'Spectravideo',
