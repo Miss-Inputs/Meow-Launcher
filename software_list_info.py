@@ -31,9 +31,6 @@ from mame_helpers import get_software_lists_by_names, consistentify_manufacturer
 #VZ-200: .vz doesn't have a software list
 #ZX Spectrum: All +3 software in MAME is in .ipf format, which seems hardly ever used in all honesty (.z80 files don't have a software list)
 
-#Roms are big boi and might take a while, especially as they are commonly 7zipped:
-#N64
-
 #Other difficulties:
 #Colecovision: Software list splits 16K roms into multiple halves, making that tricky to deal with. Anyway, can get info unreliably from the title screen info in the ROM
 #Intellivison: .int is actually a custom headered file format I think, so that might be tricky to deal with, but I forgot how it works
