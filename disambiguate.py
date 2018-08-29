@@ -36,7 +36,7 @@ def update_name(desktop, disambiguator, disambiguation_method):
 	with open(desktop[0], 'wt') as f:
 		writer.write(f)
 
-def resolve_duplicates_by_metadata(group, field, format_function=None):
+def resolve_duplicates_by_metadata(group, field, format_function=None, ignore_missing_values=False):
 	value_counter = collections.Counter(launchers.get_field(d[1], field) for d in group)
 	for dup in group:
 		field_value = launchers.get_field(dup[1], field)
@@ -45,10 +45,12 @@ def resolve_duplicates_by_metadata(group, field, format_function=None):
 		#See if this launcher is unique in this group (of launchers with the same
 		#name) for its field.  If it's the only launcher for this field, we can
 		#use Thing (Field) as the final display name to avoid ambiguity
+		should_update = False
 		if value_counter[field_value] == 1:
 			if field_value != name and field_value is not None:
 				#Avoid "Doom (Doom)" and "Blah (None)" and such; in those cases, just leave it as "Doom" or "Blah"
-				update_name(dup, format_function(field_value) if format_function else '({0})'.format(field_value), field)
+				#That's not an example that happens anymore but uhh you think of a better one
+				should_update = True
 		else:
 			if value_counter[field_value] == len(group):
 				#Field is the same across the whole group.  Need to disambiguate some
@@ -59,7 +61,17 @@ def resolve_duplicates_by_metadata(group, field, format_function=None):
 				#there is something else with the same field in this group, but we still
 				#need to append the field to disambiguate it from other stuff
 				if field_value != name and field_value is not None:
-					update_name(dup, format_function(field_value) if format_function else '({0})'.format(field_value), field)
+					should_update = True
+		
+		if should_update:
+			if ignore_missing_values:
+				#In this case, check if the other values we're disambiguating against are all None
+				#Because it looks weird that way in some cases to have just Cool Game and Cool Game (Thing)
+				rest_of_counter = list({k for k in value_counter.keys() if k != field_value})
+				if len(rest_of_counter) == 1 and rest_of_counter[0] is None:
+					return
+				
+			update_name(dup, format_function(field_value) if format_function else '({0})'.format(field_value), field)
 				
 def resolve_duplicates_by_filename_tags(group):
 	for dup in group:
@@ -132,7 +144,7 @@ def resolve_duplicates_by_date(group):
 			
 			update_name(dup, '(' + date_string + ')', 'date')
 
-def resolve_duplicates(group, method, format_function=None):
+def resolve_duplicates(group, method, format_function=None, ignore_missing_values=None):
 	if method == 'tags':
 		resolve_duplicates_by_filename_tags(group)
 	elif method == 'dev-status':
@@ -140,7 +152,7 @@ def resolve_duplicates(group, method, format_function=None):
 	elif method == 'date':
 		resolve_duplicates_by_date(group)
 	else:
-		resolve_duplicates_by_metadata(group, method, format_function)
+		resolve_duplicates_by_metadata(group, method, format_function, ignore_missing_values)
 
 dot_not_before_word = re.compile(r'\.\B')
 hyphen_inside_word = re.compile(r'\b-\b')
@@ -158,7 +170,7 @@ def normalize_name(name):
 	
 	return name
 
-def fix_duplicate_names(method, format_function=None):
+def fix_duplicate_names(method, format_function=None, ignore_missing_values=None):
 	files = [(path, launchers.convert_desktop(path)) for path in [os.path.join(config.output_folder, f) for f in os.listdir(config.output_folder)]]
 	if method == 'dev-status':
 		resolve_duplicates_by_dev_status(files)
@@ -176,7 +188,7 @@ def fix_duplicate_names(method, format_function=None):
 		if method == 'check':
 			print('Duplicate name still remains: ', k, [d[1]['Desktop Entry']['X-Original-Name'] for d in v])
 		else:
-			resolve_duplicates(v, method, format_function)
+			resolve_duplicates(v, method, format_function, ignore_missing_values)
 
 def revision_disambiguate(rev):
 	if rev == '0':
@@ -191,10 +203,10 @@ def disambiguate_names():
 	fix_duplicate_names('X-Platform')
 	fix_duplicate_names('dev-status')
 	fix_duplicate_names('X-Regions', lambda regions: '({0})'.format(regions.replace(';', ', ')))
-	fix_duplicate_names('X-Publisher')
-	fix_duplicate_names('X-Developer')
+	fix_duplicate_names('X-Publisher', ignore_missing_values=True)
+	fix_duplicate_names('X-Developer', ignore_missing_values=True)
 	fix_duplicate_names('X-Revision', revision_disambiguate)
-	fix_duplicate_names('X-Languages', lambda languages: '({0})'.format(languages.replace(';', ', ')))
+	fix_duplicate_names('X-Languages', lambda languages: '({0})'.format(languages.replace(';', ', ')), ignore_missing_values=True)
 	fix_duplicate_names('X-TV-Type')
 	fix_duplicate_names('tags')
 	fix_duplicate_names('date')
