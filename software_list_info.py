@@ -2,13 +2,11 @@ import zlib
 
 from metadata import EmulationStatus
 from info.system_info import get_mame_software_list_names_by_system_name
+from info.region_info import TVSystem
 from mame_helpers import get_software_lists_by_names, consistentify_manufacturer
 
 #TODO: Ideally, every platform wants to be able to get software list info. If available, it will always be preferred over what we can extract from inside the ROMs, as it's more reliable, and avoids the problem of bootlegs/hacks with invalid/missing header data, or publisher/developers that merge and change names and whatnot.
 #We currently do this by putting a block of code inside each platform_metadata helper that does the same thing. I guess I should genericize that one day. Anyway, it's not always possible.
-
-#Because I haven't yet:
-#Atari 2600: I guess because Stella's database achieves the same purpose, but yeah, it might be faster actually...
 
 #Has no software list:
 #3DS
@@ -99,6 +97,14 @@ class Software():
 		already_has_publisher = game.metadata.publisher and (not game.metadata.publisher.startswith('<unknown'))
 		if not (already_has_publisher and (publisher == '<unknown>')):
 			game.metadata.publisher = publisher
+
+		compatibility = self.get_shared_feature('compatibility')
+		if compatibility == 'PAL':
+			game.metadata.tv_type = TVSystem.PAL
+		elif compatibility == 'NTSC':
+			game.metadata.tv_type = TVSystem.NTSC
+		elif compatibility in ('NTSC,PAL', 'PAL,NTSC'):
+			game.metadata.tv_type = TVSystem.Agnostic
 
 		game.metadata.year = self.xml.findtext('year')
 		game.metadata.specific_info['MAME-Emulation-Status'] = self.emulation_status

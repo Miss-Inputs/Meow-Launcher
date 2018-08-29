@@ -3,7 +3,7 @@ import subprocess
 
 from metadata import SaveType, PlayerInput, InputType
 from info.region_info import TVSystem
-
+from software_list_info import get_software_list_entry
 
 def get_stella_database():
 	proc = subprocess.run(['stella', '-listrominfo'], stdout=subprocess.PIPE, universal_newlines=True)
@@ -177,8 +177,24 @@ def add_atari_2600_metadata(game):
 			_stella_db = get_stella_database()
 		except subprocess.CalledProcessError:
 			pass
-	
-	md5 = autodetect_from_stella(game)
-	if md5 in _stella_db:
-		game_info = _stella_db[md5]
-		parse_stella_db(game, game_info)	
+
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+		game.metadata.product_code = software.get_info('serial')
+
+		if game.metadata.publisher == 'Homebrew':
+			#For consistency. There's no company literally called "Homebrew"
+			game.metadata.publisher == game.metadata.developer
+
+		game.metadata.specific_info['Uses-Supercharger'] = software.get_shared_feature('requirement') == 'scharger'
+		#TODO: Add input info using 'peripheral' feature:
+		#"Kid's Controller", "kidscontroller" (both are used)
+		#"paddles"
+		#"keypad"
+
+	else:
+		md5 = autodetect_from_stella(game)
+		if md5 in _stella_db:
+			game_info = _stella_db[md5]
+			parse_stella_db(game, game_info)	
