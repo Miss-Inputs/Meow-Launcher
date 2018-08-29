@@ -185,7 +185,7 @@ def add_atari_2600_metadata(game):
 
 		if game.metadata.publisher == 'Homebrew':
 			#For consistency. There's no company literally called "Homebrew"
-			game.metadata.publisher == game.metadata.developer
+			game.metadata.publisher = game.metadata.developer
 
 		game.metadata.specific_info['Uses-Supercharger'] = software.get_shared_feature('requirement') == 'scharger'
 		#TODO: Add input info using 'peripheral' feature:

@@ -273,11 +273,11 @@ def _get_headered_nes_rom_software_list_entry(game):
 	prg_offset = 16 #TODO: Take into account iNES "has trainer" flag
 	chr_offset = prg_offset + prg_size
 
-	prg = game.rom.read(seek_to=prg_offset, amount=prg_size)
-	chr = game.rom.read(seek_to=chr_offset, amount=chr_size) if chr_size else None
+	prg_rom = game.rom.read(seek_to=prg_offset, amount=prg_size)
+	chr_rom = game.rom.read(seek_to=chr_offset, amount=chr_size) if chr_size else None
 
-	prg_crc32 = '{:08x}'.format(zlib.crc32(prg))
-	chr_crc32 = '{:08x}'.format(zlib.crc32(chr)) if chr else None
+	prg_crc32 = '{:08x}'.format(zlib.crc32(prg_rom))
+	chr_crc32 = '{:08x}'.format(zlib.crc32(chr_rom)) if chr_rom else None
 
 	return find_in_software_lists(game.software_lists, crc=[prg_crc32, chr_crc32], part_matcher=_does_nes_rom_match)
 	
