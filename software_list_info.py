@@ -37,6 +37,30 @@ from mame_helpers import get_software_lists_by_names, consistentify_manufacturer
 #Colecovision: Software list splits 16K roms into multiple halves, making that tricky to deal with. Anyway, can get info unreliably from the title screen info in the ROM
 #Intellivison: .int is actually a custom headered file format I think, so that might be tricky to deal with, but I forgot how it works
 
+def parse_release_date(game, release_info):
+	if not release_info:
+		return
+	if len(release_info) != 8:
+		return
+
+	#TODO: Support dates containing "x", but ehh...
+	year = release_info[0:4]
+	month = release_info[4:6]
+	day = release_info[6:8]
+
+	try:
+		game.metadata.year = int(year)
+	except ValueError:
+		pass
+	try:
+		game.metadata.month = calendar.month_name[int(month)]
+	except (ValueError, IndexError):
+		pass
+	try:
+		game.metadata.day = int(day)
+	except ValueError:
+		pass
+
 
 class Software():
 	def __init__(self, xml):
@@ -107,6 +131,8 @@ class Software():
 			game.metadata.tv_type = TVSystem.Agnostic
 
 		game.metadata.year = self.xml.findtext('year')
+		parse_release_date(game, self.get_info('release'))
+
 		game.metadata.specific_info['MAME-Emulation-Status'] = self.emulation_status
 		game.metadata.specific_info['Notes'] = self.get_info('usage')
 		game.metadata.developer = self.get_info('developer')

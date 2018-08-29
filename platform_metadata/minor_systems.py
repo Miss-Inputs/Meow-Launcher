@@ -305,7 +305,7 @@ def add_pce_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		#Other info: alt_title, release (that seems to be a date, I'm not sure if it always is though)
+		#Other info: alt_title
 		game.metadata.product_code = software.get_info('serial')
 
 def add_game_com_info(game):
