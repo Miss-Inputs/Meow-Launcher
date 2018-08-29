@@ -33,7 +33,6 @@ from mame_helpers import get_software_lists_by_names, consistentify_manufacturer
 #ZX Spectrum: All +3 software in MAME is in .ipf format, which seems hardly ever used in all honesty (.z80 files don't have a software list)
 
 #Roms are big boi and might take a while, especially as they are commonly 7zipped:
-#GBA
 #N64
 
 #Other difficulties:

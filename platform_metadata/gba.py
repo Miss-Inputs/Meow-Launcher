@@ -3,6 +3,7 @@ from zlib import crc32
 from common import convert_alphanumeric, NotAlphanumericException
 from metadata import SaveType, PlayerInput, InputType
 from info.region_info import TVSystem
+from software_list_info import find_in_software_lists
 from .nintendo_common import nintendo_licensee_codes
 
 nintendo_gba_logo_crc32 = 0xD0BEB55E
@@ -65,3 +66,10 @@ def add_gba_metadata(game):
 		#I mean it's not wrong
 		game.metadata.developer = 'Rare'
 		#TODO: Detect the other sound drivers, should I feel inclined
+
+	cart_crc32 = '{:08x}'.format(crc32(entire_cart))
+	software = find_in_software_lists(game.software_lists, crc=cart_crc32)
+	if software:
+		software.add_generic_info(game)
+		if not game.metadata.product_code:
+			game.metadata.product_code = software.get_info('serial')
