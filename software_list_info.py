@@ -131,19 +131,19 @@ def _does_part_match(part, crc, sha1):
 
 	return False
 
-def find_in_sofware_list(software_list, crc=None, sha1=None):
+def find_in_sofware_list(software_list, crc=None, sha1=None, part_matcher=_does_part_match):
 	for software in software_list.findall('software'):
 		for part in software.findall('part'):
 			#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
 			#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
-			if _does_part_match(part, crc, sha1):
+			if part_matcher(part, crc, sha1):
 				return Software(software)	
 	return None
 
-def find_in_software_lists(software_lists, crc=None, sha1=None):
+def find_in_software_lists(software_lists, crc=None, sha1=None, part_matcher=_does_part_match):
 	#TODO: Handle hash collisions. Could happen, even if we're narrowing down to specific software lists
 	for software_list in software_lists:
-		software = find_in_sofware_list(software_list, crc, sha1)
+		software = find_in_sofware_list(software_list, crc, sha1, part_matcher)
 		if software:
 			return software
 	return None

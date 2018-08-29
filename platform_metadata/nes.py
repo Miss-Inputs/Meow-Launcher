@@ -1,7 +1,8 @@
 import calendar
+import zlib
 
 from metadata import SaveType
-from software_list_info import get_software_list_entry
+from software_list_info import get_software_list_entry, find_in_software_lists
 from .nintendo_common import nintendo_licensee_codes
 
 ines_mappers = {
@@ -246,6 +247,41 @@ def add_ines_metadata(game, header):
 		game.metadata.specific_info['CHR-Size'] = chr_size * 8 * 1024
 		#TV type apparently isn't used much despite it being part of the iNES specification, and looking at a lot of headered ROMs it does seem that they are all NTSC other than a few that say PAL that shouldn't be, so yeah, I wouldn't rely on it. Might as well just use the filename.
 
+def _does_nes_rom_match(part, crcs, _):
+	prg_crc = crcs[0]
+	chr_crc = crcs[1]
+
+	prg_part = [data_area for data_area in part.findall('dataarea') if data_area.attrib.get('name') == 'prg']
+	chr_part = [data_area for data_area in part.findall('dataarea') if data_area.attrib.get('name') == 'chr']
+
+	if prg_part:
+		prg_matches = prg_part[0].find('rom').attrib.get('crc', '<junk>') == prg_crc
+	else:
+		prg_matches = False
+
+	if chr_part:
+		chr_matches = chr_part[0].find('rom').attrib.get('crc', '<junk>') == chr_crc
+	else:
+		chr_matches = chr_crc is None
+
+	return prg_matches and chr_matches
+
+def _get_headered_nes_rom_software_list_entry(game):
+	prg_size = game.metadata.specific_info.get('PRG-Size', 0)
+	chr_size = game.metadata.specific_info.get('CHR-Size', 0)
+	#Is it even possible for prg_size to be 0 on a valid ROM?
+	prg_offset = 16 #TODO: Take into account iNES "has trainer" flag
+	chr_offset = prg_offset + prg_size
+
+	prg = game.rom.read(seek_to=prg_offset, amount=prg_size)
+	chr = game.rom.read(seek_to=chr_offset, amount=chr_size) if chr_size else None
+
+	prg_crc32 = '{:08x}'.format(zlib.crc32(prg))
+	chr_crc32 = '{:08x}'.format(zlib.crc32(chr)) if chr else None
+
+	return find_in_software_lists(game.software_lists, crc=[prg_crc32, chr_crc32], part_matcher=_does_nes_rom_match)
+	
+
 def add_nes_metadata(game):
 	if game.rom.extension == 'fds':
 		add_fds_metadata(game)
@@ -264,10 +300,7 @@ def add_nes_metadata(game):
 		if game.metadata.specific_info.get('Header-Format') == 'fwNES':
 			software = get_software_list_entry(game, skip_header=16)
 		elif game.metadata.specific_info.get('Header-Format') in ('iNES', 'NES 2.0'):
-			if game.metadata.specific_info.get('CHR-Size') == 0:
-				#TODO: Take into account 512-byte trainer (who even has one of those?)
-				#TODO: More importantly, if there's a CHR part of the ROM, that'll be another dataarea in the MAME software list, so it won't be detected... we need to  split it up ourselves. This won't be easy
-				software = get_software_list_entry(game, skip_header=16)
+			software = _get_headered_nes_rom_software_list_entry(game)
 
 	if software:
 		software.add_generic_info(game)
@@ -282,7 +315,8 @@ def add_nes_metadata(game):
 		game.metadata.specific_info['Uses-Power-Glove'] = peripheral == 'powerglove' #Hell yeah, that's so bad
 		game.metadata.specific_info['Uses-ROB'] = peripheral == 'rob'
 		game.metadata.specific_info['Uses-Keyboard'] = peripheral in ('fc_keyboard', 'subor_keyboard')
-		#Actually, maybe I should be more specific there... hmm... I mean, for input info it doesn't matter, but for compatibility I don't think they're the same at all
+		#Actually, maybe I should be more specific there... hmm... I mean, for input info it doesn't matter, but for
+		#compatibility they're not the same; MAME has them as different controller devices (for Famicom expansion port, presumably sb486 has sb_keyboard built in)
 		game.metadata.specific_info['Uses-Piano'] = peripheral == 'mpiano'
 		#There's a "battlebox" which Armadillo (Japan) uses?
 		#Barcode World (Japan) uses "barcode"
