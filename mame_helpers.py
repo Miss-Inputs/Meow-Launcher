@@ -8,6 +8,8 @@ def consistentify_manufacturer(manufacturer):
 	#Sometimes, MAME uses two different variations on what is the same exact company. Or formats the name in a way that nobody else does anywhere else.
 	#I'm not going to count regional branches of a company, though.
 	#Sometimes I don't know which out of the two variations is what I should go with... I just want only one of them. If any people out there are experts on the field of company names, then by all means tell me off.
+	#If only there was some consistent guidelines to follow in this, and nintendo_common/sega_common/wonderswan etc...
+
 	#TODO: Are ATW > ATW USA Inc. the same or a regional branch?
 	#Should NEC Avenue and NEC Home Electronics just be called NEC?
 	#Should Sony Computer Entertainment Inc and Sony Imagesoft be just Sony?
@@ -17,9 +19,13 @@ def consistentify_manufacturer(manufacturer):
 	#Human == Human Amusement?
 	#Ultra, Ultra Games, Konami (Ultra Games)?
 	#Universal == Universal Video Games?
+	#BBC Worldwide == BBC Multimedia? I mean they're obviously both the BBC
+	#Empire Entertainment == Empire Interactive?
 	#The SNES game Super Godzilla (USA) has a publisher of literally "Super Godzilla". Wait what? That can't be right. Should be Toho right? Same with Tetris (Japan) for Megadrive. Unless they meant The Tetris Company there.
 	#Leave Atari Games > Atari and Midway Games > Midway alone, because if I try to comperehend the timeline of which is what and who owned the rights to which brand name and who owned who at any given time, I would die of confusion
+	#Marvelous Entertainment and Marvelous Interactive also are different (due to mergers) and I gotta remember that
 	return {
+		'Absolute': 'Absolute Entertainment',
 		'Absolute Entertainment, Inc': 'Absolute Entertainment',
 		'Absolute Entertainment, Inc.': 'Absolute Entertainment',
 		'Acclaim Entertainment': 'Acclaim',
@@ -34,11 +40,16 @@ def consistentify_manufacturer(manufacturer):
 		'Creative Software': 'Creative', #Gonna guess this isn't the sound card company. Would be an interesting predicament if they made software that was in the software lists, huh
 		'Cryo': 'Cryo Interactive',
 		'Data East Corporation': 'Data East',
+		'Diawon C & A': 'Diawon C&A Holdings', #Yeah, maybe the nintendo_common version of the name sucks, actually...
 		'Dempa Shinbunsha': 'Dempa',
 		'Disney Interactive': 'Disney',
+		'Disney Interactive Studios': 'Disney',
+		'DSI Games': 'Destination Software', #They kinda go by both, actually...
+		'dtp Entertainment': 'Digital Tainment Pool', #Yeah, they also go by both...
 		'Eidos Interactive': 'Eidos',
 		'Elite': 'Elite Systems',
 		'Entex Industries': 'Entex',
+		'First Star': 'First Star Software',
 		'HAL Kenkyuujo': 'HAL', #Literally "HAL Laboratory"
 		'HAL Laboratory': 'HAL',
 		'Hasbro Interactive': 'Hasbro',
@@ -47,6 +58,7 @@ def consistentify_manufacturer(manufacturer):
 		'Human Entertainment': 'Human',
 		'JoWooD Entertainment AG': 'JoWooD Entertainment',
 		'Kaneko Elc. Co.': 'Kaneko',
+		'Laser Beam': 'Laser Beam Entertainment',
 		'LEGO Media': 'Lego',
 		'Mattel Interactive': 'Mattel',
 		'Mattel Media': 'Mattel',
@@ -61,6 +73,7 @@ def consistentify_manufacturer(manufacturer):
 		'PonyCa': 'Pony Canyon',
 		'ProSoft': 'Prosoft',
 		'Sammy Entertainment': 'Sammy',
+		'Sierra Entertainment': 'Sierra',
 		'Sierra On-Line': 'Sierra',
 		'Sigma Enterprises Inc.': 'Sigma', #Every time I see this line I keep thinking "sigma balls", just thought you should know
 		'Software Toolworks': 'The Software Toolworks', #It doesn't seem right that the "correct" one is the latter, but it's used more often, so I guess it is
@@ -73,10 +86,12 @@ def consistentify_manufacturer(manufacturer):
 		'Titus Software': 'Titus',
 		'UA Ltd.': 'UA Limited', #MAME uses the former (for Arcadia 2001 lists), Stella uses the latter in its database
 		'Ubi Soft': 'Ubisoft', #I hate that they used to spell their name with a space so this is valid. But then, don't we all hate Ubisoft for one reason or another?
+		'Ultra Games': 'Konami (Ultra Games)', #This is questionable to format it like this, but... I'll contemplate which one is better some other time
 		'V.Fame': 'Vast Fame',
 		'Viacom New Media': 'Viacom',
 		'Virgin Games': 'Virgin',
 		'Virgin Interactive': 'Virgin',
+		'Vivendi Universal': 'Vivendi', #Probably kinda wrong, but ehhh
 		'Williams Entertainment': 'Williams',
 
 		#For some reason, some Japanese computer software lists have the Japanese name and then the English one in brackets. Everywhere else the English name is used even when the whole thing is Japanese. Anyway, fine, I can deal with that
