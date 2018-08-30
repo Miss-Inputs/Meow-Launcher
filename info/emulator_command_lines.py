@@ -142,6 +142,11 @@ def mgba(game, _):
 		command_line += ' -C useBios=0'
 	return command_line + ' $<path>'
 
+def medusa(game, _):
+	if game.metadata.platform == 'DSi' or game.metadata.specific_info.get('Is-iQue', False):
+		return None
+	return 'medusa-emu-qt -f $<path>'
+
 def gambatte(game, _):
 	mapper = game.metadata.specific_info.get('Mapper', None)
 	if not mapper:
