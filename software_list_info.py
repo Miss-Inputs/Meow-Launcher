@@ -17,7 +17,7 @@ from mame_helpers import get_software_lists_by_names, consistentify_manufacturer
 #PSP
 #Wii
 
-#Is optical disc-based, which involves messing around with CHDs (and for that matter, would take a while to calculate the hash):
+#Is optical disc-based, which involves messing around with CHDs (and for that matter, would take a while to calculate the hash); I'm not sure how it would work exactly because it seems the sha1 of the whole CHD file (as listed in chdman, which is different from if you tried to checksum the file yourself) has to match the <diskarea> rom instead of the data hash which is also in the CHD header:
 #CD-i
 #Dreamcast
 #Mega CD
