@@ -40,7 +40,7 @@ def consistentify_manufacturer(manufacturer):
 		'Creative Software': 'Creative', #Gonna guess this isn't the sound card company. Would be an interesting predicament if they made software that was in the software lists, huh
 		'Cryo': 'Cryo Interactive',
 		'Data East Corporation': 'Data East',
-		'Diawon C & A': 'Diawon C&A Holdings', #Yeah, maybe the nintendo_common version of the name sucks, actually...
+		'Daiwon C & A': 'Daiwon C&A Holdings', #Yeah, maybe the nintendo_common version of the name sucks, actually...
 		'Dempa Shinbunsha': 'Dempa',
 		'Disney Interactive': 'Disney',
 		'Disney Interactive Studios': 'Disney',
