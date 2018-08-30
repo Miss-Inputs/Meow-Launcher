@@ -1,6 +1,8 @@
 import os
 import xml.etree.ElementTree as ElementTree
 import sys
+import calendar
+from datetime import datetime
 
 import cd_read
 from common import convert_alphanumeric, NotAlphanumericException
@@ -86,6 +88,36 @@ def add_wad_metadata(game):
 	tmd = game.rom.read(seek_to=tmd_offset, amount=round_up_to_multiple(tmd_size, 64))
 	parse_tmd(game, tmd)
 
+def add_wii_homebrew_metadata(game):
+	xml_path = os.path.join(game.folder, 'meta.xml')
+	if os.path.isfile(xml_path):
+		#boot is not a helpful launcher name
+		try:
+			meta_xml = ElementTree.parse(xml_path)
+			game.rom.name = meta_xml.findtext('name')
+
+			coder = meta_xml.findtext('coder')
+			if not coder:
+				coder = meta_xml.findtext('author')
+			game.metadata.developer = coder
+
+			release_date = meta_xml.findtext('release_date')
+			if release_date:
+				#Not interested in hour/minute/second/etc
+				release_date = release_date[0:8]
+				try:
+					actual_date = datetime.strptime(release_date, '%Y%m%d')
+					game.metadata.year = actual_date.year
+					game.metadata.month = actual_date.strftime('%B')
+					game.metadata.day = actual_date.day
+				except ValueError:
+					pass
+		except ElementTree.ParseError as etree_error:
+			if debug:
+				print('Ah bugger', game.rom.path, etree_error)
+			game.rom.name = os.path.basename(game.folder)
+
+
 def add_wii_metadata(game):
 	add_wii_system_info(game)
 	if game.rom.extension in ('gcz', 'iso'):
@@ -99,17 +131,4 @@ def add_wii_metadata(game):
 	elif game.rom.extension == 'wad':
 		add_wad_metadata(game)
 	elif game.rom.extension in ('dol', 'elf'):
-		xml_path = os.path.join(game.folder, 'meta.xml')
-		if os.path.isfile(xml_path):
-			#boot is not a helpful launcher name
-			try:
-				meta_xml = ElementTree.parse(xml_path)
-				game.rom.name = meta_xml.findtext('name')
-				coder = meta_xml.findtext('coder')
-				if not coder:
-					coder = meta_xml.findtext('author')
-				game.metadata.developer = coder
-			except ElementTree.ParseError as etree_error:
-				if debug:
-					print('Ah bugger', game.rom.path, etree_error)
-				game.rom.name = os.path.basename(game.folder)
+		add_wii_homebrew_metadata(game)
