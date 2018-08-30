@@ -31,14 +31,23 @@ def get_mame_software_list_names_by_system_name(name):
 	return None
 
 systems = [
-	#TODO: Convert to dict where name = key
-	System('32X', '32x', ['32x'], ['Kega Fusion']), 
+	#TODO: Convert to dict where name = key (but would that work out? hmm)
+
 	System('3DS', None, [], ['Citra']), 
 	System('Amstrad GX4000', 'gx4000', ['gx4000'], ['MAME (Amstrad GX4000)', 'MAME (Amstrad CPC+)']), 
+	System('APF-MP1000', 'apfm1000', ['apfm1000'], ['MAME (APF-MP1000)']),
+	System('Arcadia 2001', 'arcadia', ['arcadia'], ['MAME (Arcadia 2001)']), 
+	System('Astrocade', 'astrocde', ['astrocde'], ['MAME (Astrocade)']), 
 	System('Atari 2600', 'a2600', ['a2600', 'a2600_cass'], ['Stella', 'MAME (Atari 2600)']), 
+	System('Atari 5200', 'a5200', ['a5200'], ['MAME (Atari 5200)']), 
 	System('Atari 7800', 'a7800', ['a7800'], ['MAME (Atari 7800)']), 
+	System('Benesse Pocket Challenge V2', None, ['pockchalv2'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)']),
+	#Controls are mapped even worse than regular WonderSwan games, even with rotation auto-adjust you still end up using a stick/dpad as buttons and it gets weird, also the module must be forced or else it won't be recognized. But it works though
 	System('Casio PV-1000', 'pv1000', ['pv1000'], ['MAME (PV-1000)']),
 	System('CD-i', 'cdimono1', ['cdi'], ['MAME (CD-i)']),
+	System('Channel F', 'channelf', ['channelf'], ['MAME (Channel F)']), 
+	#It has some sort of knob that you twist up and down or something? What the fuck
+	System('Colecovision', 'coleco', ['coleco'], ['MAME (ColecoVision)']), 
 	System('Dreamcast', 'dc', ['dc'], ['Reicast']),
 	System('DS', None, [], ['Medusa']),
 	System('Entex Adventure Vision', 'advision', ['advision'], ['MAME (Entex Adventure Vision)']), 
@@ -49,16 +58,18 @@ systems = [
 	System('GameCube', 'gcjp', [], ['Dolphin']),
 	System('Game Gear', 'gamegear', ['gamegear'], ['Kega Fusion', 'Mednafen (Game Gear)', 'MAME (Game Gear)']),
 	System('GBA', 'gba', ['gba'], ['mGBA', 'Mednafen (GBA)', 'MAME (GBA)', 'Medusa']), 
+	System('Intellivison', 'intv', ['intv', 'intvecs'], ['MAME (Intellivision)', 'MAME (Intellivoice)', 'MAME (Intellivision ECS)', 'MAME (Intellivision Keyboard)']), 
+	System('Lynx', 'lynx', ['lynx'], ['Mednafen (Lynx)']), 
+	#uhhh it's like ambidextrous or something? Remind me to look into this again later
 	System('Master System', 'sms', ['sms'], ['Kega Fusion', 'Mednafen (Master System)']),
 	System('Mattel Juice Box', 'juicebox', ['juicebox'], ['MAME (Juice Box)']),
 	#Now for those who actually do know what this is, you may be thinking: But doesn't that just play videos? Isn't this really pointless? And the answer is yes, yes it is. I love pointless.
-	System('Mega CD', 'megacd', ['megacd', 'megacdj', 'segacd'], ['Kega Fusion']), 
 	System('Mega Drive', 'megadriv', ['megadriv'], ['Kega Fusion', 'Mednafen (Mega Drive)']),
 	System('Mega Duck', 'megaduck', ['megaduck'], ['MAME (Mega Duck)']), 
+	System('N64', 'n64', ['n64'], ['Mupen64Plus']), 
 	System('Neo Geo CD', 'neocdz', ['neocd'], ['MAME (Neo Geo CD)']),
 	System('Neo Geo Pocket', 'ngpc', ['ngp', 'ngpc'], ['Mednafen (Neo Geo Pocket)', 'MAME (Neo Geo Pocket)']),
 	System('NES', 'nes', ['nes', 'nes_ade', 'nes_datach', 'nes_kstudio', 'nes_ntbrom', 'famicom_cass', 'famicom_flop'], ['Mednafen (NES)', 'MAME (NES)']),
-	System('PC Engine CD', 'pce', ['pcecd'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)']), 
 	System('PC Engine', 'pce', ['pce', 'sgx'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)']), 
 	System('PC-FX', 'pcfx', ['pcfx'], ['Mednafen (PC-FX)']),
 	System('PlayStation', 'psj', ['psx'], ['Mednafen (PS1)']), 
@@ -66,37 +77,22 @@ systems = [
 	System('PS2', 'ps2', [], ['PCSX2']), 
 	System('PSP', None, [], ['PPSSPP']),
 	System('SG-1000', 'sg1000', ['sg1000', 'sc3000_cart', 'sc3000_cass', 'sf7000'], ['Kega Fusion', 'MAME (SG-1000)']),
+	System('Saturn', 'saturn', ['saturn', 'sat_cart', 'sat_vccart'], ['Mednafen (Saturn)']), 
 	System('SNES', 'snes', ['snes', 'snes_bspack', 'snes_strom'], ['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)']),
 	System('Uzebox', 'uzebox', ['uzebox'], ['MAME (Uzebox)']),
+	System('VC 4000', 'vc4000', ['vc4000'], ['MAME (VC 4000)']),
 	System('Vectrex', 'vectrex', ['vectrex'], ['MAME (Vectrex)']), 
 	System('Virtual Boy', 'vboy', ['vboy'], ['Mednafen (Virtual Boy)', 'MAME (Virtual Boy)']),
 	System('Watara Supervision', 'svision', ['svision'], ['MAME (Watara Supervision)']), 
-
-	#These ones may have control schemes that don't actually map too easily to a normal XInput controller or any other
-	#controller that looks like the kind of controller that's standard these days (y'know what I mean), or other weirdness
-	System('Benesse Pocket Challenge V2', None, ['pockchalv2'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)']),
-	#Controls are mapped even worse than regular WonderSwan games, even with rotation auto-adjust you still end up using a stick/dpad as buttons and it gets weird, also the module must be forced or else it won't be recognized. But it works though
-	System('Channel F', 'channelf', ['channelf'], ['MAME (Channel F)']), 
-	#It has some sort of knob that you twist up and down or something? What the fuck
-	System('Lynx', 'lynx', ['lynx'], ['Mednafen (Lynx)']), 
-	#uhhh it's like ambidextrous or something? Remind me to look into this again later
 	System('Wii', None, [], ['Dolphin']), 
 	#Heckin motion controls, what are you gonna do... how do you replicate 3D movement without having 3D movement, really. Of course you could argue 3DS has the same problem but motion controls are used a lot less there. I think I heard something about Dolphin implementing per-game controller profiles or somethinig like that though, so once that all works nicely I might move Wii out of this category
 	System('WonderSwan', 'wscolor', ['wswan', 'wscolor'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)']), 
 	#Rotates around so that sometimes the dpad becomes buttons and vice versa and there's like two dpads??? but if you use Mednafen's rotation auto-adjust thing it kinda works
 
-	#Hecking keypads, but I guess they're fine if you're using a keyboard with a keypad
-	System('APF-MP1000', 'apfm1000', ['apfm1000'], ['MAME (APF-MP1000)']),
-	System('Arcadia 2001', 'arcadia', ['arcadia'], ['MAME (Arcadia 2001)']), 
-	System('Astrocade', 'astrocde', ['astrocde'], ['MAME (Astrocade)']), 
-	System('Atari 5200', 'a5200', ['a5200'], ['MAME (Atari 5200)']), 
-	System('Colecovision', 'coleco', ['coleco'], ['MAME (ColecoVision)']), 
-	System('Intellivison', 'intv', ['intv', 'intvecs'], ['MAME (Intellivision)', 'MAME (Intellivoice)', 'MAME (Intellivision ECS)', 'MAME (Intellivision Keyboard)']), 
-	System('VC 4000', 'vc4000', ['vc4000'], ['MAME (VC 4000)']),
-	
-	#More than 6 buttons, would be okay if you have an older gamepad that had 6 face buttons before the industry decided 4 face buttons was the way to go (N64 or Saturn controllers with USB adapters work well, even for each other's control schemes; or one of those late 90s gamepads like the kind I have lying around)
-	System('N64', 'n64', ['n64'], ['Mupen64Plus']), 
-	System('Saturn', 'saturn', ['saturn', 'sat_cart', 'sat_vccart'], ['Mednafen (Saturn)']), 
+	#Systems that are treated as though they were whole separate things, but they're addons for other systems with their own distinct set of software
+	System('32X', '32x', ['32x'], ['Kega Fusion']), 
+	System('Mega CD', 'megacd', ['megacd', 'megacdj', 'segacd'], ['Kega Fusion']), 
+	System('PC Engine CD', 'pce', ['pcecd'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)']), 
 
 	#Computers!  These actually aren't that bad control-wise because most sensible games would use a simple one-button
 	#joystick, and most of the time MAME lets you attach one.  But some of them don't!  And the ones that don't just use
@@ -123,41 +119,50 @@ systems = [
 	System('ZX Spectrum', 'spectrum', ['spectrum_cart', 'spectrum_cass', 'specpls3_flop'], ['MAME (ZX Spectrum)']),
 	#Joystick interface is non-standard so not all games support it and might decide to use the keyboard instead, but eh. It works I guess.
 
-	#No emulators that are cool enough on Linux. Yet. Maybe? That I know of. They're here for completeness.
-	#They are also here to remind me to check up on them every now and again to make sure they indeed don't work or if I was just being stupid all along
-	System('3DO', '3do', [], []),
-	#4DO doesn't like Wine and has no native Linux version (just libretro and meh), Phoenix Emu has no command line support
-	System('Bandai Playdia', None, [], []),
-	System('Casio Loopy', 'casloopy', ['casloopy'], []),
+	#Unsupported (yet) systems beyond this point
+
+	#Theoretically supported, but not supported enough to be considered playable
 	System('FM Towns Marty', 'fmtmarty', ['fmtowns_cd', 'fmtowns_flop'], []),
 	#MAME driver has corrupted graphics in a lot of things. These games do work with FM Towns Not-Marty but then I'm using a computer instead of a console, so I'd have to verify that everything would still work the way I expect, and I think it doesn't...
-	System('GameKing', 'gameking', ['gameking'], []),
-	System('GameKing 3', 'gamekin3', ['gameking3'], []),
-	System('GP32', 'gp32', ['gp32'], []),
-	#Runs too slow to verify if anything else works, but all documentation points to not
 	System('Hartung Game Master', 'gmaster', ['gmaster'], []),
 	#No sound (but some software isn't marked as supported="no" so that's good)
 	System('IBM PCjr', 'ibmpcjr', ['ibmpcjr_cart'], []),
 	#For the carts, because otherwise we'd just call the software DOS or PC Booter. Has the same problem as PC booter disks in that the joystick tends to play up.
 	System('Jaguar', 'jaguar', ['jaguar'], []),
-	#Virtual Jaguar doesn't like gamepads seemingly, and Phoenix Emu has no command line support
-	System('Konami Picno', 'picno', ['picno'], []),
-	System('Leapster', 'leapster', ['leapster'], []),
-	System('Mattel HyperScan', 'hs', ['hyperscan'], []),
-	System('Microvision', 'microvsn', ['microvision'], []),
-	System('N-Gage', None, [], []),
+	#Virtual Jaguar doesn't like gamepads seemingly, and Phoenix Emu has no command line support.
+	#MAME is... hmm. Mostly not working. Raiden seems to work, but that's about it; other stuff just hangs at the Jaguar logo or has no sound etc
 	System('Magnavox Odyssey²', 'odyssey2', ['odyssey2'], []),
 	#O2EM doesn't really work; MAME isn't completely broken but a lot of games have broken graphics so like... ehh
 	System('G7400', 'g7400', ['g7400'], []),
 	#just has the same problems as Odyssey 2...
 	System('PC Booter', 'ibm5150', [], []),
 	#This one is a bit tricky... both MAME and PCem have issues emulating a joystick. Do the games actually just suck like that? I don't know. The majority of these games assume a 4.77MHz CPU, of course. The software list is ibm5150 but that has some DOS games too, just to be confusing.
-	System('Pippin', 'pippin', ['pippin', 'pippin_flop'], []),
-	#Games don't just boot in a PPC Mac, unfortunately
 	System("Super A'Can", 'supracan', ['supracan'], []),
 	#Some things work in MAME, except with no sound, so... nah
+
+	#No emulators that are cool enough on Linux. Yet. Maybe? That I know of. They're here for completeness. Or no emulators at all.
+	#They are also here to remind me to check up on them every now and again to make sure they indeed don't work or if I was just being stupid all along
+	System('3DO', '3do', [], []),
+	#4DO doesn't like Wine and has no native Linux version (just libretro and meh), Phoenix Emu has no command line support; so both are unusable for our purposes. MAME driver just kinda hangs at the 3DO logo at the moment
+	System('Bandai Playdia', None, [], []),
+	System('Casio Loopy', 'casloopy', ['casloopy'], []),
+	System('GameKing', 'gameking', ['gameking'], []),
+	System('GameKing 3', 'gamekin3', ['gameking3'], []),
+	System('GP32', 'gp32', ['gp32'], []),
+	#Runs too slow to verify if anything else works, but all documentation points to not
+	System('Koei PasoGo', 'pasogo', ['pasogo'], []),
+	#No sound in MAME yet, and apparently the rest doesn't work either (I'll take their word for it)
+	System('Konami Picno', 'picno', ['picno'], []),
+	System('Leapster', 'leapster', ['leapster'], []),
+	System('Mattel HyperScan', 'hs', ['hyperscan'], []),
+	System('Microvision', 'microvsn', ['microvision'], []),
+	#Cartridges boot, but seem to do nothing...
+	System('N-Gage', None, [], []),
+	System('Pippin', 'pippin', ['pippin', 'pippin_flop'], []),
+	#Games don't just boot in a PPC Mac, unfortunately. No PPC Mac emulator has branched off into specific Pippin emulation yet
+	System('Sawatte Pico', 'sawatte', ['sawatte'], []),
+	#Similar to the Sega Pico but with different software (may or may not also use Megadrive ROM header?), but is completely unemulated
 	System('V.Smile', 'vsmile', ['vsmile_cart', 'vsmile_cd', 'vsmileb_cart', 'vsmilem_cart'], []),
-	System('Xbox', 'xbox', [], []),
 	System('Xbox 360', None, [], []),
 	#Xenia requires Windows 8 + Vulkan, somehow I don't think it'd ever run under Wine either
 	System('ZAPit GameWave', None, [], []),
@@ -171,14 +176,20 @@ systems = [
 	#Mupen64Plus would work, but right now it has issues with usability that it says right in the readme (so it's not just me picking on them, they say it themselves). Basically you have to have a cart inserted which has the same properties as the 64DD software you want to emulate, and that wouldn't work for our launchering purposes. MAME doesn't seem to work with .ndd format dumps
 	System('Apple IIgs', 'apple2gs', ['apple2gs'], []),
 	#Some games require a hard disk with an OS install and they won't tell you this because of course not, and if you want to autoboot the floppies with a hard drive still in there you have to set it to always boot from slot 5 and it's really annoying and I hate it
+	System('BBC Bridge Companion', 'bbcbc', ['bbcbc'], []),
+	#Takes a single .bin file for the -cart slot, but known software dumps are in split ROM format. Unsure how to get around that 
 	System('Cybiko', 'cybikov1', [], []),
 	#Quickload slot doesn't seem to actually quickload anything, and seems to require setup each time. V2 and Extreme have same problems
 	System('CreatiVision', 'crvision', ['crvision'], []),
 	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it
 	System('e-Reader', None, ['gba_ereader'], []),
 	#VBA-M works (nothing else emulates e-Reader that I know of), but you have to swipe the card manually, which doesn't really work for a nice launcher thing... and there's not really a way around that at this point in time.
+	System('Luxor ABC80', 'abc80', ['abc80_cass', 'abc80_flop'], []),
+	#Requires "RUN " and the program name, where the program name is completely arbitrary and variable, so there's not really any way to do it automatically and programmatically
 	System('Mattel Aquarius', 'aquarius', [], []),
 	#Controllers aren't emulated yet (and they're necessary for a lot of things)
+	System('Nichibutsu My Vision', 'myvision', ['myvision'], []),
+	#Same predicament as BBC Bridge Companion above
 	System('RCA Studio 2', 'studio2', ['studio2'], []),
 	#Due to the console's terrible design, asinine keypad sequences are needed to boot games any further than weird static or a black screen. They're so asinine that even if I look at the info usage in the software list, and do the thing, it still doesn't work. So if it's that complicated that I can't work it out manually, how can I do it programmatically? So yeah, shit
 	System('Sega Pico', 'pico', ['pico'], []),
@@ -199,22 +210,40 @@ systems = [
 	System('Mikrosha', 'mikrosha', ['mikrosha_cart', 'mikrosha_cass'], []),
 	System('Apogey BK-01', 'apogee', ['apogee'], []),
 	System('Partner 01.01', 'partner', ['partner_cass', 'partner_flop'], []),
-	System('Orion 128', 'orion128', ['orion_cart', 'orion_cass', 'orion_flop'], []),
+	System('Orion-128', 'orion128', ['orion_cart', 'orion_cass', 'orion_flop'], []),
 	System('PC-6001', 'pc6001', [], []),
 	System('FM-7', 'fm7', ['fm7_cass', 'fm7_disk', 'fm77av'], []),
 
 	#TODO: Me being lazy, need to check if these actually work or not:
+	System('Acorn Atom', 'atom', ['atom_cass', 'atom_flop', 'atom_rom'], []),
 	System('Amiga', 'a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench', 'cd32', 'cdtv'], []),	
 	#MAME is known to not work here
 	System('Apple I', 'apple1', ['apple1'], []),
 	System('Apple II', 'apple2', ['apple2', 'apple2_cass'], []),
 	System('Apple Lisa', 'lisa', ['lisa'], []),
+	System('Apple III', '', ['apple3'], []),
+	System('Atari Portfolio', 'pofo', ['pofo'], []),
+	#Nothing is dumped, so I think it's safe to say nothing will work, but still. Apparently it's supposed to be a PC clone, but doesn't support any PC software lists...
 	System('Atari ST', 'st', ['st_flop', 'st_cart'], []),
 	#MAME is known to not work here, and Hatari is known to have usability issues... is there anything else?
-	System('Luxor ABC80', 'abc80', ['abc80_cass', 'abc80_flop'], []),
-	System('Sam Coupe', 'samcoupe', ['samcoupe_cass', 'samcoupe_flop'], []),
+	System('Bandai Super Vision 8000', 'sv8000', ['sv8000'], []),
+	System('Cambridge Z88', 'z88', ['z88_cart'], []),
+	System('Commodore 16', 'c16', ['plus4_cart', 'plus4_cass', 'plus4_flop'], []),
+	#Plus/4 and C116 are in the same software family, so those could be used too
+	System('Commodore 65', 'c65', ['c65_flop'], []),
+	#This was actually never released, but there's software for it anyway
+	System('Commodore 128', 'c128', ['c128_cart', 'c128_flop', 'c128_rom'], []),
+	System('Neo Geo AES', 'aes', ['neogoeo'], []),
+	#Hmm... even emulated re-releases (like the stuff on Steam) is the MVS version. Also how it works is a bit tricky, since as a system you load single .bin files through the cart slot, but everything out there is stored as multiple ROMs, even in the software list... so I dunno if this would be usable
+	System('Pocket Challenge W', 'pockchal', ['pockchalw'], []),
+	#Everything in that software list says unsupported, so that's not a good sign
+	System('Sam Coupe', 'samcoupe', ['samcoupe_cass', 'samcoupe_flop'], []),	
+	System('Squale', 'squale', ['squale_cart'], []),
+	#What's interesting is that the XML for the driver says it's compatible with a software list simply called "squale", but that's not in the default hash directory
 	System('Tandy CoCo', 'coco3', ['coco_cart', 'coco_flop'], []),
-	#Did I want coco/coco2 instead? Hmm	
+	#Did I want coco/coco2 instead? Hmm. Those seem to work but coco3 seems to not autoboot. It looks like carts >128K require coco3, or if the software list says so
+	System('Xbox', 'xbox', [], []),
+	#MAME definitely isn't ready yet.. do XQEMU or Cxbx-Reloaded work for our purposes yet?	
 
 	#TODO: Me being lazy, I know if these work or not:
 	System('Commodore PET', 'pet4032', ['pet_cass', 'pet_flop', 'pet_hdd', 'pet_quik', 'pet_rom'], []),
@@ -223,15 +252,30 @@ systems = [
 	System('Galaksija', 'galaxyp', ['galaxy'], []),
 	#This needs tape control automation to work with tapes (type OLD, then play tape, then RUN); dumps just need to press enter because MAME will type "RUN" for you. But not enter for you. Dunno why.
 	
-	#Other todos:
+	#Other todos, often just me not knowing which something actually is or being too lazy to organize it even into the "too lazy to look into right now" list:
+	#Amstrad CPC-not-plus? Not sure how it all works
 	#Is Acorn Electron the same as BBC Micro for emulation purposes?
 	#Should Amiga CD32 and Commodore CDTV just count as Amiga?
 	#APF Imagination Machine just APF-MP1000 or different?
 	#Are Oric-1 and Oric Atmos software compatible or different things?
 	#Which of Sharp MZ series are software compatible with which? (Software lists: MZ-700, MZ-800, MZ-2000)
 	#Which of TI calculators are software compatible with which?
-	#Figure out Thomson MO/TO stuff as well. My head hurts and I feel dizzy so I'm not going to right now
+	#Thomson MO: Is MO5 or MO6 the main system? (latter has exclusive software lists, but is compatible with MO5)
+	#Thomson MO: Is TO5 or TO8 the main system? (latter has exclusive software lists, but is compatible with TO7)
 	#Which TRS-80 model is which?
+	#Bandai Super Note Club: Part of VTech Genius Leader (supports glccolor software list), or its own thing (has snotec software list)?
+	#Memotech MTX: 500 or 512?
+	#Dragon 64 part of CoCo or nah?
+	#Which PC-98 system is which?
+	#Videoton TVC: Which is main system? TV64?
+	#Acorn Archimedes stuff (could this end up being amongst dos_mac_common?)
+	#Oric stuff (Oric-1 or Oric Atmos)
+	#C64DTV
+	#Jupiter Ace (ZX Spectrum clone but has different compatibility?)
+	#TI-99: Main kerfluffle seems to be .rpk file format needed for -cart loading, but everything else is in .c and .g and who knows what else; -ioport peb -ioport:peb:slot2 32kmem -ioport:peb:slot3 speech might be needed?
+
+	#Epoch (not Super) Casette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
+	#Coleco Quiz Wiz Challenge might require its own thing: The software cartridges contain no ROMs, just different pinouts, you need the software list to select which one
 ]
 
 class GameWithEngine():
@@ -243,9 +287,10 @@ games_with_engines = {
 	'Doom': GameWithEngine('Doom', ['PrBoom+'], False),
 	'Quake': GameWithEngine('Quake', ['Darkplaces'], True),
 }
+#TODO: There should be a Z-Machine interpreter that runs nicely with modern sensibilities, I should look into that
 
-#TODO: Those should just be considered emulated systems, need to add these as well:
+#TODO: Add these as well (or should I? Maybe I should just leave it to emulator_info):
 #Arcade: I guess it's not an array, it's just MAME
 #Computers: Mac, DOS (well, they're emulated too, but differently than the above systems)
-#Other: J2ME, Flash
+#Virtual environment-but-not-quite-type-things: J2ME, Flash
 #This allows us to organize supported emulators easily and such
