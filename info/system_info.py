@@ -144,6 +144,8 @@ systems = [
 	#They are also here to remind me to check up on them every now and again to make sure they indeed don't work or if I was just being stupid all along
 	System('3DO', '3do', [], []),
 	#4DO doesn't like Wine and has no native Linux version (just libretro and meh), Phoenix Emu has no command line support; so both are unusable for our purposes. MAME driver just kinda hangs at the 3DO logo at the moment
+	System('3DO M2', '3do_m2', ['3do_m2'], []),
+	#Was never actually released, but prototypes exist
 	System('Bandai Playdia', None, [], []),
 	System('Casio Loopy', 'casloopy', ['casloopy'], []),
 	System('GameKing', 'gameking', ['gameking'], []),
