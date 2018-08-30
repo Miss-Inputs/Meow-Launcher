@@ -288,6 +288,7 @@ games_with_engines = {
 	'Quake': GameWithEngine('Quake', ['Darkplaces'], True),
 }
 #TODO: There should be a Z-Machine interpreter that runs nicely with modern sensibilities, I should look into that
+#Duke Nukem 3D and Wolfenstein 3D definitely have various source ports too, just need to find one that works. Should try Theme Hospital (CorsixTH) and Morrowind (OpenMW) too. Enigma might be able to take original Oxyd data files, thus counting as an engine for that?
 
 #TODO: Add these as well (or should I? Maybe I should just leave it to emulator_info):
 #Arcade: I guess it's not an array, it's just MAME
