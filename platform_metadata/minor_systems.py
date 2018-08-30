@@ -334,7 +334,11 @@ def add_lynx_info(game):
 	game.metadata.input_info.players.append(player)
 	game.metadata.input_info.console_buttons = 1 #Pause
 
-	software = get_software_list_entry(game, skip_header=64)
+	magic = game.rom.read(amount=4)
+	is_headered = magic == b'LYNX'
+	game.metadata.specific_info['Headered'] = is_headered
+
+	software = get_software_list_entry(game, skip_header=64 if is_headered else 0)
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
