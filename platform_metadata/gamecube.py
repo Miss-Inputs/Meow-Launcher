@@ -28,12 +28,14 @@ def add_gamecube_wii_disc_metadata(game, header):
 	except NotAlphanumericException:
 		pass
 
+	ignore_game_id = False
 	if product_code == 'RELS' and licensee_code == 'AB':
 		#This is found on a few prototype discs, it's not valid
-		return
-	
-	game.metadata.product_code = product_code
-	game.metadata.publisher = publisher
+		ignore_game_id = True
+
+	if not ignore_game_id:	
+		game.metadata.product_code = product_code
+		game.metadata.publisher = publisher
 
 	game.metadata.revision = header[7]
 	is_wii = header[0x18:0x1c] == b']\x1c\x9e\xa3'
