@@ -89,7 +89,7 @@ def add_machine_platform(machine):
 		machine.metadata.platform = machine.metadata.genre
 	elif category == 'Handheld' and machine.metadata.genre == "Plug n' Play TV Game":
 		machine.metadata.platform = "Plug & Play"
-	elif category in ('Computer', 'Calculator', 'Handheld'):
+	elif category in ('Computer', 'Calculator', 'Handheld', 'Telephone'):
 		#"Handheld" could also be a tabletop system which takes AC input, but since catlist.ini doesn't take that into account, I don't
 		#really have a way of doing so either
 		machine.metadata.platform = category
@@ -97,7 +97,7 @@ def add_machine_platform(machine):
 		machine.metadata.platform = 'Pokies'
 	elif machine.metadata.genre == 'Electromechanical' and machine.metadata.subgenre == 'Pinball':
 		machine.metadata.platform = 'Pinball'
-	elif machine.metadata.genre in ('Chess Machine', 'EPROM Programmer'):
+	elif machine.metadata.genre in ('Chess Machine', 'EPROM Programmer', 'Home Karaoke System'):
 		machine.metadata.platform = machine.metadata.genre
 
 #Some games have memory card slots, but they don't actually support saving, it's just that the arcade system board thing they use always has that memory card slot there. So let's not delude ourselves into thinking that games which don't save let you save, because that might result in emotional turmoil.
