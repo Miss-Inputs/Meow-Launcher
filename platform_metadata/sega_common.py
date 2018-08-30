@@ -12,7 +12,7 @@ licensee_codes = {
 	'T-13': 'Data East',
 	'T-14': 'Namco',
 	'T-15': 'Sunsoft',
-	'T-16': 'Ma-Ba (Mattel + Bandai)',
+	'T-16': 'Ma-Ba',  #Mattel + Bandai
 	'T-17': 'Dempa',
 	'T-18': 'Technosoft',
 	'T-19': 'Technosoft (19)',
