@@ -1,7 +1,6 @@
 import os
 import xml.etree.ElementTree as ElementTree
 import sys
-import calendar
 from datetime import datetime
 
 import cd_read
