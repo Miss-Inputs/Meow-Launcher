@@ -258,6 +258,19 @@ def add_coleco_adam_info(game):
 
 #-- Beyond this point, there may be unexplored things which may result in these systems being spun off into their own module. Maybe. It just seems likely. Or maybe I do know full well they have a header, and either I haven't explored it yet, or I'm just a lazy bugger
 
+def add_intellivision_info(game):
+	#There's probably some way to get info from title screen in ROM, but I haven't explored that in ROMniscience yet
+	#I think .int is supposed to be headered, but the ROMs I have (from Game Room, I think) seem to be just fine?
+	#TODO: Some of these have two <dataarea> tags: name="5000" and name="9000". For example, Commando, which is a 32KB ROM in No-Intro, here the two data areas are 16KB each. Is this consistent for all 32KB games, perhaps?
+	#24KB games (e.g. B-17 Bomber) are sometimes split up into "5000" (16KB) and "D000" (8KB) data areas, but then some (e.g. Defender) are just one big ROM in the software list
+	#Hover Force (48KB) is "5000" (16KB), "9000" (24KB) and "D000" (8KB)
+	#Tower of Doom (also 48KB) is "5000" (16KB), "9000" (16KB), "D000" (8KB) and "F000" (8KB)
+	#Why this? Why me?
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+		game.metadata.product_code = software.get_info('serial')
+
 def add_colecovision_info(game):
 	#Can get year, publisher unreliably from the title screen info in the ROM
 	#TODO: Software list splits >=16K roms into multiple 8KB parts, making that tricky to deal with
