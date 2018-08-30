@@ -76,12 +76,14 @@ def add_machine_platform(machine):
 		machine.metadata.platform = 'PlayChoice-10'
 	elif machine.source_file == 'nss':
 		machine.metadata.platform = 'Nintendo Super System'
+	elif machine.source_file == 'cps1' and '(CPS Changer, ' in machine.name:
+		machine.metadata.platform = 'CPS Changer'
+		machine.name = machine.name.replace('CPS Changer, ', '')
 	elif category == 'Game Console':
 		machine.metadata.platform = 'Plug & Play' 
 		#Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug &
         #play system
 	elif machine.name.startswith(('Game & Watch: ', 'Select-A-Game: ', 'R-Zone: ')):
-		#Source file is hh_sm510 so we can't detect the Game & Watchiness of a handheld game from that
 		machine.metadata.platform, _, machine.name = machine.name.partition(': ')
 	elif category == 'Misc.':
 		machine.metadata.platform = machine.metadata.genre
