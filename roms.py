@@ -25,6 +25,9 @@ class EngineFile():
 			self.extension = self.extension[1:]
 		self.extension = self.extension.lower()
 
+	def read(self, seek_to=0, amount=-1):
+		return common.read_file(self.path, seek_to=seek_to, amount=amount)
+
 	def contains_subfolder(self, name):
 		if not os.path.isdir(self.path):
 			return False
