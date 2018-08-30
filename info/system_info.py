@@ -49,7 +49,7 @@ systems = [
 	#It has some sort of knob that you twist up and down or something? What the fuck
 	System('Colecovision', 'coleco', ['coleco'], ['MAME (ColecoVision)']), 
 	System('Dreamcast', 'dc', ['dc'], ['Reicast']),
-	System('DS', None, [], ['Medusa']),
+	System('DS', 'nds', [], ['Medusa']),
 	System('Entex Adventure Vision', 'advision', ['advision'], ['MAME (Entex Adventure Vision)']), 
 	System('Epoch Game Pocket Computer', 'gamepock', ['gamepock'], ['MAME (Game Pocket Computer)']),
 	System('Gamate', 'gamate', ['gamate'], ['MAME (Gamate)']),
