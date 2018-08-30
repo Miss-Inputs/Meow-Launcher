@@ -58,7 +58,7 @@ systems = [
 	System('GameCube', 'gcjp', [], ['Dolphin']),
 	System('Game Gear', 'gamegear', ['gamegear'], ['Kega Fusion', 'Mednafen (Game Gear)', 'MAME (Game Gear)']),
 	System('GBA', 'gba', ['gba'], ['mGBA', 'Mednafen (GBA)', 'MAME (GBA)', 'Medusa']), 
-	System('Intellivison', 'intv', ['intv', 'intvecs'], ['MAME (Intellivision)', 'MAME (Intellivoice)', 'MAME (Intellivision ECS)', 'MAME (Intellivision Keyboard)']), 
+	System('Intellivision', 'intv', ['intv', 'intvecs'], ['MAME (Intellivision)', 'MAME (Intellivoice)', 'MAME (Intellivision ECS)', 'MAME (Intellivision Keyboard)']), 
 	System('Lynx', 'lynx', ['lynx'], ['Mednafen (Lynx)']), 
 	#uhhh it's like ambidextrous or something? Remind me to look into this again later
 	System('Master System', 'sms', ['sms'], ['Kega Fusion', 'Mednafen (Master System)']),
