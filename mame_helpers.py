@@ -73,6 +73,7 @@ def consistentify_manufacturer(manufacturer):
 		'PonyCa': 'Pony Canyon',
 		'ProSoft': 'Prosoft',
 		'Sammy Entertainment': 'Sammy',
+		'Seta Corporation': 'Seta',
 		'Sierra Entertainment': 'Sierra',
 		'Sierra On-Line': 'Sierra',
 		'Sigma Enterprises Inc.': 'Sigma', #Every time I see this line I keep thinking "sigma balls", just thought you should know
@@ -89,6 +90,8 @@ def consistentify_manufacturer(manufacturer):
 		'Ultra Games': 'Konami (Ultra Games)', #This is questionable to format it like this, but... I'll contemplate which one is better some other time
 		'V.Fame': 'Vast Fame',
 		'Viacom New Media': 'Viacom',
+		'Video System Co.': 'Video System',
+		'Visco Corporation': 'Visco',
 		'Virgin Games': 'Virgin',
 		'Virgin Interactive': 'Virgin',
 		'Vivendi Universal': 'Vivendi', #Probably kinda wrong, but ehhh
@@ -127,6 +130,7 @@ def consistentify_manufacturer(manufacturer):
 		'Mindscapce': 'Mindscape', #Yeah okay, that _definitely_ is a typo
 		'Pack-In-Video': 'Pack-In Video',
 		'SpectraVideo': 'Spectravideo',
+		'Take Two Interactive': 'Take-Two Interactive',
 		'VAP': 'Vap',
 	}.get(manufacturer, manufacturer)
 
