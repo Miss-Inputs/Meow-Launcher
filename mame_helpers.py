@@ -60,6 +60,7 @@ def consistentify_manufacturer(manufacturer):
 		'Kaneko Elc. Co.': 'Kaneko',
 		'Laser Beam': 'Laser Beam Entertainment',
 		'LEGO Media': 'Lego',
+		'Mattel Electronics': 'Mattel',
 		'Mattel Interactive': 'Mattel',
 		'Mattel Media': 'Mattel',
 		'MicroCabin': 'Micro Cabin', #Annoying alternate spelling because they officially use both just to be annoying
