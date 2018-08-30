@@ -70,7 +70,7 @@ systems = [
 	System('Neo Geo CD', 'neocdz', ['neocd'], ['MAME (Neo Geo CD)']),
 	System('Neo Geo Pocket', 'ngpc', ['ngp', 'ngpc'], ['Mednafen (Neo Geo Pocket)', 'MAME (Neo Geo Pocket)']),
 	System('NES', 'nes', ['nes', 'nes_ade', 'nes_datach', 'nes_kstudio', 'nes_ntbrom', 'famicom_cass', 'famicom_flop'], ['Mednafen (NES)', 'MAME (NES)']),
-	System('PC Engine', 'pce', ['pce', 'sgx'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)']), 
+	System('PC Engine', 'pce', ['pce', 'sgx', 'tg16'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)']), 
 	System('PC-FX', 'pcfx', ['pcfx'], ['Mednafen (PC-FX)']),
 	System('PlayStation', 'psj', ['psx'], ['Mednafen (PS1)']), 
 	System('Pokemon Mini', 'pokemini', ['pokemini'], ['PokeMini', 'PokeMini (wrapper)', 'MAME (Pokemon Mini)']),
