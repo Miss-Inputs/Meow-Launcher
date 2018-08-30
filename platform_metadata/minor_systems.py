@@ -258,6 +258,22 @@ def add_coleco_adam_info(game):
 
 #-- Beyond this point, there may be unexplored things which may result in these systems being spun off into their own module. Maybe. It just seems likely. Or maybe I do know full well they have a header, and either I haven't explored it yet, or I'm just a lazy bugger
 
+def add_colecovision_info(game):
+	#Can get year, publisher unreliably from the title screen info in the ROM
+	#TODO: Software list splits >=16K roms into multiple 8KB parts, making that tricky to deal with
+	#16KB carts seem to be consistently loaded with offset = 0 for the first ROM and offset = 0x2000 for the second ROM. Maybe we can do something there
+	#20KB: 0x0000, 0x2000, 0x4000 (the latter ROM is size = 4096 instead of size = 8192)
+	#24KB: 0x0000, 0x2000, 0x4000
+	#32KB: 0x0000, 0x2000, 0x8000
+	#1MB (31-in-1 multicart): One big ROM
+	#2MB (63-in-1 multicart): Split into 1MB halves (offset of second rom = 1MB)
+	#So we should be able to reliably do this by looking at size, it'll just require effort
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+		game.metadata.product_code = software.get_info('serial')
+
+
 def add_juicebox_info(game):
 	#Hmm... apparently there's 0x220 bytes at the beginning which need to be copied from retail carts to get homebrew test ROMs to boot
 	software = get_software_list_entry(game)

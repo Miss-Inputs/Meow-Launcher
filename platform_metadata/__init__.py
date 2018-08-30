@@ -88,6 +88,7 @@ helpers = {
 	'Casio PV-2000': add_casio_pv2000_info,
 	'Channel F': add_channel_f_info,
 	'Coleco Adam': add_coleco_adam_info,
+	'Colecovision': add_colecovision_info,
 	'Entex Adventure Vision': add_entex_adventure_vision_info,
 	'Epoch Game Pocket Computer': add_game_pocket_computer_info,
 	'Gamate': add_gamate_info,
