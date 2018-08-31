@@ -121,9 +121,8 @@ systems = [
 
 	#Unsupported (yet) systems beyond this point
 
-	#Theoretically supported, but not supported enough to be considered playable
-	System('FM Towns Marty', 'fmtmarty', ['fmtowns_cd', 'fmtowns_flop'], []),
-	#MAME driver has corrupted graphics in a lot of things. These games do work with FM Towns Not-Marty but then I'm using a computer instead of a console, so I'd have to verify that everything would still work the way I expect, and I think it doesn't...
+	#Theoretically supported, but not supported enough to be considered playable, but you could configure them if you wanted (see emulator_info)
+	System('FM Towns Marty', 'fmtmarty', ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns Marty)']),
 	System('Hartung Game Master', 'gmaster', ['gmaster'], []),
 	#No sound (but some software isn't marked as supported="no" so that's good)
 	System('IBM PCjr', 'ibmpcjr', ['ibmpcjr_cart'], []),

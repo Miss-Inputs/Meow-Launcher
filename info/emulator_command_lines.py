@@ -26,6 +26,8 @@ def mame_command_line(driver, slot=None, slot_options=None, has_keyboard=False, 
 
 	if slot_options:
 		for name, value in slot_options.items():
+			if not value:
+				value = '""'
 			command_line += ' -' + name + ' ' + value
 
 	if slot:
@@ -354,6 +356,21 @@ def mame_sharp_x68000(game, _):
 
 		return mame_command_line('x68000', slot=None, slot_options=floppy_slots, has_keyboard=True)
 	return mame_command_line('x68000', 'flop1', has_keyboard=True)
+
+def mame_fm_towns_marty(game, _):
+	slot_options = {
+		'scsi:1': '',
+		'scsi:2': '',
+		'scsi:3': '',
+		'scsi:4': '',
+		'scsi:5': '',
+	}
+
+	if game.rom.extension in mame_floppy_formats:
+		slot = 'flop1'
+	else:
+		slot = 'cdrom'
+	return mame_command_line('fmtmarty', slot)
 
 def mupen64plus(game, _):
 	#TODO: Do I reaaaaaaally need that
