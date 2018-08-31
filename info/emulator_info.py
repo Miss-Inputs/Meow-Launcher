@@ -204,7 +204,7 @@ emulators = {
 	'Citra': Emulator(command_lines.citra, ['3ds', 'cxi', '3dsx'], []),
 	#Will not run full screen from the command line and you always have to set it manually whether you like it or not (I
 	#do not, but eh, it works and that's really cool)
-	'Medusa': Emulator(command_lines.medusa, ['nds'], ['7z', 'zip']),
+	'Medusa': Emulator(command_lines.medusa, ['nds', 'gb', 'gbc', 'gba'], ['7z', 'zip']),
 	'Reicast': Emulator(command_lines.reicast, ['gdi', 'cdi', 'chd'], []),
 
 	'Mednafen (PC Engine Fast)': MednafenModule('pce_fast', ['pce', 'sgx', 'iso', 'cue', 'ccd', 'toc', 'm3u']),
