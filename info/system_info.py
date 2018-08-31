@@ -129,6 +129,7 @@ systems = [
 	System('Jaguar', 'jaguar', ['jaguar'], ['MAME (Atari Jaguar)']),
 	System('Magnavox Odyssey²', 'odyssey2', ['odyssey2'], []),
 	#O2EM doesn't really work; MAME isn't completely broken but a lot of games have broken graphics so like... ehh
+	#TODO: Move comments to emulator_info, do thing which selects g7000/odyssey2 automatically
 	System('G7400', 'g7400', ['g7400'], []),
 	#just has the same problems as Odyssey 2...
 	System('PC Booter', 'ibm5150', ['ibm5150'], ['MAME (IBM PCjr)', 'MAME (IBM PC)']),
