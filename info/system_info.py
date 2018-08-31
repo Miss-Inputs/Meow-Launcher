@@ -60,6 +60,8 @@ systems = [
 	System('GBA', 'gba', ['gba'], ['mGBA', 'Mednafen (GBA)', 'MAME (GBA)', 'Medusa']),
 	System('Hartung Game Master', 'gmaster', ['gmaster'], ['MAME (Hartung Game Master)']),
 	System('Intellivision', 'intv', ['intv', 'intvecs'], ['MAME (Intellivision)', 'MAME (Intellivoice)', 'MAME (Intellivision ECS)', 'MAME (Intellivision Keyboard)']),
+	System('IBM PCjr', 'ibmpcjr', ['ibmpcjr_cart'], ['MAME (IBM PCjr)']),
+	#For the carts, because otherwise we'd just call the software DOS or PC Booter.
 	System('Lynx', 'lynx', ['lynx'], ['Mednafen (Lynx)']),
 	#uhhh it's like ambidextrous or something? Remind me to look into this again later
 	System('Master System', 'sms', ['sms'], ['Kega Fusion', 'Mednafen (Master System)']),
@@ -124,8 +126,6 @@ systems = [
 
 	#Theoretically supported, but not supported enough to be considered playable, but you could configure them if you wanted (see emulator_info)
 	System('FM Towns Marty', 'fmtmarty', ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns Marty)']),
-	System('IBM PCjr', 'ibmpcjr', ['ibmpcjr_cart'], []),
-	#For the carts, because otherwise we'd just call the software DOS or PC Booter. Has the same problem as PC booter disks in that the joystick tends to play up.
 	System('Jaguar', 'jaguar', ['jaguar'], []),
 	#Virtual Jaguar doesn't like gamepads seemingly, and Phoenix Emu has no command line support.
 	#MAME is... hmm. Mostly not working. Raiden seems to work, but that's about it; other stuff just hangs at the Jaguar logo or has no sound etc
@@ -133,8 +133,8 @@ systems = [
 	#O2EM doesn't really work; MAME isn't completely broken but a lot of games have broken graphics so like... ehh
 	System('G7400', 'g7400', ['g7400'], []),
 	#just has the same problems as Odyssey 2...
-	System('PC Booter', 'ibm5150', [], []),
-	#This one is a bit tricky... both MAME and PCem have issues emulating a joystick. Do the games actually just suck like that? I don't know. The majority of these games assume a 4.77MHz CPU, of course. The software list is ibm5150 but that has some DOS games too, just to be confusing.
+	System('PC Booter', 'ibm5150', ['ibm5150'], ['MAME (IBM PCjr)', 'MAME (IBM PC)']),
+	#This one is a bit tricky... both MAME and PCem have issues emulating a joystick. Do the games actually just suck like that? _All of them_? I don't know. The majority of these games assume a 4.77MHz CPU, of course. The software list is ibm5150 but that has some DOS games too, just to be confusing (but usage == 'PC booter' where it is a PC booter).
 	System("Super A'Can", 'supracan', ['supracan'], []),
 	#Some things work in MAME, except with no sound, so... nah
 

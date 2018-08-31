@@ -373,6 +373,16 @@ def mame_fm_towns_marty(game, _):
 		slot = 'cdrom'
 	return mame_command_line('fmtmarty', slot, slot_options)
 
+def mame_ibm_pcjr(game, other_config):
+	slot_options = {'bios': 'quiksilver'}
+
+	if game.rom.extension in ('bin', 'jrc'):
+		slot = 'cart1'
+	else:
+		#Floppy is the only other kind of rom we accept at this time
+		slot = 'flop'
+	return mame_command_line('ibmpcjr', slot, slot_options, has_keyboard=True)
+
 def mupen64plus(game, _):
 	#TODO: Do I reaaaaaaally need that
 	environment_variables = {'MESA_GL_VERSION_OVERRIDE': '3.3COMPAT'}

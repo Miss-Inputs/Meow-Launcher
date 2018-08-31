@@ -123,6 +123,7 @@ emulators = {
 	'MAME (Game Pocket Computer)': MameSystem(command_lines.mame_command_line('gamepock', 'cart'), ['bin']),
 	'MAME (GBA)': MameSystem(command_lines.mame_command_line('gba', 'cart'), ['bin', 'gba']),
 	#Does not let you do GBA-enhanced GBC games
+	'MAME (IBM PCjr)': MameSystem(command_lines.mame_ibm_pcjr, mame_floppy_formats + ['img', 'bin', 'jrc']),
 	'MAME (Intellivision)': MameSystem(command_lines.mame_command_line('intv', 'cart'), ['bin', 'int', 'rom', 'itv']),
 	#Well this sure is a shit console.  There's no consistency to how any game uses any buttons or keypad keys (is it the
 	#dial?  Is it keys 2 4 6 8?, so good luck with that; also 2 player mode isn't practical because some games use the
@@ -199,6 +200,10 @@ emulators = {
 	#PC Engine: Need to select between pce and tg16 depending on region, -cdrom and -cart slots, and sgx accordingly
 
 	#----- The experimental section. The emulators are still here, it's just so you, the fabulous and wonderful end user, can have more information on how to manage expectations. Or something like that.
+
+	#--Has usability issues that prevent me from considering it a nice experience, but may work anyway
+	'MAME (IBM PC)': MameSystem(command_lines.mame_command_line('ibm5150', 'flop1', {'isa5': 'sblaster1_5'}, has_keyboard=True), mame_floppy_formats + ['img']),
+	#Sound Blaster 1.5 is added here primarily just to give this a joystick, but then that seems to not work anyway... also, there's DIP switches you might need to set in order for video output to work (it's set to monochrome by default and not CGA)
 
 	#--These experimental emulators seem to work more often than they don't:
 	'Citra': Emulator(command_lines.citra, ['3ds', 'cxi', '3dsx'], []),
