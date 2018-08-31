@@ -238,6 +238,9 @@ emulators = {
 	#Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there
 
 	#--These experimental emulators seem to not work more often than they do, but they are here for you to play with yourself if you want to, because maybe other people have better luck than me (everything in my life always goes wrong):
+	'MAME (Atari Jaguar)': MameSystem(command_lines.mame_atari_jaguar, ['j64', 'rom', 'bin', 'abs', 'cof', 'jag', 'prg']),
+	#Hmm. Mostly not working. Raiden seems to work, but that's about it; other stuff just hangs at the Jaguar logo or has no sound or what barely resembles graphics is corrupted etc
+	#TODO: Quickload
 	'MAME (FM Towns Marty)': MameSystem(command_lines.mame_fm_towns_marty, mame_cdrom_formats + mame_floppy_formats),
 	#As it says right there in the fmtowns.cpp comments: "Issues: Video emulation is far from complete." This is apparent, as there are some games that run on the FM Towns Not-Marty but not this; they have heavily corrupted graphics. But to use the FM Towns I'd have to first make sure that it being a computer won't mess with anything usability-wise.
 	#TODO: Something about a -memc slot? Useful or nah? Not fussed about hard disks, also this is the game console one why does it have a hard drive slot oh well

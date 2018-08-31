@@ -383,6 +383,14 @@ def mame_ibm_pcjr(game, other_config):
 		slot = 'flop'
 	return mame_command_line('ibmpcjr', slot, slot_options, has_keyboard=True)
 
+def mame_atari_jaguar(game, other_config):
+	if game.rom.extension in ('j64', 'rom', 'bin'):
+		slot = 'cart1'
+	else:
+		#Nothing else is a valid extension
+		slot = 'quik'
+	return mame_command_line('jaguar', slot)
+
 def mupen64plus(game, _):
 	#TODO: Do I reaaaaaaally need that
 	environment_variables = {'MESA_GL_VERSION_OVERRIDE': '3.3COMPAT'}

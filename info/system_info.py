@@ -126,9 +126,7 @@ systems = [
 
 	#Theoretically supported, but not supported enough to be considered playable, but you could configure them if you wanted (see emulator_info)
 	System('FM Towns Marty', 'fmtmarty', ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns Marty)']),
-	System('Jaguar', 'jaguar', ['jaguar'], []),
-	#Virtual Jaguar doesn't like gamepads seemingly, and Phoenix Emu has no command line support.
-	#MAME is... hmm. Mostly not working. Raiden seems to work, but that's about it; other stuff just hangs at the Jaguar logo or has no sound etc
+	System('Jaguar', 'jaguar', ['jaguar'], ['MAME (Atari Jaguar)']),
 	System('Magnavox Odyssey²', 'odyssey2', ['odyssey2'], []),
 	#O2EM doesn't really work; MAME isn't completely broken but a lot of games have broken graphics so like... ehh
 	System('G7400', 'g7400', ['g7400'], []),
@@ -150,6 +148,8 @@ systems = [
 	System('GameKing 3', 'gamekin3', ['gameking3'], []),
 	System('GP32', 'gp32', ['gp32'], []),
 	#Runs too slow to verify if anything else works, but all documentation points to not
+	System('Jaguar CD', 'jaguarcd', [], []),
+	#Unlike the lack of CD, this does not work at all on anything, doesn't even have a software list yet
 	System('Koei PasoGo', 'pasogo', ['pasogo'], []),
 	#No sound in MAME yet, and apparently the rest doesn't work either (I'll take their word for it)
 	System('Konami Picno', 'picno', ['picno'], []),
