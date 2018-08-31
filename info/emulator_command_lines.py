@@ -354,3 +354,16 @@ def mame_sharp_x68000(game, _):
 
 		return mame_command_line('x68000', slot=None, slot_options=floppy_slots, has_keyboard=True)
 	return mame_command_line('x68000', 'flop1', has_keyboard=True)
+
+def mupen64plus(game, _):
+	#TODO: Do I reaaaaaaally need that
+	environment_variables = {'MESA_GL_VERSION_OVERRIDE': '3.3COMPAT'}
+
+	if game.metadata.specific_info.get('ROM-Format', None) == 'Unknown':
+		print('shoop da woop', game.rom.path)
+		return None
+	
+	command_line = 'mupen64plus --nosaveoptions --fullscreen $<path>'
+	if environment_variables:
+		command_line = 'env {0} {1}'.format(' '.join(['{0}={1}'.format(k, v) for k, v in environment_variables.items()]), command_line)
+	return command_line

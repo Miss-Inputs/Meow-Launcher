@@ -50,7 +50,7 @@ emulators = {
 	'mGBA': Emulator(command_lines.mgba, ['gb', 'gbc', 'gba', 'srl', 'bin', 'mb'], ['7z', 'zip']),
 	#Use -C useBios=0 for homebrew with bad checksum/logo that won't boot on real hardware.  Some intensive games (e.g.
 	#Doom) will not run at full speed on toaster, but generally it's fine
-	'Mupen64Plus': Emulator('env MESA_GL_VERSION_OVERRIDE=3.3COMPAT mupen64plus --nosaveoptions --fullscreen $<path>', ['z64', 'v64', 'n64'], []),
+	'Mupen64Plus': Emulator(command_lines.mupen64plus, ['z64', 'v64', 'n64'], []),
 	#Often pretty slow on toaster but okay for turn-based games; environment variable is needed for GLideN64 which sometimes is
 	#preferred over Rice and sometimes not (the latter wins at speed and not much else).  Do I still need that environment
 	#variable?  I think I might
