@@ -181,5 +181,10 @@ def get_software_list_entry(game, skip_header=0):
 		software_list_names = get_mame_software_list_names_by_system_name(game.metadata.platform)
 		software_lists = get_software_lists_by_names(software_list_names)
 
-	crc32 = '{:08x}'.format(zlib.crc32(game.rom.read(seek_to=skip_header)))
+	if game.subroms:
+		#TODO: Get first floppy for now, because right now we don't differentiate with parts or anything
+		data = game.subroms[0].read(seek_to=skip_header)
+	else:
+		data = game.rom.read(seek_to=skip_header)
+	crc32 = '{:08x}'.format(zlib.crc32(data))
 	return find_in_software_lists(software_lists, crc=crc32)
