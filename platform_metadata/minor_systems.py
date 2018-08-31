@@ -286,7 +286,6 @@ def add_colecovision_info(game):
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
 
-
 def add_juicebox_info(game):
 	#Hmm... apparently there's 0x220 bytes at the beginning which need to be copied from retail carts to get homebrew test ROMs to boot
 	software = get_software_list_entry(game)
