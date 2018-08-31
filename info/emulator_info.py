@@ -50,8 +50,10 @@ emulators = {
 	#Often pretty slow on toaster but okay for turn-based games; environment variable is needed for GLideN64 which sometimes is
 	#preferred over Rice and sometimes not (the latter wins at speed and not much else).  Do I still need that environment
 	#variable?  I think I might
-	'PCSX2': Emulator('pcsx2 --nogui --fullscreen --fullboot $<path>', ['iso', 'cso', 'bin'], ['gz']),
-	#Has a few problems.  Takes some time to load the interface so at first it might look like it's not working; take out --fullboot if it forbids any homebrew stuff (but it should be fine, and Katamari Damacy needs it).  ELF still doesn't work, though it'd need a different command line anyway
+	'PCSX2': Emulator('PCSX2-linux --nogui --fullscreen --fullboot $<path>', ['iso', 'cso', 'bin'], ['gz']),
+	#Has a few problems.  Takes some time to load the interface so at first it might look like it's not working; take out --fullboot if it forbids any homebrew stuff (but it should be fine, and Katamari Damacy needs it unless you will experience sound issues that are funny the first time but not subsequently).  ELF seems to not work, though it'd need a different command line anyway. Only reads the bin of bin/cues and not the cue
+	#Just to be annoying, older versions are "pcsx2" instead of "PCSX2-linux"... grr
+	#Presumed plugins: OnePAD (legacy because I like to configure things), GSdx, and SPU2-x
 	'PokeMini': Emulator('PokeMini -fullscreen $<path>', ['min'], ['zip']),
 	#Puts all the config files in the current directory, which is why there's a wrapper below which you probably want to use instead of this
 	'PokeMini (wrapper)': Emulator('mkdir -p ~/.config/PokeMini && cd ~/.config/PokeMini && PokeMini -fullscreen $<path>', ['min'], ['zip'], True),
