@@ -373,7 +373,7 @@ def mame_fm_towns_marty(game, _):
 		slot = 'cdrom'
 	return mame_command_line('fmtmarty', slot, slot_options)
 
-def mame_ibm_pcjr(game, other_config):
+def mame_ibm_pcjr(game, _):
 	slot_options = {'bios': 'quiksilver'}
 
 	if game.rom.extension in ('bin', 'jrc'):
@@ -383,7 +383,7 @@ def mame_ibm_pcjr(game, other_config):
 		slot = 'flop'
 	return mame_command_line('ibmpcjr', slot, slot_options, has_keyboard=True)
 
-def mame_atari_jaguar(game, other_config):
+def mame_atari_jaguar(game, _):
 	if game.rom.extension in ('j64', 'rom', 'bin'):
 		slot = 'cart1'
 	else:
