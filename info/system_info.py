@@ -133,8 +133,7 @@ systems = [
 	#just has the same problems as Odyssey 2...
 	System('PC Booter', 'ibm5150', ['ibm5150'], ['MAME (IBM PCjr)', 'MAME (IBM PC)']),
 	#This one is a bit tricky... both MAME and PCem have issues emulating a joystick. Do the games actually just suck like that? _All of them_? I don't know. The majority of these games assume a 4.77MHz CPU, of course. The software list is ibm5150 but that has some DOS games too, just to be confusing (but usage == 'PC booter' where it is a PC booter).
-	System("Super A'Can", 'supracan', ['supracan'], []),
-	#Some things work in MAME, except with no sound, so... nah
+	System("Super A'Can", 'supracan', ['supracan'], ['MAME (Super Acan)']),
 
 	#No emulators that are cool enough on Linux. Yet. Maybe? That I know of. They're here for completeness. Or no emulators at all.
 	#They are also here to remind me to check up on them every now and again to make sure they indeed don't work or if I was just being stupid all along

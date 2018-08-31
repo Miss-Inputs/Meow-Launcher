@@ -245,6 +245,8 @@ emulators = {
 	#TODO: Something about a -memc slot? Useful or nah? Not fussed about hard disks, also this is the game console one why does it have a hard drive slot oh well
 	'MAME (Pokemon Mini)': MameSystem(command_lines.mame_command_line('pokemini', 'cart'), ['bin', 'min']),
 	#Wouldn't recommend yet as it has no sound, even if most people would probably turn the sound off in real life
+	'MAME (Super Acan)': MameSystem(command_lines.mame_command_line('supracan', 'cart'), ['bin']),
+	#Some things work, except with no sound, so... nah
 
 	#--These ones may or may not run well, I dunno:
 	'Mednafen (Game Boy)': MednafenModule('gb', ['gb', 'gbc']),
