@@ -256,7 +256,25 @@ def add_coleco_adam_info(game):
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
 
+def add_hartung_game_master_info(game):
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+
 #-- Beyond this point, there may be unexplored things which may result in these systems being spun off into their own module. Maybe. It just seems likely. Or maybe I do know full well they have a header, and either I haven't explored it yet, or I'm just a lazy bugger
+
+def add_ibm_pcjr_info(game):
+	#TODO .jrc files should have a header with something in them, so eventually, IBM PCjr will get its own module here
+	magic = game.rom.read(amount=25)
+	is_headered = magic == b'PCjr Cartridge image file'
+	game.metadata.specific_info['Headered'] = is_headered
+
+	software = get_software_list_entry(game, skip_header=512 if is_headered else 0)
+	if software:
+		software.add_generic_info(game)
+		#TODO: If sharedfeat requirement = ibmpcjr_flop:pcdos21, do something about that
+		#Probably get the MAME command liner to get a PC DOS 2.1 floppy path from other_config provided by the user, or else they don't get to use ColorPaint
+		#Lotus 123jr has a similar predicament, but it also needs .m3u I guess
 
 def add_intellivision_info(game):
 	#There's probably some way to get info from title screen in ROM, but I haven't explored that in ROMniscience yet

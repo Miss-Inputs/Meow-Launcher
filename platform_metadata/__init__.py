@@ -93,6 +93,8 @@ helpers = {
 	'Epoch Game Pocket Computer': add_game_pocket_computer_info,
 	'Gamate': add_gamate_info,
 	'Game.com': add_game_com_info,
+	'Hartung Game Master': add_hartung_game_master_info,
+	'IBM PCjr': add_ibm_pcjr_info,
 	'Intellivision': add_intellivision_info,
 	'Lynx': add_lynx_info,
 	'Mattel Juice Box': add_juicebox_info,

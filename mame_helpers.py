@@ -56,6 +56,7 @@ def consistentify_manufacturer(manufacturer):
 		'HiCom': 'Hi-Com',
 		'Hudson': 'Hudson Soft',
 		'Human Entertainment': 'Human',
+		'International Business Machines': 'IBM',
 		'JoWooD Entertainment AG': 'JoWooD Entertainment',
 		'Kaneko Elc. Co.': 'Kaneko',
 		'Laser Beam': 'Laser Beam Entertainment',
