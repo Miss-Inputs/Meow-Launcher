@@ -167,6 +167,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include=".leu" />
     <Content Include=".pylintrc" />
     <Content Include="config.ini.template" />
     <Content Include="emulators.ini.template" />
