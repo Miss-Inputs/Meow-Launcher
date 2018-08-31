@@ -79,4 +79,3 @@ def compressed_get(path, filename):
 	if path.lower().endswith('.zip'):
 		return zip_get(path, filename)
 	return sevenzip_get(path, filename)
-

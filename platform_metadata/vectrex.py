@@ -27,4 +27,3 @@ def add_vectrex_metadata(game):
 				pass
 		except NotAlphanumericException:
 			pass
-

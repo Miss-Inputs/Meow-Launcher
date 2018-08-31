@@ -268,4 +268,3 @@ def add_input_info(machine):
 		else:
 			player.buttons += buttons
 			player.inputs.append(InputType.Custom)
-

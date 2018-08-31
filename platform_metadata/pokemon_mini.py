@@ -24,4 +24,3 @@ def add_pokemini_metadata(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-
