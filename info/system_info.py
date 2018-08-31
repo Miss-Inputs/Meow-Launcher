@@ -58,6 +58,7 @@ systems = [
 	System('GameCube', 'gcjp', [], ['Dolphin']),
 	System('Game Gear', 'gamegear', ['gamegear'], ['Kega Fusion', 'Mednafen (Game Gear)', 'MAME (Game Gear)']),
 	System('GBA', 'gba', ['gba'], ['mGBA', 'Mednafen (GBA)', 'MAME (GBA)', 'Medusa']),
+	System('Hartung Game Master', 'gmaster', ['gmaster'], ['MAME (Hartung Game Master)']),
 	System('Intellivision', 'intv', ['intv', 'intvecs'], ['MAME (Intellivision)', 'MAME (Intellivoice)', 'MAME (Intellivision ECS)', 'MAME (Intellivision Keyboard)']),
 	System('Lynx', 'lynx', ['lynx'], ['Mednafen (Lynx)']),
 	#uhhh it's like ambidextrous or something? Remind me to look into this again later
@@ -123,8 +124,6 @@ systems = [
 
 	#Theoretically supported, but not supported enough to be considered playable, but you could configure them if you wanted (see emulator_info)
 	System('FM Towns Marty', 'fmtmarty', ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns Marty)']),
-	System('Hartung Game Master', 'gmaster', ['gmaster'], []),
-	#No sound (but some software isn't marked as supported="no" so that's good)
 	System('IBM PCjr', 'ibmpcjr', ['ibmpcjr_cart'], []),
 	#For the carts, because otherwise we'd just call the software DOS or PC Booter. Has the same problem as PC booter disks in that the joystick tends to play up.
 	System('Jaguar', 'jaguar', ['jaguar'], []),

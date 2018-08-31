@@ -216,6 +216,8 @@ emulators = {
 	#This is the only CD-i model that works according to wisdom passed down the ages (is it still true?), and it says it's not working, but it seems fine
 	'MAME (Game.com)': MameSystem(command_lines.mame_command_line('gamecom', 'cart1'), ['bin', 'tgc']),
 	#I don't know what the other cart slot does, or if you can use two at once, or how that would work if you could. Hopefully I don't need it for anything. Apparently doesn't work but I dunno
+	'MAME (Hartung Game Master)': MameSystem(command_lines.mame_command_line('gmaster', 'cart'), ['bin']),
+	#Hmm... says not working and imperfect sound. I guess it does run the games, though
 	'MAME (PC-88)': MameSystem(command_lines.mame_command_line('pc8801', 'flop1', has_keyboard=True), mame_floppy_formats),
 	#TODO: Tapes, and potentially look into other models. All the PC-88 models claim to be broken, but the base one plays the games, so that's good enough in my book. Some might use BASIC though so I'd have to specially handle that?
 	'MAME (PV-2000)': MameSystem(command_lines.mame_command_line('pv2000', 'cart', has_keyboard=True), ['bin']),
