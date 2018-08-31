@@ -65,7 +65,7 @@ def get_languages_from_filename_tags(tags, ignored_tags=None):
 				if language:
 					good_tag = True
 					languages.append(language)
-			
+
 			if good_tag and (ignored_tags is not None):
 				ignored_tags.append(tag)
 
@@ -150,7 +150,7 @@ def get_tv_system_from_regions(regions):
 	tv_systems = {region.tv_system for region in regions}
 	if len(tv_systems) == 1:
 		return tv_systems.pop()
-	
+
 	#If there are multiple distinct systems, it must be agnostic (since we only have NTSC, PAL, and agnostic (both) for now)
 	return region_info.TVSystem.Agnostic
 

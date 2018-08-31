@@ -68,7 +68,7 @@ class App:
 
 		if 'category' in self.config:
 			metadata.categories = [self.config['category']]
-	
+
 		if 'genre' in self.config:
 			metadata.genre = self.config['genre']
 		if 'subgenre' in self.config:
@@ -128,7 +128,7 @@ def scan_folders(platform, config_path, scan_function):
 	found_counter = collections.Counter(found_games.values())
 	for value in [value for value, count in found_counter.items() if count > 1]:
 		print('Warning: {0} appears more than once: {1}'.format(value, [key for key, game_config_name in found_games.items() if value == game_config_name]))
-	
+
 	print('Scan results have been written to', config_path)
 	print('Because not everything can be autodetected, some may be unrecognized')
 	print('and you will have to configure them yourself, or may be one of several')

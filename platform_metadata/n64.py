@@ -13,7 +13,7 @@ def _byteswap(b):
 
 def add_n64_metadata(game):
 	entire_rom = game.rom.read()
-	
+
 	magic = entire_rom[:4]
 
 	byte_swap = False

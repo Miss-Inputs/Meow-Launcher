@@ -103,7 +103,7 @@ class Software():
 			return EmulationStatus.Imperfect
 		elif supported == 'no':
 			return EmulationStatus.Broken
-		
+
 		#Supported = "yes"
 		return EmulationStatus.Good
 
@@ -163,7 +163,7 @@ def find_in_sofware_list(software_list, crc=None, sha1=None, part_matcher=_does_
 			#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
 			#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
 			if part_matcher(part, crc, sha1):
-				return Software(software)	
+				return Software(software)
 	return None
 
 def find_in_software_lists(software_lists, crc=None, sha1=None, part_matcher=_does_part_match):
@@ -180,6 +180,6 @@ def get_software_list_entry(game, skip_header=0):
 	else:
 		software_list_names = get_mame_software_list_names_by_system_name(game.metadata.platform)
 		software_lists = get_software_lists_by_names(software_list_names)
-	
+
 	crc32 = '{:08x}'.format(zlib.crc32(game.rom.read(seek_to=skip_header)))
 	return find_in_software_lists(software_lists, crc=crc32)

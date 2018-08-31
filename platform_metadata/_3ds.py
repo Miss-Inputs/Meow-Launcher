@@ -16,7 +16,7 @@ def add_3ds_system_info(game):
 
 	cpu_info = CPUInfo()
 	cpu_info.main_cpu = 'ARM11'
-	cpu_info.clock_speed = 268 * 1000 * 1000 #New 3DS is 804 MHz	
+	cpu_info.clock_speed = 268 * 1000 * 1000 #New 3DS is 804 MHz
 	game.metadata.cpu_info = cpu_info
 
 	top_screen = Screen()
@@ -25,14 +25,14 @@ def add_3ds_system_info(game):
 	top_screen.type = 'lcd'
 	top_screen.tag = 'top'
 	top_screen.refresh_rate = 59.834
-	
+
 	bottom_screen = Screen()
 	bottom_screen.width = 320
 	bottom_screen.height = 200
 	bottom_screen.type = 'lcd'
 	bottom_screen.tag = 'bottom'
 	bottom_screen.refresh_rate = 59.834
-	
+
 	screen_info = ScreenInfo()
 	screen_info.screens = [top_screen, bottom_screen]
 	game.metadata.screen_info = screen_info
@@ -135,7 +135,7 @@ def parse_exefs(game, offset):
 			parse_smdh(game, file_offset, file_length)
 		#Logo contains some stuff, banner contains 3D graphics and sounds for the home menu, .code contains actual executable
 
-		
+
 def parse_smdh(game, offset=0, length=-1):
 	game.metadata.specific_info['Has-SMDH'] = True
 	#At this point it's fine to just read in the whole thing
@@ -169,7 +169,7 @@ def parse_smdh_data(game, smdh):
 		#TODO: Should this be SaveType.MemoryCard in some cases?
 		game.metadata.save_type = SaveType.Internal if has_save else SaveType.Nothing
 	if flags & 4096:
-		game.metadata.platform = 'New 3DS'	
+		game.metadata.platform = 'New 3DS'
 
 	#EULA version: 0x202c-0x202e
 	#Reserved 2 = 0x202e-0x2030
@@ -177,12 +177,12 @@ def parse_smdh_data(game, smdh):
 	#CEC: 0x2034-0x2038
 	#Reserved: 0x2038-0x2040
 	#Smol icon (24x24): 0x2040-0x24c0
-	
+
 	#Go with the 48x48 icon
 	if have_pillow:
 		large_icon = smdh[0x24c0:0x36c0]
 		game.icon = decode_icon(large_icon, 48)
-		
+
 tile_order = [
 	#What the actual balls?
 	0, 1, 8, 9, 2, 3, 10, 11,
@@ -197,7 +197,7 @@ tile_order = [
 def decode_icon(icon_data, size):
 	#Assumes RGB565, which everything so far uses. Supposedly there can be other encodings, but I'll believe that when I see it
 	icon = Image.new('RGB', (size, size))
-	
+
 	i = 0
 	for tile_y in range(0, size, 8):
 		for tile_x in range(0, size, 8):
@@ -255,11 +255,11 @@ def parse_3dsx(game):
 		extended_header = game.rom.read(seek_to=0x20, amount=12)
 		smdh_offset = int.from_bytes(extended_header[0:4], 'little')
 		smdh_size = int.from_bytes(extended_header[4:8], 'little')
-		
+
 		if smdh_size:
 			look_for_smdh_file = False
 			parse_smdh(game, smdh_offset, smdh_size)
-	
+
 	if look_for_smdh_file:
 		smdh_name = os.path.splitext(game.rom.path)[0] + '.smdh'
 		if os.path.isfile(smdh_name):

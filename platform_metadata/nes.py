@@ -19,7 +19,7 @@ ines_mappers = {
 	#87, 92, 152 are used by misc official games but don't seem to have a particular name
 	#15, 84, 91, 112, 164, 173, 176, 177, 178, 189, 199, 200, 201, 202, 203, 209, 211, 220, 222, 225, 226, 227, 230, 231, 233, 240, 242, 246, 250, 252, 253 are used for misc unlicensed carts but don't seem to have a particular name
 	#100, 101, 181, 241. 248 are basically junk
-	
+
 	0: 'NROM',
 	1: 'MMC1',
 	2: 'UxROM',
@@ -195,11 +195,11 @@ def add_fds_metadata(game):
 		game.metadata.publisher = nintendo_licensee_codes[licensee_code]
 	elif licensee_code != '00':
 		game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(licensee_code)
-		
+
 	game.metadata.revision = header[20]
 	#Uses Showa years (hence 1925), in theory... but then some disks (notably Zelda) seem to use 19xx years, as it has an actual value of 0x86 which results in it being Showa 86 = 2011, but it should be [Feb 21] 1986, so... hmm
 	year = decode_bcd(header[31])
-	if year >= 61 and year <= 99: 
+	if year >= 61 and year <= 99:
 		#Showa 61 = 1986 when the FDS was released. Year > 99 wouldn't be valid BCD, so... I'll check back in 2025 to see if anyone's written homebrew for the FDS in that year and then I'll figure out what I'm doing. But homebrew right now seems to leave the year as 00 anyway, though
 		year = 1925 + year
 		game.metadata.year = year
@@ -228,7 +228,7 @@ def add_ines_metadata(game, header):
 		game.metadata.platform = 'VS Unisystem'
 	elif more_flags & 2:
 		game.metadata.platform = 'PlayChoice-10'
-			
+
 	mapper_upper_nibble = more_flags & 0b1111_0000
 	is_nes_2_0 = ((more_flags & 0b_00_00_11_00) >> 2) == 2
 	if is_nes_2_0:
@@ -280,7 +280,7 @@ def _get_headered_nes_rom_software_list_entry(game):
 	chr_crc32 = '{:08x}'.format(zlib.crc32(chr_rom)) if chr_rom else None
 
 	return find_in_software_lists(game.software_lists, crc=[prg_crc32, chr_crc32], part_matcher=_does_nes_rom_match)
-	
+
 
 def add_nes_metadata(game):
 	if game.rom.extension == 'fds':

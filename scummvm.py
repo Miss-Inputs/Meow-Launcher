@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import os 
+import os
 import configparser
 
 import launchers
@@ -27,12 +27,12 @@ class ScummVMGame():
 
 def add_scummvm_games():
 	if not os.path.isfile(config_path):
-		return	
+		return
 
 	parser = configparser.ConfigParser()
 	parser.optionxform = str
 	parser.read(config_path)
-	
+
 	for section in parser.sections():
 		if section == 'scummvm':
 			continue

@@ -33,7 +33,7 @@ def add_gamecube_wii_disc_metadata(game, header):
 		#This is found on a few prototype discs, it's not valid
 		ignore_game_id = True
 
-	if not ignore_game_id:	
+	if not ignore_game_id:
 		game.metadata.product_code = product_code
 		game.metadata.publisher = publisher
 
@@ -71,12 +71,12 @@ def add_gamecube_system_info(game):
 	screen.height = 480
 	screen.type = 'raster'
 	screen.tag = 'screen'
-	screen.refresh_rate = 60  
+	screen.refresh_rate = 60
 
 	screen_info = ScreenInfo()
 	screen_info.screens = [screen]
 	game.metadata.screen_info = screen_info
-	
+
 def add_gamecube_metadata(game):
 	add_gamecube_system_info(game)
 

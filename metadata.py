@@ -27,7 +27,7 @@ class CPUInfo():
 			return ('{0:.' + str(precision) + 'g} MHz').format(hertz / 1_000_000)
 		elif hertz >= 1_000:
 			return ('{0:.' + str(precision) + 'g} KHz').format(hertz / 1_000)
-		
+
 		return ('{0:.' + str(precision) + 'g} Hz').format(hertz)
 
 	def get_formatted_clock_speed(self):
@@ -63,7 +63,7 @@ class Screen():
 		if self.type == 'raster' or self.type == 'lcd':
 			self.width = float(xml.attrib['width'])
 			self.height = float(xml.attrib['height'])
-		
+
 		if 'refresh' in xml.attrib:
 			try:
 				self.refresh_rate = float(xml.attrib['refresh'])
@@ -88,11 +88,11 @@ class Screen():
 
 		#This wouldn't happen unless one of the arguments is 0 or something silly like that
 		return None
-	
+
 class ScreenInfo():
 	def __init__(self):
 		self.screens = []
-	
+
 	def get_number_of_screens(self):
 		return len(self.screens)
 
@@ -142,7 +142,7 @@ class PlayerInput():
 	def __init__(self):
 		self.buttons = 0
 		self.inputs = []
-	
+
 	@property
 	def is_standard(self):
 		"""
@@ -157,7 +157,7 @@ class PlayerInput():
 		anything_else = [input for input in self.inputs if input not in (InputType.Analog, InputType.Digital)]
 		if anything_else:
 			return False
-		
+
 		if analogs > 2:
 			return False
 		if digitals > 1:
@@ -194,7 +194,7 @@ class InputInfo():
 
 	@property
 	def known(self):
-		return self.players or self.console_buttons or self._known 
+		return self.players or self.console_buttons or self._known
 
 	@property
 	def player_buttons(self):
@@ -205,7 +205,7 @@ class InputInfo():
 	def describe(self):
 		if not self.players:
 			return 'Nothing'
-		
+
 		#This flatten syntax hurts my brain immensely
 		return list({input for player in self.players for input in player.describe()})
 
@@ -229,7 +229,7 @@ class Metadata():
 		self.revision = None
 		self.product_code = None
 		self.regions = []
-		
+
 		#Set this up later with the respective objects
 		#TODO: Set cpu_info and screen_info up right here, and just keep track of whether they're "known" or not like input_info does
 		self.cpu_info = None
@@ -257,7 +257,7 @@ class Metadata():
 			'Save-Type': ('Memory Card' if self.save_type == SaveType.MemoryCard else self.save_type.name) if self.save_type else 'Nothing',
 			'Revision': self.revision,
 			'Publisher': self.publisher,
-			'Developer': self.developer,	
+			'Developer': self.developer,
 			'Product-Code': self.product_code,
 			'Regions': [region.name if region else 'None!' for region in self.regions] if self.regions else [],
 
@@ -283,7 +283,7 @@ class Metadata():
 			fields['Number-of-Buttons'] = self.input_info.player_buttons
 			fields['Console-Buttons'] = self.input_info.console_buttons
 			fields['Input-Methods'] = self.input_info.describe()
-		
+
 		for k, v in self.specific_info.items():
 			fields[k] = v.name if isinstance(v, Enum) else v
 

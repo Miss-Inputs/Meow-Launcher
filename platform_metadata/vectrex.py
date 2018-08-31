@@ -10,7 +10,7 @@ def add_vectrex_metadata(game):
 	player.inputs = [InputType.Analog]
 	#TODO: There's also a light pen
 	game.metadata.input_info.players += [player] * 2
-	
+
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
@@ -27,4 +27,4 @@ def add_vectrex_metadata(game):
 				pass
 		except NotAlphanumericException:
 			pass
-		
+

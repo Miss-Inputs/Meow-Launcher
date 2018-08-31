@@ -25,7 +25,7 @@ def add_atari_8bit_metadata(game):
 			game.metadata.specific_info['Requires-OS-B'] = True
 
 		game.metadata.product_code = software.get_info('serial')
-		
+
 		peripheral = software.get_part_feature('peripheral')
 		#TODO Setup input_info I guess:
 		#cx77_touch = Touchscreen (tablet)
@@ -33,7 +33,7 @@ def add_atari_8bit_metadata(game):
 		#koala_pad,koala_pen = Tablet _and_ light pen
 		#trackball = Trackball
 		#lightgun = Light Gun (XEGS only)
-		
+
 		#trackfld = Track & Field controller but is that just a boneless joystick?
 		#Otherwise do we assume joystick and keyboard? Hmm
 		game.metadata.specific_info['Peripheral'] = peripheral

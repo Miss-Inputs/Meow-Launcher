@@ -33,66 +33,66 @@ def get_mame_software_list_names_by_system_name(name):
 systems = [
 	#TODO: Convert to dict where name = key (but would that work out? hmm)
 
-	System('3DS', None, [], ['Citra']), 
-	System('Amstrad GX4000', 'gx4000', ['gx4000'], ['MAME (Amstrad GX4000)', 'MAME (Amstrad CPC+)']), 
+	System('3DS', None, [], ['Citra']),
+	System('Amstrad GX4000', 'gx4000', ['gx4000'], ['MAME (Amstrad GX4000)', 'MAME (Amstrad CPC+)']),
 	System('APF-MP1000', 'apfm1000', ['apfm1000'], ['MAME (APF-MP1000)']),
-	System('Arcadia 2001', 'arcadia', ['arcadia'], ['MAME (Arcadia 2001)']), 
-	System('Astrocade', 'astrocde', ['astrocde'], ['MAME (Astrocade)']), 
-	System('Atari 2600', 'a2600', ['a2600', 'a2600_cass'], ['Stella', 'MAME (Atari 2600)']), 
-	System('Atari 5200', 'a5200', ['a5200'], ['MAME (Atari 5200)']), 
-	System('Atari 7800', 'a7800', ['a7800'], ['MAME (Atari 7800)']), 
+	System('Arcadia 2001', 'arcadia', ['arcadia'], ['MAME (Arcadia 2001)']),
+	System('Astrocade', 'astrocde', ['astrocde'], ['MAME (Astrocade)']),
+	System('Atari 2600', 'a2600', ['a2600', 'a2600_cass'], ['Stella', 'MAME (Atari 2600)']),
+	System('Atari 5200', 'a5200', ['a5200'], ['MAME (Atari 5200)']),
+	System('Atari 7800', 'a7800', ['a7800'], ['MAME (Atari 7800)']),
 	System('Benesse Pocket Challenge V2', None, ['pockchalv2'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)']),
 	#Controls are mapped even worse than regular WonderSwan games, even with rotation auto-adjust you still end up using a stick/dpad as buttons and it gets weird, also the module must be forced or else it won't be recognized. But it works though
 	System('Casio PV-1000', 'pv1000', ['pv1000'], ['MAME (PV-1000)']),
 	System('CD-i', 'cdimono1', ['cdi'], ['MAME (CD-i)']),
-	System('Channel F', 'channelf', ['channelf'], ['MAME (Channel F)']), 
+	System('Channel F', 'channelf', ['channelf'], ['MAME (Channel F)']),
 	#It has some sort of knob that you twist up and down or something? What the fuck
-	System('Colecovision', 'coleco', ['coleco'], ['MAME (ColecoVision)']), 
+	System('Colecovision', 'coleco', ['coleco'], ['MAME (ColecoVision)']),
 	System('Dreamcast', 'dc', ['dc'], ['Reicast']),
 	System('DS', 'nds', [], ['Medusa']),
-	System('Entex Adventure Vision', 'advision', ['advision'], ['MAME (Entex Adventure Vision)']), 
+	System('Entex Adventure Vision', 'advision', ['advision'], ['MAME (Entex Adventure Vision)']),
 	System('Epoch Game Pocket Computer', 'gamepock', ['gamepock'], ['MAME (Game Pocket Computer)']),
 	System('Gamate', 'gamate', ['gamate'], ['MAME (Gamate)']),
 	System('Game Boy', 'gbpocket', ['gameboy', 'gbcolor'], ['Gambatte', 'mGBA', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'MAME (Game Boy Color)', 'MAME (Super Game Boy)', 'Medusa']),
 	System('Game.com', 'gamecom', ['gamecom'], ['MAME (Game.com)']),
 	System('GameCube', 'gcjp', [], ['Dolphin']),
 	System('Game Gear', 'gamegear', ['gamegear'], ['Kega Fusion', 'Mednafen (Game Gear)', 'MAME (Game Gear)']),
-	System('GBA', 'gba', ['gba'], ['mGBA', 'Mednafen (GBA)', 'MAME (GBA)', 'Medusa']), 
-	System('Intellivision', 'intv', ['intv', 'intvecs'], ['MAME (Intellivision)', 'MAME (Intellivoice)', 'MAME (Intellivision ECS)', 'MAME (Intellivision Keyboard)']), 
-	System('Lynx', 'lynx', ['lynx'], ['Mednafen (Lynx)']), 
+	System('GBA', 'gba', ['gba'], ['mGBA', 'Mednafen (GBA)', 'MAME (GBA)', 'Medusa']),
+	System('Intellivision', 'intv', ['intv', 'intvecs'], ['MAME (Intellivision)', 'MAME (Intellivoice)', 'MAME (Intellivision ECS)', 'MAME (Intellivision Keyboard)']),
+	System('Lynx', 'lynx', ['lynx'], ['Mednafen (Lynx)']),
 	#uhhh it's like ambidextrous or something? Remind me to look into this again later
 	System('Master System', 'sms', ['sms'], ['Kega Fusion', 'Mednafen (Master System)']),
 	System('Mattel Juice Box', 'juicebox', ['juicebox'], ['MAME (Juice Box)']),
 	#Now for those who actually do know what this is, you may be thinking: But doesn't that just play videos? Isn't this really pointless? And the answer is yes, yes it is. I love pointless.
 	System('Mega Drive', 'megadriv', ['megadriv'], ['Kega Fusion', 'Mednafen (Mega Drive)']),
-	System('Mega Duck', 'megaduck', ['megaduck'], ['MAME (Mega Duck)']), 
-	System('N64', 'n64', ['n64'], ['Mupen64Plus']), 
+	System('Mega Duck', 'megaduck', ['megaduck'], ['MAME (Mega Duck)']),
+	System('N64', 'n64', ['n64'], ['Mupen64Plus']),
 	System('Neo Geo CD', 'neocdz', ['neocd'], ['MAME (Neo Geo CD)']),
 	System('Neo Geo Pocket', 'ngpc', ['ngp', 'ngpc'], ['Mednafen (Neo Geo Pocket)', 'MAME (Neo Geo Pocket)']),
 	System('NES', 'nes', ['nes', 'nes_ade', 'nes_datach', 'nes_kstudio', 'nes_ntbrom', 'famicom_cass', 'famicom_flop'], ['Mednafen (NES)', 'MAME (NES)']),
-	System('PC Engine', 'pce', ['pce', 'sgx', 'tg16'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)']), 
+	System('PC Engine', 'pce', ['pce', 'sgx', 'tg16'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)']),
 	System('PC-FX', 'pcfx', ['pcfx'], ['Mednafen (PC-FX)']),
-	System('PlayStation', 'psj', ['psx'], ['Mednafen (PS1)']), 
+	System('PlayStation', 'psj', ['psx'], ['Mednafen (PS1)']),
 	System('Pokemon Mini', 'pokemini', ['pokemini'], ['PokeMini', 'PokeMini (wrapper)', 'MAME (Pokemon Mini)']),
-	System('PS2', 'ps2', [], ['PCSX2']), 
+	System('PS2', 'ps2', [], ['PCSX2']),
 	System('PSP', None, [], ['PPSSPP']),
 	System('SG-1000', 'sg1000', ['sg1000', 'sc3000_cart', 'sc3000_cass', 'sf7000'], ['Kega Fusion', 'MAME (SG-1000)']),
-	System('Saturn', 'saturn', ['saturn', 'sat_cart', 'sat_vccart'], ['Mednafen (Saturn)']), 
+	System('Saturn', 'saturn', ['saturn', 'sat_cart', 'sat_vccart'], ['Mednafen (Saturn)']),
 	System('SNES', 'snes', ['snes', 'snes_bspack', 'snes_strom'], ['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)']),
 	System('Uzebox', 'uzebox', ['uzebox'], ['MAME (Uzebox)']),
 	System('VC 4000', 'vc4000', ['vc4000'], ['MAME (VC 4000)']),
-	System('Vectrex', 'vectrex', ['vectrex'], ['MAME (Vectrex)']), 
+	System('Vectrex', 'vectrex', ['vectrex'], ['MAME (Vectrex)']),
 	System('Virtual Boy', 'vboy', ['vboy'], ['Mednafen (Virtual Boy)', 'MAME (Virtual Boy)']),
-	System('Watara Supervision', 'svision', ['svision'], ['MAME (Watara Supervision)']), 
-	System('Wii', None, [], ['Dolphin']), 
+	System('Watara Supervision', 'svision', ['svision'], ['MAME (Watara Supervision)']),
+	System('Wii', None, [], ['Dolphin']),
 	#Heckin motion controls, what are you gonna do... how do you replicate 3D movement without having 3D movement, really. Of course you could argue 3DS has the same problem but motion controls are used a lot less there. I think I heard something about Dolphin implementing per-game controller profiles or somethinig like that though, so once that all works nicely I might move Wii out of this category
-	System('WonderSwan', 'wscolor', ['wswan', 'wscolor'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)']), 
+	System('WonderSwan', 'wscolor', ['wswan', 'wscolor'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)']),
 	#Rotates around so that sometimes the dpad becomes buttons and vice versa and there's like two dpads??? but if you use Mednafen's rotation auto-adjust thing it kinda works
 
 	#Systems that are treated as though they were whole separate things, but they're addons for other systems with their own distinct set of software
-	System('32X', '32x', ['32x'], ['Kega Fusion']), 
-	System('Mega CD', 'megacd', ['megacd', 'megacdj', 'segacd'], ['Kega Fusion']), 
-	System('PC Engine CD', 'pce', ['pcecd'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)']), 
+	System('32X', '32x', ['32x'], ['Kega Fusion']),
+	System('Mega CD', 'megacd', ['megacd', 'megacdj', 'segacd'], ['Kega Fusion']),
+	System('PC Engine CD', 'pce', ['pcecd'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)']),
 
 	#Computers!  These actually aren't that bad control-wise because most sensible games would use a simple one-button
 	#joystick, and most of the time MAME lets you attach one.  But some of them don't!  And the ones that don't just use
@@ -101,18 +101,18 @@ systems = [
 	#I avoid using anything which requires me to input arcane commands or hear arcane sounds here or wait for arcane
 	#times, though I suppose I _could_ do that, it just doesn't feel like a nicely organized bunch of launcher scripts if
 	#I do that
-	System('Atari 8-bit', 'a800', ['a800', 'a800_flop', 'xegs'], ['MAME (Atari 8-bit)']), 
+	System('Atari 8-bit', 'a800', ['a800', 'a800_flop', 'xegs'], ['MAME (Atari 8-bit)']),
 	System('C64', 'c64', ['c64_cart', 'c64_cass', 'c64_flop'], ['MAME (C64)']),
-	System('Casio PV-2000', 'pv2000', ['pv2000'], ['MAME (PV-2000)']), 
+	System('Casio PV-2000', 'pv2000', ['pv2000'], ['MAME (PV-2000)']),
 	System('Coleco Adam', 'adam', ['adam_cart', 'adam_cass', 'adam_flop'], ['MAME (Coleco Adam)']),
-	System('MSX2', 'fsa1wsx', ['msx2_cart', 'msx2_cass', 'msx2_flop'], ['MAME (MSX2)']), 
-	System('MSX', 'svi738', ['msx1_cart', 'msx1_cass', 'msx1_flop'], ['MAME (MSX1)', 'MAME (MSX2)']), 
+	System('MSX2', 'fsa1wsx', ['msx2_cart', 'msx2_cass', 'msx2_flop'], ['MAME (MSX2)']),
+	System('MSX', 'svi738', ['msx1_cart', 'msx1_cass', 'msx1_flop'], ['MAME (MSX1)', 'MAME (MSX2)']),
 	System('PC-88', 'pc8801', ['pc8801_cass', 'pc8801_flop', 'pc8201', 'pc88va'], ['MAME (PC-88)']),
-	System('Sharp X1', 'x1', ['x1_cass', 'x1_flop'], ['MAME (Sharp X1)']), 
+	System('Sharp X1', 'x1', ['x1_cass', 'x1_flop'], ['MAME (Sharp X1)']),
 	System('Sharp X68000', 'x68000', ['x68k_flop'], ['MAME (Sharp X68000)']),
-	System('Sord M5', 'm5', ['m5_cart', 'm5_cass', 'm5_flop'], ['MAME (Sord M5)']), 
-	System('Tomy Tutor', 'tutor', ['tutor'], ['MAME (Tomy Tutor)']), 
-	System('VIC-10', 'vic10', ['vic10'], ['MAME (VIC-10)']), 
+	System('Sord M5', 'm5', ['m5_cart', 'm5_cass', 'm5_flop'], ['MAME (Sord M5)']),
+	System('Tomy Tutor', 'tutor', ['tutor'], ['MAME (Tomy Tutor)']),
+	System('VIC-10', 'vic10', ['vic10'], ['MAME (VIC-10)']),
 	System('VIC-20', 'vic20', ['vic1001_cart', 'vic1001_cass', 'vic1001_flop'], ['MAME (VIC-20)']),
 	System('VZ-200', 'vz200', ['vz_cass'], ['MAME (VZ-200)']),
 	#There are many different systems in this family, but I'll go with this one, because the software list is named after it
@@ -179,7 +179,7 @@ systems = [
 	System('Apple IIgs', 'apple2gs', ['apple2gs'], []),
 	#Some games require a hard disk with an OS install and they won't tell you this because of course not, and if you want to autoboot the floppies with a hard drive still in there you have to set it to always boot from slot 5 and it's really annoying and I hate it
 	System('BBC Bridge Companion', 'bbcbc', ['bbcbc'], []),
-	#Takes a single .bin file for the -cart slot, but known software dumps are in split ROM format. Unsure how to get around that 
+	#Takes a single .bin file for the -cart slot, but known software dumps are in split ROM format. Unsure how to get around that
 	System('Cybiko', 'cybikov1', [], []),
 	#Quickload slot doesn't seem to actually quickload anything, and seems to require setup each time. V2 and Extreme have same problems
 	System('CreatiVision', 'crvision', ['crvision'], []),
@@ -201,7 +201,7 @@ systems = [
 	System('Dreamcast VMU', 'svmu', ['svmu'], []),
 	#Makes you set time and date each time; also supposed to have sound apparently but I don't hear any
 	System('Super Casette Vision', 'scv', ['scv'], []),
-	#Only supports some games (e.g. with RAM enhancements) via software list, there's no way to override the cart type or anything like that. 
+	#Only supports some games (e.g. with RAM enhancements) via software list, there's no way to override the cart type or anything like that.
 	System('SVI-3x8', 'svi328', ['svi318_cart', 'svi318_cass', 'svi318_flop'], []),
 	#Works well, just needs to autoboot tapes, and that might be tricky because you have BLOAD and CLOAD
 	System('ZX81', 'zx81', ['zx80_cass', 'zx81_cass'], []),
@@ -218,7 +218,7 @@ systems = [
 
 	#TODO: Me being lazy, need to check if these actually work or not:
 	System('Acorn Atom', 'atom', ['atom_cass', 'atom_flop', 'atom_rom'], []),
-	System('Amiga', 'a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench', 'cd32', 'cdtv'], []),	
+	System('Amiga', 'a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench', 'cd32', 'cdtv'], []),
 	#MAME is known to not work here
 	System('Apple I', 'apple1', ['apple1'], []),
 	System('Apple II', 'apple2', ['apple2', 'apple2_cass'], []),
@@ -239,13 +239,13 @@ systems = [
 	#Hmm... even emulated re-releases (like the stuff on Steam) is the MVS version. Also how it works is a bit tricky, since as a system you load single .bin files through the cart slot, but everything out there is stored as multiple ROMs, even in the software list... so I dunno if this would be usable
 	System('Pocket Challenge W', 'pockchal', ['pockchalw'], []),
 	#Everything in that software list says unsupported, so that's not a good sign
-	System('Sam Coupe', 'samcoupe', ['samcoupe_cass', 'samcoupe_flop'], []),	
+	System('Sam Coupe', 'samcoupe', ['samcoupe_cass', 'samcoupe_flop'], []),
 	System('Squale', 'squale', ['squale_cart'], []),
 	#What's interesting is that the XML for the driver says it's compatible with a software list simply called "squale", but that's not in the default hash directory
 	System('Tandy CoCo', 'coco3', ['coco_cart', 'coco_flop'], []),
 	#Did I want coco/coco2 instead? Hmm. Those seem to work but coco3 seems to not autoboot. It looks like carts >128K require coco3, or if the software list says so
 	System('Xbox', 'xbox', [], []),
-	#MAME definitely isn't ready yet.. do XQEMU or Cxbx-Reloaded work for our purposes yet?	
+	#MAME definitely isn't ready yet.. do XQEMU or Cxbx-Reloaded work for our purposes yet?
 
 	#TODO: Me being lazy, I know if these work or not:
 	System('Commodore PET', 'pet4032', ['pet_cass', 'pet_flop', 'pet_hdd', 'pet_quik', 'pet_rom'], []),
@@ -253,7 +253,7 @@ systems = [
 	#TODO: This can work with -quik and autoboot though
 	System('Galaksija', 'galaxyp', ['galaxy'], []),
 	#This needs tape control automation to work with tapes (type OLD, then play tape, then RUN); dumps just need to press enter because MAME will type "RUN" for you. But not enter for you. Dunno why.
-	
+
 	#Other todos, often just me not knowing which something actually is or being too lazy to organize it even into the "too lazy to look into right now" list:
 	#Amstrad CPC-not-plus? Not sure how it all works
 	#Is Acorn Electron the same as BBC Micro for emulation purposes?
@@ -283,7 +283,7 @@ systems = [
 class GameWithEngine():
 	def __init__(self, name, engines, uses_folders):
 		self.name = name
-		self.engines = engines	
+		self.engines = engines
 		self.uses_folders = uses_folders
 games_with_engines = {
 	'Doom': GameWithEngine('Doom', ['PrBoom+'], False),

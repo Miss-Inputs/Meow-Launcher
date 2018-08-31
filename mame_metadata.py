@@ -17,7 +17,7 @@ def get_catlist():
 	parser.optionxform = str
 	parser.read(config.catlist_path)
 	return parser
-	
+
 def get_languages():
 	if not config.languages_path:
 		return None
@@ -46,12 +46,12 @@ def get_category(basename):
 		if subgenre.endswith('* Mature *'):
 			is_nsfw = True
 			subgenre = subgenre[:-10]
-		
+
 		return category, genre, subgenre, is_nsfw
-	
+
 	category, _, genre = cat.partition(' / ')
 	return category, genre, None, False
-		
+
 def get_language(basename):
 	if not languages:
 		return None
@@ -61,7 +61,7 @@ def get_language(basename):
 		if basename in languages[section]:
 			lang = section
 			break
-			
+
 	return get_language_by_english_name(lang)
 
 def add_machine_platform(machine):
@@ -80,7 +80,7 @@ def add_machine_platform(machine):
 		machine.metadata.platform = 'CPS Changer'
 		machine.name = machine.name.replace('CPS Changer, ', '')
 	elif category == 'Game Console':
-		machine.metadata.platform = 'Plug & Play' 
+		machine.metadata.platform = 'Plug & Play'
 		#Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug &
         #play system
 	elif machine.name.startswith(('Game & Watch: ', 'Select-A-Game: ', 'R-Zone: ')):
@@ -123,19 +123,19 @@ def add_metadata(machine):
 	machine.metadata.screen_info.load_from_xml_list(displays)
 
 	add_machine_platform(machine)
-	
+
 	if machine.metadata.platform == 'Arcade':
 		memory_cards = [device for device in machine.xml.findall('device') if device.find('instance') is not None and device.find('instance').attrib['name'] == 'memcard']
 		machine.metadata.save_type = SaveType.MemoryCard if memory_cards and (machine.family not in not_actually_save_supported) else SaveType.Nothing
 		#TODO: Some machines that aren't arcade systems might plausibly have something describable as SaveType.Cart or SaveType.Internal... anyway, I guess I'll burn that bridge when I see it
-	
+
 
 	language = get_language(machine.basename)
 	if language:
 		machine.metadata.languages = [language]
 
 	machine.metadata.regions = get_regions_from_filename_tags(find_filename_tags.findall(machine.name), loose=True)
-	
+
 	machine.metadata.emulator_name = 'MAME'
 	machine.metadata.year = machine.xml.findtext('year')
 	manufacturer = machine.xml.findtext('manufacturer')
@@ -164,7 +164,7 @@ def add_metadata(machine):
 	elif emulation_status == 'imperfect':
 		machine.metadata.specific_info['MAME-Emulation-Status'] = EmulationStatus.Imperfect
 	elif emulation_status == 'preliminary':
-		machine.metadata.specific_info['MAME-Emulation-Status'] = EmulationStatus.Broken	
+		machine.metadata.specific_info['MAME-Emulation-Status'] = EmulationStatus.Broken
 
 def add_input_info(machine):
 	#TODO: Yeah, yeah... should actually have a setter on the class
@@ -187,7 +187,7 @@ def add_input_info(machine):
 		#We shouldn't assume this, but let's assume that all arcade games have one coin slot and one start button, although that's not necessarily the case anyway.
 		#If it's some other kind of system, feels like I'm assuming nothing at all
 		machine.metadata.input_info.console_buttons += 2
-	
+
 	for i in range(num_players):
 		machine.metadata.input_info.players.append(PlayerInput())
 
@@ -268,4 +268,4 @@ def add_input_info(machine):
 		else:
 			player.buttons += buttons
 			player.inputs.append(InputType.Custom)
-		
+

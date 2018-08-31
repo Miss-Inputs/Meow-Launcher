@@ -6,7 +6,7 @@ from .nintendo_common import nintendo_licensee_codes
 
 def add_virtual_boy_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
-	
+
 	rom_size = game.rom.get_size()
 	header_start_position = rom_size - 544 #Yeah I dunno
 	header = game.rom.read(seek_to=header_start_position, amount=32)
@@ -24,7 +24,7 @@ def add_virtual_boy_metadata(game):
 	except NotAlphanumericException:
 		pass
 	#Can get country from product_code[3] if needed
-	
+
 	game.metadata.revision = header[31]
 
 	#TODO: Input info, should always be the same

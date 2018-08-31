@@ -17,7 +17,7 @@ def add_psp_system_info(game):
 	screen.type = 'lcd'
 	screen.tag = 'screen'
 	screen.refresh_rate = 60  #I presume so, anyway... good luck finding actual information. I bet it's not really exactly 60Hz
-	
+
 	screen_info = ScreenInfo()
 	screen_info.screens = [screen]
 	game.metadata.screen_info = screen_info

@@ -72,7 +72,7 @@ def try_engine(system_config, engine, base_dir, root, name):
 
 def process_engine_file(system_config, file_dir, root, name):
 	game = None
-	
+
 	engine_name = None
 	potential_engines = system_config.chosen_emulators
 	for potential_engine in potential_engines:
@@ -86,8 +86,8 @@ def process_engine_file(system_config, file_dir, root, name):
 	if not game:
 		return
 
-	game.metadata.emulator_name = engine_name 
-			
+	game.metadata.emulator_name = engine_name
+
 	game.make_launcher(system_config)
 
 class Rom():
@@ -109,7 +109,7 @@ class Rom():
 					self.warn_about_multiple_files = True
 					continue
 				found_file_already = True
-				
+
 				self.name, self.extension = os.path.splitext(entry)
 				self.compressed_entry = entry
 		else:
@@ -151,7 +151,7 @@ class Game():
 		if is_unsupported_compression:
 			extracted_path = os.path.join('$temp_extract_folder/' + shlex.quote(self.rom.compressed_entry))
 			inner_cmd = base_command_line.replace('$<path>', extracted_path)
-			
+
 			set_temp_folder_cmd = 'temp_extract_folder=$(mktemp -d)'
 			extract_cmd = '7z x -o"$temp_extract_folder" {0}'.format(shlex.quote(self.rom.path))
 			remove_dir_cmd = 'rm -rf "$temp_extract_folder"'
@@ -198,7 +198,7 @@ def try_emulator(system_config, emulator, rom_dir, root, name):
 
 def process_file(system_config, rom_dir, root, name):
 	game = None
-	
+
 	emulator_name = None
 	potential_emulators = system_config.chosen_emulators
 	for potential_emulator in potential_emulators:
@@ -217,14 +217,14 @@ def process_file(system_config, rom_dir, root, name):
 	elif isinstance(game.emulator, emulator_info.MednafenModule):
 		game.metadata.emulator_name = 'Mednafen'
 	else:
-		game.metadata.emulator_name = emulator_name 
-			
+		game.metadata.emulator_name = emulator_name
+
 	game.make_launcher(system_config)
 
 def parse_m3u(path):
 	with open(path, 'rt') as f:
 		return [line.rstrip('\n') for line in f]
-		
+
 def sort_m3u_first():
 	class Sorter:
 		def __init__(self, obj, *_):
@@ -237,7 +237,7 @@ def sort_m3u_first():
 			return other.lower().endswith('.m3u')
 		def __ge__(self, other):
 			return other.lower().endswith('.m3u')
-			
+
 	return Sorter
 
 used_m3u_filenames = []
@@ -249,8 +249,8 @@ def process_emulated_system(system_config):
 			for name in sorted(files, key=sort_m3u_first()):
 				path = os.path.join(root, name)
 				if name.startswith('[BIOS]'):
-					continue			
-				
+					continue
+
 				if name.lower().endswith('.m3u'):
 					used_m3u_filenames.extend(parse_m3u(path))
 				else:
@@ -258,7 +258,7 @@ def process_emulated_system(system_config):
 					#This is why we have to make sure m3u files are added first, though...  not really a nice way around this, unless we scan the whole directory for files first and then rule out stuff?
 					if name in used_m3u_filenames or path in used_m3u_filenames:
 						continue
-			
+
 				process_file(system_config, rom_dir, root, name)
 
 def process_engine_system(system_config, game_info):
@@ -276,7 +276,7 @@ def process_system(system_config):
 	if system_config.name in [system.name for system in system_info.systems]:
 		process_emulated_system(system_config)
 	elif system_config.name in system_info.games_with_engines:
-		process_engine_system(system_config, system_info.games_with_engines[system_config.name])	
+		process_engine_system(system_config, system_info.games_with_engines[system_config.name])
 	#TODO: Perhaps warn user if system_config.name is not one of these, but also not arcade/DOS/Mac/etc
 
 def process_systems():
@@ -284,7 +284,7 @@ def process_systems():
 	for arg in sys.argv:
 		if arg.startswith('--exclude='):
 			excluded_systems.append(arg.partition('=')[2])
-	
+
 	for system in config.system_configs:
 		if system.name not in excluded_systems:
 			process_system(system)
@@ -302,7 +302,7 @@ def main():
 		#TODO: May want to use some kind of proper argument handling library. Hmm...
 		if arg.startswith('--system='):
 			individual_systems.append(arg.partition('=')[2])
-		
+
 	if individual_systems:
 		for system_name in individual_systems:
 			process_system(get_system_config_by_name(system_name))
@@ -311,4 +311,4 @@ def main():
 
 
 if __name__ == '__main__':
-	main()	
+	main()

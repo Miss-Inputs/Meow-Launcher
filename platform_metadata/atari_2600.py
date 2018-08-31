@@ -8,7 +8,7 @@ from software_list_info import get_software_list_entry
 def get_stella_database():
 	proc = subprocess.run(['stella', '-listrominfo'], stdout=subprocess.PIPE, universal_newlines=True)
 	proc.check_returncode()
-	
+
 	lines = proc.stdout.splitlines()
 	first_line = lines[0]
 	lines = lines[1:]
@@ -17,7 +17,7 @@ def get_stella_database():
 	column_names = first_line.split('|')
 	for i, column_name in enumerate(column_names):
 		columns[i] = column_name
-	
+
 	games = {}
 	for line in lines:
 		game_columns = line.split('|')
@@ -30,7 +30,7 @@ def get_stella_database():
 					md5 = game_column.lower()
 				elif game_column:
 					game[columns[i]] = game_column
-	
+
 		if md5:
 			games[md5] = game
 
@@ -100,7 +100,7 @@ def add_controller_info(game, controller):
 	elif controller == 'BOOSTERGRIP':
 		player.buttons = 3 #There are two on the boostergrip, but it passes through to the 2600 controller
 		game.metadata.specific_info['Uses-Boostergrip'] = True
-		player.inputs = [InputType.Digital]	
+		player.inputs = [InputType.Digital]
 	elif controller == 'DRIVING':
 		#Has 360 degree movement, so not quite like a paddle. MAME actually calls it a trackball
 		player.inputs = [InputType.SteeringWheel]
@@ -112,7 +112,7 @@ def add_controller_info(game, controller):
 	game.metadata.input_info.players.append(player)
 
 def parse_stella_db(game, game_info):
-	#TODO: Get year out of name	
+	#TODO: Get year out of name
 	if 'Cartridge_Manufacturer' in game_info:
 		manufacturer = game_info['Cartridge_Manufacturer']
 		if ', ' in manufacturer:
@@ -124,7 +124,7 @@ def parse_stella_db(game, game_info):
 	if 'Cartridge_Note' in game_info:
 		#TODO: Ignore things like "Uses the Paddle Controllers" and "Console ports are swapped" that are already specified by other fields
 		#TODO: Do something with "AKA blah blah blah" (X-Alternate-Name?) or ignore that
-		game.metadata.specific_info['Notes'] = game_info['Cartridge_Note']		
+		game.metadata.specific_info['Notes'] = game_info['Cartridge_Note']
 	if 'Display_Format' in game_info:
 		display_format = game_info['Display_Format']
 		if display_format == 'NTSC':
@@ -136,7 +136,7 @@ def parse_stella_db(game, game_info):
 	left_controller = None
 	if 'Controller_Left' in game_info:
 		left_controller = game_info['Controller_Left']
-	
+
 	right_controller = None
 	no_save = True
 	if 'Controller_Right' in game_info:
@@ -150,10 +150,10 @@ def parse_stella_db(game, game_info):
 		if right_controller == 'KIDVID':
 			game.metadata.specific_info['Uses-Kid-Vid'] = True
 			right_controller = None
-	
+
 	if no_save:
 		game.metadata.save_type = SaveType.Nothing
-	
+
 	swap_ports = False
 	if 'Controller_SwapPorts' in game_info:
 		if game_info['Controller_SwapPorts'] == 'YES':
@@ -170,7 +170,7 @@ _stella_db = None
 def add_atari_2600_metadata(game):
 	game.metadata.input_info.console_buttons = 2 #Select and Reset
 
-	global _stella_db 
+	global _stella_db
 	#Python, you're officially a fucking dumbarse. Of course that's a fucking global variable. It is right there. Two lines above here. In the global fucking scope.
 	if _stella_db is None:
 		try:
@@ -197,4 +197,4 @@ def add_atari_2600_metadata(game):
 		md5 = autodetect_from_stella(game)
 		if md5 in _stella_db:
 			game_info = _stella_db[md5]
-			parse_stella_db(game, game_info)	
+			parse_stella_db(game, game_info)

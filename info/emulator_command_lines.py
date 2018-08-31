@@ -56,14 +56,14 @@ def mame_vic_20(game, _):
 		if debug:
 			print('Bugger!', game.rom.path, 'is too big for MAME at the moment, it is', size)
 		return None
-	
+
 	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'vic20p'
 	else:
 		system = 'vic20'
 
 	return mame_command_line(system, 'cart', {'iec8': '""'}, has_keyboard=True)
-		
+
 def mame_atari_8bit(game, _):
 	if game.metadata.specific_info.get('Headered', False):
 		cart_type = game.metadata.specific_info['Cart-Type']
@@ -71,7 +71,7 @@ def mame_atari_8bit(game, _):
 			if debug:
 				print(game.rom.path, 'is actually a XEGS ROM which is not supported by MAME yet, cart type is', cart_type)
 			return None
-			
+
 		#You probably think this is a bad way to do this...  I guess it is, but hopefully I can take some out as they become supported
 		if cart_type in (5, 17, 22, 41, 42, 43, 45, 46, 47, 48, 49, 53, 57, 58, 59, 60, 61) or (cart_type >= 26 and cart_type <= 32) or (cart_type >= 54 and cart_type <= 56):
 			if debug:
@@ -81,7 +81,7 @@ def mame_atari_8bit(game, _):
 		if cart_type in (4, 6, 7, 16, 19, 20):
 			if debug:
 				print(game.rom.path, "is an Atari 5200 ROM ya goose!! It won't work as an Atari 800 ROM as the type is", cart_type)
-			return None		
+			return None
 	else:
 		size = game.rom.get_size()
 		#Treat 8KB files as type 1, 16KB as type 2, everything else is unsupported for now
@@ -89,7 +89,7 @@ def mame_atari_8bit(game, _):
 			if debug:
 				print(game.rom.path, 'may actually be a XL/XE/XEGS cartridge, please check it as it has no header and a size of', size)
 			return None
-	
+
 	slot = 'cart1' if game.metadata.specific_info.get('Slot', 'Left') == 'Left' else 'cart2'
 
 	if game.metadata.tv_type == TVSystem.PAL:
@@ -101,18 +101,18 @@ def mame_atari_8bit(game, _):
 	return mame_command_line(system, slot, has_keyboard=True)
 
 def _find_c64_system(game):
-	if game.metadata.platform == 'C64GS':	
+	if game.metadata.platform == 'C64GS':
 		#For some reason, C64GS carts don't work on a regular C64 in MAME, and we have to use...  the thing specifically designed for playing games (but we normally wouldn't use this, since some cartridge games still need the keyboard, even if just for the menus, and that's why it actually sucks titty balls IRL.  But if it weren't for that, we totes heckin would)
 		#Note that C64GS doesn't really work properly in MAME anyway, but the carts... not work... less than in the regular C64 driver
 		return 'c64gs'
-	
+
 	#Don't think we really need c64c unless we really want the different SID chip
-	
+
 	if game.metadata.tv_type == TVSystem.PAL:
 		return 'c64p'
-	
+
 	return 'c64'
-	
+
 def mame_c64(game, _):
 	#While we're here building a command line, should mention that you have to manually put a joystick in the first
 	#joystick port, because by default there's only a joystick in the second port.  Why the fuck is that the default?
@@ -131,7 +131,7 @@ def mame_c64(game, _):
 	if game.metadata.specific_info.get('Cart-Type', None) == 32:
 		#EasyFlash. Well, at least it doesn't segfault. Just doesn't boot, even if I play with the dip switch that says "Boot". Maybe I'm missing something here?
 		#There's a Prince of Persia cart in c64_cart.xml that uses easyflash type and is listed as being perfectly supported, but maybe it's one of those things where it'll work from the software list but not as a normal ROM (it's broken up into multiple ROMs)
-		return None	
+		return None
 
 	system = _find_c64_system(game)
 	return mame_command_line(system, 'cart', {'joy1': 'joybstr', 'joy2': 'joybstr', 'iec8': '""'}, True)
@@ -155,7 +155,7 @@ def gambatte(game, _):
 			print('Skipping', game.rom.path, '(by Gambatte) because mapper is unrecognized')
 		return None
 	if mapper.name in ['Bandai TAMA5', 'HuC3', 'MBC6', 'MBC7', 'Pocket Camera']:
-		return None		
+		return None
 
 	return 'gambatte_qt --full-screen $<path>'
 
@@ -171,7 +171,7 @@ def mame_snes(game, other_config):
 
 		#We don't need to detect TV type because the Sufami Turbo (and also BS-X) was only released in Japan and so the Super Famicom can be used for everything
 		return mame_command_line('snes', 'cart2', {'cart': shlex.quote(other_config['sufami_turbo_bios_path'])}, False)
-	
+
 	if game.rom.extension == 'bs':
 		if 'bsx_bios_path' not in other_config:
 			if debug:
@@ -180,7 +180,7 @@ def mame_snes(game, other_config):
 			return None
 
 		return mame_command_line('snes', 'cart2', {'cart': shlex.quote(other_config['bsx_bios_path'])}, False)
-	
+
 	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'snespal'
 	else:
@@ -193,13 +193,13 @@ def mame_nes(game, _):
 	if game.rom.extension == 'fds':
 		#We don't need to detect TV type because the FDS was only released in Japan and so the Famicom can be used for everything
 		return mame_command_line('fds', 'flop')
-	
+
 	uses_sb486 = False
 
 	#27 and 103 might be unsupported too?
 	unsupported_ines_mappers = (29, 30, 55, 59, 60, 81, 84, 98,
-	99, 100, 101, 102, 109, 110, 111, 122, 124, 125, 127, 128, 
-	129, 130, 131, 135, 151, 161, 169, 170, 174, 181, 219, 220, 
+	99, 100, 101, 102, 109, 110, 111, 122, 124, 125, 127, 128,
+	129, 130, 131, 135, 151, 161, 169, 170, 174, 181, 219, 220,
 	236, 237, 239, 247, 248, 251, 253)
 	if game.metadata.specific_info.get('Header-Format', None) == 'iNES':
 		mapper = game.metadata.specific_info['Mapper-Number']
@@ -211,8 +211,8 @@ def mame_nes(game, _):
 			#This might not be true for all games with this mapper, I dunno, hopefully it's about right.
 			#At any rate, Subor - English Word Blaster needs to be used with the keyboard thing it's designed for
 			uses_sb486 = True
-		
-	#TODO: Use dendy if we can know the game uses it	
+
+	#TODO: Use dendy if we can know the game uses it
 	#TODO: Set up controller ports if game uses Zapper, etc
 	if uses_sb486:
 		system = 'sb486'
@@ -291,9 +291,9 @@ def kega_fusion(game, _):
 
 def mednafen_nes(game, _):
 	#Yeah okay, I need a cleaner way of doing this
-	unsupported_ines_mappers = (14, 20, 27, 28, 29, 30, 31, 35, 36, 39, 43, 50, 
-		53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 81, 83, 84, 91, 98, 100, 
-		102, 103, 104, 106, 108, 109, 110, 111, 116, 136, 137, 138, 139, 141, 
+	unsupported_ines_mappers = (14, 20, 27, 28, 29, 30, 31, 35, 36, 39, 43, 50,
+		53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 81, 83, 84, 91, 98, 100,
+		102, 103, 104, 106, 108, 109, 110, 111, 116, 136, 137, 138, 139, 141,
 		142, 143, 181, 183, 186, 187, 188, 191, 192, 211, 212, 213, 214, 216,
 		218, 219, 220, 221, 223, 224, 225, 226, 227, 229, 230, 231, 233, 235,
 		236, 237, 238, 239, 243, 245)
@@ -301,7 +301,7 @@ def mednafen_nes(game, _):
 	unsupported_ines_mappers += tuple(range(145, 150))
 	unsupported_ines_mappers += tuple(range(161, 180))
 	unsupported_ines_mappers += tuple(range(194, 206))
-	
+
 	if game.metadata.specific_info.get('Header-Format', None) == 'iNES':
 		mapper = game.metadata.specific_info['Mapper-Number']
 		if mapper in unsupported_ines_mappers:
@@ -331,7 +331,7 @@ def mame_sg1000(game, _):
 		#There are standard Centronics and RS-232 ports/devices available with this, but would I really need them?
 	elif ext == 'sc':
 		#SC-3000H is supposedly identical except it has a mechanical keyboard. Not sure why sc3000h is a separate driver, but oh well
-		system = 'sc3000' 
+		system = 'sc3000'
 		slot = 'cart'
 		has_keyboard = True
 	elif ext in ('bin', 'sg'):
@@ -362,7 +362,7 @@ def mupen64plus(game, _):
 	if game.metadata.specific_info.get('ROM-Format', None) == 'Unknown':
 		print('shoop da woop', game.rom.path)
 		return None
-	
+
 	command_line = 'mupen64plus --nosaveoptions --fullscreen $<path>'
 	if environment_variables:
 		command_line = 'env {0} {1}'.format(' '.join(['{0}={1}'.format(k, v) for k, v in environment_variables.items()]), command_line)

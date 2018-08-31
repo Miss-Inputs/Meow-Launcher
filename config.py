@@ -75,14 +75,14 @@ def load_config():
 	output_folder = os.path.expanduser(parser['General']['output_folder'])
 	organized_output_folder = os.path.expanduser(parser['General']['organized_output_folder'])
 	icon_folder = os.path.expanduser(parser['General']['icon_folder'])
-	
+
 	mac_db_path = os.path.expanduser(parser['Mac']['mac_db_path'])
 	launchers_for_unknown_mac_apps = parser['Mac'].getboolean('launchers_for_unknown_apps', False)
 
 	dos_db_path = os.path.expanduser(parser['DOS']['dos_db_path'])
 	launchers_for_unknown_dos_apps = parser['DOS'].getboolean('launchers_for_unknown_apps', False)
 	dos_configs_path = os.path.expanduser(parser['DOS']['dos_config_path'])
-	
+
 	catlist_path = os.path.expanduser(parser['Arcade']['catlist_path'])
 	languages_path = os.path.expanduser(parser['Arcade']['languages_path'])
 	skipped_source_files = parser['Arcade']['skipped_source_files'].split(';')
@@ -95,7 +95,7 @@ def load_name_replacement():
 		print('oh no')
 		return
 	parser.read(name_consistency_path)
-	
+
 	for k, v in parser['Name Replacement'].items():
 		name_replacement.append((k, v))
 	for k, v in parser['Add "The"'].items():
@@ -139,7 +139,7 @@ def load_emulator_configs():
 		other_config = {k: v for k, v in parser[system].items() if k not in ('paths', 'emulators')}
 
 		system_configs.append(SystemConfig(system, paths, emulators, other_config))
-			
+
 load_config()
 with open(ignored_dirs_path, 'rt') as ignored_txt:
 	ignored_directories = ignored_txt.read().splitlines()

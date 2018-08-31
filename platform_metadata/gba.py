@@ -30,7 +30,7 @@ def add_gba_metadata(game):
 		#Well, shit. If the product code's invalid for whatever reason, then we can't derive much info from it anyway. Anything officially licensed should be alphanumeric.
 		can_trust_header_data = False
 
-	licensee_code = None	
+	licensee_code = None
 	try:
 		licensee_code = convert_alphanumeric(header[0xb0:0xb2])
 	except NotAlphanumericException:
@@ -51,7 +51,7 @@ def add_gba_metadata(game):
 			game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(licensee_code)
 
 		game.metadata.revision = header[0xbc]
-	
+
 	has_save = False
 	save_strings = [b'EEPROM_V', b'SRAM_V', b'SRAM_F_V', b'FLASH_V', b'FLASH512_V', b'FLASH1M_V']
 	for string in save_strings:

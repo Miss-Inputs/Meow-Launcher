@@ -21,13 +21,13 @@ def add_wii_system_info(game):
 	game.metadata.cpu_info = cpu_info
 
 	screen = Screen()
-	screen.width = 640 
+	screen.width = 640
 	screen.height = 480
 	#Let's just go with that. PAL consoles can do 576i and interlacing confuses me (720x576?)
 	#Also anamorphic widescreen doesn't count
 	screen.type = 'raster'
 	screen.tag = 'screen'
-	screen.refresh_rate = 60  
+	screen.refresh_rate = 60
 
 	screen_info = ScreenInfo()
 	screen_info.screens = [screen]
@@ -125,7 +125,7 @@ def add_wii_metadata(game):
 			header = cd_read.read_gcz(game.rom.path, amount=0x2450)
 		elif game.rom.extension == 'iso':
 			header = game.rom.read(amount=0x2450)
-	
+
 		add_gamecube_wii_disc_metadata(game, header)
 	elif game.rom.extension == 'wad':
 		add_wad_metadata(game)

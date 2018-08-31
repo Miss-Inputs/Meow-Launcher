@@ -42,7 +42,7 @@ def add_megadrive_info(game, header):
 				pass
 	except UnicodeDecodeError:
 		pass
-	
+
 	try:
 		#There's a space at header[130] apparently, so I guess that might be part of the thing, but eh
 		serial = header[131:142].decode('ascii')
@@ -54,7 +54,7 @@ def add_megadrive_info(game, header):
 	except UnicodeDecodeError:
 		pass
 	#Checksum: header[142:144]
-	
+
 	game.metadata.input_info.console_buttons = 1 #Reset button counts as a button because games can use it apparently
 	player = PlayerInput()
 	player.buttons = 3
@@ -84,7 +84,7 @@ def add_megadrive_info(game, header):
 			player.inputs.append(InputType.Digital)
 		elif 'L' in peripherals:
 			#Activator
-			player.inputs.append(InputType.MotionControls)	
+			player.inputs.append(InputType.MotionControls)
 		elif '4' in peripherals or 'O' in peripherals:
 			#Team Play and J-Cart respectively
 			num_players = 4
@@ -117,7 +117,7 @@ def add_megadrive_info(game, header):
 	#Apparently... what the heck
 	#FIXME: This seems to be different on Mega CD. I need to handle it differently anyway, since it should be SaveType.Internal
 	game.metadata.save_type = SaveType.Cart if save_id[:2] == b'RA' else SaveType.Nothing
-	
+
 	#Hmm... get regions from [0xfd:0xff] or nah
 
 def add_megadrive_metadata(game):
@@ -132,9 +132,9 @@ def add_megadrive_metadata(game):
 			return
 	else:
 		header = game.rom.read(0x100, 0x100)
-	
+
 	add_megadrive_info(game, header)
-	
+
 	if game.metadata.platform != 'Mega CD':
 		#Mega CD software lists have CHDs and whatnot and they're weird to deal with so I won't right now
 		software = get_software_list_entry(game)

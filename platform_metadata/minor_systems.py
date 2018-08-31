@@ -28,7 +28,7 @@ def add_game_pocket_computer_info(game):
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
-	
+
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
@@ -44,24 +44,24 @@ def add_gamate_info(game):
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
-	
+
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
 
 def add_casio_pv1000_info(game):
-	game.metadata.tv_type = TVSystem.NTSC 
+	game.metadata.tv_type = TVSystem.NTSC
 	#Japan only. I won't assume the region in case some maniac decides to make homebrew for it or something, but it could only ever be NTSC
 	player = PlayerInput()
 	player.inputs = [InputType.Digital]
-	player.buttons = 4 
+	player.buttons = 4
 	#Start, select, A, and B. And to think some things out there say it only has 1 button... Well, I've also heard start and select are on the console, so maybe MAME is being a bit weird
 	game.metadata.input_info.players += [player] * 2
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
-	
+
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
@@ -77,12 +77,12 @@ def add_mega_duck_info(game):
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
-	
+
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
-	
+
 def add_watara_supervision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 	player = PlayerInput()
@@ -93,7 +93,7 @@ def add_watara_supervision_info(game):
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
-	
+
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
@@ -178,7 +178,7 @@ def add_sg1000_info(game):
 		game.metadata.product_code = software.get_info('serial')
 		uses_tablet = software.get_part_feature('peripheral') == 'tablet'
 		#There doesn't seem to be a way to know if software is a SC-3000 cart, unless I just say whichever one has the .sc extension. So I'll do that
-	
+
 	player = PlayerInput()
 	if uses_tablet:
 		#A drawing tablet, but that's more or less a touchscreen
@@ -236,7 +236,7 @@ def add_vic20_info(game):
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
-		#TODO: Get sharedfeat = compatibility to get TV type		
+		#TODO: Get sharedfeat = compatibility to get TV type
 
 def add_sord_m5_info(game):
 	software = get_software_list_entry(game)
@@ -304,7 +304,7 @@ def add_atari_5200_info(game):
 		uses_trackball = software.get_part_feature('peripheral') == 'trackball'
 
 	game.metadata.save_type = SaveType.Nothing #Probably
-	
+
 	#This doesn't really matter anyway, because MAME doesn't let you select controller type by slot device yet; and none of the other 5200 emulators are cool
 	game.metadata.specific_info['Uses-Trackball'] = uses_trackball
 	player = PlayerInput()
@@ -344,7 +344,7 @@ def add_game_com_info(game):
 	player.buttons = 4 #A B C D
 	game.metadata.input_info.players.append(player)
 	game.metadata.input_info.console_buttons = 3 #Menu Sound Pause
-	
+
 	#Might have saving, actually. I'm just not sure about how it works.
 
 	software = get_software_list_entry(game)

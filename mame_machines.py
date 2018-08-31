@@ -39,7 +39,7 @@ def load_icons():
 				name, ext = os.path.splitext(icon_file)
 				if ext == '.ico':
 					d[name] = os.path.join(icon_directory, icon_file)
-	
+
 	return d
 icons = load_icons()
 
@@ -70,7 +70,7 @@ def mame_verifyroms(basename):
 		subprocess.run(['mame', '-verifyroms', basename], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
 		return True
 	except subprocess.CalledProcessError:
-		return False	
+		return False
 
 def should_process_machine(machine):
 	if machine.xml.attrib['runnable'] == 'no':
@@ -87,7 +87,7 @@ def should_process_machine(machine):
 def process_machine(machine):
 	if not should_process_machine(machine):
 		return
-		
+
 	if not (machine.xml.find('softwarelist') is None) and machine.family not in config.okay_to_have_software:
 		return
 
@@ -104,7 +104,7 @@ def process_machine(machine):
 		return
 
 	machine.make_launcher()
-		
+
 def get_mame_drivers():
 	drivers = []
 
@@ -116,12 +116,12 @@ def get_mame_drivers():
 		return []
 
 	for line in output.splitlines():
-		try:		
+		try:
 			driver, source_file = line.split(None, 1)
 			drivers.append((driver, os.path.splitext(source_file)[0]))
 		except ValueError:
 			print('For fucks sake ' + line)
-			continue	
+			continue
 
 	return drivers
 

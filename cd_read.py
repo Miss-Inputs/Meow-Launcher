@@ -16,12 +16,12 @@ def parse_cue_sheet(cue_path):
 	files = []
 
 	data = read_file(cue_path).decode('utf8', errors='backslashreplace')
-	
+
 	current_file = None
 	current_mode = None
 
 	for line in data.splitlines():
-		
+
 		file_match = cue_file_line_regex.match(line)
 		if file_match:
 			if current_file and current_mode:
@@ -36,7 +36,7 @@ def parse_cue_sheet(cue_path):
 				track_match = cue_track_line_regex.match(line)
 				if track_match:
 					current_mode = track_match['mode']
-		
+
 	files.append((current_file, sector_size_from_cue_mode(current_mode)))
 
 	return files
@@ -74,27 +74,27 @@ def sectored_read(path, raw_header_size, raw_footer_size, data_size, seek_to=0, 
 	end = seek_to + amount
 	start = cooked_position_to_real(seek_to, raw_header_size, raw_footer_size, data_size)
 	raw_end = cooked_position_to_real(end, raw_header_size, raw_footer_size, data_size)
-	raw_count = (raw_end - start) + 1 
+	raw_count = (raw_end - start) + 1
 
 	number_of_sectors = int(math.ceil((raw_count - amount) / ((raw_header_size + raw_footer_size) + 1)))
 
 	if number_of_sectors == 1:
 		return read_file(path, seek_to=start, amount=amount)
-	
+
 	#We're crossing sectors? Crap...
 	start_sector = int(math.ceil(seek_to / data_size))
 	start_offset_in_sector = int(seek_to % data_size)
 	end_sector = int(math.ceil(end / data_size))
 	end_offset_in_sector = int(end % data_size)
-	
+
 	#Read remainder of the start sector first
 	result = read_file(path, seek_to=start, amount=data_size - start_offset_in_sector)
-	
+
 	#Read any sectors between start and end
 	for i in range(0, number_of_sectors - 2):
 		this_sector_start = cooked_position_to_real(data_size * (start_sector + i + 1), raw_header_size, raw_footer_size, data_size)
 		result += read_file(path, seek_to=this_sector_start, amount=data_size)
-		
+
 	#Read as much out of the end sector as needed
 	end_sector_start = cooked_position_to_real(data_size * end_sector, raw_header_size, raw_footer_size, data_size)
 	result += read_file(path, seek_to=end_sector_start, amount=end_offset_in_sector + 1)
@@ -111,7 +111,7 @@ def read_gcz(path, seek_to=0, amount=-1):
 	compressed_size = int.from_bytes(gcz_header[8:16], 'little')
 	num_blocks = int.from_bytes(gcz_header[28:32], 'little')
 	block_size = int.from_bytes(gcz_header[24:28], 'little')
-	
+
 	#High bit indicates if compressed
 	block_pointers = struct.unpack('<' + ('Q' * num_blocks), read_file(path, seek_to=32, amount=8 * num_blocks))
 
@@ -127,7 +127,7 @@ def read_gcz(path, seek_to=0, amount=-1):
 		bytes_to_read = block_size - position_in_block
 		if bytes_to_read > remaining:
 			bytes_to_read = remaining
-		
+
 		block = get_gcz_block(path, compressed_size, block_pointers, i)
 		data += block[position_in_block:position_in_block + bytes_to_read]
 
@@ -139,17 +139,17 @@ def get_compressed_gcz_block_size(compressed_size, block_pointers, block_num):
 	start = block_pointers[block_num]
 	if block_num < (len(block_pointers) - 1):
 		return block_pointers[block_num + 1] - start
-	
+
 	return compressed_size - start
 
 def get_gcz_block(gcz_path, compressed_size, block_pointers, block_num):
 	#Right after the pointers and then the hashes
 	data_offset = 32 + (8 * len(block_pointers)) + (4 * len(block_pointers))
-	
+
 	compressed = True
 	compressed_block_size = get_compressed_gcz_block_size(compressed_size, block_pointers, block_num)
 	offset = data_offset + block_pointers[block_num]
-	
+
 	if offset & (1 << 63):
 		compressed = False
 		offset &= ~(1 << 63)

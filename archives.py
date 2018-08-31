@@ -2,13 +2,13 @@ import zipfile
 import subprocess
 import re
 
-compressed_exts = ['7z', 'zip', 'gz', 'bz2', 'tar', 'tgz', 'tbz'] 
+compressed_exts = ['7z', 'zip', 'gz', 'bz2', 'tar', 'tgz', 'tbz']
 #7z supports more, but I don't expect to see them (in the case of things like .rar, I don't want them to be treated as
 #valid archive types because they're evil proprietary formats and I want to eradicate them, and the case of things
 #like .iso I'd rather they not be treated as archives)
 class Bad7zException(Exception):
 	pass
-	
+
 def zip_list(path):
 	with zipfile.ZipFile(path, 'r') as zip_file:
 		return zip_file.namelist()
@@ -19,7 +19,7 @@ def sevenzip_list(path):
 	proc = subprocess.run(['7z', 'l', '-slt', path], stdout=subprocess.PIPE, universal_newlines=True)
 	if proc.returncode != 0:
 		raise Bad7zException('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
-		
+
 	files = []
 	found_file_line = False
 	for line in proc.stdout.splitlines():
@@ -29,18 +29,18 @@ def sevenzip_list(path):
 			continue
 		if found_file_line and sevenzip_path_reg.fullmatch(line):
 			files.append(sevenzip_path_reg.fullmatch(line).group(1))
-			
+
 	return files
-	
+
 def compressed_list(path):
 	if path.lower().endswith('.zip'):
 		try:
 			return zip_list(path)
 		except zipfile.BadZipFile:
 			pass
-			
+
 	return sevenzip_list(path)
-	
+
 def zip_getsize(path, filename):
 	with zipfile.ZipFile(path, 'r') as zip_file:
 		return zip_file.getinfo(filename).file_size
@@ -50,7 +50,7 @@ def sevenzip_getsize(path, filename):
 	proc = subprocess.run(['7z', 'l', '-slt', path, filename], stdout=subprocess.PIPE, universal_newlines=True)
 	if proc.returncode != 0:
 		raise Bad7zException('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
-		
+
 	found_file_line = False
 	for line in proc.stdout.splitlines():
 		if line.startswith('------'):
@@ -58,9 +58,9 @@ def sevenzip_getsize(path, filename):
 			continue
 		if found_file_line and sevenzip_size_reg.fullmatch(line):
 			return int(sevenzip_size_reg.fullmatch(line).group(1))
-			
+
 	return None
-	
+
 def compressed_getsize(path, filename):
 	if path.lower().endswith('.zip'):
 		return zip_getsize(path, filename)
@@ -69,7 +69,7 @@ def compressed_getsize(path, filename):
 def sevenzip_get(path, filename):
 	process = subprocess.run(args=('7z', 'e', '-so', path, filename), stdout=subprocess.PIPE)
 	return process.stdout
-	
+
 def zip_get(path, filename):
 	with zipfile.ZipFile(path) as zip_file:
 		with zip_file.open(filename, 'r') as file:
@@ -79,4 +79,4 @@ def compressed_get(path, filename):
 	if path.lower().endswith('.zip'):
 		return zip_get(path, filename)
 	return sevenzip_get(path, filename)
-	
+

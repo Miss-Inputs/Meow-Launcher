@@ -76,7 +76,7 @@ rom_types = {
 	5: ROMType(ExpansionChip.DSP_1, has_ram=True, has_battery=True),
 	18: ROMType(has_battery=True), #Might not be used...
 	19: ROMType(ExpansionChip.SuperFX),
-	20: ROMType(ExpansionChip.SuperFX2), 
+	20: ROMType(ExpansionChip.SuperFX2),
 	#Well, it's a different value from 19. 19 is seen in Star Fox, this is seen in Doom... could be GSU-1 and GSU-2, I dunno
 	21: ROMType(ExpansionChip.SuperFX, has_battery=True),
 	26: ROMType(ExpansionChip.SuperFX2, has_battery=True),
@@ -152,12 +152,12 @@ def parse_snes_header(game, base_offset):
 	#Dunno if I want to validate against countries, honestly. Might go wrong
 	if country in countries:
 		metadata['Country'] = countries[country]
-	
+
 	licensee = header[0xda]
 	#Hmm.. not sure if I should validate that, but... it shouldn't be 0x00 or 0xff, maybe?
-	
+
 	metadata['Revision'] = header[0xdb]
-	
+
 	inverse_checksum = int.from_bytes(header[0xdc:0xde], 'little')
 	checksum = int.from_bytes(header[0xde:0xe0], 'little')
 	#Can't be arsed calculating the checksum because it's complicated (especially with some weird ROM sizes), but we know they have to add up to 0xffff
@@ -196,7 +196,7 @@ def add_normal_snes_header(game):
 	if rom_size % 1024 == 512:
 		possible_offsets = [0x8100, 0x10100, 0x410100]
 		#We'll ignore any values in this copier header, I've seen them be wrong about a ROM being LoROM/HiROM before
-	
+
 	header_data = None
 	for possible_offset in possible_offsets:
 		if possible_offset >= rom_size:
@@ -238,7 +238,7 @@ def parse_satellaview_header(game, base_offset):
 		metadata['Publisher'] = publisher
 	except NotAlphanumericException:
 		raise BadSNESHeaderException("Publisher not alphanumeric")
-	
+
 	try:
 		header[0xc0:0xd0].decode('shift_jis')
 	except UnicodeDecodeError:
@@ -266,7 +266,7 @@ def parse_satellaview_header(game, base_offset):
 	#0xdb-0xdc: Version but in some weird format
 	#0xdc-0xde: Checksum
 	#0xde-0xe0: Inverse checksum
-	
+
 
 def add_satellaview_metadata(game):
 	game.metadata.platform = 'Satellaview'
@@ -276,7 +276,7 @@ def add_satellaview_metadata(game):
 	if rom_size % 1024 == 512:
 		possible_offsets = [0x8100, 0x10100, 0x410100]
 		#Not sure what kind of bonehead puts copier headers on a Satellaview game, but I can easily handle that edge case, so I will
-	
+
 	header_data = None
 	for possible_offset in possible_offsets:
 		if possible_offset >= rom_size:
@@ -287,7 +287,7 @@ def add_satellaview_metadata(game):
 			break
 		except BadSNESHeaderException:
 			continue
-	
+
 	if header_data:
 		game.metadata.specific_info['Mapper'] = header_data.get('ROM layout')
 		publisher = header_data.get('Publisher')

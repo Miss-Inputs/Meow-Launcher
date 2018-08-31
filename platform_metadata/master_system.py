@@ -49,7 +49,7 @@ regions = {
 	6: ('Export', True),
 	7: ('International', True),
 }
-	
+
 def parse_standard_header(game, base_offset):
 	header_data = {}
 	header = game.rom.read(seek_to=base_offset, amount=16)
@@ -68,7 +68,7 @@ def parse_standard_header(game, base_offset):
 
 	region_code = (header[15] & 0xf0) >> 4
 	#ROM size = header[15] & 0x0f, uses lookup table; used for calculating checksum
-	
+
 	if region_code in regions:
 		header_data['Region'], header_data['Is Game Gear'] = regions[region_code]
 		if header_data['Is Game Gear']:
@@ -81,7 +81,7 @@ def parse_standard_header(game, base_offset):
 				header_data['Publisher'] = 'Sega'
 	else:
 		raise BadSMSHeaderException('Weird region: ' + str(region_code))
-	
+
 	return header_data
 
 def try_parse_standard_header(game):
@@ -104,7 +104,7 @@ def try_parse_standard_header(game):
 		game.metadata.product_code = header_data['Product code']
 		if header_data['Region'] == 'Japanese':
 			game.metadata.regions = [get_region_by_name('Japan')]
-		
+
 		if header_data['Is Game Gear']:
 			game.metadata.platform = 'Game Gear'
 		else:

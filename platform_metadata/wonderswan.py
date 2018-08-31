@@ -28,7 +28,7 @@ publishers = {
 	30: 'Ninhon Application',
 	32: 'Athena',
 	33: 'KID',
-	34: 'HAL',	
+	34: 'HAL',
 	35: 'Yuki Enterprise',
 	36: 'Omega Micott',
 	38: 'Kadokawa Shoten',
@@ -51,7 +51,7 @@ publishers = {
 def add_wonderswan_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 	#TODO: Add input info, noting that Benessee Pocket Challenge V2 is different
-	
+
 	rom_size = game.rom.get_size()
 	header_start_position = rom_size - 10
 	header = game.rom.read(seek_to=header_start_position, amount=10)

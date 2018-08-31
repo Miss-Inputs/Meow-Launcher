@@ -28,7 +28,7 @@ cpu_overrides = {
 display_overrides = {
 	'FDS': lookup_system_displays('fds'),
 	'Game Boy Color': lookup_system_displays('gbcolor'),
-	'C64GS': lookup_system_displays('c64gs'),	
+	'C64GS': lookup_system_displays('c64gs'),
 	'Satellaview': lookup_system_displays('snes'),
 	'Sufami Turbo': lookup_system_displays('snes'),
 	'Benesse Pocket Challenge V2': lookup_system_displays('wswan'),
@@ -69,7 +69,7 @@ def get_year_revision_from_filename_tags(game, tags):
 					elif groupdict['year3']:
 						game.metadata.year = date_match['year3']
 
-				if not game.metadata.month:				
+				if not game.metadata.month:
 					if groupdict['month']:
 						try:
 							game.metadata.month = calendar.month_name[int(date_match['month'])]
@@ -99,7 +99,7 @@ def get_metadata_from_tags(game):
 	tags = common.find_filename_tags.findall(game.rom.name)
 
 	get_year_revision_from_filename_tags(game, tags)
-	
+
 	if not game.metadata.regions:
 		regions = region_detect.get_regions_from_filename_tags(tags, game.metadata.ignored_filename_tags)
 		if regions:
@@ -113,7 +113,7 @@ def get_metadata_from_tags(game):
 			languages = region_detect.get_languages_from_regions(game.metadata.regions)
 			if languages:
 				game.metadata.languages = languages
-		
+
 
 	if not game.metadata.tv_type:
 		if game.metadata.regions:
@@ -125,7 +125,7 @@ def get_metadata_from_tags(game):
 
 def add_device_hardware_metadata(game):
 	mame_driver = system_info.get_mame_driver_by_system_name(game.metadata.platform)
-	
+
 	source_file = None
 	if mame_driver:
 		source_file = get_mame_xml(mame_driver).find('machine').attrib['sourcefile']
@@ -137,7 +137,7 @@ def add_device_hardware_metadata(game):
 	if not game.metadata.cpu_info:
 		cpu = None
 		if game.metadata.platform in cpu_overrides:
-			cpu = cpu_overrides[game.metadata.platform]			
+			cpu = cpu_overrides[game.metadata.platform]
 		else:
 			if mame_driver:
 				cpu = lookup_system_cpu(mame_driver)
@@ -149,7 +149,7 @@ def add_device_hardware_metadata(game):
 		displays = None
 		if game.metadata.platform in display_overrides:
 			displays = display_overrides[game.metadata.platform]
-		else:	
+		else:
 			if mame_driver:
 				displays = lookup_system_displays(mame_driver)
 		if displays:
@@ -157,7 +157,7 @@ def add_device_hardware_metadata(game):
 
 def add_metadata(game):
 	game.metadata.extension = game.rom.extension
-	
+
 	software_list_names = system_info.get_mame_software_list_names_by_system_name(game.metadata.platform)
 	if software_list_names:
 		game.software_lists = get_software_lists_by_names(software_list_names)
@@ -166,12 +166,12 @@ def add_metadata(game):
 		platform_metadata.helpers[game.metadata.platform](game)
 
 	add_device_hardware_metadata(game)
-	
+
 	get_metadata_from_tags(game)
 
 
 def add_engine_metadata(game):
 	game.metadata.extension = game.file.extension
-	
+
 	if game.metadata.platform in platform_metadata.helpers:
 		platform_metadata.helpers[game.metadata.platform](game)

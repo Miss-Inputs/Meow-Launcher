@@ -8,7 +8,7 @@ from common import find_filename_tags
 def regions_equal(region, other_region):
 	if region == other_region:
 		return True
-	
+
 	if isinstance(region, Region) and not isinstance(other_region, Region):
 		return region.name == other_region
 
@@ -40,7 +40,7 @@ def region_array_equal(regions, other_regions):
 def languages_equal(language, other_language):
 	if language == other_language:
 		return True
-	
+
 	if isinstance(language, Language) and not isinstance(other_language, Language):
 		return language.english_name == other_language
 
@@ -97,9 +97,9 @@ class Test():
 			else:
 				tv_type = get_tv_system_from_filename_tags(tags)
 			if tv_type != self.expected_tv_type:
-				print('Oh no! {0} failed: TV type = {1}, expected = {2}'.format(self.name, tv_type, self.expected_tv_type))			
+				print('Oh no! {0} failed: TV type = {1}, expected = {2}'.format(self.name, tv_type, self.expected_tv_type))
 		except Exception as ex:
-			print('Oh no! {0} failed: exception = {1}'.format(self.name, ex))						
+			print('Oh no! {0} failed: exception = {1}'.format(self.name, ex))
 
 tests = [
 	Test("No-Intro filename with region", "Cool Game (Spain)", ['Spain'], ['Spanish'], TVSystem.PAL),
@@ -116,8 +116,8 @@ tests = [
 	Test("TOSEC filename with two regions with same language", "Cool Game (1992)(CoolSoft)(EU-AU)", ['Europe', 'Australia'], ['English'], TVSystem.PAL),
 	Test("TOSEC filename with language but no region", "Cool Game (1992)(CoolSoft)(pt)", None, ['Portugese'], None),
 	Test("TOSEC filename with two languages but no region", "Cool Game (1992)(CoolSoft)(en-fr)", None, ['English', 'French'], None),
-	Test("TOSEC filename with region and language", "Cool Game (1992)(CoolSoft)(JP)(en)", ['Japan'], ['English'], TVSystem.NTSC),	
-	Test("TOSEC filename with region and two languages", "Cool Game (1992)(CoolSoft)(JP)(en-fr)", ['Japan'], ['English', 'French'], TVSystem.NTSC),	
+	Test("TOSEC filename with region and language", "Cool Game (1992)(CoolSoft)(JP)(en)", ['Japan'], ['English'], TVSystem.NTSC),
+	Test("TOSEC filename with region and two languages", "Cool Game (1992)(CoolSoft)(JP)(en-fr)", ['Japan'], ['English', 'French'], TVSystem.NTSC),
 	Test("TOSEC filename with two regions and two languages", "Cool Game (1992)(CoolSoft)(JP-US)(en-ja)", ['Japan', 'USA'], ['English', 'Japanese'], TVSystem.NTSC),
 	Test("Name of a region in name but not tags", "Cool Adventures in Japan (USA)", ['USA'], ['English'], TVSystem.NTSC),
 ]

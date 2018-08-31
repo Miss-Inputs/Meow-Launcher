@@ -15,14 +15,14 @@ def get_field(desktop, name):
 	entry = desktop['Desktop Entry']
 	if name in entry:
 		return entry[name]
-	
+
 	return None
 
 def get_array(desktop, name):
 	field = get_field(desktop, name)
 	if field is None:
 		return []
-	
+
 	return field.split(';')
 
 remove_brackety_things_for_filename = re.compile(r'[]([)]')
@@ -41,12 +41,12 @@ used_filenames = []
 def base_make_desktop(command, display_name, fields=None, icon=None):
 	base_filename = make_filename(display_name)
 	filename = base_filename + '.desktop'
-	
+
 	i = 0
 	while filename in used_filenames:
 		filename = base_filename + str(i) + '.desktop'
 		i += 1
-	
+
 	path = os.path.join(config.output_folder, filename)
 	used_filenames.append(filename)
 
@@ -76,20 +76,20 @@ def base_make_desktop(command, display_name, fields=None, icon=None):
 						value_as_string = str(v)
 
 					f.write('X-{0}={1}\n'.format(k.replace('_', '-'), value_as_string))
-		
+
 
 		os.chmod(path, 0o7777)
 
 def make_display_name(name):
 	display_name = common.remove_filename_tags(name)
-		
+
 	for replacement in config.name_replacement:
 		display_name = re.sub(r'(?<!\w)' + re.escape(replacement[0]) + r'(?!\w)', replacement[1], display_name, flags=re.I)
 	for replacement in config.add_the:
 		display_name = re.sub(r'(?<!The )' + re.escape(replacement), 'The ' + replacement, display_name, flags=re.I)
 	for replacement in config.subtitle_removal:
 		display_name = re.sub(r'^' + re.escape(replacement[0]) + r'(?!\w)', replacement[1], display_name, flags=re.I)
-			
+
 	return display_name
 
 def make_launcher(command, name, metadata, other_fields=None, icon=None):

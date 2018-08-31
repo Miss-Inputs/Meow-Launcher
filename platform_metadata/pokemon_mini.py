@@ -12,7 +12,7 @@ def add_pokemini_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 
 	game.metadata.specific_info['Force-Feedback'] = True
-	
+
 	#There really isn't much else here, other than maybe the title. I don't think I can do anything with all those IRQs.
 	product_code_bytes = game.rom.read(seek_to=0x21ac, amount=4)
 	try:
@@ -24,4 +24,4 @@ def add_pokemini_metadata(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		
+

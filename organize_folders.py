@@ -39,7 +39,7 @@ def delete_existing_output_dir():
 			os.rmdir(path)
 		except FileNotFoundError:
 			pass
-	
+
 	if os.path.isdir(config.organized_output_folder):
 		for f in os.listdir(config.organized_output_folder):
 			path = os.path.join(config.organized_output_folder, f)
@@ -104,7 +104,7 @@ def move_into_extra_subfolder(path, desktop, subfolder, key):
 		value = ' - '.join(values)
 	else:
 		field_value = launchers.get_field(desktop, key)
-		if not field_value:	
+		if not field_value:
 			return
 		value = sanitize_name(field_value)
 
@@ -135,7 +135,7 @@ def move_into_subfolders(path):
 		copy_to_folder(path, config.organized_output_folder, 'By language', sanitize_name(language))
 	if year:
 		copy_to_folder(path, config.organized_output_folder, 'By year', sanitize_name(year.replace('x', '?')))
-			
+
 	copy_to_folder(path, config.organized_output_folder, 'By platform and category', sanitize_name(platform) + ' - ' + sanitize_name(category))
 
 	if '--more-folders' in sys.argv:
@@ -145,23 +145,23 @@ def move_into_subfolders(path):
 	if '--extra-folders' in sys.argv:
 		if len(languages) == 1:
 			copy_to_folder(path, config.organized_output_folder, 'By language', sanitize_name(languages[0]) + ' only')
-				
+
 		filename_tags = launchers.get_array(desktop, 'X-Filename-Tags')
 		for tag in filename_tags:
 			copy_to_folder(path, config.organized_output_folder, 'By filename tag', sanitize_name(tag))
-					
+
 		for k, v in extra_subfolders.items():
 			move_into_extra_subfolder(path, desktop, k, v)
 
 def move_into_folders():
 	delete_existing_output_dir()
-	
+
 	for root, _, files in os.walk(config.output_folder):
 		for f in files:
 			if f.endswith('.desktop'):
 				path = os.path.join(root, f)
 				copy_to_folder(path, config.organized_output_folder, 'Ungrouped')
-			
+
 				move_into_subfolders(path)
 
 if __name__ == '__main__':

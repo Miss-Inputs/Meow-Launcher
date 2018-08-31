@@ -11,10 +11,10 @@ def parse_list_item(line, path):
 
 		name = match.group('name')
 		return {
-			'type': 'folder', 
-			'path': path + name, 
-			'name': name, 
-			'num_items': int(match.group('num_items')) if match.group('num_items') else 1, 
+			'type': 'folder',
+			'path': path + name,
+			'name': name,
+			'num_items': int(match.group('num_items')) if match.group('num_items') else 1,
 			'date': match.group('date')
 		}
 	elif line.lower().startswith('f'):
@@ -24,23 +24,23 @@ def parse_list_item(line, path):
 
 		name = match.group('name')
 		return {
-			'type': 'file', 
-			'path': path + name, 
-			'name': name, 
-			'data_size': int(match.group('data_size')), 
-			'resource_size': int(match.group('resource_size')), 
-			'file_type': match.group('type'), 
-			'creator': match.group('creator'), 
+			'type': 'file',
+			'path': path + name,
+			'name': name,
+			'data_size': int(match.group('data_size')),
+			'resource_size': int(match.group('resource_size')),
+			'file_type': match.group('type'),
+			'creator': match.group('creator'),
 			'date': match.group('date')
 		}
-	
+
 	raise Exception(line)
-	
+
 def list_inside_hfv(hfv_path, unescaped_name):
 	ls_proc = subprocess.run(['hls', '-l', hfv_path], stdout=subprocess.PIPE, encoding='mac-roman', universal_newlines=True)
 	if ls_proc.returncode != 0:
 		raise Exception('oh no %d' % ls_proc.returncode)
-	
+
 	for line in ls_proc.stdout.split('\n'):
 		if line:
 			yield parse_list_item(line, unescaped_name if unescaped_name else hfv_path)
@@ -61,13 +61,13 @@ def list_hfv(hfv_path):
 	mount_proc = subprocess.run(['hmount', hfv_path], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
 	if mount_proc.returncode != 0:
 		raise Exception(mount_proc.stderr)
-		
+
 	try:
 		pwd_proc = subprocess.run('hpwd', stdout=subprocess.PIPE, encoding='mac-roman')
 		pwd = pwd_proc.stdout.rstrip('\n')
-		
+
 		for f in list_recursively(pwd):
-			
+
 			yield f
 	finally:
 		umount_proc = subprocess.run('humount')

@@ -29,7 +29,7 @@ def add_peripherals_info(game, peripherals):
 	game.metadata.specific_info['Uses-Expanded-Analog-Horizontal'] = (peripherals & (1 << 23)) > 0
 	game.metadata.specific_info['Uses-Expanded-Analog-Vertical'] = (peripherals & (1 << 24)) > 0
 	game.metadata.specific_info['Supports-Keyboard'] = (peripherals & (1 << 25)) > 0
-		
+
 
 def add_info_from_main_track(game, track_path, sector_size):
 	try:
@@ -50,17 +50,17 @@ def add_info_from_main_track(game, track_path, sector_size):
 		game.metadata.specific_info['Hardware-ID'] = hardware_id
 		game.metadata.specific_info['Invalid-Hardware-ID'] = True
 		return
-	
+
 	try:
 		peripherals = int(header[56:64], 16)
 		add_peripherals_info(game, peripherals)
 	except ValueError:
 		pass
-	
+
 	game.metadata.product_code = header[64:74].decode('ascii', errors='backslashreplace').rstrip()
-	
+
 	release_date = header[80:96].decode('ascii', errors='backslashreplace').rstrip()
-	
+
 	try:
 		game.metadata.year = int(release_date[0:4])
 		game.metadata.month = calendar.month_name[int(release_date[4:6])]

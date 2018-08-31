@@ -22,14 +22,14 @@ game_boy_mappers = {
 	0: GameBoyMapper("ROM only"),
 	8: GameBoyMapper("ROM only", has_ram=True),
 	9: GameBoyMapper("ROM only", has_ram=True, has_battery=True),
-	
+
 	1: GameBoyMapper('MBC1'),
 	2: GameBoyMapper('MBC1', has_ram=True),
 	3: GameBoyMapper('MBC1', has_ram=True, has_battery=True),
-	
+
 	5: GameBoyMapper('MBC2'),
 	6: GameBoyMapper('MBC2', has_ram=True, has_battery=True),
-	
+
 	11: GameBoyMapper('MMM01'),
 	12: GameBoyMapper('MMM01', has_ram=True),
 	13: GameBoyMapper('MMM01', has_ram=True, has_battery=True),
@@ -56,7 +56,7 @@ game_boy_mappers = {
 	254: GameBoyMapper('HuC3'),
 	255: GameBoyMapper('HuC1', has_ram=True, has_battery=True),
 }
-		
+
 
 nintendo_logo_crc32 = 0x46195417
 def add_gameboy_metadata(game):
@@ -70,7 +70,7 @@ def add_gameboy_metadata(game):
 	nintendo_logo = header[4:0x34]
 	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_logo_crc32
 	game.metadata.specific_info['Nintendo-Logo-Valid'] = nintendo_logo_valid
-	
+
 	game.metadata.specific_info['SGB-Enhanced'] = header[0x46] == 3
 	if header[0x47] in game_boy_mappers:
 		mapper = game_boy_mappers[header[0x47]]
@@ -80,7 +80,7 @@ def add_gameboy_metadata(game):
 		game.metadata.specific_info['Has-RTC'] = mapper.has_rtc
 		if mapper.has_accelerometer:
 			player.inputs.append(InputType.MotionControls)
-	
+
 	#Can get product code from header[0x3f:0x43] if and only if it exists. It might not, it's only for newer games. Has to exist for GBC only games, but then homebrew doesn't follow your rules of course.
 	game.metadata.specific_info['Destination-Code'] = header[0x4a]
 	#0 means Japan and 1 means not Japan. Not sure how reliable that is.
@@ -102,7 +102,7 @@ def add_gameboy_metadata(game):
 		elif licensee_code != '00':
 			game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(licensee_code)
 	game.metadata.revision = header[0x4c]
-	
+
 	if game.rom.extension == 'gbc':
 		game.metadata.platform = 'Game Boy Color'
 

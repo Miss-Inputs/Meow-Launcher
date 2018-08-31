@@ -10,7 +10,7 @@ def add_commodore_64_metadata(game):
 		if cart_type == 15:
 			game.metadata.platform = 'C64GS'
 	else:
-		headered = False	
+		headered = False
 
 	game.metadata.specific_info['Headered'] = headered
 

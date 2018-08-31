@@ -27,14 +27,14 @@ def add_ds_system_info(game):
 	top_screen.type = 'lcd'
 	top_screen.tag = 'top'
 	top_screen.refresh_rate = 59.8261
-	
+
 	bottom_screen = Screen()
 	bottom_screen.width = 256
 	bottom_screen.height = 192
 	bottom_screen.type = 'lcd'
 	bottom_screen.tag = 'bottom'
 	bottom_screen.refresh_rate = 59.8261
-	
+
 	screen_info = ScreenInfo()
 	screen_info.screens = [top_screen, bottom_screen]
 	game.metadata.screen_info = screen_info
@@ -45,12 +45,12 @@ def convert_ds_colour_to_rgba(colour, is_transparent):
 	red = (colour & 0b_00000_00000_11111) << 3
 	green = (colour & 0b_00000_11111_00000) >> 2
 	blue = (colour & 0b_11111_00000_00000) >> 7
-	
+
 	return (red, green, blue, 0 if is_transparent else 0xff)
 
 def decode_icon(bitmap, palette):
 	icon = Image.new('RGBA', (32, 32))
-	
+
 	rgb_palette = [None] * 16
 	for i, colour in enumerate(palette):
 		rgb_palette[i] = convert_ds_colour_to_rgba(colour, i == 0)
@@ -87,7 +87,7 @@ def add_ds_metadata(game):
 	add_ds_system_info(game)
 
 	header = game.rom.read(amount=0x200)
-	
+
 	try:
 		product_code = convert_alphanumeric(header[12:16])
 		game.metadata.product_code = product_code

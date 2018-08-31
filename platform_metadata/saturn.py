@@ -38,14 +38,14 @@ def add_saturn_info(game, header):
 		pass
 
 	release_date = header[48:56].decode('ascii', errors='backslashreplace').rstrip()
-	
+
 	try:
 		game.metadata.year = int(release_date[0:4])
 		game.metadata.month = calendar.month_name[int(release_date[4:6])]
 		game.metadata.day = int(release_date[6:8])
 	except ValueError:
 		pass
-	
+
 
 def add_saturn_metadata(game):
 	if game.rom.extension == 'cue':

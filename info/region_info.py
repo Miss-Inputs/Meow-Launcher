@@ -52,10 +52,10 @@ languages = [
 	Language('Chinese', '中文', 'Zh'),
 	Language('Korean', '한국인', 'Ko'),
 	Language('Polish', 'Polskie', 'Pl'),
-	
+
 	Language('Russian', 'Pусский', 'Ru'),
 	Language('Greek', 'ελληνικά', 'El'),
-	Language('Indonesian', 'Bahasa Indonesia', 'In'), 
+	Language('Indonesian', 'Bahasa Indonesia', 'In'),
 	#There's Malay as well, which apparently involves "macrolanguages", so I'm confused. I just hope this is the right thing here
 	Language('Turkish', 'Türkçe', 'Tr'),
 	Language('Czech', 'Čeština', 'Cs'),
@@ -86,7 +86,7 @@ regions = [
 	Region('Indonesia', 'ID', TVSystem.PAL, 'Indonesian'),
 	Region('Italy', 'IT', TVSystem.PAL, 'Italian'),
 	Region('Japan', 'JP', TVSystem.NTSC, 'Japanese'),
-	Region('Korea', 'KR', TVSystem.NTSC, 'Korean'), 
+	Region('Korea', 'KR', TVSystem.NTSC, 'Korean'),
 	#For the purpose of video games, we can assume South Korea is the only Korea and North Korea doesn't exist. Oof, that sounds horrible, doesn't it? (If North Korea ever does have games, they use PAL)
 	Region('Netherlands', 'NL', TVSystem.PAL, 'Dutch'),
 	Region('Norway', 'NO', TVSystem.PAL, 'Norwegian'),
@@ -100,6 +100,6 @@ regions = [
 	Region('UK', 'GB', TVSystem.PAL, 'English'),
 	Region('USA', 'US', TVSystem.NTSC, 'English'),
 
-	Region('World', None, TVSystem.Agnostic, None), 
+	Region('World', None, TVSystem.Agnostic, None),
 	#Though it's probably in English; No-Intro uses this as shorthand for (Japan, USA, Europe) because nobody told them that's not the only three regions in the world. It is safe to say that anything released in those three regions would indeed need to be TV-agnostic though
 ]

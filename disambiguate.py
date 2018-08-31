@@ -26,9 +26,9 @@ def update_name(desktop, disambiguator, disambiguation_method):
 	else:
 		entry['X-Disambiguator'] += ';' + disambiguator
 	entry['Name'] += ' ' + disambiguator
-		
+
 	writer = configparser.ConfigParser(interpolation=None)
-	writer.optionxform = str 
+	writer.optionxform = str
 	#You don't fucking understand .desktop files are case sensitive you're fucking
 	#them up by fucking up the case for fucks sake stop it who asked you to do
 	#that you stupid fuckwit
@@ -41,7 +41,7 @@ def resolve_duplicates_by_metadata(group, field, format_function=None, ignore_mi
 	for dup in group:
 		field_value = launchers.get_field(dup[1], field)
 		name = launchers.get_field(dup[1], 'Name')
-			
+
 		#See if this launcher is unique in this group (of launchers with the same
 		#name) for its field.  If it's the only launcher for this field, we can
 		#use Thing (Field) as the final display name to avoid ambiguity
@@ -62,7 +62,7 @@ def resolve_duplicates_by_metadata(group, field, format_function=None, ignore_mi
 				#need to append the field to disambiguate it from other stuff
 				if field_value != name and field_value is not None:
 					should_update = True
-		
+
 		if should_update:
 			if ignore_missing_values:
 				#In this case, check if the other values we're disambiguating against are all None
@@ -70,21 +70,21 @@ def resolve_duplicates_by_metadata(group, field, format_function=None, ignore_mi
 				rest_of_counter = list({k for k in value_counter.keys() if k != field_value})
 				if len(rest_of_counter) == 1 and rest_of_counter[0] is None:
 					return
-				
+
 			update_name(dup, format_function(field_value) if format_function else '({0})'.format(field_value), field)
-				
+
 def resolve_duplicates_by_filename_tags(group):
 	for dup in group:
 		the_rest = [d for d in group if d[0] != dup[0]]
 		tags = launchers.get_array(dup[1], 'X-Filename-Tags')
-		
+
 		differentiator_candidates = []
-		
+
 		rest_tags = [launchers.get_array(rest[1], 'X-Filename-Tags') for rest in the_rest]
 		for tag in tags:
 			if not all([tag in rest_tag for rest_tag in rest_tags]):
 				differentiator_candidates.append(tag)
-		
+
 		if differentiator_candidates:
 			update_name(dup, ' '.join(differentiator_candidates), 'tags')
 
@@ -106,7 +106,7 @@ def resolve_duplicates_by_date(group):
 		day = launchers.get_field(dup[1], 'X-Day')
 		if year is None or (year is None and month is None and day is None):
 			continue
-			
+
 		disambiguator = {'Day': None, 'Month': None, 'Year': None}
 		disambiguated = False
 		if year_counter[year] != len(group):
@@ -114,8 +114,8 @@ def resolve_duplicates_by_date(group):
 			if year is None:
 				disambiguator['Year'] = '(No year)'
 			else:
-				disambiguator['Year'] = year			
-		
+				disambiguator['Year'] = year
+
 		if month_counter[month] != len(group):
 			disambiguated = True
 			if month is None:
@@ -141,7 +141,7 @@ def resolve_duplicates_by_date(group):
 				if disambiguator['Year'] is None:
 					continue
 				date_string = year_disambig
-			
+
 			update_name(dup, '(' + date_string + ')', 'date')
 
 def resolve_duplicates(group, method, format_function=None, ignore_missing_values=None):
@@ -167,7 +167,7 @@ def normalize_name(name):
 	name = name.replace('é', 'e')
 	name = name.replace('!', '')
 	name = name.replace('dr. ', 'dr ')
-	
+
 	return name
 
 def fix_duplicate_names(method, format_function=None, ignore_missing_values=None):
@@ -193,12 +193,12 @@ def fix_duplicate_names(method, format_function=None, ignore_missing_values=None
 def revision_disambiguate(rev):
 	if rev == '0':
 		return None
-	
+
 	if rev.isdigit() and len(rev) == 1:
 		return '(Rev ' + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[int(rev) - 1] + ')'
 
 	return '(Rev {0})'.format(rev)
-	
+
 def disambiguate_names():
 	fix_duplicate_names('X-Platform')
 	fix_duplicate_names('dev-status')
