@@ -359,6 +359,7 @@ def mame_sharp_x68000(game, _):
 
 def mame_fm_towns_marty(game, _):
 	slot_options = {
+		#Don't need hard disks here
 		'scsi:1': '',
 		'scsi:2': '',
 		'scsi:3': '',
@@ -370,7 +371,7 @@ def mame_fm_towns_marty(game, _):
 		slot = 'flop1'
 	else:
 		slot = 'cdrom'
-	return mame_command_line('fmtmarty', slot)
+	return mame_command_line('fmtmarty', slot, slot_options)
 
 def mupen64plus(game, _):
 	#TODO: Do I reaaaaaaally need that
