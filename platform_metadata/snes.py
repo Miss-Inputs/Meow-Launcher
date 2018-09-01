@@ -308,7 +308,6 @@ def add_snes_metadata(game):
 		parse_sufami_turbo_header(game)
 
 	#TODO: Some larger SNES carts are split into multiple ROMs in the software list. But then some aren't. Alright, so maybe it's not because of size.. but see Donkey Kong Country (Europe) for example
-	#Worth doing sharedfeat compatibility = NTSC or PAL here?
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
