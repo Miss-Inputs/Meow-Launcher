@@ -60,7 +60,8 @@ more_subfolders = {
 }
 
 extra_subfolders = {
-#These subfolders are enabled with an optional argument because most people wouldn't have any use for them (or would they? I'm just presuming they're of interest to people like me only)
+	#These subfolders are enabled with an optional argument because most people wouldn't have any use for them (or would they? I'm just presuming they're of interest to people like me only)
+	#TODO: Can we at least _try_ and keep this organized
 	'By MAME emulation status': 'X-MAME-Emulation-Status',
 	'By emulator used': 'X-Emulator',
 	'By input method': 'X-Input-Methods',
@@ -86,6 +87,7 @@ extra_subfolders = {
 	'By expansion chip': 'X-Expansion-Chip',
 	'By regions': 'X-Regions',
 	'By genre and input method': ['X-Genre', 'X-Input-Methods'],
+	'Is mechanical': 'X-Is-Mechanical',
 	'Has header': 'X-Headered',
 	'Has icon': 'Icon',
 	'Has force feedback': 'X-Force-Feedback',
