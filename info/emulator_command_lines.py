@@ -396,7 +396,6 @@ def mupen64plus(game, _):
 	environment_variables = {'MESA_GL_VERSION_OVERRIDE': '3.3COMPAT'}
 
 	if game.metadata.specific_info.get('ROM-Format', None) == 'Unknown':
-		print('shoop da woop', game.rom.path)
 		return None
 
 	command_line = 'mupen64plus --nosaveoptions --fullscreen $<path>'
