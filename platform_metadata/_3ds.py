@@ -87,8 +87,8 @@ def parse_ncch(game, offset):
 	#logo_region_length = (int.from_bytes(header[152:156], 'little') * media_unit)
 	exefs_offset = (int.from_bytes(header[156:160], 'little') * media_unit) + offset
 	exefs_length = (int.from_bytes(header[160:164], 'little') * media_unit)
-	#romfs_offset = (int.from_bytes(header[164:168], 'little') * media_unit) + offset
-	#romfs_length = (int.from_bytes(header[168:172], 'little') * media_unit)
+	#romfs_offset = (int.from_bytes(header[172:176], 'little') * media_unit) + offset
+	#romfs_length = (int.from_bytes(header[176:180], 'little') * media_unit)
 
 	if plain_region_length:
 		parse_plain_region(game, plain_region_offset, plain_region_length)
