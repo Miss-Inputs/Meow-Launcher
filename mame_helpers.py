@@ -11,7 +11,7 @@ def consistentify_manufacturer(manufacturer):
 	#If only there was some consistent guidelines to follow in this, and nintendo_common/sega_common/wonderswan etc...
 
 	#TODO: Are ATW > ATW USA Inc. the same or a regional branch?
-	#Should NEC Avenue and NEC Home Electronics just be called NEC?
+	#Should NEC Avenue just be called NEC?
 	#Should Sony Computer Entertainment Inc and Sony Imagesoft be just Sony?
 	#Toshiba EMI > Toshiba?
 	#Are CBS Electronics and CBS Software the same? Seems like they're both owned by CBS the American TV company, the former is for various Atari 2600/5200/7800 games they published and distributing the ColecoVision outside USA; and the latter is basically licensed Sesame Street games?
@@ -25,6 +25,7 @@ def consistentify_manufacturer(manufacturer):
 	#Leave Atari Games > Atari and Midway Games > Midway alone, because if I try to comperehend the timeline of which is what and who owned the rights to which brand name and who owned who at any given time, I would die of confusion
 	#Marvelous Entertainment and Marvelous Interactive also are different (due to mergers) and I gotta remember that
 	return {
+		'20th Century Fox Video Games': '20th Century Fox',
 		'Absolute': 'Absolute Entertainment',
 		'Absolute Entertainment, Inc': 'Absolute Entertainment',
 		'Absolute Entertainment, Inc.': 'Absolute Entertainment',
@@ -44,12 +45,14 @@ def consistentify_manufacturer(manufacturer):
 		'Dempa Shinbunsha': 'Dempa',
 		'Disney Interactive': 'Disney',
 		'Disney Interactive Studios': 'Disney',
+		'Dreamworks Games': 'DreamWorks',
 		'DSI Games': 'Destination Software', #They kinda go by both, actually...
 		'dtp Entertainment': 'Digital Tainment Pool', #Yeah, they also go by both...
 		'Eidos Interactive': 'Eidos',
 		'Elite': 'Elite Systems',
 		'Entex Industries': 'Entex',
 		'First Star': 'First Star Software',
+		'Gremlin Interactive': 'Gremlin Graphics',
 		'HAL Kenkyuujo': 'HAL', #Literally "HAL Laboratory"
 		'HAL Laboratory': 'HAL',
 		'Hasbro Interactive': 'Hasbro',
@@ -57,6 +60,7 @@ def consistentify_manufacturer(manufacturer):
 		'Hudson': 'Hudson Soft',
 		'Human Entertainment': 'Human',
 		'International Business Machines': 'IBM',
+		'INTV Corp.': 'INTV',
 		'JoWooD Entertainment AG': 'JoWooD Entertainment',
 		'Kaneko Elc. Co.': 'Kaneko',
 		'Laser Beam': 'Laser Beam Entertainment',
@@ -65,6 +69,7 @@ def consistentify_manufacturer(manufacturer):
 		'Mattel Interactive': 'Mattel',
 		'Mattel Media': 'Mattel',
 		'MicroCabin': 'Micro Cabin', #Annoying alternate spelling because they officially use both just to be annoying
+		'NEC Home Electronics': 'NEC',
 		'Nihon Telenet': 'Telenet', #I guess
 		'Nihon Bussan': 'Nichibutsu', #C'mon, use their preferred name
 		'Ocean Software': 'Ocean',
