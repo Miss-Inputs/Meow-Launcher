@@ -392,13 +392,7 @@ def mame_atari_jaguar(game, _):
 	return mame_command_line('jaguar', slot)
 
 def mupen64plus(game, _):
-	#TODO: Do I reaaaaaaally need that
-	environment_variables = {'MESA_GL_VERSION_OVERRIDE': '3.3COMPAT'}
-
 	if game.metadata.specific_info.get('ROM-Format', None) == 'Unknown':
 		return None
 
-	command_line = 'mupen64plus --nosaveoptions --fullscreen $<path>'
-	if environment_variables:
-		command_line = 'env {0} {1}'.format(' '.join(['{0}={1}'.format(k, v) for k, v in environment_variables.items()]), command_line)
-	return command_line
+	return 'mupen64plus --nosaveoptions --fullscreen $<path>'
