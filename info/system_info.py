@@ -66,6 +66,8 @@ systems = [
 	#Obscure systems (<1M units sold), just for the sake of making that list less messy
 	#Uzebox is a homebrew thing and not really a commercial product, so it doesn't really have numbers. But it probably counts as obscure.
 	#Can't really find numbers on Atari 7800 and Neo Geo Pocket, but they aren't obscure... right?
+	System('Amiga CD32', 'cd32', ['cd32', 'cdtv'], ['FS-UAE']),
+	#Meh, I'll consider it a separate thing I guess
 	System('Amstrad GX4000', 'gx4000', ['gx4000'], ['MAME (Amstrad GX4000)', 'MAME (Amstrad CPC+)']),
 	System('APF-MP1000', 'apfm1000', ['apfm1000'], ['MAME (APF-MP1000)']),
 	System('Arcadia 2001', 'arcadia', ['arcadia'], ['MAME (Arcadia 2001)']),
@@ -224,8 +226,6 @@ systems = [
 	System('Acorn Electron', 'electron', ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], []),
 	System('Amiga', 'a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench'], []),
 	#MAME is known to not work here, need to try some UAE fork
-	System('Amiga CD32', 'cd32', ['cd32', 'cdtv'], []),
-	#Meh, I'll consider it a separate thing I guess
 	System('Amstrad CPC', 'cpc464', ['cpc_cass', 'cpc_flop'], []),
 	#The not-plus one (probably will need to switch to cpc664/cpc6128 for flopppy stuff)
 	System('Apple I', 'apple1', ['apple1'], []),
