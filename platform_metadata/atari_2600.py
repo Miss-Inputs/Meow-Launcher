@@ -1,7 +1,7 @@
 import re
 import subprocess
 
-from metadata import SaveType, PlayerInput, InputType
+from metadata import SaveType, InputType
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
 
@@ -67,49 +67,44 @@ def add_controller_info(game, controller):
 	if not controller:
 		return
 
-	player = PlayerInput()
-	player.buttons = 1
+	game.metadata.input_info.buttons = 1
 	if controller in ('PADDLES', 'PADDLES_IAXIS', 'PADDLES_IAXDR'):
-		player.inputs = [InputType.Paddle]
+		game.metadata.input_info.inputs = [InputType.Paddle]
 		#Paddles come in pairs and hence have 2 players per port
-		game.metadata.input_info.players += [player] * 2
-		return
 	elif controller == 'JOYSTICK':
-		player.inputs = [InputType.Digital]
+		game.metadata.input_info.inputs = [InputType.Digital]
 	elif controller in ('AMIGAMOUSE', 'ATARIMOUSE'):
 		#ATARIMOUSE is an ST mouse, to be precise
 		#TODO: Should differentiate between AMIGAMOUSE and ATARIMOUSE? Maybe that's needed for something
-		player.buttons = 2
-		player.inputs = [InputType.Mouse]
+		game.metadata.input_info.buttons = 2
+		game.metadata.input_info.inputs = [InputType.Mouse]
 	elif controller == 'TRAKBALL':
-		#Reminder to not do player.buttons = 2, while it does have 2 physical buttons, they're just to make it ambidextrous; they function as the same single button
-		player.inputs = [InputType.Trackball]
+		#Reminder to not do .buttons = 2, while it does have 2 physical buttons, they're just to make it ambidextrous; they function as the same single button
+		game.metadata.input_info.inputs = [InputType.Trackball]
 	elif controller == 'KEYBOARD':
 		#The Keyboard Controller is actually a keypad, go figure. Actually, it's 2 keypads, go figure twice. BASIC Programming uses both at once and Codebreakers uses them separately for each player, so there's not really anything else we can say here.
-		player.buttons = 12
-		player.inputs = [InputType.Keypad]
+		game.metadata.input_info.buttons = 12
+		game.metadata.input_info.inputs = [InputType.Keypad]
 	elif controller in 'COMPUMATE':
 		#The CompuMate is a whole dang computer, not just a keyboard. But I guess it's the same sorta thing
-		player.buttons = 42
-		player.inputs = [InputType.Keyboard]
+		game.metadata.input_info.buttons = 42
+		game.metadata.input_info.inputs = [InputType.Keyboard]
 	elif controller == 'GENESIS':
-		player.buttons = 3
+		game.metadata.input_info.buttons = 3
 		#TODO: Do I really need that specific info or do I wanna just do buttons = 3 to detect that?
 		game.metadata.specific_info['Uses-Genesis-Controller'] = True
-		player.inputs = [InputType.Digital]
+		game.metadata.input_info.inputs = [InputType.Digital]
 	elif controller == 'BOOSTERGRIP':
-		player.buttons = 3 #There are two on the boostergrip, but it passes through to the 2600 controller
+		game.metadata.input_info.buttons = 3 #There are two on the boostergrip, but it passes through to the 2600 controller
 		game.metadata.specific_info['Uses-Boostergrip'] = True
-		player.inputs = [InputType.Digital]
+		game.metadata.input_info.inputs = [InputType.Digital]
 	elif controller == 'DRIVING':
 		#Has 360 degree movement, so not quite like a paddle. MAME actually calls it a trackball
-		player.inputs = [InputType.SteeringWheel]
+		game.metadata.input_info.inputs = [InputType.SteeringWheel]
 	elif controller == 'MINDLINK':
-		player.inputs = [InputType.Biological]
+		game.metadata.input_info.inputs = [InputType.Biological]
 	else:
-		player.inputs = [InputType.Custom]
-
-	game.metadata.input_info.players.append(player)
+		game.metadata.input_info.inputs = [InputType.Custom]
 
 def parse_stella_db(game, game_info):
 	#TODO: Get year out of name
@@ -168,8 +163,6 @@ def parse_stella_db(game, game_info):
 
 _stella_db = None
 def add_atari_2600_metadata(game):
-	game.metadata.input_info.console_buttons = 2 #Select and Reset
-
 	global _stella_db
 	#Python, you're officially a fucking dumbarse. Of course that's a fucking global variable. It is right there. Two lines above here. In the global fucking scope.
 	if _stella_db is None:

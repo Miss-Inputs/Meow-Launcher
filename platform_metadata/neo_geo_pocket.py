@@ -1,13 +1,11 @@
 from info.region_info import TVSystem
-from metadata import PlayerInput, InputType
+from metadata import InputType
 from software_list_info import get_software_list_entry
 
 def add_ngp_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
-	player = PlayerInput()
-	player.inputs = [InputType.Digital]
-	player.buttons = 3 #A B Option (Option is just Start really but they have to be special and unique and not like the other girls)
-	game.metadata.input_info.players.append(player)
+	game.metadata.input_info.inputs = [InputType.Digital]
+	game.metadata.input_info.buttons = 2 #A B, also Option (Option is just Start really but they have to be special and unique and not like the other girls)
 
 	header = game.rom.read(amount=64)
 	copyright_string = header[:28].decode('ascii', errors='ignore')

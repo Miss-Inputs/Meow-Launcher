@@ -3,7 +3,7 @@ import re
 import sys
 
 import config
-from metadata import EmulationStatus, CPUInfo, ScreenInfo, PlayerInput, InputType, SaveType
+from metadata import EmulationStatus, CPUInfo, ScreenInfo, InputType, SaveType
 from region_detect import get_language_by_english_name, get_regions_from_filename_tags
 from common import find_filename_tags
 from mame_helpers import find_main_cpu, consistentify_manufacturer
@@ -169,8 +169,7 @@ def add_metadata(machine):
 		machine.metadata.specific_info['MAME-Emulation-Status'] = EmulationStatus.Broken
 
 def add_input_info(machine):
-	#TODO: Yeah, yeah... should actually have a setter on the class
-	machine.metadata.input_info._known = True
+	machine.metadata.input_info.set_known()
 	input_element = machine.xml.find('input')
 	if input_element is None:
 		#Seems like this doesn't actually happen
@@ -179,94 +178,75 @@ def add_input_info(machine):
 		return
 
 	if 'players' not in input_element.attrib:
+		machine.metadata.specific_info['Probably-Skeleton-Driver'] = True
 		return
 
 	num_players = int(input_element.attrib['players'])
 	if num_players == 0:
+		machine.metadata.specific_info['Probably-Skeleton-Driver'] = True
 		return
 
-	if machine.metadata.platform == 'Arcade':
-		#We shouldn't assume this, but let's assume that all arcade games have one coin slot and one start button, although that's not necessarily the case anyway.
-		#If it's some other kind of system, feels like I'm assuming nothing at all
-		machine.metadata.input_info.console_buttons += 2
-
-	for i in range(num_players):
-		machine.metadata.input_info.players.append(PlayerInput())
+	machine.metadata.specific_info['Number-of-Players'] = num_players
 
 	control_elements = input_element.findall('control')
 	if not control_elements:
 		#Sometimes you get some games with 1 or more players, but no control type defined.  This usually happens with
 		#pinball games and weird stuff like a clock, but also some genuine games like Crazy Fight that are more or less
 		#playable just fine, so we'll leave them in
-		for i in range(num_players):
-			machine.metadata.input_info.players[i].inputs = [InputType.Custom]
+		machine.metadata.input_info.inputs = [InputType.Custom]
 		return
 
+	buttons_set = False
 	for control in control_elements:
-		player_num = 1
-		#The player number isn't really specified if there's only one, so assume player 1 by default
-		if 'player' in control.attrib:
-			player_num = int(control.attrib['player'])
-		player = machine.metadata.input_info.players[player_num - 1]
-
 		buttons = 0
-		if 'buttons' in control.attrib:
+		if 'buttons' in control.attrib and not buttons_set:
 			buttons = int(control.attrib['buttons'])
 
+		machine.metadata.input_info.buttons = buttons
+		buttons_set = True
+
 		#TODO: This very much needs some refactoring, I just can't really brain think at the moment
+		#Yeah, still can't
 		input_type = control.attrib['type']
 		if input_type == 'only_buttons':
-			player.buttons += buttons
+			pass
 		elif input_type == 'joy':
-			player.buttons += buttons
-			player.inputs.append(InputType.Digital)
+			machine.metadata.input_info.inputs.append(InputType.Digital)
 		elif input_type == 'doublejoy':
-			player.buttons += buttons
-			player.inputs += [InputType.Digital] * 2
+			machine.metadata.input_info.inputs += [InputType.Digital] * 2
 		elif input_type == 'triplejoy':
-			player.buttons += buttons
-			player.inputs += [InputType.Digital] * 3
+			machine.metadata.input_info.inputs += [InputType.Digital] * 3
 		elif input_type == 'paddle':
-			player.buttons += buttons
 			if machine.metadata.genre == 'Driving':
 				#Yeah this looks weird and hardcody and dodgy but am I wrong
-				player.inputs.append(InputType.SteeringWheel)
+				machine.metadata.input_info.inputs.append(InputType.SteeringWheel)
 			else:
-				player.inputs.append(InputType.Paddle)
+				machine.metadata.input_info.inputs.append(InputType.Paddle)
 		elif input_type == 'stick':
-			player.buttons += buttons
-			player.inputs.append(InputType.Analog)
+			machine.metadata.input_info.inputs.append(InputType.Analog)
 		elif input_type == 'pedal':
-			player.buttons += buttons
-			player.inputs.append(InputType.Pedal)
+			machine.metadata.input_info.inputs.append(InputType.Pedal)
 		elif input_type == 'lightgun':
-			player.buttons += buttons
 			#TODO: See if we can be clever and detect if this is actually a touchscreen, like platform = handheld or something
-			player.inputs.append(InputType.LightGun)
+			machine.metadata.input_info.inputs.append(InputType.LightGun)
 		elif input_type == 'positional':
-			player.buttons += buttons
 			#What _is_ a positional exactly
-			player.inputs.append(InputType.Positional)
+			machine.metadata.input_info.inputs.append(InputType.Positional)
 		elif input_type == 'dial':
-			player.buttons += buttons
-			player.inputs.append(InputType.Dial)
+			machine.metadata.input_info.inputs.append(InputType.Dial)
 		elif input_type == 'trackball':
-			player.buttons += buttons
-			player.inputs.append(InputType.Trackball)
+			machine.metadata.input_info.inputs.append(InputType.Trackball)
 		elif input_type == 'mouse':
-			player.buttons += buttons
-			player.inputs.append(InputType.Mouse)
+			machine.metadata.input_info.inputs.append(InputType.Mouse)
 		elif input_type == 'keypad':
-			player.inputs.append(InputType.Keypad)
+			machine.metadata.input_info.inputs.append(InputType.Keypad)
 		elif input_type == 'keyboard':
-			player.inputs.append(InputType.Keyboard)
+			machine.metadata.input_info.inputs.append(InputType.Keyboard)
 		elif input_type == 'mahjong':
-			player.inputs.append(InputType.Mahjong)
+			machine.metadata.input_info.inputs.append(InputType.Mahjong)
 		elif input_type == 'hanafuda':
-			player.inputs.append(InputType.Hanafuda)
+			machine.metadata.input_info.inputs.append(InputType.Hanafuda)
 		elif input_type == 'gambling':
-			player.buttons += buttons
-			player.inputs.append(InputType.Gambling)
+			machine.metadata.input_info.inputs.append(InputType.Gambling)
 		else:
-			player.buttons += buttons
-			player.inputs.append(InputType.Custom)
+			machine.metadata.input_info.inputs.append(InputType.Custom)

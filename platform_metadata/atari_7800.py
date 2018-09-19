@@ -1,6 +1,6 @@
 import sys
 
-from metadata import SaveType, InputType, PlayerInput
+from metadata import SaveType, InputType
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
 
@@ -15,26 +15,26 @@ input_types = {
 
 def _add_atari_7800_header_info(game, header):
 	left_input_type = header[55]
-	right_input_type = header[56]
+#	right_input_type = header[56]
 	if left_input_type != 0:
-		player = PlayerInput()
 		if left_input_type in input_types:
 			input_type, buttons = input_types[left_input_type]
-			player.buttons = buttons
-			player.inputs = [input_type]
+			game.metadata.input_info.buttons = buttons
+			game.metadata.input_info.inputs = [input_type]
 		else:
-			player.inputs = [InputType.Custom]
-		game.metadata.input_info.players.append(player)
-	if right_input_type != 0:
-		#TODO: Refactor to avoid duplication
-		player = PlayerInput()
-		if right_input_type in input_types:
-			input_type, buttons = input_types[right_input_type]
-			player.buttons = buttons
-			player.inputs = [input_type]
-		else:
-			player.inputs = [InputType.Custom]
-		game.metadata.input_info.players.append(player)
+			game.metadata.input_info.inputs = [InputType.Custom]
+
+	#TODO: Figure out which controller port is used here
+
+	#if right_input_type != 0:
+	#	#TODO: Refactor to avoid duplication
+	#	if right_input_type in input_types:
+	#		input_type, buttons = input_types[right_input_type]
+	#		game.metadata.input_info.buttons = buttons
+	#		game.metadata.input_info.inputs = [input_type]
+	#	else:
+	#		game.metadata.input_info.inputs = [InputType.Custom]
+	#	game.metadata.input_info.players.append(player)
 
 	tv_type = header[57]
 
@@ -61,8 +61,6 @@ def _add_atari_7800_header_info(game, header):
 		print(game.rom.path, 'has save type byte of ', save_type)
 
 def add_atari_7800_metadata(game):
-	game.metadata.input_info.console_buttons = 3 #Pause, select, reset
-
 	header = game.rom.read(amount=128)
 	if header[1:10] == b'ATARI7800':
 		headered = True

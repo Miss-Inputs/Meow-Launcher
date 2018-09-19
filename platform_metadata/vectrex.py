@@ -1,15 +1,13 @@
 from info.region_info import TVSystem
 from common import convert_alphanumeric, NotAlphanumericException
-from metadata import PlayerInput, InputType
+from metadata import InputType
 from software_list_info import get_software_list_entry
 
 def add_vectrex_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
-	player = PlayerInput()
-	player.buttons = 4
-	player.inputs = [InputType.Analog]
+	game.metadata.input_info.buttons = 4
+	game.metadata.input_info.inputs = [InputType.Analog]
 	#TODO: There's also a light pen
-	game.metadata.input_info.players += [player] * 2
 
 	software = get_software_list_entry(game)
 	if software:

@@ -4,7 +4,7 @@ import os
 import configparser
 
 import launchers
-from metadata import Metadata, PlayerInput, InputType, SaveType
+from metadata import Metadata, InputType, SaveType
 
 config_path = os.path.expanduser('~/.config/scummvm/scummvm.ini')
 
@@ -17,9 +17,7 @@ class ScummVMGame():
 		name = self.options.get('description', self.name)
 		command = 'scummvm -f {0}'.format(self.name)
 		metadata = Metadata()
-		player = PlayerInput()
-		player.inputs = [InputType.Mouse, InputType.Keyboard] #Can use gamepad if you enable it
-		metadata.input_info.players.append(player)
+		metadata.input_info.inputs = [InputType.Mouse, InputType.Keyboard] #Can use gamepad if you enable it
 		metadata.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
 		#TODO: publisher, categories, languages, nsfw, regions, subgenre, year... somehow
 		#Others are left deliberately blank because they refer to emulators and not engines

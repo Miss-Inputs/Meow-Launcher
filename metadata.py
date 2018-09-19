@@ -138,10 +138,16 @@ class InputType(Enum):
 	Trackball = auto()
 	Custom = auto()
 
-class PlayerInput():
+class InputInfo():
 	def __init__(self):
-		self.buttons = 0
 		self.inputs = []
+		self.buttons = None
+		self._known = False
+
+	@property
+	def known(self):
+		#Need a better name for this. Basically determines if this has been initialized and hence the information is not missing
+		return self.inputs or self.buttons or self._known
 
 	@property
 	def is_standard(self):
@@ -167,6 +173,9 @@ class PlayerInput():
 
 		return self.buttons > 0 and self.buttons <= 6
 
+	def set_known(self):
+		self._known = True
+
 	def describe(self):
 		if self.is_standard:
 			return ['Standard']
@@ -185,29 +194,6 @@ class PlayerInput():
 			else:
 				description.add(my_input.name)
 		return list(description)
-
-class InputInfo():
-	def __init__(self):
-		self.players = []
-		self.console_buttons = 0
-		self._known = False
-
-	@property
-	def known(self):
-		return self.players or self.console_buttons or self._known
-
-	@property
-	def player_buttons(self):
-		if self.players:
-			return max(player.buttons for player in self.players)
-		return 0
-
-	def describe(self):
-		if not self.players:
-			return 'Nothing'
-
-		#This flatten syntax hurts my brain immensely
-		return list({input for player in self.players for input in player.describe()})
 
 class Metadata():
 	def __init__(self):
@@ -279,9 +265,7 @@ class Metadata():
 			fields['Screen-Tag'] = self.screen_info.get_display_tags()
 
 		if self.input_info.known:
-			fields['Number-of-Players'] = len(self.input_info.players)
-			fields['Number-of-Buttons'] = self.input_info.player_buttons
-			fields['Console-Buttons'] = self.input_info.console_buttons
+			fields['Number-of-Buttons'] = self.input_info.buttons
 			fields['Input-Methods'] = self.input_info.describe()
 
 		for k, v in self.specific_info.items():

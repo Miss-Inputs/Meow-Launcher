@@ -4,7 +4,7 @@ from datetime import datetime
 import os
 
 import cd_read
-from metadata import SaveType, PlayerInput, InputType
+from metadata import SaveType, InputType
 from software_list_info import get_software_list_entry
 from .sega_common import licensee_codes
 
@@ -55,39 +55,37 @@ def add_megadrive_info(game, header):
 		pass
 	#Checksum: header[142:144]
 
-	game.metadata.input_info.console_buttons = 1 #Reset button counts as a button because games can use it apparently
-	player = PlayerInput()
-	player.buttons = 3
+	game.metadata.input_info.buttons = 3
 	peripherals = [c for c in header[144:160].decode('ascii', errors='ignore') if c != '\x00' and c != ' ']
-	num_players = 2 #Assumed, becuase we can't really tell if it's 1 or 2 players
 	#TODO: Whoops I can't have a single amount of buttons for all inputs I need to rethink everything including what I'm doing with my life
 	if set(peripherals) <= acceptable_peripherals:
 		if 'M' in peripherals:
-			player.inputs.append(InputType.Mouse)
+			game.metadata.input_info.inputs.append(InputType.Mouse)
 		elif 'V' in peripherals:
-			player.inputs.append(InputType.Paddle)
+			game.metadata.input_info.inputs.append(InputType.Paddle)
 		elif 'A' in peripherals:
-			player.inputs.append(InputType.Analog)
+			game.metadata.input_info.inputs.append(InputType.Analog)
 		elif 'G' in peripherals:
-			player.inputs.append(InputType.LightGun)
+			game.metadata.input_info.inputs.append(InputType.LightGun)
 		elif 'K' in peripherals:
-			player.inputs.append(InputType.Keyboard)
+			game.metadata.input_info.inputs.append(InputType.Keyboard)
 		elif 'J' in peripherals:
-			player.inputs.append(InputType.Digital)
+			game.metadata.input_info.inputs.append(InputType.Digital)
 		elif '6' in peripherals:
-			player.buttons = 6
-			player.inputs.append(InputType.Digital)
+			game.metadata.input_info.buttons = 6
+			game.metadata.input_info.inputs.append(InputType.Digital)
 			game.metadata.specific_info['Uses-6-Button-Controller'] = True
 		elif '0' in peripherals:
 			#SMS gamepad
-			player.buttons = 2
-			player.inputs.append(InputType.Digital)
+			game.metadata.input_info.buttons = 2
+			game.metadata.input_info.inputs.append(InputType.Digital)
 		elif 'L' in peripherals:
 			#Activator
-			player.inputs.append(InputType.MotionControls)
+			game.metadata.input_info.inputs.append(InputType.MotionControls)
 		elif '4' in peripherals or 'O' in peripherals:
 			#Team Play and J-Cart respectively
-			num_players = 4
+			#num_players = 4
+			pass
 		elif 'C' in peripherals:
 			game.metadata.specific_info['Uses-CD'] = True
 	else:
@@ -110,8 +108,6 @@ def add_megadrive_info(game, header):
 			print(game.rom.path, 'has T (tablet)')
 		if 'D' in peripherals:
 			print(game.rom.path, 'has the D')
-
-	game.metadata.input_info.players += [player] * num_players
 
 	save_id = header[0xb0:0xb4]
 	#Apparently... what the heck

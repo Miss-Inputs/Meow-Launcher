@@ -1,16 +1,15 @@
 from common import convert_alphanumeric, NotAlphanumericException
 from info.region_info import TVSystem
-from metadata import PlayerInput, InputType
+from metadata import InputType
 from software_list_info import get_software_list_entry
 
 def add_pokemini_metadata(game):
-	player = PlayerInput()
-	player.buttons = 5 #A + B + C + start + select
-	player.inputs = [InputType.Digital]
+	game.metadata.input_info.buttons = 5 #A + B + C
+	game.metadata.input_info.inputs = [InputType.Digital]
 	#Technically you could say Motion Controls because of the shake detection, but not all games use it, and you can't really tell which do and which don't programmatically
-	game.metadata.input_info.players.append(player)
 	game.metadata.tv_type = TVSystem.Agnostic
 
+	#Although I guess some games (particulary homebrews) don't
 	game.metadata.specific_info['Force-Feedback'] = True
 
 	#There really isn't much else here, other than maybe the title. I don't think I can do anything with all those IRQs.

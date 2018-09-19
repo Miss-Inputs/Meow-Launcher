@@ -1,15 +1,13 @@
 #For mildly uninteresting systems that I still want to add system info for etc
 
-from metadata import PlayerInput, InputType, SaveType
+from metadata import InputType, SaveType
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
 
 def add_entex_adventure_vision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
-	player = PlayerInput()
-	player.inputs = [InputType.Digital]
-	player.buttons = 4 #Physically, they're on both sides of the system, but those are duplicates (for ambidextrousity)
-	game.metadata.input_info.players.append(player)
+	game.metadata.input_info.inputs = [InputType.Digital]
+	game.metadata.input_info.buttons = 4 #Physically, they're on both sides of the system, but those are duplicates (for ambidextrousity)
 
 	#I don't think so mate
 	game.metadata.save_type = SaveType.Nothing
@@ -21,10 +19,8 @@ def add_entex_adventure_vision_info(game):
 
 def add_game_pocket_computer_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
-	player = PlayerInput()
-	player.inputs = [InputType.Digital]
-	player.buttons = 4
-	game.metadata.input_info.players.append(player)
+	game.metadata.input_info.inputs = [InputType.Digital]
+	game.metadata.input_info.buttons = 4
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
@@ -36,11 +32,8 @@ def add_game_pocket_computer_info(game):
 
 def add_gamate_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
-	player = PlayerInput()
-	player.inputs = [InputType.Digital]
-	player.buttons = 2
-	game.metadata.input_info.players.append(player)
-	game.metadata.input_info.console_buttons = 2
+	game.metadata.input_info.inputs = [InputType.Digital]
+	game.metadata.input_info.buttons = 2
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
@@ -53,11 +46,10 @@ def add_gamate_info(game):
 def add_casio_pv1000_info(game):
 	game.metadata.tv_type = TVSystem.NTSC
 	#Japan only. I won't assume the region in case some maniac decides to make homebrew for it or something, but it could only ever be NTSC
-	player = PlayerInput()
-	player.inputs = [InputType.Digital]
-	player.buttons = 4
-	#Start, select, A, and B. And to think some things out there say it only has 1 button... Well, I've also heard start and select are on the console, so maybe MAME is being a bit weird
-	game.metadata.input_info.players += [player] * 2
+
+	game.metadata.input_info.inputs = [InputType.Digital]
+	game.metadata.input_info.buttons = 4
+	#(Start, select,) A, and B. And to think some things out there say it only has 1 button... Well, I've also heard start and select are on the console, so maybe MAME is being a bit weird
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
@@ -69,11 +61,11 @@ def add_casio_pv1000_info(game):
 
 def add_mega_duck_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
-	player = PlayerInput()
-	player.inputs = [InputType.Digital]
-	player.buttons = 2
-	game.metadata.input_info.players.append(player)
-	game.metadata.input_info.console_buttons = 2
+
+	game.metadata.input_info.inputs = [InputType.Digital]
+	game.metadata.input_info.buttons = 2
+
+
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
@@ -85,11 +77,10 @@ def add_mega_duck_info(game):
 
 def add_watara_supervision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
-	player = PlayerInput()
-	player.inputs = [InputType.Digital]
-	player.buttons = 2
-	game.metadata.input_info.players.append(player)
-	game.metadata.input_info.console_buttons = 2
+
+	game.metadata.input_info.inputs = [InputType.Digital]
+	game.metadata.input_info.buttons = 2
+
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
@@ -179,16 +170,14 @@ def add_sg1000_info(game):
 		uses_tablet = software.get_part_feature('peripheral') == 'tablet'
 		#There doesn't seem to be a way to know if software is a SC-3000 cart, unless I just say whichever one has the .sc extension. So I'll do that
 
-	player = PlayerInput()
+
 	if uses_tablet:
 		#A drawing tablet, but that's more or less a touchscreen
 		#No buttons here?
-		player.inputs = [InputType.Touchscreen]
+		game.metadata.input_info.inputs = [InputType.Touchscreen]
 	else:
-		player.inputs = [InputType.Digital]
-		player.buttons = 2
-	game.metadata.input_info.players += [player] * 2
-	game.metadata.input_info.console_buttons = 2 #Reset, Pause/Hold
+		game.metadata.input_info.inputs = [InputType.Digital]
+		game.metadata.input_info.buttons = 2
 
 def add_sharp_x1_info(game):
 	software = get_software_list_entry(game)
@@ -325,14 +314,12 @@ def add_atari_5200_info(game):
 
 	#This doesn't really matter anyway, because MAME doesn't let you select controller type by slot device yet; and none of the other 5200 emulators are cool
 	game.metadata.specific_info['Uses-Trackball'] = uses_trackball
-	player = PlayerInput()
+
 	if uses_trackball:
-		player.inputs = [InputType.Trackball]
+		game.metadata.input_info.inputs = [InputType.Trackball]
 	else:
-		player.inputs = [InputType.Analog]
-	player.buttons = 5 #1, 2, Pause, Reset, Start I think? I think it works the same way for trackballs
-	game.metadata.input_info.players += [player] * 4 #wew
-	#No console buttons actually, apart from power which hardly counts
+		game.metadata.input_info.inputs = [InputType.Analog]
+	game.metadata.input_info.buttons = 2 #1, 2, (Pause, Reset, Start) I think? I think it works the same way for trackballs
 
 def add_uzebox_info(game):
 	#TODO: .uze files have 512-byte header, just not much info that we can't already get from software lists
@@ -357,11 +344,9 @@ def add_pce_info(game):
 def add_game_com_info(game):
 	#Could have its own header. I think it does, but like.. who's gonna document such a thing? The wide community of Game.com enthusiasts?
 	game.metadata.tv_type = TVSystem.Agnostic
-	player = PlayerInput()
-	player.inputs = [InputType.Digital]
-	player.buttons = 4 #A B C D
-	game.metadata.input_info.players.append(player)
-	game.metadata.input_info.console_buttons = 3 #Menu Sound Pause
+
+	game.metadata.input_info.inputs = [InputType.Digital]
+	game.metadata.input_info.buttons = 4 #A B C D
 
 	#Might have saving, actually. I'm just not sure about how it works.
 
@@ -374,11 +359,9 @@ def add_game_com_info(game):
 def add_lynx_info(game):
 	#TODO .lnx files should have a header with something in them, so eventually, Lynx will get its own module here
 	game.metadata.tv_type = TVSystem.Agnostic
-	player = PlayerInput()
-	player.inputs = [InputType.Digital]
-	player.buttons = 4 #Option 1, Option 2, A, B; these are flipped so you might think there's 8
-	game.metadata.input_info.players.append(player)
-	game.metadata.input_info.console_buttons = 1 #Pause
+
+	game.metadata.input_info.inputs = [InputType.Digital]
+	game.metadata.input_info.buttons = 4 #Option 1, Option 2, A, B; these are flipped so you might think there's 8
 
 	magic = game.rom.read(amount=4)
 	is_headered = magic == b'LYNX'
