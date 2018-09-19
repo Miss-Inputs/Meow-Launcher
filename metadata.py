@@ -141,7 +141,7 @@ class InputType(Enum):
 class InputInfo():
 	def __init__(self):
 		self.inputs = []
-		self.buttons = None
+		self.buttons = 0
 		self._known = False
 
 	@property
