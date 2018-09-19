@@ -216,23 +216,32 @@ systems = [
 
 	#TODO: Me being lazy, need to check if these actually work or not:
 	System('Acorn Atom', 'atom', ['atom_cass', 'atom_flop', 'atom_rom'], []),
-	System('Amiga', 'a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench', 'cd32', 'cdtv'], []),
-	#MAME is known to not work here
+	System('Acorn Electron', 'electron', ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], []),
+	System('Amiga', 'a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench'], []),
+	#MAME is known to not work here, need to try some UAE fork
+	System('Amiga CD32', 'cd32', ['cd32', 'cdtv'], []),
+	#Meh, I'll consider it a separate thing I guess
+	System('Amstrad CPC', 'cpc464', ['cpc_cass', 'cpc_flop'], []),
+	#The not-plus one (probably will need to switch to cpc664/cpc6128 for flopppy stuff)
 	System('Apple I', 'apple1', ['apple1'], []),
 	System('Apple II', 'apple2', ['apple2', 'apple2_cass'], []),
 	System('Apple Lisa', 'lisa', ['lisa'], []),
-	System('Apple III', '', ['apple3'], []),
+	System('Apple III', 'apple3', ['apple3'], []),
 	System('Atari Portfolio', 'pofo', ['pofo'], []),
 	#Nothing is dumped, so I think it's safe to say nothing will work, but still. Apparently it's supposed to be a PC clone, but doesn't support any PC software lists...
 	System('Atari ST', 'st', ['st_flop', 'st_cart'], []),
 	#MAME is known to not work here, and Hatari is known to have usability issues... is there anything else?
 	System('Bandai Super Vision 8000', 'sv8000', ['sv8000'], []),
+	System('BBC Master', 'bbcm', ['bbcm_cart', 'bbcm_cass', 'bbcmc_flop', 'bbcm_flop'], []),
+	System('BBC Micro', 'bbcb', ['bbca_cass', 'bbcb_cass', 'bbcb_cass_de', 'bbcb_flop', 'bbcb_flop_orig'], []),
+	#TODO: Add the flop software lists that have addon CPUs and stuff
 	System('Cambridge Z88', 'z88', ['z88_cart'], []),
 	System('Commodore 16', 'c16', ['plus4_cart', 'plus4_cass', 'plus4_flop'], []),
 	#Plus/4 and C116 are in the same software family, so those could be used too
 	System('Commodore 65', 'c65', ['c65_flop'], []),
 	#This was actually never released, but there's software for it anyway
 	System('Commodore 128', 'c128', ['c128_cart', 'c128_flop', 'c128_rom'], []),
+	System('Memotech MTX', 'mtx512', ['mtx_cart', 'mtx_cass', 'mtx_rom'], []),
 	System('Neo Geo AES', 'aes', ['neogoeo'], []),
 	#Hmm... even emulated re-releases (like the stuff on Steam) is the MVS version. Also how it works is a bit tricky, since as a system you load single .bin files through the cart slot, but everything out there is stored as multiple ROMs, even in the software list... so I dunno if this would be usable
 	System('Pocket Challenge W', 'pockchal', ['pockchalw'], []),
@@ -253,9 +262,6 @@ systems = [
 	#This needs tape control automation to work with tapes (type OLD, then play tape, then RUN); dumps just need to press enter because MAME will type "RUN" for you. But not enter for you. Dunno why.
 
 	#Other todos, often just me not knowing which something actually is or being too lazy to organize it even into the "too lazy to look into right now" list:
-	#Amstrad CPC-not-plus? Not sure how it all works
-	#Is Acorn Electron the same as BBC Micro for emulation purposes?
-	#Should Amiga CD32 and Commodore CDTV just count as Amiga?
 	#APF Imagination Machine just APF-MP1000 or different?
 	#Are Oric-1 and Oric Atmos software compatible or different things?
 	#Which of Sharp MZ series are software compatible with which? (Software lists: MZ-700, MZ-800, MZ-2000)
@@ -264,7 +270,6 @@ systems = [
 	#Thomson MO: Is TO5 or TO8 the main system? (latter has exclusive software lists, but is compatible with TO7)
 	#Which TRS-80 model is which?
 	#Bandai Super Note Club: Part of VTech Genius Leader (supports glccolor software list), or its own thing (has snotec software list)?
-	#Memotech MTX: 500 or 512?
 	#Dragon 64 part of CoCo or nah?
 	#Which PC-98 system is which?
 	#Videoton TVC: Which is main system? TV64?
