@@ -59,35 +59,38 @@ def add_megadrive_info(game, header):
 	peripherals = [c for c in header[144:160].decode('ascii', errors='ignore') if c != '\x00' and c != ' ']
 	#TODO: Whoops I can't have a single amount of buttons for all inputs I need to rethink everything including what I'm doing with my life
 	if set(peripherals) <= acceptable_peripherals:
-		if 'M' in peripherals:
-			game.metadata.input_info.inputs.append(InputType.Mouse)
-		elif 'V' in peripherals:
-			game.metadata.input_info.inputs.append(InputType.Paddle)
-		elif 'A' in peripherals:
-			game.metadata.input_info.inputs.append(InputType.Analog)
-		elif 'G' in peripherals:
-			game.metadata.input_info.inputs.append(InputType.LightGun)
-		elif 'K' in peripherals:
-			game.metadata.input_info.inputs.append(InputType.Keyboard)
-		elif 'J' in peripherals:
-			game.metadata.input_info.inputs.append(InputType.Digital)
-		elif '6' in peripherals:
-			game.metadata.input_info.buttons = 6
-			game.metadata.input_info.inputs.append(InputType.Digital)
-			game.metadata.specific_info['Uses-6-Button-Controller'] = True
-		elif '0' in peripherals:
-			#SMS gamepad
-			game.metadata.input_info.buttons = 2
-			game.metadata.input_info.inputs.append(InputType.Digital)
-		elif 'L' in peripherals:
-			#Activator
-			game.metadata.input_info.inputs.append(InputType.MotionControls)
-		elif '4' in peripherals or 'O' in peripherals:
-			#Team Play and J-Cart respectively
-			#num_players = 4
-			pass
-		elif 'C' in peripherals:
-			game.metadata.specific_info['Uses-CD'] = True
+		#TODO: I could just do the "whoops this is a weird peripheral_char" as a final else inside the for loop... eh
+		for peripheral_char in peripherals:
+			if peripheral_char == 'M':
+				game.metadata.input_info.inputs.append(InputType.Mouse)
+			elif peripheral_char == 'V':
+				game.metadata.input_info.inputs.append(InputType.Paddle)
+			elif peripheral_char == 'A':
+				game.metadata.input_info.inputs.append(InputType.Analog)
+			elif peripheral_char == 'G':
+				game.metadata.input_info.inputs.append(InputType.LightGun)
+			elif peripheral_char == 'K':
+				game.metadata.input_info.inputs.append(InputType.Keyboard)
+			elif peripheral_char == 'J':
+				game.metadata.input_info.inputs.append(InputType.Digital)
+			elif peripheral_char == '6':
+				game.metadata.input_info.buttons = 6
+				game.metadata.input_info.inputs.append(InputType.Digital)
+				game.metadata.specific_info['Uses-6-Button-Controller'] = True
+			elif peripheral_char == '0':
+				#SMS gamepad
+				#If game works with this, then it should only need 2 buttons
+				game.metadata.input_info.buttons = 2
+				game.metadata.input_info.inputs.append(InputType.Digital)
+			elif peripheral_char == 'L':
+				#Activator
+				game.metadata.input_info.inputs.append(InputType.MotionControls)
+			elif peripheral_char == '4' or peripheral_char == 'O':
+				#Team Play and J-Cart respectively
+				#num_players = 4
+				pass
+			elif peripheral_char == 'C':
+				game.metadata.specific_info['Uses-CD'] = True
 	else:
 		if debug:
 			print(game.rom.path, 'has weird peripheral chars:', set(peripherals) - acceptable_peripherals)
