@@ -275,7 +275,7 @@ def add_hartung_game_master_info(game):
 #-- Beyond this point, there may be unexplored things which may result in these systems being spun off into their own module. Maybe. It just seems likely. Or maybe I do know full well they have a header, and either I haven't explored it yet, or I'm just a lazy bugger
 
 def add_cd32_info(game):
-	game.metadata.input_info.inputs = [InputType.Analog]
+	game.metadata.input_info.inputs = [InputType.Digital]
 	game.metadata.input_info.buttons = 6
 
 def add_neogeo_cd_info(game):
