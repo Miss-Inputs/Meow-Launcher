@@ -228,6 +228,8 @@ systems = [
 	#MAME is known to not work here, need to try some UAE fork
 	System('Amstrad CPC', 'cpc464', ['cpc_cass', 'cpc_flop'], []),
 	#The not-plus one (probably will need to switch to cpc664/cpc6128 for flopppy stuff)
+	System('APF Imagination Machine', 'apfimag', ['apfimag_cass', 'apfm1000'], []),
+	#Considered separate from APF-M1000 (same predicament as Coleco Adam)
 	System('Apple I', 'apple1', ['apple1'], []),
 	System('Apple II', 'apple2', ['apple2', 'apple2_cass'], []),
 	System('Apple Lisa', 'lisa', ['lisa'], []),
@@ -253,6 +255,9 @@ systems = [
 	System('Pocket Challenge W', 'pockchal', ['pockchalw'], []),
 	#Everything in that software list says unsupported, so that's not a good sign
 	System('Sam Coupe', 'samcoupe', ['samcoupe_cass', 'samcoupe_flop'], []),
+	System('Sharp MZ-700', 'mz700', ['mz700'], []),
+	System('Sharp MZ-800', 'mz800', ['mz800'], []),
+	System('Sharp MZ-2000', 'mz2000', ['mz2000_cass', 'mz2000_flop'], []),
 	System('Squale', 'squale', ['squale_cart'], []),
 	#What's interesting is that the XML for the driver says it's compatible with a software list simply called "squale", but that's not in the default hash directory
 	System('Tandy CoCo', 'coco3', ['coco_cart', 'coco_flop'], []),
@@ -268,9 +273,7 @@ systems = [
 	#This needs tape control automation to work with tapes (type OLD, then play tape, then RUN); dumps just need to press enter because MAME will type "RUN" for you. But not enter for you. Dunno why.
 
 	#Other todos, often just me not knowing which something actually is or being too lazy to organize it even into the "too lazy to look into right now" list:
-	#APF Imagination Machine just APF-MP1000 or different?
 	#Are Oric-1 and Oric Atmos software compatible or different things?
-	#Which of Sharp MZ series are software compatible with which? (Software lists: MZ-700, MZ-800, MZ-2000)
 	#Which of TI calculators are software compatible with which?
 	#Thomson MO: Is MO5 or MO6 the main system? (latter has exclusive software lists, but is compatible with MO5)
 	#Thomson MO: Is TO5 or TO8 the main system? (latter has exclusive software lists, but is compatible with TO7)
@@ -280,7 +283,6 @@ systems = [
 	#Which PC-98 system is which?
 	#Videoton TVC: Which is main system? TV64?
 	#Acorn Archimedes stuff (could this end up being amongst dos_mac_common?)
-	#Oric stuff (Oric-1 or Oric Atmos)
 	#C64DTV
 	#Jupiter Ace (ZX Spectrum clone but has different compatibility?)
 	#TI-99: Main kerfluffle seems to be .rpk file format needed for -cart loading, but everything else is in .c and .g and who knows what else; -ioport peb -ioport:peb:slot2 32kmem -ioport:peb:slot3 speech might be needed?
