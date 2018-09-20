@@ -2,6 +2,7 @@ import shlex
 import os
 import sys
 
+import config
 from .region_info import TVSystem
 
 debug = '--debug' in sys.argv
@@ -396,3 +397,73 @@ def mupen64plus(game, _):
 		return None
 
 	return 'mupen64plus --nosaveoptions --fullscreen $<path>'
+
+def basilisk_ii(app, other_config):
+	if 'arch' in app.config:
+		if app.config['arch'] == 'ppc':
+			return None
+
+	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that. Okay, so I don't want that.
+	#Ideally, HFS manipulation would be powerful enough that we could just slip an alias into the Startup Items folder ourselves and delete it afterward. That doesn't fix the problem of automatically shutting down (still need a script for that), unless we don't create an alias at all and we create a script or something on the fly that launches that path and then shuts down, but yeah. Stuff and things.
+	autoboot_txt_path = os.path.join(other_config['shared_folder'], 'autoboot.txt')
+	width = other_config.get('default_width', 1920)
+	height = other_config.get('default_height', 1080)
+	if 'max_resolution' in app.config:
+		width, height = app.config['max_resolution']
+	#Can't do anything about colour depth at the moment (displaycolordepth is functional on some SDL1 builds, but not SDL2)
+	#Or controls... but I swear I will find a way!!!!
+
+	#If you're not using an SDL2 build of BasiliskII, you probably want to change dga to window! Well you really want to get an SDL2 build of BasiliskII, honestly
+	actual_emulator_command = 'BasiliskII --screen dga/{0}/{1}'.format(width, height)
+	inner_command = 'echo {0} > {1} && {2} && rm {1}'.format(shlex.quote(app.path), shlex.quote(autoboot_txt_path), actual_emulator_command)
+	return 'sh -c {0}'.format(shlex.quote(inner_command))
+
+def _get_dos_config(app):
+	if not os.path.isdir(config.dos_configs_path):
+		return None
+
+	for conf in os.listdir(config.dos_configs_path):
+		path = os.path.join(config.dos_configs_path, conf)
+		name, _ = os.path.splitext(conf)
+		if app.name in (name, name.replace(' - ', ': ')):
+			return path
+
+	return None
+
+def _make_dos_config(app, other_config):
+	configwriter = configparser.ConfigParser()
+	configwriter.optionxform = str
+
+	configwriter['sdl'] = {}
+	configwriter['sdl']['fullscreen'] = 'true'
+	configwriter['sdl']['fullresolution'] = 'desktop'
+	#TODO: Set mapper file, which will of course require another separate directory
+	#TODO: Might have to set autoexec instead of just pointing to the file as a command line argument for some versions of DOSBox
+
+	if 'required_hardware' in app.config:
+		if 'for_xt' in app.config['required_hardware']:
+			if app.config['required_hardware']['for_xt']:
+				configwriter['cpu'] = {}
+				configwriter['cpu']['cycles'] = other_config.get('slow_cpu_cycles', 400)
+
+		if 'max_graphics' in app.config['required_hardware']:
+			configwriter['dosbox'] = {}
+			graphics = app.config['required_hardware']['max_graphics']
+			configwriter['dosbox']['machine'] = 'svga_s3' if graphics == 'svga' else graphics
+
+	#TODO: Perform other sanity checks on name
+	name = app.name.replace(': ', ' - ') + '.ini'
+	path = os.path.join(config.dos_configs_path, name)
+
+	os.makedirs(config.dos_configs_path, exist_ok=True)
+	with open(path, 'wt') as config_file:
+		configwriter.write(config_file)
+
+	return path
+
+def dosbox(app, other_config):
+	conf = _get_dos_config(app)
+	if ('--regen-dos-config' in sys.argv) or not conf:
+		conf = _make_dos_config(app, other_config)
+	actual_command = "dosbox -exit -noautoexec -userconf -conf {1} {0}".format(shlex.quote(app.path), shlex.quote(conf))
+	return actual_command
