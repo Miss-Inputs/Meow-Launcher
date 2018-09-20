@@ -184,7 +184,8 @@ def parse_smdh_data(game, smdh):
 	#EULA version: 0x202c-0x202e
 	#Reserved 2 = 0x202e-0x2030
 	#Optimal animation default frame = 0x2030-0x2034
-	#CEC: 0x2034-0x2038
+	cec_id = smdh[0x2034:0x2038]
+	game.metadata.specific_info['Uses-StreetPass'] = cec_id != b'\x00\x00\x00\x00'
 	#Reserved: 0x2038-0x2040
 	#Smol icon (24x24): 0x2040-0x24c0
 
