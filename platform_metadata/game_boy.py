@@ -60,7 +60,7 @@ game_boy_mappers = {
 
 nintendo_logo_crc32 = 0x46195417
 def add_gameboy_metadata(game):
-	game.metadata.input_info.buttons = 4 #A + B (Select + Start aren't counted)
+	game.metadata.input_info.buttons = 2 #A + B (Select + Start aren't counted)
 	game.metadata.input_info.inputs = [InputType.Digital]
 	game.metadata.tv_type = TVSystem.Agnostic
 
