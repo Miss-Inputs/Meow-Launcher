@@ -101,7 +101,7 @@ def add_n64_metadata(game):
 		game.metadata.specific_info['GoodName'] = database_entry.get('GoodName')
 
 		if 'Players' in database_entry:
-			game.metadata.specific_info['Number-Of-Players'] = database_entry['Players']
+			game.metadata.specific_info['Number-of-Players'] = database_entry['Players']
 
 		if database_entry.get('SaveType', 'None') != 'None':
 			game.metadata.save_type = SaveType.Cart
