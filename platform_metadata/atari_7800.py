@@ -14,9 +14,12 @@ input_types = {
 }
 
 def _add_atari_7800_header_info(game, header):
+	game.metadata.input_info.set_known()
+
 	left_input_type = header[55]
-#	right_input_type = header[56]
+	right_input_type = header[56]
 	if left_input_type != 0:
+		left_controller_used = True
 		if left_input_type in input_types:
 			input_type, buttons = input_types[left_input_type]
 			game.metadata.input_info.buttons = buttons
@@ -24,17 +27,18 @@ def _add_atari_7800_header_info(game, header):
 		else:
 			game.metadata.input_info.inputs = [InputType.Custom]
 
-	#TODO: Figure out which controller port is used here
+	if right_input_type != 0:
+		#TODO: Refactor to avoid duplication
+		right_controller_used = True
+		if right_input_type in input_types:
+			input_type, buttons = input_types[right_input_type]
+			game.metadata.input_info.buttons = buttons
+			game.metadata.input_info.inputs = [input_type]
+		else:
+			game.metadata.input_info.inputs = [InputType.Custom]
 
-	#if right_input_type != 0:
-	#	#TODO: Refactor to avoid duplication
-	#	if right_input_type in input_types:
-	#		input_type, buttons = input_types[right_input_type]
-	#		game.metadata.input_info.buttons = buttons
-	#		game.metadata.input_info.inputs = [input_type]
-	#	else:
-	#		game.metadata.input_info.inputs = [InputType.Custom]
-	#	game.metadata.input_info.players.append(player)
+	if left_controller_used and right_controller_used:
+		game.metadata.specific_info
 
 	tv_type = header[57]
 
