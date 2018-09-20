@@ -1,7 +1,8 @@
 import calendar
 import zlib
+from enum import Enum, auto
 
-from metadata import SaveType
+from metadata import SaveType, InputType
 from software_list_info import get_software_list_entry, find_in_software_lists
 from .nintendo_common import nintendo_licensee_codes
 
@@ -171,8 +172,18 @@ ines_mappers = {
 	243: 'Sachen 74LS374N',
 	254: 'Pikachu Y2K',
 	255: '110-in-1 multicart',
-
 }
+
+class NESPeripheral(Enum):
+	NormalController = auto()
+	Zapper = auto()
+	ArkanoidPaddle = auto() #AKA Vaus
+	PowerPad = auto() #AKA Family Trainer in Japan, and Family Fun Fitness in Europe (and in early rare USA releases)
+	PowerGlove = auto() #Hell yeah, that's so bad
+	ROB = auto()
+	FamicomKeyboard = auto() #Used with the Famicom expansion port with Famicom BASIC
+	SuborKeyboard = auto() #Different from the Famicom keyboard, this requires sb486 driver (there are other Subor famiclones but that will do) although seemingly is a Famicom expansion port device
+	Piano = auto() #Miracle Piano Teaching System thingy
 
 def decode_bcd(i):
 	hi = (i & 0xf0) >> 4
@@ -302,22 +313,54 @@ def add_nes_metadata(game):
 		elif game.metadata.specific_info.get('Header-Format') in ('iNES', 'NES 2.0'):
 			software = _get_headered_nes_rom_software_list_entry(game)
 
+	nes_peripheral = NESPeripheral.NormalController
+	game.metadata.input_info.buttons = 2
+	game.metadata.input_info.inputs = [InputType.Digital]
+
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
+
 		#FIXME: Acktually, you can have multiple feature = peripherals
 		#See also: SMB / Duck Hunt / World Class Track Meet multicart, with both zapper and powerpad
+		#Actually, how does that even work? Are the controllers hotplugged?
 		peripheral = software.get_part_feature('peripheral')
-		game.metadata.specific_info['Uses-Zapper'] = peripheral == 'zapper'
+		if peripheral == 'zapper':
+			nes_peripheral = NESPeripheral.Zapper
+			game.metadata.input_info.buttons = 1
+			game.metadata.input_info.inputs = [InputType.LightGun]
+		elif peripheral == 'vaus':
+			nes_peripheral = NESPeripheral.ArkanoidPaddle
+			game.metadata.input_info.buttons = 1
+			game.metadata.input_info.inputs = [InputType.Paddle]
+		elif peripheral in ('powerpad', 'ftrainer', 'fffitness'):
+			nes_peripheral = NESPeripheral.PowerPad
+			game.metadata.input_info.buttons = 12
+			game.metadata.input_info.inputs = [] #Just buttons, unless there was some other way to describe this
+		elif peripheral == 'powerglove':
+			nes_peripheral = NESPeripheral.PowerGlove
+			#Hmm... apparently it functions as a standard NES controller, but there are 2 games specifically designed for glove usage? So it must do something extra I guess
+			game.metadata.input_info.buttons = 11 #Standard A + B + 9 program buttons
+			game.metadata.input_info.inputs = [InputType.MotionControls]
+		elif peripheral == 'rob':
+			nes_peripheral = NESPeripheral.ROB
+			#I'll leave input info alone, because I'm not sure how I would classify ROB
+		elif peripheral == 'fc_keyboard':
+			nes_peripheral = NESPeripheral.FamicomKeyboard
+			game.metadata.input_info.buttons = 72
+			game.metadata.input_info.inputs = [InputType.Keyboard]
+		elif peripheral == 'subor_keyboard':
+			nes_peripheral = NESPeripheral.SuborKeyboard
+			game.metadata.input_info.buttons = 96
+			game.metadata.input_info.inputs = [InputType.Keyboard]
+		elif peripheral == 'mpiano':
+			nes_peripheral = NESPeripheral.Piano
+			#Apparently, it's actually just a MIDI keyboard, hence the MAME driver adds MIDI in/out ports
+			game.metadata.input_info.buttons = 88
+			game.metadata.input_info.inputs = [InputType.Custom]
+
+		#Well, it wouldn't be a controller... not sure how this one works exactly
 		game.metadata.specific_info['Uses-3D-Glasses'] = peripheral == '3dglasses'
-		game.metadata.specific_info['Uses-Arkanoid-Paddle'] = peripheral == 'vaus'
-		game.metadata.specific_info['Uses-Power-Pad'] = peripheral in ('powerpad', 'ftrainer', 'fffitness') #I'm pretty sure those are all the same thing, right?
-		game.metadata.specific_info['Uses-Power-Glove'] = peripheral == 'powerglove' #Hell yeah, that's so bad
-		game.metadata.specific_info['Uses-ROB'] = peripheral == 'rob'
-		game.metadata.specific_info['Uses-Keyboard'] = peripheral in ('fc_keyboard', 'subor_keyboard')
-		#Actually, maybe I should be more specific there... hmm... I mean, for input info it doesn't matter, but for
-		#compatibility they're not the same; MAME has them as different controller devices (for Famicom expansion port, presumably sb486 has sb_keyboard built in)
-		game.metadata.specific_info['Uses-Piano'] = peripheral == 'mpiano'
 		#There's a "battlebox" which Armadillo (Japan) uses?
 		#Barcode World (Japan) uses "barcode"
 		#The Best Play Pro Yakyuu (Japan), Derby Stallion - Zenkokuban (Japan), some others use "turbofile"
@@ -327,4 +370,5 @@ def add_nes_metadata(game):
 		#Ide Yousuke Meijin no Jissen Mahjong (Jpn, Rev. A): "mjcontroller" (mahjong controller?)
 		#RacerMate Challenge 2: "racermate"
 		#Top Rider (Japan): "toprider"
-		#TODO: Input info stuff, instead of one million different specific info fields
+
+	game.metadata.specific_info['Peripheral'] = nes_peripheral
