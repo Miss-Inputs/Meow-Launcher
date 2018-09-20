@@ -48,7 +48,7 @@ def add_casio_pv1000_info(game):
 	#Japan only. I won't assume the region in case some maniac decides to make homebrew for it or something, but it could only ever be NTSC
 
 	game.metadata.input_info.inputs = [InputType.Digital]
-	game.metadata.input_info.buttons = 4
+	game.metadata.input_info.buttons = 2
 	#(Start, select,) A, and B. And to think some things out there say it only has 1 button... Well, I've also heard start and select are on the console, so maybe MAME is being a bit weird
 
 	#Until proven otherwise
@@ -65,8 +65,6 @@ def add_mega_duck_info(game):
 	game.metadata.input_info.inputs = [InputType.Digital]
 	game.metadata.input_info.buttons = 2
 
-
-
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
@@ -80,7 +78,6 @@ def add_watara_supervision_info(game):
 
 	game.metadata.input_info.inputs = [InputType.Digital]
 	game.metadata.input_info.buttons = 2
-
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
@@ -135,7 +132,7 @@ def add_casio_pv2000_info(game):
 		game.metadata.product_code = software.get_info('serial')
 
 def add_channel_f_info(game):
-	#Input info is uhhh that weird twisty thing I guess
+	#Input info is uhhh that weird twisty thing I guess (I still cannot understand it)
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
@@ -146,6 +143,8 @@ def add_channel_f_info(game):
 
 def add_msx_info(game):
 	#I'll use this for MSX2 as well for now
+	#Input info: Keyboard or joystick
+
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
@@ -153,6 +152,8 @@ def add_msx_info(game):
 		#Other info you can get from carts here: PCB, slot (something like ascii8 or whatever), mapper
 
 def add_pc88_info(game):
+	#Input info: Keyboard or joystick
+
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
@@ -170,7 +171,6 @@ def add_sg1000_info(game):
 		uses_tablet = software.get_part_feature('peripheral') == 'tablet'
 		#There doesn't seem to be a way to know if software is a SC-3000 cart, unless I just say whichever one has the .sc extension. So I'll do that
 
-
 	if uses_tablet:
 		#A drawing tablet, but that's more or less a touchscreen
 		#No buttons here?
@@ -180,12 +180,16 @@ def add_sg1000_info(game):
 		game.metadata.input_info.buttons = 2
 
 def add_sharp_x1_info(game):
+	#Input info: Keyboard and/or joystick
+
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
 		#TODO: Tell us if this is part of a multi-floppy thing
 
 def add_sharp_x68k_info(game):
+	#Input info: Keyboard and/or joystick
+
 	#Many games are known to have SaveType.Floppy, but can't tell programmatically...
 	software = get_software_list_entry(game)
 	if software:
@@ -193,6 +197,8 @@ def add_sharp_x68k_info(game):
 		#TODO: Tell us if this is part of a multi-floppy thing
 
 def add_tomy_tutor_info(game):
+	#Input info: Keyboard and/or joystick
+
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
@@ -202,6 +208,9 @@ def add_tomy_tutor_info(game):
 		game.metadata.product_code = software.get_info('serial')
 
 def add_vc4000_info(game):
+	game.metadata.input_info.inputs = [InputType.Analog, InputType.Keypad]
+	game.metadata.input_info.buttons = 14 #2 fire buttons + 12-button keypad
+
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
@@ -211,6 +220,8 @@ def add_vc4000_info(game):
 		game.metadata.product_code = software.get_info('serial')
 
 def add_vic10_info(game):
+	#Input info: Keyboard or joystick
+
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
@@ -218,7 +229,9 @@ def add_vic10_info(game):
 		#What the heck is an "assy"?
 
 def add_vic20_info(game):
-	#TODO: Is it possible that .a0 etc might have the header too? It shouldn't, but y'know
+	#Input info: Keyboard and/or joystick
+
+	#TODO: Is it possible that .a0 etc might have the header too? It shouldn't, but files get misnamed sometimes
 	#This won't work with >8KB carts at the moment, because MAME stores those in the software list as two separate ROMs. But then they won't have launchers anyway because our only emulator for VIC-20 is MAME itself, and it doesn't let us just put the two ROMs together ourselves, those games are basically software list only at the moment (because it won't let us have one single file above 8KB).
 	has_header = game.rom.extension in ('prg', 'crt') and (game.rom.get_size() % 256) == 2
 	software = get_software_list_entry(game, skip_header=2 if has_header else 0)
@@ -228,6 +241,8 @@ def add_vic20_info(game):
 		#TODO: Get sharedfeat = compatibility to get TV type
 
 def add_sord_m5_info(game):
+	#Input info: Keyboard, maybe joystick?
+
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
@@ -235,17 +250,24 @@ def add_sord_m5_info(game):
 		#Take note of info > usage = requiring 36K RAM, though we just set our M5 to have max RAM anyway, seems to be harmless
 
 def add_gx4000_info(game):
+	#Input info: 2-button gamepad, analog stick, or light gun (Skeet Shoot, The Enforcer); gx4000.xml software list decides to put that inside a comment above the <software> element rather than anything parseable
+
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
 
 def add_coleco_adam_info(game):
+	#Input info: Keyboard / Coleco numpad?
+
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
 
 def add_hartung_game_master_info(game):
+	game.metadata.input_info.inputs = [InputType.Digital]
+	game.metadata.input_info.buttons = 2
+
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
@@ -254,6 +276,8 @@ def add_hartung_game_master_info(game):
 
 def add_ibm_pcjr_info(game):
 	#TODO .jrc files should have a header with something in them, so eventually, IBM PCjr will get its own module here
+	#Input info: Keyboard or joystick
+
 	magic = game.rom.read(amount=25)
 	is_headered = magic == b'PCjr Cartridge image file'
 	game.metadata.specific_info['Headered'] = is_headered
@@ -268,6 +292,8 @@ def add_ibm_pcjr_info(game):
 def add_intellivision_info(game):
 	#There's probably some way to get info from title screen in ROM, but I haven't explored that in ROMniscience yet
 	#I think .int is supposed to be headered, but the ROMs I have (from Game Room, I think) seem to be just fine?
+	#Input info: Crappy keypad, but also a keyboard component and computer module exists, also a piano keyboard
+
 	#TODO: Some of these have two <dataarea> tags: name="5000" and name="9000". For example, Commando, which is a 32KB ROM in No-Intro, here the two data areas are 16KB each. Is this consistent for all 32KB games, perhaps?
 	#24KB games (e.g. B-17 Bomber) are sometimes split up into "5000" (16KB) and "D000" (8KB) data areas, but then some (e.g. Defender) are just one big ROM in the software list
 	#Hover Force (48KB) is "5000" (16KB), "9000" (24KB) and "D000" (8KB)
@@ -278,8 +304,14 @@ def add_intellivision_info(game):
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
 
+		if game.metadata.specific_info.get('Notes') == 'Uses Intellivoice':
+			game.metadata.specific_info['Uses-Intellivoice'] = True
+			game.metadata.specific_info.pop('Notes')
+
 def add_colecovision_info(game):
 	#Can get year, publisher unreliably from the title screen info in the ROM
+	#Input info: contrller, but also steering wheel (Expansion Module 2), roller controller, or Super Action Controller
+
 	#TODO: Software list splits >=16K roms into multiple 8KB parts, making that tricky to deal with
 	#16KB carts seem to be consistently loaded with offset = 0 for the first ROM and offset = 0x2000 for the second ROM. Maybe we can do something there
 	#20KB: 0x0000, 0x2000, 0x4000 (the latter ROM is size = 4096 instead of size = 8192)
@@ -295,6 +327,10 @@ def add_colecovision_info(game):
 
 def add_juicebox_info(game):
 	#Hmm... apparently there's 0x220 bytes at the beginning which need to be copied from retail carts to get homebrew test ROMs to boot
+	game.metadata.tv_type = TVSystem.Agnostic
+	game.metadata.input_info.buttons = 5 #Rewind/forward/stop/play/function
+	game.metadata.save_type = SaveType.Nothing #Nope!
+
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
@@ -324,6 +360,7 @@ def add_atari_5200_info(game):
 def add_uzebox_info(game):
 	#TODO: .uze files have 512-byte header, just not much info that we can't already get from software lists
 	#But there is an icon at 0x4e:0x14d, just apparently never used; and SNES mouse usage at 0x152
+	#Input info: SNES controllers, but that could be any SNES peripheral (mouse, etc)
 
 	software = get_software_list_entry(game)
 	if software:
