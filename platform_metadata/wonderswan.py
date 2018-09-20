@@ -1,5 +1,5 @@
 from info.region_info import TVSystem
-from metadata import SaveType
+from metadata import SaveType, InputType
 from software_list_info import get_software_list_entry
 
 publishers = {
@@ -50,7 +50,13 @@ publishers = {
 
 def add_wonderswan_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
-	#TODO: Add input info, noting that Benessee Pocket Challenge V2 is different
+	if game.metadata.platform == 'Benesse Pocket Challenge V2':
+		game.metadata.input_info.buttons = 3 #I don't know what they're called
+		game.metadata.input_info.inputs = [InputType.Digital]
+	else:
+		#Because of the rotation, it's hard to say which one of the sets of 4 buttons is the one used for directional control; but one of them will be
+		game.metadata.input_info.buttons = 6
+		game.metadata.input_info.inputs = [InputType.Digital]
 
 	rom_size = game.rom.get_size()
 	header_start_position = rom_size - 10
