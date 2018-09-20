@@ -1,6 +1,7 @@
 import shlex
 import os
 import sys
+import configparser
 
 import config
 from .region_info import TVSystem

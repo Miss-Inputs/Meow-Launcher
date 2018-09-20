@@ -1,7 +1,5 @@
 import sys
 import shlex
-import os
-import configparser
 
 import info.emulator_command_lines as command_lines
 
