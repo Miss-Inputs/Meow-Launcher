@@ -7,7 +7,7 @@ except ModuleNotFoundError:
 import os
 
 from info.region_info import TVSystem
-from metadata import CPUInfo, ScreenInfo, Screen, SaveType
+from metadata import CPUInfo, ScreenInfo, Screen, SaveType, InputType
 from common import convert_alphanumeric, NotAlphanumericException
 from .nintendo_common import nintendo_licensee_codes
 
@@ -36,6 +36,10 @@ def add_3ds_system_info(game):
 	screen_info = ScreenInfo()
 	screen_info.screens = [top_screen, bottom_screen]
 	game.metadata.screen_info = screen_info
+
+	game.metadata.input_info.buttons = 6 #A B X Y L R, not counting Select/Home/Start
+	#Although we can't know for sure if the game uses the touchscreen, it's safe to assume that it probably does
+	game.metadata.input_info.inputs = [InputType.Digital, InputType.Analog, InputType.Touchscreen]
 
 media_unit = 0x200
 
@@ -100,7 +104,8 @@ def parse_ncch(game, offset):
 	#Don't really need extended header, it's at offset + 0x200 if CXI and decrypted
 
 def parse_plain_region(game, offset, length):
-	#Plain region contains libraries used and such, it's pretty dang cool actually and could be useful here but also mysterious
+	#Plain region stores the libraries used, at least for official games
+	#See also: https://github.com/Zowayix/ROMniscience/wiki/3DS-libraries-used for research
 	plain_region = game.rom.read(seek_to=offset, amount=length)
 	libraries = [lib.decode('ascii', errors='backslashreplace') for lib in plain_region.split(b'\x00') if lib]
 
@@ -112,15 +117,20 @@ def parse_plain_region(game, offset, length):
 		elif library.startswith('[SDK+ISP:QREnc'):
 			game.metadata.specific_info['Makes-QR-Codes'] = True
 		elif library == '[SDK+NINTENDO:ExtraPad]':
-			#TODO: Fiddle with metadata input stuff for this and gyroscope
 			game.metadata.specific_info['Uses-Circle-Pad-Pro'] = True
+			#ZL + ZR + right analog stick; New 3DS has these too but the extra controls there are internally represented as a Circle Pad Pro for compatibility so this all works out I think
+			game.metadata.input_info.inputs.append(InputType.Analog)
+			game.metadata.input_info.buttons += 2
 		elif library.startswith == '[SDK+NINTENDO:Gyroscope]':
 			game.metadata.specific_info['Uses-Gyroscope'] = True
+			game.metadata.input_info.inputs.append(InputType.MotionControls)
 		elif library == '[SDK+NINTENDO:IsRunOnSnake]':
 			#There's also an IsRunOnSnakeForApplet found in some not-completely-sure-what-they-are builtin apps and amiibo Settings. Not sure if it does what I think it does
 			game.metadata.specific_info['New-3DS-Enhanced'] = True
 		elif library == '[SDK+NINTENDO:NFP]':
 			game.metadata.specific_info['Uses-Amiibo'] = True
+		elif library.startswith('[SDK+NINTENDO:CTRFaceLibrary-'):
+			game.metadata.specific_info['Uses-Miis'] = True
 
 def parse_exefs(game, offset):
 	header = game.rom.read(seek_to=offset, amount=0x200)
