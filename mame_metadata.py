@@ -196,17 +196,19 @@ def add_input_info(machine):
 		machine.metadata.input_info.inputs = [InputType.Custom]
 		return
 
-	buttons_set = False
+	buttons_are_known = False
 	for control in control_elements:
 		buttons = 0
-		if 'buttons' in control.attrib and not buttons_set:
+		if 'buttons' in control.attrib and not buttons_are_known:
 			buttons = int(control.attrib['buttons'])
 
-		machine.metadata.input_info.buttons = buttons
-		buttons_set = True
+		if not buttons_are_known:
+			machine.metadata.input_info.buttons = buttons
+			buttons_are_known = True
 
 		#TODO: This very much needs some refactoring, I just can't really brain think at the moment
 		#Yeah, still can't
+		#FIXME: Also, this means that it will append one of each input type for each player
 		input_type = control.attrib['type']
 		if input_type == 'only_buttons':
 			pass
