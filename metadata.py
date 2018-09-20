@@ -182,7 +182,7 @@ class InputInfo():
 
 		input_set = set(self.inputs)
 		if not input_set:
-			return ['Nothing'] if self.buttons else ['Only Buttons']
+			return ['Only Buttons'] if self.buttons else ['Nothing']
 		description = set()
 		for my_input in input_set:
 			if my_input == InputType.LightGun:
