@@ -1,5 +1,6 @@
 import calendar
 
+from metadata import InputType
 from region_detect import get_region_by_name
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
@@ -122,6 +123,9 @@ def get_sms_metadata(game):
 
 	if game.metadata.platform == 'Game Gear':
 		game.metadata.tv_type = TVSystem.Agnostic
+		#Because there's no accessories to make things confusing, we can assume the Game Gear's input info, but not the Master System's
+		game.metadata.input_info.inputs = [InputType.Digital]
+		game.metadata.input_info.buttons = 2 #1 on the left, 2 on the right
 
 	software = get_software_list_entry(game)
 	if software:
