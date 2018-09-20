@@ -16,6 +16,9 @@ input_types = {
 def _add_atari_7800_header_info(game, header):
 	game.metadata.input_info.set_known()
 
+	left_controller_used = False
+	right_controller_used = False
+
 	left_input_type = header[55]
 	right_input_type = header[56]
 	if left_input_type != 0:
@@ -38,7 +41,12 @@ def _add_atari_7800_header_info(game, header):
 			game.metadata.input_info.inputs = [InputType.Custom]
 
 	if left_controller_used and right_controller_used:
-		game.metadata.specific_info
+		game.metadata.specific_info['Number-of-Players'] = 2 #I guess?
+	elif right_controller_used and not left_controller_used:
+		#Maybe some emulators have a controller swap thing to use here
+		game.metadata.specific_info['Controller-Port-Used'] = 'Right'
+	elif left_controller_used and not right_controller_used:
+		game.metadata.specific_info['Controller-Port-Used'] = 'Left'
 
 	tv_type = header[57]
 
