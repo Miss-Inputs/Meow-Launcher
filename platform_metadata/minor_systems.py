@@ -278,6 +278,11 @@ def add_cd32_info(game):
 	game.metadata.input_info.inputs = [InputType.Analog]
 	game.metadata.input_info.buttons = 6
 
+def add_neogeo_cd_info(game):
+	#Apparently there is a mahjong controller too, but... meh
+	game.metadata.input_info.inputs = [InputType.Digital]
+	game.metadata.input_info.buttons = 4
+
 def add_ibm_pcjr_info(game):
 	#TODO .jrc files should have a header with something in them, so eventually, IBM PCjr will get its own module here
 	#Input info: Keyboard or joystick
