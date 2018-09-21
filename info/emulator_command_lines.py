@@ -199,7 +199,7 @@ def mame_nes(game, _):
 		#We don't need to detect TV type because the FDS was only released in Japan and so the Famicom can be used for everything
 		return mame_command_line('fds', 'flop')
 
-	uses_sb486 = game.metadata.specific_info['Peripheral', None] == NESPeripheral.SuborKeyboard
+	uses_sb486 = game.metadata.specific_info.get('Peripheral', None) == NESPeripheral.SuborKeyboard
 
 	#27 and 103 might be unsupported too?
 	unsupported_ines_mappers = (29, 30, 55, 59, 60, 81, 84, 98,
