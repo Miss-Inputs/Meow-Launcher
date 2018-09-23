@@ -400,6 +400,30 @@ def mupen64plus(game, _):
 
 	return 'mupen64plus --nosaveoptions --fullscreen $<path>'
 
+def fs_uae(game, _):
+	command_line = 'fs-uae --fullscreen'
+	if game.metadata.platform == 'Amiga CD32':
+		command_line += ' --amiga_model=CD32 --joystick_0_mode=%s --cdrom_drive_0=$<path>' % shlex.quote('cd32 gamepad')
+	else:
+		chipset = game.metadata.specific_info.get('Chipset')
+		if chipset == 'OCS':
+			#TODO: This is forcing specific models, where there would be a few different models that support the given chipset, and maybe the user only has one of those models but not the one we're forcing
+			command_line += ' --amiga_model=A500'
+			#A1000 would also work, Amiga 2000 also has OCS but it's not one of the options
+		elif chipset == 'ECS':
+			#A500+ and A600, also A3000 but that seems to not have a Kickstart ROM that exists
+			command_line += ' --amiga_model=A600'
+		else:
+			#AGA: 1200 or 4000 (the latter has a 68040 processor instead of 68EC020)
+			#We'll also use this to run any software where we don't know what model it was designed for, because it would only not work if the software uses OCS or ECS specific tricks, should be backwards compatible in theory
+			#Anyway, a lot of stuff is going to be in .adf format and because all we can really do to detect the chipset is look at the MAME software lists, it'll only detect .ipf stuff anyway
+			command_line += ' --amiga_model=A4000/040'
+		#Hmm... there is also --cpu=68060 which some demoscene productions use so maybe I should look into that...
+		command_line += ' --floppy_drive_0=$<path>'
+	if game.metadata.tv_type == TVSystem.NTSC:
+		command_line += ' --ntsc_mode=1'
+	return command_line
+
 def basilisk_ii(app, other_config):
 	if 'arch' in app.config:
 		if app.config['arch'] == 'ppc':

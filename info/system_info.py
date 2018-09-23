@@ -109,6 +109,7 @@ systems = [
 	#I avoid using anything which requires me to input arcane commands or hear arcane sounds here or wait for arcane
 	#times, though I suppose I _could_ do that, it just doesn't feel like a nicely organized bunch of launcher scripts if
 	#I do that
+	System('Amiga', 'a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench'], ['FS-UAE']),
 	System('Atari 8-bit', 'a800', ['a800', 'a800_flop', 'xegs'], ['MAME (Atari 8-bit)']),
 	System('C64', 'c64', ['c64_cart', 'c64_cass', 'c64_flop'], ['MAME (C64)']),
 	System('Casio PV-2000', 'pv2000', ['pv2000'], ['MAME (PV-2000)']),
@@ -224,7 +225,6 @@ systems = [
 	#TODO: Me being lazy, need to check if these actually work or not:
 	System('Acorn Atom', 'atom', ['atom_cass', 'atom_flop', 'atom_rom'], []),
 	System('Acorn Electron', 'electron', ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], []),
-	System('Amiga', 'a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench'], []),
 	#MAME is known to not work here, need to try some UAE fork
 	System('Amstrad CPC', 'cpc464', ['cpc_cass', 'cpc_flop'], []),
 	#The not-plus one (probably will need to switch to cpc664/cpc6128 for flopppy stuff)

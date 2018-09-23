@@ -35,8 +35,8 @@ mame_floppy_formats = ['d77', 'd88', '1dd', 'dfi', 'hfe', 'imd', 'ipf', 'mfi', '
 
 emulators = {
 	'Dolphin': Emulator(command_lines.dolphin, ['iso', 'gcz', 'elf', 'dol', 'wad'], []),
-	'FS-UAE': Emulator('fs-uae --fullscreen --amiga_model=CD32 --joystick_0_mode=%s --cdrom_drive_0=$<path>' % shlex.quote('cd32 gamepad'), ['iso', 'cue'], []),
-	#TODO!!! Fix this up for not-CD32 Amigas. Later...
+	'FS-UAE': Emulator(command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf'], []),
+	#Note that .ipf files need a separately downloadable plugin. We could detect the presence of that, I guess
 	'Gambatte': Emulator(command_lines.gambatte, ['gb', 'gbc'], ['zip']),
 	#--gba-cgb-mode[=0] and --force-dmg-mode[=0] may be useful in obscure situations
 	'Kega Fusion': Emulator(command_lines.kega_fusion, ['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', 'sc', '32x'], ['zip']),
