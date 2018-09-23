@@ -280,9 +280,9 @@ def add_amiga_info(game):
 		software.add_generic_info(game)
 		chipset = 'OCS'
 		if software.get_info('usage') == 'Requires ECS':
-			chipset == 'ECS'
+			chipset = 'ECS'
 		elif software.get_info('usage') == 'Requires AGA':
-			chipset == 'AGA'
+			chipset = 'AGA'
 		game.metadata.specific_info['Chipset'] = chipset
 
 def add_cd32_info(game):
