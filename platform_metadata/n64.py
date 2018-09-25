@@ -86,7 +86,6 @@ def add_n64_metadata(game):
 	game.metadata.input_info.inputs = [InputType.Digital, InputType.Analog]
 	game.metadata.input_info.buttons = 9 #A, B, 4 * C, L, R, Z
 
-	#TODO: Check Mupen64Plus's database (/usr/local/share/mupen64plus/mupen64plus.ini). That will take 5 hours because it's indexed by MD5 and not something like internal name or product code, but eh... it has the things. For ROMs it knows about. Hmm. I guess it's all we can do, unless you want to make a whole database of N64 ROMs yourself, young lady.
 	database = get_mupen64plus_database()
 
 	database_entry = database.get(rom_md5)
