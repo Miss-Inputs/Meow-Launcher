@@ -5,7 +5,7 @@ import configparser
 
 import config
 from platform_metadata.nes import NESPeripheral
-from .system_info import mame_floppy_formats
+from .system_info import MediaType
 from .region_info import TVSystem
 
 debug = '--debug' in sys.argv
@@ -245,17 +245,20 @@ def mame_zx_spectrum(game, _):
 	#TODO: Add casettes and ROMs; former will require autoboot_script, I don't know enough about the latter but it seems to use exp = intf2
 	#Maybe quickload things? Do those do anything useful?
 	options = {}
-	if game.rom.extension in mame_floppy_formats:
+	if game.metadata.media_type == MediaType.Floppy:
 		system = 'specpls3'
 		slot = 'flop1'
 		#If only one floppy is needed, you can add -upd765:1 "" to the commmand line and use just "flop" instead of "flop1".
 		#Seemingly the "exp" port doesn't do anything, so we can't attach a Kempston interface. Otherwise, we could use this for snapshots and tape games too.
-	else:
+	elif game.metadata.media_type == MediaType.Snapshot:
 		#No harm in using this for 48K games, it works fine, and saves us from having to detect which model a game is designed for. Seems to be completely backwards compatible, which is a relief.
 		#We do need to plug in the Kempston interface ourselves, though; that's fine. Apparently how the ZX Interface 2 works is that it just maps joystick input to keyboard input, so we don't really need it, but I could be wrong and thinking of something else entirely.
 		system = 'spec128'
 		slot = 'dump'
 		options['exp'] = 'kempjoy'
+	else:
+		#Should not happen
+		return None
 
 	return mame_command_line(system, slot, options, True)
 
@@ -269,10 +272,6 @@ def dolphin(game, _):
 
 def citra(game, _):
 	if game.rom.extension != '3dsx':
-		if not game.metadata.specific_info.get('Has-SMDH', False):
-			if debug:
-				print('Skipping', game.rom.path, 'because no SMDH')
-			return None
 		if not game.metadata.specific_info.get('Decrypted', True):
 			if debug:
 				print('Skipping', game.rom.path, 'because encrypted')
@@ -281,16 +280,12 @@ def citra(game, _):
 			if debug:
 				print('Skipping', game.rom.path, 'because not CXI')
 			return None
+		if not game.metadata.specific_info.get('Has-SMDH', False):
+			#Indicates that this is probably an applet, rather than a thing that can be run
+			if debug:
+				print('Skipping', game.rom.path, 'because no SMDH')
+			return None
 	return 'citra-qt $<path>'
-
-def kega_fusion(game, _):
-	#if game.rom.extension == 'md' and game.metadata.platform != 'Mega Drive':
-	#	#Probably just a readme file or similar
-	#	return None
-	if game.rom.extension == 'bin' and game.metadata.platform == 'Mega CD':
-		#Prefer the .cue of .bin/.cue images
-		return None
-	return 'kega-fusion -fullscreen $<path>'
 
 def mednafen_nes(game, _):
 	#Yeah okay, I need a cleaner way of doing this
@@ -327,7 +322,7 @@ def mame_sg1000(game, _):
 	has_keyboard = False
 
 	ext = game.rom.extension
-	if ext in mame_floppy_formats or ext == 'sf7':
+	if game.metadata.media_type == MediaType.Floppy:
 		system = 'sf7000'
 		slot = 'flop'
 		has_keyboard = True
@@ -368,28 +363,36 @@ def mame_fm_towns_marty(game, _):
 		'scsi:5': '',
 	}
 
-	if game.rom.extension in mame_floppy_formats:
+	if game.metadata.media_type == MediaType.Floppy:
 		slot = 'flop1'
-	else:
+	elif game.metadata.media_type == MediaType.OpticalDisc:
 		slot = 'cdrom'
+	else:
+		#Should never happen
+		return None
 	return mame_command_line('fmtmarty', slot, slot_options)
 
 def mame_ibm_pcjr(game, _):
 	slot_options = {'bios': 'quiksilver'}
 
-	if game.rom.extension in ('bin', 'jrc'):
+	if game.metadata.media_type == MediaType.Cartridge:
 		slot = 'cart1'
-	else:
+	elif game.metadata.media_type == MediaType.Floppy:
 		#Floppy is the only other kind of rom we accept at this time
 		slot = 'flop'
+	else:
+		#Should never happen
+		return None
 	return mame_command_line('ibmpcjr', slot, slot_options, has_keyboard=True)
 
 def mame_atari_jaguar(game, _):
-	if game.rom.extension in ('j64', 'rom', 'bin'):
+	if game.metadata.media_type == MediaType.Cartidge:
 		slot = 'cart1'
-	else:
-		#Nothing else is a valid extension
+	elif game.metadata.media_type == MediaType.Executable:
 		slot = 'quik'
+	else:
+		#Should never happen
+		return None
 	return mame_command_line('jaguar', slot)
 
 def mupen64plus(game, _):
