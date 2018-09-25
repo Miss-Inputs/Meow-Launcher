@@ -1,10 +1,18 @@
 import calendar
+from enum import Enum, auto
 
-from metadata import InputType
+from metadata import InputType, SaveType
 from region_detect import get_region_by_name
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
 from .sega_common import licensee_codes
+
+class SMSPeripheral(Enum):
+	StandardController = auto()
+	Lightgun = auto()
+	Paddle = auto()
+	Tablet = auto()
+	SportsPad = auto()
 
 def decode_bcd(i):
 	if not isinstance(i, int):
@@ -131,4 +139,39 @@ def get_sms_metadata(game):
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
-		#Input info will be tricky, as nothing tells me if things need light guns, or there are even games like Action Fighter which support the SK-1100 keyboard optionally
+
+		game.metadata.save_type = SaveType.Cart if software.get_part_feature('battery') == 'yes' else SaveType.Nothing
+
+		usage = software.get_info('usage')
+		if usage == 'Only runs with PAL/50Hz drivers, e.g. smspal':
+			game.metadata.tv_type = TVSystem.PAL
+		#Other usage strings:
+		#Input works only with drivers of Japanese region, e.g. sms1kr,smsj
+		#Only runs with certain drivers, e.g. smsj - others show SOFTWARE ERROR
+		#To play in 3-D on SMS1, hold buttons 1 and 2 while powering up the system.
+		#Video mode is correct only on SMS 2 drivers, e.g. smspal
+		#Video only works correctly on drivers with SMS1 VDP, e.g. smsj
+
+		if game.metadata.platform == 'Master System':
+			game.metadata.input_info.buttons = 2
+			game.metadata.input_info.inputs = [InputType.Digital]
+
+			controller_1 = software.get_info('ctrl1_default')
+			#ctrl2_default is only ever equal to ctrl1_default when it is present, so ignore it for our purposes
+			#Note that this doesn't actually tell us about games that _support_ given peripherals, just what games need them
+			peripheral = SMSPeripheral.StandardController
+			if controller_1 == 'graphic':
+				peripheral = SMSPeripheral.Tablet
+				game.metadata.input_info.inputs = [InputType.Touchscreen]
+			elif controller_1 == 'lphaser':
+				peripheral = SMSPeripheral.Lightgun
+				game.metadata.input_info.inputs = [InputType.LightGun]
+				game.metadata.input_info.buttons = 2
+			elif controller_1 == 'paddle':
+				peripheral = SMSPeripheral.Paddle
+				game.metadata.input_info.inputs = [InputType.Paddle]
+			elif controller_1 == 'sportspad':
+				peripheral = SMSPeripheral.SportsPad
+				game.metadata.input_info.inputs = [InputType.Trackball]
+
+			game.metadata.specific_info['Peripheral'] = peripheral
