@@ -156,7 +156,7 @@ def get_sms_metadata(game):
 			game.metadata.input_info.buttons = 2
 			game.metadata.input_info.inputs = [InputType.Digital]
 
-			controller_1 = software.get_info('ctrl1_default')
+			controller_1 = software.get_shared_feature('ctrl1_default')
 			#ctrl2_default is only ever equal to ctrl1_default when it is present, so ignore it for our purposes
 			#Note that this doesn't actually tell us about games that _support_ given peripherals, just what games need them
 			peripheral = SMSPeripheral.StandardController
