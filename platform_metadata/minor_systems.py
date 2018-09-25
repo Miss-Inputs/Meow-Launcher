@@ -238,7 +238,6 @@ def add_vic20_info(game):
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
-		#TODO: Get sharedfeat = compatibility to get TV type
 
 def add_sord_m5_info(game):
 	#Input info: Keyboard, maybe joystick?
