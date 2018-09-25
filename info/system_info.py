@@ -225,7 +225,6 @@ systems = [
 	#TODO: Me being lazy, need to check if these actually work or not:
 	System('Acorn Atom', 'atom', ['atom_cass', 'atom_flop', 'atom_rom'], []),
 	System('Acorn Electron', 'electron', ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], []),
-	#MAME is known to not work here, need to try some UAE fork
 	System('Amstrad CPC', 'cpc464', ['cpc_cass', 'cpc_flop'], []),
 	#The not-plus one (probably will need to switch to cpc664/cpc6128 for flopppy stuff)
 	System('APF Imagination Machine', 'apfimag', ['apfimag_cass', 'apfm1000'], []),
