@@ -65,6 +65,7 @@ emulators =
 [N64]
 paths = 
 emulators = 
+prefer_controller_pak_over_rumble = 
 
 [Neo Geo CD]
 paths = 

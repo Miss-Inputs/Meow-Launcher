@@ -107,6 +107,7 @@ def add_n64_metadata(game):
 		elif database_entry.get('Mempak', 'No') == 'Yes':
 			#Apparently it is possible to have both cart and memory card saving, so that is strange
 			#I would think though that if the cartridge could save everything it needed to, it wouldn't bother with a memory card, so if it does use the controller pak then that's probably the main form of saving
+			game.metadata.specific_info['Uses-Controller-Pak'] = True
 			game.metadata.save_type = SaveType.MemoryCard
 		else:
 			#TODO: iQue would be SaveType.Internal, could maybe detect that based on CIC but that might be silly (the saving wouldn't be emulated by anything at this point anyway)

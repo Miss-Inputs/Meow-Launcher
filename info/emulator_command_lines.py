@@ -395,11 +395,37 @@ def mame_atari_jaguar(game, _):
 		return None
 	return mame_command_line('jaguar', slot)
 
-def mupen64plus(game, _):
+def mupen64plus(game, other_config):
 	if game.metadata.specific_info.get('ROM-Format', None) == 'Unknown':
 		return None
 
-	return 'mupen64plus --nosaveoptions --fullscreen $<path>'
+	command_line = 'mupen64plus --nosaveoptions --fullscreen'
+
+	no_plugin = 1
+	controller_pak = 2
+	transfer_pak = 4
+	rumble_pak = 5
+
+	use_controller_pak = game.metadata.specific_info.get('Uses-Controller-Pak', False)
+	use_transfer_pak = game.metadata.specific_info.get('Uses-Transfer-Pak', False)
+	use_rumble_pak = game.metadata.specific_info.get('Force-Feedback', False)
+
+	plugin = no_plugin
+
+	if use_controller_pak and use_rumble_pak:
+		plugin = controller_pak if other_config.get('prefer_controller_pak_over_rumble', 'no') == 'yes' else transfer_pak
+	elif use_controller_pak:
+		plugin = controller_pak
+	elif use_rumble_pak:
+		plugin = rumble_pak
+
+	if plugin != no_plugin:
+		#TODO: Only do this if using SDL plugin (i.e. not Raphnet raw plugin)
+		command_line += ' --set %s' % shlex.quote('Input-SDL-Control1[plugin]=%d' % plugin)
+
+	#TODO: If use_transfer_pak, put in a rom + save with --gb-rom-1 and --gb-ram-1 somehow... hmm... can't insert one at runtime with console UI sooo
+
+	return command_line + ' $<path>'
 
 def fs_uae(game, _):
 	command_line = 'fs-uae --fullscreen'
