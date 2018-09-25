@@ -215,6 +215,7 @@ class Metadata():
 		self.revision = None
 		self.product_code = None
 		self.regions = []
+		self.media_type = None
 
 		#Set this up later with the respective objects
 		#TODO: Set cpu_info and screen_info up right here, and just keep track of whether they're "known" or not like input_info does
@@ -246,6 +247,7 @@ class Metadata():
 			'Developer': self.developer,
 			'Product-Code': self.product_code,
 			'Regions': [region.name if region else 'None!' for region in self.regions] if self.regions else [],
+			'Media-Type': self.media_type.name if self.media_type else None,
 
 			'Ignored-Tags': self.ignored_filename_tags,
 			'TV-Type': self.tv_type.name if self.tv_type else None,

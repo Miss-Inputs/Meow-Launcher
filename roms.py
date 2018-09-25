@@ -167,10 +167,7 @@ class Game():
 
 		launchers.make_launcher(command_line, self.rom.name, self.metadata, {'Full-Path': self.rom.path}, self.icon)
 
-def try_emulator(system_config, emulator, rom_dir, root, name):
-	path = os.path.join(root, name)
-
-	rom = Rom(path)
+def try_emulator(system_config, emulator, rom_dir, root, rom):
 	game = Game(rom, emulator, system_config.name, root)
 
 	if game.rom.extension == 'm3u':
@@ -196,7 +193,7 @@ def try_emulator(system_config, emulator, rom_dir, root, name):
 
 	return game
 
-def process_file(system_config, rom_dir, root, name):
+def process_file(system_config, rom_dir, root, rom):
 	game = None
 
 	emulator_name = None
@@ -205,7 +202,7 @@ def process_file(system_config, rom_dir, root, name):
 		if potential_emulator not in emulator_info.emulators:
 			continue
 		emulator_name = potential_emulator
-		game = try_emulator(system_config, emulator_info.emulators[potential_emulator], rom_dir, root, name)
+		game = try_emulator(system_config, emulator_info.emulators[potential_emulator], rom_dir, root, rom)
 		if game:
 			break
 
@@ -251,7 +248,9 @@ def process_emulated_system(system_config):
 				if name.startswith('[BIOS]'):
 					continue
 
-				if name.lower().endswith('.m3u'):
+				rom = Rom(path)
+
+				if rom.extension == 'm3u':
 					used_m3u_filenames.extend(parse_m3u(path))
 				else:
 					#Avoid adding part of a multi-disc game if we've already added the whole thing via m3u
@@ -259,7 +258,11 @@ def process_emulated_system(system_config):
 					if name in used_m3u_filenames or path in used_m3u_filenames:
 						continue
 
-				process_file(system_config, rom_dir, root, name)
+					system = system_info.get_system_by_name(system_config.name)
+					if not system.is_valid_file_type(rom.extension):
+						continue
+
+				process_file(system_config, rom_dir, root, rom)
 
 def process_engine_system(system_config, game_info):
 	for file_dir in system_config.paths:

@@ -4,13 +4,11 @@ import sys
 import configparser
 
 import config
-from .region_info import TVSystem
 from platform_metadata.nes import NESPeripheral
+from .system_info import mame_floppy_formats
+from .region_info import TVSystem
 
 debug = '--debug' in sys.argv
-
-#Guess we just have to duplicate this info here to avoid circular references
-mame_floppy_formats = ['d77', 'd88', '1dd', 'dfi', 'hfe', 'imd', 'ipf', 'mfi', 'mfm', 'td0', 'cqm', 'cqi', 'dsk']
 
 def _get_autoboot_script_by_name(name):
 	this_package = os.path.dirname(__file__)
@@ -286,9 +284,9 @@ def citra(game, _):
 	return 'citra-qt $<path>'
 
 def kega_fusion(game, _):
-	if game.rom.extension == 'md' and game.metadata.platform != 'Mega Drive':
-		#Probably just a readme file or similar
-		return None
+	#if game.rom.extension == 'md' and game.metadata.platform != 'Mega Drive':
+	#	#Probably just a readme file or similar
+	#	return None
 	if game.rom.extension == 'bin' and game.metadata.platform == 'Mega CD':
 		#Prefer the .cue of .bin/.cue images
 		return None

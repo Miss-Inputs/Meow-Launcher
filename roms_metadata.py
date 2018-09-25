@@ -158,6 +158,9 @@ def add_device_hardware_metadata(game):
 def add_metadata(game):
 	game.metadata.extension = game.rom.extension
 
+	system = system_info.get_system_by_name(game.metadata.platform)
+	game.metadata.media_type = system.get_media_type(game.rom.extension)
+
 	software_list_names = system_info.get_mame_software_list_names_by_system_name(game.metadata.platform)
 	if software_list_names:
 		game.software_lists = get_software_lists_by_names(software_list_names)

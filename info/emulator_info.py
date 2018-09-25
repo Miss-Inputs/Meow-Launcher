@@ -2,6 +2,7 @@ import sys
 import shlex
 
 import info.emulator_command_lines as command_lines
+from .system_info import mame_floppy_formats, mame_cdrom_formats
 
 debug = '--debug' in sys.argv
 
@@ -29,9 +30,6 @@ class MameSystem(Emulator):
 	def __init__(self, command_line, supported_extensions):
 		Emulator.__init__(self, command_line, supported_extensions, ['7z', 'zip'])
 
-mame_cdrom_formats = ['iso', 'chd', 'cue', 'toc', 'nrg', 'cdr', 'gdi']
-#Some drivers have custom floppy formats, but these seem to be available for all
-mame_floppy_formats = ['d77', 'd88', '1dd', 'dfi', 'hfe', 'imd', 'ipf', 'mfi', 'mfm', 'td0', 'cqm', 'cqi', 'dsk']
 
 emulators = {
 	'Dolphin': Emulator(command_lines.dolphin, ['iso', 'gcz', 'elf', 'dol', 'wad'], []),
@@ -237,7 +235,6 @@ emulators = {
 	#--These experimental emulators seem to not work more often than they do, but they are here for you to play with yourself if you want to, because maybe other people have better luck than me (everything in my life always goes wrong):
 	'MAME (Atari Jaguar)': MameSystem(command_lines.mame_atari_jaguar, ['j64', 'rom', 'bin', 'abs', 'cof', 'jag', 'prg']),
 	#Hmm. Mostly not working. Raiden seems to work, but that's about it; other stuff just hangs at the Jaguar logo or has no sound or what barely resembles graphics is corrupted etc
-	#TODO: Quickload
 	'MAME (FM Towns Marty)': MameSystem(command_lines.mame_fm_towns_marty, mame_cdrom_formats + mame_floppy_formats),
 	#As it says right there in the fmtowns.cpp comments: "Issues: Video emulation is far from complete." This is apparent, as there are some games that run on the FM Towns Not-Marty but not this; they have heavily corrupted graphics. But to use the FM Towns I'd have to first make sure that it being a computer won't mess with anything usability-wise.
 	#TODO: Something about a -memc slot? Useful or nah? Not fussed about hard disks, also this is the game console one why does it have a hard drive slot oh well

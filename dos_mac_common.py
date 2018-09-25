@@ -7,6 +7,7 @@ import collections
 
 import config
 from metadata import Metadata
+from info.system_info import MediaType
 import launchers
 
 debug = '--debug' in sys.argv
@@ -55,6 +56,7 @@ class App:
 		metadata = Metadata()
 		#TODO Add input_info and whatnot
 		self.additional_metadata(metadata)
+		metadata.media_type = MediaType.Executable
 
 		if 'developer' in self.config:
 			metadata.developer = self.config['developer']

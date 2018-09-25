@@ -87,6 +87,7 @@ extra_subfolders = {
 	'By expansion chip': 'X-Expansion-Chip',
 	'By regions': 'X-Regions',
 	'By genre and input method': ['X-Genre', 'X-Input-Methods'],
+	'By media type': 'X-Media-Type',
 	'Is mechanical': 'X-Is-Mechanical',
 	'Has header': 'X-Headered',
 	'Has icon': 'Icon',
