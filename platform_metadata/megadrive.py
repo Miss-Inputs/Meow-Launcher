@@ -42,7 +42,7 @@ def parse_peripherals(game, peripherals):
 			elif peripheral_char == 'K':
 				game.metadata.input_info.add_option([input_metadata.Keyboard()])
 			elif peripheral_char == 'J':
-				game.metadata.input_info.add_option(standard_gamepad)
+				game.metadata.input_info.add_option([standard_gamepad])
 			elif peripheral_char == '6':
 				six_button_gamepad = input_metadata.NormalInput()
 				six_button_gamepad.face_buttons = 6
