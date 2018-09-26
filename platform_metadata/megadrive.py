@@ -16,53 +16,13 @@ t_with_zero = re.compile('^T-0')
 t_not_followed_by_dash = re.compile('^T(?!-)')
 acceptable_peripherals = set('046ABCDFGJKLMPRTV')
 
-def add_megadrive_info(game, header):
-	try:
-		console_name = header[:16].decode('ascii')
-	except UnicodeDecodeError:
-		game.metadata.specific_info['Bad-TMSS'] = True
-		return
-
-	if not console_name.startswith('SEGA') and not console_name.startswith(' SEGA'):
-		game.metadata.specific_info['Bad-TMSS'] = True
-		return
-
-	try:
-		copyright_match = copyright_regex.match(header[16:32].decode('ascii'))
-		if copyright_match:
-			maker = copyright_match[1].strip().rstrip(',')
-			maker = t_with_zero.sub('T-', maker)
-			maker = t_not_followed_by_dash.sub('T-', maker)
-			if maker in licensee_codes:
-				game.metadata.publisher = licensee_codes[maker]
-			game.metadata.year = copyright_match[2]
-			try:
-				game.metadata.month = datetime.strptime(copyright_match[3], '%b').strftime('%B')
-			except ValueError:
-				#There are other spellings such as JUR, JLY out there, but oh well
-				pass
-	except UnicodeDecodeError:
-		pass
-
-	try:
-		#There's a space at header[130] apparently, so I guess that might be part of the thing, but eh
-		serial = header[131:142].decode('ascii')
-		game.metadata.product_code = serial[:8]
-		#- in between
-		version = serial[-2]
-		if version.isdigit():
-			game.metadata.revision = int(version)
-	except UnicodeDecodeError:
-		pass
-	#Checksum: header[142:144]
-
+def parse_peripherals(game, peripherals):
 	standard_gamepad = input_metadata.NormalInput()
 	standard_gamepad.face_buttons = 3
 	standard_gamepad.dpads = 1
 	game.metadata.input_info.add_option([standard_gamepad])
 
 	game.metadata.input_info.buttons = 3
-	peripherals = [c for c in header[144:160].decode('ascii', errors='ignore') if c != '\x00' and c != ' ']
 	if set(peripherals) <= acceptable_peripherals:
 		#TODO: I could just do the "whoops this is a weird peripheral_char" as a final else inside the for loop... eh
 		for peripheral_char in peripherals:
@@ -123,6 +83,49 @@ def add_megadrive_info(game, header):
 			print(game.rom.path, 'has T (tablet)')
 		if 'D' in peripherals:
 			print(game.rom.path, 'has the D')
+
+def add_megadrive_info(game, header):
+	try:
+		console_name = header[:16].decode('ascii')
+	except UnicodeDecodeError:
+		game.metadata.specific_info['Bad-TMSS'] = True
+		return
+
+	if not console_name.startswith('SEGA') and not console_name.startswith(' SEGA'):
+		game.metadata.specific_info['Bad-TMSS'] = True
+		return
+
+	try:
+		copyright_match = copyright_regex.match(header[16:32].decode('ascii'))
+		if copyright_match:
+			maker = copyright_match[1].strip().rstrip(',')
+			maker = t_with_zero.sub('T-', maker)
+			maker = t_not_followed_by_dash.sub('T-', maker)
+			if maker in licensee_codes:
+				game.metadata.publisher = licensee_codes[maker]
+			game.metadata.year = copyright_match[2]
+			try:
+				game.metadata.month = datetime.strptime(copyright_match[3], '%b').strftime('%B')
+			except ValueError:
+				#There are other spellings such as JUR, JLY out there, but oh well
+				pass
+	except UnicodeDecodeError:
+		pass
+
+	try:
+		#There's a space at header[130] apparently, so I guess that might be part of the thing, but eh
+		serial = header[131:142].decode('ascii')
+		game.metadata.product_code = serial[:8]
+		#- in between
+		version = serial[-2]
+		if version.isdigit():
+			game.metadata.revision = int(version)
+	except UnicodeDecodeError:
+		pass
+	#Checksum: header[142:144]
+
+	peripherals = [c for c in header[144:160].decode('ascii', errors='ignore') if c != '\x00' and c != ' ']
+	parse_peripherals(game, peripherals)
 
 	save_id = header[0xb0:0xb4]
 	#Apparently... what the heck
