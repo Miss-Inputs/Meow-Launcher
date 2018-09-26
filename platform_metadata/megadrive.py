@@ -20,7 +20,6 @@ def parse_peripherals(game, peripherals):
 	standard_gamepad = input_metadata.NormalInput()
 	standard_gamepad.face_buttons = 3
 	standard_gamepad.dpads = 1
-	game.metadata.input_info.add_option([standard_gamepad])
 
 	game.metadata.input_info.buttons = 3
 	if set(peripherals) <= acceptable_peripherals:
