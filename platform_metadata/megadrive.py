@@ -28,9 +28,9 @@ def parse_peripherals(game, peripherals):
 		for peripheral_char in peripherals:
 			if peripheral_char == 'M':
 				#3 buttons if I'm not mistaken
-				game.metadata.input_info.append_option([input_metadata.Mouse()])
+				game.metadata.input_info.add_option([input_metadata.Mouse()])
 			elif peripheral_char == 'V':
-				game.metadata.input_info.append_option([input_metadata.Paddle()])
+				game.metadata.input_info.add_option([input_metadata.Paddle()])
 			elif peripheral_char == 'A':
 				xe_1_ap = input_metadata.NormalInput()
 				xe_1_ap.face_buttons = 10
@@ -38,11 +38,11 @@ def parse_peripherals(game, peripherals):
 				xe_1_ap.analog_sticks = 2 #The second one only has one axis, though
 				game.metadata.input_info.add_option([xe_1_ap])
 			elif peripheral_char == 'G':
-				game.metadata.input_info.append_option([input_metadata.LightGun()])
+				game.metadata.input_info.add_option([input_metadata.LightGun()])
 			elif peripheral_char == 'K':
-				game.metadata.input_info.append_option([input_metadata.Keyboard()])
+				game.metadata.input_info.add_option([input_metadata.Keyboard()])
 			elif peripheral_char == 'J':
-				game.metadata.input_info.append_option(standard_gamepad)
+				game.metadata.input_info.add_option(standard_gamepad)
 			elif peripheral_char == '6':
 				six_button_gamepad = input_metadata.NormalInput()
 				six_button_gamepad.face_buttons = 6
@@ -56,7 +56,7 @@ def parse_peripherals(game, peripherals):
 				game.metadata.input_info.add_option([sms_gamepad])
 			elif peripheral_char == 'L':
 				#Activator
-				game.metadata.input_info.append_option([input_metadata.MotionControls()])
+				game.metadata.input_info.add_option([input_metadata.MotionControls()])
 			elif peripheral_char == '4' or peripheral_char == 'O':
 				#Team Play and J-Cart respectively
 				#num_players = 4
