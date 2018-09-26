@@ -9,6 +9,7 @@ class MediaType(Enum):
 	Tape = auto()
 	Snapshot = auto()
 	Barcode = auto()
+	Standalone = auto()
 
 class System():
 	def __init__(self, name, mame_driver, mame_software_lists, emulators, file_types=None):

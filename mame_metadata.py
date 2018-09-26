@@ -3,6 +3,7 @@ import re
 import sys
 
 import config
+from info.system_info import MediaType
 from metadata import EmulationStatus, CPUInfo, ScreenInfo, InputType, SaveType
 from region_detect import get_language_by_english_name, get_regions_from_filename_tags
 from common import find_filename_tags
@@ -79,12 +80,15 @@ def add_machine_platform(machine):
 	elif machine.source_file == 'cps1' and '(CPS Changer, ' in machine.name:
 		machine.metadata.platform = 'CPS Changer'
 		machine.name = machine.name.replace('CPS Changer, ', '')
+		machine.metadata.media_type = MediaType.Cartridge
 	elif category == 'Game Console':
 		machine.metadata.platform = 'Plug & Play'
 		#Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug &
         #play system
 	elif machine.name.startswith(('Game & Watch: ', 'Select-A-Game: ', 'R-Zone: ')):
 		machine.metadata.platform, _, machine.name = machine.name.partition(': ')
+		if machine.metadata.platform in ('Select-A-Game', 'R-Zone'):
+			machine.metadata.media_type = MediaType.Cartridge
 	elif category == 'Misc.':
 		machine.metadata.platform = machine.metadata.genre
 	elif category == 'Handheld' and machine.metadata.genre == "Plug n' Play TV Game":
@@ -123,6 +127,8 @@ def add_metadata(machine):
 	machine.metadata.screen_info = ScreenInfo()
 	displays = machine.xml.findall('display')
 	machine.metadata.screen_info.load_from_xml_list(displays)
+
+	machine.metadata.media_type = MediaType.Standalone
 
 	add_machine_platform(machine)
 
