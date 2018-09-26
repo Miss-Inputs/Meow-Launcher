@@ -58,9 +58,11 @@ def parse_release_date(game, release_info):
 
 
 class Software():
-	def __init__(self, xml):
+	def __init__(self, xml, software_list_name=None, software_list_description=None):
 		self.xml = xml
 		self.has_multiple_parts = len(xml.findall('part')) > 1
+		self.software_list_name = software_list_name
+		self.software_list_description = software_list_description
 
 	def get_part(self, name=None):
 		if name:
@@ -111,6 +113,15 @@ class Software():
 	def add_generic_info(self, game):
 		game.metadata.specific_info['MAME-Software-Name'] = self.xml.attrib.get('name')
 		game.metadata.specific_info['MAME-Software-Full-Name'] = self.xml.findtext('description')
+
+		cloneof = self.xml.attrib.get('cloneof')
+		if cloneof:
+			game.metadata.specific_info['MAME-Software-Parent'] = cloneof
+
+		if self.software_list_name:
+			game.metadata.specific_info['MAME-Software-List-Name'] = self.software_list_name
+		if self.software_list_description:
+			game.metadata.specific_info['MAME-Software-List-Description'] = self.software_list_description
 
 		publisher = consistentify_manufacturer(self.xml.findtext('publisher'))
 		already_has_publisher = game.metadata.publisher and (not game.metadata.publisher.startswith('<unknown'))
@@ -164,7 +175,7 @@ def find_in_sofware_list(software_list, crc=None, sha1=None, part_matcher=_does_
 			#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
 			#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
 			if part_matcher(part, crc, sha1):
-				return Software(software)
+				return Software(software, software_list.getroot().attrib.get('name'), software_list.getroot().attrib.get('description'))
 	return None
 
 def find_in_software_lists(software_lists, crc=None, sha1=None, part_matcher=_does_part_match):
