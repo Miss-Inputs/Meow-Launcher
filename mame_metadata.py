@@ -3,8 +3,9 @@ import re
 import sys
 
 import config
+import input_metadata
 from info.system_info import MediaType
-from metadata import EmulationStatus, CPUInfo, ScreenInfo, InputType, SaveType
+from metadata import EmulationStatus, CPUInfo, ScreenInfo, SaveType
 from region_detect import get_language_by_english_name, get_regions_from_filename_tags
 from common import find_filename_tags
 from mame_helpers import find_main_cpu, consistentify_manufacturer
@@ -199,62 +200,76 @@ def add_input_info(machine):
 		#Sometimes you get some games with 1 or more players, but no control type defined.  This usually happens with
 		#pinball games and weird stuff like a clock, but also some genuine games like Crazy Fight that are more or less
 		#playable just fine, so we'll leave them in
-		machine.metadata.input_info.inputs = [InputType.Custom]
+		machine.metadata.input_info.add_option([input_metadata.Custom()])
 		return
 
-	buttons_are_known = False
+	input_option = input_metadata.InputOption()
+
 	for control in control_elements:
-		buttons = 0
-		if 'buttons' in control.attrib and not buttons_are_known:
-			buttons = int(control.attrib['buttons'])
+		buttons = int(control.attrib.get('buttons', 0))
 
-		if not buttons_are_known:
-			machine.metadata.input_info.buttons = buttons
-			buttons_are_known = True
+		if control.attrib.get('player', '1') != '1':
+			#I care not for these "other people" and "social interaction" concepts
+			#Anyway, this would only matter for stuff like Lucky & Wild, and... not sure what I'm gonna do about that, because we wanna avoid doubling up on input types where number of players > 1
+			continue
 
-		#TODO: This very much needs some refactoring, I just can't really brain think at the moment
-		#Yeah, still can't
-		#FIXME: Also, this means that it will append one of each input type for each player
+		#Still kinda feel like this is messy but ehhh
 		input_type = control.attrib['type']
 		if input_type == 'only_buttons':
-			pass
+			normal_input = input_metadata.NormalInput()
+			normal_input.face_buttons = buttons
+			input_option.inputs.append(normal_input)
 		elif input_type == 'joy':
-			machine.metadata.input_info.inputs.append(InputType.Digital)
+			normal_input = input_metadata.NormalInput()
+			normal_input.face_buttons = buttons
+			normal_input.dpads = 1
+			input_option.inputs.append(normal_input)
 		elif input_type == 'doublejoy':
-			machine.metadata.input_info.inputs += [InputType.Digital] * 2
+			normal_input = input_metadata.NormalInput()
+			normal_input.face_buttons = buttons
+			normal_input.dpads = 2
+			input_option.inputs.append(normal_input)
 		elif input_type == 'triplejoy':
-			machine.metadata.input_info.inputs += [InputType.Digital] * 3
+			normal_input = input_metadata.NormalInput()
+			normal_input.face_buttons = buttons
+			normal_input.dpads = 3
+			input_option.inputs.append(normal_input)
 		elif input_type == 'paddle':
 			if machine.metadata.genre == 'Driving':
 				#Yeah this looks weird and hardcody and dodgy but am I wrong
-				machine.metadata.input_info.inputs.append(InputType.SteeringWheel)
+				input_option.inputs.append(input_metadata.SteeringWheel())
 			else:
-				machine.metadata.input_info.inputs.append(InputType.Paddle)
+				input_option.inputs.append(input_metadata.Paddle())
 		elif input_type == 'stick':
-			machine.metadata.input_info.inputs.append(InputType.Analog)
+			normal_input = input_metadata.NormalInput()
+			normal_input.analog_sticks = 1
+			normal_input.face_buttons = buttons
+			input_option.inputs.append(normal_input)
 		elif input_type == 'pedal':
-			machine.metadata.input_info.inputs.append(InputType.Pedal)
+			input_option.inputs.append(input_metadata.Pedal())
 		elif input_type == 'lightgun':
 			#TODO: See if we can be clever and detect if this is actually a touchscreen, like platform = handheld or something
-			machine.metadata.input_info.inputs.append(InputType.LightGun)
+			input_option.inputs.append(input_metadata.LightGun())
 		elif input_type == 'positional':
 			#What _is_ a positional exactly
-			machine.metadata.input_info.inputs.append(InputType.Positional)
+			input_option.inputs.append(input_metadata.Positional())
 		elif input_type == 'dial':
-			machine.metadata.input_info.inputs.append(InputType.Dial)
+			input_option.inputs.append(input_metadata.Dial())
 		elif input_type == 'trackball':
-			machine.metadata.input_info.inputs.append(InputType.Trackball)
+			input_option.inputs.append(input_metadata.Trackball())
 		elif input_type == 'mouse':
-			machine.metadata.input_info.inputs.append(InputType.Mouse)
+			input_option.inputs.append(input_metadata.Mouse())
 		elif input_type == 'keypad':
-			machine.metadata.input_info.inputs.append(InputType.Keypad)
+			input_option.inputs.append(input_metadata.Keypad())
 		elif input_type == 'keyboard':
-			machine.metadata.input_info.inputs.append(InputType.Keyboard)
+			input_option.inputs.append(input_metadata.Keyboard())
 		elif input_type == 'mahjong':
-			machine.metadata.input_info.inputs.append(InputType.Mahjong)
+			input_option.inputs.append(input_metadata.Mahjong())
 		elif input_type == 'hanafuda':
-			machine.metadata.input_info.inputs.append(InputType.Hanafuda)
+			input_option.inputs.append(input_metadata.Hanafuda())
 		elif input_type == 'gambling':
-			machine.metadata.input_info.inputs.append(InputType.Gambling)
+			input_option.inputs.append(input_metadata.Gambling())
 		else:
-			machine.metadata.input_info.inputs.append(InputType.Custom)
+			input_option.inputs.append(input_metadata.Custom())
+
+		machine.metadata.input_info.input_options = [input_option]

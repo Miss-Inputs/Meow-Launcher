@@ -1,52 +1,54 @@
 import sys
 
-from metadata import SaveType, InputType
+import input_metadata
+from metadata import SaveType
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
 
 debug = '--debug' in sys.argv
 
+standard_gamepad = input_metadata.NormalInput()
+standard_gamepad.dpads = 1
+standard_gamepad.face_buttons = 2
 input_types = {
-	1: (InputType.Digital, 2),
-	2: (InputType.LightGun, 1),
-	3: (InputType.Paddle, 1),
-	4: (InputType.Trackball, 1),
+	1: standard_gamepad,
+	#The rest only have one button, for the record
+	2: input_metadata.LightGun(),
+	3: input_metadata.Paddle(),
+	4: input_metadata.Trackball(),
 }
 
 def _add_atari_7800_header_info(game, header):
 	game.metadata.input_info.set_known()
 
-	left_controller_used = False
-	right_controller_used = False
-
 	left_input_type = header[55]
 	right_input_type = header[56]
+
+	left_controller_option = None
+	right_controller_option = None
 	if left_input_type != 0:
-		left_controller_used = True
+		left_controller_option = input_metadata.InputOption()
 		if left_input_type in input_types:
-			input_type, buttons = input_types[left_input_type]
-			game.metadata.input_info.buttons = buttons
-			game.metadata.input_info.inputs = [input_type]
+			left_controller_option.inputs.append(input_types[left_input_type])
 		else:
-			game.metadata.input_info.inputs = [InputType.Custom]
+			left_controller_option.inputs.append(input_metadata.Custom)
 
 	if right_input_type != 0:
 		#TODO: Refactor to avoid duplication
-		right_controller_used = True
+		right_controller_option = input_metadata.InputOption()
 		if right_input_type in input_types:
-			input_type, buttons = input_types[right_input_type]
-			game.metadata.input_info.buttons = buttons
-			game.metadata.input_info.inputs = [input_type]
+			right_controller_option.inputs.append(input_types[right_input_type])
 		else:
-			game.metadata.input_info.inputs = [InputType.Custom]
+			right_controller_option.inputs.append(input_metadata.Custom)
 
-	if left_controller_used and right_controller_used:
+	if left_controller_option and right_controller_option:
 		game.metadata.specific_info['Number-of-Players'] = 2 #I guess?
-	elif right_controller_used and not left_controller_used:
-		#Maybe some emulators have a controller swap thing to use here
-		game.metadata.specific_info['Controller-Port-Used'] = 'Right'
-	elif left_controller_used and not right_controller_used:
-		game.metadata.specific_info['Controller-Port-Used'] = 'Left'
+		game.metadata.input_info.input_options.append(left_controller_option)
+	elif right_controller_option and not left_controller_option:
+		game.metadata.specific_info['Controller-Swap'] = True
+		game.metadata.input_info.input_options.append(right_controller_option)
+	elif left_controller_option and not right_controller_option:
+		game.metadata.input_info.input_options.append(left_controller_option)
 
 	tv_type = header[57]
 

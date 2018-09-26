@@ -1,7 +1,8 @@
 import calendar
 from enum import Enum, auto
 
-from metadata import InputType, SaveType
+import input_metadata
+from metadata import SaveType
 from region_detect import get_region_by_name
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
@@ -132,8 +133,10 @@ def get_sms_metadata(game):
 	if game.metadata.platform == 'Game Gear':
 		game.metadata.tv_type = TVSystem.Agnostic
 		#Because there's no accessories to make things confusing, we can assume the Game Gear's input info, but not the Master System's
-		game.metadata.input_info.inputs = [InputType.Digital]
-		game.metadata.input_info.buttons = 2 #1 on the left, 2 on the right
+		builtin_gamepad = input_metadata.NormalInput()
+		builtin_gamepad.dpads = 1
+		builtin_gamepad.face_buttons = 2 #'1' on left, '2' on right
+		game.metadata.input_info.add_option([builtin_gamepad])
 
 	software = get_software_list_entry(game)
 	if software:
@@ -153,25 +156,31 @@ def get_sms_metadata(game):
 		#Video only works correctly on drivers with SMS1 VDP, e.g. smsj
 
 		if game.metadata.platform == 'Master System':
-			game.metadata.input_info.buttons = 2
-			game.metadata.input_info.inputs = [InputType.Digital]
+			builtin_gamepad = input_metadata.NormalInput()
+			builtin_gamepad.dpads = 1
+			builtin_gamepad.face_buttons = 2
 
 			controller_1 = software.get_shared_feature('ctrl1_default')
 			#ctrl2_default is only ever equal to ctrl1_default when it is present, so ignore it for our purposes
 			#Note that this doesn't actually tell us about games that _support_ given peripherals, just what games need them
 			peripheral = SMSPeripheral.StandardController
+			#All of these peripherals have 2 buttons as well?
 			if controller_1 == 'graphic':
 				peripheral = SMSPeripheral.Tablet
-				game.metadata.input_info.inputs = [InputType.Touchscreen]
+				game.metadata.input_info.add_option([input_metadata.Touchscreen()])
 			elif controller_1 == 'lphaser':
 				peripheral = SMSPeripheral.Lightgun
-				game.metadata.input_info.inputs = [InputType.LightGun]
-				game.metadata.input_info.buttons = 2
+				#game.metadata.input_info.inputs = [InputType.LightGun]
+				game.metadata.input_info.add_option([input_metadata.LightGun()])
 			elif controller_1 == 'paddle':
 				peripheral = SMSPeripheral.Paddle
-				game.metadata.input_info.inputs = [InputType.Paddle]
+				game.metadata.input_info.add_option([input_metadata.Paddle()])
 			elif controller_1 == 'sportspad':
 				peripheral = SMSPeripheral.SportsPad
-				game.metadata.input_info.inputs = [InputType.Trackball]
+				game.metadata.input_info.add_option([input_metadata.Trackball()])
+			else:
+				#Not sure if this is an option for games that use lightgun/paddle/etc? I'll assume it's not
+				game.metadata.input_info.add_option([builtin_gamepad])
+
 
 			game.metadata.specific_info['Peripheral'] = peripheral

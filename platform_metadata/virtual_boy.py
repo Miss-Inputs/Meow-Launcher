@@ -1,7 +1,8 @@
+import input_metadata
 from common import convert_alphanumeric, NotAlphanumericException
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
-from metadata import SaveType, InputType
+from metadata import SaveType
 from .nintendo_common import nintendo_licensee_codes
 
 def add_virtual_boy_metadata(game):
@@ -27,8 +28,11 @@ def add_virtual_boy_metadata(game):
 
 	game.metadata.revision = header[31]
 
-	game.metadata.input_info.inputs = [InputType.Digital] * 2
-	game.metadata.input_info.buttons = 2
+	gamepad = input_metadata.NormalInput()
+	gamepad.face_buttons = 2
+	gamepad.shoulder_buttons = 2
+	gamepad.dpads = 2
+	game.metadata.input_info.add_option([gamepad])
 
 	software = get_software_list_entry(game)
 	if software:

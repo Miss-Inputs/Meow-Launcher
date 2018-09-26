@@ -6,8 +6,9 @@ except ModuleNotFoundError:
 
 import os
 
+import input_metadata
 from info.region_info import TVSystem
-from metadata import CPUInfo, ScreenInfo, Screen, SaveType, InputType
+from metadata import CPUInfo, ScreenInfo, Screen, SaveType
 from common import convert_alphanumeric, NotAlphanumericException
 from .nintendo_common import nintendo_licensee_codes
 
@@ -37,9 +38,14 @@ def add_3ds_system_info(game):
 	screen_info.screens = [top_screen, bottom_screen]
 	game.metadata.screen_info = screen_info
 
-	game.metadata.input_info.buttons = 6 #A B X Y L R, not counting Select/Home/Start
 	#Although we can't know for sure if the game uses the touchscreen, it's safe to assume that it probably does
-	game.metadata.input_info.inputs = [InputType.Digital, InputType.Analog, InputType.Touchscreen]
+	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad.analog_sticks = 1
+	builtin_gamepad.dpads = 1
+	builtin_gamepad.face_buttons = 4
+	builtin_gamepad.shoulder_buttons = 2
+
+	game.metadata.input_info.add_option(builtin_gamepad, input_metadata.Touchscreen)
 
 media_unit = 0x200
 
@@ -119,11 +125,11 @@ def parse_plain_region(game, offset, length):
 		elif library == '[SDK+NINTENDO:ExtraPad]':
 			game.metadata.specific_info['Uses-Circle-Pad-Pro'] = True
 			#ZL + ZR + right analog stick; New 3DS has these too but the extra controls there are internally represented as a Circle Pad Pro for compatibility so this all works out I think
-			game.metadata.input_info.inputs.append(InputType.Analog)
-			game.metadata.input_info.buttons += 2
+			game.metadata.input_info.input_options[0].inputs[0].analog_sticks += 1
+			game.metadata.input_info.input_options[0].inputs[0].shoulder_buttons += 2
 		elif library.startswith == '[SDK+NINTENDO:Gyroscope]':
 			game.metadata.specific_info['Uses-Gyroscope'] = True
-			game.metadata.input_info.inputs.append(InputType.MotionControls)
+			game.metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls)
 		elif library == '[SDK+NINTENDO:IsRunOnSnake]':
 			#There's also an IsRunOnSnakeForApplet found in some not-completely-sure-what-they-are builtin apps and amiibo Settings. Not sure if it does what I think it does
 			game.metadata.specific_info['New-3DS-Enhanced'] = True

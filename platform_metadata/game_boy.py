@@ -1,7 +1,8 @@
 from zlib import crc32
 
+import input_metadata
 from common import convert_alphanumeric, NotAlphanumericException
-from metadata import SaveType, InputType
+from metadata import SaveType
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
 from .nintendo_common import nintendo_licensee_codes
@@ -60,8 +61,11 @@ game_boy_mappers = {
 
 nintendo_logo_crc32 = 0x46195417
 def add_gameboy_metadata(game):
-	game.metadata.input_info.buttons = 2 #A + B (Select + Start aren't counted)
-	game.metadata.input_info.inputs = [InputType.Digital]
+	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad.dpads = 1
+	builtin_gamepad.face_buttons = 2 #A B
+	game.metadata.input_info.add_option([builtin_gamepad])
+
 	game.metadata.tv_type = TVSystem.Agnostic
 
 	header = game.rom.read(seek_to=0x100, amount=0x50)
@@ -77,7 +81,7 @@ def add_gameboy_metadata(game):
 		game.metadata.specific_info['Force-Feedback'] = mapper.has_rumble
 		game.metadata.specific_info['Has-RTC'] = mapper.has_rtc
 		if mapper.has_accelerometer:
-			game.metadata.input_info.inputs.append(InputType.MotionControls)
+			game.metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls())
 
 	#Can get product code from header[0x3f:0x43] if and only if it exists. It might not, it's only for newer games. Has to exist for GBC only games, but then homebrew doesn't follow your rules of course.
 	game.metadata.specific_info['Destination-Code'] = header[0x4a]

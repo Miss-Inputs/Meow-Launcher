@@ -4,7 +4,8 @@ from datetime import datetime
 import os
 
 import cd_read
-from metadata import SaveType, InputType
+import input_metadata
+from metadata import SaveType
 from software_list_info import get_software_list_entry
 from .sega_common import licensee_codes
 
@@ -55,36 +56,47 @@ def add_megadrive_info(game, header):
 		pass
 	#Checksum: header[142:144]
 
+	standard_gamepad = input_metadata.NormalInput()
+	standard_gamepad.face_buttons = 3
+	standard_gamepad.dpads = 1
+	game.metadata.input_info.add_option([standard_gamepad])
+
 	game.metadata.input_info.buttons = 3
 	peripherals = [c for c in header[144:160].decode('ascii', errors='ignore') if c != '\x00' and c != ' ']
-	#TODO: Whoops I can't have a single amount of buttons for all inputs I need to rethink everything including what I'm doing with my life
 	if set(peripherals) <= acceptable_peripherals:
 		#TODO: I could just do the "whoops this is a weird peripheral_char" as a final else inside the for loop... eh
 		for peripheral_char in peripherals:
 			if peripheral_char == 'M':
-				game.metadata.input_info.inputs.append(InputType.Mouse)
+				#3 buttons if I'm not mistaken
+				game.metadata.input_info.append_option([input_metadata.Mouse()])
 			elif peripheral_char == 'V':
-				game.metadata.input_info.inputs.append(InputType.Paddle)
+				game.metadata.input_info.append_option([input_metadata.Paddle()])
 			elif peripheral_char == 'A':
-				game.metadata.input_info.inputs.append(InputType.Analog)
+				xe_1_ap = input_metadata.NormalInput()
+				xe_1_ap.face_buttons = 10
+				xe_1_ap.shoulder_buttons = 4
+				xe_1_ap.analog_sticks = 2 #The second one only has one axis, though
+				game.metadata.input_info.add_option([xe_1_ap])
 			elif peripheral_char == 'G':
-				game.metadata.input_info.inputs.append(InputType.LightGun)
+				game.metadata.input_info.append_option([input_metadata.LightGun()])
 			elif peripheral_char == 'K':
-				game.metadata.input_info.inputs.append(InputType.Keyboard)
+				game.metadata.input_info.append_option([input_metadata.Keyboard()])
 			elif peripheral_char == 'J':
-				game.metadata.input_info.inputs.append(InputType.Digital)
+				game.metadata.input_info.append_option(standard_gamepad)
 			elif peripheral_char == '6':
-				game.metadata.input_info.buttons = 6
-				game.metadata.input_info.inputs.append(InputType.Digital)
+				six_button_gamepad = input_metadata.NormalInput()
+				six_button_gamepad.face_buttons = 6
+				six_button_gamepad.dpads = 1
+				game.metadata.input_info.add_option([six_button_gamepad])
 				game.metadata.specific_info['Uses-6-Button-Controller'] = True
 			elif peripheral_char == '0':
-				#SMS gamepad
-				#If game works with this, then it should only need 2 buttons
-				game.metadata.input_info.buttons = 2
-				game.metadata.input_info.inputs.append(InputType.Digital)
+				sms_gamepad = input_metadata.NormalInput()
+				sms_gamepad.face_buttons = 2
+				sms_gamepad.dpads = 1
+				game.metadata.input_info.add_option([sms_gamepad])
 			elif peripheral_char == 'L':
 				#Activator
-				game.metadata.input_info.inputs.append(InputType.MotionControls)
+				game.metadata.input_info.append_option([input_metadata.MotionControls()])
 			elif peripheral_char == '4' or peripheral_char == 'O':
 				#Team Play and J-Cart respectively
 				#num_players = 4

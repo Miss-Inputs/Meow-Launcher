@@ -3,7 +3,8 @@ import hashlib
 import configparser
 import os
 
-from metadata import SaveType, InputType
+import input_metadata
+from metadata import SaveType
 from common import convert_alphanumeric, NotAlphanumericException
 from software_list_info import find_in_software_lists
 
@@ -83,8 +84,12 @@ def add_n64_metadata(game):
 
 	rom_crc32 = '{:08x}'.format(zlib.crc32(entire_rom))
 
-	game.metadata.input_info.inputs = [InputType.Digital, InputType.Analog]
-	game.metadata.input_info.buttons = 9 #A, B, 4 * C, L, R, Z
+	normal_controller = input_metadata.NormalInput()
+	normal_controller.face_buttons = 6 #A, B, 4 * C
+	normal_controller.shoulder_buttons = 3 #L, R, and I guess Z will have to be counted as a shoulder button
+	normal_controller.analog_sticks = 1
+	normal_controller.dpads = 1
+	game.metadata.input_info.add_option([normal_controller])
 
 	database = get_mupen64plus_database()
 
@@ -116,7 +121,7 @@ def add_n64_metadata(game):
 		if database_entry.get('Rumble', 'No') == 'Yes':
 			game.metadata.specific_info['Force-Feedback'] = True
 		if database_entry.get('Biopak', 'No') == 'Yes':
-			game.metadata.input_info.inputs.append(InputType.Biological)
+			game.metadata.input_info.input_options[0].inputs.append(input_metadata.Biological())
 		if database_entry.get('Transferpak', 'No') == 'Yes':
 			game.metadata.specific_info['Uses-Transfer-Pak'] = True
 		#TODO: Nothing in here which specifies to use VRU, or any other weird fancy controllers which may or may not exist

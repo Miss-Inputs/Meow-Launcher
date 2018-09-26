@@ -64,7 +64,6 @@ extra_subfolders = {
 	#TODO: Can we at least _try_ and keep this organized
 	'By MAME emulation status': 'X-MAME-Emulation-Status',
 	'By emulator used': 'X-Emulator',
-	'By input method': 'X-Input-Methods',
 	'By number of players': 'X-Number-of-Players',
 	'By number of buttons': 'X-Number-of-Buttons',
 	'By main CPU': 'X-Main-CPU',
@@ -86,7 +85,6 @@ extra_subfolders = {
 	'By cart type': 'X-Cart-Type',
 	'By expansion chip': 'X-Expansion-Chip',
 	'By regions': 'X-Regions',
-	'By genre and input method': ['X-Genre', 'X-Input-Methods'],
 	'By media type': 'X-Media-Type',
 	'Is mechanical': 'X-Is-Mechanical',
 	'Has header': 'X-Headered',
@@ -122,6 +120,7 @@ def move_into_subfolders(path):
 	platform = launchers.get_field(desktop, 'X-Platform')
 	categories = launchers.get_array(desktop, 'X-Categories')
 	languages = launchers.get_array(desktop, 'X-Languages')
+	input_methods = launchers.get_array(desktop, 'X-Input-Methods')
 	year = launchers.get_field(desktop, 'X-Year')
 
 	if categories:
@@ -132,10 +131,18 @@ def move_into_subfolders(path):
 	#TODO What do we do when there's no platform...  there should be, though
 	copy_to_folder(path, config.organized_output_folder, 'By platform', sanitize_name(platform))
 	copy_to_folder(path, config.organized_output_folder, 'By category', sanitize_name(category))
+
 	if not languages:
 		copy_to_folder(path, config.organized_output_folder, 'By language', 'Unknown')
 	for language in languages:
 		copy_to_folder(path, config.organized_output_folder, 'By language', sanitize_name(language))
+
+	if not input_methods:
+		copy_to_folder(path, config.organized_output_folder, 'By input method', 'Unknown')
+	else:
+		for input_method in input_methods:
+			copy_to_folder(path, config.organized_output_folder, 'By input method', sanitize_name(input_method))
+
 	if year:
 		copy_to_folder(path, config.organized_output_folder, 'By year', sanitize_name(year.replace('x', '?')))
 

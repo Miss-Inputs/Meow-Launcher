@@ -3,7 +3,7 @@ import calendar
 from enum import Enum, auto
 
 import cd_read
-from metadata import InputType
+import input_metadata
 from .sega_common import licensee_codes
 
 class SaturnPeripheral(Enum):
@@ -46,22 +46,27 @@ def parse_peripherals(game, peripherals):
 	#Hmmm... tricky to figure out how to best represent this, as it's possible to use different controllers
 	#I guess these two are the standard controllers, and everything else is optional
 	if uses_analog_controller:
-		game.metadata.input_info.inputs.append(InputType.Analog)
-		game.metadata.input_info.inputs += [InputType.Pedal] * 2 #Shoulder buttons actually
-		game.metadata.input_info.buttons = 6 #A B C X Y Z
+		analog_controller = input_metadata.NormalInput()
+		analog_controller.face_buttons = 6 # A B C X Y Z
+		analog_controller.analog_triggers = 2
+		analog_controller.analog_sticks = 1
+		analog_controller.dpads = 1
+		game.metadata.input_info.add_option([analog_controller])
 	elif uses_standard_controller:
-		game.metadata.input_info.inputs.append(InputType.Digital)
-		game.metadata.input_info.buttons = 8 #A B C X Y Z L R
+		standard_controller = input_metadata.NormalInput()
+		standard_controller.face_buttons = 6 # A B C X Y Z
+		standard_controller.shoulder_buttons = 2 #L R
+		standard_controller.dpads = 1
+		game.metadata.input_info.add_option([standard_controller])
 
 	if uses_gun:
-		game.metadata.input_info.inputs.append(InputType.LightGun)
+		game.metadata.input_info.add_option([input_metadata.LightGun()])
 	if uses_keyboard:
-		game.metadata.input_info.inputs.append(InputType.Keyboard)
+		game.metadata.input_info.add_option([input_metadata.Keyboard()])
 	if uses_mouse:
-		game.metadata.input_info.inputs.append(InputType.Mouse)
+		game.metadata.input_info.add_option([input_metadata.Mouse()])
 	if uses_wheel:
-		game.metadata.input_info.inputs.append(InputType.SteeringWheel)
-
+		game.metadata.input_info.add_option([input_metadata.SteeringWheel()])
 
 def add_saturn_info(game, header):
 	#42:48 Version

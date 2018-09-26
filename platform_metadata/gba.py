@@ -1,15 +1,20 @@
 from zlib import crc32
 
+import input_metadata
 from common import convert_alphanumeric, NotAlphanumericException
-from metadata import SaveType, InputType
+from metadata import SaveType
 from info.region_info import TVSystem
 from software_list_info import find_in_software_lists
 from .nintendo_common import nintendo_licensee_codes
 
 nintendo_gba_logo_crc32 = 0xD0BEB55E
 def add_gba_metadata(game):
-	game.metadata.input_info.buttons = 4 #A + B + L + R (+ Select + Start)
-	game.metadata.input_info.inputs = [InputType.Digital]
+	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad.dpads = 1
+	builtin_gamepad.face_buttons = 2 #A B
+	builtin_gamepad.shoulder_buttons = 2 #L R
+	game.metadata.input_info.add_option([builtin_gamepad])
+
 	game.metadata.tv_type = TVSystem.Agnostic
 
 	entire_cart = game.rom.read()
@@ -39,7 +44,7 @@ def add_gba_metadata(game):
 	if can_trust_header_data:
 		game_type = product_code[0]
 		if game_type[0] == 'K' or game_type == 'R':
-			game.metadata.input_info.inputs.append(InputType.MotionControls)
+			game.metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls())
 
 		game.metadata.product_code = product_code
 		game.metadata.specific_info['Force-Feedback'] = game_type in ('R', 'V')

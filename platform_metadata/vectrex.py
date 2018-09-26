@@ -1,12 +1,15 @@
+import input_metadata
 from info.region_info import TVSystem
 from common import convert_alphanumeric, NotAlphanumericException
-from metadata import InputType
 from software_list_info import get_software_list_entry
 
 def add_vectrex_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
-	game.metadata.input_info.buttons = 4
-	game.metadata.input_info.inputs = [InputType.Analog]
+
+	gamepad = input_metadata.NormalInput()
+	gamepad.face_buttons = 4 #All arranged in a row, not rectangle
+	gamepad.analog_sticks = 1
+	game.metadata.input_info.add_option([gamepad])
 	#TODO: There's also a light pen
 
 	software = get_software_list_entry(game)
