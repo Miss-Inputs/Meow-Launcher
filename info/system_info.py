@@ -232,7 +232,7 @@ systems = [
 	#Some games require a hard disk with an OS install and they won't tell you this because of course not, and if you want to autoboot the floppies with a hard drive still in there you have to set it to always boot from slot 5 and it's really annoying and I hate it
 	System('BBC Bridge Companion', 'bbcbc', ['bbcbc'], [], {MediaType.Cartridge: ['bin']}),
 	#Takes a single .bin file for the -cart slot, but known software dumps are in split ROM format. Unsure how to get around that
-	System('CreatiVision', 'crvision', ['crvision'], []),
+	System('CreatiVision', 'crvision', ['crvision'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav']}),
 	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it
 	System('Mattel Aquarius', 'aquarius', ['aquarius'], []),
 	#Controllers aren't emulated yet (and they're necessary for a lot of things)
@@ -240,7 +240,7 @@ systems = [
 	#Same predicament as BBC Bridge Companion above
 	System('Sega Pico', 'pico', ['pico'], []),
 	#Emulation works in Kega Fusion and MAME, but they don't display the actual book, which would be needed for most of the software to make any sense. Kega Fusion doesn't even have controls to turn the pages, which is needed for stuff
-	System('Super Casette Vision', 'scv', ['scv'], []),
+	System('Super Casette Vision', 'scv', ['scv'], [], {MediaType.Cartridge: ['bin']}),
 	#Only supports some games (e.g. with RAM enhancements) via software list, there's no way to override the cart type or anything like that.
 
 	#Might just be me doing something wrong, but seemingly doesn't work so I'll just put them here until I figure out if they definitely don't work, or they actually do
@@ -281,7 +281,7 @@ systems = [
 	System('Memotech MTX', 'mtx512', ['mtx_cart', 'mtx_cass', 'mtx_rom'], []),
 	System('Neo Geo AES', 'aes', ['neogoeo'], [], {MediaType.Cartridge: ['bin']}),
 	#Hmm... even emulated re-releases (like the stuff on Steam) is the MVS version. Also how it works is a bit tricky, since as a system you load single .bin files through the cart slot, but everything out there is stored as multiple ROMs, even in the software list... so I dunno if this would be usable
-	System('Pocket Challenge W', 'pockchal', ['pockchalw'], []),
+	System('Pocket Challenge W', 'pockchal', ['pockchalw'], [], {MediaType.Cartridge: ['bin']}),
 	#Everything in that software list says unsupported, so that's not a good sign
 	System('Sam Coupe', 'samcoupe', ['samcoupe_cass', 'samcoupe_flop'], []),
 	System('Sharp MZ-700', 'mz700', ['mz700'], []),
