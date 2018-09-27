@@ -6,7 +6,7 @@ import os
 import input_metadata
 from metadata import SaveType
 from common import convert_alphanumeric, NotAlphanumericException
-from software_list_info import find_in_software_lists
+from software_list_info import find_in_software_lists, _does_split_rom_match
 
 def _byteswap(b):
 	byte_array = bytearray(b)
@@ -127,6 +127,9 @@ def add_n64_metadata(game):
 		#TODO: Nothing in here which specifies to use VRU, or any other weird fancy controllers which may or may not exist
 
 	software = find_in_software_lists(game.software_lists, crc=rom_crc32)
+	if not software:
+		software = find_in_software_lists(game.software_lists, crc=entire_rom, part_matcher=_does_split_rom_match)
+
 	if software:
 		software.add_generic_info(game)
 		if not game.metadata.product_code:
