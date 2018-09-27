@@ -1,7 +1,8 @@
 from software_list_info import get_software_list_entry
+from info.system_info import MediaType
 
 def add_atari_8bit_metadata(game):
-	if game.rom.extension in ['bin', 'rom', 'car']:
+	if game.metadata.media_type == MediaType.Cartridge:
 		header = game.rom.read(amount=16)
 		magic = header[:4]
 		if magic == b'CART':
