@@ -156,7 +156,7 @@ def _does_rom_match(rom, crc, sha1):
 			return True
 	return False
 
-def _does_split_rom_match(part, rom, _):
+def _does_split_rom_match(part, data, _):
 	rom_data_area = None
 	for data_area in part.findall('dataarea'):
 		if data_area.attrib.get('name') == 'rom':
@@ -169,7 +169,7 @@ def _does_split_rom_match(part, rom, _):
 		rom_size = int(rom_data_area.attrib.get('size', '0'))
 	except ValueError:
 		return False
-	if rom_size != rom.get_size():
+	if rom_size != len(data):
 		return False
 
 	for rom_part in rom_data_area.findall('rom'):
@@ -186,7 +186,10 @@ def _does_split_rom_match(part, rom, _):
 		except ValueError:
 			return False
 
-		chunk = rom.read(seek_to=offset, amount=size)
+		try:
+			chunk = data[offset:offset+size]
+		except IndexError:
+			return False
 		chunk_crc32 = '{:08x}'.format(zlib.crc32(chunk))
 		if rom_part.attrib['crc'] != chunk_crc32:
 			return False
@@ -238,5 +241,5 @@ def get_software_list_entry(game, skip_header=0):
 	crc32 = '{:08x}'.format(zlib.crc32(data))
 	software = find_in_software_lists(software_lists, crc=crc32)
 	if not software:
-		software = find_in_software_lists(software_lists, crc=game.rom, part_matcher=_does_split_rom_match)
+		software = find_in_software_lists(software_lists, crc=data, part_matcher=_does_split_rom_match)
 	return software
