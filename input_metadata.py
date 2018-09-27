@@ -36,7 +36,9 @@ class NormalInput(InputType):
 			return False
 
 		if self.shoulder_buttons > 2:
-			return False
+			if (self.shoulder_buttons + self.analog_triggers) > 4:
+				#It's okay to have 4 shoulder buttons if two can be mapped to the analog triggers
+				return False
 
 		if self.analog_triggers > 2:
 			#Anything more than that is definitely non-standard, regardless of how I go with my "are analog triggers standard" debate
