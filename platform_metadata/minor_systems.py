@@ -3,6 +3,7 @@
 import input_metadata
 from metadata import SaveType
 from info.region_info import TVSystem
+from info.system_info import MediaType
 from software_list_info import get_software_list_entry, _does_split_rom_match, find_in_software_lists
 
 def add_entex_adventure_vision_info(game):
@@ -242,7 +243,9 @@ def add_vc4000_info(game):
 def add_vic10_info(game):
 	#Input info: Keyboard or joystick
 
-	software = get_software_list_entry(game)
+	has_header = game.metadata.media_type == MediaType.Cartridge and (game.rom.get_size() % 256) == 2
+	game.metadata.specific_info['Headered'] = has_header
+	software = get_software_list_entry(game, skip_header=2 if has_header else 0)
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
@@ -253,7 +256,9 @@ def add_vic20_info(game):
 
 	#TODO: Is it possible that .a0 etc might have the header too? It shouldn't, but files get misnamed sometimes
 	#This won't work with >8KB carts at the moment, because MAME stores those in the software list as two separate ROMs. But then they won't have launchers anyway because our only emulator for VIC-20 is MAME itself, and it doesn't let us just put the two ROMs together ourselves, those games are basically software list only at the moment (because it won't let us have one single file above 8KB).
-	has_header = game.rom.extension in ('prg', 'crt') and (game.rom.get_size() % 256) == 2
+
+	has_header = game.metadata.media_type == MediaType.Cartridge and (game.rom.get_size() % 256) == 2
+	game.metadata.specific_info['Headered'] = has_header
 	software = get_software_list_entry(game, skip_header=2 if has_header else 0)
 	if software:
 		software.add_generic_info(game)
