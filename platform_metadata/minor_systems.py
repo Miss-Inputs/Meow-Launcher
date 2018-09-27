@@ -286,7 +286,8 @@ def add_colecovision_info(game):
 	#Supports driving controller
 	#Requires driving controller
 
-	software = find_in_software_lists(game.software_lists, game.rom, part_matcher=_does_split_rom_match)
+	#software = find_in_software_lists(game.software_lists, crc=game.rom, part_matcher=_does_split_rom_match)
+	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
