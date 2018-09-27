@@ -3,7 +3,7 @@
 import input_metadata
 from metadata import SaveType
 from info.region_info import TVSystem
-from software_list_info import get_software_list_entry
+from software_list_info import get_software_list_entry, _does_split_rom_match, find_in_software_lists
 
 def add_entex_adventure_vision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -275,6 +275,22 @@ def add_gx4000_info(game):
 	if software:
 		software.add_generic_info(game)
 
+def add_colecovision_info(game):
+	#Can get year, publisher unreliably from the title screen info in the ROM; please do not do that
+	#Input info: controller, but also steering wheel (Expansion Module 2), roller controller, or Super Action Controller
+	#TODO: Parse these usage strings:
+	#Supports Super Action Controllers
+	#Requires Super Action Controllers
+	#Supports roller controller
+	#Requires roller controller
+	#Supports driving controller
+	#Requires driving controller
+
+	software = find_in_software_lists(game.software_lists, game.rom, part_matcher=_does_split_rom_match)
+	if software:
+		software.add_generic_info(game)
+		game.metadata.product_code = software.get_info('serial')
+
 def add_coleco_adam_info(game):
 	#Input info: Keyboard / Coleco numpad?
 
@@ -353,23 +369,6 @@ def add_intellivision_info(game):
 		if game.metadata.specific_info.get('Notes') == 'Uses Intellivoice':
 			game.metadata.specific_info['Uses-Intellivoice'] = True
 			game.metadata.specific_info.pop('Notes')
-
-def add_colecovision_info(game):
-	#Can get year, publisher unreliably from the title screen info in the ROM
-	#Input info: contrller, but also steering wheel (Expansion Module 2), roller controller, or Super Action Controller
-
-	#TODO: Software list splits >=16K roms into multiple 8KB parts, making that tricky to deal with
-	#16KB carts seem to be consistently loaded with offset = 0 for the first ROM and offset = 0x2000 for the second ROM. Maybe we can do something there
-	#20KB: 0x0000, 0x2000, 0x4000 (the latter ROM is size = 4096 instead of size = 8192)
-	#24KB: 0x0000, 0x2000, 0x4000
-	#32KB: 0x0000, 0x2000, 0x8000
-	#1MB (31-in-1 multicart): One big ROM
-	#2MB (63-in-1 multicart): Split into 1MB halves (offset of second rom = 1MB)
-	#So we should be able to reliably do this by looking at size, it'll just require effort
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 
 def add_juicebox_info(game):
 	#Hmm... apparently there's 0x220 bytes at the beginning which need to be copied from retail carts to get homebrew test ROMs to boot

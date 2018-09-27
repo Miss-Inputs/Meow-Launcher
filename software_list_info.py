@@ -156,6 +156,40 @@ def _does_rom_match(rom, crc, sha1):
 			return True
 	return False
 
+def _does_split_rom_match(part, rom, _):
+	rom_data_area = None
+	for data_area in part.findall('dataarea'):
+		if data_area.attrib.get('name') == 'rom':
+			rom_data_area = data_area
+			break
+	if not rom_data_area:
+		return False
+
+	try:
+		rom_size = int(rom_data_area.attrib.get('size', '0'))
+	except ValueError:
+		return False
+	if rom_size != rom.get_size():
+		return False
+
+	for rom_part in rom_data_area.findall('rom'):
+		try:
+			offset = int(rom_part.attrib.get('offset', 0), 16)
+		except ValueError:
+			return False
+
+		try:
+			size = int(rom_part.attrib.get('size', 0))
+		except ValueError:
+			return False
+
+		chunk = rom.read(seek_to=offset, amount=size)
+		chunk_crc32 = '{:08x}'.format(zlib.crc32(chunk))
+		if rom_part.attrib.get('crc') != chunk_crc32:
+			return False
+
+	return True
+
 def _does_part_match(part, crc, sha1):
 	for data_area in part.findall('dataarea'):
 		roms = data_area.findall('rom')
