@@ -125,6 +125,19 @@ def get_mame_drivers():
 
 	return drivers
 
+def process_driver(driver):
+	#You probably think this is why it's slow, right?  You think "Oh, that's silly, you're verifying every single romset
+	#in existence before just getting the XML", that's what you're thinking, right?  Well, I am doing that, but as it
+	#turns out if I do the verification inside process_machine it takes a whole lot longer.  I don't fully understand why
+	#but I'll have you know I actually profiled it
+	if not mame_verifyroms(driver):
+		return
+
+	xml = get_mame_xml(driver)
+	if xml is None:
+		return
+	process_machine(Machine(xml.find('machine')))
+
 def process_arcade():
 	#Fuck iterparse by the way, if you stumble across this script and think "oh you should use iterparse instead of this
 	#kludge!" you are wrong
@@ -138,18 +151,16 @@ def process_arcade():
 		if source_file in config.skipped_source_files:
 			continue
 
-		#You probably think this is why it's slow, right?  You think "Oh, that's silly, you're verifying every single romset
-		#in existence before just getting the XML", that's what you're thinking, right?  Well, I am doing that, but as it
-		#turns out if I do the verification inside process_machine it takes a whole lot longer.  I don't fully understand why
-		#but I'll have you know I actually profiled it
-		if not mame_verifyroms(driver):
-			continue
+		process_driver(driver)
 
-		xml = get_mame_xml(driver)
-		if xml is None:
-			continue
-		process_machine(Machine(xml.find('machine')))
+def main():
+	os.makedirs(config.output_folder, exist_ok=True)
+
+	if sys.argv[1] == '--driver':
+		process_driver(sys.argv[2])
+		return
+
+	process_arcade()
 
 if __name__ == '__main__':
-	os.makedirs(config.output_folder, exist_ok=True)
-	process_arcade()
+	main()

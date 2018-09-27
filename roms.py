@@ -300,6 +300,18 @@ def get_system_config_by_name(name):
 
 def main():
 	os.makedirs(config.output_folder, exist_ok=True)
+
+	if sys.argv[1] == '--rom':
+		#TODO: Refactor this
+		if len(sys.argv) < 4:
+			print("BZZZT that's not how you use that")
+			return
+
+		rom = sys.argv[2]
+		system = sys.argv[3]
+		process_file(get_system_config_by_name(system), os.path.basename(rom), os.path.basename(rom), Rom(rom))
+		return
+
 	individual_systems = []
 	for arg in sys.argv:
 		#TODO: May want to use some kind of proper argument handling library. Hmm...
