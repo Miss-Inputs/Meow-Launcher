@@ -170,7 +170,6 @@ def move_into_folders():
 		for f in files:
 			if f.endswith('.desktop'):
 				path = os.path.join(root, f)
-				copy_to_folder(path, config.organized_output_folder, 'Ungrouped')
 
 				move_into_subfolders(path)
 
