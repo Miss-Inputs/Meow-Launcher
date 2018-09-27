@@ -173,6 +173,9 @@ def _does_split_rom_match(part, rom, _):
 		return False
 
 	for rom_part in rom_data_area.findall('rom'):
+		if 'name' not in rom_part.attrib and 'crc' not in rom_part.attrib:
+			continue
+
 		try:
 			offset = int(rom_part.attrib.get('offset', 0), 16)
 		except ValueError:
@@ -185,7 +188,7 @@ def _does_split_rom_match(part, rom, _):
 
 		chunk = rom.read(seek_to=offset, amount=size)
 		chunk_crc32 = '{:08x}'.format(zlib.crc32(chunk))
-		if rom_part.attrib.get('crc') != chunk_crc32:
+		if rom_part.attrib['crc'] != chunk_crc32:
 			return False
 
 	return True
