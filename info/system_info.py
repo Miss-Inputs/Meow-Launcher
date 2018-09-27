@@ -212,7 +212,7 @@ systems = [
 	#Mupen64Plus would work, but right now it has issues with usability that it says right in the readme (so it's not just me picking on them, they say it themselves). Basically you have to have a cart inserted which has the same properties as the 64DD software you want to emulate, and that wouldn't work for our launchering purposes. MAME doesn't seem to work with .ndd format dumps
 	System('Cybiko', 'cybikov1', [], [], {MediaType.Digital: ['app']}),
 	#Quickload slot doesn't seem to actually quickload anything, and seems to require setup each time. V2 and Extreme have same problems
-	System('Dreamcast VMU', 'svmu', ['svmu'], [], {MediaType.Executable: ['vms', 'bin']}),
+	System('Dreamcast VMU', 'svmu', ['svmu'], [], {MediaType.Executable: ['bin'], MediaType.Digital: ['vms']}),
 	#Makes you set time and date each time; also supposed to have sound apparently but I don't hear any
 	System('e-Reader', None, ['gba_ereader'], [], {MediaType.Barcode: ['bin', 'raw', 'bmp']}),
 	#VBA-M works (nothing else emulates e-Reader that I know of), but you have to swipe the card manually, which doesn't really work for a nice launcher thing... and there's not really a way around that at this point in time.
