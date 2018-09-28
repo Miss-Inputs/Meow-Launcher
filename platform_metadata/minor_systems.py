@@ -4,7 +4,7 @@ import input_metadata
 from metadata import SaveType
 from info.region_info import TVSystem
 from info.system_info import MediaType
-from software_list_info import get_software_list_entry, _does_split_rom_match, find_in_software_lists
+from software_list_info import get_software_list_entry
 
 def add_entex_adventure_vision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
