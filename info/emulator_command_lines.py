@@ -285,6 +285,10 @@ def citra(game, _):
 			if debug:
 				print('Skipping', game.rom.path, 'because no SMDH')
 			return None
+		if game.metadata.product_code[3:6] == '-U-':
+			#Ignore update data, which either are pointless (because you install them in Citra and then when you run the main game ROM, it has all the updates applied) or do nothing
+			#I feel like there's probably a better way of doing this whoops
+			return None
 	return 'citra-qt $<path>'
 
 def mednafen_nes(game, _):
