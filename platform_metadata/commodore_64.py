@@ -1,4 +1,6 @@
-from software_list_info import get_software_list_entry
+import zlib
+
+from software_list_info import get_software_list_entry, find_in_software_lists
 
 def add_commodore_64_metadata(game):
 	header = game.rom.read(amount=64)
@@ -14,8 +16,25 @@ def add_commodore_64_metadata(game):
 
 	game.metadata.specific_info['Headered'] = headered
 
-	#TODO: Make this work where there are multiple CHIP entries in a CCS64 file... hmm...
-	software = get_software_list_entry(game, skip_header=80 if headered else 0)
+	if headered:
+		software = None
+		#Skip CRT header
+		data = game.rom.read(seek_to=64)
+
+		total_data = b''
+		i = 0
+		while i < len(data):
+			chip_header = data[i:i+16]
+			total_size = int.from_bytes(chip_header[4:8], 'big')
+			chip_size = int.from_bytes(chip_header[14:16], 'big')
+			total_data += data[i+16:i+16+chip_size]
+			i += total_size
+
+		crc = '{:08x}'.format(zlib.crc32(total_data))
+		software = find_in_software_lists(game.software_lists, crc=crc)
+	else:
+		software = get_software_list_entry(game)
+
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
