@@ -1,5 +1,6 @@
 from enum import Enum, auto
 from input_metadata import InputInfo
+from info.system_info import MediaType
 
 class EmulationStatus(Enum):
 	Good = auto()
@@ -170,7 +171,7 @@ class Metadata():
 			'Developer': self.developer,
 			'Product-Code': self.product_code,
 			'Regions': [region.name if region else 'None!' for region in self.regions] if self.regions else [],
-			'Media-Type': self.media_type.name if self.media_type else None,
+			'Media-Type': ('Optical Disc' if self.media_type == MediaType.OpticalDisc else self.media_type.name) if self.media_type else None,
 
 			'Ignored-Tags': self.ignored_filename_tags,
 			'TV-Type': self.tv_type.name if self.tv_type else None,
