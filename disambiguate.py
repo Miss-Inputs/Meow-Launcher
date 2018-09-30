@@ -208,9 +208,9 @@ def disambiguate_names():
 	fix_duplicate_names('X-Revision', revision_disambiguate)
 	fix_duplicate_names('X-Languages', lambda languages: '({0})'.format(languages.replace(';', ', ')), ignore_missing_values=True)
 	fix_duplicate_names('X-TV-Type')
+	fix_duplicate_names('X-Media-Type')
 	fix_duplicate_names('tags')
 	fix_duplicate_names('date')
-	fix_duplicate_names('X-Media-Type')
 	fix_duplicate_names('X-Extension', '(.{0})'.format)
 	if debug:
 		fix_duplicate_names('check')
