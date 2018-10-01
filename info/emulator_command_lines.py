@@ -139,28 +139,74 @@ def mame_c64(game, _):
 	system = _find_c64_system(game)
 	return mame_command_line(system, 'cart', {'joy1': 'joybstr', 'joy2': 'joybstr', 'iec8': '""'}, True)
 
+def is_allowed_mgba_mapper(game):
+	if game.metadata.specific_info.get('Override-Mapper', False):
+		#If the mapper in the ROM header is different than what the mapper actually is, it won't work, since we can't override it from the command line or anything
+		return None
+
+	mapper = game.metadata.specific_info.get('Mapper', None)
+	if not mapper:
+		#If there was a problem detecting the mapper, or it's something invalid, it probably won't run
+		if debug:
+			print('Skipping', game.rom.path, '(by mGBA) because mapper is unrecognized')
+		return False
+
+	return mapper in ['ROM only', 'MBC1', 'MBC1 Multicart', 'MBC2', 'MBC3', 'HuC1', 'MBC5', 'Huc3', 'MBC6', 'MBC7', 'MMM01', 'Pocket Camera', 'Bandai TAMA5']
+
 def mgba(game, _):
+	if game.metadata.platform in ('Game Boy', 'Game Boy Color'):
+		if not is_allowed_mgba_mapper(game):
+			return None
+
 	command_line = 'mgba-qt -f'
 	if not game.metadata.specific_info.get('Nintendo-Logo-Valid', True):
 		command_line += ' -C useBios=0'
 	return command_line + ' $<path>'
 
 def medusa(game, _):
+	if game.metadata.platform in ('Game Boy', 'Game Boy Color'):
+		if not is_allowed_mgba_mapper(game):
+			return None
+
 	if game.metadata.platform == 'DSi' or game.metadata.specific_info.get('Is-iQue', False):
 		return None
 	return 'medusa-emu-qt -f $<path>'
 
 def gambatte(game, _):
+	if game.metadata.specific_info.get('Override-Mapper', False):
+		#If the mapper in the ROM header is different than what the mapper actually is, it won't work, since we can't override it from the command line or anything
+		return None
+
 	mapper = game.metadata.specific_info.get('Mapper', None)
 	if not mapper:
 		#If there was a problem detecting the mapper, or it's something invalid, it probably won't run
 		if debug:
 			print('Skipping', game.rom.path, '(by Gambatte) because mapper is unrecognized')
 		return None
-	if mapper.name in ['Bandai TAMA5', 'HuC3', 'MBC6', 'MBC7', 'Pocket Camera']:
+	if mapper not in ['ROM only', 'MBC1', 'MBC1 Multicart', 'MBC2', 'MBC3', 'HuC1', 'MBC5']:
 		return None
 
 	return 'gambatte_qt --full-screen $<path>'
+
+def mame_game_boy(game, other_config):
+	#Not much reason to use gameboy, other than a green tinted screen. I guess that's the only difference
+	system = 'gbcolor' if other_config.get('use_gbc_for_dmg') else 'gbpocket'
+
+	#Should be just as compatible as supergb but with better timing... I think
+	super_gb_system = 'supergb2'
+
+	is_colour = game.metadata.platform == 'Game Boy Color'
+	is_sgb = game.metadata.specific_info.get('SGB-Enhanced', False)
+
+	prefer_sgb = other_config.get('prefer_sgb_over_gbc', False)
+	if is_colour and is_sgb:
+		system = super_gb_system if prefer_sgb else 'gbcolor'
+	elif is_colour:
+		system = 'gbcolor'
+	elif is_sgb:
+		system = super_gb_system
+
+	return mame_command_line(system, 'cart')
 
 def mame_snes(game, other_config):
 	#Snes9x's GTK+ port doesn't let us load carts with slots for other carts from the command line yet, so this will have

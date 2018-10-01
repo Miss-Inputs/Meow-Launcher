@@ -58,6 +58,46 @@ game_boy_mappers = {
 	255: GameBoyMapper('HuC1', has_ram=True, has_battery=True),
 }
 
+mame_rom_slots = {
+	'rom_188in1': '188 in 1',
+	'rom_atvrac': 'ATV Racing',
+	'rom_camera': 'Pocket Camera',
+	'rom_chong': 'Chong Wu Xiao Jing Ling',
+	'rom_digimon': 'Digimon 2',
+	'rom_huc1': 'HuC1',
+	'rom_huc3': 'HuC3',
+	'rom_lasama': 'Story of Lasama',
+	'rom_licheng': 'Li Cheng',
+	'rom_m161': 'Mani 4 in 1 DMG-601',
+	'rom_mbc1': 'MBC1',
+	#This is probably related to that "Multicart compatibility" checkbox in Gambatte
+	'rom_mbc1col': 'MBC1 Multicart',
+	'rom_mbc2': 'MBC2',
+	'rom_mbc3': 'MBC3',
+	'rom_mbc5': 'MBC5',
+	'rom_mbc6': 'MBC6',
+	'rom_mbc7': 'MBC7',
+	'rom_mmm01': 'MMM01',
+	'rom_rock8': 'Rockman 8',
+	'rom_sachen1': 'Sachen',
+	'rom_sachen2': 'Sachen GBC',
+	'rom_sintax': 'Sintax',
+	'rom_sm3sp': 'Super Mario 3 Special',
+	'rom_tama5': 'Bandai TAMA5',
+	'rom_wisdom': 'Wisdom Tree',
+	#Sonic 3D Blast 5
+	'rom_yong': 'Yong Yong',
+}
+
+def parse_slot(game, slot):
+	if slot in mame_rom_slots:
+		original_mapper = game.metadata.specific_info.get('Mapper', 'None')
+
+		new_mapper = mame_rom_slots[slot]
+
+		if new_mapper != original_mapper:
+			game.metadata.specific_info['Override-Mapper'] = not (original_mapper == 'MBC1' and new_mapper == 'MBC1 Multicart')
+			game.metadata.specific_info['Mapper'] = new_mapper
 
 nintendo_logo_crc32 = 0x46195417
 def add_gameboy_metadata(game):
@@ -76,7 +116,7 @@ def add_gameboy_metadata(game):
 	game.metadata.specific_info['SGB-Enhanced'] = header[0x46] == 3
 	if header[0x47] in game_boy_mappers:
 		mapper = game_boy_mappers[header[0x47]]
-		game.metadata.specific_info['Mapper'] = mapper
+		game.metadata.specific_info['Mapper'] = mapper.name
 		game.metadata.save_type = SaveType.Cart if mapper.has_battery else SaveType.Nothing
 		game.metadata.specific_info['Force-Feedback'] = mapper.has_rumble
 		game.metadata.specific_info['Has-RTC'] = mapper.has_rtc
@@ -115,6 +155,6 @@ def add_gameboy_metadata(game):
 		game.metadata.save_type = SaveType.Cart if software.has_data_area('nvram') else SaveType.Nothing
 		#Note that the product code here will have the DMG- or CGB- in front, and something like -USA -EUR at the end
 		game.metadata.product_code = software.get_info('serial')
-		#Feature "slot" would get you the mapper (in MAME format e.g. rom_mbc5), but nothing can really make use of that, so nah
-		#But that would be good though if stuff could make use of overrides on the command line, because then we can get bootleg mappers, or stuff like rom_mbc1col for Mortal Kombat 1 + 2
-		#Sure, we could put Mapper specific info in here anyway. But if a game specifies it has Mapper X (or no valid mapper at all) in the header, then emulators will see it as having Mapper X, even if we know from the software list that it really has Mapper Y
+
+		slot = software.get_part_feature('slot')
+		parse_slot(game, slot)

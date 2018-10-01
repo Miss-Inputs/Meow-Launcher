@@ -111,10 +111,10 @@ emulators = {
 	'MAME (Entex Adventure Vision)': MameSystem(command_lines.mame_command_line('advision', 'cart'), ['bin']),
 	#Doesn't work with the "Code Red" demo last time I tried
 	'MAME (Gamate)': MameSystem(command_lines.mame_command_line('gamate', 'cart'), ['bin']),
-	'MAME (Game Boy)': MameSystem(command_lines.mame_command_line('gbpocket', 'cart'), ['bin', 'gb', 'gbc']),
+	'MAME (Game Boy)': MameSystem(command_lines.mame_game_boy, ['bin', 'gb', 'gbc']),
 	#TODO: Maybe it's best to merge all the Game Boy models into one, and use emulator_command_lines magic to select the optimal model
 	#Anyway, this supports some bootleg mappers that other emus tend to not; fails on really fancy tricks like the Demotronic trick (it does run the demo, but the effect doesn't look right)
-	'MAME (Game Boy Color)': MameSystem(command_lines.mame_command_line('gbcolor', 'cart'), ['bin', 'gb', 'gbc']),
+	#There are comments in the source file that point out that Super Game Boy should be part of the snes driver with the BIOS cart inserted, rather than a separate system, so that might not exist in the future
 	'MAME (Game Pocket Computer)': MameSystem(command_lines.mame_command_line('gamepock', 'cart'), ['bin']),
 	'MAME (GBA)': MameSystem(command_lines.mame_command_line('gba', 'cart'), ['bin', 'gba']),
 	#Does not let you do GBA-enhanced GBC games
@@ -156,8 +156,6 @@ emulators = {
 	'MAME (Sord M5)': MameSystem(command_lines.mame_command_line('m5', 'cart1', {'ramsize': '64K', 'upd765:0': '""'}, True), ['bin']),
 	#Apparently has joysticks with no fire button?  Usually space seems to be fire but sometimes 1 is, which is usually
 	#for starting games.  I hate everything.
-	'MAME (Super Game Boy)': MameSystem(command_lines.mame_command_line('supergb2', 'cart'), ['bin', 'gb', 'gbc']),
-	#There are comments in the source file that point out that this should be part of the snes driver with the BIOS cart inserted, rather than a separate system, so this might not exist in the future
 	'MAME (Tomy Tutor)': MameSystem(command_lines.mame_command_line('tutor', 'cart', has_keyboard=True, autoboot_script='tomy_tutor'), ['bin']),
 	#Well, at least there's no region crap, though there is pyuuta if you want to read Japanese instead
 	'MAME (VC 4000)': MameSystem(command_lines.mame_command_line('vc4000', 'cart'), ['bin', 'rom']),

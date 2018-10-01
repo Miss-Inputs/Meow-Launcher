@@ -37,6 +37,8 @@ emulators =
 [Game Boy]
 paths = 
 emulators = 
+prefer_sgb_over_gbc = 
+use_gbc_for_dmg = 
 
 [Game Gear]
 paths = 
