@@ -92,6 +92,8 @@ extra_subfolders = {
 	'Has force feedback': 'X-Force-Feedback',
 	'Has RTC': 'X-Has-RTC',
 	'Has product code': 'X-Product-Code',
+	'Has MAME software': 'X-MAME-Software-Name',
+	'Has notes': 'X-Notes',
 }
 
 def move_into_extra_subfolder(path, desktop, subfolder, key):
