@@ -112,8 +112,7 @@ emulators = {
 	#Doesn't work with the "Code Red" demo last time I tried
 	'MAME (Gamate)': MameSystem(command_lines.mame_command_line('gamate', 'cart'), ['bin']),
 	'MAME (Game Boy)': MameSystem(command_lines.mame_game_boy, ['bin', 'gb', 'gbc']),
-	#TODO: Maybe it's best to merge all the Game Boy models into one, and use emulator_command_lines magic to select the optimal model
-	#Anyway, this supports some bootleg mappers that other emus tend to not; fails on really fancy tricks like the Demotronic trick (it does run the demo, but the effect doesn't look right)
+	#Tthis supports some bootleg mappers that other emus tend to not; fails on really fancy tricks like the Demotronic trick (it does run the demo, but the effect doesn't look right); and has sound issues
 	#There are comments in the source file that point out that Super Game Boy should be part of the snes driver with the BIOS cart inserted, rather than a separate system, so that might not exist in the future
 	'MAME (Game Pocket Computer)': MameSystem(command_lines.mame_command_line('gamepock', 'cart'), ['bin']),
 	'MAME (GBA)': MameSystem(command_lines.mame_command_line('gba', 'cart'), ['bin', 'gba']),

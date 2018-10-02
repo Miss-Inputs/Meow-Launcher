@@ -71,7 +71,7 @@ systems = [
 	System('Colecovision', 'coleco', ['coleco'], ['MAME (ColecoVision)'], {MediaType.Cartridge: ['col', 'bin', 'rom']}),
 	System('Dreamcast', 'dc', ['dc'], ['Reicast'], {MediaType.OpticalDisc: cdrom_formats}),
 	System('DS', 'nds', [], ['Medusa'], {MediaType.Cartridge: ['nds', 'dsi', 'ids']}),
-	System('Game Boy', 'gbpocket', ['gameboy', 'gbcolor'], ['Gambatte', 'mGBA', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'MAME (Game Boy Color)', 'MAME (Super Game Boy)', 'Medusa'], {MediaType.Cartridge: ['gb', 'gbc', 'gbx', 'sgb']}),
+	System('Game Boy', 'gbpocket', ['gameboy', 'gbcolor'], ['Gambatte', 'mGBA', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'Medusa'], {MediaType.Cartridge: ['gb', 'gbc', 'gbx', 'sgb']}),
 	System('GameCube', 'gcjp', [], ['Dolphin'], {MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz'], MediaType.Executable: ['dol', 'elf']}),
 	System('Game Gear', 'gamegear', ['gamegear'], ['Kega Fusion', 'Mednafen (Game Gear)', 'MAME (Game Gear)'], {MediaType.Cartridge: ['sms', 'gg', 'bin']}),
 	System('GBA', 'gba', ['gba'], ['mGBA', 'Mednafen (GBA)', 'MAME (GBA)', 'Medusa'], {MediaType.Cartridge: ['gba', 'bin', 'srl'], MediaType.Executable: ['elf', 'mb']}),
