@@ -49,6 +49,13 @@ def get_languages_from_regions(regions):
 
 def get_languages_from_filename_tags(tags, ignored_tags=None):
 	for tag in tags:
+		#Lazy way to deal with hhug-style filenames, but it works
+		#Can't really deal with (Unlicensed, Multi3) since that doesn't tell me what those 3 languages are
+		if tag == '(Unlicensed, Chinese)':
+			return [get_language_by_english_name('Chinese')]
+		elif tag == '(Unlicensed, English)':
+			return [get_language_by_english_name('English')]
+
 		translation_match = translated_regex.match(tag)
 		if translation_match:
 			#TODO: Has there ever been a fan translation into multiple languages?
