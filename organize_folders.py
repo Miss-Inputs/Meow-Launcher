@@ -134,7 +134,6 @@ def move_into_subfolders(path):
 	else:
 		category = 'Uncategorized'
 
-	#TODO What do we do when there's no platform...  there should be, though
 	copy_to_folder(path, config.organized_output_folder, 'By platform', sanitize_name(platform))
 	copy_to_folder(path, config.organized_output_folder, 'By category', sanitize_name(category))
 
