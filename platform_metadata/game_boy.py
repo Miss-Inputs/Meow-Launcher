@@ -82,7 +82,7 @@ mame_rom_slots = {
 	'rom_sachen1': 'Sachen',
 	'rom_sachen2': 'Sachen GBC',
 	'rom_sintax': 'Sintax',
-	'rom_sm3sp': 'Super Mario 3 Special',
+	'rom_sm3sp': 'Super Mario Special 3',
 	'rom_tama5': 'Bandai TAMA5',
 	'rom_wisdom': 'Wisdom Tree',
 	#Sonic 3D Blast 5
