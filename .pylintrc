@@ -77,12 +77,24 @@ disable=print-statement,
         input-builtin,
         round-builtin,
         missing-docstring,
-        trailing-whitespace,
+        trailing-whitespace, #This is always wrong, seemingly
         fixme,
-		bad-continuation,
+		#Stupid opinions on style that are for wankers, these are the Python of equivalent of annoying English teachers who spout bullshit like "you can't end a sentence with a preposition because I said so" and other prescriptivist bullshit
+		#Fuck off
 		wildcard-import,
 		unused-wildcard-import,
 		line-too-long,
+		bad-continuation,
+		invalid-name,
+		too-many-arguments,
+		too-many-branches,
+		too-many-instance-attributes,
+		too-many-locals,
+		too-many-nested-blocks,
+		too-many-return-statements,
+		too-many-statements,
+		global-statement, #What the fuck is wrong with the global statement exactly anyway, fucking wankers
+
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
