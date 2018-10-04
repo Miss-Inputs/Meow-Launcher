@@ -98,7 +98,7 @@ class Test():
 				tv_type = get_tv_system_from_filename_tags(tags)
 			if tv_type != self.expected_tv_type:
 				print('Oh no! {0} failed: TV type = {1}, expected = {2}'.format(self.name, tv_type, self.expected_tv_type))
-		except Exception as ex:
+		except Exception as ex: #pylint: disable=broad-except
 			print('Oh no! {0} failed: exception = {1}'.format(self.name, ex))
 
 tests = [
