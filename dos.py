@@ -41,7 +41,6 @@ def scan_dos_folder(path, game_list, unknown_games, found_games, ambiguous_games
 		for name in files:
 			ext = os.path.splitext(name)[1][1:].lower()
 			if ext not in ('exe', 'com', 'bat'):
-				#TODO: Should there be any other extensions that I forgot existed?
 				continue
 
 			path = os.path.join(root, name)
