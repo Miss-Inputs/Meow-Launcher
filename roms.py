@@ -322,22 +322,24 @@ def get_system_config_by_name(name):
 def main():
 	os.makedirs(config.output_folder, exist_ok=True)
 
-	if len(sys.argv) >= 2 and sys.argv[1] == '--rom':
+	if len(sys.argv) >= 2 and '--rom' in sys.argv:
+		arg_index = sys.argv.index('--rom')
 		if len(sys.argv) < 4:
 			print("BZZZT that's not how you use that")
 			return
 
-		rom = sys.argv[2]
-		system = sys.argv[3]
+		rom = sys.argv[arg_index + 1]
+		system = sys.argv[arg_index + 2]
 		process_file(get_system_config_by_name(system), os.path.basename(rom), os.path.basename(rom), Rom(rom))
 		return
 
-	if len(sys.argv) >= 2 and sys.argv[1] == '--systems':
+	if len(sys.argv) >= 2 and '--systems' in sys.argv:
+		arg_index = sys.argv.index('--systems')
 		if len(sys.argv) == 2:
 			print('--systems requires an argument')
 			return
 
-		system_list = sys.argv[2].split(',')
+		system_list = sys.argv[arg_index + 1].split(',')
 		for system_name in system_list:
 			process_system(get_system_config_by_name(system_name))
 		return
