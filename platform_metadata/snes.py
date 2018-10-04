@@ -137,7 +137,6 @@ def parse_snes_header(game, base_offset):
 		#Anyway the internet says it's LoROM + SlowROM
 		metadata['ROM layout'] = rom_layouts[0x20]
 	else:
-		print(title)
 		raise BadSNESHeaderException('ROM layout is weird: %d' % rom_layout)
 
 	rom_type = header[0xd6]
