@@ -1,8 +1,6 @@
 import os
 import configparser
 
-from info import system_info
-
 #TODO: Get this in a less hardcody cross-platform way.
 config_dir = os.path.expanduser('~/.config/CrappyGameLauncher/')
 config_path = os.path.join(config_dir, 'config.ini')
