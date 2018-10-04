@@ -11,8 +11,8 @@ import launchers
 import metadata
 
 from info import system_info, emulator_info
-from roms_metadata import add_engine_metadata, add_metadata
 from info.emulator_command_lines import EmulationNotSupportedException, NotARomException
+from roms_metadata import add_engine_metadata, add_metadata
 
 debug = '--debug' in sys.argv
 
