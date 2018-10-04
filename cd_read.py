@@ -69,7 +69,6 @@ def read_mode_1_cd(path, sector_size, seek_to=0, amount=1):
 def sectored_read(path, raw_header_size, raw_footer_size, data_size, seek_to=0, amount=-1):
 	#Raw header size + raw footer size + data size = total sector size; e.g. 16 + data correction stuff + 2048 = 2532
 	#I stole this algorithm from myself, and I forgot how it works
-	#It might not work at all for multiple sectors, but uhhh I guess we'll see
 	#TODO: Compressed files _I guess_?
 	end = seek_to + amount
 	start = cooked_position_to_real(seek_to, raw_header_size, raw_footer_size, data_size)
