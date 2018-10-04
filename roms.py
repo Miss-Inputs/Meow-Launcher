@@ -191,7 +191,7 @@ def try_emulator(system_config, emulator, rom_dir, root, rom):
 	add_metadata(game)
 
 	if not game.get_command_line(system_config):
-			return None
+		return None
 
 	return game
 
