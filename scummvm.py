@@ -2,10 +2,15 @@
 
 import os
 import configparser
+import sys
+import time
+import datetime
 
 import launchers
 import input_metadata
 from metadata import Metadata, SaveType
+
+print_times = '--print-times' in sys.argv
 
 config_path = os.path.expanduser('~/.config/scummvm/scummvm.ini')
 
@@ -28,6 +33,8 @@ def add_scummvm_games():
 	if not os.path.isfile(config_path):
 		return
 
+	time_started = time.perf_counter()
+
 	parser = configparser.ConfigParser()
 	parser.optionxform = str
 	parser.read(config_path)
@@ -40,6 +47,11 @@ def add_scummvm_games():
 		for k, v in parser.items(section):
 			game.options[k] = v
 		game.make_launcher()
+
+	if print_times:
+		time_ended = time.perf_counter()
+		print('ScummVM finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+
 
 if __name__ == '__main__':
 	add_scummvm_games()

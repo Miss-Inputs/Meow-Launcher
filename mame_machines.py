@@ -4,6 +4,8 @@ import subprocess
 import os
 import sys
 import re
+import time
+import datetime
 
 import config
 import launchers
@@ -13,6 +15,7 @@ from mame_metadata import add_input_info, add_metadata
 from metadata import Metadata
 
 debug = '--debug' in sys.argv
+print_times = '--print-times' in sys.argv
 
 icon_line_regex = re.compile(r'^icons_directory\s+(.+)$')
 def get_icon_directories():
@@ -147,11 +150,18 @@ def process_arcade():
 	#Could it be faster to use -verifyroms globally and parse the output somehow and then get individual XML from
 	#successful results?
 
+	time_started = time.perf_counter()
+
 	for driver, source_file in get_mame_drivers():
 		if source_file in config.skipped_source_files:
 			continue
 
 		process_driver(driver)
+
+	if print_times:
+		time_ended = time.perf_counter()
+		print('Arcade finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+
 
 def main():
 	os.makedirs(config.output_folder, exist_ok=True)

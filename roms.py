@@ -3,6 +3,8 @@
 import os
 import sys
 import shlex
+import time
+import datetime
 
 import common
 import config
@@ -15,6 +17,7 @@ from info.emulator_command_lines import EmulationNotSupportedException, NotARomE
 from roms_metadata import add_engine_metadata, add_metadata
 
 debug = '--debug' in sys.argv
+print_times = '--print-times' in sys.argv
 
 class EngineFile():
 	def __init__(self, path):
@@ -287,11 +290,18 @@ def process_engine_system(system_config, game_info):
 					process_engine_file(system_config, file_dir, root, f)
 
 def process_system(system_config):
+	time_started = time.perf_counter()
+
 	if system_config.name in [system.name for system in system_info.systems]:
 		process_emulated_system(system_config)
 	elif system_config.name in system_info.games_with_engines:
 		process_engine_system(system_config, system_info.games_with_engines[system_config.name])
 	#TODO: Perhaps warn user if system_config.name is not one of these, but also not arcade/DOS/Mac/etc
+
+	if print_times:
+		time_ended = time.perf_counter()
+		print(system_config.name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+
 
 def process_systems():
 	excluded_systems = []

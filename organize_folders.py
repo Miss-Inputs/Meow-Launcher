@@ -3,9 +3,13 @@
 import os
 import shutil
 import sys
+import time
+import datetime
 
 import config
 import launchers
+
+print_times = '--print-times' in sys.argv
 
 #This is sort of considered separate from the main launcher generator.
 #Consider it to be its own kind of frontend, perhaps.
@@ -166,6 +170,8 @@ def move_into_subfolders(path):
 			move_into_extra_subfolder(path, desktop, k, v)
 
 def move_into_folders():
+	time_started = time.perf_counter()
+
 	delete_existing_output_dir()
 
 	for root, _, files in os.walk(config.output_folder):
@@ -174,6 +180,11 @@ def move_into_folders():
 				path = os.path.join(root, f)
 
 				move_into_subfolders(path)
+
+	if print_times:
+		time_ended = time.perf_counter()
+		print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+
 
 if __name__ == '__main__':
 	move_into_folders()

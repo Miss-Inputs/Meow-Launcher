@@ -37,6 +37,8 @@ Command line arguments:
   - Displays a lot of console spam. I should probably make this more specific with different command line arguments for what kind of console spam. But I haven't. Mostly it'll just tell you "there's something weird about this ROM, or it's not able to be emulated yet", and that sort of thing.
 - --super-debug
   - This is for even more console spam when regular --debug isn't enough. It's basically used for disambiguate.py to tell you every single launcher that gets disambiguated.
+- --print-times
+  - Prints how long stuff takes.
 - --regen-dos-config
   - Regenerates DOSBox config files for DOS games. Normally it just uses what's already there (allowing you to tweak them for your own evil purposes).
 - --no-arcade

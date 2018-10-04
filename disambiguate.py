@@ -6,12 +6,15 @@ import re
 import itertools
 import collections
 import sys
+import time
+import datetime
 
 import config
 import launchers
 
 debug = '--debug' in sys.argv
 super_debug = '--super-debug' in sys.argv
+print_times = '--print-times' in sys.argv
 
 def update_name(desktop, disambiguator, disambiguation_method):
 	if not disambiguator:
@@ -200,6 +203,8 @@ def revision_disambiguate(rev):
 	return '(Rev {0})'.format(rev)
 
 def disambiguate_names():
+	time_started = time.perf_counter()
+
 	fix_duplicate_names('X-Platform')
 	fix_duplicate_names('dev-status')
 	fix_duplicate_names('X-Regions', lambda regions: '({0})'.format(regions.replace(';', ', ')), ignore_missing_values=True)
@@ -224,6 +229,10 @@ def disambiguate_names():
 	#X-Has-RTC
 	#DS: X-DSi-Enhanced
 	#GB: X-SGB-Enhanced, X-Mapper
+
+	if print_times:
+		time_ended = time.perf_counter()
+		print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
 if __name__ == '__main__':
 	disambiguate_names()

@@ -4,6 +4,8 @@ import urllib.request
 import sys
 import configparser
 import collections
+import time
+import datetime
 
 import config
 from metadata import Metadata
@@ -11,6 +13,8 @@ from info.system_info import MediaType
 import launchers
 
 debug = '--debug' in sys.argv
+print_times = '--print-times' in sys.argv
+
 
 def init_game_list(platform):
 	db_path = config.mac_db_path if platform == 'mac' else config.dos_db_path if platform == 'dos' else None
@@ -142,6 +146,8 @@ def make_launchers(system_config_name, config_path, app_class, emulator_list):
 	if not system_config:
 		return
 
+	time_started = time.perf_counter()
+
 	game_list = init_game_list(system_config_name.lower())
 	if not os.path.isfile(config_path):
 		#TODO: Perhaps notify user they have to do ./blah.py --scan to do the thing
@@ -162,3 +168,7 @@ def make_launchers(system_config_name, config_path, app_class, emulator_list):
 	if do_unknown:
 		for unknown, _ in parser.items('Unknown'):
 			app_class(unknown, unknown.split(':')[-1], {}).make_launcher(system_config, emulator_list)
+
+	if print_times:
+		time_ended = time.perf_counter()
+		print(system_config_name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
