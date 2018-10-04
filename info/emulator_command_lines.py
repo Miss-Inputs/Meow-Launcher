@@ -10,6 +10,13 @@ from .region_info import TVSystem
 
 debug = '--debug' in sys.argv
 
+class EmulationNotSupportedException(Exception):
+	pass
+
+class NotARomException(Exception):
+	#File type mismatch, etc
+	pass
+
 def _get_autoboot_script_by_name(name):
 	this_package = os.path.dirname(__file__)
 	root_package = os.path.dirname(this_package)
@@ -41,9 +48,7 @@ def mame_command_line(driver, slot=None, slot_options=None, has_keyboard=False, 
 
 def mame_atari_7800(game, _):
 	if not game.metadata.specific_info.get('Headered', False):
-		if debug:
-			print(game.rom.path, 'has no header and is therefore unsupported')
-		return None
+		raise EmulationNotSupportedException('No header')
 
 	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'a7800p'
@@ -56,9 +61,7 @@ def mame_vic_20(game, _):
 	size = game.rom.get_size()
 	if size > ((8 * 1024) + 2):
 		#It too damn big (only likes 8KB with 2 byte header at most)
-		if debug:
-			print('Bugger!', game.rom.path, 'is too big for MAME at the moment, it is', size)
-		return None
+		raise EmulationNotSupportedException('ROM too big: %d' % size)
 
 	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'vic20p'
@@ -71,27 +74,19 @@ def mame_atari_8bit(game, _):
 	if game.metadata.specific_info.get('Headered', False):
 		cart_type = game.metadata.specific_info['Cart-Type']
 		if cart_type in (13, 14, 23, 24, 25) or (cart_type >= 33 and cart_type <= 38):
-			if debug:
-				print(game.rom.path, 'is actually a XEGS ROM which is not supported by MAME yet, cart type is', cart_type)
-			return None
+			raise EmulationNotSupportedException('Actually a XEGS ROM which is not supported by MAME yet, cart type is %d' % cart_type)
 
 		#You probably think this is a bad way to do this...  I guess it is, but hopefully I can take some out as they become supported
 		if cart_type in (5, 17, 22, 41, 42, 43, 45, 46, 47, 48, 49, 53, 57, 58, 59, 60, 61) or (cart_type >= 26 and cart_type <= 32) or (cart_type >= 54 and cart_type <= 56):
-			if debug:
-				print(game.rom.path, "won't work as cart type is", cart_type)
-			return None
+			raise EmulationNotSupportedException('Unsupported cart type: %d' % cart_type)
 
 		if cart_type in (4, 6, 7, 16, 19, 20):
-			if debug:
-				print(game.rom.path, "is an Atari 5200 ROM ya goose!! It won't work as an Atari 800 ROM as the type is", cart_type)
-			return None
+			raise EmulationNotSupportedException('Actually an Atari 5200 ROM, cart type = %d' % cart_type)
 	else:
 		size = game.rom.get_size()
 		#Treat 8KB files as type 1, 16KB as type 2, everything else is unsupported for now
 		if size > ((16 * 1024) + 16):
-			if debug:
-				print(game.rom.path, 'may actually be a XL/XE/XEGS cartridge, please check it as it has no header and a size of', size)
-			return None
+			raise EmulationNotSupportedException('May actually be a XL/XE/XEGS cartridge, no header and size = %d' % size)
 
 	slot = 'cart1' if game.metadata.specific_info.get('Slot', 'Left') == 'Left' else 'cart2'
 
@@ -130,33 +125,31 @@ def mame_c64(game, _):
 	#Maybe check the software list for compatibility
 	if game.metadata.specific_info.get('Cart-Type', None) == 18:
 		#Sega (Zaxxon/Super Zaxxon), nothing in the source there that says it's unsupported, but it consistently segfaults every time I try to launch it, so I guess it doesn't actually work
-		return None
+		raise EmulationNotSupportedException('Sega cart not supported')
 	if game.metadata.specific_info.get('Cart-Type', None) == 32:
 		#EasyFlash. Well, at least it doesn't segfault. Just doesn't boot, even if I play with the dip switch that says "Boot". Maybe I'm missing something here?
 		#There's a Prince of Persia cart in c64_cart.xml that uses easyflash type and is listed as being perfectly supported, but maybe it's one of those things where it'll work from the software list but not as a normal ROM (it's broken up into multiple ROMs)
-		return None
+		raise EmulationNotSupportedException('EasyFlash cart not supported')
 
 	system = _find_c64_system(game)
 	return mame_command_line(system, 'cart', {'joy1': 'joybstr', 'joy2': 'joybstr', 'iec8': '""'}, True)
 
-def is_allowed_mgba_mapper(game):
+def verify_mgba_mapper(game):
 	if game.metadata.specific_info.get('Override-Mapper', False):
 		#If the mapper in the ROM header is different than what the mapper actually is, it won't work, since we can't override it from the command line or anything
-		return None
+		raise EmulationNotSupportedException('Overriding the mapper in header is not supported')
 
 	mapper = game.metadata.specific_info.get('Mapper', None)
 	if not mapper:
 		#If there was a problem detecting the mapper, or it's something invalid, it probably won't run
-		if debug:
-			print('Skipping', game.rom.path, '(by mGBA) because mapper is unrecognized')
-		return False
+		raise EmulationNotSupportedException('Mapper is not detected at all')
 
-	return mapper in ['ROM only', 'MBC1', 'MBC1 Multicart', 'MBC2', 'MBC3', 'HuC1', 'MBC5', 'Huc3', 'MBC6', 'MBC7', 'MMM01', 'Pocket Camera', 'Bandai TAMA5']
+	if mapper in ['ROM only', 'MBC1', 'MBC1 Multicart', 'MBC2', 'MBC3', 'HuC1', 'MBC5', 'Huc3', 'MBC6', 'MBC7', 'MMM01', 'Pocket Camera', 'Bandai TAMA5']:
+		raise EmulationNotSupportedException('Mapper ' + mapper + ' not supported')
 
 def mgba(game, _):
 	if game.metadata.platform in ('Game Boy', 'Game Boy Color'):
-		if not is_allowed_mgba_mapper(game):
-			return None
+		verify_mgba_mapper(game)
 
 	command_line = 'mgba-qt -f'
 	if not game.metadata.specific_info.get('Nintendo-Logo-Valid', True):
@@ -165,30 +158,29 @@ def mgba(game, _):
 
 def medusa(game, _):
 	if game.metadata.platform in ('Game Boy', 'Game Boy Color'):
-		if not is_allowed_mgba_mapper(game):
-			return None
+		verify_mgba_mapper(game)
 
 	if game.metadata.platform == 'DSi' or game.metadata.specific_info.get('Is-iQue', False):
-		return None
+		raise EmulationNotSupportedException('DSi-only and iQue games not supported')
 	return 'medusa-emu-qt -f $<path>'
 
 def gambatte(game, _):
 	if game.metadata.specific_info.get('Override-Mapper', False):
 		#If the mapper in the ROM header is different than what the mapper actually is, it won't work, since we can't override it from the command line or anything
-		return None
+		raise EmulationNotSupportedException('Overriding the mapper in header is not supported')
 
 	mapper = game.metadata.specific_info.get('Mapper', None)
 	if not mapper:
 		#If there was a problem detecting the mapper, or it's something invalid, it probably won't run
-		if debug:
-			print('Skipping', game.rom.path, '(by Gambatte) because mapper is unrecognized')
-		return None
+		raise EmulationNotSupportedException('Mapper is not detected at all')
+
 	if mapper not in ['ROM only', 'MBC1', 'MBC1 Multicart', 'MBC2', 'MBC3', 'HuC1', 'MBC5']:
-		return None
+		raise EmulationNotSupportedException('Mapper ' + mapper + ' not supported')
 
 	return 'gambatte_qt --full-screen $<path>'
 
 def mame_game_boy(game, other_config):
+	#TODO: Bound to be some mappers which won't be supported (Game Boy Camera would be one of them I guess)
 	#Not much reason to use gameboy, other than a green tinted screen. I guess that's the only difference
 	system = 'gbcolor' if other_config.get('use_gbc_for_dmg') else 'gbpocket'
 
@@ -212,23 +204,19 @@ def mame_snes(game, other_config):
 	#Snes9x's GTK+ port doesn't let us load carts with slots for other carts from the command line yet, so this will have
 	#to do, but unfortunately it's a tad slower
 	if game.rom.extension == 'st':
-		if 'sufami_turbo_bios_path' not in other_config:
-			if debug:
-				#TODO Only print this once!
-				print("You can't do", game.rom.path, "because you haven't set up the BIOS for it yet, check emulators.ini")
-			return None
+		bios_path = other_config.get('sufami_turbo_bios_path', None)
+		if not bios_path:
+			#TODO Only print this once!
+			raise EmulationNotSupportedException('Sufami Turbo BIOS not set up, check emulators.ini')
 
 		#We don't need to detect TV type because the Sufami Turbo (and also BS-X) was only released in Japan and so the Super Famicom can be used for everything
-		return mame_command_line('snes', 'cart2', {'cart': shlex.quote(other_config['sufami_turbo_bios_path'])}, False)
+		return mame_command_line('snes', 'cart2', {'cart': shlex.quote(bios_path)}, False)
 
 	if game.rom.extension == 'bs':
-		if 'bsx_bios_path' not in other_config:
-			if debug:
-				#TODO Only print this once!
-				print("You can't do", game.rom.path, "because you haven't set up the BIOS for it yet, check emulators.ini")
-			return None
-
-		return mame_command_line('snes', 'cart2', {'cart': shlex.quote(other_config['bsx_bios_path'])}, False)
+		bios_path = other_config.get('bsx_bios_path', None)
+		if not bios_path:
+			raise EmulationNotSupportedException('BS-X/Satellaview BIOS not set up, check emulators.ini')
+		return mame_command_line('snes', 'cart2', {'cart': shlex.quote(bios_path)}, False)
 
 	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'snespal'
@@ -253,9 +241,7 @@ def mame_nes(game, _):
 	if game.metadata.specific_info.get('Header-Format', None) == 'iNES':
 		mapper = game.metadata.specific_info['Mapper-Number']
 		if mapper in unsupported_ines_mappers:
-			#if debug:
-			#	print(game.rom.path, 'contains unsupported mapper', game.metadata.specific_info['Mapper'], '(%s)' % mapper)
-			return None
+			raise EmulationNotSupportedException('Unsupported mapper: %d (%s)' % (mapper, game.metadata.specific_info.get('Mapper')))
 		if mapper == 167:
 			#This might not be true for all games with this mapper, I dunno, hopefully it's about right.
 			#At any rate, Subor - English Word Blaster needs to be used with the keyboard thing it's designed for
@@ -275,10 +261,9 @@ def mame_nes(game, _):
 	return mame_command_line(system, 'cart', has_keyboard=uses_sb486)
 
 def mame_atari_2600(game, _):
-	if game.rom.get_size() > (512 * 1024):
-		if debug:
-			print(game.rom.path, "can't be run by MAME a2600 as it's too big")
-		return None
+	size = game.rom.get_size()
+	if size > (512 * 1024):
+		raise EmulationNotSupportedException('ROM too big: %d' % size)
 	#TODO: Switch based on input type
 	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'a2600p'
@@ -304,37 +289,28 @@ def mame_zx_spectrum(game, _):
 		options['exp'] = 'kempjoy'
 	else:
 		#Should not happen
-		return None
+		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 
 	return mame_command_line(system, slot, options, True)
 
 def dolphin(game, _):
 	if game.metadata.specific_info.get('No-Disc-Magic', False):
-		if debug:
-			print(game.rom.path, 'has no disc magic')
-		return None
+		raise EmulationNotSupportedException('No disc magic')
 
 	return 'dolphin-emu -b -e $<path>'
 
 def citra(game, _):
 	if game.rom.extension != '3dsx':
 		if not game.metadata.specific_info.get('Decrypted', True):
-			if debug:
-				print('Skipping', game.rom.path, 'because encrypted')
-			return None
+			raise EmulationNotSupportedException('ROM is encrypted')
 		if not game.metadata.specific_info.get('Is-CXI', True):
-			if debug:
-				print('Skipping', game.rom.path, 'because not CXI')
-			return None
+			raise EmulationNotSupportedException('Not CXI')
 		if not game.metadata.specific_info.get('Has-SMDH', False):
-			#Indicates that this is probably an applet, rather than a thing that can be run
-			if debug:
-				print('Skipping', game.rom.path, 'because no SMDH')
-			return None
+			raise EmulationNotSupportedException('No icon (SMDH), probably an applet')
 		if game.metadata.product_code[3:6] == '-U-':
 			#Ignore update data, which either are pointless (because you install them in Citra and then when you run the main game ROM, it has all the updates applied) or do nothing
 			#I feel like there's probably a better way of doing this whoops
-			return None
+			raise NotARomException('Update data, not actual game')
 	return 'citra-qt $<path>'
 
 def mednafen_nes(game, _):
@@ -353,17 +329,13 @@ def mednafen_nes(game, _):
 	if game.metadata.specific_info.get('Header-Format', None) == 'iNES':
 		mapper = game.metadata.specific_info['Mapper-Number']
 		if mapper in unsupported_ines_mappers:
-			#if debug:
-			#	print(game.rom.path, 'contains unsupported mapper', game.metadata.specific_info['Mapper'], '(%s)' % mapper)
-			return None
+			raise EmulationNotSupportedException('Unsupported mapper: %d (%s)' % (mapper, game.metadata.specific_info.get('Mapper')))
 
 	return make_mednafen_command_line('nes')
 
 def reicast(game, _):
 	if game.metadata.specific_info.get('Uses-Windows-CE', False):
-		if debug:
-			print(game.rom.path, 'is not supported because it uses Windows CE')
-		return None
+		raise EmulationNotSupportedException('Uses Windows CE')
 	return 'reicast -config x11:fullscreen=1 $<path>'
 
 def mame_sg1000(game, _):
@@ -388,7 +360,8 @@ def mame_sg1000(game, _):
 		slot = 'cart'
 		slot_options['sgexp'] = 'fm' #Can also put sk1100 in here. Can't detect yet what uses which though
 	else:
-		return None #This shouldn't happen
+		#Should not happen
+		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 
 
 	return mame_command_line(system, slot, slot_options, has_keyboard)
@@ -419,7 +392,7 @@ def mame_fm_towns_marty(game, _):
 		slot = 'cdrom'
 	else:
 		#Should never happen
-		return None
+		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 	return mame_command_line('fmtmarty', slot, slot_options)
 
 def mame_ibm_pcjr(game, _):
@@ -432,7 +405,7 @@ def mame_ibm_pcjr(game, _):
 		slot = 'flop'
 	else:
 		#Should never happen
-		return None
+		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 	return mame_command_line('ibmpcjr', slot, slot_options, has_keyboard=True)
 
 def mame_atari_jaguar(game, _):
@@ -442,7 +415,7 @@ def mame_atari_jaguar(game, _):
 		slot = 'quik'
 	else:
 		#Should never happen
-		return None
+		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 	return mame_command_line('jaguar', slot)
 
 def mupen64plus(game, other_config):
@@ -504,6 +477,7 @@ def fs_uae(game, _):
 def basilisk_ii(app, other_config):
 	if 'arch' in app.config:
 		if app.config['arch'] == 'ppc':
+			#TODO: Raise exception (would need to change dos_mac_common.py)
 			return None
 
 	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that. Okay, so I don't want that.

@@ -12,6 +12,7 @@ import metadata
 
 from info import system_info, emulator_info
 from roms_metadata import add_engine_metadata, add_metadata
+from info.emulator_command_lines import EmulationNotSupportedException, NotARomException
 
 debug = '--debug' in sys.argv
 
@@ -139,6 +140,7 @@ class Game():
 		self.icon = None
 		self.subroms = None
 		self.software_lists = None
+		self.exception_reason = None
 
 	def get_command_line(self, system_config):
 		return self.emulator.get_command_line(self, system_config.other_config)
@@ -181,7 +183,7 @@ def try_emulator(system_config, emulator, rom_dir, root, rom):
 		game.metadata.categories = [game.metadata.platform]
 
 	if rom.extension not in game.emulator.supported_extensions:
-		return None
+		raise NotARomException('Unsupported extension: ' + rom.extension)
 
 	if rom.warn_about_multiple_files and debug:
 		print('Warning!', rom.path, 'has more than one file and that may cause unexpected behaviour, as I only look at the first file')
@@ -189,7 +191,7 @@ def try_emulator(system_config, emulator, rom_dir, root, rom):
 	add_metadata(game)
 
 	if not game.get_command_line(system_config):
-		return None
+			return None
 
 	return game
 
@@ -198,15 +200,24 @@ def process_file(system_config, rom_dir, root, rom):
 
 	emulator_name = None
 	potential_emulators = system_config.chosen_emulators
+	exception_reason = None
+
 	for potential_emulator in potential_emulators:
 		if potential_emulator not in emulator_info.emulators:
 			continue
 		emulator_name = potential_emulator
-		game = try_emulator(system_config, emulator_info.emulators[potential_emulator], rom_dir, root, rom)
-		if game:
-			break
+
+		try:
+			game = try_emulator(system_config, emulator_info.emulators[potential_emulator], rom_dir, root, rom)
+			if game:
+				break
+		except (EmulationNotSupportedException, NotARomException) as ex:
+			exception_reason = ex
+
 
 	if not game:
+		if debug:
+			print(rom.path, 'could not be launched by', potential_emulators, 'because', exception_reason)
 		return
 
 	if isinstance(game.emulator, emulator_info.MameSystem):
