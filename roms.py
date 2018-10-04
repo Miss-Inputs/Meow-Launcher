@@ -332,17 +332,17 @@ def main():
 		process_file(get_system_config_by_name(system), os.path.basename(rom), os.path.basename(rom), Rom(rom))
 		return
 
-	individual_systems = []
-	for arg in sys.argv:
-		#TODO: May want to use some kind of proper argument handling library. Hmm...
-		if arg.startswith('--system='):
-			individual_systems.append(arg.partition('=')[2])
+	if len(sys.argv) >= 2 and sys.argv[1] == '--systems':
+		if len(sys.argv) == 2:
+			print('--systems requires an argument')
+			return
 
-	if individual_systems:
-		for system_name in individual_systems:
+		system_list = sys.argv[2].split(',')
+		for system_name in system_list:
 			process_system(get_system_config_by_name(system_name))
-	else:
-		process_systems()
+		return
+
+	process_systems()
 
 
 if __name__ == '__main__':

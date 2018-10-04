@@ -54,6 +54,8 @@ Sources of games:
 - roms.py
   - This is probably what most people are interested in: Just normal ROMs to be used with an emulator. For every kind of platform possible, I don't just include the platforms that are "popular". If it can be emulated, it can have a launcher generated.
   - Also contains games with source ports or engines, like Doom and whatnot.
+  - To use with individual systems, use the --systems argument and then a comma-separated list of system names, e.g. --systems GBA,N64
+  - To use with a single ROM, use the --rom argument with a path and then a system name, e.g.: --rom /path/blah.tap C64 (this will probably not be too useful except for debugging/development/etc)
 - mame_machines.py
   - For arcade romsets, except they aren't always arcade machines anyway, this will also include handheld systems and plug & play consoles and all of that sort of thing. It only creates launchers for romsets you actually have, of course. None of that crap where it lists "unavailable" machines, because that doesn't really make sense.
 - scummvm.py
