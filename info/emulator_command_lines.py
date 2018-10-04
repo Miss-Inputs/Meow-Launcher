@@ -420,7 +420,7 @@ def mame_atari_jaguar(game, _):
 
 def mupen64plus(game, other_config):
 	if game.metadata.specific_info.get('ROM-Format', None) == 'Unknown':
-		return None
+		raise EmulationNotSupportedException('Undetectable ROM format')
 
 	command_line = 'mupen64plus --nosaveoptions --fullscreen'
 
