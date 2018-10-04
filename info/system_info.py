@@ -137,8 +137,10 @@ systems = [
 	#times, though I suppose I _could_ do that, it just doesn't feel like a nicely organized bunch of launcher scripts if
 	#I do that
 	System('Amiga', 'a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench'], ['FS-UAE'], {MediaType.Floppy: ['adf', 'ipf', 'dms']}),
-	System('Atari 8-bit', 'a800', ['a800', 'a800_flop', 'xegs'], ['MAME (Atari 8-bit)'], {MediaType.Cartridge: ['bin', 'rom', 'car'], MediaType.Floppy: ['atr', 'dsk'], MediaType.Executable: ['xex', 'bas'], MediaType.Tape: ['wav']}),
-	System('C64', 'c64', ['c64_cart', 'c64_cass', 'c64_flop'], ['MAME (C64)'], {MediaType.Cartridge: ['80', 'a0', 'e0', 'crt', 'bin'], MediaType.Floppy: ['d64', 'g64', 'p64', 'x64', 'nib', 'ipf'], MediaType.Tape: ['t64', 'tap'], MediaType.Executable: ['prg', 'p00']}),
+	System('Atari 8-bit', 'a800', ['a800', 'a800_flop', 'xegs'], ['MAME (Atari 8-bit)'], {MediaType.Cartridge: ['bin', 'rom', 'car'], MediaType.Tape: ['wav']}),
+	#TODO: MediaType.Floppy: ['atr', 'dsk'], MediaType.Executable: ['xex', 'bas'],
+	System('C64', 'c64', ['c64_cart', 'c64_cass', 'c64_flop'], ['MAME (C64)'], {MediaType.Cartridge: ['80', 'a0', 'e0', 'crt', 'bin']}),
+	#TODO: , MediaType.Floppy: ['d64', 'g64', 'p64', 'x64', 'nib', 'ipf'], MediaType.Tape: ['t64', 'tap'], MediaType.Executable: ['prg', 'p00']
 	System('Casio PV-2000', 'pv2000', ['pv2000'], ['MAME (PV-2000)'], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav']}),
 	System('Coleco Adam', 'adam', ['adam_cart', 'adam_cass', 'adam_flop'], ['MAME (Coleco Adam)'], {MediaType.Cartridge: ['col', 'bin'], MediaType.Tape: ['wav', 'ddp'], MediaType.Floppy: mame_floppy_formats}),
 	System('IBM PCjr', 'ibmpcjr', ['ibmpcjr_cart'], ['MAME (IBM PCjr)'], {MediaType.Cartridge: ['bin', 'jrc'], MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['exe', 'com', 'bat']}),
@@ -151,7 +153,8 @@ systems = [
 	System('Sord M5', 'm5', ['m5_cart', 'm5_cass', 'm5_flop'], ['MAME (Sord M5)'], {MediaType.Cartridge: ['bin'], MediaType.Floppy: mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim']}),
 	System('Tomy Tutor', 'tutor', ['tutor'], ['MAME (Tomy Tutor)'], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav']}),
 	System('VIC-10', 'vic10', ['vic10'], ['MAME (VIC-10)'], {MediaType.Cartridge: ['crt', 'bin', '80', 'e0'], MediaType.Tape: ['wav', 'tap', 't64']}),
-	System('VIC-20', 'vic20', ['vic1001_cart', 'vic1001_cass', 'vic1001_flop'], ['MAME (VIC-20)'], {MediaType.Cartridge: ['20', '40', '60', '70', 'a0', 'b0', 'crt'], MediaType.Tape: ['wav', 'tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: ['d64', 'g64', 'p64', 'x64', 'nib', 'ipf']}),
+	System('VIC-20', 'vic20', ['vic1001_cart', 'vic1001_cass', 'vic1001_flop'], ['MAME (VIC-20)'], {MediaType.Cartridge: ['20', '40', '60', '70', 'a0', 'b0', 'crt']}),
+	#TODO: MediaType.Tape: ['wav', 'tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: ['d64', 'g64', 'p64', 'x64', 'nib', 'ipf']
 	System('VZ-200', 'vz200', ['vz_cass'], ['MAME (VZ-200)'], {MediaType.Snapshot: ['vz'], MediaType.Tape: ['wav', 'cas']}),
 	#There are many different systems in this family, but I'll go with this one, because the software list is named after it
 	System('ZX Spectrum', 'spectrum', ['spectrum_cart', 'spectrum_cass', 'specpls3_flop'], ['MAME (ZX Spectrum)'], {MediaType.Snapshot: ['z80', 'sna'], MediaType.Tape: ['wav', 'cas', 'tap', 'tzx'], MediaType.Executable: ['raw', 'scr'], MediaType.Floppy: ['dsk', 'ipf', 'trd', 'td0', 'scl', 'fdi'], MediaType.Cartridge: ['bin', 'rom']}),
