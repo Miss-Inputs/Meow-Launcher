@@ -78,7 +78,6 @@ disable=print-statement,
         round-builtin,
         missing-docstring,
         trailing-whitespace, #This is always wrong, seemingly
-        fixme,
 		#Stupid opinions on style that are for wankers, these are the Python of equivalent of annoying English teachers who spout bullshit like "you can't end a sentence with a preposition because I said so" and other prescriptivist bullshit
 		#Fuck off
 		wildcard-import,
