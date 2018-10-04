@@ -157,4 +157,3 @@ def add_megadrive_metadata(game):
 			game.metadata.specific_info['Uses-SVP'] = software.get_shared_feature('addon') == 'SVP'
 			if software.get_shared_feature('incompatibility') == 'TMSS':
 				game.metadata.specific_info['Bad-TMSS'] = True
-			#TODO: A lot of >2MB Megadrive games are split into multiple parts in the software lists. Can we do anything about that?
