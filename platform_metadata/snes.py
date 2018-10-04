@@ -121,8 +121,9 @@ def parse_snes_header(game, base_offset):
 
 	#Note that amount goes up to 256 if you include exception vectors, but... nah
 	header = game.rom.read(seek_to=base_offset, amount=0xe0)
+	title = None
 	try:
-		header[0xc0:0xd5].decode('shift_jis')
+		title = header[0xc0:0xd5].decode('shift_jis')
 	except UnicodeDecodeError:
 		raise BadSNESHeaderException('Title not ASCII or Shift-JIS: %s' % header[0xc0:0xd5].decode('shift_jis', errors='backslashreplace'))
 
@@ -131,8 +132,12 @@ def parse_snes_header(game, base_offset):
 	rom_layout = header[0xd5]
 	if rom_layout in rom_layouts:
 		metadata['ROM layout'] = rom_layouts[rom_layout]
-		#FIXME: HAL's Hole in Golf has 70 here, because that's the letter F, and the title immediately preceding this is "HAL HOLE IN ONE GOL". Looks like they overwrote this part of the header with the letter F. Whoops.
+	elif title == "HAL'S HOLE IN ONE GOL":
+		#HAL's Hole in Golf has 70 here, because that's the letter F, and the title immediately preceding this is "HAL HOLE IN ONE GOL". Looks like they overwrote this part of the header with the letter F. Whoops.
+		#Anyway the internet says it's LoROM + SlowROM
+		metadata['ROM layout'] = rom_layouts[0x20]
 	else:
+		print(title)
 		raise BadSNESHeaderException('ROM layout is weird: %d' % rom_layout)
 
 	rom_type = header[0xd6]
