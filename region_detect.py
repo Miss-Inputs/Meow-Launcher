@@ -1,6 +1,6 @@
 import re
 
-from info import region_info
+import info.region_info as region_info
 
 language_list_regex = re.compile(r'\(((?:[A-Z][a-z],)*(?:[A-Z][a-z]))\)')
 translated_regex = re.compile(r'\[(?:tr |T-|T\+)([A-Z][a-z])(?: (?:by )?[^]]+)?\]')
