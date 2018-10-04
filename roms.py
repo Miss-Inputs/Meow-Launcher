@@ -323,7 +323,6 @@ def main():
 	os.makedirs(config.output_folder, exist_ok=True)
 
 	if len(sys.argv) >= 2 and sys.argv[1] == '--rom':
-		#TODO: Refactor this
 		if len(sys.argv) < 4:
 			print("BZZZT that's not how you use that")
 			return
