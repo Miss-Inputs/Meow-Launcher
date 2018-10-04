@@ -50,35 +50,48 @@ def base_make_desktop(command, display_name, fields=None, icon=None):
 	path = os.path.join(config.output_folder, filename)
 	used_filenames.append(filename)
 
+	configwriter = configparser.ConfigParser(interpolation=None)
+	configwriter.optionxform = str
+
+	configwriter.add_section('Desktop Entry')
+	desktop_entry = configwriter['Desktop Entry']
+
+	#Necessary for this thing to even be recognized
+	desktop_entry['Type'] = 'Application'
+	desktop_entry['Encoding'] = 'UTF-8'
+
+	desktop_entry['Name'] = display_name
+	desktop_entry['Exec'] = command
+
+
+	if icon:
+		if isinstance(icon, str):
+			desktop_entry['Icon'] = icon
+		elif config.icon_folder: #assume PIL/Pillow image
+			icon_path = os.path.join(config.icon_folder, filename + '.png')
+			icon.save(icon_path, 'png')
+			desktop_entry['Icon'] = icon_path
+
+	if fields:
+		for k, v in fields.items():
+			if v is None:
+				continue
+
+			if isinstance(v, list):
+				if not v:
+					continue
+				value_as_string = ';'.join(['None' if item is None else item for item in v])
+			else:
+				value_as_string = str(v)
+
+			desktop_entry['X-' + k.replace('_', '-')] = value_as_string
+
+
 	with open(path, 'wt') as f:
-		f.write('[Desktop Entry]\n')
-		f.write('Type=Application\n')
-		f.write('Encoding=UTF-8\n')
-		f.write('Name=%s\n' % display_name)
-		f.write('Exec=%s\n' % command)
+		configwriter.write(f)
 
-		if icon:
-			if isinstance(icon, str):
-				f.write('Icon=%s\n' % icon)
-			elif config.icon_folder: #assume PIL/Pillow image
-				icon_path = os.path.join(config.icon_folder, filename + '.png')
-				icon.save(icon_path, 'png')
-				f.write('Icon=%s\n' % icon_path)
-
-		if fields:
-			for k, v in fields.items():
-				if v is not None:
-					if isinstance(v, list):
-						if not v:
-							continue
-						value_as_string = ';'.join(['None' if item is None else item for item in v])
-					else:
-						value_as_string = str(v)
-
-					f.write('X-{0}={1}\n'.format(k.replace('_', '-'), value_as_string))
-
-
-		os.chmod(path, 0o7777)
+	#Set executable, but also set everything else because whatever
+	os.chmod(path, 0o7777)
 
 def make_display_name(name):
 	display_name = common.remove_filename_tags(name)
