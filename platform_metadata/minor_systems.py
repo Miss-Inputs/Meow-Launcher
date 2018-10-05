@@ -4,7 +4,7 @@ import input_metadata
 from metadata import SaveType
 from info.region_info import TVSystem
 from info.system_info import MediaType
-from software_list_info import get_software_list_entry
+from software_list_info import get_software_list_entry, get_crc32_for_software_list, find_in_software_lists
 
 def add_entex_adventure_vision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -356,17 +356,49 @@ def add_ibm_pcjr_info(game):
 		#Probably get the MAME command liner to get a PC DOS 2.1 floppy path from other_config provided by the user, or else they don't get to use ColorPaint
 		#Lotus 123jr has a similar predicament, but it also needs .m3u I guess
 
+def _does_intellivision_part_match(part, data, _):
+	total_size = 0
+	number_of_roms = 0
+
+	offset = 0
+	for data_area in part.findall('dataarea'):
+		size = 0
+		crc = ''
+
+		#'name' attribute here is actually where in the Intellivision memory map it gets loaded to, not the offset in the file like I keep thinking
+
+		try:
+			size = int(data_area.attrib.get('size'), 16)
+		except ValueError:
+			continue
+
+		rom = data_area.find('rom')
+		if rom is None:
+			continue
+		number_of_roms += 1
+		total_size += size
+
+		crc = rom.attrib.get('crc')
+		segment = data[offset: offset + size]
+		segment_crc = get_crc32_for_software_list(segment)
+		if segment_crc != crc:
+			return False
+
+		offset += size
+
+	if number_of_roms == 0:
+		return False
+
+	if total_size != len(data):
+		return False
+
+	return True
+
 def add_intellivision_info(game):
 	#There's probably some way to get info from title screen in ROM, but I haven't explored that in ROMniscience yet
 	#I think .int is supposed to be headered, but the ROMs I have (from Game Room, I think) seem to be just fine?
 	#Input info: Crappy keypad, but also a keyboard component and computer module exists, also a piano keyboard
-
-	#TODO: Some of these have two <dataarea> tags: name="5000" and name="9000". For example, Commando, which is a 32KB ROM in No-Intro, here the two data areas are 16KB each. Is this consistent for all 32KB games, perhaps?
-	#24KB games (e.g. B-17 Bomber) are sometimes split up into "5000" (16KB) and "D000" (8KB) data areas, but then some (e.g. Defender) are just one big ROM in the software list
-	#Hover Force (48KB) is "5000" (16KB), "9000" (24KB) and "D000" (8KB)
-	#Tower of Doom (also 48KB) is "5000" (16KB), "9000" (16KB), "D000" (8KB) and "F000" (8KB)
-	#Why this? Why me?
-	software = get_software_list_entry(game)
+	software = find_in_software_lists(game.software_lists, crc=game.rom.read(), part_matcher=_does_intellivision_part_match)
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
