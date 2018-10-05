@@ -230,8 +230,8 @@ def add_ines_metadata(game, header):
 
 	flags = header[6]
 	has_battery = (flags & 2) > 0
-	#Bit 4: Contains 512-byte trainer before PRG
 	game.metadata.save_type = SaveType.Cart if has_battery else SaveType.Nothing
+	game.metadata.specific_info['Has-iNES-Trainer'] = (flags & 4) > 0
 	mapper_lower_nibble = (flags & 0b1111_0000) >> 4
 
 	more_flags = header[7]
@@ -281,7 +281,7 @@ def _get_headered_nes_rom_software_list_entry(game):
 	prg_size = game.metadata.specific_info.get('PRG-Size', 0)
 	chr_size = game.metadata.specific_info.get('CHR-Size', 0)
 	#Is it even possible for prg_size to be 0 on a valid ROM?
-	prg_offset = 16 #TODO: Take into account iNES "has trainer" flag
+	prg_offset = 16 + 512 if game.metadata.specific_info.get('Has-iNES-Trainer', False) else 16
 	chr_offset = prg_offset + prg_size
 
 	prg_rom = game.rom.read(seek_to=prg_offset, amount=prg_size)
