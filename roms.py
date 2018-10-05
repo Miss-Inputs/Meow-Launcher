@@ -11,6 +11,7 @@ import config
 import archives
 import launchers
 import metadata
+import io_utils
 
 from info import system_info, emulator_info
 from info.emulator_command_lines import EmulationNotSupportedException, NotARomException
@@ -30,7 +31,7 @@ class EngineFile():
 		self.extension = self.extension.lower()
 
 	def read(self, seek_to=0, amount=-1):
-		return common.read_file(self.path, seek_to=seek_to, amount=amount)
+		return io_utils.read_file(self.path, seek_to=seek_to, amount=amount)
 
 	def contains_subfolder(self, name):
 		if not os.path.isdir(self.path):
@@ -127,10 +128,10 @@ class Rom():
 		self.extension = self.extension.lower()
 
 	def read(self, seek_to=0, amount=-1):
-		return common.read_file(self.path, self.compressed_entry, seek_to, amount)
+		return io_utils.read_file(self.path, self.compressed_entry, seek_to, amount)
 
 	def get_size(self):
-		return common.get_real_size(self.path, self.compressed_entry)
+		return io_utils.get_real_size(self.path, self.compressed_entry)
 
 class Game():
 	def __init__(self, rom, emulator, platform, folder):

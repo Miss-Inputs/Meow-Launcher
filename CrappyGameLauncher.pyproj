@@ -47,6 +47,9 @@
     <Compile Include="input_metadata.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="io_utils.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="launchers.py" />
     <Compile Include="mac.py">
       <SubType>Code</SubType>
