@@ -368,7 +368,8 @@ def _does_intellivision_part_match(part, data, _):
 		#'name' attribute here is actually where in the Intellivision memory map it gets loaded to, not the offset in the file like I keep thinking
 
 		try:
-			size = int(data_area.attrib.get('size'), 16)
+			size_attrib = data_area.attrib.get('size')
+			size = int(size_attrib, 16 if size_attrib.startswith('0x') else 10)
 		except ValueError:
 			continue
 
@@ -403,9 +404,21 @@ def add_intellivision_info(game):
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
 
-		if game.metadata.specific_info.get('Notes') == 'Uses Intellivoice':
+		usage = game.metadata.specific_info.get('Notes')
+		if usage == 'Uses Intellivoice':
 			game.metadata.specific_info['Uses-Intellivoice'] = True
 			game.metadata.specific_info.pop('Notes')
+		elif usage in ('Requires ECS and Keyboard', 'Requires ECS and Intellivoice'):
+			#Both of these are functionally the same for our intent and purpose, as MAME's intvecs driver always has a keyboard and Intellivoice module. I dunno if an Intellivision ECS without a keyboard is even a thing.
+			game.metadata.specific_info['Uses-ECS'] = True
+			game.metadata.specific_info.pop('Notes')
+
+		#Other usage notes:
+		#Will not run on Intellivision 2
+		#This cart has unique Left and Right overlays
+		#Requires ECS and Music Synthesizer
+
+		#We don't have any reason to use the intv2 driver so that's not a worry; overlays aren't really a concern either, and I dunno about this music synthesizer thing
 
 def add_juicebox_info(game):
 	#Hmm... apparently there's 0x220 bytes at the beginning which need to be copied from retail carts to get homebrew test ROMs to boot
