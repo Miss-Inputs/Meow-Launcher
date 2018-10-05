@@ -290,10 +290,19 @@ def process_engine_system(system_config, game_info):
 				for f in files:
 					process_engine_file(system_config, file_dir, root, f)
 
+def validate_emulator_choices(system_config, system):
+	for chosen_emulator in system_config.chosen_emulators:
+		if chosen_emulator not in system.emulators:
+			print(chosen_emulator, 'is not valid for', system.name)
+			return False
+	return True
+
 def process_system(system_config):
 	time_started = time.perf_counter()
 
 	if system_config.name in [system.name for system in system_info.systems]:
+		if not validate_emulator_choices(system_config, system_info.get_system_by_name(system_config.name)):
+			return
 		process_emulated_system(system_config)
 	elif system_config.name in system_info.games_with_engines:
 		process_engine_system(system_config, system_info.games_with_engines[system_config.name])

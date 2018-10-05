@@ -117,23 +117,6 @@ def load_emulator_configs():
 			continue
 		emulators = [emulator for emulator in parser[system]['emulators'].strip().split(';') if emulator]
 
-		#TODO: Redo this whole mess
-		#for emulator in emulators:
-		#	if emulator not in emulator_info.emulators or emulator_info.engines:
-		#		if system == 'Mac' and emulator not in emulator_info.mac_emulators:
-		#			if system == 'DOS' and emulator not in emulator_info.dos_emulators:
-		#				print('Warning! System {0} is configured to use {1} but that is not known as an emulator'.format(system, emulator))
-
-		#info = system_info.get_system_by_name(system)
-		#if info:
-		#	valid_emulators = info.emulators if isinstance(info, system_info.System) else info.engines if isinstance(info, system_info.GameWithEngine) else []
-		#	for emulator in emulators:
-		#		if emulator not in valid_emulators:
-		#			print('Warning! System {0} is configured to use {1} which does not support {0}'.format(system, emulator))
-		#else:
-		#	if system not in ('Mac', 'DOS'):
-		#		print('Warning! System {0} is configured but might not exist'.format(system))
-
 		other_config = {k: v for k, v in parser[system].items() if k not in ('paths', 'emulators')}
 
 		system_configs.append(SystemConfig(system, paths, emulators, other_config))
