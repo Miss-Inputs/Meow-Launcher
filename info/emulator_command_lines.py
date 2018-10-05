@@ -474,6 +474,20 @@ def fs_uae(game, _):
 		command_line += ' --ntsc_mode=1'
 	return command_line
 
+def mame_intellivision(game, _):
+	system = 'intv'
+
+	uses_keyboard = False
+	if game.metadata.specific_info.get('Uses-ECS', False):
+		#This has a keyboard and Intellivoice module attached; -ecs.ctrl_port synth gives a music synthesizer instead of keyboard
+		#Seemingly none of the prototype keyboard games use intvkbd, they just use this
+		system = 'intvecs'
+		uses_keyboard = True
+	elif game.metadata.specific_info.get('Uses-Intellivoice', False):
+		system = 'intvoice'
+
+	return mame_command_line(system, 'cart', has_keyboard=uses_keyboard)
+
 def basilisk_ii(app, other_config):
 	if 'arch' in app.config:
 		if app.config['arch'] == 'ppc':

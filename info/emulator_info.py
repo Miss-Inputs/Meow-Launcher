@@ -118,18 +118,11 @@ emulators = {
 	'MAME (GBA)': MameSystem(command_lines.mame_command_line('gba', 'cart'), ['bin', 'gba']),
 	#Does not let you do GBA-enhanced GBC games
 	'MAME (IBM PCjr)': MameSystem(command_lines.mame_ibm_pcjr, mame_floppy_formats + ['img', 'bin', 'jrc']),
-	'MAME (Intellivision)': MameSystem(command_lines.mame_command_line('intv', 'cart'), ['bin', 'int', 'rom', 'itv']),
+	'MAME (Intellivision)': MameSystem(command_lines.mame_intellivision, ['bin', 'int', 'rom', 'itv']),
 	#Well this sure is a shit console.  There's no consistency to how any game uses any buttons or keypad keys (is it the
 	#dial?  Is it keys 2 4 6 8?, so good luck with that; also 2 player mode isn't practical because some games use the
 	#left controller and some use the right, so you have to set both controllers to the same inputs; and Pole Position has
 	#glitchy graphics.  Why did Mattel make consoles fuck you Mattel I hope you burn
-	'MAME (Intellivoice)': MameSystem(command_lines.mame_command_line('intvoice', 'cart'), ['bin', 'int', 'rom', 'itv']),
-	#Anyway, might as well use the voice module here since it shouldn't break any existing games
-	#TODO: Merge these four Intellivision consoles into one, and automatically detect if voice, ECS, or keyboard needs to be used. The tricky part will be to detect that. Maybe the software list would be of some help... but then the software list is hard to deal with as it turns out
-	'MAME (Intellivision ECS)': MameSystem(command_lines.mame_command_line('intvecs', 'cart'), ['bin', 'int', 'rom', 'itv']),
-	#The ECS module does, in fact, break some existing games (I've heard so anyway, don't know which ones), but it is here for usage anyway
-	'MAME (Intellivision Keyboard)': MameSystem(command_lines.mame_command_line('intvkbd', 'cart'), ['bin', 'int', 'rom', 'itv']),
-	#This was unreleased, but there are dumps of the keyboard-using games out there
 	'MAME (Juice Box)': MameSystem(command_lines.mame_command_line('juicebox', 'memcard'), ['smc']),
 	#Oh also this is slow by the way, should warn y'all
 	'MAME (Mega Duck)': MameSystem(command_lines.mame_command_line('megaduck', 'cart'), ['bin']),
