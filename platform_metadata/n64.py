@@ -1,4 +1,3 @@
-import zlib
 import hashlib
 import configparser
 import os
@@ -6,7 +5,7 @@ import os
 import input_metadata
 from metadata import SaveType
 from common import convert_alphanumeric, NotAlphanumericException
-from software_list_info import find_in_software_lists, _does_split_rom_match
+from software_list_info import find_in_software_lists, _does_split_rom_match, get_crc32_for_software_list
 
 def _byteswap(b):
 	byte_array = bytearray(b)
@@ -82,7 +81,7 @@ def add_n64_metadata(game):
 		entire_rom = _byteswap(entire_rom)
 		#For some reason, MAME uses little endian dumps in its software list at the moment, hence "not byte_swap" which would be wrong otherwise
 
-	rom_crc32 = '{:08x}'.format(zlib.crc32(entire_rom))
+	rom_crc32 = get_crc32_for_software_list(entire_rom)
 
 	normal_controller = input_metadata.NormalInput()
 	normal_controller.face_buttons = 6 #A, B, 4 * C

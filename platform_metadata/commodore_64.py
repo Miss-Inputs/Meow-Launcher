@@ -1,6 +1,4 @@
-import zlib
-
-from software_list_info import get_software_list_entry, find_in_software_lists
+from software_list_info import get_software_list_entry, find_in_software_lists, get_crc32_for_software_list
 
 def add_commodore_64_metadata(game):
 	header = game.rom.read(amount=64)
@@ -30,7 +28,7 @@ def add_commodore_64_metadata(game):
 			total_data += data[i+16:i+16+chip_size]
 			i += total_size
 
-		crc = '{:08x}'.format(zlib.crc32(total_data))
+		crc = get_crc32_for_software_list(total_data)
 		software = find_in_software_lists(game.software_lists, crc=crc)
 	else:
 		software = get_software_list_entry(game)

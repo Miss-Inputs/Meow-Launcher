@@ -4,7 +4,7 @@ import input_metadata
 from common import convert_alphanumeric, NotAlphanumericException
 from metadata import SaveType
 from info.region_info import TVSystem
-from software_list_info import find_in_software_lists
+from software_list_info import find_in_software_lists, get_crc32_for_software_list
 from .nintendo_common import nintendo_licensee_codes
 
 nintendo_gba_logo_crc32 = 0xD0BEB55E
@@ -70,7 +70,7 @@ def add_gba_metadata(game):
 		game.metadata.developer = 'Rare'
 		#TODO: Detect the other sound drivers, should I feel inclined
 
-	cart_crc32 = '{:08x}'.format(crc32(entire_cart))
+	cart_crc32 = get_crc32_for_software_list(entire_cart)
 	software = find_in_software_lists(game.software_lists, crc=cart_crc32)
 	if software:
 		software.add_generic_info(game)

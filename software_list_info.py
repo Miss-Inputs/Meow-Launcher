@@ -238,8 +238,11 @@ def get_software_list_entry(game, skip_header=0):
 		data = game.subroms[0].read(seek_to=skip_header)
 	else:
 		data = game.rom.read(seek_to=skip_header)
-	crc32 = '{:08x}'.format(zlib.crc32(data))
+	crc32 = get_crc32_for_software_list(data)
 	software = find_in_software_lists(software_lists, crc=crc32)
 	if not software:
 		software = find_in_software_lists(software_lists, crc=data, part_matcher=_does_split_rom_match)
 	return software
+
+def get_crc32_for_software_list(data):
+	return '{:08x}'.format(zlib.crc32(data))

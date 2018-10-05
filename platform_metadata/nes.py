@@ -1,10 +1,9 @@
 import calendar
-import zlib
 from enum import Enum, auto
 
 import input_metadata
 from metadata import SaveType
-from software_list_info import get_software_list_entry, find_in_software_lists
+from software_list_info import get_software_list_entry, find_in_software_lists, get_crc32_for_software_list
 from .nintendo_common import nintendo_licensee_codes
 
 ines_mappers = {
@@ -288,8 +287,8 @@ def _get_headered_nes_rom_software_list_entry(game):
 	prg_rom = game.rom.read(seek_to=prg_offset, amount=prg_size)
 	chr_rom = game.rom.read(seek_to=chr_offset, amount=chr_size) if chr_size else None
 
-	prg_crc32 = '{:08x}'.format(zlib.crc32(prg_rom))
-	chr_crc32 = '{:08x}'.format(zlib.crc32(chr_rom)) if chr_rom else None
+	prg_crc32 = get_crc32_for_software_list(prg_rom)
+	chr_crc32 = get_crc32_for_software_list(chr_rom) if chr_rom else None
 
 	return find_in_software_lists(game.software_lists, crc=[prg_crc32, chr_crc32], part_matcher=_does_nes_rom_match)
 
