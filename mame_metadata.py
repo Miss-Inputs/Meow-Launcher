@@ -12,6 +12,12 @@ from mame_helpers import find_main_cpu, consistentify_manufacturer
 
 debug = '--debug' in sys.argv
 
+mame_statuses = {
+	'good': EmulationStatus.Good,
+	'imperfect': EmulationStatus.Imperfect,
+	'preliminary': EmulationStatus.Broken,
+}
+
 def get_catlist():
 	if not config.catlist_path:
 		return None
@@ -139,6 +145,27 @@ def add_manufacturer(machine):
 	machine.metadata.developer = consistentify_manufacturer(developer)
 	machine.metadata.publisher = consistentify_manufacturer(publisher)
 
+def add_status(machine):
+	driver = machine.xml.find('driver')
+	#Overall status
+	machine.metadata.specific_info['MAME-Emulation-Status'] = mame_statuses.get(driver.attrib['status'], EmulationStatus.Unknown)
+	#I guess I gotta think of better names for this stuff
+	machine.metadata.specific_info['MAME-Actual-Emulation-Status'] = mame_statuses.get(driver.attrib['emulation'], EmulationStatus.Unknown)
+
+	unemulated_features = []
+	for feature in machine.xml.findall('feature'):
+		feature_type = feature.attrib['type']
+		feature_status = feature.attrib['status']
+		if feature_type == 'graphics':
+			machine.metadata.specific_info['MAME-Graphics-Status'] = mame_statuses.get(feature_status, EmulationStatus.Unknown)
+		elif feature_type == 'sound':
+			machine.metadata.specific_info['MAME-Sound-Status'] = mame_statuses.get(feature_status, EmulationStatus.Unknown)
+		elif feature_status == 'unemulated':
+			unemulated_features.append(feature_type)
+
+	if unemulated_features:
+		machine.metadata.specific_info['MAME-Unemulated-Features'] = unemulated_features
+
 def add_metadata(machine):
 	category, genre, subgenre, nsfw = get_category(machine.basename)
 	machine.metadata.categories = [category] if category else ['Unknown']
@@ -172,13 +199,8 @@ def add_metadata(machine):
 	machine.metadata.year = machine.xml.findtext('year')
 	add_manufacturer(machine)
 
-	emulation_status = machine.xml.find('driver').attrib['status']
-	if emulation_status == 'good':
-		machine.metadata.specific_info['MAME-Emulation-Status'] = EmulationStatus.Good
-	elif emulation_status == 'imperfect':
-		machine.metadata.specific_info['MAME-Emulation-Status'] = EmulationStatus.Imperfect
-	elif emulation_status == 'preliminary':
-		machine.metadata.specific_info['MAME-Emulation-Status'] = EmulationStatus.Broken
+	add_status(machine)
+
 
 def add_input_info(machine):
 	machine.metadata.input_info.set_known()
