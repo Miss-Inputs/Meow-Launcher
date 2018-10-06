@@ -2,6 +2,7 @@ import calendar
 from enum import Enum, auto
 
 import input_metadata
+from info.region_info import TVSystem
 from metadata import SaveType
 from software_list_info import get_software_list_entry, find_in_software_lists, get_crc32_for_software_list
 from .nintendo_common import nintendo_licensee_codes
@@ -192,6 +193,8 @@ def decode_bcd(i):
 
 def add_fds_metadata(game):
 	game.metadata.platform = 'FDS'
+	game.metadata.tv_type = TVSystem.NTSC
+
 	header = game.rom.read(amount=56)
 	if header[:4] == b'FDS\x1a':
 		game.metadata.specific_info['Headered'] = True

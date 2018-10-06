@@ -170,6 +170,7 @@ def add_msx_info(game):
 def add_pc88_info(game):
 	#Input info: Keyboard or joystick
 
+	game.metadata.tv_type = TVSystem.NTSC
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
@@ -200,6 +201,7 @@ def add_sg1000_info(game):
 def add_sharp_x1_info(game):
 	#Input info: Keyboard and/or joystick
 
+	game.metadata.tv_type = TVSystem.NTSC
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
@@ -208,6 +210,7 @@ def add_sharp_x1_info(game):
 def add_sharp_x68k_info(game):
 	#Input info: Keyboard and/or joystick
 
+	game.metadata.tv_type = TVSystem.NTSC
 	#Many games are known to have SaveType.Floppy, but can't tell programmatically...
 	software = get_software_list_entry(game)
 	if software:
