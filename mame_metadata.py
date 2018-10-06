@@ -111,6 +111,34 @@ def add_machine_platform(machine):
 not_actually_save_supported = ['neobombe', 'pbobbl2n', 'popbounc', 'shocktro', 'shocktr2', 'irrmaze']
 licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
 licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
+
+def add_save_type(machine):
+	if machine.metadata.platform == 'Arcade':
+		memory_cards = [device for device in machine.xml.findall('device') if device.find('instance') is not None and device.find('instance').attrib['name'] == 'memcard']
+		machine.metadata.save_type = SaveType.MemoryCard if memory_cards and (machine.family not in not_actually_save_supported) else SaveType.Nothing
+		#TODO: Some machines that aren't arcade systems might plausibly have something describable as SaveType.Cart or SaveType.Internal... anyway, I guess I'll burn that bridge when I see it
+
+def add_manufacturer(machine):
+	manufacturer = machine.xml.findtext('manufacturer')
+	license_match = licensed_arcade_game_regex.fullmatch(manufacturer)
+	licensed_from_match = licensed_from_regex.fullmatch(manufacturer)
+	if license_match:
+		developer = license_match[1]
+		publisher = license_match[2]
+	elif licensed_from_match:
+		developer = manufacturer
+		publisher = licensed_from_match[1]
+		machine.metadata.specific_info['Licensed-From'] = licensed_from_match[2]
+	else:
+		if not manufacturer.startswith(('bootleg', 'hack')):
+			#TODO: Not always correct in cases where manufacturer is formatted as "Developer / Publisher", but then it never was correct, so it's just less not correct, which is fine
+			developer = manufacturer
+		else:
+			developer = None #It'd be the original not-bootleg game's developer but we can't get that programmatically
+		publisher = manufacturer
+	machine.metadata.developer = consistentify_manufacturer(developer)
+	machine.metadata.publisher = consistentify_manufacturer(publisher)
+
 def add_metadata(machine):
 	category, genre, subgenre, nsfw = get_category(machine.basename)
 	machine.metadata.categories = [category] if category else ['Unknown']
@@ -132,12 +160,7 @@ def add_metadata(machine):
 	machine.metadata.media_type = MediaType.Standalone
 
 	add_machine_platform(machine)
-
-	if machine.metadata.platform == 'Arcade':
-		memory_cards = [device for device in machine.xml.findall('device') if device.find('instance') is not None and device.find('instance').attrib['name'] == 'memcard']
-		machine.metadata.save_type = SaveType.MemoryCard if memory_cards and (machine.family not in not_actually_save_supported) else SaveType.Nothing
-		#TODO: Some machines that aren't arcade systems might plausibly have something describable as SaveType.Cart or SaveType.Internal... anyway, I guess I'll burn that bridge when I see it
-
+	add_save_type(machine)
 
 	language = get_language(machine.basename)
 	if language:
@@ -147,25 +170,7 @@ def add_metadata(machine):
 
 	machine.metadata.emulator_name = 'MAME'
 	machine.metadata.year = machine.xml.findtext('year')
-	manufacturer = machine.xml.findtext('manufacturer')
-	license_match = licensed_arcade_game_regex.fullmatch(manufacturer)
-	licensed_from_match = licensed_from_regex.fullmatch(manufacturer)
-	if license_match:
-		developer = license_match[1]
-		publisher = license_match[2]
-	elif licensed_from_match:
-		developer = manufacturer
-		publisher = licensed_from_match[1]
-		machine.metadata.specific_info['Licensed-From'] = licensed_from_match[2]
-	else:
-		if not manufacturer.startswith(('bootleg', 'hack')):
-			#TODO: Not always correct in cases where manufacturer is formatted as "Developer / Publisher", but then it never was correct, so it's just less not correct, which is fine
-			developer = manufacturer
-		else:
-			developer = None #It'd be the original not-bootleg game's developer but we can't get that programmatically
-		publisher = manufacturer
-	machine.metadata.developer = consistentify_manufacturer(developer)
-	machine.metadata.publisher = consistentify_manufacturer(publisher)
+	add_manufacturer(machine)
 
 	emulation_status = machine.xml.find('driver').attrib['status']
 	if emulation_status == 'good':
