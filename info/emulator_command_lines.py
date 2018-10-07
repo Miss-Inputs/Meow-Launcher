@@ -144,7 +144,7 @@ def verify_mgba_mapper(game):
 		#If there was a problem detecting the mapper, or it's something invalid, it probably won't run
 		raise EmulationNotSupportedException('Mapper is not detected at all')
 
-	if mapper not in ['ROM only', 'MBC1', 'MBC1 Multicart', 'MBC2', 'MBC3', 'HuC1', 'MBC5', 'Huc3', 'MBC6', 'MBC7', 'MMM01', 'Pocket Camera', 'Bandai TAMA5']:
+	if mapper not in ['ROM only', 'MBC1', 'MBC1 Multicart', 'MBC2', 'MBC3', 'HuC1', 'MBC5', 'HuC3', 'MBC6', 'MBC7', 'MMM01', 'Pocket Camera', 'Bandai TAMA5']:
 		raise EmulationNotSupportedException('Mapper ' + mapper + ' not supported')
 
 def mgba(game, _):
