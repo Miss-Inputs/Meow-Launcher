@@ -95,6 +95,7 @@ emulators = {
 	'MAME (Atari 7800)': MameSystem(command_lines.mame_atari_7800, ['bin', 'a78']),
 	'MAME (Atari 8-bit)': MameSystem(command_lines.mame_atari_8bit, ['bin', 'rom', 'car']),
 	#Has issues with XEGS carts that it should be able to load (because they do run on the real system) but it says it doesn't because they should be run on XEGS instead, and then doesn't support a few cart types anyway; otherwise fine
+	'MAME (BBC Bridge Companion)': MameSystem(command_lines.mame_command_line('bbcbc', 'cart'), ['bin']),
 	'MAME (C64)': MameSystem(command_lines.mame_c64, ['80', 'a0', 'e0', 'crt']),
 	#Same kerfluffle with regions and different media formats here.  Could use c64c/c64cp for the newer model with the
 	#new SID chip, but that might break compatibility I dunno; could also use sx64 for some portable version, there's a

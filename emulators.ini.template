@@ -18,6 +18,10 @@ emulators =
 paths = 
 emulators = 
 
+[BBC Bridge Companion]
+paths = 
+emulators = 
+
 [Casio PV-1000]
 paths = 
 emulators = 

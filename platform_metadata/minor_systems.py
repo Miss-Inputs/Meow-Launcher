@@ -325,6 +325,19 @@ def add_nichibutsu_my_vision_info(game):
 	if software:
 		software.add_generic_info(game)
 
+def add_bbc_bridge_companion_info(game):
+	game.metadata.tv_type = TVSystem.PAL #UK only
+
+	buttons = input_metadata.NormalInput()
+	buttons.face_buttons = 10 #According to the MAME driver, I'm too lazy to look at pictures of the thing
+	game.metadata.input_info.add_option([buttons])
+
+	game.metadata.save_type = SaveType.Nothing #Yeah nah
+
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+
 #-- Beyond this point, there may be unexplored things which may result in these systems being spun off into their own module. Maybe. It just seems likely. Or maybe I do know full well they have a header, and either I haven't explored it yet, or I'm just a lazy bugger
 
 def add_amiga_info(game):

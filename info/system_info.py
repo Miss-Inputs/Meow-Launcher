@@ -103,6 +103,7 @@ systems = [
 	System('Astrocade', 'astrocde', ['astrocde'], ['MAME (Astrocade)'], {MediaType.Cartridge: ['bin']}),
 	System('Benesse Pocket Challenge V2', None, ['pockchalv2'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['pc2', 'bin']}),
 	#Controls are mapped even worse than regular WonderSwan games, even with rotation auto-adjust you still end up using a stick/dpad as buttons and it gets weird, also the module must be forced or else it won't be recognized. But it works though
+	System('BBC Bridge Companion', 'bbcbc', ['bbcbc'], ['MAME (BBC Bridge Companion)'], {MediaType.Cartridge: ['bin']}),
 	System('Casio PV-1000', 'pv1000', ['pv1000'], ['MAME (PV-1000)'], {MediaType.Cartridge: ['bin']}),
 	System('Channel F', 'channelf', ['channelf'], ['MAME (Channel F)'], {MediaType.Cartridge: ['chf', 'bin']}),
 	#It has some sort of knob that you twist up and down or something? What the fuck
@@ -234,8 +235,6 @@ systems = [
 	#Things that have other weird usability issues
 	System('Apple IIgs', 'apple2gs', ['apple2gs'], [], {MediaType.Floppy: mame_floppy_formats + ['2mg']}),
 	#Some games require a hard disk with an OS install and they won't tell you this because of course not, and if you want to autoboot the floppies with a hard drive still in there you have to set it to always boot from slot 5 and it's really annoying and I hate it
-	System('BBC Bridge Companion', 'bbcbc', ['bbcbc'], [], {MediaType.Cartridge: ['bin']}),
-	#Takes a single .bin file for the -cart slot, but known software dumps are in split ROM format. Unsure how to get around that
 	System('CreatiVision', 'crvision', ['crvision'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav']}),
 	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it
 	System('Mattel Aquarius', 'aquarius', ['aquarius'], []),
