@@ -92,7 +92,7 @@ def has_mandatory_slots(machine):
 		instance = device.find('instance')
 		if instance is None:
 			continue
-		if instance.attrib.get('mandatory', '0') == '1':
+		if device.attrib.get('mandatory', '0') == '1':
 			return True
 	return False
 
