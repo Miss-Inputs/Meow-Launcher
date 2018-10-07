@@ -81,6 +81,10 @@ emulators =
 paths = 
 emulators = 
 
+[Nichibutsu My Vision]
+paths = 
+emulators = 
+
 [PC Engine]
 paths = 
 emulators = 

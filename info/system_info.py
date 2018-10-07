@@ -115,6 +115,7 @@ systems = [
 	#Now for those who actually do know what this is, you may be thinking: But doesn't that just play videos? Isn't this really pointless? And the answer is yes, yes it is. I love pointless.
 	System('Mega Duck', 'megaduck', ['megaduck'], ['MAME (Mega Duck)'], {MediaType.Cartridge: ['bin']}),
 	System('Neo Geo CD', 'neocdz', ['neocd'], ['MAME (Neo Geo CD)'], {MediaType.OpticalDisc: cdrom_formats}),
+	System('Nichibutsu My Vision', 'myvision', ['myvision'], ['MAME (Nichibutsu My Vision)'], {MediaType.Cartridge: ['bin']}),
 	System('PC-FX', 'pcfx', ['pcfx'], ['Mednafen (PC-FX)'], {MediaType.OpticalDisc: cdrom_formats}),
 	System('Pokemon Mini', 'pokemini', ['pokemini'], ['PokeMini', 'PokeMini (wrapper)', 'MAME (Pokemon Mini)'], {MediaType.Cartridge: ['min', 'bin']}),
 	System('SG-1000', 'sg1000', ['sg1000', 'sc3000_cart', 'sc3000_cass', 'sf7000'], ['Kega Fusion', 'MAME (SG-1000)'], {MediaType.Cartridge: ['sg', 'bin', 'sc'], MediaType.Tape: ['wav', 'bit'], MediaType.Floppy: mame_floppy_formats + ['sf7']}),
@@ -239,8 +240,6 @@ systems = [
 	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it
 	System('Mattel Aquarius', 'aquarius', ['aquarius'], []),
 	#Controllers aren't emulated yet (and they're necessary for a lot of things)
-	System('Nichibutsu My Vision', 'myvision', ['myvision'], [], {MediaType.Cartridge: ['bin']}),
-	#Same predicament as BBC Bridge Companion above
 	System('Sega Pico', 'pico', ['pico'], []),
 	#Emulation works in Kega Fusion and MAME, but they don't display the actual book, which would be needed for most of the software to make any sense. Kega Fusion doesn't even have controls to turn the pages, which is needed for stuff
 	System('Super Casette Vision', 'scv', ['scv'], [], {MediaType.Cartridge: ['bin']}),
