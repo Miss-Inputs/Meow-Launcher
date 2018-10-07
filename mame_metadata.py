@@ -209,6 +209,13 @@ def add_metadata(machine):
 
 	add_status(machine)
 
+	has_ticket_dispenser = False
+	for device_ref in machine.xml.findall('device_ref'):
+		if device_ref.attrib['name'] == 'ticket_dispenser':
+			has_ticket_dispenser = True
+
+	machine.metadata.specific_info['Dispenses-Tickets'] = has_ticket_dispenser
+
 
 def add_input_info(machine):
 	machine.metadata.input_info.set_known()
