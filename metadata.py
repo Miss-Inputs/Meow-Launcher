@@ -182,13 +182,16 @@ class Metadata():
 			fields['Clock-Speed'] = self.cpu_info.get_formatted_clock_speed()
 
 		if self.screen_info:
-			fields['Screen-Resolution'] = self.screen_info.get_screen_resolutions()
-			fields['Refresh-Rate'] = self.screen_info.get_refresh_rates()
-			fields['Number-of-Screens'] = self.screen_info.get_number_of_screens()
-			fields['Aspect-Ratio'] = self.screen_info.get_aspect_ratios()
+			num_screens = self.screen_info.get_number_of_screens()
+			fields['Number-of-Screens'] = num_screens
 
-			fields['Screen-Type'] = self.screen_info.get_display_types()
-			fields['Screen-Tag'] = self.screen_info.get_display_tags()
+			if num_screens:
+				fields['Screen-Resolution'] = self.screen_info.get_screen_resolutions()
+				fields['Refresh-Rate'] = self.screen_info.get_refresh_rates()
+				fields['Aspect-Ratio'] = self.screen_info.get_aspect_ratios()
+
+				fields['Screen-Type'] = self.screen_info.get_display_types()
+				fields['Screen-Tag'] = self.screen_info.get_display_tags()
 
 		if self.input_info.known:
 			#TODO Buttons, etc
