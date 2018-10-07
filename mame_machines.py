@@ -87,11 +87,25 @@ def should_process_machine(machine):
 
 	return True
 
+def has_mandatory_slots(machine):
+	for device in machine.xml.findall('device'):
+		instance = device.find('instance')
+		if instance is None:
+			continue
+		if instance.attrib.get('mandatory', '0') == '1':
+			return True
+	return False
+
 def process_machine(machine):
 	if not should_process_machine(machine):
 		return
 
 	if not (machine.xml.find('softwarelist') is None) and machine.family not in config.okay_to_have_software:
+		return
+
+	if has_mandatory_slots(machine):
+		if debug:
+			print('%s (%s) has mandatory slots' % (machine.basename, machine.name))
 		return
 
 	machine.metadata.specific_info['Family-Basename'] = machine.family
