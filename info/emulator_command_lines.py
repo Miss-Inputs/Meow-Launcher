@@ -120,16 +120,20 @@ def mame_c64(game, _):
 	#normal.  _Should_ be fine
 	#(Super cool pro tip: Bind F1 to Start)
 
-	#For supported cart types, see: https://github.com/mamedev/mame/blob/master/src/lib/formats/cbm_crt.cpp
+	#Explicitly listed as UNSUPPORTED in the cbm_crt.cpp source file
+	unsupported_mappers = [1, 2, 6, 9, 20, 29, 30, 33, 34, 35, 36, 37, 38, 40, 42, 45, 46, 47, 50, 52, 54]
+	#Not listed as unsupported, but from anecdotal experience doesn't seem to work. Should try these again one day
+	unsupported_mappers += [18, 32]
+	#18 = Sega (Zaxxon/Super Zaxxon), nothing in the source there that says it's unsupported, but it consistently segfaults every time I try to launch it, so I guess it doesn't actually work
+	#32 = EasyFlash. Well, at least it doesn't segfault. Just doesn't boot, even if I play with the dip switch that says "Boot". Maybe I'm missing something here?
+		#There's a Prince of Persia cart in c64_cart.xml that uses easyflash type and is listed as being perfectly supported, but maybe it's one of those things where it'll work from the software list but not as a normal ROM (it's broken up into multiple ROMs)
 	#15 (System 3/C64GS) does seem to be a bit weird too, oh well
 	#Maybe check the software list for compatibility
-	if game.metadata.specific_info.get('Cart-Type', None) == 18:
-		#Sega (Zaxxon/Super Zaxxon), nothing in the source there that says it's unsupported, but it consistently segfaults every time I try to launch it, so I guess it doesn't actually work
-		raise EmulationNotSupportedException('Sega cart not supported')
-	if game.metadata.specific_info.get('Cart-Type', None) == 32:
-		#EasyFlash. Well, at least it doesn't segfault. Just doesn't boot, even if I play with the dip switch that says "Boot". Maybe I'm missing something here?
-		#There's a Prince of Persia cart in c64_cart.xml that uses easyflash type and is listed as being perfectly supported, but maybe it's one of those things where it'll work from the software list but not as a normal ROM (it's broken up into multiple ROMs)
-		raise EmulationNotSupportedException('EasyFlash cart not supported')
+	cart_type = game.metadata.specific_info.get('Mapper-Number', None)
+	cart_type_name = game.metadata.specific_info.get('Mapper', None)
+
+	if cart_type in unsupported_mappers:
+		raise EmulationNotSupportedException('%s cart not supported' % cart_type_name)
 
 	system = _find_c64_system(game)
 	return mame_command_line(system, 'cart', {'joy1': 'joybstr', 'joy2': 'joybstr', 'iec8': '""'}, True)
