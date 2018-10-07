@@ -110,6 +110,9 @@ def add_machine_platform(machine):
 		machine.metadata.platform = 'Pinball'
 	elif machine.metadata.genre in ('Chess Machine', 'EPROM Programmer', 'Home Karaoke System'):
 		machine.metadata.platform = machine.metadata.genre
+	elif machine.metadata.specific_info['Coin-Slots'] == 0 and machine.metadata.platform == 'Arcade':
+		#Can't be a coin-op game if it doesn't even take coins!
+		machine.metadata.platform = category
 
 #Some games have memory card slots, but they don't actually support saving, it's just that the arcade system board thing they use always has that memory card slot there. So let's not delude ourselves into thinking that games which don't save let you save, because that might result in emotional turmoil.
 #Fatal Fury 2, Fatal Fury Special, Fatal Fury 3, and The Last Blade apparently only save in Japanese or something? That might be something to be aware of
@@ -194,6 +197,7 @@ def add_metadata(machine):
 
 	machine.metadata.media_type = MediaType.Standalone
 
+	add_input_info(machine)
 	add_machine_platform(machine)
 	add_save_type(machine)
 
@@ -225,6 +229,8 @@ def add_input_info(machine):
 		if debug:
 			print('Oi m8', machine.basename, '/', machine.name, 'has no input')
 		return
+
+	machine.metadata.specific_info['Coin-Slots'] = input_element.attrib.get('coins', 0)
 
 	if 'players' not in input_element.attrib:
 		machine.metadata.specific_info['Probably-Skeleton-Driver'] = True

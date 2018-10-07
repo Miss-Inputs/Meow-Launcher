@@ -98,7 +98,6 @@ def process_machine(machine):
 	machine.metadata.specific_info['Family'] = get_full_name(machine.family)
 
 	add_metadata(machine)
-	add_input_info(machine)
 	if machine.metadata.specific_info.get('Probably-Skeleton-Driver', False):
 		#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
 		#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
