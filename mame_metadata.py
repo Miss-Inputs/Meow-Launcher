@@ -88,6 +88,9 @@ def add_machine_platform(machine):
 		machine.metadata.platform = 'CPS Changer'
 		machine.name = machine.name.replace('CPS Changer, ', '')
 		machine.metadata.media_type = MediaType.Cartridge
+	elif mamchine.source_file == 'xavix':
+		machine.metadata.platform = 'XaviXPORT'
+		machine.metadata.media_type = MediaType.Cartridge
 	elif category == 'Game Console':
 		machine.metadata.platform = 'Plug & Play'
 		#Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug &
