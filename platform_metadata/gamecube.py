@@ -82,9 +82,9 @@ def add_gamecube_metadata(game):
 
 	#TODO: TGC, dol
 
-	if game.rom.extension in ('gcz', 'iso'):
+	if game.rom.extension in ('gcz', 'iso', 'gcm'):
 		if game.rom.extension == 'gcz':
 			header = cd_read.read_gcz(game.rom.path, amount=0x2450)
-		elif game.rom.extension == 'iso':
+		elif game.rom.extension in ('iso', 'gcm'):
 			header = game.rom.read(amount=0x2450)
 		add_gamecube_wii_disc_metadata(game, header)

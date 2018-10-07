@@ -32,7 +32,7 @@ class MameSystem(Emulator):
 
 
 emulators = {
-	'Dolphin': Emulator(command_lines.dolphin, ['iso', 'gcz', 'elf', 'dol', 'wad'], []),
+	'Dolphin': Emulator(command_lines.dolphin, ['iso', 'gcm', 'gcz', 'elf', 'dol', 'wad'], []),
 	'FS-UAE': Emulator(command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf'], []),
 	#Note that .ipf files need a separately downloadable plugin. We could detect the presence of that, I guess
 	'Gambatte': Emulator(command_lines.gambatte, ['gb', 'gbc'], ['zip']),
