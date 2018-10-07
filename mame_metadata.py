@@ -151,6 +151,8 @@ def add_status(machine):
 	machine.metadata.specific_info['MAME-Emulation-Status'] = mame_statuses.get(driver.attrib['status'], EmulationStatus.Unknown)
 	#I guess I gotta think of better names for this stuff
 	machine.metadata.specific_info['MAME-Actual-Emulation-Status'] = mame_statuses.get(driver.attrib['emulation'], EmulationStatus.Unknown)
+	machine.metadata.specific_info['Cocktail-Status'] = mame_statuses.get(driver.attrib.get('cocktail'), EmulationStatus.Unknown)
+	machine.metadata.specific_info['Supports-Savestate'] = driver.attrib.get('savestate') == 'supported'
 
 	unemulated_features = []
 	for feature in machine.xml.findall('feature'):
