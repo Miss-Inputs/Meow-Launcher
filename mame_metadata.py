@@ -167,10 +167,9 @@ def add_status(machine):
 
 		if feature_status == 'unemulated':
 			unemulated_features.append(feature_type)
-		elif feature_type == 'graphics':
-			machine.metadata.specific_info['MAME-Graphics-Status'] = mame_statuses.get(feature_status, EmulationStatus.Unknown)
-		elif feature_type == 'sound':
-			machine.metadata.specific_info['MAME-Sound-Status'] = mame_statuses.get(feature_status, EmulationStatus.Unknown)
+		else:
+			#Known types according to DTD: protection, palette, graphics, sound, controls, keyboard, mouse, microphone, camera, disk, printer, lan, wan, timing
+			machine.metadata.specific_info['MAME-%s-Status' % feature_type.capitalize()] = mame_statuses.get(feature_status, EmulationStatus.Unknown)
 
 	if unemulated_features:
 		machine.metadata.specific_info['MAME-Unemulated-Features'] = unemulated_features
