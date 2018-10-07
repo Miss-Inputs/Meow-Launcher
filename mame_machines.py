@@ -11,7 +11,7 @@ import config
 import launchers
 from info import emulator_command_lines
 from mame_helpers import get_mame_xml, get_full_name
-from mame_metadata import add_input_info, add_metadata
+from mame_metadata import add_metadata
 from metadata import Metadata
 
 debug = '--debug' in sys.argv
