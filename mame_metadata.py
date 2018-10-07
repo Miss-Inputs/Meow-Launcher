@@ -131,8 +131,8 @@ def add_save_type(machine):
 			if instance.attrib['name'] == 'memcard':
 				has_memory_card = True
 
-	machine.metadata.save_type = SaveType.MemoryCard if has_memory_card and (machine.family not in not_actually_save_supported) else SaveType.Nothing
-	#TODO: Some machines that aren't arcade systems might plausibly have something describable as SaveType.Cart or SaveType.Internal... anyway, I guess I'll burn that bridge when I see it
+		machine.metadata.save_type = SaveType.MemoryCard if has_memory_card and (machine.family not in not_actually_save_supported) else SaveType.Nothing
+		#TODO: Some machines that aren't arcade systems might plausibly have something describable as SaveType.Cart or SaveType.Internal... anyway, I guess I'll burn that bridge when I see it
 
 def add_manufacturer(machine):
 	manufacturer = machine.xml.findtext('manufacturer')
