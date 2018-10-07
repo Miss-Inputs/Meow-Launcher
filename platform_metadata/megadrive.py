@@ -59,9 +59,6 @@ def parse_peripherals(game, peripherals):
 			pass
 		elif peripheral_char == 'C':
 			game.metadata.specific_info['Uses-CD'] = True
-		else:
-			if debug:
-				print(game.rom.path, 'has weird peripheral char:', peripheral_char)
 	if debug:
 		#Other peripheral characters of interest that I dunno what to do with
 		#A lot of homebrew has D in there. There's some Megadrive documentation that says "Just put JD in here and don't ask questions". It doesn't say what the D is. What does the D do? Why the D?
