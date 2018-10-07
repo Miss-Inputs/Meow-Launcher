@@ -101,6 +101,7 @@ helpers = {
 	'MSX': add_msx_info,
 	'MSX2': add_msx_info,
 	'Neo Geo CD': add_neogeo_cd_info,
+	'Nichibutsu My Vision': add_nichibutsu_my_vision_info,
 	'PC Engine': add_pce_info,
 	'PC-88': add_pc88_info,
 	'Sord M5': add_sord_m5_info,
