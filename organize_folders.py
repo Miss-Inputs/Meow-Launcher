@@ -97,6 +97,7 @@ extra_subfolders = {
 	'Has RTC': 'X-Has-RTC',
 	'Has product code': 'X-Product-Code',
 	'Has MAME software': 'X-MAME-Software-Name',
+	'Has unemulated features': 'X-MAME-Unemulated-Features',
 	'Has notes': 'X-Notes',
 }
 
