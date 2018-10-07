@@ -232,7 +232,7 @@ def disambiguate_names():
 
 	if print_times:
 		time_ended = time.perf_counter()
-		print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+		print('Name disambiguation finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
 if __name__ == '__main__':
 	disambiguate_names()
