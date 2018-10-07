@@ -183,10 +183,15 @@ systems = [
 	#4DO doesn't like Wine and has no native Linux version (just libretro and meh), Phoenix Emu has no command line support; so both are unusable for our purposes. MAME driver just kinda hangs at the 3DO logo at the moment
 	System('3DO M2', '3do_m2', ['3do_m2'], [], {MediaType.OpticalDisc: cdrom_formats}),
 	#Was never actually released, but prototypes exist
+	System('Action Max', None, [], [], {}),
+	#No emulators, no dumps (probably nobody has decided the best way to preserve VHS games), no nothing
 	System('Bandai Playdia', None, [], [], {MediaType.OpticalDisc: cdrom_formats}),
 	System('Casio Loopy', 'casloopy', ['casloopy'], [], {MediaType.Cartridge: ['bin']}),
+	System('Coleco Telstar Arcade', [], [], {}),
 	System('GameKing', 'gameking', ['gameking'], [], {MediaType.Cartridge: ['bin']}),
 	System('GameKing 3', 'gamekin3', ['gameking3'], [], {MediaType.Cartridge: ['bin']}),
+	System('Gakken TV Boy', None, [], [], {}),
+	#No MAME driver or anything, although it's mentioned on an old MESS 'to be dumped' page; apparently CPU is inside the carts
 	System('GP32', 'gp32', ['gp32'], [], {MediaType.Cartridge: ['smc'], MediaType.Executable: ['gxb', 'sxf', 'bin', 'gxf', 'fxe']}),
 	#Runs too slow to verify if anything else works, but all documentation points to not
 	System('Jaguar CD', 'jaguarcd', [], [], {MediaType.OpticalDisc: cdrom_formats}),
@@ -199,11 +204,13 @@ systems = [
 	System('Microvision', 'microvsn', ['microvision'], [], {MediaType.Cartridge: ['bin']}),
 	#Cartridges boot, but seem to do nothing...
 	System('N-Gage', None, [], [], {}), #File types are.. folders I think
+	System('Nuon', None, [], [], {}),
 	System('Pippin', 'pippin', ['pippin', 'pippin_flop'], [], {MediaType.OpticalDisc: cdrom_formats}),
 	#Games don't just boot in a PPC Mac, unfortunately. No PPC Mac emulator has branched off into specific Pippin emulation yet
 	System('Sawatte Pico', 'sawatte', ['sawatte'], [], {}),
 	#Similar to the Sega Pico but with different software (may or may not also use Megadrive ROM header?), but is completely unemulated. Not sure if dump format is identical
 	System('V.Smile', 'vsmile', ['vsmile_cart', 'vsmile_cd', 'vsmileb_cart', 'vsmilem_cart'], [], {MediaType.Cartridge: ['bin'], MediaType.OpticalDisc: cdrom_formats}),
+	System('Video Challenger', [], [], {}),
 	System('Xbox 360', None, [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xex']}),
 	#Xenia requires Windows 8 + Vulkan, somehow I don't think it'd ever run under Wine either
 	System('ZAPit GameWave', None, [], [], {MediaType.OpticalDisc: ['iso']}),
@@ -319,6 +326,8 @@ systems = [
 
 	#Epoch (not Super) Casette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
 	#Coleco Quiz Wiz Challenge might require its own thing: The software cartridges contain no ROMs, just different pinouts, you need the software list to select which one
+	#Memotech VIS: Just Windows 3.1?
+	#Pioneer LaserActive probably just counts as Mega CD and PC Engine CD except with Laserdisc instead of CD, but I'll worry about that when emulation for it becomes a thing
 ]
 
 class GameWithEngine():
