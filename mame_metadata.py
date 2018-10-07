@@ -155,7 +155,14 @@ def add_status(machine):
 	unemulated_features = []
 	for feature in machine.xml.findall('feature'):
 		feature_type = feature.attrib['type']
-		feature_status = feature.attrib['status']
+		if 'status' in feature.attrib:
+			feature_status = feature.attrib['status']
+		elif 'overall' in feature.attrib:
+			#wat?
+			feature_status = feature.attrib['overall']
+		else:
+			continue
+
 		if feature_type == 'graphics':
 			machine.metadata.specific_info['MAME-Graphics-Status'] = mame_statuses.get(feature_status, EmulationStatus.Unknown)
 		elif feature_type == 'sound':
