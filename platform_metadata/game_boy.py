@@ -100,15 +100,7 @@ def parse_slot(game, slot):
 			game.metadata.specific_info['Mapper'] = new_mapper
 
 nintendo_logo_crc32 = 0x46195417
-def add_gameboy_metadata(game):
-	builtin_gamepad = input_metadata.NormalInput()
-	builtin_gamepad.dpads = 1
-	builtin_gamepad.face_buttons = 2 #A B
-	game.metadata.input_info.add_option([builtin_gamepad])
-
-	game.metadata.tv_type = TVSystem.Agnostic
-
-	header = game.rom.read(seek_to=0x100, amount=0x50)
+def parse_gameboy_header(game, header):
 	nintendo_logo = header[4:0x34]
 	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_logo_crc32
 	game.metadata.specific_info['Nintendo-Logo-Valid'] = nintendo_logo_valid
@@ -144,6 +136,17 @@ def add_gameboy_metadata(game):
 		elif licensee_code != '00':
 			game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(licensee_code)
 	game.metadata.revision = header[0x4c]
+
+def add_gameboy_metadata(game):
+	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad.dpads = 1
+	builtin_gamepad.face_buttons = 2 #A B
+	game.metadata.input_info.add_option([builtin_gamepad])
+
+	game.metadata.tv_type = TVSystem.Agnostic
+
+	header = game.rom.read(seek_to=0x100, amount=0x50)
+	parse_gameboy_header(game, header)
 
 	if game.rom.extension == 'gbc':
 		game.metadata.platform = 'Game Boy Color'

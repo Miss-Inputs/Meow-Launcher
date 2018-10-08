@@ -123,6 +123,52 @@ def try_parse_standard_header(game):
 		if 'Publisher' in header_data:
 			game.metadata.publisher = header_data['Publisher']
 
+def add_info_from_software_list(game, software):
+	software.add_generic_info(game)
+	game.metadata.product_code = software.get_info('serial')
+
+	game.metadata.save_type = SaveType.Cart if software.get_part_feature('battery') == 'yes' else SaveType.Nothing
+
+	usage = software.get_info('usage')
+	if usage == 'Only runs with PAL/50Hz drivers, e.g. smspal':
+		game.metadata.tv_type = TVSystem.PAL
+	#Other usage strings:
+	#Input works only with drivers of Japanese region, e.g. sms1kr,smsj
+	#Only runs with certain drivers, e.g. smsj - others show SOFTWARE ERROR
+	#To play in 3-D on SMS1, hold buttons 1 and 2 while powering up the system.
+	#Video mode is correct only on SMS 2 drivers, e.g. smspal
+	#Video only works correctly on drivers with SMS1 VDP, e.g. smsj
+
+	if game.metadata.platform == 'Master System':
+		builtin_gamepad = input_metadata.NormalInput()
+		builtin_gamepad.dpads = 1
+		builtin_gamepad.face_buttons = 2
+
+		controller_1 = software.get_shared_feature('ctrl1_default')
+		#ctrl2_default is only ever equal to ctrl1_default when it is present, so ignore it for our purposes
+		#Note that this doesn't actually tell us about games that _support_ given peripherals, just what games need them
+		peripheral = SMSPeripheral.StandardController
+		#All of these peripherals have 2 buttons as well?
+		if controller_1 == 'graphic':
+			peripheral = SMSPeripheral.Tablet
+			game.metadata.input_info.add_option([input_metadata.Touchscreen()])
+		elif controller_1 == 'lphaser':
+			peripheral = SMSPeripheral.Lightgun
+			#game.metadata.input_info.inputs = [InputType.LightGun]
+			game.metadata.input_info.add_option([input_metadata.LightGun()])
+		elif controller_1 == 'paddle':
+			peripheral = SMSPeripheral.Paddle
+			game.metadata.input_info.add_option([input_metadata.Paddle()])
+		elif controller_1 == 'sportspad':
+			peripheral = SMSPeripheral.SportsPad
+			game.metadata.input_info.add_option([input_metadata.Trackball()])
+		else:
+			#Not sure if this is an option for games that use lightgun/paddle/etc? I'll assume it's not
+			game.metadata.input_info.add_option([builtin_gamepad])
+
+		game.metadata.specific_info['Peripheral'] = peripheral
+
+
 def get_sms_metadata(game):
 	sdsc_header = game.rom.read(seek_to=0x7fe0, amount=12)
 	if sdsc_header[:4] == b'SDSC':
@@ -140,47 +186,4 @@ def get_sms_metadata(game):
 
 	software = get_software_list_entry(game)
 	if software:
-		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
-
-		game.metadata.save_type = SaveType.Cart if software.get_part_feature('battery') == 'yes' else SaveType.Nothing
-
-		usage = software.get_info('usage')
-		if usage == 'Only runs with PAL/50Hz drivers, e.g. smspal':
-			game.metadata.tv_type = TVSystem.PAL
-		#Other usage strings:
-		#Input works only with drivers of Japanese region, e.g. sms1kr,smsj
-		#Only runs with certain drivers, e.g. smsj - others show SOFTWARE ERROR
-		#To play in 3-D on SMS1, hold buttons 1 and 2 while powering up the system.
-		#Video mode is correct only on SMS 2 drivers, e.g. smspal
-		#Video only works correctly on drivers with SMS1 VDP, e.g. smsj
-
-		if game.metadata.platform == 'Master System':
-			builtin_gamepad = input_metadata.NormalInput()
-			builtin_gamepad.dpads = 1
-			builtin_gamepad.face_buttons = 2
-
-			controller_1 = software.get_shared_feature('ctrl1_default')
-			#ctrl2_default is only ever equal to ctrl1_default when it is present, so ignore it for our purposes
-			#Note that this doesn't actually tell us about games that _support_ given peripherals, just what games need them
-			peripheral = SMSPeripheral.StandardController
-			#All of these peripherals have 2 buttons as well?
-			if controller_1 == 'graphic':
-				peripheral = SMSPeripheral.Tablet
-				game.metadata.input_info.add_option([input_metadata.Touchscreen()])
-			elif controller_1 == 'lphaser':
-				peripheral = SMSPeripheral.Lightgun
-				#game.metadata.input_info.inputs = [InputType.LightGun]
-				game.metadata.input_info.add_option([input_metadata.LightGun()])
-			elif controller_1 == 'paddle':
-				peripheral = SMSPeripheral.Paddle
-				game.metadata.input_info.add_option([input_metadata.Paddle()])
-			elif controller_1 == 'sportspad':
-				peripheral = SMSPeripheral.SportsPad
-				game.metadata.input_info.add_option([input_metadata.Trackball()])
-			else:
-				#Not sure if this is an option for games that use lightgun/paddle/etc? I'll assume it's not
-				game.metadata.input_info.add_option([builtin_gamepad])
-
-
-			game.metadata.specific_info['Peripheral'] = peripheral
+		add_info_from_software_list(game, software)

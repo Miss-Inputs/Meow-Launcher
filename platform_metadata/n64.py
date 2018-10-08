@@ -50,13 +50,52 @@ def get_mupen64plus_database():
 	_mupen64plus_database = database
 	return database
 
+def parse_n64_header(game, header):
+	try:
+		product_code = convert_alphanumeric(header[59:63])
+		game.metadata.product_code = product_code
+	except NotAlphanumericException:
+		pass
+	game.metadata.revision = header[63]
+
+def add_info_from_database_entry(game, database_entry):
+	#Keys: {'SaveType', 'Biopak', 'GoodName', 'SiDmaDuration', 'Players', 'DisableExtraMem', 'Mempak', 'Cheat0', 'Transferpak', 'CRC', 'Status', 'Rumble', 'CountPerOp'}
+	#CRC is just the N64 checksum from the ROM header so I dunno if that's any use
+	#Stuff like SiDmaDuration and CountPerOp and DisableExtraMem should be applied automatically by Mupen64Plus I would think (and be irrelevant for other emulators)
+	#Likewise Cheat0 is just a quick patch to workaround emulator issues, so it doesn't need to be worried about here
+	#Status seems... out of date
+
+	#This is just here for debugging etc
+	game.metadata.specific_info['GoodName'] = database_entry.get('GoodName')
+
+	if 'Players' in database_entry:
+		game.metadata.specific_info['Number-of-Players'] = database_entry['Players']
+
+	if database_entry.get('SaveType', 'None') != 'None':
+		game.metadata.save_type = SaveType.Cart
+	elif database_entry.get('Mempak', 'No') == 'Yes':
+		#Apparently it is possible to have both cart and memory card saving, so that is strange
+		#I would think though that if the cartridge could save everything it needed to, it wouldn't bother with a memory card, so if it does use the controller pak then that's probably the main form of saving
+		game.metadata.specific_info['Uses-Controller-Pak'] = True
+		game.metadata.save_type = SaveType.MemoryCard
+	else:
+		#TODO: iQue would be SaveType.Internal, could maybe detect that based on CIC but that might be silly (the saving wouldn't be emulated by anything at this point anyway)
+		game.metadata.save_type = SaveType.Nothing
+
+	if database_entry.get('Rumble', 'No') == 'Yes':
+		game.metadata.specific_info['Force-Feedback'] = True
+	if database_entry.get('Biopak', 'No') == 'Yes':
+		game.metadata.input_info.input_options[0].inputs.append(input_metadata.Biological())
+	if database_entry.get('Transferpak', 'No') == 'Yes':
+		game.metadata.specific_info['Uses-Transfer-Pak'] = True
+	#TODO: Nothing in here which specifies to use VRU, or any other weird fancy controllers which may or may not exist
+
 def add_n64_metadata(game):
 	entire_rom = game.rom.read()
 
 	magic = entire_rom[:4]
 
 	byte_swap = False
-	header = entire_rom[:64]
 	if magic == b'\x80\x37\x12\x40':
 		game.metadata.specific_info['ROM-Format'] = 'Z64'
 	elif magic == b'\x37\x80\x40\x12':
@@ -67,14 +106,11 @@ def add_n64_metadata(game):
 		game.metadata.specific_info['ROM-Format'] = 'Unknown'
 		return
 
+	header = entire_rom[:64]
 	if byte_swap:
 		header = _byteswap(header)
-	try:
-		product_code = convert_alphanumeric(header[59:63])
-		game.metadata.product_code = product_code
-	except NotAlphanumericException:
-		pass
-	game.metadata.revision = header[63]
+
+	parse_n64_header(game, header)
 
 	rom_md5 = hashlib.md5(entire_rom).hexdigest().upper()
 	if not byte_swap:
@@ -94,36 +130,7 @@ def add_n64_metadata(game):
 
 	database_entry = database.get(rom_md5)
 	if database_entry:
-		#Keys: {'SaveType', 'Biopak', 'GoodName', 'SiDmaDuration', 'Players', 'DisableExtraMem', 'Mempak', 'Cheat0', 'Transferpak', 'CRC', 'Status', 'Rumble', 'CountPerOp'}
-		#CRC is just the N64 checksum from the ROM header so I dunno if that's any use
-		#Stuff like SiDmaDuration and CountPerOp and DisableExtraMem should be applied automatically by Mupen64Plus I would think (and be irrelevant for other emulators)
-		#Likewise Cheat0 is just a quick patch to workaround emulator issues, so it doesn't need to be worried about here
-		#Status seems... out of date
-
-		#This is just here for debugging etc
-		game.metadata.specific_info['GoodName'] = database_entry.get('GoodName')
-
-		if 'Players' in database_entry:
-			game.metadata.specific_info['Number-of-Players'] = database_entry['Players']
-
-		if database_entry.get('SaveType', 'None') != 'None':
-			game.metadata.save_type = SaveType.Cart
-		elif database_entry.get('Mempak', 'No') == 'Yes':
-			#Apparently it is possible to have both cart and memory card saving, so that is strange
-			#I would think though that if the cartridge could save everything it needed to, it wouldn't bother with a memory card, so if it does use the controller pak then that's probably the main form of saving
-			game.metadata.specific_info['Uses-Controller-Pak'] = True
-			game.metadata.save_type = SaveType.MemoryCard
-		else:
-			#TODO: iQue would be SaveType.Internal, could maybe detect that based on CIC but that might be silly (the saving wouldn't be emulated by anything at this point anyway)
-			game.metadata.save_type = SaveType.Nothing
-
-		if database_entry.get('Rumble', 'No') == 'Yes':
-			game.metadata.specific_info['Force-Feedback'] = True
-		if database_entry.get('Biopak', 'No') == 'Yes':
-			game.metadata.input_info.input_options[0].inputs.append(input_metadata.Biological())
-		if database_entry.get('Transferpak', 'No') == 'Yes':
-			game.metadata.specific_info['Uses-Transfer-Pak'] = True
-		#TODO: Nothing in here which specifies to use VRU, or any other weird fancy controllers which may or may not exist
+		add_info_from_database_entry(game, database_entry)
 
 	software = find_in_software_lists(game.software_lists, crc=rom_crc32)
 	if not software:

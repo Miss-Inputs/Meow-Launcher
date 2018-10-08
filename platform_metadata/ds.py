@@ -83,11 +83,7 @@ def parse_dsi_region_flags(region_flags):
 		regions.append(get_region_by_name('Korea'))
 	return regions
 
-def add_ds_metadata(game):
-	add_ds_system_info(game)
-
-	header = game.rom.read(amount=0x200)
-
+def parse_ds_header(game, header):
 	try:
 		product_code = convert_alphanumeric(header[12:16])
 		game.metadata.product_code = product_code
@@ -145,3 +141,10 @@ def add_ds_metadata(game):
 				icon_bitmap = banner[0x20:0x220]
 				icon_palette = struct.unpack('H' * 16, banner[0x220:0x240])
 				game.icon = decode_icon(icon_bitmap, icon_palette)
+
+
+def add_ds_metadata(game):
+	add_ds_system_info(game)
+
+	header = game.rom.read(amount=0x200)
+	parse_ds_header(game, header)

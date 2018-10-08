@@ -60,6 +60,25 @@ ccs64_cart_types = {
 	55: 'Silverrock',
 }
 
+def get_commodore_64_software(game, headered):
+	if headered:
+		#Skip CRT header
+		data = game.rom.read(seek_to=64)
+
+		total_data = b''
+		i = 0
+		while i < len(data):
+			chip_header = data[i:i+16]
+			total_size = int.from_bytes(chip_header[4:8], 'big')
+			chip_size = int.from_bytes(chip_header[14:16], 'big')
+			total_data += data[i+16:i+16+chip_size]
+			i += total_size
+
+		crc = get_crc32_for_software_list(total_data)
+		return find_in_software_lists(game.software_lists, crc=crc)
+
+	return get_software_list_entry(game)
+
 def add_commodore_64_metadata(game):
 	header = game.rom.read(amount=64)
 	magic = header[:16]
@@ -77,25 +96,7 @@ def add_commodore_64_metadata(game):
 
 	game.metadata.specific_info['Headered'] = headered
 
-	if headered:
-		software = None
-		#Skip CRT header
-		data = game.rom.read(seek_to=64)
-
-		total_data = b''
-		i = 0
-		while i < len(data):
-			chip_header = data[i:i+16]
-			total_size = int.from_bytes(chip_header[4:8], 'big')
-			chip_size = int.from_bytes(chip_header[14:16], 'big')
-			total_data += data[i+16:i+16+chip_size]
-			i += total_size
-
-		crc = get_crc32_for_software_list(total_data)
-		software = find_in_software_lists(game.software_lists, crc=crc)
-	else:
-		software = get_software_list_entry(game)
-
+	software = get_commodore_64_software(game, headered)
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
