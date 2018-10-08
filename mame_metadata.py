@@ -88,7 +88,7 @@ def add_machine_platform(machine):
 		machine.metadata.platform = 'CPS Changer'
 		machine.name = machine.name.replace('CPS Changer, ', '')
 		machine.metadata.media_type = MediaType.Cartridge
-	elif mamchine.name.endswith('(XaviXPORT)'):
+	elif mamechine.name.endswith('(XaviXPORT)'):
 		machine.metadata.platform = 'XaviXPORT'
 		machine.metadata.media_type = MediaType.Cartridge
 	elif category == 'Game Console':
