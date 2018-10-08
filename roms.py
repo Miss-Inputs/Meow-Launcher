@@ -99,8 +99,10 @@ class Rom():
 	def __init__(self, path):
 		self.path = path
 		self.warn_about_multiple_files = False
-		self.original_name = os.path.basename(path)
-		name_without_extension, self.original_extension = os.path.splitext(self.original_name)
+
+		original_name = os.path.basename(path)
+		name_without_extension, self.original_extension = os.path.splitext(original_name)
+
 		if self.original_extension.startswith('.'):
 			self.original_extension = self.original_extension[1:]
 		self.original_extension = self.original_extension.lower()
