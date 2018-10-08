@@ -169,6 +169,7 @@ def parse_stella_db(game, game_info):
 		add_controller_info(game, right_controller)
 
 _stella_db = None
+
 def add_atari_2600_metadata(game):
 	global _stella_db
 	#Python, you're officially a fucking dumbarse. Of course that's a fucking global variable. It is right there. Two lines above here. In the global fucking scope.
@@ -192,7 +193,6 @@ def add_atari_2600_metadata(game):
 		#"Kid's Controller", "kidscontroller" (both are used)
 		#"paddles"
 		#"keypad"
-
 	else:
 		md5 = autodetect_from_stella(game)
 		if md5 in _stella_db:
