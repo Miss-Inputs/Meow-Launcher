@@ -23,8 +23,8 @@ print_times = '--print-times' in sys.argv
 class EngineFile():
 	def __init__(self, path):
 		self.path = path
-		self.original_name = os.path.basename(path)
-		self.name, self.extension = os.path.splitext(self.original_name)
+		original_name = os.path.basename(path)
+		self.name, self.extension = os.path.splitext(original_name)
 
 		if self.extension.startswith('.'):
 			self.extension = self.extension[1:]
