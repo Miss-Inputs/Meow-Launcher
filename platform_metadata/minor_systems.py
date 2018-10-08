@@ -308,6 +308,8 @@ def add_coleco_adam_info(game):
 		game.metadata.product_code = software.get_info('serial')
 
 def add_hartung_game_master_info(game):
+	game.metadata.tv_type = TVSystem.Agnostic
+
 	builtin_gamepad = input_metadata.NormalInput()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
