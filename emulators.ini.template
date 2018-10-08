@@ -18,6 +18,10 @@ emulators =
 paths = 
 emulators = 
 
+[Bandai Super Vision 8000]
+paths = 
+emulators = 
+
 [BBC Bridge Companion]
 paths = 
 emulators = 

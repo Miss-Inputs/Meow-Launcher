@@ -83,6 +83,7 @@ helpers = {
 	'Arcadia 2001': add_arcadia_info,
 	'Astrocade': add_astrocade_info,
 	'Atari 5200': add_atari_5200_info,
+	'Bandai Super Vision 8000': add_bandai_sv8000_info,
 	'BBC Bridge Companion': add_bbc_bridge_companion_info,
 	'Casio PV-1000': add_casio_pv1000_info,
 	'Casio PV-2000': add_casio_pv2000_info,

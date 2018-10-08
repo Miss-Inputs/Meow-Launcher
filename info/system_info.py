@@ -101,6 +101,7 @@ systems = [
 	System('APF-MP1000', 'apfm1000', ['apfm1000'], ['MAME (APF-MP1000)'], {MediaType.Cartridge: ['bin']}),
 	System('Arcadia 2001', 'arcadia', ['arcadia'], ['MAME (Arcadia 2001)'], {MediaType.Cartridge: ['bin']}),
 	System('Astrocade', 'astrocde', ['astrocde'], ['MAME (Astrocade)'], {MediaType.Cartridge: ['bin']}),
+	System('Bandai Super Vision 8000', 'sv8000', ['sv8000'], ['MAME (Super Vision 8000)'], {MediaType.Cartridge: ['bin']}),
 	System('Benesse Pocket Challenge V2', None, ['pockchalv2'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['pc2', 'bin']}),
 	#Controls are mapped even worse than regular WonderSwan games, even with rotation auto-adjust you still end up using a stick/dpad as buttons and it gets weird, also the module must be forced or else it won't be recognized. But it works though
 	System('BBC Bridge Companion', 'bbcbc', ['bbcbc'], ['MAME (BBC Bridge Companion)'], {MediaType.Cartridge: ['bin']}),
@@ -275,7 +276,6 @@ systems = [
 	#Nothing is dumped, so I think it's safe to say nothing will work, but still. Apparently it's supposed to be a PC clone, but doesn't support any PC software lists...
 	System('Atari ST', 'st', ['st_flop', 'st_cart'], []),
 	#MAME is known to not work here, and Hatari is known to have usability issues... is there anything else?
-	System('Bandai Super Vision 8000', 'sv8000', ['sv8000'], []),
 	System('BBC Master', 'bbcm', ['bbcm_cart', 'bbcm_cass', 'bbcmc_flop', 'bbcm_flop'], []),
 	System('BBC Micro', 'bbcb', ['bbca_cass', 'bbcb_cass', 'bbcb_cass_de', 'bbcb_flop', 'bbcb_flop_orig'], []),
 	#The key combination to boot a floppy is like Shift+Break or something ridiculous like that, so I'm not going anywhere without an autoboot script

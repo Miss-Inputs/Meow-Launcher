@@ -317,6 +317,14 @@ def add_hartung_game_master_info(game):
 	if software:
 		software.add_generic_info(game)
 
+def add_bandai_sv8000_info(game):
+	game.metadata.tv_type = TVSystem.NTSC #Japan only
+	#Input info: Some wanky pair of keypads, thanks I hate it
+
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+
 def add_nichibutsu_my_vision_info(game):
 	game.metadata.tv_type = TVSystem.NTSC #Japan only
 	#Input info: Some kinda weird partial-keyboard thingy
