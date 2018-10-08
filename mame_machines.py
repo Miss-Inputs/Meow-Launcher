@@ -49,13 +49,24 @@ icons = load_icons()
 class Machine():
 	def __init__(self, xml):
 		self.xml = xml
-		self.basename = xml.attrib['name']
-		self.family = xml.attrib['cloneof'] if 'cloneof' in xml.attrib else self.basename
-		self.name = xml.findtext('description')
 		self.metadata = Metadata()
-
-		self.source_file = os.path.splitext(xml.attrib['sourcefile'])[0]
 		self.metadata.specific_info['Source-File'] = self.source_file
+
+	@property
+	def basename(self):
+		return self.xml.attrib['name']
+
+	@property
+	def family(self):
+		return self.xml.attrib.get('cloneof', self.basename)
+
+	@property
+	def name(self):
+		return self.xml.findtext('description')
+
+	@property
+	def source_file(self):
+		return os.path.splitext(self.xml.attrib['sourcefile'])[0]
 
 	def make_launcher(self):
 		icon = None
