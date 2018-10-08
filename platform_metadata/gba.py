@@ -8,6 +8,37 @@ from software_list_info import find_in_software_lists, get_crc32_for_software_li
 from .nintendo_common import nintendo_licensee_codes
 
 nintendo_gba_logo_crc32 = 0xD0BEB55E
+def parse_gba_header(game, header):
+	nintendo_logo = header[4:0xa0]
+	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_gba_logo_crc32
+	game.metadata.specific_info['Nintendo-Logo-Valid'] = nintendo_logo_valid
+
+	product_code = None
+	try:
+		product_code = convert_alphanumeric(header[0xac:0xb0])
+
+		game_type = product_code[0]
+		if game_type[0] == 'K' or game_type == 'R':
+			game.metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls())
+		game.metadata.specific_info['Force-Feedback'] = game_type in ('R', 'V')
+
+		game.metadata.product_code = product_code
+	except NotAlphanumericException:
+		pass
+
+	licensee_code = None
+	try:
+		licensee_code = convert_alphanumeric(header[0xb0:0xb2])
+
+		if licensee_code in nintendo_licensee_codes:
+			game.metadata.publisher = nintendo_licensee_codes[licensee_code]
+		elif licensee_code != '00':
+			game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(licensee_code)
+	except NotAlphanumericException:
+		pass
+
+	game.metadata.revision = header[0xbc]
+
 def add_gba_metadata(game):
 	builtin_gamepad = input_metadata.NormalInput()
 	builtin_gamepad.dpads = 1
@@ -19,41 +50,7 @@ def add_gba_metadata(game):
 
 	entire_cart = game.rom.read()
 	header = entire_cart[0:0xc0]
-
-	nintendo_logo = header[4:0xa0]
-	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_gba_logo_crc32
-	game.metadata.specific_info['Nintendo-Logo-Valid'] = nintendo_logo_valid
-
-	product_code = None
-	can_trust_header_data = nintendo_logo_valid
-	try:
-		product_code = convert_alphanumeric(header[0xac:0xb0])
-		#TODO: Maybe get region from product_code[3]?
-	except NotAlphanumericException:
-		#Well, shit. If the product code's invalid for whatever reason, then we can't derive much info from it anyway. Anything officially licensed should be alphanumeric.
-		can_trust_header_data = False
-
-	licensee_code = None
-	try:
-		licensee_code = convert_alphanumeric(header[0xb0:0xb2])
-	except NotAlphanumericException:
-		can_trust_header_data = False
-	if licensee_code == '00':
-		can_trust_header_data = False
-
-	if can_trust_header_data:
-		game_type = product_code[0]
-		if game_type[0] == 'K' or game_type == 'R':
-			game.metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls())
-
-		game.metadata.product_code = product_code
-		game.metadata.specific_info['Force-Feedback'] = game_type in ('R', 'V')
-		if licensee_code in nintendo_licensee_codes:
-			game.metadata.publisher = nintendo_licensee_codes[licensee_code]
-		else:
-			game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(licensee_code)
-
-		game.metadata.revision = header[0xbc]
+	parse_gba_header(game, header)
 
 	has_save = False
 	save_strings = [b'EEPROM_V', b'SRAM_V', b'SRAM_F_V', b'FLASH_V', b'FLASH512_V', b'FLASH1M_V']
