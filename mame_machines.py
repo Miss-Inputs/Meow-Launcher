@@ -51,6 +51,8 @@ class Machine():
 		self.xml = xml
 		self.metadata = Metadata()
 		self.metadata.specific_info['Source-File'] = self.source_file
+		self.metadata.specific_info['Family-Basename'] = self.family
+		self.metadata.specific_info['Family'] = get_full_name(self.family)
 
 	@property
 	def basename(self):
@@ -118,9 +120,6 @@ def process_machine(machine):
 		if debug:
 			print('%s (%s) has mandatory slots' % (machine.basename, machine.name))
 		return
-
-	machine.metadata.specific_info['Family-Basename'] = machine.family
-	machine.metadata.specific_info['Family'] = get_full_name(machine.family)
 
 	add_metadata(machine)
 	if machine.metadata.specific_info.get('Probably-Skeleton-Driver', False):
