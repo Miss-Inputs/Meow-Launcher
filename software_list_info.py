@@ -60,9 +60,12 @@ def parse_release_date(game, release_info):
 class Software():
 	def __init__(self, xml, software_list_name=None, software_list_description=None):
 		self.xml = xml
-		self.has_multiple_parts = len(xml.findall('part')) > 1
 		self.software_list_name = software_list_name
 		self.software_list_description = software_list_description
+
+	@property
+	def has_multiple_parts(self):
+		return len(self.xml.findall('part')) > 1
 
 	def get_part(self, name=None):
 		if name:
