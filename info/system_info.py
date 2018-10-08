@@ -335,6 +335,7 @@ class GameWithEngine():
 		self.name = name
 		self.engines = engines
 		self.uses_folders = uses_folders
+
 games_with_engines = {
 	'Doom': GameWithEngine('Doom', ['PrBoom+'], False),
 	'Quake': GameWithEngine('Quake', ['Darkplaces'], True),
