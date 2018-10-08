@@ -179,8 +179,9 @@ def process_arcade():
 def main():
 	os.makedirs(config.output_folder, exist_ok=True)
 
-	if sys.argv[1] == '--driver':
-		process_driver(sys.argv[2])
+	if '--driver' in sys.argv:
+		pos = sys.argv.index('--driver')
+		process_driver(sys.argv[pos + 1])
 		return
 
 	process_arcade()
