@@ -295,7 +295,6 @@ def _get_headered_nes_rom_software_list_entry(game):
 
 	return find_in_software_lists(game.software_lists, crc=[prg_crc32, chr_crc32], part_matcher=_does_nes_rom_match)
 
-
 def add_nes_metadata(game):
 	if game.rom.extension == 'fds':
 		add_fds_metadata(game)
