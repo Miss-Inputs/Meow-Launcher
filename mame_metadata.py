@@ -76,14 +76,18 @@ def add_machine_platform(machine):
 	machine.metadata.platform = 'Arcade'
 	category = machine.metadata.categories[0]
 
-	if machine.source_file == 'megatech':
-		machine.metadata.platform = 'Mega-Tech'
-	elif machine.source_file == 'megaplay':
-		machine.metadata.platform = 'Mega-Play'
-	elif machine.source_file == 'playch10':
-		machine.metadata.platform = 'PlayChoice-10'
-	elif machine.source_file == 'nss':
-		machine.metadata.platform = 'Nintendo Super System'
+	source_file_platforms = {
+		'megatech': 'Mega-Tech',
+		'megaplay': 'Mega-Play',
+		'playch10': 'PlayChoice-10',
+		'nss': 'Nintendo Super System',
+	}
+
+	#Public coin-op machines that could be still considered 'Arcade' as the platform, but meh
+	if machine.source_file in source_file_platforms:
+		machine.metadata.platform = source_file_platforms[machine.source_file]
+
+	#Home systems that have the whole CPU etc inside the cartridge, and hence work as separate systems in MAME instead of being in roms.py
 	elif machine.source_file == 'cps1' and '(CPS Changer, ' in machine.name:
 		machine.metadata.platform = 'CPS Changer'
 		machine.name = machine.name.replace('CPS Changer, ', '')
@@ -91,30 +95,25 @@ def add_machine_platform(machine):
 	elif machine.name.endswith('(XaviXPORT)'):
 		machine.metadata.platform = 'XaviXPORT'
 		machine.metadata.media_type = MediaType.Cartridge
-	elif category == 'Game Console':
-		machine.metadata.platform = 'Plug & Play'
-		#Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug &
-        #play system
 	elif machine.name.startswith(('Game & Watch: ', 'Select-A-Game: ', 'R-Zone: ')):
 		machine.metadata.platform, _, machine.name = machine.name.partition(': ')
 		if machine.metadata.platform in ('Select-A-Game', 'R-Zone'):
 			machine.metadata.media_type = MediaType.Cartridge
-	elif category == 'Misc.':
-		machine.metadata.platform = machine.metadata.genre
-	elif category == 'Handheld' and machine.metadata.genre == "Plug n' Play TV Game":
-		machine.metadata.platform = "Plug & Play"
-	elif category in ('Computer', 'Calculator', 'Handheld', 'Telephone'):
-		#"Handheld" could also be a tabletop system which takes AC input, but since catlist.ini doesn't take that into account, I don't
-		#really have a way of doing so either
-		machine.metadata.platform = category
+
+	#Other weird and wacky devices
+	#Note: "Handheld" could also be a tabletop system which takes AC input and you would not be able to hold in your hands at all, but since catlist.ini doesn't take that into account, I don't really have a way of doing so either
+	elif (category == 'Game Console') or (category == 'Handheld' and machine.metadata.genre == "Plug n' Play TV Game"):
+		machine.metadata.platform = 'Plug & Play'
+		#Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug &
+        #play system
+#	elif category == 'Misc.':
+#		#Hmm... this creates way too many different platforms, but I just dunno how I feel about a platform being called "Misc""
+#		machine.metadata.platform = machine.metadata.genre
 	elif machine.metadata.genre in ('Electromechanical', 'Slot Machine') and machine.metadata.subgenre == 'Reels':
 		machine.metadata.platform = 'Pokies'
 	elif machine.metadata.genre == 'Electromechanical' and machine.metadata.subgenre == 'Pinball':
 		machine.metadata.platform = 'Pinball'
-	elif machine.metadata.genre in ('Chess Machine', 'EPROM Programmer', 'Home Karaoke System'):
-		machine.metadata.platform = machine.metadata.genre
-	elif machine.metadata.specific_info['Coin-Slots'] == 0 and machine.metadata.platform == 'Arcade':
-		#Can't be a coin-op game if it doesn't even take coins!
+	else:
 		machine.metadata.platform = category
 
 #Some games have memory card slots, but they don't actually support saving, it's just that the arcade system board thing they use always has that memory card slot there. So let's not delude ourselves into thinking that games which don't save let you save, because that might result in emotional turmoil.
