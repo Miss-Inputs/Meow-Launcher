@@ -77,15 +77,21 @@ def get_language(basename):
 arcade_systems = {
 	'3do': '3DO', #Used for the 3DO console as well, but there are 3DO-based arcade games which are just called that
 	'aleck64': 'Aleck64', #Based on N64
+	'alg': 'American Laser Games Hardware', #Amiga 500 based (w/ laserdisc player)
 	'alien': 'Capcom Medalusion',
 	'atarigx2': 'Atari GX2',
 	'atarisy1': 'Atari System 1',
 	'atarisy2': 'Atari System 2',
 	'cave': 'Cave Hardware',
 	'chihiro': 'Chihiro', #Based on Xbox
+	'cinemat': 'Cinematronics Vector Hardware',
 	'cps1': 'CPS-1',
 	'cps2': 'CPS-2',
 	'cps3': 'CPS-3',
+	'decocass': 'Deco Casette',
+	'dgpix': 'dgPIX VRender0',
+	'ettrivia': 'Enerdyne Technologies Trivia',
+	'expro02': 'Kaneko EXPRO-02',
 	'gottlieb': 'Gottlieb Hardware',
 	'hikaru': 'Hikaru', #Based on Dreamcast
 	'hng64': 'Hyper Neo Geo 64',
@@ -127,6 +133,7 @@ arcade_systems = {
 	'naomi': 'Naomi', #Based on Dreamcast. romof="awbios" == Atomiswave
 	'neogeo': 'Neo-Geo',
 	'pgm': 'PolyGame Master',
+	'photon': 'Photon System', #PK8000 based (Russian PC that was supposed to be MSX1 compatible)
 	'seattle': 'Midway Seattle',
 	'segac2': 'System C2', #Based on Megadrive kinda
 	'segae': 'System E', #Based on SMS kinda
@@ -139,8 +146,12 @@ arcade_systems = {
 	'segas32': 'System 32',
 	'segasp': 'Sega System SP', #Dreamcast based, for medal games
 	'segaxbd': 'Sega X-Board',
+	'segaybd': 'Sega Y-Board',
+	'snesb': 'SNES Bootleg', #SNES based, natch
 	'sigmab98': 'Sigma B-98',
+	'simpl156': 'Deco 156',
 	'stv': 'ST-V', #Based on Saturn
+	'suprnova': 'Super Kaneko Nova System',
 	'taito_b': 'Taito B System',
 	'taito_f2': 'Taito F2 System',
 	'taito_f3': 'Taito F3 System',
@@ -153,8 +164,10 @@ arcade_systems = {
 	'taito_z': 'Taito Z System',
 	'triforce': 'Triforce', #GameCube based
 	'vegas': 'Midway Vegas',
+	'vicdual': 'VIC Dual',
 	'viper': 'Konami Viper', #3Dfx (PPC) based
 	'vsnes': 'VS Unisystem',
+	'zr107': 'Konami ZR701',
 }
 
 def add_machine_platform(machine):
