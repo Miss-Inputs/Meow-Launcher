@@ -49,8 +49,9 @@ def add_gba_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 
 	entire_cart = game.rom.read()
-	header = entire_cart[0:0xc0]
-	parse_gba_header(game, header)
+	if len(entire_cart) >= 0xc0:
+		header = entire_cart[0:0xc0]
+		parse_gba_header(game, header)
 
 	has_save = False
 	save_strings = [b'EEPROM_V', b'SRAM_V', b'SRAM_F_V', b'FLASH_V', b'FLASH512_V', b'FLASH1M_V']
