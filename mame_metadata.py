@@ -12,6 +12,8 @@ from mame_helpers import find_main_cpu, consistentify_manufacturer
 
 debug = '--debug' in sys.argv
 
+#Maybe I just want to put all this back into mame_machines... it's only used there
+
 mame_statuses = {
 	'good': EmulationStatus.Good,
 	'imperfect': EmulationStatus.Imperfect,
@@ -217,23 +219,13 @@ def add_metadata(machine):
 
 def add_input_info(machine):
 	machine.metadata.input_info.set_known()
-	input_element = machine.xml.find('input')
-	if input_element is None:
+	if machine.input_element is None:
 		#Seems like this doesn't actually happen
 		if debug:
 			print('Oi m8', machine.basename, '/', machine.name, 'has no input')
 		return
 
-	machine.metadata.specific_info['Coin-Slots'] = input_element.attrib.get('coins', 0)
-
-	num_players = int(input_element.attrib.get('players', 0))
-	if num_players == 0:
-		machine.metadata.specific_info['Probably-Skeleton-Driver'] = True
-		return
-
-	machine.metadata.specific_info['Number-of-Players'] = num_players
-
-	control_elements = input_element.findall('control')
+	control_elements = machine.input_element.findall('control')
 	if not control_elements:
 		#Sometimes you get some games with 1 or more players, but no control type defined.  This usually happens with
 		#pinball games and weird stuff like a clock, but also some genuine games like Crazy Fight that are more or less

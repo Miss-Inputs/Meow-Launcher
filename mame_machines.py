@@ -61,8 +61,10 @@ class Machine():
 
 		self.metadata.year = self.xml.findtext('year')
 
+		self.metadata.specific_info['Number-of-Players'] = self.number_of_players
 		self.metadata.specific_info['Is-Mechanical'] = self.is_mechanical
 		self.metadata.specific_info['Dispenses-Tickets'] = self.uses_device('ticket_dispenser')
+		self.metadata.specific_info['Coin-Slots'] = self.input_element.attrib.get('coins', 0)
 	@property
 	def basename(self):
 		return self.xml.attrib['name']
@@ -88,6 +90,20 @@ class Machine():
 	@property
 	def is_mechanical(self):
 		return self.xml.attrib.get('ismechanical', 'no') == 'yes'
+
+	@property
+	def input_element(self):
+		return self.xml.find('input')
+
+	@property
+	def number_of_players(self):
+		return int(self.input_element.attrib.get('players', 0))
+
+	@property
+	def is_skeleton_driver(self):
+		#Actually, we're making an educated guess here, as MACHINE_IS_SKELETON doesn't appear directly in the XML...
+		#What I actually want to happen is to tell us if a machine will just display a blank screen and nothing else (because nobody wants those in a launcher). Right now that's not really possible without the false positives of games which don't have screens as such but they do display things via layouts (e.g. wackygtr) so the best we can do is say everything that doesn't have any kind of controls.
+		return self.number_of_players == 0
 
 	def uses_device(self, name):
 		for device_ref in self.xml.findall('device_ref'):
@@ -137,14 +153,14 @@ def process_machine(machine):
 			print('%s (%s) has mandatory slots' % (machine.basename, machine.name))
 		return
 
-	add_metadata(machine)
-	if machine.metadata.specific_info.get('Probably-Skeleton-Driver', False):
+	if machine.is_skeleton_driver:
 		#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
 		#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
 		if debug:
 			print('Skipping %s (%s) as it is probably a skeleton driver' % (machine.basename, machine.name))
 		return
 
+	add_metadata(machine)
 	machine.make_launcher()
 
 def get_mame_drivers():
