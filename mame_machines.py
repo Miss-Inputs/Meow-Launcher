@@ -79,6 +79,10 @@ class Machine():
 		command_line = emulator_command_lines.mame_command_line(self.basename)
 		launchers.make_launcher(command_line, self.name, self.metadata, {'Type': 'MAME machine', 'Unique-ID': self.basename}, icon)
 
+	@property
+	def is_mechanical(self):
+		return self.xml.attrib.get('ismechanical', 'no') == 'yes'
+
 def mame_verifyroms(basename):
 	#FIXME Okay this is way too fuckin' slow
 	try:

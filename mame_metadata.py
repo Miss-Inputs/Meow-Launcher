@@ -193,7 +193,7 @@ def add_metadata(machine):
 	machine.metadata.subgenre = subgenre
 	machine.metadata.nsfw = nsfw
 
-	machine.metadata.specific_info['Is-Mechanical'] = machine.xml.attrib.get('ismechanical', 'no') == 'yes'
+	machine.metadata.specific_info['Is-Mechanical'] = machine.is_mechanical
 
 	main_cpu = find_main_cpu(machine.xml)
 	if main_cpu is not None: #Why?
