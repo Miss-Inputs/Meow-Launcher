@@ -221,9 +221,15 @@ def process_arcade():
 def main():
 	os.makedirs(config.output_folder, exist_ok=True)
 
-	if '--driver' in sys.argv:
-		pos = sys.argv.index('--driver')
-		process_driver(sys.argv[pos + 1])
+	if '--drivers' in sys.argv:
+		arg_index = sys.argv.index('--drivers')
+		if len(sys.argv) == 2:
+			print('--drivers requires an argument')
+			return
+
+		driver_list = sys.argv[arg_index + 1].split(',')
+		for driver_name in driver_list:
+			process_driver(driver_name)
 		return
 
 	process_arcade()
