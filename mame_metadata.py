@@ -75,7 +75,7 @@ def get_language(basename):
 	return get_language_by_english_name(lang)
 
 arcade_systems = {
-	'3do': '3DO',
+	'3do': '3DO', #Used for the 3DO console as well, but there are 3DO-based arcade games which are just called that
 	'aleck64': 'Aleck64', #Based on N64
 	'alien': 'Capcom Medalusion',
 	'atarigx2': 'Atari GX2',
@@ -90,6 +90,8 @@ arcade_systems = {
 	'hikaru': 'Hikaru', #Based on Dreamcast
 	'hng64': 'Hyper Neo Geo 64',
 	'hornet': 'Konami Hornet',
+	'jaguar': 'CoJag', #This is the same source file used for the Jaguar console too
+	'konamigq': 'Konami GQ', #Based on PS1
 	'konamigv': 'Konami GV', #Based on PS1
 	'konamigx': 'Konami GX',
 	'konamim2': 'Konami M2', #Based on unreleased Panasonic M2
@@ -102,7 +104,9 @@ arcade_systems = {
 	'mcr': 'Midway MCR',
 	'mcr3': 'Midway MCR-3',
 	'mcr68': 'Midway MCR-68k',
+	'mediagx': 'Atari Media GX', #Based on Cyrix multimedia PC
 	'megasys1': 'Jaleco Mega System 1',
+	'midqslvr': 'Midway Quicksilver',
 	'midtunit': 'Midway T-Unit',
 	'midvunit': 'Midway V-Unit',
 	'midwunit': 'Midway W-Unit',
@@ -116,10 +120,11 @@ arcade_systems = {
 	'namcos1': 'Namco System 1',
 	'namcos10': 'Namco System 10', #Based on PS1
 	'namcos11': 'Namco System 11', #Based on PS1
+	'namcos12': 'Namco System 12',
 	'namcos2': 'Namco System 2',
 	'namcos22': 'Namco System 22',
 	'namcos23': 'Namco System 23',
-	'naomi': 'Naomi', #Based on Dreamcast
+	'naomi': 'Naomi', #Based on Dreamcast. romof="awbios" == Atomiswave
 	'neogeo': 'Neo-Geo',
 	'pgm': 'PolyGame Master',
 	'seattle': 'Midway Seattle',
@@ -132,17 +137,21 @@ arcade_systems = {
 	'segas18': 'System 18',
 	'segas24': 'System 24',
 	'segas32': 'System 32',
+	'segasp': 'Sega System SP', #Dreamcast based, for medal games
 	'segaxbd': 'Sega X-Board',
+	'sigmab98': 'Sigma B-98',
 	'stv': 'ST-V', #Based on Saturn
 	'taito_b': 'Taito B System',
 	'taito_f2': 'Taito F2 System',
 	'taito_f3': 'Taito F3 System',
+	'taitogn': 'Taito G-NET',
 	'taito_h': 'Taito H System',
 	'taito_l': 'Taito L-System',
 	'taitosj': 'Taito SJ System',
+	'taitowlf': 'Taito Wolf', #3Dfx (Pentium) based
 	'taito_x': 'Taito X-System',
 	'taito_z': 'Taito Z System',
-	'taitowlf': 'Taito Wolf', #3Dfx (Pentium) based
+	'triforce': 'Triforce', #GameCube based
 	'vegas': 'Midway Vegas',
 	'viper': 'Konami Viper', #3Dfx (PPC) based
 	'vsnes': 'VS Unisystem',
