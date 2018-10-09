@@ -74,6 +74,80 @@ def get_language(basename):
 
 	return get_language_by_english_name(lang)
 
+arcade_systems = {
+	'3do': '3DO',
+	'aleck64': 'Aleck64', #Based on N64
+	'alien': 'Capcom Medalusion',
+	'atarigx2': 'Atari GX2',
+	'atarisy1': 'Atari System 1',
+	'atarisy2': 'Atari System 2',
+	'cave': 'Cave Hardware',
+	'chihiro': 'Chihiro', #Based on Xbox
+	'cps1': 'CPS-1',
+	'cps2': 'CPS-2',
+	'cps3': 'CPS-3',
+	'gottlieb': 'Gottlieb Hardware',
+	'hikaru': 'Hikaru', #Based on Dreamcast
+	'hng64': 'Hyper Neo Geo 64',
+	'hornet': 'Konami Hornet',
+	'konamigv': 'Konami GV', #Based on PS1
+	'konamigx': 'Konami GX',
+	'konamim2': 'Konami M2', #Based on unreleased Panasonic M2
+	'ksys573': 'Konami System 573', #Based on PS1
+	'm52': 'Irem M52',
+	'm58': 'Irem M58',
+	'm62': 'Irem M62',
+	'm72': 'Irem M72',
+	'm92': 'Irem M92',
+	'mcr': 'Midway MCR',
+	'mcr3': 'Midway MCR-3',
+	'mcr68': 'Midway MCR-68k',
+	'megasys1': 'Jaleco Mega System 1',
+	'midtunit': 'Midway T-Unit',
+	'midvunit': 'Midway V-Unit',
+	'midwunit': 'Midway W-Unit',
+	'midyunit': 'Midway Y-Unit',
+	'midzeus': 'Midway Zeus',
+	'model2': 'Sega Model 2',
+	'model3': 'Sega Model 3',
+	'ms32': 'Jaleco Mega System 32',
+	'namconb1': 'Namco System NB-1',
+	'namcond1': 'Namco System ND-1',
+	'namcos1': 'Namco System 1',
+	'namcos10': 'Namco System 10', #Based on PS1
+	'namcos11': 'Namco System 11', #Based on PS1
+	'namcos2': 'Namco System 2',
+	'namcos22': 'Namco System 22',
+	'namcos23': 'Namco System 23',
+	'naomi': 'Naomi', #Based on Dreamcast
+	'neogeo': 'Neo-Geo',
+	'pgm': 'PolyGame Master',
+	'seattle': 'Midway Seattle',
+	'segac2': 'System C2', #Based on Megadrive kinda
+	'segae': 'System E', #Based on SMS kinda
+	'segag80r': 'Sega G-80 Raster',
+	'segag80v': 'Sega G-80 Vector',
+	'segas16a': 'System 16A', #Similar to Megadrive
+	'segas16b': 'System 16B',
+	'segas18': 'System 18',
+	'segas24': 'System 24',
+	'segas32': 'System 32',
+	'segaxbd': 'Sega X-Board',
+	'stv': 'ST-V', #Based on Saturn
+	'taito_b': 'Taito B System',
+	'taito_f2': 'Taito F2 System',
+	'taito_f3': 'Taito F3 System',
+	'taito_h': 'Taito H System',
+	'taito_l': 'Taito L-System',
+	'taitosj': 'Taito SJ System',
+	'taito_x': 'Taito X-System',
+	'taito_z': 'Taito Z System',
+	'taitowlf': 'Taito Wolf', #3Dfx (Pentium) based
+	'vegas': 'Midway Vegas',
+	'viper': 'Konami Viper', #3Dfx (PPC) based
+	'vsnes': 'VS Unisystem',
+}
+
 def add_machine_platform(machine):
 	category = machine.metadata.categories[0]
 
@@ -203,6 +277,8 @@ def add_metadata(machine):
 
 	add_input_info(machine)
 	machine.metadata.platform, machine.metadata.media_type = add_machine_platform(machine)
+	if machine.source_file in arcade_systems:
+		machine.metadata.specific_info['Arcade-System'] = arcade_systems[machine.source_file]
 	add_save_type(machine)
 
 	language = get_language(machine.basename)
