@@ -110,9 +110,8 @@ def add_machine_platform(machine):
 		return 'Pokies', MediaType.Standalone
 	elif machine.metadata.genre == 'Electromechanical' and machine.metadata.subgenre == 'Pinball':
 		return 'Pinball', MediaType.Standalone
-	else:
-		#machine.metadata.platform = category
-		return category, MediaType.Standalone
+
+	return category, MediaType.Standalone
 
 #Some games have memory card slots, but they don't actually support saving, it's just that the arcade system board thing they use always has that memory card slot there. So let's not delude ourselves into thinking that games which don't save let you save, because that might result in emotional turmoil.
 #Fatal Fury 2, Fatal Fury Special, Fatal Fury 3, and The Last Blade apparently only save in Japanese or something? That might be something to be aware of
@@ -191,8 +190,6 @@ def add_metadata(machine):
 	machine.metadata.subgenre = subgenre
 	machine.metadata.nsfw = nsfw
 
-	machine.metadata.specific_info['Is-Mechanical'] = machine.is_mechanical
-
 	main_cpu = find_main_cpu(machine.xml)
 	if main_cpu is not None: #Why?
 		machine.metadata.cpu_info = CPUInfo()
@@ -201,8 +198,6 @@ def add_metadata(machine):
 	machine.metadata.screen_info = ScreenInfo()
 	displays = machine.xml.findall('display')
 	machine.metadata.screen_info.load_from_xml_list(displays)
-
-	machine.metadata.media_type = MediaType.Standalone
 
 	add_input_info(machine)
 	machine.metadata.platform, machine.metadata.media_type = add_machine_platform(machine)
@@ -214,19 +209,11 @@ def add_metadata(machine):
 
 	machine.metadata.regions = get_regions_from_filename_tags(find_filename_tags.findall(machine.name), loose=True)
 
+	#Might not be so hardcoded one day...
 	machine.metadata.emulator_name = 'MAME'
-	machine.metadata.year = machine.xml.findtext('year')
 	add_manufacturer(machine)
 
 	add_status(machine)
-
-	has_ticket_dispenser = False
-	for device_ref in machine.xml.findall('device_ref'):
-		if device_ref.attrib['name'] == 'ticket_dispenser':
-			has_ticket_dispenser = True
-
-	machine.metadata.specific_info['Dispenses-Tickets'] = has_ticket_dispenser
-
 
 def add_input_info(machine):
 	machine.metadata.input_info.set_known()

@@ -50,13 +50,19 @@ class Machine():
 	def __init__(self, xml):
 		self.xml = xml
 		self.metadata = Metadata()
+		self._add_metadata_fields()
+		#This can't be an attribute because we might need to override it later! Bad Megan!
+		self.name = self.xml.findtext('description')
+
+	def _add_metadata_fields(self):
 		self.metadata.specific_info['Source-File'] = self.source_file
 		self.metadata.specific_info['Family-Basename'] = self.family
 		self.metadata.specific_info['Family'] = get_full_name(self.family)
 
-		#This can't be an attribute because we might need to override it later! Bad Megan!
-		self.name = self.xml.findtext('description')
+		self.metadata.year = self.xml.findtext('year')
 
+		self.metadata.specific_info['Is-Mechanical'] = self.is_mechanical
+		self.metadata.specific_info['Dispenses-Tickets'] = self.uses_device('ticket_dispenser')
 	@property
 	def basename(self):
 		return self.xml.attrib['name']
@@ -82,6 +88,13 @@ class Machine():
 	@property
 	def is_mechanical(self):
 		return self.xml.attrib.get('ismechanical', 'no') == 'yes'
+
+	def uses_device(self, name):
+		for device_ref in self.xml.findall('device_ref'):
+			if device_ref.attrib['name'] == name:
+				return True
+
+		return False
 
 def mame_verifyroms(basename):
 	#FIXME Okay this is way too fuckin' slow
