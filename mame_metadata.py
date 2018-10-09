@@ -82,16 +82,22 @@ arcade_systems = {
 	'atarigx2': 'Atari GX2',
 	'atarisy1': 'Atari System 1',
 	'atarisy2': 'Atari System 2',
+	'balsente': 'Bally/Sente SAC-1',
 	'cave': 'Cave Hardware',
 	'chihiro': 'Chihiro', #Based on Xbox
 	'cinemat': 'Cinematronics Vector Hardware',
 	'cps1': 'CPS-1',
 	'cps2': 'CPS-2',
 	'cps3': 'CPS-3',
+	'crystal': 'Brezzasoft Crystal System',
+	'cubo': 'Cubo CD32', #Amiga CD32 + JAMMA
 	'decocass': 'Deco Casette',
 	'dgpix': 'dgPIX VRender0',
 	'ettrivia': 'Enerdyne Technologies Trivia',
+	'exidy440': 'Exidy 440',
 	'expro02': 'Kaneko EXPRO-02',
+	'fuukifg2': 'Fuuki FG-2',
+	'fuukifg3': 'Fuuki FG-3',
 	'gottlieb': 'Gottlieb Hardware',
 	'hikaru': 'Hikaru', #Based on Dreamcast
 	'hng64': 'Hyper Neo Geo 64',
@@ -107,9 +113,11 @@ arcade_systems = {
 	'm62': 'Irem M62',
 	'm72': 'Irem M72',
 	'm92': 'Irem M92',
+	'macs': 'Multi Amenity Casette System',
 	'mcr': 'Midway MCR',
 	'mcr3': 'Midway MCR-3',
 	'mcr68': 'Midway MCR-68k',
+	'meadows': 'Meadows S2650',
 	'mediagx': 'Atari Media GX', #Based on Cyrix multimedia PC
 	'megasys1': 'Jaleco Mega System 1',
 	'midqslvr': 'Midway Quicksilver',
@@ -167,6 +175,7 @@ arcade_systems = {
 	'vicdual': 'VIC Dual',
 	'viper': 'Konami Viper', #3Dfx (PPC) based
 	'vsnes': 'VS Unisystem',
+	'williams': 'Williams 6809',
 	'zr107': 'Konami ZR701',
 }
 
