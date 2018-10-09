@@ -28,7 +28,7 @@ class ScummVMGame():
 		metadata.emulator_name = 'ScummVM'
 		#TODO: publisher, categories, languages, nsfw, regions, subgenre, year... somehow
 		#Others are left deliberately blank because they refer to emulators and not engines
-		launchers.make_launcher(command, name, metadata, {'Game-ID': self.name})
+		launchers.make_launcher(command, name, metadata, {'Type': 'ScummVM', 'Unique-ID': self.name})
 
 def add_scummvm_games():
 	if not os.path.isfile(config_path):
