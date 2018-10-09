@@ -239,11 +239,7 @@ def add_input_info(machine):
 
 	machine.metadata.specific_info['Coin-Slots'] = input_element.attrib.get('coins', 0)
 
-	if 'players' not in input_element.attrib:
-		machine.metadata.specific_info['Probably-Skeleton-Driver'] = True
-		return
-
-	num_players = int(input_element.attrib['players'])
+	num_players = int(input_element.attrib.get('players', 0))
 	if num_players == 0:
 		machine.metadata.specific_info['Probably-Skeleton-Driver'] = True
 		return
