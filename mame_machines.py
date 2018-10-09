@@ -54,6 +54,9 @@ class Machine():
 		self.metadata.specific_info['Family-Basename'] = self.family
 		self.metadata.specific_info['Family'] = get_full_name(self.family)
 
+		#This can't be an attribute because we might need to override it later! Bad Megan!
+		self.name = self.xml.findtext('description')
+
 	@property
 	def basename(self):
 		return self.xml.attrib['name']
@@ -61,10 +64,6 @@ class Machine():
 	@property
 	def family(self):
 		return self.xml.attrib.get('cloneof', self.basename)
-
-	@property
-	def name(self):
-		return self.xml.findtext('description')
 
 	@property
 	def source_file(self):
