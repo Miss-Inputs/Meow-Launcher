@@ -207,7 +207,7 @@ def disambiguate_names():
 
 	fix_duplicate_names('X-Platform')
 	fix_duplicate_names('dev-status')
-	fix_duplicate_names('X-Arcade-System')
+	fix_duplicate_names('X-Arcade-System', ignore_missing_values=True)
 	fix_duplicate_names('X-Regions', lambda regions: '({0})'.format(regions.replace(';', ', ')), ignore_missing_values=True)
 	fix_duplicate_names('X-Publisher', ignore_missing_values=True)
 	fix_duplicate_names('X-Developer', ignore_missing_values=True)
