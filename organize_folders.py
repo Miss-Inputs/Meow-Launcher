@@ -58,9 +58,7 @@ more_subfolders = {
 	'By publisher': 'X-Publisher',
 	'By platform and genre': ['X-Platform', 'X-Genre'],
 	'By platform and year': ['X-Platform', 'X-Year'],
-	'By revision': 'X-Revision',
 	'Is NSFW': 'X-NSFW',
-	'By date': ['X-Year', 'X-Month', 'X-Day'],
 }
 
 extra_subfolders = {
@@ -77,7 +75,6 @@ extra_subfolders = {
 	'By parent-clone family': 'X-Family',
 	'By mapper': 'X-Mapper',
 	'By save type': 'X-Save-Type',
-	'By TV type': 'X-TV-Type',
 	'By extension': 'X-Extension',
 	'By media type': 'X-Media-Type',
 	'By arcade system': 'X-Arcade-System',
