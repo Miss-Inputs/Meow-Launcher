@@ -147,6 +147,7 @@ class Game():
 		self.subroms = None
 		self.software_lists = None
 		self.exception_reason = None
+		self.filename_tags = []
 
 	def get_command_line(self, system_config):
 		return self.emulator.get_command_line(self, system_config.other_config)
@@ -194,6 +195,7 @@ def try_emulator(system_config, emulator, rom_dir, root, rom):
 	if rom.warn_about_multiple_files and debug:
 		print('Warning!', rom.path, 'has more than one file and that may cause unexpected behaviour, as I only look at the first file')
 
+	game.filename_tags = common.find_filename_tags.findall(game.rom.name)
 	add_metadata(game)
 
 	if not game.get_command_line(system_config):

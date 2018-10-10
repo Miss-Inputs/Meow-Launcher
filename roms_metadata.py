@@ -96,7 +96,7 @@ def get_year_revision_from_filename_tags(game, tags):
 
 def get_metadata_from_tags(game):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
-	tags = common.find_filename_tags.findall(game.rom.name)
+	tags = game.filename_tags
 
 	get_year_revision_from_filename_tags(game, tags)
 
