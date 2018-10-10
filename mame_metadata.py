@@ -21,6 +21,7 @@ mame_statuses = {
 }
 
 def get_catlist():
+	#TODO: Maybe I should just get catlist.ini from UI config category path?
 	if not config.catlist_path:
 		return None
 	parser = configparser.ConfigParser(interpolation=None, allow_no_value=True)

@@ -6,7 +6,7 @@ import os
 from metadata import EmulationStatus
 from info.system_info import get_mame_software_list_names_by_system_name
 from info.region_info import TVSystem
-from mame_helpers import consistentify_manufacturer
+from mame_helpers import consistentify_manufacturer, get_mame_config
 
 #TODO: Ideally, every platform wants to be able to get software list info. If available, it will always be preferred over what we can extract from inside the ROMs, as it's more reliable, and avoids the problem of bootlegs/hacks with invalid/missing header data, or publisher/developers that merge and change names and whatnot.
 #We currently do this by putting a block of code inside each platform_metadata helper that does the same thing. I guess I should genericize that one day. Anyway, it's not always possible.
@@ -276,12 +276,15 @@ def get_software_lists_by_names(names):
 	return [software_list for software_list in [get_software_list_by_name(name) for name in names] if software_list]
 
 def get_software_list_by_name(name):
-	hash_path = '/usr/lib/mame/hash'
-	#TODO: Get this from MAME config instead
-	list_path = os.path.join(hash_path, name + '.xml')
-	if not os.path.isfile(list_path):
+	mame_config = get_mame_config()
+	if not mame_config:
 		return None
-	return SoftwareList(list_path)
+	for hash_path in mame_config.settings['hashpath']:
+		if os.path.isdir(hash_path):
+			list_path = os.path.join(hash_path, name + '.xml')
+			if os.path.isfile(list_path):
+				return SoftwareList(list_path)
+	return None
 
 def find_in_software_lists(software_lists, crc=None, sha1=None, part_matcher=_does_part_match):
 	#TODO: Handle hash collisions. Could happen, even if we're narrowing down to specific software lists
