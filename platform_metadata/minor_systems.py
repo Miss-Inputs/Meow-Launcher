@@ -352,6 +352,7 @@ def add_bbc_bridge_companion_info(game):
 
 def add_amiga_info(game):
 	software = get_software_list_entry(game)
+	chipset = None
 	if software:
 		software.add_generic_info(game)
 		chipset = 'OCS'
@@ -359,7 +360,13 @@ def add_amiga_info(game):
 			chipset = 'ECS'
 		elif software.get_info('usage') == 'Requires AGA':
 			chipset = 'AGA'
-		game.metadata.specific_info['Chipset'] = chipset
+
+	if not chipset:
+		for tag in game.filename_tags:
+			if tag in ('(AGA)', '(OCS-AGA)'):
+				chipset = 'AGA'
+				break
+	game.metadata.specific_info['Chipset'] = chipset
 
 def add_cd32_info(game):
 	builtin_gamepad = input_metadata.NormalInput()
