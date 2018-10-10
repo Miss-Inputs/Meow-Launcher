@@ -160,6 +160,11 @@ def move_into_folders():
 	time_started = time.perf_counter()
 
 	delete_existing_output_dir()
+	if print_times:
+		time_ended = time.perf_counter()
+		print('Removal of old organized folder finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+
+	time_started = time.perf_counter()
 
 	for root, _, files in os.walk(config.output_folder):
 		for f in files:
