@@ -2,7 +2,6 @@ import re
 import calendar
 import os
 
-import common
 import region_detect
 import platform_metadata
 from mame_helpers import lookup_system_cpu, lookup_system_displays, get_mame_xml, get_software_lists_by_names
