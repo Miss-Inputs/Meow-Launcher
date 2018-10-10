@@ -78,7 +78,6 @@ class Machine():
 		return None
 
 	def make_launcher(self):
-
 		command_line = emulator_command_lines.mame_command_line(self.basename)
 		launchers.make_launcher(command_line, self.name, self.metadata, {'Type': 'MAME machine', 'Unique-ID': self.basename}, self.icon)
 
