@@ -58,6 +58,28 @@ def parse_release_date(game, release_info):
 	except ValueError:
 		pass
 
+class SoftwarePart():
+	def __init__(self, xml):
+		self.xml = xml
+
+	@property
+	def name(self):
+		return self.xml.attrib.get('name')
+
+	def get_feature(self, name):
+		for feature in self.xml.findall('feature'):
+			if feature.attrib.get('name') == name:
+				return feature.attrib.get('value')
+
+		return None
+
+	def has_data_area(self, name):
+		for data_area in self.xml.findall('dataarea'):
+			if data_area.attrib.get('name') == name:
+				return True
+
+		return False
+
 
 class Software():
 	def __init__(self, xml, software_list_name=None, software_list_description=None):
@@ -65,14 +87,20 @@ class Software():
 		self.software_list_name = software_list_name
 		self.software_list_description = software_list_description
 
+		self.parts = {}
+		for part_xml in self.xml.findall('part'):
+			part = SoftwarePart(part_xml)
+			self.parts[part.name] = part
+
 	@property
 	def has_multiple_parts(self):
-		return len(self.xml.findall('part')) > 1
+		return len(self.parts) > 1
 
 	def get_part(self, name=None):
 		if name:
-			return [part for part in self.xml.findall('part') if part.attrib.get('name') == name][0]
-		return self.xml.find('part')
+			#return [part for part in self.xml.findall('part') if part.attrib.get('name') == name][0]
+			return self.parts[name]
+		return SoftwarePart(self.xml.find('part'))
 
 	def get_info(self, name):
 		for info in self.xml.findall('info'):
@@ -89,20 +117,20 @@ class Software():
 		return None
 
 	def get_part_feature(self, name, part_name=None):
-		part = self.get_part(part_name)
-		for feature in part.findall('feature'):
-			if feature.attrib.get('name') == name:
-				return feature.attrib.get('value')
-
-		return None
+		#Should probably use part.get_feature instead
+		if not part_name:
+			part = self.get_part()
+		else:
+			part = self.parts[part_name]
+		return part.get_feature(name)
 
 	def has_data_area(self, name, part_name=None):
-		part = self.get_part(part_name)
-		for data_area in part.findall('dataarea'):
-			if data_area.attrib.get('name') == name:
-				return True
+		if part_name:
+			part = self.parts[part_name]
+		else:
+			part = self.get_part()
 
-		return False
+		return part.has_data_area(name)
 
 	@property
 	def emulation_status(self):
