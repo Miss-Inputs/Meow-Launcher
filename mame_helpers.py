@@ -1,5 +1,7 @@
 import subprocess
 import xml.etree.ElementTree as ElementTree
+import re
+import os
 
 from metadata import CPUInfo, ScreenInfo
 
@@ -139,6 +141,42 @@ def consistentify_manufacturer(manufacturer):
 		'Take Two Interactive': 'Take-Two Interactive',
 		'VAP': 'Vap',
 	}.get(manufacturer, manufacturer)
+
+
+mame_config_comment = re.compile(r'#.+$')
+mame_config_line = re.compile(r'^(?P<key>\w+)\s+(?P<value>.+)$')
+mame_config_values = re.compile(r'(".+"|[^;]+)') #Not sure if single quotes are okay too...
+class MameConfigFile():
+	def __init__(self, path):
+		self.path = path
+		self.settings = {}
+
+		with open(path, 'rt') as f:
+			for line in f.readlines():
+				line = mame_config_comment.sub('', line)
+				line = line.strip()
+
+				if not line:
+					continue
+
+				match = mame_config_line.match(line)
+				if match:
+					key = match['key']
+					value = mame_config_values.findall(match['value'])
+					self.settings[key] = value
+
+def get_mame_config():
+	path = os.path.expanduser('~/.mame/mame.ini')
+	if os.path.isfile(path):
+		return MameConfigFile(path)
+	return None
+
+def get_mame_ui_config():
+	path = os.path.expanduser('~/.mame/ui.ini')
+	if os.path.isfile(path):
+		return MameConfigFile(path)
+	#TODO: Handle the case of the file not being there better
+	return None
 
 def get_full_name(driver_name):
 	xml = get_mame_xml(driver_name)

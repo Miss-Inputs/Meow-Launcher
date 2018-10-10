@@ -10,7 +10,7 @@ import datetime
 import config
 import launchers
 from info import emulator_command_lines
-from mame_helpers import get_mame_xml, get_full_name
+from mame_helpers import get_mame_xml, get_full_name, get_mame_ui_config
 from mame_metadata import add_metadata
 from metadata import Metadata
 
@@ -18,29 +18,14 @@ debug = '--debug' in sys.argv
 print_times = '--print-times' in sys.argv
 
 icon_line_regex = re.compile(r'^icons_directory\s+(.+)$')
-def get_icon_directories():
-	ui_config_path = os.path.expanduser('~/.mame/ui.ini')
-	if not os.path.isfile(ui_config_path):
-		return None
-
-	with open(ui_config_path, 'rt') as ui_config:
-		for line in ui_config.readlines():
-			icon_line_match = icon_line_regex.match(line)
-			if icon_line_match:
-				#I ain't about that relative path life fam
-				return [dir for dir in icon_line_match[1].split(';') if dir.startswith('/')]
-
-	return None
-
-icon_directories = get_icon_directories()
 
 def load_icons():
 	d = {}
-	for icon_directory in icon_directories:
+	for icon_directory in get_mame_ui_config().settings['icons_directory']:
 		if os.path.isdir(icon_directory):
 			for icon_file in os.listdir(icon_directory):
 				name, ext = os.path.splitext(icon_file)
-				if ext == '.ico':
+				if ext == '.ico': #Perhaps should have other formats?
 					d[name] = os.path.join(icon_directory, icon_file)
 
 	return d
