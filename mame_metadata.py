@@ -160,14 +160,14 @@ arcade_systems = {
 	'sigmab98': 'Sigma B-98',
 	'simpl156': 'Deco 156',
 	'stv': 'ST-V', #Based on Saturn
-	'suprnova': 'Super Kaneko Nova System',
+	'suprnova': 'Kaneko Super Nova System',
 	'taito_b': 'Taito B System',
-	'taito_f2': 'Taito F2 System',
-	'taito_f3': 'Taito F3 System',
+	'taito_f2': 'Taito F2',
+	'taito_f3': 'Taito F3',
 	'taitogn': 'Taito G-NET',
 	'taito_h': 'Taito H System',
 	'taito_l': 'Taito L-System',
-	'taitosj': 'Taito SJ System',
+	'taitosj': 'Taito SJ',
 	'taitowlf': 'Taito Wolf', #3Dfx (Pentium) based
 	'taito_x': 'Taito X-System',
 	'taito_z': 'Taito Z System',
