@@ -80,6 +80,7 @@ extra_subfolders = {
 	'By TV type': 'X-TV-Type',
 	'By extension': 'X-Extension',
 	'By media type': 'X-Media-Type',
+	'By arcade system': 'X-Arcade-System',
 	'Is mechanical': 'X-Is-Mechanical',
 	'Has icon': 'Icon',
 	'Has force feedback': 'X-Force-Feedback',
