@@ -76,38 +76,35 @@ def get_language(basename):
 	return get_language_by_english_name(lang)
 
 arcade_systems = {
-	'3do': '3DO', #Used for the 3DO console as well, but there are 3DO-based arcade games which are just called that
+	'3do': '3DO', #Used for the 3DO console as well, but there are 3DO-based arcade games which are just called that; non-working
 	'aleck64': 'Aleck64', #Based on N64
-	'alg': 'American Laser Games Hardware', #Amiga 500 based (w/ laserdisc player)
-	'alien': 'Capcom Medalusion',
+	'alien': 'Capcom Medalusion', #Non-working
+	'astrocde': 'Astrocade', #The home console used the same hardware, I can't remember the names of all the different things
 	'atarigx2': 'Atari GX2',
 	'atarisy1': 'Atari System 1',
 	'atarisy2': 'Atari System 2',
 	'balsente': 'Bally/Sente SAC-1',
-	'cave': 'Cave Hardware',
-	'chihiro': 'Chihiro', #Based on Xbox
-	'cinemat': 'Cinematronics Vector Hardware',
+	'chihiro': 'Chihiro', #Based on Xbox, seemingly non-working
 	'cps1': 'CPS-1',
 	'cps2': 'CPS-2',
 	'cps3': 'CPS-3',
 	'crystal': 'Brezzasoft Crystal System',
 	'cubo': 'Cubo CD32', #Amiga CD32 + JAMMA
+	'cvs': 'Century CVS System',
 	'decocass': 'Deco Casette',
 	'dgpix': 'dgPIX VRender0',
-	'ettrivia': 'Enerdyne Technologies Trivia',
 	'exidy440': 'Exidy 440',
 	'expro02': 'Kaneko EXPRO-02',
 	'fuukifg2': 'Fuuki FG-2',
 	'fuukifg3': 'Fuuki FG-3',
-	'gottlieb': 'Gottlieb Hardware',
-	'hikaru': 'Hikaru', #Based on Dreamcast
-	'hng64': 'Hyper Neo Geo 64',
+	'hikaru': 'Hikaru', #Based on Dreamcast, non-working
+	'hng64': 'Hyper Neo Geo 64', #Barely working
 	'hornet': 'Konami Hornet',
 	'jaguar': 'CoJag', #This is the same source file used for the Jaguar console too
 	'konamigq': 'Konami GQ', #Based on PS1
 	'konamigv': 'Konami GV', #Based on PS1
 	'konamigx': 'Konami GX',
-	'konamim2': 'Konami M2', #Based on unreleased Panasonic M2
+	'konamim2': 'Konami M2', #Based on unreleased Panasonic M2, non-working
 	'ksys573': 'Konami System 573', #Based on PS1
 	'm52': 'Irem M52',
 	'm58': 'Irem M58',
@@ -120,15 +117,16 @@ arcade_systems = {
 	'mcr68': 'Midway MCR-68k',
 	'meadows': 'Meadows S2650',
 	'mediagx': 'Atari Media GX', #Based on Cyrix multimedia PC
+	'megadriv_acbl': 'Mega Drive Bootleg', #Mega Drive based ofc
 	'megasys1': 'Jaleco Mega System 1',
-	'midqslvr': 'Midway Quicksilver',
+	'midqslvr': 'Midway Quicksilver', #Non-working
 	'midtunit': 'Midway T-Unit',
 	'midvunit': 'Midway V-Unit',
 	'midwunit': 'Midway W-Unit',
 	'midyunit': 'Midway Y-Unit',
 	'midzeus': 'Midway Zeus',
-	'model2': 'Sega Model 2',
-	'model3': 'Sega Model 3',
+	'model2': 'Sega Model 2', #Barely working
+	'model3': 'Sega Model 3', #Non-working
 	'ms32': 'Jaleco Mega System 32',
 	'namconb1': 'Namco System NB-1',
 	'namcond1': 'Namco System ND-1',
@@ -139,10 +137,12 @@ arcade_systems = {
 	'namcos2': 'Namco System 2',
 	'namcos22': 'Namco System 22',
 	'namcos23': 'Namco System 23',
-	'naomi': 'Naomi', #Based on Dreamcast. romof="awbios" == Atomiswave
+	'naomi': 'Naomi', #Based on Dreamcast. romof="awbios" == Atomiswave; not entirely working
 	'neogeo': 'Neo-Geo',
 	'pgm': 'PolyGame Master',
 	'photon': 'Photon System', #PK8000 based (Russian PC that was supposed to be MSX1 compatible)
+	'photon2': 'Photon IK-3', #Leningrad-1 based (Russian ZX Spectrum clone)
+	'psikyo4': 'Psikyo PS4',
 	'seattle': 'Midway Seattle',
 	'segac2': 'System C2', #Based on Megadrive kinda
 	'segae': 'System E', #Based on SMS kinda
@@ -156,9 +156,11 @@ arcade_systems = {
 	'segasp': 'Sega System SP', #Dreamcast based, for medal games
 	'segaxbd': 'Sega X-Board',
 	'segaybd': 'Sega Y-Board',
+	'sfcbox': 'Super Famicom Box', #Arcadified SNES sorta
 	'snesb': 'SNES Bootleg', #SNES based, natch
 	'sigmab98': 'Sigma B-98',
 	'simpl156': 'Deco 156',
+	'ssv': 'SSV', #Sammy Seta Visco
 	'stv': 'ST-V', #Based on Saturn
 	'suprnova': 'Kaneko Super Nova System',
 	'taito_b': 'Taito B System',
@@ -172,12 +174,39 @@ arcade_systems = {
 	'taito_x': 'Taito X-System',
 	'taito_z': 'Taito Z System',
 	'triforce': 'Triforce', #GameCube based
-	'vegas': 'Midway Vegas',
+	'vegas': 'Midway Vegas', #Barely working
 	'vicdual': 'VIC Dual',
 	'viper': 'Konami Viper', #3Dfx (PPC) based
 	'vsnes': 'VS Unisystem',
 	'williams': 'Williams 6809',
 	'zr107': 'Konami ZR701',
+
+	#Arcade platforms that don't have a name or anything, but companies consistently use them
+	'cave': 'Cave Hardware',
+	'alg': 'American Laser Games Hardware', #Amiga 500 based (w/ laserdisc player)
+	'cinemat': 'Cinematronics Vector Hardware',
+	'ettrivia': 'Enerdyne Technologies Trivia',
+	'gameplan': 'Game Plan Hardware',
+	'gei': 'Greyhound Electronics Hardware',
+	'gottlieb': 'Gottlieb Hardware',
+	'homedata': 'Home Data Hardware',
+	'leland': 'Leland Hardware',
+
+	#Arcade platforms that don't really have a name except a game that uses them; I try not to fill this up with every single remaining source file, just where it's notable for having other games on it
+	'ambush': 'Ambush Hardware',
+	'armedf': 'Armed Formation Hardware',
+	'battlera': 'Battle Rangers', #PC Engine based
+	'btime': 'BurgerTime Hardware',
+	'cclimber': 'Crazy Climber Hardware',
+	'dkong': 'Donkey Kong Hardware',
+	'ertictac': 'Erotictac Hardware', #Acorn Archimedes based
+	'fcrash': 'Final Crash Hardware', #Bootleg of Final Fight; this is used for other bootlegs too
+	'galaxian': 'Galaxian Hardware', #Was used for a lot of games and bootlegs, actually; seems that Moon Cresta hardware has the same source file
+	'galaxold': 'Galaxian Hardware', #There's a comment in that source file saying it'll be merged into galaxian eventually; seems that this one has all the bootlegs etc
+	'liberate': 'Liberation Hardware',
+	'nemesis': 'Nemesis Hardware',
+	'pacman': 'Pac-Man Hardware',
+	'scramble': 'Scramble Hardware', #Apparently also to be merged into galaxian
 }
 
 def add_machine_platform(machine):
