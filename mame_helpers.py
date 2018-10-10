@@ -1,6 +1,5 @@
 import subprocess
 import xml.etree.ElementTree as ElementTree
-import os
 
 from metadata import CPUInfo, ScreenInfo
 
@@ -140,19 +139,6 @@ def consistentify_manufacturer(manufacturer):
 		'Take Two Interactive': 'Take-Two Interactive',
 		'VAP': 'Vap',
 	}.get(manufacturer, manufacturer)
-
-def get_software_lists_by_names(names):
-	if not names:
-		return []
-	return [software_list for software_list in [get_software_list_by_name(name) for name in names] if software_list]
-
-def get_software_list_by_name(name):
-	hash_path = '/usr/lib/mame/hash'
-	#TODO: Get this from MAME config instead
-	list_path = os.path.join(hash_path, name + '.xml')
-	if not os.path.isfile(list_path):
-		return None
-	return ElementTree.parse(list_path)
 
 def get_full_name(driver_name):
 	xml = get_mame_xml(driver_name)

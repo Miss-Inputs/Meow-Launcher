@@ -1,10 +1,12 @@
 import zlib
 import calendar
+import xml.etree.ElementTree as ElementTree
+import os
 
 from metadata import EmulationStatus
 from info.system_info import get_mame_software_list_names_by_system_name
 from info.region_info import TVSystem
-from mame_helpers import get_software_lists_by_names, consistentify_manufacturer
+from mame_helpers import consistentify_manufacturer
 
 #TODO: Ideally, every platform wants to be able to get software list info. If available, it will always be preferred over what we can extract from inside the ROMs, as it's more reliable, and avoids the problem of bootlegs/hacks with invalid/missing header data, or publisher/developers that merge and change names and whatnot.
 #We currently do this by putting a block of code inside each platform_metadata helper that does the same thing. I guess I should genericize that one day. Anyway, it's not always possible.
@@ -212,19 +214,51 @@ def _does_part_match(part, crc, sha1):
 
 	return False
 
-def find_in_sofware_list(software_list, crc=None, sha1=None, part_matcher=_does_part_match):
-	for software in software_list.findall('software'):
-		for part in software.findall('part'):
-			#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
-			#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
-			if part_matcher(part, crc, sha1):
-				return Software(software, software_list.getroot().attrib.get('name'), software_list.getroot().attrib.get('description'))
-	return None
+class SoftwareList():
+	def __init__(self, path):
+		self.xml = ElementTree.parse(path)
+
+	@property
+	def name(self):
+		return self.xml.getroot().attrib.get('name')
+
+	@property
+	def description(self):
+		return self.xml.getroot().attrib.get('description')
+
+	def get_software(self, name):
+		for software in self.xml.findall('software'):
+			if software.attrib.get('name') == name:
+				return Software(software, self.name, self.description)
+		return None
+
+	def find_software(self, crc=None, sha1=None, part_matcher=_does_part_match):
+		#TODO: crc and sha1 should have better names, as sometimes they aren't CRCs or SHA1s but just arguments to part_matcher
+		for software in self.xml.findall('software'):
+			for part in software.findall('part'):
+				#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
+				#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
+				if part_matcher(part, crc, sha1):
+					return Software(software, self.name, self.description)
+		return None
+
+def get_software_lists_by_names(names):
+	if not names:
+		return []
+	return [software_list for software_list in [get_software_list_by_name(name) for name in names] if software_list]
+
+def get_software_list_by_name(name):
+	hash_path = '/usr/lib/mame/hash'
+	#TODO: Get this from MAME config instead
+	list_path = os.path.join(hash_path, name + '.xml')
+	if not os.path.isfile(list_path):
+		return None
+	return SoftwareList(list_path)
 
 def find_in_software_lists(software_lists, crc=None, sha1=None, part_matcher=_does_part_match):
 	#TODO: Handle hash collisions. Could happen, even if we're narrowing down to specific software lists
 	for software_list in software_lists:
-		software = find_in_sofware_list(software_list, crc, sha1, part_matcher)
+		software = software_list.find_software(crc, sha1, part_matcher)
 		if software:
 			return software
 	return None

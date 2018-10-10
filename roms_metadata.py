@@ -4,7 +4,8 @@ import os
 
 import region_detect
 import platform_metadata
-from mame_helpers import lookup_system_cpu, lookup_system_displays, get_mame_xml, get_software_lists_by_names
+from mame_helpers import lookup_system_cpu, lookup_system_displays, get_mame_xml
+from software_list_info import get_software_lists_by_names
 from info import system_info
 
 date_regex = re.compile(r'\((?P<year>[x\d]{4})\)|\((?P<year2>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})\)|\((?P<day2>\d{2})\.(?P<month2>\d{2})\.(?P<year3>\d{4})\)')
