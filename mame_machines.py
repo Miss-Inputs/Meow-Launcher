@@ -62,15 +62,25 @@ class Machine():
 	def source_file(self):
 		return os.path.splitext(self.xml.attrib['sourcefile'])[0]
 
+	@property
+	def icon(self):
+		if not icons:
+			return None
+
+		basename_icon = icons.get(self.basename)
+		if basename_icon:
+			return basename_icon
+
+		family_icon = icons.get(self.family)
+		if family_icon:
+			return family_icon
+
+		return None
+
 	def make_launcher(self):
-		icon = None
-		if icons:
-			icon = icons.get(self.basename)
-			if not icon:
-				icon = icons.get(self.family)
 
 		command_line = emulator_command_lines.mame_command_line(self.basename)
-		launchers.make_launcher(command_line, self.name, self.metadata, {'Type': 'MAME machine', 'Unique-ID': self.basename}, icon)
+		launchers.make_launcher(command_line, self.name, self.metadata, {'Type': 'MAME machine', 'Unique-ID': self.basename}, self.icon)
 
 	@property
 	def is_mechanical(self):
