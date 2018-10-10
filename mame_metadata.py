@@ -8,7 +8,7 @@ from info.system_info import MediaType
 from metadata import EmulationStatus, CPUInfo, ScreenInfo, SaveType
 from region_detect import get_language_by_english_name, get_regions_from_filename_tags
 from common import find_filename_tags
-from mame_helpers import find_main_cpu, consistentify_manufacturer
+from mame_helpers import find_main_cpu, consistentify_manufacturer, get_mame_xml
 
 debug = '--debug' in sys.argv
 
@@ -254,8 +254,6 @@ def add_machine_platform(machine):
 #Fatal Fury 2, Fatal Fury Special, Fatal Fury 3, and The Last Blade apparently only save in Japanese or something? That might be something to be aware of
 #Also shocktro has a set 2 (shocktroa), and shocktr2 has a bootleg (lans2004), so I should look into if those clones don't save either. They probably don't, though, and it's probably best to expect that something doesn't save and just playing it like any other arcade game, rather than thinking it does and then finding out the hard way that it doesn't. I mean, you could always use savestates, I guess. If those are supported. Might not be. That's another story.
 not_actually_save_supported = ['neobombe', 'pbobbl2n', 'popbounc', 'shocktro', 'shocktr2', 'irrmaze']
-licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
-licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
 
 def add_save_type(machine):
 	if machine.metadata.platform == 'Arcade':
@@ -270,10 +268,14 @@ def add_save_type(machine):
 		machine.metadata.save_type = SaveType.MemoryCard if has_memory_card and (machine.family not in not_actually_save_supported) else SaveType.Nothing
 		#TODO: Some machines that aren't arcade systems might plausibly have something describable as SaveType.Cart or SaveType.Internal... anyway, I guess I'll burn that bridge when I see it
 
+licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
+licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
+hack_regex = re.compile(r'^hack \((.+)\)$')
 def add_manufacturer(machine):
 	manufacturer = machine.xml.findtext('manufacturer')
 	license_match = licensed_arcade_game_regex.fullmatch(manufacturer)
 	licensed_from_match = licensed_from_regex.fullmatch(manufacturer)
+	hack_match = hack_regex.fullmatch(manufacturer)
 	if license_match:
 		developer = license_match[1]
 		publisher = license_match[2]
@@ -285,9 +287,18 @@ def add_manufacturer(machine):
 		if not manufacturer.startswith(('bootleg', 'hack')):
 			#TODO: Not always correct in cases where manufacturer is formatted as "Developer / Publisher", but then it never was correct, so it's just less not correct, which is fine
 			developer = manufacturer
+			publisher = manufacturer
+		elif machine.parent:
+			parent_xml = get_mame_xml(machine.parent)
+			if hack_match:
+				machine.metadata.specific_info['Hacked-By'] = hack_match[1]
+			#TODO: What if the parent is blah (bleh license) etc
+			parent_manufacturer = parent_xml.find('machine').findtext('manufacturer')
+			developer = parent_manufacturer
+			publisher = parent_manufacturer
 		else:
-			developer = None #It'd be the original not-bootleg game's developer but we can't get that programmatically
-		publisher = manufacturer
+			developer = None #It'd be the original not-bootleg game's developer but we can't get that programmatically without a parent etc
+			publisher = manufacturer
 	machine.metadata.developer = consistentify_manufacturer(developer)
 	machine.metadata.publisher = consistentify_manufacturer(publisher)
 

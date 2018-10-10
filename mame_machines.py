@@ -55,6 +55,10 @@ class Machine():
 		return self.xml.attrib['name']
 
 	@property
+	def parent(self):
+		return self.xml.attrib.get('cloneof')
+
+	@property
 	def family(self):
 		return self.xml.attrib.get('cloneof', self.basename)
 
