@@ -1,3 +1,8 @@
+[Amiga]
+paths = 
+emulators = 
+default_chipset = AGA
+
 [Amstrad GX4000]
 paths = 
 emulators = 

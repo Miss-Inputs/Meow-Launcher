@@ -454,24 +454,26 @@ def mupen64plus(game, other_config):
 
 	return command_line + ' $<path>'
 
-def fs_uae(game, _):
+def fs_uae(game, other_config):
 	command_line = 'fs-uae --fullscreen'
 	if game.metadata.platform == 'Amiga CD32':
 		command_line += ' --amiga_model=CD32 --joystick_0_mode=%s --cdrom_drive_0=$<path>' % shlex.quote('cd32 gamepad')
 	else:
+		amiga_models = {
+			'OCS': 'A500', #Also A1000 (A2000 also has OCS but doesn't appear to be an option?)
+			'ECS': 'A600', #Also A500+ (A3000 should work, but doesn't seem to be possible)
+			'AGA': 'A4000/040', #Also 1200 (which only has 68EC020 CPU instead of 68040)
+		}
+		#TODO: It would be better if this didn't force specific models, but could look at what ROMs the user has for FS-UAE and determines which models are available that support the given chipset, falling back to backwards compatibility for newer models or throwing EmulationNotSupportedException as necessary
+
 		chipset = game.metadata.specific_info.get('Chipset')
-		if chipset == 'OCS':
-			#TODO: This is forcing specific models, where there would be a few different models that support the given chipset, and maybe the user only has one of those models but not the one we're forcing
-			command_line += ' --amiga_model=A500'
-			#A1000 would also work, Amiga 2000 also has OCS but it's not one of the options
-		elif chipset == 'ECS':
-			#A500+ and A600, also A3000 but that seems to not have a Kickstart ROM that exists
-			command_line += ' --amiga_model=A600'
-		else:
-			#AGA: 1200 or 4000 (the latter has a 68040 processor instead of 68EC020)
-			#We'll also use this to run any software where we don't know what model it was designed for, because it would only not work if the software uses OCS or ECS specific tricks, should be backwards compatible in theory
-			#Anyway, a lot of stuff is going to be in .adf format and because all we can really do to detect the chipset is look at the MAME software lists, it'll only detect .ipf stuff anyway
-			command_line += ' --amiga_model=A4000/040'
+		if not chipset:
+			#AGA is the default default if there's no default, because we should probably have one
+			chipset = other_config.get('default_chipset', 'AGA')
+
+		if chipset in amiga_models:
+			command_line += ' --amiga_model=%s' % amiga_models[chipset]
+
 		#Hmm... there is also --cpu=68060 which some demoscene productions use so maybe I should look into that...
 		command_line += ' --floppy_drive_0=$<path>'
 	if game.metadata.tv_type == TVSystem.NTSC:
