@@ -80,17 +80,19 @@ class SoftwarePart():
 
 		return False
 
-
 class Software():
-	def __init__(self, xml, software_list_name=None, software_list_description=None):
+	def __init__(self, xml, software_list):
 		self.xml = xml
-		self.software_list_name = software_list_name
-		self.software_list_description = software_list_description
+		self.software_list = software_list
 
 		self.parts = {}
 		for part_xml in self.xml.findall('part'):
 			part = SoftwarePart(part_xml)
 			self.parts[part.name] = part
+
+	@property
+	def software_list_name(self):
+		return self.software_list.name
 
 	@property
 	def has_multiple_parts(self):
@@ -151,10 +153,8 @@ class Software():
 		if cloneof:
 			game.metadata.specific_info['MAME-Software-Parent'] = cloneof
 
-		if self.software_list_name:
-			game.metadata.specific_info['MAME-Software-List-Name'] = self.software_list_name
-		if self.software_list_description:
-			game.metadata.specific_info['MAME-Software-List-Description'] = self.software_list_description
+		game.metadata.specific_info['MAME-Software-List-Name'] = self.software_list.name
+		game.metadata.specific_info['MAME-Software-List-Description'] = self.software_list.description
 
 		publisher = consistentify_manufacturer(self.xml.findtext('publisher'))
 		already_has_publisher = game.metadata.publisher and (not game.metadata.publisher.startswith('<unknown'))
@@ -257,7 +257,7 @@ class SoftwareList():
 	def get_software(self, name):
 		for software in self.xml.findall('software'):
 			if software.attrib.get('name') == name:
-				return Software(software, self.name, self.description)
+				return Software(software, self)
 		return None
 
 	def find_software(self, crc=None, sha1=None, part_matcher=_does_part_match):
@@ -267,7 +267,7 @@ class SoftwareList():
 				#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
 				#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
 				if part_matcher(part, crc, sha1):
-					return Software(software, self.name, self.description)
+					return Software(software, self)
 		return None
 
 def get_software_lists_by_names(names):
