@@ -35,8 +35,9 @@ from mame_helpers import consistentify_manufacturer, get_mame_config
 #ZX Spectrum: All +3 software in MAME is in .ipf format, which seems hardly ever used in all honesty (.z80 files don't have a software list)
 
 class DataArea():
-	def __init__(self, xml):
+	def __init__(self, xml, part):
 		self.xml = xml
+		self.part = part
 
 	@property
 	def name(self):
@@ -50,12 +51,13 @@ class DataArea():
 		return int(size_attr, 16 if size_attr.startswith('0x') else 10)
 
 class SoftwarePart():
-	def __init__(self, xml):
+	def __init__(self, xml, software):
 		self.xml = xml
+		self.software = software
 		self.data_areas = {}
 
 		for data_area_xml in self.xml.findall('dataarea'):
-			data_area = DataArea(data_area_xml)
+			data_area = DataArea(data_area_xml, self)
 			self.data_areas[data_area.name] = data_area
 
 	@property
@@ -79,7 +81,7 @@ class Software():
 
 		self.parts = {}
 		for part_xml in self.xml.findall('part'):
-			part = SoftwarePart(part_xml)
+			part = SoftwarePart(part_xml, self)
 			self.parts[part.name] = part
 
 	@property
@@ -93,7 +95,7 @@ class Software():
 	def get_part(self, name=None):
 		if name:
 			return self.parts[name]
-		return SoftwarePart(self.xml.find('part'))
+		return SoftwarePart(self.xml.find('part'), self)
 
 	def get_info(self, name):
 		for info in self.xml.findall('info'):
