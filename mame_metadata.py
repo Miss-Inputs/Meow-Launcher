@@ -290,7 +290,7 @@ def add_manufacturer(machine):
 			#TODO: Not always correct in cases where manufacturer is formatted as "Developer / Publisher", but then it never was correct, so it's just less not correct, which is fine
 			developer = manufacturer
 			publisher = manufacturer
-		elif machine.parent:
+		elif machine.has_parent:
 			if hack_match:
 				machine.metadata.specific_info['Hacked-By'] = hack_match[1]
 			#TODO: What if the parent is blah (bleh license) etc
