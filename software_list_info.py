@@ -34,33 +34,29 @@ from mame_helpers import consistentify_manufacturer, get_mame_config
 #VZ-200: .vz doesn't have a software list
 #ZX Spectrum: All +3 software in MAME is in .ipf format, which seems hardly ever used in all honesty (.z80 files don't have a software list)
 
-def parse_release_date(game, release_info):
-	if not release_info:
-		return
-	if len(release_info) != 8:
-		return
+class DataArea():
+	def __init__(self, xml):
+		self.xml = xml
 
-	#TODO: Support dates containing "x", but ehh...
-	year = release_info[0:4]
-	month = release_info[4:6]
-	day = release_info[6:8]
+	@property
+	def name(self):
+		return self.xml.attrib.get('name')
 
-	try:
-		game.metadata.year = int(year)
-	except ValueError:
-		pass
-	try:
-		game.metadata.month = calendar.month_name[int(month)]
-	except (ValueError, IndexError):
-		pass
-	try:
-		game.metadata.day = int(day)
-	except ValueError:
-		pass
+	@property
+	def size(self):
+		size_attr = self.xml.attrib.get('size')
+		if not size_attr:
+			return None
+		return int(size_attr, 16 if size_attr.startswith('0x') else 10)
 
 class SoftwarePart():
 	def __init__(self, xml):
 		self.xml = xml
+		self.data_areas = {}
+
+		for data_area_xml in self.xml.findall('dataarea'):
+			data_area = DataArea(data_area_xml)
+			self.data_areas[data_area.name] = data_area
 
 	@property
 	def name(self):
@@ -74,11 +70,7 @@ class SoftwarePart():
 		return None
 
 	def has_data_area(self, name):
-		for data_area in self.xml.findall('dataarea'):
-			if data_area.attrib.get('name') == name:
-				return True
-
-		return False
+		return name in self.data_areas
 
 class Software():
 	def __init__(self, xml, software_list):
@@ -100,7 +92,6 @@ class Software():
 
 	def get_part(self, name=None):
 		if name:
-			#return [part for part in self.xml.findall('part') if part.attrib.get('name') == name][0]
 			return self.parts[name]
 		return SoftwarePart(self.xml.find('part'))
 
@@ -127,6 +118,7 @@ class Software():
 		return part.get_feature(name)
 
 	def has_data_area(self, name, part_name=None):
+		#Should use part.has_data_area instead, or arguably name in part.data_areas
 		if part_name:
 			part = self.parts[part_name]
 		else:
@@ -191,31 +183,27 @@ def _does_rom_match(rom, crc, sha1):
 
 def _does_split_rom_match(part, data, _):
 	rom_data_area = None
-	for data_area in part.findall('dataarea'):
-		if data_area.attrib.get('name') == 'rom':
+	for data_area in part.data_areas.values():
+		if data_area.name == 'rom':
 			rom_data_area = data_area
 			break
 	if not rom_data_area:
 		return False
 
-	try:
-		rom_size = int(rom_data_area.attrib.get('size', '0'))
-	except ValueError:
-		return False
-	if rom_size != len(data):
+	if rom_data_area.size != len(data):
 		return False
 
-	for rom_part in rom_data_area.findall('rom'):
-		if 'name' not in rom_part.attrib and 'crc' not in rom_part.attrib:
+	for rom_segment in rom_data_area.xml.findall('rom'):
+		if 'name' not in rom_segment.attrib and 'crc' not in rom_segment.attrib:
 			continue
 
 		try:
-			offset = int(rom_part.attrib.get('offset', 0), 16)
+			offset = int(rom_segment.attrib.get('offset', 0), 16)
 		except ValueError:
 			return False
 
 		try:
-			size = int(rom_part.attrib.get('size', 0))
+			size = int(rom_segment.attrib.get('size', 0))
 		except ValueError:
 			return False
 
@@ -224,14 +212,14 @@ def _does_split_rom_match(part, data, _):
 		except IndexError:
 			return False
 		chunk_crc32 = '{:08x}'.format(zlib.crc32(chunk))
-		if rom_part.attrib['crc'] != chunk_crc32:
+		if rom_segment.attrib['crc'] != chunk_crc32:
 			return False
 
 	return True
 
 def _does_part_match(part, crc, sha1):
-	for data_area in part.findall('dataarea'):
-		roms = data_area.findall('rom')
+	for data_area in part.data_areas.values():
+		roms = data_area.xml.findall('rom')
 		if not roms:
 			#Ignore data areas such as "sram" that don't have any ROMs associated with them.
 			#Note that data area's name attribute can be anything like "rom" or "flop" depending on the kind of media, but the element inside will always be called "rom"
@@ -262,12 +250,13 @@ class SoftwareList():
 
 	def find_software(self, crc=None, sha1=None, part_matcher=_does_part_match):
 		#TODO: crc and sha1 should have better names, as sometimes they aren't CRCs or SHA1s but just arguments to part_matcher
-		for software in self.xml.findall('software'):
-			for part in software.findall('part'):
+		for software_xml in self.xml.findall('software'):
+			software = Software(software_xml, self)
+			for part in software.parts.values():
 				#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
 				#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
 				if part_matcher(part, crc, sha1):
-					return Software(software, self)
+					return software
 		return None
 
 def get_software_lists_by_names(names):
@@ -314,3 +303,27 @@ def get_software_list_entry(game, skip_header=0):
 
 def get_crc32_for_software_list(data):
 	return '{:08x}'.format(zlib.crc32(data))
+
+def parse_release_date(game, release_info):
+	if not release_info:
+		return
+	if len(release_info) != 8:
+		return
+
+	#TODO: Support dates containing "x", but ehh...
+	year = release_info[0:4]
+	month = release_info[4:6]
+	day = release_info[6:8]
+
+	try:
+		game.metadata.year = int(year)
+	except ValueError:
+		pass
+	try:
+		game.metadata.month = calendar.month_name[int(month)]
+	except (ValueError, IndexError):
+		pass
+	try:
+		game.metadata.day = int(day)
+	except ValueError:
+		pass

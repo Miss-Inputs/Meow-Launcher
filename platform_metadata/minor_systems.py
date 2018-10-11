@@ -402,19 +402,12 @@ def _does_intellivision_part_match(part, data, _):
 	number_of_roms = 0
 
 	offset = 0
-	for data_area in part.findall('dataarea'):
-		size = 0
-		crc = ''
-
+	for data_area in part.data_areas.values():
 		#'name' attribute here is actually where in the Intellivision memory map it gets loaded to, not the offset in the file like I keep thinking
 
-		try:
-			size_attrib = data_area.attrib.get('size')
-			size = int(size_attrib, 16 if size_attrib.startswith('0x') else 10)
-		except ValueError:
-			continue
+		size = data_area.size
 
-		rom = data_area.find('rom')
+		rom = data_area.xml.find('rom')
 		if rom is None:
 			continue
 		number_of_roms += 1

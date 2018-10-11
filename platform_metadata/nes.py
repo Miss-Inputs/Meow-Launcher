@@ -265,16 +265,16 @@ def _does_nes_rom_match(part, crcs, _):
 	prg_crc = crcs[0]
 	chr_crc = crcs[1]
 
-	prg_part = [data_area for data_area in part.findall('dataarea') if data_area.attrib.get('name') == 'prg']
-	chr_part = [data_area for data_area in part.findall('dataarea') if data_area.attrib.get('name') == 'chr']
+	prg_part = part.data_areas.get('prg')
+	chr_part = part.data_areas.get('chr')
 
 	if prg_part:
-		prg_matches = prg_part[0].find('rom').attrib.get('crc', '<junk>') == prg_crc
+		prg_matches = prg_part.xml.find('rom').attrib.get('crc', '<junk>') == prg_crc
 	else:
-		prg_matches = False
+		prg_matches = False #prg_crc is None?
 
 	if chr_part:
-		chr_matches = chr_part[0].find('rom').attrib.get('crc', '<junk>') == chr_crc
+		chr_matches = chr_part.xml.find('rom').attrib.get('crc', '<junk>') == chr_crc
 	else:
 		chr_matches = chr_crc is None
 
