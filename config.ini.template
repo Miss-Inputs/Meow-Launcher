@@ -17,3 +17,4 @@ catlist_path =
 languages_path = 
 #Separated by ;
 skipped_source_files = 
+memcard_path = 

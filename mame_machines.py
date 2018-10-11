@@ -6,13 +6,14 @@ import sys
 import re
 import time
 import datetime
+import shlex
 
 import config
 import launchers
 from info import emulator_command_lines
 from mame_helpers import get_mame_xml, get_full_name, get_mame_ui_config
 from mame_metadata import add_metadata
-from metadata import Metadata
+from metadata import Metadata, SaveType
 
 debug = '--debug' in sys.argv
 print_times = '--print-times' in sys.argv
@@ -87,7 +88,13 @@ class Machine():
 		return None
 
 	def make_launcher(self):
-		command_line = emulator_command_lines.mame_command_line(self.basename)
+		slot_options = {}
+		if self.metadata.save_type == SaveType.MemoryCard and self.source_file == 'neogeo' and config.memcard_path:
+			memory_card_path = os.path.join(config.memcard_path, self.basename + '.neo')
+			if os.path.isfile(memory_card_path):
+				slot_options['memc'] = shlex.quote(memory_card_path)
+
+		command_line = emulator_command_lines.mame_command_line(self.basename, slot_options=slot_options)
 		launchers.make_launcher(command_line, self.name, self.metadata, {'Type': 'MAME machine', 'Unique-ID': self.basename}, self.icon)
 
 	@property

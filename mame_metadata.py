@@ -265,7 +265,9 @@ def add_save_type(machine):
 			if instance.attrib['name'] == 'memcard':
 				has_memory_card = True
 
-		machine.metadata.save_type = SaveType.MemoryCard if has_memory_card and (machine.family not in not_actually_save_supported) else SaveType.Nothing
+		has_memory_card = has_memory_card and (machine.family not in not_actually_save_supported)
+
+		machine.metadata.save_type = SaveType.MemoryCard if has_memory_card else SaveType.Nothing
 		#TODO: Some machines that aren't arcade systems might plausibly have something describable as SaveType.Cart or SaveType.Internal... anyway, I guess I'll burn that bridge when I see it
 
 licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
