@@ -289,11 +289,11 @@ def add_manufacturer(machine):
 			developer = manufacturer
 			publisher = manufacturer
 		elif machine.parent:
-			parent_xml = get_mame_xml(machine.parent)
 			if hack_match:
 				machine.metadata.specific_info['Hacked-By'] = hack_match[1]
 			#TODO: What if the parent is blah (bleh license) etc
-			parent_manufacturer = parent_xml.find('machine').findtext('manufacturer')
+			#Because with turpins (bootleg clone of turtles) it is ("Konami (Stern Electronics license)")
+			parent_manufacturer = machine.parent.xml.findtext('manufacturer')
 			developer = parent_manufacturer
 			publisher = parent_manufacturer
 		else:

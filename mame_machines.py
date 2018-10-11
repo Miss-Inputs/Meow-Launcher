@@ -50,13 +50,18 @@ class Machine():
 		self.metadata.specific_info['Is-Mechanical'] = self.is_mechanical
 		self.metadata.specific_info['Dispenses-Tickets'] = self.uses_device('ticket_dispenser')
 		self.metadata.specific_info['Coin-Slots'] = self.input_element.attrib.get('coins', 0)
+
 	@property
 	def basename(self):
 		return self.xml.attrib['name']
 
 	@property
 	def parent(self):
-		return self.xml.attrib.get('cloneof')
+		#return self.xml.attrib.get('cloneof')
+		parent_name = self.xml.attrib.get('cloneof')
+		if not parent_name:
+			return None
+		return Machine(get_mame_xml(parent_name).find('machine'))
 
 	@property
 	def family(self):
