@@ -407,16 +407,17 @@ def _does_intellivision_part_match(part, data, _):
 
 		size = data_area.size
 
-		rom = data_area.xml.find('rom')
-		if rom is None:
+		if not data_area.roms:
 			continue
+
+		rom = data_area.roms[0]
 		number_of_roms += 1
 		total_size += size
 
-		crc = rom.attrib.get('crc')
+		crc32 = rom.crc32
 		segment = data[offset: offset + size]
-		segment_crc = get_crc32_for_software_list(segment)
-		if segment_crc != crc:
+		segment_crc32 = get_crc32_for_software_list(segment)
+		if segment_crc32 != crc32:
 			return False
 
 		offset += size

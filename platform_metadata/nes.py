@@ -269,12 +269,13 @@ def _does_nes_rom_match(part, crcs, _):
 	chr_part = part.data_areas.get('chr')
 
 	if prg_part:
-		prg_matches = prg_part.xml.find('rom').attrib.get('crc', '<junk>') == prg_crc
+		#(There is only one ROM, or at least I hope so, otherwise I'd look silly)
+		prg_matches = prg_part.roms[0].crc32 is not None and prg_part.roms[0].crc32 == prg_crc
 	else:
 		prg_matches = False #prg_crc is None?
 
 	if chr_part:
-		chr_matches = chr_part.xml.find('rom').attrib.get('crc', '<junk>') == chr_crc
+		chr_matches = chr_part.roms[0].crc32 is not None and chr_part.roms[0].crc32 == chr_crc
 	else:
 		chr_matches = chr_crc is None
 

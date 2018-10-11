@@ -34,10 +34,15 @@ from mame_helpers import consistentify_manufacturer, get_mame_config
 #VZ-200: .vz doesn't have a software list
 #ZX Spectrum: All +3 software in MAME is in .ipf format, which seems hardly ever used in all honesty (.z80 files don't have a software list)
 
-class DataArea():
-	def __init__(self, xml, part):
+def parse_size_attribute(attrib):
+	if not attrib:
+		return None
+	return int(attrib, 16 if attrib.startswith('0x') else 10)
+
+class DataAreaROM():
+	def __init__(self, xml, data_area):
 		self.xml = xml
-		self.part = part
+		self.data_area = data_area
 
 	@property
 	def name(self):
@@ -45,10 +50,36 @@ class DataArea():
 
 	@property
 	def size(self):
-		size_attr = self.xml.attrib.get('size')
-		if not size_attr:
-			return None
-		return int(size_attr, 16 if size_attr.startswith('0x') else 10)
+		return parse_size_attribute(self.xml.attrib.get('size'))
+
+	@property
+	def crc32(self):
+		return self.xml.attrib.get('crc')
+
+	@property
+	def sha1(self):
+		return self.xml.attrib.get('sha1')
+
+	@property
+	def offset(self):
+		return parse_size_attribute(self.xml.attrib.get('offset'))
+
+class DataArea():
+	def __init__(self, xml, part):
+		self.xml = xml
+		self.part = part
+		self.roms = []
+
+		for rom_xml in self.xml.findall('rom'):
+			self.roms.append(DataAreaROM(rom_xml, self))
+
+	@property
+	def name(self):
+		return self.xml.attrib.get('name')
+
+	@property
+	def size(self):
+		return parse_size_attribute(self.xml.attrib.get('size'))
 
 class SoftwarePart():
 	def __init__(self, xml, software):
@@ -72,6 +103,7 @@ class SoftwarePart():
 		return None
 
 	def has_data_area(self, name):
+		#Should probably use name in self.data_areas directly
 		return name in self.data_areas
 
 class Software():
@@ -174,12 +206,12 @@ class Software():
 		if not game.metadata.developer:
 			game.metadata.developer = self.get_info('programmer')
 
-def _does_rom_match(rom, crc, sha1):
+def _does_rom_match(rom, crc32, sha1):
 	if sha1:
-		if 'sha1' in rom.attrib and rom.attrib['sha1'] == sha1:
+		if rom.sha1 == sha1:
 			return True
-	if crc:
-		if 'crc' in rom.attrib and rom.attrib['crc'] == crc:
+	if crc32:
+		if rom.crc32 == crc32:
 			return True
 	return False
 
@@ -195,33 +227,27 @@ def _does_split_rom_match(part, data, _):
 	if rom_data_area.size != len(data):
 		return False
 
-	for rom_segment in rom_data_area.xml.findall('rom'):
-		if 'name' not in rom_segment.attrib and 'crc' not in rom_segment.attrib:
+	for rom_segment in rom_data_area.roms:
+		if not rom_segment.name and not rom_segment.crc32:
+			#TODO: Is there anything that would have SHA-1 but not CRC32?
 			continue
 
-		try:
-			offset = int(rom_segment.attrib.get('offset', 0), 16)
-		except ValueError:
-			return False
-
-		try:
-			size = int(rom_segment.attrib.get('size', 0))
-		except ValueError:
-			return False
+		offset = rom_segment.offset
+		size = rom_segment.size
 
 		try:
 			chunk = data[offset:offset+size]
 		except IndexError:
 			return False
 		chunk_crc32 = '{:08x}'.format(zlib.crc32(chunk))
-		if rom_segment.attrib['crc'] != chunk_crc32:
+		if rom_segment.crc32 != chunk_crc32:
 			return False
 
 	return True
 
 def _does_part_match(part, crc, sha1):
 	for data_area in part.data_areas.values():
-		roms = data_area.xml.findall('rom')
+		roms = data_area.roms
 		if not roms:
 			#Ignore data areas such as "sram" that don't have any ROMs associated with them.
 			#Note that data area's name attribute can be anything like "rom" or "flop" depending on the kind of media, but the element inside will always be called "rom"
