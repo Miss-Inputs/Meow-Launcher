@@ -138,7 +138,10 @@ class Machine():
 
 	@property
 	def bios(self):
-		return self.xml.attrib.get('romof')
+		romof == self.xml.attrib.get('romof')
+		if self.has_parent and romof == self.family:
+			return None
+		return romof
 
 def mame_verifyroms(basename):
 	#FIXME Okay this is way too fuckin' slow
