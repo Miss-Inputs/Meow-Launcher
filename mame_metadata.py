@@ -251,19 +251,24 @@ def add_machine_platform(machine):
 		#Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug &
         #play system
 		return 'Plug & Play', MediaType.Standalone
-#	elif category == 'Misc.':
-#		#Hmm... this creates way too many different platforms, but I just dunno how I feel about a platform being called "Misc""
-#		machine.metadata.platform = machine.metadata.genre
 	elif machine.metadata.genre in ('Electromechanical', 'Slot Machine') and machine.metadata.subgenre == 'Reels':
 		return 'Pokies', MediaType.Standalone
 	elif machine.metadata.genre == 'Electromechanical' and machine.metadata.subgenre == 'Pinball':
 		return 'Pinball', MediaType.Standalone
+	elif category == 'Handheld' and machine.metadata.genre == 'Electronic Game':
+		#Other genres of handheld: Home Videogame Console (these should be separate systems instead but they show up because they don't have software lists: e.g. PocketStation, Gizmondo); Pocket Device - Pad - PDA; Child Computer (e.g. Speak & Spell)
+		return category, MediaType.Standalone
 	elif category == 'Arcade':
+		#Things that might not be arcade: Genre == Utilities (screen tests, etc); genre == Music && subgenre == Jukebox; genre == Misc && subgenre == Print Club (more of a photo booth I guess)
 		return category, MediaType.Standalone
 
+	#This leaves categories like Board Game, Computer, Telephone, Utilities (EEPROM programmers), Music, Misc., Multigame
+	#Misc has a lot of different things in it and I guess catlist just uses it as a catch-all for random things which don't really fit anywhere else and there's not enough to give them their own category, probably
+	#Some things inside Misc that might be of interest to people because they're actual games: Electronic Board Game (Electronic Battleship), Electronic Game (Electronic Soccer, Reversi Sensory Challenger), and then there's V-Dog (prototype) which ends up as "Unknown"; perhaps I could split these off into their own platform
+	#MultiGame tends to have genre of "Compilation" and has things like CoolBoy RS-8 168 in 1 which really should be under Handheld/Plug & Play but oh well
 	return 'Non-Arcade', MediaType.Standalone
 
-#Some games have memory card slots, but they don't actually support saving, it's just that the arcade system board thing they use always has that memory card slot there. So let's not delude ourselves into thinking that games which don't save let you save, because that might result in emotional turmoil.
+#Some games have memory card slots, but they don't actually support saving, it's just t hat the arcade system board thing they use always has that memory card slot there. So let's not delude ourselves into thinking that games which don't save let you save, because that might result in emotional turmoil.
 #Fatal Fury 2, Fatal Fury Special, Fatal Fury 3, and The Last Blade apparently only save in Japanese or something? That might be something to be aware of
 #Also shocktro has a set 2 (shocktroa), and shocktr2 has a bootleg (lans2004), so I should look into if those clones don't save either. They probably don't, though, and it's probably best to expect that something doesn't save and just playing it like any other arcade game, rather than thinking it does and then finding out the hard way that it doesn't. I mean, you could always use savestates, I guess. If those are supported. Might not be. That's another story.
 not_actually_save_supported = ['neobombe', 'pbobbl2n', 'popbounc', 'shocktro', 'shocktr2', 'irrmaze']
