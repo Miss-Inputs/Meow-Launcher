@@ -50,45 +50,37 @@ def delete_existing_output_dir():
 			rmdir_recursive(path)
 			#Only files here, no directories
 
-more_subfolders = {
-	#These subfolders are enabled by an optional argument, because the information is unavailable for all platforms. Otherwise it would be there
-	'By genre': 'X-Genre',
-	'By subgenre': ['X-Genre', 'X-Subgenre'],
-	'By developer': 'X-Developer',
-	'By publisher': 'X-Publisher',
-	'By platform and genre': ['X-Platform', 'X-Genre'],
-	'By platform and year': ['X-Platform', 'X-Year'],
-	'Is NSFW': 'X-NSFW',
-}
-
 extra_subfolders = {
 	#These subfolders are enabled with an optional argument because most people wouldn't have any use for them (or would they? I'm just presuming they're of interest to people like me only)
-	#TODO: Can we at least _try_ and keep this organized
-	'By MAME emulation status': 'X-MAME-Emulation-Status',
-	'By emulator used': 'X-Emulator',
-	'By number of players': 'X-Number-of-Players',
-	'By main CPU': 'X-Main-CPU',
-	'By main CPU and clock speed': ['X-Main-CPU', 'X-Clock-Speed'],
-	'By number of screens': 'X-Number-of-Screens',
-	'By screen type': 'X-Screen-Type',
-	'By MAME source file': 'X-Source-File',
-	'By parent-clone family': 'X-Family',
-	'By mapper': 'X-Mapper',
-	'By save type': 'X-Save-Type',
-	'By extension': 'X-Extension',
-	'By media type': 'X-Media-Type',
-	'By arcade system': 'X-Arcade-System',
-	'Is mechanical': 'X-Is-Mechanical',
-	'Has icon': 'Icon',
-	'Has force feedback': 'X-Force-Feedback',
-	'Has RTC': 'X-Has-RTC',
-	'Has product code': 'X-Product-Code',
-	'Has MAME software': 'X-MAME-Software-Name',
-	'Has unemulated features': 'X-MAME-Unemulated-Features',
-	'Has notes': 'X-Notes',
+	'By emulator used': ('X-Emulator', False),
+	'By number of players': ('X-Number-of-Players', False),
+	'By main CPU': ('X-Main-CPU', False),
+	'By main CPU and clock speed': (['X-Main-CPU', 'X-Clock-Speed'], False),
+	'By number of screens': ('X-Number-of-Screens', False),
+	'By screen type': ('X-Screen-Type', False),
+	'By mapper': ('X-Mapper', False),
+	'By save type': ('X-Save-Type', False),
+	'By extension': ('X-Extension', False),
+	'By media type': ('X-Media-Type', False),
+
+	'By MAME emulation status': ('X-MAME-Emulation-Status', False),
+	'Has MAME software': ('X-MAME-Software-Name', True),
+	'By MAME source file': ('X-Source-File', False),
+
+	#Relevant for MAME machines only
+	'By parent-clone family': ('X-Family', False),
+	'By arcade system': ('X-Arcade-System', False),
+	'Is mechanical': ('X-Is-Mechanical', True),
+	'Has unemulated features': ('X-MAME-Unemulated-Features', True),
+
+	'Has icon': ('Icon', True),
+	'Has force feedback': ('X-Force-Feedback', True),
+	'Has RTC': ('X-Has-RTC', True),
+	'Has product code': ('X-Product-Code', True),
+	'Has notes': ('X-Notes', True),
 }
 
-def move_into_extra_subfolder(path, desktop, subfolder, key):
+def move_into_extra_subfolder(path, desktop, subfolder, key, is_boolean):
 	if isinstance(key, list):
 		values = []
 		for component in key:
@@ -103,7 +95,7 @@ def move_into_extra_subfolder(path, desktop, subfolder, key):
 			return
 		value = sanitize_name(field_value)
 
-	if subfolder.startswith(('Is', 'Has')):
+	if is_boolean:
 		if value != 'False':
 			copy_to_folder(path, config.organized_output_folder, subfolder)
 	else:
@@ -141,9 +133,13 @@ def move_into_subfolders(path):
 
 	copy_to_folder(path, config.organized_output_folder, 'By platform and category', sanitize_name(platform) + ' - ' + sanitize_name(category))
 
-	if '--more-folders' in sys.argv:
-		for k, v in more_subfolders.items():
-			move_into_extra_subfolder(path, desktop, k, v)
+	move_into_extra_subfolder(path, desktop, 'By genre', 'X-Genre', False)
+	move_into_extra_subfolder(path, desktop, 'By subgenre', ['X-Genre', 'X-Subgenre'], False)
+	move_into_extra_subfolder(path, desktop, 'By developer', 'X-Developer', False)
+	move_into_extra_subfolder(path, desktop, 'By publisher', 'X-Publisher', False)
+	move_into_extra_subfolder(path, desktop, 'By platform and genre', ['X-Platform', 'X-Genre'], False)
+	move_into_extra_subfolder(path, desktop, 'By platform and year', ['X-Platform', 'X-Year'], False)
+	move_into_extra_subfolder(path, desktop, 'Is NSFW', 'X-NSFW', True)
 
 	if '--extra-folders' in sys.argv:
 		if len(languages) == 1:
@@ -154,7 +150,7 @@ def move_into_subfolders(path):
 			copy_to_folder(path, config.organized_output_folder, 'By filename tag', sanitize_name(tag))
 
 		for k, v in extra_subfolders.items():
-			move_into_extra_subfolder(path, desktop, k, v)
+			move_into_extra_subfolder(path, desktop, k, *v)
 
 def move_into_folders():
 	time_started = time.perf_counter()

@@ -45,8 +45,6 @@ Command line arguments:
   - Skips mame_machines.py. It takes a while, but then so does roms.py these days, so... should I have this here? Hmm
 - --organize-folders
   - Activates the in-built thing where it organizes your launchers into folders.
-    - --more-folders
-	  - Makes even more folders to organize launchers into, with metadata that isn't available for most things.
 	- --extra-folders
 	  - Even more folders for metadata that probably nobody cares about.
 
