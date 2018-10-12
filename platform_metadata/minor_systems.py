@@ -319,7 +319,7 @@ def add_colecovision_info(game):
 			peripheral_required = True
 
 	normal_controller = input_metadata.Keypad()
-	#3
+	#2 buttons + 12 keys + 1 digital movement thing
 	super_action_controller = input_metadata.Keypad()
 	#4 buttons, 12 keys, "speed roller" (???)
 	roller_controller = input_metadata.Trackball()
