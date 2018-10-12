@@ -51,6 +51,9 @@ class Machine():
 		self.metadata.specific_info['Is-Mechanical'] = self.is_mechanical
 		self.metadata.specific_info['Dispenses-Tickets'] = self.uses_device('ticket_dispenser')
 		self.metadata.specific_info['Coin-Slots'] = self.input_element.attrib.get('coins', 0)
+		self.metadata.specific_info['Requires-CHD'] = self.requires_chds
+		self.metadata.specific_info['Romless'] = self.romless
+		self.metadata.specific_info['BIOS-Used'] = self.bios
 
 	@property
 	def basename(self):
@@ -124,6 +127,18 @@ class Machine():
 				return True
 
 		return False
+
+	@property
+	def requires_chds(self):
+		return self.xml.find('disk') is not None
+
+	@property
+	def romless(self):
+		return self.xml.find('rom') is None and not self.requires_chds
+
+	@property
+	def bios(self):
+		return self.xml.attrib.get('romof')
 
 def mame_verifyroms(basename):
 	#FIXME Okay this is way too fuckin' slow
