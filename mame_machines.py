@@ -142,7 +142,7 @@ class Machine():
 
 	@property
 	def bios(self):
-		romof == self.xml.attrib.get('romof')
+		romof = self.xml.attrib.get('romof')
 		if self.has_parent and romof == self.family:
 			return None
 		return romof
