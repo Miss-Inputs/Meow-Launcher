@@ -99,6 +99,10 @@ class Machine():
 			memory_card_path = os.path.join(config.memcard_path, self.basename + '.neo')
 			if os.path.isfile(memory_card_path):
 				slot_options['memc'] = shlex.quote(memory_card_path)
+			else:
+				memory_card_path = os.path.join(config.memcard_path, self.family + '.neo')
+				if os.path.isfile(memory_card_path):
+					slot_options['memc'] = shlex.quote(memory_card_path)
 
 		command_line = emulator_command_lines.mame_command_line(self.basename, slot_options=slot_options)
 		launchers.make_launcher(command_line, self.name, self.metadata, {'Type': 'MAME machine', 'Unique-ID': self.basename}, self.icon)
