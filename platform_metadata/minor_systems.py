@@ -1,4 +1,5 @@
 #For mildly uninteresting systems that I still want to add system info for etc
+from enum import Enum, auto
 
 import input_metadata
 from metadata import SaveType
@@ -283,21 +284,62 @@ def add_gx4000_info(game):
 	if software:
 		software.add_generic_info(game)
 
+class ColecoController(Enum):
+	Normal = auto()
+	SuperActionController = auto()
+	RollerController = auto()
+	DrivingController = auto()
+
 def add_colecovision_info(game):
 	#Can get year, publisher unreliably from the title screen info in the ROM; please do not do that
-	#Input info: controller, but also steering wheel (Expansion Module 2), roller controller, or Super Action Controller
-	#TODO: Parse these usage strings:
-	#Supports Super Action Controllers
-	#Requires Super Action Controllers
-	#Supports roller controller
-	#Requires roller controller
-	#Supports driving controller
-	#Requires driving controller
+
+	peripheral = ColecoController.Normal
+	peripheral_required = False
 
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
+
+		usage = game.metadata.specific_info['Notes']
+		if usage == 'Supports Super Action Controllers':
+			peripheral = ColecoController.SuperActionController
+		elif usage == 'Requires Super Action Controllers':
+			peripheral = ColecoController.SuperActionController
+			peripheral_required = True
+		elif usage == 'Supports roller controller':
+			peripheral = ColecoController.RollerController
+		elif usage == 'Requires roller controller':
+			peripheral = ColecoController.RollerController
+			peripheral_required = True
+		elif usage == 'Supports driving controller':
+			peripheral = ColecoController.DrivingController
+		elif usage == 'Requires driving controller':
+			peripheral = ColecoController.DrivingController
+			peripheral_required = True
+
+	normal_controller = input_metadata.Keypad()
+	#3
+	super_action_controller = input_metadata.Keypad()
+	#4 buttons, 12 keys, "speed roller" (???)
+	roller_controller = input_metadata.Trackball()
+	#Not sure how many buttons?
+	driving_controller = input_metadata.SteeringWheel()
+	#Gas pedal is on + off so I guess it counts as one button
+
+	game.metadata.specific_info['Peripheral'] = peripheral
+	if peripheral == ColecoController.Normal:
+		game.metadata.input_info.add_option([normal_controller])
+	else:
+		if peripheral == ColecoController.DrivingController:
+			game.metadata.input_info.add_option([driving_controller])
+		elif peripheral == ColecoController.RollerController:
+			game.metadata.input_info.add_option([roller_controller])
+		elif peripheral == ColecoController.SuperActionController:
+			game.metadata.input_info.add_option([super_action_controller])
+		if not peripheral_required:
+			game.metadata.input_info.add_option([normal_controller])
+	#Doesn't look like you can set controller via command line at the moment, oh well
 
 def add_coleco_adam_info(game):
 	#Input info: Keyboard / Coleco numpad?
