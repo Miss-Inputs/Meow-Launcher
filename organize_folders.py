@@ -72,6 +72,8 @@ extra_subfolders = {
 	'By arcade system': ('X-Arcade-System', False),
 	'Is mechanical': ('X-Is-Mechanical', True),
 	'Has unemulated features': ('X-MAME-Unemulated-Features', True),
+	'Dispenses tickets': ('X-Dispenses-Tickets', True),
+	'No ROMs required': ('X-Romless', True),
 
 	'Has icon': ('Icon', True),
 	'Has force feedback': ('X-Force-Feedback', True),
