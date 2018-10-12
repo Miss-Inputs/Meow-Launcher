@@ -247,8 +247,10 @@ def add_machine_platform(machine):
 		return 'Pokies', MediaType.Standalone
 	elif machine.metadata.genre == 'Electromechanical' and machine.metadata.subgenre == 'Pinball':
 		return 'Pinball', MediaType.Standalone
+	elif category == 'Arcade':
+		return category, MediaType.Standalone
 
-	return category, MediaType.Standalone
+	return 'Non-Arcade', MediaType.Standalone
 
 #Some games have memory card slots, but they don't actually support saving, it's just that the arcade system board thing they use always has that memory card slot there. So let's not delude ourselves into thinking that games which don't save let you save, because that might result in emotional turmoil.
 #Fatal Fury 2, Fatal Fury Special, Fatal Fury 3, and The Last Blade apparently only save in Japanese or something? That might be something to be aware of

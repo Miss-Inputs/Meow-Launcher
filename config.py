@@ -40,6 +40,7 @@ catlist_path = None
 languages_path = None
 skipped_source_files = None
 memcard_path = None
+exclude_non_arcade = False
 
 ignored_directories = []
 #For when I do a hecking disagreement about how names should be formatted, and if subtitles should be in the title or
@@ -69,7 +70,7 @@ def load_config():
 		print('oh no')
 		return
 	parser.read(config_path)
-	global output_folder, organized_output_folder, icon_folder, mac_db_path, launchers_for_unknown_mac_apps, dos_db_path, launchers_for_unknown_dos_apps, dos_configs_path, catlist_path, languages_path, skipped_source_files, memcard_path
+	global output_folder, organized_output_folder, icon_folder, mac_db_path, launchers_for_unknown_mac_apps, dos_db_path, launchers_for_unknown_dos_apps, dos_configs_path, catlist_path, languages_path, skipped_source_files, memcard_path, exclude_non_arcade
 
 	output_folder = os.path.expanduser(parser['General']['output_folder'])
 	organized_output_folder = os.path.expanduser(parser['General']['organized_output_folder'])
@@ -86,6 +87,7 @@ def load_config():
 	languages_path = os.path.expanduser(parser['Arcade']['languages_path'])
 	skipped_source_files = parser['Arcade']['skipped_source_files'].split(';')
 	memcard_path = os.path.expanduser(parser['Arcade']['memcard_path'])
+	exclude_non_arcade = parser['Arcade'].getboolean('exclude_non_arcade', False)
 
 def load_name_replacement():
 	#Sometimes, we want to mess around with : being in the title, so that can't be a delimiter since it needs to appear inside "keys". I'd have to restructure the whole config file to not be an .ini at all otherwise. Hopefully, nothing will have an equals sign in the title.

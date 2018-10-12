@@ -174,6 +174,9 @@ def process_machine(machine):
 		return
 
 	add_metadata(machine)
+	if config.exclude_non_arcade and machine.metadata.platform == 'Non-Arcade':
+		return
+
 	machine.make_launcher()
 
 def get_mame_drivers():
