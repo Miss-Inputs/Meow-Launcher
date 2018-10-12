@@ -93,6 +93,7 @@ arcade_systems = {
 	'cvs': 'Century CVS System',
 	'decocass': 'Deco Casette',
 	'dgpix': 'dgPIX VRender0',
+	'djmain': 'DJ Main',
 	'exidy440': 'Exidy 440',
 	'expro02': 'Kaneko EXPRO-02',
 	'fuukifg2': 'Fuuki FG-2',
@@ -123,6 +124,7 @@ arcade_systems = {
 	'midtunit': 'Midway T-Unit',
 	'midvunit': 'Midway V-Unit',
 	'midwunit': 'Midway W-Unit',
+	'midxunit': 'Midway X-Unit',
 	'midyunit': 'Midway Y-Unit',
 	'midzeus': 'Midway Zeus',
 	'model2': 'Sega Model 2', #Barely working
@@ -139,6 +141,7 @@ arcade_systems = {
 	'namcos23': 'Namco System 23',
 	'naomi': 'Naomi', #Based on Dreamcast. romof="awbios" == Atomiswave; not entirely working
 	'neogeo': 'Neo-Geo',
+	'nwk-tr': 'Konami NWK-TR',
 	'pgm': 'PolyGame Master',
 	'photon': 'Photon System', #PK8000 based (Russian PC that was supposed to be MSX1 compatible)
 	'photon2': 'Photon IK-3', #Leningrad-1 based (Russian ZX Spectrum clone)
@@ -156,6 +159,7 @@ arcade_systems = {
 	'segasp': 'Sega System SP', #Dreamcast based, for medal games
 	'segaxbd': 'Sega X-Board',
 	'segaybd': 'Sega Y-Board',
+	'seibuspi': 'Seibu SPI',
 	'sfcbox': 'Super Famicom Box', #Arcadified SNES sorta
 	'snesb': 'SNES Bootleg', #SNES based, natch
 	'sigmab98': 'Sigma B-98',
@@ -168,12 +172,17 @@ arcade_systems = {
 	'taito_f3': 'Taito F3',
 	'taitogn': 'Taito G-NET',
 	'taito_h': 'Taito H System',
+	'taitojc': 'Taito JC',
 	'taito_l': 'Taito L-System',
 	'taitosj': 'Taito SJ',
+	'taito_o': 'Taito O System',
+	'taitopjc': 'Taito Power-JC',
 	'taitowlf': 'Taito Wolf', #3Dfx (Pentium) based
 	'taito_x': 'Taito X-System',
 	'taito_z': 'Taito Z System',
+	'tiamc1': 'TIA-MC1',
 	'triforce': 'Triforce', #GameCube based
+	'ultrsprt': 'Konami Ultra Sports',
 	'vegas': 'Midway Vegas', #Barely working
 	'vicdual': 'VIC Dual',
 	'viper': 'Konami Viper', #3Dfx (PPC) based
@@ -184,6 +193,7 @@ arcade_systems = {
 	#Arcade platforms that don't have a name or anything, but companies consistently use them
 	'cave': 'Cave Hardware',
 	'alg': 'American Laser Games Hardware', #Amiga 500 based (w/ laserdisc player)
+	'artmagic': 'Art & Magic Hardware',
 	'cinemat': 'Cinematronics Vector Hardware',
 	'ettrivia': 'Enerdyne Technologies Trivia',
 	'gameplan': 'Game Plan Hardware',
@@ -191,6 +201,7 @@ arcade_systems = {
 	'gottlieb': 'Gottlieb Hardware',
 	'homedata': 'Home Data Hardware',
 	'leland': 'Leland Hardware',
+	'micro3d': 'Microprose 3D Hardware',
 
 	#Arcade platforms that don't really have a name except a game that uses them; I try not to fill this up with every single remaining source file, just where it's notable for having other games on it
 	'ambush': 'Ambush Hardware',
