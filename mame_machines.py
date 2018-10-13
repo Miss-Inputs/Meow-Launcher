@@ -144,7 +144,7 @@ class Machine():
 	def bios(self):
 		romof = self.xml.attrib.get('romof')
 		if self.has_parent and romof == self.family:
-			return None
+			return self.parent.bios
 		return romof
 
 def mame_verifyroms(basename):
