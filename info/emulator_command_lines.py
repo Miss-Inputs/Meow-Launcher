@@ -58,7 +58,6 @@ def _is_highscore_cart_available():
 	return False
 
 _have_hiscore_software = _is_highscore_cart_available()
-print(_have_hiscore_software)
 
 def mame_atari_7800(game, _):
 	if not game.metadata.specific_info.get('Headered', False):
