@@ -2,6 +2,7 @@ import shlex
 import os
 import sys
 import configparser
+import subprocess
 
 import config
 from platform_metadata.nes import NESPeripheral
@@ -46,6 +47,19 @@ def mame_command_line(driver, slot=None, slot_options=None, has_keyboard=False, 
 
 	return command_line
 
+def _is_highscore_cart_available():
+	#Unfortunately it seems we cannot verify an individual software, which would probably take less time
+	proc = subprocess.run(['mame', '-verifysoftlist', 'a7800'], universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+	#Don't check return code - it'll return 2 if other software is bad, but we don't care about those
+	for line in proc.stdout.splitlines():
+		#Bleh
+		if line == 'romset a7800:hiscore is good':
+			return True
+	return False
+
+_have_hiscore_software = _is_highscore_cart_available()
+print(_have_hiscore_software)
+
 def mame_atari_7800(game, _):
 	if not game.metadata.specific_info.get('Headered', False):
 		raise EmulationNotSupportedException('No header')
@@ -54,6 +68,9 @@ def mame_atari_7800(game, _):
 		system = 'a7800p'
 	else:
 		system = 'a7800'
+
+	if _have_hiscore_software and game.metadata.specific_info.get('Uses-Hiscore-Cart', False):
+		return mame_command_line(system, 'cart2', {'cart': 'hiscore'})
 
 	return mame_command_line(system, 'cart')
 
