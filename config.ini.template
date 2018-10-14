@@ -19,3 +19,4 @@ languages_path =
 skipped_source_files = 
 memcard_path = 
 exclude_non_arcade = 
+exclude_pinball = 

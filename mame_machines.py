@@ -198,6 +198,8 @@ def process_machine(machine):
 	add_metadata(machine)
 	if config.exclude_non_arcade and machine.metadata.platform == 'Non-Arcade':
 		return
+	if config.exclude_pinball and machine.metadata.platform == 'Pinball':
+		return
 
 	machine.make_launcher()
 
