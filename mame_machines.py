@@ -185,14 +185,14 @@ def process_machine(machine):
 
 	if has_mandatory_slots(machine):
 		if debug:
-			print('%s (%s) has mandatory slots' % (machine.basename, machine.name))
+			print('%s (%s, %s) has mandatory slots' % (machine.name, machine.basename, machine.source_file))
 		return
 
 	if machine.is_skeleton_driver:
 		#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
 		#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
 		if debug:
-			print('Skipping %s (%s) as it is probably a skeleton driver' % (machine.basename, machine.name))
+			print('Skipping %s (%s, %s) as it is probably a skeleton driver' % (machine.name, machine.basenamem, machine.source_file))
 		return
 
 	add_metadata(machine)
@@ -228,6 +228,8 @@ def process_driver(driver):
 	#in existence before just getting the XML", that's what you're thinking, right?  Well, I am doing that, but as it
 	#turns out if I do the verification inside process_machine it takes a whole lot longer.  I don't fully understand why
 	#but I'll have you know I actually profiled it
+
+	#You hear that, myself? Stop trying to do mame_verifyroms later! It will go from taking 1 hour to taking 3 and a half hours! Stop it!
 	if not mame_verifyroms(driver):
 		return
 
