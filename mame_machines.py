@@ -192,7 +192,7 @@ def process_machine(machine):
 		#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
 		#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
 		if debug:
-			print('Skipping %s (%s, %s) as it is probably a skeleton driver' % (machine.name, machine.basenamem, machine.source_file))
+			print('Skipping %s (%s, %s) as it is probably a skeleton driver' % (machine.name, machine.basename, machine.source_file))
 		return
 
 	add_metadata(machine)
