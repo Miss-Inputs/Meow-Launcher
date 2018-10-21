@@ -140,9 +140,12 @@ systems = {
 	#Joystick interface is non-standard so not all games support it and might decide to use the keyboard instead, but eh. It works I guess.
 	#There's actually like a katrillion file formats so I won't bother with all of them until I see them in the wild tbh
 
-	#Unsupported (yet) systems beyond this point
+}
 
-	#Theoretically supported, but not supported enough to be considered playable, but you could configure them if you wanted (see emulator_info)
+#Unsupported (yet) systems beyond this point, these won't be listed in any config files by default; just here to make it easier for me to add new systems later as I document what they are and what holds them back, sometimes just because I have nothing better to do I guess
+
+unsupported_systems = {
+	#Theoretically supported, but not supported enough to be considered playable, but you could configure them if you wanted to mess with the .ini files yourself (see emulator_info)
 	'FM Towns Marty': System('fmtmarty', ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}),
 	'Jaguar': System('jaguar', ['jaguar'], ['MAME (Atari Jaguar)'], {MediaType.Cartridge: ['j64', 'bin', 'rom'], MediaType.Executable: ['abs', 'cof', 'jag', 'prg']}),
 	'Magnavox Odyssey²': System('odyssey2', ['odyssey2'], [], {MediaType.Cartridge: ['bin', 'rom']}),
@@ -152,7 +155,6 @@ systems = {
 	#just has the same problems as Odyssey 2...
 	'PC Booter': System('ibm5150', ['ibm5150'], ['MAME (IBM PCjr)', 'MAME (IBM PC)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['exe', 'com', 'bat']}),
 	#This one is a bit tricky... both MAME and PCem have issues emulating a joystick. Do the games actually just suck like that? _All of them_? I don't know. The majority of these games assume a 4.77MHz CPU, of course. The software list is ibm5150 but that has some DOS games too, just to be confusing (but usage == 'PC booter' where it is a PC booter).
-	#System("Super A'Can", 'supracan', ['supracan'], ['MAME (Super Acan)'], {MediaType.Cartridge: ['bin']}),
 	"Super A'Can": System('supracan', ['supracan'], ['MAME (Super Acan)'], {MediaType.Cartridge: ['bin']}),
 
 	#No emulators that are cool enough on Linux. Yet. Maybe? That I know of. They're here for completeness. Or no emulators at all.
