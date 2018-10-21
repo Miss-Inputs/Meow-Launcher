@@ -23,7 +23,7 @@ class DOSApp(dos_mac_common.App):
 				self.icon = os.path.join(base_dir, f)
 
 def make_dos_launchers():
-	dos_mac_common.make_launchers('DOS', config.dos_config_path, DOSApp, dos_emulators)
+	dos_mac_common.make_launchers('DOS', config.dos_ini_path, DOSApp, dos_emulators)
 
 def scan_app(path, exe_name, game_list, unknown_games, found_games, ambiguous_games):
 	possible_games = [(game_name, game_config) for game_name, game_config in game_list.items() if game_config['app_name'].lower() == exe_name]
@@ -47,7 +47,7 @@ def scan_dos_folder(path, game_list, unknown_games, found_games, ambiguous_games
 			scan_app(path, name.lower(), game_list, unknown_games, found_games, ambiguous_games)
 
 def scan_dos_folders():
-	dos_mac_common.scan_folders('DOS', config.dos_config_path, scan_dos_folder)
+	dos_mac_common.scan_folders('DOS', config.dos_ini_path, scan_dos_folder)
 
 if __name__ == '__main__':
 	os.makedirs(config.output_folder, exist_ok=True)

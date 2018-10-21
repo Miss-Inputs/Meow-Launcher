@@ -15,7 +15,7 @@ class MacApp(dos_mac_common.App):
 		metadata.platform = 'Mac'
 
 def make_mac_launchers():
-	dos_mac_common.make_launchers('Mac', config.mac_config_path, MacApp, mac_emulators)
+	dos_mac_common.make_launchers('Mac', config.mac_ini_path, MacApp, mac_emulators)
 
 def scan_app(app, game_list, unknown_games, found_games, ambiguous_games):
 	possible_games = [(game_name, game_config) for game_name, game_config in game_list.items() if game_config['creator_code'] == app['creator']]
@@ -39,7 +39,7 @@ def scan_mac_volume(path, game_list, unknown_games, found_games, ambiguous_games
 		scan_app(f, game_list, unknown_games, found_games, ambiguous_games)
 
 def scan_mac_volumes():
-	dos_mac_common.scan_folders('Mac', config.mac_config_path, scan_mac_volume)
+	dos_mac_common.scan_folders('Mac', config.mac_ini_path, scan_mac_volume)
 
 if __name__ == '__main__':
 	os.makedirs(config.output_folder, exist_ok=True)

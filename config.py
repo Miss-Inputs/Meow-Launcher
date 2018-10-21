@@ -20,13 +20,12 @@ organized_output_folder = None
 icon_folder = None
 
 mac_db_path = None
-mac_config_path = os.path.join(config_dir, 'mac.ini')
+mac_ini_path = os.path.join(config_dir, 'mac.ini')
 launchers_for_unknown_mac_apps = False
 
 dos_db_path = None
-dos_config_path = os.path.join(config_dir, 'dos.ini')
+dos_ini_path = os.path.join(config_dir, 'dos.ini')
 launchers_for_unknown_dos_apps = False
-#It is at this point in variable naming that I realise I have made a mistake
 dos_configs_path = None
 
 catlist_path = None
