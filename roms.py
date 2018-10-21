@@ -13,7 +13,6 @@ import launchers
 import metadata
 import io_utils
 
-from config import get_system_config_by_name
 from info import system_info, emulator_info
 from info.emulator_command_lines import EmulationNotSupportedException, NotARomException
 from roms_metadata import add_engine_metadata, add_metadata
@@ -338,7 +337,7 @@ def main():
 
 		rom = sys.argv[arg_index + 1]
 		system = sys.argv[arg_index + 2]
-		process_file(get_system_config_by_name(system), os.path.basename(rom), os.path.basename(rom), Rom(rom))
+		process_file(config.get_system_config_by_name(system), os.path.basename(rom), os.path.basename(rom), Rom(rom))
 		return
 
 	if len(sys.argv) >= 2 and '--systems' in sys.argv:
@@ -349,7 +348,7 @@ def main():
 
 		system_list = sys.argv[arg_index + 1].split(',')
 		for system_name in system_list:
-			process_system(get_system_config_by_name(system_name))
+			process_system(config.get_system_config_by_name(system_name))
 		return
 
 	process_systems()
