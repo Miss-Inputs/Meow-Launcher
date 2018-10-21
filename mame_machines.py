@@ -188,7 +188,7 @@ def process_machine(machine):
 	if not should_process_machine(machine):
 		return
 
-	if not (machine.xml.find('softwarelist') is None) and machine.family not in config.okay_to_have_software:
+	if not (machine.xml.find('softwarelist') is None) and machine.family not in okay_to_have_software:
 		return
 
 	if has_mandatory_slots(machine):
