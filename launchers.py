@@ -63,7 +63,6 @@ def base_make_desktop(command, display_name, fields=None, icon=None):
 	desktop_entry['Name'] = display_name
 	desktop_entry['Exec'] = command
 
-
 	if icon:
 		if isinstance(icon, str):
 			desktop_entry['Icon'] = icon
