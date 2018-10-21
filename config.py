@@ -1,12 +1,18 @@
 import os
 import configparser
 
-#TODO: Get this in a less hardcody cross-platform way.
+#TODO: Get this in a less hardcody cross-platform way, I guess
 config_dir = os.path.expanduser('~/.config/CrappyGameLauncher/')
+
+#Static paths I guess
 config_path = os.path.join(config_dir, 'config.ini')
 ignored_dirs_path = os.path.join(config_dir, 'ignored_directories.txt')
+#TODO: Do I really want this to be in the source file like that? Ehhhhh
 name_consistency_path = os.path.join(os.path.dirname(__file__), 'name_consistency.ini')
 emulator_config_path = os.path.join(config_dir, 'emulators.ini')
+
+mac_ini_path = os.path.join(config_dir, 'mac.ini')
+dos_ini_path = os.path.join(config_dir, 'dos.ini')
 
 class SystemConfig():
 	def __init__(self, name, paths, chosen_emulators, other_config=None):
@@ -20,11 +26,9 @@ organized_output_folder = None
 icon_folder = None
 
 mac_db_path = None
-mac_ini_path = os.path.join(config_dir, 'mac.ini')
 launchers_for_unknown_mac_apps = False
 
 dos_db_path = None
-dos_ini_path = os.path.join(config_dir, 'dos.ini')
 launchers_for_unknown_dos_apps = False
 dos_configs_path = None
 
