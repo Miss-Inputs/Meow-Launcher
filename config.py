@@ -15,13 +15,6 @@ class SystemConfig():
 		self.chosen_emulators = chosen_emulators
 		self.other_config = {} if other_config is None else other_config
 
-#Normally, we'd skip over anything that has software because that indicates it's a system you plug games into and not
-#usable by itself.  But these are things that are really just standalone things, but they have an expansion for
-#whatever reason and are actually fine
-#cfa3000 is kinda fine but it counts as a BBC Micro so it counts as not fine, due to detecting this stuff by
-#parent/clone family
-okay_to_have_software = ['vii', 'snspell', 'tntell']
-
 output_folder = None
 organized_output_folder = None
 icon_folder = None

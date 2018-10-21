@@ -176,6 +176,14 @@ def has_mandatory_slots(machine):
 			return True
 	return False
 
+
+#Normally, we'd skip over anything that has software because that indicates it's a system you plug games into and not
+#usable by itself.  But these are things that are really just standalone things, but they have an expansion for
+#whatever reason and are actually fine
+#cfa3000 is kinda fine but it counts as a BBC Micro so it counts as not fine, due to detecting this stuff by
+#parent/clone family
+okay_to_have_software = ['vii', 'snspell', 'tntell']
+
 def process_machine(machine):
 	if not should_process_machine(machine):
 		return
