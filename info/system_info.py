@@ -17,7 +17,7 @@ class System():
 		self.mame_software_lists = mame_software_lists
 		self.emulators = emulators
 		self.file_types = file_types if file_types else {}
-		self.other_config_names = other_config_names if other_config_names else []
+		self.other_config_names = other_config_names if other_config_names else {}
 
 	def is_valid_file_type(self, extension):
 		return any([extension in extensions for _, extensions in self.file_types.items()])
@@ -47,7 +47,7 @@ systems = {
 	'Colecovision': System('coleco', ['coleco'], ['MAME (ColecoVision)'], {MediaType.Cartridge: ['col', 'bin', 'rom']}),
 	'Dreamcast': System('dc', ['dc'], ['Reicast'], {MediaType.OpticalDisc: cdrom_formats}),
 	'DS': System('nds', [], ['Medusa'], {MediaType.Cartridge: ['nds', 'dsi', 'ids']}),
-	'Game Boy': System('gbpocket', ['gameboy', 'gbcolor'], ['Gambatte', 'mGBA', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'Medusa'], {MediaType.Cartridge: ['gb', 'gbc', 'gbx', 'sgb']}, ['use_gbc_for_dmg', 'prefer_sgb_over_gbc']),
+	'Game Boy': System('gbpocket', ['gameboy', 'gbcolor'], ['Gambatte', 'mGBA', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'Medusa'], {MediaType.Cartridge: ['gb', 'gbc', 'gbx', 'sgb']}, {'use_gbc_for_dmg': True, 'prefer_sgb_over_gbc': False}),
 	'GameCube': System('gcjp', [], ['Dolphin'], {MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz'], MediaType.Executable: ['dol', 'elf']}),
 	'Game Gear': System('gamegear', ['gamegear'], ['Kega Fusion', 'Mednafen (Game Gear)', 'MAME (Game Gear)'], {MediaType.Cartridge: ['sms', 'gg', 'bin']}),
 	'GBA': System('gba', ['gba'], ['mGBA', 'Mednafen (GBA)', 'MAME (GBA)', 'Medusa'], {MediaType.Cartridge: ['gba', 'bin', 'srl'], MediaType.Executable: ['elf', 'mb']}),
@@ -55,7 +55,7 @@ systems = {
 	'Lynx': System('lynx', ['lynx'], ['Mednafen (Lynx)'], {MediaType.Cartridge: ['lnx', 'lyx'], MediaType.Executable: ['o']}),
 	'Master System': System('sms', ['sms'], ['Kega Fusion', 'Mednafen (Master System)'], {MediaType.Cartridge: ['sms', 'gg', 'bin']}),
 	'Mega Drive': System('megadriv', ['megadriv'], ['Kega Fusion', 'Mednafen (Mega Drive)'], {MediaType.Cartridge: ['bin', 'gen', 'md', 'smd', 'sgd']}),
-	'N64': System('n64', ['n64'], ['Mupen64Plus'], {MediaType.Cartridge: ['z64', 'v64', 'n64', 'bin']}, ['prefer_controller_pak_over_rumble']),
+	'N64': System('n64', ['n64'], ['Mupen64Plus'], {MediaType.Cartridge: ['z64', 'v64', 'n64', 'bin']}, {'prefer_controller_pak_over_rumble': True}),
 	'Neo Geo Pocket': System('ngpc', ['ngp', 'ngpc'], ['Mednafen (Neo Geo Pocket)', 'MAME (Neo Geo Pocket)'], {MediaType.Cartridge: ['ngp', 'npc', 'ngc', 'bin']}),
 	'NES': System('nes', ['nes', 'nes_ade', 'nes_datach', 'nes_kstudio', 'nes_ntbrom', 'famicom_cass', 'famicom_flop'], ['Mednafen (NES)', 'MAME (NES)'], {MediaType.Cartridge: ['nes', 'unf', 'unif'], MediaType.Floppy: ['fds']}),
 	'PC Engine': System('pce', ['pce', 'sgx', 'tg16'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)'], {MediaType.Cartridge: ['pce', 'sgx', 'bin']}),
@@ -63,7 +63,7 @@ systems = {
 	'PS2': System('ps2', [], ['PCSX2'], {MediaType.OpticalDisc: cdrom_formats + ['cso', 'bin'], MediaType.Executable: ['elf']}),
 	'PSP': System(None, [], ['PPSSPP'], {MediaType.OpticalDisc: cdrom_formats + ['cso'], MediaType.Executable: ['pbp']}),
 	'Saturn': System('saturn', ['saturn', 'sat_cart', 'sat_vccart'], ['Mednafen (Saturn)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'SNES': System('snes', ['snes', 'snes_bspack', 'snes_strom'], ['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)'], {MediaType.Cartridge: ['sfc', 'swc', 'smc', 'bs', 'st', 'bin']}, ['sufami_turbo_bios_path', 'bsx_bios_path']),
+	'SNES': System('snes', ['snes', 'snes_bspack', 'snes_strom'], ['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)'], {MediaType.Cartridge: ['sfc', 'swc', 'smc', 'bs', 'st', 'bin']}, {'sufami_turbo_bios_path': None, 'bsx_bios_path': None}),
 	'Wii': System(None, [], ['Dolphin'], {MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz'], MediaType.Executable: ['dol', 'elf'], MediaType.Digital: ['wad']}),
 	'WonderSwan': System('wscolor', ['wswan', 'wscolor'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['ws', 'wsc', 'bin']}),
 	#Rotates around so that sometimes the dpad becomes buttons and vice versa and there's like two dpads??? but if you use Mednafen's rotation auto-adjust thing it kinda works
@@ -115,7 +115,7 @@ systems = {
 	#I avoid using anything which requires me to input arcane commands or hear arcane sounds here or wait for arcane
 	#times, though I suppose I _could_ do that, it just doesn't feel like a nicely organized bunch of launcher scripts if
 	#I do that
-	'Amiga': System('a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench'], ['FS-UAE'], {MediaType.Floppy: ['adf', 'ipf', 'dms']}, ['default_chipset']),
+	'Amiga': System('a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench'], ['FS-UAE'], {MediaType.Floppy: ['adf', 'ipf', 'dms']}, {'default_chipset': 'AGA'}),
 	'Atari 8-bit': System('a800', ['a800', 'a800_flop', 'xegs'], ['MAME (Atari 8-bit)'], {MediaType.Cartridge: ['bin', 'rom', 'car'], MediaType.Tape: ['wav']}),
 	#TODO: MediaType.Floppy: ['atr', 'dsk'], MediaType.Executable: ['xex', 'bas'],
 	'C64': System('c64', ['c64_cart', 'c64_cass', 'c64_flop'], ['MAME (C64)'], {MediaType.Cartridge: ['80', 'a0', 'e0', 'crt', 'bin']}),
@@ -313,10 +313,10 @@ class GameWithEngine():
 		self.name = name
 		self.engines = engines
 		self.uses_folders = uses_folders
-		self.other_config_names = other_config_names if other_config_names else []
+		self.other_config_names = other_config_names if other_config_names else {}
 
 games_with_engines = {
-	'Doom': GameWithEngine('Doom', ['PrBoom+'], False, ['save_dir']),
+	'Doom': GameWithEngine('Doom', ['PrBoom+'], False, {'save_dir': 'None'}),
 	'Quake': GameWithEngine('Quake', ['Darkplaces'], True),
 }
 #TODO: There should be a Z-Machine interpreter that runs nicely with modern sensibilities, I should look into that
