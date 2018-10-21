@@ -13,6 +13,7 @@ import launchers
 import metadata
 import io_utils
 
+from config import get_system_config_by_name
 from info import system_info, emulator_info
 from info.emulator_command_lines import EmulationNotSupportedException, NotARomException
 from roms_metadata import add_engine_metadata, add_metadata
@@ -325,12 +326,6 @@ def process_systems():
 	for system in config.system_configs:
 		if system.name not in excluded_systems:
 			process_system(system)
-
-def get_system_config_by_name(name):
-	for system in config.system_configs:
-		if system.name == name:
-			return system
-	raise ValueError(name + ' not found')
 
 def main():
 	os.makedirs(config.output_folder, exist_ok=True)

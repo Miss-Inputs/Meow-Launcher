@@ -57,7 +57,7 @@ def get_system_config_by_name(name):
 		if system_config.name == name:
 			return system_config
 
-	return None
+	raise ValueError(name + ' not found')
 
 def load_config():
 	#TODO: Load overrides from command line
