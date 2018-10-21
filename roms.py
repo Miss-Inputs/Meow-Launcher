@@ -277,7 +277,7 @@ def process_emulated_system(system_config):
 					if name in used_m3u_filenames or path in used_m3u_filenames:
 						continue
 
-					system = system_info.get_system_by_name(system_config.name)
+					system = system_info.systems[system_config.name]
 					if not system.is_valid_file_type(rom.extension):
 						continue
 
@@ -304,8 +304,8 @@ def validate_emulator_choices(system_config, system):
 def process_system(system_config):
 	time_started = time.perf_counter()
 
-	if system_config.name in [system.name for system in system_info.systems]:
-		if not validate_emulator_choices(system_config, system_info.get_system_by_name(system_config.name)):
+	if system_config.name in system_info.systems:
+		if not validate_emulator_choices(system_config, system_info.systems[system_config.name]):
 			return
 		process_emulated_system(system_config)
 	elif system_config.name in system_info.games_with_engines:

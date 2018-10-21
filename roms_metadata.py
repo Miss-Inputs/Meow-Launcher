@@ -124,7 +124,7 @@ def get_metadata_from_tags(game):
 				game.metadata.tv_type = tv_type
 
 def add_device_hardware_metadata(game):
-	mame_driver = system_info.get_mame_driver_by_system_name(game.metadata.platform)
+	mame_driver = system_info.systems[game.metadata.platform].mame_driver
 
 	source_file = None
 	if mame_driver:
@@ -158,10 +158,10 @@ def add_device_hardware_metadata(game):
 def add_metadata(game):
 	game.metadata.extension = game.rom.extension
 
-	system = system_info.get_system_by_name(game.metadata.platform)
+	system = system_info.systems[game.metadata.platform]
 	game.metadata.media_type = system.get_media_type(game.rom.extension)
 
-	software_list_names = system_info.get_mame_software_list_names_by_system_name(game.metadata.platform)
+	software_list_names = system.mame_software_lists
 	if software_list_names:
 		game.software_lists = get_software_lists_by_names(software_list_names)
 

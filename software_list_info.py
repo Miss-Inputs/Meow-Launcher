@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ElementTree
 import os
 
 from metadata import EmulationStatus
-from info.system_info import get_mame_software_list_names_by_system_name
+from info.system_info import systems
 from info.region_info import TVSystem
 from mame_helpers import consistentify_manufacturer, get_mame_config
 
@@ -315,7 +315,7 @@ def get_software_list_entry(game, skip_header=0):
 	if game.software_lists:
 		software_lists = game.software_lists
 	else:
-		software_list_names = get_mame_software_list_names_by_system_name(game.metadata.platform)
+		software_list_names = systems[game.metadata.platform].mame_software_lists
 		software_lists = get_software_lists_by_names(software_list_names)
 
 	if game.subroms:
