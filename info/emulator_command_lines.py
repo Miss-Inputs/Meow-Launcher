@@ -456,7 +456,7 @@ def mupen64plus(game, other_config):
 	plugin = no_plugin
 
 	if use_controller_pak and use_rumble_pak:
-		plugin = controller_pak if other_config.get('prefer_controller_pak_over_rumble', 'no') == 'yes' else transfer_pak
+		plugin = controller_pak if other_config.get('prefer_controller_pak_over_rumble', 'no') == 'yes' else rumble_pak
 	elif use_controller_pak:
 		plugin = controller_pak
 	elif use_rumble_pak:
