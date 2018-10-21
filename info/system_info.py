@@ -12,12 +12,13 @@ class MediaType(Enum):
 	Standalone = auto()
 
 class System():
-	def __init__(self, name, mame_driver, mame_software_lists, emulators, file_types=None):
+	def __init__(self, name, mame_driver, mame_software_lists, emulators, file_types=None, other_config_names=None):
 		self.name = name
 		self.mame_driver = mame_driver
 		self.mame_software_lists = mame_software_lists
 		self.emulators = emulators
 		self.file_types = file_types if file_types else {}
+		self.other_config_names = other_config_names if other_config_names else []
 
 	def is_valid_file_type(self, extension):
 		return any([extension in extensions for _, extensions in self.file_types.items()])
@@ -71,7 +72,7 @@ systems = [
 	System('Colecovision', 'coleco', ['coleco'], ['MAME (ColecoVision)'], {MediaType.Cartridge: ['col', 'bin', 'rom']}),
 	System('Dreamcast', 'dc', ['dc'], ['Reicast'], {MediaType.OpticalDisc: cdrom_formats}),
 	System('DS', 'nds', [], ['Medusa'], {MediaType.Cartridge: ['nds', 'dsi', 'ids']}),
-	System('Game Boy', 'gbpocket', ['gameboy', 'gbcolor'], ['Gambatte', 'mGBA', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'Medusa'], {MediaType.Cartridge: ['gb', 'gbc', 'gbx', 'sgb']}),
+	System('Game Boy', 'gbpocket', ['gameboy', 'gbcolor'], ['Gambatte', 'mGBA', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'Medusa'], {MediaType.Cartridge: ['gb', 'gbc', 'gbx', 'sgb']}, ['use_gbc_for_dmg', 'prefer_sgb_over_gbc']),
 	System('GameCube', 'gcjp', [], ['Dolphin'], {MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz'], MediaType.Executable: ['dol', 'elf']}),
 	System('Game Gear', 'gamegear', ['gamegear'], ['Kega Fusion', 'Mednafen (Game Gear)', 'MAME (Game Gear)'], {MediaType.Cartridge: ['sms', 'gg', 'bin']}),
 	System('GBA', 'gba', ['gba'], ['mGBA', 'Mednafen (GBA)', 'MAME (GBA)', 'Medusa'], {MediaType.Cartridge: ['gba', 'bin', 'srl'], MediaType.Executable: ['elf', 'mb']}),
@@ -79,7 +80,7 @@ systems = [
 	System('Lynx', 'lynx', ['lynx'], ['Mednafen (Lynx)'], {MediaType.Cartridge: ['lnx', 'lyx'], MediaType.Executable: ['o']}),
 	System('Master System', 'sms', ['sms'], ['Kega Fusion', 'Mednafen (Master System)'], {MediaType.Cartridge: ['sms', 'gg', 'bin']}),
 	System('Mega Drive', 'megadriv', ['megadriv'], ['Kega Fusion', 'Mednafen (Mega Drive)'], {MediaType.Cartridge: ['bin', 'gen', 'md', 'smd', 'sgd']}),
-	System('N64', 'n64', ['n64'], ['Mupen64Plus'], {MediaType.Cartridge: ['z64', 'v64', 'n64', 'bin']}),
+	System('N64', 'n64', ['n64'], ['Mupen64Plus'], {MediaType.Cartridge: ['z64', 'v64', 'n64', 'bin']}, ['prefer_controller_pak_over_rumble']),
 	System('Neo Geo Pocket', 'ngpc', ['ngp', 'ngpc'], ['Mednafen (Neo Geo Pocket)', 'MAME (Neo Geo Pocket)'], {MediaType.Cartridge: ['ngp', 'npc', 'ngc', 'bin']}),
 	System('NES', 'nes', ['nes', 'nes_ade', 'nes_datach', 'nes_kstudio', 'nes_ntbrom', 'famicom_cass', 'famicom_flop'], ['Mednafen (NES)', 'MAME (NES)'], {MediaType.Cartridge: ['nes', 'unf', 'unif'], MediaType.Floppy: ['fds']}),
 	System('PC Engine', 'pce', ['pce', 'sgx', 'tg16'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)'], {MediaType.Cartridge: ['pce', 'sgx', 'bin']}),
@@ -87,7 +88,7 @@ systems = [
 	System('PS2', 'ps2', [], ['PCSX2'], {MediaType.OpticalDisc: cdrom_formats + ['cso', 'bin'], MediaType.Executable: ['elf']}),
 	System('PSP', None, [], ['PPSSPP'], {MediaType.OpticalDisc: cdrom_formats + ['cso'], MediaType.Executable: ['pbp']}),
 	System('Saturn', 'saturn', ['saturn', 'sat_cart', 'sat_vccart'], ['Mednafen (Saturn)'], {MediaType.OpticalDisc: cdrom_formats}),
-	System('SNES', 'snes', ['snes', 'snes_bspack', 'snes_strom'], ['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)'], {MediaType.Cartridge: ['sfc', 'swc', 'smc', 'bs', 'st', 'bin']}),
+	System('SNES', 'snes', ['snes', 'snes_bspack', 'snes_strom'], ['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)'], {MediaType.Cartridge: ['sfc', 'swc', 'smc', 'bs', 'st', 'bin']}, ['sufami_turbo_bios_path', 'bsx_bios_path']),
 	System('Wii', None, [], ['Dolphin'], {MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz'], MediaType.Executable: ['dol', 'elf'], MediaType.Digital: ['wad']}),
 	System('WonderSwan', 'wscolor', ['wswan', 'wscolor'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['ws', 'wsc', 'bin']}),
 	#Rotates around so that sometimes the dpad becomes buttons and vice versa and there's like two dpads??? but if you use Mednafen's rotation auto-adjust thing it kinda works
@@ -139,7 +140,7 @@ systems = [
 	#I avoid using anything which requires me to input arcane commands or hear arcane sounds here or wait for arcane
 	#times, though I suppose I _could_ do that, it just doesn't feel like a nicely organized bunch of launcher scripts if
 	#I do that
-	System('Amiga', 'a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench'], ['FS-UAE'], {MediaType.Floppy: ['adf', 'ipf', 'dms']}),
+	System('Amiga', 'a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench'], ['FS-UAE'], {MediaType.Floppy: ['adf', 'ipf', 'dms']}, ['default_chipset']),
 	System('Atari 8-bit', 'a800', ['a800', 'a800_flop', 'xegs'], ['MAME (Atari 8-bit)'], {MediaType.Cartridge: ['bin', 'rom', 'car'], MediaType.Tape: ['wav']}),
 	#TODO: MediaType.Floppy: ['atr', 'dsk'], MediaType.Executable: ['xex', 'bas'],
 	System('C64', 'c64', ['c64_cart', 'c64_cass', 'c64_flop'], ['MAME (C64)'], {MediaType.Cartridge: ['80', 'a0', 'e0', 'crt', 'bin']}),
@@ -331,13 +332,14 @@ systems = [
 ]
 
 class GameWithEngine():
-	def __init__(self, name, engines, uses_folders):
+	def __init__(self, name, engines, uses_folders, other_config_names=None):
 		self.name = name
 		self.engines = engines
 		self.uses_folders = uses_folders
+		self.other_config_names = other_config_names if other_config_names else []
 
 games_with_engines = {
-	'Doom': GameWithEngine('Doom', ['PrBoom+'], False),
+	'Doom': GameWithEngine('Doom', ['PrBoom+'], False, ['save_dir']),
 	'Quake': GameWithEngine('Quake', ['Darkplaces'], True),
 }
 #TODO: There should be a Z-Machine interpreter that runs nicely with modern sensibilities, I should look into that
