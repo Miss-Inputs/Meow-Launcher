@@ -189,6 +189,7 @@ systems = {
 	#Similar to the Sega Pico but with different software (may or may not also use Megadrive ROM header?), but is completely unemulated. Not sure if dump format is identical
 	'V.Smile': System('vsmile', ['vsmile_cart', 'vsmile_cd', 'vsmileb_cart', 'vsmilem_cart'], [], {MediaType.Cartridge: ['bin'], MediaType.OpticalDisc: cdrom_formats}),
 	'Video Challenger': System([], [], {}),
+	'Xbox': System('xbox', [], []),
 	'Xbox 360': System(None, [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xex']}),
 	#Xenia requires Windows 8 + Vulkan, somehow I don't think it'd ever run under Wine either
 	'ZAPit GameWave': System(None, [], [], {MediaType.OpticalDisc: ['iso']}),
@@ -276,8 +277,6 @@ systems = {
 	#What's interesting is that the XML for the driver says it's compatible with a software list simply called "squale", but that's not in the default hash directory
 	'Tandy CoCo': System('coco3', ['coco_cart', 'coco_flop'], []),
 	#Did I want coco/coco2 instead? Hmm. Those seem to work but coco3 seems to not autoboot. It looks like carts >128K require coco3, or if the software list says so
-	'Xbox': System('xbox', [], []),
-	#MAME definitely isn't ready yet.. do XQEMU or Cxbx-Reloaded work for our purposes yet?
 
 	#TODO: Me being lazy, I know if these work or not:
 	'Commodore PET': System('pet4032', ['pet_cass', 'pet_flop', 'pet_hdd', 'pet_quik', 'pet_rom'], []),
