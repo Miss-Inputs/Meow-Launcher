@@ -513,8 +513,7 @@ def mame_intellivision(game, _):
 def basilisk_ii(app, other_config):
 	if 'arch' in app.config:
 		if app.config['arch'] == 'ppc':
-			#TODO: Raise exception (would need to change dos_mac_common.py)
-			return None
+			raise EmulationNotSupportedException('PPC not supported')
 
 	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that. Okay, so I don't want that.
 	#Ideally, HFS manipulation would be powerful enough that we could just slip an alias into the Startup Items folder ourselves and delete it afterward. That doesn't fix the problem of automatically shutting down (still need a script for that), unless we don't create an alias at all and we create a script or something on the fly that launches that path and then shuts down, but yeah. Stuff and things.

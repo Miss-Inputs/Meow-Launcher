@@ -10,6 +10,7 @@ import datetime
 from config import main_config, system_configs
 from metadata import Metadata
 from info.system_info import MediaType
+from info.emulator_command_lines import EmulationNotSupportedException, NotARomException
 import launchers
 
 debug = '--debug' in sys.argv
@@ -92,13 +93,19 @@ class App:
 
 		emulator_name = None
 		command = None
+		exception_reason = None
 		for emulator in system_config.chosen_emulators:
 			emulator_name = emulator
-			command = emulators[emulator].get_command_line(self, system_config.other_config)
-			if command:
-				break
+			try:
+				command = emulators[emulator].get_command_line(self, system_config.other_config)
+				if command:
+					break
+			except (EmulationNotSupportedException, NotARomException) as ex:
+				exception_reason = ex
 
 		if not command:
+			if debug:
+				print(self.path, 'could not be launched by', system_config.chosen_emulators, 'because', exception_reason)
 			return
 
 		metadata.emulator_name = emulator_name
