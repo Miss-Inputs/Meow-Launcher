@@ -260,12 +260,19 @@ unsupported_systems = {
 	'BBC Micro': System('bbcb', ['bbca_cass', 'bbcb_cass', 'bbcb_cass_de', 'bbcb_flop', 'bbcb_flop_orig'], []),
 	#The key combination to boot a floppy is like Shift+Break or something ridiculous like that, so I'm not going anywhere without an autoboot script
 	#TODO: Add the flop software lists that have addon CPUs and stuff
+	'C64DTV': System('c64dtv', [], []),
+	#Commodore 64 plug and play system that has its own unique software, apparently
 	'Cambridge Z88': System('z88', ['z88_cart'], []),
 	'Commodore 16': System('c16', ['plus4_cart', 'plus4_cass', 'plus4_flop'], []),
 	#Plus/4 and C116 are in the same software family, so those could be used too
 	'Commodore 65': System('c65', ['c65_flop'], []),
 	#This was actually never released, but there's software for it anyway
 	'Commodore 128': System('c128', ['c128_cart', 'c128_flop', 'c128_rom'], []),
+	'Epoch Sorcerer': System('sorcerer', ['sorcerer_cart', 'sorcerer_cass', 'sorcerer_flop'],
+		{MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav', 'tape']}),
+	#Would need automated tape loading to do anything interesting (carts and floppies are just BASIC/OS stuff, also what even is the file type for floppies?) and apparently there's a .snp snapshot and .bin quickload so maybe those do something
+	'Goldstar FC-100': System('fc100', [], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas']}),
+	#No software list, some kind of PC-6001 clone or something
 	'Memotech MTX': System('mtx512', ['mtx_cart', 'mtx_cass', 'mtx_rom'], []),
 	'Neo Geo AES': System('aes', ['neogoeo'], [], {MediaType.Cartridge: ['bin']}),
 	#Hmm... even emulated re-releases (like the stuff on Steam) is the MVS version. Also how it works is a bit tricky, since as a system you load single .bin files through the cart slot, but everything out there is stored as multiple ROMs, even in the software list... so I dunno if this would be usable
@@ -298,7 +305,6 @@ unsupported_systems = {
 	#Which PC-98 system is which?
 	#Videoton TVC: Which is main system? TV64?
 	#Acorn Archimedes stuff (could this end up being amongst dos_mac_common?)
-	#C64DTV
 	#Jupiter Ace (ZX Spectrum clone but has different compatibility?)
 	#TI-99: Main kerfluffle seems to be .rpk file format needed for -cart loading, but everything else is in .c and .g and who knows what else; -ioport peb -ioport:peb:slot2 32kmem -ioport:peb:slot3 speech might be needed?
 
