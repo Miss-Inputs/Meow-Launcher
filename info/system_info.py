@@ -145,7 +145,7 @@ systems = {
 #Unsupported (yet) systems beyond this point, these won't be listed in any config files by default; just here to make it easier for me to add new systems later as I document what they are and what holds them back, sometimes just because I have nothing better to do I guess
 
 unsupported_systems = {
-	#Theoretically supported, but not supported enough to be considered playable, but you could configure them if you wanted to mess with the .ini files yourself (see emulator_info)
+	#Theoretically supported, but not supported enough to be considered playable, you'd have to put them into systems yourself until I figure out a better way to handle that
 	'FM Towns Marty': System('fmtmarty', ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}),
 	'Jaguar': System('jaguar', ['jaguar'], ['MAME (Atari Jaguar)'], {MediaType.Cartridge: ['j64', 'bin', 'rom'], MediaType.Executable: ['abs', 'cof', 'jag', 'prg']}),
 	'Magnavox Odyssey²': System('odyssey2', ['odyssey2'], [], {MediaType.Cartridge: ['bin', 'rom']}),
