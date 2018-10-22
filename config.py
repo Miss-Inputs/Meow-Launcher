@@ -1,5 +1,6 @@
 import os
 import configparser
+import sys
 from enum import Enum, auto
 
 from io_utils import ensure_exist
@@ -41,6 +42,16 @@ def parse_value(section, name, value_type, default_value):
 	elif value_type == ConfigValueType.PathList:
 		return parse_path_list(section[name])
 	return section[name]
+
+def parse_command_line_bool(value):
+	#I swear there was some inbuilt way to do this oh well
+	lower = value.lower()
+	if lower in ('yes', 'true', 'on', 't', 'y', 'yeah'):
+		return True
+	elif lower in ('no', 'false', 'off', 'f', 'n', 'nah', 'nope'):
+		return False
+
+	raise TypeError(value)
 
 def convert_value_for_ini(value):
 	if value is None:
@@ -84,6 +95,31 @@ _config_ini_values = {
 	'dosbox_configs_path': ConfigValue('DOS', ConfigValueType.Path, os.path.join(_data_dir, 'dosbox_configs'), 'dosbox-configs-path')
 }
 
+def get_command_line_arguments():
+	d = {}
+	for i, arg in enumerate(sys.argv):
+		if not arg.startswith('--'):
+			continue
+		arg = arg[2:]
+
+		for name, option in _config_ini_values.items():
+			if arg == option.command_line_option:
+				value = sys.argv[i + 1]
+				#TODO: If value = another argument starts with --, invalid?
+				#TODO: Accept boolean options with --blah and --no-blah?
+				if option.type == ConfigValueType.Bool:
+					d[name] = parse_command_line_bool(value)
+				elif option.type == ConfigValueType.Path:
+					d[name] = os.path.expanduser(value)
+				elif option.type == ConfigValueType.PathList:
+					d[name] = parse_path_list(value)
+				elif option.type == ConfigValueType.StringList:
+					d[name] = parse_string_list(value)
+				else:
+					d[name] = value
+	return d
+
+
 class Config():
 	class __Config():
 		def __init__(self):
@@ -91,7 +127,8 @@ class Config():
 			for name, config in _config_ini_values.items():
 				self.values[name] = config.default_value
 
-			#TODO Load from command line
+			self.command_line_overrides = get_command_line_arguments()
+
 			parser = configparser.ConfigParser(interpolation=None)
 			parser.optionxform = str
 			self.parser = parser
@@ -104,6 +141,8 @@ class Config():
 
 		def __getattr__(self, name):
 			if name in self.values:
+				if name in self.command_line_overrides:
+					return self.command_line_overrides[name]
 				config = _config_ini_values[name]
 
 				if config.section not in self.parser:
@@ -131,9 +170,15 @@ class Config():
 main_config = Config.getConfig()
 
 def load_ignored_directories():
-	#TODO: Override by command line
 	with open(_ignored_dirs_path, 'rt') as ignored_txt:
 		ignored_directories = ignored_txt.read().splitlines()
+
+	if '--ignored-directories' in sys.argv:
+		index = sys.argv.index('--ignored-directories')
+		arg = sys.argv[index + 1]
+		for ignored_dir in parse_path_list(arg):
+			ignored_directories.append(ignored_dir)
+
 	return ignored_directories
 ignored_directories = load_ignored_directories()
 
