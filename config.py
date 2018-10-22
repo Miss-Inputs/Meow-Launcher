@@ -170,9 +170,11 @@ class Config():
 main_config = Config.getConfig()
 
 def load_ignored_directories():
+	ignored_directores = []
+
 	try:
 		with open(_ignored_dirs_path, 'rt') as ignored_txt:
-			ignored_directories = ignored_txt.read().splitlines()
+			ignored_directories += ignored_txt.read().splitlines()
 	except FileNotFoundError:
 		pass
 
@@ -181,6 +183,8 @@ def load_ignored_directories():
 		arg = sys.argv[index + 1]
 		for ignored_dir in parse_path_list(arg):
 			ignored_directories.append(ignored_dir)
+
+	ignored_directories = [dir if dir.endswith(os.sep) else dir + os.sep for dir in ignored_directories]
 
 	return ignored_directories
 ignored_directories = load_ignored_directories()
