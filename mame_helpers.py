@@ -183,7 +183,6 @@ def get_mame_ui_config():
 	path = os.path.expanduser('~/.mame/ui.ini')
 	if os.path.isfile(path):
 		return MameConfigFile(path)
-	#TODO: Handle the case of the file not being there better
 	return None
 
 def get_full_name(driver_name):
