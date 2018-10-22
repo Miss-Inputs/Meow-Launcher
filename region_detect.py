@@ -58,7 +58,6 @@ def get_languages_from_filename_tags(tags, ignored_tags=None):
 
 		translation_match = translated_regex.match(tag)
 		if translation_match:
-			#TODO: Has there ever been a fan translation into multiple languages?
 			return [get_language_by_short_code(translation_match.group(1))]
 
 		language_list_match = language_list_regex.match(tag)
