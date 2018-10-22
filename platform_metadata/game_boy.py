@@ -125,16 +125,12 @@ def parse_gameboy_header(game, header):
 			licensee_code = convert_alphanumeric(header[0x44:0x46])
 			if licensee_code in nintendo_licensee_codes:
 				game.metadata.publisher = nintendo_licensee_codes[licensee_code]
-			elif licensee_code != '00':
-				game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(licensee_code)
 		except NotAlphanumericException:
 			pass
 	else:
 		licensee_code = '{:02X}'.format(licensee_code)
 		if licensee_code in nintendo_licensee_codes:
 			game.metadata.publisher = nintendo_licensee_codes[licensee_code]
-		elif licensee_code != '00':
-			game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(licensee_code)
 	game.metadata.revision = header[0x4c]
 
 def add_gameboy_metadata(game):

@@ -223,8 +223,6 @@ def add_normal_snes_header(game):
 		if licensee is not None:
 			if licensee in nintendo_licensee_codes:
 				game.metadata.publisher = nintendo_licensee_codes[licensee]
-			elif licensee != '00':
-				game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(licensee)
 		country = header_data.get('Country')
 		if country:
 			game.metadata.regions = [country]
@@ -298,8 +296,6 @@ def add_satellaview_metadata(game):
 		if publisher is not None:
 			if publisher in nintendo_licensee_codes:
 				game.metadata.publisher = nintendo_licensee_codes[publisher]
-			elif publisher != '00':
-				game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(publisher)
 		game.metadata.day = header_data.get('Day')
 		game.metadata.month = header_data.get('Month')
 

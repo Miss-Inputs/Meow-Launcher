@@ -94,8 +94,6 @@ def parse_ds_header(game, header):
 		licensee_code = convert_alphanumeric(header[16:18])
 		if licensee_code in nintendo_licensee_codes:
 			game.metadata.publisher = nintendo_licensee_codes[licensee_code]
-		elif licensee_code != '00':
-			game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(licensee_code)
 	except NotAlphanumericException:
 		pass
 

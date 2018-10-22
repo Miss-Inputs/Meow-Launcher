@@ -32,8 +32,6 @@ def parse_gba_header(game, header):
 
 		if licensee_code in nintendo_licensee_codes:
 			game.metadata.publisher = nintendo_licensee_codes[licensee_code]
-		elif licensee_code != '00':
-			game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(licensee_code)
 	except NotAlphanumericException:
 		pass
 

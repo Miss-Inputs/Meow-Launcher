@@ -207,8 +207,6 @@ def add_fds_metadata(game):
 	licensee_code = '{:02X}'.format(header[15])
 	if licensee_code in nintendo_licensee_codes:
 		game.metadata.publisher = nintendo_licensee_codes[licensee_code]
-	elif licensee_code != '00':
-		game.metadata.publisher = '<unknown Nintendo licensee {0}>'.format(licensee_code)
 
 	game.metadata.revision = header[20]
 	#Uses Showa years (hence 1925), in theory... but then some disks (notably Zelda) seem to use 19xx years, as it has an actual value of 0x86 which results in it being Showa 86 = 2011, but it should be [Feb 21] 1986, so... hmm
