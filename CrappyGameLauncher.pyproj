@@ -110,6 +110,9 @@
     <Compile Include="platform_metadata\snes.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="platform_metadata\uzebox.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="software_list_info.py">
       <SubType>Code</SubType>
     </Compile>

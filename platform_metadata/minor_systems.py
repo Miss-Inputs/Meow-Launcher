@@ -532,18 +532,6 @@ def add_atari_5200_info(game):
 		normal_controller.analog_sticks = 1
 		game.metadata.input_info.add_option([normal_controller])
 
-def add_uzebox_info(game):
-	#TODO: .uze files have 512-byte header, just not much info that we can't already get from software lists
-	#But there is an icon at 0x4e:0x14d, just apparently never used; and SNES mouse usage at 0x152
-	#Input info: SNES controllers, but that could be any SNES peripheral (mouse, etc)
-
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
-		if game.metadata.publisher == 'Belogic':
-			game.metadata.publisher = game.metadata.developer
-		game.metadata.product_code = software.get_info('serial')
-
 def add_pce_info(game):
 	#Input could be 2 buttons or 6 buttons, usually the former. Might be other types too?
 	#Some games should have saving via TurboBooster-Plus (Wii U VC seems to let me save in Neutopia anyway without passwords or savestates), which I guess would be SaveType.Internal

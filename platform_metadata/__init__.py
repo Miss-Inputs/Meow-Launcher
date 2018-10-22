@@ -19,6 +19,7 @@ from platform_metadata.pokemon_mini import add_pokemini_metadata
 from platform_metadata.psp import add_psp_metadata
 from platform_metadata.saturn import add_saturn_metadata
 from platform_metadata.snes import add_snes_metadata
+from platform_metadata.uzebox import add_uzebox_metadata
 from platform_metadata.vectrex import add_vectrex_metadata
 from platform_metadata.virtual_boy import add_virtual_boy_metadata
 from platform_metadata.wii import add_wii_metadata
@@ -64,6 +65,7 @@ helpers = {
 	'PSP': add_psp_metadata,
 	'Saturn': add_saturn_metadata,
 	'SNES': add_snes_metadata,
+	'Uzebox': add_uzebox_metadata,
 	'Vectrex': add_vectrex_metadata,
 	'Virtual Boy': add_virtual_boy_metadata,
 	'Wii': add_wii_metadata,
@@ -111,7 +113,6 @@ helpers = {
 	'Sharp X1': add_sharp_x1_info,
 	'Sharp X68000': add_sharp_x68k_info,
 	'Tomy Tutor': add_tomy_tutor_info,
-	'Uzebox': add_uzebox_info,
 	'VC 4000': add_vc4000_info,
 	'VIC-10': add_vic10_info,
 	'VIC-20': add_vic20_info,
