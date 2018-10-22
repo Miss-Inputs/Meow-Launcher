@@ -11,28 +11,28 @@ def get_language_by_short_code(code):
 		if language.short_code == code:
 			return language
 
-	return None #TODO: Would it be better to throw an exception instead?
+	return None
 
 def get_language_by_english_name(name):
 	for language in region_info.languages:
 		if language.english_name == name:
 			return language
 
-	return None #TODO: Would it be better to throw an exception instead?
+	return None
 
 def get_region_by_name(name):
 	for region in region_info.regions:
 		if region.name == name:
 			return region
 
-	return None #TODO: Would it be better to throw exception and make callers use try/except?
+	return None
 
 def get_region_by_short_code(short_code):
 	for region in region_info.regions:
 		if region.short_code == short_code:
 			return region
 
-	return None #TODO: Would it be better to throw exception and make callers use try/except?
+	return None
 
 def get_languages_from_regions(regions):
 	common_language = None
