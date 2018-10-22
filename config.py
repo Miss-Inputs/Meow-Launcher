@@ -31,6 +31,17 @@ def parse_path_list(value):
 		return []
 	return [os.path.expanduser(p) for p in parse_string_list(value)]
 
+def parse_value(section, name, type, default_value):
+	if type == ConfigValueType.Bool:
+		return section.getboolean(name, default_value)
+	elif type == ConfigValueType.Path:
+		return os.path.expanduser(section[name])
+	elif type == ConfigValueType.StringList:
+		return parse_string_list(section[name])
+	elif type == ConfigValueType.PathList:
+		return parse_path_list(section[name])
+	return section[name]
+
 def convert_value_for_ini(value):
 	if value is None:
 		return ''
@@ -103,17 +114,9 @@ class Config():
 				if name not in section:
 					section[name] = convert_value_for_ini(config.default_value)
 					self.rewrite_config()
-					value = config.default_value
-				else:
-					if config.type == ConfigValueType.Bool:
-						value = section.getboolean(name, config.default_value)
-					elif config.type == ConfigValueType.Path:
-						value = os.path.expanduser(section[name])
-					elif config.type == ConfigValueType.StringList:
-						value = parse_string_list(section[name])
-					elif config.type == ConfigValueType.PathList:
-						value = parse_path_list(section[name])
-				return value
+					return config.default_value
+
+				return parse_value(section, name, config.type, config.default_value)
 
 			raise AttributeError(name)
 
