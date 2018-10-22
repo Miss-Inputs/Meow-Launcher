@@ -46,6 +46,7 @@ def consistentify_manufacturer(manufacturer):
 		'Dempa Shinbunsha': 'Dempa',
 		'Disney Interactive': 'Disney',
 		'Disney Interactive Studios': 'Disney',
+		'Disney Software': 'Disney',
 		'Dreamworks Games': 'DreamWorks',
 		'DSI Games': 'Destination Software', #They kinda go by both, actually...
 		'dtp Entertainment': 'Digital Tainment Pool', #Yeah, they also go by both...
@@ -58,18 +59,21 @@ def consistentify_manufacturer(manufacturer):
 		'HAL Laboratory': 'HAL',
 		'Hasbro Interactive': 'Hasbro',
 		'HiCom': 'Hi-Com',
+		'Hot-B Co., Ltd.': 'Hot-B',
 		'Hudson': 'Hudson Soft',
 		'Human Entertainment': 'Human',
 		'International Business Machines': 'IBM',
 		'INTV Corp.': 'INTV',
 		'JoWooD Entertainment AG': 'JoWooD Entertainment',
 		'Kaneko Elc. Co.': 'Kaneko',
+		'K-Tel Vision': 'K-Tel',
 		'Laser Beam': 'Laser Beam Entertainment',
 		'LEGO Media': 'Lego',
 		'Mattel Electronics': 'Mattel',
 		'Mattel Interactive': 'Mattel',
 		'Mattel Media': 'Mattel',
 		'MicroCabin': 'Micro Cabin', #Annoying alternate spelling because they officially use both just to be annoying
+		'Microprose Games Inc.': 'MicroProse',
 		'NEC Home Electronics': 'NEC',
 		'Nihon Telenet': 'Telenet', #I guess
 		'Nihon Bussan': 'Nichibutsu', #C'mon, use their preferred name
@@ -87,10 +91,13 @@ def consistentify_manufacturer(manufacturer):
 		'Sigma Enterprises Inc.': 'Sigma', #Every time I see this line I keep thinking "sigma balls", just thought you should know
 		'Software Toolworks': 'The Software Toolworks', #It doesn't seem right that the "correct" one is the latter, but it's used more often, so I guess it is
 		'Spinnaker Software': 'Spinnaker',
+		'Spinnaker Software Corp': 'Spinnaker',
 		'Square': 'Squaresoft', #Which is the frickin' right one?
+		'Sunrise Software': 'Sunrise',
 		'Taito Corporation': 'Taito',
 		'Taito Corporation Japan': 'Taito',
 		'Taito America Corporation': 'Taito America',
+		'TecMagik Entertainment Ltd.': 'TecMagik',
 		'T*HQ': 'THQ', #Why.
 		'Titus Software': 'Titus',
 		'UA Ltd.': 'UA Limited', #MAME uses the former (for Arcadia 2001 lists), Stella uses the latter in its database
@@ -137,6 +144,7 @@ def consistentify_manufacturer(manufacturer):
 		'Microprose': 'MicroProse',
 		'Mindscapce': 'Mindscape', #Yeah okay, that _definitely_ is a typo
 		'Pack-In-Video': 'Pack-In Video',
+		'SONY': 'Sony',
 		'SpectraVideo': 'Spectravideo',
 		'Take Two Interactive': 'Take-Two Interactive',
 		'VAP': 'Vap',
