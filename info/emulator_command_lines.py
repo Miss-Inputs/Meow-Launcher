@@ -226,7 +226,6 @@ def mame_snes(game, other_config):
 	if game.rom.extension == 'st':
 		bios_path = other_config.get('sufami_turbo_bios_path', None)
 		if not bios_path:
-			#TODO Only print this once!
 			raise EmulationNotSupportedException('Sufami Turbo BIOS not set up, check emulators.ini')
 
 		#We don't need to detect TV type because the Sufami Turbo (and also BS-X) was only released in Japan and so the Super Famicom can be used for everything
