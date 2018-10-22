@@ -148,7 +148,6 @@ class Machine():
 		return romof
 
 def mame_verifyroms(basename):
-	#FIXME Okay this is way too fuckin' slow
 	try:
 		subprocess.run(['mame', '-verifyroms', basename], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
 		return True
