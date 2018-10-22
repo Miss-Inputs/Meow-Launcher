@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import sys
-import os
 
 import config
 import hfs
@@ -42,7 +41,6 @@ def scan_mac_volumes():
 	dos_mac_common.scan_folders('Mac', config.mac_ini_path, scan_mac_volume)
 
 if __name__ == '__main__':
-	os.makedirs(config.output_folder, exist_ok=True)
 	if '--scan' in sys.argv:
 		scan_mac_volumes()
 	else:

@@ -8,9 +8,9 @@ import time
 import datetime
 import shlex
 
-import config
 import launchers
 from info import emulator_command_lines
+from config import main_config
 from mame_helpers import get_mame_xml, get_full_name, get_mame_ui_config
 from mame_metadata import add_metadata
 from metadata import Metadata, SaveType
@@ -95,12 +95,12 @@ class Machine():
 
 	def make_launcher(self):
 		slot_options = {}
-		if self.metadata.save_type == SaveType.MemoryCard and self.source_file == 'neogeo' and config.memcard_path:
-			memory_card_path = os.path.join(config.memcard_path, self.basename + '.neo')
+		if self.metadata.save_type == SaveType.MemoryCard and self.source_file == 'neogeo' and main_config.memcard_path:
+			memory_card_path = os.path.join(main_config.memcard_path, self.basename + '.neo')
 			if os.path.isfile(memory_card_path):
 				slot_options['memc'] = shlex.quote(memory_card_path)
 			else:
-				memory_card_path = os.path.join(config.memcard_path, self.family + '.neo')
+				memory_card_path = os.path.join(main_config.memcard_path, self.family + '.neo')
 				if os.path.isfile(memory_card_path):
 					slot_options['memc'] = shlex.quote(memory_card_path)
 
@@ -204,9 +204,9 @@ def process_machine(machine):
 		return
 
 	add_metadata(machine)
-	if config.exclude_non_arcade and machine.metadata.platform == 'Non-Arcade':
+	if main_config.exclude_non_arcade and machine.metadata.platform == 'Non-Arcade':
 		return
-	if config.exclude_pinball and machine.metadata.platform == 'Pinball':
+	if main_config.exclude_pinball and machine.metadata.platform == 'Pinball':
 		return
 
 	machine.make_launcher()
@@ -258,7 +258,7 @@ def process_arcade():
 	time_started = time.perf_counter()
 
 	for driver, source_file in get_mame_drivers():
-		if source_file in config.skipped_source_files:
+		if source_file in main_config.skipped_source_files:
 			continue
 
 		process_driver(driver)
@@ -269,7 +269,7 @@ def process_arcade():
 
 
 def main():
-	os.makedirs(config.output_folder, exist_ok=True)
+	#os.makedirs(main_config.output_folder, exist_ok=True)
 
 	if '--drivers' in sys.argv:
 		arg_index = sys.argv.index('--drivers')

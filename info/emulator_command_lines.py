@@ -4,7 +4,7 @@ import sys
 import configparser
 import subprocess
 
-import config
+from config import main_config
 from platform_metadata.nes import NESPeripheral
 from .system_info import MediaType
 from .region_info import TVSystem
@@ -531,19 +531,19 @@ def basilisk_ii(app, other_config):
 	inner_command = 'echo {0} > {1} && {2} && rm {1}'.format(shlex.quote(app.path), shlex.quote(autoboot_txt_path), actual_emulator_command)
 	return 'sh -c {0}'.format(shlex.quote(inner_command))
 
-def _get_dos_config(app):
-	if not os.path.isdir(config.dos_configs_path):
+def _get_dosbox_config(app):
+	if not os.path.isdir(main_config.dosbox_configs_path):
 		return None
 
-	for conf in os.listdir(config.dos_configs_path):
-		path = os.path.join(config.dos_configs_path, conf)
+	for conf in os.listdir(main_config.dosbox_configs_path):
+		path = os.path.join(main_config.dosbox_configs_path, conf)
 		name, _ = os.path.splitext(conf)
 		if app.name in (name, name.replace(' - ', ': ')):
 			return path
 
 	return None
 
-def _make_dos_config(app, other_config):
+def _make_dosbox_config(app, other_config):
 	configwriter = configparser.ConfigParser()
 	configwriter.optionxform = str
 
@@ -566,17 +566,17 @@ def _make_dos_config(app, other_config):
 
 	#TODO: Perform other sanity checks on name
 	name = app.name.replace(': ', ' - ') + '.ini'
-	path = os.path.join(config.dos_configs_path, name)
+	path = os.path.join(main_config.dosbox_configs_path, name)
 
-	os.makedirs(config.dos_configs_path, exist_ok=True)
+	os.makedirs(main_config.dosbox_configs_path, exist_ok=True)
 	with open(path, 'wt') as config_file:
 		configwriter.write(config_file)
 
 	return path
 
 def dosbox(app, other_config):
-	conf = _get_dos_config(app)
+	conf = _get_dosbox_config(app)
 	if ('--regen-dos-config' in sys.argv) or not conf:
-		conf = _make_dos_config(app, other_config)
+		conf = _make_dosbox_config(app, other_config)
 	actual_command = "dosbox -exit -noautoexec -userconf -conf {1} {0}".format(shlex.quote(app.path), shlex.quote(conf))
 	return actual_command

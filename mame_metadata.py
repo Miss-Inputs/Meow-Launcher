@@ -2,8 +2,8 @@ import configparser
 import re
 import sys
 
-import config
 import input_metadata
+from config import main_config
 from info.system_info import MediaType
 from metadata import EmulationStatus, CPUInfo, ScreenInfo, SaveType
 from region_detect import get_language_by_english_name, get_regions_from_filename_tags
@@ -22,19 +22,19 @@ mame_statuses = {
 
 def get_catlist():
 	#TODO: Maybe I should just get catlist.ini from UI config category path?
-	if not config.catlist_path:
+	if not main_config.catlist_path:
 		return None
 	parser = configparser.ConfigParser(interpolation=None, allow_no_value=True)
 	parser.optionxform = str
-	parser.read(config.catlist_path)
+	parser.read(main_config.catlist_path)
 	return parser
 
 def get_languages():
-	if not config.languages_path:
+	if not main_config.languages_path:
 		return None
 	parser = configparser.ConfigParser(interpolation=None, allow_no_value=True)
 	parser.optionxform = str
-	parser.read(config.languages_path)
+	parser.read(main_config.languages_path)
 	return parser
 
 catlist = get_catlist()

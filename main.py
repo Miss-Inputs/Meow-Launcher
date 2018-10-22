@@ -5,7 +5,6 @@ import time
 import os
 import sys
 
-import config
 import roms
 import mame_machines
 import disambiguate
@@ -14,21 +13,22 @@ import mac
 import scummvm
 import dos
 
+from config import main_config, system_configs
+
 debug = '--debug' in sys.argv
 print_times = '--print-times' in sys.argv
 
 overall_time_started = time.perf_counter()
 
-if os.path.isdir(config.output_folder):
-	for f in os.listdir(config.output_folder):
-		os.unlink(os.path.join(config.output_folder, f))
-os.makedirs(config.output_folder, exist_ok=True)
+if os.path.isdir(main_config.output_folder):
+	for f in os.listdir(main_config.output_folder):
+		os.unlink(os.path.join(main_config.output_folder, f))
+os.makedirs(main_config.output_folder, exist_ok=True)
 
 if '--no-arcade' not in sys.argv:
 	mame_machines.process_arcade()
 
-for system in config.system_configs:
-	roms.process_system(system)
+roms.process_systems()
 
 mac.make_mac_launchers()
 dos.make_dos_launchers()

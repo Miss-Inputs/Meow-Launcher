@@ -7,7 +7,7 @@ import collections
 import time
 import datetime
 
-import config
+from config import main_config, system_configs
 from metadata import Metadata
 from info.system_info import MediaType
 import launchers
@@ -17,7 +17,7 @@ print_times = '--print-times' in sys.argv
 
 
 def init_game_list(platform):
-	db_path = config.mac_db_path if platform == 'mac' else config.dos_db_path if platform == 'dos' else None
+	db_path = main_config.mac_db_path if platform == 'mac' else main_config.dos_db_path if platform == 'dos' else None
 
 	if not os.path.exists(db_path):
 		print("You don't have {0}_db.json which is required for this to work. Let me get that for you.".format(platform))
@@ -109,7 +109,7 @@ def scan_folders(platform, config_path, scan_function):
 	found_games = {}
 	ambiguous_games = {}
 
-	system_config = config.get_system_config_by_name(platform)
+	system_config = system_configs.configs[platform]
 	if not system_config:
 		return
 
@@ -142,7 +142,7 @@ def scan_folders(platform, config_path, scan_function):
 	print('a better way to do this.')
 
 def make_launchers(system_config_name, config_path, app_class, emulator_list):
-	system_config = config.get_system_config_by_name(system_config_name)
+	system_config = system_configs.configs[system_config_name]
 	if not system_config:
 		return
 
@@ -164,7 +164,7 @@ def make_launchers(system_config_name, config_path, app_class, emulator_list):
 		game_config = game_list[config_name]
 		app_class(path, config_name, game_config).make_launcher(system_config, emulator_list)
 
-	do_unknown = config.launchers_for_unknown_dos_apps if system_config_name == 'DOS' else config.launchers_for_unknown_mac_apps if system_config_name == 'Mac' else False
+	do_unknown = main_config.launchers_for_unknown_dos_apps if system_config_name == 'DOS' else main_config.launchers_for_unknown_mac_apps if system_config_name == 'Mac' else False
 	if do_unknown:
 		for unknown, _ in parser.items('Unknown'):
 			app_class(unknown, unknown.split(':')[-1], {}).make_launcher(system_config, emulator_list)

@@ -6,7 +6,7 @@ import sys
 import time
 import datetime
 
-import config
+from config import main_config
 import launchers
 
 print_times = '--print-times' in sys.argv
@@ -44,9 +44,9 @@ def delete_existing_output_dir():
 		except FileNotFoundError:
 			pass
 
-	if os.path.isdir(config.organized_output_folder):
-		for f in os.listdir(config.organized_output_folder):
-			path = os.path.join(config.organized_output_folder, f)
+	if os.path.isdir(main_config.organized_output_folder):
+		for f in os.listdir(main_config.organized_output_folder):
+			path = os.path.join(main_config.organized_output_folder, f)
 			rmdir_recursive(path)
 			#Only files here, no directories
 
@@ -99,9 +99,9 @@ def move_into_extra_subfolder(path, desktop, subfolder, key, is_boolean):
 
 	if is_boolean:
 		if value != 'False':
-			copy_to_folder(path, config.organized_output_folder, subfolder)
+			copy_to_folder(path, main_config.organized_output_folder, subfolder)
 	else:
-		copy_to_folder(path, config.organized_output_folder, subfolder, value)
+		copy_to_folder(path, main_config.organized_output_folder, subfolder, value)
 
 def move_into_subfolders(path):
 	desktop = launchers.convert_desktop(path)
@@ -116,24 +116,24 @@ def move_into_subfolders(path):
 	else:
 		category = 'Uncategorized'
 
-	copy_to_folder(path, config.organized_output_folder, 'By platform', sanitize_name(platform))
-	copy_to_folder(path, config.organized_output_folder, 'By category', sanitize_name(category))
+	copy_to_folder(path, main_config.organized_output_folder, 'By platform', sanitize_name(platform))
+	copy_to_folder(path, main_config.organized_output_folder, 'By category', sanitize_name(category))
 
 	if not languages:
-		copy_to_folder(path, config.organized_output_folder, 'By language', 'Unknown')
+		copy_to_folder(path, main_config.organized_output_folder, 'By language', 'Unknown')
 	for language in languages:
-		copy_to_folder(path, config.organized_output_folder, 'By language', sanitize_name(language))
+		copy_to_folder(path, main_config.organized_output_folder, 'By language', sanitize_name(language))
 
 	if not input_methods:
-		copy_to_folder(path, config.organized_output_folder, 'By input method', 'Unknown')
+		copy_to_folder(path, main_config.organized_output_folder, 'By input method', 'Unknown')
 	else:
 		for input_method in input_methods:
-			copy_to_folder(path, config.organized_output_folder, 'By input method', sanitize_name(input_method))
+			copy_to_folder(path, main_config.organized_output_folder, 'By input method', sanitize_name(input_method))
 
 	if year:
-		copy_to_folder(path, config.organized_output_folder, 'By year', sanitize_name(year.replace('x', '?')))
+		copy_to_folder(path, main_config.organized_output_folder, 'By year', sanitize_name(year.replace('x', '?')))
 
-	copy_to_folder(path, config.organized_output_folder, 'By platform and category', sanitize_name(platform) + ' - ' + sanitize_name(category))
+	copy_to_folder(path, main_config.organized_output_folder, 'By platform and category', sanitize_name(platform) + ' - ' + sanitize_name(category))
 
 	move_into_extra_subfolder(path, desktop, 'By genre', 'X-Genre', False)
 	move_into_extra_subfolder(path, desktop, 'By subgenre', ['X-Genre', 'X-Subgenre'], False)
@@ -145,11 +145,11 @@ def move_into_subfolders(path):
 
 	if '--extra-folders' in sys.argv:
 		if len(languages) == 1:
-			copy_to_folder(path, config.organized_output_folder, 'By language', sanitize_name(languages[0]) + ' only')
+			copy_to_folder(path, main_config.organized_output_folder, 'By language', sanitize_name(languages[0]) + ' only')
 
 		filename_tags = launchers.get_array(desktop, 'X-Filename-Tags')
 		for tag in filename_tags:
-			copy_to_folder(path, config.organized_output_folder, 'By filename tag', sanitize_name(tag))
+			copy_to_folder(path, main_config.organized_output_folder, 'By filename tag', sanitize_name(tag))
 
 		for k, v in extra_subfolders.items():
 			move_into_extra_subfolder(path, desktop, k, *v)
@@ -164,7 +164,7 @@ def move_into_folders():
 
 	time_started = time.perf_counter()
 
-	for root, _, files in os.walk(config.output_folder):
+	for root, _, files in os.walk(main_config.output_folder):
 		for f in files:
 			if f.endswith('.desktop'):
 				path = os.path.join(root, f)

@@ -9,7 +9,7 @@ import sys
 import time
 import datetime
 
-import config
+from config import main_config
 import launchers
 
 debug = '--debug' in sys.argv
@@ -174,7 +174,7 @@ def normalize_name(name):
 	return name
 
 def fix_duplicate_names(method, format_function=None, ignore_missing_values=None):
-	files = [(path, launchers.convert_desktop(path)) for path in [os.path.join(config.output_folder, f) for f in os.listdir(config.output_folder)]]
+	files = [(path, launchers.convert_desktop(path)) for path in [os.path.join(main_config.output_folder, f) for f in os.listdir(main_config.output_folder)]]
 	if method == 'dev-status':
 		resolve_duplicates_by_dev_status(files)
 		return

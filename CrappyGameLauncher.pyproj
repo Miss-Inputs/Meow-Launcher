@@ -25,6 +25,7 @@
     </Compile>
     <Compile Include="common.py" />
     <Compile Include="config.py" />
+    <Compile Include="config_old.py" />
     <Compile Include="disambiguate.py">
       <SubType>Code</SubType>
     </Compile>

@@ -7,12 +7,12 @@ import time
 import datetime
 
 import common
-import config
 import archives
 import launchers
 import metadata
 import io_utils
 
+from config import system_configs, ignored_directories
 from info import system_info, emulator_info
 from info.emulator_command_lines import EmulationNotSupportedException, NotARomException
 from roms_metadata import add_engine_metadata, add_metadata
@@ -260,7 +260,7 @@ used_m3u_filenames = []
 def process_emulated_system(system_config):
 	for rom_dir in system_config.paths:
 		for root, _, files in os.walk(rom_dir):
-			if common.starts_with_any(root + os.sep, config.ignored_directories):
+			if common.starts_with_any(root + os.sep, ignored_directories):
 				continue
 			for name in sorted(files, key=sort_m3u_first()):
 				path = os.path.join(root, name)
@@ -322,13 +322,14 @@ def process_systems():
 		if arg.startswith('--exclude='):
 			excluded_systems.append(arg.partition('=')[2])
 
-	for system in config.system_configs:
-		if system.name not in excluded_systems:
-			process_system(system)
+	for system_name, system in system_configs.configs.items():
+		if system_name in excluded_systems:
+			continue
+		if not system.is_available:
+			continue
+		process_system(system)
 
 def main():
-	os.makedirs(config.output_folder, exist_ok=True)
-
 	if len(sys.argv) >= 2 and '--rom' in sys.argv:
 		arg_index = sys.argv.index('--rom')
 		if len(sys.argv) < 4:
@@ -337,7 +338,7 @@ def main():
 
 		rom = sys.argv[arg_index + 1]
 		system = sys.argv[arg_index + 2]
-		process_file(config.get_system_config_by_name(system), os.path.basename(rom), os.path.basename(rom), Rom(rom))
+		process_file(system_configs.configs[system], os.path.basename(rom), os.path.basename(rom), Rom(rom))
 		return
 
 	if len(sys.argv) >= 2 and '--systems' in sys.argv:
@@ -348,7 +349,7 @@ def main():
 
 		system_list = sys.argv[arg_index + 1].split(',')
 		for system_name in system_list:
-			process_system(config.get_system_config_by_name(system_name))
+			process_system(system_configs.configs[system_name])
 		return
 
 	process_systems()

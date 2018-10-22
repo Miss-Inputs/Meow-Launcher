@@ -50,7 +50,6 @@ def scan_dos_folders():
 	dos_mac_common.scan_folders('DOS', config.dos_ini_path, scan_dos_folder)
 
 if __name__ == '__main__':
-	os.makedirs(config.output_folder, exist_ok=True)
 	if '--scan' in sys.argv:
 		scan_dos_folders()
 	else:

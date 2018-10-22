@@ -1,6 +1,11 @@
 import os
+import pathlib
 
 import archives
+
+def ensure_exist(path):
+	pathlib.Path(os.path.dirname(path)).mkdir(exist_ok=True, parents=True)
+	pathlib.Path(path).touch()
 
 def get_real_size(path, compressed_entry=None):
 	if compressed_entry is None:

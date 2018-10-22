@@ -2,8 +2,9 @@ import re
 import os
 import configparser
 
-import config
 import common
+from config import main_config, name_replacement, add_the, subtitle_removal
+from io_utils import ensure_exist
 
 def convert_desktop(path):
 	parser = configparser.ConfigParser(interpolation=None)
@@ -47,7 +48,7 @@ def base_make_desktop(command, display_name, fields=None, icon=None):
 		filename = base_filename + str(i) + '.desktop'
 		i += 1
 
-	path = os.path.join(config.output_folder, filename)
+	path = os.path.join(main_config.output_folder, filename)
 	used_filenames.append(filename)
 
 	configwriter = configparser.ConfigParser(interpolation=None)
@@ -66,10 +67,11 @@ def base_make_desktop(command, display_name, fields=None, icon=None):
 	if icon:
 		if isinstance(icon, str):
 			desktop_entry['Icon'] = icon
-		elif config.icon_folder: #assume PIL/Pillow image
-			icon_path = os.path.join(config.icon_folder, filename + '.png')
-			icon.save(icon_path, 'png')
-			desktop_entry['Icon'] = icon_path
+		else: #assume PIL/Pillow image
+			if main_config.icon_folder:
+				icon_path = os.path.join(main_config.icon_folder, filename + '.png')
+				icon.save(icon_path, 'png')
+				desktop_entry['Icon'] = icon_path
 
 	if fields:
 		for k, v in fields.items():
@@ -85,7 +87,7 @@ def base_make_desktop(command, display_name, fields=None, icon=None):
 
 			desktop_entry['X-' + k.replace('_', '-')] = value_as_string
 
-
+	ensure_exist(path)
 	with open(path, 'wt') as f:
 		configwriter.write(f)
 
@@ -95,11 +97,11 @@ def base_make_desktop(command, display_name, fields=None, icon=None):
 def make_display_name(name):
 	display_name = common.remove_filename_tags(name)
 
-	for replacement in config.name_replacement:
+	for replacement in name_replacement:
 		display_name = re.sub(r'(?<!\w)' + re.escape(replacement[0]) + r'(?!\w)', replacement[1], display_name, flags=re.I)
-	for replacement in config.add_the:
+	for replacement in add_the:
 		display_name = re.sub(r'(?<!The )' + re.escape(replacement), 'The ' + replacement, display_name, flags=re.I)
-	for replacement in config.subtitle_removal:
+	for replacement in subtitle_removal:
 		display_name = re.sub(r'^' + re.escape(replacement[0]) + r'(?!\w)', replacement[1], display_name, flags=re.I)
 
 	return display_name
