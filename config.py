@@ -170,7 +170,7 @@ class Config():
 main_config = Config.getConfig()
 
 def load_ignored_directories():
-	ignored_directores = []
+	ignored_directories = []
 
 	try:
 		with open(_ignored_dirs_path, 'rt') as ignored_txt:
