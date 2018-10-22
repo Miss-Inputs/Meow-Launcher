@@ -258,7 +258,6 @@ def add_vic10_info(game):
 def add_vic20_info(game):
 	#Input info: Keyboard and/or joystick
 
-	#TODO: Is it possible that .a0 etc might have the header too? It shouldn't, but files get misnamed sometimes
 	#This won't work with >8KB carts at the moment, because MAME stores those in the software list as two separate ROMs. But then they won't have launchers anyway because our only emulator for VIC-20 is MAME itself, and it doesn't let us just put the two ROMs together ourselves, those games are basically software list only at the moment (because it won't let us have one single file above 8KB).
 
 	has_header = game.metadata.media_type == MediaType.Cartridge and (game.rom.get_size() % 256) == 2
