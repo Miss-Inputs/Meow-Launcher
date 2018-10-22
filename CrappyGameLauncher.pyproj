@@ -175,8 +175,6 @@
   <ItemGroup>
     <Content Include=".leu" />
     <Content Include=".pylintrc" />
-    <Content Include="config.ini.template" />
-    <Content Include="emulators.ini.template" />
     <Content Include="LICENSE" />
     <Content Include="mame_autoboot\tomy_tutor.lua" />
     <Content Include="name_consistency.ini" />
