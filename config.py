@@ -31,14 +31,14 @@ def parse_path_list(value):
 		return []
 	return [os.path.expanduser(p) for p in parse_string_list(value)]
 
-def parse_value(section, name, type, default_value):
-	if type == ConfigValueType.Bool:
+def parse_value(section, name, value_type, default_value):
+	if value_type == ConfigValueType.Bool:
 		return section.getboolean(name, default_value)
-	elif type == ConfigValueType.Path:
+	elif value_type == ConfigValueType.Path:
 		return os.path.expanduser(section[name])
-	elif type == ConfigValueType.StringList:
+	elif value_type == ConfigValueType.StringList:
 		return parse_string_list(section[name])
-	elif type == ConfigValueType.PathList:
+	elif value_type == ConfigValueType.PathList:
 		return parse_path_list(section[name])
 	return section[name]
 
