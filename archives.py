@@ -15,7 +15,7 @@ def zip_list(path):
 
 sevenzip_path_reg = re.compile(r'^Path\s+=\s+(.+)$', flags=re.IGNORECASE)
 def sevenzip_list(path):
-	#FIXME This is slow actually
+	#FIXME This is slow actually... I'm gonna need to implement 7z myself
 	proc = subprocess.run(['7z', 'l', '-slt', path], stdout=subprocess.PIPE, universal_newlines=True)
 	if proc.returncode != 0:
 		raise Bad7zException('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
