@@ -13,7 +13,7 @@ import mac
 import scummvm
 import dos
 
-from config import main_config, system_configs
+from config import main_config
 
 debug = '--debug' in sys.argv
 print_times = '--print-times' in sys.argv
