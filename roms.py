@@ -297,7 +297,7 @@ def process_engine_system(system_config, game_info):
 def validate_emulator_choices(system_config, system):
 	for chosen_emulator in system_config.chosen_emulators:
 		if chosen_emulator not in system.emulators:
-			print(chosen_emulator, 'is not valid for', system.name)
+			print(chosen_emulator, 'is not valid for', system_config.name)
 			return False
 	return True
 
