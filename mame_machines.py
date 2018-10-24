@@ -135,11 +135,22 @@ class Machine():
 
 	@property
 	def requires_chds(self):
+		#Hmm... should this include where all <disk> has status == "nodump"? e.g. Dragon's Lair has no CHD dump, would it be useful to say that it requires CHDs because it's supposed to have one but doesn't, or not, because you have a good romset without one
+		#I guess I should have a look at how the MAME inbuilt UI does this
 		return self.xml.find('disk') is not None
 
 	@property
 	def romless(self):
-		return self.xml.find('rom') is None and not self.requires_chds
+		if self.requires_chds:
+			return False
+		if self.xml.find('rom') is None:
+			return True
+
+		for rom in self.xml.findall('roms'):
+			if rom.attrib.get('status', 'good') != 'nodump':
+				return False
+
+		return True
 
 	@property
 	def bios(self):
