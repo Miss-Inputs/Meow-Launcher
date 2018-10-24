@@ -146,7 +146,7 @@ class Machine():
 		if self.xml.find('rom') is None:
 			return True
 
-		for rom in self.xml.findall('roms'):
+		for rom in self.xml.findall('rom'):
 			if rom.attrib.get('status', 'good') != 'nodump':
 				return False
 
