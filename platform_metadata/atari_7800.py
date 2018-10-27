@@ -68,10 +68,10 @@ def _add_atari_7800_header_info(game, header):
 		#High Score Cart, an unreleased device that ends up being supported by some games (apparently). Just saves high scores so don't get too excited.
 		#You plug the High Score Cart into the 7800 and then the game into the High Score Cart, so I guess this is the easiest thing to call it.
 		game.metadata.save_type = SaveType.Internal
+		game.metadata.specific_info['Uses-Hiscore-Cart'] = True
 	elif save_type == 2:
 		#AtariVox/SaveKey. Both are third party products which plug into the controller port, so what else can you call them except memory cards?
 		game.metadata.save_type = SaveType.MemoryCard
-		game.metadata.specific_info['Uses-Hiscore-Cart'] = True
 	elif debug:
 		print(game.rom.path, 'has save type byte of ', save_type)
 
