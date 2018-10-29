@@ -112,11 +112,11 @@ def read_gcz(path, seek_to=0, amount=-1):
 	block_size = int.from_bytes(gcz_header[24:28], 'little')
 
 	#High bit indicates if compressed
-	block_pointers = struct.unpack('<' + ('Q' * num_blocks), read_file(path, seek_to=32, amount=8 * num_blocks))
+	block_pointers = struct.unpack('<%dQ' % num_blocks, read_file(path, seek_to=32, amount=8 * num_blocks))
 
 	first_block = seek_to // block_size
 	end = seek_to + amount
-	blocks_to_read = (((end - 1) // block_size) + 1) - first_block
+	blocks_to_read = int(((end - 1) / block_size) + 1) - first_block
 	remaining = amount
 
 	data = b''
@@ -137,7 +137,11 @@ def read_gcz(path, seek_to=0, amount=-1):
 def get_compressed_gcz_block_size(compressed_size, block_pointers, block_num):
 	start = block_pointers[block_num]
 	if block_num < (len(block_pointers) - 1):
-		return block_pointers[block_num + 1] - start
+		end = block_pointers[block_num + 1]
+		if end & (1 << 63):
+			#What the damn heck. This stuff was otherwise more or less a direct translation of C# code I wrote once and I didn't need to do this little bit twiddle here. Apparently basic mathematics are different between programming languages. Thanks. I hate it.
+			end &= ~(1 << 63)
+		return end - start
 
 	return compressed_size - start
 
