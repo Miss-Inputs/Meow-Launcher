@@ -163,7 +163,13 @@ def parse_smdh_data(game, smdh):
 	#Version = 4-6
 	#Reserved = 6-8
 	#Titles = 8-0x2008 (512 bytes each (128 short title + 256 long title + 128 publisher ) * 16 languages)
-	#Is it always the publisher? Can I trust that information for ze metadatum?
+	if not game.metadata.publisher:
+		english_publisher_offset = 8 + (128 + 256 + 128) + 128 + 256 #After Japanese title data, English short title, English long title
+		try:
+			game.metadata.publisher = smdh[english_publisher_offset: english_publisher_offset + 0x80].decode('utf16').rstrip('\0')
+		except UnicodeDecodeError:
+			pass
+
 	#Ratings = 0x2008-0x2018 (mostly same format as DSi and Wii but not quite)
 	#Region coding = 0x2018-0x201c
 	#Match maker IDs for online play = 0x201c-0x2028
