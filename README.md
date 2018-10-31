@@ -76,6 +76,6 @@ And then you can take those .desktop files and do what you want. Put them in you
 
 In future I want to make a GUI frontend myself but I haven't yet.
 
-Use [https://gist.github.com/Zowayix/f511490865bc5aa8a66ad0776ae066df](this) to regenerate nintendo_licensee_codes from ROMniscience's source if you need to (adjusting the local path to the source file accordingly). Not that anyone would probably want this project if I got hit by a bus, but maybe someone wants to know how to do that. I'm not cool enough to have any sort of automated build steps or whatever.
+Use [this](https://gist.github.com/Zowayix/f511490865bc5aa8a66ad0776ae066df) to regenerate nintendo_licensee_codes from ROMniscience's source if you need to (adjusting the local path to the source file accordingly). Not that anyone would probably want this project if I got hit by a bus, but maybe someone wants to know how to do that. I'm not cool enough to have any sort of automated build steps or whatever.
 
 So that's the readme so far. I've never really been good at them. Sorry. I'll just have to make it up as I go along.
