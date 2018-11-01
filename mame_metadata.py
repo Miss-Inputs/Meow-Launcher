@@ -368,46 +368,52 @@ def add_input_info(machine):
 
 	input_option = input_metadata.InputOption()
 
+	has_normal_input = False
+	has_added_vii_motion_controls = False
+	normal_input = input_metadata.NormalInput()
+
 	for control in control_elements:
 		buttons = int(control.attrib.get('buttons', 0))
 
 		if control.attrib.get('player', '1') != '1':
 			#I care not for these "other people" and "social interaction" concepts
-			#Anyway, this would only matter for stuff like Lucky & Wild, and... not sure what I'm gonna do about that, because we wanna avoid doubling up on input types where number of players > 1
+			#Anyway, this would only matter for stuff where player 2 has a different control scheme like Lucky & Wild, and... not sure what I'm gonna do about that, because we wanna avoid doubling up on input types where number of players > 1, and then that seems to be correct anyway
 			continue
 
 		#Still kinda feel like this is messy but ehhh
+		#Input metadata will probably never be perfect, MAME -listxml outputs things for a different purpose really, it just be like that sometimes
+		#I wonder if I'd be better off making some kind of controls.ini file myself
 		input_type = control.attrib['type']
 		if input_type == 'only_buttons':
-			normal_input = input_metadata.NormalInput()
-			normal_input.face_buttons = buttons
-			input_option.inputs.append(normal_input)
+			has_normal_input = True
+			normal_input.face_buttons += buttons
 		elif input_type == 'joy':
-			normal_input = input_metadata.NormalInput()
-			normal_input.face_buttons = buttons
-			normal_input.dpads = 1
-			input_option.inputs.append(normal_input)
+			has_normal_input = True
+			normal_input.face_buttons += buttons
+			normal_input.dpads += 1
 		elif input_type == 'doublejoy':
-			normal_input = input_metadata.NormalInput()
-			normal_input.face_buttons = buttons
-			normal_input.dpads = 2
-			input_option.inputs.append(normal_input)
+			has_normal_input = True
+			normal_input.face_buttons += buttons
+			normal_input.dpads += 2
 		elif input_type == 'triplejoy':
-			normal_input = input_metadata.NormalInput()
-			normal_input.face_buttons = buttons
-			normal_input.dpads = 3
-			input_option.inputs.append(normal_input)
+			has_normal_input = True
+			normal_input.face_buttons += buttons
+			normal_input.dpads += 3
 		elif input_type == 'paddle':
 			if machine.metadata.genre == 'Driving':
 				#Yeah this looks weird and hardcody and dodgy but am I wrong
 				input_option.inputs.append(input_metadata.SteeringWheel())
+			elif machine.basename == 'vii':
+				#Uses 3 "paddle" inputs to represent 3-axis motion and I guess I'll have to deal with that
+				if not has_added_vii_motion_controls:
+					input_option.inputs.append(input_metadata.MotionControls())
+					has_added_vii_motion_controls = True
 			else:
 				input_option.inputs.append(input_metadata.Paddle())
 		elif input_type == 'stick':
-			normal_input = input_metadata.NormalInput()
-			normal_input.analog_sticks = 1
-			normal_input.face_buttons = buttons
-			input_option.inputs.append(normal_input)
+			has_normal_input = True
+			normal_input.analog_sticks += 1
+			normal_input.face_buttons += buttons
 		elif input_type == 'pedal':
 			input_option.inputs.append(input_metadata.Pedal())
 		elif input_type == 'lightgun':
@@ -435,4 +441,7 @@ def add_input_info(machine):
 		else:
 			input_option.inputs.append(input_metadata.Custom())
 
-		machine.metadata.input_info.input_options = [input_option]
+	if has_normal_input:
+		input_option.inputs.append(normal_input)
+
+	machine.metadata.input_info.input_options = [input_option]
