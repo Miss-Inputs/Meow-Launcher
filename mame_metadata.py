@@ -98,7 +98,7 @@ arcade_systems = {
 	'expro02': 'Kaneko EXPRO-02',
 	'fuukifg2': 'Fuuki FG-2',
 	'fuukifg3': 'Fuuki FG-3',
-	'hikaru': 'Hikaru', #Based on Dreamcast, non-working
+	'hikaru': 'Hikaru', #Based on souped up Naomi and in turn Dreamcast, non-working
 	'hng64': 'Hyper Neo Geo 64', #Barely working
 	'hornet': 'Konami Hornet',
 	'jaguar': 'CoJag', #This is the same source file used for the Jaguar console too
@@ -107,6 +107,7 @@ arcade_systems = {
 	'konamigx': 'Konami GX',
 	'konamim2': 'Konami M2', #Based on unreleased Panasonic M2, non-working
 	'ksys573': 'Konami System 573', #Based on PS1
+	'lindbergh': 'Sega Lindbergh', #(modern) PC based, very non-working
 	'm52': 'Irem M52',
 	'm58': 'Irem M58',
 	'm62': 'Irem M62',
@@ -147,8 +148,8 @@ arcade_systems = {
 	'photon2': 'Photon IK-3', #Leningrad-1 based (Russian ZX Spectrum clone)
 	'psikyo4': 'Psikyo PS4',
 	'seattle': 'Midway Seattle',
-	'segac2': 'System C2', #Based on Megadrive kinda
-	'segae': 'System E', #Based on SMS kinda
+	'segac2': 'System C2', #Similar to Megadrive
+	'segae': 'System E', #Similar to Master System
 	'segag80r': 'Sega G-80 Raster',
 	'segag80v': 'Sega G-80 Vector',
 	'segas16a': 'System 16A', #Similar to Megadrive
@@ -177,13 +178,14 @@ arcade_systems = {
 	'taitosj': 'Taito SJ',
 	'taito_o': 'Taito O System',
 	'taitopjc': 'Taito Power-JC',
+	'taitotx': 'Taito Type X', #Modern PC based, very non-working
 	'taitowlf': 'Taito Wolf', #3Dfx (Pentium) based
 	'taito_x': 'Taito X-System',
 	'taito_z': 'Taito Z System',
 	'tiamc1': 'TIA-MC1',
 	'triforce': 'Triforce', #GameCube based
 	'ultrsprt': 'Konami Ultra Sports',
-	'vegas': 'Midway Vegas', #Barely working
+	'vegas': 'Midway Vegas',
 	'vicdual': 'VIC Dual',
 	'viper': 'Konami Viper', #3Dfx (PPC) based
 	'vsnes': 'VS Unisystem',
