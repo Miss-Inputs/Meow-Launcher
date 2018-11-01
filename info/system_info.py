@@ -167,7 +167,7 @@ unsupported_systems = {
 	#No emulators, no dumps (probably nobody has decided the best way to preserve VHS games), no nothing
 	'Bandai Playdia': System(None, [], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'Casio Loopy': System('casloopy', ['casloopy'], [], {MediaType.Cartridge: ['bin']}),
-	'Coleco Telstar Arcade': System([], [], {}),
+	'Coleco Telstar Arcade': System(None, [], [], {}),
 	'GameKing': System('gameking', ['gameking'], [], {MediaType.Cartridge: ['bin']}),
 	'GameKing 3': System('gamekin3', ['gameking3'], [], {MediaType.Cartridge: ['bin']}),
 	'Gakken TV Boy': System(None, [], [], {}),
@@ -183,15 +183,17 @@ unsupported_systems = {
 	'Mattel HyperScan': System('hs', ['hyperscan'], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'Microvision': System('microvsn', ['microvision'], [], {MediaType.Cartridge: ['bin']}),
 	#Cartridges boot, but seem to do nothing...
-	'N-Gage': System(None, [], [], {}), #File types are.. folders I think
+	'N-Gage': System(None, [], [], {}), #File types are.. folders I think. That could get weird. Anyway, all emulators at this stage seem to be super-preliminary
 	'Nuon': System(None, [], [], {}),
 	'Pippin': System('pippin', ['pippin', 'pippin_flop'], [], {MediaType.OpticalDisc: cdrom_formats}),
 	#Games don't just boot in a PPC Mac, unfortunately. No PPC Mac emulator has branched off into specific Pippin emulation yet
 	'Sawatte Pico': System('sawatte', ['sawatte'], [], {}),
 	#Similar to the Sega Pico but with different software (may or may not also use Megadrive ROM header?), but is completely unemulated. Not sure if dump format is identical
-	'V.Smile': System('vsmile', ['vsmile_cart', 'vsmile_cd', 'vsmileb_cart', 'vsmilem_cart'], [], {MediaType.Cartridge: ['bin'], MediaType.OpticalDisc: cdrom_formats}),
+	'Tomy Prin-C': System('princ', ['princ'], [], {MediaType.Cartridge: ['bin']}), #MAME has skeleton driver that displays a green background and then doesn't go anywhere
+	'V.Smile': System('vsmile', ['vsmile_cart', 'vsmile_cd', 'vsmileb_cart', 'vsmilem_cart'], [], {MediaType.Cartridge: ['bin'], MediaType.OpticalDisc: cdrom_formats}), #MAME will boot the carts, but seemingly not proceed any further than title screens (doesn't seem to have input)
 	'Video Challenger': System([], [], {}),
-	'Xbox': System('xbox', [], []),
+	'Xbox': System('xbox', [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xbe']}),
+	#Cxbx-Reloaded will only run on Windows; XQEMU isn't ready yet
 	'Xbox 360': System(None, [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xex']}),
 	#Xenia requires Windows 8 + Vulkan, somehow I don't think it'd ever run under Wine either
 	'ZAPit GameWave': System(None, [], [], {MediaType.OpticalDisc: ['iso']}),
