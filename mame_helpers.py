@@ -148,6 +148,8 @@ def consistentify_manufacturer(manufacturer):
 		'SpectraVideo': 'Spectravideo',
 		'Take Two Interactive': 'Take-Two Interactive',
 		'VAP': 'Vap',
+
+		'unknown': '<unknown>', #This shows up in sv8000 software list, so it might actually just be Bandai, but when you presume you make a pres out of u and me, so we'll just lump it in with the other unknowns
 	}.get(manufacturer, manufacturer)
 
 
