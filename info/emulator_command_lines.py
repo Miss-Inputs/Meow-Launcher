@@ -61,6 +61,7 @@ _have_hiscore_software = _is_highscore_cart_available()
 
 def mame_atari_7800(game, _):
 	if not game.metadata.specific_info.get('Headered', False):
+		#This would only be supported via software list
 		raise EmulationNotSupportedException('No header')
 
 	if game.metadata.tv_type == TVSystem.PAL:
@@ -90,19 +91,19 @@ def mame_atari_8bit(game, _):
 	if game.metadata.specific_info.get('Headered', False):
 		cart_type = game.metadata.specific_info['Cart-Type']
 		if cart_type in (13, 14, 23, 24, 25) or (cart_type >= 33 and cart_type <= 38):
-			raise EmulationNotSupportedException('Actually a XEGS ROM which is not supported by MAME yet, cart type is %d' % cart_type)
+			raise EmulationNotSupportedException('XEGS cart: %d' % cart_type)
 
 		#You probably think this is a bad way to do this...  I guess it is, but hopefully I can take some out as they become supported
 		if cart_type in (5, 17, 22, 41, 42, 43, 45, 46, 47, 48, 49, 53, 57, 58, 59, 60, 61) or (cart_type >= 26 and cart_type <= 32) or (cart_type >= 54 and cart_type <= 56):
 			raise EmulationNotSupportedException('Unsupported cart type: %d' % cart_type)
 
 		if cart_type in (4, 6, 7, 16, 19, 20):
-			raise EmulationNotSupportedException('Actually an Atari 5200 ROM, cart type = %d' % cart_type)
+			raise EmulationNotSupportedException('Atari 5200 cart (will probably work if put in the right place): %d' % cart_type)
 	else:
 		size = game.rom.get_size()
-		#Treat 8KB files as type 1, 16KB as type 2, everything else is unsupported for now
+		#8KB files are treated as type 1, 16KB as type 2, everything else is unsupported for now
 		if size > ((16 * 1024) + 16):
-			raise EmulationNotSupportedException('May actually be a XL/XE/XEGS cartridge, no header and size = %d' % size)
+			raise EmulationNotSupportedException('No header and size = %d, cannot be recognized as a valid cart yet (treated as XL/XE)' % size)
 
 	slot = 'cart1' if game.metadata.specific_info.get('Slot', 'Left') == 'Left' else 'cart2'
 
@@ -120,7 +121,7 @@ def _find_c64_system(game):
 		#Note that C64GS doesn't really work properly in MAME anyway, but the carts... not work... less than in the regular C64 driver
 		return 'c64gs'
 
-	#Don't think we really need c64c unless we really want the different SID chip
+	#Don't think we really need c64c unless we really want the different SID chip. Maybe that could be an option?
 
 	if game.metadata.tv_type == TVSystem.PAL:
 		return 'c64p'
@@ -180,8 +181,10 @@ def medusa(game, _):
 	if game.metadata.platform in ('Game Boy', 'Game Boy Color'):
 		verify_mgba_mapper(game)
 
-	if game.metadata.platform == 'DSi' or game.metadata.specific_info.get('Is-iQue', False):
-		raise EmulationNotSupportedException('DSi-only and iQue games not supported')
+	if game.metadata.platform == 'DSi':
+		raise EmulationNotSupportedException('DSi exclusive games and DSiWare not supported')
+	elif game.metadata.specific_info.get('Is-iQue', False):
+		raise EmulationNotSupportedException('iQue DS not supported')
 	return 'medusa-emu-qt -f $<path>'
 
 def gambatte(game, _):
@@ -354,7 +357,7 @@ def mednafen_nes(game, _):
 
 def reicast(game, _):
 	if game.metadata.specific_info.get('Uses-Windows-CE', False):
-		raise EmulationNotSupportedException('Uses Windows CE')
+		raise EmulationNotSupportedException('Windows CE-based games not supported')
 	return 'reicast -config x11:fullscreen=1 $<path>'
 
 def mame_sg1000(game, _):
