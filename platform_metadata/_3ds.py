@@ -12,6 +12,19 @@ from metadata import CPUInfo, ScreenInfo, Screen, SaveType
 from common import convert_alphanumeric, NotAlphanumericException
 from .nintendo_common import nintendo_licensee_codes
 
+consistentified_manufacturers = {
+	#When getting publisher from SMDH, sometimes things are formatted in different ways than wanted (e.g. YELLING CASE), this is here to smooth things out
+	#It's why we try to use licensee code instead, but that's not always there on 3DS
+	#For what it's worth, it seems each publisher will format its own name consistently across all games it publishes, it just looks weird compared to how names are formatted elsewhere
+
+	#Atlus USA, Inc. > Atlus USA?
+	'CAPCOM': 'Capcom',
+	'CIRCLE Ent.': 'Circle Entertainment',
+	'SEGA': 'Sega',
+	'Unspecified Author': None, #Homebrew might do this
+	'VD-DEV': 'VD-Dev',
+}
+
 def add_3ds_system_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 
@@ -166,7 +179,8 @@ def parse_smdh_data(game, smdh):
 	if not game.metadata.publisher:
 		english_publisher_offset = 8 + (128 + 256 + 128) + 128 + 256 #After Japanese title data, English short title, English long title
 		try:
-			game.metadata.publisher = smdh[english_publisher_offset: english_publisher_offset + 0x80].decode('utf16').rstrip('\0')
+			publisher = smdh[english_publisher_offset: english_publisher_offset + 0x80].decode('utf16').rstrip('\0')
+			game.metadata.publisher = consistentified_manufacturers.get(publisher, publisher)
 		except UnicodeDecodeError:
 			pass
 
