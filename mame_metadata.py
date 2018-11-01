@@ -288,40 +288,6 @@ def add_save_type(machine):
 		machine.metadata.save_type = SaveType.MemoryCard if has_memory_card else SaveType.Nothing
 		#TODO: Some machines that aren't arcade systems might plausibly have something describable as SaveType.Cart or SaveType.Internal... anyway, I guess I'll burn that bridge when I see it
 
-licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
-licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
-hack_regex = re.compile(r'^hack \((.+)\)$')
-def add_manufacturer(machine):
-	manufacturer = machine.xml.findtext('manufacturer')
-	license_match = licensed_arcade_game_regex.fullmatch(manufacturer)
-	licensed_from_match = licensed_from_regex.fullmatch(manufacturer)
-	hack_match = hack_regex.fullmatch(manufacturer)
-	if license_match:
-		developer = license_match[1]
-		publisher = license_match[2]
-	elif licensed_from_match:
-		developer = manufacturer
-		publisher = licensed_from_match[1]
-		machine.metadata.specific_info['Licensed-From'] = licensed_from_match[2]
-	else:
-		if not manufacturer.startswith(('bootleg', 'hack')):
-			#TODO: Not always correct in cases where manufacturer is formatted as "Developer / Publisher", but then it never was correct, so it's just less not correct, which is fine
-			developer = manufacturer
-			publisher = manufacturer
-		elif machine.has_parent:
-			if hack_match:
-				machine.metadata.specific_info['Hacked-By'] = hack_match[1]
-			#TODO: What if the parent is blah (bleh license) etc
-			#Because with turpins (bootleg clone of turtles) it is ("Konami (Stern Electronics license)")
-			parent_manufacturer = machine.parent.xml.findtext('manufacturer')
-			developer = parent_manufacturer
-			publisher = parent_manufacturer
-		else:
-			developer = None #It'd be the original not-bootleg game's developer but we can't get that programmatically without a parent etc
-			publisher = manufacturer
-	machine.metadata.developer = consistentify_manufacturer(developer)
-	machine.metadata.publisher = consistentify_manufacturer(publisher)
-
 def add_status(machine):
 	driver = machine.xml.find('driver')
 	#Overall status
@@ -381,7 +347,6 @@ def add_metadata(machine):
 
 	#Might not be so hardcoded one day...
 	machine.metadata.emulator_name = 'MAME'
-	add_manufacturer(machine)
 
 	add_status(machine)
 

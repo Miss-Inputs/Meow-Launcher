@@ -11,7 +11,7 @@ import shlex
 import launchers
 from info import emulator_command_lines
 from config import main_config
-from mame_helpers import get_mame_xml, get_full_name, get_mame_ui_config
+from mame_helpers import get_mame_xml, get_full_name, get_mame_ui_config, consistentify_manufacturer
 from mame_metadata import add_metadata
 from metadata import Metadata, SaveType
 
@@ -32,6 +32,10 @@ def load_icons():
 
 	return d
 icons = load_icons()
+
+licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
+licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
+hack_regex = re.compile(r'^hack \((.+)\)$')
 
 class Machine():
 	def __init__(self, xml):
@@ -55,6 +59,8 @@ class Machine():
 		self.metadata.specific_info['Requires-CHD'] = self.requires_chds
 		self.metadata.specific_info['Romless'] = self.romless
 		self.metadata.specific_info['BIOS-Used'] = self.bios
+
+		self._add_manufacturer()
 
 	@property
 	def basename(self):
@@ -158,6 +164,34 @@ class Machine():
 		if self.has_parent and romof == self.family:
 			return self.parent.bios
 		return romof
+
+	def _add_manufacturer(self):
+		manufacturer = self.xml.findtext('manufacturer')
+		license_match = licensed_arcade_game_regex.fullmatch(manufacturer)
+		licensed_from_match = licensed_from_regex.fullmatch(manufacturer)
+		hack_match = hack_regex.fullmatch(manufacturer)
+		if license_match:
+			developer = license_match[1]
+			publisher = license_match[2]
+		elif licensed_from_match:
+			developer = manufacturer
+			publisher = licensed_from_match[1]
+			self.metadata.specific_info['Licensed-From'] = licensed_from_match[2]
+		else:
+			if not manufacturer.startswith(('bootleg', 'hack')):
+				#TODO: Not always correct in cases where manufacturer is formatted as "Developer / Publisher", but then it never was correct, so it's just less not correct, which is fine
+				developer = manufacturer
+				publisher = manufacturer
+			elif self.has_parent:
+				if hack_match:
+					self.metadata.specific_info['Hacked-By'] = hack_match[1]
+				developer = self.parent.metadata.developer
+				publisher = self.parent.metadata.publisher
+			else:
+				developer = None #It'd be the original not-bootleg game's developer but we can't get that programmatically without a parent etc
+				publisher = manufacturer
+		self.metadata.developer = consistentify_manufacturer(developer)
+		self.metadata.publisher = consistentify_manufacturer(publisher)
 
 def mame_verifyroms(basename):
 	try:
