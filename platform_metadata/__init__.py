@@ -83,6 +83,7 @@ helpers = {
 	'Amstrad GX4000': add_gx4000_info,
 	'APF-MP1000': add_apfm1000_info,
 	'Apple II': add_apple_ii_info,
+	'Apple III': add_apple_iii_info,
 	'Arcadia 2001': add_arcadia_info,
 	'Astrocade': add_astrocade_info,
 	'Atari 5200': add_atari_5200_info,

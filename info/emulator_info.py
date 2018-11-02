@@ -82,6 +82,7 @@ emulators = {
 	'MAME (Apple II)': MameSystem(command_lines.mame_apple_ii, mame_floppy_formats + ['do', 'po']),
 	#Apple II+ is required for autobooting because apparently the original Apple II doesn't do that; not sure if Apple IIe would make much difference but eh
 	#There's a lot of slot options but I'm not sure if any would be useful for general purposes
+	'MAME (Apple III)': MameSystem(command_lines.mame_command_line('apple3', 'flop1', has_keyboard=True), mame_floppy_formats + ['do', 'po']),
 	'MAME (Arcadia 2001)': MameSystem(command_lines.mame_command_line('arcadia', 'cart'), ['bin']),
 	#Can also use bndarc for Bandai version but that doesn't seem to make any difference at all?  Some games seem to be
 	#weird with the input so that sucks
