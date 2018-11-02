@@ -207,6 +207,12 @@ unsupported_systems = {
 	#Things that have usability issues that make things unsuitable for launchering purposes at this point in time
 	'64DD': System('n64dd', ['n64dd'], {MediaType.Floppy: ['ndd', 'ddd']}),
 	#Mupen64Plus would work, but right now it has issues with usability that it says right in the readme (so it's not just me picking on them, they say it themselves). Basically you have to have a cart inserted which has the same properties as the 64DD software you want to emulate, and that wouldn't work for our launchering purposes. MAME doesn't seem to work with .ndd format dumps
+	'Apple I': System('apple1', ['apple1'], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['snp']}),
+	#Loading tapes would require parsing software list usage to figure out where to put load addresses and things to make an autoboot script, because otherwise it's just way too messy to warrant being in a frontend. Snapshots supposedly exist, but I haven't seen any evidence they actually do, so... whoops
+	'C64DTV': System('c64dtv', [], []),
+	#Commodore 64 plug and play system that has its own unique software, apparently. MAME driver is skeleton, so this will require one of the various other C64 emulators to support instead and for me to remember what was wrong with them (I think VICE had fullscreen issues), and then maybe they still don't support it
+	'Commodore 65': System('c65', ['c65_flop'], []),
+	#This was actually never released, but there's software for it anyway. However, this is only supported by MAME, and it seems it only supports loading by software lists (there are no media slots), which won't work for our purposes at this point in time
 	'Cybiko': System('cybikov1', [], [], {MediaType.Digital: ['app']}),
 	#Quickload slot doesn't seem to actually quickload anything, and seems to require setup each time. V2 and Extreme have same problems
 	'Dreamcast VMU': System('svmu', ['svmu'], [], {MediaType.Executable: ['bin'], MediaType.Digital: ['vms']}),
@@ -229,14 +235,15 @@ unsupported_systems = {
 	#Some games require a hard disk with an OS install and they won't tell you this because of course not, and if you want to autoboot the floppies with a hard drive still in there you have to set it to always boot from slot 5 and it's really annoying and I hate it
 	'CreatiVision': System('crvision', ['crvision'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav']}),
 	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it
-	'Mattel Aquarius': System('aquarius', ['aquarius'], []),
+	'Mattel Aquarius': System('aquarius', ['aquarius'], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav']}),
 	#Controllers aren't emulated yet (and they're necessary for a lot of things)
-	'Sega Pico': System('pico', ['pico'], []),
+	'Sega Pico': System('pico', ['pico'], [], {MediaType.Cartridge: ['bin', 'md']}),
 	#Emulation works in Kega Fusion and MAME, but they don't display the actual book, which would be needed for most of the software to make any sense. Kega Fusion doesn't even have controls to turn the pages, which is needed for stuff
 	'Super Casette Vision': System('scv', ['scv'], [], {MediaType.Cartridge: ['bin']}),
 	#Only supports some games (e.g. with RAM enhancements) via software list, there's no way to override the cart type or anything like that.
 
 	#Might just be me doing something wrong, but seemingly doesn't work so I'll just put them here until I figure out if they definitely don't work, or they actually do
+	#TODO: Test these again you nerd
 	'Radio 86-RK': System('radio86', ['radio86_cart', 'radio86_cass'], []),
 	'Mikrosha': System('mikrosha', ['mikrosha_cart', 'mikrosha_cass'], []),
 	'Apogey BK-01': System('apogee', ['apogee'], []),
@@ -252,8 +259,7 @@ unsupported_systems = {
 	#The not-plus one (probably will need to switch to cpc664/cpc6128 for flopppy stuff)
 	'APF Imagination Machine': System('apfimag', ['apfimag_cass', 'apfm1000'], []),
 	#Considered separate from APF-M1000 (same predicament as Coleco Adam)
-	'Apple I': System('apple1', ['apple1'], []),
-	'Apple Lisa': System('lisa', ['lisa'], []),
+	'Apple Lisa': System('lisa', ['lisa'], [], {MediaType.Floppy: mame_floppy_formats + ['dc', 'dc42']}),
 	'Atari Portfolio': System('pofo', ['pofo'], []),
 	#Nothing is dumped, so I think it's safe to say nothing will work, but still. Apparently it's supposed to be a PC clone, but doesn't support any PC software lists...
 	'Atari ST': System('st', ['st_flop', 'st_cart'], []),
@@ -262,13 +268,9 @@ unsupported_systems = {
 	'BBC Micro': System('bbcb', ['bbca_cass', 'bbcb_cass', 'bbcb_cass_de', 'bbcb_flop', 'bbcb_flop_orig'], []),
 	#The key combination to boot a floppy is like Shift+Break or something ridiculous like that, so I'm not going anywhere without an autoboot script
 	#TODO: Add the flop software lists that have addon CPUs and stuff
-	'C64DTV': System('c64dtv', [], []),
-	#Commodore 64 plug and play system that has its own unique software, apparently
 	'Cambridge Z88': System('z88', ['z88_cart'], []),
 	'Commodore 16': System('c16', ['plus4_cart', 'plus4_cass', 'plus4_flop'], []),
 	#Plus/4 and C116 are in the same software family, so those could be used too
-	'Commodore 65': System('c65', ['c65_flop'], []),
-	#This was actually never released, but there's software for it anyway
 	'Commodore 128': System('c128', ['c128_cart', 'c128_flop', 'c128_rom'], []),
 	'Epoch Sorcerer': System('sorcerer', ['sorcerer_cart', 'sorcerer_cass', 'sorcerer_flop'],
 		{MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav', 'tape']}),
@@ -290,11 +292,11 @@ unsupported_systems = {
 	#Did I want coco/coco2 instead? Hmm. Those seem to work but coco3 seems to not autoboot. It looks like carts >128K require coco3, or if the software list says so
 
 	#TODO: Me being lazy, I know if these work or not:
-	'Commodore PET': System('pet4032', ['pet_cass', 'pet_flop', 'pet_hdd', 'pet_quik', 'pet_rom'], []),
-	#Unsure which one the "main" driver is, or if some of them count as separate systems. This will require autoboot scripts to do stuff anyway
-	#TODO: This can work with -quik and autoboot though
-	'Galaksija': System('galaxyp', ['galaxy'], []),
-	#This needs tape control automation to work with tapes (type OLD, then play tape, then RUN); dumps just need to press enter because MAME will type "RUN" for you. But not enter for you. Dunno why.
+	'Commodore PET': System('pet4032', ['pet_cass', 'pet_flop', 'pet_hdd', 'pet_quik', 'pet_rom'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['bin', 'rom'], MediaType.Executable: ['prg', 'p00'], MediaType.Tape: ['wav', 'tap']}),
+	#Unsure which one the "main" driver is, or if some of them count as separate systems...
+	#TODO: This can work with -quik and autoboot, and... cartridges? Huh?
+	'Galaksija': System('galaxyp', ['galaxy'], [], {MediaType.Snapshot: ['gal'], MediaType.Tape: ['wav', 'gtp']}),
+	#This needs tape control automation to work with tapes (type OLD, then play tape, then RUN); dumps just need to press enter because MAME will type "RUN" for you. But not enter for you. Dunno why. Anyway, we'd go with those and make an autoboot script (maybe just -autoboot_command '\n' would work with suitable delay). galaxy is regular system, galaxyp is an upgraded one which appears to be completely backwards compatible
 
 	#Other todos, often just me not knowing which something actually is or being too lazy to organize it even into the "too lazy to look into right now" list:
 	#Are Oric-1 and Oric Atmos software compatible or different things?
