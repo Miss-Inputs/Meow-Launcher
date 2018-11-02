@@ -15,7 +15,7 @@ It's not intended to be hard to use, it's just not a priority to make it easier 
 
 The other neat tricks are that it will automatically get metadata from the games where it can, not using any weird internet service that may disappear, but from what's inside the games themselves. Also it will automatically figure out which emulator (where emulation is applicable) is the best one to use for a given game, out of the emulators you selected.
 
-These config files will appear in ~/.config/CrappyGameLauncher (see also config.py config_dir for where that's set). Ideally I want to make some kind of configurator, but that'd be a separate thing:
+These config files will appear in ~/.config/CrappyGameLauncher (see also config.py config_dir for where that's set) with default values, once anything is ran for the first time (see --refresh-config below), and then you... edit them. Ideally I want to make some kind of configurator, but that'd be a separate thing:
 - config.ini
   - Main configuration, which specifies where your launchers are output to and other things like that.
 - emulators.ini
@@ -31,6 +31,8 @@ DOS and Mac games will require [https://github.com/Zowayix/computer-software-db]
 
 Once you have everything set up, just run main.py to output all the launchers to the designated output folder. It takes a while. Oh well.  
 Command line arguments:  
+- --refresh-config
+  - Does nothing except load the config and then exit: This has the effect that if there's config values or new emulated systems that aren't in your configuration files, this will automatically add blank/default entries for them, rather than you having to type things in yourself. I guess that's how I'll deal with me adding new things, until I think of something better.
 - --debug
   - Displays a lot of console spam. I should probably make this more specific with different command line arguments for what kind of console spam. But I haven't. Mostly it'll just tell you "there's something weird about this ROM, or it's not able to be emulated yet", and that sort of thing.
 - --super-debug
