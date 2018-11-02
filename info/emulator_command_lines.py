@@ -512,6 +512,12 @@ def mame_intellivision(game, _):
 
 	return mame_command_line(system, 'cart', has_keyboard=uses_keyboard)
 
+def mame_apple_ii(game, _):
+	slot_options = {}
+	if game.metadata.specific_info.get('Uses-Mouse', False):
+		slot_options['sl4'] = 'mouse'
+	return mame_command_line('apple2p', 'flop1', slot_options, True)
+
 def basilisk_ii(app, other_config):
 	if 'arch' in app.config:
 		if app.config['arch'] == 'ppc':
