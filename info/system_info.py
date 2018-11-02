@@ -116,6 +116,7 @@ systems = {
 	#times, though I suppose I _could_ do that, it just doesn't feel like a nicely organized bunch of launcher scripts if
 	#I do that
 	'Amiga': System('a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench'], ['FS-UAE'], {MediaType.Floppy: ['adf', 'ipf', 'dms']}, {'default_chipset': 'AGA'}),
+	'Apple II': System('apple2', ['apple2', 'apple2_cass'], ['MAME (Apple II)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib'], MediaType.Tape: ['wav']}),
 	'Atari 8-bit': System('a800', ['a800', 'a800_flop', 'xegs'], ['MAME (Atari 8-bit)'], {MediaType.Cartridge: ['bin', 'rom', 'car'], MediaType.Tape: ['wav']}),
 	#TODO: MediaType.Floppy: ['atr', 'dsk'], MediaType.Executable: ['xex', 'bas'],
 	'C64': System('c64', ['c64_cart', 'c64_cass', 'c64_flop'], ['MAME (C64)'], {MediaType.Cartridge: ['80', 'a0', 'e0', 'crt', 'bin']}),
@@ -251,7 +252,6 @@ unsupported_systems = {
 	'APF Imagination Machine': System('apfimag', ['apfimag_cass', 'apfm1000'], []),
 	#Considered separate from APF-M1000 (same predicament as Coleco Adam)
 	'Apple I': System('apple1', ['apple1'], []),
-	'Apple II': System('apple2', ['apple2', 'apple2_cass'], []),
 	'Apple Lisa': System('lisa', ['lisa'], []),
 	'Apple III': System('apple3', ['apple3'], []),
 	'Atari Portfolio': System('pofo', ['pofo'], []),
