@@ -258,8 +258,6 @@ def add_vic10_info(game):
 def add_vic20_info(game):
 	#Input info: Keyboard and/or joystick
 
-	#This won't work with >8KB carts at the moment, because MAME stores those in the software list as two separate ROMs. But then they won't have launchers anyway because our only emulator for VIC-20 is MAME itself, and it doesn't let us just put the two ROMs together ourselves, those games are basically software list only at the moment (because it won't let us have one single file above 8KB).
-
 	has_header = game.metadata.media_type == MediaType.Cartridge and (game.rom.get_size() % 256) == 2
 	game.metadata.specific_info['Headered'] = has_header
 	software = get_software_list_entry(game, skip_header=2 if has_header else 0)
@@ -473,7 +471,6 @@ def _does_intellivision_part_match(part, data, _):
 
 def add_intellivision_info(game):
 	#There's probably some way to get info from title screen in ROM, but I haven't explored that in ROMniscience yet
-	#I think .int is supposed to be headered, but the ROMs I have (from Game Room, I think) seem to be just fine?
 	#Input info: Crappy keypad, but also a keyboard component and computer module exists, also a piano keyboard
 	software = find_in_software_lists(game.software_lists, crc=game.rom.read(), part_matcher=_does_intellivision_part_match)
 	if software:
@@ -555,7 +552,6 @@ def add_game_com_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		#This will tell you that nothing is supported. I think that sometimes the MAME devs are too hard on themselves. Someone needs to cheer them up a bit.
 		game.metadata.product_code = software.get_info('serial')
 
 def add_lynx_info(game):
