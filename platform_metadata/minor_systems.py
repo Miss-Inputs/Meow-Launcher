@@ -575,3 +575,10 @@ def add_lynx_info(game):
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
+
+def add_apple_ii_info(game):
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+		#TODO: Handle info usage = "Works with Apple II Mouse Card in slot 4: -sl4 mouse"
+		game.metadata.product_code = software.get_info('serial')
