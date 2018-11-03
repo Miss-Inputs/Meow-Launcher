@@ -226,6 +226,8 @@ unsupported_systems = {
 	#Requires "RUN " and the program name, where the program name is completely arbitrary and variable, so there's not really any way to do it automatically and programmatically
 	'Neo Geo AES': System('aes', ['neogoeo'], [], {MediaType.Cartridge: ['bin']}),
 	#Theoretically this works, but fullpath loading only works as a single .bin file which nothing ever is dumped as. This would only ever be useful with software list support
+	'PC-6001': System('pc6001', [], []),
+	#MAME driver is preliminary and notes in source file comments it doesn't load tapes yet; PC6001VX doesn't do command line arguments so un-launcherable
 	'PocketStation': System('pockstat', [], [], {MediaType.Digital: ['gme']}),
 	#Makes you set time and date each time
 	'RCA Studio 2': System('studio2', ['studio2'], [], {MediaType.Cartridge: ['st2', 'bin', 'rom']}),
@@ -253,8 +255,9 @@ unsupported_systems = {
 	'Mikrosha': System('mikrosha', ['mikrosha_cart', 'mikrosha_cass'], []),
 	'Apogey BK-01': System('apogee', ['apogee'], []),
 	'Partner 01.01': System('partner', ['partner_cass', 'partner_flop'], []),
+	'Oric': System('orica', [], []),
+	#oric1 as well... either way, they don't seem to actually load anything I've tried. There's no software lists
 	'Orion-128': System('orion128', ['orion_cart', 'orion_cass', 'orion_flop'], []),
-	'PC-6001': System('pc6001', [], []),
 	'FM-7': System('fm7', ['fm7_cass', 'fm7_disk', 'fm77av'], []),
 
 	#TODO: Me being lazy, need to check if these actually work or not:
@@ -300,7 +303,6 @@ unsupported_systems = {
 	#This needs tape control automation to work with tapes (type OLD, then play tape, then RUN); dumps just need to press enter because MAME will type "RUN" for you. But not enter for you. Dunno why. Anyway, we'd go with those and make an autoboot script (maybe just -autoboot_command '\n' would work with suitable delay). galaxy is regular system, galaxyp is an upgraded one which appears to be completely backwards compatible
 
 	#Other todos, often just me not knowing which something actually is or being too lazy to organize it even into the "too lazy to look into right now" list:
-	#Are Oric-1 and Oric Atmos software compatible or different things?
 	#Which of TI calculators are software compatible with which?
 	#Thomson MO: Is MO5 or MO6 the main system? (latter has exclusive software lists, but is compatible with MO5)
 	#Thomson MO: Is TO5 or TO8 the main system? (latter has exclusive software lists, but is compatible with TO7)
