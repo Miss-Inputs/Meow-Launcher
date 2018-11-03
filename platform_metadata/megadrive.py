@@ -9,8 +9,6 @@ from metadata import SaveType
 from software_list_info import get_software_list_entry
 from .sega_common import licensee_codes
 
-debug = '--debug' in sys.argv
-
 copyright_regex = re.compile(r'\(C\)(\S{4}.)(\d{4})\.(.{3})')
 t_with_zero = re.compile('^T-0')
 t_not_followed_by_dash = re.compile('^T(?!-)')
@@ -59,23 +57,6 @@ def parse_peripherals(game, peripherals):
 			pass
 		elif peripheral_char == 'C':
 			game.metadata.specific_info['Uses-CD'] = True
-	if debug:
-		#Other peripheral characters of interest that I dunno what to do with
-		#A lot of homebrew has D in there. There's some Megadrive documentation that says "Just put JD in here and don't ask questions". It doesn't say what the D is. What does the D do? Why the D?
-		if 'B' in peripherals:
-			print(game.rom.path, 'has B (control ball)')
-		if 'F' in peripherals:
-			print(game.rom.path, 'has F (floppy drive)')
-		if 'P' in peripherals:
-			print(game.rom.path, 'has P (printer)')
-		if 'R' in peripherals:
-			#Something to do with SegaNet/Meganet perhaps?
-			print(game.rom.path, 'has R (serial)')
-		if 'T' in peripherals:
-			#Doesn't seem to have anything to do with Pico games
-			print(game.rom.path, 'has T (tablet)')
-		if 'D' in peripherals:
-			print(game.rom.path, 'has the D')
 
 def add_megadrive_info(game, header):
 	try:
