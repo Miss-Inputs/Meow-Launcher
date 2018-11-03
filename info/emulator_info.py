@@ -36,30 +36,24 @@ emulators = {
 	'FS-UAE': Emulator(command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf'], []),
 	#Note that .ipf files need a separately downloadable plugin. We could detect the presence of that, I guess
 	'Gambatte': Emulator(command_lines.gambatte, ['gb', 'gbc'], ['zip']),
-	#--gba-cgb-mode[=0] and --force-dmg-mode[=0] may be useful in obscure situations
+	#--gba-cgb-mode[=0] and --force-dmg-mode[=0] may be useful in obscure situations, but that would probably require a specific thing that notes some GBC games are incompatible with GBA mode (Pocket Music) or GB incompatible with GBC (R-Type, also Pocket Sonar but that wouldn't work anyway)
 	'GBE+': Emulator('gbe_plus_qt $<path>', ['gb', 'gbc', 'gba'], []),
 	#TODO: Restrict to supported mappers: ROM only, MBC1, MBC1 Multicart, MBC2, MBC3, MBC5, MBC6, MBC7, Pocket Camera, HuC1
 	#In theory, only this should support Pocket Sonar (so far), but there's not really a way to detect that since it just claims to be MBC1 in the header...
 	#Also in theory recognizes any extension and assumes Game Boy if not .gba or .nds, but that would be screwy
 	'Kega Fusion': Emulator('kega-fusion -fullscreen $<path>', ['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', 'sc', '32x'], ['zip']),
-	#May support other CD formats for Mega CD other than iso, cue?
+	#May support other CD formats for Mega CD other than iso, cue? Because it's closed source, can't really have a look, but I'm just going to presume it's only those two
 	'mGBA': Emulator(command_lines.mgba, ['gb', 'gbc', 'gba', 'srl', 'bin', 'mb'], ['7z', 'zip']),
-	#Use -C useBios=0 for homebrew with bad checksum/logo that won't boot on real hardware.  Some intensive games (e.g.
-	#Doom) will not run at full speed on toaster, but generally it's fine
 	'Mupen64Plus': Emulator(command_lines.mupen64plus, ['z64', 'v64', 'n64'], []),
 	'PCSX2': Emulator('PCSX2-linux.sh --nogui --fullscreen --fullboot $<path>', ['iso', 'cso', 'bin'], ['gz']),
 	#Has a few problems.  Takes some time to load the interface so at first it might look like it's not working; take out --fullboot if it forbids any homebrew stuff (but it should be fine, and Katamari Damacy needs it unless you will experience sound issues that are funny the first time but not subsequently).  ELF seems to not work, though it'd need a different command line anyway. Only reads the bin of bin/cues and not the cue
 	#Just to be annoying, older versions are "pcsx2" instead of "PCSX2-linux"... grr
-	#Presumed plugins: OnePAD (legacy because I like to configure things), GSdx, and SPU2-x
 	'PokeMini': Emulator('PokeMini -fullscreen $<path>', ['min'], ['zip']),
 	#Puts all the config files in the current directory, which is why there's a wrapper below which you probably want to use instead of this
 	'PokeMini (wrapper)': Emulator('mkdir -p ~/.config/PokeMini && cd ~/.config/PokeMini && PokeMini -fullscreen $<path>', ['min'], ['zip'], True),
 	'PPSSPP': Emulator('ppsspp-qt $<path>', ['iso', 'pbp', 'cso'], []),
 	'Snes9x': Emulator('snes9x-gtk $<path>', ['sfc', 'smc', 'swc'], ['zip', 'gz']),
-	#Slows down on toaster for a lot of intensive games e.g.  SuperFX.  Can't set fullscreen mode from the command line so you have
-	#to set up that yourself; GTK port can't do Sufami Turbo due to lacking multi-cart support that Windows has, MAME can
-	#emulate this but it's too slow on toasters so we do that later; GTK port can do Satellaview but not directly from the
-	#command line
+	#Can't set fullscreen mode from the command line so you have to set up that yourself (but it will do that automatically); GTK port can't do Sufami Turbo or Satellaview from command line due to lacking multi-cart support that Windows has (Unix non-GTK doesn't like being in fullscreen etc)
 	'Stella': Emulator('stella -fullscreen 1 $<path>', ['a26', 'bin', 'rom'], ['gz', 'zip']),
 
 	'Mednafen (Lynx)': MednafenModule('lynx', ['lnx', 'lyx', 'o']),
@@ -105,12 +99,7 @@ emulators = {
 	#Has issues with XEGS carts that it should be able to load (because they do run on the real system) but it says it doesn't because they should be run on XEGS instead, and then doesn't support a few cart types anyway; otherwise fine
 	'MAME (BBC Bridge Companion)': MameSystem(command_lines.mame_command_line('bbcbc', 'cart'), ['bin']),
 	'MAME (C64)': MameSystem(command_lines.mame_c64, ['80', 'a0', 'e0', 'crt']),
-	#Same kerfluffle with regions and different media formats here.  Could use c64c/c64cp for the newer model with the
-	#new SID chip, but that might break compatibility I dunno; could also use sx64 for some portable version, there's a
-	#whole bunch of models; c64gs doesn't really have much advantages (just like in real life) except for those few
-	#cartridges that were made for it specifically.
 	'MAME (Channel F)': MameSystem(command_lines.mame_command_line('channelf', 'cart'), ['bin', 'chf']),
-	#How the fuck do these controls work?  Am I just too much of a millenial?
 	'MAME (ColecoVision)': MameSystem(command_lines.mame_command_line('coleco', 'cart'), ['bin', 'col', 'rom']),
 	#Controls are actually fine in-game, just requires a keypad to select levels/start games and that's not consistent at all so good luck with that (but mapping 1 to Start seems to work well).  All carts are either USA or combination USA/Europe and are required by Coleco to run on both regions, so why play in 50Hz when we don't have to
 	'MAME (Coleco Adam)': MameSystem(command_lines.mame_command_line('adam', 'cass1', {'net4': '""', 'net5': '""'}, has_keyboard=True), ['wav', 'ddp']),
@@ -124,43 +113,32 @@ emulators = {
 	#Joystick only works with fm7/fmnew7 -centronics dsjoy... whoops; not sure what the builtin joystick does then
 	'MAME (Gamate)': MameSystem(command_lines.mame_command_line('gamate', 'cart'), ['bin']),
 	'MAME (Game Boy)': MameSystem(command_lines.mame_game_boy, ['bin', 'gb', 'gbc']),
-	#Tthis supports some bootleg mappers that other emus tend to not; fails on really fancy tricks like the Demotronic trick (it does run the demo, but the effect doesn't look right); and has sound issues
+	#This supports some bootleg mappers that other emus tend to not; fails on really fancy tricks like the Demotronic trick (it does run the demo, but the effect doesn't look right); and has sound issues with GBC
 	#There are comments in the source file that point out that Super Game Boy should be part of the snes driver with the BIOS cart inserted, rather than a separate system, so that might not exist in the future
 	'MAME (Game Pocket Computer)': MameSystem(command_lines.mame_command_line('gamepock', 'cart'), ['bin']),
 	'MAME (GBA)': MameSystem(command_lines.mame_command_line('gba', 'cart'), ['bin', 'gba']),
 	#Does not let you do GBA-enhanced GBC games
 	'MAME (IBM PCjr)': MameSystem(command_lines.mame_ibm_pcjr, mame_floppy_formats + ['img', 'bin', 'jrc']),
 	'MAME (Intellivision)': MameSystem(command_lines.mame_intellivision, ['bin', 'int', 'rom', 'itv']),
-	#Well this sure is a shit console.  There's no consistency to how any game uses any buttons or keypad keys (is it the
-	#dial?  Is it keys 2 4 6 8?, so good luck with that; also 2 player mode isn't practical because some games use the
-	#left controller and some use the right, so you have to set both controllers to the same inputs; and Pole Position has
-	#glitchy graphics.  Why did Mattel make consoles fuck you Mattel I hope you burn
 	'MAME (Juice Box)': MameSystem(command_lines.mame_command_line('juicebox', 'memcard'), ['smc']),
-	#Oh also this is slow by the way, should warn y'all
 	'MAME (Mega Duck)': MameSystem(command_lines.mame_command_line('megaduck', 'cart'), ['bin']),
 	'MAME (MSX1)': MameSystem(command_lines.mame_command_line('svi738', 'cart1', {'fdc:0': '""'}, has_keyboard=True), ['bin', 'rom']),
 	#Note that MSX2 is backwards compatible anyway, so there's not much reason to use this, unless you do have some reason. This model in particular is used because it should be completely in English and if anything goes wrong I'd be able to understand it. I still don't know how disks work (they don't autoboot), or if there's even a consistent command to use to boot them.
 	'MAME (MSX2)': MameSystem(command_lines.mame_command_line('fsa1wsx', 'cart1', {'fdc:0': '""'}, has_keyboard=True), ['bin', 'rom']),
 	#This includes MSX2+ because do you really want me to make those two separate things? Turbo-R doesn't work in MAME though, so that'd have to be its own thing. This model is used just because I looked it up and it seems like the best one, the MSX2/MSX2+ systems in MAME are all in Japanese (the systems were only really released in Japan, after all) so you can't avoid that part. Still don't understand disks.
 	'MAME (Neo Geo CD)': MameSystem(command_lines.mame_command_line('neocdz', 'cdrom'), mame_cdrom_formats),
-	#This is interesting, because this runs alright on toasters, but Neo Geo-based arcade games do not (both being
-	#emulated in MAME); meaning I am probably doing something wrong.  Don't think it has region lock so I should never
-	#need to use neocdzj? (neocd doesn't work, apparently because it thinks it has the drive tray open constantly)
+	#Don't think it has region lock so I should never need to use neocdzj? (neocd doesn't work, apparently because it thinks it has the drive tray open constantly)
 	'MAME (NES)': MameSystem(command_lines.mame_nes, ['nes', 'unf', 'unif', 'fds']),
 	#Supports a lot of mappers actually, probably not as much as Mesen or puNES would, but it's up there; also a lot of cool peripherals
 	'MAME (Nichibutsu My Vision)': MameSystem(command_lines.mame_command_line('myvision', 'cart'), ['bin']),
 	'MAME (PV-1000)': MameSystem(command_lines.mame_command_line('pv1000', 'cart'), ['bin']),
 	'MAME (SG-1000)': MameSystem(command_lines.mame_sg1000, ['bin', 'sg', 'sc', 'sf7'] + mame_floppy_formats),
 	'MAME (Sharp X1)': MameSystem(command_lines.mame_command_line('x1turbo40', 'flop1', has_keyboard=True), mame_floppy_formats + ['2d']),
-	#Hey!!  We finally have floppies working!!  Because they boot automatically!  Assumes that they will all work fine
-	#though without any other disks, and this will need to be updated if we see any cartridges (MAME says it has a cart
-	#slot)...
 	#x1turbo doesn't work, and I'm not sure what running x1 over x1turbo40 would achieve
 	'MAME (SNES)': MameSystem(command_lines.mame_snes, ['sfc', 'bs', 'st']),
 	#The main advantage here is that it supports multi-slot carts (BS-X and Sufami Turbo) where SNES9x's GTK port does not, otherwise I dunno how well it works
 	'MAME (Sord M5)': MameSystem(command_lines.mame_command_line('m5', 'cart1', {'ramsize': '64K', 'upd765:0': '""'}, True), ['bin']),
-	#Apparently has joysticks with no fire button?  Usually space seems to be fire but sometimes 1 is, which is usually
-	#for starting games.  I hate everything.
+	#Apparently has joysticks with no fire button?  Usually space seems to be fire but sometimes 1 is, which is usually for starting games.  I hate everything.
 	'MAME (Super Vision 8000)': MameSystem(command_lines.mame_command_line('sv8000', 'cart'), ['bin']),
 	'MAME (Tomy Tutor)': MameSystem(command_lines.mame_command_line('tutor', 'cart', has_keyboard=True, autoboot_script='tomy_tutor'), ['bin']),
 	#Well, at least there's no region crap, though there is pyuuta if you want to read Japanese instead
@@ -169,17 +147,12 @@ emulators = {
 	#TODO: Quickload slot (.pgm, .tvc)
 	'MAME (Vectrex)': MameSystem(command_lines.mame_command_line('vectrex', 'cart'), ['bin', 'gam', 'vec']),
 	#I wonder if there's a way to set the overlay programmatically...  doesn't look like there's a command line option to
-	#do that.  Also the buttons are kinda wack I must admit, as they're actually a horizontal row of 4
+	#do that.
 	'MAME (VIC-10)': MameSystem(command_lines.mame_command_line('vic10', 'cart', {'joy1': 'joy', 'joy2': 'joy'}, has_keyboard=True), ['crt', '80', 'e0']),
 	#More similar to the C64 (works and performs just as well as that driver) than the VIC-20, need to plug a joystick into both ports because once again games can use
 	#either port and thanks I hate it.  At least there's only one TV type
 	#Sometimes I see this called the Commodore MAX Machine or Ultimax or VC-10, but... well, I'm not sure where the VIC-10 name comes from other than that's what the driver's called
 	'MAME (VIC-20)': MameSystem(command_lines.mame_vic_20, ['20', '40', '60', '70', 'a0', 'b0', 'crt']),
-	#Need to figure out which region to use and we can only really do that by filename, also it doesn't like 16KB carts;
-	#disks and tapes are a pain in the ass IRL so MAME emulates the ass-pain of course; and I dunno about .prg files,
-	#those are just weird (but it'd be great if I could get those working though); with this and C64 there are some games
-	#where you'll have to manually change to the paddle which kinda sucks but I guess it can't be helped and also turn on
-	#"Paddle Reverse" in "Analog Controls" for some reason
 	'MAME (VZ-200)': MameSystem(command_lines.mame_command_line('vz200', 'dump', {'io': 'joystick', 'mem': 'laser_64k'}, True), ['vz']),
 	#In the Laser 200/Laser 210 family, but Dick Smith variant should do.
 	#TODO see if casettes (wav cas) or disks (mame_floppy_formats, mem slot = floppy) work nicely
@@ -219,7 +192,7 @@ emulators = {
 	'MAME (CD-i)': MameSystem(command_lines.mame_command_line('cdimono1', 'cdrom'), mame_cdrom_formats),
 	#This is the only CD-i model that works according to wisdom passed down the ages (is it still true?), and it says it's not working, but it seems fine
 	'MAME (Game.com)': MameSystem(command_lines.mame_command_line('gamecom', 'cart1'), ['bin', 'tgc']),
-	#I don't know what the other cart slot does, or if you can use two at once, or how that would work if you could. Hopefully I don't need it for anything. Apparently doesn't work but I dunno
+	#I don't know what the other cart slot does, or if you can use two at once, or how that would work if you could. Hopefully I don't need it for anything.
 	'MAME (Hartung Game Master)': MameSystem(command_lines.mame_command_line('gmaster', 'cart'), ['bin']),
 	#Hmm... says not working and imperfect sound. I guess it does run the games, though
 	'MAME (PC-88)': MameSystem(command_lines.mame_command_line('pc8801', 'flop1', has_keyboard=True), mame_floppy_formats),
@@ -236,7 +209,7 @@ emulators = {
 	'MAME (Virtual Boy)': MameSystem(command_lines.mame_command_line('vboy', 'cart'), ['bin', 'vb']),
 	#Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there
 
-	#--These experimental emulators seem to not work more often than they do, but they are here for you to play with yourself if you want to, because maybe other people have better luck than me (everything in my life always goes wrong):
+	#--These experimental emulators seem to not work more often than they do, but they are here for you to play with if you want to, because maybe other people have better luck than me (everything in my life always goes wrong):
 	'MAME (Atari Jaguar)': MameSystem(command_lines.mame_atari_jaguar, ['j64', 'rom', 'bin', 'abs', 'cof', 'jag', 'prg']),
 	#Hmm. Mostly not working. Raiden seems to work, but that's about it; other stuff just hangs at the Jaguar logo or has no sound or what barely resembles graphics is corrupted etc
 	'MAME (FM Towns Marty)': MameSystem(command_lines.mame_fm_towns_marty, mame_cdrom_formats + mame_floppy_formats),
@@ -249,7 +222,7 @@ emulators = {
 
 	#--These ones may or may not run well, I dunno:
 	'Mednafen (Game Boy)': MednafenModule('gb', ['gb', 'gbc']),
-	#Would not recommend due to this being based on VisualBoyAdvance, it's just here for completeness
+	#Would not recommend due to this being based on VisualBoyAdvance (and an old version at that), it's just here for completeness
 	'Mednafen (Game Gear)': MednafenModule('gg', ['gg']),
 	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes". This is based off SMS Plus
 	'Mednafen (GBA)': MednafenModule('gba', ['gba']),
@@ -259,7 +232,7 @@ emulators = {
 	'Mednafen (Mega Drive)': MednafenModule('md', ['md', 'bin', 'gen', 'smd', 'sgd']),
 	#Based off Genesis Plus and an older GPL version of Genesis Plus GX, with all GPL-incompatible cores replaced with alternatives (sound chip emulation from Gens, Z80 from FUSE). Apparently "should still be considered experimental; there are still likely timing bugs in the 68K emulation code, the YM2612 emulation code is not particularly accurate, and the VDP code has timing-related issues."
 	'Mednafen (SNES)': MednafenModule('snes', ['sfc', 'smc', 'swc']),
-	#Based on bsnes v0.059, probably not so great on toasters. Not sure how well it works necessarily, probably doesn't do Sufami Turbo or Satellaview
+	#Based on bsnes v0.059; appears it doesn't do Sufami Turbo or Satellaview
 	'Mednafen (SNES-Faust)': MednafenModule('snes_faust', ['sfc', 'smc', 'swc']),
 	#Experimental and doesn't support expansion chips
 
