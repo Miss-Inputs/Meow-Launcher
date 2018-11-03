@@ -1,6 +1,5 @@
 import os
 import xml.etree.ElementTree as ElementTree
-import sys
 from datetime import datetime
 
 import cd_read

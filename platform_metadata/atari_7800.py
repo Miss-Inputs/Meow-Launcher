@@ -1,5 +1,3 @@
-import sys
-
 import input_metadata
 from metadata import SaveType
 from config import command_line_flags
