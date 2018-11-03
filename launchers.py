@@ -116,3 +116,16 @@ def make_launcher(command, name, metadata, other_fields=None, icon=None):
 		fields.update(other_fields)
 	#For very future use, this is where the underlying host platform is abstracted away. make_launcher is for everything, base_make_desktop is for Linux .desktop files specifically. Perhaps there are other things that could be output as well.
 	base_make_desktop(command, display_name, fields, icon)
+
+def has_been_done(game_type, game_id):
+	output_folder = main_config.output_folder
+	for name in os.listdir(output_folder):
+		path = os.path.join(output_folder, name)
+
+		existing_launcher = convert_desktop(path)
+		existing_type = get_field(existing_launcher, 'X-Type')
+		existing_id = get_field(existing_launcher, 'X-Unique-ID')
+		if existing_type == game_type and existing_id == game_id:
+			return True
+
+	return False

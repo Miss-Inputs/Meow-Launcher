@@ -283,3 +283,12 @@ class SystemConfigs():
 		return SystemConfigs.__instance
 
 system_configs = SystemConfigs.getConfigs()
+
+#Command line options that shouldn't be in config.ini
+#TODO: Clean this up, use _get_command_line_arguments to get a dict of these as well as config.ini values, except don't require an argument etc
+debug = '--debug' in sys.argv
+print_times = '--print_times' in sys.argv
+full_rescan = '--full-rescan' in sys.argv
+command_line_flags = {'debug': debug, 'print_times': print_times, 'full_rescan': full_rescan}
+
+#--regen-dos-config is used in emulator_command_lines... should I move it here?

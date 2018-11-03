@@ -10,7 +10,7 @@ import shlex
 
 import launchers
 from info import emulator_command_lines
-from config import main_config
+from config import main_config, command_line_flags
 from mame_helpers import get_mame_xml, get_full_name, get_mame_ui_config, consistentify_manufacturer
 from mame_metadata import add_metadata
 from metadata import Metadata, SaveType
@@ -277,6 +277,10 @@ def get_mame_drivers():
 	return drivers
 
 def process_driver(driver):
+	if not command_line_flags['full_rescan']:
+		if launchers.has_been_done('MAME machine', driver):
+			return
+
 	#You probably think this is why it's slow, right?  You think "Oh, that's silly, you're verifying every single romset
 	#in existence before just getting the XML", that's what you're thinking, right?  Well, I am doing that, but as it
 	#turns out if I do the verification inside process_machine it takes a whole lot longer.  I don't fully understand why
