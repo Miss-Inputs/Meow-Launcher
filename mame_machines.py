@@ -314,8 +314,6 @@ def process_arcade():
 
 
 def main():
-	#os.makedirs(main_config.output_folder, exist_ok=True)
-
 	if '--drivers' in sys.argv:
 		arg_index = sys.argv.index('--drivers')
 		if len(sys.argv) == 2:
