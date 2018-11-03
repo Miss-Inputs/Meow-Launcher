@@ -167,6 +167,8 @@ unsupported_systems = {
 	#Was never actually released, but prototypes exist
 	'Action Max': System(None, [], [], {}),
 	#No emulators, no dumps (probably nobody has decided the best way to preserve VHS games), no nothing
+	'Apple Lisa': System('lisa', ['lisa'], [], {MediaType.Floppy: mame_floppy_formats + ['dc', 'dc42']}),
+	#Preliminary MAME driver doesn't seem to boot anything; LisaEm doesn't seem to work with newer OSes and hasn't been updated since
 	'Bandai Playdia': System(None, [], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'Casio Loopy': System('casloopy', ['casloopy'], [], {MediaType.Cartridge: ['bin']}),
 	'Coleco Telstar Arcade': System(None, [], [], {}),
@@ -254,20 +256,15 @@ unsupported_systems = {
 
 	#TODO: Me being lazy, need to check if these actually work or not:
 	'Acorn Atom': System('atom', ['atom_cass', 'atom_flop', 'atom_rom'], []),
-	'Acorn Electron': System('electron', ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], []),
 	'Amstrad CPC': System('cpc464', ['cpc_cass', 'cpc_flop'], []),
 	#The not-plus one (probably will need to switch to cpc664/cpc6128 for flopppy stuff)
 	'APF Imagination Machine': System('apfimag', ['apfimag_cass', 'apfm1000'], []),
 	#Considered separate from APF-M1000 (same predicament as Coleco Adam)
-	'Apple Lisa': System('lisa', ['lisa'], [], {MediaType.Floppy: mame_floppy_formats + ['dc', 'dc42']}),
 	'Atari Portfolio': System('pofo', ['pofo'], []),
 	#Nothing is dumped, so I think it's safe to say nothing will work, but still. Apparently it's supposed to be a PC clone, but doesn't support any PC software lists...
 	'Atari ST': System('st', ['st_flop', 'st_cart'], []),
 	#MAME is known to not work here, and Hatari is known to have usability issues... is there anything else?
 	'BBC Master': System('bbcm', ['bbcm_cart', 'bbcm_cass', 'bbcmc_flop', 'bbcm_flop'], []),
-	'BBC Micro': System('bbcb', ['bbca_cass', 'bbcb_cass', 'bbcb_cass_de', 'bbcb_flop', 'bbcb_flop_orig'], []),
-	#The key combination to boot a floppy is like Shift+Break or something ridiculous like that, so I'm not going anywhere without an autoboot script
-	#TODO: Add the flop software lists that have addon CPUs and stuff
 	'Cambridge Z88': System('z88', ['z88_cart'], []),
 	'Commodore 16': System('c16', ['plus4_cart', 'plus4_cass', 'plus4_flop'], []),
 	#Plus/4 and C116 are in the same software family, so those could be used too
@@ -291,7 +288,12 @@ unsupported_systems = {
 	'Tandy CoCo': System('coco3', ['coco_cart', 'coco_flop'], []),
 	#Did I want coco/coco2 instead? Hmm. Those seem to work but coco3 seems to not autoboot. It looks like carts >128K require coco3, or if the software list says so
 
-	#TODO: Me being lazy, I know if these work or not:
+	#TODO: Me being lazy, I know if these work or not but they require effort:
+	'Acorn Electron': System('electron', ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], []),
+	#Seems to require the same Shift+Break to boot as BBC Micro, so... dang
+	'BBC Micro': System('bbcb', ['bbca_cass', 'bbcb_cass', 'bbcb_cass_de', 'bbcb_flop', 'bbcb_flop_orig', 'bbc_flop_65c102', 'bbc_flop_6502', 'bbc_flop_32016', 'bbc_flop_68000', 'bbc_flop_80186', 'bbc_flop_arm', 'bbc_flop_torch', 'bbc_flop_z80'], []),
+	#The key combination to boot a floppy is Shift+Break which is rather awkward to press especially every time you just want to use some software, so I'm not going anywhere without an autoboot script
+	#Otherwise, it does seem to boot floppies..
 	'Commodore PET': System('pet4032', ['pet_cass', 'pet_flop', 'pet_hdd', 'pet_quik', 'pet_rom'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['bin', 'rom'], MediaType.Executable: ['prg', 'p00'], MediaType.Tape: ['wav', 'tap']}),
 	#Unsure which one the "main" driver is, or if some of them count as separate systems...
 	#TODO: This can work with -quik and autoboot, and... cartridges? Huh?
