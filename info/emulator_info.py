@@ -4,8 +4,6 @@ import shlex
 import info.emulator_command_lines as command_lines
 from .system_info import mame_floppy_formats, mame_cdrom_formats
 
-debug = '--debug' in sys.argv
-
 class Emulator():
 	def __init__(self, command_line, supported_extensions, supported_compression, wrap_in_shell=False):
 		self.command_line = command_line

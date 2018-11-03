@@ -286,6 +286,7 @@ system_configs = SystemConfigs.getConfigs()
 
 #Command line options that shouldn't be in config.ini
 #TODO: Clean this up, use _get_command_line_arguments to get a dict of these as well as config.ini values, except don't require an argument etc
+#Hmm... debug could be called 'verbose' and combined with --super_debug used in disambiguate to become verbosity_level or just verbose for short, which could have an integer argument, and it _could_ be in config.ini I guess... ehh whatevs
 debug = '--debug' in sys.argv
 print_times = '--print_times' in sys.argv
 full_rescan = '--full-rescan' in sys.argv

@@ -9,8 +9,6 @@ from platform_metadata.nes import NESPeripheral
 from .system_info import MediaType
 from .region_info import TVSystem
 
-debug = '--debug' in sys.argv
-
 class EmulationNotSupportedException(Exception):
 	pass
 

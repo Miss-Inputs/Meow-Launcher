@@ -5,11 +5,10 @@ from datetime import datetime
 
 import cd_read
 from common import convert_alphanumeric, NotAlphanumericException
+from config import command_line_flags
 from metadata import CPUInfo, ScreenInfo, Screen
 from platform_metadata.gamecube import add_gamecube_wii_disc_metadata
 from .nintendo_common import nintendo_licensee_codes
-
-debug = '--debug' in sys.argv
 
 def add_wii_system_info(game):
 	cpu_info = CPUInfo()
@@ -107,8 +106,8 @@ def add_wii_homebrew_metadata(game):
 				except ValueError:
 					pass
 		except ElementTree.ParseError as etree_error:
-			if debug:
-				print('Ah bugger', game.rom.path, etree_error)
+			if command_line_flags['debug']:
+				print('Ah bugger this Wii homebrew XML has problems', game.rom.path, etree_error)
 			game.rom.name = os.path.basename(game.folder)
 
 

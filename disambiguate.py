@@ -9,12 +9,10 @@ import sys
 import time
 import datetime
 
-from config import main_config
+from config import main_config, command_line_flags
 import launchers
 
-debug = '--debug' in sys.argv
 super_debug = '--super-debug' in sys.argv
-print_times = '--print-times' in sys.argv
 
 def update_name(desktop, disambiguator, disambiguation_method):
 	if not disambiguator:
@@ -218,7 +216,7 @@ def disambiguate_names():
 	fix_duplicate_names('tags')
 	fix_duplicate_names('date')
 	fix_duplicate_names('X-Extension', '(.{0})'.format)
-	if debug:
+	if command_line_flags['debug']:
 		fix_duplicate_names('check')
 	#Other things which may be a good or not good at all idea to disambiguate by:
 	#X-Save-Type
@@ -231,7 +229,7 @@ def disambiguate_names():
 	#DS: X-DSi-Enhanced
 	#GB: X-SGB-Enhanced, X-Mapper
 
-	if print_times:
+	if command_line_flags['print_times']:
 		time_ended = time.perf_counter()
 		print('Name disambiguation finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
