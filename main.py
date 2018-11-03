@@ -25,9 +25,10 @@ print_times = '--print-times' in sys.argv
 
 overall_time_started = time.perf_counter()
 
-if os.path.isdir(main_config.output_folder):
-	for f in os.listdir(main_config.output_folder):
-		os.unlink(os.path.join(main_config.output_folder, f))
+if command_line_flags['full_rescan']:
+	if os.path.isdir(main_config.output_folder):
+		for f in os.listdir(main_config.output_folder):
+			os.unlink(os.path.join(main_config.output_folder, f))
 os.makedirs(main_config.output_folder, exist_ok=True)
 
 if '--no-arcade' not in sys.argv:
