@@ -191,6 +191,7 @@ unsupported_systems = {
 	'Nuon': System(None, [], [], {}),
 	'Pippin': System('pippin', ['pippin', 'pippin_flop'], [], {MediaType.OpticalDisc: cdrom_formats}),
 	#Games don't just boot in a PPC Mac, unfortunately. No PPC Mac emulator has branched off into specific Pippin emulation yet
+	'Pocket Challenge W': System('pockchal', ['pockchalw'], [], {MediaType.Cartridge: ['bin']}),
 	'Sawatte Pico': System('sawatte', ['sawatte'], [], {}),
 	#Similar to the Sega Pico but with different software (may or may not also use Megadrive ROM header?), but is completely unemulated. Not sure if dump format is identical
 	'Tomy Prin-C': System('princ', ['princ'], [], {MediaType.Cartridge: ['bin']}), #MAME has skeleton driver that displays a green background and then doesn't go anywhere
@@ -223,6 +224,8 @@ unsupported_systems = {
 	#VBA-M works (nothing else emulates e-Reader that I know of), but you have to swipe the card manually, which doesn't really work for a nice launcher thing... and there's not really a way around that at this point in time.
 	'Luxor ABC80': System('abc80', ['abc80_cass', 'abc80_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Snapshot: ['bac']}),
 	#Requires "RUN " and the program name, where the program name is completely arbitrary and variable, so there's not really any way to do it automatically and programmatically
+	'Neo Geo AES': System('aes', ['neogoeo'], [], {MediaType.Cartridge: ['bin']}),
+	#Theoretically this works, but fullpath loading only works as a single .bin file which nothing ever is dumped as. This would only ever be useful with software list support
 	'PocketStation': System('pockstat', [], [], {MediaType.Digital: ['gme']}),
 	#Makes you set time and date each time
 	'RCA Studio 2': System('studio2', ['studio2'], [], {MediaType.Cartridge: ['st2', 'bin', 'rom']}),
@@ -275,10 +278,6 @@ unsupported_systems = {
 	'Goldstar FC-100': System('fc100', [], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas']}),
 	#No software list, some kind of PC-6001 clone or something
 	'Memotech MTX': System('mtx512', ['mtx_cart', 'mtx_cass', 'mtx_rom'], []),
-	'Neo Geo AES': System('aes', ['neogoeo'], [], {MediaType.Cartridge: ['bin']}),
-	#Hmm... even emulated re-releases (like the stuff on Steam) is the MVS version. Also how it works is a bit tricky, since as a system you load single .bin files through the cart slot, but everything out there is stored as multiple ROMs, even in the software list... so I dunno if this would be usable
-	'Pocket Challenge W': System('pockchal', ['pockchalw'], [], {MediaType.Cartridge: ['bin']}),
-	#Everything in that software list says unsupported, so that's not a good sign
 	'Sam Coupe': System('samcoupe', ['samcoupe_cass', 'samcoupe_flop'], []),
 	'Sharp MZ-700': System('mz700', ['mz700'], []),
 	'Sharp MZ-800': System('mz800', ['mz800'], []),
