@@ -289,14 +289,14 @@ def process_engine_system(system_config, game_info):
 			for root, dirs, _ in os.walk(file_dir):
 				for d in dirs:
 					if not command_line_flags['full_rescan']:
-						if launchers.has_been_done('Engine game', path):
+						if launchers.has_been_done('Engine game', os.path.join(root, d)):
 							continue
 					process_engine_file(system_config, file_dir, root, d)
 		else:
 			for root, _, files in os.walk(file_dir):
 				for f in files:
 					if not command_line_flags['full_rescan']:
-						if launchers.has_been_done('Engine game', path):
+						if launchers.has_been_done('Engine game', os.path.join(root, f)):
 							continue
 					process_engine_file(system_config, file_dir, root, f)
 
