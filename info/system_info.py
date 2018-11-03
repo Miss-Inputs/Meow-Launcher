@@ -160,7 +160,7 @@ unsupported_systems = {
 	#This one is a bit tricky... both MAME and PCem have issues emulating a joystick. Do the games actually just suck like that? _All of them_? I don't know. The majority of these games assume a 4.77MHz CPU, of course. The software list is ibm5150 but that has some DOS games too, just to be confusing (but usage == 'PC booter' where it is a PC booter).
 	"Super A'Can": System('supracan', ['supracan'], ['MAME (Super Acan)'], {MediaType.Cartridge: ['bin']}),
 
-	#No emulators that are cool enough on Linux. Yet. Maybe? That I know of. They're here for completeness. Or no emulators at all.
+	#No emulators that are cool enough on Linux (any available are too preliminary to work). Yet. Maybe? That I know of. They're here for completeness. Or no emulators at all.
 	#They are also here to remind me to check up on them every now and again to make sure they indeed don't work or if I was just being stupid all along
 	'3DO': System('3do', [], [], {MediaType.OpticalDisc: cdrom_formats}),
 	#4DO doesn't like Wine and has no native Linux version (just libretro and meh), Phoenix Emu has no command line support; so both are unusable for our purposes. MAME driver just kinda hangs at the 3DO logo at the moment
@@ -208,7 +208,7 @@ unsupported_systems = {
 	'Wii U': System(None, [], [], {MediaType.OpticalDisc: ['iso', 'wud'], MediaType.Executable: ['rpx', 'elf']}),
 	#Decaf requires OpenGL 4.5 (even for software rendering it seems)
 
-	#Things that have usability issues that make things unsuitable for launchering purposes at this point in time
+	#Things that have usability issues that make things unsuitable for launchering purposes at this point in time, but otherwise would work if you're just here because you're wondering what emulators work
 	'64DD': System('n64dd', ['n64dd'], {MediaType.Floppy: ['ndd', 'ddd']}),
 	#Mupen64Plus would work, but right now it has issues with usability that it says right in the readme (so it's not just me picking on them, they say it themselves). Basically you have to have a cart inserted which has the same properties as the 64DD software you want to emulate, and that wouldn't work for our launchering purposes. MAME doesn't seem to work with .ndd format dumps
 	'Apple I': System('apple1', ['apple1'], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['snp']}),
@@ -226,7 +226,10 @@ unsupported_systems = {
 	'Luxor ABC80': System('abc80', ['abc80_cass', 'abc80_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Snapshot: ['bac']}),
 	#Requires "RUN " and the program name, where the program name is completely arbitrary and variable, so there's not really any way to do it automatically and programmatically
 	'Neo Geo AES': System('aes', ['neogoeo'], [], {MediaType.Cartridge: ['bin']}),
-	#Theoretically this works, but fullpath loading only works as a single .bin file which nothing ever is dumped as. This would only ever be useful with software list support
+	#Theoretically this works, but fullpath loading only works as a single .bin file which nothing ever is dumped as. This would only ever be useful with software list support. As for separate Neo Geo emulators... well, they all only seem interested in MVS and CD
+	'Oric': System('orica', [], []),
+	#MAME has oric1 as well... either way, they don't seem to actually load anything I've tried. There's no software lists, so nothing that says anything is supposed to work
+	#Oricutron loads things automatically and other nice things, but has issues with fullscreen
 	'PC-6001': System('pc6001', [], []),
 	#MAME driver is preliminary and notes in source file comments it doesn't load tapes yet; PC6001VX doesn't do command line arguments so un-launcherable
 	'PocketStation': System('pockstat', [], [], {MediaType.Digital: ['gme']}),
@@ -234,9 +237,15 @@ unsupported_systems = {
 	'RCA Studio 2': System('studio2', ['studio2'], [], {MediaType.Cartridge: ['st2', 'bin', 'rom']}),
 	#Due to the console's terrible design, asinine keypad sequences are needed to boot games any further than weird static or a black screen. They're so asinine that even if I look at the info usage in the software list, and do the thing, it still doesn't work. So if it's that complicated that I can't work it out manually, how can I do it programmatically? So yeah, shit
 	'SVI-3x8': System('svi328', ['svi318_cart', 'svi318_cass', 'svi318_flop'], [], {MediaType.Tape: ['wav', 'cas'], MediaType.Cartridge: ['bin', 'rom']}),
-	#Works well, just needs to autoboot tapes, and that might be tricky because you have BLOAD and CLOAD
+	#Works well, just needs to autoboot tapes, and that might be tricky because you have BLOAD and CLOAD (and how does one even tell the difference programmatically)
 	'ZX81': System('zx81', ['zx80_cass', 'zx81_cass'], [], {MediaType.Tape: ['wav', 'cas', 'p', '81', 'tzx']}),
 	#Not even gonna try testing any more software without autobooting it, though I'm not sure it does work from the one I did. Anyway, gotta press J and then Shift+P twice to type LOAD "" and then enter, and then start the tape, and then wait and then press run, and it seems if you screw up any step at all you gotta reset the whole thing, and even then it's like.... meh....
+	'Radio 86-RK': System('radio86', ['radio86_cart', 'radio86_cass'], []),
+	#These and the other USSR systems below are all sorta the same (but might not be software-compatible?) anyway they only have tapes for software, and are mostly only emulated by MAME which has tape annoyances, or that online thing which is online and not suitable for a launcher
+	'Mikrosha': System('mikrosha', ['mikrosha_cart', 'mikrosha_cass'], []),
+	'Apogey BK-01': System('apogee', ['apogee'], []),
+	'Partner 01.01': System('partner', ['partner_cass', 'partner_flop'], []),
+	'Orion-128': System('orion128', ['orion_cart', 'orion_cass', 'orion_flop'], []),
 
 	#Things that have other weird usability issues
 	'Apple IIgs': System('apple2gs', ['apple2gs'], [], {MediaType.Floppy: mame_floppy_formats + ['2mg']}),
@@ -249,16 +258,6 @@ unsupported_systems = {
 	#Emulation works in Kega Fusion and MAME, but they don't display the actual book, which would be needed for most of the software to make any sense. Kega Fusion doesn't even have controls to turn the pages, which is needed for stuff
 	'Super Casette Vision': System('scv', ['scv'], [], {MediaType.Cartridge: ['bin']}),
 	#Only supports some games (e.g. with RAM enhancements) via software list, there's no way to override the cart type or anything like that.
-
-	#Might just be me doing something wrong, but seemingly doesn't work so I'll just put them here until I figure out if they definitely don't work, or they actually do
-	#TODO: Test these again you nerd
-	'Radio 86-RK': System('radio86', ['radio86_cart', 'radio86_cass'], []),
-	'Mikrosha': System('mikrosha', ['mikrosha_cart', 'mikrosha_cass'], []),
-	'Apogey BK-01': System('apogee', ['apogee'], []),
-	'Partner 01.01': System('partner', ['partner_cass', 'partner_flop'], []),
-	'Oric': System('orica', [], []),
-	#oric1 as well... either way, they don't seem to actually load anything I've tried. There's no software lists
-	'Orion-128': System('orion128', ['orion_cart', 'orion_cass', 'orion_flop'], []),
 
 	#TODO: Me being lazy, need to check if these actually work or not:
 	'Acorn Atom': System('atom', ['atom_cass', 'atom_flop', 'atom_rom'], []),
