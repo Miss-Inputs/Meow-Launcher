@@ -2,7 +2,7 @@
 
 import os
 
-from config import main_config
+from config import main_config, command_line_flags
 from launchers import convert_desktop, get_field
 
 import mame_machines
@@ -26,6 +26,8 @@ def remove_nonexistent_games():
 		#TODO: Implement this for the rest of the game types: DOS, Mac = dos_mac_common (may be tricky), 'ScummVM': scummvm.py
 
 		if should_remove:
+			if command_line_flags['debug']:
+				print(game_type, game_id, 'no longer exists, removing')
 			os.remove(path)
 
 if __name__ == '__main__':
