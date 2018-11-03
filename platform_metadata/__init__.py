@@ -96,6 +96,7 @@ helpers = {
 	'Colecovision': add_colecovision_info,
 	'Entex Adventure Vision': add_entex_adventure_vision_info,
 	'Epoch Game Pocket Computer': add_game_pocket_computer_info,
+	'FM-7': add_fm7_info,
 	'Gamate': add_gamate_info,
 	'Game.com': add_game_com_info,
 	'Hartung Game Master': add_hartung_game_master_info,

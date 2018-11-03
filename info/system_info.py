@@ -124,6 +124,7 @@ systems = {
 	#TODO: , MediaType.Floppy: ['d64', 'g64', 'p64', 'x64', 'nib', 'ipf'], MediaType.Tape: ['t64', 'tap'], MediaType.Executable: ['prg', 'p00']
 	'Casio PV-2000': System('pv2000', ['pv2000'], ['MAME (PV-2000)'], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav']}),
 	'Coleco Adam': System('adam', ['adam_cart', 'adam_cass', 'adam_flop'], ['MAME (Coleco Adam)'], {MediaType.Cartridge: ['col', 'bin'], MediaType.Tape: ['wav', 'ddp'], MediaType.Floppy: mame_floppy_formats}),
+	'FM-7': System('fm7', ['fm7_cass', 'fm7_disk', 'fm77av'], ['MAME (FM-7)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav', 't77']}),
 	'IBM PCjr': System('ibmpcjr', ['ibmpcjr_cart'], ['MAME (IBM PCjr)'], {MediaType.Cartridge: ['bin', 'jrc'], MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['exe', 'com', 'bat']}),
 	#For the carts, because otherwise we'd just call the software DOS or PC Booter.
 	'MSX': System('svi738', ['msx1_cart', 'msx1_cass', 'msx1_flop'], ['MAME (MSX1)', 'MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: ['bin', 'rom']}),
@@ -258,7 +259,6 @@ unsupported_systems = {
 	'Oric': System('orica', [], []),
 	#oric1 as well... either way, they don't seem to actually load anything I've tried. There's no software lists
 	'Orion-128': System('orion128', ['orion_cart', 'orion_cass', 'orion_flop'], []),
-	'FM-7': System('fm7', ['fm7_cass', 'fm7_disk', 'fm77av'], []),
 
 	#TODO: Me being lazy, need to check if these actually work or not:
 	'Acorn Atom': System('atom', ['atom_cass', 'atom_flop', 'atom_rom'], []),

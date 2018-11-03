@@ -590,3 +590,23 @@ def add_apple_iii_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
+
+def add_fm7_info(game):
+	#Possible input info: Keyboard and joystick but barely anything uses said joystick
+	game.metadata.tv_type = TVSystem.NTSC #Japan only
+
+	#info usage strings to make use of:
+	#"Requires FM77AV40" (unsupported system)
+	#"Requires FM-77AV40SX" (unsupported system)
+	#"Load F-BASIC first, then LOADM &quot;CALLEB&quot; and RUN &quot;MAIN&quot;"
+	#"Type RUN&quot;SD1&quot; or RUN&quot;SD2&quot; in F-BASIC"
+	#"Run from F-BASIC"
+	#"In F-BASIC, set 1 drive and 0 files, then type LOAD&quot;START&quot;,R"
+	#"Type RUN&quot;XXX&quot; with XXX=MAGUS, LIZARD, BLUE.FOX or ナイザー in F-BASIC"
+	#Sounds like there's a few disks which don't autoboot...
+	#"Type LOADM&quot;&quot;,R to load" is on a few tapes
+
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+		game.metadata.product_code = software.get_info('serial')
