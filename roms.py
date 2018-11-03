@@ -264,8 +264,6 @@ def process_emulated_system(system_config):
 				continue
 			for name in sorted(files, key=sort_m3u_first()):
 				path = os.path.join(root, name)
-				if name.startswith('[BIOS]'):
-					continue
 
 				rom = Rom(path)
 
