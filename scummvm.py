@@ -6,13 +6,18 @@ import sys
 import time
 import datetime
 
+from config import command_line_flags
 import launchers
 import input_metadata
 from metadata import Metadata, SaveType
 
-print_times = '--print-times' in sys.argv
-
 config_path = os.path.expanduser('~/.config/scummvm/scummvm.ini')
+def _get_scummvm_config():
+	parser = configparser.ConfigParser()
+	parser.optionxform = str
+	parser.read(config_path)
+	return parser
+scummvm_config = _get_scummvm_config()
 
 class ScummVMGame():
 	def __init__(self, name):
@@ -30,26 +35,28 @@ class ScummVMGame():
 		#Others are left deliberately blank because they refer to emulators and not engines
 		launchers.make_launcher(command, name, metadata, {'Type': 'ScummVM', 'Unique-ID': self.name})
 
+def no_longer_exists(game_id):
+	return game_id not in scummvm_config.sections()
+
 def add_scummvm_games():
 	if not os.path.isfile(config_path):
 		return
 
 	time_started = time.perf_counter()
 
-	parser = configparser.ConfigParser()
-	parser.optionxform = str
-	parser.read(config_path)
-
-	for section in parser.sections():
+	for section in scummvm_config.sections():
 		if section == 'scummvm':
 			continue
+		if not command_line_flags['full_rescan']:
+			if launchers.has_been_done('ScummVM', section):
+				continue
 
 		game = ScummVMGame(section)
-		for k, v in parser.items(section):
+		for k, v in scummvm_config.items(section):
 			game.options[k] = v
 		game.make_launcher()
 
-	if print_times:
+	if command_line_flags['print_times']:
 		time_ended = time.perf_counter()
 		print('ScummVM finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

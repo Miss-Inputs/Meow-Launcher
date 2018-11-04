@@ -8,6 +8,7 @@ from config import main_config, command_line_flags
 from launchers import convert_desktop, get_field
 
 import mame_machines
+import scummvm
 
 def remove_nonexistent_games():
 	#If not doing a full rescan, we want to remove games that are no longer there
@@ -28,7 +29,9 @@ def remove_nonexistent_games():
 		elif game_type in ('ROM', 'Engine game'):
 			#Note that in the case of engine games this may be a folder, so isfile will not do
 			should_remove = not os.path.exists(game_id)
-		#TODO: Implement this for the rest of the game types: DOS, Mac = dos_mac_common (may be tricky), 'ScummVM': scummvm.py
+		elif game_type == 'ScummVM':
+			should_remove = scummvm.no_longer_exists(game_id)
+		#TODO: Implement this for the rest of the game types: DOS, Mac = dos_mac_common (may be tricky)
 
 		if should_remove:
 			if command_line_flags['debug']:
