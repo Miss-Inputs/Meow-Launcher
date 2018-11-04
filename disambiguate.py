@@ -200,8 +200,27 @@ def revision_disambiguate(rev):
 
 	return '(Rev {0})'.format(rev)
 
+def reambiguate():
+	#This seems counter-intuitive, but if we're not doing a full rescan, we want to do this before disambiguating again or else it gets weird
+	output_folder = main_config.output_folder
+	for name in os.listdir(output_folder):
+		path = os.path.join(output_folder, name)
+
+		desktop = configparser.ConfigParser(interpolation=None)
+		desktop.optionxform = str
+		desktop.read(path)
+		desktop_entry = desktop['Desktop Entry']
+		if 'X-Ambiguous-Name' in desktop_entry:
+			#If name wasn't ambiguous to begin with, we don't need to worry about it
+			desktop_entry['Name'] = desktop_entry['X-Ambiguous-Name']
+			with open(path, 'wt') as f:
+				desktop.write(f)
+
 def disambiguate_names():
 	time_started = time.perf_counter()
+
+	if not command_line_flags['full_rescan']:
+		reambiguate()
 
 	fix_duplicate_names('X-Platform')
 	fix_duplicate_names('dev-status')
