@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import os
+import datetime
+import time
 
 from config import main_config, command_line_flags
 from launchers import convert_desktop, get_field
@@ -9,6 +11,9 @@ import mame_machines
 
 def remove_nonexistent_games():
 	#If not doing a full rescan, we want to remove games that are no longer there
+
+	time_started = time.perf_counter()
+
 	output_folder = main_config.output_folder
 	for name in os.listdir(output_folder):
 		path = os.path.join(output_folder, name)
@@ -29,6 +34,11 @@ def remove_nonexistent_games():
 			if command_line_flags['debug']:
 				print(game_type, game_id, 'no longer exists, removing')
 			os.remove(path)
+
+	if command_line_flags['print_times']:
+		time_ended = time.perf_counter()
+		print('Removal of non-existent items finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+
 
 if __name__ == '__main__':
 	remove_nonexistent_games()
