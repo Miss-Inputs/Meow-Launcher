@@ -7,15 +7,11 @@ import collections
 import time
 import datetime
 
-from config import main_config, system_configs
+from config import main_config, system_configs, command_line_flags
 from metadata import Metadata
 from info.system_info import MediaType
 from info.emulator_command_lines import EmulationNotSupportedException, NotARomException
 import launchers
-
-debug = '--debug' in sys.argv
-print_times = '--print-times' in sys.argv
-
 
 def init_game_list(platform):
 	db_path = main_config.mac_db_path if platform == 'mac' else main_config.dos_db_path if platform == 'dos' else None
@@ -42,7 +38,7 @@ def init_game_list(platform):
 					if key not in game:
 						game_list[game_name][key] = parent[key]
 			else:
-				if debug:
+				if command_line_flags['debug']:
 					print('Oh no! {0} refers to undefined parent game {1}'.format(game_name, parent_name))
 
 	return game_list
@@ -104,7 +100,7 @@ class App:
 				exception_reason = ex
 
 		if not command:
-			if debug:
+			if command_line_flags['debug']:
 				print(self.path, 'could not be launched by', system_config.chosen_emulators, 'because', exception_reason)
 			return
 
@@ -180,6 +176,6 @@ def make_launchers(system_config_name, config_path, app_class, emulator_list):
 		for unknown, _ in parser.items('Unknown'):
 			app_class(unknown, unknown.split(':')[-1], {}).make_launcher(system_config, emulator_list)
 
-	if print_times:
+	if command_line_flags['print_times']:
 		time_ended = time.perf_counter()
 		print(system_config_name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))

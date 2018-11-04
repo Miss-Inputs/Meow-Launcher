@@ -36,10 +36,14 @@ def parse_list_item(line, path):
 
 	raise Exception(line)
 
+file_not_found_regex = re.compile(r'^hls: ".+": no such file or directory$')
 def list_inside_hfv(hfv_path, unescaped_name):
-	ls_proc = subprocess.run(['hls', '-l', hfv_path], stdout=subprocess.PIPE, encoding='mac-roman', universal_newlines=True)
+	ls_proc = subprocess.run(['hls', '-l', hfv_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='mac-roman', universal_newlines=True)
 	if ls_proc.returncode != 0:
 		raise Exception('oh no %d' % ls_proc.returncode)
+
+	if file_not_found_regex.fullmatch(ls_proc.stderr.strip()):
+		raise FileNotFoundError(hfv_path)
 
 	for line in ls_proc.stdout.split('\n'):
 		if line:
@@ -73,3 +77,19 @@ def list_hfv(hfv_path):
 		umount_proc = subprocess.run('humount')
 		if umount_proc.returncode != 0:
 			print('Oh no')
+
+def does_exist(hfv_path, inner_path):
+	mount_proc = subprocess.run(['hmount', hfv_path], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+	if mount_proc.returncode != 0:
+		raise Exception(mount_proc.stderr)
+
+	try:
+		list_inside_hfv(inner_path, inner_path)
+		return True
+	except FileNotFoundError:
+		return False
+	finally:
+		umount_proc = subprocess.run('humount')
+		if umount_proc.returncode != 0:
+			print('Oh no')
+

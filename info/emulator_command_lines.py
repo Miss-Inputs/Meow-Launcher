@@ -531,9 +531,12 @@ def basilisk_ii(app, other_config):
 	#Can't do anything about colour depth at the moment (displaycolordepth is functional on some SDL1 builds, but not SDL2)
 	#Or controls... but I swear I will find a way!!!!
 
+	hfv_path, inner_path = app.path.split(':', 1)
+	#FIXME: Ensure hfv_path is mounted, right now we're just kinda assuming it is, which is a weird thing to do when you think about it
+
 	#If you're not using an SDL2 build of BasiliskII, you probably want to change dga to window! Well you really want to get an SDL2 build of BasiliskII, honestly
 	actual_emulator_command = 'BasiliskII --screen dga/{0}/{1}'.format(width, height)
-	inner_command = 'echo {0} > {1} && {2} && rm {1}'.format(shlex.quote(app.path), shlex.quote(autoboot_txt_path), actual_emulator_command)
+	inner_command = 'echo {0} > {1} && {2} && rm {1}'.format(shlex.quote(inner_path), shlex.quote(autoboot_txt_path), actual_emulator_command)
 	return 'sh -c {0}'.format(shlex.quote(inner_command))
 
 def _get_dosbox_config(app):
