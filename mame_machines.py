@@ -278,7 +278,6 @@ def get_mame_drivers():
 
 def no_longer_exists(game_id):
 	#This is used to determine what launchers to delete if not doing a full rescan
-	#FIXME: Would this not be... very slow, since we might have already verified it earlier
 	return not mame_verifyroms(game_id)
 
 def process_driver(driver):
