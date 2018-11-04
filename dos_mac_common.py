@@ -165,6 +165,10 @@ def make_launchers(system_config_name, config_path, app_class, emulator_list):
 	parser.read(config_path)
 
 	for path, config_name in parser.items('Apps'):
+		if not command_line_flags['full_rescan']:
+			if launchers.has_been_done(system_config_name, path):
+				continue
+
 		if config_name not in game_list:
 			print('Oh no!', path, 'refers to', config_name, "but that isn't known")
 			continue
