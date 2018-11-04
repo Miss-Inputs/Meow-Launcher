@@ -92,4 +92,3 @@ def does_exist(hfv_path, inner_path):
 		umount_proc = subprocess.run('humount')
 		if umount_proc.returncode != 0:
 			print('Oh no')
-

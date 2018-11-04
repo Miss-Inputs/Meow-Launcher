@@ -2,7 +2,6 @@
 
 import os
 import configparser
-import sys
 import time
 import datetime
 
