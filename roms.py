@@ -323,6 +323,8 @@ def process_system(system_config):
 
 
 def process_systems():
+	time_started = time.perf_counter()
+
 	excluded_systems = []
 	for arg in sys.argv:
 		if arg.startswith('--exclude='):
@@ -334,6 +336,11 @@ def process_systems():
 		if not system.is_available:
 			continue
 		process_system(system)
+
+	if command_line_flags['print_times']:
+		time_ended = time.perf_counter()
+		print('All emulated/engined systems finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+
 
 def main():
 	if len(sys.argv) >= 2 and '--rom' in sys.argv:
