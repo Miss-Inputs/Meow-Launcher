@@ -21,7 +21,6 @@ if '--refresh-config' in sys.argv:
 	exit()
 
 debug = '--debug' in sys.argv
-print_times = '--print-times' in sys.argv
 
 overall_time_started = time.perf_counter()
 
@@ -49,6 +48,6 @@ disambiguate.disambiguate_names()
 if '--organize-folders' in sys.argv:
 	organize_folders.move_into_folders()
 
-if print_times:
+if command_line_flags['print_times']:
 	overall_time_ended = time.perf_counter()
 	print('Whole thing finished in', str(datetime.timedelta(seconds=overall_time_ended - overall_time_started)))

@@ -6,10 +6,8 @@ import sys
 import time
 import datetime
 
-from config import main_config
+from config import main_config, command_line_flags
 import launchers
-
-print_times = '--print-times' in sys.argv
 
 #This is sort of considered separate from the main launcher generator.
 #Consider it to be its own kind of frontend, perhaps.
@@ -158,7 +156,7 @@ def move_into_folders():
 	time_started = time.perf_counter()
 
 	delete_existing_output_dir()
-	if print_times:
+	if command_line_flags['print_times']:
 		time_ended = time.perf_counter()
 		print('Removal of old organized folder finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
@@ -171,7 +169,7 @@ def move_into_folders():
 
 				move_into_subfolders(path)
 
-	if print_times:
+	if command_line_flags['print_times']:
 		time_ended = time.perf_counter()
 		print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

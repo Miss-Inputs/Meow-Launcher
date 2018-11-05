@@ -16,7 +16,6 @@ from mame_metadata import add_metadata
 from metadata import Metadata, SaveType
 
 debug = '--debug' in sys.argv
-print_times = '--print-times' in sys.argv
 
 icon_line_regex = re.compile(r'^icons_directory\s+(.+)$')
 
@@ -316,7 +315,7 @@ def process_arcade():
 
 		process_driver(driver)
 
-	if print_times:
+	if command_line_flags['print_times']:
 		time_ended = time.perf_counter()
 		print('Arcade finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
