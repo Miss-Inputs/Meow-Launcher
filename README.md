@@ -1,21 +1,23 @@
-# CrappyGameLauncher
+# Meow Launcher
 
-Hello! This sucks.
+Utility to create launchers for games.
 
-One day, it will not suck, so this readme will change in the near future (hopefully, unless I get hit by a bus and never develop this further ever again). But until now, it does.
+This readme may evolve as time goes on. It probably sucks because all single-person projects inherently will have a problem with documentation as a developer's perspective of their own software is going to be different from a hypothetical person who doesn't know its ins and outs, but also I just suck at writing. So, no need to be afraid to ask questions.
 
-Name should be self explanatory. Launcher for games (primarily the emulated kind), is crappy (currently).
+Eventually it started out when one day I was indecisive about what game to play, and I decided to make a little single-file script to assist me in the "I feel like playing a video game" process, and then I got carried away and took things too far and I ended up doing all this.
 
-The goals here can basically be summed up as "modularity":  
-- You can use the emulators that you already have installed (or are going to install), so they're up to date and and aren't forks which may have altered compatibility
-- You can use whatever frontend you want on top of this: This just generates launchers, and you can decide how you want to use them, instead of being locked down to some giant frontend which combines all the things and doesn't let you mix and match functionality
-- Code is organized, hopefully, in such a way that it should be relatively easy to add your own emulators if you have some new one that I didn't think about
+So what makes this different:
+- Uses the emulators that you already have installed (or are going to install), rather than installing its own version which may be out of date or have altered compatibility
+- You can use whatever frontend you want on top of this: This just generates launchers, and you can decide how you want to use them, instead of being locked down to some giant frontend which combines all the things and doesn't let you mix and match functionality.
+- Code is organized, hopefully, in such a way that it should be relatively easy to add your own emulators if you have some new one that I didn't think about; or tweak some other tweak that might be interesting
 
-It's not intended to be hard to use, it's just not a priority to make it easier to use, because I'm lazy I guess. It just does the thing.
+It's not intended to be hard to use, it just hasn't been made easier to use yet. One day it should be.
 
-The other neat tricks are that it will automatically get metadata from the games where it can, not using any weird internet service that may disappear, but from what's inside the games themselves. Also it will automatically figure out which emulator (where emulation is applicable) is the best one to use for a given game, out of the emulators you selected.
+The other neat tricks are that it will automatically get metadata from the games where it can, not using any weird internet service that may disappear or have restrictions on usage, but from what's inside the games themselves. Also it will automatically figure out which emulator (where emulation is applicable) is the best one to use for a given game, out of the emulators you selected.
 
-These config files will appear in ~/.config/CrappyGameLauncher (see also config.py config_dir for where that's set) with default values, once anything is ran for the first time (see --refresh-config below), and then you... edit them. Ideally I want to make some kind of configurator, but that'd be a separate thing:
+No special trickery should be required for installation, you just kinda put it in whichever folder you feel like putting it in. Pretty sure no external libraries are required, but Pillow is recommended so you can extract icons from games that have embedded icons (DS, 3DS, etc). Everyone loves icons.
+
+These config files will appear in ~/.config/MeowLauncher (see also config.py config_dir for where that's set) with default values, once anything is ran for the first time (see --refresh-config below), and then you... edit them. Ideally I want to make some kind of configurator, but that'd be a separate thing:
 - config.ini
   - Main configuration, which specifies where your launchers are output to and other things like that.
 - emulators.ini
@@ -70,7 +72,7 @@ Sources of games:
 
 Other places of interest:  
 - disambiguate.py
-  - Let's say you have like, 20 different ports of Pac-Man, or something. This will enable you to tell which is which, it'll change the name of the launcher, depending on various metadata. Otherwise you'd just get a lot of launchers that are all named "Pac-Man".
+  - In the likely event that there are multiple games with the same name (or more commonly more than one version of a game), this will add stuff in brackets to enable you to know which one is which.
 - organize_folders.py
   - This is like a builtin mini-frontend. After dealing with all your launchers, it copies them all into lots of subfolders, and you can browse them that way.
 
@@ -80,4 +82,4 @@ In future I want to make a GUI frontend myself but I haven't yet.
 
 Use [this](https://gist.github.com/Zowayix/f511490865bc5aa8a66ad0776ae066df) to regenerate nintendo_licensee_codes from ROMniscience's source if you need to (adjusting the local path to the source file accordingly). Not that anyone would probably want this project if I got hit by a bus, but maybe someone wants to know how to do that. I'm not cool enough to have any sort of automated build steps or whatever.
 
-So that's the readme so far. I've never really been good at them. Sorry. I'll just have to make it up as I go along.
+That's all for this readme, keep on meowing gamers
