@@ -316,6 +316,8 @@ def process_system(system_config):
 		process_emulated_system(system_config)
 	elif system_config.name in system_info.games_with_engines:
 		process_engine_system(system_config, system_info.games_with_engines[system_config.name])
+	else:
+		return
 
 	if command_line_flags['print_times']:
 		time_ended = time.perf_counter()
