@@ -52,6 +52,10 @@ emulators = {
 	'Snes9x': Emulator('snes9x-gtk $<path>', ['sfc', 'smc', 'swc'], ['zip', 'gz']),
 	#Can't set fullscreen mode from the command line so you have to set up that yourself (but it will do that automatically); GTK port can't do Sufami Turbo or Satellaview from command line due to lacking multi-cart support that Windows has (Unix non-GTK doesn't like being in fullscreen etc)
 	'Stella': Emulator('stella -fullscreen 1 $<path>', ['a26', 'bin', 'rom'], ['gz', 'zip']),
+	'VICE (SDL2)': Emulator(command_lines.vice, ['d64', 'g64', 'x64', 'p64', 'd71', 'd81', 'd80', 'd82', 'd1m', 'd2m'] + ['20', '40', '60', '70', '80', 'a0', 'b0', 'e0', 'crt', 'bin'] + ['p00', 'prg', 'tap', 't64'], ['gz', 'bz2', 'zip', 'tgz']),
+	#Also does z and zoo compression but I haven't done those in archives.py yet
+	#WARNING! Will write back changes to your disk images unless they are compressed or actually write protected on the file system
+	#FIXME: Does support compressed tapes/disks but doesn't support compressed cartridges (seemingly). This would require changing all kinds of stuff with how compression is handled here.
 
 	'Mednafen (Lynx)': MednafenModule('lynx', ['lnx', 'lyx', 'o']),
 	#Based on Handy, but that hasn't been updated in 14 years, so I guess this probably has some more updates

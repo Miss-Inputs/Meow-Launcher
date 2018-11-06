@@ -76,7 +76,7 @@ def mame_vic_20(game, _):
 	size = game.rom.get_size()
 	if size > ((8 * 1024) + 2):
 		#It too damn big (only likes 8KB with 2 byte header at most)
-		raise EmulationNotSupportedException('ROM too big: %d' % size)
+		raise EmulationNotSupportedException('Single-part >8K cart not supported: %d' % size)
 
 	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'vic20p'
@@ -515,6 +515,52 @@ def mame_apple_ii(game, _):
 	if game.metadata.specific_info.get('Uses-Mouse', False):
 		slot_options['sl4'] = 'mouse'
 	return mame_command_line('apple2p', 'flop1', slot_options, True)
+
+def vice(game, other_config):
+	executable = None
+	fullscreen_option = None #+ and - prefixes seem to do the reverse of what you might expect; i.e. +VICIIfull turns _off_ fullscreen, seemingly
+	model = None
+
+	platform = game.metadata.platform
+	if platform in ('C64', 'C64GS'):
+		executable = 'x64' if other_config.get('use_fast_c64', 'no') == 'yes' else 'x64sc'
+		fullscreen_option = '-VICIIfull'
+
+		if game.metadata.tv_type == TVSystem.NTSC:
+			model = 'ntsc'
+
+		#http://vice-emu.sourceforge.net/vice_7.html#SEC94
+		#Eh, maybe I should sort this. Or maybe convert it into unsupported_cartridge_types which seems like it would be a smaller list.
+		supported_cartridge_types = [0, 1, 50, 35, 30, 9, 15, 34, 21, 24, 25, 26, 52, 17, 32, 10, 44, 13, 3, 29, 45, 46, 7, 42, 39, 2, 51, 19, 14, 28, 38, 5, 43, 27, 12, 36, 23, 4, 47, 31, 22, 48, 8, 40, 20, 16, 11, 18]
+		#Not sure if EasyFlash Xbank (33) was supposed to be included in the mention of EasyFlash being emulated? Guess I'll find out
+		#I guess "REX 256K EPROM Cart" == Rex EP256 (27)?
+		#RGCD, RR-Net MK3 are apparently emulated, whatever they are, but I dunno what number they're assigned to
+		supported_cartridge_types += [41, 49, 37, 6] #Slot 0 and 1 carts (have passthrough, and maybe I should be handling them differently as they aren't really meant to be standalone things); also includes Double Quick Brown Box, ISEPIC, and RamCart
+		if game.metadata.media_type == MediaType.Cartridge:
+			cart_type = game.metadata.specific_info.get('Mapper-Number', None)
+			cart_type_name = game.metadata.specific_info.get('Mapper', None)
+			if cart_type:
+				if cart_type not in supported_cartridge_types:
+					raise EmulationNotSupportedException('Cart type %s not supported % ' % cart_type_name)
+	elif platform == 'VIC-20':
+		size = game.rom.get_size()
+		if size > ((8 * 1024) + 2):
+			#Frick
+			#TODO: Support multiple parts with -cart2 -cartA etc; this will probably require a lot of convoluted messing around to know if a given ROM is actually the second part of a multi-part cart (probably using software lists) and using game.subroms etc
+			raise EmulationNotSupportedException('Single-part >8K cart not supported: %d' % size)
+
+		if game.metadata.tv_type == TVSystem.NTSC:
+			model = 'vic20ntsc'
+
+		executable = 'xvic'
+		fullscreen_option = '-VICfull'
+	else:
+		raise EmulationNotSupportedException('%s not a supported platform' % platform)
+
+	command_line = '{0} {1}'.format(executable, fullscreen_option)
+	if model:
+		command_line += '-model %s' % shlex.quote(model)
+	return command_line + ' $<path>'
 
 def basilisk_ii(app, other_config):
 	if 'arch' in app.config:
