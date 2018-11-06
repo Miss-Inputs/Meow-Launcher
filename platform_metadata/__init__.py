@@ -94,6 +94,7 @@ helpers = {
 	'Channel F': add_channel_f_info,
 	'Coleco Adam': add_coleco_adam_info,
 	'Colecovision': add_colecovision_info,
+	'Commodore PET': add_pet_info,
 	'Entex Adventure Vision': add_entex_adventure_vision_info,
 	'Epoch Game Pocket Computer': add_game_pocket_computer_info,
 	'FM-7': add_fm7_info,
