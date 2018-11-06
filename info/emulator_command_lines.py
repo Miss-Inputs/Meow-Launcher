@@ -543,11 +543,12 @@ def vice(game, other_config):
 				if cart_type not in supported_cartridge_types:
 					raise EmulationNotSupportedException('Cart type %s not supported % ' % cart_type_name)
 	elif platform == 'VIC-20':
-		size = game.rom.get_size()
-		if size > ((8 * 1024) + 2):
-			#Frick
-			#TODO: Support multiple parts with -cart2 -cartA etc; this will probably require a lot of convoluted messing around to know if a given ROM is actually the second part of a multi-part cart (probably using software lists) and using game.subroms etc
-			raise EmulationNotSupportedException('Single-part >8K cart not supported: %d' % size)
+		if game.metadata.media_type == MediaType.Cartridge:
+			size = game.rom.get_size()
+			if size > ((8 * 1024) + 2):
+				#Frick
+				#TODO: Support multiple parts with -cart2 -cartA etc; this will probably require a lot of convoluted messing around to know if a given ROM is actually the second part of a multi-part cart (probably using software lists) and using game.subroms etc
+				raise EmulationNotSupportedException('Single-part >8K cart not supported: %d' % size)
 
 		if game.metadata.tv_type == TVSystem.NTSC:
 			model = 'vic20ntsc'
