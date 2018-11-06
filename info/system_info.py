@@ -76,7 +76,7 @@ systems = {
 	#Obscure systems (<1M units sold), just for the sake of making that list less messy
 	#Uzebox is a homebrew thing and not really a commercial product, so it doesn't really have numbers. But it probably counts as obscure.
 	#Can't really find numbers on Atari 7800 and Neo Geo Pocket, but they aren't obscure... right?
-	'Amiga CD32': System('cd32', ['cd32', 'cdtv'], ['FS-UAE'], {MediaType.OpticalDisc: cdrom_formats}),
+	'Amiga CD32': System('cd32', ['cd32'], ['FS-UAE'], {MediaType.OpticalDisc: cdrom_formats}),
 	#Meh, I'll consider it a separate thing I guess
 	'Amstrad GX4000': System('gx4000', ['gx4000'], ['MAME (Amstrad GX4000)', 'MAME (Amstrad CPC+)'], {MediaType.Cartridge: ['bin', 'cpr']}),
 	'APF-MP1000': System('apfm1000', ['apfm1000'], ['MAME (APF-MP1000)'], {MediaType.Cartridge: ['bin']}),
@@ -89,6 +89,7 @@ systems = {
 	'Casio PV-1000': System('pv1000', ['pv1000'], ['MAME (PV-1000)'], {MediaType.Cartridge: ['bin']}),
 	'Channel F': System('channelf', ['channelf'], ['MAME (Channel F)'], {MediaType.Cartridge: ['chf', 'bin']}),
 	#It has some sort of knob that you twist up and down or something? What the fuck
+	'Commodore CDTV': System('cdtv', ['cdtv'], ['FS-UAE'], {MediaType.OpticalDisc: cdrom_formats}),
 	'Entex Adventure Vision': System('advision', ['advision'], ['MAME (Entex Adventure Vision)'], {MediaType.Cartridge: ['bin']}),
 	'Epoch Game Pocket Computer': System('gamepock', ['gamepock'], ['MAME (Game Pocket Computer)'], {MediaType.Cartridge: ['bin']}),
 	'Gamate': System('gamate', ['gamate'], ['MAME (Gamate)'], {MediaType.Cartridge: ['bin']}),

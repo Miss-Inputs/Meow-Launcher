@@ -474,6 +474,8 @@ def fs_uae(game, other_config):
 	command_line = 'fs-uae --fullscreen'
 	if game.metadata.platform == 'Amiga CD32':
 		command_line += ' --amiga_model=CD32 --joystick_port_0_mode=%s --cdrom_drive_0=$<path>' % shlex.quote('cd32 gamepad')
+	elif game.metadata.platform == 'Commodore CDTV':
+		command_line += ' --amiga_model=CDTV --cdrom_drive_0=$<path>'
 	else:
 		amiga_models = {
 			'OCS': 'A500', #Also A1000 (A2000 also has OCS but doesn't appear to be an option?)
