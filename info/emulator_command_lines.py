@@ -473,7 +473,7 @@ def mupen64plus(game, other_config):
 def fs_uae(game, other_config):
 	command_line = 'fs-uae --fullscreen'
 	if game.metadata.platform == 'Amiga CD32':
-		command_line += ' --amiga_model=CD32 --joystick_0_mode=%s --cdrom_drive_0=$<path>' % shlex.quote('cd32 gamepad')
+		command_line += ' --amiga_model=CD32 --joystick_port_0_mode=%s --cdrom_drive_0=$<path>' % shlex.quote('cd32 gamepad')
 	else:
 		amiga_models = {
 			'OCS': 'A500', #Also A1000 (A2000 also has OCS but doesn't appear to be an option?)
