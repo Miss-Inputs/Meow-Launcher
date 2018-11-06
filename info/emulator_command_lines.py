@@ -554,12 +554,17 @@ def vice(game, other_config):
 
 		executable = 'xvic'
 		fullscreen_option = '-VICfull'
+	elif platform == 'Commodore PET':
+		executable = 'xpet'
+		fullscreen_option = '-CRTCfull'
+
+		#Some programs only run on 4000-series machines (model = '4032'), some do not (model = '3032'), I guess I don't have a way of knowing (MAME software lists just have a comment so it just be like that sometimes)
 	else:
 		raise EmulationNotSupportedException('%s not a supported platform' % platform)
 
 	command_line = '{0} {1}'.format(executable, fullscreen_option)
 	if model:
-		command_line += '-model %s' % shlex.quote(model)
+		command_line += ' -model %s' % shlex.quote(model)
 	return command_line + ' $<path>'
 
 def basilisk_ii(app, other_config):
