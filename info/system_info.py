@@ -108,13 +108,7 @@ systems = {
 	'Mega CD': System('megacdj', ['megacd', 'megacdj', 'segacd'], ['Kega Fusion'], {MediaType.OpticalDisc: cdrom_formats}),
 	'PC Engine CD': System('pce', ['pcecd'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)'], {MediaType.OpticalDisc: cdrom_formats}),
 
-	#Computers!  These actually aren't that bad control-wise because most sensible games would use a simple one-button
-	#joystick, and most of the time MAME lets you attach one.  But some of them don't!  And the ones that don't just use
-	#any damn keys they want!  And some software might only work properly with particular models of a computer within an
-	#allegedly compatible family!  Yaaaay!  But they have games, so let's put them in here
-	#I avoid using anything which requires me to input arcane commands or hear arcane sounds here or wait for arcane
-	#times, though I suppose I _could_ do that, it just doesn't feel like a nicely organized bunch of launcher scripts if
-	#I do that
+	#Computers
 	'Amiga': System('a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench'], ['FS-UAE'], {MediaType.Floppy: ['adf', 'ipf', 'dms']}, {'default_chipset': 'AGA'}),
 	'Apple II': System('apple2', ['apple2', 'apple2_cass'], ['MAME (Apple II)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib'], MediaType.Tape: ['wav']}),
 	'Apple III': System('apple3', ['apple3'], ['MAME (Apple III)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib']}),
