@@ -516,6 +516,21 @@ def mame_apple_ii(game, _):
 		slot_options['sl4'] = 'mouse'
 	return mame_command_line('apple2p', 'flop1', slot_options, True)
 
+def mame_coleco_adam(game, _):
+	slot_options = {}
+	slot = None
+
+	if game.metadata.media_type == MediaType.Floppy:
+		slot = 'flop1'
+	elif game.metadata.media_type == MediaType.Tape:
+		slot = 'cass1'
+		#Disable floppy drives if we aren't using them for a performance boost
+		#TODO: Does that actually make a difference, and/or is there any tape software that for some reason uses the floppy drives
+		slot_options['net4'] = ''
+		slot_options['net5'] = ''
+
+	return mame_command_line('adam', slot, slot_options, has_keyboard=True)
+
 def vice(game, other_config):
 	executable = None
 	fullscreen_option = None #+ and - prefixes seem to do the reverse of what you might expect; i.e. +VICIIfull turns _off_ fullscreen, seemingly

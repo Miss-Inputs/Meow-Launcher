@@ -103,9 +103,8 @@ emulators = {
 	'MAME (Channel F)': MameSystem(command_lines.mame_command_line('channelf', 'cart'), ['bin', 'chf']),
 	'MAME (ColecoVision)': MameSystem(command_lines.mame_command_line('coleco', 'cart'), ['bin', 'col', 'rom']),
 	#Controls are actually fine in-game, just requires a keypad to select levels/start games and that's not consistent at all so good luck with that (but mapping 1 to Start seems to work well).  All carts are either USA or combination USA/Europe and are required by Coleco to run on both regions, so why play in 50Hz when we don't have to
-	'MAME (Coleco Adam)': MameSystem(command_lines.mame_command_line('adam', 'cass1', {'net4': '""', 'net5': '""'}, has_keyboard=True), ['wav', 'ddp']),
-	#Uses tapes, but they just boot automatically, so it's fine I guess.
-	#TODO: Do disks as well, if I had any. Also Adam-specific carts I guess? Not sure how those work, or if the cartridge port is just there for Colecovision compatibility and I'm a doofus
+	'MAME (Coleco Adam)': MameSystem(command_lines.mame_coleco_adam, ['wav', 'ddp'] + mame_floppy_formats),
+	#Both disks and tapes autoboot. Woohoo!
 	'MAME (Entex Adventure Vision)': MameSystem(command_lines.mame_command_line('advision', 'cart'), ['bin']),
 	#Doesn't work with the "Code Red" demo last time I tried
 	'MAME (FM-7)': MameSystem(command_lines.mame_command_line('fm77av', 'flop1'), mame_floppy_formats),
