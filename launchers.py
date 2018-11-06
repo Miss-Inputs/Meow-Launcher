@@ -121,6 +121,8 @@ def _get_existing_launchers():
 	a = []
 
 	output_folder = main_config.output_folder
+	if not os.path.isdir(output_folder):
+		return []
 	for name in os.listdir(output_folder):
 		path = os.path.join(output_folder, name)
 
