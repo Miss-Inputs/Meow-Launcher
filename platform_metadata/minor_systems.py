@@ -617,3 +617,11 @@ def add_pet_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
+
+def add_plus4_info(game):
+	#bah...
+
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+		game.metadata.product_code = software.get_info('serial')

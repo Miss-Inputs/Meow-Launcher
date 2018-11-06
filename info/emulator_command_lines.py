@@ -559,6 +559,12 @@ def vice(game, other_config):
 		fullscreen_option = '-CRTCfull'
 
 		#Some programs only run on 4000-series machines (model = '4032'), some do not (model = '3032'), I guess I don't have a way of knowing (MAME software lists just have a comment so it just be like that sometimes)
+	elif platform == 'Plus/4':
+		executable = 'xplus4'
+		fullscreen_option = '-TEDfull'
+
+		if game.metadata.tv_type == TVSystem.NTSC:
+			model = 'plus4ntsc'
 	else:
 		raise EmulationNotSupportedException('%s not a supported platform' % platform)
 
