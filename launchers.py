@@ -1,6 +1,7 @@
 import re
 import os
 import configparser
+import pathlib
 
 import common
 from config import main_config, name_replacement, add_the, subtitle_removal
@@ -69,6 +70,7 @@ def base_make_desktop(command, display_name, fields=None, icon=None):
 			desktop_entry['Icon'] = icon
 		else: #assume PIL/Pillow image
 			if main_config.icon_folder:
+				pathlib.Path(main_config.icon_folder).mkdir(exist_ok=True, parents=True)
 				icon_path = os.path.join(main_config.icon_folder, filename + '.png')
 				icon.save(icon_path, 'png')
 				desktop_entry['Icon'] = icon_path
