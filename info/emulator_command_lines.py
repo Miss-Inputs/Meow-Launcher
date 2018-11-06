@@ -565,6 +565,12 @@ def vice(game, other_config):
 
 		if game.metadata.tv_type == TVSystem.NTSC:
 			model = 'plus4ntsc'
+	elif platform == 'C128':
+		executable = 'x128'
+		fullscreen_option = '-VDCfull'
+
+		if game.metadata.tv_type == TVSystem.NTSC:
+			model = 'ntsc'
 	else:
 		raise EmulationNotSupportedException('%s not a supported platform' % platform)
 
