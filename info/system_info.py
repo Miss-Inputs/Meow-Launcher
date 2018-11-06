@@ -215,7 +215,7 @@ unsupported_systems = {
 	'Apple I': System('apple1', ['apple1'], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['snp']}),
 	#Loading tapes would require parsing software list usage to figure out where to put load addresses and things to make an autoboot script, because otherwise it's just way too messy to warrant being in a frontend. Snapshots supposedly exist, but I haven't seen any evidence they actually do, so... whoops
 	'C64DTV': System('c64dtv', [], []),
-	#Commodore 64 plug and play system that has its own unique software, apparently. MAME driver is skeleton, so this will require one of the various other C64 emulators to support instead and for me to remember what was wrong with them (I think VICE had fullscreen issues), and then maybe they still don't support it
+	#Commodore 64 plug and play system that has its own unique software, apparently. MAME driver is skeleton, and VICE doesn't seem to boot anything (it is noted as being WIP/experimental)
 	'Commodore 65': System('c65', ['c65_flop'], []),
 	#This was actually never released, but there's software for it anyway. However, this is only supported by MAME, and it seems it only supports loading by software lists (there are no media slots), which won't work for our purposes at this point in time
 	'Cybiko': System('cybikov1', [], [], {MediaType.Digital: ['app']}),
@@ -314,6 +314,7 @@ unsupported_systems = {
 	#Acorn Archimedes stuff (could this end up being amongst dos_mac_common?)
 	#Jupiter Ace (ZX Spectrum clone but has different compatibility?)
 	#TI-99: Main kerfluffle seems to be .rpk file format needed for -cart loading, but everything else is in .c and .g and who knows what else; -ioport peb -ioport:peb:slot2 32kmem -ioport:peb:slot3 speech might be needed?
+	#CBM-II (VIC-II and CRTC models)
 
 	#Epoch (not Super) Casette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
 	#Coleco Quiz Wiz Challenge might require its own thing: The software cartridges contain no ROMs, just different pinouts, you need the software list to select which one
