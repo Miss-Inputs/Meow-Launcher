@@ -533,6 +533,16 @@ def mame_coleco_adam(game, _):
 
 	return mame_command_line('adam', slot, slot_options, has_keyboard=True)
 
+def mame_super_cassette_vision(game, _):
+	if game.metadata.specific_info.get('Has-Extra-RAM', False):
+		raise EmulationNotSupportedException('RAM on cartridge not supported except from software list (game would malfunction)')
+
+	system = 'scv'
+	if game.metadata.tv_type == TVSystem.PAL:
+		system = 'scv_pal'
+
+	return mame_command_line(system, 'cart')
+
 def vice(game, other_config):
 	executable = None
 	fullscreen_option = None #+ and - prefixes seem to do the reverse of what you might expect; i.e. +VICIIfull turns _off_ fullscreen, seemingly

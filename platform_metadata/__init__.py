@@ -118,6 +118,7 @@ helpers = {
 	'SG-1000': add_sg1000_info,
 	'Sharp X1': add_sharp_x1_info,
 	'Sharp X68000': add_sharp_x68k_info,
+	'Super Cassette Vision': add_super_cassette_vision_info,
 	'Tomy Tutor': add_tomy_tutor_info,
 	'VC 4000': add_vc4000_info,
 	'VIC-10': add_vic10_info,

@@ -103,6 +103,7 @@ systems = {
 	'PC-FX': System('pcfx', ['pcfx'], ['Mednafen (PC-FX)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'Pokemon Mini': System('pokemini', ['pokemini'], ['PokeMini', 'PokeMini (wrapper)', 'MAME (Pokemon Mini)'], {MediaType.Cartridge: ['min', 'bin']}),
 	'SG-1000': System('sg1000', ['sg1000', 'sc3000_cart', 'sc3000_cass', 'sf7000'], ['Kega Fusion', 'MAME (SG-1000)'], {MediaType.Cartridge: ['sg', 'bin', 'sc'], MediaType.Tape: ['wav', 'bit'], MediaType.Floppy: mame_floppy_formats + ['sf7']}),
+	'Super Cassette Vision': System('scv', ['scv'], ['MAME (Super Cassette Vision)'], {MediaType.Cartridge: ['bin']}),
 	'Uzebox': System('uzebox', ['uzebox'], ['MAME (Uzebox)'], {MediaType.Executable: ['bin', 'uze']}),
 	'VC 4000': System('vc4000', ['vc4000'], ['MAME (VC 4000)'], {MediaType.Cartridge: ['bin', 'rom']}),
 	'Vectrex': System('vectrex', ['vectrex'], ['MAME (Vectrex)'], {MediaType.Cartridge: ['vec', 'gam', 'bin']}),
@@ -268,8 +269,6 @@ unsupported_systems = {
 	#Controllers aren't emulated yet (and they're necessary for a lot of things)
 	'Sega Pico': System('pico', ['pico'], [], {MediaType.Cartridge: ['bin', 'md']}),
 	#Emulation works in Kega Fusion and MAME, but they don't display the actual book, which would be needed for most of the software to make any sense. Kega Fusion doesn't even have controls to turn the pages, which is needed for stuff
-	'Super Casette Vision': System('scv', ['scv'], [], {MediaType.Cartridge: ['bin']}),
-	#Only supports some games (e.g. with RAM enhancements) via software list, there's no way to override the cart type or anything like that.
 
 	#TODO: Me being lazy, need to check if these actually work or not:
 	'Acorn Atom': System('atom', ['atom_cass', 'atom_flop', 'atom_rom'], []),
