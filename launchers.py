@@ -134,9 +134,13 @@ def _get_existing_launchers():
 		a.append((existing_type, existing_id))
 
 	return a
-_existing_launchers = _get_existing_launchers()
+_existing_launchers = None
 
 def has_been_done(game_type, game_id):
+	global _existing_launchers #Of course it's global you dicktwat. I swear to fuck this fucking language sometimes, I just wanted to lazy initialize a variable why do you have to make this difficult by making me put spooky keywords in there or forcing me to write some boilerplate shit involving classes and decorators instead, if I wanted to write verbose bullshit I'd program in fucking Java, fuck off
+	if _existing_launchers is None:
+		_existing_launchers = _get_existing_launchers()
+
 	for existing_type, existing_id in _existing_launchers:
 		if existing_type == game_type and existing_id == game_id:
 			return True

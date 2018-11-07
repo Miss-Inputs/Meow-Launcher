@@ -5,12 +5,6 @@ import time
 import os
 import sys
 
-from config import main_config, command_line_flags
-
-if '--refresh-config' in sys.argv:
-	#TODO: Do this on first run... or is that a bad idea
-	exit()
-
 import roms
 import mame_machines
 import disambiguate
@@ -19,6 +13,12 @@ import mac
 import scummvm
 import dos
 import remove_nonexistent_games
+
+from config import main_config, command_line_flags
+
+if '--refresh-config' in sys.argv:
+	#TODO: Do this on first run... or is that a bad idea
+	exit()
 
 overall_time_started = time.perf_counter()
 
