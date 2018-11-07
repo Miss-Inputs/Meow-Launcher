@@ -20,8 +20,6 @@ if '--refresh-config' in sys.argv:
 	#TODO: Do this on first run... or is that a bad idea
 	exit()
 
-debug = '--debug' in sys.argv
-
 overall_time_started = time.perf_counter()
 
 if command_line_flags['full_rescan']:
