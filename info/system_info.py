@@ -144,6 +144,7 @@ systems = {
 	#Family also includes C16 and C116
 	'Sharp X1': System('x1', ['x1_cass', 'x1_flop'], ['MAME (Sharp X1)'], {MediaType.Floppy: ['2d'] + mame_floppy_formats, MediaType.Tape: ['wav', 'tap']}),
 	'Sharp X68000': System('x68000', ['x68k_flop'], ['MAME (Sharp X68000)'], {MediaType.Floppy: mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim']}),
+	'SAM Coupe': System('samcoupe', ['samcoupe_cass', 'samcoupe_flop'], ['SimCoupe'], {MediaType.Floppy: ['mgt', 'sad', 'dsk', 'sdf'], MediaType.Executable: ['sbt']}),
 	'Sord M5': System('m5', ['m5_cart', 'm5_cass', 'm5_flop'], ['MAME (Sord M5)'], {MediaType.Cartridge: ['bin'], MediaType.Floppy: mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim']}),
 	'Tomy Tutor': System('tutor', ['tutor'], ['MAME (Tomy Tutor)'], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav']}),
 	'VIC-10': System('vic10', ['vic10'], ['MAME (VIC-10)'], {MediaType.Cartridge: ['crt', 'bin', '80', 'e0'], MediaType.Tape: ['wav', 'tap', 't64']}),
@@ -288,7 +289,6 @@ unsupported_systems = {
 	'Goldstar FC-100': System('fc100', [], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas']}),
 	#No software list, some kind of PC-6001 clone or something
 	'Memotech MTX': System('mtx512', ['mtx_cart', 'mtx_cass', 'mtx_rom'], []),
-	'Sam Coupe': System('samcoupe', ['samcoupe_cass', 'samcoupe_flop'], []),
 	'Sharp MZ-700': System('mz700', ['mz700'], []),
 	'Sharp MZ-800': System('mz800', ['mz800'], []),
 	'Sharp MZ-2000': System('mz2000', ['mz2000_cass', 'mz2000_flop'], []),

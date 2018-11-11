@@ -638,3 +638,9 @@ def add_super_cassette_vision_info(game):
 	if software:
 		software.add_generic_info(game)
 		game.metadata.specific_info['Has-Extra-RAM'] = software.has_data_area('ram') #Or feature "slot" ends with "_ram"
+
+def add_sam_coupe_info(game):
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+		game.metadata.product_code = software.get_info('serial')

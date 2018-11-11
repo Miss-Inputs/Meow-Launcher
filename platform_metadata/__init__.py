@@ -114,6 +114,7 @@ helpers = {
 	'PC Engine': add_pce_info,
 	'PC-88': add_pc88_info,
 	'Plus/4': add_plus4_info,
+	'SAM Coupe': add_sam_coupe_info,
 	'Sord M5': add_sord_m5_info,
 	'SG-1000': add_sg1000_info,
 	'Sharp X1': add_sharp_x1_info,
