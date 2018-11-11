@@ -47,7 +47,7 @@ systems = {
 	'3DS': System(None, [], ['Citra'], {MediaType.Cartridge: ['3ds'], MediaType.Digital: ['cxi'], MediaType.Executable: ['3dsx']}),
 	'Atari 2600': System('a2600', ['a2600', 'a2600_cass'], ['Stella', 'MAME (Atari 2600)'], {MediaType.Cartridge: ['a26', 'rom', 'bin']}),
 	'Atari 5200': System('a5200', ['a5200'], ['MAME (Atari 5200)'], {MediaType.Cartridge: ['a52', 'car', 'rom', 'bin'], MediaType.Tape: ['wav']}),
-	'Atari 7800': System('a7800', ['a7800'], ['MAME (Atari 7800)'], {MediaType.Cartridge: ['a78', 'bin']}),
+	'Atari 7800': System('a7800', ['a7800'], ['A7800', 'MAME (Atari 7800)'], {MediaType.Cartridge: ['a78', 'bin']}),
 	'CD-i': System('cdimono1', ['cdi'], ['MAME (CD-i)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'Colecovision': System('coleco', ['coleco'], ['MAME (ColecoVision)'], {MediaType.Cartridge: ['col', 'bin', 'rom']}),
 	'Dreamcast': System('dc', ['dc'], ['Reicast'], {MediaType.OpticalDisc: cdrom_formats}),

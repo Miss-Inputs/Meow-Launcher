@@ -68,9 +68,30 @@ def mame_atari_7800(game, _):
 		system = 'a7800'
 
 	if _have_hiscore_software and game.metadata.specific_info.get('Uses-Hiscore-Cart', False):
-		return mame_command_line(system, 'cart2', {'cart': 'hiscore'})
+		return mame_command_line(system, 'cart2', {'cart1': 'hiscore'})
 
 	return mame_command_line(system, 'cart')
+
+def a7800(game, _):
+	#Hmm, mostly the same as the thing above, except without the MAME
+	if not game.metadata.specific_info.get('Headered', False):
+		#This would only be supported via software list (although A7800 seems to have removed that anyway)
+		raise EmulationNotSupportedException('No header')
+
+
+	command_line = 'a7800' #Executable name might be a7800.Linux-x86_64 depending on how it's installed... hmm
+
+	if game.metadata.tv_type == TVSystem.PAL:
+		command_line += ' a7800p'
+	else:
+		command_line += ' a7800'
+	#There are also a7800u1, a7800u2, a7800pu1, a7800pu2 to change the colour palettes. Maybe that could be an other_config option...
+
+	if _have_hiscore_software and game.metadata.specific_info.get('Uses-Hiscore-Cart', False):
+		return command_line + ' -cart1 hiscore -cart2 $<path>'
+
+	return command_line + ' -cart $<path>'
+
 
 def mame_vic_20(game, _):
 	size = game.rom.get_size()
