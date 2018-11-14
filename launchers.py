@@ -4,7 +4,7 @@ import configparser
 import pathlib
 
 import common
-from config import main_config, name_replacement, add_the, subtitle_removal
+from config import main_config, name_replacement, add_the, subtitle_removal, app_name
 from io_utils import ensure_exist
 
 def convert_desktop(path):
@@ -75,6 +75,10 @@ def base_make_desktop(command, display_name, fields=None, icon=None):
 				icon.save(icon_path, 'png')
 				desktop_entry['Icon'] = icon_path
 
+	metadata_section_name = 'X-%s Metadata' % app_name
+	configwriter.add_section(metadata_section_name)
+	metadata_section = configwriter[metadata_section_name]
+
 	if fields:
 		for k, v in fields.items():
 			if v is None:
@@ -87,7 +91,7 @@ def base_make_desktop(command, display_name, fields=None, icon=None):
 			else:
 				value_as_string = str(v)
 
-			desktop_entry['X-' + k.replace('_', '-')] = value_as_string
+			metadata_section[k.replace('_', '-')] = value_as_string
 
 	ensure_exist(path)
 	with open(path, 'wt') as f:
