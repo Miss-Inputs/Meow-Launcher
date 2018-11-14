@@ -7,9 +7,13 @@ from metadata import CPUInfo, ScreenInfo
 
 def consistentify_manufacturer(manufacturer):
 	#Sometimes, MAME uses two different variations on what is the same exact company. Or formats the name in a way that nobody else does anywhere else.
-	#I'm not going to count regional branches of a company, though.
+	#I'm not going to count regional branches of a company, though. Just kinda feel like I should leave that stuff untouched.
 	#Sometimes I don't know which out of the two variations is what I should go with... I just want only one of them. If any people out there are experts on the field of company names, then by all means tell me off.
 	#If only there was some consistent guidelines to follow in this, and nintendo_common/sega_common/wonderswan etc...
+
+	#Anyway. Some of these are bit... contentious? Is that the right word? Like, some of these are definitely different ways of spelling the same company and that's definitely a valid thing to deal with, but then some of these might well just be different brands used by the same company, because companies are weird like that. So at some point I'll probably need to clean this up. Hmm...
+
+	#Maybe I should remove ", Inc." "Co Ltd." at the end of stuff automatically, and... hmm
 
 	#TODO: Are ATW > ATW USA Inc. the same or a regional branch?
 	#Should NEC Avenue just be called NEC?
@@ -33,11 +37,13 @@ def consistentify_manufacturer(manufacturer):
 		'Acclaim Entertainment': 'Acclaim',
 		'Alpha Denshi Co.': 'ADK', #Renamed in 1993, but let's not make this confusing
 		'American Softworks Company': 'American Softworks',
+		'Apple Computer, Inc.': 'Apple Computer',
 		'ASCII Entertainment': 'ASCII',
 		'Atarisoft': 'Atari', #Atarisoft is just a brand name and not an actual company, so I guess I'll do this
 		'Bally Gaming Co.': 'Bally',
 		'BPS': 'Bullet-Proof Software', #I hope nobody else uses that acronym
 		'Brøderbund Software Inc': 'Brøderbund',
+		'California Pacific Computer': 'California Pacific',
 		'Coconuts Japan Entertainment': 'Coconuts Japan',
 		'Creative Software': 'Creative', #Gonna guess this isn't the sound card company. Would be an interesting predicament if they made software that was in the software lists, huh
 		'Cryo': 'Cryo Interactive',
@@ -73,6 +79,7 @@ def consistentify_manufacturer(manufacturer):
 		'Mattel Interactive': 'Mattel',
 		'Mattel Media': 'Mattel',
 		'MicroCabin': 'Micro Cabin', #Annoying alternate spelling because they officially use both just to be annoying
+		'Microlab': 'Micro Lab',
 		'Microprose Games Inc.': 'MicroProse',
 		'NEC Home Electronics': 'NEC',
 		'Nihon Telenet': 'Telenet', #I guess
@@ -112,7 +119,7 @@ def consistentify_manufacturer(manufacturer):
 		'Vivendi Universal': 'Vivendi', #Probably kinda wrong, but ehhh
 		'Williams Entertainment': 'Williams',
 
-		#For some reason, some Japanese computer software lists have the Japanese name and then the English one in brackets. Everywhere else the English name is used even when the whole thing is Japanese. Anyway, fine, I can deal with that
+		#For some reason, some Japanese computer software lists have the Japanese name and then the English one in brackets. Everywhere else the English name is used even when the whole thing is Japanese. Anyway I guess we just want the English name then, because otherwise for consistency, I'd have to convert every single English name into Japanese
 		'B·P·S (Bullet-Proof Software)': 'Bullet-Proof Software',
 		'アイレム (Irem)': 'Irem',
 		'アスキー (ASCII)': 'ASCII',
@@ -120,27 +127,38 @@ def consistentify_manufacturer(manufacturer):
 		'エニックス (Enix)': 'Enix',
 		'カプコン (Capcom)': 'Capcom',
 		'コナミ (Konami)': 'Konami',
+		'コンプティーク (Comptiq)': 'Comptiq',
 		'システムサコム (System Sacom)': 'System Sacom',
 		'システムソフト (System Soft)': 'System Soft',
 		'シャープ (Sharp)': 'Sharp',
+		'シンキングラビット (Thinking Rabbit)': 'Thinking Rabbit',
 		'スタークラフト (Starcraft)': 'Starcraft',
 		'ソフトプロ (Soft Pro)': 'Soft Pro',
 		'デービーソフト (dB-Soft)': 'dB-Soft',
+		'ニデコム (Nidecom)': 'Nidecom',
+		'パックスエレクトロニカ (Pax Electronica)': 'Pax Electronica',
 		'ハドソン (Hudson Soft)': 'Hudson Soft',
 		'ブラザー工業 (Brother Kougyou)': 'Brother Kougyou',
 		'ホームデータ (Home Data)': 'Home Data',
+		'ポニカ (Pony Canyon)': 'Pony Canyon',
+		'ポニカ (PonyCa)': 'Pony Canyon',
+		'マイクロネット (Micronet)': 'Micronet',
 		'マカダミアソフト (Macadamia Soft)': 'Macadamia Soft',
+		'日本ソフトバンク (Nihon SoftBank)': 'Nihon SoftBank',
 		'日本ファルコム (Nihon Falcom)': 'Nihon Falcom',
 		'電波新聞社 (Dempa Shinbunsha)': 'Dempa',
 
 		#These ones are probably just typos... I wonder if I can just like, send a pull request or something. But then I might actually be wrong
 		'BEC': 'Bec',
+		'Commonweaalth': 'Commonwealth',
+		'Connonwealth': 'Commonwealth',
 		'Dreamworks': 'DreamWorks',
 		'Elite System': 'Elite Systems',
 		'enix': 'Enix',
 		'EPYX': 'Epyx',
 		'GTC Inc.': 'GTC Inc',
 		'Hi Tech Expressions': 'Hi-Tech Expressions',
+		'Jungle\'s Soft - Ultimate Products (HK) Ltd': 'Jungle Soft - Ultimate Products (HK) Ltd',
 		'Microprose': 'MicroProse',
 		'Mindscapce': 'Mindscape', #Yeah okay, that _definitely_ is a typo
 		'Pack-In-Video': 'Pack-In Video',
