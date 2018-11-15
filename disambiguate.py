@@ -216,14 +216,19 @@ def reambiguate():
 		desktop.read(path)
 		desktop_entry = desktop['Desktop Entry']
 		if disambiguity_section_name not in desktop:
+			#If name wasn't ambiguous to begin with, we don't need to worry about it
 			continue
 
 		disambiguity_section = desktop[disambiguity_section_name]
+		if 'Disambiguator' in disambiguity_section:
+			del disambiguity_section['Disambiguator']
+		if 'Disambiguation-Method' in disambiguity_section:
+			del disambiguity_section['Disambiguation-Method']
 		if 'Ambiguous-Name' in disambiguity_section:
-			#If name wasn't ambiguous to begin with, we don't need to worry about it
 			desktop_entry['Name'] = disambiguity_section['Ambiguous-Name']
-			with open(path, 'wt') as f:
-				desktop.write(f)
+
+		with open(path, 'wt') as f:
+			desktop.write(f)
 
 def disambiguate_names():
 	time_started = time.perf_counter()
