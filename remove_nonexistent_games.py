@@ -21,8 +21,8 @@ def remove_nonexistent_games():
 		path = os.path.join(output_folder, name)
 
 		launcher = convert_desktop(path)
-		game_type = get_field(launcher, 'X-Type')
-		game_id = get_field(launcher, 'X-Unique-ID')
+		game_type = get_field(launcher, 'Type')
+		game_id = get_field(launcher, 'Unique-ID')
 
 		should_remove = False
 		if game_type == 'MAME machine':

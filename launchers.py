@@ -7,14 +7,23 @@ import common
 from config import main_config, name_replacement, add_the, subtitle_removal, app_name
 from io_utils import ensure_exist
 
-def convert_desktop(path):
+metadata_section_name = 'X-%s Metadata' % app_name
+
+def get_desktop(path):
 	parser = configparser.ConfigParser(interpolation=None)
 	parser.optionxform = str #Can you actually fuck off?
 	parser.read(path)
+	return parser
+
+def convert_desktop(path):
+	parser = get_desktop(path)
 	return {section: {k: v for k, v in parser.items(section)} for section in parser.sections()}
 
-def get_field(desktop, name):
-	entry = desktop['Desktop Entry']
+def get_field(desktop, name, section=metadata_section_name):
+	if section not in desktop:
+		return None
+
+	entry = desktop[section]
 	if name in entry:
 		return entry[name]
 
@@ -75,7 +84,6 @@ def base_make_desktop(command, display_name, fields=None, icon=None):
 				icon.save(icon_path, 'png')
 				desktop_entry['Icon'] = icon_path
 
-	metadata_section_name = 'X-%s Metadata' % app_name
 	configwriter.add_section(metadata_section_name)
 	metadata_section = configwriter[metadata_section_name]
 
@@ -133,8 +141,8 @@ def _get_existing_launchers():
 		path = os.path.join(output_folder, name)
 
 		existing_launcher = convert_desktop(path)
-		existing_type = get_field(existing_launcher, 'X-Type')
-		existing_id = get_field(existing_launcher, 'X-Unique-ID')
+		existing_type = get_field(existing_launcher, 'Type')
+		existing_id = get_field(existing_launcher, 'Unique-ID')
 		a.append((existing_type, existing_id))
 
 	return a

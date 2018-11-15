@@ -9,39 +9,38 @@ import sys
 import time
 import datetime
 
-from config import main_config, command_line_flags
+from config import main_config, command_line_flags, app_name
 import launchers
 
 super_debug = '--super-debug' in sys.argv
+disambiguity_section_name = 'X-%s Disambiguity' % app_name
 
 def update_name(desktop, disambiguator, disambiguation_method):
 	if not disambiguator:
 		return
-	entry = desktop[1]['Desktop Entry']
-	if super_debug:
-		print('Disambiguating', entry['Name'], 'with', disambiguator, 'using', disambiguation_method)
-	if 'X-Ambiguous-Name' not in entry:
-		entry['X-Ambiguous-Name'] = entry['Name']
-	if 'X-Disambiguator' not in entry:
-		entry['X-Disambiguator'] = disambiguator
-	else:
-		entry['X-Disambiguator'] += ';' + disambiguator
-	entry['Name'] += ' ' + disambiguator
+	desktop_entry = desktop[1]['Desktop Entry']
+	if disambiguity_section_name not in desktop[1]:
+		desktop[1].add_section(disambiguity_section_name)
+	disambiguity_section = desktop[1][disambiguity_section_name]
 
-	writer = configparser.ConfigParser(interpolation=None)
-	writer.optionxform = str
-	#You don't fucking understand .desktop files are case sensitive you're fucking
-	#them up by fucking up the case for fucks sake stop it who asked you to do
-	#that you stupid fuckwit
-	writer.read_dict(desktop[1])
+	if super_debug:
+		print('Disambiguating', desktop_entry['Name'], 'with', disambiguator, 'using', disambiguation_method)
+	if 'Ambiguous-Name' not in disambiguity_section:
+		disambiguity_section['Ambiguous-Name'] = desktop_entry['Name']
+	if 'Disambiguator' not in disambiguity_section:
+		disambiguity_section['Disambiguator'] = disambiguator
+	else:
+		disambiguity_section['Disambiguator'] += ';' + disambiguator
+	desktop_entry['Name'] += ' ' + disambiguator
+
 	with open(desktop[0], 'wt') as f:
-		writer.write(f)
+		desktop[1].write(f)
 
 def resolve_duplicates_by_metadata(group, field, format_function=None, ignore_missing_values=False):
 	value_counter = collections.Counter(launchers.get_field(d[1], field) for d in group)
 	for dup in group:
 		field_value = launchers.get_field(dup[1], field)
-		name = launchers.get_field(dup[1], 'Name')
+		name = launchers.get_field(dup[1], 'Name', 'Desktop Entry')
 
 		#See if this launcher is unique in this group (of launchers with the same
 		#name) for its field.  If it's the only launcher for this field, we can
@@ -77,11 +76,11 @@ def resolve_duplicates_by_metadata(group, field, format_function=None, ignore_mi
 def resolve_duplicates_by_filename_tags(group):
 	for dup in group:
 		the_rest = [d for d in group if d[0] != dup[0]]
-		tags = launchers.get_array(dup[1], 'X-Filename-Tags')
+		tags = launchers.get_array(dup[1], 'Filename-Tags')
 
 		differentiator_candidates = []
 
-		rest_tags = [launchers.get_array(rest[1], 'X-Filename-Tags') for rest in the_rest]
+		rest_tags = [launchers.get_array(rest[1], 'Filename-Tags') for rest in the_rest]
 		for tag in tags:
 			if not all([tag in rest_tag for rest_tag in rest_tags]):
 				differentiator_candidates.append(tag)
@@ -91,20 +90,20 @@ def resolve_duplicates_by_filename_tags(group):
 
 def resolve_duplicates_by_dev_status(group):
 	for dup in group:
-		tags = launchers.get_array(dup[1], 'X-Filename-Tags')
+		tags = launchers.get_array(dup[1], 'Filename-Tags')
 
 		for tag in tags:
 			if tag.lower().startswith(('(beta', '(sample)', '(proto', '(alpha', '(preview', '(pre-release', '(demo)', '(multiboot demo)', '(shareware')):
 				update_name(dup, tag, 'dev status')
 
 def resolve_duplicates_by_date(group):
-	year_counter = collections.Counter(launchers.get_field(d[1], 'X-Year') for d in group)
-	month_counter = collections.Counter(launchers.get_field(d[1], 'X-Month') for d in group)
-	day_counter = collections.Counter(launchers.get_field(d[1], 'X-Day') for d in group)
+	year_counter = collections.Counter(launchers.get_field(d[1], 'Year') for d in group)
+	month_counter = collections.Counter(launchers.get_field(d[1], 'Month') for d in group)
+	day_counter = collections.Counter(launchers.get_field(d[1], 'Day') for d in group)
 	for dup in group:
-		year = launchers.get_field(dup[1], 'X-Year')
-		month = launchers.get_field(dup[1], 'X-Month')
-		day = launchers.get_field(dup[1], 'X-Day')
+		year = launchers.get_field(dup[1], 'Year')
+		month = launchers.get_field(dup[1], 'Month')
+		day = launchers.get_field(dup[1], 'Day')
 		if year is None or (year is None and month is None and day is None):
 			continue
 
@@ -172,12 +171,12 @@ def normalize_name(name):
 	return name
 
 def fix_duplicate_names(method, format_function=None, ignore_missing_values=None):
-	files = [(path, launchers.convert_desktop(path)) for path in [os.path.join(main_config.output_folder, f) for f in os.listdir(main_config.output_folder)]]
+	files = [(path, launchers.get_desktop(path)) for path in [os.path.join(main_config.output_folder, f) for f in os.listdir(main_config.output_folder)]]
 	if method == 'dev-status':
 		resolve_duplicates_by_dev_status(files)
 		return
 
-	keyfunc = lambda f: normalize_name(launchers.get_field(f[1], 'Name'))
+	keyfunc = lambda f: normalize_name(launchers.get_field(f[1], 'Name', 'Desktop Entry'))
 	files.sort(key=keyfunc)
 	duplicates = {}
 	for key, group in itertools.groupby(files, key=keyfunc):
@@ -187,7 +186,7 @@ def fix_duplicate_names(method, format_function=None, ignore_missing_values=None
 
 	for k, v in duplicates.items():
 		if method == 'check':
-			print('Duplicate name still remains: ', k, [d[1]['Desktop Entry']['X-Original-Name'] for d in v])
+			print('Duplicate name still remains: ', k, [(d[1][launchers.metadata_section_name].get('Original-Name', '<no Original-Name>') if launchers.metadata_section_name in d[1] else '<no Metadata section>') for d in v])
 		else:
 			resolve_duplicates(v, method, format_function, ignore_missing_values)
 
@@ -210,9 +209,13 @@ def reambiguate():
 		desktop.optionxform = str
 		desktop.read(path)
 		desktop_entry = desktop['Desktop Entry']
-		if 'X-Ambiguous-Name' in desktop_entry:
+		if disambiguity_section_name not in desktop:
+			continue
+
+		disambiguity_section = desktop[disambiguity_section_name]
+		if 'Ambiguous-Name' in disambiguity_section:
 			#If name wasn't ambiguous to begin with, we don't need to worry about it
-			desktop_entry['Name'] = desktop_entry['X-Ambiguous-Name']
+			desktop_entry['Name'] = disambiguity_section['Ambiguous-Name']
 			with open(path, 'wt') as f:
 				desktop.write(f)
 
@@ -222,31 +225,21 @@ def disambiguate_names():
 	if not command_line_flags['full_rescan']:
 		reambiguate()
 
-	fix_duplicate_names('X-Platform')
+	fix_duplicate_names('Platform')
 	fix_duplicate_names('dev-status')
-	fix_duplicate_names('X-Arcade-System')
-	fix_duplicate_names('X-Media-Type')
-	fix_duplicate_names('X-Regions', lambda regions: '({0})'.format(regions.replace(';', ', ')), ignore_missing_values=True)
-	fix_duplicate_names('X-Publisher', ignore_missing_values=True)
-	fix_duplicate_names('X-Developer', ignore_missing_values=True)
-	fix_duplicate_names('X-Revision', revision_disambiguate)
-	fix_duplicate_names('X-Languages', lambda languages: '({0})'.format(languages.replace(';', ', ')), ignore_missing_values=True)
-	fix_duplicate_names('X-TV-Type')
+	fix_duplicate_names('Arcade-System')
+	fix_duplicate_names('Media-Type')
+	fix_duplicate_names('Regions', lambda regions: '({0})'.format(regions.replace(';', ', ')), ignore_missing_values=True)
+	fix_duplicate_names('Publisher', ignore_missing_values=True)
+	fix_duplicate_names('Developer', ignore_missing_values=True)
+	fix_duplicate_names('Revision', revision_disambiguate)
+	fix_duplicate_names('Languages', lambda languages: '({0})'.format(languages.replace(';', ', ')), ignore_missing_values=True)
+	fix_duplicate_names('TV-Type')
 	fix_duplicate_names('tags')
 	fix_duplicate_names('date')
-	fix_duplicate_names('X-Extension', '(.{0})'.format)
+	fix_duplicate_names('Extension', '(.{0})'.format)
 	if command_line_flags['debug']:
 		fix_duplicate_names('check')
-	#Other things which may be a good or not good at all idea to disambiguate by:
-	#X-Save-Type
-	#X-NSFW
-	#X-Genre (probably would not work out so well)
-	#X-Number-of-Players
-	#X-Product-Code
-	#X-Force-Feedback
-	#X-Has-RTC
-	#DS: X-DSi-Enhanced
-	#GB: X-SGB-Enhanced, X-Mapper
 
 	if command_line_flags['print_times']:
 		time_ended = time.perf_counter()

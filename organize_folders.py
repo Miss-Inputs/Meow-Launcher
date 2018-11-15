@@ -11,6 +11,8 @@ import launchers
 
 #This is sort of considered separate from the main launcher generator.
 #Consider it to be its own kind of frontend, perhaps.
+#This code sucks titty balls
+
 def copy_to_folder(path, *dest_folder_components):
 	dest_folder = os.path.join(*dest_folder_components)
 	os.makedirs(dest_folder, exist_ok=True)
@@ -50,34 +52,36 @@ def delete_existing_output_dir():
 
 extra_subfolders = {
 	#These subfolders are enabled with an optional argument because most people wouldn't have any use for them (or would they? I'm just presuming they're of interest to people like me only)
-	'By emulator used': ('X-Emulator', False),
-	'By number of players': ('X-Number-of-Players', False),
-	'By main CPU': ('X-Main-CPU', False),
-	'By main CPU and clock speed': (['X-Main-CPU', 'X-Clock-Speed'], False),
-	'By number of screens': ('X-Number-of-Screens', False),
-	'By screen type': ('X-Screen-Type', False),
-	'By mapper': ('X-Mapper', False),
-	'By save type': ('X-Save-Type', False),
-	'By extension': ('X-Extension', False),
-	'By media type': ('X-Media-Type', False),
+	'By emulator used': ('Emulator', False),
+	'By number of players': ('Number-of-Players', False),
+	'By mapper': ('Mapper', False),
+	'By save type': ('Save-Type', False),
+	'By extension': ('Extension', False),
+	'By media type': ('Media-Type', False),
 
-	'By MAME emulation status': ('X-MAME-Emulation-Status', False),
-	'Has MAME software': ('X-MAME-Software-Name', True),
-	'By MAME source file': ('X-Source-File', False),
+	'By main CPU': ('Main-CPU', False),
+	'By main CPU and clock speed': (['Main-CPU', 'Clock-Speed'], False),
+	'By number of screens': ('Number-of-Screens', False),
+	'By screen type': ('Screen-Type', False),
+
+
+	'By MAME emulation status': ('MAME-Emulation-Status', False),
+	'Has MAME software': ('MAME-Software-Name', True),
+	'By MAME source file': ('Source-File', False),
 
 	#Relevant for MAME machines only
-	'By parent-clone family': ('X-Family', False),
-	'By arcade system': ('X-Arcade-System', False),
-	'Is mechanical': ('X-Is-Mechanical', True),
-	'Has unemulated features': ('X-MAME-Unemulated-Features', True),
-	'Dispenses tickets': ('X-Dispenses-Tickets', True),
-	'No ROMs required': ('X-Romless', True),
+	'By parent-clone family': ('Family', False),
+	'By arcade system': ('Arcade-System', False),
+	'Is mechanical': ('Is-Mechanical', True),
+	'Has unemulated features': ('MAME-Unemulated-Features', True),
+	'Dispenses tickets': ('Dispenses-Tickets', True),
+	'No ROMs required': ('Romless', True),
 
 	'Has icon': ('Icon', True),
-	'Has force feedback': ('X-Force-Feedback', True),
-	'Has RTC': ('X-Has-RTC', True),
-	'Has product code': ('X-Product-Code', True),
-	'Has notes': ('X-Notes', True),
+	'Has force feedback': ('Force-Feedback', True),
+	'Has RTC': ('Has-RTC', True),
+	'Has product code': ('Product-Code', True),
+	'Has notes': ('Notes', True),
 }
 
 def move_into_extra_subfolder(path, desktop, subfolder, key, is_boolean):
@@ -103,11 +107,11 @@ def move_into_extra_subfolder(path, desktop, subfolder, key, is_boolean):
 
 def move_into_subfolders(path):
 	desktop = launchers.convert_desktop(path)
-	platform = launchers.get_field(desktop, 'X-Platform')
-	categories = launchers.get_array(desktop, 'X-Categories')
-	languages = launchers.get_array(desktop, 'X-Languages')
-	input_methods = launchers.get_array(desktop, 'X-Input-Methods')
-	year = launchers.get_field(desktop, 'X-Year')
+	platform = launchers.get_field(desktop, 'Platform')
+	categories = launchers.get_array(desktop, 'Categories')
+	languages = launchers.get_array(desktop, 'Languages')
+	input_methods = launchers.get_array(desktop, 'Input-Methods')
+	year = launchers.get_field(desktop, 'Year')
 
 	if categories:
 		category = categories[0]
@@ -133,19 +137,19 @@ def move_into_subfolders(path):
 
 	copy_to_folder(path, main_config.organized_output_folder, 'By platform and category', sanitize_name(platform) + ' - ' + sanitize_name(category))
 
-	move_into_extra_subfolder(path, desktop, 'By genre', 'X-Genre', False)
-	move_into_extra_subfolder(path, desktop, 'By subgenre', ['X-Genre', 'X-Subgenre'], False)
-	move_into_extra_subfolder(path, desktop, 'By developer', 'X-Developer', False)
-	move_into_extra_subfolder(path, desktop, 'By publisher', 'X-Publisher', False)
-	move_into_extra_subfolder(path, desktop, 'By platform and genre', ['X-Platform', 'X-Genre'], False)
-	move_into_extra_subfolder(path, desktop, 'By platform and year', ['X-Platform', 'X-Year'], False)
-	move_into_extra_subfolder(path, desktop, 'Is NSFW', 'X-NSFW', True)
+	move_into_extra_subfolder(path, desktop, 'By genre', 'Genre', False)
+	move_into_extra_subfolder(path, desktop, 'By subgenre', ['Genre', 'Subgenre'], False)
+	move_into_extra_subfolder(path, desktop, 'By developer', 'Developer', False)
+	move_into_extra_subfolder(path, desktop, 'By publisher', 'Publisher', False)
+	move_into_extra_subfolder(path, desktop, 'By platform and genre', ['Platform', 'Genre'], False)
+	move_into_extra_subfolder(path, desktop, 'By platform and year', ['Platform', 'Year'], False)
+	move_into_extra_subfolder(path, desktop, 'Is NSFW', 'NSFW', True)
 
 	if '--extra-folders' in sys.argv:
 		if len(languages) == 1:
 			copy_to_folder(path, main_config.organized_output_folder, 'By language', sanitize_name(languages[0]) + ' only')
 
-		filename_tags = launchers.get_array(desktop, 'X-Filename-Tags')
+		filename_tags = launchers.get_array(desktop, 'Filename-Tags')
 		for tag in filename_tags:
 			copy_to_folder(path, main_config.organized_output_folder, 'By filename tag', sanitize_name(tag))
 
