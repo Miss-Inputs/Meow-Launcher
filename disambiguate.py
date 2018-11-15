@@ -27,10 +27,16 @@ def update_name(desktop, disambiguator, disambiguation_method):
 		print('Disambiguating', desktop_entry['Name'], 'with', disambiguator, 'using', disambiguation_method)
 	if 'Ambiguous-Name' not in disambiguity_section:
 		disambiguity_section['Ambiguous-Name'] = desktop_entry['Name']
+
 	if 'Disambiguator' not in disambiguity_section:
 		disambiguity_section['Disambiguator'] = disambiguator
 	else:
 		disambiguity_section['Disambiguator'] += ';' + disambiguator
+	if 'Disambiguation-Method' not in disambiguity_section:
+		disambiguity_section['Disambiguation-Method'] = disambiguation_method
+	else:
+		disambiguity_section['Disambiguation-Method'] += ';' + disambiguation_method
+
 	desktop_entry['Name'] += ' ' + disambiguator
 
 	with open(desktop[0], 'wt') as f:
