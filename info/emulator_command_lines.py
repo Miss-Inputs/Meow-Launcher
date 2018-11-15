@@ -589,7 +589,7 @@ def vice(game, other_config):
 			cart_type_name = game.metadata.specific_info.get('Mapper', None)
 			if cart_type:
 				if cart_type not in supported_cartridge_types:
-					raise EmulationNotSupportedException('Cart type %s not supported % ' % cart_type_name)
+					raise EmulationNotSupportedException('Cart type %s not supported' % cart_type_name)
 	elif platform == 'VIC-20':
 		if game.metadata.media_type == MediaType.Cartridge:
 			size = game.rom.get_size()
