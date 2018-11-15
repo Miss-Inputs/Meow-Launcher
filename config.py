@@ -6,12 +6,11 @@ from enum import Enum, auto
 from io_utils import ensure_exist
 from info.system_info import systems, games_with_engines, computer_systems
 
-#This is only used for file paths, so don't put spaces in it or anything, even though "Meow Launcher" does have a space in it
-app_name = 'MeowLauncher'
+app_name = 'Meow Launcher'
 
 #TODO: Get this in a less hardcody cross-platform way, I guess
-_config_dir = os.path.expanduser(os.path.join('~/.config/', app_name))
-_data_dir = os.path.expanduser(os.path.join('~/.local/share/', app_name))
+_config_dir = os.path.expanduser(os.path.join('~/.config/', app_name.replace(' ', '')))
+_data_dir = os.path.expanduser(os.path.join('~/.local/share/', app_name.replace(' ', '')))
 
 #Static paths I guess
 _main_config_path = os.path.join(_config_dir, 'config.ini')
