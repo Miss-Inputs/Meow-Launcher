@@ -112,7 +112,6 @@ def add_saturn_info(game, header):
 		except IndexError:
 			if command_line_flags['debug']:
 				print(game.rom.path, 'has invalid date in header:', release_date)
-			pass
 		except ValueError:
 			pass
 
