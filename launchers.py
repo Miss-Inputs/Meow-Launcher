@@ -15,10 +15,6 @@ def get_desktop(path):
 	parser.read(path)
 	return parser
 
-def convert_desktop(path):
-	parser = get_desktop(path)
-	return {section: {k: v for k, v in parser.items(section)} for section in parser.sections()}
-
 def get_field(desktop, name, section=metadata_section_name):
 	if section not in desktop:
 		return None
@@ -140,7 +136,7 @@ def _get_existing_launchers():
 	for name in os.listdir(output_folder):
 		path = os.path.join(output_folder, name)
 
-		existing_launcher = convert_desktop(path)
+		existing_launcher = get_desktop(path)
 		existing_type = get_field(existing_launcher, 'Type')
 		existing_id = get_field(existing_launcher, 'Unique-ID')
 		a.append((existing_type, existing_id))

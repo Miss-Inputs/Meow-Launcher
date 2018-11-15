@@ -106,7 +106,7 @@ def move_into_extra_subfolder(path, desktop, subfolder, key, is_boolean):
 		copy_to_folder(path, main_config.organized_output_folder, subfolder, value)
 
 def move_into_subfolders(path):
-	desktop = launchers.convert_desktop(path)
+	desktop = launchers.get_desktop(path)
 	platform = launchers.get_field(desktop, 'Platform')
 	categories = launchers.get_array(desktop, 'Categories')
 	languages = launchers.get_array(desktop, 'Languages')
