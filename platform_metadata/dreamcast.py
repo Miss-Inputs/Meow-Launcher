@@ -6,7 +6,7 @@ import cd_read
 from metadata import SaveType
 from .sega_common import licensee_codes
 
-gdi_regex = re.compile(r'^(?P<trackNumber>\d+)\s+(?P<unknown1>\S+)\s+(?P<type>\d)\s+(?P<sectorSize>\d+)\s+(?:"(?P<name>.+)"|(?P<name_unquoted>\S+))\s+(?P<unknown2>.+)$')
+gdi_regex = re.compile(r'^(?:\s+)?(?P<trackNumber>\d+)\s+(?P<unknown1>\S+)\s+(?P<type>\d)\s+(?P<sectorSize>\d+)\s+(?:"(?P<name>.+)"|(?P<name_unquoted>\S+))\s+(?P<unknown2>.+)$')
 
 def add_peripherals_info(game, peripherals):
 	game.metadata.specific_info['Uses-Windows-CE'] = (peripherals & 1) > 0
