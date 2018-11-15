@@ -103,16 +103,18 @@ def add_saturn_info(game, header):
 
 	release_date = header[48:56].decode('ascii', errors='backslashreplace').rstrip()
 
-	try:
-		game.metadata.year = int(release_date[0:4])
-		game.metadata.month = calendar.month_name[int(release_date[4:6])]
-		game.metadata.day = int(release_date[6:8])
-	except IndexError:
-		if command_line_flags['debug']:
-			print(game.rom.path, 'has invalid date in header:', release_date)
-		pass
-	except ValueError:
-		pass
+	if not release_date.startswith('0'):
+		#If it starts with 0 the date format is WRONG stop it because I know the Saturn wasn't invented yet before 1000 AD
+		try:
+			game.metadata.year = int(release_date[0:4])
+			game.metadata.month = calendar.month_name[int(release_date[4:6])]
+			game.metadata.day = int(release_date[6:8])
+		except IndexError:
+			if command_line_flags['debug']:
+				print(game.rom.path, 'has invalid date in header:', release_date)
+			pass
+		except ValueError:
+			pass
 
 	peripherals = header[80:96].decode('ascii', errors='backslashreplace').rstrip()
 	parse_peripherals(game, peripherals)
