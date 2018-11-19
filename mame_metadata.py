@@ -233,7 +233,7 @@ def add_machine_platform(machine):
 
 	#Public coin-op machines that could be still considered 'Arcade' as the platform, but meh
 	if machine.source_file in source_file_platforms:
-		return source_file_platforms[machine.source_file], MediaType.Cartridge
+		return source_file_platforms[machine.source_file], MediaType.Standalone
 
 	#Home systems that have the whole CPU etc inside the cartridge, and hence work as separate systems in MAME instead of being in roms.py
 	elif machine.source_file == 'cps1' and '(CPS Changer, ' in machine.name:
