@@ -77,7 +77,6 @@ systems = {
 	#Uzebox is a homebrew thing and not really a commercial product, so it doesn't really have numbers. But it probably counts as obscure.
 	#Can't really find numbers on Atari 7800 and Neo Geo Pocket, but they aren't obscure... right?
 	'Amiga CD32': System('cd32', ['cd32'], ['FS-UAE'], {MediaType.OpticalDisc: cdrom_formats}),
-	#Meh, I'll consider it a separate thing I guess
 	'Amstrad GX4000': System('gx4000', ['gx4000'], ['MAME (Amstrad GX4000)', 'MAME (Amstrad CPC+)'], {MediaType.Cartridge: ['bin', 'cpr']}),
 	'APF-MP1000': System('apfm1000', ['apfm1000'], ['MAME (APF-MP1000)'], {MediaType.Cartridge: ['bin']}),
 	'Arcadia 2001': System('arcadia', ['arcadia'], ['MAME (Arcadia 2001)'], {MediaType.Cartridge: ['bin']}),
