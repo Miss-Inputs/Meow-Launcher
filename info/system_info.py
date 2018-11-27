@@ -186,6 +186,8 @@ unsupported_systems = {
 	'Bandai Playdia': System(None, [], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'Casio Loopy': System('casloopy', ['casloopy'], [], {MediaType.Cartridge: ['bin']}),
 	'Coleco Telstar Arcade': System(None, [], [], {}),
+	'Copera': System('copera', ['copera'], [], {MediaType.Cartridge: ['bin', 'md']}),
+	#Kega Fusion emulates the Pico well enough to show the message telling you the Copera software won't work on a Pico, at least; otherwise no known emulation
 	'GameKing': System('gameking', ['gameking'], [], {MediaType.Cartridge: ['bin']}),
 	'GameKing 3': System('gamekin3', ['gameking3'], [], {MediaType.Cartridge: ['bin']}),
 	'Gakken TV Boy': System(None, [], [], {}),
@@ -281,7 +283,6 @@ unsupported_systems = {
 	'Atari ST': System('st', ['st_flop', 'st_cart'], []),
 	#MAME is known to not work here, and Hatari is known to have usability issues... is there anything else?
 	'BBC Master': System('bbcm', ['bbcm_cart', 'bbcm_cass', 'bbcmc_flop', 'bbcm_flop'], []),
-	'Cambridge Z88': System('z88', ['z88_cart'], []),
 	'Epoch Sorcerer': System('sorcerer', ['sorcerer_cart', 'sorcerer_cass', 'sorcerer_flop'],
 		{MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav', 'tape']}),
 	#Would need automated tape loading to do anything interesting (carts and floppies are just BASIC/OS stuff, also what even is the file type for floppies?) and apparently there's a .snp snapshot and .bin quickload so maybe those do something
@@ -302,6 +303,8 @@ unsupported_systems = {
 	'BBC Micro': System('bbcb', ['bbca_cass', 'bbcb_cass', 'bbcb_cass_de', 'bbcb_flop', 'bbcb_flop_orig', 'bbc_flop_65c102', 'bbc_flop_6502', 'bbc_flop_32016', 'bbc_flop_68000', 'bbc_flop_80186', 'bbc_flop_arm', 'bbc_flop_torch', 'bbc_flop_z80'], []),
 	#The key combination to boot a floppy is Shift+Break which is rather awkward to press especially every time you just want to use some software, so I'm not going anywhere without an autoboot script
 	#Otherwise, it does seem to boot floppies..
+	'Cambridge Z88': System('z88', ['z88_cart'], []),
+	#Marked as not working due to missing expansion interface and serial port and other things, not sure how important that would be... anyway, I'd need to do an autoboot thing to press the key to start the thing, because otherwise it's annoying to navigate every time, and then... hmm, I guess I dunno what actually is a function of things not working yet
 	'Galaksija': System('galaxyp', ['galaxy'], [], {MediaType.Snapshot: ['gal'], MediaType.Tape: ['wav', 'gtp']}),
 	#This needs tape control automation to work with tapes (type OLD, then play tape, then RUN); dumps just need to press enter because MAME will type "RUN" for you. But not enter for you. Dunno why. Anyway, we'd go with those and make an autoboot script (maybe just -autoboot_command '\n' would work with suitable delay). galaxy is regular system, galaxyp is an upgraded one which appears to be completely backwards compatible
 
