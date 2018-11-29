@@ -246,18 +246,21 @@ def add_machine_platform(machine):
 		return platform, MediaType.Cartridge if platform in ('Select-A-Game', 'R-Zone') else MediaType.Standalone
 
 	#Other weird and wacky devices
-	#Note: "Handheld" could also be a tabletop system which takes AC input and you would not be able to hold in your hands at all, but since catlist.ini doesn't take that into account, I don't really have a way of doing so either
+	#Note: "Handheld / Electronic Game" could also be a tabletop system which takes AC input and you would not be able to hold in your hands at all (see also: cpacman), but since catlist.ini doesn't take that into account, I don't really have a way of doing so either
 	elif (category == 'Game Console') or (category == 'Handheld' and machine.metadata.genre == "Plug n' Play TV Game"):
 		machine.metadata.platform = 'Plug & Play'
-		#Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug &
-        #play system
+		#Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug & play system. Also if you plug it into your TV it's not really a handheld so I'm not sure what the logic is there, and I'm not actually sure why that's used for some instead of Game Console / Home Videogame and what's the difference
 		return 'Plug & Play', MediaType.Standalone
 	elif machine.metadata.genre in ('Electromechanical', 'Slot Machine') and machine.metadata.subgenre == 'Reels':
+		#TODO: Need a better name for this, really. It's tricky though whether to call it "Slot Machine" (as one of those genres suggests) or "Fruit Machine" (which is the wording MAME seems to use itself in documentation) or "Gambling" or "AWP" or what
 		return 'Pokies', MediaType.Standalone
 	elif machine.metadata.genre == 'Electromechanical' and machine.metadata.subgenre == 'Pinball':
+		#There are a few things under Arcade: Electromechanical / Utilities that are also pinball stuff, although perhaps not all of them. It only becomes apparent due to them using the "genpin" sample set
 		return 'Pinball', MediaType.Standalone
-	elif category == 'Handheld' and machine.metadata.genre == 'Electronic Game':
-		#Other genres of handheld: Home Videogame Console (these should be separate systems instead but they show up because they don't have software lists: e.g. PocketStation, Gizmondo); Pocket Device - Pad - PDA; Child Computer (e.g. Speak & Spell)
+	elif category == 'Handheld' and machine.metadata.genre in ('Electronic Game', 'Home Videogame Console'):
+		#Home Videogame Console seems to be used for stuff that would be normally excluded due to having software lists and hence being a platform for other software (e.g. GBA), or stuff that ends up there because it has no software list yet (e.g. Gizmondo, Sony PocketStation), but also some stuff like kcontra (Contra handheld) that should definitely be called a handheld, or various "plug & play" (except without the plug) stuff like BittBoy 300 in 1 or VG Pocket
+		#Anyway that's why I put that there
+		#Other genres of handheld: Pocket Device - Pad - PDA; Child Computer (e.g. Speak & Spell) but those seem more suited to Non-Arcade particularly the former
 		return category, MediaType.Standalone
 	elif category == 'Arcade':
 		#Things that might not be arcade: Genre == Utilities (screen tests, etc); genre == Music && subgenre == Jukebox; genre == Misc && subgenre == Print Club (more of a photo booth I guess)
