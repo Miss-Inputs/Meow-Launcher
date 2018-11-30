@@ -121,6 +121,8 @@ def consistentify_manufacturer(manufacturer):
 
 		#For some reason, some Japanese computer software lists have the Japanese name and then the English one in brackets. Everywhere else the English name is used even when the whole thing is Japanese. Anyway I guess we just want the English name then, because otherwise for consistency, I'd have to convert every single English name into Japanese
 		'B·P·S (Bullet-Proof Software)': 'Bullet-Proof Software',
+		'HOT・B': 'Hot-B',
+		'アートディンク (Artdink)': 'Artdink',
 		'アイレム (Irem)': 'Irem',
 		'アスキー (ASCII)': 'ASCII',
 		'イマジニア (Imagineer)': 'Imagineer',
@@ -139,12 +141,15 @@ def consistentify_manufacturer(manufacturer):
 		'パックスエレクトロニカ (Pax Electronica)': 'Pax Electronica',
 		'ハドソン (Hudson Soft)': 'Hudson Soft',
 		'ブラザー工業 (Brother Kougyou)': 'Brother Kougyou',
+		'ブローダーバンドジャパン (Brøderbund Japan)': 'Brøderbund Japan',
 		'ホームデータ (Home Data)': 'Home Data',
 		'ポニカ (Pony Canyon)': 'Pony Canyon',
 		'ポニカ (PonyCa)': 'Pony Canyon',
 		'マイクロネット (Micronet)': 'Micronet',
 		'マカダミアソフト (Macadamia Soft)': 'Macadamia Soft',
+		'工画堂スタジオ (Kogado Studio)': 'Kogado Studio',
 		'日本ソフトバンク (Nihon SoftBank)': 'Nihon SoftBank',
+		'日本テレネット (Nihon Telenet)': 'Telenet',
 		'日本ファルコム (Nihon Falcom)': 'Nihon Falcom',
 		'電波新聞社 (Dempa Shinbunsha)': 'Dempa',
 
