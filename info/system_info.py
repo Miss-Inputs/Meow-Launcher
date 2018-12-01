@@ -64,7 +64,7 @@ systems = {
 	'Neo Geo Pocket': System('ngpc', ['ngp', 'ngpc'], ['Mednafen (Neo Geo Pocket)', 'MAME (Neo Geo Pocket)'], {MediaType.Cartridge: ['ngp', 'npc', 'ngc', 'bin']}),
 	'NES': System('nes', ['nes', 'nes_ade', 'nes_datach', 'nes_kstudio', 'nes_ntbrom', 'famicom_cass', 'famicom_flop'], ['Mednafen (NES)', 'MAME (NES)'], {MediaType.Cartridge: ['nes', 'unf', 'unif'], MediaType.Floppy: ['fds']}),
 	'PC Engine': System('pce', ['pce', 'sgx', 'tg16'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)'], {MediaType.Cartridge: ['pce', 'sgx', 'bin']}),
-	'PlayStation': System('psj', ['psx'], ['Mednafen (PS1)'], {MediaType.OpticalDisc: cdrom_formats, MediaType.Executable: ['exe', 'psx']}),
+	'PlayStation': System('psj', ['psx'], ['Mednafen (PlayStation)'], {MediaType.OpticalDisc: cdrom_formats, MediaType.Executable: ['exe', 'psx']}),
 	'PS2': System('ps2', [], ['PCSX2'], {MediaType.OpticalDisc: cdrom_formats + ['cso', 'bin'], MediaType.Executable: ['elf']}),
 	'PSP': System(None, [], ['PPSSPP'], {MediaType.OpticalDisc: cdrom_formats + ['cso'], MediaType.Executable: ['pbp']}),
 	'Saturn': System('saturn', ['saturn', 'sat_cart', 'sat_vccart'], ['Mednafen (Saturn)'], {MediaType.OpticalDisc: cdrom_formats}),
@@ -81,20 +81,20 @@ systems = {
 	'APF-MP1000': System('apfm1000', ['apfm1000'], ['MAME (APF-MP1000)'], {MediaType.Cartridge: ['bin']}),
 	'Arcadia 2001': System('arcadia', ['arcadia'], ['MAME (Arcadia 2001)'], {MediaType.Cartridge: ['bin']}),
 	'Astrocade': System('astrocde', ['astrocde'], ['MAME (Astrocade)'], {MediaType.Cartridge: ['bin']}),
-	'Bandai Super Vision 8000': System('sv8000', ['sv8000'], ['MAME (Super Vision 8000)'], {MediaType.Cartridge: ['bin']}),
+	'Bandai Super Vision 8000': System('sv8000', ['sv8000'], ['MAME (Bandai Super Vision 8000)'], {MediaType.Cartridge: ['bin']}),
 	'Benesse Pocket Challenge V2': System(None, ['pockchalv2'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['pc2', 'bin']}),
 	#Controls are mapped even worse than regular WonderSwan games, even with rotation auto-adjust you still end up using a stick/dpad as buttons and it gets weird, also the module must be forced or else it won't be recognized. But it works though
 	'BBC Bridge Companion': System('bbcbc', ['bbcbc'], ['MAME (BBC Bridge Companion)'], {MediaType.Cartridge: ['bin']}),
-	'Casio PV-1000': System('pv1000', ['pv1000'], ['MAME (PV-1000)'], {MediaType.Cartridge: ['bin']}),
+	'Casio PV-1000': System('pv1000', ['pv1000'], ['MAME (Casio PV-1000)'], {MediaType.Cartridge: ['bin']}),
 	'Channel F': System('channelf', ['channelf'], ['MAME (Channel F)'], {MediaType.Cartridge: ['chf', 'bin']}),
 	#It has some sort of knob that you twist up and down or something? What the fuck
 	'Commodore CDTV': System('cdtv', ['cdtv'], ['FS-UAE'], {MediaType.OpticalDisc: cdrom_formats}),
 	'Entex Adventure Vision': System('advision', ['advision'], ['MAME (Entex Adventure Vision)'], {MediaType.Cartridge: ['bin']}),
-	'Epoch Game Pocket Computer': System('gamepock', ['gamepock'], ['MAME (Game Pocket Computer)'], {MediaType.Cartridge: ['bin']}),
+	'Epoch Game Pocket Computer': System('gamepock', ['gamepock'], ['MAME (Epoch Game Pocket Computer)'], {MediaType.Cartridge: ['bin']}),
 	'Gamate': System('gamate', ['gamate'], ['MAME (Gamate)'], {MediaType.Cartridge: ['bin']}),
 	'Game.com': System('gamecom', ['gamecom'], ['MAME (Game.com)'], {MediaType.Cartridge: ['tgc', 'bin']}),
 	'Hartung Game Master': System('gmaster', ['gmaster'], ['MAME (Hartung Game Master)'], {MediaType.Cartridge: ['bin']}),
-	'Mattel Juice Box': System('juicebox', ['juicebox'], ['MAME (Juice Box)'], {MediaType.Cartridge: ['smc']}),
+	'Mattel Juice Box': System('juicebox', ['juicebox'], ['MAME (Mattel Juice Box)'], {MediaType.Cartridge: ['smc']}),
 	#Now for those who actually do know what this is, you may be thinking: But doesn't that just play videos? Isn't this really pointless? And the answer is yes, yes it is. I love pointless.
 	'Mega Duck': System('megaduck', ['megaduck'], ['MAME (Mega Duck)'], {MediaType.Cartridge: ['bin']}),
 	'Neo Geo CD': System('neocdz', ['neocd'], ['MAME (Neo Geo CD)'], {MediaType.OpticalDisc: cdrom_formats}),
@@ -126,7 +126,7 @@ systems = {
 	'C128': System('c128', ['c128_cart', 'c128_flop', 'c128_rom'], ['VICE (SDL2)'],
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}
 	),
-	'Casio PV-2000': System('pv2000', ['pv2000'], ['MAME (PV-2000)'], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav']}),
+	'Casio PV-2000': System('pv2000', ['pv2000'], ['MAME (Casio PV-2000)'], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav']}),
 	'Coleco Adam': System('adam', ['adam_cart', 'adam_cass', 'adam_flop'], ['MAME (Coleco Adam)'], {MediaType.Cartridge: ['col', 'bin'], MediaType.Tape: ['wav', 'ddp'], MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['lbr', 'com']}),
 	'Commodore PET': System('pet4032', ['pet_cass', 'pet_flop', 'pet_hdd', 'pet_quik', 'pet_rom'], ['VICE (SDL2)'], {MediaType.Floppy: commodore_disk_formats, MediaType.Cartridge: ['bin', 'rom'], MediaType.Executable: ['prg', 'p00'], MediaType.Tape: ['wav', 'tap']}),
 	#Unsure which one the "main" driver is, or if some of them count as separate systems...
@@ -163,7 +163,7 @@ systems = {
 unsupported_systems = {
 	#Theoretically supported, but not supported enough to be considered playable, you'd have to put them into systems yourself until I figure out a better way to handle that
 	'FM Towns Marty': System('fmtmarty', ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}),
-	'Jaguar': System('jaguar', ['jaguar'], ['MAME (Atari Jaguar)'], {MediaType.Cartridge: ['j64', 'bin', 'rom'], MediaType.Executable: ['abs', 'cof', 'jag', 'prg']}),
+	'Jaguar': System('jaguar', ['jaguar'], ['MAME (Jaguar)'], {MediaType.Cartridge: ['j64', 'bin', 'rom'], MediaType.Executable: ['abs', 'cof', 'jag', 'prg']}),
 	'Magnavox Odyssey²': System('odyssey2', ['odyssey2'], [], {MediaType.Cartridge: ['bin', 'rom']}),
 	#O2EM doesn't really work; MAME isn't completely broken but a lot of games have broken graphics so like... ehh
 	#TODO: Move comments to emulator_info, do thing which selects g7000/odyssey2 automatically
@@ -171,7 +171,7 @@ unsupported_systems = {
 	#just has the same problems as Odyssey 2...
 	'PC Booter': System('ibm5150', ['ibm5150'], ['MAME (IBM PCjr)', 'MAME (IBM PC)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['exe', 'com', 'bat']}),
 	#This one is a bit tricky... both MAME and PCem have issues emulating a joystick. Do the games actually just suck like that? _All of them_? I don't know. The majority of these games assume a 4.77MHz CPU, of course. The software list is ibm5150 but that has some DOS games too, just to be confusing (but usage == 'PC booter' where it is a PC booter).
-	"Super A'Can": System('supracan', ['supracan'], ['MAME (Super Acan)'], {MediaType.Cartridge: ['bin']}),
+	"Super A'Can": System('supracan', ['supracan'], ["MAME (Super A'Can)"], {MediaType.Cartridge: ['bin']}),
 
 	#No emulators that are cool enough on Linux (any available are too preliminary to work). Yet. Maybe? That I know of. They're here for completeness. Or no emulators at all.
 	#They are also here to remind me to check up on them every now and again to make sure they indeed don't work or if I was just being stupid all along
