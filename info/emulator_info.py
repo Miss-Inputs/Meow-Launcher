@@ -70,7 +70,7 @@ emulators = {
 	#Mednafen assumes that there is only 1 gamepad and it's the 6 button kind, so button mapping is kind of weird when I
 	#was perfectly fine just using 2 buttons
 	'Mednafen (PC-FX)': MednafenModule('pcfx', ['iso', 'cue', 'toc', 'ccd', 'm3u']), #Do NOT specify a FX-SCSI BIOS
-	'Mednafen (PS1)': MednafenModule('psx', ['iso', 'cue', 'exe', 'toc', 'ccd', 'm3u', 'psx']),
+	'Mednafen (PlayStation)': MednafenModule('psx', ['iso', 'cue', 'exe', 'toc', 'ccd', 'm3u', 'psx']),
 	#Seems like some PAL games don't run at the resolution Mednafen thinks they should, so they need per-game configs
 	#that override the scanline start/end settings
 	'Mednafen (Virtual Boy)': MednafenModule('vb', ['bin', 'vb', 'vboy']),
@@ -118,7 +118,7 @@ emulators = {
 	'MAME (Game Boy)': MameSystem(command_lines.mame_game_boy, ['bin', 'gb', 'gbc']),
 	#This supports some bootleg mappers that other emus tend to not; fails on really fancy tricks like the Demotronic trick (it does run the demo, but the effect doesn't look right); and has sound issues with GBC
 	#There are comments in the source file that point out that Super Game Boy should be part of the snes driver with the BIOS cart inserted, rather than a separate system, so that might not exist in the future
-	'MAME (Game Pocket Computer)': MameSystem(command_lines.mame_command_line('gamepock', 'cart'), ['bin']),
+	'MAME (Epoch Game Pocket Computer)': MameSystem(command_lines.mame_command_line('gamepock', 'cart'), ['bin']),
 	'MAME (GBA)': MameSystem(command_lines.mame_command_line('gba', 'cart'), ['bin', 'gba']),
 	#Does not let you do GBA-enhanced GBC games
 	'MAME (IBM PCjr)': MameSystem(command_lines.mame_ibm_pcjr, mame_floppy_formats + ['img', 'bin', 'jrc']),
@@ -134,7 +134,7 @@ emulators = {
 	'MAME (NES)': MameSystem(command_lines.mame_nes, ['nes', 'unf', 'unif', 'fds']),
 	#Supports a lot of mappers actually, probably not as much as Mesen or puNES would, but it's up there; also a lot of cool peripherals
 	'MAME (Nichibutsu My Vision)': MameSystem(command_lines.mame_command_line('myvision', 'cart'), ['bin']),
-	'MAME (PV-1000)': MameSystem(command_lines.mame_command_line('pv1000', 'cart'), ['bin']),
+	'MAME (Casio PV-1000)': MameSystem(command_lines.mame_command_line('pv1000', 'cart'), ['bin']),
 	'MAME (SG-1000)': MameSystem(command_lines.mame_sg1000, ['bin', 'sg', 'sc', 'sf7'] + mame_floppy_formats),
 	'MAME (Sharp X1)': MameSystem(command_lines.mame_command_line('x1turbo40', 'flop1', has_keyboard=True), mame_floppy_formats + ['2d']),
 	#x1turbo doesn't work, and I'm not sure what running x1 over x1turbo40 would achieve
@@ -143,7 +143,7 @@ emulators = {
 	'MAME (Sord M5)': MameSystem(command_lines.mame_command_line('m5', 'cart1', {'ramsize': '64K', 'upd765:0': '""'}, True), ['bin']),
 	#Apparently has joysticks with no fire button?  Usually space seems to be fire but sometimes 1 is, which is usually for starting games.  I hate everything.
 	'MAME (Super Cassette Vision)': MameSystem(command_lines.mame_super_cassette_vision, ['bin']),
-	'MAME (Super Vision 8000)': MameSystem(command_lines.mame_command_line('sv8000', 'cart'), ['bin']),
+	'MAME (Bandai Super Vision 8000)': MameSystem(command_lines.mame_command_line('sv8000', 'cart'), ['bin']),
 	'MAME (Tomy Tutor)': MameSystem(command_lines.mame_command_line('tutor', 'cart', has_keyboard=True, autoboot_script='tomy_tutor'), ['bin']),
 	#Well, at least there's no region crap, though there is pyuuta if you want to read Japanese instead
 	'MAME (VC 4000)': MameSystem(command_lines.mame_command_line('vc4000', 'cart'), ['bin', 'rom']),
@@ -201,7 +201,7 @@ emulators = {
 	#Hmm... says not working and imperfect sound. I guess it does run the games, though
 	'MAME (PC-88)': MameSystem(command_lines.mame_command_line('pc8801', 'flop1', has_keyboard=True), mame_floppy_formats),
 	#TODO: Tapes, and potentially look into other models. All the PC-88 models claim to be broken, but the base one plays the games, so that's good enough in my book. Some might use BASIC though so I'd have to specially handle that?
-	'MAME (PV-2000)': MameSystem(command_lines.mame_command_line('pv2000', 'cart', has_keyboard=True), ['bin']),
+	'MAME (Casio PV-2000)': MameSystem(command_lines.mame_command_line('pv2000', 'cart', has_keyboard=True), ['bin']),
 	#Not the same as the PV-1000!  Although it might as well be, except it's a computer, and they aren't compatible with each other.  MAME says it
 	#doesn't work but it seems alright, other than it's supposed to have joysticks and doesn't (so you just set up a
 	#gamepad to map to emulated cursor keys) which maybe is why they say it's preliminary
