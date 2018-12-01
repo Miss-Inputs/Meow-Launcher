@@ -49,7 +49,7 @@ systems = {
 	'Atari 5200': System('a5200', ['a5200'], ['MAME (Atari 5200)'], {MediaType.Cartridge: ['a52', 'car', 'rom', 'bin'], MediaType.Tape: ['wav']}),
 	'Atari 7800': System('a7800', ['a7800'], ['A7800', 'MAME (Atari 7800)'], {MediaType.Cartridge: ['a78', 'bin']}),
 	'CD-i': System('cdimono1', ['cdi'], ['MAME (CD-i)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'Colecovision': System('coleco', ['coleco'], ['MAME (ColecoVision)'], {MediaType.Cartridge: ['col', 'bin', 'rom']}),
+	'ColecoVision': System('coleco', ['coleco'], ['MAME (ColecoVision)'], {MediaType.Cartridge: ['col', 'bin', 'rom']}),
 	'Dreamcast': System('dc', ['dc'], ['Reicast'], {MediaType.OpticalDisc: cdrom_formats}),
 	'DS': System('nds', [], ['Medusa'], {MediaType.Cartridge: ['nds', 'dsi', 'ids']}),
 	'Game Boy': System('gbpocket', ['gameboy', 'gbcolor'], ['Gambatte', 'mGBA', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'Medusa', 'GBE+'], {MediaType.Cartridge: ['gb', 'gbc', 'gbx', 'sgb']}, {'use_gbc_for_dmg': True, 'prefer_sgb_over_gbc': False}),
