@@ -8,6 +8,7 @@ import datetime
 
 from config import main_config, command_line_flags
 import launchers
+from io_utils import sanitize_name
 
 #This is sort of considered separate from the main launcher generator.
 #Consider it to be its own kind of frontend, perhaps.
@@ -17,19 +18,6 @@ def copy_to_folder(path, *dest_folder_components):
 	dest_folder = os.path.join(*dest_folder_components)
 	os.makedirs(dest_folder, exist_ok=True)
 	shutil.copy(path, dest_folder)
-
-def sanitize_name(s):
-	#These must never be filenames or folder names!  Badbadbad!
-	if not s:
-		return 'Nothing'
-
-	s = s.replace('/', '-')
-	s = s.replace('\x00', ' ')
-	if s == '.':
-		return 'dot'
-	if s == '..':
-		return 'dotdot'
-	return s
 
 def delete_existing_output_dir():
 	def rmdir_recursive(path):

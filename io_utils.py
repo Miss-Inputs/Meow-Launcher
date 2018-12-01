@@ -33,3 +33,38 @@ def read_file(path, compressed_entry=None, seek_to=0, amount=-1):
 		return data[:amount]
 
 	return data
+
+def sanitize_name(s, supersafe=False):
+	#These must never be filenames or folder names!  Badbadbad!
+	if not s:
+		return 'Nothing'
+
+	s = s.replace('/', '-')
+	s = s.replace('\x00', ' ')
+
+	if supersafe:
+		#ext4 will be fine without this, FAT32 will not
+		#So I guess other filesystems you wanna be safe too
+		s = s.replace('"', '\'')
+		s = s.replace('*', '-')
+		s = s.replace(':', '-')
+		s = s.replace('<', '-')
+		s = s.replace('>', '-')
+		s = s.replace('?', '-')
+		s = s.replace('\\', '-')
+		s = s.replace('|', '-')
+
+		if s == 'NUL':
+			return 'null'
+
+	if s == '.':
+		return 'dot'
+	if s == '..':
+		return 'dotdot'
+	return s
+
+def sanitize_path(path, supersafe=False):
+	#TODO Sanitize folder names too
+	folder, name = os.path.split(path)
+	sanitized = sanitize_name(name, supersafe)
+	return os.path.join(folder, sanitized)
