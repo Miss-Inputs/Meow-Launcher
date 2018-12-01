@@ -265,7 +265,15 @@ class SystemConfigs():
 				section['emulators'] = ''
 				self.rewrite_config()
 			self.configs[name].paths = parse_path_list(section['paths'])
-			self.configs[name].chosen_emulators = parse_string_list(section['emulators'])
+			emulator_choices = parse_string_list(section['emulators'])
+			#I'm bad at variable names I'm very sorry
+			chosen_emulators = []
+			for chosen_emulator in emulator_choices:
+				if chosen_emulator in ('MAME', 'Mednafen'):
+					#Allow for convenient shortcut
+					chosen_emulator = '{0} ({1})'.format(chosen_emulator, name)
+				chosen_emulators.append(chosen_emulator)
+			self.configs[name].chosen_emulators = chosen_emulators
 
 			for other_config_name, default_value in other_configs.items():
 				if other_config_name not in section:
