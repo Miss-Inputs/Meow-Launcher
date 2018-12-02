@@ -55,7 +55,7 @@ def _is_highscore_cart_available():
 			return True
 	return False
 
-_have_hiscore_software = _is_highscore_cart_available()
+_have_hiscore_software = None
 
 def mame_atari_7800(game, _):
 	if not game.metadata.specific_info.get('Headered', False):
@@ -66,6 +66,10 @@ def mame_atari_7800(game, _):
 		system = 'a7800p'
 	else:
 		system = 'a7800'
+
+	global _have_hiscore_software
+	if _have_hiscore_software is None:
+		_have_hiscore_software = _is_highscore_cart_available()
 
 	if _have_hiscore_software and game.metadata.specific_info.get('Uses-Hiscore-Cart', False):
 		return mame_command_line(system, 'cart2', {'cart1': 'hiscore'})
