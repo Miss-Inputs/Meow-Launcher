@@ -212,6 +212,7 @@ class Machine():
 
 def mame_verifyroms(basename):
 	try:
+		#Note to self: Stop wasting time thinking you can make this faster
 		subprocess.run(['mame', '-verifyroms', basename], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
 		return True
 	except subprocess.CalledProcessError:
