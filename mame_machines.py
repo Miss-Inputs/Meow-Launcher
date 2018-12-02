@@ -37,14 +37,17 @@ licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
 hack_regex = re.compile(r'^hack \((.+)\)$')
 
 class Machine():
-	def __init__(self, xml):
+	def __init__(self, xml, init_metadata=False):
 		self.xml = xml
+		#This can't be an attribute because we might need to override it later! Bad Megan!
 		self.name = self.xml.findtext('description')
 		self.metadata = Metadata()
-		self._add_metadata_fields()
-		#This can't be an attribute because we might need to override it later! Bad Megan!
+		self._has_inited_metadata = False
+		if init_metadata:
+			self._add_metadata_fields()
 
 	def _add_metadata_fields(self):
+		self._has_inited_metadata = True
 		self.metadata.specific_info['Source-File'] = self.source_file
 		self.metadata.specific_info['Family-Basename'] = self.family
 		#self.metadata.specific_info['Family'] = get_full_name(self.family)
@@ -75,7 +78,7 @@ class Machine():
 		parent_name = self.xml.attrib.get('cloneof')
 		if not parent_name:
 			return None
-		return Machine(get_mame_xml(parent_name))
+		return Machine(get_mame_xml(parent_name), True)
 
 	@property
 	def family(self):
@@ -105,6 +108,9 @@ class Machine():
 		return None
 
 	def make_launcher(self):
+		if not self._has_inited_metadata:
+			self._add_metadata_fields()
+
 		slot_options = {}
 		if self.metadata.save_type == SaveType.MemoryCard and self.source_file == 'neogeo' and main_config.memcard_path:
 			memory_card_path = os.path.join(main_config.memcard_path, self.basename + '.neo')
