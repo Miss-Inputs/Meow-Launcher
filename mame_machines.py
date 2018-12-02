@@ -11,7 +11,7 @@ import shlex
 import launchers
 from info import emulator_command_lines
 from config import main_config, command_line_flags
-from mame_helpers import get_mame_xml, get_full_name, get_mame_ui_config, consistentify_manufacturer
+from mame_helpers import get_mame_xml, get_mame_ui_config, consistentify_manufacturer, entire_mame_xml
 from mame_metadata import add_metadata
 from metadata import Metadata, SaveType
 
@@ -39,22 +39,23 @@ hack_regex = re.compile(r'^hack \((.+)\)$')
 class Machine():
 	def __init__(self, xml):
 		self.xml = xml
+		self.name = self.xml.findtext('description')
 		self.metadata = Metadata()
 		self._add_metadata_fields()
 		#This can't be an attribute because we might need to override it later! Bad Megan!
-		self.name = self.xml.findtext('description')
 
 	def _add_metadata_fields(self):
 		self.metadata.specific_info['Source-File'] = self.source_file
 		self.metadata.specific_info['Family-Basename'] = self.family
-		self.metadata.specific_info['Family'] = get_full_name(self.family)
+		#self.metadata.specific_info['Family'] = get_full_name(self.family)
+		self.metadata.specific_info['Family'] = self.family_name
 
 		self.metadata.year = self.xml.findtext('year')
 
 		self.metadata.specific_info['Number-of-Players'] = self.number_of_players
 		self.metadata.specific_info['Is-Mechanical'] = self.is_mechanical
 		self.metadata.specific_info['Dispenses-Tickets'] = self.uses_device('ticket_dispenser')
-		self.metadata.specific_info['Coin-Slots'] = self.input_element.attrib.get('coins', 0)
+		self.metadata.specific_info['Coin-Slots'] = self.input_element.attrib.get('coins', 0) if self.input_element is not None else 0
 		self.metadata.specific_info['Requires-CHD'] = self.requires_chds
 		self.metadata.specific_info['Romless'] = self.romless
 		self.metadata.specific_info['BIOS-Used'] = self.bios
@@ -74,11 +75,15 @@ class Machine():
 		parent_name = self.xml.attrib.get('cloneof')
 		if not parent_name:
 			return None
-		return Machine(get_mame_xml(parent_name).find('machine'))
+		return Machine(get_mame_xml(parent_name))
 
 	@property
 	def family(self):
 		return self.xml.attrib.get('cloneof', self.basename)
+
+	@property
+	def family_name(self):
+		return self.parent.name if self.has_parent else self.name
 
 	@property
 	def source_file(self):
@@ -123,6 +128,9 @@ class Machine():
 
 	@property
 	def number_of_players(self):
+		if self.input_element is None:
+			#This would happen if we ended up loading a device or whatever, so let's not crash the whole dang program. Also, since you can't play a device, they have 0 players. But they won't have launchers anyway, this is just to stop the NoneType explosion.
+			return 0
 		return int(self.input_element.attrib.get('players', 0))
 
 	@property
@@ -166,6 +174,10 @@ class Machine():
 
 	def _add_manufacturer(self):
 		manufacturer = self.xml.findtext('manufacturer')
+		if not manufacturer:
+			self.metadata.publisher = None
+			self.metadata.developer = None
+			return
 		license_match = licensed_arcade_game_regex.fullmatch(manufacturer)
 		licensed_from_match = licensed_from_regex.fullmatch(manufacturer)
 		hack_match = hack_regex.fullmatch(manufacturer)
@@ -199,14 +211,32 @@ def mame_verifyroms(basename):
 	except subprocess.CalledProcessError:
 		return False
 
-def should_process_machine(machine):
-	if machine.xml.attrib['runnable'] == 'no':
+#Normally, we'd skip over anything that has software because that indicates it's a system you plug games into and not
+#usable by itself.  But these are things that are really just standalone things, but they have an expansion for
+#whatever reason and are actually fine
+#cfa3000 is kinda fine but it counts as a BBC Micro so it counts as not fine, due to detecting this stuff by
+#parent/clone family
+okay_to_have_software = ['vii', 'snspell', 'tntell']
+
+def is_actually_machine(machine):
+	if machine.xml.attrib.get('runnable', 'yes') == 'no':
 		return False
 
-	if machine.xml.attrib['isbios'] == 'yes':
+	if machine.xml.attrib.get('isbios', 'no') == 'yes':
 		return False
 
-	if machine.xml.attrib['isdevice'] == 'yes':
+	if machine.xml.attrib.get('isdevice', 'no') == 'yes':
+		return False
+
+	return True
+
+def is_machine_launchable(machine):
+	if not (machine.xml.find('softwarelist') is None) and machine.family not in okay_to_have_software:
+		return False
+
+	if has_mandatory_slots(machine):
+		if debug:
+			print('%s (%s, %s) has mandatory slots' % (machine.name, machine.basename, machine.source_file))
 		return False
 
 	return True
@@ -220,24 +250,10 @@ def has_mandatory_slots(machine):
 			return True
 	return False
 
-
-#Normally, we'd skip over anything that has software because that indicates it's a system you plug games into and not
-#usable by itself.  But these are things that are really just standalone things, but they have an expansion for
-#whatever reason and are actually fine
-#cfa3000 is kinda fine but it counts as a BBC Micro so it counts as not fine, due to detecting this stuff by
-#parent/clone family
-okay_to_have_software = ['vii', 'snspell', 'tntell']
-
 def process_machine(machine):
-	if not should_process_machine(machine):
-		return
-
-	if not (machine.xml.find('softwarelist') is None) and machine.family not in okay_to_have_software:
-		return
-
-	if has_mandatory_slots(machine):
-		if debug:
-			print('%s (%s, %s) has mandatory slots' % (machine.name, machine.basename, machine.source_file))
+	#if not should_process_machine(machine):
+	#	return
+	if not is_machine_launchable(machine):
 		return
 
 	if machine.is_skeleton_driver:
@@ -255,31 +271,12 @@ def process_machine(machine):
 
 	machine.make_launcher()
 
-def get_mame_drivers():
-	drivers = []
-
-	process = subprocess.run(['mame', '-listsource'], stdout=subprocess.PIPE, universal_newlines=True)
-	status = process.returncode
-	output = process.stdout
-	if status != 0:
-		print('Shit')
-		return []
-
-	for line in output.splitlines():
-		try:
-			driver, source_file = line.split(None, 1)
-			drivers.append((driver, os.path.splitext(source_file)[0]))
-		except ValueError:
-			print('For fucks sake ' + line)
-			continue
-
-	return drivers
-
 def no_longer_exists(game_id):
 	#This is used to determine what launchers to delete if not doing a full rescan
 	return not mame_verifyroms(game_id)
 
-def process_driver(driver):
+def process_driver_by_name(driver):
+	#TODO: Fiddle with this, it's just used for --drivers argument now
 	if not command_line_flags['full_rescan']:
 		if launchers.has_been_done('MAME machine', driver):
 			return
@@ -296,7 +293,25 @@ def process_driver(driver):
 	xml = get_mame_xml(driver)
 	if xml is None:
 		return
-	process_machine(Machine(xml.find('machine')))
+	process_machine(Machine(xml))
+
+def process_machine_element(machine_element):
+	machine = Machine(machine_element)
+	if machine.source_file in main_config.skipped_source_files:
+		return
+
+	if not command_line_flags['full_rescan']:
+		#Or should this check go above the source file check? Ehhh I'll have to think about that
+		if launchers.has_been_done('MAME machine', machine.basename):
+			return
+
+	if not is_actually_machine(machine):
+		return
+
+	if not mame_verifyroms(machine.basename):
+		return
+
+	process_machine(machine)
 
 def process_arcade():
 	#Fuck iterparse by the way, if you stumble across this script and think "oh you should use iterparse instead of this
@@ -309,16 +324,12 @@ def process_arcade():
 
 	time_started = time.perf_counter()
 
-	for driver, source_file in get_mame_drivers():
-		if source_file in main_config.skipped_source_files:
-			continue
-
-		process_driver(driver)
+	for machine_element in entire_mame_xml.getroot():
+		process_machine_element(machine_element)
 
 	if command_line_flags['print_times']:
 		time_ended = time.perf_counter()
 		print('Arcade finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-
 
 def main():
 	if '--drivers' in sys.argv:
@@ -329,7 +340,7 @@ def main():
 
 		driver_list = sys.argv[arg_index + 1].split(',')
 		for driver_name in driver_list:
-			process_driver(driver_name)
+			process_driver_by_name(driver_name)
 		return
 
 	process_arcade()

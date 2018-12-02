@@ -4,6 +4,7 @@ import re
 import os
 
 from metadata import CPUInfo, ScreenInfo
+from config import cache_dir
 
 def consistentify_manufacturer(manufacturer):
 	#Sometimes, MAME uses two different variations on what is the same exact company. Or formats the name in a way that nobody else does anywhere else.
@@ -211,17 +212,14 @@ def get_mame_ui_config():
 	return None
 
 def get_full_name(driver_name):
-	xml = get_mame_xml(driver_name)
-	if not xml:
+	machine = get_mame_xml(driver_name)
+	if not machine:
 		return None
 
-	return xml.find('machine').findtext('description')
+	return machine.findtext('description')
 
 def lookup_system_cpu(driver_name):
-	xml = get_mame_xml(driver_name)
-	if not xml:
-		return None
-	machine = xml.find('machine')
+	machine = get_mame_xml(driver_name)
 	if not machine:
 		return None
 
@@ -235,10 +233,7 @@ def lookup_system_cpu(driver_name):
 	return None
 
 def lookup_system_displays(driver_name):
-	xml = get_mame_xml(driver_name)
-	if not xml:
-		return None
-	machine = xml.find('machine')
+	machine = get_mame_xml(driver_name)
 	if not machine:
 		return None
 
@@ -247,21 +242,31 @@ def lookup_system_displays(driver_name):
 	screen_info.load_from_xml_list(displays)
 	return screen_info
 
-_get_xml_cache = {}
+version_proc = subprocess.run(['mame', '-help'], stdout=subprocess.PIPE, universal_newlines=True)
+#FIXME: Deal with version_proc raising error, such as in the case of MAME not being installed
+version = version_proc.stdout.splitlines()[0]
+mame_xml_path = os.path.join(cache_dir, version) + '.xml'
+
+def _get_mame_entire_xml():
+	if not os.path.isfile(mame_xml_path):
+		print('New MAME version found:', version, 'creating XML; this may take a while (maybe like a minute or so)')
+		with open(mame_xml_path, 'wb') as f:
+			subprocess.run(['mame', '-listxml'], stdout=f, stderr=subprocess.DEVNULL)
+			#TODO check return code I guess
+
+	#This part might take like 17 seconds because the XML is quite big (over 200 MB)
+	#Sigh NO I can't just use iterparse, and if I can it's certainly not that simple. It either runs out of memory instantly, or I use element.clear() and that just blanks out the whole dang thing so I can't use it so that's useless. Basically it doesn't work how it looks like it works, so yeah, just gonna have to deal with doing it this way
+	return ElementTree.parse(mame_xml_path)
+
+
+entire_mame_xml = _get_mame_entire_xml()
 def get_mame_xml(driver):
-	if driver in _get_xml_cache:
-		return _get_xml_cache[driver]
+	for machine in entire_mame_xml.getroot():
+		if machine.attrib.get('name') == driver:
+			return machine
 
-	process = subprocess.run(['mame', '-listxml', driver], stdout=subprocess.PIPE)
-	status = process.returncode
-	output = process.stdout
-	if status != 0:
-		print('Fucking hell ' + driver)
-		return None
-
-	xml = ElementTree.fromstring(output)
-	_get_xml_cache[driver] = xml
-	return xml
+	#TODO: Should probably raise an error here. It's always returned None, though, so I'd have to check that wouldn't break stuff
+	return None
 
 def find_main_cpu(machine_xml):
 	for chip in machine_xml.findall('chip'):

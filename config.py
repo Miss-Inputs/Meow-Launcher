@@ -11,6 +11,8 @@ app_name = 'Meow Launcher'
 #TODO: Get this in a less hardcody cross-platform way, I guess
 _config_dir = os.path.expanduser(os.path.join('~/.config/', app_name.replace(' ', '')))
 _data_dir = os.path.expanduser(os.path.join('~/.local/share/', app_name.replace(' ', '')))
+cache_dir = os.path.expanduser(os.path.join('~/.cache/', app_name.replace(' ', '')))
+
 
 #Static paths I guess
 _main_config_path = os.path.join(_config_dir, 'config.ini')
