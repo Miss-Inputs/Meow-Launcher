@@ -82,7 +82,6 @@ def a7800(game, _):
 		#This would only be supported via software list (although A7800 seems to have removed that anyway)
 		raise EmulationNotSupportedException('No header')
 
-
 	command_line = 'a7800' #Executable name might be a7800.Linux-x86_64 depending on how it's installed... hmm
 
 	if game.metadata.tv_type == TVSystem.PAL:
