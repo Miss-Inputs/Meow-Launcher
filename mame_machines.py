@@ -257,12 +257,11 @@ def has_mandatory_slots(machine):
 	return False
 
 def process_machine(machine):
-	if not is_machine_launchable(machine):
-		return
-
 	if machine.is_skeleton_driver:
 		#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
 		#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
+
+		#We'll do this check _after_ mame_verifyroms so we don't spam debug print for a bunch of skeleton drivers we don't have
 		if debug:
 			print('Skipping %s (%s, %s) as it is probably a skeleton driver' % (machine.name, machine.basename, machine.source_file))
 		return
@@ -290,6 +289,9 @@ def process_machine_element(machine_element):
 			return
 
 	if not is_actually_machine(machine):
+		return
+
+	if not is_machine_launchable(machine):
 		return
 
 	if not mame_verifyroms(machine.basename):
