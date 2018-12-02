@@ -283,11 +283,6 @@ def process_machine_element(machine_element):
 	if machine.source_file in main_config.skipped_source_files:
 		return
 
-	if not command_line_flags['full_rescan']:
-		#Or should this check go above the source file check? Ehhh I'll have to think about that
-		if launchers.has_been_done('MAME machine', machine.basename):
-			return
-
 	if not is_actually_machine(machine):
 		return
 
@@ -302,7 +297,11 @@ def process_machine_element(machine_element):
 def process_arcade():
 	time_started = time.perf_counter()
 
-	for machine_element in entire_mame_xml.values():
+	for machine_name, machine_element in entire_mame_xml.items():
+		if not command_line_flags['full_rescan']:
+			if launchers.has_been_done('MAME machine', machine_name):
+				continue
+
 		process_machine_element(machine_element)
 
 	if command_line_flags['print_times']:
