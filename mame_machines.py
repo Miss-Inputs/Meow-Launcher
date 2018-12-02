@@ -251,8 +251,6 @@ def has_mandatory_slots(machine):
 	return False
 
 def process_machine(machine):
-	#if not should_process_machine(machine):
-	#	return
 	if not is_machine_launchable(machine):
 		return
 
@@ -280,6 +278,8 @@ def process_driver_by_name(driver):
 	if not command_line_flags['full_rescan']:
 		if launchers.has_been_done('MAME machine', driver):
 			return
+
+	#The following rant is now wrong
 
 	#You probably think this is why it's slow, right?  You think "Oh, that's silly, you're verifying every single romset
 	#in existence before just getting the XML", that's what you're thinking, right?  Well, I am doing that, but as it
@@ -314,17 +314,9 @@ def process_machine_element(machine_element):
 	process_machine(machine)
 
 def process_arcade():
-	#Fuck iterparse by the way, if you stumble across this script and think "oh you should use iterparse instead of this
-	#kludge!" you are wrong
-	#(Okay, if you want an attempt at a reason why: I've tried it, and MAME's machine elements are actually more
-	#complicated and seemingly refer to other machine elements that are displayed alongside the main one with an
-	#individual -listxml)
-	#Could it be faster to use -verifyroms globally and parse the output somehow and then get individual XML from
-	#successful results?
-
 	time_started = time.perf_counter()
 
-	for machine_element in entire_mame_xml.getroot():
+	for machine_element in entire_mame_xml.values():
 		process_machine_element(machine_element)
 
 	if command_line_flags['print_times']:

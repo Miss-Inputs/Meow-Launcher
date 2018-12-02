@@ -254,19 +254,21 @@ def _get_mame_entire_xml():
 			subprocess.run(['mame', '-listxml'], stdout=f, stderr=subprocess.DEVNULL)
 			#TODO check return code I guess
 
-	#This part might take like 17 seconds because the XML is quite big (over 200 MB)
-	#Sigh NO I can't just use iterparse, and if I can it's certainly not that simple. It either runs out of memory instantly, or I use element.clear() and that just blanks out the whole dang thing so I can't use it so that's useless. Basically it doesn't work how it looks like it works, so yeah, just gonna have to deal with doing it this way
-	return ElementTree.parse(mame_xml_path)
+	machines = {}
+	for _, element in ElementTree.iterparse(mame_xml_path):
+		if element.tag == 'machine':
+			string = ElementTree.tostring(element)
+			#Copy the thing so we can clear the element and not break things
+			machines[element.attrib['name']] = ElementTree.fromstring(string)
+			element.clear()
+	return machines
 
 
 entire_mame_xml = _get_mame_entire_xml()
 def get_mame_xml(driver):
-	for machine in entire_mame_xml.getroot():
-		if machine.attrib.get('name') == driver:
-			return machine
-
+	#Hmm I guess I don't as such need this now that I have the above, but I'd have to hunt down individual usages
+	return entire_mame_xml.get(driver)
 	#TODO: Should probably raise an error here. It's always returned None, though, so I'd have to check that wouldn't break stuff
-	return None
 
 def find_main_cpu(machine_xml):
 	for chip in machine_xml.findall('chip'):
