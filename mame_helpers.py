@@ -2,6 +2,7 @@ import subprocess
 import xml.etree.ElementTree as ElementTree
 import re
 import os
+import copy
 
 from metadata import CPUInfo, ScreenInfo
 from config import cache_dir
@@ -257,9 +258,8 @@ def _get_mame_entire_xml():
 	machines = {}
 	for _, element in ElementTree.iterparse(mame_xml_path):
 		if element.tag == 'machine':
-			string = ElementTree.tostring(element)
 			#Copy the thing so we can clear the element and not break things
-			machines[element.attrib['name']] = ElementTree.fromstring(string)
+			machines[element.attrib['name']] = copy.deepcopy(element)
 			element.clear()
 	return machines
 
