@@ -259,14 +259,14 @@ def _get_mame_entire_xml():
 	for _, element in ElementTree.iterparse(mame_xml_path):
 		if element.tag == 'machine':
 			#Copy the thing so we can clear the element and not break things
-			machines[element.attrib['name']] = copy.deepcopy(element)
+			machines[element.attrib['name']] = copy.copy(element)
 			element.clear()
 	return machines
-
 
 entire_mame_xml = _get_mame_entire_xml()
 def get_mame_xml(driver):
 	#Hmm I guess I don't as such need this now that I have the above, but I'd have to hunt down individual usages
+	print(ElementTree.dump(entire_mame_xml.get(driver)), driver)
 	return entire_mame_xml.get(driver)
 	#TODO: Should probably raise an error here. It's always returned None, though, so I'd have to check that wouldn't break stuff
 
