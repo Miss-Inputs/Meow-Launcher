@@ -47,7 +47,7 @@ def mame_command_line(driver, slot=None, slot_options=None, has_keyboard=False, 
 
 def _is_highscore_cart_available():
 	#Unfortunately it seems we cannot verify an individual software, which would probably take less time
-	proc = subprocess.run(['mame', '-verifysoftlist', 'a7800'], universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+	proc = subprocess.run(['mame', '-verifysoftware', 'a7800'], universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
 	#Don't check return code - it'll return 2 if other software is bad, but we don't care about those
 	for line in proc.stdout.splitlines():
 		#Bleh
