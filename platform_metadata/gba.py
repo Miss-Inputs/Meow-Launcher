@@ -18,7 +18,7 @@ def parse_gba_header(game, header):
 		product_code = convert_alphanumeric(header[0xac:0xb0])
 		if len(product_code) == 4:
 			game_type = product_code[0]
-			if game_type[0] == 'K' or game_type == 'R':
+			if game_type in ('K', 'R'):
 				game.metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls())
 			game.metadata.specific_info['Force-Feedback'] = game_type in ('R', 'V')
 
