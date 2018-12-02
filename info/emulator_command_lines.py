@@ -537,7 +537,8 @@ def mame_apple_ii(game, _):
 	slot_options = {}
 	if game.metadata.specific_info.get('Uses-Mouse', False):
 		slot_options['sl4'] = 'mouse'
-	return mame_command_line('apple2p', 'flop1', slot_options, True)
+	#Change to apple2p if stuff breaks, apple2 by itself doesn't autoboot things
+	return mame_command_line('apple2e', 'flop1', slot_options, True)
 
 def mame_coleco_adam(game, _):
 	slot_options = {}
