@@ -408,7 +408,6 @@ def mame_sg1000(game, _):
 		#Should not happen
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 
-
 	return mame_command_line(system, slot, slot_options, has_keyboard)
 
 def mame_sharp_x68000(game, _):
