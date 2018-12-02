@@ -273,28 +273,6 @@ def no_longer_exists(game_id):
 	#This is used to determine what launchers to delete if not doing a full rescan
 	return not mame_verifyroms(game_id)
 
-def process_driver_by_name(driver):
-	#TODO: Fiddle with this, it's just used for --drivers argument now
-	if not command_line_flags['full_rescan']:
-		if launchers.has_been_done('MAME machine', driver):
-			return
-
-	#The following rant is now wrong
-
-	#You probably think this is why it's slow, right?  You think "Oh, that's silly, you're verifying every single romset
-	#in existence before just getting the XML", that's what you're thinking, right?  Well, I am doing that, but as it
-	#turns out if I do the verification inside process_machine it takes a whole lot longer.  I don't fully understand why
-	#but I'll have you know I actually profiled it
-
-	#You hear that, myself? Stop trying to do mame_verifyroms later! It will go from taking 1 hour to taking 3 and a half hours! Stop it!
-	if not mame_verifyroms(driver):
-		return
-
-	xml = get_mame_xml(driver)
-	if xml is None:
-		return
-	process_machine(Machine(xml))
-
 def process_machine_element(machine_element):
 	machine = Machine(machine_element)
 	if machine.source_file in main_config.skipped_source_files:
@@ -332,7 +310,7 @@ def main():
 
 		driver_list = sys.argv[arg_index + 1].split(',')
 		for driver_name in driver_list:
-			process_driver_by_name(driver_name)
+			process_machine_element(get_mame_xml(driver_name))
 		return
 
 	process_arcade()
