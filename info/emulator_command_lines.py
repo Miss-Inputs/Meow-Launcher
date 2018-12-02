@@ -90,6 +90,10 @@ def a7800(game, _):
 		command_line += ' a7800'
 	#There are also a7800u1, a7800u2, a7800pu1, a7800pu2 to change the colour palettes. Maybe that could be an other_config option...
 
+	global _have_hiscore_software
+	if _have_hiscore_software is None:
+		_have_hiscore_software = _is_highscore_cart_available()
+
 	if _have_hiscore_software and game.metadata.specific_info.get('Uses-Hiscore-Cart', False):
 		return command_line + ' -cart1 hiscore -cart2 $<path>'
 
