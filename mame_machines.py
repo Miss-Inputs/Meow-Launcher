@@ -7,6 +7,8 @@ import re
 import time
 import datetime
 import shlex
+if '--memory-test-mode' in sys.argv:
+	import objgraph
 
 import launchers
 from info import emulator_command_lines
@@ -300,12 +302,16 @@ def process_machine_element(machine_element):
 def process_arcade():
 	time_started = time.perf_counter()
 
+	i = 0
 	for machine_name, machine_element in entire_mame_xml.items():
 		if not command_line_flags['full_rescan']:
 			if launchers.has_been_done('MAME machine', machine_name):
 				continue
 
 		process_machine_element(machine_element)
+		i += 1 #Hmm, this counter is just for testing, but maybe I could do something cool later like report back progress to the user (or a frontend)
+		if i == 100 and '--memory-test-mode' in sys.argv:
+			return
 
 	if command_line_flags['print_times']:
 		time_ended = time.perf_counter()
@@ -327,3 +333,6 @@ def main():
 
 if __name__ == '__main__':
 	main()
+
+	if '--memory-test-mode' in sys.argv:
+		objgraph.show_most_common_types()
