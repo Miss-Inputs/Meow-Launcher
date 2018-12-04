@@ -209,6 +209,9 @@ class Machine():
 		self.metadata.developer = consistentify_manufacturer(developer)
 		self.metadata.publisher = consistentify_manufacturer(publisher)
 
+def get_machine(driver):
+	return Machine(entire_mame_xml.get(driver))
+
 def mame_verifyroms(basename):
 	try:
 		#Note to self: Stop wasting time thinking you can make this faster
