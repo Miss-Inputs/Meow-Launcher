@@ -7,6 +7,7 @@ import re
 import time
 import datetime
 import shlex
+import xml.etree.ElementTree as ElementTree
 if '--memory-test-mode' in sys.argv:
 	import objgraph
 
@@ -212,7 +213,7 @@ class Machine():
 		self.metadata.publisher = consistentify_manufacturer(publisher)
 
 def get_machine(driver):
-	return Machine(entire_mame_xml.get(driver))
+	return Machine(ElementTree.fromstring(entire_mame_xml.get(driver)))
 
 def mame_verifyroms(basename):
 	try:
@@ -308,7 +309,7 @@ def process_arcade():
 			if launchers.has_been_done('MAME machine', machine_name):
 				continue
 
-		process_machine_element(machine_element)
+		process_machine_element(ElementTree.fromstring(machine_element))
 		i += 1 #Hmm, this counter is just for testing, but maybe I could do something cool later like report back progress to the user (or a frontend)
 		if i == 100 and '--memory-test-mode' in sys.argv:
 			return
@@ -335,4 +336,6 @@ if __name__ == '__main__':
 	main()
 
 	if '--memory-test-mode' in sys.argv:
+		import resource
+		print(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 		objgraph.show_most_common_types()
