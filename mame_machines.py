@@ -7,7 +7,6 @@ import re
 import time
 import datetime
 import shlex
-import xml.etree.ElementTree as ElementTree
 
 import launchers
 from info import emulator_command_lines
