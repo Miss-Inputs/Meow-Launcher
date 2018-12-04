@@ -50,7 +50,6 @@ class Machine():
 		self._has_inited_metadata = True
 		self.metadata.specific_info['Source-File'] = self.source_file
 		self.metadata.specific_info['Family-Basename'] = self.family
-		#self.metadata.specific_info['Family'] = get_full_name(self.family)
 		self.metadata.specific_info['Family'] = self.family_name
 
 		self.metadata.year = self.xml.findtext('year')

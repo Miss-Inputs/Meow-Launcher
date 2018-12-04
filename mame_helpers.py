@@ -212,13 +212,6 @@ def get_mame_ui_config():
 		return MameConfigFile(path)
 	return None
 
-def get_full_name(driver_name):
-	machine = get_mame_xml(driver_name)
-	if not machine:
-		return None
-
-	return machine.findtext('description')
-
 def lookup_system_cpu(driver_name):
 	machine = get_mame_xml(driver_name)
 	if not machine:
