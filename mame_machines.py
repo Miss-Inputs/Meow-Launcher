@@ -14,7 +14,7 @@ if '--memory-test-mode' in sys.argv:
 import launchers
 from info import emulator_command_lines
 from config import main_config, command_line_flags
-from mame_helpers import get_mame_xml, get_mame_ui_config, consistentify_manufacturer, entire_mame_xml
+from mame_helpers import get_mame_xml, get_mame_ui_config, consistentify_manufacturer, iter_mame_entire_xml
 from mame_metadata import add_metadata
 from metadata import Metadata, SaveType
 
@@ -213,7 +213,7 @@ class Machine():
 		self.metadata.publisher = consistentify_manufacturer(publisher)
 
 def get_machine(driver):
-	return Machine(ElementTree.fromstring(entire_mame_xml.get(driver)))
+	return Machine(get_mame_xml(driver))
 
 def mame_verifyroms(basename):
 	try:
@@ -304,12 +304,13 @@ def process_arcade():
 	time_started = time.perf_counter()
 
 	i = 0
-	for machine_name, machine_element in entire_mame_xml.items():
+	#for machine_name, machine_element in entire_mame_xml.items():
+	for machine_name, machine_element in iter_mame_entire_xml():
 		if not command_line_flags['full_rescan']:
 			if launchers.has_been_done('MAME machine', machine_name):
 				continue
 
-		process_machine_element(ElementTree.fromstring(machine_element))
+		process_machine_element(machine_element)
 		i += 1 #Hmm, this counter is just for testing, but maybe I could do something cool later like report back progress to the user (or a frontend)
 		if i == 100 and '--memory-test-mode' in sys.argv:
 			return

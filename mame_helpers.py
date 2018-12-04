@@ -241,28 +241,49 @@ version_proc = subprocess.run(['mame', '-help'], stdout=subprocess.PIPE, univers
 version = version_proc.stdout.splitlines()[0]
 mame_xml_path = os.path.join(cache_dir, version) + '.xml'
 
-def _get_mame_entire_xml():
+def _check_mame_xml_cache():
 	if not os.path.isfile(mame_xml_path):
 		print('New MAME version found:', version, 'creating XML; this may take a while (maybe like a minute or so)')
 		with open(mame_xml_path, 'wb') as f:
 			subprocess.run(['mame', '-listxml'], stdout=f, stderr=subprocess.DEVNULL)
 			#TODO check return code I guess
 
-	machines = {}
+#def _get_mame_entire_xml():
+#	_check_mame_xml_cache()
+#
+#	machines = {}
+#	for _, element in ElementTree.iterparse(mame_xml_path):
+#		if element.tag == 'machine':
+#			#Copy the thing so we can clear the element and not break things
+#			#machines[element.attrib['name']] = copy.copy(element)
+#			#Actually, change of plans. For now. Store it as a string, for now. And convert it back. For now. To solve memory usage issues. 280MB-ish seems a lot better than 2.7GB-ish.
+#			#This makes loading the MAME XML even slower though (109 seconds), so I don't like that
+#			machines[element.attrib['name']] = ElementTree.tostring(element)
+#			element.clear()
+#	return machines
+
+_have_checked_mame_xml = False
+def iter_mame_entire_xml():
+	global _have_checked_mame_xml
+	if not _have_checked_mame_xml:
+		#Should only check once
+		_check_mame_xml_cache()
+		_have_checked_mame_xml = True
+
 	for _, element in ElementTree.iterparse(mame_xml_path):
 		if element.tag == 'machine':
-			#Copy the thing so we can clear the element and not break things
-			#machines[element.attrib['name']] = copy.copy(element)
-			#Actually, change of plans. For now. Store it as a string, for now. And convert it back. For now. To solve memory usage issues. 280MB-ish seems a lot better than 2.7GB-ish.
-			#This makes loading the MAME XML even slower though (109 seconds), so I don't like that
-			machines[element.attrib['name']] = ElementTree.tostring(element)
+			yield element.attrib['name'], copy.copy(element)
 			element.clear()
-	return machines
 
-entire_mame_xml = _get_mame_entire_xml()
+#entire_mame_xml = _get_mame_entire_xml()
 def get_mame_xml(driver):
 	#Hmm I guess I don't as such need this now that I have the above, but I'd have to hunt down individual usages
-	return ElementTree.fromstring(entire_mame_xml.get(driver))
+	#return ElementTree.fromstring(entire_mame_xml.get(driver))
+	for name, machine in iter_mame_entire_xml():
+		if name == driver:
+			return machine
+
+	return None
 	#TODO: Should probably raise an error here. It's always returned None, though, so I'd have to check that wouldn't break stuff
 
 def find_main_cpu(machine_xml):
