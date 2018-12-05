@@ -292,9 +292,8 @@ def process_machine_element(machine_element):
 	if not is_machine_launchable(machine):
 		return
 
-	if not machine.romless:
-		if not mame_verifyroms(machine.basename):
-			return
+	if not mame_verifyroms(machine.basename):
+		return
 
 	process_machine(machine)
 
