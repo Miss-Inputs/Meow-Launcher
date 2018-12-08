@@ -488,12 +488,14 @@ def mupen64plus(game, other_config):
 		plugin = controller_pak
 	elif use_rumble_pak:
 		plugin = rumble_pak
+	elif use_transfer_pak:
+		plugin = transfer_pak
 
 	if plugin != no_plugin:
 		#TODO: Only do this if using SDL plugin (i.e. not Raphnet raw plugin)
 		command_line += ' --set %s' % shlex.quote('Input-SDL-Control1[plugin]=%d' % plugin)
 
-	#TODO: If use_transfer_pak, put in a rom + save with --gb-rom-1 and --gb-ram-1 somehow... hmm... can't insert one at runtime with console UI sooo
+	#TODO: If use_transfer_pak, put in a rom + save with --gb-rom-1 and --gb-ram-1 somehow... hmm... can't insert one at runtime with console UI (and I guess you're not supposed to hotplug carts with a real N64 + Transfer Pak) sooo, I'll have to have a think about the most user-friendly way for me to handle that as a frontend
 
 	return command_line + ' $<path>'
 
