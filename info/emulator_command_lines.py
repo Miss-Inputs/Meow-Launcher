@@ -387,7 +387,6 @@ def reicast(game, _):
 	return 'reicast -config x11:fullscreen=1 $<path>'
 
 def mame_sg1000(game, _):
-	#TODO: SC-3000 casettes (wav bit)
 	slot_options = {}
 	has_keyboard = False
 
