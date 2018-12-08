@@ -10,7 +10,7 @@ import shlex
 
 import launchers
 from info import emulator_command_lines
-from config import main_config, command_line_flags
+from config import main_config
 from mame_helpers import get_mame_xml, get_mame_ui_config, consistentify_manufacturer, iter_mame_entire_xml
 from mame_metadata import add_metadata
 from metadata import Metadata, SaveType
@@ -301,13 +301,13 @@ def process_arcade():
 	time_started = time.perf_counter()
 
 	for machine_name, machine_element in iter_mame_entire_xml():
-		if not command_line_flags['full_rescan']:
+		if not main_config.full_rescan:
 			if launchers.has_been_done('MAME machine', machine_name):
 				continue
 
 		process_machine_element(machine_element)
 
-	if command_line_flags['print_times']:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Arcade finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

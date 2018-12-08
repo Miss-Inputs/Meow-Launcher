@@ -5,7 +5,7 @@ import configparser
 import time
 import datetime
 
-from config import command_line_flags
+from config import main_config
 import launchers
 import input_metadata
 from metadata import Metadata, SaveType
@@ -46,7 +46,7 @@ def add_scummvm_games():
 	for section in scummvm_config.sections():
 		if section == 'scummvm':
 			continue
-		if not command_line_flags['full_rescan']:
+		if not main_config.full_rescan:
 			if launchers.has_been_done('ScummVM', section):
 				continue
 
@@ -55,7 +55,7 @@ def add_scummvm_games():
 			game.options[k] = v
 		game.make_launcher()
 
-	if command_line_flags['print_times']:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('ScummVM finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

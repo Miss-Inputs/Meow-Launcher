@@ -9,7 +9,7 @@ import sys
 import time
 import datetime
 
-from config import main_config, command_line_flags, app_name
+from config import main_config, app_name
 import launchers
 
 super_debug = '--super-debug' in sys.argv
@@ -233,7 +233,7 @@ def reambiguate():
 def disambiguate_names():
 	time_started = time.perf_counter()
 
-	if not command_line_flags['full_rescan']:
+	if not main_config.full_rescan:
 		reambiguate()
 
 	fix_duplicate_names('Platform')
@@ -249,10 +249,10 @@ def disambiguate_names():
 	fix_duplicate_names('tags')
 	fix_duplicate_names('date')
 	fix_duplicate_names('Extension', '(.{0})'.format)
-	if command_line_flags['debug']:
+	if main_config.debug:
 		fix_duplicate_names('check')
 
-	if command_line_flags['print_times']:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Name disambiguation finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

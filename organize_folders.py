@@ -6,7 +6,7 @@ import sys
 import time
 import datetime
 
-from config import main_config, command_line_flags
+from config import main_config
 import launchers
 from io_utils import sanitize_name
 
@@ -148,7 +148,7 @@ def move_into_folders():
 	time_started = time.perf_counter()
 
 	delete_existing_output_dir()
-	if command_line_flags['print_times']:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Removal of old organized folder finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
@@ -161,7 +161,7 @@ def move_into_folders():
 
 				move_into_subfolders(path)
 
-	if command_line_flags['print_times']:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

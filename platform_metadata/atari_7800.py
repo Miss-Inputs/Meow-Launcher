@@ -1,6 +1,6 @@
 import input_metadata
 from metadata import SaveType
-from config import command_line_flags
+from config import main_config
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
 
@@ -54,7 +54,7 @@ def _add_atari_7800_header_info(game, header):
 	elif tv_type == 0:
 		game.metadata.tv_type = TVSystem.NTSC
 	else:
-		if command_line_flags['debug']:
+		if main_config.debug:
 			print('Something is wrong with', game.rom.path, ', has TV type byte of', tv_type)
 		game.metadata.specific_info['Invalid-TV-Type'] = True
 
@@ -69,7 +69,7 @@ def _add_atari_7800_header_info(game, header):
 	elif save_type == 2:
 		#AtariVox/SaveKey. Both are third party products which plug into the controller port, so what else can you call them except memory cards?
 		game.metadata.save_type = SaveType.MemoryCard
-	elif command_line_flags['debug']:
+	elif main_config.debug:
 		print(game.rom.path, 'has save type byte of ', save_type)
 
 def add_atari_7800_metadata(game):

@@ -4,7 +4,7 @@ import os
 import datetime
 import time
 
-from config import main_config, command_line_flags
+from config import main_config
 from launchers import get_desktop, get_field
 
 import mame_machines
@@ -39,11 +39,11 @@ def remove_nonexistent_games():
 		#Hmm, not sure what I should do if game_type is unrecognized. I guess ignore it, it might be from somewhere else and therefore not my business
 
 		if should_remove:
-			if command_line_flags['debug']:
+			if main_config.debug:
 				print(game_type, game_id, 'no longer exists, removing')
 			os.remove(path)
 
-	if command_line_flags['print_times']:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Removal of non-existent items finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

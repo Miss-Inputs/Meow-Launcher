@@ -6,7 +6,7 @@ import collections
 import time
 import datetime
 
-from config import main_config, system_configs, command_line_flags
+from config import main_config, system_configs
 from metadata import Metadata
 from info.system_info import MediaType
 from info.emulator_command_lines import EmulationNotSupportedException, NotARomException
@@ -37,7 +37,7 @@ def init_game_list(platform):
 					if key not in game:
 						game_list[game_name][key] = parent[key]
 			else:
-				if command_line_flags['debug']:
+				if main_config.debug:
 					print('Oh no! {0} refers to undefined parent game {1}'.format(game_name, parent_name))
 
 	return game_list
@@ -99,7 +99,7 @@ class App:
 				exception_reason = ex
 
 		if not command:
-			if command_line_flags['debug']:
+			if main_config.debug:
 				print(self.path, 'could not be launched by', system_config.chosen_emulators, 'because', exception_reason)
 			return
 
@@ -160,7 +160,7 @@ def make_launchers(system_config_name, config_path, app_class, emulator_list):
 	parser.read(config_path)
 
 	for path, config_name in parser.items('Apps'):
-		if not command_line_flags['full_rescan']:
+		if not main_config.full_rescan:
 			if launchers.has_been_done(system_config_name, path):
 				continue
 
@@ -175,6 +175,6 @@ def make_launchers(system_config_name, config_path, app_class, emulator_list):
 		for unknown, _ in parser.items('Unknown'):
 			app_class(unknown, unknown.split(':')[-1], {}).make_launcher(system_config, emulator_list)
 
-	if command_line_flags['print_times']:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print(system_config_name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))

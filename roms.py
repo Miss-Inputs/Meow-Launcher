@@ -12,7 +12,7 @@ import launchers
 import metadata
 import io_utils
 
-from config import system_configs, ignored_directories, command_line_flags
+from config import system_configs, ignored_directories, main_config
 from info import system_info, emulator_info
 from info.emulator_command_lines import EmulationNotSupportedException, NotARomException
 from roms_metadata import add_engine_metadata, add_metadata
@@ -189,7 +189,7 @@ def try_emulator(system_config, emulator, rom_dir, root, rom):
 	if rom.extension not in game.emulator.supported_extensions:
 		raise NotARomException('Unsupported extension: ' + rom.extension)
 
-	if rom.warn_about_multiple_files and command_line_flags['debug']:
+	if rom.warn_about_multiple_files and main_config.debug:
 		print('Warning!', rom.path, 'has more than one file and that may cause unexpected behaviour, as I only look at the first file')
 
 	game.filename_tags = common.find_filename_tags.findall(game.rom.name)
@@ -221,7 +221,7 @@ def process_file(system_config, rom_dir, root, rom):
 
 
 	if not game:
-		if command_line_flags['debug']:
+		if main_config.debug:
 			print(rom.path, 'could not be launched by', potential_emulators, 'because', exception_reason)
 		return
 
@@ -276,7 +276,7 @@ def process_emulated_system(system_config):
 					if not system.is_valid_file_type(rom.extension):
 						continue
 
-				if not command_line_flags['full_rescan']:
+				if not main_config.full_rescan:
 					if launchers.has_been_done('ROM', path):
 						continue
 
@@ -288,14 +288,14 @@ def process_engine_system(system_config, game_info):
 		if game_info.uses_folders:
 			for root, dirs, _ in os.walk(file_dir):
 				for d in dirs:
-					if not command_line_flags['full_rescan']:
+					if not main_config.full_rescan:
 						if launchers.has_been_done('Engine game', os.path.join(root, d)):
 							continue
 					process_engine_file(system_config, file_dir, root, d)
 		else:
 			for root, _, files in os.walk(file_dir):
 				for f in files:
-					if not command_line_flags['full_rescan']:
+					if not main_config.full_rescan:
 						if launchers.has_been_done('Engine game', os.path.join(root, f)):
 							continue
 					process_engine_file(system_config, file_dir, root, f)
@@ -319,7 +319,7 @@ def process_system(system_config):
 	else:
 		return
 
-	if command_line_flags['print_times']:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print(system_config.name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
@@ -339,7 +339,7 @@ def process_systems():
 			continue
 		process_system(system)
 
-	if command_line_flags['print_times']:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('All emulated/engined systems finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
