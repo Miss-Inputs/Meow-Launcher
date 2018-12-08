@@ -113,13 +113,20 @@ def get_command_line_arguments():
 		arg = arg[2:]
 
 		for name, option in _config_ini_values.items():
-			if arg == name.replace('_', '-'):
+			expected_arg = name.replace('_', '-')
+
+			if option.type == ConfigValueType.Bool:
+				if arg == '--no-' + expected_arg:
+					d[name] = False
+				elif arg == expected_arg:
+					d[name] = True
+
+			elif arg == expected_arg:
 				value = sys.argv[i + 1]
 				#TODO: If value = another argument starts with --, invalid?
-				#TODO: Accept boolean options with --blah and --no-blah?
-				if option.type == ConfigValueType.Bool:
-					d[name] = parse_command_line_bool(value)
-				elif option.type == ConfigValueType.Path:
+				#if option.type == ConfigValueType.Bool: #or do I wanna do that
+				#	d[name] = parse_command_line_bool(value)
+				if option.type == ConfigValueType.Path:
 					d[name] = os.path.expanduser(value)
 				elif option.type == ConfigValueType.PathList:
 					d[name] = parse_path_list(value)
