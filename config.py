@@ -96,7 +96,7 @@ _config_ini_values = {
 	'dos_db_path': ConfigValue('DOS', ConfigValueType.Path, None, 'Path to dos_db.json from ComputerGameDB'),
 	'launchers_for_unknown_dos_apps': ConfigValue('DOS', ConfigValueType.Bool, False, 'Whether or not to create launchers for DOS programs that are found but not in the database'),
 	#TODO: Should be in other_config as it is inherently specific to the emulator (DOSBox) and not the platform
-	'dosbox_configs_path': ConfigValue('DOS', ConfigValueType.Path, os.path.join(_data_dir, 'dosbox_configs'),'Folder to store DOSBox per-application configuration files'),
+	'dosbox_configs_path': ConfigValue('DOS', ConfigValueType.Path, os.path.join(_data_dir, 'dosbox_configs'), 'Folder to store DOSBox per-application configuration files'),
 
 	#Command line arguments shouldn't end up in config.ini
 	'debug': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Enable debug mode, which is really verbose mode, oh well'),
