@@ -354,6 +354,5 @@ computer_systems = {
 
 #TODO: Add these as well (or should I? Maybe I should just leave it to emulator_info):
 #Arcade: I guess it's not an array, it's just MAME
-#Computers: Mac, DOS (well, they're emulated too, but differently than the above systems)
-#Virtual environment-but-not-quite-type-things: J2ME, Flash
+#Virtual environment-but-not-quite-type-system-things: J2ME, Flash (but once those have nicer emulators, until then never mind, or maybe I could pretend they're emulated systems)
 #This allows us to organize supported emulators easily and such
