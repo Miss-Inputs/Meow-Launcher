@@ -70,31 +70,33 @@ class ConfigValueType(Enum):
 	PathList = auto()
 
 class ConfigValue():
-	def __init__(self, section, value_type, default_value, command_line_option):
+	def __init__(self, section, value_type, default_value, command_line_option, description):
 		self.section = section
 		self.type = value_type
 		self.default_value = default_value
 		self.command_line_option = command_line_option
+		self.description = description
+		#TODO: command_line_option could be generated from the key, really
 
 _config_ini_values = {
-	'output_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'apps'), 'output-folder'),
-	'organized_output_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'organized_apps'), 'organized-output-folder'),
-	'icon_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'icons'), 'icon-folder'),
+	'output_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'apps'), 'output-folder', 'Folder to put launchers'),
+	'organized_output_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'organized_apps'), 'organized-output-folder', 'Folder to put folders with organized launchers using --organize-folders'),
+	'icon_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'icons'), 'icon-folder', 'Folder to store icons extracted from games with embedded icons'),
 
-	'catlist_path': ConfigValue('Arcade', ConfigValueType.Path, None, 'catlist-path'),
-	'languages_path': ConfigValue('Arcade', ConfigValueType.Path, None, 'languages-path'),
-	'skipped_source_files': ConfigValue('Arcade', ConfigValueType.StringList, [], 'skipped-source-files'),
-	'memcard_path': ConfigValue('Arcade', ConfigValueType.Path, None, 'memcard-path'),
-	'exclude_non_arcade': ConfigValue('Arcade', ConfigValueType.Bool, False, 'exclude-non-arcade'),
-	'exclude_pinball': ConfigValue('Arcade', ConfigValueType.Bool, False, 'exclude-pinball'),
+	'catlist_path': ConfigValue('Arcade', ConfigValueType.Path, None, 'catlist-path', 'Path to MAME catlist.ini'),
+	'languages_path': ConfigValue('Arcade', ConfigValueType.Path, None, 'languages-path', 'Path to MAME languages.ini'),
+	'skipped_source_files': ConfigValue('Arcade', ConfigValueType.StringList, [], 'skipped-source-files', 'List of MAME source files to skip (not including extension)'),
+	'memcard_path': ConfigValue('Arcade', ConfigValueType.Path, None, 'memcard-path', 'Path to store memory cards for arcade systems which support that'),
+	'exclude_non_arcade': ConfigValue('Arcade', ConfigValueType.Bool, False, 'exclude-non-arcade', 'Whether or not to skip MAME systems categorized as not being arcade or anything specific'), #TODO This description sucks
+	'exclude_pinball': ConfigValue('Arcade', ConfigValueType.Bool, False, 'exclude-pinball', 'Whether or not to skip pinball games'),
 
-	'mac_db_path': ConfigValue('Mac', ConfigValueType.Path, None, 'mac-db-path'),
-	'launchers_for_unknown_mac_apps': ConfigValue('Mac', ConfigValueType.Bool, False, 'launchers-for-unknown-mac-apps'),
+	'mac_db_path': ConfigValue('Mac', ConfigValueType.Path, None, 'mac-db-path', 'Path to mac_db.json from ComputerGameDB'),
+	'launchers_for_unknown_mac_apps': ConfigValue('Mac', ConfigValueType.Bool, False, 'launchers-for-unknown-mac-apps', 'Whether or not to create launchers for Mac programs that are found but not in the database'),
 
-	'dos_db_path': ConfigValue('DOS', ConfigValueType.Path, None, 'dos-db-path'),
-	'launchers_for_unknown_dos_apps': ConfigValue('DOS', ConfigValueType.Bool, False, 'launchers-for-unknown-dos-apps'),
+	'dos_db_path': ConfigValue('DOS', ConfigValueType.Path, None, 'dos-db-path', 'Path to dos_db.json from ComputerGameDB'),
+	'launchers_for_unknown_dos_apps': ConfigValue('DOS', ConfigValueType.Bool, False, 'launchers-for-unknown-dos-apps', 'Whether or not to create launchers for DOS programs that are found but not in the database'),
 	#TODO: Should be in other_config as it is inherently specific to the emulator (DOSBox) and not the platform
-	'dosbox_configs_path': ConfigValue('DOS', ConfigValueType.Path, os.path.join(_data_dir, 'dosbox_configs'), 'dosbox-configs-path')
+	'dosbox_configs_path': ConfigValue('DOS', ConfigValueType.Path, os.path.join(_data_dir, 'dosbox_configs'), 'dosbox-configs-path', 'Folder to store DOSBox per-application configuration files')
 }
 
 def get_command_line_arguments():
