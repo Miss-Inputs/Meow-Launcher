@@ -23,6 +23,9 @@ icon_line_regex = re.compile(r'^icons_directory\s+(.+)$')
 def load_icons():
 	d = {}
 	mame_ui_config = get_mame_ui_config()
+	if mame_ui_config is None:
+		return d
+
 	for icon_directory in mame_ui_config.settings.get('icons_directory', []):
 		if os.path.isdir(icon_directory):
 			for icon_file in os.listdir(icon_directory):
