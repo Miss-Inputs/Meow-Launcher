@@ -268,12 +268,12 @@ class MameState():
 			if not self.have_mame:
 				raise MAMENotInstalledException()
 
-			#TODO: It would be _much_ more efficient to use a single call to -listxml with the specific driver for this purpose
-			for name, machine in iter_mame_entire_xml():
-				if name == driver:
-					return machine
+			try:
+				proc = subprocess.run(['mame', '-listxml', driver], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)
+			except subprocess.CalledProcessError:
+				raise MachineNotFoundException(driver)
 
-			raise MachineNotFoundException(driver)
+			return ElementTree.fromstring(proc.stdout).find('machine')
 
 	__instance = None
 
