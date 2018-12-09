@@ -245,10 +245,11 @@ class MameState():
 			if not self.have_mame:
 				return
 			if not os.path.isfile(self.mame_xml_path):
-				print('New MAME version found:', self.version, 'creating XML; this may take a while (maybe like a minute or so)')
+				print('New MAME version found:', self.version, ';creating XML; this may take a while (maybe like a minute or so)')
 				with open(self.mame_xml_path, 'wb') as f:
 					subprocess.run(['mame', '-listxml'], stdout=f, stderr=subprocess.DEVNULL)
 					#TODO check return code I guess (although in what ways would it fail?)
+				print('Finished creating XML')
 
 		def iter_mame_entire_xml(self):
 			if not self.have_mame:
