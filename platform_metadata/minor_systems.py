@@ -433,7 +433,7 @@ def add_ibm_pcjr_info(game):
 	if software:
 		software.add_generic_info(game)
 		#TODO: If sharedfeat requirement = ibmpcjr_flop:pcdos21, do something about that
-		#Probably get the MAME command line to get a PC DOS 2.1 floppy path from other_config provided by the user, or else they don't get to use ColorPaint
+		#Probably get the MAME command line to get a PC DOS 2.1 floppy path from specific_config provided by the user, or else they don't get to use ColorPaint
 		#Lotus 123jr has a similar predicament, but it also needs .m3u I guess
 
 def _does_intellivision_part_match(part, data, _):

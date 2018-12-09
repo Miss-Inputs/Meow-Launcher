@@ -46,7 +46,7 @@ class EngineGame():
 		self.icon = None
 
 	def get_command_line(self, system_config):
-		return self.engine.get_command_line(self, system_config.other_config)
+		return self.engine.get_command_line(self, system_config.specific_config)
 
 	def make_launcher(self, system_config):
 		base_command_line = self.get_command_line(system_config)
@@ -147,7 +147,7 @@ class Game():
 		self.filename_tags = []
 
 	def get_command_line(self, system_config):
-		return self.emulator.get_command_line(self, system_config.other_config)
+		return self.emulator.get_command_line(self, system_config.specific_config)
 
 	def make_launcher(self, system_config):
 		base_command_line = self.get_command_line(system_config)

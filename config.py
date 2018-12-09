@@ -95,7 +95,7 @@ _config_ini_values = {
 
 	'dos_db_path': ConfigValue('DOS', ConfigValueType.Path, None, 'Path to dos_db.json from ComputerGameDB'),
 	'launchers_for_unknown_dos_apps': ConfigValue('DOS', ConfigValueType.Bool, False, 'Whether or not to create launchers for DOS programs that are found but not in the database'),
-	#TODO: Should be in other_config as it is inherently specific to the emulator (DOSBox) and not the platform
+	#TODO: Should be in specific_config as it is inherently specific to the emulator (DOSBox) and not the platform
 	'dosbox_configs_path': ConfigValue('DOS', ConfigValueType.Path, os.path.join(_data_dir, 'dosbox_configs'), 'Folder to store DOSBox per-application configuration files'),
 
 	#Command line arguments shouldn't end up in config.ini
@@ -241,7 +241,7 @@ class SystemConfig():
 		self.name = name
 		self.paths = []
 		self.chosen_emulators = []
-		self.other_config = {}
+		self.specific_config = {}
 
 	@property
 	def is_available(self):
@@ -295,12 +295,12 @@ class SystemConfigs():
 				chosen_emulators.append(chosen_emulator)
 			self.configs[name].chosen_emulators = chosen_emulators
 
-			for other_config_name, default_value in other_configs.items():
-				if other_config_name not in section:
-					section[other_config_name] = convert_value_for_ini(default_value)
+			for specific_config_name, default_value in other_configs.items():
+				if specific_config_name not in section:
+					section[specific_config_name] = convert_value_for_ini(default_value)
 					self.rewrite_config()
 				#TODO: Should I support other data types and whatnot
-				self.configs[name].other_config[other_config_name] = section.get(other_config_name, default_value)
+				self.configs[name].specific_config[specific_config_name] = section.get(specific_config_name, default_value)
 
 	__instance = None
 

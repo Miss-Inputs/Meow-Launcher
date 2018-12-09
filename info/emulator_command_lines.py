@@ -88,7 +88,7 @@ def a7800(game, _):
 		command_line += ' a7800p'
 	else:
 		command_line += ' a7800'
-	#There are also a7800u1, a7800u2, a7800pu1, a7800pu2 to change the colour palettes. Maybe that could be an other_config option...
+	#There are also a7800u1, a7800u2, a7800pu1, a7800pu2 to change the colour palettes. Maybe that could be an specific_config option...
 
 	global _have_hiscore_software
 	if _have_hiscore_software is None:
@@ -228,10 +228,10 @@ def gambatte(game, _):
 
 	return 'gambatte_qt --full-screen $<path>'
 
-def mame_game_boy(game, other_config):
+def mame_game_boy(game, specific_config):
 	#TODO: Bound to be some mappers which won't be supported (Game Boy Camera would be one of them I guess)
 	#Not much reason to use gameboy, other than a green tinted screen. I guess that's the only difference
-	system = 'gbcolor' if other_config.get('use_gbc_for_dmg') else 'gbpocket'
+	system = 'gbcolor' if specific_config.get('use_gbc_for_dmg') else 'gbpocket'
 
 	#Should be just as compatible as supergb but with better timing... I think
 	super_gb_system = 'supergb2'
@@ -239,7 +239,7 @@ def mame_game_boy(game, other_config):
 	is_colour = game.metadata.platform == 'Game Boy Color'
 	is_sgb = game.metadata.specific_info.get('SGB-Enhanced', False)
 
-	prefer_sgb = other_config.get('prefer_sgb_over_gbc', False)
+	prefer_sgb = specific_config.get('prefer_sgb_over_gbc', False)
 	if is_colour and is_sgb:
 		system = super_gb_system if prefer_sgb else 'gbcolor'
 	elif is_colour:
@@ -249,11 +249,10 @@ def mame_game_boy(game, other_config):
 
 	return mame_command_line(system, 'cart')
 
-def mame_snes(game, other_config):
-	#Snes9x's GTK+ port doesn't let us load carts with slots for other carts from the command line yet, so this will have
-	#to do, but unfortunately it's a tad slower
+def mame_snes(game, specific_config):
 	if game.rom.extension == 'st':
-		bios_path = other_config.get('sufami_turbo_bios_path', None)
+		#TODO: Allow the usage of 'sufami' in software list as well, if it is there
+		bios_path = specific_config.get('sufami_turbo_bios_path', None)
 		if not bios_path:
 			raise EmulationNotSupportedException('Sufami Turbo BIOS not set up, check emulators.ini')
 
@@ -261,7 +260,8 @@ def mame_snes(game, other_config):
 		return mame_command_line('snes', 'cart2', {'cart': shlex.quote(bios_path)}, False)
 
 	if game.rom.extension == 'bs':
-		bios_path = other_config.get('bsx_bios_path', None)
+		#TODO: Allow use of 'bsxsore' in software list as well if it is there
+		bios_path = specific_config.get('bsx_bios_path', None)
 		if not bios_path:
 			raise EmulationNotSupportedException('BS-X/Satellaview BIOS not set up, check emulators.ini')
 		return mame_command_line('snes', 'cart2', {'cart': shlex.quote(bios_path)}, False)
@@ -464,7 +464,7 @@ def mame_atari_jaguar(game, _):
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 	return mame_command_line('jaguar', slot)
 
-def mupen64plus(game, other_config):
+def mupen64plus(game, specific_config):
 	if game.metadata.specific_info.get('ROM-Format', None) == 'Unknown':
 		raise EmulationNotSupportedException('Undetectable ROM format')
 
@@ -482,7 +482,7 @@ def mupen64plus(game, other_config):
 	plugin = no_plugin
 
 	if use_controller_pak and use_rumble_pak:
-		plugin = controller_pak if other_config.get('prefer_controller_pak_over_rumble', 'no') == 'yes' else rumble_pak
+		plugin = controller_pak if specific_config.get('prefer_controller_pak_over_rumble', 'no') == 'yes' else rumble_pak
 	elif use_controller_pak:
 		plugin = controller_pak
 	elif use_rumble_pak:
@@ -498,7 +498,7 @@ def mupen64plus(game, other_config):
 
 	return command_line + ' $<path>'
 
-def fs_uae(game, other_config):
+def fs_uae(game, specific_config):
 	command_line = 'fs-uae --fullscreen'
 	if game.metadata.platform == 'Amiga CD32':
 		command_line += ' --amiga_model=CD32 --joystick_port_0_mode=%s --cdrom_drive_0=$<path>' % shlex.quote('cd32 gamepad')
@@ -515,7 +515,7 @@ def fs_uae(game, other_config):
 		chipset = game.metadata.specific_info.get('Chipset')
 		if not chipset:
 			#AGA is the default default if there's no default, because we should probably have one
-			chipset = other_config.get('default_chipset', 'AGA')
+			chipset = specific_config.get('default_chipset', 'AGA')
 
 		if chipset in amiga_models:
 			command_line += ' --amiga_model=%s' % amiga_models[chipset]
@@ -572,14 +572,14 @@ def mame_super_cassette_vision(game, _):
 
 	return mame_command_line(system, 'cart')
 
-def vice(game, other_config):
+def vice(game, specific_config):
 	executable = None
 	fullscreen_option = None #+ and - prefixes seem to do the reverse of what you might expect; i.e. +VICIIfull turns _off_ fullscreen, seemingly
 	model = None
 
 	platform = game.metadata.platform
 	if platform in ('C64', 'C64GS'):
-		executable = 'x64' if other_config.get('use_fast_c64', 'no') == 'yes' else 'x64sc'
+		executable = 'x64' if specific_config.get('use_fast_c64', 'no') == 'yes' else 'x64sc'
 		fullscreen_option = '-VICIIfull'
 
 		if game.metadata.tv_type == TVSystem.NTSC:
@@ -636,16 +636,16 @@ def vice(game, other_config):
 		command_line += ' -model %s' % shlex.quote(model)
 	return command_line + ' $<path>'
 
-def basilisk_ii(app, other_config):
+def basilisk_ii(app, specific_config):
 	if 'arch' in app.config:
 		if app.config['arch'] == 'ppc':
 			raise EmulationNotSupportedException('PPC not supported')
 
 	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that. Okay, so I don't want that.
 	#Ideally, HFS manipulation would be powerful enough that we could just slip an alias into the Startup Items folder ourselves and delete it afterward. That doesn't fix the problem of automatically shutting down (still need a script for that), unless we don't create an alias at all and we create a script or something on the fly that launches that path and then shuts down, but yeah. Stuff and things.
-	autoboot_txt_path = os.path.join(other_config['shared_folder'], 'autoboot.txt')
-	width = other_config.get('default_width', 1920)
-	height = other_config.get('default_height', 1080)
+	autoboot_txt_path = os.path.join(specific_config['shared_folder'], 'autoboot.txt')
+	width = specific_config.get('default_width', 1920)
+	height = specific_config.get('default_height', 1080)
 	if 'max_resolution' in app.config:
 		width, height = app.config['max_resolution']
 	#Can't do anything about colour depth at the moment (displaycolordepth is functional on some SDL1 builds, but not SDL2)
@@ -671,7 +671,7 @@ def _get_dosbox_config(app):
 
 	return None
 
-def _make_dosbox_config(app, other_config):
+def _make_dosbox_config(app, specific_config):
 	configwriter = configparser.ConfigParser()
 	configwriter.optionxform = str
 
@@ -685,7 +685,7 @@ def _make_dosbox_config(app, other_config):
 		if 'for_xt' in app.config['required_hardware']:
 			if app.config['required_hardware']['for_xt']:
 				configwriter['cpu'] = {}
-				configwriter['cpu']['cycles'] = other_config.get('slow_cpu_cycles', 400)
+				configwriter['cpu']['cycles'] = specific_config.get('slow_cpu_cycles', 400)
 
 		if 'max_graphics' in app.config['required_hardware']:
 			configwriter['dosbox'] = {}
@@ -702,9 +702,9 @@ def _make_dosbox_config(app, other_config):
 
 	return path
 
-def dosbox(app, other_config):
+def dosbox(app, specific_config):
 	conf = _get_dosbox_config(app)
 	if ('--regen-dos-config' in sys.argv) or not conf:
-		conf = _make_dosbox_config(app, other_config)
+		conf = _make_dosbox_config(app, specific_config)
 	actual_command = "dosbox -exit -noautoexec -userconf -conf {1} {0}".format(shlex.quote(app.path), shlex.quote(conf))
 	return actual_command

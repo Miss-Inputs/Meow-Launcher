@@ -92,7 +92,7 @@ class App:
 		for emulator in system_config.chosen_emulators:
 			emulator_name = emulator
 			try:
-				command = emulators[emulator].get_command_line(self, system_config.other_config)
+				command = emulators[emulator].get_command_line(self, system_config.specific_config)
 				if command:
 					break
 			except (EmulationNotSupportedException, NotARomException) as ex:

@@ -10,10 +10,10 @@ class Emulator():
 		self.supported_compression = supported_compression
 		self.wrap_in_shell = wrap_in_shell
 
-	def get_command_line(self, game, other_config):
+	def get_command_line(self, game, specific_config):
 		#You might think sinc I have game.rom here, I should just insert the path into the command line here too. I don't though, in case the final path that gets passed to the emulator needs to be different than the ROM's path (in case of temporary extracted files for emulators not supporting compression, for example)
 		if callable(self.command_line):
-			return self.command_line(game, other_config)
+			return self.command_line(game, specific_config)
 
 		return self.command_line
 
@@ -246,9 +246,9 @@ emulators = {
 	'MAME (WonderSwan)': MameSystem(command_lines.mame_command_line('wscolor', 'cart'), ['ws', 'wsc', 'bin', 'pc2']),
 }
 
-def make_prboom_plus_command_line(_, other_config):
-	if 'save_dir' in other_config:
-		return 'prboom-plus -save %s -iwad $<path>' % shlex.quote(other_config['save_dir'])
+def make_prboom_plus_command_line(_, specific_config):
+	if 'save_dir' in specific_config:
+		return 'prboom-plus -save %s -iwad $<path>' % shlex.quote(specific_config['save_dir'])
 
 	#Fine don't save then, nerd
 	return 'prboom-plus -iwad $<path>'
@@ -259,9 +259,9 @@ class GameEngine():
 		self.command_line = command_line
 		self.is_game_data = is_game_data #This is supposed to be a lambda but I can't figure out how to word it so that's apparent at first glance
 
-	def get_command_line(self, game, other_config):
+	def get_command_line(self, game, specific_config):
 		if callable(self.command_line):
-			return self.command_line(game, other_config)
+			return self.command_line(game, specific_config)
 
 		return self.command_line
 
@@ -282,9 +282,9 @@ class MacEmulator():
 	def __init__(self, command_line):
 		self.command_line = command_line
 
-	def get_command_line(self, app, other_config):
+	def get_command_line(self, app, specific_config):
 		if callable(self.command_line):
-			return self.command_line(app, other_config)
+			return self.command_line(app, specific_config)
 
 		return self.command_line
 
@@ -297,9 +297,9 @@ class DOSEmulator():
 	def __init__(self, command_line):
 		self.command_line = command_line
 
-	def get_command_line(self, app, other_config):
+	def get_command_line(self, app, specific_config):
 		if callable(self.command_line):
-			return self.command_line(app, other_config)
+			return self.command_line(app, specific_config)
 
 		return self.command_line
 
