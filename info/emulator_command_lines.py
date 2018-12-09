@@ -7,6 +7,7 @@ import subprocess
 from config import main_config
 from platform_metadata.nes import NESPeripheral
 from common_types import MediaType, EmulationNotSupportedException, NotARomException
+from mame_helpers import have_mame
 from .region_info import TVSystem
 
 def _get_autoboot_script_by_name(name):
@@ -39,6 +40,9 @@ def mame_command_line(driver, slot=None, slot_options=None, has_keyboard=False, 
 	return command_line
 
 def _is_highscore_cart_available():
+	if not have_mame():
+		#Well, I guess MAME a7800 wouldn't work at all, but then... with A7800 it gets confusing and I guess it would in theory have its own -verifysoftware and yeah I'm doing this all wrong really
+		return False
 	#Unfortunately it seems we cannot verify an individual software, which would probably take less time
 	proc = subprocess.run(['mame', '-verifysoftware', 'a7800'], universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
 	#Don't check return code - it'll return 2 if other software is bad, but we don't care about those

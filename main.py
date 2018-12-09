@@ -13,6 +13,7 @@ import mac
 import scummvm
 import dos
 import remove_nonexistent_games
+from mame_helpers import have_mame
 
 from config import main_config
 
@@ -28,7 +29,7 @@ if main_config.full_rescan:
 			os.unlink(os.path.join(main_config.output_folder, f))
 os.makedirs(main_config.output_folder, exist_ok=True)
 
-if '--no-arcade' not in sys.argv:
+if '--no-arcade' not in sys.argv and have_mame():
 	mame_machines.process_arcade()
 
 roms.process_systems()

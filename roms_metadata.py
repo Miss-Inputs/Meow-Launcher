@@ -4,49 +4,54 @@ import os
 
 import region_detect
 import platform_metadata
-from mame_helpers import lookup_system_cpu, lookup_system_displays, get_mame_xml
+from mame_helpers import lookup_system_cpu, lookup_system_displays, get_mame_xml, have_mame
 from software_list_info import get_software_lists_by_names
 from info import system_info
 
 date_regex = re.compile(r'\((?P<year>[x\d]{4})\)|\((?P<year2>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})\)|\((?P<day2>\d{2})\.(?P<month2>\d{2})\.(?P<year3>\d{4})\)')
 revision_regex = re.compile(r'\(Rev ([A-Z\d]+?)\)')
 
-cpu_overrides = {
-	#Usually just look up system_info.systems, but this is here where they aren't in systems or there isn't a MAME driver so we can't get the CPU from there or where MAME gets it wrong because the CPU we want to return isn't considered the main CPU
-	"32X": lookup_system_cpu('sega_32x_ntsc'),
-	"FDS": lookup_system_cpu('fds'),
-	"Game Boy Color": lookup_system_cpu('gbcolor'),
-	"Mega CD": lookup_system_cpu('segacd_us'),
-	"C64GS": lookup_system_cpu('c64gs'),
-	'Satellaview': lookup_system_cpu('snes'),
-	'Sufami Turbo': lookup_system_cpu('snes'),
-	'Benesse Pocket Challenge V2': lookup_system_cpu('wswan'), #Should be about right
-	'PlayChoice-10': lookup_system_cpu('nes'), #lookup_system_cpu('playch10') returns Zilog Z80, the N2A03 is the "cart" cpu
-	'VS Unisystem': lookup_system_cpu('nes'),
-}
+if have_mame():
+	cpu_overrides = {
+		#Usually just look up system_info.systems, but this is here where they aren't in systems or there isn't a MAME driver so we can't get the CPU from there or where MAME gets it wrong because the CPU we want to return isn't considered the main CPU
+		"32X": lookup_system_cpu('sega_32x_ntsc'),
+		"FDS": lookup_system_cpu('fds'),
+		"Game Boy Color": lookup_system_cpu('gbcolor'),
+		"Mega CD": lookup_system_cpu('segacd_us'),
+		"C64GS": lookup_system_cpu('c64gs'),
+		'Satellaview': lookup_system_cpu('snes'),
+		'Sufami Turbo': lookup_system_cpu('snes'),
+		'Benesse Pocket Challenge V2': lookup_system_cpu('wswan'), #Should be about right
+		'PlayChoice-10': lookup_system_cpu('nes'), #lookup_system_cpu('playch10') returns Zilog Z80, the N2A03 is the "cart" cpu
+		'VS Unisystem': lookup_system_cpu('nes'),
+	}
 
-display_overrides = {
-	'FDS': lookup_system_displays('fds'),
-	'Game Boy Color': lookup_system_displays('gbcolor'),
-	'C64GS': lookup_system_displays('c64gs'),
-	'Satellaview': lookup_system_displays('snes'),
-	'Sufami Turbo': lookup_system_displays('snes'),
-	'Benesse Pocket Challenge V2': lookup_system_displays('wswan'),
-	'PlayChoice-10': lookup_system_displays('playch10'),
-	'VS Unisystem': lookup_system_displays('nes'),
-}
+	display_overrides = {
+		'FDS': lookup_system_displays('fds'),
+		'Game Boy Color': lookup_system_displays('gbcolor'),
+		'C64GS': lookup_system_displays('c64gs'),
+		'Satellaview': lookup_system_displays('snes'),
+		'Sufami Turbo': lookup_system_displays('snes'),
+		'Benesse Pocket Challenge V2': lookup_system_displays('wswan'),
+		'PlayChoice-10': lookup_system_displays('playch10'),
+		'VS Unisystem': lookup_system_displays('nes'),
+	}
 
-source_file_overrides = {
-	#This won't happen often; if there's no MAME driver we should just leave the X-Source-File field blank by definition
-	#Basically, this is when something in platform_metadata changes what game.metadata.platform is, which means we can no longer just look up that platform in system_info because it won't be in there
-	"FDS": get_mame_xml('fds').attrib['sourcefile'],
-	"Game Boy Color": get_mame_xml('gbcolor').attrib['sourcefile'],
-	"C64GS": get_mame_xml('c64gs').attrib['sourcefile'],
-	'Satellaview': get_mame_xml('snes').attrib['sourcefile'],
-	'Sufami Turbo': get_mame_xml('snes').attrib['sourcefile'],
-	'PlayChoice-10': get_mame_xml('playch10').attrib['sourcefile'],
-	'VS Unisystem': 'vsnes.cpp', #All the VS Unisystem games are in there, but there's no specific BIOS or anything
-}
+	source_file_overrides = {
+		#This won't happen often; if there's no MAME driver we should just leave the X-Source-File field blank by definition
+		#Basically, this is when something in platform_metadata changes what game.metadata.platform is, which means we can no longer just look up that platform in system_info because it won't be in there
+		"FDS": get_mame_xml('fds').attrib['sourcefile'],
+		"Game Boy Color": get_mame_xml('gbcolor').attrib['sourcefile'],
+		"C64GS": get_mame_xml('c64gs').attrib['sourcefile'],
+		'Satellaview': get_mame_xml('snes').attrib['sourcefile'],
+		'Sufami Turbo': get_mame_xml('snes').attrib['sourcefile'],
+		'PlayChoice-10': get_mame_xml('playch10').attrib['sourcefile'],
+		'VS Unisystem': 'vsnes.cpp', #All the VS Unisystem games are in there, but there's no specific BIOS or anything
+	}
+else:
+	cpu_overrides = {}
+	display_overrides = {}
+	source_file_overrides = {}
 
 def get_year_revision_from_filename_tags(game, tags):
 	found_date = False
@@ -129,33 +134,34 @@ def add_device_hardware_metadata(game):
 		mame_driver = system_info.systems[game.metadata.platform].mame_driver
 
 	source_file = None
-	if mame_driver:
-		source_file = get_mame_xml(mame_driver).attrib['sourcefile']
-	elif game.metadata.platform in source_file_overrides:
-		source_file = source_file_overrides[game.metadata.platform]
-	if source_file:
-		game.metadata.specific_info['Source-File'] = os.path.splitext(source_file)[0]
+	if have_mame():
+		if mame_driver:
+			source_file = get_mame_xml(mame_driver).attrib['sourcefile']
+		elif game.metadata.platform in source_file_overrides:
+			source_file = source_file_overrides[game.metadata.platform]
+		if source_file:
+			game.metadata.specific_info['Source-File'] = os.path.splitext(source_file)[0]
 
-	if not game.metadata.cpu_info:
-		cpu = None
-		if game.metadata.platform in cpu_overrides:
-			cpu = cpu_overrides[game.metadata.platform]
-		else:
-			if mame_driver:
-				cpu = lookup_system_cpu(mame_driver)
+		if not game.metadata.cpu_info:
+			cpu = None
+			if game.metadata.platform in cpu_overrides:
+				cpu = cpu_overrides[game.metadata.platform]
+			else:
+				if mame_driver:
+					cpu = lookup_system_cpu(mame_driver)
 
-		if cpu:
-			game.metadata.cpu_info = cpu
+			if cpu:
+				game.metadata.cpu_info = cpu
 
-	if not game.metadata.screen_info:
-		displays = None
-		if game.metadata.platform in display_overrides:
-			displays = display_overrides[game.metadata.platform]
-		else:
-			if mame_driver:
-				displays = lookup_system_displays(mame_driver)
-		if displays:
-			game.metadata.screen_info = displays
+		if not game.metadata.screen_info:
+			displays = None
+			if game.metadata.platform in display_overrides:
+				displays = display_overrides[game.metadata.platform]
+			else:
+				if mame_driver:
+					displays = lookup_system_displays(mame_driver)
+			if displays:
+				game.metadata.screen_info = displays
 
 def add_metadata(game):
 	game.metadata.extension = game.rom.extension

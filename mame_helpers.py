@@ -212,79 +212,87 @@ def get_mame_ui_config():
 		return MameConfigFile(path)
 	return None
 
-def lookup_system_cpu(driver_name):
-	machine = get_mame_xml(driver_name)
-	if not machine:
-		return None
+class MachineNotFoundException(Exception):
+	#This shouldn't be thrown unless I'm an idiot, but that may well happen
+	pass
 
-	main_cpu = find_main_cpu(machine)
-	if main_cpu is not None: #"if main_cpu: doesn't work. Frig! Why not! Wanker! Sodding bollocks!
-		cpu_info = CPUInfo()
-		cpu_info.load_from_xml(main_cpu)
+class MAMENotInstalledException(Exception):
+	#This should always end up being caught, because I shouldn't assume the user has stuff installed
+	pass
 
-		return cpu_info
+class MameState():
+	class __MameState():
+		def __init__(self):
+			self.version = self.get_version()
+			self.mame_xml_path = os.path.join(cache_dir, self.version) + '.xml' if self.have_mame else None
+			self._have_checked_mame_xml = False
 
-	return None
+		@property
+		def have_mame(self):
+			return self.version is not None
 
-def lookup_system_displays(driver_name):
-	machine = get_mame_xml(driver_name)
-	if not machine:
-		return None
+		@staticmethod
+		def get_version():
+			try:
+				version_proc = subprocess.run(['mame', '-help'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
+			except FileNotFoundError:
+				#Should happen if and only if MAME isn't installed
+				return None
 
-	displays = machine.findall('display')
-	screen_info = ScreenInfo()
-	screen_info.load_from_xml_list(displays)
-	return screen_info
+			return version_proc.stdout.splitlines()[0]
 
-version_proc = subprocess.run(['mame', '-help'], stdout=subprocess.PIPE, universal_newlines=True)
-#FIXME: Deal with version_proc raising error, such as in the case of MAME not being installed
-version = version_proc.stdout.splitlines()[0]
-mame_xml_path = os.path.join(cache_dir, version) + '.xml'
+		def _check_mame_xml_cache(self):
+			if not self.have_mame:
+				return
+			if not os.path.isfile(self.mame_xml_path):
+				print('New MAME version found:', self.version, 'creating XML; this may take a while (maybe like a minute or so)')
+				with open(self.mame_xml_path, 'wb') as f:
+					subprocess.run(['mame', '-listxml'], stdout=f, stderr=subprocess.DEVNULL)
+					#TODO check return code I guess (although in what ways would it fail?)
 
-def _check_mame_xml_cache():
-	if not os.path.isfile(mame_xml_path):
-		print('New MAME version found:', version, 'creating XML; this may take a while (maybe like a minute or so)')
-		with open(mame_xml_path, 'wb') as f:
-			subprocess.run(['mame', '-listxml'], stdout=f, stderr=subprocess.DEVNULL)
-			#TODO check return code I guess
+		def iter_mame_entire_xml(self):
+			if not self.have_mame:
+				raise MAMENotInstalledException()
 
-#def _get_mame_entire_xml():
-#	_check_mame_xml_cache()
-#
-#	machines = {}
-#	for _, element in ElementTree.iterparse(mame_xml_path):
-#		if element.tag == 'machine':
-#			#Copy the thing so we can clear the element and not break things
-#			#machines[element.attrib['name']] = copy.copy(element)
-#			#Actually, change of plans. For now. Store it as a string, for now. And convert it back. For now. To solve memory usage issues. 280MB-ish seems a lot better than 2.7GB-ish.
-#			#This makes loading the MAME XML even slower though (109 seconds), so I don't like that
-#			machines[element.attrib['name']] = ElementTree.tostring(element)
-#			element.clear()
-#	return machines
+			if not self._have_checked_mame_xml:
+				#Should only check once
+				self._check_mame_xml_cache()
+				self._have_checked_mame_xml = True
 
-_have_checked_mame_xml = False
+			for _, element in ElementTree.iterparse(self.mame_xml_path):
+				if element.tag == 'machine':
+					yield element.attrib['name'], copy.copy(element)
+					element.clear()
+
+		def get_mame_xml(self, driver):
+			if not self.have_mame:
+				raise MAMENotInstalledException()
+
+			#TODO: It would be _much_ more efficient to use a single call to -listxml with the specific driver for this purpose
+			for name, machine in iter_mame_entire_xml():
+				if name == driver:
+					return machine
+
+			raise MachineNotFoundException(driver)
+
+	__instance = None
+
+	@staticmethod
+	def getMameState():
+		if MameState.__instance is None:
+			MameState.__instance = MameState.__MameState()
+		return MameState.__instance
+
+mame_state = MameState.getMameState()
+
+def have_mame():
+	return mame_state.have_mame
+
 def iter_mame_entire_xml():
-	global _have_checked_mame_xml
-	if not _have_checked_mame_xml:
-		#Should only check once
-		_check_mame_xml_cache()
-		_have_checked_mame_xml = True
+	yield from mame_state.iter_mame_entire_xml()
 
-	for _, element in ElementTree.iterparse(mame_xml_path):
-		if element.tag == 'machine':
-			yield element.attrib['name'], copy.copy(element)
-			element.clear()
-
-#entire_mame_xml = _get_mame_entire_xml()
 def get_mame_xml(driver):
-	#Hmm I guess I don't as such need this now that I have the above, but I'd have to hunt down individual usages
-	#return ElementTree.fromstring(entire_mame_xml.get(driver))
-	for name, machine in iter_mame_entire_xml():
-		if name == driver:
-			return machine
-
-	return None
-	#TODO: Should probably raise an error here. It's always returned None, though, so I'd have to check that wouldn't break stuff
+	return mame_state.get_mame_xml(driver)
 
 def find_main_cpu(machine_xml):
 	for chip in machine_xml.findall('chip'):
@@ -299,3 +307,24 @@ def find_main_cpu(machine_xml):
 
 	#Alto I and HP 2100 have no chips, apparently.  Huh?  Oh well
 	return None
+
+def lookup_system_cpu(driver_name):
+	machine = mame_state.get_mame_xml(driver_name)
+	#Guess I'll pass the potential MAMENotInstalledException to caller
+
+	main_cpu = find_main_cpu(machine)
+	if main_cpu is not None:
+		cpu_info = CPUInfo()
+		cpu_info.load_from_xml(main_cpu)
+
+		return cpu_info
+
+	return None
+
+def lookup_system_displays(driver_name):
+	machine = mame_state.get_mame_xml(driver_name)
+
+	displays = machine.findall('display')
+	screen_info = ScreenInfo()
+	screen_info.load_from_xml_list(displays)
+	return screen_info

@@ -329,7 +329,7 @@ def add_metadata(machine):
 	machine.metadata.nsfw = nsfw
 
 	main_cpu = find_main_cpu(machine.xml)
-	if main_cpu is not None: #Why?
+	if main_cpu is not None:
 		machine.metadata.cpu_info = CPUInfo()
 		machine.metadata.cpu_info.load_from_xml(main_cpu)
 
