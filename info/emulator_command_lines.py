@@ -540,12 +540,13 @@ def mame_intellivision(game, _):
 
 	return mame_command_line(system, 'cart', has_keyboard=uses_keyboard)
 
-def mame_apple_ii(game, _):
+def mame_apple_ii(game, specific_config):
 	slot_options = {}
 	if game.metadata.specific_info.get('Uses-Mouse', False):
 		slot_options['sl4'] = 'mouse'
-	#Change to apple2p if stuff breaks, apple2 by itself doesn't autoboot things
-	return mame_command_line('apple2e', 'flop1', slot_options, True)
+	system = 'apple2e' if specific_config.get('use_iie', True) else 'apple2p'
+
+	return mame_command_line(system, 'flop1', slot_options, True)
 
 def mame_coleco_adam(game, _):
 	slot_options = {}
