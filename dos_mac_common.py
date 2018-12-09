@@ -8,8 +8,7 @@ import datetime
 
 from config import main_config, system_configs
 from metadata import Metadata
-from info.system_info import MediaType
-from info.emulator_command_lines import EmulationNotSupportedException, NotARomException
+from common_types import MediaType, EmulationNotSupportedException, NotARomException
 import launchers
 
 def init_game_list(platform):

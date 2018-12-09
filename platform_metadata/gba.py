@@ -2,7 +2,7 @@ from zlib import crc32
 
 import input_metadata
 from common import convert_alphanumeric, NotAlphanumericException
-from metadata import SaveType
+from common_types import SaveType
 from info.region_info import TVSystem
 from software_list_info import find_in_software_lists, get_crc32_for_software_list
 from .nintendo_common import nintendo_licensee_codes

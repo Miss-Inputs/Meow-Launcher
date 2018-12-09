@@ -6,15 +6,8 @@ import subprocess
 
 from config import main_config
 from platform_metadata.nes import NESPeripheral
-from .system_info import MediaType
+from common_types import MediaType, EmulationNotSupportedException, NotARomException
 from .region_info import TVSystem
-
-class EmulationNotSupportedException(Exception):
-	pass
-
-class NotARomException(Exception):
-	#File type mismatch, etc
-	pass
 
 def _get_autoboot_script_by_name(name):
 	this_package = os.path.dirname(__file__)

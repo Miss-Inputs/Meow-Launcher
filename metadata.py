@@ -1,19 +1,11 @@
 from enum import Enum, auto
 from input_metadata import InputInfo
-from info.system_info import MediaType
+from common_types import MediaType, SaveType
 
 class EmulationStatus(Enum):
 	Good = auto()
 	Imperfect = auto()
 	Broken = auto()
-	Unknown = auto()
-
-class SaveType(Enum):
-	Nothing = auto()
-	Cart = auto()
-	Floppy = auto()
-	MemoryCard = auto()
-	Internal = auto()
 	Unknown = auto()
 
 class CPUInfo():

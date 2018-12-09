@@ -1,5 +1,5 @@
 from software_list_info import get_software_list_entry
-from info.system_info import MediaType
+from common_types import MediaType
 
 def add_info_from_software_list(game, software):
 	software.add_generic_info(game)

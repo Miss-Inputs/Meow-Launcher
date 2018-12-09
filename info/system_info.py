@@ -1,17 +1,4 @@
-from enum import Enum, auto
-
-from common_types import ConfigValueType
-
-class MediaType(Enum):
-	Cartridge = auto()
-	Digital = auto()
-	Executable = auto()
-	Floppy = auto()
-	OpticalDisc = auto()
-	Tape = auto()
-	Snapshot = auto()
-	Barcode = auto()
-	Standalone = auto()
+from common_types import ConfigValueType, MediaType
 
 class SpecificConfigValue():
 	#This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno

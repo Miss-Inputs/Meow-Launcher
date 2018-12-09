@@ -3,7 +3,7 @@ import configparser
 import os
 
 import input_metadata
-from metadata import SaveType
+from common_types import SaveType
 from common import convert_alphanumeric, NotAlphanumericException
 from software_list_info import find_in_software_lists, _does_split_rom_match, get_crc32_for_software_list
 

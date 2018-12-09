@@ -14,7 +14,7 @@ import io_utils
 
 from config import system_configs, ignored_directories, main_config
 from info import system_info, emulator_info
-from info.emulator_command_lines import EmulationNotSupportedException, NotARomException
+from common_types import EmulationNotSupportedException, NotARomException
 from roms_metadata import add_engine_metadata, add_metadata
 
 class EngineFile():

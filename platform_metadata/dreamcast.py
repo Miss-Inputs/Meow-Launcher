@@ -3,7 +3,7 @@ import os
 import calendar
 
 import cd_read
-from metadata import SaveType
+from common_types import SaveType
 from .sega_common import licensee_codes
 
 gdi_regex = re.compile(r'^(?:\s+)?(?P<trackNumber>\d+)\s+(?P<unknown1>\S+)\s+(?P<type>\d)\s+(?P<sectorSize>\d+)\s+(?:"(?P<name>.+)"|(?P<name_unquoted>\S+))\s+(?P<unknown2>.+)$')

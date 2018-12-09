@@ -2,7 +2,7 @@ import calendar
 from enum import Enum, auto
 
 import input_metadata
-from metadata import SaveType
+from common_types import SaveType
 from region_detect import get_region_by_name
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry

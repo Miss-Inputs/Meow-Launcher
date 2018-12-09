@@ -1,5 +1,5 @@
 import input_metadata
-from metadata import SaveType
+from common_types import SaveType
 from config import main_config
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry

@@ -8,7 +8,8 @@ import datetime
 from config import main_config
 import launchers
 import input_metadata
-from metadata import Metadata, SaveType
+from metadata import Metadata
+from common_types import SaveType
 
 config_path = os.path.expanduser('~/.config/scummvm/scummvm.ini')
 def _get_scummvm_config():

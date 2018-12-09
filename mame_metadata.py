@@ -3,8 +3,8 @@ import sys
 
 import input_metadata
 from config import main_config
-from info.system_info import MediaType
-from metadata import EmulationStatus, CPUInfo, ScreenInfo, SaveType
+from common_types import MediaType, SaveType
+from metadata import EmulationStatus, CPUInfo, ScreenInfo
 from region_detect import get_language_by_english_name, get_regions_from_filename_tags
 from common import find_filename_tags
 from mame_helpers import find_main_cpu
