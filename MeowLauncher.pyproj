@@ -25,6 +25,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="common.py" />
+    <Compile Include="common_types.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="config.py" />
     <Compile Include="disambiguate.py">
       <SubType>Code</SubType>

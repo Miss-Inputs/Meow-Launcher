@@ -1,8 +1,8 @@
 import os
 import configparser
 import sys
-from enum import Enum, auto
 
+from common_types import ConfigValueType
 from io_utils import ensure_exist
 from info.system_info import systems, games_with_engines, computer_systems
 
@@ -61,13 +61,6 @@ def convert_value_for_ini(value):
 	if isinstance(value, list):
 		return ';'.join(value)
 	return str(value)
-
-class ConfigValueType(Enum):
-	Bool = auto()
-	Path = auto()
-	String = auto()
-	StringList = auto()
-	PathList = auto()
 
 class ConfigValue():
 	def __init__(self, section, value_type, default_value, description):
@@ -265,13 +258,13 @@ class SystemConfigs():
 		def init_configs(self):
 			self.configs = {}
 			for k, v in systems.items():
-				self.init_config(k, v.other_config_names)
+				self.init_config(k, v.specific_configs)
 			for k, v in games_with_engines.items():
-				self.init_config(k, v.other_config_names)
+				self.init_config(k, v.specific_configs)
 			for k, v in computer_systems.items():
-				self.init_config(k, v.other_config_names)
+				self.init_config(k, v.specific_configs)
 
-		def init_config(self, name, other_configs):
+		def init_config(self, name, specific_configs):
 			self.configs[name] = SystemConfig(name)
 			if name not in self.parser:
 				self.parser.add_section(name)
@@ -295,12 +288,11 @@ class SystemConfigs():
 				chosen_emulators.append(chosen_emulator)
 			self.configs[name].chosen_emulators = chosen_emulators
 
-			for specific_config_name, default_value in other_configs.items():
+			for specific_config_name, specific_config in specific_configs.items():
 				if specific_config_name not in section:
-					section[specific_config_name] = convert_value_for_ini(default_value)
+					section[specific_config_name] = convert_value_for_ini(specific_config.default_value)
 					self.rewrite_config()
-				#TODO: Should I support other data types and whatnot
-				self.configs[name].specific_config[specific_config_name] = section.get(specific_config_name, default_value)
+				self.configs[name].specific_config[specific_config_name] = parse_value(section, specific_config_name, specific_config.type, specific_config.default_value)
 
 	__instance = None
 

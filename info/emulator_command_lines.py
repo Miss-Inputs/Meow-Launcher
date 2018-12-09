@@ -482,7 +482,7 @@ def mupen64plus(game, specific_config):
 	plugin = no_plugin
 
 	if use_controller_pak and use_rumble_pak:
-		plugin = controller_pak if specific_config.get('prefer_controller_pak_over_rumble', 'no') == 'yes' else rumble_pak
+		plugin = controller_pak if specific_config.get('prefer_controller_pak_over_rumble', False) else rumble_pak
 	elif use_controller_pak:
 		plugin = controller_pak
 	elif use_rumble_pak:
@@ -579,7 +579,7 @@ def vice(game, specific_config):
 
 	platform = game.metadata.platform
 	if platform in ('C64', 'C64GS'):
-		executable = 'x64' if specific_config.get('use_fast_c64', 'no') == 'yes' else 'x64sc'
+		executable = 'x64' if specific_config.get('use_fast_c64', False) else 'x64sc'
 		fullscreen_option = '-VICIIfull'
 
 		if game.metadata.tv_type == TVSystem.NTSC:
@@ -644,7 +644,7 @@ def basilisk_ii(app, specific_config):
 	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that. Okay, so I don't want that.
 	#Ideally, HFS manipulation would be powerful enough that we could just slip an alias into the Startup Items folder ourselves and delete it afterward. That doesn't fix the problem of automatically shutting down (still need a script for that), unless we don't create an alias at all and we create a script or something on the fly that launches that path and then shuts down, but yeah. Stuff and things.
 	autoboot_txt_path = os.path.join(specific_config['shared_folder'], 'autoboot.txt')
-	width = specific_config.get('default_width', 1920)
+	width = specific_config.get('default_width', 1920) #TODO Check the type to make sure it is int and use it as such. Right now, it's actually a string representing an int
 	height = specific_config.get('default_height', 1080)
 	if 'max_resolution' in app.config:
 		width, height = app.config['max_resolution']
@@ -685,7 +685,7 @@ def _make_dosbox_config(app, specific_config):
 		if 'for_xt' in app.config['required_hardware']:
 			if app.config['required_hardware']['for_xt']:
 				configwriter['cpu'] = {}
-				configwriter['cpu']['cycles'] = specific_config.get('slow_cpu_cycles', 400)
+				configwriter['cpu']['cycles'] = specific_config.get('slow_cpu_cycles', 477)
 
 		if 'max_graphics' in app.config['required_hardware']:
 			configwriter['dosbox'] = {}
