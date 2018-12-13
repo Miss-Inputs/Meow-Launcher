@@ -17,7 +17,6 @@ def _byteswap(b):
 
 _mupen64plus_database = None
 def get_mupen64plus_database():
-	#Fuck you what else am I supposed to do here
 	global _mupen64plus_database
 	if _mupen64plus_database:
 		return _mupen64plus_database
