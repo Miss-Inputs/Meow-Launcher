@@ -190,6 +190,7 @@
     <Content Include="mame_autoboot\tomy_tutor.lua" />
     <Content Include="name_consistency.ini" />
     <Content Include="README.md" />
+    <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="info\" />
