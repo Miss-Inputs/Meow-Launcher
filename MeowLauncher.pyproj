@@ -186,7 +186,7 @@
     <Content Include=".leu" />
     <Content Include=".pylintrc" />
     <Content Include="LICENSE" />
-    <Content Include="LICENSE-thirdparty" />
+    <Content Include="third-party-copyright-stuff.txt" />
     <Content Include="mame_autoboot\tomy_tutor.lua" />
     <Content Include="name_consistency.ini" />
     <Content Include="README.md" />

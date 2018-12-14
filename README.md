@@ -82,6 +82,4 @@ In future I want to make a GUI frontend myself but I haven't yet.
 
 Use [this](https://gist.github.com/Zowayix/f511490865bc5aa8a66ad0776ae066df) to regenerate nintendo_licensee_codes from ROMniscience's source if you need to (adjusting the local path to the source file accordingly). Not that anyone would probably want this project if I got hit by a bus, but maybe someone wants to know how to do that. I'm not cool enough to have any sort of automated build steps or whatever.
 
-(See LICENSE-thirdparty for third party stuff used)
-
 That's all for this readme, keep on meowing gamers
