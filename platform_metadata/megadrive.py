@@ -107,6 +107,25 @@ def add_megadrive_info(game, header):
 
 	#Hmm... get regions from [0xfd:0xff] or nah
 
+def get_smd_header(game):
+	#Just get the first block which is all that's needed for the header, otherwise this would be a lot more complicated (just something to keep in mind if you ever need to convert a whole-ass .smd ROM)
+	block = game.rom.read(seek_to=512, amount=16384)
+
+	buf = bytearray(16386)
+	midpoint = 8192
+	even = 1 #Hmm, maybe I have these the wrong way around
+	odd = 2
+
+	for i, b in enumerate(block):
+		if i <= midpoint:
+			buf[even] = b
+			even += 2
+		else:
+			buf[odd] = b
+			odd += 2
+
+	return bytes(buf[0x100:0x200])
+
 def add_megadrive_metadata(game):
 	if game.rom.extension == 'cue':
 		first_track, sector_size = cd_read.get_first_data_cue_track(game.rom.path)
@@ -117,6 +136,8 @@ def add_megadrive_metadata(game):
 			header = cd_read.read_mode_1_cd(first_track, sector_size, 0x100, 0x100)
 		except NotImplementedError:
 			return
+	elif game.rom.extension == 'smd':
+		header = get_smd_header(game)
 	else:
 		header = game.rom.read(0x100, 0x100)
 
