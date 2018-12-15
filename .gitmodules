@@ -1,0 +1,3 @@
+[submodule "steamfiles"]
+	path = steamfiles
+	url = https://github.com/leovp/steamfiles
