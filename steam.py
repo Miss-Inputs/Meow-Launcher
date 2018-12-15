@@ -1,6 +1,8 @@
 import os
 import glob
 import zipfile
+import time
+import datetime
 
 try:
 	#Have to import it like this, because the directory is inside another directory
@@ -279,6 +281,8 @@ def process_steam():
 	if not is_steam_available:
 		return
 
+	time_started = time.perf_counter()
+
 	for library_folder in get_steam_library_folders():
 		acf_files = glob.glob(os.path.join(library_folder, 'steamapps', '*.acf'))
 		for acf_file_path in acf_files:
@@ -300,6 +304,11 @@ def process_steam():
 			#UserConfig might be interesting... normally it just has a key 'language' which is set to 'english' etc, sometimes duplicating name and app_id as 'gameid' for no reason, but also has things like 'lowviolence': '1' inside Left 4 Dead 2 for example (because I'm Australian I guess), so... well, I just think that's kinda neat, although probably not useful for our purposes here; also for TF2 it has 'betakey': 'prerelease' so I guess that has to do with opt-in beta programs
 			#Anyway I don't think we need any of that for now
 			process_game(app_id, name)
+
+	if main_config.print_times:
+		time_ended = time.perf_counter()
+		print('Steam finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+
 
 if __name__ == '__main__':
 	process_steam()
