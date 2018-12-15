@@ -114,7 +114,7 @@ tests = [
 	Test("TOSEC filename with region", "Cool Game (1992)(CoolSoft)(JP)", ['Japan'], ['Japanese'], TVSystem.NTSC),
 	Test("TOSEC filename with two regions", "Cool Game (1992)(CoolSoft)(JP-US)", ['Japan', 'USA'], None, TVSystem.NTSC),
 	Test("TOSEC filename with two regions with same language", "Cool Game (1992)(CoolSoft)(EU-AU)", ['Europe', 'Australia'], ['English'], TVSystem.PAL),
-	Test("TOSEC filename with language but no region", "Cool Game (1992)(CoolSoft)(pt)", None, ['Portugese'], None),
+	Test("TOSEC filename with language but no region", "Cool Game (1992)(CoolSoft)(pt)", None, ['Portuguese'], None),
 	Test("TOSEC filename with two languages but no region", "Cool Game (1992)(CoolSoft)(en-fr)", None, ['English', 'French'], None),
 	Test("TOSEC filename with region and language", "Cool Game (1992)(CoolSoft)(JP)(en)", ['Japan'], ['English'], TVSystem.NTSC),
 	Test("TOSEC filename with region and two languages", "Cool Game (1992)(CoolSoft)(JP)(en-fr)", ['Japan'], ['English', 'French'], TVSystem.NTSC),
