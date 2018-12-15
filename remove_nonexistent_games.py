@@ -10,6 +10,7 @@ from launchers import get_desktop, get_field
 import mame_machines
 import scummvm
 import mac
+import steam
 
 def remove_nonexistent_games():
 	#If not doing a full rescan, we want to remove games that are no longer there
@@ -36,6 +37,8 @@ def remove_nonexistent_games():
 			should_remove = mac.no_longer_exists(game_id)
 		elif game_type == 'ScummVM':
 			should_remove = scummvm.no_longer_exists(game_id)
+		elif game_type == 'Steam':
+			should_remove = steam.no_longer_exists(game_id)
 		#Hmm, not sure what I should do if game_type is unrecognized. I guess ignore it, it might be from somewhere else and therefore not my business
 
 		if should_remove:

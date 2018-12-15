@@ -288,6 +288,31 @@ def process_game(app_id, name=None):
 
 	game.make_launcher()
 
+def no_longer_exists(appid):
+	if not is_steam_available():
+		#I guess if you uninstalled Steam then you're not gonna play any Steam games, huh
+		return False
+
+	for library_folder in get_steam_library_folders():
+		acf_files = glob.glob(os.path.join(library_folder, 'steamapps', '*.acf'))
+		for acf_file_path in acf_files:
+			with open(acf_file_path, 'rt') as acf_file:
+				app_manifest = acf.load(acf_file)
+			app_state = app_manifest.get('AppState')
+			if not app_state:
+				continue
+
+			app_id = app_state.get('appid')
+			if app_id is None:
+				#Yeah we need that
+				continue
+
+			if app_id == appid:
+				return False
+
+	return True
+
+
 def process_steam():
 	if not is_steam_available:
 		return
@@ -309,6 +334,11 @@ def process_steam():
 			if app_id is None:
 				#Yeah we need that
 				continue
+
+			if not main_config.full_rescan:
+				if launchers.has_been_done('Steam', app_id):
+					continue
+
 			name = app_state.get('name')
 			#installdir is the subfolder of library_folder/steamapps/common where the game is actually located, if that's ever useful
 			#StateFlags probably has something to do with whether it's actually currently installed or not, seems to be just 4, maybe other values indicate it's in the middle of downloading or stuff like that
