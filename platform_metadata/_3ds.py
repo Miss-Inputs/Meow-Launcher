@@ -9,7 +9,7 @@ import os
 import input_metadata
 from info.region_info import TVSystem
 from metadata import CPUInfo, ScreenInfo, Screen
-from common import convert_alphanumeric, NotAlphanumericException
+from common import convert_alphanumeric, NotAlphanumericException, junk_suffixes
 from common_types import SaveType
 from .nintendo_common import nintendo_licensee_codes
 
@@ -24,7 +24,7 @@ consistentified_manufacturers = {
 	'SEGA': 'Sega',
 	'Unspecified Author': None, #Homebrew might do this
 	'VD-DEV': 'VD-Dev',
-	'YouTube Inc.': 'Google', #Maybe I should change nintendo_common WB to YouTube. Oh well. Either way, this is the YouTube app, and hence Google
+	'YouTube': 'Google', #Maybe I should change nintendo_common WB to YouTube. Oh well. Either way, this is the YouTube app, and hence Google
 }
 
 def add_3ds_system_info(game):
@@ -182,6 +182,7 @@ def parse_smdh_data(game, smdh):
 		english_publisher_offset = 8 + (128 + 256 + 128) + 128 + 256 #After Japanese title data, English short title, English long title
 		try:
 			publisher = smdh[english_publisher_offset: english_publisher_offset + 0x80].decode('utf16').rstrip('\0')
+			publisher = junk_suffixes.sub('', publisher)
 			game.metadata.publisher = consistentified_manufacturers.get(publisher, publisher)
 		except UnicodeDecodeError:
 			pass
