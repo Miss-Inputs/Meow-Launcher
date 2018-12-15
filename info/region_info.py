@@ -44,7 +44,7 @@ languages = [
 	Language('Spanish', 'Español', 'Es'),
 	Language('Italian', 'Italiano', 'It'),
 	Language('Dutch', 'Nederlands', 'Nl'),
-	Language('Portugese', 'Português', 'Pt'),
+	Language('Portuguese', 'Português', 'Pt'),
 	Language('Swedish', 'Svenska', 'Sv'),
 	Language('Norwegian', 'Norsk', 'No'),
 	Language('Danish', 'Dansk', 'Da'),
