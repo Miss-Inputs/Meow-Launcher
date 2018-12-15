@@ -3,7 +3,6 @@ import glob
 import zipfile
 import time
 import datetime
-import re
 
 try:
 	#Have to import it like this, because the directory is inside another directory
@@ -14,6 +13,7 @@ except ModuleNotFoundError:
 	have_steamfiles = False
 
 from config import main_config
+from common import junk_suffixes
 from common_types import MediaType
 import region_detect
 import launchers
@@ -161,8 +161,6 @@ def translate_language_list(languages):
 
 	return langs
 
-#Kft. might also be a junk suffix?
-junk_suffixes = re.compile(r'(?:(?:,)? (?:Inc|LLC)|(?:Co.)?(?:,)? Ltd)(?:\.)?$')
 def normalize_developer(dev):
 	dev = junk_suffixes.replace('', dev)
 

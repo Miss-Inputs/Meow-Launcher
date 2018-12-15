@@ -6,6 +6,7 @@ import copy
 
 from metadata import CPUInfo, ScreenInfo
 from config import cache_dir
+from common import junk_suffixes
 
 def consistentify_manufacturer(manufacturer):
 	#Sometimes, MAME uses two different variations on what is the same exact company. Or formats the name in a way that nobody else does anywhere else.
@@ -14,8 +15,7 @@ def consistentify_manufacturer(manufacturer):
 	#If only there was some consistent guidelines to follow in this, and nintendo_common/sega_common/wonderswan etc...
 
 	#Anyway. Some of these are bit... contentious? Is that the right word? Like, some of these are definitely different ways of spelling the same company and that's definitely a valid thing to deal with, but then some of these might well just be different brands used by the same company, because companies are weird like that. So at some point I'll probably need to clean this up. Hmm...
-
-	#Maybe I should remove ", Inc." "Co Ltd." at the end of stuff automatically, and... hmm
+	#Yeah let's make this a big TODO to verify what formatting companies actually use themselves
 
 	#TODO: Are ATW > ATW USA Inc. the same or a regional branch?
 	#Should NEC Avenue just be called NEC?
@@ -31,20 +31,19 @@ def consistentify_manufacturer(manufacturer):
 	#The SNES game Super Godzilla (USA) has a publisher of literally "Super Godzilla". Wait what? That can't be right. Should be Toho right? Same with Tetris (Japan) for Megadrive. Unless they meant The Tetris Company there.
 	#Leave Atari Games > Atari and Midway Games > Midway alone, because if I try to comperehend the timeline of which is what and who owned the rights to which brand name and who owned who at any given time, I would die of confusion
 	#Marvelous Entertainment and Marvelous Interactive also are different (due to mergers) and I gotta remember that
+	manufacturer = junk_suffixes.sub('', manufacturer)
+
 	return {
 		'20th Century Fox Video Games': '20th Century Fox',
 		'Absolute': 'Absolute Entertainment',
-		'Absolute Entertainment, Inc': 'Absolute Entertainment',
-		'Absolute Entertainment, Inc.': 'Absolute Entertainment',
 		'Acclaim Entertainment': 'Acclaim',
 		'Alpha Denshi Co.': 'ADK', #Renamed in 1993, but let's not make this confusing
 		'American Softworks Company': 'American Softworks',
-		'Apple Computer, Inc.': 'Apple Computer',
 		'ASCII Entertainment': 'ASCII',
 		'Atarisoft': 'Atari', #Atarisoft is just a brand name and not an actual company, so I guess I'll do this
 		'Bally Gaming Co.': 'Bally',
 		'BPS': 'Bullet-Proof Software', #I hope nobody else uses that acronym
-		'Brøderbund Software Inc': 'Brøderbund',
+		'Brøderbund Software': 'Brøderbund',
 		'California Pacific Computer': 'California Pacific',
 		'Coconuts Japan Entertainment': 'Coconuts Japan',
 		'Creative Software': 'Creative', #Gonna guess this isn't the sound card company. Would be an interesting predicament if they made software that was in the software lists, huh
@@ -67,7 +66,6 @@ def consistentify_manufacturer(manufacturer):
 		'HAL Laboratory': 'HAL',
 		'Hasbro Interactive': 'Hasbro',
 		'HiCom': 'Hi-Com',
-		'Hot-B Co., Ltd.': 'Hot-B',
 		'Hudson': 'Hudson Soft',
 		'Human Entertainment': 'Human',
 		'International Business Machines': 'IBM',
@@ -82,13 +80,13 @@ def consistentify_manufacturer(manufacturer):
 		'Mattel Media': 'Mattel',
 		'MicroCabin': 'Micro Cabin', #Annoying alternate spelling because they officially use both just to be annoying
 		'Microlab': 'Micro Lab',
-		'Microprose Games Inc.': 'MicroProse',
+		'Microprose Games': 'MicroProse',
 		'NEC Home Electronics': 'NEC',
 		'Nihon Telenet': 'Telenet', #I guess
 		'Nihon Bussan': 'Nichibutsu', #C'mon, use their preferred name
 		'Ocean Software': 'Ocean',
-		'Omage Micott, Inc.': 'Omega Micott', #I have a feeling I'm the one who's wrong here. Never did quality check the Wonderswan licensees
-		'Omori Electric Co., Ltd.': 'Omori',
+		'Omage Micott': 'Omega Micott', #I have a feeling I'm the one who's wrong here. Never did quality check the Wonderswan licensees
+		'Omori Electric': 'Omori',
 		'Palm Inc': 'Palm',
 		'Playmates Interactive': 'Playmates',
 		'PonyCa': 'Pony Canyon',
@@ -97,7 +95,7 @@ def consistentify_manufacturer(manufacturer):
 		'Seta Corporation': 'Seta',
 		'Sierra Entertainment': 'Sierra',
 		'Sierra On-Line': 'Sierra',
-		'Sigma Enterprises Inc.': 'Sigma', #Every time I see this line I keep thinking "sigma balls", just thought you should know
+		'Sigma Enterprises': 'Sigma', #Every time I see this line I keep thinking "sigma balls", just thought you should know
 		'Software Toolworks': 'The Software Toolworks', #It doesn't seem right that the "correct" one is the latter, but it's used more often, so I guess it is
 		'Spinnaker Software': 'Spinnaker',
 		'Spinnaker Software Corp': 'Spinnaker',
@@ -106,7 +104,7 @@ def consistentify_manufacturer(manufacturer):
 		'Taito Corporation': 'Taito',
 		'Taito Corporation Japan': 'Taito',
 		'Taito America Corporation': 'Taito America',
-		'TecMagik Entertainment Ltd.': 'TecMagik',
+		'TecMagik Entertainment': 'TecMagik',
 		'T*HQ': 'THQ', #Why.
 		'Titus Software': 'Titus',
 		'UA Ltd.': 'UA Limited', #MAME uses the former (for Arcadia 2001 lists), Stella uses the latter in its database
@@ -163,9 +161,8 @@ def consistentify_manufacturer(manufacturer):
 		'Elite System': 'Elite Systems',
 		'enix': 'Enix',
 		'EPYX': 'Epyx',
-		'GTC Inc.': 'GTC Inc',
 		'Hi Tech Expressions': 'Hi-Tech Expressions',
-		'Jungle\'s Soft - Ultimate Products (HK) Ltd': 'Jungle Soft - Ultimate Products (HK) Ltd',
+		'Jungle\'s Soft - Ultimate Products (HK)': 'Jungle Soft - Ultimate Products (HK)',
 		'Microprose': 'MicroProse',
 		'Mindscapce': 'Mindscape', #Yeah okay, that _definitely_ is a typo
 		'Pack-In-Video': 'Pack-In Video',
