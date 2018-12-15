@@ -3,6 +3,7 @@ import glob
 import zipfile
 import time
 import datetime
+import re
 
 try:
 	#Have to import it like this, because the directory is inside another directory
@@ -160,6 +161,19 @@ def translate_language_list(languages):
 
 	return langs
 
+#Kft. might also be a junk suffix?
+junk_suffixes = re.compile(r'(?:(?:,)? (?:Inc|LLC)|(?:Co.)?(?:,)? Ltd)(?:\.)?$')
+def normalize_developer(dev):
+	dev = junk_suffixes.replace('', dev)
+
+	overrides = {
+		'SEGA': 'Sega',
+		'BANDAI NAMCO Entertainment': 'Bandai Namco',
+	}
+	if dev in overrides:
+		return overrides[dev]
+	return dev
+
 def add_metadata_from_appinfo(game):
 	game_app_info = steam_state.app_info.get(game.app_id)
 	if game_app_info is None:
@@ -228,13 +242,12 @@ def add_metadata_from_appinfo(game):
 
 	extended = app_info_section.get(b'extended')
 	if extended:
-		#TODO: Normalize these, like SEGA > Sega (I don't like yelling case)
 		developer = extended.get(b'developer')
 		if developer:
-			game.metadata.developer = developer.decode('utf-8', errors='backslashreplace')
+			game.metadata.developer = normalize_developer(developer.decode('utf-8', errors='backslashreplace'))
 		publisher = extended.get(b'publisher')
 		if publisher:
-			game.metadata.publisher = publisher.decode('utf-8', errors='backslashreplace')
+			game.metadata.publisher = normalize_developer(publisher.decode('utf-8', errors='backslashreplace'))
 
 		homepage = extended.get(b'homepage')
 		if homepage:
