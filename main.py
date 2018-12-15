@@ -13,6 +13,7 @@ import mac
 import scummvm
 import dos
 import remove_nonexistent_games
+import steam
 from mame_helpers import have_mame
 
 from config import main_config
@@ -38,6 +39,8 @@ mac.make_mac_launchers()
 dos.make_dos_launchers()
 
 scummvm.add_scummvm_games()
+
+steam.process_steam()
 
 if not main_config.full_rescan:
 	remove_nonexistent_games.remove_nonexistent_games()
