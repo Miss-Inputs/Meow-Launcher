@@ -23,14 +23,18 @@ class SteamState():
 		def __init__(self):
 			self.steamdir = self.find_steam_dir()
 			if self.is_steam_installed:
-				with open(self.app_info_path, 'rb') as app_info_file:
-					try:
-						self.app_info = appinfo.load(app_info_file)
-						self.app_info_available = True
-					except ValueError:
-						#This will be thrown by steamfiles.appinfo if the appinfo.vdf structure is different than expected, which apparently has happened in earlier versions of it, so I should probably be prepared for that
-						self.app_info = None
-						self.app_info_available = False
+				try:
+					with open(self.app_info_path, 'rb') as app_info_file:
+						try:
+							self.app_info = appinfo.load(app_info_file)
+							self.app_info_available = True
+						except ValueError:
+							#This will be thrown by steamfiles.appinfo if the appinfo.vdf structure is different than expected, which apparently has happened in earlier versions of it, so I should probably be prepared for that
+							self.app_info = None
+							self.app_info_available = False
+				except FileNotFoundError:
+					self.app_info = None
+					self.app_info_available = False
 			else:
 				self.app_info = None
 				self.app_info_available = False
