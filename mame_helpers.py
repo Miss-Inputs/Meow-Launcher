@@ -9,6 +9,8 @@ from config import cache_dir
 from common import junk_suffixes
 
 def consistentify_manufacturer(manufacturer):
+	if not manufacturer:
+		return None
 	#Sometimes, MAME uses two different variations on what is the same exact company. Or formats the name in a way that nobody else does anywhere else.
 	#I'm not going to count regional branches of a company, though. Just kinda feel like I should leave that stuff untouched.
 	#Sometimes I don't know which out of the two variations is what I should go with... I just want only one of them. If any people out there are experts on the field of company names, then by all means tell me off.
