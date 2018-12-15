@@ -243,6 +243,7 @@ def add_metadata_from_appinfo(game):
 def process_game(app_id, name=None):
 	if not name:
 		name = '<unknown game {0}>'.format(app_id)
+	name = name.replace('™', '')
 	#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
 	try:
 		app_id = int(app_id)
