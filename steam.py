@@ -113,8 +113,8 @@ def look_for_icon(icon_hash):
 
 def translate_language_list(languages):
 	langs = []
-	for language_name, v in languages.items():
-		#v is an Integer object but it's always 1, I dunno what the 0 means
+	for language_name, _ in languages.items():
+		#value is an Integer object but it's always 1, I dunno what the 0 means, because it's like, if the language isn't there, it just wouldn't be in the dang list anyway
 		language_name = language_name.decode('utf-8', errors='backslashreplace')
 		#TODO!!! Add these to region_info
 		#tchinese: Traditional Chinese
@@ -185,14 +185,14 @@ def add_metadata_from_appinfo(game):
 		if language_list:
 			game.metadata.languages = translate_language_list(language_list)
 
-		type = common.get(b'type', b'Unknown').decode('utf-8', errors='backslashreplace')
-		if type in ('game', 'Game'):
+		category = common.get(b'type', b'Unknown').decode('utf-8', errors='backslashreplace')
+		if category in ('game', 'Game'):
 			#This makes the categories like how they are with DOS/Mac
 			game.metadata.categories = ['Games']
-		elif type == 'Tool':
+		elif category == 'Tool':
 			game.metadata.categories = ['Applications']
 		else:
-			game.metadata.categories = [type]
+			game.metadata.categories = [category]
 
 		has_adult_content = common.get(b'has_adult_content') #Integer object with data = 0 or 1, as most bools here seem to be
 		game.metadata.nsfw = False if has_adult_content is None else bool(has_adult_content.data)
@@ -225,7 +225,7 @@ def add_metadata_from_appinfo(game):
 
 def process_game(app_id, name=None):
 	if not name:
-		name =  '<unknown game {0}>'.format(app_id)
+		name = '<unknown game {0}>'.format(app_id)
 	#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
 	try:
 		app_id = int(app_id)
