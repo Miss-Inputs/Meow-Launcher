@@ -126,7 +126,7 @@ def look_for_icon(icon_hash):
 
 				#Get the biggest image file and assume that's the best icon we can have
 				extracted_icon_file = sorted(icon_files, key=lambda zip_info: zip_info.file_size, reverse=True)[0]
-				extracted_icon_folder = os.path.join(main_config.icon_folder, icon_hash)
+				extracted_icon_folder = os.path.join(main_config.icon_folder, 'extracted_from_zip', icon_hash)
 				return zip_file.extract(extracted_icon_file, path=extracted_icon_folder)
 
 	return None
