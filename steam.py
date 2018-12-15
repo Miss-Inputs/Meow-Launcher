@@ -1,5 +1,6 @@
 import os
 import glob
+import zipfile
 
 try:
 	#Have to import it like this, because the directory is inside another directory
@@ -105,9 +106,26 @@ def look_for_icon(icon_hash):
 	for icon_file in os.listdir(steam_state.icon_folder):
 		icon_path = os.path.join(steam_state.icon_folder, icon_file)
 
-		if icon_file.lower() in (icon_hash + '.ico', icon_hash + '.png'):
-			return icon_path
-		#TODO!!!! Do icons in zip files, I guess you could just use Pillow to load it in, but like... ehhh....
+		if icon_file.lower() in (icon_hash + '.ico', icon_hash + '.png', icon_hash + '.zip'):
+			if not zipfile.is_zipfile(icon_path):
+				#Can't just rely on the extension because some zip files like to hide and pretend to be .ico files for some reason
+				return icon_path
+
+			with zipfile.ZipFile(icon_path, 'r') as zip_file:
+				icon_files = []
+				for zip_info in zip_file.infolist():
+					if zip_info.is_dir():
+						continue
+					if zip_info.filename.startswith('__MACOSX'):
+						#Yeah that happens with retail Linux games apparently
+						continue
+					if zip_info.filename.lower().endswith(('.ico', '.png')):
+						icon_files.append(zip_info)
+
+				#Get the biggest image file and assume that's the best icon we can have
+				extracted_icon_file = sorted(icon_files, key=lambda zip_info: zip_info.file_size, reverse=True)[0]
+				extracted_icon_folder = os.path.join(main_config.icon_folder, icon_hash)
+				return zip_file.extract(extracted_icon_file, path=extracted_icon_folder)
 
 	return None
 
