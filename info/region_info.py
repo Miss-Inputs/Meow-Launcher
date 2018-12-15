@@ -65,13 +65,21 @@ languages = [
 	Language('Romanian', 'Română', 'Ro'),
 	Language('Croatian', 'Hrvatski jezik', 'Hr'),
 	Language('Slovak', 'Slovenčina', 'Sk'),
+	Language('Thai', 'ไทย', 'Th'),
+	Language('Bulgarian', 'български език', 'Bg'),
+
+	#This doesn't really have a language code since it's sorta like... a different writing system and not really a different language (I am not a cunning linguist so I have probably described this all wrong), but anyway, some things have Traditional localizations and some have Simplified, so it'll be a separate thing
+	Language('Traditional Chinese', '漢語', None),
+	#This is Portuguese rather than an entirely different language, but I guess there are games with both Brazilian and Portuguese translations, so this is here to help that happen
+	Language('Brazilian Portguese', 'Português do Brasil', None),
 ]
 
 regions = [
 	Region('Argentina', 'AR', TVSystem.PAL, 'Spanish'),
 	Region('Asia', 'AS', TVSystem.Indeterminate, None),
 	Region('Australia', 'AU', TVSystem.PAL, 'English'),
-	Region('Brazil', 'BR', TVSystem.NTSC, 'Portugese'), #Uses PAL-M actually, but that's effectively NTSC
+	Region('Brazil', 'BR', TVSystem.NTSC, 'Brazilian Portguese'), #Uses PAL-M actually, but that's effectively NTSC
+	Region('Bulgaria', 'BG', TVSystem.PAL, 'Bulgarian'),
 	Region('Canada', 'CA', TVSystem.NTSC, None), #Might have English or French
 	Region('China', 'CN', TVSystem.PAL, 'Chinese'),
 	Region('Czech Republic', 'CZ', TVSystem.PAL, 'Czech'),
@@ -95,7 +103,8 @@ regions = [
 	Region('Russia', 'RU', TVSystem.PAL, 'Russian'),
 	Region('Spain', 'ES', TVSystem.PAL, 'Spanish'),
 	Region('Sweden', 'SE', TVSystem.PAL, 'Swedish'),
-	Region('Taiwan', 'TW', TVSystem.NTSC, 'Chinese'),
+	Region('Taiwan', 'TW', TVSystem.NTSC, 'Traditional Chinese'),
+	Region('Thailand', 'TH', TVSystem.PAL, 'Thai'),
 	Region('Turkey', 'TR', TVSystem.PAL, 'Turkish'),
 	Region('UK', 'GB', TVSystem.PAL, 'English'),
 	Region('USA', 'US', TVSystem.NTSC, 'English'),

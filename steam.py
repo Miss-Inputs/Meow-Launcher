@@ -116,24 +116,23 @@ def translate_language_list(languages):
 	for language_name, _ in languages.items():
 		#value is an Integer object but it's always 1, I dunno what the 0 means, because it's like, if the language isn't there, it just wouldn't be in the dang list anyway
 		language_name = language_name.decode('utf-8', errors='backslashreplace')
-		#TODO!!! Add these to region_info
-		#tchinese: Traditional Chinese
-		#Brazilian
-		#Thai
-		#Bulgarian
-		#Latam
+		#'latam' might be Latin American Spanish? Not sure
 		if language_name == 'koreana':
 			#Not sure what the difference is there with normal Korean
 			langs.append(region_detect.get_language_by_english_name('Korean'))
 		elif language_name == 'schinese':
 			#Simplified Chinese, which I probably shouldn't call just Chinese
 			langs.append(region_detect.get_language_by_english_name('Chinese'))
+		elif language_name == 'tchinese':
+			langs.append(region_detect.get_language_by_english_name('Traditional Chinese'))
+		elif language_name == 'brazilian':
+			langs.append(region_detect.get_language_by_english_name('Brazilian Portugese'))
 		else:
 			language = region_detect.get_language_by_english_name(language_name, case_insensitive=True)
 			if language:
 				langs.append(language)
-			#elif main_config.debug:
-			#	print('Unknown language:', language_name)
+			elif main_config.debug:
+				print('Unknown language:', language_name)
 
 	return langs
 
