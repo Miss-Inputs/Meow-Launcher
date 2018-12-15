@@ -195,7 +195,6 @@ def add_metadata_from_appinfo(game):
 		#oslist and osarch may come in handy (former is comma separated windows/macos/linux; latter is b'64' or purrsibly b'32')
 		#openvrsupport, controllervr, othervrsupport, othervrsupport_rift_13 could have something to do with games that support VR
 		#eulas is a list, so it could be used to detect if game has third-party EULA
-		#controller_support 'full' 'partial' could be used to do metadata.input_type maybe
 		#small_capsule and header_image refer to image files that don't seem to be there so I dunno
 		#store_tags would be useful for genre if they weren't all '9': Integer(size = 32, data = 4182) and I have no idea what a 4182 means and if it requires connecting to the dang web then nah thanks
 		#workshop_visible and community_hub_visible could also tell you stuff about if the game has a workshop and a... community hub
@@ -221,6 +220,9 @@ def add_metadata_from_appinfo(game):
 			#Well why not
 			game.metadata.specific_info['Metacritic-Score'] = metacritic_score.data
 
+		#TODO: Probably can't do input_info with this, but maybe use EmulationStatus enum to do Good (full) Imperfect (partial) Broken (none)
+		game.metadata.specific_info['Controlller-Support'] = common.get(b'controller_support', b'none').decode('utf-8', errors='backslashreplace')
+
 	extended = app_info_section.get(b'extended')
 	if extended:
 		#TODO: Normalize these, like SEGA > Sega (I don't like yelling case)
@@ -230,12 +232,22 @@ def add_metadata_from_appinfo(game):
 		publisher = extended.get(b'publisher')
 		if publisher:
 			game.metadata.publisher = publisher.decode('utf-8', errors='backslashreplace')
-		#homepage is a URL that sometimes is filled in, might be cool; there's also developer_url for the developer's website
+
+		homepage = extended.get(b'homepage')
+		if homepage:
+			game.metadata.specific_info['URL'] = homepage.decode('utf-8', errors='backslashreplace')
+		developer_url = extended.get(b'developer_url')
+		if developer_url:
+			game.metadata.specific_info['Author-URL'] = developer_url.decode('utf-8', errors='backslashreplace')
+		gamemanualurl = extended.get(b'gamemanualurl')
+		if gamemanualurl:
+			game.metadata.specific_info['Manual-URL'] = gamemanualurl.decode('utf-8', errors='backslashreplace')
 		#icon is either blank or something like 'steam/games/icon_garrysmod' which doesn't exist so no icon for you (not that way)
 		#order and noservers seem like they might mean something, but I dunno what
-		#state = eStateAvailable verifies that it is indeed available
+		#state = eStateAvailable verifies that it is indeed available (wait maybe it doesn't)
 		#vrheadsetstreaming and listofdlc might be useful (the latter is a comma separated list of AppIDs for each DLC in existence for this game)
 		#mustownapptopurchase: If present, appID of a game that you need to buy first (parent of DLC, or something like Source SDK Base for Garry's Mod, etc)
+		#dependantonapp: Probably same sort of thing, like Half-Life: Opposing Force is dependent on original Half-Life
 
 	#The config section would actually tell us the executable and arguments used to actually launch the game. It's probably not a good idea to do that directly though, mostly because some games are DRM'd to Steam, so it's probably a good idea to go through the Steam client like we are now.
 	#Although I guess that would allow us to detect if a game is just a wrapper for going through another launcher, like Origin or uPlay or whatevs, but yeah
