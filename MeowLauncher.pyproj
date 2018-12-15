@@ -181,6 +181,9 @@
     <Compile Include="scummvm.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="steam.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include=".leu" />
