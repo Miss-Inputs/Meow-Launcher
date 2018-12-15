@@ -1,2 +1,2 @@
-Pillow [icons]
+Pillow >= 5.2.0 [icons]
 steamfiles >= 0.1.2 [Steam]
