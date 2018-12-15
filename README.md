@@ -15,7 +15,10 @@ It's not intended to be hard to use, it just hasn't been made easier to use yet.
 
 The other neat tricks are that it will automatically get metadata from the games where it can, not using any weird internet service that may disappear or have restrictions on usage, but from what's inside the games themselves. Also it will automatically figure out which emulator (where emulation is applicable) is the best one to use for a given game, out of the emulators you selected.
 
-No special trickery should be required for installation, you just kinda put it in whichever folder you feel like putting it in. Pretty sure no external libraries are required, but Pillow is recommended so you can extract icons from games that have embedded icons (DS, 3DS, etc). Everyone loves icons.
+No special trickery should be required for installation, you just kinda put it in whichever folder you feel like putting it in. Shouldn't really require external libraries, but you can look at requirements.txt for optional stuff, or I'll tell you that here:
+- Pillow: For extracting embedded icons from things (DS, 3DS, etc)
+- steamfiles: Required to add Steam games
+- hfsutils: For Mac games to work, will need to be in the path somewhere. Sorry
 
 These config files will appear in ~/.config/MeowLauncher (see also config.py config_dir for where that's set) with default values, once anything is ran for the first time (see --refresh-config below), and then you... edit them. Ideally I want to make some kind of configurator, but that'd be a separate thing:
 - config.ini
@@ -67,8 +70,10 @@ Sources of games:
 - mac.py
   - Mac software, stored in a hard disk image (because that's how you would generally want to do this). 
   - This is the part that sucks the most, because right now you need a script inside the Mac boot disk to read from the shared folder (so you need an emulator that supports that too) and automatically boot stuff...
-  - Requires hfsutils. Yeah....
   - Also requires you to run this module with the --scan argument.
+- steam.py
+  - Steam games (running natively on Linux/with Steam Play), if you have it installed.
+  - Not the non-Steam game shortcuts, it'd be asking for trouble.
 
 Other places of interest:  
 - disambiguate.py
