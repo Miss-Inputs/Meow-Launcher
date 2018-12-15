@@ -13,9 +13,11 @@ def get_language_by_short_code(code):
 
 	return None
 
-def get_language_by_english_name(name):
+def get_language_by_english_name(name, case_insensitive=False):
+	if case_insensitive:
+		name = name.lower()
 	for language in region_info.languages:
-		if language.english_name == name:
+		if (language.english_name.lower() if case_insensitive else language.english_name) == name:
 			return language
 
 	return None
