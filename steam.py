@@ -178,8 +178,7 @@ def add_metadata_from_appinfo(game):
 	#Alright let's get to the fun stuff
 	common = app_info_section.get(b'common')
 	if common:
-		#There are probably more, try clienttga and clienticns as well probably; maybe icon, logo, logo_small
-		potential_icon_names = (b'linuxclienticon', b'clienticon')
+		potential_icon_names = (b'linuxclienticon', b'clienticon', b'clienttga', b'clienticns', b'icon', b'logo', b'logo_small')
 		for potential_icon_name in potential_icon_names:
 			if potential_icon_name not in common:
 				continue
