@@ -78,12 +78,19 @@ arcade_systems = {
 	'3do': '3DO', #Used for the 3DO console as well, but there are 3DO-based arcade games which are just called that; non-working
 	'aleck64': 'Aleck64', #Based on N64
 	'alien': 'Capcom Medalusion', #Non-working
+	'arsystems': 'Arcadia System', #Amiga 500 based
 	'astrocde': 'Astrocade', #The home console used the same hardware, I can't remember the names of all the different things
+	'atarig42': 'Atari G42',
+	'atarigt': 'Atari GT',
 	'atarigx2': 'Atari GX2',
 	'atarisy1': 'Atari System 1',
 	'atarisy2': 'Atari System 2',
+	'atlantis': 'Midway Atlantis', #Linux based (on MIPS CPU); claims to be skeleton but seems to work a bit anyway
 	'balsente': 'Bally/Sente SAC-1',
+	'cdi': 'Philips CD-i', #Literally a CD-i player with a JAMMA adapter (used for some quiz games)
+	'cedar_magnet': 'Magnet System',
 	'chihiro': 'Chihiro', #Based on Xbox, seemingly non-working
+	'cobra': 'Konami Cobra System',
 	'cps1': 'CPS-1',
 	'cps2': 'CPS-2',
 	'cps3': 'CPS-3',
@@ -93,6 +100,7 @@ arcade_systems = {
 	'decocass': 'Deco Casette',
 	'dgpix': 'dgPIX VRender0',
 	'djmain': 'DJ Main',
+	'eolith': 'Eolith Gradation 2D System',
 	'exidy440': 'Exidy 440',
 	'expro02': 'Kaneko EXPRO-02',
 	'fuukifg2': 'Fuuki FG-2',
@@ -106,6 +114,7 @@ arcade_systems = {
 	'konamigx': 'Konami GX',
 	'konamim2': 'Konami M2', #Based on unreleased Panasonic M2, non-working
 	'ksys573': 'Konami System 573', #Based on PS1
+	'gammagic': 'Bally V8000', #Pentium PC based, skeleton
 	'lindbergh': 'Sega Lindbergh', #(modern) PC based, very non-working
 	'm52': 'Irem M52',
 	'm58': 'Irem M58',
@@ -127,6 +136,7 @@ arcade_systems = {
 	'midxunit': 'Midway X-Unit',
 	'midyunit': 'Midway Y-Unit',
 	'midzeus': 'Midway Zeus',
+	'model1': 'Sega Model 1',
 	'model2': 'Sega Model 2', #Barely working
 	'model3': 'Sega Model 3', #Non-working
 	'ms32': 'Jaleco Mega System 32',
@@ -137,14 +147,18 @@ arcade_systems = {
 	'namcos11': 'Namco System 11', #Based on PS1
 	'namcos12': 'Namco System 12',
 	'namcos2': 'Namco System 2',
+	'namcos21': 'Namco System 21',
+	'namcos21_c67': 'Namco System 21', #With C67 DSP
 	'namcos22': 'Namco System 22',
 	'namcos23': 'Namco System 23',
 	'naomi': 'Naomi', #Based on Dreamcast. romof="awbios" == Atomiswave; not entirely working
 	'neogeo': 'Neo-Geo',
 	'nwk-tr': 'Konami NWK-TR',
+	'pcxt': 'IBM PC-XT', #Games running off a PC-XT
 	'pgm': 'PolyGame Master',
 	'photon': 'Photon System', #PK8000 based (Russian PC that was supposed to be MSX1 compatible)
 	'photon2': 'Photon IK-3', #Leningrad-1 based (Russian ZX Spectrum clone)
+	'policetr': 'ATILLA Video System',
 	'psikyo4': 'Psikyo PS4',
 	'seattle': 'Midway Seattle',
 	'segac2': 'System C2', #Similar to Megadrive
@@ -161,6 +175,7 @@ arcade_systems = {
 	'segaybd': 'Sega Y-Board',
 	'seibuspi': 'Seibu SPI',
 	'sfcbox': 'Super Famicom Box', #Arcadified SNES sorta
+	'sg1000a': 'Sega SG-1000',
 	'snesb': 'SNES Bootleg', #SNES based, natch
 	'sigmab98': 'Sigma B-98',
 	'simpl156': 'Deco 156',
@@ -178,6 +193,7 @@ arcade_systems = {
 	'taito_o': 'Taito O System',
 	'taitopjc': 'Taito Power-JC',
 	'taitotx': 'Taito Type X', #Modern PC based, very non-working
+	'taitotz': 'Taito Type-Zero', #PPC based
 	'taitowlf': 'Taito Wolf', #3Dfx (Pentium) based
 	'taito_x': 'Taito X-System',
 	'taito_z': 'Taito Z System',
@@ -203,6 +219,7 @@ arcade_systems = {
 	'homedata': 'Home Data Hardware',
 	'leland': 'Leland Hardware',
 	'micro3d': 'Microprose 3D Hardware',
+	'subsino2': 'Subsino Newer Tilemaps Hardware',
 
 	#Arcade platforms that don't really have a name except a game that uses them; I try not to fill this up with every single remaining source file, just where it's notable for having other games on it
 	'ambush': 'Ambush Hardware',
@@ -215,10 +232,16 @@ arcade_systems = {
 	'fcrash': 'Final Crash Hardware', #Bootleg of Final Fight; this is used for other bootlegs too
 	'galaxian': 'Galaxian Hardware', #Was used for a lot of games and bootlegs, actually; seems that Moon Cresta hardware has the same source file
 	'galaxold': 'Galaxian Hardware', #There's a comment in that source file saying it'll be merged into galaxian eventually; seems that this one has all the bootlegs etc
+	'ggconnie': 'Go! Go! Connie Hardware', #Supergrafx based
+	'gticlub': 'Konami GTI Club Hardware',
 	'liberate': 'Liberation Hardware',
 	'nemesis': 'Nemesis Hardware',
 	'pacman': 'Pac-Man Hardware',
+	'pcat_nit': 'Street Games Hardware', #PC-AT 386 based
+	'quakeat': 'Quake Arcade Tournament Hardware', #Unknown PC based
 	'scramble': 'Scramble Hardware', #Apparently also to be merged into galaxian
+	'ssfindo': 'See See Find Out Hardware', #RISC PC based
+	'turrett': 'Turret Tower Hardware',
 }
 
 def add_machine_platform(machine):
