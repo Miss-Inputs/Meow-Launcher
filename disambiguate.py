@@ -174,7 +174,7 @@ def normalize_name(name):
 
 	name = name.replace('!', '')
 	name = name.replace(': ', '')
-	name = name.replace(' - ', '')
+	name = name.replace(' - ', ' ')
 	name = name.replace(', ', '')
 
 	return name
