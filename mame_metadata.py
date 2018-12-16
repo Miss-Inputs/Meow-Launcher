@@ -242,6 +242,10 @@ arcade_systems = {
 	'scramble': 'Scramble Hardware', #Apparently also to be merged into galaxian
 	'ssfindo': 'See See Find Out Hardware', #RISC PC based
 	'turrett': 'Turret Tower Hardware',
+
+	#Identified by BIOS and not source file:
+	#coh100c: Sony ZN1 (PS1 based)
+	#coh100t: Taito FX1 (PS1 based)
 }
 
 def add_machine_platform(machine):
