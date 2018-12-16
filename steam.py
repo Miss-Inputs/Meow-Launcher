@@ -322,7 +322,7 @@ def iter_steam_installed_appids():
 
 			#https://github.com/lutris/lutris/blob/master/docs/steam.rst
 			try:
-				state_flags = int(app_state.get('StateFlags', 0))
+				state_flags = int(app_state.get('StateFlags'))
 				if not state_flags:
 					continue
 			except ValueError:
