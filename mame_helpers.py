@@ -106,6 +106,7 @@ def consistentify_manufacturer(manufacturer):
 		'Taito Corporation': 'Taito',
 		'Taito Corporation Japan': 'Taito',
 		'Taito America Corporation': 'Taito America',
+		'Team 17': 'Team17',
 		'TecMagik Entertainment': 'TecMagik',
 		'T*HQ': 'THQ', #Why.
 		'Titus Software': 'Titus',
