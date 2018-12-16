@@ -162,7 +162,7 @@ def translate_language_list(languages):
 	return langs
 
 def normalize_developer(dev):
-	dev = junk_suffixes.replace('', dev)
+	dev = junk_suffixes.sub('', dev)
 
 	overrides = {
 		'SEGA': 'Sega',
