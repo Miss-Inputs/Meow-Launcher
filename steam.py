@@ -332,7 +332,7 @@ def iter_steam_installed_appids():
 			if (state_flags & 4) == 0:
 				continue
 
-			yield app_id
+			yield app_id, app_state
 
 
 def no_longer_exists(appid):
@@ -340,7 +340,7 @@ def no_longer_exists(appid):
 		#I guess if you uninstalled Steam then you're not gonna play any Steam games, huh
 		return False
 
-	return appid in iter_steam_installed_appids()
+	return appid in [id for id, state in iter_steam_installed_appids()]
 
 def process_steam():
 	if not is_steam_available:
@@ -348,7 +348,7 @@ def process_steam():
 
 	time_started = time.perf_counter()
 
-	for app_id in iter_steam_installed_appids():
+	for app_id, app_state in iter_steam_installed_appids():
 		if not main_config.full_rescan:
 			if launchers.has_been_done('Steam', app_id):
 				continue
