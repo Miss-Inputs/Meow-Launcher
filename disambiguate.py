@@ -229,6 +229,8 @@ def reambiguate():
 			del disambiguity_section['Disambiguation-Method']
 		if 'Ambiguous-Name' in disambiguity_section:
 			desktop_entry['Name'] = disambiguity_section['Ambiguous-Name']
+			del disambiguity_section['Ambiguous-Name']
+		del desktop[disambiguity_section_name]
 
 		with open(path, 'wt') as f:
 			desktop.write(f)
