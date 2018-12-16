@@ -99,7 +99,9 @@ def resolve_duplicates_by_dev_status(group):
 		tags = launchers.get_array(dup[1], 'Filename-Tags')
 
 		for tag in tags:
-			if tag.lower().startswith(('(beta', '(sample)', '(proto', '(alpha', '(preview', '(pre-release', '(demo)', '(multiboot demo)', '(shareware')):
+			tag_matches = tag.lower().startswith(('(beta', '(sample)', '(proto', '(preview', '(pre-release', '(demo)', '(multiboot demo)', '(shareware'))
+			tag_matches = tag_matches or (tag.lower().startswith('(alpha') and tag[6] == ' ' and tag[7:-1].isdigit())
+			if tag_matches:
 				update_name(dup, tag, 'dev status')
 
 def resolve_duplicates_by_date(group):
