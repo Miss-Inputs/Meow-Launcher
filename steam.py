@@ -320,6 +320,18 @@ def iter_steam_installed_appids():
 				#Yeah we need that
 				continue
 
+			#https://github.com/lutris/lutris/blob/master/docs/steam.rst
+			try:
+				state_flags = int(app_state.get('state_flags', 0))
+				if not state_flags:
+					continue
+			except ValueError:
+				continue
+
+			#Only yield fully installed games
+			if not (state_flags & 4):
+				continue
+
 			yield app_id
 
 
