@@ -329,7 +329,7 @@ def iter_steam_installed_appids():
 				continue
 
 			#Only yield fully installed games
-			if not (state_flags & 4):
+			if (state_flags & 4) == 0:
 				continue
 
 			yield app_id
