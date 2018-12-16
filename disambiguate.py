@@ -82,11 +82,11 @@ def resolve_duplicates_by_metadata(group, field, format_function=None, ignore_mi
 def resolve_duplicates_by_filename_tags(group):
 	for dup in group:
 		the_rest = [d for d in group if d[0] != dup[0]]
-		tags = launchers.get_array(dup[1], 'Filename-Tags')
+		tags = launchers.get_array(dup[1], 'Filename-Tags', launchers.junk_section_name)
 
 		differentiator_candidates = []
 
-		rest_tags = [launchers.get_array(rest[1], 'Filename-Tags') for rest in the_rest]
+		rest_tags = [launchers.get_array(rest[1], 'Filename-Tags', launchers.junk_section_name) for rest in the_rest]
 		for tag in tags:
 			if not all([tag in rest_tag for rest_tag in rest_tags]):
 				differentiator_candidates.append(tag)
@@ -96,7 +96,7 @@ def resolve_duplicates_by_filename_tags(group):
 
 def resolve_duplicates_by_dev_status(group):
 	for dup in group:
-		tags = launchers.get_array(dup[1], 'Filename-Tags')
+		tags = launchers.get_array(dup[1], 'Filename-Tags', launchers.junk_section_name)
 
 		for tag in tags:
 			tag_matches = tag.lower().startswith(('(beta', '(sample)', '(proto', '(preview', '(pre-release', '(demo)', '(multiboot demo)', '(shareware'))
@@ -197,7 +197,7 @@ def fix_duplicate_names(method, format_function=None, ignore_missing_values=None
 
 	for k, v in duplicates.items():
 		if method == 'check':
-			print('Duplicate name still remains: ', k, [(d[1][launchers.metadata_section_name].get('Original-Name', '<no Original-Name>') if launchers.metadata_section_name in d[1] else '<no Metadata section>') for d in v])
+			print('Duplicate name still remains: ', k, [(d[1][launchers.junk_section_name].get('Original-Name', '<no Original-Name>') if launchers.junk_section_name in d[1] else '<no junk section>') for d in v])
 		else:
 			resolve_duplicates(v, method, format_function, ignore_missing_values)
 

@@ -137,7 +137,7 @@ def move_into_subfolders(path):
 		if len(languages) == 1:
 			copy_to_folder(path, main_config.organized_output_folder, 'By language', sanitize_name(languages[0]) + ' only')
 
-		filename_tags = launchers.get_array(desktop, 'Filename-Tags')
+		filename_tags = launchers.get_array(desktop, 'Filename-Tags', launchers.junk_section_name)
 		for tag in filename_tags:
 			copy_to_folder(path, main_config.organized_output_folder, 'By filename tag', sanitize_name(tag))
 

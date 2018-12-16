@@ -9,6 +9,7 @@ from io_utils import ensure_exist
 
 metadata_section_name = 'X-%s Metadata' % app_name
 id_section_name = 'X-%s ID' % app_name
+junk_section_name = 'X-%s Junk' % app_name
 
 def get_desktop(path):
 	parser = configparser.ConfigParser(interpolation=None)
@@ -26,8 +27,8 @@ def get_field(desktop, name, section=metadata_section_name):
 
 	return None
 
-def get_array(desktop, name):
-	field = get_field(desktop, name)
+def get_array(desktop, name, section=metadata_section_name):
+	field = get_field(desktop, name, section)
 	if field is None:
 		return []
 
@@ -124,8 +125,8 @@ def make_launcher(command, name, metadata, id_type, id, icon=None):
 
 	fields = {}
 	fields[metadata_section_name] = metadata.to_launcher_fields()
-	fields[metadata_section_name]['Filename-Tags'] = [tag for tag in filename_tags if tag not in metadata.ignored_filename_tags]
-	fields[metadata_section_name]['Original-Name'] = name
+	fields[junk_section_name]['Filename-Tags'] = [tag for tag in filename_tags if tag not in metadata.ignored_filename_tags]
+	fields[junk_section_name]['Original-Name'] = name
 
 	fields[id_section_name] = {}
 	fields[id_section_name]['Type'] = id_type
