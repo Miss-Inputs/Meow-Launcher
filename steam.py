@@ -106,7 +106,7 @@ class SteamGame():
 	def make_launcher(self):
 		#Could also use steam -appid {0} here, but like... I dunno if I should
 		command = 'xdg-open steam://rungameid/{0}'.format(self.app_id)
-		launchers.make_launcher(command, self.name, self.metadata, {'Type': 'Steam', 'Unique-ID': self.app_id}, self.icon)
+		launchers.make_launcher(command, self.name, self.metadata, 'Steam', self.app_id, self.icon)
 
 def look_for_icon(icon_hash):
 	icon_hash = icon_hash.lower()

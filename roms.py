@@ -52,7 +52,7 @@ class EngineGame():
 		base_command_line = self.get_command_line(system_config)
 		command_line = base_command_line.replace('$<path>', shlex.quote(self.file.path))
 
-		launchers.make_launcher(command_line, self.file.name, self.metadata, {'Type': 'Engine game', 'Unique-ID': self.file.path}, self.icon)
+		launchers.make_launcher(command_line, self.file.name, self.metadata, 'Engine game', self.file.path, self.icon)
 
 def try_engine(system_config, engine, base_dir, root, name):
 	path = os.path.join(root, name)
@@ -171,7 +171,7 @@ class Game():
 			#Don't need to wrap in sh -c if we've already done that
 			command_line = 'sh -c {0}'.format(shlex.quote(command_line))
 
-		launchers.make_launcher(command_line, self.rom.name, self.metadata, {'Type': 'ROM', 'Unique-ID': self.rom.path}, self.icon)
+		launchers.make_launcher(command_line, self.rom.name, self.metadata, 'ROM', self.rom.path, self.icon)
 
 def try_emulator(system_config, emulator, rom_dir, root, rom):
 	game = Game(rom, emulator, system_config.name, root)

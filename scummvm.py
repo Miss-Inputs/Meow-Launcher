@@ -33,7 +33,7 @@ class ScummVMGame():
 		metadata.emulator_name = 'ScummVM'
 		#TODO: publisher, categories, languages, nsfw, regions, subgenre, year... somehow
 		#Others are left deliberately blank because they refer to emulators and not engines
-		launchers.make_launcher(command, name, metadata, {'Type': 'ScummVM', 'Unique-ID': self.name})
+		launchers.make_launcher(command, name, metadata, 'ScummVM', self.name)
 
 def no_longer_exists(game_id):
 	return game_id not in scummvm_config.sections()

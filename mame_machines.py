@@ -125,7 +125,7 @@ class Machine():
 					slot_options['memc'] = shlex.quote(memory_card_path)
 
 		command_line = emulator_command_lines.mame_command_line(self.basename, slot_options=slot_options)
-		launchers.make_launcher(command_line, self.name, self.metadata, {'Type': 'MAME machine', 'Unique-ID': self.basename}, self.icon)
+		launchers.make_launcher(command_line, self.name, self.metadata, 'MAME machine', self.basename, self.icon)
 
 	@property
 	def is_mechanical(self):

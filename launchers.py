@@ -8,6 +8,7 @@ from config import main_config, name_replacement, add_the, subtitle_removal, app
 from io_utils import ensure_exist
 
 metadata_section_name = 'X-%s Metadata' % app_name
+id_section_name = 'X-%s ID' % app_name
 
 def get_desktop(path):
 	parser = configparser.ConfigParser(interpolation=None)
@@ -80,22 +81,23 @@ def base_make_desktop(command, display_name, fields=None, icon=None):
 				icon.save(icon_path, 'png')
 				desktop_entry['Icon'] = icon_path
 
-	configwriter.add_section(metadata_section_name)
-	metadata_section = configwriter[metadata_section_name]
-
 	if fields:
-		for k, v in fields.items():
-			if v is None:
-				continue
+		for section_name, section in fields.items():
+			configwriter.add_section(section_name)
+			section_writer = configwriter[section_name]
 
-			if isinstance(v, list):
-				if not v:
+			for k, v in section.items():
+				if v is None:
 					continue
-				value_as_string = ';'.join(['None' if item is None else item for item in v])
-			else:
-				value_as_string = str(v)
 
-			metadata_section[k.replace('_', '-')] = value_as_string
+				if isinstance(v, list):
+					if not v:
+						continue
+					value_as_string = ';'.join(['None' if item is None else item for item in v])
+				else:
+					value_as_string = str(v)
+
+				section_writer[k.replace('_', '-')] = value_as_string
 
 	ensure_exist(path)
 	with open(path, 'wt') as f:
@@ -116,14 +118,19 @@ def make_display_name(name):
 
 	return display_name
 
-def make_launcher(command, name, metadata, other_fields=None, icon=None):
+def make_launcher(command, name, metadata, id_type, id, icon=None):
 	display_name = make_display_name(name)
 	filename_tags = common.find_filename_tags.findall(name)
-	fields = metadata.to_launcher_fields()
-	fields['Filename-Tags'] = [tag for tag in filename_tags if tag not in metadata.ignored_filename_tags]
-	fields['Original-Name'] = name
-	if other_fields:
-		fields.update(other_fields)
+
+	fields = {}
+	fields[metadata_section_name] = metadata.to_launcher_fields()
+	fields[metadata_section_name]['Filename-Tags'] = [tag for tag in filename_tags if tag not in metadata.ignored_filename_tags]
+	fields[metadata_section_name]['Original-Name'] = name
+
+	fields[id_section_name] = {}
+	fields[id_section_name]['Type'] = id_type
+	fields[id_section_name]['Unique-ID'] = id
+
 	#For very future use, this is where the underlying host platform is abstracted away. make_launcher is for everything, base_make_desktop is for Linux .desktop files specifically. Perhaps there are other things that could be output as well.
 	base_make_desktop(command, display_name, fields, icon)
 
@@ -137,8 +144,8 @@ def _get_existing_launchers():
 		path = os.path.join(output_folder, name)
 
 		existing_launcher = get_desktop(path)
-		existing_type = get_field(existing_launcher, 'Type')
-		existing_id = get_field(existing_launcher, 'Unique-ID')
+		existing_type = get_field(existing_launcher, 'Type', id_section_name)
+		existing_id = get_field(existing_launcher, 'Unique-ID', id_section_name)
 		a.append((existing_type, existing_id))
 
 	return a

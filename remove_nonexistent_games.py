@@ -5,7 +5,7 @@ import datetime
 import time
 
 from config import main_config
-from launchers import get_desktop, get_field
+from launchers import get_desktop, get_field, id_section_name
 
 import mame_machines
 import scummvm
@@ -22,8 +22,8 @@ def remove_nonexistent_games():
 		path = os.path.join(output_folder, name)
 
 		launcher = get_desktop(path)
-		game_type = get_field(launcher, 'Type')
-		game_id = get_field(launcher, 'Unique-ID')
+		game_type = get_field(launcher, 'Type', id_section_name)
+		game_id = get_field(launcher, 'Unique-ID', id_section_name)
 
 		should_remove = False
 		if game_type == 'MAME machine':
