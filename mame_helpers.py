@@ -245,7 +245,7 @@ class MameState():
 				return
 			if not os.path.isfile(self.mame_xml_path):
 				print('New MAME version found:', self.version, ';creating XML; this may take a while (maybe like a minute or so)')
-				os.makedirs(cache_dir, exist_ok=True)
+				os.makedirs(os.path.dirname(self.mame_xml_path), exist_ok=True)
 				with open(self.mame_xml_path, 'wb') as f:
 					subprocess.run(['mame', '-listxml'], stdout=f, stderr=subprocess.DEVNULL)
 					#TODO check return code I guess (although in what ways would it fail?)
