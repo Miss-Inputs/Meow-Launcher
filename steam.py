@@ -303,37 +303,7 @@ def process_game(app_id, name=None):
 
 	game.make_launcher()
 
-def no_longer_exists(appid):
-	if not is_steam_available():
-		#I guess if you uninstalled Steam then you're not gonna play any Steam games, huh
-		return False
-
-	for library_folder in get_steam_library_folders():
-		acf_files = glob.glob(os.path.join(library_folder, 'steamapps', '*.acf'))
-		for acf_file_path in acf_files:
-			with open(acf_file_path, 'rt') as acf_file:
-				app_manifest = acf.load(acf_file)
-			app_state = app_manifest.get('AppState')
-			if not app_state:
-				continue
-
-			app_id = app_state.get('appid')
-			if app_id is None:
-				#Yeah we need that
-				continue
-
-			if app_id == appid:
-				return False
-
-	return True
-
-
-def process_steam():
-	if not is_steam_available:
-		return
-
-	time_started = time.perf_counter()
-
+def iter_steam_installed_appids():
 	for library_folder in get_steam_library_folders():
 		acf_files = glob.glob(os.path.join(library_folder, 'steamapps', '*.acf'))
 		for acf_file_path in acf_files:
@@ -350,16 +320,33 @@ def process_steam():
 				#Yeah we need that
 				continue
 
-			if not main_config.full_rescan:
-				if launchers.has_been_done('Steam', app_id):
-					continue
+			yield app_id
 
-			name = app_state.get('name')
-			#installdir is the subfolder of library_folder/steamapps/common where the game is actually located, if that's ever useful
-			#StateFlags probably has something to do with whether it's actually currently installed or not, seems to be just 4, maybe other values indicate it's in the middle of downloading or stuff like that
-			#UserConfig might be interesting... normally it just has a key 'language' which is set to 'english' etc, sometimes duplicating name and app_id as 'gameid' for no reason, but also has things like 'lowviolence': '1' inside Left 4 Dead 2 for example (because I'm Australian I guess), so... well, I just think that's kinda neat, although probably not useful for our purposes here; also for TF2 it has 'betakey': 'prerelease' so I guess that has to do with opt-in beta programs
-			#Anyway I don't think we need any of that for now
-			process_game(app_id, name)
+
+def no_longer_exists(appid):
+	if not is_steam_available():
+		#I guess if you uninstalled Steam then you're not gonna play any Steam games, huh
+		return False
+
+	return appid in iter_steam_installed_appids()
+
+def process_steam():
+	if not is_steam_available:
+		return
+
+	time_started = time.perf_counter()
+
+	for app_id in iter_steam_installed_appids():
+		if not main_config.full_rescan:
+			if launchers.has_been_done('Steam', app_id):
+				continue
+
+		name = app_state.get('name')
+		#installdir is the subfolder of library_folder/steamapps/common where the game is actually located, if that's ever useful
+		#StateFlags probably has something to do with whether it's actually currently installed or not, seems to be just 4, maybe other values indicate it's in the middle of downloading or stuff like that
+		#UserConfig might be interesting... normally it just has a key 'language' which is set to 'english' etc, sometimes duplicating name and app_id as 'gameid' for no reason, but also has things like 'lowviolence': '1' inside Left 4 Dead 2 for example (because I'm Australian I guess), so... well, I just think that's kinda neat, although probably not useful for our purposes here; also for TF2 it has 'betakey': 'prerelease' so I guess that has to do with opt-in beta programs
+		#Anyway I don't think we need any of that for now
+		process_game(app_id, name)
 
 	if main_config.print_times:
 		time_ended = time.perf_counter()
