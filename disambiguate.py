@@ -169,10 +169,13 @@ def normalize_name(name):
 	name = name.replace('&', 'and')
 	name = name.replace(" 'n", "'n")
 	name = hyphen_inside_word.sub(' ', name)
-	name = name.replace(': ', ' - ')
 	name = name.replace('é', 'e')
-	name = name.replace('!', '')
 	name = name.replace('dr. ', 'dr ')
+
+	name = name.replace('!', '')
+	name = name.replace(': ', '')
+	name = name.replace(' - ', '')
+	name = name.replace(', ', '')
 
 	return name
 
