@@ -125,7 +125,7 @@ emulators = {
 	'MAME (Intellivision)': MameSystem(command_lines.mame_intellivision, ['bin', 'int', 'rom', 'itv']),
 	'MAME (Mattel Juice Box)': MameSystem(command_lines.mame_command_line('juicebox', 'memcard'), ['smc']),
 	'MAME (Mega Duck)': MameSystem(command_lines.mame_command_line('megaduck', 'cart'), ['bin']),
-	'MAME (MSX1)': MameSystem(command_lines.mame_command_line('svi738', 'cart1', {'fdc:0': '""'}, has_keyboard=True), ['bin', 'rom']),
+	'MAME (MSX)': MameSystem(command_lines.mame_command_line('svi738', 'cart1', {'fdc:0': '""'}, has_keyboard=True), ['bin', 'rom']),
 	#Note that MSX2 is backwards compatible anyway, so there's not much reason to use this, unless you do have some reason. This model in particular is used because it should be completely in English and if anything goes wrong I'd be able to understand it. I still don't know how disks work (they don't autoboot), or if there's even a consistent command to use to boot them.
 	'MAME (MSX2)': MameSystem(command_lines.mame_command_line('fsa1wsx', 'cart1', {'fdc:0': '""'}, has_keyboard=True), ['bin', 'rom']),
 	#This includes MSX2+ because do you really want me to make those two separate things? Turbo-R doesn't work in MAME though, so that'd have to be its own thing. This model is used just because I looked it up and it seems like the best one, the MSX2/MSX2+ systems in MAME are all in Japanese (the systems were only really released in Japan, after all) so you can't avoid that part. Still don't understand disks.
