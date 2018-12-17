@@ -224,6 +224,8 @@ def add_metadata_from_appinfo(game):
 			game.metadata.categories = ['Games']
 		elif category == 'Tool':
 			game.metadata.categories = ['Applications']
+		elif category == 'Demo':
+			game.metadata.categories = ['Trials']
 		else:
 			game.metadata.categories = [category]
 
