@@ -346,13 +346,18 @@ def iter_steam_installed_appids():
 
 			yield app_id, app_state
 
+no_longer_exists_cached_appids = None
 
 def no_longer_exists(appid):
 	if not is_steam_available():
 		#I guess if you uninstalled Steam then you're not gonna play any Steam games, huh
 		return False
 
-	return appid not in [id for id, state in iter_steam_installed_appids()]
+	global no_longer_exists_cached_appids
+	if no_longer_exists_cached_appids is None:
+		no_longer_exists_cached_appids = [id for id, state in iter_steam_installed_appids()]
+
+	return appid not in no_longer_exists_cached_appids
 
 def process_steam():
 	if not is_steam_available:
