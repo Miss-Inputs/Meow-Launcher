@@ -352,7 +352,7 @@ def no_longer_exists(appid):
 		#I guess if you uninstalled Steam then you're not gonna play any Steam games, huh
 		return False
 
-	return appid in [id for id, state in iter_steam_installed_appids()]
+	return appid not in [id for id, state in iter_steam_installed_appids()]
 
 def process_steam():
 	if not is_steam_available:
