@@ -278,8 +278,34 @@ def add_metadata_from_appinfo(game):
 		#mustownapptopurchase: If present, appID of a game that you need to buy first (parent of DLC, or something like Source SDK Base for Garry's Mod, etc)
 		#dependantonapp: Probably same sort of thing, like Half-Life: Opposing Force is dependent on original Half-Life
 
-	#The config section would actually tell us the executable and arguments used to actually launch the game. It's probably not a good idea to do that directly though, mostly because some games are DRM'd to Steam, so it's probably a good idea to go through the Steam client like we are now.
-	#Although I guess that would allow us to detect if a game is just a wrapper for going through another launcher, like Origin or uPlay or whatevs, but yeah
+	config = app_info_section.get(b'config')
+	if config:
+		#contenttype = 3 in some games but not all of them? nani
+		launch = config.get(b'launch')
+		#This key would actually tell us the executable and arguments used to actually launch the game. It's probably not a good idea to do that directly though, mostly because some games are DRM'd to Steam, so it's probably a good idea to go through the Steam client like we are now.
+		#Although I guess that would allow us to detect if a game is just a wrapper for going through another launcher, like Origin or uPlay or whatevs, but yeah
+		#Anyway, we're going to use it a bit more responsibly
+		if launch:
+			#Should always exist if the game can be launched, but I'm just going to null check every single thing in my life from now on to avoid the pain
+			have_linux_launcher = False
+			for launch_item in launch.values():
+				#Key here is 0, 1, 2, n... which is a bit useless, it's really just a boneless list. Anyway, each of these values is another dict containing launch parameters, for each individual platform or configuration, e.g. Windows 32-bit, Windows 64-bit, MacOS, etc
+				#If you wanted to do secret evil things: b'executable' = 'CoolGame.sh' b'arguments' (optional) = '--fullscreen --blah' b'description' = 'Cool Game'
+				launch_item_config = launch_item.get(b'config')
+				if launch_item_config:
+					if b'linux' in launch_item_config.get(b'oslist', b''):
+						#I've never seen oslist be a list, but it is always a byte string, so maybe there's some game where it's multiple platforms comma separated
+						#(Other key: osarch = sometimes Integer with data = 32/64, or b'32' or b'64')
+						have_linux_launcher = True
+			if not have_linux_launcher:
+				game.metadata.specific_info['Uses-Steam-Play'] = True
+
+	localization = app_info_section.get(b'localization')
+	if localization:
+		if b'richpresence' in localization:
+			#I think this is correct
+			#(Keys of this are 'english' or presumably other languages and then 'tokens' and then it's a bunch of stuff)
+			game.metadata.specific_info['Discord-Rich-Presence'] = True
 
 	#There should be something that tells us something about SaveType, or at least if it uses the cloud, which could be another save type...
 
