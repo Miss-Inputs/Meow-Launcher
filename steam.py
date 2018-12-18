@@ -14,7 +14,7 @@ except ModuleNotFoundError:
 
 from config import main_config
 from common import junk_suffixes
-from common_types import MediaType
+from common_types import MediaType, SaveType
 import region_detect
 import launchers
 from metadata import Metadata
@@ -307,7 +307,9 @@ def add_metadata_from_appinfo(game):
 			#(Keys of this are 'english' or presumably other languages and then 'tokens' and then it's a bunch of stuff)
 			game.metadata.specific_info['Discord-Rich-Presence'] = True
 
-	#There should be something that tells us something about SaveType, or at least if it uses the cloud, which could be another save type...
+	if b'ufs' in app_info_section:
+		game.metadata.save_type = SaveType.Cloud
+	#As for how to tell the difference between SaveType.Internal and SaveType.Nothing... is there even a game on Steam that doesn't save at all?
 
 def process_game(app_id, name=None):
 	if not name:

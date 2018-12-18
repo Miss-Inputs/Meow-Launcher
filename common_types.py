@@ -24,6 +24,7 @@ class SaveType(Enum):
 	Floppy = auto()
 	MemoryCard = auto()
 	Internal = auto()
+	Cloud = auto()
 	Unknown = auto()
 
 class EmulationNotSupportedException(Exception):
