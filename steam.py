@@ -227,6 +227,8 @@ def add_metadata_from_appinfo(game):
 		#store_tags would be useful for genre if they weren't all '9': Integer(size = 32, data = 4182) and I have no idea what a 4182 means and if it requires connecting to the dang web then nah thanks
 		#workshop_visible and community_hub_visible could also tell you stuff about if the game has a workshop and a... community hub
 		#releasestate: 'released' might be to do with early access?
+		#exfgls = exclude from game library sharing
+		#b'requireskbmouse' and b'kbmousegame' are also things, but don't seem to be 1:1 with games that have controllersupport = none
 		language_list = common.get(b'languages')
 		if language_list:
 			game.metadata.languages = translate_language_list(language_list)
@@ -249,6 +251,9 @@ def add_metadata_from_appinfo(game):
 		if metacritic_score:
 			#Well why not
 			game.metadata.specific_info['Metacritic-Score'] = metacritic_score.data
+
+		game.metadata.specific_info['Metacritic-URL'] = common.get(b'metacritic_fullurl', b'').decode('utf8', errors='backslashreplace')
+		game.metadata.specific_info['Sort-Name'] = common.get(b'sortas', b'').decode('utf8', errors='backslashreplace')
 
 		#TODO: Probably can't do input_info with this, but maybe use EmulationStatus enum to do Good (full) Imperfect (partial) Broken (none)
 		game.metadata.specific_info['Controlller-Support'] = common.get(b'controller_support', b'none').decode('utf-8', errors='backslashreplace')
