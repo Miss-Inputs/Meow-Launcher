@@ -177,6 +177,9 @@ def normalize_developer(dev):
 		'Microsoft Studios': 'Microsoft',
 		'Team17 Digital': 'Team17',
 		'Two Tribes Publishing': 'Two Tribes',
+
+		#Why
+		'Image &amp; Form Games': 'Image & Form Games',
 	}
 	if dev in overrides:
 		return overrides[dev]
