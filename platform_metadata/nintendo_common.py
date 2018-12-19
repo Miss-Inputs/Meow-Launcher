@@ -199,7 +199,7 @@ nintendo_licensee_codes = {
 	'PV': 'Pan Vision Games', #Miffy's World (Europe) (DS)
 	'RG': 'Romino Games', #Swords & Soldiers II (Wii U)
 	'S3': 'Genius Sonority', #The Denpa Men demo (3DS)
-	'TL': 'Telltale', #Strong Badia the Free series (WiiWare)
+	'TL': 'Telltale Games', #Strong Badia the Free series (WiiWare)
 	'QU': 'QubicGames', #AiRace Speed demo (3DS)
 	'UZ': 'Circle Entertainment', #Sweet Memories: Blackjack (3DS)
 	'WR': 'Warner Bros', #Scribblenauts and Super Scribblenauts (Europe) (DS) (or Warner Bros Interactive Entertainment if you prefer to be overly specific)
