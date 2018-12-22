@@ -125,4 +125,5 @@ helpers = {
 	'VIC-10': add_vic10_info,
 	'VIC-20': add_vic20_info,
 	'Watara Supervision': add_watara_supervision_info,
+	'ZX Spectrum': add_zx_spectrum_info,
 }

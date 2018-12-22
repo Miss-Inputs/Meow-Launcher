@@ -32,7 +32,6 @@ from mame_helpers import consistentify_manufacturer, get_mame_config
 
 #Has a software list, but not for the formats we use:
 #VZ-200: .vz doesn't have a software list
-#ZX Spectrum: All +3 software in MAME is in .ipf format, which seems hardly ever used in all honesty (.z80 files don't have a software list)
 
 def parse_size_attribute(attrib):
 	if not attrib:

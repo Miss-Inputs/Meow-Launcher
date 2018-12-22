@@ -643,3 +643,9 @@ def add_sam_coupe_info(game):
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
+
+def add_zx_spectrum_info(game):
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+		game.metadata.product_code = software.get_info('serial')
