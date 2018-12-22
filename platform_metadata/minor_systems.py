@@ -157,16 +157,6 @@ def add_channel_f_info(game):
 	if software:
 		software.add_generic_info(game)
 
-def add_msx_info(game):
-	#I'll use this for MSX2 as well for now
-	#Input info: Keyboard or joystick
-
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
-		#Other info you can get from carts here: PCB, slot (something like ascii8 or whatever), mapper
-
 def add_pc88_info(game):
 	#Input info: Keyboard or joystick
 
@@ -264,22 +254,6 @@ def add_vic20_info(game):
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
 
-def add_sord_m5_info(game):
-	#Input info: Keyboard, maybe joystick?
-
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
-		#Take note of info > usage = requiring 36K RAM, though we just set our M5 to have max RAM anyway, seems to be harmless
-
-def add_gx4000_info(game):
-	#Input info: 2-button gamepad, analog stick, or light gun (Skeet Shoot, The Enforcer); gx4000.xml software list decides to put that inside a comment above the <software> element rather than anything parseable
-
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
-
 class ColecoController(Enum):
 	Normal = auto()
 	SuperActionController = auto()
@@ -337,14 +311,6 @@ def add_colecovision_info(game):
 			game.metadata.input_info.add_option([normal_controller])
 	#Doesn't look like you can set controller via command line at the moment, oh well
 
-def add_coleco_adam_info(game):
-	#Input info: Keyboard / Coleco numpad?
-
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
-
 def add_hartung_game_master_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 
@@ -359,7 +325,7 @@ def add_hartung_game_master_info(game):
 
 def add_bandai_sv8000_info(game):
 	game.metadata.tv_type = TVSystem.NTSC #Japan only
-	#Input info: Some wanky pair of keypads, thanks I hate it
+	#TODO Input info: Some wanky pair of keypads, thanks I hate it
 
 	software = get_software_list_entry(game)
 	if software:
@@ -367,7 +333,7 @@ def add_bandai_sv8000_info(game):
 
 def add_nichibutsu_my_vision_info(game):
 	game.metadata.tv_type = TVSystem.NTSC #Japan only
-	#Input info: Some kinda weird partial-keyboard thingy
+	#TODO Input info: Some kinda weird partial-keyboard thingy
 
 	software = get_software_list_entry(game)
 	if software:
@@ -528,15 +494,6 @@ def add_atari_5200_info(game):
 		normal_controller.analog_sticks = 1
 		game.metadata.input_info.add_option([normal_controller])
 
-def add_pce_info(game):
-	#Input could be 2 buttons or 6 buttons, usually the former. Might be other types too?
-	#Some games should have saving via TurboBooster-Plus (Wii U VC seems to let me save in Neutopia anyway without passwords or savestates), which I guess would be SaveType.Internal
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
-		#Other info: alt_title
-		game.metadata.product_code = software.get_info('serial')
-
 def add_game_com_info(game):
 	#Could have its own header. I think it does, but like.. who's gonna document such a thing? The wide community of Game.com enthusiasts?
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -582,14 +539,6 @@ def add_apple_ii_info(game):
 			game.metadata.specific_info['Uses-Mouse'] = True
 		game.metadata.product_code = software.get_info('serial')
 
-def add_apple_iii_info(game):
-	#Not much here, admittedly...
-	#Possible input info: Keyboard and joystick by default, mouse if mouse card exists
-
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
-
 def add_fm7_info(game):
 	#Possible input info: Keyboard and joystick but barely anything uses said joystick
 	game.metadata.tv_type = TVSystem.NTSC #Japan only
@@ -610,27 +559,6 @@ def add_fm7_info(game):
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
 
-def add_pet_info(game):
-	#TODO: Add keyboard as input info, there are theoretically userport joysticks but nah
-
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
-
-def add_plus4_info(game):
-	#bah...
-
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
-
-def add_commodore_128_info(game):
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
-
 def add_super_cassette_vision_info(game):
 	#TODO Input iunfo: Joystick + keypad thingo
 	software = get_software_list_entry(game)
@@ -638,14 +566,16 @@ def add_super_cassette_vision_info(game):
 		software.add_generic_info(game)
 		game.metadata.specific_info['Has-Extra-RAM'] = software.has_data_area('ram') #Or feature "slot" ends with "_ram"
 
-def add_sam_coupe_info(game):
+def add_stub_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
 
-def add_zx_spectrum_info(game):
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
+	#TODO PET: Add keyboard as input info, there are theoretically userport joysticks but nah
+	#Apple III: Possible input info: Keyboard and joystick by default, mouse if mouse card exists
+	#PC Engine: Input could be 2 buttons or 6 buttons, usually the former. Might be other types too? Some games should have saving via TurboBooster-Plus (Wii U VC seems to let me save in Neutopia anyway without passwords or savestates), which I guess would be SaveType.Internal
+	#Coleco Adam: Input info: Keyboard / Coleco numpad?
+	#MSX1/2: Input info: Keyboard or joystick; Other info you can get from carts here: PCB, slot (something like ascii8 or whatever), mapper
+	#GX4000: Input info: 2-button gamepad, analog stick, or light gun (Skeet Shoot, The Enforcer); gx4000.xml software list decides to put that inside a comment above the <software> element rather than anything parseable
+	#Sord M5: Input info: Keyboard, maybe joystick? Take note of info > usage = requiring 36K RAM, though we just set our M5 to have max RAM anyway, seems to be harmless
