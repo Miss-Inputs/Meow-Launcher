@@ -570,6 +570,29 @@ def mame_super_cassette_vision(game, _):
 
 	return mame_command_line(system, 'cart')
 
+def cxnes(game, _):
+	allowed_mappers = [
+		0, 1, 2, 3, 4, 5, 7, 9, 10, 11, 13, 14,
+		15, 16, 18, 19, 21, 22, 23, 24, 25, 26, 28, 29,
+		30, 31, 32, 33, 34, 36, 37, 38, 39, 41, 44, 46,
+		47, 48, 49, 58, 60, 61, 62, 64, 65, 66, 67, 68,
+		69, 70, 71, 73, 74, 75, 76, 77, 78, 79, 80, 82,
+		85, 86, 87, 88, 89, 90, 91, 93, 94, 95, 97, 99,
+		105, 107, 112, 113, 115, 118, 119, 133, 137, 138, 139, 140,
+		141, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153,
+		154, 155, 158, 159, 166, 167, 178, 180, 182, 184, 185, 189,
+		192, 193, 200, 201, 202, 203, 205, 206, 207, 209, 210, 211,
+		218, 225, 226, 228, 230, 231, 232, 234, 240, 241, 245, 246,
+	]
+
+	if game.metadata.specific_info.get('Header-Format', None) == 'iNES':
+		mapper = game.metadata.specific_info['Mapper-Number']
+		if mapper not in allowed_mappers:
+			raise EmulationNotSupportedException('Unsupported mapper: %d (%s)' % (mapper, game.metadata.specific_info.get('Mapper')))
+
+	#Could possibly do something involving --no-romcfg if there's no config found, otherwise the emulator pops up a message about that unless you disable romcfg entirely
+	return 'cxnes -f $<path>'
+
 def vice(game, specific_config):
 	executable = None
 	fullscreen_option = None #+ and - prefixes seem to do the reverse of what you might expect; i.e. +VICIIfull turns _off_ fullscreen, seemingly
