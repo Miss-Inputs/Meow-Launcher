@@ -11,8 +11,8 @@ def add_ngp_metadata(game):
 	game.metadata.input_info.add_option([builtin_gamepad])
 
 	header = game.rom.read(amount=64)
-	copyright_string = header[:28].decode('ascii', errors='ignore')
-	if copyright_string == 'COPYRIGHT BY SNK CORPORATION':
+	copyright_string = header[:28]
+	if copyright_string == b'COPYRIGHT BY SNK CORPORATION':
 		game.metadata.publisher = 'SNK'
 	#Otherwise it'd say " LICENSED BY SNK CORPORATION" and that could be any dang third party which isn't terribly useful
 	#There's really not much here, so I didn't even bother reading the whole header
