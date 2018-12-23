@@ -29,3 +29,10 @@ def convert_alphanumeric(byte_array):
 
 #Kft. might also be a junk suffix?
 junk_suffixes = re.compile(r'(?:(?:,)? (?:Inc|LLC)|(?:Co.)?(?:,)? Ltd)(?:\.)?$')
+
+def pluralize(n, singular, plural=None):
+	if not plural:
+		plural = singular + 's'
+	if n == 1:
+		return singular
+	return '%d %s' % (n, plural)

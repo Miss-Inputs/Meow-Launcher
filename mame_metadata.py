@@ -6,7 +6,7 @@ from config import main_config
 from common_types import MediaType, SaveType
 from metadata import EmulationStatus, CPUInfo, ScreenInfo
 from region_detect import get_language_by_english_name, get_regions_from_filename_tags
-from common import find_filename_tags
+from common import find_filename_tags, pluralize
 from mame_helpers import find_main_cpu
 
 debug = '--debug' in sys.argv
@@ -477,7 +477,7 @@ def add_input_info(machine):
 			controller.components.append(input_metadata.Gambling())
 		else:
 			if buttons:
-				description = 'Custom input device with {0} buttons'.format(buttons)
+				description = 'Custom input device with {0}'.format(pluralize(button, 'button'))
 			else:
 				description = 'Custom input device'
 			controller.components.append(input_metadata.Custom(description))

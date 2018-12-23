@@ -1,10 +1,4 @@
-
-def _pluralize(n, singular, plural=None):
-	if not plural:
-		plural = singular + 's'
-	if n == 1:
-		return singular
-	return '%d %s' % (n, plural)
+from common import pluralize
 
 class Controller():
 	def describe(self):
