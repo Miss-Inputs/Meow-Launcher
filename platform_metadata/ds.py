@@ -115,7 +115,7 @@ def parse_ds_header(game, header):
 		if region_flags < 0xffff0000:
 			#If they're set any higher than this, it's region free
 			#GBATEK says region free is 0xffffffff specifically but Pokemon gen 5 is 0xffffffef so who knows
-			#TODO: Wait should I set region to World if it's a region free thing or nah
+			#Although either way, it doesn't imply regions is world, it just means it'll work worldwide, so like... ehh... regions is a weird metadata field tbh
 			game.metadata.regions = parse_dsi_region_flags(region_flags)
 	else:
 		region = header[29]
