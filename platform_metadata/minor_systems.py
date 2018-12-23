@@ -127,7 +127,12 @@ def add_arcadia_info(game):
 		#Nothing really here other than alt titles (for other languages). I guess this proves that the Bandai Arcadia really isn't different.
 
 def add_astrocade_info(game):
-	#TODO: Input info should always be keypad... I think?
+	joystick = input_metadata.NormalInput()
+	joystick.dpads = 1
+	joystick.face_buttons = 1 #Sort of a trigger button, as it's a gun-shaped grip
+	#Controller also integrates a paddle
+	#Keypad is 24 keys, and mounted onto the system
+	game.metadata.input_info.add_option([normal_controller, input_metadata.Keypad(), input_metadata.Paddle()])
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
