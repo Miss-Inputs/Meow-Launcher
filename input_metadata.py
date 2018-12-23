@@ -139,7 +139,11 @@ class Trackball(Controller):
 	pass
 
 class Custom(Controller):
-	pass
+	def __init__(self, custom_description=None):
+		self.custom_description = custom_description
+
+	def describe(self):
+		return self.custom_description if self.custom_description else 'Custom'
 
 class CombinedController(Controller):
 	def __init__(self, components=None):

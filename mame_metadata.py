@@ -476,7 +476,11 @@ def add_input_info(machine):
 		elif input_type == 'gambling':
 			controller.components.append(input_metadata.Gambling())
 		else:
-			controller.components.append(input_metadata.Custom())
+			if buttons:
+				description = 'Custom input device with {0} buttons'.format(buttons)
+			else:
+				description = 'Custom input device'
+			controller.components.append(input_metadata.Custom(description))
 
 	if has_normal_input:
 		controller.components.append(normal_input)

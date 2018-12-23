@@ -373,7 +373,7 @@ def add_nes_metadata(game):
 			nes_peripheral = NESPeripheral.Piano
 			#Apparently, it's actually just a MIDI keyboard, hence the MAME driver adds MIDI in/out ports
 
-			miracle_piano = input_metadata.Custom()
+			miracle_piano = input_metadata.Custom('88-key piano')
 			#game.metadata.input_info.buttons = 88
 			game.metadata.input_info.add_option(miracle_piano)
 		else:
