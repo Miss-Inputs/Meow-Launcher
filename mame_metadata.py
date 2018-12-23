@@ -477,7 +477,7 @@ def add_input_info(machine):
 			controller.components.append(input_metadata.Gambling())
 		else:
 			if buttons:
-				description = 'Custom input device with {0}'.format(pluralize(button, 'button'))
+				description = 'Custom input device with {0}'.format(pluralize(buttons, 'button'))
 			else:
 				description = 'Custom input device'
 			controller.components.append(input_metadata.Custom(description))

@@ -43,15 +43,15 @@ class NormalController(Controller):
 	def fully_describe(self):
 		description = []
 		if self.face_buttons:
-			description.append(_pluralize(self.face_buttons, 'button'))
+			description.append(pluralize(self.face_buttons, 'button'))
 		if self.shoulder_buttons:
-			description.append(_pluralize(self.shoulder_buttons, 'shoulder button'))
+			description.append(pluralize(self.shoulder_buttons, 'shoulder button'))
 		if self.dpads:
-			description.append(_pluralize(self.dpads, 'dpad'))
+			description.append(pluralize(self.dpads, 'dpad'))
 		if self.analog_sticks:
-			description.append(_pluralize(self.analog_sticks, 'analog stick'))
+			description.append(pluralize(self.analog_sticks, 'analog stick'))
 		if self.analog_triggers:
-			description.append(_pluralize(self.analog_triggers, 'analog trigger'))
+			description.append(pluralize(self.analog_triggers, 'analog trigger'))
 
 		return ' + '.join(description)
 
