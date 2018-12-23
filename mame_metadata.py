@@ -458,7 +458,9 @@ def add_input_info(machine):
 		elif input_type == 'trackball':
 			input_option.inputs.append(input_metadata.Trackball())
 		elif input_type == 'mouse':
-			input_option.inputs.append(input_metadata.Mouse())
+			mouse = input_metadata.Mouse()
+			mouse.buttons = buttons
+			input_option.inputs.append(mouse)
 		elif input_type == 'keypad':
 			keypad = input_metadata.Keypad()
 			keypad.keys = buttons

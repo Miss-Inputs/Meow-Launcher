@@ -21,7 +21,9 @@ def parse_peripherals(game, peripherals):
 	for peripheral_char in peripherals:
 		if peripheral_char == 'M':
 			#3 buttons if I'm not mistaken
-			game.metadata.input_info.add_option([input_metadata.Mouse()])
+			mouse = input_metadata.Mouse()
+			mouse.buttons = 3
+			game.metadata.input_info.add_option([mouse])
 		elif peripheral_char == 'V':
 			game.metadata.input_info.add_option([input_metadata.Paddle()])
 		elif peripheral_char == 'A':

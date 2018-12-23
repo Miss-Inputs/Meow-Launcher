@@ -78,9 +78,10 @@ def add_controller_info(game, controller):
 		game.metadata.input_info.add_option([joystick])
 	elif controller in ('AMIGAMOUSE', 'ATARIMOUSE'):
 		#ATARIMOUSE is an ST mouse, to be precise
-		#TODO: Should differentiate between AMIGAMOUSE and ATARIMOUSE? Maybe that's needed for something
-		#game.metadata.input_info.buttons = 2
-		game.metadata.input_info.add_option([input_metadata.Mouse()])
+		#TODO: Should differentiate between AMIGAMOUSE and ATARIMOUSE? Maybe that's needed for something; anyway they both have 2 buttons
+		mouse = input_metadata.Mouse()
+		mouse.buttons = 2
+		game.metadata.input_info.add_option([mouse])
 	elif controller == 'TRAKBALL':
 		#Reminder to not do .buttons = 2, while it does have 2 physical buttons, they're just to make it ambidextrous; they function as the same single button
 		game.metadata.input_info.add_option([input_metadata.Trackball()])
