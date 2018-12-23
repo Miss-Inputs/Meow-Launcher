@@ -129,8 +129,8 @@ def parse_ds_header(game, header):
 
 	banner_offset = int.from_bytes(header[0x68:0x6C], 'little')
 	if banner_offset:
-		#TODO: amount = header[0x208] if is_dsi, though the extended part of the banner contains animated icon frames, so we don't really need it
-		banner = game.rom.read(seek_to=banner_offset, amount=0xA00)
+		#The extended part of the banner if is_dsi contains animated icon frames, so we don't really need it
+		banner = game.rom.read(seek_to=banner_offset, amount=header[0x208] if is_dsi else 0xA00)
 		version = int.from_bytes(banner[0:2], 'little')
 		game.metadata.specific_info['Banner-Version'] = version
 		if version in (1, 2, 3, 0x103):
@@ -144,5 +144,5 @@ def parse_ds_header(game, header):
 def add_ds_metadata(game):
 	add_ds_system_info(game)
 
-	header = game.rom.read(amount=0x200)
+	header = game.rom.read(amount=0x208)
 	parse_ds_header(game, header)
