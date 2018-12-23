@@ -6,6 +6,7 @@ except ModuleNotFoundError:
 
 import struct
 
+import input_metadata
 from info.region_info import TVSystem
 from region_detect import get_region_by_name
 from metadata import CPUInfo, ScreenInfo, Screen
@@ -140,9 +141,44 @@ def parse_ds_header(game, header):
 				icon_palette = struct.unpack('H' * 16, banner[0x220:0x240])
 				game.icon = decode_icon(icon_bitmap, icon_palette)
 
+def add_ds_input_info(game):
+	builtin_buttons = input_metadata.NormalController()
+	builtin_buttons.dpads = 1
+	builtin_buttons.face_buttons = 4 #I forgot why we're not counting Start and Select but I guess that's a thing
+	builtin_buttons.shoulder_buttons = 2
+	builtin_gamepad = input_metadata.CombinedController([builtin_buttons, input_metadata.Touchscreen()])
+
+	bluetooth_keyboard = input_metadata.Keyboard()
+	bluetooth_keyboard.keys = 64 #If I counted correctly from the image...
+
+	if game.metadata.product_code:
+		if game.metadata.product_code.startswith('UZP'):
+			#For now, we'll detect stuff by product code... this is Learn with Pokemon Typing Adventure, and it's different because the Bluetooth adapter is in the cartridge itself
+			game.metadata.specific_info['Uses-Keyboard'] = True
+			#Keyboard is technically optional, as I understand it, so I guess it's a separate option
+			game.metadata.input_info.add_option(bluetooth_keyboard)
+
+	if game.metadata.platform == 'DSi':
+		#Since the DSi has no GBA slot, there's nothing to put funny expansion devices into.
+		#Hmmm... would I be able to make that assumption with DSi-enhanced games?
+		game.metadata.input_info.add_option(builtin_gamepad)
+		return
+
+	#Certain games use other input_info that I haven't automagically detected:
+	#Slide Adventure MAGKID: Slidey thing (effectively a mouse)
+	#Easy Piano: Play & Compose: Piano (dunno much about it)
+	#Guitar Hero: On Tour series: Guitar grip (4 buttons)
+	#Arkanoid DS: Paddle (also usable by some other Taito games) (might be just optional?)
+	#Tony Hawk's Motion: Gyroscope
+	#Various homebrew: DS Motion Pack
+
+	#But for now let's just do the standard controls, and hence cause code duplication
+	game.metadata.input_info.add_option(builtin_gamepad)
+
 
 def add_ds_metadata(game):
 	add_ds_system_info(game)
 
 	header = game.rom.read(amount=0x208)
 	parse_ds_header(game, header)
+	add_ds_input_info(game)
