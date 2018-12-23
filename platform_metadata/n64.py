@@ -123,7 +123,7 @@ def add_n64_metadata(game):
 	normal_controller.shoulder_buttons = 3 #L, R, and I guess Z will have to be counted as a shoulder button
 	normal_controller.analog_sticks = 1
 	normal_controller.dpads = 1
-	game.metadata.input_info.add_option([normal_controller])
+	game.metadata.input_info.add_option(normal_controller)
 
 	database = get_mupen64plus_database()
 

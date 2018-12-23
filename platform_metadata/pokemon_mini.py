@@ -9,7 +9,7 @@ def add_pokemini_metadata(game):
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2 #A B
 	builtin_gamepad.shoulder_buttons = 1 #C
-	game.metadata.input_info.add_option([builtin_gamepad])
+	game.metadata.input_info.add_option(builtin_gamepad)
 	#Technically you could say Motion Controls because of the shake detection, but not all games use it, and you can't really tell which do and which don't programmatically
 	game.metadata.tv_type = TVSystem.Agnostic
 

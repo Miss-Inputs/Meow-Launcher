@@ -52,27 +52,27 @@ def parse_peripherals(game, peripherals):
 		analog_controller.analog_triggers = 2
 		analog_controller.analog_sticks = 1
 		analog_controller.dpads = 1
-		game.metadata.input_info.add_option([analog_controller])
+		game.metadata.input_info.add_option(analog_controller)
 	elif uses_standard_controller:
 		standard_controller = input_metadata.NormalController()
 		standard_controller.face_buttons = 6 # A B C X Y Z
 		standard_controller.shoulder_buttons = 2 #L R
 		standard_controller.dpads = 1
-		game.metadata.input_info.add_option([standard_controller])
+		game.metadata.input_info.add_option(standard_controller)
 
 	if uses_gun:
-		game.metadata.input_info.add_option([input_metadata.LightGun()])
+		game.metadata.input_info.add_option(input_metadata.LightGun())
 	if uses_keyboard:
 		keyboard = input_metadata.Keyboard()
 		keyboard.keys = 101
 		#Japan keyboard has 89 keys... bleh, it doesn't seem to say which keyboard it refers to
-		game.metadata.input_info.add_option([keyboard])
+		game.metadata.input_info.add_option(keyboard)
 	if uses_mouse:
 		mouse = input_metadata.Mouse()
 		mouse.buttons = 3
-		game.metadata.input_info.add_option([mouse])
+		game.metadata.input_info.add_option(mouse)
 	if uses_wheel:
-		game.metadata.input_info.add_option([input_metadata.SteeringWheel()])
+		game.metadata.input_info.add_option(input_metadata.SteeringWheel())
 
 def add_saturn_info(game, header):
 	#42:48 Version

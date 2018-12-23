@@ -176,7 +176,7 @@ class InputInfo():
 
 	def add_option(self, inputs):
 		opt = InputOption()
-		opt.inputs = inputs
+		opt.inputs = inputs if isinstance(inputs, list) else [inputs]
 		self.input_options.append(opt)
 
 	@property

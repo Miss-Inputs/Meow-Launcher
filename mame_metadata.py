@@ -394,7 +394,7 @@ def add_input_info(machine):
 		#Sometimes you get some games with 1 or more players, but no control type defined.  This usually happens with
 		#pinball games and weird stuff like a clock, but also some genuine games like Crazy Fight that are more or less
 		#playable just fine, so we'll leave them in
-		machine.metadata.input_info.add_option([input_metadata.Custom()])
+		machine.metadata.input_info.add_option(input_metadata.Custom())
 		return
 
 	controller = input_metadata.CombinedController()

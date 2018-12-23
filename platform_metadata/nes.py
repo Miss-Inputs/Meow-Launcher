@@ -332,52 +332,52 @@ def add_nes_metadata(game):
 			nes_peripheral = NESPeripheral.Zapper
 			#game.metadata.input_info.buttons = 1
 			zapper = input_metadata.LightGun()
-			game.metadata.input_info.add_option([zapper])
+			game.metadata.input_info.add_option(zapper)
 		elif peripheral == 'vaus':
 			nes_peripheral = NESPeripheral.ArkanoidPaddle
 			#game.metadata.input_info.buttons = 1
 			vaus = input_metadata.Paddle()
-			game.metadata.input_info.add_option([vaus])
+			game.metadata.input_info.add_option(vaus)
 			#Can still use standard controller
-			game.metadata.input_info.add_option([standard_controller])
+			game.metadata.input_info.add_option(standard_controller)
 		elif peripheral in ('powerpad', 'ftrainer', 'fffitness'):
 			nes_peripheral = NESPeripheral.PowerPad
 
 			power_pad = input_metadata.NormalController()
 			power_pad.face_buttons = 12 #"face"
-			game.metadata.input_info.add_option([power_pad])
+			game.metadata.input_info.add_option(power_pad)
 		elif peripheral == 'powerglove':
 			nes_peripheral = NESPeripheral.PowerGlove
 			#Hmm... apparently it functions as a standard NES controller, but there are 2 games specifically designed for glove usage? So it must do something extra I guess
 
 			power_glove = input_metadata.MotionControls()
 			#game.metadata.input_info.buttons = 11 #Standard A + B + 9 program buttons
-			game.metadata.input_info.add_option([power_glove])
+			game.metadata.input_info.add_option(power_glove)
 		elif peripheral == 'rob':
 			nes_peripheral = NESPeripheral.ROB
 			#I'll leave input info alone, because I'm not sure how I would classify ROB
-			game.metadata.input_info.add_option([standard_controller])
+			game.metadata.input_info.add_option(standard_controller)
 		elif peripheral == 'fc_keyboard':
 			nes_peripheral = NESPeripheral.FamicomKeyboard
 
 			famicom_keyboard = input_metadata.Keyboard()
 			famicom_keyboard.keys = 72
-			game.metadata.input_info.add_option([famicom_keyboard])
+			game.metadata.input_info.add_option(famicom_keyboard)
 		elif peripheral == 'subor_keyboard':
 			nes_peripheral = NESPeripheral.SuborKeyboard
 
 			subor_keyboard = input_metadata.Keyboard()
 			subor_keyboard.keys = 96
-			game.metadata.input_info.add_option([subor_keyboard])
+			game.metadata.input_info.add_option(subor_keyboard)
 		elif peripheral == 'mpiano':
 			nes_peripheral = NESPeripheral.Piano
 			#Apparently, it's actually just a MIDI keyboard, hence the MAME driver adds MIDI in/out ports
 
 			miracle_piano = input_metadata.Custom()
 			#game.metadata.input_info.buttons = 88
-			game.metadata.input_info.add_option([miracle_piano])
+			game.metadata.input_info.add_option(miracle_piano)
 		else:
-			game.metadata.input_info.add_option([standard_controller])
+			game.metadata.input_info.add_option(standard_controller)
 
 		#Well, it wouldn't be a controller... not sure how this one works exactly
 		game.metadata.specific_info['Uses-3D-Glasses'] = peripheral == '3dglasses'

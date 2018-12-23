@@ -30,7 +30,7 @@ def add_virtual_boy_metadata(game):
 	gamepad.face_buttons = 2
 	gamepad.shoulder_buttons = 2
 	gamepad.dpads = 2
-	game.metadata.input_info.add_option([gamepad])
+	game.metadata.input_info.add_option(gamepad)
 
 	software = get_software_list_entry(game)
 	if software:

@@ -151,20 +151,20 @@ def add_info_from_software_list(game, software):
 		#All of these peripherals have 2 buttons as well?
 		if controller_1 == 'graphic':
 			peripheral = SMSPeripheral.Tablet
-			game.metadata.input_info.add_option([input_metadata.Touchscreen()])
+			game.metadata.input_info.add_option(input_metadata.Touchscreen())
 		elif controller_1 == 'lphaser':
 			peripheral = SMSPeripheral.Lightgun
 			#game.metadata.input_info.inputs = [InputType.LightGun]
-			game.metadata.input_info.add_option([input_metadata.LightGun()])
+			game.metadata.input_info.add_option(input_metadata.LightGun())
 		elif controller_1 == 'paddle':
 			peripheral = SMSPeripheral.Paddle
-			game.metadata.input_info.add_option([input_metadata.Paddle()])
+			game.metadata.input_info.add_option(input_metadata.Paddle())
 		elif controller_1 == 'sportspad':
 			peripheral = SMSPeripheral.SportsPad
-			game.metadata.input_info.add_option([input_metadata.Trackball()])
+			game.metadata.input_info.add_option(input_metadata.Trackball())
 		else:
 			#Not sure if this is an option for games that use lightgun/paddle/etc? I'll assume it's not
-			game.metadata.input_info.add_option([builtin_gamepad])
+			game.metadata.input_info.add_option(builtin_gamepad)
 
 		game.metadata.specific_info['Peripheral'] = peripheral
 
@@ -182,7 +182,7 @@ def get_sms_metadata(game):
 		builtin_gamepad = input_metadata.NormalController()
 		builtin_gamepad.dpads = 1
 		builtin_gamepad.face_buttons = 2 #'1' on left, '2' on right
-		game.metadata.input_info.add_option([builtin_gamepad])
+		game.metadata.input_info.add_option(builtin_gamepad)
 
 	software = get_software_list_entry(game)
 	if software:

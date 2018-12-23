@@ -12,7 +12,7 @@ def add_entex_adventure_vision_info(game):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4 #Physically, they're on both sides of the system, but those are duplicates (for ambidextrousity)
-	game.metadata.input_info.add_option([builtin_gamepad])
+	game.metadata.input_info.add_option(builtin_gamepad)
 
 	#I don't think so mate
 	game.metadata.save_type = SaveType.Nothing
@@ -28,7 +28,7 @@ def add_game_pocket_computer_info(game):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4
-	game.metadata.input_info.add_option([builtin_gamepad])
+	game.metadata.input_info.add_option(builtin_gamepad)
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
@@ -44,7 +44,7 @@ def add_gamate_info(game):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
-	game.metadata.input_info.add_option([builtin_gamepad])
+	game.metadata.input_info.add_option(builtin_gamepad)
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
@@ -61,7 +61,7 @@ def add_casio_pv1000_info(game):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
-	game.metadata.input_info.add_option([builtin_gamepad])
+	game.metadata.input_info.add_option(builtin_gamepad)
 	#(Start, select,) A, and B. And to think some things out there say it only has 1 button... Well, I've also heard start and select are on the console, so maybe MAME is being a bit weird
 
 	#Until proven otherwise
@@ -78,7 +78,7 @@ def add_mega_duck_info(game):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
-	game.metadata.input_info.add_option([builtin_gamepad])
+	game.metadata.input_info.add_option(builtin_gamepad)
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
@@ -93,7 +93,7 @@ def add_watara_supervision_info(game):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
-	game.metadata.input_info.add_option([builtin_gamepad])
+	game.metadata.input_info.add_option(builtin_gamepad)
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
@@ -193,12 +193,12 @@ def add_sg1000_info(game):
 	if uses_tablet:
 		#A drawing tablet, but that's more or less a touchscreen
 		#No buttons here?
-		game.metadata.input_info.add_option([input_metadata.Touchscreen()])
+		game.metadata.input_info.add_option(input_metadata.Touchscreen())
 	else:
 		normal_controller = input_metadata.NormalController()
 		normal_controller.face_buttons = 2
 		normal_controller.dpads = 1
-		game.metadata.input_info.add_option([normal_controller])
+		game.metadata.input_info.add_option(normal_controller)
 
 def add_sharp_x1_info(game):
 	#Input info: Keyboard and/or joystick
@@ -325,9 +325,9 @@ def add_colecovision_info(game):
 		game.metadata.input_info.add_option([normal_controller, normal_controller_keypad])
 	else:
 		if peripheral == ColecoController.DrivingController:
-			game.metadata.input_info.add_option([driving_controller])
+			game.metadata.input_info.add_option(driving_controller)
 		elif peripheral == ColecoController.RollerController:
-			game.metadata.input_info.add_option([roller_controller])
+			game.metadata.input_info.add_option(roller_controller)
 		elif peripheral == ColecoController.SuperActionController:
 			game.metadata.input_info.add_option([super_action_controller, super_action_controller_keypad])
 		if not peripheral_required:
@@ -340,7 +340,7 @@ def add_hartung_game_master_info(game):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
-	game.metadata.input_info.add_option([builtin_gamepad])
+	game.metadata.input_info.add_option(builtin_gamepad)
 
 	software = get_software_list_entry(game)
 	if software:
@@ -365,7 +365,7 @@ def add_nichibutsu_my_vision_info(game):
 	buttons = input_metadata.NormalController() #Not normal, but closest there is
 	#It's like a keyboard except not; MAME defines it as 14-button "mahjong" + 8-way joystick with 1 button and hmm
 	buttons.face_buttons = 19 #Numbered 1 to 14 in a row, then A B C D arranged in directions above that, and an E button next to that
-	game.metadata.input_info.add_option([buttons])
+	game.metadata.input_info.add_option(buttons)
 
 	software = get_software_list_entry(game)
 	if software:
@@ -376,7 +376,7 @@ def add_bbc_bridge_companion_info(game):
 
 	buttons = input_metadata.NormalController()
 	buttons.face_buttons = 10 #According to the MAME driver, I'm too lazy to look at pictures of the thing
-	game.metadata.input_info.add_option([buttons])
+	game.metadata.input_info.add_option(buttons)
 
 	game.metadata.save_type = SaveType.Nothing #Yeah nah
 
@@ -409,14 +409,14 @@ def add_cd32_info(game):
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4
 	builtin_gamepad.shoulder_buttons = 2
-	game.metadata.input_info.add_option([builtin_gamepad])
+	game.metadata.input_info.add_option(builtin_gamepad)
 
 def add_neogeo_cd_info(game):
 	#Apparently there is a mahjong controller too, but... meh
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4
-	game.metadata.input_info.add_option([builtin_gamepad])
+	game.metadata.input_info.add_option(builtin_gamepad)
 
 def add_ibm_pcjr_info(game):
 	#TODO .jrc files should have a header with something in them, so eventually, IBM PCjr will get its own module here
@@ -494,7 +494,7 @@ def add_juicebox_info(game):
 
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.face_buttons = 5 #Rewind/forward/stop/play/function
-	game.metadata.input_info.add_option([builtin_gamepad])
+	game.metadata.input_info.add_option(builtin_gamepad)
 
 	game.metadata.save_type = SaveType.Nothing #Nope!
 
@@ -519,12 +519,12 @@ def add_atari_5200_info(game):
 	game.metadata.specific_info['Uses-Trackball'] = uses_trackball
 
 	if uses_trackball:
-		game.metadata.input_info.add_option([input_metadata.Trackball()])
+		game.metadata.input_info.add_option(input_metadata.Trackball())
 	else:
 		normal_controller = input_metadata.NormalController()
 		normal_controller.face_buttons = 2 #1, 2, (Pause, Reset, Start) I think? I think it works the same way for trackballs
 		normal_controller.analog_sticks = 1
-		game.metadata.input_info.add_option([normal_controller])
+		game.metadata.input_info.add_option(normal_controller)
 
 def add_game_com_info(game):
 	#Could have its own header. I think it does, but like.. who's gonna document such a thing? The wide community of Game.com enthusiasts?
@@ -533,7 +533,7 @@ def add_game_com_info(game):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4 #A B C D
-	game.metadata.input_info.add_option([builtin_gamepad])
+	game.metadata.input_info.add_option(builtin_gamepad)
 
 	#Might have saving, actually. I'm just not sure about how it works.
 
@@ -549,7 +549,7 @@ def add_lynx_info(game):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4 #Option 1, Option 2, A, B; these are flipped so you might think there's 8
-	game.metadata.input_info.add_option([builtin_gamepad])
+	game.metadata.input_info.add_option(builtin_gamepad)
 
 	magic = game.rom.read(amount=4)
 	is_headered = magic == b'LYNX'

@@ -8,7 +8,7 @@ def add_ngp_metadata(game):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2 #A B, also Option (Option is just Start really but they have to be special and unique and not like the other girls)
-	game.metadata.input_info.add_option([builtin_gamepad])
+	game.metadata.input_info.add_option(builtin_gamepad)
 
 	header = game.rom.read(amount=64)
 	copyright_string = header[:28]

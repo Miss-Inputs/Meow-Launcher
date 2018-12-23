@@ -9,7 +9,7 @@ def add_vectrex_metadata(game):
 	gamepad = input_metadata.NormalController()
 	gamepad.face_buttons = 4 #All arranged in a row, not rectangle
 	gamepad.analog_sticks = 1
-	game.metadata.input_info.add_option([gamepad])
+	game.metadata.input_info.add_option(gamepad)
 	#TODO: There's also a light pen
 
 	software = get_software_list_entry(game)

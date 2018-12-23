@@ -69,52 +69,52 @@ def add_controller_info(game, controller):
 		return
 
 	if controller in ('PADDLES', 'PADDLES_IAXIS', 'PADDLES_IAXDR'):
-		game.metadata.input_info.add_option([input_metadata.Paddle()])
+		game.metadata.input_info.add_option(input_metadata.Paddle())
 		#Paddles come in pairs and hence have 2 players per port
 	elif controller == 'JOYSTICK':
 		joystick = input_metadata.NormalController()
 		joystick.dpads = 1
 		joystick.face_buttons = 1
-		game.metadata.input_info.add_option([joystick])
+		game.metadata.input_info.add_option(joystick)
 	elif controller in ('AMIGAMOUSE', 'ATARIMOUSE'):
 		#ATARIMOUSE is an ST mouse, to be precise
 		#TODO: Should differentiate between AMIGAMOUSE and ATARIMOUSE? Maybe that's needed for something; anyway they both have 2 buttons
 		mouse = input_metadata.Mouse()
 		mouse.buttons = 2
-		game.metadata.input_info.add_option([mouse])
+		game.metadata.input_info.add_option(mouse)
 	elif controller == 'TRAKBALL':
 		#Reminder to not do .buttons = 2, while it does have 2 physical buttons, they're just to make it ambidextrous; they function as the same single button
-		game.metadata.input_info.add_option([input_metadata.Trackball()])
+		game.metadata.input_info.add_option(input_metadata.Trackball())
 	elif controller == 'KEYBOARD':
 		#The Keyboard Controller is actually a keypad, go figure. Actually, it's 2 keypads, go figure twice. BASIC Programming uses both at once and Codebreakers uses them separately for each player, so there's not really anything else we can say here.
 		keypad = input_metadata.Keypad()
 		keypad.keys = 12
-		game.metadata.input_info.add_option([keypad])
+		game.metadata.input_info.add_option(keypad)
 	elif controller in 'COMPUMATE':
 		#The CompuMate is a whole dang computer, not just a keyboard. But I guess it's the same sorta thing
 		keyboard = input_metadata.Keyboard()
 		keyboard.keys = 42
-		game.metadata.input_info.add_option([keyboard])
+		game.metadata.input_info.add_option(keyboard)
 	elif controller == 'GENESIS':
 		game.metadata.specific_info['Uses-Genesis-Controller'] = True
 
 		genesis_controller = input_metadata.NormalController()
 		genesis_controller.dpads = 1
 		genesis_controller.face_buttons = 3
-		game.metadata.input_info.add_option([genesis_controller])
+		game.metadata.input_info.add_option(genesis_controller)
 	elif controller == 'BOOSTERGRIP':
 		joystick = input_metadata.NormalController()
 		joystick.dpads = 1
 		joystick.face_buttons = 3 #There are two on the boostergrip, but it passes through to the 2600 controller which still has a button, or something
-		game.metadata.input_info.add_option([joystick])
+		game.metadata.input_info.add_option(joystick)
 		game.metadata.specific_info['Uses-Boostergrip'] = True
 	elif controller == 'DRIVING':
 		#Has 360 degree movement, so not quite like a paddle. MAME actually calls it a trackball
-		game.metadata.input_info.add_option([input_metadata.SteeringWheel()])
+		game.metadata.input_info.add_option(input_metadata.SteeringWheel())
 	elif controller == 'MINDLINK':
-		game.metadata.input_info.add_option([input_metadata.Biological()])
+		game.metadata.input_info.add_option(input_metadata.Biological())
 	else:
-		game.metadata.input_info.add_option([input_metadata.Custom()])
+		game.metadata.input_info.add_option(input_metadata.Custom())
 
 def parse_stella_db(game, game_info):
 	#TODO: Get year out of name

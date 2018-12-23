@@ -58,7 +58,7 @@ def add_wonderswan_metadata(game):
 	else:
 		#Because of the rotation, it's hard to say which one of the sets of 4 buttons is the one used for directional control; but one of them will be
 		builtin_gamepad.face_buttons = 6
-	game.metadata.input_info.add_option([builtin_gamepad])
+	game.metadata.input_info.add_option(builtin_gamepad)
 
 	rom_size = game.rom.get_size()
 	header_start_position = rom_size - 10

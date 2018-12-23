@@ -42,7 +42,7 @@ def add_gba_metadata(game):
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2 #A B
 	builtin_gamepad.shoulder_buttons = 2 #L R
-	game.metadata.input_info.add_option([builtin_gamepad])
+	game.metadata.input_info.add_option(builtin_gamepad)
 
 	game.metadata.tv_type = TVSystem.Agnostic
 
