@@ -139,8 +139,8 @@ def parse_plain_region(game, offset, length):
 		elif library == '[SDK+NINTENDO:ExtraPad]':
 			game.metadata.specific_info['Uses-Circle-Pad-Pro'] = True
 			#ZL + ZR + right analog stick; New 3DS has these too but the extra controls there are internally represented as a Circle Pad Pro for compatibility so this all works out I think
-			game.metadata.input_info.input_options[0].inputs[0].analog_sticks += 1
-			game.metadata.input_info.input_options[0].inputs[0].shoulder_buttons += 2
+			game.metadata.input_info.input_options[0].inputs[0].components[0].analog_sticks += 1
+			game.metadata.input_info.input_options[0].inputs[0].components[0].shoulder_buttons += 2
 		elif library.startswith == '[SDK+NINTENDO:Gyroscope]':
 			game.metadata.specific_info['Uses-Gyroscope'] = True
 			game.metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls)
