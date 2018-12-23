@@ -453,7 +453,7 @@ def mame_ibm_pcjr(game, _):
 	return mame_command_line('ibmpcjr', slot, slot_options, has_keyboard=True)
 
 def mame_atari_jaguar(game, _):
-	if game.metadata.media_type == MediaType.Cartidge:
+	if game.metadata.media_type == MediaType.Cartridge:
 		slot = 'cart1'
 	elif game.metadata.media_type == MediaType.Executable:
 		slot = 'quik'
