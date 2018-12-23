@@ -343,7 +343,12 @@ def add_hartung_game_master_info(game):
 
 def add_bandai_sv8000_info(game):
 	game.metadata.tv_type = TVSystem.NTSC #Japan only
-	#TODO Input info: Some wanky pair of keypads, thanks I hate it
+
+	keypad = input_metadata.Keypad() #2 of these
+	keypad.keys = 12 #Digits + # *
+	joystick = input_metadata.NormalController()
+	joystick.dpads = 1 #Keypad with a disc thing on it
+	game.metadata.input_info.add_option([keypad, joystick])
 
 	software = get_software_list_entry(game)
 	if software:
@@ -351,7 +356,11 @@ def add_bandai_sv8000_info(game):
 
 def add_nichibutsu_my_vision_info(game):
 	game.metadata.tv_type = TVSystem.NTSC #Japan only
-	#TODO Input info: Some kinda weird partial-keyboard thingy
+
+	buttons = input_metadata.NormalController() #Not normal, but closest there is
+	#It's like a keyboard except not; MAME defines it as 14-button "mahjong" + 8-way joystick with 1 button and hmm
+	buttons.face_buttons = 19 #Numbered 1 to 14 in a row, then A B C D arranged in directions above that, and an E button next to that
+	game.metadata.input_info.add_option([buttons])
 
 	software = get_software_list_entry(game)
 	if software:
@@ -578,7 +587,14 @@ def add_fm7_info(game):
 		game.metadata.product_code = software.get_info('serial')
 
 def add_super_cassette_vision_info(game):
-	#TODO Input iunfo: Joystick + keypad thingo
+	keypad = input_metadata.Keypad() #Part of main body of console
+	keypad.keys = 12 #Digits + CL EN
+
+	joystick = input_metadata.NormalController() #2 of them hardwired in
+	joystick.face_buttons = 2
+
+	game.metadata.input_info.add_option([keypad, joystick])
+
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
