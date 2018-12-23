@@ -626,3 +626,4 @@ def add_stub_info(game):
 	#MSX1/2: Input info: Keyboard or joystick; Other info you can get from carts here: PCB, slot (something like ascii8 or whatever), mapper
 	#GX4000: Input info: 2-button gamepad, analog stick, or light gun (Skeet Shoot, The Enforcer); gx4000.xml software list decides to put that inside a comment above the <software> element rather than anything parseable
 	#Sord M5: Input info: Keyboard, maybe joystick? Take note of info > usage = requiring 36K RAM, though we just set our M5 to have max RAM anyway, seems to be harmless
+	#TODO: Add Jaguar input info, should only be the 1 kind of ugly gamepad?
