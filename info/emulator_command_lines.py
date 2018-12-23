@@ -9,6 +9,7 @@ from platform_metadata.nes import NESPeripheral
 from common_types import MediaType, EmulationNotSupportedException, NotARomException
 from mame_helpers import have_mame
 from .region_info import TVSystem
+import io_utils
 
 def _get_autoboot_script_by_name(name):
 	this_package = os.path.dirname(__file__)
@@ -713,8 +714,7 @@ def _make_dosbox_config(app, specific_config):
 			graphics = app.config['required_hardware']['max_graphics']
 			configwriter['dosbox']['machine'] = 'svga_s3' if graphics == 'svga' else graphics
 
-	#TODO: Perform other sanity checks on name
-	name = app.name.replace(': ', ' - ') + '.ini'
+	name = io_utils.sanitize_name(app.name) + '.ini'
 	path = os.path.join(main_config.dosbox_configs_path, name)
 
 	os.makedirs(main_config.dosbox_configs_path, exist_ok=True)
