@@ -60,7 +60,8 @@ def add_3ds_system_info(game):
 	builtin_gamepad.face_buttons = 4
 	builtin_gamepad.shoulder_buttons = 2
 
-	game.metadata.input_info.add_option([builtin_gamepad, input_metadata.Touchscreen()])
+	controller = input_metadata.CombinedController([builtin_gamepad, input_metadata.Touchscreen()])
+	game.metadata.input_info.add_option(controller)
 
 media_unit = 0x200
 

@@ -118,10 +118,11 @@ def add_apfm1000_info(game):
 def add_arcadia_info(game):
 	keypad = input_metadata.Keypad() #2 controllers hardwired into the system. If MAME is any indication, the buttons on the side don't do anything or are equivalent to keypad 2?
 	keypad.keys = 12 #MAME mentions 16 here... maybe some variant systems have more
-	controller = input_metadata.NormalController()
-	controller.analog_sticks = 1 #According to MAME it's an analog stick but everywhere else suggests it's just digital?
+	stick = input_metadata.NormalController()
+	stick.analog_sticks = 1 #According to MAME it's an analog stick but everywhere else suggests it's just digital?
 	#controller.face_buttons = 2 #???? Have also heard that the 2 buttons do the same thing as each other
-	game.metadata.input_info.add_option([keypad, controller])
+	controller = input_metadata.CombinedController([keypad, stick])
+	game.metadata.input_info.add_option(controller)
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
@@ -139,7 +140,9 @@ def add_astrocade_info(game):
 
 	keypad = input_metadata.Keypad() #Mounted onto the system
 	keypad.keys = 24
-	game.metadata.input_info.add_option([joystick, keypad, input_metadata.Paddle()])
+
+	controller = input_metadata.CombinedController([joystick, keypad, input_metadata.Paddle()])
+	game.metadata.input_info.add_option(controller)
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
@@ -237,7 +240,9 @@ def add_vc4000_info(game):
 
 	keypad = input_metadata.Keypad()
 	keypad.keys = 12
-	game.metadata.input_info.add_option([normal_controller, keypad])
+
+	controller = input_metadata.CombinedController([normal_controller, keypad])
+	game.metadata.input_info.add_option(controller)
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
@@ -302,18 +307,19 @@ def add_colecovision_info(game):
 			peripheral = ColecoController.DrivingController
 			peripheral_required = True
 
-	normal_controller = input_metadata.NormalController()
-	normal_controller.face_buttons = 2
-	normal_controller.dpads = 1
+	normal_controller_part = input_metadata.NormalController()
+	normal_controller_part.face_buttons = 2
+	normal_controller_part.dpads = 1
 	normal_controller_keypad = input_metadata.Keypad()
 	normal_controller_keypad.keys = 12
-	#TODO: This doesn't look right, maybe make some kind of CombinedController thing
+	normal_controller = input_metadata.CombinedController([normal_controller_part, normal_controller_keypad])
 
-	super_action_controller = input_metadata.NormalController()
-	super_action_controller.face_buttons = 4
+	super_action_controller_buttons = input_metadata.NormalController()
+	super_action_controller_buttons.face_buttons = 4
 	#Something called a "speed roller" ???
 	super_action_controller_keypad = input_metadata.Keypad()
 	super_action_controller_keypad.keys = 12
+	super_action_controller = input_metadata.CombinedController([super_action_controller_buttons, super_action_controller_keypad])
 
 	roller_controller = input_metadata.Trackball()
 	#Not sure how many buttons?
@@ -322,16 +328,16 @@ def add_colecovision_info(game):
 
 	game.metadata.specific_info['Peripheral'] = peripheral
 	if peripheral == ColecoController.Normal:
-		game.metadata.input_info.add_option([normal_controller, normal_controller_keypad])
+		game.metadata.input_info.add_option(normal_controller)
 	else:
 		if peripheral == ColecoController.DrivingController:
 			game.metadata.input_info.add_option(driving_controller)
 		elif peripheral == ColecoController.RollerController:
 			game.metadata.input_info.add_option(roller_controller)
 		elif peripheral == ColecoController.SuperActionController:
-			game.metadata.input_info.add_option([super_action_controller, super_action_controller_keypad])
+			game.metadata.input_info.add_option(super_action_controller)
 		if not peripheral_required:
-			game.metadata.input_info.add_option([normal_controller, normal_controller_keypad])
+			game.metadata.input_info.add_option(normal_controller)
 	#Doesn't look like you can set controller via command line at the moment, oh well
 
 def add_hartung_game_master_info(game):
@@ -353,7 +359,9 @@ def add_bandai_sv8000_info(game):
 	keypad.keys = 12 #Digits + # *
 	joystick = input_metadata.NormalController()
 	joystick.dpads = 1 #Keypad with a disc thing on it
-	game.metadata.input_info.add_option([keypad, joystick])
+
+	controller = input_metadata.CombinedController([keypad, joystick])
+	game.metadata.input_info.add_option(controller)
 
 	software = get_software_list_entry(game)
 	if software:
