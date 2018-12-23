@@ -462,7 +462,9 @@ def add_input_info(machine):
 		elif input_type == 'keypad':
 			input_option.inputs.append(input_metadata.Keypad())
 		elif input_type == 'keyboard':
-			input_option.inputs.append(input_metadata.Keyboard())
+			keyboard = input_metadata.Keyboard()
+			keyboard.keys = buttons
+			input_option.inputs.append(keyboard)
 		elif input_type == 'mahjong':
 			input_option.inputs.append(input_metadata.Mahjong())
 		elif input_type == 'hanafuda':

@@ -63,7 +63,10 @@ def parse_peripherals(game, peripherals):
 	if uses_gun:
 		game.metadata.input_info.add_option([input_metadata.LightGun()])
 	if uses_keyboard:
-		game.metadata.input_info.add_option([input_metadata.Keyboard()])
+		keyboard = input_metadata.Keyboard()
+		keyboard.keys = 101
+		#Japan keyboard has 89 keys... bleh, it doesn't seem to say which keyboard it refers to
+		game.metadata.input_info.add_option([keyboard])
 	if uses_mouse:
 		game.metadata.input_info.add_option([input_metadata.Mouse()])
 	if uses_wheel:

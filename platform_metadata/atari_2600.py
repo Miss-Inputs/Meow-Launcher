@@ -90,8 +90,9 @@ def add_controller_info(game, controller):
 		game.metadata.input_info.add_option([input_metadata.Keypad()])
 	elif controller in 'COMPUMATE':
 		#The CompuMate is a whole dang computer, not just a keyboard. But I guess it's the same sorta thing
-		#game.metadata.input_info.buttons = 42
-		game.metadata.input_info.add_option([input_metadata.Keyboard()])
+		keyboard = input_metadata.Keyboard()
+		keyboard.keys = 42
+		game.metadata.input_info.add_option([keyboard])
 	elif controller == 'GENESIS':
 		game.metadata.specific_info['Uses-Genesis-Controller'] = True
 

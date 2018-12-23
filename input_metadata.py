@@ -81,6 +81,11 @@ class Keyboard(Controller):
 	def __init__(self):
 		self.keys = 0
 
+	def describe(self):
+		if self.keys > 0:
+			return '{0}-key keyboard'.format(self.keys)
+		return 'Keyboard'
+
 class Keypad(Controller):
 	#TODO Number of keys
 	pass

@@ -361,13 +361,13 @@ def add_nes_metadata(game):
 			nes_peripheral = NESPeripheral.FamicomKeyboard
 
 			famicom_keyboard = input_metadata.Keyboard()
-			#game.metadata.input_info.buttons = 72
+			famicom_keyboard.keys = 72
 			game.metadata.input_info.add_option([famicom_keyboard])
 		elif peripheral == 'subor_keyboard':
 			nes_peripheral = NESPeripheral.SuborKeyboard
 
 			subor_keyboard = input_metadata.Keyboard()
-			#game.metadata.input_info.buttons = 96
+			subor_keyboard.keys = 96
 			game.metadata.input_info.add_option([subor_keyboard])
 		elif peripheral == 'mpiano':
 			nes_peripheral = NESPeripheral.Piano

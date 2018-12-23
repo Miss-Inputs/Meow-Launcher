@@ -33,7 +33,9 @@ def parse_peripherals(game, peripherals):
 		elif peripheral_char == 'G':
 			game.metadata.input_info.add_option([input_metadata.LightGun()])
 		elif peripheral_char == 'K':
-			game.metadata.input_info.add_option([input_metadata.Keyboard()])
+			xband_keyboard = input_metadata.Keyboard()
+			xband_keyboard.keys = 68 #I think I counted that right... I was just looking at the picture
+			game.metadata.input_info.add_option([xband_keyboard])
 		elif peripheral_char == 'J':
 			game.metadata.input_info.add_option([standard_gamepad])
 		elif peripheral_char == '6':
