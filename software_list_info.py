@@ -337,7 +337,7 @@ def parse_release_date(game, release_info):
 	if len(release_info) != 8:
 		return
 
-	#TODO: Support dates containing "x", but ehh...
+	#Some dates contain "x" but like... ehhh, I'll just skip over the unknown parts
 	year = release_info[0:4]
 	month = release_info[4:6]
 	day = release_info[6:8]
