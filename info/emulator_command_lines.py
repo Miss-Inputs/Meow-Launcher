@@ -4,12 +4,12 @@ import sys
 import configparser
 import subprocess
 
+import io_utils
 from config import main_config
 from platform_metadata.nes import NESPeripheral
 from common_types import MediaType, EmulationNotSupportedException, NotARomException
 from mame_helpers import have_mame
 from .region_info import TVSystem
-import io_utils
 
 def _get_autoboot_script_by_name(name):
 	this_package = os.path.dirname(__file__)
