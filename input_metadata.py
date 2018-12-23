@@ -46,10 +46,7 @@ class NormalController(Controller):
 
 		return True
 
-	def describe(self):
-		if self.is_standard:
-			return "Standard"
-
+	def fully_describe(self):
 		description = []
 		if self.face_buttons:
 			description.append(_pluralize(self.face_buttons, 'button'))
@@ -63,6 +60,12 @@ class NormalController(Controller):
 			description.append(_pluralize(self.analog_triggers, 'analog trigger'))
 
 		return ' + '.join(description)
+
+	def describe(self):
+		if self.is_standard:
+			return "Standard"
+
+		return self.fully_describe()
 
 class Biological(Controller):
 	#e.g. Mindlink for Atari 2600 (actually just senses muscle movement); N64 heart rate sensor
@@ -137,6 +140,21 @@ class Trackball(Controller):
 
 class Custom(Controller):
 	pass
+
+class CombinedController(Controller):
+	def __init__(self, components=None):
+		self.components = []
+		if components:
+			for component in components:
+				self.components.append(component)
+
+	def describe(self):
+		if not self.components:
+			#Theoretically shouldn't happen. $2 says I will be proven wrong and have to delete this comment
+			return '<weird controller>'
+		if len(self.components) == 1:
+			return self.components[0].describe()
+		return ' + '.join([component.fully_describe() if isinstance(component, NormalController) else component.describe() for component in self.components])
 
 class InputOption():
 	def __init__(self):

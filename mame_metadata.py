@@ -397,7 +397,7 @@ def add_input_info(machine):
 		machine.metadata.input_info.add_option([input_metadata.Custom()])
 		return
 
-	input_option = input_metadata.InputOption()
+	controller = input_metadata.CombinedController()
 
 	has_normal_input = False
 	has_added_vii_motion_controls = False
@@ -433,52 +433,52 @@ def add_input_info(machine):
 		elif input_type == 'paddle':
 			if machine.metadata.genre == 'Driving':
 				#Yeah this looks weird and hardcody and dodgy but am I wrong
-				input_option.inputs.append(input_metadata.SteeringWheel())
+				controller.components.append(input_metadata.SteeringWheel())
 			elif machine.basename == 'vii':
 				#Uses 3 "paddle" inputs to represent 3-axis motion and I guess I'll have to deal with that
 				if not has_added_vii_motion_controls:
-					input_option.inputs.append(input_metadata.MotionControls())
+					controller.components.append(input_metadata.MotionControls())
 					has_added_vii_motion_controls = True
 			else:
-				input_option.inputs.append(input_metadata.Paddle())
+				controller.components.append(input_metadata.Paddle())
 		elif input_type == 'stick':
 			has_normal_input = True
 			normal_input.analog_sticks += 1
 			normal_input.face_buttons += buttons
 		elif input_type == 'pedal':
-			input_option.inputs.append(input_metadata.Pedal())
+			controller.components.append(input_metadata.Pedal())
 		elif input_type == 'lightgun':
 			#TODO: See if we can be clever and detect if this is actually a touchscreen, like platform = handheld or something
-			input_option.inputs.append(input_metadata.LightGun())
+			controller.components.append(input_metadata.LightGun())
 		elif input_type == 'positional':
 			#What _is_ a positional exactly
-			input_option.inputs.append(input_metadata.Positional())
+			controller.components.append(input_metadata.Positional())
 		elif input_type == 'dial':
-			input_option.inputs.append(input_metadata.Dial())
+			controller.components.append(input_metadata.Dial())
 		elif input_type == 'trackball':
-			input_option.inputs.append(input_metadata.Trackball())
+			controller.components.append(input_metadata.Trackball())
 		elif input_type == 'mouse':
 			mouse = input_metadata.Mouse()
 			mouse.buttons = buttons
-			input_option.inputs.append(mouse)
+			controller.components.append(mouse)
 		elif input_type == 'keypad':
 			keypad = input_metadata.Keypad()
 			keypad.keys = buttons
-			input_option.inputs.append(keypad)
+			controller.components.append(keypad)
 		elif input_type == 'keyboard':
 			keyboard = input_metadata.Keyboard()
 			keyboard.keys = buttons
-			input_option.inputs.append(keyboard)
+			controller.components.append(keyboard)
 		elif input_type == 'mahjong':
-			input_option.inputs.append(input_metadata.Mahjong())
+			controller.components.append(input_metadata.Mahjong())
 		elif input_type == 'hanafuda':
-			input_option.inputs.append(input_metadata.Hanafuda())
+			controller.components.append(input_metadata.Hanafuda())
 		elif input_type == 'gambling':
-			input_option.inputs.append(input_metadata.Gambling())
+			controller.components.append(input_metadata.Gambling())
 		else:
-			input_option.inputs.append(input_metadata.Custom())
+			controller.components.append(input_metadata.Custom())
 
 	if has_normal_input:
-		input_option.inputs.append(normal_input)
+		controller.components.append(normal_input)
 
-	machine.metadata.input_info.input_options = [input_option]
+	machine.metadata.input_info.input_options = [controller]
