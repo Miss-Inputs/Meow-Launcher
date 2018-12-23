@@ -257,17 +257,20 @@ class SystemConfigs():
 		def init_configs(self):
 			self.configs = {}
 			for k, v in systems.items():
-				self.init_config(k, v.specific_configs)
+				self.init_config(k, v.specific_configs, add_if_not_exist=not v.is_unsupported)
 			for k, v in games_with_engines.items():
 				self.init_config(k, v.specific_configs)
 			for k, v in computer_systems.items():
 				self.init_config(k, v.specific_configs)
 
-		def init_config(self, name, specific_configs):
+		def init_config(self, name, specific_configs, add_if_not_exist=True):
 			self.configs[name] = SystemConfig(name)
 			if name not in self.parser:
-				self.parser.add_section(name)
-				self.rewrite_config()
+				if add_if_not_exist:
+					self.parser.add_section(name)
+					self.rewrite_config()
+				else:
+					return
 			section = self.parser[name]
 
 			if 'paths' not in section:
@@ -286,7 +289,6 @@ class SystemConfigs():
 					chosen_emulator = '{0} ({1})'.format(chosen_emulator, name)
 				chosen_emulators.append(chosen_emulator)
 			self.configs[name].chosen_emulators = chosen_emulators
-
 			for specific_config_name, specific_config in specific_configs.items():
 				if specific_config_name not in section:
 					section[specific_config_name] = convert_value_for_ini(specific_config.default_value)

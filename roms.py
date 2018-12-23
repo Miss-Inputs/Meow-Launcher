@@ -317,6 +317,7 @@ def process_system(system_config):
 	elif system_config.name in system_info.games_with_engines:
 		process_engine_system(system_config, system_info.games_with_engines[system_config.name])
 	else:
+		print('This should not happen', system_config.name)
 		return
 
 	if main_config.print_times:
