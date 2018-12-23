@@ -6,11 +6,11 @@ def _pluralize(n, singular, plural=None):
 		return singular
 	return '%d %s' % (n, plural)
 
-class InputType():
+class Controller():
 	def describe(self):
 		return type(self).__name__
 
-class NormalInput(InputType):
+class NormalController(Controller):
 	def __init__(self):
 		self.face_buttons = 0
 		self.shoulder_buttons = 0
@@ -64,63 +64,63 @@ class NormalInput(InputType):
 
 		return ' + '.join(description)
 
-class Biological(InputType):
+class Biological(Controller):
 	#e.g. Mindlink for Atari 2600 (actually just senses muscle movement); N64 heart rate sensor
 	pass
 
-class Dial(InputType):
+class Dial(Controller):
 	pass
 
-class Gambling(InputType):
+class Gambling(Controller):
 	pass
 
-class Hanafuda(InputType):
+class Hanafuda(Controller):
 	pass
 
-class Keyboard(InputType):
-	#TODO: Number of keys
-	pass
+class Keyboard(Controller):
+	def __init__(self):
+		self.keys = 0
 
-class Keypad(InputType):
+class Keypad(Controller):
 	#TODO Number of keys
 	pass
 
-class LightGun(InputType):
+class LightGun(Controller):
 	def describe(self):
 		return 'Light Gun'
 
-class Mahjong(InputType):
+class Mahjong(Controller):
 	pass
 
-class MotionControls(InputType):
+class MotionControls(Controller):
 	def describe(self):
 		return 'Motion Controls'
 
-class Mouse(InputType):
+class Mouse(Controller):
 	#TODO Buttons
 	pass
 
-class Paddle(InputType):
+class Paddle(Controller):
 	pass
 
-class Pedal(InputType):
+class Pedal(Controller):
 	pass
 
-class Positional(InputType):
+class Positional(Controller):
 	#What the heck is this
 	pass
 
-class SteeringWheel(InputType):
+class SteeringWheel(Controller):
 	def describe(self):
 		return 'Steering Wheel'
 
-class Touchscreen(InputType):
+class Touchscreen(Controller):
 	pass
 
-class Trackball(InputType):
+class Trackball(Controller):
 	pass
 
-class Custom(InputType):
+class Custom(Controller):
 	pass
 
 class InputOption():

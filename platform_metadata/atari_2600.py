@@ -72,7 +72,7 @@ def add_controller_info(game, controller):
 		game.metadata.input_info.add_option([input_metadata.Paddle()])
 		#Paddles come in pairs and hence have 2 players per port
 	elif controller == 'JOYSTICK':
-		joystick = input_metadata.NormalInput()
+		joystick = input_metadata.NormalController()
 		joystick.dpads = 1
 		joystick.face_buttons = 1
 		game.metadata.input_info.add_option([joystick])
@@ -95,12 +95,12 @@ def add_controller_info(game, controller):
 	elif controller == 'GENESIS':
 		game.metadata.specific_info['Uses-Genesis-Controller'] = True
 
-		genesis_controller = input_metadata.NormalInput()
+		genesis_controller = input_metadata.NormalController()
 		genesis_controller.dpads = 1
 		genesis_controller.face_buttons = 3
 		game.metadata.input_info.add_option([genesis_controller])
 	elif controller == 'BOOSTERGRIP':
-		joystick = input_metadata.NormalInput()
+		joystick = input_metadata.NormalController()
 		joystick.dpads = 1
 		joystick.face_buttons = 3 #There are two on the boostergrip, but it passes through to the 2600 controller which still has a button, or something
 		game.metadata.input_info.add_option([joystick])

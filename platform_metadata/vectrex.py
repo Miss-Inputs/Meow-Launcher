@@ -6,7 +6,7 @@ from software_list_info import get_software_list_entry
 def add_vectrex_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 
-	gamepad = input_metadata.NormalInput()
+	gamepad = input_metadata.NormalController()
 	gamepad.face_buttons = 4 #All arranged in a row, not rectangle
 	gamepad.analog_sticks = 1
 	game.metadata.input_info.add_option([gamepad])

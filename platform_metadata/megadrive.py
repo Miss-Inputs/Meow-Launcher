@@ -13,7 +13,7 @@ t_with_zero = re.compile('^T-0')
 t_not_followed_by_dash = re.compile('^T(?!-)')
 
 def parse_peripherals(game, peripherals):
-	standard_gamepad = input_metadata.NormalInput()
+	standard_gamepad = input_metadata.NormalController()
 	standard_gamepad.face_buttons = 3
 	standard_gamepad.dpads = 1
 
@@ -25,7 +25,7 @@ def parse_peripherals(game, peripherals):
 		elif peripheral_char == 'V':
 			game.metadata.input_info.add_option([input_metadata.Paddle()])
 		elif peripheral_char == 'A':
-			xe_1_ap = input_metadata.NormalInput()
+			xe_1_ap = input_metadata.NormalController()
 			xe_1_ap.face_buttons = 10
 			xe_1_ap.shoulder_buttons = 4
 			xe_1_ap.analog_sticks = 2 #The second one only has one axis, though
@@ -37,13 +37,13 @@ def parse_peripherals(game, peripherals):
 		elif peripheral_char == 'J':
 			game.metadata.input_info.add_option([standard_gamepad])
 		elif peripheral_char == '6':
-			six_button_gamepad = input_metadata.NormalInput()
+			six_button_gamepad = input_metadata.NormalController()
 			six_button_gamepad.face_buttons = 6
 			six_button_gamepad.dpads = 1
 			game.metadata.input_info.add_option([six_button_gamepad])
 			game.metadata.specific_info['Uses-6-Button-Controller'] = True
 		elif peripheral_char == '0':
-			sms_gamepad = input_metadata.NormalInput()
+			sms_gamepad = input_metadata.NormalController()
 			sms_gamepad.face_buttons = 2
 			sms_gamepad.dpads = 1
 			game.metadata.input_info.add_option([sms_gamepad])

@@ -118,7 +118,7 @@ def add_n64_metadata(game):
 
 	rom_crc32 = get_crc32_for_software_list(entire_rom)
 
-	normal_controller = input_metadata.NormalInput()
+	normal_controller = input_metadata.NormalController()
 	normal_controller.face_buttons = 6 #A, B, 4 * C
 	normal_controller.shoulder_buttons = 3 #L, R, and I guess Z will have to be counted as a shoulder button
 	normal_controller.analog_sticks = 1

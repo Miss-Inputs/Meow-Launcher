@@ -51,7 +51,7 @@ publishers = {
 
 def add_wonderswan_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
-	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	if game.metadata.platform == 'Benesse Pocket Challenge V2':
 		builtin_gamepad.face_buttons = 3 #I don't know what they're called

@@ -54,7 +54,7 @@ def add_3ds_system_info(game):
 	game.metadata.screen_info = screen_info
 
 	#Although we can't know for sure if the game uses the touchscreen, it's safe to assume that it probably does
-	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.analog_sticks = 1
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4

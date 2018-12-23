@@ -134,7 +134,7 @@ def parse_gameboy_header(game, header):
 	game.metadata.revision = header[0x4c]
 
 def add_gameboy_metadata(game):
-	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2 #A B
 	game.metadata.input_info.add_option([builtin_gamepad])

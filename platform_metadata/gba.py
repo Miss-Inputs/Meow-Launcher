@@ -38,7 +38,7 @@ def parse_gba_header(game, header):
 	game.metadata.revision = header[0xbc]
 
 def add_gba_metadata(game):
-	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2 #A B
 	builtin_gamepad.shoulder_buttons = 2 #L R

@@ -4,7 +4,7 @@ from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
 
 def add_pokemini_metadata(game):
-	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad = input_metadata.NormalController()
 
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2 #A B

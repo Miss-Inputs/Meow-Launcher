@@ -26,7 +26,7 @@ def add_virtual_boy_metadata(game):
 
 	game.metadata.revision = header[31]
 
-	gamepad = input_metadata.NormalInput()
+	gamepad = input_metadata.NormalController()
 	gamepad.face_buttons = 2
 	gamepad.shoulder_buttons = 2
 	gamepad.dpads = 2

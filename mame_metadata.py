@@ -401,7 +401,7 @@ def add_input_info(machine):
 
 	has_normal_input = False
 	has_added_vii_motion_controls = False
-	normal_input = input_metadata.NormalInput()
+	normal_input = input_metadata.NormalController()
 
 	for control in control_elements:
 		buttons = int(control.attrib.get('buttons', 0))

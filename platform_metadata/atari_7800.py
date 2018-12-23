@@ -4,7 +4,7 @@ from config import main_config
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
 
-standard_gamepad = input_metadata.NormalInput()
+standard_gamepad = input_metadata.NormalController()
 standard_gamepad.dpads = 1
 standard_gamepad.face_buttons = 2
 input_types = {

@@ -140,7 +140,7 @@ def add_info_from_software_list(game, software):
 	#Video only works correctly on drivers with SMS1 VDP, e.g. smsj
 
 	if game.metadata.platform == 'Master System':
-		builtin_gamepad = input_metadata.NormalInput()
+		builtin_gamepad = input_metadata.NormalController()
 		builtin_gamepad.dpads = 1
 		builtin_gamepad.face_buttons = 2
 
@@ -179,7 +179,7 @@ def get_sms_metadata(game):
 	if game.metadata.platform == 'Game Gear':
 		game.metadata.tv_type = TVSystem.Agnostic
 		#Because there's no accessories to make things confusing, we can assume the Game Gear's input info, but not the Master System's
-		builtin_gamepad = input_metadata.NormalInput()
+		builtin_gamepad = input_metadata.NormalController()
 		builtin_gamepad.dpads = 1
 		builtin_gamepad.face_buttons = 2 #'1' on left, '2' on right
 		game.metadata.input_info.add_option([builtin_gamepad])

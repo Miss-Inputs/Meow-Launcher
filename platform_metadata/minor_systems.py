@@ -9,7 +9,7 @@ from software_list_info import get_software_list_entry, get_crc32_for_software_l
 def add_entex_adventure_vision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 
-	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4 #Physically, they're on both sides of the system, but those are duplicates (for ambidextrousity)
 	game.metadata.input_info.add_option([builtin_gamepad])
@@ -25,7 +25,7 @@ def add_entex_adventure_vision_info(game):
 def add_game_pocket_computer_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 
-	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4
 	game.metadata.input_info.add_option([builtin_gamepad])
@@ -41,7 +41,7 @@ def add_game_pocket_computer_info(game):
 def add_gamate_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 
-	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
 	game.metadata.input_info.add_option([builtin_gamepad])
@@ -58,7 +58,7 @@ def add_casio_pv1000_info(game):
 	game.metadata.tv_type = TVSystem.NTSC
 	#Japan only. I won't assume the region in case some maniac decides to make homebrew for it or something, but it could only ever be NTSC
 
-	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
 	game.metadata.input_info.add_option([builtin_gamepad])
@@ -75,7 +75,7 @@ def add_casio_pv1000_info(game):
 def add_mega_duck_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 
-	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
 	game.metadata.input_info.add_option([builtin_gamepad])
@@ -90,7 +90,7 @@ def add_mega_duck_info(game):
 def add_watara_supervision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 
-	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
 	game.metadata.input_info.add_option([builtin_gamepad])
@@ -127,7 +127,7 @@ def add_arcadia_info(game):
 		#Nothing really here other than alt titles (for other languages). I guess this proves that the Bandai Arcadia really isn't different.
 
 def add_astrocade_info(game):
-	joystick = input_metadata.NormalInput()
+	joystick = input_metadata.NormalController()
 	joystick.dpads = 1
 	joystick.face_buttons = 1 #Sort of a trigger button, as it's a gun-shaped grip
 	#Controller also integrates a paddle
@@ -188,7 +188,7 @@ def add_sg1000_info(game):
 		#No buttons here?
 		game.metadata.input_info.add_option([input_metadata.Touchscreen()])
 	else:
-		normal_controller = input_metadata.NormalInput()
+		normal_controller = input_metadata.NormalController()
 		normal_controller.face_buttons = 2
 		normal_controller.dpads = 1
 		game.metadata.input_info.add_option([normal_controller])
@@ -224,7 +224,7 @@ def add_tomy_tutor_info(game):
 		game.metadata.product_code = software.get_info('serial')
 
 def add_vc4000_info(game):
-	normal_controller = input_metadata.NormalInput()
+	normal_controller = input_metadata.NormalController()
 	normal_controller.analog_sticks = 1
 	normal_controller.face_buttons = 2
 	#Keypad is 12 buttons
@@ -319,7 +319,7 @@ def add_colecovision_info(game):
 def add_hartung_game_master_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 
-	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
 	game.metadata.input_info.add_option([builtin_gamepad])
@@ -347,7 +347,7 @@ def add_nichibutsu_my_vision_info(game):
 def add_bbc_bridge_companion_info(game):
 	game.metadata.tv_type = TVSystem.PAL #UK only
 
-	buttons = input_metadata.NormalInput()
+	buttons = input_metadata.NormalController()
 	buttons.face_buttons = 10 #According to the MAME driver, I'm too lazy to look at pictures of the thing
 	game.metadata.input_info.add_option([buttons])
 
@@ -378,7 +378,7 @@ def add_amiga_info(game):
 	game.metadata.specific_info['Chipset'] = chipset
 
 def add_cd32_info(game):
-	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4
 	builtin_gamepad.shoulder_buttons = 2
@@ -386,7 +386,7 @@ def add_cd32_info(game):
 
 def add_neogeo_cd_info(game):
 	#Apparently there is a mahjong controller too, but... meh
-	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4
 	game.metadata.input_info.add_option([builtin_gamepad])
@@ -465,7 +465,7 @@ def add_juicebox_info(game):
 	#Hmm... apparently there's 0x220 bytes at the beginning which need to be copied from retail carts to get homebrew test ROMs to boot
 	game.metadata.tv_type = TVSystem.Agnostic
 
-	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.face_buttons = 5 #Rewind/forward/stop/play/function
 	game.metadata.input_info.add_option([builtin_gamepad])
 
@@ -494,7 +494,7 @@ def add_atari_5200_info(game):
 	if uses_trackball:
 		game.metadata.input_info.add_option([input_metadata.Trackball()])
 	else:
-		normal_controller = input_metadata.NormalInput()
+		normal_controller = input_metadata.NormalController()
 		normal_controller.face_buttons = 2 #1, 2, (Pause, Reset, Start) I think? I think it works the same way for trackballs
 		normal_controller.analog_sticks = 1
 		game.metadata.input_info.add_option([normal_controller])
@@ -503,7 +503,7 @@ def add_game_com_info(game):
 	#Could have its own header. I think it does, but like.. who's gonna document such a thing? The wide community of Game.com enthusiasts?
 	game.metadata.tv_type = TVSystem.Agnostic
 
-	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4 #A B C D
 	game.metadata.input_info.add_option([builtin_gamepad])
@@ -519,7 +519,7 @@ def add_lynx_info(game):
 	#TODO .lnx files should have a header with something in them, so eventually, Lynx will get its own module here
 	game.metadata.tv_type = TVSystem.Agnostic
 
-	builtin_gamepad = input_metadata.NormalInput()
+	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4 #Option 1, Option 2, A, B; these are flipped so you might think there's 8
 	game.metadata.input_info.add_option([builtin_gamepad])

@@ -47,14 +47,14 @@ def parse_peripherals(game, peripherals):
 	#Hmmm... tricky to figure out how to best represent this, as it's possible to use different controllers
 	#I guess these two are the standard controllers, and everything else is optional
 	if uses_analog_controller:
-		analog_controller = input_metadata.NormalInput()
+		analog_controller = input_metadata.NormalController()
 		analog_controller.face_buttons = 6 # A B C X Y Z
 		analog_controller.analog_triggers = 2
 		analog_controller.analog_sticks = 1
 		analog_controller.dpads = 1
 		game.metadata.input_info.add_option([analog_controller])
 	elif uses_standard_controller:
-		standard_controller = input_metadata.NormalInput()
+		standard_controller = input_metadata.NormalController()
 		standard_controller.face_buttons = 6 # A B C X Y Z
 		standard_controller.shoulder_buttons = 2 #L R
 		standard_controller.dpads = 1

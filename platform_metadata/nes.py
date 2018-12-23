@@ -316,7 +316,7 @@ def add_nes_metadata(game):
 
 	nes_peripheral = NESPeripheral.NormalController
 
-	standard_controller = input_metadata.NormalInput()
+	standard_controller = input_metadata.NormalController()
 	standard_controller.dpads = 1
 	standard_controller.face_buttons = 2 #A B
 
@@ -343,7 +343,7 @@ def add_nes_metadata(game):
 		elif peripheral in ('powerpad', 'ftrainer', 'fffitness'):
 			nes_peripheral = NESPeripheral.PowerPad
 
-			power_pad = input_metadata.NormalInput()
+			power_pad = input_metadata.NormalController()
 			power_pad.face_buttons = 12 #"face"
 			game.metadata.input_info.add_option([power_pad])
 		elif peripheral == 'powerglove':
