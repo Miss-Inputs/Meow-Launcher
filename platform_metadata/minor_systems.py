@@ -116,7 +116,12 @@ def add_apfm1000_info(game):
 		#There's not really anything in there which tells us if we need the Imagination Machine for a particular cart. There's something about RAM, though.
 
 def add_arcadia_info(game):
-	#TODO: Input info should always be keypad... I think?
+	keypad = input_metadata.Keypad() #2 controllers hardwired into the system. If MAME is any indication, the buttons on the side don't do anything or are equivalent to keypad 2?
+	keypad.keys = 12 #MAME mentions 16 here... maybe some variant systems have more
+	controller = input_metadata.NormalController()
+	controller.analog_sticks = 1 #According to MAME it's an analog stick but everywhere else suggests it's just digital?
+	#controller.face_buttons = 2 #???? Have also heard that the 2 buttons do the same thing as each other
+	game.metadata.input_info.add_option([keypad, controller])
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
