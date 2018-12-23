@@ -160,7 +160,6 @@ class InputOption():
 	def __init__(self):
 		self.inputs = []
 		self._known = False
-		#TODO: Have such a thing as a "main" input option, which would help with metadata shown in the launcher and whatnot
 
 	def describe(self):
 		if not self.inputs:
