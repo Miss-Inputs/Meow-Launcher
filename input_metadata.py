@@ -87,8 +87,13 @@ class Keyboard(Controller):
 		return 'Keyboard'
 
 class Keypad(Controller):
-	#TODO Number of keys
-	pass
+	def __init__(self):
+		self.keys = 0
+
+	def describe(self):
+		if self.keys > 0:
+			return '{0}-key keypad'.format(self.keys)
+		return 'Keypad'
 
 class LightGun(Controller):
 	def describe(self):

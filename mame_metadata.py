@@ -460,7 +460,9 @@ def add_input_info(machine):
 		elif input_type == 'mouse':
 			input_option.inputs.append(input_metadata.Mouse())
 		elif input_type == 'keypad':
-			input_option.inputs.append(input_metadata.Keypad())
+			keypad = input_metadata.Keypad()
+			keypad.keys = buttons
+			input_option.inputs.append(keypad)
 		elif input_type == 'keyboard':
 			keyboard = input_metadata.Keyboard()
 			keyboard.keys = buttons

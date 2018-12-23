@@ -86,8 +86,9 @@ def add_controller_info(game, controller):
 		game.metadata.input_info.add_option([input_metadata.Trackball()])
 	elif controller == 'KEYBOARD':
 		#The Keyboard Controller is actually a keypad, go figure. Actually, it's 2 keypads, go figure twice. BASIC Programming uses both at once and Codebreakers uses them separately for each player, so there's not really anything else we can say here.
-		#game.metadata.input_info.buttons = 12
-		game.metadata.input_info.add_option([input_metadata.Keypad()])
+		keypad = input_metadata.Keypad()
+		keypad.keys = 12
+		game.metadata.input_info.add_option([keypad])
 	elif controller in 'COMPUMATE':
 		#The CompuMate is a whole dang computer, not just a keyboard. But I guess it's the same sorta thing
 		keyboard = input_metadata.Keyboard()

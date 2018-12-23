@@ -131,8 +131,10 @@ def add_astrocade_info(game):
 	joystick.dpads = 1
 	joystick.face_buttons = 1 #Sort of a trigger button, as it's a gun-shaped grip
 	#Controller also integrates a paddle
-	#Keypad is 24 keys, and mounted onto the system
-	game.metadata.input_info.add_option([normal_controller, input_metadata.Keypad(), input_metadata.Paddle()])
+
+	keypad = input_metadata.Keypad() #Mounted onto the system
+	keypad.keys = 24
+	game.metadata.input_info.add_option([normal_controller, keypad, input_metadata.Paddle()])
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
@@ -227,8 +229,10 @@ def add_vc4000_info(game):
 	normal_controller = input_metadata.NormalController()
 	normal_controller.analog_sticks = 1
 	normal_controller.face_buttons = 2
-	#Keypad is 12 buttons
-	game.metadata.input_info.add_option([normal_controller, input_metadata.Keypad()])
+
+	keypad = input_metadata.Keypad()
+	keypad.keys = 12
+	game.metadata.input_info.add_option([normal_controller, keypad])
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
@@ -293,10 +297,19 @@ def add_colecovision_info(game):
 			peripheral = ColecoController.DrivingController
 			peripheral_required = True
 
-	normal_controller = input_metadata.Keypad()
-	#2 buttons + 12 keys + 1 digital movement thing
-	super_action_controller = input_metadata.Keypad()
-	#4 buttons, 12 keys, "speed roller" (???)
+	normal_controller = input_metadata.NormalController()
+	normal_controller.face_buttons = 2
+	normal_controller.dpads = 1
+	normal_controller_keypad = input_metadata.Keypad()
+	normal_controller_keypad.keys = 12
+	#TODO: This doesn't look right, maybe make some kind of CombinedController thing
+
+	super_action_controller = input_metadata.NormalController()
+	super_action_controller.face_buttons = 4
+	#Something called a "speed roller" ???
+	super_action_controller_keypad = input_metadata.Keypad()
+	super_action_controller_keypad.keys = 12
+
 	roller_controller = input_metadata.Trackball()
 	#Not sure how many buttons?
 	driving_controller = input_metadata.SteeringWheel()
@@ -304,16 +317,16 @@ def add_colecovision_info(game):
 
 	game.metadata.specific_info['Peripheral'] = peripheral
 	if peripheral == ColecoController.Normal:
-		game.metadata.input_info.add_option([normal_controller])
+		game.metadata.input_info.add_option([normal_controller, normal_controller_keypad])
 	else:
 		if peripheral == ColecoController.DrivingController:
 			game.metadata.input_info.add_option([driving_controller])
 		elif peripheral == ColecoController.RollerController:
 			game.metadata.input_info.add_option([roller_controller])
 		elif peripheral == ColecoController.SuperActionController:
-			game.metadata.input_info.add_option([super_action_controller])
+			game.metadata.input_info.add_option([super_action_controller, super_action_controller_keypad])
 		if not peripheral_required:
-			game.metadata.input_info.add_option([normal_controller])
+			game.metadata.input_info.add_option([normal_controller, normal_controller_keypad])
 	#Doesn't look like you can set controller via command line at the moment, oh well
 
 def add_hartung_game_master_info(game):
