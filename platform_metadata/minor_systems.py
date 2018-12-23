@@ -134,7 +134,7 @@ def add_astrocade_info(game):
 
 	keypad = input_metadata.Keypad() #Mounted onto the system
 	keypad.keys = 24
-	game.metadata.input_info.add_option([normal_controller, keypad, input_metadata.Paddle()])
+	game.metadata.input_info.add_option([joystick, keypad, input_metadata.Paddle()])
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
