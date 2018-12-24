@@ -134,7 +134,7 @@ def parse_ds_header(game, header):
 		banner = game.rom.read(seek_to=banner_offset, amount=header[0x208] if is_dsi else 0xA00)
 		version = int.from_bytes(banner[0:2], 'little')
 		game.metadata.specific_info['Banner-Version'] = version
-		if version in (1, 2, 3, 0x103):
+		if version in (1, 2, 3, 0x103) and len(banner) >= 0x240:
 			#game.metadata.specific_info['Banner-Text-English'] = banner[0x340:0x440].decode('utf-16-le', errors='backslashreplace').rstrip('\0')
 			if have_pillow:
 				icon_bitmap = banner[0x20:0x220]
