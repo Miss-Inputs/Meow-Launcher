@@ -625,7 +625,8 @@ def add_super_acan_info(game):
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
 
-def add_stub_info(game):
+def add_generic_info(game):
+	#For any system not otherwise specified
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)

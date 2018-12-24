@@ -7,6 +7,7 @@ import platform_metadata
 from mame_helpers import lookup_system_cpu, lookup_system_displays, get_mame_xml, have_mame
 from software_list_info import get_software_lists_by_names
 from info import system_info
+from common_types import MediaType
 
 date_regex = re.compile(r'\((?P<year>[x\d]{4})\)|\((?P<year2>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})\)|\((?P<day2>\d{2})\.(?P<month2>\d{2})\.(?P<year3>\d{4})\)')
 revision_regex = re.compile(r'\(Rev ([A-Z\d]+?)\)')
@@ -172,11 +173,14 @@ def add_metadata(game):
 
 	if game.metadata.platform in platform_metadata.helpers:
 		platform_metadata.helpers[game.metadata.platform](game)
+	elif game.metadata.media_type != MediaType.OpticalDisc:
+		#For anything else, use this one to just get basic software list info.
+		#That won't work smoothly with optical discs, though, so I'll leave those alone for now
+		platform_metadata.generic_helper(game)
 
 	add_device_hardware_metadata(game)
 
 	get_metadata_from_tags(game)
-
 
 def add_engine_metadata(game):
 	game.metadata.extension = game.file.extension
