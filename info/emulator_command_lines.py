@@ -140,7 +140,7 @@ def mame_atari_8bit(game, _):
 	return mame_command_line(system, slot, has_keyboard=True)
 
 def _find_c64_system(game):
-	if game.metadata.platform == 'C64GS':
+	if game.metadata.specific_info.get('Mapper-Number', None) == 15:
 		#For some reason, C64GS carts don't work on a regular C64 in MAME, and we have to use...  the thing specifically designed for playing games (but we normally wouldn't use this, since some cartridge games still need the keyboard, even if just for the menus, and that's why it actually sucks titty balls IRL.  But if it weren't for that, we totes heckin would)
 		#Note that C64GS doesn't really work properly in MAME anyway, but the carts... not work... less than in the regular C64 driver
 		return 'c64gs'
@@ -613,7 +613,7 @@ def vice(game, specific_config):
 	model = None
 
 	platform = game.metadata.platform
-	if platform in ('C64', 'C64GS'):
+	if platform == 'C64':
 		executable = 'x64' if specific_config.get('use_fast_c64', False) else 'x64sc'
 		fullscreen_option = '-VICIIfull'
 

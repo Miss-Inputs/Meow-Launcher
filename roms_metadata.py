@@ -18,7 +18,6 @@ if have_mame():
 		"FDS": lookup_system_cpu('fds'),
 		"Game Boy Color": lookup_system_cpu('gbcolor'),
 		"Mega CD": lookup_system_cpu('segacd_us'),
-		"C64GS": lookup_system_cpu('c64gs'),
 		'Satellaview': lookup_system_cpu('snes'),
 		'Sufami Turbo': lookup_system_cpu('snes'),
 		'Benesse Pocket Challenge V2': lookup_system_cpu('wswan'), #Should be about right
@@ -29,7 +28,6 @@ if have_mame():
 	display_overrides = {
 		'FDS': lookup_system_displays('fds'),
 		'Game Boy Color': lookup_system_displays('gbcolor'),
-		'C64GS': lookup_system_displays('c64gs'),
 		'Satellaview': lookup_system_displays('snes'),
 		'Sufami Turbo': lookup_system_displays('snes'),
 		'Benesse Pocket Challenge V2': lookup_system_displays('wswan'),
@@ -42,7 +40,6 @@ if have_mame():
 		#Basically, this is when something in platform_metadata changes what game.metadata.platform is, which means we can no longer just look up that platform in system_info because it won't be in there
 		"FDS": get_mame_xml('fds').attrib['sourcefile'],
 		"Game Boy Color": get_mame_xml('gbcolor').attrib['sourcefile'],
-		"C64GS": get_mame_xml('c64gs').attrib['sourcefile'],
 		'Satellaview': get_mame_xml('snes').attrib['sourcefile'],
 		'Sufami Turbo': get_mame_xml('snes').attrib['sourcefile'],
 		'PlayChoice-10': get_mame_xml('playch10').attrib['sourcefile'],

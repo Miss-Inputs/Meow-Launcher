@@ -88,8 +88,6 @@ def add_commodore_64_metadata(game):
 		cart_type = int.from_bytes(header[22:24], 'big')
 		#I'm just gonna call it a mapper for consistency, even though that could be argued to be the wrong terminology, but... eh
 		game.metadata.specific_info['Mapper-Number'] = cart_type
-		if cart_type == 15:
-			game.metadata.platform = 'C64GS'
 		game.metadata.specific_info['Mapper'] = ccs64_cart_types.get(cart_type, 'CCS64 type %d' % cart_type)
 	else:
 		headered = False
