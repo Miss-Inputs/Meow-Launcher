@@ -22,18 +22,20 @@ icon_line_regex = re.compile(r'^icons_directory\s+(.+)$')
 
 def load_icons():
 	d = {}
-	mame_ui_config = get_mame_ui_config()
-	if mame_ui_config is None:
+	try:
+		mame_ui_config = get_mame_ui_config()
+
+		for icon_directory in mame_ui_config.settings.get('icons_directory', []):
+			if os.path.isdir(icon_directory):
+				for icon_file in os.listdir(icon_directory):
+					name, ext = os.path.splitext(icon_file)
+					if ext == '.ico': #Perhaps should have other formats?
+						d[name] = os.path.join(icon_directory, icon_file)
+
+		return d
+	except FileNotFoundError:
 		return d
 
-	for icon_directory in mame_ui_config.settings.get('icons_directory', []):
-		if os.path.isdir(icon_directory):
-			for icon_file in os.listdir(icon_directory):
-				name, ext = os.path.splitext(icon_file)
-				if ext == '.ico': #Perhaps should have other formats?
-					d[name] = os.path.join(icon_directory, icon_file)
-
-	return d
 icons = load_icons()
 
 licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')

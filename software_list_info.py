@@ -292,15 +292,16 @@ def get_software_lists_by_names(names):
 	return [software_list for software_list in [get_software_list_by_name(name) for name in names] if software_list]
 
 def get_software_list_by_name(name):
-	mame_config = get_mame_config()
-	if not mame_config:
+	try:
+		mame_config = get_mame_config()
+		for hash_path in mame_config.settings['hashpath']:
+			if os.path.isdir(hash_path):
+				list_path = os.path.join(hash_path, name + '.xml')
+				if os.path.isfile(list_path):
+					return SoftwareList(list_path)
 		return None
-	for hash_path in mame_config.settings['hashpath']:
-		if os.path.isdir(hash_path):
-			list_path = os.path.join(hash_path, name + '.xml')
-			if os.path.isfile(list_path):
-				return SoftwareList(list_path)
-	return None
+	except FileNotFoundError:
+		return None
 
 def find_in_software_lists(software_lists, crc=None, sha1=None, part_matcher=_does_part_match):
 	#TODO: Handle hash collisions. Could happen, even if we're narrowing down to specific software lists

@@ -204,13 +204,13 @@ def get_mame_config():
 	path = os.path.expanduser('~/.mame/mame.ini')
 	if os.path.isfile(path):
 		return MameConfigFile(path)
-	return None
+	raise FileNotFoundError(path)
 
 def get_mame_ui_config():
 	path = os.path.expanduser('~/.mame/ui.ini')
 	if os.path.isfile(path):
 		return MameConfigFile(path)
-	return None
+	raise FileNotFoundError(path)
 
 class MachineNotFoundException(Exception):
 	#This shouldn't be thrown unless I'm an idiot, but that may well happen
