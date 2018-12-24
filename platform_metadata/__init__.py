@@ -106,6 +106,7 @@ helpers = {
 	'Intellivision': add_intellivision_info,
 	'Jaguar': add_stub_info,
 	'Lynx': add_lynx_info,
+	'Magnavox Odyssey²': add_stub_info,
 	'Mattel Juice Box': add_juicebox_info,
 	'Mega Duck': add_mega_duck_info,
 	'MSX': add_stub_info,

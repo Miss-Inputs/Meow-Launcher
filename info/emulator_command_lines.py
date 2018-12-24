@@ -462,6 +462,15 @@ def mame_atari_jaguar(game, _):
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 	return mame_command_line('jaguar', slot)
 
+def mame_odyssey2(game, _):
+	system = 'odyssey2'
+
+	if game.metadata.tv_type == TVSystem.PAL:
+		system = 'videopac'
+	#system = 'jopac' if region == France could also be a thing? Hmm
+
+	return mame_command_line(system, 'cart')
+
 def mupen64plus(game, specific_config):
 	if game.metadata.specific_info.get('ROM-Format', None) == 'Unknown':
 		raise EmulationNotSupportedException('Undetectable ROM format')

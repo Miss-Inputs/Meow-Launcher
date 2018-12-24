@@ -170,11 +170,8 @@ systems.update({
 	#Theoretically supported, but not supported enough to be considered playable, but you can manually add them to emulators.ini if you really want
 	'FM Towns Marty': UnsupportedSystem('fmtmarty', ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}),
 	'Jaguar': UnsupportedSystem('jaguar', ['jaguar'], ['MAME (Jaguar)'], {MediaType.Cartridge: ['j64', 'bin', 'rom'], MediaType.Executable: ['abs', 'cof', 'jag', 'prg']}),
-	'Magnavox Odyssey²': UnsupportedSystem('odyssey2', ['odyssey2'], [], {MediaType.Cartridge: ['bin', 'rom']}),
-	#O2EM doesn't really work; MAME isn't completely broken but a lot of games have broken graphics so like... ehh
-	#TODO: Move comments to emulator_info, do thing which selects g7000/odyssey2 automatically
-	'G7400': UnsupportedSystem('g7400', ['g7400'], [], {MediaType.Cartridge: ['bin', 'rom']}),
-	#just has the same problems as Odyssey 2...
+	'Magnavox Odyssey²': UnsupportedSystem('odyssey2', ['odyssey2'], ['MAME (Magnavox Odyssey²)', 'MAME (G7400)'], {MediaType.Cartridge: ['bin', 'rom']}),
+	'G7400': UnsupportedSystem('g7400', ['g7400'], ['MAME (G7400)'], {MediaType.Cartridge: ['bin', 'rom']}),
 	'PC Booter': UnsupportedSystem('ibm5150', ['ibm5150'], ['MAME (IBM PCjr)', 'MAME (IBM PC)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['exe', 'com', 'bat']}),
 	#This one is a bit tricky... both MAME and PCem have issues emulating a joystick. Do the games actually just suck like that? _All of them_? I don't know. The majority of these games assume a 4.77MHz CPU, of course. The software list is ibm5150 but that has some DOS games too, just to be confusing (but usage == 'PC booter' where it is a PC booter).
 	"Super A'Can": UnsupportedSystem('supracan', ['supracan'], ["MAME (Super A'Can)"], {MediaType.Cartridge: ['bin']}),
