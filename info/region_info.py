@@ -67,6 +67,7 @@ languages = [
 	Language('Slovak', 'Slovenčina', 'Sk'),
 	Language('Thai', 'ไทย', 'Th'),
 	Language('Bulgarian', 'български език', 'Bg'),
+	Language('Ukrainian', 'Українська', 'Uk'),
 
 	#This doesn't really have a language code since it's sorta like... a different writing system and not really a different language (I am not a cunning linguist so I have probably described this all wrong), but anyway, some things have Traditional localizations and some have Simplified, so it'll be a separate thing
 	Language('Traditional Chinese', '漢語', None),
@@ -107,6 +108,7 @@ regions = [
 	Region('Thailand', 'TH', TVSystem.PAL, 'Thai'),
 	Region('Turkey', 'TR', TVSystem.PAL, 'Turkish'),
 	Region('UK', 'GB', TVSystem.PAL, 'English'),
+	Region('Ukraine', 'UA', TVSystem.PAL, 'Ukrainian'),
 	Region('USA', 'US', TVSystem.NTSC, 'English'),
 
 	Region('World', None, TVSystem.Agnostic, None),
