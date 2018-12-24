@@ -216,7 +216,7 @@ emulators = {
 
 	#--These experimental emulators seem to not work more often than they do, but they are here for you to play with if you want to, because maybe other people have better luck than me (everything in my life always goes wrong):
 	'MAME (G7400)': MameSystem(command_lines.mame_command_line('g7400', 'cart'), ['bin', 'rom']),
-	#just has the same graphics problems as Odyssey 2... there's a odyssey3 driver that was never released but I guess it would be for NTSC games
+	#just has the same graphics problems as Odyssey 2... there's a odyssey3 driver that was never released but I guess it would be for NTSC games. Actually, all the software list items say unsupported... hmm
 	'MAME (Jaguar)': MameSystem(command_lines.mame_atari_jaguar, ['j64', 'rom', 'bin', 'abs', 'cof', 'jag', 'prg']),
 	#Hmm. Mostly not working. Raiden seems to work, but that's about it; other stuff just hangs at the Jaguar logo or has no sound or what barely resembles graphics is corrupted etc
 	'MAME (FM Towns Marty)': MameSystem(command_lines.mame_fm_towns_marty, mame_cdrom_formats + mame_floppy_formats),
