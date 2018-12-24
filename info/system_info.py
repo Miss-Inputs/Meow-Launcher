@@ -196,6 +196,7 @@ systems.update({
 	'GameKing 3': UnsupportedSystem('gamekin3', ['gameking3'], [], {MediaType.Cartridge: ['bin']}),
 	'Gakken TV Boy': UnsupportedSystem(None, [], [], {}),
 	#No MAME driver or anything, although it's mentioned on an old MESS 'to be dumped' page; apparently CPU is inside the carts
+	'Gizmondo': UnsupportedSystem(None, [], [], {}), #Uses folders seemingly, so that may be weird with the file types
 	'GP32': UnsupportedSystem('gp32', ['gp32'], [], {MediaType.Cartridge: ['smc'], MediaType.Executable: ['gxb', 'sxf', 'bin', 'gxf', 'fxe']}),
 	#Runs too slow to verify if anything else works, but all documentation points to not
 	'Jaguar CD': UnsupportedSystem('jaguarcd', [], [], {MediaType.OpticalDisc: cdrom_formats}),
@@ -238,6 +239,7 @@ systems.update({
 	#This was actually never released, but there's software for it anyway. However, this is only supported by MAME, and it seems it only supports loading by software lists (there are no media slots), which won't work for our purposes at this point in time
 	'Cybiko': UnsupportedSystem('cybikov1', [], [], {MediaType.Digital: ['app']}),
 	#Quickload slot doesn't seem to actually quickload anything, and seems to require setup each time. V2 and Extreme have same problems
+	'Cybiko Xtreme': UnsupportedSystem('cybikoxt', [], [], {MediaType.Digital: ['app']}),
 	'Dreamcast VMU': UnsupportedSystem('svmu', ['svmu'], [], {MediaType.Executable: ['bin'], MediaType.Digital: ['vms']}),
 	#Makes you set time and date each time; also supposed to have sound apparently but I don't hear any
 	'e-Reader': UnsupportedSystem(None, ['gba_ereader'], [], {MediaType.Barcode: ['bin', 'raw', 'bmp']}),
@@ -286,6 +288,7 @@ systems.update({
 	'Atari ST': UnsupportedSystem('st', ['st_flop', 'st_cart'], []),
 	#MAME is known to not work here, and Hatari is known to have usability issues... is there anything else?
 	'BBC Master': UnsupportedSystem('bbcm', ['bbcm_cart', 'bbcm_cass', 'bbcmc_flop', 'bbcm_flop'], []),
+	'Camputers Lynx': UnsupportedSystem('lynx128k', ['camplynx_cass', 'camplynx_flop'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav', 'tap']}),
 	'Epoch Sorcerer': UnsupportedSystem('sorcerer', ['sorcerer_cart', 'sorcerer_cass', 'sorcerer_flop'],
 		{MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav', 'tape']}),
 	#Would need automated tape loading to do anything interesting (carts and floppies are just BASIC/OS stuff, also what even is the file type for floppies?) and apparently there's a .snp snapshot and .bin quickload so maybe those do something
