@@ -67,8 +67,8 @@ def compressed_getsize(path, filename):
 	return sevenzip_getsize(path, filename)
 
 def sevenzip_get(path, filename):
-	process = subprocess.run(['7z', 'e', '-so', path, filename], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-	return process.stdout
+	with subprocess.Popen(['7z', 'e', '-so', path, filename], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as proc:
+		return proc.stdout.read()
 
 def zip_get(path, filename):
 	with zipfile.ZipFile(path) as zip_file:
