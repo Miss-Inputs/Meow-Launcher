@@ -273,7 +273,7 @@ systems.update({
 	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it
 	'Mattel Aquarius': UnsupportedSystem('aquarius', ['aquarius'], ['MAME (Mattel Aquarius)'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav']}),
 	'Sega Pico': UnsupportedSystem('pico', ['pico'], [], {MediaType.Cartridge: ['bin', 'md']}),
-	#Emulation works in Kega Fusion and MAME, but they don't display the actual book, which would be needed for most of the software to make any sense. Kega Fusion doesn't even have controls to turn the pages, which is needed for stuff
+	#Emulation works in Kega Fusion (and partially MAME but many games don't boot), but they don't display the actual book, which would be needed for most of the software to make any sense. Kega Fusion doesn't even have controls to turn the pages, which is needed for stuff
 
 	#TODO: Me being lazy, need to check if these actually work or not:
 	'Acorn Atom': UnsupportedSystem('atom', ['atom_cass', 'atom_flop', 'atom_rom'], []),
