@@ -271,8 +271,7 @@ systems.update({
 	#Some games require a hard disk with an OS install and they won't tell you this because of course not, and if you want to autoboot the floppies with a hard drive still in there you have to set it to always boot from slot 5 and it's really annoying and I hate it
 	'CreatiVision': UnsupportedSystem('crvision', ['crvision'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav']}),
 	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it
-	'Mattel Aquarius': UnsupportedSystem('aquarius', ['aquarius'], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav']}),
-	#Controllers aren't emulated yet (and they're necessary for a lot of things)
+	'Mattel Aquarius': UnsupportedSystem('aquarius', ['aquarius'], ['MAME (Mattel Aquarius)'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav']}),
 	'Sega Pico': UnsupportedSystem('pico', ['pico'], [], {MediaType.Cartridge: ['bin', 'md']}),
 	#Emulation works in Kega Fusion and MAME, but they don't display the actual book, which would be needed for most of the software to make any sense. Kega Fusion doesn't even have controls to turn the pages, which is needed for stuff
 

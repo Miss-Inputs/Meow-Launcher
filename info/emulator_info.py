@@ -223,6 +223,9 @@ emulators = {
 	#As it says right there in the fmtowns.cpp comments: "Issues: Video emulation is far from complete." This is apparent, as there are some games that run on the FM Towns Not-Marty but not this; they have heavily corrupted graphics. But to use the FM Towns I'd have to first make sure that it being a computer won't mess with anything usability-wise.
 	'MAME (Magnavox Odyssey²)': MameSystem(command_lines.mame_odyssey2, ['bin', 'rom']),
 	#Isn't completely broken but a lot of games have broken graphics so like... ehh
+	'MAME (Mattel Aquarius)': MameSystem(command_lines.mame_command_line('aquarius', 'cart'), ['bin', 'rom']),
+	#Controllers aren't emulated yet (and they're necessary for a lot of things)
+	#TODO: Check if tapes autoboot? I bet they don't, but like, y'know
 	'MAME (Pokemon Mini)': MameSystem(command_lines.mame_command_line('pokemini', 'cart'), ['bin', 'min']),
 	#Wouldn't recommend yet as it has no sound, even if most people would probably turn the sound off in real life
 	"MAME (Super A'Can)": MameSystem(command_lines.mame_command_line('supracan', 'cart'), ['bin']),
