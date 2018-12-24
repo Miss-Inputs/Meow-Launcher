@@ -58,7 +58,6 @@ extra_subfolders = {
 	'By MAME source file': ('Source-File', False),
 
 	#Relevant for MAME machines only
-	'By parent-clone family': ('Family', False),
 	'By arcade system': ('Arcade-System', False),
 	'Is mechanical': ('Is-Mechanical', True),
 	'Has unemulated features': ('MAME-Unemulated-Features', True),
