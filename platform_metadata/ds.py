@@ -179,6 +179,6 @@ def add_ds_input_info(game):
 def add_ds_metadata(game):
 	add_ds_system_info(game)
 
-	header = game.rom.read(amount=0x208)
+	header = game.rom.read(amount=0x209)
 	parse_ds_header(game, header)
 	add_ds_input_info(game)
