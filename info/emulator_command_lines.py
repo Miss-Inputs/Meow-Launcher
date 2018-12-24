@@ -319,8 +319,8 @@ def mame_atari_2600(game, _):
 	return mame_command_line(system, 'cart')
 
 def mame_zx_spectrum(game, _):
-	#TODO: Add casettes and ROMs; former will require autoboot_script, I don't know enough about the latter but it seems to use exp = intf2
-	#Maybe quickload things? Do those do anything useful?
+	system = 'spec128'
+
 	options = {}
 	if game.metadata.media_type == MediaType.Floppy:
 		system = 'specpls3'
@@ -328,11 +328,15 @@ def mame_zx_spectrum(game, _):
 		#If only one floppy is needed, you can add -upd765:1 "" to the commmand line and use just "flop" instead of "flop1".
 		#Seemingly the "exp" port doesn't do anything, so we can't attach a Kempston interface. Otherwise, we could use this for snapshots and tape games too.
 	elif game.metadata.media_type == MediaType.Snapshot:
-		#No harm in using this for 48K games, it works fine, and saves us from having to detect which model a game is designed for. Seems to be completely backwards compatible, which is a relief.
 		#We do need to plug in the Kempston interface ourselves, though; that's fine. Apparently how the ZX Interface 2 works is that it just maps joystick input to keyboard input, so we don't really need it, but I could be wrong and thinking of something else entirely.
-		system = 'spec128'
 		slot = 'dump'
 		options['exp'] = 'kempjoy'
+	elif game.metadata.media_type == MediaType.Cartridge:
+		#This will automatically boot the game without going through any sort of menu, and since it's the Interface 2, they would all use the Interface 2 joystick. So that works nicely
+		slot = 'cart'
+		options['exp'] = 'intf2'
+	elif game.metadata.media_type == MediaType.Executable:
+		slot = 'quik'
 	else:
 		#Should not happen
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')

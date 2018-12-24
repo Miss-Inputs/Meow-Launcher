@@ -166,7 +166,7 @@ emulators = {
 	'MAME (Watara Supervision)': MameSystem(command_lines.mame_command_line('svision', 'cart'), ['bin', 'ws', 'sv']),
 	#I've been told the sound is that horrible on a real system; there are "TV Link" variant systems but that just makes
 	#the colours look even worse (they're all inverted and shit)
-	'MAME (ZX Spectrum)': MameSystem(command_lines.mame_zx_spectrum, ['ach', 'frz', 'plusd', 'prg', 'sem', 'sit', 'sna', 'snp', 'snx', 'sp', 'z80', 'zx'] + mame_floppy_formats),
+	'MAME (ZX Spectrum)': MameSystem(command_lines.mame_zx_spectrum, ['ach', 'frz', 'plusd', 'prg', 'sem', 'sit', 'sna', 'snp', 'snx', 'sp', 'z80', 'zx', 'bin', 'rom', 'raw', 'scr'] + mame_floppy_formats),
 
 	#Other systems that MAME can do but I'm too lazy to do them yet because they'd need a command line generator function or other:
 	#Dreamcast: Region, and also runs slow on my computer so I don't feel like it
