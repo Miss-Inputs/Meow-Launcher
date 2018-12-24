@@ -113,6 +113,7 @@ helpers = {
 	'MSX2': add_stub_info,
 	'Neo Geo CD': add_neogeo_cd_info,
 	'Nichibutsu My Vision': add_nichibutsu_my_vision_info,
+	'PC Booter': add_stub_info,
 	'PC Engine': add_stub_info,
 	'PC-88': add_pc88_info,
 	'Plus/4': add_stub_info,
