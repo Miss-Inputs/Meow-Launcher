@@ -613,6 +613,18 @@ def add_super_cassette_vision_info(game):
 		software.add_generic_info(game)
 		game.metadata.specific_info['Has-Extra-RAM'] = software.has_data_area('ram') #Or feature "slot" ends with "_ram"
 
+def add_super_acan_info(game):
+	controller = input_metadata.NormalController()
+	controller.shoulder_buttons = 2
+	controller.dpads = 1
+	controller.face_buttons = 4 #Also Select + Start
+	game.metadata.input_info.add_option(controller)
+
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+		game.metadata.product_code = software.get_info('serial')
+
 def add_stub_info(game):
 	software = get_software_list_entry(game)
 	if software:
