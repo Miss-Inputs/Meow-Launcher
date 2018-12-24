@@ -188,6 +188,7 @@ systems.update({
 	#Preliminary MAME driver doesn't seem to boot anything; LisaEm doesn't seem to work with newer OSes and hasn't been updated since
 	'Bandai Playdia': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'Casio Loopy': UnsupportedSystem('casloopy', ['casloopy'], [], {MediaType.Cartridge: ['bin']}),
+	#MAME driver just shows corrupted graphics (and has no controls defined), basically just a skeleton even if it looks like it isn't
 	'Coleco Telstar Arcade': UnsupportedSystem(None, [], [], {}),
 	'Copera': UnsupportedSystem('copera', ['copera'], [], {MediaType.Cartridge: ['bin', 'md']}),
 	#Kega Fusion emulates the Pico well enough to show the message telling you the Copera software won't work on a Pico, at least; otherwise no known emulation
@@ -233,7 +234,7 @@ systems.update({
 	#Loading tapes would require parsing software list usage to figure out where to put load addresses and things to make an autoboot script, because otherwise it's just way too messy to warrant being in a frontend. Snapshots supposedly exist, but I haven't seen any evidence they actually do, so... whoops
 	'C64DTV': UnsupportedSystem('c64dtv', [], []),
 	#Commodore 64 plug and play UnsupportedSystem that has its own unique software, apparently. MAME driver is skeleton, and VICE doesn't seem to boot anything (it is noted as being WIP/experimental)
-	'Commodore 65': UnsupportedSystem('c65', ['c65_flop'], []),
+	'Commodore 65': UnsupportedSystem('c65', ['c65_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
 	#This was actually never released, but there's software for it anyway. However, this is only supported by MAME, and it seems it only supports loading by software lists (there are no media slots), which won't work for our purposes at this point in time
 	'Cybiko': UnsupportedSystem('cybikov1', [], [], {MediaType.Digital: ['app']}),
 	#Quickload slot doesn't seem to actually quickload anything, and seems to require setup each time. V2 and Extreme have same problems
@@ -245,7 +246,7 @@ systems.update({
 	#Requires "RUN " and the program name, where the program name is completely arbitrary and variable, so there's not really any way to do it automatically and programmatically
 	'Neo Geo AES': UnsupportedSystem('aes', ['neogoeo'], [], {MediaType.Cartridge: ['bin']}),
 	#Theoretically this works, but fullpath loading only works as a single .bin file which nothing ever is dumped as. This would only ever be useful with software list support. As for separate Neo Geo emulators... well, they all only seem interested in MVS and CD
-	'Oric': UnsupportedSystem('orica', [], []),
+	'Oric': UnsupportedSystem('orica', [], [], {MediaType.Tape: ['wav', 'tap']}),
 	#MAME has oric1 as well... either way, they don't seem to actually load anything I've tried. There's no software lists, so nothing that says anything is supposed to work
 	#Oricutron loads things automatically and other nice things, but has issues with fullscreen
 	'PC-6001': UnsupportedSystem('pc6001', [], []),
