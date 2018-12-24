@@ -291,15 +291,22 @@ def get_software_lists_by_names(names):
 		return []
 	return [software_list for software_list in [get_software_list_by_name(name) for name in names] if software_list]
 
+_software_list_cache = {}
 def get_software_list_by_name(name):
+	global _software_list_cache
+	if name in _software_list_cache:
+		return _software_list_cache[name]
+
 	try:
 		mame_config = get_mame_config()
 		for hash_path in mame_config.settings['hashpath']:
 			if os.path.isdir(hash_path):
 				list_path = os.path.join(hash_path, name + '.xml')
 				if os.path.isfile(list_path):
-					return SoftwareList(list_path)
-		return None
+					software_list = SoftwareList(list_path)
+					_software_list_cache[name] = software_list
+					return software_list
+		return None #In theory though, we shouldn't be asking for software lists that don't exist
 	except FileNotFoundError:
 		return None
 
