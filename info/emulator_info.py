@@ -82,7 +82,7 @@ emulators = {
 	#"But why not just use Amstrad CPC+?" you ask, well, there's no games that are on CPC+ cartridges that aren't on
 	#GX4000, and I don't feel like fondling around with disks and tapes if I can avoid it
 	'MAME (APF-MP1000)': MameSystem(command_lines.mame_command_line('apfm1000', 'cart'), ['bin']),
-	'MAME (Apple II)': MameSystem(command_lines.mame_apple_ii, mame_floppy_formats + ['do', 'po']),
+	'MAME (Apple II)': MameSystem(command_lines.mame_apple_ii, mame_floppy_formats + ['do', 'po', 'woz']),
 	#Apple II+ is required for autobooting because apparently the original Apple II doesn't do that; not sure if Apple IIe would make much difference but eh
 	#There's a lot of slot options but I'm not sure if any would be useful for general purposes
 	'MAME (Apple III)': MameSystem(command_lines.mame_command_line('apple3', 'flop1', has_keyboard=True), mame_floppy_formats + ['do', 'po']),
