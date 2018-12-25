@@ -165,7 +165,7 @@ def consistentify_manufacturer(manufacturer):
 		'enix': 'Enix',
 		'EPYX': 'Epyx',
 		'Hi Tech Expressions': 'Hi-Tech Expressions',
-		'Jungle\'s Soft - Ultimate Products (HK)': 'Jungle Soft - Ultimate Products (HK)',
+		'Jungle\'s Soft / Ultimate Products (HK)': 'Jungle Soft / Ultimate Products (HK)',
 		'Microprose': 'MicroProse',
 		'Mindscapce': 'Mindscape', #Yeah okay, that _definitely_ is a typo
 		'Pack-In-Video': 'Pack-In Video',
