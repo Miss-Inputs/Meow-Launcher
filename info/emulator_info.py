@@ -240,7 +240,7 @@ emulators = {
 	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes". This is based off SMS Plus
 	'Mednafen (GBA)': MednafenModule('gba', ['gba']),
 	#Would not recommend due to this being based on VisualBoyAdvance, it's just here for completeness
-	'Mednafen (Master System)': MednafenModule('gg', ['gg']),
+	'Mednafen (Master System)': MednafenModule('sms', ['sms', 'bin']),
 	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes". Based off SMS Plus
 	'Mednafen (Mega Drive)': MednafenModule('md', ['md', 'bin', 'gen', 'smd', 'sgd']),
 	#Based off Genesis Plus and an older GPL version of Genesis Plus GX, with all GPL-incompatible cores replaced with alternatives (sound chip emulation from Gens, Z80 from FUSE). Apparently "should still be considered experimental; there are still likely timing bugs in the 68K emulation code, the YM2612 emulation code is not particularly accurate, and the VDP code has timing-related issues."
