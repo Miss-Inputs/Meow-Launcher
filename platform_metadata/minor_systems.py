@@ -625,6 +625,20 @@ def add_super_acan_info(game):
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
 
+def add_pc_booter_info(game):
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+		game.metadata.product_code = software.get_info('serial')
+		usage = game.metadata.specific_info.get('Notes')
+		if usage == 'PC Booter':
+			usage = software.get_info('user_notes')
+		game.metdata.specific_info['Hacked-By'] = software.get_info('cracked')
+		#Other info strings seen:
+		#OEM = Mercer
+		#Original Publisher = Nihon Falcom
+		game.metadata.specific_info['Version'] = software.get_info('version')
+
 def add_generic_info(game):
 	#For any system not otherwise specified
 	software = get_software_list_entry(game)
