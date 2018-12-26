@@ -5,8 +5,6 @@ from metadata import CPUInfo, ScreenInfo, Screen
 from common import convert_alphanumeric, NotAlphanumericException
 from .nintendo_common import nintendo_licensee_codes
 
-#TODO: Maybe get disc number and region code?
-
 def add_gamecube_wii_disc_metadata(game, header):
 	internal_title = header[32:64] #Potentially quite a lot bigger but we don't need that much out of it
 	if internal_title[:28] == b'GAMECUBE HOMEBREW BOOTLOADER':
