@@ -10,6 +10,7 @@ from platform_metadata.ds import add_ds_metadata
 from platform_metadata.game_boy import add_gameboy_metadata
 from platform_metadata.gamecube import add_gamecube_metadata
 from platform_metadata.gba import add_gba_metadata
+from platform_metadata.lynx import add_lynx_metadata
 from platform_metadata.master_system import get_sms_metadata
 from platform_metadata.megadrive import add_megadrive_metadata
 from platform_metadata.n64 import add_n64_metadata
@@ -99,7 +100,7 @@ helpers = {
 	'Hartung Game Master': add_hartung_game_master_info,
 	'IBM PCjr': add_ibm_pcjr_info,
 	'Intellivision': add_intellivision_info,
-	'Lynx': add_lynx_info,
+	'Lynx': add_lynx_metadata,
 	'Mattel Juice Box': add_juicebox_info,
 	'Mega Duck': add_mega_duck_info,
 	'Neo Geo CD': add_neogeo_cd_info,

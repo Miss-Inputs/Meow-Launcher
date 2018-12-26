@@ -550,24 +550,6 @@ def add_game_com_info(game):
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
 
-def add_lynx_info(game):
-	#TODO .lnx files should have a header with something in them, so eventually, Lynx will get its own module here
-	game.metadata.tv_type = TVSystem.Agnostic
-
-	builtin_gamepad = input_metadata.NormalController()
-	builtin_gamepad.dpads = 1
-	builtin_gamepad.face_buttons = 4 #Option 1, Option 2, A, B; these are flipped so you might think there's 8
-	game.metadata.input_info.add_option(builtin_gamepad)
-
-	magic = game.rom.read(amount=4)
-	is_headered = magic == b'LYNX'
-	game.metadata.specific_info['Headered'] = is_headered
-
-	software = get_software_list_entry(game, skip_header=64 if is_headered else 0)
-	if software:
-		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
-
 def add_apple_ii_info(game):
 	#Possible input info: Keyboard and joystick by default, mouse if mouse card exists
 
