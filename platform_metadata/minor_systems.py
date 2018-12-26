@@ -427,14 +427,24 @@ def add_neogeo_cd_info(game):
 	game.metadata.input_info.add_option(builtin_gamepad)
 
 def add_ibm_pcjr_info(game):
-	#TODO .jrc files should have a header with something in them, so eventually, IBM PCjr will get its own module here
 	#Input info: Keyboard or joystick
 
-	magic = game.rom.read(amount=25)
-	is_headered = magic == b'PCjr Cartridge image file'
-	game.metadata.specific_info['Headered'] = is_headered
+	magic = game.rom.read(amount=32)
 
-	software = get_software_list_entry(game, skip_header=512 if is_headered else 0)
+	header_length = 0
+
+	if magic[:25] == b'PCjr Cartridge image file':
+		game.metadata.specific_info['Headered'] = True
+		#.jrc files just have a comment from 49:549 (null terminated ASCII I guess) for the most part so that might not be interesting to poke into
+		game.metadata.specific_info['Header-Format'] = 'JRipCart'
+		header_length = 512
+	elif magic[:10] == b'Filename: ' and magic[0x14:0x1d] == b'Created: ':
+		#Fields here are more plain texty, but otherwise there's just like... a filename and creation date, which is meaningless, and a generic description field, and also a start address
+		game.metadata.specific_info['Headered'] = True
+		game.metadata.specific_info['Header-Format'] = 'PCJrCart'
+		header_length = 128
+
+	software = get_software_list_entry(game, header_length)
 	if software:
 		software.add_generic_info(game)
 		#TODO: If sharedfeat requirement = ibmpcjr_flop:pcdos21, do something about that
