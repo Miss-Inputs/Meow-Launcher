@@ -64,7 +64,15 @@ def sanitize_name(s, supersafe=False):
 	return s
 
 def sanitize_path(path, supersafe=False):
-	#TODO Sanitize folder names too
-	folder, name = os.path.split(path)
-	sanitized = sanitize_name(name, supersafe)
-	return os.path.join(folder, sanitized)
+	parts = pathlib.Path(path).parts
+	if not parts:
+		return None #hmm
+	has_slash = False
+	if parts[0] == '/':
+		has_slash = True
+		parts = parts[1:]
+
+	sanitized_parts = [sanitize_name(path_part, supersafe) for path_part in parts]
+	if has_slash:
+		sanitized_parts = ['/'] + sanitized_parts
+	return os.path.join(*sanitized_parts)
