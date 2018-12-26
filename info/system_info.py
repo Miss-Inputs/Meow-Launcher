@@ -208,6 +208,8 @@ systems.update({
 	'Mattel HyperScan': UnsupportedSystem('hs', ['hyperscan'], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'Microvision': UnsupportedSystem('microvsn', ['microvision'], [], {MediaType.Cartridge: ['bin']}),
 	#Cartridges boot, but seem to do nothing...
+	'Monon Color': UnsupportedSystem('mononcol', ['monon_color'], [], {MediaType.Cartridge: ['bin']}),
+	#Only a skeleton MAME driver with no sound or video or inputs
 	'N-Gage': UnsupportedSystem(None, [], [], {}), #File types are.. folders I think. That could get weird. Anyway, all emulators at this stage seem to be super-preliminary
 	'Nuon': UnsupportedSystem(None, [], [], {}),
 	'Pippin': UnsupportedSystem('pippin', ['pippin', 'pippin_flop'], [], {MediaType.OpticalDisc: cdrom_formats}),
