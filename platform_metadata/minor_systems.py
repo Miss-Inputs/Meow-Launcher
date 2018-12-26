@@ -633,7 +633,8 @@ def add_pc_booter_info(game):
 		usage = game.metadata.specific_info.get('Notes')
 		if usage == 'PC Booter':
 			usage = software.get_info('user_notes')
-		game.metdata.specific_info['Hacked-By'] = software.get_info('cracked')
+		game.metadata.specific_info['Notes'] = usage
+		game.metadata.specific_info['Hacked-By'] = software.get_info('cracked')
 		#Other info strings seen:
 		#OEM = Mercer
 		#Original Publisher = Nihon Falcom
