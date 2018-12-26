@@ -280,6 +280,8 @@ systems.update({
 
 	#TODO: Me being lazy, need to check if these actually work or not:
 	'Acorn Atom': UnsupportedSystem('atom', ['atom_cass', 'atom_flop', 'atom_rom'], []),
+	'Acorn Archimedes': UnsupportedSystem('aa310', ['archimedes'], {MediaType.Floppy: mame_floppy_formats + ['adf']}),
+	#I'll probably want to look more into it, but it looks like it won't really autoboot stuff... just kinda boots to a GUI or prompt depending on the RISC OS version used and then it is in all fairness easy and intuitive from there, but not necessarily an integrated smooth experience...
 	'Amstrad CPC': UnsupportedSystem('cpc464', ['cpc_cass', 'cpc_flop'], []),
 	#The not-plus one (probably will need to switch to cpc664/cpc6128 for flopppy stuff)
 	'APF Imagination Machine': UnsupportedSystem('apfimag', ['apfimag_cass', 'apfm1000'], []),
@@ -324,7 +326,6 @@ systems.update({
 	#Dragon 64 part of CoCo or nah?
 	#Which PC-98 UnsupportedSystem is which?
 	#Videoton TVC: Which is main UnsupportedSystem? TV64?
-	#Acorn Archimedes stuff (could this end up being amongst dos_mac_common?)
 	#Jupiter Ace (ZX Spectrum clone but has different compatibility?)
 	#TI-99: Main kerfluffle seems to be .rpk file format needed for -cart loading, but everything else is in .c and .g and who knows what else; -ioport peb -ioport:peb:slot2 32kmem -ioport:peb:slot3 speech might be needed?
 	#CBM-II (VIC-II and CRTC models)
