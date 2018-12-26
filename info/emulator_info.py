@@ -160,7 +160,6 @@ emulators = {
 	'MAME (VIC-20)': MameSystem(command_lines.mame_vic_20, ['20', '40', '60', '70', 'a0', 'b0', 'crt']),
 	'MAME (VZ-200)': MameSystem(command_lines.mame_command_line('vz200', 'dump', {'io': 'joystick', 'mem': 'laser_64k'}, True), ['vz']),
 	#In the Laser 200/Laser 210 family, but Dick Smith variant should do.
-	#TODO see if casettes (wav cas) or disks (mame_floppy_formats, mem slot = floppy) work nicely
 	#Joystick interface doesn't seem to be used by any games, but I guess it does more than leaving the IO slot unfilled. That sucks, because otherwise no game ever uses the keyboard consistently, because of course not. Even modern homebrew games. Why y'all gotta be like that?
 	#Some games will need you to type RUN to run them, not sure how to detect that.
 	'MAME (Watara Supervision)': MameSystem(command_lines.mame_command_line('svision', 'cart'), ['bin', 'ws', 'sv']),
