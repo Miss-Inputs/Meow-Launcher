@@ -196,7 +196,7 @@ systems.update({
 	'GameKing 3': UnsupportedSystem('gamekin3', ['gameking3'], [], {MediaType.Cartridge: ['bin']}),
 	'Gakken TV Boy': UnsupportedSystem(None, [], [], {}),
 	#No MAME driver or anything, although it's mentioned on an old MESS 'to be dumped' page; apparently CPU is inside the carts
-	'Gizmondo': UnsupportedSystem(None, [], [], {}), #Uses folders seemingly, so that may be weird with the file types
+	'Gizmondo': UnsupportedSystem('gizmondo', [], [], {}), #Uses folders seemingly, so that may be weird with the file types
 	'GP32': UnsupportedSystem('gp32', ['gp32'], [], {MediaType.Cartridge: ['smc'], MediaType.Executable: ['gxb', 'sxf', 'bin', 'gxf', 'fxe']}),
 	#Runs too slow to verify if anything else works, but all documentation points to not
 	'Jaguar CD': UnsupportedSystem('jaguarcd', [], [], {MediaType.OpticalDisc: cdrom_formats}),
