@@ -23,7 +23,7 @@ def add_lynx_metadata(game):
 		#UBYTE   manufname[16];
 		#UBYTE   rotation;
 		#UBYTE   spare[5];
-		game.metadata.publisher = header[0x2b:0x3b].decode('ascii').strip('\0')
+		game.metadata.publisher = header[0x2a:0x3a].decode('ascii').strip('\0')
 
 	software = get_software_list_entry(game, skip_header=64 if is_headered else 0)
 	if software:
