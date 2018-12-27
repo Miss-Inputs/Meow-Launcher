@@ -112,7 +112,7 @@ arcade_systems = {
 	'konamigq': 'Konami GQ', #Based on PS1
 	'konamigv': 'Konami GV', #Based on PS1
 	'konamigx': 'Konami GX',
-	'konamim2': 'Konami M2', #Based on unreleased Panasonic M2, non-working
+	'konamim2': 'Konami M2', #Based on unreleased Panasonic M2
 	'ksys573': 'Konami System 573', #Based on PS1
 	'gammagic': 'Bally V8000', #Pentium PC based, skeleton
 	'lindbergh': 'Sega Lindbergh', #(modern) PC based, very non-working
