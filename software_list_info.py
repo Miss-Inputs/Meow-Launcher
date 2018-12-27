@@ -275,14 +275,16 @@ class SoftwareList():
 				return Software(software, self)
 		return None
 
-	def find_software(self, crc=None, sha1=None, part_matcher=_does_part_match):
-		#TODO: crc and sha1 should have better names, as sometimes they aren't CRCs or SHA1s but just arguments to part_matcher
+	def find_software(self, part_matcher=_does_part_match, part_matcher_args=None):
+		if part_matcher_args is None:
+			part_matcher_args = ()
+
 		for software_xml in self.xml.findall('software'):
 			software = Software(software_xml, self)
 			for part in software.parts.values():
 				#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
 				#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
-				if part_matcher(part, crc, sha1):
+				if part_matcher(part, *part_matcher_args):
 					return software
 		return None
 
@@ -313,7 +315,7 @@ def get_software_list_by_name(name):
 def find_in_software_lists(software_lists, crc=None, sha1=None, part_matcher=_does_part_match):
 	#TODO: Handle hash collisions. Could happen, even if we're narrowing down to specific software lists
 	for software_list in software_lists:
-		software = software_list.find_software(crc, sha1, part_matcher)
+		software = software_list.find_software(part_matcher, (crc, sha1))
 		if software:
 			return software
 	return None
