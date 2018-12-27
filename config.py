@@ -18,7 +18,7 @@ _main_config_path = os.path.join(_config_dir, 'config.ini')
 _ignored_dirs_path = os.path.join(_config_dir, 'ignored_directories.txt')
 #TODO: Do I really want this to be in the source file like that? Ehhhhh
 _name_consistency_path = os.path.join(os.path.dirname(__file__), 'name_consistency.ini')
-_emulator_config_path = os.path.join(_config_dir, 'emulators.ini')
+_system_config_path = os.path.join(_config_dir, 'systems.ini')
 
 mac_ini_path = os.path.join(_config_dir, 'mac.ini')
 dos_ini_path = os.path.join(_config_dir, 'dos.ini')
@@ -245,13 +245,13 @@ class SystemConfigs():
 			self.parser = configparser.ConfigParser(interpolation=None, delimiters=('='), allow_no_value=True)
 			self.parser.optionxform = str
 
-			ensure_exist(_emulator_config_path)
-			self.parser.read(_emulator_config_path)
+			ensure_exist(_system_config_path)
+			self.parser.read(_system_config_path)
 
 			self.init_configs()
 
 		def rewrite_config(self):
-			with open(_emulator_config_path, 'wt') as f:
+			with open(_system_config_path, 'wt') as f:
 				self.parser.write(f)
 
 		def init_configs(self):

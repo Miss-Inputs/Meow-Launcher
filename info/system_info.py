@@ -167,7 +167,7 @@ systems = {
 #Unsupported (yet) systems beyond this point, these won't be listed in any config files by default; just here to make it easier for me to add new systems later as I document what they are and what holds them back, sometimes just because I have nothing better to do I guess
 
 systems.update({
-	#Theoretically supported, but not supported enough to be considered playable, but you can manually add them to emulators.ini if you really want
+	#Theoretically supported, but not supported enough to be considered playable, but you can manually add them to systems.ini if you really want
 	'FM Towns Marty': UnsupportedSystem('fmtmarty', ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}),
 	'Jaguar': UnsupportedSystem('jaguar', ['jaguar'], ['MAME (Jaguar)'], {MediaType.Cartridge: ['j64', 'bin', 'rom'], MediaType.Executable: ['abs', 'cof', 'jag', 'prg']}),
 	'Magnavox Odyssey²': UnsupportedSystem('odyssey2', ['odyssey2'], ['MAME (Magnavox Odyssey²)', 'MAME (G7400)'], {MediaType.Cartridge: ['bin', 'rom']}),

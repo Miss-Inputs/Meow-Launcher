@@ -23,7 +23,7 @@ No special trickery should be required for installation, you just kinda put it i
 These config files will appear in ~/.config/MeowLauncher (see also config.py config_dir for where that's set) with default values, once anything is ran for the first time (see --refresh-config below), and then you... edit them. Ideally I want to make some kind of configurator, but that'd be a separate thing:
 - config.ini
   - Main configuration, which specifies where your launchers are output to and other things like that.
-- emulators.ini
+- systems.ini
   - For roms.py, dos.py and mac.py; this is where you specify where your games are located and which emulators you want to use. You can use multiple ROM directories and multiple emulators; with the latter, it'll use the emulator you specified first, and if that emulator won't work with a given game, it'll try the next emulator, etc.
 - ignored_directories.txt
   - List of directories to ignore despite them being inside your ROM folders. Sometimes you just have subfolders that you don't want having launchers for. One directory per line. This doesn't appear by default, but you can just create it.
