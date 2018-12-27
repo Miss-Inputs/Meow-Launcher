@@ -274,7 +274,7 @@ systems.update({
 	'Apple IIgs': UnsupportedSystem('apple2gs', ['apple2gs'], [], {MediaType.Floppy: mame_floppy_formats + ['2mg']}),
 	#Some games require a hard disk with an OS install and they won't tell you this because of course not, and if you want to autoboot the floppies with a hard drive still in there you have to set it to always boot from slot 5 and it's really annoying and I hate it
 	'CreatiVision': UnsupportedSystem('crvision', ['crvision'], ['MAME (CreatiVision)'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav']}),
-	'Mattel Aquarius': UnsupportedSystem('aquarius', ['aquarius'], ['MAME (Mattel Aquarius)'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav']}),
+	'Mattel Aquarius': UnsupportedSystem('aquarius', ['aquarius'], ['MAME (Mattel Aquarius)'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav', 'caq']}),
 	'Sega Pico': UnsupportedSystem('pico', ['pico'], ['Kega Fusion'], {MediaType.Cartridge: ['bin', 'md']}),
 	#Emulation works in Kega Fusion (and partially MAME but many games don't boot), but they don't display the actual book, which would be needed for most of the software to make any sense. Kega Fusion doesn't even have controls to turn the pages, which is needed for stuff
 
