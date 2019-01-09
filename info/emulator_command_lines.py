@@ -196,7 +196,7 @@ def _verify_supported_mappers(game, supported_mappers, detected_mappers):
 		#But it'll be okay if the mapper is something that gets autodetected outside of the header anyway
 		raise EmulationNotSupportedException('Overriding the mapper in header is not supported')
 
-	if mapper not in supported_mappers:
+	if mapper not in supported_mappers and mapper not in detected_mappers:
 		raise EmulationNotSupportedException('Mapper ' + mapper + ' not supported')
 
 def verify_mgba_mapper(game):
