@@ -41,8 +41,6 @@ class ScummVMGame():
 		metadata.input_info.add_option([input_metadata.Mouse(), input_metadata.Keyboard()]) #Can use gamepad if you enable it
 		metadata.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
 		metadata.emulator_name = self._get_emulator_name()
-		#TODO: publisher, categories, languages, nsfw, regions, subgenre, year... somehow
-		#Others are left deliberately blank because they refer to emulators and not engines
 
 		#Hmm, could use ResidualVM as the launcher type for ResidualVM games... but it's just a unique identifier type thing, so it should be fine
 		launchers.make_launcher(command, name, metadata, 'ScummVM', self.name)
