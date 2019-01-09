@@ -169,7 +169,6 @@ emulators = {
 
 	#Other systems that MAME can do but I'm too lazy to do them yet because they'd need a command line generator function or other:
 	#Dreamcast: Region, and also runs slow on my computer so I don't feel like it
-	#Lynx: Need to select -quick for .o files and -cart otherwise
 	#SMS, Megadrive: Need to detect region (beyond TV type)
 	#	(Notable that Megadrive can do Sonic & Knuckles)
 	#N64: Does not do PAL at all. The game might even tell you off if it's a PAL release
@@ -250,6 +249,7 @@ emulators = {
 	'MAME (Amstrad CPC+)': MameSystem(command_lines.mame_command_line('cpc6128p', 'cart'), ['bin', 'cpr']),
 	#Just in case I change my mind on using GX4000. cpc464p is a different CPC+ model but I'm not sure that would be useful?
 	'MAME (Game Gear)': MameSystem(command_lines.mame_command_line('gamegear', 'cart'), ['bin', 'gg']),
+	'MAME (Lynx)': MameSystem(command_lines.mame_lynx, ['lnx', 'lyx', 'o']),
 	'MAME (Neo Geo Pocket)': MameSystem(command_lines.mame_command_line('ngpc', 'cart'), ['bin', 'ngp', 'npc', 'ngc']),
 	'MAME (WonderSwan)': MameSystem(command_lines.mame_command_line('wscolor', 'cart'), ['ws', 'wsc', 'bin', 'pc2']),
 }

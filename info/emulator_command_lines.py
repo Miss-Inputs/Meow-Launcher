@@ -475,6 +475,14 @@ def mame_odyssey2(game, _):
 
 	return mame_command_line(system, 'cart')
 
+def mame_lynx(game, _):
+	slot = 'cart'
+
+	if game.metadata.media_type == MediaType.Executable :
+		slot = 'quik'
+
+	return mame_command_line('lynx', slot)
+
 def mupen64plus(game, specific_config):
 	if game.metadata.specific_info.get('ROM-Format', None) == 'Unknown':
 		raise EmulationNotSupportedException('Undetectable ROM format')
