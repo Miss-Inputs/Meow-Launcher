@@ -70,7 +70,6 @@ mame_rom_slots = {
 	'rom_licheng': 'Li Cheng',
 	'rom_m161': 'Mani 4 in 1 DMG-601',
 	'rom_mbc1': 'MBC1',
-	#This is probably related to that "Multicart compatibility" checkbox in Gambatte
 	'rom_mbc1col': 'MBC1 Multicart',
 	'rom_mbc2': 'MBC2',
 	'rom_mbc3': 'MBC3',
@@ -92,6 +91,8 @@ mame_rom_slots = {
 def parse_slot(game, slot):
 	if slot in mame_rom_slots:
 		original_mapper = game.metadata.specific_info.get('Mapper', 'None')
+
+		game.metadata.specific_info['Original-Mapper'] = original_mapper
 
 		new_mapper = mame_rom_slots[slot]
 

@@ -183,18 +183,27 @@ def mame_c64(game, _):
 	system = _find_c64_system(game)
 	return mame_command_line(system, 'cart', {'joy1': 'joybstr', 'joy2': 'joybstr', 'iec8': '""'}, True)
 
-def verify_mgba_mapper(game):
-	if game.metadata.specific_info.get('Override-Mapper', False):
-		#If the mapper in the ROM header is different than what the mapper actually is, it won't work, since we can't override it from the command line or anything
-		raise EmulationNotSupportedException('Overriding the mapper in header is not supported')
-
+def _verify_supported_mappers(game, supported_mappers, detected_mappers):
 	mapper = game.metadata.specific_info.get('Mapper', None)
+
 	if not mapper:
 		#If there was a problem detecting the mapper, or it's something invalid, it probably won't run
+		#TODO: Do I really need this part? When would it ever happen?
 		raise EmulationNotSupportedException('Mapper is not detected at all')
 
-	if mapper not in ['ROM only', 'MBC1', 'MBC1 Multicart', 'MBC2', 'MBC3', 'HuC1', 'MBC5', 'HuC3', 'MBC6', 'MBC7', 'MMM01', 'Pocket Camera', 'Bandai TAMA5']:
+	if game.metadata.specific_info.get('Override-Mapper', False) and mapper not in detected_mappers:
+		#If the mapper in the ROM header is different than what the mapper actually is, it won't work, since we can't override it from the command line or anything
+		#But it'll be okay if the mapper is something that gets autodetected outside of the header anyway
+		raise EmulationNotSupportedException('Overriding the mapper in header is not supported')
+
+	if mapper not in supported_mappers:
 		raise EmulationNotSupportedException('Mapper ' + mapper + ' not supported')
+
+def verify_mgba_mapper(game):
+	supported_mappers = ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5', 'HuC3', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5']
+	detected_mappers = ['MBC1 Multicart', 'MMM01']
+
+	_verify_supported_mappers(game, supported_mappers, detected_mappers)
 
 def mgba(game, _):
 	if game.metadata.platform in ('Game Boy', 'Game Boy Color'):
@@ -206,27 +215,25 @@ def mgba(game, _):
 	return command_line + ' $<path>'
 
 def medusa(game, _):
-	if game.metadata.platform in ('Game Boy', 'Game Boy Color'):
-		verify_mgba_mapper(game)
-
 	if game.metadata.platform == 'DSi':
 		raise EmulationNotSupportedException('DSi exclusive games and DSiWare not supported')
 	elif game.metadata.specific_info.get('Is-iQue', False):
 		raise EmulationNotSupportedException('iQue DS not supported')
-	return 'medusa-emu-qt -f $<path>'
+
+	if game.metadata.platform in ('Game Boy', 'Game Boy Color'):
+		verify_mgba_mapper(game)
+
+	command_line = 'medusa-emu-qt -f'
+	if game.metadata.platform != 'DS':
+		#(for GB/GBA stuff only, otherwise BIOS is mandatory whether you like it or not)
+		if not game.metadata.specific_info.get('Nintendo-Logo-Valid', True):
+			command_line += ' -C useBios=0'
+
+	return command_line + ' $<path>'
 
 def gambatte(game, _):
-	if game.metadata.specific_info.get('Override-Mapper', False):
-		#If the mapper in the ROM header is different than what the mapper actually is, it won't work, since we can't override it from the command line or anything
-		raise EmulationNotSupportedException('Overriding the mapper in header is not supported')
-
-	mapper = game.metadata.specific_info.get('Mapper', None)
-	if not mapper:
-		#If there was a problem detecting the mapper, or it's something invalid, it probably won't run
-		raise EmulationNotSupportedException('Mapper is not detected at all')
-
-	if mapper not in ['ROM only', 'MBC1', 'MBC1 Multicart', 'MBC2', 'MBC3', 'HuC1', 'MBC5']:
-		raise EmulationNotSupportedException('Mapper ' + mapper + ' not supported')
+	#I guess MBC1 Multicart only works if you tick the "Multicart compatibility" box
+	_verify_supported_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5'], ['MBC1 Multicart'])
 
 	return 'gambatte_qt --full-screen $<path>'
 
