@@ -503,7 +503,7 @@ def mame_odyssey2(game, _):
 def mame_lynx(game, _):
 	slot = 'cart'
 
-	if game.metadata.media_type == MediaType.Executable :
+	if game.metadata.media_type == MediaType.Executable:
 		slot = 'quik'
 
 	return mame_command_line('lynx', slot)
