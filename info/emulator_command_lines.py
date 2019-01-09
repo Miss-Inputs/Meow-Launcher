@@ -483,6 +483,12 @@ def mame_lynx(game, _):
 
 	return mame_command_line('lynx', slot)
 
+def mame_n64(game, _):
+	if game.metadata.tv_type == TVSystem.PAL:
+		raise EmulationNotSupportedException('NTSC only')
+
+	return mame_command_line('n64', 'cart')
+
 def mupen64plus(game, specific_config):
 	if game.metadata.specific_info.get('ROM-Format', None) == 'Unknown':
 		raise EmulationNotSupportedException('Undetectable ROM format')

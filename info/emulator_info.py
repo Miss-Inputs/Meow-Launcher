@@ -171,7 +171,6 @@ emulators = {
 	#Dreamcast: Region, and also runs slow on my computer so I don't feel like it
 	#SMS, Megadrive: Need to detect region (beyond TV type)
 	#	(Notable that Megadrive can do Sonic & Knuckles)
-	#N64: Does not do PAL at all. The game might even tell you off if it's a PAL release
 	#PC Engine: Need to select between pce and tg16 depending on region, -cdrom and -cart slots, and sgx accordingly
 
 	#----- The experimental section. The emulators are still here, it's just so you, the fabulous and wonderful end user, can have more information on how to manage expectations. Or something like that.
@@ -179,6 +178,8 @@ emulators = {
 	#--Has usability issues that prevent me from considering it a nice experience, but may work anyway
 	'MAME (IBM PC)': MameSystem(command_lines.mame_command_line('ibm5150', 'flop1', {'isa5': 'sblaster1_5'}, has_keyboard=True), mame_floppy_formats + ['img']),
 	#Sound Blaster 1.5 is added here primarily just to give this a joystick, but then that seems to not work anyway... also, there's DIP switches you might need to set in order for video output to work (it's set to monochrome by default and not CGA)
+	'MAME (N64)': MameSystem(command_lines.mame_n64, ['v64', 'z64', 'rom', 'n64', 'bin']),
+	#Emulates a NTSC console only so PAL games will probably tell you off or otherwise not work properly; also no rumble/mempak/etc for you
 
 	#--These experimental emulators seem to work more often than they don't:
 	'Citra': Emulator(command_lines.citra, ['3ds', 'cxi', '3dsx'], []),
