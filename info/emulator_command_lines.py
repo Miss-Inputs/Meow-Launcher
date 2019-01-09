@@ -40,18 +40,22 @@ def mame_command_line(driver, slot=None, slot_options=None, has_keyboard=False, 
 
 	return command_line
 
-def _is_highscore_cart_available():
+def _is_software_available(software_list_name, software_name):
 	if not have_mame():
-		#Well, I guess MAME a7800 wouldn't work at all, but then... with A7800 it gets confusing and I guess it would in theory have its own -verifysoftware and yeah I'm doing this all wrong really
 		return False
+
 	#Unfortunately it seems we cannot verify an individual software, which would probably take less time
-	proc = subprocess.run(['mame', '-verifysoftware', 'a7800'], universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+	proc = subprocess.run(['mame', '-verifysoftlist', software_list_name], universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
 	#Don't check return code - it'll return 2 if other software is bad, but we don't care about those
 	for line in proc.stdout.splitlines():
 		#Bleh
-		if line == 'romset a7800:hiscore is good':
+		if line == 'romset {0}:{1} is good'.format(software_list_name, software_name):
 			return True
 	return False
+
+def _is_highscore_cart_available():
+	return _is_software_available('a7800', 'hiscore')
+	#FIXME: This is potentially wrong for A7800, where the software directory could be different than MAME... I've just decided to assume it's set up that way
 
 _have_hiscore_software = None
 
