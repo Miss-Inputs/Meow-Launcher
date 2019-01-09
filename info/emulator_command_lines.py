@@ -253,6 +253,8 @@ def mame_game_boy(game, specific_config):
 	supported_mappers = ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5']
 	detected_mappers = ['MMM01', 'MBC1 Multicart', 'Wisdom Tree', 'Li Cheng', 'Sintax']
 
+	_verify_supported_mappers(game, supported_mappers, detected_mappers)
+
 	#Not much reason to use gameboy, other than a green tinted screen. I guess that's the only difference
 	system = 'gbcolor' if specific_config.get('use_gbc_for_dmg') else 'gbpocket'
 
