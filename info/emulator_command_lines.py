@@ -233,12 +233,26 @@ def medusa(game, _):
 
 def gambatte(game, _):
 	#I guess MBC1 Multicart only works if you tick the "Multicart compatibility" box
+	#MMM01 technically works but only boots the first game instead of the menu, so it doesn't really work work
 	_verify_supported_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5'], ['MBC1 Multicart'])
 
 	return 'gambatte_qt --full-screen $<path>'
 
+def gbe_plus(game, _):
+	#In theory, only this should support Pocket Sonar (so far), but there's not really a way to detect that since it just claims to be MBC1 in the header...
+	_verify_supported_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'HuC1'], ['MBC1 Multicart'])
+	return 'gbe_plus_qt $<path>'
+
+def mednafen_gb(game, _):
+	_verify_supported_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC7', 'HuC1', 'HuC3'], [])
+	return make_mednafen_command_line('gb')
+
 def mame_game_boy(game, specific_config):
-	#TODO: Bound to be some mappers which won't be supported (Game Boy Camera would be one of them I guess)
+	#Do all of these actually work or are they just detected? (HuC1 and HuC3 are supposedly non-working, and are treated as MBC3?)
+	#gb_slot.cpp also mentions MBC4, which isn't real
+	supported_mappers = ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5']
+	detected_mappers = ['MMM01', 'MBC1 Multicart', 'Wisdom Tree', 'Li Cheng', 'Sintax']
+
 	#Not much reason to use gameboy, other than a green tinted screen. I guess that's the only difference
 	system = 'gbcolor' if specific_config.get('use_gbc_for_dmg') else 'gbpocket'
 

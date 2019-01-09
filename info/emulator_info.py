@@ -37,9 +37,7 @@ emulators = {
 	#Note that .ipf files need a separately downloadable plugin. We could detect the presence of that, I guess
 	'Gambatte': Emulator(command_lines.gambatte, ['gb', 'gbc'], ['zip']),
 	#--gba-cgb-mode[=0] and --force-dmg-mode[=0] may be useful in obscure situations, but that would probably require a specific thing that notes some GBC games are incompatible with GBA mode (Pocket Music) or GB incompatible with GBC (R-Type, also Pocket Sonar but that wouldn't work anyway)
-	'GBE+': Emulator('gbe_plus_qt $<path>', ['gb', 'gbc', 'gba'], []),
-	#TODO: Restrict to supported mappers: ROM only, MBC1, MBC1 Multicart, MBC2, MBC3, MBC5, MBC6, MBC7, Pocket Camera, HuC1
-	#In theory, only this should support Pocket Sonar (so far), but there's not really a way to detect that since it just claims to be MBC1 in the header...
+	'GBE+': Emulator(command_lines.gbe_plus, ['gb', 'gbc', 'gba'], []),
 	#Also in theory recognizes any extension and assumes Game Boy if not .gba or .nds, but that would be screwy
 	'Kega Fusion': Emulator('kega-fusion -fullscreen $<path>', ['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', 'sc', '32x'], ['zip']),
 	#May support other CD formats for Mega CD other than iso, cue? Because it's closed source, can't really have a look, but I'm just going to presume it's only those two
@@ -242,7 +240,7 @@ emulators = {
 	#Some things work, except with no sound, so... nah
 
 	#--These ones may or may not run well, I dunno:
-	'Mednafen (Game Boy)': MednafenModule('gb', ['gb', 'gbc']),
+	'Mednafen (Game Boy)': MednafenModule('gb', ['gb', 'gbc'], command_lines.mednafen_gb),
 	#Would not recommend due to this being based on VisualBoyAdvance (and an old version at that), it's just here for completeness
 	'Mednafen (Game Gear)': MednafenModule('gg', ['gg']),
 	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes". This is based off SMS Plus
