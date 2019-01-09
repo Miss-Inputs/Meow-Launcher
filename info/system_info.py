@@ -231,7 +231,7 @@ systems.update({
 	#Decaf requires OpenGL 4.5 (even for software rendering it seems)
 
 	#Things that have usability issues that make things unsuitable for launchering purposes at this point in time, but otherwise would work if you're just here because you're wondering what emulators work
-	'64DD': UnsupportedSystem('n64dd', ['n64dd'], {MediaType.Floppy: ['ndd', 'ddd']}),
+	'64DD': UnsupportedSystem('n64dd', ['n64dd'], [], {MediaType.Floppy: ['ndd', 'ddd']}),
 	#Mupen64Plus would work, but right now it has issues with usability that it says right in the readme (so it's not just me picking on them, they say it themselves). Basically you have to have a cart inserted which has the same properties as the 64DD software you want to emulate, and that wouldn't work for our launchering purposes. MAME doesn't seem to work with .ndd format dumps
 	'Apple I': UnsupportedSystem('apple1', ['apple1'], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['snp']}),
 	#Loading tapes would require parsing software list usage to figure out where to put load addresses and things to make an autoboot script, because otherwise it's just way too messy to warrant being in a frontend. Snapshots supposedly exist, but I haven't seen any evidence they actually do, so... whoops
@@ -280,7 +280,7 @@ systems.update({
 
 	#TODO: Me being lazy, need to check if these actually work or not:
 	'Acorn Atom': UnsupportedSystem('atom', ['atom_cass', 'atom_flop', 'atom_rom'], []),
-	'Acorn Archimedes': UnsupportedSystem('aa310', ['archimedes'], {MediaType.Floppy: mame_floppy_formats + ['adf']}),
+	'Acorn Archimedes': UnsupportedSystem('aa310', ['archimedes'], [], {MediaType.Floppy: mame_floppy_formats + ['adf']}),
 	#I'll probably want to look more into it, but it looks like it won't really autoboot stuff... just kinda boots to a GUI or prompt depending on the RISC OS version used and then it is in all fairness easy and intuitive from there, but not necessarily an integrated smooth experience...
 	'Amstrad CPC': UnsupportedSystem('cpc464', ['cpc_cass', 'cpc_flop'], []),
 	#The not-plus one (probably will need to switch to cpc664/cpc6128 for flopppy stuff)
