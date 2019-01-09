@@ -317,7 +317,14 @@ def add_save_type(machine):
 		has_memory_card = has_memory_card and (machine.family not in not_actually_save_supported)
 
 		machine.metadata.save_type = SaveType.MemoryCard if has_memory_card else SaveType.Nothing
-		#TODO: Some machines that aren't arcade systems might plausibly have something describable as SaveType.Cart or SaveType.Internal... anyway, I guess I'll burn that bridge when I see it
+
+	else:
+		has_nvram = machine.uses_device('nvram')
+		has_i2cmem = machine.uses_device('i2cmem')
+
+		#Assume that if there's non-volatile memory that it's used for storing some kind of save data, and not like... stuff
+		#This may be wrong!!!!!!!!!!! but it seems to hold true for plug & play TV games and electronic handheld games so that'd be the main idea
+		machine.metadata.save_type = SaveType.Internal if has_nvram or has_i2cmem else SaveType.Nothing
 
 def add_status(machine):
 	driver = machine.xml.find('driver')
