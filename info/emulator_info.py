@@ -171,7 +171,11 @@ emulators = {
 	#Dreamcast: Region, and also runs slow on my computer so I don't feel like it
 	#SMS, Megadrive: Need to detect region (beyond TV type)
 	#	(Notable that Megadrive can do Sonic & Knuckles)
-	#PC Engine: Need to select between pce and tg16 depending on region, -cdrom and -cart slots, and sgx accordingly
+	#PC Engine: Need to select between pce and tg16 depending on region, -cdrom and -cart slots, and sgx accordingly:
+	#	.sgx extension is SuperGrafx, needs sgx driver
+	#	tg16 can run Japanese games (seemingly) but pce cannot run USA games
+	#	Doesn't seem there's a PAL PC Engine driver
+	#	CD needs -cart set to CD-ROM System .pce BIOS, and then seems to work with any particular driver (but the TurboGrafx CD System Card will only work with tg16)
 
 	#----- The experimental section. The emulators are still here, it's just so you, the fabulous and wonderful end user, can have more information on how to manage expectations. Or something like that.
 
