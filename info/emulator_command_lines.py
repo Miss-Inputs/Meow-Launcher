@@ -251,22 +251,36 @@ def mame_game_boy(game, specific_config):
 
 	return mame_command_line(system, 'cart')
 
+_have_sufami_software = None
+_have_bsx_software = None
 def mame_snes(game, specific_config):
+	global _have_sufami_software, _have_bsx_software
+
 	if game.rom.extension == 'st':
-		#TODO: Allow the usage of 'sufami' in software list as well, if it is there
+		if _have_sufami_software is None:
+			_have_sufami_software = _is_software_available('snes', 'sufami')
+
+		if _have_sufami_software:
+			return mame_command_line('snes', 'cart2', {'cart': 'sufami'})
+
 		bios_path = specific_config.get('sufami_turbo_bios_path', None)
 		if not bios_path:
 			raise EmulationNotSupportedException('Sufami Turbo BIOS not set up, check systems.ini')
 
 		#We don't need to detect TV type because the Sufami Turbo (and also BS-X) was only released in Japan and so the Super Famicom can be used for everything
-		return mame_command_line('snes', 'cart2', {'cart': shlex.quote(bios_path)}, False)
+		return mame_command_line('snes', 'cart2', {'cart': shlex.quote(bios_path)})
 
 	if game.rom.extension == 'bs':
-		#TODO: Allow use of 'bsxsore' in software list as well if it is there
+		if _have_bsx_software is None:
+			_have_bsx_software = _is_software_available('snes', 'bsxsore')
+
+		if _have_bsx_software:
+			return mame_command_line('snes', 'cart2', {'cart': 'bsxsore'})
+
 		bios_path = specific_config.get('bsx_bios_path', None)
 		if not bios_path:
 			raise EmulationNotSupportedException('BS-X/Satellaview BIOS not set up, check systems.ini')
-		return mame_command_line('snes', 'cart2', {'cart': shlex.quote(bios_path)}, False)
+		return mame_command_line('snes', 'cart2', {'cart': shlex.quote(bios_path)})
 
 	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'snespal'
