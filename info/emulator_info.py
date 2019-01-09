@@ -176,6 +176,12 @@ emulators = {
 	#	tg16 can run Japanese games (seemingly) but pce cannot run USA games
 	#	Doesn't seem there's a PAL PC Engine driver
 	#	CD needs -cart set to CD-ROM System .pce BIOS, and then seems to work with any particular driver (but the TurboGrafx CD System Card will only work with tg16)
+	#Saturn: Needs region stuff (saturn and saturnjp are software incompatible); otherwise seems to basically work (ctrl1 sets controller) but marked as MACHINE_NOT_WORKING and slow...
+	#Stuff that MAME doesn't do so well, but a non-skeleton driver exists:
+	#Amiga CD32: I guess it doesn't really work at this point in time
+	#Commodore CDTV: Nope
+	#PlayStation: Seems to like executables but not discs, dunno if psu will accept Japan discs
+
 
 	#----- The experimental section. The emulators are still here, it's just so you, the fabulous and wonderful end user, can have more information on how to manage expectations. Or something like that.
 
