@@ -485,8 +485,6 @@ def mame_fm_towns_marty(game, _):
 	return mame_command_line('fmtmarty', slot, slot_options)
 
 def mame_ibm_pcjr(game, _):
-	slot_options = {'bios': 'quiksilver'}
-
 	if game.metadata.media_type == MediaType.Cartridge:
 		slot = 'cart1'
 	elif game.metadata.media_type == MediaType.Floppy:
@@ -495,7 +493,7 @@ def mame_ibm_pcjr(game, _):
 	else:
 		#Should never happen
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
-	return mame_command_line('ibmpcjr', slot, slot_options, has_keyboard=True)
+	return mame_command_line('ibmpcjr', slot, has_keyboard=True)
 
 def mame_atari_jaguar(game, _):
 	if game.metadata.media_type == MediaType.Cartridge:
