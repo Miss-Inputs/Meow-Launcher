@@ -172,7 +172,6 @@ emulators = {
 	#PC Engine: Need to select between pce and tg16 depending on region, -cdrom and -cart slots, and sgx accordingly:
 	#	.sgx extension is SuperGrafx, needs sgx driver
 	#	tg16 can run Japanese games (seemingly) but pce cannot run USA games
-	#	Doesn't seem there's a PAL PC Engine driver
 	#	CD needs -cart set to CD-ROM System .pce BIOS, and then seems to work with any particular driver (but the TurboGrafx CD System Card will only work with tg16)
 	#Saturn: Needs region stuff (saturn and saturnjp are software incompatible); otherwise seems to basically work (ctrl1 sets controller) but marked as MACHINE_NOT_WORKING and slow...
 	#Stuff that MAME doesn't do so well, but a non-skeleton driver exists:
