@@ -621,6 +621,28 @@ def mame_apple_ii(game, specific_config):
 
 	return mame_command_line(system, 'flop1', slot_options, True)
 
+def mame_master_system(game, _):
+	tv_type = TVSystem.PAL #Seems a more sensible default at this point (there are also certain homebrews with less-than-detectable TV types that demand PAL)
+
+	if game.metadata.tv_type in (TVSystem.NTSC, TVSystem.Agnostic):
+		tv_type = TVSystem.NTSC
+
+	if game.metadata.specific_info.get('Japanese-Only', False):
+		system = 'smsj' #Still considered SMS1 for compatibility purposes. Seems to just be sg1000m3 but with built in FM, for all intents and purposes
+		#TODO Detect usage of card slot vs cart
+	elif tv_type == TVSystem.PAL:
+		system = 'sms1pal'
+		if game.metadata.specific_info.get('SMS2-Only', False):
+			system = 'smspal' #Master System 2 lacks expansion slots and card slot in case that ends up making a difference
+	else:
+		system = 'smsj' #Used over sms1 for FM sound on worldwide releases
+		if game.metadata.specific_info.get('SMS2-Only', False):
+			system = 'sms'
+	#Not sure if Brazilian or Korean systems would end up being needed
+
+	#TODO Set up slot options for ctrl1 and possibly ctrl2
+	return mame_command_line(system, 'cart')
+
 def mame_coleco_adam(game, _):
 	slot_options = {}
 	slot = None
