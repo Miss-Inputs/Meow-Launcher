@@ -59,7 +59,7 @@ emulators = {
 	#WARNING! Will write back changes to your disk images unless they are compressed or actually write protected on the file system
 	#FIXME: Does support compressed tapes/disks but doesn't support compressed cartridges (seemingly). This would require changing all kinds of stuff with how compression is handled here.
 
-	'Mednafen (Lynx)': MednafenModule('lynx', ['lnx', 'lyx', 'o']),
+	'Mednafen (Lynx)': MednafenModule('lynx', ['lnx', 'lyx', 'o'], command_lines.mednafen_lynx),
 	#Based on Handy, but that hasn't been updated in 14 years, so I guess this probably has some more updates
 	'Mednafen (Neo Geo Pocket)': MednafenModule('ngp', ['ngp', 'npc', 'ngc']),
 	#Based off NeoPop, which hasn't been updated in 15 years, so presumably with improvements. Does say that this is unsuitable for homebrew development (due to lack of accuracy) and MAME is more suitable for that, so believe that if you want

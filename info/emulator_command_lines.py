@@ -515,12 +515,21 @@ def mame_odyssey2(game, _):
 	return mame_command_line(system, 'cart')
 
 def mame_lynx(game, _):
+	if game.metadata.media_type == MediaType.Cartridge and not game.metadata.specific_info.get('Headered', False):
+		raise EmulationNotSupportedException('Needs to have .lnx header')
+
 	slot = 'cart'
 
 	if game.metadata.media_type == MediaType.Executable:
 		slot = 'quik'
 
 	return mame_command_line('lynx', slot)
+
+def mednafen_lynx(game, _):
+	if game.metadata.media_type == MediaType.Cartridge and not game.metadata.specific_info.get('Headered', False):
+		raise EmulationNotSupportedException('Needs to have .lnx header')
+
+	return make_mednafen_command_line('lynx')
 
 def mame_n64(game, _):
 	if game.metadata.tv_type == TVSystem.PAL:
