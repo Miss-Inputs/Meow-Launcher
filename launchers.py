@@ -94,7 +94,7 @@ def base_make_desktop(command, display_name, fields=None, icon=None):
 				if isinstance(v, list):
 					if not v:
 						continue
-					value_as_string = ';'.join(['None' if item is None else item for item in v])
+					value_as_string = ';'.join(['None' if item is None else str(item) for item in v])
 				else:
 					value_as_string = str(v)
 
