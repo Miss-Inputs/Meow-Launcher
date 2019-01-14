@@ -4,7 +4,7 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
-from enum import Flag, auto
+from enum import Flag
 import os
 
 import input_metadata
