@@ -121,6 +121,9 @@ def try_parse_standard_header(game):
 
 		if 'Publisher' in header_data:
 			game.metadata.publisher = header_data['Publisher']
+	else:
+		#All non-Japanese/Korean systems have a BIOS which checks the checksum, so if there's no header at all, they just won't boot it
+		game.metadata.specific_info['Japanese-Only'] = True
 
 def add_info_from_software_list(game, software):
 	software.add_generic_info(game)
