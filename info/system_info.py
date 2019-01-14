@@ -282,7 +282,7 @@ systems.update({
 	'Acorn Atom': UnsupportedSystem('atom', ['atom_cass', 'atom_flop', 'atom_rom'], []),
 	'Acorn Archimedes': UnsupportedSystem('aa310', ['archimedes'], [], {MediaType.Floppy: mame_floppy_formats + ['adf']}),
 	#I'll probably want to look more into it, but it looks like it won't really autoboot stuff... just kinda boots to a GUI or prompt depending on the RISC OS version used and then it is in all fairness easy and intuitive from there, but not necessarily an integrated smooth experience...
-	'Amstrad CPC': UnsupportedSystem('cpc464', ['cpc_cass', 'cpc_flop'], [], {MediaType.Snapshot: ['sna'], MediaType.Tape: ['wav', 'cdt'], MediaType.Floppy: mmame_floppy_formats}),
+	'Amstrad CPC': UnsupportedSystem('cpc464', ['cpc_cass', 'cpc_flop'], [], {MediaType.Snapshot: ['sna'], MediaType.Tape: ['wav', 'cdt'], MediaType.Floppy: mame_floppy_formats}),
 	#The not-plus one (probably will need to switch to cpc664/cpc6128 for flopppy stuff)
 	'APF Imagination Machine': UnsupportedSystem('apfimag', ['apfimag_cass', 'apfm1000'], []),
 	#Considered separate from APF-M1000 (same predicament as Coleco Adam)
