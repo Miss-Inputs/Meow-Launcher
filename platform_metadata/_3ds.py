@@ -4,6 +4,7 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
+from enum import Flag, auto
 import os
 
 import input_metadata
@@ -12,6 +13,19 @@ from metadata import CPUInfo, ScreenInfo, Screen
 from common import convert_alphanumeric, NotAlphanumericException, junk_suffixes
 from common_types import SaveType
 from .nintendo_common import nintendo_licensee_codes
+
+class _3DSRegionCode(Flag):
+	Japan = 1
+	USA = 2
+	Europe = 4
+	Australia = 8 #Not used, Europe is used in its place
+	China = 16
+	Korea = 32
+	Taiwan = 64
+	RegionFree = 0x7fffffff
+
+	def __str__(self):
+		return self.name
 
 consistentified_manufacturers = {
 	#When getting publisher from SMDH, sometimes things are formatted in different ways than wanted (e.g. YELLING CASE), this is here to smooth things out
@@ -189,7 +203,19 @@ def parse_smdh_data(game, smdh):
 			pass
 
 	#Ratings = 0x2008-0x2018 (mostly same format as DSi and Wii but not quite)
-	#Region coding = 0x2018-0x201c
+	region_code_flag = int.from_bytes(smdh[0x2018:0x201c], 'little')
+	if region_code_flag == _3DSRegionCode.RegionFree or region_code_flag == 0xffffffff:
+		region_codes = [_3DSRegionCode.RegionFree]
+	else:
+		region_codes = []
+		for region in _3DSRegionCode:
+			if region == _3DSRegionCode.RegionFree:
+				continue
+			#I want a list here so this looks weird
+			if region.value & region_code_flag:
+				region_codes.append(region)
+	if region_codes:
+		game.metadata.specific_info['Region-Code'] = region_codes
 	#Match maker IDs for online play = 0x201c-0x2028
 	flags = int.from_bytes(smdh[0x2028:0x202c], 'little')
 	#Visible on home menu: flags & 1
