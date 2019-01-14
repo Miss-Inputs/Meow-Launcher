@@ -112,8 +112,7 @@ def try_parse_standard_header(game):
 	if header_data:
 		game.metadata.revision = header_data['Revision']
 		game.metadata.product_code = header_data['Product code']
-		if header_data['Region'] == 'Japanese':
-			game.metadata.regions = [get_region_by_name('Japan')]
+		game.metadata.specific_info['Region-Code'] = header_data['Region'] #Too lazy to make an enum for both SMS and GG regions
 
 		if header_data['Is Game Gear']:
 			game.metadata.platform = 'Game Gear'
@@ -127,17 +126,26 @@ def add_info_from_software_list(game, software):
 	software.add_generic_info(game)
 	game.metadata.product_code = software.get_info('serial')
 
-	game.metadata.save_type = SaveType.Cart if software.get_part_feature('battery') == 'yes' else SaveType.Nothing
-
 	usage = software.get_info('usage')
 	if usage == 'Only runs with PAL/50Hz drivers, e.g. smspal':
 		game.metadata.tv_type = TVSystem.PAL
+	elif usage in ('Input works only with drivers of Japanese region, e.g. sms1kr,smsj', 'Only runs with certain drivers, e.g. smsj - others show SOFTWARE ERROR'):
+		game.metadata.specific_info['Japanese-Only'] = True
+	elif usage == 'Video mode is correct only on SMS 2 drivers, e.g. smspal':
+		game.metadata.specific_info['SMS2-Only'] = True
+	elif usage == 'Video only works correctly on drivers with SMS1 VDP, e.g. smsj':
+		game.metadata.specific_info['SMS1-Only'] = True
 	#Other usage strings:
-	#Input works only with drivers of Japanese region, e.g. sms1kr,smsj
-	#Only runs with certain drivers, e.g. smsj - others show SOFTWARE ERROR
 	#To play in 3-D on SMS1, hold buttons 1 and 2 while powering up the system.
-	#Video mode is correct only on SMS 2 drivers, e.g. smspal
-	#Video only works correctly on drivers with SMS1 VDP, e.g. smsj
+
+	slot = software.get_part_feature('slot')
+	if slot == 'codemasters':
+		game.metadata.specific_info['Mapper'] = 'Codemasters'
+
+	if slot == 'eeprom' or software.get_part_feature('battery') == 'yes':
+		game.metadata.save_type == SaveType.Cart
+	else:
+		game.metadata.save_type == SaveType.Nothing
 
 	if game.metadata.platform == 'Master System':
 		builtin_gamepad = input_metadata.NormalController()
@@ -167,7 +175,6 @@ def add_info_from_software_list(game, software):
 			game.metadata.input_info.add_option(builtin_gamepad)
 
 		game.metadata.specific_info['Peripheral'] = peripheral
-
 
 def get_sms_metadata(game):
 	sdsc_header = game.rom.read(seek_to=0x7fe0, amount=12)
