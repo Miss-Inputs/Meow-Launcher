@@ -132,9 +132,6 @@ def read_gcz(path, seek_to=0, amount=-1):
 
 	data = b''
 
-	if blocks_to_read == 1:
-		return get_gcz_block(path, compressed_size, block_pointers, first_block, hashes)[:amount]
-
 	position = seek_to
 	for i in range(first_block, first_block + blocks_to_read):
 		position_in_block = position - (i * block_size)
