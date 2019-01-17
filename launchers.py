@@ -99,7 +99,7 @@ def base_make_desktop(command, display_name, fields=None, icon=None):
 					continue
 
 				if have_pillow:
-					if isinstance(v, Image):
+					if isinstance(v, Image.Image):
 						this_image_folder = os.path.join(main_config.image_folder, k)
 						pathlib.Path(this_image_folder).mkdir(exist_ok=True, parents=True)
 						image_path = os.path.join(this_image_folder, filename + '.png')
