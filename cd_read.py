@@ -174,7 +174,7 @@ def get_gcz_block(gcz_path, compressed_size, block_pointers, block_num, hashes):
 	expected_hash = hashes[block_num]
 	actual_hash = zlib.adler32(buf)
 	if expected_hash != actual_hash:
-		print(path, 'block num', block_num, 'might be corrupted! expected =', expected_hash, 'actual =', actual_hash)
+		print(gcz_path, 'block num', block_num, 'might be corrupted! expected =', expected_hash, 'actual =', actual_hash)
 
 	if compressed:
 		buf = zlib.decompress(buf)
