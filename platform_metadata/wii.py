@@ -81,6 +81,11 @@ def add_wad_metadata(game):
 	parse_tmd(game, tmd)
 
 def add_wii_homebrew_metadata(game):
+	icon_path = os.path.join(game.folder, 'icon.png')
+	if os.path.isfile(icon_path):
+		game.metadata.images['Banner'] = icon_path
+		#Unfortunately the aspect ratio means it's not really great as an icon
+
 	xml_path = os.path.join(game.folder, 'meta.xml')
 	if os.path.isfile(xml_path):
 		#boot is not a helpful launcher name
