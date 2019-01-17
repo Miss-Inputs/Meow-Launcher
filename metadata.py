@@ -202,6 +202,6 @@ class Metadata():
 		if self.images:
 			fields[images_section_name] = {}
 			for k, v in self.images.items():
-				fields[images_section_name][k] = v
+				fields[image_section_name][k] = v
 
 		return fields
