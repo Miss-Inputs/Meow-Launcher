@@ -200,7 +200,7 @@ class Metadata():
 		fields[metadata_section_name] = metadata_fields
 
 		if self.images:
-			fields[images_section_name] = {}
+			fields[image_section_name] = {}
 			for k, v in self.images.items():
 				fields[image_section_name][k] = v
 
