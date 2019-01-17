@@ -118,15 +118,17 @@ def add_wii_homebrew_metadata(game):
 def add_wii_metadata(game):
 	add_wii_system_info(game)
 	if game.rom.extension in ('gcz', 'iso', 'wbfs'):
+		is_gcz = False
 		if game.rom.extension == 'gcz':
 			#Can be a format for Wii discs, though not recommended and uncommon
 			header = cd_read.read_gcz(game.rom.path, amount=0x2450)
+			is_gcz = True
 		elif game.rom.extension == 'iso':
 			header = game.rom.read(amount=0x2450)
 		elif game.rom.extension == 'wbfs':
 			header = game.rom.read(amount=0x2450, seek_to=0x200)
 
-		add_gamecube_wii_disc_metadata(game, header)
+		add_gamecube_wii_disc_metadata(game, header, is_gcz)
 	elif game.rom.extension == 'wad':
 		add_wad_metadata(game)
 	elif game.rom.extension in ('dol', 'elf'):
