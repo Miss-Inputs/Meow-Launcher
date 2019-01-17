@@ -149,6 +149,8 @@ def read_gcz(path, seek_to=0, amount=-1):
 
 def get_compressed_gcz_block_size(compressed_size, block_pointers, block_num):
 	start = block_pointers[block_num]
+	if start & (1 << 63):
+		start &= ~(1 << 63)
 	if block_num < (len(block_pointers) - 1):
 		end = block_pointers[block_num + 1]
 		if end & (1 << 63):
@@ -174,7 +176,7 @@ def get_gcz_block(gcz_path, compressed_size, block_pointers, block_num, hashes):
 	expected_hash = hashes[block_num]
 	actual_hash = zlib.adler32(buf)
 	if expected_hash != actual_hash:
-		print(gcz_path, 'block num', block_num, 'might be corrupted! expected =', expected_hash, 'actual =', actual_hash)
+		print(gcz_path, 'block num', block_num, 'might be corrupted! expected =', expected_hash, 'actual =', actual_hash, 'offset =', offset, 'cbs =', compressed_block_size)
 
 	if compressed:
 		buf = zlib.decompress(buf)
