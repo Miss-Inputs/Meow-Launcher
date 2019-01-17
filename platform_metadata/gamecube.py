@@ -1,11 +1,20 @@
 from datetime import datetime
+from enum import Enum
 
 import cd_read
 from metadata import CPUInfo, ScreenInfo, Screen
 from common import convert_alphanumeric, NotAlphanumericException
 from .nintendo_common import nintendo_licensee_codes
 
-def add_gamecube_specific_metadata(game, header):
+class NintendoDiscRegion(Enum):
+	#Also seems to be used for Wii discs and WiiWare
+	NTSC_J = 0
+	NTSC_U = 1
+	PAL = 2
+	RegionFree = 3
+	NTSC_K = 4
+
+def add_gamecube_specific_metadata(game, header, is_gcz):
 	game.metadata.platform = 'GameCube'
 	try:
 		apploader_date = header[0x2440:0x2450].decode('ascii').rstrip('\x00')
@@ -19,7 +28,13 @@ def add_gamecube_specific_metadata(game, header):
 	except UnicodeDecodeError:
 		pass
 
-def add_gamecube_wii_disc_metadata(game, header):
+	region_code = int.from_bytes(header[0x458:0x45c], 'big')
+	try:
+		game.metadata.specific_info['Region-Code'] = NintendoDiscRegion(region_code)
+	except ValueError:
+		pass
+
+def add_gamecube_wii_disc_metadata(game, header, is_gcz):
 	internal_title = header[32:64] #Potentially quite a lot bigger but we don't need that much out of it
 	if internal_title[:28] == b'GAMECUBE HOMEBREW BOOTLOADER':
 		return
@@ -49,7 +64,7 @@ def add_gamecube_wii_disc_metadata(game, header):
 	#Is this ever set to both? In theory no, but... hmm
 
 	if is_gamecube:
-		add_gamecube_specific_metadata(game, header)
+		add_gamecube_specific_metadata(game, header, is_gcz)
 	elif is_wii:
 		game.metadata.platform = 'Wii'
 	else:
@@ -80,6 +95,8 @@ def add_gamecube_metadata(game):
 	if game.rom.extension in ('gcz', 'iso', 'gcm'):
 		if game.rom.extension == 'gcz':
 			header = cd_read.read_gcz(game.rom.path, amount=0x2450)
+			is_gcz = True
 		elif game.rom.extension in ('iso', 'gcm'):
 			header = game.rom.read(amount=0x2450)
-		add_gamecube_wii_disc_metadata(game, header)
+			is_gcz = False
+		add_gamecube_wii_disc_metadata(game, header, is_gcz)
