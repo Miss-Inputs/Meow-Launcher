@@ -125,13 +125,21 @@ def look_for_icon(icon_hash):
 			is_zip = zipfile.is_zipfile(icon_path)
 			#Can't just rely on the extension because some zip files like to hide and pretend to be .ico files for some reason
 
+			with open(icon_path, 'rb') as test:
+				magic = test.read(4)
+				if magic == b'Rar!':
+					if main_config.debug:
+						print('icon', icon_hash, 'is secretly a RAR file and cannot be opened')
+					return None
+
 			if have_pillow and icon_file.endswith('.ico') and not is_zip:
 				#.ico files can be a bit flaky with Tumbler thumbnails and some other image-reading stuff, so if we can convert them, that might be a good idea just in case (well, there definitely are some icons that don't thumbnail properly so yeah)
 				try:
 					image = Image.open(icon_path)
 					return image
-				except ValueError as ex:
+				except (ValueError, OSError) as ex:
 					#.ico file is shitty and broken and has an invalid size in its own fucking header
+					#OSError is also thrown too sometimes when it's not actually an .ico file
 					if main_config.debug:
 						print('.ico file', icon_hash, 'has some annoying error', ex)
 					return None
