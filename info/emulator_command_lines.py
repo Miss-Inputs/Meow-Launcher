@@ -188,7 +188,6 @@ def _verify_supported_mappers(game, supported_mappers, detected_mappers):
 
 	if not mapper:
 		#If there was a problem detecting the mapper, or it's something invalid, it probably won't run
-		#TODO: Do I really need this part? When would it ever happen?
 		raise EmulationNotSupportedException('Mapper is not detected at all')
 
 	if game.metadata.specific_info.get('Override-Mapper', False) and mapper not in detected_mappers:
