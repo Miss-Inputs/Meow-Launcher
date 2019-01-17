@@ -107,29 +107,44 @@ def cooked_position_to_real(cooked_position, raw_header_size, raw_footer_size, c
 
 def read_gcz(path, seek_to=0, amount=-1):
 	gcz_header = read_file(path, amount=32)
+	#Magic: B10BB10B
+	#Sub-type: 4-8 (indicates GC or whatever else)
 	compressed_size = int.from_bytes(gcz_header[8:16], 'little')
-	num_blocks = int.from_bytes(gcz_header[28:32], 'little')
+	#Data size: 16-24 (should be 1.4GB for GameCube)
 	block_size = int.from_bytes(gcz_header[24:28], 'little')
+	num_blocks = int.from_bytes(gcz_header[28:32], 'little')
+	#Block pointers: 8 bytes * [num_blocks]
+	#Hashes: 4 bytes * [num blocks]
 
 	#High bit indicates if compressed
 	block_pointers = struct.unpack('<%dQ' % num_blocks, read_file(path, seek_to=32, amount=8 * num_blocks))
+	#block_pointers = []
+	#block_pointer_data = read_file(path, seek_to=32, amount=8 * num_blocks)
+	#for i in range(num_blocks):
+	#	block_pointers.append(int.from_bytes(block_pointer_data[i * 8: (i * 8) + 8], 'little'))
 
 	first_block = seek_to // block_size
 	end = seek_to + amount
-	blocks_to_read = int(((end - 1) / block_size) + 1) - first_block
+	end_block = end // block_size
+	blocks_to_read = (end_block - first_block) + 1
 	remaining = amount
 
 	data = b''
 
+	if blocks_to_read == 1:
+		return get_gcz_block(path, compressed_size, block_pointers, first_block, block_size)[:amount]
+
+	position = seek_to
 	for i in range(first_block, first_block + blocks_to_read):
-		position_in_block = seek_to - (i * block_size)
+		position_in_block = position - (i * block_size)
 		bytes_to_read = block_size - position_in_block
 		if bytes_to_read > remaining:
 			bytes_to_read = remaining
 
-		block = get_gcz_block(path, compressed_size, block_pointers, i)
+		block = get_gcz_block(path, compressed_size, block_pointers, i, block_size)
 		data += block[position_in_block:position_in_block + bytes_to_read]
 
+		position += bytes_to_read
 		remaining -= bytes_to_read
 
 	return data
@@ -139,13 +154,12 @@ def get_compressed_gcz_block_size(compressed_size, block_pointers, block_num):
 	if block_num < (len(block_pointers) - 1):
 		end = block_pointers[block_num + 1]
 		if end & (1 << 63):
-			#What the damn heck. This stuff was otherwise more or less a direct translation of C# code I wrote once and I didn't need to do this little bit twiddle here. Apparently basic mathematics are different between programming languages. Thanks. I hate it.
 			end &= ~(1 << 63)
 		return end - start
 
 	return compressed_size - start
 
-def get_gcz_block(gcz_path, compressed_size, block_pointers, block_num):
+def get_gcz_block(gcz_path, compressed_size, block_pointers, block_num, block_size):
 	#Right after the pointers and then the hashes
 	data_offset = 32 + (8 * len(block_pointers)) + (4 * len(block_pointers))
 
