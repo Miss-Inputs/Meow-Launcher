@@ -1,6 +1,7 @@
 from enum import Enum, auto
 from input_metadata import InputInfo
 from common_types import MediaType, SaveType
+from launchers import metadata_section_name
 
 class EmulationStatus(Enum):
 	Good = auto()
@@ -145,7 +146,9 @@ class Metadata():
 		self.ignored_filename_tags = []
 
 	def to_launcher_fields(self):
-		fields = {
+		fields = {}
+
+		metadata_fields = {
 			'Genre': self.genre,
 			'Subgenre': self.subgenre,
 			'NSFW': self.nsfw,
@@ -170,26 +173,28 @@ class Metadata():
 		}
 
 		if self.cpu_info:
-			fields['Main-CPU'] = self.cpu_info.main_cpu
-			fields['Clock-Speed'] = self.cpu_info.get_formatted_clock_speed()
+			metadata_fields['Main-CPU'] = self.cpu_info.main_cpu
+			metadata_fields['Clock-Speed'] = self.cpu_info.get_formatted_clock_speed()
 
 		if self.screen_info:
 			num_screens = self.screen_info.get_number_of_screens()
-			fields['Number-of-Screens'] = num_screens
+			metadata_fields['Number-of-Screens'] = num_screens
 
 			if num_screens:
-				fields['Screen-Resolution'] = self.screen_info.get_screen_resolutions()
-				fields['Refresh-Rate'] = self.screen_info.get_refresh_rates()
-				fields['Aspect-Ratio'] = self.screen_info.get_aspect_ratios()
+				metadata_fields['Screen-Resolution'] = self.screen_info.get_screen_resolutions()
+				metadata_fields['Refresh-Rate'] = self.screen_info.get_refresh_rates()
+				metadata_fields['Aspect-Ratio'] = self.screen_info.get_aspect_ratios()
 
-				fields['Screen-Type'] = self.screen_info.get_display_types()
-				fields['Screen-Tag'] = self.screen_info.get_display_tags()
+				metadata_fields['Screen-Type'] = self.screen_info.get_display_types()
+				metadata_fields['Screen-Tag'] = self.screen_info.get_display_tags()
 
 		if self.input_info.known:
 			#TODO Buttons, etc
-			fields['Input-Methods'] = self.input_info.describe()
+			metadata_fields['Input-Methods'] = self.input_info.describe()
 
 		for k, v in self.specific_info.items():
-			fields[k] = v.name if isinstance(v, Enum) else v
+			metadata_fields[k] = v.name if isinstance(v, Enum) else v
+
+		fields[metadata_section_name] = metadata_fields
 
 		return fields

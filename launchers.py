@@ -123,8 +123,7 @@ def make_launcher(command, name, metadata, id_type, unique_id, icon=None):
 	display_name = make_display_name(name)
 	filename_tags = common.find_filename_tags.findall(name)
 
-	fields = {}
-	fields[metadata_section_name] = metadata.to_launcher_fields()
+	fields = metadata.to_launcher_fields()
 
 	fields[junk_section_name] = {}
 	fields[junk_section_name]['Filename-Tags'] = [tag for tag in filename_tags if tag not in metadata.ignored_filename_tags]
