@@ -7,6 +7,12 @@ import time
 import datetime
 
 try:
+	from PIL import Image
+	have_pillow = True
+except ModuleNotFoundError:
+	have_pillow = False
+
+try:
 	#Have to import it like this, because the directory is inside another directory
 	#Anyway it _should_ be here since I made it a submodule anyway, but like... y'know, just to be safe
 	from steamfiles.steamfiles import acf, appinfo
@@ -116,8 +122,21 @@ def look_for_icon(icon_hash):
 		icon_path = os.path.join(steam_state.icon_folder, icon_file)
 
 		if icon_file.lower() in (icon_hash + '.ico', icon_hash + '.png', icon_hash + '.zip'):
-			if not zipfile.is_zipfile(icon_path):
-				#Can't just rely on the extension because some zip files like to hide and pretend to be .ico files for some reason
+			is_zip = zipfile.is_zipfile(icon_path)
+			#Can't just rely on the extension because some zip files like to hide and pretend to be .ico files for some reason
+
+			if have_pillow and icon_file.endswith('.ico') and not is_zip:
+				#.ico files can be a bit flaky with Tumbler thumbnails and some other image-reading stuff, so if we can convert them, that might be a good idea just in case (well, there definitely are some icons that don't thumbnail properly so yeah)
+				try:
+					image = Image.open(icon_path)
+					return image
+				except ValueError as ex:
+					#.ico file is shitty and broken and has an invalid size in its own fucking header
+					if main_config.debug:
+						print('.ico file', icon_hash, 'has some annoying error', ex)
+					return None
+
+			if not is_zip:
 				return icon_path
 
 			with zipfile.ZipFile(icon_path, 'r') as zip_file:
