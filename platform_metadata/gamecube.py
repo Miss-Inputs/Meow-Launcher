@@ -5,6 +5,20 @@ from metadata import CPUInfo, ScreenInfo, Screen
 from common import convert_alphanumeric, NotAlphanumericException
 from .nintendo_common import nintendo_licensee_codes
 
+def add_gamecube_specific_metadata(game, header):
+	game.metadata.platform = 'GameCube'
+	try:
+		apploader_date = header[0x2440:0x2450].decode('ascii').rstrip('\x00')
+		try:
+			actual_date = datetime.strptime(apploader_date, '%Y/%m/%d')
+			game.metadata.year = actual_date.year
+			game.metadata.month = actual_date.strftime('%B')
+			game.metadata.day = actual_date.day
+		except ValueError:
+			pass
+	except UnicodeDecodeError:
+		pass
+
 def add_gamecube_wii_disc_metadata(game, header):
 	internal_title = header[32:64] #Potentially quite a lot bigger but we don't need that much out of it
 	if internal_title[:28] == b'GAMECUBE HOMEBREW BOOTLOADER':
@@ -35,18 +49,7 @@ def add_gamecube_wii_disc_metadata(game, header):
 	#Is this ever set to both? In theory no, but... hmm
 
 	if is_gamecube:
-		game.metadata.platform = 'GameCube'
-		try:
-			apploader_date = header[0x2440:0x2450].decode('ascii').rstrip('\x00')
-			try:
-				actual_date = datetime.strptime(apploader_date, '%Y/%m/%d')
-				game.metadata.year = actual_date.year
-				game.metadata.month = actual_date.strftime('%B')
-				game.metadata.day = actual_date.day
-			except ValueError:
-				pass
-		except UnicodeDecodeError:
-			pass
+		add_gamecube_specific_metadata(game, header)
 	elif is_wii:
 		game.metadata.platform = 'Wii'
 	else:
