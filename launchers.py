@@ -7,9 +7,16 @@ import common
 from config import main_config, name_replacement, add_the, subtitle_removal, app_name
 from io_utils import ensure_exist
 
+try:
+	from PIL import Image
+	have_pillow = True
+except ModuleNotFoundError:
+	have_pillow = False
+
 metadata_section_name = 'X-%s Metadata' % app_name
 id_section_name = 'X-%s ID' % app_name
 junk_section_name = 'X-%s Junk' % app_name
+image_section_name = 'X-%s Images' % app_name
 
 def get_desktop(path):
 	parser = configparser.ConfigParser(interpolation=None)
@@ -90,6 +97,15 @@ def base_make_desktop(command, display_name, fields=None, icon=None):
 			for k, v in section.items():
 				if v is None:
 					continue
+
+				if have_pillow:
+					if isinstance(v, Image):
+						this_image_folder = os.path.join(main_config.image_folder, k)
+						pathlib.Path(this_image_folder).mkdir(exist_ok=True, parents=True)
+						image_path = os.path.join(this_image_folder, filename + '.png')
+						v.save(image_path, 'png')
+						section_writer[k] = image_path
+						continue
 
 				if isinstance(v, list):
 					if not v:

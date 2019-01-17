@@ -74,6 +74,7 @@ _config_ini_values = {
 	'output_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'apps'), 'Folder to put launchers'),
 	'organized_output_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'organized_apps'), 'Folder to put folders with organized launchers using --organize-folders'),
 	'icon_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'icons'), 'Folder to store icons extracted from games with embedded icons'),
+	'image_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'images'), 'Folder to store images extracted from games with embedded images'),
 
 	'catlist_path': ConfigValue('Arcade', ConfigValueType.Path, None, 'Path to MAME catlist.ini'),
 	'languages_path': ConfigValue('Arcade', ConfigValueType.Path, None, 'Path to MAME languages.ini'),

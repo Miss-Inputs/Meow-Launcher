@@ -1,7 +1,7 @@
 from enum import Enum, auto
 from input_metadata import InputInfo
 from common_types import MediaType, SaveType
-from launchers import metadata_section_name
+from launchers import metadata_section_name, image_section_name
 
 class EmulationStatus(Enum):
 	Good = auto()
@@ -141,9 +141,11 @@ class Metadata():
 		self.input_info = InputInfo()
 
 		#I guess you could call this internal use only
-		self.specific_info = {} #Stuff specific to indivdidual systems
+		self.specific_info = {} #Stuff specific to indivdidual systems (in theory, or just when I'm too lazy to put it as an attribute here)
 		self.tv_type = None
 		self.ignored_filename_tags = []
+
+		self.images = {}
 
 	def to_launcher_fields(self):
 		fields = {}
@@ -196,5 +198,10 @@ class Metadata():
 			metadata_fields[k] = v.name if isinstance(v, Enum) else v
 
 		fields[metadata_section_name] = metadata_fields
+
+		if self.images:
+			fields[images_section_name] = {}
+			for k, v in self.images.items():
+				fields[images_section_name][k] = v
 
 		return fields
