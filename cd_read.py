@@ -125,7 +125,7 @@ def read_gcz(path, seek_to=0, amount=-1):
 	hashes = struct.unpack('<%dI' % num_blocks, read_file(path, seek_to=32 + (8 * num_blocks), amount=4 * num_blocks))
 
 	first_block = seek_to // block_size
-	end = seek_to + amount
+	end = (seek_to + amount) - 1
 	end_block = end // block_size
 	blocks_to_read = (end_block - first_block) + 1
 	remaining = amount
