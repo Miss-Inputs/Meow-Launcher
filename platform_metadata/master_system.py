@@ -145,9 +145,9 @@ def add_info_from_software_list(game, software):
 		game.metadata.specific_info['Mapper'] = 'Codemasters'
 
 	if slot == 'eeprom' or software.get_part_feature('battery') == 'yes':
-		game.metadata.save_type == SaveType.Cart
+		game.metadata.save_type = SaveType.Cart
 	else:
-		game.metadata.save_type == SaveType.Nothing
+		game.metadata.save_type = SaveType.Nothing
 
 	if game.metadata.platform == 'Master System':
 		builtin_gamepad = input_metadata.NormalController()
