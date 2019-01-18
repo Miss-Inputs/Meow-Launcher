@@ -6,7 +6,7 @@ import cd_read
 from common import convert_alphanumeric, NotAlphanumericException
 from config import main_config
 from metadata import CPUInfo, ScreenInfo, Screen
-from platform_metadata.gamecube import add_gamecube_wii_disc_metadata
+from .gamecube import add_gamecube_wii_disc_metadata, NintendoDiscRegion
 from .nintendo_common import nintendo_licensee_codes
 
 def add_wii_system_info(game):
@@ -54,6 +54,11 @@ def parse_tmd(game, tmd):
 	except NotAlphanumericException:
 		pass
 	#Unused: 410-412
+	region_code = int.from_bytes(tmd[412:414], 'big')
+	try:
+		game.metadata.specific_info['Region-Code'] = NintendoDiscRegion(region_code)
+	except ValueError:
+		pass
 	#Region code: 412-414, should I do that? (Can't really infer game.metadata.regions though, I guess we can infer TV-Type but that's not really relevant on Wii, you'd want region locking stuff if anything)
 	#Ratings: 414-430 (could use this for game.metadata.nsfw I guess)
 	#Reserved: 430-442
