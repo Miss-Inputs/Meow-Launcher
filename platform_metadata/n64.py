@@ -87,7 +87,7 @@ def add_info_from_database_entry(game, database_entry):
 		game.metadata.input_info.input_options[0].inputs.append(input_metadata.Biological())
 	if database_entry.get('Transferpak', 'No') == 'Yes':
 		game.metadata.specific_info['Uses-Transfer-Pak'] = True
-	#TODO: Nothing in here which specifies to use VRU, or any other weird fancy controllers which may or may not exist
+	#Unfortunately nothing in here which specifies to use VRU, or any other weird fancy controllers which may or may not exist
 
 def add_n64_metadata(game):
 	entire_rom = game.rom.read()
