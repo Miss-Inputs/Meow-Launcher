@@ -118,10 +118,6 @@ def read_gcz(path, seek_to=0, amount=-1):
 
 	#High bit indicates if compressed
 	block_pointers = struct.unpack('<%dQ' % num_blocks, read_file(path, seek_to=32, amount=8 * num_blocks))
-	#block_pointers = []
-	#block_pointer_data = read_file(path, seek_to=32, amount=8 * num_blocks)
-	#for i in range(num_blocks):
-	#	block_pointers.append(int.from_bytes(block_pointer_data[i * 8: (i * 8) + 8], 'little'))
 	hashes = struct.unpack('<%dI' % num_blocks, read_file(path, seek_to=32 + (8 * num_blocks), amount=4 * num_blocks))
 
 	first_block = seek_to // block_size
