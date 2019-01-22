@@ -31,7 +31,6 @@ def _add_atari_7800_header_info(game, header):
 			left_controller_option.inputs.append(input_metadata.Custom)
 
 	if right_input_type != 0:
-		#TODO: Refactor to avoid duplication
 		right_controller_option = input_metadata.InputOption()
 		if right_input_type in input_types:
 			right_controller_option.inputs.append(input_types[right_input_type])

@@ -12,7 +12,6 @@ cue_file_line_regex = re.compile(r'^\s*FILE\s+(?:"(?P<name>.+)"|(?P<name_unquote
 cue_track_line_regex = re.compile(r'^\s*TRACK\s+(?P<number>\d+)\s+(?P<mode>.+)\s*$', flags=re.RegexFlag.IGNORECASE)
 
 def parse_cue_sheet(cue_path):
-	#TODO compressed cue sheet I guess, but who does that?
 	files = []
 
 	data = read_file(cue_path).decode('utf8', errors='backslashreplace')

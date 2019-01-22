@@ -326,7 +326,7 @@ def add_nes_metadata(game):
 
 		#FIXME: Acktually, you can have multiple feature = peripherals
 		#See also: SMB / Duck Hunt / World Class Track Meet multicart, with both zapper and powerpad
-		#Actually, how does that even work? Are the controllers hotplugged?
+		#Actually, how does that even work in real life? Are the controllers hotplugged? Different ports?
 		peripheral = software.get_part_feature('peripheral')
 		if peripheral == 'zapper':
 			nes_peripheral = NESPeripheral.Zapper

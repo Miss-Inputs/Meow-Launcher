@@ -333,15 +333,14 @@ def mame_nes(game, _):
 			#At any rate, Subor - English Word Blaster needs to be used with the keyboard thing it's designed for
 			uses_sb486 = True
 
-	#TODO: Use dendy if we can know the game uses it
-	#TODO: Set up controller ports if game uses Zapper, etc
+	#There doesn't seem to be a way to know if we should use dendy, so I hope we don't actually need to
+	#TODO: Set ctrl1 and ctrl2 slots according to peripheral
 	if uses_sb486:
 		system = 'sb486'
 	elif game.metadata.tv_type == TVSystem.PAL:
 		system = 'nespal'
 	else:
-		#There's both a "famicom" driver and also a "nes" driver which does include the Famicom (as well as NTSC NES), so that's weird
-		#Gonna presume this works, though
+		#There's both a "famicom" driver and also a "nes" driver which does include the Famicom (as well as NTSC NES), this seems to only matter for what peripherals can be connected
 		system = 'nes'
 
 	return mame_command_line(system, 'cart', has_keyboard=uses_sb486)
@@ -350,7 +349,7 @@ def mame_atari_2600(game, _):
 	size = game.rom.get_size()
 	if size > (512 * 1024):
 		raise EmulationNotSupportedException('ROM too big: %d' % size)
-	#TODO: Switch based on input type
+	#TODO: Set -joyport1 -joyport2 slots according to peripheral
 	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'a2600p'
 	else:

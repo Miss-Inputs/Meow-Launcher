@@ -53,7 +53,7 @@ def list_recursively(hfv_path, unescaped_name=None):
 	for f in list_inside_hfv(hfv_path, unescaped_name):
 		if f['type'] == 'folder':
 			name = f['name']
-			#FIXME: This isn't good, it's quite literally just using wildcards for when there would otherwise be extended characters that hls doesn't recognize. But I guess I can't really do much about that. It sucks at using wildcards too.
+			#This isn't good, it's quite literally just using wildcards for when there would otherwise be extended characters that hls doesn't recognize. But I guess I can't really do much about that. It sucks at using wildcards too.
 			#Damn I wish there was a more modern HFS thing I could use here.
 			escaped_name = ''.join([x if ord(x) < 128 else '?' for x in name])
 			for ff in list_recursively(hfv_path + escaped_name + ':', f['path'] + ':'):

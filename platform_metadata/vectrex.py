@@ -10,7 +10,7 @@ def add_vectrex_metadata(game):
 	gamepad.face_buttons = 4 #All arranged in a row, not rectangle
 	gamepad.analog_sticks = 1
 	game.metadata.input_info.add_option(gamepad)
-	#TODO: There's also a light pen
+	#There's also a light pen but I dunno stuff about it or how to detect it so there's not a lot that can be done about it
 
 	software = get_software_list_entry(game)
 	if software:

@@ -201,7 +201,6 @@ class Machine():
 			self.metadata.specific_info['Licensed-From'] = licensed_from_match[2]
 		else:
 			if not manufacturer.startswith(('bootleg', 'hack')):
-				#TODO: Not always correct in cases where manufacturer is formatted as "Developer / Publisher", but then it never was correct, so it's just less not correct, which is fine
 				developer = manufacturer
 				publisher = manufacturer
 			elif self.has_parent:
