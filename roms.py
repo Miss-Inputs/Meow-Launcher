@@ -5,6 +5,7 @@ import sys
 import shlex
 import time
 import datetime
+import pathlib
 
 import common
 import archives
@@ -181,8 +182,7 @@ def try_emulator(system_config, emulator, rom_dir, root, rom):
 		filenames = [line if line.startswith('/') else os.path.join(game.folder, line) for line in lines if not line.startswith("#")]
 		game.subroms = [Rom(referenced_file) for referenced_file in filenames]
 
-	#TODO This looks weird, but is there a better way to do this? (Get subfolders we're in from rom_dir)
-	game.metadata.categories = [i for i in root.replace(rom_dir, '').split('/') if i]
+	game.metadata.categories = list(pathlib.Path(root).relative_to(rom_dir).parts)
 	if not game.metadata.categories:
 		game.metadata.categories = [game.metadata.platform]
 
