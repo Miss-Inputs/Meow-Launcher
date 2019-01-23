@@ -218,7 +218,8 @@ systems.update({
 	'Sawatte Pico': UnsupportedSystem('sawatte', ['sawatte'], [], {}),
 	#Similar to the Sega Pico but with different software (may or may not also use Megadrive ROM header?), but is completely unemulated. Not sure if dump format is identical
 	'Tomy Prin-C': UnsupportedSystem('princ', ['princ'], [], {MediaType.Cartridge: ['bin']}), #MAME has skeleton driver that displays a green background and then doesn't go anywhere
-	'V.Smile': UnsupportedSystem('vsmile', ['vsmile_cart', 'vsmile_cd', 'vsmileb_cart', 'vsmilem_cart'], [], {MediaType.Cartridge: ['bin'], MediaType.OpticalDisc: cdrom_formats}), #MAME will boot the carts, but seemingly not proceed any further than title screens (doesn't seem to have input)
+	'V.Smile': UnsupportedSystem('vsmile', ['vsmile_cart', 'vsmile_cd', 'vsmilem_cart'], [], {MediaType.Cartridge: ['bin'], MediaType.OpticalDisc: cdrom_formats}), #MAME will boot the carts, but seemingly not proceed any further than title screens (doesn't seem to have input)
+	'V.Smile Baby': UnsupportedSystem('vsmileb', ['vsmileb_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Video Challenger': UnsupportedSystem(None, [], [], {}),
 	'Xbox': UnsupportedSystem('xbox', [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xbe']}),
 	#Cxbx-Reloaded will only run on Windows; XQEMU isn't ready yet
