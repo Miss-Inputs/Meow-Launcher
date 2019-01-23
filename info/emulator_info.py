@@ -190,7 +190,6 @@ emulators = {
 	#Commodore CDTV: Nope
 	#PlayStation: Seems to like executables but not discs, dunno if psu will accept Japan discs
 
-
 	#----- The experimental section. The emulators are still here, it's just so you, the fabulous and wonderful end user, can have more information on how to manage expectations. Or something like that.
 
 	#--Has usability issues that prevent me from considering it a nice experience, but may work anyway
