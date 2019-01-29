@@ -77,7 +77,8 @@ def resolve_duplicates_by_metadata(group, field, format_function=None, ignore_mi
 				if len(rest_of_counter) == 1 and rest_of_counter[0] is None:
 					return
 
-			update_name(dup, format_function(field_value) if format_function else '({0})'.format(field_value), field)
+			#original_name = launchers.get_field(dup[1], 'Original-Name', 'Junk')
+			update_name(dup, format_function(field_value, name) if format_function else '({0})'.format(field_value), field)
 
 def resolve_duplicates_by_filename_tags(group):
 	for dup in group:
@@ -201,7 +202,7 @@ def fix_duplicate_names(method, format_function=None, ignore_missing_values=None
 		else:
 			resolve_duplicates(v, method, format_function, ignore_missing_values)
 
-def revision_disambiguate(rev):
+def revision_disambiguate(rev, _):
 	if rev == '0':
 		return None
 
@@ -209,6 +210,12 @@ def revision_disambiguate(rev):
 		return '(Rev ' + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[int(rev) - 1] + ')'
 
 	return '(Rev {0})'.format(rev)
+
+def arcade_system_disambiguate(arcade_system, name):
+	if arcade_system == name + ' Hardware':
+		#Avoid "Cool Game (Cool Game Hardware)" where there exists a "Cool Game (Interesting Alternate Hardware)"
+		return None
+	return '({0})'.format(arcade_system)
 
 def reambiguate():
 	#This seems counter-intuitive, but if we're not doing a full rescan, we want to do this before disambiguating again or else it gets weird
@@ -245,13 +252,13 @@ def disambiguate_names():
 
 	fix_duplicate_names('Platform')
 	fix_duplicate_names('dev-status')
-	fix_duplicate_names('Arcade-System')
+	fix_duplicate_names('Arcade-System', arcade_system_disambiguate)
 	fix_duplicate_names('Media-Type')
-	fix_duplicate_names('Regions', lambda regions: '({0})'.format(regions.replace(';', ', ')), ignore_missing_values=True)
+	fix_duplicate_names('Regions', lambda regions, _: '({0})'.format(regions.replace(';', ', ')), ignore_missing_values=True)
 	fix_duplicate_names('Publisher', ignore_missing_values=True)
 	fix_duplicate_names('Developer', ignore_missing_values=True)
 	fix_duplicate_names('Revision', revision_disambiguate)
-	fix_duplicate_names('Languages', lambda languages: '({0})'.format(languages.replace(';', ', ')), ignore_missing_values=True)
+	fix_duplicate_names('Languages', lambda languages, _: '({0})'.format(languages.replace(';', ', ')), ignore_missing_values=True)
 	fix_duplicate_names('TV-Type')
 	fix_duplicate_names('tags')
 	fix_duplicate_names('date')
