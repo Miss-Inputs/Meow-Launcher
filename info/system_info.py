@@ -191,6 +191,7 @@ systems.update({
 	'Bandai Playdia': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'Casio Loopy': UnsupportedSystem('casloopy', ['casloopy'], [], {MediaType.Cartridge: ['bin']}),
 	#MAME driver just shows corrupted graphics (and has no controls defined), basically just a skeleton even if it looks like it isn't
+	'ClickStart': UnsupportedSystem('clikstrt', ['clickstart_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Coleco Telstar Arcade': UnsupportedSystem(None, [], [], {}),
 	'Copera': UnsupportedSystem('copera', ['copera'], [], {MediaType.Cartridge: ['bin', 'md']}),
 	#Kega Fusion emulates the Pico well enough to show the message telling you the Copera software won't work on a Pico, at least; otherwise no known emulation
