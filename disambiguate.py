@@ -77,7 +77,10 @@ def resolve_duplicates_by_metadata(group, field, format_function=None, ignore_mi
 				if len(rest_of_counter) == 1 and rest_of_counter[0] is None:
 					return
 
-			update_name(dup, format_function(field_value, name) if format_function else '({0})'.format(field_value), field)
+			original_name = launchers.get_field(dup[1], 'Ambiguous-Name', disambiguity_section_name)
+			if original_name is None:
+				original_name = name
+			update_name(dup, format_function(field_value, original_name) if format_function else '({0})'.format(field_value), field)
 
 def resolve_duplicates_by_filename_tags(group):
 	for dup in group:
