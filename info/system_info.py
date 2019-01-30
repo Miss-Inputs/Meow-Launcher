@@ -75,11 +75,13 @@ systems = {
 	'PSP': System(None, [], ['PPSSPP'], {MediaType.OpticalDisc: cdrom_formats + ['cso'], MediaType.Executable: ['pbp']}),
 	'Saturn': System('saturn', ['saturn', 'sat_cart', 'sat_vccart'], ['Mednafen (Saturn)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'SNES': System('snes', ['snes', 'snes_bspack', 'snes_strom'], ['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)'], {MediaType.Cartridge: ['sfc', 'swc', 'smc', 'bs', 'st', 'bin']}, {'sufami_turbo_bios_path': SpecificConfigValue(ConfigValueType.Path, None, 'Path to Sufami Turbo BIOS, required to run Sufami Turbo carts'), 'bsx_bios_path': SpecificConfigValue(ConfigValueType.Path, None, 'Path to BS-X BIOS, required to run Satellaview games')}),
+	'V.Smile': System('vsmile', ['vsmile_cart', 'vsmile_cd', 'vsmilem_cart'], ['MAME (V.Smile)'], {MediaType.Cartridge: ['bin', 'u1', 'u3'], MediaType.OpticalDisc: cdrom_formats}),
+	'V.Smile Baby': System('vsmileb', ['vsmileb_cart'], ['MAME (V.Smile Baby)'], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
 	'Wii': System(None, [], ['Dolphin'], {MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz', 'wbfs'], MediaType.Executable: ['dol', 'elf'], MediaType.Digital: ['wad']}),
 	'WonderSwan': System('wscolor', ['wswan', 'wscolor'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['ws', 'wsc', 'bin']}),
 	#Rotates around so that sometimes the dpad becomes buttons and vice versa and there's like two dpads??? but if you use Mednafen's rotation auto-adjust thing it kinda works
 
-	#Obscure systems (<1M units sold), just for the sake of making that list less messy
+	#Obscure systems (<1M units sold), just for the sake of making that list less messy (maybe I should just like... not do things that way)
 	#Uzebox is a homebrew thing and not really a commercial product, so it doesn't really have numbers. But it probably counts as obscure.
 	#Can't really find numbers on Atari 7800 and Neo Geo Pocket, but they aren't obscure... right?
 	'Amiga CD32': System('cd32', ['cd32'], ['FS-UAE'], {MediaType.OpticalDisc: cdrom_formats}),
@@ -218,8 +220,7 @@ systems.update({
 	'Sawatte Pico': UnsupportedSystem('sawatte', ['sawatte'], [], {}),
 	#Similar to the Sega Pico but with different software (may or may not also use Megadrive ROM header?), but is completely unemulated. Not sure if dump format is identical
 	'Tomy Prin-C': UnsupportedSystem('princ', ['princ'], [], {MediaType.Cartridge: ['bin']}), #MAME has skeleton driver that displays a green background and then doesn't go anywhere
-	'V.Smile': UnsupportedSystem('vsmile', ['vsmile_cart', 'vsmile_cd', 'vsmilem_cart'], [], {MediaType.Cartridge: ['bin'], MediaType.OpticalDisc: cdrom_formats}), #MAME will boot the carts, but seemingly not proceed any further than title screens (doesn't seem to have input)
-	'V.Smile Baby': UnsupportedSystem('vsmileb', ['vsmileb_cart'], [], {MediaType.Cartridge: ['bin']}),
+	'V.Reader': UnsupportedSystem('vreader', ['vtech_storio_cart'], [], {MediaType.Cartridge: ['bin']}), #Skeleton driver, apparently also known as Storio, or something like that
 	'Video Challenger': UnsupportedSystem(None, [], [], {}),
 	'Xbox': UnsupportedSystem('xbox', [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xbe']}),
 	#Cxbx-Reloaded will only run on Windows; XQEMU isn't ready yet

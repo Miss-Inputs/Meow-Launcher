@@ -271,6 +271,8 @@ emulators = {
 	'MAME (Lynx)': MameSystem(command_lines.mame_lynx, ['lnx', 'lyx', 'o']),
 	'MAME (Master System)': MameSystem(command_lines.mame_master_system, ['bin', 'sms']),
 	'MAME (Neo Geo Pocket)': MameSystem(command_lines.mame_command_line('ngpc', 'cart'), ['bin', 'ngp', 'npc', 'ngc']),
+	'MAME (V.Smile)': MameSystem(command_lines.mame_command_line('vsmile', 'cart'), ['u1', 'u3', 'bin']),
+	'MAME (V.Smile Baby)': MameSystem(command_lines.mame_command_line('vsmileb', 'cart'), ['u1', 'u3', 'bin']),
 	'MAME (WonderSwan)': MameSystem(command_lines.mame_command_line('wscolor', 'cart'), ['ws', 'wsc', 'bin', 'pc2']),
 }
 
