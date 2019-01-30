@@ -117,11 +117,14 @@ emulators = {
 	'MAME (Game Boy)': MameSystem(command_lines.mame_game_boy, ['bin', 'gb', 'gbc']),
 	#This supports some bootleg mappers that other emus tend to not; fails on really fancy tricks like the Demotronic trick (it does run the demo, but the effect doesn't look right); and has sound issues with GBC
 	#There are comments in the source file that point out that Super Game Boy should be part of the snes driver with the BIOS cart inserted, rather than a separate system, so that might not exist in the future
+	'MAME (Game Gear)': MameSystem(command_lines.mame_command_line('gamegear', 'cart'), ['bin', 'gg']),
+	#TODO: Switch to gamegeaj if game region == Japanese (Puzlow Kids is still "export", so that will be fine, it's just Japanese only games that seem to do that, and there are some that don't work on international Game Gears apparently)
 	'MAME (Epoch Game Pocket Computer)': MameSystem(command_lines.mame_command_line('gamepock', 'cart'), ['bin']),
 	'MAME (GBA)': MameSystem(command_lines.mame_command_line('gba', 'cart'), ['bin', 'gba']),
 	#Does not let you do GBA-enhanced GBC games
 	'MAME (IBM PCjr)': MameSystem(command_lines.mame_ibm_pcjr, mame_floppy_formats + ['img', 'bin', 'jrc']),
 	'MAME (Intellivision)': MameSystem(command_lines.mame_intellivision, ['bin', 'int', 'rom', 'itv']),
+	'MAME (Master System)': MameSystem(command_lines.mame_master_system, ['bin', 'sms']),
 	'MAME (Mattel Juice Box)': MameSystem(command_lines.mame_command_line('juicebox', 'memcard'), ['smc']),
 	'MAME (Mega Duck)': MameSystem(command_lines.mame_command_line('megaduck', 'cart'), ['bin']),
 	'MAME (MSX)': MameSystem(command_lines.mame_command_line('svi738', 'cart1', {'fdc:0': '""'}, has_keyboard=True), ['bin', 'rom']),
@@ -227,6 +230,8 @@ emulators = {
 	#All the other models of X68000 don't work yet
 	'MAME (Uzebox)': MameSystem(command_lines.mame_command_line('uzebox', 'cart'), ['bin', 'uze']),
 	#Runs really slowly, but it does work (other than SD card emulation)
+	'MAME (V.Smile)': MameSystem(command_lines.mame_command_line('vsmile', 'cart'), ['u1', 'u3', 'bin']),
+	'MAME (V.Smile Baby)': MameSystem(command_lines.mame_command_line('vsmileb', 'cart'), ['u1', 'u3', 'bin']),
 	'MAME (Virtual Boy)': MameSystem(command_lines.mame_command_line('vboy', 'cart'), ['bin', 'vb']),
 	#Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there
 
@@ -266,13 +271,8 @@ emulators = {
 
 	'MAME (Amstrad CPC+)': MameSystem(command_lines.mame_command_line('cpc6128p', 'cart'), ['bin', 'cpr']),
 	#Just in case I change my mind on using GX4000. cpc464p is a different CPC+ model but I'm not sure that would be useful?
-	'MAME (Game Gear)': MameSystem(command_lines.mame_command_line('gamegear', 'cart'), ['bin', 'gg']),
-	#TODO: Switch to gamegeaj if game region == Japanese (Puzlow Kids is still "export", so that will be fine, it's just Japanese only games that seem to do that, and there are some that don't work on international Game Gears apparently)
 	'MAME (Lynx)': MameSystem(command_lines.mame_lynx, ['lnx', 'lyx', 'o']),
-	'MAME (Master System)': MameSystem(command_lines.mame_master_system, ['bin', 'sms']),
 	'MAME (Neo Geo Pocket)': MameSystem(command_lines.mame_command_line('ngpc', 'cart'), ['bin', 'ngp', 'npc', 'ngc']),
-	'MAME (V.Smile)': MameSystem(command_lines.mame_command_line('vsmile', 'cart'), ['u1', 'u3', 'bin']),
-	'MAME (V.Smile Baby)': MameSystem(command_lines.mame_command_line('vsmileb', 'cart'), ['u1', 'u3', 'bin']),
 	'MAME (WonderSwan)': MameSystem(command_lines.mame_command_line('wscolor', 'cart'), ['ws', 'wsc', 'bin', 'pc2']),
 }
 
