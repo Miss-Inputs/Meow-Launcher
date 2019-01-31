@@ -432,7 +432,7 @@ def add_amiga_info(game):
 	if software:
 		software.add_generic_info(game)
 		chipset = 'OCS'
-		software.get_info('usage')
+		usage = software.get_info('usage')
 		if usage in ('Requires ECS', 'Requires ECS, includes Amiga Text'):
 			chipset = 'ECS'
 		elif usage == 'Requires AGA':
@@ -634,7 +634,7 @@ def add_fm7_info(game):
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
-		game.metadata.specific_info['Notes'] = usage
+		game.metadata.specific_info['Notes'] = software.get_info('usage')
 
 def add_super_cassette_vision_info(game):
 	keypad = input_metadata.Keypad() #Part of main body of console
