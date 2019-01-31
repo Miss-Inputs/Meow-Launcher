@@ -11,7 +11,7 @@ class Emulator():
 		self.wrap_in_shell = wrap_in_shell
 
 	def get_command_line(self, game, specific_config):
-		#You might think sinc I have game.rom here, I should just insert the path into the command line here too. I don't though, in case the final path that gets passed to the emulator needs to be different than the ROM's path (in case of temporary extracted files for emulators not supporting compression, for example)
+		#You might think sine I have game.rom here, I should just insert the path into the command line here too. I don't though, in case the final path that gets passed to the emulator needs to be different than the ROM's path (in case of temporary extracted files for emulators not supporting compression, for example)
 		if callable(self.command_line):
 			return self.command_line(game, specific_config)
 
