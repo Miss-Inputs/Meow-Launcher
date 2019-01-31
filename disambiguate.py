@@ -167,6 +167,7 @@ def resolve_duplicates(group, method, format_function=None, ignore_missing_value
 
 dot_not_before_word = re.compile(r'\.\B')
 hyphen_inside_word = re.compile(r'\b-\b')
+hash_number = re.compile(r'#(\d)')
 def normalize_name(name):
 	name = name.lower()
 	name = dot_not_before_word.sub('', name)
@@ -176,6 +177,7 @@ def normalize_name(name):
 	name = hyphen_inside_word.sub(' ', name)
 	name = name.replace('é', 'e')
 	name = name.replace('dr. ', 'dr ')
+	name = hash_number.sub(r'\1', name)
 
 	name = name.replace('!', '')
 	name = name.replace(': ', ' ')
