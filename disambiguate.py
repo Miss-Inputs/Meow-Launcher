@@ -180,6 +180,7 @@ def normalize_name(name):
 	name = hash_number.sub(r'\1', name)
 
 	name = name.replace('!', '')
+	name = name.replace('?', '')
 	name = name.replace(': ', ' ')
 	name = name.replace(' - ', ' ')
 	name = name.replace(', ', ' ')
