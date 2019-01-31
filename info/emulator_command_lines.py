@@ -611,11 +611,11 @@ def mame_intellivision(game, _):
 
 	return mame_command_line(system, 'cart', has_keyboard=uses_keyboard)
 
-def mame_apple_ii(game, specific_config):
+def mame_apple_ii(game, _):
 	slot_options = {}
 	if game.metadata.specific_info.get('Uses-Mouse', False):
 		slot_options['sl4'] = 'mouse'
-	system = 'apple2e' if specific_config.get('use_iie', True) else 'apple2p'
+	system = 'apple2p' if game.metadata.specific_info.get('Apple-II-Plus-Only', True) else 'apple2e'
 
 	return mame_command_line(system, 'flop1', slot_options, True)
 
