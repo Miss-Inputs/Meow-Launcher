@@ -148,6 +148,7 @@ class Machine():
 	def is_skeleton_driver(self):
 		#Actually, we're making an educated guess here, as MACHINE_IS_SKELETON doesn't appear directly in the XML...
 		#What I actually want to happen is to tell us if a machine will just display a blank screen and nothing else (because nobody wants those in a launcher). Right now that's not really possible without the false positives of games which don't have screens as such but they do display things via layouts (e.g. wackygtr) so the best we can do is say everything that doesn't have any kind of controls.
+		#This isn't always correct, see also: tp1985 which does work seemingly fine it just legitimately doesn't have inputs, I guess since this is a game launcher nobody will really mind but like ehhhhhh
 		return self.number_of_players == 0
 
 	def uses_device(self, name):
