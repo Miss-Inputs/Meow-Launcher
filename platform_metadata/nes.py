@@ -391,4 +391,8 @@ def add_nes_metadata(game):
 		#RacerMate Challenge 2: "racermate"
 		#Top Rider (Japan): "toprider"
 
+		game.metadata.specific_info['Notes'] = software.get_info('usage')
+		#This only works on a Famicom with Mahjong Controller attached
+		#This only is only supported by Famicom
+
 	game.metadata.specific_info['Peripheral'] = nes_peripheral

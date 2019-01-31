@@ -23,6 +23,26 @@ def add_info_from_software_list(game, software):
 	#Otherwise do we assume joystick and keyboard? Hmm
 	game.metadata.specific_info['Peripheral'] = peripheral
 
+	game.metadata.specific_info['Notes'] = software.get_info('usage')
+	#To be used with Atari 1400 onboard modem.
+	#3 or 4 player gameplay available only on 400/800 systems
+	#Keyboard overlay was supplied with cartridge
+	#Chalkboard Inc.'s Powerpad Tablet required
+	#Plays music only in PAL
+	#Requires Lower-Silesian Turbo 2000 hardware modification installed in a tape recorder.
+	#Requires a special boot disk, currently unavailable.
+	#Expando-Vision hardware device required
+	#Kantronics interface II required
+	#Needs an Bit-3 80 Column Board or Austin-Franklin 80-Column Board to run.
+	#BASIC must be enabled.
+	#Pocket Modem required
+	#Requires Atari 850 interface and 1200 baud modem to run.
+	#2 joysticks required to play.
+	#Requires the Atari Super Turbo hardware modification (or compatible ATT, UM) installed in a tape recorder.
+	#Personal Peripherals Inc. Super Sketch device required
+	#Modem required (and a working Chemical Bank service, obviously inactive for decades)
+	#You must type 'X=USR(32768)' from the BASIC prompt to initialize it.
+
 def add_atari_8bit_metadata(game):
 	if game.metadata.media_type == MediaType.Cartridge:
 		header = game.rom.read(amount=16)

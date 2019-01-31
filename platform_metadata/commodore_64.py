@@ -98,4 +98,9 @@ def add_commodore_64_metadata(game):
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
+		game.metadata.specific_info['Notes'] = software.get_info('usage')
+		#Enter 'SYS 32768' to run
+		#Commodore: Load "JINGLE",8,1 / Apple IIc and e: Self boots
+
+		#Also see 'requirement' info field... may be useful at some point
 		#There's dataarea nvram, but those are two carts which are more accurately described as device BIOSes, so I won't bother

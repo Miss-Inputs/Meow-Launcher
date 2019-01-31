@@ -85,4 +85,5 @@ def add_atari_7800_metadata(game):
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
+		game.metadata.specific_info['Notes'] = software.get_info('usage')
 		#Don't need sharedfeat > compatibility to get TV type or feature > peripheral, unheadered roms won't work anyway

@@ -171,6 +171,8 @@ def add_channel_f_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
+		game.metadata.specific_info['Notes'] = software.get_info('usage')
+		#Hit CTRL and A to start.
 
 def add_pc88_info(game):
 	#Input info: Keyboard or joystick
@@ -180,6 +182,14 @@ def add_pc88_info(game):
 	if software:
 		software.add_generic_info(game)
 		#TODO: Tell us if this is part of a multi-floppy thing
+		game.metadata.specific_info['Notes'] = software.get_info('usage')
+		#Needs BASIC V1 or older
+		#Mount both disk A and B to start
+		#Needs BASIC V1
+		#Mount Main disk and Scenario 1 to start
+		#Mount Main disk and Scenario 2 to start
+		#Needs CD-ROM support
+		#Needs N-BASIC
 
 def add_sg1000_info(game):
 	#Until proven otherwise
@@ -211,6 +221,12 @@ def add_sharp_x1_info(game):
 	if software:
 		software.add_generic_info(game)
 		#TODO: Tell us if this is part of a multi-floppy thing
+		game.metadata.specific_info['Notes'] = software.get_info('usage')
+		#Type FILES then move the cursor to the line of the game and type LOAD (to load) and type RUN when loaded
+		#Runs in HuBASIC
+		#Load SIRIUS 1 from Extra Hyper
+		#Once booted in S-OS, type "L DALK" to load, and "J 9600" to run
+		#In BASIC, type FILES to list the disk content
 
 def add_sharp_x68k_info(game):
 	#Input info: Keyboard and/or joystick
@@ -221,6 +237,15 @@ def add_sharp_x68k_info(game):
 	if software:
 		software.add_generic_info(game)
 		#TODO: Tell us if this is part of a multi-floppy thing
+		game.metadata.specific_info['Notes'] = software.get_info('usage')
+		#Requires Disk 1 and Disk 3 mounted to boot
+		#Use mouse at select screen
+		#Requires "Harukanaru Augusta" to work
+		#Requires to be installed
+		#Requires SX-Windows
+		#Use command.x in Human68k OS
+		#Type BPHXTST in Human68k OS
+		#Type S_MARIO.X in Human68k OS
 
 def add_tomy_tutor_info(game):
 	#Input info: Keyboard and/or joystick
@@ -272,6 +297,11 @@ def add_vic20_info(game):
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
+		game.metadata.specific_info['Notes'] = software.get_info('usage')
+		#Enter 'SYS <some number>' to run
+		#Game Paddles required
+		#Needs VICKIT 4 to run
+		#SYS 40969 for 40 column mode, SYS 40972 for 80 column mode, SYS 40975 for VIC mode, SYS 40978 to restart 40/80 column mode
 
 class ColecoController(Enum):
 	Normal = auto()
@@ -306,6 +336,8 @@ def add_colecovision_info(game):
 		elif usage == 'Requires driving controller':
 			peripheral = ColecoController.DrivingController
 			peripheral_required = True
+		else:
+			game.metadata.specific_info['Notes'] = usage
 
 	normal_controller_part = input_metadata.NormalController()
 	normal_controller_part.face_buttons = 2
@@ -400,10 +432,14 @@ def add_amiga_info(game):
 	if software:
 		software.add_generic_info(game)
 		chipset = 'OCS'
-		if software.get_info('usage') == 'Requires ECS':
+		software.get_info('usage')
+		if usage in ('Requires ECS', 'Requires ECS, includes Amiga Text'):
 			chipset = 'ECS'
-		elif software.get_info('usage') == 'Requires AGA':
+		elif usage == 'Requires AGA':
 			chipset = 'AGA'
+		else:
+			#This would be stuff among the lines of "Requires "blah" to work
+			game.metadata.specific_info['Notes'] = usage
 
 	if not chipset:
 		for tag in game.filename_tags:
@@ -450,6 +486,10 @@ def add_ibm_pcjr_info(game):
 		#TODO: If sharedfeat requirement = ibmpcjr_flop:pcdos21, do something about that
 		#Probably get the MAME command line to get a PC DOS 2.1 floppy path from specific_config provided by the user, or else they don't get to use ColorPaint
 		#Lotus 123jr has a similar predicament, but it also needs .m3u I guess
+
+		#Usages:
+		#Mount both carts and a DOS floppy and type 'TUTOR'
+		#Boot from a DOS floppy and type 'G'
 
 def _does_intellivision_part_match(part, data, _):
 	total_size = 0
@@ -594,6 +634,7 @@ def add_fm7_info(game):
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
+		game.metadata.specific_info['Notes'] = usage
 
 def add_super_cassette_vision_info(game):
 	keypad = input_metadata.Keypad() #Part of main body of console
@@ -629,7 +670,6 @@ def add_pc_booter_info(game):
 		usage = software.get_info('usage')
 		if usage == 'PC Booter':
 			usage = software.get_info('user_notes')
-		game.metadata.specific_info['Notes'] = usage
 		game.metadata.specific_info['Hacked-By'] = software.get_info('cracked')
 		#Other info strings seen:
 		#OEM = Mercer

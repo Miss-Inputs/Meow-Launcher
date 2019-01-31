@@ -137,6 +137,8 @@ def add_info_from_software_list(game, software):
 		game.metadata.specific_info['SMS2-Only'] = True
 	elif usage == 'Video only works correctly on drivers with SMS1 VDP, e.g. smsj':
 		game.metadata.specific_info['SMS1-Only'] = True
+	else:
+		game.metadata.specific_info['Notes'] = usage
 	#Other usage strings:
 	#To play in 3-D on SMS1, hold buttons 1 and 2 while powering up the system.
 
