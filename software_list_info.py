@@ -199,11 +199,13 @@ class Software():
 
 		game.metadata.specific_info['MAME-Emulation-Status'] = self.emulation_status
 		game.metadata.specific_info['Notes'] = self.get_info('usage')
-		game.metadata.developer = consistentify_manufacturer(self.get_info('developer'))
+		developer = consistentify_manufacturer(self.get_info('developer'))
+		if not developer:
+			developer = consistentify_manufacturer(self.get_info('author'))
 		if not game.metadata.developer:
-			game.metadata.developer = consistentify_manufacturer(self.get_info('author'))
-		if not game.metadata.developer:
-			game.metadata.developer = consistentify_manufacturer(self.get_info('programmer'))
+			developer = consistentify_manufacturer(self.get_info('programmer'))
+		if developer:
+			game.metadata.developer = developer
 
 def _does_rom_match(rom, crc32, sha1):
 	if sha1:
