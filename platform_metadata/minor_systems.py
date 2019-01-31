@@ -612,8 +612,10 @@ def add_apple_ii_info(game):
 		game.metadata.product_code = software.get_info('serial')
 
 		compat = software.get_shared_feature('compatibility')
-		if 'A2E' not in compat:
-			game.metadata.specific_info['Apple-II-Plus-Only'] = True
+		if compat:
+			if 'A2E' not in compat:
+				game.metadata.specific_info['Apple-II-Plus-Only'] = True
+		#We'll presume if there is no compatibility (no software list entry, or old .dsk software list) that it'll be fine
 
 def add_fm7_info(game):
 	#Possible input info: Keyboard and joystick but barely anything uses said joystick
