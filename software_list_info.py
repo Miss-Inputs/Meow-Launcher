@@ -198,7 +198,6 @@ class Software():
 		parse_release_date(game, self.get_info('release'))
 
 		game.metadata.specific_info['MAME-Emulation-Status'] = self.emulation_status
-		game.metadata.specific_info['Notes'] = self.get_info('usage')
 		developer = consistentify_manufacturer(self.get_info('developer'))
 		if not developer:
 			developer = consistentify_manufacturer(self.get_info('author'))

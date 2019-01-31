@@ -290,7 +290,7 @@ def add_colecovision_info(game):
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
 
-		usage = game.metadata.specific_info['Notes']
+		usage = software.get_info('usage')
 		if usage == 'Supports Super Action Controllers':
 			peripheral = ColecoController.SuperActionController
 		elif usage == 'Requires Super Action Controllers':
@@ -492,7 +492,7 @@ def add_intellivision_info(game):
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
 
-		usage = game.metadata.specific_info.get('Notes')
+		usage = software.get_info('usage')
 		if usage == 'Uses Intellivoice':
 			game.metadata.specific_info['Uses-Intellivoice'] = True
 		elif usage in ('Requires ECS and Keyboard', 'Requires ECS and Intellivoice'):
@@ -626,7 +626,7 @@ def add_pc_booter_info(game):
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
-		usage = game.metadata.specific_info.get('Notes')
+		usage = software.get_info('usage')
 		if usage == 'PC Booter':
 			usage = software.get_info('user_notes')
 		game.metadata.specific_info['Notes'] = usage
@@ -642,6 +642,7 @@ def add_generic_info(game):
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
+		game.metadata.specific_info['Notes'] = software.get_info('usage')
 
 	#TODO PET: Add keyboard as input info, there are theoretically userport joysticks but nah
 	#Apple III: Possible input info: Keyboard and joystick by default, mouse if mouse card exists

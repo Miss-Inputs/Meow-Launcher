@@ -128,6 +128,7 @@ def parse_stella_db(game, game_info):
 		game.metadata.product_code = game_info['Cartridge_ModelNo']
 	if 'Cartridge_Note' in game_info:
 		#TODO: Ignore things like "Uses the Paddle Controllers" and "Console ports are swapped" that are already specified by other fields
+		#TODO: Append to notes that might already exist
 		game.metadata.specific_info['Notes'] = game_info['Cartridge_Note']
 	if 'Display_Format' in game_info:
 		display_format = game_info['Display_Format']
@@ -196,6 +197,7 @@ def add_atari_2600_metadata(game):
 		#"paddles"
 		#"keypad"
 	else:
+		#TODO: Combine both sources of information
 		md5 = autodetect_from_stella(game)
 		if md5 in _stella_db:
 			game_info = _stella_db[md5]
