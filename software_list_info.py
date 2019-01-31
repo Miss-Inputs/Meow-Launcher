@@ -181,11 +181,6 @@ class Software():
 		game.metadata.specific_info['MAME-Software-List-Name'] = self.software_list.name
 		game.metadata.specific_info['MAME-Software-List-Description'] = self.software_list.description
 
-		publisher = consistentify_manufacturer(self.xml.findtext('publisher'))
-		already_has_publisher = game.metadata.publisher and (not game.metadata.publisher.startswith('<unknown'))
-		if not (already_has_publisher and (publisher == '<unknown>')):
-			game.metadata.publisher = publisher
-
 		compatibility = self.get_shared_feature('compatibility')
 		if compatibility == 'PAL':
 			game.metadata.tv_type = TVSystem.PAL
@@ -201,10 +196,17 @@ class Software():
 		developer = consistentify_manufacturer(self.get_info('developer'))
 		if not developer:
 			developer = consistentify_manufacturer(self.get_info('author'))
-		if not game.metadata.developer:
+		if not developer:
 			developer = consistentify_manufacturer(self.get_info('programmer'))
 		if developer:
 			game.metadata.developer = developer
+
+		publisher = consistentify_manufacturer(self.xml.findtext('publisher'))
+		already_has_publisher = game.metadata.publisher and (not game.metadata.publisher.startswith('<unknown'))
+		if publisher in ('<doujin>', '<homebrew>', '<unlicensed>') and developer:
+			game.metadata.publisher = developer
+		elif not (already_has_publisher and (publisher == '<unknown>')):
+			game.metadata.publisher = publisher
 
 def _does_rom_match(rom, crc32, sha1):
 	if sha1:
