@@ -615,7 +615,7 @@ def mame_apple_ii(game, _):
 	slot_options = {}
 	if game.metadata.specific_info.get('Uses-Mouse', False):
 		slot_options['sl4'] = 'mouse'
-	system = 'apple2p' if game.metadata.specific_info.get('Apple-II-Plus-Only', True) else 'apple2e'
+	system = 'apple2p' if game.metadata.specific_info.get('Apple-II-Plus-Only', False) else 'apple2e'
 
 	return mame_command_line(system, 'flop1', slot_options, True)
 
