@@ -1,63 +1,72 @@
 import shlex
+import os
 
 import info.emulator_command_lines as command_lines
 from .system_info import mame_floppy_formats, mame_cdrom_formats
 
 class Emulator():
-	def __init__(self, command_line, supported_extensions, supported_compression, wrap_in_shell=False):
-		self.command_line = command_line
+	def __init__(self, exe_name, args, supported_extensions, supported_compression, wrap_in_shell=False):
+		self.exe_name = exe_name
+		self.args = args
 		self.supported_extensions = supported_extensions
 		self.supported_compression = supported_compression
 		self.wrap_in_shell = wrap_in_shell
 
 	def get_command_line(self, game, specific_config):
-		#You might think sine I have game.rom here, I should just insert the path into the command line here too. I don't though, in case the final path that gets passed to the emulator needs to be different than the ROM's path (in case of temporary extracted files for emulators not supporting compression, for example)
-		if callable(self.command_line):
-			return self.command_line(game, specific_config)
+		exe_name = self.exe_name
 
-		return self.command_line
+		#You might think sine I have game.rom here, I should just insert the path into the command line here too. I don't though, in case the final path that gets passed to the emulator needs to be different than the ROM's path (in case of temporary extracted files for emulators not supporting compression, for example)
+		if callable(self.args):
+			args = self.args(game, specific_config)
+			if isinstance(args, tuple):
+				exe_name, args = args
+		else:
+			args = self.args
+
+		return exe_name, args
 
 class MednafenModule(Emulator):
-	def __init__(self, module, supported_extensions, command_line=None):
-		if not command_line:
-			command_line = command_lines.make_mednafen_command_line(module)
-		Emulator.__init__(self, command_line, supported_extensions, ['zip', 'gz'])
+	def __init__(self, module, supported_extensions, args=None):
+		if not args:
+			args = command_lines.make_mednafen_command_line(module)
+		Emulator.__init__(self, 'mednafen', args, supported_extensions, ['zip', 'gz'])
 
 class MameSystem(Emulator):
-	def __init__(self, command_line, supported_extensions):
-		Emulator.__init__(self, command_line, supported_extensions, ['7z', 'zip'])
+	def __init__(self, args, supported_extensions):
+		Emulator.__init__(self, 'mame', args, supported_extensions, ['7z', 'zip'])
 
 
 emulators = {
-	'A7800': Emulator(command_lines.a7800, ['bin', 'a78'], ['7z', 'zip']),
+	'A7800': Emulator('a7800', command_lines.a7800, ['bin', 'a78'], ['7z', 'zip']),
 	#Forked directly from MAME with alterations to a7800.cpp driver, so will more or less work the same way as that
-	'cxNES': Emulator(command_lines.cxnes, ['nes', 'fds', 'unf', 'unif'], ['7z', 'zip']),
-	'Dolphin': Emulator(command_lines.dolphin, ['iso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs'], []),
-	'FS-UAE': Emulator(command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf'], []),
+	'cxNES': Emulator('cxnes', command_lines.cxnes, ['nes', 'fds', 'unf', 'unif'], ['7z', 'zip']),
+	'Dolphin': Emulator('dolphin-emu', command_lines.dolphin, ['iso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs'], []),
+	'FS-UAE': Emulator('fs-uae', command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf'], []),
 	#Note that .ipf files need a separately downloadable plugin. We could detect the presence of that, I guess
-	'Gambatte': Emulator(command_lines.gambatte, ['gb', 'gbc'], ['zip']),
+	'Gambatte': Emulator('gambatte_qt', command_lines.gambatte, ['gb', 'gbc'], ['zip']),
 	#--gba-cgb-mode[=0] and --force-dmg-mode[=0] may be useful in obscure situations, but that would probably require a specific thing that notes some GBC games are incompatible with GBA mode (Pocket Music) or GB incompatible with GBC (R-Type, also Pocket Sonar but that wouldn't work anyway)
-	'GBE+': Emulator(command_lines.gbe_plus, ['gb', 'gbc', 'gba'], []),
+	'GBE+': Emulator('gbe_plus_qt', command_lines.gbe_plus, ['gb', 'gbc', 'gba'], []),
 	#Also in theory recognizes any extension and assumes Game Boy if not .gba or .nds, but that would be screwy
-	'Kega Fusion': Emulator('kega-fusion -fullscreen $<path>', ['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', 'sc', '32x'], ['zip']),
+	'Kega Fusion': Emulator('kega-fusion', ['-fullscreen', '$<path>'], ['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', 'sc', '32x'], ['zip']),
 	#May support other CD formats for Mega CD other than iso, cue? Because it's closed source, can't really have a look, but I'm just going to presume it's only those two
-	'mGBA': Emulator(command_lines.mgba, ['gb', 'gbc', 'gba', 'srl', 'bin', 'mb'], ['7z', 'zip']),
-	'Mupen64Plus': Emulator(command_lines.mupen64plus, ['z64', 'v64', 'n64'], []),
-	'PCSX2': Emulator('PCSX2-linux.sh --nogui --fullscreen --fullboot $<path>', ['iso', 'cso', 'bin'], ['gz']),
+	'mGBA': Emulator('mgba-qt', command_lines.mgba, ['gb', 'gbc', 'gba', 'srl', 'bin', 'mb'], ['7z', 'zip']),
+	'Mupen64Plus': Emulator('mupen64plus', command_lines.mupen64plus, ['z64', 'v64', 'n64'], []),
+	'PCSX2': Emulator('PCSX2-linux.sh', ['--nogui', '--fullscreen', '--fullboot', '$<path>'], ['iso', 'cso', 'bin'], ['gz']),
 	#Has a few problems.  Takes some time to load the interface so at first it might look like it's not working; take out --fullboot if it forbids any homebrew stuff (but it should be fine, and Katamari Damacy needs it unless you will experience sound issues that are funny the first time but not subsequently).  ELF seems to not work, though it'd need a different command line anyway. Only reads the bin of bin/cues and not the cue
 	#Just to be annoying, older versions are "pcsx2" instead of "PCSX2-linux"... grr
-	'PokeMini': Emulator('PokeMini -fullscreen $<path>', ['min'], ['zip']),
+	'PokeMini': Emulator('PokeMini', ['-fullscreen', '$<path>'], ['min'], ['zip']),
 	#Puts all the config files in the current directory, which is why there's a wrapper below which you probably want to use instead of this
-	'PokeMini (wrapper)': Emulator('mkdir -p ~/.config/PokeMini && cd ~/.config/PokeMini && PokeMini -fullscreen $<path>', ['min'], ['zip'], True),
-	'PPSSPP': Emulator('ppsspp-qt $<path>', ['iso', 'pbp', 'cso'], []),
-	'SimCoupe': Emulator('simcoupe -fullscreen yes $<path>', ['mgt', 'sad', 'dsk', 'sbt'], ['zip', 'gz']),
-	'Snes9x': Emulator('snes9x-gtk $<path>', ['sfc', 'smc', 'swc'], ['zip', 'gz']),
+	'PokeMini (wrapper)': Emulator('PokeMini', [['mkdir', '-p', os.path.expanduser('~/.config/PokeMini')], ['cd', os.path.expanduser('~/.config/PokeMini')], ['$<exe>', '-fullscreen', '$<path>']], ['min'], ['zip'], True),
+	'PPSSPP': Emulator('ppsspp-qt', ['$<path>'], ['iso', 'pbp', 'cso'], []),
+	'SimCoupe': Emulator('simcoupe', ['-fullscreen', 'yes', '$<path>'], ['mgt', 'sad', 'dsk', 'sbt'], ['zip', 'gz']),
+	'Snes9x': Emulator('snes9x-gtk', ['$<path>'], ['sfc', 'smc', 'swc'], ['zip', 'gz']),
 	#Can't set fullscreen mode from the command line so you have to set up that yourself (but it will do that automatically); GTK port can't do Sufami Turbo or Satellaview from command line due to lacking multi-cart support that Windows has (Unix non-GTK doesn't like being in fullscreen etc)
-	'Stella': Emulator('stella -fullscreen 1 $<path>', ['a26', 'bin', 'rom'], ['gz', 'zip']),
-	'VICE (SDL2)': Emulator(command_lines.vice, ['d64', 'g64', 'x64', 'p64', 'd71', 'd81', 'd80', 'd82', 'd1m', 'd2m'] + ['20', '40', '60', '70', '80', 'a0', 'b0', 'e0', 'crt', 'bin'] + ['p00', 'prg', 'tap', 't64'], ['gz', 'bz2', 'zip', 'tgz']),
+	'Stella': Emulator('stella', ['-fullscreen', '1', '$<path>'], ['a26', 'bin', 'rom'], ['gz', 'zip']),
+	'VICE (SDL2)': Emulator('x64', command_lines.vice, ['d64', 'g64', 'x64', 'p64', 'd71', 'd81', 'd80', 'd82', 'd1m', 'd2m'] + ['20', '40', '60', '70', '80', 'a0', 'b0', 'e0', 'crt', 'bin'] + ['p00', 'prg', 'tap', 't64'], ['gz', 'bz2', 'zip', 'tgz']),
 	#Also does z and zoo compression but I haven't done those in archives.py yet
 	#WARNING! Will write back changes to your disk images unless they are compressed or actually write protected on the file system
 	#FIXME: Does support compressed tapes/disks but doesn't support compressed cartridges (seemingly). This would require changing all kinds of stuff with how compression is handled here.
+	#FIXME: Need to separate this into multiple emulators for issue #76 to work
 
 	'Mednafen (Lynx)': MednafenModule('lynx', ['lnx', 'lyx', 'o'], command_lines.mednafen_lynx),
 	#Based on Handy, but that hasn't been updated in 14 years, so I guess this probably has some more updates
@@ -202,11 +211,11 @@ emulators = {
 	#Emulates a NTSC console only so PAL games will probably tell you off or otherwise not work properly; also no rumble/mempak/etc for you
 
 	#--These experimental emulators seem to work more often than they don't:
-	'Citra': Emulator(command_lines.citra, ['3ds', 'cxi', '3dsx'], []),
+	'Citra': Emulator('citra-qt', command_lines.citra, ['3ds', 'cxi', '3dsx'], []),
 	#Will not run full screen from the command line and you always have to set it manually whether you like it or not (I
 	#do not, but eh, it works and that's really cool)
-	'Medusa': Emulator(command_lines.medusa, ['nds', 'gb', 'gbc', 'gba'], ['7z', 'zip']),
-	'Reicast': Emulator(command_lines.reicast, ['gdi', 'cdi', 'chd'], []),
+	'Medusa': Emulator('medusa-emu-qt', command_lines.medusa, ['nds', 'gb', 'gbc', 'gba'], ['7z', 'zip']),
+	'Reicast': Emulator('reicast', command_lines.reicast, ['gdi', 'cdi', 'chd'], []),
 
 	'Mednafen (PC Engine Fast)': MednafenModule('pce_fast', ['pce', 'sgx', 'iso', 'cue', 'ccd', 'toc', 'm3u']),
 	#Forked from 0.8.x pce with speed-accuracy tradeoffs
@@ -277,23 +286,27 @@ emulators = {
 }
 
 def make_prboom_plus_command_line(_, specific_config):
+	args = []
 	if 'save_dir' in specific_config:
-		return 'prboom-plus -save %s -iwad $<path>' % shlex.quote(specific_config['save_dir'])
+		args.append('-save')
+		args.append(specific_config['save_dir'])
 
-	#Fine don't save then, nerd
-	return 'prboom-plus -iwad $<path>'
+	args.append('-iwad')
+	args.append('$<path>')
+	return args
 
 class GameEngine():
 	#Not really emulators, but files come in and games come out.
-	def __init__(self, command_line, is_game_data):
-		self.command_line = command_line
+	def __init__(self, exe_name, args, is_game_data):
+		self.exe_name = exe_name
+		self.args = args
 		self.is_game_data = is_game_data #This is supposed to be a lambda but I can't figure out how to word it so that's apparent at first glance
 
 	def get_command_line(self, game, specific_config):
-		if callable(self.command_line):
-			return self.command_line(game, specific_config)
+		if callable(self.args):
+			return self.exe_name, self.args(game, specific_config)
 
-		return self.command_line
+		return self.exe_name, self.args
 
 def is_doom_file(file):
 	if file.extension != 'wad':
@@ -302,37 +315,47 @@ def is_doom_file(file):
 	return file.read(amount=4) == b'IWAD'
 
 engines = {
-	'PrBoom+': GameEngine(make_prboom_plus_command_line, is_doom_file),
+	'PrBoom+': GameEngine('prboom-plus', make_prboom_plus_command_line, is_doom_file),
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
-	'Darkplaces': GameEngine('darkplaces-glx -nostdout -fullscreen -basedir $<path>', lambda folder: folder.contains_subfolder('id1'))
+	'Darkplaces': GameEngine('darkplaces-glx', ['-nostdout', '-fullscreen', '-basedir', '$<path>'], lambda folder: folder.contains_subfolder('id1'))
 	#TODO: Make this work with expansion packs and stuff (this will most definitely only work with base Quake), I haven't bought them yet
 }
 
 class MacEmulator():
-	def __init__(self, command_line):
-		self.command_line = command_line
+	def __init__(self, exe_name, args):
+		self.exe_name = exe_name
+		self.args = args
 
 	def get_command_line(self, app, specific_config):
-		if callable(self.command_line):
-			return self.command_line(app, specific_config)
+		exe_name = self.exe_name
 
-		return self.command_line
+		if callable(self.args):
+			args = self.args(app, specific_config)
+			if isinstance(args, tuple):
+				#This is all just a load of hack I'm really sorry
+				exe_name, args = args
+				args = [arg.replace('$<exe>', self.exe_name) for arg in args]
+		else:
+			args = self.args
+
+		return exe_name, args
 
 mac_emulators = {
-	'BasiliskII': MacEmulator(command_lines.basilisk_ii),
+	'BasiliskII': MacEmulator('BasiliskII', command_lines.basilisk_ii),
 	#TODO: Add SheepShaver here, even if we would have to do the vm.mmap thingy
 }
 
 class DOSEmulator():
-	def __init__(self, command_line):
-		self.command_line = command_line
+	def __init__(self, exe_name, args):
+		self.exe_name = exe_name
+		self.args = args
 
 	def get_command_line(self, app, specific_config):
-		if callable(self.command_line):
-			return self.command_line(app, specific_config)
+		if callable(self.args):
+			return self.exe_name, self.args(app, specific_config)
 
-		return self.command_line
+		return self.exe_name, self.args
 
 dos_emulators = {
-	'DOSBox/SDL2': DOSEmulator(command_lines.dosbox)
+	'DOSBox/SDL2': DOSEmulator('dosbox', command_lines.dosbox)
 }

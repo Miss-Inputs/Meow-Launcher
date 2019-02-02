@@ -50,10 +50,9 @@ class EngineGame():
 		return self.engine.get_command_line(self, system_config.specific_config)
 
 	def make_launcher(self, system_config):
-		base_command_line = self.get_command_line(system_config)
-		command_line = base_command_line.replace('$<path>', shlex.quote(self.file.path))
-
-		launchers.make_launcher(command_line, self.file.name, self.metadata, 'Engine game', self.file.path, self.icon)
+		exe_name, exe_args = self.get_command_line(system_config)
+		exe_args = [arg.replace('$<path>', self.file.path) for arg in exe_args]
+		launchers.make_launcher(exe_name, exe_args, self.file.name, self.metadata, 'Engine game', self.file.path, self.icon)
 
 def try_engine(system_config, engine, base_dir, root, name):
 	path = os.path.join(root, name)
@@ -133,6 +132,13 @@ class Rom():
 	def get_size(self):
 		return io_utils.get_real_size(self.path, self.compressed_entry)
 
+def make_linux_multiple_command_line(command_list, quote=True):
+	#FIXME hack hack hack hack hack hack heck move this to launchers base_make_desktop somehow
+	shell_commands = [' '.join(shlex.quote(arg) if quote else arg for arg in command) for command in command_list]
+	exe_name = 'sh'
+	exe_args = ['-c', ' && '.join(shell_commands)]
+	return exe_name, exe_args
+
 class Game():
 	def __init__(self, rom, emulator, platform, folder):
 		self.rom = rom
@@ -151,28 +157,32 @@ class Game():
 		return self.emulator.get_command_line(self, system_config.specific_config)
 
 	def make_launcher(self, system_config):
-		base_command_line = self.get_command_line(system_config)
+		exe_name, exe_args = self.get_command_line(system_config)
 
 		is_unsupported_compression = self.rom.is_compressed and (self.rom.original_extension not in self.emulator.supported_compression)
 
 		if is_unsupported_compression:
+			#Hmm, I hope this works. This should be moved into launchers base_make_desktop too honestly
+			set_temp_folder_cmd = ['temp_extract_folder=$(mktemp -d)']
+			extract_cmd = ['7z', 'x', '-o"$temp_extract_folder"', shlex.quote(self.rom.path)]
+			remove_dir_command = ['rm', '-rf', "$temp_extract_folder"]
+
 			extracted_path = os.path.join('$temp_extract_folder/' + shlex.quote(self.rom.compressed_entry))
-			inner_cmd = base_command_line.replace('$<path>', extracted_path)
-
-			set_temp_folder_cmd = 'temp_extract_folder=$(mktemp -d)'
-			extract_cmd = '7z x -o"$temp_extract_folder" {0}'.format(shlex.quote(self.rom.path))
-			remove_dir_cmd = 'rm -rf "$temp_extract_folder"'
-			all_commands = [set_temp_folder_cmd, extract_cmd, inner_cmd, remove_dir_cmd]
-			shell_command = shlex.quote(';'.join(all_commands))
-			command_line = 'sh -c {0}'.format(shell_command)
+			inner_command = [exe_name] + [arg.replace('$<path>', extracted_path) for arg in exe_args]
+			all_commands = [set_temp_folder_cmd, extract_cmd, inner_command, remove_dir_command]
+			exe_name, exe_args = make_linux_multiple_command_line(all_commands, False)
+		elif self.emulator.wrap_in_shell: #Should be if exe_args is a list of lists
+			#What happens if this is the case, but compression is also unsupported? I think that doesn't work
+			inner_commands = []
+			for inner_command in exe_args:
+				inner_command = [arg.replace('$<path>', self.rom.path) for arg in inner_command]
+				inner_command = [arg.replace('$<exe>', exe_name) for arg in inner_command]
+				inner_commands.append(inner_command)
+			exe_name, exe_args = make_linux_multiple_command_line(inner_commands)
 		else:
-			command_line = base_command_line.replace('$<path>', shlex.quote(self.rom.path))
+			exe_args = [arg.replace('$<path>', self.rom.path) for arg in exe_args]
 
-		if self.emulator.wrap_in_shell and not is_unsupported_compression:
-			#Don't need to wrap in sh -c if we've already done that
-			command_line = 'sh -c {0}'.format(shlex.quote(command_line))
-
-		launchers.make_launcher(command_line, self.rom.name, self.metadata, 'ROM', self.rom.path, self.icon)
+		launchers.make_launcher(exe_name, exe_args, self.rom.name, self.metadata, 'ROM', self.rom.path, self.icon)
 
 def try_emulator(system_config, emulator, rom_dir, root, rom):
 	game = Game(rom, emulator, system_config.name, root)

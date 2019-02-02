@@ -17,28 +17,31 @@ def _get_autoboot_script_by_name(name):
 	return os.path.join(root_package, 'mame_autoboot', name + '.lua')
 
 def make_mednafen_command_line(module):
-	return 'mednafen -video.fs 1 -force_module %s $<path>' % module
+	return ['-video.fs', '1', '-force_module', module, '$<path>']
 
 def mame_command_line(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None):
-	command_line = 'mame -skip_gameinfo'
+	args = ['-skip_gameinfo']
 	if has_keyboard:
-		command_line += ' -ui_active'
+		args.append('-ui_active')
 
-	command_line += ' ' + driver
+	args.append(driver)
 
 	if slot_options:
 		for name, value in slot_options.items():
 			if not value:
 				value = '""'
-			command_line += ' -' + name + ' ' + value
+			args.append('-' + name)
+			args.append(value)
 
 	if slot:
-		command_line += ' -' + slot + ' $<path>'
+		args.append('-' + slot)
+		args.append('$<path>')
 
 	if autoboot_script:
-		command_line += ' -autoboot_script ' + shlex.quote(_get_autoboot_script_by_name(autoboot_script))
+		args.append('-autoboot-script')
+		args.append(_get_autoboot_script_by_name(autoboot_script))
 
-	return command_line
+	return args
 
 def _is_software_available(software_list_name, software_name):
 	if not have_mame():
@@ -208,10 +211,12 @@ def mgba(game, _):
 	if game.metadata.platform in ('Game Boy', 'Game Boy Color'):
 		verify_mgba_mapper(game)
 
-	command_line = 'mgba-qt -f'
+	args = ['-f']
 	if not game.metadata.specific_info.get('Nintendo-Logo-Valid', True):
-		command_line += ' -C useBios=0'
-	return command_line + ' $<path>'
+		args.append('-C')
+		args.append('useBios=0')
+	args.append('$<path>')
+	return args
 
 def medusa(game, _):
 	if game.metadata.platform == 'DSi':
@@ -222,25 +227,27 @@ def medusa(game, _):
 	if game.metadata.platform in ('Game Boy', 'Game Boy Color'):
 		verify_mgba_mapper(game)
 
-	command_line = 'medusa-emu-qt -f'
+	args = ['-f']
 	if game.metadata.platform != 'DS':
 		#(for GB/GBA stuff only, otherwise BIOS is mandatory whether you like it or not)
 		if not game.metadata.specific_info.get('Nintendo-Logo-Valid', True):
-			command_line += ' -C useBios=0'
+			args.append('-C')
+			args.append('useBios=0')
 
-	return command_line + ' $<path>'
+	args.append('$<path>')
+	return args
 
 def gambatte(game, _):
 	#I guess MBC1 Multicart only works if you tick the "Multicart compatibility" box
 	#MMM01 technically works but only boots the first game instead of the menu, so it doesn't really work work
 	_verify_supported_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5'], ['MBC1 Multicart'])
 
-	return 'gambatte_qt --full-screen $<path>'
+	return ['--full-screen', '$<path>']
 
 def gbe_plus(game, _):
 	#In theory, only this should support Pocket Sonar (so far), but there's not really a way to detect that since it just claims to be MBC1 in the header...
 	_verify_supported_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'HuC1'], ['MBC1 Multicart'])
-	return 'gbe_plus_qt $<path>'
+	return ['$<path>']
 
 def mednafen_gb(game, _):
 	_verify_supported_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC7', 'HuC1', 'HuC3'], [])
@@ -290,7 +297,7 @@ def mame_snes(game, specific_config):
 			raise EmulationNotSupportedException('Sufami Turbo BIOS not set up, check systems.ini')
 
 		#We don't need to detect TV type because the Sufami Turbo (and also BS-X) was only released in Japan and so the Super Famicom can be used for everything
-		return mame_command_line('snes', 'cart2', {'cart': shlex.quote(bios_path)})
+		return mame_command_line('snes', 'cart2', {'cart': bios_path})
 
 	if game.rom.extension == 'bs':
 		if _have_bsx_software is None:
@@ -302,7 +309,7 @@ def mame_snes(game, specific_config):
 		bios_path = specific_config.get('bsx_bios_path', None)
 		if not bios_path:
 			raise EmulationNotSupportedException('BS-X/Satellaview BIOS not set up, check systems.ini')
-		return mame_command_line('snes', 'cart2', {'cart': shlex.quote(bios_path)})
+		return mame_command_line('snes', 'cart2', {'cart': bios_path})
 
 	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'snespal'
@@ -386,7 +393,7 @@ def dolphin(game, _):
 	if game.metadata.specific_info.get('No-Disc-Magic', False):
 		raise EmulationNotSupportedException('No disc magic')
 
-	return 'dolphin-emu -b -e $<path>'
+	return ['-b', '-e', '$<path>']
 
 def citra(game, _):
 	if game.rom.extension != '3dsx':
@@ -400,7 +407,7 @@ def citra(game, _):
 			#Ignore update data, which either are pointless (because you install them in Citra and then when you run the main game ROM, it has all the updates applied) or do nothing
 			#I feel like there's probably a better way of doing this whoops
 			raise NotARomException('Update data, not actual game')
-	return 'citra-qt $<path>'
+	return ['$<path>']
 
 def mednafen_nes(game, _):
 	#Yeah okay, I need a cleaner way of doing this
@@ -425,7 +432,7 @@ def mednafen_nes(game, _):
 def reicast(game, _):
 	if game.metadata.specific_info.get('Uses-Windows-CE', False):
 		raise EmulationNotSupportedException('Windows CE-based games not supported')
-	return 'reicast -config x11:fullscreen=1 $<path>'
+	return ['-config', 'x11:fullscreen=1', '$<path>']
 
 def mame_sg1000(game, _):
 	slot_options = {}
@@ -458,7 +465,7 @@ def mame_sharp_x68000(game, _):
 		#FIXME: This won't work if the referenced m3u files have weird compression formats supported by 7z but not by MAME; but maybe that's your own fault
 		floppy_slots = {}
 		for i, individual_floppy in enumerate(game.subroms):
-			floppy_slots['flop%d' % (i + 1)] = shlex.quote(individual_floppy.path)
+			floppy_slots['flop%d' % (i + 1)] = individual_floppy.path
 
 		return mame_command_line('x68000', slot=None, slot_options=floppy_slots, has_keyboard=True)
 	return mame_command_line('x68000', 'flop1', has_keyboard=True)
@@ -539,7 +546,7 @@ def mupen64plus(game, specific_config):
 	if game.metadata.specific_info.get('ROM-Format', None) == 'Unknown':
 		raise EmulationNotSupportedException('Undetectable ROM format')
 
-	command_line = 'mupen64plus --nosaveoptions --fullscreen'
+	args = ['--nosaveoptions', '--fullscreen']
 
 	no_plugin = 1
 	controller_pak = 2
@@ -563,18 +570,19 @@ def mupen64plus(game, specific_config):
 
 	if plugin != no_plugin:
 		#TODO: Only do this if using SDL plugin (i.e. not Raphnet raw plugin)
-		command_line += ' --set %s' % shlex.quote('Input-SDL-Control1[plugin]=%d' % plugin)
+		args.extend(['--set', 'Input-SDL-Control1[plugin]=%d' % plugin])
 
 	#TODO: If use_transfer_pak, put in a rom + save with --gb-rom-1 and --gb-ram-1 somehow... hmm... can't insert one at runtime with console UI (and I guess you're not supposed to hotplug carts with a real N64 + Transfer Pak) sooo, I'll have to have a think about the most user-friendly way for me to handle that as a frontend
 
-	return command_line + ' $<path>'
+	args.append('$<path>')
+	return args
 
 def fs_uae(game, specific_config):
-	command_line = 'fs-uae --fullscreen'
+	args = ['--fullscreen']
 	if game.metadata.platform == 'Amiga CD32':
-		command_line += ' --amiga_model=CD32 --joystick_port_0_mode=%s --cdrom_drive_0=$<path>' % shlex.quote('cd32 gamepad')
+		args.extend(['--amiga_model=CD32', '--joystick_port_0_mode=cd32 gamepad', '--cdrom_drive_0=$<path>'])
 	elif game.metadata.platform == 'Commodore CDTV':
-		command_line += ' --amiga_model=CDTV --cdrom_drive_0=$<path>'
+		args.extend(['--amiga_model=CDTV', '--cdrom_drive_0=$<path>'])
 	else:
 		amiga_models = {
 			'OCS': 'A500', #Also A1000 (A2000 also has OCS but doesn't appear to be an option?)
@@ -589,13 +597,13 @@ def fs_uae(game, specific_config):
 			chipset = specific_config.get('default_chipset', 'AGA')
 
 		if chipset in amiga_models:
-			command_line += ' --amiga_model=%s' % amiga_models[chipset]
+			args.append('--amiga_model=%s' % amiga_models[chipset])
 
 		#Hmm... there is also --cpu=68060 which some demoscene productions use so maybe I should look into that...
-		command_line += ' --floppy_drive_0=$<path>'
+		args.append('--floppy_drive_0=$<path>')
 	if game.metadata.tv_type == TVSystem.NTSC:
-		command_line += ' --ntsc_mode=1'
-	return command_line
+		args.append('--ntsc_mode=1')
+	return args
 
 def mame_intellivision(game, _):
 	system = 'intv'
@@ -687,7 +695,7 @@ def cxnes(game, _):
 			raise EmulationNotSupportedException('Unsupported mapper: %d (%s)' % (mapper, game.metadata.specific_info.get('Mapper')))
 
 	#Could possibly do something involving --no-romcfg if there's no config found, otherwise the emulator pops up a message about that unless you disable romcfg entirely
-	return 'cxnes -f $<path>'
+	return ['-f', '$<path>']
 
 def vice(game, specific_config):
 	executable = None
@@ -748,10 +756,12 @@ def vice(game, specific_config):
 	else:
 		raise EmulationNotSupportedException('%s not a supported platform' % platform)
 
-	command_line = '{0} {1}'.format(executable, fullscreen_option)
+	args = [fullscreen_option]
 	if model:
-		command_line += ' -model %s' % shlex.quote(model)
-	return command_line + ' $<path>'
+		args.append('-model')
+		args.append(model)
+	args.append('$<path>')
+	return executable, args
 
 def basilisk_ii(app, specific_config):
 	if 'arch' in app.config:
@@ -771,10 +781,13 @@ def basilisk_ii(app, specific_config):
 	hfv_path, inner_path = app.path.split(':', 1)
 	#FIXME: Ensure hfv_path is mounted, right now we're just kinda assuming it is, which is a weird thing to do when you think about it
 
-	#If you're not using an SDL2 build of BasiliskII, you probably want to change dga to window! Well you really want to get an SDL2 build of BasiliskII, honestly
-	actual_emulator_command = 'BasiliskII --screen dga/{0}/{1}'.format(width, height)
-	inner_command = 'echo {0} > {1} && {2} && rm {1}'.format(shlex.quote(inner_path), shlex.quote(autoboot_txt_path), actual_emulator_command)
-	return 'sh -c {0}'.format(shlex.quote(inner_command))
+	#If you're not using an SDL2 build of BasiliskII, you probably want to change dga to window! Well you really want to get an SDL2 build of BasiliskII, honestly, because I assume you do. Well the worst case scenario is that it still works, but it hecks your actual host resolution
+	#God damn this is such a hack
+	#What the hack is even going on here
+	inner_command = ['$<exe>', '--screen', 'dga/{0}/{1}'.format(width, height)]
+	inner_command = ' '.join([shlex.quote(arg) for arg in inner_command])
+	shell_command = 'echo {0} > {1} && {2} && rm {1}'.format(shlex.quote(inner_path), shlex.quote(autoboot_txt_path), inner_command)
+	return 'sh', ['-c', shell_command]
 
 def _get_dosbox_config(app):
 	if not os.path.isdir(main_config.dosbox_configs_path):
@@ -822,5 +835,5 @@ def dosbox(app, specific_config):
 	conf = _get_dosbox_config(app)
 	if ('--regen-dos-config' in sys.argv) or not conf:
 		conf = _make_dosbox_config(app, specific_config)
-	actual_command = "dosbox -exit -noautoexec -userconf -conf {1} {0}".format(shlex.quote(app.path), shlex.quote(conf))
-	return actual_command
+
+	return ['-exit', '-noautoexec', '-userconf', '-conf', conf, app.path]

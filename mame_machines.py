@@ -6,7 +6,6 @@ import sys
 import re
 import time
 import datetime
-import shlex
 
 import launchers
 from info import emulator_command_lines
@@ -120,14 +119,14 @@ class Machine():
 		if self.metadata.save_type == SaveType.MemoryCard and self.source_file == 'neogeo' and main_config.memcard_path:
 			memory_card_path = os.path.join(main_config.memcard_path, self.basename + '.neo')
 			if os.path.isfile(memory_card_path):
-				slot_options['memc'] = shlex.quote(memory_card_path)
+				slot_options['memc'] = memory_card_path
 			else:
 				memory_card_path = os.path.join(main_config.memcard_path, self.family + '.neo')
 				if os.path.isfile(memory_card_path):
-					slot_options['memc'] = shlex.quote(memory_card_path)
+					slot_options['memc'] = memory_card_path
 
-		command_line = emulator_command_lines.mame_command_line(self.basename, slot_options=slot_options)
-		launchers.make_launcher(command_line, self.name, self.metadata, 'MAME machine', self.basename, self.icon)
+		exe_args = emulator_command_lines.mame_command_line(self.basename, slot_options=slot_options)
+		launchers.make_launcher('mame', exe_args, self.name, self.metadata, 'MAME machine', self.basename, self.icon)
 
 	@property
 	def is_mechanical(self):

@@ -2,6 +2,7 @@ import re
 import os
 import configparser
 import pathlib
+import shlex
 
 import common
 from config import main_config, name_replacement, add_the, subtitle_removal, app_name
@@ -53,8 +54,12 @@ def make_filename(name):
 		name = 'blank'
 	return name
 
+def make_linux_exec(exe_name, args):
+	c = shlex.quote(exe_name)
+	return c + ' ' + ' '.join(shlex.quote(arg) for arg in args)
+
 used_filenames = []
-def base_make_desktop(command, display_name, fields=None, icon=None):
+def base_make_desktop(exe_name, args, display_name, fields=None, icon=None):
 	base_filename = make_filename(display_name)
 	filename = base_filename + '.desktop'
 
@@ -77,7 +82,7 @@ def base_make_desktop(command, display_name, fields=None, icon=None):
 	desktop_entry['Encoding'] = 'UTF-8'
 
 	desktop_entry['Name'] = display_name
-	desktop_entry['Exec'] = command
+	desktop_entry['Exec'] = make_linux_exec(exe_name, args)
 
 	if icon:
 		if isinstance(icon, str):
@@ -135,7 +140,7 @@ def make_display_name(name):
 
 	return display_name
 
-def make_launcher(command, name, metadata, id_type, unique_id, icon=None):
+def make_launcher(exe_name, exe_args, name, metadata, id_type, unique_id, icon=None):
 	display_name = make_display_name(name)
 	filename_tags = common.find_filename_tags.findall(name)
 
@@ -150,7 +155,7 @@ def make_launcher(command, name, metadata, id_type, unique_id, icon=None):
 	fields[id_section_name]['Unique-ID'] = unique_id
 
 	#For very future use, this is where the underlying host platform is abstracted away. make_launcher is for everything, base_make_desktop is for Linux .desktop files specifically. Perhaps there are other things that could be output as well.
-	base_make_desktop(command, display_name, fields, icon)
+	base_make_desktop(exe_name, exe_args, display_name, fields, icon)
 
 def _get_existing_launchers():
 	a = []
