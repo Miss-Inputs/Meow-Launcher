@@ -78,6 +78,8 @@ arcade_systems = {
 	'3do': '3DO', #Used for the 3DO console as well, but there are 3DO-based arcade games which are just called that; non-working
 	'aleck64': 'Aleck64', #Based on N64
 	'alien': 'Capcom Medalusion', #Non-working
+	'aristmk5': 'Aristocrat MK5', #Gambling, Acorn Archimedes based purrhaps
+	'aristmk6': 'Aristocrat MK6', #Gambling, non-working
 	'arsystems': 'Arcadia System', #Amiga 500 based
 	'astrocde': 'Astrocade', #The home console used the same hardware, I can't remember the names of all the different things
 	'atarig42': 'Atari G42',
@@ -91,6 +93,7 @@ arcade_systems = {
 	'cedar_magnet': 'Magnet System',
 	'chihiro': 'Chihiro', #Based on Xbox, seemingly non-working
 	'cobra': 'Konami Cobra System',
+	'coolridr': 'Sega System H1',
 	'cps1': 'CPS-1',
 	'cps2': 'CPS-2',
 	'cps3': 'CPS-3',
@@ -103,8 +106,10 @@ arcade_systems = {
 	'eolith': 'Eolith Gradation 2D System',
 	'exidy440': 'Exidy 440',
 	'expro02': 'Kaneko EXPRO-02',
+	'firebeat': 'Konami Bemani Firebeat', #Non-working
 	'fuukifg2': 'Fuuki FG-2',
 	'fuukifg3': 'Fuuki FG-3',
+	'gaelco2': 'Gaelco CG-1V/GAE1',
 	'hikaru': 'Hikaru', #Based on souped up Naomi and in turn Dreamcast, non-working
 	'hng64': 'Hyper Neo Geo 64', #Barely working
 	'hornet': 'Konami Hornet',
@@ -120,6 +125,7 @@ arcade_systems = {
 	'm58': 'Irem M58',
 	'm62': 'Irem M62',
 	'm72': 'Irem M72',
+	'm90': 'Irem M90', #Also M97 I guess
 	'm92': 'Irem M92',
 	'macs': 'Multi Amenity Casette System',
 	'mcr': 'Midway MCR',
@@ -142,6 +148,7 @@ arcade_systems = {
 	'ms32': 'Jaleco Mega System 32',
 	'namconb1': 'Namco System NB-1',
 	'namcond1': 'Namco System ND-1',
+	'namcops2': 'Namco PS2', #Based on PS2
 	'namcos1': 'Namco System 1',
 	'namcos10': 'Namco System 10', #Based on PS1
 	'namcos11': 'Namco System 11', #Based on PS1
@@ -156,10 +163,13 @@ arcade_systems = {
 	'nwk-tr': 'Konami NWK-TR',
 	'pcxt': 'IBM PC-XT', #Games running off a PC-XT
 	'pgm': 'PolyGame Master',
+	'pgm2': 'PolyGame Master 2',
+	'pgm3': 'PolyGame Master 3', #Non-working
 	'photon': 'Photon System', #PK8000 based (Russian PC that was supposed to be MSX1 compatible)
 	'photon2': 'Photon IK-3', #Leningrad-1 based (Russian ZX Spectrum clone)
 	'policetr': 'ATILLA Video System',
 	'psikyo4': 'Psikyo PS4',
+	'pyson': 'Konami Pyson',
 	'seattle': 'Midway Seattle',
 	'segac2': 'System C2', #Similar to Megadrive
 	'segae': 'System E', #Similar to Master System
@@ -170,7 +180,7 @@ arcade_systems = {
 	'segas18': 'System 18',
 	'segas24': 'System 24',
 	'segas32': 'System 32',
-	'segasp': 'Sega System SP', #Dreamcast based, for medal games
+	'segasp': 'Sega System SP', #Dreamcast based, for medal games; non-working
 	'segaxbd': 'Sega X-Board',
 	'segaybd': 'Sega Y-Board',
 	'seibuspi': 'Seibu SPI',
@@ -212,16 +222,27 @@ arcade_systems = {
 	'alg': 'American Laser Games Hardware', #Amiga 500 based (w/ laserdisc player)
 	'artmagic': 'Art & Magic Hardware',
 	'cinemat': 'Cinematronics Vector Hardware',
+	'dec0': 'Data East 16-bit Hardware',
+	'dec8': 'Data East 8-bit Hardware',
+	'dreamwld': 'Semicom 68020 Hardware',
 	'ettrivia': 'Enerdyne Technologies Trivia',
+	'exidy': 'Exidy Hardware',
 	'gameplan': 'Game Plan Hardware',
 	'gei': 'Greyhound Electronics Hardware',
 	'gottlieb': 'Gottlieb Hardware',
 	'homedata': 'Home Data Hardware',
+	'itech8': 'Incredible Technologies 8-bit Blitter Hardware',
+	'itech32': 'Incredible Technologies 32-bit Blitter Hardware',
+	'kaneko16': 'Kaneko 16-bit Hardware',
 	'leland': 'Leland Hardware',
 	'micro3d': 'Microprose 3D Hardware',
+	'mw8080bw': 'Midway 8080 Black & White Hardware',
+	'playmark': 'Playmark Hardware',
+	'seta': 'Seta Hardware',
 	'subsino2': 'Subsino Newer Tilemaps Hardware',
+	'unico': 'Unico Hardware',
 
-	#Arcade platforms that don't really have a name except a game that uses them; I try not to fill this up with every single remaining source file, just where it's notable for having other games on it
+	#Arcade platforms that don't really have a name except a game that uses them; I try not to fill this up with every single remaining source file, just where it's notable for having other games on it or some other reason
 	'ambush': 'Ambush Hardware',
 	'armedf': 'Armed Formation Hardware',
 	'battlera': 'Battle Rangers', #PC Engine based
@@ -230,22 +251,36 @@ arcade_systems = {
 	'dkong': 'Donkey Kong Hardware',
 	'ertictac': 'Erotictac Hardware', #Acorn Archimedes based
 	'fcrash': 'Final Crash Hardware', #Bootleg of Final Fight; this is used for other bootlegs too
+	'galaga': 'Galaga Hardware',
 	'galaxian': 'Galaxian Hardware', #Was used for a lot of games and bootlegs, actually; seems that Moon Cresta hardware has the same source file
 	'galaxold': 'Galaxian Hardware', #There's a comment in that source file saying it'll be merged into galaxian eventually; seems that this one has all the bootlegs etc
 	'ggconnie': 'Go! Go! Connie Hardware', #Supergrafx based
 	'gticlub': 'Konami GTI Club Hardware',
+	'lethalj': 'Lethal Justice Hardware',
 	'liberate': 'Liberation Hardware',
 	'nemesis': 'Nemesis Hardware',
 	'pacman': 'Pac-Man Hardware',
 	'pcat_nit': 'Street Games Hardware', #PC-AT 386 based
+	'pong': 'Pong Hardware',
+	'qix': 'Qix Hardware',
 	'quakeat': 'Quake Arcade Tournament Hardware', #Unknown PC based
+	'rallyx': 'Rally-X Hardware',
 	'scramble': 'Scramble Hardware', #Apparently also to be merged into galaxian
+	'snowbros': 'Snow Bros Hardware',
 	'ssfindo': 'See See Find Out Hardware', #RISC PC based
+	'tnzs': 'The NewZealand Story Hardware',
+	'tvcapcom': 'Tatsunoko vs. Capcom Hardware', #Wii based
+	'tumbleb': 'Tumble Pop Bootleg Hardware',
 	'turrett': 'Turret Tower Hardware',
+	'vamphalf': 'Vamp x1/2 Hardware', #I guess the source file is for Hyperstone based games but I dunno if I should call it that
+	'zaxxon': 'Zaxxon Hardware',
 
 	#Identified by BIOS and not source file:
 	#coh100c: Sony ZN1 (PS1 based)
 	#coh100t: Taito FX1 (PS1 based)
+
+	#system1 = Sega System 1 or Sega System 2
+	#m10 = Irem M10/M11/M15
 }
 
 def add_machine_platform(machine):
