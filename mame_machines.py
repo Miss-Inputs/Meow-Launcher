@@ -186,8 +186,7 @@ class Machine():
 	def _add_manufacturer(self):
 		manufacturer = self.xml.findtext('manufacturer')
 		if not manufacturer:
-			self.metadata.publisher = None
-			self.metadata.developer = None
+			self.metadata.publisher = self.metadata.developer = None
 			return
 		license_match = licensed_arcade_game_regex.fullmatch(manufacturer)
 		licensed_from_match = licensed_from_regex.fullmatch(manufacturer)
@@ -200,8 +199,7 @@ class Machine():
 			self.metadata.specific_info['Licensed-From'] = licensed_from_match[2]
 		else:
 			if not manufacturer.startswith(('bootleg', 'hack')):
-				developer = manufacturer
-				publisher = manufacturer
+				developer = publisher = manufacturer
 			elif self.has_parent:
 				if hack_match:
 					self.metadata.specific_info['Hacked-By'] = hack_match[1]
