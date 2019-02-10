@@ -282,8 +282,12 @@ def add_metadata_from_appinfo(game):
 			#Well why not
 			game.metadata.specific_info['Metacritic-Score'] = metacritic_score.data
 
-		game.metadata.specific_info['Metacritic-URL'] = common.get(b'metacritic_fullurl', b'').decode('utf8', errors='backslashreplace')
-		game.metadata.specific_info['Sort-Name'] = common.get(b'sortas', b'').decode('utf8', errors='backslashreplace')
+		metacritic_url = common.get(b'metacritic_fullurl')
+		if metacritic_url:
+			game.metadata.specific_info['Metacritic-URL'] = metacritic_url.decode('utf8', errors='backslashreplace')
+		sortas = common.get(b'sortas')
+		if sortas:
+			game.metadata.specific_info['Sort-Name'] = sortas.decode('utf8', errors='backslashreplace')
 
 		#TODO: Probably can't do input_info with this, but maybe use EmulationStatus enum to do Good (full) Imperfect (partial) Broken (none)
 		game.metadata.specific_info['Controlller-Support'] = common.get(b'controller_support', b'none').decode('utf-8', errors='backslashreplace')
