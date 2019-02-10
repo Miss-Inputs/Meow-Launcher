@@ -88,9 +88,10 @@ def base_make_desktop(exe_name, args, display_name, fields=None, icon=None):
 		if isinstance(icon, str):
 			desktop_entry['Icon'] = icon
 		else: #assume PIL/Pillow image
-			if main_config.icon_folder:
-				pathlib.Path(main_config.icon_folder).mkdir(exist_ok=True, parents=True)
-				icon_path = os.path.join(main_config.icon_folder, filename + '.png')
+			if main_config.image_folder:
+				icon_folder = os.path.join(main_config.image_folder, 'icons')
+				pathlib.Path(icon_folder).mkdir(exist_ok=True, parents=True)
+				icon_path = os.path.join(icon_folder, filename + '.png')
 				icon.save(icon_path, 'png')
 				desktop_entry['Icon'] = icon_path
 
