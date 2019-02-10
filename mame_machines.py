@@ -196,8 +196,7 @@ class Machine():
 			developer = license_match[1]
 			publisher = license_match[2]
 		elif licensed_from_match:
-			developer = manufacturer
-			publisher = licensed_from_match[1]
+			developer = publisher = licensed_from_match[1]
 			self.metadata.specific_info['Licensed-From'] = licensed_from_match[2]
 		else:
 			if not manufacturer.startswith(('bootleg', 'hack')):
