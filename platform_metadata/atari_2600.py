@@ -124,6 +124,7 @@ def parse_stella_db(game, game_info):
 			game.metadata.publisher, _, game.metadata.developer = manufacturer.partition(', ')
 		else:
 			game.metadata.publisher = manufacturer
+			#TODO: Clean up manufacturer names (UA Limited > UA)
 	if 'Cartridge_ModelNo' in game_info:
 		game.metadata.product_code = game_info['Cartridge_ModelNo']
 	if 'Cartridge_Note' in game_info:

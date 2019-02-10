@@ -129,7 +129,7 @@ nintendo_licensee_codes = {
 	'FJ': 'Virtual Toys',
 	'FQ': 'iQue', #Sort of. Only WarioWare: Touched, Polarium, and Yoshi: Touch & Go use this, the other three iQue games: New Super Mario Bros, Super Mario 64, and Nintendogs (kiosk demo) use Nintendo instead. Those were all 2007 or later, the latter being on the iQue DSi, so it may be something corporate related going on there
 	'FR': 'Digital Tainment Pool', #Or DTP Entertainment if you prefer
-	'FT': 'Daiwon C&A Holdings',
+	'FT': 'Daiwon C & A',
 	'GD': 'Square Enix',
 	'GL': 'Gameloft',
 	'HF': 'Level5',
@@ -197,7 +197,7 @@ nintendo_licensee_codes = {
 	'JY': 'Steel Penny', #Bruiser and Scratch (USA) (WiiWare)
 	'NR': 'Destineer', #Giana Sisters DS (USA)
 	'PV': 'Pan Vision Games', #Miffy's World (Europe) (DS)
-	'RG': 'Romino Games', #Swords & Soldiers II (Wii U)
+	'RG': 'Ronimo Games', #Swords & Soldiers II (Wii U)
 	'S3': 'Genius Sonority', #The Denpa Men demo (3DS)
 	'TL': 'Telltale Games', #Strong Badia the Free series (WiiWare)
 	'QU': 'QubicGames', #AiRace Speed demo (3DS)
