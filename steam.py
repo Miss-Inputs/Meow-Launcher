@@ -167,6 +167,7 @@ def look_for_icon(icon_hash):
 	return None
 
 def translate_language_list(languages):
+	#TODO: https://partner.steamgames.com/doc/store/localization Check that we have everything on that page under Supported Languages in region_info (we don't (latam / Latin American Spanish is missing and maybe some others are too))
 	langs = []
 	for language_name, _ in languages.items():
 		#value is an Integer object but it's always 1, I dunno what the 0 means, because it's like, if the language isn't there, it just wouldn't be in the dang list anyway
