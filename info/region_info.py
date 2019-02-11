@@ -51,15 +51,14 @@ languages = [
 	Language('Finnish', 'Suomi', 'Fi'),
 	Language('Chinese', '中文', 'Zh'),
 	Language('Korean', '한국인', 'Ko'),
-	Language('Polish', 'Polskie', 'Pl'),
+	Language('Polish', 'Polski', 'Pl'),
 
 	Language('Russian', 'Pусский', 'Ru'),
 	Language('Greek', 'ελληνικά', 'El'),
 	Language('Indonesian', 'Bahasa Indonesia', 'In'),
-	#There's Malay as well, which apparently involves "macrolanguages", so I'm confused. I just hope this is the right thing here
 	Language('Turkish', 'Türkçe', 'Tr'),
 	Language('Czech', 'Čeština', 'Cs'),
-	Language('Arabic', 'العربية', 'Ar'), #Another macrolanguage
+	Language('Arabic', 'العربية', 'Ar'),
 	Language('Catalan', 'Català', 'Ca'),
 	Language('Hungarian', 'Magyar', 'Hu'),
 	Language('Romanian', 'Română', 'Ro'),
@@ -68,11 +67,12 @@ languages = [
 	Language('Thai', 'ไทย', 'Th'),
 	Language('Bulgarian', 'български език', 'Bg'),
 	Language('Ukrainian', 'Українська', 'Uk'),
+	Language('Vietnamese', 'Tiếng Việt', 'Vn'),
 
-	#This doesn't really have a language code since it's sorta like... a different writing system and not really a different language (I am not a cunning linguist so I have probably described this all wrong), but anyway, some things have Traditional localizations and some have Simplified, so it'll be a separate thing
 	Language('Traditional Chinese', '漢語', None),
-	#This is Portuguese rather than an entirely different language, but I guess there are games with both Brazilian and Portuguese translations, so this is here to help that happen
+	#Dialects of other languages where different translations exist
 	Language('Brazilian Portguese', 'Português do Brasil', None),
+	Language('Latin American Spanish', 'Español-Latinoamérica', None),
 ]
 
 regions = [
