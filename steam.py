@@ -196,7 +196,9 @@ def normalize_developer(dev):
 	overrides = {
 		#Different spellings/formattings of the same company, but we like being consistent with all the other modules and I also just disagree with yelling I guess
 		'ALICE IN DISSONANCE': 'Alice in Dissonance',
+		'ASTRO PORT': 'Astro Port',
 		'BANDAI NAMCO Entertainment': 'Bandai Namco',
+		'CD PROJEKT RED': 'CD Projekt Red',
 		'GATO STUDIO': 'Gato Studio', #Also seen as "Gato Salvaje", although that doesn't transate exactly to the English name
 		'SEGA': 'Sega',
 		'QUICKTEQUILA': 'Quicktequila',
@@ -209,6 +211,7 @@ def normalize_developer(dev):
 
 		#Why
 		'Image &amp; Form Games': 'Image & Form Games',
+		'Kinelco &amp; Lone Elk Creative': 'Kinelco & Lone Elk Creative',
 	}
 	if dev in overrides:
 		return overrides[dev]
