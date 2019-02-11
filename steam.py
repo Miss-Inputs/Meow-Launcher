@@ -341,12 +341,14 @@ def add_metadata_from_appinfo(game):
 	localization = app_info_section.get(b'localization')
 	if localization:
 		if b'richpresence' in localization:
-			#(Keys of this are 'english' or presumably other languages and then 'tokens' and then it's a bunch of stuff)
+			#Keys of this are 'english' or presumably other languages and then 'tokens' and then it's a bunch of stuff
 			game.metadata.specific_info['Rich-Presence'] = True
 
 	if b'ufs' in app_info_section:
 		game.metadata.save_type = SaveType.Cloud
-	#As for how to tell the difference between SaveType.Internal and SaveType.Nothing... is there even a game on Steam that doesn't save at all?
+	else:
+		#I think it's a fair assumption that every game on Steam will have _some_ sort of save data (even if just settings and not progress) so until I'm proven wrong... whaddya gonna do
+		game.metadata.save_type = SaveType.Internal
 
 def process_game(app_id, name=None):
 	if not name:
