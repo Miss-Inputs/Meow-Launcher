@@ -62,38 +62,39 @@ def convert_value_for_ini(value):
 	return str(value)
 
 class ConfigValue():
-	def __init__(self, section, value_type, default_value, description):
+	def __init__(self, section, value_type, default_value, name, description):
 		self.section = section
 		self.type = value_type
 		self.default_value = default_value
+		self.name = name #This is for humans to read!
 		self.description = description
 
 command_line_section = '<command line section>'
 
 _config_ini_values = {
-	'output_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'apps'), 'Folder to put launchers'),
-	'organized_output_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'organized_apps'), 'Folder to put folders with organized launchers using --organize-folders'),
-	'image_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'images'), 'Folder to store images extracted from games with embedded images'),
+	'output_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'apps'), 'Output folder', 'Folder to put launchers'),
+	'organized_output_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'organized_apps'), 'Organized output folder', 'Folder to put folders with organized launchers using --organize-folders'),
+	'image_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'images'), 'Image folder', 'Folder to store images extracted from games with embedded images'),
 
-	'catlist_path': ConfigValue('Arcade', ConfigValueType.Path, None, 'Path to MAME catlist.ini'),
-	'languages_path': ConfigValue('Arcade', ConfigValueType.Path, None, 'Path to MAME languages.ini'),
-	'skipped_source_files': ConfigValue('Arcade', ConfigValueType.StringList, [], 'List of MAME source files to skip (not including extension)'),
-	'memcard_path': ConfigValue('Arcade', ConfigValueType.Path, None, 'Path to store memory cards for arcade systems which support that'),
-	'exclude_non_arcade': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Whether or not to skip MAME systems categorized as not being arcade or anything specific'), #TODO This description sucks
-	'exclude_pinball': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Whether or not to skip pinball games'),
+	'catlist_path': ConfigValue('Arcade', ConfigValueType.Path, None, 'catlist.ini path', 'Path to MAME catlist.ini'),
+	'languages_path': ConfigValue('Arcade', ConfigValueType.Path, None, 'languages.ini path', 'Path to MAME languages.ini'),
+	'skipped_source_files': ConfigValue('Arcade', ConfigValueType.StringList, [], 'Skipped source files', 'List of MAME source files to skip (not including extension)'),
+	'memcard_path': ConfigValue('Arcade', ConfigValueType.Path, None, 'Memory card path', 'Path to store memory cards for arcade systems which support that'),
+	'exclude_non_arcade': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude non-arcade', 'Whether or not to skip MAME systems categorized as not being arcade or anything specific'), #TODO This description sucks
+	'exclude_pinball': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude pinball', 'Whether or not to skip pinball games'),
 
-	'mac_db_path': ConfigValue('Mac', ConfigValueType.Path, None, 'Path to mac_db.json from ComputerGameDB'),
-	'launchers_for_unknown_mac_apps': ConfigValue('Mac', ConfigValueType.Bool, False, 'Whether or not to create launchers for Mac programs that are found but not in the database'),
+	'mac_db_path': ConfigValue('Mac', ConfigValueType.Path, None, 'mac_db.json path', 'Path to mac_db.json from ComputerGameDB'),
+	'launchers_for_unknown_mac_apps': ConfigValue('Mac', ConfigValueType.Bool, False, 'Launchers for unknown apps', 'Whether or not to create launchers for Mac programs that are found but not in the database'),
 
-	'dos_db_path': ConfigValue('DOS', ConfigValueType.Path, None, 'Path to dos_db.json from ComputerGameDB'),
-	'launchers_for_unknown_dos_apps': ConfigValue('DOS', ConfigValueType.Bool, False, 'Whether or not to create launchers for DOS programs that are found but not in the database'),
+	'dos_db_path': ConfigValue('DOS', ConfigValueType.Path, None, 'dos_db.json path', 'Path to dos_db.json from ComputerGameDB'),
+	'launchers_for_unknown_dos_apps': ConfigValue('DOS', ConfigValueType.Bool, False, 'Launchers for unknown apps', 'Whether or not to create launchers for DOS programs that are found but not in the database'),
 	#TODO: Should be in specific_config as it is inherently specific to the emulator (DOSBox) and not the platform
-	'dosbox_configs_path': ConfigValue('DOS', ConfigValueType.Path, os.path.join(_data_dir, 'dosbox_configs'), 'Folder to store DOSBox per-application configuration files'),
+	'dosbox_configs_path': ConfigValue('DOS', ConfigValueType.Path, os.path.join(_data_dir, 'dosbox_configs'), 'DOSBox configs path', 'Folder to store DOSBox per-application configuration files'),
 
 	#Command line arguments shouldn't end up in config.ini
-	'debug': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Enable debug mode, which is really verbose mode, oh well'),
-	'print_times': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Print how long it takes to do things'),
-	'full_rescan': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Regenerate every launcher from scratch instead of just what\'s new and removing what\'s no longer there'),
+	'debug': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Debug', 'Enable debug mode, which is really verbose mode, oh well'),
+	'print_times': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Print times', 'Print how long it takes to do things'),
+	'full_rescan': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Full rescan', 'Regenerate every launcher from scratch instead of just what\'s new and removing what\'s no longer there'),
 }
 #Hmm... debug could be called 'verbose' and combined with --super_debug used in disambiguate to become verbosity_level or just verbose for short, which could have an integer argument, and it _could_ be in config.ini I guess... ehh whatevs
 
