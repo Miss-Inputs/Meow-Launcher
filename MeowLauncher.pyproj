@@ -38,6 +38,13 @@
     <Compile Include="dos_mac_common.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="gui_main.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="gui\gui_generated.py" />
+    <Compile Include="gui\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="info\emulator_command_lines.py">
       <SubType>Code</SubType>
     </Compile>
@@ -199,6 +206,7 @@
     <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="gui\" />
     <Folder Include="info\" />
     <Folder Include="mame_autoboot\" />
     <Folder Include="platform_metadata\" />
