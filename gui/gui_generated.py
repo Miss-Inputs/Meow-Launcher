@@ -24,6 +24,32 @@ class Gui ( wx.Frame ):
 		guiSizer = wx.BoxSizer( wx.VERTICAL )
 
 		self.configNotebook = wx.Notebook( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.mainPanel = wx.Panel( self.configNotebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		mainPanelSizer = wx.BoxSizer( wx.VERTICAL )
+
+		self.mameMachineCheckBox = wx.CheckBox( self.mainPanel, wx.ID_ANY, u"MAME machines", wx.DefaultPosition, wx.DefaultSize, 0 )
+		mainPanelSizer.Add( self.mameMachineCheckBox, 0, wx.ALL, 5 )
+
+		self.romsCheckBox = wx.CheckBox( self.mainPanel, wx.ID_ANY, u"Roms", wx.DefaultPosition, wx.DefaultSize, 0 )
+		mainPanelSizer.Add( self.romsCheckBox, 0, wx.ALL, 5 )
+
+		self.dosCheckBox = wx.CheckBox( self.mainPanel, wx.ID_ANY, u"DOS", wx.DefaultPosition, wx.DefaultSize, 0 )
+		mainPanelSizer.Add( self.dosCheckBox, 0, wx.ALL, 5 )
+
+		self.macCheckBox = wx.CheckBox( self.mainPanel, wx.ID_ANY, u"Mac", wx.DefaultPosition, wx.DefaultSize, 0 )
+		mainPanelSizer.Add( self.macCheckBox, 0, wx.ALL, 5 )
+
+		self.scummvmCheckBox = wx.CheckBox( self.mainPanel, wx.ID_ANY, u"ScummVM", wx.DefaultPosition, wx.DefaultSize, 0 )
+		mainPanelSizer.Add( self.scummvmCheckBox, 0, wx.ALL, 5 )
+
+		self.steamCheckBox = wx.CheckBox( self.mainPanel, wx.ID_ANY, u"Steam", wx.DefaultPosition, wx.DefaultSize, 0 )
+		mainPanelSizer.Add( self.steamCheckBox, 0, wx.ALL, 5 )
+
+
+		self.mainPanel.SetSizer( mainPanelSizer )
+		self.mainPanel.Layout()
+		mainPanelSizer.Fit( self.mainPanel )
+		self.configNotebook.AddPage( self.mainPanel, u"Main", False )
 		self.mainConfigPanel = wx.Panel( self.configNotebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		mainConfigPanelSizer = wx.BoxSizer( wx.VERTICAL )
 
@@ -46,7 +72,7 @@ class Gui ( wx.Frame ):
 		self.mainConfigPanel.SetSizer( mainConfigPanelSizer )
 		self.mainConfigPanel.Layout()
 		mainConfigPanelSizer.Fit( self.mainConfigPanel )
-		self.configNotebook.AddPage( self.mainConfigPanel, u"Main", True )
+		self.configNotebook.AddPage( self.mainConfigPanel, u"Config", True )
 		self.systemsConfigPanel = wx.Panel( self.configNotebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		systemsConfigPanelSizer = wx.BoxSizer( wx.VERTICAL )
 
