@@ -17,7 +17,7 @@ import wx.xrc
 class Gui ( wx.Frame ):
 
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Meow Launcher", pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
@@ -46,7 +46,7 @@ class Gui ( wx.Frame ):
 		self.mainConfigPanel.SetSizer( mainConfigPanelSizer )
 		self.mainConfigPanel.Layout()
 		mainConfigPanelSizer.Fit( self.mainConfigPanel )
-		self.m_notebook3.AddPage( self.mainConfigPanel, u"Main", False )
+		self.m_notebook3.AddPage( self.mainConfigPanel, u"Main", True )
 		self.systemsConfigPanel = wx.Panel( self.m_notebook3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		systemsConfigPanelSizer = wx.BoxSizer( wx.VERTICAL )
 
@@ -69,7 +69,7 @@ class Gui ( wx.Frame ):
 		self.systemsConfigPanel.SetSizer( systemsConfigPanelSizer )
 		self.systemsConfigPanel.Layout()
 		systemsConfigPanelSizer.Fit( self.systemsConfigPanel )
-		self.m_notebook3.AddPage( self.systemsConfigPanel, u"Systems", True )
+		self.m_notebook3.AddPage( self.systemsConfigPanel, u"Systems", False )
 		self.ignoredDirsPanel = wx.Panel( self.m_notebook3, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		ignoredDirsPanelSizer = wx.BoxSizer( wx.VERTICAL )
 
