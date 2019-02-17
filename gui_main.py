@@ -11,6 +11,8 @@ class GuiInstance(Gui):
 		super().__init__(parent)
 		self.Icon = wx.Icon('gui/icon.png')
 
+	def exitButtonOnButtonClick(self, event):
+		self.Close()
 
 main_frame = GuiInstance(None)
 main_frame.Show()

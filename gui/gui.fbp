@@ -58,7 +58,7 @@
             <property name="xrc_skip_sizer">1</property>
             <object class="wxBoxSizer" expanded="1">
                 <property name="minimum_size"></property>
-                <property name="name">bSizer2</property>
+                <property name="name">guiSizer</property>
                 <property name="orient">wxVERTICAL</property>
                 <property name="permission">none</property>
                 <object class="sizeritem" expanded="1">
@@ -101,7 +101,7 @@
                         <property name="minimize_button">0</property>
                         <property name="minimum_size"></property>
                         <property name="moveable">1</property>
-                        <property name="name">m_notebook3</property>
+                        <property name="name">configNotebook</property>
                         <property name="pane_border">1</property>
                         <property name="pane_position"></property>
                         <property name="pane_size"></property>
@@ -372,7 +372,7 @@
                                             <property name="minimize_button">0</property>
                                             <property name="minimum_size"></property>
                                             <property name="moveable">1</property>
-                                            <property name="name">m_scrolledWindow1</property>
+                                            <property name="name">mainConfigScrolledWindow</property>
                                             <property name="pane_border">1</property>
                                             <property name="pane_position"></property>
                                             <property name="pane_size"></property>
@@ -649,7 +649,7 @@
                                             <property name="minimize_button">0</property>
                                             <property name="minimum_size"></property>
                                             <property name="moveable">1</property>
-                                            <property name="name">m_scrolledWindow11</property>
+                                            <property name="name">systemsConfigScrolledWindow</property>
                                             <property name="pane_border">1</property>
                                             <property name="pane_position"></property>
                                             <property name="pane_size"></property>
@@ -936,7 +936,7 @@
                                                     <property name="minimize_button">0</property>
                                                     <property name="minimum_size"></property>
                                                     <property name="moveable">1</property>
-                                                    <property name="name">m_listBox1</property>
+                                                    <property name="name">ignoredDirsList</property>
                                                     <property name="pane_border">1</property>
                                                     <property name="pane_position"></property>
                                                     <property name="pane_size"></property>
@@ -1200,6 +1200,7 @@
                                 <property name="window_extra_style"></property>
                                 <property name="window_name"></property>
                                 <property name="window_style"></property>
+                                <event name="OnButtonClick">okButtonOnButtonClick</event>
                             </object>
                         </object>
                         <object class="sizeritem" expanded="1">
@@ -1272,6 +1273,7 @@
                                 <property name="window_extra_style"></property>
                                 <property name="window_name"></property>
                                 <property name="window_style"></property>
+                                <event name="OnButtonClick">exitButtonOnButtonClick</event>
                             </object>
                         </object>
                     </object>
