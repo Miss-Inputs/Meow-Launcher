@@ -10,7 +10,7 @@ import datetime
 import launchers
 from info import emulator_command_lines
 from config import main_config
-from mame_helpers import get_mame_xml, get_mame_ui_config, consistentify_manufacturer, iter_mame_entire_xml
+from mame_helpers import get_mame_xml, get_mame_ui_config, consistentify_manufacturer, iter_mame_entire_xml, get_icons
 from mame_metadata import add_metadata
 from metadata import Metadata
 from common_types import SaveType
@@ -18,24 +18,6 @@ from common_types import SaveType
 debug = '--debug' in sys.argv
 
 icon_line_regex = re.compile(r'^icons_directory\s+(.+)$')
-
-def load_icons():
-	d = {}
-	try:
-		mame_ui_config = get_mame_ui_config()
-
-		for icon_directory in mame_ui_config.settings.get('icons_directory', []):
-			if os.path.isdir(icon_directory):
-				for icon_file in os.listdir(icon_directory):
-					name, ext = os.path.splitext(icon_file)
-					if ext == '.ico': #Perhaps should have other formats?
-						d[name] = os.path.join(icon_directory, icon_file)
-
-		return d
-	except FileNotFoundError:
-		return d
-
-icons = load_icons()
 
 licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
 licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
@@ -98,6 +80,7 @@ class Machine():
 
 	@property
 	def icon(self):
+		icons = get_icons()
 		if not icons:
 			return None
 

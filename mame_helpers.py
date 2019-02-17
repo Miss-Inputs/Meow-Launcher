@@ -235,6 +235,7 @@ class MameState():
 			self.version = self.get_version()
 			self.mame_xml_path = os.path.join(cache_dir, self.version) + '.xml' if self.have_mame else None
 			self._have_checked_mame_xml = False
+			self._icons = None
 
 		@property
 		def have_mame(self):
@@ -286,6 +287,25 @@ class MameState():
 
 			return ElementTree.fromstring(proc.stdout).find('machine')
 
+		@property
+		def icons(self):
+			if self._icons is None:
+				d = {}
+				try:
+					mame_ui_config = get_mame_ui_config()
+
+					for icon_directory in mame_ui_config.settings.get('icons_directory', []):
+						if os.path.isdir(icon_directory):
+							for icon_file in os.listdir(icon_directory):
+								name, ext = os.path.splitext(icon_file)
+								if ext == '.ico': #Perhaps should have other formats?
+									d[name] = os.path.join(icon_directory, icon_file)
+
+					self._icons = d
+				except FileNotFoundError:
+					self._icons = d
+			return self._icons
+
 	__instance = None
 
 	@staticmethod
@@ -304,6 +324,9 @@ def iter_mame_entire_xml():
 
 def get_mame_xml(driver):
 	return mame_state.get_mame_xml(driver)
+
+def get_icons():
+	return mame_state.icons
 
 def find_main_cpu(machine_xml):
 	for chip in machine_xml.findall('chip'):
