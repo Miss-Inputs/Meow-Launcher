@@ -1,5 +1,7 @@
 # Meow Launcher
 
+![Meow Launcher's logo](gui/icon.png?raw=true "Logo")
+
 Utility to create launchers for games.
 
 This readme may evolve as time goes on. It probably sucks because all single-person projects inherently will have a problem with documentation as a developer's perspective of their own software is going to be different from a hypothetical person who doesn't know its ins and outs, but also I just suck at writing. So, no need to be afraid to ask questions.
