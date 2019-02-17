@@ -21,20 +21,21 @@ def _get_vm_config(path):
 	return parser
 
 class ScummVMConfig():
+	class __ScummVMConfig():
+		def __init__(self, *args, **kwargs):
+			self.have_scummvm = os.path.isfile(scumm_config_path)
+			self.have_residualvm = os.path.isfile(residualvm_config_path)
+
+			self.scummvm_config =_get_vm_config(scumm_config_path)
+			self.residualvm_config = _get_vm_config(residualvm_config_path)
+
 	__instance = None
 
 	@staticmethod
 	def getScummVMConfig():
 		if ScummVMConfig.__instance is None:
-			ScummVMConfig.__instance = ScummVMConfig.__SteamState()
+			ScummVMConfig.__instance = ScummVMConfig.__ScummVMConfig()
 		return ScummVMConfig.__instance
-
-	def __init__(self, *args, **kwargs):
-		self.have_scummvm = os.path.isfile(scumm_config_path)
-		self.have_residualvm = os.path.isfile(residualvm_config_path)
-
-		self.scummvm_config =_get_vm_config(scumm_config_path)
-		self.residualvm_config = _get_vm_config(residualvm_config_path)
 
 vmconfig = ScummVMConfig.getScummVMConfig()
 
