@@ -38,6 +38,9 @@
     <Compile Include="dos_mac_common.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="gui\main_window.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="gui_main.py">
       <SubType>Code</SubType>
     </Compile>

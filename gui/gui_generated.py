@@ -11,10 +11,10 @@ import wx
 import wx.xrc
 
 ###########################################################################
-## Class Gui
+## Class MeowLauncherGui
 ###########################################################################
 
-class Gui ( wx.Frame ):
+class MeowLauncherGui ( wx.Frame ):
 
 	def __init__( self, parent ):
 		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = u"Meow Launcher", pos = wx.DefaultPosition, size = wx.Size( 500,300 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
@@ -49,7 +49,7 @@ class Gui ( wx.Frame ):
 		self.mainPanel.SetSizer( mainPanelSizer )
 		self.mainPanel.Layout()
 		mainPanelSizer.Fit( self.mainPanel )
-		self.configNotebook.AddPage( self.mainPanel, u"Main", False )
+		self.configNotebook.AddPage( self.mainPanel, u"Main", True )
 		self.mainConfigPanel = wx.Panel( self.configNotebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		mainConfigPanelSizer = wx.BoxSizer( wx.VERTICAL )
 
@@ -72,7 +72,7 @@ class Gui ( wx.Frame ):
 		self.mainConfigPanel.SetSizer( mainConfigPanelSizer )
 		self.mainConfigPanel.Layout()
 		mainConfigPanelSizer.Fit( self.mainConfigPanel )
-		self.configNotebook.AddPage( self.mainConfigPanel, u"Config", True )
+		self.configNotebook.AddPage( self.mainConfigPanel, u"Config", False )
 		self.systemsConfigPanel = wx.Panel( self.configNotebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		systemsConfigPanelSizer = wx.BoxSizer( wx.VERTICAL )
 
