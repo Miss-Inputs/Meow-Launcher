@@ -19,8 +19,27 @@ def _get_vm_config(path):
 	parser.optionxform = str
 	parser.read(path)
 	return parser
-scummvm_config = _get_vm_config(scumm_config_path)
-residualvm_config = _get_vm_config(residualvm_config_path)
+
+class ScummVMConfig():
+	__instance = None
+
+	@staticmethod
+	def getScummVMConfig():
+		if ScummVMConfig.__instance is None:
+			ScummVMConfig.__instance = ScummVMConfig.__SteamState()
+		return ScummVMConfig.__instance
+
+	def __init__(self, *args, **kwargs):
+		self.have_scummvm = os.path.isfile(scumm_config_path)
+		self.have_residualvm = os.path.isfile(residualvm_config_path)
+
+		self.scummvm_config =_get_vm_config(scumm_config_path)
+		self.residualvm_config = _get_vm_config(residualvm_config_path)
+
+vmconfig = ScummVMConfig.getScummVMConfig()
+
+def have_something_vm():
+	return vmconfig.have_scummvm or vmconfig.have_residualvm
 
 class ScummVMGame():
 	def __init__(self, name):
@@ -54,7 +73,16 @@ class ResidualVMGame(ScummVMGame):
 		return 'residualvm', ['-f', self.name]
 
 def no_longer_exists(game_id):
-	return game_id not in scummvm_config.sections() and game_id not in residualvm_config.sections()
+	if vmconfig.have_scummvm:
+		exists_in_scummvm = game_id in vmconfig.scummvm_config.sections()
+	else:
+		exists_in_scummvm = False
+
+	if vmconfig.have_residualvm:
+		exists_in_residualvm = game_id in vmconfig.residualvm_config.sections()
+	else:
+		exists_in_residualvm = False
+	return not (exists_in_scummvm or eexists_in_residualvm)
 
 def add_vm_games(name, config_path, vm_config, game_class):
 	if not os.path.isfile(config_path):
@@ -80,8 +108,8 @@ def add_vm_games(name, config_path, vm_config, game_class):
 
 
 def add_scummvm_games():
-	add_vm_games('ScummVM', scumm_config_path, scummvm_config, ScummVMGame)
-	add_vm_games('ResidualVM', residualvm_config_path, residualvm_config, ResidualVMGame)
+	add_vm_games('ScummVM', scumm_config_path, vmconfig.scummvm_config, ScummVMGame)
+	add_vm_games('ResidualVM', residualvm_config_path, vmconfig.residualvm_config, ResidualVMGame)
 
 if __name__ == '__main__':
 	add_scummvm_games()
