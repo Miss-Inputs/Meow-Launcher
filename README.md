@@ -1,6 +1,6 @@
 # Meow Launcher
 
-![Meow Launcher's logo](gui/icon.png?raw=true "Logo")
+<img alt="Meow Launcher's logo" src="gui/icon.png?raw=true" width="300" />
 
 Utility to create launchers for games.
 
