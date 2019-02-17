@@ -22,11 +22,11 @@ def _get_vm_config(path):
 
 class ScummVMConfig():
 	class __ScummVMConfig():
-		def __init__(self, *args, **kwargs):
+		def __init__(self):
 			self.have_scummvm = os.path.isfile(scumm_config_path)
 			self.have_residualvm = os.path.isfile(residualvm_config_path)
 
-			self.scummvm_config =_get_vm_config(scumm_config_path)
+			self.scummvm_config = _get_vm_config(scumm_config_path)
 			self.residualvm_config = _get_vm_config(residualvm_config_path)
 
 	__instance = None
@@ -83,7 +83,7 @@ def no_longer_exists(game_id):
 		exists_in_residualvm = game_id in vmconfig.residualvm_config.sections()
 	else:
 		exists_in_residualvm = False
-	return not (exists_in_scummvm or eexists_in_residualvm)
+	return not (exists_in_scummvm or exists_in_residualvm)
 
 def add_vm_games(name, config_path, vm_config, game_class):
 	if not os.path.isfile(config_path):

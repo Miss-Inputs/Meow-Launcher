@@ -10,7 +10,7 @@ import datetime
 import launchers
 from info import emulator_command_lines
 from config import main_config
-from mame_helpers import get_mame_xml, get_mame_ui_config, consistentify_manufacturer, iter_mame_entire_xml, get_icons
+from mame_helpers import get_mame_xml, consistentify_manufacturer, iter_mame_entire_xml, get_icons
 from mame_metadata import add_metadata
 from metadata import Metadata
 from common_types import SaveType

@@ -1,5 +1,3 @@
-from .gui_generated import MeowLauncherGui
-
 import os
 
 import wx
@@ -14,6 +12,8 @@ import scummvm
 import steam
 import remove_nonexistent_games
 import disambiguate
+
+from .gui_generated import MeowLauncherGui
 
 def doTheThing(mame_checked, roms_checked, dos_checked, mac_checked, scummvm_checked, steam_checked):
 	if config.main_config.full_rescan:
