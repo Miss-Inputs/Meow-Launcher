@@ -73,7 +73,7 @@ class MeowLauncherGui ( wx.Frame ):
 		self.mainPanel.SetSizer( mainPanelSizer )
 		self.mainPanel.Layout()
 		mainPanelSizer.Fit( self.mainPanel )
-		self.configNotebook.AddPage( self.mainPanel, u"Main", False )
+		self.configNotebook.AddPage( self.mainPanel, u"Main", True )
 		self.mainConfigPanel = wx.Panel( self.configNotebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		mainConfigPanelSizer = wx.BoxSizer( wx.VERTICAL )
 
@@ -158,7 +158,7 @@ class MeowLauncherGui ( wx.Frame ):
 		self.ignoredDirsPanel.SetSizer( ignoredDirsPanelSizer )
 		self.ignoredDirsPanel.Layout()
 		ignoredDirsPanelSizer.Fit( self.ignoredDirsPanel )
-		self.configNotebook.AddPage( self.ignoredDirsPanel, u"Ignored Directories", True )
+		self.configNotebook.AddPage( self.ignoredDirsPanel, u"Ignored Directories", False )
 
 		guiSizer.Add( self.configNotebook, 1, wx.ALL|wx.EXPAND, 5 )
 

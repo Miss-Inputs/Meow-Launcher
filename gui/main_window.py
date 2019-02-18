@@ -66,6 +66,7 @@ class MainWindow(MeowLauncherGui):
 	def setupStuff(self):
 		self.setupMainButtons()
 		self.setupRuntimeOptions()
+		self.loadIgnoredDirs()
 
 	def setupRuntimeOptions(self):
 		for name, opt in config.get_runtime_options().items():
@@ -87,6 +88,27 @@ class MainWindow(MeowLauncherGui):
 		for checkbox_sizer_item in self.optionsSizer.GetChildren():
 			checkbox = checkbox_sizer_item.GetWindow()
 			config.main_config.runtime_overrides[checkbox.Name] = checkbox.IsChecked()
+
+	def loadIgnoredDirs(self):
+		self.ignoredDirsList.Clear()
+		self.ignoredDirsList.AppendItems(config.main_config.ignored_directories)
+
+	def ignoredDirsAddButtonOnButtonClick(self, event):
+		with wx.DirDialog(self) as folder_chooser:
+			if folder_chooser.ShowModal() == wx.ID_OK:
+				self.ignoredDirsList.Append(folder_chooser.GetPath())
+
+	def ignoredDirsDelButtonOnButtonClick(self, event):
+		selection = self.ignoredDirsList.GetSelection()
+		if selection != wx.NOT_FOUND:
+			self.ignoredDirsList.Delete(selection)
+
+	def ignoredDirsSaveButtonOnButtonClick(self, event):
+		config.write_ignored_directories(self.ignoredDirsList.Items)
+
+	def ignoredDirsRevertButtonOnButtonClick(self, event):
+		config.main_config.reread_config()
+		self.loadIgnoredDirs()
 
 	def okButtonOnButtonClick(self, event):
 		self.loadRuntimeOptions()

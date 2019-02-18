@@ -134,7 +134,6 @@ def get_command_line_arguments():
 					d[name] = value
 	return d
 
-
 def load_ignored_directories():
 	ignored_directories = []
 
@@ -154,6 +153,15 @@ def load_ignored_directories():
 	ignored_directories = [dir if dir.endswith(os.sep) else dir + os.sep for dir in ignored_directories]
 
 	return ignored_directories
+
+def write_ignored_directories(ignored_dirs):
+	try:
+		with open(_ignored_dirs_path, 'wt') as ignored_txt:
+			for ignored_dir in ignored_dirs:
+				ignored_txt.write(ignored_dir)
+				ignored_txt.write('\n')
+	except OSError as oe:
+		print('AAaaaa!!! Failed to write ignored directories file!!', oe)
 
 class Config():
 	class __Config():
