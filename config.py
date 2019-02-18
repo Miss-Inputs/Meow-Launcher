@@ -162,7 +162,7 @@ class Config():
 					return self.runtime_overrides[name]
 				config = _config_ini_values[name]
 
-				if config.section ==runtime_option_sectionn:
+				if config.section == runtime_option_section:
 					return config.default_value
 
 				if config.section not in self.parser:
