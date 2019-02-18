@@ -13,7 +13,6 @@ from .gui_generated import MeowLauncherGui
 class MainWindow(MeowLauncherGui):
 	def __init__(self, parent):
 		super().__init__(parent)
-		self.optionsPanel = self.FindWindowByName('optionsPanel')
 		self.optionsSizer = self.optionsPanel.GetSizer() #wxFormBuilder won't put it as a property of the main window object
 		self.Icon = wx.Icon('gui/icon.png')
 		self.setupStuff()
