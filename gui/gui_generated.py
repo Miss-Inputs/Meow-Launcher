@@ -162,6 +162,24 @@ class MeowLauncherGui ( wx.Frame ):
 
 		guiSizer.Add( self.configNotebook, 1, wx.ALL|wx.EXPAND, 5 )
 
+		self.progressPanel = wx.Panel( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		progressSizer = wx.BoxSizer( wx.VERTICAL )
+
+		self.progressLabel = wx.StaticText( self.progressPanel, wx.ID_ANY, u"Ready!", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.progressLabel.Wrap( -1 )
+
+		progressSizer.Add( self.progressLabel, 0, wx.ALL, 5 )
+
+		self.progressBar = wx.Gauge( self.progressPanel, wx.ID_ANY, 9, wx.DefaultPosition, wx.DefaultSize, wx.GA_HORIZONTAL )
+		self.progressBar.SetValue( 0 )
+		progressSizer.Add( self.progressBar, 0, wx.ALL|wx.EXPAND, 5 )
+
+
+		self.progressPanel.SetSizer( progressSizer )
+		self.progressPanel.Layout()
+		progressSizer.Fit( self.progressPanel )
+		guiSizer.Add( self.progressPanel, 0, wx.EXPAND |wx.ALL, 5 )
+
 		buttonsSizer = wx.BoxSizer( wx.HORIZONTAL )
 
 		self.okButton = wx.Button( self, wx.ID_ANY, u"Go!", wx.DefaultPosition, wx.DefaultSize, 0 )
