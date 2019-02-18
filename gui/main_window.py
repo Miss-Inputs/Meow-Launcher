@@ -128,6 +128,7 @@ class MainWindow(MeowLauncherGui):
 	def on_worker_done(self, _):
 		self.okButton.Enable()
 		self.progressBar.Value = 0
+		self.progressLabel.Label = 'Ready!'
 		notification = wx.adv.NotificationMessage('Meow Launcher', 'Done creating launchers! Have fun!', self)
 		notification.Show()
 
