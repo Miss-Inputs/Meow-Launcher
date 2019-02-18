@@ -2,6 +2,7 @@ import os
 from threading import Thread
 
 import wx
+import wx.adv
 
 import config
 import mame_helpers
@@ -86,3 +87,5 @@ class MainWindow(MeowLauncherGui):
 
 	def on_worker_done(self, event):
 		self.okButton.Enable()
+		notification = wx.adv.NotificationMessage('Meow Launcher', 'Done creating launchers! Have fun!', self)
+		notification.Show()
