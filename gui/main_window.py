@@ -27,6 +27,7 @@ class MainWindow(MeowLauncherGui):
 			#TODO These might not always be bools
 			checkbox = wx.CheckBox(self.optionsPanel, name=name, label=opt.name)
 			checkbox.Value = opt.default_value
+			checkbox.SetToolTip(wx.ToolTip(opt.description))
 			self.optionsSizer.Add(checkbox, 0, wx.ALL, 5)
 
 	def setupMainButtons(self):

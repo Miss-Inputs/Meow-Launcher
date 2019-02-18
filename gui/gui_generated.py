@@ -165,9 +165,13 @@ class MeowLauncherGui ( wx.Frame ):
 		buttonsSizer = wx.BoxSizer( wx.HORIZONTAL )
 
 		self.okButton = wx.Button( self, wx.ID_ANY, u"Go!", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.okButton.SetToolTip( u"Start creating launchers" )
+
 		buttonsSizer.Add( self.okButton, 0, wx.ALIGN_BOTTOM|wx.ALL|wx.BOTTOM, 5 )
 
 		self.exitButton = wx.Button( self, wx.ID_ANY, u"Exit", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.exitButton.SetToolTip( u"Exit Meow Launcher" )
+
 		buttonsSizer.Add( self.exitButton, 0, wx.ALIGN_BOTTOM|wx.ALL, 5 )
 
 
