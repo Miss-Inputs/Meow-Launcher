@@ -36,7 +36,7 @@ def scan_app(path, exe_name, game_list, unknown_games, found_games, ambiguous_ga
 
 def scan_dos_folder(path, game_list, unknown_games, found_games, ambiguous_games):
 	for root, _, files in os.walk(path):
-		if common.starts_with_any(root + os.sep, config.ignored_directories):
+		if common.starts_with_any(root + os.sep, config.main_config.ignored_directories):
 			continue
 		for name in files:
 			ext = os.path.splitext(name)[1][1:].lower()

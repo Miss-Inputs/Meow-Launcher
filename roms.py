@@ -13,7 +13,7 @@ import launchers
 import metadata
 import io_utils
 
-from config import system_configs, ignored_directories, main_config
+from config import system_configs, main_config
 from info import system_info, emulator_info
 from common_types import EmulationNotSupportedException, NotARomException
 from roms_metadata import add_engine_metadata, add_metadata
@@ -267,7 +267,7 @@ used_m3u_filenames = []
 def process_emulated_system(system_config):
 	for rom_dir in system_config.paths:
 		for root, _, files in os.walk(rom_dir):
-			if common.starts_with_any(root + os.sep, ignored_directories):
+			if common.starts_with_any(root + os.sep, main_config.ignored_directories):
 				continue
 			for name in sorted(files, key=sort_m3u_first()):
 				path = os.path.join(root, name)

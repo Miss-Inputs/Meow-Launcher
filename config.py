@@ -135,6 +135,26 @@ def get_command_line_arguments():
 	return d
 
 
+def load_ignored_directories():
+	ignored_directories = []
+
+	try:
+		with open(_ignored_dirs_path, 'rt') as ignored_txt:
+			ignored_directories += ignored_txt.read().splitlines()
+	except FileNotFoundError:
+		pass
+
+	if '--ignored-directories' in sys.argv:
+		#TODO Move to get_command_line_arguments or otherwise somewhere else
+		index = sys.argv.index('--ignored-directories')
+		arg = sys.argv[index + 1]
+		for ignored_dir in parse_path_list(arg):
+			ignored_directories.append(ignored_dir)
+
+	ignored_directories = [dir if dir.endswith(os.sep) else dir + os.sep for dir in ignored_directories]
+
+	return ignored_directories
+
 class Config():
 	class __Config():
 		def __init__(self):
@@ -151,6 +171,8 @@ class Config():
 			self.parser = parser
 			ensure_exist(_main_config_path)
 			self.parser.read(_main_config_path)
+
+			self.ignored_directories = load_ignored_directories()
 
 		def rewrite_config(self):
 			with open(_main_config_path, 'wt') as f:
@@ -188,26 +210,6 @@ class Config():
 		return Config.__instance
 
 main_config = Config.getConfig()
-
-def load_ignored_directories():
-	ignored_directories = []
-
-	try:
-		with open(_ignored_dirs_path, 'rt') as ignored_txt:
-			ignored_directories += ignored_txt.read().splitlines()
-	except FileNotFoundError:
-		pass
-
-	if '--ignored-directories' in sys.argv:
-		index = sys.argv.index('--ignored-directories')
-		arg = sys.argv[index + 1]
-		for ignored_dir in parse_path_list(arg):
-			ignored_directories.append(ignored_dir)
-
-	ignored_directories = [dir if dir.endswith(os.sep) else dir + os.sep for dir in ignored_directories]
-
-	return ignored_directories
-ignored_directories = load_ignored_directories()
 
 def load_name_replacement():
 	#Sometimes, we want to mess around with : being in the title, so that can't be a delimiter since it needs to appear inside "keys". I'd have to restructure the whole config file to not be an .ini at all otherwise. Hopefully, nothing will have an equals sign in the title.
