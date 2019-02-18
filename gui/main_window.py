@@ -98,12 +98,12 @@ class MainWindow(MeowLauncherGui):
 	def exitButtonOnButtonClick(self, event):
 		self.Close()
 
-	def on_worker_started(self, event):
+	def on_worker_started(self, _):
 		self.okButton.Disable()
 		self.progressBar.Value = 0
 		self.progressBar.Range = self.running_game_types + 4 #For the removing of old folder, remove non-existing games, disambiguation, and organization of folders
 
-	def on_worker_done(self, event):
+	def on_worker_done(self, _):
 		self.okButton.Enable()
 		self.progressBar.Value = 0
 		notification = wx.adv.NotificationMessage('Meow Launcher', 'Done creating launchers! Have fun!', self)

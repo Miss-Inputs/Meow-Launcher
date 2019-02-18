@@ -14,7 +14,7 @@ if '--refresh-config' in sys.argv:
 
 overall_time_started = time.perf_counter()
 
-def print_callback(data, should_increment):
+def print_callback(data, _):
 	if data:
 		print(data)
 
