@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{6dec7b1a-b405-4747-9037-c478e6016a2f}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>main.py</StartupFile>
+    <StartupFile>cli_main.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -68,7 +68,10 @@
     <Compile Include="mac.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="main.py" />
+    <Compile Include="cli_main.py" />
+    <Compile Include="main.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="mame_helpers.py">
       <SubType>Code</SubType>
     </Compile>

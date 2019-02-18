@@ -1,55 +1,40 @@
-#!/usr/bin/env python3
-
-import datetime
-import time
 import os
-import sys
 
-import roms
+import config
+import dos
+import mac
 import mame_machines
+import roms
+import scummvm
+import steam
+import remove_nonexistent_games
 import disambiguate
 import organize_folders
-import mac
-import scummvm
-import dos
-import remove_nonexistent_games
-import steam
-from mame_helpers import have_mame
 
-from config import main_config
+def main(mame_enabled, roms_enabled, dos_enabled, mac_enabled, scummvm_enabled, steam_enabled):
+	if config.main_config.full_rescan:
+		if os.path.isdir(config.main_config.output_folder):
+			for f in os.listdir(config.main_config.output_folder):
+				os.unlink(os.path.join(config.main_config.output_folder, f))
+	os.makedirs(config.main_config.output_folder, exist_ok=True)
 
-if '--refresh-config' in sys.argv:
-	#TODO: Do this on first run... or is that a bad idea
-	exit()
+	if mame_enabled:
+		mame_machines.process_arcade()
+	if roms_enabled:
+		roms.process_systems()
+	if mac_enabled:
+		mac.make_mac_launchers()
+	if dos_enabled:
+		dos.make_dos_launchers()
+	if scummvm_enabled:
+		scummvm.add_scummvm_games()
+	if steam_enabled:
+		steam.process_steam()
 
-overall_time_started = time.perf_counter()
+	if not config.main_config.full_rescan:
+		remove_nonexistent_games.remove_nonexistent_games()
 
-if main_config.full_rescan:
-	if os.path.isdir(main_config.output_folder):
-		for f in os.listdir(main_config.output_folder):
-			os.unlink(os.path.join(main_config.output_folder, f))
-os.makedirs(main_config.output_folder, exist_ok=True)
+	disambiguate.disambiguate_names()
 
-if '--no-arcade' not in sys.argv and have_mame():
-	mame_machines.process_arcade()
-
-roms.process_systems()
-
-mac.make_mac_launchers()
-dos.make_dos_launchers()
-
-scummvm.add_scummvm_games()
-
-steam.process_steam()
-
-if not main_config.full_rescan:
-	remove_nonexistent_games.remove_nonexistent_games()
-
-disambiguate.disambiguate_names()
-
-if main_config.organize_folders:
-	organize_folders.move_into_folders()
-
-if main_config.print_times:
-	overall_time_ended = time.perf_counter()
-	print('Whole thing finished in', str(datetime.timedelta(seconds=overall_time_ended - overall_time_started)))
+	if config.main_config.organize_folders:
+		organize_folders.move_into_folders()
