@@ -69,7 +69,7 @@ class ConfigValue():
 		self.name = name #This is for humans to read!
 		self.description = description
 
-command_line_section = '<command line section>'
+runtime_option_section = '<runtime option section>'
 
 _config_ini_values = {
 	'output_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'apps'), 'Output folder', 'Folder to put launchers'),
@@ -91,17 +91,17 @@ _config_ini_values = {
 	#TODO: Should be in specific_config as it is inherently specific to the emulator (DOSBox) and not the platform
 	'dosbox_configs_path': ConfigValue('DOS', ConfigValueType.Path, os.path.join(_data_dir, 'dosbox_configs'), 'DOSBox configs path', 'Folder to store DOSBox per-application configuration files'),
 
-	#Command line arguments shouldn't end up in config.ini
-	'debug': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Debug', 'Enable debug mode, which is really verbose mode, oh well'),
-	'print_times': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Print times', 'Print how long it takes to do things'),
-	'full_rescan': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Full rescan', 'Regenerate every launcher from scratch instead of just what\'s new and removing what\'s no longer there'),
-	'organize_folders': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Organize folders', 'Use the organized folders frontend'),
-	'extra_folders': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Extra folders', 'Create additional folders for organized folders frontend beyond the usual')
+	#These shouldn't end up in config.ini as they're intended to be set per-run
+	'debug': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Debug', 'Enable debug mode, which is really verbose mode, oh well'),
+	'print_times': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Print times', 'Print how long it takes to do things'),
+	'full_rescan': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Full rescan', 'Regenerate every launcher from scratch instead of just what\'s new and removing what\'s no longer there'),
+	'organize_folders': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Organize folders', 'Use the organized folders frontend'),
+	'extra_folders': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Extra folders', 'Create additional folders for organized folders frontend beyond the usual')
 }
 #Hmm... debug could be called 'verbose' and combined with --super_debug used in disambiguate to become verbosity_level or just verbose for short, which could have an integer argument, and it _could_ be in config.ini I guess... ehh whatevs
 
 def get_runtime_options():
-	return {name: opt for name, opt in _config_ini_values.items() if opt.section == command_line_section}
+	return {name: opt for name, opt in _config_ini_values.items() if opt.section == runtime_option_section}
 
 def get_command_line_arguments():
 	d = {}
@@ -162,7 +162,7 @@ class Config():
 					return self.runtime_overrides[name]
 				config = _config_ini_values[name]
 
-				if config.section == command_line_section:
+				if config.section ==runtime_option_sectionn:
 					return config.default_value
 
 				if config.section not in self.parser:
