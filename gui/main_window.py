@@ -46,7 +46,7 @@ class WorkerThread(Thread):
 	def run(self):
 		start_event = StartWorkEvent()
 		wx.PostEvent(self.wx_object, start_event)
-		main.main(lambda data, should_increment: self.send_progress_event(data, should_increment), *self.enabled_state)
+		main.main(self.send_progress_event, *self.enabled_state)
 		done_event = WorkDoneEvent()
 		wx.PostEvent(self.wx_object, done_event)
 
