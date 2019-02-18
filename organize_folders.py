@@ -132,7 +132,7 @@ def move_into_subfolders(path):
 	move_into_extra_subfolder(path, desktop, 'By platform and year', ['Platform', 'Year'], False)
 	move_into_extra_subfolder(path, desktop, 'Is NSFW', 'NSFW', True)
 
-	if '--extra-folders' in sys.argv:
+	if main_config.extra_folders:
 		if len(languages) == 1:
 			copy_to_folder(path, main_config.organized_output_folder, 'By language', sanitize_name(languages[0]) + ' only')
 

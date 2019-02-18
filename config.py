@@ -96,6 +96,7 @@ _config_ini_values = {
 	'print_times': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Print times', 'Print how long it takes to do things'),
 	'full_rescan': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Full rescan', 'Regenerate every launcher from scratch instead of just what\'s new and removing what\'s no longer there'),
 	'organize_folders': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Organize folders', 'Use the organized folders frontend'),
+	'extra_folders': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Extra folders', 'Create additional folders for organized folders frontend beyond the usual')
 }
 #Hmm... debug could be called 'verbose' and combined with --super_debug used in disambiguate to become verbosity_level or just verbose for short, which could have an integer argument, and it _could_ be in config.ini I guess... ehh whatevs
 
