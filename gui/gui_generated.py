@@ -27,47 +27,39 @@ class MeowLauncherGui ( wx.Frame ):
 		self.mainPanel = wx.Panel( self.configNotebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		mainPanelSizer = wx.BoxSizer( wx.HORIZONTAL )
 
-		self.gameTypesPanel = wx.Panel( self.mainPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.BORDER_THEME|wx.TAB_TRAVERSAL, u"Game types" )
-		gameTypesSizer = wx.BoxSizer( wx.VERTICAL )
+		gameTypesSizer = wx.StaticBoxSizer( wx.StaticBox( self.mainPanel, wx.ID_ANY, u"Game Types" ), wx.VERTICAL )
 
-		self.mameMachineCheckBox = wx.CheckBox( self.gameTypesPanel, wx.ID_ANY, u"MAME machines", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.mameMachineCheckBox = wx.CheckBox( gameTypesSizer.GetStaticBox(), wx.ID_ANY, u"MAME machines", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.mameMachineCheckBox.SetValue(True)
 		gameTypesSizer.Add( self.mameMachineCheckBox, 0, wx.ALL, 5 )
 
-		self.romsCheckBox = wx.CheckBox( self.gameTypesPanel, wx.ID_ANY, u"Roms", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.romsCheckBox = wx.CheckBox( gameTypesSizer.GetStaticBox(), wx.ID_ANY, u"Roms", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.romsCheckBox.SetValue(True)
 		gameTypesSizer.Add( self.romsCheckBox, 0, wx.ALL, 5 )
 
-		self.dosCheckBox = wx.CheckBox( self.gameTypesPanel, wx.ID_ANY, u"DOS", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.dosCheckBox = wx.CheckBox( gameTypesSizer.GetStaticBox(), wx.ID_ANY, u"DOS", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.dosCheckBox.SetValue(True)
 		gameTypesSizer.Add( self.dosCheckBox, 0, wx.ALL, 5 )
 
-		self.macCheckBox = wx.CheckBox( self.gameTypesPanel, wx.ID_ANY, u"Mac", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.macCheckBox = wx.CheckBox( gameTypesSizer.GetStaticBox(), wx.ID_ANY, u"Mac", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.macCheckBox.SetValue(True)
 		gameTypesSizer.Add( self.macCheckBox, 0, wx.ALL, 5 )
 
-		self.scummvmCheckBox = wx.CheckBox( self.gameTypesPanel, wx.ID_ANY, u"ScummVM", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.scummvmCheckBox = wx.CheckBox( gameTypesSizer.GetStaticBox(), wx.ID_ANY, u"ScummVM", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.scummvmCheckBox.SetValue(True)
 		gameTypesSizer.Add( self.scummvmCheckBox, 0, wx.ALL, 5 )
 
-		self.steamCheckBox = wx.CheckBox( self.gameTypesPanel, wx.ID_ANY, u"Steam", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.steamCheckBox = wx.CheckBox( gameTypesSizer.GetStaticBox(), wx.ID_ANY, u"Steam", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.steamCheckBox.SetValue(True)
 		gameTypesSizer.Add( self.steamCheckBox, 0, wx.ALL, 5 )
 
 
-		self.gameTypesPanel.SetSizer( gameTypesSizer )
-		self.gameTypesPanel.Layout()
-		gameTypesSizer.Fit( self.gameTypesPanel )
-		mainPanelSizer.Add( self.gameTypesPanel, 1, wx.EXPAND |wx.ALL, 5 )
+		mainPanelSizer.Add( gameTypesSizer, 1, wx.EXPAND, 5 )
 
-		self.optionsPanel = wx.Panel( self.mainPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.BORDER_THEME|wx.TAB_TRAVERSAL, u"Options" )
-		optionsSizer = wx.BoxSizer( wx.VERTICAL )
+		optionsSizer = wx.StaticBoxSizer( wx.StaticBox( self.mainPanel, wx.ID_ANY, u"Options" ), wx.VERTICAL )
 
 
-		self.optionsPanel.SetSizer( optionsSizer )
-		self.optionsPanel.Layout()
-		optionsSizer.Fit( self.optionsPanel )
-		mainPanelSizer.Add( self.optionsPanel, 1, wx.EXPAND |wx.ALL, 5 )
+		mainPanelSizer.Add( optionsSizer, 1, wx.EXPAND, 5 )
 
 
 		self.mainPanel.SetSizer( mainPanelSizer )
