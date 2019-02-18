@@ -58,7 +58,7 @@ class MainWindow(MeowLauncherGui):
 			#TODO These might not always be bools
 			checkbox = wx.CheckBox(self.optionsPanel, name=name, label=opt.name)
 			checkbox.Value = opt.default_value
-			self.optionsSizer.Add(checkbox)
+			self.optionsSizer.Add(checkbox, 0, wx.ALL, 5)
 
 	def setupMainButtons(self):
 		self.mameMachineCheckBox.Enabled = mame_helpers.have_mame()
