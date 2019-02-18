@@ -47,7 +47,7 @@ if not main_config.full_rescan:
 
 disambiguate.disambiguate_names()
 
-if '--organize-folders' in sys.argv:
+if main_config.organize_folders:
 	organize_folders.move_into_folders()
 
 if main_config.print_times:

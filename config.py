@@ -73,7 +73,7 @@ command_line_section = '<command line section>'
 
 _config_ini_values = {
 	'output_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'apps'), 'Output folder', 'Folder to put launchers'),
-	'organized_output_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'organized_apps'), 'Organized output folder', 'Folder to put folders with organized launchers using --organize-folders'),
+	'organized_output_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'organized_apps'), 'Organized output folder', 'Folder to put subfolders in for the organized folders frontend'),
 	'image_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'images'), 'Image folder', 'Folder to store images extracted from games with embedded images'),
 
 	'catlist_path': ConfigValue('Arcade', ConfigValueType.Path, None, 'catlist.ini path', 'Path to MAME catlist.ini'),
@@ -95,6 +95,7 @@ _config_ini_values = {
 	'debug': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Debug', 'Enable debug mode, which is really verbose mode, oh well'),
 	'print_times': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Print times', 'Print how long it takes to do things'),
 	'full_rescan': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Full rescan', 'Regenerate every launcher from scratch instead of just what\'s new and removing what\'s no longer there'),
+	'organize_folders': ConfigValue(command_line_section, ConfigValueType.Bool, False, 'Organize folders', 'Use the organized folders frontend'),
 }
 #Hmm... debug could be called 'verbose' and combined with --super_debug used in disambiguate to become verbosity_level or just verbose for short, which could have an integer argument, and it _could_ be in config.ini I guess... ehh whatevs
 

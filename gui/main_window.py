@@ -12,6 +12,7 @@ import scummvm
 import steam
 import remove_nonexistent_games
 import disambiguate
+import organize_folders
 
 from .gui_generated import MeowLauncherGui
 
@@ -39,6 +40,9 @@ def doTheThing(mame_checked, roms_checked, dos_checked, mac_checked, scummvm_che
 		remove_nonexistent_games.remove_nonexistent_games()
 
 	disambiguate.disambiguate_names()
+
+	if config.main_config.organize_folders:
+		organize_folders.move_into_folders()
 
 class MainWindow(MeowLauncherGui):
 	def __init__(self, parent):
