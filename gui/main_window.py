@@ -44,11 +44,22 @@ def doTheThing(mame_checked, roms_checked, dos_checked, mac_checked, scummvm_che
 class MainWindow(MeowLauncherGui):
 	def __init__(self, parent):
 		super().__init__(parent)
+		self.optionsPanel = self.FindWindowByName('optionsPanel')
+		self.optionsSizer = self.optionsPanel.GetSizer() #wxFormBuilder won't put it as a property of the main window object
+		print(self.optionsSizer)
 		self.Icon = wx.Icon('gui/icon.png')
 		self.setupStuff()
 
 	def setupStuff(self):
 		self.setupMainButtons()
+		self.setupRuntimeOptions()
+
+	def setupRuntimeOptions(self):
+		for name, opt in config.get_runtime_options().items():
+			#TODO These might not always be bools
+			checkbox = wx.CheckBox(self.optionsPanel, name=name, label=opt.name)
+			checkbox.Value = opt.default_value
+			self.optionsSizer.Add(checkbox)
 
 	def setupMainButtons(self):
 		self.mameMachineCheckBox.Enabled = mame_helpers.have_mame()

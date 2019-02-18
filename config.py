@@ -98,6 +98,9 @@ _config_ini_values = {
 }
 #Hmm... debug could be called 'verbose' and combined with --super_debug used in disambiguate to become verbosity_level or just verbose for short, which could have an integer argument, and it _could_ be in config.ini I guess... ehh whatevs
 
+def get_runtime_options():
+	return {name: opt for name, opt in _config_ini_values.items() if opt.section == command_line_section}
+
 def get_command_line_arguments():
 	d = {}
 	for i, arg in enumerate(sys.argv):

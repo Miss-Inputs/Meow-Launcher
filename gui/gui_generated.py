@@ -56,10 +56,14 @@ class MeowLauncherGui ( wx.Frame ):
 
 		mainPanelSizer.Add( gameTypesSizer, 1, wx.EXPAND, 5 )
 
-		optionsSizer = wx.StaticBoxSizer( wx.StaticBox( self.mainPanel, wx.ID_ANY, u"Options" ), wx.VERTICAL )
+		self.optionsPanel = wx.Panel( self.mainPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL, u"optionsPanel" )
+		optionsSizer = wx.StaticBoxSizer( wx.StaticBox( self.optionsPanel, wx.ID_ANY, u"Options" ), wx.VERTICAL )
 
 
-		mainPanelSizer.Add( optionsSizer, 1, wx.EXPAND, 5 )
+		self.optionsPanel.SetSizer( optionsSizer )
+		self.optionsPanel.Layout()
+		optionsSizer.Fit( self.optionsPanel )
+		mainPanelSizer.Add( self.optionsPanel, 1, wx.EXPAND |wx.ALL, 5 )
 
 
 		self.mainPanel.SetSizer( mainPanelSizer )
