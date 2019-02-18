@@ -44,10 +44,10 @@
             <property name="hidden">0</property>
             <property name="id">wxID_ANY</property>
             <property name="maximum_size"></property>
-            <property name="minimum_size"></property>
+            <property name="minimum_size">640,480</property>
             <property name="name">MeowLauncherGui</property>
             <property name="pos"></property>
-            <property name="size">700,500</property>
+            <property name="size">640,480</property>
             <property name="style">wxDEFAULT_FRAME_STYLE</property>
             <property name="subclass">; ; forward_declare</property>
             <property name="title">Meow Launcher</property>
