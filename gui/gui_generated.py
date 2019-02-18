@@ -27,7 +27,8 @@ class MeowLauncherGui ( wx.Frame ):
 		self.mainPanel = wx.Panel( self.configNotebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		mainPanelSizer = wx.BoxSizer( wx.HORIZONTAL )
 
-		gameTypesSizer = wx.StaticBoxSizer( wx.StaticBox( self.mainPanel, wx.ID_ANY, u"Game Types" ), wx.VERTICAL )
+		self.gameTypesPanel = wx.Panel( self.mainPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL, u"gameTypesPanel" )
+		gameTypesSizer = wx.StaticBoxSizer( wx.StaticBox( self.gameTypesPanel, wx.ID_ANY, u"Game Types" ), wx.VERTICAL )
 
 		self.mameMachineCheckBox = wx.CheckBox( gameTypesSizer.GetStaticBox(), wx.ID_ANY, u"MAME machines", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.mameMachineCheckBox.SetValue(True)
@@ -54,7 +55,10 @@ class MeowLauncherGui ( wx.Frame ):
 		gameTypesSizer.Add( self.steamCheckBox, 0, wx.ALL, 5 )
 
 
-		mainPanelSizer.Add( gameTypesSizer, 1, wx.EXPAND, 5 )
+		self.gameTypesPanel.SetSizer( gameTypesSizer )
+		self.gameTypesPanel.Layout()
+		gameTypesSizer.Fit( self.gameTypesPanel )
+		mainPanelSizer.Add( self.gameTypesPanel, 1, wx.EXPAND |wx.ALL, 5 )
 
 		self.optionsPanel = wx.Panel( self.mainPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL, u"optionsPanel" )
 		optionsSizer = wx.StaticBoxSizer( wx.StaticBox( self.optionsPanel, wx.ID_ANY, u"Options" ), wx.VERTICAL )

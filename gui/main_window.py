@@ -46,7 +46,6 @@ class MainWindow(MeowLauncherGui):
 		super().__init__(parent)
 		self.optionsPanel = self.FindWindowByName('optionsPanel')
 		self.optionsSizer = self.optionsPanel.GetSizer() #wxFormBuilder won't put it as a property of the main window object
-		print(self.optionsSizer)
 		self.Icon = wx.Icon('gui/icon.png')
 		self.setupStuff()
 
