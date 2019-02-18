@@ -40,7 +40,6 @@ def doTheThing(mame_checked, roms_checked, dos_checked, mac_checked, scummvm_che
 
 	disambiguate.disambiguate_names()
 
-
 class MainWindow(MeowLauncherGui):
 	def __init__(self, parent):
 		super().__init__(parent)
@@ -68,7 +67,13 @@ class MainWindow(MeowLauncherGui):
 		self.scummvmCheckBox.Enabled = scummvm.have_something_vm()
 		self.steamCheckBox.Enabled = steam.is_steam_available()
 
+	def loadRuntimeOptions(self):
+		for checkbox_sizer_item in self.optionsSizer.GetChildren():
+			checkbox = checkbox_sizer_item.GetWindow()
+			config.main_config.runtime_overrides[checkbox.Name] = checkbox.IsChecked()
+
 	def okButtonOnButtonClick(self, event):
+		self.loadRuntimeOptions()
 		doTheThing(self.mameMachineCheckBox.IsChecked(), self.romsCheckBox.IsChecked(), self.dosCheckBox.IsChecked(), self.macCheckBox.IsChecked(), self.scummvmCheckBox.IsChecked(), self.steamCheckBox.IsChecked())
 
 	def exitButtonOnButtonClick(self, event):

@@ -140,8 +140,10 @@ class Config():
 			for name, config in _config_ini_values.items():
 				self.values[name] = config.default_value
 
-			self.command_line_overrides = get_command_line_arguments()
+			self.runtime_overrides = get_command_line_arguments()
+			self.reread_config()
 
+		def reread_config(self):
 			parser = configparser.ConfigParser(interpolation=None)
 			parser.optionxform = str
 			self.parser = parser
@@ -154,8 +156,8 @@ class Config():
 
 		def __getattr__(self, name):
 			if name in self.values:
-				if name in self.command_line_overrides:
-					return self.command_line_overrides[name]
+				if name in self.runtime_overrides:
+					return self.runtime_overrides[name]
 				config = _config_ini_values[name]
 
 				if config.section == command_line_section:
