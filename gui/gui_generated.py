@@ -73,7 +73,7 @@ class MeowLauncherGui ( wx.Frame ):
 		self.mainPanel.SetSizer( mainPanelSizer )
 		self.mainPanel.Layout()
 		mainPanelSizer.Fit( self.mainPanel )
-		self.configNotebook.AddPage( self.mainPanel, u"Main", True )
+		self.configNotebook.AddPage( self.mainPanel, u"Main", False )
 		self.mainConfigPanel = wx.Panel( self.configNotebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		mainConfigPanelSizer = wx.BoxSizer( wx.VERTICAL )
 
@@ -158,7 +158,7 @@ class MeowLauncherGui ( wx.Frame ):
 		self.ignoredDirsPanel.SetSizer( ignoredDirsPanelSizer )
 		self.ignoredDirsPanel.Layout()
 		ignoredDirsPanelSizer.Fit( self.ignoredDirsPanel )
-		self.configNotebook.AddPage( self.ignoredDirsPanel, u"Ignored Directories", False )
+		self.configNotebook.AddPage( self.ignoredDirsPanel, u"Ignored Directories", True )
 
 		guiSizer.Add( self.configNotebook, 1, wx.ALL|wx.EXPAND, 5 )
 
@@ -202,6 +202,14 @@ class MeowLauncherGui ( wx.Frame ):
 		self.Centre( wx.BOTH )
 
 		# Connect Events
+		self.mainSaveButton.Bind( wx.EVT_BUTTON, self.mainSaveButtonOnButtonClick )
+		self.mainRevertButton.Bind( wx.EVT_BUTTON, self.mainRevertButtonOnButtonClick )
+		self.systemsSaveButton.Bind( wx.EVT_BUTTON, self.systemsSaveButtonOnButtonClick )
+		self.systemsRevertButton.Bind( wx.EVT_BUTTON, self.systemsRevertButtonOnButtonClick )
+		self.ignoredDirsSaveButton.Bind( wx.EVT_BUTTON, self.ignoredDirsSaveButtonOnButtonClick )
+		self.ignoredDirsRevertButton.Bind( wx.EVT_BUTTON, self.ignoredDirsRevertButtonOnButtonClick )
+		self.ignoredDirsAddButton.Bind( wx.EVT_BUTTON, self.ignoredDirsAddButtonOnButtonClick )
+		self.ignoredDirsDelButton.Bind( wx.EVT_BUTTON, self.ignoredDirsDelButtonOnButtonClick )
 		self.okButton.Bind( wx.EVT_BUTTON, self.okButtonOnButtonClick )
 		self.exitButton.Bind( wx.EVT_BUTTON, self.exitButtonOnButtonClick )
 
@@ -210,6 +218,30 @@ class MeowLauncherGui ( wx.Frame ):
 
 
 	# Virtual event handlers, overide them in your derived class
+	def mainSaveButtonOnButtonClick( self, event ):
+		event.Skip()
+
+	def mainRevertButtonOnButtonClick( self, event ):
+		event.Skip()
+
+	def systemsSaveButtonOnButtonClick( self, event ):
+		event.Skip()
+
+	def systemsRevertButtonOnButtonClick( self, event ):
+		event.Skip()
+
+	def ignoredDirsSaveButtonOnButtonClick( self, event ):
+		event.Skip()
+
+	def ignoredDirsRevertButtonOnButtonClick( self, event ):
+		event.Skip()
+
+	def ignoredDirsAddButtonOnButtonClick( self, event ):
+		event.Skip()
+
+	def ignoredDirsDelButtonOnButtonClick( self, event ):
+		event.Skip()
+
 	def okButtonOnButtonClick( self, event ):
 		event.Skip()
 
