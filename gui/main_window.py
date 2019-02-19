@@ -105,6 +105,7 @@ class MainWindow(MeowLauncherGui):
 
 	def ignoredDirsSaveButtonOnButtonClick(self, event):
 		config.write_ignored_directories(self.ignoredDirsList.Items)
+		config.main_config.reread_config()
 
 	def ignoredDirsRevertButtonOnButtonClick(self, event):
 		config.main_config.reread_config()
