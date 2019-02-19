@@ -50,6 +50,36 @@ class WorkerThread(Thread):
 		done_event = WorkDoneEvent()
 		wx.PostEvent(self.wx_object, done_event)
 
+def create_editor_for_config(parent, config_name, config_value, current_value):
+	if config_value.type == config.ConfigValueType.Bool:
+		check_box = wx.CheckBox(parent, label=config_value.name, name=config_name)
+		check_box.Value = current_value
+		check_box.SetToolTip(config_value.description)
+		return check_box
+	elif config_value.type == config.ConfigValueType.String:
+		sizer = wx.BoxSizer(wx.VERTICAL)
+		label = wx.StaticText(parent, label=config_value.name)
+		sizer.Add(label, 0, wx.ALL, 2)
+		text_editor = wx.TextCtrl(parent, name=config_name)
+		text_editor.Value = current_value
+		text_editor.SetToolTip(config_value.description)
+		sizer.Add(text_editor, 0, wx.ALL | wx.EXPAND, 2)
+		return sizer
+	elif config_value.type == config.ConfigValueType.Path:
+		sizer = wx.BoxSizer(wx.VERTICAL)
+		label = wx.StaticText(parent, label=config_value.name)
+		sizer.Add(label, 0, wx.ALL, 2)
+		picker = wx.FilePickerCtrl(parent, name=config_name, style=wx.FLP_DEFAULT_STYLE | wx.FLP_USE_TEXTCTRL)
+		picker.Path = current_value
+		picker.SetToolTip(config_value.description)
+		sizer.Add(picker, 0, wx.ALL | wx.EXPAND, 2)
+		return sizer
+	#elif config_value.type == config.ConfigValueType.StringList:
+	#	return None
+	#elif config_value.type == config.ConfigValueType.PathList:
+	#	return None
+	return None
+
 class MainWindow(MeowLauncherGui):
 	def __init__(self, parent):
 		super().__init__(parent)
@@ -66,15 +96,25 @@ class MainWindow(MeowLauncherGui):
 	def setupStuff(self):
 		self.setupMainButtons()
 		self.setupRuntimeOptions()
+		self.setupMainConfigOptions()
 		self.loadIgnoredDirs()
 
 	def setupRuntimeOptions(self):
 		for name, opt in config.get_runtime_options().items():
-			#TODO These might not always be bools
-			checkbox = wx.CheckBox(self.optionsPanel, name=name, label=opt.name)
-			checkbox.Value = opt.default_value
-			checkbox.SetToolTip(wx.ToolTip(opt.description))
-			self.optionsSizer.Add(checkbox, 0, wx.ALL, 5)
+			editor = create_editor_for_config(self.optionsPanel, name, opt, opt.default_value)
+			if editor:
+				self.optionsSizer.Add(editor, 0, wx.ALL, 5)
+
+	def setupMainConfigOptions(self):
+		for section, configs in config.get_config_ini_options().items():
+			sizer = wx.StaticBoxSizer(wx.VERTICAL, self.mainConfigScrolledWindow, label=section)
+			for name, config_value in configs.items():
+				print(section, name, config_value.name, config_value.type, config_value.description, config_value.default_value)
+				editor = create_editor_for_config(sizer.GetStaticBox(), name, config_value, getattr(config.main_config, name))
+				if editor:
+					sizer.Add(editor, 0, wx.ALL | wx.EXPAND, 2)
+					sizer.Add(wx.StaticLine(sizer.GetStaticBox()), 0, wx.ALL | wx.EXPAND, 2)
+			self.mainConfigScrolledWindow.GetSizer().Add(sizer, 0, wx.ALL | wx.EXPAND, 5)
 
 	def setupMainButtons(self):
 		self.mameMachineCheckBox.Enabled = mame_helpers.have_mame()

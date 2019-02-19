@@ -100,6 +100,16 @@ _config_ini_values = {
 }
 #Hmm... debug could be called 'verbose' and combined with --super_debug used in disambiguate to become verbosity_level or just verbose for short, which could have an integer argument, and it _could_ be in config.ini I guess... ehh whatevs
 
+def get_config_ini_options():
+	opts = {}
+	for k, v in _config_ini_values.items():
+		if v.section == runtime_option_section:
+			continue
+		if v.section not in opts:
+			opts[v.section] = {}
+		opts[v.section][k] = v
+	return opts
+
 def get_runtime_options():
 	return {name: opt for name, opt in _config_ini_values.items() if opt.section == runtime_option_section}
 

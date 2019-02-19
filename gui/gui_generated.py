@@ -88,8 +88,14 @@ class MeowLauncherGui ( wx.Frame ):
 
 		mainConfigPanelSizer.Add( mainButtonsSizer, 0, wx.EXPAND, 5 )
 
-		self.mainConfigScrolledWindow = wx.ScrolledWindow( self.mainConfigPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.BORDER_THEME|wx.HSCROLL|wx.VSCROLL )
+		self.mainConfigScrolledWindow = wx.ScrolledWindow( self.mainConfigPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.BORDER_DEFAULT|wx.BORDER_THEME|wx.HSCROLL|wx.VSCROLL )
 		self.mainConfigScrolledWindow.SetScrollRate( 5, 5 )
+		mainConfigScrolledWindowSizer = wx.BoxSizer( wx.VERTICAL )
+
+
+		self.mainConfigScrolledWindow.SetSizer( mainConfigScrolledWindowSizer )
+		self.mainConfigScrolledWindow.Layout()
+		mainConfigScrolledWindowSizer.Fit( self.mainConfigScrolledWindow )
 		mainConfigPanelSizer.Add( self.mainConfigScrolledWindow, 1, wx.EXPAND |wx.ALL, 5 )
 
 
