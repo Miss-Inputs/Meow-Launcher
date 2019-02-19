@@ -140,7 +140,7 @@ class MainWindow(MeowLauncherGui):
 
 	def mainRevertButtonOnButtonClick(self, event):
 		config.main_config.reread_config()
-		for k, v in config.get_config_ini_options().items():
+		for v in config.get_config_ini_options().values():
 			for name, config_item in v.items():
 				control = self.mainConfigScrolledWindow.FindWindowByName(name)
 				current_value = getattr(config.main_config, name)
