@@ -118,7 +118,6 @@ class MainWindow(MeowLauncherGui):
 				editor = create_editor_for_config(sizer.GetStaticBox(), name, config_value, getattr(config.main_config, name))
 				if editor:
 					sizer.Add(editor, 0, wx.ALL | wx.EXPAND, 2)
-					#sizer.Add(wx.StaticLine(sizer.GetStaticBox()), 0, wx.ALL | wx.EXPAND, 2)
 			self.mainConfigScrolledWindow.GetSizer().Add(sizer, 0, wx.ALL | wx.EXPAND, 5)
 
 	def setupMainButtons(self):
