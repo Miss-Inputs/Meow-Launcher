@@ -29,7 +29,7 @@ def mame_command_line(driver, slot=None, slot_options=None, has_keyboard=False, 
 	if slot_options:
 		for name, value in slot_options.items():
 			if not value:
-				value = '""'
+				value = ''
 			args.append('-' + name)
 			args.append(value)
 
@@ -116,7 +116,7 @@ def mame_vic_20(game, _):
 	else:
 		system = 'vic20'
 
-	return mame_command_line(system, 'cart', {'iec8': '""'}, has_keyboard=True)
+	return mame_command_line(system, 'cart', {'iec8': ''}, has_keyboard=True)
 
 def mame_atari_8bit(game, _):
 	if game.metadata.specific_info.get('Headered', False):
@@ -184,7 +184,7 @@ def mame_c64(game, _):
 		raise EmulationNotSupportedException('%s cart not supported' % cart_type_name)
 
 	system = _find_c64_system(game)
-	return mame_command_line(system, 'cart', {'joy1': 'joybstr', 'joy2': 'joybstr', 'iec8': '""'}, True)
+	return mame_command_line(system, 'cart', {'joy1': 'joybstr', 'joy2': 'joybstr', 'iec8': ''}, True)
 
 def _verify_supported_mappers(game, supported_mappers, detected_mappers):
 	mapper = game.metadata.specific_info.get('Mapper', None)

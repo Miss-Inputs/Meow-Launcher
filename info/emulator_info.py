@@ -135,9 +135,9 @@ emulators = {
 	'MAME (Master System)': MameSystem(command_lines.mame_master_system, ['bin', 'sms']),
 	'MAME (Mattel Juice Box)': MameSystem(command_lines.mame_command_line('juicebox', 'memcard'), ['smc']),
 	'MAME (Mega Duck)': MameSystem(command_lines.mame_command_line('megaduck', 'cart'), ['bin']),
-	'MAME (MSX)': MameSystem(command_lines.mame_command_line('svi738', 'cart1', {'fdc:0': '""'}, has_keyboard=True), ['bin', 'rom']),
+	'MAME (MSX)': MameSystem(command_lines.mame_command_line('svi738', 'cart1', {'fdc:0': ''}, has_keyboard=True), ['bin', 'rom']),
 	#Note that MSX2 is backwards compatible anyway, so there's not much reason to use this, unless you do have some reason. This model in particular is used because it should be completely in English and if anything goes wrong I'd be able to understand it. I still don't know how disks work (they don't autoboot), or if there's even a consistent command to use to boot them.
-	'MAME (MSX2)': MameSystem(command_lines.mame_command_line('fsa1wsx', 'cart1', {'fdc:0': '""'}, has_keyboard=True), ['bin', 'rom']),
+	'MAME (MSX2)': MameSystem(command_lines.mame_command_line('fsa1wsx', 'cart1', {'fdc:0': ''}, has_keyboard=True), ['bin', 'rom']),
 	#This includes MSX2+ because do you really want me to make those two separate things? Turbo-R doesn't work in MAME though, so that'd have to be its own thing. This model is used just because I looked it up and it seems like the best one, the MSX2/MSX2+ systems in MAME are all in Japanese (the systems were only really released in Japan, after all) so you can't avoid that part. Still don't understand disks.
 	'MAME (Neo Geo CD)': MameSystem(command_lines.mame_command_line('neocdz', 'cdrom'), mame_cdrom_formats),
 	#Don't think it has region lock so I should never need to use neocdzj? (neocd doesn't work, apparently because it thinks it has the drive tray open constantly)
@@ -150,7 +150,7 @@ emulators = {
 	#x1turbo doesn't work, and I'm not sure what running x1 over x1turbo40 would achieve
 	'MAME (SNES)': MameSystem(command_lines.mame_snes, ['sfc', 'bs', 'st']),
 	#The main advantage here is that it supports multi-slot carts (BS-X and Sufami Turbo) where SNES9x's GTK port does not, otherwise I dunno how well it works
-	'MAME (Sord M5)': MameSystem(command_lines.mame_command_line('m5', 'cart1', {'ramsize': '64K', 'upd765:0': '""'}, True), ['bin']),
+	'MAME (Sord M5)': MameSystem(command_lines.mame_command_line('m5', 'cart1', {'ramsize': '64K', 'upd765:0': ''}, True), ['bin']),
 	#Apparently has joysticks with no fire button?  Usually space seems to be fire but sometimes 1 is, which is usually for starting games.  I hate everything.
 	'MAME (Super Cassette Vision)': MameSystem(command_lines.mame_super_cassette_vision, ['bin']),
 	'MAME (Bandai Super Vision 8000)': MameSystem(command_lines.mame_command_line('sv8000', 'cart'), ['bin']),
