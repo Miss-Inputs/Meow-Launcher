@@ -4,6 +4,7 @@ from threading import Thread
 import wx
 import wx.adv
 
+from common_types import ConfigValueType
 import config
 import mame_helpers
 import scummvm
@@ -51,12 +52,12 @@ class WorkerThread(Thread):
 		wx.PostEvent(self.wx_object, done_event)
 
 def create_editor_for_config(parent, config_name, config_value, current_value):
-	if config_value.type == config.ConfigValueType.Bool:
+	if config_value.type == ConfigValueType.Bool:
 		check_box = wx.CheckBox(parent, label=config_value.name, name=config_name)
 		check_box.Value = current_value
 		check_box.SetToolTip(config_value.description)
 		return check_box
-	elif config_value.type == config.ConfigValueType.String:
+	elif config_value.type == ConfigValueType.String:
 		sizer = wx.BoxSizer(wx.VERTICAL)
 		label = wx.StaticText(parent, label=config_value.name)
 		sizer.Add(label, 0, wx.ALL, 2)
@@ -65,7 +66,7 @@ def create_editor_for_config(parent, config_name, config_value, current_value):
 		text_editor.SetToolTip(config_value.description)
 		sizer.Add(text_editor, 0, wx.ALL | wx.EXPAND, 2)
 		return sizer
-	elif config_value.type == config.ConfigValueType.Path:
+	elif config_value.type == ConfigValueType.Path:
 		sizer = wx.BoxSizer(wx.VERTICAL)
 		label = wx.StaticText(parent, label=config_value.name)
 		sizer.Add(label, 0, wx.ALL, 2)
@@ -74,9 +75,9 @@ def create_editor_for_config(parent, config_name, config_value, current_value):
 		picker.SetToolTip(config_value.description)
 		sizer.Add(picker, 0, wx.ALL | wx.EXPAND, 2)
 		return sizer
-	#elif config_value.type == config.ConfigValueType.StringList:
+	#elif config_value.type == ConfigValueType.StringList:
 	#	return None
-	#elif config_value.type == config.ConfigValueType.PathList:
+	#elif config_value.type == ConfigValueType.PathList:
 	#	return None
 	return None
 
