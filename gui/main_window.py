@@ -78,6 +78,11 @@ def create_editor_for_config(parent, config_name, config_value, current_value):
 		picker.SetToolTip(config_value.description)
 		sizer.Add(picker, 0, wx.ALL | wx.EXPAND, 2)
 		return sizer
+	elif config_value.type == ConfigValueType.StringList:
+		editor = wx.adv.EditableListBox(parent, label=config_value.name, name=config_name)
+		editor.SetStrings(current_value)
+		editor.SetToolTip(config_value.description)
+		return editor
 	#FilePathList and FolderPathList currently aren't used. Hmm... dunno what would be the best way to implement them anyway
 	return None
 
