@@ -120,6 +120,24 @@ class MainWindow(MeowLauncherGui):
 					sizer.Add(editor, 0, wx.ALL | wx.EXPAND, 2)
 			self.mainConfigScrolledWindow.GetSizer().Add(sizer, 0, wx.ALL | wx.EXPAND, 5)
 
+	def mainSaveButtonOnButtonClick(self, event):
+		new_config_values = {}
+		for section, configs in config.get_config_ini_options().items():
+			new_config_values[section] = {}
+			for name, config_item in configs.items():
+				control = self.mainConfigScrolledWindow.FindWindowByName(name)
+				if config_item.type in (ConfigValueType.Bool, ConfigValueType.String):
+					new_value = control.Value
+				elif config_item.type in (ConfigValueType.FilePath, ConfigValueType.FolderPath):
+					new_value = control.Path
+				elif config_item.type == ConfigValueType.StringList:
+					new_value = control.GetStrings()
+				#TODO: Implement File/FolderPathList when we actually use that
+				#print(section, name, control, new_value)
+				new_config_values[section][name] = new_value
+		config.write_new_config(new_config_values)
+		config.main_config.reread_config()
+
 	def mainRevertButtonOnButtonClick(self, event):
 		config.main_config.reread_config()
 		for k, v in config.get_config_ini_options().items():
@@ -132,7 +150,6 @@ class MainWindow(MeowLauncherGui):
 					control.Path = current_value
 				elif config_item.type == ConfigValueType.StringList:
 					control.SetStrings(current_value)
-				#TODO: Implement File/FolderPathList when we actually use that
 
 	def setupMainButtons(self):
 		self.mameMachineCheckBox.Enabled = mame_helpers.have_mame()
