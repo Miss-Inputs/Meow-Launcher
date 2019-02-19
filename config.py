@@ -173,11 +173,14 @@ def write_ignored_directories(ignored_dirs):
 	except OSError as oe:
 		print('AAaaaa!!! Failed to write ignored directories file!!', oe)
 
-def write_new_config(new_config):
+def write_new_main_config(new_config):
+	write_new_config(new_config, _main_config_path)
+
+def write_new_config(new_config, config_file_path):
 	parser = configparser.ConfigParser(interpolation=None)
 	parser.optionxform = str
-	ensure_exist(_main_config_path)
-	parser.read(_main_config_path)
+	ensure_exist(config_file_path)
+	parser.read(config_file_path)
 	for section, configs in new_config.items():
 		if section not in parser:
 			parser.add_section(section)
@@ -185,10 +188,10 @@ def write_new_config(new_config):
 			parser[section][name] = convert_value_for_ini(value)
 
 	try:
-		with open(_main_config_path, 'wt') as config_ini_txt:
-			parser.write(config_ini_txt)
+		with open(config_file_path, 'wt') as ini_file:
+			parser.write(ini_file)
 	except OSError as ex:
-		print('Oh no!!! Failed to write config.ini!!!!11!!eleven!!', ex)
+		print('Oh no!!! Failed to write', config_file_path, '!!!!11!!eleven!!', ex)
 
 class Config():
 	class __Config():
