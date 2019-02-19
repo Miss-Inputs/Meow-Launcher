@@ -120,6 +120,20 @@ class MainWindow(MeowLauncherGui):
 					sizer.Add(editor, 0, wx.ALL | wx.EXPAND, 2)
 			self.mainConfigScrolledWindow.GetSizer().Add(sizer, 0, wx.ALL | wx.EXPAND, 5)
 
+	def mainRevertButtonOnButtonClick(self, event):
+		config.main_config.reread_config()
+		for k, v in config.get_config_ini_options().items():
+			for name, config_item in v.items():
+				control = self.mainConfigScrolledWindow.FindWindowByName(name)
+				current_value = getattr(config.main_config, name)
+				if config_item.type in (ConfigValueType.Bool, ConfigValueType.String):
+					control.Value = current_value
+				elif config_item.type in (ConfigValueType.FilePath, ConfigValueType.FolderPath):
+					control.Path = current_value
+				elif config_item.type == ConfigValueType.StringList:
+					control.SetStrings(current_value)
+				#TODO: Implement File/FolderPathList when we actually use that
+
 	def setupMainButtons(self):
 		self.mameMachineCheckBox.Enabled = mame_helpers.have_mame()
 		#Is there any condition in which it would make sense to disable the "roms" check box?
