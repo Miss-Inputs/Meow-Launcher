@@ -74,7 +74,7 @@ systems = {
 	'PS2': System('ps2', [], ['PCSX2'], {MediaType.OpticalDisc: cdrom_formats + ['cso', 'bin'], MediaType.Executable: ['elf']}),
 	'PSP': System(None, [], ['PPSSPP'], {MediaType.OpticalDisc: cdrom_formats + ['cso'], MediaType.Executable: ['pbp']}),
 	'Saturn': System('saturn', ['saturn', 'sat_cart', 'sat_vccart'], ['Mednafen (Saturn)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'SNES': System('snes', ['snes', 'snes_bspack', 'snes_strom'], ['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)'], {MediaType.Cartridge: ['sfc', 'swc', 'smc', 'bs', 'st', 'bin']}, {'sufami_turbo_bios_path': SpecificConfigValue(ConfigValueType.Path, None, 'Path to Sufami Turbo BIOS, required to run Sufami Turbo carts'), 'bsx_bios_path': SpecificConfigValue(ConfigValueType.Path, None, 'Path to BS-X BIOS, required to run Satellaview games')}),
+	'SNES': System('snes', ['snes', 'snes_bspack', 'snes_strom'], ['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)'], {MediaType.Cartridge: ['sfc', 'swc', 'smc', 'bs', 'st', 'bin']}, {'sufami_turbo_bios_path': SpecificConfigValue(ConfigValueType.FilePath, None, 'Path to Sufami Turbo BIOS, required to run Sufami Turbo carts'), 'bsx_bios_path': SpecificConfigValue(ConfigValueType.FilePath, None, 'Path to BS-X BIOS, required to run Satellaview games')}),
 	'V.Smile': System('vsmile', ['vsmile_cart', 'vsmile_cd', 'vsmilem_cart'], ['MAME (V.Smile)'], {MediaType.Cartridge: ['bin', 'u1', 'u3'], MediaType.OpticalDisc: cdrom_formats}),
 	'V.Smile Baby': System('vsmileb', ['vsmileb_cart'], ['MAME (V.Smile Baby)'], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
 	'Wii': System(None, [], ['Dolphin'], {MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz', 'wbfs'], MediaType.Executable: ['dol', 'elf'], MediaType.Digital: ['wad']}),
@@ -347,7 +347,7 @@ class GameWithEngine():
 		self.specific_configs = specific_configs if specific_configs else {}
 
 games_with_engines = {
-	'Doom': GameWithEngine('Doom', ['PrBoom+'], False, {'save_dir': SpecificConfigValue(ConfigValueType.Path, None, 'Folder to put save files in')}),
+	'Doom': GameWithEngine('Doom', ['PrBoom+'], False, {'save_dir': SpecificConfigValue(ConfigValueType.FolderPath, None, 'Folder to put save files in')}),
 	'Quake': GameWithEngine('Quake', ['Darkplaces'], True),
 }
 #TODO: There should be a Z-Machine interpreter that runs nicely with modern sensibilities, I should look into that
@@ -359,7 +359,7 @@ class ComputerSystem():
 		self.specific_configs = specific_configs if specific_configs else {}
 
 computer_systems = {
-	'Mac': ComputerSystem({'shared_folder': SpecificConfigValue(ConfigValueType.Path, None, 'Path to shared folder on host that guest can see. This is mandatory for all this Mac stuff to work'), 'default_width': SpecificConfigValue(ConfigValueType.String, 1920, 'Emulated screen width to run at if a game doesn\'t need a specific screen resolution'), 'default_height': SpecificConfigValue(ConfigValueType.String, 1080, 'Emulated screen height to run at if a game doesn\'t need a specific screen resolution')}),
+	'Mac': ComputerSystem({'shared_folder': SpecificConfigValue(ConfigValueType.FolderPath, None, 'Path to shared folder on host that guest can see. This is mandatory for all this Mac stuff to work'), 'default_width': SpecificConfigValue(ConfigValueType.String, 1920, 'Emulated screen width to run at if a game doesn\'t need a specific screen resolution'), 'default_height': SpecificConfigValue(ConfigValueType.String, 1080, 'Emulated screen height to run at if a game doesn\'t need a specific screen resolution')}),
 	'DOS': ComputerSystem({'slow_cpu_cycles': SpecificConfigValue(ConfigValueType.String, 477, 'CPU cycles to run at for games only designed to run at 4.77 MHz clock speed')})
 }
 

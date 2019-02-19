@@ -66,19 +66,19 @@ def create_editor_for_config(parent, config_name, config_value, current_value):
 		text_editor.SetToolTip(config_value.description)
 		sizer.Add(text_editor, 0, wx.ALL | wx.EXPAND, 2)
 		return sizer
-	elif config_value.type == ConfigValueType.Path:
+	elif config_value.type in (ConfigValueType.FilePath, ConfigValueType.FolderPath):
 		sizer = wx.BoxSizer(wx.VERTICAL)
 		label = wx.StaticText(parent, label=config_value.name)
 		sizer.Add(label, 0, wx.ALL, 2)
-		picker = wx.FilePickerCtrl(parent, name=config_name, style=wx.FLP_DEFAULT_STYLE | wx.FLP_USE_TEXTCTRL)
+		if config_value.type == ConfigValueType.FilePath:
+			picker = wx.FilePickerCtrl(parent, name=config_name, style=wx.FLP_DEFAULT_STYLE | wx.FLP_USE_TEXTCTRL)
+		else:
+			picker = wx.DirPickerCtrl(parent, name=config_name, style=wx.DIRP_USE_TEXTCTRL | wx.DIRP_USE_TEXTCTRL)
 		picker.Path = current_value
 		picker.SetToolTip(config_value.description)
 		sizer.Add(picker, 0, wx.ALL | wx.EXPAND, 2)
 		return sizer
-	#elif config_value.type == ConfigValueType.StringList:
-	#	return None
-	#elif config_value.type == ConfigValueType.PathList:
-	#	return None
+	#FilePathList and FolderPathList currently aren't used. Hmm... dunno what would be the best way to implement them anyway
 	return None
 
 class MainWindow(MeowLauncherGui):

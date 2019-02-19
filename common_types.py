@@ -2,10 +2,12 @@ from enum import Enum, auto
 
 class ConfigValueType(Enum):
 	Bool = auto()
-	Path = auto()
+	FilePath = auto()
+	FolderPath = auto()
 	String = auto()
 	StringList = auto()
-	PathList = auto()
+	FilePathList = auto()
+	FolderPathList = auto()
 
 class MediaType(Enum):
 	Cartridge = auto()

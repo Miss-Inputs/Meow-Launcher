@@ -36,11 +36,11 @@ def parse_path_list(value):
 def parse_value(section, name, value_type, default_value):
 	if value_type == ConfigValueType.Bool:
 		return section.getboolean(name, default_value)
-	elif value_type == ConfigValueType.Path:
+	elif value_type in (ConfigValueType.FilePath, ConfigValueType.FolderPath):
 		return os.path.expanduser(section[name])
 	elif value_type == ConfigValueType.StringList:
 		return parse_string_list(section[name])
-	elif value_type == ConfigValueType.PathList:
+	elif value_type in (ConfigValueType.FilePathList, ConfigValueType.FolderPathList):
 		return parse_path_list(section[name])
 	return section[name]
 
@@ -72,24 +72,24 @@ class ConfigValue():
 runtime_option_section = '<runtime option section>'
 
 _config_ini_values = {
-	'output_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'apps'), 'Output folder', 'Folder to put launchers'),
-	'organized_output_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'organized_apps'), 'Organized output folder', 'Folder to put subfolders in for the organized folders frontend'),
-	'image_folder': ConfigValue('Paths', ConfigValueType.Path, os.path.join(_data_dir, 'images'), 'Image folder', 'Folder to store images extracted from games with embedded images'),
+	'output_folder': ConfigValue('Paths', ConfigValueType.FolderPath, os.path.join(_data_dir, 'apps'), 'Output folder', 'Folder to put launchers'),
+	'organized_output_folder': ConfigValue('Paths', ConfigValueType.FolderPath, os.path.join(_data_dir, 'organized_apps'), 'Organized output folder', 'Folder to put subfolders in for the organized folders frontend'),
+	'image_folder': ConfigValue('Paths', ConfigValueType.FolderPath, os.path.join(_data_dir, 'images'), 'Image folder', 'Folder to store images extracted from games with embedded images'),
 
-	'catlist_path': ConfigValue('Arcade', ConfigValueType.Path, None, 'catlist.ini path', 'Path to MAME catlist.ini'),
-	'languages_path': ConfigValue('Arcade', ConfigValueType.Path, None, 'languages.ini path', 'Path to MAME languages.ini'),
+	'catlist_path': ConfigValue('Arcade', ConfigValueType.FilePath, None, 'catlist.ini path', 'Path to MAME catlist.ini'),
+	'languages_path': ConfigValue('Arcade', ConfigValueType.FilePath, None, 'languages.ini path', 'Path to MAME languages.ini'),
 	'skipped_source_files': ConfigValue('Arcade', ConfigValueType.StringList, [], 'Skipped source files', 'List of MAME source files to skip (not including extension)'),
-	'memcard_path': ConfigValue('Arcade', ConfigValueType.Path, None, 'Memory card path', 'Path to store memory cards for arcade systems which support that'),
+	'memcard_path': ConfigValue('Arcade', ConfigValueType.FilePath, None, 'Memory card path', 'Path to store memory cards for arcade systems which support that'),
 	'exclude_non_arcade': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude non-arcade', 'Whether or not to skip MAME systems categorized as not being arcade or anything specific'), #TODO This description sucks
 	'exclude_pinball': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude pinball', 'Whether or not to skip pinball games'),
 
-	'mac_db_path': ConfigValue('Mac', ConfigValueType.Path, None, 'mac_db.json path', 'Path to mac_db.json from ComputerGameDB'),
+	'mac_db_path': ConfigValue('Mac', ConfigValueType.FilePath, None, 'mac_db.json path', 'Path to mac_db.json from ComputerGameDB'),
 	'launchers_for_unknown_mac_apps': ConfigValue('Mac', ConfigValueType.Bool, False, 'Launchers for unknown apps', 'Whether or not to create launchers for Mac programs that are found but not in the database'),
 
-	'dos_db_path': ConfigValue('DOS', ConfigValueType.Path, None, 'dos_db.json path', 'Path to dos_db.json from ComputerGameDB'),
+	'dos_db_path': ConfigValue('DOS', ConfigValueType.FilePath, None, 'dos_db.json path', 'Path to dos_db.json from ComputerGameDB'),
 	'launchers_for_unknown_dos_apps': ConfigValue('DOS', ConfigValueType.Bool, False, 'Launchers for unknown apps', 'Whether or not to create launchers for DOS programs that are found but not in the database'),
 	#TODO: Should be in specific_config as it is inherently specific to the emulator (DOSBox) and not the platform
-	'dosbox_configs_path': ConfigValue('DOS', ConfigValueType.Path, os.path.join(_data_dir, 'dosbox_configs'), 'DOSBox configs path', 'Folder to store DOSBox per-application configuration files'),
+	'dosbox_configs_path': ConfigValue('DOS', ConfigValueType.FolderPath, os.path.join(_data_dir, 'dosbox_configs'), 'DOSBox configs path', 'Folder to store DOSBox per-application configuration files'),
 
 	#These shouldn't end up in config.ini as they're intended to be set per-run
 	'debug': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Debug', 'Enable debug mode, which is really verbose mode, oh well'),
@@ -134,9 +134,9 @@ def get_command_line_arguments():
 				#TODO: If value = another argument starts with --, invalid?
 				#if option.type == ConfigValueType.Bool: #or do I wanna do that
 				#	d[name] = parse_command_line_bool(value)
-				if option.type == ConfigValueType.Path:
+				if option.type in (ConfigValueType.FilePath, ConfigValueType.FolderPath):
 					d[name] = os.path.expanduser(value)
-				elif option.type == ConfigValueType.PathList:
+				elif option.type in (ConfigValueType.FilePathList, ConfigValueType.FolderPathList):
 					d[name] = parse_path_list(value)
 				elif option.type == ConfigValueType.StringList:
 					d[name] = parse_string_list(value)
