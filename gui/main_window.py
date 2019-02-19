@@ -133,7 +133,6 @@ class MainWindow(MeowLauncherGui):
 				elif config_item.type == ConfigValueType.StringList:
 					new_value = control.GetStrings()
 				#TODO: Implement File/FolderPathList when we actually use that
-				#print(section, name, control, new_value)
 				new_config_values[section][name] = new_value
 		config.write_new_main_config(new_config_values)
 		config.main_config.reread_config()
