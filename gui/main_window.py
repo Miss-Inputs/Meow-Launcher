@@ -115,7 +115,6 @@ class MainWindow(MeowLauncherGui):
 		for section, configs in config.get_config_ini_options().items():
 			sizer = wx.StaticBoxSizer(wx.VERTICAL, self.mainConfigScrolledWindow, label=section)
 			for name, config_value in configs.items():
-				print(section, name, config_value.name, config_value.type, config_value.description, config_value.default_value)
 				editor = create_editor_for_config(sizer.GetStaticBox(), name, config_value, getattr(config.main_config, name))
 				if editor:
 					sizer.Add(editor, 0, wx.ALL | wx.EXPAND, 2)
