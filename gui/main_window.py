@@ -58,16 +58,16 @@ def create_editor_for_config(parent, config_name, config_value, current_value):
 		check_box.SetToolTip(config_value.description)
 		return check_box
 	elif config_value.type == ConfigValueType.String:
-		sizer = wx.BoxSizer(wx.VERTICAL)
+		sizer = wx.BoxSizer(wx.HORIZONTAL)
 		label = wx.StaticText(parent, label=config_value.name)
 		sizer.Add(label, 0, wx.ALL, 2)
 		text_editor = wx.TextCtrl(parent, name=config_name)
 		text_editor.Value = current_value
 		text_editor.SetToolTip(config_value.description)
-		sizer.Add(text_editor, 0, wx.ALL | wx.EXPAND, 2)
+		sizer.Add(text_editor, 1, wx.ALL | wx.EXPAND, 2)
 		return sizer
 	elif config_value.type in (ConfigValueType.FilePath, ConfigValueType.FolderPath):
-		sizer = wx.BoxSizer(wx.VERTICAL)
+		sizer = wx.BoxSizer(wx.HORIZONTAL)
 		label = wx.StaticText(parent, label=config_value.name)
 		sizer.Add(label, 0, wx.ALL, 2)
 		if config_value.type == ConfigValueType.FilePath:
@@ -76,7 +76,7 @@ def create_editor_for_config(parent, config_name, config_value, current_value):
 			picker = wx.DirPickerCtrl(parent, name=config_name, style=wx.DIRP_USE_TEXTCTRL | wx.DIRP_USE_TEXTCTRL)
 		picker.Path = current_value
 		picker.SetToolTip(config_value.description)
-		sizer.Add(picker, 0, wx.ALL | wx.EXPAND, 2)
+		sizer.Add(picker, 1, wx.ALL | wx.EXPAND, 2)
 		return sizer
 	elif config_value.type == ConfigValueType.StringList:
 		editor = wx.adv.EditableListBox(parent, label=config_value.name, name=config_name)
@@ -118,7 +118,7 @@ class MainWindow(MeowLauncherGui):
 				editor = create_editor_for_config(sizer.GetStaticBox(), name, config_value, getattr(config.main_config, name))
 				if editor:
 					sizer.Add(editor, 0, wx.ALL | wx.EXPAND, 2)
-					sizer.Add(wx.StaticLine(sizer.GetStaticBox()), 0, wx.ALL | wx.EXPAND, 2)
+					#sizer.Add(wx.StaticLine(sizer.GetStaticBox()), 0, wx.ALL | wx.EXPAND, 2)
 			self.mainConfigScrolledWindow.GetSizer().Add(sizer, 0, wx.ALL | wx.EXPAND, 5)
 
 	def setupMainButtons(self):
