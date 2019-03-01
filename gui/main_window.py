@@ -103,6 +103,7 @@ class MainWindow(MeowLauncherGui):
 		self.setupMainButtons()
 		self.setupRuntimeOptions()
 		self.setupMainConfigOptions()
+		self.setupSystemsList()
 		self.loadIgnoredDirs()
 
 	def setupRuntimeOptions(self):
@@ -119,6 +120,12 @@ class MainWindow(MeowLauncherGui):
 				if editor:
 					sizer.Add(editor, 0, wx.ALL | wx.EXPAND, 2)
 			self.mainConfigScrolledWindow.GetSizer().Add(sizer, 0, wx.ALL | wx.EXPAND, 5)
+
+	def setupSystemsList(self):
+		self.systemsList.AppendColumn('Name')
+		self.systemsList.AppendColumn('Emulators')
+		self.systemsList.AppendColumn('Paths')
+		self.systemsList.AppendColumn('Specific config')
 
 	def mainSaveButtonOnButtonClick(self, event):
 		new_config_values = {}
