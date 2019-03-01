@@ -9,6 +9,7 @@
 
 import wx
 import wx.xrc
+import wx.grid
 
 ###########################################################################
 ## Class MeowLauncherGui
@@ -73,7 +74,7 @@ class MeowLauncherGui ( wx.Frame ):
 		self.mainPanel.SetSizer( mainPanelSizer )
 		self.mainPanel.Layout()
 		mainPanelSizer.Fit( self.mainPanel )
-		self.configNotebook.AddPage( self.mainPanel, u"Main", True )
+		self.configNotebook.AddPage( self.mainPanel, u"Main", False )
 		self.mainConfigPanel = wx.Panel( self.configNotebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		mainConfigPanelSizer = wx.BoxSizer( wx.VERTICAL )
 
@@ -117,15 +118,42 @@ class MeowLauncherGui ( wx.Frame ):
 
 		systemsConfigPanelSizer.Add( systemsButtonsSizer, 0, wx.EXPAND, 5 )
 
-		self.systemsConfigScrolledWindow = wx.ScrolledWindow( self.systemsConfigPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.BORDER_THEME|wx.HSCROLL|wx.VSCROLL )
-		self.systemsConfigScrolledWindow.SetScrollRate( 5, 5 )
-		systemsConfigPanelSizer.Add( self.systemsConfigScrolledWindow, 1, wx.EXPAND |wx.ALL, 5 )
+		self.systemsGrid = wx.grid.Grid( self.systemsConfigPanel, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+
+		# Grid
+		self.systemsGrid.CreateGrid( 0, 4 )
+		self.systemsGrid.EnableEditing( True )
+		self.systemsGrid.EnableGridLines( True )
+		self.systemsGrid.EnableDragGridSize( False )
+		self.systemsGrid.SetMargins( 0, 0 )
+
+		# Columns
+		self.systemsGrid.AutoSizeColumns()
+		self.systemsGrid.EnableDragColMove( False )
+		self.systemsGrid.EnableDragColSize( True )
+		self.systemsGrid.SetColLabelSize( 30 )
+		self.systemsGrid.SetColLabelValue( 0, u"Name" )
+		self.systemsGrid.SetColLabelValue( 1, u"Emulators" )
+		self.systemsGrid.SetColLabelValue( 2, u"Paths" )
+		self.systemsGrid.SetColLabelValue( 3, u"Specific Config" )
+		self.systemsGrid.SetColLabelAlignment( wx.ALIGN_CENTER, wx.ALIGN_CENTER )
+
+		# Rows
+		self.systemsGrid.EnableDragRowSize( True )
+		self.systemsGrid.SetRowLabelSize( 80 )
+		self.systemsGrid.SetRowLabelAlignment( wx.ALIGN_CENTER, wx.ALIGN_CENTER )
+
+		# Label Appearance
+
+		# Cell Defaults
+		self.systemsGrid.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
+		systemsConfigPanelSizer.Add( self.systemsGrid, 1, wx.ALL|wx.EXPAND, 5 )
 
 
 		self.systemsConfigPanel.SetSizer( systemsConfigPanelSizer )
 		self.systemsConfigPanel.Layout()
 		systemsConfigPanelSizer.Fit( self.systemsConfigPanel )
-		self.configNotebook.AddPage( self.systemsConfigPanel, u"Systems", False )
+		self.configNotebook.AddPage( self.systemsConfigPanel, u"Systems", True )
 		self.ignoredDirsPanel = wx.Panel( self.configNotebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		ignoredDirsPanelSizer = wx.BoxSizer( wx.VERTICAL )
 
