@@ -186,9 +186,11 @@ systems.update({
 	#Was never actually released, but prototypes exist
 	'Action Max': UnsupportedSystem(None, [], [], {}),
 	#No emulators, no dumps (probably nobody has decided the best way to preserve VHS games), no nothing
+	'Advanced Pico Beena': UnsupportedSystem('beena', ['sega_beena_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Apple Lisa': UnsupportedSystem('lisa', ['lisa'], [], {MediaType.Floppy: mame_floppy_formats + ['dc', 'dc42']}),
 	#Preliminary MAME driver doesn't seem to boot anything; LisaEm doesn't seem to work with newer OSes and hasn't been updated since
 	'Bandai Playdia': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: cdrom_formats}),
+	'C2 Color': UnsupportedSystem('c2color', ['c2color_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Casio Loopy': UnsupportedSystem('casloopy', ['casloopy'], [], {MediaType.Cartridge: ['bin']}),
 	#MAME driver just shows corrupted graphics (and has no controls defined), basically just a skeleton even if it looks like it isn't
 	'ClickStart': UnsupportedSystem('clikstrt', ['clickstart_cart'], [], {MediaType.Cartridge: ['bin']}),
@@ -207,12 +209,14 @@ systems.update({
 	'Koei PasoGo': UnsupportedSystem('pasogo', ['pasogo'], [], {MediaType.Cartridge: ['bin']}),
 	#No sound in MAME yet, and apparently the rest doesn't work either (I'll take their word for it)
 	'Konami Picno': UnsupportedSystem('picno', ['picno'], [], {MediaType.Cartridge: ['bin']}),
+	'LeapPad': UnsupportedSystem('leappad', ['leapfrog_leappad_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Leapster': UnsupportedSystem('leapster', ['leapster'], [], {MediaType.Cartridge: ['bin']}),
 	'Mattel HyperScan': UnsupportedSystem('hs', ['hyperscan'], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'Microvision': UnsupportedSystem('microvsn', ['microvision'], [], {MediaType.Cartridge: ['bin']}),
 	#Cartridges boot, but seem to do nothing...
 	'Monon Color': UnsupportedSystem('mononcol', ['monon_color'], [], {MediaType.Cartridge: ['bin']}),
 	#Only a skeleton MAME driver with no sound or video or inputs
+	'My First LeapPad': UnsupportedSystem('mfleappad', ['leapfrog_mfleappad_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'N-Gage': UnsupportedSystem(None, [], [], {}), #File types are.. folders I think. That could get weird. Anyway, all emulators at this stage seem to be super-preliminary
 	'Nuon': UnsupportedSystem(None, [], [], {}),
 	'Pippin': UnsupportedSystem('pippin', ['pippin', 'pippin_flop'], [], {MediaType.OpticalDisc: cdrom_formats}),
