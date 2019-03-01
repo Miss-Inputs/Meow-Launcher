@@ -73,7 +73,7 @@ class MeowLauncherGui ( wx.Frame ):
 		self.mainPanel.SetSizer( mainPanelSizer )
 		self.mainPanel.Layout()
 		mainPanelSizer.Fit( self.mainPanel )
-		self.configNotebook.AddPage( self.mainPanel, u"Main", False )
+		self.configNotebook.AddPage( self.mainPanel, u"Main", True )
 		self.mainConfigPanel = wx.Panel( self.configNotebook, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		mainConfigPanelSizer = wx.BoxSizer( wx.VERTICAL )
 
