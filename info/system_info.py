@@ -124,7 +124,7 @@ systems = {
 
 	#Computers
 	'Amiga': System('a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench'], ['FS-UAE'], {MediaType.Floppy: ['adf', 'ipf', 'dms']}, {'default_chipset': SpecificConfigValue(ConfigValueType.String, 'AGA', 'Default chipset to use if a game doesn\'t specify what chipset it should use (AGA, OCS, ECS)')}),
-	'Apple II': System('apple2', ['apple2', 'apple2_cass', 'apple2_flop_orig'], ['MAME (Apple II)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib', 'woz'], MediaType.Tape: ['wav']}),
+	'Apple II': System('apple2', ['apple2', 'apple2_cass', 'apple2_flop_orig', 'apple2_flop_clcracked', 'apple2_flop_misc'], ['MAME (Apple II)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib', 'woz'], MediaType.Tape: ['wav']}),
 	'Apple III': System('apple3', ['apple3'], ['MAME (Apple III)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib', 'woz']}),
 	'Atari 8-bit': System('a800', ['a800', 'a800_flop', 'xegs'], ['MAME (Atari 8-bit)'], {MediaType.Cartridge: ['bin', 'rom', 'car'], MediaType.Tape: ['wav']}),
 	#TODO: MediaType.Floppy: ['atr', 'dsk'], MediaType.Executable: ['xex', 'bas'],
