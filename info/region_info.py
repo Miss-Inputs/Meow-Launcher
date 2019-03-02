@@ -77,21 +77,21 @@ languages = [
 
 regions = [
 	Region('Argentina', 'AR', TVSystem.PAL, 'Spanish'),
-	Region('Asia', 'AS', TVSystem.Indeterminate, None),
+	Region('Asia', 'AS', TVSystem.Indeterminate, None), #No-Intro filenames using this as a region seem to always mean East Asia specifically, although that's still a lot of countries so it doesn't mean much
 	Region('Australia', 'AU', TVSystem.PAL, 'English'),
-	Region('Brazil', 'BR', TVSystem.NTSC, 'Brazilian Portguese'), #Uses PAL-M actually, but that's effectively NTSC
+	Region('Brazil', 'BR', TVSystem.NTSC, 'Brazilian Portguese'), #Uses PAL-M actually, but we'll call it NTSC because it's 60Hz
 	Region('Bulgaria', 'BG', TVSystem.PAL, 'Bulgarian'),
-	Region('Canada', 'CA', TVSystem.NTSC, None), #Might have English or French
+	Region('Canada', 'CA', TVSystem.NTSC, 'French'), #Filenames tagged as (Canada) specifically indicate French, as (USA) is used to mean North America i.e. USA + Canada even though that seems a bit wrong
 	Region('China', 'CN', TVSystem.PAL, 'Chinese'),
 	Region('Czech Republic', 'CZ', TVSystem.PAL, 'Czech'),
 	Region('Denmark', 'DK', TVSystem.PAL, 'Danish'),
 	Region('Europe', 'EU', TVSystem.PAL, 'English'),
 	#Actually could be any number of languages, but in filenames (by No-Intro's convention anyway) it's assumed to be English unless otherwise specified
 	Region('Finland', 'FI', TVSystem.PAL, 'Finnish'),
-	Region('France', 'FR', TVSystem.PAL, 'French'), #Uses SECAM actually, but that's effectively the same as PAL
+	Region('France', 'FR', TVSystem.PAL, 'French'), #Uses SECAM actually, but we'll call it PAL because it's 50Hz
 	Region('Germany', 'DE', TVSystem.PAL, 'German'),
 	Region('Greece', 'GR', TVSystem.PAL, 'Greek'),
-	Region('Hong Kong', 'HK', TVSystem.PAL, None), #Might have Chinese or English
+	Region('Hong Kong', 'HK', TVSystem.PAL, 'Traditional Chinese'), #Seems to always be Chinese for video game purposes, although English is also a national language
 	Region('Indonesia', 'ID', TVSystem.PAL, 'Indonesian'),
 	Region('Italy', 'IT', TVSystem.PAL, 'Italian'),
 	Region('Japan', 'JP', TVSystem.NTSC, 'Japanese'),
