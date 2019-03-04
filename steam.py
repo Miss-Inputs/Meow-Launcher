@@ -247,6 +247,8 @@ def _get_steamplay_appinfo_extended():
 	steamplay_manifest_appid = 891390
 
 	steamplay_appinfo = steam_state.app_info.get(steamplay_manifest_appid)
+	if steamplay_appinfo is None:
+		return None
 	sections = steamplay_appinfo.get('sections')
 	if sections is None:
 		return None
@@ -267,7 +269,9 @@ def get_steamplay_compat_tools():
 	for k, v in compat_tools_list.items():
 		#appid, from_oslist, to_oslist might be useful in some situation
 		#This just maps "proton_37" to "Proton 3.7-8" etc
-		tools[k] = v.get(b'display_name')
+		display_name = v.get(b'display_name')
+		if display_name:
+			tools[k.decode('utf-8', errors='ignore')] = display_name.decode('utf-8', errors='ignore')
 	return tools
 
 def get_steamplay_whitelist():
@@ -282,7 +286,9 @@ def get_steamplay_whitelist():
 	for k, v in app_mappings.items():
 		#v has an "appid" key which seems pointless, but oh well
 		#Only other keys are "config" which is "none" except for Google Earth VR so whatevs, "comment" which is the game name but might have inconsistent formatting, and "platform" which is only Linux
-		apps[k] = v.get(b'tool')
+		tool = v.get(b'tool')
+		if tool:
+			apps[k.decode('utf-8', errors='ignore')] = tool.decode('utf-8', errors='ignore')
 	return apps
 
 def add_metadata_from_appinfo(game):
