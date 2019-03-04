@@ -308,16 +308,22 @@ def get_steamplay_whitelist():
 	return apps
 
 genre_ids = {
-	#72 = primary genre ID of Hentai Puzzle? Store files it under "Indie Games" in the breadcrumb but that's 23 already; genres on store page are (Casual, Indie)? Indie | 8 | 64?
+	#72 = primary genre ID of Hentai Puzzle? Store files it under "Indie Games" in the breadcrumb but that's 23 already; genres on store page are (Casual, Indie)? Indie | 8 | 64? Every single other H-game seems to have this
+	#All H-games seem to have both 72 and 71, Pyrite Heart is the only game having 72 but not 71
+	#34: Doesn't seem to be in the genre list on the store page, found on Gateways and Rochard
+	#74: Also seemingly invisible, seen on The Raven Remastered
 	1: 'Action',
 	2: 'Strategy',
 	3: 'RPG',
 	4: 'Casual',
 	9: 'Racing',
+	18: 'Sports',
 	23: 'Indie',
 	25: 'Adventure',
 	28: 'Simulation',
+	29: 'Massively Multiplayer',
 	37: 'Free to Play', #This isn't a genre but sure okay whatever
+	70: 'Early Access',
 }
 
 def add_metadata_from_appinfo(game):
@@ -434,10 +440,18 @@ def add_metadata_from_appinfo(game):
 	if extended:
 		developer = extended.get(b'developer')
 		if developer:
-			game.metadata.developer = normalize_developer(developer.decode('utf-8', errors='backslashreplace'))
+			if isinstance(developer, appinfo.Integer):
+				#Cheeky buggers... the doujin developer 773 is represented by the actual integer value 773 here, for some reason
+				game.metadata.developer = str(developer.data)
+			else:
+				game.metadata.developer = normalize_developer(developer.decode('utf-8', errors='backslashreplace'))
 		publisher = extended.get(b'publisher')
 		if publisher:
-			game.metadata.publisher = normalize_developer(publisher.decode('utf-8', errors='backslashreplace'))
+			if isinstance(publisher, appinfo.Integer):
+				#Cheeky buggers... the doujin developer 773 is represented by the actual integer value 773 here, for some reason
+				game.metadata.publisher = str(publisher.data)
+			else:
+				game.metadata.publisher = normalize_developer(publisher.decode('utf-8', errors='backslashreplace'))
 
 		homepage = extended.get(b'homepage')
 		if homepage:
