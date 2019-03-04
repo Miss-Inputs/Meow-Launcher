@@ -229,14 +229,24 @@ def normalize_developer(dev):
 		'BANDAI NAMCO Studios': 'Bandai Namco', #Appears as developer, the Bandai Namco Entertainment appears as publisher... hmm
 		'Bethesda-Softworks': 'Bethesda',
 		'CD PROJEKT RED': 'CD Projekt Red',
+		'DIMPS': 'Dimps',
+		'Dingaling Productions': 'Dingaling',
+		'DONTNOD Entertainment': 'Dontnod Entertainment',
 		'GATO STUDIO': 'Gato Studio', #Also seen as "Gato Salvaje", although that doesn't transate exactly to the English name
-		'SEGA': 'Sega',
+		'IDEA FACTORY': 'Idea Factory',
+		'Lupus Studios Limited': 'Lupus Studios',
 		'QUICKTEQUILA': 'Quicktequila',
+		'SEGA': 'Sega',
+		'SNK CORPORATION': 'SNK',
+		'Topware Interactive ACE': 'Topware Interactive',
 		'XSEED GAMES': 'XSeed Games',
 		'YAGER': 'Yager Development',
 		#Coffee Stain Studios = Coffee Stain Publishing? Hmm
+		#Lazy Monday Games > Lazy Monday?
+		#Epic Games = Epic MegaGames?
 
 		#These could be sorta like different brands of the same company, but I'm gonna go with the opinion that they should be treated as the same company. But this section could be like... subjective I guess
+		'Idea Factory International': 'Idea Factory',
 		'Microsoft Studios': 'Microsoft',
 		'Team17 Digital': 'Team17',
 		'Two Tribes Publishing': 'Two Tribes',
@@ -297,6 +307,19 @@ def get_steamplay_whitelist():
 			apps[k.decode('utf-8', errors='ignore')] = tool.decode('utf-8', errors='ignore')
 	return apps
 
+genre_ids = {
+	#72 = primary genre ID of Hentai Puzzle? Store files it under "Indie Games" in the breadcrumb but that's 23 already; genres on store page are (Casual, Indie)? Indie | 8 | 64?
+	1: 'Action',
+	2: 'Strategy',
+	3: 'RPG',
+	4: 'Casual',
+	9: 'Racing',
+	23: 'Indie',
+	25: 'Adventure',
+	28: 'Simulation',
+	37: 'Free to Play', #This isn't a genre but sure okay whatever
+}
+
 def add_metadata_from_appinfo(game):
 	game_app_info = steam_state.app_info.get(game.app_id)
 	if game_app_info is None:
@@ -347,8 +370,9 @@ def add_metadata_from_appinfo(game):
 
 		primary_genre = common.get(b'primary_genre')
 		if primary_genre:
-			#Mysterious integer, dunno what to do with it (I guess it's just like this so it can be localized but hmm), not even sure where it shows up in the normal client so I can reverse engineer the mapping...
-			game.metadata.specific_info['Primary-Genre-ID'] = primary_genre.data
+			#I think this has to do with the breadcrumb thing in the store at the top where it's like "All Games > Blah Games > Blah"
+			#It is flawed in a few ways, as some things aren't really primary genres (Indie, Free to Play) and some are combinations (Action + RPG, Action + Adventure)
+			game.metadata.specific_info['Primary-Genre-ID'] = genre_ids.get(primary_genre.data, 'unknown {0}'.format(primary_genre.data))
 
 		release_date = common.get(b'original_release_date')
 		#Seems that this key is here sometimes, and original_release_date sometimes appears along with steam_release_date where a game was only put on Steam later than when it was actually released elsewhere
