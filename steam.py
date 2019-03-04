@@ -238,6 +238,7 @@ def normalize_developer(dev):
 		'QUICKTEQUILA': 'Quicktequila',
 		'SEGA': 'Sega',
 		'SNK CORPORATION': 'SNK',
+		'SQUARE ENIX': 'Square Enix',
 		'Topware Interactive ACE': 'Topware Interactive',
 		'XSEED GAMES': 'XSeed Games',
 		'YAGER': 'Yager Development',
