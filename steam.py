@@ -5,6 +5,7 @@ import glob
 import zipfile
 import time
 import datetime
+import calendar
 
 try:
 	from PIL import Image
@@ -356,7 +357,7 @@ def add_metadata_from_appinfo(game):
 		if release_date:
 			release_datetime = datetime.datetime.fromtimestamp(release_date.data)
 			game.metadata.year = release_datetime.year
-			game.metadata.month = release_datetime.month
+			game.metadata.month = calendar.month_name[release_datetime.month]
 			game.metadata.day = release_datetime.day
 
 		category = common.get(b'type', b'Unknown').decode('utf-8', errors='backslashreplace')
