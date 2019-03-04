@@ -529,13 +529,10 @@ def process_game(app_id, name=None):
 	#userdata/<user ID>/7/remote/sharedconfig.vdf has tags/categories etc as well
 
 	#Other metadata that we can't or won't fill in:
-	#Month, day, year (ooh surely we can have this from somewhere)
-	#cpu_info, emulator_name, screen_info, extension: Irrelevant (not going to do something silly like use the current user's CPU/monitor specs)
-	#genre, subgenre: From shop tags, or we could use user's tags if they wanted
+	#cpu_info, screen_info, extension: Irrelevant (not going to do something silly like use the current user's CPU/monitor specs)
 	#product_code: Not really a thing
 	#regions: World or user's region? Hmm, maybe not entirely relevant with PC games
 	#revision: Irrelevant since software versions aren't always linear numbers?
-	#save_type: Internal (or cloud) or nothing, though I doubt there's much these days with no saving of progress at all
 	#tv_type could be Agnostic, but it's like... I dunno if I'd consider it to be relevant
 
 	game.make_launcher()
@@ -597,7 +594,6 @@ def process_steam():
 
 		name = app_state.get('name')
 		#installdir is the subfolder of library_folder/steamapps/common where the game is actually located, if that's ever useful
-		#StateFlags probably has something to do with whether it's actually currently installed or not, seems to be just 4, maybe other values indicate it's in the middle of downloading or stuff like that
 		#UserConfig might be interesting... normally it just has a key 'language' which is set to 'english' etc, sometimes duplicating name and app_id as 'gameid' for no reason, but also has things like 'lowviolence': '1' inside Left 4 Dead 2 for example (because I'm Australian I guess), so... well, I just think that's kinda neat, although probably not useful for our purposes here; also for TF2 it has 'betakey': 'prerelease' so I guess that has to do with opt-in beta programs
 		#Anyway I don't think we need any of that for now
 		process_game(app_id, name)
