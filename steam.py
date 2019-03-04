@@ -44,13 +44,25 @@ class SteamState():
 				except FileNotFoundError:
 					self.app_info = None
 					self.app_info_available = False
+				try:
+					with open(self.config_path) as config_file:
+						self.config = acf.load(config_file)
+						self.config_available = True
+				except FileNotFoundError:
+					self.config = None
+					self.config_available = False
 			else:
 				self.app_info = None
 				self.app_info_available = False
-
+				self.config = None
+				self.config_available = False
 		@property
 		def app_info_path(self):
 			return os.path.join(self.steamdir, 'appcache', 'appinfo.vdf')
+
+		@property
+		def config_path(self):
+			return os.path.join(self.steamdir, 'config', 'config.vdf')
 
 		@property
 		def icon_folder(self):
@@ -103,6 +115,20 @@ def get_steam_library_folders():
 			return []
 		#Not sure I like the condition on k here, but I guess it'll work. The keys under LibraryFolders are TimeNextStatsReport and ContentStatsID (whatever those do), and then 1 2 3 4 for each library folder, but I dunno how reliable that is. Anyway, that should do the trick, I guess; if someone breaks something it's gonna break
 		return [v for k, v in library_folders.items() if k.isdigit()]
+
+def get_steamplay_overrides():
+	if not steam_state.config_available:
+		return {}
+
+	try:
+		mapping = steam_state.config['InstallConfigStore']['Software']['Valve']['Steam']['CompatToolMapping']
+
+		overrides = {}
+		for k, v in mapping.items():
+			overrides[k] = v.get('name')
+		return overrides
+	except KeyError:
+		return {}
 
 class SteamGame():
 	def __init__(self, app_id, name):
@@ -217,6 +243,48 @@ def normalize_developer(dev):
 		return overrides[dev]
 	return dev
 
+def _get_steamplay_appinfo_extended():
+	steamplay_manifest_appid = 891390
+
+	steamplay_appinfo = steam_state.app_info.get(steamplay_manifest_appid)
+	sections = game_app_info.get('sections')
+	if sections is None:
+		return None
+	app_info_section = sections.get(b'appinfo')
+	if app_info_section is None:
+		return None
+	return app_info_section.get(b'extended')
+
+def get_steamplay_compat_tools():
+	extended = _get_steamplay_appinfo_extended()
+	if not extended:
+		return {}
+	compat_tools_list = extended.get(b'compat_tools')
+	if not compat_tools_list:
+		return {}
+
+	tools = {}
+	for k, v in compat_tools_list.items():
+		#appid, from_oslist, to_oslist might be useful in some situation
+		#This just maps "proton_37" to "Proton 3.7-8" etc
+		tools[k] = v.get(b'display_name')
+	return tools
+
+def get_steamplay_whitelist():
+	extended = _get_steamplay_appinfo_extended()
+	if not extended:
+		return {}
+	app_mappings = extended.get(b'app_mappings')
+	if not app_mappings:
+		return {}
+
+	apps = {}
+	for k, v in app_mappings.items():
+		#v has an "appid" key which seems pointless, but oh well
+		#Only other keys are "config" which is "none" except for Google Earth VR so whatevs, "comment" which is the game name but might have inconsistent formatting, and "platform" which is only Linux
+		apps[k] = v.get(b'tool')
+	return apps
+
 def add_metadata_from_appinfo(game):
 	game_app_info = steam_state.app_info.get(game.app_id)
 	if game_app_info is None:
@@ -233,7 +301,7 @@ def add_metadata_from_appinfo(game):
 	#This is the only key in sections, and from now on everything is a bytes instead of a str, seemingly
 	app_info_section = sections.get(b'appinfo')
 	if app_info_section is None:
-		print('No appiunfo')
+		print('No appinfo')
 		return
 
 	#Alright let's get to the fun stuff
@@ -257,7 +325,6 @@ def add_metadata_from_appinfo(game):
 		#eulas is a list, so it could be used to detect if game has third-party EULA
 		#small_capsule and header_image refer to image files that don't seem to be there so I dunno
 		#store_tags would be useful for genre if they weren't all '9': Integer(size = 32, data = 4182) and I have no idea what a 4182 means and if it requires connecting to the dang web then nah thanks
-		#There is also a primary_genre which is also a mysterious int (I don't even know where that would show up in the normal client to get a mapping)
 		#workshop_visible and community_hub_visible could also tell you stuff about if the game has a workshop and a... community hub
 		#releasestate: 'released' might be to do with early access?
 		#exfgls = exclude from game library sharing
@@ -265,6 +332,11 @@ def add_metadata_from_appinfo(game):
 		language_list = common.get(b'languages')
 		if language_list:
 			game.metadata.languages = translate_language_list(language_list)
+
+		primary_genre = common.get(b'primary_genre')
+		if primary_genre:
+			#Mysterious integer, dunno what to do with it (I guess it's just like this so it can be localized but hmm), not even sure where it shows up in the normal client so I can reverse engineer the mapping...
+			game.metadata.specific_info['Primary-Genre-ID'] = primary_genre.data
 
 		release_date = common.get(b'original_release_date')
 		#Seems that this key is here sometimes, and original_release_date sometimes appears along with steam_release_date where a game was only put on Steam later than when it was actually released elsewhere
@@ -330,11 +402,12 @@ def add_metadata_from_appinfo(game):
 		#mustownapptopurchase: If present, appID of a game that you need to buy first (parent of DLC, or something like Source SDK Base for Garry's Mod, etc)
 		#dependantonapp: Probably same sort of thing, like Half-Life: Opposing Force is dependent on original Half-Life
 
+	is_natively_linux = False
 	config = app_info_section.get(b'config')
 	if config:
 		#contenttype = 3 in some games but not all of them? nani
 		launch = config.get(b'launch')
-		#This key would actually tell us the executable and arguments used to actually launch the game. It's probably not a good idea to do that directly though, mostly because some games are DRM'd to Steam, so it's probably a good idea to go through the Steam client like we are now.
+		#This key would actually tell us the executable and arguments used to actually launch the game. It's probably not a good idea to do that directly though, mostly because most games are DRM'd to Steam, so it's probably a good idea to go through the Steam client like we are now.
 		#Although I guess that would allow us to detect if a game is just a wrapper for going through another launcher, like Origin or uPlay or whatevs, but yeah
 		#Anyway, we're going to use it a bit more responsibly
 		if launch:
@@ -348,9 +421,25 @@ def add_metadata_from_appinfo(game):
 					if b'linux' in launch_item_config.get(b'oslist', b''):
 						#I've never seen oslist be a list, but it is always a byte string, so maybe there's some game where it's multiple platforms comma separated
 						#(Other key: osarch = sometimes Integer with data = 32/64, or b'32' or b'64')
-						have_linux_launcher = True
-			if not have_linux_launcher:
-				game.metadata.specific_info['Uses-Steam-Play'] = True
+						is_natively_linux = True
+
+	steamplay_overrides = get_steamplay_overrides()
+	steamplay_whitelist = get_steamplay_whitelist()
+	appid_str = str(game.app_id)
+	if appid_str in steamplay_overrides:
+		#Natively ported game, but forced to use Proton/etc for reasons
+		tool = steamplay_overrides[appid_str]
+		game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
+		game.metadata.specific_info['Steam-Play-Forced'] = True
+	elif appid_str in steamplay_whitelist:
+		tool = steamplay_whitelist[appid_str]
+		game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
+		game.metadata.specific_info['Steam-Play-Whitelisted'] = True
+	elif not is_natively_linux:
+		global_tool = steamplay_overrides.get('0')
+		if global_tool:
+			game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
+			game.metadata.specific_info['Steam-Play-Whitelisted'] = False
 
 	localization = app_info_section.get(b'localization')
 	if localization:
