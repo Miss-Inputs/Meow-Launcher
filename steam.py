@@ -247,7 +247,7 @@ def _get_steamplay_appinfo_extended():
 	steamplay_manifest_appid = 891390
 
 	steamplay_appinfo = steam_state.app_info.get(steamplay_manifest_appid)
-	sections = game_app_info.get('sections')
+	sections = steamplay_appinfo.get('sections')
 	if sections is None:
 		return None
 	app_info_section = sections.get(b'appinfo')
@@ -346,7 +346,7 @@ def add_metadata_from_appinfo(game):
 			release_datetime = datetime.datetime.fromtimestamp(release_date.data)
 			game.metadata.year = release_datetime.year
 			game.metadata.month = release_datetime.month
-			game.metadata.day = rrelease_datetime.day
+			game.metadata.day = release_datetime.day
 
 		category = common.get(b'type', b'Unknown').decode('utf-8', errors='backslashreplace')
 		if category in ('game', 'Game'):
@@ -412,7 +412,6 @@ def add_metadata_from_appinfo(game):
 		#Anyway, we're going to use it a bit more responsibly
 		if launch:
 			#Should always exist if the game can be launched, but I'm just going to null check every single thing in my life from now on to avoid the pain
-			have_linux_launcher = False
 			for launch_item in launch.values():
 				#Key here is 0, 1, 2, n... which is a bit useless, it's really just a boneless list. Anyway, each of these values is another dict containing launch parameters, for each individual platform or configuration, e.g. Windows 32-bit, Windows 64-bit, MacOS, etc
 				#If you wanted to do secret evil things: b'executable' = 'CoolGame.sh' b'arguments' (optional) = '--fullscreen --blah' b'description' = 'Cool Game'
