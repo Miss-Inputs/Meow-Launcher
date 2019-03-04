@@ -372,7 +372,14 @@ def add_metadata_from_appinfo(game):
 		if primary_genre:
 			#I think this has to do with the breadcrumb thing in the store at the top where it's like "All Games > Blah Games > Blah"
 			#It is flawed in a few ways, as some things aren't really primary genres (Indie, Free to Play) and some are combinations (Action + RPG, Action + Adventure)
-			game.metadata.specific_info['Primary-Genre-ID'] = genre_ids.get(primary_genre.data, 'unknown {0}'.format(primary_genre.data))
+			game.metadata.genre = genre_ids.get(primary_genre.data, 'unknown {0}'.format(primary_genre.data))
+		genre_list = common.get(b'genres')
+		if genre_list:
+			#This is definitely the thing in the sidebar on the store page
+			genres = []
+			for genre in genre_list.values():
+				genres.append(genre_ids.get(genre.data, 'unknown {0}'.format(genre.data)))
+			game.metadata.specific_info['Genres'] = genres
 
 		release_date = common.get(b'original_release_date')
 		#Seems that this key is here sometimes, and original_release_date sometimes appears along with steam_release_date where a game was only put on Steam later than when it was actually released elsewhere
