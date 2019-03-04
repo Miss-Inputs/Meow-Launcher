@@ -389,6 +389,16 @@ def add_metadata_from_appinfo(game):
 		#TODO: Probably can't do input_info with this, but maybe use EmulationStatus enum to do Good (full) Imperfect (partial) Broken (none)
 		game.metadata.specific_info['Controlller-Support'] = common.get(b'controller_support', b'none').decode('utf-8', errors='backslashreplace')
 
+		associations = common.get(b'associations')
+		if associations:
+			for association in associations.values():
+				#Can also get multiple developers/publishers this way (as can sometimes happen if a separate developer does the Linux port, for example)
+				if association.get(b'type') == b'franchise':
+					franchise = association.get(b'name')
+					if franchise:
+						game.metadata.specific_info['Franchise'] = franchise.decode('utf-8', errors='backslashreplace')
+					break
+
 	extended = app_info_section.get(b'extended')
 	if extended:
 		developer = extended.get(b'developer')
