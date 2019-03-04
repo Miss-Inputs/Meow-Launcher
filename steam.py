@@ -459,7 +459,7 @@ def add_metadata_from_appinfo(game):
 	elif not is_natively_linux:
 		global_tool = steamplay_overrides.get('0')
 		if global_tool:
-			game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
+			game.metadata.emulator_name = get_steamplay_compat_tools().get(global_tool, global_tool)
 			game.metadata.specific_info['Steam-Play-Whitelisted'] = False
 
 	localization = app_info_section.get(b'localization')
