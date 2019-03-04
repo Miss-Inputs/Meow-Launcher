@@ -221,14 +221,19 @@ def normalize_developer(dev):
 
 	overrides = {
 		#Different spellings/formattings of the same company, but we like being consistent with all the other modules and I also just disagree with yelling I guess
+		'AGM PLAYISM': 'AGM Playism',
 		'ALICE IN DISSONANCE': 'Alice in Dissonance',
 		'ASTRO PORT': 'Astro Port',
 		'BANDAI NAMCO Entertainment': 'Bandai Namco',
+		'BANDAI NAMCO Studios': 'Bandai Namco', #Appears as developer, the Bandai Namco Entertainment appears as publisher... hmm
+		'Bethesda-Softworks': 'Bethesda',
 		'CD PROJEKT RED': 'CD Projekt Red',
 		'GATO STUDIO': 'Gato Studio', #Also seen as "Gato Salvaje", although that doesn't transate exactly to the English name
 		'SEGA': 'Sega',
 		'QUICKTEQUILA': 'Quicktequila',
+		'XSEED GAMES': 'XSeed Games',
 		'YAGER': 'Yager Development',
+		#Coffee Stain Studios = Coffee Stain Publishing? Hmm
 
 		#These could be sorta like different brands of the same company, but I'm gonna go with the opinion that they should be treated as the same company. But this section could be like... subjective I guess
 		'Microsoft Studios': 'Microsoft',
