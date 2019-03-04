@@ -367,7 +367,7 @@ def add_metadata_from_appinfo(game):
 		#openvrsupport, controllervr, othervrsupport, othervrsupport_rift_13 could have something to do with games that support VR
 		#eulas is a list, so it could be used to detect if game has third-party EULA
 		#small_capsule and header_image refer to image files that don't seem to be there so I dunno
-		#store_tags would be useful for genre if they weren't all '9': Integer(size = 32, data = 4182) and I have no idea what a 4182 means and if it requires connecting to the dang web then nah thanks
+		#store_tags is a list of numeric IDs, they're the user-supplied tags on the store
 		#workshop_visible and community_hub_visible could also tell you stuff about if the game has a workshop and a... community hub
 		#releasestate: 'released' might be to do with early access?
 		#exfgls = exclude from game library sharing
