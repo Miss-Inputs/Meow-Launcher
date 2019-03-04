@@ -257,6 +257,7 @@ def add_metadata_from_appinfo(game):
 		#eulas is a list, so it could be used to detect if game has third-party EULA
 		#small_capsule and header_image refer to image files that don't seem to be there so I dunno
 		#store_tags would be useful for genre if they weren't all '9': Integer(size = 32, data = 4182) and I have no idea what a 4182 means and if it requires connecting to the dang web then nah thanks
+		#There is also a primary_genre which is also a mysterious int (I don't even know where that would show up in the normal client to get a mapping)
 		#workshop_visible and community_hub_visible could also tell you stuff about if the game has a workshop and a... community hub
 		#releasestate: 'released' might be to do with early access?
 		#exfgls = exclude from game library sharing
@@ -264,6 +265,16 @@ def add_metadata_from_appinfo(game):
 		language_list = common.get(b'languages')
 		if language_list:
 			game.metadata.languages = translate_language_list(language_list)
+
+		release_date = common.get(b'original_release_date')
+		#Seems that this key is here sometimes, and original_release_date sometimes appears along with steam_release_date where a game was only put on Steam later than when it was actually released elsewhere
+		if not release_date:
+			release_date = common.get(b'steam_release_date')
+		if release_date:
+			release_datetime = datetime.datetime.fromtimestamp(release_date.data)
+			game.metadata.year = release_datetime.year
+			game.metadata.month = release_datetime.month
+			game.metadata.day = rrelease_datetime.day
 
 		category = common.get(b'type', b'Unknown').decode('utf-8', errors='backslashreplace')
 		if category in ('game', 'Game'):
