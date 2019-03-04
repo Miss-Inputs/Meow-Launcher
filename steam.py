@@ -308,9 +308,9 @@ def get_steamplay_whitelist():
 	return apps
 
 genre_ids = {
-	#72 = primary genre ID of Hentai Puzzle? Store files it under "Indie Games" in the breadcrumb but that's 23 already; genres on store page are (Casual, Indie)? Indie | 8 | 64? Every single other H-game seems to have this
-	#All H-games seem to have both 72 and 71, Pyrite Heart is the only game having 72 but not 71
-	#34: Doesn't seem to be in the genre list on the store page, found on Gateways and Rochard
+	#71 might be sexual content? Found in seemingly all the games with... sexual content
+	#73: Only found in X-Blades, which has Nudity but not 71
+	#34: Doesn't seem to be in the genre list on the store page, found on Gateways and Rochard and Spectraball
 	#74: Also seemingly invisible, seen on The Raven Remastered
 	1: 'Action',
 	2: 'Strategy',
@@ -323,7 +323,9 @@ genre_ids = {
 	28: 'Simulation',
 	29: 'Massively Multiplayer',
 	37: 'Free to Play', #This isn't a genre but sure okay whatever
+	57: 'Utilities',
 	70: 'Early Access',
+	72: 'Nudity', #Also not a genre... whatever
 }
 
 def add_metadata_from_appinfo(game):
@@ -401,7 +403,8 @@ def add_metadata_from_appinfo(game):
 		if category in ('game', 'Game'):
 			#This makes the categories like how they are with DOS/Mac
 			game.metadata.categories = ['Games']
-		elif category == 'Tool':
+		elif category in ('Tool', 'Application'):
+			#Tool is for SDK/level editor/dedicated server/etc stuff, Application is for general purchased software
 			game.metadata.categories = ['Applications']
 		elif category == 'Demo':
 			game.metadata.categories = ['Trials']
