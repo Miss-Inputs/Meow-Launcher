@@ -451,7 +451,6 @@ def add_metadata_from_appinfo(game):
 		publisher = extended.get(b'publisher')
 		if publisher:
 			if isinstance(publisher, appinfo.Integer):
-				#Cheeky buggers... the doujin developer 773 is represented by the actual integer value 773 here, for some reason
 				game.metadata.publisher = str(publisher.data)
 			else:
 				game.metadata.publisher = normalize_developer(publisher.decode('utf-8', errors='backslashreplace'))
