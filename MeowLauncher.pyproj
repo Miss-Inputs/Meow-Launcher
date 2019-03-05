@@ -29,6 +29,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="config.py" />
+    <Compile Include="data\steam_developer_overrides.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="data\steam_genre_ids.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="data\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="disambiguate.py">
       <SubType>Code</SubType>
     </Compile>
