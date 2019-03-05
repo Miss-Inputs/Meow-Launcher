@@ -243,7 +243,7 @@ def normalize_developer(dev):
 		'Konami Digital Entertainment': 'Konami',
 		'Lupus Studios Limited': 'Lupus Studios',
 		'QUICKTEQUILA': 'Quicktequila',
-		'Rockin Android': 'Rockin\' Android'
+		'Rockin Android': 'Rockin\' Android',
 		'SEGA': 'Sega',
 		'SNK CORPORATION': 'SNK',
 		'SQUARE ENIX': 'Square Enix',
