@@ -126,10 +126,10 @@ def add_n64_metadata(game):
 	game.metadata.input_info.add_option(normal_controller)
 
 	database = get_mupen64plus_database()
-
-	database_entry = database.get(rom_md5)
-	if database_entry:
-		add_info_from_database_entry(game, database_entry)
+	if database:
+		database_entry = database.get(rom_md5)
+		if database_entry:
+			add_info_from_database_entry(game, database_entry)
 
 	software = find_in_software_lists(game.software_lists, crc=rom_crc32)
 	if not software:
