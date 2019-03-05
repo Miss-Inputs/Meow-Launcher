@@ -390,7 +390,9 @@ def add_metadata_from_appinfo(game):
 		if primary_genre:
 			#I think this has to do with the breadcrumb thing in the store at the top where it's like "All Games > Blah Games > Blah"
 			#It is flawed in a few ways, as some things aren't really primary genres (Indie, Free to Play) and some are combinations (Action + RPG, Action + Adventure)
-			game.metadata.genre = genre_ids.get(primary_genre.data, 'unknown {0}'.format(primary_genre.data))
+			if primary_genre.data != 0:
+				#Sometimes it's 0, even though the genre list is still there
+				game.metadata.genre = genre_ids.get(primary_genre.data, 'unknown {0}'.format(primary_genre.data))
 		genre_list = common.get(b'genres')
 		if genre_list:
 			#This is definitely the thing in the sidebar on the store page
