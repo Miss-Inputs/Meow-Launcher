@@ -1,8 +1,7 @@
 genre_ids = {
-	#71 might be sexual content? Found in seemingly all the games with... sexual content
-	#73: Only found in X-Blades, which has Nudity but not 71
-	#34: Doesn't seem to be in the genre list on the store page, found on Gateways and Rochard and Spectraball
-	#74: Also seemingly invisible, seen on The Raven Remastered
+	#Mysterious invisible genre IDs that don't seem to show up on the store page but they're in the appinfo.vdf:
+
+	#34: Gateways, Rochard, Spectraball, Goblin Menace DLC for Trine 2, BIT.TRIP BEAT Original Soundtrack (not on the parent game though?)
 	1: 'Action',
 	2: 'Strategy',
 	3: 'RPG',
@@ -16,5 +15,11 @@ genre_ids = {
 	37: 'Free to Play', #This isn't a genre but sure okay whatever
 	57: 'Utilities',
 	70: 'Early Access',
-	72: 'Nudity', #Also not a genre... whatever
+
+	#These don't show up in the genre list (except when viewing a bundle???) so they're just guesses, but seem to be correct; well... I guess this whole list is just guessing, but y'know; anyway since it does _sometimes_ show the wording I'm using that wording
+	#They aren't really genres but whatevs
+	71: 'Sexual Content',
+	72: 'Nudity',
+	73: 'Violent',
+	74: 'Gore',
 }
