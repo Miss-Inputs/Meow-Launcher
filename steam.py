@@ -336,7 +336,9 @@ def add_metadata_from_appinfo(game):
 			#This is definitely the thing in the sidebar on the store page
 			genres = []
 			for genre in genre_list.values():
-				genres.append(genre_ids.get(genre.data, 'unknown {0}'.format(genre.data)))
+				genre_name = genre_ids.get(genre.data, 'unknown {0}'.format(genre.data))
+				if genre_name not in genres:
+					genres.append(genre_name)
 			game.metadata.specific_info['Genres'] = genres
 
 		release_date = common.get(b'original_release_date')
