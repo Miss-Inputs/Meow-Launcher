@@ -19,4 +19,3 @@ genre_ids = {
 	70: 'Early Access',
 	72: 'Nudity', #Also not a genre... whatever
 }
-
