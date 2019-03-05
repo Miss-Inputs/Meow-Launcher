@@ -1,4 +1,3 @@
-
 genre_ids = {
 	#71 might be sexual content? Found in seemingly all the games with... sexual content
 	#73: Only found in X-Blades, which has Nudity but not 71
