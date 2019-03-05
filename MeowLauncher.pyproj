@@ -207,7 +207,7 @@
     <Content Include="LICENSE" />
     <Content Include="third-party-copyright-stuff.txt" />
     <Content Include="mame_autoboot\tomy_tutor.lua" />
-    <Content Include="name_consistency.ini" />
+    <Content Include="data\name_consistency.ini" />
     <Content Include="README.md" />
     <Content Include="requirements.txt" />
   </ItemGroup>
@@ -215,6 +215,7 @@
     <Folder Include="gui\" />
     <Folder Include="info\" />
     <Folder Include="mame_autoboot\" />
+    <Folder Include="data\" />
     <Folder Include="platform_metadata\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

@@ -16,8 +16,7 @@ cache_dir = os.path.expanduser(os.path.join('~/.cache/', app_name.replace(' ', '
 #Static paths I guess
 _main_config_path = os.path.join(_config_dir, 'config.ini')
 _ignored_dirs_path = os.path.join(_config_dir, 'ignored_directories.txt')
-#TODO: Do I really want this to be in the source file like that? Ehhhhh
-_name_consistency_path = os.path.join(os.path.dirname(__file__), 'name_consistency.ini')
+_name_consistency_path = os.path.join(os.path.dirname(__file__), 'data', 'name_consistency.ini')
 _system_config_path = os.path.join(_config_dir, 'systems.ini')
 
 mac_ini_path = os.path.join(_config_dir, 'mac.ini')
