@@ -29,6 +29,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="config.py" />
+    <Compile Include="data\mame_manufacturers.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="data\steam_developer_overrides.py">
       <SubType>Code</SubType>
     </Compile>
