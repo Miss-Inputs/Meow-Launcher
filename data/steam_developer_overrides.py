@@ -18,6 +18,8 @@ developer_overrides = {
 	'GATO STUDIO': 'Gato Studio', #Also seen as "Gato Salvaje", although that doesn't transate exactly to the English name
 	'IDEA FACTORY ': 'Idea Factory', #Who puts a damn space there
 	'IKEA Communications AB': 'IKEA Communications',
+	'Killmonday Games AB': 'Killmonday Games',
+	'KITATUS STUDIOS': 'Kitatus Studios',
 	'Konami Digital Entertainment': 'Konami',
 	'Lupus Studios Limited': 'Lupus Studios',
 	'QUICKTEQUILA': 'Quicktequila',
@@ -27,6 +29,7 @@ developer_overrides = {
 	'SQUARE ENIX': 'Square Enix',
 	'Topware Interactive ACE': 'Topware Interactive',
 	'Warner Bros. Interactive Entertainment': 'Warner Bros',
+	'XSEED Games': 'XSeed Games',
 	'XSEED GAMES': 'XSeed Games',
 	'YAGER': 'Yager Development',
 	#Coffee Stain Studios = Coffee Stain Publishing? Hmm
