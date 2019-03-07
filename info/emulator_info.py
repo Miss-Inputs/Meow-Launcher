@@ -356,5 +356,5 @@ class DOSEmulator():
 		return self.exe_name, self.args
 
 dos_emulators = {
-	'DOSBox/SDL2': DOSEmulator('dosbox', command_lines.dosbox)
+	'DOSBox': DOSEmulator('dosbox', command_lines.dosbox)
 }
