@@ -30,6 +30,7 @@ from metadata import Metadata
 
 from data.steam_genre_ids import genre_ids
 from data.steam_developer_overrides import developer_overrides
+from data.steam_store_categories import store_categories
 
 class SteamState():
 	class __SteamState():
@@ -350,6 +351,15 @@ def add_metadata_from_appinfo(game):
 			game.metadata.year = release_datetime.year
 			game.metadata.month = calendar.month_name[release_datetime.month]
 			game.metadata.day = release_datetime.day
+
+		store_categories_list = common.get(b'category')
+		if store_categories_list:
+			#keys are category_X where X is some arbitrary ID, values are always Integer = 1
+			#This is the thing where you go to the store sidebar and it's like "Single-player" "Multi-player" "Steam Achievements" etc"
+			cats = [store_categories.get(key, key) for key in [key.decode('utf-8', errors='backslashreplace') for key in store_categories_list.keys()]]
+			game.metadata.specific_info['Store-Categories'] = cats #meow
+			game.metadata.specific_info['Has-Achievements'] = 'Steam Achievements' in cats
+			game.metadata.specific_info['Has-Trading-Cards'] = 'Steam Trading Cards' in cats
 
 		category = common.get(b'type', b'Unknown').decode('utf-8', errors='backslashreplace')
 		if category in ('game', 'Game'):
