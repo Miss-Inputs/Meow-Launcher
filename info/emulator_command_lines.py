@@ -536,6 +536,12 @@ def mednafen_lynx(game, _):
 
 	return make_mednafen_command_line('lynx')
 
+def mednafen_megadrive(game, _):
+	if game.metadata.specific_info.get('Uses-SVP', False):
+		raise EmulationNotSupportedException('SVP chip not supported')
+
+	return make_mednafen_command_line('md')
+
 def mame_n64(game, _):
 	if game.metadata.tv_type == TVSystem.PAL:
 		raise EmulationNotSupportedException('NTSC only')

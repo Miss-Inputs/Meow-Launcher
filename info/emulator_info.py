@@ -263,14 +263,14 @@ emulators = {
 
 	#--These ones may or may not run well, I dunno:
 	'Mednafen (Game Boy)': MednafenModule('gb', ['gb', 'gbc'], command_lines.mednafen_gb),
-	#Would not recommend due to this being based on VisualBoyAdvance (and an old version at that), it's just here for completeness
+	#Based off an old version of VisualBoyAdvance
 	'Mednafen (Game Gear)': MednafenModule('gg', ['gg']),
 	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes". This is based off SMS Plus
 	'Mednafen (GBA)': MednafenModule('gba', ['gba']),
-	#Would not recommend due to this being based on VisualBoyAdvance, it's just here for completeness
+	#Based off an old version of VisualBoyAdvance
 	'Mednafen (Master System)': MednafenModule('sms', ['sms', 'bin']),
 	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes". Based off SMS Plus
-	'Mednafen (Mega Drive)': MednafenModule('md', ['md', 'bin', 'gen', 'smd', 'sgd']),
+	'Mednafen (Mega Drive)': MednafenModule('md', ['md', 'bin', 'gen', 'smd', 'sgd'], command_lines.mednafen_megadrive),
 	#Based off Genesis Plus and an older GPL version of Genesis Plus GX, with all GPL-incompatible cores replaced with alternatives (sound chip emulation from Gens, Z80 from FUSE). Apparently "should still be considered experimental; there are still likely timing bugs in the 68K emulation code, the YM2612 emulation code is not particularly accurate, and the VDP code has timing-related issues."
 	'Mednafen (SNES)': MednafenModule('snes', ['sfc', 'smc', 'swc']),
 	#Based on bsnes v0.059; appears it doesn't do Sufami Turbo or Satellaview
