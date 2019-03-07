@@ -277,6 +277,9 @@ def get_steamplay_whitelist():
 			apps[k.decode('utf-8', errors='ignore')] = tool.decode('utf-8', errors='ignore')
 	return apps
 
+def format_genre(genre_id):
+	return genre_ids.get(genre_id, 'unknown {0}'.format(genre_id))
+
 def add_metadata_from_appinfo(game):
 	game_app_info = steam_state.app_info.get(game.app_id)
 	if game_app_info is None:
@@ -325,22 +328,42 @@ def add_metadata_from_appinfo(game):
 		if language_list:
 			game.metadata.languages = translate_language_list(language_list)
 
-		primary_genre = common.get(b'primary_genre')
-		if primary_genre:
-			#I think this has to do with the breadcrumb thing in the store at the top where it's like "All Games > Blah Games > Blah"
-			#It is flawed in a few ways, as some things aren't really primary genres (Indie, Free to Play) and some are combinations (Action + RPG, Action + Adventure)
-			if primary_genre.data != 0:
+		content_warning_ids = []
+		primary_genre_id = common.get(b'primary_genre')
+		#I think this has to do with the breadcrumb thing in the store at the top where it's like "All Games > Blah Games > Blah"
+		#It is flawed in a few ways, as some things aren't really primary genres (Indie, Free to Play) and some are combinations (Action + RPG, Action + Adventure)
+		if primary_genre_id:
+			if primary_genre_id.data == 0:
 				#Sometimes it's 0, even though the genre list is still there
-				game.metadata.genre = genre_ids.get(primary_genre.data, 'unknown {0}'.format(primary_genre.data))
-		genre_list = common.get(b'genres')
-		if genre_list:
-			#This is definitely the thing in the sidebar on the store page
-			genres = []
-			for genre in genre_list.values():
-				genre_name = genre_ids.get(genre.data, 'unknown {0}'.format(genre.data))
-				if genre_name not in genres:
-					genres.append(genre_name)
-			game.metadata.specific_info['Genres'] = genres
+				primary_genre_id = None
+			elif primary_genre_id.data >= 71:
+				#While it is humourous that "Nudity" can appear as the primary genre for a game (Hentai Puzzle), this is not really what someone would sensibly want
+				content_warning_ids.append(primary_genre_id.data)
+				primary_genre_id = None
+			else:
+				primary_genre_id = primary_genre_id.data
+		genre_id_list = common.get(b'genres')
+		#This is definitely the thing in the sidebar on the store page
+
+		additional_genre_ids = []
+		if genre_id_list:
+			for genre_id in genre_id_list.values():
+				if not genre_id:
+					continue
+				if genre_id.data == primary_genre_id:
+					continue
+				if genre_id.data >= 71 and genre_id.data not in content_warning_ids:
+					content_warning_ids.append(genre_id.data)
+				elif genre_id.data not in additional_genre_ids:
+					additional_genre_ids.append(genre_id.data)
+		if additional_genre_ids and not primary_genre_id:
+			primary_genre_id = additional_genre_ids[0]
+
+		game.metadata.genre = format_genre(primary_genre_id)
+		#TODO: Combine additional genres where appropriate (e.g. Action + Adventure, Massively Multiplayer + RPG)
+		game.metadata.specific_info['Additional-Genres'] = [format_genre(id) for id in additional_genre_ids]
+		game.metadata.specific_info['Content-Warnings'] = [format_genre(id) for id in content_warning_ids]
+		#"genre" doesn't look like a word anymore
 
 		release_date = common.get(b'original_release_date')
 		#Seems that this key is here sometimes, and original_release_date sometimes appears along with steam_release_date where a game was only put on Steam later than when it was actually released elsewhere
