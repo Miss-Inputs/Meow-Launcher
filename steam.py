@@ -352,8 +352,9 @@ def add_metadata_from_appinfo(game):
 					continue
 				if genre_id.data == primary_genre_id:
 					continue
-				if genre_id.data >= 71 and genre_id.data not in content_warning_ids:
-					content_warning_ids.append(genre_id.data)
+				if genre_id.data >= 71:
+					if genre_id.data not in content_warning_ids:
+						content_warning_ids.append(genre_id.data)
 				elif genre_id.data not in additional_genre_ids:
 					additional_genre_ids.append(genre_id.data)
 		if additional_genre_ids and not primary_genre_id:
