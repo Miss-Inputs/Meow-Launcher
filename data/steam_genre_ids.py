@@ -1,6 +1,8 @@
 genre_ids = {
 	#Mysterious invisible genre IDs that don't seem to show up on the store page but they're in the appinfo.vdf:
 
+	#22: Peggle Deluxe (as primary genre)
+	#33: Peggle Deluxe
 	#34: Gateways, Rochard, Spectraball, Goblin Menace DLC for Trine 2, BIT.TRIP BEAT Original Soundtrack (not on the parent game though?)
 	1: 'Action',
 	2: 'Strategy',
