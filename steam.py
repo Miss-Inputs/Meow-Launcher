@@ -363,8 +363,10 @@ def add_metadata_from_appinfo(game):
 		if primary_genre_id:
 			game.metadata.genre = format_genre(primary_genre_id)
 		#TODO: Combine additional genres where appropriate (e.g. Action + Adventure, Massively Multiplayer + RPG)
-		game.metadata.specific_info['Additional-Genres'] = [format_genre(id) for id in additional_genre_ids]
-		game.metadata.specific_info['Content-Warnings'] = [format_genre(id) for id in content_warning_ids]
+		if additional_genre_ids:
+			game.metadata.specific_info['Additional-Genres'] = [format_genre(id) for id in additional_genre_ids]
+		if content_warning_ids:
+			game.metadata.specific_info['Content-Warnings'] = [format_genre(id) for id in content_warning_ids]
 		#"genre" doesn't look like a word anymore
 
 		release_date = common.get(b'original_release_date')
