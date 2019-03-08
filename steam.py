@@ -358,7 +358,7 @@ def add_metadata_from_appinfo(game):
 				elif genre_id.data not in additional_genre_ids:
 					additional_genre_ids.append(genre_id.data)
 		if additional_genre_ids and not primary_genre_id:
-			primary_genre_id = additional_genre_ids[0]
+			primary_genre_id = additional_genre_ids.pop(0)
 
 		if primary_genre_id:
 			game.metadata.genre = format_genre(primary_genre_id)
