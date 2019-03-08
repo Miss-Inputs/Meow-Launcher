@@ -316,7 +316,6 @@ def add_metadata_from_appinfo(game):
 				break
 
 		#oslist and osarch may come in handy (former is comma separated windows/macos/linux; latter is b'64' or purrsibly b'32')
-		#openvrsupport, controllervr, othervrsupport, othervrsupport_rift_13 could have something to do with games that support VR
 		#eulas is a list, so it could be used to detect if game has third-party EULA
 		#small_capsule and header_image refer to image files that don't seem to be there so I dunno
 		#store_tags is a list of numeric IDs, they're the user-supplied tags on the store
@@ -402,6 +401,13 @@ def add_metadata_from_appinfo(game):
 
 		has_adult_content = common.get(b'has_adult_content') #Integer object with data = 0 or 1, as most bools here seem to be
 		game.metadata.nsfw = False if has_adult_content is None else bool(has_adult_content.data)
+
+		only_vr = common.get(b'onlyvrsupport')
+		vr_support = common.get(b'openvrsupport')
+		if only_vr is not None and only_vr.data:
+			game.metadata.specific_info['VR-Support'] = 'Required'
+		elif vr_support is not None and vr_support.data:
+			game.metadata.specific_info['VR-Support'] = 'Optional'
 
 		metacritic_score = common.get(b'metacritic_score')
 		if metacritic_score:
