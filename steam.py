@@ -479,12 +479,31 @@ def add_metadata_from_appinfo(game):
 			for launch_item in launch.values():
 				#Key here is 0, 1, 2, n... which is a bit useless, it's really just a boneless list. Anyway, each of these values is another dict containing launch parameters, for each individual platform or configuration, e.g. Windows 32-bit, Windows 64-bit, MacOS, etc
 				#If you wanted to do secret evil things: b'executable' = 'CoolGame.sh' b'arguments' (optional) = '--fullscreen --blah' b'description' = 'Cool Game'
+
 				launch_item_config = launch_item.get(b'config')
 				if launch_item_config:
-					if b'linux' in launch_item_config.get(b'oslist', b''):
+					launch_item_oslist = launch_item_config.get(b'oslist', b'')
+					if b'linux' in launch_item_oslist:
 						#I've never seen oslist be a list, but it is always a byte string, so maybe there's some game where it's multiple platforms comma separated
 						#(Other key: osarch = sometimes Integer with data = 32/64, or b'32' or b'64')
 						is_natively_linux = True
+					elif b'windows' in launch_item_oslist or not launch_item_oslist:
+						#Windows is always there so we'll use it to detect what the "main" launcher is, probably, or maybe I shouldn't do it that way? Well, I'll blame this code if anything happens related to what I'm trying to do
+						#TODO: Yeah, this doesn't work, there are sometimes stuff with no launch_item_config key
+						executable_name = launch_item.get(b'executable')
+						if executable_name:
+							executable_basename = executable_name.decode('utf-8', errors='ignore')
+							if '/' in executable_basename:
+								executable_basename = executable_basename.partition('/')[-1]
+							elif '\\' in executable_basename:
+								executable_basename = executable_basename.partition('\\')[-1]
+							if executable_basename.lower() == 'dosbox.exe':
+								game.metadata.specific_info['Is-DOSBox-Wrapper'] = True
+						executable_arguments = launch_item.get(b'arguments')
+						if executable_arguments:
+							if '-uplay_steam_mode' in executable_arguments.decode('utf-8', errors='ignore'):
+								game.metadata.specific_info['Launcher'] = 'uPlay'
+						#You can't detect that a game uses Origin that I can tell... dang
 
 	steamplay_overrides = get_steamplay_overrides()
 	steamplay_whitelist = get_steamplay_whitelist()
