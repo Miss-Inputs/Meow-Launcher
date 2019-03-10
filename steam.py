@@ -448,7 +448,11 @@ def add_metadata_from_appinfo(game):
 			if isinstance(publisher, appinfo.Integer):
 				game.metadata.publisher = str(publisher.data)
 			else:
-				game.metadata.publisher = normalize_developer(publisher.decode('utf-8', errors='backslashreplace'))
+				publisher = normalize_developer(publisher.decode('utf-8', errors='backslashreplace'))
+				if publisher in ('none', 'Self Published'):
+					game.metadata.publisher = game.metadata.developer
+				else:
+					game.metadata.publisher = publisher
 
 		homepage = extended.get(b'homepage')
 		if homepage:
