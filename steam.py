@@ -148,6 +148,12 @@ class SteamGame():
 		exe_args = ['steam://rungameid/{0}'.format(self.app_id)]
 		launchers.make_launcher(exe_name, exe_args, self.name, self.metadata, 'Steam', self.app_id, self.icon)
 
+class IconError(Exception):
+	pass
+
+class IconNotFoundError(Exception):
+	pass
+
 def look_for_icon(icon_hash):
 	icon_hash = icon_hash.lower()
 	for icon_file in os.listdir(steam_state.icon_folder):
@@ -160,9 +166,7 @@ def look_for_icon(icon_hash):
 			with open(icon_path, 'rb') as test:
 				magic = test.read(4)
 				if magic == b'Rar!':
-					if main_config.debug:
-						print('icon', icon_hash, 'is secretly a RAR file and cannot be opened')
-					return None
+					raise IconError('icon {0} is secretly a RAR file and cannot be opened'.format(icon_hash))
 
 			if have_pillow and icon_file.endswith('.ico') and not is_zip:
 				#.ico files can be a bit flaky with Tumbler thumbnails and some other image-reading stuff, so if we can convert them, that might be a good idea just in case (well, there definitely are some icons that don't thumbnail properly so yeah)
@@ -172,9 +176,7 @@ def look_for_icon(icon_hash):
 				except (ValueError, OSError) as ex:
 					#.ico file is shitty and broken and has an invalid size in its own fucking header
 					#OSError is also thrown too sometimes when it's not actually an .ico file
-					if main_config.debug:
-						print('.ico file', icon_hash, 'has some annoying error', ex)
-					return None
+					raise IconError('.ico file {0} has some annoying error: {1}'.format(icon_hash, str(ex))) from ex
 
 			if not is_zip:
 				return icon_path
@@ -195,7 +197,7 @@ def look_for_icon(icon_hash):
 				extracted_icon_folder = os.path.join(main_config.image_folder, 'icons', 'extracted_from_zip', icon_hash)
 				return zip_file.extract(extracted_icon_file, path=extracted_icon_folder)
 
-	return None
+	raise IconNotFoundError('{0} not found'.format(icon_hash))
 
 def translate_language_list(languages):
 	langs = []
@@ -302,7 +304,10 @@ def add_metadata_from_appinfo(game):
 	#Alright let's get to the fun stuff
 	common = app_info_section.get(b'common')
 	if common:
-		potential_icon_names = (b'linuxclienticon', b'clienticon', b'clienttga', b'clienticns', b'icon', b'logo', b'logo_small')
+		potential_icon_names = (b'linuxclienticon', b'clienticon', b'icon', b'logo', b'clienttga', b'clienticns', b'logo_small')
+		icon_exception = None
+		found_an_icon = False
+
 		for potential_icon_name in potential_icon_names:
 			if potential_icon_name not in common:
 				continue
@@ -310,10 +315,23 @@ def add_metadata_from_appinfo(game):
 				icon_hash = common[potential_icon_name].decode('utf-8')
 			except UnicodeDecodeError:
 				continue
-			icon = look_for_icon(icon_hash)
+			try:
+				icon = look_for_icon(icon_hash)
+			except IconError as icon_error:
+				icon_exception = icon_error
+				continue
+			except IconNotFoundError:
+				continue
 			if icon:
 				game.icon = icon
+				icon_exception_reason = None
+				found_an_icon = True
 				break
+		if main_config.debug:
+			if icon_exception:
+				print(game.name, game.app_id, icon_exception)
+			elif not found_an_icon:
+				print('Could not find icon for', game.name, game.app_id)
 
 		#oslist and osarch may come in handy (former is comma separated windows/macos/linux; latter is b'64' or purrsibly b'32')
 		#eulas is a list, so it could be used to detect if game has third-party EULA
