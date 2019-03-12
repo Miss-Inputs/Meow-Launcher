@@ -408,6 +408,8 @@ def add_metadata(machine):
 	if language:
 		machine.metadata.languages = [language]
 
+	machine.metadata.specific_info['Franchise'] = get_machine_category(machine.basename, 'series')
+
 	machine.metadata.regions = get_regions_from_filename_tags(find_filename_tags.findall(machine.name), loose=True)
 
 	#Might not be so hardcoded one day...
