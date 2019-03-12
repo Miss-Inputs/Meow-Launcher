@@ -165,27 +165,14 @@ def resolve_duplicates(group, method, format_function=None, ignore_missing_value
 	else:
 		resolve_duplicates_by_metadata(group, method, format_function, ignore_missing_values)
 
-dot_not_before_word = re.compile(r'\.\B')
-hyphen_inside_word = re.compile(r'\b-\b')
-hash_number = re.compile(r'#(\d)')
+words = re.compile(r'\w+')
 def normalize_name(name):
 	name = name.lower()
-	name = dot_not_before_word.sub('', name)
 	name = name.replace('3-d', '3d')
 	name = name.replace('&', 'and')
-	name = name.replace(" 'n", "'n")
-	name = hyphen_inside_word.sub(' ', name)
 	name = name.replace('é', 'e')
-	name = name.replace('dr. ', 'dr ')
-	name = hash_number.sub(r'\1', name)
 
-	name = name.replace('!', '')
-	name = name.replace('?', '')
-	name = name.replace(': ', ' ')
-	name = name.replace(' - ', ' ')
-	name = name.replace(', ', ' ')
-
-	return name
+	return '-'.join(words.findall(name))
 
 def fix_duplicate_names(method, format_function=None, ignore_missing_values=None):
 	files = [(path, launchers.get_desktop(path)) for path in [os.path.join(main_config.output_folder, f) for f in os.listdir(main_config.output_folder)]]
