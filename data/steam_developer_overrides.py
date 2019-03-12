@@ -8,6 +8,7 @@ developer_overrides = {
 	'ATLUS': 'Atlus',
 	'BANDAI NAMCO Entertainment': 'Bandai Namco',
 	'BANDAI NAMCO Studios': 'Bandai Namco', #Appears as developer, the Bandai Namco Entertainment appears as publisher... hmm
+	'Bethesda Game Studios': 'Bethesda',
 	'Bethesda-Softworks': 'Bethesda',
 	'Bethesda Softworks': 'Bethesda',
 	'CD PROJEKT RED': 'CD Projekt Red',
