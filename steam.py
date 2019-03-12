@@ -324,7 +324,7 @@ def add_metadata_from_appinfo(game):
 				continue
 			if icon:
 				game.icon = icon
-				icon_exception_reason = None
+				icon_exception = None
 				found_an_icon = True
 				break
 		if main_config.debug:
