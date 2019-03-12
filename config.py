@@ -88,6 +88,9 @@ _config_ini_values = {
 	#TODO: Should be in specific_config as it is inherently specific to the emulator (DOSBox) and not the platform
 	'dosbox_configs_path': ConfigValue('DOS', ConfigValueType.FolderPath, os.path.join(_data_dir, 'dosbox_configs'), 'DOSBox configs path', 'Folder to store DOSBox per-application configuration files'),
 
+	#TODO: Put this in a general section, use it in the other modules, and also have an option to normalize the case of _all_ names and not just yelly case ones
+	'normalize_name_case': ConfigValue('Steam', ConfigValueType.Bool, False, 'Normalize name case', 'Apply title case to titles of games which are in all uppercase'),
+
 	#These shouldn't end up in config.ini as they're intended to be set per-run
 	'debug': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Debug', 'Enable debug mode, which is really verbose mode, oh well'),
 	'print_times': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Print times', 'Print how long it takes to do things'),

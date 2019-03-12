@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 	have_steamfiles = False
 
 from config import main_config
-from common import junk_suffixes
+from common import junk_suffixes, title_case
 from common_types import MediaType, SaveType
 import region_detect
 import launchers
@@ -564,6 +564,10 @@ def process_game(app_id, name=None):
 	if not name:
 		name = '<unknown game {0}>'.format(app_id)
 	name = name.replace('™', '')
+	name = name.replace('®', '')
+	if main_config.normalize_name_case and name.isupper():
+		name = title_case(name, words_to_ignore_case=['GOTY', 'XL', 'VR', 'XCOM', 'VVVVVV', 'RPG'])
+
 	#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
 	try:
 		app_id = int(app_id)
