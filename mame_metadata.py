@@ -1,13 +1,13 @@
 import configparser
 import sys
+import os
 
 import input_metadata
-from config import main_config
 from common_types import MediaType, SaveType
 from metadata import EmulationStatus, CPUInfo, ScreenInfo
 from region_detect import get_language_by_english_name, get_regions_from_filename_tags
 from common import find_filename_tags, pluralize
-from mame_helpers import find_main_cpu
+from mame_helpers import find_main_cpu, get_mame_ui_config
 
 debug = '--debug' in sys.argv
 
@@ -19,33 +19,30 @@ mame_statuses = {
 	'preliminary': EmulationStatus.Broken,
 }
 
-def get_catlist():
-	#TODO: Maybe I should just get catlist.ini from UI config category path?
-	if not main_config.catlist_path:
-		return None
-	parser = configparser.ConfigParser(interpolation=None, allow_no_value=True)
-	parser.optionxform = str
-	parser.read(main_config.catlist_path)
-	return parser
+def get_mame_categories_folders():
+	ui_config = get_mame_ui_config()
+	return ui_config.settings.get('categorypath')
 
-def get_languages():
-	if not main_config.languages_path:
+def get_machine_category(basename, category_name):
+	mame_categories_folders = get_mame_categories_folders()
+	if not mame_categories_folders:
 		return None
-	parser = configparser.ConfigParser(interpolation=None, allow_no_value=True)
-	parser.optionxform = str
-	parser.read(main_config.languages_path)
-	return parser
+	for folder in mame_categories_folders:
+		category_file_path = os.path.join(folder, category_name + '.ini')
 
-catlist = get_catlist()
-languages = get_languages()
+		parser = configparser.ConfigParser(interpolation=None, allow_no_value=True)
+		parser.optionxform = str
+		#This won't fail if category_file_path doesn't exist, so I guess it's fine
+		parser.read(category_file_path)
+
+		for section in parser.sections():
+			if basename in parser[section]:
+				#Dunno if it's a thing for MAME category .ini files to have multiple sections containing the same machine
+				return section
+	return None
 
 def get_category(basename):
-	cat = None
-	if catlist:
-		for section in catlist.sections():
-			if basename in catlist[section]:
-				cat = section
-				break
+	cat = get_machine_category(basename, 'catlist')
 	if not cat:
 		return 'Unknown', 'Unknown', 'Unknown', False
 
@@ -63,14 +60,9 @@ def get_category(basename):
 	return category, genre, None, False
 
 def get_language(basename):
-	if not languages:
+	lang = get_machine_category(basename, 'languages')
+	if not lang:
 		return None
-
-	lang = None
-	for section in languages.sections():
-		if basename in languages[section]:
-			lang = section
-			break
 
 	return get_language_by_english_name(lang)
 

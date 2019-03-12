@@ -75,8 +75,6 @@ _config_ini_values = {
 	'organized_output_folder': ConfigValue('Paths', ConfigValueType.FolderPath, os.path.join(_data_dir, 'organized_apps'), 'Organized output folder', 'Folder to put subfolders in for the organized folders frontend'),
 	'image_folder': ConfigValue('Paths', ConfigValueType.FolderPath, os.path.join(_data_dir, 'images'), 'Image folder', 'Folder to store images extracted from games with embedded images'),
 
-	'catlist_path': ConfigValue('Arcade', ConfigValueType.FilePath, None, 'catlist.ini path', 'Path to MAME catlist.ini'),
-	'languages_path': ConfigValue('Arcade', ConfigValueType.FilePath, None, 'languages.ini path', 'Path to MAME languages.ini'),
 	'skipped_source_files': ConfigValue('Arcade', ConfigValueType.StringList, [], 'Skipped source files', 'List of MAME source files to skip (not including extension)'),
 	'memcard_path': ConfigValue('Arcade', ConfigValueType.FolderPath, None, 'Memory card path', 'Path to store memory cards for arcade systems which support that'),
 	'exclude_non_arcade': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude non-arcade', 'Whether or not to skip MAME systems categorized as not being arcade or anything specific'), #TODO This description sucks
