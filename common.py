@@ -36,3 +36,27 @@ def pluralize(n, singular, plural=None):
 	if n == 1:
 		return singular
 	return '%d %s' % (n, plural)
+
+dont_capitalize_these = ['the', 'a', 'an', 'and', 'or', 'at', 'with', 'to', 'of', 'is']
+def title_case_sentence_part(s, words_to_ignore_case=None, length_threshold_to_ignore_case=3):
+	words = re.split(' ', s)
+	if not words_to_ignore_case:
+		words_to_ignore_case = []
+
+	titled_words = []
+	if words[0].lower() in dont_capitalize_these:
+		titled_words.append(words[0].lower())
+		words = words[1:]
+	for word in words:
+		if word in words_to_ignore_case:
+			titled_words.append(word)
+		elif word.lower() in dont_capitalize_these:
+			titled_words.append(word.lower())
+		else:
+			titled_words.append(word.title())
+	return ' '.join(titled_words)
+
+def title_case(s, words_to_ignore_case=None, length_threshold_to_ignore_case=3):
+	sentence_parts = re.split(r'(\s+-\s+|:\s+)', s)
+	titled_parts = [title_case_sentence_part(part, words_to_ignore_case, length_threshold_to_ignore_case) for part in sentence_parts]
+	return ''.join(titled_parts)
