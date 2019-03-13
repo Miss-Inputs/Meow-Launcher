@@ -408,7 +408,9 @@ def add_metadata(machine):
 	if language:
 		machine.metadata.languages = [language]
 
-	machine.metadata.specific_info['Franchise'] = get_machine_category(machine.basename, 'series')
+	series = get_machine_category(machine.basename, 'series')
+	if series:
+		machine.metadata.specific_info['Franchise'] = series.replace(' * Pinball', '')
 
 	machine.metadata.regions = get_regions_from_filename_tags(find_filename_tags.findall(machine.name), loose=True)
 
