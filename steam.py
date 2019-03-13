@@ -449,7 +449,12 @@ def add_metadata_from_appinfo(game):
 				if association.get(b'type') == b'franchise':
 					franchise = association.get(b'name')
 					if franchise:
-						game.metadata.specific_info['Franchise'] = franchise.decode('utf-8', errors='backslashreplace')
+						franchise_name = franchise.decode('utf-8', errors='backslashreplace')
+						if franchise_name.endswith(' Franchise'):
+							franchise_name = franchise_name[:-len(' Franchise')]
+						elif franchise_name.endswith(' Series'):
+							franchise_name = franchise_name[:-len(' Series')]
+						game.metadata.specific_info['Franchise'] = franchise_name
 					break
 
 	extended = app_info_section.get(b'extended')
