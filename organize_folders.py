@@ -130,6 +130,7 @@ def move_into_subfolders(path):
 	move_into_extra_subfolder(path, desktop, 'By platform and genre', ['Platform', 'Genre'], False)
 	move_into_extra_subfolder(path, desktop, 'By platform and year', ['Platform', 'Year'], False)
 	move_into_extra_subfolder(path, desktop, 'Is NSFW', 'NSFW', True)
+	move_into_extra_subfolder(path, desktop, 'By franchise', 'Franchise', False)
 
 	if main_config.extra_folders:
 		if len(languages) == 1:
