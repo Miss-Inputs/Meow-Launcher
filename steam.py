@@ -308,8 +308,9 @@ def add_metadata_from_appinfo(game):
 	#Alright let's get to the fun stuff
 	common = app_info_section.get(b'common')
 	if common:
-		potential_icon_names = (b'linuxclienticon', b'clienticon', b'clienttga', b'clienticns')
+		potential_icon_names = (b'linuxclienticon', b'clienticon', b'clienticns')
 		#icon and logo have similar hashes, but don't seem to actually exist. logo_small seems to just be logo with a _thumb on the end
+		#Damn I really thought clienttga was a thing too
 		icon_exception = None
 		found_an_icon = False
 		potentially_has_icon = False
