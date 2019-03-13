@@ -6,6 +6,7 @@ import zipfile
 import time
 import datetime
 import calendar
+import re
 
 try:
 	from PIL import Image
@@ -282,6 +283,9 @@ def get_steamplay_whitelist():
 def format_genre(genre_id):
 	return genre_ids.get(genre_id, 'unknown {0}'.format(genre_id))
 
+franchise_matcher = re.compile(r'(?P<Franchise>.+?)\b\s*(?:\d{1,3}|[IVX]+?)\b')
+chapter_matcher = re.compile(r'(?:Chapter|Vol|Volume|Episode)(?:\.)?', flags=re.RegexFlag.IGNORECASE)
+
 def add_metadata_from_appinfo(game):
 	game_app_info = steam_state.app_info.get(game.app_id)
 	if game_app_info is None:
@@ -442,6 +446,7 @@ def add_metadata_from_appinfo(game):
 		#TODO: Probably can't do input_info with this, but maybe use EmulationStatus enum to do Good (full) Imperfect (partial) Broken (none)
 		game.metadata.specific_info['Controlller-Support'] = common.get(b'controller_support', b'none').decode('utf-8', errors='backslashreplace')
 
+		franchise_name = None
 		associations = common.get(b'associations')
 		if associations:
 			for association in associations.values():
@@ -454,8 +459,34 @@ def add_metadata_from_appinfo(game):
 							franchise_name = franchise_name[:-len(' Franchise')]
 						elif franchise_name.endswith(' Series'):
 							franchise_name = franchise_name[:-len(' Series')]
-						game.metadata.specific_info['Franchise'] = franchise_name
-					break
+						if franchise_name == 'THE KING OF FIGHTERS':
+							#So that it matches up with series.ini
+							franchise_name = 'King of Fighters'
+						break
+
+		if not franchise_name:
+			sort_name = game.metadata.specific_info.get('Sort-Name', game.name)
+			franchise_overrides = {
+				#TODO: Put this in data folder in separate thing, probably
+				#These names are too clever for my regex to work properly so I'll just not use the regex on them
+				'Left 4 Dead 2': 'Left 4 Dead',
+				'Hyperdimension Neptunia Re;Birth3 V Generation': 'Hyperdimension Neptunia', #The other games don't have their franchise detected, though
+				'I Have No Mouth, and I Must Scream': None,
+				'TIS-100': None,
+				'Tis-100': None, #In case normalize_name_case is on... yeah I need to fix that I guess
+				'Transmissions: Element 120': None,
+			}
+			if sort_name in franchise_overrides:
+				franchise_name = franchise_overrides[sort_name]
+			else:
+				franchise_match = franchise_matcher.match(sort_name)
+				if franchise_match:
+					franchise_name = franchise_match['Franchise']
+					franchise_name = chapter_matcher.sub('', franchise_name)
+		if franchise_name:
+			if main_config.normalize_name_case and franchise_name.isupper():
+				franchise_name = title_case(franchise_name)
+			game.metadata.specific_info['Franchise'] = franchise_name
 
 	extended = app_info_section.get(b'extended')
 	if extended:
