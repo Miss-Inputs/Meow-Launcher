@@ -308,13 +308,16 @@ def add_metadata_from_appinfo(game):
 	#Alright let's get to the fun stuff
 	common = app_info_section.get(b'common')
 	if common:
-		potential_icon_names = (b'linuxclienticon', b'clienticon', b'icon', b'logo', b'clienttga', b'clienticns', b'logo_small')
+		potential_icon_names = (b'linuxclienticon', b'clienticon', b'clienttga', b'clienticns')
+		#icon and logo have similar hashes, but don't seem to actually exist. logo_small seems to just be logo with a _thumb on the end
 		icon_exception = None
 		found_an_icon = False
+		potentially_has_icon = False
 
 		for potential_icon_name in potential_icon_names:
 			if potential_icon_name not in common:
 				continue
+			potentially_has_icon = True
 			try:
 				icon_hash = common[potential_icon_name].decode('utf-8')
 			except UnicodeDecodeError:
@@ -334,7 +337,7 @@ def add_metadata_from_appinfo(game):
 		if main_config.debug:
 			if icon_exception:
 				print(game.name, game.app_id, icon_exception)
-			elif not found_an_icon:
+			elif potentially_has_icon and not found_an_icon:
 				print('Could not find icon for', game.name, game.app_id)
 
 		#oslist and osarch may come in handy (former is comma separated windows/macos/linux; latter is b'64' or purrsibly b'32')
