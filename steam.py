@@ -546,9 +546,9 @@ def add_metadata_from_appinfo(game):
 					if executable_name:
 						executable_basename = executable_name.decode('utf-8', errors='ignore')
 						if '/' in executable_basename:
-							executable_basename = executable_basename.partition('/')[-1]
+							executable_basename = executable_basename.split('/')[-1]
 						elif '\\' in executable_basename:
-							executable_basename = executable_basename.partition('\\')[-1]
+							executable_basename = executable_basename.split('\\')[-1]
 						if executable_basename.lower() in ('dosbox.exe', 'dosbox', 'dosbox.sh'):
 							game.metadata.specific_info['Is-DOSBox-Wrapper'] = True
 					executable_arguments = launch_item.get(b'arguments')
