@@ -18,6 +18,7 @@ developer_overrides = {
 	'Dingaling Productions': 'Dingaling',
 	'DONTNOD Entertainment': 'Dontnod Entertainment',
 	'FIVE-BN GAMES': 'Five-BN Games',
+	'Forever Entertainment S. A.': 'Forever Entertainment',
 	'GATO STUDIO': 'Gato Studio', #Also seen as "Gato Salvaje", although that doesn't transate exactly to the English name
 	'IDEA FACTORY ': 'Idea Factory', #Who puts a damn space there
 	'IKEA Communications AB': 'IKEA Communications',
@@ -27,6 +28,7 @@ developer_overrides = {
 	'Konami Digital Entertainment': 'Konami',
 	'Lupus Studios Limited': 'Lupus Studios',
 	'NAMCO BANDAI Games': 'Namco Bandai', #Should be merged with Bandai Namco? Maybe? I don't know anything anymore
+	'NAMCO BANDAI Studio': 'Namco Bandai',
 	'OVERDRIVE': 'Overdrive',
 	'OVERKILL - a Starbreeze Studio.': 'Overkill Software',
 	'QUICKTEQUILA': 'Quicktequila',
@@ -54,4 +56,5 @@ developer_overrides = {
 	#Why
 	'Image &amp; Form Games': 'Image & Form Games',
 	'Kinelco &amp; Lone Elk Creative': 'Kinelco & Lone Elk Creative',
+	'Suits &amp; Sandals': 'Suits & Sandals',
 }
