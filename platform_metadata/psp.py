@@ -115,8 +115,7 @@ def add_info_from_pbp(game, pbp_file):
 		if icon0_offset > param_sfo_offset:
 			bitmap_data = pbp_file[icon0_offset:icon1_offset]
 			bitmap_data_io = io.BytesIO(bitmap_data)
-			#TODO: Use as banner instead if it's the wrong aspect ratio
-			game.icon = Image.open(bitmap_data_io)
+			game.metadata.images['Banner'] = Image.open(bitmap_data_io)
 		#There's icon1 as well but I'm not sure of the difference or if that's used and I'll do something about that later I guess
 
 def add_psp_system_info(game):
