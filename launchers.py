@@ -7,6 +7,7 @@ import shlex
 import common
 from config import main_config, name_replacement, add_the, subtitle_removal, app_name
 from io_utils import ensure_exist
+from enum import Enum
 
 try:
 	from PIL import Image
@@ -116,7 +117,9 @@ def base_make_desktop(exe_name, args, display_name, fields=None, icon=None):
 				if isinstance(v, list):
 					if not v:
 						continue
-					value_as_string = ';'.join(['None' if item is None else str(item) for item in v])
+					value_as_string = ';'.join(['None' if item is None else item.name if isinstance(item, Enum) else str(item) for item in v])
+				elif isinstance(v, Enum):
+					value_as_string = v.name
 				else:
 					value_as_string = str(v)
 
