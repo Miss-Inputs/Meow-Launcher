@@ -11,6 +11,14 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
+try:
+	from pycdlib import PyCdlib
+	from pycdlib.pycdlibexception import PyCdlibInvalidISO, PyCdlibInvalidInput
+	import struct #To handle struct.error
+	have_pycdlib = True
+except ModuleNotFoundError:
+	have_pycdlib = False
+
 def convert_sfo(sfo):
 	d = {}
 	#This is some weird key value format thingy
@@ -58,22 +66,30 @@ def parse_param_sfo(game, param_sfo):
 		elif key == 'TITLE':
 			if game.rom.extension == 'pbp':
 				game.rom.name = value
-		elif key in ('DISC_VERSION', 'PSP_SYSTEM_VER', 'REGION', 'BOOTABLE', 'PARENTAL_LEVEL', 'CATEGORY', 'MEMSIZE', 'ATTRIBUTE'):
+		elif key in ('APP_VER', 'BOOTABLE', 'CATEGORY', 'DISC_VERSION', 'MEMSIZE', 'PARENTAL_LEVEL', 'PSP_SYSTEM_VER', 'REGION', 'USE_USB'):
 			#These are known, but not necessarily useful to us or we just don't feel like putting it in the metadata or otherwise doing anything with it at this point
-			#TODO: Make use of region on retail discs, appears to be some kind of bitmask, it's 32768 on homebrew
-			#Noted fields from ROMniscience:
-			#ACCOUNT_ID: ???
-			#ANALOG_MDOE: ???
-			#APP_VER: ??? not sure how it's different from DISC_VER
-			#USE_USB: ??? USB access? Championship Manager 2010 beta has this
-			#PSP_SYSTEM_VER: Required PSP firmware version?
-			#DISC_VER: Version number (e.g. 1.00)
+			#APP_VER: ??? not sure how it's different from DISC_VER also seems to be 01.00
+			#BOOTABLE: Should always be 1, I would think
 			#Category is like "Memory stick game" "Update" "PS1 Classics", see ROMniscience notes
-			#Memsize = 1 if the game uses extra RAM?
-			#Attribute: Bitmask flags of some weird stuff
-			#PARENTAL_LEVEL: Parental controls level
+			#DISC_VERSION: Version number (e.g. 1.00, 1.01); must be important because Redump and No-Intro put it in the filename
+			#MEMSIZE: 1 if game uses extra RAM?
+			#PARENTAL_LEVEL: Parental controls level... this seems to _usually_ be 1 except:
+				#Go! Explore (Europe) - 2
+				#Gangs of London (Europe) - 9
+				#Hatsune Miku: Project Diva (Japan fanslation) - 5
+				#The Simpsons Game (Europe) - 5
+				#Danganronpa (Japan fanslation) - 8
+				#Shinseiki Evangelion: Girlfriend of Steel 2nd (Japan fanslation) - 7
+				#Puyo Pop Fever (Europe) - 2
+				#Saints Row Undercover (USA unreleased) - 5
+				#I guess you could be like game.metadata.nsfw if PARENTAL_LEVEL => 9; supposedly it maxes out at 11
+			#PSP_SYSTEM_VER: Required PSP firmware version
+			#REGION: Seems to always be 32768 (is anything region locked?)
+			#USE_USB: ??? USB access? Official stuff seems to have this and sets it to 0
 			pass
 		else:
+			#ATTRIBUTE: Some weird flags (see ROMniscience)
+			#HRKGMP_VER = ??? (19)
 			if main_config.debug:
 				print(game.rom.path, 'has unknown param.sfo value', key, value)
 
@@ -128,4 +144,20 @@ def add_psp_metadata(game):
 		#These are basically always named EBOOT.PBP (due to how PSPs work I guess), so that's not a very good launcher name, and use the folder it's stored in instead
 		game.rom.name = os.path.basename(game.folder)
 		add_info_from_pbp(game, game.rom.read())
+	elif game.rom.extension == 'iso' and have_pycdlib:
+		iso = PyCdlib()
+		try:
+			iso.open(game.rom.path)
+			buf = io.BytesIO()
+			try:
+				iso.get_file_from_iso_fp(buf, iso_path='/PSP_GAME/PARAM.SFO')
+				parse_param_sfo(game, buf.getvalue())
+			except PyCdlibInvalidInput:
+				if main_config.debug:
+					print(game.rom.path, 'has no PARAM.SFO inside')
+		except PyCdlibInvalidISO as ex:
+			if main_config.debug:
+				print(game.rom.path, ex)
+		except struct.error as ex:
+			print(game.rom.path, 'piss off', ex)
 	#TODO: Get stuff out of .iso files (they are standard ISO9660 and should have an EBOOT.PBP file somewhere inside)
