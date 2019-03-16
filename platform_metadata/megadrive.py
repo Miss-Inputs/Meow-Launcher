@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 import os
+from enum import Enum, auto
 
 import cd_read
 import input_metadata
@@ -11,6 +12,11 @@ from .sega_common import licensee_codes
 copyright_regex = re.compile(r'\(C\)(\S{4}.)(\d{4})\.(.{3})')
 t_with_zero = re.compile('^T-0')
 t_not_followed_by_dash = re.compile('^T(?!-)')
+
+class MegadriveRegionCodes(Enum):
+	Japan = auto()
+	USA = auto()
+	Europe = auto()
 
 def parse_peripherals(game, peripherals):
 	standard_gamepad = input_metadata.NormalController()
@@ -109,7 +115,16 @@ def add_megadrive_info(game, header):
 	#FIXME: This seems to be different on Mega CD. I need to handle it differently anyway, since it should be SaveType.Internal
 	game.metadata.save_type = SaveType.Cart if save_id[:2] == b'RA' else SaveType.Nothing
 
-	#Hmm... get regions from [0xfd:0xff] or nah
+	regions = header[0xf0:0xf3]
+	region_codes = []
+	if b'J' in regions:
+		region_codes.append(MegadriveRegionCodes.Japan)
+	if b'U' in regions:
+		region_codes.append(MegadriveRegionCodes.USA)
+	if b'E' in regions:
+		region_codes.append(MegadriveRegionCodes.Europe)
+	#Some other region codes appear sometimes but they might not be entirely valid
+	game.metadata.specific_info['Region-Code'] = region_codes
 
 def get_smd_header(game):
 	#Just get the first block which is all that's needed for the header, otherwise this would be a lot more complicated (just something to keep in mind if you ever need to convert a whole-ass .smd ROM)
