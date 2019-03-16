@@ -34,7 +34,6 @@ from platform_metadata.minor_systems import *
 #Stuff that can be extracted from the ROM but we haven't done that because it's not worth doing:
 #Atari 5200: Year (unreliable, has Y2K bug. It's actually just the 3rd and 4th digit stored as 5200 characters, and then printing 19 + those characters)
 #ColecoVision: Year (unreliable, from copyright string on title screen), author (also unreliable and from copyright string; and in uppercase so you'd probably wanna call .titlecase() or whatsitcalled or something)
-#PSP homebrew: Uhh, product code I guess; retail discs would need me to parse ISO9660 filesystems
 
 #If I had them emulated there can be metadatum extracted, but there's no point implementing them here yet:
 #64DD: Publisher, product code, version
