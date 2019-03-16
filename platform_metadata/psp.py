@@ -147,16 +147,23 @@ def add_psp_metadata(game):
 		iso = PyCdlib()
 		try:
 			iso.open(game.rom.path)
-			buf = io.BytesIO()
+			param_sfo_buf = io.BytesIO()
 			try:
-				iso.get_file_from_iso_fp(buf, iso_path='/PSP_GAME/PARAM.SFO')
-				parse_param_sfo(game, buf.getvalue())
+				iso.get_file_from_iso_fp(param_sfo_buf, iso_path='/PSP_GAME/PARAM.SFO')
+				parse_param_sfo(game, param_sfo_buf.getvalue())
 			except PyCdlibInvalidInput:
 				if main_config.debug:
 					print(game.rom.path, 'has no PARAM.SFO inside')
+			if have_pillow:
+				icon0_buf = io.BytesIO()
+				try:
+					iso.get_file_from_iso_fp(icon0_buf, iso_path='/PSP_GAME/ICON0.PNG')
+					game.metadata.images['Banner'] = Image.open(icon0_buf)
+				except PyCdlibInvalidInput:
+					pass
 		except PyCdlibInvalidISO as ex:
 			if main_config.debug:
-				print(game.rom.path, ex)
+				print(game.rom.path, 'is invalid ISO', ex)
 		except struct.error as ex:
-			print(game.rom.path, 'piss off', ex)
+			print(game.rom.path, 'is invalid ISO and has some struct.error', ex)
 	#TODO: Get stuff out of .iso files (they are standard ISO9660 and should have an EBOOT.PBP file somewhere inside)
