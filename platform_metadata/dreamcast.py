@@ -30,6 +30,14 @@ def add_peripherals_info(game, peripherals):
 	game.metadata.specific_info['Uses-Expanded-Analog-Vertical'] = (peripherals & (1 << 24)) > 0
 	game.metadata.specific_info['Supports-Keyboard'] = (peripherals & (1 << 25)) > 0
 
+def _match_part_by_serial(software_part, serial):
+	#TODO: Handle multiple discs properly
+	#This isn't perfect whatsoever, but the hash itself is for the .chd file which doesn't always match up even if you convert stuff to .chd, so this is probably the best that can be done
+	part_serial = software_part.software.get_info('serial')
+	if not part_serial:
+		return False
+	part_serial_without_dashes = part_serial.replace('-', '')
+	return part_serial == serial or part_serial_without_dashes == serial
 
 def add_info_from_main_track(game, track_path, sector_size):
 	try:
@@ -58,6 +66,12 @@ def add_info_from_main_track(game, track_path, sector_size):
 		pass
 
 	game.metadata.product_code = header[64:74].decode('ascii', errors='backslashreplace').rstrip()
+
+	for software_list in game.software_lists:
+		software = software_list.find_software(part_matcher=_match_part_by_serial, part_matcher_args=[game.metadata.product_code])
+		if software:
+			software.add_generic_info(game)
+			break
 
 	release_date = header[80:96].decode('ascii', errors='backslashreplace').rstrip()
 
