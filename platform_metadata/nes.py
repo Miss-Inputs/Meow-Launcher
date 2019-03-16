@@ -5,7 +5,7 @@ import input_metadata
 from info.region_info import TVSystem
 from common_types import SaveType
 from software_list_info import get_software_list_entry, find_in_software_lists, get_crc32_for_software_list
-from .nintendo_common import nintendo_licensee_codes
+from data.nintendo_common import nintendo_licensee_codes
 
 ines_mappers = {
 	#6, 8, 17 are some kind of copier thing

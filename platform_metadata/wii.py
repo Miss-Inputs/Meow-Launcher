@@ -6,8 +6,8 @@ import cd_read
 from common import convert_alphanumeric, NotAlphanumericException
 from config import main_config
 from metadata import CPUInfo, ScreenInfo, Screen
+from data.nintendo_common import nintendo_licensee_codes
 from .gamecube import add_gamecube_wii_disc_metadata, NintendoDiscRegion
-from .nintendo_common import nintendo_licensee_codes
 
 def add_wii_system_info(game):
 	cpu_info = CPUInfo()

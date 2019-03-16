@@ -5,7 +5,7 @@ from common import convert_alphanumeric, NotAlphanumericException
 from common_types import SaveType
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
-from .nintendo_common import nintendo_licensee_codes
+from data.nintendo_common import nintendo_licensee_codes
 
 class GameBoyMapper():
 	def __init__(self, name, has_ram=False, has_battery=False, has_rtc=False, has_rumble=False, has_accelerometer=False):
