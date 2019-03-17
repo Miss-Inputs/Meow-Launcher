@@ -171,3 +171,11 @@ def add_megadrive_metadata(game):
 			game.metadata.specific_info['Uses-SVP'] = software.get_shared_feature('addon') == 'SVP'
 			if software.get_shared_feature('incompatibility') == 'TMSS':
 				game.metadata.specific_info['Bad-TMSS'] = True
+
+			if software.xml.attrib.get('name') == 'aqlian':
+				#This is naughty, but this bootleg game doesn't run on some stuff so I want to be able to detect it
+				game.metadata.specific_info['Mapper'] = 'aqlian'
+			else:
+				slot = software.get_part_feature('slot')
+				if slot not in (None, 'rom_sram'):
+					game.metadata.specific_info['Mapper'] = slot

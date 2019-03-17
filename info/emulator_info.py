@@ -48,6 +48,14 @@ emulators = {
 	#Also in theory recognizes any extension and assumes Game Boy if not .gba or .nds, but that would be screwy
 	'Kega Fusion': Emulator('kega-fusion', ['-fullscreen', '$<path>'], ['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', 'sc', '32x'], ['zip']),
 	#May support other CD formats for Mega CD other than iso, cue? Because it's closed source, can't really have a look, but I'm just going to presume it's only those two
+	#TODO: Doesn't work with these Megadrive mappers:
+	#aqlian
+	#rom_kof99 (Pocket Monsters also uses this mapper and _does_ work, but KOF99 bootleg does not)
+	#rom_sf002 (Legend of Wukong)
+	#rom_sf004 (Star Odyssey)
+	#rom_smw64 (doesn't seem to work in MAME either, to be fair)
+	#rom_topf (no graphics)
+
 	'mGBA': Emulator('mgba-qt', command_lines.mgba, ['gb', 'gbc', 'gba', 'srl', 'bin', 'mb'], ['7z', 'zip']),
 	'Mupen64Plus': Emulator('mupen64plus', command_lines.mupen64plus, ['z64', 'v64', 'n64'], []),
 	'PCSX2': Emulator('PCSX2-linux.sh', ['--nogui', '--fullscreen', '--fullboot', '$<path>'], ['iso', 'cso', 'bin'], ['gz']),
