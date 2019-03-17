@@ -166,4 +166,3 @@ def add_psp_metadata(game):
 				print(game.rom.path, 'is invalid ISO', ex)
 		except struct.error as ex:
 			print(game.rom.path, 'is invalid ISO and has some struct.error', ex)
-	#TODO: Get stuff out of .iso files (they are standard ISO9660 and should have an EBOOT.PBP file somewhere inside)
