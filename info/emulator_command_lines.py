@@ -364,6 +364,12 @@ def mame_atari_2600(game, _):
 
 	return mame_command_line(system, 'cart')
 
+def mame_game_gear(game, _):
+	system = 'gamegear'
+	if game.metadata.specific_info.get('Region-Code') == 'Japanese':
+		system = 'gamegeaj'
+	return mame_command_line(system, 'cart')
+
 def mame_zx_spectrum(game, _):
 	system = 'spec128'
 

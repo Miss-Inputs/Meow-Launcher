@@ -127,8 +127,7 @@ emulators = {
 	#There are comments in the source file that point out that Super Game Boy should be part of the snes driver with the BIOS cart inserted, rather than a separate system, so that might not exist in the future
 	'MAME (Game.com)': MameSystem(command_lines.mame_command_line('gamecom', 'cart1'), ['bin', 'tgc']),
 	#I don't know what the other cart slot does, or if you can use two at once, or how that would work if you could. Hopefully I don't need it for anything.
-	'MAME (Game Gear)': MameSystem(command_lines.mame_command_line('gamegear', 'cart'), ['bin', 'gg']),
-	#TODO: Switch to gamegeaj if game region == Japanese (Puzlow Kids is still "export", so that will be fine, it's just Japanese only games that seem to do that, and there are some that don't work on international Game Gears apparently)
+	'MAME (Game Gear)': MameSystem(command_lines.mame_game_gear, ['bin', 'gg']),
 	'MAME (Epoch Game Pocket Computer)': MameSystem(command_lines.mame_command_line('gamepock', 'cart'), ['bin']),
 	'MAME (GBA)': MameSystem(command_lines.mame_command_line('gba', 'cart'), ['bin', 'gba']),
 	#Does not let you do GBA-enhanced GBC games
