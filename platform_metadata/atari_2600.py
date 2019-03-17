@@ -117,7 +117,6 @@ def add_controller_info(game, controller):
 		game.metadata.input_info.add_option(input_metadata.Custom())
 
 def parse_stella_db(game, game_info):
-	#TODO: Get year out of name
 	if 'Cartridge_Manufacturer' in game_info:
 		manufacturer = game_info['Cartridge_Manufacturer']
 		if ', ' in manufacturer:
