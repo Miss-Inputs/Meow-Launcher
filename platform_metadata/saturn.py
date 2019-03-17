@@ -15,6 +15,13 @@ class SaturnPeripheral(Enum):
 	Mouse = auto()
 	Wheel = auto()
 
+class SaturnRegionCodes(Enum):
+	Japan = auto() #J
+	USA = auto() #U
+	Europe = auto() #E
+	#Some retail discs also have T (Taiwan?) but that doesn't seem to be a unique system for region locking purposes and also nobody can tell me for sure what it is, so I'll just stick with those three for now
+	#Some protos and devkits have JTUBKAEL which is... well, it's those four and BKAL which could be like Brazil Korea Australia (or Asia) and Latin America, possibly
+
 def parse_peripherals(game, peripherals):
 	uses_standard_controller = False
 	uses_analog_controller = False
@@ -76,8 +83,6 @@ def parse_peripherals(game, peripherals):
 
 def add_saturn_info(game, header):
 	#42:48 Version
-	#56:64 Device info (disc number/total discs)
-	#64:80 Compatible regions; only 10 characters are used
 	#96:208 Internal name
 
 	hardware_id = header[0:16].decode('ascii', errors='ignore')
@@ -119,6 +124,28 @@ def add_saturn_info(game, header):
 				print(game.rom.path, 'has invalid date in header:', release_date)
 		except ValueError:
 			pass
+
+	device_info = header[56:64].decode('ascii', errors='ignore').rstrip()
+	if device_info.startswith('CD-'):
+		#CART16M is seen here instead of "CD-1/1" on some protos?
+		disc_number, _, disc_total = device_info[3:].partition('/')
+		try:
+			game.metadata.specific_info['Disc-Number'] = int(disc_number)
+			game.metadata.specific_info['Disc-Total'] = int(disc_total)
+		except ValueError:
+			pass
+
+	region_info = header[64:80].decode('ascii', errors='ignore').rstrip()
+	#Only 10 characters are used
+	region_codes = []
+	if b'J' in region_info:
+		region_codes.append(SaturnRegionCodes.Japan)
+	if b'U' in region_info:
+		region_codes.append(SaturnRegionCodes.USA)
+	if b'E' in region_info:
+		region_codes.append(SaturnRegionCodes.Europe)
+	#Some other region codes appear sometimes but they might not be entirely valid
+	game.metadata.specific_info['Region-Code'] = region_codes
 
 	peripherals = header[80:96].decode('ascii', errors='backslashreplace').rstrip()
 	parse_peripherals(game, peripherals)
