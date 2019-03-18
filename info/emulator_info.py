@@ -143,6 +143,7 @@ emulators = {
 	'MAME (Intellivision)': MameSystem(command_lines.mame_intellivision, ['bin', 'int', 'rom', 'itv']),
 	'MAME (Master System)': MameSystem(command_lines.mame_master_system, ['bin', 'sms']),
 	'MAME (Mattel Juice Box)': MameSystem(command_lines.mame_command_line('juicebox', 'memcard'), ['smc']),
+	'MAME (Mega Drive)': MameSystem(command_lines.mame_megadrive, ['bin', 'md', 'smd', 'gen']),
 	'MAME (Mega Duck)': MameSystem(command_lines.mame_command_line('megaduck', 'cart'), ['bin']),
 	'MAME (MSX)': MameSystem(command_lines.mame_command_line('svi738', 'cart1', {'fdc:0': ''}, has_keyboard=True), ['bin', 'rom']),
 	#Note that MSX2 is backwards compatible anyway, so there's not much reason to use this, unless you do have some reason. This model in particular is used because it should be completely in English and if anything goes wrong I'd be able to understand it. I still don't know how disks work (they don't autoboot), or if there's even a consistent command to use to boot them.
@@ -187,17 +188,6 @@ emulators = {
 
 	#Other systems that MAME can do but I'm too lazy to do them yet because they'd need a command line generator function or other:
 	#Dreamcast: Region, and also runs slow on my computer so I don't feel like it; doesn't seem like it does Windows CE at this point (something about only emulating the MMU properly for Naomi shows up)
-	#Megadrive: Need to detect region code (J/U not necessarily compatible, but at least it's not as confusing as SMS)
-	#	Can do Sonic & Knuckles + Sonic 2/3 lockon (IIRC)
-	#	Does do SVP
-	#	Doesn't emulate the Power Base Converter but you don't need to
-	#	Titan - Overdrive: Glitches out on the part with PCB that says "Blast Processing" and the Titan logo as well as the "Titan 512C Forever" part (doesn't even display "YOUR EMULATOR SUX" properly as Kega Fusion does with the unmodified binary)
-	#	Overdrive 2 won't boot as it claims SSF2-style bankswitching is not supported, but Super Street Fighter 2 seems fine? Might only work for that
-	#	md_slot.cpp claims that carts with EEPROM and Codemasters J-Cart games don't work (not sure yet if it's the whole game or just the EEPROM part)
-	#	Seems to work well for pirate mappers and given the software list has info on those, might see how Kega Fusion fares (see md_carts.cpp for list of games)
-	#	Mega CD and 32X seem to work but are marked as MACHINE_NOT_WORKING (might become expansion devices later), probably just use 32x_scd etc to get 32X CD-based games to work rather than any of the myriad of segacd clones
-	#	Don't use genesis_tmss
-	#	Controllers are configured via Machine Configuration and hence are out of reach for poor little frontends
 	#PC Engine: Need to select between pce and tg16 depending on region, -cdrom and -cart slots, and sgx accordingly:
 	#	.sgx extension is SuperGrafx, needs sgx driver
 	#	tg16 can run Japanese games (seemingly) but pce cannot run USA games, so it would be the default if region not specified

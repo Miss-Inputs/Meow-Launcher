@@ -7,6 +7,7 @@ import subprocess
 import io_utils
 from config import main_config
 from platform_metadata.nes import NESPeripheral
+from platform_metadata.megadrive import MegadriveRegionCodes
 from common_types import MediaType, EmulationNotSupportedException, NotARomException
 from mame_helpers import have_mame
 from .region_info import TVSystem
@@ -368,6 +369,30 @@ def mame_game_gear(game, _):
 	system = 'gamegear'
 	if game.metadata.specific_info.get('Region-Code') == 'Japanese':
 		system = 'gamegeaj'
+	return mame_command_line(system, 'cart')
+
+def mame_megadrive(game, _):
+	#Can do Sonic & Knuckles + Sonic 2/3 lockon (IIRC)
+	#Does do SVP
+	#Doesn't emulate the Power Base Converter but you don't need to
+	#Titan - Overdrive: Glitches out on the part with PCB that says "Blast Processing" and the Titan logo as well as the "Titan 512C Forever" part (doesn't even display "YOUR EMULATOR SUX" properly as Kega Fusion does with the unmodified binary)
+	#Overdrive 2 won't boot as it claims SSF2-style bankswitching is not supported, but Super Street Fighter 2 seems fine? Might only work for SSF2 specifically
+	#md_slot.cpp claims that carts with EEPROM and Codemasters J-Cart games don't work, but it seems they do
+	#Mega CD and 32X seem to work but are marked as MACHINE_NOT_WORKING (might become expansion devices later), probably just use 32x_scd etc to get 32X CD-based games to work rather than any of the myriad of segacd clones
+	#Controllers are configured via Machine Configuration and hence are out of reach for poor little frontends
+
+	system = 'genesis'
+	#There is no purpose to using genesis_tmss other than making stuff not work for authenticity, apparently this is the only difference in MAME drivers
+	#Hmm. Most Megadrive emulators that aren't MAME have some kind of region preference thing where it's selectable between U->E->J or J->U->E or U->J->E or whatever.. because of how this works I'll have to make a decision, unless I feel like making a config thing for that, and I don't think I really need to do that.
+	#USA is probably more common, so do that first and assume that's the region if something doesn't have a valid region code at all
+
+	#TODO: Do Mega CD and 32X
+	region_codes = game.metadata.specific_info.get('Region-Code')
+	if region_codes:
+		if MegadriveRegionCodes.Japan in region_codes:
+			system = 'megadrij'
+		elif MegadriveRegionCodes.Europe in region_codes:
+			system = 'megadriv'
 	return mame_command_line(system, 'cart')
 
 def mame_zx_spectrum(game, _):
