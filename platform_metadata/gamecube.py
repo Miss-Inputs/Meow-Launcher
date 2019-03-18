@@ -142,6 +142,19 @@ def add_gamecube_specific_metadata(game, header, is_gcz):
 		if main_config.debug:
 			print(game.rom.path, 'encountered error when parsing FST', ex)
 
+def add_wii_specific_metadata(game, header, is_gcz):
+	#This should go in wii.py but then that would be a recursive import, so I guess I didn't think this through
+	game.metadata.platform = 'Wii'
+	wii_header = cd_read.read_gcz(game.rom.path, 0x40_000, 0xf000) if is_gcz else game.rom.read(seek_to=0x40_000, amount=0xf000)
+	#There is also partition info in here
+	#Unused (presumably would be region-related stuff): 0xe004:0xe010
+	#Parental control ratings: 0xe010:0xe020
+	region_code = int.from_bytes(wii_header[0xe000:0xe004], 'big')
+	try:
+		game.metadata.specific_info['Region-Code'] = NintendoDiscRegion(region_code)
+	except ValueError:
+		pass
+
 def add_gamecube_wii_disc_metadata(game, header, is_gcz):
 	internal_title = header[32:64] #Potentially quite a lot bigger but we don't need that much out of it
 	if internal_title[:28] == b'GAMECUBE HOMEBREW BOOTLOADER':
@@ -178,7 +191,7 @@ def add_gamecube_wii_disc_metadata(game, header, is_gcz):
 	if is_gamecube:
 		add_gamecube_specific_metadata(game, header, is_gcz)
 	elif is_wii:
-		game.metadata.platform = 'Wii'
+		add_wii_specific_metadata(game, header, is_gcz)
 	else:
 		game.metadata.specific_info['No-Disc-Magic'] = True
 
