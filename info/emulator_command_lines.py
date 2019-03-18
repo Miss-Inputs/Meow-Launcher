@@ -377,7 +377,6 @@ def mame_megadrive(game, _):
 	#Doesn't emulate the Power Base Converter but you don't need to
 	#Titan - Overdrive: Glitches out on the part with PCB that says "Blast Processing" and the Titan logo as well as the "Titan 512C Forever" part (doesn't even display "YOUR EMULATOR SUX" properly as Kega Fusion does with the unmodified binary)
 	#md_slot.cpp claims that carts with EEPROM and Codemasters J-Cart games don't work, but it seems they do, maybe they don't save
-	#Mega CD and 32X seem to work but are marked as MACHINE_NOT_WORKING (might become expansion devices later), probably just use 32x_scd etc to get 32X CD-based games to work rather than any of the myriad of segacd clones
 	#Controllers are configured via Machine Configuration and hence are out of reach for poor little frontends
 	#rom_kof99 does work, but Pocket Monsters seems to not work, because it's not detected as rom_kof99, maybe it works and only works from software list. Hmm.... not sure how to handle that
 	#Similarly, Pocket Monsters 2 displays blank screen after menu screen, although rom_lion3 does work, but it's not detected as that from fullpath
@@ -391,13 +390,11 @@ def mame_megadrive(game, _):
 		#Looks like it's same here... nothing about it being unsupported in SL entry
 		raise EmulationNotSupportedException('Ya Se Chuan Shuo not supported')
 
-
 	system = 'genesis'
 	#There is no purpose to using genesis_tmss other than making stuff not work for authenticity, apparently this is the only difference in MAME drivers
 	#Hmm. Most Megadrive emulators that aren't MAME have some kind of region preference thing where it's selectable between U->E->J or J->U->E or U->J->E or whatever.. because of how this works I'll have to make a decision, unless I feel like making a config thing for that, and I don't think I really need to do that.
 	#USA is probably more common, so do that first and assume that's the region if something doesn't have a valid region code at all
 
-	#TODO: Do Mega CD and 32X
 	region_codes = game.metadata.specific_info.get('Region-Code')
 	if region_codes:
 		if MegadriveRegionCodes.Japan in region_codes:
