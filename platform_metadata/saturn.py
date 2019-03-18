@@ -135,7 +135,7 @@ def add_saturn_info(game, header):
 		except ValueError:
 			pass
 
-	region_info = header[64:80].decode('ascii', errors='ignore').rstrip()
+	region_info = header[64:80].rstrip()
 	#Only 10 characters are used
 	region_codes = []
 	if b'J' in region_info:
