@@ -5,7 +5,7 @@ from enum import Enum, auto
 import cd_read
 import input_metadata
 from config import main_config
-from .sega_common import licensee_codes
+from data.sega_common import licensee_codes
 
 class SaturnPeripheral(Enum):
 	StandardController = auto()

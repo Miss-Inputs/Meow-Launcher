@@ -7,7 +7,7 @@ import cd_read
 import input_metadata
 from common_types import SaveType
 from software_list_info import get_software_list_entry
-from .sega_common import licensee_codes
+from data.sega_common import licensee_codes
 
 copyright_regex = re.compile(r'\(C\)(\S{4}.)(\d{4})\.(.{3})')
 t_with_zero = re.compile('^T-0')

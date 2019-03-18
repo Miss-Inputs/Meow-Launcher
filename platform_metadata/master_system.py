@@ -5,7 +5,7 @@ import input_metadata
 from common_types import SaveType
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
-from .sega_common import licensee_codes
+from data.sega_common import licensee_codes
 
 class SMSPeripheral(Enum):
 	StandardController = auto()

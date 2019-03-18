@@ -4,7 +4,7 @@ import calendar
 
 import cd_read
 from common_types import SaveType
-from .sega_common import licensee_codes
+from data.sega_common import licensee_codes
 from .saturn import SaturnRegionCodes
 #I'm just assuming Saturn and Dreamcast have the same way of doing region codes... well, it's just mostly JUE that need worrying about at this point anyway
 
