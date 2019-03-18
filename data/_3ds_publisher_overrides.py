@@ -9,5 +9,5 @@ consistentified_manufacturers = {
 	'SEGA': 'Sega',
 	'Unspecified Author': None, #Homebrew might do this
 	'VD-DEV': 'VD-Dev',
-	'YouTube': 'Google', #Maybe I should change nintendo_common WB to YouTube. Oh well. Either way, this is the YouTube app, and hence Google
+	'YouTube': 'Google', #Maybe I should change nintendo_licensee_codes WB to YouTube. Oh well. Either way, this is the YouTube app, and hence Google
 }

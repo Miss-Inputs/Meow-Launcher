@@ -12,7 +12,7 @@ from info.region_info import TVSystem
 from metadata import CPUInfo, ScreenInfo, Screen
 from common import convert_alphanumeric, NotAlphanumericException, junk_suffixes
 from common_types import SaveType
-from data.nintendo_common import nintendo_licensee_codes
+from data.nintendo_licensee_codes import nintendo_licensee_codes
 from data._3ds_publisher_overrides import consistentified_manufacturers
 
 class _3DSRegionCode(Flag):

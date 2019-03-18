@@ -11,7 +11,7 @@ import cd_read
 from metadata import CPUInfo, ScreenInfo, Screen
 from common import convert_alphanumeric, NotAlphanumericException
 from config import main_config
-from data.nintendo_common import nintendo_licensee_codes
+from data.nintendo_licensee_codes import nintendo_licensee_codes
 
 class NintendoDiscRegion(Enum):
 	#Also seems to be used for Wii discs and WiiWare

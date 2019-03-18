@@ -1,4 +1,3 @@
-
 nintendo_licensee_codes = {
 	#Big list! Used in every Nintendo system except: NES (but FDS does use it), N64 (but 64DD does use it), e-Reader, and depending on who you ask Pokemon Mini either has 2P for every game (i.e. if you ask me) or it doesn't use this. Well, I presume Switch does in some way; 3DS seems to be a bit weird, and Wii U uses 4 characters so I guess they ran out of codes with all the indie publishers (most just use this list prepended with 00)
 	#Preferred format that I probably don't always use consistently:

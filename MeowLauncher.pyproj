@@ -32,8 +32,8 @@
     <Compile Include="data\mame_manufacturers.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="data\nintendo_common.py" />
-    <Compile Include="data\sega_common.py" />
+    <Compile Include="data\nintendo_licensee_codes.py" />
+    <Compile Include="data\sega_licensee_codes.py" />
     <Compile Include="data\steam_developer_overrides.py">
       <SubType>Code</SubType>
     </Compile>
