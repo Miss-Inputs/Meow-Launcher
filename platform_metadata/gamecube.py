@@ -166,7 +166,7 @@ def add_gamecube_wii_disc_metadata(game, header, is_gcz):
 		game.metadata.product_code = product_code
 		game.metadata.publisher = publisher
 
-	disc_number = header[6]
+	disc_number = header[6] + 1
 	if disc_number:
 		game.metadata.specific_info['Disc-Number'] = disc_number
 
