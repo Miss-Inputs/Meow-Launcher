@@ -376,10 +376,21 @@ def mame_megadrive(game, _):
 	#Does do SVP
 	#Doesn't emulate the Power Base Converter but you don't need to
 	#Titan - Overdrive: Glitches out on the part with PCB that says "Blast Processing" and the Titan logo as well as the "Titan 512C Forever" part (doesn't even display "YOUR EMULATOR SUX" properly as Kega Fusion does with the unmodified binary)
-	#Overdrive 2 won't boot as it claims SSF2-style bankswitching is not supported, but Super Street Fighter 2 seems fine? Might only work for SSF2 specifically
-	#md_slot.cpp claims that carts with EEPROM and Codemasters J-Cart games don't work, but it seems they do
+	#md_slot.cpp claims that carts with EEPROM and Codemasters J-Cart games don't work, but it seems they do, maybe they don't save
 	#Mega CD and 32X seem to work but are marked as MACHINE_NOT_WORKING (might become expansion devices later), probably just use 32x_scd etc to get 32X CD-based games to work rather than any of the myriad of segacd clones
 	#Controllers are configured via Machine Configuration and hence are out of reach for poor little frontends
+	#rom_kof99 does work, but Pocket Monsters seems to not work, because it's not detected as rom_kof99, maybe it works and only works from software list. Hmm.... not sure how to handle that
+	#Similarly, Pocket Monsters 2 displays blank screen after menu screen, although rom_lion3 does work, but it's not detected as that from fullpath
+	#4in1 and 12in1 won't boot anything either because they aren't detected from fullpath as being rom_mcpir (but Super 15 in 1 works)
+	#Overdrive 2 is supposed to use SSF2 bankswitching but isn't detected as rom_ssf2, actual Super Street Fighter 2 does work
+	mapper = game.metadata.specific_info.get('Mapper')
+	if mapper == 'rom_topf':
+		#Doesn't seem to be detected via fullpath as being rom_topf, so it might work from software list
+		raise EmulationNotSupportedException('Top Fighter 2000 MK VII not supported')
+	elif mapper == 'rom_yasech':
+		#Looks like it's same here... nothing about it being unsupported in SL entry
+		raise EmulationNotSupportedException('Ya Se Chuan Shuo not supported')
+
 
 	system = 'genesis'
 	#There is no purpose to using genesis_tmss other than making stuff not work for authenticity, apparently this is the only difference in MAME drivers
