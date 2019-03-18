@@ -144,9 +144,6 @@
     <Compile Include="platform_metadata\saturn.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="platform_metadata\sega_common.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="platform_metadata\snes.py">
       <SubType>Code</SubType>
     </Compile>
