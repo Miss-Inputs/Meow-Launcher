@@ -352,15 +352,3 @@ licensee_codes = {
 	'T-478': 'Milestone',
 	'T-479': 'Triangle Service',
 }
-
-regions = {
-	#Used on Saturn and Dreamcast. Similar to Megadrive/Mega CD, though that has a lot more values, but they could all be junk.. JUE are definitely the main things though
-	'J': 'Japan',
-	'T': 'Asia (NTSC)', #Taiwan/Philippines?
-	'U': 'USA', #Probably includes Canada
-	'E': 'Europe', #Probably includes Australia
-	'B': 'Brazil',
-	'A': 'Asia (PAL)',
-	'K': 'Korea',
-	'L': 'Latin America',
-}
