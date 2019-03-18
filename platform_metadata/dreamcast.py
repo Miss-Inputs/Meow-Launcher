@@ -5,6 +5,8 @@ import calendar
 import cd_read
 from common_types import SaveType
 from .sega_common import licensee_codes
+from .saturn import SaturnRegionCodes
+#I'm just assuming Saturn and Dreamcast have the same way of doing region codes... well, it's just mostly JUE that need worrying about at this point anyway
 
 gdi_regex = re.compile(r'^(?:\s+)?(?P<trackNumber>\d+)\s+(?P<unknown1>\S+)\s+(?P<type>\d)\s+(?P<sectorSize>\d+)\s+(?:"(?P<name>.+)"|(?P<name_unquoted>\S+))\s+(?P<unknown2>.+)$')
 
@@ -48,7 +50,6 @@ def add_info_from_main_track(game, track_path, sector_size):
 		return
 
 	#16-32 Copyright: Seems to always be "SEGA ENTERPRISES" but may or may not be mandatory?
-	#48-56 Region coding, same meaning as Saturn and whoops I should have that too
 	#74-80 Version
 	#96-112 Boot filename
 	#128-256 Internal name
@@ -68,6 +69,17 @@ def add_info_from_main_track(game, track_path, sector_size):
 			game.metadata.specific_info['Disc-Total'] = int(device_info_match['totalDiscs'])
 		except ValueError:
 			pass
+
+	region_info = header[48:56].rstrip()
+	region_codes = []
+	if b'J' in region_info:
+		region_codes.append(SaturnRegionCodes.Japan)
+	if b'U' in region_info:
+		region_codes.append(SaturnRegionCodes.USA)
+	if b'E' in region_info:
+		region_codes.append(SaturnRegionCodes.Europe)
+	#Some other region codes appear sometimes but they might not be entirely valid
+	game.metadata.specific_info['Region-Code'] = region_codes
 
 	try:
 		peripherals = int(header[56:64], 16)
