@@ -377,6 +377,7 @@ def add_status(machine):
 			unemulated_features.append(feature_type)
 		else:
 			#Known types according to DTD: protection, palette, graphics, sound, controls, keyboard, mouse, microphone, camera, disk, printer, lan, wan, timing
+			#Note: MAME 0.208 will add capture, media, tape, punch, drum, rom, comms; although I guess I don't need to write any more code here
 			machine.metadata.specific_info['MAME-%s-Status' % feature_type.capitalize()] = mame_statuses.get(feature_status, EmulationStatus.Unknown)
 
 	if unemulated_features:
