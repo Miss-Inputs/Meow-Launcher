@@ -39,6 +39,8 @@ def _match_part_by_serial(software_part, serial):
 	part_serial_without_dashes = part_serial.replace('-', '')
 	return part_serial == serial or part_serial_without_dashes == serial
 
+device_info_regex = re.compile(r'^(?P<checksum>[\dA-Fa-f]{4}) GD-ROM(?P<discNum>\d+)/(?P<totalDiscs>\d+) *$')
+#Might not be " GD-ROM" on some Naomi stuff or maybe some homebrews or protos, but anyway, whatevs
 def add_info_from_main_track(game, track_path, sector_size):
 	try:
 		header = cd_read.read_mode_1_cd(track_path, sector_size, amount=128)
@@ -46,7 +48,6 @@ def add_info_from_main_track(game, track_path, sector_size):
 		return
 
 	#16-32 Copyright: Seems to always be "SEGA ENTERPRISES" but may or may not be mandatory?
-	#32-48 Device info: Checksum (involves product number/version field), type ("GD-ROM"), disc number, total discs
 	#48-56 Region coding, same meaning as Saturn and whoops I should have that too
 	#74-80 Version
 	#96-112 Boot filename
@@ -58,6 +59,15 @@ def add_info_from_main_track(game, track_path, sector_size):
 		game.metadata.specific_info['Hardware-ID'] = hardware_id
 		game.metadata.specific_info['Invalid-Hardware-ID'] = True
 		return
+
+	device_info = header[32:48].decode('ascii', errors='ignore').rstrip()
+	device_info_match = device_info_regex.match(device_info)
+	if device_info_match:
+		try:
+			game.metadata.specific_info['Disc-Number'] = int(device_info_match['discNum'])
+			game.metadata.specific_info['Disc-Total'] = int(device_info_match['totalDiscs'])
+		except ValueError:
+			pass
 
 	try:
 		peripherals = int(header[56:64], 16)
