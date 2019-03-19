@@ -66,23 +66,18 @@ def parse_param_sfo(game, param_sfo):
 		elif key == 'TITLE':
 			if game.rom.extension == 'pbp':
 				game.rom.name = value
-		elif key in ('APP_VER', 'BOOTABLE', 'CATEGORY', 'DISC_VERSION', 'MEMSIZE', 'PARENTAL_LEVEL', 'PSP_SYSTEM_VER', 'REGION', 'USE_USB'):
+		elif key == 'PARENTAL_LEVEL':
+			#According to PSDevWiki: 1 = all ages, 5 = 12+, 7 = 15+, 9 = 18+
+			#There would be additional levels not mentioned here: Go! Explore (Europe) = 2; Danganronpa = 8; have heard it maxes out at 11
+			if value >= 9:
+				game.metadata.nsfw = True
+		elif key in ('APP_VER', 'BOOTABLE', 'CATEGORY', 'DISC_VERSION', 'MEMSIZE', 'PSP_SYSTEM_VER', 'REGION', 'USE_USB'):
 			#These are known, but not necessarily useful to us or we just don't feel like putting it in the metadata or otherwise doing anything with it at this point
 			#APP_VER: ??? not sure how it's different from DISC_VER also seems to be 01.00
 			#BOOTABLE: Should always be 1, I would think
 			#Category is like "Memory stick game" "Update" "PS1 Classics", see ROMniscience notes
 			#DISC_VERSION: Version number (e.g. 1.00, 1.01); must be important because Redump and No-Intro put it in the filename
 			#MEMSIZE: 1 if game uses extra RAM?
-			#PARENTAL_LEVEL: Parental controls level... this seems to _usually_ be 1 except:
-				#Go! Explore (Europe) - 2
-				#Gangs of London (Europe) - 9
-				#Hatsune Miku: Project Diva (Japan fanslation) - 5
-				#The Simpsons Game (Europe) - 5
-				#Danganronpa (Japan fanslation) - 8
-				#Shinseiki Evangelion: Girlfriend of Steel 2nd (Japan fanslation) - 7
-				#Puyo Pop Fever (Europe) - 2
-				#Saints Row Undercover (USA unreleased) - 5
-				#I guess you could be like game.metadata.nsfw if PARENTAL_LEVEL => 9; supposedly it maxes out at 11
 			#PSP_SYSTEM_VER: Required PSP firmware version
 			#REGION: Seems to always be 32768 (is anything region locked?)
 			#USE_USB: ??? USB access? Official stuff seems to have this and sets it to 0
