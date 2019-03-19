@@ -190,7 +190,11 @@ class Software():
 			game.metadata.tv_type = TVSystem.Agnostic
 
 		year = self.xml.findtext('year')
-		if not ('?' in year and (game.metadata.year and ('?' not in game.metadata.year))):
+		if game.metadata.year:
+			already_has_valid_year = '?' not in game.metadata.year
+		else:
+			already_has_valid_year = False
+		if not ('?' in year and already_has_valid_year):
 			game.metadata.year = year
 		parse_release_date(game, self.get_info('release'))
 
