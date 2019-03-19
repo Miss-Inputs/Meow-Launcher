@@ -142,7 +142,7 @@ def add_gamecube_specific_metadata(game, header, is_gcz):
 		if main_config.debug:
 			print(game.rom.path, 'encountered error when parsing FST', ex)
 
-def add_wii_specific_metadata(game, header, is_gcz):
+def add_wii_specific_metadata(game, _, is_gcz):
 	#This should go in wii.py but then that would be a recursive import, so I guess I didn't think this through
 	game.metadata.platform = 'Wii'
 	wii_header = cd_read.read_gcz(game.rom.path, 0x40_000, 0xf000) if is_gcz else game.rom.read(seek_to=0x40_000, amount=0xf000)
