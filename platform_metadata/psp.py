@@ -1,5 +1,6 @@
 import os
 import io
+import calendar
 
 from info.region_info import TVSystem
 from metadata import CPUInfo, ScreenInfo, Screen
@@ -145,6 +146,11 @@ def add_psp_metadata(game):
 			param_sfo_buf = io.BytesIO()
 			try:
 				iso.get_file_from_iso_fp(param_sfo_buf, iso_path='/PSP_GAME/PARAM.SFO')
+				date = iso.get_record(iso_path='/PSP_GAME/PARAM.SFO').date
+				#This would be more like a build date (seems to be the same across all files) rather than the release date, but it seems to be close enough
+				game.metadata.year = date.years_since_1900 + 1900
+				game.metadata.month = calendar.month_name[date.month]
+				game.metadata.day = date.day_of_month
 				parse_param_sfo(game, param_sfo_buf.getvalue())
 			except PyCdlibInvalidInput:
 				if main_config.debug:
