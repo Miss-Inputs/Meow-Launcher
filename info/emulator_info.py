@@ -38,6 +38,7 @@ class MameSystem(Emulator):
 emulators = {
 	'A7800': Emulator('a7800', command_lines.a7800, ['bin', 'a78'], ['7z', 'zip']),
 	#Forked directly from MAME with alterations to a7800.cpp driver, so will more or less work the same way as that
+	#Executable name might be a7800.Linux-x86_64 depending on how it's installed... hmm
 	'cxNES': Emulator('cxnes', command_lines.cxnes, ['nes', 'fds', 'unf', 'unif'], ['7z', 'zip']),
 	'Dolphin': Emulator('dolphin-emu', command_lines.dolphin, ['iso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs'], []),
 	'FS-UAE': Emulator('fs-uae', command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf'], []),
