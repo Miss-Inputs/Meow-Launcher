@@ -1,11 +1,12 @@
-import re
 import subprocess
+import hashlib
 
 import input_metadata
 from common_types import SaveType
 from info.region_info import TVSystem
-from software_list_info import get_software_list_entry
+from software_list_info import find_in_software_lists, get_crc32_for_software_list
 
+#Not gonna use stella -rominfo on individual stuff as it takes too long and just detects TV type with no other useful info that isn't in the -listrominfo db
 def get_stella_database():
 	proc = subprocess.run(['stella', '-listrominfo'], stdout=subprocess.PIPE, universal_newlines=True)
 	proc.check_returncode()
@@ -37,27 +38,6 @@ def get_stella_database():
 
 	return games
 
-stella_display_format_line_regex = re.compile(r'^\s*Display Format:\s*(PAL|NTSC)\*')
-stella_cart_md5_line_regex = re.compile(r'^\s*Cart MD5:\s*([a-z0-9]{32})')
-def autodetect_from_stella(game):
-	proc = subprocess.run(['stella', '-rominfo', game.rom.path], stdout=subprocess.PIPE, universal_newlines=True)
-	if proc.returncode != 0:
-		return None
-
-	md5 = None
-	lines = proc.stdout.splitlines()
-	for line in lines:
-		cart_md5_match = stella_cart_md5_line_regex.match(line)
-		if cart_md5_match:
-			md5 = cart_md5_match[1]
-			break
-
-		display_format_match = stella_display_format_line_regex.match(line)
-		if display_format_match:
-			game.tv_type = TVSystem[display_format_match.group(1)]
-		#Can also get bankswitch type from here if needed. Controller 0 and Controller 1 too, but then it's probably better to just get that from the database
-	return md5
-
 def add_controller_info(game, controller):
 	#TODO: Take note of Controller_SwapPaddles
 	#TODO: Use some attribute to note if PADDLES_IAXIS or PADDLES_IAXDR, whatever those do exactly that's different from just PADDLES
@@ -71,7 +51,7 @@ def add_controller_info(game, controller):
 	if controller in ('PADDLES', 'PADDLES_IAXIS', 'PADDLES_IAXDR'):
 		game.metadata.input_info.add_option(input_metadata.Paddle())
 		#Paddles come in pairs and hence have 2 players per port
-	elif controller == 'JOYSTICK':
+	elif controller in ('JOYSTICK', 'AUTO'):
 		joystick = input_metadata.NormalController()
 		joystick.dpads = 1
 		joystick.face_buttons = 1
@@ -182,7 +162,14 @@ def add_atari_2600_metadata(game):
 		except subprocess.CalledProcessError:
 			pass
 
-	software = get_software_list_entry(game)
+	whole_cart = game.rom.read()
+	crc32 = get_crc32_for_software_list(whole_cart)
+	md5 = hashlib.md5(whole_cart).hexdigest().lower()
+	if md5 in _stella_db:
+		game_info = _stella_db[md5]
+		parse_stella_db(game, game_info)
+
+	software = find_in_software_lists(game.software_lists, crc=crc32)
 	if software:
 		software.add_generic_info(game)
 		game.metadata.product_code = software.get_info('serial')
@@ -196,9 +183,3 @@ def add_atari_2600_metadata(game):
 		#"Kid's Controller", "kidscontroller" (both are used)
 		#"paddles"
 		#"keypad"
-	else:
-		#TODO: Combine both sources of information
-		md5 = autodetect_from_stella(game)
-		if md5 in _stella_db:
-			game_info = _stella_db[md5]
-			parse_stella_db(game, game_info)
