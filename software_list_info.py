@@ -191,7 +191,7 @@ class Software():
 
 		year = self.xml.findtext('year')
 		if game.metadata.year:
-			already_has_valid_year = '?' not in game.metadata.year
+			already_has_valid_year = '?' not in game.metadata.year if isinstance(game.metadata.year, str) else True
 		else:
 			already_has_valid_year = False
 		if not ('?' in year and already_has_valid_year):
