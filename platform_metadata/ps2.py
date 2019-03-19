@@ -33,6 +33,7 @@ def add_ps2_metadata(game):
 						boot_file_match = boot_file_regex.match(filename)
 						if boot_file_match:
 							game.metadata.product_code = boot_file_match[1] + '-' + boot_file_match[2] + boot_file_match[3]
+							#Can look this up in /usr/local/share/games/PCSX2/GameIndex.dbf to get PCSX2 compatibility I guess
 					#Other lines: VER (disc revision e.g. 1.00)
 					else:
 						vmode_line_match = vmode_line_regex.match(line)
@@ -57,4 +58,4 @@ def add_ps2_metadata(game):
 				print(game.rom.path, 'is invalid ISO', ex)
 		except struct.error as ex:
 			print(game.rom.path, 'is invalid ISO and has some struct.error', ex)
-	pass
+	#.elf is just a standard ordinary whole entire .elf
