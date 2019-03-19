@@ -189,7 +189,9 @@ class Software():
 		elif compatibility in ('NTSC,PAL', 'PAL,NTSC'):
 			game.metadata.tv_type = TVSystem.Agnostic
 
-		game.metadata.year = self.xml.findtext('year')
+		year = self.xml.findtext('year')
+		if not ('?' in year and (game.metadata.year and ('?' not in game.metadata.year))):
+			game.metadata.year = year
 		parse_release_date(game, self.get_info('release'))
 
 		game.metadata.specific_info['MAME-Emulation-Status'] = self.emulation_status
