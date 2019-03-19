@@ -165,7 +165,7 @@ manufacturer_overrides = {
 	'Jungle\'s Soft / Ultimate Products (HK)': 'Jungle Soft / Ultimate Products (HK)',
 	'Mindscapce': 'Mindscape', #Yeah okay, that _definitely_ is a typo
 	'Pack-In-Video': 'Pack-In Video',
-	'Sydney Developmeent': 'Sydney Development',
+	'Sydney Developmeent ': 'Sydney Development',
 	'Take Two Interactive': 'Take-Two Interactive',
 	'Watera': 'Watara',
 
