@@ -141,6 +141,9 @@
     <Compile Include="platform_metadata\pokemon_mini.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="platform_metadata\ps2.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="platform_metadata\saturn.py">
       <SubType>Code</SubType>
     </Compile>
