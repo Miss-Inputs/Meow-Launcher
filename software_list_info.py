@@ -231,7 +231,6 @@ def _does_split_rom_match(part, data, _):
 
 	for rom_segment in rom_data_area.roms:
 		if not rom_segment.name and not rom_segment.crc32:
-			#TODO: Is there anything that would have SHA-1 but not CRC32?
 			continue
 
 		offset = rom_segment.offset
