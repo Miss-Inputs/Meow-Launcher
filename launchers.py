@@ -3,11 +3,11 @@ import os
 import configparser
 import pathlib
 import shlex
+from enum import Enum
 
 import common
 from config import main_config, name_replacement, add_the, subtitle_removal, app_name
 from io_utils import ensure_exist
-from enum import Enum
 
 try:
 	from PIL import Image
