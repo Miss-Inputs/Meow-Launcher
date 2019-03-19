@@ -14,9 +14,15 @@ t_with_zero = re.compile('^T-0')
 t_not_followed_by_dash = re.compile('^T(?!-)')
 
 class MegadriveRegionCodes(Enum):
-	Japan = auto()
-	USA = auto()
-	Europe = auto()
+	Japan = auto() #J
+	USA = auto() #U
+	Europe = auto() #E
+
+	#These might _not_ actually be valid, but they show up in retail games sometimes:
+	World = auto() #F, I have seen some documentation say this is France but that doesn't seem to be how it's used
+	BrazilUSA = auto() #4
+	EuropeA = auto() #A, not sure what makes this different from normal Europe? But it happens
+	JapanUSA = auto() #5, sometimes this is used in place of J and U together for some reason
 
 def parse_peripherals(game, peripherals):
 	standard_gamepad = input_metadata.NormalController()
@@ -123,6 +129,14 @@ def add_megadrive_info(game, header):
 		region_codes.append(MegadriveRegionCodes.USA)
 	if b'E' in regions:
 		region_codes.append(MegadriveRegionCodes.Europe)
+	if b'F' in regions:
+		region_codes.append(MegadriveRegionCodes.World)
+	if b'4' in regions:
+		region_codes.append(MegadriveRegionCodes.BrazilUSA)
+	if b'5' in regions:
+		region_codes.append(MegadriveRegionCodes.JapanUSA)
+	if b'A' in regions:
+		region_codes.append(MegadriveRegionCodes.EuropeA)
 	#Some other region codes appear sometimes but they might not be entirely valid
 	game.metadata.specific_info['Region-Code'] = region_codes
 
