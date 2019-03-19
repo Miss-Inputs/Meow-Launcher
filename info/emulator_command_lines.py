@@ -346,16 +346,25 @@ def mame_megadrive(game, _):
 		#Looks like it's same here... nothing about it being unsupported in SL entry
 		raise EmulationNotSupportedException('Ya Se Chuan Shuo not supported')
 
-	system = 'genesis'
-	#There is no purpose to using genesis_tmss other than making stuff not work for authenticity, apparently this is the only difference in MAME drivers
 	#Hmm. Most Megadrive emulators that aren't MAME have some kind of region preference thing where it's selectable between U->E->J or J->U->E or U->J->E or whatever.. because of how this works I'll have to make a decision, unless I feel like making a config thing for that, and I don't think I really need to do that.
-	#USA is probably more common, so do that first and assume that's the region if something doesn't have a valid region code at all
-
+	#I'll go with U->J->E for now
 	region_codes = game.metadata.specific_info.get('Region-Code')
 	if region_codes:
-		if MegadriveRegionCodes.Japan in region_codes:
+		if MegadriveRegionCodes.USA in region_codes:
+			#There is no purpose to using genesis_tmss other than making stuff not work for authenticity, apparently this is the only difference in MAME drivers
+			system = 'genesis'
+		elif MegadriveRegionCodes.Japan in region_codes:
 			system = 'megadrij'
 		elif MegadriveRegionCodes.Europe in region_codes:
+			system = 'megadriv'
+		else:
+			#Assume USA if unknown region code, although I'd be interested in the cases where there is a region code thing in the header but not any of the normal 3
+			system = 'genesis'
+	else:
+		#This would happen if unlicensed/no TMSS stuff and so there is no region code info at all in the header
+		#genesis and megadrij might not always be compatible...
+		system = 'genesis'
+		if game.metadata.tv_type == TVSystem.PAL:
 			system = 'megadriv'
 	return mame_command_line(system, 'cart')
 
