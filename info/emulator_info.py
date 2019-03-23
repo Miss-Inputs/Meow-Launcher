@@ -267,16 +267,6 @@ emulators = {
 	'MAME (WonderSwan)': MameSystem(command_lines.mame_command_line('wscolor', 'cart'), ['ws', 'wsc', 'bin', 'pc2']),
 }
 
-def make_prboom_plus_command_line(_, specific_config):
-	args = []
-	if 'save_dir' in specific_config:
-		args.append('-save')
-		args.append(specific_config['save_dir'])
-
-	args.append('-iwad')
-	args.append('$<path>')
-	return args
-
 class GameEngine():
 	#Not really emulators, but files come in and games come out.
 	def __init__(self, exe_name, args, is_game_data):
@@ -297,7 +287,7 @@ def is_doom_file(file):
 	return file.read(amount=4) == b'IWAD'
 
 engines = {
-	'PrBoom+': GameEngine('prboom-plus', make_prboom_plus_command_line, is_doom_file),
+	'PrBoom+': GameEngine('prboom-plus', command_lines.make_prboom_plus_command_line, is_doom_file),
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
 	'Darkplaces': GameEngine('darkplaces-glx', ['-nostdout', '-fullscreen', '-basedir', '$<path>'], lambda folder: folder.contains_subfolder('id1'))
 	#TODO: Make this work with expansion packs and stuff (this will most definitely only work with base Quake), I haven't bought them yet

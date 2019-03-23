@@ -816,6 +816,17 @@ def vice(game, specific_config):
 	args.append('$<path>')
 	return executable, args
 
+#Game engines
+def make_prboom_plus_command_line(_, specific_config):
+	args = []
+	if 'save_dir' in specific_config:
+		args.append('-save')
+		args.append(specific_config['save_dir'])
+
+	args.append('-iwad')
+	args.append('$<path>')
+	return args
+
 #DOS/Mac stuff
 def basilisk_ii(app, specific_config):
 	if 'arch' in app.config:
