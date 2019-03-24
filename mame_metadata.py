@@ -306,8 +306,8 @@ def add_machine_platform(machine):
 		#Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug & play system. Also if you plug it into your TV it's not really a handheld so I'm not sure what the logic is there, and I'm not actually sure why that's used for some instead of Game Console / Home Videogame and what's the difference
 		return 'Plug & Play', MediaType.Standalone
 	elif machine.metadata.genre in ('Electromechanical', 'Slot Machine') and machine.metadata.subgenre == 'Reels':
-		#TODO: Need a better name for this, really. It's tricky though whether to call it "Slot Machine" (as one of those genres suggests) or "Fruit Machine" (which is the wording MAME seems to use itself in documentation) or "Gambling" or "AWP" or what
-		return 'Pokies', MediaType.Standalone
+		#"Slot Machine", "Fruit Machine", "Gambling", "AWP", whatevs; this ends up being the mechanical kind specifically and maybe doesn't actually need to be a separate platform anyway
+		return 'Slot Machine', MediaType.Standalone
 	elif machine.metadata.genre == 'Electromechanical' and machine.metadata.subgenre == 'Pinball':
 		#There are a few things under Arcade: Electromechanical / Utilities that are also pinball stuff, although perhaps not all of them. It only becomes apparent due to them using the "genpin" sample set
 		return 'Pinball', MediaType.Standalone

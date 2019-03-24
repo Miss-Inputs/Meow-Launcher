@@ -61,10 +61,8 @@ def add_gba_metadata(game):
 	game.metadata.save_type = SaveType.Cart if has_save else SaveType.Nothing
 
 	if b'AUDIO ERROR, too many notes on channel 0.increase polyphony RAM' in entire_cart:
-		game.metadata.specific_info['Sound-Driver'] = 'Rare'
-		#I mean it's not wrong
+		#Look for Rare sound driver because I can
 		game.metadata.developer = 'Rare'
-		#TODO: Detect the other sound drivers, should I feel inclined
 
 	cart_crc32 = get_crc32_for_software_list(entire_cart)
 	software = find_in_software_lists(game.software_lists, crc=cart_crc32)

@@ -16,7 +16,7 @@ def init_game_list(platform):
 
 	if not os.path.exists(db_path):
 		print("You don't have {0}_db.json which is required for this to work. Let me get that for you.".format(platform))
-		#TODO: Is this the wrong way to do this? I think it most certainly is
+		#I need to rejiggle this whole jiggly, see issue #78
 		db_url = 'https://raw.githubusercontent.com/Zowayix/computer-software-db/master/{0}_db.json'.format(platform)
 		with urllib.request.urlopen(db_url) as mac_db_request:
 			db_data = mac_db_request.read().decode('utf-8')

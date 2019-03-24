@@ -366,7 +366,7 @@ computer_systems = {
 	'DOS': ComputerSystem({'slow_cpu_cycles': SpecificConfigValue(ConfigValueType.String, 477, 'CPU cycles to run at for games only designed to run at 4.77 MHz clock speed')})
 }
 
-#TODO: Add these as well (or should I? Maybe I should just leave it to emulator_info):
+#One day add these as well (or should I? Maybe I should just leave it to emulator_info):
 #Arcade: I guess it's not an array, it's just MAME
 #Virtual environment-but-not-quite-type-system-things: J2ME, Flash (but once those have nicer emulators, until then never mind, or maybe I could pretend they're emulated systems)
 #This allows us to organize supported emulators easily and such

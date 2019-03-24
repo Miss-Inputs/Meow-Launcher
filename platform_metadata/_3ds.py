@@ -217,7 +217,7 @@ def parse_smdh_data(game, smdh):
 	has_save = (flags & 128) > 0
 	#Actually just means that a warning is shown when closing, but still
 	if game.metadata.save_type == SaveType.Unknown:
-		#TODO: Should this be SaveType.MemoryCard in some cases?
+		#I guess this'd be SaveType.MemoryCard in some cases, but... meh
 		game.metadata.save_type = SaveType.Internal if has_save else SaveType.Nothing
 	if flags & 4096:
 		game.metadata.platform = 'New 3DS'
