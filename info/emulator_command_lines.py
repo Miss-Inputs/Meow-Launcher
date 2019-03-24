@@ -313,7 +313,7 @@ def mame_master_system(game, _):
 
 	if game.metadata.specific_info.get('Japanese-Only', False):
 		system = 'smsj' #Still considered SMS1 for compatibility purposes. Seems to just be sg1000m3 but with built in FM, for all intents and purposes
-		#TODO Detect usage of card slot vs cart
+		#"card" slot seems to not be used
 	elif tv_type == TVSystem.PAL:
 		system = 'sms1pal'
 		if game.metadata.specific_info.get('SMS2-Only', False):
