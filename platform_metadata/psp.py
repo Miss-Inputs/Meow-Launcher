@@ -1,9 +1,11 @@
 import os
 import io
 import calendar
+import re
 
 from info.region_info import TVSystem
 from metadata import CPUInfo, ScreenInfo, Screen
+from common_types import MediaType
 from config import main_config
 
 try:
@@ -50,6 +52,8 @@ def convert_sfo(sfo):
 
 		d[key] = value
 	return d
+
+valid_product_code = re.compile(r'^\w{4}\d{5}$')
 
 def parse_param_sfo(game, param_sfo):
 	magic = param_sfo[:4]
@@ -131,6 +135,21 @@ def add_psp_system_info(game):
 	screen_info.screens = [screen]
 	game.metadata.screen_info = screen_info
 
+def parse_product_code(game):
+	value = game.metadata.product_code
+	if valid_product_code.fullmatch(value):
+		if value[0] == 'U':
+			#Physical media (U specifically is PSP UMD)
+			if value[1] == 'C':
+				#(C)opyrighted by Sony as opposed to (L)icensed to Sony
+				#value[2] would indicate a specific branch of Sony (P = Japan PS1/PS2)
+				game.metadata.publisher = 'Sony'
+		elif value.startswith('NP'):
+			#Digital release
+			game.metadata.media_type = MediaType.Digital
+			if value[3] in ('A', 'C', 'F', 'G', 'I', 'K', 'W', 'X', 'Y', 'Z'):
+				game.metadata.publisher = 'Sony'
+
 def add_psp_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 	add_psp_system_info(game)
@@ -167,3 +186,7 @@ def add_psp_metadata(game):
 				print(game.rom.path, 'is invalid ISO', ex)
 		except struct.error as ex:
 			print(game.rom.path, 'is invalid ISO and has some struct.error', ex)
+
+	#https://www.psdevwiki.com/ps3/Productcode#Physical
+	if game.metadata.product_code:
+		parse_product_code(game)

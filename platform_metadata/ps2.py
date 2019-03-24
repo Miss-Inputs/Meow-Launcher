@@ -13,6 +13,11 @@ except ModuleNotFoundError:
 from config import main_config
 from info.region_info import TVSystem
 
+def parse_product_code(game):
+	#https://www.psdevwiki.com/ps3/Productcode#Physical
+	if game.metadata.product_code.startswith('SC'):
+		game.metadata.publisher = 'Sony'
+
 boot_line_regex = re.compile(r'^BOOT2\s*=\s*cdrom0:\\(.+);1$')
 vmode_line_regex = re.compile(r'^VMODE\s*=\s*(.+)$')
 boot_file_regex = re.compile(r'^(.{4})_(.{3})\.(.{2})$')
@@ -65,3 +70,5 @@ def add_ps2_metadata(game):
 		except struct.error as ex:
 			print(game.rom.path, 'is invalid ISO and has some struct.error', ex)
 	#.elf is just a standard ordinary whole entire .elf
+	if game.metadata.product_code:
+		parse_product_code(game)
