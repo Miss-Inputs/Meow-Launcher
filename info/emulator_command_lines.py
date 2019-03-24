@@ -613,16 +613,17 @@ def vice_plus4(game, _):
 	return args
 
 def vice_vic20(game, _):
+	args = ['-VICfull']
+	if game.metadata.tv_type == TVSystem.NTSC:
+		args += ['-model', 'vic20ntsc']
 	if game.metadata.media_type == MediaType.Cartridge:
+		args.append('-cartgeneric')
 		size = game.rom.get_size()
 		if size > ((8 * 1024) + 2):
 			#Frick
 			#TODO: Support multiple parts with -cart2 -cartA etc; this will probably require a lot of convoluted messing around to know if a given ROM is actually the second part of a multi-part cart (probably using software lists) and using game.subroms etc
 			raise EmulationNotSupportedException('Single-part >8K cart not supported: %d' % size)
 
-	args = ['-VICfull']
-	if game.metadata.tv_type == TVSystem.NTSC:
-		args += ['-model', 'vic20ntsc']
 	args.append('$<path>')
 	return args
 
