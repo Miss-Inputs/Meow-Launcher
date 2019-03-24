@@ -333,7 +333,7 @@ class SystemConfigs():
 			#I'm bad at variable names I'm very sorry
 			chosen_emulators = []
 			for chosen_emulator in emulator_choices:
-				if chosen_emulator in ('MAME', 'Mednafen'):
+				if chosen_emulator in ('MAME', 'Mednafen', 'VICE'):
 					#Allow for convenient shortcut
 					chosen_emulator = '{0} ({1})'.format(chosen_emulator, name)
 				chosen_emulators.append(chosen_emulator)

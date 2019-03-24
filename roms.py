@@ -239,6 +239,8 @@ def process_file(system_config, rom_dir, root, rom):
 		game.metadata.emulator_name = 'MAME'
 	elif isinstance(game.emulator, emulator_info.MednafenModule):
 		game.metadata.emulator_name = 'Mednafen'
+	elif isinstance(game.emulator, emulator_info.ViceEmulator):
+		game.metadata.emulator_name = 'VICE'
 	else:
 		game.metadata.emulator_name = emulator_name
 

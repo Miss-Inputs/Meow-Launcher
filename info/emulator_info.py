@@ -34,6 +34,12 @@ class MameSystem(Emulator):
 	def __init__(self, args, supported_extensions):
 		Emulator.__init__(self, 'mame', args, supported_extensions, ['7z', 'zip'])
 
+class ViceEmulator(Emulator):
+	def __init__(self, exe_name, args):
+		#Also does z and zoo compression but I haven't done those in archives.py yet
+		#WARNING! Will write back changes to your disk images unless they are compressed or actually write protected on the file system
+		#FIXME: Does support compressed tapes/disks but doesn't support compressed cartridges (seemingly). This would require changing all kinds of stuff with how compression is handled here.
+		Emulator.__init__(self, exe_name, args, ['d64', 'g64', 'x64', 'p64', 'd71', 'd81', 'd80', 'd82', 'd1m', 'd2m'] + ['20', '40', '60', '70', '80', 'a0', 'b0', 'e0', 'crt', 'bin'] + ['p00', 'prg', 'tap', 't64'], ['gz', 'bz2', 'zip', 'tgz'])
 
 emulators = {
 	'A7800': Emulator('a7800', command_lines.a7800, ['bin', 'a78'], ['7z', 'zip']),
@@ -70,11 +76,15 @@ emulators = {
 	'Snes9x': Emulator('snes9x-gtk', ['$<path>'], ['sfc', 'smc', 'swc'], ['zip', 'gz']),
 	#Can't set fullscreen mode from the command line so you have to set up that yourself (but it will do that automatically); GTK port can't do Sufami Turbo or Satellaview from command line due to lacking multi-cart support that Windows has (Unix non-GTK doesn't like being in fullscreen etc)
 	'Stella': Emulator('stella', ['-fullscreen', '1', '$<path>'], ['a26', 'bin', 'rom'], ['gz', 'zip']),
-	'VICE (SDL2)': Emulator('x64', command_lines.vice, ['d64', 'g64', 'x64', 'p64', 'd71', 'd81', 'd80', 'd82', 'd1m', 'd2m'] + ['20', '40', '60', '70', '80', 'a0', 'b0', 'e0', 'crt', 'bin'] + ['p00', 'prg', 'tap', 't64'], ['gz', 'bz2', 'zip', 'tgz']),
-	#Also does z and zoo compression but I haven't done those in archives.py yet
-	#WARNING! Will write back changes to your disk images unless they are compressed or actually write protected on the file system
-	#FIXME: Does support compressed tapes/disks but doesn't support compressed cartridges (seemingly). This would require changing all kinds of stuff with how compression is handled here.
-	#FIXME: Need to separate this into multiple emulators for issue #76 to work
+
+	'VICE (C64)': ViceEmulator('x64sc', command_lines.vice_c64),
+	'VICE (C64 Fast)': ViceEmulator('x64', command_lines.vice_c64), #For our purposes, this only differs in exe name
+	'VICE (VIC-20)': ViceEmulator('xvic', command_lines.vice_vic20),
+	'VICE (Commodore PET)': ViceEmulator('xpet', ['-CRTCfull', '$<path>']),
+	#Some programs only run on 4000-series machines (model = '4032'), some do not (model = '3032'), I guess I don't have a way of knowing (MAME software lists just have a comment so it just be like that sometimes)
+	'VICE (Plus/4)': ViceEmulator('xplus4', command_lines.vice_plus4),
+	'VICE (C128)': ViceEmulator('x128', command_lines.vice_c128),
+
 
 	'Mednafen (Lynx)': MednafenModule('lynx', ['lnx', 'lyx', 'o'], command_lines.mednafen_lynx),
 	#Based on Handy, but that hasn't been updated in 14 years, so I guess this probably has some more updates
