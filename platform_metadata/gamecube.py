@@ -146,7 +146,30 @@ def add_wii_specific_metadata(game, _, is_gcz):
 	#This should go in wii.py but then that would be a recursive import, so I guess I didn't think this through
 	game.metadata.platform = 'Wii'
 	wii_header = cd_read.read_gcz(game.rom.path, 0x40_000, 0xf000) if is_gcz else game.rom.read(seek_to=0x40_000, amount=0xf000)
-	#There is also partition info in here
+
+	game_partition_offset = None
+	for i in range(4):
+		partition_group = wii_header[8 * i: (8 * i) + 8]
+		partition_count = int.from_bytes(partition_group[0:4], 'big')
+		partition_table_entry_offset = int.from_bytes(partition_group[4:8], 'big') << 2
+		for j in range(partition_count):
+			seek_to = partition_table_entry_offset + (j * 8)
+			partition_table_entry = cd_read.read_gcz(game.rom.path, seek_to, 8) if is_gcz else game.rom.read(seek_to=seek_to, amount=8)
+			partition_offset = int.from_bytes(partition_table_entry[0:4], 'big') << 2
+			partition_type = int.from_bytes(partition_table_entry[4:8], 'big')
+			if partition_type > 0xf:
+				#SSBB Masterpiece partitions use ASCII title IDs here; realistically other partition types should be 0 (game) 1 (update) or 2 (channel)
+				partition_type = partition_table_entry[4:8].decode('ascii', errors='backslashreplace')
+
+			#Seemingly most games have an update partition at 0x50_000 and a game partition at 0xf_800_000. That's just an observation though and may not be 100% the case
+			#print(game.rom.path, 'has partition type', partition_type, 'at', hex(partition_offset))
+			if partition_type == 1:
+				game.metadata.specific_info['Has-Update-Partition'] = True
+			elif partition_type == 0 and game_partition_offset is None:
+				game_partition_offset = partition_offset
+
+	print(game.rom.path, game_partition_offset)
+
 	#Unused (presumably would be region-related stuff): 0xe004:0xe010
 	#Parental control ratings: 0xe010:0xe020
 	region_code = int.from_bytes(wii_header[0xe000:0xe004], 'big')
