@@ -446,7 +446,6 @@ def add_metadata_from_appinfo(game):
 		if sortas:
 			game.metadata.specific_info['Sort-Name'] = sortas.decode('utf8', errors='backslashreplace')
 
-		#TODO: Probably can't do input_info with this, but maybe use EmulationStatus enum to do Good (full) Imperfect (partial) Broken (none)
 		game.metadata.specific_info['Controlller-Support'] = common.get(b'controller_support', b'none').decode('utf-8', errors='backslashreplace')
 
 		franchise_name = None
