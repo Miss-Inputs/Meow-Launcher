@@ -2,12 +2,11 @@ import os
 import xml.etree.ElementTree as ElementTree
 from datetime import datetime
 
-import cd_read
 from common import convert_alphanumeric, NotAlphanumericException
 from config import main_config
 from metadata import CPUInfo, ScreenInfo, Screen
 from data.nintendo_licensee_codes import nintendo_licensee_codes
-from .gamecube import add_gamecube_wii_disc_metadata, NintendoDiscRegion
+from .gamecube import add_gamecube_wii_disc_metadata, NintendoDiscRegion, gamecube_read
 
 def add_wii_system_info(game):
 	cpu_info = CPUInfo()
@@ -122,14 +121,11 @@ def add_wii_homebrew_metadata(game):
 def add_wii_metadata(game):
 	add_wii_system_info(game)
 	if game.rom.extension in ('gcz', 'iso', 'wbfs', 'gcm'):
-		if game.rom.extension == 'gcz':
-			#Can be a format for Wii discs, though not recommended and uncommon
-			header = cd_read.read_gcz(game.rom.path, amount=0x2450)
-		elif game.rom.extension in ('iso', 'gcm'):
-			header = game.rom.read(amount=0x2450)
+		if game.rom.extension in ('iso', 'gcm', 'gcz'):
+			#.gcz can be a format for Wii discs, though not recommended and uncommon
+			header = gamecube_read(game, 0, 0x2450)
 		elif game.rom.extension == 'wbfs':
 			header = game.rom.read(amount=0x2450, seek_to=0x200)
-
 		add_gamecube_wii_disc_metadata(game, header)
 	elif game.rom.extension == 'wad':
 		add_wad_metadata(game)

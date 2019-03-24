@@ -30,7 +30,7 @@ class NintendoDiscRegion(Enum):
 def gamecube_read(game, seek_to, amount):
 	if game.rom.extension == 'gcz':
 		return cd_read.read_gcz(game.rom.path, amount=amount, seek_to=seek_to)
-
+	#FIXME won't work for wbfs
 	return game.rom.read(amount=amount, seek_to=seek_to)
 
 def convert3BitColor(c):
@@ -282,8 +282,5 @@ def add_gamecube_metadata(game):
 	#TODO: TGC, dol
 
 	if game.rom.extension in ('gcz', 'iso', 'gcm'):
-		if game.rom.extension == 'gcz':
-			header = cd_read.read_gcz(game.rom.path, amount=0x2450)
-		elif game.rom.extension in ('iso', 'gcm'):
-			header = game.rom.read(amount=0x2450)
+		header = gamecube_read(game, 0, 0x2450)
 		add_gamecube_wii_disc_metadata(game, header)
