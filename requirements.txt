@@ -1,3 +1,4 @@
 Pillow >= 5.2.0 [icons]
 steamfiles >= 0.1.2 [Steam]
 pycdlib >= 1.7.0 [Read stuff from CD disc images]
+pycrypto >= 2.6.1 [Decrypt Wii discs to read info]

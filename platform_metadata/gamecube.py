@@ -7,6 +7,12 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
+try:
+	from Crypto.Cipher import AES
+	have_pycrypto = True
+except ModuleNotFoundError:
+	have_pycrypto = False
+
 import cd_read
 from metadata import CPUInfo, ScreenInfo, Screen
 from common import convert_alphanumeric, NotAlphanumericException
@@ -168,7 +174,36 @@ def add_wii_specific_metadata(game, _, is_gcz):
 			elif partition_type == 0 and game_partition_offset is None:
 				game_partition_offset = partition_offset
 
-	print(game.rom.path, game_partition_offset)
+	wii_common_key = main_config.wii_common_key
+	if wii_common_key:
+		if game_partition_offset and have_pycrypto:
+			game_partition_header = cd_read.read_gcz(game.rom.path, game_partition_offset, 0x2c0) if is_gcz else game.rom.read(seek_to=game_partition_offset, amount=0x2c0)
+			title_iv = game_partition_header[0x1dc:0x1e4] + (b'\x00' * 8)
+			data_offset = int.from_bytes(game_partition_header[0x2b8:0x2bc], 'big') << 2
+
+			master_key = bytes.fromhex(wii_common_key)
+			aes = AES.new(master_key, AES.MODE_CBC, title_iv)
+			encrypted_key = game_partition_header[0x1bf:0x1cf]
+			key = aes.decrypt(encrypted_key)
+
+			chunk_offset = game_partition_offset + data_offset # + (index * 0x8000) but we only need 1st chunk (0x7c00 bytes of encrypted data each chunk)
+			chunk = cd_read.read_gcz(game.rom.path, chunk_offset, 0x8000) if is_gcz else game.rom.read(seek_to=chunk_offset, amount=0x8000)
+			chunk_iv = chunk[0x3d0:0x3e0]
+			aes = AES.new(key, AES.MODE_CBC, chunk_iv)
+			decrypted_chunk = aes.decrypt(chunk[0x400:])
+
+			try:
+				apploader_date = decrypted_chunk[0x2440:0x2450].decode('ascii').rstrip('\0')
+				#Not quite release date but it will do
+				try:
+					actual_date = datetime.strptime(apploader_date, '%Y/%m/%d')
+					game.metadata.year = actual_date.year
+					game.metadata.month = actual_date.strftime('%B')
+					game.metadata.day = actual_date.day
+				except ValueError:
+					pass
+			except UnicodeDecodeError:
+				pass
 
 	#Unused (presumably would be region-related stuff): 0xe004:0xe010
 	#Parental control ratings: 0xe010:0xe020
