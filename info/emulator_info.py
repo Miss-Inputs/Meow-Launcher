@@ -59,9 +59,9 @@ emulators = {
 
 	'mGBA': Emulator('mgba-qt', command_lines.mgba, ['gb', 'gbc', 'gba', 'srl', 'bin', 'mb'], ['7z', 'zip']),
 	'Mupen64Plus': Emulator('mupen64plus', command_lines.mupen64plus, ['z64', 'v64', 'n64'], []),
-	'PCSX2': Emulator('PCSX2-linux.sh', ['--nogui', '--fullscreen', '--fullboot', '$<path>'], ['iso', 'cso', 'bin'], ['gz']),
-	#Has a few problems.  Takes some time to load the interface so at first it might look like it's not working; take out --fullboot if it forbids any homebrew stuff (but it should be fine, and Katamari Damacy needs it unless you will experience sound issues that are funny the first time but not subsequently).  ELF seems to not work, though it'd need a different command line anyway. Only reads the bin of bin/cues and not the cue
-	#Just to be annoying, older versions are "pcsx2" instead of "PCSX2-linux"... grr
+	'PCSX2': Emulator('PCSX2', ['--nogui', '--fullscreen', '--fullboot', '$<path>'], ['iso', 'cso', 'bin'], ['gz']),
+	#Takes some time to load the interface so at first it might look like it's not working; take out --fullboot if it forbids any homebrew stuff (but it should be fine, and Katamari Damacy needs it unless you will experience sound issues that are funny the first time but not subsequently).  ELF seems to not work, though it'd need a different command line anyway. Only reads the bin of bin/cues and not the cue
+	#Older versions are "pcsx2" or "PCSX2-linux" so I really need to implement that thing where I make the things selectable
 	'PokeMini': Emulator('PokeMini', ['-fullscreen', '$<path>'], ['min'], ['zip']),
 	#Puts all the config files in the current directory, which is why there's a wrapper below which you probably want to use instead of this
 	'PokeMini (wrapper)': Emulator('PokeMini', [['mkdir', '-p', os.path.expanduser('~/.config/PokeMini')], ['cd', os.path.expanduser('~/.config/PokeMini')], ['$<exe>', '-fullscreen', '$<path>']], ['min'], ['zip'], True),
