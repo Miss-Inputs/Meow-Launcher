@@ -27,6 +27,9 @@ class NintendoDiscRegion(Enum):
 	RegionFree = 3 #Seemingly Wii only
 	NTSC_K = 4 #Seemingly Wii only
 
+def gamecube_read(game, is_gcz, seek_to, amount):
+	return cd_read.read_gcz(game.rom.path, amount=amount, seek_to=seek_to) if is_gcz else game.rom.read(amount=amount, seek_to=seek_to)
+
 def convert3BitColor(c):
 	n = c * (256 // 0b111)
 	return 255 if n > 255 else n
@@ -99,7 +102,7 @@ def add_banner_info(game, banner):
 
 def add_fst_info(game, fst_offset, fst_size, is_gcz):
 	if fst_offset and fst_size and fst_size < (128 * 1024 * 1024):
-		fst = cd_read.read_gcz(game.rom.path, amount=fst_size, seek_to=fst_offset) if is_gcz else game.rom.read(amount=fst_size, seek_to=fst_offset)
+		fst = gamecube_read(game, is_gcz, fst_offset, fst_size)
 		number_of_fst_entries = int.from_bytes(fst[8:12], 'big')
 		if fst_size < (number_of_fst_entries * 12):
 			if main_config.debug:
@@ -116,7 +119,7 @@ def add_fst_info(game, fst_offset, fst_size, is_gcz):
 			if banner_name == b'opening.bnr':
 				file_offset = int.from_bytes(entry[4:8], 'big')
 				file_length = int.from_bytes(entry[8:12], 'big')
-				banner = cd_read.read_gcz(game.rom.path, amount=file_length, seek_to=file_offset) if is_gcz else game.rom.read(amount=file_length, seek_to=file_offset)
+				banner = gamecube_read(game, is_gcz, file_offset, file_length)
 				add_banner_info(game, banner)
 
 def add_gamecube_specific_metadata(game, header, is_gcz):
@@ -151,7 +154,7 @@ def add_gamecube_specific_metadata(game, header, is_gcz):
 def add_wii_specific_metadata(game, _, is_gcz):
 	#This should go in wii.py but then that would be a recursive import, so I guess I didn't think this through
 	game.metadata.platform = 'Wii'
-	wii_header = cd_read.read_gcz(game.rom.path, 0x40_000, 0xf000) if is_gcz else game.rom.read(seek_to=0x40_000, amount=0xf000)
+	wii_header = gamecube_read(game, is_gcz, 0x40_000, 0xf000)
 
 	game_partition_offset = None
 	for i in range(4):
@@ -160,7 +163,7 @@ def add_wii_specific_metadata(game, _, is_gcz):
 		partition_table_entry_offset = int.from_bytes(partition_group[4:8], 'big') << 2
 		for j in range(partition_count):
 			seek_to = partition_table_entry_offset + (j * 8)
-			partition_table_entry = cd_read.read_gcz(game.rom.path, seek_to, 8) if is_gcz else game.rom.read(seek_to=seek_to, amount=8)
+			partition_table_entry = gamecube_read(game, is_gcz, seek_to, 8)
 			partition_offset = int.from_bytes(partition_table_entry[0:4], 'big') << 2
 			partition_type = int.from_bytes(partition_table_entry[4:8], 'big')
 			if partition_type > 0xf:
@@ -177,7 +180,7 @@ def add_wii_specific_metadata(game, _, is_gcz):
 	wii_common_key = main_config.wii_common_key
 	if wii_common_key:
 		if game_partition_offset and have_pycrypto:
-			game_partition_header = cd_read.read_gcz(game.rom.path, game_partition_offset, 0x2c0) if is_gcz else game.rom.read(seek_to=game_partition_offset, amount=0x2c0)
+			game_partition_header = gamecube_read(game, is_gcz, game_partition_offset, 0x2c0)
 			title_iv = game_partition_header[0x1dc:0x1e4] + (b'\x00' * 8)
 			data_offset = int.from_bytes(game_partition_header[0x2b8:0x2bc], 'big') << 2
 
@@ -187,7 +190,7 @@ def add_wii_specific_metadata(game, _, is_gcz):
 			key = aes.decrypt(encrypted_key)
 
 			chunk_offset = game_partition_offset + data_offset # + (index * 0x8000) but we only need 1st chunk (0x7c00 bytes of encrypted data each chunk)
-			chunk = cd_read.read_gcz(game.rom.path, chunk_offset, 0x8000) if is_gcz else game.rom.read(seek_to=chunk_offset, amount=0x8000)
+			chunk = gamecube_read(game, is_gcz, chunk_offset, 0x8000)
 			chunk_iv = chunk[0x3d0:0x3e0]
 			aes = AES.new(key, AES.MODE_CBC, chunk_iv)
 			decrypted_chunk = aes.decrypt(chunk[0x400:])
