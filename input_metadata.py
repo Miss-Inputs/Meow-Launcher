@@ -4,6 +4,10 @@ class Controller():
 	def describe(self):
 		return type(self).__name__
 
+	@property
+	def is_standard(self):
+		return False
+
 class NormalController(Controller):
 	def __init__(self):
 		self.face_buttons = 0
@@ -56,9 +60,6 @@ class NormalController(Controller):
 		return ' + '.join(description)
 
 	def describe(self):
-		if self.is_standard:
-			return "Standard"
-
 		return self.fully_describe()
 
 class Biological(Controller):
@@ -146,6 +147,10 @@ class CombinedController(Controller):
 			for component in components:
 				self.components.append(component)
 
+	@property
+	def is_standard(self):
+		return all([component.is_standard for component in self.components])
+
 	def describe(self):
 		if not self.components:
 			#Theoretically shouldn't happen. $2 says I will be proven wrong and have to delete this comment
@@ -158,6 +163,11 @@ class InputOption():
 	def __init__(self):
 		self.inputs = []
 		self._known = False
+
+	@property
+	def is_standard(self):
+		#Hmm could this be wrong... feel like there's a case I'm not thinking of right now where something could be standard inputs individually but not usable with standard controllers when all together
+		return all([input.is_standard for input in self.inputs])
 
 	def describe(self):
 		if not self.inputs:
@@ -183,6 +193,10 @@ class InputInfo():
 
 	def set_known(self):
 		self._known = True
+
+	@property
+	def has_standard_inputs(self):
+		return any([option.is_standard for option in self.input_options])
 
 	def describe(self):
 		return [opt.describe() for opt in self.input_options] if self.input_options else ['Nothing']

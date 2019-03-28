@@ -191,7 +191,7 @@ class Metadata():
 				metadata_fields['Screen-Tag'] = self.screen_info.get_display_tags()
 
 		if self.input_info.known:
-			#TODO Buttons, etc
+			metadata_fields['Standard-Input'] = self.input_info.has_standard_inputs
 			metadata_fields['Input-Methods'] = self.input_info.describe()
 
 		for k, v in self.specific_info.items():
