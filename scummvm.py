@@ -10,6 +10,8 @@ import launchers
 import input_metadata
 from metadata import Metadata
 from common_types import SaveType
+from common import find_filename_tags
+import region_detect
 
 scumm_config_path = os.path.expanduser('~/.config/scummvm/scummvm.ini')
 residualvm_config_path = os.path.expanduser('~/.config/residualvm/residualvm.ini')
@@ -42,6 +44,19 @@ vmconfig = ScummVMConfig.getScummVMConfig()
 def have_something_vm():
 	return vmconfig.have_scummvm or vmconfig.have_residualvm
 
+def get_stuff_from_filename_tags(metadata, filename_tags):
+	for filename_tag in filename_tags:
+		#There's usually only one, though
+		filename_tag = filename_tag.lstrip('(').rstrip(')')
+		for piece in filename_tag.split('/'):
+			language = region_detect.get_language_by_english_name(piece)
+			if language:
+				metadata.language = language
+				continue
+			#Emulated platform: DOS, Windows, Macintosh, Apple II, etc. (could set platform to this if we really wanted, but I dunno)
+			#Others: CD, v0.0372 cd, 1.1, Masterpiece Edition, unknown version, VGA, EGA, Freeware 1.1, Freeware 1.0, Talkie, Demo
+			#There doesn't seem to be any particular structure or order that I can tell (if there is though, that'd be cool)
+
 class ScummVMGame():
 	def __init__(self, name):
 		self.name = name
@@ -56,11 +71,15 @@ class ScummVMGame():
 
 	def make_launcher(self):
 		name = self.options.get('description', self.name)
+
 		exe_name, exe_args = self._get_command_line_template()
 		metadata = Metadata()
 		metadata.input_info.add_option([input_metadata.Mouse(), input_metadata.Keyboard()]) #Can use gamepad if you enable it
 		metadata.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
 		metadata.emulator_name = self._get_emulator_name()
+
+		print(name)
+		get_stuff_from_filename_tags(metadata, find_filename_tags.findall(name))
 
 		#Hmm, could use ResidualVM as the launcher type for ResidualVM games... but it's just a unique identifier type thing, so it should be fine
 		launchers.make_launcher(exe_name, exe_args, name, metadata, 'ScummVM', self.name)
