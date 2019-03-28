@@ -51,7 +51,6 @@ extra_subfolders = {
 	'By number of screens': ('Number-of-Screens', False),
 	'By screen type': ('Screen-Type', False),
 
-
 	'By MAME emulation status': ('MAME-Emulation-Status', False),
 	'Has MAME software': ('MAME-Software-Name', True),
 	'By MAME source file': ('Source-File', False),
@@ -135,10 +134,6 @@ def move_into_subfolders(path):
 	if main_config.extra_folders:
 		if len(languages) == 1:
 			copy_to_folder(path, main_config.organized_output_folder, 'By language', sanitize_name(languages[0]) + ' only')
-
-		filename_tags = launchers.get_array(desktop, 'Filename-Tags', launchers.junk_section_name)
-		for tag in filename_tags:
-			copy_to_folder(path, main_config.organized_output_folder, 'By filename tag', sanitize_name(tag))
 
 		for k, v in extra_subfolders.items():
 			move_into_extra_subfolder(path, desktop, k, *v)
