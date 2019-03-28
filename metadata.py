@@ -1,3 +1,5 @@
+import collections
+
 from enum import Enum, auto
 from input_metadata import InputInfo
 from common_types import MediaType, SaveType
@@ -59,6 +61,16 @@ class CPUInfo():
 	@property
 	def number_of_cpus(self):
 		return len(self.cpus)
+
+	@property
+	def chip_names(self):
+		counter = collections.Counter([cpu.chip_name for cpu in self.cpus])
+		return ' + '.join([name if count == 1 else '{0} * {1}'.format(name, count) for name, count in counter.items()])
+
+	@property
+	def clock_speeds(self):
+		counter = collections.Counter([cpu.get_formatted_clock_speed() for cpu in self.cpus])
+		return ' + '.join([name if count == 1 else '{0} * {1}'.format(name, count) for name, count in counter.items()])
 
 	def add_cpu(self, cpu):
 		self.cpus.append(cpu)
@@ -202,8 +214,8 @@ class Metadata():
 		if self.cpu_info.is_inited:
 			#Add Number-of-CPUs field here once that becomes relevant
 			if self.cpu_info.number_of_cpus:
-				metadata_fields['Main-CPU'] = self.cpu_info.main_chip.chip_name
-				metadata_fields['Clock-Speed'] = self.cpu_info.main_chip.get_formatted_clock_speed()
+				metadata_fields['Main-CPU'] = self.cpu_info.chip_names
+				metadata_fields['Clock-Speed'] = self.cpu_info.clock_speeds
 
 		if self.screen_info:
 			num_screens = self.screen_info.get_number_of_screens()

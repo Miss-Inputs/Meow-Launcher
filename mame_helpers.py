@@ -157,30 +157,28 @@ def get_mame_xml(driver):
 def get_icons():
 	return mame_state.icons
 
-def find_main_cpu(machine_xml):
+def find_main_cpus(machine_xml):
 	for chip in machine_xml.findall('chip'):
 		tag = chip.attrib['tag']
 		if tag == 'maincpu' or tag == 'mainpcb:maincpu':
-			return chip
+			return [chip]
 
-	#If no maincpu, just grab the first CPU chip
+	#If no maincpu, just grab all the chips that are marked CPU (could be none, that's okay)
+	chips = []
 	for chip in machine_xml.findall('chip'):
 		if chip.attrib['type'] == 'cpu':
-			return chip
-
-	#Alto I and HP 2100 have no chips, apparently.  Huh?  Oh well
-	#TODO: Could do multiple chips
-	return None
+			chips.append(chip)
+	return chips
 
 def lookup_system_cpu(driver_name):
 	machine = mame_state.get_mame_xml(driver_name)
 	#Guess I'll pass the potential MAMENotInstalledException to caller
 
-	main_cpu = find_main_cpu(machine)
-	if main_cpu is not None:
+	cpus = find_main_cpus(machine)
+	if cpus:
 		cpu = CPU()
-		cpu.load_from_xml(main_cpu)
-
+		#TODO: Do multiple chips
+		cpu.load_from_xml(cpus[0])
 		return cpu
 
 	return None

@@ -7,7 +7,7 @@ from common_types import MediaType, SaveType
 from metadata import EmulationStatus, CPU, ScreenInfo
 from region_detect import get_language_by_english_name, get_regions_from_filename_tags
 from common import find_filename_tags, pluralize
-from mame_helpers import find_main_cpu, get_mame_ui_config
+from mame_helpers import find_main_cpus, get_mame_ui_config
 
 debug = '--debug' in sys.argv
 
@@ -390,11 +390,12 @@ def add_metadata(machine):
 	machine.metadata.subgenre = subgenre
 	machine.metadata.nsfw = nsfw
 
-	main_cpu = find_main_cpu(machine.xml)
-	if main_cpu is not None:
-		cpu = CPU()
-		cpu.load_from_xml(main_cpu)
-		machine.metadata.cpu_info.add_cpu(cpu)
+	cpus = find_main_cpus(machine.xml)
+	if cpus:
+		for cpu_xml in cpus:
+			cpu = CPU()
+			cpu.load_from_xml(cpu_xml)
+			machine.metadata.cpu_info.add_cpu(cpu)
 
 	machine.metadata.screen_info = ScreenInfo()
 	displays = machine.xml.findall('display')
