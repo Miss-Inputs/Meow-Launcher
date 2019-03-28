@@ -78,7 +78,6 @@ class ScummVMGame():
 		metadata.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
 		metadata.emulator_name = self._get_emulator_name()
 
-		print(name)
 		get_stuff_from_filename_tags(metadata, find_filename_tags.findall(name))
 
 		#Hmm, could use ResidualVM as the launcher type for ResidualVM games... but it's just a unique identifier type thing, so it should be fine
