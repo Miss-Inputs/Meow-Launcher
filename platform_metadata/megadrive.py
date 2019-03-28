@@ -104,7 +104,7 @@ def add_megadrive_info(game, header):
 	try:
 		#There's a space at header[130] apparently, so I guess that might be part of the thing, but eh
 		serial = header[131:142].decode('ascii')
-		game.metadata.product_code = serial[:8]
+		game.metadata.product_code = serial[:8].rstrip('\0')
 		#- in between
 		version = serial[-2]
 		if version.isdigit():
