@@ -158,7 +158,7 @@ systems = {
 	),
 	'VZ-200': System('vz200', ['vz_cass'], ['MAME (VZ-200)'], {MediaType.Snapshot: ['vz'], MediaType.Tape: ['wav', 'cas']}),
 	#There are many different systems in this family, but I'll go with this one, because the software list is named after it
-	'ZX Spectrum': System('spectrum', ['spectrum_cart', 'spectrum_cass', 'specpls3_flop'], ['MAME (ZX Spectrum)'], {MediaType.Snapshot: ['z80', 'sna'], MediaType.Tape: ['wav', 'cas', 'tap', 'tzx'], MediaType.Executable: ['raw', 'scr'], MediaType.Floppy: ['dsk', 'ipf', 'trd', 'td0', 'scl', 'fdi'], MediaType.Cartridge: ['bin', 'rom']}),
+	'ZX Spectrum': System('spectrum', ['spectrum_cart', 'spectrum_cass', 'specpls3_flop'], ['MAME (ZX Spectrum)'], {MediaType.Snapshot: ['z80', 'sna'], MediaType.Tape: ['wav', 'cas', 'tap', 'tzx'], MediaType.Executable: ['raw', 'scr'], MediaType.Floppy: ['dsk', 'ipf', 'trd', 'td0', 'scl', 'fdi', 'opd', 'opu'], MediaType.Cartridge: ['bin', 'rom']}),
 	#Joystick interface is non-standard so not all games support it and might decide to use the keyboard instead, but eh. It works I guess.
 	#There's actually like a katrillion file formats so I won't bother with all of them until I see them in the wild tbh
 
@@ -302,7 +302,7 @@ systems.update({
 	#Would need automated tape loading to do anything interesting (carts and floppies are just BASIC/OS stuff, also what even is the file type for floppies?) and apparently there's a .snp snapshot and .bin quickload so maybe those do something
 	'Goldstar FC-100': UnsupportedSystem('fc100', [], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas']}),
 	#No software list, some kind of PC-6001 clone or something
-	'Memotech MTX': UnsupportedSystem('mtx512', ['mtx_cart', 'mtx_cass', 'mtx_rom'], []),
+	'Memotech MTX': UnsupportedSystem('mtx512', ['mtx_cart', 'mtx_cass', 'mtx_rom'], [], {MediaType.Snapshot: ['mtx'], MediaType.Executable: ['run'], MediaType.Tape: ['wav'], MediaType.Cartridge: ['bin', 'rom']}),
 	'Sharp MZ-700': UnsupportedSystem('mz700', ['mz700'], []),
 	'Sharp MZ-800': UnsupportedSystem('mz800', ['mz800'], []),
 	'Sharp MZ-2000': UnsupportedSystem('mz2000', ['mz2000_cass', 'mz2000_flop'], []),
