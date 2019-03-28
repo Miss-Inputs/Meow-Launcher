@@ -137,5 +137,4 @@ def add_n64_metadata(game):
 
 	if software:
 		software.add_generic_info(game)
-		if not game.metadata.product_code:
-			game.metadata.product_code = software.get_info('serial')
+		game.metadata.product_code = software.get_info('serial')
