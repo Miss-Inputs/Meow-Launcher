@@ -108,7 +108,7 @@ def parse_stella_db(game, game_info):
 		game.metadata.product_code = game_info['Cartridge_ModelNo']
 	if 'Cartridge_Note' in game_info:
 		#TODO: Ignore things like "Uses the Paddle Controllers" and "Console ports are swapped" that are already specified by other fields
-		game.metadata.specific_info['Notes'] = game_info['Cartridge_Note']
+		game.metadata.specific_info['Stella-Notes'] = game_info['Cartridge_Note']
 	if 'Display_Format' in game_info:
 		display_format = game_info['Display_Format']
 		if display_format in ('NTSC', 'PAL60', 'SECAM60'):
