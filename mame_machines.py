@@ -223,11 +223,6 @@ def is_actually_machine(machine):
 	return True
 
 def is_machine_launchable(machine):
-	if has_mandatory_slots(machine):
-		if debug:
-			print('%s (%s, %s) has mandatory slots' % (machine.name, machine.basename, machine.source_file))
-		return False
-
 	needs_software = False
 	software_lists = machine.xml.findall('softwarelist')
 	for software_list in software_lists:
@@ -238,6 +233,11 @@ def is_machine_launchable(machine):
 		#print(machine.basename, machine.name, software_list_name)
 
 	if needs_software:
+		return False
+
+	if has_mandatory_slots(machine):
+		if debug:
+			print('%s (%s, %s) has mandatory slots' % (machine.name, machine.basename, machine.source_file))
 		return False
 
 	return True
