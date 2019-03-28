@@ -162,7 +162,6 @@ class ScreenInfo():
 
 class Metadata():
 	def __init__(self):
-		#Watch pylint whine that I have "too many instance attributes", I'm calling it now
 		self.genre = None
 		self.subgenre = None
 		self.nsfw = False
