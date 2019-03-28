@@ -576,7 +576,6 @@ def mednafen_nes(game, _):
 	return make_mednafen_command_line('nes')
 
 #VICE
-
 def vice_c64(game, _):
 	#http://vice-emu.sourceforge.net/vice_7.html#SEC94
 	#Eh, maybe I should sort this. Or maybe convert it into unsupported_cartridge_types which seems like it would be a smaller list.
