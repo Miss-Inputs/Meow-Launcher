@@ -105,13 +105,23 @@ def add_wii_homebrew_metadata(game):
 			if release_date:
 				#Not interested in hour/minute/second/etc
 				release_date = release_date[0:8]
-				try:
-					actual_date = datetime.strptime(release_date, '%Y%m%d')
+				actual_date = None
+				date_formats = [
+					'%Y%m%d', #The one actually specified by the meta.xml format
+					'%Y%m%d%H%M%S',
+					'%d/%m/%Y', #Hmm this might be risky because of potential ambiguity with American dates
+					'%Y-%m-%d',
+				]
+				for date_format in date_formats:
+					try:
+						actual_date = datetime.strptime(release_date, date_format)
+						break
+					except ValueError:
+						continue
+				if actual_date:
 					game.metadata.year = actual_date.year
 					game.metadata.month = actual_date.strftime('%B')
 					game.metadata.day = actual_date.day
-				except ValueError:
-					pass
 		except ElementTree.ParseError as etree_error:
 			if main_config.debug:
 				print('Ah bugger this Wii homebrew XML has problems', game.rom.path, etree_error)
