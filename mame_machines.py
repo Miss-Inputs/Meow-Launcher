@@ -205,12 +205,10 @@ def mame_verifyroms(basename):
 	except subprocess.CalledProcessError:
 		return False
 
-#Normally, we'd skip over anything that has software because that indicates it's a system you plug games into and not
-#usable by itself.  But these are things that are really just standalone things, but they have an expansion for
-#whatever reason and are actually fine
-#cfa3000 is kinda fine but it counts as a BBC Micro so it counts as not fine, due to detecting this stuff by
-#parent/clone family
-okay_to_have_software = ['vii', 'snspell', 'tntell']
+#Normally we skip over machines that have software lists because it generally indicates they're consoles/computers that should be used with software, these are software lists where the original thing is fine to boot by itself
+#Hmm... it's tricky but one might want to blacklist machines that technically can boot by themselves but there's no point doing so (e.g. megacd, gba, other game consoles that don't have inbuilt games), especially once we add software list games into here and it's gonna be a hot mess
+#These are prefixes (otherwise I'd have to list every single type of Jakks gamekey thingo)
+okay_software_lists = ('vii', 'jakks_gamekey', 'snspell', 'tntell')
 
 def is_actually_machine(machine):
 	if machine.xml.attrib.get('runnable', 'yes') == 'no':
@@ -225,12 +223,22 @@ def is_actually_machine(machine):
 	return True
 
 def is_machine_launchable(machine):
-	if not (machine.xml.find('softwarelist') is None) and machine.family not in okay_to_have_software:
-		return False
-
 	if has_mandatory_slots(machine):
 		if debug:
 			print('%s (%s, %s) has mandatory slots' % (machine.name, machine.basename, machine.source_file))
+		return False
+
+	needs_software = False
+	software_lists = machine.xml.findall('softwarelist')
+	for software_list in software_lists:
+		software_list_name = software_list.attrib.get('name')
+		if software_list_name.startswith(okay_software_lists):
+			continue
+		needs_software = True
+		#print(machine.basename, machine.name, software_list_name)
+
+	if needs_software:
+		print()
 		return False
 
 	return True
