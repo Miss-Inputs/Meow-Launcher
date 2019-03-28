@@ -44,7 +44,7 @@ class NormalController(Controller):
 
 		return True
 
-	def fully_describe(self):
+	def describe(self):
 		description = []
 		if self.face_buttons:
 			description.append(pluralize(self.face_buttons, 'button'))
@@ -58,9 +58,6 @@ class NormalController(Controller):
 			description.append(pluralize(self.analog_triggers, 'analog trigger'))
 
 		return ' + '.join(description)
-
-	def describe(self):
-		return self.fully_describe()
 
 class Biological(Controller):
 	#e.g. Mindlink for Atari 2600 (actually just senses muscle movement); N64 heart rate sensor
