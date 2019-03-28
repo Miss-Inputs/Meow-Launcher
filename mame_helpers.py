@@ -170,18 +170,19 @@ def find_main_cpus(machine_xml):
 			chips.append(chip)
 	return chips
 
-def lookup_system_cpu(driver_name):
+def lookup_system_cpus(driver_name):
 	machine = mame_state.get_mame_xml(driver_name)
 	#Guess I'll pass the potential MAMENotInstalledException to caller
 
+	cpu_list = []
 	cpus = find_main_cpus(machine)
 	if cpus:
-		cpu = CPU()
-		#TODO: Do multiple chips
-		cpu.load_from_xml(cpus[0])
-		return cpu
+		for cpu_xml in cpus:
+			cpu = CPU()
+			cpu.load_from_xml(cpu_xml)
+			cpu_list.append(cpu)
 
-	return None
+	return cpu_list
 
 def lookup_system_displays(driver_name):
 	machine = mame_state.get_mame_xml(driver_name)
