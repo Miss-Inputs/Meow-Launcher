@@ -4,7 +4,7 @@ import os
 
 import input_metadata
 from common_types import MediaType, SaveType
-from metadata import EmulationStatus, CPUInfo, ScreenInfo
+from metadata import EmulationStatus, CPU, ScreenInfo
 from region_detect import get_language_by_english_name, get_regions_from_filename_tags
 from common import find_filename_tags, pluralize
 from mame_helpers import find_main_cpu, get_mame_ui_config
@@ -392,8 +392,9 @@ def add_metadata(machine):
 
 	main_cpu = find_main_cpu(machine.xml)
 	if main_cpu is not None:
-		machine.metadata.cpu_info = CPUInfo()
-		machine.metadata.cpu_info.load_from_xml(main_cpu)
+		cpu = CPU()
+		cpu.load_from_xml(main_cpu)
+		machine.metadata.cpu_info.add_cpu(cpu)
 
 	machine.metadata.screen_info = ScreenInfo()
 	displays = machine.xml.findall('display')

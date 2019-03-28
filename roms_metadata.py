@@ -140,7 +140,7 @@ def add_device_hardware_metadata(game):
 		if source_file:
 			game.metadata.specific_info['Source-File'] = os.path.splitext(source_file)[0]
 
-		if not game.metadata.cpu_info:
+		if not game.metadata.cpu_info.is_inited:
 			cpu = None
 			if game.metadata.platform in cpu_overrides:
 				cpu = cpu_overrides[game.metadata.platform]
@@ -149,7 +149,7 @@ def add_device_hardware_metadata(game):
 					cpu = lookup_system_cpu(mame_driver)
 
 			if cpu:
-				game.metadata.cpu_info = cpu
+				game.metadata.cpu_info.add_cpu(cpu)
 
 		if not game.metadata.screen_info:
 			displays = None

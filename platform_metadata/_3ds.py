@@ -9,7 +9,7 @@ import os
 
 import input_metadata
 from info.region_info import TVSystem
-from metadata import CPUInfo, ScreenInfo, Screen
+from metadata import CPU, ScreenInfo, Screen
 from common import convert_alphanumeric, NotAlphanumericException, junk_suffixes
 from common_types import SaveType
 from data.nintendo_licensee_codes import nintendo_licensee_codes
@@ -31,10 +31,10 @@ class _3DSRegionCode(Flag):
 def add_3ds_system_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 
-	cpu_info = CPUInfo()
-	cpu_info.chip_name = 'ARM11'
-	cpu_info.clock_speed = 268 * 1000 * 1000 #New 3DS is 804 MHz
-	game.metadata.cpu_info = cpu_info
+	cpu = CPU()
+	cpu.chip_name = 'ARM11'
+	cpu.clock_speed = 268 * 1000 * 1000 #New 3DS is 804 MHz
+	game.metadata.cpu_info.add_cpu(cpu)
 
 	top_screen = Screen()
 	top_screen.width = 400

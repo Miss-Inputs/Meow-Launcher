@@ -4,7 +4,7 @@ import calendar
 import re
 
 from info.region_info import TVSystem
-from metadata import CPUInfo, ScreenInfo, Screen
+from metadata import CPU, ScreenInfo, Screen
 from common_types import MediaType
 from config import main_config
 
@@ -119,10 +119,10 @@ def add_info_from_pbp(game, pbp_file):
 		#There's icon1 as well but I'm not sure of the difference or if that's used and I'll do something about that later I guess
 
 def add_psp_system_info(game):
-	cpu_info = CPUInfo()
-	cpu_info.chip_name = 'Sony CXD2962GG'
-	cpu_info.clock_speed = 333 * 1000 * 1000
-	game.metadata.cpu_info = cpu_info
+	cpu = CPU()
+	cpu.chip_name = 'Sony CXD2962GG'
+	cpu.clock_speed = 333 * 1000 * 1000
+	game.metadata.cpu_info.add_cpu(cpu)
 
 	screen = Screen()
 	screen.width = 480

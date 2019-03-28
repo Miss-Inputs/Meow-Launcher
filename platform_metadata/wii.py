@@ -4,15 +4,15 @@ from datetime import datetime
 
 from common import convert_alphanumeric, NotAlphanumericException
 from config import main_config
-from metadata import CPUInfo, ScreenInfo, Screen
+from metadata import CPU, ScreenInfo, Screen
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 from .gamecube import add_gamecube_wii_disc_metadata, NintendoDiscRegion, gamecube_read
 
 def add_wii_system_info(game):
-	cpu_info = CPUInfo()
-	cpu_info.chip_name = 'IBM PowerPC 603'
-	cpu_info.clock_speed = 729 * 1000 * 1000
-	game.metadata.cpu_info = cpu_info
+	cpu = CPU()
+	cpu.chip_name = 'IBM PowerPC 603'
+	cpu.clock_speed = 729 * 1000 * 1000
+	game.metadata.cpu_info.add_cpu(cpu)
 
 	screen = Screen()
 	screen.width = 640

@@ -9,7 +9,7 @@ import struct
 import input_metadata
 from info.region_info import TVSystem
 from region_detect import get_region_by_name
-from metadata import CPUInfo, ScreenInfo, Screen
+from metadata import CPU, ScreenInfo, Screen
 from common import convert_alphanumeric, NotAlphanumericException
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 
@@ -17,10 +17,10 @@ from data.nintendo_licensee_codes import nintendo_licensee_codes
 #For DSiWare, we can get public.sav and private.sav filesize, and that tells us if SaveType = Internal or Nothing. But we won't worry about DSiWare for now due to lack of accessible emulation at the moment.
 
 def add_ds_system_info(game):
-	cpu_info = CPUInfo()
-	cpu_info.chip_name = 'ARM946ES'
-	cpu_info.clock_speed = 67 * 1000 * 1000
-	game.metadata.cpu_info = cpu_info
+	cpu = CPU()
+	cpu.chip_name = 'ARM946ES'
+	cpu.clock_speed = 67 * 1000 * 1000
+	game.metadata.cpu_info.add_cpu(cpu)
 
 	top_screen = Screen()
 	top_screen.width = 256

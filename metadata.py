@@ -9,7 +9,7 @@ class EmulationStatus(Enum):
 	Broken = auto()
 	Unknown = auto()
 
-class CPUInfo():
+class CPU():
 	def __init__(self):
 		self.chip_name = None
 		self.clock_speed = None
@@ -27,7 +27,7 @@ class CPUInfo():
 
 	def get_formatted_clock_speed(self):
 		if self.clock_speed:
-			return CPUInfo.format_clock_speed(self.clock_speed)
+			return CPU.format_clock_speed(self.clock_speed)
 		return None
 
 	def load_from_xml(self, xml):
@@ -37,6 +37,31 @@ class CPUInfo():
 				self.clock_speed = int(xml.attrib['clock'])
 			except ValueError:
 				pass
+
+class CPUInfo():
+	def __init__(self):
+		self.cpus = []
+		self._inited = False
+
+	@property
+	def is_inited(self):
+		return self.cpus or self._inited
+
+	def set_inited(self):
+		self._inited = True
+
+	@property
+	def main_chip(self):
+		if not self.cpus:
+			return None
+		return self.cpus[0]
+
+	@property
+	def number_of_cpus(self):
+		return len(self.cpus)
+
+	def add_cpu(self, cpu):
+		self.cpus.append(cpu)
 
 class Screen():
 	def __init__(self):
@@ -67,7 +92,7 @@ class Screen():
 
 	def get_formatted_refresh_rate(self):
 		if self.refresh_rate:
-			return CPUInfo.format_clock_speed(self.refresh_rate)
+			return CPU.format_clock_speed(self.refresh_rate)
 		return None
 
 	def get_aspect_ratio(self):
@@ -135,8 +160,8 @@ class Metadata():
 		self.media_type = None
 
 		#Set this up later with the respective objects
-		#TODO: Set cpu_info and screen_info up right here, and just keep track of whether they're "known" or not like input_info does
-		self.cpu_info = None
+		#TODO: Set screen_info up right here, and just keep track of whether it's inited or not
+		self.cpu_info = CPUInfo()
 		self.screen_info = None
 		self.input_info = InputInfo()
 
@@ -174,9 +199,11 @@ class Metadata():
 			'TV-Type': self.tv_type.name if self.tv_type else None,
 		}
 
-		if self.cpu_info:
-			metadata_fields['Main-CPU'] = self.cpu_info.chip_name
-			metadata_fields['Clock-Speed'] = self.cpu_info.get_formatted_clock_speed()
+		if self.cpu_info.is_inited:
+			#Add Number-of-CPUs field here once that becomes relevant
+			if self.cpu_info.number_of_cpus:
+				metadata_fields['Main-CPU'] = self.cpu_info.main_chip.chip_name
+				metadata_fields['Clock-Speed'] = self.cpu_info.main_chip.get_formatted_clock_speed()
 
 		if self.screen_info:
 			num_screens = self.screen_info.get_number_of_screens()

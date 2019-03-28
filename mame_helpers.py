@@ -4,7 +4,7 @@ import re
 import os
 import copy
 
-from metadata import CPUInfo, ScreenInfo
+from metadata import CPU, ScreenInfo
 from config import cache_dir
 from common import junk_suffixes
 from data.mame_manufacturers import manufacturer_overrides
@@ -169,6 +169,7 @@ def find_main_cpu(machine_xml):
 			return chip
 
 	#Alto I and HP 2100 have no chips, apparently.  Huh?  Oh well
+	#TODO: Could do multiple chips
 	return None
 
 def lookup_system_cpu(driver_name):
@@ -177,10 +178,10 @@ def lookup_system_cpu(driver_name):
 
 	main_cpu = find_main_cpu(machine)
 	if main_cpu is not None:
-		cpu_info = CPUInfo()
-		cpu_info.load_from_xml(main_cpu)
+		cpu = CPU()
+		cpu.load_from_xml(main_cpu)
 
-		return cpu_info
+		return cpu
 
 	return None
 

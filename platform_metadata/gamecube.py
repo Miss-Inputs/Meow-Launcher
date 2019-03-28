@@ -14,7 +14,7 @@ except ModuleNotFoundError:
 	have_pycrypto = False
 
 import cd_read
-from metadata import CPUInfo, ScreenInfo, Screen
+from metadata import CPU, ScreenInfo, Screen
 from common import convert_alphanumeric, NotAlphanumericException
 from config import main_config
 from data.nintendo_licensee_codes import nintendo_licensee_codes
@@ -260,10 +260,10 @@ def add_gamecube_wii_disc_metadata(game, header):
 		game.metadata.specific_info['No-Disc-Magic'] = True
 
 def add_gamecube_system_info(game):
-	cpu_info = CPUInfo()
-	cpu_info.chip_name = 'IBM PowerPC 603'
-	cpu_info.clock_speed = 485 * 1000 * 1000
-	game.metadata.cpu_info = cpu_info
+	cpu = CPU()
+	cpu.chip_name = 'IBM PowerPC 603'
+	cpu.clock_speed = 485 * 1000 * 1000
+	game.metadata.cpu_info.add_cpu(cpu)
 
 	screen = Screen()
 	screen.width = 640
