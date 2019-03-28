@@ -162,7 +162,6 @@ class CombinedController(Controller):
 class InputOption():
 	def __init__(self):
 		self.inputs = []
-		self._known = False
 
 	@property
 	def is_standard(self):
