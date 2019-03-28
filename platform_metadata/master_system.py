@@ -42,7 +42,7 @@ def parse_sdsc_header(game, header):
 	if author_offset > 0 and author_offset < 0xffff:
 		#Assume sane maximum of 255 chars
 		try:
-			game.metadata.developer = game.rom.read(seek_to=author_offset, amount=255).partition(b'\x00')[0].decode('ascii')
+			game.metadata.developer = game.metadata.publisher = game.rom.read(seek_to=author_offset, amount=255).partition(b'\x00')[0].decode('ascii')
 		except UnicodeDecodeError:
 			pass
 
