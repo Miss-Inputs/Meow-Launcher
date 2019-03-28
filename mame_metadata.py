@@ -390,6 +390,7 @@ def add_metadata(machine):
 	machine.metadata.subgenre = subgenre
 	machine.metadata.nsfw = nsfw
 
+	machine.metadata.set_inited()
 	cpus = find_main_cpus(machine.xml)
 	if cpus:
 		for cpu_xml in cpus:
