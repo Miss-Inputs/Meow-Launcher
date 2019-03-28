@@ -72,7 +72,9 @@ manufacturer_overrides = {
 	'Sigma Enterprises': 'Sigma', #Every time I see this line I keep thinking "sigma balls", just thought you should know
 	'Software Toolworks': 'The Software Toolworks', #It doesn't seem right that the "correct" one is the latter, but it's used more often, so I guess it is
 	'Spinnaker Software': 'Spinnaker',
+	'Spinnaker Software ': 'Spinnaker', #bah should I start doing .rstrip() before the thing
 	'Sunrise Software': 'Sunrise',
+	'System 3 Software': 'System 3',
 	'Taito Corporation': 'Taito',
 	'Taito Corporation Japan': 'Taito',
 	'Taito America Corporation': 'Taito America',
@@ -80,6 +82,7 @@ manufacturer_overrides = {
 	'TecMagik Entertainment': 'TecMagik',
 	'T*HQ': 'THQ', #Why.
 	'Titus Software': 'Titus',
+	'UA Limited': 'UA',
 	'V.Fame': 'Vast Fame',
 	'Viacom New Media': 'Viacom',
 	'Visco Corporation': 'Visco',
