@@ -162,11 +162,17 @@ def find_main_cpus(machine_xml):
 
 	for chip in cpu_xmls:
 		if chip.attrib.get('tag') in ('maincpu', 'main_cpu', 'mainpcb:maincpu'):
+			#Is it possible to have more than one main CPU?
 			return [chip]
 
 	#If no maincpu, just grab all the chips that are marked CPU (could be none, that's okay)
-	#TODO: If one and only one CPU has a tag of "cpu" use that one
 	#Should 'master' + 'slave' count as 2 or should slave be skipped?
+
+	cpus_with_cpu_tag = [cpu for cpu in cpu_xmls if cpu.attrib.get('tag') == 'cpu']
+	if len(cpus_with_cpu_tag) == 1:
+		#If there is more than one tagged 'cpu', things are more complicated and just continue as normal
+		return cpus_with_cpu_tag[0]
+
 	chips = []
 	for chip in cpu_xmls:
 		tag = chip.attrib.get('tag')
