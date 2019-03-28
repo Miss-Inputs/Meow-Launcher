@@ -190,7 +190,7 @@ class Metadata():
 				metadata_fields['Screen-Type'] = self.screen_info.get_display_types()
 				metadata_fields['Screen-Tag'] = self.screen_info.get_display_tags()
 
-		if self.input_info.known:
+		if self.input_info.is_inited:
 			metadata_fields['Standard-Input'] = self.input_info.has_standard_inputs
 			metadata_fields['Input-Methods'] = self.input_info.describe()
 

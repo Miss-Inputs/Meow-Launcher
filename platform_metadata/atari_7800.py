@@ -16,7 +16,7 @@ input_types = {
 }
 
 def _add_atari_7800_header_info(game, header):
-	game.metadata.input_info.set_known()
+	game.metadata.input_info.set_inited()
 
 	left_input_type = header[55]
 	right_input_type = header[56]

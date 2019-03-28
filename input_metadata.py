@@ -178,7 +178,7 @@ class InputOption():
 class InputInfo():
 	def __init__(self):
 		self.input_options = []
-		self._known = False
+		self._is_inited = False
 
 	def add_option(self, inputs):
 		opt = InputOption()
@@ -186,12 +186,11 @@ class InputInfo():
 		self.input_options.append(opt)
 
 	@property
-	def known(self):
-		#Need a better name for this. Basically determines if this has been initialized and hence the information is not missing
-		return self.input_options or self._known
+	def is_inited(self):
+		return self.input_options or self._is_inited
 
-	def set_known(self):
-		self._known = True
+	def set_inited(self):
+		self._is_inited = True
 
 	@property
 	def has_standard_inputs(self):

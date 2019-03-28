@@ -421,7 +421,7 @@ def add_metadata(machine):
 	add_status(machine)
 
 def add_input_info(machine):
-	machine.metadata.input_info.set_known()
+	machine.metadata.input_info.set_inited()
 	if machine.input_element is None:
 		#Seems like this doesn't actually happen
 		if debug:
