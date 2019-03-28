@@ -99,6 +99,7 @@ def get_languages_from_filename_tags(tags, ignored_tags=None):
 
 	return None
 
+is_tosec_region_list = re.compile(r'^[A-Z][A-Z]-[A-Z][A-Z]$')
 def get_regions_from_filename_tags(tags, ignored_tags=None, loose=False):
 	regions = []
 	for tag in tags:
@@ -116,9 +117,9 @@ def get_regions_from_filename_tags(tags, ignored_tags=None, loose=False):
 			continue
 
 		multiple_region_separator = None
-		if ', ' in tag:
+		if ', ' in tag: #No-Intro style filename
 			multiple_region_separator = ', '
-		elif '-' in tag:
+		elif is_tosec_region_list.fullmatch(tag):
 			multiple_region_separator = '-'
 
 		if multiple_region_separator:
