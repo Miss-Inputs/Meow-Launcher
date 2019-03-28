@@ -158,7 +158,7 @@ def get_icons():
 	return mame_state.icons
 
 def find_main_cpus(machine_xml):
-	cpu_xmls = [chip for chip in machine_xml.findall('chip') if chip.attrib.get('type') == 'cpu']
+	cpu_xmls = [chip for chip in machine_xml.findall('chip') if chip.attrib.get('type') == 'cpu' and chip.attrib.get('tag') not in ('audio_cpu', 'audiocpu', 'soundcpu', 'sound_cpu')]
 
 	for chip in cpu_xmls:
 		if chip.attrib.get('tag').endswith(('maincpu', 'main_cpu')):
@@ -173,16 +173,15 @@ def find_main_cpus(machine_xml):
 		#If there is more than one tagged 'cpu', things are more complicated and just continue as normal
 		return [cpus_with_cpu_tag[0]]
 
-	chips = []
-	for chip in cpu_xmls:
-		tag = chip.attrib.get('tag')
-		if tag in ('audio_cpu', 'audiocpu', 'soundcpu', 'sound_cpu'):
-			continue
-		if ':' in tag:
-			#From a device, not the main thing
-			continue
-		chips.append(chip)
-	return chips
+	#Try and find the main CPU(s) ourselves
+	#blah:blah is from a device which generally indicates it's a co-processor or controller for something else
+	#:blah happens if we are looking at the device itself, which in that case yeah we probably do want the thing
+	cpus_not_from_devices = [cpu for cpu in cpu_xmls if not (':' in cpu.attrib.get('tag') and not cpu.attrib.get('tag').startswith(':'))]
+	if not cpus_not_from_devices:
+		#The CPU might only be from a device in some cases
+		return cpu_xmls
+
+	return cpus_not_from_devices
 
 def lookup_system_cpus(driver_name):
 	machine = mame_state.get_mame_xml(driver_name)

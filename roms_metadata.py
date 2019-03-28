@@ -15,7 +15,7 @@ revision_regex = re.compile(r'\(Rev ([A-Z\d]+?)\)')
 if have_mame():
 	cpu_overrides = {
 		#Usually just look up system_info.systems, but this is here where they aren't in systems or there isn't a MAME driver so we can't get the CPU from there or where MAME gets it wrong because the CPU we want to return isn't considered the main CPU
-		"32X": lookup_system_cpus('sega_32x_ntsc'),
+		"32X": lookup_system_cpus('sega_32x_ntsc'), #This ends up being weird and having 0 clock speed when looking at the device...
 		"FDS": lookup_system_cpus('fds'),
 		"Game Boy Color": lookup_system_cpus('gbcolor'),
 		"Mega CD": lookup_system_cpus('segacd_us'),
