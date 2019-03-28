@@ -92,6 +92,7 @@ def add_wii_homebrew_metadata(game):
 	xml_path = os.path.join(game.folder, 'meta.xml')
 	if os.path.isfile(xml_path):
 		#boot is not a helpful launcher name
+		game.metadata.categories = game.metadata.categories[:-1]
 		try:
 			meta_xml = ElementTree.parse(xml_path)
 			game.rom.name = meta_xml.findtext('name')
