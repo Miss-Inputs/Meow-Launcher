@@ -732,6 +732,13 @@ def gbe_plus(game, _):
 	_verify_supported_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'HuC1'], ['MBC1 Multicart'])
 	return ['$<path>']
 
+def kega_fusion(game, _):
+	mapper = game.metadata.specific_info.get('Mapper')
+	#Doesn't work with KOF 99 bootleg, but Pocket Monsters bootleg which also uses rom_kof99 does work, so I'm not gonna put that in the unsupported list just yet...
+	if mapper in ('aqlian', 'rom_sf002', 'rom_sf004', 'rom_smw64', 'rom_topf'):
+		raise EmulationNotSupportedException(mapper + ' not supported')
+	return ['-fullscreen', '$<path>']
+
 def medusa(game, _):
 	if game.metadata.platform == 'DSi':
 		raise EmulationNotSupportedException('DSi exclusive games and DSiWare not supported')
