@@ -11,7 +11,7 @@ class EmulationStatus(Enum):
 
 class CPUInfo():
 	def __init__(self):
-		self.main_cpu = None
+		self.chip_name = None
 		self.clock_speed = None
 
 	@staticmethod
@@ -31,7 +31,7 @@ class CPUInfo():
 		return None
 
 	def load_from_xml(self, xml):
-		self.main_cpu = xml.attrib['name']
+		self.chip_name = xml.attrib['name']
 		if xml.attrib['name'] != 'Netlist CPU Device' and 'clock' in xml.attrib:
 			try:
 				self.clock_speed = int(xml.attrib['clock'])
@@ -175,7 +175,7 @@ class Metadata():
 		}
 
 		if self.cpu_info:
-			metadata_fields['Main-CPU'] = self.cpu_info.main_cpu
+			metadata_fields['Main-CPU'] = self.cpu_info.chip_name
 			metadata_fields['Clock-Speed'] = self.cpu_info.get_formatted_clock_speed()
 
 		if self.screen_info:

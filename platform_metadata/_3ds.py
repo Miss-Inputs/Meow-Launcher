@@ -32,7 +32,7 @@ def add_3ds_system_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 
 	cpu_info = CPUInfo()
-	cpu_info.main_cpu = 'ARM11'
+	cpu_info.chip_name = 'ARM11'
 	cpu_info.clock_speed = 268 * 1000 * 1000 #New 3DS is 804 MHz
 	game.metadata.cpu_info = cpu_info
 

@@ -120,7 +120,7 @@ def add_info_from_pbp(game, pbp_file):
 
 def add_psp_system_info(game):
 	cpu_info = CPUInfo()
-	cpu_info.main_cpu = 'Sony CXD2962GG'
+	cpu_info.chip_name = 'Sony CXD2962GG'
 	cpu_info.clock_speed = 333 * 1000 * 1000
 	game.metadata.cpu_info = cpu_info
 

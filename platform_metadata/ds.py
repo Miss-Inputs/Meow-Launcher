@@ -18,7 +18,7 @@ from data.nintendo_licensee_codes import nintendo_licensee_codes
 
 def add_ds_system_info(game):
 	cpu_info = CPUInfo()
-	cpu_info.main_cpu = 'ARM946ES'
+	cpu_info.chip_name = 'ARM946ES'
 	cpu_info.clock_speed = 67 * 1000 * 1000
 	game.metadata.cpu_info = cpu_info
 

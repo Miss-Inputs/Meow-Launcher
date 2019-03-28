@@ -10,7 +10,7 @@ from .gamecube import add_gamecube_wii_disc_metadata, NintendoDiscRegion, gamecu
 
 def add_wii_system_info(game):
 	cpu_info = CPUInfo()
-	cpu_info.main_cpu = 'IBM PowerPC 603'
+	cpu_info.chip_name = 'IBM PowerPC 603'
 	cpu_info.clock_speed = 729 * 1000 * 1000
 	game.metadata.cpu_info = cpu_info
 

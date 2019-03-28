@@ -261,7 +261,7 @@ def add_gamecube_wii_disc_metadata(game, header):
 
 def add_gamecube_system_info(game):
 	cpu_info = CPUInfo()
-	cpu_info.main_cpu = 'IBM PowerPC 603'
+	cpu_info.chip_name = 'IBM PowerPC 603'
 	cpu_info.clock_speed = 485 * 1000 * 1000
 	game.metadata.cpu_info = cpu_info
 
