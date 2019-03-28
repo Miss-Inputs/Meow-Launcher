@@ -194,4 +194,4 @@ class InputInfo():
 		return any([option.is_standard for option in self.input_options])
 
 	def describe(self):
-		return [opt.describe() for opt in self.input_options] if self.input_options else ['Nothing']
+		return [opt.describe().capitalize() for opt in self.input_options] if self.input_options else ['Nothing']
