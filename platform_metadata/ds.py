@@ -9,7 +9,7 @@ import struct
 import input_metadata
 from info.region_info import TVSystem
 from region_detect import get_region_by_name
-from metadata import CPU, ScreenInfo, Screen
+from metadata import ScreenInfo, Screen
 from common import convert_alphanumeric, NotAlphanumericException
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 
