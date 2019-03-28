@@ -146,19 +146,19 @@ class ScreenInfo():
 			self.screens.append(screen)
 
 	def get_screen_resolutions(self):
-		return ' + '.join(screen.get_screen_resolution() for screen in self.screens if screen.get_screen_resolution())
+		return _format_count([screen.get_screen_resolution() for screen in self.screens if screen.get_screen_resolution()])
 
 	def get_refresh_rates(self):
-		return ' + '.join(screen.get_formatted_refresh_rate() for screen in self.screens if screen.get_formatted_refresh_rate())
+		return _format_count([screen.get_formatted_refresh_rate() for screen in self.screens if screen.get_formatted_refresh_rate()])
 
 	def get_aspect_ratios(self):
-		return ' + '.join(screen.get_aspect_ratio() for screen in self.screens if screen.get_aspect_ratio())
+		return _format_count([screen.get_aspect_ratio() for screen in self.screens if screen.get_aspect_ratio()])
 
 	def get_display_types(self):
-		return ' + '.join(screen.type for screen in self.screens if screen.type)
+		return _format_count([screen.type for screen in self.screens if screen.type])
 
 	def get_display_tags(self):
-		return ' + '.join(screen.tag for screen in self.screens if screen.tag)
+		return _format_count([screen.tag for screen in self.screens if screen.tag])
 
 class Metadata():
 	def __init__(self):
