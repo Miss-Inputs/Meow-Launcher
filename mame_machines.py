@@ -238,7 +238,6 @@ def is_machine_launchable(machine):
 		#print(machine.basename, machine.name, software_list_name)
 
 	if needs_software:
-		print()
 		return False
 
 	return True
