@@ -160,7 +160,7 @@ def get_icons():
 def find_main_cpus(machine_xml):
 	for chip in machine_xml.findall('chip'):
 		tag = chip.attrib['tag']
-		if tag == 'maincpu' or tag == 'mainpcb:maincpu':
+		if tag in ('maincpu', 'main_cpu', 'mainpcb:maincpu'):
 			return [chip]
 
 	#If no maincpu, just grab all the chips that are marked CPU (could be none, that's okay)
