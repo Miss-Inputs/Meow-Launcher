@@ -158,18 +158,21 @@ def get_icons():
 	return mame_state.icons
 
 def find_main_cpus(machine_xml):
-	for chip in machine_xml.findall('chip'):
-		tag = chip.attrib['tag']
-		if tag in ('maincpu', 'main_cpu', 'mainpcb:maincpu'):
+	cpu_xmls = [chip for chip in machine_xml.findall('chip') if chip.attrib.get('type') == 'cpu']
+
+	for chip in cpu_xmls:
+		if chip.attrib.get('tag') in ('maincpu', 'main_cpu', 'mainpcb:maincpu'):
 			return [chip]
 
 	#If no maincpu, just grab all the chips that are marked CPU (could be none, that's okay)
+	#TODO: If one and only one CPU has a tag of "cpu" use that one
+	#Should skip over anything with ':' in tag (from a device?)?
+	#Should 'master' + 'slave' count as 2 or should slave be skipped?
 	chips = []
-	for chip in machine_xml.findall('chip'):
+	for chip in cpu_xmls:
 		if chip.attrib.get('tag') in ('audio_cpu', 'audiocpu', 'soundcpu', 'sound_cpu'):
 			continue
-		if chip.attrib['type'] == 'cpu':
-			chips.append(chip)
+		chips.append(chip)
 	return chips
 
 def lookup_system_cpus(driver_name):
