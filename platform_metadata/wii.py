@@ -99,7 +99,7 @@ def add_wii_homebrew_metadata(game):
 			coder = meta_xml.findtext('coder')
 			if not coder:
 				coder = meta_xml.findtext('author')
-			game.metadata.developer = coder
+			game.metadata.developer = game.metadata.publisher = coder
 
 			release_date = meta_xml.findtext('release_date')
 			if release_date:
