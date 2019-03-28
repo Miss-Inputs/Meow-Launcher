@@ -154,7 +154,7 @@ class CombinedController(Controller):
 			return '<weird controller>'
 		if len(self.components) == 1:
 			return self.components[0].describe()
-		return ' + '.join([component.fully_describe() if isinstance(component, NormalController) else component.describe() for component in self.components])
+		return ' + '.join([component.describe() for component in self.components])
 
 class InputOption():
 	def __init__(self):
