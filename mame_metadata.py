@@ -316,6 +316,9 @@ def add_machine_platform(machine):
 		#Anyway that's why I put that there
 		#Other genres of handheld: Pocket Device - Pad - PDA; Child Computer (e.g. Speak & Spell) but those seem more suited to Non-Arcade particularly the former
 		return category, MediaType.Standalone
+	elif category == 'Unknown':
+		#Because catlist.ini might be not updated just yet or the user might not have it; MediaType.Standalone is an assumption but oh well
+		return category, MediaType.Standalone
 	elif category == 'Arcade':
 		#Things that might not be arcade: Genre == Utilities (screen tests, etc); genre == Music && subgenre == Jukebox; genre == Misc && subgenre == Print Club (more of a photo booth I guess)
 		return category, MediaType.Standalone
