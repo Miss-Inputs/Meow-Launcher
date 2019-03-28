@@ -51,7 +51,7 @@ def get_stuff_from_filename_tags(metadata, filename_tags):
 		for piece in filename_tag.split('/'):
 			language = region_detect.get_language_by_english_name(piece)
 			if language:
-				metadata.language = language
+				metadata.languages = [language]
 				continue
 			#Emulated platform: DOS, Windows, Macintosh, Apple II, etc. (could set platform to this if we really wanted, but I dunno)
 			#Others: CD, v0.0372 cd, 1.1, Masterpiece Edition, unknown version, VGA, EGA, Freeware 1.1, Freeware 1.0, Talkie, Demo
