@@ -161,7 +161,7 @@ def find_main_cpus(machine_xml):
 	cpu_xmls = [chip for chip in machine_xml.findall('chip') if chip.attrib.get('type') == 'cpu']
 
 	for chip in cpu_xmls:
-		if chip.attrib.get('tag').endswith('maincpu', 'main_cpu'):
+		if chip.attrib.get('tag').endswith(('maincpu', 'main_cpu')):
 			#Is it possible to have more than one main CPU?
 			return [chip]
 
