@@ -70,7 +70,10 @@ class CPUInfo():
 	@property
 	def clock_speeds(self):
 		counter = collections.Counter([cpu.get_formatted_clock_speed() for cpu in self.cpus])
-		return ' + '.join([name if count == 1 else '{0} * {1}'.format(name, count) for name, count in counter.items()])
+		if len(counter) == 1:
+			if list(counter.keys())[0] is None:
+				return None
+		return ' + '.join([speed if count == 1 else '{0} * {1}'.format(speed, count) for speed, count in counter.items() if speed])
 
 	def add_cpu(self, cpu):
 		self.cpus.append(cpu)
