@@ -166,11 +166,14 @@ def find_main_cpus(machine_xml):
 
 	#If no maincpu, just grab all the chips that are marked CPU (could be none, that's okay)
 	#TODO: If one and only one CPU has a tag of "cpu" use that one
-	#Should skip over anything with ':' in tag (from a device?)?
 	#Should 'master' + 'slave' count as 2 or should slave be skipped?
 	chips = []
 	for chip in cpu_xmls:
-		if chip.attrib.get('tag') in ('audio_cpu', 'audiocpu', 'soundcpu', 'sound_cpu'):
+		tag = chip.attrib.get('tag')
+		if tag in ('audio_cpu', 'audiocpu', 'soundcpu', 'sound_cpu'):
+			continue
+		if ':' in tag:
+			#From a device, not the main thing
 			continue
 		chips.append(chip)
 	return chips
