@@ -212,7 +212,7 @@ class Metadata():
 		}
 
 		if self.cpu_info.is_inited:
-			#Add Number-of-CPUs field here once that becomes relevant
+			metadata_fields['Number-of-CPUs'] = self.cpu_info.number_of_cpus
 			if self.cpu_info.number_of_cpus:
 				metadata_fields['Main-CPU'] = self.cpu_info.chip_names
 				metadata_fields['Clock-Speed'] = self.cpu_info.clock_speeds
