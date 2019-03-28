@@ -15,6 +15,7 @@ class CPU():
 	def __init__(self):
 		self.chip_name = None
 		self.clock_speed = None
+		self.tag = None
 
 	@staticmethod
 	def format_clock_speed(hertz, precision=4):
@@ -33,12 +34,20 @@ class CPU():
 		return None
 
 	def load_from_xml(self, xml):
-		self.chip_name = xml.attrib['name']
+		self.chip_name = xml.attrib.get('name')
+		self.tag = xml.attrib.get('tag')
 		if xml.attrib['name'] != 'Netlist CPU Device' and 'clock' in xml.attrib:
 			try:
 				self.clock_speed = int(xml.attrib['clock'])
 			except ValueError:
 				pass
+
+def _format_count(list_of_something):
+	counter = collections.Counter(list_of_something)
+	if len(counter) == 1:
+		if list(counter.keys())[0] is None:
+			return None
+	return ' + '.join([value if count == 1 else '{0} * {1}'.format(value, count) for value, count in counter.items() if value])
 
 class CPUInfo():
 	def __init__(self):
@@ -64,16 +73,15 @@ class CPUInfo():
 
 	@property
 	def chip_names(self):
-		counter = collections.Counter([cpu.chip_name for cpu in self.cpus])
-		return ' + '.join([name if count == 1 else '{0} * {1}'.format(name, count) for name, count in counter.items()])
+		return _format_count([cpu.chip_name for cpu in self.cpus])
 
 	@property
 	def clock_speeds(self):
-		counter = collections.Counter([cpu.get_formatted_clock_speed() for cpu in self.cpus])
-		if len(counter) == 1:
-			if list(counter.keys())[0] is None:
-				return None
-		return ' + '.join([speed if count == 1 else '{0} * {1}'.format(speed, count) for speed, count in counter.items() if speed])
+		return _format_count([cpu.get_formatted_clock_speed() for cpu in self.cpus])
+
+	@property
+	def tags(self):
+		return _format_count([cpu.tag for cpu in self.cpus])
 
 	def add_cpu(self, cpu):
 		self.cpus.append(cpu)
@@ -219,6 +227,7 @@ class Metadata():
 			if self.cpu_info.number_of_cpus:
 				metadata_fields['Main-CPU'] = self.cpu_info.chip_names
 				metadata_fields['Clock-Speed'] = self.cpu_info.clock_speeds
+				metadata_fields['CPU-Tags'] = self.cpu_info.tags
 
 		if self.screen_info:
 			num_screens = self.screen_info.get_number_of_screens()
