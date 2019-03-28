@@ -166,6 +166,8 @@ def find_main_cpus(machine_xml):
 	#If no maincpu, just grab all the chips that are marked CPU (could be none, that's okay)
 	chips = []
 	for chip in machine_xml.findall('chip'):
+		if chip.attrib.get('tag') in ('audio_cpu', 'audiocpu', 'soundcpu', 'sound_cpu'):
+			continue
 		if chip.attrib['type'] == 'cpu':
 			chips.append(chip)
 	return chips
