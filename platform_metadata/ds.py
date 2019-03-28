@@ -17,11 +17,6 @@ from data.nintendo_licensee_codes import nintendo_licensee_codes
 #For DSiWare, we can get public.sav and private.sav filesize, and that tells us if SaveType = Internal or Nothing. But we won't worry about DSiWare for now due to lack of accessible emulation at the moment.
 
 def add_ds_system_info(game):
-	cpu = CPU()
-	cpu.chip_name = 'ARM946ES'
-	cpu.clock_speed = 67 * 1000 * 1000
-	game.metadata.cpu_info.add_cpu(cpu)
-
 	top_screen = Screen()
 	top_screen.width = 256
 	top_screen.height = 192
