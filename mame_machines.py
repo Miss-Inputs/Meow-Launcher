@@ -132,7 +132,7 @@ class Machine():
 
 	@property
 	def overall_status(self):
-		if not self.driver_element:
+		if self.driver_element is None:
 			return EmulationStatus.Unknown
 		return mame_statuses.get(self.driver_element.attrib.get('status'), EmulationStatus.Unknown)
 
