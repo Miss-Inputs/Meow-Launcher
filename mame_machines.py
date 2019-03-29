@@ -132,9 +132,9 @@ class Machine():
 
 	@property
 	def overall_status(self):
-		if not driver_element:
+		if not self.driver_element:
 			return EmulationStatus.Unknown
-		return mame_statuses.get(driver_element.attrib.get('status'), EmulationStatus.Unknown)
+		return mame_statuses.get(self.driver_element.attrib.get('status'), EmulationStatus.Unknown)
 
 	@property
 	def is_skeleton_driver(self):
