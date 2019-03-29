@@ -39,7 +39,7 @@ def parse_sufami_turbo_header(game):
 	game.metadata.platform = 'Sufami Turbo'
 
 	#Safe bet that every single ST game just uses a normal controller
-	game.metadata.specific_info.add_option(get_snes_controller())
+	game.metadata.input_info.add_option(get_snes_controller())
 
 	header = game.rom.read(amount=56)
 	#Magic: 0:14 Should be "BANDAI SFC-ADX"
@@ -304,7 +304,7 @@ def parse_satellaview_header(game, base_offset):
 def add_satellaview_metadata(game):
 	game.metadata.platform = 'Satellaview'
 	#Safe bet that every single Satellaview game just uses a normal controller
-	game.metadata.specific_info.add_option(get_snes_controller())
+	game.metadata.input_info.add_option(get_snes_controller())
 	possible_offsets = [0x7f00, 0xff00, 0x40ff00]
 	rom_size = game.rom.get_size()
 
