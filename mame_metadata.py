@@ -358,7 +358,7 @@ def add_save_type(machine):
 
 def add_status(machine):
 	driver = machine.driver_element
-	machine.metadata.specific_info['MAME-Emulation-Status'] = driver.overall_status
+	machine.metadata.specific_info['MAME-Emulation-Status'] = machine.overall_status
 	#I guess I gotta think of better names for this stuff
 	machine.metadata.specific_info['MAME-Actual-Emulation-Status'] = mame_statuses.get(driver.attrib['emulation'], EmulationStatus.Unknown)
 	machine.metadata.specific_info['Cocktail-Status'] = mame_statuses.get(driver.attrib.get('cocktail'), EmulationStatus.Unknown)
