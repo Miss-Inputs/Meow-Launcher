@@ -108,7 +108,29 @@ def parse_stella_db(game, game_info):
 		game.metadata.product_code = game_info['Cartridge_ModelNo']
 	if 'Cartridge_Note' in game_info:
 		#TODO: Ignore things like "Uses the Paddle Controllers" and "Console ports are swapped" that are already specified by other fields
-		game.metadata.specific_info['Stella-Notes'] = game_info['Cartridge_Note']
+		note = game_info['Cartridge_Note']
+		#Adventures in the Park
+		#Featuring Panama Joe
+		#Hack of Adventure
+		#Journey to Rivendell (The Lord of the Rings I)
+		#O Monstro Marinho
+		#Pitfall Harry's Jungle Adventure (Jungle Runner)
+		#ROM must be started in bank 0
+		#Set right difficulty to 'A' for BoosterGrip in both ports
+		#Use Color/BW switch to change between galactic chart and front views
+		#Uses Joyboard (this isn't specified in the joystick port info, for some reason)
+		#Uses Joystick Coupler (Dual Control Module) (not specified by joystick info)
+		#Uses the Amiga Joyboard (also need to parse this)
+		#Uses the Joyboard controller
+		if note.startswith('AKA '):
+			pass #Could add an Alternate-Name field but mehhhhhhhhhhh (There is an "AKA Bachelor Party, Uses the paddle controllers" but we will also skip that)
+		elif note == 'Console ports are swapped':
+			pass #We already know this from Controller_SwapPorts field
+		elif note in ('Uses Joystick (left) and Keypad (right) Controllers', 'Uses Keypad Controller', 'Uses Keypad Controllers', 'Uses Mindlink Controller (left only)', 'Uses the MindLink controller', 'Uses right joystick controller', 'Uses the paddle controllers', 'Uses the Paddle Controllers', 'Uses the Paddle Controllers (left only)', 'Uses the Paddle Controllers (swapped)', 'Uses the Driving Controllers', 'Uses the Joystick Controllers (swapped)', 'Uses the Keypad Controllers', 'Uses the Keypad Controllres (left only)', 'Uses the Kid Vid Controller', 'Uses the KidVid Controller', 'Uses the Light Gun Controller (left only)', 'Uses the Track & Field Controller'):
+			pass #We already know this as well from the controller fields
+			#Although it wouldn't hurt to add that to the cartridge port, once I refactor this mess
+		else:
+			game.metadata.specific_info['Notes'] = note
 	if 'Display_Format' in game_info:
 		display_format = game_info['Display_Format']
 		if display_format in ('NTSC', 'PAL60', 'SECAM60'):
@@ -170,7 +192,11 @@ def add_atari_2600_metadata(game):
 
 	software = find_in_software_lists(game.software_lists, crc=crc32)
 	if software:
+		existing_notes = game.metadata.specific_info.get('Notes')
 		software.add_generic_info(game)
+		usage = software.get_info('usage')
+		if existing_notes and usage:
+			game.metadata.specific_info['Notes'] = usage + ';' + existing_notes
 		game.metadata.product_code = software.get_info('serial')
 
 		if game.metadata.publisher == 'Homebrew':
