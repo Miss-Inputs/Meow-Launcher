@@ -4,10 +4,14 @@ consistentified_manufacturers = {
 	#For what it's worth, it seems each publisher will format its own name consistently across all games it publishes, it just looks weird compared to how names are formatted elsewhere
 
 	#Atlus USA, Inc. > Atlus USA?
+	'ATLUS': 'Atlus',
 	'CAPCOM': 'Capcom',
 	'CIRCLE Ent.': 'Circle Entertainment',
+	'INTI CREATES': 'Inti Creates',
 	'SEGA': 'Sega',
+	'TATE Multimedia': 'Tate Multimedia',
 	'Unspecified Author': None, #Homebrew might do this
 	'VD-DEV': 'VD-Dev',
+	'WB Games': 'Warner Bros',
 	'YouTube': 'Google', #Maybe I should change nintendo_licensee_codes WB to YouTube. Oh well. Either way, this is the YouTube app, and hence Google
 }
