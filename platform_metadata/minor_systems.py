@@ -20,7 +20,6 @@ def add_entex_adventure_vision_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 
 def add_game_pocket_computer_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -36,7 +35,6 @@ def add_game_pocket_computer_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 
 def add_gamate_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -52,7 +50,6 @@ def add_gamate_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 
 def add_casio_pv1000_info(game):
 	game.metadata.tv_type = TVSystem.NTSC
@@ -70,7 +67,6 @@ def add_casio_pv1000_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 
 def add_mega_duck_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -85,7 +81,6 @@ def add_mega_duck_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 
 def add_watara_supervision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -101,7 +96,6 @@ def add_watara_supervision_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 
 def add_apfm1000_info(game):
 	#TODO: Input info should always be keypad... I think?
@@ -112,7 +106,6 @@ def add_apfm1000_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 		#There's not really anything in there which tells us if we need the Imagination Machine for a particular cart. There's something about RAM, though.
 
 def add_arcadia_info(game):
@@ -160,7 +153,6 @@ def add_casio_pv2000_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 
 def add_channel_f_info(game):
 	#Input info is uhhh that weird twisty thing I guess (I still cannot understand it)
@@ -199,7 +191,6 @@ def add_sg1000_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 		uses_tablet = software.get_part_feature('peripheral') == 'tablet'
 		#There doesn't seem to be a way to know if software is a SC-3000 cart, unless I just say whichever one has the .sc extension. So I'll do that
 
@@ -256,7 +247,6 @@ def add_tomy_tutor_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 
 def add_vc4000_info(game):
 	normal_controller = input_metadata.NormalController()
@@ -275,7 +265,6 @@ def add_vc4000_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 
 def add_vic10_info(game):
 	#Input info: Keyboard or joystick
@@ -285,7 +274,6 @@ def add_vic10_info(game):
 	software = get_software_list_entry(game, skip_header=2 if has_header else 0)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 		#What the heck is an "assy"?
 
 def add_vic20_info(game):
@@ -296,7 +284,6 @@ def add_vic20_info(game):
 	software = get_software_list_entry(game, skip_header=2 if has_header else 0)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 		game.metadata.specific_info['Notes'] = software.get_info('usage')
 		#Enter 'SYS <some number>' to run
 		#Game Paddles required
@@ -318,7 +305,6 @@ def add_colecovision_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 
 		usage = software.get_info('usage')
 		if usage == 'Supports Super Action Controllers':
@@ -530,7 +516,6 @@ def add_intellivision_info(game):
 	software = find_in_software_lists(game.software_lists, crc=game.rom.read(), part_matcher=_does_intellivision_part_match)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 
 		usage = software.get_info('usage')
 		if usage == 'Uses Intellivoice':
@@ -559,7 +544,6 @@ def add_juicebox_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 
 def add_atari_5200_info(game):
 	#Can get the title screen information from inside the ROM to get the year (and also title). But that's hella unreliable, won't work properly for homebrews released after 2000, and requires implementing the 5200 title screen's custom character set (which I do know, it's just a pain in the arse)
@@ -568,7 +552,6 @@ def add_atari_5200_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 		uses_trackball = software.get_part_feature('peripheral') == 'trackball'
 
 	game.metadata.save_type = SaveType.Nothing #Probably
@@ -598,7 +581,6 @@ def add_game_com_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 
 def add_apple_ii_info(game):
 	#Possible input info: Keyboard and joystick by default, mouse if mouse card exists
@@ -609,7 +591,6 @@ def add_apple_ii_info(game):
 		if software.get_info('usage') == 'Works with Apple II Mouse Card in slot 4: -sl4 mouse':
 			#Not setting up input_info just yet because I don't know if it uses joystick/keyboard as well. I guess I probably never will, but like... well.... dang
 			game.metadata.specific_info['Uses-Mouse'] = True
-		game.metadata.product_code = software.get_info('serial')
 
 		compat = software.get_shared_feature('compatibility')
 		if compat:
@@ -635,7 +616,6 @@ def add_fm7_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 		game.metadata.specific_info['Notes'] = software.get_info('usage')
 
 def add_super_cassette_vision_info(game):
@@ -662,13 +642,11 @@ def add_super_acan_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 
 def add_pc_booter_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 		usage = software.get_info('usage')
 		if usage == 'PC Booter':
 			usage = software.get_info('user_notes')
@@ -705,7 +683,6 @@ def add_generic_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 		game.metadata.specific_info['Notes'] = software.get_info('usage')
 
 	#TODO PET: Add keyboard as input info, there are theoretically userport joysticks but nah

@@ -126,7 +126,6 @@ def try_parse_standard_header(game):
 
 def add_info_from_software_list(game, software):
 	software.add_generic_info(game)
-	game.metadata.product_code = software.get_info('serial')
 
 	usage = software.get_info('usage')
 	if usage == 'Only runs with PAL/50Hz drivers, e.g. smspal':

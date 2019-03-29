@@ -344,5 +344,4 @@ def add_snes_metadata(game):
 	if software:
 		software.add_generic_info(game)
 		#We can actually get lorom/hirom from feature = slot. Hmm...
-		game.metadata.product_code = software.get_info('serial')
 	#Can't get input_info at this point as there's nothing to distinguish stuff that uses mouse/gun/etc

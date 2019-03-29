@@ -68,4 +68,3 @@ def add_gba_metadata(game):
 	software = find_in_software_lists(game.software_lists, crc=cart_crc32)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')

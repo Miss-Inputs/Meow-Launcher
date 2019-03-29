@@ -152,8 +152,6 @@ def add_gameboy_metadata(game):
 		software.add_generic_info(game)
 		game.metadata.specific_info['Has-RTC'] = software.get_part_feature('rtc') == 'yes'
 		game.metadata.save_type = SaveType.Cart if software.has_data_area('nvram') else SaveType.Nothing
-		#Note that the product code here will have the DMG- or CGB- in front, and something like -USA -EUR at the end
-		game.metadata.product_code = software.get_info('serial')
 
 		slot = software.get_part_feature('slot')
 		parse_slot(game, slot)

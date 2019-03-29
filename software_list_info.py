@@ -181,6 +181,10 @@ class Software():
 		game.metadata.specific_info['MAME-Software-List-Name'] = self.software_list.name
 		game.metadata.specific_info['MAME-Software-List-Description'] = self.software_list.description
 
+		serial = self.get_info('serial')
+		if serial:
+			game.metadata.product_code = serial
+
 		compatibility = self.get_shared_feature('compatibility')
 		if compatibility == 'PAL':
 			game.metadata.tv_type = TVSystem.PAL

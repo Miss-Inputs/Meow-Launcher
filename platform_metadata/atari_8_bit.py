@@ -10,8 +10,6 @@ def add_info_from_software_list(game, software):
 	if compatibility == "OSb":
 		game.metadata.specific_info['Requires-OS-B'] = True
 
-	game.metadata.product_code = software.get_info('serial')
-
 	peripheral = software.get_part_feature('peripheral')
 
 	joystick = input_metadata.NormalController()

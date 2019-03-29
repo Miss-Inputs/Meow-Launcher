@@ -35,4 +35,3 @@ def add_uzebox_metadata(game):
 		if game.metadata.publisher == 'Belogic':
 			#Belogic just make the console itself, but don't actually make games necessarily
 			game.metadata.publisher = game.metadata.developer
-		game.metadata.product_code = software.get_info('serial')

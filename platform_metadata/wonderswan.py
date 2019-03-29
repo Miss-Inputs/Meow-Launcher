@@ -84,6 +84,5 @@ def add_wonderswan_metadata(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 		#We could get save type from software.has_data_area('sram' or 'eeprom') but I think we can trust the header flags for now, even with BPCv2 carts
 		#By the same token we can get screen orientation = vertical if feature rotated = 'yes'

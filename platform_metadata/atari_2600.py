@@ -197,7 +197,6 @@ def add_atari_2600_metadata(game):
 		usage = software.get_info('usage')
 		if existing_notes and usage:
 			game.metadata.specific_info['Notes'] = usage + ';' + existing_notes
-		game.metadata.product_code = software.get_info('serial')
 
 		if game.metadata.publisher == 'Homebrew':
 			#For consistency. There's no company literally called "Homebrew"

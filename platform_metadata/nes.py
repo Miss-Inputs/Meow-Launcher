@@ -322,7 +322,6 @@ def add_nes_metadata(game):
 
 	if software:
 		software.add_generic_info(game)
-		game.metadata.product_code = software.get_info('serial')
 
 		#FIXME: Acktually, you can have multiple feature = peripherals
 		#See also: SMB / Duck Hunt / World Class Track Meet multicart, with both zapper and powerpad
