@@ -171,7 +171,7 @@ def find_main_cpus(machine_xml):
 	cpus_with_cpu_tag = [cpu for cpu in cpu_xmls if cpu.attrib.get('tag') == 'cpu']
 	if len(cpus_with_cpu_tag) == 1:
 		#If there is more than one tagged 'cpu', things are more complicated and just continue as normal
-		return [cpus_with_cpu_tag[0]]
+		return cpus_with_cpu_tag
 
 	#Try and find the main CPU(s) ourselves
 	#blah:blah is from a device which generally indicates it's a co-processor or controller for something else
