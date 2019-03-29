@@ -114,6 +114,8 @@ helpers = {
 	"Super A'Can": add_super_acan_info,
 	'Super Cassette Vision': add_super_cassette_vision_info,
 	'Tomy Tutor': add_tomy_tutor_info,
+	'V.Smile': add_vsmile_info,
+	'V.Smile Baby': add_vsmile_babby_info,
 	'VC 4000': add_vc4000_info,
 	'VIC-10': add_vic10_info,
 	'VIC-20': add_vic20_info,

@@ -248,7 +248,7 @@ def add_sharp_x68k_info(game):
 		#Type S_MARIO.X in Human68k OS
 
 def add_tomy_tutor_info(game):
-	#Input info: Keyboard and/or joystick
+	#Input info: Keyboard (56 keys) and/or joystick (2 buttons + dpad)
 
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
@@ -526,7 +526,7 @@ def _does_intellivision_part_match(part, data, _):
 
 def add_intellivision_info(game):
 	#There's probably some way to get info from title screen in ROM, but I haven't explored that in ROMniscience yet
-	#Input info: Crappy keypad, but also a keyboard component and computer module exists, also a piano keyboard
+	#Input info: Keyboard Module, ECS (49 keys), or 12-key keypad + 3 buttons + dpad (I don't think it's actually a paddle unless I'm proven otherwise), or Music Synthesizer (49 keys) (TODO add this I'm tired right now)
 	software = find_in_software_lists(game.software_lists, crc=game.rom.read(), part_matcher=_does_intellivision_part_match)
 	if software:
 		software.add_generic_info(game)
@@ -678,6 +678,28 @@ def add_pc_booter_info(game):
 		#Original Publisher = Nihon Falcom
 		game.metadata.specific_info['Version'] = software.get_info('version')
 
+def add_vsmile_info(game):
+	add_generic_info(game)
+	controller = input_metadata.NormalController()
+	controller.analog_sticks = 1 #Hmm MAME has it as a digital joystick with 8 buttons but Wikipedia says analog, whomst is correct? I dunno
+	controller.face_buttons = 4 #Also enter + Learning Zone + exit + help
+
+	game.metadata.input_info.add_info(controller)
+
+def add_vsmile_babby_info(game):
+	add_generic_info(game)
+	controller = input_metadata.NormalController()
+	controller.face_buttons = 6 #5 shapes + "fun button" (aka cloud) + apparently the ball is actually just a button; also exit
+
+	game.metadata.input_info.add_info(controller)
+
+def add_vz200_info(game):
+	add_generic_info(game)
+	keyboard = input_metadata.Keyboard()
+	keyboard.keys = 45
+	#There are in theory joysticks, but they don't seem to ever be a thing
+	game.metadata.input_info.add_info(keyboard)
+
 def add_generic_info(game):
 	#For any system not otherwise specified
 	software = get_software_list_entry(game)
@@ -692,5 +714,7 @@ def add_generic_info(game):
 	#Coleco Adam: Input info: Keyboard / Coleco numpad?
 	#MSX1/2: Input info: Keyboard or joystick; Other info you can get from carts here: PCB, slot (something like ascii8 or whatever), mapper
 	#GX4000: Input info: 2-button gamepad, analog stick, or light gun (Skeet Shoot, The Enforcer); gx4000.xml software list decides to put that inside a comment above the <software> element rather than anything parseable
-	#Sord M5: Input info: Keyboard, maybe joystick? Take note of info > usage = requiring 36K RAM, though we just set our M5 to have max RAM anyway, seems to be harmless
+	#Sord M5: Input info: Keyboard (55 keys), maybe joystick (0 buttons??)? Take note of info > usage = requiring 36K RAM, though we just set our M5 to have max RAM anyway, seems to be harmless
 	#Jaguar input info: There's the default ugly gamepad and also another ugly gamepad with more buttons which I dunno what's compatible with
+	#CD-i: That one controller but could also be the light gun thingo
+	#The rest are weird computers where we can't tell if they use any kind of optional joystick or not so it's like hhhh whaddya do

@@ -5,10 +5,41 @@ from common_types import SaveType
 from region_detect import get_region_by_name
 from common import convert_alphanumeric, NotAlphanumericException
 from software_list_info import get_software_list_entry
+import input_metadata
 from data.nintendo_licensee_codes import nintendo_licensee_codes
+
+#List of available controllers, which we will put up here for code reuse (since Uzebox also needs it)
+def get_snes_controller():
+	controller = input_metadata.NormalController()
+	controller.dpads = 1
+	controller.face_buttons = 4 #also Select + Start
+	controller.shoulder_buttons = 2
+	return controller
+
+def get_snes_mouse():
+	mouse = input_metadata.Mouse()
+	mouse.buttons = 2
+	return mouse
+
+def get_super_scope():
+	gun = input_metadata.LightGun() #pew pew
+	#Single shooty button + 3 other buttons
+	return gun
+
+def get_sunsoft_pachinko_controller():
+	pachinko = input_metadata.Paddle()
+	#1 button
+	return pachinko
+
+#Other controllers: Miracle Piano (same as NES?)
+#Stuff not available as MAME slot device: That horse racing numpad thingo
+#Barcode Battler goes in the controller slot but from what I can tell it's not really a controller?
 
 def parse_sufami_turbo_header(game):
 	game.metadata.platform = 'Sufami Turbo'
+
+	#Safe bet that every single ST game just uses a normal controller
+	game.metadata.specific_info.add_option(get_snes_controller())
 
 	header = game.rom.read(amount=56)
 	#Magic: 0:14 Should be "BANDAI SFC-ADX"
@@ -272,6 +303,8 @@ def parse_satellaview_header(game, base_offset):
 
 def add_satellaview_metadata(game):
 	game.metadata.platform = 'Satellaview'
+	#Safe bet that every single Satellaview game just uses a normal controller
+	game.metadata.specific_info.add_option(get_snes_controller())
 	possible_offsets = [0x7f00, 0xff00, 0x40ff00]
 	rom_size = game.rom.get_size()
 
@@ -313,3 +346,4 @@ def add_snes_metadata(game):
 		#We can actually get lorom/hirom from feature = slot. Hmm...
 		if not game.metadata.product_code:
 			game.metadata.product_code = software.get_info('serial')
+	#Can't get input_info at this point as there's nothing to distinguish stuff that uses mouse/gun/etc

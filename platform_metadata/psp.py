@@ -5,6 +5,7 @@ import re
 
 from info.region_info import TVSystem
 from metadata import CPU, ScreenInfo, Screen
+import input_metadata
 from common_types import MediaType
 from config import main_config
 
@@ -123,6 +124,13 @@ def add_psp_system_info(game):
 	cpu.chip_name = 'Sony CXD2962GG'
 	cpu.clock_speed = 333 * 1000 * 1000
 	game.metadata.cpu_info.add_cpu(cpu)
+
+	builtin_gamepad = input_metadata.NormalController()
+	builtin_gamepad.dpads = 1
+	builtin_gamepad.analog_sticks = 1
+	builtin_gamepad.face_buttons = 4 #also Start, Select
+	builtin_gamepad.shoulder_buttons = 2
+	game.metadata.input_info.add_option(builtin_gamepad)
 
 	screen = Screen()
 	screen.width = 480
