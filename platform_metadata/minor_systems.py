@@ -684,21 +684,21 @@ def add_vsmile_info(game):
 	controller.analog_sticks = 1 #Hmm MAME has it as a digital joystick with 8 buttons but Wikipedia says analog, whomst is correct? I dunno
 	controller.face_buttons = 4 #Also enter + Learning Zone + exit + help
 
-	game.metadata.input_info.add_info(controller)
+	game.metadata.input_info.add_option(controller)
 
 def add_vsmile_babby_info(game):
 	add_generic_info(game)
 	controller = input_metadata.NormalController()
 	controller.face_buttons = 6 #5 shapes + "fun button" (aka cloud) + apparently the ball is actually just a button; also exit
 
-	game.metadata.input_info.add_info(controller)
+	game.metadata.input_info.add_option(controller)
 
 def add_vz200_info(game):
 	add_generic_info(game)
 	keyboard = input_metadata.Keyboard()
 	keyboard.keys = 45
 	#There are in theory joysticks, but they don't seem to ever be a thing
-	game.metadata.input_info.add_info(keyboard)
+	game.metadata.input_info.add_option(keyboard)
 
 def add_generic_info(game):
 	#For any system not otherwise specified
