@@ -1,3 +1,4 @@
+from info.region_info import TVSystem
 import input_metadata
 from software_list_info import get_software_list_entry
 from common_types import MediaType
@@ -38,11 +39,14 @@ def add_info_from_software_list(game, software):
 
 	game.metadata.specific_info['Peripheral'] = peripheral
 
-	game.metadata.specific_info['Notes'] = software.get_info('usage')
+	usage = software.get_info('usage')
+	if usage == 'Plays music only in PAL':
+		game.metadata.tv_type = TVSystem.PAL
+	else:
+		game.metadata.specific_info['Notes'] = usage
 	#To be used with Atari 1400 onboard modem.
 	#3 or 4 player gameplay available only on 400/800 systems
 	#Chalkboard Inc.'s Powerpad Tablet required
-	#Plays music only in PAL
 	#Requires Lower-Silesian Turbo 2000 hardware modification installed in a tape recorder.
 	#Requires a special boot disk, currently unavailable.
 	#Expando-Vision hardware device required
