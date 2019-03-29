@@ -334,8 +334,7 @@ def mame_megadrive(game, _):
 	#Titan - Overdrive: Glitches out on the part with PCB that says "Blast Processing" and the Titan logo as well as the "Titan 512C Forever" part (doesn't even display "YOUR EMULATOR SUX" properly as Kega Fusion does with the unmodified binary)
 	#md_slot.cpp claims that carts with EEPROM and Codemasters J-Cart games don't work, but it seems they do, maybe they don't save
 	#Controllers are configured via Machine Configuration and hence are out of reach for poor little frontends
-	#rom_kof99 does work, but Pocket Monsters seems to not work, because it's not detected as rom_kof99, maybe it works and only works from software list. Hmm.... not sure how to handle that
-	#Similarly, Pocket Monsters 2 displays blank screen after menu screen, although rom_lion3 does work, but it's not detected as that from fullpath
+	#Pocket Monsters 2 displays blank screen after menu screen, although rom_lion3 does work, but it's not detected as that from fullpath
 	#4in1 and 12in1 won't boot anything either because they aren't detected from fullpath as being rom_mcpir (but Super 15 in 1 works)
 	#Overdrive 2 is supposed to use SSF2 bankswitching but isn't detected as rom_ssf2, actual Super Street Fighter 2 does work
 	mapper = game.metadata.specific_info.get('Mapper')
@@ -345,6 +344,10 @@ def mame_megadrive(game, _):
 	elif mapper == 'rom_yasech':
 		#Looks like it's same here... nothing about it being unsupported in SL entry
 		raise EmulationNotSupportedException('Ya Se Chuan Shuo not supported')
+	elif mapper == 'rom_kof99_pokemon':
+		#This isn't a real mapper, Pocket Monsters uses rom_kof99 but it doesn't work (but KOF99 bootleg does)
+		#Probably because it's detected as rom_99 when loaded from fullpath, so... it be like that sometimes
+		raise EmulationNotSupportedException('Pocket Monsters not supported from fullpath')
 
 	#Hmm. Most Megadrive emulators that aren't MAME have some kind of region preference thing where it's selectable between U->E->J or J->U->E or U->J->E or whatever.. because of how this works I'll have to make a decision, unless I feel like making a config thing for that, and I don't think I really need to do that.
 	#I'll go with U->J->E for now
@@ -734,8 +737,8 @@ def gbe_plus(game, _):
 
 def kega_fusion(game, _):
 	mapper = game.metadata.specific_info.get('Mapper')
-	#Doesn't work with KOF 99 bootleg, but Pocket Monsters bootleg which also uses rom_kof99 does work, so I'm not gonna put that in the unsupported list just yet...
-	if mapper in ('aqlian', 'rom_sf002', 'rom_sf004', 'rom_smw64', 'rom_topf'):
+	#rom_kof99: Pocket Monsters does work (game-specific hack, probably?), which is why in platform_metadata/megadrive I've treated it specially and called it rom_kof99_pokemon
+	if mapper in ('aqlian', 'rom_sf002', 'rom_sf004', 'rom_smw64', 'rom_topf', 'rom_kof99'):
 		raise EmulationNotSupportedException(mapper + ' not supported')
 	return ['-fullscreen', '$<path>']
 
