@@ -12,7 +12,7 @@ from info import emulator_command_lines
 from config import main_config
 from mame_helpers import get_mame_xml, consistentify_manufacturer, iter_mame_entire_xml, get_icons
 from mame_metadata import add_metadata
-from metadata import Metadata
+from metadata import Metadata, EmulationStatus
 from common_types import SaveType
 
 debug = '--debug' in sys.argv
@@ -127,11 +127,20 @@ class Machine():
 		return int(self.input_element.attrib.get('players', 0))
 
 	@property
+	def driver_element(self):
+		return self.xml.find('driver')
+
+	@property
+	def overall_status(self):
+		if not driver_element:
+			return EmulationStatus.Unknown
+		return mame_statuses.get(driver_element.attrib.get('status'), EmulationStatus.Unknown)
+
+	@property
 	def is_skeleton_driver(self):
 		#Actually, we're making an educated guess here, as MACHINE_IS_SKELETON doesn't appear directly in the XML...
 		#What I actually want to happen is to tell us if a machine will just display a blank screen and nothing else (because nobody wants those in a launcher). Right now that's not really possible without the false positives of games which don't have screens as such but they do display things via layouts (e.g. wackygtr) so the best we can do is say everything that doesn't have any kind of controls.
-		#This isn't always correct, see also: tp1985 which does work seemingly fine it just legitimately doesn't have inputs, I guess since this is a game launcher nobody will really mind but like ehhhhhh
-		return self.number_of_players == 0
+		return self.number_of_players == 0 and self.overall_status in (EmulationStatus.Broken, EmulationStatus.Unknown)
 
 	def uses_device(self, name):
 		for device_ref in self.xml.findall('device_ref'):
