@@ -1,5 +1,6 @@
 import subprocess
 import hashlib
+from enum import Enum, auto
 
 import input_metadata
 from common_types import SaveType
@@ -38,63 +39,49 @@ def get_stella_database():
 
 	return games
 
-def add_controller_info(game, controller):
-	#TODO: Take note of Controller_SwapPaddles
-	#TODO: Use some attribute to note if PADDLES_IAXIS or PADDLES_IAXDR, whatever those do exactly that's different from just PADDLES
-	#Track & Field controller is just a joystick with no up or down, so Stella doesn't count it as separate from joystick
+class Atari2600Controller(Enum):
+	Joystick = auto()
+	Paddle = auto() #2 players per port
+	Mouse = auto() #2 buttons, Stella lists an AMIGAMOUSE and ATARIMOUSE (ST mouse) and I dunno if those are functionally different
+	Trackball = auto() #Functionally 1 button, but has 2 physical buttons to be ambidextrous
+	KeyboardController = auto() #This is... 2 keypads joined together (12 keys each)
+	Compumate = auto() #42-key keyboard (part of a whole entire computer)
+	MegadriveGamepad = auto() #See megadrive.py
+	Boostergrip = auto() #Effectively a 3-button joystick, passes through to the standard 2600 joystick and adds 2 buttons
+	DrivingController = auto() #Has 360 degree movement, so not quite like a paddle. MAME actually calls it a trackball
+	Mindlink = auto()
+	Other = auto()
 
-	#TODO: Hella refactor this too I guess
 
+def _controller_from_stella_db_name(controller):
 	if not controller:
-		return
+		return None
 
-	if controller in ('PADDLES', 'PADDLES_IAXIS', 'PADDLES_IAXDR'):
-		game.metadata.input_info.add_option(input_metadata.Paddle())
-		#Paddles come in pairs and hence have 2 players per port
-	elif controller in ('JOYSTICK', 'AUTO'):
-		joystick = input_metadata.NormalController()
-		joystick.dpads = 1
-		joystick.face_buttons = 1
-		game.metadata.input_info.add_option(joystick)
+	if controller in ('JOYSTICK', 'AUTO'):
+		return Atari2600Controller.Joystick
+	elif controller in ('PADDLES', 'PADDLES_IAXIS', 'PADDLES_IAXDR'):
+		#Not sure what the difference in the latter two are
+		return Atari2600Controller.Paddle
 	elif controller in ('AMIGAMOUSE', 'ATARIMOUSE'):
-		#ATARIMOUSE is an ST mouse, to be precise
-		#TODO: Should differentiate between AMIGAMOUSE and ATARIMOUSE? Maybe that's needed for something; anyway they both have 2 buttons
-		mouse = input_metadata.Mouse()
-		mouse.buttons = 2
-		game.metadata.input_info.add_option(mouse)
+		return Atari2600Controller.Mouse
 	elif controller == 'TRAKBALL':
-		#Reminder to not do .buttons = 2, while it does have 2 physical buttons, they're just to make it ambidextrous; they function as the same single button
-		game.metadata.input_info.add_option(input_metadata.Trackball())
+		return Atari2600Controller.Trackball
 	elif controller == 'KEYBOARD':
-		#The Keyboard Controller is actually a keypad, go figure. Actually, it's 2 keypads, go figure twice. BASIC Programming uses both at once and Codebreakers uses them separately for each player, so there's not really anything else we can say here.
-		keypad = input_metadata.Keypad()
-		keypad.keys = 12
-		game.metadata.input_info.add_option(keypad)
+		return Atari2600Controller.KeyboardController
 	elif controller in 'COMPUMATE':
-		#The CompuMate is a whole dang computer, not just a keyboard. But I guess it's the same sorta thing
-		keyboard = input_metadata.Keyboard()
-		keyboard.keys = 42
-		game.metadata.input_info.add_option(keyboard)
+		return Atari2600Controller.Compumate
 	elif controller == 'GENESIS':
-		game.metadata.specific_info['Uses-Genesis-Controller'] = True
-
-		genesis_controller = input_metadata.NormalController()
-		genesis_controller.dpads = 1
-		genesis_controller.face_buttons = 3
-		game.metadata.input_info.add_option(genesis_controller)
+		#game.metadata.specific_info['Uses-Genesis-Controller'] = True
+		return Atari2600Controller.MegadriveGamepad
 	elif controller == 'BOOSTERGRIP':
-		joystick = input_metadata.NormalController()
-		joystick.dpads = 1
-		joystick.face_buttons = 3 #There are two on the boostergrip, but it passes through to the 2600 controller which still has a button, or something
-		game.metadata.input_info.add_option(joystick)
-		game.metadata.specific_info['Uses-Boostergrip'] = True
+		return Atari2600Controller.Boostergrip
+		#game.metadata.specific_info['Uses-Boostergrip'] = True
 	elif controller == 'DRIVING':
-		#Has 360 degree movement, so not quite like a paddle. MAME actually calls it a trackball
-		game.metadata.input_info.add_option(input_metadata.SteeringWheel())
+		return Atari2600Controller.DrivingController
 	elif controller == 'MINDLINK':
-		game.metadata.input_info.add_option(input_metadata.Biological())
-	else:
-		game.metadata.input_info.add_option(input_metadata.Custom())
+		return Atari2600Controller.Mindlink
+	#Track & Field controller is just a joystick with no up or down, so Stella doesn't count it as separate from joystick
+	return Atari2600Controller.Other
 
 def parse_stella_db(game, game_info):
 	if 'Cartridge_Manufacturer' in game_info:
@@ -107,7 +94,6 @@ def parse_stella_db(game, game_info):
 	if 'Cartridge_ModelNo' in game_info:
 		game.metadata.product_code = game_info['Cartridge_ModelNo']
 	if 'Cartridge_Note' in game_info:
-		#TODO: Ignore things like "Uses the Paddle Controllers" and "Console ports are swapped" that are already specified by other fields
 		note = game_info['Cartridge_Note']
 		#Adventures in the Park
 		#Featuring Panama Joe
@@ -162,15 +148,16 @@ def parse_stella_db(game, game_info):
 
 	swap_ports = False
 	if 'Controller_SwapPorts' in game_info:
-		if game_info['Controller_SwapPorts'] == 'YES':
+		if game_info.get('Controller_SwapPorts', 'NO') == 'YES' or game_info.get('Controller_SwapPaddles', 'NO') == 'YES':
+			#Not exactly sure how this works
 			swap_ports = True
 
 	if swap_ports:
-		add_controller_info(game, right_controller)
-		add_controller_info(game, left_controller)
+		game.metadata.specific_info['Left-Peripheral'] = _controller_from_stella_db_name(game, right_controller)
+		game.metadata.specific_info['Right-Peripheral'] = _controller_from_stella_db_name(game, left_controller)
 	else:
-		add_controller_info(game, left_controller)
-		add_controller_info(game, right_controller)
+		game.metadata.specific_info['Left-Peripheral'] = _controller_from_stella_db_name(game, left_controller)
+		game.metadata.specific_info['Right-Peripheral'] = _controller_from_stella_db_name(game, right_controller)
 
 _stella_db = None
 
@@ -203,7 +190,7 @@ def add_atari_2600_metadata(game):
 			game.metadata.publisher = game.metadata.developer
 
 		game.metadata.specific_info['Uses-Supercharger'] = software.get_shared_feature('requirement') == 'scharger'
-		#TODO: Add input info using 'peripheral' feature:
+		#TODO: Add 'peripheral' feature:
 		#"Kid's Controller", "kidscontroller" (both are used)
 		#"paddles"
 		#"keypad"
