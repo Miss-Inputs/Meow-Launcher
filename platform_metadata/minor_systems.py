@@ -378,6 +378,8 @@ def add_bandai_sv8000_info(game):
 	joystick = input_metadata.NormalController()
 	joystick.dpads = 1 #Keypad with a disc thing on it
 
+	game.metadata.save_type = SaveType.Nothing #I think not
+
 	controller = input_metadata.CombinedController([keypad, joystick])
 	game.metadata.input_info.add_option(controller)
 
