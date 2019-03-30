@@ -144,7 +144,7 @@ def parse_stella_db(game, game_info):
 			game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Nothing
 			game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Joystick
 		elif note == 'Console ports are swapped':
-			pass #We already know this from Controller_SwapPorts field
+			game.metadata.specific_info['Swap-Ports'] = True
 		elif note in ('Uses Keypad Controller', 'Uses Keypad Controllers', 'Uses the paddle controllers', 'Uses the Paddle Controllers', 'Uses the Paddle Controllers (swapped)', 'Uses the Driving Controllers', 'Uses the Joystick Controllers (swapped)', 'Uses the Keypad Controllers', 'Uses the Kid Vid Controller', 'Uses the KidVid Controller'):
 			#Some more duplicated controller info that I'll deal with later
 			pass
@@ -160,19 +160,13 @@ def parse_stella_db(game, game_info):
 
 	left_controller = game_info.get('Controller_Left')
 	right_controller = game_info.get('Controller_Right')
+	game.metadata.specific_info['Left-Peripheral'] = _controller_from_stella_db_name(left_controller)
+	game.metadata.specific_info['Right-Peripheral'] = _controller_from_stella_db_name(right_controller)
 
-	swap_ports = False
-	if 'Controller_SwapPorts' in game_info:
-		if game_info.get('Controller_SwapPorts', 'NO') == 'YES' or game_info.get('Controller_SwapPaddles', 'NO') == 'YES':
-			#Not exactly sure how this works
-			swap_ports = True
+	if game_info.get('Controller_SwapPorts', 'NO') == 'YES' or game_info.get('Controller_SwapPaddles', 'NO') == 'YES':
+		#Not exactly sure how this works
+		game.metadata.specific_info['Swap-Ports'] = True
 
-	if swap_ports:
-		game.metadata.specific_info['Left-Peripheral'] = _controller_from_stella_db_name(right_controller)
-		game.metadata.specific_info['Right-Peripheral'] = _controller_from_stella_db_name(left_controller)
-	else:
-		game.metadata.specific_info['Left-Peripheral'] = _controller_from_stella_db_name(left_controller)
-		game.metadata.specific_info['Right-Peripheral'] = _controller_from_stella_db_name(right_controller)
 
 def parse_peripherals(game):
 	left = game.metadata.specific_info.get('Left-Peripheral')
