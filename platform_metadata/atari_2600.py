@@ -71,11 +71,9 @@ def _controller_from_stella_db_name(controller):
 	elif controller in 'COMPUMATE':
 		return Atari2600Controller.Compumate
 	elif controller == 'GENESIS':
-		#game.metadata.specific_info['Uses-Genesis-Controller'] = True
 		return Atari2600Controller.MegadriveGamepad
 	elif controller == 'BOOSTERGRIP':
 		return Atari2600Controller.Boostergrip
-		#game.metadata.specific_info['Uses-Boostergrip'] = True
 	elif controller == 'DRIVING':
 		return Atari2600Controller.DrivingController
 	elif controller == 'MINDLINK':
