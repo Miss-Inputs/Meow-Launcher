@@ -40,6 +40,7 @@ def get_stella_database():
 	return games
 
 class Atari2600Controller(Enum):
+	Nothing = auto()
 	Joystick = auto()
 	Paddle = auto() #2 players per port
 	Mouse = auto() #2 buttons, Stella lists an AMIGAMOUSE and ATARIMOUSE (ST mouse) and I dunno if those are functionally different
@@ -50,6 +51,7 @@ class Atari2600Controller(Enum):
 	Boostergrip = auto() #Effectively a 3-button joystick, passes through to the standard 2600 joystick and adds 2 buttons
 	DrivingController = auto() #Has 360 degree movement, so not quite like a paddle. MAME actually calls it a trackball
 	Mindlink = auto()
+	LightGun = auto() #Presumably this is the XEGS XG-1, which has 1 button
 	Other = auto()
 	#Light pen would also be possible
 
@@ -102,17 +104,39 @@ def parse_stella_db(game, game_info):
 		#ROM must be started in bank 0
 		#Set right difficulty to 'A' for BoosterGrip in both ports
 		#Use Color/BW switch to change between galactic chart and front views
-		#Uses Joyboard (this isn't specified in the joystick port info, for some reason)
 		#Uses Joystick Coupler (Dual Control Module) (not specified by joystick info)
-		#Uses the Amiga Joyboard (also need to parse this)
+
+		#Controllers that just act like joysticks I think:
+		#Uses the Track & Field Controller
+		#Uses Joyboard
+		#Uses the Amiga Joyboard
 		#Uses the Joyboard controller
 		if note.startswith('AKA '):
 			pass #Could add an Alternate-Name field but mehhhhhhhhhhh (There is an "AKA Bachelor Party, Uses the paddle controllers" but we will also skip that)
+		elif note == 'Uses Joystick (left) and Keypad (right) Controllers':
+			#We should already know this from the controller fields but might as well add it while we're here
+			game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Joystick
+			game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.KeyboardController
+		elif note == 'Uses Mindlink Controller (left only)':
+			game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Mindlink
+			game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Nothing
+		elif note == 'Uses the Keypad Controllers (left only)':
+			game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.KeyboardController
+			game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Nothing
+		elif note == 'Uses the Paddle Controllers (left only)':
+			game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Paddle
+			game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Nothing
+		elif note == 'Uses the Light Gun Controller (left only)':
+			game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.LightGun
+			game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Nothing
+		elif note == 'Uses right joystick controller':
+			game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Nothing
+			game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Joystick
 		elif note == 'Console ports are swapped':
 			pass #We already know this from Controller_SwapPorts field
-		elif note in ('Uses Joystick (left) and Keypad (right) Controllers', 'Uses Keypad Controller', 'Uses Keypad Controllers', 'Uses Mindlink Controller (left only)', 'Uses the MindLink controller', 'Uses right joystick controller', 'Uses the paddle controllers', 'Uses the Paddle Controllers', 'Uses the Paddle Controllers (left only)', 'Uses the Paddle Controllers (swapped)', 'Uses the Driving Controllers', 'Uses the Joystick Controllers (swapped)', 'Uses the Keypad Controllers', 'Uses the Keypad Controllres (left only)', 'Uses the Kid Vid Controller', 'Uses the KidVid Controller', 'Uses the Light Gun Controller (left only)', 'Uses the Track & Field Controller'):
-			pass #We already know this as well from the controller fields
-			#Although it wouldn't hurt to add that to the cartridge port, once I refactor this mess
+		elif note in ('Uses Keypad Controller', 'Uses Keypad Controllers', 'Uses the paddle controllers', 'Uses the Paddle Controllers', 'Uses the Paddle Controllers (swapped)', 'Uses the Driving Controllers', 'Uses the Joystick Controllers (swapped)', 'Uses the Keypad Controllers', 'Uses the Kid Vid Controller', 'Uses the KidVid Controller'):
+			#Some more duplicated controller info that I'll deal with later
+			pass
 		else:
 			game.metadata.specific_info['Notes'] = note
 	if 'Display_Format' in game_info:
