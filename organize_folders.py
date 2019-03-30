@@ -39,21 +39,15 @@ def delete_existing_output_dir():
 
 extra_subfolders = {
 	#These subfolders are enabled with an optional argument because most people wouldn't have any use for them (or would they? I'm just presuming they're of interest to people like me only)
+	#I'm gonna get rid of all these eventually, since by my own words, they aren't useful; and if they are useful, they shouldn't need an extra argument
 	'By emulator used': ('Emulator', False),
 	'By number of players': ('Number-of-Players', False),
-	'By mapper': ('Mapper', False),
-	'By save type': ('Save-Type', False),
-	'By extension': ('Extension', False),
-	'By media type': ('Media-Type', False),
+	'By MAME emulation status': ('MAME-Emulation-Status', False),
 
 	'By main CPU': ('Main-CPU', False),
 	'By main CPU and clock speed': (['Main-CPU', 'Clock-Speed'], False),
 	'By number of screens': ('Number-of-Screens', False),
 	'By screen type': ('Screen-Type', False),
-
-	'By MAME emulation status': ('MAME-Emulation-Status', False),
-	'Has MAME software': ('MAME-Software-Name', True),
-	'By MAME source file': ('Source-File', False),
 
 	#Relevant for MAME machines only
 	'By arcade system': ('Arcade-System', False),
@@ -65,7 +59,6 @@ extra_subfolders = {
 	'Has icon': ('Icon', True),
 	'Has force feedback': ('Force-Feedback', True),
 	'Has RTC': ('Has-RTC', True),
-	'Has product code': ('Product-Code', True),
 	'Has notes': ('Notes', True),
 }
 
