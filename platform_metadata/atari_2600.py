@@ -51,7 +51,7 @@ class Atari2600Controller(Enum):
 	DrivingController = auto() #Has 360 degree movement, so not quite like a paddle. MAME actually calls it a trackball
 	Mindlink = auto()
 	Other = auto()
-
+	#Light pen would also be possible
 
 def _controller_from_stella_db_name(controller):
 	if not controller:
@@ -188,7 +188,15 @@ def add_atari_2600_metadata(game):
 			game.metadata.publisher = game.metadata.developer
 
 		game.metadata.specific_info['Uses-Supercharger'] = software.get_shared_feature('requirement') == 'scharger'
-		#TODO: Add 'peripheral' feature:
-		#"Kid's Controller", "kidscontroller" (both are used)
-		#"paddles"
-		#"keypad"
+		cart_part = software.get_part('cart')
+		if cart_part:
+			peripheral = cart_part.get_feature('peripheral')
+			if peripheral in ("Kid's Controller", 'kidscontroller'):
+				#The Kids Controller is functionally identical to the Keyboard Controller, but there is only one of them and it goes in the left
+				game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.KeyboardController
+			elif peripheral == 'paddles':
+				game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Paddle
+				#Does the right one go in there too? Maybe
+			elif peripheral == 'keypad':
+				game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.KeyboardController
+				game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.KeyboardController
