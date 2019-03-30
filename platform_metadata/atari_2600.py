@@ -189,8 +189,9 @@ def add_atari_2600_metadata(game):
 			game.metadata.publisher = game.metadata.developer
 
 		game.metadata.specific_info['Uses-Supercharger'] = software.get_shared_feature('requirement') == 'scharger'
-		cart_part = software.get_part('cart')
-		if cart_part:
+		if 'cart' in software.parts:
+			#"cass" and "cass1" "cass2" "cass3" etc are also possible but a2600_cass doesn't have peripheral in it so it'll be fine
+			cart_part = software.get_part('cart')
 			peripheral = cart_part.get_feature('peripheral')
 			if peripheral in ("Kid's Controller", 'kidscontroller'):
 				#The Kids Controller is functionally identical to the Keyboard Controller, but there is only one of them and it goes in the left
