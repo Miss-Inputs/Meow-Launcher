@@ -696,4 +696,5 @@ def add_generic_info(game):
 	#Sord M5: Input info: Keyboard (55 keys), maybe joystick (0 buttons??)? Take note of info > usage = requiring 36K RAM, though we just set our M5 to have max RAM anyway, seems to be harmless
 	#Jaguar input info: There's the default ugly gamepad and also another ugly gamepad with more buttons which I dunno what's compatible with
 	#CD-i: That one controller but could also be the light gun thingo
+	#Memorex VIS: 4-button wireless not-quite-gamepad-but-effectively-one-thing (A, B, 1, 2), can have 2-button mouse? There are also 3 and 4 buttons and 2-1-Solo switch that aren't emulated yet
 	#The rest are weird computers where we can't tell if they use any kind of optional joystick or not so it's like hhhh whaddya do

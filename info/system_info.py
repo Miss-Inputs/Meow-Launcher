@@ -104,6 +104,7 @@ systems = {
 	'Mattel Juice Box': System('juicebox', ['juicebox'], ['MAME (Mattel Juice Box)'], {MediaType.Cartridge: ['smc']}),
 	#Now for those who actually do know what this is, you may be thinking: But doesn't that just play videos? Isn't this really pointless? And the answer is yes, yes it is. I love pointless.
 	'Mega Duck': System('megaduck', ['megaduck'], ['MAME (Mega Duck)'], {MediaType.Cartridge: ['bin']}),
+	'Memorex VIS': System('vis', [], ['MAME (Memorex VIS)'], {MediaType.OpticalDisc: mame_cdrom_formats}),
 	'Neo Geo CD': System('neocdz', ['neocd'], ['MAME (Neo Geo CD)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'Nichibutsu My Vision': System('myvision', ['myvision'], ['MAME (Nichibutsu My Vision)'], {MediaType.Cartridge: ['bin']}),
 	'PC-FX': System('pcfx', ['pcfx'], ['Mednafen (PC-FX)'], {MediaType.OpticalDisc: cdrom_formats}),
