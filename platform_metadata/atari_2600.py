@@ -170,10 +170,11 @@ def add_atari_2600_metadata(game):
 
 	whole_cart = game.rom.read()
 	crc32 = get_crc32_for_software_list(whole_cart)
-	md5 = hashlib.md5(whole_cart).hexdigest().lower()
-	if md5 in _stella_db:
-		game_info = _stella_db[md5]
-		parse_stella_db(game, game_info)
+	if _stella_db:
+		md5 = hashlib.md5(whole_cart).hexdigest().lower()
+		if md5 in _stella_db:
+			game_info = _stella_db[md5]
+			parse_stella_db(game, game_info)
 
 	software = find_in_software_lists(game.software_lists, crc=crc32)
 	if software:
