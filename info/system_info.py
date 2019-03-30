@@ -324,16 +324,36 @@ systems.update({
 
 	#Other todos, often just me not knowing which something actually is or being too lazy to organize it even into the "too lazy to look into right now" list:
 	#Which of TI calculators are software compatible with which?
+		#TI-73, 81, 82, 83x, 84x, 85, 86 are Z80; 89, 92x are M68K; folders here are 83, 84+, 86, 89 but I might need to reorganize them...
 	#Thomson MO: Is MO5 or MO6 the main system? (latter has exclusive software lists, but is compatible with MO5)
 	#Thomson TO: Is TO5 or TO8 the main system? (latter has exclusive software lists, but is compatible with TO7)
 	#Which TRS-80 model is which?
 	#Bandai Super Note Club: Part of VTech Genius Leader (supports glccolor software list), or its own thing (has snotec software list)?
 	#Dragon 64 part of CoCo or nah?
-	#Which PC-98 UnsupportedSystem is which?
-	#Videoton TVC: Which is main UnsupportedSystem? TV64?
+	#Which PC-98 system is which?
+	#Videoton TVC: Which is main system? TV64?
 	#Jupiter Ace (ZX Spectrum clone but has different compatibility?)
 	#TI-99: Main kerfluffle seems to be .rpk file format needed for -cart loading, but everything else is in .c and .g and who knows what else; -ioport peb -ioport:peb:slot2 32kmem -ioport:peb:slot3 speech might be needed?
 	#CBM-II (VIC-II and CRTC models)
+	#PalmOS: Not sure if there would be something which can just run .prc files or whatsitcalled
+	#V.Smile Pro: Currently I just put that as an optical disc format of V.Smile and not its own system, because I dunno if it should be considered its own thing or not
+	#Haven't looked at yet / haven't put into the thing yet
+	#Amstrad CPC+: Like CPC, but plus
+	#Amstrad PCW: MAME drivers in pcw.cpp, all marked as MACHINE_NOT_WORKING; pcw10 seems like it would be the best model which is still compatible with stuff
+	#Amstrad PCW16: MAME driver == pcw16, marked as MACHINE_NOT_WORKING and needs some OS rescue CD (which has boot ROM)
+	#Arduboy: Not in MAME
+	#Electronika BK: Preliminary driver, we want bk0011m as some demos need the updated hardware but anyway they all only support tape media but most stuff is on floppy
+	#KC 85: kc85_3 or kc85_5, all in kc.cpp are marked MACHINE_NOT_WORKING; supports .kcc quickload slot
+	#PMD 85: This has quite a few variants and apparently work, try pmd851 or pmd853; pmd85.cpp has todos/notes. Notably, floppy interface and speaker not there yet
+	#Robotron Z1013: z1013.cpp is apparently preliminary driver but z1013 and z1013a2 aren't marked as not working so might be okay; supports .z80 snapshot
+	#Amstrad PC20/Sinclair PC200: Is this just IBM PC compatible stuff? Have one demoscene prod which claims to be for it specifically
+	#Sinclair QL: ql driver apparently works
+	#Vector-06C: vector06 driver is marked as working but clones are not; needs to hold F2 then press F11 then F12 to boot from cartridge so that may be wacky
+
+	#The maybe not section (too new):
+	#PS3 (might try RPCS3 with some homebrew)
+	#Android (well, good luck finding an emulator that works the way we want)
+	#Switch (Yuzu seems alright for homebrew purposes; RyujiNX lacks nice fullscreen)
 
 	#Epoch (not Super) Casette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
 	#Coleco Quiz Wiz Challenge might require its own thing: The software cartridges contain no ROMs, just different pinouts, you need the software list to select which one
