@@ -55,6 +55,11 @@ class Atari2600Controller(Enum):
 	Other = auto()
 	#Light pen would also be possible
 
+	#Not controllers but plug into the controller port:
+	AtariVox = auto()
+	SaveKey = auto()
+	KidVid = auto()
+
 def _controller_from_stella_db_name(controller):
 	if not controller:
 		return None
@@ -80,6 +85,12 @@ def _controller_from_stella_db_name(controller):
 		return Atari2600Controller.DrivingController
 	elif controller == 'MINDLINK':
 		return Atari2600Controller.Mindlink
+	elif controller == 'ATARIVOX':
+		return Atari2600Controller.AtariVox
+	elif controller == 'SAVEKEY':
+		return Atari2600Controller.SaveKey
+	elif controller == 'KIDVID':
+		return Atari2600Controller.KidVid
 	#Track & Field controller is just a joystick with no up or down, so Stella doesn't count it as separate from joystick
 	return Atari2600Controller.Other
 
@@ -147,26 +158,8 @@ def parse_stella_db(game, game_info):
 		elif display_format in ('PAL', 'SECAM', 'NTSC50'):
 			game.metadata_tv_type = TVSystem.PAL
 
-	left_controller = None
-	if 'Controller_Left' in game_info:
-		left_controller = game_info['Controller_Left']
-
-	right_controller = None
-	no_save = True
-	if 'Controller_Right' in game_info:
-		right_controller = game_info['Controller_Right']
-		if right_controller in ('ATARIVOX', 'SAVEKEY'):
-			game.metadata.save_type = SaveType.MemoryCard
-			#If these devices are plugged in, they aren't controllers
-			right_controller = None
-			no_save = False
-
-		if right_controller == 'KIDVID':
-			game.metadata.specific_info['Uses-Kid-Vid'] = True
-			right_controller = None
-
-	if no_save:
-		game.metadata.save_type = SaveType.Nothing
+	left_controller = game_info.get('Controller_Left')
+	right_controller = game_info.get('Controller_Right')
 
 	swap_ports = False
 	if 'Controller_SwapPorts' in game_info:
@@ -180,6 +173,16 @@ def parse_stella_db(game, game_info):
 	else:
 		game.metadata.specific_info['Left-Peripheral'] = _controller_from_stella_db_name(left_controller)
 		game.metadata.specific_info['Right-Peripheral'] = _controller_from_stella_db_name(right_controller)
+
+def parse_peripherals(game):
+	left = game.metadata.specific_info.get('Left-Peripheral')
+	right = game.metadata.specific_info.get('Right-Peripheral')
+
+	game.metadata.save_type = SaveType.MemoryCard if right in (Atari2600Controller.AtariVox, Atari2600Controller.SaveKey) else SaveType.Nothing
+	if right == Atari2600Controller.KidVid:
+		game.metadata.specific_info['Uses-Kid-Vid'] = True
+
+	#TODO: This is the part where you set up input_info
 
 _stella_db = None
 
@@ -226,3 +229,5 @@ def add_atari_2600_metadata(game):
 			elif peripheral == 'keypad':
 				game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.KeyboardController
 				game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.KeyboardController
+
+	parse_peripherals(game)
