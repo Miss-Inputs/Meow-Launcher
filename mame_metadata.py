@@ -347,7 +347,8 @@ def add_save_type(machine):
 		has_memory_card = has_memory_card and (machine.family not in not_actually_save_supported)
 
 		machine.metadata.save_type = SaveType.MemoryCard if has_memory_card else SaveType.Nothing
-
+	elif machine.metadata.platform in ('Mega-Tech', 'Mega-Play', 'Nintendo Super System', 'PlayChoice-10'):
+		machine.metadata.save_type = SaveType.Nothing
 	else:
 		has_nvram = machine.uses_device('nvram')
 		has_i2cmem = machine.uses_device('i2cmem')
