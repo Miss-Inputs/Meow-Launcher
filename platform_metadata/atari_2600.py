@@ -95,6 +95,7 @@ def _controller_from_stella_db_name(controller):
 	return Atari2600Controller.Other
 
 def parse_stella_db(game, game_info):
+	game.metadata.specific_info['Stella-Name'] = game_info.get('Cartridge_Name')
 	if 'Cartridge_Manufacturer' in game_info:
 		manufacturer = game_info['Cartridge_Manufacturer']
 		if ', ' in manufacturer:
