@@ -153,11 +153,11 @@ def parse_stella_db(game, game_info):
 			swap_ports = True
 
 	if swap_ports:
-		game.metadata.specific_info['Left-Peripheral'] = _controller_from_stella_db_name(game, right_controller)
-		game.metadata.specific_info['Right-Peripheral'] = _controller_from_stella_db_name(game, left_controller)
+		game.metadata.specific_info['Left-Peripheral'] = _controller_from_stella_db_name(right_controller)
+		game.metadata.specific_info['Right-Peripheral'] = _controller_from_stella_db_name(left_controller)
 	else:
-		game.metadata.specific_info['Left-Peripheral'] = _controller_from_stella_db_name(game, left_controller)
-		game.metadata.specific_info['Right-Peripheral'] = _controller_from_stella_db_name(game, right_controller)
+		game.metadata.specific_info['Left-Peripheral'] = _controller_from_stella_db_name(left_controller)
+		game.metadata.specific_info['Right-Peripheral'] = _controller_from_stella_db_name(right_controller)
 
 _stella_db = None
 
