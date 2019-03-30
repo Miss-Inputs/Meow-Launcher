@@ -230,8 +230,6 @@ emulators = {
 	'MAME (Uzebox)': MameSystem(command_lines.mame_command_line('uzebox', 'cart'), ['bin', 'uze']),
 	#Runs really slowly, but it does work (other than SD card emulation)
 	'MAME (V.Smile)': MameSystem(command_lines.mame_command_line('vsmile', 'cart'), ['u1', 'u3', 'bin']),
-	'MAME (V.Smile Baby)': MameSystem(command_lines.mame_command_line('vsmileb', 'cart'), ['u1', 'u3', 'bin']),
-	#Actually, I'm not entirely sure this one works
 	'MAME (Virtual Boy)': MameSystem(command_lines.mame_command_line('vboy', 'cart'), ['bin', 'vb']),
 	#Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there
 
@@ -252,6 +250,9 @@ emulators = {
 	#Wouldn't recommend yet as it has no sound, even if most people would probably turn the sound off in real life
 	"MAME (Super A'Can)": MameSystem(command_lines.mame_command_line('supracan', 'cart'), ['bin']),
 	#Some things work, except with no sound, so... nah
+	'MAME (V.Smile Baby)': MameSystem(command_lines.mame_command_line('vsmileb', 'cart'), ['u1', 'u3', 'bin']),
+	#Seems to crash on some titles
+
 
 	#--These ones may or may not run well, I dunno:
 	'Mednafen (Game Boy)': MednafenModule('gb', ['gb', 'gbc'], command_lines.mednafen_gb),
