@@ -23,7 +23,7 @@ def get_snes_mouse():
 
 def get_super_scope():
 	gun = input_metadata.LightGun() #pew pew
-	#Single shooty button + 3 other buttons
+	gun.buttons = 2 #Also pause and turbo
 	return gun
 
 def get_sunsoft_pachinko_controller():

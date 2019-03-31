@@ -165,8 +165,9 @@ def add_info_from_software_list(game, software):
 			game.metadata.input_info.add_option(input_metadata.Touchscreen())
 		elif controller_1 == 'lphaser':
 			peripheral = SMSPeripheral.Lightgun
-			#game.metadata.input_info.inputs = [InputType.LightGun]
-			game.metadata.input_info.add_option(input_metadata.LightGun())
+			light_phaser = input_metadata.LightGun()
+			light_phaser.buttons = 1
+			game.metadata.input_info.add_option(light_phaser)
 		elif controller_1 == 'paddle':
 			peripheral = SMSPeripheral.Paddle
 			game.metadata.input_info.add_option(input_metadata.Paddle())

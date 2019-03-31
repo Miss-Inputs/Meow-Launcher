@@ -3,6 +3,9 @@ import input_metadata
 from software_list_info import get_software_list_entry
 from common_types import MediaType
 
+xegs_gun = input_metadata.LightGun()
+xegs_gun.buttons = 1
+
 def add_info_from_software_list(game, software):
 	software.add_generic_info(game)
 	compatibility = software.get_shared_feature('compatibility')
@@ -32,7 +35,7 @@ def add_info_from_software_list(game, software):
 		game.metadata.input_info.add_option(input_metadata.Trackball())
 	elif peripheral == 'lightgun':
 		#XEGS only
-		game.metadata.input_info.add_option(input_metadata.LightGun())
+		game.metadata.input_info.add_option(xegs_gun)
 	else:
 		#trackfld = Track & Field controller but is that just a spicy joystick?
 		game.metadata.input_info.add_option([joystick, keyboard])

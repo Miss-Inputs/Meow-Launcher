@@ -3,6 +3,7 @@ from common_types import SaveType
 from config import main_config
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
+from .atari_8_bit import xegs_gun
 
 standard_gamepad = input_metadata.NormalController()
 standard_gamepad.dpads = 1
@@ -10,7 +11,7 @@ standard_gamepad.face_buttons = 2
 input_types = {
 	1: standard_gamepad,
 	#The rest only have one button, for the record
-	2: input_metadata.LightGun(),
+	2: xegs_gun,
 	3: input_metadata.Paddle(),
 	4: input_metadata.Trackball(),
 }
@@ -28,14 +29,14 @@ def _add_atari_7800_header_info(game, header):
 		if left_input_type in input_types:
 			left_controller_option.inputs.append(input_types[left_input_type])
 		else:
-			left_controller_option.inputs.append(input_metadata.Custom)
+			left_controller_option.inputs.append(input_metadata.Custom('Unknown {0}'.format(left_input_type)))
 
 	if right_input_type != 0:
 		right_controller_option = input_metadata.InputOption()
 		if right_input_type in input_types:
 			right_controller_option.inputs.append(input_types[right_input_type])
 		else:
-			right_controller_option.inputs.append(input_metadata.Custom)
+			right_controller_option.inputs.append(input_metadata.Custom('Unknown {0}'.format(right_input_type)))
 
 	if left_controller_option and right_controller_option:
 		game.metadata.specific_info['Number-of-Players'] = 2 #I guess?

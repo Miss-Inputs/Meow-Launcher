@@ -68,7 +68,9 @@ def parse_peripherals(game, peripherals):
 		game.metadata.input_info.add_option(standard_controller)
 
 	if uses_gun:
-		game.metadata.input_info.add_option(input_metadata.LightGun())
+		virtua_gun = input_metadata.LightGun()
+		virtua_gun.buttons = 1 #Also start and I dunno if offscreen shot would count as a button
+		game.metadata.input_info.add_option(virtua_gun)
 	if uses_keyboard:
 		keyboard = input_metadata.Keyboard()
 		keyboard.keys = 101

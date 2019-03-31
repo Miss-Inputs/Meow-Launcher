@@ -440,7 +440,7 @@ def add_input_info(machine):
 		#pinball games and weird stuff like a clock, but also some genuine games like Crazy Fight that are more or less
 		#playable just fine, so we'll leave them in
 		if machine.number_of_players > 0:
-			machine.metadata.input_info.add_option(input_metadata.Custom())
+			machine.metadata.input_info.add_option(input_metadata.Custom('Unknown input device'))
 		return
 
 	controller = input_metadata.CombinedController()
@@ -516,11 +516,17 @@ def add_input_info(machine):
 			keyboard.keys = buttons
 			controller.components.append(keyboard)
 		elif input_type == 'mahjong':
-			controller.components.append(input_metadata.Mahjong())
+			mahjong = input_metadata.Mahjong()
+			mahjong.buttons = buttons
+			controller.components.append(mahjong)
 		elif input_type == 'hanafuda':
-			controller.components.append(input_metadata.Hanafuda())
+			hanafuda = input_metadata.Hanafuda()
+			hanafuda.buttons = buttons
+			controller.components.append(hanafuda)
 		elif input_type == 'gambling':
-			controller.components.append(input_metadata.Gambling())
+			gambling = input_metadata.Gambling()
+			gambling.buttons = buttons
+			controller.components.append(gambling)
 		else:
 			if buttons:
 				description = 'Custom input device with {0}'.format(pluralize(buttons, 'button'))

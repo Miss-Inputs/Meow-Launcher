@@ -329,8 +329,8 @@ def add_nes_metadata(game):
 		peripheral = software.get_part_feature('peripheral')
 		if peripheral == 'zapper':
 			nes_peripheral = NESPeripheral.Zapper
-			#game.metadata.input_info.buttons = 1
 			zapper = input_metadata.LightGun()
+			zapper.buttons = 1
 			game.metadata.input_info.add_option(zapper)
 		elif peripheral == 'vaus':
 			nes_peripheral = NESPeripheral.ArkanoidPaddle

@@ -67,10 +67,22 @@ class Dial(Controller):
 	pass
 
 class Gambling(Controller):
-	pass
+	def __init__(self):
+		self.buttons = 0
+
+	def describe(self):
+		if self.buttons > 0:
+			return '{0}-button gambling controls'.format(self.buttons)
+		return 'Gambling Controls'
 
 class Hanafuda(Controller):
-	pass
+	def __init__(self):
+		self.buttons = 0 #Or are they more accurately called keys
+
+	def describe(self):
+		if self.buttons > 0:
+			return '{0}-button hanafuda controller'.format(self.buttons)
+		return 'Hanafuda Controller'
 
 class Keyboard(Controller):
 	def __init__(self):
@@ -91,11 +103,22 @@ class Keypad(Controller):
 		return 'Keypad'
 
 class LightGun(Controller):
+	def __init__(self):
+		self.buttons = 0
+
 	def describe(self):
+		if self.buttons > 0:
+			return '{0}-button light gun'.format(self.buttons)
 		return 'Light Gun'
 
 class Mahjong(Controller):
-	pass
+	def __init__(self):
+		self.buttons = 0 #Or are they more accurately called keys (is this even really a different controller type anyway?)
+
+	def describe(self):
+		if self.buttons > 0:
+			return '{0}-button mahjong controller'.format(self.buttons)
+		return 'Mahjong Controller'
 
 class MotionControls(Controller):
 	def describe(self):

@@ -45,7 +45,9 @@ def parse_peripherals(game, peripherals):
 			xe_1_ap.analog_sticks = 2 #The second one only has one axis, though
 			game.metadata.input_info.add_option(xe_1_ap)
 		elif peripheral_char == 'G':
-			game.metadata.input_info.add_option(input_metadata.LightGun())
+			menacer = input_metadata.LightGun()
+			menacer.buttons = 2 #Also pause button
+			game.metadata.input_info.add_option(menacer)
 		elif peripheral_char == 'K':
 			xband_keyboard = input_metadata.Keyboard()
 			xband_keyboard.keys = 68 #I think I counted that right... I was just looking at the picture

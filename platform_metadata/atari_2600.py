@@ -51,7 +51,7 @@ class Atari2600Controller(Enum):
 	Boostergrip = auto() #Effectively a 3-button joystick, passes through to the standard 2600 joystick and adds 2 buttons
 	DrivingController = auto() #Has 360 degree movement, so not quite like a paddle. MAME actually calls it a trackball
 	Mindlink = auto()
-	LightGun = auto() #Presumably this is the XEGS XG-1, which has 1 button
+	LightGun = auto() #Presumably this is the XEGS XG-1, which has 1 button (see atari_8_bit.py)
 	Other = auto()
 	#Light pen would also be possible
 
