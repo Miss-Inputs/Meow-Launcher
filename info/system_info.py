@@ -187,6 +187,9 @@ systems.update({
 	'Advanced Pico Beena': UnsupportedSystem('beena', ['sega_beena_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Apple Lisa': UnsupportedSystem('lisa', ['lisa'], [], {MediaType.Floppy: mame_floppy_formats + ['dc', 'dc42']}),
 	#Preliminary MAME driver doesn't seem to boot anything; LisaEm doesn't seem to work with newer OSes and hasn't been updated since
+	'Atari Portfolio': UnsupportedSystem('pofo', ['pofo'], [], {MediaType.Cartridge: ['bin', 'rom']}),
+	'Atari ST': UnsupportedSystem('st', ['st_flop', 'st_cart'], []),
+	#MAME isn't there yet, and Hatari is known to have usability issues... is there anything else?
 	'Bandai Playdia': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'C2 Color': UnsupportedSystem('c2color', ['c2color_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Casio Loopy': UnsupportedSystem('casloopy', ['casloopy'], [], {MediaType.Cartridge: ['bin']}),
@@ -227,6 +230,8 @@ systems.update({
 	'V.Smile Baby': System('vsmileb', ['vsmileb_cart'], ['MAME (V.Smile Baby)'], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
 	'V.Smile Motion': System('vsmilem', ['vsmilem_cart'], [], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
 	'Video Challenger': UnsupportedSystem(None, [], [], {}),
+	'Videoton TVC': UnsupportedSystem('tvc64', ['tvc_cart', 'tvc_cass', 'tvc_flop'], [], {MediaType.Cartridge: ['bin', 'rom', 'crt'], MediaType.Tape: ['wav', 'cas']}),
+	#Skeleton driver; .cas is also quickload?
 	'Wii U': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: ['iso', 'wud'], MediaType.Executable: ['rpx', 'elf']}),
 	#Decaf seems to not work on Linux at the moment
 	'Xbox': UnsupportedSystem('xbox', [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xbe']}),
@@ -289,27 +294,46 @@ systems.update({
 	#I'll probably want to look more into it, but it looks like it won't really autoboot stuff... just kinda boots to a GUI or prompt depending on the RISC OS version used and then it is in all fairness easy and intuitive from there, but not necessarily an integrated smooth experience...
 	'Amstrad CPC': UnsupportedSystem('cpc464', ['cpc_cass', 'cpc_flop'], [], {MediaType.Snapshot: ['sna'], MediaType.Tape: ['wav', 'cdt'], MediaType.Floppy: mame_floppy_formats}),
 	#The not-plus one (probably will need to switch to cpc664/cpc6128 for flopppy stuff)
+	#CPC+: Use cpc6128p, shares the same software lists so I'll probably just consider it to be the same platform
+	'Amstrad PCW': UnsupportedSystem('pcw10', ['pcw'], [], {MediaType.Floppy: mame_floppy_formats}),
+	#Marked as MACHINE_NOT_WORKING, probably doesn't work
+	'Amstrad PCW16': UnsupportedSystem('pcw16', ['pcw16'], [], {MediaType.Floppy: mame_floppy_formats}),
+	#Marked as MACHINE_NOT_WORKING and MAME pcw.cpp mentions needing an OS rescue disk, probably doesn't work conveniently or at all
 	'APF Imagination Machine': UnsupportedSystem('apfimag', ['apfimag_cass', 'apfm1000'], []),
 	#Considered separate from APF-M1000 (same predicament as Coleco Adam)
-	'Atari Portfolio': UnsupportedSystem('pofo', ['pofo'], [], {MediaType.Cartridge: ['bin', 'rom']}),
-	#Nothing is dumped, so I think it's safe to say nothing will work, but still. Apparently it's supposed to be a PC clone, but doesn't support any PC software lists...
-	'Atari ST': UnsupportedSystem('st', ['st_flop', 'st_cart'], []),
-	#MAME is known to not work here, and Hatari is known to have usability issues... is there anything else?
 	'BBC Master': UnsupportedSystem('bbcm', ['bbcm_cart', 'bbcm_cass', 'bbcmc_flop', 'bbcm_flop'], []),
 	'Camputers Lynx': UnsupportedSystem('lynx128k', ['camplynx_cass', 'camplynx_flop'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav', 'tap']}),
+	'Electronika BK': UnsupportedSystem('bk0011m', ['bk0010'], [], {MediaType.Tape: ['wav', 'tap'], MediaType.Floppy: ['hdi'] + mame_floppy_formats, MediaType.Executable: ['bin']}),
+	#hdi is probably actually a hard drive but I didn't feel like making another media type for that
+	#Preliminary driver and only supports .wav tapes as media
 	'Epoch Sorcerer': UnsupportedSystem('sorcerer', ['sorcerer_cart', 'sorcerer_cass', 'sorcerer_flop'],
 		{MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav', 'tape']}),
 	#Would need automated tape loading to do anything interesting (carts and floppies are just BASIC/OS stuff, also what even is the file type for floppies?) and apparently there's a .snp snapshot and .bin quickload so maybe those do something
 	'Goldstar FC-100': UnsupportedSystem('fc100', [], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas']}),
 	#No software list, some kind of PC-6001 clone or something
+	'KC-85': UnsupportedSystem('kc85_5', ['kc_cart', 'kc_cass', 'kc_flop'], [], {MediaType.Executable: ['kcc'], MediaType.Tape: ['wav', 'kcb', 'tap', '853', '854', '855', 'tp2', 'kcm', 'sss'], MediaType.Cartridge: ['bin']}),
+	#All marked as MACHINE_NOT_WORKING
+	#kcc might also be a tape format?? ehhhh???
 	'Memotech MTX': UnsupportedSystem('mtx512', ['mtx_cart', 'mtx_cass', 'mtx_rom'], [], {MediaType.Snapshot: ['mtx'], MediaType.Executable: ['run'], MediaType.Tape: ['wav'], MediaType.Cartridge: ['bin', 'rom']}),
+	'PMD 85': UnsupportedSystem('pmd853', ['pmd85_cass'], [], {MediaType.Tape: ['wav', 'pmd', 'tap', 'ptp']}),
+	#This has quite a few variants and apparently works, pmd85.cpp has todos/notes. Notably, floppy interface and speaker apparently not there yet
+	'Robotron Z1013': UnsupportedSystem('z1013', [], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['z80']}),
+	#z1013.cpp is apparently preliminary driver but z1013 and z1013a2 aren't marked as not working so might be okay
 	'Sharp MZ-700': UnsupportedSystem('mz700', ['mz700'], []),
 	'Sharp MZ-800': UnsupportedSystem('mz800', ['mz800'], []),
 	'Sharp MZ-2000': UnsupportedSystem('mz2000', ['mz2000_cass', 'mz2000_flop'], []),
+	'Sinclar QL': UnsupportedSystem('ql', ['ql_cart', 'ql_cass', 'ql_flop'], [], {MediaType.Tape: ['mdv'], MediaType.Cartridge: ['bin', 'rom']}),
 	'Squale': UnsupportedSystem('squale', ['squale_cart'], []),
 	#What's interesting is that the XML for the driver says it's compatible with a software list simply called "squale", but that's not in the default hash directory
 	'Tandy CoCo': UnsupportedSystem('coco3', ['coco_cart', 'coco_flop'], []),
 	#Did I want coco/coco2 instead? Hmm. Those seem to work but coco3 seems to not autoboot. It looks like carts >128K require coco3, or if the software list says so
+	'Thomson MO': UnsupportedSystem('mo6', ['mo5_cart', 'mo5_cass', 'mo5_flop', 'mo5_qd', 'mo6_cass', 'mo6_flop'], [], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qt'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}),
+	#MO5E is export version of MO5, MO6 is an upgraded model, Prodest PC 128 is an Italian MO6
+	'Thomson TO': UnsupportedSystem('to7', ['to7_cart', 'to7_cass', 'to7_qd', 'to8_cass', 'to8_qd', 'to770a_cart', 'to770_cart'], [], {MediaType.Tape: ['wav', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qt'] +  mame_floppy_formats, MediaType.Cartridge: ['m7', 'bin', 'rom']}),
+	#TO9, TO8, TO9+ are improved models, TO8D is TO8 with integrated floppy drive
+	'TRS-80': UnsupportedSystem('trs80m3', [], [], {MediaType.Executable: ['cmd'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: mame_floppy_formats}),
+	'Vector-06C': UnsupportedSystem('vector06', ['vector06_cart', 'vector06_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['bin', 'emr']}),
+	#MAME driver is marked as working but clones are not; needs to hold F2 then press F11 then F12 to boot from cartridge so that may be wacky
 
 	#TODO: Me being lazy, I know if these work or not but they require effort:
 	'Acorn Electron': UnsupportedSystem('electron', ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], []),
@@ -322,39 +346,26 @@ systems.update({
 	'Galaksija': UnsupportedSystem('galaxyp', ['galaxy'], [], {MediaType.Snapshot: ['gal'], MediaType.Tape: ['wav', 'gtp']}),
 	#This needs tape control automation to work with tapes (type OLD, then play tape, then RUN); dumps just need to press enter because MAME will type "RUN" for you. But not enter for you. Dunno why. Anyway, we'd go with those and make an autoboot script (maybe just -autoboot_command '\n' would work with suitable delay). galaxy is regular UnsupportedSystem, galaxyp is an upgraded one which appears to be completely backwards compatible
 
+	#Hmm dunno if I actually want to put these in Meow Launcher for various reasons but they're here for documentation anyway / because I feel like listing things
+	'Android': UnsupportedSystem(None, [], [], {MediaType.Digital: ['apk']}),
+	#Probably no emulators that will work nicely for us at this point (the emus that do exist tend to be virtual machines and/or closed source Windows only)
+	'PS3': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Digital: ['pkg'], MediaType.Executable: ['self', 'elf', 'bin']}),
+	'Switch': UnsupportedSystem(None, [], [], {MediaType.Cartridge: ['xci'], MediaType.Digital: ['nsp'], MediaType.Executable: ['nro', 'nso', 'elf']}),
+	#Well, Yuzu seems to run homebrew decently with the same functionality as Citra (RyujiNX has wacky controller/fullscreen business); dunno about commercial games yet because I don't have any
+
 	#Other todos, often just me not knowing which something actually is or being too lazy to organize it even into the "too lazy to look into right now" list:
-	#Which of TI calculators are software compatible with which?
+	#Which of TI calculators are software compatible with which (and hence which ones would be considered individual systems)?
 		#TI-73, 81, 82, 83x, 84x, 85, 86 are Z80; 89, 92x are M68K; folders here are 83, 84+, 86, 89 but I might need to reorganize them...
-	#Thomson MO: Is MO5 or MO6 the main system? (latter has exclusive software lists, but is compatible with MO5)
-	#Thomson TO: Is TO5 or TO8 the main system? (latter has exclusive software lists, but is compatible with TO7)
-	#Which TRS-80 model is which?
 	#Bandai Super Note Club: Part of VTech Genius Leader (supports glccolor software list), or its own thing (has snotec software list)?
 	#Dragon 64 part of CoCo or nah?
-	#Which PC-98 system is which?
-	#Videoton TVC: Which is main system? TV64?
+	#PC-98: Are they all compatible with one another? Fairly sure not compatible with other PCs, although DOSBox-X supports it
 	#Jupiter Ace (ZX Spectrum clone but has different compatibility?)
 	#TI-99: Main kerfluffle seems to be .rpk file format needed for -cart loading, but everything else is in .c and .g and who knows what else; -ioport peb -ioport:peb:slot2 32kmem -ioport:peb:slot3 speech might be needed?
 	#CBM-II (VIC-II and CRTC models)
 	#PalmOS: Not sure if there would be something which can just run .prc files or whatsitcalled
 	#V.Smile Pro: Currently I just put that as an optical disc format of V.Smile and not its own system, because I dunno if it should be considered its own thing or not
-	#Haven't looked at yet / haven't put into the thing yet
-	#Amstrad CPC+: Like CPC, but plus
-	#Amstrad PCW: MAME drivers in pcw.cpp, all marked as MACHINE_NOT_WORKING; pcw10 seems like it would be the best model which is still compatible with stuff
-	#Amstrad PCW16: MAME driver == pcw16, marked as MACHINE_NOT_WORKING and needs some OS rescue CD (which has boot ROM)
-	#Arduboy: Not in MAME
-	#Electronika BK: Preliminary driver, we want bk0011m as some demos need the updated hardware but anyway they all only support tape media but most stuff is on floppy
-	#KC 85: kc85_3 or kc85_5, all in kc.cpp are marked MACHINE_NOT_WORKING; supports .kcc quickload slot
-	#PMD 85: This has quite a few variants and apparently work, try pmd851 or pmd853; pmd85.cpp has todos/notes. Notably, floppy interface and speaker not there yet
-	#Robotron Z1013: z1013.cpp is apparently preliminary driver but z1013 and z1013a2 aren't marked as not working so might be okay; supports .z80 snapshot
+	#Arduboy: Not in MAME but see https://github.com/felipemanga/ProjectABE
 	#Amstrad PC20/Sinclair PC200: Is this just IBM PC compatible stuff? Have one demoscene prod which claims to be for it specifically
-	#Sinclair QL: ql driver apparently works
-	#Vector-06C: vector06 driver is marked as working but clones are not; needs to hold F2 then press F11 then F12 to boot from cartridge so that may be wacky
-
-	#The maybe not section (too new):
-	#PS3 (might try RPCS3 with some homebrew)
-	#Android (well, good luck finding an emulator that works the way we want)
-	#Switch (Yuzu seems alright for homebrew purposes; RyujiNX lacks nice fullscreen)
-
 	#Epoch (not Super) Casette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
 	#Coleco Quiz Wiz Challenge might require its own thing: The software cartridges contain no ROMs, just different pinouts, you need the software list to select which one
 	#Memotech VIS: Just Windows 3.1?
