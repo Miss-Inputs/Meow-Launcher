@@ -497,6 +497,9 @@ def add_input_info(machine):
 			normal_input.analog_sticks += 1
 			normal_input.face_buttons += buttons
 		elif input_type == 'pedal':
+			if buttons > 0:
+				has_normal_input = True
+				normal_input.face_buttons += buttons
 			pedal = input_metadata.Pedal()
 			controller.components.append(pedal)
 		elif input_type == 'lightgun':
