@@ -486,23 +486,30 @@ def add_input_info(machine):
 					controller.components.append(input_metadata.MotionControls())
 					has_added_vii_motion_controls = True
 			else:
-				controller.components.append(input_metadata.Paddle())
+				paddle = input_metadata.Paddle()
+				controller.components.append(paddle)
 		elif input_type == 'stick':
 			has_normal_input = True
 			normal_input.analog_sticks += 1
 			normal_input.face_buttons += buttons
 		elif input_type == 'pedal':
-			controller.components.append(input_metadata.Pedal())
+			pedal = input_metadata.Pedal()
+			controller.components.append(pedal)
 		elif input_type == 'lightgun':
 			#TODO: See if we can be clever and detect if this is actually a touchscreen, like platform = handheld or something
-			controller.components.append(input_metadata.LightGun())
+			light_gun = input_metadata.LightGun()
+			light_gun.buttons = buttons
+			controller.components.append(light_gun)
 		elif input_type == 'positional':
 			#What _is_ a positional exactly
-			controller.components.append(input_metadata.Positional())
+			positional = input_metadata.Positional()
+			controller.components.append(positional)
 		elif input_type == 'dial':
-			controller.components.append(input_metadata.Dial())
+			dial = input_metadata.Dial()
+			controller.components.append(dial)
 		elif input_type == 'trackball':
-			controller.components.append(input_metadata.Trackball())
+			trackball = input_metadata.Trackball()
+			controller.components.append(trackball)
 		elif input_type == 'mouse':
 			mouse = input_metadata.Mouse()
 			mouse.buttons = buttons
