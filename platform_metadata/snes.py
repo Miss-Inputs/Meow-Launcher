@@ -28,7 +28,7 @@ def get_super_scope():
 
 def get_sunsoft_pachinko_controller():
 	pachinko = input_metadata.Paddle()
-	#1 button
+	pachinko.buttons = 1
 	return pachinko
 
 #Other controllers: Miracle Piano (same as NES?)

@@ -140,7 +140,13 @@ class Mouse(Controller):
 		return 'Mouse'
 
 class Paddle(Controller):
-	pass
+	def __init__(self):
+		self.buttons = 0
+
+	def describe(self):
+		if self.buttons > 0:
+			return '{0}-button paddle'.format(self.buttons)
+		return 'Paddle'
 
 class Pedal(Controller):
 	pass

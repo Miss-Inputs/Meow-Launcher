@@ -487,6 +487,7 @@ def add_input_info(machine):
 					has_added_vii_motion_controls = True
 			else:
 				paddle = input_metadata.Paddle()
+				paddle.buttons = buttons
 				controller.components.append(paddle)
 		elif input_type == 'stick':
 			has_normal_input = True

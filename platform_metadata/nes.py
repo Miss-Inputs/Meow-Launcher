@@ -334,8 +334,8 @@ def add_nes_metadata(game):
 			game.metadata.input_info.add_option(zapper)
 		elif peripheral == 'vaus':
 			nes_peripheral = NESPeripheral.ArkanoidPaddle
-			#game.metadata.input_info.buttons = 1
 			vaus = input_metadata.Paddle()
+			vaus.buttons = 1
 			game.metadata.input_info.add_option(vaus)
 			#Can still use standard controller
 			game.metadata.input_info.add_option(standard_controller)

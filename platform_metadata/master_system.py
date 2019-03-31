@@ -170,7 +170,9 @@ def add_info_from_software_list(game, software):
 			game.metadata.input_info.add_option(light_phaser)
 		elif controller_1 == 'paddle':
 			peripheral = SMSPeripheral.Paddle
-			game.metadata.input_info.add_option(input_metadata.Paddle())
+			paddle = input_metadata.Paddle()
+			paddle.buttons = 2
+			game.metadata.input_info.add_option(paddle)
 		elif controller_1 == 'sportspad':
 			peripheral = SMSPeripheral.SportsPad
 			sports_pad = input_metadata.Trackball()

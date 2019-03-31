@@ -37,6 +37,7 @@ def parse_peripherals(game, peripherals):
 			mouse.buttons = 3
 			game.metadata.input_info.add_option(mouse)
 		elif peripheral_char == 'V':
+			#Is this just the SMS paddle?
 			game.metadata.input_info.add_option(input_metadata.Paddle())
 		elif peripheral_char == 'A':
 			xe_1_ap = input_metadata.NormalController()
