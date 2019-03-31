@@ -12,8 +12,8 @@ input_types = {
 	1: standard_gamepad,
 	#The rest only have one button, for the record
 	2: xegs_gun,
-	3: input_metadata.Paddle(),
-	4: input_metadata.Trackball(),
+	3: input_metadata.Paddle(), #Is this valid? Some games which have this seem to actually use the lightgun
+	4: input_metadata.Trackball(), #Is this a valid value?
 }
 
 def _add_atari_7800_header_info(game, header):

@@ -44,7 +44,7 @@ class Atari2600Controller(Enum):
 	Joystick = auto()
 	Paddle = auto() #2 players per port
 	Mouse = auto() #2 buttons, Stella lists an AMIGAMOUSE and ATARIMOUSE (ST mouse) and I dunno if those are functionally different
-	Trackball = auto() #Functionally 1 button, but has 2 physical buttons to be ambidextrous
+	Trackball = auto() #Functionally 1 button, but has 2 physical buttons to be ambidextrous; see atari_8_bit.py
 	KeyboardController = auto() #This is... 2 keypads joined together (12 keys each)
 	Compumate = auto() #42-key keyboard (part of a whole entire computer)
 	MegadriveGamepad = auto() #See megadrive.py

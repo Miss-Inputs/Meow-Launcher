@@ -151,7 +151,13 @@ class Touchscreen(Controller):
 	pass
 
 class Trackball(Controller):
-	pass
+	def __init__(self):
+		self.buttons = 0
+
+	def describe(self):
+		if self.buttons > 0:
+			return '{0}-button trackball'.format(self.buttons)
+		return 'Trackball'
 
 class Custom(Controller):
 	def __init__(self, custom_description=None):

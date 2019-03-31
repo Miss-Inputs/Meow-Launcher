@@ -173,7 +173,9 @@ def add_info_from_software_list(game, software):
 			game.metadata.input_info.add_option(input_metadata.Paddle())
 		elif controller_1 == 'sportspad':
 			peripheral = SMSPeripheral.SportsPad
-			game.metadata.input_info.add_option(input_metadata.Trackball())
+			sports_pad = input_metadata.Trackball()
+			sports_pad.buttons = 2
+			game.metadata.input_info.add_option(sports_pad)
 		else:
 			#Not sure if this is an option for games that use lightgun/paddle/etc? I'll assume it's not
 			game.metadata.input_info.add_option(builtin_gamepad)
