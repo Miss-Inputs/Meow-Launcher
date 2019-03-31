@@ -479,6 +479,9 @@ def add_input_info(machine):
 		elif input_type == 'paddle':
 			if machine.metadata.genre == 'Driving':
 				#Yeah this looks weird and hardcody and dodgy but am I wrong
+				if buttons > 0:
+					has_normal_input = True
+					normal_input.face_buttons += buttons
 				controller.components.append(input_metadata.SteeringWheel())
 			elif machine.basename == 'vii':
 				#Uses 3 "paddle" inputs to represent 3-axis motion and I guess I'll have to deal with that
