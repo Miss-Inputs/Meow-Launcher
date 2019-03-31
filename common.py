@@ -38,7 +38,8 @@ def pluralize(n, singular, plural=None):
 
 dont_capitalize_these = ['the', 'a', 'an', 'and', 'or', 'at', 'with', 'to', 'of', 'is']
 #TODO: Ignore roman numerals somehow, which is what I was aiming for with length_threshold_to_ignore_case but I just realised that won't work completely
-def title_case_sentence_part(s, words_to_ignore_case=None, length_threshold_to_ignore_case=3):
+is_roman_numeral = re.compile(r'[IVXL]+') #Hmm
+def title_case_sentence_part(s, words_to_ignore_case=None):
 	words = re.split(' ', s)
 	if not words_to_ignore_case:
 		words_to_ignore_case = []
@@ -48,7 +49,7 @@ def title_case_sentence_part(s, words_to_ignore_case=None, length_threshold_to_i
 		titled_words.append(words[0].lower())
 		words = words[1:]
 	for word in words:
-		if word in words_to_ignore_case:
+		if word in words_to_ignore_case or is_roman_numeral.match(word):
 			titled_words.append(word)
 		elif word.lower() in dont_capitalize_these:
 			titled_words.append(word.lower())
@@ -56,7 +57,7 @@ def title_case_sentence_part(s, words_to_ignore_case=None, length_threshold_to_i
 			titled_words.append(word.title())
 	return ' '.join(titled_words)
 
-def title_case(s, words_to_ignore_case=None, length_threshold_to_ignore_case=3):
+def title_case(s, words_to_ignore_case=None):
 	sentence_parts = re.split(r'(\s+-\s+|:\s+)', s)
-	titled_parts = [title_case_sentence_part(part, words_to_ignore_case, length_threshold_to_ignore_case) for part in sentence_parts]
+	titled_parts = [title_case_sentence_part(part, words_to_ignore_case) for part in sentence_parts]
 	return ''.join(titled_parts)
