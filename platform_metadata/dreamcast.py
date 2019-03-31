@@ -30,7 +30,7 @@ def add_peripherals_info(game, peripherals):
 	game.metadata.specific_info['Uses-Analog-Vertical'] = (peripherals & (1 << 22)) > 0
 	game.metadata.specific_info['Uses-Expanded-Analog-Horizontal'] = (peripherals & (1 << 23)) > 0
 	game.metadata.specific_info['Uses-Expanded-Analog-Vertical'] = (peripherals & (1 << 24)) > 0
-	game.metadata.specific_info['Supports-Keyboard'] = (peripherals & (1 << 25)) > 0
+	game.metadata.specific_info['Uses-Keyboard'] = (peripherals & (1 << 25)) > 0
 
 def _match_part_by_serial(software_part, serial):
 	#TODO: Handle multiple discs properly
