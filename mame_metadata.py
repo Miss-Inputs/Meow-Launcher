@@ -506,9 +506,11 @@ def add_input_info(machine):
 			controller.components.append(positional)
 		elif input_type == 'dial':
 			dial = input_metadata.Dial()
+			dial.buttons = buttons
 			controller.components.append(dial)
 		elif input_type == 'trackball':
 			trackball = input_metadata.Trackball()
+			trackball.buttons = buttons
 			controller.components.append(trackball)
 		elif input_type == 'mouse':
 			mouse = input_metadata.Mouse()

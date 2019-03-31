@@ -64,7 +64,13 @@ class Biological(Controller):
 	pass
 
 class Dial(Controller):
-	pass
+	def __init__(self):
+		self.buttons = 0
+
+	def describe(self):
+		if self.buttons > 0:
+			return '{0}-button dial'.format(self.buttons)
+		return 'Dial'
 
 class Gambling(Controller):
 	def __init__(self):
