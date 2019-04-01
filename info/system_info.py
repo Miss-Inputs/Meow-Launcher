@@ -229,7 +229,8 @@ systems.update({
 	'V.Reader': UnsupportedSystem('vreader', ['vtech_storio_cart'], [], {MediaType.Cartridge: ['bin']}), #Skeleton driver, apparently also known as Storio, or something like that
 	'V.Smile Baby': System('vsmileb', ['vsmileb_cart'], ['MAME (V.Smile Baby)'], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
 	'V.Smile Motion': System('vsmilem', ['vsmilem_cart'], [], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
-	'Video Challenger': UnsupportedSystem(None, [], [], {}),
+	'Video Challenger': UnsupportedSystem('vidchal', [], [], {}),
+	#From hh_cop400.cpp comments: Needs screen, gun cursor, VHS player device, and software list for tapes; at the moment displays a score counter and has one button input (supposed to be the gun) which makes a "pew" sound
 	'Videoton TVC': UnsupportedSystem('tvc64', ['tvc_cart', 'tvc_cass', 'tvc_flop'], [], {MediaType.Cartridge: ['bin', 'rom', 'crt'], MediaType.Tape: ['wav', 'cas']}),
 	#Skeleton driver; .cas is also quickload?
 	'Wii U': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: ['iso', 'wud'], MediaType.Executable: ['rpx', 'elf']}),
