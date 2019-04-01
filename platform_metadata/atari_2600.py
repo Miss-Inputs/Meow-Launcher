@@ -169,7 +169,7 @@ def parse_stella_db(game, game_info):
 		#Not exactly sure how this works
 		game.metadata.specific_info['Swap-Ports'] = True
 	if note:
-		parse_stella_cart_note(note)
+		parse_stella_cart_note(game, note)
 
 def parse_peripherals(game):
 	left = game.metadata.specific_info.get('Left-Peripheral')
