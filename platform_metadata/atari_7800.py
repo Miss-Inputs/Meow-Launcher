@@ -39,13 +39,18 @@ def _add_atari_7800_header_info(game, header):
 			right_controller_option.inputs.append(input_metadata.Custom('Unknown {0}'.format(right_input_type)))
 
 	if left_controller_option and right_controller_option:
-		game.metadata.specific_info['Number-of-Players'] = 2 #I guess?
+		number_of_players = 2 #I guess?
 		game.metadata.input_info.input_options.append(left_controller_option)
 	elif right_controller_option and not left_controller_option:
-		game.metadata.specific_info['Controller-Swap'] = True
+		number_of_players = 1
+		game.metadata.specific_info['Swap-Ports'] = True
 		game.metadata.input_info.input_options.append(right_controller_option)
 	elif left_controller_option and not right_controller_option:
+		number_of_players = 1
 		game.metadata.input_info.input_options.append(left_controller_option)
+	else:
+		number_of_players = 0
+	game.metadata.specific_info['Number-of-Players'] = number_of_players
 
 	tv_type = header[57]
 
