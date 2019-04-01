@@ -232,7 +232,7 @@ class InputInfo():
 
 	@property
 	def has_standard_inputs(self):
-		return any([option.is_standard for option in self.input_options])
+		return any([option.is_standard for option in self.input_options]) or not self.input_options
 
 	def describe(self):
 		return [opt.describe().capitalize() for opt in self.input_options] if self.input_options else ['Nothing']
