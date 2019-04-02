@@ -348,6 +348,8 @@ def mame_megadrive(game, _):
 		#This isn't a real mapper, Pocket Monsters uses rom_kof99 but it doesn't work (but KOF99 bootleg does)
 		#Probably because it's detected as rom_99 when loaded from fullpath, so... it be like that sometimes
 		raise EmulationNotSupportedException('Pocket Monsters not supported from fullpath')
+	elif mapper == 'rom_smw64':
+		raise EmulationNotSupportedException('Super Mario World 64 not supported')
 
 	#Hmm. Most Megadrive emulators that aren't MAME have some kind of region preference thing where it's selectable between U->E->J or J->U->E or U->J->E or whatever.. because of how this works I'll have to make a decision, unless I feel like making a config thing for that, and I don't think I really need to do that.
 	#I'll go with U->J->E for now
@@ -555,6 +557,12 @@ def mednafen_lynx(game, _):
 def mednafen_megadrive(game, _):
 	if game.metadata.specific_info.get('Uses-SVP', False):
 		raise EmulationNotSupportedException('SVP chip not supported')
+
+	mapper = game.metadata.specific_info.get('Mapper')
+	unsupported_mappers = ('rom_mcpir', 'rom_sf002', 'rom_mjlov', 'rom_lion3', 'rom_kof99_pokemon', 'rom_squir', 'rom_sf004', 'rom_topf', 'rom_smw64', 'rom_lion2', 'rom_stm95')
+	#Squirrel King does boot but you die instantly, that's interesting
+	if mapper in unsupported_mappers:
+		raise EmulationNotSupportedException(mapper + ' not supported')
 
 	return make_mednafen_command_line('md')
 
