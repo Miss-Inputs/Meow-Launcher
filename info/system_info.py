@@ -165,7 +165,6 @@ systems = {
 	'ZX Spectrum': System('spectrum', ['spectrum_cart', 'spectrum_cass', 'specpls3_flop'], ['MAME (ZX Spectrum)'], {MediaType.Snapshot: ['z80', 'sna'], MediaType.Tape: ['wav', 'cas', 'tap', 'tzx'], MediaType.Executable: ['raw', 'scr'], MediaType.Floppy: ['dsk', 'ipf', 'trd', 'td0', 'scl', 'fdi', 'opd', 'opu'], MediaType.Cartridge: ['bin', 'rom']}),
 	#Joystick interface is non-standard so not all games support it and might decide to use the keyboard instead, but eh. It works I guess.
 	#There's actually like a katrillion file formats so I won't bother with all of them until I see them in the wild tbh
-
 }
 
 #Unsupported (yet) systems beyond this point, these won't be listed in any config files by default; just here to make it easier for me to add new systems later as I document what they are and what holds them back, sometimes just because I have nothing better to do I guess
@@ -192,7 +191,7 @@ systems.update({
 	'Apple Lisa': UnsupportedSystem('lisa', ['lisa'], [], {MediaType.Floppy: mame_floppy_formats + ['dc', 'dc42']}),
 	#Preliminary MAME driver doesn't seem to boot anything; LisaEm doesn't seem to work with newer OSes and hasn't been updated since
 	'Atari Portfolio': UnsupportedSystem('pofo', ['pofo'], [], {MediaType.Cartridge: ['bin', 'rom']}),
-	'Atari ST': UnsupportedSystem('st', ['st_flop', 'st_cart'], []),
+	'Atari ST': UnsupportedSystem('st', ['st_flop', 'st_cart'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Floppy: mame_floppy_formats + ['st', 'stx', 'msa']}),
 	#MAME isn't there yet, and Hatari is known to have usability issues... is there anything else?
 	'Bandai Playdia': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'C2 Color': UnsupportedSystem('c2color', ['c2color_cart'], [], {MediaType.Cartridge: ['bin']}),
@@ -223,7 +222,7 @@ systems.update({
 	#Only a skeleton MAME driver with no sound or video or inputs
 	'My First LeapPad': UnsupportedSystem('mfleappad', ['leapfrog_mfleappad_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'N-Gage': UnsupportedSystem(None, [], [], {}), #File types are.. folders I think. That could get weird. Anyway, all emulators at this stage seem to be super-preliminary
-	'Nuon': UnsupportedSystem(None, [], [], {}),
+	'Nuon': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: ['iso']}),
 	'Pippin': UnsupportedSystem('pippin', ['pippin', 'pippin_flop'], [], {MediaType.OpticalDisc: cdrom_formats}),
 	#Games don't just boot in a PPC Mac, unfortunately. No PPC Mac emulator has branched off into specific Pippin emulation yet
 	'Pocket Challenge W': UnsupportedSystem('pockchal', ['pockchalw'], [], {MediaType.Cartridge: ['bin']}),
@@ -337,12 +336,12 @@ systems.update({
 	#MAME driver is marked as working but clones are not; needs to hold F2 then press F11 then F12 to boot from cartridge so that may be wacky; and I can't get that working, not sure if floppies/tapes do work
 
 	#TODO: Me being lazy, I know if these work or not but they require effort:
-	'Acorn Electron': UnsupportedSystem('electron', ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], []),
+	'Acorn Electron': UnsupportedSystem('electron', ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl']}),
 	#Seems to require the same Shift+Break to boot as BBC Micro, so... dang
-	'BBC Micro': UnsupportedSystem('bbcb', ['bbca_cass', 'bbcb_cass', 'bbcb_cass_de', 'bbcb_flop', 'bbcb_flop_orig', 'bbc_flop_65c102', 'bbc_flop_6502', 'bbc_flop_32016', 'bbc_flop_68000', 'bbc_flop_80186', 'bbc_flop_arm', 'bbc_flop_torch', 'bbc_flop_z80'], []),
+	'BBC Micro': UnsupportedSystem('bbcb', ['bbca_cass', 'bbcb_cass', 'bbcb_cass_de', 'bbcb_flop', 'bbcb_flop_orig', 'bbc_flop_65c102', 'bbc_flop_6502', 'bbc_flop_32016', 'bbc_flop_68000', 'bbc_flop_80186', 'bbc_flop_arm', 'bbc_flop_torch', 'bbc_flop_z80'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl', 'fds', 'dsk', 'ima', 'ufi', '360'], MediaType.Cartridge: ['rom', 'bin']}),
 	#The key combination to boot a floppy is Shift+Break which is rather awkward to press especially every time you just want to use some software, so I'm not going anywhere without an autoboot script
 	#Otherwise, it does seem to boot floppies..
-	'Cambridge Z88': UnsupportedSystem('z88', ['z88_cart'], []),
+	'Cambridge Z88': UnsupportedSystem('z88', ['z88_cart'], [], {MediaType.Cartridge: ['epr', 'bin']}),
 	#Marked as not working due to missing expansion interface and serial port and other things, not sure how important that would be... anyway, I'd need to do an autoboot thing to press the key to start the thing, because otherwise it's annoying to navigate every time, and then... hmm, I guess I dunno what actually is a function of things not working yet
 	'Galaksija': UnsupportedSystem('galaxyp', ['galaxy'], [], {MediaType.Snapshot: ['gal'], MediaType.Tape: ['wav', 'gtp']}),
 	#This needs tape control automation to work with tapes (type OLD, then play tape, then RUN); dumps just need to press enter because MAME will type "RUN" for you. But not enter for you. Dunno why. Anyway, we'd go with those and make an autoboot script (maybe just -autoboot_command '\n' would work with suitable delay). galaxy is regular UnsupportedSystem, galaxyp is an upgraded one which appears to be completely backwards compatible
