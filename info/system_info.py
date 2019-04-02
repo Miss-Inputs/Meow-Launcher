@@ -257,6 +257,9 @@ systems.update({
 	#Makes you set time and date each time; also supposed to have sound apparently but I don't hear any
 	'e-Reader': UnsupportedSystem(None, ['gba_ereader'], [], {MediaType.Barcode: ['bin', 'raw', 'bmp']}),
 	#VBA-M works (nothing else emulates e-Reader that I know of), but you have to swipe the card manually, which doesn't really work for a nice launcher thing... and there's not really a way around that at this point in time.
+	'Electronika BK': UnsupportedSystem('bk0011m', ['bk0010'], [], {MediaType.Tape: ['wav', 'tap'], MediaType.Floppy: ['hdi'] + mame_floppy_formats, MediaType.Executable: ['bin']}),
+	#hdi is probably actually a hard drive but I didn't feel like making another media type for that
+	#Preliminary driver and only supports .wav tapes as media
 	'Luxor ABC80': UnsupportedSystem('abc80', ['abc80_cass', 'abc80_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Snapshot: ['bac']}),
 	#Requires "RUN " and the program name, where the program name is completely arbitrary and variable, so there's not really any way to do it automatically and programmatically
 	'Neo Geo AES': UnsupportedSystem('aes', ['neogoeo'], [], {MediaType.Cartridge: ['bin']}),
@@ -266,6 +269,8 @@ systems.update({
 	#Oricutron loads things automatically and other nice things, but has issues with fullscreen
 	'PC-6001': UnsupportedSystem('pc6001', [], []),
 	#MAME driver is preliminary and notes in source file comments it doesn't load tapes yet; PC6001VX doesn't do command line arguments so un-launcherable
+	'PMD 85': UnsupportedSystem('pmd853', ['pmd85_cass'], [], {MediaType.Tape: ['wav', 'pmd', 'tap', 'ptp']}),
+	#This has quite a few variants and apparently works, pmd85.cpp has todos/notes. Notably, floppy interface and speaker apparently not there yet. Anyway, boo tapes
 	'PocketStation': UnsupportedSystem('pockstat', [], [], {MediaType.Digital: ['gme']}),
 	#Makes you set time and date each time
 	'RCA Studio 2': UnsupportedSystem('studio2', ['studio2'], [], {MediaType.Cartridge: ['st2', 'bin', 'rom']}),
@@ -304,9 +309,6 @@ systems.update({
 	#Considered separate from APF-M1000 (same predicament as Coleco Adam)
 	'BBC Master': UnsupportedSystem('bbcm', ['bbcm_cart', 'bbcm_cass', 'bbcmc_flop', 'bbcm_flop'], []),
 	'Camputers Lynx': UnsupportedSystem('lynx128k', ['camplynx_cass', 'camplynx_flop'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav', 'tap']}),
-	'Electronika BK': UnsupportedSystem('bk0011m', ['bk0010'], [], {MediaType.Tape: ['wav', 'tap'], MediaType.Floppy: ['hdi'] + mame_floppy_formats, MediaType.Executable: ['bin']}),
-	#hdi is probably actually a hard drive but I didn't feel like making another media type for that
-	#Preliminary driver and only supports .wav tapes as media
 	'Epoch Sorcerer': UnsupportedSystem('sorcerer', ['sorcerer_cart', 'sorcerer_cass', 'sorcerer_flop'],
 		{MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav', 'tape']}),
 	#Would need automated tape loading to do anything interesting (carts and floppies are just BASIC/OS stuff, also what even is the file type for floppies?) and apparently there's a .snp snapshot and .bin quickload so maybe those do something
@@ -316,8 +318,6 @@ systems.update({
 	#All marked as MACHINE_NOT_WORKING
 	#kcc might also be a tape format?? ehhhh???
 	'Memotech MTX': UnsupportedSystem('mtx512', ['mtx_cart', 'mtx_cass', 'mtx_rom'], [], {MediaType.Snapshot: ['mtx'], MediaType.Executable: ['run'], MediaType.Tape: ['wav'], MediaType.Cartridge: ['bin', 'rom']}),
-	'PMD 85': UnsupportedSystem('pmd853', ['pmd85_cass'], [], {MediaType.Tape: ['wav', 'pmd', 'tap', 'ptp']}),
-	#This has quite a few variants and apparently works, pmd85.cpp has todos/notes. Notably, floppy interface and speaker apparently not there yet
 	'Robotron Z1013': UnsupportedSystem('z1013', [], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['z80']}),
 	#z1013.cpp is apparently preliminary driver but z1013 and z1013a2 aren't marked as not working so might be okay
 	'Sharp MZ-700': UnsupportedSystem('mz700', ['mz700'], []),
@@ -334,7 +334,7 @@ systems.update({
 	#TO9, TO8, TO9+ are improved models, TO8D is TO8 with integrated floppy drive
 	'TRS-80': UnsupportedSystem('trs80m3', [], [], {MediaType.Executable: ['cmd'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: mame_floppy_formats}),
 	'Vector-06C': UnsupportedSystem('vector06', ['vector06_cart', 'vector06_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['bin', 'emr']}),
-	#MAME driver is marked as working but clones are not; needs to hold F2 then press F11 then F12 to boot from cartridge so that may be wacky
+	#MAME driver is marked as working but clones are not; needs to hold F2 then press F11 then F12 to boot from cartridge so that may be wacky; and I can't get that working, not sure if floppies/tapes do work
 
 	#TODO: Me being lazy, I know if these work or not but they require effort:
 	'Acorn Electron': UnsupportedSystem('electron', ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], []),
