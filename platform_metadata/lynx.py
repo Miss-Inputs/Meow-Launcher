@@ -24,6 +24,13 @@ def add_lynx_metadata(game):
 		#UBYTE   rotation;
 		#UBYTE   spare[5];
 		game.metadata.publisher = header[0x2a:0x3a].decode('ascii').strip('\0')
+		rotation = header[0x3b]
+		if rotation == 0:
+			game.metadata.specific_info['Screen-Rotation'] = 'None'
+		elif rotation == 1:
+			game.metadata.specific_info['Screen-Rotation'] = 'Left'
+		elif rotation == 2:
+			game.metadata.specific_info['Screen-Rotation'] = 'Right'
 
 	software = get_software_list_entry(game, skip_header=64 if is_headered else 0)
 	if software:
