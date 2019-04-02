@@ -215,6 +215,8 @@ def process_file(system_config, rom_dir, root, rom):
 
 	emulator_name = None
 	potential_emulators = system_config.chosen_emulators
+	if not potential_emulators:
+		return
 	exception_reason = None
 
 	for potential_emulator_name in potential_emulators:
