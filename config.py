@@ -92,7 +92,8 @@ _config_ini_values = {
 	#TODO: Put this in a general section, use it in the other modules, and also have an option to normalize the case of _all_ names and not just yelly case ones
 	'normalize_name_case': ConfigValue('Steam', ConfigValueType.Bool, False, 'Normalize name case', 'Apply title case to titles of games which are in all uppercase'),
 
-	'wii_common_key': ConfigValue('Wii', ConfigValueType.String, '', 'Wii common key', 'Wii common key used for decrypting Wii discs which some projects are brave enough to hardcode but I am not'),
+	'skip_mame_non_working_software': ('Roms', ConfigValueType.Bool, False, 'Skip MAME non-working software', "Don't attempt to use MAME for ROMs marked as unsupported in software list"),
+	'wii_common_key': ConfigValue('Roms', ConfigValueType.String, '', 'Wii common key', 'Wii common key used for decrypting Wii discs which some projects are brave enough to hardcode but I am not'),
 
 	#These shouldn't end up in config.ini as they're intended to be set per-run
 	'debug': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Debug', 'Enable debug mode, which is really verbose mode, oh well'),
