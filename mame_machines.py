@@ -293,7 +293,7 @@ def process_machine_element(machine_element):
 	if not is_machine_launchable(machine):
 		return
 
-	if main_config.exclude_non_working and machine.overall_status == EmulationStatus.Broken:
+	if main_config.exclude_non_working and machine.overall_status == EmulationStatus.Broken and machine.basename not in main_config.non_working_whitelist:
 		#This will need to be refactored if anything other than MAME is added
 		return
 
