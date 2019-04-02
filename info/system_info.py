@@ -151,6 +151,8 @@ systems = {
 	'Sharp X68000': System('x68000', ['x68k_flop'], ['MAME (Sharp X68000)'], {MediaType.Floppy: mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim']}),
 	'SAM Coupe': System('samcoupe', ['samcoupe_cass', 'samcoupe_flop'], ['SimCoupe'], {MediaType.Floppy: ['mgt', 'sad', 'dsk', 'sdf'], MediaType.Executable: ['sbt']}),
 	'Sord M5': System('m5', ['m5_cart', 'm5_cass', 'm5_flop'], ['MAME (Sord M5)'], {MediaType.Cartridge: ['bin'], MediaType.Floppy: mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim']}),
+	'Tandy CoCo': System('coco3', ['coco_cart', 'coco_flop'], ['MAME (Tandy CoCo)'], {MediaType.Cartridge: ['ccc', 'rom', 'bin'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: mame_floppy_formats + ['dmk', 'jvc']}),
+	#Also has .vhd hard disks
 	'Tomy Tutor': System('tutor', ['tutor'], ['MAME (Tomy Tutor)'], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav']}),
 	'VIC-10': System('vic10', ['vic10'], ['MAME (VIC-10)'], {MediaType.Cartridge: ['crt', 'bin', '80', 'e0'], MediaType.Tape: ['wav', 'tap', 't64']}),
 	'VIC-20': System('vic20', ['vic1001_cart', 'vic1001_cass', 'vic1001_flop'], ['MAME (VIC-20)', 'VICE (VIC-20)'],
@@ -326,8 +328,6 @@ systems.update({
 	'Sinclar QL': UnsupportedSystem('ql', ['ql_cart', 'ql_cass', 'ql_flop'], [], {MediaType.Tape: ['mdv'], MediaType.Cartridge: ['bin', 'rom']}),
 	'Squale': UnsupportedSystem('squale', ['squale_cart'], []),
 	#What's interesting is that the XML for the driver says it's compatible with a software list simply called "squale", but that's not in the default hash directory
-	'Tandy CoCo': UnsupportedSystem('coco3', ['coco_cart', 'coco_flop'], []),
-	#Did I want coco/coco2 instead? Hmm. Those seem to work but coco3 seems to not autoboot. It looks like carts >128K require coco3, or if the software list says so
 	'Thomson MO': UnsupportedSystem('mo6', ['mo5_cart', 'mo5_cass', 'mo5_flop', 'mo5_qd', 'mo6_cass', 'mo6_flop'], [], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qt'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}),
 	#MO5E is export version of MO5, MO6 is an upgraded model, Prodest PC 128 is an Italian MO6
 	'Thomson TO': UnsupportedSystem('to7', ['to7_cart', 'to7_cass', 'to7_qd', 'to8_cass', 'to8_qd', 'to770a_cart', 'to770_cart'], [], {MediaType.Tape: ['wav', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qt'] +  mame_floppy_formats, MediaType.Cartridge: ['m7', 'bin', 'rom']}),

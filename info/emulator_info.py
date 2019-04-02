@@ -162,6 +162,7 @@ emulators = {
 	'MAME (Sord M5)': MameSystem(command_lines.mame_command_line('m5', 'cart1', {'ramsize': '64K', 'upd765:0': ''}, True), ['bin']),
 	'MAME (Super Cassette Vision)': MameSystem(command_lines.mame_super_cassette_vision, ['bin']),
 	'MAME (Bandai Super Vision 8000)': MameSystem(command_lines.mame_command_line('sv8000', 'cart'), ['bin']),
+	'MAME (Tandy CoCo)': MameSystem(command_lines.mame_command_line('coco3', 'cart', has_keyboard=True), ['ccc', 'rom', 'bin']),
 	'MAME (Tomy Tutor)': MameSystem(command_lines.mame_command_line('tutor', 'cart', has_keyboard=True, autoboot_script='tomy_tutor'), ['bin']),
 	#There is pyuuta if you want to read Japanese instead
 	'MAME (VC 4000)': MameSystem(command_lines.mame_command_line('vc4000', 'cart'), ['bin', 'rom']),
