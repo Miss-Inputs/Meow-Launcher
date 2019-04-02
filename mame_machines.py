@@ -293,7 +293,12 @@ def process_machine_element(machine_element):
 	if not is_machine_launchable(machine):
 		return
 
+	if main_config.exclude_non_working and machine.overall_status == EmulationStatus.Broken:
+		#This will need to be refactored if anything other than MAME is added
+		return
+
 	if not mame_verifyroms(machine.basename):
+		#We do this as late as we can after checks to see if we want to actually add this machine or not, because it takes a while (in a loop of tens of thousands of machines), and hence if we can get out of having to do it we should
 		return
 
 	process_machine(machine)
