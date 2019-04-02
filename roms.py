@@ -17,7 +17,6 @@ from config import system_configs, main_config
 from info import system_info, emulator_info
 from common_types import EmulationNotSupportedException, NotARomException
 from roms_metadata import add_engine_metadata, add_metadata
-from metadata import EmulationStatus
 
 class EngineFile():
 	def __init__(self, path):
@@ -227,7 +226,7 @@ def process_file(system_config, rom_dir, root, rom):
 		try:
 			potential_emulator = emulator_info.emulators[potential_emulator_name]
 			if main_config.skip_mame_non_working_software and isinstance(potential_emulator, emulator_info.MameSystem):
-				if game.metadata.specific_info.get('MAME-Emulation-Status', EmulationStatus.Unknown) == EmulationStatus.Broken:
+				if game.metadata.specific_info.get('MAME-Emulation-Status', metadata.EmulationStatus.Unknown) == metadata.EmulationStatus.Broken:
 					raise EmulationNotSupportedException('{0} not supported'.format(game.metadata.specific_info.get('MAME-Software-Name', '')))
 
 			game = try_emulator(system_config, potential_emulator, rom_dir, root, rom)
