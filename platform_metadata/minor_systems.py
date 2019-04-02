@@ -333,11 +333,12 @@ def add_colecovision_info(game):
 	normal_controller = input_metadata.CombinedController([normal_controller_part, normal_controller_keypad])
 
 	super_action_controller_buttons = input_metadata.NormalController()
-	super_action_controller_buttons.face_buttons = 4
-	#Something called a "speed roller" ???
+	super_action_controller_buttons.face_buttons = 4 #Not really on the face, they're on the hand grip part, but still
+	super_action_controller_buttons.dpads = 1
+	super_action_controller_speed_roller = input_metadata.Dial() #Kind of, it's like a one-dimensional trackball from what I can tell
 	super_action_controller_keypad = input_metadata.Keypad()
 	super_action_controller_keypad.keys = 12
-	super_action_controller = input_metadata.CombinedController([super_action_controller_buttons, super_action_controller_keypad])
+	super_action_controller = input_metadata.CombinedController([super_action_controller_buttons, super_action_controller_speed_roller, super_action_controller_keypad])
 
 	roller_controller = input_metadata.Trackball()
 	#Not sure how many buttons?
