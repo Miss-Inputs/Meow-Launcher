@@ -195,12 +195,12 @@ def add_input_info_from_peripheral(game, peripheral):
 		joystick = input_metadata.NormalController()
 		joystick.dpads = 1
 		joystick.face_buttons = 1
-		game.input_info.add_option(joystick)
+		game.metadata.input_info.add_option(joystick)
 	elif peripheral == Atari2600Controller.Boostergrip:
 		boostergrip = input_metadata.NormalController()
 		boostergrip.dpads = 1
 		boostergrip.face_buttons = 3
-		game.input_info.add_option(boostergrip)
+		game.metadata.input_info.add_option(boostergrip)
 	elif peripheral == Atari2600Controller.Compumate:
 		pass #TODO
 	elif peripheral == Atari2600Controller.DrivingController:
