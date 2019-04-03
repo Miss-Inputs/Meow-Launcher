@@ -230,7 +230,7 @@ def _does_rom_match(rom, crc32, sha1):
 def _does_split_rom_match(part, data, _):
 	rom_data_area = None
 	for data_area in part.data_areas.values():
-		if data_area.name == 'rom':
+		if data_area.name == 'rom' and data_area.roms:
 			rom_data_area = data_area
 			break
 	if not rom_data_area:
