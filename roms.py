@@ -231,7 +231,9 @@ def process_file(system_config, rom_dir, root, rom):
 			if game:
 				if main_config.skip_mame_non_working_software and isinstance(potential_emulator, emulator_info.MameSystem):
 					if game.metadata.specific_info.get('MAME-Emulation-Status', metadata.EmulationStatus.Unknown) == metadata.EmulationStatus.Broken:
-						raise EmulationNotSupportedException('{0} not supported'.format(game.metadata.specific_info.get('MAME-Software-Name', '')))
+						reason = '{0} not supported'.format(game.metadata.specific_info.get('MAME-Software-Name', ''))
+						game = None #Guess I have to explicitly do that if I want to do things that way
+						raise EmulationNotSupportedException(reason)
 				break
 		except (EmulationNotSupportedException, NotARomException) as ex:
 			exception_reason = ex
