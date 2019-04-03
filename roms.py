@@ -140,26 +140,31 @@ def make_linux_multiple_command_line(command_list, quote=True):
 	return exe_name, exe_args
 
 class Game():
-	def __init__(self, rom, emulator, platform, folder):
+	def __init__(self, rom, platform, folder):
 		self.rom = rom
-		self.emulator = emulator
 		self.metadata = metadata.Metadata()
 		self.metadata.platform = platform
 		self.metadata.categories = []
 		self.folder = folder
 		self.icon = None
+		self.filename_tags = []
+
+		self.emulator = None
+		self.exe_name = None
+		self.exe_args = None
+
 		self.subroms = None
 		self.software_lists = None
 		self.exception_reason = None
-		self.filename_tags = []
 
-	def get_command_line(self, system_config):
-		return self.emulator.get_command_line(self, system_config.specific_config)
+	def get_exe_name_and_args(self, emulator, system_config):
+		return emulator.get_command_line(self, system_config.specific_config)
 
 	def make_launcher(self, system_config):
-		exe_name, exe_args = self.get_command_line(system_config)
-
 		is_unsupported_compression = self.rom.is_compressed and (self.rom.original_extension not in self.emulator.supported_compression)
+
+		exe_name = self.exe_name
+		exe_args = self.exe_args
 
 		if is_unsupported_compression:
 			#Hmm, I hope this works. This should be moved into launchers base_make_desktop too honestly
@@ -184,8 +189,14 @@ class Game():
 
 		launchers.make_launcher(exe_name, exe_args, self.rom.name, self.metadata, 'ROM', self.rom.path, self.icon)
 
-def try_emulator(system_config, emulator, rom_dir, root, rom):
-	game = Game(rom, emulator, system_config.name, root)
+def try_emulator(game, emulator, system_config):
+	if game.rom.extension not in emulator.supported_extensions:
+		raise NotARomException('Unsupported extension: ' + game.rom.extension)
+
+	return game.get_exe_name_and_args(emulator, system_config)
+
+def process_file(system_config, rom_dir, root, rom):
+	game = Game(rom, system_config.name, root)
 
 	if game.rom.extension == 'm3u':
 		lines = game.rom.read().decode('utf-8').splitlines()
@@ -195,55 +206,52 @@ def try_emulator(system_config, emulator, rom_dir, root, rom):
 	game.metadata.categories = list(pathlib.Path(root).relative_to(rom_dir).parts)
 	if not game.metadata.categories:
 		game.metadata.categories = [game.metadata.platform]
-
-	if rom.extension not in game.emulator.supported_extensions:
-		raise NotARomException('Unsupported extension: ' + rom.extension)
-
-	if rom.warn_about_multiple_files and main_config.debug:
-		print('Warning!', rom.path, 'has more than one file and that may cause unexpected behaviour, as I only look at the first file')
-
 	game.filename_tags = common.find_filename_tags.findall(game.rom.name)
 	add_metadata(game)
 
-	if not game.get_command_line(system_config):
-		return None
-
-	return game
-
-def process_file(system_config, rom_dir, root, rom):
-	game = None
-
-	emulator_name = None
 	potential_emulators = system_config.chosen_emulators
 	if not potential_emulators:
 		return
 	exception_reason = None
 
+	if rom.warn_about_multiple_files and main_config.debug:
+		print('Warning!', rom.path, 'has more than one file and that may cause unexpected behaviour, as I only look at the first file')
+
+	emulator = None
+	emulator_name = None
+	exe_name = None
+	exe_args = None
+
 	for potential_emulator_name in potential_emulators:
 		if potential_emulator_name not in emulator_info.emulators:
 			#Should I warn about this? hmm
 			continue
-		emulator_name = potential_emulator_name
 
 		try:
 			potential_emulator = emulator_info.emulators[potential_emulator_name]
-			game = try_emulator(system_config, potential_emulator, rom_dir, root, rom)
-			if game:
+			exe_and_args = try_emulator(game, potential_emulator, system_config)
+			if exe_and_args:
 				if main_config.skip_mame_non_working_software and isinstance(potential_emulator, emulator_info.MameSystem):
 					if game.metadata.specific_info.get('MAME-Emulation-Status', metadata.EmulationStatus.Unknown) == metadata.EmulationStatus.Broken:
 						reason = '{0} not supported'.format(game.metadata.specific_info.get('MAME-Software-Name', ''))
-						game = None #Guess I have to explicitly do that if I want to do things that way
+						#game = None #Guess I have to explicitly do that if I want to do things that way
 						raise EmulationNotSupportedException(reason)
+				emulator = potential_emulator
+				emulator_name = potential_emulator_name
+				exe_name, exe_args = exe_and_args
 				break
 		except (EmulationNotSupportedException, NotARomException) as ex:
 			exception_reason = ex
 
 
-	if not game:
+	if not emulator:
 		if main_config.debug:
 			print(rom.path, 'could not be launched by', potential_emulators, 'because', exception_reason)
 		return
 
+	game.emulator = emulator
+	game.exe_name = exe_name
+	game.exe_args = exe_args
 	if isinstance(game.emulator, emulator_info.MameSystem):
 		game.metadata.emulator_name = 'MAME'
 	elif isinstance(game.emulator, emulator_info.MednafenModule):
