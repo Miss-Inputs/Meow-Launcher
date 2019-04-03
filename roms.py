@@ -160,7 +160,7 @@ class Game():
 	def get_exe_name_and_args(self, emulator, system_config):
 		return emulator.get_command_line(self, system_config.specific_config)
 
-	def make_launcher(self, system_config):
+	def make_launcher(self):
 		is_unsupported_compression = self.rom.is_compressed and (self.rom.original_extension not in self.emulator.supported_compression)
 
 		exe_name = self.exe_name
@@ -234,7 +234,6 @@ def process_file(system_config, rom_dir, root, rom):
 				if main_config.skip_mame_non_working_software and isinstance(potential_emulator, emulator_info.MameSystem):
 					if game.metadata.specific_info.get('MAME-Emulation-Status', metadata.EmulationStatus.Unknown) == metadata.EmulationStatus.Broken:
 						reason = '{0} not supported'.format(game.metadata.specific_info.get('MAME-Software-Name', ''))
-						#game = None #Guess I have to explicitly do that if I want to do things that way
 						raise EmulationNotSupportedException(reason)
 				emulator = potential_emulator
 				emulator_name = potential_emulator_name
@@ -260,8 +259,7 @@ def process_file(system_config, rom_dir, root, rom):
 		game.metadata.emulator_name = 'VICE'
 	else:
 		game.metadata.emulator_name = emulator_name
-
-	game.make_launcher(system_config)
+	game.make_launcher()
 
 def parse_m3u(path):
 	with open(path, 'rt') as f:
