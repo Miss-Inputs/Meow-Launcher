@@ -171,6 +171,40 @@ def parse_stella_db(game, game_info):
 	if note:
 		parse_stella_cart_note(game, note)
 
+def add_input_info_from_peripheral(game, peripheral):
+	if peripheral == Atari2600Controller.Nothing:
+		return
+	elif peripheral == Atari2600Controller.Joystick:
+		joystick = input_metadata.NormalController()
+		joystick.dpads = 1
+		joystick.face_buttons = 1
+		game.input_info.add_option(joystick)
+	elif peripheral == Atari2600Controller.Boostergrip:
+		boostergrip = input_metadata.NormalController()
+		boostergrip.dpads = 1
+		boostergrip.face_buttons = 3
+		game.input_info.add_option(boostergrip)
+	elif peripheral == Atari2600Controller.Compumate:
+		pass #TODO
+	elif peripheral == Atari2600Controller.DrivingController:
+		pass
+	elif peripheral == Atari2600Controller.KeyboardController:
+		pass
+	elif peripheral == Atari2600Controller.LightGun:
+		pass
+	elif peripheral == Atari2600Controller.MegadriveGamepad:
+		pass
+	elif peripheral == Atari2600Controller.Mindlink:
+		pass
+	elif peripheral == Atari2600Controller.Mouse:
+		pass
+	elif peripheral == Atari2600Controller.Paddle:
+		pass
+	elif peripheral == Atari2600Controller.Trackball:
+		pass
+	elif peripheral == Atari2600Controller.Other:
+		game.input_info.add_option(input_metadata.Custom())
+
 def parse_peripherals(game):
 	left = game.metadata.specific_info.get('Left-Peripheral')
 	right = game.metadata.specific_info.get('Right-Peripheral')
@@ -179,7 +213,10 @@ def parse_peripherals(game):
 	if right == Atari2600Controller.KidVid:
 		game.metadata.specific_info['Uses-Kid-Vid'] = True
 
-	#TODO: This is the part where you set up input_info
+	if left:
+		add_input_info_from_peripheral(game, left)
+	if right is not None and right != left:
+		add_input_info_from_peripheral(game, right)
 
 class StellaDB():
 	class __StellaDB():
