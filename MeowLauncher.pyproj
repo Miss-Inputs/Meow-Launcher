@@ -111,6 +111,9 @@
     <Compile Include="platform_metadata\atari_8_bit.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="platform_metadata\atari_controllers.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="platform_metadata\commodore_64.py">
       <SubType>Code</SubType>
     </Compile>

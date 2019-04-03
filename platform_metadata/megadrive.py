@@ -9,6 +9,10 @@ from common_types import SaveType
 from software_list_info import get_software_list_entry
 from data.sega_licensee_codes import licensee_codes
 
+standard_gamepad = input_metadata.NormalController()
+standard_gamepad.face_buttons = 3
+standard_gamepad.dpads = 1
+
 copyright_regex = re.compile(r'\(C\)(\S{4}.)(\d{4})\.(.{3})')
 t_with_zero = re.compile('^T-0')
 t_not_followed_by_dash = re.compile('^T(?!-)')
@@ -25,10 +29,6 @@ class MegadriveRegionCodes(Enum):
 	JapanUSA = auto() #5, sometimes this is used in place of J and U together for some reason
 
 def parse_peripherals(game, peripherals):
-	standard_gamepad = input_metadata.NormalController()
-	standard_gamepad.face_buttons = 3
-	standard_gamepad.dpads = 1
-
 	game.metadata.input_info.buttons = 3
 	for peripheral_char in peripherals:
 		if peripheral_char == 'M':

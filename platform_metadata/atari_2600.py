@@ -6,6 +6,7 @@ import input_metadata
 from common_types import SaveType
 from info.region_info import TVSystem
 from software_list_info import find_in_software_lists, get_crc32_for_software_list
+import platform_metadata.atari_controllers as controllers
 
 #Not gonna use stella -rominfo on individual stuff as it takes too long and just detects TV type with no other useful info that isn't in the -listrominfo db
 def get_stella_database():
@@ -192,35 +193,30 @@ def add_input_info_from_peripheral(game, peripheral):
 	if peripheral == Atari2600Controller.Nothing:
 		return
 	elif peripheral == Atari2600Controller.Joystick:
-		joystick = input_metadata.NormalController()
-		joystick.dpads = 1
-		joystick.face_buttons = 1
-		game.metadata.input_info.add_option(joystick)
+		game.metadata.input_info.add_option(controllers.joystick)
 	elif peripheral == Atari2600Controller.Boostergrip:
-		boostergrip = input_metadata.NormalController()
-		boostergrip.dpads = 1
-		boostergrip.face_buttons = 3
-		game.metadata.input_info.add_option(boostergrip)
+		game.metadata.input_info.add_option(controllers.boostergrip)
 	elif peripheral == Atari2600Controller.Compumate:
-		pass #TODO
+		game.metadata.input_info.add_option(controllers.compumate)
 	elif peripheral == Atari2600Controller.DrivingController:
-		pass
+		game.metadata.input_info.add_option(controllers.driving_controller)
 	elif peripheral == Atari2600Controller.KeyboardController:
-		pass
+		game.metadata.input_info.add_option(controllers.keypad)
 	elif peripheral == Atari2600Controller.LightGun:
-		pass
+		game.metadata.input_info.add_option(controllers.xegs_gun)
 	elif peripheral == Atari2600Controller.MegadriveGamepad:
-		pass
+		from .megadrive import standard_gamepad as megadrive_pad
+		game.metadata.input_info.add_option(megadrive_pad)
 	elif peripheral == Atari2600Controller.Mindlink:
-		pass
+		game.metadata.input_info.add_option(controllers.mindlink)
 	elif peripheral == Atari2600Controller.Mouse:
-		pass
+		game.metadata.input_info.add_option(controllers.atari_st_mouse)
 	elif peripheral == Atari2600Controller.Paddle:
-		pass
+		game.metadata.input_info.add_option(controllers.paddle)
 	elif peripheral == Atari2600Controller.Trackball:
-		pass
+		game.metadata.input_info.add_option(controllers.cx22_trackball)
 	elif peripheral == Atari2600Controller.Other:
-		game.input_info.add_option(input_metadata.Custom())
+		game.metadata.input_info.add_option(input_metadata.Custom())
 
 def parse_peripherals(game):
 	left = game.metadata.specific_info.get('Left-Peripheral')
@@ -281,6 +277,7 @@ def add_atari_2600_metadata(game):
 			if peripheral in ("Kid's Controller", 'kidscontroller'):
 				#The Kids Controller is functionally identical to the Keyboard Controller, but there is only one of them and it goes in the left
 				game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.KeyboardController
+				game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Nothing
 			elif peripheral == 'paddles':
 				game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Paddle
 				#Does the right one go in there too? Maybe

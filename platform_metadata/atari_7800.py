@@ -3,7 +3,7 @@ from common_types import SaveType
 from config import main_config
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
-from .atari_8_bit import xegs_gun
+from .atari_controllers import xegs_gun
 
 standard_gamepad = input_metadata.NormalController()
 standard_gamepad.dpads = 1
