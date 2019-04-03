@@ -120,7 +120,7 @@ def parse_stella_cart_note(game, note):
 	elif note == 'Uses Mindlink Controller (left only)':
 		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Mindlink
 		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Nothing
-	elif note == 'Uses the Keypad Controllers (left only)':
+	elif note in ('Uses the Keypad Controllers (left only)', 'Uses Keypad Controller'):
 		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.KeyboardController
 		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Nothing
 	elif note == 'Uses the Paddle Controllers (left only)':
@@ -132,11 +132,28 @@ def parse_stella_cart_note(game, note):
 	elif note == 'Uses right joystick controller':
 		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Nothing
 		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Joystick
+	elif note in ('Uses the KidVid Controller', 'Uses the Kid Vid Controller'):
+		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Joystick
+		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.KidVid
+	elif note == 'Uses the Driving Controllers':
+		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.DrivingController
+		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.DrivingController
+	elif note in ('Uses the Keypad Controllers', 'Uses Keypad Controllers'):
+		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.KeyboardController
+		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.KeyboardController
+	elif note in ('Uses the paddle controllers', 'Uses the Paddle Controllers'):
+		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Paddle
+		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Paddle
+	elif note == 'Uses the Joystick Controllers (swapped)':
+		game.metadata.specific_info['Swap-Ports'] = True
+		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Joystick
+		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Joystick
+	elif note == 'Uses the Paddle Controllers (swapped)':
+		game.metadata.specific_info['Swap-Ports'] = True
+		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Paddle
+		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Paddle
 	elif note == 'Console ports are swapped':
 		game.metadata.specific_info['Swap-Ports'] = True
-	elif note in ('Uses Keypad Controller', 'Uses Keypad Controllers', 'Uses the paddle controllers', 'Uses the Paddle Controllers', 'Uses the Paddle Controllers (swapped)', 'Uses the Driving Controllers', 'Uses the Joystick Controllers (swapped)', 'Uses the Keypad Controllers', 'Uses the Kid Vid Controller', 'Uses the KidVid Controller'):
-		#Some more duplicated controller info that I'll deal with later
-		pass
 	else:
 		game.metadata.specific_info['Notes'] = note
 
