@@ -37,7 +37,6 @@ def pluralize(n, singular, plural=None):
 	return '%d %s' % (n, plural)
 
 dont_capitalize_these = ['the', 'a', 'an', 'and', 'or', 'at', 'with', 'to', 'of', 'is']
-#TODO: Ignore roman numerals somehow, which is what I was aiming for with length_threshold_to_ignore_case but I just realised that won't work completely
 is_roman_numeral = re.compile(r'[IVXL]+') #Hmm
 def title_case_sentence_part(s, words_to_ignore_case=None):
 	words = re.split(' ', s)
