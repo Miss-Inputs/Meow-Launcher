@@ -24,7 +24,7 @@ def add_lynx_metadata(game):
 		#UBYTE   rotation;
 		#UBYTE   spare[5];
 		game.metadata.publisher = header[0x2a:0x3a].decode('ascii').strip('\0')
-		rotation = header[0x3b]
+		rotation = header[0x3a]
 		if rotation == 0:
 			game.metadata.specific_info['Screen-Rotation'] = 'None'
 		elif rotation == 1:
