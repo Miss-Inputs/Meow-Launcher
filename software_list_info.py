@@ -2,6 +2,7 @@ import zlib
 import calendar
 import xml.etree.ElementTree as ElementTree
 import os
+import re
 
 from metadata import EmulationStatus
 from info.system_info import systems
@@ -357,9 +358,15 @@ def get_software_list_entry(game, skip_header=0):
 def get_crc32_for_software_list(data):
 	return '{:08x}'.format(zlib.crc32(data))
 
+
+is_release_date_with_thing_at_end = re.compile('\d{8}\s\(\w+\)')
 def parse_release_date(game, release_info):
 	if not release_info:
 		return
+
+	if is_release_date_with_thing_at_end.match(release_info):
+		release_info = release_info[:8]
+
 	if len(release_info) != 8:
 		return
 
