@@ -181,23 +181,30 @@ def parse_peripherals(game):
 
 	#TODO: This is the part where you set up input_info
 
-_stella_db = None
+class StellaDB():
+	class __StellaDB():
+		def __init__(self):
+			try:
+				self.db = get_stella_database()
+			except subprocess.CalledProcessError:
+				self.db = None
+
+	__instance = None
+	@staticmethod
+	def get_stella_db():
+		if StellaDB.__instance is None:
+			StellaDB.__instance = StellaDB.__StellaDB()
+		return StellaDB.__instance.db
 
 def add_atari_2600_metadata(game):
-	global _stella_db
-	#Python, you're officially a fucking dumbarse. Of course that's a fucking global variable. It is right there. Two lines above here. In the global fucking scope.
-	if _stella_db is None:
-		try:
-			_stella_db = get_stella_database()
-		except subprocess.CalledProcessError:
-			pass
+	stella_db = StellaDB.get_stella_db()
 
 	whole_cart = game.rom.read()
 	crc32 = get_crc32_for_software_list(whole_cart)
-	if _stella_db:
+	if stella_db:
 		md5 = hashlib.md5(whole_cart).hexdigest().lower()
-		if md5 in _stella_db:
-			game_info = _stella_db[md5]
+		if md5 in stella_db:
+			game_info = stella_db[md5]
 			parse_stella_db(game, game_info)
 
 	software = find_in_software_lists(game.software_lists, crc=crc32)
