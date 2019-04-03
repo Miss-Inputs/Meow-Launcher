@@ -194,12 +194,12 @@ def add_megadrive_metadata(game):
 			else:
 				game.metadata.save_type = SaveType.Nothing
 
-			if software.xml.attrib.get('name') == 'aqlian':
+			if software.name == 'aqlian':
 				#This is naughty, but this bootleg game doesn't run on some stuff so I want to be able to detect it
 				game.metadata.specific_info['Mapper'] = 'aqlian'
 			else:
 				if slot not in (None, 'rom_sram'):
 					game.metadata.specific_info['Mapper'] = slot
-				if software.xml.attrib.get('name') == 'pokemon':
+				if software.name == 'pokemon':
 					#This is also a bit naughty, but Pocket Monsters has different compatibility compared to other games with rom_kof99
 					game.metadata.specific_info['Mapper'] = slot + '_pokemon'

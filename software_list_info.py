@@ -116,6 +116,10 @@ class Software():
 			self.parts[part.name] = part
 
 	@property
+	def name(self):
+		return self.xml.attrib.get('name')
+
+	@property
 	def software_list_name(self):
 		return self.software_list.name
 
@@ -171,7 +175,7 @@ class Software():
 		return EmulationStatus.Good
 
 	def add_generic_info(self, game):
-		game.metadata.specific_info['MAME-Software-Name'] = self.xml.attrib.get('name')
+		game.metadata.specific_info['MAME-Software-Name'] = self.name
 		game.metadata.specific_info['MAME-Software-Full-Name'] = self.xml.findtext('description')
 
 		cloneof = self.xml.attrib.get('cloneof')
