@@ -66,6 +66,8 @@ def add_info_from_software_list(game, software):
 	#Keyboard overlay was supplied with cartridge
 
 def add_atari_8bit_metadata(game):
+	headered = False
+
 	if game.metadata.media_type == MediaType.Cartridge:
 		header = game.rom.read(amount=16)
 		magic = header[:4]
@@ -75,8 +77,6 @@ def add_atari_8bit_metadata(game):
 			#TODO: Have nice table of cart types like with Game Boy mappers
 			game.metadata.specific_info['Cart-Type'] = cart_type
 			game.metadata.specific_info['Slot'] = 'Right' if cart_type in [21, 59] else 'Left'
-		else:
-			headered = False
 
 	game.metadata.specific_info['Headered'] = headered
 
