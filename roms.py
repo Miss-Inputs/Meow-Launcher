@@ -157,9 +157,6 @@ class Game():
 		self.software_lists = None
 		self.exception_reason = None
 
-	def get_exe_name_and_args(self, emulator, system_config):
-		return emulator.get_command_line(self, system_config.specific_config)
-
 	def make_launcher(self):
 		is_unsupported_compression = self.rom.is_compressed and (self.rom.original_extension not in self.emulator.supported_compression)
 
@@ -193,7 +190,7 @@ def try_emulator(game, emulator, system_config):
 	if game.rom.extension not in emulator.supported_extensions:
 		raise NotARomException('Unsupported extension: ' + game.rom.extension)
 
-	return game.get_exe_name_and_args(emulator, system_config)
+	return emulator.get_command_line(game, system_config.specific_config)
 
 def process_file(system_config, rom_dir, root, rom):
 	game = Game(rom, system_config.name, root)
