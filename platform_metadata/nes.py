@@ -380,9 +380,11 @@ def add_nes_metadata(game):
 
 		#Well, it wouldn't be a controller... not sure how this one works exactly
 		game.metadata.specific_info['Uses-3D-Glasses'] = peripheral == '3dglasses'
+		if peripheral == 'turbofile':
+			#Thing that goes into Famicom controller expansion port and saves stuff
+			game.metadata.save_type = SaveType.MemoryCard
 		#There's a "battlebox" which Armadillo (Japan) uses?
 		#Barcode World (Japan) uses "barcode"
-		#The Best Play Pro Yakyuu (Japan), Derby Stallion - Zenkokuban (Japan), some others use "turbofile"
 		#Peripheral = 4p_adapter: 4 players
 		#Gimmi a Break stuff: "partytap"?
 		#Hyper Olympic (Japan): "hypershot"
