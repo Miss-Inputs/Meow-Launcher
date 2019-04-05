@@ -283,7 +283,7 @@ def format_genre(genre_id):
 	return genre_ids.get(genre_id, 'unknown {0}'.format(genre_id))
 
 franchise_matcher = re.compile(r'(?P<Franchise>.+?)\b\s*(?:\d{1,3}|[IVX]+?)\b')
-chapter_matcher = re.compile(r'(?:Chapter|Vol|Volume|Episode)(?:\.)?', flags=re.RegexFlag.IGNORECASE)
+chapter_matcher = re.compile(r'\b(?:Chapter|Vol|Volume|Episode)(?:\.)?', flags=re.RegexFlag.IGNORECASE)
 
 def add_metadata_from_appinfo(game):
 	game_app_info = steam_state.app_info.get(game.app_id)
@@ -601,8 +601,9 @@ def add_metadata_from_appinfo(game):
 def fix_name(name):
 	name = name.replace('™', '')
 	name = name.replace('®', '')
-	if main_config.normalize_name_case and name.isupper():
-		name = title_case(name, words_to_ignore_case=['GOTY', 'XL', 'VR', 'XCOM', 'VVVVVV', 'RPG'])
+	if main_config.normalize_name_case:
+		if chapter_matcher.sub('', name).isupper():
+			name = title_case(name, words_to_ignore_case=['GOTY', 'XL', 'VR', 'XCOM', 'VVVVVV', 'RPG'])
 	return name
 
 def process_game(app_id, name=None):
