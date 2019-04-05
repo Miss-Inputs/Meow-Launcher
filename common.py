@@ -48,7 +48,7 @@ def title_case_sentence_part(s, words_to_ignore_case=None):
 		titled_words.append(words[0].lower())
 		words = words[1:]
 	for word in words:
-		if word in words_to_ignore_case or is_roman_numeral.match(word):
+		if word in words_to_ignore_case or is_roman_numeral.fullmatch(word):
 			titled_words.append(word)
 		elif word.lower() in dont_capitalize_these:
 			titled_words.append(word.lower())
