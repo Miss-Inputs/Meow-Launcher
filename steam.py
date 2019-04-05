@@ -603,7 +603,7 @@ def fix_name(name):
 	name = name.replace('®', '')
 	if main_config.normalize_name_case:
 		if chapter_matcher.sub('', name).isupper():
-			name = title_case(name, words_to_ignore_case=['GOTY', 'XL', 'VR', 'XCOM', 'VVVVVV', 'RPG'])
+			name = title_case(name, words_to_ignore_case=['GOTY', 'XL', 'VR', 'XCOM', 'VVVVVV', 'RPG', 'HD'])
 	return name
 
 def process_game(app_id, name=None):
