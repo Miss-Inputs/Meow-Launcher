@@ -602,7 +602,12 @@ def fix_name(name):
 	name = name.replace('™', '')
 	name = name.replace('®', '')
 	if main_config.normalize_name_case:
-		if chapter_matcher.sub('', name).isupper():
+		name_to_test_for_upper = chapter_matcher.sub('', name)
+		if name_to_test_for_upper.lower().endswith(' demo'):
+			#Hmm maybe I should make this a more complexy regex to catch " - Demo" as well, and maybe that could reused for other similar stuff down the line
+			name_to_test_for_upper = name_to_test_for_upper[:-5]
+
+		if name_to_test_for_upper.isupper():
 			name = title_case(name, words_to_ignore_case=['GOTY', 'XL', 'VR', 'XCOM', 'VVVVVV', 'RPG', 'HD'])
 	return name
 
