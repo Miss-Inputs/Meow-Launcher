@@ -180,7 +180,10 @@ def fix_duplicate_names(method, format_function=None, ignore_missing_values=None
 		resolve_duplicates_by_dev_status(files)
 		return
 
-	keyfunc = lambda f: normalize_name(launchers.get_field(f[1], 'Name', 'Desktop Entry'))
+	if method == 'check':
+		keyfunc = str.lower
+	else:
+		keyfunc = lambda f: normalize_name(launchers.get_field(f[1], 'Name', 'Desktop Entry'))
 	files.sort(key=keyfunc)
 	duplicates = {}
 	for key, group in itertools.groupby(files, key=keyfunc):
