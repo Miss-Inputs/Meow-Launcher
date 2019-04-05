@@ -37,7 +37,7 @@ def pluralize(n, singular, plural=None):
 	return '%d %s' % (n, plural)
 
 dont_capitalize_these = ['the', 'a', 'an', 'and', 'or', 'at', 'with', 'to', 'of', 'is']
-is_roman_numeral = re.compile(r'[IVXL]+') #Hmm
+is_roman_numeral = re.compile(r'[IVXL]+') #Hmm would it make more sense to just generate a static list of the first 50 (or so) Roman numerals
 def title_case_sentence_part(s, words_to_ignore_case=None):
 	words = re.split(' ', s)
 	if not words_to_ignore_case:
