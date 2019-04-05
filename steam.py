@@ -598,13 +598,17 @@ def add_metadata_from_appinfo(game):
 		#I think it's a fair assumption that every game on Steam will have _some_ sort of save data (even if just settings and not progress) so until I'm proven wrong... whaddya gonna do
 		game.metadata.save_type = SaveType.Internal
 
-def process_game(app_id, name=None):
-	if not name:
-		name = '<unknown game {0}>'.format(app_id)
+def fix_name(name):
 	name = name.replace('™', '')
 	name = name.replace('®', '')
 	if main_config.normalize_name_case and name.isupper():
 		name = title_case(name, words_to_ignore_case=['GOTY', 'XL', 'VR', 'XCOM', 'VVVVVV', 'RPG'])
+	return name
+
+def process_game(app_id, name=None):
+	if not name:
+		name = '<unknown game {0}>'.format(app_id)
+	name = fix_name(name)
 
 	#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
 	try:
