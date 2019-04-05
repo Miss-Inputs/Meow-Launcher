@@ -181,8 +181,9 @@ def fix_duplicate_names(method, format_function=None, ignore_missing_values=None
 		return
 
 	if method == 'check':
-		keyfunc = str.lower
+		keyfunc = lambda f: launchers.get_field(f[1], 'Name', 'Desktop Entry').lower()
 	else:
+		#Why did I call the variable "f"? Oh well
 		keyfunc = lambda f: normalize_name(launchers.get_field(f[1], 'Name', 'Desktop Entry'))
 	files.sort(key=keyfunc)
 	duplicates = {}
