@@ -102,10 +102,10 @@ def add_info_from_pbp(game, pbp_file):
 	#Unknown (some kind of version number?) 4:8
 	param_sfo_offset = int.from_bytes(pbp_file[8:12], 'little') #Apparently should always be 0x28 (this would be after all these offsets)
 	icon0_offset = int.from_bytes(pbp_file[12:16], 'little')
-	icon1_offset = int.from_bytes(pbp_file[16:20], 'little')
-	#PIC0.PNG offset: 20:24
-	#PIC1.PNG offset: 24:28 #Used as background image I think
-	#SND0.AT3 offset: 28:32
+	icon1_offset = int.from_bytes(pbp_file[16:20], 'little') #Animated?
+	pic0_offset = int.from_bytes(pbp_file[20:24], 'little')
+	pic1_offset = int.from_bytes(pbp_file[24:28], 'little') #Used as background image?
+	snd0_offset = int.from_bytes(pbp_file[28:32], 'little') #.at3 file, who knows what we would do with this
 	#DATA.PSP offset: 32:36
 	#DATA.PSAR offset: 36:40
 	#These embedded files are supposedly always in this order, so you get the size by getting the difference between that file's offset and the next one (or the end of the file if it's the last one)
@@ -117,7 +117,19 @@ def add_info_from_pbp(game, pbp_file):
 			bitmap_data = pbp_file[icon0_offset:icon1_offset]
 			bitmap_data_io = io.BytesIO(bitmap_data)
 			game.metadata.images['Banner'] = Image.open(bitmap_data_io)
-		#There's icon1 as well but I'm not sure of the difference or if that's used and I'll do something about that later I guess
+		if icon1_offset > icon0_offset:
+			#Dunno what these 3 other images do exactly, so they have crap names for now
+			bitmap_data = pbp_file[icon1_offset:pic0_offset]
+			bitmap_data_io = io.BytesIO(bitmap_data)
+			game.metadata.images['Icon-1'] = Image.open(bitmap_data_io)
+		if pic0_offset > icon1_offset:
+			bitmap_data = pbp_file[pic0_offset:pic1_offset]
+			bitmap_data_io = io.BytesIO(bitmap_data)
+			game.metadata.images['Picture-0'] = Image.open(bitmap_data_io)
+		if pic1_offset > pic0_offset:
+			bitmap_data = pbp_file[pic1_offset:snd0_offset]
+			bitmap_data_io = io.BytesIO(bitmap_data)
+			game.metadata.images['Picture-1'] = Image.open(bitmap_data_io)
 
 def add_psp_system_info(game):
 	cpu = CPU()
