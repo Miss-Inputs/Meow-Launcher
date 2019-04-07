@@ -6,6 +6,7 @@ import subprocess
 
 import io_utils
 from config import main_config
+from platform_metadata.apple_ii import AppleIIHardware
 from platform_metadata.nes import NESPeripheral
 from platform_metadata.megadrive import MegadriveRegionCodes
 from platform_metadata.zx_spectrum import ZXMachine, ZXJoystick
@@ -90,7 +91,24 @@ def mame_apple_ii(game, _):
 	slot_options = {}
 	if game.metadata.specific_info.get('Uses-Mouse', False):
 		slot_options['sl4'] = 'mouse'
-	system = 'apple2p' if game.metadata.specific_info.get('Apple-II-Plus-Only', False) else 'apple2e'
+	system = 'apple2e' #Probably a safe default
+	compatible_machines = game.metadata.specific_info.get('Machine')
+	if compatible_machines:
+		if AppleIIHardware.AppleIIE in compatible_machines:
+			system = 'apple2e'
+		elif AppleIIHardware.AppleIIC in compatible_machines:
+			system = 'apple2c'
+		elif AppleIIHardware.AppleIICPlus in compatible_machines:
+			system = 'apple2cp'
+		elif AppleIIHardware.AppleIIEEnhanced in compatible_machines:
+			system = 'apple2ee' #Should this go first if it's supported? Not sure what it does
+		elif AppleIIHardware.AppleIIC in compatible_machines:
+			system = 'apple2c'
+		elif AppleIIHardware.AppleIIPlus in compatible_machines:
+			system = 'apple2p'
+		else:
+			#Not using Apple III / Apple III+ here, or Apple IIgs; or base model Apple II since that doesn't autoboot and bugger that
+			raise EmulationNotSupportedException('We don\'t use' + str(compatible_machines))
 
 	return mame_command_line(system, 'flop1', slot_options, True)
 

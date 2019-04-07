@@ -170,8 +170,22 @@ def add_apple_ii_metadata(game):
 			else:
 				game.metadata.notes = usage
 
-		compat = software.get_shared_feature('compatibility')
-		if compat:
-			if 'A2E' not in compat:
-				game.metadata.specific_info['Apple-II-Plus-Only'] = True
-		#We'll presume if there is no compatibility (no software list entry, or old .dsk software list) that it'll be fine
+		if not game.metadata.specific_info.get('Machine'):
+			compat = software.get_shared_feature('compatibility')
+			if compat:
+				machines = []
+				for machine in compat.split(','):
+					if machine == 'A2':
+						machines.append(AppleIIHardware.AppleII)
+					if machine == 'A2P':
+						machines.append(AppleIIHardware.AppleIIPlus)
+					if machine == 'A2E':
+						machines.append(AppleIIHardware.AppleIIE)
+					if machine == 'A2EE':
+						machines.append(AppleIIHardware.AppleIIEEnhanced)
+					if machine == 'A2C':
+						machines.append(AppleIIHardware.AppleIIC)
+					if machine == 'A2GS':
+						machines.append(AppleIIHardware.AppleIIgs)
+					#Apple IIc+ doesn't show up in this list so far
+				game.metadata.specific_info['Machine'] = machines
