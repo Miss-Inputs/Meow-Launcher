@@ -318,6 +318,40 @@ def process_launchers(game, launch):
 				#(Other key: osarch = sometimes Integer with data = 32/64, or b'32' or b'64')
 				game.native_platforms.add(launch_item_oslist.decode('utf-8', errors='ignore'))
 
+def add_icon_from_common_section(game, common_section):
+	potential_icon_names = (b'linuxclienticon', b'clienticon', b'clienticns')
+	#icon and logo have similar hashes, but don't seem to actually exist. logo_small seems to just be logo with a _thumb on the end
+	#Damn I really thought clienttga was a thing too
+	icon_exception = None
+	found_an_icon = False
+	potentially_has_icon = False
+
+	for potential_icon_name in potential_icon_names:
+		if potential_icon_name not in common_section:
+			continue
+		potentially_has_icon = True
+		try:
+			icon_hash = common_section[potential_icon_name].decode('utf-8')
+		except UnicodeDecodeError:
+			continue
+		try:
+			icon = look_for_icon(icon_hash)
+		except IconError as icon_error:
+			icon_exception = icon_error
+			continue
+		except IconNotFoundError:
+			continue
+		if icon:
+			game.icon = icon
+			icon_exception = None
+			found_an_icon = True
+			break
+	if main_config.debug:
+		if icon_exception:
+			print(game.name, game.app_id, icon_exception)
+		elif potentially_has_icon and not found_an_icon:
+			print('Could not find icon for', game.name, game.app_id)
+
 franchise_matcher = re.compile(r'(?P<Franchise>.+?)\b\s*(?:\d{1,3}|[IVX]+?)\b')
 chapter_matcher = re.compile(r'\b(?:Chapter|Vol|Volume|Episode)(?:\.)?', flags=re.RegexFlag.IGNORECASE)
 
@@ -343,38 +377,7 @@ def add_metadata_from_appinfo(game):
 	#Alright let's get to the fun stuff
 	common = app_info_section.get(b'common')
 	if common:
-		potential_icon_names = (b'linuxclienticon', b'clienticon', b'clienticns')
-		#icon and logo have similar hashes, but don't seem to actually exist. logo_small seems to just be logo with a _thumb on the end
-		#Damn I really thought clienttga was a thing too
-		icon_exception = None
-		found_an_icon = False
-		potentially_has_icon = False
-
-		for potential_icon_name in potential_icon_names:
-			if potential_icon_name not in common:
-				continue
-			potentially_has_icon = True
-			try:
-				icon_hash = common[potential_icon_name].decode('utf-8')
-			except UnicodeDecodeError:
-				continue
-			try:
-				icon = look_for_icon(icon_hash)
-			except IconError as icon_error:
-				icon_exception = icon_error
-				continue
-			except IconNotFoundError:
-				continue
-			if icon:
-				game.icon = icon
-				icon_exception = None
-				found_an_icon = True
-				break
-		if main_config.debug:
-			if icon_exception:
-				print(game.name, game.app_id, icon_exception)
-			elif potentially_has_icon and not found_an_icon:
-				print('Could not find icon for', game.name, game.app_id)
+		add_icon_from_common_section(game, common)
 
 		#oslist and osarch may come in handy (former is comma separated windows/macos/linux; latter is b'64' or purrsibly b'32')
 		#eulas is a list, so it could be used to detect if game has third-party EULA
