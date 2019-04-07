@@ -359,7 +359,7 @@ def get_crc32_for_software_list(data):
 	return '{:08x}'.format(zlib.crc32(data))
 
 
-is_release_date_with_thing_at_end = re.compile('\d{8}\s\(\w+\)')
+is_release_date_with_thing_at_end = re.compile(r'\d{8}\s\(\w+\)')
 def parse_release_date(game, release_info):
 	if not release_info:
 		return
