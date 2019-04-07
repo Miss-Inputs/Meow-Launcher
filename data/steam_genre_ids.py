@@ -1,8 +1,10 @@
 genre_ids = {
+	#51, 54, 56, 60 map to some permutation of Animation & Modeling, Education, Software Training, Game Development; possibly in that order as they show up that way for GameGuru
+
 	#Mysterious invisible genre IDs that don't seem to show up on the store page but they're in the appinfo.vdf:
 
 	#22: Peggle Deluxe (as primary genre)
-	#33: Peggle Deluxe
+	#33: Peggle Deluxe, Peggle Nights
 	#34: Gateways, Rochard, Spectraball, Goblin Menace DLC for Trine 2, BIT.TRIP BEAT Original Soundtrack (not on the parent game though?)
 	1: 'Action',
 	2: 'Strategy',
@@ -15,6 +17,7 @@ genre_ids = {
 	28: 'Simulation',
 	29: 'Massively Multiplayer',
 	37: 'Free to Play', #This isn't a genre but sure okay whatever
+	53: 'Design & Illustration',
 	57: 'Utilities',
 	70: 'Early Access',
 

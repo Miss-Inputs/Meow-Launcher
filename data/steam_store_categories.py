@@ -1,8 +1,8 @@
 store_categories = {
 	#Because there's never going to be anything where I can know every single value, here's some invisible categories:
 	#category_12: Counter-Strike: Source, Garry's Mod, Half-Life 2/Episode One/Two/Lost Coast, Left 4 Dead 2, Portal, Portal 2, Serious Sam 3 BFE, Spectraball, TF2, The Stanley Parable (could be something to do with Source engine (except Serious Sam and Spectraball don't use that so maybe not?))
-	#category_31: Glitchspace, Ikea VR Experience (could be VR related)
-	#category_33: Atari Vault, Clouds & Sheep 2, Danganronpa, Left 4 Dead 2, No Time to Explain Remastered, Nuclear Throne, TF2
+	#category_31 (could be VR related?): Glitchspace, Ikea VR Experience, Transmissions: Element 120
+	#category_33: Atari Vault, Clouds & Sheep 2, Danganronpa, Left 4 Dead 2, No Time to Explain Remastered, Nuclear Throne, TF2, Transmissions: Element 120, Horizon Chase Turbo Demo
 	'category_1': 'Multi-player',
 	'category_2': 'Single-player',
 	'category_6': 'Mods (require HL2)', #Games which _are_ a mod, seemingly, not games that have mods; this one implies category_19 and also seems to refer to any game with category_16 and not necessarily Half-Life 2
