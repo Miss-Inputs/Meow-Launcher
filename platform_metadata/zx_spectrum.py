@@ -28,6 +28,11 @@ class ZXExpansion(Enum):
 	Interface2 = auto()
 	MGT = auto()
 	SamRam = auto()
+	Multiface = auto()
+	Kempton = auto()
+	Opus = auto()
+	Protek = auto()
+	TRBeta = auto()
 
 zx_hardware = {
 	#For .z80 header
@@ -55,6 +60,7 @@ def add_z80_metadata(game):
 	flags = header[29]
 	joystick_flag = (flags & 0b_1100_0000) >> 6
 	game.metadata.specific_info['Joystick-Type'] = ZXJoystick(joystick_flag)
+	#Does joystick_flag == 1 imply expansion == Kempston?
 
 	program_counter = int.from_bytes(header[6:8], 'little')
 	if program_counter != 0:
@@ -103,4 +109,14 @@ def add_speccy_metadata(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Notes'] = software.get_info('usage')
+		usage = software.get_info('usage')
+		if usage == 'Requires Multiface':
+			game.metadata.specific_info['Expansion'] = ZXExpansion.Multiface
+		elif usage == 'Requires Gun Stick light gun':
+			#This could either go into the Sinclair Interface 2 or Kempton expansions, so.. hmm
+			game.metadata.specific_info['Uses-Gun'] = True
+		else:
+			#Side B requires Locomotive CP/M+
+			#Requires manual for password protection
+			#Disk has no autorun menu, requires loading each game from Basic.
+			game.metadata.specific_info['Notes'] = usage
