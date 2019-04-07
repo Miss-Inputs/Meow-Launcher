@@ -94,6 +94,13 @@ def parse_param_sfo(game, param_sfo):
 			if main_config.debug:
 				print(game.rom.path, 'has unknown param.sfo value', key, value)
 
+def load_image_from_bytes(data):
+	bitmap_data_io = io.BytesIO(data)
+	try:
+		return Image.open(bitmap_data_io)
+	except OSError:
+		return None
+
 def add_info_from_pbp(game, pbp_file):
 	magic = pbp_file[:4]
 	if magic != b'\x00PBP':
@@ -114,22 +121,22 @@ def add_info_from_pbp(game, pbp_file):
 		parse_param_sfo(game, param_sfo)
 	if have_pillow:
 		if icon0_offset > param_sfo_offset:
-			bitmap_data = pbp_file[icon0_offset:icon1_offset]
-			bitmap_data_io = io.BytesIO(bitmap_data)
-			game.metadata.images['Banner'] = Image.open(bitmap_data_io)
+			banner = load_image_from_bytes(pbp_file[icon0_offset:icon1_offset])
+			if banner:
+				game.metadata.images['Banner'] = banner
 		if icon1_offset > icon0_offset:
 			#Dunno what these 3 other images do exactly, so they have crap names for now
-			bitmap_data = pbp_file[icon1_offset:pic0_offset]
-			bitmap_data_io = io.BytesIO(bitmap_data)
-			game.metadata.images['Icon-1'] = Image.open(bitmap_data_io)
+			icon1 = load_image_from_bytes(pbp_file[icon1_offset:pic0_offset])
+			if icon1:
+				game.metadata.images['Icon-1'] = icon1
 		if pic0_offset > icon1_offset:
-			bitmap_data = pbp_file[pic0_offset:pic1_offset]
-			bitmap_data_io = io.BytesIO(bitmap_data)
-			game.metadata.images['Picture-0'] = Image.open(bitmap_data_io)
+			pic0 = load_image_from_bytes(pbp_file[pic0_offset:pic1_offset])
+			if pic0:
+				game.metadata.images['Picture-0'] = pic0
 		if pic1_offset > pic0_offset:
-			bitmap_data = pbp_file[pic1_offset:snd0_offset]
-			bitmap_data_io = io.BytesIO(bitmap_data)
-			game.metadata.images['Picture-1'] = Image.open(bitmap_data_io)
+			pic1 = load_image_from_bytes(pbp_file[pic1_offset:snd0_offset])
+			if pic1:
+				game.metadata.images['Picture-1'] = pic1
 
 def add_psp_system_info(game):
 	cpu = CPU()
