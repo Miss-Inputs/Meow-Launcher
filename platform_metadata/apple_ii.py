@@ -63,9 +63,7 @@ def parse_woz_meta_chunk(game, chunk_data):
 	for row in rows:
 		try:
 			key, value = row.decode('utf-8').split('\t', maxsplit=1)
-		except ValueError:
-			continue
-		except UnicodeDecodeError:
+		except ValueError: #Oh I guess this includes UnicodeDecodeError
 			continue
 
 		if key in ('title', 'subtitle', 'version', 'side', 'side_name', 'contributor', 'image_date', 'collection'):
