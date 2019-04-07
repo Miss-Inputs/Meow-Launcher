@@ -156,6 +156,9 @@
     <Compile Include="platform_metadata\uzebox.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="platform_metadata\zx_spectrum.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="remove_nonexistent_games.py">
       <SubType>Code</SubType>
     </Compile>

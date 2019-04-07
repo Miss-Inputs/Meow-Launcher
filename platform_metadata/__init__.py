@@ -26,6 +26,7 @@ from platform_metadata.vectrex import add_vectrex_metadata
 from platform_metadata.virtual_boy import add_virtual_boy_metadata
 from platform_metadata.wii import add_wii_metadata
 from platform_metadata.wonderswan import add_wonderswan_metadata
+from platform_metadata.zx_spectrum import add_speccy_metadata
 
 from platform_metadata.minor_systems import *
 
@@ -73,6 +74,7 @@ helpers = {
 	'Virtual Boy': add_virtual_boy_metadata,
 	'Wii': add_wii_metadata,
 	'WonderSwan': add_wonderswan_metadata,
+	'ZX Spectrum': add_speccy_metadata,
 
 	#These just re-use some other system's header
 	'32X': add_megadrive_metadata,
