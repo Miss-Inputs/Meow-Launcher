@@ -285,7 +285,6 @@ def format_genre(genre_id):
 	return genre_ids.get(genre_id, 'unknown {0}'.format(genre_id))
 
 def process_launchers(game, launch):
-	is_natively_linux = False
 	found_first_launcher = False
 	for launch_item in launch.values():
 		#Key here is 0, 1, 2, n... which is a bit useless, it's really just a boneless list. Anyway, each of these values is another dict containing launch parameters, for each individual platform or configuration, e.g. Windows 32-bit, Windows 64-bit, MacOS, etc
