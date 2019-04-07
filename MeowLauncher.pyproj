@@ -105,6 +105,9 @@
     <Compile Include="organize_folders.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="platform_metadata\apple_ii.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="platform_metadata\atari_2600.py">
       <SubType>Code</SubType>
     </Compile>

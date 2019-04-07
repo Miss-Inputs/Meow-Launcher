@@ -1,6 +1,7 @@
 #I don't know why I have to import things from myself. Why? That sucks.
 #Well, I guess if that's the only thing that sucks, it could be worse... but still, this _really_ sucks. This can't be right, can it? Surely there's some trick that nobody thought to put in documentation
 from platform_metadata._3ds import add_3ds_metadata
+from platform_metadata.apple_ii import add_apple_ii_metadata
 from platform_metadata.atari_2600 import add_atari_2600_metadata
 from platform_metadata.atari_7800 import add_atari_7800_metadata
 from platform_metadata.atari_8_bit import add_atari_8bit_metadata
@@ -49,6 +50,7 @@ from platform_metadata.minor_systems import *
 
 helpers = {
 	'3DS': add_3ds_metadata,
+	'Apple II': add_apple_ii_metadata,
 	'Atari 2600': add_atari_2600_metadata,
 	'Atari 7800': add_atari_7800_metadata,
 	'Atari 8-bit': add_atari_8bit_metadata,
@@ -86,7 +88,6 @@ helpers = {
 	'Amiga': add_amiga_info,
 	'Amiga CD32': add_cd32_info,
 	'APF-MP1000': add_apfm1000_info,
-	'Apple II': add_apple_ii_info,
 	'Arcadia 2001': add_arcadia_info,
 	'Astrocade': add_astrocade_info,
 	'Atari 5200': add_atari_5200_info,

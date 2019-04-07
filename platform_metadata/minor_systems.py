@@ -585,22 +585,6 @@ def add_game_com_info(game):
 	if software:
 		software.add_generic_info(game)
 
-def add_apple_ii_info(game):
-	#Possible input info: Keyboard and joystick by default, mouse if mouse card exists
-
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
-		if software.get_info('usage') == 'Works with Apple II Mouse Card in slot 4: -sl4 mouse':
-			#Not setting up input_info just yet because I don't know if it uses joystick/keyboard as well. I guess I probably never will, but like... well.... dang
-			game.metadata.specific_info['Uses-Mouse'] = True
-
-		compat = software.get_shared_feature('compatibility')
-		if compat:
-			if 'A2E' not in compat:
-				game.metadata.specific_info['Apple-II-Plus-Only'] = True
-		#We'll presume if there is no compatibility (no software list entry, or old .dsk software list) that it'll be fine
-
 def add_fm7_info(game):
 	#Possible input info: Keyboard and joystick but barely anything uses said joystick
 	game.metadata.tv_type = TVSystem.NTSC #Japan only
