@@ -8,6 +8,7 @@ import io_utils
 from config import main_config
 from platform_metadata.nes import NESPeripheral
 from platform_metadata.megadrive import MegadriveRegionCodes
+from platform_metadata.zx_spectrum import ZXMachine, ZXJoystick
 from common_types import MediaType, EmulationNotSupportedException, NotARomException
 from mame_helpers import have_mame
 from .region_info import TVSystem
@@ -520,18 +521,42 @@ def mame_vic_20(game, _):
 	return mame_command_line(system, 'cart', {'iec8': ''}, has_keyboard=True)
 
 def mame_zx_spectrum(game, _):
-	system = 'spec128'
-
 	options = {}
+
+	machine = game.metadata.specific_info.get('Machine')
+	if not machine:
+		system = 'spec128' #Probably a good default
+	elif machine == ZXMachine.ZX48k:
+		system = 'spectrum'
+	elif machine == ZXMachine.ZX128k:
+		system = 'spec128'
+	elif machine == ZXMachine.ZX16k:
+		system = 'spectrum'
+		options['ramsize'] = '16K'
+	elif machine == ZXMachine.SpectrumPlus2:
+		system = 'specpls2'
+	elif machine == ZXMachine.SpectrumPlus2A:
+		system = 'specpl2a'
+	elif machine == ZXMachine.SpectrumPlus3:
+		system = 'specpls3'
+
 	if game.metadata.media_type == MediaType.Floppy:
 		system = 'specpls3'
 		slot = 'flop1'
 		#If only one floppy is needed, you can add -upd765:1 "" to the commmand line and use just "flop" instead of "flop1".
-		#Seemingly the "exp" port doesn't do anything, so we can't attach a Kempston interface. Otherwise, we could use this for snapshots and tape games too.
 	elif game.metadata.media_type == MediaType.Snapshot:
 		#We do need to plug in the Kempston interface ourselves, though; that's fine. Apparently how the ZX Interface 2 works is that it just maps joystick input to keyboard input, so we don't really need it, but I could be wrong and thinking of something else entirely.
 		slot = 'dump'
-		options['exp'] = 'kempjoy'
+		if system not in ('specpl2a', 'specpls3'):
+			#Just to safeguard; +3 doesn't have stuff in the exp slot other than Multiface 3; as I understand it the real hardware is incompatible with normal stuff so that's why
+			joystick_type = game.metadata.specific_info.get('Joystick-Type')
+			if joystick_type == ZXJoystick.Kempton:
+				options['exp'] = 'kempjoy'
+			elif joystick_type in (ZXJoystick.SinclairLeft, ZXJoystick.SinclairRight):
+				options['exp'] = 'intf2'
+			elif joystick_type == ZXJoystick.Cursor:
+				#This just adds a 1-button joystick which maps directions to 5678 and fire to 0
+				options['exp'] = 'protek'
 	elif game.metadata.media_type == MediaType.Cartridge:
 		#This will automatically boot the game without going through any sort of menu, and since it's the Interface 2, they would all use the Interface 2 joystick. So that works nicely
 		slot = 'cart'
