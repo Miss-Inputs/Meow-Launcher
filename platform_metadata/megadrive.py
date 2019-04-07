@@ -14,8 +14,8 @@ standard_gamepad.face_buttons = 3
 standard_gamepad.dpads = 1
 
 copyright_regex = re.compile(r'\(C\)(\S{4}.)(\d{4})\.(.{3})')
-t_with_zero = re.compile('^T-0')
-t_not_followed_by_dash = re.compile('^T(?!-)')
+t_with_zero = re.compile(r'^T-0')
+t_not_followed_by_dash = re.compile(r'^T(?!-)')
 
 class MegadriveRegionCodes(Enum):
 	Japan = auto() #J
