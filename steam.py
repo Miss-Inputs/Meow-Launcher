@@ -142,6 +142,8 @@ class SteamGame():
 		self.metadata = Metadata()
 		self.icon = None
 
+		self.native_platforms = set()
+
 	def make_launcher(self):
 		#Could also use steam -appid {0} here, but like... I dunno if I should
 		exe_name = 'xdg-open'
@@ -281,6 +283,40 @@ def get_steamplay_whitelist():
 
 def format_genre(genre_id):
 	return genre_ids.get(genre_id, 'unknown {0}'.format(genre_id))
+
+def process_launchers(game, launch):
+	is_natively_linux = False
+	found_first_launcher = False
+	for launch_item in launch.values():
+		#Key here is 0, 1, 2, n... which is a bit useless, it's really just a boneless list. Anyway, each of these values is another dict containing launch parameters, for each individual platform or configuration, e.g. Windows 32-bit, Windows 64-bit, MacOS, etc
+		#If you wanted to do secret evil things: b'executable' = 'CoolGame.sh' b'arguments' (optional) = '--fullscreen --blah' b'description' = 'Cool Game'
+
+		#Actually, sometimes the key doesn't start at 0, which is weird, but anyway it still doesn't really mean much, it just means we can't get the first item by getting key 0
+		if not found_first_launcher:
+			#Look at the first launcher to see what we can tell about the game exe. Everything that is a DOS game packaged with DOSBox will have DOSBox for all launchers (from what I know so far), except for Duke Nukem 3D, which has a "launch OpenGL" and a "launch DOS" thing, and so because the first launcher is the OpenGL mode it won't be detected as a DOSBox wrapper and maybe that's correct
+			executable_name = launch_item.get(b'executable')
+			if executable_name:
+				executable_basename = executable_name.decode('utf-8', errors='ignore')
+				if '/' in executable_basename:
+					executable_basename = executable_basename.split('/')[-1]
+				elif '\\' in executable_basename:
+					executable_basename = executable_basename.split('\\')[-1]
+				if executable_basename.lower() in ('dosbox.exe', 'dosbox', 'dosbox.sh'):
+					game.metadata.specific_info['Is-DOSBox-Wrapper'] = True
+			executable_arguments = launch_item.get(b'arguments')
+			if executable_arguments:
+				if '-uplay_steam_mode' in executable_arguments.decode('utf-8', errors='ignore'):
+					game.metadata.specific_info['Launcher'] = 'uPlay'
+			#You can't detect that a game uses Origin that I can tell... dang
+			found_first_launcher = True
+
+		launch_item_config = launch_item.get(b'config')
+		if launch_item_config:
+			launch_item_oslist = launch_item_config.get(b'oslist', b'')
+			if launch_item_oslist:
+				#I've never seen oslist be a list, but it is always a byte string, so maybe there's some game where it's multiple platforms comma separated
+				#(Other key: osarch = sometimes Integer with data = 32/64, or b'32' or b'64')
+				game.native_platforms.add(launch_item_oslist.decode('utf-8', errors='ignore'))
 
 franchise_matcher = re.compile(r'(?P<Franchise>.+?)\b\s*(?:\d{1,3}|[IVX]+?)\b')
 chapter_matcher = re.compile(r'\b(?:Chapter|Vol|Volume|Episode)(?:\.)?', flags=re.RegexFlag.IGNORECASE)
@@ -526,47 +562,16 @@ def add_metadata_from_appinfo(game):
 		#mustownapptopurchase: If present, appID of a game that you need to buy first (parent of DLC, or something like Source SDK Base for Garry's Mod, etc)
 		#dependantonapp: Probably same sort of thing, like Half-Life: Opposing Force is dependent on original Half-Life
 
-	is_natively_linux = False
 	config = app_info_section.get(b'config')
 	if config:
 		#contenttype = 3 in some games but not all of them? nani
 		launch = config.get(b'launch')
 		#This key would actually tell us the executable and arguments used to actually launch the game. It's probably not a good idea to do that directly though, mostly because most games are DRM'd to Steam, so it's probably a good idea to go through the Steam client like we are now.
-		#Although I guess that would allow us to detect if a game is just a wrapper for going through another launcher, like Origin or uPlay or whatevs, but yeah
 		#Anyway, we're going to use it a bit more responsibly
 		if launch:
-			#Should always exist if the game can be launched, but I'm just going to null check every single thing in my life from now on to avoid the pain
-			found_first_launcher = False
-			for launch_item in launch.values():
-				#Key here is 0, 1, 2, n... which is a bit useless, it's really just a boneless list. Anyway, each of these values is another dict containing launch parameters, for each individual platform or configuration, e.g. Windows 32-bit, Windows 64-bit, MacOS, etc
-				#If you wanted to do secret evil things: b'executable' = 'CoolGame.sh' b'arguments' (optional) = '--fullscreen --blah' b'description' = 'Cool Game'
-
-				#Actually, sometimes the key doesn't start at 0, which is weird, but anyway it still doesn't really mean much, it just means we can't get the first item by getting key 0
-				if not found_first_launcher:
-					#Look at the first launcher to see what we can tell about the game exe. Everything that is a DOS game packaged with DOSBox will have DOSBox for all launchers (from what I know so far), except for Duke Nukem 3D, which has a "launch OpenGL" and a "launch DOS" thing, and so because the first launcher is the OpenGL mode it won't be detected as a DOSBox wrapper and maybe that's correct
-					executable_name = launch_item.get(b'executable')
-					if executable_name:
-						executable_basename = executable_name.decode('utf-8', errors='ignore')
-						if '/' in executable_basename:
-							executable_basename = executable_basename.split('/')[-1]
-						elif '\\' in executable_basename:
-							executable_basename = executable_basename.split('\\')[-1]
-						if executable_basename.lower() in ('dosbox.exe', 'dosbox', 'dosbox.sh'):
-							game.metadata.specific_info['Is-DOSBox-Wrapper'] = True
-					executable_arguments = launch_item.get(b'arguments')
-					if executable_arguments:
-						if '-uplay_steam_mode' in executable_arguments.decode('utf-8', errors='ignore'):
-							game.metadata.specific_info['Launcher'] = 'uPlay'
-					#You can't detect that a game uses Origin that I can tell... dang
-					found_first_launcher = True
-
-				launch_item_config = launch_item.get(b'config')
-				if launch_item_config:
-					launch_item_oslist = launch_item_config.get(b'oslist', b'')
-					if b'linux' in launch_item_oslist:
-						#I've never seen oslist be a list, but it is always a byte string, so maybe there's some game where it's multiple platforms comma separated
-						#(Other key: osarch = sometimes Integer with data = 32/64, or b'32' or b'64')
-						is_natively_linux = True
+			process_launchers(game, launch)
+		else:
+			game.metadata.specific_info['No-Launchers'] = True
 
 	steamplay_overrides = get_steamplay_overrides()
 	steamplay_whitelist = get_steamplay_whitelist()
@@ -580,11 +585,14 @@ def add_metadata_from_appinfo(game):
 		tool = steamplay_whitelist[appid_str]
 		game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
 		game.metadata.specific_info['Steam-Play-Whitelisted'] = True
-	elif not is_natively_linux:
+	elif 'linux' not in game.native_platforms:
 		global_tool = steamplay_overrides.get('0')
 		if global_tool:
 			game.metadata.emulator_name = get_steamplay_compat_tools().get(global_tool, global_tool)
 			game.metadata.specific_info['Steam-Play-Whitelisted'] = False
+		else:
+			#If global tool is not set; this game can't be launched and will instead say "Invalid platform"
+			game.metadata.specific_info['No-Launchers'] = True
 
 	localization = app_info_section.get(b'localization')
 	if localization:
@@ -641,6 +649,8 @@ def process_game(app_id, name=None):
 	#regions: World or user's region? Hmm, maybe not entirely relevant with PC games
 	#revision: Irrelevant since software versions aren't always linear numbers?
 	#tv_type could be Agnostic, but it's like... I dunno if I'd consider it to be relevant
+	if game.metadata.specific_info.get('No-Launchers', False):
+		return
 
 	game.make_launcher()
 
