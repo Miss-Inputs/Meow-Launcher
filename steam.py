@@ -637,7 +637,7 @@ def process_game(app_id, name=None):
 	#regions: World or user's region? Hmm, maybe not entirely relevant with PC games
 	#revision: Irrelevant since software versions aren't always linear numbers?
 	#tv_type could be Agnostic, but it's like... I dunno if I'd consider it to be relevant
-	if game.metadata.specific_info.get('No-Launchers', False):
+	if game.metadata.specific_info.get('No-Launchers', False) and not main_config.force_create_launchers:
 		return
 
 	game.make_launcher()
