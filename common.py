@@ -60,3 +60,27 @@ def title_case(s, words_to_ignore_case=None):
 	sentence_parts = re.split(r'(\s+-\s+|:\s+)', s)
 	titled_parts = [title_case_sentence_part(part, words_to_ignore_case) for part in sentence_parts]
 	return ''.join(titled_parts)
+
+
+franchise_matcher = re.compile(r'(?P<Franchise>.+?)\b\s*(?:\d{1,3}|[IVX]+?)\b')
+chapter_matcher = re.compile(r'\b(?:Chapter|Vol|Volume|Episode)(?:\.)?', flags=re.RegexFlag.IGNORECASE)
+
+def find_franchise_from_game_name(name):
+	franchise_overrides = {
+		#TODO: Put this in data folder in separate thing, probably
+		#These names are too clever for my regex to work properly so I'll just not use the regex on them
+		'Left 4 Dead 2': 'Left 4 Dead',
+		'Hyperdimension Neptunia Re;Birth3 V Generation': 'Hyperdimension Neptunia', #The other games don't have their franchise detected, though
+		'I Have No Mouth, and I Must Scream': None,
+		'TIS-100': None,
+		'Tis-100': None, #In case normalize_name_case is on... yeah I need to fix that I guess
+		'Transmissions: Element 120': None,
+	}
+	if name in franchise_overrides:
+		return franchise_overrides[name]
+	else:
+		franchise_match = franchise_matcher.match(name)
+		if franchise_match:
+			franchise_name = franchise_match['Franchise']
+			return chapter_matcher.sub('', franchise_name)
+	return None

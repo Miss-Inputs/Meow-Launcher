@@ -6,7 +6,6 @@ import zipfile
 import time
 import datetime
 import calendar
-import re
 
 try:
 	from PIL import Image
@@ -23,7 +22,7 @@ except ModuleNotFoundError:
 	have_steamfiles = False
 
 from config import main_config
-from common import junk_suffixes, title_case
+from common import junk_suffixes, title_case, chapter_matcher, find_franchise_from_game_name
 from common_types import MediaType, SaveType
 import region_detect
 import launchers
@@ -351,8 +350,171 @@ def add_icon_from_common_section(game, common_section):
 		elif potentially_has_icon and not found_an_icon:
 			print('Could not find icon for', game.name, game.app_id)
 
-franchise_matcher = re.compile(r'(?P<Franchise>.+?)\b\s*(?:\d{1,3}|[IVX]+?)\b')
-chapter_matcher = re.compile(r'\b(?:Chapter|Vol|Volume|Episode)(?:\.)?', flags=re.RegexFlag.IGNORECASE)
+def add_metadata_from_appinfo_common_section(game, common):
+	add_icon_from_common_section(game, common)
+
+	#oslist and osarch may come in handy (former is comma separated windows/macos/linux; latter is b'64' or purrsibly b'32')
+	#eulas is a list, so it could be used to detect if game has third-party EULA
+	#small_capsule and header_image refer to image files that don't seem to be there so I dunno
+	#store_tags is a list of numeric IDs, they're the user-supplied tags on the store
+	#workshop_visible and community_hub_visible could also tell you stuff about if the game has a workshop and a... community hub
+	#releasestate: 'released' might be to do with early access?
+	#exfgls = exclude from game library sharing
+	#b'requireskbmouse' and b'kbmousegame' are also things, but don't seem to be 1:1 with games that have controllersupport = none
+	language_list = common.get(b'languages')
+	if language_list:
+		game.metadata.languages = translate_language_list(language_list)
+
+	content_warning_ids = []
+	primary_genre_id = common.get(b'primary_genre')
+	#I think this has to do with the breadcrumb thing in the store at the top where it's like "All Games > Blah Games > Blah"
+	#It is flawed in a few ways, as some things aren't really primary genres (Indie, Free to Play) and some are combinations (Action + RPG, Action + Adventure)
+	if primary_genre_id:
+		if primary_genre_id.data == 0:
+			#Sometimes it's 0, even though the genre list is still there
+			primary_genre_id = None
+		elif primary_genre_id.data >= 71:
+			#While it is humourous that "Nudity" can appear as the primary genre for a game (Hentai Puzzle), this is not really what someone would sensibly want
+			content_warning_ids.append(primary_genre_id.data)
+			primary_genre_id = None
+		else:
+			primary_genre_id = primary_genre_id.data
+	genre_id_list = common.get(b'genres')
+	#This is definitely the thing in the sidebar on the store page
+
+	additional_genre_ids = []
+	if genre_id_list:
+		for genre_id in genre_id_list.values():
+			if not genre_id:
+				continue
+			if genre_id.data == primary_genre_id:
+				continue
+			if genre_id.data >= 71:
+				if genre_id.data not in content_warning_ids:
+					content_warning_ids.append(genre_id.data)
+			elif genre_id.data not in additional_genre_ids:
+				additional_genre_ids.append(genre_id.data)
+	if additional_genre_ids and not primary_genre_id:
+		primary_genre_id = additional_genre_ids.pop(0)
+
+	if primary_genre_id:
+		game.metadata.genre = format_genre(primary_genre_id)
+	#TODO: Combine additional genres where appropriate (e.g. Action + Adventure, Massively Multiplayer + RPG)
+	if additional_genre_ids:
+		game.metadata.specific_info['Additional-Genres'] = [format_genre(id) for id in additional_genre_ids]
+	if content_warning_ids:
+		game.metadata.specific_info['Content-Warnings'] = [format_genre(id) for id in content_warning_ids]
+	#"genre" doesn't look like a word anymore
+
+	release_date = common.get(b'steam_release_date')
+	#Seems that original_release_date is here sometimes, and original_release_date sometimes appears along with steam_release_date where a game was only put on Steam later than when it was actually released elsewhere
+	if not release_date:
+		release_date = common.get(b'original_release_date')
+	if release_date:
+		release_datetime = datetime.datetime.fromtimestamp(release_date.data)
+		game.metadata.year = release_datetime.year
+		game.metadata.month = calendar.month_name[release_datetime.month]
+		game.metadata.day = release_datetime.day
+
+	store_categories_list = common.get(b'category')
+	if store_categories_list:
+		#keys are category_X where X is some arbitrary ID, values are always Integer = 1
+		#This is the thing where you go to the store sidebar and it's like "Single-player" "Multi-player" "Steam Achievements" etc"
+		cats = [store_categories.get(key, key) for key in [key.decode('utf-8', errors='backslashreplace') for key in store_categories_list.keys()]]
+		game.metadata.specific_info['Store-Categories'] = cats #meow
+		game.metadata.specific_info['Has-Achievements'] = 'Steam Achievements' in cats
+		game.metadata.specific_info['Has-Trading-Cards'] = 'Steam Trading Cards' in cats
+
+	category = common.get(b'type', b'Unknown').decode('utf-8', errors='backslashreplace')
+	if category in ('game', 'Game'):
+		#This makes the categories like how they are with DOS/Mac
+		game.metadata.categories = ['Games']
+	elif category in ('Tool', 'Application'):
+		#Tool is for SDK/level editor/dedicated server/etc stuff, Application is for general purchased software
+		game.metadata.categories = ['Applications']
+	elif category == 'Demo':
+		game.metadata.categories = ['Trials']
+	else:
+		game.metadata.categories = [category]
+
+	has_adult_content = common.get(b'has_adult_content') #Integer object with data = 0 or 1, as most bools here seem to be
+	game.metadata.nsfw = False if has_adult_content is None else bool(has_adult_content.data)
+
+	only_vr = common.get(b'onlyvrsupport')
+	vr_support = common.get(b'openvrsupport')
+	if only_vr is not None and only_vr.data:
+		game.metadata.specific_info['VR-Support'] = 'Required'
+	elif vr_support is not None and vr_support.data:
+		game.metadata.specific_info['VR-Support'] = 'Optional'
+
+	metacritic_score = common.get(b'metacritic_score')
+	if metacritic_score:
+		#Well why not
+		game.metadata.specific_info['Metacritic-Score'] = metacritic_score.data
+
+	metacritic_url = common.get(b'metacritic_fullurl')
+	if metacritic_url:
+		game.metadata.specific_info['Metacritic-URL'] = metacritic_url.decode('utf8', errors='backslashreplace')
+	sortas = common.get(b'sortas')
+	if sortas:
+		game.metadata.specific_info['Sort-Name'] = sortas.decode('utf8', errors='backslashreplace')
+
+	game.metadata.specific_info['Controlller-Support'] = common.get(b'controller_support', b'none').decode('utf-8', errors='backslashreplace')
+
+	franchise_name = None
+	associations = common.get(b'associations')
+	if associations:
+		for association in associations.values():
+			#Can also get multiple developers/publishers this way (as can sometimes happen if a separate developer does the Linux port, for example)
+			if association.get(b'type') == b'franchise':
+				franchise = association.get(b'name')
+				if franchise:
+					franchise_name = franchise.decode('utf-8', errors='backslashreplace')
+					if franchise_name.endswith(' Franchise'):
+						franchise_name = franchise_name[:-len(' Franchise')]
+					elif franchise_name.endswith(' Series'):
+						franchise_name = franchise_name[:-len(' Series')]
+					if franchise_name == 'THE KING OF FIGHTERS':
+						#So that it matches up with series.ini
+						franchise_name = 'King of Fighters'
+					if main_config.normalize_name_case and franchise_name.isupper():
+						franchise_name = title_case(franchise_name)
+					game.metadata.specific_info['Franchise'] = franchise_name
+
+def add_metadata_from_appinfo_extended_section(game, extended):
+	developer = extended.get(b'developer')
+	if developer:
+		if isinstance(developer, appinfo.Integer):
+			#Cheeky buggers... the doujin developer 773 is represented by the actual integer value 773 here, for some reason
+			game.metadata.developer = str(developer.data)
+		else:
+			game.metadata.developer = normalize_developer(developer.decode('utf-8', errors='backslashreplace'))
+	publisher = extended.get(b'publisher')
+	if publisher:
+		if isinstance(publisher, appinfo.Integer):
+			game.metadata.publisher = str(publisher.data)
+		else:
+			publisher = normalize_developer(publisher.decode('utf-8', errors='backslashreplace'))
+			if publisher in ('none', 'Self Published'):
+				game.metadata.publisher = game.metadata.developer
+			else:
+				game.metadata.publisher = publisher
+
+	homepage = extended.get(b'homepage')
+	if homepage:
+		game.metadata.specific_info['URL'] = homepage.decode('utf-8', errors='backslashreplace')
+	developer_url = extended.get(b'developer_url')
+	if developer_url:
+		game.metadata.specific_info['Author-URL'] = developer_url.decode('utf-8', errors='backslashreplace')
+	gamemanualurl = extended.get(b'gamemanualurl')
+	if gamemanualurl:
+		game.metadata.specific_info['Manual-URL'] = gamemanualurl.decode('utf-8', errors='backslashreplace')
+	#icon is either blank or something like 'steam/games/icon_garrysmod' which doesn't exist so no icon for you (not that way)
+	#order and noservers seem like they might mean something, but I dunno what
+	#state = eStateAvailable verifies that it is indeed available (wait maybe it doesn't)
+	#vrheadsetstreaming and listofdlc might be useful (the latter is a comma separated list of AppIDs for each DLC in existence for this game)
+	#mustownapptopurchase: If present, appID of a game that you need to buy first (parent of DLC, or something like Source SDK Base for Garry's Mod, etc)
+	#dependantonapp: Probably same sort of thing, like Half-Life: Opposing Force is dependent on original Half-Life
 
 def add_metadata_from_appinfo(game):
 	game_app_info = steam_state.app_info.get(game.app_id)
@@ -376,193 +538,11 @@ def add_metadata_from_appinfo(game):
 	#Alright let's get to the fun stuff
 	common = app_info_section.get(b'common')
 	if common:
-		add_icon_from_common_section(game, common)
-
-		#oslist and osarch may come in handy (former is comma separated windows/macos/linux; latter is b'64' or purrsibly b'32')
-		#eulas is a list, so it could be used to detect if game has third-party EULA
-		#small_capsule and header_image refer to image files that don't seem to be there so I dunno
-		#store_tags is a list of numeric IDs, they're the user-supplied tags on the store
-		#workshop_visible and community_hub_visible could also tell you stuff about if the game has a workshop and a... community hub
-		#releasestate: 'released' might be to do with early access?
-		#exfgls = exclude from game library sharing
-		#b'requireskbmouse' and b'kbmousegame' are also things, but don't seem to be 1:1 with games that have controllersupport = none
-		language_list = common.get(b'languages')
-		if language_list:
-			game.metadata.languages = translate_language_list(language_list)
-
-		content_warning_ids = []
-		primary_genre_id = common.get(b'primary_genre')
-		#I think this has to do with the breadcrumb thing in the store at the top where it's like "All Games > Blah Games > Blah"
-		#It is flawed in a few ways, as some things aren't really primary genres (Indie, Free to Play) and some are combinations (Action + RPG, Action + Adventure)
-		if primary_genre_id:
-			if primary_genre_id.data == 0:
-				#Sometimes it's 0, even though the genre list is still there
-				primary_genre_id = None
-			elif primary_genre_id.data >= 71:
-				#While it is humourous that "Nudity" can appear as the primary genre for a game (Hentai Puzzle), this is not really what someone would sensibly want
-				content_warning_ids.append(primary_genre_id.data)
-				primary_genre_id = None
-			else:
-				primary_genre_id = primary_genre_id.data
-		genre_id_list = common.get(b'genres')
-		#This is definitely the thing in the sidebar on the store page
-
-		additional_genre_ids = []
-		if genre_id_list:
-			for genre_id in genre_id_list.values():
-				if not genre_id:
-					continue
-				if genre_id.data == primary_genre_id:
-					continue
-				if genre_id.data >= 71:
-					if genre_id.data not in content_warning_ids:
-						content_warning_ids.append(genre_id.data)
-				elif genre_id.data not in additional_genre_ids:
-					additional_genre_ids.append(genre_id.data)
-		if additional_genre_ids and not primary_genre_id:
-			primary_genre_id = additional_genre_ids.pop(0)
-
-		if primary_genre_id:
-			game.metadata.genre = format_genre(primary_genre_id)
-		#TODO: Combine additional genres where appropriate (e.g. Action + Adventure, Massively Multiplayer + RPG)
-		if additional_genre_ids:
-			game.metadata.specific_info['Additional-Genres'] = [format_genre(id) for id in additional_genre_ids]
-		if content_warning_ids:
-			game.metadata.specific_info['Content-Warnings'] = [format_genre(id) for id in content_warning_ids]
-		#"genre" doesn't look like a word anymore
-
-		release_date = common.get(b'steam_release_date')
-		#Seems that original_release_date is here sometimes, and original_release_date sometimes appears along with steam_release_date where a game was only put on Steam later than when it was actually released elsewhere
-		if not release_date:
-			release_date = common.get(b'original_release_date')
-		if release_date:
-			release_datetime = datetime.datetime.fromtimestamp(release_date.data)
-			game.metadata.year = release_datetime.year
-			game.metadata.month = calendar.month_name[release_datetime.month]
-			game.metadata.day = release_datetime.day
-
-		store_categories_list = common.get(b'category')
-		if store_categories_list:
-			#keys are category_X where X is some arbitrary ID, values are always Integer = 1
-			#This is the thing where you go to the store sidebar and it's like "Single-player" "Multi-player" "Steam Achievements" etc"
-			cats = [store_categories.get(key, key) for key in [key.decode('utf-8', errors='backslashreplace') for key in store_categories_list.keys()]]
-			game.metadata.specific_info['Store-Categories'] = cats #meow
-			game.metadata.specific_info['Has-Achievements'] = 'Steam Achievements' in cats
-			game.metadata.specific_info['Has-Trading-Cards'] = 'Steam Trading Cards' in cats
-
-		category = common.get(b'type', b'Unknown').decode('utf-8', errors='backslashreplace')
-		if category in ('game', 'Game'):
-			#This makes the categories like how they are with DOS/Mac
-			game.metadata.categories = ['Games']
-		elif category in ('Tool', 'Application'):
-			#Tool is for SDK/level editor/dedicated server/etc stuff, Application is for general purchased software
-			game.metadata.categories = ['Applications']
-		elif category == 'Demo':
-			game.metadata.categories = ['Trials']
-		else:
-			game.metadata.categories = [category]
-
-		has_adult_content = common.get(b'has_adult_content') #Integer object with data = 0 or 1, as most bools here seem to be
-		game.metadata.nsfw = False if has_adult_content is None else bool(has_adult_content.data)
-
-		only_vr = common.get(b'onlyvrsupport')
-		vr_support = common.get(b'openvrsupport')
-		if only_vr is not None and only_vr.data:
-			game.metadata.specific_info['VR-Support'] = 'Required'
-		elif vr_support is not None and vr_support.data:
-			game.metadata.specific_info['VR-Support'] = 'Optional'
-
-		metacritic_score = common.get(b'metacritic_score')
-		if metacritic_score:
-			#Well why not
-			game.metadata.specific_info['Metacritic-Score'] = metacritic_score.data
-
-		metacritic_url = common.get(b'metacritic_fullurl')
-		if metacritic_url:
-			game.metadata.specific_info['Metacritic-URL'] = metacritic_url.decode('utf8', errors='backslashreplace')
-		sortas = common.get(b'sortas')
-		if sortas:
-			game.metadata.specific_info['Sort-Name'] = sortas.decode('utf8', errors='backslashreplace')
-
-		game.metadata.specific_info['Controlller-Support'] = common.get(b'controller_support', b'none').decode('utf-8', errors='backslashreplace')
-
-		franchise_name = None
-		associations = common.get(b'associations')
-		if associations:
-			for association in associations.values():
-				#Can also get multiple developers/publishers this way (as can sometimes happen if a separate developer does the Linux port, for example)
-				if association.get(b'type') == b'franchise':
-					franchise = association.get(b'name')
-					if franchise:
-						franchise_name = franchise.decode('utf-8', errors='backslashreplace')
-						if franchise_name.endswith(' Franchise'):
-							franchise_name = franchise_name[:-len(' Franchise')]
-						elif franchise_name.endswith(' Series'):
-							franchise_name = franchise_name[:-len(' Series')]
-						if franchise_name == 'THE KING OF FIGHTERS':
-							#So that it matches up with series.ini
-							franchise_name = 'King of Fighters'
-						break
-
-		if not franchise_name:
-			sort_name = game.metadata.specific_info.get('Sort-Name', game.name)
-			franchise_overrides = {
-				#TODO: Put this in data folder in separate thing, probably
-				#These names are too clever for my regex to work properly so I'll just not use the regex on them
-				'Left 4 Dead 2': 'Left 4 Dead',
-				'Hyperdimension Neptunia Re;Birth3 V Generation': 'Hyperdimension Neptunia', #The other games don't have their franchise detected, though
-				'I Have No Mouth, and I Must Scream': None,
-				'TIS-100': None,
-				'Tis-100': None, #In case normalize_name_case is on... yeah I need to fix that I guess
-				'Transmissions: Element 120': None,
-			}
-			if sort_name in franchise_overrides:
-				franchise_name = franchise_overrides[sort_name]
-			else:
-				franchise_match = franchise_matcher.match(sort_name)
-				if franchise_match:
-					franchise_name = franchise_match['Franchise']
-					franchise_name = chapter_matcher.sub('', franchise_name)
-		if franchise_name:
-			if main_config.normalize_name_case and franchise_name.isupper():
-				franchise_name = title_case(franchise_name)
-			game.metadata.specific_info['Franchise'] = franchise_name
+		add_metadata_from_appinfo_common_section(game, common)
 
 	extended = app_info_section.get(b'extended')
 	if extended:
-		developer = extended.get(b'developer')
-		if developer:
-			if isinstance(developer, appinfo.Integer):
-				#Cheeky buggers... the doujin developer 773 is represented by the actual integer value 773 here, for some reason
-				game.metadata.developer = str(developer.data)
-			else:
-				game.metadata.developer = normalize_developer(developer.decode('utf-8', errors='backslashreplace'))
-		publisher = extended.get(b'publisher')
-		if publisher:
-			if isinstance(publisher, appinfo.Integer):
-				game.metadata.publisher = str(publisher.data)
-			else:
-				publisher = normalize_developer(publisher.decode('utf-8', errors='backslashreplace'))
-				if publisher in ('none', 'Self Published'):
-					game.metadata.publisher = game.metadata.developer
-				else:
-					game.metadata.publisher = publisher
-
-		homepage = extended.get(b'homepage')
-		if homepage:
-			game.metadata.specific_info['URL'] = homepage.decode('utf-8', errors='backslashreplace')
-		developer_url = extended.get(b'developer_url')
-		if developer_url:
-			game.metadata.specific_info['Author-URL'] = developer_url.decode('utf-8', errors='backslashreplace')
-		gamemanualurl = extended.get(b'gamemanualurl')
-		if gamemanualurl:
-			game.metadata.specific_info['Manual-URL'] = gamemanualurl.decode('utf-8', errors='backslashreplace')
-		#icon is either blank or something like 'steam/games/icon_garrysmod' which doesn't exist so no icon for you (not that way)
-		#order and noservers seem like they might mean something, but I dunno what
-		#state = eStateAvailable verifies that it is indeed available (wait maybe it doesn't)
-		#vrheadsetstreaming and listofdlc might be useful (the latter is a comma separated list of AppIDs for each DLC in existence for this game)
-		#mustownapptopurchase: If present, appID of a game that you need to buy first (parent of DLC, or something like Source SDK Base for Garry's Mod, etc)
-		#dependantonapp: Probably same sort of thing, like Half-Life: Opposing Force is dependent on original Half-Life
+		add_metadata_from_appinfo_extended_section(game, extended)
 
 	config = app_info_section.get(b'config')
 	if config:
@@ -573,27 +553,6 @@ def add_metadata_from_appinfo(game):
 		if launch:
 			process_launchers(game, launch)
 		else:
-			game.metadata.specific_info['No-Launchers'] = True
-
-	steamplay_overrides = get_steamplay_overrides()
-	steamplay_whitelist = get_steamplay_whitelist()
-	appid_str = str(game.app_id)
-	if appid_str in steamplay_overrides:
-		#Natively ported game, but forced to use Proton/etc for reasons
-		tool = steamplay_overrides[appid_str]
-		game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
-		game.metadata.specific_info['Steam-Play-Forced'] = True
-	elif appid_str in steamplay_whitelist:
-		tool = steamplay_whitelist[appid_str]
-		game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
-		game.metadata.specific_info['Steam-Play-Whitelisted'] = True
-	elif 'linux' not in game.native_platforms:
-		global_tool = steamplay_overrides.get('0')
-		if global_tool:
-			game.metadata.emulator_name = get_steamplay_compat_tools().get(global_tool, global_tool)
-			game.metadata.specific_info['Steam-Play-Whitelisted'] = False
-		else:
-			#If global tool is not set; this game can't be launched and will instead say "Invalid platform"
 			game.metadata.specific_info['No-Launchers'] = True
 
 	localization = app_info_section.get(b'localization')
@@ -641,6 +600,33 @@ def process_game(app_id, name=None):
 
 	if steam_state.app_info_available:
 		add_metadata_from_appinfo(game)
+
+	if not game.metadata.specific_info.get('Franchise'):
+		sort_name = game.metadata.specific_info.get('Sort-Name', game.name)
+		franchise = find_franchise_from_game_name(sort_name)
+		if franchise:
+			game.metadata.specific_info['Franchise'] = franchise
+
+	steamplay_overrides = get_steamplay_overrides()
+	steamplay_whitelist = get_steamplay_whitelist()
+	appid_str = str(game.app_id)
+	if appid_str in steamplay_overrides:
+		#Natively ported game, but forced to use Proton/etc for reasons
+		tool = steamplay_overrides[appid_str]
+		game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
+		game.metadata.specific_info['Steam-Play-Forced'] = True
+	elif appid_str in steamplay_whitelist:
+		tool = steamplay_whitelist[appid_str]
+		game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
+		game.metadata.specific_info['Steam-Play-Whitelisted'] = True
+	elif 'linux' not in game.native_platforms:
+		global_tool = steamplay_overrides.get('0')
+		if global_tool:
+			game.metadata.emulator_name = get_steamplay_compat_tools().get(global_tool, global_tool)
+			game.metadata.specific_info['Steam-Play-Whitelisted'] = False
+		else:
+			#If global tool is not set; this game can't be launched and will instead say "Invalid platform"
+			game.metadata.specific_info['No-Launchers'] = True
 
 	#userdata/<user ID>/config/localconfig.vdf has last time played stats, so that's a thing I guess
 	#userdata/<user ID>/7/remote/sharedconfig.vdf has tags/categories etc as well
