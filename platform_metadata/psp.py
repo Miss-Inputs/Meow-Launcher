@@ -66,9 +66,9 @@ def parse_param_sfo(game, param_sfo):
 				#That one's used by all the homebrews
 				game.metadata.product_code = value
 		elif key == 'DISC_NUMBER':
-			game.metadata.specific_info['Disc-Number'] = value
+			game.metadata.disc_number = value
 		elif key == 'DISC_TOTAL':
-			game.metadata.specific_info['Disc-Total'] = value
+			game.metadata.disc_total = value
 		elif key == 'TITLE':
 			if game.rom.extension == 'pbp':
 				game.rom.name = value

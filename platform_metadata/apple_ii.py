@@ -113,7 +113,7 @@ def parse_woz_meta_chunk(game, chunk_data):
 				game.metadata.genre = value.capitalize() if value.islower() else value
 		elif key == 'notes':
 			#This isn't part of the specification, but I've seen it
-			game.metadata.specific_info['Notes'] = value
+			game.metadata.notes = value
 		else:
 			if main_config.debug:
 				print('Unknown Woz META key', game.rom.path, key, value)
@@ -165,10 +165,10 @@ def add_apple_ii_metadata(game):
 			#Not setting up input_info just yet because I don't know if it uses joystick/keyboard as well. I guess I probably never will, but like... well.... dang
 			game.metadata.specific_info['Uses-Mouse'] = True
 		elif usage:
-			if 'Notes' in game.metadata.specific_info:
-				game.metadata.specific_info['Notes'] += ';' + usage
+			if game.metadata.notes:
+				game.metadata.notes += ';' + usage
 			else:
-				game.metadata.specific_info['Notes'] = usage
+				game.metadata.notes = usage
 
 		compat = software.get_shared_feature('compatibility')
 		if compat:

@@ -132,8 +132,8 @@ def add_saturn_info(game, header):
 		#CART16M is seen here instead of "CD-1/1" on some protos?
 		disc_number, _, disc_total = device_info[3:].partition('/')
 		try:
-			game.metadata.specific_info['Disc-Number'] = int(disc_number)
-			game.metadata.specific_info['Disc-Total'] = int(disc_total)
+			game.metadata.disc_number = int(disc_number)
+			game.metadata.disc_total = int(disc_total)
 		except ValueError:
 			pass
 

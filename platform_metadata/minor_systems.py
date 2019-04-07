@@ -163,7 +163,7 @@ def add_channel_f_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Notes'] = software.get_info('usage')
+		game.metadata.notes = software.get_info('usage')
 		#Hit CTRL and A to start.
 
 def add_pc88_info(game):
@@ -174,7 +174,7 @@ def add_pc88_info(game):
 	if software:
 		software.add_generic_info(game)
 		#TODO: Tell us if this is part of a multi-floppy thing
-		game.metadata.specific_info['Notes'] = software.get_info('usage')
+		game.metadata.notes = software.get_info('usage')
 		#Needs BASIC V1 or older
 		#Mount both disk A and B to start
 		#Needs BASIC V1
@@ -212,7 +212,7 @@ def add_sharp_x1_info(game):
 	if software:
 		software.add_generic_info(game)
 		#TODO: Tell us if this is part of a multi-floppy thing
-		game.metadata.specific_info['Notes'] = software.get_info('usage')
+		game.metadata.notes = software.get_info('usage')
 		#Type FILES then move the cursor to the line of the game and type LOAD (to load) and type RUN when loaded
 		#Runs in HuBASIC
 		#Load SIRIUS 1 from Extra Hyper
@@ -228,7 +228,7 @@ def add_sharp_x68k_info(game):
 	if software:
 		software.add_generic_info(game)
 		#TODO: Tell us if this is part of a multi-floppy thing
-		game.metadata.specific_info['Notes'] = software.get_info('usage')
+		game.metadata.notes = software.get_info('usage')
 		#Requires Disk 1 and Disk 3 mounted to boot
 		#Use mouse at select screen
 		#Requires "Harukanaru Augusta" to work
@@ -284,7 +284,7 @@ def add_vic20_info(game):
 	software = get_software_list_entry(game, skip_header=2 if has_header else 0)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Notes'] = software.get_info('usage')
+		game.metadata.notes = software.get_info('usage')
 		#Enter 'SYS <some number>' to run
 		#Game Paddles required
 		#Needs VICKIT 4 to run
@@ -323,7 +323,7 @@ def add_colecovision_info(game):
 			peripheral = ColecoController.DrivingController
 			peripheral_required = True
 		else:
-			game.metadata.specific_info['Notes'] = usage
+			game.metadata.notes = usage
 
 	normal_controller_part = input_metadata.NormalController()
 	normal_controller_part.face_buttons = 2
@@ -428,7 +428,7 @@ def add_amiga_info(game):
 			chipset = 'AGA'
 		else:
 			#This would be stuff among the lines of "Requires "blah" to work
-			game.metadata.specific_info['Notes'] = usage
+			game.metadata.notes = usage
 
 	if not chipset:
 		for tag in game.filename_tags:
@@ -603,7 +603,7 @@ def add_fm7_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Notes'] = software.get_info('usage')
+		game.metadata.notes = software.get_info('usage')
 
 def add_super_cassette_vision_info(game):
 	keypad = input_metadata.Keypad() #Part of main body of console
@@ -670,7 +670,7 @@ def add_generic_info(game):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
-		game.metadata.specific_info['Notes'] = software.get_info('usage')
+		game.metadata.notes = software.get_info('usage')
 
 	#TODO PET: Add keyboard as input info, there are theoretically userport joysticks but nah
 	#Apple III: Possible input info: Keyboard and joystick by default, mouse if mouse card exists

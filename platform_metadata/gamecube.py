@@ -245,7 +245,7 @@ def add_gamecube_wii_disc_metadata(game, header):
 
 	disc_number = header[6] + 1
 	if disc_number:
-		game.metadata.specific_info['Disc-Number'] = disc_number
+		game.metadata.disc_number = disc_number
 
 	game.metadata.revision = header[7]
 	is_wii = header[0x18:0x1c] == b']\x1c\x9e\xa3'

@@ -162,24 +162,29 @@ class ScreenInfo():
 
 class Metadata():
 	def __init__(self):
+		self.platform = None
+		self.categories = []
+		self.year = None
+		self.month = None
+		self.day = None
+		self.emulator_name = None
+		self.extension = None
+
 		self.genre = None
 		self.subgenre = None
 		self.nsfw = False
 		self.languages = []
-		self.year = None
-		self.month = None
-		self.day = None
 		self.developer = None
 		self.publisher = None
-		self.emulator_name = None
-		self.extension = None
-		self.platform = None
-		self.categories = []
 		self.save_type = SaveType.Unknown
-		self.revision = None
+		self.revision = None #Hmm this might belong in specific_info for the platforms that have it
 		self.product_code = None
 		self.regions = []
 		self.media_type = None
+		self.notes = None
+		self.disc_number = None
+		self.disc_total = None
+		self.franchise = None
 
 		#Set this up later with the respective objects
 		#TODO: Set screen_info up right here, and just keep track of whether it's inited or not
@@ -216,6 +221,10 @@ class Metadata():
 			'Product-Code': self.product_code,
 			'Regions': [region.name if region else 'None!' for region in self.regions] if self.regions else [],
 			'Media-Type': ('Optical Disc' if self.media_type == MediaType.OpticalDisc else self.media_type.name) if self.media_type else None,
+			'Notes': self.notes,
+			'Disc-Number': self.disc_number,
+			'Disc-Total': self.disc_total,
+			'Franchise': self.franchise,
 
 			'Ignored-Tags': self.ignored_filename_tags,
 			'TV-Type': self.tv_type.name if self.tv_type else None,

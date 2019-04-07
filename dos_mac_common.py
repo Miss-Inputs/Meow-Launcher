@@ -77,7 +77,7 @@ class App:
 		if 'adult' in self.config:
 			metadata.nsfw = self.config['adult']
 		if 'notes' in self.config:
-			metadata.specific_info['Notes'] = self.config['notes']
+			metadata.notes = self.config['notes']
 		if 'compat_notes' in self.config:
 			metadata.specific_info['Compatibility-Notes'] = self.config['compat_notes']
 			print('Compatibility notes for', self.name, ':', self.config['compat_notes'])

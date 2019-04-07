@@ -156,7 +156,7 @@ def parse_stella_cart_note(game, note):
 	elif note == 'Console ports are swapped':
 		game.metadata.specific_info['Swap-Ports'] = True
 	else:
-		game.metadata.specific_info['Notes'] = note
+		game.metadata.notes = note
 
 def parse_stella_db(game, game_info):
 	game.metadata.specific_info['Stella-Name'] = game_info.get('Cartridge_Name')
@@ -263,7 +263,7 @@ def add_atari_2600_metadata(game):
 		software.add_generic_info(game)
 		usage = software.get_info('usage')
 		if existing_notes and usage:
-			game.metadata.specific_info['Notes'] = usage + ';' + existing_notes
+			game.metadata.notes = usage + ';' + existing_notes
 
 		if game.metadata.publisher == 'Homebrew':
 			#For consistency. There's no company literally called "Homebrew"

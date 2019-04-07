@@ -65,8 +65,8 @@ def add_info_from_main_track(game, track_path, sector_size):
 	device_info_match = device_info_regex.match(device_info)
 	if device_info_match:
 		try:
-			game.metadata.specific_info['Disc-Number'] = int(device_info_match['discNum'])
-			game.metadata.specific_info['Disc-Total'] = int(device_info_match['totalDiscs'])
+			game.metadata.disc_number = int(device_info_match['discNum'])
+			game.metadata.disc_total = int(device_info_match['totalDiscs'])
 		except ValueError:
 			pass
 

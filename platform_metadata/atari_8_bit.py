@@ -44,7 +44,7 @@ def add_info_from_software_list(game, software):
 	if usage == 'Plays music only in PAL':
 		game.metadata.tv_type = TVSystem.PAL
 	else:
-		game.metadata.specific_info['Notes'] = usage
+		game.metadata.notes = usage
 	#To be used with Atari 1400 onboard modem.
 	#3 or 4 player gameplay available only on 400/800 systems
 	#Chalkboard Inc.'s Powerpad Tablet required

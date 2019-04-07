@@ -479,7 +479,7 @@ def add_metadata_from_appinfo_common_section(game, common):
 						franchise_name = 'King of Fighters'
 					if main_config.normalize_name_case and franchise_name.isupper():
 						franchise_name = title_case(franchise_name)
-					game.metadata.specific_info['Franchise'] = franchise_name
+					game.metadata.franchise = franchise_name
 
 def add_metadata_from_appinfo_extended_section(game, extended):
 	developer = extended.get(b'developer')
@@ -605,7 +605,7 @@ def process_game(app_id, name=None):
 		sort_name = game.metadata.specific_info.get('Sort-Name', game.name)
 		franchise = find_franchise_from_game_name(sort_name)
 		if franchise:
-			game.metadata.specific_info['Franchise'] = franchise
+			game.metadata.franchise = franchise
 
 	steamplay_overrides = get_steamplay_overrides()
 	steamplay_whitelist = get_steamplay_whitelist()

@@ -119,4 +119,4 @@ def add_speccy_metadata(game):
 			#Side B requires Locomotive CP/M+
 			#Requires manual for password protection
 			#Disk has no autorun menu, requires loading each game from Basic.
-			game.metadata.specific_info['Notes'] = usage
+			game.metadata.notes = usage
