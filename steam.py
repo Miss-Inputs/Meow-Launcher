@@ -393,10 +393,10 @@ def add_metadata_from_appinfo(game):
 			game.metadata.specific_info['Content-Warnings'] = [format_genre(id) for id in content_warning_ids]
 		#"genre" doesn't look like a word anymore
 
-		release_date = common.get(b'original_release_date')
-		#Seems that this key is here sometimes, and original_release_date sometimes appears along with steam_release_date where a game was only put on Steam later than when it was actually released elsewhere
+		release_date = common.get(b'steam_release_date')
+		#Seems that original_release_date is here sometimes, and original_release_date sometimes appears along with steam_release_date where a game was only put on Steam later than when it was actually released elsewhere
 		if not release_date:
-			release_date = common.get(b'steam_release_date')
+			release_date = common.get(b'original_release_date')
 		if release_date:
 			release_datetime = datetime.datetime.fromtimestamp(release_date.data)
 			game.metadata.year = release_datetime.year
