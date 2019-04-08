@@ -273,7 +273,6 @@ def load_name_replacement():
 
 #For when I do a hecking disagreement about how names should be formatted, and if subtitles should be in the title or
 #not.  This probably annoys purists, but I think it makes things less confusing at the end of the day
-#TODO: Review the practicality of just changing normalize_name to remove all spaces and punctuation.  Would that cause any false positives at all?  Though there would still be use for this part here
 name_replacement = []
 #Add "The " in front of these things (but not if there's already "The " in front of them of course)
 add_the = []
