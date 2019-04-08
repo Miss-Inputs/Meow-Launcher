@@ -1,4 +1,3 @@
-import shlex
 import os
 import sys
 import configparser
