@@ -6,6 +6,7 @@ import shlex
 import time
 import datetime
 import pathlib
+import tempfile
 
 import common
 import archives
@@ -52,7 +53,8 @@ class EngineGame():
 	def make_launcher(self, system_config):
 		exe_name, exe_args = self.get_command_line(system_config)
 		exe_args = [arg.replace('$<path>', self.file.path) for arg in exe_args]
-		launchers.make_launcher(exe_name, exe_args, self.file.name, self.metadata, 'Engine game', self.file.path, self.icon)
+		params = launchers.LaunchParams(exe_name, exe_args)
+		launchers.make_launcher(params, self.file.name, self.metadata, 'Engine game', self.file.path, self.icon)
 
 def try_engine(system_config, engine, base_dir, root, name):
 	path = os.path.join(root, name)
@@ -132,13 +134,6 @@ class Rom():
 	def get_size(self):
 		return io_utils.get_real_size(self.path, self.compressed_entry)
 
-def make_linux_multiple_command_line(command_list, quote=True):
-	#FIXME hack hack hack hack hack hack heck move this to launchers base_make_desktop somehow
-	shell_commands = [' '.join(shlex.quote(arg) if quote else arg for arg in command) for command in command_list]
-	exe_name = 'sh'
-	exe_args = ['-c', ' && '.join(shell_commands)]
-	return exe_name, exe_args
-
 class Game():
 	def __init__(self, rom, platform, folder):
 		self.rom = rom
@@ -150,47 +145,32 @@ class Game():
 		self.filename_tags = []
 
 		self.emulator = None
-		self.exe_name = None
-		self.exe_args = None
+		self.launch_params = None
 
 		self.subroms = None
 		self.software_lists = None
 		self.exception_reason = None
 
 	def make_launcher(self):
-		is_unsupported_compression = self.rom.is_compressed and (self.rom.original_extension not in self.emulator.supported_compression)
+		params = self.launch_params
 
-		exe_name = self.exe_name
-		exe_args = self.exe_args
+		if self.rom.is_compressed and (self.rom.original_extension not in self.emulator.supported_compression):
+			temp_extraction_folder = os.path.join(tempfile.gettempdir(), launchers.make_filename(self.rom.name))
 
-		if is_unsupported_compression:
-			#Hmm, I hope this works. This should be moved into launchers base_make_desktop too honestly
-			set_temp_folder_cmd = ['temp_extract_folder=$(mktemp -d)']
-			extract_cmd = ['7z', 'x', '-o"$temp_extract_folder"', shlex.quote(self.rom.path)]
-			remove_dir_command = ['rm', '-rf', "$temp_extract_folder"]
-
-			extracted_path = os.path.join('$temp_extract_folder/' + shlex.quote(self.rom.compressed_entry))
-			inner_command = [exe_name] + [arg.replace('$<path>', extracted_path) for arg in exe_args]
-			all_commands = [set_temp_folder_cmd, extract_cmd, inner_command, remove_dir_command]
-			exe_name, exe_args = make_linux_multiple_command_line(all_commands, False)
-		elif self.emulator.wrap_in_shell: #Should be if exe_args is a list of lists
-			#What happens if this is the case, but compression is also unsupported? I think that doesn't work
-			inner_commands = []
-			for inner_command in exe_args:
-				inner_command = [arg.replace('$<path>', self.rom.path) for arg in inner_command]
-				inner_command = [arg.replace('$<exe>', exe_name) for arg in inner_command]
-				inner_commands.append(inner_command)
-			exe_name, exe_args = make_linux_multiple_command_line(inner_commands)
+			extracted_path = os.path.join(temp_extraction_folder, self.rom.compressed_entry)
+			params = params.replace_path_argument(extracted_path)
+			params = params.prepend_command(launchers.LaunchParams('7z', ['x', '-o' + temp_extraction_folder, self.rom.path]))
+			params = params.append_command(launchers.LaunchParams('rm', ['-rf', temp_extraction_folder]))
 		else:
-			exe_args = [arg.replace('$<path>', self.rom.path) for arg in exe_args]
+			params = params.replace_path_argument(self.rom.path)
 
-		launchers.make_launcher(exe_name, exe_args, self.rom.name, self.metadata, 'ROM', self.rom.path, self.icon)
+		launchers.make_launcher(params, self.rom.name, self.metadata, 'ROM', self.rom.path, self.icon)
 
 def try_emulator(game, emulator, system_config):
 	if game.rom.extension not in emulator.supported_extensions:
 		raise NotARomException('Unsupported extension: ' + game.rom.extension)
 
-	return emulator.get_command_line(game, system_config.specific_config)
+	return emulator.get_launch_params(game, system_config.specific_config)
 
 def process_file(system_config, rom_dir, root, rom):
 	game = Game(rom, system_config.name, root)
@@ -216,8 +196,7 @@ def process_file(system_config, rom_dir, root, rom):
 
 	emulator = None
 	emulator_name = None
-	exe_name = None
-	exe_args = None
+	launch_params = None
 
 	for potential_emulator_name in potential_emulators:
 		if potential_emulator_name not in emulator_info.emulators:
@@ -226,15 +205,15 @@ def process_file(system_config, rom_dir, root, rom):
 
 		try:
 			potential_emulator = emulator_info.emulators[potential_emulator_name]
-			exe_and_args = try_emulator(game, potential_emulator, system_config)
-			if exe_and_args:
+			params = try_emulator(game, potential_emulator, system_config)
+			if params:
 				if main_config.skip_mame_non_working_software and isinstance(potential_emulator, emulator_info.MameSystem):
 					if game.metadata.specific_info.get('MAME-Emulation-Status', metadata.EmulationStatus.Unknown) == metadata.EmulationStatus.Broken:
 						reason = '{0} not supported'.format(game.metadata.specific_info.get('MAME-Software-Name', ''))
 						raise EmulationNotSupportedException(reason)
 				emulator = potential_emulator
 				emulator_name = potential_emulator_name
-				exe_name, exe_args = exe_and_args
+				launch_params = params
 				break
 		except (EmulationNotSupportedException, NotARomException) as ex:
 			exception_reason = ex
@@ -246,8 +225,7 @@ def process_file(system_config, rom_dir, root, rom):
 		return
 
 	game.emulator = emulator
-	game.exe_name = exe_name
-	game.exe_args = exe_args
+	game.launch_params = launch_params
 	if isinstance(game.emulator, emulator_info.MameSystem):
 		game.metadata.emulator_name = 'MAME'
 	elif isinstance(game.emulator, emulator_info.MednafenModule):

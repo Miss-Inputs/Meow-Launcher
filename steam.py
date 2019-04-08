@@ -145,9 +145,8 @@ class SteamGame():
 
 	def make_launcher(self):
 		#Could also use steam -appid {0} here, but like... I dunno if I should
-		exe_name = 'xdg-open'
-		exe_args = ['steam://rungameid/{0}'.format(self.app_id)]
-		launchers.make_launcher(exe_name, exe_args, self.name, self.metadata, 'Steam', self.app_id, self.icon)
+		params = launchers.LaunchParams('xdg-open', ['steam://rungameid/{0}'.format(self.app_id)])
+		launchers.make_launcher(params, self.name, self.metadata, 'Steam', self.app_id, self.icon)
 
 class IconError(Exception):
 	pass

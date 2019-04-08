@@ -62,7 +62,7 @@ class ScummVMGame():
 		self.name = name
 		self.options = {}
 
-	def _get_command_line_template(self):
+	def _get_launch_params(self):
 		return 'scummvm', ['-f', self.name]
 
 	@staticmethod
@@ -72,7 +72,7 @@ class ScummVMGame():
 	def make_launcher(self):
 		name = self.options.get('description', self.name)
 
-		exe_name, exe_args = self._get_command_line_template()
+		launch_params = launchers.LaunchParams(*self._get_launch_params())
 		metadata = Metadata()
 		metadata.input_info.add_option([input_metadata.Mouse(), input_metadata.Keyboard()]) #Can use gamepad if you enable it
 		metadata.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
@@ -81,14 +81,14 @@ class ScummVMGame():
 		get_stuff_from_filename_tags(metadata, find_filename_tags.findall(name))
 
 		#Hmm, could use ResidualVM as the launcher type for ResidualVM games... but it's just a unique identifier type thing, so it should be fine
-		launchers.make_launcher(exe_name, exe_args, name, metadata, 'ScummVM', self.name)
+		launchers.make_launcher(launch_params, name, metadata, 'ScummVM', self.name)
 
 class ResidualVMGame(ScummVMGame):
 	@staticmethod
 	def _get_emulator_name():
 		return 'ResidualVM'
 
-	def _get_command_line_template(self):
+	def _get_launch_params(self):
 		return 'residualvm', ['-f', self.name]
 
 def no_longer_exists(game_id):

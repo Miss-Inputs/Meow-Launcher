@@ -108,8 +108,9 @@ class Machine():
 				if os.path.isfile(memory_card_path):
 					slot_options['memc'] = memory_card_path
 
-		exe_args = emulator_command_lines.mame_command_line(self.basename, slot_options=slot_options)
-		launchers.make_launcher('mame', exe_args, self.name, self.metadata, 'MAME machine', self.basename, self.icon)
+		params = launchers.LaunchParams('mame', emulator_command_lines.mame_base(self.basename, slot_options=slot_options))
+		#TODO: Let's put this in emulator_info, even if only MAME exists as the singular arcade emulator for now; and clean this up some more
+		launchers.make_launcher(params, self.name, self.metadata, 'MAME machine', self.basename, self.icon)
 
 	@property
 	def is_mechanical(self):
