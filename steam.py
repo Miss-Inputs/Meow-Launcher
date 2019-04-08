@@ -601,7 +601,7 @@ def process_game(app_id, name=None):
 	if steam_state.app_info_available:
 		add_metadata_from_appinfo(game)
 
-	if not game.metadata.specific_info.get('Franchise'):
+	if not game.metadata.franchise:
 		sort_name = game.metadata.specific_info.get('Sort-Name', game.name)
 		franchise = find_franchise_from_game_name(sort_name)
 		if franchise:
