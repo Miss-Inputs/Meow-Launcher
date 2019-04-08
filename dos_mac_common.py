@@ -86,24 +86,23 @@ class App:
 			metadata.specific_info['Requires-CD'] = self.config['requires_cd']
 
 		emulator_name = None
-		command = None
+		params = None
 		exception_reason = None
 		for emulator in system_config.chosen_emulators:
 			emulator_name = emulator
 			try:
-				command = emulators[emulator].get_command_line(self, system_config.specific_config)
-				if command:
+				params = emulators[emulator].get_launch_params(self, system_config.specific_config)
+				if params:
 					break
 			except (EmulationNotSupportedException, NotARomException) as ex:
 				exception_reason = ex
 
-		if not command:
+		if not params:
 			if main_config.debug:
 				print(self.path, 'could not be launched by', system_config.chosen_emulators, 'because', exception_reason)
 			return
 
 		metadata.emulator_name = emulator_name
-		params = launchers.LaunchParams(*command)
 		launchers.make_launcher(params, self.name, metadata, metadata.platform, self.path, icon=self.icon)
 
 def scan_folders(platform, config_path, scan_function):

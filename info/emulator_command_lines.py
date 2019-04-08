@@ -909,12 +909,12 @@ def basilisk_ii(app, specific_config):
 	#FIXME: Ensure hfv_path is mounted, right now we're just kinda assuming it is, which is a weird thing to do when you think about it
 
 	#If you're not using an SDL2 build of BasiliskII, you probably want to change dga to window! Well you really want to get an SDL2 build of BasiliskII, honestly, because I assume you do. Well the worst case scenario is that it still works, but it hecks your actual host resolution
-	#God damn this is such a hack
-	#What the hack is even going on here
-	inner_command = ['$<exe>', '--screen', 'dga/{0}/{1}'.format(width, height)]
-	inner_command = ' '.join([shlex.quote(arg) for arg in inner_command])
-	shell_command = 'echo {0} > {1} && {2} && rm {1}'.format(shlex.quote(inner_path), shlex.quote(autoboot_txt_path), inner_command)
-	return 'sh', ['-c', shell_command]
+	commands = [
+		LaunchParams('sh', ['-c', 'echo {0} > {1}'.format(inner_path, autoboot_txt_path)]), #Hack because I can't be fucked refactoring MultiCommandLaunchParams to do pipey bois/redirecty bois
+		LaunchParams('BasiliskII', ['--screen', 'dga/{0}/{1}'.format(width, height)]),
+		LaunchParams('rm', [autoboot_txt_path])
+	]
+	return MultiCommandLaunchParams(commands)
 
 def _get_dosbox_config(app):
 	if not os.path.isdir(main_config.dosbox_configs_path):
@@ -963,4 +963,4 @@ def dosbox(app, specific_config):
 	if ('--regen-dos-config' in sys.argv) or not conf:
 		conf = _make_dosbox_config(app, specific_config)
 
-	return ['-exit', '-noautoexec', '-userconf', '-conf', conf, app.path]
+	return LaunchParams('dosbox', ['-exit', '-noautoexec', '-userconf', '-conf', conf, app.path])

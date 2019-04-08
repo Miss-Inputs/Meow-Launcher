@@ -298,40 +298,30 @@ engines = {
 }
 
 class MacEmulator():
-	def __init__(self, exe_name, args):
-		self.exe_name = exe_name
-		self.args = args
+	def __init__(self, launch_params):
+		self.launch_params = launch_params
 
-	def get_command_line(self, app, specific_config):
-		exe_name = self.exe_name
+	def get_launch_params(self, app, specific_config):
+		if callable(self.launch_params):
+			return self.launch_params(app, specific_config)
 
-		if callable(self.args):
-			args = self.args(app, specific_config)
-			if isinstance(args, tuple):
-				#This is all just a load of hack I'm really sorry
-				exe_name, args = args
-				args = [arg.replace('$<exe>', self.exe_name) for arg in args]
-		else:
-			args = self.args
-
-		return exe_name, args
+		return self.launch_params
 
 mac_emulators = {
-	'BasiliskII': MacEmulator('BasiliskII', command_lines.basilisk_ii),
+	'BasiliskII': MacEmulator(command_lines.basilisk_ii),
 	#TODO: Add SheepShaver here, even if we would have to do the vm.mmap thingy
 }
 
 class DOSEmulator():
-	def __init__(self, exe_name, args):
-		self.exe_name = exe_name
-		self.args = args
+	def __init__(self, launch_params):
+		self.launch_params = launch_params
 
-	def get_command_line(self, app, specific_config):
-		if callable(self.args):
-			return self.exe_name, self.args(app, specific_config)
+	def get_launch_params(self, app, specific_config):
+		if callable(self.launch_params):
+			return self.launch_params(app, specific_config)
 
-		return self.exe_name, self.args
+		return self.launch_params
 
 dos_emulators = {
-	'DOSBox': DOSEmulator('dosbox', command_lines.dosbox)
+	'DOSBox': DOSEmulator(command_lines.dosbox)
 }
