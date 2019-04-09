@@ -97,6 +97,7 @@ _config_ini_values = {
 
 	'skip_mame_non_working_software': ConfigValue('Roms', ConfigValueType.Bool, False, 'Skip MAME non-working software', "Don't attempt to use MAME for ROMs marked as unsupported in software list"),
 	'wii_common_key': ConfigValue('Roms', ConfigValueType.String, '', 'Wii common key', 'Wii common key used for decrypting Wii discs which some projects are brave enough to hardcode but I am not'),
+	'get_franchise_from_rom_name': ConfigValue('Roms', ConfigValueType.Bool, False, 'Get franchise from name', 'Attempt to get franchise from parsing name'),
 
 	#These shouldn't end up in config.ini as they're intended to be set per-run
 	'debug': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Debug', 'Enable debug mode, which is really verbose mode, oh well'),

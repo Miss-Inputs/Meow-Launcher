@@ -8,6 +8,9 @@ from mame_helpers import lookup_system_cpus, lookup_system_displays, get_mame_xm
 from software_list_info import get_software_lists_by_names
 from info import system_info
 from common_types import MediaType
+from common import find_franchise_from_game_name
+from config import main_config
+from launchers import make_display_name
 
 date_regex = re.compile(r'\((?P<year>[x\d]{4})\)|\((?P<year2>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})\)|\((?P<day2>\d{2})\.(?P<month2>\d{2})\.(?P<year3>\d{4})\)')
 revision_regex = re.compile(r'\(Rev ([A-Z\d]+?)\)')
@@ -181,6 +184,11 @@ def add_metadata(game):
 		platform_metadata.generic_helper(game)
 
 	add_device_hardware_metadata(game)
+
+	if main_config.get_franchise_from_rom_name:
+		name = game.rom.name
+		name = make_display_name(name)
+		game.metadata.franchise = find_franchise_from_game_name(name)
 
 	get_metadata_from_tags(game)
 
