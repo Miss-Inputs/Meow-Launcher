@@ -62,7 +62,7 @@ def title_case(s, words_to_ignore_case=None):
 	return ''.join(titled_parts)
 
 
-franchise_matcher = re.compile(r'(?P<Franchise>.+?)\b\s+(?P<Number>\d{1,3}|[IVX]+?)\b(?:\s|$)')
+franchise_matcher = re.compile(r'(?P<Franchise>.+?)\b\s+#?(?P<Number>\d{1,3}|[IVX]+?)\b(?:\s|$)')
 chapter_matcher = re.compile(r'\b(?:Chapter|Vol|Volume|Episode|Part)\b(?:\.)?', flags=re.RegexFlag.IGNORECASE)
 #"Phase" might also be a chapter marker thing?
 subtitle_splitter = re.compile(r'\s*(?:\s+-\s+|:\s+|\/)')
