@@ -304,6 +304,8 @@ systems.update({
 	'Amstrad CPC': UnsupportedSystem('cpc464', ['cpc_cass', 'cpc_flop'], [], {MediaType.Snapshot: ['sna'], MediaType.Tape: ['wav', 'cdt'], MediaType.Floppy: mame_floppy_formats}),
 	#The not-plus one (probably will need to switch to cpc664/cpc6128 for flopppy stuff)
 	#CPC+: Use cpc6128p, shares the same software lists so I'll probably just consider it to be the same platform
+	'Arduboy': UnsupportedSystem(None, [], [], {MediaType.Digital: ['arduboy'], MediaType.Executable: ['hex']}),
+	#Not in MAME but see https://github.com/felipemanga/ProjectABE
 	'Amstrad PCW': UnsupportedSystem('pcw10', ['pcw'], [], {MediaType.Floppy: mame_floppy_formats}),
 	#Marked as MACHINE_NOT_WORKING, probably doesn't work
 	'Amstrad PCW16': UnsupportedSystem('pcw16', ['pcw16'], [], {MediaType.Floppy: mame_floppy_formats}),
@@ -312,11 +314,13 @@ systems.update({
 	#Considered separate from APF-M1000 (same predicament as Coleco Adam)
 	'BBC Master': UnsupportedSystem('bbcm', ['bbcm_cart', 'bbcm_cass', 'bbcmc_flop', 'bbcm_flop'], []),
 	'Camputers Lynx': UnsupportedSystem('lynx128k', ['camplynx_cass', 'camplynx_flop'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav', 'tap']}),
-	'Epoch Sorcerer': UnsupportedSystem('sorcerer', ['sorcerer_cart', 'sorcerer_cass', 'sorcerer_flop'],
-		{MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav', 'tape']}),
-	#Would need automated tape loading to do anything interesting (carts and floppies are just BASIC/OS stuff, also what even is the file type for floppies?) and apparently there's a .snp snapshot and .bin quickload so maybe those do something
+	'Exidy Sorcerer': UnsupportedSystem('sorcerer', ['sorcerer_cart', 'sorcerer_cass', 'sorcerer_flop'],
+		{MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav', 'tape'], MediaType.Snapshot: ['snp']}),
+	#Would need automated tape loading to do anything interesting (carts and floppies are just BASIC/OS stuff, also what even is the file type for floppies?) hnmn
 	'Goldstar FC-100': UnsupportedSystem('fc100', [], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas']}),
 	#No software list, some kind of PC-6001 clone or something
+	'Interact': UnsupportedSystem('interact', ['interact'], [], {MediaType.Tape: ['wav', 'k7', 'cin', 'for']}),
+	#Eww, tapes
 	'KC-85': UnsupportedSystem('kc85_5', ['kc_cart', 'kc_cass', 'kc_flop'], [], {MediaType.Executable: ['kcc'], MediaType.Tape: ['wav', 'kcb', 'tap', '853', '854', '855', 'tp2', 'kcm', 'sss'], MediaType.Cartridge: ['bin']}),
 	#All marked as MACHINE_NOT_WORKING
 	#kcc might also be a tape format?? ehhhh???
@@ -326,7 +330,7 @@ systems.update({
 	'Sharp MZ-700': UnsupportedSystem('mz700', ['mz700'], []),
 	'Sharp MZ-800': UnsupportedSystem('mz800', ['mz800'], []),
 	'Sharp MZ-2000': UnsupportedSystem('mz2000', ['mz2000_cass', 'mz2000_flop'], []),
-	'Sinclar QL': UnsupportedSystem('ql', ['ql_cart', 'ql_cass', 'ql_flop'], [], {MediaType.Tape: ['mdv'], MediaType.Cartridge: ['bin', 'rom']}),
+	'Sinclair QL': UnsupportedSystem('ql', ['ql_cart', 'ql_cass', 'ql_flop'], [], {MediaType.Tape: ['mdv'], MediaType.Cartridge: ['bin', 'rom']}),
 	'Thomson MO': UnsupportedSystem('mo6', ['mo5_cart', 'mo5_cass', 'mo5_flop', 'mo5_qd', 'mo6_cass', 'mo6_flop'], [], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qt'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}),
 	#MO5E is export version of MO5, MO6 is an upgraded model, Prodest PC 128 is an Italian MO6
 	'Thomson TO': UnsupportedSystem('to7', ['to7_cart', 'to7_cass', 'to7_qd', 'to8_cass', 'to8_qd', 'to770a_cart', 'to770_cart'], [], {MediaType.Tape: ['wav', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qt'] +  mame_floppy_formats, MediaType.Cartridge: ['m7', 'bin', 'rom']}),
@@ -334,6 +338,7 @@ systems.update({
 	'TRS-80': UnsupportedSystem('trs80m3', [], [], {MediaType.Executable: ['cmd'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: mame_floppy_formats}),
 	'Vector-06C': UnsupportedSystem('vector06', ['vector06_cart', 'vector06_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['bin', 'emr']}),
 	#MAME driver is marked as working but clones are not; needs to hold F2 then press F11 then F12 to boot from cartridge so that may be wacky; and I can't get that working, not sure if floppies/tapes do work
+	'VideoBrain': UnsupportedSystem('vidbrain', ['vidbrain'], [], {MediaType.Cartridge: ['bin']}),
 
 	#TODO: Me being lazy, I know if these work or not but they require effort:
 	'Acorn Electron': UnsupportedSystem('electron', ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl']}),
@@ -364,7 +369,6 @@ systems.update({
 	#CBM-II (VIC-II and CRTC models)
 	#PalmOS: Not sure if there would be something which can just run .prc files or whatsitcalled
 	#V.Smile Pro: Currently I just put that as an optical disc format of V.Smile and not its own system, because I dunno if it should be considered its own thing or not
-	#Arduboy: Not in MAME but see https://github.com/felipemanga/ProjectABE
 	#Amstrad PC20/Sinclair PC200: Is this just IBM PC compatible stuff? Have one demoscene prod which claims to be for it specifically
 	#Epoch (not Super) Casette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
 	#Coleco Quiz Wiz Challenge might require its own thing: The software cartridges contain no ROMs, just different pinouts, you need the software list to select which one
