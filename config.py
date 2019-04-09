@@ -93,6 +93,7 @@ _config_ini_values = {
 	#TODO: Put this in a general section, use it in the other modules, and also have an option to normalize the case of _all_ names and not just yelly case ones
 	'normalize_name_case': ConfigValue('Steam', ConfigValueType.Bool, False, 'Normalize name case', 'Apply title case to titles of games which are in all uppercase'),
 	'force_create_launchers': ConfigValue('Steam', ConfigValueType.Bool, False, 'Force create launchers', 'Create launchers even for games which are\'nt launchable'),
+	'get_franchise_from_steam_name': ConfigValue('Steam', ConfigValueType.Bool, False, 'Get franchise from name', 'If franchise not found in Steam database, attempt to get from parsing name'),
 
 	'skip_mame_non_working_software': ConfigValue('Roms', ConfigValueType.Bool, False, 'Skip MAME non-working software', "Don't attempt to use MAME for ROMs marked as unsupported in software list"),
 	'wii_common_key': ConfigValue('Roms', ConfigValueType.String, '', 'Wii common key', 'Wii common key used for decrypting Wii discs which some projects are brave enough to hardcode but I am not'),
