@@ -64,7 +64,7 @@ def title_case(s, words_to_ignore_case=None):
 
 franchise_matcher = re.compile(r'(?P<Franchise>.+?)\b\s+#?(?P<Number>\d{1,3}|[IVX]+?)\b(?:\s|$)')
 chapter_matcher = re.compile(r'\b(?:Chapter|Vol|Volume|Episode|Part)\b(?:\.)?', flags=re.RegexFlag.IGNORECASE)
-#"Phase" might also be a chapter marker thing?
+#"Phase", "Version", "Disk" might also be chapter marker things?
 subtitle_splitter = re.compile(r'\s*(?:\s+-\s+|:\s+|\/)')
 #"&" and "and" and "+" might also go in here?
 blah_in_1_matcher = re.compile(r'.+\s+in\s+1')
