@@ -45,7 +45,7 @@ def parse_sufami_turbo_header(game):
 	#Magic: 0:14 Should be "BANDAI SFC-ADX"
 	#Name: 16:30
 	#Game ID: 48:51 Could this be considered product code?
-	#Series index: 51
+	game.metadata.series_index = header[51]
 	#ROM speed: 52
 	#Features: 53 Not sure what this does, though = 1 may indicate SRAM or linkable
 	#ROM size: 54 In 128KB units
