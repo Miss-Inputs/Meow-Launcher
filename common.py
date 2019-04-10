@@ -76,7 +76,7 @@ def find_franchise_from_game_name(name):
 		#These names are too clever for my regex to work properly so I'll just not use the regex on them
 		'Killer 7': None,
 	}
-	if name in franchise_overrides and False:
+	if name in franchise_overrides:
 		return franchise_overrides[name]
 	else:
 		#TODO: Because we're doing fullmatch, should take out "Complete Edition" or "GOTY Edition" or "Demo" or whatever at the end, particularly affects Steam stuff that doesn't have things in brackets
