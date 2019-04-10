@@ -64,20 +64,20 @@ def title_case(s, words_to_ignore_case=None):
 	return ''.join(titled_parts)
 
 
-franchise_matcher = re.compile(r'(?P<Franchise>.+?)\b\s+#?(?P<Number>\d{1,3}|[IVX]+?)\b(?:\s|$)')
+series_matcher = re.compile(r'(?P<Series>.+?)\b\s+#?(?P<Number>\d{1,3}|[IVX]+?)\b(?:\s|$)')
 chapter_matcher = re.compile(r'\b(?:Chapter|Vol|Volume|Episode|Part)\b(?:\.)?', flags=re.RegexFlag.IGNORECASE)
 #"Phase", "Version", "Disk" might also be chapter marker things?
 subtitle_splitter = re.compile(r'\s*(?:\s+-\s+|:\s+|\/)')
 #"&" and "and" and "+" might also go in here?
 blah_in_1_matcher = re.compile(r'.+\s+in\s+1')
-def find_franchise_from_game_name(name):
-	franchise_overrides = {
+def find_series_from_game_name(name):
+	series_overrides = {
 		#TODO: Put this in data folder in separate thing, probably
 		#These names are too clever for my regex to work properly so I'll just not use the regex on them
 		'Killer 7': None,
 	}
-	if name in franchise_overrides:
-		return franchise_overrides[name]
+	if name in series_overrides:
+		return series_overrides[name]
 	else:
 		#TODO: Because we're doing fullmatch, should take out "Complete Edition" or "GOTY Edition" or "Demo" or whatever at the end, particularly affects Steam stuff that doesn't have things in brackets
 
@@ -87,21 +87,21 @@ def find_franchise_from_game_name(name):
 		if not name_chunks:
 			return None
 		name_chunk = name_chunks[0]
-		franchise_match = franchise_matcher.fullmatch(name_chunk)
-		if franchise_match:
-			franchise_name = franchise_match['Franchise']
-			number = franchise_match['Number']
+		series_match = series_matcher.fullmatch(name_chunk)
+		if series_match:
+			series_name = series_match['Series']
+			number = series_match['Number']
 			try:
 				if int(number) > 50:
 					#Assume that a number over 50 is probably not referring to the 50th or higher entry in the series, but is probably just any old number that means something. I should convert Roman numerals too
 					return None
 			except ValueError:
 				pass
-			if franchise_match['Number'] in ('XXX', '007'):
+			if series_match['Number'] in ('XXX', '007'):
 				#These generally aren't entries in a series, and are just there at the end
 				return None
-			return chapter_matcher.sub('', franchise_name).rstrip()
+			return chapter_matcher.sub('', series_name).rstrip()
 		#if len(name_chunks) > 1:
 		#	return name_chunks[0]
-		#This looks like a good idea, and that works for detecting the franchise for a lot of stuff that doesn't have numbers because it's the first game in a series or it's just too cool for that. But then sometimes it doesn't work. Hmm. Maybe I want to only set it if that franchise/series already exists and is valid?
+		#This looks like a good idea, and that works for detecting the series for a lot of stuff that doesn't have numbers because it's the first game in a series or it's just too cool for that. But then sometimes it doesn't work. Hmm. Maybe I want to only set it if that series already exists and is valid?
 	return None

@@ -184,7 +184,8 @@ class Metadata():
 		self.notes = None
 		self.disc_number = None
 		self.disc_total = None
-		self.franchise = None
+		self.series = None
+		self.series_index = None
 
 		#Set this up later with the respective objects
 		#TODO: Set screen_info up right here, and just keep track of whether it's inited or not
@@ -224,7 +225,8 @@ class Metadata():
 			'Notes': self.notes,
 			'Disc-Number': self.disc_number,
 			'Disc-Total': self.disc_total,
-			'Franchise': self.franchise,
+			'Series': self.series,
+			'Series-Index': self.series_index,
 
 			'Ignored-Tags': self.ignored_filename_tags,
 			'TV-Type': self.tv_type.name if self.tv_type else None,

@@ -417,7 +417,13 @@ def add_metadata(machine):
 
 	series = get_machine_category(machine.basename, 'series')
 	if series:
-		machine.metadata.franchise = series.replace(' * Pinball', '').replace(' * Slot', '')
+		if series.endswith(' * Pinball'):
+			series = series[:-len(' * Pinball')]
+		elif series.endswith(' * Slot'):
+			series = series[:-len(' * Slot')]
+		if series.startswith('The '):
+			series = series[len('The '):]
+		machine.metadata.series = series
 
 	machine.metadata.regions = get_regions_from_filename_tags(find_filename_tags.findall(machine.name), loose=True)
 

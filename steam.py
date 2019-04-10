@@ -22,7 +22,7 @@ except ModuleNotFoundError:
 	have_steamfiles = False
 
 from config import main_config
-from common import junk_suffixes, title_case, chapter_matcher, find_franchise_from_game_name
+from common import junk_suffixes, title_case, chapter_matcher, find_series_from_game_name
 from common_types import MediaType, SaveType
 import region_detect
 import launchers
@@ -473,12 +473,11 @@ def add_metadata_from_appinfo_common_section(game, common):
 						franchise_name = franchise_name[:-len(' Franchise')]
 					elif franchise_name.endswith(' Series'):
 						franchise_name = franchise_name[:-len(' Series')]
-					if franchise_name == 'THE KING OF FIGHTERS':
-						#So that it matches up with series.ini
-						franchise_name = 'King of Fighters'
+					if franchise_name.startswith('The '):
+						franchise_name = franchise_name[len('The '):]
 					if main_config.normalize_name_case and franchise_name.isupper():
 						franchise_name = title_case(franchise_name)
-					game.metadata.franchise = franchise_name
+					game.metadata.series = franchise_name
 
 def add_metadata_from_appinfo_extended_section(game, extended):
 	developer = extended.get(b'developer')
@@ -600,11 +599,11 @@ def process_game(app_id, name=None):
 	if steam_state.app_info_available:
 		add_metadata_from_appinfo(game)
 
-	if main_config.get_franchise_from_steam_name and not game.metadata.franchise:
+	if main_config.get_series_from_steam_name and not game.metadata.series:
 		sort_name = game.metadata.specific_info.get('Sort-Name', game.name)
-		franchise = find_franchise_from_game_name(sort_name)
-		if franchise:
-			game.metadata.franchise = franchise
+		series = find_series_from_game_name(sort_name)
+		if series:
+			game.metadata.series = series
 
 	steamplay_overrides = get_steamplay_overrides()
 	steamplay_whitelist = get_steamplay_whitelist()
