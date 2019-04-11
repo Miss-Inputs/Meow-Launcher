@@ -78,6 +78,8 @@ def find_series_name_by_subtitle(name, existing_serieses, force=False):
 		index = None
 		if len(name_chunks) > 1:
 			index = name_chunks[1]
+		else:
+			index = '1'
 		return series, index
 	#TODO: Should we normalize it via similar stuff to disambiguate.normalize_name or nah?
 	return None, None
