@@ -28,6 +28,7 @@ manufacturer_overrides = {
 	'ASCII Entertainment': 'ASCII',
 	'Bally Gaming': 'Bally',
 	'BPS': 'Bullet-Proof Software', #I hope nobody else uses that acronym
+	'Broderbund': 'Brøderbund',
 	'Broderbund Software': 'Brøderbund',
 	'Brøderbund Software': 'Brøderbund',
 	'California Pacific Computer': 'California Pacific',
@@ -35,6 +36,7 @@ manufacturer_overrides = {
 	'Creative Software': 'Creative',
 	'Cryo': 'Cryo Interactive',
 	'Data East Corporation': 'Data East',
+	'DataSoft': 'Datasoft',
 	'Dempa Shinbunsha': 'Dempa',
 	'Eidos Interactive': 'Eidos',
 	'Elite': 'Elite Systems',
@@ -84,11 +86,8 @@ manufacturer_overrides = {
 	'Titus Software': 'Titus',
 	'UA Limited': 'UA',
 	'V.Fame': 'Vast Fame',
-	'Viacom New Media': 'Viacom',
 	'Visco Corporation': 'Visco',
-	'Virgin Games': 'Virgin',
-	'Virgin Interactive': 'Virgin',
-	'Vivendi Universal': 'Vivendi', #Probably kinda wrong, but ehhh
+	'Walt Disney': 'Disney',
 	'Williams Entertainment': 'Williams',
 
 	#Sometimes companies go by two different names and like... maybe I should leave those alone, bleh I hate decision making
@@ -114,6 +113,11 @@ manufacturer_overrides = {
 	'Mattel Media': 'Mattel',
 	'Nihon Bussan': 'Nichibutsu',
 	'Nihonbussan': 'Nichibutsu', #In the event that we figure out we shouldn't change the above, we should at least consistentify this formatting
+	'Tandy Radio Shack': 'Tandy',
+	'Viacom New Media': 'Viacom',
+	'Virgin Games': 'Virgin',
+	'Virgin Interactive': 'Virgin',
+	'Vivendi Universal': 'Vivendi',
 
 	#For some reason, some Japanese computer software lists have the Japanese name and then the English one in brackets. Everywhere else the English name is used even when the whole thing is Japanese. Anyway I guess we just want the English name then, because otherwise for consistency, I'd have to convert every single English name into Japanese
 	'B·P·S (Bullet-Proof Software)': 'Bullet-Proof Software',
