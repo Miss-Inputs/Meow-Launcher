@@ -52,6 +52,9 @@ def find_series_from_game_name(name):
 			if series_name.lower().startswith('the '):
 				series_name = series_name[len('the '):]
 			number = series_match['Number']
+			if number in probably_not_a_series_index:
+				return None, None
+
 			try:
 				number = int(number)
 			except ValueError:
@@ -62,8 +65,6 @@ def find_series_from_game_name(name):
 					return None, None
 
 			if number > probably_not_series_index_threshold:
-				return None, None
-			if number in probably_not_a_series_index:
 				return None, None
 			return chapter_matcher.sub('', series_name).rstrip(), number
 	return None, None
