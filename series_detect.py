@@ -62,12 +62,12 @@ def find_series_from_game_name(name):
 			return chapter_matcher.sub('', series_name).rstrip(), number
 	return None, None
 
-def find_series_name_by_subtitle(name, existing_serieses):
+def find_series_name_by_subtitle(name, existing_serieses, force=False):
 	name_chunks = get_name_chunks(name)
 	if not name_chunks:
 		return None, None
 	name_chunk = name_chunks[0]
-	if name_chunk in existing_serieses:
+	if name_chunk in existing_serieses or force:
 		series = name_chunk
 		index = None
 		if len(name_chunks) > 1:
@@ -87,7 +87,8 @@ def get_usable_name(desktop):
 def add_series(desktop, path, series, series_index=None):
 	if launchers.metadata_section_name not in desktop:
 		desktop.add_section(launchers.metadata_section_name)
-	desktop[launchers.metadata_section_name]['Series'] = series
+	if series is not None:
+		desktop[launchers.metadata_section_name]['Series'] = series
 	if series_index is not None:
 		desktop[launchers.metadata_section_name]['Series-Index'] = series_index
 	with open(path, 'wt') as f:
@@ -116,6 +117,32 @@ def detect_series_by_subtitle(desktop, path, existing):
 	if series:
 		add_series(desktop, path, series, index)
 
+def force_add_series_with_index(desktop):
+	name = get_usable_name(desktop)
+	series, _ = find_series_name_by_subtitle(name, existing, force=True)
+	if series:
+		add_series(desktop, path, series)
+
+def detect_series_index_for_things_with_series():
+	for filename in os.listdir(main_config.output_folder):
+		path = os.path.join(main_config.output_folder, filename)
+		desktop = launchers.get_desktop(path)
+
+		existing_series = launchers.get_field(desktop, 'Series')
+		if not existing_series:
+			continue
+
+		name = get_usable_name(desktop)
+		name_chunks = get_name_chunks(name)
+		if len(name_chunks) > 1:
+			if name_chunks[0] == existing_series:
+				add_series(desktop, path, None, name_chunks[1])
+		elif len(name_chunks) == 1:
+			if name_chunks[0].startswith(existing_series):
+				rest = name_chunks[0][len(existing_series):].lstrip()
+				add_series(desktop, path, None, rest)
+				#This would be a good idea to convert any roman numerals here (Arabic numerals are so much more sortable)
+
 def get_existing_seriesless_launchers():
 	for name in os.listdir(main_config.output_folder):
 		path = os.path.join(main_config.output_folder, name)
@@ -139,9 +166,13 @@ def detect_series_for_all_desktops():
 	for desktop, path in get_existing_seriesless_launchers():
 		detect_series_by_subtitle(desktop, path, existing)
 
+	for desktop, path in get_existing_seriesless_launchers():
+		if launchers.get_field(desktop, 'Series-Index'):
+			force_add_series_with_index(desktop, path)
+
 	if main_config.print_times:
 		time_ended = time.perf_counter()
-		print('Name disambiguation finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+		print('Series detection finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
 if __name__ == '__main__':
 	detect_series_for_all_desktops()

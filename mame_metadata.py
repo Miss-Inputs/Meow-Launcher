@@ -423,6 +423,7 @@ def add_metadata(machine):
 			series = series[:-len(' * Slot')]
 		if series.startswith('The '):
 			series = series[len('The '):]
+
 		machine.metadata.series = series
 
 	machine.metadata.regions = get_regions_from_filename_tags(find_filename_tags.findall(machine.name), loose=True)
