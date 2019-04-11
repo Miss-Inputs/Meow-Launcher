@@ -22,11 +22,12 @@ except ModuleNotFoundError:
 	have_steamfiles = False
 
 from config import main_config
-from common import junk_suffixes, title_case, chapter_matcher, find_series_from_game_name
+from common import junk_suffixes, title_case
 from common_types import MediaType, SaveType
 import region_detect
 import launchers
 from metadata import Metadata
+from series_detect import chapter_matcher
 
 from data.steam_genre_ids import genre_ids
 from data.steam_developer_overrides import developer_overrides
@@ -469,12 +470,12 @@ def add_metadata_from_appinfo_common_section(game, common):
 				franchise = association.get(b'name')
 				if franchise:
 					franchise_name = franchise.decode('utf-8', errors='backslashreplace')
-					if franchise_name.endswith(' Franchise'):
-						franchise_name = franchise_name[:-len(' Franchise')]
-					elif franchise_name.endswith(' Series'):
-						franchise_name = franchise_name[:-len(' Series')]
-					if franchise_name.startswith('The '):
-						franchise_name = franchise_name[len('The '):]
+					if franchise_name.lower().endswith(' franchise'):
+						franchise_name = franchise_name[:-len(' franchise')]
+					elif franchise_name.lower().endswith(' series'):
+						franchise_name = franchise_name[:-len(' series')]
+					if franchise_name.lower().startswith('the '):
+						franchise_name = franchise_name[len('the '):]
 					if main_config.normalize_name_case and franchise_name.isupper():
 						franchise_name = title_case(franchise_name)
 					game.metadata.series = franchise_name
@@ -598,12 +599,6 @@ def process_game(app_id, name=None):
 
 	if steam_state.app_info_available:
 		add_metadata_from_appinfo(game)
-
-	if main_config.get_series_from_steam_name and not game.metadata.series:
-		sort_name = game.metadata.specific_info.get('Sort-Name', game.name)
-		series = find_series_from_game_name(sort_name)
-		if series:
-			game.metadata.series = series
 
 	steamplay_overrides = get_steamplay_overrides()
 	steamplay_whitelist = get_steamplay_whitelist()

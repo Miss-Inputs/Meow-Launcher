@@ -205,7 +205,7 @@ class MainWindow(MeowLauncherGui):
 	def on_worker_started(self, _):
 		self.okButton.Disable()
 		self.progressBar.Value = 0
-		self.progressBar.Range = self.running_game_types + 4 #For the removing of old folder, remove non-existing games, disambiguation, and organization of folders
+		self.progressBar.Range = self.running_game_types + 5 #For the removing of old folder, remove non-existing games, series_detect, disambiguation, and organization of folders
 
 	def on_worker_done(self, _):
 		self.okButton.Enable()
