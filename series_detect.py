@@ -32,7 +32,7 @@ blah_in_1_matcher = re.compile(r'.+\s+in\s+1')
 #TODO: "Whee! 2" should > "Whee!" but returns None instead
 
 def get_name_chunks(name):
-	name_chunks = subtitle_splitter.split(name, maxsplit=1)
+	name_chunks = subtitle_splitter.split(name)
 	name_chunks = [blah_in_1_matcher.sub('', chunk) for chunk in name_chunks]
 	name_chunks = [chunk for chunk in name_chunks if chunk]
 	return name_chunks
