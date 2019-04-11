@@ -4,6 +4,7 @@ import os
 import re
 import time
 
+from common import convert_roman_numeral
 from config import main_config
 import launchers
 
@@ -22,7 +23,7 @@ probably_not_series_index_threshold = 20
 probably_not_a_series_index = ('XXX', '007')
 #These generally aren't entries in a series, and are just there at the end
 
-series_matcher = re.compile(r'(?P<Series>.+?)\b\s+#?(?P<Number>\d{1,3}|[IVX]+?)\b(?:\s|$)')
+series_matcher = re.compile(r'(?P<Series>.+?)\b\s+#?(?P<Number>\d{1,3}|[IVXLCDM]+?)\b(?:\s|$)')
 chapter_matcher = re.compile(r'\b(?:Chapter|Vol|Volume|Episode|Part)\b(?:\.)?', flags=re.RegexFlag.IGNORECASE)
 #"Phase", "Version", "Disk" might also be chapter marker things?
 subtitle_splitter = re.compile(r'\s*(?:\s+-\s+|:\s+|\/)')
@@ -52,11 +53,16 @@ def find_series_from_game_name(name):
 				series_name = series_name[len('the '):]
 			number = series_match['Number']
 			try:
-				if int(number) > probably_not_series_index_threshold:
-					#TODO Convert roman numerals too
-					return None, None
+				number = int(number)
 			except ValueError:
-				pass
+				try:
+					number = convert_roman_numeral(number)
+				except ValueError:
+					#Not actually a roman numeral, chief
+					return None, None
+
+			if number > probably_not_series_index_threshold:
+					return None, None
 			if number in probably_not_a_series_index:
 				return None, None
 			return chapter_matcher.sub('', series_name).rstrip(), number
@@ -140,8 +146,11 @@ def detect_series_index_for_things_with_series():
 		elif len(name_chunks) == 1:
 			if name_chunks[0].startswith(existing_series):
 				rest = name_chunks[0][len(existing_series):].lstrip()
+				try:
+					rest = str(convert_roman_numeral(rest))
+				except ValueError:
+					pass
 				add_series(desktop, path, None, rest)
-				#This would be a good idea to convert any roman numerals here (Arabic numerals are so much more sortable)
 
 def get_existing_seriesless_launchers():
 	for name in os.listdir(main_config.output_folder):
