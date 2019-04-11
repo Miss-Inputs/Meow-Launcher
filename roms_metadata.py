@@ -127,7 +127,7 @@ def get_metadata_from_tags(game):
 			tv_type = region_detect.get_tv_system_from_filename_tags(tags, game.metadata.ignored_filename_tags)
 
 		if tv_type:
-				game.metadata.tv_type = tv_type
+			game.metadata.tv_type = tv_type
 
 def add_device_hardware_metadata(game):
 	mame_driver = None

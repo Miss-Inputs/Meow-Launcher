@@ -62,7 +62,7 @@ def find_series_from_game_name(name):
 					return None, None
 
 			if number > probably_not_series_index_threshold:
-					return None, None
+				return None, None
 			if number in probably_not_a_series_index:
 				return None, None
 			return chapter_matcher.sub('', series_name).rstrip(), number
