@@ -119,11 +119,14 @@ def get_metadata_from_tags(game):
 
 
 	if not game.metadata.tv_type:
+		tv_type = None
 		if game.metadata.regions:
-			game.metadata.tv_type = region_detect.get_tv_system_from_regions(game.metadata.regions)
-		else:
+			tv_type = region_detect.get_tv_system_from_regions(game.metadata.regions)
+
+		if not tv_type:
 			tv_type = region_detect.get_tv_system_from_filename_tags(tags, game.metadata.ignored_filename_tags)
-			if tv_type:
+
+		if tv_type:
 				game.metadata.tv_type = tv_type
 
 def add_device_hardware_metadata(game):

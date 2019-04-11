@@ -156,7 +156,9 @@ def get_regions_from_filename_tags(tags, ignored_tags=None, loose=False):
 	return None
 
 def get_tv_system_from_regions(regions):
-	tv_systems = {region.tv_system for region in regions}
+	tv_systems = {region.tv_system for region in regions if region.tv_system is not None}
+	if not tv_systems:
+		return None
 	if len(tv_systems) == 1:
 		return tv_systems.pop()
 

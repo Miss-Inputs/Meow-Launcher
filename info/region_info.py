@@ -7,7 +7,6 @@ class TVSystem(Enum):
 	NTSC = auto()
 	PAL = auto()
 	Agnostic = auto()
-	Indeterminate = auto()
 
 class Language():
 	def __init__(self, english_name, native_name, short_code):
@@ -77,7 +76,7 @@ languages = [
 
 regions = [
 	Region('Argentina', 'AR', TVSystem.PAL, 'Spanish'),
-	Region('Asia', 'AS', TVSystem.Indeterminate, None), #No-Intro filenames using this as a region seem to always mean East Asia specifically, although that's still a lot of countries so it doesn't mean much
+	Region('Asia', 'AS', None, None), #No-Intro filenames using this as a region seem to always mean East Asia specifically, although that's still a lot of countries so it doesn't mean much
 	Region('Australia', 'AU', TVSystem.PAL, 'English'),
 	Region('Brazil', 'BR', TVSystem.NTSC, 'Brazilian Portguese'), #Uses PAL-M actually, but we'll call it NTSC because it's 60Hz
 	Region('Bulgaria', 'BG', TVSystem.PAL, 'Bulgarian'),
