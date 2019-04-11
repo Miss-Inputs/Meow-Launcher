@@ -80,6 +80,16 @@ def is_roman_numeral(s):
 	except ValueError:
 		return False
 
+def convert_roman_numerals_in_title(s):
+	words = s.split(' ')
+	converted_words = []
+	for word in words:
+		try:
+			converted_words.append(convert_roman_numeral(word))
+		except ValueError:
+			converted_words.append(word)
+	return ' '.join(converted_words)
+
 dont_capitalize_these = ['the', 'a', 'an', 'and', 'or', 'at', 'with', 'to', 'of', 'is']
 def title_case_sentence_part(s, words_to_ignore_case=None):
 	words = re.split(' ', s)
@@ -87,9 +97,6 @@ def title_case_sentence_part(s, words_to_ignore_case=None):
 		words_to_ignore_case = []
 
 	titled_words = []
-	#if words[0].lower() in dont_capitalize_these:
-	#	titled_words.append(words[0].lower())
-	#	words = words[1:]
 	titled_words.append(words[0] if words[0] in words_to_ignore_case else words[0].title())
 	words = words[1:]
 	for word in words:

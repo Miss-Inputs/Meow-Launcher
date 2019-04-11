@@ -9,6 +9,7 @@ import sys
 import time
 import datetime
 
+from common import convert_roman_numerals_in_title
 from config import main_config, app_name
 import launchers
 
@@ -167,6 +168,7 @@ def resolve_duplicates(group, method, format_function=None, ignore_missing_value
 
 words = re.compile(r'\w+')
 def normalize_name(name):
+	name = convert_roman_numerals_in_title(name)
 	name = name.lower()
 	name = name.replace('3-d', '3d')
 	name = name.replace('&', 'and')
