@@ -65,12 +65,16 @@ def find_series_from_game_name(name):
 def find_series_name_by_subtitle(name, existing_serieses):
 	name_chunks = get_name_chunks(name)
 	if not name_chunks:
-		return None
+		return None, None
 	name_chunk = name_chunks[0]
 	if name_chunk in existing_serieses:
-		return name_chunk
+		series = name_chunk
+		index = None
+		if len(name_chunks) > 1:
+			index = name_chunks[1]
+		return series, index
 	#TODO: Should we normalize it via similar stuff to disambiguate.normalize_name or nah?
-	return None
+	return None, None
 
 def get_usable_name(desktop):
 	sort_name = launchers.get_field(desktop, 'Sort-Name')
@@ -108,9 +112,9 @@ def find_existing_serieses():
 
 def detect_series_by_subtitle(desktop, path, existing):
 	name = get_usable_name(desktop)
-	series = find_series_name_by_subtitle(name, existing)
+	series, index = find_series_name_by_subtitle(name, existing)
 	if series:
-		add_series(desktop, path, series)
+		add_series(desktop, path, series, index)
 
 def get_existing_seriesless_launchers():
 	for name in os.listdir(main_config.output_folder):
