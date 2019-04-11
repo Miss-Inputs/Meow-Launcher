@@ -98,7 +98,7 @@ def add_series(desktop, path, series, series_index=None):
 	if series is not None:
 		desktop[launchers.metadata_section_name]['Series'] = series
 	if series_index is not None:
-		desktop[launchers.metadata_section_name]['Series-Index'] = series_index
+		desktop[launchers.metadata_section_name]['Series-Index'] = str(series_index)
 	with open(path, 'wt') as f:
 		desktop.write(f)
 
