@@ -36,8 +36,51 @@ def pluralize(n, singular, plural=None):
 		return singular
 	return '%d %s' % (n, plural)
 
+def convert_roman_numeral(s):
+	s = s.upper()
+
+	units = {
+		'M': (1000, 4),
+		'D': (500, 3.5),
+		'C': (100, 3),
+		'L': (50, 2.5),
+		'X': (10, 2),
+		'V': (5, 1.5),
+		'I': (1, 1),
+	}
+	value = 0
+	i = 0
+	while i < len(s):
+		c = s[i]
+		if c not in units:
+			raise ValueError('Invalid char: ' + c)
+		char_value, unit_index = units[c]
+
+		if i + 1 < len(s):
+			next_char = s[i + 1]
+			if next_char not in units:
+				raise ValueError('Invalid char: ' + next_char)
+			next_char_value, next_unit_index = units[next_char]
+			if next_unit_index == unit_index + 1 or (int(next_unit_index) == unit_index and next_unit_index != unit_index):
+				#Subtractive notation thingo
+				#IV and IX are valid, but VX is not valid, probably
+				value += (next_char_value - char_value)
+				i += 2
+				continue
+			elif unit_index < next_unit_index:
+				raise ValueError('Numerals out of order: ' + c + ', ' + next_char)
+		value += char_value
+		i += 1
+	return value
+
+def is_roman_numeral(s):
+	try:
+		convert_roman_numeral(s)
+		return True
+	except ValueError:
+		return False
+
 dont_capitalize_these = ['the', 'a', 'an', 'and', 'or', 'at', 'with', 'to', 'of', 'is']
-is_roman_numeral = re.compile(r'[IVXL]+') #Hmm would it make more sense to just generate a static list of the first 50 (or so) Roman numerals
 def title_case_sentence_part(s, words_to_ignore_case=None):
 	words = re.split(' ', s)
 	if not words_to_ignore_case:
@@ -50,7 +93,7 @@ def title_case_sentence_part(s, words_to_ignore_case=None):
 	titled_words.append(words[0] if words[0] in words_to_ignore_case else words[0].title())
 	words = words[1:]
 	for word in words:
-		if word in words_to_ignore_case or is_roman_numeral.fullmatch(word):
+		if word in words_to_ignore_case or is_roman_numeral(word):
 			titled_words.append(word)
 		elif word.lower() in dont_capitalize_these:
 			titled_words.append(word.lower())
