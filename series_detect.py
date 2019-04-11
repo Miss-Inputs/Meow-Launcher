@@ -181,6 +181,8 @@ def detect_series_for_all_desktops():
 		if launchers.get_field(desktop, 'Series-Index'):
 			force_add_series_with_index(desktop, path, existing)
 
+	detect_series_index_for_things_with_series()
+
 	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Series detection finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
