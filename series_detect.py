@@ -125,7 +125,7 @@ def detect_series_by_subtitle(desktop, path, existing):
 	if series:
 		add_series(desktop, path, series, index)
 
-def force_add_series_with_index(desktop):
+def force_add_series_with_index(desktop, path, existing):
 	name = get_usable_name(desktop)
 	series, _ = find_series_name_by_subtitle(name, existing, force=True)
 	if series:
@@ -179,7 +179,7 @@ def detect_series_for_all_desktops():
 
 	for desktop, path in get_existing_seriesless_launchers():
 		if launchers.get_field(desktop, 'Series-Index'):
-			force_add_series_with_index(desktop, path)
+			force_add_series_with_index(desktop, path, existing)
 
 	if main_config.print_times:
 		time_ended = time.perf_counter()
