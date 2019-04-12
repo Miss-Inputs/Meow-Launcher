@@ -132,6 +132,19 @@ def force_add_series_with_index(desktop, path, existing):
 	if series:
 		add_series(desktop, path, series)
 
+def get_series_from_whole_thing(series, whole_name):
+	rest = whole_name[len(series):].lstrip()
+	if rest:
+		if rest not in probably_not_a_series_index:
+			#Don't convert things that aren't actually roman numerals
+			try:
+				rest = str(convert_roman_numeral(rest))
+			except ValueError:
+				pass
+		return convert_roman_numerals_in_title(rest)
+	else:
+		return '1'
+
 def detect_series_index_for_things_with_series():
 	for filename in os.listdir(main_config.output_folder):
 		path = os.path.join(main_config.output_folder, filename)
@@ -149,21 +162,11 @@ def detect_series_index_for_things_with_series():
 		if len(name_chunks) > 1:
 			if name_chunks[0] == existing_series:
 				add_series(desktop, path, None, convert_roman_numerals_in_title(name_chunks[1]))
-			#TODO: If name_chunks[0] doesn't == but startswith, do the rest + name_chunks[1]
-			#ie series = Cool Game; Cool Game The Coolening: The Subtitle -> series index = "The Coolening"
+			elif name_chunks[0].startswith(existing_series):
+				add_series(desktop, path, None, get_series_from_whole_thing(existing_series, name_chunks[0]))
 		elif len(name_chunks) == 1:
 			if name_chunks[0].startswith(existing_series):
-				rest = name_chunks[0][len(existing_series):].lstrip()
-				if rest:
-					if rest not in probably_not_a_series_index:
-						#Don't convert things that aren't actually roman numerals
-						try:
-							rest = str(convert_roman_numeral(rest))
-						except ValueError:
-							pass
-					add_series(desktop, path, None, convert_roman_numerals_in_title(rest))
-				else:
-					add_series(desktop, path, None, '1')
+				add_series(desktop, path, None, get_series_from_whole_thing(existing_series, name_chunks[0]))
 
 def get_existing_seriesless_launchers():
 	for name in os.listdir(main_config.output_folder):
