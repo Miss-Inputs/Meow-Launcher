@@ -141,6 +141,9 @@ def detect_series_index_for_things_with_series():
 		if not existing_series:
 			continue
 
+		if launchers.get_field(desktop, 'Series-Index'):
+			continue
+
 		name = get_usable_name(desktop)
 		name_chunks = get_name_chunks(name)
 		if len(name_chunks) > 1:
@@ -149,11 +152,12 @@ def detect_series_index_for_things_with_series():
 		elif len(name_chunks) == 1:
 			if name_chunks[0].startswith(existing_series):
 				rest = name_chunks[0][len(existing_series):].lstrip()
-				try:
-					rest = str(convert_roman_numeral(rest))
-				except ValueError:
-					pass
-				add_series(desktop, path, None, rest)
+				if rest:
+					try:
+						rest = str(convert_roman_numeral(rest))
+					except ValueError:
+						pass
+					add_series(desktop, path, None, rest)
 
 def get_existing_seriesless_launchers():
 	for name in os.listdir(main_config.output_folder):
