@@ -4,7 +4,7 @@ import os
 import re
 import time
 
-from common import convert_roman_numeral
+from common import convert_roman_numeral, convert_roman_numerals_in_title
 from config import main_config
 import launchers
 
@@ -148,7 +148,7 @@ def detect_series_index_for_things_with_series():
 		name_chunks = get_name_chunks(name)
 		if len(name_chunks) > 1:
 			if name_chunks[0] == existing_series:
-				add_series(desktop, path, None, name_chunks[1])
+				add_series(desktop, path, None, convert_roman_numerals_in_title(name_chunks[1]))
 			#TODO: If name_chunks[0] doesn't == but startswith, do the rest + name_chunks[1]
 			#ie series = Cool Game; Cool Game The Coolening: The Subtitle -> series index = "The Coolening"
 		elif len(name_chunks) == 1:
@@ -159,7 +159,7 @@ def detect_series_index_for_things_with_series():
 						rest = str(convert_roman_numeral(rest))
 					except ValueError:
 						pass
-					add_series(desktop, path, None, rest)
+					add_series(desktop, path, None, convert_roman_numerals_in_title(rest))
 				else:
 					add_series(desktop, path, None, '1')
 
