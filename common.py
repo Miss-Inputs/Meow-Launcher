@@ -85,7 +85,7 @@ def convert_roman_numerals_in_title(s):
 	converted_words = []
 	for word in words:
 		try:
-			converted_words.append(convert_roman_numeral(word))
+			converted_words.append(str(convert_roman_numeral(word)))
 		except ValueError:
 			converted_words.append(word)
 	return ' '.join(converted_words)
