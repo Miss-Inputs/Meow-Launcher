@@ -155,10 +155,12 @@ def detect_series_index_for_things_with_series():
 			if name_chunks[0].startswith(existing_series):
 				rest = name_chunks[0][len(existing_series):].lstrip()
 				if rest:
-					try:
-						rest = str(convert_roman_numeral(rest))
-					except ValueError:
-						pass
+					if rest not in probably_not_a_series_index:
+						#Don't convert things that aren't actually roman numerals
+						try:
+							rest = str(convert_roman_numeral(rest))
+						except ValueError:
+							pass
 					add_series(desktop, path, None, convert_roman_numerals_in_title(rest))
 				else:
 					add_series(desktop, path, None, '1')
