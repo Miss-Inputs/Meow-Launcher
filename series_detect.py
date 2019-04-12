@@ -158,6 +158,8 @@ def detect_series_index_for_things_with_series():
 					except ValueError:
 						pass
 					add_series(desktop, path, None, rest)
+				else:
+					add_series(desktop, path, None, '1')
 
 def get_existing_seriesless_launchers():
 	for name in os.listdir(main_config.output_folder):
