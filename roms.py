@@ -179,15 +179,16 @@ def process_file(system_config, rom_dir, root, rom):
 		filenames = [line if line.startswith('/') else os.path.join(game.folder, line) for line in lines if not line.startswith("#")]
 		game.subroms = [Rom(referenced_file) for referenced_file in filenames]
 
+	potential_emulators = system_config.chosen_emulators
+	if not potential_emulators:
+		return
+
 	game.metadata.categories = list(pathlib.Path(root).relative_to(rom_dir).parts)
 	if not game.metadata.categories:
 		game.metadata.categories = [game.metadata.platform]
 	game.filename_tags = common.find_filename_tags.findall(game.rom.name)
 	add_metadata(game)
 
-	potential_emulators = system_config.chosen_emulators
-	if not potential_emulators:
-		return
 	exception_reason = None
 
 	if rom.warn_about_multiple_files and main_config.debug:
