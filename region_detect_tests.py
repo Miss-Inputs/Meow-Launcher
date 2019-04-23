@@ -5,7 +5,7 @@ from info.region_info import TVSystem, Region, Language
 from region_detect import *
 from common import find_filename_tags
 
-def regions_equal(region, other_region):
+def are_regions_equal(region, other_region):
 	if region == other_region:
 		return True
 
@@ -32,7 +32,7 @@ def region_array_equal(regions, other_regions):
 		return False
 
 	for region, other_region in zip(regions, other_regions):
-		if not regions_equal(region, other_region):
+		if not are_regions_equal(region, other_region):
 			return False
 
 	return True
