@@ -23,6 +23,18 @@ licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
 licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
 hack_regex = re.compile(r'^hack \((.+)\)$')
 
+class MediaSlot():
+	def __init__(self, xml):
+		self.type = xml.attrib.get('type')
+		self.tag = xml.attrib.get('tag')
+		self.fixed_image = xml.attrib.get('fixed_image')
+		self.mandatory = xml.attrib.get('mandatory', '0') == '1'
+		self.interface = xml.attrib.get('instance')
+		
+		#This is the actual thing you see in -listmedia and use to insert media
+		self.instances = [(instance_xml.attrib.get('name'), instance_xml.get('briefname')) for instance_xml in xml.findall('instance')]
+		self.extensions = {extension_xml.attrib.get('name') for extension_xml in xml.findall('extension')}
+
 class Machine():
 	def __init__(self, xml, init_metadata=False):
 		self.xml = xml
@@ -48,6 +60,7 @@ class Machine():
 		self.metadata.specific_info['Requires-CHD'] = self.requires_chds
 		self.metadata.specific_info['Romless'] = self.romless
 		self.metadata.specific_info['BIOS-Used'] = self.bios
+		self.metadata.specific_info['Slot-Names'] = [slot.instances[0][0] for slot in self.media_slots if slot.instances]
 
 		self._add_manufacturer()
 
@@ -176,6 +189,14 @@ class Machine():
 			return self.parent.bios
 		return romof
 
+	@property
+	def media_slots(self):
+		return [MediaSlot(device_xml) for device_xml in self.xml.findall('device')]
+
+	@property
+	def has_mandatory_slots(self):
+		return any(slot.mandatory for slot in self.media_slots)
+
 	def _add_manufacturer(self):
 		manufacturer = self.xml.findtext('manufacturer')
 		if not manufacturer:
@@ -245,21 +266,12 @@ def is_machine_launchable(machine):
 	if needs_software:
 		return False
 
-	if has_mandatory_slots(machine):
+	if machine.has_mandatory_slots:
 		if debug:
 			print('%s (%s, %s) has mandatory slots' % (machine.name, machine.basename, machine.source_file))
 		return False
 
 	return True
-
-def has_mandatory_slots(machine):
-	for device in machine.xml.findall('device'):
-		instance = device.find('instance')
-		if instance is None:
-			continue
-		if device.attrib.get('mandatory', '0') == '1':
-			return True
-	return False
 
 def process_machine(machine):
 	if machine.is_skeleton_driver:
@@ -333,4 +345,5 @@ def main():
 	process_arcade()
 
 if __name__ == '__main__':
+	raise ValueError
 	main()

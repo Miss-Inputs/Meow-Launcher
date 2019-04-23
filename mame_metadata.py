@@ -337,11 +337,10 @@ not_actually_save_supported = ['diggerma', 'neobombe', 'pbobbl2n', 'popbounc', '
 def add_save_type(machine):
 	if machine.metadata.platform == 'Arcade':
 		has_memory_card = False
-		for device in machine.xml.findall('device'):
-			instance = device.find('instance')
-			if instance is None:
+		for media_slot in machine.media_slots:
+			if not media_slot.instances: #Does this ever happen?
 				continue
-			if instance.attrib['name'] == 'memcard':
+			if media_slot.type == 'memcard':
 				has_memory_card = True
 
 		has_memory_card = has_memory_card and (machine.family not in not_actually_save_supported)
