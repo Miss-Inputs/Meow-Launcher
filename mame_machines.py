@@ -267,8 +267,6 @@ def is_machine_launchable(machine):
 			return False
 
 	if machine.has_mandatory_slots:
-		if debug:
-			print('%s (%s, %s) has mandatory slots' % (machine.name, machine.basename, machine.source_file))
 		return False
 
 	return True
