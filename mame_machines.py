@@ -29,7 +29,7 @@ class MediaSlot():
 		self.tag = xml.attrib.get('tag')
 		self.fixed_image = xml.attrib.get('fixed_image')
 		self.mandatory = xml.attrib.get('mandatory', '0') == '1'
-		self.interface = xml.attrib.get('instance')
+		self.interface = xml.attrib.get('interface')
 		
 		#This is the actual thing you see in -listmedia and use to insert media
 		self.instances = [(instance_xml.attrib.get('name'), instance_xml.get('briefname')) for instance_xml in xml.findall('instance')]
@@ -345,5 +345,4 @@ def main():
 	process_arcade()
 
 if __name__ == '__main__':
-	raise ValueError
 	main()
