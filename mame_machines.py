@@ -254,6 +254,9 @@ def is_actually_machine(machine):
 	return True
 
 def is_machine_launchable(machine):
+	if machine.has_mandatory_slots:
+		return False
+
 	if main_config.exclude_machines_with_software:
 		needs_software = False
 		software_lists = machine.xml.findall('softwarelist')
@@ -264,11 +267,10 @@ def is_machine_launchable(machine):
 			needs_software = True
 
 		if needs_software:
+			if main_config.debug:
+				print(machine.name, machine.basename, 'has software lists:', [sl.attrib.get('name') for sl in machine.xml.findall('softwarelist')])
 			return False
-
-	if machine.has_mandatory_slots:
-		return False
-
+	
 	return True
 
 def process_machine(machine):
