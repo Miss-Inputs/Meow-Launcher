@@ -238,8 +238,15 @@ def mame_verifyroms(basename):
 
 #Normally we skip over machines that have software lists because it generally indicates they're consoles/computers that should be used with software, these are software lists where the original thing is fine to boot by itself
 #Hmm... it's tricky but one might want to blacklist machines that technically can boot by themselves but there's no point doing so (e.g. megacd, gba, other game consoles that don't have inbuilt games), especially once we add software list games into here and it's gonna be a hot mess
+#Hold that thought, I might end up actually doing something like that. Get rid of anything with slots, maybe, except:
+	#- Arcade machines (as they are most definitely standalone other than category == Utilities, and may have cdrom/harddisk slots which are just there for the game to be stored on)
+	#- Anything that just has memcard slots as those are usually just for save data (then again gp32 uses it for a thing, and should be skipped over)
+	#- MIDI ports or printout slots probably don't count as anything either
+	#- If anything is in okay_software_lists it is also okay here
+	#- Popira and DDR Family Mat are okay but base ekara is not okay (just displays error message if you boot without a cart, those two have builtin songs), and that's why I have ekara in okay_software_lists
+#TODO: Probably makes sense to skip anything that is a MAME driver for anything in system_info.systems
 #These are prefixes (otherwise I'd have to list every single type of Jakks gamekey thingo)
-okay_software_lists = ('vii', 'jakks_gamekey', 'snspell', 'tntell')
+okay_software_lists = ('vii', 'jakks_gamekey', 'ekara', 'snspell', 'tntell')
 
 def is_actually_machine(machine):
 	if machine.xml.attrib.get('runnable', 'yes') == 'no':

@@ -301,9 +301,13 @@ def add_machine_platform(machine):
 
 	#Other weird and wacky devices
 	#Note: "Handheld / Electronic Game" could also be a tabletop system which takes AC input and you would not be able to hold in your hands at all (see also: cpacman), but since catlist.ini doesn't take that into account, I don't really have a way of doing so either
-	elif (category == 'Game Console') or (category == 'Handheld' and machine.metadata.genre == "Plug n' Play TV Game"):
-		machine.metadata.platform = 'Plug & Play'
-		#Since we're skipping over stuff with software lists, anything that's still classified as a game console is a plug & play system. Also if you plug it into your TV it's not really a handheld so I'm not sure what the logic is there, and I'm not actually sure why that's used for some instead of Game Console / Home Videogame and what's the difference
+	elif (category == 'Game Console') or (category == 'Utilities' and machine.metadata.genre == 'Arcade System') or (category == 'Computer') or (category == 'Pocket Device - Pad - PDA'):
+		#There are some plug & play systems in the Game Console / Home Videogame category, not sure what catlist.ini thinks the difference is between that and Handheld / Plug n' Play TV Game in that case; but maybe I should do a whitelist for those to say "yes these are plug & play systems" (e.g. Vii)
+		#Hmm, need a better name for this I think
+		#TODO: Should include option to skip over this category for those who are willing to accept the risk that it might filter out some plug & play systems that might actually be wanted
+		return 'Standalone System', MediaType.Standalone
+	elif (category == 'Handheld' and machine.metadata.genre == "Plug n' Play TV Game") or (category == 'Rhythm' and machine.metadata.genre == 'Dance') or (category == 'MultiGame' and machine.metadata.genre == 'Compilation'):
+		#The latter might actually be a portable handheld system, but it'll be easier just to call it this
 		return 'Plug & Play', MediaType.Standalone
 	elif machine.metadata.genre in ('Electromechanical', 'Slot Machine') and machine.metadata.subgenre == 'Reels':
 		#"Slot Machine", "Fruit Machine", "Gambling", "AWP", whatevs; this ends up being the mechanical kind specifically and maybe doesn't actually need to be a separate platform anyway
@@ -323,10 +327,10 @@ def add_machine_platform(machine):
 		#Things that might not be arcade: Genre == Utilities (screen tests, etc); genre == Music && subgenre == Jukebox; genre == Misc && subgenre == Print Club (more of a photo booth I guess)
 		return category, MediaType.Standalone
 
-	#This leaves categories like Board Game, Computer, Telephone, Utilities (EEPROM programmers), Music, Misc., Multigame
+	#This leaves categories like Board Game, Computer, Telephone, Utilities (EEPROM programmers), Music, Misc.
 	#Misc has a lot of different things in it and I guess catlist just uses it as a catch-all for random things which don't really fit anywhere else and there's not enough to give them their own category, probably
 	#Some things inside Misc that might be of interest to people because they're actual games: Electronic Board Game (Electronic Battleship), Electronic Game (Electronic Soccer, Reversi Sensory Challenger), and then there's V-Dog (prototype) which ends up as "Unknown"; perhaps I could split these off into their own platform
-	#MultiGame tends to have genre of "Compilation" and has things like CoolBoy RS-8 168 in 1 which really should be under Handheld/Plug & Play but oh well
+	#Anyway, this name sucks because it's just used as a "this isn't anything in particular" thing
 	return 'Non-Arcade', MediaType.Standalone
 
 #Some games have memory card slots, but they don't actually support saving, it's just t hat the arcade system board thing they use always has that memory card slot there. So let's not delude ourselves into thinking that games which don't save let you save, because that might result in emotional turmoil.
