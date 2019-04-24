@@ -25,14 +25,15 @@ manufacturer_overrides = {
 	'Absolute': 'Absolute Entertainment', #Hmm, not sure if it'd be better to do this the other way around
 	'Acclaim Entertainment': 'Acclaim',
 	'American Softworks Company': 'American Softworks',
+	'APF Electronics': 'APF',
 	'ASCII Entertainment': 'ASCII',
-	'Bally Gaming': 'Bally',
 	'BPS': 'Bullet-Proof Software', #I hope nobody else uses that acronym
 	'Broderbund': 'Brøderbund',
 	'Broderbund Software': 'Brøderbund',
 	'Brøderbund Software': 'Brøderbund',
 	'California Pacific Computer': 'California Pacific',
 	'Coconuts Japan Entertainment': 'Coconuts Japan',
+	'Commodore Business Machines': 'Commodore',
 	'Creative Software': 'Creative',
 	'Cryo': 'Cryo Interactive',
 	'Data East Corporation': 'Data East',
@@ -42,6 +43,7 @@ manufacturer_overrides = {
 	'Elite': 'Elite Systems',
 	'Entex Industries': 'Entex',
 	'First Star': 'First Star Software',
+	'General Consumer Electronics': 'GCE',
 	'Grandslam Entertainments': 'Grandslam',
 	'Gremlin Interactive': 'Gremlin Graphics',
 	'HAL Kenkyuujo': 'HAL', #Literally "HAL Laboratory"
@@ -103,6 +105,8 @@ manufacturer_overrides = {
 
 	#Brand names that are definitely the same company but insist on using some other name... maybe I shouldn't change these either
 	'Atarisoft': 'Atari', #Atarisoft is just a brand name and not an actual company, so I guess I'll do this
+	'Bally Gaming': 'Bally',
+	'Bally Manufacturing': 'Bally',
 	'Disney Interactive': 'Disney',
 	'Disney Interactive Studios': 'Disney',
 	'Disney Software': 'Disney',
