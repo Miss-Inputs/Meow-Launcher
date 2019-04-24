@@ -301,7 +301,7 @@ def add_machine_platform(machine):
 
 	#Other weird and wacky devices
 	#Note: "Handheld / Electronic Game" could also be a tabletop system which takes AC input and you would not be able to hold in your hands at all (see also: cpacman), but since catlist.ini doesn't take that into account, I don't really have a way of doing so either
-	elif (category == 'Game Console') or (category == 'Utilities' and machine.metadata.genre == 'Arcade System') or (category == 'Computer') or (category == 'Pocket Device - Pad - PDA'):
+	elif (category == 'Game Console') or (category == 'Utilities' and machine.metadata.genre == 'Arcade System') or (category == 'Computer') or (category == 'Handheld' and machine.metadata.genre == 'Pocket Device - Pad - PDA'):
 		#There are some plug & play systems in the Game Console / Home Videogame category, not sure what catlist.ini thinks the difference is between that and Handheld / Plug n' Play TV Game in that case; but maybe I should do a whitelist for those to say "yes these are plug & play systems" (e.g. Vii)
 		#Hmm, need a better name for this I think
 		#TODO: Should include option to skip over this category for those who are willing to accept the risk that it might filter out some plug & play systems that might actually be wanted
