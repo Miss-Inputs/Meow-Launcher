@@ -176,3 +176,8 @@ def add_saturn_metadata(game):
 		return
 
 	add_saturn_info(game, header)
+
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+		game.metadata.notes = software.get_info('usage')

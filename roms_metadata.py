@@ -178,9 +178,9 @@ def add_metadata(game):
 
 	if game.metadata.platform in platform_metadata.helpers:
 		platform_metadata.helpers[game.metadata.platform](game)
-	elif not (game.metadata.media_type == MediaType.OpticalDisc and game.rom.extension != 'chd'):
+	else:
 		#For anything else, use this one to just get basic software list info.
-		#This would only work for optical discs if they are in .chd format though.
+		#This would only work for optical discs if they are in .chd format though. Also see MAME GitHub issue #2517, which makes a lot of newly created CHDs invalid with older softlists
 		platform_metadata.generic_helper(game)
 
 	add_device_hardware_metadata(game)

@@ -89,11 +89,16 @@ def add_info_from_main_track(game, track_path, sector_size):
 
 	game.metadata.product_code = header[64:74].decode('ascii', errors='backslashreplace').rstrip()
 
-	for software_list in game.software_lists:
-		software = software_list.find_software(part_matcher=_match_part_by_serial, part_matcher_args=[game.metadata.product_code])
-		if software:
-			software.add_generic_info(game)
-			break
+	software = get_software_list_entry(game)
+	if not software:
+		for software_list in game.software_lists:
+			software = software_list.find_software(part_matcher=_match_part_by_serial, part_matcher_args=[game.metadata.product_code])
+			if software:
+				break
+	if software:
+		software.add_generic_info(game)
+		game.metadata.notes = software.get_info('usage')
+	
 
 	release_date = header[80:96].decode('ascii', errors='backslashreplace').rstrip()
 

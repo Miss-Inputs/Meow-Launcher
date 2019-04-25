@@ -17,9 +17,7 @@ def add_entex_adventure_vision_info(game):
 	#I don't think so mate
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
+	add_generic_info(game)
 
 def add_game_pocket_computer_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -32,9 +30,7 @@ def add_game_pocket_computer_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
+	add_generic_info(game)
 
 def add_gamate_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -47,9 +43,7 @@ def add_gamate_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
+	add_generic_info(game)
 
 def add_casio_pv1000_info(game):
 	game.metadata.tv_type = TVSystem.NTSC
@@ -64,9 +58,7 @@ def add_casio_pv1000_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
+	add_generic_info(game)
 
 def add_mega_duck_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -78,9 +70,7 @@ def add_mega_duck_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
+	add_generic_info(game)
 
 def add_watara_supervision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -93,9 +83,7 @@ def add_watara_supervision_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
+	add_generic_info(game)
 
 def add_apfm1000_info(game):
 	#TODO: Input info should always be keypad... I think?
@@ -103,10 +91,8 @@ def add_apfm1000_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
-		#There's not really anything in there which tells us if we need the Imagination Machine for a particular cart. There's something about RAM, though.
+	add_generic_info(game)
+	#There's not really anything in there which tells us if we need the Imagination Machine for a particular cart. There's something about RAM, though.
 
 def add_arcadia_info(game):
 	keypad = input_metadata.Keypad() #2 controllers hardwired into the system. If MAME is any indication, the buttons on the side don't do anything or are equivalent to keypad 2?
@@ -120,10 +106,8 @@ def add_arcadia_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
-		#Nothing really here other than alt titles (for other languages). I guess this proves that the Bandai Arcadia really isn't different.
+	add_generic_info(game)
+	#Nothing really here other than alt titles (for other languages). I guess this proves that the Bandai Arcadia really isn't different.
 
 def add_astrocade_info(game):
 	joystick = input_metadata.NormalController()
@@ -140,9 +124,7 @@ def add_astrocade_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
+	add_generic_info(game)
 
 def add_casio_pv2000_info(game):
 	#Input info is keyboard and joystick I guess? Maybe only one of them sometimes?
@@ -150,9 +132,7 @@ def add_casio_pv2000_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
+	add_generic_info(game)
 
 def add_channel_f_info(game):
 	#Input info is uhhh that weird twisty thing I guess (I still cannot understand it)
@@ -160,11 +140,8 @@ def add_channel_f_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
-		game.metadata.notes = software.get_info('usage')
-		#Hit CTRL and A to start.
+	add_generic_info(game)
+	#Usage: Hit CTRL and A to start.
 
 def add_pc88_info(game):
 	#Input info: Keyboard or joystick
@@ -244,9 +221,7 @@ def add_tomy_tutor_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
+	add_generic_info(game)
 
 def add_vc4000_info(game):
 	normal_controller = input_metadata.NormalController()
@@ -262,9 +237,7 @@ def add_vc4000_info(game):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
+	add_generic_info(game)
 
 def add_vic10_info(game):
 	#Input info: Keyboard or joystick
@@ -367,9 +340,7 @@ def add_hartung_game_master_info(game):
 	builtin_gamepad.face_buttons = 2
 	game.metadata.input_info.add_option(builtin_gamepad)
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
+	add_generic_info(game)
 
 def add_bandai_sv8000_info(game):
 	game.metadata.tv_type = TVSystem.NTSC #Japan only
@@ -384,9 +355,7 @@ def add_bandai_sv8000_info(game):
 	controller = input_metadata.CombinedController([keypad, joystick])
 	game.metadata.input_info.add_option(controller)
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
+	add_generic_info(game)
 
 def add_nichibutsu_my_vision_info(game):
 	game.metadata.tv_type = TVSystem.NTSC #Japan only
@@ -396,9 +365,7 @@ def add_nichibutsu_my_vision_info(game):
 	buttons.face_buttons = 19 #Numbered 1 to 14 in a row, then A B C D arranged in directions above that, and an E button next to that
 	game.metadata.input_info.add_option(buttons)
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
+	add_generic_info(game)
 
 def add_bbc_bridge_companion_info(game):
 	game.metadata.tv_type = TVSystem.PAL #UK only
@@ -409,9 +376,7 @@ def add_bbc_bridge_companion_info(game):
 
 	game.metadata.save_type = SaveType.Nothing #Yeah nah
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
+	add_generic_info(game)
 
 #-- Beyond this point, there may be unexplored things which may result in these systems being spun off into their own module. Maybe. It just seems likely. Or maybe I do know full well they have a header, and either I haven't explored it yet, or I'm just a lazy bugger
 
@@ -438,6 +403,7 @@ def add_amiga_info(game):
 	game.metadata.specific_info['Chipset'] = chipset
 
 def add_cd32_info(game):
+	add_generic_info(game)
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4
@@ -446,6 +412,7 @@ def add_cd32_info(game):
 
 def add_neogeo_cd_info(game):
 	#Apparently there is a mahjong controller too, but... meh
+	add_generic_info(game)
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4
@@ -544,9 +511,7 @@ def add_juicebox_info(game):
 
 	game.metadata.save_type = SaveType.Nothing #Nope!
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
+	add_generic_info(game)
 
 def add_atari_5200_info(game):
 	#Can get the title screen information from inside the ROM to get the year (and also title). But that's hella unreliable, won't work properly for homebrews released after 2000, and requires implementing the 5200 title screen's custom character set (which I do know, it's just a pain in the arse)
@@ -571,7 +536,7 @@ def add_atari_5200_info(game):
 		game.metadata.input_info.add_option(normal_controller)
 
 def add_game_com_info(game):
-	#Could have its own header. I think it does, but like.. who's gonna document such a thing? The wide community of Game.com enthusiasts?
+	#I read somewhere there is a header with the icon and stuff, but dunno the info, so.. hmm
 	game.metadata.tv_type = TVSystem.Agnostic
 
 	builtin_gamepad = input_metadata.NormalController()
@@ -580,10 +545,7 @@ def add_game_com_info(game):
 	game.metadata.input_info.add_option(builtin_gamepad)
 
 	#Might have saving, actually. I'm just not sure about how it works.
-
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
+	add_generic_info(game)
 
 def add_fm7_info(game):
 	#Possible input info: Keyboard and joystick but barely anything uses said joystick
@@ -599,7 +561,6 @@ def add_fm7_info(game):
 	#"Type RUN&quot;XXX&quot; with XXX=MAGUS, LIZARD, BLUE.FOX or ナイザー in F-BASIC"
 	#Sounds like there's a few disks which don't autoboot...
 	#"Type LOADM&quot;&quot;,R to load" is on a few tapes
-
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
@@ -620,15 +581,12 @@ def add_super_cassette_vision_info(game):
 		game.metadata.specific_info['Has-Extra-RAM'] = software.has_data_area('ram') #Or feature "slot" ends with "_ram"
 
 def add_super_acan_info(game):
+	add_generic_info(game)
 	controller = input_metadata.NormalController()
 	controller.shoulder_buttons = 2
 	controller.dpads = 1
 	controller.face_buttons = 4 #Also Select + Start
 	game.metadata.input_info.add_option(controller)
-
-	software = get_software_list_entry(game)
-	if software:
-		software.add_generic_info(game)
 
 def add_pc_booter_info(game):
 	software = get_software_list_entry(game)

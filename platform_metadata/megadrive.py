@@ -179,27 +179,25 @@ def add_megadrive_metadata(game):
 
 	add_megadrive_info(game, header)
 
-	if game.metadata.platform != 'Mega CD':
-		#Mega CD software lists have CHDs and whatnot and they're weird to deal with so I won't right now
-		software = get_software_list_entry(game)
-		if software:
-			software.add_generic_info(game)
-			game.metadata.specific_info['Uses-SVP'] = software.get_shared_feature('addon') == 'SVP'
-			if software.get_shared_feature('incompatibility') == 'TMSS':
-				game.metadata.specific_info['Bad-TMSS'] = True
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+		game.metadata.specific_info['Uses-SVP'] = software.get_shared_feature('addon') == 'SVP'
+		if software.get_shared_feature('incompatibility') == 'TMSS':
+			game.metadata.specific_info['Bad-TMSS'] = True
 
-			slot = software.get_part_feature('slot')
-			if slot == 'rom_eeprom' or software.has_data_area('sram'):
-				game.metadata.save_type = SaveType.Cart
-			else:
-				game.metadata.save_type = SaveType.Nothing
+		slot = software.get_part_feature('slot')
+		if slot == 'rom_eeprom' or software.has_data_area('sram'):
+			game.metadata.save_type = SaveType.Cart
+		else:
+			game.metadata.save_type = SaveType.Nothing
 
-			if software.name == 'aqlian':
-				#This is naughty, but this bootleg game doesn't run on some stuff so I want to be able to detect it
-				game.metadata.specific_info['Mapper'] = 'aqlian'
-			else:
-				if slot not in (None, 'rom_sram'):
-					game.metadata.specific_info['Mapper'] = slot
-				if software.name == 'pokemon':
-					#This is also a bit naughty, but Pocket Monsters has different compatibility compared to other games with rom_kof99
-					game.metadata.specific_info['Mapper'] = slot + '_pokemon'
+		if software.name == 'aqlian':
+			#This is naughty, but this bootleg game doesn't run on some stuff so I want to be able to detect it
+			game.metadata.specific_info['Mapper'] = 'aqlian'
+		else:
+			if slot not in (None, 'rom_sram'):
+				game.metadata.specific_info['Mapper'] = slot
+			if software.name == 'pokemon':
+				#This is also a bit naughty, but Pocket Monsters has different compatibility compared to other games with rom_kof99
+				game.metadata.specific_info['Mapper'] = slot + '_pokemon'

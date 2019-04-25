@@ -8,6 +8,7 @@ from metadata import EmulationStatus
 from info.system_info import systems
 from info.region_info import TVSystem
 from mame_helpers import consistentify_manufacturer, get_mame_config
+from common_types import MediaType
 import io_utils
 
 #Ideally, every platform wants to be able to get software list info. If available, it will always be preferred over what we can extract from inside the ROMs, as it's more reliable, and avoids the problem of bootlegs/hacks with invalid/missing header data, or publisher/developers that merge and change names and whatnot.
@@ -20,16 +21,6 @@ import io_utils
 #PS2
 #PSP
 #Wii
-
-#Amiga CD32
-#CD-i
-#Dreamcast
-#Mega CD
-#Neo Geo CD
-#PC Engine CD
-#PC-FX
-#PS1
-#Saturn
 
 def parse_size_attribute(attrib):
 	if not attrib:
@@ -408,9 +399,11 @@ def get_software_list_entry(game, skip_header=0):
 		software_list_names = systems[game.metadata.platform].mame_software_lists
 		software_lists = get_software_lists_by_names(software_list_names)
 
-	if game.rom.extension == 'chd':
-		sha1 = get_sha1_from_chd(game.rom.path)
-		return find_in_software_lists(software_lists, sha1=sha1)
+	if game.metadata.media_type == MediaType.OpticalDisc:
+		if game.rom.extension == 'chd':
+			sha1 = get_sha1_from_chd(game.rom.path)
+			return find_in_software_lists(software_lists, sha1=sha1)
+		return None
 	else:
 		if game.subroms:
 			#TODO: Get first floppy for now, because right now we don't differentiate with parts or anything
