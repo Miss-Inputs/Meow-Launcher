@@ -8,6 +8,7 @@ from metadata import EmulationStatus
 from info.system_info import systems
 from info.region_info import TVSystem
 from mame_helpers import consistentify_manufacturer, get_mame_config
+import io_utils
 
 #Ideally, every platform wants to be able to get software list info. If available, it will always be preferred over what we can extract from inside the ROMs, as it's more reliable, and avoids the problem of bootlegs/hacks with invalid/missing header data, or publisher/developers that merge and change names and whatnot.
 #We currently do this by putting a block of code inside each platform_metadata helper that does the same thing. I guess I should genericize that one day. Anyway, it's not always possible.
@@ -20,7 +21,6 @@ from mame_helpers import consistentify_manufacturer, get_mame_config
 #PSP
 #Wii
 
-#Is optical disc-based, which involves messing around with CHDs (and for that matter, would take a while to calculate the hash); I'm not sure how it would work exactly because it seems the sha1 of the whole CHD file (as listed in chdman, which is different from if you tried to checksum the file yourself) has to match the <diskarea> rom instead of the data hash which is also in the CHD header:
 #Amiga CD32
 #CD-i
 #Dreamcast
@@ -31,9 +31,6 @@ from mame_helpers import consistentify_manufacturer, get_mame_config
 #PS1
 #Saturn
 
-#Has a software list, but not for the formats we use:
-#VZ-200: .vz doesn't have a software list
-
 def parse_size_attribute(attrib):
 	if not attrib:
 		return None
@@ -43,6 +40,7 @@ class DataAreaROM():
 	def __init__(self, xml, data_area):
 		self.xml = xml
 		self.data_area = data_area
+	#Other properties as defined in DTD: length (what's the difference with size?), status (baddump/nodump/good), loadflag (probably not needed for our purposes)
 
 	@property
 	def name(self):
@@ -55,7 +53,7 @@ class DataAreaROM():
 	@property
 	def crc32(self):
 		return self.xml.attrib.get('crc')
-
+	
 	@property
 	def sha1(self):
 		return self.xml.attrib.get('sha1')
@@ -81,15 +79,52 @@ class DataArea():
 	def size(self):
 		return parse_size_attribute(self.xml.attrib.get('size'))
 
+class DiskAreaDisk():
+	def __init__(self, xml, disk_area):
+		self.xml = xml
+		self.disk_area = disk_area
+
+	@property
+	def name(self):
+		return self.xml.attrib.get('name')
+
+	@property
+	def sha1(self):
+		return self.xml.attrib.get('sha1')
+
+	@property
+	def writeable(self):
+		return self.xml.attrib.get('writeable', 'no') == 'yes'
+	
+	#There is also status (baddump/nodump/good)
+
+class DiskArea():
+	def __init__(self, xml, part):
+		self.xml = xml
+		self.part = part
+		self.disks = []
+		
+		for disk_xml in self.xml.findall('disk'):
+			self.disks.append(DiskAreaDisk(disk_xml, self))
+
+	@property
+	def name(self):
+		return self.xml.attrib.get('name')
+	#No size attribute
+
 class SoftwarePart():
 	def __init__(self, xml, software):
 		self.xml = xml
 		self.software = software
 		self.data_areas = {}
+		self.disk_areas = {}
 
 		for data_area_xml in self.xml.findall('dataarea'):
 			data_area = DataArea(data_area_xml, self)
 			self.data_areas[data_area.name] = data_area
+		for disk_area_xml in self.xml.findall('diskarea'):
+			disk_area = DiskArea(disk_area_xml, self)
+			self.disk_areas[disk_area.name] = disk_area
 
 	@property
 	def name(self):
@@ -271,6 +306,19 @@ def _does_part_match(part, crc, sha1):
 		for rom in roms:
 			if _does_rom_match(rom, crc, sha1):
 				return True
+	if sha1:
+		sha1_lower = sha1.lower()
+		for disk_area in part.disk_areas.values():
+			disks = disk_area.disks
+			if not disks:
+				#Hmm, this might not happen
+				pass
+				continue
+			for disk in disks:
+				if not disk.sha1:
+					continue
+				if disk.sha1.lower() == sha1_lower:
+					return True
 
 	return False
 
@@ -337,6 +385,22 @@ def find_in_software_lists(software_lists, crc=None, sha1=None, part_matcher=_do
 			return software
 	return None
 
+class UnsupportedCHDError(Exception):
+	pass
+
+def get_sha1_from_chd(chd_path):
+	header = io_utils.read_file(chd_path, amount=124)
+	if header[0:8] != b'MComprHD':
+		raise UnsupportedCHDError('Header magic %s unknown' % str(header[0:8]))
+	chd_version = int.from_bytes(header[12:16], 'big')
+	if chd_version == 4:
+		sha1 = header[48:68]
+	elif chd_version == 5:
+		sha1 = header[84:104]
+	else:
+		raise UnsupportedCHDError('Version %d unknown' % chd_version)
+	return bytes.hex(sha1)
+
 def get_software_list_entry(game, skip_header=0):
 	if game.software_lists:
 		software_lists = game.software_lists
@@ -344,16 +408,21 @@ def get_software_list_entry(game, skip_header=0):
 		software_list_names = systems[game.metadata.platform].mame_software_lists
 		software_lists = get_software_lists_by_names(software_list_names)
 
-	if game.subroms:
-		#TODO: Get first floppy for now, because right now we don't differentiate with parts or anything
-		data = game.subroms[0].read(seek_to=skip_header)
+	if game.rom.extension == 'chd':
+		sha1 = get_sha1_from_chd(game.rom.path)
+		return find_in_software_lists(software_lists, sha1=sha1)
 	else:
-		data = game.rom.read(seek_to=skip_header)
-	crc32 = get_crc32_for_software_list(data)
-	software = find_in_software_lists(software_lists, crc=crc32)
-	if not software:
-		software = find_in_software_lists(software_lists, crc=data, part_matcher=_does_split_rom_match)
-	return software
+		if game.subroms:
+			#TODO: Get first floppy for now, because right now we don't differentiate with parts or anything
+			#TODO: Subroms for chds, just to make my head explode more
+			data = game.subroms[0].read(seek_to=skip_header)
+		else:
+			data = game.rom.read(seek_to=skip_header)
+		crc32 = get_crc32_for_software_list(data)
+		software = find_in_software_lists(software_lists, crc=crc32)
+		if not software:
+			software = find_in_software_lists(software_lists, crc=data, part_matcher=_does_split_rom_match)
+		return software
 
 def get_crc32_for_software_list(data):
 	return '{:08x}'.format(zlib.crc32(data))

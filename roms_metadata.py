@@ -178,9 +178,9 @@ def add_metadata(game):
 
 	if game.metadata.platform in platform_metadata.helpers:
 		platform_metadata.helpers[game.metadata.platform](game)
-	elif game.metadata.media_type != MediaType.OpticalDisc:
+	elif not (game.metadata.media_type == MediaType.OpticalDisc and game.rom.extension != 'chd'):
 		#For anything else, use this one to just get basic software list info.
-		#That won't work smoothly with optical discs, though, so I'll leave those alone for now
+		#This would only work for optical discs if they are in .chd format though.
 		platform_metadata.generic_helper(game)
 
 	add_device_hardware_metadata(game)
