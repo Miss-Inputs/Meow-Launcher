@@ -5,7 +5,7 @@ from enum import Enum, auto
 import input_metadata
 from common_types import SaveType
 from info.region_info import TVSystem
-from software_list_info import find_in_software_lists, get_crc32_for_software_list, PartMatcherArgs
+from software_list_info import find_in_software_lists, get_crc32_for_software_list, matcher_args_for_bytes
 import platform_metadata.atari_controllers as controllers
 
 #Not gonna use stella -rominfo on individual stuff as it takes too long and just detects TV type with no other useful info that isn't in the -listrominfo db
@@ -250,15 +250,13 @@ def add_atari_2600_metadata(game):
 	stella_db = StellaDB.get_stella_db()
 
 	whole_cart = game.rom.read()
-	crc32 = get_crc32_for_software_list(whole_cart)
 	if stella_db:
 		md5 = hashlib.md5(whole_cart).hexdigest().lower()
 		if md5 in stella_db:
 			game_info = stella_db[md5]
 			parse_stella_db(game, game_info)
 
-	args = PartMatcherArgs(crc32, None, len(whole_cart), lambda offset, amount: whole_cart[offset:offset+amount])
-	software = find_in_software_lists(game.software_lists, args)
+	software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(whole_cart))
 	if software:
 		existing_notes = game.metadata.specific_info.get('Notes')
 		software.add_generic_info(game)

@@ -5,7 +5,7 @@ import os
 import input_metadata
 from common_types import SaveType
 from common import convert_alphanumeric, NotAlphanumericException
-from software_list_info import find_in_software_lists, PartMatcherArgs, get_crc32_for_software_list
+from software_list_info import find_in_software_lists, matcher_args_for_bytes, get_crc32_for_software_list
 
 def _byteswap(b):
 	byte_array = bytearray(b)
@@ -112,11 +112,6 @@ def add_n64_metadata(game):
 	parse_n64_header(game, header)
 
 	rom_md5 = hashlib.md5(entire_rom).hexdigest().upper()
-	if not byte_swap:
-		entire_rom = _byteswap(entire_rom)
-		#For some reason, MAME uses little endian dumps in its software list at the moment, hence "not byte_swap" which would be wrong otherwise
-
-	rom_crc32 = get_crc32_for_software_list(entire_rom)
 
 	normal_controller = input_metadata.NormalController()
 	normal_controller.face_buttons = 6 #A, B, 4 * C
@@ -131,7 +126,9 @@ def add_n64_metadata(game):
 		if database_entry:
 			add_info_from_database_entry(game, database_entry)
 
-	args = PartMatcherArgs(rom_crc32, None, len(entire_rom), lambda offset, amount: entire_rom[offset:offset+amount])
-	software = find_in_software_lists(game.software_lists, args)
+	if not byte_swap:
+		entire_rom = _byteswap(entire_rom)
+		#For some reason, MAME uses little endian dumps in its software list at the moment, hence "not byte_swap" which would be wrong otherwise
+	software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(entire_rom))
 	if software:
 		software.add_generic_info(game)
