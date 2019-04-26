@@ -7,7 +7,6 @@ import platform_metadata
 from mame_helpers import lookup_system_cpus, lookup_system_displays, get_mame_xml, have_mame
 from software_list_info import get_software_lists_by_names
 from info import system_info
-from common_types import MediaType
 
 date_regex = re.compile(r'\((?P<year>[x\d]{4})\)|\((?P<year2>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})\)|\((?P<day2>\d{2})\.(?P<month2>\d{2})\.(?P<year3>\d{4})\)')
 revision_regex = re.compile(r'\(Rev ([A-Z\d]+?)\)')

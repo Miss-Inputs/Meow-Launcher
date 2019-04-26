@@ -55,7 +55,7 @@ def get_languages_from_filename_tags(tags, ignored_tags=None):
 		#Can't really deal with (Unlicensed, Multi3) since that doesn't tell me what those 3 languages are
 		if tag == '(Unlicensed, Chinese)':
 			return [get_language_by_english_name('Chinese')]
-		elif tag == '(Unlicensed, English)':
+		if tag == '(Unlicensed, English)':
 			return [get_language_by_english_name('English')]
 
 		translation_match = translated_regex.match(tag)
@@ -173,11 +173,11 @@ def get_tv_system_from_filename_tags(tags, ignored_tags=None):
 			if ignored_tags is not None:
 				ignored_tags.append(tag)
 			return region_info.TVSystem.NTSC
-		elif tag == '(PAL)':
+		if tag == '(PAL)':
 			if ignored_tags is not None:
 				ignored_tags.append(tag)
 			return region_info.TVSystem.PAL
-		elif tag == '(NTSC-PAL)' or tag == '(PAL-NTSC)':
+		if tag in ('(NTSC-PAL)', '(PAL-NTSC)'):
 			if ignored_tags is not None:
 				ignored_tags.append(tag)
 			return region_info.TVSystem.Agnostic

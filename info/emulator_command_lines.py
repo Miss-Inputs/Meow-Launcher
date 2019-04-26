@@ -162,11 +162,11 @@ def mame_atari_7800(game, _):
 def mame_atari_8bit(game, _):
 	if game.metadata.specific_info.get('Headered', False):
 		cart_type = game.metadata.specific_info['Cart-Type']
-		if cart_type in (13, 14, 23, 24, 25) or (cart_type >= 33 and cart_type <= 38):
+		if cart_type in (13, 14, 23, 24, 25) or (33 <= cart_type <= 38):
 			raise EmulationNotSupportedException('XEGS cart: %d' % cart_type)
 
 		#You probably think this is a bad way to do this...  I guess it is, but hopefully I can take some out as they become supported
-		if cart_type in (5, 17, 22, 41, 42, 43, 45, 46, 47, 48, 49, 53, 57, 58, 59, 60, 61) or (cart_type >= 26 and cart_type <= 32) or (cart_type >= 54 and cart_type <= 56):
+		if cart_type in (5, 17, 22, 41, 42, 43, 45, 46, 47, 48, 49, 53, 57, 58, 59, 60, 61) or (26 <= cart_type <= 32) or (54 <= cart_type <= 56):
 			raise EmulationNotSupportedException('Unsupported cart type: %d' % cart_type)
 
 		if cart_type in (4, 6, 7, 16, 19, 20):
@@ -365,14 +365,14 @@ def mame_megadrive(game, _):
 	if mapper == 'rom_topf':
 		#Doesn't seem to be detected via fullpath as being rom_topf, so it might work from software list
 		raise EmulationNotSupportedException('Top Fighter 2000 MK VII not supported')
-	elif mapper == 'rom_yasech':
+	if mapper == 'rom_yasech':
 		#Looks like it's same here... nothing about it being unsupported in SL entry
 		raise EmulationNotSupportedException('Ya Se Chuan Shuo not supported')
-	elif mapper == 'rom_kof99_pokemon':
+	if mapper == 'rom_kof99_pokemon':
 		#This isn't a real mapper, Pocket Monsters uses rom_kof99 but it doesn't work (but KOF99 bootleg does)
 		#Probably because it's detected as rom_99 when loaded from fullpath, so... it be like that sometimes
 		raise EmulationNotSupportedException('Pocket Monsters not supported from fullpath')
-	elif mapper == 'rom_smw64':
+	if mapper == 'rom_smw64':
 		raise EmulationNotSupportedException('Super Mario World 64 not supported')
 
 	#Hmm. Most Megadrive emulators that aren't MAME have some kind of region preference thing where it's selectable between U->E->J or J->U->E or U->J->E or whatever.. because of how this works I'll have to make a decision, unless I feel like making a config thing for that, and I don't think I really need to do that.
@@ -810,7 +810,7 @@ def kega_fusion(game, _):
 def medusa(game, _):
 	if game.metadata.platform == 'DSi':
 		raise EmulationNotSupportedException('DSi exclusive games and DSiWare not supported')
-	elif game.metadata.specific_info.get('Is-iQue', False):
+	if game.metadata.specific_info.get('Is-iQue', False):
 		raise EmulationNotSupportedException('iQue DS not supported')
 
 	if game.metadata.platform in ('Game Boy', 'Game Boy Color'):

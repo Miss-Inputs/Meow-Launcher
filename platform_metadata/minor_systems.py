@@ -4,7 +4,7 @@ from enum import Enum, auto
 import input_metadata
 from common_types import SaveType, MediaType
 from info.region_info import TVSystem
-from software_list_info import get_software_list_entry, get_crc32_for_software_list, find_in_software_lists, find_in_software_lists_with_custom_matcher
+from software_list_info import get_software_list_entry, get_crc32_for_software_list, find_in_software_lists_with_custom_matcher
 
 def add_entex_adventure_vision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic

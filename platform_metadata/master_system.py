@@ -29,9 +29,9 @@ def parse_sdsc_header(game, header):
 	day = decode_bcd(header[2])
 	month = decode_bcd(header[3])
 	year = decode_bcd(header[4:6])
-	if day >= 1 and day <= 31:
+	if 1 <= day <= 31:
 		game.metadata.day = day
-	if month >= 1 and month <= 12:
+	if 1 <= month <= 12:
 		game.metadata.month = calendar.month_name[month]
 	if year:
 		game.metadata.year = year
@@ -39,7 +39,7 @@ def parse_sdsc_header(game, header):
 	author_offset = int.from_bytes(header[6:8], 'little')
 	#Name offset: header[8:10]
 	#Description offset: header[10:12]
-	if author_offset > 0 and author_offset < 0xffff:
+	if 0 < author_offset < 0xffff:
 		#Assume sane maximum of 255 chars
 		try:
 			game.metadata.developer = game.metadata.publisher = game.rom.read(seek_to=author_offset, amount=255).partition(b'\x00')[0].decode('ascii')

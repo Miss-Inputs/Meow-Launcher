@@ -57,7 +57,7 @@ def create_editor_for_config(parent, config_name, config_value, current_value):
 		check_box.Value = current_value
 		check_box.SetToolTip(config_value.description)
 		return check_box
-	elif config_value.type == ConfigValueType.String:
+	if config_value.type == ConfigValueType.String:
 		sizer = wx.BoxSizer(wx.HORIZONTAL)
 		label = wx.StaticText(parent, label=config_value.name)
 		sizer.Add(label, 0, wx.ALL, 2)
@@ -66,7 +66,7 @@ def create_editor_for_config(parent, config_name, config_value, current_value):
 		text_editor.SetToolTip(config_value.description)
 		sizer.Add(text_editor, 1, wx.ALL | wx.EXPAND, 2)
 		return sizer
-	elif config_value.type in (ConfigValueType.FilePath, ConfigValueType.FolderPath):
+	if config_value.type in (ConfigValueType.FilePath, ConfigValueType.FolderPath):
 		sizer = wx.BoxSizer(wx.HORIZONTAL)
 		label = wx.StaticText(parent, label=config_value.name)
 		sizer.Add(label, 0, wx.ALL, 2)
@@ -78,7 +78,7 @@ def create_editor_for_config(parent, config_name, config_value, current_value):
 		picker.SetToolTip(config_value.description)
 		sizer.Add(picker, 1, wx.ALL | wx.EXPAND, 2)
 		return sizer
-	elif config_value.type == ConfigValueType.StringList:
+	if config_value.type == ConfigValueType.StringList:
 		editor = wx.adv.EditableListBox(parent, label=config_value.name, name=config_name)
 		editor.SetStrings(current_value)
 		editor.SetToolTip(config_value.description)

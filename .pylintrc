@@ -7,7 +7,7 @@ extension-pkg-whitelist=wx
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=CVS,gui_generated.py
+ignore=CVS,gui_generated.py,steamfiles,.vscode
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
@@ -94,6 +94,7 @@ disable=print-statement,
 		too-many-return-statements,
 		too-many-statements,
 		too-many-ancestors,
+            too-many-boolean-expressions,
 		global-statement, #What the fuck is wrong with the global statement exactly anyway, fucking wankers
 
 

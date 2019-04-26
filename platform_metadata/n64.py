@@ -5,7 +5,7 @@ import os
 import input_metadata
 from common_types import SaveType
 from common import convert_alphanumeric, NotAlphanumericException
-from software_list_info import find_in_software_lists, matcher_args_for_bytes, get_crc32_for_software_list
+from software_list_info import find_in_software_lists, matcher_args_for_bytes
 
 def _byteswap(b):
 	byte_array = bytearray(b)

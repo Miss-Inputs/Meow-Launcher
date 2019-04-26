@@ -35,11 +35,11 @@ def parse_path_list(value):
 def parse_value(section, name, value_type, default_value):
 	if value_type == ConfigValueType.Bool:
 		return section.getboolean(name, default_value)
-	elif value_type in (ConfigValueType.FilePath, ConfigValueType.FolderPath):
+	if value_type in (ConfigValueType.FilePath, ConfigValueType.FolderPath):
 		return os.path.expanduser(section[name])
-	elif value_type == ConfigValueType.StringList:
+	if value_type == ConfigValueType.StringList:
 		return parse_string_list(section[name])
-	elif value_type in (ConfigValueType.FilePathList, ConfigValueType.FolderPathList):
+	if value_type in (ConfigValueType.FilePathList, ConfigValueType.FolderPathList):
 		return parse_path_list(section[name])
 	return section[name]
 
@@ -48,7 +48,7 @@ def parse_command_line_bool(value):
 	lower = value.lower()
 	if lower in ('yes', 'true', 'on', 't', 'y', 'yeah'):
 		return True
-	elif lower in ('no', 'false', 'off', 'f', 'n', 'nah', 'nope'):
+	if lower in ('no', 'false', 'off', 'f', 'n', 'nah', 'nope'):
 		return False
 
 	raise TypeError(value)

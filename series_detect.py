@@ -40,33 +40,32 @@ def get_name_chunks(name):
 def find_series_from_game_name(name):
 	if name in series_overrides:
 		return series_overrides[name]
-	else:
-		#TODO: Because we're doing fullmatch, should take out "Complete Edition" or "GOTY Edition" or "Demo" or whatever at the end, particularly affects Steam stuff that doesn't have things in brackets
-		name_chunks = get_name_chunks(name)
-		if not name_chunks:
+	#TODO: Because we're doing fullmatch, should take out "Complete Edition" or "GOTY Edition" or "Demo" or whatever at the end, particularly affects Steam stuff that doesn't have things in brackets
+	name_chunks = get_name_chunks(name)
+	if not name_chunks:
+		return None, None
+	name_chunk = name_chunks[0]
+	series_match = series_matcher.fullmatch(name_chunk)
+	if series_match:
+		series_name = series_match['Series']
+		if series_name.lower().startswith('the '):
+			series_name = series_name[len('the '):]
+		number = series_match['Number']
+		if number in probably_not_a_series_index:
 			return None, None
-		name_chunk = name_chunks[0]
-		series_match = series_matcher.fullmatch(name_chunk)
-		if series_match:
-			series_name = series_match['Series']
-			if series_name.lower().startswith('the '):
-				series_name = series_name[len('the '):]
-			number = series_match['Number']
-			if number in probably_not_a_series_index:
-				return None, None
 
+		try:
+			number = int(number)
+		except ValueError:
 			try:
-				number = int(number)
+				number = convert_roman_numeral(number)
 			except ValueError:
-				try:
-					number = convert_roman_numeral(number)
-				except ValueError:
-					#Not actually a roman numeral, chief
-					return None, None
-
-			if number > probably_not_series_index_threshold:
+				#Not actually a roman numeral, chief
 				return None, None
-			return chapter_matcher.sub('', series_name).rstrip(), number
+
+		if number > probably_not_series_index_threshold:
+			return None, None
+		return chapter_matcher.sub('', series_name).rstrip(), number
 	return None, None
 
 def find_series_name_by_subtitle(name, existing_serieses, force=False):
@@ -142,8 +141,8 @@ def get_series_from_whole_thing(series, whole_name):
 			except ValueError:
 				pass
 		return convert_roman_numerals_in_title(rest)
-	else:
-		return '1'
+	
+	return '1'
 
 def detect_series_index_for_things_with_series():
 	for filename in os.listdir(main_config.output_folder):

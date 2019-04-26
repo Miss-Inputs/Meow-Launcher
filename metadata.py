@@ -21,9 +21,9 @@ class CPU():
 	def format_clock_speed(hertz, precision=4):
 		if hertz >= 1_000_000_000:
 			return ('{0:.' + str(precision) + 'g} GHz').format(hertz / 1_000_000_000)
-		elif hertz >= 1_000_000:
+		if hertz >= 1_000_000:
 			return ('{0:.' + str(precision) + 'g} MHz').format(hertz / 1_000_000)
-		elif hertz >= 1_000:
+		if hertz >= 1_000:
 			return ('{0:.' + str(precision) + 'g} KHz').format(hertz / 1_000)
 
 		return ('{0:.' + str(precision) + 'g} Hz').format(hertz)

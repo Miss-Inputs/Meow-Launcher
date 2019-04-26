@@ -92,7 +92,7 @@ class SteamState():
 
 				if os.path.isdir(location):
 					return location
-				elif os.path.islink(location):
+				if os.path.islink(location):
 					return os.path.realpath(location)
 
 			return None

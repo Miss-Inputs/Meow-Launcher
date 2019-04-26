@@ -1,12 +1,14 @@
-import re
-import os
 import calendar
+import os
+import re
 
 import cd_read
 from common_types import SaveType
 from data.sega_licensee_codes import licensee_codes
+from software_list_info import (find_in_software_lists_with_custom_matcher,
+                                get_software_list_entry)
 from .saturn import SaturnRegionCodes
-from software_list_info import get_software_list_entry, find_in_software_lists_with_custom_matcher
+
 #I'm just assuming Saturn and Dreamcast have the same way of doing region codes... well, it's just mostly JUE that need worrying about at this point anyway
 
 gdi_regex = re.compile(r'^(?:\s+)?(?P<trackNumber>\d+)\s+(?P<unknown1>\S+)\s+(?P<type>\d)\s+(?P<sectorSize>\d+)\s+(?:"(?P<name>.+)"|(?P<name_unquoted>\S+))\s+(?P<unknown2>.+)$')
@@ -40,7 +42,7 @@ def _match_part_by_serial(software_part, serial):
 	if not part_serial:
 		return False
 	part_serial_without_dashes = part_serial.replace('-', '')
-	return part_serial == serial or part_serial_without_dashes == serial
+	return serial in (part_serial, part_serial_without_dashes)
 
 device_info_regex = re.compile(r'^(?P<checksum>[\dA-Fa-f]{4}) GD-ROM(?P<discNum>\d+)/(?P<totalDiscs>\d+) *$')
 #Might not be " GD-ROM" on some Naomi stuff or maybe some homebrews or protos, but anyway, whatevs

@@ -69,7 +69,7 @@ def parse_peripherals(game, peripherals):
 		elif peripheral_char == 'L':
 			#Activator
 			game.metadata.input_info.add_option(input_metadata.MotionControls())
-		elif peripheral_char == '4' or peripheral_char == 'O':
+		elif peripheral_char in ('4', 'O'):
 			#Team Play and J-Cart respectively
 			#num_players = 4
 			pass
@@ -116,7 +116,7 @@ def add_megadrive_info(game, header):
 		pass
 	#Checksum: header[142:144]
 
-	peripherals = [c for c in header[144:160].decode('ascii', errors='ignore') if c != '\x00' and c != ' ']
+	peripherals = [c for c in header[144:160].decode('ascii', errors='ignore') if c not in ('\x00', ' ')]
 	parse_peripherals(game, peripherals)
 
 	save_id = header[0xb0:0xb4]

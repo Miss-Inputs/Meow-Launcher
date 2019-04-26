@@ -191,7 +191,7 @@ def parse_smdh_data(game, smdh):
 
 	#Ratings = 0x2008-0x2018 (mostly same format as DSi and Wii but not quite)
 	region_code_flag = int.from_bytes(smdh[0x2018:0x201c], 'little')
-	if region_code_flag == _3DSRegionCode.RegionFree or region_code_flag == 0xffffffff:
+	if region_code_flag in (_3DSRegionCode.RegionFree, 0xffffffff):
 		region_codes = [_3DSRegionCode.RegionFree]
 	else:
 		region_codes = []

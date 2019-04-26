@@ -211,15 +211,15 @@ def add_fds_metadata(game):
 	game.metadata.revision = header[20]
 	#Uses Showa years (hence 1925), in theory... but then some disks (notably Zelda) seem to use 19xx years, as it has an actual value of 0x86 which results in it being Showa 86 = 2011, but it should be [Feb 21] 1986, so... hmm
 	year = decode_bcd(header[31])
-	if year >= 61 and year <= 99:
+	if 61 <= year <= 99:
 		#Showa 61 = 1986 when the FDS was released. Year > 99 wouldn't be valid BCD, so... I'll check back in 2025 to see if anyone's written homebrew for the FDS in that year and then I'll figure out what I'm doing. But homebrew right now seems to leave the year as 00 anyway, though
 		year = 1925 + year
 		game.metadata.year = year
 	month = decode_bcd(header[32])
-	if month >= 1 and month <= 12:
+	if 1 <= month <= 12:
 		game.metadata.month = calendar.month_name[month]
 	day = decode_bcd(header[33])
-	if day >= 1 and day <= 28:
+	if 1 <= day <= 28:
 		game.metadata.day = day
 
 def add_ines_metadata(game, header):
@@ -297,7 +297,7 @@ def add_nes_metadata(game):
 	else:
 		header = game.rom.read(amount=16)
 		magic = header[:4]
-		if magic == b'NES\x00' or magic == b'NES\x1a':
+		if magic in (b'NES\x00', b'NES\x1a'):
 			add_ines_metadata(game, header)
 		else:
 			game.metadata.specific_info['Headered'] = False

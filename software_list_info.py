@@ -108,6 +108,7 @@ class DataArea():
 					return False
 
 			return True
+		return False
 
 class DiskAreaDisk():
 	def __init__(self, xml, disk_area):
@@ -188,7 +189,6 @@ class SoftwarePart():
 					disks = disk_area.disks
 					if not disks:
 						#Hmm, this might not happen
-						pass
 						continue
 					for disk in disks:
 						if not disk.sha1:
@@ -266,7 +266,7 @@ class Software():
 		supported = self.xml.attrib.get('supported', 'yes')
 		if supported == 'partial':
 			return EmulationStatus.Imperfect
-		elif supported == 'no':
+		if supported == 'no':
 			return EmulationStatus.Broken
 
 		#Supported = "yes"
@@ -353,6 +353,7 @@ class SoftwareList():
 				#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
 				if matcher(part, *args):
 					return software
+		return None
 
 	def find_software(self, args):
 		for software_xml in self.xml.findall('software'):
@@ -439,21 +440,21 @@ def get_software_list_entry(game, skip_header=0):
 			except UnsupportedCHDError:
 				pass
 		return None
+
+	if game.subroms:
+		#TODO: Get first floppy for now, because right now we don't differentiate with parts or anything; this part of the code sucks
+		#TODO: Subroms for chds, just to make my head explode more
+		data = game.subroms[0].read(seek_to=skip_header)
+		software = find_in_software_lists(software_lists, matcher_args_for_bytes(data))
 	else:
-		if game.subroms:
-			#TODO: Get first floppy for now, because right now we don't differentiate with parts or anything; this part of the code sucks
-			#TODO: Subroms for chds, just to make my head explode more
-			data = game.subroms[0].read(seek_to=skip_header)
+		if skip_header:
+			data = game.rom.read(seek_to=skip_header)
 			software = find_in_software_lists(software_lists, matcher_args_for_bytes(data))
 		else:
-			if skip_header:
-				data = game.rom.read(seek_to=skip_header)
-				software = find_in_software_lists(software_lists, matcher_args_for_bytes(data))
-			else:
-				crc32 = format_crc32_for_software_list(game.rom.get_crc32())
-				args = SoftwareMatcherArgs(crc32, None, game.rom.get_size(), lambda offset, amount: game.rom.read(seek_to=offset, amount=amount))
-				software = find_in_software_lists(software_lists, args)
-		return software
+			crc32 = format_crc32_for_software_list(game.rom.get_crc32())
+			args = SoftwareMatcherArgs(crc32, None, game.rom.get_size(), lambda offset, amount: game.rom.read(seek_to=offset, amount=amount))
+			software = find_in_software_lists(software_lists, args)
+	return software
 
 def format_crc32_for_software_list(crc):
 	return '{:08x}'.format(crc)

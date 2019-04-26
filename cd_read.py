@@ -60,10 +60,10 @@ def get_first_data_cue_track(cue_path):
 def read_mode_1_cd(path, sector_size, seek_to=0, amount=1):
 	if sector_size == 2048:
 		return read_file(path, seek_to=seek_to, amount=amount)
-	elif sector_size == ((12 + 3 + 1) + (4 + 8 + 276) + 2048):
+	if sector_size == ((12 + 3 + 1) + (4 + 8 + 276) + 2048):
 		return sectored_read(path, 12 + 3 + 1, 4 + 8 + 276, 2048, seek_to=seek_to, amount=amount)
-	else:
-		raise NotImplementedError('no')
+	
+	raise NotImplementedError('no')
 
 def sectored_read(path, raw_header_size, raw_footer_size, data_size, seek_to=0, amount=-1):
 	#Raw header size + raw footer size + data size = total sector size; e.g. 16 + data correction stuff + 2048 = 2532

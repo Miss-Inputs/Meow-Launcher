@@ -5,7 +5,7 @@ from enum import Enum, auto
 import input_metadata
 from common_types import SaveType
 from info.region_info import TVSystem
-from software_list_info import find_in_software_lists, get_crc32_for_software_list, matcher_args_for_bytes
+from software_list_info import find_in_software_lists, matcher_args_for_bytes
 import platform_metadata.atari_controllers as controllers
 
 #Not gonna use stella -rominfo on individual stuff as it takes too long and just detects TV type with no other useful info that isn't in the -listrominfo db
@@ -67,30 +67,30 @@ def _controller_from_stella_db_name(controller):
 
 	if controller in ('JOYSTICK', 'AUTO'):
 		return Atari2600Controller.Joystick
-	elif controller in ('PADDLES', 'PADDLES_IAXIS', 'PADDLES_IAXDR'):
+	if controller in ('PADDLES', 'PADDLES_IAXIS', 'PADDLES_IAXDR'):
 		#Not sure what the difference in the latter two are
 		return Atari2600Controller.Paddle
-	elif controller in ('AMIGAMOUSE', 'ATARIMOUSE'):
+	if controller in ('AMIGAMOUSE', 'ATARIMOUSE'):
 		return Atari2600Controller.Mouse
-	elif controller == 'TRAKBALL':
+	if controller == 'TRAKBALL':
 		return Atari2600Controller.Trackball
-	elif controller == 'KEYBOARD':
+	if controller == 'KEYBOARD':
 		return Atari2600Controller.KeyboardController
-	elif controller in 'COMPUMATE':
+	if controller in 'COMPUMATE':
 		return Atari2600Controller.Compumate
-	elif controller == 'GENESIS':
+	if controller == 'GENESIS':
 		return Atari2600Controller.MegadriveGamepad
-	elif controller == 'BOOSTERGRIP':
+	if controller == 'BOOSTERGRIP':
 		return Atari2600Controller.Boostergrip
-	elif controller == 'DRIVING':
+	if controller == 'DRIVING':
 		return Atari2600Controller.DrivingController
-	elif controller == 'MINDLINK':
+	if controller == 'MINDLINK':
 		return Atari2600Controller.Mindlink
-	elif controller == 'ATARIVOX':
+	if controller == 'ATARIVOX':
 		return Atari2600Controller.AtariVox
-	elif controller == 'SAVEKEY':
+	if controller == 'SAVEKEY':
 		return Atari2600Controller.SaveKey
-	elif controller == 'KIDVID':
+	if controller == 'KIDVID':
 		return Atari2600Controller.KidVid
 	#Track & Field controller is just a joystick with no up or down, so Stella doesn't count it as separate from joystick
 	return Atari2600Controller.Other
@@ -192,7 +192,8 @@ def parse_stella_db(game, game_info):
 def add_input_info_from_peripheral(game, peripheral):
 	if peripheral == Atari2600Controller.Nothing:
 		return
-	elif peripheral == Atari2600Controller.Joystick:
+		
+	if peripheral == Atari2600Controller.Joystick:
 		game.metadata.input_info.add_option(controllers.joystick)
 	elif peripheral == Atari2600Controller.Boostergrip:
 		game.metadata.input_info.add_option(controllers.boostergrip)

@@ -17,7 +17,7 @@ def parse_list_item(line, path):
 			'num_items': int(match.group('num_items')) if match.group('num_items') else 1,
 			'date': match.group('date')
 		}
-	elif line.lower().startswith('f'):
+	if line.lower().startswith('f'):
 		match = file_regex.match(line)
 		if match is None:
 			raise Exception(line)
