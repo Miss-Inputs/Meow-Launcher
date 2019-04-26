@@ -53,6 +53,15 @@ class DataAreaROM():
 	def offset(self):
 		return parse_size_attribute(self.xml.attrib.get('offset'))
 
+	def matches(self, crc32, sha1):
+		if sha1:
+			if self.sha1 == sha1:
+				return True
+		if crc32:
+			if self.crc32 == crc32:
+				return True
+		return False
+
 class DataArea():
 	def __init__(self, xml, part):
 		self.xml = xml
@@ -249,15 +258,6 @@ class Software():
 		elif not (already_has_publisher and (publisher == '<unknown>')):
 			game.metadata.publisher = publisher
 
-def _does_rom_match(rom, crc32, sha1):
-	if sha1:
-		if rom.sha1 == sha1:
-			return True
-	if crc32:
-		if rom.crc32 == crc32:
-			return True
-	return False
-
 def _does_split_rom_match(part, data, _):
 	rom_data_area = None
 	for data_area in part.data_areas.values():
@@ -295,7 +295,7 @@ def _does_part_match(part, crc, sha1):
 			#Note that data area's name attribute can be anything like "rom" or "flop" depending on the kind of media, but the element inside will always be called "rom"
 			continue
 		for rom in roms:
-			if _does_rom_match(rom, crc, sha1):
+			if rom.matches(crc, sha1):
 				return True
 	if sha1:
 		sha1_lower = sha1.lower()
