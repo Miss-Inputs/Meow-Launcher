@@ -4,7 +4,7 @@ from enum import Enum, auto
 import input_metadata
 from info.region_info import TVSystem
 from common_types import SaveType
-from software_list_info import get_software_list_entry, find_in_software_lists, get_crc32_for_software_list
+from software_list_info import get_software_list_entry, find_in_software_lists_with_custom_matcher, get_crc32_for_software_list
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 
 ines_mappers = {
@@ -259,10 +259,7 @@ def add_ines_metadata(game, header):
 		game.metadata.specific_info['CHR-Size'] = chr_size * 8 * 1024
 		#TV type apparently isn't used much despite it being part of the iNES specification, and looking at a lot of headered ROMs it does seem that they are all NTSC other than a few that say PAL that shouldn't be, so yeah, I wouldn't rely on it. Might as well just use the filename.
 
-def _does_nes_rom_match(part, crcs, _):
-	prg_crc = crcs[0]
-	chr_crc = crcs[1]
-
+def _does_nes_rom_match(part, prg_crc, chr_crc):
 	prg_part = part.data_areas.get('prg')
 	chr_part = part.data_areas.get('chr')
 
@@ -292,7 +289,7 @@ def _get_headered_nes_rom_software_list_entry(game):
 	prg_crc32 = get_crc32_for_software_list(prg_rom)
 	chr_crc32 = get_crc32_for_software_list(chr_rom) if chr_rom else None
 
-	return find_in_software_lists(game.software_lists, crc=[prg_crc32, chr_crc32], part_matcher=_does_nes_rom_match)
+	return find_in_software_lists_with_custom_matcher(game.software_lists, _does_nes_rom_match, [prg_crc32, chr_crc32])
 
 def add_nes_metadata(game):
 	if game.rom.extension == 'fds':

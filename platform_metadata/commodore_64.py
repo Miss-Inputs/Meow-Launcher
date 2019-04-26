@@ -1,4 +1,4 @@
-from software_list_info import get_software_list_entry, find_in_software_lists, get_crc32_for_software_list
+from software_list_info import get_software_list_entry, find_in_software_lists, get_crc32_for_software_list, PartMatcherArgs
 
 ccs64_cart_types = {
 	#From https://github.com/mamedev/mame/blob/master/src/lib/formats/cbm_crt.cpp
@@ -75,7 +75,8 @@ def get_commodore_64_software(game, headered):
 			i += total_size
 
 		crc = get_crc32_for_software_list(total_data)
-		return find_in_software_lists(game.software_lists, crc=crc)
+		args = PartMatcherArgs(crc, None, len(total_data), lambda offset, amount: total_data[offset:offset+amount])
+		return find_in_software_lists(game.software_lists, args)
 
 	return get_software_list_entry(game)
 

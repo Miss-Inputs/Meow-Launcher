@@ -6,7 +6,7 @@ import cd_read
 import input_metadata
 from config import main_config
 from data.sega_licensee_codes import licensee_codes
-from software_list_info import find_in_software_lists
+from software_list_info import get_software_list_entry
 
 class SaturnPeripheral(Enum):
 	StandardController = auto()

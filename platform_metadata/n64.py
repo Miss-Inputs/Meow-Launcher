@@ -5,7 +5,7 @@ import os
 import input_metadata
 from common_types import SaveType
 from common import convert_alphanumeric, NotAlphanumericException
-from software_list_info import find_in_software_lists, _does_split_rom_match, get_crc32_for_software_list
+from software_list_info import find_in_software_lists, PartMatcherArgs, get_crc32_for_software_list
 
 def _byteswap(b):
 	byte_array = bytearray(b)
@@ -131,9 +131,7 @@ def add_n64_metadata(game):
 		if database_entry:
 			add_info_from_database_entry(game, database_entry)
 
-	software = find_in_software_lists(game.software_lists, crc=rom_crc32)
-	if not software:
-		software = find_in_software_lists(game.software_lists, crc=entire_rom, part_matcher=_does_split_rom_match)
-
+	args = PartMatcherArgs(rom_crc32, None, len(entire_rom), lambda offset, amount: entire_rom[offset:offset+amount])
+	software = find_in_software_lists(game.software_lists, args)
 	if software:
 		software.add_generic_info(game)

@@ -4,7 +4,7 @@ from enum import Enum, auto
 import input_metadata
 from common_types import SaveType, MediaType
 from info.region_info import TVSystem
-from software_list_info import get_software_list_entry, get_crc32_for_software_list, find_in_software_lists
+from software_list_info import get_software_list_entry, get_crc32_for_software_list, find_in_software_lists, find_in_software_lists_with_custom_matcher
 
 def add_entex_adventure_vision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -447,7 +447,7 @@ def add_ibm_pcjr_info(game):
 		#Mount both carts and a DOS floppy and type 'TUTOR'
 		#Boot from a DOS floppy and type 'G'
 
-def _does_intellivision_part_match(part, data, _):
+def _does_intellivision_part_match(part, data):
 	total_size = 0
 	number_of_roms = 0
 
@@ -483,7 +483,7 @@ def _does_intellivision_part_match(part, data, _):
 def add_intellivision_info(game):
 	#There's probably some way to get info from title screen in ROM, but I haven't explored that in ROMniscience yet
 	#Input info: Keyboard Module, ECS (49 keys), or 12-key keypad + 3 buttons + dpad (I don't think it's actually a paddle unless I'm proven otherwise), or Music Synthesizer (49 keys) (TODO add this I'm tired right now)
-	software = find_in_software_lists(game.software_lists, crc=game.rom.read(), part_matcher=_does_intellivision_part_match)
+	software = find_in_software_lists_with_custom_matcher(game.software_lists, _does_intellivision_part_match, [game.rom.read()])
 	if software:
 		software.add_generic_info(game)
 

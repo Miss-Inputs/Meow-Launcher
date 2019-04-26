@@ -79,6 +79,36 @@ class DataArea():
 	def size(self):
 		return parse_size_attribute(self.xml.attrib.get('size'))
 
+	def matches(self, args):
+		if len(self.roms) == 1:
+			roms = self.roms
+			if not roms:
+				#Ignore data areas such as "sram" that don't have any ROMs associated with them.
+				return False
+			for rom in roms:
+				if rom.matches(args.crc32, args.sha1):
+					return True
+		elif args.reader:
+			if self.size != args.size:
+				return False
+
+			for rom_segment in self.roms:
+				if not rom_segment.name and not rom_segment.crc32:
+					return False
+
+				offset = rom_segment.offset
+				size = rom_segment.size
+
+				try:
+					chunk = args.reader(offset, size)
+				except IndexError:
+					return False
+				chunk_crc32 = get_crc32_for_software_list(chunk)
+				if rom_segment.crc32 != chunk_crc32:
+					return False
+
+			return True
+
 class DiskAreaDisk():
 	def __init__(self, xml, disk_area):
 		self.xml = xml
@@ -136,6 +166,38 @@ class SoftwarePart():
 				return feature.attrib.get('value')
 
 		return None
+	
+	def matches(self, args):
+		data_area = None
+		if len(self.data_areas) > 1:
+			rom_data_area = None
+			for data_area in self.data_areas.values():
+				#Note that data area's name attribute can be anything like "rom" or "flop" depending on the kind of media, but the element inside will always be called "rom"
+				#Seems that floppies don't get split up into multiple pieces like this, though
+				if data_area.name == 'rom' and data_area.roms:
+					rom_data_area = data_area
+					break
+			if not rom_data_area:
+				return False
+		elif len(self.data_areas) == 1:
+			data_area = next(iter(self.data_areas.values()))
+		else:
+			if args.sha1:
+				sha1_lower = args.sha1.lower()
+				for disk_area in self.disk_areas.values():
+					disks = disk_area.disks
+					if not disks:
+						#Hmm, this might not happen
+						pass
+						continue
+					for disk in disks:
+						if not disk.sha1:
+							continue
+						if disk.sha1.lower() == sha1_lower:
+							return True
+			return False
+
+		return data_area.matches(args)
 
 	def has_data_area(self, name):
 		#Should probably use name in self.data_areas directly
@@ -258,60 +320,12 @@ class Software():
 		elif not (already_has_publisher and (publisher == '<unknown>')):
 			game.metadata.publisher = publisher
 
-def _does_split_rom_match(part, data, _):
-	rom_data_area = None
-	for data_area in part.data_areas.values():
-		if data_area.name == 'rom' and data_area.roms:
-			rom_data_area = data_area
-			break
-	if not rom_data_area:
-		return False
-
-	if rom_data_area.size != len(data):
-		return False
-
-	for rom_segment in rom_data_area.roms:
-		if not rom_segment.name and not rom_segment.crc32:
-			continue
-
-		offset = rom_segment.offset
-		size = rom_segment.size
-
-		try:
-			chunk = data[offset:offset+size]
-		except IndexError:
-			return False
-		chunk_crc32 = get_crc32_for_software_list(chunk)
-		if rom_segment.crc32 != chunk_crc32:
-			return False
-
-	return True
-
-def _does_part_match(part, crc, sha1):
-	for data_area in part.data_areas.values():
-		roms = data_area.roms
-		if not roms:
-			#Ignore data areas such as "sram" that don't have any ROMs associated with them.
-			#Note that data area's name attribute can be anything like "rom" or "flop" depending on the kind of media, but the element inside will always be called "rom"
-			continue
-		for rom in roms:
-			if rom.matches(crc, sha1):
-				return True
-	if sha1:
-		sha1_lower = sha1.lower()
-		for disk_area in part.disk_areas.values():
-			disks = disk_area.disks
-			if not disks:
-				#Hmm, this might not happen
-				pass
-				continue
-			for disk in disks:
-				if not disk.sha1:
-					continue
-				if disk.sha1.lower() == sha1_lower:
-					return True
-
-	return False
+class PartMatcherArgs():
+	def __init__(self, crc32, sha1, size, reader):
+		self.crc32 = crc32
+		self.sha1 = sha1
+		self.size = size
+		self.reader = reader #(seek_to, amount) > bytes
 
 class SoftwareList():
 	def __init__(self, path):
@@ -331,16 +345,22 @@ class SoftwareList():
 				return Software(software, self)
 		return None
 
-	def find_software(self, part_matcher=_does_part_match, part_matcher_args=None):
-		if part_matcher_args is None:
-			part_matcher_args = ()
-
+	def find_software_with_custom_matcher(self, matcher, args):
 		for software_xml in self.xml.findall('software'):
 			software = Software(software_xml, self)
 			for part in software.parts.values():
 				#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
 				#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
-				if part_matcher(part, *part_matcher_args):
+				if matcher(part, *args):
+					return software
+
+	def find_software(self, args):
+		for software_xml in self.xml.findall('software'):
+			software = Software(software_xml, self)
+			for part in software.parts.values():
+				#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
+				#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
+				if part.matches(args):
 					return software
 		return None
 
@@ -368,10 +388,17 @@ def get_software_list_by_name(name):
 	except FileNotFoundError:
 		return None
 
-def find_in_software_lists(software_lists, crc=None, sha1=None, part_matcher=_does_part_match):
+def find_in_software_lists_with_custom_matcher(software_lists, matcher, args):
+	for software_list in software_lists:
+		software = software_list.find_software_with_custom_matcher(matcher, args)
+		if software:
+			return software
+	return None
+
+def find_in_software_lists(software_lists, args):
 	#TODO: Handle hash collisions. Could happen, even if we're narrowing down to specific software lists
 	for software_list in software_lists:
-		software = software_list.find_software(part_matcher, (crc, sha1))
+		software = software_list.find_software(args)
 		if software:
 			return software
 	return None
@@ -403,28 +430,31 @@ def get_software_list_entry(game, skip_header=0):
 		if game.rom.extension == 'chd':
 			try:
 				sha1 = get_sha1_from_chd(game.rom.path)
-				return find_in_software_lists(software_lists, sha1=sha1)
+				args = PartMatcherArgs(None, sha1, None, None)
+				return find_in_software_lists(software_lists, args)
 			except UnsupportedCHDError:
 				pass
 		return None
 	else:
-		if skip_header:
-			if game.subroms:
-				#TODO: Get first floppy for now, because right now we don't differentiate with parts or anything
-				#TODO: Subroms for chds, just to make my head explode more
-				data = game.subroms[0].read(seek_to=skip_header)
-			else:
-				data = game.rom.read(seek_to=skip_header)
+		if game.subroms:
+			#TODO: Get first floppy for now, because right now we don't differentiate with parts or anything; this part of the code sucks
+			#TODO: Subroms for chds, just to make my head explode more
+			data = game.subroms[0].read(seek_to=skip_header)
 			crc32 = get_crc32_for_software_list(data)
-			software = find_in_software_lists(software_lists, crc=crc32)
-			if not software:
-				software = find_in_software_lists(software_lists, crc=data, part_matcher=_does_split_rom_match)
+			#We _could_ use sha1 here, but there's not really a need to
+			args = PartMatcherArgs(crc32, None, len(data), lambda offset, amount: data[offset:offset+amount])
+			software = find_in_software_lists(software_lists, args)
 		else:
-			crc32 = game.rom.get_crc32()
-			software = find_in_software_lists(software_lists, crc=crc32)
-			if not software:
-				#Hmm this doesn't seem right, but anyway, I'm stupid at the moment
-				software = find_in_software_lists(software_lists, crc=game.rom.read(), part_matcher=_does_split_rom_match)
+			if skip_header:
+				data = game.rom.read(seek_to=skip_header)
+				crc32 = get_crc32_for_software_list(data)
+				#We _could_ use sha1 here, but there's not really a need to
+				args = PartMatcherArgs(crc32, None, len(data), lambda offset, amount: data[offset:offset+amount])
+				software = find_in_software_lists(software_lists, args)
+			else:
+				crc32 = format_crc32_for_software_list(game.rom.get_crc32())
+				args = PartMatcherArgs(crc32, None, game.rom.get_size(), lambda offset, amount: game.rom.read(seek_to=offset, amount=amount))
+				software = find_in_software_lists(software_lists, args)
 		return software
 
 def format_crc32_for_software_list(crc):
