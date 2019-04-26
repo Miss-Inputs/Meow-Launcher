@@ -320,7 +320,7 @@ class Software():
 		elif not (already_has_publisher and (publisher == '<unknown>')):
 			game.metadata.publisher = publisher
 
-class PartMatcherArgs():
+class SoftwareMatcherArgs():
 	def __init__(self, crc32, sha1, size, reader):
 		self.crc32 = crc32
 		self.sha1 = sha1
@@ -421,7 +421,7 @@ def get_sha1_from_chd(chd_path):
 
 def matcher_args_for_bytes(data):
 	#We _could_ use sha1 here, but there's not really a need to
-	return PartMatcherArgs(get_crc32_for_software_list(data), None, len(data), lambda offset, amount: data[offset:offset+amount])
+	return SoftwareMatcherArgs(get_crc32_for_software_list(data), None, len(data), lambda offset, amount: data[offset:offset+amount])
 
 def get_software_list_entry(game, skip_header=0):
 	if game.software_lists:
@@ -434,7 +434,7 @@ def get_software_list_entry(game, skip_header=0):
 		if game.rom.extension == 'chd':
 			try:
 				sha1 = get_sha1_from_chd(game.rom.path)
-				args = PartMatcherArgs(None, sha1, None, None)
+				args = SoftwareMatcherArgs(None, sha1, None, None)
 				return find_in_software_lists(software_lists, args)
 			except UnsupportedCHDError:
 				pass
@@ -451,7 +451,7 @@ def get_software_list_entry(game, skip_header=0):
 				software = find_in_software_lists(software_lists, matcher_args_for_bytes(data))
 			else:
 				crc32 = format_crc32_for_software_list(game.rom.get_crc32())
-				args = PartMatcherArgs(crc32, None, game.rom.get_size(), lambda offset, amount: game.rom.read(seek_to=offset, amount=amount))
+				args = SoftwareMatcherArgs(crc32, None, game.rom.get_size(), lambda offset, amount: game.rom.read(seek_to=offset, amount=amount))
 				software = find_in_software_lists(software_lists, args)
 		return software
 
