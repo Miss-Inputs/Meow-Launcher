@@ -1,6 +1,7 @@
-import zipfile
-import subprocess
 import re
+import subprocess
+import zipfile
+import zlib
 
 compressed_exts = ['7z', 'zip', 'gz', 'bz2', 'tar', 'tgz', 'tbz']
 #7z supports more, but I don't expect to see them (in the case of things like .rar, I don't want them to be treated as
