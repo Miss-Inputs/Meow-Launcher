@@ -33,7 +33,7 @@ def sevenzip_list(path):
 	return files
 
 def compressed_list(path):
-	if path.lower().endswith('.zip'):
+	if zipfile.is_zipfile(path):
 		try:
 			return zip_list(path)
 		except zipfile.BadZipFile:
@@ -62,8 +62,11 @@ def sevenzip_getsize(path, filename):
 	return None
 
 def compressed_getsize(path, filename):
-	if path.lower().endswith('.zip'):
-		return zip_getsize(path, filename)
+	if zipfile.is_zipfile(path):
+		try:
+			return zip_getsize(path, filename)
+		except zipfile.BadZipFile:
+			pass
 	return sevenzip_getsize(path, filename)
 
 def sevenzip_get(path, filename):
@@ -76,8 +79,11 @@ def zip_get(path, filename):
 			return file.read()
 
 def compressed_get(path, filename):
-	if path.lower().endswith('.zip'):
-		return zip_get(path, filename)
+	if zipfile.is_zipfile(path):
+		try:
+			return zip_get(path, filename)
+		except zipfile.BadZipFile:
+			pass
 	return sevenzip_get(path, filename)
 
 def get_zip_crc32(path, filename):
@@ -85,7 +91,10 @@ def get_zip_crc32(path, filename):
 		return zip_file.getinfo(filename).CRC & 0xffffffff
 
 def get_crc32_of_archive(path, filename):
-	if path.lower().endswith('.zip'):
-		return get_zip_crc32(path, filename)
+	if zipfile.is_zipfile(path):
+		try:
+			return get_zip_crc32(path, filename)
+		except zipfile.BadZipFile:
+			pass
 	#TODO: Get them out of 7z, which might end up being faster than reading the whole thing
 	return zlib.crc32(sevenzip_get(path, filename)) & 0xffffffff
