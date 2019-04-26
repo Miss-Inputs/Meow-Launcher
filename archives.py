@@ -79,3 +79,13 @@ def compressed_get(path, filename):
 	if path.lower().endswith('.zip'):
 		return zip_get(path, filename)
 	return sevenzip_get(path, filename)
+
+def get_zip_crc32(path, filename):
+	with zipfile.ZipFile(path) as zip_file:
+		return zip_file.getinfo(filename).CRC & 0xffffffff
+
+def get_crc32_of_archive(path, filename):
+	if path.lower().endswith('.zip'):
+		return get_zip_crc32(path, filename)
+	#TODO: Get them out of 7z, which might end up being faster than reading the whole thing
+	return zlib.crc32(sevenzip_get(path, filename)) & 0xffffffff

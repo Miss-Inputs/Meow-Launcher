@@ -281,7 +281,7 @@ def _does_split_rom_match(part, data, _):
 			chunk = data[offset:offset+size]
 		except IndexError:
 			return False
-		chunk_crc32 = '{:08x}'.format(zlib.crc32(chunk))
+		chunk_crc32 = get_crc32_for_software_list(chunk)
 		if rom_segment.crc32 != chunk_crc32:
 			return False
 
@@ -408,21 +408,30 @@ def get_software_list_entry(game, skip_header=0):
 				pass
 		return None
 	else:
-		if game.subroms:
-			#TODO: Get first floppy for now, because right now we don't differentiate with parts or anything
-			#TODO: Subroms for chds, just to make my head explode more
-			data = game.subroms[0].read(seek_to=skip_header)
+		if skip_header:
+			if game.subroms:
+				#TODO: Get first floppy for now, because right now we don't differentiate with parts or anything
+				#TODO: Subroms for chds, just to make my head explode more
+				data = game.subroms[0].read(seek_to=skip_header)
+			else:
+				data = game.rom.read(seek_to=skip_header)
+			crc32 = get_crc32_for_software_list(data)
+			software = find_in_software_lists(software_lists, crc=crc32)
+			if not software:
+				software = find_in_software_lists(software_lists, crc=data, part_matcher=_does_split_rom_match)
 		else:
-			data = game.rom.read(seek_to=skip_header)
-		crc32 = get_crc32_for_software_list(data)
-		software = find_in_software_lists(software_lists, crc=crc32)
-		if not software:
-			software = find_in_software_lists(software_lists, crc=data, part_matcher=_does_split_rom_match)
+			crc32 = game.rom.get_crc32()
+			software = find_in_software_lists(software_lists, crc=crc32)
+			if not software:
+				#Hmm this doesn't seem right, but anyway, I'm stupid at the moment
+				software = find_in_software_lists(software_lists, crc=game.rom.read(), part_matcher=_does_split_rom_match)
 		return software
 
-def get_crc32_for_software_list(data):
-	return '{:08x}'.format(zlib.crc32(data))
+def format_crc32_for_software_list(crc):
+	return '{:08x}'.format(crc)
 
+def get_crc32_for_software_list(data):
+	return format_crc32_for_software_list(zlib.crc32(data) & 0xffffffff)
 
 is_release_date_with_thing_at_end = re.compile(r'\d{8}\s\(\w+\)')
 def parse_release_date(game, release_info):

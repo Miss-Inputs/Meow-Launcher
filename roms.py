@@ -133,6 +133,9 @@ class Rom():
 	def get_size(self):
 		return io_utils.get_real_size(self.path, self.compressed_entry)
 
+	def get_crc32(self):
+		return io_utils.get_crc32(self.path, self.compressed_entry)
+
 class Game():
 	def __init__(self, rom, platform, folder):
 		self.rom = rom

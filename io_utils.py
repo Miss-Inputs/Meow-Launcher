@@ -1,7 +1,10 @@
 import os
 import pathlib
+import zlib
 
 import archives
+
+crc_chunk_size = 64 * 1024 * 1024
 
 def ensure_exist(path):
 	pathlib.Path(os.path.dirname(path)).mkdir(exist_ok=True, parents=True)
@@ -14,14 +17,13 @@ def get_real_size(path, compressed_entry=None):
 	return archives.compressed_getsize(path, compressed_entry)
 
 def read_file(path, compressed_entry=None, seek_to=0, amount=-1):
-	if compressed_entry is None:
+	if not compressed_entry:
 		with open(path, 'rb') as f:
 			f.seek(seek_to)
 			if amount < 0:
 				return f.read()
 
 			return f.read(amount)
-
 
 	data = archives.compressed_get(path, compressed_entry)
 	if seek_to:
@@ -33,6 +35,16 @@ def read_file(path, compressed_entry=None, seek_to=0, amount=-1):
 		return data[:amount]
 
 	return data
+
+def get_crc32(path, compressed_entry=None):
+	if not compressed_entry:
+		with open(path, 'rb') as f:
+			crc = 0
+			for chunk in iter(lambda: f.read(crc_chunk_size), b''):
+				crc = zlib.crc32(chunk, crc)
+			return crc & 0xffffffff
+
+	return archives.get_crc32_of_archive(path, compressed_entry)
 
 def sanitize_name(s, supersafe=False):
 	#These must never be filenames or folder names!  Badbadbad!
