@@ -3,7 +3,8 @@
 
 cprofile_results
 .leu
-.vscode/
+.vscode
+.vscode/*
 
 # User-specific files
 *.suo
