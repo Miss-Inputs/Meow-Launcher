@@ -401,8 +401,11 @@ def get_software_list_entry(game, skip_header=0):
 
 	if game.metadata.media_type == MediaType.OpticalDisc:
 		if game.rom.extension == 'chd':
-			sha1 = get_sha1_from_chd(game.rom.path)
-			return find_in_software_lists(software_lists, sha1=sha1)
+			try:
+				sha1 = get_sha1_from_chd(game.rom.path)
+				return find_in_software_lists(software_lists, sha1=sha1)
+			except UnsupportedCHDError:
+				pass
 		return None
 	else:
 		if game.subroms:

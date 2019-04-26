@@ -177,6 +177,10 @@ def process_file(system_config, rom_dir, root, rom):
 	if game.rom.extension == 'm3u':
 		lines = game.rom.read().decode('utf-8').splitlines()
 		filenames = [line if line.startswith('/') else os.path.join(game.folder, line) for line in lines if not line.startswith("#")]
+		if any([not os.path.isfile(filename) for filename in filenames]):
+			if main_config.debug:
+				print('M3U file', game.rom.path, 'has broken references!!!!', filenames)
+			return
 		game.subroms = [Rom(referenced_file) for referenced_file in filenames]
 
 	potential_emulators = system_config.chosen_emulators
