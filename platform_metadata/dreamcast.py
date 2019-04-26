@@ -6,6 +6,7 @@ import cd_read
 from common_types import SaveType
 from data.sega_licensee_codes import licensee_codes
 from .saturn import SaturnRegionCodes
+from software_list_info import get_software_list_entry
 #I'm just assuming Saturn and Dreamcast have the same way of doing region codes... well, it's just mostly JUE that need worrying about at this point anyway
 
 gdi_regex = re.compile(r'^(?:\s+)?(?P<trackNumber>\d+)\s+(?P<unknown1>\S+)\s+(?P<type>\d)\s+(?P<sectorSize>\d+)\s+(?:"(?P<name>.+)"|(?P<name_unquoted>\S+))\s+(?P<unknown2>.+)$')
