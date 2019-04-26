@@ -274,8 +274,6 @@ def is_machine_launchable(machine):
 			needs_software = True
 
 		if needs_software:
-			if main_config.debug:
-				print(machine.name, machine.basename, 'has software lists:', [sl.attrib.get('name') for sl in machine.xml.findall('softwarelist')])
 			return False
 	
 	return True
