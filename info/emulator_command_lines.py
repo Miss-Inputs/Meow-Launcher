@@ -374,6 +374,13 @@ def mame_megadrive(game, _):
 		raise EmulationNotSupportedException('Pocket Monsters not supported from fullpath')
 	if mapper == 'rom_smw64':
 		raise EmulationNotSupportedException('Super Mario World 64 not supported')
+	if mapper == 'rom_cjmjclub':
+		raise EmulationNotSupportedException('Chao Ji Mahjong Club not supported')
+	if mapper == 'rom_soulb':
+		#It looks like this should work, but loading it from fullpath results in an "Unknown slot option 'rom_soulblad' in slot 'mdslot'" error when it should be rom_soulb instead
+		raise EmulationNotSupportedException('Soul Blade not supported')
+	if mapper == 'rom_chinf3':
+		raise EmulationNotSupportedException('Chinese Fighter 3 not supported')
 
 	#Hmm. Most Megadrive emulators that aren't MAME have some kind of region preference thing where it's selectable between U->E->J or J->U->E or U->J->E or whatever.. because of how this works I'll have to make a decision, unless I feel like making a config thing for that, and I don't think I really need to do that.
 	#I'll go with U->J->E for now
@@ -607,8 +614,9 @@ def mednafen_megadrive(game, _):
 		raise EmulationNotSupportedException('SVP chip not supported')
 
 	mapper = game.metadata.specific_info.get('Mapper')
-	unsupported_mappers = ('rom_mcpir', 'rom_sf002', 'rom_mjlov', 'rom_lion3', 'rom_kof99_pokemon', 'rom_squir', 'rom_sf004', 'rom_topf', 'rom_smw64', 'rom_lion2', 'rom_stm95')
+	unsupported_mappers = ('rom_mcpir', 'rom_sf002', 'rom_mjlov', 'rom_lion3', 'rom_kof99_pokemon', 'rom_squir', 'rom_sf004', 'rom_topf', 'rom_smw64', 'rom_lion2', 'rom_stm95', 'rom_cjmjclub', 'rom_pokestad', 'rom_soulb', 'rom_smb', 'rom_smb2', 'rom_chinf3')
 	#Squirrel King does boot but you die instantly, that's interesting
+	#Soul Blade freezes soon after starting a match?
 	if mapper in unsupported_mappers:
 		raise EmulationNotSupportedException(mapper + ' not supported')
 
@@ -803,7 +811,7 @@ def gbe_plus(game, _):
 def kega_fusion(game, _):
 	mapper = game.metadata.specific_info.get('Mapper')
 	#rom_kof99: Pocket Monsters does work (game-specific hack, probably?), which is why in platform_metadata/megadrive I've treated it specially and called it rom_kof99_pokemon
-	if mapper in ('aqlian', 'rom_sf002', 'rom_sf004', 'rom_smw64', 'rom_topf', 'rom_kof99'):
+	if mapper in ('aqlian', 'rom_sf002', 'rom_sf004', 'rom_smw64', 'rom_topf', 'rom_kof99', 'rom_cjmjclub', 'rom_pokestad', 'rom_soulb', 'rom_chinf3'):
 		raise EmulationNotSupportedException(mapper + ' not supported')
 	return LaunchParams('kega-fusion', ['-fullscreen', '$<path>'])
 
