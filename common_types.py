@@ -14,6 +14,7 @@ class MediaType(Enum):
 	Digital = auto()
 	Executable = auto()
 	Floppy = auto()
+	HardDisk = auto()
 	OpticalDisc = auto()
 	Tape = auto()
 	Snapshot = auto()
