@@ -260,17 +260,25 @@ def add_ines_metadata(game, header):
 		#TV type apparently isn't used much despite it being part of the iNES specification, and looking at a lot of headered ROMs it does seem that they are all NTSC other than a few that say PAL that shouldn't be, so yeah, I wouldn't rely on it. Might as well just use the filename.
 
 def _does_nes_rom_match(part, prg_crc, chr_crc):
-	prg_part = part.data_areas.get('prg')
-	chr_part = part.data_areas.get('chr')
+	prg_area = part.data_areas.get('prg')
+	chr_area = part.data_areas.get('chr')
+	if len(part.data_areas) == 2 and prg_area and not chr_area:
+		#This doesn't happen often, but... hmm
+		chr_area = part.data_areas.get('rom')
+	#These two data area names seem to be used for alternate types of carts (Aladdin Deck Enhancer/Datach/etc)
+	if not prg_area:
+		prg_area = part.data_areas.get('rom')
+	if not prg_area:
+		prg_area = part.data_areas.get('cart')
 
-	if prg_part:
+	if prg_area:
 		#(There is only one ROM, or at least I hope so, otherwise I'd look silly)
-		prg_matches = prg_part.roms[0].crc32 is not None and prg_part.roms[0].crc32 == prg_crc
+		prg_matches = prg_area.roms[0].matches(prg_crc, None)
 	else:
 		prg_matches = False #prg_crc is None?
 
-	if chr_part:
-		chr_matches = chr_part.roms[0].crc32 is not None and chr_part.roms[0].crc32 == chr_crc
+	if chr_area:
+		chr_matches = chr_area.roms[0].matches(chr_crc, None)
 	else:
 		chr_matches = chr_crc is None
 

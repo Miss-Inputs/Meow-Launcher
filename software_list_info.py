@@ -167,6 +167,10 @@ class SoftwarePart():
 				return feature.attrib.get('value')
 
 		return None
+
+	@property
+	def interface(self):
+		return self.xml.attrib.get('interface')
 	
 	def matches(self, args):
 		data_area = None
