@@ -260,7 +260,7 @@ systems.update({
 	#Makes you set time and date each time; also supposed to have sound apparently but I don't hear any
 	'e-Reader': UnsupportedSystem(None, ['gba_ereader'], [], {MediaType.Barcode: ['bin', 'raw', 'bmp']}),
 	#VBA-M works (nothing else emulates e-Reader that I know of), but you have to swipe the card manually, which doesn't really work for a nice launcher thing... and there's not really a way around that at this point in time.
-	'Electronika BK': UnsupportedSystem('bk0011m', ['bk0010'], [], {MediaType.Tape: ['wav', 'tap'], MediaType.Floppy: mame_floppy_formats, MediaType.HardDrive: ['hdi'], MediaType.Executable: ['bin']}),
+	'Electronika BK': UnsupportedSystem('bk0011m', ['bk0010'], [], {MediaType.Tape: ['wav', 'tap'], MediaType.Floppy: mame_floppy_formats, MediaType.HardDisk: ['hdi'], MediaType.Executable: ['bin']}),
 	#Preliminary driver and only supports .wav tapes as media
 	'Luxor ABC80': UnsupportedSystem('abc80', ['abc80_cass', 'abc80_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Snapshot: ['bac']}),
 	#Requires "RUN " and the program name, where the program name is completely arbitrary and variable, so there's not really any way to do it automatically and programmatically
