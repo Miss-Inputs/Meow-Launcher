@@ -173,10 +173,8 @@ def detect_series_index_for_things_with_series():
 					if chapter_matcherooni:
 						chapter_index = chapter_matcherooni.end()
 				if chapter_index is not None:
-					#Or do I just wanna slurp the whole thing after the index
-					word_after_chapter = re.match(r' ?(\w+)', name[chapter_index:])
-					if word_after_chapter:
-						add_series(desktop, path, None, word_after_chapter[1])
+					#Could also do just a word match starting from chapter_index I guess
+					add_series(desktop, path, None, name[chapter_index:])
 		elif len(name_chunks) == 1:
 			if name_chunks[0].startswith(existing_series):
 				add_series(desktop, path, None, get_series_from_whole_thing(existing_series, name_chunks[0]))
