@@ -27,7 +27,6 @@ series_matcher = re.compile(r'(?P<Series>.+?)\b\s+#?(?P<Number>\d{1,3}|[IVXLCDM]
 chapter_matcher = re.compile(r'\b(?:Chapter|Vol|Volume|Episode|Part)\b(?:\.)?', flags=re.RegexFlag.IGNORECASE)
 #"Phase", "Version", "Disk" might also be chapter marker things?
 subtitle_splitter = re.compile(r'\s*(?:\s+-\s+|:\s+|\/)')
-#"&" and "and" and "+" might also go in here?
 blah_in_1_matcher = re.compile(r'.+\s+in\s+1')
 #TODO: "Whee! 2" should > "Whee!" but returns None instead
 
