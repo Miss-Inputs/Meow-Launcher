@@ -1,11 +1,23 @@
 #!/usr/bin/env python
 
-import os
-import glob
-import zipfile
-import time
-import datetime
 import calendar
+import datetime
+import glob
+import os
+import re
+import time
+import zipfile
+
+import launchers
+import region_detect
+from common import junk_suffixes, title_case
+from common_types import MediaType, SaveType
+from config import main_config
+from data.steam_developer_overrides import developer_overrides
+from data.steam_genre_ids import genre_ids
+from data.steam_store_categories import store_categories
+from metadata import Metadata
+from series_detect import chapter_matcher
 
 try:
 	from PIL import Image
@@ -21,17 +33,7 @@ try:
 except ModuleNotFoundError:
 	have_steamfiles = False
 
-from config import main_config
-from common import junk_suffixes, title_case
-from common_types import MediaType, SaveType
-import region_detect
-import launchers
-from metadata import Metadata
-from series_detect import chapter_matcher
 
-from data.steam_genre_ids import genre_ids
-from data.steam_developer_overrides import developer_overrides
-from data.steam_store_categories import store_categories
 
 class SteamState():
 	class __SteamState():
@@ -566,17 +568,18 @@ def add_metadata_from_appinfo(game):
 		#I think it's a fair assumption that every game on Steam will have _some_ sort of save data (even if just settings and not progress) so until I'm proven wrong... whaddya gonna do
 		game.metadata.save_type = SaveType.Internal
 
+name_suffixes = re.compile(r'(?: | - |: -)?(Demo|GOTY(?: Edition)?|Game of the Year Edition|Definitive Edition)$', re.RegexFlag.IGNORECASE)
 def fix_name(name):
 	name = name.replace('™', '')
 	name = name.replace('®', '')
 	if main_config.normalize_name_case:
 		name_to_test_for_upper = chapter_matcher.sub('', name)
-		if name_to_test_for_upper.lower().endswith(' demo'):
-			#Hmm maybe I should make this a more complexy regex to catch " - Demo" as well, and maybe that could reused for other similar stuff down the line
-			name_to_test_for_upper = name_to_test_for_upper[:-5]
+		name_to_test_for_upper = name_suffixes.sub('', name)
 
 		if name_to_test_for_upper.isupper():
-			name = title_case(name, words_to_ignore_case=['GOTY', 'XL', 'VR', 'XCOM', 'VVVVVV', 'RPG', 'HD'])
+			name = title_case(name, words_to_ignore_case=['XL', 'VR', 'XCOM', 'VVVVVV', 'RPG', 'HD'])
+	#Hmm... this is primarily so series_detect and disambiguate work well, it may be worthwhile putting them back afterwards (put them in some kind of field similar to Filename-Tags but disambiguate always adds them in); depending on how important it is to have "GOTY" or "Definitive Edition" etc in the name if not ambiguous
+	name = name_suffixes.sub(r' (\1)', name)
 	return name
 
 def process_game(app_id, name=None):
