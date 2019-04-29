@@ -156,6 +156,8 @@ def detect_series_index_for_things_with_series():
 			continue
 
 		name = get_usable_name(desktop)
+		if name.startswith('The '):
+			name = name[len('The '):]
 		name_chunks = get_name_chunks(name)
 		if len(name_chunks) > 1:
 			if name_chunks[0] == existing_series:
