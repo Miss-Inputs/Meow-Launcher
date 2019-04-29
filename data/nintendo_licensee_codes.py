@@ -141,6 +141,7 @@ nintendo_licensee_codes = {
 	'JS': 'Digital Leisure',
 	'KR': 'Krea Medie',
 	'KM': 'Deep Silver',
+	'PV': 'Pan Vision Games',
 	'RW': 'RealNetworks', #Or GameHouse, or Real Arcade; which are sorta subsidiaries I guess
 	'WB': 'Google', #YouTube app on Wii/Wii U/3DS, so if "YouTube Inc" is counted as a separate company (as the 3DS banner implies) then it could be that
 	'WD': 'Amazon', #Amazon Instant Video (WiiWare)
@@ -161,6 +162,11 @@ nintendo_licensee_codes = {
 	'AF': '[Bandai] Namco', #Namco games have always used this, but when they merged with Bandai (Sep 2005), they kept this code (so newer games like that Code Geass DS one use this code as well), which is interesting because Square Enix doesn't reuse Squaresoft or Enix's licensee codes and gets a new one
 	'CE': 'Pony Canyon/FCI', #Seems to be Fujisankei Communications International (as FCI Inc) for USA releases, Pony Canyon for Japanese releases, both are owned by Fujisankei Communications Group
 
+	#Welcome to confusing town, population these
+	'5Z': '???Classified Games', #Also appears in the Card Shark (SNES) proto, which as far as I can tell was developed by someone named Bonsai and involved someone named Bicycle as well. Seems like there's a mixup here with Conspiracy Entertainment? Are they the same company?
+	'AC': '???Toei Animation', #Used in some EXTREMELY obscure "Waiwai Check" games for Satellaview, which according to the title screen of one of them, are made by Hori Electric? Well I'm confused; Tooyama no Kinsan Space Chou - Mr. Gold is actually published by Toei though (apparently)
+	'CA': '???Konami (Ultra Games)', #Definitely Konami but might not be Ultra Games? Published Batman Returns SNES in Japan (but not elsewhere), and Parodius (Europe) for Game Boy
+
 	#So far, only seen once (in a reliable source, i.e. not protos or anything like that)
 	'09': 'Hot-B', #Ginga - Card & Puzzle Collection (Japan) (En,Ja)
 	'19': 'Bandai (B-AI)', #Pingu - Sekai de 1ban Genki na Penguin (Japan)
@@ -178,6 +184,7 @@ nintendo_licensee_codes = {
 	'6P': 'Ravensburger Interactive', #Fix & Foxi - Episode 1 - Lupo (Europe) (En,Fr,De) (GBC)
 	'6R': 'Sound Source', #Extreme Sports with the Berenstain Bears (USA, Europe) (En,Fr,De,Es,It) (GBC)
 	'6X': 'Wanadoo', #Kirikou (GBC) also Gremlins: Stripe vs. Gizmo (Beta) (GBA)
+	'7N': 'Empire Interactive', #Hello Kitty - Big City Dreams (Europe) (En,Sv,No,Da) (DS)
 	'8C': 'Vic Tokai', #Zerd no Densetsu (Japan)
 	'8H': 'TNN', #Umihara Kawase (Japan) (SNES)
 	'8M': 'CyberFront', #Densha de Go 2 (GBC)
@@ -197,24 +204,30 @@ nintendo_licensee_codes = {
 	'EE': 'Information Global Services', #Super Shadow of the Beast (USA) (Proto) (SNES)
 	'F3': 'Extreme Entertainment', #Super Solitaire (USA) (En,Fr,De,Es,It) (SNES)
 	'FE': 'Davidson & Associates', #Math Blaster - Episode 1 (USA) (SNES)
+	'GM': 'Gamecock Media Group', #Dementium - The Ward (Europe) (En,Fr,De,Es,It) (DS) (published by Gamecock Media Group in USA; banner lists developer ("Renegade LLC"))
 	'GN': 'OG International', #Cartoon Network Punch Time Explosion XL (Europe) (Wii)
 	'GT': '505 Games', #Picture Perfect Hair Salon (USA) (DSi)
-	'GY': 'The American Game Factory', #Code Lyoko (USA) (DS) (both this name and "The Game Factory" is used on the box but the latter is already FK)
+	'GU': 'Bayer', #Knock'em Downs Worlds Fair (USA) (DS)
+	'GY': 'The Game Factory', #Code Lyoko (USA) (DS) (might be "The American Game Factory", both names are used on the box so I dunno)
 	'H4': 'SNK Playmore', #Doki Doki Majo Shinpan (DS)
 	'HL': 'Frontier Developments', #LostWinds (USA) (WiiWare)
 	'HN': 'High Voltage', #VIP Casino Blackjack (USA) (WiiWare)
 	'HS': 'HES', #AFL Mascot Manor (Australia) (DS) (published under Tru Blu Entertainment which is a subsidiary of HES which appears on the banner and HS seems to be an abbreviation)
 	'J9': 'AQ Interactive', #Korg DS-10 Synthesizer series (Japan) (DS)
 	'JT': 'Empty Clip Studios', #Groovin' Blocks (USA) (WiiWare) (retail release is by Zoo)
+	'JW': 'BigBen Interactive', #WRC - FIA World Rally Championship (Europe) (En,Fr,De,Es,It) (Demo) (3DS)
 	'JY': 'Steel Penny', #Bruiser and Scratch (USA) (WiiWare)
+	'KA': 'Alchemist', #Higurashi no Naku Koro ni Kizuna series (DS)
+	'KJ': 'Gamebridge', #Happy Party with Hello Kitty & Friends! (Europe) (En,Fr,De,Es,It,Nl) (DS)
+	'NP': 'Nobilis', #Hello Kitty - Daily (Europe) (DS)
 	'NR': 'Destineer', #Giana Sisters DS (USA)
 	'NJ': 'Enjoy Gaming', #System Flaw (Europe) (DSi)
 	'PQ': 'PopCap Games', #Peggle Dual Shot (USA) (DS)
-	'PV': 'Pan Vision Games', #Miffy's World (Europe) (DS)
 	'QQ': 'Gamelion Studios', #Furry Legends (Europe) (WiiWare)
 	'RB': 'Detune', #Korg M01 Music Workstation (Japan) (DS)
 	'RG': 'Romino Games', #Swords & Soldiers II (Wii U)
 	'S3': 'Genius Sonority', #The Denpa Men demo (3DS)
+	'S5': 'SouthPeak Games', #Dementium II (Europe) (En,Fr,De,Es,It) (DS)
 	'SZ': 'Storm City Entertainment', #System Flaw (USA) (DSi)
 	'TH': 'Kolkom', #Girlfriends Forever: Magic Skate (Europe) (WiiWare)
 	'TL': 'Telltale', #Strong Badia the Free series (WiiWare)
@@ -229,6 +242,7 @@ nintendo_licensee_codes = {
 	'XS': 'Aksys Games', #Family Glide Hockey (WiiWare)
 	'Y4': 'Zen Studios', #Marvel Pinball 3D (Europe) (En,Fr,De,Es,It) (eShop) (Demo) (3DS)
 	'YV': 'KnapNok Games', #Affordable Space Adventures (Wii U)
+	'XT': 'Funbox Media', #Hello Kitty - Big City Dreams (Europe) (En,Fr,De,Es,It,Nl,Pt) (Rev 1) (DS)
 
 	#FF is 100% junk; it'll basically only show up when the rest of the header is junk (unlicensed, or SNES game with incorrectly detected header)
 	#33 and ZZ also seem to not be valid
