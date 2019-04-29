@@ -163,6 +163,8 @@ def detect_series_index_for_things_with_series():
 				add_series(desktop, path, None, convert_roman_numerals_in_title(name_chunks[1]))
 			elif name_chunks[0].startswith(existing_series):
 				add_series(desktop, path, None, get_series_from_whole_thing(existing_series, name_chunks[0]))
+			else:
+				add_series(desktop, path, None, '1')
 		elif len(name_chunks) == 1:
 			if name_chunks[0].startswith(existing_series):
 				add_series(desktop, path, None, get_series_from_whole_thing(existing_series, name_chunks[0]))
