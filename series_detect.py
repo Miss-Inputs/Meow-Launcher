@@ -28,7 +28,6 @@ chapter_matcher = re.compile(r'\b(?:Chapter|Vol|Volume|Episode|Part)\b(?:\.)?', 
 #"Phase", "Version", "Disk" might also be chapter marker things?
 subtitle_splitter = re.compile(r'\s*(?:\s+-\s+|:\s+|\s+\/\s+)')
 blah_in_1_matcher = re.compile(r'.+\s+in\s+1')
-#TODO: "Whee! 2" should > "Whee!" but returns None instead
 
 def get_name_chunks(name):
 	name_chunks = subtitle_splitter.split(name)
@@ -131,7 +130,9 @@ def force_add_series_with_index(desktop, path, existing):
 		add_series(desktop, path, series)
 
 def get_series_from_whole_thing(series, whole_name):
-	rest = whole_name[len(series):].lstrip()
+	rest = whole_name[len(series):].strip()
+	rest = chapter_matcher.sub('', rest).strip()
+
 	if rest:
 		if rest not in probably_not_a_series_index:
 			#Don't convert things that aren't actually roman numerals
@@ -139,7 +140,8 @@ def get_series_from_whole_thing(series, whole_name):
 				rest = str(convert_roman_numeral(rest))
 			except ValueError:
 				pass
-		return convert_roman_numerals_in_title(rest)
+			return convert_roman_numerals_in_title(rest)
+		return rest
 	
 	return '1'
 
@@ -161,9 +163,13 @@ def detect_series_index_for_things_with_series():
 		name_chunks = get_name_chunks(name)
 		if len(name_chunks) > 1:
 			if name_chunks[0] == existing_series:
-				add_series(desktop, path, None, convert_roman_numerals_in_title(name_chunks[1]))
+				series_index = name_chunks[1]
+				series_index = chapter_matcher.sub('', series_index).strip()
+				series_index = convert_roman_numerals_in_title(series_index)
+				add_series(desktop, path, None, series_index)
 			elif name_chunks[0].startswith(existing_series):
-				add_series(desktop, path, None, get_series_from_whole_thing(existing_series, name_chunks[0]))
+				series_index = get_series_from_whole_thing(existing_series, name_chunks[0].strip())
+				add_series(desktop, path, None, series_index)
 			else:
 				#This handles the case where it's like "Blah Bloo - Chapter Zabityzoo" but the series in Steam is listed as some abbreviation/alternate spelling of Blah Bloo so it doesn't get picked up otherwise
 				chapter_index = None
@@ -175,10 +181,10 @@ def detect_series_index_for_things_with_series():
 						chapter_index = chapter_matcherooni.end()
 				if chapter_index is not None:
 					#Could also do just a word match starting from chapter_index I guess
-					add_series(desktop, path, None, name[chapter_index:])
+					add_series(desktop, path, None, name[chapter_index:].strip())
 		elif len(name_chunks) == 1:
 			if name_chunks[0].startswith(existing_series):
-				add_series(desktop, path, None, get_series_from_whole_thing(existing_series, name_chunks[0]))
+				add_series(desktop, path, None, get_series_from_whole_thing(existing_series, name_chunks[0].strip()))
 
 def get_existing_seriesless_launchers():
 	for name in os.listdir(main_config.output_folder):
