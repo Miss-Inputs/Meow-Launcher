@@ -368,6 +368,8 @@ def add_icon_from_common_section(game, common_section):
 			print(game.name, game.app_id, icon_exception)
 		elif potentially_has_icon and not found_an_icon:
 			print('Could not find icon for', game.name, game.app_id)
+		elif not potentially_has_icon:
+			print(game.name, game.app_id, 'does not even have an icon')
 
 def add_metadata_from_appinfo_common_section(game, common):
 	add_icon_from_common_section(game, common)
