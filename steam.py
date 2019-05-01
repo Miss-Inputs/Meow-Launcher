@@ -3,6 +3,7 @@
 import calendar
 import datetime
 import glob
+import io
 import os
 import re
 import time
@@ -20,7 +21,7 @@ from metadata import Metadata
 from series_detect import chapter_matcher
 
 try:
-	from PIL import Image
+	from PIL import Image, IcoImagePlugin
 	have_pillow = True
 except ModuleNotFoundError:
 	have_pillow = False
@@ -177,9 +178,25 @@ def look_for_icon(icon_hash):
 					image = Image.open(icon_path)
 					return image
 				except (ValueError, OSError) as ex:
-					#.ico file is shitty and broken and has an invalid size in its own fucking header
-					#OSError is also thrown too sometimes when it's not actually an .ico file
-					raise IconError('.ico file {0} has some annoying error: {1}'.format(icon_hash, str(ex))) from ex
+					#Try and handle the "This is not one of the allowed sizes of this image" error caused by .ico files having incorrect headers which I guess happens more often than I would have thought otherwise
+					#This is gonna get ugly
+					with open(icon_path, 'rb') as f:
+						try:
+							#Use BytesIO here to prevent "seeking a closed file" errors, which is probably a sign that I don't actually know what I'm doing
+							ico = IcoImagePlugin.IcoFile(io.BytesIO(f.read()))
+							biggest_size = (0, 0)
+							for size in ico.sizes():
+								if size[0] > biggest_size[0] and size[1] > biggest_size[1]:
+									biggest_size = size
+							if biggest_size == (0, 0):
+								raise IconError('.ico file {0} has no valid sizes'.format(icon_file))
+							return ico.getimage(biggest_size)
+						except SyntaxError as syntax_error:
+							#Of all the errors it throws, it throws this one? Well, okay fine whatever
+							raise IconError('.ico file {0} is not actually an .ico file at all'.format(icon_file)) from syntax_error
+
+					#Guess it's still broken
+					raise IconError('.ico file {0} has some annoying error: {1}'.format(icon_file, str(ex))) from ex
 
 			if not is_zip:
 				return icon_path
