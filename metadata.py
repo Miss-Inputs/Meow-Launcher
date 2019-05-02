@@ -3,7 +3,7 @@ import collections
 from enum import Enum, auto
 from input_metadata import InputInfo
 from common_types import MediaType, SaveType
-from launchers import metadata_section_name, image_section_name
+from launchers import metadata_section_name, image_section_name, junk_section_name
 
 class EmulationStatus(Enum):
 	Good = auto()
@@ -228,7 +228,6 @@ class Metadata():
 			'Series': self.series,
 			'Series-Index': self.series_index,
 
-			'Ignored-Tags': self.ignored_filename_tags,
 			'TV-Type': self.tv_type.name if self.tv_type else None,
 		}
 
@@ -259,6 +258,7 @@ class Metadata():
 			metadata_fields[k] = v.name if isinstance(v, Enum) else v
 
 		fields[metadata_section_name] = metadata_fields
+		fields[junk_section_name]['Ignored-Tags'] = self.ignored_filename_tags
 
 		if self.images:
 			fields[image_section_name] = {}
