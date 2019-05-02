@@ -77,11 +77,14 @@ def parse_param_sfo(game, param_sfo):
 			#There would be additional levels not mentioned here: Go! Explore (Europe) = 2; Danganronpa = 8; have heard it maxes out at 11
 			if value >= 9:
 				game.metadata.nsfw = True
-		elif key in ('APP_VER', 'BOOTABLE', 'CATEGORY', 'DISC_VERSION', 'MEMSIZE', 'PSP_SYSTEM_VER', 'REGION', 'USE_USB'):
+		elif key == 'CATEGORY':
+			#This is a two letter code which generally means something like "Memory stick game" "Update" "PS1 Classics", see ROMniscience notes
+			if value == 'UV':
+				game.metadata.specific_info['Is-UMD-Video'] = True
+		elif key in ('APP_VER', 'BOOTABLE', 'DISC_VERSION', 'MEMSIZE', 'PSP_SYSTEM_VER', 'REGION', 'USE_USB'):
 			#These are known, but not necessarily useful to us or we just don't feel like putting it in the metadata or otherwise doing anything with it at this point
 			#APP_VER: ??? not sure how it's different from DISC_VER also seems to be 01.00
 			#BOOTABLE: Should always be 1, I would think
-			#Category is like "Memory stick game" "Update" "PS1 Classics", see ROMniscience notes
 			#DISC_VERSION: Version number (e.g. 1.00, 1.01); must be important because Redump and No-Intro put it in the filename
 			#MEMSIZE: 1 if game uses extra RAM?
 			#PSP_SYSTEM_VER: Required PSP firmware version

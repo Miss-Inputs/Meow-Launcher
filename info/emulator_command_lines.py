@@ -880,6 +880,11 @@ def mupen64plus(game, specific_config):
 	args.append('$<path>')
 	return LaunchParams('mupen64plus', args)
 
+def ppsspp(game, _):
+	if game.metadata.specific_info.get('Is-UMD-Video', False):
+		raise EmulationNotSupportedException('UMD video discs not supported')
+	return LaunchParams('ppsspp-qt', ['$<path>'])
+
 def reicast(game, _):
 	if game.metadata.specific_info.get('Uses-Windows-CE', False):
 		raise EmulationNotSupportedException('Windows CE-based games not supported')

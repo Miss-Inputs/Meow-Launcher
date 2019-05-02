@@ -57,7 +57,7 @@ emulators = {
 	#Puts all the config files in the current directory, which is why there's a wrapper below which you probably want to use instead of this
 	#Maybe I want to move that to emulator_command_lines because it's such a heckin mess... yike
 	'PokeMini (wrapper)': Emulator(MultiCommandLaunchParams([LaunchParams('mkdir', ['-p', os.path.expanduser('~/.config/PokeMini')]), LaunchParams('cd', [os.path.expanduser('~/.config/PokeMini')]), LaunchParams('PokeMini', ['-fullscreen', '$<path>'])]), ['min'], ['zip']),
-	'PPSSPP': Emulator(LaunchParams('ppsspp-qt', ['$<path>']), ['iso', 'pbp', 'cso'], []),
+	'PPSSPP': Emulator(command_lines.ppsspp, ['iso', 'pbp', 'cso'], []),
 	'SimCoupe': Emulator(LaunchParams('simcoupe', ['-fullscreen', 'yes', '$<path>']), ['mgt', 'sad', 'dsk', 'sbt'], ['zip', 'gz']),
 	'Snes9x': Emulator(LaunchParams('snes9x-gtk', ['$<path>']), ['sfc', 'smc', 'swc'], ['zip', 'gz']),
 	#Can't set fullscreen mode from the command line so you have to set up that yourself (but it will do that automatically); GTK port can't do Sufami Turbo or Satellaview from command line due to lacking multi-cart support that Windows has (Unix non-GTK doesn't like being in fullscreen etc)
