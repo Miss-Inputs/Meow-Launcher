@@ -36,6 +36,7 @@ manufacturer_overrides = {
 	'Commodore Business Machines': 'Commodore',
 	'Creative Software': 'Creative',
 	'Cryo': 'Cryo Interactive',
+	'D3 Publishing': 'D3 Publisher',
 	'Data East Corporation': 'Data East',
 	'DataSoft': 'Datasoft',
 	'Dempa Shinbunsha': 'Dempa',
@@ -78,6 +79,7 @@ manufacturer_overrides = {
 	'Spinnaker Software': 'Spinnaker',
 	'Spinnaker Software ': 'Spinnaker', #bah should I start doing .rstrip() before the thing
 	'Sunrise Software': 'Sunrise',
+	'Swing! Entertainment Media': 'Swing! Entertainment',
 	'System 3 Software': 'System 3',
 	'Taito Corporation': 'Taito',
 	'Taito Corporation Japan': 'Taito',
@@ -166,6 +168,8 @@ manufacturer_overrides = {
 	'SONY': 'Sony',
 	'SpectraVideo': 'Spectravideo',
 	'Spectrum HoloByte': 'Spectrum Holobyte',
+	'SunSoft': 'Sunsoft',
+	'SWING! Entertainment': 'Swing! Entertainment',
 	'VAP': 'Vap',
 
 	#Maybe typos?
