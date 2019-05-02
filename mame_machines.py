@@ -56,7 +56,7 @@ class Machine():
 		self.metadata.specific_info['Number-of-Players'] = self.number_of_players
 		self.metadata.specific_info['Is-Mechanical'] = self.is_mechanical
 		self.metadata.specific_info['Dispenses-Tickets'] = self.uses_device('ticket_dispenser')
-		self.metadata.specific_info['Coin-Slots'] = self.input_element.attrib.get('coins', 0) if self.input_element is not None else 0
+		self.metadata.specific_info['Coin-Slots'] = self.coin_slots
 		self.metadata.specific_info['Requires-CHD'] = self.requires_chds
 		self.metadata.specific_info['Romless'] = self.romless
 		self.metadata.specific_info['BIOS-Used'] = self.bios
@@ -132,6 +132,10 @@ class Machine():
 	@property
 	def input_element(self):
 		return self.xml.find('input')
+
+	@property
+	def coin_slots(self):
+		return self.input_element.attrib.get('coins', 0) if self.input_element is not None else 0
 
 	@property
 	def number_of_players(self):

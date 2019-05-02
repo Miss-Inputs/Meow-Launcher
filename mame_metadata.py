@@ -381,7 +381,7 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.platform = platform
 		machine.metadata.media_type = MediaType.Cartridge if platform in ('Select-A-Game', 'R-Zone') else MediaType.Standalone
 		#Note: "Handheld / Electronic Game" could also be a tabletop system which takes AC input and you would not be able to hold in your hands at all (see also: cpacman), but since catlist.ini doesn't take that into account, I don't really have a way of doing so either
-	if (genre == 'Game Console') or (genre == 'Utilities' and subgenre == 'Arcade System') or (genre == 'Computer') or (genre == 'Handheld' and subgenre == 'Pocket Device - Pad - PDA'):
+	if (genre == 'Game Console') or (genre == 'Computer') or (genre == 'Handheld' and subgenre == 'Pocket Device - Pad - PDA') or (genre == 'Board Game'):
 		#There are some plug & play systems in the Game Console / Home Videogame category, not sure what catlist.ini thinks the difference is between that and Handheld / Plug n' Play TV Game in that case; but maybe I should do a whitelist for those to say "yes these are plug & play systems" (e.g. Vii)
 		#Hmm, need a better name for this I think
 		#TODO: Should include option to skip over this category for those who are willing to accept the risk that it might filter out some plug & play systems that might actually be wanted
@@ -405,6 +405,11 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.categories = [genre]
 	if category == 'Arcade' and genre == 'Misc.' and subgenre in ('Laser Disk Simulator', 'Print Club'):
 		machine.metadata.categories = [subgenre]
+	if machine.is_mechanical:
+		machine.metadata.categories = ['Electromechanical']
+	if category == 'Arcade' and machine.coin_slots == 0:
+		#Or something among those lines, but if it has no coins then it doesn't meet the definition of "coin operated machine"
+		machine.metadata.categories = ['Non-Arcade']
 	#Arcade: Music / Jukebox might not really be suited for platform = Arcade?
 	#Non-Arcade ends up with categories like Board Game, Computer, Telephone, Utilities (EEPROM programmers), Music, Misc.
 	#Misc has a lot of different things in it and I guess catlist just uses it as a catch-all for random things which don't really fit anywhere else and there's not enough to give them their own category, probably
