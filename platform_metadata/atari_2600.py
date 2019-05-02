@@ -255,7 +255,6 @@ def add_atari_2600_metadata(game):
 	whole_cart = game.rom.read()
 	if stella_db:
 		md5 = hashlib.md5(whole_cart).hexdigest().lower()
-		print(md5)
 		if md5 in stella_db:
 			game_info = stella_db[md5]
 			parse_stella_db(game, game_info)
