@@ -258,6 +258,7 @@ class Metadata():
 			metadata_fields[k] = v.name if isinstance(v, Enum) else v
 
 		fields[metadata_section_name] = metadata_fields
+		fields[junk_section_name] = {}
 		fields[junk_section_name]['Ignored-Tags'] = self.ignored_filename_tags
 
 		if self.images:

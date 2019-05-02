@@ -192,7 +192,6 @@ def make_launcher(launch_params, name, metadata, id_type, unique_id, icon=None):
 
 	fields = metadata.to_launcher_fields()
 
-	fields[junk_section_name] = {}
 	fields[junk_section_name]['Filename-Tags'] = [tag for tag in filename_tags if tag not in metadata.ignored_filename_tags]
 	fields[junk_section_name]['Original-Name'] = name
 
