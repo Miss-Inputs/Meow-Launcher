@@ -171,6 +171,7 @@ def parse_stella_db(game, game_info):
 			#TODO: Clean up manufacturer names (UA Limited > UA)
 	
 	game.metadata.product_code = game_info.get('Cartridge_ModelNo', game_info.get('Cart_ModelNo'))
+	game.metadata.specific_info['Rarity'] = game_info.get('Cartridge_Rarity', game_info.get('Cart_Rarity'))
 	if 'Display_Format' in game_info:
 		display_format = game_info['Display_Format']
 		if display_format in ('NTSC', 'PAL60', 'SECAM60'):
