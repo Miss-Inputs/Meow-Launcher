@@ -168,7 +168,7 @@ def parse_snes_header(game, base_offset):
 		#Anyway the internet says it's LoROM + SlowROM
 		metadata['ROM layout'] = rom_layouts[0x20]
 	else:
-		raise BadSNESHeaderException('ROM layout is weird: %d' % rom_layout)
+		raise BadSNESHeaderException('ROM layout is weird: %s' % hex(rom_layout))
 
 	rom_type = header[0xd6]
 	if rom_type in rom_types:
@@ -197,7 +197,7 @@ def parse_snes_header(game, base_offset):
 	checksum = int.from_bytes(header[0xde:0xe0], 'little')
 	#Can't be arsed calculating the checksum because it's complicated (especially with some weird ROM sizes), but we know they have to add up to 0xffff
 	if (checksum | inverse_checksum) != 0xffff:
-		raise BadSNESHeaderException("Checksum and inverse checksum don't add up: %d %d" % (checksum, inverse_checksum))
+		raise BadSNESHeaderException("Checksum and inverse checksum don't add up: %s %s" % (hex(checksum), hex(inverse_checksum)))
 
 	if licensee == 0x33:
 		#TODO: If title[-1] == 00, this is an early version that only indicates the chipset subtype. It's only used for ST010/11 games anyway though... apparently
