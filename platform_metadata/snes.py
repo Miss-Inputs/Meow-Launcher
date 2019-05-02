@@ -229,8 +229,9 @@ def add_normal_snes_header(game):
 	possible_offsets = [0x7f00, 0xff00, 0x40ff00]
 	rom_size = game.rom.get_size()
 	if rom_size % 1024 == 512:
-		possible_offsets = [0x8100, 0x10100, 0x410100]
-		#We'll ignore any values in this copier header, I've seen them be wrong about a ROM being LoROM/HiROM before
+		#512-byte copier header at beginning
+		possible_offsets = [offset + 512 for offset in possible_offsets]
+		#While the copier header specifies LoROM/HiROM/etc, they are sometimes wrong, so I will ignore them
 
 	header_data = None
 	ex = None
