@@ -209,6 +209,24 @@ def add_psp_metadata(game):
 					game.metadata.images['Banner'] = Image.open(icon0_buf)
 				except PyCdlibInvalidInput:
 					pass
+				icon1_buf = io.BytesIO()
+				try:
+					iso.get_file_from_iso_fp(icon1_buf, iso_path='/PSP_GAME/ICON1.PNG')
+					game.metadata.images['Icon-1'] = Image.open(icon1_buf)
+				except PyCdlibInvalidInput:
+					pass
+				pic0_buf = io.BytesIO()
+				try:
+					iso.get_file_from_iso_fp(pic0_buf, iso_path='/PSP_GAME/PIC0.PNG')
+					game.metadata.images['Picture-0'] = Image.open(pic0_buf)
+				except PyCdlibInvalidInput:
+					pass
+				pic1_buf = io.BytesIO()
+				try:
+					iso.get_file_from_iso_fp(pic1_buf, iso_path='/PSP_GAME/PIC1.PNG')
+					game.metadata.images['Picture-1'] = Image.open(pic1_buf)
+				except PyCdlibInvalidInput:
+					pass
 		except PyCdlibInvalidISO as ex:
 			if main_config.debug:
 				print(game.rom.path, 'is invalid ISO', ex)
