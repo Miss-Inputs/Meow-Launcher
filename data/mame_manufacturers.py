@@ -146,6 +146,7 @@ manufacturer_overrides = {
 	'ニデコム (Nidecom)': 'Nidecom',
 	'パックスエレクトロニカ (Pax Electronica)': 'Pax Electronica',
 	'ハドソン (Hudson Soft)': 'Hudson Soft',
+	'バンダイ (Bandai)': 'Bandai',
 	'ブラザー工業 (Brother Kougyou)': 'Brother Kougyou',
 	'ブローダーバンドジャパン (Brøderbund Japan)': 'Brøderbund Japan',
 	'ホームデータ (Home Data)': 'Home Data',

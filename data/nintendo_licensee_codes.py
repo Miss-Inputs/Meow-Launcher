@@ -44,6 +44,7 @@ nintendo_licensee_codes = {
 	'5H': 'The 3DO Company',
 	'5K': 'Hasbro',
 	'5L': 'NewKidCo',
+	'5M': 'Telegames',
 	'5T': 'Cryo Interactive',
 	'5X': 'Microids',
 	'60': 'Titus',
@@ -60,6 +61,7 @@ nintendo_licensee_codes = {
 	'6M': 'System 3', #The new one. What the fuck? They didn't even change the spelling or anything, it really is the same company. Gee System 3! How come your mum lets you eat _two_ weiners?
 	'6S': 'TDK Mediactive', #TDK's Not-Japan publishing branch
 	'6V': 'JoWooD Entertainment',
+	'6Y': 'L.S.P.',
 	'71': 'Interplay',
 	'72': 'JVC',
 	'75': 'The Sales Curve', #AKA Sales Curve Interactve or SCi (short for Sales Curve with lowercase interactive for some reason)
@@ -133,14 +135,17 @@ nintendo_licensee_codes = {
 	'FQ': 'iQue', #Sort of. Only WarioWare: Touched, Polarium, and Yoshi: Touch & Go use this, the other three iQue games: New Super Mario Bros, Super Mario 64, and Nintendogs (kiosk demo) use Nintendo instead. Those were all 2007 or later, the latter being on the iQue DSi, so it may be something corporate related going on there
 	'FR': 'Digital Tainment Pool', #Or DTP Entertainment if you prefer
 	'FT': 'Daiwon C & A',
+	'G9': 'D3 Publisher',
 	'GD': 'Square Enix',
 	'GL': 'Gameloft',
+	'GT': '505 Games',
 	'GX': 'Commodore Gaming', #Supposedly, this is the name of the company that published the Wii C64 Virtual Console games. Seems to be defunct now, whoever they are.
 	'HF': 'Level5',
 	'J8': 'D4 Enterprise',
 	'JS': 'Digital Leisure',
 	'KR': 'Krea Medie',
 	'KM': 'Deep Silver',
+	'PQ': 'PopCap Games',
 	'PV': 'Pan Vision Games',
 	'RW': 'RealNetworks', #Or GameHouse, or Real Arcade; which are sorta subsidiaries I guess
 	'WB': 'Google', #YouTube app on Wii/Wii U/3DS, so if "YouTube Inc" is counted as a separate company (as the 3DS banner implies) then it could be that
@@ -163,9 +168,9 @@ nintendo_licensee_codes = {
 	'CE': 'Pony Canyon/FCI', #Seems to be Fujisankei Communications International (as FCI Inc) for USA releases, Pony Canyon for Japanese releases, both are owned by Fujisankei Communications Group
 
 	#Welcome to confusing town, population these
-	'5Z': '???Classified Games', #Also appears in the Card Shark (SNES) proto, which as far as I can tell was developed by someone named Bonsai and involved someone named Bicycle as well. Seems like there's a mixup here with Conspiracy Entertainment? Are they the same company?
-	'AC': '???Toei Animation', #Used in some EXTREMELY obscure "Waiwai Check" games for Satellaview, which according to the title screen of one of them, are made by Hori Electric? Well I'm confused; Tooyama no Kinsan Space Chou - Mr. Gold is actually published by Toei though (apparently)
-	'CA': '???Konami (Ultra Games)', #Definitely Konami but might not be Ultra Games? Published Batman Returns SNES in Japan (but not elsewhere), and Parodius (Europe) for Game Boy
+	'5Z': 'Classified Games', #Also appears in the Card Shark (SNES) proto, which as far as I can tell was developed by someone named Bonsai and involved someone named Bicycle as well. Seems like there's a mixup here with Conspiracy Entertainment? Are they the same company?
+	'AC': 'Toei Animation', #Used in some EXTREMELY obscure "Waiwai Check" games for Satellaview, which according to the title screen of one of them, are made by Hori Electric? Well I'm confused; Tooyama no Kinsan Space Chou - Mr. Gold is actually published by Toei though (apparently)
+	'CA': 'Konami (Ultra Games)', #Definitely Konami but might not be Ultra Games? Published Batman Returns SNES in Japan (but not elsewhere), and Parodius (Europe) for Game Boy
 
 	#So far, only seen once (in a reliable source, i.e. not protos or anything like that)
 	'09': 'Hot-B', #Ginga - Card & Puzzle Collection (Japan) (En,Ja)
@@ -178,8 +183,8 @@ nintendo_licensee_codes = {
 	'4J': 'Fox Interactive', #The Pagemaster (USA) (SNES)
 	'4X': 'GT Interactive', #Duke Nukem (USA) (GBC), this company was purchased by Infogrames in 1999 I think
 	'53': 'American Sammy', #Ys III (SNES); also Ninja Taro (USA) (Beta) (GB); dunno what the difference is between this and non-American Sammy
-	'5M': 'Telegames', #Yar's Revenge (USA/Europe) (GBC)
 	'5Q': 'Lego', #Lego Island 2: The Brickster's Revenge (GBC + GBA)
+	'5S': 'Xicat Interactive', #Penny Racers (Europe) (GBA)
 	'6E': 'Elite Systems', #Might and Magic II (Europe) (SNES)
 	'6P': 'Ravensburger Interactive', #Fix & Foxi - Episode 1 - Lupo (Europe) (En,Fr,De) (GBC)
 	'6R': 'Sound Source', #Extreme Sports with the Berenstain Bears (USA, Europe) (En,Fr,De,Es,It) (GBC)
@@ -206,7 +211,6 @@ nintendo_licensee_codes = {
 	'FE': 'Davidson & Associates', #Math Blaster - Episode 1 (USA) (SNES)
 	'GM': 'Gamecock Media Group', #Dementium - The Ward (Europe) (En,Fr,De,Es,It) (DS) (published by Gamecock Media Group in USA; banner lists developer ("Renegade LLC"))
 	'GN': 'OG International', #Cartoon Network Punch Time Explosion XL (Europe) (Wii)
-	'GT': '505 Games', #Picture Perfect Hair Salon (USA) (DSi)
 	'GU': 'Bayer', #Knock'em Downs Worlds Fair (USA) (DS)
 	'GY': 'The Game Factory', #Code Lyoko (USA) (DS) (might be "The American Game Factory", both names are used on the box so I dunno)
 	'H4': 'SNK Playmore', #Doki Doki Majo Shinpan (DS)
@@ -216,13 +220,14 @@ nintendo_licensee_codes = {
 	'J9': 'AQ Interactive', #Korg DS-10 Synthesizer series (Japan) (DS)
 	'JT': 'Empty Clip Studios', #Groovin' Blocks (USA) (WiiWare) (retail release is by Zoo)
 	'JW': 'BigBen Interactive', #WRC - FIA World Rally Championship (Europe) (En,Fr,De,Es,It) (Demo) (3DS)
+	'JX': "/Shin'en", #Jett Rocket (USA) (WiiWare)
 	'JY': 'Steel Penny', #Bruiser and Scratch (USA) (WiiWare)
 	'KA': 'Alchemist', #Higurashi no Naku Koro ni Kizuna series (DS)
 	'KJ': 'Gamebridge', #Happy Party with Hello Kitty & Friends! (Europe) (En,Fr,De,Es,It,Nl) (DS)
+	'LH': 'GameOn', #Mahjong (Europe) (WiiWare)
 	'NP': 'Nobilis', #Hello Kitty - Daily (Europe) (DS)
 	'NR': 'Destineer', #Giana Sisters DS (USA)
 	'NJ': 'Enjoy Gaming', #System Flaw (Europe) (DSi)
-	'PQ': 'PopCap Games', #Peggle Dual Shot (USA) (DS)
 	'QQ': 'Gamelion Studios', #Furry Legends (Europe) (WiiWare)
 	'RB': 'Detune', #Korg M01 Music Workstation (Japan) (DS)
 	'RG': 'Romino Games', #Swords & Soldiers II (Wii U)
@@ -241,6 +246,7 @@ nintendo_licensee_codes = {
 	'XJ': 'XSeed', #Korg DS-10+ Synthesizer (USA) (DS)
 	'XS': 'Aksys Games', #Family Glide Hockey (WiiWare)
 	'Y4': 'Zen Studios', #Marvel Pinball 3D (Europe) (En,Fr,De,Es,It) (eShop) (Demo) (3DS)
+	'YJ': 'Frozen Codebase', #Jam City Rollergirls (USA) (WiiWare)
 	'YV': 'KnapNok Games', #Affordable Space Adventures (Wii U)
 	'XT': 'Funbox Media', #Hello Kitty - Big City Dreams (Europe) (En,Fr,De,Es,It,Nl,Pt) (Rev 1) (DS)
 
