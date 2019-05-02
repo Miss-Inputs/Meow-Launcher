@@ -30,7 +30,7 @@ def get_stella_database():
 		md5 = None
 		for i, game_column in enumerate(game_columns):
 			if i in columns:
-				if columns[i] == 'Cartridge_MD5':
+				if columns[i] in ('Cartridge_MD5', 'Cart_MD5'):
 					md5 = game_column.lower()
 				elif game_column:
 					game[columns[i]] = game_column
@@ -159,17 +159,18 @@ def parse_stella_cart_note(game, note):
 		game.metadata.notes = note
 
 def parse_stella_db(game, game_info):
-	game.metadata.specific_info['Stella-Name'] = game_info.get('Cartridge_Name')
-	note = game_info.get('Cartridge_Note')
-	if 'Cartridge_Manufacturer' in game_info:
-		manufacturer = game_info['Cartridge_Manufacturer']
+	game.metadata.specific_info['Stella-Name'] = game_info.get('Cartridge_Name', game_info.get('Cart_Name'))
+	note = game_info.get('Cartridge_Note', game_info.get('Cart_Note'))
+	
+	manufacturer = game_info.get('Cartridge_Manufacturer', game_info.get('Cart_Manufacturer'))
+	if manufacturer:
 		if ', ' in manufacturer:
 			game.metadata.publisher, _, game.metadata.developer = manufacturer.partition(', ')
 		else:
 			game.metadata.publisher = manufacturer
 			#TODO: Clean up manufacturer names (UA Limited > UA)
-	if 'Cartridge_ModelNo' in game_info:
-		game.metadata.product_code = game_info['Cartridge_ModelNo']
+	
+	game.metadata.product_code = game_info.get('Cartridge_ModelNo', game_info.get('Cart_ModelNo'))
 	if 'Display_Format' in game_info:
 		display_format = game_info['Display_Format']
 		if display_format in ('NTSC', 'PAL60', 'SECAM60'):
@@ -253,6 +254,7 @@ def add_atari_2600_metadata(game):
 	whole_cart = game.rom.read()
 	if stella_db:
 		md5 = hashlib.md5(whole_cart).hexdigest().lower()
+		print(md5)
 		if md5 in stella_db:
 			game_info = stella_db[md5]
 			parse_stella_db(game, game_info)
