@@ -233,6 +233,7 @@ def add_normal_snes_header(game):
 		#We'll ignore any values in this copier header, I've seen them be wrong about a ROM being LoROM/HiROM before
 
 	header_data = None
+	ex = None
 	for possible_offset in possible_offsets:
 		if possible_offset >= rom_size:
 			continue
@@ -240,7 +241,8 @@ def add_normal_snes_header(game):
 		try:
 			header_data = parse_snes_header(game, possible_offset)
 			break
-		except BadSNESHeaderException:
+		except BadSNESHeaderException as bad_snes_ex:
+			ex = bad_snes_ex
 			continue
 
 	if header_data:
@@ -261,6 +263,8 @@ def add_normal_snes_header(game):
 		product_code = header_data.get('Product code')
 		if product_code:
 			game.metadata.product_code = product_code
+	else:
+		print(game.rom.path, 'could not detect header because', ex)
 
 def parse_satellaview_header(game, base_offset):
 	header = game.rom.read(seek_to=base_offset, amount=0xe0)
