@@ -56,8 +56,8 @@ def get_category(basename):
 
 		return category, genre, subgenre, is_nsfw
 
-	category, _, genre = cat.partition(' / ')
-	return category, genre, None, False
+	genre, _, subgenre = cat.partition(' / ')
+	return None, genre, subgenre, False
 
 def get_language(basename):
 	lang = get_machine_category(basename, 'languages')
@@ -275,64 +275,6 @@ arcade_systems = {
 	#m10 = Irem M10/M11/M15
 }
 
-def add_machine_platform(machine):
-	category = machine.metadata.categories[0]
-
-	source_file_platforms = {
-		'megatech': 'Mega-Tech',
-		'megaplay': 'Mega-Play',
-		'playch10': 'PlayChoice-10',
-		'nss': 'Nintendo Super System',
-	}
-
-	#Public coin-op machines that could be still considered 'Arcade' as the platform, but meh
-	if machine.source_file in source_file_platforms:
-		return source_file_platforms[machine.source_file], MediaType.Standalone
-
-	#Home systems that have the whole CPU etc inside the cartridge, and hence work as separate systems in MAME instead of being in roms.py
-	if machine.source_file == 'cps1' and '(CPS Changer, ' in machine.name:
-		machine.name = machine.name.replace('CPS Changer, ', '')
-		return 'CPS Changer', MediaType.Cartridge
-	if machine.name.endswith('(XaviXPORT)'):
-		return 'XaviXPORT', MediaType.Cartridge
-	if machine.name.startswith(('Game & Watch: ', 'Select-A-Game: ', 'R-Zone: ')):
-		platform, _, machine.name = machine.name.partition(': ')
-		return platform, MediaType.Cartridge if platform in ('Select-A-Game', 'R-Zone') else MediaType.Standalone
-
-	#Other weird and wacky devices
-	#Note: "Handheld / Electronic Game" could also be a tabletop system which takes AC input and you would not be able to hold in your hands at all (see also: cpacman), but since catlist.ini doesn't take that into account, I don't really have a way of doing so either
-	if (category == 'Game Console') or (category == 'Utilities' and machine.metadata.genre == 'Arcade System') or (category == 'Computer') or (category == 'Handheld' and machine.metadata.genre == 'Pocket Device - Pad - PDA'):
-		#There are some plug & play systems in the Game Console / Home Videogame category, not sure what catlist.ini thinks the difference is between that and Handheld / Plug n' Play TV Game in that case; but maybe I should do a whitelist for those to say "yes these are plug & play systems" (e.g. Vii)
-		#Hmm, need a better name for this I think
-		#TODO: Should include option to skip over this category for those who are willing to accept the risk that it might filter out some plug & play systems that might actually be wanted
-		return 'Standalone System', MediaType.Standalone
-	if (category == 'Handheld' and machine.metadata.genre == "Plug n' Play TV Game") or (category == 'Rhythm' and machine.metadata.genre == 'Dance') or (category == 'MultiGame' and machine.metadata.genre == 'Compilation'):
-		#The latter might actually be a portable handheld system, but it'll be easier just to call it this
-		return 'Plug & Play', MediaType.Standalone
-	if machine.metadata.genre in ('Electromechanical', 'Slot Machine') and machine.metadata.subgenre == 'Reels':
-		#"Slot Machine", "Fruit Machine", "Gambling", "AWP", whatevs; this ends up being the mechanical kind specifically and maybe doesn't actually need to be a separate platform anyway
-		return 'Slot Machine', MediaType.Standalone
-	if machine.metadata.genre == 'Electromechanical' and machine.metadata.subgenre == 'Pinball':
-		#There are a few things under Arcade: Electromechanical / Utilities that are also pinball stuff, although perhaps not all of them. It only becomes apparent due to them using the "genpin" sample set
-		return 'Pinball', MediaType.Standalone
-	if category == 'Handheld' and machine.metadata.genre in ('Electronic Game', 'Home Videogame Console'):
-		#Home Videogame Console seems to be used for stuff that would be normally excluded due to having software lists and hence being a platform for other software (e.g. GBA), or stuff that ends up there because it has no software list yet (e.g. Gizmondo, Sony PocketStation), but also some stuff like kcontra (Contra handheld) that should definitely be called a handheld, or various "plug & play" (except without the plug) stuff like BittBoy 300 in 1 or VG Pocket
-		#Anyway that's why I put that there
-		#Other genres of handheld: Pocket Device - Pad - PDA; Child Computer (e.g. Speak & Spell) but those seem more suited to Non-Arcade particularly the former
-		return category, MediaType.Standalone
-	if category == 'Unknown':
-		#Because catlist.ini might be not updated just yet or the user might not have it; MediaType.Standalone is an assumption but oh well
-		return category, MediaType.Standalone
-	if category == 'Arcade':
-		#Things that might not be arcade: Genre == Utilities (screen tests, etc); genre == Music && subgenre == Jukebox; genre == Misc && subgenre == Print Club (more of a photo booth I guess)
-		return category, MediaType.Standalone
-
-	#This leaves categories like Board Game, Computer, Telephone, Utilities (EEPROM programmers), Music, Misc.
-	#Misc has a lot of different things in it and I guess catlist just uses it as a catch-all for random things which don't really fit anywhere else and there's not enough to give them their own category, probably
-	#Some things inside Misc that might be of interest to people because they're actual games: Electronic Board Game (Electronic Battleship), Electronic Game (Electronic Soccer, Reversi Sensory Challenger), and then there's V-Dog (prototype) which ends up as "Unknown"; perhaps I could split these off into their own platform
-	#Anyway, this name sucks because it's just used as a "this isn't anything in particular" thing
-	return 'Non-Arcade', MediaType.Standalone
-
 #Some games have memory card slots, but they don't actually support saving, it's just t hat the arcade system board thing they use always has that memory card slot there. So let's not delude ourselves into thinking that games which don't save let you save, because that might result in emotional turmoil.
 #Fatal Fury 2, Fatal Fury Special, Fatal Fury 3, and The Last Blade apparently only save in Japanese or something? That might be something to be aware of
 #Also shocktro has a set 2 (shocktroa), and shocktr2 has a bootleg (lans2004), so I should look into if those clones don't save either. They probably don't, though, and it's probably best to expect that something doesn't save and just playing it like any other arcade game, rather than thinking it does and then finding out the hard way that it doesn't. I mean, you could always use savestates, I guess. If those are supported. Might not be. That's another story.
@@ -389,12 +331,89 @@ def add_status(machine):
 	if unemulated_features:
 		machine.metadata.specific_info['MAME-Unemulated-Features'] = unemulated_features
 
-def add_metadata(machine):
+def add_metadata_from_catlist(machine):
 	category, genre, subgenre, nsfw = get_category(machine.basename)
-	machine.metadata.categories = [category] if category else ['Unknown']
-	machine.metadata.genre = genre
-	machine.metadata.subgenre = subgenre
-	machine.metadata.nsfw = nsfw
+	
+	machine.metadata.media_type = MediaType.Standalone
+
+	if category == 'Unknown':
+		#Not in catlist or user doesn't have catlist
+		machine.metadata.platform = 'Unknown'
+		machine.metadata.categories = ['Unknown']
+		return
+
+	if category:
+		#'Arcade: ' or whatever else at the beginning
+		machine.metadata.platform = category
+		machine.metadata.categories = [category] #Hmm
+		machine.metadata.genre = genre
+		machine.metadata.subgenre = subgenre
+		machine.metadata.nsfw = nsfw
+	else:
+		#Non-arcade thing
+		machine.metadata.platform = 'Non-Arcade'
+		machine.metadata.categories = ['Non-Arcade']
+		machine.metadata.genre = genre
+		machine.metadata.subgenre = subgenre
+
+	#Now we separate things into additional platforms where relevant
+
+	source_file_platforms = {
+		'megatech': 'Mega-Tech',
+		'megaplay': 'Mega-Play',
+		'playch10': 'PlayChoice-10',
+		'nss': 'Nintendo Super System',
+	}	
+
+	#Public coin-op machines with specific things, could make the argument that it should be left as Arcade as the platform and this as the category
+	if machine.source_file in source_file_platforms:
+		machine.metadata.platform = source_file_platforms[machine.source_file]
+	#Home systems that have the whole CPU etc inside the cartridge, and hence work as separate systems in MAME instead of being in roms.py
+	if machine.source_file == 'cps1' and '(CPS Changer, ' in machine.name:
+		machine.name = machine.name.replace('CPS Changer, ', '')
+		machine.metadata.platform = 'CPS Changer'
+		machine.metadata.media_type = MediaType.Cartridge
+	if machine.name.endswith('(XaviXPORT)'):
+		machine.metadata.platform = 'XaviXPORT'
+		machine.metadata.media_type = MediaType.Cartridge
+	if machine.name.startswith(('Game & Watch: ', 'Select-A-Game: ', 'R-Zone: ')):
+		platform, _, machine.name = machine.name.partition(': ')
+		machine.metadata.platform = platform
+		machine.metadata.media_type = MediaType.Cartridge if platform in ('Select-A-Game', 'R-Zone') else MediaType.Standalone
+		#Note: "Handheld / Electronic Game" could also be a tabletop system which takes AC input and you would not be able to hold in your hands at all (see also: cpacman), but since catlist.ini doesn't take that into account, I don't really have a way of doing so either
+	if (genre == 'Game Console') or (genre == 'Utilities' and subgenre == 'Arcade System') or (genre == 'Computer') or (genre == 'Handheld' and subgenre == 'Pocket Device - Pad - PDA'):
+		#There are some plug & play systems in the Game Console / Home Videogame category, not sure what catlist.ini thinks the difference is between that and Handheld / Plug n' Play TV Game in that case; but maybe I should do a whitelist for those to say "yes these are plug & play systems" (e.g. Vii)
+		#Hmm, need a better name for this I think
+		#TODO: Should include option to skip over this category for those who are willing to accept the risk that it might filter out some plug & play systems that might actually be wanted
+		machine.metadata.platform = 'Standalone System'
+	if not category and ((genre == 'Handheld' and subgenre == "Plug n' Play TV Game") or (genre == 'Rhythm' and subgenre == 'Dance') or (genre == 'MultiGame' and subgenre == 'Compilation')):
+		#MultiGame / Compilation is also used for some handheld systems (and also there is Arcade: MultiGame / Compilation)
+		machine.metadata.platform = 'Plug & Play'
+	if genre in ('Electromechanical', 'Slot Machine') and subgenre == 'Reels':
+		#"Slot Machine", "Fruit Machine", "Gambling", "AWP", whatevs; this ends up being the mechanical kind specifically and maybe doesn't actually need to be a separate platform anyway
+		machine.metadata.platform = 'Slot Machine'
+	if genre == 'Electromechanical' and subgenre == 'Pinball':
+		#There are a few things under Arcade: Electromechanical / Utilities that are also pinball stuff, although perhaps not all of them. It only becomes apparent due to them using the "genpin" sample set
+		machine.metadata.platform = 'Pinball'
+	if genre == 'Handheld' and subgenre in ('Electronic Game', 'Home Videogame Console'):
+		#Home Videogame Console seems to be used for stuff that would be normally excluded due to having software lists and hence being a platform for other software (e.g. GBA), or stuff that ends up there because it has no software list yet (e.g. Gizmondo, Sony PocketStation), but also some stuff like kcontra (Contra handheld) that should definitely be called a handheld, or various "plug & play" (except without the plug) stuff like BittBoy 300 in 1 or VG Pocket
+		#Anyway that's why I put that there
+		#Other genres of handheld: Pocket Device - Pad - PDA; Child Computer (e.g. Speak & Spell) but those seem more suited to Non-Arcade particularly the former
+		machine.metadata.platform = 'Handheld'
+	
+	if category == 'Arcade' and genre in ('Electromechanical', 'Utilities'):
+		machine.metadata.categories = [genre]
+	if category == 'Arcade' and genre == 'Misc.' and subgenre in ('Laser Disk Simulator', 'Print Club'):
+		machine.metadata.categories = [subgenre]
+	#Arcade: Music / Jukebox might not really be suited for platform = Arcade?
+	#Non-Arcade ends up with categories like Board Game, Computer, Telephone, Utilities (EEPROM programmers), Music, Misc.
+	#Misc has a lot of different things in it and I guess catlist just uses it as a catch-all for random things which don't really fit anywhere else and there's not enough to give them their own category, probably
+	#Some things inside Misc that might be of interest to people because they're actual games: Electronic Board Game (Electronic Battleship), Electronic Game (Electronic Soccer, Reversi Sensory Challenger), and then there's V-Dog (prototype) which ends up as "Unknown"; perhaps I could split these off into their own platform
+	#Anyway, the name 'Non-Arcade' sucks because it's just used as a "this isn't anything in particular" thing
+
+
+def add_metadata(machine):
+	add_metadata_from_catlist(machine)
 
 	machine.metadata.cpu_info.set_inited()
 	cpus = find_main_cpus(machine.xml)
@@ -409,7 +428,6 @@ def add_metadata(machine):
 	machine.metadata.screen_info.load_from_xml_list(displays)
 
 	add_input_info(machine)
-	machine.metadata.platform, machine.metadata.media_type = add_machine_platform(machine)
 	if machine.source_file in arcade_systems:
 		machine.metadata.specific_info['Arcade-System'] = arcade_systems[machine.source_file]
 	add_save_type(machine)
