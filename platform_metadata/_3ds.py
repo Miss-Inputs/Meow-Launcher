@@ -4,16 +4,18 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
-from enum import Flag
 import os
+from enum import Flag
 
 import input_metadata
-from info.region_info import TVSystem
-from metadata import CPU, ScreenInfo, Screen
-from common import convert_alphanumeric, NotAlphanumericException, junk_suffixes
+from common import (NotAlphanumericException, convert_alphanumeric,
+                    junk_suffixes)
 from common_types import SaveType
-from data.nintendo_licensee_codes import nintendo_licensee_codes
 from data._3ds_publisher_overrides import consistentified_manufacturers
+from data.nintendo_licensee_codes import nintendo_licensee_codes
+from info.region_info import TVSystem
+from metadata import CPU, Screen, ScreenInfo
+from .wii import parse_ratings
 
 class _3DSRegionCode(Flag):
 	Japan = 1
@@ -189,7 +191,8 @@ def parse_smdh_data(game, smdh):
 		except UnicodeDecodeError:
 			pass
 
-	#Ratings = 0x2008-0x2018 (mostly same format as DSi and Wii but not quite)
+	parse_ratings(game, smdh[0x2008:0x2018], True, False)
+
 	region_code_flag = int.from_bytes(smdh[0x2018:0x201c], 'little')
 	if region_code_flag in (_3DSRegionCode.RegionFree, 0xffffffff):
 		region_codes = [_3DSRegionCode.RegionFree]

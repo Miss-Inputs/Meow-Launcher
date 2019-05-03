@@ -7,11 +7,13 @@ except ModuleNotFoundError:
 import struct
 
 import input_metadata
-from info.region_info import TVSystem
-from region_detect import get_region_by_name
-from metadata import ScreenInfo, Screen
-from common import convert_alphanumeric, NotAlphanumericException
+from common import NotAlphanumericException, convert_alphanumeric
 from data.nintendo_licensee_codes import nintendo_licensee_codes
+from info.region_info import TVSystem
+from metadata import Screen, ScreenInfo
+from region_detect import get_region_by_name
+
+from .wii import parse_ratings
 
 #TODO: Detect PassMe carts, and reject the rest of the header if so (well, product code and publisher)
 #For DSiWare, we can get public.sav and private.sav filesize, and that tells us if SaveType = Internal or Nothing. But we won't worry about DSiWare for now due to lack of accessible emulation at the moment.
@@ -113,6 +115,7 @@ def parse_ds_header(game, header):
 			#GBATEK says region free is 0xffffffff specifically but Pokemon gen 5 is 0xffffffef so who knows
 			#Although either way, it doesn't imply regions is world, it just means it'll work worldwide, so like... ehh... regions is a weird metadata field tbh
 			game.metadata.regions = parse_dsi_region_flags(region_flags)
+		parse_ratings(game, header[0x2f0:0x300], True, False)
 	else:
 		region = header[29]
 		if region == 0x40:
@@ -175,6 +178,6 @@ def add_ds_input_info(game):
 def add_ds_metadata(game):
 	add_ds_system_info(game)
 
-	header = game.rom.read(amount=0x212)
+	header = game.rom.read(amount=0x300)
 	parse_ds_header(game, header)
 	add_ds_input_info(game)

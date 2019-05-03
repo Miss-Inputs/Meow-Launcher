@@ -68,7 +68,7 @@ def parse_tmd(game, tmd):
 		game.metadata.specific_info['Region-Code'] = NintendoDiscRegion(region_code)
 	except ValueError:
 		pass
-	#Ratings: 414-430 (could use this for game.metadata.nsfw I guess)
+	parse_ratings(game, tmd[414:430])
 	#Reserved: 430-442
 	#IPC mask: 442-454 (wat?)
 	#Reserved 2: 454-472
@@ -138,6 +138,32 @@ def add_wii_homebrew_metadata(game):
 				print('Ah bugger this Wii homebrew XML has problems', game.rom.path, etree_error)
 			game.rom.name = os.path.basename(game.folder)
 
+def parse_ratings(game, ratings_bytes, invert_has_rating_bit=False, use_bit_6=True):
+	ratings = {}
+	for i, rating in enumerate(ratings_bytes):
+		#We could go into which ratings board each position in the ratings bytes means, or what the ratings are called for each age, but there's no need to do that for this purpose
+		has_rating = (rating & 0x80) == 0 #For 3DS and DSi, the meaning of this bit is inverted
+		if invert_has_rating_bit:
+			has_rating = not has_rating
+		if use_bit_6:
+			banned = rating & 0x40 #Seems to only mean this for Wii (MadWorld (Europe) has this bit set for Germany rating); on Wii U it seems to be "this rating is unused" and 3DS and DSi I dunno but it probably doesn't work that way
+		else:
+			banned = False
+		#Bit 5 I'm not even sure about (on Wii it seems to be "includes online interactivity"), but we can ignore it
+		#The last 4 bits are the actual rating
+		if has_rating and not banned:
+			ratings[i] = rating & 0b0001_1111
+	
+	ratings_list = list(ratings.values())
+	if not ratings_list:
+		return
+
+	#If there is only one rating or they are all the same, this covers that; otherwise if ratings boards disagree this is probably the best way to interpret that situation
+	rating = max(ratings_list)
+
+	game.metadata.specific_info['Age-Rating'] = rating
+	game.metadata.nsfw = rating > 18
+
 def add_wii_disc_metadata(game):
 	wii_header = gamecube_read(game, 0x40_000, 0xf000)
 
@@ -194,12 +220,12 @@ def add_wii_disc_metadata(game):
 				pass
 
 	#Unused (presumably would be region-related stuff): 0xe004:0xe010
-	#Parental control ratings: 0xe010:0xe020
 	region_code = int.from_bytes(wii_header[0xe000:0xe004], 'big')
 	try:
 		game.metadata.specific_info['Region-Code'] = NintendoDiscRegion(region_code)
 	except ValueError:
 		pass
+	parse_ratings(game, wii_header[0xe010:0xe020])
 
 def add_wii_metadata(game):
 	add_wii_system_info(game)
