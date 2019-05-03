@@ -503,7 +503,7 @@ def add_metadata_from_appinfo_common_section(game, common):
 				
 			associations_dict[association_type] = association_name
 
-		if 'franchise' in associations:
+		if 'franchise' in associations_dict:
 			franchise_name = associations_dict['franchise']
 			if franchise_name.lower().endswith(' franchise'):
 				franchise_name = franchise_name[:-len(' franchise')]
