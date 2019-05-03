@@ -515,7 +515,7 @@ def add_metadata_from_appinfo_common_section(game, common):
 				franchise_name = title_case(franchise_name)
 			
 			not_actual_franchises = ('Playism', 'Hentai')
-			if franchise_name.lower() not in {assoc.lower() for assoc in associations_dict.values()} and franchise_name not in not_actual_franchises:
+			if franchise_name.lower() not in {assoc.lower() for assoc_type, assoc in associations_dict.items() if assoc_type != 'franchise'} and franchise_name not in not_actual_franchises:
 				#These franchises aren't the game series at all, they're just the developer/publisher etc used for marketing purposes on the store, and not relevant to what we want to use this field for
 				game.metadata.series = franchise_name
 	
