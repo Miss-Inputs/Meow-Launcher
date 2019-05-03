@@ -1,4 +1,5 @@
 import os
+import statistics
 import xml.etree.ElementTree as ElementTree
 from datetime import datetime
 
@@ -159,10 +160,13 @@ def parse_ratings(game, ratings_bytes, invert_has_rating_bit=False, use_bit_6=Tr
 		return
 
 	#If there is only one rating or they are all the same, this covers that; otherwise if ratings boards disagree this is probably the best way to interpret that situation
-	rating = max(ratings_list)
+	try:
+		rating = statistics.mode(ratings_list)
+	except statistics.StatisticsError:
+		rating = max(ratings_list)
 
 	game.metadata.specific_info['Age-Rating'] = rating
-	game.metadata.nsfw = rating > 18
+	game.metadata.nsfw = rating >= 18
 
 def add_wii_disc_metadata(game):
 	wii_header = gamecube_read(game, 0x40_000, 0xf000)
