@@ -145,7 +145,7 @@ def add_info_from_pbp(game, pbp_file):
 		if pic1_offset > pic0_offset:
 			pic1 = load_image_from_bytes(pbp_file[pic1_offset:snd0_offset])
 			if pic1:
-				game.metadata.images['Picture-1'] = pic1
+				game.metadata.images['Background-Image'] = pic1
 
 def add_psp_system_info(game):
 	cpu = CPU()
@@ -233,7 +233,7 @@ def add_psp_metadata(game):
 				pic1_buf = io.BytesIO()
 				try:
 					iso.get_file_from_iso_fp(pic1_buf, iso_path='/PSP_GAME/PIC1.PNG')
-					game.metadata.images['Picture-1'] = Image.open(pic1_buf)
+					game.metadata.images['Background-Image'] = Image.open(pic1_buf)
 				except PyCdlibInvalidInput:
 					pass
 		except PyCdlibInvalidISO as ex:
