@@ -489,7 +489,19 @@ def add_metadata_from_appinfo_common_section(game, common):
 		associations_dict = {}
 		for association in associations.values():
 			#Can also get multiple developers/publishers this way (as can sometimes happen if a separate developer does the Linux port, for example)
-			associations_dict[association.get(b'type').decode('utf-8', errors='ignore')] = association.get(b'name').decode('utf-8', errors='ignore')
+			association_type_value = association.get(b'type')
+			if isinstance(association_type_value, appinfo.Integer):
+				association_type = association_type_value.data
+			else:
+				association_type = association_type_value.decode('utf-8', errors='ignore')
+
+			association_name_value = association.get(b'name')
+			if isinstance(association_name_value, appinfo.Integer):
+				association_name = association_name_value.data
+			else:
+				association_name = association_name_value.decode('utf-8', errors='ignore')
+				
+			associations_dict[association_type] = association_name
 
 		if 'franchise' in associations:
 			franchise_name = associations_dict['franchise']
