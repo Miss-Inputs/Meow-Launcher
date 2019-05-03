@@ -394,6 +394,9 @@ def add_metadata_from_appinfo_common_section(game, common):
 		if primary_genre_id.data == 0:
 			#Sometimes it's 0, even though the genre list is still there
 			primary_genre_id = None
+		elif primary_genre_id.data == 31:
+			#'Free to Play' is not a genre
+			primary_genre_id = None
 		elif primary_genre_id.data >= 71:
 			#While it is humourous that "Nudity" can appear as the primary genre for a game (Hentai Puzzle), this is not really what someone would sensibly want
 			content_warning_ids.append(primary_genre_id.data)
@@ -409,6 +412,9 @@ def add_metadata_from_appinfo_common_section(game, common):
 			if not genre_id:
 				continue
 			if genre_id.data == primary_genre_id:
+				continue
+			if genre_id.data == 31:
+				#'Free to Play' is not a genre
 				continue
 			if genre_id.data >= 71:
 				if genre_id.data not in content_warning_ids:
@@ -491,17 +497,22 @@ def add_metadata_from_appinfo_common_section(game, common):
 			#Can also get multiple developers/publishers this way (as can sometimes happen if a separate developer does the Linux port, for example)
 			association_type_value = association.get(b'type')
 			if isinstance(association_type_value, appinfo.Integer):
-				association_type = association_type_value.data
+				association_type = str(association_type_value.data)
 			else:
 				association_type = association_type_value.decode('utf-8', errors='ignore')
 
 			association_name_value = association.get(b'name')
 			if isinstance(association_name_value, appinfo.Integer):
-				association_name = association_name_value.data
+				association_name = str(association_name_value.data)
 			else:
 				association_name = association_name_value.decode('utf-8', errors='ignore')
 				
 			associations_dict[association_type] = association_name
+
+		wtf = {k: v for k, v in associations_dict.items() if k not in ('publisher', 'developer', 'franchise')}
+		if wtf:
+			print(game.name, game.app_id, wtf)
+			return
 
 		if 'franchise' in associations_dict:
 			franchise_name = associations_dict['franchise']
@@ -547,6 +558,10 @@ def add_metadata_from_appinfo_extended_section(game, extended):
 	gamemanualurl = extended.get(b'gamemanualurl')
 	if gamemanualurl:
 		game.metadata.specific_info['Manual-URL'] = gamemanualurl.decode('utf-8', errors='backslashreplace')
+
+	isfreeapp = extended.get(b'isfreeapp')
+	if isfreeapp:
+		game.metadata.specific_info['Is-Free'] = isfreeapp.data != 0
 	#icon is either blank or something like 'steam/games/icon_garrysmod' which doesn't exist so no icon for you (not that way)
 	#order and noservers seem like they might mean something, but I dunno what
 	#state = eStateAvailable verifies that it is indeed available (wait maybe it doesn't)
