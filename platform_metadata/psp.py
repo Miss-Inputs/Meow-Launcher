@@ -105,8 +105,10 @@ def parse_param_sfo(game, param_sfo):
 def load_image_from_bytes(data):
 	bitmap_data_io = io.BytesIO(data)
 	try:
-		return Image.open(bitmap_data_io)
-	except (OSError, SyntaxError):
+		image = Image.open(bitmap_data_io)
+		return image
+	#except (OSError, SyntaxError):
+	except OSError:
 		#Why is it SyntaxError though? Agggggh
 		return None
 
@@ -186,6 +188,20 @@ def parse_product_code(game):
 			if value[3] in ('A', 'C', 'F', 'G', 'I', 'K', 'W', 'X', 'Y', 'Z'):
 				game.metadata.publisher = 'Sony'
 
+def get_image_from_iso(iso, path):
+	buf = io.BytesIO()
+	try:
+		iso.get_file_from_iso_fp(buf, iso_path=path)
+		clone = io.BytesIO(buf.getvalue()) #Pillow insists on closing the stream to use .verify()
+		try:
+			image = Image.open(clone)
+			image.verify()
+		except (OSError, SyntaxError):
+			return None
+		return Image.open(buf)
+	except PyCdlibInvalidInput:
+		pass
+
 def add_psp_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 	add_psp_system_info(game)
@@ -212,30 +228,10 @@ def add_psp_metadata(game):
 				if main_config.debug:
 					print(game.rom.path, 'has no PARAM.SFO inside')
 			if have_pillow:
-				icon0_buf = io.BytesIO()
-				try:
-					iso.get_file_from_iso_fp(icon0_buf, iso_path='/PSP_GAME/ICON0.PNG')
-					game.metadata.images['Banner'] = Image.open(icon0_buf)
-				except PyCdlibInvalidInput:
-					pass
-				icon1_buf = io.BytesIO()
-				try:
-					iso.get_file_from_iso_fp(icon1_buf, iso_path='/PSP_GAME/ICON1.PNG')
-					game.metadata.images['Icon-1'] = Image.open(icon1_buf)
-				except PyCdlibInvalidInput:
-					pass
-				pic0_buf = io.BytesIO()
-				try:
-					iso.get_file_from_iso_fp(pic0_buf, iso_path='/PSP_GAME/PIC0.PNG')
-					game.metadata.images['Picture-0'] = Image.open(pic0_buf)
-				except PyCdlibInvalidInput:
-					pass
-				pic1_buf = io.BytesIO()
-				try:
-					iso.get_file_from_iso_fp(pic1_buf, iso_path='/PSP_GAME/PIC1.PNG')
-					game.metadata.images['Background-Image'] = Image.open(pic1_buf)
-				except PyCdlibInvalidInput:
-					pass
+				game.metadata.images['Banner'] = get_image_from_iso(iso, '/PSP_GAME/ICON0.PNG')
+				game.metadata.images['Icon-1'] = get_image_from_iso(iso, '/PSP_GAME/ICON1.PNG')
+				game.metadata.images['Picture-0'] = get_image_from_iso(iso, '/PSP_GAME/PIC0.PNG')
+				game.metadata.images['Background-Image'] = get_image_from_iso(iso, '/PSP_GAME/PIC1.PNG')
 		except PyCdlibInvalidISO as ex:
 			if main_config.debug:
 				print(game.rom.path, 'is invalid ISO', ex)
