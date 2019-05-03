@@ -142,11 +142,11 @@ def parse_ratings(game, ratings_bytes, invert_has_rating_bit=False, use_bit_6=Tr
 	ratings = {}
 	for i, rating in enumerate(ratings_bytes):
 		#We could go into which ratings board each position in the ratings bytes means, or what the ratings are called for each age, but there's no need to do that for this purpose
-		has_rating = (rating & 0x80) == 0 #For 3DS and DSi, the meaning of this bit is inverted
+		has_rating = (rating & 0b1000_0000) == 0 #For 3DS and DSi, the meaning of this bit is inverted
 		if invert_has_rating_bit:
 			has_rating = not has_rating
 		if use_bit_6:
-			banned = rating & 0x40 #Seems to only mean this for Wii (MadWorld (Europe) has this bit set for Germany rating); on Wii U it seems to be "this rating is unused" and 3DS and DSi I dunno but it probably doesn't work that way
+			banned = rating & 0b0100_0000 #Seems to only mean this for Wii (MadWorld (Europe) has this bit set for Germany rating); on Wii U it seems to be "this rating is unused" and 3DS and DSi I dunno but it probably doesn't work that way
 		else:
 			banned = False
 		#Bit 5 I'm not even sure about (on Wii it seems to be "includes online interactivity"), but we can ignore it

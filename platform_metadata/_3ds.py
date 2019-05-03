@@ -262,9 +262,9 @@ def decode_icon(icon_data, size):
 
 				pixel = icon_data[i] | (icon_data[i + 1] << 8)
 
-				blue = ((pixel >> 0) & 0x1f) << 3
-				green = ((pixel >> 5) & 0x3f) << 2
-				red = ((pixel >> 11) & 0x1f) << 3
+				blue = ((pixel >> 0) & 0b0001_1111) << 3
+				green = ((pixel >> 5) & 0b0011_1111) << 2
+				red = ((pixel >> 11) & 0b0001_1111) << 3
 
 				icon.putpixel((x, y), (red, green, blue))
 				i += 2
