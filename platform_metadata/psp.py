@@ -106,7 +106,8 @@ def load_image_from_bytes(data):
 	bitmap_data_io = io.BytesIO(data)
 	try:
 		return Image.open(bitmap_data_io)
-	except OSError:
+	except (OSError, SyntaxError):
+		#Why is it SyntaxError though? Agggggh
 		return None
 
 def add_info_from_pbp(game, pbp_file):
