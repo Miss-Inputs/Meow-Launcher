@@ -485,28 +485,27 @@ def add_metadata_from_appinfo_common_section(game, common):
 	franchise_name = None
 	associations = common.get(b'associations')
 
-	associations_dict = {}
 	if associations:
+		associations_dict = {}
 		for association in associations.values():
 			#Can also get multiple developers/publishers this way (as can sometimes happen if a separate developer does the Linux port, for example)
 			associations_dict[association.get(b'type').decode('utf-8', errors='ignore')] = association.get(b'name').decode('utf-8', errors='ignore')
-	print(game.name, game.app_id, associations_dict)
 
-	if 'franchise' in associations:
-		franchise_name = associations_dict['franchise']
-		if franchise_name.lower().endswith(' franchise'):
-			franchise_name = franchise_name[:-len(' franchise')]
-		elif franchise_name.lower().endswith(' series'):
-			franchise_name = franchise_name[:-len(' series')]
-		if franchise_name.lower().startswith('the '):
-			franchise_name = franchise_name[len('the '):]
-		if main_config.normalize_name_case and franchise_name.isupper():
-			franchise_name = title_case(franchise_name)
-		
-		not_actual_franchises = ('Playism', 'Hentai')
-		if franchise_name.lower() not in {assoc.lower() for assoc in associations_dict.values()} and franchise_name not in not_actual_franchises:
-			#These franchises aren't the game series at all, they're just the developer/publisher etc used for marketing purposes on the store, and not relevant to what we want to use this field for
-			game.metadata.series = franchise_name
+		if 'franchise' in associations:
+			franchise_name = associations_dict['franchise']
+			if franchise_name.lower().endswith(' franchise'):
+				franchise_name = franchise_name[:-len(' franchise')]
+			elif franchise_name.lower().endswith(' series'):
+				franchise_name = franchise_name[:-len(' series')]
+			if franchise_name.lower().startswith('the '):
+				franchise_name = franchise_name[len('the '):]
+			if main_config.normalize_name_case and franchise_name.isupper():
+				franchise_name = title_case(franchise_name)
+			
+			not_actual_franchises = ('Playism', 'Hentai')
+			if franchise_name.lower() not in {assoc.lower() for assoc in associations_dict.values()} and franchise_name not in not_actual_franchises:
+				#These franchises aren't the game series at all, they're just the developer/publisher etc used for marketing purposes on the store, and not relevant to what we want to use this field for
+				game.metadata.series = franchise_name
 	
 def add_metadata_from_appinfo_extended_section(game, extended):
 	developer = extended.get(b'developer')
