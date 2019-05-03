@@ -356,6 +356,9 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.genre = genre
 		machine.metadata.subgenre = subgenre
 
+	if machine.is_mechanical:
+		machine.metadata.categories = ['Electromechanical']
+
 	#Now we separate things into additional platforms where relevant
 
 	source_file_platforms = {
@@ -373,14 +376,17 @@ def add_metadata_from_catlist(machine):
 		machine.name = machine.name.replace('CPS Changer, ', '')
 		machine.metadata.platform = 'CPS Changer'
 		machine.metadata.media_type = MediaType.Cartridge
+		return 
 	if machine.name.endswith('(XaviXPORT)'):
 		machine.metadata.platform = 'XaviXPORT'
 		machine.metadata.media_type = MediaType.Cartridge
+		return 
 	if machine.name.startswith(('Game & Watch: ', 'Select-A-Game: ', 'R-Zone: ')):
 		platform, _, machine.name = machine.name.partition(': ')
 		machine.metadata.platform = platform
 		machine.metadata.media_type = MediaType.Cartridge if platform in ('Select-A-Game', 'R-Zone') else MediaType.Standalone
-		#Note: "Handheld / Electronic Game" could also be a tabletop system which takes AC input and you would not be able to hold in your hands at all (see also: cpacman), but since catlist.ini doesn't take that into account, I don't really have a way of doing so either
+		return
+
 	if (genre == 'Game Console') or (genre == 'Computer') or (genre == 'Handheld' and subgenre == 'Pocket Device - Pad - PDA') or (genre == 'Board Game'):
 		#There are some plug & play systems in the Game Console / Home Videogame category, not sure what catlist.ini thinks the difference is between that and Handheld / Plug n' Play TV Game in that case; but maybe I should do a whitelist for those to say "yes these are plug & play systems" (e.g. Vii)
 		#Hmm, need a better name for this I think
@@ -396,6 +402,7 @@ def add_metadata_from_catlist(machine):
 		#There are a few things under Arcade: Electromechanical / Utilities that are also pinball stuff, although perhaps not all of them. It only becomes apparent due to them using the "genpin" sample set
 		machine.metadata.platform = 'Pinball'
 	if genre == 'Handheld' and subgenre in ('Electronic Game', 'Home Videogame Console'):
+		#Note: "Handheld / Electronic Game" could also be a tabletop system which takes AC input and you would not be able to hold in your hands at all (see also: cpacman), but since catlist.ini doesn't take that into account, I don't really have a way of doing so either
 		#Home Videogame Console seems to be used for stuff that would be normally excluded due to having software lists and hence being a platform for other software (e.g. GBA), or stuff that ends up there because it has no software list yet (e.g. Gizmondo, Sony PocketStation), but also some stuff like kcontra (Contra handheld) that should definitely be called a handheld, or various "plug & play" (except without the plug) stuff like BittBoy 300 in 1 or VG Pocket
 		#Anyway that's why I put that there
 		#Other genres of handheld: Pocket Device - Pad - PDA; Child Computer (e.g. Speak & Spell) but those seem more suited to Non-Arcade particularly the former
@@ -405,8 +412,6 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.categories = [genre]
 	if category == 'Arcade' and genre == 'Misc.' and subgenre in ('Laser Disk Simulator', 'Print Club'):
 		machine.metadata.categories = [subgenre]
-	if machine.is_mechanical:
-		machine.metadata.categories = ['Electromechanical']
 	if category == 'Arcade' and machine.coin_slots == 0:
 		#Or something among those lines, but if it has no coins then it doesn't meet the definition of "coin operated machine"
 		machine.metadata.categories = ['Non-Arcade']
