@@ -410,9 +410,9 @@ def add_metadata_from_catlist(machine):
 	
 	if category == 'Arcade' and genre in ('Electromechanical', 'Utilities'):
 		machine.metadata.categories = [genre]
-	if category == 'Arcade' and genre == 'Misc.' and subgenre in ('Laser Disk Simulator', 'Print Club'):
+	elif category == 'Arcade' and genre == 'Misc.' and subgenre in ('Laser Disk Simulator', 'Print Club'):
 		machine.metadata.categories = [subgenre]
-	if category == 'Arcade' and machine.coin_slots == 0:
+	elif category == 'Arcade' and machine.coin_slots == 0:
 		#Or something among those lines, but if it has no coins then it doesn't meet the definition of "coin operated machine"
 		machine.metadata.categories = ['Non-Arcade']
 	#Arcade: Music / Jukebox might not really be suited for platform = Arcade?
