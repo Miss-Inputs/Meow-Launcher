@@ -14,6 +14,7 @@ import region_detect
 from common import junk_suffixes, title_case
 from common_types import MediaType, SaveType
 from config import main_config
+from data.capitalized_words_in_names import capitalized_words
 from data.steam_developer_overrides import developer_overrides
 from data.steam_genre_ids import genre_ids
 from data.steam_store_categories import store_categories
@@ -33,8 +34,6 @@ try:
 	have_steamfiles = True
 except ModuleNotFoundError:
 	have_steamfiles = False
-
-
 
 class SteamState():
 	class __SteamState():
@@ -523,7 +522,7 @@ def add_metadata_from_appinfo_common_section(game, common):
 			if franchise_name.lower().startswith('the '):
 				franchise_name = franchise_name[len('the '):]
 			if main_config.normalize_name_case and franchise_name.isupper():
-				franchise_name = title_case(franchise_name)
+				franchise_name = title_case(franchise_name, words_to_ignore_case=capitalized_words)
 			
 			not_actual_franchises = ('Playism', 'Hentai')
 			if franchise_name.lower() not in {assoc.lower() for assoc_type, assoc in associations_dict.items() if assoc_type != 'franchise'} and franchise_name not in not_actual_franchises:
@@ -630,7 +629,7 @@ def fix_name(name):
 		name_to_test_for_upper = name_suffixes.sub('', name)
 
 		if name_to_test_for_upper.isupper():
-			name = title_case(name, words_to_ignore_case=['XL', 'VR', 'XCOM', 'VVVVVV', 'RPG', 'HD'])
+			name = title_case(name, words_to_ignore_case=capitalized_words)
 	#Hmm... this is primarily so series_detect and disambiguate work well, it may be worthwhile putting them back afterwards (put them in some kind of field similar to Filename-Tags but disambiguate always adds them in); depending on how important it is to have "GOTY" or "Definitive Edition" etc in the name if not ambiguous
 	name = name_suffixes.sub(r' (\1)', name)
 	return name
