@@ -621,8 +621,8 @@ def add_metadata_from_appinfo(game):
 
 
 fluff_editions = ['GOTY', 'Game of the Year', 'Definitive', 'Enhanced', 'Special', 'Ultimate', 'Premium', 'Gold', 'Extended']
-name_suffixes = ['Demo', 'Beta', 'GOTY', "Director's Cut", 'Unstable'] + [e + ' Edition' for e in fluff_editions]
-name_suffix_matcher = re.compile(r'(?: | - |: )?(' + '|'.join(name_suffixes) + ')$', re.RegexFlag.IGNORECASE)
+name_suffixes = ['Demo', 'Beta', 'GOTY', "Director's Cut", 'Unstable', 'Complete', 'Complete Collection', "Developer's Cut"] + [e + ' Edition' for e in fluff_editions]
+name_suffix_matcher = re.compile(r'(?: | - |: )?(?:The )?(' + '|'.join(name_suffixes) + ')$', re.RegexFlag.IGNORECASE)
 def normalize_name_case(name, name_to_test_for_upper=None):
 	if not name_to_test_for_upper:
 		name_to_test_for_upper = name
