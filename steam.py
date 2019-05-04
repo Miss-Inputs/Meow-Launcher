@@ -619,7 +619,7 @@ def add_metadata_from_appinfo(game):
 		#I think it's a fair assumption that every game on Steam will have _some_ sort of save data (even if just settings and not progress) so until I'm proven wrong... whaddya gonna do
 		game.metadata.save_type = SaveType.Internal
 
-name_suffixes = re.compile(r'(?: | - |: )?(Demo|GOTY(?: Edition)?|Game of the Year Edition|Definitive Edition)$', re.RegexFlag.IGNORECASE)
+name_suffixes = re.compile(r'(?: | - |: )?(Demo|GOTY(?: Edition)?|Game of the Year Edition|Definitive Edition|Enhanced Edition|Special Edition)$', re.RegexFlag.IGNORECASE)
 def normalize_name_case(name, name_to_test_for_upper=None):
 	if not name_to_test_for_upper:
 		name_to_test_for_upper = name
