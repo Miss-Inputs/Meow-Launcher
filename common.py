@@ -90,6 +90,11 @@ def convert_roman_numerals_in_title(s):
 			converted_words.append(word)
 	return ' '.join(converted_words)
 
+def title_word(s):
+	#Like str.title or str.capitalize but actually bloody works how I expect for compound-words and contract'ns
+	actual_word_parts = re.split(r"([\w']+)", s)
+	return ''.join([part.capitalize() for part in actual_word_parts])
+
 dont_capitalize_these = ['the', 'a', 'an', 'and', 'or', 'at', 'with', 'to', 'of', 'is']
 def title_case_sentence_part(s, words_to_ignore_case=None):
 	words = re.split(' ', s)
@@ -97,7 +102,7 @@ def title_case_sentence_part(s, words_to_ignore_case=None):
 		words_to_ignore_case = []
 
 	titled_words = []
-	titled_words.append(words[0] if words[0] in words_to_ignore_case else words[0].title())
+	titled_words.append(words[0] if words[0] in words_to_ignore_case else title_word(words[0]))
 	words = words[1:]
 	for word in words:
 		if word in words_to_ignore_case or is_roman_numeral(word):
@@ -105,7 +110,7 @@ def title_case_sentence_part(s, words_to_ignore_case=None):
 		elif word.lower() in dont_capitalize_these:
 			titled_words.append(word.lower())
 		else:
-			titled_words.append(word.title())
+			titled_words.append(title_word(word))
 	return ' '.join(titled_words)
 
 def title_case(s, words_to_ignore_case=None):

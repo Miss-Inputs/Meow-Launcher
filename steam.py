@@ -633,7 +633,7 @@ def normalize_name_case(name, name_to_test_for_upper=None):
 			return title_case(name, words_to_ignore_case=capitalized_words)
 
 		#Assume minimum word length of 4 to avoid acronyms, although those should be in capitalized_words I guess
-		return re.sub(r'[\w-]{4,}', lambda match: title_case(match[0], words_to_ignore_case=capitalized_words) if match[0].isupper() else match[0], name)
+		return re.sub(r"[\w'-]{4,}", lambda match: title_case(match[0], words_to_ignore_case=capitalized_words) if match[0].isupper() else match[0], name)
 	if main_config.normalize_name_case == 3:
 		return title_case(name, words_to_ignore_case=capitalized_words)
 	
