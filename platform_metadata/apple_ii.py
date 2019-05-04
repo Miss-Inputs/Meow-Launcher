@@ -1,6 +1,7 @@
 from enum import Enum, auto
 
 from config import main_config
+from mame_helpers import consistentify_manufacturer
 from region_detect import get_language_by_english_name
 from software_list_info import get_software_list_entry
 
@@ -90,9 +91,9 @@ def parse_woz_meta_chunk(game, chunk_data):
 			except ValueError:
 				pass
 		elif key == 'publisher':
-			game.metadata.publisher = value
+			game.metadata.publisher = consistentify_manufacturer(value)
 		elif key == 'developer':
-			game.metadata.developer = value
+			game.metadata.developer = consistentify_manufacturer(value)
 		elif key == 'copyright':
 			#TODO: Catch values like "1989 Cool Corporation"
 			try:
