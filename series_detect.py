@@ -63,15 +63,29 @@ def find_series_name_by_subtitle(name, existing_serieses, force=False):
 	if not name_chunks:
 		return None, None
 	name_chunk = name_chunks[0]
-	if name_chunk in existing_serieses or force:
-		series = name_chunk
+
+	match = None
+	
+	if force:
+		match = name_chunk
+	else:
+		name_chunk_to_match = name_chunk
+		if name_chunk_to_match.startswith('The '):
+			name_chunk_to_match = name_chunk_to_match[len('The '):]
+		for existing_series in existing_serieses:
+			if name_chunk_to_match == existing_series:
+			#TODO: Should we normalize it via similar stuff to disambiguate.normalize_name or nah?
+				match = existing_series
+				break
+
+	if match:
+		series = match
 		index = None
 		if len(name_chunks) > 1:
 			index = name_chunks[1]
 		else:
 			index = '1'
 		return series, index
-	#TODO: Should we normalize it via similar stuff to disambiguate.normalize_name or nah?
 	return None, None
 
 def get_usable_name(desktop):
