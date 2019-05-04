@@ -4,6 +4,7 @@ class ConfigValueType(Enum):
 	Bool = auto()
 	FilePath = auto()
 	FolderPath = auto()
+	Integer = auto()
 	String = auto()
 	StringList = auto()
 	FilePathList = auto()

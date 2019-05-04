@@ -57,6 +57,15 @@ def create_editor_for_config(parent, config_name, config_value, current_value):
 		check_box.Value = current_value
 		check_box.SetToolTip(config_value.description)
 		return check_box
+	if config_value.type == ConfigValueType.Integer:
+		sizer = wx.BoxSizer(wx.HORIZONTAL)
+		label = wx.StaticText(parent, label=config_value.name)
+		sizer.Add(label, 0, wx.ALL, 2)
+		spinny_boi = wx.SpinCtrl(parent, name=config_name)
+		spinny_boi.Value = current_value
+		spinny_boi.SetToolTip(config_value.description)
+		sizer.Add(spinny_boi, 1, wx.ALL | wx.EXPAND, 2)
+		return sizer
 	if config_value.type == ConfigValueType.String:
 		sizer = wx.BoxSizer(wx.HORIZONTAL)
 		label = wx.StaticText(parent, label=config_value.name)
@@ -133,7 +142,7 @@ class MainWindow(MeowLauncherGui):
 			new_config_values[section] = {}
 			for name, config_item in configs.items():
 				control = self.mainConfigScrolledWindow.FindWindowByName(name)
-				if config_item.type in (ConfigValueType.Bool, ConfigValueType.String):
+				if config_item.type in (ConfigValueType.Bool, ConfigValueType.String, ConfigValueType.Integer):
 					new_value = control.Value
 				elif config_item.type in (ConfigValueType.FilePath, ConfigValueType.FolderPath):
 					new_value = control.Path
@@ -150,7 +159,7 @@ class MainWindow(MeowLauncherGui):
 			for name, config_item in v.items():
 				control = self.mainConfigScrolledWindow.FindWindowByName(name)
 				current_value = getattr(config.main_config, name)
-				if config_item.type in (ConfigValueType.Bool, ConfigValueType.String):
+				if config_item.type in (ConfigValueType.Bool, ConfigValueType.String, ConfigValueType.Integer):
 					control.Value = current_value
 				elif config_item.type in (ConfigValueType.FilePath, ConfigValueType.FolderPath):
 					control.Path = current_value

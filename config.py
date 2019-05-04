@@ -41,6 +41,8 @@ def parse_value(section, name, value_type, default_value):
 		return parse_string_list(section[name])
 	if value_type in (ConfigValueType.FilePathList, ConfigValueType.FolderPathList):
 		return parse_path_list(section[name])
+	if value_type == ConfigValueType.Integer:
+		return section.getint(name, default_value)
 	return section[name]
 
 def parse_command_line_bool(value):
@@ -93,8 +95,8 @@ _config_ini_values = {
 	#TODO: Should be in specific_config as it is inherently specific to the emulator (DOSBox) and not the platform
 	'dosbox_configs_path': ConfigValue('DOS', ConfigValueType.FolderPath, os.path.join(_data_dir, 'dosbox_configs'), 'DOSBox configs path', 'Folder to store DOSBox per-application configuration files'),
 
-	#TODO: Put this in a general section, use it in the other modules, and also have an option to normalize the case of _all_ names and not just yelly case ones
-	'normalize_name_case': ConfigValue('Steam', ConfigValueType.Bool, False, 'Normalize name case', 'Apply title case to titles of games which are in all uppercase'),
+	#TODO: Put this in a general section, use it in the other modules
+	'normalize_name_case': ConfigValue('Steam', ConfigValueType.Integer, 0, 'Normalize name case', 'Apply title case to uppercase things (1: only if whole title is uppercase, 2: capitalize individual uppercase words, 3: title case the whole thing regardless)'),
 	'force_create_launchers': ConfigValue('Steam', ConfigValueType.Bool, False, 'Force create launchers', 'Create launchers even for games which are\'nt launchable'),
 
 	'skip_mame_non_working_software': ConfigValue('Roms', ConfigValueType.Bool, False, 'Skip MAME non-working software', "Don't attempt to use MAME for ROMs marked as unsupported in software list"),

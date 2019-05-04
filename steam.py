@@ -521,8 +521,8 @@ def add_metadata_from_appinfo_common_section(game, common):
 				franchise_name = franchise_name[:-len(' series')]
 			if franchise_name.lower().startswith('the '):
 				franchise_name = franchise_name[len('the '):]
-			if main_config.normalize_name_case and franchise_name.isupper():
-				franchise_name = title_case(franchise_name, words_to_ignore_case=capitalized_words)
+
+			franchise_name = normalize_name_case(franchise_name)
 			
 			not_actual_franchises = ('Playism', 'Hentai')
 			if franchise_name.lower() not in {assoc.lower() for assoc_type, assoc in associations_dict.items() if assoc_type != 'franchise'} and franchise_name not in not_actual_franchises:
@@ -620,16 +620,40 @@ def add_metadata_from_appinfo(game):
 		game.metadata.save_type = SaveType.Internal
 
 name_suffixes = re.compile(r'(?: | - |: )?(Demo|GOTY(?: Edition)?|Game of the Year Edition|Definitive Edition)$', re.RegexFlag.IGNORECASE)
+def normalize_name_case(name, name_to_test_for_upper=None):
+	if not name_to_test_for_upper:
+		name_to_test_for_upper = name
+
+	if main_config.normalize_name_case == 1:
+		if name_to_test_for_upper.isupper():
+			return title_case(name, words_to_ignore_case=capitalized_words)
+		return name
+	if main_config.normalize_name_case == 2:
+		if name_to_test_for_upper.isupper():
+			return title_case(name, words_to_ignore_case=capitalized_words)
+
+		words = name.split(' ')
+		new_words = []
+		for word in words:
+			if word.isupper() and re.search(r'[\w-]{4,}', word):
+				new_words.append(title_case(word, words_to_ignore_case=capitalized_words))
+			else:
+				new_words.append(word)
+		return ' '.join(new_words)
+	if main_config.normalize_name_case == 3:
+		return title_case(name, words_to_ignore_case=capitalized_words)
+	
+	return name
+
 def fix_name(name):
 	name = name.replace('™', '')
 	name = name.replace('®', '')
 	name = name.replace('(VI)', 'VI') #Why is Tomb Raider: The Angel of Darkness like this
-	if main_config.normalize_name_case:
-		name_to_test_for_upper = chapter_matcher.sub('', name)
-		name_to_test_for_upper = name_suffixes.sub('', name)
 
-		if name_to_test_for_upper.isupper():
-			name = title_case(name, words_to_ignore_case=capitalized_words)
+	name_to_test_for_upper = chapter_matcher.sub('', name)
+	name_to_test_for_upper = name_suffixes.sub('', name)
+	name = normalize_name_case(name, name_to_test_for_upper)
+		
 	#Hmm... this is primarily so series_detect and disambiguate work well, it may be worthwhile putting them back afterwards (put them in some kind of field similar to Filename-Tags but disambiguate always adds them in); depending on how important it is to have "GOTY" or "Definitive Edition" etc in the name if not ambiguous
 	name = name_suffixes.sub(r' (\1)', name)
 	return name
