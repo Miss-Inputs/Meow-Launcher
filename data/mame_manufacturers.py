@@ -31,6 +31,7 @@ manufacturer_overrides = {
 	'Broderbund': 'Brøderbund',
 	'Broderbund Software': 'Brøderbund',
 	'Brøderbund Software': 'Brøderbund',
+	'Broderbund software': 'Brøderbund',
 	'California Pacific Computer': 'California Pacific',
 	'Coconuts Japan Entertainment': 'Coconuts Japan',
 	'Commodore Business Machines': 'Commodore',
@@ -86,6 +87,7 @@ manufacturer_overrides = {
 	'Taito America Corporation': 'Taito America',
 	'Team 17': 'Team17',
 	'TecMagik Entertainment': 'TecMagik',
+	'TecToy': 'Tec Toy',
 	'T*HQ': 'THQ', #Why.
 	'Titus Software': 'Titus',
 	'UA Limited': 'UA',
@@ -166,6 +168,7 @@ manufacturer_overrides = {
 	'enix': 'Enix',
 	'EPYX': 'Epyx',
 	'Microprose': 'MicroProse',
+	'RazorSoft': 'Razorsoft',
 	'SONY': 'Sony',
 	'SpectraVideo': 'Spectravideo',
 	'Spectrum HoloByte': 'Spectrum Holobyte',
@@ -177,6 +180,7 @@ manufacturer_overrides = {
 	'Commonweaalth': 'Commonwealth',
 	'Connonwealth': 'Commonwealth',
 	'Elite System': 'Elite Systems',
+	'Hi-Tech Expression': 'Hi-Tech Expressions',
 	'Hi Tech Expressions': 'Hi-Tech Expressions',
 	'Jungle\'s Soft / Ultimate Products (HK)': 'Jungle Soft / Ultimate Products (HK)',
 	'Mindscapce': 'Mindscape', #Yeah okay, that _definitely_ is a typo

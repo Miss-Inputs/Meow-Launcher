@@ -40,9 +40,9 @@ developer_overrides = {
 	'Starbreeze Publishing AB': 'Starbreeze',
 	'Topware Interactive ACE': 'Topware Interactive',
 	'Warner Bros. Interactive Entertainment': 'Warner Bros',
-	'XSEED': 'XSeeg Games',
-	'XSEED Games': 'XSeed Games',
-	'XSEED GAMES': 'XSeed Games',
+	'XSEED': 'XSeed',
+	'XSEED Games': 'XSeed',
+	'XSEED GAMES': 'XSeed',
 	'YAGER': 'Yager Development',
 	#Coffee Stain Studios = Coffee Stain Publishing? Hmm
 	#Lazy Monday Games > Lazy Monday?
