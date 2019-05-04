@@ -635,7 +635,7 @@ def normalize_name_case(name, name_to_test_for_upper=None):
 		words = name.split(' ')
 		new_words = []
 		for word in words:
-			if word.isupper() and re.search(r'[\w-]{4,}', word):
+			if word.isupper() and re.search(r"[\w-]{4,}", word):
 				new_words.append(title_case(word, words_to_ignore_case=capitalized_words))
 			else:
 				new_words.append(word)
