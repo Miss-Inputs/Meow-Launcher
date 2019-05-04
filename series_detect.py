@@ -10,11 +10,6 @@ import launchers
 
 from data.series_detect_overrides import series_overrides
 
-#These already have a cromulent database of what is in a series and what isn't, or could, so we shouldn't detect it from name
-#DOS/Mac _should_, but doesn't yet, so we won't skip it for now, but we will one day
-#ignored_types = ('MAME machine', 'DOS', 'Mac')
-ignored_types = ('MAME machine')
-
 probably_not_series_index_threshold = 20
 #Assume that a number over this is probably not referring to the nth or higher entry in the series, but is probably just any old number that means something else
 probably_not_a_series_index = ('XXX', '007', 'DX')
@@ -187,9 +182,6 @@ def get_existing_seriesless_launchers():
 	for name in os.listdir(main_config.output_folder):
 		path = os.path.join(main_config.output_folder, name)
 		desktop = launchers.get_desktop(path)
-
-		if launchers.get_field(desktop, 'Type', launchers.id_section_name) in ignored_types:
-			continue
 
 		if launchers.get_field(desktop, 'Series'):
 			#Don't need to do this if it already exists
