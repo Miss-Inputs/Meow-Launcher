@@ -8,16 +8,13 @@ from common import convert_roman_numeral, convert_roman_numerals_in_title
 from config import main_config
 import launchers
 
+from data.series_detect_overrides import series_overrides
+
 #These already have a cromulent database of what is in a series and what isn't, or could, so we shouldn't detect it from name
 #DOS/Mac _should_, but doesn't yet, so we won't skip it for now, but we will one day
 #ignored_types = ('MAME machine', 'DOS', 'Mac')
 ignored_types = ('MAME machine')
 
-#Should probably go in data folder, probably
-series_overrides = {
-	#These names are too clever for my code to work properly, so I'll do them manually
-	'Killer 7': (None, None),
-}
 probably_not_series_index_threshold = 20
 #Assume that a number over this is probably not referring to the nth or higher entry in the series, but is probably just any old number that means something else
 probably_not_a_series_index = ('XXX', '007', 'DX')
