@@ -40,6 +40,7 @@ developer_overrides = {
 	'Starbreeze Publishing AB': 'Starbreeze',
 	'Topware Interactive ACE': 'Topware Interactive',
 	'Warner Bros. Interactive Entertainment': 'Warner Bros',
+	'XSEED': 'XSeeg Games',
 	'XSEED Games': 'XSeed Games',
 	'XSEED GAMES': 'XSeed Games',
 	'YAGER': 'Yager Development',

@@ -5,7 +5,7 @@ consistentified_manufacturers = {
 
 	#Atlus USA, Inc. > Atlus USA?
 	'ATLUS': 'Atlus',
-	'BigBen Interactive': 'Bigben Interactive', #Other way around might also be more correct
+	'Bigben Interactive': 'BigBen Interactive', #Other way around might also be correct
 	'CAPCOM': 'Capcom',
 	'CIRCLE Ent.': 'Circle Entertainment',
 	'INTI CREATES': 'Inti Creates',
