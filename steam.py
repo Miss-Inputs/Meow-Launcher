@@ -619,7 +619,10 @@ def add_metadata_from_appinfo(game):
 		#I think it's a fair assumption that every game on Steam will have _some_ sort of save data (even if just settings and not progress) so until I'm proven wrong... whaddya gonna do
 		game.metadata.save_type = SaveType.Internal
 
-name_suffixes = re.compile(r'(?: | - |: )?(Demo|GOTY(?: Edition)?|Game of the Year Edition|Definitive Edition|Enhanced Edition|Special Edition)$', re.RegexFlag.IGNORECASE)
+
+fluff_editions = ['GOTY', 'Game of the Year', 'Definitive', 'Enhanced', 'Special', 'Ultimate', 'Premium', 'Gold', 'Extended']
+name_suffixes = ['Demo', 'Beta', 'GOTY', "Director's Cut", 'Unstable'] + [e + ' Edition' for e in fluff_editions]
+name_suffix_matcher = re.compile(r'(?: | - |: )?(' + '|'.join(name_suffixes) + ')$', re.RegexFlag.IGNORECASE)
 def normalize_name_case(name, name_to_test_for_upper=None):
 	if not name_to_test_for_upper:
 		name_to_test_for_upper = name
@@ -645,11 +648,11 @@ def fix_name(name):
 	name = name.replace('(VI)', 'VI') #Why is Tomb Raider: The Angel of Darkness like this
 
 	name_to_test_for_upper = chapter_matcher.sub('', name)
-	name_to_test_for_upper = name_suffixes.sub('', name_to_test_for_upper)
+	name_to_test_for_upper = name_suffix_matcher.sub('', name_to_test_for_upper)
 	name = normalize_name_case(name, name_to_test_for_upper)
 		
 	#Hmm... this is primarily so series_detect and disambiguate work well, it may be worthwhile putting them back afterwards (put them in some kind of field similar to Filename-Tags but disambiguate always adds them in); depending on how important it is to have "GOTY" or "Definitive Edition" etc in the name if not ambiguous
-	name = name_suffixes.sub(r' (\1)', name)
+	name = name_suffix_matcher.sub(r' (\1)', name)
 	return name
 
 def process_game(app_id, name=None):
