@@ -285,19 +285,78 @@ def _does_nes_rom_match(part, prg_crc, chr_crc):
 	return prg_matches and chr_matches
 
 def _get_headered_nes_rom_software_list_entry(game):
-	prg_size = game.metadata.specific_info.get('PRG-Size', 0)
-	chr_size = game.metadata.specific_info.get('CHR-Size', 0)
-	#Is it even possible for prg_size to be 0 on a valid ROM?
-	prg_offset = 16 + 512 if game.metadata.specific_info.get('Has-iNES-Trainer', False) else 16
-	chr_offset = prg_offset + prg_size
+	prg_crc32 = game.metadata.specific_info.get('PRG-CRC')
+	chr_crc32 = game.metadata.specific_info.get('CHR-CRC')
+	if not prg_crc32 and not chr_crc32:
+		prg_size = game.metadata.specific_info.get('PRG-Size', 0)
+		chr_size = game.metadata.specific_info.get('CHR-Size', 0)
+		#Is it even possible for prg_size to be 0 on a valid ROM?
+		prg_offset = 16 + 512 if game.metadata.specific_info.get('Has-iNES-Trainer', False) else 16
+		chr_offset = prg_offset + prg_size
 
-	prg_rom = game.rom.read(seek_to=prg_offset, amount=prg_size)
-	chr_rom = game.rom.read(seek_to=chr_offset, amount=chr_size) if chr_size else None
+		prg_rom = game.rom.read(seek_to=prg_offset, amount=prg_size)
+		chr_rom = game.rom.read(seek_to=chr_offset, amount=chr_size) if chr_size else None
 
-	prg_crc32 = get_crc32_for_software_list(prg_rom)
-	chr_crc32 = get_crc32_for_software_list(chr_rom) if chr_rom else None
+		prg_crc32 = get_crc32_for_software_list(prg_rom)
+		chr_crc32 = get_crc32_for_software_list(chr_rom) if chr_rom else None
 
 	return find_in_software_lists_with_custom_matcher(game.software_lists, _does_nes_rom_match, [prg_crc32, chr_crc32])
+
+def parse_unif_chunk(game, chunk_type, chunk_data):
+	if chunk_type == 'PRG0':
+		game.metadata.specific_info['PRG-CRC'] = get_crc32_for_software_list(chunk_data)
+	elif chunk_type.startswith('CHR'):
+		game.metadata.specific_info['CHR-CRC'] = get_crc32_for_software_list(chunk_data)
+	elif chunk_type == 'MAPR':
+		#TODO: Convert this to iNES mapper number, if relevant (maybe?) (NES-NROM-xxx = NROM, for example)
+		#TODO: Make emulator_command_lines use this
+		game.metadata.specific_info['Mapper'] = chunk_data.decode('utf-8', errors='ignore').rstrip('\0')
+	elif chunk_type == 'TVCI':
+		tv_type = chunk_data[0]
+		if tv_type == 0:
+			game.metadata.tv_type = TVSystem.NTSC
+		elif tv_type == 1:
+			game.metadata.tv_type = TVSystem.PAL
+		elif tv_type == 2:
+			game.metadata.tv_type = TVSystem.Agnostic
+	elif chunk_type == 'BATR':
+		game.metadata.save_type = SaveType.Cart if chunk_data[0] else SaveType.Nothing
+	elif chunk_type == 'CTRL':
+		controller_info = chunk_data[0]
+		#This is a bitfield, so actually one could have multiple peripherals
+		if controller_info & 16:
+			game.metadata.specific_info['Peripheral'] = NESPeripheral.PowerPad
+		if controller_info & 8:
+			game.metadata.specific_info['Peripheral'] = NESPeripheral.ArkanoidPaddle
+		if controller_info & 4:
+			game.metadata.specific_info['Peripheral'] = NESPeripheral.ROB
+		if controller_info & 2:
+			game.metadata.specific_info['Peripheral'] = NESPeripheral.Zapper
+		if controller_info & 1:
+			game.metadata.specific_info['Peripheral'] = NESPeripheral.NormalController
+	elif chunk_type == 'READ':
+		game.metadata.notes = chunk_data.decode('utf-8', errors='ignore').rstrip('\0')
+	#NAME: Not needed, basically just something similar to the filename
+	#MIRR: Probably not needed
+	#PCK0, CCK0: CRC32 of PRG/CHR, would be nice except since this chunk isn't always there, we have to calculate it manually anyway
+	#WRTR/DINF: Dumping info, who cares
+	#VROR: Something to do with considering CHR-ROM as RAM, don't need to worry about this
+
+def add_unif_metadata(game):
+	game.metadata.specific_info['Headered'] = True
+	game.metadata.specific_info['Header-Format'] = 'UNIF'
+
+	pos = 32
+	size = game.rom.get_size()
+	while pos < size:
+		chunk = game.rom.read(amount=8, seek_to=pos)
+		chunk_type = chunk[0:4].decode('ascii', errors='ignore')
+		chunk_length = int.from_bytes(chunk[4:8], 'little')	
+		
+		chunk_data = game.rom.read(amount=chunk_length, seek_to=pos+8)
+		parse_unif_chunk(game, chunk_type, chunk_data)
+
+		pos += 8 + chunk_length
 
 def add_nes_metadata(game):
 	if game.rom.extension == 'fds':
@@ -307,6 +366,8 @@ def add_nes_metadata(game):
 		magic = header[:4]
 		if magic in (b'NES\x00', b'NES\x1a'):
 			add_ines_metadata(game, header)
+		elif magic == b'UNIF':
+			add_unif_metadata(game)
 		else:
 			game.metadata.specific_info['Headered'] = False
 
@@ -316,7 +377,7 @@ def add_nes_metadata(game):
 	else:
 		if game.metadata.specific_info.get('Header-Format') == 'fwNES':
 			software = get_software_list_entry(game, skip_header=16)
-		elif game.metadata.specific_info.get('Header-Format') in ('iNES', 'NES 2.0'):
+		elif game.metadata.specific_info.get('Header-Format') in ('iNES', 'NES 2.0', 'UNIF'):
 			software = _get_headered_nes_rom_software_list_entry(game)
 
 	nes_peripheral = NESPeripheral.NormalController
