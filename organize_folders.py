@@ -40,29 +40,28 @@ def delete_existing_output_dir():
 extra_subfolders = {
 	#These subfolders are enabled with an optional argument because most people wouldn't have any use for them (or would they? I'm just presuming they're of interest to people like me only)
 	#I'm gonna get rid of all these eventually, since by my own words, they aren't useful; and if they are useful, they shouldn't need an extra argument
-	'By emulator used': ('Emulator', False),
-	'By number of players': ('Number-of-Players', False),
-	'By MAME emulation status': ('MAME-Emulation-Status', False),
+	#So at this point this is just for my own weird purposes tbh
+	'By emulator used': ['Emulator'],
+	'By number of players': ['Number-of-Players'],
+	'By MAME emulation status': ['MAME-Emulation-Status'],
 
-	'By main CPU': ('Main-CPU', False),
-	'By main CPU and clock speed': (['Main-CPU', 'Clock-Speed'], False),
-	'By number of screens': ('Number-of-Screens', False),
-	'By screen type': ('Screen-Type', False),
+	'By main CPU': ['Main-CPU'],
+	'By main CPU and clock speed': [['Main-CPU', 'Clock-Speed']],
+	'By number of screens': ['Number-of-Screens'],
+	'By screen type': ['Screen-Type'],
 
 	#Relevant for MAME machines only
-	'By arcade system': ('Arcade-System', False),
-	'Is mechanical': ('Is-Mechanical', True),
-	'Has unemulated features': ('MAME-Unemulated-Features', True),
-	'Dispenses tickets': ('Dispenses-Tickets', True),
-	'No ROMs required': ('Romless', True),
+	'By arcade system': ['Arcade-System'],
+	'Is mechanical': ['Is-Mechanical', True],
+	'Dispenses tickets': ['Dispenses-Tickets', True],
+	'No ROMs required': ['Romless', True],
 
-	'Has icon': ('Icon', True),
-	'Has force feedback': ('Force-Feedback', True),
-	'Has RTC': ('Has-RTC', True),
-	'Has notes': ('Notes', True),
+	'Has icon': ['Icon', True],
+	'By age rating': ['Age-Rating'],
+	'By Steam store category': ['Store-Categories', False, True, None],
 }
 
-def move_into_extra_subfolder(path, desktop, subfolder, key, is_boolean):
+def move_into_extra_subfolder(path, desktop, subfolder, key, is_boolean=False, is_array_field=False, missing_array_value='Unknown'):
 	if isinstance(key, list):
 		values = []
 		for component in key:
@@ -71,6 +70,15 @@ def move_into_extra_subfolder(path, desktop, subfolder, key, is_boolean):
 				return
 			values.append(sanitize_name(component_value))
 		value = ' - '.join(values)
+	elif is_array_field:
+		field_value = launchers.get_array(desktop, key)
+		if not field_value:
+			if missing_array_value:
+				copy_to_folder(path, main_config.organized_output_folder, subfolder, missing_array_value)
+			return
+		for value in field_value:
+			copy_to_folder(path, main_config.organized_output_folder, subfolder, sanitize_name(value))
+		return
 	else:
 		field_value = launchers.get_field(desktop, key)
 		if not field_value:
@@ -88,7 +96,6 @@ def move_into_subfolders(path):
 	platform = launchers.get_field(desktop, 'Platform')
 	categories = launchers.get_array(desktop, 'Categories')
 	languages = launchers.get_array(desktop, 'Languages')
-	input_methods = launchers.get_array(desktop, 'Input-Methods')
 	year = launchers.get_field(desktop, 'Year')
 
 	if categories:
@@ -104,26 +111,21 @@ def move_into_subfolders(path):
 	for language in languages:
 		copy_to_folder(path, main_config.organized_output_folder, 'By language', sanitize_name(language))
 
-	if not input_methods:
-		copy_to_folder(path, main_config.organized_output_folder, 'By input method', 'Unknown')
-	else:
-		for input_method in input_methods:
-			copy_to_folder(path, main_config.organized_output_folder, 'By input method', sanitize_name(input_method))
-
 	if year:
 		copy_to_folder(path, main_config.organized_output_folder, 'By year', sanitize_name(year.replace('x', '?')))
 
 	copy_to_folder(path, main_config.organized_output_folder, 'By platform and category', sanitize_name(platform) + ' - ' + sanitize_name(category))
 
-	move_into_extra_subfolder(path, desktop, 'By genre', 'Genre', False)
-	move_into_extra_subfolder(path, desktop, 'By subgenre', ['Genre', 'Subgenre'], False)
-	move_into_extra_subfolder(path, desktop, 'By developer', 'Developer', False)
-	move_into_extra_subfolder(path, desktop, 'By publisher', 'Publisher', False)
-	move_into_extra_subfolder(path, desktop, 'By platform and genre', ['Platform', 'Genre'], False)
-	move_into_extra_subfolder(path, desktop, 'By platform and year', ['Platform', 'Year'], False)
+	move_into_extra_subfolder(path, desktop, 'By genre', 'Genre')
+	move_into_extra_subfolder(path, desktop, 'By subgenre', ['Genre', 'Subgenre'])
+	move_into_extra_subfolder(path, desktop, 'By developer', 'Developer')
+	move_into_extra_subfolder(path, desktop, 'By publisher', 'Publisher')
+	move_into_extra_subfolder(path, desktop, 'By platform and genre', ['Platform', 'Genre'])
+	move_into_extra_subfolder(path, desktop, 'By platform and year', ['Platform', 'Year'])
 	move_into_extra_subfolder(path, desktop, 'Is NSFW', 'NSFW', True)
-	move_into_extra_subfolder(path, desktop, 'By series', 'Series', False)
+	move_into_extra_subfolder(path, desktop, 'By series', 'Series')
 	move_into_extra_subfolder(path, desktop, 'Has standard input', 'Standard-Input', True)
+	move_into_extra_subfolder(path, desktop, 'By input method', 'Input-Methods', False, True)
 
 	if main_config.extra_folders:
 		if len(languages) == 1:
