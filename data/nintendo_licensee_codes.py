@@ -235,7 +235,7 @@ nintendo_licensee_codes = {
 	'S5': 'SouthPeak Games', #Dementium II (Europe) (En,Fr,De,Es,It) (DS)
 	'SZ': 'Storm City Entertainment', #System Flaw (USA) (DSi)
 	'TH': 'Kolkom', #Girlfriends Forever: Magic Skate (Europe) (WiiWare)
-	'TL': 'Telltale', #Strong Badia the Free series (WiiWare)
+	'TL': 'Telltale Games', #Strong Badia the Free series (WiiWare)
 	'Q7': 'Nexon', #MapleStory DS (Korea)
 	'QH': 'Virtual Play Games', #Intellivision Lives (USA) (DS)
 	'QU': 'QubicGames', #AiRace Speed demo (3DS)

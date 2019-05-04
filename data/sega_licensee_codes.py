@@ -19,7 +19,7 @@ licensee_codes = {
 	'T-20': 'Asmik',
 	'T-21': 'ASCII',
 	'T-22': 'Micronet',
-	'T-23': 'VIC Tokai',
+	'T-23': 'Vic Tokai',
 	'T-24': 'Sammy (Treco)',
 	'T-25': 'Masaya',
 	'T-26': 'Sigma',
