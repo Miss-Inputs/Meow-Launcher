@@ -651,7 +651,7 @@ def fix_name(name):
 	name = name.replace('(VI)', 'VI') #Why is Tomb Raider: The Angel of Darkness like this
 
 	name_to_test_for_upper = chapter_matcher.sub('', name)
-	name_to_test_for_upper = name_suffixes.sub('', name)
+	name_to_test_for_upper = name_suffixes.sub('', name_to_test_for_upper)
 	name = normalize_name_case(name, name_to_test_for_upper)
 		
 	#Hmm... this is primarily so series_detect and disambiguate work well, it may be worthwhile putting them back afterwards (put them in some kind of field similar to Filename-Tags but disambiguate always adds them in); depending on how important it is to have "GOTY" or "Definitive Edition" etc in the name if not ambiguous
