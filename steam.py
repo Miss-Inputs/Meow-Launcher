@@ -394,7 +394,7 @@ def add_metadata_from_appinfo_common_section(game, common):
 		if primary_genre_id.data == 0:
 			#Sometimes it's 0, even though the genre list is still there
 			primary_genre_id = None
-		elif primary_genre_id.data == 31:
+		elif primary_genre_id.data == 37:
 			#'Free to Play' is not a genre
 			primary_genre_id = None
 		elif primary_genre_id.data >= 71:
@@ -413,7 +413,7 @@ def add_metadata_from_appinfo_common_section(game, common):
 				continue
 			if genre_id.data == primary_genre_id:
 				continue
-			if genre_id.data == 31:
+			if genre_id.data == 37:
 				#'Free to Play' is not a genre
 				continue
 			if genre_id.data >= 71:
