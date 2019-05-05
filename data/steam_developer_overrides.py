@@ -6,8 +6,10 @@ developer_overrides = {
 	'Bethesda Game Studios': 'Bethesda',
 	'Bethesda-Softworks': 'Bethesda',
 	'Bethesda Softworks': 'Bethesda',
+	'Capcom U.S.A.': 'Capcom USA',
 	'Crytek Studios': 'Crytek',
 	'D3T Limited': 'd3t',
+	'Dan  Walters': 'Dan Walters',
 	'Dingaling Productions': 'Dingaling',
 	'Forever Entertainment S. A.': 'Forever Entertainment',
 	'IKEA Communications AB': 'IKEA Communications',
@@ -15,9 +17,11 @@ developer_overrides = {
 	'KISS ltd': 'KISS',
 	'Konami Digital Entertainment': 'Konami',
 	'Lupus Studios Limited': 'Lupus Studios',
+	'M2 Co.,LTD': 'M2',
 	'NAMCO BANDAI Games': 'Namco Bandai', #Should be merged with Bandai Namco? Maybe? I don't know anything anymore
 	'NAMCO BANDAI Studio': 'Namco Bandai',
 	'OVERKILL - a Starbreeze Studio.': 'Overkill Software',
+	'Reality Pump Studios': 'Reality Pump',
 	'Reflections, a Ubisoft Studio': 'Reflections',
 	'Rockin Android': 'Rockin\' Android',
 	'SNK CORPORATION': 'SNK',
@@ -32,6 +36,7 @@ developer_overrides = {
 	#Epic Games = Epic MegaGames?
 
 	#Capitalization stuff
+	'ACQUIRE': 'Acquire',
 	'AGM PLAYISM': 'AGM Playism',
 	'ALICE IN DISSONANCE': 'Alice in Dissonance',
 	'ASTRO PORT': 'Astro Port',
