@@ -33,7 +33,6 @@ developer_overrides = {
 	'YAGER': 'Yager Development',
 	#Coffee Stain Studios = Coffee Stain Publishing? Hmm
 	#Lazy Monday Games > Lazy Monday?
-	#Epic Games = Epic MegaGames?
 
 	#Capitalization stuff
 	'ACQUIRE': 'Acquire',
