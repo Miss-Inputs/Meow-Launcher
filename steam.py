@@ -726,6 +726,7 @@ def process_game(app_id, folder, app_state):
 
 	game = SteamGame(app_id, folder, app_state, name)
 	game.metadata.platform = 'Steam'
+	game.metadata.specific_info['Low-Violence'] = app_state.get('UserConfig', {}).get('lowviolence', '0') == '1'
 	game.metadata.specific_info['Steam-AppID'] = app_id
 	game.metadata.specific_info['Library-Folder'] = folder
 	game.metadata.media_type = MediaType.Digital
