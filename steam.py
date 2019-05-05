@@ -309,26 +309,45 @@ def process_launchers(game, launch):
 		#If you wanted to do secret evil things: b'executable' = 'CoolGame.sh' b'arguments' (optional) = '--fullscreen --blah' b'description' = 'Cool Game'
 
 		#Actually, sometimes the key doesn't start at 0, which is weird, but anyway it still doesn't really mean much, it just means we can't get the first item by getting key 0
-		launcher = {'exe': None, 'args': None}
+		launcher = {'exe': None, 'args': None, 'description': None, 'type': None}
 		executable_name = launch_item.get(b'executable')
 		if executable_name:
-			executable_basename = executable_name.decode('utf-8', errors='ignore')
-			launcher['exe'] = executable_basename
+			exe_name = executable_name.decode('utf-8', errors='backslashreplace')
+			launcher['exe'] = exe_name
 		
 		executable_arguments = launch_item.get(b'arguments')
 		if executable_arguments:
-			launcher['args'] = executable_arguments.decode('utf-8', errors='ignore')
+			launcher['args'] = executable_arguments.decode('utf-8', errors='backslashreplace')
+
+		description = launch_item.get(b'description')
+		if description:
+			launcher['description'] = description.decode('utf-8', errors='backslashreplace')
+
+		launch_type = launch_item.get(b'type')
+		if launch_type:
+			if launch_type == b'config':
+				#We'll ignore stuff like this for now
+				continue
+			launcher['type'] = launch_type.decode('utf-8', errors='backslashreplace')
 		
 		platform = None
 		launch_item_config = launch_item.get(b'config')
 		if launch_item_config:
-			launch_item_oslist = launch_item_config.get(b'oslist', b'')
-			if launch_item_oslist:
+			oslist = launch_item_config.get(b'oslist', b'')
+			if oslist:
 				#I've never seen oslist be a list, but it is always a byte string, so maybe there's some game where it's multiple platforms comma separated
-				#(Other key: osarch = sometimes Integer with data = 32/64, or b'32' or b'64')
-				platform = launch_item_oslist.decode('utf-8', errors='ignore')
+				platform = oslist.decode('utf-8', errors='backslashreplace')
+				osarch = launch_item_config.get(b'osarch')
+				if osarch:
+					platform += '_' + (str(osarch.data) if isinstance(osarch, appinfo.Integer) else osarch.decode('utf-8', errors='backslashreplace'))
+			betakey = launch_item_config.get(b'betakey')
+			if betakey:
+				#We'll just ignore this kinda stuff for now
+				continue
+
 		if platform in launch_configs:
-			#TODO Have a look at what we can do about this case
+			if main_config.debug:
+				print(game.name, game.app_id, 'has extra launcher', launcher)
 			game.metadata.specific_info['Multiple-Launchers'] = True
 		launch_configs[platform] = launcher
 		
@@ -711,7 +730,7 @@ def process_game(app_id, name=None):
 			tool = steamplay_whitelist[appid_str]
 			game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
 			game.metadata.specific_info['Steam-Play-Whitelisted'] = True
-		elif 'linux' not in game.launchers.keys():
+		elif 'linux' not in game.launchers.keys() and 'linux_32' not in game.launchers.keys() and 'linux_64' not in game.launchers.keys():
 			global_tool = steamplay_overrides.get('0')
 			if global_tool:
 				game.metadata.emulator_name = get_steamplay_compat_tools().get(global_tool, global_tool)
@@ -720,7 +739,7 @@ def process_game(app_id, name=None):
 				#If global tool is not set; this game can't be launched and will instead say "Invalid platform"
 				game.metadata.specific_info['No-Valid-Launchers'] = True
 		else:
-			launcher = game.launchers['linux']
+			launcher = game.launchers.get('linux', game.launchers.get('linux_64', game.launchers.get('linux_32')))
 		process_launcher(game, launcher)
 
 	#userdata/<user ID>/config/localconfig.vdf has last time played stats, so that's a thing I guess
