@@ -94,7 +94,7 @@ class DataArea():
 
 			for rom_segment in self.roms:
 				if not rom_segment.name and not rom_segment.crc32:
-					return False
+					continue
 
 				offset = rom_segment.offset
 				size = rom_segment.size
