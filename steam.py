@@ -138,13 +138,16 @@ def get_steamplay_overrides():
 		return {}
 
 class SteamGame():
-	def __init__(self, app_id, name):
+	def __init__(self, app_id, folder, app_state, name):
 		self.app_id = app_id
+		self.library_folder = folder
+		self.app_state = app_state
 		self.name = name
 		self.metadata = Metadata()
 		self.icon = None
 
 		self.launchers = {}
+		self.extra_launchers = {}
 
 	def make_launcher(self):
 		params = launchers.LaunchParams('steam', ['steam://rungameid/{0}'.format(self.app_id)])
@@ -301,8 +304,7 @@ def format_genre(genre_id):
 	return genre_ids.get(genre_id, 'unknown {0}'.format(genre_id))
 
 def process_launchers(game, launch):
-	launch_configs = {}
-
+	launch_items = {}
 	for launch_item in launch.values():
 		#Key here is 0, 1, 2, n... which is a bit useless, it's really just a boneless list. Anyway, each of these values is another dict containing launch parameters, for each individual platform or configuration, e.g. Windows 32-bit, Windows 64-bit, MacOS, etc
 		#If you wanted to do secret evil things: b'executable' = 'CoolGame.sh' b'arguments' (optional) = '--fullscreen --blah' b'description' = 'Cool Game'
@@ -324,9 +326,6 @@ def process_launchers(game, launch):
 
 		launch_type = launch_item.get(b'type')
 		if launch_type:
-			if launch_type == b'config':
-				#We'll ignore stuff like this for now
-				continue
 			launcher['type'] = launch_type.decode('utf-8', errors='backslashreplace')
 		
 		platform = None
@@ -343,15 +342,32 @@ def process_launchers(game, launch):
 			if betakey:
 				#We'll just ignore this kinda stuff for now
 				continue
+		if platform not in launch_items:
+			launch_items[platform] = []
+		launch_items[platform].append(launcher)
 
-		if platform in launch_configs:
-			if main_config.debug:
-				print(game.name, game.app_id, 'has extra launcher', launcher)
-			game.metadata.specific_info['Multiple-Launchers'] = True
-		launch_configs[platform] = launcher
-		
-	game.launchers = launch_configs
-		
+	for platform, platform_launchers in launch_items.items():
+		#My brain hurts now, whoops, sorry if yours does too
+		platform_launcher = None
+		if len(platform_launchers) == 1:
+			platform_launcher = platform_launchers[0]
+		else:
+			default_launchers = [launcher for launcher in platform_launchers if launcher['type'] in (None, 'none', 'default')]
+			not_default_launchers = [launcher for launcher in platform_launchers if launcher['type'] not in (None, 'none', 'default')]
+			if len(default_launchers) == 1:
+				platform_launcher = default_launchers[0]
+			elif len(not_default_launchers) == 1:
+				#This probably shouldn't happen but it do
+				platform_launcher = not_default_launchers[0]
+			else:
+				if platform not in game.extra_launchers:
+					game.extra_launchers[platform] = []
+				game.extra_launchers[platform] += platform_launchers[1:]
+				game.metadata.specific_info['Multiple-Launchers'] = True
+				platform_launcher = platform_launchers[0]
+
+		game.launchers[platform] = platform_launcher
+				
 def add_icon_from_common_section(game, common_section):
 	potential_icon_names = (b'linuxclienticon', b'clienticon', b'clienticns')
 	#icon and logo have similar hashes, but don't seem to actually exist. logo_small seems to just be logo with a _thumb on the end
@@ -695,7 +711,11 @@ def process_launcher(game, launcher):
 	if launcher['args'] and '-uplay_steam_mode' in launcher['args']:
 		game.metadata.specific_info['Launcher'] = 'uPlay'
 
-def process_game(app_id, name=None):
+def process_game(app_id, folder, app_state):
+	name = app_state.get('name')
+	#installdir is the subfolder of library_folder/steamapps/common where the game is actually located, if that's ever useful
+	#UserConfig might be interesting... normally it just has a key 'language' which is set to 'english' etc, sometimes duplicating name and app_id as 'gameid' for no reason, but also has things like 'lowviolence': '1' inside Left 4 Dead 2 for example (because I'm Australian I guess), so... well, I just think that's kinda neat, although probably not useful for our purposes here; also for TF2 it has 'betakey': 'prerelease' so I guess that has to do with opt-in beta programs
+
 	if not name:
 		name = '<unknown game {0}>'.format(app_id)
 	name = fix_name(name)
@@ -708,9 +728,10 @@ def process_game(app_id, name=None):
 			print('Should not happen:', app_id, name, 'is not numeric')
 		return
 
-	game = SteamGame(app_id, name)
+	game = SteamGame(app_id, folder, app_state, name)
 	game.metadata.platform = 'Steam'
 	game.metadata.specific_info['Steam-AppID'] = app_id
+	game.metadata.specific_info['Library-Folder'] = folder
 	game.metadata.media_type = MediaType.Digital
 
 	if steam_state.app_info_available:
@@ -733,7 +754,13 @@ def process_game(app_id, name=None):
 			tool = steamplay_whitelist[appid_str]
 			game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
 			game.metadata.specific_info['Steam-Play-Whitelisted'] = True
-		elif 'linux' not in game.launchers.keys() and 'linux_32' not in game.launchers.keys() and 'linux_64' not in game.launchers.keys():
+		elif 'linux' in game.launchers:
+			launcher = game.launchers['linux']
+		elif 'linux_64' in game.launchers:
+			launcher = game.launchers['linux_64']
+		elif 'linux_32' in game.launchers:
+			launcher = game.launchers['linux_32']
+		else:
 			global_tool = steamplay_overrides.get('0')
 			if global_tool:
 				game.metadata.emulator_name = get_steamplay_compat_tools().get(global_tool, global_tool)
@@ -741,9 +768,8 @@ def process_game(app_id, name=None):
 			else:
 				#If global tool is not set; this game can't be launched and will instead say "Invalid platform"
 				game.metadata.specific_info['No-Valid-Launchers'] = True
-		else:
-			launcher = game.launchers.get('linux', game.launchers.get('linux_64', game.launchers.get('linux_32')))
 		process_launcher(game, launcher)
+		#Potentially do something with game.extra_launchers... I dunno, really
 
 	#userdata/<user ID>/config/localconfig.vdf has last time played stats, so that's a thing I guess
 	#userdata/<user ID>/7/remote/sharedconfig.vdf has tags/categories etc as well
@@ -792,7 +818,7 @@ def iter_steam_installed_appids():
 			if (state_flags & 4) == 0:
 				continue
 
-			yield app_id, app_state
+			yield library_folder, app_id, app_state
 
 no_longer_exists_cached_appids = None
 
@@ -803,7 +829,7 @@ def no_longer_exists(appid):
 
 	global no_longer_exists_cached_appids
 	if no_longer_exists_cached_appids is None:
-		no_longer_exists_cached_appids = [id for id, state in iter_steam_installed_appids()]
+		no_longer_exists_cached_appids = [id for folder, id, state in iter_steam_installed_appids()]
 
 	return appid not in no_longer_exists_cached_appids
 
@@ -813,16 +839,12 @@ def process_steam():
 
 	time_started = time.perf_counter()
 
-	for app_id, app_state in iter_steam_installed_appids():
+	for folder, app_id, app_state in iter_steam_installed_appids():
 		if not main_config.full_rescan:
 			if launchers.has_been_done('Steam', app_id):
 				continue
 
-		name = app_state.get('name')
-		#installdir is the subfolder of library_folder/steamapps/common where the game is actually located, if that's ever useful
-		#UserConfig might be interesting... normally it just has a key 'language' which is set to 'english' etc, sometimes duplicating name and app_id as 'gameid' for no reason, but also has things like 'lowviolence': '1' inside Left 4 Dead 2 for example (because I'm Australian I guess), so... well, I just think that's kinda neat, although probably not useful for our purposes here; also for TF2 it has 'betakey': 'prerelease' so I guess that has to do with opt-in beta programs
-		#Anyway I don't think we need any of that for now
-		process_game(app_id, name)
+		process_game(app_id, folder, app_state)
 
 	if main_config.print_times:
 		time_ended = time.perf_counter()
