@@ -687,8 +687,12 @@ def process_launcher(game, launcher):
 			executable_basename = executable_basename.split('\\')[-1]
 		game.metadata.specific_info['Executable-Name'] = executable_basename
 
-	if executable_basename and executable_basename.lower() in ('dosbox.exe', 'dosbox', 'dosbox.sh'):
-		game.metadata.specific_info['Is-DOSBox-Wrapper'] = True
+	if executable_basename:
+		if executable_basename.lower() in ('dosbox.exe', 'dosbox', 'dosbox.sh'):
+			game.metadata.specific_info['Wrapper'] = 'DOSBox'
+		elif executable_basename.lower() in ('scummvm.exe', 'scummvm', 'scummvm.sh'):
+			game.metadata.specific_info['Wrapper'] = 'ScummVM'
+	
 	if launcher['args'] and '-uplay_steam_mode' in launcher['args']:
 		game.metadata.specific_info['Launcher'] = 'uPlay'
 
