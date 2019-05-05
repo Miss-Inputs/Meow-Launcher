@@ -348,24 +348,15 @@ def process_launchers(game, launch):
 		launch_items[platform].append(launcher)
 
 	for platform, platform_launchers in launch_items.items():
-		#My brain hurts now, whoops, sorry if yours does too
 		platform_launcher = None
 		if len(platform_launchers) == 1:
 			platform_launcher = platform_launchers[0]
 		else:
-			default_launchers = [launcher for launcher in platform_launchers if launcher['type'] in (None, 'none', 'default')]
-			not_default_launchers = [launcher for launcher in platform_launchers if launcher['type'] not in (None, 'none', 'default')]
-			if len(default_launchers) == 1:
-				platform_launcher = default_launchers[0]
-			elif len(not_default_launchers) == 1:
-				#This probably shouldn't happen but it do
-				platform_launcher = not_default_launchers[0]
-			else:
-				if platform not in game.extra_launchers:
-					game.extra_launchers[platform] = []
-				game.extra_launchers[platform] += platform_launchers[1:]
-				game.metadata.specific_info['Multiple-Launchers'] = True
-				platform_launcher = platform_launchers[0]
+			if platform not in game.extra_launchers:
+				game.extra_launchers[platform] = []
+			game.extra_launchers[platform] += platform_launchers[1:]
+			game.metadata.specific_info['Multiple-Launchers'] = True
+			platform_launcher = platform_launchers[0]
 
 		game.launchers[platform] = platform_launcher
 				
