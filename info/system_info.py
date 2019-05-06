@@ -43,7 +43,7 @@ commodore_disk_formats = ['d64', 'g64', 'x64', 'p64', 'd71', 'd81', 'd80', 'd82'
 commodore_cart_formats = ['20', '40', '60', '70', '80', 'a0', 'b0', 'e0', 'crt', 'bin']
 
 #All known possible CD-ROM formats, for use with file_types and MediaType.OpticalDisc; of course emulator support may vary
-cdrom_formats = mame_cdrom_formats + ['cdi', 'ccd', 'toc']
+cdrom_formats = mame_cdrom_formats + ['cdi', 'ccd']
 
 systems = {
 	#Note that this is organized into different sections for no rememberable reason, and also contains my rambling sometimes and I also forgot why that is
