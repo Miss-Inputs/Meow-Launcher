@@ -476,6 +476,14 @@ def add_metadata_from_appinfo_common_section(game, common):
 		game.metadata.specific_info['Store-Categories'] = cats #meow
 		game.metadata.specific_info['Has-Achievements'] = 'Steam Achievements' in cats
 		game.metadata.specific_info['Has-Trading-Cards'] = 'Steam Trading Cards' in cats
+		is_single_player_only = True
+		for cat in cats:
+			if 'multiplayer' in cat.lower() or 'multi-player' in cat.lower() or 'co-op' in cat.lower():
+				is_single_player_only = False
+				break
+		if is_single_player_only:
+			game.metadata.specific_info['Number-of-Players'] = 1
+		
 
 	category = common.get(b'type', b'Unknown').decode('utf-8', errors='backslashreplace')
 	if category in ('game', 'Game'):
