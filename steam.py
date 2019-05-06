@@ -725,7 +725,7 @@ def process_game(app_id, folder, app_state):
 
 	game = SteamGame(app_id, folder, app_state, name)
 	game.metadata.platform = 'Steam'
-	lowviolence = app_state.get('UserConfig', {}).get('lowviolence', '0')
+	lowviolence = app_state.get('UserConfig', {}).get('lowviolence')
 	if lowviolence:
 		game.metadata.specific_info['Low-Violence'] = lowviolence == '1'
 	game.metadata.specific_info['Steam-AppID'] = app_id
