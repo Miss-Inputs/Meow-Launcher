@@ -47,7 +47,7 @@ developer_overrides = {
 	'DONTNOD Entertainment': 'Dontnod Entertainment',
 	'FIVE-BN GAMES': 'Five-BN Games',
 	'GATO STUDIO': 'Gato Studio', #Also seen as "Gato Salvaje", although that doesn't transate exactly to the English name
-	'IDEA FACTORY ': 'Idea Factory', #Who puts a damn space there
+	'IDEA FACTORY': 'Idea Factory',
 	'KITATUS STUDIOS': 'Kitatus Studios',
 	'OVERDRIVE': 'Overdrive',
 	'QUICKTEQUILA': 'Quicktequila',

@@ -246,7 +246,7 @@ def translate_language_list(languages):
 
 def normalize_developer(dev):
 	dev = junk_suffixes.sub('', dev)
-
+	dev = dev.strip()
 
 	if dev in developer_overrides:
 		return developer_overrides[dev]
