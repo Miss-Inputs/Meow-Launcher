@@ -182,14 +182,14 @@ def parse_smdh_data(game, smdh):
 	#Version = 4-6
 	#Reserved = 6-8
 	#Titles = 8-0x2008 (512 bytes each (128 short title + 256 long title + 128 publisher ) * 16 languages)
-	if not game.metadata.publisher:
-		english_publisher_offset = 8 + (128 + 256 + 128) + 128 + 256 #After Japanese title data, English short title, English long title
-		try:
-			publisher = smdh[english_publisher_offset: english_publisher_offset + 0x80].decode('utf16').rstrip('\0')
-			publisher = junk_suffixes.sub('', publisher)
+	english_publisher_offset = 8 + (128 + 256 + 128) + 128 + 256 #After Japanese title data, English short title, English long title
+	try:
+		publisher = smdh[english_publisher_offset: english_publisher_offset + 0x80].decode('utf16').rstrip('\0')
+		publisher = junk_suffixes.sub('', publisher)
+		if publisher:
 			game.metadata.publisher = consistentified_manufacturers.get(publisher, publisher)
-		except UnicodeDecodeError:
-			pass
+	except UnicodeDecodeError:
+		pass
 
 	parse_ratings(game, smdh[0x2008:0x2018], True, False)
 

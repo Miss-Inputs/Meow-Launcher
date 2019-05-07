@@ -3,13 +3,17 @@ consistentified_manufacturers = {
 	#It's why we try to use licensee code instead, but that's not always there on 3DS
 	#For what it's worth, it seems each publisher will format its own name consistently across all games it publishes, it just looks weird compared to how names are formatted elsewhere
 
-	#Atlus USA, Inc. > Atlus USA?
 	'ATLUS': 'Atlus',
+	'Atlus U.S.A.': 'Atlus USA',
 	'Bigben Interactive': 'BigBen Interactive', #Other way around might also be correct
 	'CAPCOM': 'Capcom',
 	'CIRCLE Ent.': 'Circle Entertainment',
+	'Disney Interactive Studios': 'Disney',
 	'INTI CREATES': 'Inti Creates',
+	'Konami Digital Entertainment': 'Konami',
+	'MAQL Europe Limited': 'Marvelous AQL', #Or maybe this should be "Marvelous AQL Europe" specifically
 	'SEGA': 'Sega',
+	'SQUARE ENIX': 'Square Enix',
 	'TATE Multimedia': 'Tate Multimedia',
 	'Unspecified Author': None, #Homebrew might do this
 	'VD-DEV': 'VD-Dev',
