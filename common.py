@@ -128,5 +128,5 @@ def remove_capital_article(s):
 		if word.lower() in ('the', 'a'):
 			new_words.append(word.lower())
 		else:
-			new_words.append(words)
+			new_words.append(word)
 	return ' '.join(new_words)
