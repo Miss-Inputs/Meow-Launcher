@@ -387,9 +387,10 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.media_type = MediaType.Cartridge if platform in ('Select-A-Game', 'R-Zone') else MediaType.Standalone
 		return
 
-	if (genre == 'Game Console') or (genre == 'Computer') or (genre == 'Handheld' and subgenre == 'Pocket Device - Pad - PDA') or (genre == 'Board Game') or (genre == 'Handheld' and subgenre == 'Child Computer'):
+	if (genre == 'Game Console') or (genre == 'Computer') or (genre == 'Handheld' and subgenre == 'Pocket Device - Pad - PDA') or (genre == 'Board Game') or (genre == 'Handheld' and subgenre == 'Child Computer') or (genre == 'Misc.' and subgenre == 'Electronic Game') or (genre == 'Misc.' and subgenre == 'Electronic Board Game'):
 		#There are some plug & play systems in the Game Console / Home Videogame category, not sure what catlist.ini thinks the difference is between that and Handheld / Plug n' Play TV Game in that case; but maybe I should do a whitelist for those to say "yes these are plug & play systems" (e.g. Vii)
 		#Hmm, need a better name for this I think
+		#Should board games be their own platform?
 		#TODO: Should include option to skip over this category for those who are willing to accept the risk that it might filter out some plug & play systems that might actually be wanted
 		machine.metadata.platform = 'Standalone System'
 	if not category and ((genre == 'Handheld' and subgenre == "Plug n' Play TV Game") or (genre == 'Rhythm' and subgenre == 'Dance') or (genre == 'MultiGame' and subgenre == 'Compilation')):
