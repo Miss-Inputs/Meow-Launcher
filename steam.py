@@ -478,7 +478,7 @@ def add_metadata_from_appinfo_common_section(game, common):
 		game.metadata.specific_info['Has-Trading-Cards'] = 'Steam Trading Cards' in cats
 		is_single_player_only = True
 		for cat in cats:
-			if 'multiplayer' in cat.lower() or 'multi-player' in cat.lower() or 'co-op' in cat.lower():
+			if 'multiplayer' in cat.lower() or 'multi-player' in cat.lower() or 'co-op' in cat.lower() or 'split screen' in cat.lower():
 				is_single_player_only = False
 				break
 		if is_single_player_only:
