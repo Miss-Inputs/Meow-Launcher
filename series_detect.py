@@ -30,7 +30,6 @@ def get_name_chunks(name):
 def find_series_from_game_name(name):
 	if name in series_overrides:
 		return series_overrides[name]
-	#TODO: Because we're doing fullmatch, should take out "Complete Edition" or "GOTY Edition" or "Demo" or whatever at the end, particularly affects Steam stuff that doesn't have things in brackets
 	name_chunks = get_name_chunks(name)
 	if not name_chunks:
 		return None, None
