@@ -4,7 +4,7 @@ import os
 import re
 import time
 
-from common import convert_roman_numeral, convert_roman_numerals_in_title
+from common import convert_roman_numeral, convert_roman_numerals_in_title, remove_capital_article
 from config import main_config
 import launchers
 
@@ -40,6 +40,7 @@ def find_series_from_game_name(name):
 		series_name = series_match['Series']
 		if series_name.lower().startswith('the '):
 			series_name = series_name[len('the '):]
+		series_name = remove_capital_article(series_name)
 		number = series_match['Number']
 		if number in probably_not_a_series_index:
 			return None, None
@@ -79,7 +80,7 @@ def find_series_name_by_subtitle(name, existing_serieses, force=False):
 				break
 
 	if match:
-		series = match
+		series = remove_capital_article(match)
 		index = None
 		if len(name_chunks) > 1:
 			index = name_chunks[1]

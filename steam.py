@@ -11,7 +11,7 @@ import zipfile
 
 import launchers
 import region_detect
-from common import junk_suffixes, title_case
+from common import junk_suffixes, title_case, remove_capital_article
 from common_types import MediaType, SaveType
 from config import main_config
 from data.capitalized_words_in_names import capitalized_words
@@ -556,7 +556,7 @@ def add_metadata_from_appinfo_common_section(game, common):
 			not_actual_franchises = ('Playism', 'Hentai', 'Coming-of-Age')
 			if franchise_name.lower() not in {assoc.lower() for assoc_type, assoc in associations_dict.items() if assoc_type != 'franchise'} and franchise_name not in not_actual_franchises:
 				#These franchises aren't the game series at all, they're just the developer/publisher etc used for marketing purposes on the store, and not relevant to what we want to use this field for
-				game.metadata.series = franchise_name
+				game.metadata.series = remove_capital_article(franchise_name)
 	
 def add_metadata_from_appinfo_extended_section(game, extended):
 	developer = extended.get(b'developer')

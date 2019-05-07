@@ -6,7 +6,7 @@ import input_metadata
 from common_types import MediaType, SaveType
 from metadata import EmulationStatus, CPU, ScreenInfo
 from region_detect import get_language_by_english_name, get_regions_from_filename_tags
-from common import find_filename_tags, pluralize
+from common import find_filename_tags, pluralize, remove_capital_article
 from mame_helpers import find_main_cpus, get_mame_ui_config
 
 debug = '--debug' in sys.argv
@@ -449,7 +449,7 @@ def add_metadata(machine):
 
 	series = get_machine_category(machine.basename, 'series')
 	if series:
-		not_real_series = ('Hot')
+		not_real_series = ('Hot', 'Aristocrat MK Hardware')
 
 		if series.endswith(' * Pinball'):
 			series = series[:-len(' * Pinball')]
@@ -459,7 +459,7 @@ def add_metadata(machine):
 			series = series[len('The '):]
 		
 		if series not in not_real_series:
-			machine.metadata.series = series
+			machine.metadata.series = remove_capital_article(series)
 
 	machine.metadata.regions = get_regions_from_filename_tags(find_filename_tags.findall(machine.name), loose=True)
 

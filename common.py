@@ -117,3 +117,16 @@ def title_case(s, words_to_ignore_case=None):
 	sentence_parts = re.split(r'(\s+-\s+|:\s+)', s)
 	titled_parts = [title_case_sentence_part(part, words_to_ignore_case) for part in sentence_parts]
 	return ''.join(titled_parts)
+
+def remove_capital_article(s):
+	if not s:
+		return ''
+
+	words = s.split(' ')
+	new_words = [words[0]]
+	for word in words[1:]:
+		if word.lower() in ('the', 'a'):
+			new_words.append(word.lower())
+		else:
+			new_words.append(words)
+	return ' '.join(new_words)
