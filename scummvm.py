@@ -9,7 +9,7 @@ from config import main_config
 import launchers
 import input_metadata
 from metadata import Metadata
-from common_types import SaveType
+from common_types import SaveType, MediaType
 from common import find_filename_tags
 import region_detect
 
@@ -53,8 +53,12 @@ def get_stuff_from_filename_tags(metadata, filename_tags):
 			if language:
 				metadata.languages = [language]
 				continue
+			if piece == 'Demo':
+				metadata.categories = ['Trials']
+			if piece == 'CD':
+				metadata.media_type = MediaType.OpticalDisc
 			#Emulated platform: DOS, Windows, Macintosh, Apple II, etc. (could set platform to this if we really wanted, but I dunno)
-			#Others: CD, v0.0372 cd, 1.1, Masterpiece Edition, unknown version, VGA, EGA, Freeware 1.1, Freeware 1.0, Talkie, Demo
+			#Others: v0.0372 cd, 1.1, Masterpiece Edition, unknown version, VGA, EGA, Freeware 1.1, Freeware 1.0, Talkie
 			#There doesn't seem to be any particular structure or order that I can tell (if there is though, that'd be cool)
 
 class ScummVMGame():
