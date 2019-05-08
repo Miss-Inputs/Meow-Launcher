@@ -8,7 +8,7 @@ import datetime
 from config import main_config
 import launchers
 import input_metadata
-from metadata import Metadata
+from metadata import Metadata, EmulationStatus
 from common_types import SaveType, MediaType
 from common import find_filename_tags
 import region_detect
@@ -94,6 +94,21 @@ class ScummVMGame():
 		#genre/subgenre is _probably_ always point and click adventure, but maybe not? (Plumbers is arguably a visual novel (don't @ me), and there's something about some casino card games in the list of supported games)
 		#Would be nice to set things like developer/publisher/year but can't really do that unfortunately
 		#Let series and series_index be detected by series_detect
+		gsl = self.options.get('gsl')
+		#From what I can tell, this stands for "game support level"
+		#From engines/game.h:
+		#enum GameSupportLevel {
+		#kStableGame = 0, // the game is fully supported
+		#kTestingGame, // the game is not supposed to end up in releases yet but is ready for public testing
+		#kUnstableGame // the game is not even ready for public testing yet
+		#};
+		if gsl == 'testing':
+			metadata.specific_info['ScummVM-Status'] = EmulationStatus.Imperfect
+		elif gsl == 'unstable':
+			metadata.specific_info['ScummVM-Status'] = EmulationStatus.Broken
+		else:
+			metadata.specific_info['ScummVM-Status'] = EmulationStatus.Good
+		#TODO: Should have option to skip anything with unstable and/or testing status
 
 		get_stuff_from_filename_tags(metadata, find_filename_tags.findall(name))
 
