@@ -376,15 +376,18 @@ def add_metadata_from_catlist(machine):
 		machine.name = machine.name.replace('CPS Changer, ', '')
 		machine.metadata.platform = 'CPS Changer'
 		machine.metadata.media_type = MediaType.Cartridge
+		machine.metadata.categories = ['Games'] #Safe assumption for now that all of this would be an ordinary game, and not anything like Applications or Betas or Homebrew or Trials etc
 		return 
 	if machine.name.endswith('(XaviXPORT)'):
 		machine.metadata.platform = 'XaviXPORT'
 		machine.metadata.media_type = MediaType.Cartridge
-		return 
+		machine.metadata.categories = ['Games']
+		return
 	if machine.name.startswith(('Game & Watch: ', 'Select-A-Game: ', 'R-Zone: ')):
 		platform, _, machine.name = machine.name.partition(': ')
 		machine.metadata.platform = platform
 		machine.metadata.media_type = MediaType.Cartridge if platform in ('Select-A-Game', 'R-Zone') else MediaType.Standalone
+		machine.metadata.categories = ['Games']
 		return
 
 	if (genre == 'Game Console') or (genre == 'Computer') or (genre == 'Handheld' and subgenre == 'Pocket Device - Pad - PDA') or (genre == 'Board Game') or (genre == 'Handheld' and subgenre == 'Child Computer') or (genre == 'Misc.' and subgenre == 'Electronic Game') or (genre == 'Misc.' and subgenre == 'Electronic Board Game'):
