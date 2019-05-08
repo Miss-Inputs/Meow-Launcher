@@ -58,7 +58,7 @@ def get_stuff_from_filename_tags(metadata, filename_tags):
 
 		if tag == 'Demo':
 			metadata.categories = ['Trials']
-		if tag == 'CD' or tag.endswith(' cd'):
+		if tag == 'CD' or tag == 'CD32' or tag.endswith(' cd'):
 			#The latter shows up alongside a version number infrequently, e.g. "v0.0372 cd"
 			metadata.media_type = MediaType.OpticalDisc
 		if tag == 'NES':
