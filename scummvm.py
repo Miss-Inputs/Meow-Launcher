@@ -51,14 +51,24 @@ def get_stuff_from_filename_tags(metadata, filename_tags):
 		for piece in filename_tag.split('/'):
 			language = region_detect.get_language_by_english_name(piece)
 			if language:
-				metadata.languages = [language]
+				metadata.languages.append(language)
 				continue
+
+			if piece == 'English (US':
+				#Didn't except there'd be nested parentheses... oh well
+				metadata.languages.append(region_detect.get_language_by_english_name('English'))
+
 			if piece == 'Demo':
 				metadata.categories = ['Trials']
-			if piece == 'CD':
+			if piece == 'CD' or piece.endswith(' cd'):
+				#The latter shows up alongside a version number infrequently, e.g. "v0.0372 cd"
 				metadata.media_type = MediaType.OpticalDisc
-			#Emulated platform: DOS, Windows, Macintosh, Apple II, etc. (could set platform to this if we really wanted, but I dunno)
-			#Others: v0.0372 cd, 1.1, Masterpiece Edition, unknown version, VGA, EGA, Freeware 1.1, Freeware 1.0, Talkie
+			if piece == 'NES':
+				metadata.media_type = MediaType.Cartridge
+
+			#Emulated platform: DOS, Windows, Macintosh, Apple II, etc. (could set platform to this if we really wanted, but I dunno if I want to do that... hmmm.....)
+			#Others: 1.1, Masterpiece Edition, unknown version, VGA, EGA, Freeware 1.1, Freeware 1.0, Talkie (this is just what I've seen and have noted in this very comment, I should just run scummvm -t to see what I have and have a look)
+			#I wonder if it'd be worth replacing / with ) ( in the original name so everything is a filename tag so disambiguate.py can work better?
 			#There doesn't seem to be any particular structure or order that I can tell (if there is though, that'd be cool)
 
 class ScummVMGame():
@@ -78,9 +88,10 @@ class ScummVMGame():
 
 		launch_params = launchers.LaunchParams(*self._get_launch_params())
 		metadata = Metadata()
-		metadata.input_info.add_option([input_metadata.Mouse(), input_metadata.Keyboard()]) #Can use gamepad if you enable it
+		metadata.input_info.add_option([input_metadata.Mouse(), input_metadata.Keyboard()]) #Can use gamepad if you enable it, but I guess to add that as input_info I'd have to know exactly how many buttons and sticks etc it uses
 		metadata.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
 		metadata.emulator_name = self._get_emulator_name()
+		metadata.categories = ['Games'] #Safe to assume this by default
 
 		get_stuff_from_filename_tags(metadata, find_filename_tags.findall(name))
 
