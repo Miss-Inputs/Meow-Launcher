@@ -45,31 +45,28 @@ def have_something_vm():
 	return vmconfig.have_scummvm or vmconfig.have_residualvm
 
 def get_stuff_from_filename_tags(metadata, filename_tags):
-	for filename_tag in filename_tags:
-		#There's usually only one, though
-		filename_tag = filename_tag.lstrip('(').rstrip(')')
-		for piece in filename_tag.split('/'):
-			language = region_detect.get_language_by_english_name(piece)
-			if language:
-				metadata.languages.append(language)
-				continue
+	for tag in filename_tags:
+		tag = tag.lstrip('(').rstrip(')')
+		language = region_detect.get_language_by_english_name(tag)
+		if language:
+			metadata.languages.append(language)
+			continue
 
-			if piece == 'English (US':
-				#Didn't except there'd be nested parentheses... oh well
-				metadata.languages.append(region_detect.get_language_by_english_name('English'))
+		if tag == 'English (US':
+			#Didn't except there'd be nested parentheses... oh well
+			metadata.languages.append(region_detect.get_language_by_english_name('English'))
 
-			if piece == 'Demo':
-				metadata.categories = ['Trials']
-			if piece == 'CD' or piece.endswith(' cd'):
-				#The latter shows up alongside a version number infrequently, e.g. "v0.0372 cd"
-				metadata.media_type = MediaType.OpticalDisc
-			if piece == 'NES':
-				metadata.media_type = MediaType.Cartridge
+		if tag == 'Demo':
+			metadata.categories = ['Trials']
+		if tag == 'CD' or tag.endswith(' cd'):
+			#The latter shows up alongside a version number infrequently, e.g. "v0.0372 cd"
+			metadata.media_type = MediaType.OpticalDisc
+		if tag == 'NES':
+			metadata.media_type = MediaType.Cartridge
 
-			#Emulated platform: DOS, Windows, Macintosh, Apple II, etc. (could set platform to this if we really wanted, but I dunno if I want to do that... hmmm.....)
-			#Others: 1.1, Masterpiece Edition, unknown version, VGA, EGA, Freeware 1.1, Freeware 1.0, Talkie (this is just what I've seen and have noted in this very comment, I should just run scummvm -t to see what I have and have a look)
-			#I wonder if it'd be worth replacing / with ) ( in the original name so everything is a filename tag so disambiguate.py can work better?
-			#There doesn't seem to be any particular structure or order that I can tell (if there is though, that'd be cool)
+		#Emulated platform: DOS, Windows, Macintosh, Apple II, etc. (could set platform to this if we really wanted, but I dunno if I want to do that... hmmm.....)
+		#Others: 1.1, Masterpiece Edition, unknown version, VGA, EGA, Freeware 1.1, Freeware 1.0, Talkie (this is just what I've seen and have noted in this very comment, I should just run scummvm -t to see what I have and have a look)
+		#There doesn't seem to be any particular structure or order that I can tell (if there is though, that'd be cool)
 
 class ScummVMGame():
 	def __init__(self, name):
@@ -85,6 +82,7 @@ class ScummVMGame():
 
 	def make_launcher(self):
 		name = self.options.get('description', self.name)
+		name = name.replace('/', ') (') #Names are usually something like Cool Game (CD/DOS/English); we convert it to Cool Game (CD) (DOS) (English) to make it work better with disambiguate etc
 
 		launch_params = launchers.LaunchParams(*self._get_launch_params())
 		metadata = Metadata()
@@ -92,6 +90,10 @@ class ScummVMGame():
 		metadata.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
 		metadata.emulator_name = self._get_emulator_name()
 		metadata.categories = ['Games'] #Safe to assume this by default
+		#metadata.nsfw is false by default, but in some ScummVM-supported games (e.g. Plumbers Don't Wear Ties) it would arguably be true; but there's not any way to detect that unless we just do "if game in [list_of_stuff_with_adult_content] then nsfw = true" 
+		#genre/subgenre is _probably_ always point and click adventure, but maybe not? (Plumbers is arguably a visual novel (don't @ me), and there's something about some casino card games in the list of supported games)
+		#Would be nice to set things like developer/publisher/year but can't really do that unfortunately
+		#Let series and series_index be detected by series_detect
 
 		get_stuff_from_filename_tags(metadata, find_filename_tags.findall(name))
 
