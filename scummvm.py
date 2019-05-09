@@ -90,6 +90,8 @@ class ScummVMGame():
 		metadata.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
 		metadata.emulator_name = self._get_emulator_name()
 		metadata.categories = ['Games'] #Safe to assume this by default
+		if self.name.startswith('agi-fanmade'):
+			metadata.categories = ['Homebrew']
 		#metadata.nsfw is false by default, but in some ScummVM-supported games (e.g. Plumbers Don't Wear Ties) it would arguably be true; but there's not any way to detect that unless we just do "if game in [list_of_stuff_with_adult_content] then nsfw = true" 
 		#genre/subgenre is _probably_ always point and click adventure, but maybe not? (Plumbers is arguably a visual novel (don't @ me), and there's something about some casino card games in the list of supported games)
 		#Would be nice to set things like developer/publisher/year but can't really do that unfortunately
