@@ -69,7 +69,7 @@ def move_into_extra_subfolder(path, desktop, subfolder, keys):
 			value = get_function(desktop, key)
 		if (not value) if is_key_array else (value is None):
 			#Maybe a "allow missing values" thing would be a good idea like I used to have as that parameter
-			continue
+			return
 		
 		if is_key_bool:
 			if value != 'False':
@@ -102,7 +102,6 @@ def move_into_extra_subfolder(path, desktop, subfolder, keys):
 
 	if is_array:
 		for subsubfolder_name in subsubfolders:
-			#Hmm... if key 1 is array, and key 2 is not, then subfolder will be created for key 1 and key 2 = empty. Can't figure that one out so I'm gonna say it's meant to do that
 			copy_to_folder(path, main_config.organized_output_folder, subfolder, ' - '.join([subsubfolder_name_component for subsubfolder_name_component in subsubfolder_name if subsubfolder_name_component]))
 	else:
 		if subsubfolder:
