@@ -191,7 +191,7 @@ def mame_atari_8bit(game, specific_config):
 
 	machine = game.metadata.specific_info.get('Machine')
 	if machine == 'XL':
-		system = 'a800xl' if game.metadata.tv_type == TVSystem.PAL else 'a800xl'
+		system = 'a800xlp' if game.metadata.tv_type == TVSystem.PAL else 'a800xl'
 	elif machine == 'XE':
 		system = 'a65xe' #No PAL XE machine in MAME?
 	else:
