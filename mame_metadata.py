@@ -396,6 +396,7 @@ def add_metadata_from_catlist(machine):
 		#TODO: Should include option to skip over this category for those who are willing to accept the risk that it might filter out some plug & play systems that might actually be wanted
 		machine.metadata.platform = 'Standalone System'
 	if (genre == 'Board Game') or (genre == 'Misc.' and subgenre == 'Electronic Board Game'):
+		#Hmm does Misc. / Electronic Game (stuff like Electronic Soccer, Reversi Sensory Challenger) count as this, or as something else entirely
 		machine.metadata.platform = 'Board Game'
 	if not category and ((genre == 'Handheld' and subgenre == "Plug n' Play TV Game") or (genre == 'Rhythm' and subgenre == 'Dance') or (genre == 'MultiGame' and subgenre == 'Compilation')):
 		#MultiGame / Compilation is also used for some handheld systems (and also there is Arcade: MultiGame / Compilation)
@@ -410,20 +411,19 @@ def add_metadata_from_catlist(machine):
 		#Note: "Handheld / Electronic Game" could also be a tabletop system which takes AC input and you would not be able to hold in your hands at all (see also: cpacman), but since catlist.ini doesn't take that into account, I don't really have a way of doing so either
 		#Home Videogame Console seems to be used for stuff that would be normally excluded due to having software lists and hence being a platform for other software (e.g. GBA), or stuff that ends up there because it has no software list yet (e.g. Gizmondo, Sony PocketStation), but also some stuff like kcontra (Contra handheld) that should definitely be called a handheld, or various "plug & play" (except without the plug) stuff like BittBoy 300 in 1 or VG Pocket
 		#Anyway that's why I put that there
-		#Other genres of handheld: Pocket Device - Pad - PDA; Child Computer (e.g. Speak & Spell) but those seem more suited to Non-Arcade particularly the former
+		#Other genres of handheld: Pocket Device - Pad - PDA; Child Computer (e.g. Speak & Spell) but those seem more suited to Standalone System particularly the former
 		machine.metadata.platform = 'Handheld'
 	
-	if category == 'Arcade' and genre in ('Electromechanical', 'Utilities'):
+	if genre in ('Electromechanical', 'Utilities'):
 		machine.metadata.categories = [genre]
-	elif category == 'Arcade' and genre == 'Misc.' and subgenre in ('Laser Disk Simulator', 'Print Club'):
+	elif genre == 'Misc.' and subgenre in ('Laser Disk Simulator', 'Print Club', 'Unknown'):
+		machine.metadata.categories = [subgenre]
+	elif genre == 'Music' and subgenre == 'Jukebox':
 		machine.metadata.categories = [subgenre]
 	elif category == 'Arcade' and machine.coin_slots == 0:
 		#Or something among those lines, but if it has no coins then it doesn't meet the definition of "coin operated machine"
 		machine.metadata.categories = ['Non-Arcade']
-	#Arcade: Music / Jukebox might not really be suited for platform = Arcade?
-	#Non-Arcade ends up with categories like Board Game, Computer, Telephone, Utilities (EEPROM programmers), Music, Misc.
 	#Misc has a lot of different things in it and I guess catlist just uses it as a catch-all for random things which don't really fit anywhere else and there's not enough to give them their own category, probably
-	#Some things inside Misc that might be of interest to people because they're actual games: Electronic Board Game (Electronic Battleship), Electronic Game (Electronic Soccer, Reversi Sensory Challenger), and then there's V-Dog (prototype) which ends up as "Unknown"; perhaps I could split these off into their own platform
 	#Anyway, the name 'Non-Arcade' sucks because it's just used as a "this isn't anything in particular" thing
 
 
