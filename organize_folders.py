@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
+import datetime
 import os
 import shutil
+import sys
 import time
-import datetime
 
-from config import main_config
 import launchers
+from config import main_config
 from io_utils import sanitize_name
 
 #This is sort of considered separate from the main launcher generator.
@@ -37,59 +38,74 @@ def delete_existing_output_dir():
 			rmdir_recursive(path)
 			#Only files here, no directories
 
-extra_subfolders = {
-	#These subfolders are enabled with an optional argument because most people wouldn't have any use for them (or would they? I'm just presuming they're of interest to people like me only)
-	#I'm gonna get rid of all these eventually, since by my own words, they aren't useful; and if they are useful, they shouldn't need an extra argument
-	#So at this point this is just for my own weird purposes tbh
-	'By emulator used': ['Emulator'],
-	'By number of players': ['Number-of-Players'],
-	'By MAME emulation status': ['MAME-Emulation-Status'],
+def move_into_extra_subfolder(path, desktop, subfolder, keys):
+	subsubfolder = []
+	is_array = '*' in keys
+	subsubfolders = []
+	temp = []
 
-	'By main CPU': ['Main-CPU'],
-	'By main CPU and clock speed': [['Main-CPU', 'Clock-Speed']],
-	'By number of screens': ['Number-of-Screens'],
-	'By screen type': ['Screen-Type'],
+	for key in keys.split(','):
+		is_key_array = False
+		is_key_bool = False
+		element_subsubfolders = []
+		if key.endswith('*'):
+			is_key_array = True
+			is_array = True
+			key = key[:-1]
+		elif key.endswith('?'):
+			is_key_bool = True
+			key = key[:-1]
 
-	#Relevant for MAME machines only
-	'By arcade system': ['Arcade-System'],
-	'Is mechanical': ['Is-Mechanical', True],
-	'Dispenses tickets': ['Dispenses-Tickets', True],
-	'No ROMs required': ['Romless', True],
+		if is_key_array:
+			get_function = launchers.get_array
+		else:
+			get_function = launchers.get_field
 
-	'Has icon': ['Icon', True],
-	'By age rating': ['Age-Rating'],
-	'By Steam store category': ['Store-Categories', False, True, None],
-}
+		if '/' in key:
+			section, _, actual_key = key.partition('/')
+			value = get_function(desktop, actual_key, section=section)
+		else:
+			value = get_function(desktop, key)
+		if (not value) if is_key_array else (value is None):
+			#Maybe a "allow missing values" thing would be a good idea like I used to have as that parameter
+			continue
+		
+		if is_key_bool:
+			if value != 'False':
+				subsubfolder.append('')
+		else:
+			if is_key_array:
+				for element in value:
+					element_subsubfolders.append(sanitize_name(element))
+			else:
+				subsubfolder.append(sanitize_name(value))
+		if is_array:
+			#I confused myself while writing this code, I hope it continues to just work and I don't have to touch it again
+			if is_key_array:
+				if temp:
+					for element_subsubfolder in element_subsubfolders:
+						for t in temp:
+							for v in t:
+								subsubfolders.append([v, element_subsubfolder])
+				else:
+					for element_subsubfolder in element_subsubfolders:
+						subsubfolders.append([element_subsubfolder])
+					temp = []
+			else:
+				if subsubfolders:
+					for s in subsubfolders:
+						s.append(' - '.join(subsubfolder))
+					temp = subsubfolders
+				else:
+					temp.append([subsubfolder])
 
-def move_into_extra_subfolder(path, desktop, subfolder, key, is_boolean=False, is_array_field=False, missing_array_value='Unknown'):
-	if isinstance(key, list):
-		values = []
-		for component in key:
-			component_value = launchers.get_field(desktop, component)
-			if not component_value:
-				return
-			values.append(sanitize_name(component_value))
-		value = ' - '.join(values)
-	elif is_array_field:
-		field_value = launchers.get_array(desktop, key)
-		if not field_value:
-			if missing_array_value:
-				copy_to_folder(path, main_config.organized_output_folder, subfolder, missing_array_value)
-			return
-		for value in field_value:
-			copy_to_folder(path, main_config.organized_output_folder, subfolder, sanitize_name(value))
-		return
+	if is_array:
+		for subsubfolder_name in subsubfolders:
+			print(subsubfolder_name)
+			copy_to_folder(path, main_config.organized_output_folder, subfolder, ' - '.join([subsubfolder_name_component for subsubfolder_name_component in subsubfolder_name if subsubfolder_name_component]))
 	else:
-		field_value = launchers.get_field(desktop, key)
-		if not field_value:
-			return
-		value = sanitize_name(field_value)
-
-	if is_boolean:
-		if value != 'False':
-			copy_to_folder(path, main_config.organized_output_folder, subfolder)
-	else:
-		copy_to_folder(path, main_config.organized_output_folder, subfolder, value)
+		if subsubfolder:
+			copy_to_folder(path, main_config.organized_output_folder, subfolder, ' - '.join(subsubfolder))
 
 def move_into_subfolders(path):
 	desktop = launchers.get_desktop(path)
@@ -117,22 +133,18 @@ def move_into_subfolders(path):
 	copy_to_folder(path, main_config.organized_output_folder, 'By platform and category', sanitize_name(platform) + ' - ' + sanitize_name(category))
 
 	move_into_extra_subfolder(path, desktop, 'By genre', 'Genre')
-	move_into_extra_subfolder(path, desktop, 'By subgenre', ['Genre', 'Subgenre'])
+	move_into_extra_subfolder(path, desktop, 'By subgenre', 'Genre,Subgenre')
 	move_into_extra_subfolder(path, desktop, 'By developer', 'Developer')
 	move_into_extra_subfolder(path, desktop, 'By publisher', 'Publisher')
-	move_into_extra_subfolder(path, desktop, 'By platform and genre', ['Platform', 'Genre'])
-	move_into_extra_subfolder(path, desktop, 'By platform and year', ['Platform', 'Year'])
-	move_into_extra_subfolder(path, desktop, 'Is NSFW', 'NSFW', True)
+	#move_into_extra_subfolder(path, desktop, 'By platform and category', 'Platform,Categories*') #We might just only care about first category...
+	move_into_extra_subfolder(path, desktop, 'By platform and genre', 'Platform,Genre')
+	move_into_extra_subfolder(path, desktop, 'Is NSFW', 'NSFW?')
 	move_into_extra_subfolder(path, desktop, 'By series', 'Series')
-	move_into_extra_subfolder(path, desktop, 'Has standard input', 'Standard-Input', True)
-	move_into_extra_subfolder(path, desktop, 'By input method', 'Input-Methods', False, True)
+	move_into_extra_subfolder(path, desktop, 'Has standard input', 'Standard-Input?')
+	move_into_extra_subfolder(path, desktop, 'By input method', 'Input-Methods*')
 
-	if main_config.extra_folders:
-		if len(languages) == 1:
-			copy_to_folder(path, main_config.organized_output_folder, 'By language', sanitize_name(languages[0]) + ' only')
-
-		for k, v in extra_subfolders.items():
-			move_into_extra_subfolder(path, desktop, k, *v)
+	if len(languages) == 1:
+		copy_to_folder(path, main_config.organized_output_folder, 'By language', sanitize_name(languages[0]) + ' only')
 
 def move_into_folders():
 	time_started = time.perf_counter()
@@ -155,6 +167,29 @@ def move_into_folders():
 		time_ended = time.perf_counter()
 		print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
+def main():
+	if '--organize-folder' in sys.argv:
+		time_started = time.perf_counter()
+
+		arg_index = sys.argv.index('--organize-folder')
+		key = sys.argv[arg_index + 1]
+		if '--name' in sys.argv:
+			name_arg_index = sys.argv.index('--name')
+			name = sys.argv[name_arg_index + 1]
+		else:
+			name = 'By ' + key
+		for root, _, files in os.walk(main_config.output_folder):
+			for f in files:
+				if f.endswith('.desktop'):
+					path = os.path.join(root, f)
+					desktop = launchers.get_desktop(path)
+					move_into_extra_subfolder(path, desktop, sanitize_name(name), key)
+		if main_config.print_times:
+			time_ended = time.perf_counter()
+			print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+		
+	else:
+		move_into_folders()
 
 if __name__ == '__main__':
-	move_into_folders()
+	main()
