@@ -345,14 +345,12 @@ def add_metadata_from_catlist(machine):
 	if category:
 		#'Arcade: ' or whatever else at the beginning
 		machine.metadata.platform = category
-		machine.metadata.categories = [category] #Hmm
 		machine.metadata.genre = genre
 		machine.metadata.subgenre = subgenre
 		machine.metadata.nsfw = nsfw
 	else:
 		#Non-arcade thing
 		machine.metadata.platform = 'Non-Arcade'
-		machine.metadata.categories = ['Non-Arcade']
 		machine.metadata.genre = genre
 		machine.metadata.subgenre = subgenre
 
@@ -435,6 +433,12 @@ def add_metadata_from_catlist(machine):
 	elif category == 'Arcade' and machine.coin_slots == 0:
 		#Or something among those lines, but if it has no coins then it doesn't meet the definition of "coin operated machine"
 		machine.metadata.categories = ['Non-Arcade']
+
+	if not machine.metadata.categories:
+		if category:
+			machine.metadata.categories = ['Arcade']
+		else:
+			machine.metadata.categories = ['Non-Arcade']
 	#Misc has a lot of different things in it and I guess catlist just uses it as a catch-all for random things which don't really fit anywhere else and there's not enough to give them their own category, probably
 	#Anyway, the name 'Non-Arcade' sucks because it's just used as a "this isn't anything in particular" thing
 
