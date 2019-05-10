@@ -160,31 +160,36 @@ def mame_atari_7800(game, _):
 	return mame_system(system, 'cart')
 
 def mame_atari_8bit(game, _):
-	if game.metadata.specific_info.get('Headered', False):
-		cart_type = game.metadata.specific_info['Cart-Type']
-		if cart_type in (13, 14, 23, 24, 25) or (33 <= cart_type <= 38):
-			raise EmulationNotSupportedException('XEGS cart: %d' % cart_type)
+	if game.metadata.media_type == MediaType.Cartridge:
+		if game.metadata.specific_info.get('Headered', False):
+			cart_type = game.metadata.specific_info['Cart-Type']
+			if cart_type in (13, 14, 23, 24, 25) or (33 <= cart_type <= 38):
+				raise EmulationNotSupportedException('XEGS cart: %d' % cart_type)
 
-		#You probably think this is a bad way to do this...  I guess it is, but hopefully I can take some out as they become supported
-		if cart_type in (5, 17, 22, 41, 42, 43, 45, 46, 47, 48, 49, 53, 57, 58, 59, 60, 61) or (26 <= cart_type <= 32) or (54 <= cart_type <= 56):
-			raise EmulationNotSupportedException('Unsupported cart type: %d' % cart_type)
+			#You probably think this is a bad way to do this...  I guess it is, but hopefully I can take some out as they become supported
+			if cart_type in (5, 17, 22, 41, 42, 43, 45, 46, 47, 48, 49, 53, 57, 58, 59, 60, 61) or (26 <= cart_type <= 32) or (54 <= cart_type <= 56):
+				raise EmulationNotSupportedException('Unsupported cart type: %d' % cart_type)
 
-		if cart_type in (4, 6, 7, 16, 19, 20):
-			raise EmulationNotSupportedException('Atari 5200 cart (will probably work if put in the right place): %d' % cart_type)
+			if cart_type in (4, 6, 7, 16, 19, 20):
+				raise EmulationNotSupportedException('Atari 5200 cart (will probably work if put in the right place): %d' % cart_type)
+		else:
+			size = game.rom.get_size()
+			#8KB files are treated as type 1, 16KB as type 2, everything else is unsupported for now
+			if size > ((16 * 1024) + 16):
+				raise EmulationNotSupportedException('No header and size = %d, cannot be recognized as a valid cart yet (treated as XL/XE)' % size)
+
+		slot = 'cart1' if game.metadata.specific_info.get('Slot', 'Left') == 'Left' else 'cart2'
 	else:
-		size = game.rom.get_size()
-		#8KB files are treated as type 1, 16KB as type 2, everything else is unsupported for now
-		if size > ((16 * 1024) + 16):
-			raise EmulationNotSupportedException('No header and size = %d, cannot be recognized as a valid cart yet (treated as XL/XE)' % size)
+		slot = 'flop1'
 
-	slot = 'cart1' if game.metadata.specific_info.get('Slot', 'Left') == 'Left' else 'cart2'
-
-	if game.metadata.tv_type == TVSystem.PAL:
-		#Atari 800 should be fine for everything, and I don't feel like the XL/XE series to see in which ways they don't work
-		system = 'a800p'
+	machine = game.metadata.specific_info.get('Machine')
+	if machine == 'XL':
+		system = 'a800xl' if game.metadata.tv_type == TVSystem.PAL else 'a800xl'
+	elif machine == 'XE':
+		system = 'a65xe' #No PAL XE machine in MAME?
 	else:
-		system = 'a800'
-
+		system = 'a800pal' if game.metadata.tv_type == TVSystem.PAL else 'a800'
+	
 	return mame_system(system, slot, has_keyboard=True)
 
 def mame_c64(game, _):

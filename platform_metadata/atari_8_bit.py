@@ -8,7 +8,7 @@ def add_info_from_software_list(game, software):
 	software.add_generic_info(game)
 	compatibility = software.get_shared_feature('compatibility')
 	if compatibility in ('XL', 'XL/XE'):
-		game.metadata.specific_info['Requires-XL'] = True
+		game.metadata.specific_info['Machine'] = 'XL'
 	if compatibility == "OSb":
 		game.metadata.specific_info['Requires-OS-B'] = True
 
@@ -83,3 +83,13 @@ def add_atari_8bit_metadata(game):
 	software = get_software_list_entry(game, skip_header=16 if headered else 0)
 	if software:
 		add_info_from_software_list(game, software)
+
+	if 'Machine' not in game.metadata.specific_info:
+		for tag in game.filename_tags:
+			#Use filename tags for now since there's not a great reliable method of detecting XL/XE requirement for floppies I have at the moment
+			if tag in ('(XL)', '[XL]', '(XL-XE)', '[XL-XE]'):
+				game.metadata.specific_info['Machine'] = 'XL'
+				break
+			if tag in ('(XE)', '[XE]'):
+				game.metadata.specific_info['Machine'] = 'XE'
+				break
