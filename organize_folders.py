@@ -58,6 +58,7 @@ def move_into_extra_subfolder(path, desktop, subfolder, keys):
 
 		if is_key_array:
 			get_function = launchers.get_array
+			subsubfolders = []
 		else:
 			get_function = launchers.get_field
 
@@ -84,23 +85,24 @@ def move_into_extra_subfolder(path, desktop, subfolder, keys):
 			if is_key_array:
 				if temp:
 					for element_subsubfolder in element_subsubfolders:
-						for t in temp:
+						for t in temp[:]:
 							for v in t:
 								subsubfolders.append([v, element_subsubfolder])
 				else:
 					for element_subsubfolder in element_subsubfolders:
 						subsubfolders.append([element_subsubfolder])
-					temp = []
+					temp = subsubfolders[:]
 			else:
 				if subsubfolders:
 					for s in subsubfolders:
 						s.append(' - '.join(subsubfolder))
-					temp = subsubfolders
+					temp = subsubfolders[:]
 				else:
 					temp.append(subsubfolder)
 
 	if is_array:
 		for subsubfolder_name in subsubfolders:
+			#Hmm... if key 1 is array, and key 2 is not, then subfolder will be created for key 1 and key 2 = empty. Can't figure that one out so I'm gonna say it's meant to do that
 			copy_to_folder(path, main_config.organized_output_folder, subfolder, ' - '.join([subsubfolder_name_component for subsubfolder_name_component in subsubfolder_name if subsubfolder_name_component]))
 	else:
 		if subsubfolder:
