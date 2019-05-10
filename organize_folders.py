@@ -82,6 +82,16 @@ def move_into_extra_subfolder(path, desktop, subfolder, keys):
 				subsubfolder.append(sanitize_name(value))
 		if is_array:
 			#I confused myself while writing this code, I hope it continues to just work and I don't have to touch it again
+			#Okay, let's just note what I expect it to do, and then I can take a look at it later when I'm feeling more mentally sharp
+			#- If there was a * anywhere, we're in array mode
+			#- If this is an array key, make subfolders for each element in the array
+			#	- i.e. if this is the first key: "Value 1", "Value 2"
+			#	- if this is a key after a non-array key: "Blah - Value 1", "Blah - Value 2"
+			#	- if this is a key after another array key: "Blah 1 - Value 1", "Blah 1 - Value 2", "Blah 2 - Value 1", "Blah 2 - Value 2"
+			#- If it's not an array key but it's after an array key, add to each subfolder that would have been there
+			#	- "Blah 1", "Blah 2" -> "Blah 1 - Value", "Blah 2 - Value"
+			#- If any value out of the specified keys is missing, don't copy it to any folders, don't create a folder just called "Blah"
+			#I feel like I'm overthinking this
 			if is_key_array:
 				if temp:
 					for element_subsubfolder in element_subsubfolders:
