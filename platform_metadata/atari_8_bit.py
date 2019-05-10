@@ -43,6 +43,8 @@ def add_info_from_software_list(game, software):
 	usage = software.get_info('usage')
 	if usage == 'Plays music only in PAL':
 		game.metadata.tv_type = TVSystem.PAL
+	elif usage == 'BASIC must be enabled.':
+		game.metadata.specific_info['Requires-BASIC'] = True
 	else:
 		game.metadata.notes = usage
 	#To be used with Atari 1400 onboard modem.
@@ -53,7 +55,6 @@ def add_info_from_software_list(game, software):
 	#Expando-Vision hardware device required
 	#Kantronics interface II required
 	#Needs an Bit-3 80 Column Board or Austin-Franklin 80-Column Board to run.
-	#BASIC must be enabled.
 	#Pocket Modem required
 	#Requires Atari 850 interface and 1200 baud modem to run.
 	#2 joysticks required to play.
@@ -93,3 +94,6 @@ def add_atari_8bit_metadata(game):
 			if tag in ('(XE)', '[XE]'):
 				game.metadata.specific_info['Machine'] = 'XE'
 				break
+	if '[BASIC]' in game.filename_tags:
+		game.metadata.specific_info['Requires-BASIC'] = True
+		

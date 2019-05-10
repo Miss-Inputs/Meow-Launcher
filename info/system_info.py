@@ -126,7 +126,7 @@ systems = {
 	'Amiga': System('a1200', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench'], ['FS-UAE'], {MediaType.Floppy: ['adf', 'ipf', 'dms']}, {'default_chipset': SpecificConfigValue(ConfigValueType.String, 'AGA', 'Default chipset to use if a game doesn\'t specify what chipset it should use (AGA, OCS, ECS)')}),
 	'Apple II': System('apple2', ['apple2', 'apple2_cass', 'apple2_flop_orig', 'apple2_flop_clcracked', 'apple2_flop_misc'], ['MAME (Apple II)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib', 'woz'], MediaType.Tape: ['wav']}),
 	'Apple III': System('apple3', ['apple3'], ['MAME (Apple III)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib', 'woz']}),
-	'Atari 8-bit': System('a800', ['a800', 'a800_flop', 'xegs'], ['MAME (Atari 8-bit)'], {MediaType.Floppy: ['atr', 'dsk'], MediaType.Executable: ['xex', 'bas'], MediaType.Cartridge: ['bin', 'rom', 'car'], MediaType.Tape: ['wav']}),
+	'Atari 8-bit': System('a800', ['a800', 'a800_flop', 'xegs'], ['MAME (Atari 8-bit)'], {MediaType.Floppy: ['atr', 'dsk'], MediaType.Executable: ['xex', 'bas'], MediaType.Cartridge: ['bin', 'rom', 'car'], MediaType.Tape: ['wav']}, {'basic_path': SpecificConfigValue(ConfigValueType.FilePath, None, 'Path to BASIC ROM for floppy software which requires that')}),
 	'C64': System('c64', ['c64_cart', 'c64_cass', 'c64_flop'], ['MAME (C64)', 'VICE (C64)', 'VICE (C64 Fast)'],
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}),
 	'C128': System('c128', ['c128_cart', 'c128_flop', 'c128_rom'], ['VICE (C128)'],

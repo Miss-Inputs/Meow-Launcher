@@ -159,7 +159,8 @@ def mame_atari_7800(game, _):
 
 	return mame_system(system, 'cart')
 
-def mame_atari_8bit(game, _):
+def mame_atari_8bit(game, specific_config):
+	slot_options = {}
 	if game.metadata.media_type == MediaType.Cartridge:
 		if game.metadata.specific_info.get('Headered', False):
 			cart_type = game.metadata.specific_info['Cart-Type']
@@ -181,6 +182,12 @@ def mame_atari_8bit(game, _):
 		slot = 'cart1' if game.metadata.specific_info.get('Slot', 'Left') == 'Left' else 'cart2'
 	else:
 		slot = 'flop1'
+		if game.metadata.specific_info.get('Requires-BASIC', False):
+			basic_path = specific_config.get('basic_path')
+			if not basic_path:
+				raise EmulationNotSupportedException('This software needs BASIC ROM to function')
+			#TODO: Allow using software list (although I guess user could just put 'basicc' as the path?)
+			slot_options['cart1'] = basic_path
 
 	machine = game.metadata.specific_info.get('Machine')
 	if machine == 'XL':
@@ -190,7 +197,7 @@ def mame_atari_8bit(game, _):
 	else:
 		system = 'a800pal' if game.metadata.tv_type == TVSystem.PAL else 'a800'
 	
-	return mame_system(system, slot, has_keyboard=True)
+	return mame_system(system, slot, slot_options, has_keyboard=True)
 
 def mame_c64(game, _):
 	#While we're here building a command line, should mention that you have to manually put a joystick in the first
