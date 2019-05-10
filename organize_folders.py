@@ -97,7 +97,7 @@ def move_into_extra_subfolder(path, desktop, subfolder, keys):
 						s.append(' - '.join(subsubfolder))
 					temp = subsubfolders
 				else:
-					temp.append([subsubfolder])
+					temp.append(subsubfolder)
 
 	if is_array:
 		for subsubfolder_name in subsubfolders:
