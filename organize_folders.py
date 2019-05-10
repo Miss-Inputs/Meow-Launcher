@@ -101,7 +101,6 @@ def move_into_extra_subfolder(path, desktop, subfolder, keys):
 
 	if is_array:
 		for subsubfolder_name in subsubfolders:
-			print(subsubfolder_name)
 			copy_to_folder(path, main_config.organized_output_folder, subfolder, ' - '.join([subsubfolder_name_component for subsubfolder_name_component in subsubfolder_name if subsubfolder_name_component]))
 	else:
 		if subsubfolder:
