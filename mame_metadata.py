@@ -356,8 +356,13 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.genre = genre
 		machine.metadata.subgenre = subgenre
 
+	filename_tags = find_filename_tags.findall(machine.name)
+	for tag in filename_tags:
+		if 'prototype' in tag.lower():
+			machine.metadata.categories = ['Betas'] if machine.has_parent else ['Unreleased']
 	if machine.is_mechanical:
 		machine.metadata.categories = ['Electromechanical']
+	
 
 	#Now we separate things into additional platforms where relevant
 
@@ -376,21 +381,24 @@ def add_metadata_from_catlist(machine):
 		machine.name = machine.name.replace('CPS Changer, ', '')
 		machine.metadata.platform = 'CPS Changer'
 		machine.metadata.media_type = MediaType.Cartridge
-		machine.metadata.categories = ['Games'] #Safe assumption for now that all of this would be an ordinary game, and not anything like Applications or Betas or Homebrew or Trials etc
+		if not machine.metadata.categories:
+			machine.metadata.categories = ['Games']
 		return 
 	if machine.name.endswith('(XaviXPORT)'):
 		machine.metadata.platform = 'XaviXPORT'
 		machine.metadata.media_type = MediaType.Cartridge
-		machine.metadata.categories = ['Games']
+		if not machine.metadata.categories:
+			machine.metadata.categories = ['Games']
 		return
 	if machine.name.startswith(('Game & Watch: ', 'Select-A-Game: ', 'R-Zone: ')):
 		platform, _, machine.name = machine.name.partition(': ')
 		machine.metadata.platform = platform
 		machine.metadata.media_type = MediaType.Cartridge if platform in ('Select-A-Game', 'R-Zone') else MediaType.Standalone
-		machine.metadata.categories = ['Games']
+		if not machine.metadata.categories:
+			machine.metadata.categories = ['Games']
 		return
 
-	if (genre == 'Game Console') or (genre == 'Computer') or (genre == 'Handheld' and subgenre == 'Pocket Device - Pad - PDA') or (genre == 'Handheld' and subgenre == 'Child Computer') or (genre == 'Misc.' and subgenre == 'Electronic Game'):
+	if (genre == 'Game Console') or (genre == 'Computer') or (genre == 'Calculator') or (genre == 'Handheld' and subgenre == 'Pocket Device - Pad - PDA') or (genre == 'Handheld' and subgenre == 'Child Computer') or (genre == 'Misc.' and subgenre == 'Electronic Game'):
 		#There are some plug & play systems in the Game Console / Home Videogame category, not sure what catlist.ini thinks the difference is between that and Handheld / Plug n' Play TV Game in that case; but maybe I should do a whitelist for those to say "yes these are plug & play systems" (e.g. Vii)
 		#Hmm, need a better name for this I think
 		#TODO: Should include option to skip over this category for those who are willing to accept the risk that it might filter out some plug & play systems that might actually be wanted
@@ -398,9 +406,13 @@ def add_metadata_from_catlist(machine):
 	if (genre == 'Board Game') or (genre == 'Misc.' and subgenre == 'Electronic Board Game'):
 		#Hmm does Misc. / Electronic Game (stuff like Electronic Soccer, Reversi Sensory Challenger) count as this, or as something else entirely
 		machine.metadata.platform = 'Board Game'
+		if not machine.metadata.categories:
+			machine.metadata.categories = ['Games']
 	if not category and ((genre == 'Handheld' and subgenre == "Plug n' Play TV Game") or (genre == 'Rhythm' and subgenre == 'Dance') or (genre == 'MultiGame' and subgenre == 'Compilation')):
 		#MultiGame / Compilation is also used for some handheld systems (and also there is Arcade: MultiGame / Compilation)
 		machine.metadata.platform = 'Plug & Play'
+		if not machine.metadata.categories:
+			machine.metadata.categories = ['Games']
 	if genre in ('Electromechanical', 'Slot Machine') and subgenre == 'Reels':
 		#"Slot Machine", "Fruit Machine", "Gambling", "AWP", whatevs; this ends up being the mechanical kind specifically and maybe doesn't actually need to be a separate platform anyway
 		machine.metadata.platform = 'Slot Machine'
