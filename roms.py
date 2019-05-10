@@ -61,7 +61,8 @@ def try_engine(system_config, engine, base_dir, root, name):
 	file = EngineFile(path)
 	game = EngineGame(file, engine, root)
 
-	game.metadata.categories = [i for i in root.replace(base_dir, '').split('/') if i]
+	base_name = os.path.splitext(name)[0]
+	game.metadata.categories = [i for i in root.replace(base_dir, '').split('/') if i and i != base_name]
 
 	if not engine.is_game_data(file):
 		return None
@@ -190,7 +191,7 @@ def process_file(system_config, rom_dir, root, rom):
 	if not potential_emulators:
 		return
 
-	game.metadata.categories = list(pathlib.Path(root).relative_to(rom_dir).parts)
+	game.metadata.categories = [cat for cat in list(pathlib.Path(root).relative_to(rom_dir).parts) if cat != rom.name]
 	if not game.metadata.categories:
 		game.metadata.categories = [game.metadata.platform]
 	game.filename_tags = common.find_filename_tags.findall(game.rom.name)
