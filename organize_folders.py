@@ -182,7 +182,7 @@ def main():
 				if f.endswith('.desktop'):
 					path = os.path.join(root, f)
 					desktop = launchers.get_desktop(path)
-					move_into_extra_subfolder(path, desktop, sanitize_name(name), key)
+					move_into_extra_subfolder(path, desktop, sanitize_name(name, supersafe=True), key)
 		if main_config.print_times:
 			time_ended = time.perf_counter()
 			print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
