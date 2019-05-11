@@ -11,6 +11,8 @@ developer_overrides = {
 	'D3T Limited': 'd3t',
 	'Dan  Walters': 'Dan Walters',
 	'Dingaling Productions': 'Dingaling',
+	'Digerati Distribution': 'Digerati',
+	'EQGames': 'EQ Games',
 	'Forever Entertainment S. A.': 'Forever Entertainment',
 	'IKEA Communications AB': 'IKEA Communications',
 	'Killmonday Games AB': 'Killmonday Games',
@@ -19,6 +21,7 @@ developer_overrides = {
 	'Lupus Studios Limited': 'Lupus Studios',
 	'M2 Co.,LTD': 'M2',
 	'NAMCO BANDAI Games': 'Namco Bandai', #Should be merged with Bandai Namco? Maybe? I don't know anything anymore
+	'NAMCO BANDAI Games Europe S.A.S.': 'Namco Bandai Europe',
 	'NAMCO BANDAI Studio': 'Namco Bandai',
 	'OVERKILL - a Starbreeze Studio.': 'Overkill Software',
 	'Reality Pump Studios': 'Reality Pump',
