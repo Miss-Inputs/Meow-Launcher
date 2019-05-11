@@ -141,6 +141,7 @@ def move_into_subfolders(path):
 		copy_to_folder(path, main_config.organized_output_folder, 'By year', sanitize_name(year.replace('x', '?')))
 
 	copy_to_folder(path, main_config.organized_output_folder, 'By platform and category', sanitize_name(platform) + ' - ' + sanitize_name(category))
+	copy_to_folder(path, main_config.organized_output_folder, 'By category and platform', sanitize_name(category) + ' - ' + sanitize_name(platform))
 
 	move_into_extra_subfolder(path, desktop, 'By genre', 'Genre')
 	move_into_extra_subfolder(path, desktop, 'By subgenre', 'Genre,Subgenre')
@@ -150,8 +151,6 @@ def move_into_subfolders(path):
 	move_into_extra_subfolder(path, desktop, 'By platform and genre', 'Platform,Genre')
 	move_into_extra_subfolder(path, desktop, 'Is NSFW', 'NSFW?')
 	move_into_extra_subfolder(path, desktop, 'By series', 'Series')
-	move_into_extra_subfolder(path, desktop, 'Has standard input', 'Standard-Input?')
-	move_into_extra_subfolder(path, desktop, 'By input method', 'Input-Methods*')
 
 	if len(languages) == 1:
 		copy_to_folder(path, main_config.organized_output_folder, 'By language', sanitize_name(languages[0]) + ' only')
