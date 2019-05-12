@@ -96,6 +96,7 @@ disable=print-statement,
 		too-many-ancestors,
             too-many-boolean-expressions,
             too-many-public-methods,
+            too-many-lines,
 		global-statement, #What the fuck is wrong with the global statement exactly anyway, fucking wankers
 
 
