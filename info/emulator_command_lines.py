@@ -842,6 +842,12 @@ def fs_uae(game, specific_config):
 		if model:
 			args.append('--amiga_model=%s' % model)
 
+		#I can't figure out how to get these sorts of things to autoboot, or maybe they don't
+		if game.metadata.specific_info.get('Requires-Hard-Disk', False):
+			raise EmulationNotSupportedException('Requires a hard disk')
+		if game.metadata.specific_info.get('Requires-Workbench', False):
+			raise EmulationNotSupportedException('Requires Workbench')
+
 		#Hmm... there is also --cpu=68060 which some demoscene productions use so maybe I should look into that...
 		args.append('--floppy_drive_0=$<path>')
 	if game.metadata.tv_type == TVSystem.NTSC:
