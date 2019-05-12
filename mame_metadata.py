@@ -67,6 +67,8 @@ def get_language(basename):
 	return get_language_by_english_name(lang)
 
 arcade_systems = {
+	#Right now, this is kiinda pointless and only really used by 1) disambiguate 2) the user's own interest, but one day when there are non-MAME emulators in here, it would make sense for this list to be as big as it is and to expand it into full ArcadeSystem objects with more detailed info on which does what and have things that aren't just source file names mapped to each system and whatnot
+
 	'3do': '3DO', #Used for the 3DO console as well, but there are 3DO-based arcade games which are just called that; non-working
 	'aleck64': 'Aleck64', #Based on N64
 	'alien': 'Capcom Medalusion', #Non-working
@@ -90,6 +92,7 @@ arcade_systems = {
 	'cps2': 'CPS-2',
 	'cps3': 'CPS-3',
 	'crystal': 'Brezzasoft Crystal System',
+	'csplayh5': 'Nichibutsu High Rate DVD',
 	'cubo': 'Cubo CD32', #Amiga CD32 + JAMMA
 	'cvs': 'Century CVS System',
 	'decocass': 'Deco Casette',
@@ -98,13 +101,16 @@ arcade_systems = {
 	'eolith': 'Eolith Gradation 2D System',
 	'exidy440': 'Exidy 440',
 	'expro02': 'Kaneko EXPRO-02',
+	'f-32': 'F-E1-32',
 	'firebeat': 'Konami Bemani Firebeat', #Non-working
+	'funworld': 'Fun World Series 7000',
 	'fuukifg2': 'Fuuki FG-2',
 	'fuukifg3': 'Fuuki FG-3',
 	'gaelco2': 'Gaelco CG-1V/GAE1',
 	'hikaru': 'Hikaru', #Based on souped up Naomi and in turn Dreamcast, non-working
 	'hng64': 'Hyper Neo Geo 64', #Barely working
 	'hornet': 'Konami Hornet',
+	'igs011': 'IGS011 Blitter Based Hardware',
 	'jaguar': 'CoJag', #This is the same source file used for the Jaguar console too
 	'konamigq': 'Konami GQ', #Based on PS1
 	'konamigv': 'Konami GV', #Based on PS1
@@ -120,6 +126,8 @@ arcade_systems = {
 	'm90': 'Irem M90', #Also M97 I guess
 	'm92': 'Irem M92',
 	'macs': 'Multi Amenity Casette System',
+	'mcatadv': 'FACE Linda',
+	'maxaflex': 'Exidy Max-a-Flex', #Basically an Atari 600XL with ordinary Atari 8-bit games but coins purchase time. Weird maxaflex but okay
 	'mcr': 'Midway MCR',
 	'mcr3': 'Midway MCR-3',
 	'mcr68': 'Midway MCR-68k',
@@ -150,8 +158,10 @@ arcade_systems = {
 	'namcos21_c67': 'Namco System 21', #With C67 DSP
 	'namcos22': 'Namco System 22',
 	'namcos23': 'Namco System 23',
+	'namcofl': 'Namco System FL',
 	'naomi': 'Naomi', #Based on Dreamcast. romof="awbios" == Atomiswave; not entirely working
 	'neogeo': 'Neo-Geo',
+	'neoprint': 'Neo Print',
 	'nwk-tr': 'Konami NWK-TR',
 	'pcxt': 'IBM PC-XT', #Games running off a PC-XT
 	'pgm': 'PolyGame Master',
@@ -160,6 +170,7 @@ arcade_systems = {
 	'photon': 'Photon System', #PK8000 based (Russian PC that was supposed to be MSX1 compatible)
 	'photon2': 'Photon IK-3', #Leningrad-1 based (Russian ZX Spectrum clone)
 	'policetr': 'ATILLA Video System',
+	'plygonet': 'Konami Polygonet',
 	'psikyo4': 'Psikyo PS4',
 	'pyson': 'Konami Pyson',
 	'seattle': 'Midway Seattle',
@@ -177,7 +188,7 @@ arcade_systems = {
 	'segaybd': 'Sega Y-Board',
 	'seibuspi': 'Seibu SPI',
 	'sfcbox': 'Super Famicom Box', #Arcadified SNES sorta
-	'sg1000a': 'Sega SG-1000',
+	'sg1000a': 'Sega SG-1000', #Same hardware as the home system
 	'snesb': 'SNES Bootleg', #SNES based, natch
 	'sigmab98': 'Sigma B-98',
 	'simpl156': 'Deco 156',
@@ -214,11 +225,16 @@ arcade_systems = {
 	'alg': 'American Laser Games Hardware', #Amiga 500 based (w/ laserdisc player)
 	'artmagic': 'Art & Magic Hardware',
 	'cinemat': 'Cinematronics Vector Hardware',
+	'cmmb': 'Cosmodog Hardware',
 	'dec0': 'Data East 16-bit Hardware',
 	'dec8': 'Data East 8-bit Hardware',
 	'dreamwld': 'Semicom 68020 Hardware',
+	'eolith16': 'Eolith 16-bit Hardware',
+	'esd16': 'ESD 16-bit Hardware',
 	'ettrivia': 'Enerdyne Technologies Trivia',
 	'exidy': 'Exidy Hardware',
+	'gaelco': 'Gaelco Hardware', #Specifically from 1991-1996 apparently?
+	'gaelco3d': 'Gaelco 3D Hardware',
 	'gameplan': 'Game Plan Hardware',
 	'gei': 'Greyhound Electronics Hardware',
 	'gottlieb': 'Gottlieb Hardware',
@@ -227,19 +243,28 @@ arcade_systems = {
 	'itech32': 'Incredible Technologies 32-bit Blitter Hardware',
 	'kaneko16': 'Kaneko 16-bit Hardware',
 	'leland': 'Leland Hardware',
+	'metro': 'Metro Hardware',
 	'micro3d': 'Microprose 3D Hardware',
 	'mw8080bw': 'Midway 8080 Black & White Hardware',
 	'playmark': 'Playmark Hardware',
 	'seta': 'Seta Hardware',
+	'seta2': 'Newer Seta Hardware',
+	'simple_st0016': 'Seta ST-0016 Based Hardware',
 	'subsino2': 'Subsino Newer Tilemaps Hardware',
 	'unico': 'Unico Hardware',
 
-	#Arcade platforms that don't really have a name except a game that uses them; I try not to fill this up with every single remaining source file, just where it's notable for having other games on it or some other reason
+	#Arcade platforms that don't really have a name except a game that uses them; I try not to fill this up with every single remaining source file, just where it's notable for having other games on it or some other reason (because it's based on a home console/computer perhaps, or because it's 3D or modern and therefore interesting)
+	'20pacgal': 'Pac-Man 25th Anniversary Edition Hardware',
 	'ambush': 'Ambush Hardware',
 	'armedf': 'Armed Formation Hardware',
+	'backfire': 'Backfire! Hardware',
 	'battlera': 'Battle Rangers', #PC Engine based
+	'btoads': 'Battletoads Hardware',
 	'btime': 'BurgerTime Hardware',
 	'cclimber': 'Crazy Climber Hardware',
+	'cischeat': 'Cisco Heat Hardware',
+	'coolpool': 'Cool Pool Hardware',
+	'ddenlovr': 'Don Don Lover Hardware',
 	'dkong': 'Donkey Kong Hardware',
 	'ertictac': 'Erotictac Hardware', #Acorn Archimedes based
 	'fcrash': 'Final Crash Hardware', #Bootleg of Final Fight; this is used for other bootlegs too
@@ -248,6 +273,10 @@ arcade_systems = {
 	'galaxold': 'Galaxian Hardware', #There's a comment in that source file saying it'll be merged into galaxian eventually; seems that this one has all the bootlegs etc
 	'ggconnie': 'Go! Go! Connie Hardware', #Supergrafx based
 	'gticlub': 'Konami GTI Club Hardware',
+	'harddriv': "Hard Drivin' Hardware",
+	'hshavoc': 'High Seas Havoc Hardware', #Megadrive based
+	'invqix': 'Space Invaders / Qix Silver Anniversary Edition Hardware',
+	'kinst': 'Killer Instinct Hardware',
 	'lethalj': 'Lethal Justice Hardware',
 	'liberate': 'Liberation Hardware',
 	'nemesis': 'Nemesis Hardware',
@@ -256,8 +285,10 @@ arcade_systems = {
 	'pong': 'Pong Hardware',
 	'qix': 'Qix Hardware',
 	'quakeat': 'Quake Arcade Tournament Hardware', #Unknown PC based
+	'raiden2': 'Raiden 2 Hardware',
 	'rallyx': 'Rally-X Hardware',
 	'scramble': 'Scramble Hardware', #Apparently also to be merged into galaxian
+	'segaorun': 'Out Run Hardware',
 	'snowbros': 'Snow Bros Hardware',
 	'ssfindo': 'See See Find Out Hardware', #RISC PC based
 	'tnzs': 'The NewZealand Story Hardware',
@@ -267,12 +298,11 @@ arcade_systems = {
 	'vamphalf': 'Vamp x1/2 Hardware', #I guess the source file is for Hyperstone based games but I dunno if I should call it that
 	'zaxxon': 'Zaxxon Hardware',
 
-	#Identified by BIOS and not source file:
-	#coh100c: Sony ZN1 (PS1 based)
-	#coh100t: Taito FX1 (PS1 based)
-
-	#system1 = Sega System 1 or Sega System 2
-	#m10 = Irem M10/M11/M15
+	#Multiple things stuffed into one source file, so there'd have to be something else to identify it or it doesn't matter
+	'system1': 'Sega System 1/2',
+	'm10': 'Irem M10/M11/M15',
+	'zn': 'Sony ZN1/ZN2', #PS1 based; BIOS identifies what exactly it is (licensed to a few other companies too with some variations)
+	'vp101': 'Play Mechanix VP50/VP100/VP101',
 }
 
 #Some games have memory card slots, but they don't actually support saving, it's just t hat the arcade system board thing they use always has that memory card slot there. So let's not delude ourselves into thinking that games which don't save let you save, because that might result in emotional turmoil.
