@@ -27,6 +27,8 @@ class MegadriveRegionCodes(Enum):
 	BrazilUSA = auto() #4
 	EuropeA = auto() #A, not sure what makes this different from normal Europe? But it happens
 	JapanUSA = auto() #5, sometimes this is used in place of J and U together for some reason
+	Europe8 = auto() #8, not sure what's different than normal Europe?
+	USAEurope = auto() #C, not sure what's different than World?
 
 def parse_peripherals(game, peripherals):
 	game.metadata.input_info.buttons = 3
@@ -75,6 +77,12 @@ def parse_peripherals(game, peripherals):
 			pass
 		elif peripheral_char == 'C':
 			game.metadata.specific_info['Uses-CD'] = True
+		#Apparently these also exist with dubious/unclear definitions:
+		#P: "Printer"
+		#B: "Control Ball"
+		#F: "Floppy Drive"
+		#R: "RS232C Serial"
+		#T: "Tablet"
 
 def add_megadrive_info(game, header):
 	try:
@@ -140,7 +148,12 @@ def add_megadrive_info(game, header):
 		region_codes.append(MegadriveRegionCodes.JapanUSA)
 	if b'A' in regions:
 		region_codes.append(MegadriveRegionCodes.EuropeA)
-	#Some other region codes appear sometimes but they might not be entirely valid
+	if b'8' in regions:
+		region_codes.append(MegadriveRegionCodes.Europe8) #Apparently...
+	if b'C' in regions:
+		region_codes.append(MegadriveRegionCodes.USAEurope) #Apparently...
+	#Seen in some betas and might just be invalid:
+	#D - Brazil?
 	game.metadata.specific_info['Region-Code'] = region_codes
 
 def get_smd_header(game):
