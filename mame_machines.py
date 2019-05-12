@@ -60,7 +60,7 @@ class Machine():
 		self.metadata.specific_info['Slot-Names'] = [slot.instances[0][0] for slot in self.media_slots if slot.instances]
 		bios = self.bios
 		if bios:
-			self.metadata.specific_info['BIOS-Used'] = bios.name
+			self.metadata.specific_info['BIOS-Used'] = bios.basename
 			self.metadata.specific_info['BIOS-Used-Full-Name'] = bios.name
 
 		self._add_manufacturer()
@@ -192,7 +192,9 @@ class Machine():
 		romof = self.xml.attrib.get('romof')
 		if self.has_parent and romof == self.family:
 			return self.parent.bios
-		return Machine(get_mame_xml(romof), True)
+		if romof:
+			return Machine(get_mame_xml(romof), True)
+		return None
 
 	@property
 	def media_slots(self):
