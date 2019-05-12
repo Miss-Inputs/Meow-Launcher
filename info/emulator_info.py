@@ -66,8 +66,7 @@ emulators = {
 	'VICE (C64)': ViceEmulator(command_lines.vice_c64),
 	'VICE (C64 Fast)': ViceEmulator(command_lines.vice_c64_fast),
 	'VICE (VIC-20)': ViceEmulator(command_lines.vice_vic20),
-	'VICE (Commodore PET)': ViceEmulator(LaunchParams('xpet', ['-CRTCfull', '$<path>'])),
-	#Some programs only run on 4000-series machines (model = '4032'), some do not (model = '3032'), I guess I don't have a way of knowing (MAME software lists just have a comment so it just be like that sometimes)
+	'VICE (Commodore PET)': ViceEmulator(command_lines.vice_pet),
 	'VICE (Plus/4)': ViceEmulator(command_lines.vice_plus4),
 	'VICE (C128)': ViceEmulator(command_lines.vice_c128),
 

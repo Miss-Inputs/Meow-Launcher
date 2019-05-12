@@ -690,6 +690,25 @@ def vice_c128(game, _):
 	args.append('$<path>')
 	return LaunchParams('x128', args)
 
+def vice_pet(game, _):
+	args = ['-CRTCfull']
+	if game.metadata.tv_type == TVSystem.NTSC:
+		args += ['-ntsc']
+	elif game.metadata.tv_type == TVSystem.PAL:
+		args += ['-pal']
+	
+	machine = game.metadata.specific_info.get('Machine')
+	#The "Machine" field is set directly to the model argument, so that makes things a lot easier for me. Good thing I decided to do that
+	if machine:
+		args += ['-model', machine]
+
+	ram_size = game.metadata.specific_info.get('Required-RAM')
+	if ram_size:
+		args += ['-ramsize', str(ram_size)]
+
+	args.append('$<path>')
+	return LaunchParams('xpet', args)
+
 def vice_plus4(game, _):
 	args = ['-TEDfull']
 	if game.metadata.tv_type == TVSystem.NTSC:
