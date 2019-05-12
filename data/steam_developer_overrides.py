@@ -1,6 +1,7 @@
 developer_overrides = {
 	#Different spellings/formattings of the same company, but we like being consistent with all the other modules and I also just disagree with yelling I guess
 	'5th Cell Media': '5th Cell',
+	'Artefacts Studios': 'Artefacts Studio',
 	'BANDAI NAMCO Entertainment': 'Bandai Namco',
 	'BANDAI NAMCO Studios': 'Bandai Namco', #Appears as developer, the Bandai Namco Entertainment appears as publisher... hmm
 	'Bethesda Game Studios': 'Bethesda',
@@ -44,6 +45,7 @@ developer_overrides = {
 	'ASTRO PORT': 'Astro Port',
 	'Asylum entertainment': 'Asylum Entertainment',
 	'ATLUS': 'Atlus',
+	'BUGBEAR': 'Bugbear',
 	'CAPCOM': 'Capcom',
 	'CD PROJEKT RED': 'CD Projekt Red',
 	'DIMPS': 'Dimps',
