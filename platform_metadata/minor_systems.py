@@ -623,6 +623,34 @@ def add_vz200_info(game):
 	#There are in theory joysticks, but they don't seem to ever be a thing
 	game.metadata.input_info.add_option(keyboard)
 
+def add_pet_info(game):
+	add_generic_info(game)
+	#Usage strings in pet_rom:
+	#Requires BASIC 2 (works on pet2001n).  Enter 'SYS 37000' to run
+	#SYS38000
+
+	keyboard = input_metadata.Keyboard()
+	keyboard.keys = 74
+	game.metadata.input_info.add_option(keyboard)
+	#Don't know about joysticks and I know of no software that uses them
+	for tag in game.filename_tags:
+		#(2001, 3008, 3016, 3032, 3032B, 4016, 4032, 4032B, 8032, 8096, 8296, SuperPET)
+		if (tag[0] == '(' and tag[-1] == ')') or (tag[0] == '[' and tag[-1] == ']'):
+			tag = tag[1:-1]
+
+		for model in ('3008', '3016', '3032', '3032B', '4016', '4032', '4032B', '8032', '8096', '8296', 'SuperPET'):
+			if tag in (model, 'CBM %s' % model, 'CBM%s' % model, 'PET %s' % model, 'PET%s' % model):
+				game.metadata.specific_info['Machine'] = model
+				continue
+		if tag in ('PET 2001', 'PET2001', 'CBM 2001', 'CBM2001'):
+			#We don't search for just "(2001)" in case that's used to denote the year
+			game.metadata.specific_info['Machine'] = '2001'
+			continue
+		for ram in (8, 16, 32, 96, 128):
+			if tag.lower() in ('%dk ram' % ram, '%dkb ram' % ram):
+				game.metadata.specific_info['Required-RAM'] = ram
+				continue
+
 def add_generic_info(game):
 	#For any system not otherwise specified
 	software = get_software_list_entry(game)
