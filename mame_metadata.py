@@ -6,7 +6,7 @@ from common import find_filename_tags, pluralize, remove_capital_article
 from common_types import MediaType, SaveType
 from config import main_config
 from mame_helpers import find_main_cpus, get_mame_ui_config
-from metadata import CPU, EmulationStatus, ScreenInfo
+from metadata import CPU, EmulationStatus, ScreInfo
 from region_detect import (get_language_by_english_name,
                            get_regions_from_filename_tags)
 
@@ -94,6 +94,7 @@ arcade_systems = {
 	'csplayh5': 'Nichibutsu High Rate DVD',
 	'cubo': 'Cubo CD32', #Amiga CD32 + JAMMA
 	'cvs': 'Century CVS System',
+	'cv1k': 'CAVE CV1000B',
 	'decocass': 'Deco Casette',
 	'dgpix': 'dgPIX VRender0',
 	'djmain': 'DJ Main',
@@ -227,6 +228,7 @@ arcade_systems = {
 	'cmmb': 'Cosmodog Hardware',
 	'dec0': 'Data East 16-bit Hardware',
 	'dec8': 'Data East 8-bit Hardware',
+	'dec32': 'Data East 32-bit Hardware',
 	'dreamwld': 'Semicom 68020 Hardware',
 	'eolith16': 'Eolith 16-bit Hardware',
 	'esd16': 'ESD 16-bit Hardware',
