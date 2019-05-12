@@ -6,7 +6,7 @@ from common import find_filename_tags, pluralize, remove_capital_article
 from common_types import MediaType, SaveType
 from config import main_config
 from mame_helpers import find_main_cpus, get_mame_ui_config
-from metadata import CPU, EmulationStatus, ScreInfo
+from metadata import CPU, EmulationStatus, ScreenInfo
 from region_detect import (get_language_by_english_name,
                            get_regions_from_filename_tags)
 
