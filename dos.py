@@ -8,8 +8,6 @@ from info.emulator_info import dos_emulators
 import common
 import dos_mac_common
 
-debug = '--debug' in sys.argv
-
 class DOSApp(dos_mac_common.App):
 	def additional_metadata(self, metadata):
 		metadata.platform = 'DOS'

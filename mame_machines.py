@@ -15,8 +15,6 @@ from mame_metadata import add_metadata, mame_statuses
 from metadata import Metadata, EmulationStatus
 from common_types import SaveType
 
-debug = '--debug' in sys.argv
-
 icon_line_regex = re.compile(r'^icons_directory\s+(.+)$')
 
 licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
@@ -291,7 +289,7 @@ def process_machine(machine):
 		#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
 
 		#We'll do this check _after_ mame_verifyroms so we don't spam debug print for a bunch of skeleton drivers we don't have
-		if debug:
+		if main_config.debug:
 			print('Skipping %s (%s, %s) as it is probably a skeleton driver' % (machine.name, machine.basename, machine.source_file))
 		return
 
