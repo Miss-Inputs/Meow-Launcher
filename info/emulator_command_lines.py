@@ -806,20 +806,41 @@ def fs_uae(game, specific_config):
 	elif game.metadata.platform == 'Commodore CDTV':
 		args.extend(['--amiga_model=CDTV', '--cdrom_drive_0=$<path>'])
 	else:
-		amiga_models = {
-			'OCS': 'A500', #Also A1000 (A2000 also has OCS but doesn't appear to be an option?)
-			'ECS': 'A600', #Also A500+ (A3000 should work, but doesn't seem to be possible)
-			'AGA': 'A4000/040', #Also 1200 (which only has 68EC020 CPU instead of 68040)
-		}
-		#TODO: It would be better if this didn't force specific models, but could look at what ROMs the user has for FS-UAE and determines which models are available that support the given chipset, falling back to backwards compatibility for newer models or throwing EmulationNotSupportedException as necessary
+		model = None
+		machine = game.metadata.specific_info.get('Machine')
+		if machine:
+			amiga_models = {
+				#All the models supported by FS-UAE --amiga_model argument
+				'A500',
+				'A500+',
+				'A600',
+				'A1000',
+				'A1200',
+				'A1200/20',
+				'A3000',
+				'A4000/40',
+				#CDTV, CD32
+			}		
+			if machine in amiga_models:
+				model = machine
+			elif machine == 'A4000':
+				model = 'A4000/40'
+			else:
+				raise EmulationNotSupportedException('FS-UAE does not emulate a ' + machine)
+		else:
+			chipset_models = {
+				'OCS': 'A500', #Also A1000 (A2000 also has OCS but doesn't appear to be an option?)
+				'ECS': 'A600', #Also A500+ (A3000 should work, but doesn't seem to be possible)
+				'AGA': 'A4000/040', #Also 1200 (which only has 68EC020 CPU instead of 68040)
+			}
+			#TODO: It would be better if this didn't force specific models, but could look at what ROMs the user has for FS-UAE and determines which models are available that support the given chipset, falling back to backwards compatibility for newer models or throwing EmulationNotSupportedException as necessary
 
-		chipset = game.metadata.specific_info.get('Chipset')
-		if not chipset:
-			#AGA is the default default if there's no default, because we should probably have one
-			chipset = specific_config.get('default_chipset', 'AGA')
+			#AGA is the default default if there's no default (use the most powerful machine available)
+			chipset = game.metadata.specific_info.get('Chipset', specific_config.get('default_chipset', 'AGA'))
+			model = chipset_models.get(chipset)
 
-		if chipset in amiga_models:
-			args.append('--amiga_model=%s' % amiga_models[chipset])
+		if model:
+			args.append('--amiga_model=%s' % model)
 
 		#Hmm... there is also --cpu=68060 which some demoscene productions use so maybe I should look into that...
 		args.append('--floppy_drive_0=$<path>')
