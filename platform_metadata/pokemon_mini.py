@@ -13,13 +13,15 @@ def add_pokemini_metadata(game):
 	#Technically you could say Motion Controls because of the shake detection, but not all games use it, and you can't really tell which do and which don't programmatically
 	game.metadata.tv_type = TVSystem.Agnostic
 
-	#There really isn't much else here, other than maybe the title. I don't think I can do anything with all those IRQs.
 	product_code_bytes = game.rom.read(seek_to=0x21ac, amount=4)
 	try:
 		product_code = convert_alphanumeric(product_code_bytes)
 		game.metadata.product_code = product_code
 	except NotAlphanumericException:
 		pass
+	title = game.rom.read(seek_to=0x21b0, amount=12).decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
+	if title:
+		game.metadata.specific_info['Internal-Title'] = title
 
 	software = get_software_list_entry(game)
 	if software:
