@@ -47,7 +47,7 @@ def add_banner_info(game, banner):
 		short_title_line_2 = banner[0x1840:0x1860].decode(encoding, errors='backslashreplace').rstrip('\0')
 		title_line_1 = banner[0x1860:0x18a0].decode(encoding, errors='backslashreplace').rstrip('\0')
 		title_line_2 = banner[0x18a0:0x18e0].decode(encoding, errors='backslashreplace').rstrip('\0')
-		description = banner[0x18e0:0x1960].decode(encoding, errors='backslashreplace').rstrip('\0')
+		description = banner[0x18e0:0x1960].decode(encoding, errors='backslashreplace').rstrip('\0').replace('\n', ' ')
 		
 		game.metadata.specific_info['Banner-Short-Title'] = short_title_line_1
 		game.metadata.specific_info['Banner-Short-Title-Line-2'] = short_title_line_2
