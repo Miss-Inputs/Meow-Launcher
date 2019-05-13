@@ -67,10 +67,14 @@ def parse_woz_meta_chunk(game, chunk_data):
 		except ValueError: #Oh I guess this includes UnicodeDecodeError
 			continue
 
-		if key in ('title', 'subtitle', 'version', 'side', 'side_name', 'contributor', 'image_date', 'collection'):
+		if key in ('version', 'side', 'side_name', 'contributor', 'image_date', 'collection'):
 			#No use for these
 			#"collection" is not part of the spec but it shows up and it just says where the image came from
 			pass
+		elif key == 'title':
+			game.metadata.specific_info['Title'] = value
+		elif key == 'subtitle':
+			game.metadata.specific_info['Subtitle'] = value
 		elif key == 'requires_machine':
 			if game.metadata.specific_info.get('Machine'):
 				#Trust the info from the INFO chunk more if it exists
