@@ -19,6 +19,13 @@ input_types = {
 def _add_atari_7800_header_info(game, header):
 	game.metadata.input_info.set_inited()
 
+	#Header version: 0
+	#Magic: 1-17
+	game.metadata.specific_info['Title'] = header[17:49].decode('ascii', errors='backslashreplace').rstrip('\0 ')
+	#ROM size excluding header: Big endian 49-53
+	#Special cart type: 53
+	#Cart type: 54
+
 	left_input_type = header[55]
 	right_input_type = header[56]
 
@@ -76,6 +83,10 @@ def _add_atari_7800_header_info(game, header):
 		game.metadata.save_type = SaveType.MemoryCard
 	elif main_config.debug:
 		print(game.rom.path, 'has save type byte of ', save_type)
+	
+	#Reserved: 59-63
+	#Expansion module required: 64
+
 
 def add_atari_7800_metadata(game):
 	header = game.rom.read(amount=128)

@@ -133,12 +133,29 @@ def parse_ds_header(game, header):
 		banner = game.rom.read(seek_to=banner_offset, amount=banner_size)
 		version = int.from_bytes(banner[0:2], 'little')
 		game.metadata.specific_info['Banner-Version'] = version
-		if version in (1, 2, 3, 0x103) and len(banner) >= 0x240:
-			#game.metadata.specific_info['Banner-Text-English'] = banner[0x340:0x440].decode('utf-16-le', errors='backslashreplace').rstrip('\0')
-			if have_pillow:
-				icon_bitmap = banner[0x20:0x220]
-				icon_palette = struct.unpack('H' * 16, banner[0x220:0x240])
-				game.icon = decode_icon(icon_bitmap, icon_palette)
+		if version in (1, 2, 3, 0x103):
+			if len(banner) >= 0x440:
+				banner_title = banner[0x340:0x440].decode('utf-16-le', errors='backslashreplace').rstrip('\0 ')
+				banner_title_lines = banner_title.splitlines()
+				if banner_title_lines:
+					#The lines are generally either 2 lines like this
+					#Art Academy
+					#Nintendo
+					#or 3 lines like this:
+					#Cooking Guide
+					#Can't decide what to eat?
+					#Nintendo
+					if len(banner_title_lines) == 1:
+						game.metadata.specific_info['Banner-Title'] = banner_title_lines[0]
+					else:
+						game.metadata.specific_info['Banner-Title'] = ' '.join(banner_title_lines[:-1])
+						#This is usually the publisher! But it has a decent chance of being something else so I'm not gonna set game.metadata.publisher from it
+						game.metadata.specific_info['Banner-Title-Final-Line'] = banner_title_lines[-1]
+			if len(banner) >= 0x240:
+				if have_pillow:
+					icon_bitmap = banner[0x20:0x220]
+					icon_palette = struct.unpack('H' * 16, banner[0x220:0x240])
+					game.icon = decode_icon(icon_bitmap, icon_palette)
 
 def add_ds_input_info(game):
 	builtin_buttons = input_metadata.NormalController()

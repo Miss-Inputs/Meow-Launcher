@@ -55,7 +55,6 @@ def add_info_from_main_track(game, track_path, sector_size):
 	#16-32 Copyright: Seems to always be "SEGA ENTERPRISES" but may or may not be mandatory?
 	#74-80 Version
 	#96-112 Boot filename
-	#128-256 Internal name
 
 	hardware_id = header[0:16].decode('ascii', errors='ignore')
 	if hardware_id != 'SEGA SEGAKATANA ':
@@ -122,6 +121,9 @@ def add_info_from_main_track(game, track_path, sector_size):
 			game.metadata.publisher = maker
 	except UnicodeDecodeError:
 		pass
+		
+	game.metadata.specific_info['Internal-Title'] = header[128:256].decode('ascii', errors='backslashreplace').rstrip('\0 ')
+
 
 def add_info_from_gdi(game):
 	data = game.rom.read().decode('utf8', errors='backslashreplace')
