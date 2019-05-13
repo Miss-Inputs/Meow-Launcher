@@ -9,9 +9,12 @@ from data.nintendo_licensee_codes import nintendo_licensee_codes
 
 nintendo_gba_logo_crc32 = 0xD0BEB55E
 def parse_gba_header(game, header):
+	#Entry point: 0-4
 	nintendo_logo = header[4:0xa0]
 	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_gba_logo_crc32
 	game.metadata.specific_info['Nintendo-Logo-Valid'] = nintendo_logo_valid
+	
+	game.metadata.specific_info['Internal-Title'] = header[0xa0:0xac].decode('ascii', errors='backslashreplace').rstrip('\0')
 
 	product_code = None
 	try:
@@ -35,7 +38,16 @@ def parse_gba_header(game, header):
 	except NotAlphanumericException:
 		pass
 
+	#"Fixed value": 0xb2, apparently should be 0x96
+	#Main unit code: 0xb3, apparently should be 0
+	#Device type: 0xb4, apparently normally should be 0
+	#Reserved: 0xb5 - 0xbc
+
 	game.metadata.revision = header[0xbc]
+
+	#Checksum (see ROMniscience for how to calculate it, because I don't feel like describing it all in a single line of comment): 0xbd
+	#Reserved: 0xbe - 0xc0
+
 
 def add_gba_metadata(game):
 	builtin_gamepad = input_metadata.NormalController()
