@@ -204,6 +204,13 @@ class Machine():
 	def has_mandatory_slots(self):
 		return any(slot.mandatory for slot in self.media_slots)
 
+	@property
+	def is_hack(self):
+		manufacturer = self.xml.findtext('manufacturer')
+		if not manufacturer:
+			return None
+		return hack_regex.fullmatch(manufacturer)
+
 	def _add_manufacturer(self):
 		manufacturer = self.xml.findtext('manufacturer')
 		if not manufacturer:

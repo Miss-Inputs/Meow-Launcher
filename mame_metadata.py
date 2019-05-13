@@ -428,7 +428,8 @@ def add_metadata_from_catlist(machine):
 			machine.metadata.categories = ['Hacks']
 	if machine.is_mechanical:
 		machine.metadata.categories = ['Electromechanical']
-	
+	if machine.is_hack:
+		machine.metadata.categories = ['Hacks']
 
 	#Now we separate things into additional platforms where relevant
 
