@@ -444,7 +444,7 @@ def add_amiga_info(game):
 			if tag in ('(ECS)', '(ECS-OCS)'):
 				chipset = 'ECS'
 				break
-			if tag == 'OCS':
+			if tag == '(OCS)':
 				chipset = 'OCS'
 				break
 	game.metadata.specific_info['Chipset'] = chipset
@@ -705,7 +705,7 @@ def add_generic_info(game):
 		software.add_generic_info(game)
 		game.metadata.notes = software.get_info('usage')
 
-	#TODO PET: Add keyboard as input info, there are theoretically userport joysticks but nah
+	#TODO:
 	#Apple III: Possible input info: Keyboard and joystick by default, mouse if mouse card exists
 	#PC Engine: Input could be 2 buttons or 6 buttons, usually the former. Might be other types too? Some games should have saving via TurboBooster-Plus (Wii U VC seems to let me save in Neutopia anyway without passwords or savestates), which I guess would be SaveType.Internal
 	#Coleco Adam: Input info: Keyboard / Coleco numpad?
