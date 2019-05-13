@@ -116,8 +116,10 @@ def parse_gameboy_header(game, header):
 	#Title: 0x34:0x44
 	title = header[0x34:0x44]
 	cgb_flag = title[15]
+	title_length = 16
 	try:
 		game.metadata.specific_info['Is-Colour'] = GameBoyColourFlag(cgb_flag)
+		title_length = 15
 	except ValueError:
 		#On some older carts, this would just be the last character of the title, so it's often something else
 		pass
@@ -126,11 +128,12 @@ def parse_gameboy_header(game, header):
 	if cgb_flag == 0xc0:
 		try:
 			game.metadata.product_code = title[11:15].decode('ascii')
+			title_length = 11
 		except UnicodeDecodeError:
 			pass
 
 	#Might as well add that to the info. I thiiink it's just ASCII and not Shift-JIS
-	game.metadata.specific_info['Internal-Title'] = title.decode('ascii', errors='backslashreplace')
+	game.metadata.specific_info['Internal-Title'] = title[:title_length].decode('ascii', errors='backslashreplace')
 	
 	game.metadata.specific_info['SGB-Enhanced'] = header[0x46] == 3
 	if header[0x47] in game_boy_mappers:
