@@ -702,7 +702,7 @@ def vice_pet(game, _):
 	if machine:
 		args += ['-model', machine]
 
-	ram_size = game.metadata.specific_info.get('Required-RAM')
+	ram_size = game.metadata.specific_info.get('Minimum-RAM')
 	if ram_size:
 		args += ['-ramsize', str(ram_size)]
 

@@ -695,7 +695,7 @@ def add_pet_info(game):
 			continue
 		for ram in (8, 16, 32, 96, 128):
 			if tag.lower() in ('%dk ram' % ram, '%dkb ram' % ram):
-				game.metadata.specific_info['Required-RAM'] = ram
+				game.metadata.specific_info['Minimum-RAM'] = ram
 				continue
 
 def add_generic_info(game):
