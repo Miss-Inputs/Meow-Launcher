@@ -500,6 +500,10 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.categories = [subgenre]
 	elif genre == 'Music' and subgenre == 'Jukebox':
 		machine.metadata.categories = [subgenre]
+	elif (genre == 'Misc.' and subgenre == 'Coin Pusher') or (genre == 'Coin Pusher' and subgenre == 'Misc.'):
+		machine.metadata.categories = ['Coin Pusher']
+	elif category == 'Arcade' and ((genre == 'Casino') or (genre == 'Slot Machine' and subgenre == 'Video Slot')):
+		machine.metadata.categories = ['Gambling']
 	elif category == 'Arcade' and machine.coin_slots == 0:
 		#Or something among those lines, but if it has no coins then it doesn't meet the definition of "coin operated machine"
 		machine.metadata.categories = ['Non-Arcade']
