@@ -428,6 +428,9 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.categories = ['Electromechanical']
 	if machine.is_hack:
 		machine.metadata.categories = ['Hacks']
+	if machine.uses_device('coin_hopper'):
+		#Redemption games sometimes also have one, but then they will have their category set later by their subgenre being Redemption
+		machine.metadata.categories = ['Gambling']
 
 	#Now we separate things into additional platforms where relevant
 
