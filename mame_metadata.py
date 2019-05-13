@@ -250,7 +250,7 @@ arcade_systems = {
 	'dreamwld': 'Semicom 68020 Hardware',
 	'eolith16': 'Eolith 16-bit Hardware',
 	'esd16': 'ESD 16-bit Hardware',
-	'ettrivia': 'Enerdyne Technologies Trivia',
+	'ettrivia': 'Enerdyne Technologies Trivia Hardware',
 	'gaelco3d': 'Gaelco 3D Hardware',
 	'gaelco': 'Gaelco Hardware', #Specifically from 1991-1996 apparently?
 	'gameplan': 'Game Plan Hardware',
@@ -279,7 +279,7 @@ arcade_systems = {
 	'ambush': 'Ambush Hardware',
 	'armedf': 'Armed Formation Hardware',
 	'backfire': 'Backfire! Hardware',
-	'battlera': 'Battle Rangers', #PC Engine based
+	'battlera': 'Battle Rangers Hardware', #PC Engine based
 	'bishi': 'Bishi Bashi Champ Hardware',
 	'btime': 'BurgerTime Hardware',
 	'btoads': 'Battletoads Hardware',
