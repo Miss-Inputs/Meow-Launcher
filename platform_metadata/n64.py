@@ -50,6 +50,16 @@ def get_mupen64plus_database():
 	return database
 
 def parse_n64_header(game, header):
+	#Clock rate, apparently? 0:4
+	#Program counter: 4-8
+	#Release address: 8-12
+	#Checksum: 12-16
+	#Checksum 2: 16-20
+	#Zero filled: 20-28
+	internal_title = header[28:52].decode('shift_jis', errors='backslashreplace').rstrip('\0')
+	if internal_title:
+		game.metadata.specific_info['Internal-Title'] = internal_title
+	#Unknown: 52-59
 	try:
 		product_code = convert_alphanumeric(header[59:63])
 		game.metadata.product_code = product_code
