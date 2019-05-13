@@ -189,6 +189,7 @@ arcade_systems = {
 	'segae': 'Sega System E', #Similar to Master System
 	'segag80r': 'Sega G-80 Raster',
 	'segag80v': 'Sega G-80 Vector',
+	'segam1': 'Sega M1', #Gambling
 	'segas16a': 'Sega System 16A', #Similar to Megadrive
 	'segas16b': 'Sega System 16B',
 	'segas18': 'Sega System 18',
@@ -229,6 +230,7 @@ arcade_systems = {
 	'twin16': 'Konami Twin 16',
 	'twinkle': 'Konami Bemani Twinkle', #PS1 based (but not System 573 related)
 	'ultrsprt': 'Konami Ultra Sports',
+	'vectrex': 'Vectrex', #Also used for actual Vectrex console
 	'vegas': 'Midway Vegas',
 	'vicdual': 'VIC Dual',
 	'vigilant': 'Irem M75', #Also M77
@@ -264,6 +266,8 @@ arcade_systems = {
 	'metro': 'Metro Hardware',
 	'micro3d': 'Microprose 3D Hardware',
 	'mw8080bw': 'Midway 8080 Black & White Hardware',
+	'n8080': 'Nintendo 8080 Hardware',
+	'nmk16': 'NMK 16-bit Hardware',
 	'playmark': 'Playmark Hardware',
 	'psikyo': 'Psikyo Hardware',
 	'psikyosh': 'Psikyo SH-2 Hardware',
@@ -272,6 +276,7 @@ arcade_systems = {
 	'simple_st0016': 'Seta ST-0016 Based Hardware',
 	'snk': 'SNK Hardware',
 	'snk68': 'SNK 68K Hardware',
+	'statriv2': 'Status Trivia Hardware',
 	'subsino2': 'Subsino Newer Tilemaps Hardware',
 	'toaplan1': 'Toaplan Hardware',
 	'toaplan2': 'Newer Toaplan Hardware',
@@ -281,6 +286,7 @@ arcade_systems = {
 	#Arcade platforms that don't really have a name except a game that uses them; I try not to fill this up with every single remaining source file, just where it's notable for having other games on it or some other reason (because it's based on a home console/computer perhaps, or because it's 3D or modern and therefore interesting)
 	'ambush': 'Ambush Hardware',
 	'armedf': 'Armed Formation Hardware',
+	'arkanoid': 'Arkanoid Hardware',
 	'backfire': 'Backfire! Hardware',
 	'battlera': 'Battle Rangers Hardware', #PC Engine based
 	'bishi': 'Bishi Bashi Champ Hardware',
@@ -290,6 +296,7 @@ arcade_systems = {
 	'cischeat': 'Cisco Heat Hardware',
 	'coolpool': 'Cool Pool Hardware',
 	'ddenlovr': 'Don Don Lover Hardware',
+	'deshoros': 'Destiny Hardware',
 	'dkong': 'Donkey Kong Hardware',
 	'ertictac': 'Erotictac Hardware', #Acorn Archimedes based
 	'fcrash': 'Final Crash Hardware', #Bootleg of Final Fight; this is used for other bootlegs too
@@ -324,6 +331,7 @@ arcade_systems = {
 	'tumbleb': 'Tumble Pop Bootleg Hardware',
 	'turrett': 'Turret Tower Hardware',
 	'tvcapcom': 'Tatsunoko vs. Capcom Hardware', #Wii based
+	'tx1': 'TX-1 Hardware',
 	'vamphalf': 'Vamp x1/2 Hardware', #I guess the source file is for Hyperstone based games but I dunno if I should call it that
 	'zaxxon': 'Zaxxon Hardware',
 
