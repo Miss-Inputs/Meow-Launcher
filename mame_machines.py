@@ -54,6 +54,7 @@ class Machine():
 		self.metadata.specific_info['Number-of-Players'] = self.number_of_players
 		self.metadata.specific_info['Is-Mechanical'] = self.is_mechanical
 		self.metadata.specific_info['Dispenses-Tickets'] = self.uses_device('ticket_dispenser')
+		self.metadata.specific_info['Dispenses-Coins'] = self.uses_device('coin_hopper')
 		self.metadata.specific_info['Coin-Slots'] = self.coin_slots
 		self.metadata.specific_info['Requires-CHD'] = self.requires_chds
 		self.metadata.specific_info['Romless'] = self.romless
