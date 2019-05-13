@@ -69,7 +69,7 @@ arcade_systems = {
 	#Right now, this is kiinda pointless and only really used by 1) disambiguate 2) the user's own interest, but one day when there are non-MAME emulators in here, it would make sense for this list to be as big as it is and to expand it into full ArcadeSystem objects with more detailed info on which does what and have things that aren't just source file names mapped to each system and whatnot
 	'20pacgal': 'Namco Anniversary',
 	'3do': '3DO', #Used for the 3DO console as well, but there are 3DO-based arcade games which are just called that; non-working
-	'aleck64': 'Aleck64', #Based on N64
+	'aleck64': 'Seta Aleck64', #Based on N64
 	'alien': 'Capcom Medalusion', #Non-working
 	'aristmk5': 'Aristocrat MK5', #Gambling, Acorn Archimedes based purrhaps
 	'aristmk6': 'Aristocrat MK6', #Gambling, non-working
@@ -85,7 +85,7 @@ arcade_systems = {
 	'atlantis': 'Midway Atlantis', #Linux based (on MIPS CPU); claims to be skeleton but seems to work a bit anyway
 	'balsente': 'Bally/Sente SAC-1',
 	'cdi': 'Philips CD-i', #Literally a CD-i player with a JAMMA adapter (used for some quiz games)
-	'cedar_magnet': 'Magnet System',
+	'cedar_magnet': 'Cedar Magnet System',
 	'chihiro': 'Chihiro', #Based on Xbox, seemingly non-working
 	'circus': 'Exidy Universal Game Board v1',
 	'cobra': 'Konami Cobra System',
@@ -96,9 +96,9 @@ arcade_systems = {
 	'crystal': 'Brezzasoft Crystal System',
 	'csplayh5': 'Nichibutsu High Rate DVD',
 	'cubo': 'Cubo CD32', #Amiga CD32 + JAMMA
-	'cv1k': 'CAVE CV1000B', #Also CV1000D
+	'cv1k': 'Cave CV1000B', #Also CV1000D
 	'cvs': 'Century CVS System',
-	'dec0': 'Data East MEC-M1',
+	'dec0': 'Data East MEC-M1', #Or is it just "Data East 16-bit Hardware"?
 	'deco156': 'Deco 156',
 	'decocass': 'Deco Casette',
 	'deco_mlc': 'Data East MLC System',
@@ -109,18 +109,18 @@ arcade_systems = {
 	'exidy': 'Exidy Universal Game Board v2',
 	'expro02': 'Kaneko EXPRO-02',
 	'f-32': 'F-E1-32',
-	'firebeat': 'Konami Bemani Firebeat', #Non-working
+	'firebeat': 'Bemani Firebeat', #Non-working
 	'funworld': 'Fun World Series 7000',
 	'fuukifg2': 'Fuuki FG-2',
 	'fuukifg3': 'Fuuki FG-3',
 	'gaelco2': 'Gaelco CG-1V/GAE1',
 	'gammagic': 'Bally V8000', #Pentium PC based, skeleton
 	'gts1': 'Gottlieb System 1', #Pinball, I think?
-	'hikaru': 'Hikaru', #Based on souped up Naomi and in turn Dreamcast, non-working
+	'hikaru': 'Sega Hikaru', #Based on souped up Naomi and in turn Dreamcast, non-working
 	'hng64': 'Hyper Neo Geo 64', #Barely working
 	'hornet': 'Konami Hornet',
 	'igs011': 'IGS011 Blitter Based Hardware',
-	'jaguar': 'CoJag', #This is the same source file used for the Jaguar console too
+	'jaguar': 'Atari CoJag', #This is the same source file used for the Jaguar console too
 	'konamigq': 'Konami GQ', #Based on PS1
 	'konamigv': 'Konami GV', #Based on PS1
 	'konamigx': 'Konami GX',
@@ -140,7 +140,6 @@ arcade_systems = {
 	'mcatadv': 'FACE Linda',
 	'mcr3': 'Midway MCR-3', #Also "MCR-Scroll", "MCR-Monobard"
 	'mcr68': 'Midway MCR-68k',
-	'meadows': 'Meadows S2650',
 	'mediagx': 'Atari Media GX', #Based on Cyrix multimedia PC
 	'megadriv_acbl': 'Mega Drive Bootleg', #Mega Drive based ofc
 	'megasys1': 'Jaleco Mega System 1',
@@ -174,7 +173,7 @@ arcade_systems = {
 	'neogeo': 'Neo-Geo',
 	'neoprint': 'Neo Print',
 	'nwk-tr': 'Konami NWK-TR',
-	'pcxt': 'IBM PC-XT', #Games running off a PC-XT
+	'pcxt': 'IBM PC-XT', #Games running off a PC-XT (mostly bootlegs, but not necessarily)
 	'pgm2': 'PolyGame Master 2',
 	'pgm3': 'PolyGame Master 3', #Non-working
 	'pgm': 'PolyGame Master',
@@ -186,17 +185,17 @@ arcade_systems = {
 	'pyson': 'Konami Python', #Also called Pyson, I guess... Japan-English transliteration error? PS2 based
 	'redalert': 'Irem M27',
 	'seattle': 'Midway Seattle',
-	'segac2': 'System C2', #Similar to Megadrive
-	'segae': 'System E', #Similar to Master System
+	'segac2': 'Sega System C2', #Similar to Megadrive
+	'segae': 'Sega System E', #Similar to Master System
 	'segag80r': 'Sega G-80 Raster',
 	'segag80v': 'Sega G-80 Vector',
-	'segas16a': 'System 16A', #Similar to Megadrive
-	'segas16b': 'System 16B',
-	'segas18': 'System 18',
-	'segas24': 'System 24',
-	'segas32': 'System 32',
+	'segas16a': 'Sega System 16A', #Similar to Megadrive
+	'segas16b': 'Sega System 16B',
+	'segas18': 'Sega System 18',
+	'segas24': 'Sega System 24',
+	'segas32': 'Sega System 32',
 	'segasp': 'Sega System SP', #Dreamcast based, for medal games; non-working
-	'segaufo': 'UFO Board', #Mechanical
+	'segaufo': 'Sega UFO Board', #Mechanical
 	'segaxbd': 'Sega X-Board',
 	'segaybd': 'Sega Y-Board',
 	'seibuspi': 'Seibu SPI',
@@ -206,7 +205,7 @@ arcade_systems = {
 	'simpl156': 'Deco Simple 156',
 	'snesb': 'SNES Bootleg', #SNES based, natch
 	'ssv': 'SSV', #Sammy Seta Visco
-	'stv': 'ST-V', #Based on Saturn
+	'stv': 'Sega ST-V', #Based on Saturn
 	'suprnova': 'Kaneko Super Nova System',
 	'taitoair': 'Taito Air System',
 	'taito_b': 'Taito B System',
@@ -235,11 +234,11 @@ arcade_systems = {
 	'vigilant': 'Irem M75', #Also M77
 	'viper': 'Konami Viper', #3Dfx (PPC) based
 	'vsnes': 'VS Unisystem',
-	'williams': 'Williams 6809',
 	'zr107': 'Konami ZR107',
 
 	#Arcade platforms that don't have a name or anything, but companies consistently use them
 	'alg': 'American Laser Games Hardware', #Amiga 500 based (w/ laserdisc player)
+	'alpha68k': 'SNK Alpha 68K Hardware',
 	'artmagic': 'Art & Magic Hardware',
 	'cave': 'Cave 68K Hardware',
 	'cavepc': 'Cave PC Hardware', #Athlon 64 X2 + Radeon 3200 based
@@ -261,6 +260,7 @@ arcade_systems = {
 	'itech8': 'Incredible Technologies 8-bit Blitter Hardware',
 	'kaneko16': 'Kaneko 16-bit Hardware',
 	'leland': 'Leland Hardware',
+	'meadows': 'Meadows S2650 Hardware',
 	'metro': 'Metro Hardware',
 	'micro3d': 'Microprose 3D Hardware',
 	'mw8080bw': 'Midway 8080 Black & White Hardware',
@@ -270,10 +270,13 @@ arcade_systems = {
 	'seta2': 'Newer Seta Hardware',
 	'seta': 'Seta Hardware',
 	'simple_st0016': 'Seta ST-0016 Based Hardware',
+	'snk': 'SNK Hardware',
+	'snk68': 'SNK 68K Hardware',
 	'subsino2': 'Subsino Newer Tilemaps Hardware',
 	'toaplan1': 'Toaplan Hardware',
 	'toaplan2': 'Newer Toaplan Hardware',
 	'unico': 'Unico Hardware',
+	'williams': 'Williams 6809 Hardware',
 
 	#Arcade platforms that don't really have a name except a game that uses them; I try not to fill this up with every single remaining source file, just where it's notable for having other games on it or some other reason (because it's based on a home console/computer perhaps, or because it's 3D or modern and therefore interesting)
 	'ambush': 'Ambush Hardware',
@@ -294,7 +297,7 @@ arcade_systems = {
 	'galaxian': 'Galaxian Hardware', #Was used for a lot of games and bootlegs, actually; seems that Moon Cresta hardware has the same source file
 	'galaxold': 'Galaxian Hardware', #There's a comment in that source file saying it'll be merged into galaxian eventually; seems that this one has all the bootlegs etc
 	'ggconnie': 'Go! Go! Connie Hardware', #Supergrafx based
-	'gticlub': 'Konami GTI Club Hardware',
+	'gticlub': 'GTI Club Hardware',
 	'harddriv': "Hard Drivin' Hardware",
 	'hshavoc': 'High Seas Havoc Hardware', #Megadrive based
 	'invqix': 'Space Invaders / Qix Silver Anniversary Edition Hardware',
