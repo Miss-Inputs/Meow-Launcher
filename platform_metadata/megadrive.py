@@ -24,6 +24,7 @@ class MegadriveRegionCodes(Enum):
 
 	#These might _not_ actually be valid, but they show up in retail games sometimes:
 	World = auto() #F, I have seen some documentation say this is France but that doesn't seem to be how it's used
+	Japan1 = auto() #1.. not sure what's different than normal J but I've only seen it in 32X so far
 	BrazilUSA = auto() #4
 	EuropeA = auto() #A, not sure what makes this different from normal Europe? But it happens
 	JapanUSA = auto() #5, sometimes this is used in place of J and U together for some reason
@@ -142,6 +143,8 @@ def add_megadrive_info(game, header):
 		region_codes.append(MegadriveRegionCodes.Europe)
 	if b'F' in regions:
 		region_codes.append(MegadriveRegionCodes.World)
+	if b'1' in regions:
+		region_codes.append(MegadriveRegionCodes.Japan1)
 	if b'4' in regions:
 		region_codes.append(MegadriveRegionCodes.BrazilUSA)
 	if b'5' in regions:
