@@ -366,28 +366,19 @@ def add_save_type(machine):
 
 def add_status(machine):
 	driver = machine.driver_element
-	machine.metadata.specific_info['MAME-Emulation-Status'] = machine.overall_status
-	#I guess I gotta think of better names for this stuff
-	machine.metadata.specific_info['MAME-Actual-Emulation-Status'] = mame_statuses.get(driver.attrib['emulation'], EmulationStatus.Unknown)
+	#See comments for overall_status property for what that actually means
+	machine.metadata.specific_info['MAME-Overall-Emulation-Status'] = machine.overall_status
+	machine.metadata.specific_info['MAME-Emulation-Status'] = machine.emulation_status
 	machine.metadata.specific_info['Cocktail-Status'] = mame_statuses.get(driver.attrib.get('cocktail'), EmulationStatus.Unknown)
 	machine.metadata.specific_info['Supports-Savestate'] = driver.attrib.get('savestate') == 'supported'
 
 	unemulated_features = []
-	for feature in machine.xml.findall('feature'):
-		feature_type = feature.attrib['type']
-		if 'status' in feature.attrib:
-			feature_status = feature.attrib['status']
-		elif 'overall' in feature.attrib:
-			#wat?
-			feature_status = feature.attrib['overall']
-		else:
-			continue
-
+	for feature_type, feature_status in machine.feature_statuses.items():
 		if feature_status == 'unemulated':
 			unemulated_features.append(feature_type)
 		else:
 			#Known types according to DTD: protection, palette, graphics, sound, controls, keyboard, mouse, microphone, camera, disk, printer, lan, wan, timing
-			#Note: MAME 0.208 will add capture, media, tape, punch, drum, rom, comms; although I guess I don't need to write any more code here
+			#Note: MAME 0.208 has added capture, media, tape, punch, drum, rom, comms; although I guess I don't need to write any more code here
 			machine.metadata.specific_info['MAME-%s-Status' % feature_type.capitalize()] = mame_statuses.get(feature_status, EmulationStatus.Unknown)
 
 	if unemulated_features:

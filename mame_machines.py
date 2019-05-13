@@ -152,15 +152,42 @@ class Machine():
 
 	@property
 	def overall_status(self):
+		#Hmm, so how this works according to https://github.com/mamedev/mame/blob/master/src/frontend/mame/info.cpp: if any particular feature is preliminary, this is preliminary, if any feature is imperfect this is imperfect, unless protection = imperfect then this is preliminary
+		#It even says it's for the convenience of frontend developers, but since I'm an ungrateful piece of shit and I always feel the need to take matters into my own hands, I'm gonna get the other parts of the emulation too
 		if self.driver_element is None:
 			return EmulationStatus.Unknown
 		return mame_statuses.get(self.driver_element.attrib.get('status'), EmulationStatus.Unknown)
 
 	@property
+	def emulation_status(self):
+		if self.driver_element is None:
+			return EmulationStatus.Unknown
+		return mame_statuses.get(self.driver_element.attrib.get('emulation'), EmulationStatus.Unknown)
+
+	@property
+	def feature_statuses(self):
+		features = {}
+		for feature in self.xml.findall('feature'):
+			feature_type = feature.attrib['type']
+			if 'status' in feature.attrib:
+				feature_status = feature.attrib['status']
+			elif 'overall' in feature.attrib:
+				#wat?
+				feature_status = feature.attrib['overall']
+			else:
+				continue
+			
+			features[feature_type] = feature_status
+			#Known types according to DTD: protection, palette, graphics, sound, controls, keyboard, mouse, microphone, camera, disk, printer, lan, wan, timing
+			#Note: MAME 0.208 has added capture, media, tape, punch, drum, rom, comms; although because I have been somewhat clever in writing this code, I don't need to hardcode any of that anyway
+		return features
+
+	@property
 	def is_skeleton_driver(self):
 		#Actually, we're making an educated guess here, as MACHINE_IS_SKELETON doesn't appear directly in the XML...
-		#What I actually want to happen is to tell us if a machine will just display a blank screen and nothing else (because nobody wants those in a launcher). Right now that's not really possible without the false positives of games which don't have screens as such but they do display things via layouts (e.g. wackygtr) so the best we can do is say everything that doesn't have any kind of controls.
-		return self.number_of_players == 0 and self.overall_status in (EmulationStatus.Broken, EmulationStatus.Unknown)
+		#What I actually want to happen is to tell us if a machine will just display a blank screen and nothing else (because nobody wants those in a launcher). Right now that's not really possible without the false positives of games which don't have screens as such but they do display things via layouts (e.g. wackygtr) so the best we can do is say everything that doesn't have any kind of controls, which tends to be the case for a lot of these.
+		#MACHINE_IS_SKELETON is actually defined as MACHINE_NO_SOUND and MACHINE_NOT_WORKING, so we'll look for that too
+		return self.number_of_players == 0 and self.emulation_status in (EmulationStatus.Broken, EmulationStatus.Unknown) and self.feature_statuses.get('sound') == 'unemulated'
 
 	def uses_device(self, name):
 		for device_ref in self.xml.findall('device_ref'):
@@ -326,8 +353,9 @@ def process_machine_element(machine_element):
 	if not is_machine_launchable(machine):
 		return
 
-	if main_config.exclude_non_working and machine.overall_status == EmulationStatus.Broken and machine.basename not in main_config.non_working_whitelist:
+	if main_config.exclude_non_working and machine.emulation_status == EmulationStatus.Broken and machine.basename not in main_config.non_working_whitelist:
 		#This will need to be refactored if anything other than MAME is added
+		#The code behind -listxml is of the opinion that protection = imperfect should result in a system being considered entirely broken, but I'm not so sure if that works out
 		return
 
 	if not mame_verifyroms(machine.basename):
