@@ -70,6 +70,7 @@ def parse_param_sfo(game, param_sfo):
 		elif key == 'DISC_TOTAL':
 			game.metadata.disc_total = value
 		elif key == 'TITLE':
+			game.metadata.specific_info['Banner-Title'] = value
 			if game.rom.extension == 'pbp':
 				game.rom.name = value
 		elif key == 'PARENTAL_LEVEL':
