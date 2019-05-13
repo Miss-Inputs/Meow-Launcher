@@ -100,6 +100,13 @@ def get_metadata_from_tags(game):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = game.filename_tags
 
+	#TOSEC has been known to use these in the "extra data" or whatsitcalled field at the end to specify that a game is adults only
+	nsfw_tags = {'[adult]', '[XXX]'}
+	for nsfw_tag in nsfw_tags:
+		if nsfw_tag in tags:
+			game.metadata.nsfw = True
+			break
+
 	get_year_revision_from_filename_tags(game, tags)
 
 	if not game.metadata.regions:
