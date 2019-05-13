@@ -11,6 +11,11 @@ def add_virtual_boy_metadata(game):
 	rom_size = game.rom.get_size()
 	header_start_position = rom_size - 544 #Yeah I dunno
 	header = game.rom.read(seek_to=header_start_position, amount=32)
+
+	title = header[0:20].decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
+	if title:
+		game.metadata.specific_info['Internal-Title'] = title
+	
 	try:
 		licensee_code = convert_alphanumeric(header[25:27])
 		if licensee_code in nintendo_licensee_codes:

@@ -38,6 +38,7 @@ from platform_metadata.minor_systems import *
 #Atari 5200: Year (unreliable, has Y2K bug. It's actually just the 3rd and 4th digit stored as 5200 characters, and then printing 19 + those characters); also title I guess
 #ColecoVision: Year (unreliable, from copyright string on title screen), author (also unreliable and from copyright string; and in uppercase so you'd probably wanna call .titlecase() or whatsitcalled or something), title
 #APF: Menu text
+#Vectrex: Title screen text
 
 #If I had them emulated there can be metadatum extracted, but there's no point implementing them here yet:
 #64DD: Publisher, product code, version
