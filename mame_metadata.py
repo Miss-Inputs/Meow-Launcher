@@ -396,6 +396,13 @@ def add_status(machine):
 def add_metadata_from_catlist(machine):
 	category, genre, subgenre, nsfw = get_category(machine.basename)
 	
+	#Fix some errata present in the default catlist.ini, maybe one day I should tell them about it, but I'm shy or maybe they're meant to be like that
+	if subgenre == 'Laser Disk Simulator':
+		#Both of these spellings appear twice...
+		subgenre = 'Laserdisc Simulator'
+	#ddrstraw is Rhythm / Dance but it's more accurately a plug & play game, although that is the genre, so it's not wrong
+	#kuzmich is just Platform / Run Jump, it's an arcade machine though
+	
 	machine.metadata.media_type = MediaType.Standalone
 
 	if category == 'Unknown':
@@ -481,9 +488,6 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.platform = 'Plug & Play'
 		if not machine.metadata.categories:
 			machine.metadata.categories = ['Games']
-	if genre in ('Electromechanical', 'Slot Machine') and subgenre == 'Reels':
-		#"Slot Machine", "Fruit Machine", "Gambling", "AWP", whatevs; this ends up being the mechanical kind specifically and maybe doesn't actually need to be a separate platform anyway
-		machine.metadata.platform = 'Slot Machine'
 	if genre == 'Electromechanical' and subgenre == 'Pinball':
 		#There are a few things under Arcade: Electromechanical / Utilities that are also pinball stuff, although perhaps not all of them. It only becomes apparent due to them using the "genpin" sample set
 		machine.metadata.platform = 'Pinball'
@@ -494,15 +498,15 @@ def add_metadata_from_catlist(machine):
 		#Other genres of handheld: Pocket Device - Pad - PDA; Child Computer (e.g. Speak & Spell) but those seem more suited to Standalone System particularly the former
 		machine.metadata.platform = 'Handheld'
 	
-	if genre in ('Electromechanical', 'Utilities'):
+	if genre in ('Electromechanical', 'Utilities', 'Medal Game'):
 		machine.metadata.categories = [genre]
-	elif genre == 'Misc.' and subgenre in ('Laser Disk Simulator', 'Print Club', 'Unknown'):
+	elif genre == 'Misc.' and subgenre in ('Laserdisc Simulator', 'Print Club', 'Unknown', 'Redemption'):
 		machine.metadata.categories = [subgenre]
 	elif genre == 'Music' and subgenre == 'Jukebox':
 		machine.metadata.categories = [subgenre]
 	elif (genre == 'Misc.' and subgenre == 'Coin Pusher') or (genre == 'Coin Pusher' and subgenre == 'Misc.'):
 		machine.metadata.categories = ['Coin Pusher']
-	elif category == 'Arcade' and ((genre == 'Casino') or (genre == 'Slot Machine' and subgenre == 'Video Slot')):
+	elif category == 'Arcade' and ((genre == 'Casino') or (genre == 'Slot Machine') or (genre == 'Electromechanical' and subgenre == 'Reels')):
 		machine.metadata.categories = ['Gambling']
 	elif category == 'Arcade' and machine.coin_slots == 0:
 		#Or something among those lines, but if it has no coins then it doesn't meet the definition of "coin operated machine"
