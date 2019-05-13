@@ -128,13 +128,13 @@ def parse_gameboy_header(game, header):
 	#Well, might as well try that. If it's junk, we're looking up the software list later for the proper serial anyway.
 	if cgb_flag == 0xc0:
 		try:
-			game.metadata.product_code = title[11:15].decode('ascii')
+			game.metadata.product_code = title[11:15].decode('ascii').rstrip('\0')
 			title_length = 11
 		except UnicodeDecodeError:
 			pass
 
 	#Might as well add that to the info. I thiiink it's just ASCII and not Shift-JIS
-	game.metadata.specific_info['Internal-Title'] = title[:title_length].decode('ascii', errors='backslashreplace')
+	game.metadata.specific_info['Internal-Title'] = title[:title_length].decode('ascii', errors='backslashreplace').rstrip('\0')
 	
 	game.metadata.specific_info['SGB-Enhanced'] = header[0x46] == 3
 	if header[0x47] in game_boy_mappers:
