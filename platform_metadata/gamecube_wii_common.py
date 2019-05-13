@@ -20,8 +20,8 @@ def gamecube_read(game, seek_to, amount):
 	return game.rom.read(amount=amount, seek_to=seek_to)
 
 def add_gamecube_wii_disc_metadata(game, header):
-	# Potentially quite a lot bigger but we don't need that much out of it
-	internal_title = header[32:64]
+	internal_title = header[32:128]
+	game.metadata.specific_info['Internal-Title'] = internal_title.decode('ascii', errors='backslashreplace').rstrip('\0 ')
 	if internal_title[:28] == b'GAMECUBE HOMEBREW BOOTLOADER':
 		return
 
@@ -49,6 +49,10 @@ def add_gamecube_wii_disc_metadata(game, header):
 
 	game.metadata.revision = header[7]
 
+	#Audio streaming: header[8] > 1
+	#Audio streaming buffer size: header[9]
+	#Unused: 10-24
+
 	is_wii = header[0x18:0x1c] == b']\x1c\x9e\xa3'
 	is_gamecube = header[0x1c:0x20] == b'\xc23\x9f='
 	# Is this ever set to both? In theory no, but... hmm
@@ -60,3 +64,4 @@ def add_gamecube_wii_disc_metadata(game, header):
 			print(game.rom.path, 'lacks Wii disc magic')
 		if game.metadata.platform == 'GameCube' and not is_gamecube:
 			print(game.rom.path, 'lacks GameCube disc magic')
+	

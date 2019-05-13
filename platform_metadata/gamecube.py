@@ -39,17 +39,22 @@ def convert_rgb5a3(colour):
 def add_banner_info(game, banner):
 	banner_magic = banner[:4]
 	if banner_magic in (b'BNR1', b'BNR2'):
-		#There are text strings in here if we feel like using them
-		#Offsets:
-		#	Short title line 1 = 0x1820:0x1840
-		#	Short title line 2 = 0x1840:0x1860
-		#	Title line 1 = 0x1860:0x18a0
-		#	Title line 2 = 0x18a0:0x18e0
-		#	Description = 0x18e0:0x1960
-		#(BNR2 has 6 instances of these 320 bytes with English, German, French, Spanish, Italian, Dutch in that order)
-		#Null padded, Shift-JIS on NTSC-J discs, Latin-1 (seemingly) on NTSC-U and PAL discs
+		#(BNR2 has 6 instances of all of these with English, German, French, Spanish, Italian, Dutch in that order)
 		#Dolphin uses line 2 as Publisher field but that's not always accurate (e.g. Paper Mario: The Thousand Year Door puts subtitle of the game's name on line 2) so it won't be used here
-		#print('\n'.join(banner[0x1820:0x1960].decode('ascii', errors='ignore').split('\0')))
+		#Very often, short title and not-short title are exactly the same, but not always. I guess it just be like that
+		encoding = 'shift_jis' if game.metadata.specific_info['Region-Code'] == NintendoDiscRegion.NTSC_J else 'latin-1'
+		short_title_line_1 = banner[0x1820:0x1840].decode(encoding, errors='backslashreplace').rstrip('\0')
+		short_title_line_2 = banner[0x1840:0x1860].decode(encoding, errors='backslashreplace').rstrip('\0')
+		title_line_1 = banner[0x1860:0x18a0].decode(encoding, errors='backslashreplace').rstrip('\0')
+		title_line_2 = banner[0x18a0:0x18e0].decode(encoding, errors='backslashreplace').rstrip('\0')
+		description = banner[0x18e0:0x1960].decode(encoding, errors='backslashreplace').rstrip('\0')
+		
+		game.metadata.specific_info['Banner-Short-Title'] = short_title_line_1
+		game.metadata.specific_info['Banner-Short-Title-Line-2'] = short_title_line_2
+		game.metadata.specific_info['Banner-Title'] = title_line_1
+		game.metadata.specific_info['Banner-Title-Line-2'] = title_line_2
+		game.metadata.specific_info['Banner-Description'] = description
+
 		if have_pillow:
 			banner_width = 96
 			banner_height = 32
