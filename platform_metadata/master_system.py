@@ -37,15 +37,25 @@ def parse_sdsc_header(game, header):
 		game.metadata.year = year
 
 	author_offset = int.from_bytes(header[6:8], 'little')
-	#Name offset: header[8:10]
-	#Description offset: header[10:12]
+	name_offset = int.from_bytes(header[8:10], 'little')
+	description_offset = int.from_bytes(header[10:12], 'little')
 	if 0 < author_offset < 0xffff:
 		#Assume sane maximum of 255 chars
 		try:
 			game.metadata.developer = game.metadata.publisher = game.rom.read(seek_to=author_offset, amount=255).partition(b'\x00')[0].decode('ascii')
 		except UnicodeDecodeError:
 			pass
-
+	if 0 < name_offset < 0xffff:
+		try:
+			game.metadata.specific_info['Title'] = game.rom.read(seek_to=name_offset, amount=255).partition(b'\x00')[0].decode('ascii')
+		except UnicodeDecodeError:
+			pass
+	if 0 < description_offset < 0xffff:
+		try:
+			game.metadata.specific_info['Description'] = game.rom.read(seek_to=description_offset, amount=255).partition(b'\x00')[0].decode('ascii')
+		except UnicodeDecodeError:
+			pass
+	
 class BadSMSHeaderException(Exception):
 	pass
 
