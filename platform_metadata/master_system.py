@@ -195,7 +195,7 @@ def add_info_from_software_list(game, software):
 		game.metadata.specific_info['Peripheral'] = peripheral
 
 def get_sms_metadata(game):
-	sdsc_header = game.rom.read(seek_to=0x7fe0, amount=12)
+	sdsc_header = game.rom.read(seek_to=0x7fe0, amount=16)
 	if sdsc_header[:4] == b'SDSC':
 		parse_sdsc_header(game, sdsc_header[4:])
 
