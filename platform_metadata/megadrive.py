@@ -112,9 +112,18 @@ def add_megadrive_info(game, header):
 				pass
 	except UnicodeDecodeError:
 		pass
+	
+	domestic_title = header[32:80].decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
+	overseas_title = header[80:128].decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
+	if domestic_title:
+		game.metadata.specific_info['Internal-Title'] = domestic_title
+	if overseas_title:
+		#Often the same as domestic title, but for games that get their names changed yet work on multiple regions, domestic is the title in Japan and and overseas is in USA (and maybe Europe). I don't know what happens if a game is originally in USA then gets its name changed when it goes to Japan, but it might just be "Japan is domestic and everwhere else is overseas"
+		game.metadata.specific_info['Internal-Overseas-Title'] = overseas_title
+	#Product type: 128:130, it's usually GM for game but then some other values appear too (especially in Sega Pico)
+	#Space for padding: 130
 
 	try:
-		#There's a space at header[130] apparently, so I guess that might be part of the thing, but eh
 		serial = header[131:142].decode('ascii')
 		game.metadata.product_code = serial[:8].rstrip('\0 ')
 		#- in between
