@@ -1,4 +1,5 @@
 from zlib import crc32
+from enum import IntEnum
 
 import input_metadata
 from common import convert_alphanumeric, NotAlphanumericException
@@ -88,6 +89,12 @@ mame_rom_slots = {
 	'rom_yong': 'Yong Yong',
 }
 
+class GameBoyColourFlag(IntEnum):
+	No = 0
+	Yes = 0x80
+	Required = 0xc0
+	#Ah yes, the three boolean values
+
 def parse_slot(game, slot):
 	if slot in mame_rom_slots:
 		original_mapper = game.metadata.specific_info.get('Mapper', 'None')
@@ -105,7 +112,26 @@ def parse_gameboy_header(game, header):
 	nintendo_logo = header[4:0x34]
 	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_logo_crc32
 	game.metadata.specific_info['Nintendo-Logo-Valid'] = nintendo_logo_valid
+	
+	#Title: 0x34:0x44
+	title = header[0x34:0x44]
+	cgb_flag = title[15]
+	try:
+		game.metadata.specific_info['Is-Colour'] = GameBoyColourFlag(cgb_flag)
+	except ValueError:
+		#On some older carts, this would just be the last character of the title, so it's often something else
+		pass
+	#On newer games, product code is at title[11:15], the tricky part is what exactly is a newer game and what isn't, because if the product code isn't there then those characters are just the last 4 characters of the title. It seems that it's always there on GBC exclusives, and _maybe_ there on GBC-enhanced games. And that's only for officially licensed stuff of course.
+	#Well, might as well try that. If it's junk, we're looking up the software list later for the proper serial anyway.
+	if cgb_flag == 0xc0:
+		try:
+			game.metadata.product_code = title[11:15].decode('ascii')
+		except UnicodeDecodeError:
+			pass
 
+	#Might as well add that to the info. I thiiink it's just ASCII and not Shift-JIS
+	game.metadata.specific_info['Internal-Title'] = title.decode('ascii', errors='backslashreplace')
+	
 	game.metadata.specific_info['SGB-Enhanced'] = header[0x46] == 3
 	if header[0x47] in game_boy_mappers:
 		mapper = game_boy_mappers[header[0x47]]
@@ -116,7 +142,6 @@ def parse_gameboy_header(game, header):
 		if mapper.has_accelerometer:
 			game.metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls())
 
-	#Can get product code from header[0x3f:0x43] if and only if it exists. It might not, it's only for newer games. Has to exist for GBC only games, but then homebrew doesn't follow your rules of course.
 	game.metadata.specific_info['Destination-Code'] = header[0x4a]
 	#0 means Japan and 1 means not Japan. Not sure how reliable that is.
 	licensee_code = header[0x4b]
