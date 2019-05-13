@@ -86,7 +86,6 @@ def parse_peripherals(game, peripherals):
 
 def add_saturn_info(game, header):
 	#42:48 Version
-	#96:208 Internal name
 
 	hardware_id = header[0:16].decode('ascii', errors='ignore')
 	if hardware_id != 'SEGA SEGASATURN ':
@@ -152,6 +151,12 @@ def add_saturn_info(game, header):
 
 	peripherals = header[80:96].decode('ascii', errors='backslashreplace').rstrip()
 	parse_peripherals(game, peripherals)
+
+	internal_name = header[96:208].decode('ascii', errors='backslashreplace').rstrip()
+	#Sometimes / : - are used as delimiters, and there can also be J:JapaneseNameU:USAName
+	if internal_name:
+		game.metadata.specific_info['Internal-Title'] = internal_name
+
 
 def add_saturn_metadata(game):
 	if game.rom.extension == 'cue':
