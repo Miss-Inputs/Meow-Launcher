@@ -130,3 +130,6 @@ def remove_capital_article(s):
 		else:
 			new_words.append(word)
 	return ' '.join(new_words)
+
+def clean_string(s):
+	return ''.join([c for c in s if c.isprintable()])

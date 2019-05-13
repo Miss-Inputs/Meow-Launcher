@@ -165,7 +165,7 @@ def make_linux_desktop(launch_params, display_name, fields=None, icon=None):
 				else:
 					value_as_string = str(v)
 
-				section_writer[k.replace('_', '-')] = value_as_string
+				section_writer[k.replace('_', '-')] = common.clean_string(value_as_string)
 
 	ensure_exist(path)
 	with open(path, 'wt') as f:
