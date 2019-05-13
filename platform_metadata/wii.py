@@ -18,7 +18,6 @@ from .gamecube_wii_common import (NintendoDiscRegion,
                                   add_gamecube_wii_disc_metadata,
                                   gamecube_read)
 
-
 def add_wii_system_info(game):
 	cpu = CPU()
 	cpu.chip_name = 'IBM PowerPC 603'
@@ -106,7 +105,10 @@ def add_wii_homebrew_metadata(game):
 		game.metadata.categories = game.metadata.categories[:-1]
 		try:
 			meta_xml = ElementTree.parse(xml_path)
-			game.rom.name = meta_xml.findtext('name')
+			name = meta_xml.findtext('name')
+			if name:
+				game.metadata.specific_info['Title'] = name
+				game.rom.name = name
 
 			coder = meta_xml.findtext('coder')
 			if not coder:
