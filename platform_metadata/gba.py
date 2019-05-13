@@ -14,8 +14,11 @@ def parse_gba_header(game, header):
 	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_gba_logo_crc32
 	game.metadata.specific_info['Nintendo-Logo-Valid'] = nintendo_logo_valid
 	
-	game.metadata.specific_info['Internal-Title'] = header[0xa0:0xac].decode('ascii', errors='backslashreplace').rstrip('\0')
-
+	internal_title = header[0xa0:0xac].decode('ascii', errors='backslashreplace').rstrip('\0')
+	game.metadata.specific_info['Internal-Title'] = internal_title
+	if internal_title == 'mb2gba':
+		return
+	
 	product_code = None
 	try:
 		product_code = convert_alphanumeric(header[0xac:0xb0])
