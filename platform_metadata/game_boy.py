@@ -1,12 +1,14 @@
-from zlib import crc32
+import re
 from enum import IntEnum
+from zlib import crc32
 
 import input_metadata
-from common import convert_alphanumeric, NotAlphanumericException
+from common import NotAlphanumericException, convert_alphanumeric
 from common_types import SaveType
+from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
-from data.nintendo_licensee_codes import nintendo_licensee_codes
+
 
 class GameBoyMapper():
 	def __init__(self, name, has_ram=False, has_battery=False, has_rtc=False, has_rumble=False, has_accelerometer=False):
@@ -132,6 +134,13 @@ def parse_gameboy_header(game, header):
 			title_length = 11
 		except UnicodeDecodeError:
 			pass
+	else:
+		#Things end in null chars, so if there's null chars in the middle, that indicates if nothing else that the title ends there. If there is then 4 chars left over, that would probably be the product code
+		maybe_title_and_serial = re.split(b'\0+', title[:title_length].rstrip(b'\0'))
+		if len(maybe_title_and_serial) == 2:
+			title_length = len(maybe_title_and_serial[0])
+			if len(maybe_title_and_serial[1]) == 4:
+				game.metadata.product_code = maybe_title_and_serial[1].decode('ascii').rstrip('\0')
 
 	#Might as well add that to the info. I thiiink it's just ASCII and not Shift-JIS
 	game.metadata.specific_info['Internal-Title'] = title[:title_length].decode('ascii', errors='backslashreplace').rstrip('\0')
