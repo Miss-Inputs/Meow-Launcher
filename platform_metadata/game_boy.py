@@ -121,8 +121,9 @@ def parse_gameboy_header(game, header):
 		game.metadata.specific_info['Is-Colour'] = GameBoyColourFlag(cgb_flag)
 		title_length = 15
 	except ValueError:
-		#On some older carts, this would just be the last character of the title, so it's often something else
-		pass
+		#On older carts, this would just be the last character of the title, so it would be some random value
+		#Anyway, that would logically mean it is not in colour
+		game.metadata.specific_info['Is-Colour'] = GameBoyColourFlag.No
 	#On newer games, product code is at title[11:15], the tricky part is what exactly is a newer game and what isn't, because if the product code isn't there then those characters are just the last 4 characters of the title. It seems that it's always there on GBC exclusives, and _maybe_ there on GBC-enhanced games. And that's only for officially licensed stuff of course.
 	#Well, might as well try that. If it's junk, we're looking up the software list later for the proper serial anyway.
 	if cgb_flag == 0xc0:
