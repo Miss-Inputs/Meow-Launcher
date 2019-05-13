@@ -17,7 +17,7 @@ def add_uzebox_metadata(game):
 		#Target: 7 (0 = ATmega644, 1 = reserved for ATmega1284)
 		#Program size: 8-0xc (LE)
 		game.metadata.year = int.from_bytes(header[0xc:0xe], 'little')
-		#Name: 0xe:0x2e
+		game.metadata.specific_info['Banner-Title'] = header[0xe:0x2e].decode('ascii', errors='backslashreplace').rstrip('\0')
 		game.metadata.developer = game.metadata.publisher = header[0x2e:0x4e].decode('ascii', errors='backslashreplace').rstrip('\0')
 		#Icon (sadly unused): 0x4e:0x14e
 		#CRC32: 0x14e:0x152
