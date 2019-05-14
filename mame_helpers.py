@@ -158,7 +158,10 @@ def get_icons():
 	return mame_state.icons
 
 def find_cpus(machine_xml):
-	cpu_xmls = [chip for chip in machine_xml.findall('chip') if chip.attrib.get('type') == 'cpu' and chip.attrib.get('tag') not in ('audio_cpu', 'audiocpu', 'soundcpu', 'sound_cpu')]
+	#Type = "cpu" and not "audio", but this still refers to something that is there for sound output and not to do all the fun stuff
+	audio_cpu_tags = ('audio_cpu', 'audiocpu', 'soundcpu', 'sound_cpu', 'genesis_snd_z80')
+
+	cpu_xmls = [chip for chip in machine_xml.findall('chip') if chip.attrib.get('type') == 'cpu' and chip.attrib.get('tag', '').split(':')[-1] not in audio_cpu_tags]
 
 	if not cpu_xmls:
 		return []
