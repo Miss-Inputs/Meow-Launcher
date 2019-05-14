@@ -309,16 +309,6 @@ def is_actually_machine(machine):
 def is_machine_launchable(machine):
 	if machine.has_mandatory_slots:
 		return False
-
-	if main_config.exclude_machines_with_software:
-		needs_software = False #Well, that's just the thing... maybe it doesn't _need_ software, but we can't tell perfectly
-		for software_list_name in machine.software_lists:
-			if software_list_name.startswith(okay_software_lists):
-				continue
-			needs_software = True
-
-		if needs_software:
-			return False
 	
 	return True
 
@@ -336,6 +326,8 @@ def process_machine(machine):
 	if main_config.exclude_non_arcade and machine.metadata.platform == 'Non-Arcade':
 		return
 	if main_config.exclude_pinball and machine.metadata.platform == 'Pinball':
+		return
+	if main_config.exclude_standalone_systems and machine.metadata.platform == 'Standalone System':
 		return
 
 	machine.make_launcher()

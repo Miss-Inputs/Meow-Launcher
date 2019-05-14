@@ -490,10 +490,8 @@ def add_metadata_from_catlist(machine):
 		return
 
 	if (genre == 'Computer') or (genre == 'Calculator') or (genre == 'Handheld' and subgenre == 'Pocket Device - Pad - PDA') or (genre == 'Handheld' and subgenre == 'Child Computer') or (genre == 'Misc.' and subgenre == 'Electronic Game') or (genre == 'Board Game'):
-		#There are some plug & play systems in the Game Console / Home Videogame category, not sure what catlist.ini thinks the difference is between that and Handheld / Plug n' Play TV Game in that case; but maybe I should do a whitelist for those to say "yes these are plug & play systems" (e.g. Vii)
 		#Board Game is more like chess machines than actual board games
 		#Hmm, need a better name for this I think
-		#TODO: Should include option to skip over this category for those who are willing to accept the risk that it might filter out some plug & play systems that might actually be wanted
 		machine.metadata.platform = 'Standalone System'
 	if genre == 'Game Console' and subgenre == 'Home Videogame':
 		machine.metadata.platform = 'Plug & Play' if is_plug_and_play(machine) else 'Standalone System'

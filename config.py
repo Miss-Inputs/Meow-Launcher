@@ -81,9 +81,9 @@ _config_ini_values = {
 
 	'skipped_source_files': ConfigValue('Arcade', ConfigValueType.StringList, [], 'Skipped source files', 'List of MAME source files to skip (not including extension)'),
 	'memcard_path': ConfigValue('Arcade', ConfigValueType.FolderPath, None, 'Memory card path', 'Path to store memory cards for arcade systems which support that'),
-	'exclude_non_arcade': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude non-arcade', 'Whether or not to skip MAME systems categorized as not being arcade or anything specific'), #TODO This description sucks
-	'exclude_pinball': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude pinball', 'Whether or not to skip pinball games'),
-	'exclude_machines_with_software': ConfigValue('Arcade', ConfigValueType.Bool, True, 'Exclude machines with software', 'Whether or not to skip machines that have software lists'),
+	'exclude_non_arcade': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude non-arcade', 'Skip machines not categorized as arcade games or as any other particular category (various devices and gadgets, etc)'),
+	'exclude_pinball': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude pinball', 'Whether or not to skip pinball games (physical pinball, not video pinball)'),
+	'exclude_standalone_systems': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude standalone systems', 'Skip machines categorized as "standalone systems" (computers, game consoles, etc)'),
 	'exclude_non_working': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude non-working', 'Skip any driver marked as not working'),
 	'non_working_whitelist': ConfigValue('Arcade', ConfigValueType.StringList, [], 'Non-working whitelist', 'If exclude_non_working is True, allow these machines anyway even if they are marked as not working'),
 
