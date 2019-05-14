@@ -157,7 +157,7 @@ def get_mame_xml(driver):
 def get_icons():
 	return mame_state.icons
 
-def find_main_cpus(machine_xml):
+def find_cpus(machine_xml):
 	cpu_xmls = [chip for chip in machine_xml.findall('chip') if chip.attrib.get('type') == 'cpu' and chip.attrib.get('tag') not in ('audio_cpu', 'audiocpu', 'soundcpu', 'sound_cpu')]
 
 	if not cpu_xmls:
@@ -183,7 +183,7 @@ def lookup_system_cpus(driver_name):
 	#Guess I'll pass the potential MAMENotInstalledException to caller
 
 	cpu_list = []
-	cpus = find_main_cpus(machine)
+	cpus = find_cpus(machine)
 	if cpus:
 		for cpu_xml in cpus:
 			cpu = CPU()

@@ -5,7 +5,7 @@ import input_metadata
 from common import find_filename_tags, pluralize, remove_capital_article
 from common_types import MediaType, SaveType
 from config import main_config
-from mame_helpers import find_main_cpus, get_mame_ui_config
+from mame_helpers import find_cpus, get_mame_ui_config
 from metadata import CPU, EmulationStatus, ScreenInfo
 from region_detect import (get_language_by_english_name,
                            get_regions_from_filename_tags,
@@ -543,7 +543,7 @@ def add_metadata(machine):
 	add_metadata_from_catlist(machine)
 
 	machine.metadata.cpu_info.set_inited()
-	cpus = find_main_cpus(machine.xml)
+	cpus = find_cpus(machine.xml)
 	if cpus:
 		for cpu_xml in cpus:
 			cpu = CPU()
