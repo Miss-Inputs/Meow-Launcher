@@ -179,7 +179,7 @@ def find_cpus(machine_xml):
 	#Skip microcontrollers etc
 	microcontrollers = ('mcu', 'iomcu', 'dma', 'dma8237', 'iop_dma', 'dmac', 'i8237')
 	device_controllers = ('fdccpu', 'dial_mcu_left', 'dial_mcu_right', 'adbmicro', 'printer_mcu', 'keyboard_mcu', 'keyb_mcu', 'motorcpu', 'drivecpu', 'z80fd')
-	controller_tags = microcontrollers + device_controllers + ('prot', 'iop', 'iocpu')
+	controller_tags = microcontrollers + device_controllers + ('prot', 'iop', 'iocpu', 'cia')
 	cpu_xmls = [cpu for cpu in cpu_xmls if not _tag_starts_with(cpu.attrib.get('tag'), controller_tags)]
 	
 	#blah:blah is from a device which generally indicates it's a co-processor or controller for something else
