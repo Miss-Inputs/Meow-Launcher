@@ -66,6 +66,9 @@ def sanitize_name(s, supersafe=False):
 		s = s.replace('\\', '-')
 		s = s.replace('|', '-')
 
+		if len(s) > 255:
+			s = s[:254] + '…'
+
 		if s == 'NUL':
 			return 'null'
 
