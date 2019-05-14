@@ -220,7 +220,7 @@ nintendo_licensee_codes = {
 	'J9': 'AQ Interactive', #Korg DS-10 Synthesizer series (Japan) (DS)
 	'JT': 'Empty Clip Studios', #Groovin' Blocks (USA) (WiiWare) (retail release is by Zoo)
 	'JW': 'BigBen Interactive', #WRC - FIA World Rally Championship (Europe) (En,Fr,De,Es,It) (Demo) (3DS)
-	'JX': "/Shin'en", #Jett Rocket (USA) (WiiWare)
+	'JX': "Shin'en", #Jett Rocket (USA) (WiiWare)
 	'JY': 'Steel Penny', #Bruiser and Scratch (USA) (WiiWare)
 	'KA': 'Alchemist', #Higurashi no Naku Koro ni Kizuna series (DS)
 	'KJ': 'Gamebridge', #Happy Party with Hello Kitty & Friends! (Europe) (En,Fr,De,Es,It,Nl) (DS)
