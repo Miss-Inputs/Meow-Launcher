@@ -407,7 +407,7 @@ def is_plug_and_play(machine, subgenre):
 		return False
 
 	#Hmm...
-	return False
+	return True
 
 def add_metadata_from_catlist(machine):
 	category, genre, subgenre, nsfw = get_category(machine.basename)
