@@ -157,21 +157,31 @@ def get_mame_xml(driver):
 def get_icons():
 	return mame_state.icons
 
+def _tag_starts_with(tag, tag_list):
+	if not tag:
+		return False
+	tag = tag.split(':')[-1]
+
+	for t in tag_list:
+		if re.fullmatch('^' + re.escape(t) + r'(?:_|\.)?%d+$', tag):
+			return True
+	return False
+
 def find_cpus(machine_xml):
-	#Type = "cpu" and not "audio", but this still refers to something that is there for sound output and not to do all the fun stuff
-	audio_cpu_tags = ('audio_cpu', 'audiocpu', 'soundcpu', 'sound_cpu', 'genesis_snd_z80', 'pokey')
-
-	cpu_xmls = [chip for chip in machine_xml.findall('chip') if chip.attrib.get('type') == 'cpu' and not chip.attrib.get('tag', '').split(':')[-1].startswith(audio_cpu_tags)]
-
+	cpu_xmls = [chip for chip in machine_xml.findall('chip') if chip.attrib.get('type') == 'cpu']
 	if not cpu_xmls:
 		return []
-	#Should 'master' + 'slave' count as 2 or should slave be skipped?
 
-	cpus_with_cpu_tag = [cpu for cpu in cpu_xmls if cpu.attrib.get('tag') == 'cpu']
-	if len(cpus_with_cpu_tag) == 1:
-		#If there is more than one tagged 'cpu', things are more complicated and just continue as normal
-		return cpus_with_cpu_tag
+	#Type = "cpu" and not "audio", but this still refers to something that is there for sound output and not to do all the fun stuff
+	audio_cpu_tags = ('audio_cpu', 'audiocpu', 'soundcpu', 'sound_cpu', 'genesis_snd_z80', 'pokey', 'audio', 'sounddsp')
+	cpu_xmls = [cpu for cpu in cpu_xmls if not _tag_starts_with(cpu.attrib.get('tag'), audio_cpu_tags)]
 
+	#Skip microcontrollers etc
+	microcontrollers = ('mcu', 'iomcu', 'dma', 'dma8237', 'iop_dma', 'dmac', 'i8237')
+	device_controllers = ('fdccpu', 'dial_mcu_left', 'dial_mcu_right', 'adbmicro', 'printer_mcu', 'keyboard_mcu', 'keyb_mcu', 'motorcpu', 'drivecpu', 'z80fd')
+	controller_tags = microcontrollers + device_controllers + ('prot', 'iop', 'iocpu')
+	cpu_xmls = [cpu for cpu in cpu_xmls if not _tag_starts_with(cpu.attrib.get('tag'), controller_tags)]
+	
 	#blah:blah is from a device which generally indicates it's a co-processor or controller for something else
 	#:blah happens if we are looking at the device itself, which in that case yeah we probably do want the thing
 	cpus_not_from_devices = [cpu for cpu in cpu_xmls if not (':' in cpu.attrib.get('tag') and not cpu.attrib.get('tag').startswith(':'))]
