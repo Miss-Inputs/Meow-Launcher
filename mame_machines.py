@@ -58,6 +58,7 @@ class Machine():
 		self.metadata.specific_info['Requires-CHD'] = self.requires_chds
 		self.metadata.specific_info['Romless'] = self.romless
 		self.metadata.specific_info['Slot-Names'] = [slot.instances[0][0] for slot in self.media_slots if slot.instances]
+		self.metadata.specific_info['Software-Lists'] = self.software_lists
 		bios = self.bios
 		if bios:
 			self.metadata.specific_info['BIOS-Used'] = bios.basename
@@ -232,6 +233,10 @@ class Machine():
 		return any(slot.mandatory for slot in self.media_slots)
 
 	@property
+	def software_lists(self):
+		return [software_list.attrib.get('name') for software_list in self.xml.findall('softwarelist')]
+
+	@property
 	def is_hack(self):
 		manufacturer = self.xml.findtext('manufacturer')
 		if not manufacturer:
@@ -306,10 +311,8 @@ def is_machine_launchable(machine):
 		return False
 
 	if main_config.exclude_machines_with_software:
-		needs_software = False
-		software_lists = machine.xml.findall('softwarelist')
-		for software_list in software_lists:
-			software_list_name = software_list.attrib.get('name')
+		needs_software = False #Well, that's just the thing... maybe it doesn't _need_ software, but we can't tell perfectly
+		for software_list_name in machine.software_lists:
 			if software_list_name.startswith(okay_software_lists):
 				continue
 			needs_software = True
