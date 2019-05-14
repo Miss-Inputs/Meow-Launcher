@@ -112,10 +112,16 @@ def move_into_extra_subfolder(path, desktop, subfolder, keys):
 
 	if is_array:
 		for subsubfolder_name in subsubfolders:
-			copy_to_folder(path, main_config.organized_output_folder, subfolder, sanitize_name(' - '.join([subsubfolder_name_component for subsubfolder_name_component in subsubfolder_name if subsubfolder_name_component]), True))
+			folder_name = ' - '.join([subsubfolder_name_component for subsubfolder_name_component in subsubfolder_name if subsubfolder_name_component])
+			if len(folder_name) > 200:
+				folder_name = folder_name[199:] + '…'
+			copy_to_folder(path, main_config.organized_output_folder, subfolder, sanitize_name(folder_name))
 	else:
 		if subsubfolder:
-			copy_to_folder(path, main_config.organized_output_folder, subfolder, sanitize_name(' - '.join(subsubfolder), True))
+			folder_name = ' - '.join(subsubfolder)
+			if len(folder_name) > 200:
+				folder_name = folder_name[199:] + '…'
+			copy_to_folder(path, main_config.organized_output_folder, subfolder, sanitize_name(folder_name))
 
 def move_into_subfolders(path):
 	desktop = launchers.get_desktop(path)
