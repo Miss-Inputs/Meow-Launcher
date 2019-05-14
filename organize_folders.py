@@ -38,7 +38,7 @@ def delete_existing_output_dir():
 			rmdir_recursive(path)
 			#Only files here, no directories
 
-def move_into_extra_subfolder(path, desktop, subfolder, keys):
+def move_into_extra_subfolder(path, desktop, subfolder, keys, missing_value=None):
 	subsubfolder = []
 	is_array = '*' in keys
 	subsubfolders = []
@@ -68,8 +68,11 @@ def move_into_extra_subfolder(path, desktop, subfolder, keys):
 		else:
 			value = get_function(desktop, key)
 		if (not value) if is_key_array else (value is None):
-			#Maybe a "allow missing values" thing would be a good idea like I used to have as that parameter
-			return
+			if missing_value:
+				#TODO: This shouldn't apply for all keys, but then I'd have to extend the syntax
+				value = missing_value
+			else:
+				return
 		
 		if is_key_bool:
 			if value != 'False':
@@ -92,6 +95,7 @@ def move_into_extra_subfolder(path, desktop, subfolder, keys):
 			#	- "Blah 1", "Blah 2" -> "Blah 1 - Value", "Blah 2 - Value"
 			#- If any value out of the specified keys is missing, don't copy it to any folders, don't create a folder just called "Blah"
 			#I feel like I'm overthinking this
+			#FIXME: Yeah, none of that works
 			if is_key_array:
 				if temp:
 					for element_subsubfolder in element_subsubfolders:
@@ -193,12 +197,19 @@ def main():
 			name = sys.argv[name_arg_index + 1]
 		else:
 			name = 'By ' + key
+
+		if '--missing-value' in sys.argv:
+			missing_value_arg_index = sys.argv.index('--missing-value')
+			missing_value = sys.argv[missing_value_arg_index + 1]
+		else:
+			missing_value = None
+
 		for root, _, files in os.walk(main_config.output_folder):
 			for f in files:
 				if f.endswith('.desktop'):
 					path = os.path.join(root, f)
 					desktop = launchers.get_desktop(path)
-					move_into_extra_subfolder(path, desktop, sanitize_name(name, supersafe=True), key)
+					move_into_extra_subfolder(path, desktop, sanitize_name(name, supersafe=True), key, missing_value)
 		if main_config.print_times:
 			time_ended = time.perf_counter()
 			print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
