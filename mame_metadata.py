@@ -8,7 +8,8 @@ from config import main_config
 from mame_helpers import find_main_cpus, get_mame_ui_config
 from metadata import CPU, EmulationStatus, ScreenInfo
 from region_detect import (get_language_by_english_name,
-                           get_regions_from_filename_tags)
+                           get_regions_from_filename_tags,
+						   get_languages_from_regions)
 
 #Maybe I just want to put all this back into mame_machines... it's only used there
 
@@ -543,9 +544,16 @@ def add_metadata(machine):
 		machine.metadata.specific_info['Arcade-System'] = arcade_systems[machine.source_file]
 	add_save_type(machine)
 
+	machine.metadata.regions = get_regions_from_filename_tags(find_filename_tags.findall(machine.name), loose=True)
+
 	language = get_language(machine.basename)
 	if language:
 		machine.metadata.languages = [language]
+
+	if machine.metadata.regions and not machine.metadata.languages:
+		languages = get_languages_from_regions(machine.metadata.regions)
+		if languages:
+			machine.metadata.languages = languages
 
 	series = get_machine_category(machine.basename, 'series')
 	if series:
@@ -560,8 +568,6 @@ def add_metadata(machine):
 		
 		if series not in not_real_series:
 			machine.metadata.series = remove_capital_article(series)
-
-	machine.metadata.regions = get_regions_from_filename_tags(find_filename_tags.findall(machine.name), loose=True)
 
 	#Might not be so hardcoded one day...
 	machine.metadata.emulator_name = 'MAME'
