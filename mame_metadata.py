@@ -143,7 +143,9 @@ arcade_systems = {
 	'mcr68': 'Midway MCR-68k',
 	'mediagx': 'Atari Media GX', #Based on Cyrix multimedia PC
 	'megadriv_acbl': 'Mega Drive Bootleg', #Mega Drive based ofc
+	'megaplay': 'Mega-Play', #Megadrive based (home games converted to arcade format, coins buy lives)
 	'megasys1': 'Jaleco Mega System 1',
+	'megatech': 'Mega-Tech', #Megadrive games with timer
 	'midqslvr': 'Midway Quicksilver', #PC based, non-working
 	'midtunit': 'Midway T-Unit',
 	'midvunit': 'Midway V-Unit',
@@ -173,6 +175,7 @@ arcade_systems = {
 	'naomi': 'Naomi', #Based on Dreamcast. romof="awbios" == Atomiswave; not entirely working
 	'neogeo': 'Neo-Geo',
 	'neoprint': 'Neo Print',
+	'nss': 'Nintendo Super System', #SNES games with timer
 	'nwk-tr': 'Konami NWK-TR',
 	'pcxt': 'IBM PC-XT', #Games running off a PC-XT (mostly bootlegs, but not necessarily)
 	'pgm2': 'PolyGame Master 2',
@@ -180,6 +183,7 @@ arcade_systems = {
 	'pgm': 'PolyGame Master',
 	'photon2': 'Photon IK-3', #Leningrad-1 based (Russian ZX Spectrum clone)
 	'photon': 'Photon System', #PK8000 based (Russian PC that was supposed to be MSX1 compatible)
+	'playch10': 'PlayChoice-10', #NES games with timer
 	'plygonet': 'Konami Polygonet',
 	'policetr': 'ATILLA Video System',
 	'psikyo4': 'Psikyo PS4',
@@ -363,8 +367,6 @@ def add_save_type(machine):
 		has_memory_card = has_memory_card and (machine.family not in not_actually_save_supported)
 
 		machine.metadata.save_type = SaveType.MemoryCard if has_memory_card else SaveType.Nothing
-	elif machine.metadata.platform in ('Mega-Tech', 'Mega-Play', 'Nintendo Super System', 'PlayChoice-10'):
-		machine.metadata.save_type = SaveType.Nothing
 	else:
 		has_nvram = machine.uses_device('nvram')
 		has_i2cmem = machine.uses_device('i2cmem')
@@ -457,16 +459,6 @@ def add_metadata_from_catlist(machine):
 
 	#Now we separate things into additional platforms where relevant
 
-	source_file_platforms = {
-		'megatech': 'Mega-Tech',
-		'megaplay': 'Mega-Play',
-		'playch10': 'PlayChoice-10',
-		'nss': 'Nintendo Super System',
-	}	
-
-	#Public coin-op machines with specific things, could make the argument that it should be left as Arcade as the platform and this as the category
-	if machine.source_file in source_file_platforms:
-		machine.metadata.platform = source_file_platforms[machine.source_file]
 	#Home systems that have the whole CPU etc inside the cartridge, and hence work as separate systems in MAME instead of being in roms.py
 	if machine.source_file == 'cps1' and '(CPS Changer, ' in machine.name:
 		machine.name = machine.name.replace('CPS Changer, ', '')
