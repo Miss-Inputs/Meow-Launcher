@@ -163,7 +163,7 @@ def _tag_starts_with(tag, tag_list):
 	tag = tag.split(':')[-1]
 
 	for t in tag_list:
-		if re.fullmatch('^' + re.escape(t) + r'(?:_|\.)?(?:%d+)?$', tag):
+		if re.fullmatch('^' + re.escape(t) + r'(?:(?:_|\.)?\d+)?$', tag):
 			return True
 	return False
 
