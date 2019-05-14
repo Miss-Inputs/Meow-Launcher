@@ -160,12 +160,8 @@ def get_icons():
 def find_main_cpus(machine_xml):
 	cpu_xmls = [chip for chip in machine_xml.findall('chip') if chip.attrib.get('type') == 'cpu' and chip.attrib.get('tag') not in ('audio_cpu', 'audiocpu', 'soundcpu', 'sound_cpu')]
 
-	for chip in cpu_xmls:
-		if chip.attrib.get('tag').endswith(('maincpu', 'main_cpu')):
-			#Is it possible to have more than one main CPU?
-			return [chip]
-
-	#If no maincpu, just grab all the chips that are marked CPU (could be none, that's okay)
+	if not cpu_xmls:
+		return []
 	#Should 'master' + 'slave' count as 2 or should slave be skipped?
 
 	cpus_with_cpu_tag = [cpu for cpu in cpu_xmls if cpu.attrib.get('tag') == 'cpu']
@@ -173,7 +169,6 @@ def find_main_cpus(machine_xml):
 		#If there is more than one tagged 'cpu', things are more complicated and just continue as normal
 		return cpus_with_cpu_tag
 
-	#Try and find the main CPU(s) ourselves
 	#blah:blah is from a device which generally indicates it's a co-processor or controller for something else
 	#:blah happens if we are looking at the device itself, which in that case yeah we probably do want the thing
 	cpus_not_from_devices = [cpu for cpu in cpu_xmls if not (':' in cpu.attrib.get('tag') and not cpu.attrib.get('tag').startswith(':'))]
