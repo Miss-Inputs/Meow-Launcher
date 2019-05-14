@@ -393,6 +393,22 @@ def add_status(machine):
 	if unemulated_features:
 		machine.metadata.specific_info['MAME-Unemulated-Features'] = unemulated_features
 
+#Stealing this from mame_machines.py while I'm still using it there
+#These all indicate something that _is_ a plug & play system if they exist
+plug_and_play_software_lists = ('vii', 'jakks_gamekey', 'ekara')
+def is_plug_and_play(machine, subgenre):
+	#"Game Console / Home Videogame Console" in catlist.ini doesn't differentiate between plug & play systems that are meant to be used by themselves, and normal consoles which are meant to be used by other software. So, we'll do that ourselves
+	if subgenre == 'Fitness Game':
+		return True
+	if machine.software_lists:
+		for software_list in machine.software_lists:
+			if software_list.startswith(plug_and_play_software_lists):
+				return True
+		return False
+
+	#Hmm...
+	return False
+
 def add_metadata_from_catlist(machine):
 	category, genre, subgenre, nsfw = get_category(machine.basename)
 	
@@ -475,12 +491,14 @@ def add_metadata_from_catlist(machine):
 			machine.metadata.categories = ['Games']
 		return
 
-	if (genre == 'Game Console') or (genre == 'Computer') or (genre == 'Calculator') or (genre == 'Handheld' and subgenre == 'Pocket Device - Pad - PDA') or (genre == 'Handheld' and subgenre == 'Child Computer') or (genre == 'Misc.' and subgenre == 'Electronic Game') or (genre == 'Board Game'):
+	if (genre == 'Computer') or (genre == 'Calculator') or (genre == 'Handheld' and subgenre == 'Pocket Device - Pad - PDA') or (genre == 'Handheld' and subgenre == 'Child Computer') or (genre == 'Misc.' and subgenre == 'Electronic Game') or (genre == 'Board Game'):
 		#There are some plug & play systems in the Game Console / Home Videogame category, not sure what catlist.ini thinks the difference is between that and Handheld / Plug n' Play TV Game in that case; but maybe I should do a whitelist for those to say "yes these are plug & play systems" (e.g. Vii)
 		#Board Game is more like chess machines than actual board games
 		#Hmm, need a better name for this I think
 		#TODO: Should include option to skip over this category for those who are willing to accept the risk that it might filter out some plug & play systems that might actually be wanted
 		machine.metadata.platform = 'Standalone System'
+	if genre == 'Game Console':
+		machine.metadata.platform = 'Plug & Play' if is_plug_and_play(machine, subgenre) else 'Standalone System'
 	if genre == 'Misc.' and subgenre == 'Electronic Board Game':
 		#Hmm does Misc. / Electronic Game (stuff like Electronic Soccer, Reversi Sensory Challenger) count as this, or as something else entirely
 		machine.metadata.platform = 'Board Game'
