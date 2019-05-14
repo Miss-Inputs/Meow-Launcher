@@ -173,11 +173,11 @@ def find_cpus(machine_xml):
 		return []
 
 	#Type = "cpu" and not "audio", but this still refers to something that is there for sound output and not to do all the fun stuff
-	audio_cpu_tags = ('audio_cpu', 'audiocpu', 'soundcpu', 'sound_cpu', 'genesis_snd_z80', 'pokey', 'audio', 'sounddsp')
+	audio_cpu_tags = ('audio_cpu', 'audiocpu', 'soundcpu', 'sound_cpu', 'genesis_snd_z80', 'pokey', 'audio', 'sounddsp', 'soundcpu_b')
 	cpu_xmls = [cpu for cpu in cpu_xmls if not _tag_starts_with(cpu.attrib.get('tag'), audio_cpu_tags)]
 
 	#Skip microcontrollers etc
-	microcontrollers = ('mcu', 'iomcu', 'dma', 'dma8237', 'iop_dma', 'dmac', 'i8237')
+	microcontrollers = ('mcu', 'iomcu', 'dma', 'dma8237', 'iop_dma', 'dmac', 'i8237', 'i8257', 'i8741')
 	device_controllers = ('fdccpu', 'dial_mcu_left', 'dial_mcu_right', 'adbmicro', 'printer_mcu', 'keyboard_mcu', 'keyb_mcu', 'motorcpu', 'drivecpu', 'z80fd')
 	controller_tags = microcontrollers + device_controllers + ('prot', 'iop', 'iocpu', 'cia')
 	cpu_xmls = [cpu for cpu in cpu_xmls if not _tag_starts_with(cpu.attrib.get('tag'), controller_tags)]
