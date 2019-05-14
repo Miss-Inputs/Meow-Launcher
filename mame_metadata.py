@@ -495,7 +495,7 @@ def add_metadata_from_catlist(machine):
 		#Hmm, need a better name for this I think
 		#TODO: Should include option to skip over this category for those who are willing to accept the risk that it might filter out some plug & play systems that might actually be wanted
 		machine.metadata.platform = 'Standalone System'
-	if genre == 'Game Console' and subgenre == 'Home Videogame Console':
+	if genre == 'Game Console' and subgenre == 'Home Videogame':
 		machine.metadata.platform = 'Plug & Play' if is_plug_and_play(machine) else 'Standalone System'
 	if genre == 'Misc.' and subgenre == 'Electronic Board Game':
 		#Hmm does Misc. / Electronic Game (stuff like Electronic Soccer, Reversi Sensory Challenger) count as this, or as something else entirely
