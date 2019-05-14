@@ -494,7 +494,12 @@ def add_metadata_from_catlist(machine):
 		#Hmm, need a better name for this I think
 		machine.metadata.platform = 'Standalone System'
 	if genre == 'Game Console' and subgenre == 'Home Videogame':
-		machine.metadata.platform = 'Plug & Play' if is_plug_and_play(machine) else 'Standalone System'
+		if is_plug_and_play(machine):
+			machine.metadata.platform = 'Plug & Play'
+			if not machine.metadata.categories:
+				machine.metadata.categories = ['Games']
+		else:
+			machine.metadata.platform = 'Standalone System'
 	if genre == 'Misc.' and subgenre in ('Electronic Game', 'Electronic Board Game'):
 		#"Electronic Game" could also be considered Handheld
 		machine.metadata.platform = 'Board Game'
