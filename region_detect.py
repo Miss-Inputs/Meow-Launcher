@@ -114,6 +114,17 @@ def get_regions_from_filename_tags(tags, ignored_tags=None, loose=False):
 				if ignored_tags is not None and not tag_ignored_already:
 					ignored_tags.append('(' + tag + ')')
 					tag_ignored_already = True
+			if re.search(r'\bUS(?:\b|,|/)', tag):
+				regions.append(get_region_by_name('USA'))
+				if ignored_tags is not None and not tag_ignored_already:
+					ignored_tags.append('(' + tag + ')')
+					tag_ignored_already = True
+			if re.search(r'\bEuro(?:\b|,|/)', tag):
+				regions.append(get_region_by_name('Europe'))
+				if ignored_tags is not None and not tag_ignored_already:
+					ignored_tags.append('(' + tag + ')')
+					tag_ignored_already = True
+
 			continue
 
 		multiple_region_separator = None
