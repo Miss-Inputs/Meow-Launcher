@@ -35,16 +35,19 @@ def get_machine_category(basename, category_name):
 		#This won't fail if category_file_path doesn't exist, so I guess it's fine
 		parser.read(category_file_path)
 
+		sections = []
 		for section in parser.sections():
 			if basename in parser[section]:
-				#Dunno if it's a thing for MAME category .ini files to have multiple sections containing the same machine
-				return section
-	return None
+				sections.append(section)
+		return sections
+	return []
 
 def get_category(basename):
-	cat = get_machine_category(basename, 'catlist')
-	if not cat:
+	cats = get_machine_category(basename, 'catlist')
+	#It would theoretically be possible for a machine to appear twice, but catlist doesn't do that I think
+	if not cats:
 		return 'Unknown', 'Unknown', 'Unknown', False
+	cat = cats[0]
 
 	if ': ' in cat:
 		category, _, genres = cat.partition(': ')
@@ -59,12 +62,12 @@ def get_category(basename):
 	genre, _, subgenre = cat.partition(' / ')
 	return None, genre, subgenre, False
 
-def get_language(basename):
-	lang = get_machine_category(basename, 'languages')
-	if not lang:
+def get_languages(basename):
+	langs = get_machine_category(basename, 'languages')
+	if not langs:
 		return None
 
-	return get_language_by_english_name(lang)
+	return [get_language_by_english_name(lang) for lang in langs]
 
 arcade_systems = {
 	#Right now, this is kiinda pointless and only really used by 1) disambiguate 2) the user's own interest, but one day when there are non-MAME emulators in here, it would make sense for this list to be as big as it is and to expand it into full ArcadeSystem objects with more detailed info on which does what and have things that aren't just source file names mapped to each system and whatnot
@@ -558,17 +561,20 @@ def add_metadata(machine):
 
 	machine.metadata.regions = get_regions_from_filename_tags(find_filename_tags.findall(machine.name), loose=True)
 
-	language = get_language(machine.basename)
-	if language:
-		machine.metadata.languages = [language]
+	languages = get_languages(machine.basename)
+	if languages:
+		machine.metadata.languages = languages
 
 	if machine.metadata.regions and not machine.metadata.languages:
 		languages = get_languages_from_regions(machine.metadata.regions)
 		if languages:
 			machine.metadata.languages = languages
 
-	series = get_machine_category(machine.basename, 'series')
-	if series:
+	serieses = get_machine_category(machine.basename, 'series')
+	if serieses:
+		#It is actually possible to have more than one series (e.g. invqix is both part of Space Invaders and Qix)
+		#I didn't think this far ahead so just get the first one for now
+		series = serieses[0]
 		not_real_series = ('Hot', 'Aristocrat MK Hardware')
 
 		if series.endswith(' * Pinball'):
