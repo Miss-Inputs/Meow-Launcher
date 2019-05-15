@@ -56,7 +56,7 @@ def get_languages_from_filename_tags(tags, ignored_tags=None):
 		if tag == '(Unlicensed, Chinese)':
 			return [get_language_by_english_name('Chinese')]
 		if tag == '(Unlicensed, English)':
-			return [get_language_by_english_name('English')]
+			return [get_language_by_english_name('English')]	
 
 		translation_match = translated_regex.match(tag)
 		if translation_match:

@@ -559,16 +559,25 @@ def add_metadata(machine):
 		machine.metadata.specific_info['Arcade-System'] = arcade_systems[machine.source_file]
 	add_save_type(machine)
 
-	machine.metadata.regions = get_regions_from_filename_tags(find_filename_tags.findall(machine.name), loose=True)
+	name_tags = find_filename_tags.findall(machine.name)
+	machine.metadata.regions = get_regions_from_filename_tags(name_tags, loose=True)
 
 	languages = get_languages(machine.basename)
 	if languages:
 		machine.metadata.languages = languages
 
-	if machine.metadata.regions and not machine.metadata.languages:
-		languages = get_languages_from_regions(machine.metadata.regions)
-		if languages:
-			machine.metadata.languages = languages
+	if not machine.metadata.languages:
+		if machine.metadata.regions:
+			languages = get_languages_from_regions(machine.metadata.regions)
+			if languages:
+				machine.metadata.languages = languages
+		else:
+			for tag in name_tags:
+				stripped_tag = tag.lstrip('([').rstrip(')]')
+				maybe_language = get_language_by_english_name(stripped_tag)
+				if maybe_language:
+					machine.metadata.languages = [maybe_language]
+					break
 
 	serieses = get_machine_category(machine.basename, 'series')
 	if serieses:
