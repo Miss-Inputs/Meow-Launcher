@@ -71,6 +71,7 @@ def get_stuff_from_filename_tags(metadata, filename_tags):
 class ScummVMGame():
 	def __init__(self, name):
 		self.name = name
+		self.icon = None
 		self.options = {}
 
 	def _get_launch_params(self):
@@ -112,10 +113,16 @@ class ScummVMGame():
 			metadata.specific_info['ScummVM-Status'] = EmulationStatus.Good
 		#TODO: Should have option to skip anything with unstable and/or testing status
 
+		path = self.options.get('path')
+		if path and os.path.exists(path):
+			for f in os.listdir(path):
+				if f.lower().endswith('.ico'):
+					self.icon = os.path.join(path, f)
+
 		get_stuff_from_filename_tags(metadata, find_filename_tags.findall(name))
 
 		#Hmm, could use ResidualVM as the launcher type for ResidualVM games... but it's just a unique identifier type thing, so it should be fine
-		launchers.make_launcher(launch_params, name, metadata, 'ScummVM', self.name)
+		launchers.make_launcher(launch_params, name, metadata, 'ScummVM', self.name, self.icon)
 
 class ResidualVMGame(ScummVMGame):
 	@staticmethod
