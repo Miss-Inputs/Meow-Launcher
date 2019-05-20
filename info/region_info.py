@@ -1,6 +1,6 @@
 #For autodetecting regions, languages, etc from filenames
 #It's okay for a region to have None for its language if you can't make a reasonable assumption about the language
-#For my own reference: Refer to http://www.bubblevision.com/PAL-NTSC.htm https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes to add new regions/languages that might end up needing to be here
+#For my own reference: Refer to http://www.bubblevision.com/PAL-NTSC.htm https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 to add new regions/languages that might end up needing to be here
 
 from enum import Enum, auto
 class TVSystem(Enum):
@@ -69,7 +69,7 @@ languages = [
 	Language('Vietnamese', 'Tiếng Việt', 'Vn'),
 
 	Language('Traditional Chinese', '漢語', None),
-	#Dialects of other languages where different translations exist
+	#Dialects of other languages, where there's something that specifies it's that dialect specifically (Steam games do this, for example)
 	Language('Brazilian Portguese', 'Português do Brasil', None),
 	Language('Latin American Spanish', 'Español-Latinoamérica', None),
 ]
@@ -77,6 +77,7 @@ languages = [
 regions = [
 	Region('Argentina', 'AR', TVSystem.PAL, 'Spanish'),
 	Region('Asia', 'AS', None, None), #No-Intro filenames using this as a region seem to always mean East Asia specifically, although that's still a lot of countries so it doesn't mean much
+	Region('Austria', 'AT', TVSystem.PAL, 'German'),
 	Region('Australia', 'AU', TVSystem.PAL, 'English'),
 	Region('Brazil', 'BR', TVSystem.NTSC, 'Brazilian Portguese'), #Uses PAL-M actually, but we'll call it NTSC because it's 60Hz
 	Region('Bulgaria', 'BG', TVSystem.PAL, 'Bulgarian'),
@@ -96,19 +97,23 @@ regions = [
 	Region('Japan', 'JP', TVSystem.NTSC, 'Japanese'),
 	Region('Korea', 'KR', TVSystem.NTSC, 'Korean'),
 	#For the purpose of video games, we can assume South Korea is the only Korea and North Korea doesn't exist. Oof, that sounds horrible, doesn't it? (If North Korea ever does have games, they use PAL)
+	Region('Mexico', 'MX', TVSystem.NTSC, 'Latin American Spanish'),
 	Region('Netherlands', 'NL', TVSystem.PAL, 'Dutch'),
+	Region('New Zealand', 'NZ', TVSystem.PAL, 'English'),
 	Region('Norway', 'NO', TVSystem.PAL, 'Norwegian'),
 	Region('Poland', 'PL', TVSystem.PAL, 'Polish'),
 	Region('Portugal', 'PT', TVSystem.PAL, 'Portugese'),
 	Region('Russia', 'RU', TVSystem.PAL, 'Russian'),
 	Region('Spain', 'ES', TVSystem.PAL, 'Spanish'),
 	Region('Sweden', 'SE', TVSystem.PAL, 'Swedish'),
+	Region('Switzerland', 'CH', TVSystem.PAL, None),
 	Region('Taiwan', 'TW', TVSystem.NTSC, 'Traditional Chinese'),
 	Region('Thailand', 'TH', TVSystem.PAL, 'Thai'),
 	Region('Turkey', 'TR', TVSystem.PAL, 'Turkish'),
 	Region('UK', 'GB', TVSystem.PAL, 'English'),
 	Region('Ukraine', 'UA', TVSystem.PAL, 'Ukrainian'),
 	Region('USA', 'US', TVSystem.NTSC, 'English'),
+	Region('Venezuela', 'VE', TVSystem.NTSC, 'Spanish'),
 
 	Region('World', None, TVSystem.Agnostic, None),
 	#Though it's probably in English; No-Intro uses this as shorthand for (Japan, USA, Europe) because nobody told them that's not the only three regions in the world. It is safe to say that anything released in those three regions would indeed need to be TV-agnostic though
