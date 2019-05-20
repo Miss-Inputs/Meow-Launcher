@@ -82,6 +82,10 @@ def parse_dsi_region_flags(region_flags):
 	return regions
 
 def parse_ds_header(game, header):
+	internal_title = header[0:12].decode('ascii', errors='backslashreplace').rstrip('\0')
+	if internal_title:
+		game.metadata.specific_info['Internal-Title'] = internal_title
+
 	try:
 		product_code = convert_alphanumeric(header[12:16])
 		game.metadata.product_code = product_code
