@@ -75,6 +75,7 @@ arcade_systems = {
 	'3do': '3DO', #Used for the 3DO console as well, but there are 3DO-based arcade games which are just called that; non-working
 	'aleck64': 'Seta Aleck64', #Based on N64
 	'alien': 'Capcom Medalusion', #Non-working
+	'aristmk4': 'Aristocrat MK4', #Gambling
 	'aristmk5': 'Aristocrat MK5', #Gambling, Acorn Archimedes based purrhaps
 	'aristmk6': 'Aristocrat MK6', #Gambling, non-working
 	'arsystems': 'Arcadia System', #Amiga 500 based
@@ -88,6 +89,7 @@ arcade_systems = {
 	'atarisy4': 'Atari System IV',
 	'atlantis': 'Midway Atlantis', #Linux based (on MIPS CPU); claims to be skeleton but seems to work a bit anyway
 	'balsente': 'Bally/Sente SAC-1',
+	'calchase': 'AUSCOM System 1', #PC (Windows 98, Cyrix 686MX + Trident TGUI9680) based; non-working
 	'cdi': 'Philips CD-i', #Literally a CD-i player with a JAMMA adapter (used for some quiz games)
 	'cedar_magnet': 'Cedar Magnet System',
 	'chihiro': 'Chihiro', #Based on Xbox, seemingly non-working
@@ -119,17 +121,20 @@ arcade_systems = {
 	'fuukifg3': 'Fuuki FG-3',
 	'gaelco2': 'Gaelco CG-1V/GAE1',
 	'gammagic': 'Bally V8000', #Pentium PC based, skeleton
+	'ghosteo': 'Eolith Ghost',
 	'gts1': 'Gottlieb System 1', #Pinball, I think?
 	'hikaru': 'Sega Hikaru', #Based on souped up Naomi and in turn Dreamcast, non-working
 	'hng64': 'Hyper Neo Geo 64', #Barely working
 	'hornet': 'Konami Hornet',
 	'igs011': 'IGS011 Blitter Based Hardware',
+	'iteagle': 'Incredible Technologies Eagle',
 	'jaguar': 'Atari CoJag', #This is the same source file used for the Jaguar console too
 	'konamigq': 'Konami GQ', #Based on PS1
 	'konamigv': 'Konami GV', #Based on PS1
 	'konamigx': 'Konami GX',
 	'konamim2': 'Konami M2', #Based on unreleased Panasonic M2
 	'ksys573': 'Konami System 573', #Based on PS1
+	'limenko': 'Limenko Power System 2',
 	'lindbergh': 'Sega Lindbergh', #(modern) PC based, very non-working
 	'm107': 'Irem M107',
 	'm52': 'Irem M52',
@@ -239,6 +244,7 @@ arcade_systems = {
 	'twinkle': 'Konami Bemani Twinkle', #PS1 based (but not System 573 related)
 	'ultrsprt': 'Konami Ultra Sports',
 	'vectrex': 'Vectrex', #Also used for actual Vectrex console
+	'vegaeo': 'Eolith Vega System',
 	'vegas': 'Midway Vegas',
 	'vicdual': 'VIC Dual',
 	'vigilant': 'Irem M75', #Also M77
@@ -312,6 +318,7 @@ arcade_systems = {
 	'galaxian': 'Galaxian Hardware', #Was used for a lot of games and bootlegs, actually; seems that Moon Cresta hardware has the same source file
 	'galaxold': 'Galaxian Hardware', #There's a comment in that source file saying it'll be merged into galaxian eventually; seems that this one has all the bootlegs etc
 	'ggconnie': 'Go! Go! Connie Hardware', #Supergrafx based
+	'gstream': 'G-Stream G2020 Hardware',
 	'gticlub': 'GTI Club Hardware',
 	'harddriv': "Hard Drivin' Hardware",
 	'hshavoc': 'High Seas Havoc Hardware', #Megadrive based
@@ -328,6 +335,7 @@ arcade_systems = {
 	'quakeat': 'Quake Arcade Tournament Hardware', #Unknown PC based
 	'raiden2': 'Raiden 2 Hardware',
 	'rallyx': 'Rally-X Hardware',
+	'realbrk': 'Billiard Academy Real Break Hardware',
 	'scramble': 'Scramble Hardware', #Apparently also to be merged into galaxian
 	'segahang': 'Hang-On Hardware',
 	'segaorun': 'Out Run Hardware',
@@ -341,6 +349,7 @@ arcade_systems = {
 	'tvcapcom': 'Tatsunoko vs. Capcom Hardware', #Wii based
 	'tx1': 'TX-1 Hardware',
 	'vamphalf': 'Vamp x1/2 Hardware', #I guess the source file is for Hyperstone based games but I dunno if I should call it that
+	'wheelfir': 'Wheels & Fire Hardware',
 	'zaxxon': 'Zaxxon Hardware',
 
 	#Multiple things stuffed into one source file, so there'd have to be something else to identify it or it doesn't matter
