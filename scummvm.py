@@ -58,16 +58,19 @@ def get_stuff_from_filename_tags(metadata, filename_tags):
 
 		if tag == 'Demo':
 			metadata.categories = ['Trials']
-		if tag == 'CD' or tag == 'CD32' or tag.endswith(' cd'):
+		if tag == 'Non-Interactive Demo':
+			#One day, I'll think of some kind of standard for the categories names, but until then I've decided everything non-interactive should be in Demos
+			metadata.categories = ['Demos']
+		if tag in ('CD', 'CD Demo', 'CD32', 'SegaCD', 'Sony PlayStation', 'Philips CD-i', '3DO') or tag.endswith(' cd'):
 			#The latter shows up alongside a version number infrequently, e.g. "v0.0372 cd"
 			metadata.media_type = MediaType.OpticalDisc
 		if tag == 'NES':
 			metadata.media_type = MediaType.Cartridge
 
-		#Emulated platform: DOS, Windows, Macintosh, Apple II, etc. (could set platform to this if we really wanted, but I dunno if I want to do that... hmmm.....)
-		#Others: 1.1, Masterpiece Edition, unknown version, VGA, EGA, Freeware 1.1, Freeware 1.0, Talkie (this is just what I've seen and have noted in this very comment, I should just run scummvm -t to see what I have and have a look)
-		#There doesn't seem to be any particular structure or order that I can tell (if there is though, that'd be cool)
-
+		#Platforms: https://github.com/scummvm/scummvm/blob/master/common/platform.cpp, in the event I want to do something with that
+		#Versions: v1.1, v1.00, anything matching v\d+\.\d+ I guess, 1.1, Freeware v1.1, Freeware v1.0
+		#Others: final, Linux Demo, VGA, EGA, Masterpiece Edition, Non-Interactive Demo, Talkie, Latest version, unknown version
+		
 class ScummVMGame():
 	def __init__(self, name):
 		self.name = name
