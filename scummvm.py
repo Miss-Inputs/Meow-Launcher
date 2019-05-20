@@ -56,7 +56,7 @@ def get_stuff_from_filename_tags(metadata, filename_tags):
 			#Didn't except there'd be nested parentheses... oh well
 			metadata.languages.append(region_detect.get_language_by_english_name('English'))
 
-		if tag == 'Demo':
+		if tag in ('Demo', 'Linux Demo', 'CD Demo'):
 			metadata.categories = ['Trials']
 		if tag == 'Non-Interactive Demo':
 			#One day, I'll think of some kind of standard for the categories names, but until then I've decided everything non-interactive should be in Demos
@@ -69,7 +69,7 @@ def get_stuff_from_filename_tags(metadata, filename_tags):
 
 		#Platforms: https://github.com/scummvm/scummvm/blob/master/common/platform.cpp, in the event I want to do something with that
 		#Versions: v1.1, v1.00, anything matching v\d+\.\d+ I guess, 1.1, Freeware v1.1, Freeware v1.0
-		#Others: final, Linux Demo, VGA, EGA, Masterpiece Edition, Non-Interactive Demo, Talkie, Latest version, unknown version
+		#Others: final, VGA, EGA, Masterpiece Edition, Talkie, Latest version, unknown version
 		
 class ScummVMGame():
 	def __init__(self, name):
