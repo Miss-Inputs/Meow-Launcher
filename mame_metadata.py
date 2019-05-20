@@ -428,6 +428,8 @@ def add_metadata_from_catlist(machine):
 	if subgenre == 'Laser Disk Simulator':
 		#Both of these spellings appear twice...
 		subgenre = 'Laserdisc Simulator'
+	if subgenre == 'Punched Car':
+		subgenre = 'Punched Card'
 	#ddrstraw is Rhythm / Dance but it's more accurately a plug & play game, although that is the genre, so it's not wrong
 	#kuzmich is just Platform / Run Jump, it's an arcade machine though
 	
@@ -493,7 +495,7 @@ def add_metadata_from_catlist(machine):
 			machine.metadata.categories = ['Games']
 		return
 
-	if (genre == 'Computer') or (genre == 'Calculator' and subgenre == 'Pocket Computer') or (genre == 'Handheld' and subgenre == 'Pocket Device - Pad - PDA') or (genre == 'Handheld' and subgenre == 'Child Computer') or (genre == 'Board Game'):
+	if (genre == 'Computer' and subgenre in ('Business - Terminal', 'Home System', 'Laptop - Notebook - Portable')) or (genre == 'Calculator' and subgenre == 'Pocket Computer') or (genre == 'Handheld' and subgenre in ('Pocket Device - Pad - PDA', 'Child Computer')) or (genre == 'Board Game'):
 		#Board Game is more like chess machines than actual board games
 		#Hmm, need a better name for this I think
 		machine.metadata.platform = 'Standalone System'
