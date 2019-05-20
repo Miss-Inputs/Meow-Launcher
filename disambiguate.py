@@ -251,7 +251,7 @@ def disambiguate_names():
 	fix_duplicate_names('Platform')
 	fix_duplicate_names('dev-status')
 	fix_duplicate_names('Arcade-System', arcade_system_disambiguate)
-	fix_duplicate_names('Media-Type')
+	fix_duplicate_names('Media-Type', ignore_missing_values=True)
 	fix_duplicate_names('Regions', lambda regions, _: '({0})'.format(regions.replace(';', ', ')), ignore_missing_values=True)
 	fix_duplicate_names('Publisher', ignore_missing_values=True)
 	fix_duplicate_names('Developer', ignore_missing_values=True)
