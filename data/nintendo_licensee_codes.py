@@ -72,6 +72,8 @@ nintendo_licensee_codes = {
 	'7G': 'Rage Software',
 	'7J': 'Zoo Digital Publishing', #AKA Zushi Games. See 20 for rambling
 	'7L': 'Simon & Schuster',
+	'7N': 'Empire Interactive',
+	'7U': 'Ignition Entertainment',
 	'82': 'Namcot', #Some division of Namco that was apparently necessary to create as a separate thing.... I don't know
 	'8B': 'Bullet-Proof Software',
 	'8E': 'Character Soft',
@@ -147,6 +149,7 @@ nintendo_licensee_codes = {
 	'KM': 'Deep Silver',
 	'PQ': 'PopCap Games',
 	'PV': 'Pan Vision Games',
+	'QU': 'QubicGames',
 	'RW': 'RealNetworks', #Or GameHouse, or Real Arcade; which are sorta subsidiaries I guess
 	'WB': 'Google', #YouTube app on Wii/Wii U/3DS, so if "YouTube Inc" is counted as a separate company (as the 3DS banner implies) then it could be that
 	'WD': 'Amazon', #Amazon Instant Video (WiiWare)
@@ -189,7 +192,6 @@ nintendo_licensee_codes = {
 	'6P': 'Ravensburger Interactive', #Fix & Foxi - Episode 1 - Lupo (Europe) (En,Fr,De) (GBC)
 	'6R': 'Sound Source', #Extreme Sports with the Berenstain Bears (USA, Europe) (En,Fr,De,Es,It) (GBC)
 	'6X': 'Wanadoo', #Kirikou (GBC) also Gremlins: Stripe vs. Gizmo (Beta) (GBA)
-	'7N': 'Empire Interactive', #Hello Kitty - Big City Dreams (Europe) (En,Sv,No,Da) (DS)
 	'8C': 'Vic Tokai', #Zerd no Densetsu (Japan)
 	'8H': 'TNN', #Umihara Kawase (Japan) (SNES)
 	'8M': 'CyberFront', #Densha de Go 2 (GBC)
@@ -209,6 +211,8 @@ nintendo_licensee_codes = {
 	'EE': 'Information Global Services', #Super Shadow of the Beast (USA) (Proto) (SNES)
 	'F3': 'Extreme Entertainment', #Super Solitaire (USA) (En,Fr,De,Es,It) (SNES)
 	'FE': 'Davidson & Associates', #Math Blaster - Episode 1 (USA) (SNES)
+	'FL': 'Hip Games', #Around the World in 80 Days (Europe) (En,Fr,De,Es,It,Nl) (GBA) (software list says Walden Media)
+	'FN': 'Pocket Direct', #Pocket Professor - Kwik Notes - Volume One (USA) (GBA)
 	'GM': 'Gamecock Media Group', #Dementium - The Ward (Europe) (En,Fr,De,Es,It) (DS) (published by Gamecock Media Group in USA; banner lists developer ("Renegade LLC"))
 	'GN': 'OG International', #Cartoon Network Punch Time Explosion XL (Europe) (Wii)
 	'GU': 'Bayer', #Knock'em Downs Worlds Fair (USA) (DS)
@@ -238,7 +242,6 @@ nintendo_licensee_codes = {
 	'TL': 'Telltale Games', #Strong Badia the Free series (WiiWare)
 	'Q7': 'Nexon', #MapleStory DS (Korea)
 	'QH': 'Virtual Play Games', #Intellivision Lives (USA) (DS)
-	'QU': 'QubicGames', #AiRace Speed demo (3DS)
 	'UZ': 'Circle Entertainment', #Sweet Memories: Blackjack (3DS)
 	'VT': 'Microforum', #Enjoy your massage (USA) (WiiWare)
 	'X0': 'SDP Games', #Save the Furries (USA) (WiiWare); also known as Smack Down Productions
