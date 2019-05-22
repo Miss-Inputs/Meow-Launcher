@@ -2,7 +2,7 @@ from enum import Enum, auto
 
 from config import main_config
 from mame_helpers import consistentify_manufacturer
-from region_detect import get_language_by_english_name
+from info.region_info import get_language_by_english_name
 from software_list_info import get_software_list_entry
 
 class AppleIIHardware(Enum):

@@ -9,9 +9,8 @@ import struct
 import input_metadata
 from common import NotAlphanumericException, convert_alphanumeric
 from data.nintendo_licensee_codes import nintendo_licensee_codes
-from info.region_info import TVSystem
+from info.region_info import TVSystem, get_region_by_name
 from metadata import Screen, ScreenInfo
-from region_detect import get_region_by_name
 
 from .wii import parse_ratings
 

@@ -2,11 +2,11 @@ import re
 import calendar
 import os
 
-import region_detect
+import detect_things_from_filename
 import platform_metadata
 from mame_helpers import lookup_system_cpus, lookup_system_displays, get_mame_xml, have_mame
 from software_list_info import get_software_lists_by_names
-from info import system_info
+from info import system_info, region_info
 
 date_regex = re.compile(r'\((?P<year>[x\d]{4})\)|\((?P<year2>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})\)|\((?P<day2>\d{2})\.(?P<month2>\d{2})\.(?P<year3>\d{4})\)')
 revision_regex = re.compile(r'\(Rev ([A-Z\d]+?)\)')
@@ -100,37 +100,35 @@ def get_metadata_from_tags(game):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = game.filename_tags
 
-	#TOSEC has been known to use these in the "extra data" or whatsitcalled field at the end to specify that a game is adults only
-	nsfw_tags = {'[adult]', '[XXX]'}
-	for nsfw_tag in nsfw_tags:
-		if nsfw_tag in tags:
-			game.metadata.nsfw = True
-			break
+	is_nsfw_from_tags = detect_things_from_filename.determine_is_nsfw_from_filename(tags)
+	if is_nsfw_from_tags:
+		#There is no tag to detect that would determine nsfw = definitely false
+		game.metadata.nsfw = True
 
 	get_year_revision_from_filename_tags(game, tags)
 
 	if not game.metadata.regions:
-		regions = region_detect.get_regions_from_filename_tags(tags, game.metadata.ignored_filename_tags)
+		regions = detect_things_from_filename.get_regions_from_filename_tags(tags, game.metadata.ignored_filename_tags)
 		if regions:
 			game.metadata.regions = regions
 
 	if not game.metadata.languages:
-		languages = region_detect.get_languages_from_filename_tags(tags, game.metadata.ignored_filename_tags)
+		languages = detect_things_from_filename.get_languages_from_filename_tags(tags, game.metadata.ignored_filename_tags)
 		if languages:
 			game.metadata.languages = languages
 		elif game.metadata.regions:
-			languages = region_detect.get_languages_from_regions(game.metadata.regions)
-			if languages:
-				game.metadata.languages = languages
+			region_language = region_info.get_language_from_regions(game.metadata.regions)
+			if region_language:
+				game.metadata.languages = [region_language]
 
 
 	if not game.metadata.tv_type:
 		tv_type = None
 		if game.metadata.regions:
-			tv_type = region_detect.get_tv_system_from_regions(game.metadata.regions)
+			tv_type = region_info.get_tv_system_from_regions(game.metadata.regions)
 
 		if not tv_type:
-			tv_type = region_detect.get_tv_system_from_filename_tags(tags, game.metadata.ignored_filename_tags)
+			tv_type = detect_things_from_filename.get_tv_system_from_filename_tags(tags, game.metadata.ignored_filename_tags)
 
 		if tv_type:
 			game.metadata.tv_type = tv_type

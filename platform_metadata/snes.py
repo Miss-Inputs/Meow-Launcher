@@ -2,7 +2,7 @@ from enum import Enum, auto
 import calendar
 
 from common_types import SaveType
-from region_detect import get_region_by_name
+from info.region_info import get_region_by_name
 from common import convert_alphanumeric, NotAlphanumericException
 from software_list_info import get_software_list_entry
 import input_metadata

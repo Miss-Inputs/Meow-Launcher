@@ -11,7 +11,7 @@ import input_metadata
 from metadata import Metadata, EmulationStatus
 from common_types import SaveType, MediaType
 from common import find_filename_tags
-import region_detect
+from info.region_info import get_language_by_english_name
 
 scumm_config_path = os.path.expanduser('~/.config/scummvm/scummvm.ini')
 residualvm_config_path = os.path.expanduser('~/.config/residualvm/residualvm.ini')
@@ -47,14 +47,14 @@ def have_something_vm():
 def get_stuff_from_filename_tags(metadata, filename_tags):
 	for tag in filename_tags:
 		tag = tag.lstrip('(').rstrip(')')
-		language = region_detect.get_language_by_english_name(tag)
+		language = get_language_by_english_name(tag)
 		if language:
 			metadata.languages.append(language)
 			continue
 
 		if tag == 'English (US':
 			#Didn't except there'd be nested parentheses... oh well
-			metadata.languages.append(region_detect.get_language_by_english_name('English'))
+			metadata.languages.append(get_language_by_english_name('English'))
 
 		if tag in ('Demo', 'Linux Demo', 'CD Demo'):
 			metadata.categories = ['Trials']

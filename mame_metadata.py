@@ -1,15 +1,15 @@
 import configparser
 import os
 
+import detect_things_from_filename
 import input_metadata
 from common import find_filename_tags, pluralize, remove_capital_article
 from common_types import MediaType, SaveType
 from config import main_config
+from info.region_info import (get_language_by_english_name,
+                              get_language_from_regions)
 from mame_helpers import find_cpus, get_mame_ui_config
 from metadata import CPU, EmulationStatus, ScreenInfo
-from region_detect import (get_language_by_english_name,
-                           get_regions_from_filename_tags,
-						   get_languages_from_regions)
 
 #Maybe I just want to put all this back into mame_machines... it's only used there
 
@@ -549,7 +549,6 @@ def add_metadata_from_catlist(machine):
 	#Misc has a lot of different things in it and I guess catlist just uses it as a catch-all for random things which don't really fit anywhere else and there's not enough to give them their own category, probably
 	#Anyway, the name 'Non-Arcade' sucks because it's just used as a "this isn't anything in particular" thing
 
-
 def add_metadata(machine):
 	add_metadata_from_catlist(machine)
 
@@ -571,24 +570,19 @@ def add_metadata(machine):
 	add_save_type(machine)
 
 	name_tags = find_filename_tags.findall(machine.name)
-	machine.metadata.regions = get_regions_from_filename_tags(name_tags, loose=True)
+	machine.metadata.regions = detect_things_from_filename.get_regions_from_filename_tags(name_tags, loose=True)
 
 	languages = get_languages(machine.basename)
 	if languages:
 		machine.metadata.languages = languages
-
-	if not machine.metadata.languages:
-		if machine.metadata.regions:
-			languages = get_languages_from_regions(machine.metadata.regions)
-			if languages:
-				machine.metadata.languages = languages
-		else:
-			for tag in name_tags:
-				stripped_tag = tag.lstrip('([').rstrip(')]')
-				maybe_language = get_language_by_english_name(stripped_tag)
-				if maybe_language:
-					machine.metadata.languages = [maybe_language]
-					break
+	else:
+		languages = detect_things_from_filename.get_languages_from_tags_directly(name_tags)
+		if languages:
+			machine.metadata.languages = languages
+		elif machine.metadata.regions:
+			region_language = get_language_from_regions(machine.metadata.regions)
+			if region_language:
+				machine.metadata.languages = [region_language]
 
 	serieses = get_machine_category(machine.basename, 'series')
 	if serieses:
