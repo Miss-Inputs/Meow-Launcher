@@ -75,22 +75,23 @@ def get_metadata_from_tags(game):
 	if not game.metadata.languages:
 		languages = detect_things_from_filename.get_languages_from_filename_tags(tags, game.metadata.ignored_filename_tags)
 		if languages:
-			game.metadata.languages = languages
-		elif game.metadata.regions:
+			game.metadata.languages = languages			
+
+	if not game.metadata.tv_type:
+		tv_type = detect_things_from_filename.get_tv_system_from_filename_tags(tags, game.metadata.ignored_filename_tags)
+		if tv_type:
+			game.metadata.tv_type = tv_type
+
+def get_metadata_from_regions(game):
+	if game.metadata.regions:
+		if not game.metadata.languages:
 			region_language = region_info.get_language_from_regions(game.metadata.regions)
 			if region_language:
 				game.metadata.languages = [region_language]
-
-	if not game.metadata.tv_type:
-		tv_type = None
-		if game.metadata.regions:
+		if not game.metadata.tv_type:
 			tv_type = region_info.get_tv_system_from_regions(game.metadata.regions)
-
-		if not tv_type:
-			tv_type = detect_things_from_filename.get_tv_system_from_filename_tags(tags, game.metadata.ignored_filename_tags)
-
-		if tv_type:
-			game.metadata.tv_type = tv_type
+			if tv_type:
+				game.metadata.tv_type = tv_type
 
 def add_device_hardware_metadata(game):
 	mame_driver = None
@@ -149,6 +150,7 @@ def add_metadata(game):
 	add_device_hardware_metadata(game)
 
 	get_metadata_from_tags(game)
+	get_metadata_from_regions(game)
 
 def add_engine_metadata(game):
 	game.metadata.extension = game.file.extension
