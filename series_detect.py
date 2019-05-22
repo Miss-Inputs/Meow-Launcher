@@ -65,8 +65,8 @@ def does_series_match(name_to_match, existing_series):
 	name_to_match = name_to_match.lower()
 	existing_series = existing_series.lower()
 
-	if name_chunk_to_match.startswith('the '):
-		name_chunk_to_match = name_chunk_to_match[len('the '):]
+	if name_to_match.startswith('the '):
+		name_to_match = name_to_match[len('the '):]
 
 	for suffix in suffixes_not_part_of_series:
 		if name_to_match.endswith(' ' + suffix):
