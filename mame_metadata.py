@@ -584,6 +584,10 @@ def add_metadata(machine):
 			if region_language:
 				machine.metadata.languages = [region_language]
 
+	revision = detect_things_from_filename.get_revision_from_filename_tags(name_tags)
+	if revision:
+		machine.metadata.revision = revision
+
 	serieses = get_machine_category(machine.basename, 'series')
 	if serieses:
 		#It is actually possible to have more than one series (e.g. invqix is both part of Space Invaders and Qix)

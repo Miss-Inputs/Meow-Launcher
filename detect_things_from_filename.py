@@ -209,7 +209,7 @@ def get_date_from_filename_tags(tags, ignored_tags=None):
 			return year, month, day
 	return None, None, None
 
-revision_regex = re.compile(r'\(Rev ([A-Z\d]+?)\)')
+revision_regex = re.compile(r'\([Rr]ev(?:ision)? ([A-Z\d]+?)\)')
 def get_revision_from_filename_tags(tags, ignored_tags=None):
 	for tag in tags:
 		revision_match = revision_regex.match(tag)
