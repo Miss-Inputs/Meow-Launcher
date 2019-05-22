@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
+import calendar
 import re
 
 from info import region_info
-#from info.region_info import get_language_by_english_name, get_language_by_short_code, get_region_by_name, get_region_by_short_code, regions, languages, TVSystem
 
 nointro_language_list_regex = re.compile(r'\(((?:[A-Z][a-z],)*(?:[A-Z][a-z]))\)')
 maybeintro_translated_regex = re.compile(r'\[(?:tr |T-|T\+)([A-Z][a-z])(?: (?:by )?[^]]+)?\]')
@@ -186,3 +186,35 @@ def determine_is_nsfw_from_filename(tags):
 		if nsfw_tag in tags:
 			return True
 	return False
+
+date_regex = re.compile(r'\((?P<year>[x\d]{4})\)|\((?P<year2>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})\)|\((?P<day2>\d{2})\.(?P<month2>\d{2})\.(?P<year3>\d{4})\)')
+def get_date_from_filename_tags(tags, ignored_tags=None):
+	for tag in tags:
+		date_match = date_regex.match(tag)
+		if date_match:
+			if ignored_tags:
+				ignored_tags.append(tag)
+
+			groupdict = date_match.groupdict()
+			year = groupdict.get('year', groupdict.get('year2', groupdict.get('year3')))
+			month_match = groupdict.get('month', groupdict.get('month2'))
+			if month_match:
+				try:
+					month = calendar.month_name[int(month_match)]
+				except (ValueError, IndexError):
+					month = month_match
+			else:
+				month = None
+			day = groupdict.get('day', groupdict.get('day2'))
+			return year, month, day
+	return None, None, None
+
+revision_regex = re.compile(r'\(Rev ([A-Z\d]+?)\)')
+def get_revision_from_filename_tags(tags, ignored_tags=None):
+	for tag in tags:
+		revision_match = revision_regex.match(tag)
+		if revision_match:
+			if ignored_tags:
+				ignored_tags.append(tag)
+			return revision_match[1]
+	return None

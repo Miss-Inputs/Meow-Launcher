@@ -1,15 +1,11 @@
-import re
-import calendar
 import os
 
 import detect_things_from_filename
 import platform_metadata
-from mame_helpers import lookup_system_cpus, lookup_system_displays, get_mame_xml, have_mame
+from info import region_info, system_info
+from mame_helpers import (get_mame_xml, have_mame, lookup_system_cpus,
+                          lookup_system_displays)
 from software_list_info import get_software_lists_by_names
-from info import system_info, region_info
-
-date_regex = re.compile(r'\((?P<year>[x\d]{4})\)|\((?P<year2>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})\)|\((?P<day2>\d{2})\.(?P<month2>\d{2})\.(?P<year3>\d{4})\)')
-revision_regex = re.compile(r'\(Rev ([A-Z\d]+?)\)')
 
 if have_mame():
 	cpu_overrides = {
@@ -50,52 +46,6 @@ else:
 	display_overrides = {}
 	source_file_overrides = {}
 
-def get_year_revision_from_filename_tags(game, tags):
-	found_date = False
-	found_revision = True
-	if not game.metadata.revision:
-		found_revision = False
-	for tag in tags:
-		date_match = date_regex.match(tag)
-		revision_match = revision_regex.match(tag)
-		if date_match:
-			game.metadata.ignored_filename_tags.append(tag)
-			if not found_date:
-				#Fuck you and your stupid bullshit. If you hate reading this code direct your anger at Python devs and not me
-				groupdict = date_match.groupdict()
-				if not game.metadata.year:
-					if groupdict['year']:
-						game.metadata.year = date_match['year']
-					elif groupdict['year2']:
-						game.metadata.year = date_match['year2']
-					elif groupdict['year3']:
-						game.metadata.year = date_match['year3']
-
-				if not game.metadata.month:
-					if groupdict['month']:
-						try:
-							game.metadata.month = calendar.month_name[int(date_match['month'])]
-						except (ValueError, IndexError):
-							game.metadata.month = date_match['month']
-					elif groupdict['month2']:
-						try:
-							game.metadata.month = calendar.month_name[int(date_match['month2'])]
-						except (ValueError, IndexError):
-							game.metadata.month = date_match['month2']
-
-				if not game.metadata.day:
-					if groupdict['day']:
-						game.metadata.day = date_match['day']
-					elif groupdict['day2']:
-						game.metadata.day = date_match['day2']
-
-				found_date = True
-		if revision_match:
-			game.metadata.ignored_filename_tags.append(tag)
-			if not found_revision:
-				game.metadata.revision = revision_match[1]
-				found_revision = True
-
 def get_metadata_from_tags(game):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = game.filename_tags
@@ -105,7 +55,17 @@ def get_metadata_from_tags(game):
 		#There is no tag to detect that would determine nsfw = definitely false
 		game.metadata.nsfw = True
 
-	get_year_revision_from_filename_tags(game, tags)
+	year, month, day = detect_things_from_filename.get_date_from_filename_tags(tags, game.metadata.ignored_filename_tags)
+	if year and not game.metadata.year:
+		game.metadata.year = year
+	if month and not game.metadata.month:
+		game.metadata.month = month
+	if day and not game.metadata.day:
+		game.metadata.day = day
+
+	revision = detect_things_from_filename.get_revision_from_filename_tags(tags, game.metadata.ignored_filename_tags)
+	if revision and not game.metadata.revision:
+		game.metadata.revision = revision
 
 	if not game.metadata.regions:
 		regions = detect_things_from_filename.get_regions_from_filename_tags(tags, game.metadata.ignored_filename_tags)
@@ -120,7 +80,6 @@ def get_metadata_from_tags(game):
 			region_language = region_info.get_language_from_regions(game.metadata.regions)
 			if region_language:
 				game.metadata.languages = [region_language]
-
 
 	if not game.metadata.tv_type:
 		tv_type = None
