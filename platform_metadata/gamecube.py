@@ -9,7 +9,7 @@ except ModuleNotFoundError:
 from config import main_config
 from metadata import CPU, Screen, ScreenInfo
 
-from .gamecube_wii_common import NintendoDiscRegion, gamecube_read, add_gamecube_wii_disc_metadata
+from .gamecube_wii_common import NintendoDiscRegion, gamecube_wii_read, add_gamecube_wii_disc_metadata
 
 def convert3BitColor(c):
 	n = c * (256 // 0b111)
@@ -88,7 +88,7 @@ def add_banner_info(game, banner):
 
 def add_fst_info(game, fst_offset, fst_size):
 	if fst_offset and fst_size and fst_size < (128 * 1024 * 1024):
-		fst = gamecube_read(game, fst_offset, fst_size)
+		fst = gamecube_wii_read(game, fst_offset, fst_size)
 		number_of_fst_entries = int.from_bytes(fst[8:12], 'big')
 		if fst_size < (number_of_fst_entries * 12):
 			if main_config.debug:
@@ -105,7 +105,7 @@ def add_fst_info(game, fst_offset, fst_size):
 			if banner_name == b'opening.bnr':
 				file_offset = int.from_bytes(entry[4:8], 'big')
 				file_length = int.from_bytes(entry[8:12], 'big')
-				banner = gamecube_read(game, file_offset, file_length)
+				banner = gamecube_wii_read(game, file_offset, file_length)
 				add_banner_info(game, banner)
 
 def add_gamecube_disc_metadata(game, header):
@@ -160,6 +160,6 @@ def add_gamecube_metadata(game):
 	#TODO: TGC, dol
 
 	if game.rom.extension in ('gcz', 'iso', 'gcm'):
-		header = gamecube_read(game, 0, 0x2450)
+		header = gamecube_wii_read(game, 0, 0x2450)
 		add_gamecube_wii_disc_metadata(game, header)
 		add_gamecube_disc_metadata(game, header)

@@ -13,7 +13,7 @@ class NintendoDiscRegion(Enum):
 	RegionFree = 3  # Seemingly Wii only
 	NTSC_K = 4  # Seemingly Wii only
 
-def gamecube_read(game, seek_to, amount):
+def gamecube_wii_read(game, seek_to, amount):
 	if game.rom.extension == 'gcz':
 		return cd_read.read_gcz(game.rom.path, amount=amount, seek_to=seek_to)
 	# FIXME won't work for wbfs
