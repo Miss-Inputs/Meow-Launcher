@@ -137,7 +137,7 @@ def find_existing_serieses():
 		if series:
 			serieses.add(series)
 
-	series.update(definitely_existing_series)
+	serieses.update(definitely_existing_series)
 	return serieses
 
 def detect_series_by_subtitle(desktop, path, existing):
