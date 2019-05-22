@@ -15,6 +15,8 @@ probably_not_series_index_threshold = 20
 #Assume that a number over this is probably not referring to the nth or higher entry in the series, but is probably just any old number that means something else
 probably_not_a_series_index = ('XXX', '007', 'DX')
 #These generally aren't entries in a series, and are just there at the end
+suffixes_not_part_of_series = ('64', 'Advance', '3D', 'DS')
+#If these are appended to a series it's just part of that same series and not a new one, if that makes sense, see series_match
 
 series_matcher = re.compile(r'(?P<Series>.+?)\b\s+#?(?P<Number>\d{1,3}|[IVXLCDM]+?)\b(?:\s|$)')
 chapter_matcher = re.compile(r'\b(?:Chapter|Vol|Volume|Episode|Part|Version)\b(?:\.)?', flags=re.RegexFlag.IGNORECASE)
@@ -59,6 +61,22 @@ def find_series_from_game_name(name):
 		return chapter_matcher.sub('', series_name).rstrip(), number
 	return None, None
 
+def does_series_match(name_to_match, existing_series):
+	name_to_match = name_to_match.lower()
+	existing_series = existing_series.lower()
+
+	if name_chunk_to_match.startswith('the '):
+		name_chunk_to_match = name_chunk_to_match[len('the '):]
+
+	for suffix in suffixes_not_part_of_series:
+		if name_to_match.endswith(' ' + suffix):
+			name_to_match = name_to_match[:-len(' ' + suffix)]
+			break
+
+	#Might also want to remove punctuation
+
+	return name_to_match == existing_series
+
 def find_series_name_by_subtitle(name, existing_serieses, force=False):
 	name_chunks = get_name_chunks(name)
 	if not name_chunks:
@@ -70,12 +88,8 @@ def find_series_name_by_subtitle(name, existing_serieses, force=False):
 	if force:
 		match = name_chunk
 	else:
-		name_chunk_to_match = name_chunk
-		if name_chunk_to_match.startswith('The '):
-			name_chunk_to_match = name_chunk_to_match[len('The '):]
 		for existing_series in existing_serieses:
-			if name_chunk_to_match == existing_series:
-			#TODO: Should we normalize it via similar stuff to disambiguate.normalize_name or nah?
+			if does_series_match(name_chunk, existing_series):
 				match = existing_series
 				break
 
