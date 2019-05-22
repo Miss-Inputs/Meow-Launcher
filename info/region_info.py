@@ -118,3 +118,57 @@ regions = [
 	Region('World', None, TVSystem.Agnostic, None),
 	#Though it's probably in English; No-Intro uses this as shorthand for (Japan, USA, Europe) because nobody told them that's not the only three regions in the world. It is safe to say that anything released in those three regions would indeed need to be TV-agnostic though
 ]
+
+def get_language_by_short_code(code):
+	for language in languages:
+		if language.short_code == code:
+			return language
+
+	return None
+
+def get_language_by_english_name(name, case_insensitive=False):
+	if case_insensitive:
+		name = name.lower()
+	for language in languages:
+		if (language.english_name.lower() if case_insensitive else language.english_name) == name:
+			return language
+
+	return None
+
+def get_region_by_name(name):
+	for region in regions:
+		if region.name == name:
+			return region
+
+	return None
+
+def get_region_by_short_code(short_code):
+	for region in regions:
+		if region.short_code == short_code:
+			return region
+
+	return None
+
+def get_language_from_regions(region_list):
+	common_language = None
+	#If all the regions here have the same language, we can infer the language of the game. Otherwise, we sorta can't
+	#e.g. We know (USA, Australia) is English, but (Japan, USA) could be Japanese or English
+	for region in region_list:
+		if not common_language:
+			common_language = get_language_by_english_name(region.language)
+		else:
+			if region.language != common_language.english_name:
+				return None
+
+	return common_language
+
+def get_tv_system_from_regions(region_list):
+	tv_systems = {region.tv_system for region in region_list if region.tv_system is not None}
+	if not tv_systems:
+		return None
+	if len(tv_systems) == 1:
+		return tv_systems.pop()
+
+	#If there are multiple distinct systems, it must be agnostic (since we only have NTSC, PAL, and agnostic (both) for now)
+	return TVSystem.Agnostic
+	

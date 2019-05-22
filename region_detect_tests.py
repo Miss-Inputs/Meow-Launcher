@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 #I can't be stuffed figuring out if there's some fancy unit test thing that all the cool kids use so I'm just gonna do my own thing
 
-from info.region_info import TVSystem, Region, Language
-from region_detect import *
+from info.region_info import TVSystem, Region, Language, get_language_from_regions, get_tv_system_from_regions
+from detect_things_from_filename import get_languages_from_filename_tags, get_regions_from_filename_tags, get_tv_system_from_filename_tags
 from common import find_filename_tags
 
 def are_regions_equal(region, other_region):
@@ -88,7 +88,9 @@ class Test():
 
 			languages = get_languages_from_filename_tags(tags)
 			if regions and not languages:
-				languages = get_languages_from_regions(regions)
+				region_language = get_language_from_regions(regions)
+				if region_language:
+					languages = [region_language]
 			if not language_array_equal(languages, self.expected_languages):
 				print('Oh no! {0} failed: Languages = {1}, expected = {2}'.format(self.name, languages, self.expected_languages))
 
@@ -106,7 +108,7 @@ tests = [
 	Test("No-Intro filename with two regions", "Cool Game (Europe, Australia)", ['Europe', 'Australia'], ['English'], TVSystem.PAL),
 	Test("No-Intro filename with two regions with different languages", "Cool Game (Japan, USA)", ['Japan', 'USA'], None, TVSystem.NTSC),
 	Test("No-Intro filename with region but also unrelated tag", "Cool Game (Japan) (Unl)", ['Japan'], ['Japanese'], TVSystem.NTSC),
-	Test("No-Intro filename with explicit languages", "Cool Game (Germany) (En,De)", ['Germany'], ['English', 'German'], TVSystem.PAL),
+	Test("No-Intro filename with explicit languages", "Cool Game (France) (En,Fr)", ['France'], ['English', 'French'], TVSystem.PAL),
 	Test("No-Intro filename with only one explicit language", "Cool Game (Japan) (En)", ['Japan'], ['English'], TVSystem.NTSC),
 	Test("Non-standard filename with explicit TV type", "Cool Game (NTSC)", None, None, TVSystem.NTSC),
 	Test("TOSEC filename with nothing", "Cool Game (1992)(CoolSoft)", None, None, None),
