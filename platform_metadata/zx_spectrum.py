@@ -106,6 +106,18 @@ def add_speccy_metadata(game):
 	if game.rom.extension == 'z80':
 		add_z80_metadata(game)
 
+	if 'Machine' not in game.metadata.specific_info:
+		for tag in game.filename_tags:
+			if tag == '(16K)':
+				game.metadata.specific_info['Machine'] = ZXMachine.ZX16k
+				break
+			if tag == '(48K)':
+				game.metadata.specific_info['Machine'] = ZXMachine.ZX48k
+				break
+			if tag in ('(48K-128K)', '(128K)'):
+				game.metadata.specific_info['Machine'] = ZXMachine.ZX128k
+				break
+
 	software = get_software_list_entry(game)
 	if software:
 		software.add_generic_info(game)
