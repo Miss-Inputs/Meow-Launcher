@@ -193,10 +193,8 @@ class Metadata():
 		self.screen_info = None
 		self.input_info = InputInfo()
 
-		#I guess you could call this internal use only
 		self.specific_info = {} #Stuff specific to indivdidual systems (in theory, or just when I'm too lazy to put it as an attribute here)
 		self.tv_type = None
-		self.ignored_filename_tags = []
 
 		self.images = {}
 
@@ -259,7 +257,6 @@ class Metadata():
 
 		fields[metadata_section_name] = metadata_fields
 		fields[junk_section_name] = {}
-		fields[junk_section_name]['Ignored-Tags'] = self.ignored_filename_tags
 
 		if self.images:
 			fields[image_section_name] = {}

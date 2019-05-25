@@ -55,7 +55,7 @@ def get_metadata_from_tags(game):
 		#There is no tag to detect that would determine nsfw = definitely false
 		game.metadata.nsfw = True
 
-	year, month, day = detect_things_from_filename.get_date_from_filename_tags(tags, game.metadata.ignored_filename_tags)
+	year, month, day = detect_things_from_filename.get_date_from_filename_tags(tags)
 	if year and not game.metadata.year:
 		game.metadata.year = year
 	if month and not game.metadata.month:
@@ -63,22 +63,22 @@ def get_metadata_from_tags(game):
 	if day and not game.metadata.day:
 		game.metadata.day = day
 
-	revision = detect_things_from_filename.get_revision_from_filename_tags(tags, game.metadata.ignored_filename_tags)
+	revision = detect_things_from_filename.get_revision_from_filename_tags(tags)
 	if revision and not game.metadata.revision:
 		game.metadata.revision = revision
 
 	if not game.metadata.regions:
-		regions = detect_things_from_filename.get_regions_from_filename_tags(tags, game.metadata.ignored_filename_tags)
+		regions = detect_things_from_filename.get_regions_from_filename_tags(tags)
 		if regions:
 			game.metadata.regions = regions
 
 	if not game.metadata.languages:
-		languages = detect_things_from_filename.get_languages_from_filename_tags(tags, game.metadata.ignored_filename_tags)
+		languages = detect_things_from_filename.get_languages_from_filename_tags(tags)
 		if languages:
 			game.metadata.languages = languages			
 
 	if not game.metadata.tv_type:
-		tv_type = detect_things_from_filename.get_tv_system_from_filename_tags(tags, game.metadata.ignored_filename_tags)
+		tv_type = detect_things_from_filename.get_tv_system_from_filename_tags(tags)
 		if tv_type:
 			game.metadata.tv_type = tv_type
 

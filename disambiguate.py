@@ -92,8 +92,12 @@ def resolve_duplicates_by_filename_tags(group):
 
 		rest_tags = [launchers.get_array(rest[1], 'Filename-Tags', launchers.junk_section_name) for rest in the_rest]
 		for tag in tags:
-			if not all([tag in rest_tag for rest_tag in rest_tags]):
-				differentiator_candidates.append(tag)
+			if all([tag in rest_tag for rest_tag in rest_tags]):
+				continue
+			if tag in launchers.get_field(dup[1], 'Name', 'Desktop Entry'):
+				#Bit silly to add a tag that is already there from something else
+				continue
+			differentiator_candidates.append(tag)
 
 		if differentiator_candidates:
 			update_name(dup, ' '.join(differentiator_candidates), 'tags')
