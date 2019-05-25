@@ -673,6 +673,8 @@ def vice_c64_base(game):
 	args = ['-VICIIfull']
 	if game.metadata.tv_type == TVSystem.NTSC:
 		args += ['-model', 'ntsc']
+	elif game.metadata.tv_type == TVSystem.PAL:
+		args += ['-model', 'pal']
 	args.append('$<path>')
 	return args
 
@@ -687,6 +689,8 @@ def vice_c128(game, _):
 	args = ['-VDCfull']
 	if game.metadata.tv_type == TVSystem.NTSC:
 		args += ['-model', 'ntsc']
+	elif game.metadata.tv_type == TVSystem.PAL:
+		args += ['-model', 'pal']
 	args.append('$<path>')
 	return LaunchParams('x128', args)
 
@@ -713,6 +717,8 @@ def vice_plus4(game, _):
 	args = ['-TEDfull']
 	if game.metadata.tv_type == TVSystem.NTSC:
 		args += ['-model', 'plus4ntsc']
+	elif game.metadata.tv_type == TVSystem.PAL:
+		args += ['-model', 'plus4pal']
 	args.append('$<path>')
 	return LaunchParams('xplus4', args)
 
@@ -720,6 +726,8 @@ def vice_vic20(game, _):
 	args = ['-VICfull']
 	if game.metadata.tv_type == TVSystem.NTSC:
 		args += ['-model', 'vic20ntsc']
+	elif game.metadata.tv_type == TVSystem.PAL:
+		args += ['-model', 'vic20pal']
 	if game.metadata.media_type == MediaType.Cartridge:
 		args.append('-cartgeneric')
 		size = game.rom.get_size()
