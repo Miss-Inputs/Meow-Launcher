@@ -8,7 +8,7 @@ def remove_filename_tags(name):
 		#Handle weird hipster games that have (one thing in parentheses) as the title for no good reason
 		stripped_name = name
 
-	return remove_extra_spaces.sub('', )
+	return remove_extra_spaces.sub('', stripped_name)
 
 def starts_with_any(s, prefixes):
 	#Allows s.startswith() with any iterable, not just tuple
