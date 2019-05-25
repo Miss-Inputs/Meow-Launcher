@@ -71,8 +71,6 @@ def parse_param_sfo(game, param_sfo):
 			game.metadata.disc_total = value
 		elif key == 'TITLE':
 			game.metadata.specific_info['Banner-Title'] = value
-			if game.rom.extension == 'pbp':
-				game.rom.name = value
 		elif key == 'PARENTAL_LEVEL':
 			#According to PSDevWiki: 1 = all ages, 5 = 12+, 7 = 15+, 9 = 18+
 			#There would be additional levels not mentioned here: Go! Explore (Europe) = 2; Danganronpa = 8; have heard it maxes out at 11; not sure how those values work
@@ -242,3 +240,6 @@ def add_psp_metadata(game):
 	#https://www.psdevwiki.com/ps3/Productcode#Physical
 	if game.metadata.product_code:
 		parse_product_code(game)
+
+	if game.rom.name == 'EBOOT' and game.rom.extension == 'pbp':
+		game.rom.name = os.path.basename(game.folder)
