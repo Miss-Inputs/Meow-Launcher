@@ -3,10 +3,12 @@ import re
 find_filename_tags = re.compile(r'(\([^)]+?\)+|\[[^]]+?\]+)')
 remove_extra_spaces = re.compile(r'\s(?=\s|$)')
 def remove_filename_tags(name):
-	if name.startswith(('(', '[')) and name.endswith((')', ']')):
-		return name
+	stripped_name = find_filename_tags.sub('', name)
+	if not stripped_name:
+		#Handle weird hipster games that have (one thing in parentheses) as the title for no good reason
+		stripped_name = name
 
-	return remove_extra_spaces.sub('', find_filename_tags.sub('', name))
+	return remove_extra_spaces.sub('', )
 
 def starts_with_any(s, prefixes):
 	#Allows s.startswith() with any iterable, not just tuple
