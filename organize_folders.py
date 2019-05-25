@@ -167,6 +167,7 @@ def move_into_subfolders(path):
 	move_into_extra_subfolder(path, desktop, 'By platform and genre', 'Platform,Genre')
 	move_into_extra_subfolder(path, desktop, 'Is NSFW', 'NSFW?')
 	move_into_extra_subfolder(path, desktop, 'By series', 'Series')
+	move_into_extra_subfolder(path, desktop, 'By arcade system', 'Arcade-System')
 
 	if len(languages) == 1:
 		copy_to_folder(path, main_config.organized_output_folder, 'By language', sanitize_name(languages[0]) + ' only')
