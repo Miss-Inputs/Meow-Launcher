@@ -94,9 +94,11 @@ def resolve_duplicates_by_filename_tags(group):
 		for tag in tags:
 			if all([tag in rest_tag for rest_tag in rest_tags]):
 				continue
-			if tag in launchers.get_field(dup[1], 'Name', 'Desktop Entry'):
-				#Bit silly to add a tag that is already there from something else
-				continue
+			og_name = launchers.get_field(dup[1], 'Name', 'Desktop Entry')
+			if og_name:
+				if tag.lower() in og_name.lower():
+					#Bit silly to add a tag that is already there from something else
+					continue
 			differentiator_candidates.append(tag)
 
 		if differentiator_candidates:
