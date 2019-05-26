@@ -39,7 +39,7 @@ emulators = {
 	#Forked directly from MAME with alterations to a7800.cpp driver, so will more or less work the same way as that
 	#Executable name might be a7800.Linux-x86_64 depending on how it's installed... hmm
 	'cxNES': Emulator(command_lines.cxnes, ['nes', 'fds', 'unf', 'unif'], ['7z', 'zip']),
-	'Dolphin': Emulator(command_lines.dolphin, ['iso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs'], []),
+	'Dolphin': Emulator(command_lines.dolphin, ['iso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs', 'm3u'], []),
 	'FS-UAE': Emulator(command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf'], []),
 	#Note that .ipf files need a separately downloadable plugin. We could detect the presence of that, I guess
 	'Gambatte': Emulator(command_lines.gambatte, ['gb', 'gbc'], ['zip']),
