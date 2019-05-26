@@ -53,7 +53,6 @@ def add_info_from_main_track(game, track_path, sector_size):
 		return
 
 	#16-32 Copyright: Seems to always be "SEGA ENTERPRISES" but may or may not be mandatory?
-	#74-80 Version
 	#96-112 Boot filename
 
 	hardware_id = header[0:16].decode('ascii', errors='ignore')
@@ -90,6 +89,12 @@ def add_info_from_main_track(game, track_path, sector_size):
 		pass
 
 	game.metadata.product_code = header[64:74].decode('ascii', errors='backslashreplace').rstrip()
+	try:
+		version = header[74:80].decode('ascii').rstrip()
+		if version[0] == 'V' and version[2] == '.':
+			game.metadata.specific_info['Version'] = 'v' + version[1:]
+	except UnicodeDecodeError:
+		pass
 
 	software = get_software_list_entry(game)
 	if not software:

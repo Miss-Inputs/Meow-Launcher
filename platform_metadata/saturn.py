@@ -85,8 +85,6 @@ def parse_peripherals(game, peripherals):
 		game.metadata.input_info.add_option(input_metadata.SteeringWheel())
 
 def add_saturn_info(game, header):
-	#42:48 Version
-
 	hardware_id = header[0:16].decode('ascii', errors='ignore')
 	if hardware_id != 'SEGA SEGASATURN ':
 		#Won't boot on a real Saturn. I should check how much emulators care...
@@ -110,6 +108,13 @@ def add_saturn_info(game, header):
 
 	try:
 		game.metadata.product_code = header[32:42].decode('ascii').rstrip()
+	except UnicodeDecodeError:
+		pass
+
+	try:
+		version = header[42:48].decode('ascii').rstrip()
+		if version[0] == 'V' and version[2] == '.':
+			game.metadata.specific_info['Version'] = 'v' + version[1:]
 	except UnicodeDecodeError:
 		pass
 

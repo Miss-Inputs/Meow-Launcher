@@ -115,6 +115,10 @@ def add_wii_homebrew_metadata(game):
 				coder = meta_xml.findtext('author')
 			game.metadata.developer = game.metadata.publisher = coder
 
+			version = meta_xml.findtext('version')
+			if version:
+				game.metadata.specific_info['Version'] = version
+
 			release_date = meta_xml.findtext('release_date')
 			if release_date:
 				#Not interested in hour/minute/second/etc

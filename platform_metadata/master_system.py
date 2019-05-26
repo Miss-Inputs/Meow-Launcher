@@ -23,8 +23,9 @@ def decode_bcd(i):
 	return (hi * 10) + lo
 
 def parse_sdsc_header(game, header):
-	#Minor version: header[0]
-	#Major version: header[1]
+	major_version = decode_bcd(header[0])
+	minor_version = decode_bcd(header[1])
+	game.metadata.specific_info['Version'] = 'v{0}.{1}'.format(major_version, minor_version)
 
 	day = decode_bcd(header[2])
 	month = decode_bcd(header[3])
