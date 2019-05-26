@@ -5,7 +5,6 @@ nintendo_licensee_codes = {
 	#Company (Brand name used by company)
 	#Company A / Company B which purchased A or A otherwise got absorbed into
 	#Company A / New name of Company A
-	#[Company B that merged with company A but kept A's licensee code] Company A e.g. [Bandai] Namco (Namco used the code AF before the merger)
 
 	#These are definitely what they are, appears in multiple games that are definitely published by that thing
 	'01': 'Nintendo',
@@ -45,6 +44,8 @@ nintendo_licensee_codes = {
 	'5K': 'Hasbro',
 	'5L': 'NewKidCo',
 	'5M': 'Telegames',
+	'5P': 'Vatical Entertainment',
+	'5Q': 'Lego',
 	'5T': 'Cryo Interactive',
 	'5X': 'Microids',
 	'60': 'Titus',
@@ -131,6 +132,7 @@ nintendo_licensee_codes = {
 	'E5': 'Epoch',
 	'E7': 'Athena',
 	'E9': 'Natsume',
+	'EA': 'King Records',
 	'EB': 'Atlus',
 	'FJ': 'Virtual Toys',
 	'FK': 'The Game Factory',
@@ -167,16 +169,17 @@ nintendo_licensee_codes = {
 	'70': 'Infogrames/Atari, SA', #Infogrames renamed itself to Atari or purchased the brand name or something in 2003 because they could, but are otherwise unrelated to the OG Atari, also purchased and sold off all sorts of companies along the way (e.g. GT Interactive in 1999, Hasbro Interactive in 2001)
 	'7D': 'Vivendi/Sierra', #This is weird, because Sierra was merged with Activision in 2010, who at the time were owned by Vivendi, but now they aren't and then they revived the Sierra brand name in 2014. So that's confusing. One of these boxes I have lying around containing a game with this licensee code says Sierra on it, and that was... 2008? So I dunno
 	'99': 'Pack-in Video/Victor Interactive/Marvelous Interactive', #Merged with Victor in 1997 and then with Marvelous in 2003, so Victor and Marvelous probably used different codes before then (or weren't involved with Nintendo)
-	'AF': '[Bandai] Namco', #Namco games have always used this, but when they merged with Bandai (Sep 2005), they kept this code (so newer games like that Code Geass DS one use this code as well), which is interesting because Square Enix doesn't reuse Squaresoft or Enix's licensee codes and gets a new one
+	'AF': 'Namco/Bandai Namco', #Namco games have always used this, but when they merged with Bandai (Sep 2005), they kept this code, which is interesting because Square Enix doesn't reuse Squaresoft or Enix's licensee codes and gets a new one
 	'CE': 'Pony Canyon/FCI', #Seems to be Fujisankei Communications International (as FCI Inc) for USA releases, Pony Canyon for Japanese releases, both are owned by Fujisankei Communications Group
 
 	#Welcome to confusing town, population these
-	'5Z': 'Classified Games', #Also appears in the Card Shark (SNES) proto, which as far as I can tell was developed by someone named Bonsai and involved someone named Bicycle as well. Seems like there's a mixup here with Conspiracy Entertainment? Are they the same company?
-	'AC': 'Toei Animation', #Used in some EXTREMELY obscure "Waiwai Check" games for Satellaview, which according to the title screen of one of them, are made by Hori Electric? Well I'm confused; Tooyama no Kinsan Space Chou - Mr. Gold is actually published by Toei though (apparently)
-	'CA': 'Konami (Ultra Games)', #Definitely Konami but might not be Ultra Games? Published Batman Returns SNES in Japan (but not elsewhere), and Parodius (Europe) for Game Boy
+	'5Z': '???Classified Games', #Also appears in the Card Shark (SNES) proto, which as far as I can tell was developed by someone named Bonsai and involved someone named Bicycle as well. Seems like there's a mixup here with Conspiracy Entertainment? Are they the same company?
+	'AC': '???Toei Animation', #Used in some EXTREMELY obscure "Waiwai Check" games for Satellaview, which according to the title screen of one of them, are made by Hori Electric? Well I'm confused; Tooyama no Kinsan Space Chou - Mr. Gold is actually published by Toei though (apparently)
+	'CA': '???Konami (Ultra Games)', #Definitely Konami but might not be Ultra Games? Published Batman Returns SNES in Japan (but not elsewhere), and Parodius (Europe) for Game Boy
 
 	#So far, only seen once (in a reliable source, i.e. not protos or anything like that)
 	'09': 'Hot-B', #Ginga - Card & Puzzle Collection (Japan) (En,Ja)
+	'0H': 'Starfish', #Super Black Bass - Real Fight (Japan) (Rumble Version) (GBC)
 	'19': 'Bandai (B-AI)', #Pingu - Sekai de 1ban Genki na Penguin (Japan)
 	'1P': 'Creatures', #Chee-Chai Alien (Japan) (GBC)
 	'35': 'Hector', #California Games II (USA) (might be just Hect?) (game was published by DTMC in USA and Hect in Japan, but DTMC seems to be related to Hect and may be a subdivision/branch?)
@@ -186,7 +189,6 @@ nintendo_licensee_codes = {
 	'4J': 'Fox Interactive', #The Pagemaster (USA) (SNES)
 	'4X': 'GT Interactive', #Duke Nukem (USA) (GBC), this company was purchased by Infogrames in 1999 I think
 	'53': 'American Sammy', #Ys III (SNES); also Ninja Taro (USA) (Beta) (GB); dunno what the difference is between this and non-American Sammy
-	'5Q': 'Lego', #Lego Island 2: The Brickster's Revenge (GBC + GBA)
 	'5S': 'Xicat Interactive', #Penny Racers (Europe) (GBA)
 	'6E': 'Elite Systems', #Might and Magic II (Europe) (SNES)
 	'6P': 'Ravensburger Interactive', #Fix & Foxi - Episode 1 - Lupo (Europe) (En,Fr,De) (GBC)
@@ -196,6 +198,7 @@ nintendo_licensee_codes = {
 	'8H': 'TNN', #Umihara Kawase (Japan) (SNES)
 	'8M': 'CyberFront', #Densha de Go 2 (GBC)
 	'8N': 'Success', #Minna no Soft Series - Tetris Advance (Japan)
+	'92': 'Video System', #F-1 World Grand Prix (Europe) (En,Fr,De,Es) (GBC)
 	'A6': 'Kawada', #Othello (FDS)
 	'A9': 'Technos Japan', #Shin Nekketsu Kouha - Kunio-tachi no Banka (Japan) [T-En by Aeon Genesis v1.00] (SNES)
 	'BF': 'Sammy', #Gindama Oyakata no Pachinko Hisshouhou (Japan)
@@ -206,7 +209,6 @@ nintendo_licensee_codes = {
 	'DB': 'Hiro', #Daisenryaku (Japan) (Gameboy)
 	'E1': 'Towa Chiki', #Taikyoku Renju
 	'E8': 'Asmik', #Dokapon Gaiden - Honoo no Audition (Japan) (merged with Ace to become Asmik Ace in 1998)
-	'EA': 'King Records', #Azumanga Daioh Advance
 	'EC': 'Epic / Sony Records', #Jerry Boy (SNES)
 	'EE': 'Information Global Services', #Super Shadow of the Beast (USA) (Proto) (SNES)
 	'F3': 'Extreme Entertainment', #Super Solitaire (USA) (En,Fr,De,Es,It) (SNES)
@@ -236,7 +238,6 @@ nintendo_licensee_codes = {
 	'RB': 'Detune', #Korg M01 Music Workstation (Japan) (DS)
 	'RG': 'Romino Games', #Swords & Soldiers II (Wii U)
 	'S3': 'Genius Sonority', #The Denpa Men demo (3DS)
-	'S5': 'SouthPeak Games', #Dementium II (Europe) (En,Fr,De,Es,It) (DS)
 	'SZ': 'Storm City Entertainment', #System Flaw (USA) (DSi)
 	'TH': 'Kolkom', #Girlfriends Forever: Magic Skate (Europe) (WiiWare)
 	'TL': 'Telltale Games', #Strong Badia the Free series (WiiWare)
