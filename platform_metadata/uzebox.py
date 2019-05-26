@@ -19,10 +19,14 @@ def add_uzebox_metadata(game):
 		game.metadata.year = int.from_bytes(header[0xc:0xe], 'little')
 		game.metadata.specific_info['Banner-Title'] = header[0xe:0x2e].decode('ascii', errors='backslashreplace').rstrip('\0')
 		game.metadata.developer = game.metadata.publisher = header[0x2e:0x4e].decode('ascii', errors='backslashreplace').rstrip('\0')
-		#Icon (sadly unused): 0x4e:0x14e
+		#Icon (sadly unused) (16 x 16, BBGGGRRR): 0x4e:0x14e
 		#CRC32: 0x14e:0x152
 		uses_mouse = header[0x152] == 1
-		#Description (unused): 0x153:0x193
+		description = header[0x153:0x193].decode('ascii', errors='backslashreplace').rstrip('\0')
+		if description:
+			#Official documentation claims this is unused, but it seems that it is used after all (although often identical to title)
+			game.metadata.specific_info['Banner-Description'] = description
+		
 	game.metadata.specific_info['Headered'] = has_header
 
 	game.metadata.specific_info['Uses-Mouse'] = uses_mouse
