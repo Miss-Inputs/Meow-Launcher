@@ -56,6 +56,9 @@ def get_stuff_from_filename_tags(metadata, name_tags):
 	revision = detect_things_from_filename.get_revision_from_filename_tags(name_tags)
 	if revision:
 		metadata.specific_info['Revision'] = revision
+	version = detect_things_from_filename.get_version_from_filename_tags(name_tags)
+	if version:
+		metadata.specific_info['Version'] = version
 		
 	for tag in name_tags:
 		tag = tag.lstrip('(').rstrip(')')
@@ -74,9 +77,12 @@ def get_stuff_from_filename_tags(metadata, name_tags):
 			metadata.media_type = MediaType.OpticalDisc
 		if tag == 'NES':
 			metadata.media_type = MediaType.Cartridge
+		if tag == '1.1':
+			#Oddball version number tag
+			metadata.specific_info['Version'] = 'v1.1'
 
 		#Platforms: https://github.com/scummvm/scummvm/blob/master/common/platform.cpp, in the event I want to do something with that
-		#Versions: v1.1, v1.00, anything matching v\d+\.\d+ I guess, 1.1, Freeware v1.1, Freeware v1.0
+		#Versions: Freeware v1.1, Freeware v1.0
 		#Others: final, VGA, EGA, Masterpiece Edition, Talkie, Latest version, unknown version
 		
 class ScummVMGame():

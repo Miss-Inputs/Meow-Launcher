@@ -587,6 +587,9 @@ def add_metadata(machine):
 	revision = detect_things_from_filename.get_revision_from_filename_tags(name_tags)
 	if revision:
 		machine.metadata.specific_info['Revision'] = revision
+	version = detect_things_from_filename.get_version_from_filename_tags(name_tags)
+	if version:
+		machine.metadata.specific_info['Version'] = version
 
 	serieses = get_machine_category(machine.basename, 'series')
 	if serieses:
