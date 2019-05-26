@@ -57,7 +57,6 @@ def get_stuff_from_filename_tags(metadata, name_tags):
 	if revision:
 		metadata.revision = revision
 		
-
 	for tag in name_tags:
 		tag = tag.lstrip('(').rstrip(')')
 
