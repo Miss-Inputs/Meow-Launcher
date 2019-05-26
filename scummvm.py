@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 
-import os
 import configparser
-import time
 import datetime
+import os
+import time
 
-from config import main_config
-import launchers
+import detect_things_from_filename
 import input_metadata
-from metadata import Metadata, EmulationStatus
-from common_types import SaveType, MediaType
+import launchers
 from common import find_filename_tags
+from common_types import MediaType, SaveType
+from config import main_config
 from info.region_info import get_language_by_english_name
+from metadata import EmulationStatus, Metadata
 
 scumm_config_path = os.path.expanduser('~/.config/scummvm/scummvm.ini')
 residualvm_config_path = os.path.expanduser('~/.config/residualvm/residualvm.ini')
@@ -44,13 +45,21 @@ vmconfig = ScummVMConfig.getScummVMConfig()
 def have_something_vm():
 	return vmconfig.have_scummvm or vmconfig.have_residualvm
 
-def get_stuff_from_filename_tags(metadata, filename_tags):
-	for tag in filename_tags:
+def get_stuff_from_filename_tags(metadata, name_tags):
+	languages = detect_things_from_filename.get_languages_from_filename_tags(name_tags)
+	if languages:
+		metadata.languages = languages
+	year, _, _ = detect_things_from_filename.get_date_from_filename_tags(name_tags)
+	#Would not expect month/day to ever be detected
+	if year:
+		metadata.year = year
+	revision = detect_things_from_filename.get_revision_from_filename_tags(name_tags)
+	if revision:
+		metadata.revision = revision
+		
+
+	for tag in name_tags:
 		tag = tag.lstrip('(').rstrip(')')
-		language = get_language_by_english_name(tag)
-		if language:
-			metadata.languages.append(language)
-			continue
 
 		if tag == 'English (US':
 			#Didn't except there'd be nested parentheses... oh well
@@ -122,7 +131,8 @@ class ScummVMGame():
 				if f.lower().endswith('.ico'):
 					self.icon = os.path.join(path, f)
 
-		get_stuff_from_filename_tags(metadata, find_filename_tags.findall(name))
+		name_tags = find_filename_tags.findall(name)
+		get_stuff_from_filename_tags(metadata, name_tags)
 
 		#Hmm, could use ResidualVM as the launcher type for ResidualVM games... but it's just a unique identifier type thing, so it should be fine
 		launchers.make_launcher(launch_params, name, metadata, 'ScummVM', self.name, self.icon)
