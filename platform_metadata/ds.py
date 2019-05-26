@@ -127,7 +127,7 @@ def parse_ds_header(game, header):
 			game.metadata.regions = [get_region_by_name('China')]
 			game.metadata.specific_info['Is-iQue'] = True
 		#If 0, could be anywhere else
-	game.metadata.revision = header[30]
+	game.metadata.specific_info['Revision'] = header[30]
 
 	banner_offset = int.from_bytes(header[0x68:0x6C], 'little')
 	if banner_offset:

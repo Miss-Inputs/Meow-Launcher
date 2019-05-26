@@ -177,7 +177,6 @@ class Metadata():
 		self.developer = None
 		self.publisher = None
 		self.save_type = SaveType.Unknown
-		self.revision = None #Hmm this might belong in specific_info for the platforms that have it
 		self.product_code = None
 		self.regions = []
 		self.media_type = None
@@ -214,7 +213,6 @@ class Metadata():
 			'Categories': self.categories,
 			'Platform': self.platform,
 			'Save-Type': ('Memory Card' if self.save_type == SaveType.MemoryCard else self.save_type.name) if self.save_type else 'Nothing',
-			'Revision': self.revision,
 			'Publisher': self.publisher,
 			'Developer': self.developer,
 			'Product-Code': self.product_code,

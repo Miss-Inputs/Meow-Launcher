@@ -47,7 +47,7 @@ def add_gamecube_wii_disc_metadata(game, header):
 	if disc_number:
 		game.metadata.disc_number = disc_number
 
-	game.metadata.revision = header[7]
+	game.metadata.specific_info['Revision'] = header[7]
 
 	#Audio streaming: header[8] > 1
 	#Audio streaming buffer size: header[9]

@@ -64,8 +64,8 @@ def get_metadata_from_tags(game):
 		game.metadata.day = day
 
 	revision = detect_things_from_filename.get_revision_from_filename_tags(tags)
-	if revision and not game.metadata.revision:
-		game.metadata.revision = revision
+	if revision and 'Revision' not in game.metadata.specific_info:
+		game.metadata.specific_info['Revision'] = revision
 
 	if not game.metadata.regions:
 		regions = detect_things_from_filename.get_regions_from_filename_tags(tags)

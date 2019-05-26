@@ -65,7 +65,7 @@ def parse_n64_header(game, header):
 		game.metadata.product_code = product_code
 	except NotAlphanumericException:
 		pass
-	game.metadata.revision = header[63]
+	game.metadata.specific_info['Revision'] = header[63]
 
 def add_info_from_database_entry(game, database_entry):
 	#Keys: {'SaveType', 'Biopak', 'GoodName', 'SiDmaDuration', 'Players', 'DisableExtraMem', 'Mempak', 'Cheat0', 'Transferpak', 'CRC', 'Status', 'Rumble', 'CountPerOp'}

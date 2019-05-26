@@ -46,7 +46,7 @@ def parse_gba_header(game, header):
 	#Device type: 0xb4, apparently normally should be 0
 	#Reserved: 0xb5 - 0xbc
 
-	game.metadata.revision = header[0xbc]
+	game.metadata.specific_info['Revision'] = header[0xbc]
 
 	#Checksum (see ROMniscience for how to calculate it, because I don't feel like describing it all in a single line of comment): 0xbd
 	#Reserved: 0xbe - 0xc0

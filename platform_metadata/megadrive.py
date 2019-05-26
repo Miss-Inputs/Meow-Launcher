@@ -129,7 +129,7 @@ def add_megadrive_info(game, header):
 		#- in between
 		version = serial[-2]
 		if version.isdigit():
-			game.metadata.revision = int(version)
+			game.metadata.specific_info['Revision'] = int(version)
 	except UnicodeDecodeError:
 		pass
 	#Checksum: header[142:144]

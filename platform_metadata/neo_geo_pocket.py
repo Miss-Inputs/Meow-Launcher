@@ -17,7 +17,7 @@ def add_ngp_metadata(game):
 	#Otherwise it'd say " LICENSED BY SNK CORPORATION" and that could be any dang third party which isn't terribly useful
 	#There's really not much here, so I didn't even bother reading the whole header
 	game.metadata.product_code = int.from_bytes(header[32:34], 'little')
-	game.metadata.revision = header[34]
+	game.metadata.specific_info['Revision'] = header[34]
 	game.metadata.specific_info['Is-Colour'] = header[35] == 0x10
 	internal_title = header[36:48].decode('ascii', errors='backslashreplace').strip('\0')
 	if internal_title:

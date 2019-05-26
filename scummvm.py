@@ -55,7 +55,7 @@ def get_stuff_from_filename_tags(metadata, name_tags):
 		metadata.year = year
 	revision = detect_things_from_filename.get_revision_from_filename_tags(name_tags)
 	if revision:
-		metadata.revision = revision
+		metadata.specific_info['Revision'] = revision
 		
 	for tag in name_tags:
 		tag = tag.lstrip('(').rstrip(')')

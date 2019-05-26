@@ -29,7 +29,7 @@ def add_virtual_boy_metadata(game):
 		pass
 	#Can get country from product_code[3] if needed
 
-	game.metadata.revision = header[31]
+	game.metadata.specific_info['Revision'] = header[31]
 
 	gamepad = input_metadata.NormalController()
 	gamepad.face_buttons = 2

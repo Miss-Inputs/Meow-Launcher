@@ -119,7 +119,7 @@ def try_parse_standard_header(game):
 			continue
 
 	if header_data:
-		game.metadata.revision = header_data['Revision']
+		game.metadata.specific_info['Revision'] = header_data['Revision']
 		game.metadata.product_code = header_data['Product code']
 		game.metadata.specific_info['Region-Code'] = header_data['Region'] #Too lazy to make an enum for both SMS and GG regions
 

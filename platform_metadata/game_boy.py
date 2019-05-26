@@ -169,7 +169,7 @@ def parse_gameboy_header(game, header):
 		licensee_code = '{:02X}'.format(licensee_code)
 		if licensee_code in nintendo_licensee_codes:
 			game.metadata.publisher = nintendo_licensee_codes[licensee_code]
-	game.metadata.revision = header[0x4c]
+	game.metadata.specific_info['Revision'] = header[0x4c]
 
 def add_gameboy_metadata(game):
 	builtin_gamepad = input_metadata.NormalController()

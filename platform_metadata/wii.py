@@ -73,7 +73,7 @@ def parse_tmd(game, tmd):
 	#IPC mask: 442-454 (wat?)
 	#Reserved 2: 454-472
 	#Access rights: 472-476
-	game.metadata.revision = int.from_bytes(tmd[476:478], 'big')
+	game.metadata.specific_info['Revision'] = int.from_bytes(tmd[476:478], 'big')
 
 def add_wad_metadata(game):
 	header = game.rom.read(amount=0x40)
