@@ -269,6 +269,11 @@ def process_emulated_system(system_config):
 		for root, _, files in os.walk(rom_dir):
 			if common.starts_with_any(root + os.sep, main_config.ignored_directories):
 				continue
+			subfolders = list(pathlib.Path(root).relative_to(rom_dir).parts)
+			if subfolders:
+				if subfolders[0] in main_config.skipped_subfolder_names:
+					continue
+
 			for name in sorted(files, key=sort_m3u_first()):
 				path = os.path.join(root, name)
 
