@@ -527,12 +527,12 @@ def add_metadata_from_catlist(machine):
 		#Anyway that's why I put that there
 		#Other genres of handheld: Pocket Device - Pad - PDA; Child Computer (e.g. Speak & Spell) but those seem more suited to Standalone System particularly the former
 		machine.metadata.platform = 'Handheld' if is_plug_and_play(machine) else 'Standalone System'
-	if genre in ('Electromechanical', 'Utilities', 'Medal Game'):
+	if genre == 'Electromechanical' or (category == 'Arcade' and genre in ('Utilties', 'Medal Game')):
 		machine.metadata.categories = [genre]
-	elif genre == 'Misc.' and subgenre in ('Laserdisc Simulator', 'Print Club', 'Unknown', 'Redemption'):
+	elif (category == 'Arcade' and (genre == 'Misc.' and subgenre in ('Laserdisc Simulator', 'Print Club', 'Redemption'))) or (genre == 'Music' and subgenre == 'Jukebox'):
 		machine.metadata.categories = [subgenre]
-	elif genre == 'Music' and subgenre == 'Jukebox':
-		machine.metadata.categories = [subgenre]
+	elif genre == 'Unknown' or subgenre == 'Unknown':
+		machine.metadata.categories = ['Unknown']
 	elif (genre == 'Misc.' and subgenre == 'Coin Pusher') or (genre == 'Coin Pusher' and subgenre == 'Misc.'):
 		machine.metadata.categories = ['Coin Pusher']
 	elif category == 'Arcade' and ((genre == 'Casino') or (genre == 'Slot Machine') or (genre == 'Electromechanical' and subgenre == 'Reels') or (genre == 'Multiplay' and subgenre == 'Cards')):
