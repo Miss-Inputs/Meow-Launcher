@@ -179,6 +179,7 @@ def normalize_name(name):
 	name = name.replace('3-d', '3d')
 	name = name.replace('&', 'and')
 	name = name.replace('é', 'e')
+	name = name.replace(': ', ' - ')
 
 	return '-'.join(words.findall(name))
 
