@@ -495,7 +495,7 @@ def add_metadata_from_catlist(machine):
 			machine.metadata.categories = ['Games']
 		return
 
-	if (genre == 'Computer' and subgenre in ('Business - Terminal', 'Home System', 'Laptop - Notebook - Portable')) or (genre == 'Calculator' and subgenre == 'Pocket Computer') or (genre == 'Handheld' and subgenre in ('Pocket Device - Pad - PDA', 'Child Computer')) or (genre == 'Board Game') or (genre == 'Utilities' and subgenre == 'Arcade System'):
+	if (genre == 'Computer' and subgenre in ('Business - Terminal', 'Home System', 'Laptop - Notebook - Portable')) or (genre == 'Calculator' and subgenre == 'Pocket Computer') or (genre == 'Handheld' and subgenre in ('Pocket Device - Pad - PDA', 'Child Computer')) or (genre == 'Board Game') or (genre == 'Utilities' and subgenre == 'Arcade System') or (genre == 'Misc.' and subgenre == 'Virtual Environment'):
 		#Board Game is more like chess machines than actual board games
 		#Hmm, need a better name for this I think
 		machine.metadata.platform = 'Standalone System'
