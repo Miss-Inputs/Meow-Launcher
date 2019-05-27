@@ -86,6 +86,8 @@ def parse_param_sfo(game, param_sfo):
 			if value == 'UV':
 				game.metadata.specific_info['Is-UMD-Video'] = True
 		elif key == 'DISC_VERSION':
+			if value[0] != 'v':
+				value = 'v' + value
 			game.metadata.specific_info['Version'] = value
 		elif key in ('APP_VER', 'BOOTABLE', 'MEMSIZE', 'PSP_SYSTEM_VER', 'REGION', 'USE_USB'):
 			#These are known, but not necessarily useful to us or we just don't feel like putting it in the metadata or otherwise doing anything with it at this point
