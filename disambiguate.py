@@ -112,7 +112,7 @@ def resolve_duplicates_by_dev_status(group):
 			tag_matches = tag.lower().startswith(('(beta', '(sample)', '(proto', '(preview', '(pre-release', '(demo', '(multiboot demo)', '(shareware', '(taikenban'))
 			tag_matches = tag_matches or (tag.lower().startswith('(alpha') and tag[6] == ' ' and tag[7:-1].isdigit())
 			if tag_matches:
-				update_name(dup, '(' + tag[1:].title(), 'dev status')
+				update_name(dup, '(' + tag[1:].title() if tag.islower() else tag, 'dev status')
 
 def resolve_duplicates_by_date(group):
 	year_counter = collections.Counter(launchers.get_field(d[1], 'Year') for d in group)
