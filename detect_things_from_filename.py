@@ -43,9 +43,21 @@ def get_maybeintro_languages_from_filename_tags(tags):
 	return None
 
 def get_tosec_languages_from_filename_tags(tags):
+	found_year_tag = False
+	found_publisher_tag = False
+
 	for tag in tags:
+		if not found_year_tag:
+			if re.match(r'\((-|[x\d]+)\)', tag):
+				found_year_tag = True
+				continue
+		if found_year_tag and not found_publisher_tag:
+			if tag.startswith('(') and tag.endswith(')'):
+				found_publisher_tag = True
+				continue
+
 		tosec_languages_match = tosec_language_regex.match(tag)
-		if tosec_languages_match:
+		if found_year_tag and found_publisher_tag and tosec_languages_match:
 			first_language_code = tosec_languages_match[1].capitalize()
 			first_language = region_info.get_language_by_short_code(first_language_code)
 			if first_language:
