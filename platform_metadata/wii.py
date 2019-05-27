@@ -117,6 +117,11 @@ def add_wii_homebrew_metadata(game):
 
 			version = meta_xml.findtext('version')
 			if version:
+				if version.startswith('rev'):
+					version = version[3:].lstrip()
+				elif version.startswith('r'):
+					version = version[1:].lstrip()
+				
 				if version[0] != 'v':
 					version = 'v' + version
 				game.metadata.specific_info['Version'] = version
