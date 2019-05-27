@@ -6,6 +6,7 @@ import subprocess
 import io_utils
 from launchers import LaunchParams, MultiCommandLaunchParams
 from config import main_config
+from platform_metadata.atari_2600 import Atari2600Controller
 from platform_metadata.apple_ii import AppleIIHardware
 from platform_metadata.nes import NESPeripheral
 from platform_metadata.megadrive import MegadriveRegionCodes
@@ -121,13 +122,39 @@ def mame_atari_2600(game, _):
 	size = game.rom.get_size()
 	if size > (512 * 1024):
 		raise EmulationNotSupportedException('ROM too big: %d' % size)
-	#TODO: Set -joyport1 -joyport2 slots according to peripheral
+
+	left = game.metadata.specific_info.get('Left-Peripheral')
+	right = game.metadata.specific_info.get('Right-Peripheral')
+
+	options = {}
+	if left == Atari2600Controller.Joystick:
+		options['joyport1'] = 'joy'
+	elif left == Atari2600Controller.Paddle:
+		options['joyport1'] = 'pad'
+	elif left == Atari2600Controller.KeyboardController:
+		options['joyport1'] = 'keypad'
+	elif left == Atari2600Controller.Boostergrip:
+		options['joyport1'] = 'joybstr'
+	elif left == Atari2600Controller.DrivingController:
+		options['joyport1'] = 'wheel'
+
+	if right == Atari2600Controller.Joystick:
+		options['joyport2'] = 'joy'
+	elif right == Atari2600Controller.Paddle:
+		options['joyport2'] = 'pad'
+	elif right == Atari2600Controller.KeyboardController:
+		options['joyport2'] = 'keypad'
+	elif right == Atari2600Controller.Boostergrip:
+		options['joyport2'] = 'joybstr'
+	elif right == Atari2600Controller.DrivingController:
+		options['joyport2'] = 'wheel'
+
 	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'a2600p'
 	else:
 		system = 'a2600'
 
-	return mame_system(system, 'cart')
+	return mame_system(system, 'cart', slot_options=options)
 
 def mame_atari_jaguar(game, _):
 	if game.metadata.media_type == MediaType.Cartridge:
