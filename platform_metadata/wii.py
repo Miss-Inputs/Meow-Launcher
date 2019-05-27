@@ -117,6 +117,8 @@ def add_wii_homebrew_metadata(game):
 
 			version = meta_xml.findtext('version')
 			if version:
+				if version[0] != 'v':
+					version = 'v' + version
 				game.metadata.specific_info['Version'] = version
 
 			release_date = meta_xml.findtext('release_date')
