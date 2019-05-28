@@ -86,8 +86,17 @@ def convert_roman_numerals_in_title(s):
 	words = s.split(' ')
 	converted_words = []
 	for word in words:
+		actual_word_match = re.match('[A-Za-z]+', word)
+		if not actual_word_match:
+			converted_words.append(word)
+			continue
+		span_start, span_end = actual_word_match.span()
+		prefix_punctuation = word[:span_start]
+		suffix_punctuation = word[span_end:]
+		actual_word = actual_word_match[0]
+
 		try:
-			converted_words.append(str(convert_roman_numeral(word)))
+			converted_words.append(prefix_punctuation + str(convert_roman_numeral(actual_word)) + suffix_punctuation)
 		except ValueError:
 			converted_words.append(word)
 	return ' '.join(converted_words)
