@@ -56,15 +56,19 @@ def make_filename(name):
 	return name
 
 class LaunchParams():
-	def __init__(self, exe_name, exe_args):
+	def __init__(self, exe_name, exe_args, env_vars=None):
 		self.exe_name = exe_name
 		self.exe_args = exe_args
+		self.env_vars = {} if env_vars is None else env_vars
 
 	def make_linux_command_string(self):
 		exe_args_quoted = ' '.join(shlex.quote(arg) for arg in self.exe_args)
-		if not self.exe_name:
-			return exe_args_quoted
 		exe_name_quoted = shlex.quote(self.exe_name)
+		if self.env_vars:
+			environment_vars = ' '.join([shlex.quote(k + '=' + v) for k, v in self.env_vars.items()])
+			return 'env {0} {1} {2}'.format(environment_vars, exe_name_quoted, exe_args_quoted)
+		if not self.exe_name: #Wait, when does this ever happen? Why is this here?
+			return exe_args_quoted
 		return exe_name_quoted + ' ' + exe_args_quoted
 
 	def prepend_command(self, launch_params):
@@ -76,7 +80,7 @@ class LaunchParams():
 		return multi_command.append_command(launch_params)
 
 	def replace_path_argument(self, path):
-		return LaunchParams(self.exe_name, [arg.replace('$<path>', path) for arg in self.exe_args])
+		return LaunchParams(self.exe_name, [arg.replace('$<path>', path) for arg in self.exe_args], self.env_vars)
 
 class MultiCommandLaunchParams():
 	#I think this shouldn't inherit from LaunchParams because duck typing (but doesn't actually reuse anything from LaunchParams). I _think_ I know what I'm doing. Might not.

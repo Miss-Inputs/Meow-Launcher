@@ -241,7 +241,7 @@ emulators = {
 	'MAME (Mattel Aquarius)': MameSystem(command_lines.mame_system('aquarius', 'cart'), ['bin', 'rom']),
 	#Controllers aren't emulated yet (and they're necessary for a lot of things)
 	'MAME (Pokemon Mini)': MameSystem(command_lines.mame_system('pokemini', 'cart'), ['bin', 'min']),
-	#Wouldn't recommend yet as it has no sound, even if most people would probably turn the sound off in real life
+	#Wouldn't recommend yet as it has no sound, even if most people would probably turn the sound off in real life, also some stuff doesn't work
 	"MAME (Super A'Can)": MameSystem(command_lines.mame_system('supracan', 'cart'), ['bin']),
 	#Some things work, except with no sound, so... nah
 	'MAME (V.Smile Baby)': MameSystem(command_lines.mame_system('vsmileb', 'cart'), ['u1', 'u3', 'bin']),
