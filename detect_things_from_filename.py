@@ -189,8 +189,15 @@ def get_date_from_filename_tags(tags):
 		date_match = date_regex.match(tag)
 		if date_match:
 			groupdict = date_match.groupdict()
-			year = groupdict.get('year', groupdict.get('year2', groupdict.get('year3')))
-			month_match = groupdict.get('month', groupdict.get('month2'))
+			#I _hate_ this. There's no way I can find to make this code not suck titty balls
+			_year = groupdict.get('year')
+			_year2 = groupdict.get('year2')
+			_year3 = groupdict.get('year3')
+			year = _year if _year else (_year2 if _year2 else _year3)
+			_month = groupdict.get('month')
+			_month2 = groupdict.get('month2')
+
+			month_match = _month if _month else _month2
 			if month_match:
 				try:
 					month = calendar.month_name[int(month_match)]
@@ -198,7 +205,9 @@ def get_date_from_filename_tags(tags):
 					month = month_match
 			else:
 				month = None
-			day = groupdict.get('day', groupdict.get('day2'))
+			_day = groupdict.get('day') 
+			_day2 = groupdict.get('day2') 
+			day = _day if _day else _day2
 			return year, month, day
 	return None, None, None
 
