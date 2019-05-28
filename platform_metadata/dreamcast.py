@@ -5,8 +5,8 @@ import re
 import cd_read
 from common_types import SaveType
 from data.sega_licensee_codes import licensee_codes
-from software_list_info import (find_in_software_lists_with_custom_matcher,
-                                get_software_list_entry)
+from software_list_info import get_software_list_entry
+
 from .saturn import SaturnRegionCodes
 
 #I'm just assuming Saturn and Dreamcast have the same way of doing region codes... well, it's just mostly JUE that need worrying about at this point anyway
@@ -34,15 +34,6 @@ def add_peripherals_info(game, peripherals):
 	game.metadata.specific_info['Uses-Expanded-Analog-Horizontal'] = (peripherals & (1 << 23)) > 0
 	game.metadata.specific_info['Uses-Expanded-Analog-Vertical'] = (peripherals & (1 << 24)) > 0
 	game.metadata.specific_info['Uses-Keyboard'] = (peripherals & (1 << 25)) > 0
-
-def _match_part_by_serial(software_part, serial):
-	#TODO: Handle multiple discs properly
-	#This isn't perfect whatsoever, but the hash itself is for the .chd file which doesn't always match up even if you convert stuff to .chd, so this is probably the best that can be done
-	part_serial = software_part.software.get_info('serial')
-	if not part_serial:
-		return False
-	part_serial_without_dashes = part_serial.replace('-', '')
-	return serial in (part_serial, part_serial_without_dashes)
 
 device_info_regex = re.compile(r'^(?P<checksum>[\dA-Fa-f]{4}) GD-ROM(?P<discNum>\d+)/(?P<totalDiscs>\d+) *$')
 #Might not be " GD-ROM" on some Naomi stuff or maybe some homebrews or protos, but anyway, whatevs
@@ -94,16 +85,7 @@ def add_info_from_main_track(game, track_path, sector_size):
 		if version[0] == 'V' and version[2] == '.':
 			game.metadata.specific_info['Version'] = 'v' + version[1:]
 	except UnicodeDecodeError:
-		pass
-
-	software = get_software_list_entry(game)
-	if not software:
-		software = find_in_software_lists_with_custom_matcher(game.software_lists, _match_part_by_serial, [game.metadata.product_code])
-
-	if software:
-		software.add_generic_info(game)
-		game.metadata.notes = software.get_info('usage')
-	
+		pass	
 
 	release_date = header[80:96].decode('ascii', errors='backslashreplace').rstrip()
 
@@ -148,3 +130,8 @@ def add_info_from_gdi(game):
 def add_dreamcast_metadata(game):
 	if game.rom.extension == 'gdi':
 		add_info_from_gdi(game)
+
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game)
+		game.metadata.notes = software.get_info('usage')
