@@ -42,13 +42,14 @@ def get_maybeintro_languages_from_filename_tags(tags):
 			return [region_info.get_language_by_short_code(translation_match.group(1))]
 	return None
 
+tosec_date_tag_regex = re.compile(r'\((-|[x\d]{4}(?:-\d{2}(?:-\d{2})?)?)\)')
 def get_tosec_languages_from_filename_tags(tags):
 	found_year_tag = False
 	found_publisher_tag = False
 
 	for tag in tags:
 		if not found_year_tag:
-			if re.match(r'\((-|[x\d]+)\)', tag):
+			if tosec_date_tag_regex.match(tag):
 				found_year_tag = True
 				continue
 		if found_year_tag and not found_publisher_tag:
@@ -118,7 +119,21 @@ def get_regions_from_filename_tags_loosely(tags):
 
 def get_tosec_region_list_from_filename_tags(tags):
 	#Only something like (JP-US)
+	found_year_tag = False
+	found_publisher_tag = False
+
 	for tag in tags:
+		if not found_year_tag:
+			if tosec_date_tag_regex.match(tag):
+				found_year_tag = True
+				continue
+		if found_year_tag and not found_publisher_tag:
+			if tag.startswith('(') and tag.endswith(')'):
+				found_publisher_tag = True
+				continue
+
+		if not found_year_tag and not found_publisher_tag:
+			continue
 		if not (tag.startswith('(') and tag.endswith(')')):
 			continue
 		tag = tag[1:-1]
