@@ -11,7 +11,6 @@ import launchers
 from common import find_filename_tags
 from common_types import MediaType, SaveType
 from config import main_config
-from info.region_info import get_language_by_english_name
 from metadata import EmulationStatus, Metadata
 
 scumm_config_path = os.path.expanduser('~/.config/scummvm/scummvm.ini')
@@ -48,6 +47,7 @@ def have_something_vm():
 def get_stuff_from_filename_tags(metadata, name_tags):
 	languages = detect_things_from_filename.get_languages_from_filename_tags(name_tags)
 	if languages:
+		#This will parse "English (US)" as "English" which is what we want really
 		metadata.languages = languages
 	year, _, _ = detect_things_from_filename.get_date_from_filename_tags(name_tags)
 	#Would not expect month/day to ever be detected
@@ -62,10 +62,6 @@ def get_stuff_from_filename_tags(metadata, name_tags):
 		
 	for tag in name_tags:
 		tag = tag.lstrip('(').rstrip(')')
-
-		if tag == 'English (US':
-			#Didn't except there'd be nested parentheses... oh well
-			metadata.languages.append(get_language_by_english_name('English'))
 
 		if tag in ('Demo', 'Linux Demo', 'CD Demo'):
 			metadata.categories = ['Trials']
