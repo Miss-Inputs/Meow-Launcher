@@ -589,7 +589,11 @@ def add_metadata_from_appinfo_extended_section(game, extended):
 
 	isfreeapp = extended.get(b'isfreeapp')
 	if isfreeapp:
-		game.metadata.specific_info['Is-Free'] = isfreeapp.data != 0
+		if isinstance(isfreeapp, bytes):
+			#Why do you do this?
+			game.metadata.specific_info['Is-Free'] = isfreeapp != b'0'
+		elif isinstance(isfreeapp, appinfo.Integer):
+			game.metadata.specific_info['Is-Free'] = isfreeapp.data != 0
 	#icon is either blank or something like 'steam/games/icon_garrysmod' which doesn't exist so no icon for you (not that way)
 	#order and noservers seem like they might mean something, but I dunno what
 	#state = eStateAvailable verifies that it is indeed available (wait maybe it doesn't)
