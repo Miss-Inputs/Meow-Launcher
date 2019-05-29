@@ -985,7 +985,12 @@ def reicast(game, specific_config):
 	if specific_config.get('force_opengl_version', False):
 		#This shouldn't be a thing, it's supposed to fall back to OpenGL 3.0 if 4.3 isn't supported (there was a commit that fixed an issue where it didn't), but then I guess that doesn't work for me so once again I have decided to do things the wrong way instead of what a normal sensible person would do, anyway somehow this... works just fine with this environment variable, although on a chipset only supporting 4.2 it by all logic shouldn't, and I don't really know why, because I'm not an OpenGL programmer or whatever, I'm just some Python-using dumbass
 		env_vars['MESA_GL_VERSION_OVERRIDE'] = '4.3'
-	return LaunchParams('reicast', ['-config', 'x11:fullscreen=1', '$<path>'], env_vars)
+	args = ['-config', 'x11:fullscreen=1']
+	if not game.metadata.specific_info.get('Supports-VGA', True):
+		#Use RGB component instead (I think that should be compatible with everything, and would be better quality than composite, which should be 1)
+		args += ['-config', 'config:Dreamcast.Cable=2']
+	args.append('$<path>')
+	return LaunchParams('reicast', args, env_vars)
 
 #Game engines
 def make_prboom_plus_command_line(_, specific_config):
