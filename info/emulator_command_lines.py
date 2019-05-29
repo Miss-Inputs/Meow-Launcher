@@ -989,6 +989,9 @@ def reicast(game, specific_config):
 	if not game.metadata.specific_info.get('Supports-VGA', True):
 		#Use RGB component instead (I think that should be compatible with everything, and would be better quality than composite, which should be 1)
 		args += ['-config', 'config:Dreamcast.Cable=2']
+	else:
+		#This shouldn't be needed, as -config is supposed to be temporary, but it isn't and writes the component cable setting back to the config file, so we'll set it back
+		args += ['-config', 'config:Dreamcast.Cable=0']
 	args.append('$<path>')
 	return LaunchParams('reicast', args, env_vars)
 
