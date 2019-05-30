@@ -110,6 +110,9 @@ def read_gcz(path, seek_to=0, amount=-1):
 	#Sub-type: 4-8 (indicates GC or whatever else)
 	compressed_size = int.from_bytes(gcz_header[8:16], 'little')
 	#Data size: 16-24 (should be 1.4GB for GameCube)
+	if amount == -1:
+		amount = int.from_bytes(gcz_header[16:24], 'little')
+
 	block_size = int.from_bytes(gcz_header[24:28], 'little')
 	num_blocks = int.from_bytes(gcz_header[28:32], 'little')
 	#Block pointers: 8 bytes * [num_blocks]
