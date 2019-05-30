@@ -152,10 +152,11 @@ emulators = {
 	'MAME (Bandai Super Vision 8000)': MameSystem(command_lines.mame_system('sv8000', 'cart'), ['bin']),
 	'MAME (Squale)': MameSystem(command_lines.mame_system('squale', 'cart', has_keyboard=True), ['bin']),
 	'MAME (Tandy CoCo)': MameSystem(command_lines.mame_system('coco3', 'cart', has_keyboard=True), ['ccc', 'rom', 'bin']),
+	#There is a coco3p, but it apparently runs at 60Hz too, so I'm not sure if it's needed
 	'MAME (Tomy Tutor)': MameSystem(command_lines.mame_system('tutor', 'cart', has_keyboard=True, autoboot_script='tomy_tutor'), ['bin']),
 	#There is pyuuta if you want to read Japanese instead
 	'MAME (VC 4000)': MameSystem(command_lines.mame_system('vc4000', 'cart'), ['bin', 'rom']),
-	#There's like 30 different clones of this, and most of them aren't even clones in the MAME sense, they're literally hardware clones. But they're apparently all software-compatible, although the cartridges aren't hardware-compatible, they just contain the same software... so this all gets confusing. Anyway, the software list with all these is named "vc4000" so I guess that's the "main" one, so we'll use that. I'm not sure if there are any PAL/NTSC differences to worry about.
+	#There's like 30 different clones of this, and most of them aren't even clones in the MAME sense, they're literally hardware clones. But they're apparently all software-compatible, although the cartridges aren't hardware-compatible, they just contain the same software... so this all gets confusing. Anyway, the software list with all these is named "vc4000" so I guess that's the "main" one, so we'll use that. Seems that all models use 50Hz display so there shouldn't need to be model switching based on TV type
 	#TODO: Quickload slot (.pgm, .tvc)
 	'MAME (Vectrex)': MameSystem(command_lines.mame_system('vectrex', 'cart'), ['bin', 'gam', 'vec']),
 	#Includes overlays as selectable artwork, but that has to be done by the user from the menu
