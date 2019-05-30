@@ -147,7 +147,7 @@ emulators = {
 	#x1turbo doesn't work, and I'm not sure what running x1 over x1turbo40 would achieve
 	'MAME (SNES)': MameSystem(command_lines.mame_snes, ['sfc', 'bs', 'st']),
 	#The main advantage here is that it supports multi-slot carts (BS-X and Sufami Turbo) where SNES9x's GTK port does not, otherwise I dunno how well it works
-	'MAME (Sord M5)': MameSystem(command_lines.mame_system('m5', 'cart1', {'ramsize': '64K', 'upd765:0': ''}, True), ['bin']),
+	'MAME (Sord M5)': MameSystem(command_lines.mame_sord_m5, ['bin']),
 	'MAME (Super Cassette Vision)': MameSystem(command_lines.mame_super_cassette_vision, ['bin']),
 	'MAME (Bandai Super Vision 8000)': MameSystem(command_lines.mame_system('sv8000', 'cart'), ['bin']),
 	'MAME (Squale)': MameSystem(command_lines.mame_system('squale', 'cart', has_keyboard=True), ['bin']),

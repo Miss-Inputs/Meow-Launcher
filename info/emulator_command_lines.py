@@ -534,6 +534,15 @@ def mame_odyssey2(game, _):
 
 	return mame_system(system, 'cart')
 
+def mame_sord_m5(game, _):
+	system = 'm5'
+	if game.metadata.tv_type == TVSystem.PAL:
+		system = 'm5p'
+		#Not sure what m5p_brno is about (two floppy drives?)
+
+	#Hmm, no reason to take out the floppy drive, really... I think I was just fooling myself that it would improve performance. Also ram size really only needs to be set to 64K if that's detected as needed. Anyway I don't feel like touching things right now
+	return mame_system(system, 'cart1', {'ramsize': '64K', 'upd765:0': ''}, True)
+
 def mame_sg1000(game, _):
 	slot_options = {}
 	has_keyboard = False
