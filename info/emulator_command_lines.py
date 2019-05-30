@@ -280,6 +280,14 @@ def mame_coleco_adam(game, _):
 
 	return mame_system('adam', slot, slot_options, has_keyboard=True)
 
+def mame_colecovision(game, _):
+	system = 'coleco'
+	if game.metadata.tv_type == TVSystem.PAL:
+		#This probably won't happen (officially, carts are supposed to support both NTSC and PAL), but who knows
+		system = 'colecop'
+
+	return mame_system(system, 'cart')
+
 def mame_fm_towns_marty(game, _):
 	slot_options = {
 		#Don't need hard disks here
@@ -442,6 +450,41 @@ def mame_megadrive(game, _):
 		if game.metadata.tv_type == TVSystem.PAL:
 			system = 'megadriv'
 	return mame_system(system, 'cart')
+
+def mame_msx1(game, _):
+	system = 'svi738'
+	#This one is in English and seems to work, so we'll go with that. I suppose ideally I would have a list of potential systems that all work, and then get the first one which is available, but that would require effort, so nah
+	#Possible slot options: fdc:0 can have 35dd or 35ssdd and I should make sure if that makes a difference for differnet .dsk sizes; centronics is there to attach printers and such; if using a floppy can put bm_012 (MIDI interface) or moonsound (OPL4 sound card, does anything use that?) in the cart port but I'm not sure that's needed; the slots are the same for MSX2
+	slot_options = {}
+	if game.metadata.media_type == MediaType.Floppy:
+		if game.rom.get_size() == (720 * 1024):
+			slot_options['fdc:0'] = '35dd'
+		#else if 360k; leave as default 35ssdd
+		slot = 'flop1'
+	elif game.metadata.media_type == MediaType.Cartridge:
+		slot = 'cart1'
+	else:
+		#Should not happen
+		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
+
+	return mame_system(system, slot, slot_options, has_keyboard=True)
+
+def mame_msx2(game, _):
+	system = 'hbf1xv'
+	#This one is MSX2+ and seems to have all the features, fsa1wsx makes you press "0" to go to BASIC for disks
+	slot_options = {}
+	if game.metadata.media_type == MediaType.Floppy:
+		if game.rom.get_size() == (720 * 1024):
+			slot_options['fdc:0'] = '35dd'
+		#else if 360k; leave as default 35ssdd
+		slot = 'flop1'
+	elif game.metadata.media_type == MediaType.Cartridge:
+		slot = 'cart1'
+	else:
+		#Should not happen
+		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
+
+	return mame_system(system, slot, slot_options, has_keyboard=True)
 
 def mame_n64(game, _):
 	if game.metadata.tv_type == TVSystem.PAL:

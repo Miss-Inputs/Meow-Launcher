@@ -106,8 +106,7 @@ emulators = {
 	'MAME (BBC Bridge Companion)': MameSystem(command_lines.mame_system('bbcbc', 'cart'), ['bin']),
 	'MAME (C64)': MameSystem(command_lines.mame_c64, ['80', 'a0', 'e0', 'crt']),
 	'MAME (Channel F)': MameSystem(command_lines.mame_system('channelf', 'cart'), ['bin', 'chf']),
-	'MAME (ColecoVision)': MameSystem(command_lines.mame_system('coleco', 'cart'), ['bin', 'col', 'rom']),
-	#Controls are actually fine in-game, just requires a keypad to select levels/start games and that's not consistent at all so good luck with that (but mapping 1 to Start seems to work well).  All carts are either USA or combination USA/Europe and are required by Coleco to run on both regions, so why play in 50Hz when we don't have to
+	'MAME (ColecoVision)': MameSystem(command_lines.mame_colecovision, ['bin', 'col', 'rom']),
 	#MT06554: Roller controller is inaccurate
 	'MAME (Coleco Adam)': MameSystem(command_lines.mame_coleco_adam, ['wav', 'ddp'] + mame_floppy_formats),
 	#Both disks and tapes autoboot. Woohoo!
@@ -134,10 +133,8 @@ emulators = {
 	'MAME (Mega Drive)': MameSystem(command_lines.mame_megadrive, ['bin', 'md', 'smd', 'gen']),
 	'MAME (Mega Duck)': MameSystem(command_lines.mame_system('megaduck', 'cart'), ['bin']),
 	'MAME (Memorex VIS)': MameSystem(command_lines.mame_system('vis', 'cdrom'), mame_cdrom_formats),
-	'MAME (MSX)': MameSystem(command_lines.mame_system('svi738', 'cart1', {'fdc:0': ''}, has_keyboard=True), ['bin', 'rom']),
-	#Note that MSX2 is backwards compatible anyway, so there's not much reason to use this, unless you do have some reason. This model in particular is used because it should be completely in English and if anything goes wrong I'd be able to understand it. I still don't know how disks work (they don't autoboot), or if there's even a consistent command to use to boot them.
-	'MAME (MSX2)': MameSystem(command_lines.mame_system('fsa1wsx', 'cart1', {'fdc:0': ''}, has_keyboard=True), ['bin', 'rom']),
-	#This includes MSX2+ because do you really want me to make those two separate things? Turbo-R doesn't work in MAME though, so that'd have to be its own thing. This model is used just because I looked it up and it seems like the best one, the MSX2/MSX2+ systems in MAME are all in Japanese (the systems were only really released in Japan, after all) so you can't avoid that part. Still don't understand disks.
+	'MAME (MSX)': MameSystem(command_lines.mame_msx1, ['bin', 'rom'] + mame_floppy_formats),
+	'MAME (MSX2)': MameSystem(command_lines.mame_msx2, ['bin', 'rom'] + mame_floppy_formats),
 	'MAME (Neo Geo CD)': MameSystem(command_lines.mame_system('neocdz', 'cdrom'), mame_cdrom_formats),
 	#Don't think it has region lock so I should never need to use neocdzj? (neocd doesn't work, apparently because it thinks it has the drive tray open constantly)
 	'MAME (Neo Geo Pocket)': MameSystem(command_lines.mame_system('ngpc', 'cart'), ['bin', 'ngp', 'npc', 'ngc']),
