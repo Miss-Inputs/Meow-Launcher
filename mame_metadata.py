@@ -310,7 +310,7 @@ arcade_systems = {
 	'cclimber': 'Crazy Climber Hardware',
 	'cischeat': 'Cisco Heat Hardware',
 	'coolpool': 'Cool Pool Hardware',
-	'ddenlovr': 'Don Don Lover Hardware',
+	'ddenlovr': 'Don Den Lover Hardware',
 	'deshoros': 'Destiny Hardware',
 	'dkong': 'Donkey Kong Hardware',
 	'ertictac': 'Erotictac Hardware', #Acorn Archimedes based
