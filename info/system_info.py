@@ -250,9 +250,9 @@ systems.update({
 	#Mupen64Plus would work, but right now it has issues with usability that it says right in the readme (so it's not just me picking on them, they say it themselves). Basically you have to have a cart inserted which has the same properties as the 64DD software you want to emulate, and that wouldn't work for our launchering purposes. MAME doesn't seem to work with .ndd format dumps
 	'Apple I': UnsupportedSystem('apple1', ['apple1'], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['snp']}),
 	#Loading tapes would require parsing software list usage to figure out where to put load addresses and things to make an autoboot script, because otherwise it's just way too messy to warrant being in a frontend. Snapshots supposedly exist, but I haven't seen any evidence they actually do, so... whoops
-	'C64DTV': UnsupportedSystem('c64dtv', [], []),
+	'C64DTV': UnsupportedSystem('c64dtv', [], [], {MediaType.Floppy: commodore_disk_formats, MediaType.Executable: ['prg']}),
 	#Commodore 64 plug and play UnsupportedSystem that has its own unique software, apparently. MAME driver is skeleton, and VICE doesn't seem to boot anything (it is noted as being WIP/experimental)
-	'Commodore 65': UnsupportedSystem('c65', ['c65_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
+	'Commodore 65': UnsupportedSystem('c65', ['c65_flop'], [], {MediaType.Floppy: commodore_disk_formats}),
 	#This was actually never released, but there's software for it anyway. However, this is only supported by MAME, and it seems it only supports loading by software lists (there are no media slots), which won't work for our purposes at this point in time
 	'Cybiko': UnsupportedSystem('cybikov1', [], [], {MediaType.Digital: ['app']}),
 	#Quickload slot doesn't seem to actually quickload anything, and seems to require setup each time. V2 and Extreme have same problems
@@ -270,7 +270,7 @@ systems.update({
 	'Oric': UnsupportedSystem('orica', [], [], {MediaType.Tape: ['wav', 'tap']}),
 	#MAME has oric1 as well... either way, they don't seem to actually load anything I've tried. There's no software lists, so nothing that says anything is supposed to work
 	#Oricutron loads things automatically and other nice things, but has issues with fullscreen
-	'PC-6001': UnsupportedSystem('pc6001', [], []),
+	'PC-6001': UnsupportedSystem('pc6001', [], [], {MediaType.Tape: ['cas', 'p6']}),
 	#MAME driver is preliminary and notes in source file comments it doesn't load tapes yet; PC6001VX doesn't do command line arguments so un-launcherable
 	'PMD 85': UnsupportedSystem('pmd853', ['pmd85_cass'], [], {MediaType.Tape: ['wav', 'pmd', 'tap', 'ptp']}),
 	#This has quite a few variants and apparently works, pmd85.cpp has todos/notes. Notably, floppy interface and speaker apparently not there yet. Anyway, boo tapes
@@ -280,12 +280,12 @@ systems.update({
 	#Works well, just needs to autoboot tapes, and that might be tricky because you have BLOAD and CLOAD (and how does one even tell the difference programmatically)
 	'ZX81': UnsupportedSystem('zx81', ['zx80_cass', 'zx81_cass'], [], {MediaType.Tape: ['wav', 'cas', 'p', '81', 'tzx']}),
 	#Not even gonna try testing any more software without autobooting it, though I'm not sure it does work from the one I did. Anyway, gotta press J and then Shift+P twice to type LOAD "" and then enter, and then start the tape, and then wait and then press run, and it seems if you screw up any step at all you gotta reset the whole thing, and even then it's like.... meh....
-	'Radio 86-RK': UnsupportedSystem('radio86', ['radio86_cart', 'radio86_cass'], []),
-	#These and the other USSR UnsupportedSystems below are all sorta the same (but might not be software-compatible?) anyway they only have tapes for software, and are mostly only emulated by MAME which has tape annoyances, or that online thing which is online and not suitable for a launcher
-	'Mikrosha': UnsupportedSystem('mikrosha', ['mikrosha_cart', 'mikrosha_cass'], []),
-	'Apogey BK-01': UnsupportedSystem('apogee', ['apogee'], []),
-	'Partner 01.01': UnsupportedSystem('partner', ['partner_cass', 'partner_flop'], []),
-	'Orion-128': UnsupportedSystem('orion128', ['orion_cart', 'orion_cass', 'orion_flop'], []),
+	'Radio 86-RK': UnsupportedSystem('radio86', ['radio86_cart', 'radio86_cass'], [], {MediaType.Tape: ['wav', 'rk', 'rkr', 'gam', 'g16', 'pki']}),
+	#These and the other USSR systems below are all sorta the same (but might not be software-compatible?) anyway they only have tapes for software other than system stuff, and are mostly only emulated by MAME which has the ol' tape problems of having to type in weird commands, or that online thing which is online and not suitable for a launcher
+	'Mikrosha': UnsupportedSystem('mikrosha', ['mikrosha_cart', 'mikrosha_cass'], [], {MediaType.Tape: ['wav', 'rkm'], MediaType.Cartridge: ['bin', 'rom']}),
+	'Apogey BK-01': UnsupportedSystem('apogee', ['apogee'], [], {MediaType.Tape: ['wav', 'rka']}),
+	'Partner 01.01': UnsupportedSystem('partner', ['partner_cass', 'partner_flop'], [], {MediaType.Tape: ['wav', 'rkp'], MediaType.Floppy: mame_floppy_formats + ['odi']}),
+	'Orion-128': UnsupportedSystem('orion128', ['orion_cart', 'orion_cass', 'orion_flop'], [], {MediaType.Tape: ['wav', 'rkp'], MediaType.Floppy: mame_floppy_formats + ['odi'], MediaType.Cartridge: ['bin']}),
 
 	#Things that have other weird usability issues
 	'Apple IIgs': UnsupportedSystem('apple2gs', ['apple2gs'], [], {MediaType.Floppy: mame_floppy_formats + ['2mg']}),
@@ -296,7 +296,7 @@ systems.update({
 	#Emulation works in Kega Fusion (and partially MAME but many games don't boot), but they don't display the actual book, which would be needed for most of the software to make any sense. Kega Fusion doesn't even have controls to turn the pages, which is needed for stuff
 
 	#TODO: Me being lazy, need to check if these actually work or not:
-	'Acorn Atom': UnsupportedSystem('atom', ['atom_cass', 'atom_flop', 'atom_rom'], []),
+	'Acorn Atom': UnsupportedSystem('atom', ['atom_cass', 'atom_flop', 'atom_rom'], [], {MediaType.Floppy: ['40t', 'dsk'], MediaType.Tape: ['wav', 'tap', 'csw', 'uef'], MediaType.Executable: ['atm'], MediaType.Cartridge: ['bin', 'rom']}),
 	'Acorn Archimedes': UnsupportedSystem('aa310', ['archimedes'], [], {MediaType.Floppy: mame_floppy_formats + ['adf']}),
 	#I'll probably want to look more into it, but it looks like it won't really autoboot stuff... just kinda boots to a GUI or prompt depending on the RISC OS version used and then it is in all fairness easy and intuitive from there, but not necessarily an integrated smooth experience...
 	'Amstrad CPC': UnsupportedSystem('cpc464', ['cpc_cass', 'cpc_flop'], [], {MediaType.Snapshot: ['sna'], MediaType.Tape: ['wav', 'cdt'], MediaType.Floppy: mame_floppy_formats}),
@@ -308,9 +308,9 @@ systems.update({
 	#Marked as MACHINE_NOT_WORKING, probably doesn't work
 	'Amstrad PCW16': UnsupportedSystem('pcw16', ['pcw16'], [], {MediaType.Floppy: mame_floppy_formats}),
 	#Marked as MACHINE_NOT_WORKING and MAME pcw.cpp mentions needing an OS rescue disk, probably doesn't work conveniently or at all
-	'APF Imagination Machine': UnsupportedSystem('apfimag', ['apfimag_cass', 'apfm1000'], []),
+	'APF Imagination Machine': UnsupportedSystem('apfimag', ['apfimag_cass', 'apfm1000'], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas', 'cpf', 'apt'], MediaType.Floppy: mame_floppy_formats}),
 	#Considered separate from APF-M1000 (same predicament as Coleco Adam)
-	'BBC Master': UnsupportedSystem('bbcm', ['bbcm_cart', 'bbcm_cass', 'bbcmc_flop', 'bbcm_flop'], []),
+	'BBC Master': UnsupportedSystem('bbcm', ['bbcm_cart', 'bbcm_cass', 'bbcmc_flop', 'bbcm_flop'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl', 'fds', 'ima', 'ufi', '360'] + mame_floppy_formats, MediaType.Cartridge: ['rom', 'bin']}),
 	'Camputers Lynx': UnsupportedSystem('lynx128k', ['camplynx_cass', 'camplynx_flop'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav', 'tap']}),
 	'Exidy Sorcerer': UnsupportedSystem('sorcerer', ['sorcerer_cart', 'sorcerer_cass', 'sorcerer_flop'],
 		{MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav', 'tape'], MediaType.Snapshot: ['snp']}),
@@ -325,9 +325,9 @@ systems.update({
 	'Memotech MTX': UnsupportedSystem('mtx512', ['mtx_cart', 'mtx_cass', 'mtx_rom'], [], {MediaType.Snapshot: ['mtx'], MediaType.Executable: ['run'], MediaType.Tape: ['wav'], MediaType.Cartridge: ['bin', 'rom']}),
 	'Robotron Z1013': UnsupportedSystem('z1013', [], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['z80']}),
 	#z1013.cpp is apparently preliminary driver but z1013 and z1013a2 aren't marked as not working so might be okay
-	'Sharp MZ-700': UnsupportedSystem('mz700', ['mz700'], []),
-	'Sharp MZ-800': UnsupportedSystem('mz800', ['mz800'], []),
-	'Sharp MZ-2000': UnsupportedSystem('mz2000', ['mz2000_cass', 'mz2000_flop'], []),
+	'Sharp MZ-700': UnsupportedSystem('mz700', ['mz700'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt']}),
+	'Sharp MZ-800': UnsupportedSystem('mz800', ['mz800'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt']}),
+	'Sharp MZ-2000': UnsupportedSystem('mz2000', ['mz2000_cass', 'mz2000_flop'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt'], MediaType.Cartridge: ['2d'] + mame_floppy_formats}),
 	'Sinclair QL': UnsupportedSystem('ql', ['ql_cart', 'ql_cass', 'ql_flop'], [], {MediaType.Tape: ['mdv'], MediaType.Cartridge: ['bin', 'rom']}),
 	'Thomson MO': UnsupportedSystem('mo6', ['mo5_cart', 'mo5_cass', 'mo5_flop', 'mo5_qd', 'mo6_cass', 'mo6_flop'], [], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qt'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}),
 	#MO5E is export version of MO5, MO6 is an upgraded model, Prodest PC 128 is an Italian MO6
@@ -372,7 +372,6 @@ systems.update({
 	#Amstrad PC20/Sinclair PC200: Is this just IBM PC compatible stuff? Have one demoscene prod which claims to be for it specifically
 	#Epoch (not Super) Casette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
 	#Coleco Quiz Wiz Challenge might require its own thing: The software cartridges contain no ROMs, just different pinouts, you need the software list to select which one
-	#Memotech VIS: Just Windows 3.1?
 	#Pioneer LaserActive probably just counts as Mega CD and PC Engine CD except with Laserdisc instead of CD, but I'll worry about that when emulation for it becomes a thing
 })
 
