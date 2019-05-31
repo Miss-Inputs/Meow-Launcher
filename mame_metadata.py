@@ -431,17 +431,16 @@ def add_metadata_from_catlist(machine):
 	if subgenre == 'Punched Car':
 		subgenre = 'Punched Card'
 	#ddrstraw is Rhythm / Dance but it's more accurately a plug & play game, although that is the genre, so it's not wrong
-	#kuzmich is just Platform / Run Jump, it's an arcade machine though
+	#kuzmich is just Platform / Run Jump, it's an arcade machine though (but it kinda doesn't have coins at this point in time, and I dunno if it's supposed to, or it just be like that)
 	
 	machine.metadata.media_type = MediaType.Standalone
 
 	if category == 'Unknown':
 		#Not in catlist or user doesn't have catlist
 		machine.metadata.platform = 'Unknown'
-		machine.metadata.categories = ['Unknown']
-		return
-
-	if category:
+		machine.metadata.genre = 'Unknown'
+		machine.metadata.subgenre = 'Unknown'
+	elif category:
 		#'Arcade: ' or whatever else at the beginning
 		machine.metadata.platform = category
 		machine.metadata.genre = genre
@@ -545,7 +544,7 @@ def add_metadata_from_catlist(machine):
 		if category:
 			machine.metadata.categories = ['Arcade']
 		else:
-			machine.metadata.categories = ['Non-Arcade']
+			machine.metadata.categories = ['Non-Arcade'] if machine.coin_slots == 0 else ['Arcade']
 	#Misc has a lot of different things in it and I guess catlist just uses it as a catch-all for random things which don't really fit anywhere else and there's not enough to give them their own category, probably
 	#Anyway, the name 'Non-Arcade' sucks because it's just used as a "this isn't anything in particular" thing
 
