@@ -435,6 +435,7 @@ def add_metadata_from_catlist(machine):
 		subgenre = 'Punched Card'
 	#ddrstraw is Rhythm / Dance but it's more accurately a plug & play game, although that is the genre, so it's not wrong
 	#kuzmich is just Platform / Run Jump, it's an arcade machine though (but it kinda doesn't have coins at this point in time, and I dunno if it's supposed to, or it just be like that)
+	#evio is Music / Instruments which is the genre, yes, but it is indeed plug & play. Hmm...
 	
 	machine.metadata.media_type = MediaType.Standalone
 
@@ -511,7 +512,7 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.platform = 'Board Game'
 		if not machine.metadata.categories:
 			machine.metadata.categories = ['Games']
-	if not category and ((genre == 'Handheld' and subgenre == "Plug n' Play TV Game") or (genre == 'Rhythm' and subgenre == 'Dance') or (genre == 'MultiGame' and subgenre == 'Compilation') or (genre == 'Game Console' and subgenre == 'Fitness Game')):
+	if not category and ((genre == 'Handheld' and subgenre == "Plug n' Play TV Game") or (genre == 'Rhythm' and subgenre == 'Dance') or (genre == 'MultiGame' and subgenre == 'Compilation') or (genre == 'Game Console' and subgenre == 'Fitness Game') or (genre == 'Music' and subgenre == 'Instruments')):
 		#MultiGame / Compilation is also used for some handheld systems (and also there is Arcade: MultiGame / Compilation)
 		machine.metadata.platform = 'Plug & Play'
 		if not machine.metadata.categories:
@@ -527,13 +528,15 @@ def add_metadata_from_catlist(machine):
 		#Anyway that's why I put that there
 		#Other genres of handheld: Pocket Device - Pad - PDA; Child Computer (e.g. Speak & Spell) but those seem more suited to Standalone System particularly the former
 		machine.metadata.platform = 'Handheld' if is_plug_and_play(machine) else 'Standalone System'
-	if genre == 'Electromechanical' or (category == 'Arcade' and genre in ('Utilties', 'Medal Game')):
-		machine.metadata.categories = [genre]
-	elif (category == 'Arcade' and (genre == 'Misc.' and subgenre in ('Laserdisc Simulator', 'Print Club', 'Redemption'))) or (genre == 'Music' and subgenre == 'Jukebox'):
-		machine.metadata.categories = [subgenre]
-	elif genre == 'Unknown' or subgenre == 'Unknown':
+	if genre == 'Misc.' and subgenre == 'Unknown':
 		machine.metadata.genre = 'Unknown'
-		machine.metadata.subgenre = 'Unknown'
+	
+	if (category == 'Arcade' and (genre == 'Misc.' and subgenre in ('Laserdisc Simulator', 'Print Club', 'Redemption'))) or (genre == 'Music' and subgenre == 'Jukebox'):
+		machine.metadata.categories = [subgenre]
+	elif genre == 'Utilities' and subgenre == 'Test ROM':
+		machine.metadata.categories = ['Test ROMs']
+	elif genre == 'Electromechanical' or (category == 'Arcade' and genre in ('Utilties', 'Medal Game')):
+		machine.metadata.categories = [genre]
 	elif (genre == 'Misc.' and subgenre == 'Coin Pusher') or (genre == 'Coin Pusher' and subgenre == 'Misc.'):
 		machine.metadata.categories = ['Coin Pusher']
 	elif category == 'Arcade' and ((genre == 'Casino') or (genre == 'Slot Machine') or (genre == 'Electromechanical' and subgenre == 'Reels') or (genre == 'Multiplay' and subgenre == 'Cards')):
