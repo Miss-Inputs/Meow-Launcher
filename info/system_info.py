@@ -275,8 +275,6 @@ systems.update({
 	#This has quite a few variants and apparently works, pmd85.cpp has todos/notes. Notably, floppy interface and speaker apparently not there yet. Anyway, boo tapes
 	'PocketStation': UnsupportedSystem('pockstat', [], [], {MediaType.Digital: ['gme']}),
 	#Makes you set time and date each time
-	'RCA Studio 2': UnsupportedSystem('studio2', ['studio2'], [], {MediaType.Cartridge: ['st2', 'bin', 'rom']}),
-	#Due to the console's terrible design, asinine keypad sequences are needed to boot games any further than weird static or a black screen. They're so asinine that even if I look at the info usage in the software list, and do the thing, it still doesn't work. So if it's that complicated that I can't work it out manually, how can I do it programmatically? So yeah, shit
 	'SVI-3x8': UnsupportedSystem('svi328', ['svi318_cart', 'svi318_cass', 'svi318_flop'], [], {MediaType.Tape: ['wav', 'cas'], MediaType.Cartridge: ['bin', 'rom']}),
 	#Works well, just needs to autoboot tapes, and that might be tricky because you have BLOAD and CLOAD (and how does one even tell the difference programmatically)
 	'ZX81': UnsupportedSystem('zx81', ['zx80_cass', 'zx81_cass'], [], {MediaType.Tape: ['wav', 'cas', 'p', '81', 'tzx']}),
@@ -349,6 +347,8 @@ systems.update({
 	#Marked as not working due to missing expansion interface and serial port and other things, not sure how important that would be... anyway, I'd need to do an autoboot thing to press the key to start the thing, because otherwise it's annoying to navigate every time, and then... hmm, I guess I dunno what actually is a function of things not working yet
 	'Galaksija': UnsupportedSystem('galaxyp', ['galaxy'], [], {MediaType.Snapshot: ['gal'], MediaType.Tape: ['wav', 'gtp']}),
 	#This needs tape control automation to work with tapes (type OLD, then play tape, then RUN); dumps just need to press enter because MAME will type "RUN" for you. But not enter for you. Dunno why. Anyway, we'd go with those and make an autoboot script (maybe just -autoboot_command '\n' would work with suitable delay). galaxy is regular UnsupportedSystem, galaxyp is an upgraded one which appears to be completely backwards compatible
+	'RCA Studio 2': UnsupportedSystem('studio2', ['studio2'], [], {MediaType.Cartridge: ['st2', 'bin', 'rom']}),
+	#This console sucks and I hate it, anyway; I'd need to make multiple autoboot scripts that press F3 and then combinations of buttons depending on software list > usage. God fuck I hate this console so much. PAL games (and some homebrew stuff) need mpt02
 
 	#Hmm dunno if I actually want to put these in Meow Launcher for various reasons but they're here for documentation anyway / because I feel like listing things
 	'Android': UnsupportedSystem(None, [], [], {MediaType.Digital: ['apk']}),
