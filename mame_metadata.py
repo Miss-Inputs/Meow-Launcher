@@ -554,6 +554,25 @@ def add_metadata_from_catlist(machine):
 	#Misc has a lot of different things in it and I guess catlist just uses it as a catch-all for random things which don't really fit anywhere else and there's not enough to give them their own category, probably
 	#Anyway, the name 'Non-Arcade' sucks because it's just used as a "this isn't anything in particular" thing
 
+def add_languages(machine, name_tags):
+	languages = get_languages(machine.basename)
+	if languages:
+		machine.metadata.languages = languages
+	else:
+		if machine.has_parent:
+			languages = get_languages(machine.parent.basename)
+			if languages:
+				machine.metadata.languages = languages
+				return
+
+		languages = detect_things_from_filename.get_languages_from_tags_directly(name_tags)
+		if languages:
+			machine.metadata.languages = languages
+		elif machine.metadata.regions:
+			region_language = get_language_from_regions(machine.metadata.regions)
+			if region_language:
+				machine.metadata.languages = [region_language]
+
 def add_metadata(machine):
 	add_metadata_from_catlist(machine)
 
@@ -577,17 +596,7 @@ def add_metadata(machine):
 	name_tags = find_filename_tags.findall(machine.name)
 	machine.metadata.regions = detect_things_from_filename.get_regions_from_filename_tags(name_tags, loose=True)
 
-	languages = get_languages(machine.basename)
-	if languages:
-		machine.metadata.languages = languages
-	else:
-		languages = detect_things_from_filename.get_languages_from_tags_directly(name_tags)
-		if languages:
-			machine.metadata.languages = languages
-		elif machine.metadata.regions:
-			region_language = get_language_from_regions(machine.metadata.regions)
-			if region_language:
-				machine.metadata.languages = [region_language]
+	add_languages(machine, name_tags)
 
 	revision = detect_things_from_filename.get_revision_from_filename_tags(name_tags)
 	if revision:
