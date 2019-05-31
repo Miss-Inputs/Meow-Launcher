@@ -450,7 +450,6 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.nsfw = nsfw
 	else:
 		#Non-arcade thing
-		machine.metadata.platform = 'Non-Arcade'
 		machine.metadata.genre = genre
 		machine.metadata.subgenre = subgenre
 
