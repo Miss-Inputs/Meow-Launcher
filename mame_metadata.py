@@ -198,6 +198,7 @@ arcade_systems = {
 	'pyson': 'Konami Python', #Also called Pyson, I guess... Japan-English transliteration error? PS2 based
 	'redalert': 'Irem M27',
 	'seattle': 'Midway Seattle',
+	'segaatom': 'Sega Atom', #Basically a skeleton
 	'segac2': 'Sega System C2', #Similar to Megadrive
 	'segae': 'Sega System E', #Similar to Master System
 	'segag80r': 'Sega G-80 Raster',
