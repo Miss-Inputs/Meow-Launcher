@@ -392,7 +392,7 @@ def add_status(machine):
 	#See comments for overall_status property for what that actually means
 	machine.metadata.specific_info['MAME-Overall-Emulation-Status'] = machine.overall_status
 	machine.metadata.specific_info['MAME-Emulation-Status'] = machine.emulation_status
-	machine.metadata.specific_info['Cocktail-Status'] = mame_statuses.get(driver.attrib.get('cocktail'), EmulationStatus.Unknown)
+	machine.metadata.specific_info['Cocktail-Status'] = mame_statuses.get(driver.attrib.get('cocktail'), EmulationStatus.Good)
 	machine.metadata.specific_info['Supports-Savestate'] = driver.attrib.get('savestate') == 'supported'
 
 	unemulated_features = []
