@@ -40,6 +40,11 @@ def add_info_from_software_list(game, software):
 
 	game.metadata.specific_info['Peripheral'] = peripheral
 
+	requirement = software.get_shared_feature('requirement')
+	if requirement == 'a800:basicb':
+		game.metadata.specific_info['Requires-BASIC'] = True
+		#Also: a800:msbasic2, a800:basxe41, a800:writerd, a800:spectra2 (none of those are games, the first two are just language extensions, the latter is noted as not being supported anyway, therefore meh)
+
 	usage = software.get_info('usage')
 	if usage == 'Plays music only in PAL':
 		game.metadata.tv_type = TVSystem.PAL
