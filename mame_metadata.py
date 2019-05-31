@@ -546,12 +546,12 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.categories = ['Non-Arcade']
 
 	if not machine.metadata.categories:
-		if category:
+		if category and category != 'Unknown':
 			machine.metadata.categories = ['Arcade']
 		else:
 			machine.metadata.categories = ['Non-Arcade'] if machine.coin_slots == 0 else ['Arcade']
 	if not machine.metadata.platform:
-		if category:
+		if category and category != 'Unknown':
 			machine.metadata.platform = 'Arcade'
 		else:
 			machine.metadata.platform = 'Non-Arcade' if machine.coin_slots == 0 else 'Arcade'
