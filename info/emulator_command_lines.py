@@ -457,9 +457,8 @@ def mame_msx1(game, _):
 	#Possible slot options: fdc:0 can have 35dd or 35ssdd and I should make sure if that makes a difference for differnet .dsk sizes; centronics is there to attach printers and such; if using a floppy can put bm_012 (MIDI interface) or moonsound (OPL4 sound card, does anything use that?) in the cart port but I'm not sure that's needed; the slots are the same for MSX2
 	slot_options = {}
 	if game.metadata.media_type == MediaType.Floppy:
-		if game.rom.get_size() == (720 * 1024):
-			slot_options['fdc:0'] = '35dd'
-		#else if 360k; leave as default 35ssdd
+		#Defaults to 35ssdd, but 720KB disks need this one instead
+		slot_options['fdc:0'] = '35dd'
 		slot = 'flop1'
 	elif game.metadata.media_type == MediaType.Cartridge:
 		slot = 'cart1'
@@ -474,9 +473,8 @@ def mame_msx2(game, _):
 	#This one is MSX2+ and seems to have all the features, fsa1wsx makes you press "0" to go to BASIC for disks
 	slot_options = {}
 	if game.metadata.media_type == MediaType.Floppy:
-		if game.rom.get_size() == (720 * 1024):
-			slot_options['fdc:0'] = '35dd'
-		#else if 360k; leave as default 35ssdd
+		#Defaults to 35ssdd, but 720KB disks need this one instead
+		slot_options['fdc:0'] = '35dd'
 		slot = 'flop1'
 	elif game.metadata.media_type == MediaType.Cartridge:
 		slot = 'cart1'
