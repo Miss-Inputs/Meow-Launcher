@@ -39,7 +39,7 @@ class DataAreaROM():
 
 	@property
 	def size(self):
-		return parse_size_attribute(self.xml.attrib.get('size'))
+		return parse_size_attribute(self.xml.attrib.get('size', '0'))
 
 	@property
 	def crc32(self):
@@ -51,7 +51,7 @@ class DataAreaROM():
 
 	@property
 	def offset(self):
-		return parse_size_attribute(self.xml.attrib.get('offset'))
+		return parse_size_attribute(self.xml.attrib.get('offset', '0'))
 
 	def matches(self, crc32, sha1):
 		if sha1:
@@ -77,7 +77,7 @@ class DataArea():
 
 	@property
 	def size(self):
-		return parse_size_attribute(self.xml.attrib.get('size'))
+		return parse_size_attribute(self.xml.attrib.get('size', '0'))
 
 	def matches(self, args):
 		if len(self.roms) == 1:
