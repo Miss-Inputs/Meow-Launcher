@@ -437,7 +437,6 @@ def add_metadata_from_catlist(machine):
 
 	if category == 'Unknown':
 		#Not in catlist or user doesn't have catlist
-		machine.metadata.platform = 'Unknown'
 		machine.metadata.genre = 'Unknown'
 		machine.metadata.subgenre = 'Unknown'
 	elif category:
@@ -531,7 +530,8 @@ def add_metadata_from_catlist(machine):
 	elif (category == 'Arcade' and (genre == 'Misc.' and subgenre in ('Laserdisc Simulator', 'Print Club', 'Redemption'))) or (genre == 'Music' and subgenre == 'Jukebox'):
 		machine.metadata.categories = [subgenre]
 	elif genre == 'Unknown' or subgenre == 'Unknown':
-		machine.metadata.categories = ['Unknown']
+		machine.metadata.genre = 'Unknown'
+		machine.metadata.subgenre = 'Unknown'
 	elif (genre == 'Misc.' and subgenre == 'Coin Pusher') or (genre == 'Coin Pusher' and subgenre == 'Misc.'):
 		machine.metadata.categories = ['Coin Pusher']
 	elif category == 'Arcade' and ((genre == 'Casino') or (genre == 'Slot Machine') or (genre == 'Electromechanical' and subgenre == 'Reels') or (genre == 'Multiplay' and subgenre == 'Cards')):
@@ -545,6 +545,11 @@ def add_metadata_from_catlist(machine):
 			machine.metadata.categories = ['Arcade']
 		else:
 			machine.metadata.categories = ['Non-Arcade'] if machine.coin_slots == 0 else ['Arcade']
+	if not machine.metadata.platform:
+		if category:
+			machine.metadata.platform = 'Arcade'
+		else:
+			machine.metadata.platform = 'Non-Arcade' if machine.coin_slots == 0 else 'Arcade'
 	#Misc has a lot of different things in it and I guess catlist just uses it as a catch-all for random things which don't really fit anywhere else and there's not enough to give them their own category, probably
 	#Anyway, the name 'Non-Arcade' sucks because it's just used as a "this isn't anything in particular" thing
 
