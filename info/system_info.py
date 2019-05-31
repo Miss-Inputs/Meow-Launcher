@@ -192,7 +192,7 @@ systems.update({
 	#Preliminary MAME driver doesn't seem to boot anything; LisaEm doesn't seem to work with newer OSes and hasn't been updated since
 	'Atari Portfolio': UnsupportedSystem('pofo', ['pofo'], [], {MediaType.Cartridge: ['bin', 'rom']}),
 	'Atari ST': UnsupportedSystem('st', ['st_flop', 'st_cart'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Floppy: mame_floppy_formats + ['st', 'stx', 'msa']}),
-	#MAME isn't there yet, and Hatari is known to have usability issues... is there anything else?
+	#MAME seems to boot things but not respond to input (the driver is marked solidly MACHINE_NOT_WORKING), need to find a standalone emulator that cooperates with fullscreen mode and such
 	'Bandai Playdia': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'C2 Color': UnsupportedSystem('c2color', ['c2color_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Casio Loopy': UnsupportedSystem('casloopy', ['casloopy'], [], {MediaType.Cartridge: ['bin']}),
@@ -202,6 +202,7 @@ systems.update({
 	'Copera': UnsupportedSystem('copera', ['copera'], [], {MediaType.Cartridge: ['bin', 'md']}),
 	#Kega Fusion emulates the Pico well enough to show the message telling you the Copera software won't work on a Pico, at least; otherwise no known emulation
 	'GameKing': UnsupportedSystem('gameking', ['gameking'], [], {MediaType.Cartridge: ['bin']}),
+	#Does display some graphics, and almost boots the games, but nothing seems actually playable; no sound anyway
 	'GameKing 3': UnsupportedSystem('gamekin3', ['gameking3'], [], {MediaType.Cartridge: ['bin']}),
 	'Gakken TV Boy': UnsupportedSystem(None, [], [], {}),
 	#No MAME driver or anything, although it's mentioned on an old MESS 'to be dumped' page; apparently CPU is inside the carts
