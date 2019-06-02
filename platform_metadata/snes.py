@@ -257,9 +257,9 @@ def add_normal_snes_header(game):
 		if licensee is not None:
 			if licensee in nintendo_licensee_codes:
 				game.metadata.publisher = nintendo_licensee_codes[licensee]
-		country = header_data.get('Country')
-		if country:
-			game.metadata.regions = [country]
+		#country = header_data.get('Country')
+		#if country:
+		#	game.metadata.regions = [country]
 		game.metadata.specific_info['Revision'] = header_data.get('Revision')
 		product_code = header_data.get('Product code')
 		if product_code:
