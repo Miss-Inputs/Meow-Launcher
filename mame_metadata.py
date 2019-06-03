@@ -104,7 +104,6 @@ arcade_systems = {
 	'cubo': 'Cubo CD32', #Amiga CD32 + JAMMA
 	'cv1k': 'Cave CV1000B', #Also CV1000D
 	'cvs': 'Century CVS System',
-	'dec0': 'Data East MEC-M1', #Or is it just "Data East 16-bit Hardware"?
 	'deco156': 'Deco 156',
 	'decocass': 'Deco Casette',
 	'deco_mlc': 'Data East MLC System',
@@ -196,6 +195,7 @@ arcade_systems = {
 	'policetr': 'ATILLA Video System',
 	'psikyo4': 'Psikyo PS4',
 	'pyson': 'Konami Python', #Also called Pyson, I guess... Japan-English transliteration error? PS2 based
+	'rastersp': 'Bell-Fruit/ATD RasterSpeed',
 	'redalert': 'Irem M27',
 	'seattle': 'Midway Seattle',
 	'segaatom': 'Sega Atom', #Basically a skeleton
@@ -248,7 +248,7 @@ arcade_systems = {
 	'vegaeo': 'Eolith Vega System',
 	'vegas': 'Midway Vegas',
 	'vicdual': 'VIC Dual',
-	'vigilant': 'Irem M75', #Also M77
+	'vigilant': 'Irem M75', #Also M77 (maybe?)
 	'viper': 'Konami Viper', #3Dfx (PPC) based
 	'vsnes': 'VS Unisystem',
 	'zr107': 'Konami ZR107',
@@ -261,6 +261,7 @@ arcade_systems = {
 	'cavepc': 'Cave PC Hardware', #Athlon 64 X2 + Radeon 3200 based
 	'cinemat': 'Cinematronics Vector Hardware',
 	'cmmb': 'Cosmodog Hardware',
+	'dec0': 'Data East 16-bit Hardware', #Have heard some of these games called "Data East MEC-M1" but I dunno where that name comes from
 	'dec8': 'Data East 8-bit Hardware',
 	'deco32': 'Data East 32-bit Hardware', #Or "Data East ARM6", if you prefer
 	'dreamwld': 'Semicom 68020 Hardware',
