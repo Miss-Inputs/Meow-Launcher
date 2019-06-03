@@ -297,13 +297,15 @@ arcade_systems = {
 	'toaplan2': 'Newer Toaplan Hardware',
 	'unico': 'Unico Hardware',
 	'williams': 'Williams 6809 Hardware',
+	'yunsun16': 'Yun Sung 16 Bit Hardware',
 
-	#Arcade platforms that don't really have a name except a game that uses them; I try not to fill this up with every single remaining source file, just where it's notable for having other games on it or some other reason (because it's based on a home console/computer perhaps, or because it's 3D or modern and therefore interesting)
+	#Arcade platforms that don't really have a name except a game that uses them; I try not to fill this up with every single remaining source file, just where it's notable for having other games on it or some other reason (because it's based on a home console/computer perhaps, or because it's 3D or modern and therefore interesting), or maybe I do because I feel like it sometimes, oh well
 	'ambush': 'Ambush Hardware',
 	'armedf': 'Armed Formation Hardware',
 	'arkanoid': 'Arkanoid Hardware',
 	'backfire': 'Backfire! Hardware',
 	'battlera': 'Battle Rangers Hardware', #PC Engine based
+	'beathead': 'Beathead Hardwarew',
 	'bishi': 'Bishi Bashi Champ Hardware',
 	'btime': 'BurgerTime Hardware',
 	'btoads': 'Battletoads Hardware',
@@ -314,6 +316,7 @@ arcade_systems = {
 	'deshoros': 'Destiny Hardware',
 	'dkong': 'Donkey Kong Hardware',
 	'ertictac': 'Erotictac Hardware', #Acorn Archimedes based
+	'exterm': 'Exterminator Hardware',
 	'fcrash': 'Final Crash Hardware', #Bootleg of Final Fight; this is used for other bootlegs too
 	'galaga': 'Galaga Hardware',
 	'galaxian': 'Galaxian Hardware', #Was used for a lot of games and bootlegs, actually; seems that Moon Cresta hardware has the same source file
@@ -325,8 +328,11 @@ arcade_systems = {
 	'hshavoc': 'High Seas Havoc Hardware', #Megadrive based
 	'invqix': 'Space Invaders / Qix Silver Anniversary Edition Hardware',
 	'kinst': 'Killer Instinct Hardware',
+	'lastfght': 'Last Fighting Hardware',
 	'lethalj': 'Lethal Justice Hardware',
 	'liberate': 'Liberation Hardware',
+	'macrossp': 'Macross Plus Hardware',
+	'mappy': 'Super Pac-Man Hardware', #While the source file is called mappy, this seems to be more commonly known as the Super Pac-Man board
 	'metalmx': 'Metal Maniax Hardware',
 	'pacman': 'Pac-Man Hardware',
 	'pcat_nit': 'Street Games Hardware', #PC-AT 386 based
@@ -343,6 +349,7 @@ arcade_systems = {
 	'slapshot': 'Slap Shot Hardware',
 	'snowbros': 'Snow Bros Hardware',
 	'ssfindo': 'See See Find Out Hardware', #RISC PC based
+	'tmnt': 'TMNT Hardware',
 	'tnzs': 'The NewZealand Story Hardware',
 	'tourtabl': 'Tournament Table Hardware', #Atari 2600 based
 	'tumbleb': 'Tumble Pop Bootleg Hardware',
