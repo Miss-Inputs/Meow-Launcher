@@ -1154,7 +1154,6 @@ def _make_dosbox_x_config(app, specific_config):
 
 	#Need to do the autoexec thing manually, because DOSBox-X doesn't have that thing where you put a file in the command line and it autoexecs it
 	folder, name = os.path.split(app.path)
-	#TODO: Warn or something if this is going to result in a non-DOS-friendly filename
 	autoexec = [
 		'MOUNT -u D:', #It's ours now. Surely there must be a better way to do this...
 		'MOUNT D: {0}'.format(folder),
