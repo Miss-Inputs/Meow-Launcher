@@ -5,7 +5,7 @@ import os
 import copy
 
 from metadata import CPU, ScreenInfo
-from config import cache_dir
+from common_paths import cache_dir
 from common import junk_suffixes
 from data.mame_manufacturers import manufacturer_overrides
 

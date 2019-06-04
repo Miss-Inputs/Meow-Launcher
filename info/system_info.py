@@ -1,4 +1,7 @@
+import os
+
 from common_types import ConfigValueType, MediaType
+from common_paths import data_dir
 
 class SpecificConfigValue():
 	#This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno
@@ -395,11 +398,18 @@ class ComputerSystem():
 		self.specific_configs = specific_configs if specific_configs else {}
 
 computer_systems = {
-	'Mac': ComputerSystem({'shared_folder': SpecificConfigValue(ConfigValueType.FolderPath, None, 'Path to shared folder on host that guest can see. This is mandatory for all this Mac stuff to work'), 'default_width': SpecificConfigValue(ConfigValueType.String, 1920, 'Emulated screen width to run at if a game doesn\'t need a specific screen resolution'), 'default_height': SpecificConfigValue(ConfigValueType.String, 1080, 'Emulated screen height to run at if a game doesn\'t need a specific screen resolution')}),
-	'DOS': ComputerSystem({'slow_cpu_cycles': SpecificConfigValue(ConfigValueType.String, 477, 'CPU cycles to run at for games only designed to run at 4.77 MHz clock speed')})
+	'Mac': ComputerSystem({
+		'shared_folder': SpecificConfigValue(ConfigValueType.FolderPath, None, 'Path to shared folder on host that guest can see. This is mandatory for all this Mac stuff to work'),
+		'default_width': SpecificConfigValue(ConfigValueType.String, 1920, 'Emulated screen width to run at if a game doesn\'t need a specific screen resolution'), 'default_height': SpecificConfigValue(ConfigValueType.String, 1080, 'Emulated screen height to run at if a game doesn\'t need a specific screen resolution')
+	}),
+	'DOS': ComputerSystem({
+		'slow_cpu_cycles': SpecificConfigValue(ConfigValueType.String, 477, 'CPU cycles to run at for games only designed to run at 4.77 MHz clock speed'),
+		'dosbox_configs_path': SpecificConfigValue(ConfigValueType.FolderPath, os.path.join(data_dir, 'dosbox_configs'), 'Folder to store DOSBox per-application configuration files'),
+		'dosbox_x_configs_path': SpecificConfigValue(ConfigValueType.FolderPath, os.path.join(data_dir, 'dosbox_configs'), 'Folder to store DOSBox-X per-application configuration files'),
+	})
 }
 
 #One day add these as well (or should I? Maybe I should just leave it to emulator_info):
-#Arcade: I guess it's not an array, it's just MAME
+#Arcade: I guess it's not an array, it's just MAME (for now... but this will be complicated, I think)
 #Virtual environment-but-not-quite-type-system-things: J2ME, Flash (but once those have nicer emulators, until then never mind, or maybe I could pretend they're emulated systems)
 #This allows us to organize supported emulators easily and such

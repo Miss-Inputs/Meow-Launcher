@@ -320,5 +320,6 @@ class DOSEmulator():
 		return self.launch_params
 
 dos_emulators = {
-	'DOSBox': DOSEmulator(command_lines.dosbox)
+	'DOSBox': DOSEmulator(command_lines.dosbox),
+	'DOSBox-X': DOSEmulator(command_lines.dosbox_x)
 }

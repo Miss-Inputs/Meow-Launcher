@@ -2,25 +2,21 @@ import os
 import configparser
 import sys
 
+from common_paths import config_dir, data_dir
 from common_types import ConfigValueType
 from io_utils import ensure_exist
 from info.system_info import systems, games_with_engines, computer_systems
 
 app_name = 'Meow Launcher'
 
-#TODO: Get this in a less hardcody cross-platform way, I guess
-_config_dir = os.path.expanduser(os.path.join('~/.config/', app_name.replace(' ', '')))
-_data_dir = os.path.expanduser(os.path.join('~/.local/share/', app_name.replace(' ', '')))
-cache_dir = os.path.expanduser(os.path.join('~/.cache/', app_name.replace(' ', '')))
-
 #Static paths I guess
-_main_config_path = os.path.join(_config_dir, 'config.ini')
-_ignored_dirs_path = os.path.join(_config_dir, 'ignored_directories.txt')
+_main_config_path = os.path.join(config_dir, 'config.ini')
+_ignored_dirs_path = os.path.join(config_dir, 'ignored_directories.txt')
 _name_consistency_path = os.path.join(os.path.dirname(__file__), 'data', 'name_consistency.ini')
-_system_config_path = os.path.join(_config_dir, 'systems.ini')
+_system_config_path = os.path.join(config_dir, 'systems.ini')
 
-mac_ini_path = os.path.join(_config_dir, 'mac.ini')
-dos_ini_path = os.path.join(_config_dir, 'dos.ini')
+mac_ini_path = os.path.join(config_dir, 'mac.ini')
+dos_ini_path = os.path.join(config_dir, 'dos.ini')
 
 def parse_string_list(value):
 	if not value:
@@ -73,9 +69,9 @@ class ConfigValue():
 runtime_option_section = '<runtime option section>'
 
 _config_ini_values = {
-	'output_folder': ConfigValue('Paths', ConfigValueType.FolderPath, os.path.join(_data_dir, 'apps'), 'Output folder', 'Folder to put launchers'),
-	'organized_output_folder': ConfigValue('Paths', ConfigValueType.FolderPath, os.path.join(_data_dir, 'organized_apps'), 'Organized output folder', 'Folder to put subfolders in for the organized folders frontend'),
-	'image_folder': ConfigValue('Paths', ConfigValueType.FolderPath, os.path.join(_data_dir, 'images'), 'Image folder', 'Folder to store images extracted from games with embedded images'),
+	'output_folder': ConfigValue('Paths', ConfigValueType.FolderPath, os.path.join(data_dir, 'apps'), 'Output folder', 'Folder to put launchers'),
+	'organized_output_folder': ConfigValue('Paths', ConfigValueType.FolderPath, os.path.join(data_dir, 'organized_apps'), 'Organized output folder', 'Folder to put subfolders in for the organized folders frontend'),
+	'image_folder': ConfigValue('Paths', ConfigValueType.FolderPath, os.path.join(data_dir, 'images'), 'Image folder', 'Folder to store images extracted from games with embedded images'),
 
 	'get_series_from_name': ConfigValue('General', ConfigValueType.Bool, False, 'Get series from name', 'Attempt to get series from parsing name'),
 
@@ -92,8 +88,6 @@ _config_ini_values = {
 
 	'dos_db_path': ConfigValue('DOS', ConfigValueType.FilePath, None, 'dos_db.json path', 'Path to dos_db.json from ComputerGameDB'),
 	'launchers_for_unknown_dos_apps': ConfigValue('DOS', ConfigValueType.Bool, False, 'Launchers for unknown apps', 'Whether or not to create launchers for DOS programs that are found but not in the database'),
-	#TODO: Should be in specific_config as it is inherently specific to the emulator (DOSBox) and not the platform
-	'dosbox_configs_path': ConfigValue('DOS', ConfigValueType.FolderPath, os.path.join(_data_dir, 'dosbox_configs'), 'DOSBox configs path', 'Folder to store DOSBox per-application configuration files'),
 
 	#TODO: Put this in a general section, use it in the other modules
 	'normalize_name_case': ConfigValue('Steam', ConfigValueType.Integer, 0, 'Normalize name case', 'Apply title case to uppercase things (1: only if whole title is uppercase, 2: capitalize individual uppercase words, 3: title case the whole thing regardless)'),

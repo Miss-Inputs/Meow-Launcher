@@ -1,19 +1,22 @@
-import os
-import sys
 import configparser
+import os
 import subprocess
+import sys
 
 import io_utils
-from launchers import LaunchParams, MultiCommandLaunchParams
+from common_types import (EmulationNotSupportedException, MediaType,
+                          NotARomException)
 from config import main_config
-from platform_metadata.atari_2600 import Atari2600Controller
-from platform_metadata.apple_ii import AppleIIHardware
-from platform_metadata.nes import NESPeripheral
-from platform_metadata.megadrive import MegadriveRegionCodes
-from platform_metadata.zx_spectrum import ZXMachine, ZXJoystick
-from common_types import MediaType, EmulationNotSupportedException, NotARomException
+from launchers import LaunchParams, MultiCommandLaunchParams
 from mame_helpers import have_mame
+from platform_metadata.apple_ii import AppleIIHardware
+from platform_metadata.atari_2600 import Atari2600Controller
+from platform_metadata.megadrive import MegadriveRegionCodes
+from platform_metadata.nes import NESPeripheral
+from platform_metadata.zx_spectrum import ZXJoystick, ZXMachine
+
 from .region_info import TVSystem
+
 
 #Utils
 def _get_autoboot_script_by_name(name):
@@ -1083,12 +1086,12 @@ def basilisk_ii(app, specific_config):
 	]
 	return MultiCommandLaunchParams(commands)
 
-def _get_dosbox_config(app):
-	if not os.path.isdir(main_config.dosbox_configs_path):
+def _get_dosbox_config(app, folder):
+	if not os.path.isdir(folder):
 		return None
 
-	for conf in os.listdir(main_config.dosbox_configs_path):
-		path = os.path.join(main_config.dosbox_configs_path, conf)
+	for conf in os.listdir(folder):
+		path = os.path.join(folder, conf)
 		name, _ = os.path.splitext(conf)
 		if app.name in (name, name.replace(' - ', ': ')):
 			return path
@@ -1096,14 +1099,13 @@ def _get_dosbox_config(app):
 	return None
 
 def _make_dosbox_config(app, specific_config):
-	configwriter = configparser.ConfigParser()
+	configwriter = configparser.ConfigParser(allow_no_value=True)
 	configwriter.optionxform = str
 
 	configwriter['sdl'] = {}
 	configwriter['sdl']['fullscreen'] = 'true'
 	configwriter['sdl']['fullresolution'] = 'desktop'
-	#TODO: Set mapper file, which will of course require another separate directory
-	#TODO: Might have to set autoexec instead of just pointing to the file as a command line argument for some versions of DOSBox
+	#TODO: Set mapper file, which will of course require another separate directory to store crap
 
 	if 'required_hardware' in app.config:
 		if 'for_xt' in app.config['required_hardware']:
@@ -1117,17 +1119,70 @@ def _make_dosbox_config(app, specific_config):
 			configwriter['dosbox']['machine'] = 'svga_s3' if graphics == 'svga' else graphics
 
 	name = io_utils.sanitize_name(app.name) + '.ini'
-	path = os.path.join(main_config.dosbox_configs_path, name)
+	folder = specific_config.get('dosbox_configs_path') #TODO default value ugh my code sucks sometimes
+	path = os.path.join(folder, name)
 
-	os.makedirs(main_config.dosbox_configs_path, exist_ok=True)
+	os.makedirs(folder, exist_ok=True)
 	with open(path, 'wt') as config_file:
 		configwriter.write(config_file)
 
 	return path
 
+def _make_dosbox_x_config(app, specific_config):
+	configwriter = configparser.ConfigParser(allow_no_value=True)
+	configwriter.optionxform = str
+
+	configwriter['sdl'] = {}
+	configwriter['sdl']['fullscreen'] = 'true'
+	configwriter['sdl']['fullresolution'] = 'desktop'
+	#TODO: Set mapper file, which will of course require another separate directory to store crap
+
+	if 'required_hardware' in app.config:
+		if 'for_xt' in app.config['required_hardware']:
+			if app.config['required_hardware']['for_xt']:
+				configwriter['cpu'] = {}
+				configwriter['cpu']['cycles'] = specific_config.get('slow_cpu_cycles', 477)
+
+		if 'max_graphics' in app.config['required_hardware']:
+			configwriter['dosbox'] = {}
+			graphics = app.config['required_hardware']['max_graphics']
+			configwriter['dosbox']['machine'] = 'svga_s3' if graphics == 'svga' else graphics
+
+	name = io_utils.sanitize_name(app.name) + '.ini'
+	config_folder = specific_config.get('dosbox_x_configs_path')
+	path = os.path.join(config_folder, name)
+
+	#Need to do the autoexec thing manually, because DOSBox-X doesn't have that thing where you put a file in the command line and it autoexecs it
+	folder, name = os.path.split(app.path)
+	#TODO: Warn or something if this is going to result in a non-DOS-friendly filename
+	autoexec = [
+		'MOUNT -u C:', #It's ours now. Surely there must be a better way to do this...
+		'MOUNT C: {0}'.format(folder),
+		'C:',
+		name,
+	]
+	
+	os.makedirs(config_folder, exist_ok=True)
+	with open(path, 'wt') as config_file:
+		configwriter.write(config_file)
+		config_file.write('[autoexec]\n')
+		for line in autoexec:
+			config_file.write(line)
+			config_file.write('\n')
+
+	return path
+	
 def dosbox(app, specific_config):
-	conf = _get_dosbox_config(app)
+	conf = _get_dosbox_config(app, specific_config.get('dosbox_configs_path'))
 	if ('--regen-dos-config' in sys.argv) or not conf:
 		conf = _make_dosbox_config(app, specific_config)
 
 	return LaunchParams('dosbox', ['-exit', '-noautoexec', '-userconf', '-conf', conf, app.path])
+
+def dosbox_x(app, specific_config):
+	conf = _get_dosbox_config(app, specific_config.get('dosbox_x_configs_path'))
+	if ('--regen-dos-config' in sys.argv) or not conf:
+		conf = _make_dosbox_x_config(app, specific_config)
+
+	#Hmm, interestingly the app path does nothing, but -exit still does something?
+	return LaunchParams('dosbox-x', ['-exit', '-userconf', '-conf', conf])

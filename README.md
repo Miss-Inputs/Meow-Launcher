@@ -22,7 +22,7 @@ No special trickery should be required for installation, you just kinda put it i
 - steamfiles: Required to add Steam games
 - hfsutils: For Mac games to work, will need to be in the path somewhere. Sorry
 
-These config files will appear in ~/.config/MeowLauncher (see also config.py config_dir for where that's set) with default values, once anything is ran for the first time (see --refresh-config below), and then you... edit them. Ideally I want to make some kind of configurator, but that'd be a separate thing:
+These config files will appear in ~/.config/MeowLauncher (see also common_paths.py config_dir for where that's set) with default values, once anything is ran for the first time (see --refresh-config below), and then you... edit them. Ideally I want to make some kind of configurator, but that'd be a separate thing:
 - config.ini
   - Main configuration, which specifies where your launchers are output to and other things like that.
 - systems.ini
