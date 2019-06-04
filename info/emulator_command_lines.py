@@ -1060,6 +1060,7 @@ def make_prboom_plus_command_line(_, specific_config):
 
 #DOS/Mac stuff
 def basilisk_ii(app, specific_config):
+	#This is all broken, I wouldn't even bother until I've messed with this a lot
 	if 'arch' in app.config:
 		if app.config['arch'] == 'ppc':
 			raise EmulationNotSupportedException('PPC not supported')
@@ -1075,12 +1076,11 @@ def basilisk_ii(app, specific_config):
 	#Or controls... but I swear I will find a way!!!!
 
 	hfv_path, inner_path = app.path.split(':', 1)
-	#FIXME: Ensure hfv_path is mounted, right now we're just kinda assuming it is, which is a weird thing to do when you think about it
-
+	
 	#If you're not using an SDL2 build of BasiliskII, you probably want to change dga to window! Well you really want to get an SDL2 build of BasiliskII, honestly, because I assume you do. Well the worst case scenario is that it still works, but it hecks your actual host resolution
 	commands = [
 		LaunchParams('sh', ['-c', 'echo {0} > {1}'.format(inner_path, autoboot_txt_path)]), #Hack because I can't be fucked refactoring MultiCommandLaunchParams to do pipey bois/redirecty bois
-		LaunchParams('BasiliskII', ['--screen', 'dga/{0}/{1}'.format(width, height)]),
+		LaunchParams('BasiliskII', ['--screen', 'dga/{0}/{1}'.format(width, height), '--extfs', specific_config['shared_folder'], '--disk', hfv_path]),
 		LaunchParams('rm', [autoboot_txt_path])
 	]
 	return MultiCommandLaunchParams(commands)
