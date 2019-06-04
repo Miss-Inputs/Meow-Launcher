@@ -6,7 +6,6 @@ import sys
 import io_utils
 from common_types import (EmulationNotSupportedException, MediaType,
                           NotARomException)
-from config import main_config
 from launchers import LaunchParams, MultiCommandLaunchParams
 from mame_helpers import have_mame
 from platform_metadata.apple_ii import AppleIIHardware
