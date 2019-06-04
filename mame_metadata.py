@@ -174,6 +174,7 @@ arcade_systems = {
 	'namcos12': 'Namco System 12', #Based on PS1
 	'namcos1': 'Namco System 1',
 	'namcos21_c67': 'Namco System 21', #With C67 DSP
+	'namcos21_de': 'Namco System 21', #Driver's Eyes
 	'namcos21': 'Namco System 21',
 	'namcos22': 'Namco System 22',
 	'namcos23': 'Namco System 23', #Also Gorgon / "System 22.5"; not really working yet
