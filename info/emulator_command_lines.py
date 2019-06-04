@@ -1155,9 +1155,9 @@ def _make_dosbox_x_config(app, specific_config):
 	folder, name = os.path.split(app.path)
 	#TODO: Warn or something if this is going to result in a non-DOS-friendly filename
 	autoexec = [
-		'MOUNT -u C:', #It's ours now. Surely there must be a better way to do this...
-		'MOUNT C: {0}'.format(folder),
-		'C:',
+		'MOUNT -u D:', #It's ours now. Surely there must be a better way to do this...
+		'MOUNT D: {0}'.format(folder),
+		'D:',
 		name,
 	]
 	
