@@ -80,7 +80,6 @@ class App:
 			metadata.notes = self.config['notes']
 		if 'compat_notes' in self.config:
 			metadata.specific_info['Compatibility-Notes'] = self.config['compat_notes']
-			print('Compatibility notes for', self.name, ':', self.config['compat_notes'])
 		if 'requires_cd' in self.config:
 			print(self.name, 'requires a CD in the drive. It will probably not work with this launcher at the moment')
 			metadata.specific_info['Requires-CD'] = self.config['requires_cd']
