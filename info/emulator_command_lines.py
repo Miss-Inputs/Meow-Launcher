@@ -1140,6 +1140,7 @@ def _make_dosbox_x_config(app, specific_config):
 		if 'for_xt' in app.config['required_hardware']:
 			if app.config['required_hardware']['for_xt']:
 				configwriter['cpu'] = {}
+				configwriter['cpu']['cputype'] = '8086'
 				configwriter['cpu']['cycles'] = specific_config.get('slow_cpu_cycles', 477)
 
 		if 'max_graphics' in app.config['required_hardware']:
