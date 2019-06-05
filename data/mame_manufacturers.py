@@ -128,6 +128,7 @@ manufacturer_overrides = {
 	'Nihonbussan': 'Nichibutsu', #In the event that we figure out we shouldn't change the above, we should at least consistentify this formatting
 	'Sony Computer Entertainment': 'Sony',
 	'Sony Imagesoft': 'Sony',
+	'Strata/Incredible Technologies': 'Incredible Technologies',
 	'Tandy Radio Shack': 'Tandy',
 	'Viacom New Media': 'Viacom',
 	'Virgin Games': 'Virgin',
