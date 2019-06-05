@@ -307,7 +307,7 @@ arcade_systems = {
 	'arkanoid': 'Arkanoid Hardware',
 	'backfire': 'Backfire! Hardware',
 	'battlera': 'Battle Rangers Hardware', #PC Engine based
-	'beathead': 'Beathead Hardwarew',
+	'beathead': 'Beathead Hardware',
 	'bishi': 'Bishi Bashi Champ Hardware',
 	'btime': 'BurgerTime Hardware',
 	'btoads': 'Battletoads Hardware',
