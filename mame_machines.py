@@ -657,7 +657,13 @@ class Machine():
 			if ' / ' in self.manufacturer:
 				#Let's try and clean up things a bit when this happens
 				manufacturers = [consistentify_manufacturer(m) for m in self.manufacturer.split(' / ')]
-				developer = publisher = ', '.join(manufacturers)
+
+				if len(manufacturers) == 2 and manufacturers[0] == 'bootleg':
+					developer = 'bootleg'
+					publisher = manufacturers[1]
+				else:
+					#TODO: Try and cleverly figure out which ones are developers and which are publishers, but... hmm
+					developer = publisher = ', '.join(manufacturers)
 			else:
 				developer = publisher = self.manufacturer
 		developer = consistentify_manufacturer(developer)
