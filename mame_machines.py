@@ -659,8 +659,7 @@ class Machine():
 				manufacturers = [consistentify_manufacturer(m) for m in self.manufacturer.split(' / ')]
 
 				if len(manufacturers) == 2 and manufacturers[0] == 'bootleg':
-					developer = 'bootleg'
-					publisher = manufacturers[1]
+					developer = publisher = manufacturers[1]
 				else:
 					#TODO: Try and cleverly figure out which ones are developers and which are publishers, but... hmm
 					developer = publisher = ', '.join(manufacturers)
