@@ -34,15 +34,19 @@ class MediaSlot():
 		self.extensions = {extension_xml.attrib.get('name') for extension_xml in xml.findall('extension')}
 
 class ArcadeSystem():
-	def __init__(self, source_files=None, source_file=None, bios_used=None):
+	def __init__(self, source_files=None, source_file=None, bioses=None, bios_used=None):
 		if source_file and not source_files:
 			source_files = [source_file]
 		self.source_files = source_files
-		self.bios_used = bios_used
 
-	def uses_this_system(self, machine):
+		if bios_used and not bioses:
+			bioses = [bios_used]
+		self.bioses = bioses
+
+	def contains_machine(self, machine):
 		use_source_file_match = self.source_files is not None
-		use_bios_match = self.bios_used is not None
+		use_bios_match = self.bioses is not None
+
 		source_file_match = not use_source_file_match #If we don't care about the source file (not a part of how we define this arcade system), then we are happy with whatever machine's source file is, if that made any sense
 		bios_match = not use_bios_match
 
@@ -51,9 +55,9 @@ class ArcadeSystem():
 		if use_bios_match:
 			machine_bios = machine.bios
 			if not machine_bios:
-				bios_match = False
+				bios_match = None in self.bioses
 			else:
-				bios_match = self.bios_used == machine_bios.basename
+				bios_match = machine_bios.basename in self.bioses
 		return source_file_match and bios_match
 
 arcade_systems = {
@@ -155,7 +159,7 @@ arcade_systems = {
 	'Mega Drive Bootleg': ArcadeSystem(source_file='megadriv_acbl'), #Mega Drive based ofc
 	'Mega-Play': ArcadeSystem(source_file='megaplay'), #Megadrive based (home games converted to arcade format, coins buy lives)
 	'Mega-Tech': ArcadeSystem(source_file='megatech'), #Megadrive games with timer
-	'Midway Atlantis': ArcadeSystem(source_file='atlantis'), #Linux based (on MIPS CPU); claims to be skeleton but seems to work a bit anyway
+	'Midway Atlantis': ArcadeSystem(source_file='atlantis'), #Linux based (on MIPS CPU); sorta working
 	'Midway MCR-3': ArcadeSystem(source_file='mcr3'), #Also "MCR-Scroll", "MCR-Monobard"
 	'Midway MCR-68k': ArcadeSystem(source_file='mcr68'),
 	'Midway Quicksilver': ArcadeSystem(source_file='midqslvr'), #PC based, non-working
@@ -184,7 +188,7 @@ arcade_systems = {
 	'Namco System NB-1': ArcadeSystem(source_file='namconb1'), #Also NB-2
 	'Namco System ND-1': ArcadeSystem(source_file='namcond1'),
 	'Naomi 2': ArcadeSystem(source_file='naomi', bios_used='naomi2'),
-	'Naomi': ArcadeSystem(source_file='naomi', bios_used='naomi'), #Based on Dreamcast. Sort of working, but slow. TODO hod2bios, f355dlx, f355bios, airlbios, should also be used here, I need to refactor ArcadeSystem so it can accept multiple bios_useds
+	'Naomi': ArcadeSystem(source_file='naomi', bioses=['naomi', 'hod2bios', 'f355dlx', 'f355bios', 'airlbios']), #Based on Dreamcast. Sort of working, but slow.
 	'Naomi GD-ROM': ArcadeSystem(source_file='naomi', bios_used='naomigd'),
 	'Neo-Geo': ArcadeSystem(source_file='neogeo', bios_used='neogeo'),
 	'Neo Print': ArcadeSystem(source_file='neoprint'),
@@ -212,7 +216,7 @@ arcade_systems = {
 	'Sega SG-1000': ArcadeSystem(source_file='sg1000a'), #Same hardware as the home system
 	'Sega ST-V': ArcadeSystem(source_file='stv'), #Based on Saturn
 	'Sega System 16A': ArcadeSystem(source_file='segas16a'), #Similar to Megadrive
-	'Sega System 16B': ArcadeSystem(source_file='segas16b'), #TODO: Explicit bios_used = None
+	'Sega System 16B': ArcadeSystem(source_file='segas16b', bios_used=None),
 	'Sega System 18': ArcadeSystem(source_file='segas18'),
 	'Sega System 24': ArcadeSystem(source_file='segas24'),
 	'Sega System 32': ArcadeSystem(source_file='segas32'),
@@ -225,7 +229,7 @@ arcade_systems = {
 	'Sega Y-Board': ArcadeSystem(source_file='segaybd'),
 	'Seibu SPI': ArcadeSystem(source_file='seibuspi'),
 	'Seta Aleck64': ArcadeSystem(source_file='aleck64'), #Based on N64
-	'Sigma B-98': ArcadeSystem(source_file='sigmab98'), #TODO explicit not bios
+	'Sigma B-98': ArcadeSystem(source_file='sigmab98', bios_used=None),
 	'SNES Bootleg': ArcadeSystem(source_file='snesb'), #SNES based, natch
 	'SSV': ArcadeSystem(source_file='ssv'), #Sammy Seta Visco
 	'Super Famicom Box': ArcadeSystem(source_file='sfcbox'), #Arcadified SNES sorta; non-working
@@ -337,7 +341,7 @@ arcade_systems = {
 	'Liberation Hardware': ArcadeSystem(source_file='liberate'),
 	'Macross Plus Hardware': ArcadeSystem(source_file='macrossp'),
 	'Metal Maniax Hardware': ArcadeSystem(source_file='metalmx'),
-	'Nemesis Hardware': ArcadeSystem(source_file='nemesis'), #TODO: Should explicitly specify BIOS used = nothing, I'd need to refactor stuff
+	'Nemesis Hardware': ArcadeSystem(source_file='nemesis', bios_used=None),
 	'Out Run Hardware': ArcadeSystem(source_file='segaorun'),
 	'Pac-Man Hardware': ArcadeSystem(source_file='pacman'),
 	'Pong Hardware': ArcadeSystem(source_file='pong'),
@@ -442,7 +446,7 @@ class Machine():
 	def arcade_system(self):
 		for name, arcade_system in arcade_systems.items():
 			#Ideally, this should only match one, otherwise it means I'm doing it wrong I guess
-			if arcade_system.uses_this_system(self):
+			if arcade_system.contains_machine(self):
 				return name
 		return None
 
