@@ -15,12 +15,6 @@ from mame_metadata import add_metadata, mame_statuses
 from metadata import Metadata, EmulationStatus
 from common_types import SaveType
 
-icon_line_regex = re.compile(r'^icons_directory\s+(.+)$')
-
-licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
-licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
-hack_regex = re.compile(r'^hack \((.+)\)$')
-
 class MediaSlot():
 	def __init__(self, xml):
 		self.type = xml.attrib.get('type')
@@ -376,6 +370,10 @@ arcade_systems = {
 	'Play Mechanix VP50/VP100/VP101': ArcadeSystem(source_file='vp101'),
 }
 
+licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
+licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
+hack_regex = re.compile(r'^hack \((.+)\)$')
+bootleg_with_publisher_regex = re.compile(r'^bootleg \((.+)\)$')
 class Machine():
 	def __init__(self, xml, init_metadata=False):
 		self.xml = xml
@@ -631,25 +629,37 @@ class Machine():
 	@property
 	def developer_and_publisher(self):
 		if not self.manufacturer:
+			#Not sure if this ever happens, but still
 			return None, None
+
 		license_match = licensed_arcade_game_regex.fullmatch(self.manufacturer)
 		if license_match:
-			developer = license_match[1]
-			publisher = license_match[2]
-		else:
-			if not self.manufacturer.startswith(('bootleg', 'hack')):
-				if ' / ' in self.manufacturer:
-					#Let's try and clean up things a bit when this happens
-					manufacturers = [consistentify_manufacturer(m) for m in self.manufacturer.split(' / ')]
-					developer = publisher = ', '.join(manufacturers)
-				else:
-					developer = publisher = self.manufacturer
-			elif self.has_parent:
+			developer = consistentify_manufacturer(license_match[1])
+			publisher = consistentify_manufacturer(license_match[2])
+			return developer, publisher
+		
+		bootleg_match = bootleg_with_publisher_regex.fullmatch(self.manufacturer)
+		if self.manufacturer in ('bootleg', 'hack') or self.is_hack:
+			if self.has_parent:
 				developer = self.parent.metadata.developer
 				publisher = self.parent.metadata.publisher
 			else:
-				developer = None #It'd be the original not-bootleg game's developer but we can't get that programmatically without a parent etc
-				publisher = self.manufacturer
+				developer = None #It'd be the original not-bootleg/hack game's developer but we can't get that programmatically without a parent etc
+				publisher = None
+		elif bootleg_match:
+			developer = None
+			if self.has_parent:
+				developer = self.parent.metadata.developer
+				publisher = self.parent.metadata.publisher
+			
+			publisher = bootleg_match[1]
+		else:
+			if ' / ' in self.manufacturer:
+				#Let's try and clean up things a bit when this happens
+				manufacturers = [consistentify_manufacturer(m) for m in self.manufacturer.split(' / ')]
+				developer = publisher = ', '.join(manufacturers)
+			else:
+				developer = publisher = self.manufacturer
 		developer = consistentify_manufacturer(developer)
 		publisher = consistentify_manufacturer(publisher)
 		return developer, publisher
