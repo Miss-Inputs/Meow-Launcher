@@ -33,6 +33,345 @@ class MediaSlot():
 		self.instances = [(instance_xml.attrib.get('name'), instance_xml.get('briefname')) for instance_xml in xml.findall('instance')]
 		self.extensions = {extension_xml.attrib.get('name') for extension_xml in xml.findall('extension')}
 
+class ArcadeSystem():
+	def __init__(self, source_files=None, source_file=None, bios_used=None):
+		if source_file and not source_files:
+			source_files = [source_file]
+		self.source_files = source_files
+		self.bios_used = bios_used
+
+	def uses_this_system(self, machine):
+		use_source_file_match = self.source_files is not None
+		use_bios_match = self.bios_used is not None
+		source_file_match = not use_source_file_match #If we don't care about the source file (not a part of how we define this arcade system), then we are happy with whatever machine's source file is, if that made any sense
+		bios_match = not use_bios_match
+
+		if use_source_file_match:
+			source_file_match = machine.source_file in self.source_files
+		if use_bios_match:
+			machine_bios = machine.bios
+			if not machine_bios:
+				bios_match = False
+			else:
+				bios_match = self.bios_used == machine_bios.basename
+		return source_file_match and bios_match
+
+arcade_systems = {
+	#Right now, this is kiinda pointless and only really used by 1) disambiguate 2) the user's own interest, but one day when there are non-MAME emulators in here, it would make sense for this list to be as big as it is... but anyway, I do what I want
+	
+	'3DO': ArcadeSystem(source_file='3do', bios_used='3dobios'), #Used for the 3DO console as well, but there are 3DO-based arcade games with the system seemingly just called that; non-working
+	'Acclaim PSX': ArcadeSystem(source_file='zn', bios_used='coh1000a'), #PS1 based
+	'Arcadia System': ArcadeSystem(source_file='arsystems'), #Amiga 500 based
+	'Aristocrat MK4': ArcadeSystem(source_file='aristmk4'), #Gambling
+	'Aristocrat MK5': ArcadeSystem(source_file='aristmk5'), #Gambling, Acorn Archimedes based purrhaps
+	'Aristocrat MK6': ArcadeSystem(source_file='aristmk6'), #Gambling, non-working
+	'Astrocade': ArcadeSystem(source_file='astrocde'), #The home console used the same hardware, I can't remember the names of all the different things
+	'Atari CoJag': ArcadeSystem(source_file='jaguar'), #This is the same source file used for the Jaguar console too
+	'Atari G1': ArcadeSystem(source_file='atarig1'),
+	'Atari G42': ArcadeSystem(source_file='atarig42'),
+	'Atari GT': ArcadeSystem(source_file='atarigt'),
+	'Atari GX2': ArcadeSystem(source_file='atarigx2'),
+	'Atari Media GX': ArcadeSystem(source_file='mediagx'), #Based on Cyrix multimedia PC
+	'Atari PSX': ArcadeSystem(source_file='zn', bios_used='coh1000w'), #PS1 based, non-working
+	'Atari System 1': ArcadeSystem(source_file='atarisy1'),
+	'Atari System 2': ArcadeSystem(source_file='atarisy2'),
+	'Atari System IV': ArcadeSystem(source_file='atarisy4'),
+	'ATILLA Video System': ArcadeSystem(source_file='policetr'),
+	'Atlus PSX': ArcadeSystem(source_file='zn', bios_used='coh1001l'), #PS1 based
+	'Atomiswave': ArcadeSystem(source_file='naomi', bios_used='awbios'),
+	'AUSCOM System 1': ArcadeSystem(source_file='calchase'), #PC (Windows 98, Cyrix 686MX + Trident TGUI9680) based; non-working
+	'Bally/Sente SAC-1': ArcadeSystem(source_file='balsente'),
+	'Bally/Sente SAC-III': ArcadeSystem(source_file='mquake'), #Amiga 500 based
+	'Bally V8000': ArcadeSystem(source_file='gammagic'), #Pentium PC based, skeleton
+	'Bell-Fruit/ATD RasterSpeed': ArcadeSystem(source_file='rastersp'),
+	'Bemani DJ Main': ArcadeSystem(source_file='djmain'), #Konami GX with hard drive
+	'Bemani Firebeat': ArcadeSystem(source_file='firebeat'), #Non-working
+	'Brezzasoft Crystal System': ArcadeSystem(source_file='crystal', bios_used='crysbios'),
+	'Capcom Medalusion': ArcadeSystem(source_file='alien'), #Non-working
+	'Capcom ZN1': ArcadeSystem(source_file='zn', bios_used='coh1000c'), #PS1 based
+	'Capcom ZN2': ArcadeSystem(source_file='zn', bios_used='coh3002c'), #PS1 based
+	'Cave CV1000B': ArcadeSystem(source_file='cv1k'), #Also CV1000D (only differentiated by cv1k_d constructor)
+	'Cedar Magnet System': ArcadeSystem(source_file='cedar_magnet'),
+	'Century CVS System': ArcadeSystem(source_file='cvs'),
+	'Chihiro': ArcadeSystem(source_file='chihiro'), #Based on Xbox, seemingly non-working
+	'CPS-1': ArcadeSystem(source_file='cps1'),
+	'CPS-2': ArcadeSystem(source_file='cps2'),
+	'CPS-3': ArcadeSystem(source_file='cps3'),
+	'Cubo CD32': ArcadeSystem(source_file='cubo'), #Amiga CD32 + JAMMA
+	'Data East MLC System': ArcadeSystem(source_file='deco_mlc'),
+	'Deco 156': ArcadeSystem(source_file='deco156'),
+	'Deco Casette': ArcadeSystem(source_file='decocass'),
+	'Deco Simple 156': ArcadeSystem(source_file='simpl156'),
+	'dgPIX VRender0': ArcadeSystem(source_file='dgpix'),
+	'Eolith Ghost': ArcadeSystem(source_file='ghosteo'),
+	'Eolith Gradation 2D System': ArcadeSystem(source_file='eolith'),
+	'Eolith Vega System': ArcadeSystem(source_file='vegaeo'),
+	'Exidy 440': ArcadeSystem(source_file='exidy440'),
+	'Exidy Max-a-Flex': ArcadeSystem(source_file='maxaflex'), #Basically an Atari 600XL with ordinary Atari 8-bit games but coins purchase time. Weird maxaflex but okay
+	'Exidy Universal Game Board v1': ArcadeSystem(source_file='circus'),
+	'Exidy Universal Game Board v2': ArcadeSystem(source_file='exidy'),
+	'FACE Linda': ArcadeSystem(source_file='mcatadv'),
+	'F-E1-32': ArcadeSystem(source_file='f-32'),
+	'Fun World Series 7000': ArcadeSystem(source_file='funworld'),
+	'Fuuki FG-2': ArcadeSystem(source_file='fuukifg2'),
+	'Fuuki FG-3': ArcadeSystem(source_file='fuukifg3'),
+	'Gaelco CG-1V/GAE1': ArcadeSystem(source_file='gaelco2'),
+	'Gottlieb System 1': ArcadeSystem(source_file='gts1'), #Pinball, I think?
+	'Hyper Neo Geo 64': ArcadeSystem(source_file='hng64'), #Barely working
+	'IBM PC-XT': ArcadeSystem(source_file='pcxt'), #Games running off a PC-XT (mostly bootlegs, but not necessarily)
+	'Incredible Technologies Eagle': ArcadeSystem(source_file='iteagle'),
+	'Irem M107': ArcadeSystem(source_file='m107'),
+	'Irem M27': ArcadeSystem(source_file='redalert'),
+	'Irem M52': ArcadeSystem(source_file='m52'),
+	'Irem M58': ArcadeSystem(source_file='m58'),
+	'Irem M62': ArcadeSystem(source_file='m62'),
+	'Irem M63': ArcadeSystem(source_file='m63'),
+	'Irem M72': ArcadeSystem(source_file='m72'), #Also M81, M82, M84, M85
+	'Irem M75': ArcadeSystem(source_file='vigilant'), #Also M77 (maybe?)
+	'Irem M90': ArcadeSystem(source_file='m90'), #Also M97 I guess
+	'Irem M92': ArcadeSystem(source_file='m92'),
+	'ISG Selection Master Type 2006': ArcadeSystem(source_file='segas16b', bios_used='isgsm'),
+	'Jaleco Mega System 1': ArcadeSystem(source_file='megasys1'),
+	'Jaleco Mega System 32': ArcadeSystem(source_file='ms32'),
+	'Kaneko EXPRO-02': ArcadeSystem(source_file='expro02'),
+	'Kaneko Super Nova System': ArcadeSystem(source_file='suprnova'),
+	'Konami Bemani Twinkle': ArcadeSystem(source_file='twinkle'), #PS1 based (but not System 573 related)
+	'Konami Bubble System': ArcadeSystem(source_file='nemesis', bios_used='bubsys'),
+	'Konami Cobra System': ArcadeSystem(source_file='cobra'),
+	'Konami GQ': ArcadeSystem(source_file='konamigq'), #Based on PS1
+	'Konami GV': ArcadeSystem(source_file='konamigv'), #Based on PS1
+	'Konami GX': ArcadeSystem(source_file='konamigx'),
+	'Konami Hornet': ArcadeSystem(source_file='hornet'),
+	'Konami M2': ArcadeSystem(source_file='konamim2'), #Based on unreleased Panasonic M2
+	'Konami NWK-TR': ArcadeSystem(source_file='nwk-tr'),
+	'Konami Polygonet': ArcadeSystem(source_file='plygonet'),
+	'Konami Python': ArcadeSystem(source_file='pyson'), #Also called Pyson, I guess... Japan-English transliteration error? PS2 based
+	'Konami System 573': ArcadeSystem(source_file='ksys573'), #Based on PS1
+	'Konami Twin 16': ArcadeSystem(source_file='twin16'),
+	'Konami Ultra Sports': ArcadeSystem(source_file='ultrsprt'),
+	'Konami Viper': ArcadeSystem(source_file='viper'), #3Dfx (PPC) based
+	'Konami ZR107': ArcadeSystem(source_file='zr107'),
+	'Limenko Power System 2': ArcadeSystem(source_file='limenko'),
+	'Mega Drive Bootleg': ArcadeSystem(source_file='megadriv_acbl'), #Mega Drive based ofc
+	'Mega-Play': ArcadeSystem(source_file='megaplay'), #Megadrive based (home games converted to arcade format, coins buy lives)
+	'Mega-Tech': ArcadeSystem(source_file='megatech'), #Megadrive games with timer
+	'Midway Atlantis': ArcadeSystem(source_file='atlantis'), #Linux based (on MIPS CPU); claims to be skeleton but seems to work a bit anyway
+	'Midway MCR-3': ArcadeSystem(source_file='mcr3'), #Also "MCR-Scroll", "MCR-Monobard"
+	'Midway MCR-68k': ArcadeSystem(source_file='mcr68'),
+	'Midway Quicksilver': ArcadeSystem(source_file='midqslvr'), #PC based, non-working
+	'Midway Seattle': ArcadeSystem(source_file='seattle'),
+	'Midway T-Unit': ArcadeSystem(source_file='midtunit'),
+	'Midway Vegas': ArcadeSystem(source_file='vegas'),
+	'Midway V-Unit': ArcadeSystem(source_file='midvunit'),
+	'Midway Wolf Unit': ArcadeSystem(source_file='midwunit'), #Also known as W-Unit
+	'Midway X-Unit': ArcadeSystem(source_file='midxunit'),
+	'Midway Y-Unit': ArcadeSystem(source_file='midyunit'),
+	'Midway Zeus': ArcadeSystem(source_file='midzeus'),
+	'Multi Amenity Casette System': ArcadeSystem(source_file='macs'),
+	'Namco Anniversary': ArcadeSystem(source_file='20pacgal'),
+	'Namco System 10': ArcadeSystem(source_file='namcos10'), #Based on PS1; seems this one isn't working as much as the other PS1 derivatives?
+	'Namco System 11': ArcadeSystem(source_file='namcos11'), #Based on PS1
+	'Namco System 12': ArcadeSystem(source_file='namcos12'), #Based on PS1
+	'Namco System 16 Universal': ArcadeSystem(source_file='toypop'),
+	'Namco System 1': ArcadeSystem(source_file='namcos1'),
+	'Namco System 21': ArcadeSystem(source_files=['namcos21', 'namcos_c67', 'namcos21_de']),
+	'Namco System 22': ArcadeSystem(source_file='namcos22'),
+	'Namco System 23': ArcadeSystem(source_file='namcos23'), #Also Gorgon / "System 22.5"; not really working yet
+	'Namco System 2': ArcadeSystem(source_file='namcos2'),
+	'Namco System 86': ArcadeSystem(source_file='namcos86'),
+	'Namco System FL': ArcadeSystem(source_file='namcofl'),
+	'Namco System NA-1': ArcadeSystem(source_file='namcona1'), #Also NA-2
+	'Namco System NB-1': ArcadeSystem(source_file='namconb1'), #Also NB-2
+	'Namco System ND-1': ArcadeSystem(source_file='namcond1'),
+	'Naomi 2': ArcadeSystem(source_file='naomi', bios_used='naomi2'),
+	'Naomi': ArcadeSystem(source_file='naomi', bios_used='naomi'), #Based on Dreamcast. Sort of working, but slow. TODO hod2bios, f355dlx, f355bios, airlbios, should also be used here, I need to refactor ArcadeSystem so it can accept multiple bios_useds
+	'Naomi GD-ROM': ArcadeSystem(source_file='naomi', bios_used='naomigd'),
+	'Neo-Geo': ArcadeSystem(source_file='neogeo', bios_used='neogeo'),
+	'Neo Print': ArcadeSystem(source_file='neoprint'),
+	'Nichibutsu High Rate DVD': ArcadeSystem(source_file='csplayh5'),
+	'Nintendo Super System': ArcadeSystem(source_file='nss'), #SNES games with timer
+	'Philips CD-i': ArcadeSystem(source_file='cdi'), #Literally a CD-i player with a JAMMA adapter (used for some quiz games)
+	'Photon IK-3': ArcadeSystem(source_file='photon2'), #Leningrad-1 based (Russian ZX Spectrum clone)
+	'Photon System': ArcadeSystem(source_file='photon'), #PK8000 based (Russian PC that was supposed to be MSX1 compatible)
+	'PlayChoice-10': ArcadeSystem(source_file='playch10'), #NES games with timer
+	'PolyGame Master 2': ArcadeSystem(source_file='pgm2'),
+	'PolyGame Master 3': ArcadeSystem(source_file='pgm3'), #Non-working
+	'PolyGame Master': ArcadeSystem(source_file='pgm'),
+	'PS Arcade 95': ArcadeSystem(source_file='zn', bios_used='coh1002e'), #PS1 based, used by Eighting/Raizing?
+	'Psikyo PS4': ArcadeSystem(source_file='psikyo4'),
+	'Sammy Medal Game System': ArcadeSystem(source_file='sigmab98', bios_used='sammymdl'),
+	'Sega Atom': ArcadeSystem(source_file='segaatom'), #Basically a skeleton
+	'Sega G-80 Raster': ArcadeSystem(source_file='segag80r'),
+	'Sega G-80 Vector': ArcadeSystem(source_file='segag80v'),
+	'Sega Hikaru': ArcadeSystem(source_file='hikaru'), #Based on souped up Naomi and in turn Dreamcast, non-working
+	'Sega Lindbergh': ArcadeSystem(source_file='lindbergh'), #(modern) PC based, very non-working
+	'Sega M1': ArcadeSystem(source_file='segam1'), #Gambling
+	'Sega Model 1': ArcadeSystem(source_file='model1'),
+	'Sega Model 2': ArcadeSystem(source_file='model2'), #Barely working
+	'Sega Model 3': ArcadeSystem(source_file='model3'), #Barely working
+	'Sega SG-1000': ArcadeSystem(source_file='sg1000a'), #Same hardware as the home system
+	'Sega ST-V': ArcadeSystem(source_file='stv'), #Based on Saturn
+	'Sega System 16A': ArcadeSystem(source_file='segas16a'), #Similar to Megadrive
+	'Sega System 16B': ArcadeSystem(source_file='segas16b'), #TODO: Explicit bios_used = None
+	'Sega System 18': ArcadeSystem(source_file='segas18'),
+	'Sega System 24': ArcadeSystem(source_file='segas24'),
+	'Sega System 32': ArcadeSystem(source_file='segas32'),
+	'Sega System C2': ArcadeSystem(source_file='segac2'), #Similar to Megadrive
+	'Sega System E': ArcadeSystem(source_file='segae'), #Similar to Master System
+	'Sega System H1': ArcadeSystem(source_file='coolridr'),
+	'Sega System SP': ArcadeSystem(source_file='segasp'), #Dreamcast based, for medal games; non-working
+	'Sega UFO Board': ArcadeSystem(source_file='segaufo'), #Mechanical
+	'Sega X-Board': ArcadeSystem(source_file='segaxbd'),
+	'Sega Y-Board': ArcadeSystem(source_file='segaybd'),
+	'Seibu SPI': ArcadeSystem(source_file='seibuspi'),
+	'Seta Aleck64': ArcadeSystem(source_file='aleck64'), #Based on N64
+	'Sigma B-98': ArcadeSystem(source_file='sigmab98'), #TODO explicit not bios
+	'SNES Bootleg': ArcadeSystem(source_file='snesb'), #SNES based, natch
+	'SSV': ArcadeSystem(source_file='ssv'), #Sammy Seta Visco
+	'Super Famicom Box': ArcadeSystem(source_file='sfcbox'), #Arcadified SNES sorta; non-working
+	'Taito Air System': ArcadeSystem(source_file='taitoair'),
+	'Taito B System': ArcadeSystem(source_file='taito_b'),
+	'Taito F2 System': ArcadeSystem(source_file='taito_f2'), #Also F1
+	'Taito F3 System': ArcadeSystem(source_file='taito_f3'),
+	'Taito FX1': ArcadeSystem(source_file='zn', bios_used='coh1000t'), #PS1 based, there are actually Taito FX-1A and Taito FX-1B
+	'Taito G-NET': ArcadeSystem(source_file='taitogn'),
+	'Taito H System': ArcadeSystem(source_file='taito_h'),
+	'Taito JC': ArcadeSystem(source_file='taitojc'),
+	'Taito L System': ArcadeSystem(source_file='taito_l'),
+	'Taito O System': ArcadeSystem(source_file='taito_o'),
+	'Taito Power-JC': ArcadeSystem(source_file='taitopjc'),
+	'Taito SJ': ArcadeSystem(source_file='taitosj'),
+	'Taito Type X': ArcadeSystem(source_file='taitotx'), #Modern PC based, very non-working
+	'Taito Type-Zero': ArcadeSystem(source_file='taitotz'), #PPC based
+	'Taito Wolf': ArcadeSystem(source_file='taitowlf'), #3Dfx (Pentium) based, not working
+	'Taito X System': ArcadeSystem(source_file='taito_x'),
+	'Taito Z System': ArcadeSystem(source_file='taito_z'),
+	'Tecmo TPS': ArcadeSystem(source_file='zn', bios_used='coh1002m'), #PS1 based
+	'TIA-MC1': ArcadeSystem(source_file='tiamc1'),
+	'Triforce': ArcadeSystem(source_file='triforce'), #GameCube based
+	'Vectrex': ArcadeSystem(source_file='vectrex'), #Also used for actual Vectrex console
+	'VIC Dual': ArcadeSystem(source_file='vicdual'),
+	'Video System PSX': ArcadeSystem(source_file='zn', bios_used='coh1002v'), #PS1 based
+	'VS Unisystem': ArcadeSystem(source_file='vsnes'),
+
+	#Arcade platforms that don't have a name or anything, but companies consistently use them
+	'American Laser Games 3DO Hardware': ArcadeSystem(source_file='3do', bios_used='alg3do'), #Non-working
+	'American Laser Games Hardware': ArcadeSystem(source_file='alg'), #Amiga 500 based (w/ laserdisc player)
+	'Art & Magic Hardware': ArcadeSystem(source_file='artmagic'),
+	'Cave 68K Hardware': ArcadeSystem(source_file='cave'),
+	'Cave PC Hardware': ArcadeSystem(source_file='cavepc'), #Athlon 64 X2 + Radeon 3200 based; non-working
+	'Cinematronics Vector Hardware': ArcadeSystem(source_file='cinemat'),
+	'Cosmodog Hardware': ArcadeSystem(source_file='cmmb'),
+	'Data East 16-bit Hardware': ArcadeSystem(source_file='dec0'), #Have heard some of these games called "Data East MEC-M1" but I dunno where that name comes from
+	'Data East 32-bit Hardware': ArcadeSystem(source_file='deco32'), #Or "Data East ARM6", if you prefer
+	'Data East 8-bit Hardware': ArcadeSystem(source_file='dec8'),
+	'Enerdyne Technologies Trivia Hardware': ArcadeSystem(source_file='ettrivia'),
+	'Eolith 16-bit Hardware': ArcadeSystem(source_file='eolith16'),
+	'ESD 16-bit Hardware': ArcadeSystem(source_file='esd16'),
+	'Gaelco 3D Hardware': ArcadeSystem(source_file='gaelco3d'),
+	'Gaelco Hardware': ArcadeSystem(source_file='gaelco'), #Specifically from 1991-1996 apparently?
+	'Game Plan Hardware': ArcadeSystem(source_file='gameplan'),
+	'Gottlieb Hardware': ArcadeSystem(source_file='gottlieb'),
+	'Greyhound Electronics Hardware': ArcadeSystem(source_file='gei'),
+	'Home Data Hardware': ArcadeSystem(source_file='homedata'),
+	'IGS011 Blitter Based Hardware': ArcadeSystem(source_file='igs011'),
+	'Incredible Technologies 32-bit Blitter Hardware': ArcadeSystem(source_file='itech32'),
+	'Incredible Technologies 8-bit Blitter Hardware': ArcadeSystem(source_file='itech8'),
+	'Kaneko 16-bit Hardware': ArcadeSystem(source_file='kaneko16'),
+	'Leland Hardware': ArcadeSystem(source_file='leland'),
+	'Meadows S2650 Hardware': ArcadeSystem(source_file='meadows'),
+	'Metro Hardware': ArcadeSystem(source_file='metro'),
+	'Microprose 3D Hardware': ArcadeSystem(source_file='micro3d'),
+	'Midway 8080 Black & White Hardware': ArcadeSystem(source_file='mw8080bw'),
+	'Newer Seta Hardware': ArcadeSystem(source_file='seta2'),
+	'Newer Toaplan Hardware': ArcadeSystem(source_file='toaplan2'),
+	'Nintendo 8080 Hardware': ArcadeSystem(source_file='n8080'),
+	'NMK 16-bit Hardware': ArcadeSystem(source_file='nmk16'),
+	'Playmark Hardware': ArcadeSystem(source_file='playmark'),
+	'Psikyo Hardware': ArcadeSystem(source_file='psikyo'),
+	'Psikyo SH-2 Hardware': ArcadeSystem(source_file='psikyosh'), #Psikyo PS3, PS5
+	'Semicom 68020 Hardware': ArcadeSystem(source_file='dreamwld'),
+	'Seta Hardware': ArcadeSystem(source_file='seta'),
+	'Seta ST-0016 Based Hardware': ArcadeSystem(source_file='simple_st0016'),
+	'SNK 68K Hardware': ArcadeSystem(source_file='snk68'),
+	'SNK Alpha 68K Hardware': ArcadeSystem(source_file='alpha68k'),
+	'SNK Hardware': ArcadeSystem(source_file='snk'),
+	'Status Trivia Hardware': ArcadeSystem(source_file='statriv2'),
+	'Subsino Newer Tilemaps Hardware': ArcadeSystem(source_file='subsino2'),
+	'Toaplan Hardware': ArcadeSystem(source_file='toaplan1'),
+	'Unico Hardware': ArcadeSystem(source_file='unico'),
+	'Williams 6809 Hardware': ArcadeSystem(source_file='williams'),
+	'Yun Sung 16 Bit Hardware': ArcadeSystem(source_file='yunsun16'),
+
+	#Arcade platforms that don't really have a name except a game that uses them; I try not to fill this up with every single remaining source file, just where it's notable for having other games on it or some other reason (because it's based on a home console/computer perhaps, or because it's 3D or modern and therefore interesting), or maybe I do because I feel like it sometimes, oh well
+	'Ambush Hardware': ArcadeSystem(source_file='ambush'),
+	'Arkanoid Hardware': ArcadeSystem(source_file='arkanoid'),
+	'Armed Formation Hardware': ArcadeSystem(source_file='armedf'),
+	'Backfire! Hardware': ArcadeSystem(source_file='backfire'),
+	'Battle Rangers Hardware': ArcadeSystem(source_file='battlera'), #PC Engine based
+	'Battletoads Hardware': ArcadeSystem(source_file='btoads'),
+	'Beathead Hardware': ArcadeSystem(source_file='beathead'),
+	'Billiard Academy Real Break Hardware': ArcadeSystem(source_file='realbrk'),
+	'Bishi Bashi Champ Hardware': ArcadeSystem(source_file='bishi'),
+	'BurgerTime Hardware': ArcadeSystem(source_file='btime'),
+	'Cisco Heat Hardware': ArcadeSystem(source_file='cischeat'),
+	'Cool Pool Hardware': ArcadeSystem(source_file='coolpool'),
+	'Crazy Climber Hardware': ArcadeSystem(source_file='cclimber'),
+	'Destiny Hardware': ArcadeSystem(source_file='deshoros'),
+	'Don Den Lover Hardware': ArcadeSystem(source_file='ddenlovr'),
+	'Donkey Kong Hardware': ArcadeSystem(source_file='dkong'),
+	'Erotictac Hardware': ArcadeSystem(source_file='ertictac'), #Acorn Archimedes based
+	'Exterminator Hardware': ArcadeSystem(source_file='exterm'),
+	'Final Crash Hardware': ArcadeSystem(source_file='fcrash'), #Bootleg of Final Fight; this is used for other bootlegs too
+	'Galaga Hardware': ArcadeSystem(source_file='galaga'),
+	'Galaxian Hardware': ArcadeSystem(source_files=['galaxian', 'galaxold']), #Was used for a lot of games and bootlegs, actually; seems that Moon Cresta hardware has the same source file; there's a comment in galaxold saying it'll be merged in galaxian eventually (seems it has all the bootlegs and such)
+	'Go! Go! Connie Hardware': ArcadeSystem(source_file='ggconnie'), #Supergrafx based
+	'G-Stream G2020 Hardware': ArcadeSystem(source_file='gstream'),
+	'GTI Club Hardware': ArcadeSystem(source_file='gticlub'),
+	'Hang-On Hardware': ArcadeSystem(source_file='segahang'),
+	"Hard Drivin' Hardware": ArcadeSystem(source_file='harddriv'),
+	'High Seas Havoc Hardware': ArcadeSystem(source_file='hshavoc'), #Megadrive based
+	'Killer Instinct Hardware': ArcadeSystem(source_file='kinst'),
+	'Last Fighting Hardware': ArcadeSystem(source_file='lastfght'),
+	'Lethal Justice Hardware': ArcadeSystem(source_file='lethalj'),
+	'Liberation Hardware': ArcadeSystem(source_file='liberate'),
+	'Macross Plus Hardware': ArcadeSystem(source_file='macrossp'),
+	'Metal Maniax Hardware': ArcadeSystem(source_file='metalmx'),
+	'Nemesis Hardware': ArcadeSystem(source_file='nemesis'), #TODO: Should explicitly specify BIOS used = nothing, I'd need to refactor stuff
+	'Out Run Hardware': ArcadeSystem(source_file='segaorun'),
+	'Pac-Man Hardware': ArcadeSystem(source_file='pacman'),
+	'Pong Hardware': ArcadeSystem(source_file='pong'),
+	'Qix Hardware': ArcadeSystem(source_file='qix'),
+	'Quake Arcade Tournament Hardware': ArcadeSystem(source_file='quakeat'), #Unknown PC based
+	'Quiz Do Re Mi Fa Grand Prix Hardware': ArcadeSystem(source_file='qdrmfgp'),
+	'Raiden 2 Hardware': ArcadeSystem(source_file='raiden2'),
+	'Rally-X Hardware': ArcadeSystem(source_file='rallyx'),
+	'Scramble Hardware': ArcadeSystem(source_file='scramble'), #Apparently also to be merged into galaxian
+	'See See Find Out Hardware': ArcadeSystem(source_file='ssfindo'), #RISC PC based
+	'Slap Shot Hardware': ArcadeSystem(source_file='slapshot'),
+	'Snow Bros Hardware': ArcadeSystem(source_file='snowbros'),
+	'Space Invaders / Qix Silver Anniversary Edition Hardware': ArcadeSystem(source_file='invqix'),
+	'Street Games Hardware': ArcadeSystem(source_file='pcat_nit'), #PC-AT 386 based
+	'Super Pac-Man Hardware': ArcadeSystem(source_file='mappy'), #While the source file is called mappy, this seems to be more commonly known as the Super Pac-Man board
+	'Tatsunoko vs. Capcom Hardware': ArcadeSystem(source_file='tvcapcom'), #Wii based
+	'The NewZealand Story Hardware': ArcadeSystem(source_file='tnzs'),
+	'TMNT Hardware': ArcadeSystem(source_file='tmnt'),
+	'Tournament Table Hardware': ArcadeSystem(source_file='tourtabl'), #Atari 2600 based
+	'Tumble Pop Bootleg Hardware': ArcadeSystem(source_file='tumbleb'),
+	'Turret Tower Hardware': ArcadeSystem(source_file='turrett'),
+	'TX-1 Hardware': ArcadeSystem(source_file='tx1'),
+	'Vamp x1/2 Hardware': ArcadeSystem(source_file='vamphalf'), #I guess the source file is for Hyperstone based games but I dunno if I should call it that
+	'Wheels & Fire Hardware': ArcadeSystem(source_file='wheelfir'),
+	'Zaxxon Hardware': ArcadeSystem(source_file='zaxxon'),
+
+	#Multiple things stuffed into one source file, so there'd have to be something else to identify it (that isn't BIOS used) or it doesn't matter
+	'Irem M10/M11/M15': ArcadeSystem(source_file='m10'),
+	'Midway MCR-1/MCR-2': ArcadeSystem(source_file='mcr'),
+	'Namco System 246/256': ArcadeSystem(source_file='namcops2'), #Based on PS2
+	'Sega System 1/2': ArcadeSystem(source_file='system1'),
+	'Play Mechanix VP50/VP100/VP101': ArcadeSystem(source_file='vp101'),
+}
+
 class Machine():
 	def __init__(self, xml, init_metadata=False):
 		self.xml = xml
@@ -66,6 +405,9 @@ class Machine():
 			self.metadata.specific_info['BIOS-Used-Full-Name'] = bios.name
 		if self.samples_used:
 			self.metadata.specific_info['Samples-Used'] = self.samples_used
+		arcade_system = self.arcade_system
+		if arcade_system:
+			self.metadata.specific_info['Arcade-System'] = arcade_system
 
 		self._add_manufacturer()
 
@@ -95,6 +437,14 @@ class Machine():
 	@property
 	def source_file(self):
 		return os.path.splitext(self.xml.attrib['sourcefile'])[0]
+
+	@property
+	def arcade_system(self):
+		for name, arcade_system in arcade_systems.items():
+			#Ideally, this should only match one, otherwise it means I'm doing it wrong I guess
+			if arcade_system.uses_this_system(self):
+				return name
+		return None
 
 	@property
 	def icon(self):
