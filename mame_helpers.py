@@ -7,12 +7,13 @@ import copy
 from metadata import CPU, ScreenInfo
 from common_paths import cache_dir
 from common import junk_suffixes
-from data.mame_manufacturers import manufacturer_overrides
+from data.mame_manufacturers import manufacturer_overrides, dont_remove_suffix
 
 def consistentify_manufacturer(manufacturer):
 	if not manufacturer:
 		return None
-	manufacturer = junk_suffixes.sub('', manufacturer)
+	if manufacturer not in dont_remove_suffix:
+		manufacturer = junk_suffixes.sub('', manufacturer)
 	return manufacturer_overrides.get(manufacturer, manufacturer)
 
 mame_config_comment = re.compile(r'#.+$')
