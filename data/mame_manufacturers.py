@@ -4,29 +4,28 @@ manufacturer_overrides = {
 	#Anyway. Some of these are bit... contentious? Is that the right word? Like, some of these are definitely different ways of spelling the same company and that's definitely a valid thing to deal with, but then some of these might well just be different brands used by the same company, because companies are weird like that. So at some point I'll probably need to clean this up. Hmm...
 	#Yeah let's make this a big TODO to verify what formatting companies actually use themselves
 
-	#TODO: Are ATW > ATW USA Inc. the same or a regional branch?
+	#TODO: Are ATW > ATW USA the same or a regional branch?
 	#Should NEC Avenue just be called NEC?
-	#Should Sony Computer Entertainment Inc and Sony Imagesoft be just Sony?
-	#Toshiba EMI > Toshiba?
+	#Toshiba EMI > Toshiba? Or is that a combination of the things
 	#Are CBS Electronics and CBS Software the same? Seems like they're both owned by CBS the American TV company, the former is for various Atari 2600/5200/7800 games they published and distributing the ColecoVision outside USA; and the latter is basically licensed Sesame Street games?
 	#Are Fox Interactive, Fox Video Games, 20th Century Fox all the same?
 	#Human == Human Amusement?
-	#Ultra, Ultra Games, Konami (Ultra Games)?
-	#Universal == Universal Video Games?
+	#Universal (the one that published Mr. Do) == Universal Video Games? Not the same as Universal Interactive / the media conglomerate, are now known as Aruze
 	#BBC Worldwide == BBC Multimedia? I mean they're obviously both the BBC
 	#Empire Entertainment == Empire Interactive?
 	#New Image Technologies == New Image?
 	#Naxat == Naxat Soft?
-	#The SNES game Super Godzilla (USA) has a publisher of literally "Super Godzilla". Wait what? That can't be right. Should be Toho right? Same with Tetris (Japan) for Megadrive. Unless they meant The Tetris Company there.
+	#The SNES game Super Godzilla (USA) has a publisher of literally "Super Godzilla". Wait what? That can't be right. Should be Toho right? Same with Tetris (Japan) for Megadrive. Unless they meant The Tetris Company there. But then I dunno
 	#Leave Atari Games > Atari and Midway Games > Midway alone, because if I try to comperehend the timeline of which is what and who owned the rights to which brand name and who owned who at any given time, I would die of confusion
 	#Marvelous Entertainment and Marvelous Interactive also are different (due to mergers) and I gotta remember that
-
+	
 	'20th Century Fox Video Games': '20th Century Fox',
 	'Absolute': 'Absolute Entertainment', #Hmm, not sure if it'd be better to do this the other way around
 	'Acclaim Entertainment': 'Acclaim',
 	'American Softworks Company': 'American Softworks',
 	'APF Electronics': 'APF',
 	'ASCII Entertainment': 'ASCII',
+	'Bit Corp': 'Bit Corporation',
 	'BPS': 'Bullet-Proof Software', #I hope nobody else uses that acronym
 	'Broderbund': 'Brøderbund',
 	'Broderbund Software': 'Brøderbund',
@@ -41,26 +40,32 @@ manufacturer_overrides = {
 	'Data East Corporation': 'Data East',
 	'DataSoft': 'Datasoft',
 	'Dempa Shinbunsha': 'Dempa',
+	'Digital Equipment Corporation': 'DEC',
 	'Eidos Interactive': 'Eidos',
 	'Elite': 'Elite Systems',
 	'Entex Industries': 'Entex',
 	'First Star': 'First Star Software',
 	'Funtech Entertainment': 'Funtech',
 	'General Consumer Electronics': 'GCE',
+	'Gradiente Entertainment Ltda.': 'Gradiente Entertainment',
 	'Grandslam Entertainments': 'Grandslam',
 	'Gremlin Interactive': 'Gremlin Graphics',
 	'HAL Kenkyuujo': 'HAL', #Literally "HAL Laboratory"
 	'HAL Laboratory': 'HAL',
 	'Hasbro Interactive': 'Hasbro',
+	'Hewlett-Packard': 'HP',
 	'HiCom': 'Hi-Com',
 	'Hudson': 'Hudson Soft',
 	'Human Entertainment': 'Human',
 	'International Business Machines': 'IBM',
 	'JoWooD Entertainment AG': 'JoWooD Entertainment',
 	'Kaneko Elc.': 'Kaneko',
+	'Kyugo': 'Kyugo Boueki',
 	'K-Tel Vision': 'K-Tel',
 	'Laser Beam': 'Laser Beam Entertainment',
+	'Loriciel Software': 'Loriciel',
 	'MicroCabin': 'Micro Cabin', #Annoying alternate spelling because they officially use both just to be annoying
+	'Microdigital': 'Micro Digital',
 	'Microlab': 'Micro Lab',
 	'Microprose Games': 'MicroProse',
 	'NEC Home Electronics': 'NEC',
@@ -103,11 +108,11 @@ manufacturer_overrides = {
 	'Square': 'Squaresoft', #Which is the frickin' right one?
 
 	#This isn't a case of a company formatting its name in different ways, but it's where a company's renamed itself, and maybe I shouldn't do this...
-	'Alpha Denshi Co.': 'ADK', #Renamed in 1993
+	'Alpha Denshi': 'ADK', #Renamed in 1993
 	'Ubi Soft': 'Ubisoft', #I hate that they used to spell their name with a space so this is valid. But then, don't we all hate Ubisoft for one reason or another?
 	#Video Technology > VTech
 
-	#Brand names that are definitely the same company but insist on using some other name... maybe I shouldn't change these either
+	#Brand names that are definitely the same company but insist on using some other name... maybe I shouldn't change these either, but then, I'm going to
 	'Atarisoft': 'Atari', #Atarisoft is just a brand name and not an actual company, so I guess I'll do this
 	'Bally Gaming': 'Bally',
 	'Bally Manufacturing': 'Bally',
@@ -121,6 +126,8 @@ manufacturer_overrides = {
 	'Mattel Media': 'Mattel',
 	'Nihon Bussan': 'Nichibutsu',
 	'Nihonbussan': 'Nichibutsu', #In the event that we figure out we shouldn't change the above, we should at least consistentify this formatting
+	'Sony Computer Entertainment': 'Sony',
+	'Sony Imagesoft': 'Sony',
 	'Tandy Radio Shack': 'Tandy',
 	'Viacom New Media': 'Viacom',
 	'Virgin Games': 'Virgin',
@@ -194,6 +201,6 @@ manufacturer_overrides = {
 
 dont_remove_suffix = [
 	#Normally we run junk_suffixes on stuff to remove "Corporation" "Co." at the end but sometimes we shouldn't
-	'Bit Corporation',
+	'Bit Corp', #We will then fix that up later
 	'Zonov and Co.',
 ]
