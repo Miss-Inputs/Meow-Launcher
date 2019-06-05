@@ -652,7 +652,7 @@ class Machine():
 				developer = self.parent.metadata.developer
 				publisher = self.parent.metadata.publisher
 			
-			publisher = bootleg_match[1]
+			publisher = consistentify_manufacturer(bootleg_match[1])
 		else:
 			if ' / ' in self.manufacturer:
 				#Let's try and clean up things a bit when this happens
@@ -664,9 +664,10 @@ class Machine():
 					#TODO: Try and cleverly figure out which ones are developers and which are publishers, but... hmm
 					developer = publisher = ', '.join(manufacturers)
 			else:
-				developer = publisher = self.manufacturer
-		developer = consistentify_manufacturer(developer)
-		publisher = consistentify_manufacturer(publisher)
+				if self.manufacturer.endswith('?'):
+					developer = publisher = consistentify_manufacturer(self.manufacturer[:-1]) + '?'
+				else:
+					developer = publisher = consistentify_manufacturer(self.manufacturer)
 		return developer, publisher
 
 def get_machine(driver):
