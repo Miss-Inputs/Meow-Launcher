@@ -151,6 +151,7 @@ manufacturer_overrides = {
 	'シンキングラビット (Thinking Rabbit)': 'Thinking Rabbit',
 	'スタークラフト (Starcraft)': 'Starcraft',
 	'ソフトプロ (Soft Pro)': 'Soft Pro',
+	'タイトー (Taito)': 'Taito',
 	'デービーソフト (dB-Soft)': 'dB-Soft',
 	'ニデコム (Nidecom)': 'Nidecom',
 	'パックスエレクトロニカ (Pax Electronica)': 'Pax Electronica',
