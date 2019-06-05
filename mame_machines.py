@@ -413,7 +413,15 @@ class Machine():
 		if arcade_system:
 			self.metadata.specific_info['Arcade-System'] = arcade_system
 
-		self._add_manufacturer()
+		licensed_from = self.licensed_from
+		if self.licensed_from:
+			self.metadata.specific_info['Licensed-From'] = licensed_from
+
+		hacked_by = self.hacked_by
+		if self.hacked_by:
+			self.metadata.specific_info['Hacked-By'] = hacked_by
+
+		self.metadata.developer, self.metadata.publisher = self.developer_and_publisher
 
 	@property
 	def basename(self):
@@ -570,7 +578,6 @@ class Machine():
 		for rom in self.xml.findall('rom'):
 			if rom.attrib.get('status', 'good') != 'nodump':
 				return False
-
 		return True
 
 	@property
@@ -598,45 +605,54 @@ class Machine():
 	def software_lists(self):
 		return [software_list.attrib.get('name') for software_list in self.xml.findall('softwarelist')]
 
+
+	@property
+	def manufacturer(self):
+		return self.xml.findtext('manufacturer')
+
 	@property
 	def is_hack(self):
-		manufacturer = self.xml.findtext('manufacturer')
-		if not manufacturer:
-			return None
-		return hack_regex.fullmatch(manufacturer)
+		return bool(self.hacked_by)
 
-	def _add_manufacturer(self):
-		manufacturer = self.xml.findtext('manufacturer')
-		if not manufacturer:
-			self.metadata.publisher = self.metadata.developer = None
-			return
-		license_match = licensed_arcade_game_regex.fullmatch(manufacturer)
-		licensed_from_match = licensed_from_regex.fullmatch(manufacturer)
-		hack_match = hack_regex.fullmatch(manufacturer)
+	@property
+	def licensed_from(self):
+		licensed_from_match = licensed_from_regex.fullmatch(self.manufacturer)
+		if licensed_from_match:
+			return licensed_from_match[2]
+		return None
+
+	@property
+	def hacked_by(self):
+		hack_match = hack_regex.fullmatch(self.manufacturer)
+		if hack_match:
+			return hack_match[1]
+		return None
+
+	@property
+	def developer_and_publisher(self):
+		if not self.manufacturer:
+			return None, None
+		license_match = licensed_arcade_game_regex.fullmatch(self.manufacturer)
 		if license_match:
 			developer = license_match[1]
 			publisher = license_match[2]
-		elif licensed_from_match:
-			developer = publisher = licensed_from_match[1]
-			self.metadata.specific_info['Licensed-From'] = licensed_from_match[2]
 		else:
-			if not manufacturer.startswith(('bootleg', 'hack')):
-				if ' / ' in manufacturer:
+			if not self.manufacturer.startswith(('bootleg', 'hack')):
+				if ' / ' in self.manufacturer:
 					#Let's try and clean up things a bit when this happens
-					manufacturers = [consistentify_manufacturer(m) for m in manufacturer.split(' / ')]
+					manufacturers = [consistentify_manufacturer(m) for m in self.manufacturer.split(' / ')]
 					developer = publisher = ', '.join(manufacturers)
 				else:
-					developer = publisher = manufacturer
+					developer = publisher = self.manufacturer
 			elif self.has_parent:
-				if hack_match:
-					self.metadata.specific_info['Hacked-By'] = hack_match[1]
 				developer = self.parent.metadata.developer
 				publisher = self.parent.metadata.publisher
 			else:
 				developer = None #It'd be the original not-bootleg game's developer but we can't get that programmatically without a parent etc
-				publisher = manufacturer
-		self.metadata.developer = consistentify_manufacturer(developer)
-		self.metadata.publisher = consistentify_manufacturer(publisher)
+				publisher = self.manufacturer
+		developer = consistentify_manufacturer(developer)
+		publisher = consistentify_manufacturer(publisher)
+		return developer, publisher
 
 def get_machine(driver):
 	return Machine(get_mame_xml(driver))
