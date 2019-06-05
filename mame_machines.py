@@ -267,7 +267,12 @@ class Machine():
 			self.metadata.specific_info['Licensed-From'] = licensed_from_match[2]
 		else:
 			if not manufacturer.startswith(('bootleg', 'hack')):
-				developer = publisher = manufacturer
+				if ' / ' in manufacturer:
+					#Let's try and clean up things a bit when this happens
+					manufacturers = [consistentify_manufacturer(m) for m in manufacturer.split(' / ')]
+					developer = publisher = ', '.join(manufacturers)
+				else:
+					developer = publisher = manufacturer
 			elif self.has_parent:
 				if hack_match:
 					self.metadata.specific_info['Hacked-By'] = hack_match[1]
