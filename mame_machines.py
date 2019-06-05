@@ -64,6 +64,8 @@ class Machine():
 		if bios:
 			self.metadata.specific_info['BIOS-Used'] = bios.basename
 			self.metadata.specific_info['BIOS-Used-Full-Name'] = bios.name
+		if self.samples_used:
+			self.metadata.specific_info['Samples-Used'] = self.samples_used
 
 		self._add_manufacturer()
 
@@ -201,6 +203,7 @@ class Machine():
 	def requires_chds(self):
 		#Hmm... should this include where all <disk> has status == "nodump"? e.g. Dragon's Lair has no CHD dump, would it be useful to say that it requires CHDs because it's supposed to have one but doesn't, or not, because you have a good romset without one
 		#I guess I should have a look at how the MAME inbuilt UI does this
+		#Who really uses this kind of thing, anyway?
 		return self.xml.find('disk') is not None
 
 	@property
@@ -224,6 +227,10 @@ class Machine():
 		if romof:
 			return Machine(get_mame_xml(romof), True)
 		return None
+
+	@property
+	def samples_used(self):
+		return self.xml.attrib.get('sampleof')
 
 	@property
 	def media_slots(self):
