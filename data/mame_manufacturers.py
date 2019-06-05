@@ -45,6 +45,7 @@ manufacturer_overrides = {
 	'Elite': 'Elite Systems',
 	'Entex Industries': 'Entex',
 	'First Star': 'First Star Software',
+	'Funtech Entertainment': 'Funtech',
 	'General Consumer Electronics': 'GCE',
 	'Grandslam Entertainments': 'Grandslam',
 	'Gremlin Interactive': 'Gremlin Graphics',
@@ -100,7 +101,6 @@ manufacturer_overrides = {
 	'DSI Games': 'Destination Software',
 	'dtp Entertainment': 'Digital Tainment Pool',
 	'Square': 'Squaresoft', #Which is the frickin' right one?
-	'Ultra Games': 'Konami (Ultra Games)', #This is questionable to format it like this, but... I'll contemplate which one is better some other time
 
 	#This isn't a case of a company formatting its name in different ways, but it's where a company's renamed itself, and maybe I shouldn't do this...
 	'Alpha Denshi Co.': 'ADK', #Renamed in 1993
