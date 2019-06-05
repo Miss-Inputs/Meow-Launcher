@@ -173,9 +173,9 @@ nintendo_licensee_codes = {
 	'CE': 'Pony Canyon/FCI', #Seems to be Fujisankei Communications International (as FCI Inc) for USA releases, Pony Canyon for Japanese releases, both are owned by Fujisankei Communications Group
 
 	#Welcome to confusing town, population these
-	'5Z': '???Classified Games', #Also appears in the Card Shark (SNES) proto, which as far as I can tell was developed by someone named Bonsai and involved someone named Bicycle as well. Seems like there's a mixup here with Conspiracy Entertainment? Are they the same company?
-	'AC': '???Toei Animation', #Used in some EXTREMELY obscure "Waiwai Check" games for Satellaview, which according to the title screen of one of them, are made by Hori Electric? Well I'm confused; Tooyama no Kinsan Space Chou - Mr. Gold is actually published by Toei though (apparently)
-	'CA': '???Konami (Ultra Games)', #Definitely Konami but might not be Ultra Games? Published Batman Returns SNES in Japan (but not elsewhere), and Parodius (Europe) for Game Boy
+	'5Z': 'Classified Games', #Also appears in the Card Shark (SNES) proto, which as far as I can tell was developed by someone named Bonsai and involved someone named Bicycle as well. Seems like there's a mixup here with Conspiracy Entertainment? Are they the same company?
+	'AC': 'Toei Animation', #Used in some EXTREMELY obscure "Waiwai Check" games for Satellaview, which according to the title screen of one of them, are made by Hori Electric? Well I'm confused; Tooyama no Kinsan Space Chou - Mr. Gold is actually published by Toei though (apparently)
+	'CA': 'Ultra Games', #Definitely some branch Konami but might not be Ultra Games? Code appears for Batman Returns SNES in Japan (but not elsewhere), and Parodius (Europe) for Game Boy
 
 	#So far, only seen once (in a reliable source, i.e. not protos or anything like that)
 	'09': 'Hot-B', #Ginga - Card & Puzzle Collection (Japan) (En,Ja)
