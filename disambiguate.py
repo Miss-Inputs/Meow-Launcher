@@ -172,7 +172,7 @@ def resolve_duplicates(group, method, format_function=None, ignore_missing_value
 	else:
 		resolve_duplicates_by_metadata(group, method, format_function, ignore_missing_values)
 
-words = re.compile(r'\w+')
+words = re.compile(r'[\w()]+')
 def normalize_name(name):
 	name = convert_roman_numerals_in_title(name)
 	name = name.lower()
