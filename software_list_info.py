@@ -322,6 +322,9 @@ class Software():
 		if publisher in ('<doujin>', '<homebrew>', '<unlicensed>') and developer:
 			game.metadata.publisher = developer
 		elif not (already_has_publisher and (publisher == '<unknown>')):
+			if ' / ' in publisher:
+				publisher = ', '.join([consistentify_manufacturer(p) for p in publisher.split(' / ')])
+
 			game.metadata.publisher = publisher
 
 class SoftwareMatcherArgs():
