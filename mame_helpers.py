@@ -15,6 +15,8 @@ def consistentify_manufacturer(manufacturer):
 	if manufacturer not in dont_remove_suffix:
 		manufacturer = junk_suffixes.sub('', manufacturer)
 	manufacturer = manufacturer.strip()
+	if manufacturer[-1] == '?':
+		return manufacturer_overrides.get(manufacturer[:-1], manufacturer[:-1]) + '?'
 	return manufacturer_overrides.get(manufacturer, manufacturer)
 
 mame_config_comment = re.compile(r'#.+$')

@@ -664,10 +664,7 @@ class Machine():
 					#TODO: Try and cleverly figure out which ones are developers and which are publishers, but... hmm
 					developer = publisher = ', '.join(manufacturers)
 			else:
-				if self.manufacturer.endswith('?'):
-					developer = publisher = consistentify_manufacturer(self.manufacturer[:-1]) + '?'
-				else:
-					developer = publisher = consistentify_manufacturer(self.manufacturer)
+				developer = publisher = consistentify_manufacturer(self.manufacturer)
 		return developer, publisher
 
 def get_machine(driver):
