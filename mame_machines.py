@@ -637,9 +637,14 @@ class Machine():
 			developer = consistentify_manufacturer(license_match[1])
 			publisher = consistentify_manufacturer(license_match[2])
 			return developer, publisher
+	
+		manufacturer = self.manufacturer
+		licensed_from_match = licensed_from_regex.fullmatch(manufacturer)
+		if licensed_from_match:
+			manufacturer = licensed_from_match[1]
 		
-		bootleg_match = bootleg_with_publisher_regex.fullmatch(self.manufacturer)
-		if self.manufacturer in ('bootleg', 'hack') or self.is_hack:
+		bootleg_match = bootleg_with_publisher_regex.fullmatch(manufacturer)
+		if manufacturer in ('bootleg', 'hack') or self.is_hack:
 			if self.has_parent:
 				developer = self.parent.metadata.developer
 				publisher = self.parent.metadata.publisher
@@ -654,9 +659,9 @@ class Machine():
 			
 			publisher = consistentify_manufacturer(bootleg_match[1])
 		else:
-			if ' / ' in self.manufacturer:
+			if ' / ' in manufacturer:
 				#Let's try and clean up things a bit when this happens
-				manufacturers = [consistentify_manufacturer(m) for m in self.manufacturer.split(' / ')]
+				manufacturers = [consistentify_manufacturer(m) for m in manufacturer.split(' / ')]
 
 				if len(manufacturers) == 2 and manufacturers[0] == 'bootleg':
 					developer = publisher = manufacturers[1]
@@ -664,7 +669,7 @@ class Machine():
 					#TODO: Try and cleverly figure out which ones are developers and which are publishers, but... hmm
 					developer = publisher = ', '.join(manufacturers)
 			else:
-				developer = publisher = consistentify_manufacturer(self.manufacturer)
+				developer = publisher = consistentify_manufacturer(manufacturer)
 		return developer, publisher
 
 def get_machine(driver):
