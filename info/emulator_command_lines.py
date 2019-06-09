@@ -10,6 +10,7 @@ from launchers import LaunchParams, MultiCommandLaunchParams
 from mame_helpers import have_mame
 from platform_metadata.apple_ii import AppleIIHardware
 from platform_metadata.atari_2600 import Atari2600Controller
+from platform_metadata.master_system import SMSPeripheral
 from platform_metadata.megadrive import MegadriveRegionCodes
 from platform_metadata.nes import NESPeripheral
 from platform_metadata.saturn import SaturnRegionCodes
@@ -419,8 +420,31 @@ def mame_master_system(game, _):
 			system = 'sms'
 	#Not sure if Brazilian or Korean systems would end up being needed
 
-	#TODO Set up slot options for ctrl1 and possibly ctrl2
-	return mame_system(system, 'cart')
+	slot_options = {}
+	peripheral = game.metadata.specific_info.get('Peripheral')
+	#According to my own comments from earlier in master_system.py that I'm going to blindly believe, both controllers are basically the same
+	if peripheral == SMSPeripheral.Lightgun:
+		slot_options['ctrl1'] = 'lphaser'
+		slot_options['ctrl2'] = 'lphaser'
+	elif peripheral == SMSPeripheral.Paddle:
+		slot_options['ctrl1'] = 'paddle'
+		slot_options['ctrl2'] = 'paddle'
+	elif peripheral == SMSPeripheral.Tablet:
+		slot_options['ctrl1'] = 'graphic'
+		slot_options['ctrl2'] = 'graphic'
+	elif peripheral == SMSPeripheral.SportsPad:
+		#Uh oh, there's a sportspadjp as well. Uh oh, nobody told me there was regional differences. Uh oh, I'm not prepared for this at all. Uh oh. Oh shit. Oh fuck. Oh no.
+		#I mean like.. they're both 2 button trackballs? Should be fine, I hope
+		slot_options['ctrl1'] = 'sportspad'
+		slot_options['ctrl2'] = 'sportspad'
+	elif peripheral == SMSPeripheral.StandardController:
+		#Hey cool there's a rapid fire thing, that sounds like fun
+		slot_options['ctrl1'] = 'rapidfire'
+		slot_options['ctrl2'] = 'rapidfire'
+	#Other controller options that exist: multitap, joypad (ordinary)
+	#smsexp can be set to genderadp but I dunno what the point of that is
+
+	return mame_system(system, 'cart', slot_options)
 
 def mame_megadrive(game, _):
 	#Can do Sonic & Knuckles + Sonic 2/3 lockon (IIRC)
