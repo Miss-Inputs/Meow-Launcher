@@ -105,6 +105,7 @@ emulators = {
 	#Has issues with XEGS carts that it should be able to load (because they do run on the real system) but it says it doesn't because they should be run on XEGS instead, and then doesn't support a few cart types anyway; otherwise fine
 	'MAME (BBC Bridge Companion)': MameSystem(command_lines.mame_system('bbcbc', 'cart'), ['bin']),
 	'MAME (C64)': MameSystem(command_lines.mame_c64, ['80', 'a0', 'e0', 'crt']),
+	'MAME (Casio PV-1000)': MameSystem(command_lines.mame_system('pv1000', 'cart'), ['bin']),
 	'MAME (Channel F)': MameSystem(command_lines.mame_system('channelf', 'cart'), ['bin', 'chf']),
 	'MAME (ColecoVision)': MameSystem(command_lines.mame_colecovision, ['bin', 'col', 'rom']),
 	#MT06554: Roller controller is inaccurate
@@ -128,6 +129,8 @@ emulators = {
 	#Does not let you do GBA-enhanced GBC games
 	'MAME (IBM PCjr)': MameSystem(command_lines.mame_ibm_pcjr, mame_floppy_formats + ['img', 'bin', 'jrc']),
 	'MAME (Intellivision)': MameSystem(command_lines.mame_intellivision, ['bin', 'int', 'rom', 'itv']),
+	'MAME (Lynx)': MameSystem(command_lines.mame_lynx, ['lnx', 'lyx', 'o']),
+	#Could be weird where rotation is involved
 	'MAME (Master System)': MameSystem(command_lines.mame_master_system, ['bin', 'sms']),
 	'MAME (Mattel Juice Box)': MameSystem(command_lines.mame_system('juicebox', 'memcard'), ['smc']),
 	'MAME (Mega Drive)': MameSystem(command_lines.mame_megadrive, ['bin', 'md', 'smd', 'gen']),
@@ -141,10 +144,13 @@ emulators = {
 	'MAME (NES)': MameSystem(command_lines.mame_nes, ['nes', 'unf', 'unif', 'fds']),
 	#Supports a lot of mappers actually, probably not as much as Mesen or puNES would, but it's up there; also a lot of cool peripherals
 	'MAME (Nichibutsu My Vision)': MameSystem(command_lines.mame_system('myvision', 'cart'), ['bin']),
-	'MAME (Casio PV-1000)': MameSystem(command_lines.mame_system('pv1000', 'cart'), ['bin']),
+	'MAME (PC Engine)': MameSystem(command_lines.mame_pc_engine, ['pce', 'bin', 'sgx']),
 	'MAME (SG-1000)': MameSystem(command_lines.mame_sg1000, ['bin', 'sg', 'sc', 'sf7'] + mame_floppy_formats),
 	'MAME (Sharp X1)': MameSystem(command_lines.mame_system('x1turbo40', 'flop1', has_keyboard=True), mame_floppy_formats + ['2d']),
-	#x1turbo doesn't work, and I'm not sure what running x1 over x1turbo40 would achieve
+	#x1turbo doesn't work, and I'm not sure what running x1 over x1turbo40 would achieve (hope there's no compatibility shenanigans)
+	'MAME (Sharp X68000)': MameSystem(command_lines.mame_sharp_x68000, mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim', 'm3u']),
+	#It doesn't	really support m3u, but I'm going to make it so it does (multi-disk games seem fairly common)
+	#All the other models of X68000 (x68030, x68ksupr, x68kxvi) don't work yet
 	'MAME (SNES)': MameSystem(command_lines.mame_snes, ['sfc', 'bs', 'st']),
 	#The main advantage here is that it supports multi-slot carts (BS-X and Sufami Turbo) where SNES9x's GTK port does not, otherwise I dunno how well it works
 	'MAME (Sord M5)': MameSystem(command_lines.mame_sord_m5, ['bin']),
@@ -165,38 +171,33 @@ emulators = {
 	#either port and thanks I hate it. At least there's only one TV type
 	#Sometimes I see this called the Commodore MAX Machine or Ultimax or VC-10, but... well, I'm not sure where the VIC-10 name comes from other than that's what the driver's called
 	'MAME (VIC-20)': MameSystem(command_lines.mame_vic_20, ['20', '40', '60', '70', 'a0', 'b0', 'crt']),
+	'MAME (V.Smile)': MameSystem(command_lines.mame_system('vsmile', 'cart'), ['u1', 'u3', 'bin']),
 	'MAME (VZ-200)': MameSystem(command_lines.mame_system('vz200', 'dump', {'io': 'joystick', 'mem': 'laser_64k'}, True), ['vz']),
 	#In the Laser 200/Laser 210 family, but Dick Smith variant should do.
 	#Joystick interface doesn't seem to be used by any games, but I guess it does more than leaving the IO slot unfilled. That sucks, because otherwise no game ever uses the keyboard consistently, because of course not. Even modern homebrew games. Why y'all gotta be like that?
 	#Some games will need you to type RUN to run them, not sure how to detect that.
 	'MAME (Watara Supervision)': MameSystem(command_lines.mame_system('svision', 'cart'), ['bin', 'ws', 'sv']),
 	#I've been told the sound is that horrible on a real system; there are "TV Link" variant systems but that just makes the colours look even worse (they're all inverted and shit)
+	'MAME (WonderSwan)': MameSystem(command_lines.mame_system('wscolor', 'cart'), ['ws', 'wsc', 'bin', 'pc2']),
+	#Could also be weird where rotation is involved, but at least it selects the right way around on startup
 	'MAME (ZX Spectrum)': MameSystem(command_lines.mame_zx_spectrum, ['ach', 'frz', 'plusd', 'prg', 'sem', 'sit', 'sna', 'snp', 'snx', 'sp', 'z80', 'zx', 'bin', 'rom', 'raw', 'scr'] + mame_floppy_formats),
 	#.trd would be doable with -exp beta128, but that only autoboots on Spectrum 48K and everything is designed for 128K
 	#.opu .opd might work with -exp opus, but that seems to only work on 48K and one must type "run"
 
 	#Other systems that MAME can do but I'm too lazy to do them yet because they'd need a command line generator function or other:
-	#Dreamcast: Region, and also runs slow on my computer so I don't feel like it; doesn't seem like it does Windows CE at this point (something about only emulating the MMU properly for Naomi shows up)
-	#PC Engine: Need to select between pce and tg16 depending on region, -cdrom and -cart slots, and sgx accordingly:
-	#	.sgx extension is SuperGrafx, needs sgx driver
-	#	tg16 can run Japanese games (seemingly) but pce cannot run USA games, so it would be the default if region not specified
-	#	CD needs -cart set to CD-ROM System .pce BIOS, and then seems to work with any particular driver (but the TurboGrafx CD System Card will only work with tg16)
-	#	Seems to support SF2 and Populous and such, not sure what else would be an edge case
-	#	6-button controllers are enabled via Machine Configuration
-	#Saturn: Needs region stuff (saturn and saturnjp are software incompatible); otherwise seems to basically work (ctrl1 sets controller) but marked as MACHINE_NOT_WORKING and slow...
 	#Stuff that MAME doesn't do so well, but a non-skeleton driver exists:
 	#Amiga CD32: I guess it doesn't really work at this point in time
 	#Commodore CDTV: Nope
-	#PlayStation: Seems to like executables but not discs, dunno if psu will accept Japan discs
+	#PlayStation: Would require proper region code detection, which would require looking at ISO9660 stuff properly. Anyway it is MACHINE_NOT_WORKING and often doesn't play the games (see https://mametesters.org/view.php?id=7127)
 
 	#----- The experimental section. The emulators are still here, it's just so you, the fabulous and wonderful end user, can have more information on how to manage expectations. Or something like that.
 
 	#--Has usability issues that prevent me from considering it a nice experience, but may work anyway
+	'MAME (CreatiVision)': MameSystem(command_lines.mame_system('crvision', 'cart'), ['bin', 'rom']),
+	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it
 	'MAME (IBM PC)': MameSystem(command_lines.mame_system('ibm5150', 'flop1', {'isa5': 'sblaster1_5'}, has_keyboard=True), mame_floppy_formats + ['img']),
 	#Sound Blaster 1.5 is added here primarily just to give this a joystick, but then that seems to not work anyway... also, there's DIP switches you might need to set in order for video output to work (it's set to monochrome by default and not CGA)
-	'MAME (N64)': MameSystem(command_lines.mame_n64, ['v64', 'z64', 'rom', 'n64', 'bin']),
-	#Emulates a NTSC console only so PAL games will probably tell you off or otherwise not work properly; also no rumble/mempak/etc for you. Very slow on even modern systems
-
+	
 	#--These experimental emulators seem to work more often than they don't:
 	'Citra': Emulator(command_lines.citra, ['3ds', 'cxi', '3dsx'], []),
 	#No fullscreen from command line
@@ -207,27 +208,23 @@ emulators = {
 	#Forked from 0.8.x pce with speed-accuracy tradeoffs
 	'Mednafen (Saturn)': MednafenModule('ss', ['cue', 'toc', 'ccd', 'm3u']),
 	#Doesn't do .iso for whatever strange reason, which is a bit unfortunate. Might do .bin executables? Probably not
-
-	'MAME (CD-i)': MameSystem(command_lines.mame_system('cdimono1', 'cdrom'), mame_cdrom_formats),
-	#This is the only CD-i model that works according to wisdom passed down the ages (is it still true?), and it says it's not working, but it seems fine
-	'MAME (Hartung Game Master)': MameSystem(command_lines.mame_system('gmaster', 'cart'), ['bin']),
-	#Hmm... says not working and imperfect sound. I guess it does run the games, though
-	'MAME (PC-88)': MameSystem(command_lines.mame_system('pc8801', 'flop1', has_keyboard=True), mame_floppy_formats),
-	#TODO: Tapes, and potentially look into other models. All the PC-88 models claim to be broken, but the base one plays the games, so that's good enough in my book. Some might use BASIC though so I'd have to specially handle that?
+	
 	'MAME (Casio PV-2000)': MameSystem(command_lines.mame_system('pv2000', 'cart', has_keyboard=True), ['bin']),
 	#Not the same as the PV-1000, albeit similar. Driver marked as non-working but it seems alright, other than it's supposed to have joysticks and doesn't (so you just set up a gamepad to map to emulated cursor keys) which maybe is why
-	'MAME (Sharp X68000)': MameSystem(command_lines.mame_sharp_x68000, mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim', 'm3u']),
-	#It doesn't	really support m3u, but I'm going to make it so it does (multi-disk games seem fairly common)
-	#All the other models of X68000 don't work yet
+	'MAME (CD-i)': MameSystem(command_lines.mame_system('cdimono1', 'cdrom'), mame_cdrom_formats),
+	#This is the only CD-i model that works according to wisdom passed down the ages (is it still true or does other stuff work now?), and it says it's not working + imperfect graphics/sound, but it seems fine so far
+	'MAME (Dreamcast)': MameSystem(command_lines.mame_dreamcast, mame_cdrom_formats),
+	#Sloooow, marked as non-working + imperfect sound
+	'MAME (Hartung Game Master)': MameSystem(command_lines.mame_system('gmaster', 'cart'), ['bin']),
+	#Hmm... says not working and imperfect sound. I guess it does run the games, though
+	'MAME (N64)': MameSystem(command_lines.mame_n64, ['v64', 'z64', 'rom', 'n64', 'bin']),
+	#Emulates a NTSC console only so PAL games will probably tell you off or otherwise not work properly; also no rumble/mempak/etc for you. Very slow on even modern systems. Marked as non-working + imperfect graphics
+	'MAME (PC-88)': MameSystem(command_lines.mame_system('pc8801', 'flop1', has_keyboard=True), mame_floppy_formats),
+	#TODO: Tapes, and potentially look into other models. All the PC-88 models claim to be broken, but the base one plays the games, so that's good enough in my book
 	'MAME (Uzebox)': MameSystem(command_lines.mame_system('uzebox', 'cart'), ['bin', 'uze']),
-	#Runs really slowly, but it does work (other than SD card emulation)
-	'MAME (V.Smile)': MameSystem(command_lines.mame_system('vsmile', 'cart'), ['u1', 'u3', 'bin']),
-	'MAME (Virtual Boy)': MameSystem(command_lines.mame_system('vboy', 'cart'), ['bin', 'vb']),
-	#Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there
+	#Runs really slowly, but it does work (other than SD card emulation), although marked as not working + imperfect sound
 
 	#--These experimental emulators seem to not work more often than they do, but they are here for you to play with if you want to, because maybe other people have better luck than me (everything in my life always goes wrong):
-	'MAME (CreatiVision)': MameSystem(command_lines.mame_system('crvision', 'cart'), ['bin', 'rom']),
-	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it
 	'MAME (G7400)': MameSystem(command_lines.mame_system('g7400', 'cart'), ['bin', 'rom']),
 	#just has the same graphics problems as Odyssey 2... there's a odyssey3 driver that was never released but I guess it would be for NTSC games. Actually, all the software list items say unsupported... hmm
 	'MAME (Jaguar)': MameSystem(command_lines.mame_atari_jaguar, ['j64', 'rom', 'bin', 'abs', 'cof', 'jag', 'prg']),
@@ -240,11 +237,14 @@ emulators = {
 	#Controllers aren't emulated yet (and they're necessary for a lot of things)
 	'MAME (Pokemon Mini)': MameSystem(command_lines.mame_system('pokemini', 'cart'), ['bin', 'min']),
 	#Wouldn't recommend yet as it has no sound, even if most people would probably turn the sound off in real life, also some stuff doesn't work
+	'MAME (Saturn)': MameSystem(command_lines.mame_saturn, mame_cdrom_formats),
+	#Non-working, imperfect sound; crashes on quite a few games and hangs to white screen sometimes
 	"MAME (Super A'Can)": MameSystem(command_lines.mame_system('supracan', 'cart'), ['bin']),
 	#Some things work, except with no sound, so... nah
 	'MAME (V.Smile Baby)': MameSystem(command_lines.mame_system('vsmileb', 'cart'), ['u1', 'u3', 'bin']),
 	#Seems to crash on some titles
-
+	'MAME (Virtual Boy)': MameSystem(command_lines.mame_system('vboy', 'cart'), ['bin', 'vb']),
+	#Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there and a lot of software list items are unsupported
 
 	#--These ones may or may not run well, I dunno:
 	'Mednafen (Game Boy)': MednafenModule('gb', ['gb', 'gbc'], command_lines.mednafen_gb),
@@ -264,8 +264,6 @@ emulators = {
 
 	'MAME (Amstrad CPC+)': MameSystem(command_lines.mame_system('cpc6128p', 'cart'), ['bin', 'cpr']),
 	#Just in case I change my mind on using GX4000. cpc464p is a different CPC+ model but I'm not sure that would be useful?
-	'MAME (Lynx)': MameSystem(command_lines.mame_lynx, ['lnx', 'lyx', 'o']),
-	'MAME (WonderSwan)': MameSystem(command_lines.mame_system('wscolor', 'cart'), ['ws', 'wsc', 'bin', 'pc2']),
 }
 
 class GameEngine():

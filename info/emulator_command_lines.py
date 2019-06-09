@@ -12,6 +12,7 @@ from platform_metadata.apple_ii import AppleIIHardware
 from platform_metadata.atari_2600 import Atari2600Controller
 from platform_metadata.megadrive import MegadriveRegionCodes
 from platform_metadata.nes import NESPeripheral
+from platform_metadata.saturn import SaturnRegionCodes
 from platform_metadata.zx_spectrum import ZXJoystick, ZXMachine
 
 from .region_info import TVSystem
@@ -290,6 +291,25 @@ def mame_colecovision(game, _):
 
 	return mame_system(system, 'cart')
 
+def mame_dreamcast(game, _):
+	#Possibly dcdev (dev unit) or dctream (Treamcast) could be useful here
+	if game.metadata.specific_info.get('Uses-Windows-CE', False):
+		raise EmulationNotSupportedException('Windows CE-based games not supported')
+
+	region_codes = game.metadata.specific_info.get('Region-Code')
+	if SaturnRegionCodes.USA in region_codes:
+		system = 'dc'
+	elif SaturnRegionCodes.Japan in region_codes:
+		system = 'dcjp'
+	elif SaturnRegionCodes.Europe in region_codes:
+		system = 'dceu'
+	else:
+		#Default to USA
+		system = 'dc'
+	
+	#No interesting slot options...
+	return mame_system(system, 'cdrom')
+
 def mame_fm_towns_marty(game, _):
 	slot_options = {
 		#Don't need hard disks here
@@ -533,6 +553,33 @@ def mame_odyssey2(game, _):
 	#system = 'jopac' if region == France could also be a thing? Hmm
 
 	return mame_system(system, 'cart')
+
+def mame_pc_engine(game, _):
+	#TODO: Use specific_config or software list to get PCE CD BIOS, then do that (same system, but -cdrom slot instead and -cart goes to System Card; TurboGrafx System Card only works with tg16 but other combinations are fine)
+	system = 'tg16'
+	#USA system can run Japanese games, so maybe we don't need to switch to pce if Japan in regions; but USA games do need tg16 specifically
+	if game.rom.extension == 'sgx':
+		#It might be better to detect this differently like if software is in sgx.xml software list, or set Is-Supergrafx field that way in roms_metadata platform_helpers
+		system = 'sgx'
+
+	return mame_system(system, 'cart')
+
+def mame_saturn(game, _):
+	region_codes = game.metadata.specific_info.get('Region-Code')
+	#Clones here are hisaturn and vsaturn, not sure how useful those would be
+	if SaturnRegionCodes.USA in region_codes:
+		system = 'saturn'
+	elif SaturnRegionCodes.Japan in region_codes:
+		system = 'saturnjp'
+	elif SaturnRegionCodes.Europe in region_codes:
+		system = 'saturneu'
+	else:
+		#Default to USA
+		system = 'saturn'
+
+	#TODO: Use ctrl1 and ctrl2 to set controllers (analog, joy_md3, joy_md6, joypad, keyboard, mouse, racing, segatap (???), trackball)
+	#Dunno if the cart slot can be used for anything useful yet
+	return mame_system(system, 'cdrom')
 
 def mame_sord_m5(game, _):
 	system = 'm5'
