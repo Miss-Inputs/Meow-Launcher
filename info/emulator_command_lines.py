@@ -543,8 +543,6 @@ def mame_nes(game, _):
 		#We don't need to detect TV type because the FDS was only released in Japan and so the Famicom can be used for everything
 		return mame_system('fds', 'flop')
 
-	uses_sb486 = game.metadata.specific_info.get('Peripheral', None) == NESPeripheral.SuborKeyboard
-
 	#27 and 103 might be unsupported too?
 	unsupported_ines_mappers = (29, 30, 55, 59, 60, 81, 84, 98,
 	99, 100, 101, 102, 109, 110, 111, 122, 124, 125, 127, 128,
@@ -554,22 +552,46 @@ def mame_nes(game, _):
 		mapper = game.metadata.specific_info['Mapper-Number']
 		if mapper in unsupported_ines_mappers:
 			raise EmulationNotSupportedException('Unsupported mapper: %d (%s)' % (mapper, game.metadata.specific_info.get('Mapper')))
-		if mapper == 167:
-			#This might not be true for all games with this mapper, I dunno, hopefully it's about right.
-			#At any rate, Subor - English Word Blaster needs to be used with the keyboard thing it's designed for
-			uses_sb486 = True
+	#TODO: Unsupported NES 2.0 and UNIF mappers, if any
+
+	has_keyboard = False
 
 	#There doesn't seem to be a way to know if we should use dendy, so I hope we don't actually need to
-	#TODO: Set ctrl1 and ctrl2 slots according to peripheral
-	if uses_sb486:
-		system = 'sb486'
-	elif game.metadata.tv_type == TVSystem.PAL:
+	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'nespal'
 	else:
 		#There's both a "famicom" driver and also a "nes" driver which does include the Famicom (as well as NTSC NES), this seems to only matter for what peripherals can be connected
 		system = 'nes'
 
-	return mame_system(system, 'cart', has_keyboard=uses_sb486)
+	options = {}
+	peripheral = game.metadata.specific_info.get('Peripheral')
+	
+	#NES: ctrl1 = 4score_p1p3 (multitap), joypad, miracle_piano, zapper; ctrl2 = 4score_p2p4, joypad, powerpad, vaus, zapper
+	#PAL NES is the same
+	#Famicom: exp = arcstick (arcade stick? Eh?), barcode_battler, family_trainer, fc_keyboard, hori_4p (multitap?), hori_twin, joypad, konamihs, mj_panel, pachinko, partytap, subor_keyboard, vaus, zapper
+
+	#For Famicom... hmm, I wonder if it could ever cause a problem where it's like, a Famicom game expects to use the zapper on the exp port and won't like being run on a NES with 2 zappers in the controller ports
+	if peripheral == NESPeripheral.Zapper:
+		#ctrl1 can have a gun, but from what I understand the games just want it in slot 2?
+		options['ctrl2'] = 'zapper'
+	elif peripheral == NESPeripheral.ArkanoidPaddle:
+		options['ctrl2'] = 'vaus'
+	elif peripheral == NESPeripheral.FamicomKeyboard:
+		system = 'famicom'
+		options['exp'] = 'fc_keyboard'
+		has_keyboard = True
+	elif peripheral == NESPeripheral.SuborKeyboard:
+		system = 'sb486'
+		has_keyboard = True
+	elif peripheral == NESPeripheral.Piano:
+		options['ctrl1'] = 'miracle_piano'
+	elif peripheral == NESPeripheral.PowerPad:
+		options['ctrl2'] = 'powerpad'
+		#I dunno how to handle the Family Trainer for Famicom games, but I read from googling around that the Japanese games will run fine on a NES with an American Power Pad so that's basically what we're doing here
+
+	#Power Glove and ROB aren't emulated, so you'll just have to use the normal controller
+
+	return mame_system(system, 'cart', options, has_keyboard=has_keyboard)
 
 def mame_odyssey2(game, _):
 	system = 'odyssey2'
