@@ -237,9 +237,9 @@ def add_ines_metadata(game, header):
 
 	more_flags = header[7]
 	if more_flags & 1:
-		game.metadata.platform = 'VS Unisystem'
+		game.metadata.specific_info['Arcade-System'] = 'VS Unisystem'
 	elif more_flags & 2:
-		game.metadata.platform = 'PlayChoice-10'
+		game.metadata.specific_info['Arcade-System'] = 'PlayChoice-10'
 
 	mapper_upper_nibble = more_flags & 0b1111_0000
 	is_nes_2_0 = ((more_flags & 0b_00_00_11_00) >> 2) == 2

@@ -17,8 +17,6 @@ if have_mame():
 		'Satellaview': lookup_system_cpus('snes'),
 		'Sufami Turbo': lookup_system_cpus('snes'),
 		'Benesse Pocket Challenge V2': lookup_system_cpus('wswan'), #Should be about right
-		'PlayChoice-10': lookup_system_cpus('nes'), #lookup_system_cpus('playch10') returns Zilog Z80, the N2A03 is the "cart" cpu
-		'VS Unisystem': lookup_system_cpus('nes'),
 	}
 
 	display_overrides = {
@@ -27,8 +25,6 @@ if have_mame():
 		'Satellaview': lookup_system_displays('snes'),
 		'Sufami Turbo': lookup_system_displays('snes'),
 		'Benesse Pocket Challenge V2': lookup_system_displays('wswan'),
-		'PlayChoice-10': lookup_system_displays('playch10'),
-		'VS Unisystem': lookup_system_displays('nes'),
 	}
 
 	source_file_overrides = {
@@ -38,8 +34,6 @@ if have_mame():
 		"Game Boy Color": get_mame_xml('gbcolor').attrib['sourcefile'],
 		'Satellaview': get_mame_xml('snes').attrib['sourcefile'],
 		'Sufami Turbo': get_mame_xml('snes').attrib['sourcefile'],
-		'PlayChoice-10': get_mame_xml('playch10').attrib['sourcefile'],
-		'VS Unisystem': 'vsnes.cpp', #All the VS Unisystem games are in there, but there's no specific BIOS or anything
 	}
 else:
 	cpu_overrides = {}
