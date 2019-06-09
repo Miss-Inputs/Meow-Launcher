@@ -276,10 +276,12 @@ def mame_coleco_adam(game, _):
 		slot = 'flop1'
 	elif game.metadata.media_type == MediaType.Tape:
 		slot = 'cass1'
-		#Disable floppy drives if we aren't using them for a performance boost
-		#TODO: Does that actually make a difference, and/or is there any tape software that for some reason uses the floppy drives
+		#Disable floppy drives if we aren't using them for a performance boost (332.27% without vs 240.35% with here, and you'll probably be turboing through the tape load, so yeah)
 		slot_options['net4'] = ''
 		slot_options['net5'] = ''
+	else:
+		#Should never happen (carts would just be ColecoVision, I think, but I could be wrong)
+		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 
 	return mame_system('adam', slot, slot_options, has_keyboard=True)
 
