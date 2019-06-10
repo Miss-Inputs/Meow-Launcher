@@ -133,7 +133,9 @@ def add_metadata(game):
 		platform_metadata.generic_helper(game)
 
 	mame_driver = None
-	if game.metadata.platform in mame_driver_overrides:
+	if game.metadata.mame_driver:
+		mame_driver = game.metadata.mame_driver
+	elif game.metadata.platform in mame_driver_overrides:
 		mame_driver = mame_driver_overrides[game.metadata.platform]
 	elif game.metadata.platform in system_info.systems:
 		mame_driver = system_info.systems[game.metadata.platform].mame_driver

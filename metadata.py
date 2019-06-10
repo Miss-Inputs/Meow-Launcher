@@ -194,6 +194,7 @@ class Metadata():
 
 		self.specific_info = {} #Stuff specific to indivdidual systems (in theory, or just when I'm too lazy to put it as an attribute here)
 		self.tv_type = None
+		self.mame_driver = None #Only really needs to be set if explicitly setting it to something not in system_info
 
 		self.images = {}
 

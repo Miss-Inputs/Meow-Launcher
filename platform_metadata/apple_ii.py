@@ -161,6 +161,18 @@ def add_woz_metadata(game):
 		if position >= size:
 			break
 
+def _set_mame_driver(game, machines):
+	if not machines:
+		return
+
+	if AppleIIHardware.AppleII in machines:
+		game.metadata.mame_driver = 'apple2'
+	elif AppleIIHardware.AppleIIPlus in machines:
+		game.metadata.mame_driver = 'apple2p'
+	elif AppleIIHardware.AppleIIE in machines:
+		game.metadata.mame_driver = 'apple2e'
+	#Could keep going, but I don't feel like it, because it seems like all Apple II software can be categorized into one of these three eras
+
 def add_apple_ii_metadata(game):
 	if game.metadata.extension == 'woz':
 		add_woz_metadata(game)
@@ -199,3 +211,5 @@ def add_apple_ii_metadata(game):
 						machines.append(AppleIIHardware.AppleIIgs)
 					#Apple IIc+ doesn't show up in this list so far
 				game.metadata.specific_info['Machine'] = machines
+
+	_set_mame_driver(game, game.metadata.specific_info.get('Machine'))

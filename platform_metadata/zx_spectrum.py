@@ -102,6 +102,24 @@ def add_z80_metadata(game):
 
 	game.metadata.specific_info['ROM-Format'] = 'Z80 v%d' % header_version
 
+def _set_mame_driver(game, machine):
+	driver = {
+		ZXMachine.ZX16k: 'spectrum',
+		ZXMachine.ZX48k: 'spectrum',
+		ZXMachine.ZX128k: 'spec128',
+		ZXMachine.SpectrumPlus2: 'specpls2',
+		ZXMachine.SpectrumPlus2A: 'specpl2a',
+		ZXMachine.SpectrumPlus3: 'specpls3',
+		ZXMachine.Pentagon: 'pentagon',
+		ZXMachine.Scorpion: 'scorpio',
+		ZXMachine.DidaktikKompakt: 'didaktk',
+		ZXMachine.TimexComputer2048: 'tc2048',
+		#ZXMachine.TimexComputer2068: '', #???
+		ZXMachine.TimexSinclair2068: 'ts2068',
+	}.get(machine)
+	if driver:
+		game.metadata.mame_driver = driver
+
 def add_speccy_metadata(game):
 	if game.rom.extension == 'z80':
 		add_z80_metadata(game)
@@ -132,3 +150,5 @@ def add_speccy_metadata(game):
 			#Requires manual for password protection
 			#Disk has no autorun menu, requires loading each game from Basic.
 			game.metadata.notes = usage
+
+	_set_mame_driver(game, game.metadata.specific_info.get('Machine'))
