@@ -226,6 +226,7 @@ class Metadata():
 			'Series-Index': self.series_index,
 
 			'TV-Type': self.tv_type.name if self.tv_type else None,
+			'MAME-Driver': self.mame_driver,
 		}
 
 		if self.cpu_info.is_inited:
