@@ -191,7 +191,7 @@ manufacturer_overrides = {
 	'Elite System': 'Elite Systems',
 	'Hi-Tech Expression': 'Hi-Tech Expressions',
 	'Hi Tech Expressions': 'Hi-Tech Expressions',
-	'Jungle\'s Soft / Ultimate Products (HK)': 'Jungle Soft / Ultimate Products (HK)',
+	'Jungle\'s Soft': 'Jungle Soft',
 	'Mindscapce': 'Mindscape', #Yeah okay, that _definitely_ is a typo
 	'Pack-In-Video': 'Pack-In Video',
 	'Sydney Developmeent ': 'Sydney Development',
