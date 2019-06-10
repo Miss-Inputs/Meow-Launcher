@@ -193,12 +193,14 @@ systems.update({
 	'Advanced Pico Beena': UnsupportedSystem('beena', ['sega_beena_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Apple Lisa': UnsupportedSystem('lisa', ['lisa'], [], {MediaType.Floppy: mame_floppy_formats + ['dc', 'dc42']}),
 	#Preliminary MAME driver doesn't seem to boot anything; LisaEm doesn't seem to work with newer OSes and hasn't been updated since
+	'Arcadia Skeet Shoot': UnsupportedSystem(None, [], [], {}),
 	'Atari Portfolio': UnsupportedSystem('pofo', ['pofo'], [], {MediaType.Cartridge: ['bin', 'rom']}),
 	'Atari ST': UnsupportedSystem('st', ['st_flop', 'st_cart'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Floppy: mame_floppy_formats + ['st', 'stx', 'msa']}),
 	#MAME seems to boot things but not respond to input (the driver is marked solidly MACHINE_NOT_WORKING), need to find a standalone emulator that cooperates with fullscreen mode and such
 	'Bandai Playdia': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'Bandai RX-78': UnsupportedSystem('rx78', ['rx78'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Cartridge: ['wav']}),
 	#Does boot things from software list, but not from fullpath, and doesn't really work too well
+	'Buzztime Home Trivia System':  UnsupportedSystem(None, [], [], {}),
 	'C2 Color': UnsupportedSystem('c2color', ['c2color_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Casio Loopy': UnsupportedSystem('casloopy', ['casloopy'], [], {MediaType.Cartridge: ['bin']}),
 	#MAME driver just shows corrupted graphics (and has no controls defined), basically just a skeleton even if it looks like it isn't
@@ -206,6 +208,7 @@ systems.update({
 	'Coleco Telstar Arcade': UnsupportedSystem(None, [], [], {}),
 	'Copera': UnsupportedSystem('copera', ['copera'], [], {MediaType.Cartridge: ['bin', 'md']}),
 	#Kega Fusion emulates the Pico well enough to show the message telling you the Copera software won't work on a Pico, at least; otherwise no known emulation
+	'Design Master Senshi Mangajukuu': UnsupportedSystem(None, [], [], {}),
 	'GameKing': UnsupportedSystem('gameking', ['gameking'], [], {MediaType.Cartridge: ['bin']}),
 	#Does display some graphics, and almost boots the games, but nothing seems actually playable; no sound anyway
 	'GameKing 3': UnsupportedSystem('gamekin3', ['gameking3'], [], {MediaType.Cartridge: ['bin']}),
@@ -229,19 +232,25 @@ systems.update({
 	'My First LeapPad': UnsupportedSystem('mfleappad', ['leapfrog_mfleappad_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'N-Gage': UnsupportedSystem(None, [], [], {}), #File types are.. folders I think. That could get weird. Anyway, all emulators at this stage seem to be super-preliminary
 	'Nuon': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: ['iso']}),
+	'Panasonic JR-200': UnsupportedSystem('jr200', [], []),
 	'Pippin': UnsupportedSystem('pippin', ['pippin', 'pippin_flop'], [], {MediaType.OpticalDisc: cdrom_formats}),
 	#Games don't just boot in a PPC Mac, unfortunately. No PPC Mac emulator has branched off into specific Pippin emulation yet
 	'Pocket Challenge W': UnsupportedSystem('pockchal', ['pockchalw'], [], {MediaType.Cartridge: ['bin']}),
 	'Sawatte Pico': UnsupportedSystem('sawatte', ['sawatte'], [], {}),
 	#Similar to the Sega Pico but with different software (may or may not also use Megadrive ROM header?), but is completely unemulated. Not sure if dump format is identical
+	'Tapwave Zodiac': UnsupportedSystem(None, [], [], {}),
+	#File type is like, kinda .prc but kinda not
+	'Terebikko': UnsupportedSystem(None, [], [], {}),
 	'Tomy Prin-C': UnsupportedSystem('princ', ['princ'], [], {MediaType.Cartridge: ['bin']}), #MAME has skeleton driver that displays a green background and then doesn't go anywhere
 	'V.Reader': UnsupportedSystem('vreader', ['vtech_storio_cart'], [], {MediaType.Cartridge: ['bin']}), #Skeleton driver, apparently also known as Storio, or something like that
 	'V.Smile Baby': System('vsmileb', ['vsmileb_cart'], ['MAME (V.Smile Baby)'], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
 	'V.Smile Motion': System('vsmilem', ['vsmilem_cart'], [], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
 	'Video Challenger': UnsupportedSystem('vidchal', [], [], {}),
 	#From hh_cop400.cpp comments: Needs screen, gun cursor, VHS player device, and software list for tapes; at the moment displays a score counter and has one button input (supposed to be the gun) which makes a "pew" sound
+	'Video Driver': UnsupportedSystem(None, [], [], {}),
 	'Videoton TVC': UnsupportedSystem('tvc64', ['tvc_cart', 'tvc_cass', 'tvc_flop'], [], {MediaType.Cartridge: ['bin', 'rom', 'crt'], MediaType.Tape: ['wav', 'cas']}),
 	#Skeleton driver; .cas is also quickload?
+	'View-Master Interactive Vision': UnsupportedSystem(None, [], [], {}),	
 	'Wii U': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: ['iso', 'wud'], MediaType.Executable: ['rpx', 'elf']}),
 	#Decaf seems to not work on Linux at the moment
 	'Xbox': UnsupportedSystem('xbox', [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xbe']}),
@@ -342,6 +351,15 @@ systems.update({
 	'Vector-06C': UnsupportedSystem('vector06', ['vector06_cart', 'vector06_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['bin', 'emr']}),
 	#MAME driver is marked as working but clones are not; needs to hold F2 then press F11 then F12 to boot from cartridge so that may be wacky; and I can't get that working, not sure if floppies/tapes do work
 	'VideoBrain': UnsupportedSystem('vidbrain', ['vidbrain'], [], {MediaType.Cartridge: ['bin']}),
+	'Tandy MC-10': UnsupportedSystem('mc10', ['mc10'], [], {MediaType.Tape: ['wav', 'cas']}),
+	#Hmm... tapes...
+	'Alice 32': UnsupportedSystem('alice32', ['alice32', 'alice90'], [], {MediaType.Tape: ['wav', 'cas', 'c10', 'k7']}),
+	#Tapes again... not having high hopes that this will be a smooth experience. Alice 90 is an upgraded Alice 32, Alice without a number is an unrelated machine by the same manufacturer which is a clone of the MC-10
+	'Central Data 2650': UnsupportedSystem('cd2650', [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['pgm']}),
+	'Instructor 50': UnsupportedSystem('instruct', [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['pgm']}),
+	'PipBug': UnsupportedSystem('pipbug', [], [], {MediaType.Executable: ['pgm']}),
+	'V.Tech Socrates': UnsupportedSystem('socrates', ['socrates'], [], {MediaType.Cartridge: ['bin']}),
+	#Emulation status = preliminary... hh (but sound is imperfect, and not completely borked)
 
 	#TODO: Me being lazy, I know if these work or not but they require effort:
 	'Acorn Electron': UnsupportedSystem('electron', ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl']}),
