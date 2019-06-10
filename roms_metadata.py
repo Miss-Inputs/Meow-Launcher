@@ -14,39 +14,23 @@ mame_driver_overrides = {
 	'Game Boy Color': 'gbcolor',
 	'Satellaview': 'gbcolor',
 	'Sufami Turbo': 'gbcolor',
+	'DSi': 'nds', #For now, there is an nds skeleton driver for us to get info from but not a DSi skeleton driver, so that's fine
+	#It can also be set to New 3DS but that has no MAME driver anyway
 }
 if have_mame():
 	cpu_overrides = {
-		#Usually just look up system_info.systems, but this is here where they aren't in systems or there isn't a MAME driver so we can't get the CPU from there or where MAME gets it wrong because the CPU we want to return isn't considered the main CPU
+		#Usually just look up system_info.systems, but this is here where they aren't in systems or there isn't a MAME driver so we can't get the CPU from there, or they're addons so things get weird
 		"32X": lookup_system_cpus('sega_32x_ntsc'), #This ends up being weird and having 0 clock speed when looking at the device...
-		"FDS": lookup_system_cpus('fds'),
-		"Game Boy Color": lookup_system_cpus('gbcolor'),
 		"Mega CD": lookup_system_cpus('segacd_us'),
-		'Satellaview': lookup_system_cpus('snes'),
-		'Sufami Turbo': lookup_system_cpus('snes'),
-		'Benesse Pocket Challenge V2': lookup_system_cpus('wswan'), #Should be about right
+		'Benesse Pocket Challenge V2': lookup_system_cpus('wswan'), #Should be the same; the BPCV2 is a different system but it is effectively a boneless WonderSwan
 	}
 
 	display_overrides = {
-		'FDS': lookup_system_displays('fds'),
-		'Game Boy Color': lookup_system_displays('gbcolor'),
-		'Satellaview': lookup_system_displays('snes'),
-		'Sufami Turbo': lookup_system_displays('snes'),
 		'Benesse Pocket Challenge V2': lookup_system_displays('wswan'),
-	}
-
-	source_file_overrides = {
-		#This won't happen often; if there's no MAME driver we should just leave the X-Source-File field blank by definition
-		#Basically, this is when something in platform_metadata changes what game.metadata.platform is, which means we can no longer just look up that platform in system_info because it won't be in there
-		"FDS": get_mame_xml('fds').attrib['sourcefile'],
-		"Game Boy Color": get_mame_xml('gbcolor').attrib['sourcefile'],
-		'Satellaview': get_mame_xml('snes').attrib['sourcefile'],
-		'Sufami Turbo': get_mame_xml('snes').attrib['sourcefile'],
 	}
 else:
 	cpu_overrides = {}
 	display_overrides = {}
-	source_file_overrides = {}
 
 def get_metadata_from_tags(game):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
@@ -99,27 +83,21 @@ def get_metadata_from_regions(game):
 			if tv_type:
 				game.metadata.tv_type = tv_type
 
-def add_device_hardware_metadata(game):
-	mame_driver = None
-	if game.metadata.platform in system_info.systems:
-		mame_driver = system_info.systems[game.metadata.platform].mame_driver
-
+def add_device_hardware_metadata(game, mame_driver):
 	source_file = None
 	if have_mame():
 		if mame_driver:
 			source_file = get_mame_xml(mame_driver).attrib['sourcefile']
-		elif game.metadata.platform in source_file_overrides:
-			source_file = source_file_overrides[game.metadata.platform]
-		if source_file:
-			game.metadata.specific_info['Source-File'] = os.path.splitext(source_file)[0]
+			#By definition, if we don't have a MAME driver, then Source-File shouldn't even be set
+			if source_file:
+				game.metadata.specific_info['Source-File'] = os.path.splitext(source_file)[0]
 
 		if not game.metadata.cpu_info.is_inited:
 			cpus = None
 			if game.metadata.platform in cpu_overrides:
 				cpus = cpu_overrides[game.metadata.platform]
-			else:
-				if mame_driver:
-					cpus = lookup_system_cpus(mame_driver)
+			elif mame_driver:
+				cpus = lookup_system_cpus(mame_driver)
 
 			if cpus is not None:
 				game.metadata.cpu_info.set_inited()
@@ -130,9 +108,9 @@ def add_device_hardware_metadata(game):
 			displays = None
 			if game.metadata.platform in display_overrides:
 				displays = display_overrides[game.metadata.platform]
-			else:
-				if mame_driver:
-					displays = lookup_system_displays(mame_driver)
+			elif mame_driver:
+				displays = lookup_system_displays(mame_driver)
+				
 			if displays:
 				game.metadata.screen_info = displays
 
@@ -160,7 +138,7 @@ def add_metadata(game):
 	elif game.metadata.platform in system_info.systems:
 		mame_driver = system_info.systems[game.metadata.platform].mame_driver
 			
-	add_device_hardware_metadata(game)
+	add_device_hardware_metadata(game, mame_driver)
 	if main_config.use_mame_system_icons:
 		if mame_driver in mame_icons:
 			game.icon = mame_icons[mame_driver]
