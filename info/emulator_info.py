@@ -204,11 +204,23 @@ emulators = {
 	'Medusa': Emulator(command_lines.medusa, ['nds', 'gb', 'gbc', 'gba'], ['7z', 'zip']),
 	'Reicast': Emulator(command_lines.reicast, ['gdi', 'cdi', 'chd'], []),
 
+	'Mednafen (Game Boy)': MednafenModule('gb', ['gb', 'gbc'], command_lines.mednafen_gb),
+	#Based off an old version of VisualBoyAdvance
+	'Mednafen (Game Gear)': MednafenModule('gg', ['gg']),
+	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes". This is based off SMS Plus
+	'Mednafen (GBA)': MednafenModule('gba', ['gba']),
+	#Based off an old version of VisualBoyAdvance
+	'Mednafen (Master System)': MednafenModule('sms', ['sms', 'bin']),
+	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes". Based off SMS Plus
+	'Mednafen (Mega Drive)': MednafenModule('md', ['md', 'bin', 'gen', 'smd', 'sgd'], command_lines.mednafen_megadrive),
+	#Based off Genesis Plus and an older GPL version of Genesis Plus GX, with all GPL-incompatible cores replaced with alternatives (sound chip emulation from Gens, Z80 from FUSE). Apparently "should still be considered experimental; there are still likely timing bugs in the 68K emulation code, the YM2612 emulation code is not particularly accurate, and the VDP code has timing-related issues."
 	'Mednafen (PC Engine Fast)': MednafenModule('pce_fast', ['pce', 'sgx', 'iso', 'cue', 'ccd', 'toc', 'm3u']),
 	#Forked from 0.8.x pce with speed-accuracy tradeoffs
 	'Mednafen (Saturn)': MednafenModule('ss', ['cue', 'toc', 'ccd', 'm3u']),
 	#Doesn't do .iso for whatever strange reason, which is a bit unfortunate. Might do .bin executables? Probably not
-	
+	'Mednafen (SNES)': MednafenModule('snes', ['sfc', 'smc', 'swc']),
+	#Based on bsnes v0.059; appears it doesn't do Sufami Turbo or Satellaview
+
 	'MAME (Casio PV-2000)': MameSystem(command_lines.mame_system('pv2000', 'cart', has_keyboard=True), ['bin']),
 	#Not the same as the PV-1000, albeit similar. Driver marked as non-working but it seems alright, other than it's supposed to have joysticks and doesn't (so you just set up a gamepad to map to emulated cursor keys) which maybe is why
 	'MAME (CD-i)': MameSystem(command_lines.mame_system('cdimono1', 'cdrom'), mame_cdrom_formats),
@@ -225,6 +237,9 @@ emulators = {
 	#Runs really slowly, but it does work (other than SD card emulation), although marked as not working + imperfect sound
 
 	#--These experimental emulators seem to not work more often than they do, but they are here for you to play with if you want to, because maybe other people have better luck than me (everything in my life always goes wrong):
+	'Mednafen (SNES-Faust)': MednafenModule('snes_faust', ['sfc', 'smc', 'swc']),
+	#Experimental and doesn't support expansion chips
+
 	'MAME (G7400)': MameSystem(command_lines.mame_system('g7400', 'cart'), ['bin', 'rom']),
 	#just has the same graphics problems as Odyssey 2... there's a odyssey3 driver that was never released but I guess it would be for NTSC games. Actually, all the software list items say unsupported... hmm
 	'MAME (Jaguar)': MameSystem(command_lines.mame_atari_jaguar, ['j64', 'rom', 'bin', 'abs', 'cof', 'jag', 'prg']),
@@ -247,25 +262,6 @@ emulators = {
 	#Seems to crash on some titles
 	'MAME (Virtual Boy)': MameSystem(command_lines.mame_system('vboy', 'cart'), ['bin', 'vb']),
 	#Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there and a lot of software list items are unsupported
-
-	#--These ones may or may not run well, I dunno:
-	'Mednafen (Game Boy)': MednafenModule('gb', ['gb', 'gbc'], command_lines.mednafen_gb),
-	#Based off an old version of VisualBoyAdvance
-	'Mednafen (Game Gear)': MednafenModule('gg', ['gg']),
-	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes". This is based off SMS Plus
-	'Mednafen (GBA)': MednafenModule('gba', ['gba']),
-	#Based off an old version of VisualBoyAdvance
-	'Mednafen (Master System)': MednafenModule('sms', ['sms', 'bin']),
-	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes". Based off SMS Plus
-	'Mednafen (Mega Drive)': MednafenModule('md', ['md', 'bin', 'gen', 'smd', 'sgd'], command_lines.mednafen_megadrive),
-	#Based off Genesis Plus and an older GPL version of Genesis Plus GX, with all GPL-incompatible cores replaced with alternatives (sound chip emulation from Gens, Z80 from FUSE). Apparently "should still be considered experimental; there are still likely timing bugs in the 68K emulation code, the YM2612 emulation code is not particularly accurate, and the VDP code has timing-related issues."
-	'Mednafen (SNES)': MednafenModule('snes', ['sfc', 'smc', 'swc']),
-	#Based on bsnes v0.059; appears it doesn't do Sufami Turbo or Satellaview
-	'Mednafen (SNES-Faust)': MednafenModule('snes_faust', ['sfc', 'smc', 'swc']),
-	#Experimental and doesn't support expansion chips
-
-	'MAME (Amstrad CPC+)': MameSystem(command_lines.mame_system('cpc6128p', 'cart'), ['bin', 'cpr']),
-	#Just in case I change my mind on using GX4000. cpc464p is a different CPC+ model but I'm not sure that would be useful?
 }
 
 class GameEngine():
