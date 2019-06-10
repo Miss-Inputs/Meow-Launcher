@@ -20,8 +20,8 @@ mame_driver_overrides = {
 if have_mame():
 	cpu_overrides = {
 		#Usually just look up system_info.systems, but this is here where they aren't in systems or there isn't a MAME driver so we can't get the CPU from there, or they're addons so things get weird
-		"32X": lookup_system_cpus('sega_32x_ntsc'), #This ends up being weird and having 0 clock speed when looking at the device...
-		"Mega CD": lookup_system_cpus('segacd_us'),
+		'32X': lookup_system_cpus('sega_32x_ntsc'), #This ends up being weird and having 0 clock speed when looking at the device... but if we don't override things, it just has the 68000
+		'Mega CD': lookup_system_cpus('segacd_us'),
 		'Benesse Pocket Challenge V2': lookup_system_cpus('wswan'), #Should be the same; the BPCV2 is a different system but it is effectively a boneless WonderSwan
 	}
 
@@ -110,7 +110,7 @@ def add_device_hardware_metadata(game, mame_driver):
 				displays = display_overrides[game.metadata.platform]
 			elif mame_driver:
 				displays = lookup_system_displays(mame_driver)
-				
+
 			if displays:
 				game.metadata.screen_info = displays
 
