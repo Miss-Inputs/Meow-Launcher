@@ -197,6 +197,8 @@ systems.update({
 	'Atari ST': UnsupportedSystem('st', ['st_flop', 'st_cart'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Floppy: mame_floppy_formats + ['st', 'stx', 'msa']}),
 	#MAME seems to boot things but not respond to input (the driver is marked solidly MACHINE_NOT_WORKING), need to find a standalone emulator that cooperates with fullscreen mode and such
 	'Bandai Playdia': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: cdrom_formats}),
+	'Bandai RX-78': UnsupportedSystem('rx78', ['rx78'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Cartridge: ['wav']}),
+	#Does boot things from software list, but not from fullpath, and doesn't really work too well
 	'C2 Color': UnsupportedSystem('c2color', ['c2color_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Casio Loopy': UnsupportedSystem('casloopy', ['casloopy'], [], {MediaType.Cartridge: ['bin']}),
 	#MAME driver just shows corrupted graphics (and has no controls defined), basically just a skeleton even if it looks like it isn't
