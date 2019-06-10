@@ -237,6 +237,8 @@ emulators = {
 	#Controllers aren't emulated yet (and they're necessary for a lot of things)
 	'MAME (Pokemon Mini)': MameSystem(command_lines.mame_system('pokemini', 'cart'), ['bin', 'min']),
 	#Wouldn't recommend yet as it has no sound, even if most people would probably turn the sound off in real life, also some stuff doesn't work
+	'MAME (SAM Coupe)': MameSystem(command_lines.mame_system('samcoupe', 'flop1', autoboot_script='sam_coupe'), mame_floppy_formats),
+	#Status = good but doesn't seem to emulate joysticks and a few games don't work, also tapes are evil and need manual booting
 	'MAME (Saturn)': MameSystem(command_lines.mame_saturn, mame_cdrom_formats),
 	#Non-working, imperfect sound; crashes on quite a few games and hangs to white screen sometimes
 	"MAME (Super A'Can)": MameSystem(command_lines.mame_system('supracan', 'cart'), ['bin']),
