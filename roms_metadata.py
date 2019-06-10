@@ -2,11 +2,19 @@ import os
 
 import detect_things_from_filename
 import platform_metadata
+from config import main_config
 from info import region_info, system_info
-from mame_helpers import (get_mame_xml, have_mame, lookup_system_cpus,
-                          lookup_system_displays)
+from mame_helpers import (get_icons, get_mame_xml, have_mame,
+                          lookup_system_cpus, lookup_system_displays)
 from software_list_info import get_software_lists_by_names
 
+mame_driver_overrides = {
+	#Basically, this is when something in platform_metadata changes what game.metadata.platform is, which means we can no longer just look up that platform in system_info because it won't be in there
+	'FDS': 'fds',
+	'Game Boy Color': 'gbcolor',
+	'Satellaview': 'gbcolor',
+	'Sufami Turbo': 'gbcolor',
+}
 if have_mame():
 	cpu_overrides = {
 		#Usually just look up system_info.systems, but this is here where they aren't in systems or there isn't a MAME driver so we can't get the CPU from there or where MAME gets it wrong because the CPU we want to return isn't considered the main CPU
@@ -128,6 +136,7 @@ def add_device_hardware_metadata(game):
 			if displays:
 				game.metadata.screen_info = displays
 
+mame_icons = get_icons()
 def add_metadata(game):
 	game.metadata.extension = game.rom.extension
 
@@ -145,7 +154,16 @@ def add_metadata(game):
 		#This would only work for optical discs if they are in .chd format though. Also see MAME GitHub issue #2517, which makes a lot of newly created CHDs invalid with older softlists
 		platform_metadata.generic_helper(game)
 
+	mame_driver = None
+	if game.metadata.platform in mame_driver_overrides:
+		mame_driver = mame_driver_overrides[game.metadata.platform]
+	elif game.metadata.platform in system_info.systems:
+		mame_driver = system_info.systems[game.metadata.platform].mame_driver
+			
 	add_device_hardware_metadata(game)
+	if main_config.use_mame_system_icons:
+		if mame_driver in mame_icons:
+			game.icon = mame_icons[mame_driver]
 
 	get_metadata_from_tags(game)
 	get_metadata_from_regions(game)
