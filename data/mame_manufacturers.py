@@ -188,6 +188,7 @@ manufacturer_overrides = {
 	'VAP': 'Vap',
 
 	#Maybe typos?
+	'ChinSoft': 'Chunsoft', #gbcolor/furaish2
 	'Commonweaalth': 'Commonwealth',
 	'Connonwealth': 'Commonwealth',
 	'Elite System': 'Elite Systems',
