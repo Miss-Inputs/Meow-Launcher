@@ -295,7 +295,8 @@ def mame_colecovision(game, _):
 	return mame_system(system, 'cart')
 
 def mame_dreamcast(game, _):
-	#Possibly dcdev (dev unit) or dctream (Treamcast) could be useful here
+	#Possibly dctream (Treamcast) could be useful here
+	#dcdev doesn't run retail stuff
 	if game.metadata.specific_info.get('Uses-Windows-CE', False):
 		raise EmulationNotSupportedException('Windows CE-based games not supported')
 
@@ -568,7 +569,7 @@ def mame_nes(game, _):
 	
 	#NES: ctrl1 = 4score_p1p3 (multitap), joypad, miracle_piano, zapper; ctrl2 = 4score_p2p4, joypad, powerpad, vaus, zapper
 	#PAL NES is the same
-	#Famicom: exp = arcstick (arcade stick? Eh?), barcode_battler, family_trainer, fc_keyboard, hori_4p (multitap?), hori_twin, joypad, konamihs, mj_panel, pachinko, partytap, subor_keyboard, vaus, zapper
+	#Famicom: exp = arcstick (arcade stick? Eh?), barcode_battler, family_trainer, fc_keyboard, hori_4p (multitap), hori_twin (multitap), joypad, konamihs (thing with 4 buttons), mj_panel, pachinko, partytap (quiz game thing?), subor_keyboard, vaus, zapper
 
 	#For Famicom... hmm, I wonder if it could ever cause a problem where it's like, a Famicom game expects to use the zapper on the exp port and won't like being run on a NES with 2 zappers in the controller ports
 	if peripheral == NESPeripheral.Zapper:
