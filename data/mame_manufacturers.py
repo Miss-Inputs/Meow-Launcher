@@ -71,12 +71,14 @@ manufacturer_overrides = {
 	'NEC Home Electronics': 'NEC',
 	'Nihon Telenet': 'Telenet', #I guess
 	'Ocean Software': 'Ocean',
+	'Ocean Software Limited': 'Ocean',
 	'Omage Micott': 'Omega Micott', #I have a feeling I'm the one who's wrong here. Never did quality check the Wonderswan licensees
 	'Omori Electric': 'Omori',
 	'Palm Inc': 'Palm',
 	'Playmates Interactive': 'Playmates',
 	'PonyCa': 'Pony Canyon',
 	'ProSoft': 'Prosoft',
+	'Rare Coin-It': 'Rare',
 	'Sammy Entertainment': 'Sammy',
 	'Seta Corporation': 'Seta',
 	'Sierra Entertainment': 'Sierra',
