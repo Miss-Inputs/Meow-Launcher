@@ -158,7 +158,7 @@ class Game():
 		params = self.launch_params
 
 		if self.rom.is_compressed and (self.rom.original_extension not in self.emulator.supported_compression):
-			temp_extraction_folder = os.path.join(tempfile.gettempdir(), launchers.make_filename(self.rom.name))
+			temp_extraction_folder = os.path.join(tempfile.gettempdir(), 'meow-launcher-' + launchers.make_filename(self.rom.name))
 
 			extracted_path = os.path.join(temp_extraction_folder, self.rom.compressed_entry)
 			params = params.replace_path_argument(extracted_path)
