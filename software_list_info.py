@@ -31,7 +31,7 @@ class DataAreaROM():
 	def __init__(self, xml, data_area):
 		self.xml = xml
 		self.data_area = data_area
-	#Other properties as defined in DTD: length (what's the difference with size?), status (baddump/nodump/good), loadflag (probably not needed for our purposes)
+	#Other properties as defined in DTD: length (what's the difference with size?), loadflag (probably not needed for our purposes)
 
 	@property
 	def name(self):
@@ -40,6 +40,10 @@ class DataAreaROM():
 	@property
 	def size(self):
 		return parse_size_attribute(self.xml.attrib.get('size', '0'))
+
+	@property
+	def status(self):
+		return self.xml.attrib.get('status', 'good')
 
 	@property
 	def crc32(self):
@@ -78,6 +82,16 @@ class DataArea():
 	@property
 	def size(self):
 		return parse_size_attribute(self.xml.attrib.get('size', '0'))
+
+	@property
+	def romless(self):
+		#name = nodata?
+		return not self.roms
+
+	@property
+	def not_dumped(self):
+		#This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
+		return all([rom.status == 'nodump' for rom in self.roms]) if self.roms else False
 
 	def matches(self, args):
 		if len(self.roms) == 1:
@@ -127,7 +141,9 @@ class DiskAreaDisk():
 	def writeable(self):
 		return self.xml.attrib.get('writeable', 'no') == 'yes'
 	
-	#There is also status (baddump/nodump/good)
+	@property
+	def status(self):
+		return self.xml.attrib.get('status', 'good')
 
 class DiskArea():
 	def __init__(self, xml, part):
@@ -142,6 +158,11 @@ class DiskArea():
 	def name(self):
 		return self.xml.attrib.get('name')
 	#No size attribute
+
+	@property
+	def not_dumped(self):
+		#This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
+		return all([rom.status == 'nodump' for rom in self.disks]) if self.disks else False
 
 class SoftwarePart():
 	def __init__(self, xml, software):
