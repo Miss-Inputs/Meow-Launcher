@@ -182,6 +182,16 @@ class SoftwarePart():
 	def name(self):
 		return self.xml.attrib.get('name')
 
+	@property
+	def romless(self):
+		#(just presuming here that disks can't be romless, as this sort of thing is where you have a cart that has no ROM on it but is just a glorified jumper, etc)
+		return all([data_area.romless for data_area in self.data_areas]) and self.data_areas and not self.disk_areas
+
+	@property
+	def not_dumped(self):
+		#This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
+		return (all([data_area.not_dumped for data_area in self.data_areas]) if self.data_areas else False) and (all([disk_area.not_dumped for disk_area in self.disk_areas]) if self.disk_areas else False)
+
 	def get_feature(self, name):
 		for feature in self.xml.findall('feature'):
 			if feature.attrib.get('name') == name:
@@ -249,6 +259,17 @@ class Software():
 	@property
 	def has_multiple_parts(self):
 		return len(self.parts) > 1
+
+	@property
+	def romless(self):
+		#Not actually sure what happens in this scenario with multiple parts, or somehow no parts
+		return all([part.romless for part in self.parts])
+
+	@property
+	def not_dumped(self):
+		#This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
+		#Not actually sure what happens in this scenario with multiple parts, or somehow no parts
+		return all([part.not_dumped for part in self.parts])
 
 	def get_part(self, name=None):
 		if name:
