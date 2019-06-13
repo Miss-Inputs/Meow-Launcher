@@ -194,6 +194,12 @@ def add_metadata_from_catlist(machine):
 		if not machine.metadata.categories:
 			machine.metadata.categories = ['Games']
 		return
+	if machine.name.endswith('(Domyos Interactive System)'):
+		machine.metadata.platform = 'Domyos Interactive System'
+		machine.metadata.media_type = MediaType.Cartridge
+		if not machine.metadata.categories:
+			machine.metadata.categories = ['Games']
+		return
 	if machine.name.startswith(('Game & Watch: ', 'Select-A-Game: ', 'R-Zone: ')):
 		platform, _, machine.name = machine.name.partition(': ')
 		machine.metadata.platform = platform
