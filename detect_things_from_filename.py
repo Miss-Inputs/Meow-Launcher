@@ -177,7 +177,7 @@ def get_tv_system_from_filename_tags(tags):
 
 def determine_is_nsfw_from_filename(tags):
 	#TOSEC has been known to use these in the "extra data" or whatsitcalled field at the end to specify that a game is adults only
-	nsfw_tags = {'[adult]', '[XXX]'}
+	nsfw_tags = {'[adult]', '[XXX]', '[X-rated version]'}
 	for nsfw_tag in nsfw_tags:
 		if nsfw_tag in tags:
 			return True
