@@ -34,4 +34,4 @@ def add_lynx_metadata(game):
 
 	software = get_software_list_entry(game, skip_header=64 if is_headered else 0)
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)

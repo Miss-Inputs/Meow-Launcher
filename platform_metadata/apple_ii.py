@@ -181,7 +181,7 @@ def add_apple_ii_metadata(game):
 
 	software = get_software_list_entry(game)
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 		usage = software.get_info('usage')
 		if usage == 'Works with Apple II Mouse Card in slot 4: -sl4 mouse':
 			#Not setting up input_info just yet because I don't know if it uses joystick/keyboard as well. I guess I probably never will, but like... well.... dang

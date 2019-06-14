@@ -34,7 +34,7 @@ def add_amiga_metadata(game):
 	software = get_software_list_entry(game)
 	chipset = None
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 		chipset = 'OCS'
 		usage = software.get_info('usage')
 		if usage in ('Requires ECS', 'Requires ECS, includes Amiga Text'):

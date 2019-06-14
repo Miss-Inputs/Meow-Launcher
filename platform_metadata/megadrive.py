@@ -206,7 +206,7 @@ def add_megadrive_metadata(game):
 
 	software = get_software_list_entry(game)
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 		game.metadata.specific_info['Uses-SVP'] = software.get_shared_feature('addon') == 'SVP'
 		if software.get_shared_feature('incompatibility') == 'TMSS':
 			game.metadata.specific_info['Bad-TMSS'] = True

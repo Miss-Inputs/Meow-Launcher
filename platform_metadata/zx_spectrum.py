@@ -138,7 +138,7 @@ def add_speccy_metadata(game):
 
 	software = get_software_list_entry(game)
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 		usage = software.get_info('usage')
 		if usage == 'Requires Multiface':
 			game.metadata.specific_info['Expansion'] = ZXExpansion.Multiface

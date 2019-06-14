@@ -262,7 +262,7 @@ def add_atari_2600_metadata(game):
 	software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(whole_cart))
 	if software:
 		existing_notes = game.metadata.specific_info.get('Notes')
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 		usage = software.get_info('usage')
 		if existing_notes and usage:
 			game.metadata.notes = usage + ';' + existing_notes

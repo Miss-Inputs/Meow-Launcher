@@ -387,7 +387,7 @@ def add_nes_metadata(game):
 	standard_controller.face_buttons = 2 #A B
 
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 
 		#FIXME: Acktually, you can have multiple feature = peripherals
 		#See also: SMB / Duck Hunt / World Class Track Meet multicart, with both zapper and powerpad

@@ -81,4 +81,4 @@ def add_gba_metadata(game):
 
 	software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(entire_cart))
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)

@@ -5,7 +5,7 @@ from common_types import MediaType
 import platform_metadata.atari_controllers as controllers
 
 def add_info_from_software_list(game, software):
-	software.add_generic_info(game)
+	software.add_generic_info(game.metadata)
 	compatibility = software.get_shared_feature('compatibility')
 	if compatibility in ('XL', 'XL/XE'):
 		game.metadata.specific_info['Machine'] = 'XL'

@@ -136,7 +136,7 @@ def try_parse_standard_header(game):
 		game.metadata.specific_info['Japanese-Only'] = True
 
 def add_info_from_software_list(game, software):
-	software.add_generic_info(game)
+	software.add_generic_info(game.metadata)
 
 	usage = software.get_info('usage')
 	if usage == 'Only runs with PAL/50Hz drivers, e.g. smspal':

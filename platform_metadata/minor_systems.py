@@ -149,7 +149,7 @@ def add_pc88_info(game):
 	game.metadata.tv_type = TVSystem.NTSC
 	software = get_software_list_entry(game)
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 		#TODO: Tell us if this is part of a multi-floppy thing
 		game.metadata.notes = software.get_info('usage')
 		#Needs BASIC V1 or older
@@ -167,7 +167,7 @@ def add_sg1000_info(game):
 	uses_tablet = False
 	software = get_software_list_entry(game)
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 		uses_tablet = software.get_part_feature('peripheral') == 'tablet'
 		#There doesn't seem to be a way to know if software is a SC-3000 cart, unless I just say whichever one has the .sc extension. So I'll do that
 
@@ -187,7 +187,7 @@ def add_sharp_x1_info(game):
 	game.metadata.tv_type = TVSystem.NTSC
 	software = get_software_list_entry(game)
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 		#TODO: Tell us if this is part of a multi-floppy thing
 		game.metadata.notes = software.get_info('usage')
 		#Type FILES then move the cursor to the line of the game and type LOAD (to load) and type RUN when loaded
@@ -203,7 +203,7 @@ def add_sharp_x68k_info(game):
 	#Many games are known to have SaveType.Floppy, but can't tell programmatically...
 	software = get_software_list_entry(game)
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 		#TODO: Tell us if this is part of a multi-floppy thing
 		game.metadata.notes = software.get_info('usage')
 		#Requires Disk 1 and Disk 3 mounted to boot
@@ -246,7 +246,7 @@ def add_vic10_info(game):
 	game.metadata.specific_info['Headered'] = has_header
 	software = get_software_list_entry(game, skip_header=2 if has_header else 0)
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 		#What the heck is an "assy"?
 
 def add_vic20_info(game):
@@ -256,7 +256,7 @@ def add_vic20_info(game):
 	game.metadata.specific_info['Headered'] = has_header
 	software = get_software_list_entry(game, skip_header=2 if has_header else 0)
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 		game.metadata.notes = software.get_info('usage')
 		#Enter 'SYS <some number>' to run
 		#Game Paddles required
@@ -277,7 +277,7 @@ def add_colecovision_info(game):
 
 	software = get_software_list_entry(game)
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 
 		usage = software.get_info('usage')
 		if usage == 'Supports Super Action Controllers':
@@ -416,7 +416,7 @@ def add_ibm_pcjr_info(game):
 
 	software = get_software_list_entry(game, header_length)
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 		#TODO: If sharedfeat requirement = ibmpcjr_flop:pcdos21, do something about that
 		#Probably get the MAME command line to get a PC DOS 2.1 floppy path from specific_config provided by the user, or else they don't get to use ColorPaint
 		#Lotus 123jr has a similar predicament, but it also needs .m3u I guess
@@ -463,7 +463,7 @@ def add_intellivision_info(game):
 	#Input info: Keyboard Module, ECS (49 keys), or 12-key keypad + 3 buttons + dpad (I don't think it's actually a paddle unless I'm proven otherwise), or Music Synthesizer (49 keys) (TODO add this I'm tired right now)
 	software = find_in_software_lists_with_custom_matcher(game.software_lists, _does_intellivision_part_match, [game.rom.read()])
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 
 		usage = software.get_info('usage')
 		if usage == 'Uses Intellivoice':
@@ -497,7 +497,7 @@ def add_atari_5200_info(game):
 	uses_trackball = False
 	software = get_software_list_entry(game)
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 		uses_trackball = software.get_part_feature('peripheral') == 'trackball'
 
 	game.metadata.save_type = SaveType.Nothing #Probably
@@ -541,7 +541,7 @@ def add_fm7_info(game):
 	#"Type LOADM&quot;&quot;,R to load" is on a few tapes
 	software = get_software_list_entry(game)
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 		game.metadata.notes = software.get_info('usage')
 
 def add_super_cassette_vision_info(game):
@@ -555,7 +555,7 @@ def add_super_cassette_vision_info(game):
 
 	software = get_software_list_entry(game)
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 		game.metadata.specific_info['Has-Extra-RAM'] = software.has_data_area('ram') #Or feature "slot" ends with "_ram"
 
 def add_super_acan_info(game):
@@ -569,7 +569,7 @@ def add_super_acan_info(game):
 def add_pc_booter_info(game):
 	software = get_software_list_entry(game)
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 		usage = software.get_info('usage')
 		if usage == 'PC Booter':
 			usage = software.get_info('user_notes')
@@ -633,7 +633,7 @@ def add_generic_info(game):
 	#For any system not otherwise specified
 	software = get_software_list_entry(game)
 	if software:
-		software.add_generic_info(game)
+		software.add_generic_info(game.metadata)
 		game.metadata.notes = software.get_info('usage')
 
 	#TODO:
