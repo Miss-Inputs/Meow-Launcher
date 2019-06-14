@@ -15,6 +15,7 @@ from platform_metadata.megadrive import MegadriveRegionCodes
 from platform_metadata.nes import NESPeripheral
 from platform_metadata.saturn import SaturnRegionCodes
 from platform_metadata.zx_spectrum import ZXJoystick, ZXMachine
+from software_list_info import get_software_list_by_name
 
 from .region_info import TVSystem
 
@@ -50,12 +51,12 @@ def _is_software_available(software_list_name, software_name):
 	if not have_mame():
 		return False
 
-	#Unfortunately it seems we cannot verify an individual software, which would probably take less time
-	proc = subprocess.run(['mame', '-verifysoftlist', software_list_name], universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-	#Don't check return code - it'll return 2 if other software is bad, but we don't care about those
-	for line in proc.stdout.splitlines():
-		#Bleh
-		if line == 'romset {0}:{1} is good'.format(software_list_name, software_name):
+	software_list = get_software_list_by_name(software_list_name)
+	if not software_list:
+		return False
+	available_software = software_list.get_available_software()
+	for software in available_software:
+		if software.name == software_name:
 			return True
 	return False
 
