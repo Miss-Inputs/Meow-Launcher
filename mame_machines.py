@@ -470,6 +470,10 @@ class Machine():
 		if family_icon:
 			return family_icon
 
+		bios_icon = icons.get(self.bios.basename)
+		if bios_icon:
+			return bios_icon
+
 		return None
 
 	def make_launcher(self):
