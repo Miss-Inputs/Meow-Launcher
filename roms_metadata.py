@@ -5,7 +5,7 @@ import platform_metadata
 from config import main_config
 from info import region_info, system_info
 from mame_helpers import (get_icons, get_mame_xml, have_mame,
-                          lookup_system_cpus, lookup_system_displays)
+                          lookup_system_cpus, lookup_system_displays, MachineNotFoundException)
 from software_list_info import get_software_lists_by_names
 
 mame_driver_overrides = {
@@ -141,7 +141,31 @@ def add_metadata(game):
 		mame_driver = system_info.systems[game.metadata.platform].mame_driver
 			
 	add_device_hardware_metadata(game, mame_driver)
-	if main_config.use_mame_system_icons:
+	if main_config.use_mame_arcade_icons:
+		software_name = game.metadata.specific_info.get('MAME-Software-Name')
+		parent_name = game.metadata.specific_info.get('MAME-Software-Parent')
+		if software_name in mame_icons:
+			game.icon = mame_icons[software_name]
+		elif parent_name in mame_icons:
+			game.icon = mame_icons[parent_name]
+		elif software_name:
+			#Try to get the arcade game's parent
+			machine_xml = None
+			try:
+				machine_xml = get_mame_xml(software_name)
+			except MachineNotFoundException:
+				if parent_name:
+					try:
+						machine_xml = get_mame_xml(parent_name)
+					except MachineNotFoundException:
+						pass
+				
+			if machine_xml:
+				cloneof = machine_xml.attrib.get('cloneof')
+				if cloneof in mame_icons:
+					game.icon = mame_icons[cloneof]
+
+	elif main_config.use_mame_system_icons:
 		if mame_driver in mame_icons:
 			game.icon = mame_icons[mame_driver]
 
