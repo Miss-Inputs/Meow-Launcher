@@ -1,15 +1,16 @@
-import zlib
 import calendar
-import xml.etree.ElementTree as ElementTree
 import os
 import re
+import subprocess
+import xml.etree.ElementTree as ElementTree
+import zlib
 
-from metadata import EmulationStatus
-from info.system_info import systems
-from info.region_info import TVSystem
-from mame_helpers import consistentify_manufacturer, get_mame_config
-from common_types import MediaType
 import io_utils
+from common_types import MediaType
+from info.region_info import TVSystem
+from info.system_info import systems
+from mame_helpers import consistentify_manufacturer, get_mame_config
+from metadata import EmulationStatus
 
 #Ideally, every platform wants to be able to get software list info. If available, it will always be preferred over what we can extract from inside the ROMs, as it's more reliable, and avoids the problem of bootlegs/hacks with invalid/missing header data, or publisher/developers that merge and change names and whatnot.
 #We currently do this by putting a block of code inside each platform_metadata helper that does the same thing. I guess I should genericize that one day. Anyway, it's not always possible.
@@ -185,12 +186,20 @@ class SoftwarePart():
 	@property
 	def romless(self):
 		#(just presuming here that disks can't be romless, as this sort of thing is where you have a cart that has no ROM on it but is just a glorified jumper, etc)
-		return all([data_area.romless for data_area in self.data_areas]) and self.data_areas and not self.disk_areas
+		return all([data_area.romless for data_area in self.data_areas.values()]) and self.data_areas and not self.disk_areas
 
 	@property
 	def not_dumped(self):
 		#This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
-		return (all([data_area.not_dumped for data_area in self.data_areas]) if self.data_areas else False) and (all([disk_area.not_dumped for disk_area in self.disk_areas]) if self.disk_areas else False)
+		
+		#Ugh, there's probably a better way to express this logic, but my brain doesn't work
+		if self.data_areas and self.disk_areas:
+			return all([data_area.not_dumped for data_area in self.data_areas.values()]) and all([disk_area.not_dumped for disk_area in self.disk_areas.values()])
+		if self.data_areas:
+			return all([data_area.not_dumped for data_area in self.data_areas.values()])
+		if self.disk_areas:
+			return all([disk_area.not_dumped for disk_area in self.disk_areas.values()])
+		return False
 
 	def get_feature(self, name):
 		for feature in self.xml.findall('feature'):
@@ -263,13 +272,13 @@ class Software():
 	@property
 	def romless(self):
 		#Not actually sure what happens in this scenario with multiple parts, or somehow no parts
-		return all([part.romless for part in self.parts])
+		return all([part.romless for part in self.parts.values()])
 
 	@property
 	def not_dumped(self):
 		#This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
 		#Not actually sure what happens in this scenario with multiple parts, or somehow no parts
-		return all([part.not_dumped for part in self.parts])
+		return all([part.not_dumped for part in self.parts.values()])
 
 	def get_part(self, name=None):
 		if name:
@@ -413,6 +422,40 @@ class SoftwareList():
 				if part.matches(args):
 					return software
 		return None
+
+	def _verifysoftlist(self):
+		#Unfortunately it seems we cannot verify an individual software, which would probably take less time
+		proc = subprocess.run(['mame', '-verifysoftlist', self.name], universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+		#Don't check return code - it'll return 2 if one software in the list is bad
+
+		available = []
+		for line in proc.stdout.splitlines():
+			#Bleh
+			software_verify_matcher = re.compile(r'romset {0}:(.+) is (?:good|best available)$'.format(self.name))
+			line_match = software_verify_matcher.match(line)
+			if line_match:
+				available.append(line_match[1])
+		return available
+
+	def get_available_software(self):
+		available = []
+
+		#Only call -verifysoftlist if we need to, i.e. don't if it's entirely a romless softlist
+		_verifysoftlist_result = None
+
+		for software_xml in self.xml.findall('software'):
+			software = Software(software_xml, self)
+			if software.romless:
+				available.append(software)
+			elif software.not_dumped:
+				continue
+			else:
+				if _verifysoftlist_result is None:
+					_verifysoftlist_result = self._verifysoftlist()
+				if software.name in _verifysoftlist_result:
+					available.append(software)
+		
+		return available
 
 def get_software_lists_by_names(names):
 	if not names:
