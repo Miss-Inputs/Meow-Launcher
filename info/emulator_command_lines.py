@@ -1,6 +1,5 @@
 import configparser
 import os
-import subprocess
 import sys
 
 import io_utils
