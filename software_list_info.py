@@ -260,6 +260,10 @@ class Software():
 	@property
 	def name(self):
 		return self.xml.attrib.get('name')
+	
+	@property
+	def description(self):
+		return self.xml.findtext('description')
 
 	@property
 	def software_list_name(self):
@@ -327,56 +331,59 @@ class Software():
 		#Supported = "yes"
 		return EmulationStatus.Good
 
-	def add_generic_info(self, game):
-		game.metadata.specific_info['MAME-Software-Name'] = self.name
-		game.metadata.specific_info['MAME-Software-Full-Name'] = self.xml.findtext('description')
+	@property
+	def compatibility(self):
+		return self.get_shared_feature('compatibility')
+
+	def add_generic_info(self, metadata):
+		metadata.specific_info['MAME-Software-Name'] = self.name
+		metadata.specific_info['MAME-Software-Full-Name'] = self.description
 
 		cloneof = self.xml.attrib.get('cloneof')
 		if cloneof:
-			game.metadata.specific_info['MAME-Software-Parent'] = cloneof
+			metadata.specific_info['MAME-Software-Parent'] = cloneof
 
-		game.metadata.specific_info['MAME-Software-List-Name'] = self.software_list.name
-		game.metadata.specific_info['MAME-Software-List-Description'] = self.software_list.description
+		metadata.specific_info['MAME-Software-List-Name'] = self.software_list.name
+		metadata.specific_info['MAME-Software-List-Description'] = self.software_list.description
 
 		serial = self.get_info('serial')
 		if serial:
-			game.metadata.product_code = serial
+			metadata.product_code = serial
 
-		compatibility = self.get_shared_feature('compatibility')
-		if compatibility == 'PAL':
-			game.metadata.tv_type = TVSystem.PAL
-		elif compatibility == 'NTSC':
-			game.metadata.tv_type = TVSystem.NTSC
-		elif compatibility in ('NTSC,PAL', 'PAL,NTSC'):
-			game.metadata.tv_type = TVSystem.Agnostic
+		if self.compatibility == 'PAL':
+			metadata.tv_type = TVSystem.PAL
+		elif self.compatibility == 'NTSC':
+			metadata.tv_type = TVSystem.NTSC
+		elif self.compatibility in ('NTSC,PAL', 'PAL,NTSC'):
+			metadata.tv_type = TVSystem.Agnostic
 
 		year = self.xml.findtext('year')
-		if game.metadata.year:
-			already_has_valid_year = '?' not in game.metadata.year if isinstance(game.metadata.year, str) else True
+		if metadata.year:
+			already_has_valid_year = '?' not in metadata.year if isinstance(metadata.year, str) else True
 		else:
 			already_has_valid_year = False
 		if not ('?' in year and already_has_valid_year):
-			game.metadata.year = year
-		parse_release_date(game, self.get_info('release'))
+			metadata.year = year
+		parse_release_date(metadata, self.get_info('release'))
 
-		game.metadata.specific_info['MAME-Emulation-Status'] = self.emulation_status
+		metadata.specific_info['MAME-Emulation-Status'] = self.emulation_status
 		developer = consistentify_manufacturer(self.get_info('developer'))
 		if not developer:
 			developer = consistentify_manufacturer(self.get_info('author'))
 		if not developer:
 			developer = consistentify_manufacturer(self.get_info('programmer'))
 		if developer:
-			game.metadata.developer = developer
+			metadata.developer = developer
 
 		publisher = consistentify_manufacturer(self.xml.findtext('publisher'))
-		already_has_publisher = game.metadata.publisher and (not game.metadata.publisher.startswith('<unknown'))
+		already_has_publisher = metadata.publisher and (not metadata.publisher.startswith('<unknown'))
 		if publisher in ('<doujin>', '<homebrew>', '<unlicensed>') and developer:
-			game.metadata.publisher = developer
+			metadata.publisher = developer
 		elif not (already_has_publisher and (publisher == '<unknown>')):
 			if ' / ' in publisher:
 				publisher = ', '.join([consistentify_manufacturer(p) for p in publisher.split(' / ')])
 
-			game.metadata.publisher = publisher
+			metadata.publisher = publisher
 
 class SoftwareMatcherArgs():
 	def __init__(self, crc32, sha1, size, reader):
@@ -555,7 +562,7 @@ def get_crc32_for_software_list(data):
 	return format_crc32_for_software_list(zlib.crc32(data) & 0xffffffff)
 
 is_release_date_with_thing_at_end = re.compile(r'\d{8}\s\(\w+\)')
-def parse_release_date(game, release_info):
+def parse_release_date(metadata, release_info):
 	if not release_info:
 		return
 
@@ -571,14 +578,14 @@ def parse_release_date(game, release_info):
 	day = release_info[6:8]
 
 	try:
-		game.metadata.year = int(year)
+		metadata.year = int(year)
 	except ValueError:
 		pass
 	try:
-		game.metadata.month = calendar.month_name[int(month)]
+		metadata.month = calendar.month_name[int(month)]
 	except (ValueError, IndexError):
 		pass
 	try:
-		game.metadata.day = int(day)
+		metadata.day = int(day)
 	except ValueError:
 		pass

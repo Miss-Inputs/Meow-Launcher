@@ -259,6 +259,12 @@ systems.update({
 	#Xenia requires Windows 8 + Vulkan, somehow I don't think it'd ever run under Wine either
 	'ZAPit GameWave': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: ['iso']}),
 
+	#Stuff that at the moment is only useful in mame_software.py, but it is here for reference or if some other emulator shows up
+	'Commodore 65': UnsupportedSystem('c65', ['c65_flop'], [], {MediaType.Floppy: commodore_disk_formats}),
+	#This was actually never released, but there's software for it anyway. However, this is only supported by MAME, and it seems it only supports loading by software lists (there are no media slots), which won't work for our purposes at this point in time
+	'Neo Geo AES': UnsupportedSystem('aes', ['neogoeo'], [], {MediaType.Cartridge: ['bin']}),
+	#Theoretically this works, but fullpath loading only works as a single .bin file which nothing ever is dumped as. This would only ever be useful with software list support. As for separate Neo Geo emulators... well, they all only seem interested in MVS and CD
+	
 	#Things that have usability issues that make things unsuitable for launchering purposes at this point in time, but otherwise would work if you're just here because you're wondering what emulators work
 	'64DD': UnsupportedSystem('n64dd', ['n64dd'], [], {MediaType.Floppy: ['ndd', 'ddd']}),
 	#Mupen64Plus would work, but right now it has issues with usability that it says right in the readme (so it's not just me picking on them, they say it themselves). Basically you have to have a cart inserted which has the same properties as the 64DD software you want to emulate, and that wouldn't work for our launchering purposes. MAME doesn't seem to work with .ndd format dumps
@@ -266,8 +272,6 @@ systems.update({
 	#Loading tapes would require parsing software list usage to figure out where to put load addresses and things to make an autoboot script, because otherwise it's just way too messy to warrant being in a frontend. Snapshots supposedly exist, but I haven't seen any evidence they actually do, so... whoops
 	'C64DTV': UnsupportedSystem('c64dtv', [], [], {MediaType.Floppy: commodore_disk_formats, MediaType.Executable: ['prg']}),
 	#Commodore 64 plug and play UnsupportedSystem that has its own unique software, apparently. MAME driver is skeleton, and VICE doesn't seem to boot anything (it is noted as being WIP/experimental)
-	'Commodore 65': UnsupportedSystem('c65', ['c65_flop'], [], {MediaType.Floppy: commodore_disk_formats}),
-	#This was actually never released, but there's software for it anyway. However, this is only supported by MAME, and it seems it only supports loading by software lists (there are no media slots), which won't work for our purposes at this point in time
 	'Cybiko': UnsupportedSystem('cybikov1', [], [], {MediaType.Digital: ['app']}),
 	#Quickload slot doesn't seem to actually quickload anything, and seems to require setup each time. V2 and Extreme have same problems
 	'Cybiko Xtreme': UnsupportedSystem('cybikoxt', [], [], {MediaType.Digital: ['app']}),
@@ -279,8 +283,6 @@ systems.update({
 	#Preliminary driver and only supports .wav tapes as media
 	'Luxor ABC80': UnsupportedSystem('abc80', ['abc80_cass', 'abc80_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Snapshot: ['bac']}),
 	#Requires "RUN " and the program name, where the program name is completely arbitrary and variable, so there's not really any way to do it automatically and programmatically
-	'Neo Geo AES': UnsupportedSystem('aes', ['neogoeo'], [], {MediaType.Cartridge: ['bin']}),
-	#Theoretically this works, but fullpath loading only works as a single .bin file which nothing ever is dumped as. This would only ever be useful with software list support. As for separate Neo Geo emulators... well, they all only seem interested in MVS and CD
 	'Oric': UnsupportedSystem('orica', [], [], {MediaType.Tape: ['wav', 'tap']}),
 	#MAME has oric1 as well... either way, they don't seem to actually load anything I've tried. There's no software lists, so nothing that says anything is supposed to work
 	#Oricutron loads things automatically and other nice things, but has issues with fullscreen
@@ -370,7 +372,7 @@ systems.update({
 	'Cambridge Z88': UnsupportedSystem('z88', ['z88_cart'], [], {MediaType.Cartridge: ['epr', 'bin']}),
 	#Marked as not working due to missing expansion interface and serial port and other things, not sure how important that would be... anyway, I'd need to do an autoboot thing to press the key to start the thing, because otherwise it's annoying to navigate every time, and then... hmm, I guess I dunno what actually is a function of things not working yet
 	'Galaksija': UnsupportedSystem('galaxyp', ['galaxy'], [], {MediaType.Snapshot: ['gal'], MediaType.Tape: ['wav', 'gtp']}),
-	#This needs tape control automation to work with tapes (type OLD, then play tape, then RUN); dumps just need to press enter because MAME will type "RUN" for you. But not enter for you. Dunno why. Anyway, we'd go with those and make an autoboot script (maybe just -autoboot_command '\n' would work with suitable delay). galaxy is regular UnsupportedSystem, galaxyp is an upgraded one which appears to be completely backwards compatible
+	#This needs tape control automation to work with tapes (type OLD, then play tape, then RUN); dumps just need to press enter because MAME will type "RUN" for you. But not enter for you. Dunno why. Anyway, we'd go with those and make an autoboot script (maybe just -autoboot_command '\n' would work with suitable delay). galaxy is regular system, galaxyp is an upgraded one which appears to be completely backwards compatible
 	'RCA Studio 2': UnsupportedSystem('studio2', ['studio2'], [], {MediaType.Cartridge: ['st2', 'bin', 'rom']}),
 	#This console sucks and I hate it, anyway; I'd need to make multiple autoboot scripts that press F3 and then combinations of buttons depending on software list > usage. God fuck I hate this console so much. PAL games (and some homebrew stuff) need mpt02
 
@@ -379,7 +381,7 @@ systems.update({
 	#Probably no emulators that will work nicely for us at this point (the emus that do exist tend to be virtual machines and/or closed source Windows only)
 	'PS3': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Digital: ['pkg'], MediaType.Executable: ['self', 'elf', 'bin']}),
 	'Switch': UnsupportedSystem(None, [], [], {MediaType.Cartridge: ['xci'], MediaType.Digital: ['nsp'], MediaType.Executable: ['nro', 'nso', 'elf']}),
-	#Well, Yuzu seems to run homebrew decently with the same functionality as Citra (RyujiNX has wacky controller/fullscreen business); dunno about commercial games yet because I don't have any
+	#Well, Yuzu seems to run homebrew decently with the same functionality as Citra (RyujiNX has wacky controller/fullscreen business); would go in experimental section otherwise
 
 	#Other todos, often just me not knowing which something actually is or being too lazy to organize it even into the "too lazy to look into right now" list:
 	#Which of TI calculators are software compatible with which (and hence which ones would be considered individual systems)?
@@ -394,7 +396,6 @@ systems.update({
 	#V.Smile Pro: Currently I just put that as an optical disc format of V.Smile and not its own system, because I dunno if it should be considered its own thing or not
 	#Amstrad PC20/Sinclair PC200: Is this just IBM PC compatible stuff? Have one demoscene prod which claims to be for it specifically
 	#Epoch (not Super) Casette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
-	#Coleco Quiz Wiz Challenge might require its own thing: The software cartridges contain no ROMs, just different pinouts, you need the software list to select which one
 	#Pioneer LaserActive probably just counts as Mega CD and PC Engine CD except with Laserdisc instead of CD, but I'll worry about that when emulation for it becomes a thing
 })
 

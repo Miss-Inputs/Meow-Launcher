@@ -67,12 +67,14 @@ def _is_highscore_cart_available():
 def mednafen_base(module):
 	return LaunchParams('mednafen', ['-video.fs', '1', '-force_module', module, '$<path>'])
 
-def mame_base(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None):
+def mame_base(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None, software=None):
 	args = ['-skip_gameinfo']
 	if has_keyboard:
 		args.append('-ui_active')
 
 	args.append(driver)
+	if software:
+		args.append(software)
 
 	if slot_options:
 		for name, value in slot_options.items():
