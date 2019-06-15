@@ -39,8 +39,7 @@ def _neo_geo(software):
 		raise EmulationNotSupportedException('Not compatible with AES')
 	return _launch_with_software('aes', software)
 
-def _super_casette_vision(software):
-	#TODO: Not so fast, need to detect PAL/NTSC
+def _super_cassette_vision(software):
 	machine = 'scv_pal' if software.metadata.tv_type == TVSystem.PAL else 'scv'
 	return _launch_with_software(machine, software)
 
@@ -49,8 +48,7 @@ software_list_platforms = [
 	#TODO: Will also need required_romset, and do -verifyroms on that to see that it's launchable; e.g. no point doing Neo Geo if -verifyroms aes fails, maybe like a main_driver so we get our CPU/screen/etc info from there, and we can skip it if broken and if main_config.exclude_non_working and machine.emulation_status == EmulationStatus.Broken and machine.basename not in main_config.non_working_whitelist: skip
 	SoftwareListPlatform('Coleco Quiz Wiz', {MediaType.Cartridge: ['quizwiz']}, _quizwiz),
 	SoftwareListPlatform('Neo Geo', {MediaType.Cartridge: ['neogeo']}, _neo_geo),
-	SoftwareListPlatform('Super Casette Vision', {MediaType.Cartridge: ['scv']}, _super_casette_vision),
-	#Some other stuff we want:
+	SoftwareListPlatform('Super Cassette Vision', {MediaType.Cartridge: ['scv']}, _super_cassette_vision),
 	#jakks stuff (set these up all as platform = Plug & Play)
 	#vii (maybe this should be platform = Plug & Play? Or just "Vii")
 	#nes
