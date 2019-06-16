@@ -507,7 +507,7 @@ def mame_megadrive(game, _):
 def mame_msx1(game, _):
 	system = 'svi738'
 	#This one is in English and seems to work, so we'll go with that. I suppose ideally I would have a list of potential systems that all work, and then get the first one which is available, but that would require effort, so nah
-	#Possible slot options: fdc:0 can have 35dd or 35ssdd and I should make sure if that makes a difference for differnet .dsk sizes; centronics is there to attach printers and such; if using a floppy can put bm_012 (MIDI interface) or moonsound (OPL4 sound card, does anything use that?) in the cart port but I'm not sure that's needed; the slots are the same for MSX2
+	#Possible slot options: centronics is there to attach printers and such; if using a floppy can put bm_012 (MIDI interface) or moonsound (OPL4 sound card, does anything use that?) in the cart port but I'm not sure that's needed; the slots are the same for MSX2
 	slot_options = {}
 	if game.metadata.media_type == MediaType.Floppy:
 		#Defaults to 35ssdd, but 720KB disks need this one instead
