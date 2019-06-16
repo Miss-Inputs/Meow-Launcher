@@ -425,27 +425,29 @@ def mame_master_system(game, _):
 
 	slot_options = {}
 	peripheral = game.metadata.specific_info.get('Peripheral')
-	#According to my own comments from earlier in master_system.py that I'm going to blindly believe, both controllers are basically the same
+	#According to my own comments from earlier in master_system.py that I'm going to blindly believe, both controller ports are basically the same for this purpose
+	controller = None
 	if peripheral == SMSPeripheral.Lightgun:
-		slot_options['ctrl1'] = 'lphaser'
-		slot_options['ctrl2'] = 'lphaser'
+		controller = 'lphaser'
 	elif peripheral == SMSPeripheral.Paddle:
-		slot_options['ctrl1'] = 'paddle'
-		slot_options['ctrl2'] = 'paddle'
+		#Don't use this without a Japanese system or the paddle goes haywire (definitely breaks with sms1)
+		controller = 'paddle'
 	elif peripheral == SMSPeripheral.Tablet:
-		slot_options['ctrl1'] = 'graphic'
-		slot_options['ctrl2'] = 'graphic'
+		controller = 'graphic'
 	elif peripheral == SMSPeripheral.SportsPad:
 		#Uh oh, there's a sportspadjp as well. Uh oh, nobody told me there was regional differences. Uh oh, I'm not prepared for this at all. Uh oh. Oh shit. Oh fuck. Oh no.
 		#I mean like.. they're both 2 button trackballs? Should be fine, I hope
-		slot_options['ctrl1'] = 'sportspad'
-		slot_options['ctrl2'] = 'sportspad'
+		controller = 'sportspad'
 	elif peripheral == SMSPeripheral.StandardController:
-		#Hey cool there's a rapid fire thing, that sounds like fun
-		slot_options['ctrl1'] = 'rapidfire'
-		slot_options['ctrl2'] = 'rapidfire'
-	#Other controller options that exist: multitap, joypad (ordinary)
+		controller = 'joypad'
+	#There is also a multitap that adds 4 controller ports, it's called "Furrtek SMS Multitap" so I guess it's unofficial?
 	#smsexp can be set to genderadp but I dunno what the point of that is
+	
+	#Might as well use the rapid fire thing
+	slot_options['ctrl1'] = 'rapidfire'
+	slot_options['ctrl2'] = 'rapidfire'
+	slot_options['ctrl1:rapidfire:ctrl'] = controller
+	slot_options['ctrl2:rapidfire:ctrl'] = controller
 
 	return mame_system(system, 'cart', slot_options)
 
