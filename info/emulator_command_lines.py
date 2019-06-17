@@ -916,6 +916,9 @@ def vice_vic20(game, _):
 			#TODO: Support multiple parts with -cart2 -cartA etc; this will probably require a lot of convoluted messing around to know if a given ROM is actually the second part of a multi-part cart (probably using software lists) and using game.subroms etc
 			raise EmulationNotSupportedException('Single-part >8K cart not supported: %d' % size)
 
+	if game.metadata.specific_info.get('Peripheral') == 'Paddle':
+		args += ['-controlport1device', '2']
+
 	args.append('$<path>')
 	return LaunchParams('xvic', args)
 

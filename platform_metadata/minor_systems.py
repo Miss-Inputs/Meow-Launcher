@@ -257,9 +257,13 @@ def add_vic20_info(game):
 	software = get_software_list_entry(game, skip_header=2 if has_header else 0)
 	if software:
 		software.add_generic_info(game.metadata)
-		game.metadata.notes = software.get_info('usage')
+		notes = software.get_info('usage')
+		if notes == 'Game Paddles required':
+			game.metadata.specific_info['Peripheral'] = 'Paddle'
+		else:
+			game.metadata.notes = notes
+		
 		#Enter 'SYS <some number>' to run
-		#Game Paddles required
 		#Needs VICKIT 4 to run
 		#SYS 40969 for 40 column mode, SYS 40972 for 80 column mode, SYS 40975 for VIC mode, SYS 40978 to restart 40/80 column mode
 
