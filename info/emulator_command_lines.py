@@ -444,10 +444,11 @@ def mame_master_system(game, _):
 	#smsexp can be set to genderadp but I dunno what the point of that is
 	
 	#Might as well use the rapid fire thing
-	slot_options['ctrl1'] = 'rapidfire'
-	slot_options['ctrl2'] = 'rapidfire'
-	slot_options['ctrl1:rapidfire:ctrl'] = controller
-	slot_options['ctrl2:rapidfire:ctrl'] = controller
+	if controller:
+		slot_options['ctrl1'] = 'rapidfire'
+		slot_options['ctrl2'] = 'rapidfire'
+		slot_options['ctrl1:rapidfire:ctrl'] = controller
+		slot_options['ctrl2:rapidfire:ctrl'] = controller
 
 	return mame_system(system, 'cart', slot_options)
 
