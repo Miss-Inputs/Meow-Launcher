@@ -127,10 +127,15 @@ class ScummVMGame():
 		#TODO: Should have option to skip anything with unstable and/or testing status
 
 		path = self.options.get('path')
-		if path and os.path.exists(path):
+		if path and os.path.isdir(path):
 			for f in os.listdir(path):
 				if f.lower().endswith('.ico'):
 					self.icon = os.path.join(path, f)
+					break
+				if f.lower() == 'icon.png':
+					#From GOG releases, mostly
+					self.icon = os.path.join(path, f)
+					break
 
 		name_tags = find_filename_tags.findall(name)
 		get_stuff_from_filename_tags(metadata, name_tags)
