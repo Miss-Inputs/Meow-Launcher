@@ -97,6 +97,9 @@ def add_saturn_info(game, header):
 		if maker.startswith('SEGA TP '):
 			#"Sega Third Party", I guess
 			maker_code = maker[len('SEGA TP '):]
+			if maker_code.startswith('T '):
+				#You're not supposed to do that, stop that
+				maker_code = 'T-' + maker_code[2:]
 			if maker_code in licensee_codes:
 				game.metadata.publisher = licensee_codes[maker_code]
 		elif maker == 'SEGA ENTERPRISES':
