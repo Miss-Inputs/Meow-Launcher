@@ -191,6 +191,9 @@ def add_apple_ii_metadata(game):
 				game.metadata.notes += ';' + usage
 			else:
 				game.metadata.notes = usage
+		
+		if software.software_list.name == 'apple2_flop_orig' and software.name == 'arkanoid':
+			game.metadata.specific_info['Uses-Mouse'] = True
 
 		if not game.metadata.specific_info.get('Machine'):
 			compat = software.get_shared_feature('compatibility')
