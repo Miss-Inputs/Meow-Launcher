@@ -682,7 +682,7 @@ class Machine():
 def get_machine(driver):
 	return Machine(get_mame_xml(driver))
 
-def mame_verifyroms(basename):
+def mame_verifyroms(basename):		
 	try:
 		#Note to self: Stop wasting time thinking you can make this faster
 		subprocess.run(['mame', '-verifyroms', basename], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
@@ -767,9 +767,10 @@ def process_machine_element(machine_element):
 		#The code behind -listxml is of the opinion that protection = imperfect should result in a system being considered entirely broken, but I'm not so sure if that works out
 		return
 
-	if not mame_verifyroms(machine.basename):
-		#We do this as late as we can after checks to see if we want to actually add this machine or not, because it takes a while (in a loop of tens of thousands of machines), and hence if we can get out of having to do it we should
-		return
+	if not machine.romless:
+		if not mame_verifyroms(machine.basename):
+			#We do this as late as we can after checks to see if we want to actually add this machine or not, because it takes a while (in a loop of tens of thousands of machines), and hence if we can get out of having to do it we should
+			return
 
 	process_machine(machine)
 
