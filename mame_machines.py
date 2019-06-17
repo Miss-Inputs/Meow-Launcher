@@ -720,6 +720,16 @@ def is_machine_launchable(machine):
 	
 	return True
 
+def does_user_want_machine(machine):
+	if main_config.exclude_non_arcade and machine.metadata.platform == 'Non-Arcade':
+		return False
+	if main_config.exclude_pinball and machine.metadata.platform == 'Pinball':
+		return False
+	if main_config.exclude_standalone_systems and machine.metadata.platform == 'Standalone System':
+		return False
+
+	return True
+
 def process_machine(machine):
 	if machine.is_skeleton_driver:
 		#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
@@ -731,13 +741,7 @@ def process_machine(machine):
 		return
 
 	add_metadata(machine)
-	if main_config.exclude_non_arcade and machine.metadata.platform == 'Non-Arcade':
-		return
-	if main_config.exclude_pinball and machine.metadata.platform == 'Pinball':
-		return
-	if main_config.exclude_standalone_systems and machine.metadata.platform == 'Standalone System':
-		return
-
+	
 	machine.make_launcher()
 
 def no_longer_exists(game_id):
@@ -753,6 +757,9 @@ def process_machine_element(machine_element):
 		return
 
 	if not is_machine_launchable(machine):
+		return
+
+	if not does_user_want_machine(machine):
 		return
 
 	if main_config.exclude_non_working and machine.emulation_status == EmulationStatus.Broken and machine.basename not in main_config.non_working_whitelist:
