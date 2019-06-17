@@ -163,10 +163,22 @@ def add_metadata_from_catlist(machine):
 	filename_tags = find_filename_tags.findall(machine.name)
 	for tag in filename_tags:
 		if 'prototype' in tag.lower():
-			machine.metadata.categories = ['Betas'] if machine.has_parent else ['Unreleased']
+			if machine.has_parent:
+				if 'Unreleased' in machine.parent.metadata.categories:
+					machine.metadata.categories = ['Unreleased']
+				else:
+					machine.metadata.categories = ['Betas']
+			else:
+				machine.metadata.categories = ['Unreleased']
 			break
 		if 'bootleg' in tag.lower():
-			machine.metadata.categories = ['Hacks'] if machine.has_parent else ['Bootleg']
+			if machine.has_parent:
+				if 'Unreleased' in machine.parent.metadata.categories:
+					machine.metadata.categories = ['Bootleg']
+				else:
+					machine.metadata.categories = ['Hacks']
+			else:
+				machine.metadata.categories = ['Bootleg']
 			break
 		if 'hack' in tag.lower():
 			machine.metadata.categories = ['Hacks']
