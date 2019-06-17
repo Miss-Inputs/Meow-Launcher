@@ -29,14 +29,17 @@ def get_mame_folder(name):
 	mame_categories_folders = get_mame_categories_folders()
 	if not mame_categories_folders:
 		return None
+	
+	parser = configparser.ConfigParser(interpolation=None, allow_no_value=True)
+	parser.optionxform = str
+		
 	for folder in mame_categories_folders:
 		category_file_path = os.path.join(folder, name + '.ini')
 
-		parser = configparser.ConfigParser(interpolation=None, allow_no_value=True)
-		parser.optionxform = str
 		#This won't fail if category_file_path doesn't exist, so I guess it's fine
 		parser.read(category_file_path)
-		return parser
+	
+	return parser
 
 def get_machine_folder(basename, folder_name):
 	folder = get_mame_folder(folder_name)
