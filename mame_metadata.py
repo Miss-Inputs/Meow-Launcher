@@ -304,8 +304,6 @@ def add_languages(machine, name_tags):
 				machine.metadata.languages = [region_language]
 
 def add_metadata(machine):
-	add_metadata_from_catlist(machine)
-
 	machine.metadata.cpu_info.set_inited()
 	cpus = find_cpus(machine.xml)
 	if cpus:

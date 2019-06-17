@@ -11,7 +11,7 @@ import launchers
 from info import emulator_command_lines
 from config import main_config
 from mame_helpers import get_mame_xml, consistentify_manufacturer, iter_mame_entire_xml, get_icons
-from mame_metadata import add_metadata, mame_statuses
+from mame_metadata import add_metadata, mame_statuses, add_metadata_from_catlist
 from metadata import Metadata, EmulationStatus
 from common_types import SaveType
 
@@ -381,6 +381,8 @@ class Machine():
 		self.name = self.xml.findtext('description')
 		self.metadata = Metadata()
 		self._has_inited_metadata = False
+		add_metadata_from_catlist(self)
+
 		if init_metadata:
 			self._add_metadata_fields()
 
