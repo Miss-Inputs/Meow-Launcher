@@ -1,4 +1,5 @@
 import configparser
+import functools
 import os
 
 import detect_things_from_filename
@@ -23,27 +24,31 @@ def get_mame_categories_folders():
 	ui_config = get_mame_ui_config()
 	return ui_config.settings.get('categorypath')
 
-def get_machine_category(basename, category_name):
+@functools.lru_cache(maxsize=None)
+def get_mame_folder(name):
 	mame_categories_folders = get_mame_categories_folders()
 	if not mame_categories_folders:
 		return None
 	for folder in mame_categories_folders:
-		category_file_path = os.path.join(folder, category_name + '.ini')
+		category_file_path = os.path.join(folder, name + '.ini')
 
 		parser = configparser.ConfigParser(interpolation=None, allow_no_value=True)
 		parser.optionxform = str
 		#This won't fail if category_file_path doesn't exist, so I guess it's fine
 		parser.read(category_file_path)
+		return parser
 
-		sections = []
-		for section in parser.sections():
-			if basename in parser[section]:
-				sections.append(section)
-		return sections
-	return []
+def get_machine_folder(basename, folder_name):
+	folder = get_mame_folder(folder_name)
+
+	sections = []
+	for section in folder.sections():
+		if basename in folder[section]:
+			sections.append(section)
+	return sections
 
 def get_category(basename):
-	cats = get_machine_category(basename, 'catlist')
+	cats = get_machine_folder(basename, 'catlist')
 	#It would theoretically be possible for a machine to appear twice, but catlist doesn't do that I think
 	if not cats:
 		return 'Unknown', 'Unknown', 'Unknown', False
@@ -63,7 +68,7 @@ def get_category(basename):
 	return None, genre, subgenre, False
 
 def get_languages(basename):
-	langs = get_machine_category(basename, 'languages')
+	langs = get_machine_folder(basename, 'languages')
 	if not langs:
 		return None
 
@@ -331,7 +336,7 @@ def add_metadata(machine):
 	if version:
 		machine.metadata.specific_info['Version'] = version
 
-	serieses = get_machine_category(machine.basename, 'series')
+	serieses = get_machine_folder(machine.basename, 'series')
 	if serieses:
 		#It is actually possible to have more than one series (e.g. invqix is both part of Space Invaders and Qix)
 		#I didn't think this far ahead so just get the first one for now
