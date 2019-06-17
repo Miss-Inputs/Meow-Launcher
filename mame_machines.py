@@ -433,10 +433,15 @@ class Machine():
 
 	@property
 	def parent(self):
-		parent_name = self.xml.attrib.get('cloneof')
+		parent_name = self.parent_basename
 		if not parent_name:
 			return None
 		return Machine(get_mame_xml(parent_name), True)
+
+	@property
+	def parent_basename(self):
+		#For when you don't need a whole entire Machine object
+		return self.xml.attrib.get('cloneof')
 
 	@property
 	def family(self):

@@ -131,7 +131,7 @@ def is_plug_and_play(machine):
 def add_metadata_from_catlist(machine):
 	category, genre, subgenre, nsfw = get_category(machine.basename)
 	if category == 'Unknown' and machine.has_parent:
-		category, genre, subgenre, nsfw = get_category(machine.parent.basename)
+		category, genre, subgenre, nsfw = get_category(machine.parent_basename)
 	
 	#Fix some errata present in the default catlist.ini, maybe one day I should tell them about it, but I'm shy or maybe they're meant to be like that
 	if subgenre == 'Laser Disk Simulator':
@@ -290,7 +290,7 @@ def add_languages(machine, name_tags):
 		machine.metadata.languages = languages
 	else:
 		if machine.has_parent:
-			languages = get_languages(machine.parent.basename)
+			languages = get_languages(machine.parent_basename)
 			if languages:
 				machine.metadata.languages = languages
 				return
