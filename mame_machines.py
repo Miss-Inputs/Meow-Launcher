@@ -633,7 +633,10 @@ class Machine():
 
 	@property
 	def hacked_by(self):
-		hack_match = hack_regex.fullmatch(self.manufacturer)
+		manufacturer = self.manufacturer
+		if not manufacturer:
+			return None
+		hack_match = hack_regex.fullmatch(manufacturer)
 		if hack_match:
 			return hack_match[1]
 		return None
