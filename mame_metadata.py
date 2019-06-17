@@ -170,7 +170,7 @@ def add_metadata_from_catlist(machine):
 
 	filename_tags = find_filename_tags.findall(machine.name)
 	for tag in filename_tags:
-		if 'prototype' in tag.lower():
+		if 'prototype' in tag.lower() or 'location test' in tag.lower():
 			if machine.has_parent:
 				if 'Unreleased' in machine.parent.metadata.categories:
 					machine.metadata.categories = ['Unreleased']
