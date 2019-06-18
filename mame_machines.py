@@ -615,7 +615,6 @@ class Machine():
 	def software_lists(self):
 		return [software_list.attrib.get('name') for software_list in self.xml.findall('softwarelist')]
 
-
 	@property
 	def manufacturer(self):
 		return self.xml.findtext('manufacturer')
@@ -650,6 +649,8 @@ class Machine():
 		license_match = licensed_arcade_game_regex.fullmatch(self.manufacturer)
 		if license_match:
 			developer = consistentify_manufacturer(license_match[1])
+			if developer:
+				developer = developer.replace(' / ', ', ')
 			publisher = consistentify_manufacturer(license_match[2])
 			return developer, publisher
 	
@@ -678,11 +679,35 @@ class Machine():
 				#Let's try and clean up things a bit when this happens
 				manufacturers = [consistentify_manufacturer(m) for m in manufacturer.split(' / ')]
 
-				if len(manufacturers) == 2 and manufacturers[0] == 'bootleg':
-					developer = publisher = manufacturers[1]
-				else:
-					#TODO: Try and cleverly figure out which ones are developers and which are publishers, but... hmm
-					developer = publisher = ', '.join(manufacturers)
+				developer = publisher = ', '.join(manufacturers)
+				if len(manufacturers) == 2:
+					#Try and figure out who's publisher / who's developer, if possible
+					arcade_system = self.arcade_system
+					if manufacturers[0] == 'bootleg':
+						developer = publisher = manufacturers[1]
+					elif 'JAKKS Pacific' in manufacturers:
+						#Needs to be a better way of what I'm saying, surely. I'm tired, so I can't boolean logic properly. It's just like… if the manufacturer is X / Y or Y / X, then the developer is X, and the publisher is Y
+						#Anyway, we at least know that JAKKS Pacific is always the publisher in this scenario, so that cleans up the plug & play games a bit
+						developer = manufacturers[0] if manufacturers[1] == 'JAKKS Pacific' else manufacturers[1]
+						publisher = manufacturers[1] if manufacturers[1] == 'JAKKS Pacific' else manufacturers[0]
+					elif 'Sega' in manufacturers and arcade_system and ('Sega' in arcade_system or 'Naomi' in arcade_system):
+						#It would also be safe to assume Sega is not going to get someone else to be the publisher on their own hardware, I think; so in this case (manufacturer: Blah / Sega) we can probably say Blah is the developer and Sega is the publisher
+						#I really really hope I'm not wrong about this assumption, but I want to make it
+						developer = manufacturers[0] if manufacturers[1] == 'Sega' else manufacturers[1]
+						publisher = manufacturers[1] if manufacturers[1] == 'Sega' else manufacturers[0]
+					elif 'Capcom' in manufacturers and arcade_system and ('Capcom' in arcade_system):
+						#Gonna make the same assumption here...
+						developer = manufacturers[0] if manufacturers[1] == 'Capcom' else manufacturers[1]
+						publisher = manufacturers[1] if manufacturers[1] == 'Capcom' else manufacturers[0]
+					elif 'Namco' in manufacturers and arcade_system and ('Namco' in arcade_system):
+						#And here, too
+						developer = manufacturers[0] if manufacturers[1] == 'Namco' else manufacturers[1]
+						publisher = manufacturers[1] if manufacturers[1] == 'Namco' else manufacturers[0]
+					elif manufacturer == 'Rare / Electronic Arts':
+						#Well at least we know what's going on in this case
+						developer = 'Rare'
+						publisher = 'Electronic Arts'
+
 			else:
 				developer = publisher = consistentify_manufacturer(manufacturer)
 		return developer, publisher
