@@ -199,6 +199,7 @@ def add_metadata(game):
 			
 	add_device_hardware_metadata(game, mame_driver)
 	
+	equivalent_arcade = None
 	if main_config.find_equivalent_arcade_games:
 		software_name = game.metadata.specific_info.get('MAME-Software-Name')
 		parent_name = game.metadata.specific_info.get('MAME-Software-Parent')
