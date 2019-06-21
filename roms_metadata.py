@@ -139,22 +139,12 @@ def machine_name_matches(machine_name, game_name):
 
 	return normalize_name(machine_name, False) == normalize_name(game_name, False)
 
-def find_equivalent_arcade_game(game):
-	software_name = game.metadata.specific_info.get('MAME-Software-Name')
-	if not software_name:
-		return None
-	parent_name = game.metadata.specific_info.get('MAME-Software-Parent')
-	
+def find_equivalent_arcade_game(game, name):
 	#Just to be really strict: We will only get it if the name matches
 	try:
-		machine_xml = get_mame_xml(software_name)
+		machine_xml = get_mame_xml(name)
 	except MachineNotFoundException:
-		if not parent_name:
-			return None
-		try:
-			machine_xml = get_mame_xml(parent_name)
-		except MachineNotFoundException:
-			return None
+		return None
 	machine = Machine(machine_xml)
 	if machine.metadata.platform != 'Arcade' or machine.is_mechanical or machine.metadata.genre == 'Slot Machine':
 		#I think not, only video games can be video games
@@ -162,7 +152,7 @@ def find_equivalent_arcade_game(game):
 		return None
 	if machine_name_matches(machine.name, game.rom.name):
 		return machine
-	#print(game.rom.name, software_name, machine.name)
+	#print(game.rom.name, name, machine.name)
 	return None
 
 def add_metadata_from_arcade(game, machine):
@@ -210,10 +200,16 @@ def add_metadata(game):
 	add_device_hardware_metadata(game, mame_driver)
 	
 	if main_config.find_equivalent_arcade_games:
-		equivalent_arcade = find_equivalent_arcade_game(game)
+		software_name = game.metadata.specific_info.get('MAME-Software-Name')
+		parent_name = game.metadata.specific_info.get('MAME-Software-Parent')
+		if software_name:
+			equivalent_arcade = find_equivalent_arcade_game(game, software_name)
+			if not equivalent_arcade and parent_name:
+				equivalent_arcade = find_equivalent_arcade_game(game, parent_name)
+	
 	#I should set up this sort of thing in platform_metadata too, so I can get PlayChoice-10 equivalent of NES, etc
-		if equivalent_arcade:
-			add_metadata_from_arcade(game, equivalent_arcade)
+	if equivalent_arcade:
+		add_metadata_from_arcade(game, equivalent_arcade)
 	if not game.icon:
 		if main_config.use_mame_system_icons:
 			if mame_driver in mame_icons:
