@@ -181,6 +181,7 @@ def make_linux_desktop(launch_params, display_name, fields=None, icon=None):
 def make_display_name(name):
 	display_name = common.remove_filename_tags(name)
 
+	#TODO: This stuff should just be in roms.py really
 	for replacement in name_replacement:
 		display_name = re.sub(r'(?<!\w)' + re.escape(replacement[0]) + r'(?!\w)', replacement[1], display_name, flags=re.I)
 	for replacement in add_the:

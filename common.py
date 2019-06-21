@@ -10,6 +10,17 @@ def remove_filename_tags(name):
 
 	return remove_extra_spaces.sub('', stripped_name)
 
+words_regex = re.compile(r'[\w()]+')
+def normalize_name(name, care_about_spaces=True):
+	name = convert_roman_numerals_in_title(name)
+	name = name.lower()
+	name = name.replace('3-d', '3d')
+	name = name.replace('&', 'and')
+	name = name.replace('é', 'e')
+	name = name.replace(': ', ' - ')
+
+	return ('-' if care_about_spaces else '').join(words_regex.findall(name))
+	
 def starts_with_any(s, prefixes):
 	#Allows s.startswith() with any iterable, not just tuple
 	for prefix in prefixes:

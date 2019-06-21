@@ -2,14 +2,13 @@
 
 import configparser
 import os
-import re
 import itertools
 import collections
 import sys
 import time
 import datetime
 
-from common import convert_roman_numerals_in_title
+from common import normalize_name
 from config import main_config, app_name
 import launchers
 
@@ -171,17 +170,6 @@ def resolve_duplicates(group, method, format_function=None, ignore_missing_value
 		resolve_duplicates_by_date(group)
 	else:
 		resolve_duplicates_by_metadata(group, method, format_function, ignore_missing_values)
-
-words = re.compile(r'[\w()]+')
-def normalize_name(name):
-	name = convert_roman_numerals_in_title(name)
-	name = name.lower()
-	name = name.replace('3-d', '3d')
-	name = name.replace('&', 'and')
-	name = name.replace('é', 'e')
-	name = name.replace(': ', ' - ')
-
-	return '-'.join(words.findall(name))
 
 def fix_duplicate_names(method, format_function=None, ignore_missing_values=None):
 	files = [(path, launchers.get_desktop(path)) for path in [os.path.join(main_config.output_folder, f) for f in os.listdir(main_config.output_folder)]]

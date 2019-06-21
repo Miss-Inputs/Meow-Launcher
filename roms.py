@@ -192,10 +192,10 @@ def process_file(system_config, rom_dir, root, rom):
 		return
 
 	game.metadata.categories = [cat for cat in list(pathlib.Path(root).relative_to(rom_dir).parts) if cat != rom.name]
-	if not game.metadata.categories:
-		game.metadata.categories = [game.metadata.platform]
 	game.filename_tags = common.find_filename_tags.findall(game.rom.name)
 	add_metadata(game)
+	if not game.metadata.categories:
+		game.metadata.categories = [game.metadata.platform]
 
 	exception_reason = None
 

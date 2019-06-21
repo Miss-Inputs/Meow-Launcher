@@ -2,10 +2,13 @@ import os
 
 import detect_things_from_filename
 import platform_metadata
+from common import remove_filename_tags, normalize_name
 from config import main_config
 from info import region_info, system_info
-from mame_helpers import (get_icons, get_mame_xml, have_mame,
-                          lookup_system_cpus, lookup_system_displays, MachineNotFoundException)
+from mame_helpers import (MachineNotFoundException, get_icons, get_mame_xml,
+                          have_mame, lookup_system_cpus,
+                          lookup_system_displays)
+from mame_machines import Machine
 from software_list_info import get_software_lists_by_names
 
 mame_driver_overrides = {
@@ -115,6 +118,70 @@ def add_device_hardware_metadata(game, mame_driver):
 				game.metadata.screen_info = displays
 
 mame_icons = get_icons()
+
+def machine_name_matches(machine_name, game_name):
+	#TODO: Take subtitles into account
+	#Should also use name_consistency stuff once I refactor that (Turbo OutRun > Turbo Out Run)
+	#Also once I do the thing where I take care of multiple names.... well that should resolve itself at that point, but for now it's a bugger (Art of Fighting > Art of Fighting / Ryuuko no Ken) 
+	
+	machine_name = remove_filename_tags(machine_name)
+	game_name = remove_filename_tags(game_name)
+
+	#Until I do mess around with name_consistency.ini though, here's some common substitutions
+	machine_name = machine_name.replace('Bros.', 'Brothers')
+	game_name = game_name.replace('Bros.', 'Brothers')
+	machine_name = machine_name.replace('Jr.', 'Junior')
+	game_name = game_name.replace('Jr.', 'Junior')
+
+	if machine_name.upper().startswith('VS. '):
+		#This helps us match against VS. System versions of games
+		machine_name = machine_name[4:]
+
+	return normalize_name(machine_name, False) == normalize_name(game_name, False)
+
+def find_equivalent_arcade_game(game):
+	software_name = game.metadata.specific_info.get('MAME-Software-Name')
+	if not software_name:
+		return None
+	parent_name = game.metadata.specific_info.get('MAME-Software-Parent')
+	
+	#Just to be really strict: We will only get it if the name matches
+	try:
+		machine_xml = get_mame_xml(software_name)
+	except MachineNotFoundException:
+		if not parent_name:
+			return None
+		try:
+			machine_xml = get_mame_xml(parent_name)
+		except MachineNotFoundException:
+			return None
+	machine = Machine(machine_xml)
+	if machine.metadata.platform != 'Arcade' or machine.is_mechanical or machine.metadata.genre == 'Slot Machine':
+		#I think not, only video games can be video games
+		#That comment made sense but y'know what I mean right
+		return None
+	if machine_name_matches(machine.name, game.rom.name):
+		return machine
+	#print(game.rom.name, software_name, machine.name)
+	return None
+
+def add_metadata_from_arcade(game, machine):
+	game.metadata.specific_info['Equivalent-Arcade'] = machine.name
+	if not game.metadata.genre:
+		game.metadata.genre = machine.metadata.genre
+	if not game.metadata.subgenre:
+		game.metadata.subgenre = machine.metadata.subgenre
+	if not game.metadata.categories and 'Arcade' not in machine.metadata.categories:
+		game.metadata.categories = machine.metadata.categories
+	if machine.metadata.nsfw:
+		game.metadata.nsfw = True
+	if not game.metadata.series:
+		game.metadata.series = machine.metadata.series
+	#Well, I guess not much else can be inferred here. Still, though!
+		
+	if not game.icon:
+		game.icon = machine.icon
+
 def add_metadata(game):
 	game.metadata.extension = game.rom.extension
 
@@ -141,31 +208,14 @@ def add_metadata(game):
 		mame_driver = system_info.systems[game.metadata.platform].mame_driver
 			
 	add_device_hardware_metadata(game, mame_driver)
+	
+	if main_config.find_equivalent_arcade_games:
+		equivalent_arcade = find_equivalent_arcade_game(game)
+	#I should set up this sort of thing in platform_metadata too, so I can get PlayChoice-10 equivalent of NES, etc
+		if equivalent_arcade:
+			add_metadata_from_arcade(game, equivalent_arcade)
 	if not game.icon:
-		if main_config.use_mame_arcade_icons:
-			software_name = game.metadata.specific_info.get('MAME-Software-Name')
-			parent_name = game.metadata.specific_info.get('MAME-Software-Parent')
-			if software_name in mame_icons:
-				game.icon = mame_icons[software_name]
-			elif parent_name in mame_icons:
-				game.icon = mame_icons[parent_name]
-			elif software_name:
-				#Try to get the arcade game's parent
-				machine_xml = None
-				try:
-					machine_xml = get_mame_xml(software_name)
-				except MachineNotFoundException:
-					if parent_name:
-						try:
-							machine_xml = get_mame_xml(parent_name)
-						except MachineNotFoundException:
-							pass
-					
-				if machine_xml:
-					cloneof = machine_xml.attrib.get('cloneof')
-					if cloneof in mame_icons:
-						game.icon = mame_icons[cloneof]
-		elif main_config.use_mame_system_icons:
+		if main_config.use_mame_system_icons:
 			if mame_driver in mame_icons:
 				game.icon = mame_icons[mame_driver]
 

@@ -97,7 +97,7 @@ _config_ini_values = {
 	'wii_common_key': ConfigValue('Roms', ConfigValueType.String, '', 'Wii common key', 'Wii common key used for decrypting Wii discs which some projects are brave enough to hardcode but I am not'),
 	'skipped_subfolder_names': ConfigValue('Roms', ConfigValueType.StringList, [], 'Skipped subfolder names', 'Always skip these subfolders in every ROM dir'),
 	'use_mame_system_icons': ConfigValue('Roms', ConfigValueType.Bool, False, 'Use MAME system icons', 'If a game does not have an icon, use the MAME icon for its system if available'),
-	'use_mame_arcade_icons': ConfigValue('Roms', ConfigValueType.Bool, False, 'Use MAME arcade icons', 'If a game does not have an icon, use the MAME icon for the arcade game with the same name as the software name if possible'),
+	'find_equivalent_arcade_games': ConfigValue('Roms', ConfigValueType.Bool, False, 'Use MAME arcade icons', 'Get metadata from MAME machines of the same name'),
 
 	#These shouldn't end up in config.ini as they're intended to be set per-run
 	'debug': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Debug', 'Enable debug mode, which is really verbose mode, oh well'),
