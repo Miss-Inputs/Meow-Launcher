@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
 
-import subprocess
-import os
-import sys
-import re
-import time
 import datetime
+import os
+import re
+import subprocess
+import sys
+import time
 
 import launchers
-from info import emulator_command_lines
-from config import main_config
-from mame_helpers import get_mame_xml, consistentify_manufacturer, iter_mame_entire_xml, get_icons
-from mame_metadata import add_metadata, mame_statuses, add_metadata_from_catlist
-from metadata import Metadata, EmulationStatus
+from common import remove_capital_article
 from common_types import SaveType
+from config import main_config
+from info import emulator_command_lines
+from mame_helpers import (consistentify_manufacturer, get_icons, get_mame_xml,
+                          iter_mame_entire_xml)
+from mame_metadata import (add_metadata, add_metadata_from_catlist,
+                           get_machine_folder, mame_statuses)
+from metadata import EmulationStatus, Metadata
+
 
 class MediaSlot():
 	def __init__(self, xml):
@@ -711,6 +715,27 @@ class Machine():
 			else:
 				developer = publisher = consistentify_manufacturer(manufacturer)
 		return developer, publisher
+
+	@property
+	def series(self):
+		serieses = get_machine_folder(self.basename, 'series')
+		if serieses:
+			#It is actually possible to have more than one series (e.g. invqix is both part of Space Invaders and Qix)
+			#I didn't think this far ahead so just get the first one for now
+			series = serieses[0]
+			not_real_series = ('Hot', 'Aristocrat MK Hardware')
+
+			if series.endswith(' * Pinball'):
+				series = series[:-len(' * Pinball')]
+			elif series.endswith(' * Slot'):
+				series = series[:-len(' * Slot')]
+			if series.startswith('The '):
+				series = series[len('The '):]
+			
+			if series not in not_real_series:
+				return remove_capital_article(series)
+		return None
+
 
 def get_machine(driver):
 	return Machine(get_mame_xml(driver))

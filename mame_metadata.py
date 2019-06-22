@@ -4,7 +4,7 @@ import os
 
 import detect_things_from_filename
 import input_metadata
-from common import find_filename_tags, pluralize, remove_capital_article
+from common import find_filename_tags, pluralize
 from common_types import MediaType, SaveType
 from config import main_config
 from info.region_info import (get_language_by_english_name,
@@ -338,23 +338,6 @@ def add_metadata(machine):
 	version = detect_things_from_filename.get_version_from_filename_tags(name_tags)
 	if version:
 		machine.metadata.specific_info['Version'] = version
-
-	serieses = get_machine_folder(machine.basename, 'series')
-	if serieses:
-		#It is actually possible to have more than one series (e.g. invqix is both part of Space Invaders and Qix)
-		#I didn't think this far ahead so just get the first one for now
-		series = serieses[0]
-		not_real_series = ('Hot', 'Aristocrat MK Hardware')
-
-		if series.endswith(' * Pinball'):
-			series = series[:-len(' * Pinball')]
-		elif series.endswith(' * Slot'):
-			series = series[:-len(' * Slot')]
-		if series.startswith('The '):
-			series = series[len('The '):]
-		
-		if series not in not_real_series:
-			machine.metadata.series = remove_capital_article(series)
 
 	#Might not be so hardcoded one day...
 	machine.metadata.emulator_name = 'MAME'
