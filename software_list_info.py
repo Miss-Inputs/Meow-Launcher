@@ -1,7 +1,6 @@
 import calendar
 import os
 import re
-import subprocess
 import xml.etree.ElementTree as ElementTree
 import zlib
 
@@ -9,7 +8,7 @@ import io_utils
 from common_types import MediaType
 from info.region_info import TVSystem
 from info.system_info import systems
-from mame_helpers import consistentify_manufacturer, get_mame_config
+from mame_helpers import consistentify_manufacturer, get_mame_config, verify_software_list
 from metadata import EmulationStatus
 
 #Ideally, every platform wants to be able to get software list info. If available, it will always be preferred over what we can extract from inside the ROMs, as it's more reliable, and avoids the problem of bootlegs/hacks with invalid/missing header data, or publisher/developers that merge and change names and whatnot.
@@ -430,20 +429,6 @@ class SoftwareList():
 					return software
 		return None
 
-	def _verifysoftlist(self):
-		#Unfortunately it seems we cannot verify an individual software, which would probably take less time
-		proc = subprocess.run(['mame', '-verifysoftlist', self.name], universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-		#Don't check return code - it'll return 2 if one software in the list is bad
-
-		available = []
-		for line in proc.stdout.splitlines():
-			#Bleh
-			software_verify_matcher = re.compile(r'romset {0}:(.+) is (?:good|best available)$'.format(self.name))
-			line_match = software_verify_matcher.match(line)
-			if line_match:
-				available.append(line_match[1])
-		return available
-
 	def get_available_software(self):
 		available = []
 
@@ -458,7 +443,7 @@ class SoftwareList():
 				continue
 			else:
 				if _verifysoftlist_result is None:
-					_verifysoftlist_result = self._verifysoftlist()
+					_verifysoftlist_result = verify_software_list(self.name)
 				if software.name in _verifysoftlist_result:
 					available.append(software)
 		

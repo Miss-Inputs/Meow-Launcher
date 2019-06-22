@@ -13,7 +13,7 @@ from common_types import SaveType
 from config import main_config
 from info import emulator_command_lines
 from mame_helpers import (consistentify_manufacturer, get_icons, get_mame_xml,
-                          iter_mame_entire_xml)
+                          iter_mame_entire_xml, list_by_source_file)
 from mame_metadata import (add_metadata, add_metadata_from_catlist,
                            get_machine_folder, mame_statuses)
 from metadata import EmulationStatus, Metadata
@@ -848,6 +848,12 @@ def process_arcade():
 		time_ended = time.perf_counter()
 		print('Arcade finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
+
+def get_machines_from_source_file(source_file):
+	for machine_name, source_file_with_ext in list_by_source_file():
+		if os.path.splitext(source_file_with_ext)[0] == source_file:
+			yield Machine(get_mame_xml(machine_name))
+
 def main():
 	if '--drivers' in sys.argv:
 		arg_index = sys.argv.index('--drivers')
@@ -858,6 +864,22 @@ def main():
 		driver_list = sys.argv[arg_index + 1].split(',')
 		for driver_name in driver_list:
 			process_machine_element(get_mame_xml(driver_name))
+		return 
+	if '--source-file' in sys.argv:
+		arg_index = sys.argv.index('--source-file')
+		if len(sys.argv) == 2:
+			print('--source-file requires an argument')
+			return
+
+		source_file = sys.argv[arg_index + 1]
+		for machine in get_machines_from_source_file(source_file):
+			if not is_actually_machine(machine):
+				continue
+			if not is_machine_launchable(machine):
+				continue
+			if not mame_verifyroms(machine.basename):
+				continue
+			process_machine(machine)
 		return
 
 	process_arcade()

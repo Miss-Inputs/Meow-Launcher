@@ -64,6 +64,7 @@ class MAMENotInstalledException(Exception):
 class MameState():
 	class __MameState():
 		def __init__(self):
+			self.executable = 'mame' #TODO This should be a configurable path
 			self.version = self.get_version()
 			self.mame_xml_path = os.path.join(cache_dir, self.version) + '.xml' if self.have_mame else None
 			self._have_checked_mame_xml = False
@@ -73,10 +74,10 @@ class MameState():
 		def have_mame(self):
 			return self.version is not None
 
-		@staticmethod
-		def get_version():
+		def get_version(self):
+			#Note that there is a -version option in (as of this time of writing, upcoming) MAME 0.211, but might as well just use this, because it works on older versions
 			try:
-				version_proc = subprocess.run(['mame', '-help'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
+				version_proc = subprocess.run([self.executable, '-help'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
 			except FileNotFoundError:
 				#Should happen if and only if MAME isn't installed
 				return None
@@ -90,9 +91,9 @@ class MameState():
 				print('New MAME version found: ' + self.version + '; creating XML; this may take a while (maybe like a minute or so)')
 				os.makedirs(os.path.dirname(self.mame_xml_path), exist_ok=True)
 				with open(self.mame_xml_path, 'wb') as f:
-					subprocess.run(['mame', '-listxml'], stdout=f, stderr=subprocess.DEVNULL)
+					subprocess.run([self.executable, '-listxml'], stdout=f, stderr=subprocess.DEVNULL)
 					#TODO check return code I guess (although in what ways would it fail?)
-					#If this is interrupted you'll be left with a garbage XML file which then breaks when you parse it later... can we do something about that?
+					#TODO If this is interrupted you'll be left with a garbage XML file which then breaks when you parse it later... can we do something about that? We better
 				print('Finished creating XML')
 
 		def iter_mame_entire_xml(self):
@@ -114,11 +115,36 @@ class MameState():
 				raise MAMENotInstalledException()
 
 			try:
-				proc = subprocess.run(['mame', '-listxml', driver], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)
+				proc = subprocess.run([self.executable, '-listxml', driver], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)
 			except subprocess.CalledProcessError:
 				raise MachineNotFoundException(driver)
 
 			return ElementTree.fromstring(proc.stdout).find('machine')
+
+		def listsource(self):
+			if not self.have_mame:
+				raise MAMENotInstalledException()
+			proc = subprocess.run([self.executable, '-listsource'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, universal_newlines=True)
+			#Return code should always be 0
+			for line in proc.stdout.splitlines():
+				#Machine names and source files both shouldn't contain spaces, so this should be fine
+				yield line.split()
+		
+		def verifysoftlist(self, software_list_name):
+			#Unfortunately it seems we cannot verify an individual software, which would probably take less time
+			proc = subprocess.run([self.executable, '-verifysoftlist', software_list_name], universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+			#Don't check return code - it'll return 2 if one software in the list is bad
+
+			available = []
+			for line in proc.stdout.splitlines():
+				#Bleh
+				software_verify_matcher = re.compile(r'romset {0}:(.+) is (?:good|best available)$'.format(software_list_name))
+				line_match = software_verify_matcher.match(line)
+				if line_match:
+					available.append(line_match[1])
+			return available
+
+		#Other frontend commands: listfull, listclones, listbrothers, listcrc, listroms, listsamples, verifysamples, romident, listdevices, listslots, listmedia, listsoftware, verifysoftware, getsoftlist
 
 		@property
 		def icons(self):
@@ -157,6 +183,12 @@ def iter_mame_entire_xml():
 
 def get_mame_xml(driver):
 	return mame_state.get_mame_xml(driver)
+
+def list_by_source_file():
+	return mame_state.listsource()
+
+def verify_software_list(software_list_name):
+	return mame_state.verifysoftlist(software_list_name)
 
 def get_icons():
 	return mame_state.icons
