@@ -1,9 +1,10 @@
-import os
 import calendar
+import os
 from enum import Enum, auto
 
 import cd_read
 import input_metadata
+from common_types import SaveType
 from config import main_config
 from data.sega_licensee_codes import licensee_codes
 from software_list_info import get_software_list_entry
@@ -26,6 +27,7 @@ class SaturnRegionCodes(Enum):
 def parse_peripherals(game, peripherals):
 	uses_standard_controller = False
 	uses_analog_controller = False
+	uses_mission_stick = False
 	uses_gun = False
 	uses_keyboard = False
 	uses_mouse = False
@@ -34,9 +36,12 @@ def parse_peripherals(game, peripherals):
 	for peripheral in peripherals:
 		if peripheral == 'J':
 			uses_standard_controller = True
-		elif peripheral == 'A':
+		elif peripheral == 'E':
 			uses_analog_controller = True
 			game.metadata.specific_info['Uses-3D-Control-Pad'] = True
+		elif peripheral == 'A':
+			uses_mission_stick = True
+			game.metadata.specific_info['Uses-Mission-Stick'] = True
 		elif peripheral == 'G':
 			uses_gun = True
 			game.metadata.specific_info['Uses-Gun'] = True
@@ -50,10 +55,33 @@ def parse_peripherals(game, peripherals):
 			#Steering wheel
 			uses_wheel = True
 			game.metadata.specific_info['Uses-Steering-Wheel'] = True
-		#T = multitap, dunno what to do about that
+		elif peripheral == 'T':
+			game.metadata.specific_info['Supports-Multitap'] = True
+		elif peripheral == 'F':
+			#Hmm... it might be possible that a game saves to both floppy and backup RAM etc
+			game.metadata.save_type = SaveType.Floppy
+		elif peripheral == 'W':
+			#Doesn't specify if it needs 1MB or 4MB... some games (e.g. KOF 96) supposedly only do 1MB
+			game.metadata.specific_info['Needs-RAM-Cartridge'] = True
+		elif peripheral == 'Y':
+			game.metadata.specific_info['Uses-MIDI'] = True
+			#TODO Input info for the MIDI keyboard
+		elif peripheral == 'Q':
+			game.metadata.specific_info['Uses-Pachinko-Controller'] = True
+			#TODO Input info (known as Sankyo FF, but I can't find anything about what it actually does other than it exists)
+		#else:
+		#	print('Unknown Saturn peripheral', game.rom.path, peripheral)
+		#D = Modem? (Anywhere X is but also SegaSaturn Internet)
+		#X = Duke Nukem 3D, Daytona CCE Net Link Edition, Puyo Puyo Sun for SegaNet (something to do with NetLink, but what is the difference with D?)
+		#U = Sonic Z-Treme?
+		#Z = Game Basic for SegaSaturn (PC connectivity?)
 
-	#Hmmm... tricky to figure out how to best represent this, as it's possible to use different controllers
-	#I guess these two are the standard controllers, and everything else is optional
+	if uses_standard_controller:
+		standard_controller = input_metadata.NormalController()
+		standard_controller.face_buttons = 6 # A B C X Y Z
+		standard_controller.shoulder_buttons = 2 #L R
+		standard_controller.dpads = 1
+		game.metadata.input_info.add_option(standard_controller)
 	if uses_analog_controller:
 		analog_controller = input_metadata.NormalController()
 		analog_controller.face_buttons = 6 # A B C X Y Z
@@ -61,13 +89,13 @@ def parse_peripherals(game, peripherals):
 		analog_controller.analog_sticks = 1
 		analog_controller.dpads = 1
 		game.metadata.input_info.add_option(analog_controller)
-	elif uses_standard_controller:
-		standard_controller = input_metadata.NormalController()
-		standard_controller.face_buttons = 6 # A B C X Y Z
-		standard_controller.shoulder_buttons = 2 #L R
-		standard_controller.dpads = 1
-		game.metadata.input_info.add_option(standard_controller)
-
+	if uses_mission_stick:
+		mission_stick_main_part = input_metadata.NormalController()
+		mission_stick_main_part.analog_sticks = 1
+		mission_stick_main_part.face_buttons = 10 #The usual + L and R are located there instead of what would be considered a shoulder button, plus 2 extra on the stick
+		throttle_wheel = input_metadata.Dial()
+		mission_stick = input_metadata.CombinedController([mission_stick_main_part, throttle_wheel])
+		game.metadata.input_info.add_option(mission_stick)
 	if uses_gun:
 		virtua_gun = input_metadata.LightGun()
 		virtua_gun.buttons = 1 #Also start and I dunno if offscreen shot would count as a button
