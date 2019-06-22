@@ -96,6 +96,10 @@ def add_megadrive_info(game, header):
 		game.metadata.specific_info['Bad-TMSS'] = True
 		return
 
+	if game.metadata.platform == 'Mega CD' and console_name.startswith('SEGA 32X'):
+		#Could also set platform to something like "Mega CD 32X" I guess
+		game.metadata.specific_info['32X-Only'] = True
+
 	try:
 		copyright_match = copyright_regex.match(header[16:32].decode('ascii'))
 		if copyright_match:
