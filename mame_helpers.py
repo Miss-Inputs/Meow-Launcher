@@ -164,6 +164,7 @@ def get_icons():
 def _tag_starts_with(tag, tag_list):
 	if not tag:
 		return False
+	#Chips from devices are in the format device:thing
 	tag = tag.split(':')[-1]
 
 	for t in tag_list:
@@ -177,23 +178,18 @@ def find_cpus(machine_xml):
 		return []
 
 	#Type = "cpu" and not "audio", but this still refers to something that is there for sound output and not to do all the fun stuff
-	audio_cpu_tags = ('audio_cpu', 'audiocpu', 'soundcpu', 'sound_cpu', 'genesis_snd_z80', 'pokey', 'audio', 'sounddsp', 'soundcpu_b')
+	#Do I really care though? Do I wanna bother skipping all that
+	audio_cpu_tags = ('audio_cpu', 'audiocpu', 'soundcpu', 'sndcpu', 'sound_cpu', 'genesis_snd_z80', 'pokey', 'audio', 'sounddsp', 'soundcpu_b', 'speechcpu')
 	cpu_xmls = [cpu for cpu in cpu_xmls if not _tag_starts_with(cpu.attrib.get('tag'), audio_cpu_tags)]
 
 	#Skip microcontrollers etc
+	#Do I really want to though? I can't even remember what I was doing any of this for
 	microcontrollers = ('mcu', 'iomcu', 'dma', 'dma8237', 'iop_dma', 'dmac', 'i8237', 'i8257', 'i8741')
-	device_controllers = ('fdccpu', 'dial_mcu_left', 'dial_mcu_right', 'adbmicro', 'printer_mcu', 'keyboard_mcu', 'keyb_mcu', 'motorcpu', 'drivecpu', 'z80fd')
+	device_controllers = ('fdccpu', 'dial_mcu_left', 'dial_mcu_right', 'adbmicro', 'printer_mcu', 'keyboard_mcu', 'keyb_mcu', 'motorcpu', 'drivecpu', 'z80fd', 'm3commcpu', 'mie')
 	controller_tags = microcontrollers + device_controllers + ('prot', 'iop', 'iocpu', 'cia')
 	cpu_xmls = [cpu for cpu in cpu_xmls if not _tag_starts_with(cpu.attrib.get('tag'), controller_tags)]
 	
-	#blah:blah is from a device which generally indicates it's a co-processor or controller for something else
-	#:blah happens if we are looking at the device itself, which in that case yeah we probably do want the thing
-	cpus_not_from_devices = [cpu for cpu in cpu_xmls if not (':' in cpu.attrib.get('tag') and not cpu.attrib.get('tag').startswith(':'))]
-	if not cpus_not_from_devices:
-		#The CPU might only be from a device in some cases
-		return cpu_xmls
-
-	return cpus_not_from_devices
+	return cpu_xmls
 
 def lookup_system_cpus(driver_name):
 	machine = mame_state.get_mame_xml(driver_name)
