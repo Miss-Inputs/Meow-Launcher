@@ -137,10 +137,11 @@ def add_megadrive_info(game, header):
 	peripherals = [c for c in header[144:160].decode('ascii', errors='ignore') if c not in ('\x00', ' ')]
 	parse_peripherals(game, peripherals)
 
-	save_id = header[0xb0:0xb4]
-	#Apparently... what the heck
-	#FIXME: This seems to be different on Mega CD. I need to handle it differently anyway, since it should be SaveType.Internal
-	game.metadata.save_type = SaveType.Cart if save_id[:2] == b'RA' else SaveType.Nothing
+	if game.metadata.platform == 'Mega Drive':
+		save_id = header[0xb0:0xb4]
+		#Apparently... what the heck
+		#This seems to be different on Mega CD, and also 32X
+		game.metadata.save_type = SaveType.Cart if save_id[:2] == b'RA' else SaveType.Nothing
 
 	regions = header[0xf0:0xf3]
 	region_codes = []
@@ -214,7 +215,7 @@ def add_megadrive_metadata(game):
 		slot = software.get_part_feature('slot')
 		if slot == 'rom_eeprom' or software.has_data_area('sram'):
 			game.metadata.save_type = SaveType.Cart
-		else:
+		elif game.metadata.platform == 'Mega Drive':
 			game.metadata.save_type = SaveType.Nothing
 
 		if software.name == 'aqlian':
