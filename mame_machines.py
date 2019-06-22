@@ -502,7 +502,7 @@ class Machine():
 		#TODO: Let's put this in emulator_info, even if only MAME exists as the singular arcade emulator for now; and clean this up some more
 		icon = self.icon
 		if not icon and self.bios:
-			bios_icon = icons.get(self.bios.basename)
+			bios_icon = self.bios.icon
 			if bios_icon:
 				icon = bios_icon
 
