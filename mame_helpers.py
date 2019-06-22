@@ -177,10 +177,8 @@ def find_cpus(machine_xml):
 	if not cpu_xmls:
 		return []
 
-	#Type = "cpu" and not "audio", but this still refers to something that is there for sound output and not to do all the fun stuff
-	#Do I really care though? Do I wanna bother skipping all that
-	audio_cpu_tags = ('audio_cpu', 'audiocpu', 'soundcpu', 'sndcpu', 'sound_cpu', 'genesis_snd_z80', 'pokey', 'audio', 'sounddsp', 'soundcpu_b', 'speechcpu')
-	cpu_xmls = [cpu for cpu in cpu_xmls if not _tag_starts_with(cpu.attrib.get('tag'), audio_cpu_tags)]
+	#audio_cpu_tags = ('audio_cpu', 'audiocpu', 'soundcpu', 'sndcpu', 'sound_cpu', 'genesis_snd_z80', 'pokey', 'audio', 'sounddsp', 'soundcpu_b', 'speechcpu')
+	#cpu_xmls = [cpu for cpu in cpu_xmls if not _tag_starts_with(cpu.attrib.get('tag'), audio_cpu_tags)]
 
 	#Skip microcontrollers etc
 	#Do I really want to though? I can't even remember what I was doing any of this for
