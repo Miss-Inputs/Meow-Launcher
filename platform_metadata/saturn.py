@@ -21,8 +21,6 @@ class SaturnRegionCodes(Enum):
 	Japan = auto() #J
 	USA = auto() #U
 	Europe = auto() #E
-	#Some retail discs also have T (Taiwan?) but that doesn't seem to be a unique system for region locking purposes and also nobody can tell me for sure what it is, so I'll just stick with those three for now
-	#Some protos and devkits have JTUBKAEL which is... well, it's those four and BKAL which could be like Brazil Korea Australia (or Asia) and Latin America, possibly
 
 def parse_peripherals(game, peripherals):
 	uses_standard_controller = False
@@ -182,7 +180,13 @@ def add_saturn_info(game, header):
 		region_codes.append(SaturnRegionCodes.USA)
 	if b'E' in region_info:
 		region_codes.append(SaturnRegionCodes.Europe)
-	#Some other region codes appear sometimes but they might not be entirely valid
+
+	#Some other region codes appear sometimes, but I haven't been able to verify _exactly_ what they are, and I don't really wanna make guesses
+	#T = Taiwan?
+	#K = Korea?
+	#B = Brazil?
+	#A and L seen on some homebrews and devkits?
+
 	game.metadata.specific_info['Region-Code'] = region_codes
 
 	peripherals = header[80:96].decode('ascii', errors='backslashreplace').rstrip()
