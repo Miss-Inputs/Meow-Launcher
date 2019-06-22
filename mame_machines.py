@@ -482,11 +482,6 @@ class Machine():
 		if family_icon:
 			return family_icon
 
-		if self.bios:
-			bios_icon = icons.get(self.bios.basename)
-			if bios_icon:
-				return bios_icon
-
 		return None
 
 	def make_launcher(self):
@@ -505,7 +500,13 @@ class Machine():
 
 		params = launchers.LaunchParams('mame', emulator_command_lines.mame_base(self.basename, slot_options=slot_options))
 		#TODO: Let's put this in emulator_info, even if only MAME exists as the singular arcade emulator for now; and clean this up some more
-		launchers.make_launcher(params, self.name, self.metadata, 'MAME machine', self.basename, self.icon)
+		icon = self.icon
+		if not icon and self.bios:
+			bios_icon = icons.get(self.bios.basename)
+			if bios_icon:
+				icon = bios_icon
+
+		launchers.make_launcher(params, self.name, self.metadata, 'MAME machine', self.basename, icon)
 
 	@property
 	def is_mechanical(self):
