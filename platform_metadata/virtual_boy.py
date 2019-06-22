@@ -5,6 +5,25 @@ from software_list_info import get_software_list_entry
 from common_types import SaveType
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 
+unofficial_vb_publishers = {
+	#From https://planetvb.com/modules/dokuwiki/doku.php?id=info_at_the_end_of_the_rom
+	#The PlanetVB people have started using their own publisher codes for individual users / their names... that's kind of annoying and not how this is supposed to work, but I can't really stop them, and homebrew software has already been made like that
+	'AB': 'Amos Bieler', #aka RunnerPack
+	'AE': 'Aegis Games', #aka VirtualChris
+	'CR': 'Christian Radke', #aka KR155E
+	'DA': 'Dan Bergman', #aka DanB
+	'DB': 'David Tucker',
+	'DP': 'Pat Daderko', #aka DogP
+	'DW': 'David Williamson', #aka lameboyadvance
+	'GP': 'Guy Perfect',
+	'JA': 'Jorge Andres Eremiev',
+	'MH': 'Matej Horvat', #aka HorvatM
+	'MK': 'Martin Kujaczynski',
+	'SP': 'Sploopby!', #aka Fwirt
+	'TS': 'Thunderstruck',
+	'VE': 'Alberto Covarrubias', #aka Virtual-E
+}
+
 def add_virtual_boy_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 
@@ -20,6 +39,8 @@ def add_virtual_boy_metadata(game):
 		licensee_code = convert_alphanumeric(header[25:27])
 		if licensee_code in nintendo_licensee_codes:
 			game.metadata.publisher = nintendo_licensee_codes[licensee_code]
+		elif licensee_code in unofficial_vb_publishers:
+			game.metadata.publisher = unofficial_vb_publishers[licensee_code]
 	except NotAlphanumericException:
 		pass
 
