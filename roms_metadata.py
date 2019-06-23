@@ -145,7 +145,7 @@ def find_equivalent_arcade_game(game, name):
 		machine_xml = get_mame_xml(name)
 	except MachineNotFoundException:
 		return None
-	machine = Machine(machine_xml)
+	machine = Machine(machine_xml, init_metadata=True)
 	if machine.metadata.platform != 'Arcade' or machine.is_mechanical or machine.metadata.genre == 'Slot Machine':
 		#I think not, only video games can be video games
 		#That comment made sense but y'know what I mean right
