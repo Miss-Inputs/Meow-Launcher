@@ -67,6 +67,9 @@ def parse_peripherals(game, peripherals):
 		elif peripheral == 'Q':
 			game.metadata.specific_info['Uses-Pachinko-Controller'] = True
 			#TODO Input info (known as Sankyo FF, but I can't find anything about what it actually does other than it exists)
+		elif peripheral == 'R':
+			game.metadata.specific_info['Uses-ROM-Cartridge'] = True
+			#KoF 95 and Ultraman: Hikari no Kyojin Densetsu, although they aren't interchangable, they both use the same peripheral code here
 		#else:
 		#	print('Unknown Saturn peripheral', game.rom.path, peripheral)
 		#D = Modem? (Anywhere X is but also SegaSaturn Internet)
