@@ -2,91 +2,77 @@
 
 <img alt="Meow Launcher's logo" src="gui/icon.png?raw=true" width="300" />
 
-Utility to create launchers for games.
+Meow Launcher is a frontend for various emulators and game platforms.
 
-This readme may evolve as time goes on. It probably sucks because all single-person projects inherently will have a problem with documentation as a developer's perspective of their own software is going to be different from a hypothetical person who doesn't know its ins and outs, but also I just suck at writing. So, no need to be afraid to ask questions.
+This readme still sucks, and I still suck at writing stuff, but here we go. Hopefully, this gives a good idea of what it does, and where it's at right now.
+
+So, Meow Launcher aims to take away the hassle of going through games and actually launching them. It automatically supplies the right command line options to things so they work properly, basically aims to create a "console-like" experience for as many games as possible, i.e. you say "I am going to play this game" and then you launch the game and then you can play the game, without having to think too much.
 
 Eventually it started out when one day I was indecisive about what game to play, and I decided to make a little single-file script to assist me in the "I feel like playing a video game" process, and then I got carried away and took things too far and I ended up doing all this.
 
-So what makes this different:
-- Uses the emulators that you already have installed (or are going to install), rather than installing its own version which may be out of date or have altered compatibility
-- You can use whatever frontend you want on top of this: This just generates launchers, and you can decide how you want to use them, instead of being locked down to some giant frontend which combines all the things and doesn't let you mix and match functionality.
-- Code is organized, hopefully, in such a way that it should be relatively easy to add your own emulators if you have some new one that I didn't think about; or tweak some other tweak that might be interesting
+Meow Launcher aims to do one thing well instead of combining everything into a single thing, so it will just create desktop shortcut files to automatically launch the games. I intend to one day make some other things to go along with it, but I haven't yet. Hence, it does not do these things that other frontends might do:  
 
-It's not intended to be hard to use, it just hasn't been made easier to use yet. One day it should be.
+- Installing the emulators; Meow Launcher is designed instead to use what's already there, rather than having its own version which might be a fork which isn't kept to date with upstream, or just outdated, or unavailable
+- Configuring the emulators (directories and controllers etc)
+- Browsing what games you have with a nice little GUI and a library and whatnot; this is the most significant part to keep separated I guess. This is the next thing I want to do eventually, and hopefully when I do that it'll all make more sense.
 
-The other neat tricks are that it will automatically get metadata from the games where it can, not using any weird internet service that may disappear or have restrictions on usage, but from what's inside the games themselves. Also it will automatically figure out which emulator (where emulation is applicable) is the best one to use for a given game, out of the emulators you selected.
+I hope one day I can get around to writing all this other stuff which allows for a nice complete easy to use experience while still being modular.
 
-No special trickery should be required for installation, you just kinda put it in whichever folder you feel like putting it in. Shouldn't really require external libraries, but you can look at requirements.txt for optional stuff, or I'll tell you that here:
-- Pillow: For extracting embedded icons from things (DS, 3DS, etc)
-- steamfiles: Required to add Steam games
-- hfsutils: For Mac games to work, will need to be in the path somewhere. Sorry
+The other main thing is that it looks inside ROM headers etc for metadata, in order to 1) automatically use the right command line options for certain things, or select which emulator is the best choice by determining what's incompatible, and that sort of thing and 2) help you organize your games and decide on what to play (this will become more useful once I make the game browser) 3) I want to and it's fun.
 
-These config files will appear in ~/.config/MeowLauncher (see also common_paths.py config_dir for where that's set) with default values, once anything is ran for the first time (see --refresh-config below), and then you... edit them. Ideally I want to make some kind of configurator, but that'd be a separate thing:
-- config.ini
-  - Main configuration, which specifies where your launchers are output to and other things like that.
-- systems.ini
-  - For roms.py, dos.py and mac.py; this is where you specify where your games are located and which emulators you want to use. You can use multiple ROM directories and multiple emulators; with the latter, it'll use the emulator you specified first, and if that emulator won't work with a given game, it'll try the next emulator, etc.
-- ignored_directories.txt
-  - List of directories to ignore despite them being inside your ROM folders. Sometimes you just have subfolders that you don't want having launchers for. One directory per line. This doesn't appear by default, but you can just create it.
-- dos.ini, mac.ini
-  - These are automatically generated by the respective modules, but you might need to edit them.
+For now, you just use your file manager to browse your games and launch them (or any other app you have that launches .desktop files, which of course file managers are meant to do; you could put them all in your application menu if you wanted).
 
-DOS and Mac games will require [https://github.com/Zowayix/computer-software-db](ComputerSoftwareDB), or you could look at how the database format works there, and make your own.
+Other things I will not be doing:  
+- Relying on databases of games, and only "scraping" games that exist in that database. I hope I don't have to explain why that's silly! I will let you be a hipster and play games I've never heard of, or hacks or translations or homebrew that tends to not be in those databases, or stuff you create yourself, etc.  
+- Relying on online services to get metadata, and I swear it's not just because I'm too socially awkward to register with any of them, I just don't like overcomplicating things like that.  
 
-Once you have everything set up, just run main.py to output all the launchers to the designated output folder. It takes a while. Oh well.  
-Command line arguments:  
-- --refresh-config
-  - Does nothing except load the config and then exit: This has the effect that if there's config values or new emulated systems that aren't in your configuration files, this will automatically add blank/default entries for them, rather than you having to type things in yourself. I guess that's how I'll deal with me adding new things, until I think of something better.
-- --debug
-  - Displays a lot of console spam. I should probably make this more specific with different command line arguments for what kind of console spam. But I haven't. Mostly it'll just tell you "there's something weird about this ROM, or it's not able to be emulated yet", and that sort of thing.
-- --super-debug
-  - This is for even more console spam when regular --debug isn't enough. It's basically used for disambiguate.py to tell you every single launcher that gets disambiguated.
-- --print-times
-  - Prints how long stuff takes.
-- --regen-dos-config
-  - Regenerates DOSBox config files for DOS games. Normally it just uses what's already there (allowing you to tweak them for your own evil purposes).
-- --no-arcade
-  - Skips mame_machines.py. It takes a while, but then so does roms.py these days, so... should I have this here? Hmm
-- --organize-folders
-  - Activates the in-built thing where it organizes your launchers into folders.
-	- --extra-folders
-	  - Even more folders for metadata that probably nobody cares about.
+So, as part of my mission to create that "console-like" experience, I sorta curate emulators and emulated platforms to what I can get that experience with. Nothing that requires manually typing in weird commands that I'll probably forget, automatically boot the thing or get outta here, kid. Of course, if I can make the emulator programmatically type the command or select the thing from the menu myself, well, that sounds fun and I will definitely do that. Otherwise, it's like… why bother having a frontend if I have to do the booting stuff part myself?
 
-Sources of games:  
-- roms.py
-  - This is probably what most people are interested in: Just normal ROMs to be used with an emulator. For every kind of platform possible, I don't just include the platforms that are "popular". If it can be emulated, it can have a launcher generated.
-  - Also contains games with source ports or engines, like Doom and whatnot.
-  - To use with individual systems, use the --systems argument and then a comma-separated list of system names, e.g. --systems GBA,N64
-  - To use with a single ROM, use the --rom argument with a path and then a system name, e.g.: --rom /path/blah.tap C64 (this will probably not be too useful except for debugging/development/etc)
-- mame_machines.py
-  - For arcade romsets, except they aren't always arcade machines anyway, this will also include handheld systems and plug & play consoles and all of that sort of thing. It only creates launchers for romsets you actually have, of course. None of that crap where it lists "unavailable" machines, because that doesn't really make sense.
-- scummvm.py
-  - Games that are "emulated" (is that really the right word?) via ScummVM. You'd need to configure them and put them in your ScummVM library first.
-- dos.py
-  - DOS executables, not floppy disks or stuff like that yet. They're intended to be used with something like DOSBox, where you have a folder that pretends to be a hard drive on a DOS machine.
-  - Creates DOSBox configuration files for each game (if you're using DOSBox, which you would be unless you tweaked the code yourself).
-  - Requires you to run this module with the --scan argument first in order to figure out what games you actually have.
-- mac.py
-  - Mac software, stored in a hard disk image (because that's how you would generally want to do this). 
-  - This is the part that sucks the most, because right now you need a script inside the Mac boot disk to read from the shared folder (so you need an emulator that supports that too) and automatically boot stuff...
-  - Also requires you to run this module with the --scan argument.
-- steam.py
-  - Steam games (running natively on Linux/with Steam Play), if you have it installed.
-  - Not the non-Steam game shortcuts, it'd be asking for trouble.
+Anyway! That was a lot of words for me to just try and explain what it does. So, this is the part where I say that Meow Launcher is like... super-alpha right now. It doesn't even have a version number yet - I'm just changing around things as I see fit until I'm comfy.
 
-Other places of interest:  
-- disambiguate.py
-  - In the likely event that there are multiple games with the same name (or more commonly more than one version of a game), this will add stuff in brackets to enable you to know which one is which.
-- organize_folders.py
-  - This is like a builtin mini-frontend. After dealing with all your launchers, it copies them all into lots of subfolders, and you can browse them that way.
+Basically it needs testing from other people. I use it daily when I feel like playing stuff, and I can say that it works enough for me, but if I were to say "yeah it works for me so it should work for everyone else" that'd be really stupid, wouldn't it? I encourage others to try it out if they have the patience to test experimental stuff (and they're interested in what it aims to do), but I imagine it would have several problems, probably among the lines of "my code expects this to exist in this place but it doesn't always exist there" and it breaks horribly. Maybe! I don't know. To my knowledge, nobody else has actually used it yet.
 
-And then you can take those .desktop files and do what you want. Put them in your applications menu, put them into Steam, that's your own business, and I won't force any particular thing on you.
+Anyway, don't be afraid to say "this is what I would like for Meow Launcher to be nice and useable for me", or something like that. Worst case scenario is that I will say "nah that's not what I wanna do" and then I don't do it, because it's a hobby project and I do what I want; but I do want to make something that helps people (that's why I'm here putting stuff on GitHub) and if I can make it work for you, then hey that's pretty cool.
 
-In future I want to make a GUI frontend myself but I haven't yet.
+Things that I know are a bit flaky right now, and why I don't wanna do v0.1 just yet:
 
-(See third-party-copyright-stuff.txt for third party stuff used)
+- Installation of Meow Launcher itself. Just kinda download it and put it in a folder? I haven't grokked exactly what to do with setuptools or whatsitcalled.
+- The GUI. The bloody GUI! I actually forgot I was gonna make one until I looked at the milestone for v0.1 and it was like… oh yeah, that thing. I did try and put one together, but the thing is, I'm just not a designer, really. I have to admit GUI design is not my strong suit. So that's sitting there incomplete. I do think that would be important, though, unless maybe it turns out nobody really cares and just uses the command line (like I do) and then I don't bother.
+- DOS games currently require an [https://github.com/Zowayix/computer-software-db](external database) that I made, which goes against exactly my principle of not requiring external databases. I want to throw it all out and start over, well not quite, but the code and design there is a load of crap. I want people to be able to specify their own games and specify the metadata/config themselves, and then the database is just there as a "hey that .exe could be this game, if you want I can provide metadata and config that I know for you"; as I understand it that's how other DOSBox frontends work. I also want to support floppy and CD images but that's another story.
+- Mac games are just like… bleh. First of all, you need hfsutils, and I don't think that's even in every modern distribution. The second thing is that you need a [https://gist.github.com/Zowayix/8bde015b7265d72bffdf8363331cf04a](very dodgy AppleScript) to go inside the Startup Items of the guest OS (if you want to actually autoboot the software), and that's kinda nasty, so I'll have to have a think about what to do there. Also you have the same problem of requiring that database as DOS. So I wouldn't really bother with Mac at the moment, unless you're really desperate to have all your Mac games together with the rest of your emulated games.
+- Configuring Meow Launcher the first time is a bit awkward: since the configuration file doesn't exist yet, it doesn't know where your games are stored, and so I guess you would have to run a thing that says "hey just generate the configuration files" and then you edit them and then run it normally (I did try and do that but that doesn't work at the moment because I'm an idiot), or I'd have to make a Meow Launcher config utility which you use first (well, the GUI would be this, but then I didn't get around to finishing it).
+- Currently sorta assumes you have one version of MAME, and it's a recent enough version that it supports the drivers and options I expect, etc. (well, it shouldn't break right now if you don't have it installed entirely)
+- Emulators gotta be in the path, it doesn't yet let you say "this emulator is located over here, go launch it from there"
 
-Use [this](https://gist.github.com/Zowayix/f511490865bc5aa8a66ad0776ae066df) to regenerate nintendo_licensee_codes from ROMniscience's source if you need to (adjusting the local path to the source file accordingly). Not that anyone would probably want this project if I got hit by a bus, but maybe someone wants to know how to do that. I'm not cool enough to have any sort of automated build steps or whatever.
+Windows (as in running Meow Launcher on Windows, not necessarily emulating Windows) is kinda planned at some point in the distant future. I just don't have a Windows setup at the moment so it'd be a bit awkward to develop, but as long as there's still emulators that are on Windows and haven't been ported, or game launchers exclusive to Windows (looking at you uPlay because I have games on there), I'm gonna want to make a Windows version.
 
-That's all for this readme, keep on meowing gamers
+The other things that you should know is that Pillow is required to extract icons and other images from ROMs that have those embedded (DS, 3DS, etc); and steamfiles is required for Steam games to work. That's all in requirements.txt anyway.
+
+So, what games does Meow Launcher launch, anyway? Should I have put this part somewhere up there? Maybe!
+
+- MAME machines (arcade games, but also plug & play games or Game & Watch or what have you), what you actually have and none of that "unavailable" business
+- ROMs to be launched by an emulator
+- Games with source ports (Doom, Quake); these are treated like pseudo-ROMs
+- Aforementioned DOS and Mac that are a bit weird right now
+- ScummVM (whatever you have added to your ScummVM config already)
+- Steam, if you have that installed; not non-Steam game shortcuts because that would get weird
+
+In progress is MAME software but I haven't done that yet.
+
+TODO: Describe the config files in more detail:
+
+- config.ini: General configuration
+- systems.ini: For ROMs, specifies where you put them, and also what emulators you want to use
+- ignored_directories.txt: Skip over these directories (one per line) (config.py also does this sort of thing, so maybe I should put that into there)
+- dos.ini, mac.ini: These are generated by ./dos.py --scan and ./mac.py --scan, but I did say I was gonna redo that whole business, so never mind really.
+
+TODO: Describe the command line arguments that are actually important, but for now, I'll mention these:
+
+- --full-rescan: Normally Meow Launcher leaves your existing launchers alone (unless they refer to games that aren't there anymore), and only adds launchers for what isn't there since last time; this just avoids all that and throws the whole output folder out and starts again anew
+- --debug prints some verbose stuff that you might not care about (but it includes things like "I won't launch this game because it won't work for whatever reason" so that might come in handy)
+- --print-times prints how long everything takes, which is also something you might not care about
+- --organize-folders sorts your games into more subfolders based on metadata
+
+See third-party-copyright-stuff.txt for third party stuff used, I can't figure out if I'm supposed to put that in the main LICENSE file or if that's supposed to be like that, I can't get GitHub to recognize the MIT license last time I tried anyway.
+
+That's all for this readme, I hope it made any sense whatsoever. Keep on meowing, gamers.
