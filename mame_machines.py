@@ -631,7 +631,10 @@ class Machine():
 
 	@property
 	def licensed_from(self):
-		licensed_from_match = licensed_from_regex.fullmatch(self.manufacturer)
+		manufacturer = self.manufacturer
+		if not manufacturer:
+			return None
+		licensed_from_match = licensed_from_regex.fullmatch(manufacturer)
 		if licensed_from_match:
 			return licensed_from_match[2]
 		return None
