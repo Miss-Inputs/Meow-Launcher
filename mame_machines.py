@@ -389,6 +389,9 @@ class Machine():
 
 		if init_metadata:
 			self._add_metadata_fields()
+	
+	def __str__(self):
+		return self.name
 
 	def _add_metadata_fields(self):
 		self._has_inited_metadata = True
@@ -838,7 +841,6 @@ def process_arcade():
 	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Arcade finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-
 
 def get_machines_from_source_file(source_file):
 	for machine_name, source_file_with_ext in list_by_source_file():

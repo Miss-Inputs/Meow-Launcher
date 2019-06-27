@@ -155,3 +155,25 @@ def remove_capital_article(s):
 
 def clean_string(s):
 	return ''.join([c for c in s if c.isprintable()])
+
+def machine_name_matches(machine_name, game_name, match_vs_system=False):
+	#TODO: Take subtitles into account
+	#Should also use name_consistency stuff once I refactor that (Turbo OutRun > Turbo Out Run)
+	#Also once I do the thing where I take care of multiple names.... well that should resolve itself at that point, but for now it's a bugger (Art of Fighting > Art of Fighting / Ryuuko no Ken) 
+	#This arguably shouldn't really be here
+	
+	machine_name = remove_filename_tags(machine_name)
+	game_name = remove_filename_tags(game_name)
+
+	#Until I do mess around with name_consistency.ini though, here's some common substitutions
+	machine_name = machine_name.replace('Bros.', 'Brothers')
+	game_name = game_name.replace('Bros.', 'Brothers')
+	machine_name = machine_name.replace('Jr.', 'Junior')
+	game_name = game_name.replace('Jr.', 'Junior')
+
+	if match_vs_system:
+		if not machine_name.upper().startswith('VS. '):
+			return False
+		machine_name = machine_name[4:]
+
+	return normalize_name(machine_name, False) == normalize_name(game_name, False)

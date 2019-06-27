@@ -1,13 +1,15 @@
+import os
 import re
 from datetime import datetime
-import os
 from enum import Enum, auto
 
 import cd_read
 import input_metadata
+from common import machine_name_matches
 from common_types import SaveType
-from software_list_info import get_software_list_entry
 from data.sega_licensee_codes import licensee_codes
+from mame_machines import get_machines_from_source_file
+from software_list_info import get_software_list_entry
 
 standard_gamepad = input_metadata.NormalController()
 standard_gamepad.face_buttons = 3
@@ -192,6 +194,9 @@ def get_smd_header(game):
 
 	return bytes(buf[0x100:0x200])
 
+_megaplay_games = list(get_machines_from_source_file('megaplay'))
+_megatech_games = list(get_machines_from_source_file('megatech'))
+
 def add_megadrive_metadata(game):
 	if game.rom.extension == 'cue':
 		first_track, sector_size = cd_read.get_first_data_cue_track(game.rom.path)
@@ -208,6 +213,19 @@ def add_megadrive_metadata(game):
 		header = game.rom.read(0x100, 0x100)
 
 	add_megadrive_info(game, header)
+	if game.metadata.platform == 'Mega Drive':
+		equivalent_arcade = None
+		for megaplay_machine in _megaplay_games:
+			if machine_name_matches(megaplay_machine.name, game.rom.name):
+				equivalent_arcade = megaplay_machine
+				break
+		if not equivalent_arcade:
+			for megatech_machine in _megatech_games:
+				if machine_name_matches(megatech_machine.name, game.rom.name):
+					equivalent_arcade = megatech_machine
+					break		
+		if equivalent_arcade:
+			game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
 
 	software = get_software_list_entry(game)
 	if software:

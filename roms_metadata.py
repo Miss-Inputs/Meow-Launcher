@@ -2,7 +2,7 @@ import os
 
 import detect_things_from_filename
 import platform_metadata
-from common import remove_filename_tags, normalize_name
+from common import machine_name_matches
 from config import main_config
 from info import region_info, system_info
 from mame_helpers import (MachineNotFoundException, get_icons, get_mame_xml,
@@ -119,26 +119,6 @@ def add_device_hardware_metadata(game, mame_driver):
 
 mame_icons = get_icons()
 
-def machine_name_matches(machine_name, game_name):
-	#TODO: Take subtitles into account
-	#Should also use name_consistency stuff once I refactor that (Turbo OutRun > Turbo Out Run)
-	#Also once I do the thing where I take care of multiple names.... well that should resolve itself at that point, but for now it's a bugger (Art of Fighting > Art of Fighting / Ryuuko no Ken) 
-	
-	machine_name = remove_filename_tags(machine_name)
-	game_name = remove_filename_tags(game_name)
-
-	#Until I do mess around with name_consistency.ini though, here's some common substitutions
-	machine_name = machine_name.replace('Bros.', 'Brothers')
-	game_name = game_name.replace('Bros.', 'Brothers')
-	machine_name = machine_name.replace('Jr.', 'Junior')
-	game_name = game_name.replace('Jr.', 'Junior')
-
-	if machine_name.upper().startswith('VS. '):
-		#This helps us match against VS. System versions of games
-		machine_name = machine_name[4:]
-
-	return normalize_name(machine_name, False) == normalize_name(game_name, False)
-
 def find_equivalent_arcade_game(game, name):
 	#Just to be really strict: We will only get it if the name matches
 	try:
@@ -156,7 +136,6 @@ def find_equivalent_arcade_game(game, name):
 	return None
 
 def add_metadata_from_arcade(game, machine):
-	game.metadata.specific_info['Equivalent-Arcade'] = machine.name
 	if not game.metadata.genre:
 		game.metadata.genre = machine.metadata.genre
 	if not game.metadata.subgenre:
@@ -199,14 +178,16 @@ def add_metadata(game):
 			
 	add_device_hardware_metadata(game, mame_driver)
 	
-	equivalent_arcade = None
-	if main_config.find_equivalent_arcade_games:
+	equivalent_arcade = game.metadata.specific_info.get('Equivalent-Arcade')
+	if not equivalent_arcade and main_config.find_equivalent_arcade_games:
 		software_name = game.metadata.specific_info.get('MAME-Software-Name')
 		parent_name = game.metadata.specific_info.get('MAME-Software-Parent')
 		if software_name:
 			equivalent_arcade = find_equivalent_arcade_game(game, software_name)
 			if not equivalent_arcade and parent_name:
 				equivalent_arcade = find_equivalent_arcade_game(game, parent_name)
+			if equivalent_arcade:
+				game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
 	
 	#I should set up this sort of thing in platform_metadata too, so I can get PlayChoice-10 equivalent of NES, etc
 	if equivalent_arcade:

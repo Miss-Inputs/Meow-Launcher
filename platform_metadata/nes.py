@@ -2,10 +2,14 @@ import calendar
 from enum import Enum, auto
 
 import input_metadata
-from info.region_info import TVSystem
+from common import machine_name_matches
 from common_types import SaveType
-from software_list_info import get_software_list_entry, find_in_software_lists_with_custom_matcher, get_crc32_for_software_list
 from data.nintendo_licensee_codes import nintendo_licensee_codes
+from info.region_info import TVSystem
+from mame_machines import get_machines_from_source_file
+from software_list_info import (find_in_software_lists_with_custom_matcher,
+                                get_crc32_for_software_list,
+                                get_software_list_entry)
 
 ines_mappers = {
 	#6, 8, 17 are some kind of copier thing
@@ -358,7 +362,23 @@ def add_unif_metadata(game):
 
 		pos += 8 + chunk_length
 
+_playchoice10_games = list(get_machines_from_source_file('playch10'))
+_vsnes_games = list(get_machines_from_source_file('vsnes'))
+
 def add_nes_metadata(game):
+	equivalent_arcade = None
+	for vsnes_machine in _vsnes_games:
+		if machine_name_matches(vsnes_machine.name, game.rom.name, True):
+			equivalent_arcade = vsnes_machine
+			break
+	if not equivalent_arcade:
+		for playchoice10_machine in _playchoice10_games:
+			if machine_name_matches(playchoice10_machine.name, game.rom.name, False):
+				equivalent_arcade = playchoice10_machine
+				break		
+	if equivalent_arcade:
+		game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
+
 	if game.rom.extension == 'fds':
 		add_fds_metadata(game)
 	else:

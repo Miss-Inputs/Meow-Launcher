@@ -369,7 +369,7 @@ def main():
 
 		rom = sys.argv[arg_index + 1]
 		system = sys.argv[arg_index + 2]
-		process_file(system_configs.configs[system], os.path.basename(rom), os.path.basename(rom), Rom(rom))
+		process_file(system_configs.configs[system], os.path.dirname(rom), os.path.dirname(rom), Rom(rom))
 		return
 
 	if len(sys.argv) >= 2 and '--systems' in sys.argv:
