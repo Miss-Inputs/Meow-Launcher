@@ -14,25 +14,35 @@ def zip_list(path):
 	with zipfile.ZipFile(path, 'r') as zip_file:
 		return zip_file.namelist()
 
-sevenzip_path_reg = re.compile(r'^Path\s+=\s+(.+)$', flags=re.IGNORECASE)
+sevenzip_path_regex = re.compile(r'^Path\s+=\s+(.+)$', flags=re.IGNORECASE)
+sevenzip_attr_regex = re.compile(r'^Attributes\s+=\s+(.+)$', flags=re.IGNORECASE)
 def sevenzip_list(path):
-	#FIXME This is slow actually... I'm gonna need to implement 7z myself
+	#This is rather slow…
 	proc = subprocess.run(['7z', 'l', '-slt', path], stdout=subprocess.PIPE, universal_newlines=True)
 	if proc.returncode != 0:
 		raise Bad7zException('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
 
 	files = []
 	found_file_line = False
+	inner_filename = None
+	is_directory = False
 	for line in proc.stdout.splitlines():
-		#Ugghhh...  this part is annoying.
 		if line.startswith('------'):
 			found_file_line = True
 			continue
-		if found_file_line and sevenzip_path_reg.fullmatch(line):
-			files.append(sevenzip_path_reg.fullmatch(line).group(1))
+		sevenzip_path_match = sevenzip_path_regex.fullmatch(line)
+		if found_file_line and sevenzip_path_match:
+			if inner_filename is not None:
+				files.append(inner_filename + '/' if is_directory else inner_filename)
+			inner_filename = sevenzip_path_match.group(1)
+			continue
+		sevenzip_attr_match = sevenzip_attr_regex.fullmatch(line)
+		if found_file_line and sevenzip_attr_match:
+			is_directory = sevenzip_attr_match.group(1)[:2] == 'D_'
+	files.append(inner_filename + '/' if is_directory else inner_filename)
 
 	return files
-
+	
 def compressed_list(path):
 	if zipfile.is_zipfile(path):
 		try:
