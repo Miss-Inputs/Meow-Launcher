@@ -111,6 +111,7 @@ helpers = {
 	'Intellivision': add_intellivision_info,
 	'Mattel Juice Box': add_juicebox_info,
 	'Mega Duck': add_mega_duck_info,
+	'Microtan 65': add_microtan_65_info,
 	'Neo Geo CD': add_neogeo_cd_info,
 	'Nichibutsu My Vision': add_nichibutsu_my_vision_info,
 	'PC Booter': add_pc_booter_info,

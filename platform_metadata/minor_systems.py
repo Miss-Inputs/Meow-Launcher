@@ -633,6 +633,27 @@ def add_pet_info(game):
 				game.metadata.specific_info['Minimum-RAM'] = ram
 				continue
 
+def add_microtan_65_info(game):
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game.metadata)
+		usage = software.get_info('usage')
+		if usage == 'Requires Joystick':
+			joystick = input_metadata.NormalController() #1 start button
+			joystick.dpads = 1
+			joystick.face_buttons = 2
+			game.metadata.input_info.add_option(joystick)
+		elif usage == 'Requires Hex Keypad':
+			hex_keypad = input_metadata.Keypad()
+			hex_keypad.keys = 20
+			game.metadata.input_info.add_option(hex_keypad)
+		elif usage in ('Requires ASCII Keyboard', 'Requires ASCII Keyboard: A=Up, Z=Down, <=Left, >=Right'):
+			keyboard = input_metadata.Keyboard()
+			keyboard.keys = 62
+			game.metadata.input_info.add_option(keyboard)
+		else:
+			game.metadata.notes = usage
+
 def add_generic_info(game):
 	#For any system not otherwise specified
 	software = get_software_list_entry(game)
