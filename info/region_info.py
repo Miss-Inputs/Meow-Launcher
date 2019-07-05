@@ -234,6 +234,7 @@ regions = [
 	Region('Seychelles', 'SC', TVSystem.PAL, None),
 	Region('Sierra Leone', 'SL', TVSystem.PAL, 'English'),
 	Region('Singapore', 'SG', TVSystem.PAL, None),
+	Region('Slovakia', 'SK', TVSystem.PAL, 'Slovak'),
 	Region('Somalia', 'SO', TVSystem.PAL, None),
 	Region('South Africa', 'ZA', TVSystem.PAL, None),
 	Region('Spain', 'ES', TVSystem.PAL, 'Spanish'),
