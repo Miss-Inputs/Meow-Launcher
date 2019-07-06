@@ -320,7 +320,10 @@ def process_launchers(game, launch):
 		
 		executable_arguments = launch_item.get(b'arguments')
 		if executable_arguments:
-			launcher['args'] = executable_arguments.decode('utf-8', errors='backslashreplace')
+			if isinstance(executable_arguments, appinfo.Integer):
+				launcher['args'] = str(executable_arguments.data)
+			else:
+				launcher['args'] = executable_arguments.decode('utf-8', errors='backslashreplace')
 
 		description = launch_item.get(b'description')
 		if description:
