@@ -250,7 +250,9 @@ emulators = {
 	#Isn't completely broken but a lot of games have broken graphics so like... ehh
 	'MAME (Mattel Aquarius)': MameSystem(command_lines.mame_system('aquarius', 'cart'), ['bin', 'rom']),
 	#Controllers aren't emulated yet (and they're necessary for a lot of things)
-	'MAME (Microtan 65)': MameSystem(command_lines.mame_system('microtan', 'dump'), ['dmp', 'm65']), #Aagggh, none of these inputs seem to be working properly (to the point where I can't just assume the games were like that)... maybe I'm doing it wrong, I don't know...
+	'MAME (Microtan 65)': MameSystem(command_lines.mame_system('mt65', 'dump'), ['dmp', 'm65']),
+	#System name was "microtan" prior to 0.212
+	#Aagggh, none of these inputs seem to be working properly (to the point where I can't just assume the games were like that)... maybe I'm doing it wrong, I don't know...
 	'MAME (Pokemon Mini)': MameSystem(command_lines.mame_system('pokemini', 'cart'), ['bin', 'min']),
 	#Wouldn't recommend yet as it has no sound, even if most people would probably turn the sound off in real life, also some stuff doesn't work
 	'MAME (SAM Coupe)': MameSystem(command_lines.mame_system('samcoupe', 'flop1', autoboot_script='sam_coupe'), mame_floppy_formats),
