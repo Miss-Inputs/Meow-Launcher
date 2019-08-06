@@ -30,7 +30,8 @@ def get_mame_folder(name):
 	if not mame_categories_folders:
 		return None
 	
-	parser = configparser.ConfigParser(interpolation=None, allow_no_value=True)
+	#TODO: strict=False is there to prevent DuplicateOptionError, but it seems like this should indicate to me that configparser might not actually be the best tool for the job, maybe just write a custom thing to do it?
+	parser = configparser.ConfigParser(interpolation=None, allow_no_value=True, strict=False)
 	parser.optionxform = str
 		
 	for folder in mame_categories_folders:
