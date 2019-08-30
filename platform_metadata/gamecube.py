@@ -139,7 +139,7 @@ def add_gamecube_disc_metadata(game, header):
 
 def add_gamecube_system_info(game):
 	cpu = CPU()
-	cpu.chip_name = 'IBM PowerPC 603'
+	cpu.chip_name = 'IBM Gekko'
 	cpu.clock_speed = 485 * 1000 * 1000
 	game.metadata.cpu_info.add_cpu(cpu)
 
