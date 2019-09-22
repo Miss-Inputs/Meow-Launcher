@@ -190,6 +190,7 @@ arcade_systems = {
 	'Naomi GD-ROM': ArcadeSystem(source_file='naomi', bios_used='naomigd'),
 	'Neo-Geo': ArcadeSystem(source_file='neogeo', bios_used='neogeo'),
 	'Neo Print': ArcadeSystem(source_file='neoprint'),
+	'Nexus 3D': ArcadeSystem(source_file='nexus3d'), #Skeleton
 	'Nichibutsu High Rate DVD': ArcadeSystem(source_file='csplayh5'),
 	'Nintendo Super System': ArcadeSystem(source_file='nss'), #SNES games with timer
 	'Philips CD-i': ArcadeSystem(source_file='cdi'), #Literally a CD-i player with a JAMMA adapter (used for some quiz games)
