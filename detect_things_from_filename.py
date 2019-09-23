@@ -219,7 +219,7 @@ def get_revision_from_filename_tags(tags):
 			return revision_match[1]
 	return None
 
-version_regex = re.compile(r'\((v[\w.]+)\)') #Very loose match, I know, but sometimes versions have stuff on the end like v1.2b or whatever and I don't wanna overcomplicate things
+version_regex = re.compile(r'\((vV[\w.]+)\)') #Very loose match, I know, but sometimes versions have stuff on the end like v1.2b or whatever and I don't wanna overcomplicate things
 version_number_regex = re.compile(r'\((?:version|ver|ver\.)\s+([\d.]+)[^)]*\)') #This one is a bit more specific and shows up in MAME machine names sometimes
 def get_version_from_filename_tags(tags):
 	for tag in tags:
