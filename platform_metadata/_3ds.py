@@ -125,6 +125,30 @@ def parse_ncch(game, offset):
 	#RomFS: Filesystem really
 
 	#Don't really need extended header, it's at offset + 0x200 if CXI and decrypted
+	if (not is_not_cxi) and is_decrypted:
+		extended_header = game.rom.read(seek_to=offset + 0x200, amount=0x800)
+		system_control_info = extended_header[0:0x200]
+		#Access control info: 0x200:0x400
+		#AccessDesc signature: 0x400:0x500
+		#RSA-2048 public key: 0x500:0x600
+		#Access control info 2: 0x600:0x800
+		
+		game.metadata.specific_info['Internal-Title'] = system_control_info[0:8].decode('ascii', errors='ignore').rstrip('\0')
+		#Reserved: 0x8:0xd
+		#Flags (bit 0 = CompressExefsCode, bit 1 = SDApplication): 0xd
+		#Remaster version: 0xe:0x10
+		#Text code set info: 0x10:1c
+		#Stack size: 0x1c:0x20
+		#Read only code set info: 0x20:0x2c
+		#Reserved: 0x2c:0x30
+		#Data code set info: 0x30:0x3c
+		#BSS size: 0x3c:0x40
+		#Dependency module ID list: 0x40:0x1c0
+		#SystemInfo: 0x1c0:0x200
+		save_size = int.from_bytes(system_control_info[0x1c0:0x1c8], 'little')
+		game.metadata.save_type = SaveType.Internal if save_size > 0 else SaveType.Nothing
+		#Looking at the ACI might tell us if it uses SD card...
+
 
 def parse_plain_region(game, offset, length):
 	#Plain region stores the libraries used, at least for official games
@@ -236,9 +260,9 @@ def parse_smdh_data(game, smdh):
 	#Disable SD card save backup: flags & 1024
 	has_save = (flags & 128) > 0
 	#Actually just means that a warning is shown when closing, but still
-	if game.metadata.save_type == SaveType.Unknown:
-		#I guess this'd be SaveType.MemoryCard in some cases, but... meh
-		game.metadata.save_type = SaveType.Internal if has_save else SaveType.Nothing
+	#if game.metadata.save_type == SaveType.Unknown:
+	#	#I guess this'd be SaveType.MemoryCard in some cases, but... meh
+	#	game.metadata.save_type = SaveType.Internal if has_save else SaveType.Nothing
 	if flags & 4096:
 		game.metadata.platform = 'New 3DS'
 
