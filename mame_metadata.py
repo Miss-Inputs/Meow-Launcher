@@ -229,7 +229,7 @@ def add_metadata_from_catlist(machine):
 			machine.metadata.categories = ['Games']
 		return
 
-	if (genre == 'Computer' and subgenre in ('Business - Terminal', 'Home System', 'Laptop - Notebook - Portable')) or (genre == 'Calculator' and subgenre == 'Pocket Computer') or (genre == 'Handheld' and subgenre in ('Pocket Device - Pad - PDA', 'Child Computer')) or (genre == 'Board Game') or (genre == 'Utilities' and subgenre == 'Arcade System') or (genre == 'Misc.' and subgenre == 'Virtual Environment'):
+	if (genre == 'Computer' and subgenre in ('Business - Terminal', 'Home System', 'Laptop - Notebook - Portable')) or (genre == 'Calculator' and subgenre == 'Pocket Computer') or (genre == 'Handheld' and subgenre in ('Pocket Device - Pad - PDA', 'Child Computer')) or (genre == 'Board Game') or (genre == 'Utilities' and subgenre in ('Arcade System', 'Redemption Board')) or (genre == 'Misc.' and subgenre == 'Virtual Environment'):
 		#Board Game is more like chess machines than actual board games
 		#Hmm, need a better name for this I think
 		machine.metadata.platform = 'Standalone System'
@@ -240,6 +240,8 @@ def add_metadata_from_catlist(machine):
 				machine.metadata.categories = ['Games']
 		else:
 			machine.metadata.platform = 'Standalone System'
+	if genre == 'Utilities' and subgenre == 'Update':
+		machine.metadata.categories = ['Applications']
 	if genre == 'Misc.' and subgenre in ('Electronic Game', 'Electronic Board Game'):
 		#"Electronic Game" could also be considered Handheld
 		machine.metadata.platform = 'Board Game'
