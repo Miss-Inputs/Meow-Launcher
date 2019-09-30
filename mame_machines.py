@@ -63,6 +63,7 @@ arcade_systems = {
 	
 	'3DO': ArcadeSystem(source_file='3do', bios_used='3dobios'), #Used for the 3DO console as well, but there are 3DO-based arcade games with the system seemingly just called that; non-working
 	'Acclaim PSX': ArcadeSystem(source_file='zn', bios_used='coh1000a'), #PS1 based
+	'Andamiro Midas': ArcadeSystem(source_file='midas'),
 	'Arcadia System': ArcadeSystem(source_file='arsystems'), #Amiga 500 based
 	'Aristocrat MK4': ArcadeSystem(source_file='aristmk4'), #Gambling
 	'Aristocrat MK5': ArcadeSystem(source_file='aristmk5'), #Gambling, Acorn Archimedes based purrhaps
@@ -140,6 +141,7 @@ arcade_systems = {
 	'Konami Bemani Twinkle': ArcadeSystem(source_file='twinkle'), #PS1 based (but not System 573 related)
 	'Konami Bubble System': ArcadeSystem(source_file='nemesis', bios_used='bubsys'),
 	'Konami Cobra System': ArcadeSystem(source_file='cobra'),
+	'Konami Endeavour': ArcadeSystem(source_file='konendev'), #Gambling, non-working
 	'Konami GQ': ArcadeSystem(source_file='konamigq'), #Based on PS1
 	'Konami GV': ArcadeSystem(source_file='konamigv'), #Based on PS1
 	'Konami GX': ArcadeSystem(source_file='konamigx'),
@@ -171,6 +173,7 @@ arcade_systems = {
 	'Midway Zeus': ArcadeSystem(source_file='midzeus'),
 	'Multi Amenity Casette System': ArcadeSystem(source_file='macs'),
 	'Namco Anniversary': ArcadeSystem(source_file='20pacgal'),
+	'Namco M74': ArcadeSystem(source_file='shootaw2'),
 	'Namco System 10': ArcadeSystem(source_file='namcos10'), #Based on PS1; seems this one isn't working as much as the other PS1 derivatives?
 	'Namco System 11': ArcadeSystem(source_file='namcos11'), #Based on PS1
 	'Namco System 12': ArcadeSystem(source_file='namcos12'), #Based on PS1
@@ -252,6 +255,7 @@ arcade_systems = {
 	'Tecmo TPS': ArcadeSystem(source_file='zn', bios_used='coh1002m'), #PS1 based
 	'TIA-MC1': ArcadeSystem(source_file='tiamc1'),
 	'Triforce': ArcadeSystem(source_file='triforce'), #GameCube based
+	'United Amusements PC Engine': ArcadeSystem(source_file='uapce'), #PC Engine with JAMMA connector
 	'Vectrex': ArcadeSystem(source_file='vectrex'), #Also used for actual Vectrex console
 	'VIC Dual': ArcadeSystem(source_file='vicdual'),
 	'Video System PSX': ArcadeSystem(source_file='zn', bios_used='coh1002v'), #PS1 based
