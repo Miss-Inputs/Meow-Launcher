@@ -119,6 +119,7 @@ arcade_systems = {
 	'Fuuki FG-2': ArcadeSystem(source_file='fuukifg2'),
 	'Fuuki FG-3': ArcadeSystem(source_file='fuukifg3'),
 	'Gaelco CG-1V/GAE1': ArcadeSystem(source_file='gaelco2'),
+	'Galaxy Games': ArcadeSystem(source_file='galgames', bios_used='galgbios')
 	'Gottlieb System 1': ArcadeSystem(source_file='gts1'), #Pinball, I think?
 	'Hyper Neo Geo 64': ArcadeSystem(source_file='hng64'), #Barely working
 	'IBM PC-XT': ArcadeSystem(source_file='pcxt'), #Games running off a PC-XT (mostly bootlegs, but not necessarily)
