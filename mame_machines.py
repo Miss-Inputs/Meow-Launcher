@@ -827,10 +827,11 @@ def process_machine_element(machine_element):
 		#The code behind -listxml is of the opinion that protection = imperfect should result in a system being considered entirely broken, but I'm not so sure if that works out
 		return
 
-	if not machine.romless:
-		if not mame_verifyroms(machine.basename):
-			#We do this as late as we can after checks to see if we want to actually add this machine or not, because it takes a while (in a loop of tens of thousands of machines), and hence if we can get out of having to do it we should
-			return
+	#if not machine.romless:
+	if not mame_verifyroms(machine.basename):
+		#We do this as late as we can after checks to see if we want to actually add this machine or not, because it takes a while (in a loop of tens of thousands of machines), and hence if we can get out of having to do it we should
+		#However this is a reminder to myself to stop trying to be clever (because I am not); we cannot assume -verifyroms would succeed if machine.romless is true because there might be a device which is not romless
+		return
 
 	process_machine(machine)
 
