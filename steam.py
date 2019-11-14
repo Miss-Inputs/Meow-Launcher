@@ -839,7 +839,7 @@ def no_longer_exists(appid):
 	return appid not in no_longer_exists_cached_appids
 
 def process_steam():
-	if not is_steam_available:
+	if not is_steam_available():
 		return
 
 	time_started = time.perf_counter()
