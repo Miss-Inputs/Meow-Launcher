@@ -87,7 +87,7 @@ class SteamState():
 		@staticmethod
 		def find_steam_dir():
 			#Most likely the former will be present as a symlink to the latter, I don't know if weird people have ways of installing Steam to other directories
-			possible_locations = ['~/.steam/steam', '~/.local/share/steam']
+			possible_locations = ['~/.steam/steam', '~/.local/share/steam', '~/.local/share/Steam']
 
 			for location in possible_locations:
 				location = os.path.expanduser(location)
