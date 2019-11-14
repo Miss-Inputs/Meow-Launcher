@@ -119,9 +119,9 @@ def get_steam_library_folders():
 		library_folders = steam_library_list.get('LibraryFolders')
 		if not library_folders:
 			#Shouldn't happen unless Valve decides to mess with the format bigtime
-			return []
+			return [steam_state.steamdir]
 		#Not sure I like the condition on k here, but I guess it'll work. The keys under LibraryFolders are TimeNextStatsReport and ContentStatsID (whatever those do), and then 1 2 3 4 for each library folder, but I dunno how reliable that is. Anyway, that should do the trick, I guess; if someone breaks something it's gonna break
-		return [v for k, v in library_folders.items() if k.isdigit()]
+		return [v for k, v in library_folders.items() if k.isdigit()] + [steam_state.steamdir]
 
 def get_steamplay_overrides():
 	if not steam_state.config_available:
