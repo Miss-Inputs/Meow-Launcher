@@ -322,7 +322,7 @@ systems.update({
 	#I'll probably want to look more into it, but it looks like it won't really autoboot stuff... just kinda boots to a GUI or prompt depending on the RISC OS version used and then it is in all fairness easy and intuitive from there, but not necessarily an integrated smooth experience...
 	'Amstrad CPC': UnsupportedSystem('cpc464', ['cpc_cass', 'cpc_flop'], [], {MediaType.Snapshot: ['sna'], MediaType.Tape: ['wav', 'cdt'], MediaType.Floppy: mame_floppy_formats}),
 	#The not-plus one (probably will need to switch to cpc664/cpc6128 for flopppy stuff)
-	#CPC+: Use cpc6128p, shares the same software lists so I'll probably just consider it to be the same platform
+	#CPC+: Use cpc6128p, this uses the gx4000 software list (as well as original cpc_cass and cpc_flop) so I should probably consider these to be the same platform
 	'Arduboy': UnsupportedSystem(None, [], [], {MediaType.Digital: ['arduboy'], MediaType.Executable: ['hex']}),
 	#Not in MAME but see https://github.com/felipemanga/ProjectABE
 	'Amstrad PCW': UnsupportedSystem('pcw10', ['pcw'], [], {MediaType.Floppy: mame_floppy_formats}),
