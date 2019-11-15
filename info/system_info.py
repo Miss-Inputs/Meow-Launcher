@@ -198,30 +198,30 @@ systems.update({
 	#Preliminary MAME driver doesn't seem to boot anything; LisaEm doesn't seem to work with newer OSes and hasn't been updated since
 	'Atari Portfolio': UnsupportedSystem('pofo', ['pofo'], [], {MediaType.Cartridge: ['bin', 'rom']}),
 	'Atari ST': UnsupportedSystem('st', ['st_flop', 'st_cart'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Floppy: mame_floppy_formats + ['st', 'stx', 'msa']}),
-	#MAME seems to boot things but not respond to input (the driver is marked solidly MACHINE_NOT_WORKING), need to find a standalone emulator that cooperates with fullscreen mode and such
+	#MAME seems to boot some things but not respond to input (the driver is marked solidly MACHINE_NOT_WORKING), need to find a standalone emulator that cooperates with fullscreen mode and such
 	'Bandai RX-78': UnsupportedSystem('rx78', ['rx78'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Cartridge: ['wav']}),
 	#Does boot things from software list, but not from fullpath, and doesn't really work too well
 	'C2 Color': UnsupportedSystem('c2color', ['c2color_cart'], [], {MediaType.Cartridge: ['bin']}),
-	'Casio Loopy': UnsupportedSystem('casloopy', ['casloopy'], [], {MediaType.Cartridge: ['bin']}),
+	'Casio Loopy': UnsupportedSystem('casloopy', ['casloopy'], ['MAME (Casio Loopy)'], {MediaType.Cartridge: ['bin']}),
 	#MAME driver just shows corrupted graphics (and has no controls defined), basically just a skeleton even if it looks like it isn't
 	'ClickStart': UnsupportedSystem('clikstrt', ['clickstart_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Copera': UnsupportedSystem('copera', ['copera'], [], {MediaType.Cartridge: ['bin', 'md']}),
 	#Kega Fusion emulates the Pico well enough to show the message telling you the Copera software won't work on a Pico, at least; otherwise no known emulation
-	'GameKing': UnsupportedSystem('gameking', ['gameking'], [], {MediaType.Cartridge: ['bin']}),
+	'GameKing': UnsupportedSystem('gameking', ['gameking'], ['MAME (GameKing)'], {MediaType.Cartridge: ['bin']}),
 	#Does display some graphics, and almost boots the games, but nothing seems actually playable; no sound anyway #TODO Reminder to self to try again once MAME 0.216 comes out because it might boot stuff apparently
-	'GameKing 3': UnsupportedSystem('gamekin3', ['gameking3'], [], {MediaType.Cartridge: ['bin']}),
+	'GameKing 3': UnsupportedSystem('gamekin3', ['gameking3'], ['MAME (GameKing 3)'], {MediaType.Cartridge: ['bin']}),
 	'Gizmondo': UnsupportedSystem('gizmondo', [], [], {}), #Uses folders seemingly, so that may be weird with the file types
-	'GP32': UnsupportedSystem('gp32', ['gp32'], [], {MediaType.Cartridge: ['smc'], MediaType.Executable: ['gxb', 'sxf', 'bin', 'gxf', 'fxe']}),
+	'GP32': UnsupportedSystem('gp32', ['gp32'], ['MAME (GP32)'], {MediaType.Cartridge: ['smc'], MediaType.Executable: ['gxb', 'sxf', 'bin', 'gxf', 'fxe']}),
 	#Runs too slow to verify if anything else works, but all documentation points to not
 	'Jaguar CD': UnsupportedSystem('jaguarcd', [], [], {MediaType.OpticalDisc: cdrom_formats}),
 	#Unlike the lack of CD, this does not work at all on anything, doesn't even have a software list yet
-	'Koei PasoGo': UnsupportedSystem('pasogo', ['pasogo'], [], {MediaType.Cartridge: ['bin']}),
+	'Koei PasoGo': UnsupportedSystem('pasogo', ['pasogo'], ['MAME (Koei PasoGo)'], {MediaType.Cartridge: ['bin']}),
 	#No sound in MAME yet, and apparently the rest doesn't work either (I'll take their word for it)
 	'Konami Picno': UnsupportedSystem('picno', ['picno'], [], {MediaType.Cartridge: ['bin']}),
 	'LeapPad': UnsupportedSystem('leappad', ['leapfrog_leappad_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Leapster': UnsupportedSystem('leapster', ['leapster'], [], {MediaType.Cartridge: ['bin']}),
 	'Mattel HyperScan': UnsupportedSystem('hs', ['hyperscan'], [], {MediaType.OpticalDisc: cdrom_formats}),
-	'Microvision': UnsupportedSystem('microvsn', ['microvision'], [], {MediaType.Cartridge: ['bin']}),
+	'Microvision': UnsupportedSystem('microvsn', ['microvision'], ['MAME (Microvision)'], {MediaType.Cartridge: ['bin']}),
 	#Cartridges boot, but seem to do nothing...
 	'Monon Color': UnsupportedSystem('mononcol', ['monon_color'], [], {MediaType.Cartridge: ['bin']}),
 	#Only a skeleton MAME driver with no sound or video or inputs
@@ -236,7 +236,7 @@ systems.update({
 	'V.Reader': UnsupportedSystem('vreader', ['vtech_storio_cart'], [], {MediaType.Cartridge: ['bin']}), #Skeleton driver, apparently also known as Storio, or something like that
 	'V.Smile Motion': System('vsmilem', ['vsmilem_cart'], [], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
 	'V.Smile Pro': System('vsmilpro', ['vsmile_cd'], [], {MediaType.OpticalDisc: cdrom_formats}),
-	'VideoBrain': UnsupportedSystem('vidbrain', ['vidbrain'], [], {MediaType.Cartridge: ['bin']}),
+	'VideoBrain': UnsupportedSystem('vidbrain', ['vidbrain'], ['MAME (VideoBrain)'], {MediaType.Cartridge: ['bin']}),
 	#MAME has some hella glitchy graphics and I'm not gonna call it a playable experience at this point (also it does say not working)
 	'Video Challenger': UnsupportedSystem('vidchal', [], [], {}),
 	#From hh_cop400.cpp comments: Needs screen, gun cursor, VHS player device, and software list for tapes; at the moment displays a score counter and has one button input (supposed to be the gun) which makes a "pew" sound

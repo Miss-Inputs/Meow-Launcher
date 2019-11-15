@@ -265,6 +265,15 @@ emulators = {
 	#Seems to crash on some titles
 	'MAME (Virtual Boy)': MameSystem(command_lines.mame_system('vboy', 'cart'), ['bin', 'vb']),
 	#Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there and a lot of software list items are unsupported
+
+	#Just here for future use or fun really:
+	'MAME (Casio Loopy)': MameSystem(command_lines.mame_system('casloopy', 'cart'), ['bin']),
+	'MAME (GameKing)': MameSystem(command_lines.mame_system('gameking', 'cart'), ['bin']),
+	'MAME (GameKing 3)': MameSystem(command_lines.mame_system('gamekin3', 'cart'), ['bin']),
+	'MAME (GP32)': MameSystem(command_lines.mame_system('gp32', 'memc'), ['smc']),
+	'MAME (Koei PasoGo)': MameSystem(command_lines.mame_system('pasogo', 'cart'), ['bin']),
+	'MAME (Microvision)': MameSystem(command_lines.mame_system('microvsn', 'cart'), ['bin']),
+	'MAME (VideoBrain)': MameSystem(command_lines.mame_system('vidbrain', 'cart'), ['bin']),
 }
 
 class GameEngine():
