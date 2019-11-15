@@ -44,6 +44,9 @@ mame_floppy_formats = ['d77', 'd88', '1dd', 'dfi', 'hfe', 'imd', 'ipf', 'mfi', '
 commodore_disk_formats = ['d64', 'g64', 'x64', 'p64', 'd71', 'd81', 'd80', 'd82', 'd1m', 'd2m', 'dsk', 'ipf', 'nib']
 #Would be better to just use crt everywhere, but sometimes that just doesn't happen and so the load address has to be stored in the extension
 commodore_cart_formats = ['20', '40', '60', '70', '80', 'a0', 'b0', 'e0', 'crt', 'bin']
+#There is also .cu which is some Harmony Cart format which might not work so easily… .ar is actually Supercharger which also might be different
+atari_2600_cartridge_extensions = ['2k', '4k', 'f8', 'ef', 'efs', 'f4', 'f4s', 'fa', 'fe', '3f', '3e', 'e0', 'f8s', 'f6', 'f6s', 'e7', 'cv', 'ua', 'ar', 'dpc', '084']
+
 
 #All known possible CD-ROM formats, for use with file_types and MediaType.OpticalDisc; of course emulator support may vary
 cdrom_formats = mame_cdrom_formats + ['cdi', 'ccd']
@@ -53,7 +56,7 @@ systems = {
 	#But who am I to remove comments and code formatting
 
 	'3DS': System(None, [], ['Citra'], {MediaType.Cartridge: ['3ds'], MediaType.Digital: ['cxi'], MediaType.Executable: ['3dsx']}),
-	'Atari 2600': System('a2600', ['a2600', 'a2600_cass'], ['Stella', 'MAME (Atari 2600)'], {MediaType.Cartridge: ['a26', 'rom', 'bin']}),
+	'Atari 2600': System('a2600', ['a2600', 'a2600_cass'], ['Stella', 'MAME (Atari 2600)'], {MediaType.Cartridge: ['a26', 'rom', 'bin'] + atari_2600_cartridge_extensions}),
 	'Atari 5200': System('a5200', ['a5200'], ['MAME (Atari 5200)'], {MediaType.Cartridge: ['a52', 'car', 'rom', 'bin'], MediaType.Tape: ['wav']}),
 	'Atari 7800': System('a7800', ['a7800'], ['A7800', 'MAME (Atari 7800)'], {MediaType.Cartridge: ['a78', 'bin']}),
 	'CD-i': System('cdimono1', ['cdi'], ['MAME (CD-i)'], {MediaType.OpticalDisc: cdrom_formats}),
@@ -187,7 +190,7 @@ systems.update({
 	'3DO': UnsupportedSystem('3do', [], [], {MediaType.OpticalDisc: cdrom_formats}),
 	#4DO doesn't like Wine and has no native Linux version (just libretro and meh), Phoenix Emu has no command line support; so both are unusable for our purposes. MAME driver just kinda hangs at the 3DO logo at the moment
 	'3DO M2': UnsupportedSystem('3do_m2', ['3do_m2'], [], {MediaType.OpticalDisc: cdrom_formats}),
-	#Was never actually released, but prototypes exist
+	#Was never actually released, but prototypes exist; the MAME driver no longer exists incidentally (and was always a skeleton)
 	'Action Max': UnsupportedSystem(None, [], [], {}),
 	#No emulators, no dumps (probably nobody has decided the best way to preserve VHS games), no nothing
 	'Advanced Pico Beena': UnsupportedSystem('beena', ['sega_beena_cart'], [], {MediaType.Cartridge: ['bin']}),

@@ -2,7 +2,7 @@ import os
 
 from launchers import LaunchParams, MultiCommandLaunchParams
 import info.emulator_command_lines as command_lines
-from .system_info import mame_floppy_formats, mame_cdrom_formats
+from .system_info import mame_floppy_formats, mame_cdrom_formats, atari_2600_cartridge_extensions
 
 class Emulator():
 	def __init__(self, launch_params, supported_extensions, supported_compression):
@@ -61,7 +61,7 @@ emulators = {
 	'SimCoupe': Emulator(LaunchParams('simcoupe', ['-fullscreen', 'yes', '$<path>']), ['mgt', 'sad', 'dsk', 'sbt'], ['zip', 'gz']),
 	'Snes9x': Emulator(LaunchParams('snes9x-gtk', ['$<path>']), ['sfc', 'smc', 'swc'], ['zip', 'gz']),
 	#Can't set fullscreen mode from the command line so you have to set up that yourself (but it will do that automatically); GTK port can't do Sufami Turbo or Satellaview from command line due to lacking multi-cart support that Windows has (Unix non-GTK doesn't like being in fullscreen etc)
-	'Stella': Emulator(LaunchParams('stella', ['-fullscreen', '1', '$<path>']), ['a26', 'bin', 'rom'], ['gz', 'zip']),
+	'Stella': Emulator(LaunchParams('stella', ['-fullscreen', '1', '$<path>']), ['a26', 'bin', 'rom'] + atari_2600_cartridge_extensions, ['gz', 'zip']),
 
 	'VICE (C64)': ViceEmulator(command_lines.vice_c64),
 	'VICE (C64 Fast)': ViceEmulator(command_lines.vice_c64_fast),
