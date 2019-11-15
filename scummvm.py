@@ -44,6 +44,62 @@ vmconfig = ScummVMConfig.getScummVMConfig()
 def have_something_vm():
 	return vmconfig.have_scummvm or vmconfig.have_residualvm
 
+def get_platform_mediatype_from_tags(tags):
+	if '(Apple II)' in tags:
+		return 'Apple II', MediaType.Floppy
+	if '(Apple IIgs)' in tags:
+		return 'Apple IIgs', MediaType.Floppy
+	if '(3DO)' in tags:
+		return '3DO', MediaType.OpticalDisc
+	if '(Acorn)' in tags:
+		return 'Acorn Archimedes', MediaType.Floppy #Let the rest of the code detect if it's a CD
+	if '(Amiga)' in tags:
+		if '(CD32)' in tags:
+			return 'Amiga CD32', MediaType.OpticalDisc
+		return 'Amiga', MediaType.Floppy
+	if '(Atari 8-bit)' in tags:
+		return 'Atari 8-bit', MediaType.Floppy
+	if '(Atari ST)' in tags:
+		return 'Atari ST', MediaType.Floppy
+	if '(Commodore 64)' in tags:
+		return 'C64', MediaType.Floppy
+	if '(DOS)' in tags:
+		return 'DOS', None #Either floppy or executable I dunno mate
+	if '(PC-98)' in tags:
+		return 'PC-98', None
+	if '(Nintendo Wii)' in tags:
+		return 'Wii', MediaType.OpticalDisc #I think none of the ScummVM games are WiiWare, slap me if I am wrong
+	if '(CoCo3)' in tags:
+		return 'Tandy CoCo', MediaType.Floppy
+	if '(FM-TOWNS)' in tags:
+		return 'FM Towns', None
+	if '(Linux)' in tags or '(Linux Demo)' in tags:
+		return 'Linux', None #Could argue platform is blank here, but like… eh
+	if '(Macintosh)' in tags:
+		return 'Mac', None
+	if '(PC-Engine)' in tags:
+		return 'PC Engine CD', MediaType.OpticalDisc #Doesn't actually do PC Engine cards last time I checked, if this becomes wrong, then check for CD in tags or whatever
+	if '(NES)' in tags:
+		return 'NES', MediaType.Cartridge
+	if '(SegaCD)' in tags:
+		return 'Mega CD', MediaType.OpticalDisc
+	if '(Windows)' in tags:
+		return 'Windows', None
+	if '(Sony PlayStation)' in tags:
+		return 'PlayStation', MediaType.OpticalDisc
+	if '(Philips CD-i)' in tags:
+		return 'CD-i', MediaType.OpticalDisc
+	if '(Apple iOS)' in tags:
+		return 'iOS', MediaType.Digital
+	if '(OS/2)' in tags:
+		return 'OS/2', None
+	if '(BeOS)' in tags:
+		return 'BeOS', None
+	if '(PocketPC)' in tags:
+		return 'PocketPC', None
+
+	return None, None
+
 def get_stuff_from_filename_tags(metadata, name_tags):
 	languages = detect_things_from_filename.get_languages_from_filename_tags(name_tags)
 	if languages:
@@ -59,7 +115,13 @@ def get_stuff_from_filename_tags(metadata, name_tags):
 	version = detect_things_from_filename.get_version_from_filename_tags(name_tags)
 	if version:
 		metadata.specific_info['Version'] = version
-		
+
+	platform, assumed_media_type = get_platform_mediatype_from_tags(name_tags)
+	if platform and main_config.use_original_platform:
+		metadata.platform = platform
+	if assumed_media_type:
+		metadata.media_type = assumed_media_type
+
 	for tag in name_tags:
 		tag = tag.lstrip('(').rstrip(')')
 
@@ -68,16 +130,13 @@ def get_stuff_from_filename_tags(metadata, name_tags):
 		if tag == 'Non-Interactive Demo':
 			#One day, I'll think of some kind of standard for the categories names, but until then I've decided everything non-interactive should be in Demos
 			metadata.categories = ['Demos']
-		if tag in ('CD', 'CD Demo', 'CD32', 'SegaCD', 'Sony PlayStation', 'Philips CD-i', '3DO') or tag.endswith(' cd'):
+		if tag in ('CD', 'CD Demo') or tag.endswith(' cd'):
 			#The latter shows up alongside a version number infrequently, e.g. "v0.0372 cd"
 			metadata.media_type = MediaType.OpticalDisc
-		if tag == 'NES':
-			metadata.media_type = MediaType.Cartridge
 		if tag == '1.1':
 			#Oddball version number tag
 			metadata.specific_info['Version'] = 'v1.1'
 
-		#Platforms: https://github.com/scummvm/scummvm/blob/master/common/platform.cpp, in the event I want to do something with that
 		#Versions: Freeware v1.1, Freeware v1.0
 		#Others: final, VGA, EGA, Masterpiece Edition, Talkie, Latest version, unknown version
 		

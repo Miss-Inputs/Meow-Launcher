@@ -99,6 +99,8 @@ _config_ini_values = {
 	'use_mame_system_icons': ConfigValue('Roms', ConfigValueType.Bool, False, 'Use MAME system icons', 'If a game does not have an icon, use the MAME icon for its system if available'),
 	'find_equivalent_arcade_games': ConfigValue('Roms', ConfigValueType.Bool, False, 'Use MAME arcade icons', 'Get metadata from MAME machines of the same name'),
 
+	'use_original_platform': ConfigValue('ScummVM', ConfigValueType.Bool, False, 'Use original platform', 'Set the platform in metadata to the original platform instead of leaving blank'),
+
 	#These shouldn't end up in config.ini as they're intended to be set per-run
 	'debug': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Debug', 'Enable debug mode, which is really verbose mode, oh well'),
 	'print_times': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Print times', 'Print how long it takes to do things'),
