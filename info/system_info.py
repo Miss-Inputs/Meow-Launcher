@@ -249,6 +249,8 @@ systems.update({
 	'V.Smile Baby': System('vsmileb', ['vsmileb_cart'], ['MAME (V.Smile Baby)'], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
 	'V.Smile Motion': System('vsmilem', ['vsmilem_cart'], [], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
 	'V.Smile Pro': System('vsmilpro', ['vsmile_cd'], [], {MediaType.OpticalDisc: cdrom_formats}),
+	'VideoBrain': UnsupportedSystem('vidbrain', ['vidbrain'], [], {MediaType.Cartridge: ['bin']}),
+	#MAME has some hella glitchy graphics and I'm not gonna call it a playable experience at this point (also it does say not working)
 	'Video Challenger': UnsupportedSystem('vidchal', [], [], {}),
 	#From hh_cop400.cpp comments: Needs screen, gun cursor, VHS player device, and software list for tapes; at the moment displays a score counter and has one button input (supposed to be the gun) which makes a "pew" sound
 	'Video Driver': UnsupportedSystem(None, [], [], {}),
@@ -357,7 +359,6 @@ systems.update({
 	'TRS-80': UnsupportedSystem('trs80m3', [], [], {MediaType.Executable: ['cmd'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: mame_floppy_formats}),
 	'Vector-06C': UnsupportedSystem('vector06', ['vector06_cart', 'vector06_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['bin', 'emr']}),
 	#MAME driver is marked as working but clones are not; needs to hold F2 then press F11 then F12 to boot from cartridge so that may be wacky; and I can't get that working, not sure if floppies/tapes do work
-	'VideoBrain': UnsupportedSystem('vidbrain', ['vidbrain'], [], {MediaType.Cartridge: ['bin']}),
 	'Tandy MC-10': UnsupportedSystem('mc10', ['mc10'], [], {MediaType.Tape: ['wav', 'cas']}),
 	#Hmm... tapes...
 	'Alice 32': UnsupportedSystem('alice32', ['alice32', 'alice90'], [], {MediaType.Tape: ['wav', 'cas', 'c10', 'k7']}),
