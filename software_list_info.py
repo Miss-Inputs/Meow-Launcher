@@ -429,12 +429,12 @@ class SoftwareList():
 					return software
 		return None
 
+	_verifysoftlist_result = None
 	def get_available_software(self):
 		available = []
 
 		#Only call -verifysoftlist if we need to, i.e. don't if it's entirely a romless softlist
-		_verifysoftlist_result = None
-
+		
 		for software_xml in self.xml.findall('software'):
 			software = Software(software_xml, self)
 			if software.romless:
@@ -442,9 +442,9 @@ class SoftwareList():
 			elif software.not_dumped:
 				continue
 			else:
-				if _verifysoftlist_result is None:
-					_verifysoftlist_result = verify_software_list(self.name)
-				if software.name in _verifysoftlist_result:
+				if self._verifysoftlist_result is None:
+					self._verifysoftlist_result = verify_software_list(self.name)
+				if software.name in self._verifysoftlist_result:
 					available.append(software)
 		
 		return available
