@@ -1,22 +1,23 @@
 #!/usr/bin/env python3
 
-import os
-import sys
-import time
 import datetime
+import os
 import pathlib
+import sys
 import tempfile
+import time
+from zlib import crc32
 
-import common
 import archives
+import common
+import io_utils
 import launchers
 import metadata
-import io_utils
-
-from config import system_configs, main_config
-from info import system_info, emulator_info
 from common_types import EmulationNotSupportedException, NotARomException
+from config import main_config, system_configs
+from info import emulator_info, system_info
 from roms_metadata import add_engine_metadata, add_metadata
+
 
 class EngineFile():
 	def __init__(self, path):
@@ -128,14 +129,36 @@ class Rom():
 			self.extension = self.extension[1:]
 		self.extension = self.extension.lower()
 
-	def read(self, seek_to=0, amount=-1):
+		self.store_entire_file = False
+		self.entire_file = b''
+		if self._get_size() < (32 * 1024 * 1024):
+			#TODO: Should make this configuragble? Maybe
+			self.store_entire_file = True
+			self.entire_file = self._read()
+
+	def _read(self, seek_to=0, amount=-1):
 		return io_utils.read_file(self.path, self.compressed_entry, seek_to, amount)
 
-	def get_size(self):
+	def read(self, seek_to=0, amount=-1):
+		if self.store_entire_file:
+			return self.entire_file[seek_to: seek_to + amount]
+		return self._read(seek_to, amount)
+
+	def _get_size(self):
 		return io_utils.get_real_size(self.path, self.compressed_entry)
 
-	def get_crc32(self):
+	def get_size(self):
+		if self.store_entire_file:
+			return len(self.entire_file)
+		return self._get_size()
+
+	def _get_crc32(self):
 		return io_utils.get_crc32(self.path, self.compressed_entry)
+
+	def get_crc32(self):
+		if self.store_entire_file:
+			return crc32(self.entire_file) & 0xffffffff
+		return self._get_crc32()
 
 class Game():
 	def __init__(self, rom, platform, folder):
