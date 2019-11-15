@@ -176,47 +176,39 @@ systems = {
 #Unsupported (yet) systems beyond this point, these won't be listed in any config files by default; just here to make it easier for me to add new systems later as I document what they are and what holds them back, sometimes just because I have nothing better to do I guess
 
 systems.update({
-	#Theoretically supported, but not supported enough to be considered playable, but you can manually add them to systems.ini if you really want
-	'FM Towns Marty': UnsupportedSystem('fmtmarty', ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}),
+	#Theoretically supported, but not supported enough to be considered playable (see emulator_info for commentary there), but you can manually add them to systems.ini if you really want
+	'FM Towns': UnsupportedSystem('fmtmarty', ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}),
 	'Jaguar': UnsupportedSystem('jaguar', ['jaguar'], ['MAME (Jaguar)'], {MediaType.Cartridge: ['j64', 'bin', 'rom'], MediaType.Executable: ['abs', 'cof', 'jag', 'prg']}),
 	'Magnavox Odyssey²': UnsupportedSystem('odyssey2', ['odyssey2'], ['MAME (Magnavox Odyssey²)', 'MAME (G7400)'], {MediaType.Cartridge: ['bin', 'rom']}),
 	'G7400': UnsupportedSystem('g7400', ['g7400'], ['MAME (G7400)'], {MediaType.Cartridge: ['bin', 'rom']}),
 	'PC Booter': UnsupportedSystem('ibm5150', ['ibm5150'], ['MAME (IBM PCjr)', 'MAME (IBM PC)'], {MediaType.Floppy: mame_floppy_formats + ['img'], MediaType.Executable: ['exe', 'com', 'bat']}),
 	#This one is a bit tricky... both MAME and PCem have issues emulating a joystick. Do the games actually just suck like that? _All of them_? I don't know. The majority of these games assume a 4.77MHz CPU, of course. The software list is ibm5150 but that has some DOS games too, just to be confusing (but usage == 'PC booter' where it is a PC booter).
 	"Super A'Can": UnsupportedSystem('supracan', ['supracan'], ["MAME (Super A'Can)"], {MediaType.Cartridge: ['bin']}),
+	'V.Smile Baby': System('vsmileb', ['vsmileb_cart'], ['MAME (V.Smile Baby)'], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
 
 	#No emulators that are cool enough on Linux (any available are too preliminary to work). Yet. Maybe? That I know of. They're here for completeness. Or no emulators at all.
 	#They are also here to remind me to check up on them every now and again to make sure they indeed don't work or if I was just being stupid all along
+
+	#Stuff with skeleton MAME drivers:
 	'3DO': UnsupportedSystem('3do', [], [], {MediaType.OpticalDisc: cdrom_formats}),
 	#4DO doesn't like Wine and has no native Linux version (just libretro and meh), Phoenix Emu has no command line support; so both are unusable for our purposes. MAME driver just kinda hangs at the 3DO logo at the moment
-	'3DO M2': UnsupportedSystem('3do_m2', ['3do_m2'], [], {MediaType.OpticalDisc: cdrom_formats}),
-	#Was never actually released, but prototypes exist; the MAME driver no longer exists incidentally (and was always a skeleton)
-	'Action Max': UnsupportedSystem(None, [], [], {}),
-	#No emulators, no dumps (probably nobody has decided the best way to preserve VHS games), no nothing
 	'Advanced Pico Beena': UnsupportedSystem('beena', ['sega_beena_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Apple Lisa': UnsupportedSystem('lisa', ['lisa'], [], {MediaType.Floppy: mame_floppy_formats + ['dc', 'dc42']}),
 	#Preliminary MAME driver doesn't seem to boot anything; LisaEm doesn't seem to work with newer OSes and hasn't been updated since
-	'Arcadia Skeet Shoot': UnsupportedSystem(None, [], [], {}),
 	'Atari Portfolio': UnsupportedSystem('pofo', ['pofo'], [], {MediaType.Cartridge: ['bin', 'rom']}),
 	'Atari ST': UnsupportedSystem('st', ['st_flop', 'st_cart'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Floppy: mame_floppy_formats + ['st', 'stx', 'msa']}),
 	#MAME seems to boot things but not respond to input (the driver is marked solidly MACHINE_NOT_WORKING), need to find a standalone emulator that cooperates with fullscreen mode and such
-	'Bandai Playdia': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'Bandai RX-78': UnsupportedSystem('rx78', ['rx78'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Cartridge: ['wav']}),
 	#Does boot things from software list, but not from fullpath, and doesn't really work too well
-	'Buzztime Home Trivia System':  UnsupportedSystem(None, [], [], {}),
 	'C2 Color': UnsupportedSystem('c2color', ['c2color_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Casio Loopy': UnsupportedSystem('casloopy', ['casloopy'], [], {MediaType.Cartridge: ['bin']}),
 	#MAME driver just shows corrupted graphics (and has no controls defined), basically just a skeleton even if it looks like it isn't
 	'ClickStart': UnsupportedSystem('clikstrt', ['clickstart_cart'], [], {MediaType.Cartridge: ['bin']}),
-	'Coleco Telstar Arcade': UnsupportedSystem(None, [], [], {}),
 	'Copera': UnsupportedSystem('copera', ['copera'], [], {MediaType.Cartridge: ['bin', 'md']}),
 	#Kega Fusion emulates the Pico well enough to show the message telling you the Copera software won't work on a Pico, at least; otherwise no known emulation
-	'Design Master Senshi Mangajukuu': UnsupportedSystem(None, [], [], {}),
 	'GameKing': UnsupportedSystem('gameking', ['gameking'], [], {MediaType.Cartridge: ['bin']}),
-	#Does display some graphics, and almost boots the games, but nothing seems actually playable; no sound anyway
+	#Does display some graphics, and almost boots the games, but nothing seems actually playable; no sound anyway #TODO Reminder to self to try again once MAME 0.216 comes out because it might boot stuff apparently
 	'GameKing 3': UnsupportedSystem('gamekin3', ['gameking3'], [], {MediaType.Cartridge: ['bin']}),
-	'Gakken TV Boy': UnsupportedSystem(None, [], [], {}),
-	#No MAME driver or anything, although it's mentioned on an old MESS 'to be dumped' page; apparently CPU is inside the carts
 	'Gizmondo': UnsupportedSystem('gizmondo', [], [], {}), #Uses folders seemingly, so that may be weird with the file types
 	'GP32': UnsupportedSystem('gp32', ['gp32'], [], {MediaType.Cartridge: ['smc'], MediaType.Executable: ['gxb', 'sxf', 'bin', 'gxf', 'fxe']}),
 	#Runs too slow to verify if anything else works, but all documentation points to not
@@ -233,37 +225,53 @@ systems.update({
 	'Monon Color': UnsupportedSystem('mononcol', ['monon_color'], [], {MediaType.Cartridge: ['bin']}),
 	#Only a skeleton MAME driver with no sound or video or inputs
 	'My First LeapPad': UnsupportedSystem('mfleappad', ['leapfrog_mfleappad_cart'], [], {MediaType.Cartridge: ['bin']}),
-	'N-Gage': UnsupportedSystem(None, [], [], {}), #File types are.. folders I think. That could get weird. Anyway, all emulators at this stage seem to be super-preliminary
-	'Nuon': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: ['iso']}),
 	'Panasonic JR-200': UnsupportedSystem('jr200', [], []),
 	'Pippin': UnsupportedSystem('pippin', ['pippin', 'pippin_flop'], [], {MediaType.OpticalDisc: cdrom_formats}),
 	#Games don't just boot in a PPC Mac, unfortunately. No PPC Mac emulator has branched off into specific Pippin emulation yet
 	'Pocket Challenge W': UnsupportedSystem('pockchal', ['pockchalw'], [], {MediaType.Cartridge: ['bin']}),
 	'Sawatte Pico': UnsupportedSystem('sawatte', ['sawatte'], [], {}),
 	#Similar to the Sega Pico but with different software (may or may not also use Megadrive ROM header?), but is completely unemulated. Not sure if dump format is identical
-	'Tapwave Zodiac': UnsupportedSystem(None, [], [], {}),
-	#File type is like, kinda .prc but kinda not
-	'Terebikko': UnsupportedSystem(None, [], [], {}),
 	'Tomy Prin-C': UnsupportedSystem('princ', ['princ'], [], {MediaType.Cartridge: ['bin']}), #MAME has skeleton driver that displays a green background and then doesn't go anywhere
 	'V.Reader': UnsupportedSystem('vreader', ['vtech_storio_cart'], [], {MediaType.Cartridge: ['bin']}), #Skeleton driver, apparently also known as Storio, or something like that
-	'V.Smile Baby': System('vsmileb', ['vsmileb_cart'], ['MAME (V.Smile Baby)'], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
 	'V.Smile Motion': System('vsmilem', ['vsmilem_cart'], [], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
 	'V.Smile Pro': System('vsmilpro', ['vsmile_cd'], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'VideoBrain': UnsupportedSystem('vidbrain', ['vidbrain'], [], {MediaType.Cartridge: ['bin']}),
 	#MAME has some hella glitchy graphics and I'm not gonna call it a playable experience at this point (also it does say not working)
 	'Video Challenger': UnsupportedSystem('vidchal', [], [], {}),
 	#From hh_cop400.cpp comments: Needs screen, gun cursor, VHS player device, and software list for tapes; at the moment displays a score counter and has one button input (supposed to be the gun) which makes a "pew" sound
-	'Video Driver': UnsupportedSystem(None, [], [], {}),
 	'Videoton TVC': UnsupportedSystem('tvc64', ['tvc_cart', 'tvc_cass', 'tvc_flop'], [], {MediaType.Cartridge: ['bin', 'rom', 'crt'], MediaType.Tape: ['wav', 'cas']}),
 	#Skeleton driver; .cas is also quickload?
-	'View-Master Interactive Vision': UnsupportedSystem(None, [], [], {}),	
+	'Xbox': UnsupportedSystem('xbox', [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xbe']}),
+	#Cxbx-Reloaded will only run on Windows; XQEMU isn't ready yet; not even gonna look at the MAME driver at this point in time
+
+	#Too cool for MAME:
+	'3DO M2': UnsupportedSystem(None, ['3do_m2'], [], {MediaType.OpticalDisc: cdrom_formats}),
+	#Was never actually released, but prototypes exist
+	'N-Gage': UnsupportedSystem(None, [], [], {}), #File types are.. folders I think. That could get weird. Anyway, all emulators at this stage seem to be super-preliminary
+	'Nuon': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: ['iso']}),
+	#There once was an emulator out there somewhere… for Windows
 	'Wii U': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: ['iso', 'wud'], MediaType.Executable: ['rpx', 'elf']}),
 	#Decaf seems to not work on Linux at the moment
-	'Xbox': UnsupportedSystem('xbox', [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xbe']}),
-	#Cxbx-Reloaded will only run on Windows; XQEMU isn't ready yet
 	'Xbox 360': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xex']}),
 	#Xenia requires Windows 8 + Vulkan, somehow I don't think it'd ever run under Wine either
-	'ZAPit GameWave': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: ['iso']}),
+
+	#Too cool for anyone at all so we can't get much info there and there is not really any point in me doing this other than either smartarsery or boredom:
+	'Action Max': UnsupportedSystem(None, [], [], {}),
+	#No emulators, no dumps (probably nobody has decided the best way to preserve VHS games), no nothing
+	'Arcadia Skeet Shoot': UnsupportedSystem(None, [], [], {}),
+	'Bandai Playdia': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: cdrom_formats}),
+	'Buzztime Home Trivia System':  UnsupportedSystem(None, [], [], {}),
+	'Coleco Telstar Arcade': UnsupportedSystem(None, [], [], {}),
+	'Design Master Senshi Mangajukuu': UnsupportedSystem(None, [], [], {}),
+	'Gakken TV Boy': UnsupportedSystem(None, [], [], {}),
+	#No MAME driver or anything, although it's mentioned on an old MESS 'to be dumped' page; apparently CPU is inside the carts
+	'Tapwave Zodiac': UnsupportedSystem(None, [], [], {}),
+	#File type is like, kinda .prc but kinda not (the device runs spicy PalmOS, would it be considered part of that if any of that was emulated?)
+	'Terebikko': UnsupportedSystem(None, [], [], {}),
+	'Video Driver': UnsupportedSystem(None, [], [], {}),
+	'View-Master Interactive Vision': UnsupportedSystem(None, [], [], {}),	
+	'ZAPit Game Wave': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: ['iso']}),
+	#An SDK with emulator exists according to some company's website but yeah nah
 
 	#Stuff that at the moment is only useful in mame_software.py, but it is here for reference or if some other emulator shows up
 	'Commodore 65': UnsupportedSystem('c65', ['c65_flop'], [], {MediaType.Floppy: commodore_disk_formats}),
