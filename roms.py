@@ -141,6 +141,8 @@ class Rom():
 
 	def read(self, seek_to=0, amount=-1):
 		if self.store_entire_file:
+			if amount == -1:
+				return self.entire_file[seek_to:]
 			return self.entire_file[seek_to: seek_to + amount]
 		return self._read(seek_to, amount)
 
