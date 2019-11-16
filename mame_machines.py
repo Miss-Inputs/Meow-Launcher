@@ -51,11 +51,11 @@ class ArcadeSystem():
 		if use_source_file_match:
 			source_file_match = machine.source_file in self.source_files
 		if use_bios_match:
-			machine_bios = machine.bios
+			machine_bios = machine.bios_basename
 			if not machine_bios:
 				bios_match = None in self.bioses
 			else:
-				bios_match = machine_bios.basename in self.bioses
+				bios_match = machine_bios in self.bioses
 		return source_file_match and bios_match
 
 arcade_systems = {
@@ -606,14 +606,21 @@ class Machine():
 		return True
 
 	@property
-	def bios(self):
+	def bios_basename(self):
 		romof = self.xml.attrib.get('romof')
 		if self.has_parent and romof == self.family:
-			return self.parent.bios
+			return self.parent.bios_basename
 		if romof:
-			return Machine(get_mame_xml(romof), True)
+			return romof
 		return None
 
+	@property
+	def bios(self):
+		bios_basename = self.bios_basename
+		if bios_basename:
+			return Machine(get_mame_xml(bios_basename), True)
+		return None
+		
 	@property
 	def samples_used(self):
 		return self.xml.attrib.get('sampleof')
