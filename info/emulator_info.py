@@ -262,11 +262,12 @@ emulators = {
 	"MAME (Super A'Can)": MameSystem(command_lines.mame_system('supracan', 'cart'), ['bin']),
 	#Some things work, except with no sound, so... nah
 	'MAME (V.Smile Baby)': MameSystem(command_lines.mame_system('vsmileb', 'cart'), ['u1', 'u3', 'bin']),
-	#Seems to crash on some titles
+	#Seems to crash on some titles, also everything in software list is supported=no?
+	'MAME (Videoton TVC)': MameSystem(command_lines.mame_system('tvc64', 'cart'), ['bin', 'rom', 'crt']),
 	'MAME (Virtual Boy)': MameSystem(command_lines.mame_system('vboy', 'cart'), ['bin', 'vb']),
 	#Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there and a lot of software list items are unsupported
 
-	#Just here for future use or fun really:
+	#Just here for future use or fun really; these straight up don't work:
 	'MAME (Casio Loopy)': MameSystem(command_lines.mame_system('casloopy', 'cart'), ['bin']),
 	'MAME (GameKing)': MameSystem(command_lines.mame_system('gameking', 'cart'), ['bin']),
 	'MAME (GameKing 3)': MameSystem(command_lines.mame_system('gamekin3', 'cart'), ['bin']),
@@ -274,6 +275,23 @@ emulators = {
 	'MAME (Koei PasoGo)': MameSystem(command_lines.mame_system('pasogo', 'cart'), ['bin']),
 	'MAME (Microvision)': MameSystem(command_lines.mame_system('microvsn', 'cart'), ['bin']),
 	'MAME (VideoBrain)': MameSystem(command_lines.mame_system('vidbrain', 'cart'), ['bin']),
+	'MAME (V.Smile Motion)': MameSystem(command_lines.mame_system('vsmilem', 'cart'), ['bin', 'u1', 'u3']),
+	'MAME (3DO)': MameSystem(command_lines.mame_system('3do', 'cdrom'), mame_cdrom_formats), #Should switch to 3do_pal when needed, but it doesn't really matter at this point
+	'MAME (Bandai RX-78)': MameSystem(command_lines.mame_system('rx78', 'cart'), ['bin', 'rom']),
+	'MAME (Tomy Prin-C)': MameSystem(command_lines.mame_system('princ', 'cart'), ['bin']),
+	'MAME (Jaguar CD)': MameSystem(command_lines.mame_system('jaguarcd', 'cdrom'), mame_cdrom_formats), #Also has cartridge port, as it is a Jaguar addon
+	#Don't even display graphics, I'm just feeling like adding stuff at this point
+	'MAME (Advanced Pico Beena)': MameSystem(command_lines.mame_system('beena', 'cart'), ['bin']), #Segfaults
+	'MAME (C2 Color)': MameSystem(command_lines.mame_system('c2color', 'cart'), ['bin']),
+	'MAME (Konami Picno)': MameSystem(command_lines.mame_system('picno', 'cart'), ['bin']),
+	'MAME (LeapPad)': MameSystem(command_lines.mame_system('leappad', 'cart'), ['bin']),
+	'MAME (Leapster)': MameSystem(command_lines.mame_system('leapster', 'cart'), ['bin']), #Sometimes crashes, appears to be executing the CPU and printing debug stuff
+	'MAME (Monon Color)': MameSystem(command_lines.mame_system('mononcol', 'cart'), ['bin']),
+	'MAME (My First LeapPad)': MameSystem(command_lines.mame_system('mfleappad', 'cart'), ['bin']),
+	'MAME (Pocket Challenge W)': MameSystem(command_lines.mame_system('pockchal', 'cart'), ['bin']),
+	'MAME (V.Reader)': MameSystem(command_lines.mame_system('vreader', 'cart'), ['bin']),
+	'MAME (V.Smile Pro)': MameSystem(command_lines.mame_system('vsmilpro', 'cdrom'), mame_cdrom_formats),
+	'MAME (Pippin)': MameSystem(command_lines.mame_system('pippin', 'cdrom'), mame_cdrom_formats),
 }
 
 class GameEngine():
