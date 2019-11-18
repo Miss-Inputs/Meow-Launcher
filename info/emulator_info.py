@@ -240,8 +240,13 @@ emulators = {
 
 	#--These experimental emulators seem to not work more often than they do, but they are here for you to play with if you want to, because maybe other people have better luck than me (everything in my life always goes wrong):
 	'Mednafen (SNES-Faust)': MednafenModule('snes_faust', ['sfc', 'smc', 'swc']),
-	#Experimental and doesn't support expansion chips
+	#Experimental and doesn't support expansion chips #TODO Filter out games that need expansion chips
 
+	'MAME (32X)': MameSystem(command_lines.mame_system('32x', 'cart'), ['32x', 'bin']),
+	#TODO Switch to 32xe and 32xj when needed
+	'MAME (Amiga CD32)': MameSystem(command_lines.mame_system('cd32', 'cdrom'), mame_cdrom_formats),
+	#Well it boots stuff I guess, but it is marked not working, and right now I'm too drunk to try everything and it's not that important because FS-UAE works already
+	#TODO Switch to cd32n for NTSC
 	'MAME (G7400)': MameSystem(command_lines.mame_system('g7400', 'cart'), ['bin', 'rom']),
 	#just has the same graphics problems as Odyssey 2... there's a odyssey3 driver that was never released but I guess it would be for NTSC games. Actually, all the software list items say unsupported... hmm
 	'MAME (Jaguar)': MameSystem(command_lines.mame_atari_jaguar, ['j64', 'rom', 'bin', 'abs', 'cof', 'jag', 'prg']),
@@ -250,6 +255,9 @@ emulators = {
 	#Isn't completely broken but a lot of games have broken graphics so like... ehh
 	'MAME (Mattel Aquarius)': MameSystem(command_lines.mame_system('aquarius', 'cart'), ['bin', 'rom']),
 	#Controllers aren't emulated yet (and they're necessary for a lot of things)
+	'MAME (Mega CD)': MameSystem(command_lines.mame_system('segacd', 'cdrom'), mame_cdrom_formats),
+	#Hmm sometimes works and sometimes does not
+	#TODO Switch to megacd/megacdj when needed
 	'MAME (Microtan 65)': MameSystem(command_lines.mame_system('mt65', 'dump'), ['dmp', 'm65']),
 	#System name was "microtan" prior to 0.212
 	#Aagggh, none of these inputs seem to be working properly (to the point where I can't just assume the games were like that)... maybe I'm doing it wrong, I don't know...
@@ -269,6 +277,8 @@ emulators = {
 
 	#Just here for future use or fun really; these straight up don't work:
 	'MAME (Casio Loopy)': MameSystem(command_lines.mame_system('casloopy', 'cart'), ['bin']),
+	'MAME (Commodore CDTV)': MameSystem(command_lines.mame_system('cdtv', 'cdrom'), mame_cdrom_formats),
+	#This one works less than CD32; just takes you to the default boot screen like no CD was inserted
 	'MAME (GameKing)': MameSystem(command_lines.mame_system('gameking', 'cart'), ['bin']),
 	'MAME (GameKing 3)': MameSystem(command_lines.mame_system('gamekin3', 'cart'), ['bin']),
 	'MAME (GP32)': MameSystem(command_lines.mame_system('gp32', 'memc'), ['smc']),

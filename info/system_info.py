@@ -89,7 +89,7 @@ systems = {
 	#Obscure systems (<1M units sold), just for the sake of making that list less messy (maybe I should just like... not do things that way)
 	#Uzebox is a homebrew thing and not really a commercial product, so it doesn't really have numbers. But it probably counts as obscure.
 	#Can't really find numbers on Atari 7800 and Neo Geo Pocket, but they aren't obscure... right?
-	'Amiga CD32': System('cd32', ['cd32'], ['FS-UAE'], {MediaType.OpticalDisc: cdrom_formats}),
+	'Amiga CD32': System('cd32', ['cd32'], ['FS-UAE', 'MAME (Amiga CD32)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'Amstrad GX4000': System('gx4000', ['gx4000'], ['MAME (Amstrad GX4000)'], {MediaType.Cartridge: ['bin', 'cpr']}),
 	'APF-MP1000': System('apfm1000', ['apfm1000'], ['MAME (APF-MP1000)'], {MediaType.Cartridge: ['bin']}),
 	'Arcadia 2001': System('arcadia', ['arcadia'], ['MAME (Arcadia 2001)'], {MediaType.Cartridge: ['bin']}),
@@ -101,7 +101,7 @@ systems = {
 	'Casio PV-1000': System('pv1000', ['pv1000'], ['MAME (Casio PV-1000)'], {MediaType.Cartridge: ['bin']}),
 	'Channel F': System('channelf', ['channelf'], ['MAME (Channel F)'], {MediaType.Cartridge: ['chf', 'bin']}),
 	#It has some sort of knob that you twist up and down or something? What the fuck
-	'Commodore CDTV': System('cdtv', ['cdtv'], ['FS-UAE'], {MediaType.OpticalDisc: cdrom_formats}),
+	'Commodore CDTV': System('cdtv', ['cdtv'], ['FS-UAE', 'MAME (Commodore CDTV)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'Entex Adventure Vision': System('advision', ['advision'], ['MAME (Entex Adventure Vision)'], {MediaType.Cartridge: ['bin']}),
 	'Epoch Game Pocket Computer': System('gamepock', ['gamepock'], ['MAME (Epoch Game Pocket Computer)'], {MediaType.Cartridge: ['bin']}),
 	'Gamate': System('gamate', ['gamate'], ['MAME (Gamate)'], {MediaType.Cartridge: ['bin']}),
@@ -124,8 +124,8 @@ systems = {
 	'Watara Supervision': System('svision', ['svision'], ['MAME (Watara Supervision)'], {MediaType.Cartridge: ['ws', 'sv', 'bin']}),
 
 	#Systems that are treated as though they were whole separate things, but they're addons for other systems with their own distinct set of software
-	'32X': System('32x', ['32x'], ['Kega Fusion'], {MediaType.Cartridge: ['32x', 'bin']}),
-	'Mega CD': System('megacdj', ['megacd', 'megacdj', 'segacd'], ['Kega Fusion'], {MediaType.OpticalDisc: cdrom_formats}),
+	'32X': System('32x', ['32x'], ['Kega Fusion', 'MAME (32X)'], {MediaType.Cartridge: ['32x', 'bin']}),
+	'Mega CD': System('megacdj', ['megacd', 'megacdj', 'segacd'], ['Kega Fusion', 'MAME (Mega CD)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'PC Engine CD': System('pce', ['pcecd'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)'], {MediaType.OpticalDisc: cdrom_formats}),
 
 	#Computers
