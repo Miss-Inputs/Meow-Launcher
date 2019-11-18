@@ -203,7 +203,7 @@ systems.update({
 	'Atari Portfolio': UnsupportedSystem('pofo', ['pofo'], [], {MediaType.Cartridge: ['bin', 'rom']}),
 	'Atari ST': UnsupportedSystem('st', ['st_flop', 'st_cart'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Floppy: mame_floppy_formats + ['st', 'stx', 'msa']}),
 	#MAME seems to boot some things but not respond to input (the driver is marked solidly MACHINE_NOT_WORKING), need to find a standalone emulator that cooperates with fullscreen mode and such
-	'Bandai RX-78': UnsupportedSystem('rx78', ['rx78'], ['MAME (Bandai RX-78)'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Cartridge: ['wav']}),
+	'Bandai RX-78': UnsupportedSystem('rx78', ['rx78'], ['MAME (Bandai RX-78)'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav']}),
 	#Does boot things from software list, but not from fullpath, and doesn't really work too well
 	'C2 Color': UnsupportedSystem('c2color', ['c2color_cart'], ['MAME (C2 Color)'], {MediaType.Cartridge: ['bin']}),
 	'Casio Loopy': UnsupportedSystem('casloopy', ['casloopy'], ['MAME (Casio Loopy)'], {MediaType.Cartridge: ['bin']}),
