@@ -23,6 +23,7 @@ from platform_metadata.psp import add_psp_metadata
 from platform_metadata.ps2 import add_ps2_metadata
 from platform_metadata.saturn import add_saturn_metadata
 from platform_metadata.snes import add_snes_metadata
+from platform_metadata.switch import add_switch_metadata
 from platform_metadata.uzebox import add_uzebox_metadata
 from platform_metadata.vectrex import add_vectrex_metadata
 from platform_metadata.virtual_boy import add_virtual_boy_metadata
@@ -75,6 +76,7 @@ helpers = {
 	'PSP': add_psp_metadata,
 	'Saturn': add_saturn_metadata,
 	'SNES': add_snes_metadata,
+	'Switch': add_switch_metadata,
 	'Uzebox': add_uzebox_metadata,
 	'Vectrex': add_vectrex_metadata,
 	'Virtual Boy': add_virtual_boy_metadata,
