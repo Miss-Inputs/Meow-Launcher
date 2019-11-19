@@ -203,6 +203,7 @@ emulators = {
 	#No fullscreen from command line
 	'Medusa': Emulator(command_lines.medusa, ['nds', 'gb', 'gbc', 'gba'], ['7z', 'zip']),
 	'Reicast': Emulator(command_lines.reicast, ['gdi', 'cdi', 'chd'], []),
+	'Yuzu': Emulator(LaunchParams('yuzu', ['$<path>']), ['xci', 'nsp', 'nro', 'nso'], []),
 
 	'Mednafen (Game Boy)': MednafenModule('gb', ['gb', 'gbc'], command_lines.mednafen_gb),
 	#Based off an old version of VisualBoyAdvance
