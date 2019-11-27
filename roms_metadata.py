@@ -138,6 +138,15 @@ def find_equivalent_arcade_game(game, basename):
 	return None
 
 def add_metadata_from_arcade(game, machine):
+	if not game.icon:
+		game.icon = machine.icon
+
+	if machine.family in ('monopoly', 'scrabble'):
+		#The arcade games Monopoly and Scrabble are some weird quiz games that have the licensed board games as a theme, whereas every Monopoly and Scrabble in the software list is not going to be that at all, and just a normal conversion of the board game like you expect, so all metadata except the icon isn't necessarily going to be accurate. I choose to hardcode these cases because they annoy me
+		game.metadata.genre = 'Tabletop'
+		game.metadata.subgenre = 'Board'
+		return
+
 	if not game.metadata.genre:
 		game.metadata.genre = machine.metadata.genre
 	if not game.metadata.subgenre:
@@ -150,9 +159,6 @@ def add_metadata_from_arcade(game, machine):
 		game.metadata.series = machine.metadata.series
 	#Well, I guess not much else can be inferred here. Still, though!
 		
-	if not game.icon:
-		game.icon = machine.icon
-
 def add_metadata(game):
 	game.metadata.extension = game.rom.extension
 
