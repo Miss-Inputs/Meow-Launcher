@@ -132,7 +132,6 @@ def find_equivalent_arcade_game(game, name):
 		return None
 	if machine_name_matches(machine.name, game.rom.name):
 		return machine
-	#print(game.rom.name, name, machine.name)
 	return None
 
 def add_metadata_from_arcade(game, machine):

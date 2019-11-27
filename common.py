@@ -159,7 +159,7 @@ def clean_string(s):
 def machine_name_matches(machine_name, game_name, match_vs_system=False):
 	#TODO: Take subtitles into account
 	#Should also use name_consistency stuff once I refactor that (Turbo OutRun > Turbo Out Run)
-	#Also once I do the thing where I take care of multiple names.... well that should resolve itself at that point, but for now it's a bugger (Art of Fighting > Art of Fighting / Ryuuko no Ken) 
+	#This might need to be updated once I do the thing where I take care of alternate names in titles (Cool Game / Other Region Cool Game)
 	#This arguably shouldn't really be here
 	
 	machine_name = remove_filename_tags(machine_name)
@@ -175,5 +175,8 @@ def machine_name_matches(machine_name, game_name, match_vs_system=False):
 		if not machine_name.upper().startswith('VS. '):
 			return False
 		machine_name = machine_name[4:]
-
-	return normalize_name(machine_name, False) == normalize_name(game_name, False)
+	for machine_name_part in machine_name.split(' / '):
+		if normalize_name(machine_name_part, False) == normalize_name(game_name, False):
+			return True
+	return False
+	#return normalize_name(machine_name, False) == normalize_name(game_name, False)
