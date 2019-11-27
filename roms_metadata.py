@@ -119,16 +119,19 @@ def add_device_hardware_metadata(game, mame_driver):
 
 mame_icons = get_icons()
 
-def find_equivalent_arcade_game(game, name):
+def find_equivalent_arcade_game(game, basename):
 	#Just to be really strict: We will only get it if the name matches
 	try:
-		machine_xml = get_mame_xml(name)
+		machine_xml = get_mame_xml(basename)
 	except MachineNotFoundException:
 		return None
 	machine = Machine(machine_xml, init_metadata=True)
 	if machine.metadata.platform != 'Arcade' or machine.is_mechanical or machine.metadata.genre == 'Slot Machine':
 		#I think not, only video games can be video games
 		#That comment made sense but y'know what I mean right
+		return None
+	if '(bootleg of' in machine.name:
+		#This doesn't count
 		return None
 	if machine_name_matches(machine.name, game.rom.name):
 		return machine
