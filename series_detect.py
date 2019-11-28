@@ -13,7 +13,7 @@ from data.series_detect_overrides import series_overrides
 
 probably_not_series_index_threshold = 20
 #Assume that a number over this is probably not referring to the nth or higher entry in the series, but is probably just any old number that means something else
-probably_not_a_series_index = ('XXX', '007', 'DX')
+probably_not_a_series_index = ('XXX', '007', 'DX', 'XL')
 #These generally aren't entries in a series, and are just there at the end
 suffixes_not_part_of_series = ('64', 'Advance', '3D', 'DS')
 #If these are appended to a series it's just part of that same series and not a new one, if that makes sense, see series_match
