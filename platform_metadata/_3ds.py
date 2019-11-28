@@ -124,7 +124,6 @@ def parse_ncch(game, offset):
 		parse_exefs(game, exefs_offset)
 	#RomFS: Filesystem really
 
-	#Don't really need extended header, it's at offset + 0x200 if CXI and decrypted
 	if (not is_not_cxi) and is_decrypted:
 		extended_header = game.rom.read(seek_to=offset + 0x200, amount=0x800)
 		system_control_info = extended_header[0:0x200]
