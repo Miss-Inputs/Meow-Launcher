@@ -146,7 +146,14 @@ def parse_ncch(game, offset):
 		#SystemInfo: 0x1c0:0x200
 		save_size = int.from_bytes(system_control_info[0x1c0:0x1c8], 'little')
 		game.metadata.save_type = SaveType.Internal if save_size > 0 else SaveType.Nothing
-		#Looking at the ACI might tell us if it uses SD card...
+		#access_control_info = extended_header[0x200:0x400]
+		#arm11_local_sys_capabilities = access_control_info[0:0x170]
+		#flag1 = arm11_local_sys_capabilities[0xc] Enable L2 cache, 804MHz CPU speed
+		#flag2 = arm11_local_sys_capabilities[0xd] New 3DS system mode (Legacy/Prod/Dev1/Dev2)
+		#flag0 = arm11_local_sys_capabilities[0xe] Ideal processor, affinity mask, Old3DS system mode (Prod/Dev1-Dev4)
+		#storage_info = arm11_local_sys_capabilities[0x30:0x50]
+		#service_access_control = arm11_local_sys_capabilities[0x50:0x150]
+		#extended_service_access_control = arm11_local_sys_capabilities[0x150:0x160]
 
 
 def parse_plain_region(game, offset, length):
@@ -257,7 +264,7 @@ def parse_smdh_data(game, smdh):
 	#Region rating required: flags & 64
 	#Record application usage: flags & 256 (unset on developer/customer service tools to stop them showing up in the activity log)
 	#Disable SD card save backup: flags & 1024
-	has_save = (flags & 128) > 0
+	#has_save = (flags & 128) > 0
 	#Actually just means that a warning is shown when closing, but still
 	#if game.metadata.save_type == SaveType.Unknown:
 	#	#I guess this'd be SaveType.MemoryCard in some cases, but... meh
