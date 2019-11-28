@@ -203,7 +203,6 @@ emulators = {
 	#No fullscreen from command line
 	'Medusa': Emulator(command_lines.medusa, ['nds', 'gb', 'gbc', 'gba'], ['7z', 'zip']),
 	'Reicast': Emulator(command_lines.reicast, ['gdi', 'cdi', 'chd'], []),
-	'Yuzu': Emulator(LaunchParams('yuzu', ['$<path>']), ['xci', 'nsp', 'nro', 'nso', 'nca', 'elf', 'kip'], []),
 
 	'Mednafen (Game Boy)': MednafenModule('gb', ['gb', 'gbc'], command_lines.mednafen_gb),
 	#Based off an old version of VisualBoyAdvance
@@ -240,6 +239,8 @@ emulators = {
 	#Runs really slowly, but it does work (other than SD card emulation), although marked as not working + imperfect sound
 
 	#--These experimental emulators seem to not work more often than they do, but they are here for you to play with if you want to, because maybe other people have better luck than me (everything in my life always goes wrong):
+	'Yuzu': Emulator(LaunchParams('yuzu', ['$<path>']), ['xci', 'nsp', 'nro', 'nso', 'nca', 'elf', 'kip'], []),
+
 	'Mednafen (SNES-Faust)': MednafenModule('snes_faust', ['sfc', 'smc', 'swc']),
 	#Experimental and doesn't support expansion chips #TODO Filter out games that need expansion chips
 
@@ -248,6 +249,8 @@ emulators = {
 	'MAME (Amiga CD32)': MameSystem(command_lines.mame_system('cd32', 'cdrom'), mame_cdrom_formats),
 	#Well it boots stuff I guess, but it is marked not working, and right now I'm too drunk to try everything and it's not that important because FS-UAE works already
 	#TODO Switch to cd32n for NTSC
+	'MAME (GameKing)': MameSystem(command_lines.mame_system('gameking', 'cart'), ['bin']),
+	'MAME (GameKing 3)': MameSystem(command_lines.mame_system('gamekin3', 'cart'), ['bin']),
 	'MAME (G7400)': MameSystem(command_lines.mame_system('g7400', 'cart'), ['bin', 'rom']),
 	#just has the same graphics problems as Odyssey 2... there's a odyssey3 driver that was never released but I guess it would be for NTSC games. Actually, all the software list items say unsupported... hmm
 	'MAME (Jaguar)': MameSystem(command_lines.mame_atari_jaguar, ['j64', 'rom', 'bin', 'abs', 'cof', 'jag', 'prg']),
@@ -272,6 +275,7 @@ emulators = {
 	#Some things work, except with no sound, so... nah
 	'MAME (V.Smile Baby)': MameSystem(command_lines.mame_system('vsmileb', 'cart'), ['u1', 'u3', 'bin']),
 	#Seems to crash on some titles, also everything in software list is supported=no?
+	'MAME (VideoBrain)': MameSystem(command_lines.mame_system('vidbrain', 'cart'), ['bin']),
 	'MAME (Videoton TVC)': MameSystem(command_lines.mame_system('tvc64', 'cart'), ['bin', 'rom', 'crt']),
 	'MAME (Virtual Boy)': MameSystem(command_lines.mame_system('vboy', 'cart'), ['bin', 'vb']),
 	#Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there and a lot of software list items are unsupported
@@ -280,12 +284,9 @@ emulators = {
 	'MAME (Casio Loopy)': MameSystem(command_lines.mame_system('casloopy', 'cart'), ['bin']),
 	'MAME (Commodore CDTV)': MameSystem(command_lines.mame_system('cdtv', 'cdrom'), mame_cdrom_formats),
 	#This one works less than CD32; just takes you to the default boot screen like no CD was inserted
-	'MAME (GameKing)': MameSystem(command_lines.mame_system('gameking', 'cart'), ['bin']),
-	'MAME (GameKing 3)': MameSystem(command_lines.mame_system('gamekin3', 'cart'), ['bin']),
 	'MAME (GP32)': MameSystem(command_lines.mame_system('gp32', 'memc'), ['smc']),
 	'MAME (Koei PasoGo)': MameSystem(command_lines.mame_system('pasogo', 'cart'), ['bin']),
 	'MAME (Microvision)': MameSystem(command_lines.mame_system('microvsn', 'cart'), ['bin']),
-	'MAME (VideoBrain)': MameSystem(command_lines.mame_system('vidbrain', 'cart'), ['bin']),
 	'MAME (V.Smile Motion)': MameSystem(command_lines.mame_system('vsmilem', 'cart'), ['bin', 'u1', 'u3']),
 	'MAME (3DO)': MameSystem(command_lines.mame_system('3do', 'cdrom'), mame_cdrom_formats), #Should switch to 3do_pal when needed, but it doesn't really matter at this point
 	'MAME (Bandai RX-78)': MameSystem(command_lines.mame_system('rx78', 'cart'), ['bin', 'rom']),
