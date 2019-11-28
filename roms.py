@@ -254,7 +254,8 @@ def process_file(system_config, rom_dir, root, rom):
 
 	if not emulator:
 		if main_config.debug:
-			print(rom.path, 'could not be launched by', potential_emulators, 'because', exception_reason)
+			if isinstance(exception_reason, EmulationNotSupportedException):
+				print(rom.path, 'could not be launched by', potential_emulators, 'because', exception_reason)
 		return
 
 	game.emulator = emulator
