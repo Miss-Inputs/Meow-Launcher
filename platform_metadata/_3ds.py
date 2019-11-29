@@ -176,7 +176,7 @@ def parse_plain_region(game, offset, length):
 			game.metadata.input_info.input_options[0].inputs[0].components[0].shoulder_buttons += 2
 		elif library.startswith == '[SDK+NINTENDO:Gyroscope]':
 			game.metadata.specific_info['Uses-Gyroscope'] = True
-			game.metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls)
+			game.metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls())
 		elif library == '[SDK+NINTENDO:IsRunOnSnake]':
 			#There's also an IsRunOnSnakeForApplet found in some not-completely-sure-what-they-are builtin apps and amiibo Settings. Not sure if it does what I think it does
 			game.metadata.specific_info['New-3DS-Enhanced'] = True
