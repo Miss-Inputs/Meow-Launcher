@@ -117,6 +117,7 @@ helpers = {
 	'Neo Geo CD': add_neogeo_cd_info,
 	'Nichibutsu My Vision': add_nichibutsu_my_vision_info,
 	'PC Booter': add_pc_booter_info,
+	'PC Engine': add_pc_engine_info,
 	'PC-88': add_pc88_info,
 	'SG-1000': add_sg1000_info,
 	'Sharp X1': add_sharp_x1_info,

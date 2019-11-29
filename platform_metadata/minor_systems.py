@@ -2,9 +2,14 @@
 from enum import Enum, auto
 
 import input_metadata
-from common_types import SaveType, MediaType
+from common import machine_name_matches
+from common_types import MediaType, SaveType
 from info.region_info import TVSystem
-from software_list_info import get_software_list_entry, get_crc32_for_software_list, find_in_software_lists_with_custom_matcher
+from mame_machines import get_machines_from_source_file
+from software_list_info import (find_in_software_lists_with_custom_matcher,
+                                get_crc32_for_software_list,
+                                get_software_list_entry)
+
 
 def add_entex_adventure_vision_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -654,6 +659,22 @@ def add_microtan_65_info(game):
 		else:
 			game.metadata.notes = usage
 
+_uapce_games = list(get_machines_from_source_file('uapce'))
+def add_pc_engine_info(game):
+	#Not sure how to detect 2/6 buttons, or usage of TurboBooster-Plus, but I want to
+	equivalent_arcade = None
+	for uapce_machine in _uapce_games:
+		if machine_name_matches(uapce_machine.name, game.rom.name):
+			equivalent_arcade = uapce_machine
+			break
+	if equivalent_arcade:
+		game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
+
+	software = get_software_list_entry(game)
+	if software:
+		software.add_generic_info(game.metadata)
+		game.metadata.notes = software.get_info('usage')
+
 def add_generic_info(game):
 	#For any system not otherwise specified
 	software = get_software_list_entry(game)
@@ -663,7 +684,6 @@ def add_generic_info(game):
 
 	#TODO:
 	#Apple III: Possible input info: Keyboard and joystick by default, mouse if mouse card exists
-	#PC Engine: Input could be 2 buttons or 6 buttons, usually the former. Might be other types too? Some games should have saving via TurboBooster-Plus (Wii U VC seems to let me save in Neutopia anyway without passwords or savestates), which I guess would be SaveType.Internal
 	#Coleco Adam: Input info: Keyboard / Coleco numpad?
 	#MSX1/2: Input info: Keyboard or joystick; Other info you can get from carts here: PCB, slot (something like ascii8 or whatever), mapper
 	#GX4000: Input info: 2-button gamepad, analog stick, or light gun (Skeet Shoot, The Enforcer); gx4000.xml software list decides to put that inside a comment above the <software> element rather than anything parseable
