@@ -158,7 +158,7 @@ def parse_ds_header(game, header):
 				if have_pillow:
 					icon_bitmap = banner[0x20:0x220]
 					icon_palette = struct.unpack('H' * 16, banner[0x220:0x240])
-					game.icon = decode_icon(icon_bitmap, icon_palette)
+					game.metadata.images['Icon'] = decode_icon(icon_bitmap, icon_palette)
 
 def add_ds_input_info(game):
 	builtin_buttons = input_metadata.NormalController()

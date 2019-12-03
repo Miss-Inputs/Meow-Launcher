@@ -514,8 +514,9 @@ class Machine():
 			bios_icon = self.bios.icon
 			if bios_icon:
 				icon = bios_icon
+		self.metadata.images['Icon'] = icon
 
-		launchers.make_launcher(params, self.name, self.metadata, 'MAME machine', self.basename, icon)
+		launchers.make_launcher(params, self.name, self.metadata, 'MAME machine', self.basename)
 
 	@property
 	def is_mechanical(self):

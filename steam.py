@@ -144,14 +144,13 @@ class SteamGame():
 		self.app_state = app_state
 		self.name = name
 		self.metadata = Metadata()
-		self.icon = None
 
 		self.launchers = {}
 		self.extra_launchers = {}
 
 	def make_launcher(self):
 		params = launchers.LaunchParams('steam', ['steam://rungameid/{0}'.format(self.app_id)])
-		launchers.make_launcher(params, self.name, self.metadata, 'Steam', self.app_id, self.icon)
+		launchers.make_launcher(params, self.name, self.metadata, 'Steam', self.app_id)
 
 class IconError(Exception):
 	pass
@@ -387,7 +386,7 @@ def add_icon_from_common_section(game, common_section):
 		except IconNotFoundError:
 			continue
 		if icon:
-			game.icon = icon
+			game.metadata.images['Icon'] = icon
 			icon_exception = None
 			found_an_icon = True
 			break

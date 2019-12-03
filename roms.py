@@ -45,7 +45,6 @@ class EngineGame():
 		self.metadata = metadata.Metadata()
 		self.metadata.categories = []
 		self.folder = folder
-		self.icon = None
 
 	def get_command_line(self, system_config):
 		return self.engine.get_command_line(self, system_config.specific_config)
@@ -54,7 +53,7 @@ class EngineGame():
 		exe_name, exe_args = self.get_command_line(system_config)
 		exe_args = [arg.replace('$<path>', self.file.path) for arg in exe_args]
 		params = launchers.LaunchParams(exe_name, exe_args)
-		launchers.make_launcher(params, self.file.name, self.metadata, 'Engine game', self.file.path, self.icon)
+		launchers.make_launcher(params, self.file.name, self.metadata, 'Engine game', self.file.path)
 
 def try_engine(system_config, engine, base_dir, root, name):
 	path = os.path.join(root, name)
@@ -169,7 +168,6 @@ class Game():
 		self.metadata.platform = platform
 		self.metadata.categories = []
 		self.folder = folder
-		self.icon = None
 		self.filename_tags = []
 
 		self.emulator = None
@@ -192,7 +190,7 @@ class Game():
 		else:
 			params = params.replace_path_argument(self.rom.path)
 
-		launchers.make_launcher(params, self.rom.name, self.metadata, 'ROM', self.rom.path, self.icon)
+		launchers.make_launcher(params, self.rom.name, self.metadata, 'ROM', self.rom.path)
 
 def try_emulator(game, emulator, system_config):
 	if game.rom.extension not in emulator.supported_extensions:

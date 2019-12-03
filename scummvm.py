@@ -143,7 +143,6 @@ def get_stuff_from_filename_tags(metadata, name_tags):
 class ScummVMGame():
 	def __init__(self, name):
 		self.name = name
-		self.icon = None
 		self.options = {}
 
 	def _get_launch_params(self):
@@ -189,18 +188,18 @@ class ScummVMGame():
 		if path and os.path.isdir(path):
 			for f in os.listdir(path):
 				if f.lower().endswith('.ico'):
-					self.icon = os.path.join(path, f)
+					metadata.images['Icon'] = os.path.join(path, f)
 					break
 				if f.lower() == 'icon.png':
 					#From GOG releases, mostly
-					self.icon = os.path.join(path, f)
+					metadata.images['Icon'] = os.path.join(path, f)
 					break
 
 		name_tags = find_filename_tags.findall(name)
 		get_stuff_from_filename_tags(metadata, name_tags)
 
 		#Hmm, could use ResidualVM as the launcher type for ResidualVM games... but it's just a unique identifier type thing, so it should be fine
-		launchers.make_launcher(launch_params, name, metadata, 'ScummVM', self.name, self.icon)
+		launchers.make_launcher(launch_params, name, metadata, 'ScummVM', self.name)
 
 class ResidualVMGame(ScummVMGame):
 	@staticmethod

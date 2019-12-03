@@ -106,7 +106,7 @@ class MultiCommandLaunchParams():
 		return MultiCommandLaunchParams(new_commands)
 
 used_filenames = []
-def make_linux_desktop(launch_params, display_name, fields=None, icon=None):
+def make_linux_desktop(launch_params, display_name, fields=None):
 	base_filename = make_filename(display_name)
 	filename = base_filename + '.desktop'
 
@@ -131,22 +131,12 @@ def make_linux_desktop(launch_params, display_name, fields=None, icon=None):
 	desktop_entry['Name'] = display_name
 	desktop_entry['Exec'] = launch_params.make_linux_command_string()
 
-	if not icon and main_config.use_banner_as_icon:
-		image_section = fields.get(image_section_name)
-		if image_section:
-			icon = image_section.get('Banner')
-	if icon:
-		if isinstance(icon, str):
-			desktop_entry['Icon'] = icon
-		else: #assume PIL/Pillow image
-			if main_config.image_folder:
-				icon_folder = os.path.join(main_config.image_folder, 'icons')
-				pathlib.Path(icon_folder).mkdir(exist_ok=True, parents=True)
-				icon_path = os.path.join(icon_folder, filename + '.png')
-				icon.save(icon_path, 'png')
-				desktop_entry['Icon'] = icon_path
-
+	icon_entry = None
+	try_banner_instead = False
 	if fields:
+		if main_config.use_banner_as_icon and 'Icon' not in fields[image_section_name]:
+			try_banner_instead = True
+
 		for section_name, section in fields.items():
 			configwriter.add_section(section_name)
 			section_writer = configwriter[section_name]
@@ -155,14 +145,17 @@ def make_linux_desktop(launch_params, display_name, fields=None, icon=None):
 				if v is None:
 					continue
 
+				use_image_object = False
 				if have_pillow:
 					if isinstance(v, Image.Image):
+						use_image_object = True
 						this_image_folder = os.path.join(main_config.image_folder, k)
 						pathlib.Path(this_image_folder).mkdir(exist_ok=True, parents=True)
 						image_path = os.path.join(this_image_folder, filename + '.png')
 						v.save(image_path, 'png')
-						section_writer[k] = image_path
-						continue
+						value_as_string = image_path
+#						section_writer[k] = image_path
+#						continue
 
 				if isinstance(v, list):
 					if not v:
@@ -170,10 +163,18 @@ def make_linux_desktop(launch_params, display_name, fields=None, icon=None):
 					value_as_string = ';'.join(['None' if item is None else item.name if isinstance(item, Enum) else str(item) for item in v])
 				elif isinstance(v, Enum):
 					value_as_string = v.name
-				else:
+				#else:
+				elif not use_image_object:
 					value_as_string = str(v)
 
-				section_writer[k.replace('_', '-')] = common.clean_string(value_as_string)
+				value_as_string = common.clean_string(value_as_string)
+				section_writer[k.replace('_', '-')] = value_as_string
+				if (k == 'Banner') if try_banner_instead else (k == 'Icon'):
+					icon_entry = value_as_string
+					#Maybe should skip putting this in the images section, but eh, it's fine
+
+	if icon_entry:
+		desktop_entry['Icon'] = common.clean_string(icon_entry)
 
 	ensure_exist(path)
 	with open(path, 'wt') as f:
@@ -195,7 +196,7 @@ def make_display_name(name):
 
 	return display_name
 
-def make_launcher(launch_params, name, metadata, id_type, unique_id, icon=None):
+def make_launcher(launch_params, name, metadata, id_type, unique_id):
 	display_name = make_display_name(name)
 	filename_tags = common.find_filename_tags.findall(name)
 
@@ -209,7 +210,7 @@ def make_launcher(launch_params, name, metadata, id_type, unique_id, icon=None):
 	fields[id_section_name]['Unique-ID'] = unique_id
 
 	#For very future use, this is where the underlying host platform is abstracted away. Right now we only run on Linux though so zzzzz
-	make_linux_desktop(launch_params, display_name, fields, icon)
+	make_linux_desktop(launch_params, display_name, fields)
 
 def _get_existing_launchers():
 	a = []

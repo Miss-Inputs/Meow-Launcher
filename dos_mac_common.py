@@ -46,7 +46,6 @@ class App:
 		self.path = path
 		self.name = name
 		self.config = app_config
-		self.icon = None
 
 	def additional_metadata(self, metadata):
 		pass
@@ -102,7 +101,7 @@ class App:
 			return
 
 		metadata.emulator_name = emulator_name
-		launchers.make_launcher(params, self.name, metadata, metadata.platform, self.path, icon=self.icon)
+		launchers.make_launcher(params, self.name, metadata, metadata.platform, self.path)
 
 def scan_folders(platform, config_path, scan_function):
 	unknown_games = []

@@ -43,7 +43,7 @@ def add_nro_metadata(game):
 		#256x256 JPEG
 		icon = game.rom.read(seek_to=nro_size + icon_offset, amount=icon_size)
 		icon_io = io.BytesIO(icon)
-		game.icon = Image.open(icon_io)
+		game.metadata.images['Icon'] = Image.open(icon_io)
 	if nacp_size > 0:
 		nacp = game.rom.read(seek_to=nro_size + nacp_offset, amount=nacp_size)
 		add_nacp_metadata(game, nacp)

@@ -138,8 +138,8 @@ def find_equivalent_arcade_game(game, basename):
 	return None
 
 def add_metadata_from_arcade(game, machine):
-	if not game.icon:
-		game.icon = machine.icon
+	if 'Icon' not in game.metadata.images:
+		game.metadata.images['Icon'] = machine.icon
 
 	if machine.family in ('monopoly', 'scrabble'):
 		#The arcade games Monopoly and Scrabble are some weird quiz games that have the licensed board games as a theme, whereas every Monopoly and Scrabble in the software list is not going to be that at all, and just a normal conversion of the board game like you expect, so all metadata except the icon isn't necessarily going to be accurate. I choose to hardcode these cases because they annoy me
@@ -197,13 +197,12 @@ def add_metadata(game):
 			if equivalent_arcade:
 				game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
 	
-	#I should set up this sort of thing in platform_metadata too, so I can get PlayChoice-10 equivalent of NES, etc
 	if equivalent_arcade:
 		add_metadata_from_arcade(game, equivalent_arcade)
-	if not game.icon:
+	if 'Icon' not in game.metadata.images:
 		if main_config.use_mame_system_icons:
 			if mame_driver in mame_icons:
-				game.icon = mame_icons[mame_driver]
+				game.metadata.images['Icon'] = mame_icons[mame_driver]
 
 	get_metadata_from_tags(game)
 	get_metadata_from_regions(game)

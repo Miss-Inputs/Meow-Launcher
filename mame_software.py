@@ -71,7 +71,6 @@ class SoftwareLauncher():
 		self.media_type = media_type
 
 		self.metadata = Metadata()
-		self.icon = None
 
 	@property
 	def id(self):
@@ -84,7 +83,7 @@ class SoftwareLauncher():
 
 		launch_params = launchers.LaunchParams('mame', self.platform.get_launch_params(self))
 
-		launchers.make_launcher(launch_params, self.software.description, self.metadata, 'MAME software', self.id, self.icon)
+		launchers.make_launcher(launch_params, self.software.description, self.metadata, 'MAME software', self.id)
 
 def add_software_metadata(software):
 	software.metadata.emulator_name = 'MAME' #Will probably always be the case

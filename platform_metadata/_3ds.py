@@ -284,7 +284,7 @@ def parse_smdh_data(game, smdh):
 		game.metadata.images['Small-Icon'] = decode_icon(smol_icon, 24)
 
 		large_icon = smdh[0x24c0:0x36c0]
-		game.icon = decode_icon(large_icon, 48)
+		game.metadata.images['Icon'] = decode_icon(large_icon, 48)
 
 tile_order = [
 	#What the actual balls?
