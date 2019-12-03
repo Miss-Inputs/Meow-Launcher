@@ -131,6 +131,10 @@ def make_linux_desktop(launch_params, display_name, fields=None, icon=None):
 	desktop_entry['Name'] = display_name
 	desktop_entry['Exec'] = launch_params.make_linux_command_string()
 
+	if not icon and main_config.use_banner_as_icon:
+		image_section = fields.get(image_section_name)
+		if image_section:
+			icon = image_section.get('Banner')
 	if icon:
 		if isinstance(icon, str):
 			desktop_entry['Icon'] = icon
