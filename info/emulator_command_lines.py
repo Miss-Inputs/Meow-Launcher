@@ -791,6 +791,18 @@ def mame_zx_spectrum(game, _):
 
 	return mame_system(system, slot, options, True)
 #Mednafen modules
+def mednafen_apple_ii(game, _):
+	machines = game.metadata.specific_info.get('Machine')
+	if machines:
+		if AppleIIHardware.AppleII not in machines and AppleIIHardware.AppleIIPlus not in machines:
+			raise EmulationNotSupportedException('Only Apple II and II+ are supported, this needs ' + machines)
+
+	required_ram = game.metadata.specific_info.get('Minimum-RAM')
+	if required_ram and required_ram > 64:
+		raise EmulationNotSupportedException('Needs at least {0} KB RAM'.format(required_ram))
+
+	return mednafen_base('apple2')
+
 def mednafen_gb(game, _):
 	_verify_supported_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC7', 'HuC1', 'HuC3'], [])
 	return mednafen_base('gb')

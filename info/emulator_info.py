@@ -70,6 +70,7 @@ emulators = {
 	'VICE (Plus/4)': ViceEmulator(command_lines.vice_plus4),
 	'VICE (C128)': ViceEmulator(command_lines.vice_c128),
 
+	'Mednafen (Apple II)': MednafenModule('apple2', ['woz', 'dsk', 'po', 'do', 'd13'], command_lines.mednafen_apple_ii),
 	'Mednafen (Lynx)': MednafenModule('lynx', ['lnx', 'lyx', 'o'], command_lines.mednafen_lynx),
 	#Based on Handy, but that hasn't been updated in 14 years, so I guess this probably has some more updates
 	'Mednafen (Neo Geo Pocket)': MednafenModule('ngp', ['ngp', 'npc', 'ngc']),
