@@ -39,7 +39,7 @@ device_info_regex = re.compile(r'^(?P<checksum>[\dA-Fa-f]{4}) GD-ROM(?P<discNum>
 #Might not be " GD-ROM" on some Naomi stuff or maybe some homebrews or protos, but anyway, whatevs
 def add_info_from_main_track(game, track_path, sector_size):
 	try:
-		header = cd_read.read_mode_1_cd(track_path, sector_size, amount=128)
+		header = cd_read.read_mode_1_cd(track_path, sector_size, amount=256)
 	except NotImplementedError:
 		return
 
