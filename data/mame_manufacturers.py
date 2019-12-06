@@ -39,6 +39,7 @@ manufacturer_overrides = {
 	'California Pacific Computer': 'California Pacific',
 	'Coconuts Japan Entertainment': 'Coconuts Japan',
 	'Commodore Business Machines': 'Commodore',
+	'Creative Electronics And Software': 'Creative Electronics & Software',
 	'Creative Software': 'Creative',
 	'Cryo': 'Cryo Interactive',
 	'D3 Publishing': 'D3 Publisher',
@@ -218,7 +219,6 @@ manufacturer_overrides = {
 	'Connonwealth': 'Commonwealth',
 	'Mindscapce': 'Mindscape',
 	'Sydney Developmeent ': 'Sydney Development',
-
 	'unknown': '<unknown>', #This shows up in sv8000 software list, so it might actually just be Bandai, but when you presume you make a pres out of u and me, so we'll just lump it in with the other unknowns
 }
 
