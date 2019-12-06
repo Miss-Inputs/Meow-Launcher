@@ -149,17 +149,18 @@ countries = {
 def parse_snes_header(game, base_offset):
 	#In order to make things simpler, we'll just ignore any carts that are out of line. You wouldn't be able to get interesting results from homebrew or bootleg games anyway
 	#Hence why we won't add metadata to the game object straight away, we'll store it in a dict first and add it all later, so we add nothing at all from invalid headers
+	metadata = {}
 
 	#Note that amount goes up to 256 if you include exception vectors, but... nah
 	header = game.rom.read(seek_to=base_offset, amount=0xe0)
 	title = None
 	try:
 		title = header[0xc0:0xd5].decode('shift_jis')
+		metadata['Title'] = title
 	except UnicodeDecodeError:
 		raise BadSNESHeaderException('Title not ASCII or Shift-JIS: %s' % header[0xc0:0xd5].decode('shift_jis', errors='backslashreplace'))
 
-	metadata = {}
-
+	
 	rom_layout = header[0xd5]
 	if rom_layout in rom_layouts:
 		metadata['ROM layout'] = rom_layouts[rom_layout]
@@ -247,6 +248,7 @@ def add_normal_snes_header(game):
 			continue
 
 	if header_data:
+		game.metadata.specific_info['Internal-Title'] = header_data['Title']
 		game.metadata.specific_info['Mapper'] = header_data.get('ROM layout')
 		rom_type = header_data.get('ROM type')
 		if rom_type:
@@ -278,7 +280,8 @@ def parse_satellaview_header(game, base_offset):
 		raise BadSNESHeaderException("Publisher not alphanumeric")
 
 	try:
-		header[0xc0:0xd0].decode('shift_jis')
+		title = header[0xc0:0xd0].decode('shift_jis')
+		metadata['Title'] = title
 	except UnicodeDecodeError:
 		raise BadSNESHeaderException('Title not ASCII or Shift-JIS: %s' % header[0xc0:0xd0].decode('shift_jis', errors='backslashreplace'))
 
@@ -328,6 +331,7 @@ def add_satellaview_metadata(game):
 			continue
 
 	if header_data:
+		game.metadata.specific_info['Internal-Title'] = header_data['Title']
 		game.metadata.specific_info['Mapper'] = header_data.get('ROM layout')
 		publisher = header_data.get('Publisher')
 		if publisher is not None:
