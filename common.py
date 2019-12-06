@@ -178,6 +178,6 @@ def machine_name_matches(machine_name, game_name, match_vs_system=False):
 			return False
 		machine_name = machine_name[4:]
 	for machine_name_part in machine_name.split(' / '):
-		if normalize_name(machine_name_part, False, False) == normalize_name(game_name, False, False):
+		if normalize_name(machine_name_part, False) == normalize_name(game_name, False):
 			return True
 	return False
