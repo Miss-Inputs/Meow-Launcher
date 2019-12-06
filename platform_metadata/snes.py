@@ -43,7 +43,7 @@ def parse_sufami_turbo_header(game):
 
 	header = game.rom.read(amount=56)
 	#Magic: 0:14 Should be "BANDAI SFC-ADX"
-	#Name: 16:30
+	game.metadata.specific_info['Internal-Title'] = header[16:30].decode('shift-jis', errors='ignore')
 	#Game ID: 48:51 Could this be considered product code?
 	game.metadata.series_index = header[51]
 	#ROM speed: 52
