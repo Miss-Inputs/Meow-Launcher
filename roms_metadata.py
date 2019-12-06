@@ -133,6 +133,10 @@ def find_equivalent_arcade_game(game, basename):
 	if '(bootleg of' in machine.name:
 		#This doesn't count
 		return None
+	software_name = game.metadata.specific_info.get('MAME-Software-Full-Name')
+	if software_name:
+		if machine_name_matches(machine.name, software_name):
+			return machine
 	if machine_name_matches(machine.name, game.rom.name):
 		return machine
 	return None

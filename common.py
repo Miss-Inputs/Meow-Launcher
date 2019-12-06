@@ -11,7 +11,7 @@ def remove_filename_tags(name):
 	return remove_extra_spaces.sub('', stripped_name)
 
 words_regex = re.compile(r'[\w()]+')
-def normalize_name(name, care_about_spaces=True):
+def normalize_name(name, care_about_spaces=True, normalize_words=True):
 	name = convert_roman_numerals_in_title(name)
 	name = name.lower()
 	name = name.replace('3-d', '3d')
@@ -19,7 +19,9 @@ def normalize_name(name, care_about_spaces=True):
 	name = name.replace('é', 'e')
 	name = name.replace(': ', ' - ')
 
-	return ('-' if care_about_spaces else '').join(words_regex.findall(name))
+	if normalize_words:
+		return ('-' if care_about_spaces else '').join(words_regex.findall(name))
+	return name
 	
 def starts_with_any(s, prefixes):
 	#Allows s.startswith() with any iterable, not just tuple
@@ -176,7 +178,6 @@ def machine_name_matches(machine_name, game_name, match_vs_system=False):
 			return False
 		machine_name = machine_name[4:]
 	for machine_name_part in machine_name.split(' / '):
-		if normalize_name(machine_name_part, False) == normalize_name(game_name, False):
+		if normalize_name(machine_name_part, False, False) == normalize_name(game_name, False, False):
 			return True
 	return False
-	#return normalize_name(machine_name, False) == normalize_name(game_name, False)
