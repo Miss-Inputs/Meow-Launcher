@@ -98,6 +98,29 @@ def mame_system(driver, slot=None, slot_options=None, has_keyboard=False, autobo
 	return LaunchParams('mame', args)
 
 #MAME drivers
+def mame_32x(game, _):
+	region_codes = game.metadata.specific_info.get('Region-Code')
+	if region_codes:
+		if MegadriveRegionCodes.USA in region_codes or MegadriveRegionCodes.World in region_codes or MegadriveRegionCodes.BrazilUSA in region_codes or MegadriveRegionCodes.JapanUSA in region_codes or MegadriveRegionCodes.USAEurope in region_codes:
+			system = '32x'
+		elif MegadriveRegionCodes.Japan in region_codes or MegadriveRegionCodes.Japan1 in region_codes:
+			system = '32xj'
+		elif MegadriveRegionCodes.Europe in region_codes or MegadriveRegionCodes.EuropeA in region_codes or MegadriveRegionCodes.Europe8 in region_codes:
+			system = '32xe'
+		else:
+			system = '32x'
+	else:
+		system = '32x'
+		if game.metadata.tv_type == TVSystem.PAL:
+			system = '32xe'
+	return mame_system(system, 'cart')
+
+def mame_amiga_cd32(game, _):
+	system = 'cd32'
+	if game.metadata.tv_type == TVSystem.NTSC:
+		#PAL is more likely if it is unknown
+		system = 'cd32n'
+	return mame_system(system, 'cdrom')
 
 def mame_apple_ii(game, _):
 	slot_options = {}
@@ -451,6 +474,24 @@ def mame_master_system(game, _):
 		slot_options['ctrl2:rapidfire:ctrl'] = controller
 
 	return mame_system(system, 'cart', slot_options)
+
+def mame_mega_cd(game, _):
+	region_codes = game.metadata.specific_info.get('Region-Code')
+	if region_codes:
+		if MegadriveRegionCodes.USA in region_codes or MegadriveRegionCodes.World in region_codes or MegadriveRegionCodes.BrazilUSA in region_codes or MegadriveRegionCodes.JapanUSA in region_codes or MegadriveRegionCodes.USAEurope in region_codes:
+			system = 'segacd'
+		elif MegadriveRegionCodes.Japan in region_codes or MegadriveRegionCodes.Japan1 in region_codes:
+			system = 'megacdj'
+		elif MegadriveRegionCodes.Europe in region_codes or MegadriveRegionCodes.EuropeA in region_codes or MegadriveRegionCodes.Europe8 in region_codes:
+			system = 'megacd'
+		else:
+			system = 'segacd'
+	else:
+		system = 'segacd'
+		if game.metadata.tv_type == TVSystem.PAL:
+			system = 'megacd'
+	#megacda also exists (Asia/PAL), not sure if we need it (is that what EuropeA is for?)
+	return mame_system(system, 'cdrom')
 
 def mame_megadrive(game, _):
 	#Can do Sonic & Knuckles + Sonic 2/3 lockon (IIRC)
