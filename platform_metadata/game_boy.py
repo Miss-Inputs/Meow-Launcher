@@ -101,12 +101,12 @@ def parse_slot(game, slot):
 	if slot in mame_rom_slots:
 		original_mapper = game.metadata.specific_info.get('Mapper', 'None')
 
-		game.metadata.specific_info['Original-Mapper'] = original_mapper
+		game.metadata.specific_info['Stated-Mapper'] = original_mapper
 
 		new_mapper = mame_rom_slots[slot]
 
 		if new_mapper != original_mapper:
-			game.metadata.specific_info['Override-Mapper'] = not (original_mapper == 'MBC1' and new_mapper == 'MBC1 Multicart')
+			game.metadata.specific_info['Override-Mapper'] = True
 			game.metadata.specific_info['Mapper'] = new_mapper
 
 nintendo_logo_crc32 = 0x46195417
