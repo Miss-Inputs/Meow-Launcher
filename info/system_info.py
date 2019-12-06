@@ -119,7 +119,7 @@ systems = {
 	'SG-1000': System('sg1000', ['sg1000', 'sc3000_cart', 'sc3000_cass', 'sf7000'], ['Kega Fusion', 'MAME (SG-1000)'], {MediaType.Cartridge: ['sg', 'bin', 'sc'], MediaType.Tape: ['wav', 'bit'], MediaType.Floppy: mame_floppy_formats + ['sf7']}),
 	'Super Cassette Vision': System('scv', ['scv'], ['MAME (Super Cassette Vision)'], {MediaType.Cartridge: ['bin']}),
 	'Uzebox': System('uzebox', ['uzebox'], ['MAME (Uzebox)'], {MediaType.Executable: ['bin', 'uze']}),
-	'VC 4000': System('vc4000', ['vc4000'], ['MAME (VC 4000)'], {MediaType.Cartridge: ['bin', 'rom']}),
+	'VC 4000': System('vc4000', ['vc4000', 'database'], ['MAME (VC 4000)'], {MediaType.Cartridge: ['bin', 'rom']}),
 	'Vectrex': System('vectrex', ['vectrex'], ['MAME (Vectrex)'], {MediaType.Cartridge: ['vec', 'gam', 'bin']}),
 	'Virtual Boy': System('vboy', ['vboy'], ['Mednafen (Virtual Boy)', 'MAME (Virtual Boy)'], {MediaType.Cartridge: ['vb', 'vboy', 'bin']}),
 	'Watara Supervision': System('svision', ['svision'], ['MAME (Watara Supervision)'], {MediaType.Cartridge: ['ws', 'sv', 'bin']}),
