@@ -89,6 +89,9 @@ class ExpansionChip(Enum):
 	ST018 = auto()
 	ST01x = auto() #ST010/ST011
 	SPC7110 = auto()
+	DSP_2 = auto()
+	DSP_3 = auto()
+	DSP_4 = auto()
 
 
 class ROMType():
@@ -355,6 +358,14 @@ def add_snes_metadata(game):
 			game.metadata.save_type = SaveType.Cart if software.has_data_area('nvram') else SaveType.Nothing
 		#We can actually get lorom/hirom from feature = slot. Hmm...
 		game.metadata.specific_info['Slot'] = software.get_part_feature('slot')
+		expansion_chip = software.get_part_feature('enhancement')
+		#This stuff is detected as DSP_1 from the ROM header, so let's do that properly
+		if expansion_chip == 'DSP2':
+			game.metadata.specific_info['Expansion-Chip'] = ExpansionChip.DSP_2
+		elif expansion_chip == 'DSP3':
+			game.metadata.specific_info['Expansion-Chip'] = ExpansionChip.DSP_3
+		elif expansion_chip == 'DSP4':
+			game.metadata.specific_info['Expansion-Chip'] = ExpansionChip.DSP_4
 
 		#Meh...
 		if software.name in ('ffant2', 'ffant2a'):
