@@ -344,15 +344,6 @@ def mame_dreamcast(game, _):
 	return mame_system(system, 'cdrom')
 
 def mame_fm_towns_marty(game, _):
-	slot_options = {
-		#Don't need hard disks here
-		'scsi:1': '',
-		'scsi:2': '',
-		'scsi:3': '',
-		'scsi:4': '',
-		'scsi:5': '',
-	}
-
 	if game.metadata.media_type == MediaType.Floppy:
 		slot = 'flop1'
 	elif game.metadata.media_type == MediaType.OpticalDisc:
@@ -360,7 +351,7 @@ def mame_fm_towns_marty(game, _):
 	else:
 		#Should never happen
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
-	return mame_system('fmtmarty', slot, slot_options)
+	return mame_system('fmtmarty', slot)
 
 def mame_game_boy(game, specific_config):
 	#Do all of these actually work or are they just detected? (HuC1 and HuC3 are supposedly non-working, and are treated as MBC3?)
