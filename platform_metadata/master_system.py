@@ -155,8 +155,11 @@ def add_info_from_software_list(game, software):
 	slot = software.get_part_feature('slot')
 	if slot == 'codemasters':
 		game.metadata.specific_info['Mapper'] = 'Codemasters'
+	if slot == 'eeprom':
+		game.metadata.specific_info['Mapper'] = 'EEPROM' #This is a mapper maybe? I dunno
+		game.metadata.save_type = SaveType.Cart
 
-	if slot == 'eeprom' or software.get_part_feature('battery') == 'yes':
+	if software.get_part_feature('battery') == 'yes':
 		game.metadata.save_type = SaveType.Cart
 	else:
 		game.metadata.save_type = SaveType.Nothing
