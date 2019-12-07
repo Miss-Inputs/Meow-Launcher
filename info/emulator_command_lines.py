@@ -753,6 +753,8 @@ def mame_snes(game, specific_config):
 		#American SNES and Super Famicom are considered to be the same system, so that works out nicely
 		system = 'snes'
 
+	#TODO Set ctrl1/ctrl2: barcode_battler, joypad, miracle_piano, mouse, pachinko, sscope (also multitap, twintap which we don't need or maybe we do)
+
 	return mame_system(system, 'cart')
 
 def mame_super_cassette_vision(game, _):
