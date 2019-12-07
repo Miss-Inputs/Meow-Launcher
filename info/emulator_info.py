@@ -208,9 +208,9 @@ emulators = {
 
 	'Mednafen (Game Boy)': MednafenModule('gb', ['gb', 'gbc'], command_lines.mednafen_gb),
 	#Based off an old version of VisualBoyAdvance
-	'Mednafen (Game Gear)': MednafenModule('gg', ['gg']),
+	'Mednafen (Game Gear)': MednafenModule('gg', ['gg'], command_lines.mednafen_game_gear),
 	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes". This is based off SMS Plus
-	'Mednafen (GBA)': MednafenModule('gba', ['gba']),
+	'Mednafen (GBA)': MednafenModule('gba', ['gba'], command_lines.mednafen_gba),
 	#Based off an old version of VisualBoyAdvance
 	'Mednafen (Master System)': MednafenModule('sms', ['sms', 'bin']),
 	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes". Based off SMS Plus

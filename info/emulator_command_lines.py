@@ -13,6 +13,7 @@ from platform_metadata.master_system import SMSPeripheral
 from platform_metadata.megadrive import MegadriveRegionCodes
 from platform_metadata.nes import NESPeripheral
 from platform_metadata.saturn import SaturnRegionCodes
+from platform_metadata.snes import ExpansionChip
 from platform_metadata.zx_spectrum import ZXJoystick, ZXMachine
 from software_list_info import get_software_list_by_name
 
@@ -828,6 +829,7 @@ def mame_zx_spectrum(game, _):
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 
 	return mame_system(system, slot, options, True)
+
 #Mednafen modules
 def mednafen_apple_ii(game, _):
 	machines = game.metadata.specific_info.get('Machine')
@@ -841,9 +843,20 @@ def mednafen_apple_ii(game, _):
 
 	return mednafen_base('apple2')
 
+def mednafen_game_gear(game, _):
+	mapper = game.metadata.specific_info.get('Mapper')
+	if mapper in ('Codemasters', 'EEPROM'):
+		raise EmulationNotSupportedException('{0} mapper not supported'.format(mapper))
+	return mednafen_base('gg')
+
 def mednafen_gb(game, _):
 	_verify_supported_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC7', 'HuC1', 'HuC3'], [])
 	return mednafen_base('gb')
+
+def mednafen_gba(game, _):
+	if game.rom.get_size() > (32 * 1024 * 1024):
+		raise EmulationNotSupportedException('64MB GBA Video carts not supported')
+	return mednafen_base('gba')
 
 def mednafen_lynx(game, _):
 	if game.metadata.media_type == MediaType.Cartridge and not game.metadata.specific_info.get('Headered', False):
@@ -883,6 +896,14 @@ def mednafen_nes(game, _):
 			raise EmulationNotSupportedException('Unsupported mapper: %d (%s)' % (mapper, game.metadata.specific_info.get('Mapper')))
 
 	return mednafen_base('nes')
+
+def mame_snes_faust(game, _):
+	#Also does not support any other input except normal controller and multitap
+	expansion_chip = game.metadata.specific_info.get('Expansion-Chip')
+	if expansion_chip:
+		if expansion_chip not in (ExpansionChip.CX4, ExpansionChip.SA_1, ExpansionChip.DSP_1, ExpansionChip.SuperFX, ExpansionChip.SuperFX2):
+			raise EmulationNotSupportedException('{0} not supported'.format(expansion_chip))
+	return mednafen_base('snes_faust')
 
 #VICE
 def vice_c64_base(game):
