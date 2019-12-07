@@ -229,7 +229,7 @@ emulators = {
 	#This is the only CD-i model that works according to wisdom passed down the ages (is it still true or does other stuff work now?), and it says it's not working + imperfect graphics/sound, but it seems fine so far
 	'MAME (Dreamcast)': MameSystem(command_lines.mame_dreamcast, mame_cdrom_formats),
 	#Sloooow, marked as non-working + imperfect sound
-	'MAME (FM Towns Marty)': MameSystem(command_lines.mame_fm_towns_marty, mame_cdrom_formats + mame_floppy_formats),
+	'MAME (FM Towns Marty)': MameSystem(command_lines.mame_fm_towns_marty, mame_cdrom_formats + mame_floppy_formats + ['bin']),
 	#As it says right there in the fmtowns.cpp comments: "Issues: Video emulation is far from complete." and still marked not working, but it seems okay for a few games actually
 	'MAME (Hartung Game Master)': MameSystem(command_lines.mame_system('gmaster', 'cart'), ['bin']),
 	#Hmm... says not working and imperfect sound. I guess it does run the games, though

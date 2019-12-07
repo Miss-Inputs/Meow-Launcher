@@ -145,7 +145,7 @@ systems = {
 	#Unsure which one the "main" driver is, or if some of them count as separate systems...
 	#TODO: This can work with MAME by using -quik and autoboot, and... there's cartridges? Huh?
 	'FM-7': System('fm7', ['fm7_cass', 'fm7_disk', 'fm77av'], ['MAME (FM-7)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav', 't77']}),
-	'FM Towns': System('fmtmarty', ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}),
+	'FM Towns': System('fmtmarty', ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats + ['bin'], MediaType.OpticalDisc: cdrom_formats}),
 	#Not bothering adding the FM Towns Not-Marty MAME driver as it just makes some things not work (if they're non-bootable disks)
 	'IBM PCjr': System('ibmpcjr', ['ibmpcjr_cart'], ['MAME (IBM PCjr)'], {MediaType.Cartridge: ['bin', 'jrc'], MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['exe', 'com', 'bat']}),
 	#For the carts, because otherwise we'd just call the software DOS or PC Booter.
