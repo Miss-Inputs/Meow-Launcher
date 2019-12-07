@@ -1043,6 +1043,16 @@ def dolphin(game, _):
 
 	return LaunchParams('dolphin-emu', ['-b', '-e', '$<path>'])
 
+def flycast(_, specific_config):
+	env_vars = {}
+	if specific_config.get('force_opengl_version', False):
+		#Looks like this still needs to be here
+		env_vars['MESA_GL_VERSION_OVERRIDE'] = '4.3'
+	args = ['-config', 'x11:fullscreen=1']
+	args.append('$<path>')
+	#Executable name is still called Reicast, which means until I do the custom paths to emulators thing you can't really use both Flycast and Reicast as your emulator preference for Dreamcast (but then why would you need to do that)
+	return LaunchParams('reicast', args, env_vars)
+
 def fs_uae(game, specific_config):
 	args = ['--fullscreen']
 	if game.metadata.platform == 'Amiga CD32':

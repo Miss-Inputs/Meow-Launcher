@@ -40,6 +40,7 @@ emulators = {
 	#Executable name might be a7800.Linux-x86_64 depending on how it's installed... hmm
 	'cxNES': Emulator(command_lines.cxnes, ['nes', 'fds', 'unf', 'unif'], ['7z', 'zip']),
 	'Dolphin': Emulator(command_lines.dolphin, ['iso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs', 'm3u'], []),
+	'Flycast': Emulator(command_lines.flycast, ['gdi', 'cdi', 'chd', 'cue'], []),
 	'FS-UAE': Emulator(command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf'], []),
 	#Note that .ipf files need a separately downloadable plugin. We could detect the presence of that, I guess
 	'Gambatte': Emulator(command_lines.gambatte, ['gb', 'gbc'], ['zip']),
@@ -58,6 +59,7 @@ emulators = {
 	#Maybe I want to move that to emulator_command_lines because it's such a heckin mess... yike
 	'PokeMini (wrapper)': Emulator(MultiCommandLaunchParams([LaunchParams('mkdir', ['-p', os.path.expanduser('~/.config/PokeMini')]), LaunchParams('cd', [os.path.expanduser('~/.config/PokeMini')]), LaunchParams('PokeMini', ['-fullscreen', '$<path>'])]), ['min'], ['zip']),
 	'PPSSPP': Emulator(command_lines.ppsspp, ['iso', 'pbp', 'cso'], []),
+	'Reicast': Emulator(command_lines.reicast, ['gdi', 'cdi', 'chd'], []),
 	'SimCoupe': Emulator(LaunchParams('simcoupe', ['-fullscreen', 'yes', '$<path>']), ['mgt', 'sad', 'dsk', 'sbt'], ['zip', 'gz']),
 	'Snes9x': Emulator(LaunchParams('snes9x-gtk', ['$<path>']), ['sfc', 'smc', 'swc'], ['zip', 'gz']),
 	#Can't set fullscreen mode from the command line so you have to set up that yourself (but it will do that automatically); GTK port can't do Sufami Turbo or Satellaview from command line due to lacking multi-cart support that Windows has (Unix non-GTK doesn't like being in fullscreen etc)
@@ -203,7 +205,6 @@ emulators = {
 	'Citra': Emulator(command_lines.citra, ['3ds', 'cxi', '3dsx'], []),
 	#No fullscreen from command line
 	'Medusa': Emulator(command_lines.medusa, ['nds', 'gb', 'gbc', 'gba'], ['7z', 'zip']),
-	'Reicast': Emulator(command_lines.reicast, ['gdi', 'cdi', 'chd'], []),
 
 	'Mednafen (Game Boy)': MednafenModule('gb', ['gb', 'gbc'], command_lines.mednafen_gb),
 	#Based off an old version of VisualBoyAdvance
