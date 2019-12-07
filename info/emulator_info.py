@@ -285,6 +285,8 @@ emulators = {
 	'MAME (Commodore CDTV)': MameSystem(command_lines.mame_system('cdtv', 'cdrom'), mame_cdrom_formats),
 	#This one works less than CD32; just takes you to the default boot screen like no CD was inserted
 	'MAME (GP32)': MameSystem(command_lines.mame_system('gp32', 'memc'), ['smc']),
+	'MAME (Copera)': MameSystem(command_lines.mame_system('copera', 'cart'), ['bin', 'md']),
+	#Displays the logo and then displays nothing
 	'MAME (Koei PasoGo)': MameSystem(command_lines.mame_system('pasogo', 'cart'), ['bin']),
 	'MAME (Microvision)': MameSystem(command_lines.mame_system('microvsn', 'cart'), ['bin']),
 	'MAME (V.Smile Motion)': MameSystem(command_lines.mame_system('vsmilem', 'cart'), ['bin', 'u1', 'u3']),
