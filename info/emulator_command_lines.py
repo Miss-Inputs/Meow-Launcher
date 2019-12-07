@@ -149,8 +149,13 @@ def mame_apple_ii(game, _):
 
 def mame_atari_2600(game, _):
 	size = game.rom.get_size()
-	if size > (512 * 1024):
-		raise EmulationNotSupportedException('ROM too big: %d' % size)
+	#https://github.com/mamedev/mame/blob/master/src/devices/bus/vcs/vcs_slot.cpp#L188
+	if size not in (0x800, 0x1000, 0x2000, 0x28ff, 0x2900, 0x3000, 0x4000, 0x8000, 0x10000, 0x80000):
+		raise EmulationNotSupportedException('ROM size not supported: {0}'.format(size))
+
+	if game.metadata.specific_info.get('Uses-Supercharger', False):
+		#MAME does support Supercharger tapes with scharger software list and -cass, but it requires playing the tape, so we pretend it doesn't in accordance with me not liking to press the play tape button; and this is making me think I want some kind of manual_tape_load_okay option that enables this and other MAME drivers but anyway that's another story
+		raise EmulationNotSupportedException('Requires Supercharger')
 
 	left = game.metadata.specific_info.get('Left-Peripheral')
 	right = game.metadata.specific_info.get('Right-Peripheral')
