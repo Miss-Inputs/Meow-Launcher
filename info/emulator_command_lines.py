@@ -277,7 +277,6 @@ def mame_c64(game, _):
 	#32 = EasyFlash. Well, at least it doesn't segfault. Just doesn't boot, even if I play with the dip switch that says "Boot". Maybe I'm missing something here?
 		#There's a Prince of Persia cart in c64_cart.xml that uses easyflash type and is listed as being perfectly supported, but maybe it's one of those things where it'll work from the software list but not as a normal ROM (it's broken up into multiple ROMs)
 	#15 (System 3/C64GS) does seem to be a bit weird too, oh well
-	#Maybe check the software list for compatibility
 	cart_type = game.metadata.specific_info.get('Mapper-Number', None)
 	cart_type_name = game.metadata.specific_info.get('Mapper', None)
 
