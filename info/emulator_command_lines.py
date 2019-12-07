@@ -783,10 +783,10 @@ def mame_vic_20(game, _):
 def mame_zx_spectrum(game, _):
 	options = {}
 
+	system = 'spec128' #Probably a good default
+	
 	machine = game.metadata.specific_info.get('Machine')
-	if not machine:
-		system = 'spec128' #Probably a good default
-	elif machine == ZXMachine.ZX48k:
+	if machine == ZXMachine.ZX48k:
 		system = 'spectrum'
 	elif machine == ZXMachine.ZX128k:
 		system = 'spec128'
