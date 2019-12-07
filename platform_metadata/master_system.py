@@ -155,9 +155,25 @@ def add_info_from_software_list(game, software):
 	slot = software.get_part_feature('slot')
 	if slot == 'codemasters':
 		game.metadata.specific_info['Mapper'] = 'Codemasters'
-	if slot == 'eeprom':
-		game.metadata.specific_info['Mapper'] = 'EEPROM' #This is a mapper maybe? I dunno
+	elif slot == 'eeprom':
+		game.metadata.specific_info['Mapper'] = 'EEPROM' #Is this really describable as a "mapper"?
 		game.metadata.save_type = SaveType.Cart
+	elif slot == '4pak':
+		game.metadata.specific_info['Mapper'] = '4 Pak'
+	elif slot == 'hicom':
+		game.metadata.specific_info['Mapper'] = 'Hi-Com'
+	elif slot == 'korean':
+		game.metadata.specific_info['Mapper'] = 'Korean'
+	elif slot == 'korean_nb':
+		game.metadata.specific_info['Mapper'] = 'Korean Unbanked'
+	elif slot == 'zemina':
+		game.metadata.specific_info['Mapper'] = 'Zemina'
+	elif slot == 'janggun':
+		game.metadata.specific_info['Mapper'] = 'Janggun'
+	elif slot == 'nemesis':
+		game.metadata.specific_info['Mapper'] = 'Nemesis'
+	elif slot == 'seojin':
+		game.metadata.specific_info['Mapper'] = 'Seo Jin'
 
 	if software.get_part_feature('battery') == 'yes':
 		game.metadata.save_type = SaveType.Cart
