@@ -354,6 +354,7 @@ def add_snes_metadata(game):
 		if game.metadata.save_type == SaveType.Unknown and game.metadata.platform != 'Satellaview':
 			game.metadata.save_type = SaveType.Cart if software.has_data_area('nvram') else SaveType.Nothing
 		#We can actually get lorom/hirom from feature = slot. Hmm...
+		game.metadata.specific_info['Slot'] = software.get_part_feature('slot')
 
 		#Meh...
 		if software.name in ('ffant2', 'ffant2a'):
