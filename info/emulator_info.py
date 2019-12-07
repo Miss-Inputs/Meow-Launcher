@@ -31,8 +31,8 @@ class ViceEmulator(Emulator):
 	def __init__(self, params):
 		#Also does z and zoo compression but I haven't done those in archives.py yet
 		#WARNING! Will write back changes to your disk images unless they are compressed or actually write protected on the file system
-		#FIXME: Does support compressed tapes/disks but doesn't support compressed cartridges (seemingly). This would require changing all kinds of stuff with how compression is handled here.
-		Emulator.__init__(self, params, ['d64', 'g64', 'x64', 'p64', 'd71', 'd81', 'd80', 'd82', 'd1m', 'd2m'] + ['20', '40', '60', '70', '80', 'a0', 'b0', 'e0', 'crt', 'bin'] + ['p00', 'prg', 'tap', 't64'], ['gz', 'bz2', 'zip', 'tgz'])
+		#FIXME: Does support compressed tapes/disks (gz/bz2/zip/tgz) but doesn't support compressed cartridges (seemingly). This would require changing all kinds of stuff with how compression is handled here.
+		Emulator.__init__(self, params, ['d64', 'g64', 'x64', 'p64', 'd71', 'd81', 'd80', 'd82', 'd1m', 'd2m'] + ['20', '40', '60', '70', '80', 'a0', 'b0', 'e0', 'crt', 'bin'] + ['p00', 'prg', 'tap', 't64'], [])
 
 emulators = {
 	'A7800': Emulator(command_lines.a7800, ['bin', 'a78'], ['7z', 'zip']),
