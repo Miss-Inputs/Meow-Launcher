@@ -269,6 +269,8 @@ emulators = {
 	#Status = good but doesn't seem to emulate joysticks and a few games don't work, also tapes are evil and need manual booting
 	'MAME (Saturn)': MameSystem(command_lines.mame_saturn, mame_cdrom_formats),
 	#Non-working, imperfect sound; crashes on quite a few games and hangs to white screen sometimes
+	'MAME (Sega Pico)': MameSystem(command_lines.mame_pico, ['bin', 'md']),
+	#Seems like a lot of stuff doesn't get anywhere? Probably needs the book part
 	"MAME (Super A'Can)": MameSystem(command_lines.mame_system('supracan', 'cart'), ['bin']),
 	#Some things work, except with no sound, so... nah
 	'MAME (V.Smile Baby)': MameSystem(command_lines.mame_system('vsmileb', 'cart'), ['u1', 'u3', 'bin']),

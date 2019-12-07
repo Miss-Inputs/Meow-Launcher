@@ -655,6 +655,23 @@ def mame_pc_engine(game, _):
 
 	return mame_system(system, 'cart')
 
+def mame_pico(game, _):
+	region_codes = game.metadata.specific_info.get('Region-Code')
+	if region_codes:
+		if MegadriveRegionCodes.USA in region_codes or MegadriveRegionCodes.World in region_codes or MegadriveRegionCodes.BrazilUSA in region_codes or MegadriveRegionCodes.JapanUSA in region_codes or MegadriveRegionCodes.USAEurope in region_codes:
+			system = 'picou'
+		elif MegadriveRegionCodes.Japan in region_codes or MegadriveRegionCodes.Japan1 in region_codes:
+			system = 'picoj'
+		elif MegadriveRegionCodes.Europe in region_codes or MegadriveRegionCodes.EuropeA in region_codes or MegadriveRegionCodes.Europe8 in region_codes:
+			system = 'pico'
+		else:
+			system = 'picoj' #Seems the most likely default
+	else:
+		system = 'picoj'
+		if game.metadata.tv_type == TVSystem.PAL:
+			system = 'pico'
+	return mame_system(system, 'cart')
+
 def mame_saturn(game, _):
 	region_codes = game.metadata.specific_info.get('Region-Code')
 	#Clones here are hisaturn and vsaturn, not sure how useful those would be

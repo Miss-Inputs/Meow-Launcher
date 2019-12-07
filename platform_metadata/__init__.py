@@ -89,6 +89,7 @@ helpers = {
 	'Benesse Pocket Challenge V2': add_wonderswan_metadata,
 	'Game Gear': get_sms_metadata,
 	'Mega CD': add_megadrive_metadata,
+	'Sega Pico': add_megadrive_metadata,
 
 	#Just get basic system info and software list stuff for now (see minor_systems.py). Not as fun as the others.
 	'Amiga CD32': add_cd32_info,

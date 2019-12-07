@@ -180,6 +180,9 @@ systems = {
 
 systems.update({
 	#Theoretically supported, but not supported enough to be considered playable (see emulator_info for commentary there), but you can manually add them to systems.ini if you really want
+	'GameKing': UnsupportedSystem('gameking', ['gameking'], ['MAME (GameKing)'], {MediaType.Cartridge: ['bin']}),
+	#Still no sound
+	'GameKing 3': UnsupportedSystem('gamekin3', ['gameking3'], ['MAME (GameKing 3)'], {MediaType.Cartridge: ['bin']}),
 	'Jaguar': UnsupportedSystem('jaguar', ['jaguar'], ['MAME (Jaguar)'], {MediaType.Cartridge: ['j64', 'bin', 'rom'], MediaType.Executable: ['abs', 'cof', 'jag', 'prg']}),
 	'Magnavox Odyssey²': UnsupportedSystem('odyssey2', ['odyssey2'], ['MAME (Magnavox Odyssey²)', 'MAME (G7400)'], {MediaType.Cartridge: ['bin', 'rom']}),
 	'G7400': UnsupportedSystem('g7400', ['g7400'], ['MAME (G7400)'], {MediaType.Cartridge: ['bin', 'rom']}),
@@ -195,7 +198,7 @@ systems.update({
 	#No emulators that are cool enough on Linux (any available are too preliminary to work). Yet. Maybe? That I know of. They're here for completeness. Or no emulators at all.
 	#They are also here to remind me to check up on them every now and again to make sure they indeed don't work or if I was just being stupid all along
 
-	#Stuff with skeleton MAME drivers:
+	#Stuff with skeleton/borked MAME drivers:
 	'3DO': UnsupportedSystem('3do', [], ['MAME (3DO)'], {MediaType.OpticalDisc: cdrom_formats}),
 	#4DO doesn't like Wine and has no native Linux version (just libretro and meh), Phoenix Emu has no command line support; so both are unusable for our purposes. MAME driver just kinda hangs at the 3DO logo at the moment
 	'Advanced Pico Beena': UnsupportedSystem('beena', ['sega_beena_cart'], ['MAME (Advanced Pico Beena)'], {MediaType.Cartridge: ['bin']}),
@@ -212,9 +215,6 @@ systems.update({
 	'ClickStart': UnsupportedSystem('clikstrt', ['clickstart_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Copera': UnsupportedSystem('copera', ['copera'], [], {MediaType.Cartridge: ['bin', 'md']}),
 	#Kega Fusion emulates the Pico well enough to show the message telling you the Copera software won't work on a Pico, at least; otherwise no known emulation
-	'GameKing': UnsupportedSystem('gameking', ['gameking'], ['MAME (GameKing)'], {MediaType.Cartridge: ['bin']}),
-	#Does display some graphics, and almost boots the games, but nothing seems actually playable; no sound anyway #TODO Reminder to self to try again once MAME 0.216 comes out because it might boot stuff apparently
-	'GameKing 3': UnsupportedSystem('gamekin3', ['gameking3'], ['MAME (GameKing 3)'], {MediaType.Cartridge: ['bin']}),
 	'Gizmondo': UnsupportedSystem('gizmondo', [], [], {}), #Uses folders seemingly, so that may be weird with the file types
 	'GP32': UnsupportedSystem('gp32', ['gp32'], ['MAME (GP32)'], {MediaType.Cartridge: ['smc'], MediaType.Executable: ['gxb', 'sxf', 'bin', 'gxf', 'fxe']}),
 	#Runs too slow to verify if anything else works, but all documentation points to not
@@ -264,7 +264,7 @@ systems.update({
 	#Too cool for anyone at all so we can't get much info there and there is not really any point in me doing this other than either smartarsery or boredom:
 	'Action Max': UnsupportedSystem(None, [], [], {}),
 	#No emulators, no dumps (probably nobody has decided the best way to preserve VHS games), no nothing
-	'Arcadia Skeet Shoot': UnsupportedSystem(None, [], [], {}),
+	'Arcadia Skeet Shoot': UnsupportedSystem(None, [], [], {}), #VHS?
 	'Bandai Playdia': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'Buzztime Home Trivia System':  UnsupportedSystem(None, [], [], {}),
 	'Coleco Telstar Arcade': UnsupportedSystem(None, [], [], {}),
@@ -273,9 +273,8 @@ systems.update({
 	#No MAME driver or anything, although it's mentioned on an old MESS 'to be dumped' page; apparently CPU is inside the carts
 	'Tapwave Zodiac': UnsupportedSystem(None, [], [], {}),
 	#File type is like, kinda .prc but kinda not (the device runs spicy PalmOS, would it be considered part of that if any of that was emulated?)
-	'Terebikko': UnsupportedSystem(None, [], [], {}),
-	'Video Driver': UnsupportedSystem(None, [], [], {}),
-	'View-Master Interactive Vision': UnsupportedSystem(None, [], [], {}),	
+	'Terebikko': UnsupportedSystem(None, [], [], {}), #VHS
+	'View-Master Interactive Vision': UnsupportedSystem(None, [], [], {}), #VHS
 	'ZAPit Game Wave': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: ['iso']}),
 	#An SDK with emulator exists according to some company's website but yeah nah
 
@@ -328,8 +327,8 @@ systems.update({
 	#Things that have other weird usability issues
 	'Apple IIgs': UnsupportedSystem('apple2gs', ['apple2gs'], [], {MediaType.Floppy: mame_floppy_formats + ['2mg', 'shk', 'bxy']}),
 	#Some games require a hard disk with an OS install and they won't tell you this because of course not, and if you want to autoboot the floppies with a hard drive still in there you have to set it to always boot from slot 5 and it's really annoying and I hate it
-	'Sega Pico': UnsupportedSystem('pico', ['pico'], ['Kega Fusion'], {MediaType.Cartridge: ['bin', 'md']}),
-	#Emulation works in Kega Fusion (and partially MAME but many games don't boot), but they don't display the actual book, which would be needed for most of the software to make any sense. Kega Fusion doesn't even have controls to turn the pages, which is needed for stuff
+	'Sega Pico': UnsupportedSystem('pico', ['pico'], ['Kega Fusion', 'MAME (Sega Pico)'], {MediaType.Cartridge: ['bin', 'md']}),
+	#Neither emulator displays the actual book, which would be needed for anything to make sense… Kega Fusion doesn't even have decrement/increment page controls
 
 	#TODO: Me being lazy, need to check if these actually work or not:
 	'Acorn Atom': UnsupportedSystem('atom', ['atom_cass', 'atom_flop', 'atom_rom'], [], {MediaType.Floppy: ['40t', 'dsk'], MediaType.Tape: ['wav', 'tap', 'csw', 'uef'], MediaType.Executable: ['atm'], MediaType.Cartridge: ['bin', 'rom']}),
