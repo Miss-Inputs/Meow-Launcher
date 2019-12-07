@@ -897,7 +897,7 @@ def mednafen_nes(game, _):
 
 	return mednafen_base('nes')
 
-def mame_snes_faust(game, _):
+def mednafen_snes_faust(game, _):
 	#Also does not support any other input except normal controller and multitap
 	expansion_chip = game.metadata.specific_info.get('Expansion-Chip')
 	if expansion_chip:
