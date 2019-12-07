@@ -154,7 +154,7 @@ emulators = {
 	'MAME (Sharp X68000)': MameSystem(command_lines.mame_sharp_x68000, mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim', 'm3u']),
 	#It doesn't	really support m3u, but I'm going to make it so it does (multi-disk games seem fairly common)
 	#All the other models of X68000 (x68030, x68ksupr, x68kxvi) don't work yet
-	'MAME (SNES)': MameSystem(command_lines.mame_snes, ['sfc', 'bs', 'st']),
+	'MAME (SNES)': MameSystem(command_lines.mame_snes, ['sfc', 'bs', 'st', 'smc', 'swc']),
 	#The main advantage here is that it supports multi-slot carts (BS-X and Sufami Turbo) where SNES9x's GTK port does not, otherwise I dunno how well it works
 	'MAME (Sord M5)': MameSystem(command_lines.mame_sord_m5, ['bin']),
 	'MAME (Super Cassette Vision)': MameSystem(command_lines.mame_super_cassette_vision, ['bin']),
