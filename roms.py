@@ -238,7 +238,7 @@ def process_file(system_config, rom_dir, root, rom):
 			potential_emulator = emulator_info.emulators[potential_emulator_name]
 			params = try_emulator(game, potential_emulator, system_config)
 			if params:
-				if main_config.skip_mame_non_working_software and isinstance(potential_emulator, emulator_info.MameSystem):
+				if main_config.skip_mame_non_working_software and isinstance(potential_emulator, emulator_info.MameDriver):
 					if game.metadata.specific_info.get('MAME-Emulation-Status', metadata.EmulationStatus.Unknown) == metadata.EmulationStatus.Broken:
 						reason = '{0} not supported'.format(game.metadata.specific_info.get('MAME-Software-Name', ''))
 						raise EmulationNotSupportedException(reason)
@@ -258,7 +258,7 @@ def process_file(system_config, rom_dir, root, rom):
 
 	game.emulator = emulator
 	game.launch_params = launch_params
-	if isinstance(game.emulator, emulator_info.MameSystem):
+	if isinstance(game.emulator, emulator_info.MameDriver):
 		game.metadata.emulator_name = 'MAME'
 	elif isinstance(game.emulator, emulator_info.MednafenModule):
 		game.metadata.emulator_name = 'Mednafen'
