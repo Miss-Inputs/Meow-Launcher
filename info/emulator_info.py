@@ -90,8 +90,6 @@ emulators = {
 	#MT06201 (issue with emulated monochrome monitor), MT6509 lists various compatibility issues
 	'MAME (APF-MP1000)': MameDriver(command_lines.mame_system('apfm1000', 'cart'), ['bin']),
 	'MAME (Apple II)': MameDriver(command_lines.mame_apple_ii, mame_floppy_formats + ['do', 'po', 'woz']),
-	#Apple II+ is required for autobooting because apparently the original Apple II doesn't do that; not sure if Apple IIe would make much difference but eh
-	#There's a lot of slot options but I'm not sure if any would be useful for general purposes
 	'MAME (Apple III)': MameDriver(command_lines.mame_system('apple3', 'flop1', has_keyboard=True), mame_floppy_formats + ['do', 'po']),
 	'MAME (Arcadia 2001)': MameDriver(command_lines.mame_system('arcadia', 'cart'), ['bin']),
 	#Can also use bndarc for Bandai version but that doesn't seem to make any difference at all
@@ -184,12 +182,8 @@ emulators = {
 	'MAME (WonderSwan)': MameDriver(command_lines.mame_system('wscolor', 'cart'), ['ws', 'wsc', 'bin', 'pc2']),
 	#Could also be weird where rotation is involved, but at least it selects the right way around on startup
 	'MAME (ZX Spectrum)': MameDriver(command_lines.mame_zx_spectrum, ['ach', 'frz', 'plusd', 'prg', 'sem', 'sit', 'sna', 'snp', 'snx', 'sp', 'z80', 'zx', 'bin', 'rom', 'raw', 'scr'] + mame_floppy_formats),
-	#.trd would be doable with -exp beta128, but that only autoboots on Spectrum 48K and everything is designed for 128K
+	#.trd would be doable with -exp beta128, but that only autoboots on Spectrum 48K (128K needs 128 Basic > "randomize usr 15616" > j > enter) and everything is designed for 128K
 	#.opu .opd might work with -exp opus, but that seems to only work on 48K and one must type "run"
-
-	#Other systems that MAME can do but I'm too lazy to do them yet because they'd need a command line generator function or other:
-	#Stuff that MAME doesn't do so well, but a non-skeleton driver exists:
-	#PlayStation: Would require proper region code detection, which would require looking at ISO9660 stuff properly. Anyway it is MACHINE_NOT_WORKING and often doesn't play the games (see https://mametesters.org/view.php?id=7127)
 
 	#----- The experimental section. The emulators are still here, it's just so you, the fabulous and wonderful end user, can have more information on how to manage expectations. Or something like that.
 
@@ -277,6 +271,8 @@ emulators = {
 	'MAME (Videoton TVC)': MameDriver(command_lines.mame_system('tvc64', 'cart'), ['bin', 'rom', 'crt']),
 	'MAME (Virtual Boy)': MameDriver(command_lines.mame_system('vboy', 'cart'), ['bin', 'vb']),
 	#Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there and a lot of software list items are unsupported
+	#TODO PlayStation: Would require proper region code detection, which would require looking at ISO9660 stuff properly. Anyway it is MACHINE_NOT_WORKING and often doesn't play the games (see https://mametesters.org/view.php?id=7127)
+	#TODO: Apple IIgs driver (make a platform_helper thingy that checks for [req OS install] in the filename or something, and then just screw that)
 
 	#Just here for future use or fun really; these straight up don't work:
 	'MAME (Casio Loopy)': MameDriver(command_lines.mame_system('casloopy', 'cart'), ['bin']),
