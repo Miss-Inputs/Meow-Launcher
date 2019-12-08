@@ -141,6 +141,7 @@ manufacturer_overrides = {
 	'Disney Interactive Studios': 'Disney',
 	'Disney Software': 'Disney',
 	'Dreamworks Games': 'DreamWorks',
+	'HesWare': 'HES',
 	'LEGO Media': 'Lego',
 	'Mattel Electronics': 'Mattel',
 	'Mattel Interactive': 'Mattel',
