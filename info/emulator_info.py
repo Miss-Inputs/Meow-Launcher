@@ -189,8 +189,6 @@ emulators = {
 
 	#Other systems that MAME can do but I'm too lazy to do them yet because they'd need a command line generator function or other:
 	#Stuff that MAME doesn't do so well, but a non-skeleton driver exists:
-	#Amiga CD32: I guess it doesn't really work at this point in time
-	#Commodore CDTV: Nope
 	#PlayStation: Would require proper region code detection, which would require looking at ISO9660 stuff properly. Anyway it is MACHINE_NOT_WORKING and often doesn't play the games (see https://mametesters.org/view.php?id=7127)
 
 	#----- The experimental section. The emulators are still here, it's just so you, the fabulous and wonderful end user, can have more information on how to manage expectations. Or something like that.
