@@ -313,6 +313,7 @@ systems.update({
 	#This has quite a few variants and apparently works, pmd85.cpp has todos/notes. Notably, floppy interface and speaker apparently not there yet. Anyway, boo tapes
 	'PocketStation': UnsupportedSystem('pockstat', [], [], {MediaType.Digital: ['gme']}),
 	#Makes you set time and date each time
+	'PS3': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Digital: ['pkg'], MediaType.Executable: ['self', 'elf', 'bin']}),
 	'SVI-3x8': UnsupportedSystem('svi328', ['svi318_cart', 'svi318_cass', 'svi318_flop'], [], {MediaType.Tape: ['wav', 'cas'], MediaType.Cartridge: ['bin', 'rom']}),
 	#Works well, just needs to autoboot tapes, and that might be tricky because you have BLOAD and CLOAD (and how does one even tell the difference programmatically)
 	'ZX81': UnsupportedSystem('zx81', ['zx80_cass', 'zx81_cass'], [], {MediaType.Tape: ['wav', 'cas', 'p', '81', 'tzx']}),
@@ -380,7 +381,6 @@ systems.update({
 	'PipBug': UnsupportedSystem('pipbug', [], [], {MediaType.Executable: ['pgm']}),
 	'V.Tech Socrates': UnsupportedSystem('socrates', ['socrates'], [], {MediaType.Cartridge: ['bin']}),
 	#Emulation status = preliminary... hh (but sound is imperfect, and not completely borked)
-	'PS3': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Digital: ['pkg'], MediaType.Executable: ['self', 'elf', 'bin']}),
 
 	#TODO: Me being lazy, I know if these work or not but they require effort:
 	'Acorn Electron': UnsupportedSystem('electron', ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl']}),
