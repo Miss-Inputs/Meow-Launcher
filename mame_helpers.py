@@ -1,13 +1,15 @@
+import copy
+import os
+import re
 import subprocess
 import xml.etree.ElementTree as ElementTree
-import re
-import os
-import copy
+from pathlib import Path
 
-from metadata import CPU, ScreenInfo
-from common_paths import cache_dir
 from common import junk_suffixes
-from data.mame_manufacturers import manufacturer_overrides, dont_remove_suffix
+from common_paths import cache_dir
+from data.mame_manufacturers import dont_remove_suffix, manufacturer_overrides
+from metadata import CPU, ScreenInfo
+
 
 def consistentify_manufacturer(manufacturer):
 	if not manufacturer:
@@ -66,8 +68,7 @@ class MameState():
 		def __init__(self):
 			self.executable = 'mame' #TODO This should be a configurable path
 			self.version = self.get_version()
-			self.mame_xml_path = os.path.join(cache_dir, self.version) + '.xml' if self.have_mame else None
-			self._have_checked_mame_xml = False
+			self.xml_cache_path = os.path.join(cache_dir, self.version) if self.have_mame else None
 			self._icons = None
 
 		@property
@@ -84,35 +85,78 @@ class MameState():
 
 			return version_proc.stdout.splitlines()[0]
 
-		def _check_mame_xml_cache(self):
-			if not self.have_mame:
-				return
-			if not os.path.isfile(self.mame_xml_path):
-				print('New MAME version found: ' + self.version + '; creating XML; this may take a while (maybe like a minute or so)')
-				os.makedirs(os.path.dirname(self.mame_xml_path), exist_ok=True)
-				with open(self.mame_xml_path, 'wb') as f:
-					subprocess.run([self.executable, '-listxml'], stdout=f, stderr=subprocess.DEVNULL)
-					#TODO check return code I guess (although in what ways would it fail?)
-					#TODO If this is interrupted you'll be left with a garbage XML file which then breaks when you parse it later... can we do something about that? We better
-				print('Finished creating XML')
+		def _real_iter_mame_entire_xml(self):
+			print('New MAME version found: ' + self.version + '; creating XML; this may take a while (maybe like a minute or so)')
+			os.makedirs(self.xml_cache_path, exist_ok=True)
+
+			proc = subprocess.Popen([self.executable, '-listxml'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+			#TODO Handle errors properly
+			#I'm doing what the documentation tells me to not do and using proc.stdout.read
+			for _, element in ElementTree.iterparse(proc.stdout):
+				if element.tag == 'machine':
+					my_copy = copy.copy(element)
+					machine_name = element.attrib['name']
+
+					with open(os.path.join(self.xml_cache_path, machine_name + '.xml'), 'wb') as cache_file:
+						cache_file.write(ElementTree.tostring(element))
+					yield machine_name, my_copy
+					element.clear()
+			proc.wait()
+			Path(self.xml_cache_path, 'is_done').touch()
+			#with open(os.path.join(self.xml_cache_path, 'is_done'), 'w'):
+				#Guard against the -listxml process being interrupted and screwing up everything
+			#	pass
+
+		def _cached_iter_mame_entire_xml(self):
+			for cached_file in os.listdir(self.xml_cache_path):
+				driver_name, ext = os.path.splitext(cached_file)
+				if ext != '.xml':
+					continue
+				yield driver_name, ElementTree.parse(os.path.join(self.xml_cache_path, cached_file)).getroot()
 
 		def iter_mame_entire_xml(self):
-			if not self.have_mame:
-				raise MAMENotInstalledException()
+			if os.path.isfile(os.path.join(self.xml_cache_path, 'is_done')):
+				yield from self._cached_iter_mame_entire_xml()
+			else:
+				yield from self._real_iter_mame_entire_xml()
+			
 
-			if not self._have_checked_mame_xml:
-				#Should only check once
-				self._check_mame_xml_cache()
-				self._have_checked_mame_xml = True
+		# def _check_mame_xml_cache(self):
+		# 	if not self.have_mame:
+		# 		return
+		# 	if not os.path.isfile(self.mame_xml_path):
+		# 		print('New MAME version found: ' + self.version + '; creating XML; this may take a while (maybe like a minute or so)')
+		# 		os.makedirs(os.path.dirname(self.mame_xml_path), exist_ok=True)
+		# 		with open(self.mame_xml_path, 'wb') as f:
+		# 			subprocess.run([self.executable, '-listxml'], stdout=f, stderr=subprocess.DEVNULL)
+		# 			#TODO check return code I guess (although in what ways would it fail?)
+		# 			#TODO If this is interrupted you'll be left with a garbage XML file which then breaks when you parse it later... can we do something about that? We better
+		# 		print('Finished creating XML')
 
-			for _, element in ElementTree.iterparse(self.mame_xml_path):
-				if element.tag == 'machine':
-					yield element.attrib['name'], copy.copy(element)
-					element.clear()
+		# def iter_mame_entire_xml(self):
+		# 	if not self.have_mame:
+		# 		raise MAMENotInstalledException()
+
+		# 	if not self._have_checked_mame_xml:
+		# 		#Should only check once
+		# 		self._check_mame_xml_cache()
+		# 		self._have_checked_mame_xml = True
+
+		# 	for _, element in ElementTree.iterparse(self.mame_xml_path):
+		# 		if element.tag == 'machine':
+		# 			yield element.attrib['name'], copy.copy(element)
+		# 			element.clear()
 
 		def get_mame_xml(self, driver):
 			if not self.have_mame:
 				raise MAMENotInstalledException()
+
+			cache_file_path = os.path.join(self.xml_cache_path, driver + '.xml')
+			try:
+				with open(cache_file_path, 'rb') as cache_file:
+					return ElementTree.parse(cache_file).getroot()
+			except FileNotFoundError:
+				pass
 
 			try:
 				proc = subprocess.run([self.executable, '-listxml', driver], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)
