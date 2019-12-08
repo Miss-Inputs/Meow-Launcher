@@ -13,7 +13,7 @@ import common
 import io_utils
 import launchers
 import metadata
-from common_types import EmulationNotSupportedException, NotARomException
+from common_types import EmulationNotSupportedException, NotARomException, ExtensionNotSupportedException
 from config import main_config, system_configs
 from info import emulator_info, system_info
 from roms_metadata import add_engine_metadata, add_metadata
@@ -194,7 +194,7 @@ class Game():
 
 def try_emulator(game, emulator, system_config):
 	if game.rom.extension not in emulator.supported_extensions:
-		raise NotARomException('Unsupported extension: ' + game.rom.extension)
+		raise ExtensionNotSupportedException('Unsupported extension: ' + game.rom.extension)
 
 	return emulator.get_launch_params(game, system_config.specific_config)
 
@@ -252,7 +252,7 @@ def process_file(system_config, rom_dir, root, rom):
 
 	if not emulator:
 		if main_config.debug:
-			if isinstance(exception_reason, EmulationNotSupportedException):
+			if isinstance(exception_reason, EmulationNotSupportedException) and not isinstance(exception_reason, ExtensionNotSupportedException):
 				print(rom.path, 'could not be launched by', potential_emulators, 'because', exception_reason)
 		return
 

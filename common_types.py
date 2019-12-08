@@ -34,6 +34,9 @@ class SaveType(Enum):
 class EmulationNotSupportedException(Exception):
 	pass
 
+class ExtensionNotSupportedException(EmulationNotSupportedException):
+	pass
+
 class NotARomException(Exception):
 	#File type mismatch, etc
 	pass
