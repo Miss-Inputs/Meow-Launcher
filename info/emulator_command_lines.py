@@ -765,11 +765,11 @@ def mame_snes(game, specific_config):
 			raise EmulationNotSupportedException('BS-X/Satellaview BIOS not set up, check systems.ini')
 		return mame_system('snes', 'cart2', {'cart': bios_path})
 
-	expansion_chip = game.metadata.specifc_info.get('Expansion-Chip')
+	expansion_chip = game.metadata.specific_info.get('Expansion-Chip')
 	if expansion_chip == ExpansionChip.ST018:
 		raise EmulationNotSupportedException('{0} not supported'.format(expansion_chip))
 
-	slot = game.metadata.specifc_info.get('Slot')
+	slot = game.metadata.specific_info.get('Slot')
 	if slot:
 		#These bootleg copy protection methods might work from software list, but from fullpath the carts aren't detected as using it, so they black screen
 		if slot.endswith('_poke', '_sbld', '_tekken2', '_20col'):
@@ -1260,13 +1260,13 @@ def reicast(game, specific_config):
 	return LaunchParams('reicast', args, env_vars)
 
 def snes9x(game, _):
-	slot = game.metadata.specifc_info.get('Slot')
+	slot = game.metadata.specific_info.get('Slot')
 	if slot:
 		#There are a few bootleg things that will not work
 		if slot.endswith('_bugs', '_pija', '_poke', '_sbld', '_tekken2', '_20col'):
 			raise EmulationNotSupportedException('{0} mapper not supported'.format(slot))
 
-	expansion_chip = game.metadata.specifc_info.get('Expansion-Chip')
+	expansion_chip = game.metadata.specific_info.get('Expansion-Chip')
 	if expansion_chip in (ExpansionChip.ST018, ExpansionChip.DSP_3):
 		#ST018 is implemented enough here to boot to menu, but hangs when starting a match
 		#DSP-3 looks like it's going to work and then when I played around a bit and the AI was starting its turn (I think?) the game hung to a glitchy mess so I guess not
