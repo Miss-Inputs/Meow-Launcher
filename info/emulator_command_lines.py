@@ -772,7 +772,7 @@ def mame_snes(game, specific_config):
 	slot = game.metadata.specific_info.get('Slot')
 	if slot:
 		#These bootleg copy protection methods might work from software list, but from fullpath the carts aren't detected as using it, so they black screen
-		if slot.endswith('_poke', '_sbld', '_tekken2', '_20col'):
+		if slot.endswith(('_poke', '_sbld', '_tekken2', '_20col')):
 			raise EmulationNotSupportedException('{0} mapper not supported'.format(slot))
 
 	if game.metadata.tv_type == TVSystem.PAL:
@@ -1263,7 +1263,7 @@ def snes9x(game, _):
 	slot = game.metadata.specific_info.get('Slot')
 	if slot:
 		#There are a few bootleg things that will not work
-		if slot.endswith('_bugs', '_pija', '_poke', '_sbld', '_tekken2', '_20col'):
+		if slot.endswith(('_bugs', '_pija', '_poke', '_sbld', '_tekken2', '_20col')):
 			raise EmulationNotSupportedException('{0} mapper not supported'.format(slot))
 
 	expansion_chip = game.metadata.specific_info.get('Expansion-Chip')
