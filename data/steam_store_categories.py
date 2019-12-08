@@ -33,4 +33,8 @@ store_categories = {
 	'category_38': 'Online Co-op',
 	'category_39': 'Local Co-op',
 	'category_40': 'SteamVR Collectibles',
+	'category_41': 'Remote Play on Phone',
+	'category_42': 'Remote Play on Tablet',
+	'category_43': 'Remote Play on TV',
+	'category_44': 'Remote Play Together',
 }
