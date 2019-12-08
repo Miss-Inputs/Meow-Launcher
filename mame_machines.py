@@ -98,6 +98,7 @@ arcade_systems = {
 	'Century CVS System': ArcadeSystem(source_file='cvs'),
 	'Chihiro': ArcadeSystem(source_file='chihiro'), #Based on Xbox, seemingly non-working
 	'CPS-1': ArcadeSystem(source_file='cps1'),
+	'CPS-1 Bootleg with PIC': ArcadeSystem(source_file='cps1bl_pic'),
 	'CPS-2': ArcadeSystem(source_file='cps2'),
 	'CPS-3': ArcadeSystem(source_file='cps3'),
 	'Cubo CD32': ArcadeSystem(source_file='cubo'), #Amiga CD32 + JAMMA
