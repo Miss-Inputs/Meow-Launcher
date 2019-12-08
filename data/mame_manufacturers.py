@@ -118,6 +118,7 @@ manufacturer_overrides = {
 	'V.Fame': 'Vast Fame',
 	'Visco Corporation': 'Visco',
 	'Walt Disney': 'Disney',
+	'Warner Bros. Games': 'Warner Bros',
 	'Williams Entertainment': 'Williams',
 
 	#Sometimes companies go by two different names and like... maybe I should leave those alone, bleh I hate decision making
