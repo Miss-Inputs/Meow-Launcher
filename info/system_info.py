@@ -253,6 +253,7 @@ systems.update({
 	#Too cool for MAME:
 	'3DO M2': UnsupportedSystem(None, ['3do_m2'], [], {MediaType.OpticalDisc: cdrom_formats}),
 	#Was never actually released, but prototypes exist
+	'Arduboy': UnsupportedSystem(None, [], [], {MediaType.Digital: ['arduboy'], MediaType.Executable: ['hex']}),
 	'N-Gage': UnsupportedSystem(None, [], [], {}), #File types are.. folders I think. That could get weird. Anyway, all emulators at this stage seem to be super-preliminary
 	'Nuon': UnsupportedSystem(None, [], [], {MediaType.OpticalDisc: ['iso']}),
 	#There once was an emulator out there somewhere… for Windows
@@ -338,8 +339,6 @@ systems.update({
 	'Amstrad CPC': UnsupportedSystem('cpc464', ['cpc_cass', 'cpc_flop'], [], {MediaType.Snapshot: ['sna'], MediaType.Tape: ['wav', 'cdt'], MediaType.Floppy: mame_floppy_formats}),
 	#The not-plus one (probably will need to switch to cpc664/cpc6128 for flopppy stuff)
 	#CPC+: Use cpc6128p, this uses the gx4000 software list (as well as original cpc_cass and cpc_flop) so I should probably consider these to be the same platform
-	'Arduboy': UnsupportedSystem(None, [], [], {MediaType.Digital: ['arduboy'], MediaType.Executable: ['hex']}),
-	#Not in MAME but see https://github.com/felipemanga/ProjectABE
 	'Amstrad PCW': UnsupportedSystem('pcw10', ['pcw'], [], {MediaType.Floppy: mame_floppy_formats}),
 	#Marked as MACHINE_NOT_WORKING, probably doesn't work
 	'Amstrad PCW16': UnsupportedSystem('pcw16', ['pcw16'], [], {MediaType.Floppy: mame_floppy_formats}),
