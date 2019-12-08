@@ -72,6 +72,8 @@ manufacturer_overrides = {
 	'K-Tel Vision': 'K-Tel',
 	'Laser Beam': 'Laser Beam Entertainment',
 	'Loriciel Software': 'Loriciel',
+	'Malibu Games': 'Malibu Interactive',
+	'Merit Industries': 'Merit',
 	'MicroCabin': 'Micro Cabin', #Annoying alternate spelling because they officially use both just to be annoying
 	'Microdigital': 'Micro Digital',
 	'Microlab': 'Micro Lab',
@@ -195,6 +197,7 @@ manufacturer_overrides = {
 	'Dreamworks': 'DreamWorks',
 	'enix': 'Enix',
 	'EPYX': 'Epyx',
+	'HiTEC Software': 'HiTec Software',
 	'Microprose': 'MicroProse',
 	'RazorSoft': 'Razorsoft',
 	'SONY': 'Sony',
