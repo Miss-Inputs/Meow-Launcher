@@ -1271,6 +1271,7 @@ def snes9x(game, _):
 		#ST018 is implemented enough here to boot to menu, but hangs when starting a match
 		#DSP-3 looks like it's going to work and then when I played around a bit and the AI was starting its turn (I think?) the game hung to a glitchy mess so I guess not
 		raise EmulationNotSupportedException('{0} not supported'.format(expansion_chip))
+	return LaunchParams('snes9x-gtk', ['$<path>'])
 
 
 #Game engines

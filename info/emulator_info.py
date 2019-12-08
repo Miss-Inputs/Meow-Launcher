@@ -61,7 +61,7 @@ emulators = {
 	'PPSSPP': Emulator(command_lines.ppsspp, ['iso', 'pbp', 'cso'], []),
 	'Reicast': Emulator(command_lines.reicast, ['gdi', 'cdi', 'chd'], []),
 	'SimCoupe': Emulator(LaunchParams('simcoupe', ['-fullscreen', 'yes', '$<path>']), ['mgt', 'sad', 'dsk', 'sbt'], ['zip', 'gz']),
-	'Snes9x': Emulator(LaunchParams('snes9x-gtk', ['$<path>']), ['sfc', 'smc', 'swc'], ['zip', 'gz']),
+	'Snes9x': Emulator(command_lines.snes9x, ['sfc', 'smc', 'swc'], ['zip', 'gz']),
 	#Can't set fullscreen mode from the command line so you have to set up that yourself (but it will do that automatically); GTK port can't do Sufami Turbo or Satellaview from command line due to lacking multi-cart support that Windows has (Unix non-GTK doesn't like being in fullscreen etc)
 	'Stella': Emulator(LaunchParams('stella', ['-fullscreen', '1', '$<path>']), ['a26', 'bin', 'rom'] + atari_2600_cartridge_extensions, ['gz', 'zip']),
 
