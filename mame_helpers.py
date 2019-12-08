@@ -102,10 +102,8 @@ class MameState():
 					yield machine_name, my_copy
 					element.clear()
 			proc.wait()
+			#Guard against the -listxml process being interrupted and screwing up everything
 			Path(self.xml_cache_path, 'is_done').touch()
-			#with open(os.path.join(self.xml_cache_path, 'is_done'), 'w'):
-				#Guard against the -listxml process being interrupted and screwing up everything
-			#	pass
 
 		def _cached_iter_mame_entire_xml(self):
 			for cached_file in os.listdir(self.xml_cache_path):
@@ -120,33 +118,6 @@ class MameState():
 			else:
 				yield from self._real_iter_mame_entire_xml()
 			
-
-		# def _check_mame_xml_cache(self):
-		# 	if not self.have_mame:
-		# 		return
-		# 	if not os.path.isfile(self.mame_xml_path):
-		# 		print('New MAME version found: ' + self.version + '; creating XML; this may take a while (maybe like a minute or so)')
-		# 		os.makedirs(os.path.dirname(self.mame_xml_path), exist_ok=True)
-		# 		with open(self.mame_xml_path, 'wb') as f:
-		# 			subprocess.run([self.executable, '-listxml'], stdout=f, stderr=subprocess.DEVNULL)
-		# 			#TODO check return code I guess (although in what ways would it fail?)
-		# 			#TODO If this is interrupted you'll be left with a garbage XML file which then breaks when you parse it later... can we do something about that? We better
-		# 		print('Finished creating XML')
-
-		# def iter_mame_entire_xml(self):
-		# 	if not self.have_mame:
-		# 		raise MAMENotInstalledException()
-
-		# 	if not self._have_checked_mame_xml:
-		# 		#Should only check once
-		# 		self._check_mame_xml_cache()
-		# 		self._have_checked_mame_xml = True
-
-		# 	for _, element in ElementTree.iterparse(self.mame_xml_path):
-		# 		if element.tag == 'machine':
-		# 			yield element.attrib['name'], copy.copy(element)
-		# 			element.clear()
-
 		def get_mame_xml(self, driver):
 			if not self.have_mame:
 				raise MAMENotInstalledException()
