@@ -94,7 +94,7 @@ def process_engine_file(system_config, file_dir, root, name):
 
 	game.make_launcher(system_config)
 
-class Rom():
+class RomFile():
 	def __init__(self, path):
 		self.path = path
 		self.warn_about_multiple_files = False
@@ -161,7 +161,7 @@ class Rom():
 			return crc32(self.entire_file) & 0xffffffff
 		return self._get_crc32()
 
-class Game():
+class RomGame():
 	def __init__(self, rom, platform, folder):
 		self.rom = rom
 		self.metadata = metadata.Metadata()
@@ -199,7 +199,7 @@ def try_emulator(game, emulator, system_config):
 	return emulator.get_launch_params(game, system_config.specific_config)
 
 def process_file(system_config, rom_dir, root, rom):
-	game = Game(rom, system_config.name, root)
+	game = RomGame(rom, system_config.name, root)
 
 	if game.rom.extension == 'm3u':
 		lines = game.rom.read().decode('utf-8').splitlines()
@@ -208,7 +208,7 @@ def process_file(system_config, rom_dir, root, rom):
 			if main_config.debug:
 				print('M3U file', game.rom.path, 'has broken references!!!!', filenames)
 			return
-		game.subroms = [Rom(referenced_file) for referenced_file in filenames]
+		game.subroms = [RomFile(referenced_file) for referenced_file in filenames]
 
 	potential_emulators = system_config.chosen_emulators
 	if not potential_emulators:
@@ -301,7 +301,7 @@ def process_emulated_system(system_config):
 			for name in sorted(files, key=sort_m3u_first()):
 				path = os.path.join(root, name)
 
-				rom = Rom(path)
+				rom = RomFile(path)
 
 				if rom.extension == 'm3u':
 					used_m3u_filenames.extend(parse_m3u(path))
@@ -393,7 +393,7 @@ def main():
 
 		rom = sys.argv[arg_index + 1]
 		system = sys.argv[arg_index + 2]
-		process_file(system_configs.configs[system], os.path.dirname(rom), os.path.dirname(rom), Rom(rom))
+		process_file(system_configs.configs[system], os.path.dirname(rom), os.path.dirname(rom), RomFile(rom))
 		return
 
 	if len(sys.argv) >= 2 and '--systems' in sys.argv:
