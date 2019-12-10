@@ -100,7 +100,6 @@ emulators = {
 	'MAME (Astrocade)': MameDriver(command_lines.mame_system('astrocde', 'cart', {'exp': 'rl64_ram'}), ['bin']),
 	#There's a keypad there which is used for game selection/setup, otherwise it just uses a paddle with a button (the actual controllers IRL were wacky, but for emulation purposes are otherwise pretty normal).  Hopefully adding that RAM expansion won't hurt?  Some games (Chicken) seem to be broken anyway with expansion or without whoops
 	'MAME (Atari 2600)': MameDriver(command_lines.mame_atari_2600, ['bin', 'a26']),
-	#Doesn't support as much fancy peripherals as Stella, and refuses to even acknowledge various large homebrew roms as even being valid roms, but some argue it's more accurate
 	'MAME (Atari 5200)': MameDriver(command_lines.mame_system('a5200', 'cart'), ['bin', 'rom', 'car', 'a52']),
 	#Could use -sio casette -cass *.wav if there was ever a game that came as a .wav which apparently could be a thing in theory (or is that just there because Atari 8-bit computers can do that)
 	#MT06972: Nondescript input issues; MT07248: Galaxian doesn't work
@@ -117,7 +116,7 @@ emulators = {
 	#Both disks and tapes autoboot. Woohoo!
 	'MAME (Entex Adventure Vision)': MameDriver(command_lines.mame_system('advision', 'cart'), ['bin']),
 	#Doesn't work with the "Code Red" demo last time I tried
-	'MAME (FM-7)': MameDriver(command_lines.mame_system('fm77av', 'flop1'), mame_floppy_formats),
+	'MAME (FM-7)': MameDriver(command_lines.mame_system('fm77av', 'flop1', has_keyboard=True), mame_floppy_formats),
 	#Tapes work, but they require run"" and then pressing play on the tape, the latter not being Lua-autoboot-scriptable yet.
 	#Difference between fm7 and fmnew7 seems to be that the latter boots into BASIC by default (there's dip switches involved) instead of DOS, which seems to be required for tapes to work; and disks just autoboot anyway. FM-77AV is used here despite its allegedly imperfect graphics as there are games which won't work on earlier systems and there doesn't seem to be a programmatic way to tell, and it seems backwards compatibility is fine
 	#Joystick only works with fm7/fmnew7 -centronics dsjoy... whoops; not sure what the builtin joystick does then
@@ -156,7 +155,6 @@ emulators = {
 	#It doesn't	really support m3u, but I'm going to make it so it does (multi-disk games seem fairly common)
 	#All the other models of X68000 (x68030, x68ksupr, x68kxvi) don't work yet
 	'MAME (SNES)': MameDriver(command_lines.mame_snes, ['sfc', 'bs', 'st', 'smc', 'swc']),
-	#The main advantage here is that it supports multi-slot carts (BS-X and Sufami Turbo) where SNES9x's GTK port does not, otherwise I dunno how well it works
 	'MAME (Sord M5)': MameDriver(command_lines.mame_sord_m5, ['bin']),
 	'MAME (Super Cassette Vision)': MameDriver(command_lines.mame_super_cassette_vision, ['bin']),
 	'MAME (Bandai Super Vision 8000)': MameDriver(command_lines.mame_system('sv8000', 'cart'), ['bin']),
@@ -171,8 +169,7 @@ emulators = {
 	'MAME (Vectrex)': MameDriver(command_lines.mame_system('vectrex', 'cart'), ['bin', 'gam', 'vec']),
 	#Includes overlays as selectable artwork, but that has to be done by the user from the menu
 	'MAME (VIC-10)': MameDriver(command_lines.mame_system('vic10', 'cart', {'joy1': 'joy', 'joy2': 'joy'}, has_keyboard=True), ['crt', '80', 'e0']),
-	#More similar to the C64 (works and performs just as well as that driver) than the VIC-20, need to plug a joystick into both ports because once again games can use
-	#either port and thanks I hate it. At least there's only one TV type
+	#More similar to the C64 (works and performs just as well as that driver) than the VIC-20, need to plug a joystick into both ports because once again games can use either port and thanks I hate it. At least there's only one TV type
 	#Sometimes I see this called the Commodore MAX Machine or Ultimax or VC-10, but... well, I'm not sure where the VIC-10 name comes from other than that's what the driver's called
 	'MAME (VIC-20)': MameDriver(command_lines.mame_vic_20, ['20', '40', '60', '70', 'a0', 'b0', 'crt']),
 	'MAME (V.Smile)': MameDriver(command_lines.mame_system('vsmile', 'cart'), ['u1', 'u3', 'bin']),
@@ -191,7 +188,7 @@ emulators = {
 	#----- The experimental section. The emulators are still here, it's just so you, the fabulous and wonderful end user, can have more information on how to manage expectations. Or something like that.
 
 	#--Has usability issues that prevent me from considering it a nice experience, but may work anyway
-	'MAME (CreatiVision)': MameDriver(command_lines.mame_system('crvision', 'cart'), ['bin', 'rom']),
+	'MAME (CreatiVision)': MameDriver(command_lines.mame_system('crvision', 'cart', has_keyboard=True), ['bin', 'rom']),
 	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it
 	'MAME (IBM PC)': MameDriver(command_lines.mame_system('ibm5150', 'flop1', {'isa5': 'sblaster1_5'}, has_keyboard=True), mame_floppy_formats + ['img']),
 	#Sound Blaster 1.5 is added here primarily just to give this a joystick, but then that seems to not work anyway... also, there's DIP switches you might need to set in order for video output to work (it's set to monochrome by default and not CGA)
@@ -217,7 +214,10 @@ emulators = {
 	#Doesn't do .iso for whatever strange reason, which is a bit unfortunate. Might do .bin executables? Probably not
 	'Mednafen (SNES)': MednafenModule('snes', ['sfc', 'smc', 'swc']),
 	#Based on bsnes v0.059; appears it doesn't do Sufami Turbo or Satellaview
+	'Mednafen (SNES-Faust)': MednafenModule('snes_faust', ['sfc', 'smc', 'swc'], command_lines.mednafen_snes_faust),
 
+	'MAME (32X)': MameDriver(command_lines.mame_32x, ['32x', 'bin']),
+	#Higher host CPU requirements than what you might expect
 	'MAME (Casio PV-2000)': MameDriver(command_lines.mame_system('pv2000', 'cart', has_keyboard=True), ['bin']),
 	#Not the same as the PV-1000, albeit similar. Driver marked as non-working but it seems alright, other than it's supposed to have joysticks and doesn't (so you just set up a gamepad to map to emulated cursor keys) which maybe is why
 	'MAME (CD-i)': MameDriver(command_lines.mame_system('cdimono1', 'cdrom'), mame_cdrom_formats),
@@ -226,6 +226,8 @@ emulators = {
 	#Sloooow, marked as non-working + imperfect sound
 	'MAME (FM Towns Marty)': MameDriver(command_lines.mame_fm_towns_marty, mame_cdrom_formats + mame_floppy_formats + ['bin']),
 	#As it says right there in the fmtowns.cpp comments: "Issues: Video emulation is far from complete." and still marked not working, but it seems okay for a few games actually
+	'MAME (GameKing)': MameDriver(command_lines.mame_system('gameking', 'cart'), ['bin']), #No sound yet
+	'MAME (GameKing 3)': MameDriver(command_lines.mame_system('gamekin3', 'cart'), ['bin']), #No sound yet
 	'MAME (Hartung Game Master)': MameDriver(command_lines.mame_system('gmaster', 'cart'), ['bin']),
 	#Hmm... says not working and imperfect sound. I guess it does run the games, though
 	'MAME (N64)': MameDriver(command_lines.mame_n64, ['v64', 'z64', 'rom', 'n64', 'bin']),
@@ -238,29 +240,24 @@ emulators = {
 	#--These experimental emulators seem to not work more often than they do, but they are here for you to play with if you want to, because maybe other people have better luck than me (everything in my life always goes wrong):
 	'Yuzu': EmulatorInfo(LaunchParams('yuzu', ['$<path>']), ['xci', 'nsp', 'nro', 'nso', 'nca', 'elf', 'kip'], []),
 
-	'Mednafen (SNES-Faust)': MednafenModule('snes_faust', ['sfc', 'smc', 'swc'], command_lines.mednafen_snes_faust),
-
-	'MAME (32X)': MameDriver(command_lines.mame_32x, ['32x', 'bin']),
 	'MAME (Amiga CD32)': MameDriver(command_lines.mame_amiga_cd32, mame_cdrom_formats),
 	#Well it boots stuff I guess, but it is marked not working, and right now I'm too drunk to try everything and it's not that important because FS-UAE works already
-	'MAME (GameKing)': MameDriver(command_lines.mame_system('gameking', 'cart'), ['bin']),
-	'MAME (GameKing 3)': MameDriver(command_lines.mame_system('gamekin3', 'cart'), ['bin']),
 	'MAME (G7400)': MameDriver(command_lines.mame_system('g7400', 'cart'), ['bin', 'rom']),
 	#just has the same graphics problems as Odyssey 2... there's a odyssey3 driver that was never released but I guess it would be for NTSC games. Actually, all the software list items say unsupported... hmm
 	'MAME (Jaguar)': MameDriver(command_lines.mame_atari_jaguar, ['j64', 'rom', 'bin', 'abs', 'cof', 'jag', 'prg']),
 	#Hmm. Mostly not working. Raiden seems to work, but that's about it; other stuff just hangs at the Jaguar logo or has no sound or what barely resembles graphics is corrupted etc
 	'MAME (Magnavox Odyssey²)': MameDriver(command_lines.mame_odyssey2, ['bin', 'rom']),
 	#Isn't completely broken but a lot of games have broken graphics so like... ehh
-	'MAME (Mattel Aquarius)': MameDriver(command_lines.mame_system('aquarius', 'cart'), ['bin', 'rom']),
+	'MAME (Mattel Aquarius)': MameDriver(command_lines.mame_system('aquarius', 'cart', has_keyboard=True), ['bin', 'rom']),
 	#Controllers aren't emulated yet (and they're necessary for a lot of things)
 	'MAME (Mega CD)': MameDriver(command_lines.mame_mega_cd, mame_cdrom_formats),
 	#Hmm sometimes works and sometimes does not
-	'MAME (Microtan 65)': MameDriver(command_lines.mame_system('mt65', 'dump'), ['dmp', 'm65']),
+	'MAME (Microtan 65)': MameDriver(command_lines.mame_system('mt65', 'dump', has_keyboard=True), ['dmp', 'm65']),
 	#System name was "microtan" prior to 0.212
 	#Aagggh, none of these inputs seem to be working properly (to the point where I can't just assume the games were like that)... maybe I'm doing it wrong, I don't know...
 	'MAME (Pokemon Mini)': MameDriver(command_lines.mame_system('pokemini', 'cart'), ['bin', 'min']),
 	#Wouldn't recommend yet as it has no sound, even if most people would probably turn the sound off in real life, also some stuff doesn't work
-	'MAME (SAM Coupe)': MameDriver(command_lines.mame_system('samcoupe', 'flop1', autoboot_script='sam_coupe'), mame_floppy_formats),
+	'MAME (SAM Coupe)': MameDriver(command_lines.mame_system('samcoupe', 'flop1', autoboot_script='sam_coupe', has_keyboard=True), mame_floppy_formats),
 	#Status = good but doesn't seem to emulate joysticks and a few games don't work, also tapes are evil and need manual booting
 	'MAME (Saturn)': MameDriver(command_lines.mame_saturn, mame_cdrom_formats),
 	#Non-working, imperfect sound; crashes on quite a few games and hangs to white screen sometimes
@@ -270,8 +267,8 @@ emulators = {
 	#Some things work, except with no sound, so... nah
 	'MAME (V.Smile Baby)': MameDriver(command_lines.mame_system('vsmileb', 'cart'), ['u1', 'u3', 'bin']),
 	#Seems to crash on some titles, also everything in software list is supported=no?
-	'MAME (VideoBrain)': MameDriver(command_lines.mame_system('vidbrain', 'cart'), ['bin']),
-	'MAME (Videoton TVC)': MameDriver(command_lines.mame_system('tvc64', 'cart'), ['bin', 'rom', 'crt']),
+	'MAME (VideoBrain)': MameDriver(command_lines.mame_system('vidbrain', 'cart', has_keyboard=True), ['bin']),
+	'MAME (Videoton TVC)': MameDriver(command_lines.mame_system('tvc64', 'cart', has_keyboard=True), ['bin', 'rom', 'crt']),
 	'MAME (Virtual Boy)': MameDriver(command_lines.mame_system('vboy', 'cart'), ['bin', 'vb']),
 	#Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there and a lot of software list items are unsupported
 	#TODO PlayStation: Would require proper region code detection, which would require looking at ISO9660 stuff properly. Anyway it is MACHINE_NOT_WORKING and often doesn't play the games (see https://mametesters.org/view.php?id=7127)
@@ -287,7 +284,7 @@ emulators = {
 	'MAME (Microvision)': MameDriver(command_lines.mame_system('microvsn', 'cart'), ['bin']),
 	'MAME (V.Smile Motion)': MameDriver(command_lines.mame_system('vsmilem', 'cart'), ['bin', 'u1', 'u3']),
 	'MAME (3DO)': MameDriver(command_lines.mame_system('3do', 'cdrom'), mame_cdrom_formats), #Should switch to 3do_pal when needed, but it doesn't really matter at this point
-	'MAME (Bandai RX-78)': MameDriver(command_lines.mame_system('rx78', 'cart'), ['bin', 'rom']),
+	'MAME (Bandai RX-78)': MameDriver(command_lines.mame_system('rx78', 'cart', has_keyboard=True), ['bin', 'rom']),
 	'MAME (Tomy Prin-C)': MameDriver(command_lines.mame_system('princ', 'cart'), ['bin']),
 	'MAME (Jaguar CD)': MameDriver(command_lines.mame_system('jaguarcd', 'cdrom'), mame_cdrom_formats), #Also has cartridge port, as it is a Jaguar addon
 	#Don't even display graphics, I'm just feeling like adding stuff at this point
