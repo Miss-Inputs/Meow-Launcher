@@ -240,9 +240,9 @@ systems.update({
 	#Similar to the Sega Pico but with different software (may or may not also use Megadrive ROM header?), but is completely unemulated. Not sure if dump format is identical
 	'Tomy Prin-C': UnsupportedSystemInfo('princ', ['princ'], ['MAME (Tomy Prin-C)'], {MediaType.Cartridge: ['bin']}), #MAME has skeleton driver that displays a green background and then doesn't go anywhere
 	'V.Reader': UnsupportedSystemInfo('vreader', ['vtech_storio_cart'], ['MAME (V.Reader)'], {MediaType.Cartridge: ['bin']}), #Skeleton driver, apparently also known as Storio, or something like that
-	'V.Smile Motion': SystemInfo('vsmilem', ['vsmilem_cart'], ['MAME (V.Smile Motion)'], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
+	'V.Smile Motion': UnsupportedSystemInfo('vsmilem', ['vsmilem_cart'], ['MAME (V.Smile Motion)'], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
 	#Games boot, but the actual motion part is not implemented, so you can't do anything (you can also boot these in normal vsmile it seems, but that also won't respond to input; I forgot if the two systems were supposed to be cross-compatible in real life?)
-	'V.Smile Pro': SystemInfo('vsmilpro', ['vsmile_cd'], ['MAME (V.Smile Pro)'], {MediaType.OpticalDisc: cdrom_formats}),
+	'V.Smile Pro': UnsupportedSystemInfo('vsmilpro', ['vsmile_cd'], ['MAME (V.Smile Pro)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'VideoBrain': UnsupportedSystemInfo('vidbrain', ['vidbrain'], ['MAME (VideoBrain)'], {MediaType.Cartridge: ['bin']}),
 	#MAME has some hella glitchy graphics and I'm not gonna call it a playable experience at this point (also it does say not working)
 	'Video Challenger': UnsupportedSystemInfo('vidchal', [], [], {}),
@@ -286,7 +286,7 @@ systems.update({
 	'Neo Geo AES': UnsupportedSystemInfo('aes', ['neogoeo'], [], {MediaType.Cartridge: ['bin']}),
 	#Theoretically this works, but fullpath loading only works as a single .bin file which nothing ever is dumped as. This would only ever be useful with software list support. As for separate Neo Geo emulators... well, they all only seem interested in MVS and CD
 	
-	#Things that have usability issues that make things unsuitable for launchering purposes at this point in time, but otherwise would work if you're just here because you're wondering what emulators work
+	#Things that have usability issues that make things unsuitable for launchering purposes at this point in time, but otherwise might well work
 	'64DD': UnsupportedSystemInfo('n64dd', ['n64dd'], [], {MediaType.Floppy: ['ndd', 'ddd']}),
 	#Mupen64Plus would work, but right now it has issues with usability that it says right in the readme (so it's not just me picking on them, they say it themselves). Basically you have to have a cart inserted which has the same properties as the 64DD software you want to emulate, and that wouldn't work for our launchering purposes. MAME doesn't seem to work with .ndd format dumps
 	'Apple I': UnsupportedSystemInfo('apple1', ['apple1'], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['snp']}),
