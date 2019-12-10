@@ -90,6 +90,9 @@ emulators = {
 	#MT06201 (issue with emulated monochrome monitor), MT6509 lists various compatibility issues
 	'MAME (APF-MP1000)': MameDriver(command_lines.mame_system('apfm1000', 'cart'), ['bin']),
 	'MAME (Apple II)': MameDriver(command_lines.mame_apple_ii, mame_floppy_formats + ['do', 'po', 'woz']),
+	'MAME (Apple IIgs)': MameDriver(command_lines.mame_system('apple2gsr1', 'flop3', {'gameio': 'joy'}, has_keyboard=True), mame_floppy_formats + ['2mg', '2img', 'dc']),
+	#Rev 1 is needed because some stuff doesn't work on rev 3 (happens in real life), flop1 and flop2 are for Apple II-not-GS software
+	#ramsize can go up to 8M if need be and there are a lot of slot options (4play might be useful for our 1337 pro gaming purposes? arcbd sounds cool?)
 	'MAME (Apple III)': MameDriver(command_lines.mame_system('apple3', 'flop1', has_keyboard=True), mame_floppy_formats + ['do', 'po']),
 	'MAME (Arcadia 2001)': MameDriver(command_lines.mame_system('arcadia', 'cart'), ['bin']),
 	#Can also use bndarc for Bandai version but that doesn't seem to make any difference at all
@@ -272,7 +275,6 @@ emulators = {
 	'MAME (Virtual Boy)': MameDriver(command_lines.mame_system('vboy', 'cart'), ['bin', 'vb']),
 	#Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there and a lot of software list items are unsupported
 	#TODO PlayStation: Would require proper region code detection, which would require looking at ISO9660 stuff properly. Anyway it is MACHINE_NOT_WORKING and often doesn't play the games (see https://mametesters.org/view.php?id=7127)
-	#TODO: Apple IIgs driver (make a platform_helper thingy that checks for [req OS install] in the filename or something, and then just screw that)
 
 	#Just here for future use or fun really; these straight up don't work:
 	'MAME (Casio Loopy)': MameDriver(command_lines.mame_system('casloopy', 'cart'), ['bin']),
