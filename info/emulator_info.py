@@ -245,7 +245,7 @@ emulators = {
 	'MAME (G7400)': MameDriver(command_lines.mame_system('g7400', 'cart'), ['bin', 'rom']),
 	#just has the same graphics problems as Odyssey 2... there's a odyssey3 driver that was never released but I guess it would be for NTSC games. Actually, all the software list items say unsupported... hmm
 	'MAME (Jaguar)': MameDriver(command_lines.mame_atari_jaguar, ['j64', 'rom', 'bin', 'abs', 'cof', 'jag', 'prg']),
-	#Hmm. Mostly not working. Raiden seems to work, but that's about it; other stuff just hangs at the Jaguar logo or has no sound or what barely resembles graphics is corrupted etc
+	#Hmm. Mostly not working. Some stuff does though
 	'MAME (Magnavox Odyssey²)': MameDriver(command_lines.mame_odyssey2, ['bin', 'rom']),
 	#Isn't completely broken but a lot of games have broken graphics so like... ehh
 	'MAME (Mattel Aquarius)': MameDriver(command_lines.mame_system('aquarius', 'cart', has_keyboard=True), ['bin', 'rom']),
