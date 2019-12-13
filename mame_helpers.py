@@ -43,14 +43,17 @@ class MameConfigFile():
 					value = mame_config_values.findall(match['value'])
 					self.settings[key] = value
 
-def get_mame_config():
-	path = os.path.expanduser('~/.mame/mame.ini')
+def get_mame_config(path=None):
+	if not path:
+		path = os.path.expanduser('~/.mame/mame.ini')
 	if os.path.isfile(path):
 		return MameConfigFile(path)
 	raise FileNotFoundError(path)
 
-def get_mame_ui_config():
-	path = os.path.expanduser('~/.mame/ui.ini')
+def get_mame_ui_config(path=None):
+	#TODO Refactor this into MameConfiguration
+	if not path:
+		path = os.path.expanduser('~/.mame/ui.ini')
 	if os.path.isfile(path):
 		return MameConfigFile(path)
 	raise FileNotFoundError(path)
@@ -63,150 +66,170 @@ class MAMENotInstalledException(Exception):
 	#This should always end up being caught, because I shouldn't assume the user has stuff installed
 	pass
 
-class MameState():
-	class __MameState():
-		def __init__(self):
-			self.executable = 'mame' #TODO This should be a configurable path
-			self.version = self.get_version()
-			self.xml_cache_path = os.path.join(cache_dir, self.version) if self.have_mame else None
-			self._icons = None
+class MameExecutable():
+	def __init__(self, path='mame'):
+		self.executable = path
+		self.xml_cache_path = os.path.join(cache_dir, self.get_version()) if self.is_installed else None
+		self._icons = None
 
-		@property
-		def have_mame(self):
-			return self.version is not None
+	@property
+	def is_installed(self):
+		return self.get_version() is not None
 
-		def get_version(self):
-			#Note that there is a -version option in (as of this time of writing, upcoming) MAME 0.211, but might as well just use this, because it works on older versions
-			try:
-				version_proc = subprocess.run([self.executable, '-help'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
-			except FileNotFoundError:
-				#Should happen if and only if MAME isn't installed
-				return None
+	def get_version(self):
+		#Note that there is a -version option in (as of this time of writing, upcoming) MAME 0.211, but might as well just use this, because it works on older versions
+		try:
+			version_proc = subprocess.run([self.executable, '-help'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
+		except FileNotFoundError:
+			#Should happen if and only if MAME isn't installed
+			return None
 
-			return version_proc.stdout.splitlines()[0]
+		return version_proc.stdout.splitlines()[0]
 
-		def _real_iter_mame_entire_xml(self):
-			print('New MAME version found: ' + self.version + '; creating XML; this may take a while (maybe like a minute or so)')
-			os.makedirs(self.xml_cache_path, exist_ok=True)
+	
+	def _real_iter_mame_entire_xml(self):
+		print('New MAME version found: ' + self.get_version() + '; creating XML; this may take a while the first time it is run')
+		os.makedirs(self.xml_cache_path, exist_ok=True)
 
-			proc = subprocess.Popen([self.executable, '-listxml'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-			#TODO Handle errors properly
-			#I'm doing what the documentation tells me to not do and using proc.stdout.read
-			for _, element in ElementTree.iterparse(proc.stdout):
-				if element.tag == 'machine':
-					my_copy = copy.copy(element)
-					machine_name = element.attrib['name']
+		proc = subprocess.Popen([self.executable, '-listxml'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+		#TODO Handle errors properly
+		#I'm doing what the documentation tells me to not do and using proc.stdout.read
+		for _, element in ElementTree.iterparse(proc.stdout):
+			if element.tag == 'machine':
+				my_copy = copy.copy(element)
+				machine_name = element.attrib['name']
 
-					with open(os.path.join(self.xml_cache_path, machine_name + '.xml'), 'wb') as cache_file:
-						cache_file.write(ElementTree.tostring(element))
-					yield machine_name, my_copy
-					element.clear()
-			proc.wait()
-			#Guard against the -listxml process being interrupted and screwing up everything
-			Path(self.xml_cache_path, 'is_done').touch()
+				with open(os.path.join(self.xml_cache_path, machine_name + '.xml'), 'wb') as cache_file:
+					cache_file.write(ElementTree.tostring(element))
+				yield machine_name, my_copy
+				element.clear()
+		proc.wait()
+		#Guard against the -listxml process being interrupted and screwing up everything
+		Path(self.xml_cache_path, 'is_done').touch()
 
-		def _cached_iter_mame_entire_xml(self):
-			for cached_file in os.listdir(self.xml_cache_path):
-				driver_name, ext = os.path.splitext(cached_file)
-				if ext != '.xml':
-					continue
-				yield driver_name, ElementTree.parse(os.path.join(self.xml_cache_path, cached_file)).getroot()
+	def _cached_iter_mame_entire_xml(self):
+		for cached_file in os.listdir(self.xml_cache_path):
+			driver_name, ext = os.path.splitext(cached_file)
+			if ext != '.xml':
+				continue
+			yield driver_name, ElementTree.parse(os.path.join(self.xml_cache_path, cached_file)).getroot()
 
-		def iter_mame_entire_xml(self):
-			if os.path.isfile(os.path.join(self.xml_cache_path, 'is_done')):
-				yield from self._cached_iter_mame_entire_xml()
-			else:
-				yield from self._real_iter_mame_entire_xml()
-			
-		def get_mame_xml(self, driver):
-			if not self.have_mame:
-				raise MAMENotInstalledException()
-
-			cache_file_path = os.path.join(self.xml_cache_path, driver + '.xml')
-			try:
-				with open(cache_file_path, 'rb') as cache_file:
-					return ElementTree.parse(cache_file).getroot()
-			except FileNotFoundError:
-				pass
-
-			try:
-				proc = subprocess.run([self.executable, '-listxml', driver], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)
-			except subprocess.CalledProcessError:
-				raise MachineNotFoundException(driver)
-
-			return ElementTree.fromstring(proc.stdout).find('machine')
-
-		def listsource(self):
-			if not self.have_mame:
-				raise MAMENotInstalledException()
-			proc = subprocess.run([self.executable, '-listsource'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, universal_newlines=True)
-			#Return code should always be 0
-			for line in proc.stdout.splitlines():
-				#Machine names and source files both shouldn't contain spaces, so this should be fine
-				yield line.split()
+	def iter_mame_entire_xml(self):
+		if os.path.isfile(os.path.join(self.xml_cache_path, 'is_done')):
+			yield from self._cached_iter_mame_entire_xml()
+		else:
+			yield from self._real_iter_mame_entire_xml()
 		
-		def verifysoftlist(self, software_list_name):
-			#Unfortunately it seems we cannot verify an individual software, which would probably take less time
-			proc = subprocess.run([self.executable, '-verifysoftlist', software_list_name], universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-			#Don't check return code - it'll return 2 if one software in the list is bad
+	def get_mame_xml(self, driver):
+		if not self.is_installed:
+			raise MAMENotInstalledException()
 
-			available = []
-			for line in proc.stdout.splitlines():
-				#Bleh
-				software_verify_matcher = re.compile(r'romset {0}:(.+) is (?:good|best available)$'.format(software_list_name))
-				line_match = software_verify_matcher.match(line)
-				if line_match:
-					available.append(line_match[1])
-			return available
+		cache_file_path = os.path.join(self.xml_cache_path, driver + '.xml')
+		try:
+			with open(cache_file_path, 'rb') as cache_file:
+				return ElementTree.parse(cache_file).getroot()
+		except FileNotFoundError:
+			pass
 
-		#Other frontend commands: listfull, listclones, listbrothers, listcrc, listroms, listsamples, verifysamples, romident, listdevices, listslots, listmedia, listsoftware, verifysoftware, getsoftlist
+		try:
+			proc = subprocess.run([self.executable, '-listxml', driver], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)
+		except subprocess.CalledProcessError:
+			raise MachineNotFoundException(driver)
 
-		@property
-		def icons(self):
-			if self._icons is None:
-				d = {}
-				try:
-					mame_ui_config = get_mame_ui_config()
+		return ElementTree.fromstring(proc.stdout).find('machine')
 
-					for icon_directory in mame_ui_config.settings.get('icons_directory', []):
-						if os.path.isdir(icon_directory):
-							for icon_file in os.listdir(icon_directory):
-								name, ext = os.path.splitext(icon_file)
-								if ext == '.ico': #Perhaps should have other formats?
-									d[name] = os.path.join(icon_directory, icon_file)
+	def listsource(self):
+		if not self.is_installed:
+			raise MAMENotInstalledException()
+		proc = subprocess.run([self.executable, '-listsource'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, universal_newlines=True)
+		#Return code should always be 0
+		for line in proc.stdout.splitlines():
+			#Machine names and source files both shouldn't contain spaces, so this should be fine
+			yield line.split()
+	
+	def verifysoftlist(self, software_list_name):
+		#Unfortunately it seems we cannot verify an individual software, which would probably take less time
+		proc = subprocess.run([self.executable, '-verifysoftlist', software_list_name], universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+		#Don't check return code - it'll return 2 if one software in the list is bad
 
-					self._icons = d
-				except FileNotFoundError:
-					self._icons = d
-			return self._icons
+		available = []
+		for line in proc.stdout.splitlines():
+			#Bleh
+			software_verify_matcher = re.compile(r'romset {0}:(.+) is (?:good|best available)$'.format(software_list_name))
+			line_match = software_verify_matcher.match(line)
+			if line_match:
+				available.append(line_match[1])
+		return available
 
+	#Other frontend commands: listfull, listclones, listbrothers, listcrc, listroms, listsamples, verifysamples, romident, listdevices, listslots, listmedia, listsoftware, verifysoftware, getsoftlist
+
+class DefaultMameExecutable():
 	__instance = None
 
 	@staticmethod
-	def getMameState():
-		if MameState.__instance is None:
-			MameState.__instance = MameState.__MameState()
-		return MameState.__instance
+	def getDefaultMameExecutable():
+		if DefaultMameExecutable.__instance is None:
+			DefaultMameExecutable.__instance = MameExecutable()
+		return DefaultMameExecutable.__instance
 
-mame_state = MameState.getMameState()
+class MameConfiguration():
+	def __init__(self, core_config_path=None, ui_config_path=None):
+		self.core_config_path = core_config_path
+		if not self.core_config_path:
+			self.core_config_path = get_mame_config()
+		self.ui_config_path = ui_config_path
+		if not self.ui_config_path:
+			self.ui_config_path = get_mame_ui_config()
+		self._icons = None
+
+	@property
+	def icons(self):
+		if self._icons is None:
+			d = {}
+			try:
+				mame_ui_config = get_mame_ui_config()
+
+				for icon_directory in mame_ui_config.settings.get('icons_directory', []):
+					if os.path.isdir(icon_directory):
+						for icon_file in os.listdir(icon_directory):
+							name, ext = os.path.splitext(icon_file)
+							if ext == '.ico': #Perhaps should have other formats?
+								d[name] = os.path.join(icon_directory, icon_file)
+
+				self._icons = d
+			except FileNotFoundError:
+				self._icons = d
+		return self._icons
+
+class DefaultMameConfiguration():
+	__instance = None
+
+	@staticmethod
+	def getDefaultMameConfiguration():
+		if DefaultMameConfiguration.__instance is None:
+			DefaultMameConfiguration.__instance = MameConfiguration(None)
+		return DefaultMameConfiguration.__instance	
+
+default_mame_executable = DefaultMameExecutable.getDefaultMameExecutable()
+default_mame_configuration = DefaultMameConfiguration.getDefaultMameConfiguration()
 
 def have_mame():
-	return mame_state.have_mame
+	return default_mame_executable.is_installed
 
 def iter_mame_entire_xml():
-	yield from mame_state.iter_mame_entire_xml()
+	yield from default_mame_executable.iter_mame_entire_xml()
 
 def get_mame_xml(driver):
-	return mame_state.get_mame_xml(driver)
+	return default_mame_executable.get_mame_xml(driver)
 
 def list_by_source_file():
-	return mame_state.listsource()
+	return default_mame_executable.listsource()
 
 def verify_software_list(software_list_name):
-	return mame_state.verifysoftlist(software_list_name)
+	return default_mame_executable.verifysoftlist(software_list_name)
 
 def get_icons():
-	return mame_state.icons
+	return default_mame_configuration.icons
 
 def _tag_starts_with(tag, tag_list):
 	if not tag:
@@ -237,7 +260,7 @@ def find_cpus(machine_xml):
 	return cpu_xmls
 
 def lookup_system_cpus(driver_name):
-	machine = mame_state.get_mame_xml(driver_name)
+	machine = get_mame_xml(driver_name)
 	#Guess I'll pass the potential MAMENotInstalledException to caller
 
 	cpu_list = []
@@ -251,7 +274,7 @@ def lookup_system_cpus(driver_name):
 	return cpu_list
 
 def lookup_system_displays(driver_name):
-	machine = mame_state.get_mame_xml(driver_name)
+	machine = get_mame_xml(driver_name)
 
 	displays = machine.findall('display')
 	screen_info = ScreenInfo()
