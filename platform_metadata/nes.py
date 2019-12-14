@@ -312,8 +312,6 @@ def parse_unif_chunk(game, chunk_type, chunk_data):
 	elif chunk_type.startswith('CHR'):
 		game.metadata.specific_info['CHR-CRC'] = get_crc32_for_software_list(chunk_data)
 	elif chunk_type == 'MAPR':
-		#TODO: Convert this to iNES mapper number, if relevant (maybe?) (NES-NROM-xxx = NROM, for example)
-		#TODO: Make emulator_command_lines use this
 		game.metadata.specific_info['Mapper'] = chunk_data.decode('utf-8', errors='ignore').rstrip('\0')
 	elif chunk_type == 'TVCI':
 		tv_type = chunk_data[0]

@@ -108,4 +108,5 @@ def get_crc32_of_archive(path, filename):
 		except zipfile.BadZipFile:
 			pass
 	#TODO: Get them out of 7z, which might end up being faster than reading the whole thing
+	#See also https://fastapi.metacpan.org/source/BJOERN/Compress-Deflate7-1.0/7zip/DOC/7zFormat.txt
 	return zlib.crc32(sevenzip_get(path, filename)) & 0xffffffff
