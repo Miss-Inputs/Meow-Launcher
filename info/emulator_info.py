@@ -269,6 +269,7 @@ emulators = {
 	#Seems like a lot of stuff doesn't get anywhere? Probably needs the book part
 	"MAME (Super A'Can)": MameDriver(command_lines.mame_system('supracan', 'cart'), ['bin']),
 	#Some things work, except with no sound, so... nah
+	'MAME (SVI-3x8)': MameDriver(command_lines.mame_system('svi328', 'cart'), ['bin', 'rom']),
 	'MAME (V.Smile Baby)': MameDriver(command_lines.mame_system('vsmileb', 'cart'), ['u1', 'u3', 'bin']),
 	#Seems to crash on some titles, also everything in software list is supported=no?
 	'MAME (VideoBrain)': MameDriver(command_lines.mame_system('vidbrain', 'cart', has_keyboard=True), ['bin']),
