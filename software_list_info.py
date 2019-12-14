@@ -8,7 +8,7 @@ import io_utils
 from common_types import MediaType
 from info.region_info import TVSystem
 from info.system_info import systems
-from mame_helpers import consistentify_manufacturer, get_mame_config, verify_software_list
+from mame_helpers import consistentify_manufacturer, get_mame_core_config, verify_software_list
 from metadata import EmulationStatus
 
 #Ideally, every platform wants to be able to get software list info. If available, it will always be preferred over what we can extract from inside the ROMs, as it's more reliable, and avoids the problem of bootlegs/hacks with invalid/missing header data, or publisher/developers that merge and change names and whatnot.
@@ -461,7 +461,7 @@ def get_software_list_by_name(name):
 		return _software_list_cache[name]
 
 	try:
-		mame_config = get_mame_config()
+		mame_config = get_mame_core_config()
 		for hash_path in mame_config.settings['hashpath']:
 			if os.path.isdir(hash_path):
 				list_path = os.path.join(hash_path, name + '.xml')

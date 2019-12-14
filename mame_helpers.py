@@ -43,21 +43,6 @@ class MameConfigFile():
 					value = mame_config_values.findall(match['value'])
 					self.settings[key] = value
 
-def get_mame_config(path=None):
-	if not path:
-		path = os.path.expanduser('~/.mame/mame.ini')
-	if os.path.isfile(path):
-		return MameConfigFile(path)
-	raise FileNotFoundError(path)
-
-def get_mame_ui_config(path=None):
-	#TODO Refactor this into MameConfiguration
-	if not path:
-		path = os.path.expanduser('~/.mame/ui.ini')
-	if os.path.isfile(path):
-		return MameConfigFile(path)
-	raise FileNotFoundError(path)
-
 class MachineNotFoundException(Exception):
 	#This shouldn't be thrown unless I'm an idiot, but that may well happen
 	pass
@@ -174,12 +159,24 @@ class DefaultMameExecutable():
 
 class MameConfiguration():
 	def __init__(self, core_config_path=None, ui_config_path=None):
-		self.core_config_path = core_config_path
-		if not self.core_config_path:
-			self.core_config_path = get_mame_config()
-		self.ui_config_path = ui_config_path
-		if not self.ui_config_path:
-			self.ui_config_path = get_mame_ui_config()
+		self.is_configured = True
+
+		if not core_config_path:
+			core_config_path = os.path.expanduser('~/.mame/mame.ini')
+		try:
+			self.core_config = MameConfigFile(core_config_path)
+		except FileNotFoundError:
+			self.is_configured = False
+			self.core_config = None
+
+		if not ui_config_path:
+			ui_config_path = os.path.expanduser('~/.mame/ui.ini')
+		try:
+			self.ui_config = MameConfigFile(ui_config_path)
+		except FileNotFoundError:
+			self.is_configured = False
+			self.ui_config = None
+
 		self._icons = None
 
 	@property
@@ -187,9 +184,7 @@ class MameConfiguration():
 		if self._icons is None:
 			d = {}
 			try:
-				mame_ui_config = get_mame_ui_config()
-
-				for icon_directory in mame_ui_config.settings.get('icons_directory', []):
+				for icon_directory in self.ui_config.settings.get('icons_directory', []):
 					if os.path.isdir(icon_directory):
 						for icon_file in os.listdir(icon_directory):
 							name, ext = os.path.splitext(icon_file)
@@ -213,8 +208,20 @@ class DefaultMameConfiguration():
 default_mame_executable = DefaultMameExecutable.getDefaultMameExecutable()
 default_mame_configuration = DefaultMameConfiguration.getDefaultMameConfiguration()
 
+def get_mame_core_config():
+	conf = default_mame_configuration.core_config
+	if conf:
+		return conf
+	raise MAMENotInstalledException()
+
+def get_mame_ui_config():
+	conf = default_mame_configuration.ui_config
+	if conf:
+		return conf
+	raise MAMENotInstalledException()
+
 def have_mame():
-	return default_mame_executable.is_installed
+	return default_mame_executable.is_installed and default_mame_configuration.is_configured
 
 def iter_mame_entire_xml():
 	yield from default_mame_executable.iter_mame_entire_xml()
