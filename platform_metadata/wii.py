@@ -3,20 +3,19 @@ import statistics
 import xml.etree.ElementTree as ElementTree
 from datetime import datetime
 
-try:
-	from Crypto.Cipher import AES
-	have_pycrypto = True
-except ModuleNotFoundError:
-	have_pycrypto = False
-
 from common import NotAlphanumericException, convert_alphanumeric
 from config import main_config
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 from metadata import CPU, Screen, ScreenInfo
 
 from .gamecube_wii_common import (NintendoDiscRegion,
-                                  add_gamecube_wii_disc_metadata,
-                                  gamecube_wii_read)
+                                  add_gamecube_wii_disc_metadata)
+
+try:
+	from Crypto.Cipher import AES
+	have_pycrypto = True
+except ModuleNotFoundError:
+	have_pycrypto = False
 
 def add_wii_system_info(game):
 	cpu = CPU()
@@ -182,7 +181,7 @@ def parse_ratings(game, ratings_bytes, invert_has_rating_bit=False, use_bit_6=Tr
 	game.metadata.nsfw = rating >= 18
 
 def add_wii_disc_metadata(game):
-	wii_header = gamecube_wii_read(game, 0x40_000, 0xf000)
+	wii_header = game.rom.read(0x40_000, 0xf000)
 
 	game_partition_offset = None
 	for i in range(4):
@@ -191,7 +190,7 @@ def add_wii_disc_metadata(game):
 		partition_table_entry_offset = int.from_bytes(partition_group[4:8], 'big') << 2
 		for j in range(partition_count):
 			seek_to = partition_table_entry_offset + (j * 8)
-			partition_table_entry = gamecube_wii_read(game, seek_to, 8)
+			partition_table_entry = game.rom.read(seek_to, 8)
 			partition_offset = int.from_bytes(partition_table_entry[0:4], 'big') << 2
 			partition_type = int.from_bytes(partition_table_entry[4:8], 'big')
 			if partition_type > 0xf:
@@ -208,7 +207,7 @@ def add_wii_disc_metadata(game):
 	wii_common_key = main_config.wii_common_key
 	if wii_common_key:
 		if game_partition_offset and have_pycrypto:
-			game_partition_header = gamecube_wii_read(game, game_partition_offset, 0x2c0)
+			game_partition_header = game.rom.read(game_partition_offset, 0x2c0)
 			title_iv = game_partition_header[0x1dc:0x1e4] + (b'\x00' * 8)
 			data_offset = int.from_bytes(game_partition_header[0x2b8:0x2bc], 'big') << 2
 
@@ -218,7 +217,7 @@ def add_wii_disc_metadata(game):
 			key = aes.decrypt(encrypted_key)
 
 			chunk_offset = game_partition_offset + data_offset # + (index * 0x8000) but we only need 1st chunk (0x7c00 bytes of encrypted data each chunk)
-			chunk = gamecube_wii_read(game, chunk_offset, 0x8000)
+			chunk = game.rom.read(chunk_offset, 0x8000)
 			chunk_iv = chunk[0x3d0:0x3e0]
 			aes = AES.new(key, AES.MODE_CBC, chunk_iv)
 			decrypted_chunk = aes.decrypt(chunk[0x400:])
@@ -249,7 +248,7 @@ def add_wii_metadata(game):
 	if game.rom.extension in ('gcz', 'iso', 'wbfs', 'gcm'):
 		if game.rom.extension in ('iso', 'gcm', 'gcz'):
 			#.gcz can be a format for Wii discs, though not recommended and uncommon
-			header = gamecube_wii_read(game, 0, 0x2450)
+			header = game.rom.read(0, 0x2450)
 		elif game.rom.extension == 'wbfs':
 			header = game.rom.read(amount=0x2450, seek_to=0x200)
 		add_gamecube_wii_disc_metadata(game, header)

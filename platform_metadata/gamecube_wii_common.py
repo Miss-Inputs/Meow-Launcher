@@ -1,6 +1,5 @@
 from enum import Enum
 
-import cd_read
 from common import NotAlphanumericException, convert_alphanumeric
 from config import main_config
 from data.nintendo_licensee_codes import nintendo_licensee_codes
@@ -12,12 +11,6 @@ class NintendoDiscRegion(Enum):
 	PAL = 2
 	RegionFree = 3  # Seemingly Wii only
 	NTSC_K = 4  # Seemingly Wii only
-
-def gamecube_wii_read(game, seek_to, amount):
-	if game.rom.extension == 'gcz':
-		return cd_read.read_gcz(game.rom.path, amount=amount, seek_to=seek_to)
-	# FIXME won't work for wbfs
-	return game.rom.read(amount=amount, seek_to=seek_to)
 
 def add_gamecube_wii_disc_metadata(game, header):
 	internal_title = header[32:128]

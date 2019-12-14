@@ -9,14 +9,17 @@ import time
 from zlib import crc32
 
 import archives
+import cd_read
 import common
 import io_utils
 import launchers
 import metadata
-from common_types import EmulationNotSupportedException, NotARomException, ExtensionNotSupportedException
+from common_types import (EmulationNotSupportedException,
+                          ExtensionNotSupportedException, NotARomException)
 from config import main_config, system_configs
 from info import emulator_info, system_info
 from roms_metadata import add_metadata
+
 
 class RomFile():
 	def __init__(self, path):
@@ -85,6 +88,16 @@ class RomFile():
 			return crc32(self.entire_file) & 0xffffffff
 		return self._get_crc32()
 
+class GCZRomFile(RomFile):
+	def read(self, seek_to=0, amount=-1):
+		return cd_read.read_gcz(self.path, seek_to, amount)
+
+def rom_file(path):
+	_, ext = os.path.splitext(path)
+	if ext.lower() == '.gcz':
+		return GCZRomFile(path)
+	return RomFile(path)
+
 class RomGame():
 	def __init__(self, rom, platform, folder):
 		self.rom = rom
@@ -133,7 +146,7 @@ def process_file(system_config, rom_dir, root, rom):
 			if main_config.debug:
 				print('M3U file', game.rom.path, 'has broken references!!!!', filenames)
 			return
-		game.subroms = [RomFile(referenced_file) for referenced_file in filenames]
+		game.subroms = [rom_file(referenced_file) for referenced_file in filenames]
 
 	potential_emulators = system_config.chosen_emulators
 	if not potential_emulators:
@@ -228,7 +241,7 @@ def process_emulated_system(system_config):
 			for name in sorted(files, key=sort_m3u_first()):
 				path = os.path.join(root, name)
 
-				rom = RomFile(path)
+				rom = rom_file(path)
 
 				if rom.extension == 'm3u':
 					used_m3u_filenames.extend(parse_m3u(path))
@@ -297,7 +310,7 @@ def main():
 
 		rom = sys.argv[arg_index + 1]
 		system = sys.argv[arg_index + 2]
-		process_file(system_configs.configs[system], os.path.dirname(rom), os.path.dirname(rom), RomFile(rom))
+		process_file(system_configs.configs[system], os.path.dirname(rom), os.path.dirname(rom), rom_file(rom))
 		return
 
 	if len(sys.argv) >= 2 and '--systems' in sys.argv:
