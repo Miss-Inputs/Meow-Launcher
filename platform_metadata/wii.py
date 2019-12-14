@@ -146,6 +146,14 @@ def add_wii_homebrew_metadata(game):
 					game.metadata.year = actual_date.year
 					game.metadata.month = actual_date.strftime('%B')
 					game.metadata.day = actual_date.day
+
+			short_description = meta_xml.findtext('short_description')
+			if short_description:
+				game.metadata.specific_info['Description'] = short_description
+			long_description = meta_xml.findtext('long_description')
+			if short_description:
+				game.metadata.specific_info['Long-Description'] = long_description
+
 		except ElementTree.ParseError as etree_error:
 			if main_config.debug:
 				print('Ah bugger this Wii homebrew XML has problems', game.rom.path, etree_error)

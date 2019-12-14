@@ -115,7 +115,6 @@ def parse_gameboy_header(game, header):
 	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_logo_crc32
 	game.metadata.specific_info['Nintendo-Logo-Valid'] = nintendo_logo_valid
 	
-	#Title: 0x34:0x44
 	title = header[0x34:0x44]
 	cgb_flag = title[15]
 	title_length = 16

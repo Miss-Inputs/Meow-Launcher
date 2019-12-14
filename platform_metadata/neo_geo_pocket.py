@@ -12,6 +12,7 @@ def add_ngp_metadata(game):
 
 	header = game.rom.read(amount=64)
 	copyright_string = header[:28]
+	game.metadata.specific_info['Copyright'] = copyright_string.decode('ascii', errors='backslashreplace')
 	if copyright_string == b'COPYRIGHT BY SNK CORPORATION':
 		game.metadata.publisher = 'SNK'
 	#Otherwise it'd say " LICENSED BY SNK CORPORATION" and that could be any dang third party which isn't terribly useful

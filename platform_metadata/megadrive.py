@@ -104,7 +104,9 @@ def add_megadrive_info(game, header):
 		game.metadata.specific_info['32X-Only'] = True
 
 	try:
-		copyright_match = copyright_regex.match(header[16:32].decode('ascii'))
+		copyright_string = header[16:32].decode('ascii')
+		game.metadata.specific_info['Copyright'] = copyright_string
+		copyright_match = copyright_regex.match(copyright_string)
 		if copyright_match:
 			maker = copyright_match[1].strip().rstrip(',')
 			maker = t_with_zero.sub('T-', maker)

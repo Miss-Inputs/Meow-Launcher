@@ -207,7 +207,6 @@ def add_fds_metadata(game):
 	else:
 		game.metadata.specific_info['Headered'] = False
 
-
 	licensee_code = '{:02X}'.format(header[15])
 	if licensee_code in nintendo_licensee_codes:
 		game.metadata.publisher = nintendo_licensee_codes[licensee_code]

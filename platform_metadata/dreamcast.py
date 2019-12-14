@@ -43,7 +43,6 @@ def add_info_from_main_track(game, track_path, sector_size):
 	except NotImplementedError:
 		return
 
-	#16-32 Copyright: Seems to always be "SEGA ENTERPRISES" but may or may not be mandatory?
 	#96-112 Boot filename
 
 	hardware_id = header[0:16].decode('ascii', errors='ignore')
@@ -52,6 +51,10 @@ def add_info_from_main_track(game, track_path, sector_size):
 		game.metadata.specific_info['Hardware-ID'] = hardware_id
 		game.metadata.specific_info['Invalid-Hardware-ID'] = True
 		return
+
+	copyright_info = header[16:32].decode('ascii', errors='ignore')
+	#Seems to be always "SEGA ENTERPRISES"?
+	game.metadata.specific_info['Copyright'] = copyright_info
 
 	device_info = header[32:48].decode('ascii', errors='ignore').rstrip()
 	device_info_match = device_info_regex.match(device_info)
