@@ -64,6 +64,8 @@ emulators = {
 	'Snes9x': EmulatorInfo(command_lines.snes9x, ['sfc', 'smc', 'swc'], ['zip', 'gz']),
 	#Can't set fullscreen mode from the command line so you have to set up that yourself (but it will do that automatically); GTK port can't do Sufami Turbo or Satellaview from command line due to lacking multi-cart support that Windows has (Unix non-GTK doesn't like being in fullscreen etc)
 	'Stella': EmulatorInfo(LaunchParams('stella', ['-fullscreen', '1', '$<path>']), ['a26', 'bin', 'rom'] + atari_2600_cartridge_extensions, ['gz', 'zip']),
+	'PrBoom+': EmulatorInfo(command_lines.prboom_plus, ['wad'], []),
+	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
 
 	'VICE (C64)': ViceEmulator(command_lines.vice_c64),
 	'VICE (C64 Fast)': ViceEmulator(command_lines.vice_c64_fast),
@@ -313,19 +315,6 @@ class GameEngine():
 			return self.exe_name, self.args(game, specific_config)
 
 		return self.exe_name, self.args
-
-def is_doom_file(file):
-	if file.extension != 'wad':
-		return False
-
-	return file.read(amount=4) == b'IWAD'
-
-engines = {
-	'PrBoom+': GameEngine('prboom-plus', command_lines.make_prboom_plus_command_line, is_doom_file),
-	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
-	'Darkplaces': GameEngine('darkplaces-glx', ['-nostdout', '-fullscreen', '-basedir', '$<path>'], lambda folder: folder.contains_subfolder('id1'))
-	#TODO: Make this work with expansion packs and stuff (this will most definitely only work with base Quake)
-}
 
 class MacEmulator():
 	def __init__(self, launch_params):

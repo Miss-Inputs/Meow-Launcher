@@ -5,7 +5,7 @@ import sys
 from common_paths import config_dir, data_dir
 from common_types import ConfigValueType
 from io_utils import ensure_exist
-from info.system_info import systems, games_with_engines, computer_systems
+from info.system_info import systems, computer_systems
 
 app_name = 'Meow Launcher'
 
@@ -314,8 +314,6 @@ class SystemConfigs():
 			self.configs = {}
 			for k, v in systems.items():
 				self.init_config(k, v.specific_configs, add_if_not_exist=not v.is_unsupported)
-			for k, v in games_with_engines.items():
-				self.init_config(k, v.specific_configs)
 			for k, v in computer_systems.items():
 				self.init_config(k, v.specific_configs)
 

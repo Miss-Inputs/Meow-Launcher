@@ -1273,9 +1273,14 @@ def snes9x(game, _):
 		raise EmulationNotSupportedException('{0} not supported'.format(expansion_chip))
 	return LaunchParams('snes9x-gtk', ['$<path>'])
 
-
 #Game engines
-def make_prboom_plus_command_line(_, specific_config):
+def prboom_plus(game, specific_config):
+	#TODO TODO TODO Move this to platform_helpers or whatsitcalled
+	magic = game.rom.read(amount=4)
+	if magic != b'IWAD':
+		print(game.rom.path, magic)
+		raise NotARomException('Not actually an IWAD')
+
 	args = []
 	if 'save_dir' in specific_config:
 		args.append('-save')
@@ -1283,7 +1288,7 @@ def make_prboom_plus_command_line(_, specific_config):
 
 	args.append('-iwad')
 	args.append('$<path>')
-	return args
+	return LaunchParams('prboom-plus', args)
 
 #DOS/Mac stuff
 def basilisk_ii(app, specific_config):

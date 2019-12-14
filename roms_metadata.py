@@ -210,9 +210,3 @@ def add_metadata(game):
 
 	get_metadata_from_tags(game)
 	get_metadata_from_regions(game)
-
-def add_engine_metadata(game):
-	game.metadata.extension = game.file.extension
-
-	if game.metadata.platform in platform_metadata.helpers:
-		platform_metadata.helpers[game.metadata.platform](game)

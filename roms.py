@@ -16,83 +16,7 @@ import metadata
 from common_types import EmulationNotSupportedException, NotARomException, ExtensionNotSupportedException
 from config import main_config, system_configs
 from info import emulator_info, system_info
-from roms_metadata import add_engine_metadata, add_metadata
-
-
-class EngineFile():
-	def __init__(self, path):
-		self.path = path
-		original_name = os.path.basename(path)
-		self.name, self.extension = os.path.splitext(original_name)
-
-		if self.extension.startswith('.'):
-			self.extension = self.extension[1:]
-		self.extension = self.extension.lower()
-
-	def read(self, seek_to=0, amount=-1):
-		return io_utils.read_file(self.path, seek_to=seek_to, amount=amount)
-
-	def contains_subfolder(self, name):
-		if not os.path.isdir(self.path):
-			return False
-
-		return os.path.isdir(os.path.join(self.path, name))
-
-class EngineGame():
-	def __init__(self, file, engine, folder):
-		self.file = file
-		self.engine = engine
-		self.metadata = metadata.Metadata()
-		self.metadata.categories = []
-		self.folder = folder
-
-	def get_command_line(self, system_config):
-		return self.engine.get_command_line(self, system_config.specific_config)
-
-	def make_launcher(self, system_config):
-		exe_name, exe_args = self.get_command_line(system_config)
-		exe_args = [arg.replace('$<path>', self.file.path) for arg in exe_args]
-		params = launchers.LaunchParams(exe_name, exe_args)
-		launchers.make_launcher(params, self.file.name, self.metadata, 'Engine game', self.file.path)
-
-def try_engine(system_config, engine, base_dir, root, name):
-	path = os.path.join(root, name)
-
-	file = EngineFile(path)
-	game = EngineGame(file, engine, root)
-
-	base_name = os.path.splitext(name)[0]
-	game.metadata.categories = [i for i in root.replace(base_dir, '').split('/') if i and i != base_name]
-
-	if not engine.is_game_data(file):
-		return None
-
-	add_engine_metadata(game)
-
-	if not game.get_command_line(system_config):
-		return None
-
-	return game
-
-def process_engine_file(system_config, file_dir, root, name):
-	game = None
-
-	engine_name = None
-	potential_engines = system_config.chosen_emulators
-	for potential_engine in potential_engines:
-		if potential_engine not in emulator_info.engines:
-			continue
-		engine_name = potential_engine
-		game = try_engine(system_config, emulator_info.engines[potential_engine], file_dir, root, name)
-		if game:
-			break
-
-	if not game:
-		return
-
-	game.metadata.emulator_name = engine_name
-
-	game.make_launcher(system_config)
+from roms_metadata import add_metadata
 
 class RomFile():
 	def __init__(self, path):
@@ -165,6 +89,7 @@ class RomGame():
 	def __init__(self, rom, platform, folder):
 		self.rom = rom
 		self.metadata = metadata.Metadata()
+		#Should arguably check is_virtual but oh well
 		self.metadata.platform = platform
 		self.metadata.categories = []
 		self.folder = folder
@@ -289,6 +214,8 @@ def sort_m3u_first():
 
 used_m3u_filenames = []
 def process_emulated_system(system_config):
+	time_started = time.perf_counter()
+
 	for rom_dir in system_config.paths:
 		for root, _, files in os.walk(rom_dir):
 			if common.starts_with_any(root + os.sep, main_config.ignored_directories):
@@ -321,23 +248,10 @@ def process_emulated_system(system_config):
 
 				process_file(system_config, rom_dir, root, rom)
 
-def process_engine_system(system_config, game_info):
-	#Can this be refactored? Looks duplicaty
-	for file_dir in system_config.paths:
-		if game_info.uses_folders:
-			for root, dirs, _ in os.walk(file_dir):
-				for d in dirs:
-					if not main_config.full_rescan:
-						if launchers.has_been_done('Engine game', os.path.join(root, d)):
-							continue
-					process_engine_file(system_config, file_dir, root, d)
-		else:
-			for root, _, files in os.walk(file_dir):
-				for f in files:
-					if not main_config.full_rescan:
-						if launchers.has_been_done('Engine game', os.path.join(root, f)):
-							continue
-					process_engine_file(system_config, file_dir, root, f)
+	if main_config.print_times:
+		time_ended = time.perf_counter()
+		print(system_config.name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+
 
 def validate_emulator_choices(system_config, system):
 	for chosen_emulator in system_config.chosen_emulators:
@@ -347,22 +261,13 @@ def validate_emulator_choices(system_config, system):
 	return True
 
 def process_system(system_config):
-	time_started = time.perf_counter()
-
 	if system_config.name in system_info.systems:
 		if not validate_emulator_choices(system_config, system_info.systems[system_config.name]):
 			return
 		process_emulated_system(system_config)
-	elif system_config.name in system_info.games_with_engines:
-		process_engine_system(system_config, system_info.games_with_engines[system_config.name])
 	else:
 		#Let DOS and Mac fall through, as those are in systems.ini but not handled here
 		return
-
-	if main_config.print_times:
-		time_ended = time.perf_counter()
-		print(system_config.name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-
 
 def process_systems():
 	time_started = time.perf_counter()
@@ -382,7 +287,6 @@ def process_systems():
 	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('All emulated/engined systems finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-
 
 def main():
 	if len(sys.argv) >= 2 and '--rom' in sys.argv:

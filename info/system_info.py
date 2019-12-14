@@ -11,12 +11,13 @@ class SpecificConfigValue():
 		self.description = description
 
 class SystemInfo():
-	def __init__(self, mame_driver, mame_software_lists, emulators, file_types=None, specific_configs=None):
+	def __init__(self, mame_driver, mame_software_lists, emulators, file_types=None, specific_configs=None, is_virtual=False):
 		self.mame_driver = mame_driver
 		self.mame_software_lists = mame_software_lists
 		self.emulators = emulators
 		self.file_types = file_types if file_types else {}
 		self.specific_configs = specific_configs if specific_configs else {}
+		self.is_virtual = is_virtual #Maybe needs better name
 
 	def is_valid_file_type(self, extension):
 		return any([extension in extensions for _, extensions in self.file_types.items()])
@@ -175,6 +176,9 @@ systems = {
 	'ZX Spectrum': SystemInfo('spectrum', ['spectrum_cart', 'spectrum_cass', 'specpls3_flop'], ['MAME (ZX Spectrum)'], {MediaType.Snapshot: ['z80', 'sna'], MediaType.Tape: ['wav', 'cas', 'tap', 'tzx'], MediaType.Executable: ['raw', 'scr'], MediaType.Floppy: ['dsk', 'ipf', 'trd', 'td0', 'scl', 'fdi', 'opd', 'opu'], MediaType.Cartridge: ['bin', 'rom']}),
 	#Joystick interface is non-standard so not all games support it and might decide to use the keyboard instead, but eh. It works I guess.
 	#There's actually like a katrillion file formats so I won't bother with all of them until I see them in the wild tbh
+
+	#Stuff that isn't really a game system but we can pretend it is one
+	'Doom': SystemInfo(None, [], ['PrBoom+'], {MediaType.Digital: ['wad']}, {'save_dir': SpecificConfigValue(ConfigValueType.FolderPath, None, 'Folder to put save files in')}, is_virtual=True),
 }
 
 #Unsupported (yet) systems beyond this point, these won't be listed in any config files by default; just here to make it easier for me to add new systems later as I document what they are and what holds them back, sometimes just because I have nothing better to do I guess
@@ -407,20 +411,6 @@ systems.update({
 	#Epoch (not Super) Casette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
 	#Pioneer LaserActive probably just counts as Mega CD and PC Engine CD except with Laserdisc instead of CD, but I'll worry about that when emulation for it becomes a thing
 })
-
-class GameWithEngine():
-	def __init__(self, name, engines, uses_folders, specific_configs=None):
-		self.name = name
-		self.engines = engines
-		self.uses_folders = uses_folders
-		self.specific_configs = specific_configs if specific_configs else {}
-
-games_with_engines = {
-	'Doom': GameWithEngine('Doom', ['PrBoom+'], False, {'save_dir': SpecificConfigValue(ConfigValueType.FolderPath, None, 'Folder to put save files in')}),
-	'Quake': GameWithEngine('Quake', ['Darkplaces'], True),
-}
-#TODO: There should be a Z-Machine interpreter that runs nicely with modern sensibilities, I should look into that
-#Duke Nukem 3D and Wolfenstein 3D definitely have various source ports too, just need to find one that works. Should try Theme Hospital (CorsixTH) and Morrowind (OpenMW) too. Enigma might be able to take original Oxyd data files, thus counting as an engine for that?
 
 class ComputerSystem():
 	#Need a better name for this shit

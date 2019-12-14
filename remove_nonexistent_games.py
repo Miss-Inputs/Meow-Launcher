@@ -28,8 +28,7 @@ def remove_nonexistent_games():
 		should_remove = False
 		if game_type == 'MAME machine':
 			should_remove = mame_machines.no_longer_exists(game_id)
-		elif game_type in ('ROM', 'Engine game'):
-			#Note that in the case of engine games this may be a folder, so isfile will not do
+		elif game_type in 'ROM':
 			should_remove = not os.path.exists(game_id)
 		elif game_type == 'DOS':
 			should_remove = not os.path.exists(game_id)
