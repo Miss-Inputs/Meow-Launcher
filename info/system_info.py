@@ -293,10 +293,12 @@ systems.update({
 	#Things that have usability issues that make things unsuitable for launchering purposes at this point in time, but otherwise might well work
 	'64DD': UnsupportedSystemInfo('n64dd', ['n64dd'], [], {MediaType.Floppy: ['ndd', 'ddd']}),
 	#Mupen64Plus would work, but right now it has issues with usability that it says right in the readme (so it's not just me picking on them, they say it themselves). Basically you have to have a cart inserted which has the same properties as the 64DD software you want to emulate, and that wouldn't work for our launchering purposes. MAME doesn't seem to work with .ndd format dumps
-	'Apple I': UnsupportedSystemInfo('apple1', ['apple1'], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['snp']}),
-	#Loading tapes would require parsing software list usage to figure out where to put load addresses and things to make an autoboot script, because otherwise it's just way too messy to warrant being in a frontend. Snapshots supposedly exist, but I haven't seen any evidence they actually do, so... whoops
+	'Acorn Archimedes': UnsupportedSystemInfo('aa310', ['archimedes'], [], {MediaType.Floppy: mame_floppy_formats + ['adf']}),
+	#MAME driver is marked not working anyway, but also there's not really a way to get this to autoboot, so you have to click the icon on the thing and I don't wanna
 	'Android': UnsupportedSystemInfo(None, [], [], {MediaType.Digital: ['apk']}),
 	#Probably no emulators that will work nicely for us at this point (the emus that do exist tend to be virtual machines and/or closed source Windows only)
+	'Apple I': UnsupportedSystemInfo('apple1', ['apple1'], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['snp']}),
+	#Loading tapes would require parsing software list usage to figure out where to put load addresses and things to make an autoboot script, because otherwise it's just way too messy to warrant being in a frontend. Snapshots supposedly exist, but I haven't seen any evidence they actually do, so... whoops
 	'C64DTV': UnsupportedSystemInfo('c64dtv', [], [], {MediaType.Floppy: commodore_disk_formats, MediaType.Executable: ['prg']}),
 	#Commodore 64 plug and play UnsupportedSystem that has its own unique software, apparently. MAME driver is skeleton, and VICE doesn't seem to boot anything (it is noted as being WIP/experimental)
 	'Cybiko': UnsupportedSystemInfo('cybikov1', [], [], {MediaType.Digital: ['app']}),
@@ -337,8 +339,6 @@ systems.update({
 
 	#TODO: Me being lazy, need to check if these actually work or not:
 	'Acorn Atom': UnsupportedSystemInfo('atom', ['atom_cass', 'atom_flop', 'atom_rom'], [], {MediaType.Floppy: ['40t', 'dsk'], MediaType.Tape: ['wav', 'tap', 'csw', 'uef'], MediaType.Executable: ['atm'], MediaType.Cartridge: ['bin', 'rom']}),
-	'Acorn Archimedes': UnsupportedSystemInfo('aa310', ['archimedes'], [], {MediaType.Floppy: mame_floppy_formats + ['adf']}),
-	#I'll probably want to look more into it, but it looks like it won't really autoboot stuff... just kinda boots to a GUI or prompt depending on the RISC OS version used and then it is in all fairness easy and intuitive from there, but not necessarily an integrated smooth experience...
 	'Amstrad CPC': UnsupportedSystemInfo('cpc464', ['cpc_cass', 'cpc_flop'], [], {MediaType.Snapshot: ['sna'], MediaType.Tape: ['wav', 'cdt'], MediaType.Floppy: mame_floppy_formats}),
 	#The not-plus one (probably will need to switch to cpc664/cpc6128 for flopppy stuff)
 	#CPC+: Use cpc6128p, this uses the gx4000 software list (as well as original cpc_cass and cpc_flop) so I should probably consider these to be the same platform
