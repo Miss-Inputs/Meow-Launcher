@@ -22,7 +22,7 @@ mame_statuses = {
 
 def get_mame_categories_folders():
 	ui_config = get_mame_ui_config()
-	return ui_config.settings.get('categorypath')
+	return ui_config.get('categorypath')
 
 @functools.lru_cache(maxsize=None)
 def get_mame_folder(name):

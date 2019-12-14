@@ -462,7 +462,7 @@ def get_software_list_by_name(name):
 
 	try:
 		mame_config = get_mame_core_config()
-		for hash_path in mame_config.settings['hashpath']:
+		for hash_path in mame_config.get('hashpath', []):
 			if os.path.isdir(hash_path):
 				list_path = os.path.join(hash_path, name + '.xml')
 				if os.path.isfile(list_path):

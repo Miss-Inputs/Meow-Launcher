@@ -24,24 +24,23 @@ def consistentify_manufacturer(manufacturer):
 mame_config_comment = re.compile(r'#.+$')
 mame_config_line = re.compile(r'^(?P<key>\w+)\s+(?P<value>.+)$')
 mame_config_values = re.compile(r'(".+"|[^;]+)') #Not sure if single quotes are okay too...
-class MameConfigFile():
-	def __init__(self, path):
-		self.path = path
-		self.settings = {}
+def parse_mame_config_file(path):
+	settings = {}
 
-		with open(path, 'rt') as f:
-			for line in f.readlines():
-				line = mame_config_comment.sub('', line)
-				line = line.strip()
+	with open(path, 'rt') as f:
+		for line in f.readlines():
+			line = mame_config_comment.sub('', line)
+			line = line.strip()
 
-				if not line:
-					continue
+			if not line:
+				continue
 
-				match = mame_config_line.match(line)
-				if match:
-					key = match['key']
-					value = mame_config_values.findall(match['value'])
-					self.settings[key] = value
+			match = mame_config_line.match(line)
+			if match:
+				key = match['key']
+				value = mame_config_values.findall(match['value'])
+				settings[key] = value
+	return settings
 
 class MachineNotFoundException(Exception):
 	#This shouldn't be thrown unless I'm an idiot, but that may well happen
@@ -164,7 +163,7 @@ class MameConfiguration():
 		if not core_config_path:
 			core_config_path = os.path.expanduser('~/.mame/mame.ini')
 		try:
-			self.core_config = MameConfigFile(core_config_path)
+			self.core_config = parse_mame_config_file(core_config_path)
 		except FileNotFoundError:
 			self.is_configured = False
 			self.core_config = None
@@ -172,7 +171,7 @@ class MameConfiguration():
 		if not ui_config_path:
 			ui_config_path = os.path.expanduser('~/.mame/ui.ini')
 		try:
-			self.ui_config = MameConfigFile(ui_config_path)
+			self.ui_config = parse_mame_config_file(ui_config_path)
 		except FileNotFoundError:
 			self.is_configured = False
 			self.ui_config = None
@@ -184,7 +183,7 @@ class MameConfiguration():
 		if self._icons is None:
 			d = {}
 			try:
-				for icon_directory in self.ui_config.settings.get('icons_directory', []):
+				for icon_directory in self.ui_config.get('icons_directory', []):
 					if os.path.isdir(icon_directory):
 						for icon_file in os.listdir(icon_directory):
 							name, ext = os.path.splitext(icon_file)
