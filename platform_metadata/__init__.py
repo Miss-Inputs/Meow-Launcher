@@ -7,6 +7,7 @@ from platform_metadata.atari_2600 import add_atari_2600_metadata
 from platform_metadata.atari_7800 import add_atari_7800_metadata
 from platform_metadata.atari_8_bit import add_atari_8bit_metadata
 from platform_metadata.commodore_64 import add_commodore_64_metadata
+from platform_metadata.doom import add_doom_metadata
 from platform_metadata.dreamcast import add_dreamcast_metadata
 from platform_metadata.ds import add_ds_metadata
 from platform_metadata.game_boy import add_gameboy_metadata
@@ -59,6 +60,7 @@ helpers = {
 	'Atari 7800': add_atari_7800_metadata,
 	'Atari 8-bit': add_atari_8bit_metadata,
 	'C64': add_commodore_64_metadata,
+	'Doom': add_doom_metadata,
 	'Dreamcast': add_dreamcast_metadata,
 	'DS': add_ds_metadata,
 	'Game Boy': add_gameboy_metadata,

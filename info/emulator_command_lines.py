@@ -1276,10 +1276,8 @@ def snes9x(game, _):
 #Game engines
 def prboom_plus(game, specific_config):
 	#TODO TODO TODO Move this to platform_helpers or whatsitcalled
-	magic = game.rom.read(amount=4)
-	if magic != b'IWAD':
-		print(game.rom.path, magic)
-		raise NotARomException('Not actually an IWAD')
+	if game.metadata.specific_info.get('Is-PWAD', False):
+		raise NotARomException('Is PWAD and not IWAD')
 
 	args = []
 	if 'save_dir' in specific_config:
