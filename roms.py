@@ -259,7 +259,11 @@ def process_emulated_system(system_config):
 					if launchers.has_been_done('ROM', path):
 						continue
 
-				process_file(system_config, rom_dir, root, rom)
+				try:
+					process_file(system_config, rom_dir, root, rom)
+				#pylint: disable=broad-except
+				except Exception as ex:
+					print('FUCK!!!!', path, ex)
 
 	if main_config.print_times:
 		time_ended = time.perf_counter()
