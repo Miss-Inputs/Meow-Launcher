@@ -847,6 +847,8 @@ def mame_zx_spectrum(game, _):
 				options['exp'] = 'protek'
 	elif game.metadata.media_type == MediaType.Cartridge:
 		#This will automatically boot the game without going through any sort of menu, and since it's the Interface 2, they would all use the Interface 2 joystick. So that works nicely
+		if game.rom.get_size() != 0x4000:
+			raise EmulationNotSupportedException('Whoops 16KB only thank you')
 		slot = 'cart'
 		options['exp'] = 'intf2'
 	elif game.metadata.media_type == MediaType.Executable:
