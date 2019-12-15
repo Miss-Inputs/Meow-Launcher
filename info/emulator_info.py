@@ -228,8 +228,8 @@ emulators = {
 	#Sloooow, marked as non-working + imperfect sound
 	'MAME (FM Towns Marty)': MameDriver(command_lines.mame_fm_towns_marty, mame_cdrom_formats + mame_floppy_formats + ['bin']),
 	#As it says right there in the fmtowns.cpp comments: "Issues: Video emulation is far from complete." and still marked not working, but it seems okay for a few games actually
-	'MAME (GameKing)': MameDriver(command_lines.mame_system('gameking', 'cart'), ['bin']), #No sound yet
-	'MAME (GameKing 3)': MameDriver(command_lines.mame_system('gamekin3', 'cart'), ['bin']), #No sound yet
+	'MAME (GameKing)': MameDriver(command_lines.mame_system('gameking', 'cart'), ['bin', 'gk']), #No sound yet
+	'MAME (GameKing 3)': MameDriver(command_lines.mame_system('gamekin3', 'cart'), ['bin', 'gk3']), #No sound yet
 	'MAME (Hartung Game Master)': MameDriver(command_lines.mame_system('gmaster', 'cart'), ['bin']),
 	#Hmm... says not working and imperfect sound. I guess it does run the games, though
 	'MAME (N64)': MameDriver(command_lines.mame_n64, ['v64', 'z64', 'rom', 'n64', 'bin']),
