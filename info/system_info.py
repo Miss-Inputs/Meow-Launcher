@@ -303,6 +303,8 @@ systems.update({
 	#Probably no emulators that will work nicely for us at this point (the emus that do exist tend to be virtual machines and/or closed source Windows only)
 	'Apple I': UnsupportedSystemInfo('apple1', ['apple1'], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['snp']}),
 	#Loading tapes would require parsing software list usage to figure out where to put load addresses and things to make an autoboot script, because otherwise it's just way too messy to warrant being in a frontend. Snapshots supposedly exist, but I haven't seen any evidence they actually do, so... whoops
+	'Camputers Lynx': UnsupportedSystemInfo('lynx128k', ['camplynx_cass', 'camplynx_flop'], [], {MediaType.Floppy: mame_floppy_formats + ['ldf'], MediaType.Tape: ['wav', 'tap']}),
+	#Convinced that whoever invented this system and the way it loads programs personally hates me, even though I wasn't born when it was made and so that's not really possible
 	'C64DTV': UnsupportedSystemInfo('c64dtv', [], [], {MediaType.Floppy: commodore_disk_formats, MediaType.Executable: ['prg']}),
 	#Commodore 64 plug and play UnsupportedSystem that has its own unique software, apparently. MAME driver is skeleton, and VICE doesn't seem to boot anything (it is noted as being WIP/experimental)
 	'Cybiko': UnsupportedSystemInfo('cybikov1', [], [], {MediaType.Digital: ['app']}),
@@ -351,7 +353,6 @@ systems.update({
 	'APF Imagination Machine': UnsupportedSystemInfo('apfimag', ['apfimag_cass', 'apfm1000'], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas', 'cpf', 'apt'], MediaType.Floppy: mame_floppy_formats}),
 	#Considered separate from APF-M1000 (same predicament as Coleco Adam)
 	'BBC Master': UnsupportedSystemInfo('bbcm', ['bbcm_cart', 'bbcm_cass', 'bbcmc_flop', 'bbcm_flop'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl', 'fds', 'ima', 'ufi', '360'] + mame_floppy_formats, MediaType.Cartridge: ['rom', 'bin']}),
-	'Camputers Lynx': UnsupportedSystemInfo('lynx128k', ['camplynx_cass', 'camplynx_flop'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav', 'tap']}),
 	'Exidy Sorcerer': UnsupportedSystemInfo('sorcerer', ['sorcerer_cart', 'sorcerer_cass', 'sorcerer_flop'],
 		{MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav', 'tape'], MediaType.Snapshot: ['snp']}),
 	#Would need automated tape loading to do anything interesting (carts and floppies are just BASIC/OS stuff, also what even is the file type for floppies?) hnmn
