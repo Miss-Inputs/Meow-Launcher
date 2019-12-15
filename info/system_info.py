@@ -244,8 +244,10 @@ systems.update({
 	'Pippin': UnsupportedSystemInfo('pippin', ['pippin', 'pippin_flop'], ['MAME (Pippin)'], {MediaType.OpticalDisc: cdrom_formats}),
 	#Games don't just boot in a PPC Mac, unfortunately. No PPC Mac emulator has branched off into specific Pippin emulation yet
 	'Pocket Challenge W': UnsupportedSystemInfo('pockchal', ['pockchalw'], ['MAME (Pocket Challenge W)'], {MediaType.Cartridge: ['bin']}),
+	'Robotron Z1013': UnsupportedSystemInfo('z1013', [], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['z80']}),
 	'Sawatte Pico': UnsupportedSystemInfo('sawatte', ['sawatte'], [], {}),
 	#Similar to the Sega Pico but with different software (may or may not also use Megadrive ROM header?), but is completely unemulated. Not sure if dump format is identical
+	'Sharp MZ-800': UnsupportedSystemInfo('mz800', ['mz800'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt']}),
 	'Tomy Prin-C': UnsupportedSystemInfo('princ', ['princ'], ['MAME (Tomy Prin-C)'], {MediaType.Cartridge: ['bin']}), #MAME has skeleton driver that displays a green background and then doesn't go anywhere
 	'V.Reader': UnsupportedSystemInfo('vreader', ['vtech_storio_cart'], ['MAME (V.Reader)'], {MediaType.Cartridge: ['bin']}), #Skeleton driver, apparently also known as Storio, or something like that
 	'V.Smile Motion': UnsupportedSystemInfo('vsmilem', ['vsmilem_cart'], ['MAME (V.Smile Motion)'], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
@@ -330,6 +332,7 @@ systems.update({
 	'PocketStation': UnsupportedSystemInfo('pockstat', [], [], {MediaType.Digital: ['gme']}),
 	#Makes you set time and date each time
 	'PS3': UnsupportedSystemInfo(None, [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Digital: ['pkg'], MediaType.Executable: ['self', 'elf', 'bin']}),
+	'Sharp MZ-700': UnsupportedSystemInfo('mz700', ['mz700'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt']}),
 	'ZX81': UnsupportedSystemInfo('zx81', ['zx80_cass', 'zx81_cass'], [], {MediaType.Tape: ['wav', 'cas', 'p', '81', 'tzx']}),
 	#Not even gonna try testing any more software without autobooting it, though I'm not sure it does work from the one I did. Anyway, gotta press J and then Shift+P twice to type LOAD "" and then enter, and then start the tape, and then wait and then press run, and it seems if you screw up any step at all you gotta reset the whole thing, and even then it's like.... meh....
 	'Radio 86-RK': UnsupportedSystemInfo('radio86', ['radio86_cart', 'radio86_cass'], [], {MediaType.Tape: ['wav', 'rk', 'rkr', 'gam', 'g16', 'pki']}),
@@ -359,10 +362,6 @@ systems.update({
 	'Goldstar FC-100': UnsupportedSystemInfo('fc100', [], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas']}),
 	#No software list, some kind of PC-6001 clone or something
 	'Memotech MTX': UnsupportedSystemInfo('mtx512', ['mtx_cart', 'mtx_cass', 'mtx_rom'], [], {MediaType.Snapshot: ['mtx'], MediaType.Executable: ['run'], MediaType.Tape: ['wav'], MediaType.Cartridge: ['bin', 'rom']}),
-	'Robotron Z1013': UnsupportedSystemInfo('z1013', [], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['z80']}),
-	#z1013.cpp is apparently preliminary driver but z1013 and z1013a2 aren't marked as not working so might be okay
-	'Sharp MZ-700': UnsupportedSystemInfo('mz700', ['mz700'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt']}),
-	'Sharp MZ-800': UnsupportedSystemInfo('mz800', ['mz800'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt']}),
 	'Sharp MZ-2000': UnsupportedSystemInfo('mz2000', ['mz2000_cass', 'mz2000_flop'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt'], MediaType.Cartridge: ['2d'] + mame_floppy_formats}),
 	'Sinclair QL': UnsupportedSystemInfo('ql', ['ql_cart', 'ql_cass', 'ql_flop'], [], {MediaType.Tape: ['mdv'], MediaType.Cartridge: ['bin', 'rom']}),
 	'Thomson MO': UnsupportedSystemInfo('mo6', ['mo5_cart', 'mo5_cass', 'mo5_flop', 'mo5_qd', 'mo6_cass', 'mo6_flop'], [], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qt'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}),
