@@ -202,6 +202,7 @@ systems.update({
 	'Videoton TVC': UnsupportedSystemInfo('tvc64', ['tvc_cart', 'tvc_cass', 'tvc_flop'], ['MAME (Videoton TVC)'], {MediaType.Cartridge: ['bin', 'rom', 'crt'], MediaType.Tape: ['wav', 'cas']}),
 	'KC-85': UnsupportedSystemInfo('kc85_5', ['kc_cart', 'kc_cass', 'kc_flop'], ['MAME (KC-85)'], {MediaType.Executable: ['kcc'], MediaType.Tape: ['wav', 'kcb', 'tap', '853', '854', '855', 'tp2', 'kcm', 'sss'], MediaType.Cartridge: ['bin']}),
 	#kcc might also be a tape format?? ehhhh???
+	'Amstrad PCW': UnsupportedSystemInfo('pcw10', ['pcw'], ['MAME (Amstrad PCW)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['com']}),
 	
 	#No emulators that are cool enough on Linux (any available are too preliminary to work). Yet. Maybe? That I know of. They're here for completeness. Or no emulators at all.
 	#They are also here to remind me to check up on them every now and again to make sure they indeed don't work or if I was just being stupid all along
@@ -345,8 +346,6 @@ systems.update({
 	'Amstrad CPC': UnsupportedSystemInfo('cpc464', ['cpc_cass', 'cpc_flop'], [], {MediaType.Snapshot: ['sna'], MediaType.Tape: ['wav', 'cdt'], MediaType.Floppy: mame_floppy_formats}),
 	#The not-plus one (probably will need to switch to cpc664/cpc6128 for flopppy stuff)
 	#CPC+: Use cpc6128p, this uses the gx4000 software list (as well as original cpc_cass and cpc_flop) so I should probably consider these to be the same platform
-	'Amstrad PCW': UnsupportedSystemInfo('pcw10', ['pcw'], [], {MediaType.Floppy: mame_floppy_formats}),
-	#Marked as MACHINE_NOT_WORKING, probably doesn't work
 	'Amstrad PCW16': UnsupportedSystemInfo('pcw16', ['pcw16'], [], {MediaType.Floppy: mame_floppy_formats}),
 	#Marked as MACHINE_NOT_WORKING and MAME pcw.cpp mentions needing an OS rescue disk, probably doesn't work conveniently or at all
 	'APF Imagination Machine': UnsupportedSystemInfo('apfimag', ['apfimag_cass', 'apfm1000'], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas', 'cpf', 'apt'], MediaType.Floppy: mame_floppy_formats}),

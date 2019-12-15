@@ -220,6 +220,8 @@ emulators = {
 
 	'MAME (32X)': MameDriver(command_lines.mame_32x, ['32x', 'bin']),
 	#Higher host CPU requirements than what you might expect
+	'MAME (Amstrad PCW)': MameDriver(command_lines.mame_system('pcw10', 'flop', has_keyboard=True), mame_floppy_formats),
+	#TODO Reject software where usage indicates CP/M requirement (fuck CP/M)
 	'MAME (Casio PV-2000)': MameDriver(command_lines.mame_system('pv2000', 'cart', has_keyboard=True), ['bin']),
 	#Not the same as the PV-1000, albeit similar. Driver marked as non-working but it seems alright, other than it's supposed to have joysticks and doesn't (so you just set up a gamepad to map to emulated cursor keys) which maybe is why
 	'MAME (CD-i)': MameDriver(command_lines.mame_system('cdimono1', 'cdrom'), mame_cdrom_formats),
