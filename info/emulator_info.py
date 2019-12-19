@@ -236,6 +236,9 @@ emulators = {
 	#Hmm... says not working and imperfect sound. I guess it does run the games, though
 	'MAME (N64)': MameDriver(command_lines.mame_n64, ['v64', 'z64', 'rom', 'n64', 'bin']),
 	#Emulates a NTSC console only so PAL games will probably tell you off or otherwise not work properly; also no rumble/mempak/etc for you. Very slow on even modern systems. Marked as non-working + imperfect graphics
+	'MAME (PC-6001)': MameDriver(command_lines.mame_system('pc6001', 'cart1'), ['bin', 'rom']),
+	#Preliminary and notes in source file comments it doesn't load tapes yet (the cart2 slot seems to be a hack that does that)
+	#Use pc6001a for USA version if needed, pc6001mk2 and pc6001sr might also do something, pc6601 should have a floppy drive but doesn't yet
 	'MAME (PC-88)': MameDriver(command_lines.mame_system('pc8801', 'flop1', has_keyboard=True), mame_floppy_formats),
 	#TODO: Tapes, and potentially look into other models. All the PC-88 models claim to be broken, but the base one plays the games, so that's good enough in my book
 	'MAME (Uzebox)': MameDriver(command_lines.mame_system('uzebox', 'cart'), ['bin', 'uze']),
