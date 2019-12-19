@@ -380,6 +380,9 @@ systems.update({
 	'PipBug': UnsupportedSystemInfo('pipbug', [], [], {MediaType.Executable: ['pgm']}),
 	'V.Tech Socrates': UnsupportedSystemInfo('socrates', ['socrates'], [], {MediaType.Cartridge: ['bin']}),
 	#Emulation status = preliminary... hh (but sound is imperfect, and not completely borked)
+	'TI-99': UnsupportedSystemInfo('ti99_4', ['ti99_cart'], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav']}),
+	#Main kerfluffle seems to be .rpk file format needed for -cart loading, but everything else is in .c and .g and who knows what else; -ioport peb -ioport:peb:slot2 32kmem -ioport:peb:slot3 speech might be needed? What is the difference between TI-99/2 TI99/4 TI99/8
+
 
 	#TODO: Me being lazy, I know if these work or not but they require effort:
 	'Acorn Electron': UnsupportedSystemInfo('electron', ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl']}),
@@ -400,11 +403,10 @@ systems.update({
 	#Bandai Super Note Club: Part of VTech Genius Leader (supports glccolor software list), or its own thing (has snotec software list)?
 	#Dragon 64 part of CoCo or nah?
 	#Jupiter Ace (ZX Spectrum clone but has different compatibility?)
-	#TI-99: Main kerfluffle seems to be .rpk file format needed for -cart loading, but everything else is in .c and .g and who knows what else; -ioport peb -ioport:peb:slot2 32kmem -ioport:peb:slot3 speech might be needed?
 	#CBM-II (VIC-II and CRTC models)
 	#PalmOS: Not sure if there would be something which can just run .prc files or whatsitcalled
 	#Amstrad PC20/Sinclair PC200: Is this just IBM PC compatible stuff? Have one demoscene prod which claims to be for it specifically
-	#Epoch (not Super) Casette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
+	#Epoch (not Super) Cassette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
 	#Pioneer LaserActive probably just counts as Mega CD and PC Engine CD except with Laserdisc instead of CD, but I'll worry about that when emulation for it becomes a thing
 })
 
