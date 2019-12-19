@@ -340,6 +340,7 @@ systems.update({
 	'Apogey BK-01': UnsupportedSystemInfo('apogee', ['apogee'], [], {MediaType.Tape: ['wav', 'rka']}),
 	'Partner 01.01': UnsupportedSystemInfo('partner', ['partner_cass', 'partner_flop'], [], {MediaType.Tape: ['wav', 'rkp'], MediaType.Floppy: mame_floppy_formats + ['odi']}),
 	'Orion-128': UnsupportedSystemInfo('orion128', ['orion_cart', 'orion_cass', 'orion_flop'], [], {MediaType.Tape: ['wav', 'rkp'], MediaType.Floppy: mame_floppy_formats + ['odi'], MediaType.Cartridge: ['bin']}),
+	'PC-98': UnsupportedSystemInfo('pc9801f', ['pc98', 'pc98_cd'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}),
 
 	#Things that have other weird usability issues
 	'Sega Pico': UnsupportedSystemInfo('pico', ['pico'], ['Kega Fusion', 'MAME (Sega Pico)'], {MediaType.Cartridge: ['bin', 'md']}),
@@ -398,7 +399,6 @@ systems.update({
 		#TI-73, 81, 82, 83x, 84x, 85, 86 are Z80; 89, 92x are M68K; folders here are 83, 84+, 86, 89 but I might need to reorganize them...
 	#Bandai Super Note Club: Part of VTech Genius Leader (supports glccolor software list), or its own thing (has snotec software list)?
 	#Dragon 64 part of CoCo or nah?
-	#PC-98: Are they all compatible with one another? Fairly sure not compatible with other PCs, although DOSBox-X supports it
 	#Jupiter Ace (ZX Spectrum clone but has different compatibility?)
 	#TI-99: Main kerfluffle seems to be .rpk file format needed for -cart loading, but everything else is in .c and .g and who knows what else; -ioport peb -ioport:peb:slot2 32kmem -ioport:peb:slot3 speech might be needed?
 	#CBM-II (VIC-II and CRTC models)
