@@ -163,6 +163,9 @@ emulators = {
 	'MAME (Squale)': MameDriver(command_lines.mame_system('squale', 'cart', has_keyboard=True), ['bin']),
 	'MAME (Tandy CoCo)': MameDriver(command_lines.mame_system('coco3', 'cart', has_keyboard=True), ['ccc', 'rom', 'bin']),
 	#There is a coco3p, but it apparently runs at 60Hz too, so I'm not sure if it's needed
+	'MAME (Thomson MO5)': MameDriver(command_lines.mame_system('mo5', 'flop1', has_keyboard=True), ['fd', 'sap'] + mame_floppy_formats),
+	#Cartridges do not work (or on MO6) but floppies do autoboot, cassettes do not like to load either (would need to type LOAD and enter but then it plays it for you, but then stops because I guess it's broken) (MO6 is broken as well); qd would not work without setting the floppy type to quad density in Machine Configuration which we cannot do programmatically
+	#Use mo5e for export version or mo5nr for network version (I don't know what they would be useful for)
 	'MAME (Tomy Tutor)': MameDriver(command_lines.mame_system('tutor', 'cart', has_keyboard=True, autoboot_script='tomy_tutor'), ['bin']),
 	#There is pyuuta if you want to read Japanese instead
 	'MAME (VC 4000)': MameDriver(command_lines.mame_system('vc4000', 'cart'), ['bin', 'rom']),
@@ -241,7 +244,7 @@ emulators = {
 	#Use pc6001a for USA version if needed, pc6001mk2 and pc6001sr might also do something, pc6601 should have a floppy drive but doesn't yet
 	'MAME (PC-88)': MameDriver(command_lines.mame_system('pc8801', 'flop1', has_keyboard=True), mame_floppy_formats),
 	#TODO: Tapes, and potentially look into other models. All the PC-88 models claim to be broken, but the base one plays the games, so that's good enough in my book
-	'MAME (Sharp MZ-2000)': MameDriver(command_lines.mame_system('mz2200', 'flop1', has_keyboard=True), mame_floppy_formats),
+	'MAME (Sharp MZ-2000)': MameDriver(command_lines.mame_system('mz2200', 'flop1', has_keyboard=True), mame_floppy_formats + ['2d']),
 	#Autoboots floppies unless they have more than one thing to boot on them, which I guess makes sense
 	#Apparently not working (mz2000 is not either), so I dunno
 	'MAME (Uzebox)': MameDriver(command_lines.mame_system('uzebox', 'cart'), ['bin', 'uze']),
