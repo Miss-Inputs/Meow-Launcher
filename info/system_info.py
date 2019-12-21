@@ -306,6 +306,8 @@ systems.update({
 	#Mupen64Plus would work, but right now it has issues with usability that it says right in the readme (so it's not just me picking on them, they say it themselves). Basically you have to have a cart inserted which has the same properties as the 64DD software you want to emulate, and that wouldn't work for our launchering purposes. MAME doesn't seem to work with .ndd format dumps
 	'Acorn Archimedes': UnsupportedSystemInfo('aa310', ['archimedes'], [], {MediaType.Floppy: mame_floppy_formats + ['adf']}),
 	#MAME driver is marked not working anyway, but also there's not really a way to get this to autoboot, so you have to click the icon on the thing and I don't wanna
+	'Alice 32': UnsupportedSystemInfo('alice32', ['alice32', 'alice90'], [], {MediaType.Tape: ['wav', 'cas', 'c10', 'k7']}),
+	#Only has tapes, which incidentally don't seem to like me very much anyway
 	'Android': UnsupportedSystemInfo(None, [], [], {MediaType.Digital: ['apk']}),
 	#Probably no emulators that will work nicely for us at this point (the emus that do exist tend to be virtual machines and/or closed source Windows only)
 	'Apple I': UnsupportedSystemInfo('apple1', ['apple1'], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['snp']}),
@@ -368,10 +370,8 @@ systems.update({
 	'Memotech MTX': UnsupportedSystemInfo('mtx512', ['mtx_cart', 'mtx_cass', 'mtx_rom'], [], {MediaType.Snapshot: ['mtx'], MediaType.Executable: ['run'], MediaType.Tape: ['wav'], MediaType.Cartridge: ['bin', 'rom']}),
 	'Vector-06C': UnsupportedSystemInfo('vector06', ['vector06_cart', 'vector06_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['bin', 'emr']}),
 	#MAME driver is marked as working but clones are not; needs to hold F2 then press F11 then F12 to boot from cartridge so that may be wacky; and I can't get that working, not sure if floppies/tapes do work
-	'Tandy MC-10': UnsupportedSystemInfo('mc10', ['mc10'], [], {MediaType.Tape: ['wav', 'cas']}),
+	'Tandy MC-10': UnsupportedSystemInfo('mc10', ['mc10'], [], {MediaType.Tape: ['wav', 'cas', 'c10']}),
 	#Hmm... tapes...
-	'Alice 32': UnsupportedSystemInfo('alice32', ['alice32', 'alice90'], [], {MediaType.Tape: ['wav', 'cas', 'c10', 'k7']}),
-	#Tapes again... not having high hopes that this will be a smooth experience. Alice 90 is an upgraded Alice 32, Alice without a number is an unrelated machine by the same manufacturer which is a clone of the MC-10
 	'Central Data 2650': UnsupportedSystemInfo('cd2650', [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['pgm']}),
 	'Instructor 50': UnsupportedSystemInfo('instruct', [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['pgm']}),
 	'PipBug': UnsupportedSystemInfo('pipbug', [], [], {MediaType.Executable: ['pgm']}),
