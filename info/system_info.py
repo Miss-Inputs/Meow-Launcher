@@ -123,6 +123,7 @@ systems = {
 	'VC 4000': SystemInfo('vc4000', ['vc4000', 'database'], ['MAME (VC 4000)'], {MediaType.Cartridge: ['bin', 'rom']}),
 	'Vectrex': SystemInfo('vectrex', ['vectrex'], ['MAME (Vectrex)'], {MediaType.Cartridge: ['vec', 'gam', 'bin']}),
 	'Virtual Boy': SystemInfo('vboy', ['vboy'], ['Mednafen (Virtual Boy)', 'MAME (Virtual Boy)'], {MediaType.Cartridge: ['vb', 'vboy', 'bin']}),
+	'V.Tech Socrates': SystemInfo('socrates', ['socrates'], ['MAME (V.Tech Socrates)'], {MediaType.Cartridge: ['bin']}),
 	'Watara Supervision': SystemInfo('svision', ['svision'], ['MAME (Watara Supervision)'], {MediaType.Cartridge: ['ws', 'sv', 'bin']}),
 
 	#Systems that are treated as though they were whole separate things, but they're addons for other systems with their own distinct set of software
@@ -375,8 +376,6 @@ systems.update({
 	'Central Data 2650': UnsupportedSystemInfo('cd2650', [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['pgm']}),
 	'Instructor 50': UnsupportedSystemInfo('instruct', [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['pgm']}),
 	'PipBug': UnsupportedSystemInfo('pipbug', [], [], {MediaType.Executable: ['pgm']}),
-	'V.Tech Socrates': UnsupportedSystemInfo('socrates', ['socrates'], [], {MediaType.Cartridge: ['bin']}),
-	#Emulation status = preliminary... hh (but sound is imperfect, and not completely borked)
 	'TI-99': UnsupportedSystemInfo('ti99_4', ['ti99_cart'], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav']}),
 	#Main kerfluffle seems to be .rpk file format needed for -cart loading, but everything else is in .c and .g and who knows what else; -ioport peb -ioport:peb:slot2 32kmem -ioport:peb:slot3 speech might be needed? What is the difference between TI-99/2 TI99/4 TI99/8
 

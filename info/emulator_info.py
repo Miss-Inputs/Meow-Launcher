@@ -253,7 +253,9 @@ emulators = {
 	#Apparently not working (mz2000 is not either), so I dunno
 	'MAME (Uzebox)': MameDriver(command_lines.mame_system('uzebox', 'cart'), ['bin', 'uze']),
 	#Runs really slowly, but it does work (other than SD card emulation), although marked as not working + imperfect sound
-
+	'MAME (V.Tech Socrates)': MameDriver(command_lines.mame_system('socrates', 'cart'), ['bin']),
+	#Marked as not working + imperfect sound, possibly because of missing speech (also mouse is missing)
+	
 	#--These experimental emulators seem to not work more often than they do, but they are here for you to play with if you want to, because maybe other people have better luck than me (everything in my life always goes wrong):
 	'Yuzu': EmulatorInfo(LaunchParams('yuzu', ['$<path>']), ['xci', 'nsp', 'nro', 'nso', 'nca', 'elf', 'kip'], []),
 
