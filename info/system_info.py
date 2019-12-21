@@ -204,6 +204,7 @@ systems.update({
 	#kcc might also be a tape format?? ehhhh???
 	'Amstrad PCW': UnsupportedSystemInfo('pcw10', ['pcw'], ['MAME (Amstrad PCW)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['com']}),
 	'PC-6001': UnsupportedSystemInfo('pc6001', [], ['MAME (PC-6001)'], {MediaType.Tape: ['cas', 'p6'], MediaType.Cartridge: ['bin', 'rom']}),
+	'Sharp MZ-2000': UnsupportedSystemInfo('mz2000', ['mz2000_cass', 'mz2000_flop'], ['MAME (Sharp MZ-2000)'], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt'], MediaType.Floppy: ['2d'] + mame_floppy_formats}),
 
 	#No emulators that are cool enough on Linux (any available are too preliminary to work). Yet. Maybe? That I know of. They're here for completeness. Or no emulators at all.
 	#They are also here to remind me to check up on them every now and again to make sure they indeed don't work or if I was just being stupid all along
@@ -362,7 +363,6 @@ systems.update({
 	'Goldstar FC-100': UnsupportedSystemInfo('fc100', [], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas']}),
 	#No software list, some kind of PC-6001 clone or something
 	'Memotech MTX': UnsupportedSystemInfo('mtx512', ['mtx_cart', 'mtx_cass', 'mtx_rom'], [], {MediaType.Snapshot: ['mtx'], MediaType.Executable: ['run'], MediaType.Tape: ['wav'], MediaType.Cartridge: ['bin', 'rom']}),
-	'Sharp MZ-2000': UnsupportedSystemInfo('mz2000', ['mz2000_cass', 'mz2000_flop'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt'], MediaType.Floppy: ['2d'] + mame_floppy_formats}),
 	'Sinclair QL': UnsupportedSystemInfo('ql', ['ql_cart', 'ql_cass', 'ql_flop'], [], {MediaType.Tape: ['mdv'], MediaType.Cartridge: ['bin', 'rom']}),
 	'Thomson MO': UnsupportedSystemInfo('mo6', ['mo5_cart', 'mo5_cass', 'mo5_flop', 'mo5_qd', 'mo6_cass', 'mo6_flop'], [], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qt'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}),
 	#MO5E is export version of MO5, MO6 is an upgraded model, Prodest PC 128 is an Italian MO6
