@@ -365,8 +365,6 @@ systems.update({
 	'Goldstar FC-100': UnsupportedSystemInfo('fc100', [], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas']}),
 	#No software list, some kind of PC-6001 clone or something
 	'Memotech MTX': UnsupportedSystemInfo('mtx512', ['mtx_cart', 'mtx_cass', 'mtx_rom'], [], {MediaType.Snapshot: ['mtx'], MediaType.Executable: ['run'], MediaType.Tape: ['wav'], MediaType.Cartridge: ['bin', 'rom']}),
-	'Thomson TO': UnsupportedSystemInfo('to7', ['to7_cart', 'to7_cass', 'to7_qd', 'to8_cass', 'to8_qd', 'to770a_cart', 'to770_cart'], [], {MediaType.Tape: ['wav', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qt'] +  mame_floppy_formats, MediaType.Cartridge: ['m7', 'bin', 'rom']}),
-	#TO9, TO8, TO9+ are improved models, TO8D is TO8 with integrated floppy drive
 	'TRS-80': UnsupportedSystemInfo('trs80m3', [], [], {MediaType.Executable: ['cmd'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: mame_floppy_formats}),
 	'Vector-06C': UnsupportedSystemInfo('vector06', ['vector06_cart', 'vector06_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['bin', 'emr']}),
 	#MAME driver is marked as working but clones are not; needs to hold F2 then press F11 then F12 to boot from cartridge so that may be wacky; and I can't get that working, not sure if floppies/tapes do work
@@ -398,6 +396,8 @@ systems.update({
 	'Thomson MO6': UnsupportedSystemInfo('mo6', ['mo6_cass', 'mo6_flop'], [], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}),
 	#MO6 is an upgraded model, Prodest PC 128 is an Italian MO6
 	#Floppies work (and cassettes and carts have same problem as MO5), but this time we need to press the F1 key and I don't waaaanna do that myself
+	'Thomson TO': UnsupportedSystemInfo('to8', ['to7_cart', 'to7_cass', 'to7_qd', 'to8_cass', 'to8_qd', 'to770a_cart', 'to770_cart'], [], {MediaType.Tape: ['wav', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m7', 'bin', 'rom']}),
+	#Fuck I hate this. Carts need to press 1 on TO7 or press the button with the lightpen on TO8/9 and also they suck, floppies need BASIC cart inserted on TO7 (and then the same method to boot that cart) or press B on TO8/9, tapes are a shitload of fuck right now (same broken as MO5/MO6), not all of this seems to be cross compatible so might need to separate systems or work out what's going on there
 
 	#Other todos, often just me not knowing which something actually is or being too lazy to organize it even into the "too lazy to look into right now" list:
 	#Which of TI calculators are software compatible with which (and hence which ones would be considered individual systems)?
