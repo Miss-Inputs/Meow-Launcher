@@ -390,6 +390,8 @@ systems.update({
 	'TI-99': UnsupportedSystemInfo('ti99_4a', ['ti99_cart'], [], {MediaType.Cartridge: ['bin', 'rpk', 'c', 'g'], MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats}),
 	#Carts need to press the any key and then 2 to actually load them. Floppies are the most asinine irritating thing ever fuck it
 	#Actually if we can detect that a floppy has Extended BASIC autoboot that could work with an autoboot script in the same way that cartridges work
+	'PDP-1': UnsupportedSystemInfo('pdp1', [], [], {MediaType.Tape: ['tap', 'rim']}),
+	#MAME needs us to press control panel key + read in, and then it does the thing and all is well
 
 	#Other todos, often just me not knowing which something actually is or being too lazy to organize it even into the "too lazy to look into right now" list:
 	#Which of TI calculators are software compatible with which (and hence which ones would be considered individual systems)?
