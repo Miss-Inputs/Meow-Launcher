@@ -197,6 +197,13 @@ def get_smd_header(game):
 
 	return bytes(buf[0x100:0x200])
 
+def _get_megadrive_arcade_bootlegs():
+	try:
+		return _get_megadrive_arcade_bootlegs.result
+	except AttributeError:
+		_get_megadrive_arcade_bootlegs.result = list(get_machines_from_source_file('megadriv_acbl'))
+		return _get_megadrive_arcade_bootlegs.result
+
 def _get_megaplay_games():
 	try:
 		return _get_megaplay_games.result
@@ -210,6 +217,18 @@ def _get_megatech_games():
 	except AttributeError:
 		_get_megatech_games.result = list(get_machines_from_source_file('megatech'))
 		return _get_megatech_games.result
+
+def try_find_equivalent_arcade(game):
+	for bootleg_machine in _get_megadrive_arcade_bootlegs():
+		if machine_name_matches(bootleg_machine.name, game.rom.name):
+			return bootleg_machine
+	for megaplay_machine in _get_megaplay_games():
+		if machine_name_matches(megaplay_machine.name, game.rom.name):
+			return megaplay_machine
+	for megatech_machine in _get_megatech_games():
+		if machine_name_matches(megatech_machine.name, game.rom.name):
+			return megatech_machine	
+	return None
 
 def add_megadrive_metadata(game):
 	if game.rom.extension == 'cue':
@@ -228,16 +247,7 @@ def add_megadrive_metadata(game):
 
 	add_megadrive_info(game, header)
 	if game.metadata.platform == 'Mega Drive':
-		equivalent_arcade = None
-		for megaplay_machine in _get_megaplay_games():
-			if machine_name_matches(megaplay_machine.name, game.rom.name):
-				equivalent_arcade = megaplay_machine
-				break
-		if not equivalent_arcade:
-			for megatech_machine in _get_megatech_games():
-				if machine_name_matches(megatech_machine.name, game.rom.name):
-					equivalent_arcade = megatech_machine
-					break		
+		equivalent_arcade = try_find_equivalent_arcade(game)
 		if equivalent_arcade:
 			game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
 
