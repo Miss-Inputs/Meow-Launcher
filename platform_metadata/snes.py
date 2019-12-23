@@ -1,12 +1,15 @@
-from enum import Enum, auto
 import calendar
+from enum import Enum, auto
 
-from common_types import SaveType
-from info.region_info import get_region_by_name
-from common import convert_alphanumeric, NotAlphanumericException
-from software_list_info import get_software_list_entry
 import input_metadata
+from common import (NotAlphanumericException, convert_alphanumeric,
+                    machine_name_matches)
+from common_types import SaveType
 from data.nintendo_licensee_codes import nintendo_licensee_codes
+from info.region_info import get_region_by_name
+from mame_machines import get_machines_from_source_file
+from software_list_info import get_software_list_entry
+
 
 #List of available controllers, which we will put up here for code reuse (since Uzebox also needs it)
 def get_snes_controller():
@@ -344,6 +347,13 @@ def add_satellaview_metadata(game):
 		game.metadata.day = header_data.get('Day')
 		game.metadata.month = header_data.get('Month')
 
+def _get_nintendo_super_system_games():
+	try:
+		return _get_nintendo_super_system_games.result
+	except AttributeError:
+		_get_nintendo_super_system_games.result = list(get_machines_from_source_file('nss'))
+		return _get_nintendo_super_system_games.result
+
 def add_snes_metadata(game):
 	if game.rom.extension in ['sfc', 'smc', 'swc']:
 		add_normal_snes_header(game)
@@ -351,6 +361,14 @@ def add_snes_metadata(game):
 		add_satellaview_metadata(game)
 	elif game.rom.extension == 'st':
 		parse_sufami_turbo_header(game)
+
+	equivalent_arcade = None
+	for nss_machine in _get_nintendo_super_system_games():
+		if machine_name_matches(nss_machine.name, game.rom.name):
+			equivalent_arcade = nss_machine
+			break
+	if equivalent_arcade:
+		game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
 
 	software = get_software_list_entry(game, skip_header=512 if game.metadata.specific_info.get('Has-Copier-Header', False) else 0)
 	if software:
