@@ -368,8 +368,9 @@ systems.update({
 	'Central Data 2650': UnsupportedSystemInfo('cd2650', [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['pgm']}),
 	'Instructor 50': UnsupportedSystemInfo('instruct', [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['pgm']}),
 	'PipBug': UnsupportedSystemInfo('pipbug', [], [], {MediaType.Executable: ['pgm']}),
-	#Nascom 1 and also 2
-	
+	'Nascom': UnsupportedSystemInfo('nascom2c', ['nascom_flop', 'nascom_snap', 'nascom_socket'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Snapshot: ['nas', 'chr']}),
+	#romimage1,2 = bin, rom as well
+
 	#TODO: Me being lazy, I know if these work or not but they require effort:
 	'Acorn Electron': UnsupportedSystemInfo('electron', ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl']}),
 	#Seems to require the same Shift+Break to boot as BBC Micro, so... dang
