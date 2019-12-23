@@ -347,13 +347,6 @@ def add_satellaview_metadata(game):
 		game.metadata.day = header_data.get('Day')
 		game.metadata.month = header_data.get('Month')
 
-# def _get_nintendo_super_system_games():
-# 	try:
-# 		return _get_nintendo_super_system_games.result
-# 	except AttributeError:
-# 		_get_nintendo_super_system_games.result = 
-# 		return _get_nintendo_super_system_games.result
-
 def try_get_equivalent_arcade(game):
 	if not hasattr(try_get_equivalent_arcade, 'nss_games'):
 		try_get_equivalent_arcade.nss_games = list(get_machines_from_source_file('nss'))
