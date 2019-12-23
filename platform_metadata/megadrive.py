@@ -197,13 +197,6 @@ def get_smd_header(game):
 
 	return bytes(buf[0x100:0x200])
 
-def _get_megadrive_arcade_bootlegs():
-	try:
-		return _get_megadrive_arcade_bootlegs.result
-	except AttributeError:
-		_get_megadrive_arcade_bootlegs.result = list(get_machines_from_source_file('megadriv_acbl'))
-		return _get_megadrive_arcade_bootlegs.result
-
 def _get_megaplay_games():
 	try:
 		return _get_megaplay_games.result
@@ -219,13 +212,20 @@ def _get_megatech_games():
 		return _get_megatech_games.result
 
 def try_find_equivalent_arcade(game):
-	for bootleg_machine in _get_megadrive_arcade_bootlegs():
+	if not hasattr(try_find_equivalent_arcade, 'arcade_bootlegs'):
+		try_find_equivalent_arcade.arcade_bootlegs = list(get_machines_from_source_file('megadriv_acbl'))
+	if not hasattr(try_find_equivalent_arcade, 'megaplay_games'):
+		try_find_equivalent_arcade.megaplay_games = list(get_machines_from_source_file('megaplay'))
+	if not hasattr(try_find_equivalent_arcade, 'megatech_games'):
+		try_find_equivalent_arcade.megatech_games = list(get_machines_from_source_file('megatech'))
+
+	for bootleg_machine in try_find_equivalent_arcade.arcade_bootlegs:
 		if machine_name_matches(bootleg_machine.name, game.rom.name):
 			return bootleg_machine
-	for megaplay_machine in _get_megaplay_games():
+	for megaplay_machine in try_find_equivalent_arcade.megaplay_games:
 		if machine_name_matches(megaplay_machine.name, game.rom.name):
 			return megaplay_machine
-	for megatech_machine in _get_megatech_games():
+	for megatech_machine in try_find_equivalent_arcade.megatech_games:
 		if machine_name_matches(megatech_machine.name, game.rom.name):
 			return megatech_machine	
 	return None
