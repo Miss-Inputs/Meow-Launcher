@@ -359,17 +359,28 @@ def add_unif_metadata(game):
 
 		pos += 8 + chunk_length
 
-_playchoice10_games = list(get_machines_from_source_file('playch10'))
-_vsnes_games = list(get_machines_from_source_file('vsnes'))
+def _get_pc10_games():
+	try:
+		return _get_pc10_games.result
+	except AttributeError:
+		_get_pc10_games.result = list(get_machines_from_source_file('playch10'))
+		return _get_pc10_games.result
+
+def _get_vsnes_games():
+	try:
+		return _get_vsnes_games.result
+	except AttributeError:
+		_get_vsnes_games.result = list(get_machines_from_source_file('vsnes'))
+		return _get_vsnes_games.result
 
 def add_nes_metadata(game):
 	equivalent_arcade = None
-	for vsnes_machine in _vsnes_games:
+	for vsnes_machine in _get_vsnes_games():
 		if machine_name_matches(vsnes_machine.name, game.rom.name, True):
 			equivalent_arcade = vsnes_machine
 			break
 	if not equivalent_arcade:
-		for playchoice10_machine in _playchoice10_games:
+		for playchoice10_machine in _get_pc10_games():
 			if machine_name_matches(playchoice10_machine.name, game.rom.name, False):
 				equivalent_arcade = playchoice10_machine
 				break		

@@ -659,11 +659,17 @@ def add_microtan_65_info(game):
 		else:
 			game.metadata.notes = usage
 
-_uapce_games = list(get_machines_from_source_file('uapce'))
+def _get_uapce_games():
+	try:
+		return _get_uapce_games.result
+	except AttributeError:
+		_get_uapce_games.result = list(get_machines_from_source_file('uapce'))
+		return _get_uapce_games.result
+
 def add_pc_engine_info(game):
 	#Not sure how to detect 2/6 buttons, or usage of TurboBooster-Plus, but I want to
 	equivalent_arcade = None
-	for uapce_machine in _uapce_games:
+	for uapce_machine in _get_uapce_games():
 		if machine_name_matches(uapce_machine.name, game.rom.name):
 			equivalent_arcade = uapce_machine
 			break
