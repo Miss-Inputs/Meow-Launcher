@@ -359,31 +359,24 @@ def add_unif_metadata(game):
 
 		pos += 8 + chunk_length
 
-def _get_pc10_games():
-	try:
-		return _get_pc10_games.result
-	except AttributeError:
-		_get_pc10_games.result = list(get_machines_from_source_file('playch10'))
-		return _get_pc10_games.result
+def try_get_equivalent_arcade(game):
+	if not hasattr(try_get_equivalent_arcade, 'playchoice10_games'):
+		try_get_equivalent_arcade.playchoice10_games = list(get_machines_from_source_file('playch10'))
+	if not hasattr(try_get_equivalent_arcade, 'vsnes_games'):
+		try_get_equivalent_arcade.vsnes_games = list(get_machines_from_source_file('vsnes'))
 
-def _get_vsnes_games():
-	try:
-		return _get_vsnes_games.result
-	except AttributeError:
-		_get_vsnes_games.result = list(get_machines_from_source_file('vsnes'))
-		return _get_vsnes_games.result
+	for vsnes_machine in try_get_equivalent_arcade.vsnes_games:
+		if machine_name_matches(vsnes_machine.name, game.rom.name, match_vs_system=True):
+			return vsnes_machine
+
+	for playchoice10_machine in try_get_equivalent_arcade.playchoice10_games:
+		if machine_name_matches(playchoice10_machine.name, game.rom.name):
+			return playchoice10_machine
+	
+	return None
 
 def add_nes_metadata(game):
-	equivalent_arcade = None
-	for vsnes_machine in _get_vsnes_games():
-		if machine_name_matches(vsnes_machine.name, game.rom.name, True):
-			equivalent_arcade = vsnes_machine
-			break
-	if not equivalent_arcade:
-		for playchoice10_machine in _get_pc10_games():
-			if machine_name_matches(playchoice10_machine.name, game.rom.name, False):
-				equivalent_arcade = playchoice10_machine
-				break		
+	equivalent_arcade = try_get_equivalent_arcade(game)
 	if equivalent_arcade:
 		game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
 
