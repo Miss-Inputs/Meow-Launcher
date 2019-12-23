@@ -347,12 +347,28 @@ def add_satellaview_metadata(game):
 		game.metadata.day = header_data.get('Day')
 		game.metadata.month = header_data.get('Month')
 
-def _get_nintendo_super_system_games():
-	try:
-		return _get_nintendo_super_system_games.result
-	except AttributeError:
-		_get_nintendo_super_system_games.result = list(get_machines_from_source_file('nss'))
-		return _get_nintendo_super_system_games.result
+# def _get_nintendo_super_system_games():
+# 	try:
+# 		return _get_nintendo_super_system_games.result
+# 	except AttributeError:
+# 		_get_nintendo_super_system_games.result = 
+# 		return _get_nintendo_super_system_games.result
+
+def try_get_equivalent_arcade(game):
+	if not hasattr(try_get_equivalent_arcade, 'nss_games'):
+		try_get_equivalent_arcade.nss_games = list(get_machines_from_source_file('nss'))
+	if not hasattr(try_get_equivalent_arcade, 'arcade_bootlegs'):
+		try_get_equivalent_arcade.arcade_bootlegs = list(get_machines_from_source_file('snesb')) + list(get_machines_from_source_file('snesb51'))
+
+	for bootleg_machine in try_get_equivalent_arcade.arcade_bootlegs:
+		if machine_name_matches(bootleg_machine.name, game.rom.name):
+			return bootleg_machine
+
+	for nss_machine in try_get_equivalent_arcade.nss_games:
+		if machine_name_matches(nss_machine.name, game.rom.name):
+			return nss_machine
+	
+	return None
 
 def add_snes_metadata(game):
 	if game.rom.extension in ['sfc', 'smc', 'swc']:
@@ -362,11 +378,7 @@ def add_snes_metadata(game):
 	elif game.rom.extension == 'st':
 		parse_sufami_turbo_header(game)
 
-	equivalent_arcade = None
-	for nss_machine in _get_nintendo_super_system_games():
-		if machine_name_matches(nss_machine.name, game.rom.name):
-			equivalent_arcade = nss_machine
-			break
+	equivalent_arcade = try_get_equivalent_arcade(game)
 	if equivalent_arcade:
 		game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
 

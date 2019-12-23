@@ -234,7 +234,7 @@ arcade_systems = {
 	'Seibu SPI': ArcadeSystem(source_file='seibuspi'),
 	'Seta Aleck64': ArcadeSystem(source_file='aleck64'), #Based on N64
 	'Sigma B-98': ArcadeSystem(source_file='sigmab98', bios_used=None),
-	'SNES Bootleg': ArcadeSystem(source_file='snesb'), #SNES based, natch
+	'SNES Bootleg': ArcadeSystem(source_files=('snesb', 'snesb51')), #SNES based, natch
 	'SSV': ArcadeSystem(source_file='ssv'), #Sammy Seta Visco
 	'Super Famicom Box': ArcadeSystem(source_file='sfcbox'), #Arcadified SNES sorta; non-working
 	'Taito Air System': ArcadeSystem(source_file='taitoair'),
