@@ -117,8 +117,6 @@ def add_device_hardware_metadata(game, mame_driver):
 			if displays:
 				game.metadata.screen_info = displays
 
-mame_icons = get_icons()
-
 def find_equivalent_arcade_game(game, basename):
 	#Just to be really strict: We will only get it if the name matches
 	try:
@@ -205,6 +203,11 @@ def add_metadata(game):
 		add_metadata_from_arcade(game, equivalent_arcade)
 	if 'Icon' not in game.metadata.images:
 		if main_config.use_mame_system_icons:
+			try:
+				mame_icons = add_metadata.mame_icons
+			except AttributeError:
+				mame_icons = add_metadata.mame_icons = get_icons()
+
 			if mame_driver in mame_icons:
 				game.metadata.images['Icon'] = mame_icons[mame_driver]
 
