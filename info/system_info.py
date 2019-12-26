@@ -233,14 +233,19 @@ systems.update({
 	'ClickStart': UnsupportedSystemInfo('clikstrt', ['clickstart_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Copera': UnsupportedSystemInfo('copera', ['copera'], ['MAME (Copera)'], {MediaType.Cartridge: ['bin', 'md']}),
 	#Kega Fusion emulates the Pico well enough to show the message telling you the Copera software won't work on a Pico, at least
+	'Gachinko Contest! Slot Machine TV': UnsupportedSystemInfo('gcslottv', ['gcslottv'], [], {MediaType.Cartridge: ['bin', 'u1']}),
+	#BIOS not dumped and doesn't respond to inputs properly, is this even actually a console?
 	'Gizmondo': UnsupportedSystemInfo('gizmondo', [], [], {}), #Uses folders seemingly, so that may be weird with the file types
 	'GP32': UnsupportedSystemInfo('gp32', ['gp32'], ['MAME (GP32)'], {MediaType.Cartridge: ['smc'], MediaType.Executable: ['gxb', 'sxf', 'bin', 'gxf', 'fxe']}),
+	'GP2X': UnsupportedSystemInfo('gp2x', [], [], {}),
+	#TODO: File formats and things
 	'Jaguar CD': UnsupportedSystemInfo('jaguarcd', [], ['MAME (Jaguar CD)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'Koei PasoGo': UnsupportedSystemInfo('pasogo', ['pasogo'], ['MAME (Koei PasoGo)'], {MediaType.Cartridge: ['bin']}),
 	'Konami Picno': UnsupportedSystemInfo('picno', ['picno'], ['MAME (Konami Picno)'], {MediaType.Cartridge: ['bin']}),
 	'LeapPad': UnsupportedSystemInfo('leappad', ['leapfrog_leappad_cart'], ['MAME (LeapPad)'], {MediaType.Cartridge: ['bin']}),
 	'Leapster': UnsupportedSystemInfo('leapster', ['leapster'], ['MAME (Leapster)'], {MediaType.Cartridge: ['bin']}),
 	'Mattel HyperScan': UnsupportedSystemInfo('hs', ['hyperscan'], [], {MediaType.OpticalDisc: cdrom_formats}),
+	'MSX Turbo-R': UnsupportedSystemInfo('fsa1st', ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
 	'Microvision': UnsupportedSystemInfo('microvsn', ['microvision'], ['MAME (Microvision)'], {MediaType.Cartridge: ['bin']}),
 	'Monon Color': UnsupportedSystemInfo('mononcol', ['monon_color'], ['MAME (Monon Color)'], {MediaType.Cartridge: ['bin']}),
 	#Only a skeleton MAME driver with no sound or video or inputs
@@ -392,22 +397,18 @@ systems.update({
 	'Instructor 50': UnsupportedSystemInfo('instruct', [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['pgm']}),
 	'PipBug': UnsupportedSystemInfo('pipbug', [], [], {MediaType.Executable: ['pgm']}),
 	'Nascom': UnsupportedSystemInfo('nascom2c', ['nascom_flop', 'nascom_snap', 'nascom_socket'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Snapshot: ['nas', 'chr']}),
-	#romimage1,2 = bin, rom as well
+	#romimage1,2 = bin, rom as well (this is probably just related to nascom_socket and doesn't sound like the kind of thing we worry about around here)
 
 	#Things where I can't be fucked right now making an UnsupportedSystemInfo object:
 	#Altair 8800 (is 8800bt a different thing)
 	#CBM-II (VIC-II and CRTC models are different maybe?)
-	#Enterprise (ep64/ep128)
-	#GP2X
-	#Gachinko Contest! Slot Machine TV (we already know MAME driver doesn't work)
-	#Little Touch LeapPad
-	#MSX Turbo-R
-	#Microbee
-	#TIC-80 (is that a real system or a "fantasy" one I forgot)
-	#Tandy MC-10
-	#Vita
-	#Zeebo
-	#Virtual systems: Flash, J2ME, TADS, Z-Machine
+	#Enterprise (ep64/ep128) (ugh don't like this one. Floppies need weirdness with both the actual thing itself and isdos from the software list and aaggh fuck off)
+	#Little Touch LeapPad (no MAME driver but yes software list?)
+	#Microbee: This works except joysticks (I don't even see anything that mentions joysticks existing other than some games that ask for it), quik1 and flop1 both autoboot but the latter is only present on the newer models that have MACHINE_NOT_WORKING
+	#TIC-80 (is that a real system or a "fantasy" one I forgot) (no MAME driver)
+	#Vita (cbf to use Vita3K)
+	#Zeebo (good luck finding emulation, this would probably just be a placeholder)
+	#Virtual systems: Flash, J2ME, TADS, Z-Machine (not that I have found cool emulators for any of that)
 	
 	#Confusing things:
 	#Which of TI calculators are software compatible with which (and hence which ones would be considered individual systems)?
@@ -439,8 +440,3 @@ computer_systems = {
 		'dosbox_x_configs_path': SpecificConfigValue(ConfigValueType.FolderPath, os.path.join(data_dir, 'dosbox_configs'), 'Folder to store DOSBox-X per-application configuration files'),
 	})
 }
-
-#One day add these as well (or should I? Maybe I should just leave it to emulator_info):
-#Arcade: I guess it's not an array, it's just MAME (for now... but this will be complicated, I think)
-#Virtual environment-but-not-quite-type-system-things: J2ME, Flash (but once those have nicer emulators, until then never mind, or maybe I could pretend they're emulated systems)
-#This allows us to organize supported emulators easily and such
