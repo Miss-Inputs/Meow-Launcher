@@ -394,17 +394,33 @@ systems.update({
 	'PDP-1': UnsupportedSystemInfo('pdp1', [], [], {MediaType.Tape: ['tap', 'rim']}),
 	#MAME needs us to press control panel key + read in, and then it does the thing and all is well
 
-	#Other todos, often just me not knowing which something actually is or being too lazy to organize it even into the "too lazy to look into right now" list:
+	#Things where I can't be fucked right now making an UnsupportedSystemInfo object:
+	#Altair 8800 (is 8800bt a different thing)
+	#CBM-II (VIC-II and CRTC models are different maybe?)
+	#Enterprise (ep64/ep128)
+	#GP2X
+	#Gachinko Contest! Slot Machine TV (we already know MAME driver doesn't work)
+	#Little Touch LeapPad
+	#MSX Turbo-R
+	#Microbee
+	#TIC-80 (is that a real system or a "fantasy" one I forgot)
+	#Tandy MC-10
+	#Vita
+	#Zeebo
+	#Virtual systems: Flash, J2ME, TADS, Z-Machine
+	
+	#Confusing things:
 	#Which of TI calculators are software compatible with which (and hence which ones would be considered individual systems)?
-		#TI-73, 81, 82, 83x, 84x, 85, 86 are Z80; 89, 92x are M68K; folders here are 83, 84+, 86, 89 but I might need to reorganize them...
+		#TI-73, 81, 82, 83x, 84x, 85, 86 are Z80; 89, 92x are M68K
 	#Bandai Super Note Club: Part of VTech Genius Leader (supports glccolor software list), or its own thing (has snotec software list)?
 	#Dragon 64 part of CoCo or nah?
 	#Jupiter Ace (ZX Spectrum clone but has different compatibility?)
-	#CBM-II (VIC-II and CRTC models)
 	#PalmOS: Not sure if there would be something which can just run .prc files or whatsitcalled
 	#Amstrad PC20/Sinclair PC200: Is this just IBM PC compatible stuff? Have one demoscene prod which claims to be for it specifically
 	#Epoch (not Super) Cassette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
 	#Pioneer LaserActive probably just counts as Mega CD and PC Engine CD except with Laserdisc instead of CD, but I'll worry about that when emulation for it becomes a thing
+	#Play-Yan: Part of GBA or counts as a separate thing? (Doesn't matter at this point since no emulation)
+
 })
 
 class ComputerSystem():
