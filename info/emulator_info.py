@@ -151,6 +151,7 @@ emulators = {
 	#Supports a lot of mappers actually, probably not as much as Mesen or puNES would, but it's up there; also a lot of cool peripherals
 	'MAME (Nichibutsu My Vision)': MameDriver(command_lines.mame_system('myvision', 'cart'), ['bin']),
 	'MAME (PC Engine)': MameDriver(command_lines.mame_pc_engine, ['pce', 'bin', 'sgx']),
+	'MAME (SAM Coupe)': MameDriver(command_lines.mame_system('samcoupe', 'flop1', autoboot_script='sam_coupe', has_keyboard=True), mame_floppy_formats),
 	'MAME (SG-1000)': MameDriver(command_lines.mame_sg1000, ['bin', 'sg', 'sc', 'sf7'] + mame_floppy_formats),
 	'MAME (Sharp X1)': MameDriver(command_lines.mame_system('x1turbo40', 'flop1', has_keyboard=True), mame_floppy_formats + ['2d']),
 	#x1turbo doesn't work, and I'm not sure what running x1 over x1turbo40 would achieve (hope there's no compatibility shenanigans)
@@ -277,8 +278,6 @@ emulators = {
 	#Emulates a NTSC console only so PAL games will probably tell you off or otherwise not work properly; also no rumble/mempak/etc for you. Very slow on even modern systems. Marked as non-working + imperfect graphics
 	'MAME (Pokemon Mini)': MameDriver(command_lines.mame_system('pokemini', 'cart'), ['bin', 'min']),
 	#Wouldn't recommend yet as it has no sound, even if most people would probably turn the sound off in real life, also some stuff doesn't work
-	'MAME (SAM Coupe)': MameDriver(command_lines.mame_system('samcoupe', 'flop1', autoboot_script='sam_coupe', has_keyboard=True), mame_floppy_formats),
-	#Status = good but doesn't seem to emulate joysticks and a few games don't work, also tapes are evil and need manual booting
 	'MAME (Saturn)': MameDriver(command_lines.mame_saturn, mame_cdrom_formats),
 	#Non-working, imperfect sound; crashes on quite a few games and hangs to white screen sometimes
 	'MAME (Sega Pico)': MameDriver(command_lines.mame_pico, ['bin', 'md']),
