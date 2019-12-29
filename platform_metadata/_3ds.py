@@ -221,14 +221,10 @@ def parse_smdh_data(game, smdh):
 
 	english_short_title = smdh[english_short_title_offset: english_long_title_offset].decode('utf16').rstrip('\0')
 	if english_short_title:
-		#Some file managers do _not_ like .desktop files having newlines in any key at all anywhere, so we'd better get rid of them
-		#Anyway, it doesn't look so bad to replace it with a space, it's just like
-		#"Super Smash Bros
-		#for Nintendo 3DS" anyway
-		game.metadata.specific_info['Banner-Short-Title'] = english_short_title.replace('\n', ' ')
+		game.metadata.specific_info['Banner-Short-Title'] = english_short_title
 	english_long_title = smdh[english_long_title_offset: english_publisher_offset].decode('utf16').rstrip('\0')
 	if english_long_title:
-		game.metadata.specific_info['Banner-Title'] = english_long_title.replace('\n', ' ')
+		game.metadata.specific_info['Banner-Title'] = english_long_title
 
 	try:
 		publisher = smdh[english_publisher_offset: english_publisher_offset + 0x80].decode('utf16').rstrip('\0')
