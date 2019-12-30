@@ -10,14 +10,14 @@ import time
 import zipfile
 
 import launchers
-from info.region_info import get_language_by_english_name
-from common import junk_suffixes, title_case, remove_capital_article
+from common import junk_suffixes, remove_capital_article, title_case
 from common_types import MediaType, SaveType
 from config import main_config
 from data.capitalized_words_in_names import capitalized_words
 from data.steam_developer_overrides import developer_overrides
 from data.steam_genre_ids import genre_ids
 from data.steam_store_categories import store_categories
+from info.region_info import get_language_by_english_name
 from metadata import Metadata
 from series_detect import chapter_matcher
 
@@ -34,6 +34,8 @@ try:
 	have_steamfiles = True
 except ModuleNotFoundError:
 	have_steamfiles = False
+
+#TODO A lot of this is messy and needs refactoring and I will leave an annoying todo comment here for myself to be bothered by until I refactor it
 
 class SteamState():
 	class __SteamState():
@@ -59,11 +61,21 @@ class SteamState():
 				except FileNotFoundError:
 					self.config = None
 					self.config_available = False
+				try:
+					with open(self.localization_path) as localization_file:
+						self.localization = acf.load(localization_file)
+						self.localization_available = True
+				except FileNotFoundError:
+					self.localization = None
+					self.localization_available = False
 			else:
 				self.app_info = None
 				self.app_info_available = False
 				self.config = None
 				self.config_available = False
+				self.localization = None
+				self.localization_available = None
+
 		@property
 		def app_info_path(self):
 			return os.path.join(self.steamdir, 'appcache', 'appinfo.vdf')
@@ -71,6 +83,10 @@ class SteamState():
 		@property
 		def config_path(self):
 			return os.path.join(self.steamdir, 'config', 'config.vdf')
+
+		@property
+		def localization_path(self):
+			return os.path.join(self.steamdir, 'appcache', 'localization.vdf')
 
 		@property
 		def icon_folder(self):
@@ -401,14 +417,14 @@ def add_icon_from_common_section(game, common_section):
 def add_metadata_from_appinfo_common_section(game, common):
 	add_icon_from_common_section(game, common)
 
-	#oslist and osarch may come in handy (former is comma separated windows/macos/linux; latter is b'64' or purrsibly b'32')
+	#oslist and osarch may come in handy (former is comma separated windows/macos/linux; latter is b'64' or purrsibly b'32'), osextended is sometimes like 'macos64'
 	#eulas is a list, so it could be used to detect if game has third-party EULA
 	#small_capsule and header_image refer to image files that don't seem to be there so I dunno
-	#store_tags is a list of numeric IDs, they're the user-supplied tags on the store
 	#workshop_visible and community_hub_visible could also tell you stuff about if the game has a workshop and a... community hub
 	#releasestate: 'released' might be to do with early access?
 	#exfgls = exclude from game library sharing
 	#b'requireskbmouse' and b'kbmousegame' are also things, but don't seem to be 1:1 with games that have controllersupport = none
+	#name_localized has a dict with e.g. b'japanese' as the keys; will worry about that later...
 	language_list = common.get(b'languages')
 	if language_list:
 		game.metadata.languages = translate_language_list(language_list)
@@ -513,15 +529,33 @@ def add_metadata_from_appinfo_common_section(game, common):
 	if metacritic_score:
 		#Well why not
 		game.metadata.specific_info['Metacritic-Score'] = metacritic_score.data
-
 	metacritic_url = common.get(b'metacritic_fullurl')
 	if metacritic_url:
 		game.metadata.specific_info['Metacritic-URL'] = metacritic_url.decode('utf8', errors='backslashreplace')
+
+	review_score = common.get(b'review_score')
+	#This is Steam's own review section, I guess?
+	#This seems to be a number from 2 to 9 inclusive. Not sure what it means though
+	#There is also review_score_bombs? What the heck
+	if review_score:
+		game.metadata.specific_info['Review-Score'] = review_score.data
+	review_percentage = common.get(b'review_percentage')
+	#Also seemingly related to Steam reviews, and there is also a review_percentage_bombs, but I still don't know exactly what this does
+	if review_percentage:
+		game.metadata.specific_info['Review-Percentage'] = review_percentage.data
+	
 	sortas = common.get(b'sortas')
 	if sortas:
 		game.metadata.specific_info['Sort-Name'] = sortas.decode('utf8', errors='backslashreplace')
 
 	game.metadata.specific_info['Controlller-Support'] = common.get(b'controller_support', b'none').decode('utf-8', errors='backslashreplace')
+
+	if steam_state.localization_available:
+		store_tag_names = steam_state.localization['localization']['english']['store_tags']
+		store_tag_ids_list = common.get(b'store_tags')
+		if store_tag_ids_list:
+			store_tags = [store_tag_names.get(id, id) for id in [str(value.data) for value in store_tag_ids_list.values()]]
+			game.metadata.specific_info['Store-Tags'] = store_tags
 
 	franchise_name = None
 	associations = common.get(b'associations')
