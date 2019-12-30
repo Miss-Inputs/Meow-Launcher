@@ -107,7 +107,7 @@ def add_info_from_main_track(game, track_path, sector_size):
 			maker_code = maker[len('SEGA LC-'):]
 			if maker_code in licensee_codes:
 				game.metadata.publisher = licensee_codes[maker_code]
-		else:
+		elif maker:
 			game.metadata.publisher = maker
 	except UnicodeDecodeError:
 		pass
