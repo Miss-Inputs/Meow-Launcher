@@ -45,7 +45,11 @@ def get_metadata_from_tags(game):
 		game.metadata.nsfw = True
 
 	year, month, day = detect_things_from_filename.get_date_from_filename_tags(tags)
-	if year and (not game.metadata.year or 'x' in game.metadata.year or '?' in game.metadata.year):
+	if year and not game.metadata.year:
+		game.metadata.year = year
+	if (year and ('x' not in str(year)) and ('?' not in str(year))) and (game.metadata.year and ('x' in str(game.metadata.year) or '?' in str(game.metadata.year))):
+		#Maybe when I am sober this line can be rewritten to be more good
+		#TODO Actually it should be more like (if platform_metadata/software list year/month/day is partially unknown, but tag year/month/day is all known, use latter)
 		game.metadata.year = year
 	if month and not game.metadata.month:
 		game.metadata.month = month
