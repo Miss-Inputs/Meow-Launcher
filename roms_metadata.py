@@ -45,7 +45,7 @@ def get_metadata_from_tags(game):
 		game.metadata.nsfw = True
 
 	year, month, day = detect_things_from_filename.get_date_from_filename_tags(tags)
-	if year and not game.metadata.year:
+	if year and (not game.metadata.year or 'x' in game.metadata.year or '?' in game.metadata.year):
 		game.metadata.year = year
 	if month and not game.metadata.month:
 		game.metadata.month = month
