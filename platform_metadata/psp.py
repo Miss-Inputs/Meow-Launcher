@@ -72,20 +72,10 @@ def parse_param_sfo(game, param_sfo):
 		elif key == 'TITLE':
 			game.metadata.specific_info['Banner-Title'] = value
 		elif key == 'PARENTAL_LEVEL':
-			#According to PSDevWiki: 1 = all ages, 5 = 12+, 7 = 15+, 9 = 18+
-			#2 or 3 might mean 3 or above? It doesn't really make sense but then maybe someone is worried about what literal 2 year olds are playing
-			if value == 9:
-				game.metadata.specific_info['Age-Rating'] = 18
+			#Seems this doesn't actually mean anything by itself, and is Sony's own rating system, so don't try and think about it too much
+			game.metadata.specific_info['Parental-Level'] = value
+			if value >= 9:
 				game.metadata.nsfw = True
-			elif value == 7:
-				game.metadata.specific_info['Age-Rating'] = 15
-			elif value == 5:
-				game.metadata.specific_info['Age-Rating'] = 12
-			elif value == 1:
-				game.metadata.specific_info['Age-Rating'] = 0
-			else:
-				if main_config.debug:
-					print(game.rom.path, 'unknown PARENTAL_LEVEL', value)
 		elif key == 'CATEGORY':
 			#This is a two letter code which generally means something like "Memory stick game" "Update" "PS1 Classics", see ROMniscience notes
 			if value == 'UV':
