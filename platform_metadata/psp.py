@@ -81,6 +81,9 @@ def parse_param_sfo(game, param_sfo):
 				game.metadata.specific_info['Age-Rating'] = 15
 			elif value >= 5:
 				game.metadata.specific_info['Age-Rating'] = 12
+			else:
+				if main_config.debug:
+					print(game.rom.path, 'unknown PARENTAL_LEVEL', value)
 		elif key == 'CATEGORY':
 			#This is a two letter code which generally means something like "Memory stick game" "Update" "PS1 Classics", see ROMniscience notes
 			if value == 'UV':
@@ -89,7 +92,7 @@ def parse_param_sfo(game, param_sfo):
 			if value[0] != 'v':
 				value = 'v' + value
 			game.metadata.specific_info['Version'] = value
-		elif key in ('APP_VER', 'BOOTABLE', 'MEMSIZE', 'PSP_SYSTEM_VER', 'REGION', 'USE_USB'):
+		elif key in ('APP_VER', 'BOOTABLE', 'MEMSIZE', 'PSP_SYSTEM_VER', 'REGION', 'USE_USB', 'ATTRIBUTE', 'HRKGMP_VER'):
 			#These are known, but not necessarily useful to us or we just don't feel like putting it in the metadata or otherwise doing anything with it at this point
 			#APP_VER: ??? not sure how it's different from DISC_VERSION also seems to be 01.00
 			#BOOTABLE: Should always be 1, I would think
@@ -97,10 +100,10 @@ def parse_param_sfo(game, param_sfo):
 			#PSP_SYSTEM_VER: Required PSP firmware version
 			#REGION: Seems to always be 32768 (is anything region locked?)
 			#USE_USB: ??? USB access? Official stuff seems to have this and sets it to 0
-			pass
-		else:
 			#ATTRIBUTE: Some weird flags (see ROMniscience)
 			#HRKGMP_VER = ??? (19)
+			pass
+		else:
 			if main_config.debug:
 				print(game.rom.path, 'has unknown param.sfo value', key, value)
 
