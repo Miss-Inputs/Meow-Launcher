@@ -107,5 +107,5 @@ def add_commodore_64_metadata(game):
 		#Enter 'SYS 32768' to run
 		#Commodore: Load "JINGLE",8,1 / Apple IIc and e: Self boots
 
-		#Also see 'requirement' info field... may be useful at some point
+		#Also see 'requirement' info field... may be useful at some point, contains a value among the lines of "c64_cart:blah" where blah is some addon cart for a floppy or tape software to work properly (cpm, fcc, magicvce, midipp, music64, ps64, sfxse, speakez, supercpu, goliath)
 		#There's dataarea nvram, but those are two carts which are more accurately described as device BIOSes, so I won't bother
