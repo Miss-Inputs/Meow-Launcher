@@ -159,7 +159,7 @@ def parse_stella_cart_note(game, note):
 		game.metadata.notes = note
 
 def parse_stella_db(game, game_info):
-	game.metadata.specific_info['Stella-Name'] = game_info.get('Cartridge_Name', game_info.get('Cart_Name'))
+	game.metadata.specific_info['Stella-Title'] = game_info.get('Cartridge_Name', game_info.get('Cart_Name'))
 	note = game_info.get('Cartridge_Note', game_info.get('Cart_Note'))
 	
 	manufacturer = game_info.get('Cartridge_Manufacturer', game_info.get('Cart_Manufacturer'))
