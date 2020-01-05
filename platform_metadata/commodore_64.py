@@ -92,7 +92,7 @@ def add_commodore_64_metadata(game):
 		try:
 			cartridge_name = header[0x20:0x3f].decode('ascii').strip('\0')
 			if cartridge_name:
-				game.metadata.specific_info['Title'] = cartridge_name
+				game.metadata.specific_info['Internal-Title'] = cartridge_name
 		except UnicodeDecodeError:
 			pass
 	else:
