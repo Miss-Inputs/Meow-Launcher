@@ -109,8 +109,8 @@ def parse_opening_bnr(game, opening_bnr):
 		4: 'Spanish',
 		5: 'Italian',
 		6: 'Dutch',
-		7: 'Unknown Language 1', #These may be simplified and traditional Chinese respectively?
-		8: 'Unknown Language 2',
+		7: 'Chinese', #Not sure if this is one of Simplified/Traditional Chinese and the unknown language is the other?
+		8: 'Unknown Language',
 		9: 'Korean',
 	}
 	names = {}
