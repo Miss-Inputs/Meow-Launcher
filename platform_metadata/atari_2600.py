@@ -113,7 +113,9 @@ def parse_stella_cart_note(game, note):
 	#Uses the Amiga Joyboard
 	#Uses the Joyboard controller
 	if note.startswith('AKA '):
-		pass #Could add an Alternate-Name field but mehhhhhhhhhhh (There is an "AKA Bachelor Party, Uses the paddle controllers" but we will also skip that)
+		#There is an "AKA Bachelor Party, Uses the paddle controllers" but we will ignore that, apparently
+		#TODO: Will need to check for ", " anyway as some games have more than one alternate name
+		game.metadata.specific_info['Alternate-Title'] = note[4:]
 	elif note == 'Uses Joystick (left) and Keypad (right) Controllers':
 		#We should already know this from the controller fields but might as well add it while we're here
 		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Joystick
