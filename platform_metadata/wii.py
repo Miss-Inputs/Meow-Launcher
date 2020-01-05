@@ -37,12 +37,7 @@ def add_wii_system_info(game):
 	game.metadata.screen_info = screen_info
 
 def round_up_to_multiple(num, factor):
-	multiple = num % factor
-	remainder = num - multiple
-	#I feel like those variable names are swapped around, but eh, as long as it does the thing
-	if multiple > (factor / 2):
-		remainder += factor
-	return remainder
+	return num + (factor - (num % factor)) % factor
 
 def parse_tmd(game, tmd):
 	#Stuff that I dunno about: 0 - 388
@@ -74,23 +69,60 @@ def parse_tmd(game, tmd):
 	#Access rights: 472-476
 	game.metadata.specific_info['Revision'] = int.from_bytes(tmd[476:478], 'big')
 
+def parse_opening_bnr(game, opening_bnr):
+	#We will not try and bother parsing banner.bin or icon.bin, that would take a lot of effort
+	imet = opening_bnr[64:]
+	#I don't know why this is 64 bytes in, aaaa
+
+	#Padding: 0-64
+	magic = imet[64:68]
+	if magic != b'IMET':
+		return
+	#Hash size: 68-72
+	#Unknown: 72-76
+	#icon.bin size: 76-80
+	#banner.bin size: 80-84
+	#sound.bin size: 84-88
+	#Unknown flag: 88-92
+	names = [''] * 10
+	for i in range(10):
+		try:
+			names[i] = imet[92 + (i * 84): 92 + (i * 84) + 84].decode('utf-16be').rstrip('\0')
+		except UnicodeDecodeError:
+			continue #I guess
+		#Japanese, English, German, French, Spanish, Italian, Dutch, ?, ?, Korean in that order; why 84 characters long? Who knows
+		#It seems \x00 is sometimes in the middle as some type of line/subtitle separator?
+		#We will probably not really want to try and infer supported languages by what is not zeroed out here, I don't think that's how it works
+	#This is a bit Anglocentric of me but let's just get the English name for now
+	game.metadata.specific_info['Banner-Title'] = names[1] if names[1] else names[0]
+	#TODO: Ideally get the Japanese name if region code = NTSC_J or Korean if NTSC_K, because while this seems to usually be localized it is not always (some MSX VC games seem to have weird codenames for the English name?)
+
+
 def add_wad_metadata(game):
 	header = game.rom.read(amount=0x40)
-	#Header size: 0-4 (do I need that?)
+	header_size = int.from_bytes(header[0:4], 'big')
 	#WAD type: 4-8
 	cert_chain_size = int.from_bytes(header[8:12], 'big')
 	#Reserved: 12-16
 	ticket_size = int.from_bytes(header[16:20], 'big')
 	tmd_size = int.from_bytes(header[20:24], 'big')
-	#Data size: 24-28
-	#Footer size: 28-32
+	data_size = int.from_bytes(header[24:28], 'big')
+	footer_size = int.from_bytes(header[28:32], 'big')
 
 	#All blocks are stored in that order: header > cert chain > ticket > TMD > data; aligned to multiple of 64 bytes
-	#Should this be (round_up_to_multiple(header size)) + round_up_to_multiple(cert size) + round_up_to_multiple(ticket size)?
-	tmd_offset = 64 + round_up_to_multiple(cert_chain_size, 64) + round_up_to_multiple(ticket_size, 64)
+
+	cert_chain_offset = round_up_to_multiple(header_size, 64)
+	ticket_offset = cert_chain_offset + round_up_to_multiple(cert_chain_size, 64)
+	tmd_offset = ticket_offset + round_up_to_multiple(ticket_size, 64)
 
 	tmd = game.rom.read(seek_to=tmd_offset, amount=round_up_to_multiple(tmd_size, 64))
 	parse_tmd(game, tmd)
+
+	data_offset = tmd_offset + round_up_to_multiple(tmd_size, 64)
+	footer_offset = data_offset + round_up_to_multiple(data_size, 64)
+	#Dolphin suggests that this is opening.bnr actually
+	footer = game.rom.read(seek_to=footer_offset, amount=round_up_to_multiple(footer_size, 64))
+	parse_opening_bnr(game, footer)
 
 def add_wii_homebrew_metadata(game):
 	icon_path = os.path.join(game.folder, 'icon.png')
@@ -229,6 +261,8 @@ def add_wii_disc_metadata(game):
 			chunk_iv = chunk[0x3d0:0x3e0]
 			aes = AES.new(key, AES.MODE_CBC, chunk_iv)
 			decrypted_chunk = aes.decrypt(chunk[0x400:])
+
+			#TODO: Try and read filesystem to see if there is an opening.bnr in there (should be)
 
 			try:
 				apploader_date = decrypted_chunk[0x2440:0x2450].decode('ascii').rstrip('\0')
