@@ -73,14 +73,16 @@ def parse_param_sfo(game, param_sfo):
 			game.metadata.specific_info['Banner-Title'] = value
 		elif key == 'PARENTAL_LEVEL':
 			#According to PSDevWiki: 1 = all ages, 5 = 12+, 7 = 15+, 9 = 18+
-			#There would be additional levels not mentioned here: Go! Explore (Europe) = 2; Danganronpa = 8; have heard it maxes out at 11; not sure how those values work
-			if value >= 9:
+			#2 or 3 might mean 3 or above? It doesn't really make sense but then maybe someone is worried about what literal 2 year olds are playing
+			if value == 9:
 				game.metadata.specific_info['Age-Rating'] = 18
 				game.metadata.nsfw = True
-			elif value >= 7:
+			elif value == 7:
 				game.metadata.specific_info['Age-Rating'] = 15
-			elif value >= 5:
+			elif value == 5:
 				game.metadata.specific_info['Age-Rating'] = 12
+			elif value == 1:
+				game.metadata.specific_info['Age-Rating'] = 0
 			else:
 				if main_config.debug:
 					print(game.rom.path, 'unknown PARENTAL_LEVEL', value)
