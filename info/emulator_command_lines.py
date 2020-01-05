@@ -14,6 +14,7 @@ from platform_metadata.megadrive import MegadriveRegionCodes
 from platform_metadata.nes import NESPeripheral
 from platform_metadata.saturn import SaturnRegionCodes
 from platform_metadata.snes import ExpansionChip
+from platform_metadata.wii import WiiTitleType
 from platform_metadata.zx_spectrum import ZXJoystick, ZXMachine
 from software_list_info import get_software_list_by_name
 
@@ -1087,6 +1088,12 @@ def cxnes(game, _):
 def dolphin(game, _):
 	if game.metadata.specific_info.get('No-Disc-Magic', False):
 		raise EmulationNotSupportedException('No disc magic')
+
+	title_type = game.metadata.specific_info.get('Title-Type')
+	if title_type:
+		if title_type not in (WiiTitleType.Channel, WiiTitleType.GameWithChannel, WiiTitleType.SystemChannel, WiiTitleType.HiddenChannel):
+			#Technically Wii Menu versions are WiiTitleType.System but can be booted, but eh
+			raise NotARomException('Cannot boot a {0}'.format(title_type.name))
 
 	return LaunchParams('dolphin-emu', ['-b', '-e', '$<path>'])
 

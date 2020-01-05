@@ -2,6 +2,7 @@ import os
 import statistics
 import xml.etree.ElementTree as ElementTree
 from datetime import datetime
+from enum import Enum
 
 from common import NotAlphanumericException, convert_alphanumeric
 from config import main_config
@@ -16,6 +17,15 @@ try:
 	have_pycrypto = True
 except ModuleNotFoundError:
 	have_pycrypto = False
+
+class WiiTitleType(Enum):
+	System = 0x00000001
+	Game = 0x00010000 #Seems to be only used for disc games, WiiWare and VC games are still Channel
+	Channel = 0x00010001
+	SystemChannel = 0x00010002
+	GameWithChannel = 0x00010004 #Channels that come with games, e.g. Wii Fit Plus Channel or whatevs
+	DLC = 0x00010005
+	HiddenChannel = 0x00010008
 
 def add_wii_system_info(game):
 	cpu = CPU()
@@ -43,6 +53,13 @@ def parse_tmd(game, tmd):
 	#Stuff that I dunno about: 0 - 388
 	#IOS version: 388-396
 	#Title ID: 396-400
+	#game.metadata.specific_info['Title-ID'] = tmd[396:400].hex()
+	#print(game.rom.path, tmd[396:400].hex())
+	try:
+		game.metadata.specific_info['Title-Type'] = WiiTitleType(int.from_bytes(tmd[396:400], 'big'))
+	except ValueError:
+		pass
+
 	try:
 		product_code = tmd[400:404].decode('ascii')
 		game.metadata.product_code = product_code
@@ -99,7 +116,7 @@ def parse_opening_bnr(game, opening_bnr):
 	names = {}
 	for i in range(10):
 		try:
-			name = imet[92 + (i * 84): 92 + (i * 84) + 84].decode('utf-16be').rstrip('\0')
+			name = imet[92 + (i * 84): 92 + (i * 84) + 84].decode('utf-16be').rstrip('\0 ')
 			if name:
 				names[languages[i]] = name
 		except UnicodeDecodeError:
