@@ -222,7 +222,8 @@ def add_psp_metadata(game):
 		iso = PyCdlib()
 		try:
 			iso.open(game.rom.path)
-			param_sfo_buf = io.BytesIO()
+			param_sfo_buf = io.BytesIO()				
+
 			try:
 				iso.get_file_from_iso_fp(param_sfo_buf, iso_path='/PSP_GAME/PARAM.SFO')
 				date = iso.get_record(iso_path='/PSP_GAME/PARAM.SFO').date
@@ -232,8 +233,15 @@ def add_psp_metadata(game):
 				game.metadata.day = date.day_of_month
 				parse_param_sfo(game, param_sfo_buf.getvalue())
 			except PyCdlibInvalidInput:
-				if main_config.debug:
-					print(game.rom.path, 'has no PARAM.SFO inside')
+				try:
+					iso.get_record(iso_path='/UMD_VIDEO/PARAM.SFO')
+					#We could parse this PARAM.SFO but there's not much point given we aren't going to make a launcher for UMD videos at this stage
+					#TODO There is also potentially /UMD_AUDIO/ I think too so I should rewrite this one day
+					game.metadata.specific_info['Is-UMD-Video'] = True
+					return
+				except PyCdlibInvalidInput:
+					if main_config.debug:
+						print(game.rom.path, 'has no PARAM.SFO inside')
 			if have_pillow:
 				game.metadata.images['Banner'] = get_image_from_iso(iso, '/PSP_GAME/ICON0.PNG')
 				game.metadata.images['Icon-1'] = get_image_from_iso(iso, '/PSP_GAME/ICON1.PNG')
