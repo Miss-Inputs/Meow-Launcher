@@ -66,7 +66,7 @@ systems = {
 	'DS': SystemInfo('nds', [], ['Medusa'], {MediaType.Cartridge: ['nds', 'dsi', 'ids']}),
 	'Game Boy': SystemInfo('gbpocket', ['gameboy', 'gbcolor'], ['Gambatte', 'mGBA', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'Medusa', 'GBE+'], {MediaType.Cartridge: ['gb', 'gbc', 'gbx', 'sgb']},
 		{'use_gbc_for_dmg': SpecificConfigValue(ConfigValueType.Bool, True, 'Use MAME GBC driver for DMG games'), 'prefer_sgb_over_gbc': SpecificConfigValue(ConfigValueType.Bool, False, 'If a game is both SGB and GBC enhanced, use MAME SGB driver instead of GBC')}),
-	'GameCube': SystemInfo('gcjp', [], ['Dolphin'], {MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz'], MediaType.Executable: ['dol', 'elf']}),
+	'GameCube': SystemInfo('gcjp', [], ['Dolphin'], {MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz', 'ciso'], MediaType.Executable: ['dol', 'elf']}),
 	'Game Gear': SystemInfo('gamegear', ['gamegear'], ['Kega Fusion', 'Mednafen (Game Gear)', 'MAME (Game Gear)'], {MediaType.Cartridge: ['sms', 'gg', 'bin']}),
 	'GBA': SystemInfo('gba', ['gba'], ['mGBA', 'Mednafen (GBA)', 'MAME (GBA)', 'Medusa', 'GBE+'], {MediaType.Cartridge: ['gba', 'bin', 'srl'], MediaType.Executable: ['elf', 'mb']}),
 	'Intellivision': SystemInfo('intv', ['intv', 'intvecs'], ['MAME (Intellivision)'], {MediaType.Cartridge: ['bin', 'int', 'rom', 'itv']}),
@@ -84,7 +84,7 @@ systems = {
 	'SNES': SystemInfo('snes', ['snes', 'snes_bspack', 'snes_strom'], ['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)'], {MediaType.Cartridge: ['sfc', 'swc', 'smc', 'bs', 'st', 'bin']}, {'sufami_turbo_bios_path': SpecificConfigValue(ConfigValueType.FilePath, None, 'Path to Sufami Turbo BIOS, required to run Sufami Turbo carts'), 'bsx_bios_path': SpecificConfigValue(ConfigValueType.FilePath, None, 'Path to BS-X BIOS, required to run Satellaview games')}),
 	'Switch': SystemInfo(None, [], ['Yuzu'], {MediaType.Cartridge: ['xci'], MediaType.Digital: ['nsp', 'nca'], MediaType.Executable: ['nro', 'nso', 'elf']}),
 	'V.Smile': SystemInfo('vsmile', ['vsmile_cart'], ['MAME (V.Smile)'], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
-	'Wii': SystemInfo(None, [], ['Dolphin'], {MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz', 'wbfs'], MediaType.Executable: ['dol', 'elf'], MediaType.Digital: ['wad']}),
+	'Wii': SystemInfo(None, [], ['Dolphin'], {MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz', 'wbfs', 'ciso'], MediaType.Executable: ['dol', 'elf'], MediaType.Digital: ['wad']}),
 	'WonderSwan': SystemInfo('wscolor', ['wswan', 'wscolor'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['ws', 'wsc', 'bin']}),
 	#Rotates around so that sometimes the dpad becomes buttons and vice versa and there's like two dpads??? but if you use Mednafen's rotation auto-adjust thing it kinda works
 
