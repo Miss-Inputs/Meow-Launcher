@@ -84,19 +84,47 @@ def parse_opening_bnr(game, opening_bnr):
 	#banner.bin size: 80-84
 	#sound.bin size: 84-88
 	#Unknown flag: 88-92
-	names = [''] * 10
+	languages = {
+		0: 'Japanese',
+		1: 'English',
+		2: 'German',
+		3: 'French',
+		4: 'Spanish',
+		5: 'Italian',
+		6: 'Dutch',
+		7: 'Unknown Language 1', #These may be simplified and traditional Chinese respectively?
+		8: 'Unknown Language 2',
+		9: 'Korean',
+	}
+	names = {}
 	for i in range(10):
 		try:
-			names[i] = imet[92 + (i * 84): 92 + (i * 84) + 84].decode('utf-16be').rstrip('\0')
+			name = imet[92 + (i * 84): 92 + (i * 84) + 84].decode('utf-16be').rstrip('\0')
+			if name:
+				names[languages[i]] = name
 		except UnicodeDecodeError:
 			continue #I guess
-		#Japanese, English, German, French, Spanish, Italian, Dutch, ?, ?, Korean in that order; why 84 characters long? Who knows
+		#Why 84 characters long? Who knows
 		#It seems \x00 is sometimes in the middle as some type of line/subtitle separator?
 		#We will probably not really want to try and infer supported languages by what is not zeroed out here, I don't think that's how it works
-	#This is a bit Anglocentric of me but let's just get the English name for now
-	game.metadata.specific_info['Banner-Title'] = names[1] if names[1] else names[0]
-	#TODO: Ideally get the Japanese name if region code = NTSC_J or Korean if NTSC_K, because while this seems to usually be localized it is not always (some MSX VC games seem to have weird codenames for the English name?)
 
+	for lang, title in names.items():
+		game.metadata.specific_info['{0}-Banner-Title'.format(lang.replace(' ', '-'))] = title
+	
+	region_code = game.metadata.specific_info.get('Region-Code')
+	local_title = None
+	if region_code == NintendoDiscRegion.NTSC_J:
+		local_title = names.get('Japanese')
+	elif region_code == NintendoDiscRegion.NTSC_K:
+		local_title = names.get('Korean')
+	elif region_code in (NintendoDiscRegion.NTSC_U, NintendoDiscRegion.PAL, NintendoDiscRegion.RegionFree):
+		#This is still a bit anglocentric of me to ignore European languages, but eh
+		local_title = names.get('English')
+	elif names: #and region_code is None, which I would think shouldn't happen too often
+		local_title = list(names.values())[0]
+
+	if local_title:
+		game.metadata.specific_info['Banner-Title'] = local_title
 
 def add_wad_metadata(game):
 	header = game.rom.read(amount=0x40)
