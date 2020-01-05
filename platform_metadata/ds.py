@@ -80,6 +80,27 @@ def parse_dsi_region_flags(region_flags):
 		regions.append(get_region_by_name('Korea'))
 	return regions
 
+def add_banner_title_metadata(game, banner_title, language=None):
+	lines = banner_title.splitlines()
+	metadata_name = 'Banner-Title'
+	if language:
+		metadata_name = '{0}-{1}'.format(language, metadata_name)
+	if lines:
+		#The lines are generally either 2 lines like this
+		#Art Academy
+		#Nintendo
+		#or 3 lines like this:
+		#Cooking Guide
+		#Can't decide what to eat?
+		#Nintendo
+		if len(lines) == 1:
+			game.metadata.specific_info[metadata_name] = lines[0]
+		else:
+			game.metadata.specific_info[metadata_name] = ' '.join(lines[:-1])
+			#This is usually the publisher! But it has a decent chance of being something else so I'm not gonna set game.metadata.publisher from it
+			#Wait, why am I putting it in the metadata then? Oh well
+			game.metadata.specific_info[metadata_name + '-Final-Line'] = lines[-1]
+
 def parse_ds_header(game, header):
 	internal_title = header[0:12].decode('ascii', errors='backslashreplace').rstrip('\0')
 	if internal_title:
@@ -136,24 +157,38 @@ def parse_ds_header(game, header):
 		banner = game.rom.read(seek_to=banner_offset, amount=banner_size)
 		version = int.from_bytes(banner[0:2], 'little')
 		game.metadata.specific_info['Banner-Version'] = version
+		#2 = has Chinese, 3 = has Korean, 0x103, has DSi stuff
+
 		if version in (1, 2, 3, 0x103):
-			if len(banner) >= 0x440:
-				banner_title = banner[0x340:0x440].decode('utf-16-le', errors='backslashreplace').rstrip('\0 ')
-				banner_title_lines = banner_title.splitlines()
-				if banner_title_lines:
-					#The lines are generally either 2 lines like this
-					#Art Academy
-					#Nintendo
-					#or 3 lines like this:
-					#Cooking Guide
-					#Can't decide what to eat?
-					#Nintendo
-					if len(banner_title_lines) == 1:
-						game.metadata.specific_info['Banner-Title'] = banner_title_lines[0]
-					else:
-						game.metadata.specific_info['Banner-Title'] = ' '.join(banner_title_lines[:-1])
-						#This is usually the publisher! But it has a decent chance of being something else so I'm not gonna set game.metadata.publisher from it
-						game.metadata.specific_info['Banner-Title-Final-Line'] = banner_title_lines[-1]
+			banner_titles = {}
+			banner_languages = {
+				0: 'Japanese',
+				1: 'English',
+				2: 'French',
+				3: 'German',
+				4: 'Italian',
+				5: 'Spanish',
+				6: 'Chinese', #Version >= 2
+				7: 'Korean' #Version >= 3
+			}
+
+			for i in range(7):
+				try:
+					banner_title = banner[0x240 + (i * 256): 0x240 + (i * 256) + 256].decode('utf-16le').rstrip('\0 \uffff')
+					#if banner_title and not all([c == '\uffff' for c in banner_title]):
+					if banner_title:
+						banner_titles[banner_languages[i]] = banner_title
+				except (UnicodeDecodeError, IndexError):
+					continue
+			
+			for lang, title in banner_titles.items():
+				add_banner_title_metadata(game, title, lang)
+
+			#TODO: Not sure if every game has an English title, it is normally a region free system but maybe iQue carts don't have a proper English title
+			if banner_titles:
+				banner_title = banner_titles.get('English', list(banner_titles.values())[0])
+				add_banner_title_metadata(game, banner_title)
+
 			if len(banner) >= 0x240:
 				if have_pillow:
 					icon_bitmap = banner[0x20:0x220]
