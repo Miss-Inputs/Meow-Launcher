@@ -687,6 +687,7 @@ def add_generic_info(game):
 	if software:
 		software.add_generic_info(game.metadata)
 		game.metadata.notes = software.get_info('usage')
+		game.metadata.specific_info['Requirement'] = software.get_shared_feature('requirement')
 
 	#TODO:
 	#Apple III: Possible input info: Keyboard and joystick by default, mouse if mouse card exists
