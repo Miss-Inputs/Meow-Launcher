@@ -366,7 +366,7 @@ class Software():
 				version = 'v' + version
 			metadata.specific_info['Version'] = version
 
-		alt_title = self.infos.get('alt_title')
+		alt_title = self.infos.get('alt_title', self.infos.get('alt_name', self.infos.get('alt_disk')))
 		#This may require further parsing to use properly
 		if alt_title:
 			metadata.specific_info['Alternate-Title'] = alt_title
