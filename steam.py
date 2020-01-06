@@ -168,6 +168,9 @@ class SteamGame():
 		params = launchers.LaunchParams('steam', ['steam://rungameid/{0}'.format(self.app_id)])
 		launchers.make_launcher(params, self.name, self.metadata, 'Steam', self.app_id)
 
+class NotLaunchableError(Exception):
+	pass
+
 class IconError(Exception):
 	pass
 
@@ -656,15 +659,6 @@ def add_metadata_from_appinfo(game):
 		print('No appinfo')
 		return
 
-	#Alright let's get to the fun stuff
-	common = app_info_section.get(b'common')
-	if common:
-		add_metadata_from_appinfo_common_section(game, common)
-
-	extended = app_info_section.get(b'extended')
-	if extended:
-		add_metadata_from_appinfo_extended_section(game, extended)
-
 	config = app_info_section.get(b'config')
 	if config:
 		#contenttype = 3 in some games but not all of them? nani
@@ -674,7 +668,16 @@ def add_metadata_from_appinfo(game):
 		if launch:
 			process_launchers(game, launch)
 		else:
-			game.metadata.specific_info['No-Launchers'] = True
+			raise NotLaunchableError('No launch entries in config section')
+
+	#Alright let's get to the fun stuff
+	common = app_info_section.get(b'common')
+	if common:
+		add_metadata_from_appinfo_common_section(game, common)
+
+	extended = app_info_section.get(b'extended')
+	if extended:
+		add_metadata_from_appinfo_extended_section(game, extended)
 
 	localization = app_info_section.get(b'localization')
 	if localization:
@@ -780,7 +783,7 @@ def process_game(app_id, folder, app_state):
 	appid_str = str(game.app_id)
 
 	if not game.launchers:
-		game.metadata.specific_info['No-Launchers'] = True
+		raise NotLaunchableError('Game cannot be launched')
 	else:
 		launcher = list(game.launchers.values())[0]
 		if appid_str in steamplay_overrides:
@@ -818,12 +821,8 @@ def process_game(app_id, folder, app_state):
 	#regions: World or user's region? Hmm, maybe not entirely relevant with PC games
 	#revision: Irrelevant since software versions aren't always linear numbers?
 	#tv_type could be Agnostic, but it's like... I dunno if I'd consider it to be relevant
-	if game.metadata.specific_info.get('No-Launchers', False):
-		if main_config.debug:
-			print(game.name, game.app_id, 'is not something that can be launched')
-		return
 	if game.metadata.specific_info.get('No-Valid-Launchers', False) and not main_config.force_create_launchers:
-		return
+		raise NotLaunchableError('Platform not supported and Steam Play not used')
 
 	game.make_launcher()
 
@@ -854,6 +853,8 @@ def iter_steam_installed_appids():
 
 			#Only yield fully installed games
 			if (state_flags & 4) == 0:
+				if main_config.debug:
+					print('Skipping', app_id, 'as it is not actually installed (StateFlags =', state_flags, ')')
 				continue
 
 			yield library_folder, app_id, app_state
@@ -882,7 +883,12 @@ def process_steam():
 			if launchers.has_been_done('Steam', app_id):
 				continue
 
-		process_game(app_id, folder, app_state)
+		try:
+			process_game(app_id, folder, app_state)
+		except NotLaunchableError as ex:
+			if main_config.debug:
+				print(app_state.get('name', app_id), 'is skipped because', ex)
+			continue
 
 	if main_config.print_times:
 		time_ended = time.perf_counter()
