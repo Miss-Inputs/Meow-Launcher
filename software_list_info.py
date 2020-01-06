@@ -6,9 +6,9 @@ import zlib
 
 import io_utils
 from common_types import MediaType
-from info.region_info import TVSystem
 from info.system_info import systems
-from mame_helpers import consistentify_manufacturer, get_mame_core_config, verify_software_list
+from mame_helpers import (consistentify_manufacturer, get_mame_core_config,
+                          verify_software_list)
 from metadata import EmulationStatus
 
 #Ideally, every platform wants to be able to get software list info. If available, it will always be preferred over what we can extract from inside the ROMs, as it's more reliable, and avoids the problem of bootlegs/hacks with invalid/missing header data, or publisher/developers that merge and change names and whatnot.
@@ -334,7 +334,10 @@ class Software():
 
 	@property
 	def compatibility(self):
-		return self.get_shared_feature('compatibility')
+		compat = self.get_shared_feature('compatibility')
+		if not compat:
+			return compat
+		return compat.split(',')
 
 	def add_standard_metadata(self, metadata):
 		metadata.specific_info['MAME-Software-Name'] = self.name
@@ -355,13 +358,6 @@ class Software():
 		#This may require further parsing to use properly
 		if alt_title:
 			metadata.specific_info['Alternate-Title'] = alt_title
-
-		if self.compatibility == 'PAL':
-			metadata.tv_type = TVSystem.PAL
-		elif self.compatibility == 'NTSC':
-			metadata.tv_type = TVSystem.NTSC
-		elif self.compatibility in ('NTSC,PAL', 'PAL,NTSC'):
-			metadata.tv_type = TVSystem.Agnostic
 
 		year = self.xml.findtext('year')
 		if metadata.year:

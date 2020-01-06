@@ -35,7 +35,7 @@ def _quizwiz(software):
 def _neo_geo(software):
 	#TODO: Plug in a memory card
 	compat = software.software.compatibility
-	if compat and 'AES' not in compat:
+	if compat and 'AES'  not in compat:
 		raise EmulationNotSupportedException('Not compatible with AES')
 	return _launch_with_software('aes', software)
 

@@ -6,11 +6,12 @@ import platform_metadata.atari_controllers as controllers
 
 def add_info_from_software_list(game, software):
 	software.add_standard_metadata(game.metadata)
-	compatibility = software.get_shared_feature('compatibility')
-	if compatibility in ('XL', 'XL/XE'):
+	compatibility = software.compatibility
+	if 'XL' in compatibility or 'XL/XE' in compatibility:
 		game.metadata.specific_info['Machine'] = 'XL'
 		game.metadata.mame_driver = 'a800xl'
-	if compatibility == "OSb":
+	#TODO: Should XE (but not XL) ever appear as compatibility?
+	if 'OSb' in compatibility:
 		game.metadata.specific_info['Requires-OS-B'] = True
 
 	peripheral = software.get_part_feature('peripheral')

@@ -198,10 +198,10 @@ def add_apple_ii_metadata(game):
 			game.metadata.specific_info['Uses-Mouse'] = True
 
 		if not game.metadata.specific_info.get('Machine'):
-			compat = software.get_shared_feature('compatibility')
+			compat = software.compatibility
 			if compat:
 				machines = []
-				for machine in compat.split(','):
+				for machine in compat:
 					if machine == 'A2':
 						machines.append(AppleIIHardware.AppleII)
 					if machine == 'A2P':
