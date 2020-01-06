@@ -353,6 +353,12 @@ class Software():
 		serial = self.infos.get('serial')
 		if serial:
 			metadata.product_code = serial
+		barcode = self.infos.get('barcode')
+		if barcode:
+			metadata.specific_info['Barcode'] = barcode
+		ring_code = self.infos.get('ring_code')
+		if ring_code:
+			metadata.specific_info['Ring-Code'] = ring_code
 
 		alt_title = self.infos.get('alt_title')
 		#This may require further parsing to use properly
