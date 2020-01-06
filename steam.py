@@ -154,15 +154,48 @@ def get_steamplay_overrides():
 		return {}
 
 class SteamGame():
-	def __init__(self, app_id, folder, app_state, name):
+	def __init__(self, app_id, folder, app_state):
 		self.app_id = app_id
 		self.library_folder = folder
 		self.app_state = app_state
-		self.name = name
 		self.metadata = Metadata()
 
 		self.launchers = {}
 		self.extra_launchers = {}
+
+	@property
+	def name(self):
+		name = self.app_state.get('name')
+		if not name:
+			name = '<unknown game {0}>'.format(self.app_id)
+		name = fix_name(name)
+		return name
+
+	@property
+	def appinfo(self):
+		if steam_state.app_info_available:
+			game_app_info = steam_state.app_info.get(self.app_id)
+			if game_app_info is None:
+				#Probably shouldn't happen if all is well and that game is supposed to be there
+				if main_config.debug:
+					print(self.name, self.app_id, 'does not have an entry in appinfo.vdf')
+				return None
+
+			#There are other keys here too but I dunno if they're terribly useful, just stuff about size and state and access token and bleh
+			#last_update is a Unix timestamp for the last time the user updated the game
+			sections = game_app_info.get('sections')
+			if sections is None:
+				if main_config.debug:
+					print(self.name, self.app_id, 'does not have a sections key in appinfo.vdf')
+				return None
+			#This is the only key in sections, and from now on everything is a bytes instead of a str, seemingly
+			app_info_section = sections.get(b'appinfo')
+			if app_info_section is None:
+				if main_config.debug:
+					print(self.name, self.app_id, 'does not have a appinfo section in appinfo.vdf sections')
+				return None
+			return app_info_section
+		return None
 
 	def make_launcher(self):
 		params = launchers.LaunchParams('steam', ['steam://rungameid/{0}'.format(self.app_id)])
@@ -640,25 +673,7 @@ def add_metadata_from_appinfo_extended_section(game, extended):
 	#mustownapptopurchase: If present, appID of a game that you need to buy first (parent of DLC, or something like Source SDK Base for Garry's Mod, etc)
 	#dependantonapp: Probably same sort of thing, like Half-Life: Opposing Force is dependent on original Half-Life
 
-def add_metadata_from_appinfo(game):
-	game_app_info = steam_state.app_info.get(game.app_id)
-	if game_app_info is None:
-		#Probably shouldn't happen if all is well and that game is supposed to be there
-		print('Not for', game.app_id)
-		return
-
-	#There are other keys here too but I dunno if they're terribly useful, just stuff about size and state and access token and bleh
-	#last_update is a Unix timestamp for the last time the user updated the game
-	sections = game_app_info.get('sections')
-	if sections is None:
-		print('No sections')
-		return
-	#This is the only key in sections, and from now on everything is a bytes instead of a str, seemingly
-	app_info_section = sections.get(b'appinfo')
-	if app_info_section is None:
-		print('No appinfo')
-		return
-
+def process_appinfo_config_section(game, app_info_section):
 	config = app_info_section.get(b'config')
 	if config:
 		#contenttype = 3 in some games but not all of them? nani
@@ -670,6 +685,7 @@ def add_metadata_from_appinfo(game):
 		else:
 			raise NotLaunchableError('No launch entries in config section')
 
+def add_metadata_from_appinfo(game, app_info_section):
 	#Alright let's get to the fun stuff
 	common = app_info_section.get(b'common')
 	if common:
@@ -750,23 +766,18 @@ def process_launcher(game, launcher):
 		game.metadata.specific_info['Launcher'] = 'uPlay'
 
 def process_game(app_id, folder, app_state):
-	name = app_state.get('name')
 	#installdir is the subfolder of library_folder/steamapps/common where the game is actually located, if that's ever useful
 	#UserConfig might be interesting... normally it just has a key 'language' which is set to 'english' etc, sometimes duplicating name and app_id as 'gameid' for no reason, but also has things like 'lowviolence': '1' inside Left 4 Dead 2 for example (because I'm Australian I guess), so... well, I just think that's kinda neat, although probably not useful for our purposes here; also for TF2 it has 'betakey': 'prerelease' so I guess that has to do with opt-in beta programs
-
-	if not name:
-		name = '<unknown game {0}>'.format(app_id)
-	name = fix_name(name)
 
 	#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
 	try:
 		app_id = int(app_id)
 	except ValueError:
 		if main_config.debug:
-			print('Should not happen:', app_id, name, 'is not numeric')
+			print('Should not happen:', app_id, app_state.get('name'), 'is not numeric')
 		return
 
-	game = SteamGame(app_id, folder, app_state, name)
+	game = SteamGame(app_id, folder, app_state)
 	game.metadata.platform = 'Steam'
 	lowviolence = app_state.get('UserConfig', {}).get('lowviolence')
 	if lowviolence:
@@ -775,8 +786,9 @@ def process_game(app_id, folder, app_state):
 	game.metadata.specific_info['Library-Folder'] = folder
 	game.metadata.media_type = MediaType.Digital
 
-	if steam_state.app_info_available:
-		add_metadata_from_appinfo(game)
+	appinfo_entry = game.appinfo
+	if appinfo_entry:
+		process_appinfo_config_section(game, appinfo_entry)
 
 	steamplay_overrides = get_steamplay_overrides()
 	steamplay_whitelist = get_steamplay_whitelist()
@@ -815,15 +827,18 @@ def process_game(app_id, folder, app_state):
 	#userdata/<user ID>/config/localconfig.vdf has last time played stats, so that's a thing I guess
 	#userdata/<user ID>/7/remote/sharedconfig.vdf has tags/categories etc as well
 
+	if game.metadata.specific_info.get('No-Valid-Launchers', False) and not main_config.force_create_launchers:
+		raise NotLaunchableError('Platform not supported and Steam Play not used')
+
+	if appinfo_entry:
+		add_metadata_from_appinfo(game, appinfo_entry)
 	#Other metadata that we can't or won't fill in:
 	#cpu_info, screen_info, extension: Irrelevant (not going to do something silly like use the current user's CPU/monitor specs)
 	#product_code: Not really a thing
 	#regions: World or user's region? Hmm, maybe not entirely relevant with PC games
 	#revision: Irrelevant since software versions aren't always linear numbers?
 	#tv_type could be Agnostic, but it's like... I dunno if I'd consider it to be relevant
-	if game.metadata.specific_info.get('No-Valid-Launchers', False) and not main_config.force_create_launchers:
-		raise NotLaunchableError('Platform not supported and Steam Play not used')
-
+	
 	game.make_launcher()
 
 def iter_steam_installed_appids():
@@ -854,7 +869,7 @@ def iter_steam_installed_appids():
 			#Only yield fully installed games
 			if (state_flags & 4) == 0:
 				if main_config.debug:
-					print('Skipping', app_id, 'as it is not actually installed (StateFlags =', state_flags, ')')
+					print('Skipping', app_state.get('name'), app_id, 'as it is not actually installed (StateFlags =', state_flags, ')')
 				continue
 
 			yield library_folder, app_id, app_state
@@ -887,7 +902,7 @@ def process_steam():
 			process_game(app_id, folder, app_state)
 		except NotLaunchableError as ex:
 			if main_config.debug:
-				print(app_state.get('name', app_id), 'is skipped because', ex)
+				print(app_state.get('name', app_id), app_id, 'is skipped because', ex)
 			continue
 
 	if main_config.print_times:
