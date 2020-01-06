@@ -375,8 +375,6 @@ def add_bbc_bridge_companion_info(game):
 
 	add_generic_info(game)
 
-#-- Beyond this point, there may be unexplored things which may result in these systems being spun off into their own module. Maybe. It just seems likely. Or maybe I do know full well they have a header, and either I haven't explored it yet, or I'm just a lazy bugger
-
 def add_cd32_info(game):
 	add_generic_info(game)
 	builtin_gamepad = input_metadata.NormalController()
