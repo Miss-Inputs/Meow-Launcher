@@ -152,18 +152,14 @@ def add_pc88_info(game):
 	#Input info: Keyboard or joystick
 
 	game.metadata.tv_type = TVSystem.NTSC
-	software = get_software_list_entry(game)
-	if software:
-		software.add_standard_metadata(game.metadata)
-		#TODO: Tell us if this is part of a multi-floppy thing
-		game.metadata.notes = software.get_info('usage')
-		#Needs BASIC V1 or older
-		#Mount both disk A and B to start
-		#Needs BASIC V1
-		#Mount Main disk and Scenario 1 to start
-		#Mount Main disk and Scenario 2 to start
-		#Needs CD-ROM support
-		#Needs N-BASIC
+	add_generic_info(game)
+	#Needs BASIC V1 or older
+	#Mount both disk A and B to start
+	#Needs BASIC V1
+	#Mount Main disk and Scenario 1 to start
+	#Mount Main disk and Scenario 2 to start
+	#Needs CD-ROM support
+	#Needs N-BASIC
 
 def add_sg1000_info(game):
 	#Until proven otherwise
@@ -190,35 +186,27 @@ def add_sharp_x1_info(game):
 	#Input info: Keyboard and/or joystick
 
 	game.metadata.tv_type = TVSystem.NTSC
-	software = get_software_list_entry(game)
-	if software:
-		software.add_standard_metadata(game.metadata)
-		#TODO: Tell us if this is part of a multi-floppy thing
-		game.metadata.notes = software.get_info('usage')
-		#Type FILES then move the cursor to the line of the game and type LOAD (to load) and type RUN when loaded
-		#Runs in HuBASIC
-		#Load SIRIUS 1 from Extra Hyper
-		#Once booted in S-OS, type "L DALK" to load, and "J 9600" to run
-		#In BASIC, type FILES to list the disk content
+	add_generic_info(game)
+	#Type FILES then move the cursor to the line of the game and type LOAD (to load) and type RUN when loaded
+	#Runs in HuBASIC
+	#Load SIRIUS 1 from Extra Hyper
+	#Once booted in S-OS, type "L DALK" to load, and "J 9600" to run
+	#In BASIC, type FILES to list the disk content
 
 def add_sharp_x68k_info(game):
 	#Input info: Keyboard and/or joystick
 
 	game.metadata.tv_type = TVSystem.NTSC
 	#Many games are known to have SaveType.Floppy, but can't tell programmatically...
-	software = get_software_list_entry(game)
-	if software:
-		software.add_standard_metadata(game.metadata)
-		#TODO: Tell us if this is part of a multi-floppy thing
-		game.metadata.notes = software.get_info('usage')
-		#Requires Disk 1 and Disk 3 mounted to boot
-		#Use mouse at select screen
-		#Requires "Harukanaru Augusta" to work
-		#Requires to be installed
-		#Requires SX-Windows
-		#Use command.x in Human68k OS
-		#Type BPHXTST in Human68k OS
-		#Type S_MARIO.X in Human68k OS
+	add_generic_info(game)
+	#Requires Disk 1 and Disk 3 mounted to boot
+	#Use mouse at select screen
+	#Requires "Harukanaru Augusta" to work
+	#Requires to be installed
+	#Requires SX-Windows
+	#Use command.x in Human68k OS
+	#Type BPHXTST in Human68k OS
+	#Type S_MARIO.X in Human68k OS
 
 def add_tomy_tutor_info(game):
 	#Input info: Keyboard (56 keys) and/or joystick (2 buttons + dpad)
@@ -548,10 +536,7 @@ def add_fm7_info(game):
 	#"Type RUN&quot;XXX&quot; with XXX=MAGUS, LIZARD, BLUE.FOX or ナイザー in F-BASIC"
 	#Sounds like there's a few disks which don't autoboot...
 	#"Type LOADM&quot;&quot;,R to load" is on a few tapes
-	software = get_software_list_entry(game)
-	if software:
-		software.add_standard_metadata(game.metadata)
-		game.metadata.notes = software.get_info('usage')
+	add_generic_info(game)
 
 def add_super_cassette_vision_info(game):
 	keypad = input_metadata.Keypad() #Part of main body of console
@@ -676,11 +661,8 @@ def add_pc_engine_info(game):
 	if equivalent_arcade:
 		game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_standard_metadata(game.metadata)
-		game.metadata.notes = software.get_info('usage')
-
+	add_generic_info(game)
+		
 def add_generic_info(game):
 	#For any system not otherwise specified
 	software = get_software_list_entry(game)
