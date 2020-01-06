@@ -351,6 +351,11 @@ class Software():
 		if serial:
 			metadata.product_code = serial
 
+		alt_title = self.infos.get('alt_title')
+		#This may require further parsing to use properly
+		if alt_title:
+			metadata.specific_info['Alternate-Title'] = alt_title
+
 		if self.compatibility == 'PAL':
 			metadata.tv_type = TVSystem.PAL
 		elif self.compatibility == 'NTSC':

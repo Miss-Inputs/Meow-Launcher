@@ -669,7 +669,7 @@ def add_generic_info(game):
 		game.metadata.notes = software.get_info('usage')
 		game.metadata.specific_info['Requirement'] = software.get_shared_feature('requirement')
 		for info_name, info_value in software.infos.items():
-			if info_name in ('usage', 'release', 'serial'):
+			if info_name in ('usage', 'release', 'serial', 'developer', 'alt_title'):
 				#We have already added this
 				continue
 			game.metadata.specific_info[info_name.replace('_', '-').replace(' ', '-').title()] = info_value
