@@ -249,8 +249,7 @@ emulators = {
 
 	'MAME (Amiga CD32)': MameDriver(command_lines.mame_amiga_cd32, mame_cdrom_formats),
 	#Well it boots stuff I guess, but it is marked not working, and right now I'm too drunk to try everything and it's not that important because FS-UAE works already
-	'MAME (Amstrad PCW)': MameDriver(command_lines.mame_system('pcw10', 'flop', has_keyboard=True), mame_floppy_formats),
-	#TODO Reject software where usage indicates CP/M requirement (fuck CP/M)
+	'MAME (Amstrad PCW)': MameDriver(command_lines.mame_amstrad_pcw, mame_floppy_formats),
 	'MAME (CreatiVision)': MameDriver(command_lines.mame_system('crvision', 'cart', has_keyboard=True), ['bin', 'rom']),
 	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it
 	'MAME (Dreamcast)': MameDriver(command_lines.mame_dreamcast, mame_cdrom_formats),

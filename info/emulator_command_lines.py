@@ -124,6 +124,12 @@ def mame_amiga_cd32(game, _):
 		system = 'cd32n'
 	return mame_system(system, 'cdrom')
 
+def mame_amstrad_pcw(game, _):
+	if game.metadata.specific_info.get('Notes') == 'Requires CP/M':
+		#Nah too messy
+		raise EmulationNotSupportedException('Needs CP/M')
+	return mame_system('pcw10', 'flop', has_keyboard=True)
+
 def mame_apple_ii(game, _):
 	slot_options = {}
 	if game.metadata.specific_info.get('Uses-Mouse', False):
