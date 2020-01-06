@@ -1,7 +1,8 @@
 import input_metadata
+from common import NotAlphanumericException, convert_alphanumeric
 from info.region_info import TVSystem
-from common import convert_alphanumeric, NotAlphanumericException
-from software_list_info import get_software_list_entry
+from platform_metadata.minor_systems import add_generic_info
+
 
 def add_vectrex_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -12,9 +13,7 @@ def add_vectrex_metadata(game):
 	game.metadata.input_info.add_option(gamepad)
 	#There's also a light pen but I dunno stuff about it or how to detect it so there's not a lot that can be done about it
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_standard_metadata(game.metadata)
+	add_generic_info(game)
 
 	if not game.metadata.year:
 		#Only do things the wrong way if we can't find year by software list

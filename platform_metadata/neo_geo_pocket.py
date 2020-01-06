@@ -1,6 +1,6 @@
 from info.region_info import TVSystem
 import input_metadata
-from software_list_info import get_software_list_entry
+from platform_metadata.minor_systems import add_generic_info
 
 def add_ngp_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -24,6 +24,4 @@ def add_ngp_metadata(game):
 	if internal_title:
 		game.metadata.specific_info['Internal-Title'] = internal_title
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_standard_metadata(game.metadata)
+	add_generic_info(game)

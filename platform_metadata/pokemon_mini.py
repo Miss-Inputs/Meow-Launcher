@@ -1,7 +1,8 @@
 import input_metadata
-from common import convert_alphanumeric, NotAlphanumericException
+from common import NotAlphanumericException, convert_alphanumeric
 from info.region_info import TVSystem
-from software_list_info import get_software_list_entry
+from platform_metadata.minor_systems import add_generic_info
+
 
 def add_pokemini_metadata(game):
 	builtin_gamepad = input_metadata.NormalController()
@@ -23,6 +24,4 @@ def add_pokemini_metadata(game):
 	if title:
 		game.metadata.specific_info['Internal-Title'] = title
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_standard_metadata(game.metadata)
+	add_generic_info(game)
