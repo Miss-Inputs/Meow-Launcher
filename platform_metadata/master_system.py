@@ -136,9 +136,9 @@ def try_parse_standard_header(game):
 		game.metadata.specific_info['Japanese-Only'] = True
 
 def add_info_from_software_list(game, software):
-	software.add_generic_info(game.metadata)
+	software.add_standard_metadata(game.metadata)
 
-	usage = software.get_info('usage')
+	usage = software.infos.get('usage')
 	if usage == 'Only runs with PAL/50Hz drivers, e.g. smspal':
 		game.metadata.tv_type = TVSystem.PAL
 	elif usage in ('Input works only with drivers of Japanese region, e.g. sms1kr,smsj', 'Only runs with certain drivers, e.g. smsj - others show SOFTWARE ERROR'):

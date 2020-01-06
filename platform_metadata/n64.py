@@ -141,4 +141,4 @@ def add_n64_metadata(game):
 		#For some reason, MAME uses little endian dumps in its software list at the moment, hence "not byte_swap" which would be wrong otherwise
 	software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(entire_rom))
 	if software:
-		software.add_generic_info(game.metadata)
+		software.add_standard_metadata(game.metadata)

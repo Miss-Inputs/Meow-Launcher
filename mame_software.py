@@ -101,7 +101,7 @@ def add_software_metadata(software):
 	software.metadata.platform = software.platform.name
 	software.metadata.media_type = software.media_type
 	
-	software.software.add_generic_info(software.metadata)
+	software.software.add_standard_metadata(software.metadata)
 
 def add_software(software):
 	add_software_metadata(software)

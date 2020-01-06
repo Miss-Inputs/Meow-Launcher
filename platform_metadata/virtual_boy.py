@@ -60,6 +60,6 @@ def add_virtual_boy_metadata(game):
 
 	software = get_software_list_entry(game)
 	if software:
-		software.add_generic_info(game.metadata)
+		software.add_standard_metadata(game.metadata)
 		#We won't need to get serial here I guess
 		game.metadata.save_type = SaveType.Cart if software.has_data_area('eeprom') else SaveType.Nothing

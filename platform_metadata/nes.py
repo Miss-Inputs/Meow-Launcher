@@ -408,7 +408,7 @@ def add_nes_metadata(game):
 	standard_controller.face_buttons = 2 #A B
 
 	if software:
-		software.add_generic_info(game.metadata)
+		software.add_standard_metadata(game.metadata)
 
 		#FIXME: Acktually, you can have multiple feature = peripherals
 		#See also: SMB / Duck Hunt / World Class Track Meet multicart, with both zapper and powerpad
@@ -479,7 +479,7 @@ def add_nes_metadata(game):
 		#RacerMate Challenge 2: "racermate"
 		#Top Rider (Japan): "toprider"
 
-		game.metadata.notes = software.get_info('usage')
+		game.metadata.notes = software.infos.get('usage')
 		#This only works on a Famicom with Mahjong Controller attached
 		#This only is only supported by Famicom
 

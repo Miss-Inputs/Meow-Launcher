@@ -256,6 +256,11 @@ class Software():
 			part = SoftwarePart(part_xml, self)
 			self.parts[part.name] = part
 
+		self.infos = {}
+		for info in self.xml.findall('info'):
+			self.infos[info.attrib.get('name')] = info.attrib.get('value')
+
+
 	@property
 	def name(self):
 		return self.xml.attrib.get('name')
@@ -289,11 +294,8 @@ class Software():
 		return SoftwarePart(self.xml.find('part'), self)
 
 	def get_info(self, name):
-		for info in self.xml.findall('info'):
-			if info.attrib.get('name') == name:
-				return info.attrib.get('value')
-
-		return None
+		#Don't need this anymore, really
+		return self.infos.get(name)
 
 	def get_shared_feature(self, name):
 		for info in self.xml.findall('sharedfeat'):
@@ -334,7 +336,7 @@ class Software():
 	def compatibility(self):
 		return self.get_shared_feature('compatibility')
 
-	def add_generic_info(self, metadata):
+	def add_standard_metadata(self, metadata):
 		metadata.specific_info['MAME-Software-Name'] = self.name
 		metadata.specific_info['MAME-Software-Full-Name'] = self.description
 
@@ -345,7 +347,7 @@ class Software():
 		metadata.specific_info['MAME-Software-List-Name'] = self.software_list.name
 		metadata.specific_info['MAME-Software-List-Description'] = self.software_list.description
 
-		serial = self.get_info('serial')
+		serial = self.infos.get('serial')
 		if serial:
 			metadata.product_code = serial
 
@@ -363,14 +365,14 @@ class Software():
 			already_has_valid_year = False
 		if not ('?' in year and already_has_valid_year):
 			metadata.year = year
-		parse_release_date(metadata, self.get_info('release'))
+		parse_release_date(metadata, self.infos.get('release'))
 
 		metadata.specific_info['MAME-Emulation-Status'] = self.emulation_status
-		developer = consistentify_manufacturer(self.get_info('developer'))
+		developer = consistentify_manufacturer(self.infos.get('developer'))
 		if not developer:
-			developer = consistentify_manufacturer(self.get_info('author'))
+			developer = consistentify_manufacturer(self.infos.get('author'))
 		if not developer:
-			developer = consistentify_manufacturer(self.get_info('programmer'))
+			developer = consistentify_manufacturer(self.infos.get('programmer'))
 		if developer:
 			metadata.developer = developer
 
