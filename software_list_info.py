@@ -359,6 +359,12 @@ class Software():
 		ring_code = self.infos.get('ring_code')
 		if ring_code:
 			metadata.specific_info['Ring-Code'] = ring_code
+		
+		version = self.infos.get('version')
+		if version:
+			if version[0].isdigit():
+				version = 'v' + version
+			metadata.specific_info['Version'] = version
 
 		alt_title = self.infos.get('alt_title')
 		#This may require further parsing to use properly
