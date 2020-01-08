@@ -736,6 +736,10 @@ def fix_name(name):
 	name = name.replace('[diary]', 'diary') #Stop that
 	name = name.replace('(VI)', 'VI') #Why is Tomb Raider: The Angel of Darkness like this
 
+	if name.startswith('ARCADE GAME SERIES'):
+		#This is slightly subjective as to whether or not one should do this, but I believe it should
+		name = name[20:] + ' (Arcade Game Series)'
+
 	name_to_test_for_upper = chapter_matcher.sub('', name)
 	name_to_test_for_upper = name_suffix_matcher.sub('', name_to_test_for_upper)
 	name = normalize_name_case(name, name_to_test_for_upper)
