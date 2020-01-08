@@ -8,6 +8,7 @@ import os
 import re
 import time
 import zipfile
+from enum import IntFlag
 
 import launchers
 from common import junk_suffixes, remove_capital_article, title_case
@@ -152,6 +153,30 @@ def get_steamplay_overrides():
 		return overrides
 	except KeyError:
 		return {}
+
+class StateFlags(IntFlag):
+	Invalid = 0
+	Uninstalled = 1
+	UpdateRequired = 2
+	FullyInstalled = 4
+	Encrypted = 8
+	Locked = 16
+	FilesMissing = 32
+	AppRunning = 64
+	FilesCorrupt = 128
+	UpdateRunning = 256
+	UpdatePaused = 512
+	UpdateStarted = 1024
+	Uninstalling = 2048
+	BackupRunning = 4096
+	Reconfiguring = 65536
+	Validating = 131072
+	AddingFiles = 262144
+	Preallocating = 524288
+	Downloading = 1048576
+	Staging = 2097152
+	Committing = 4194304
+	UpdateStopping = 8388608
 
 class SteamGame():
 	def __init__(self, app_id, folder, app_state):
@@ -867,14 +892,14 @@ def iter_steam_installed_appids():
 
 			#https://github.com/lutris/lutris/blob/master/docs/steam.rst
 			try:
-				state_flags = int(app_state.get('StateFlags'))
+				state_flags = StateFlags(int(app_state.get('StateFlags')))
 				if not state_flags:
 					continue
 			except ValueError:
 				continue
 
 			#Only yield fully installed games
-			if (state_flags & 4) == 0:
+			if (state_flags & StateFlags.FullyInstalled) == 0:
 				if main_config.debug:
 					print('Skipping', app_state.get('name'), app_id, 'as it is not actually installed (StateFlags =', state_flags, ')')
 				continue
