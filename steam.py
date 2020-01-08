@@ -367,6 +367,9 @@ def process_launchers(game, launch):
 		executable_name = launch_item.get(b'executable')
 		if executable_name:
 			exe_name = executable_name.decode('utf-8', errors='backslashreplace')
+			if exe_name.startswith('steam://open'):
+				#None of that
+				continue
 			launcher['exe'] = exe_name
 		
 		executable_arguments = launch_item.get(b'arguments')
