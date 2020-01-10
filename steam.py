@@ -627,7 +627,6 @@ def add_metadata_from_appinfo_common_section(game, common):
 	if associations:
 		associations_dict = {}
 		for association in associations.values():
-			#Can also get multiple developers/publishers this way (as can sometimes happen if a separate developer does the Linux port, for example)
 			association_type_value = association.get(b'type')
 			if isinstance(association_type_value, appinfo.Integer):
 				association_type = str(association_type_value.data)
@@ -639,11 +638,13 @@ def add_metadata_from_appinfo_common_section(game, common):
 				association_name = str(association_name_value.data)
 			else:
 				association_name = association_name_value.decode('utf-8', errors='ignore')
-				
-			associations_dict[association_type] = association_name
+			
+			if association_type not in associations_dict:
+				associations_dict[association_type] = []
+			associations_dict[association_type].append(association_name)
 
 		if 'franchise' in associations_dict:
-			franchise_name = associations_dict['franchise']
+			franchise_name = associations_dict['franchise'][0]
 			if franchise_name.lower().endswith(' franchise'):
 				franchise_name = franchise_name[:-len(' franchise')]
 			elif franchise_name.lower().endswith(' series'):
@@ -654,28 +655,36 @@ def add_metadata_from_appinfo_common_section(game, common):
 			franchise_name = normalize_name_case(franchise_name)
 			
 			not_actual_franchises = ('Playism', 'Hentai', 'Coming-of-Age')
-			if franchise_name.lower() not in {assoc.lower() for assoc_type, assoc in associations_dict.items() if assoc_type != 'franchise'} and franchise_name not in not_actual_franchises:
+			if franchise_name.lower() not in {assoc[0].lower() for assoc_type, assoc in associations_dict.items() if assoc_type != 'franchise'} and franchise_name not in not_actual_franchises:
 				#These franchises aren't the game series at all, they're just the developer/publisher etc used for marketing purposes on the store, and not relevant to what we want to use this field for
 				game.metadata.series = remove_capital_article(franchise_name)
+
+		if 'developer' in associations_dict:
+			#TODO: Maybe we want to pick up on stuff among the lines of "Blah Blah (Linux)" and then instead of putting that in the developer list as normal have Linux-Developer = Blah Blah or Ported-By = Blah Blah (and skip if OS isn't Linux (but that might get complicated))
+			game.metadata.developer = ', '.join([normalize_developer(dev) for dev in associations_dict['developer']])
+		if 'publisher' in associations_dict:
+			game.metadata.publisher = ', '.join([normalize_developer(pub) for pub in associations_dict['publisher']])
 	
 def add_metadata_from_appinfo_extended_section(game, extended):
-	developer = extended.get(b'developer')
-	if developer:
-		if isinstance(developer, appinfo.Integer):
-			#Cheeky buggers... the doujin developer 773 is represented by the actual integer value 773 here, for some reason
-			game.metadata.developer = str(developer.data)
-		else:
-			game.metadata.developer = normalize_developer(developer.decode('utf-8', errors='backslashreplace'))
-	publisher = extended.get(b'publisher')
-	if publisher:
-		if isinstance(publisher, appinfo.Integer):
-			game.metadata.publisher = str(publisher.data)
-		else:
-			publisher = normalize_developer(publisher.decode('utf-8', errors='backslashreplace'))
-			if publisher in ('none', 'Self Published'):
-				game.metadata.publisher = game.metadata.developer
+	if not game.metadata.developer:
+		developer = extended.get(b'developer')
+		if developer:
+			if isinstance(developer, appinfo.Integer):
+				#Cheeky buggers... the doujin developer 773 is represented by the actual integer value 773 here, for some reason
+				game.metadata.developer = str(developer.data)
 			else:
-				game.metadata.publisher = publisher
+				game.metadata.developer = normalize_developer(developer.decode('utf-8', errors='backslashreplace'))
+	if not game.metadata.publisher:
+		publisher = extended.get(b'publisher')
+		if publisher:
+			if isinstance(publisher, appinfo.Integer):
+				game.metadata.publisher = str(publisher.data)
+			else:
+				publisher = normalize_developer(publisher.decode('utf-8', errors='backslashreplace'))
+				if publisher in ('none', 'Self Published'):
+					game.metadata.publisher = game.metadata.developer
+				else:
+					game.metadata.publisher = publisher
 
 	homepage = extended.get(b'homepage')
 	if homepage:
