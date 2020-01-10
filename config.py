@@ -98,7 +98,7 @@ _config_ini_values = {
 	'wii_common_key': ConfigValue('Roms', ConfigValueType.String, '', 'Wii common key', 'Wii common key used for decrypting Wii discs which some projects are brave enough to hardcode but I am not'),
 	'skipped_subfolder_names': ConfigValue('Roms', ConfigValueType.StringList, [], 'Skipped subfolder names', 'Always skip these subfolders in every ROM dir'),
 	'use_mame_system_icons': ConfigValue('Roms', ConfigValueType.Bool, False, 'Use MAME system icons', 'If a game does not have an icon, use the MAME icon for its system if available'),
-	'find_equivalent_arcade_games': ConfigValue('Roms', ConfigValueType.Bool, False, 'Use MAME arcade icons', 'Get metadata from MAME machines of the same name'),
+	'find_equivalent_arcade_games': ConfigValue('Roms', ConfigValueType.Bool, False, 'Find equivalent arcade games by name', 'Get metadata from MAME machines of the same name'),
 
 	'use_original_platform': ConfigValue('ScummVM', ConfigValueType.Bool, False, 'Use original platform', 'Set the platform in metadata to the original platform instead of leaving blank'),
 
