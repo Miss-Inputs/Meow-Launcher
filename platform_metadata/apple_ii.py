@@ -105,7 +105,6 @@ def parse_woz_meta_chunk(game, chunk_data):
 		elif key == 'developer':
 			game.metadata.developer = consistentify_manufacturer(value)
 		elif key == 'copyright':
-			#TODO: Catch values like "1989 Cool Corporation"
 			game.metadata.specific_info['Copyright'] = value
 			try:
 				game.metadata.year = int(value)
