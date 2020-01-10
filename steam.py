@@ -778,7 +778,7 @@ def fix_name(name):
 
 	if name.startswith('ARCADE GAME SERIES'):
 		#This is slightly subjective as to whether or not one should do this, but I believe it should
-		name = name[20:] + ' (Arcade Game Series)'
+		name = name[20:] + ' (ARCADE GAME SERIES)'
 
 	name_to_test_for_upper = chapter_matcher.sub('', name)
 	name_to_test_for_upper = name_suffix_matcher.sub('', name_to_test_for_upper)
