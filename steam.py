@@ -595,7 +595,10 @@ def add_metadata_from_appinfo_common_section(game, common):
 		game.metadata.specific_info['Metacritic-Score'] = metacritic_score.data
 	metacritic_url = common.get(b'metacritic_fullurl')
 	if metacritic_url:
-		game.metadata.specific_info['Metacritic-URL'] = metacritic_url.decode('utf8', errors='backslashreplace')
+		game.metadata.specific_info['Metacritic-URL'] = metacritic_url.decode('utf8', errors='ignore')
+	metacritic_name = common.get(b'metacritic_name')
+	if metacritic_name:
+		game.metadata.specific_info['Metacritic-Name'] = metacritic_name.decode('utf8', errors='ignore')
 
 	review_score = common.get(b'review_score')
 	#This is Steam's own review section, I guess?
