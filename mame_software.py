@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import datetime
+import sys
 import time
 
 import launchers
@@ -14,7 +15,6 @@ from software_list_info import get_software_list_by_name
 #TODO: Platform-specific metadata (e.g. specify Neo Geo = SaveType.MemoryCard); may want to refactor platform_metadata so it can work with this (for now though I only care about Neo Geo and such which isn't in there). Neo Geo in particular could get things like genre, icon from the arcade stuff, because it will always be equivalent to an arcade game, unless it isn't
 #TODO: Each platform should be an option; maybe something like there's a list config item for "use these software platforms" and then anything in there which is the name of something in software_list_platforms is used for anything specific, and anything else it just launches the software with machine name = software name, or tries to and skips if something fails
 #TODO: Don't blow up if MAME's not installed or anything like that
-#TODO: More command line options from here for debugging, like only output launchers for one particular platform
 
 class SoftwareListPlatform():
 	def __init__(self, name, lists, launch_params_function):
@@ -127,6 +127,15 @@ def add_software_list_platform(platform):
 
 def add_mame_software():
 	time_started = time.perf_counter()
+
+	if '--platform' in sys.argv:
+		arg_index = sys.argv.index('--platform')
+		for platform in software_list_platforms:
+			if platform.name == sys.argv[arg_index + 1]:
+				add_software_list_platform(platform)
+				break
+		return
+	#TODO: Debugging argument to create a launcher for one specific software item (./mame_software.py --software neogeo:mslugx or whatever) (can I do that?)
 
 	for platform in software_list_platforms:
 		add_software_list_platform(platform)
