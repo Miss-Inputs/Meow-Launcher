@@ -664,9 +664,29 @@ def add_metadata_from_appinfo_common_section(game, common):
 
 		if 'developer' in associations_dict:
 			#TODO: Maybe we want to pick up on stuff among the lines of "Blah Blah (Linux)" and then instead of putting that in the developer list as normal have Linux-Developer = Blah Blah or Ported-By = Blah Blah (and skip if OS isn't Linux (but that might get complicated))
-			game.metadata.developer = ', '.join([normalize_developer(dev) for dev in associations_dict['developer']])
+			devs = []
+			for dev in associations_dict['developer']:
+				dev = normalize_developer(dev)
+				if dev.endswith(' (Mac)'):
+					game.metadata.specific_info['Mac-Developer'] = dev[:-6]
+				elif dev.endswith(' (Linux)'):
+					game.metadata.specific_info['Linux-Developer'] = dev[:-8]
+				elif dev not in devs:
+					devs.append(dev)
+
+			game.metadata.developer = ', '.join(devs)
 		if 'publisher' in associations_dict:
-			game.metadata.publisher = ', '.join([normalize_developer(pub) for pub in associations_dict['publisher']])
+			pubs = []
+			for pub in associations_dict['publisher']:
+				pub = normalize_developer(pub)
+				if pub.endswith(' (Mac)'):
+					game.metadata.specific_info['Mac-Publisher'] = pub[:-6]
+				elif pub.endswith(' (Linux)'):
+					game.metadata.specific_info['Linux-Publisher'] = pub[:-8]
+				elif pub not in pubs:
+					pubs.append(pub)
+
+			game.metadata.publisher = ', '.join(pubs)
 	
 def add_metadata_from_appinfo_extended_section(game, extended):
 	if not game.metadata.developer:
