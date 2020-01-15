@@ -15,10 +15,13 @@ manufacturer_overrides = {
 	#New Image Technologies == New Image?
 	#Naxat == Naxat Soft?
 	#RCM Group == RCM?
+	#Sammy Industries = Sammy?
+	#Sir-Tech Software = Sir-Tech?
 
 	#The SNES game Super Godzilla (USA) has a publisher of literally "Super Godzilla". Wait what? That can't be right. Should be Toho right? Same with Tetris (Japan) for Megadrive. Unless they meant The Tetris Company there. But then I dunno
 	#Leave Atari Games > Atari and Midway Games > Midway alone, because if I try to comperehend the timeline of which is what and who owned the rights to which brand name and who owned who at any given time, I would die of confusion
 	#Marvelous Entertainment and Marvelous Interactive also are different (due to mergers) and I gotta remember that
+	#Buena Vista Interactive seemingly not the same as Buena Vista Games, the former being used for things that _aren't_ Disney related and the latter is a different label for everything else (or something weird and unnecessary and proof that capitalism isn't efficient like that)
 	
 	'Absolute': 'Absolute Entertainment', #Hmm, not sure if it'd be better to do this the other way around
 	'Big Ben Interactive': 'BigBen Interactive',
@@ -29,6 +32,7 @@ manufacturer_overrides = {
 	'Cryo': 'Cryo Interactive',
 	'D3 Publishing': 'D3 Publisher',
 	'DataSoft': 'Datasoft',
+	'Davidson and Associates': 'Davidson & Associates',
 	'Electronics Arts': 'Electronic Arts',
 	'Elite': 'Elite Systems',
 	'First Star': 'First Star Software',
@@ -67,6 +71,8 @@ manufacturer_overrides = {
 	'Taito America Corporation': 'Taito America',
 	'Data East Corporation': 'Data East',
 	'Seta Corporation': 'Seta',
+	'Bonsai Entertainment Corporation': 'Bonsai Entertainment',
+	'Sammy USA Corporation': 'Sammy USA',
 	#"Electric"
 	'Kaneko Elc.': 'Kaneko',
 	'Omori Electric': 'Omori',
@@ -118,6 +124,7 @@ manufacturer_overrides = {
 	'System 3 Software': 'System 3',
 	'Loriciel Software': 'Loriciel',
 	'Sunrise Software': 'Sunrise',
+	'Sirius Software': 'Sirius',
 	#"Studios"
 	'Angel Studios': 'Angel',
 	#"Video Games"
@@ -129,6 +136,7 @@ manufacturer_overrides = {
 	'California Pacific Computer': 'California Pacific',
 	'HAL Kenkyuujo': 'HAL', #Literally "HAL Laboratory"
 	'HAL Laboratory': 'HAL',
+	'Hal Labs': 'HAL',
 	'Dempa Shinbunsha': 'Dempa',
 	'JoWooD Entertainment AG': 'JoWooD Entertainment',
 	'K-Tel Vision': 'K-Tel',
