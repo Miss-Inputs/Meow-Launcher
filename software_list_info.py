@@ -521,10 +521,23 @@ def find_software_by_name(software_lists, name):
 
 	if len(fuzzy_name_matches) == 1:
 		return fuzzy_name_matches[0]
+	if len(fuzzy_name_matches) > 1:
+		name_and_region_matches = []
+		for match in fuzzy_name_matches:
+			#Narrow down by region
+			#TODO: Do this better
+			if match.description.endswith('(USA)') and name.endswith('(USA)'):
+				name_and_region_matches.append(match)
+			if match.description.endswith('(Europe)') and name.endswith('(Europe)'):
+				name_and_region_matches.append(match)
+			if match.description.endswith('(Jpn)') and name.endswith('(Japan)'):
+				name_and_region_matches.append(match)
+	
+		if len(name_and_region_matches) == 1:
+			return name_and_region_matches[0]
+		#Otherwise, I don't want to mess around with weird different revisions or re-releases for now, given that this is just sort of a hack anyway
 	
 	return None
-	
-	#TODO Narrow down by region, revision, whatever
 
 def find_in_software_lists(software_lists, args):
 	#TODO: Handle hash collisions. Could happen, even if we're narrowing down to specific software lists
