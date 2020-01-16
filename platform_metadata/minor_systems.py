@@ -661,6 +661,9 @@ def add_pc_engine_info(game):
 
 	add_generic_info(game)
 		
+def add_playstation_info(game):
+	pass
+	
 def add_generic_info(game):
 	#For any system not otherwise specified
 	software = get_software_list_entry(game)
