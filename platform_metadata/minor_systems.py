@@ -4,9 +4,11 @@ from enum import Enum, auto
 import input_metadata
 from common import machine_name_matches
 from common_types import MediaType, SaveType
+from config import main_config
 from info.region_info import TVSystem
 from mame_machines import get_machines_from_source_file
 from software_list_info import (find_in_software_lists_with_custom_matcher,
+                                find_software_by_name,
                                 get_crc32_for_software_list,
                                 get_software_list_entry)
 
@@ -664,6 +666,9 @@ def add_pc_engine_info(game):
 def add_generic_info(game):
 	#For any system not otherwise specified
 	software = get_software_list_entry(game)
+	if not software and game.metadata.platform in main_config.find_software_by_name:
+		software = find_software_by_name(game.software_lists, game.rom.name)
+
 	if software:
 		software.add_standard_metadata(game.metadata)
 		game.metadata.notes = software.get_info('usage')

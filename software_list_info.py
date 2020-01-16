@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ElementTree
 import zlib
 
 import io_utils
+from common import remove_filename_tags, normalize_name
 from common_types import MediaType
 from info.system_info import systems
 from mame_helpers import (consistentify_manufacturer, get_mame_core_config,
@@ -424,6 +425,17 @@ class SoftwareList():
 				return Software(software, self)
 		return None
 
+	def find_all_software_with_custom_matcher(self, matcher, args):
+		results = []
+		for software_xml in self.xml.findall('software'):
+			software = Software(software_xml, self)
+			for part in software.parts.values():
+				#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
+				#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
+				if matcher(part, *args):
+					results.append(software)
+		return results
+
 	def find_software_with_custom_matcher(self, matcher, args):
 		for software_xml in self.xml.findall('software'):
 			software = Software(software_xml, self)
@@ -494,6 +506,25 @@ def find_in_software_lists_with_custom_matcher(software_lists, matcher, args):
 		if software:
 			return software
 	return None
+
+def find_software_by_name(software_lists, name):
+	#This code sucks and is a big mess by the way
+	def _does_name_fuzzy_match(part, name):
+		#TODO Handle annoying multiple discs
+		software_full_name = normalize_name(remove_filename_tags(part.software.description))
+		return software_full_name == normalize_name(remove_filename_tags(name))
+
+	fuzzy_name_matches = []
+	for software_list in software_lists:
+		results = software_list.find_all_software_with_custom_matcher(_does_name_fuzzy_match, [name])
+		fuzzy_name_matches += results
+
+	if len(fuzzy_name_matches) == 1:
+		return fuzzy_name_matches[0]
+	
+	return None
+	
+	#TODO Narrow down by region, revision, whatever
 
 def find_in_software_lists(software_lists, args):
 	#TODO: Handle hash collisions. Could happen, even if we're narrowing down to specific software lists
