@@ -660,9 +660,6 @@ def add_pc_engine_info(game):
 		game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
 
 	add_generic_info(game)
-		
-def add_playstation_info(game):
-	pass
 	
 def add_generic_info(game):
 	#For any system not otherwise specified
