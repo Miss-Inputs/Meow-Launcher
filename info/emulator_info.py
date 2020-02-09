@@ -320,7 +320,7 @@ emulators = {
 	'MAME (Leapster)': MameDriver(command_lines.mame_system('leapster', 'cart'), ['bin']), #Sometimes crashes, appears to be executing the CPU and printing debug stuff
 	'MAME (Monon Color)': MameDriver(command_lines.mame_system('mononcol', 'cart'), ['bin']),
 	'MAME (My First LeapPad)': MameDriver(command_lines.mame_system('mfleappad', 'cart'), ['bin']),
-	'MAME (Pocket Challenge W)': MameDriver(command_lines.mame_system('pockchal', 'cart'), ['bin']),
+	'MAME (Pocket Challenge W)': MameDriver(command_lines.mame_system('pockchal', 'cart'), ['bin', 'pcw']),
 	'MAME (V.Reader)': MameDriver(command_lines.mame_system('vreader', 'cart'), ['bin']),
 	'MAME (V.Smile Pro)': MameDriver(command_lines.mame_system('vsmilpro', 'cdrom'), mame_cdrom_formats),
 	'MAME (Pippin)': MameDriver(command_lines.mame_system('pippin', 'cdrom'), mame_cdrom_formats),

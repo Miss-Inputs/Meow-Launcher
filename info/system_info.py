@@ -269,7 +269,7 @@ systems.update({
 	'Panasonic JR-200': UnsupportedSystemInfo('jr200', [], []),
 	'Pippin': UnsupportedSystemInfo('pippin', ['pippin', 'pippin_flop'], ['MAME (Pippin)'], {MediaType.OpticalDisc: cdrom_formats}),
 	#Games don't just boot in a PPC Mac, unfortunately. No PPC Mac emulator has branched off into specific Pippin emulation yet
-	'Pocket Challenge W': UnsupportedSystemInfo('pockchal', ['pockchalw'], ['MAME (Pocket Challenge W)'], {MediaType.Cartridge: ['bin']}),
+	'Pocket Challenge W': UnsupportedSystemInfo('pockchal', ['pockchalw'], ['MAME (Pocket Challenge W)'], {MediaType.Cartridge: ['bin', 'pcw']}),
 	'Robotron Z1013': UnsupportedSystemInfo('z1013', [], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['z80']}),
 	'Sawatte Pico': UnsupportedSystemInfo('sawatte', ['sawatte'], [], {}),
 	#Similar to the Sega Pico but with different software (may or may not also use Megadrive ROM header?), but is completely unemulated. Not sure if dump format is identical
