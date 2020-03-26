@@ -152,7 +152,7 @@ emulators = {
 	'MAME (Nichibutsu My Vision)': MameDriver(command_lines.mame_system('myvision', 'cart'), ['bin']),
 	'MAME (PC Engine)': MameDriver(command_lines.mame_pc_engine, ['pce', 'bin', 'sgx']),
 	'MAME (SAM Coupe)': MameDriver(command_lines.mame_system('samcoupe', 'flop1', autoboot_script='sam_coupe', has_keyboard=True), mame_floppy_formats),
-	'MAME (SG-1000)': MameDriver(command_lines.mame_sg1000, ['bin', 'sg', 'sc', 'sf7'] + mame_floppy_formats),
+	'MAME (SG-1000)': MameDriver(command_lines.mame_sg1000, ['bin', 'sg', 'sc', 'sf', 'sf7'] + mame_floppy_formats),
 	'MAME (Sharp X1)': MameDriver(command_lines.mame_system('x1turbo40', 'flop1', has_keyboard=True), mame_floppy_formats + ['2d']),
 	#x1turbo doesn't work, and I'm not sure what running x1 over x1turbo40 would achieve (hope there's no compatibility shenanigans)
 	'MAME (Sharp X68000)': MameDriver(command_lines.mame_sharp_x68000, mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim', 'm3u']),
