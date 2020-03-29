@@ -112,6 +112,8 @@ emulators = {
 	'MAME (BBC Bridge Companion)': MameDriver(command_lines.mame_system('bbcbc', 'cart'), ['bin']),
 	'MAME (C64)': MameDriver(command_lines.mame_c64, ['80', 'a0', 'e0', 'crt']),
 	'MAME (Casio PV-1000)': MameDriver(command_lines.mame_system('pv1000', 'cart'), ['bin']),
+	'MAME (CD-i)': MameDriver(command_lines.mame_system('cdimono1', 'cdrom'), mame_cdrom_formats),
+	#This is the only CD-i model that works according to wisdom passed down the ages (is it still true or does other stuff work now?), and it says it's imperfect graphics/sound
 	'MAME (Channel F)': MameDriver(command_lines.mame_system('channelf', 'cart'), ['bin', 'chf']),
 	'MAME (ColecoVision)': MameDriver(command_lines.mame_colecovision, ['bin', 'col', 'rom']),
 	#MT06554: Roller controller is inaccurate
@@ -225,8 +227,6 @@ emulators = {
 	#Higher host CPU requirements than what you might expect
 	'MAME (Casio PV-2000)': MameDriver(command_lines.mame_system('pv2000', 'cart', has_keyboard=True), ['bin']),
 	#Not the same as the PV-1000, albeit similar. Driver marked as non-working but it seems alright, other than it's supposed to have joysticks and doesn't (so you just set up a gamepad to map to emulated cursor keys) which maybe is why
-	'MAME (CD-i)': MameDriver(command_lines.mame_system('cdimono1', 'cdrom'), mame_cdrom_formats),
-	#This is the only CD-i model that works according to wisdom passed down the ages (is it still true or does other stuff work now?), and it says it's not working + imperfect graphics/sound, but it seems fine so far
 	'MAME (FM Towns Marty)': MameDriver(command_lines.mame_fm_towns_marty, mame_cdrom_formats + mame_floppy_formats + ['bin']),
 	#As it says right there in the fmtowns.cpp comments: "Issues: Video emulation is far from complete." and still marked not working, but it seems okay for a few games actually
 	'MAME (Hartung Game Master)': MameDriver(command_lines.mame_system('gmaster', 'cart'), ['bin']),
