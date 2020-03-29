@@ -250,6 +250,7 @@ systems.update({
 	'ClickStart': UnsupportedSystemInfo('clikstrt', ['clickstart_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Copera': UnsupportedSystemInfo('copera', ['copera'], ['MAME (Copera)'], {MediaType.Cartridge: ['bin', 'md']}),
 	#Kega Fusion emulates the Pico well enough to show the message telling you the Copera software won't work on a Pico, at least
+	'Design Master Denshi Mangajuku': UnsupportedSystemInfo('bdesignm', ['bdesignm_design_cart', 'bdesignm_game_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Gachinko Contest! Slot Machine TV': UnsupportedSystemInfo('gcslottv', ['gcslottv'], [], {MediaType.Cartridge: ['bin', 'u1']}),
 	#BIOS not dumped and doesn't respond to inputs properly, is this even actually a console?
 	'Gizmondo': UnsupportedSystemInfo('gizmondo', [], [], {}), #Uses folders seemingly, so that may be weird with the file types
@@ -261,7 +262,7 @@ systems.update({
 	'Konami Picno': UnsupportedSystemInfo('picno', ['picno'], ['MAME (Konami Picno)'], {MediaType.Cartridge: ['bin']}),
 	'LeapPad': UnsupportedSystemInfo('leappad', ['leapfrog_leappad_cart'], ['MAME (LeapPad)'], {MediaType.Cartridge: ['bin']}),
 	'Leapster': UnsupportedSystemInfo('leapster', ['leapster'], ['MAME (Leapster)'], {MediaType.Cartridge: ['bin']}),
-	'Mattel HyperScan': UnsupportedSystemInfo('hs', ['hyperscan'], [], {MediaType.OpticalDisc: cdrom_formats}),
+	'Mattel HyperScan': UnsupportedSystemInfo('hyprscan', ['hyperscan'], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'MSX Turbo-R': UnsupportedSystemInfo('fsa1st', ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
 	'Microvision': UnsupportedSystemInfo('microvsn', ['microvision'], ['MAME (Microvision)'], {MediaType.Cartridge: ['bin']}),
 	'Monon Color': UnsupportedSystemInfo('mononcol', ['monon_color'], ['MAME (Monon Color)'], {MediaType.Cartridge: ['bin']}),
@@ -303,7 +304,6 @@ systems.update({
 	'Arcadia Skeet Shoot': UnsupportedSystemInfo(None, [], [], {}), #VHS?
 	'Bandai Playdia': UnsupportedSystemInfo(None, [], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'Coleco Telstar Arcade': UnsupportedSystemInfo(None, [], [], {}),
-	'Design Master Senshi Mangajukuu': UnsupportedSystemInfo(None, [], [], {}),
 	'Gakken TV Boy': UnsupportedSystemInfo(None, [], [], {}),
 	#No MAME driver or anything, although it's mentioned on an old MESS 'to be dumped' page; apparently CPU is inside the carts
 	'Tapwave Zodiac': UnsupportedSystemInfo(None, [], [], {}),
