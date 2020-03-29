@@ -667,7 +667,7 @@ def add_generic_info(game):
 	#For any system not otherwise specified
 	software = get_software_list_entry(game)
 	if not software and game.metadata.platform in main_config.find_software_by_name:
-		#This shouldn't be in here by the way, it should be more generically in roms_metadata but for now this'll have to do
+		#TODO This shouldn't be in here by the way, it should be more generically in roms_metadata but for now this'll have to do
 		software = find_software_by_name(game.software_lists, game.rom.name)
 
 	if software:
