@@ -713,6 +713,8 @@ class Machine():
 					arcade_system = self.arcade_system
 					if manufacturers[0] == 'bootleg':
 						developer = publisher = manufacturers[1]
+					elif manufacturers[1] == 'bootleg':
+						developer = publisher = manufacturers[0]
 					elif 'JAKKS Pacific' in manufacturers:
 						#Needs to be a better way of what I'm saying, surely. I'm tired, so I can't boolean logic properly. It's just like… if the manufacturer is X / Y or Y / X, then the developer is X, and the publisher is Y
 						#Anyway, we at least know that JAKKS Pacific is always the publisher in this scenario, so that cleans up the plug & play games a bit
