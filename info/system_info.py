@@ -262,9 +262,11 @@ systems.update({
 	'Konami Picno': UnsupportedSystemInfo('picno', ['picno'], ['MAME (Konami Picno)'], {MediaType.Cartridge: ['bin']}),
 	'LeapPad': UnsupportedSystemInfo('leappad', ['leapfrog_leappad_cart'], ['MAME (LeapPad)'], {MediaType.Cartridge: ['bin']}),
 	'Leapster': UnsupportedSystemInfo('leapster', ['leapster'], ['MAME (Leapster)'], {MediaType.Cartridge: ['bin']}),
+	'Little Touch LeapPad': UnsupportedSystemInfo('ltleappad', ['leapfrog_ltleappad_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Mattel HyperScan': UnsupportedSystemInfo('hyprscan', ['hyperscan'], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'MSX Turbo-R': UnsupportedSystemInfo('fsa1st', ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
 	'Microvision': UnsupportedSystemInfo('microvsn', ['microvision'], ['MAME (Microvision)'], {MediaType.Cartridge: ['bin']}),
+	'MobiGo': UnsupportedSystemInfo('mobigo', ['mobigo_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Monon Color': UnsupportedSystemInfo('mononcol', ['monon_color'], ['MAME (Monon Color)'], {MediaType.Cartridge: ['bin']}),
 	#Only a skeleton MAME driver with no sound or video or inputs
 	'My First LeapPad': UnsupportedSystemInfo('mfleappad', ['leapfrog_mfleappad_cart'], ['MAME (My First LeapPad)'], {MediaType.Cartridge: ['bin']}),
@@ -277,6 +279,11 @@ systems.update({
 	#Similar to the Sega Pico but with different software (may or may not also use Megadrive ROM header?), but is completely unemulated. Not sure if dump format is identical
 	'Sharp MZ-800': UnsupportedSystemInfo('mz800', ['mz800'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt']}),
 	'Sinclair QL': UnsupportedSystemInfo('ql', ['ql_cart', 'ql_cass', 'ql_flop'], [], {MediaType.Tape: ['mdv'], MediaType.Cartridge: ['bin', 'rom'], MediaType.Floppy: mame_floppy_formats}),
+		#Telestory
+	'SmarTV Adventures': UnsupportedSystemInfo('smartvad', ['smarttv_cart'], [], {MediaType.Cartridge: ['bin']}),
+	'Story Reader': UnsupportedSystemInfo('pi_stry', ['pi_storyreader_cart'], [], {MediaType.Cartridge: ['bin']}),
+	'Story Reader 2': UnsupportedSystemInfo('pi_stry2', ['pi_storyreader_v2_cart'], [], {MediaType.Cartridge: ['bin']}),
+	'Telestory': UnsupportedSystemInfo('telestry', ['telestory_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Tomy Prin-C': UnsupportedSystemInfo('princ', ['princ'], ['MAME (Tomy Prin-C)'], {MediaType.Cartridge: ['bin']}),
 	'V.Reader': UnsupportedSystemInfo('vreader', ['vtech_storio_cart'], ['MAME (V.Reader)'], {MediaType.Cartridge: ['bin']}), 
 	#Skeleton driver, apparently also known as Storio, or something like that
@@ -356,6 +363,8 @@ systems.update({
 	#Makes you set time and date each time
 	'PS3': UnsupportedSystemInfo(None, [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Digital: ['pkg'], MediaType.Executable: ['self', 'elf', 'bin']}),
 	'Sharp MZ-700': UnsupportedSystemInfo('mz700', ['mz700'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt']}),
+	'Toshiba Pasopia': UnsupportedSystemInfo('pasopia', [], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats}),
+	#Ow my freaking ears… every tape seems to take a long time to get anywhere
 	'ZX81': UnsupportedSystemInfo('zx81', ['zx80_cass', 'zx81_cass'], [], {MediaType.Tape: ['wav', 'cas', 'p', '81', 'tzx']}),
 	#Not even gonna try testing any more software without autobooting it, though I'm not sure it does work from the one I did. Anyway, gotta press J and then Shift+P twice to type LOAD "" and then enter, and then start the tape, and then wait and then press run, and it seems if you screw up any step at all you gotta reset the whole thing, and even then it's like.... meh....
 	'Radio 86-RK': UnsupportedSystemInfo('radio86', ['radio86_cart', 'radio86_cass'], [], {MediaType.Tape: ['wav', 'rk', 'rkr', 'gam', 'g16', 'pki']}),
@@ -420,21 +429,15 @@ systems.update({
 	#Altair 8800 (is 8800bt a different thing)
 	#CBM-II (VIC-II and CRTC models are different maybe?)
 	#Enterprise (ep64/ep128) (ugh don't like this one. Floppies need weirdness with both the actual thing itself and isdos from the software list and aaggh fuck off)
-	#Little Touch LeapPad (no MAME driver but yes software list?)
 	#Microbee: This works except joysticks (I don't even see anything that mentions joysticks existing other than some games that ask for it), quik1 and flop1 both autoboot but the latter is only present on the newer models that have MACHINE_NOT_WORKING
 	#TIC-80 (is that a real system or a "fantasy" one I forgot) (no MAME driver)
 	#Vita (cbf to use Vita3K)
 	#Zeebo (good luck finding emulation, this would probably just be a placeholder)
-	#Toshiba Pasopia
-	#Telestory
-	#MobiGo
 	#Sharp MZ-2200 (could be part of MZ-2000? If it's compatible with MZ-2000 software, just use it as the main system for both)
-	#SmarTV Adventures
 	#Sony SMC-777
 	#TRS-80 Model 3
 	#TRS-80 MC-10
 	#Hitachi S1
-	#Story Reader
 	#Virtual systems: Flash, J2ME, TADS, Z-Machine (not that I have found cool emulators for any of that)
 	
 	#Confusing things:
