@@ -244,6 +244,7 @@ systems.update({
 	'Atari ST': UnsupportedSystemInfo('st', ['st_flop', 'st_cart'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Floppy: mame_floppy_formats + ['st', 'stx', 'msa']}),
 	#MAME seems to boot some things but not respond to input (the driver is marked solidly MACHINE_NOT_WORKING), need to find a standalone emulator that cooperates with fullscreen mode and such
 	'Bandai RX-78': UnsupportedSystemInfo('rx78', ['rx78'], ['MAME (Bandai RX-78)'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav']}),
+	'Buzztime Home Trivia System':  UnsupportedSystemInfo('buzztime', ['buzztime_cart'], ['MAME (Buzztime Home Trivia System)'], {MediaType.Cartridge: ['bin']}),
 	'C2 Color': UnsupportedSystemInfo('c2color', ['c2color_cart'], ['MAME (C2 Color)'], {MediaType.Cartridge: ['bin']}),
 	'Casio Loopy': UnsupportedSystemInfo('casloopy', ['casloopy'], ['MAME (Casio Loopy)'], {MediaType.Cartridge: ['bin']}),
 	'ClickStart': UnsupportedSystemInfo('clikstrt', ['clickstart_cart'], [], {MediaType.Cartridge: ['bin']}),
@@ -301,7 +302,6 @@ systems.update({
 	#No emulators, no dumps (probably nobody has decided the best way to preserve VHS games), no nothing
 	'Arcadia Skeet Shoot': UnsupportedSystemInfo(None, [], [], {}), #VHS?
 	'Bandai Playdia': UnsupportedSystemInfo(None, [], [], {MediaType.OpticalDisc: cdrom_formats}),
-	'Buzztime Home Trivia System':  UnsupportedSystemInfo(None, [], [], {}),
 	'Coleco Telstar Arcade': UnsupportedSystemInfo(None, [], [], {}),
 	'Design Master Senshi Mangajukuu': UnsupportedSystemInfo(None, [], [], {}),
 	'Gakken TV Boy': UnsupportedSystemInfo(None, [], [], {}),

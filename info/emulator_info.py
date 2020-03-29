@@ -198,7 +198,7 @@ emulators = {
 
 	#----- The experimental section. The emulators are still here, it's just so you, the fabulous and wonderful end user, can have more information on how to manage expectations. Or something like that.
 
-	#--These experimental emulators seem to work more often than they don't:
+	#--These experimental emulators seem to work more often than they don't, but still describe themselves as experimental:
 	'Citra': EmulatorInfo(command_lines.citra, ['3ds', 'cxi', '3dsx'], []),
 	#No fullscreen from command line
 	'Medusa': EmulatorInfo(command_lines.medusa, ['nds', 'gb', 'gbc', 'gba'], ['7z', 'zip']),
@@ -305,6 +305,8 @@ emulators = {
 	#No sound yet, and apparently the rest doesn't work either (I'll take their word for it so I don't have to play weird board games I don't understand)
 	'MAME (Microvision)': MameDriver(command_lines.mame_system('microvsn', 'cart'), ['bin']),
 	#Cartridges boot, but seem to do nothing...
+	'MAME (Buzztime Home Trivia System)': MameDriver(command_lines.mame_system('buzztime', 'cart'), ['bin']),
+	#Inputs are not defined and it just spams random inputs (the game plays itself!!!1)
 	'MAME (V.Smile Motion)': MameDriver(command_lines.mame_system('vsmilem', 'cart'), ['bin', 'u1', 'u3']),
 	'MAME (3DO)': MameDriver(command_lines.mame_system('3do', 'cdrom'), mame_cdrom_formats), #Should switch to 3do_pal when needed, but it doesn't really matter at this point
 	'MAME (Bandai RX-78)': MameDriver(command_lines.mame_system('rx78', 'cart', has_keyboard=True), ['bin', 'rom']),
