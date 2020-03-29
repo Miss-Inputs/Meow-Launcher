@@ -364,8 +364,7 @@ systems.update({
 	'Apogey BK-01': UnsupportedSystemInfo('apogee', ['apogee'], [], {MediaType.Tape: ['wav', 'rka']}),
 	'Partner 01.01': UnsupportedSystemInfo('partner', ['partner_cass', 'partner_flop'], [], {MediaType.Tape: ['wav', 'rkp'], MediaType.Floppy: mame_floppy_formats + ['odi']}),
 	'Orion-128': UnsupportedSystemInfo('orion128', ['orion_cart', 'orion_cass', 'orion_flop'], [], {MediaType.Tape: ['wav', 'rkp'], MediaType.Floppy: mame_floppy_formats + ['odi'], MediaType.Cartridge: ['bin']}),
-	'PC-98': UnsupportedSystemInfo('pc9801f', ['pc98', 'pc98_cd'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}),
-
+	
 	#TODO: Requires an autoboot script for these to work smoothly, or otherwise effort that I haven't done yet:
 	'Acorn Electron': UnsupportedSystemInfo('electron', ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl']}),
 	#Seems to require the same Shift+Break to boot as BBC Micro, so... dang
@@ -388,6 +387,8 @@ systems.update({
 	#Actually if we can detect that a floppy has Extended BASIC autoboot that could work with an autoboot script in the same way that cartridges work
 	'PDP-1': UnsupportedSystemInfo('pdp1', [], [], {MediaType.Tape: ['tap', 'rim']}),
 	#MAME needs us to press control panel key + read in, and then it does the thing and all is well
+	'PC-98': UnsupportedSystemInfo('pc9801rs', ['pc98', 'pc98_cd'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}),
+	#This does somewhat work, but I may have to filter out stuff that requires HDD install (only some stuff autoboots from floppy)
 
 	#TODO: Things that I haven't been able to check work or not, or just haven't entirely:
 	'Acorn Atom': UnsupportedSystemInfo('atom', ['atom_cass', 'atom_flop', 'atom_rom'], [], {MediaType.Floppy: ['40t', 'dsk'], MediaType.Tape: ['wav', 'tap', 'csw', 'uef'], MediaType.Executable: ['atm'], MediaType.Cartridge: ['bin', 'rom']}),
@@ -424,6 +425,16 @@ systems.update({
 	#TIC-80 (is that a real system or a "fantasy" one I forgot) (no MAME driver)
 	#Vita (cbf to use Vita3K)
 	#Zeebo (good luck finding emulation, this would probably just be a placeholder)
+	#Toshiba Pasopia
+	#Telestory
+	#MobiGo
+	#Sharp MZ-2200 (could be part of MZ-2000? If it's compatible with MZ-2000 software, just use it as the main system for both)
+	#SmarTV Adventures
+	#Sony SMC-777
+	#TRS-80 Model 3
+	#TRS-80 MC-10
+	#Hitachi S1
+	#Story Reader
 	#Virtual systems: Flash, J2ME, TADS, Z-Machine (not that I have found cool emulators for any of that)
 	
 	#Confusing things:
