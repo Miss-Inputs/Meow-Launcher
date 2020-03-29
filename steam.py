@@ -679,6 +679,8 @@ def add_metadata_from_appinfo_common_section(game, common):
 			pubs = []
 			for pub in associations_dict['publisher']:
 				pub = normalize_developer(pub)
+				if pub in ('none', 'Self Published') and game.metadata.developer:
+					pub = game.metadata.developer
 				if pub.endswith(' (Mac)'):
 					game.metadata.specific_info['Mac-Publisher'] = pub[:-6]
 				elif pub.endswith(' (Linux)'):
