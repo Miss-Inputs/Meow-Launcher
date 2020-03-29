@@ -239,6 +239,7 @@ emulators = {
 	'MAME (Sharp MZ-2000)': MameDriver(command_lines.mame_system('mz2200', 'flop1', has_keyboard=True), mame_floppy_formats + ['2d']),
 	#Autoboots floppies unless they have more than one thing to boot on them, which I guess makes sense
 	#Apparently not working (mz2000 is not either), so I dunno
+	'MAME (Sony SMC-777)': MameDriver(command_lines.mame_system('smc777', 'flop1', has_keyboard=True), mame_floppy_formats + ['1dd']),
 	'MAME (Uzebox)': MameDriver(command_lines.mame_system('uzebox', 'cart'), ['bin', 'uze']),
 	#Runs really slowly, but it does work (other than SD card emulation), although marked as not working + imperfect sound
 	'MAME (V.Tech Socrates)': MameDriver(command_lines.mame_system('socrates', 'cart'), ['bin']),

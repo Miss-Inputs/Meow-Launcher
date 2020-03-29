@@ -223,6 +223,7 @@ systems.update({
 	'Sega Pico': UnsupportedSystemInfo('pico', ['pico'], ['Kega Fusion', 'MAME (Sega Pico)'], {MediaType.Cartridge: ['bin', 'md']}),
 	#Neither emulator displays the actual book, which would be needed for anything to make sense… Kega Fusion doesn't even have decrement/increment page controls
 	'Sharp MZ-2000': UnsupportedSystemInfo('mz2000', ['mz2000_cass', 'mz2000_flop'], ['MAME (Sharp MZ-2000)'], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt'], MediaType.Floppy: ['2d'] + mame_floppy_formats}),
+	'Sony SMC-777': UnsupportedSystemInfo('smc777', ['smc777'], ['MAME (Sony SMC-777)'], {MediaType.Floppy: mame_floppy_formats + ['1dd'], MediaType.Executable: ['com', 'cpm']}),
 	"Super A'Can": UnsupportedSystemInfo('supracan', ['supracan'], ["MAME (Super A'Can)"], {MediaType.Cartridge: ['bin']}),
 	'Videoton TVC': UnsupportedSystemInfo('tvc64', ['tvc_cart', 'tvc_cass', 'tvc_flop'], ['MAME (Videoton TVC)'], {MediaType.Cartridge: ['bin', 'rom', 'crt'], MediaType.Tape: ['wav', 'cas']}),
 	#.cas is also quickload? I donut understand
@@ -434,7 +435,6 @@ systems.update({
 	#Vita (cbf to use Vita3K)
 	#Zeebo (good luck finding emulation, this would probably just be a placeholder)
 	#Sharp MZ-2200 (could be part of MZ-2000? If it's compatible with MZ-2000 software, just use it as the main system for both)
-	#Sony SMC-777
 	#TRS-80 Model 3
 	#TRS-80 MC-10
 	#Hitachi S1
