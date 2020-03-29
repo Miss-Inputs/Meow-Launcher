@@ -252,7 +252,7 @@ emulators = {
 	#Well it boots stuff I guess, but it is marked not working, and right now I'm too drunk to try everything and it's not that important because FS-UAE works already
 	'MAME (Amstrad PCW)': MameDriver(command_lines.mame_amstrad_pcw, mame_floppy_formats),
 	'MAME (CreatiVision)': MameDriver(command_lines.mame_system('crvision', 'cart', has_keyboard=True), ['bin', 'rom']),
-	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it
+	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it; anyway it works
 	'MAME (Dreamcast)': MameDriver(command_lines.mame_dreamcast, mame_cdrom_formats),
 	#Sloooow, marked as non-working + imperfect sound
 	'MAME (GameKing)': MameDriver(command_lines.mame_system('gameking', 'cart'), ['bin', 'gk']), #No sound yet
@@ -273,7 +273,7 @@ emulators = {
 	#Hmm sometimes works and sometimes does not
 	'MAME (Microtan 65)': MameDriver(command_lines.mame_system('mt65', 'dump', has_keyboard=True), ['dmp', 'm65']),
 	#System name was "microtan" prior to 0.212
-	#Aagggh, none of these inputs seem to be working properly (to the point where I can't just assume the games were like that)... maybe I'm doing it wrong, I don't know...
+	#Aagggh, none of these inputs seem to be working properly (to the point where I can't just assume the games were like that)... maybe I'm doing it wrong, I don't know... it does say status =
 	'MAME (N64)': MameDriver(command_lines.mame_n64, ['v64', 'z64', 'rom', 'n64', 'bin']),
 	#Emulates a NTSC console only so PAL games will probably tell you off or otherwise not work properly; also no rumble/mempak/etc for you. Very slow on even modern systems. Marked as non-working + imperfect graphics
 	'MAME (Pokemon Mini)': MameDriver(command_lines.mame_system('pokemini', 'cart'), ['bin', 'min']),
