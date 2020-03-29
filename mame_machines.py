@@ -704,6 +704,8 @@ class Machine():
 			if ' / ' in manufacturer:
 				#Let's try and clean up things a bit when this happens
 				manufacturers = [consistentify_manufacturer(m) for m in manufacturer.split(' / ')]
+				if main_config.sort_multiple_dev_names:
+					manufacturers.sort()
 
 				developer = publisher = ', '.join(manufacturers)
 				if len(manufacturers) == 2:

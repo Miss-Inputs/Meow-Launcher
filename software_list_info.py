@@ -5,8 +5,9 @@ import xml.etree.ElementTree as ElementTree
 import zlib
 
 import io_utils
-from common import remove_filename_tags, normalize_name
+from common import normalize_name, remove_filename_tags
 from common_types import MediaType
+from config import main_config
 from info.system_info import systems
 from mame_helpers import (consistentify_manufacturer, get_mame_core_config,
                           verify_software_list)
@@ -396,7 +397,10 @@ class Software():
 			metadata.publisher = developer
 		elif not (already_has_publisher and (publisher == '<unknown>')):
 			if ' / ' in publisher:
-				publisher = ', '.join([consistentify_manufacturer(p) for p in publisher.split(' / ')])
+				publishers = [consistentify_manufacturer(p) for p in publisher.split(' / ')]
+				if main_config.sort_multiple_dev_names:
+					publishers.sort()
+				publisher = ', '.join(publishers)
 
 			metadata.publisher = publisher
 
