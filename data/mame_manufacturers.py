@@ -17,6 +17,7 @@ manufacturer_overrides = {
 	#RCM Group == RCM?
 	#Sammy Industries = Sammy?
 	#Sir-Tech Software = Sir-Tech?
+	#Is "Midway Home Entertainment" Midway or Midway Games oh shit oh fuck
 
 	#The SNES game Super Godzilla (USA) has a publisher of literally "Super Godzilla". Wait what? That can't be right. Should be Toho right? Same with Tetris (Japan) for Megadrive. Unless they meant The Tetris Company there. But then I dunno
 	#Leave Atari Games > Atari and Midway Games > Midway alone, because if I try to comperehend the timeline of which is what and who owned the rights to which brand name and who owned who at any given time, I would die of confusion
@@ -41,7 +42,9 @@ manufacturer_overrides = {
 	'Hudson': 'Hudson Soft',
 	'Kyugo': 'Kyugo Boueki',
 	'Laser Beam': 'Laser Beam Entertainment',
+	'Loriciels': 'Loriciel',
 	'Malibu Games': 'Malibu Interactive',
+	'Metro 3D': 'Metro3D',
 	'MicroCabin': 'Micro Cabin', #Annoying alternate spelling because they officially use both just to be annoying
 	'Microdigital': 'Micro Digital',
 	'Microlab': 'Micro Lab',
@@ -64,6 +67,7 @@ manufacturer_overrides = {
 	#"Company"
 	'3DO Company': '3DO',
 	'American Softworks Company': 'American Softworks',
+	'LucasArts Entertainment Company': 'LucasArts',
 	#"Corporation"
 	'Visco Corporation': 'Visco',
 	'Taito Corporation': 'Taito',
@@ -93,12 +97,15 @@ manufacturer_overrides = {
 	'Human Entertainment': 'Human',
 	'Grandslam Entertainments': 'Grandslam',
 	'TecMagik Entertainment': 'TecMagik',
+	'Capcom Entertainment': 'Capcom',
+	'Blizzard Entertainment': 'Blizzard',
 	#"Games"
 	'Warner Bros. Games': 'Warner Bros',
 	'Microprose Games': 'MicroProse',
 	#"Industries"
 	'Entex Industries': 'Entex',
 	'Merit Industries': 'Merit',
+	'Sammy Industries': 'Sammy',
 	#"Interactive"
 	'Playmates Interactive': 'Playmates',
 	'Sales Curve Interactive': 'The Sales Curve',
@@ -125,6 +132,10 @@ manufacturer_overrides = {
 	'Loriciel Software': 'Loriciel',
 	'Sunrise Software': 'Sunrise',
 	'Sirius Software': 'Sirius',
+	'Atlus Software': 'Atlus',
+	'ASCII Entertainment Software': 'ASCII',
+	'Sir-Tech Software': 'Sir-Tech',
+	'Ubi Soft Entertainment Software': 'Ubisoft',
 	#"Studios"
 	'Angel Studios': 'Angel',
 	#"Video Games"
@@ -173,10 +184,13 @@ manufacturer_overrides = {
 	'Mattel Electronics': 'Mattel',
 	'Mattel Interactive': 'Mattel',
 	'Mattel Media': 'Mattel',
+	'Namco Hometek': 'Namco',
 	'NEC Avenue': 'NEC',
+	'NEC Interchannel': 'NEC',
 	'Nihon Bussan': 'Nichibutsu',
 	'Nihonbussan': 'Nichibutsu', #In the event that we figure out we shouldn't change the above, we should at least consistentify this formatting
 	'Sony Computer Entertainment': 'Sony',
+	'Sony Computer Entertainment America': 'Sony',
 	'Sony Imagesoft': 'Sony',
 	'Strata/Incredible Technologies': 'Incredible Technologies',
 	'Tandy Radio Shack': 'Tandy',
@@ -221,6 +235,7 @@ manufacturer_overrides = {
 	'日本テレネット (Nihon Telenet)': 'Telenet',
 	'日本ファルコム (Nihon Falcom)': 'Nihon Falcom',
 	'電波新聞社 (Dempa Shinbunsha)': 'Dempa',
+	'ビング (Ving)': 'Ving',
 
 	#YELLING CASE / other capitalisation stuff
 	'BEC': 'Bec',
@@ -228,6 +243,7 @@ manufacturer_overrides = {
 	'enix': 'Enix',
 	'EPYX': 'Epyx',
 	'HiTEC Software': 'HiTec Software',
+	'Icom Simulations': 'ICOM Simulations',
 	'Microprose': 'MicroProse',
 	'RazorSoft': 'Razorsoft',
 	'SONY': 'Sony',
