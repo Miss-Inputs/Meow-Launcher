@@ -359,7 +359,11 @@ def mame_fm_towns_marty(game, _):
 	else:
 		#Should never happen
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
-	return mame_system('fmtmarty', slot)
+	
+	#Give us 4 meganbytes of RAM just in case we need it (some do, see software list info=usage)
+	#Hopefully nothing requires 2MB explicitly or less
+	options = {'ramsize': '4M'}
+	return mame_system('fmtmarty', slot, options)
 
 def mame_game_boy(game, specific_config):
 	#Do all of these actually work or are they just detected? (HuC1 and HuC3 are supposedly non-working, and are treated as MBC3?)
