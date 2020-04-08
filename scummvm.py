@@ -232,14 +232,18 @@ class ScummVMGame():
 		metadata.specific_info['Engine'] = self._engine_list_to_use().get(engine_id)
 
 		path = self.options.get('path')
-		if path and os.path.isdir(path):
-			for f in os.listdir(path):
-				if f.lower().endswith('.ico'):
-					metadata.images['Icon'] = os.path.join(path, f)
-					break
-				if f.lower() in ('icon.png', 'icon.xpm'):
-					metadata.images['Icon'] = os.path.join(path, f)
-					break
+		if path:
+			if os.path.isdir(path):
+				for f in os.listdir(path):
+					if f.lower().endswith('.ico'):
+						metadata.images['Icon'] = os.path.join(path, f)
+						break
+					if f.lower() in ('icon.png', 'icon.xpm'):
+						metadata.images['Icon'] = os.path.join(path, f)
+						break
+			else:
+				if main_config.debug:
+					print('Aaaa!', self.name, path, 'does not exist')
 
 		name_tags = find_filename_tags.findall(name)
 		get_stuff_from_filename_tags(metadata, name_tags)
