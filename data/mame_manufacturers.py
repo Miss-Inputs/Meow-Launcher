@@ -236,6 +236,7 @@ manufacturer_overrides = {
 	'日本ファルコム (Nihon Falcom)': 'Nihon Falcom',
 	'電波新聞社 (Dempa Shinbunsha)': 'Dempa',
 	'ビング (Ving)': 'Ving',
+	'エレクトロニック・アーツ・ビクター (Electronic Arts Victor)': 'Electronic Arts Victor',
 
 	#YELLING CASE / other capitalisation stuff
 	'BEC': 'Bec',
