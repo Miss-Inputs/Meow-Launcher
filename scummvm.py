@@ -3,6 +3,7 @@
 import configparser
 import datetime
 import os
+import subprocess
 import time
 
 import detect_things_from_filename
@@ -25,11 +26,48 @@ def _get_vm_config(path):
 class ScummVMConfig():
 	class __ScummVMConfig():
 		def __init__(self):
-			self.have_scummvm = os.path.isfile(scumm_config_path)
-			self.have_residualvm = os.path.isfile(residualvm_config_path)
+			self.have_scummvm_config = os.path.isfile(scumm_config_path)
+			self.have_residualvm_config = os.path.isfile(residualvm_config_path)
+
+			self.have_scummvm_exe = True
+			try:
+				self.scummvm_engines = self.get_vm_engines('scummvm')
+			except FileNotFoundError:
+				self.have_scummvm_exe = False
+
+			self.have_residualvm_exe = True
+			try:
+				self.residualvm_engines = self.get_vm_engines('residualvm')
+			except FileNotFoundError:
+				self.have_residualvm_exe = False
 
 			self.scummvm_config = _get_vm_config(scumm_config_path)
 			self.residualvm_config = _get_vm_config(residualvm_config_path)
+
+		@staticmethod
+		def get_vm_engines(exe_name):
+			try:
+				proc = subprocess.run([exe_name, '--list-engines'], stdout=subprocess.PIPE, check=True, universal_newlines=True)
+				lines = proc.stdout.splitlines()[2:] #Ignore header and ----
+
+				engines = {}
+				for line in lines:
+					#Engine ID shouldn't have spaces, I think
+					engine_id, name = line.split(maxsplit=1)
+					if name.endswith(' [all games]'):
+						name = name[:-12]
+					engines[engine_id] = name
+				return engines
+			except subprocess.CalledProcessError:
+				return []
+
+		@property
+		def have_scummvm(self):
+			return self.have_scummvm_config and self.have_scummvm_exe
+		
+		@property
+		def have_residualvm(self):
+			return self.have_residualvm_config and self.have_residualvm_exe
 
 	__instance = None
 
@@ -142,8 +180,13 @@ def get_stuff_from_filename_tags(metadata, name_tags):
 		
 class ScummVMGame():
 	def __init__(self, name):
+		#The [game-name] is also user-modifiable and shouldn't be relied on to mean anything, but it is used for scummvm to actually launch the game and can be trusted to be unique
 		self.name = name
 		self.options = {}
+
+	@staticmethod
+	def _engine_list_to_use():
+		return vmconfig.scummvm_engines
 
 	def _get_launch_params(self):
 		return 'scummvm', ['-f', self.name]
@@ -153,6 +196,7 @@ class ScummVMGame():
 		return 'ScummVM'
 
 	def make_launcher(self):
+		#Note that I actually shouldn't rely on this, because it can be changed by the user
 		name = self.options.get('description', self.name)
 		name = name.replace('/', ') (') #Names are usually something like Cool Game (CD/DOS/English); we convert it to Cool Game (CD) (DOS) (English) to make it work better with disambiguate etc
 
@@ -162,7 +206,7 @@ class ScummVMGame():
 		metadata.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
 		metadata.emulator_name = self._get_emulator_name()
 		metadata.categories = ['Games'] #Safe to assume this by default
-		if self.name.startswith('agi-fanmade'):
+		if self.options.get('gameid') == 'agi-fanmade':
 			metadata.categories = ['Homebrew']
 		#metadata.nsfw is false by default, but in some ScummVM-supported games (e.g. Plumbers Don't Wear Ties) it would arguably be true; but there's not any way to detect that unless we just do "if game in [list_of_stuff_with_adult_content] then nsfw = true" 
 		#genre/subgenre is _probably_ always point and click adventure, but maybe not? (Plumbers is arguably a visual novel (don't @ me), and there's something about some casino card games in the list of supported games)
@@ -183,6 +227,9 @@ class ScummVMGame():
 		else:
 			metadata.specific_info['ScummVM-Status'] = EmulationStatus.Good
 		#TODO: Should have option to skip anything with unstable and/or testing status
+
+		engine_id = self.options.get('engineid')
+		metadata.specific_info['Engine'] = self._engine_list_to_use().get(engine_id)
 
 		path = self.options.get('path')
 		if path and os.path.isdir(path):
@@ -205,6 +252,10 @@ class ResidualVMGame(ScummVMGame):
 	@staticmethod
 	def _get_emulator_name():
 		return 'ResidualVM'
+
+	@staticmethod
+	def _engine_list_to_use():
+		return vmconfig.residualvm_engines
 
 	def _get_launch_params(self):
 		return 'residualvm', ['-f', self.name]
@@ -229,6 +280,7 @@ def add_vm_games(name, config_path, vm_config, game_class):
 
 	for section in vm_config.sections():
 		if section == name.lower():
+			#Skip the top section that just says [scummvm]/[residualvm]
 			continue
 		if not main_config.full_rescan:
 			if launchers.has_been_done('ScummVM', section):
