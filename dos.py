@@ -14,11 +14,15 @@ class DOSApp(dos_mac_common.App):
 		basename, extension = os.path.splitext(self.path)
 		metadata.extension = extension[1][1:].lower()
 		basename = os.path.basename(basename).lower()
-		base_dir = os.path.dirname(self.path)
-		for f in os.listdir(base_dir):
-			f_lowercase = f.lower()
-			if f_lowercase in (basename + '.ico', 'game.ico', 'icon.ico', 'icon.png') or (f_lowercase.startswith('goggame') and f_lowercase.endswith('.ico')):
-				metadata.images['Icon'] = os.path.join(base_dir, f)
+		try:
+			base_dir = os.path.dirname(self.path)
+			for f in os.listdir(base_dir):
+				f_lowercase = f.lower()
+				if f_lowercase in (basename + '.ico', 'game.ico', 'icon.ico', 'icon.png') or (f_lowercase.startswith('goggame') and f_lowercase.endswith('.ico')):
+					metadata.images['Icon'] = os.path.join(base_dir, f)
+		except FileNotFoundError as fnfe:
+			if config.main_config.debug:
+				print('Oh no!', self.name, fnfe)
 
 def make_dos_launchers():
 	dos_mac_common.make_launchers('DOS', config.dos_ini_path, DOSApp, dos_emulators)
