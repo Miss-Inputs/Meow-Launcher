@@ -131,7 +131,7 @@ def mame_amstrad_pcw(game, _):
 	return mame_system('pcw10', 'flop', has_keyboard=True)
 
 def mame_apple_ii(game, _):
-	slot_options = {}
+	slot_options = {'gameio': 'joy'}
 	if game.metadata.specific_info.get('Uses-Mouse', False):
 		slot_options['sl4'] = 'mouse'
 	system = 'apple2e' #Probably a safe default
