@@ -237,8 +237,7 @@ class ScummVMGame():
 				if f.lower().endswith('.ico'):
 					metadata.images['Icon'] = os.path.join(path, f)
 					break
-				if f.lower() == 'icon.png':
-					#From GOG releases, mostly
+				if f.lower() in ('icon.png', 'icon.xpm'):
 					metadata.images['Icon'] = os.path.join(path, f)
 					break
 
