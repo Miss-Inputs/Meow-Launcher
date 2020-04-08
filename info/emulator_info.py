@@ -240,8 +240,6 @@ emulators = {
 	#Autoboots floppies unless they have more than one thing to boot on them, which I guess makes sense
 	#Apparently not working (mz2000 is not either), so I dunno
 	'MAME (Sony SMC-777)': MameDriver(command_lines.mame_system('smc777', 'flop1', has_keyboard=True), mame_floppy_formats + ['1dd']),
-	'MAME (Uzebox)': MameDriver(command_lines.mame_system('uzebox', 'cart'), ['bin', 'uze']),
-	#Runs really slowly, but it does work (other than SD card emulation), although marked as not working + imperfect sound
 	'MAME (V.Tech Socrates)': MameDriver(command_lines.mame_system('socrates', 'cart'), ['bin']),
 	#Marked as not working + imperfect sound, possibly because of missing speech (also mouse is missing)
 	
@@ -294,20 +292,22 @@ emulators = {
 	#TODO PlayStation: Would require proper region code detection, which would require looking at ISO9660 stuff properly. Anyway it is MACHINE_NOT_WORKING and often doesn't play the games (see https://mametesters.org/view.php?id=7127)
 
 	#Just here for future use or fun really; these straight up don't work:
+	'MAME (Buzztime Home Trivia System)': MameDriver(command_lines.mame_system('buzztime', 'cart'), ['bin']),
+	#Inputs are not defined and it just spams random inputs (the game plays itself!!!1)
 	'MAME (Casio Loopy)': MameDriver(command_lines.mame_system('casloopy', 'cart'), ['bin']),
 	#Just shows corrupted graphics (and has no controls defined), basically just a skeleton even if it looks like it isn't
 	'MAME (Commodore CDTV)': MameDriver(command_lines.mame_system('cdtv', 'cdrom'), mame_cdrom_formats),
 	#This one works less than CD32; just takes you to the default boot screen like no CD was inserted
-	'MAME (GP32)': MameDriver(command_lines.mame_system('gp32', 'memc'), ['smc']),
-	#Runs too slow to verify if anything else works, but all documentation points to not
 	'MAME (Copera)': MameDriver(command_lines.mame_system('copera', 'cart'), ['bin', 'md']),
 	#Displays the logo and then displays nothing
+	'MAME (GP32)': MameDriver(command_lines.mame_system('gp32', 'memc'), ['smc']),
+	#Runs too slow to verify if anything else works, but all documentation points to not
 	'MAME (Koei PasoGo)': MameDriver(command_lines.mame_system('pasogo', 'cart'), ['bin']),
 	#No sound yet, and apparently the rest doesn't work either (I'll take their word for it so I don't have to play weird board games I don't understand)
 	'MAME (Microvision)': MameDriver(command_lines.mame_system('microvsn', 'cart'), ['bin']),
 	#Cartridges boot, but seem to do nothing...
-	'MAME (Buzztime Home Trivia System)': MameDriver(command_lines.mame_system('buzztime', 'cart'), ['bin']),
-	#Inputs are not defined and it just spams random inputs (the game plays itself!!!1)
+	'MAME (Uzebox)': MameDriver(command_lines.mame_system('uzebox', 'cart'), ['bin', 'uze']),
+	#https://mametesters.org/view.php?id=7608 ruh roh broke in 0.220
 	'MAME (V.Smile Motion)': MameDriver(command_lines.mame_system('vsmilem', 'cart'), ['bin', 'u1', 'u3']),
 	'MAME (3DO)': MameDriver(command_lines.mame_system('3do', 'cdrom'), mame_cdrom_formats), #Should switch to 3do_pal when needed, but it doesn't really matter at this point
 	'MAME (Bandai RX-78)': MameDriver(command_lines.mame_system('rx78', 'cart', has_keyboard=True), ['bin', 'rom']),
