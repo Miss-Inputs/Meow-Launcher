@@ -19,6 +19,7 @@ developer_overrides = {
 	'Killmonday Games AB': 'Killmonday Games',
 	'KISS ltd': 'KISS',
 	'Konami Digital Entertainment': 'Konami',
+	'Konami Digital Entertainement': 'Konami',
 	'Lupus Studios Limited': 'Lupus Studios',
 	'M2 Co.,LTD': 'M2',
 	'NAMCO BANDAI Games': 'Namco Bandai', #Should be merged with Bandai Namco? Maybe? I don't know anything anymore
