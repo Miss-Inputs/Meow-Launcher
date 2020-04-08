@@ -316,7 +316,7 @@ class SystemConfigs():
 		def init_configs(self):
 			self.configs = {}
 			for k, v in systems.items():
-				self.init_config(k, v.specific_configs, add_if_not_exist=not v.is_unsupported)
+				self.init_config(k, v.specific_configs, add_if_not_exist=not v.is_borked)
 			for k, v in computer_systems.items():
 				self.init_config(k, v.specific_configs)
 
