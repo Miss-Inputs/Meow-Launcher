@@ -285,6 +285,9 @@ def add_vm_games(name, config_path, vm_config, game_class):
 		if section == name.lower():
 			#Skip the top section that just says [scummvm]/[residualvm]
 			continue
+		if section == 'cloud':
+			#This is not a game either
+			continue
 		if not main_config.full_rescan:
 			if launchers.has_been_done('ScummVM', section):
 				continue
