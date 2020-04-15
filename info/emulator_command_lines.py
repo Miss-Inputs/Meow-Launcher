@@ -919,7 +919,8 @@ def mednafen_megadrive(game, _):
 
 def mednafen_nes(game, _):
 	#Yeah okay, I need a cleaner way of doing this
-	unsupported_ines_mappers = (14, 20, 27, 28, 29, 30, 31, 35, 36, 39, 43, 50,
+	#Mapper 30, 38 aren't in the documentation but they do exist in the source code, maybe some others (I'm not good at navigating all that)
+	unsupported_ines_mappers = (14, 20, 27, 28, 29, 31, 35, 36, 39, 43, 50,
 		53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 81, 83, 84, 91, 98, 100,
 		102, 103, 104, 106, 108, 109, 110, 111, 116, 136, 137, 138, 139, 141,
 		142, 143, 181, 183, 186, 187, 188, 191, 192, 211, 212, 213, 214, 216,
