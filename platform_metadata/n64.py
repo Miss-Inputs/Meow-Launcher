@@ -35,7 +35,7 @@ def get_mupen64plus_database():
 	parser.optionxform = str
 	parser.read(location)
 
-	database = {section: {k: v for k, v in parser.items(section)} for section in parser.sections()}
+	database = {section: dict(parser.items(section)) for section in parser.sections()}
 	for game, keypairs in database.items():
 		if 'RefMD5' in keypairs:
 			parent_md5 = keypairs['RefMD5']
