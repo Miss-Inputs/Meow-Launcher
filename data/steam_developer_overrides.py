@@ -3,12 +3,14 @@ developer_overrides = {
 	'5th Cell Media': '5th Cell',
 	'Artefacts Studios': 'Artefacts Studio',
 	'BANDAI NAMCO Entertainment': 'Bandai Namco',
-	'BANDAI NAMCO Studios': 'Bandai Namco', #Appears as developer, the Bandai Namco Entertainment appears as publisher... hmm
+	'BANDAI NAMCO Studio': 'Bandai Namco', #Appears as developer, the Bandai Namco Entertainment appears as publisher... hmm
+	'BANDAI NAMCO Studios': 'Bandai Namco',
 	'Bethesda Game Studios': 'Bethesda',
 	'Bethesda-Softworks': 'Bethesda',
 	'Bethesda Softworks': 'Bethesda',
 	'Blind Squirrel Games': 'Blind Squirrel',
 	'Capcom U.S.A.': 'Capcom USA',
+	'Codemasters Racing Studio': 'Codemasters Racing',
 	'Crytek Studios': 'Crytek',
 	'D3T Limited': 'd3t',
 	'Dan  Walters': 'Dan Walters',
