@@ -6,7 +6,7 @@ import shlex
 from enum import Enum
 
 import common
-from config import main_config, name_replacement, add_the, subtitle_removal, app_name
+from config import main_config, app_name
 from io_utils import ensure_exist
 
 try:
@@ -182,22 +182,9 @@ def make_linux_desktop(launch_params, display_name, fields=None):
 
 	#Set executable, but also set everything else because whatever
 	os.chmod(path, 0o7777)
-
-def make_display_name(name):
-	display_name = common.remove_filename_tags(name)
-
-	#TODO: This stuff should just be in roms.py really
-	for replacement in name_replacement:
-		display_name = re.sub(r'(?<!\w)' + re.escape(replacement[0]) + r'(?!\w)', replacement[1], display_name, flags=re.I)
-	for replacement in add_the:
-		display_name = re.sub(r'(?<!The )' + re.escape(replacement), 'The ' + replacement, display_name, flags=re.I)
-	for replacement in subtitle_removal:
-		display_name = re.sub(r'^' + re.escape(replacement[0]) + r'(?!\w)', replacement[1], display_name, flags=re.I)
-
-	return display_name
-
+	
 def make_launcher(launch_params, name, metadata, id_type, unique_id):
-	display_name = make_display_name(name)
+	display_name = common.remove_filename_tags(name)
 	filename_tags = common.find_filename_tags.findall(name)
 
 	fields = metadata.to_launcher_fields()

@@ -263,31 +263,6 @@ class Config():
 
 main_config = Config.getConfig()
 
-def load_name_replacement():
-	#Sometimes, we want to mess around with : being in the title, so that can't be a delimiter since it needs to appear inside "keys". I'd have to restructure the whole config file to not be an .ini at all otherwise. Hopefully, nothing will have an equals sign in the title.
-	parser = configparser.ConfigParser(delimiters=('='), allow_no_value=True)
-	parser.optionxform = str
-	if not os.path.isfile(_name_consistency_path):
-		print('oh no')
-		return
-	parser.read(_name_consistency_path)
-
-	for k, v in parser['Name Replacement'].items():
-		name_replacement.append((k, v))
-	for k, v in parser['Add "The"'].items():
-		add_the.append(k)
-	for k, v in parser['Subtitle Removal'].items():
-		subtitle_removal.append((k, v))
-
-#For when I do a hecking disagreement about how names should be formatted, and if subtitles should be in the title or
-#not.  This probably annoys purists, but I think it makes things less confusing at the end of the day
-name_replacement = []
-#Add "The " in front of these things (but not if there's already "The " in front of them of course)
-add_the = []
-#Only check for this at the start of a thing
-subtitle_removal = []
-load_name_replacement()
-
 class SystemConfig():
 	def __init__(self, name):
 		self.name = name
