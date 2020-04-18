@@ -908,12 +908,6 @@ def process_game(app_id, folder, app_state):
 
 	if appinfo_entry:
 		add_metadata_from_appinfo(game, appinfo_entry)
-	#Other metadata that we can't or won't fill in:
-	#cpu_info, screen_info, extension: Irrelevant (not going to do something silly like use the current user's CPU/monitor specs)
-	#product_code: Not really a thing
-	#regions: World or user's region? Hmm, maybe not entirely relevant with PC games
-	#revision: Irrelevant since software versions aren't always linear numbers?
-	#tv_type could be Agnostic, but it's like... I dunno if I'd consider it to be relevant
 	
 	game.make_launcher()
 
