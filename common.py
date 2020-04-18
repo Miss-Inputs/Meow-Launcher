@@ -82,7 +82,7 @@ def convert_roman_numeral(s):
 				value += (next_char_value - char_value)
 				i += 2
 				continue
-			elif unit_index < next_unit_index:
+			if unit_index < next_unit_index:
 				raise ValueError('Numerals out of order: ' + c + ', ' + next_char)
 		value += char_value
 		i += 1
