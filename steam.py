@@ -471,7 +471,7 @@ def add_icon_from_common_section(game, common_section):
 			icon_exception = None
 			found_an_icon = True
 			break
-	if main_config.debug:
+	if main_config.warn_about_missing_icons:
 		if icon_exception:
 			print(game.name, game.app_id, icon_exception)
 		elif potentially_has_icon and not found_an_icon:

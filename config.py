@@ -94,6 +94,7 @@ _config_ini_values = {
 	#TODO: Put this in a general section, use it in the other modules
 	'normalize_name_case': ConfigValue('Steam', ConfigValueType.Integer, 0, 'Normalize name case', 'Apply title case to uppercase things (1: only if whole title is uppercase, 2: capitalize individual uppercase words, 3: title case the whole thing regardless)'),
 	'force_create_launchers': ConfigValue('Steam', ConfigValueType.Bool, False, 'Force create launchers', 'Create launchers even for games which are\'nt launchable'),
+	'warn_about_missing_icons': ConfigValue('Steam', ConfigValueType.Bool, False, 'Warn about missing icons', 'Spam console with debug messages about icons not existing or being missing'),
 
 	'skip_mame_non_working_software': ConfigValue('Roms', ConfigValueType.Bool, False, 'Skip MAME non-working software', "Don't attempt to use MAME for ROMs marked as unsupported in software list"),
 	'wii_common_key': ConfigValue('Roms', ConfigValueType.String, '', 'Wii common key', 'Wii common key used for decrypting Wii discs which some projects are brave enough to hardcode but I am not'),
