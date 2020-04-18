@@ -862,33 +862,33 @@ def process_game(app_id, folder, app_state):
 
 	if not game.launchers:
 		raise NotLaunchableError('Game cannot be launched')
+
+	launcher = list(game.launchers.values())[0]
+	if appid_str in steamplay_overrides:
+		#Natively ported game, but forced to use Proton/etc for reasons
+		tool = steamplay_overrides[appid_str]
+		game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
+		game.metadata.specific_info['Steam-Play-Forced'] = True
+	elif appid_str in steamplay_whitelist:
+		tool = steamplay_whitelist[appid_str]
+		game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
+		game.metadata.specific_info['Steam-Play-Whitelisted'] = True
+	elif 'linux' in game.launchers:
+		launcher = game.launchers['linux']
+	elif 'linux_64' in game.launchers:
+		launcher = game.launchers['linux_64']
+	elif 'linux_32' in game.launchers:
+		launcher = game.launchers['linux_32']
 	else:
-		launcher = list(game.launchers.values())[0]
-		if appid_str in steamplay_overrides:
-			#Natively ported game, but forced to use Proton/etc for reasons
-			tool = steamplay_overrides[appid_str]
-			game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
-			game.metadata.specific_info['Steam-Play-Forced'] = True
-		elif appid_str in steamplay_whitelist:
-			tool = steamplay_whitelist[appid_str]
-			game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
-			game.metadata.specific_info['Steam-Play-Whitelisted'] = True
-		elif 'linux' in game.launchers:
-			launcher = game.launchers['linux']
-		elif 'linux_64' in game.launchers:
-			launcher = game.launchers['linux_64']
-		elif 'linux_32' in game.launchers:
-			launcher = game.launchers['linux_32']
+		global_tool = steamplay_overrides.get('0')
+		if global_tool:
+			game.metadata.emulator_name = get_steamplay_compat_tools().get(global_tool, global_tool)
+			game.metadata.specific_info['Steam-Play-Whitelisted'] = False
 		else:
-			global_tool = steamplay_overrides.get('0')
-			if global_tool:
-				game.metadata.emulator_name = get_steamplay_compat_tools().get(global_tool, global_tool)
-				game.metadata.specific_info['Steam-Play-Whitelisted'] = False
-			else:
-				#If global tool is not set; this game can't be launched and will instead say "Invalid platform"
-				game.metadata.specific_info['No-Valid-Launchers'] = True
-		process_launcher(game, launcher)
-		#Potentially do something with game.extra_launchers... I dunno, really
+			#If global tool is not set; this game can't be launched and will instead say "Invalid platform"
+			game.metadata.specific_info['No-Valid-Launchers'] = True
+	process_launcher(game, launcher)
+	#Potentially do something with game.extra_launchers... I dunno, really
 
 	#userdata/<user ID>/config/localconfig.vdf has last time played stats, so that's a thing I guess
 	#userdata/<user ID>/7/remote/sharedconfig.vdf has tags/categories etc as well
