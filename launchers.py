@@ -154,8 +154,6 @@ def make_linux_desktop(launch_params, display_name, fields=None):
 						image_path = os.path.join(this_image_folder, filename + '.png')
 						v.save(image_path, 'png')
 						value_as_string = image_path
-#						section_writer[k] = image_path
-#						continue
 
 				if isinstance(v, list):
 					if not v:
@@ -182,7 +180,7 @@ def make_linux_desktop(launch_params, display_name, fields=None):
 
 	#Set executable, but also set everything else because whatever
 	os.chmod(path, 0o7777)
-	
+
 def make_launcher(launch_params, name, metadata, id_type, unique_id):
 	display_name = common.remove_filename_tags(name)
 	filename_tags = common.find_filename_tags.findall(name)
