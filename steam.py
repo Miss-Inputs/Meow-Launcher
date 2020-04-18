@@ -490,6 +490,12 @@ def add_metadata_from_appinfo_common_section(game, common):
 	#exfgls = exclude from game library sharing
 	#b'requireskbmouse' and b'kbmousegame' are also things, but don't seem to be 1:1 with games that have controllersupport = none
 	#name_localized has a dict with e.g. b'japanese' as the keys; will worry about that later...
+
+	app_retired_publisher_request = common.get(b'app_retired_publisher_request')
+	if app_retired_publisher_request:
+		game.metadata.specific_info['No-Longer-Purchasable'] = app_retired_publisher_request.data == 1
+	#You can't know if a game's delisted entirely unless you go to the store API to find if that returns success or not, because the appinfo stuff is a cache and holds on to data that no longer exists
+
 	language_list = common.get(b'languages')
 	if language_list:
 		game.metadata.languages = translate_language_list(language_list)
