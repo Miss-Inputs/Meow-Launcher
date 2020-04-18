@@ -155,6 +155,7 @@ def get_steamplay_overrides():
 		return {}
 
 class StateFlags(IntFlag):
+	#https://github.com/lutris/lutris/blob/master/docs/steam.rst
 	Invalid = 0
 	Uninstalled = 1
 	UpdateRequired = 2
@@ -933,12 +934,21 @@ def iter_steam_installed_appids():
 				#Yeah we need that
 				continue
 
-			#https://github.com/lutris/lutris/blob/master/docs/steam.rst
 			try:
 				state_flags = StateFlags(int(app_state.get('StateFlags')))
 				if not state_flags:
 					continue
 			except ValueError:
+				if main_config.debug:
+					print('Skipping', app_state.get('name'), app_id, 'as StateFlags are invalid', app_state.get('StateFlags'))
+				continue
+
+			#Is StageFlags.AppRunning actually not what it means? Seems that an app that is running doesn't have its StateFlags changed and 64 is instead used for full versions installed where demos are the only version owned, etc
+			#Anyway, we're going to check for it this way
+			last_owner = app_state.get('LastOwner')
+			if last_owner == '0':
+				if main_config.debug:
+					print('Skipping', app_state.get('name'), app_id, 'as nobody actually owns it')
 				continue
 
 			#Only yield fully installed games
