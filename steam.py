@@ -594,7 +594,8 @@ def add_metadata_from_appinfo_common_section(game, common):
 	vr_support = common.get(b'openvrsupport')
 	if only_vr is not None and only_vr.data:
 		game.metadata.specific_info['VR-Support'] = 'Required'
-	elif vr_support is not None and vr_support.data:
+	elif vr_support:
+		#b'1'
 		game.metadata.specific_info['VR-Support'] = 'Optional'
 
 	metacritic_score = common.get(b'metacritic_score')
