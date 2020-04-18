@@ -10,8 +10,8 @@ import main
 
 if '--refresh-config' in sys.argv:
 	#TODO: Do this on first run... or is that a bad idea
-	#This doesn't even work
-	exit()
+	#FIXME This doesn't even work
+	sys.exit()
 
 overall_time_started = time.perf_counter()
 
