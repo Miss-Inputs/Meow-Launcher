@@ -177,8 +177,6 @@ def add_gamecube_system_info(game):
 def add_gamecube_metadata(game):
 	add_gamecube_system_info(game)
 
-	#TODO: TGC, dol
-
 	if game.rom.extension in ('gcz', 'iso', 'gcm'):
 		header = game.rom.read(0, 0x2450)
 		add_gamecube_wii_disc_metadata(game, header)
