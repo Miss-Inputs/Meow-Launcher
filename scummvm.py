@@ -12,7 +12,7 @@ import launchers
 from common import find_filename_tags
 from common_types import MediaType, SaveType
 from config import main_config
-from metadata import EmulationStatus, Metadata
+from metadata import Metadata
 
 scumm_config_path = os.path.expanduser('~/.config/scummvm/scummvm.ini')
 residualvm_config_path = os.path.expanduser('~/.config/residualvm/residualvm.ini')
@@ -212,22 +212,7 @@ class ScummVMGame():
 		#genre/subgenre is _probably_ always point and click adventure, but maybe not? (Plumbers is arguably a visual novel (don't @ me), and there's something about some casino card games in the list of supported games)
 		#Would be nice to set things like developer/publisher/year but can't really do that unfortunately
 		#Let series and series_index be detected by series_detect
-		gsl = self.options.get('gsl')
-		#From what I can tell, this stands for "game support level"
-		#From engines/game.h:
-		#enum GameSupportLevel {
-		#kStableGame = 0, // the game is fully supported
-		#kTestingGame, // the game is not supposed to end up in releases yet but is ready for public testing
-		#kUnstableGame // the game is not even ready for public testing yet
-		#};
-		if gsl == 'testing':
-			metadata.specific_info['ScummVM-Status'] = EmulationStatus.Imperfect
-		elif gsl == 'unstable':
-			metadata.specific_info['ScummVM-Status'] = EmulationStatus.Broken
-		else:
-			metadata.specific_info['ScummVM-Status'] = EmulationStatus.Good
-		#TODO: Should have option to skip anything with unstable and/or testing status
-
+		
 		engine_id = self.options.get('engineid')
 		metadata.specific_info['Engine'] = self._engine_list_to_use().get(engine_id)
 
