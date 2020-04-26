@@ -499,6 +499,12 @@ def add_metadata_from_appinfo_common_section(game, common):
 	language_list = common.get(b'languages')
 	if language_list:
 		game.metadata.languages = translate_language_list(language_list)
+	else:
+		supported_languages = common.get(b'supported_languages')
+		if supported_languages:
+			#Hmm… this one goes into more detail actually, you have not just "supported" but "full_audio" and "subtitles"
+			#But for now let's just look at what else exists
+			game.metadata.languages = translate_language_list(supported_languages)
 
 	content_warning_ids = []
 	primary_genre_id = common.get(b'primary_genre')
