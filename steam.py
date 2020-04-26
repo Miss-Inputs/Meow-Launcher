@@ -813,12 +813,14 @@ def normalize_name_case(name, name_to_test_for_upper=None):
 	
 	return name
 
+why = re.compile(r' -(?=\w)') #This bothers me
 def fix_name(name):
 	name = name.replace('™', '')
 	name = name.replace('®', '')
 	name = name.replace(' : ', ': ') #Oi mate what kinda punctuation is this
 	name = name.replace('[diary]', 'diary') #Stop that
 	name = name.replace('(VI)', 'VI') #Why is Tomb Raider: The Angel of Darkness like this
+	name = why.sub(' - ', name)
 
 	if name.startswith('ARCADE GAME SERIES'):
 		#This is slightly subjective as to whether or not one should do this, but I believe it should
