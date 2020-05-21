@@ -286,6 +286,8 @@ emulators = {
 	'MAME (Microtan 65)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('mt65', 'dump', has_keyboard=True), ['dmp', 'm65']),
 	#System name was "microtan" prior to 0.212
 	#Aagggh, none of these inputs seem to be working properly (to the point where I can't just assume the games were like that)... maybe I'm doing it wrong, I don't know... it does say status =
+	'MAME (Microvision)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('microvsn', 'cart'), ['bin']),
+	#You probably want to use the software list for this so it can detect controls properly, also needs artwork that doesn't seem to be available anywhere
 	'MAME (N64)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_n64, ['v64', 'z64', 'rom', 'n64', 'bin']),
 	#Emulates a NTSC console only so PAL games will probably tell you off or otherwise not work properly; also no rumble/mempak/etc for you. Very slow on even modern systems. Marked as non-working + imperfect graphics
 	'MAME (Pokemon Mini)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('pokemini', 'cart'), ['bin', 'min']),
@@ -318,8 +320,6 @@ emulators = {
 	#Runs too slow to verify if anything else works, but all documentation points to not
 	'MAME (Koei PasoGo)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('pasogo', 'cart'), ['bin']),
 	#No sound yet, and apparently the rest doesn't work either (I'll take their word for it so I don't have to play weird board games I don't understand)
-	'MAME (Microvision)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('microvsn', 'cart'), ['bin']),
-	#Cartridges boot, but seem to do nothing...
 	'MAME (Uzebox)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('uzebox', 'cart'), ['bin', 'uze']),
 	#https://mametesters.org/view.php?id=7608 ruh roh broke in 0.220
 	'MAME (V.Smile Motion)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('vsmilem', 'cart'), ['bin', 'u1', 'u3']),
