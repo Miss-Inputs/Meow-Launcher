@@ -217,6 +217,7 @@ systems.update({
 	'Magnavox Odyssey²': BorkedSystemInfo('odyssey2', ['odyssey2'], ['MAME (Magnavox Odyssey²)', 'MAME (G7400)'], {MediaType.Cartridge: ['bin', 'rom']}),
 	'Mattel Aquarius': BorkedSystemInfo('aquarius', ['aquarius'], ['MAME (Mattel Aquarius)'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav', 'caq']}),
 	'Microtan 65': BorkedSystemInfo('mt65', ['mt65_snap'], ['MAME (Microtan 65)'], {MediaType.Tape: ['wav'], MediaType.Executable: ['hex'], MediaType.Snapshot: ['dmp', 'm65']}), #MAME driver was "microtan" prior to 0.212
+	'Microvision': BorkedSystemInfo('microvsn', ['microvision'], ['MAME (Microvision)'], {MediaType.Cartridge: ['bin']}),
 	'PC-6001': BorkedSystemInfo('pc6001', [], ['MAME (PC-6001)'], {MediaType.Tape: ['cas', 'p6'], MediaType.Cartridge: ['bin', 'rom']}),
 	'PC Booter': BorkedSystemInfo('ibm5150', ['ibm5150'], ['MAME (IBM PCjr)', 'MAME (IBM PC)'], {MediaType.Floppy: mame_floppy_formats + ['img'], MediaType.Executable: ['exe', 'com', 'bat']}),
 	#This one is a bit tricky... both MAME and PCem have issues emulating a joystick. Do the games actually just suck like that? _All of them_? I don't know. The majority of these games assume a 4.77MHz CPU, of course. The software list is ibm5150 but that has some DOS games too, just to be confusing (but usage == 'PC booter' where it is a PC booter).
@@ -266,7 +267,6 @@ systems.update({
 	'Little Touch LeapPad': BorkedSystemInfo('ltleappad', ['leapfrog_ltleappad_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Mattel HyperScan': BorkedSystemInfo('hyprscan', ['hyperscan'], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'MSX Turbo-R': BorkedSystemInfo('fsa1st', ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
-	'Microvision': BorkedSystemInfo('microvsn', ['microvision'], ['MAME (Microvision)'], {MediaType.Cartridge: ['bin']}),
 	'MobiGo': BorkedSystemInfo('mobigo', ['mobigo_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Monon Color': BorkedSystemInfo('mononcol', ['monon_color'], ['MAME (Monon Color)'], {MediaType.Cartridge: ['bin']}),
 	#Only a skeleton MAME driver with no sound or video or inputs
