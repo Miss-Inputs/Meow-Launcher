@@ -5,7 +5,7 @@ import info.emulator_command_lines as command_lines
 from launchers import LaunchParams, MultiCommandLaunchParams
 
 from .system_info import (atari_2600_cartridge_extensions, mame_cdrom_formats,
-                          mame_floppy_formats)
+                          mame_floppy_formats, generic_cart_extensions)
 
 class EmulatorStatus(Enum):
 	#I have not actually thought of concrete definitions for what these mean
@@ -158,8 +158,8 @@ emulators = {
 	'MAME (Mega Drive)': MameDriver(EmulatorStatus.Good, command_lines.mame_megadrive, ['bin', 'md', 'smd', 'gen']),
 	'MAME (Mega Duck)': MameDriver(EmulatorStatus.Good, command_lines.mame_system('megaduck', 'cart'), ['bin']),
 	'MAME (Memorex VIS)': MameDriver(EmulatorStatus.Good, command_lines.mame_system('vis', 'cdrom'), mame_cdrom_formats),
-	'MAME (MSX)': MameDriver(EmulatorStatus.Good, command_lines.mame_msx1, ['bin', 'rom'] + mame_floppy_formats),
-	'MAME (MSX2)': MameDriver(EmulatorStatus.Good, command_lines.mame_msx2, ['bin', 'rom'] + mame_floppy_formats),
+	'MAME (MSX)': MameDriver(EmulatorStatus.Good, command_lines.mame_msx1, generic_cart_extensions + mame_floppy_formats),
+	'MAME (MSX2)': MameDriver(EmulatorStatus.Good, command_lines.mame_msx2, generic_cart_extensions + mame_floppy_formats),
 	'MAME (Neo Geo CD)': MameDriver(EmulatorStatus.Good, command_lines.mame_system('neocdz', 'cdrom'), mame_cdrom_formats),
 	#Don't think it has region lock so I should never need to use neocdzj? (neocd doesn't work, apparently because it thinks it has the drive tray open constantly)
 	'MAME (Neo Geo Pocket)': MameDriver(EmulatorStatus.Good, command_lines.mame_system('ngpc', 'cart'), ['bin', 'ngp', 'npc', 'ngc']),
@@ -286,7 +286,7 @@ emulators = {
 	'MAME (Microtan 65)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('mt65', 'dump', has_keyboard=True), ['dmp', 'm65']),
 	#System name was "microtan" prior to 0.212
 	#Aagggh, none of these inputs seem to be working properly (to the point where I can't just assume the games were like that)... maybe I'm doing it wrong, I don't know... it does say status =
-	'MAME (Microvision)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('microvsn', 'cart'), ['bin']),
+	'MAME (Microvision)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('microvsn', 'cart'), generic_cart_extensions),
 	#You probably want to use the software list for this so it can detect controls properly, also needs artwork that doesn't seem to be available anywhere
 	'MAME (N64)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_n64, ['v64', 'z64', 'rom', 'n64', 'bin']),
 	#Emulates a NTSC console only so PAL games will probably tell you off or otherwise not work properly; also no rumble/mempak/etc for you. Very slow on even modern systems. Marked as non-working + imperfect graphics
