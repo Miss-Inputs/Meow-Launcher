@@ -211,6 +211,7 @@ systems.update({
 	'Amstrad PCW': BorkedSystemInfo('pcw10', ['pcw'], ['MAME (Amstrad PCW)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['com']}),
 	'CreatiVision': BorkedSystemInfo('crvision', ['crvision'], ['MAME (CreatiVision)'], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav']}),
 	'G7400': BorkedSystemInfo('g7400', ['g7400'], ['MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}),
+	'Gachinko Contest! Slot Machine TV': BorkedSystemInfo('gcslottv', ['gcslottv'], ['MAME (Gachinko Contest! Slot Machine TV)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'GameKing': BorkedSystemInfo('gameking', ['gameking'], ['MAME (GameKing)'], {MediaType.Cartridge: ['bin', 'gk']}),
 	#Still no sound
 	'GameKing 3': BorkedSystemInfo('gamekin3', ['gameking3'], ['MAME (GameKing 3)'], {MediaType.Cartridge: ['bin', 'gk3']}),
@@ -257,8 +258,6 @@ systems.update({
 	'Copera': BorkedSystemInfo('copera', ['copera'], ['MAME (Copera)'], {MediaType.Cartridge: ['bin', 'md']}),
 	#Kega Fusion emulates the Pico well enough to show the message telling you the Copera software won't work on a Pico, at least
 	'Design Master Denshi Mangajuku': BorkedSystemInfo('bdesignm', ['bdesignm_design_cart', 'bdesignm_game_cart'], [], {MediaType.Cartridge: ['bin']}),
-	'Gachinko Contest! Slot Machine TV': BorkedSystemInfo('gcslottv', ['gcslottv'], [], {MediaType.Cartridge: ['bin', 'u1']}),
-	#BIOS not dumped and doesn't respond to inputs properly, is this even actually a console?
 	'Gizmondo': BorkedSystemInfo('gizmondo', [], [], {}), #Uses folders seemingly, so that may be weird with the file types
 	'GP32': BorkedSystemInfo('gp32', ['gp32'], ['MAME (GP32)'], {MediaType.Cartridge: ['smc'], MediaType.Executable: ['gxb', 'sxf', 'bin', 'gxf', 'fxe']}),
 	'GP2X': BorkedSystemInfo('gp2x', [], [], {}),

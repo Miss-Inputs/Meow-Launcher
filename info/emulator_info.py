@@ -245,6 +245,8 @@ emulators = {
 	#Not the same as the PV-1000, albeit similar. Driver marked as non-working but it seems alright, other than it's supposed to have joysticks and doesn't (so you just set up a gamepad to map to emulated cursor keys) which maybe is why
 	'MAME (FM Towns Marty)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_fm_towns_marty, mame_cdrom_formats + mame_floppy_formats + ['bin']),
 	#As it says right there in the fmtowns.cpp comments: "Issues: Video emulation is far from complete." and still marked not working, but it seems okay for a few games actually; creating floppies (for games that make you do that) seems like a weird time
+	'MAME (Gachinko Contest! Slot Machine TV)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_system('gcslottv', 'cart'), generic_cart_extensions),
+	#Not working and imperfect sound
 	'MAME (Hartung Game Master)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_system('gmaster', 'cart'), ['bin']),
 	#Hmm... says not working and imperfect sound. I guess it does run the games, though
 	'MAME (PC-6001)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_system('pc6001', 'cart1', has_keyboard=True), ['bin', 'rom']),
