@@ -296,6 +296,9 @@ emulators = {
 	#Non-working, imperfect sound; crashes on quite a few games and hangs to white screen sometimes
 	'MAME (Sega Pico)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_pico, ['bin', 'md']),
 	#Seems like a lot of stuff doesn't get anywhere? Probably needs the book part
+	'MAME (Select-a-Game)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('sag', 'cart'), ['bin']),
+	#Is now a separate system as of 0.221 instead of sag_whatever individual machines
+	#See also Microvision, is similarly janky with needing artwork
 	"MAME (Super A'Can)": MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('supracan', 'cart'), ['bin']),
 	#Some things work, except with no sound, so... nah
 	'MAME (V.Smile Baby)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('vsmileb', 'cart'), ['u1', 'u3', 'bin']),
