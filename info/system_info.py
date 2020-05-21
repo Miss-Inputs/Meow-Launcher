@@ -258,7 +258,10 @@ systems.update({
 	'Copera': BorkedSystemInfo('copera', ['copera'], ['MAME (Copera)'], {MediaType.Cartridge: ['bin', 'md']}),
 	#Kega Fusion emulates the Pico well enough to show the message telling you the Copera software won't work on a Pico, at least
 	'Design Master Denshi Mangajuku': BorkedSystemInfo('bdesignm', ['bdesignm_design_cart', 'bdesignm_game_cart'], [], {MediaType.Cartridge: ['bin']}),
+	#This will be interesting because you're supposed to use combinations of different design carts and game carts at the same time
+	'Didj': BorkedSystemInfo('didj', ['leapfrog_didj_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
 	'Gizmondo': BorkedSystemInfo('gizmondo', [], [], {}), #Uses folders seemingly, so that may be weird with the file types
+	'GoGo TV Video Vision': BorkedSystemInfo('tvgogo', ['tvgogo'], [], {MediaType.Cartridge: generic_cart_extensions}),
 	'GP32': BorkedSystemInfo('gp32', ['gp32'], ['MAME (GP32)'], {MediaType.Cartridge: ['smc'], MediaType.Executable: ['gxb', 'sxf', 'bin', 'gxf', 'fxe']}),
 	'GP2X': BorkedSystemInfo('gp2x', [], [], {}),
 	#TODO: File formats and things
