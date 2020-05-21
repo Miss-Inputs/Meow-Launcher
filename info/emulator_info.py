@@ -135,7 +135,6 @@ emulators = {
 	'MAME (Coleco Adam)': MameDriver(EmulatorStatus.Good, command_lines.mame_coleco_adam, ['wav', 'ddp'] + mame_floppy_formats),
 	#Both disks and tapes autoboot. Woohoo!
 	'MAME (Entex Adventure Vision)': MameDriver(EmulatorStatus.Imperfect, command_lines.mame_system('advision', 'cart'), ['bin']),
-	#Doesn't work with the "Code Red" demo last time I tried
 	'MAME (FM-7)': MameDriver(EmulatorStatus.Good, command_lines.mame_system('fm77av', 'flop1', has_keyboard=True), mame_floppy_formats),
 	#Tapes work, but they require run"" and then pressing play on the tape, the latter not being Lua-autoboot-scriptable yet.
 	#Difference between fm7 and fmnew7 seems to be that the latter boots into BASIC by default (there's dip switches involved) instead of DOS, which seems to be required for tapes to work; and disks just autoboot anyway. FM-77AV is used here despite its allegedly imperfect graphics as there are games which won't work on earlier systems and there doesn't seem to be a programmatic way to tell, and it seems backwards compatibility is fine
