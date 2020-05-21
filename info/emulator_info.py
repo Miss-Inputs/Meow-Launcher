@@ -9,10 +9,11 @@ from .system_info import (atari_2600_cartridge_extensions, mame_cdrom_formats,
 
 class EmulatorStatus(Enum):
 	#I have not actually thought of concrete definitions for what these mean
-	Good = 5
-	Imperfect = 4
-	ExperimentalButSeemsOkay = 3
-	Experimental = 2
+	Good = 6
+	Imperfect = 5
+	ExperimentalButSeemsOkay = 4
+	Experimental = 3
+	Janky = 2 #Weird to set up or launch normally
 	Borked = 1
 
 class EmulatorInfo():
@@ -67,7 +68,7 @@ emulators = {
 	'PCSX2': EmulatorInfo(EmulatorStatus.Good, LaunchParams('PCSX2', ['--nogui', '--fullscreen', '--fullboot', '$<path>']), ['iso', 'cso', 'bin'], ['gz']),
 	#Takes some time to load the interface so at first it might look like it's not working; take out --fullboot if it forbids any homebrew stuff (but it should be fine, and Katamari Damacy needs it unless you will experience sound issues that are funny the first time but not subsequently).  ELF seems to not work, though it'd need a different command line anyway. Only reads the bin of bin/cues and not the cue
 	#Older versions are "pcsx2" or "PCSX2-linux" so I really need to implement that thing where I make the things selectable
-	'PokeMini': EmulatorInfo(EmulatorStatus.Imperfect, LaunchParams('PokeMini', ['-fullscreen', '$<path>']), ['min'], ['zip']),
+	'PokeMini': EmulatorInfo(EmulatorStatus.Janky, LaunchParams('PokeMini', ['-fullscreen', '$<path>']), ['min'], ['zip']),
 	#Puts all the config files in the current directory, which is why there's a wrapper below which you probably want to use instead of this
 	#Maybe I want to move that to emulator_command_lines because it's such a heckin mess... yike
 	#Should I even have this as opposed to just having the wrapper?
@@ -243,7 +244,7 @@ emulators = {
 	'MAME (Casio PV-2000)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_system('pv2000', 'cart', has_keyboard=True), ['bin']),
 	#Not the same as the PV-1000, albeit similar. Driver marked as non-working but it seems alright, other than it's supposed to have joysticks and doesn't (so you just set up a gamepad to map to emulated cursor keys) which maybe is why
 	'MAME (FM Towns Marty)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_fm_towns_marty, mame_cdrom_formats + mame_floppy_formats + ['bin']),
-	#As it says right there in the fmtowns.cpp comments: "Issues: Video emulation is far from complete." and still marked not working, but it seems okay for a few games actually
+	#As it says right there in the fmtowns.cpp comments: "Issues: Video emulation is far from complete." and still marked not working, but it seems okay for a few games actually; creating floppies (for games that make you do that) seems like a weird time
 	'MAME (Hartung Game Master)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_system('gmaster', 'cart'), ['bin']),
 	#Hmm... says not working and imperfect sound. I guess it does run the games, though
 	'MAME (PC-6001)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_system('pc6001', 'cart1', has_keyboard=True), ['bin', 'rom']),
@@ -263,7 +264,7 @@ emulators = {
 
 	'MAME (Amiga CD32)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_amiga_cd32, mame_cdrom_formats),
 	#Hmm boots only a few things I guess
-	'MAME (CreatiVision)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('crvision', 'cart', has_keyboard=True), ['bin', 'rom']),
+	'MAME (CreatiVision)': MameDriver(EmulatorStatus.Janky, command_lines.mame_system('crvision', 'cart', has_keyboard=True), ['bin', 'rom']),
 	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it; anyway it works
 	'MAME (Dreamcast)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_dreamcast, mame_cdrom_formats),
 	#Sloooow, marked as non-working + imperfect sound
@@ -271,7 +272,7 @@ emulators = {
 	'MAME (GameKing 3)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('gamekin3', 'cart'), ['bin', 'gk3']), #No sound yet
 	'MAME (G7400)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('g7400', 'cart'), ['bin', 'rom']),
 	#just has the same graphics problems as Odyssey 2... there's a odyssey3 driver that was never released but I guess it would be for NTSC games. Actually, all the software list items say unsupported... hmm
-	'MAME (IBM PC)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('ibm5150', 'flop1', {'isa5': 'sblaster1_5'}, has_keyboard=True), mame_floppy_formats + ['img']),
+	'MAME (IBM PC)': MameDriver(EmulatorStatus.Janky, command_lines.mame_system('ibm5150', 'flop1', {'isa5': 'sblaster1_5'}, has_keyboard=True), mame_floppy_formats + ['img']),
 	#Sound Blaster 1.5 is added here primarily just to give this a joystick, but then that seems to not work anyway... also, there's DIP switches you might need to set in order for video output to work (it's set to monochrome by default and not CGA)
 	'MAME (Jaguar)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_atari_jaguar, ['j64', 'rom', 'bin', 'abs', 'cof', 'jag', 'prg']),
 	#Hmm. Mostly not working. Some stuff does though
@@ -286,7 +287,7 @@ emulators = {
 	'MAME (Microtan 65)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('mt65', 'dump', has_keyboard=True), ['dmp', 'm65']),
 	#System name was "microtan" prior to 0.212
 	#Aagggh, none of these inputs seem to be working properly (to the point where I can't just assume the games were like that)... maybe I'm doing it wrong, I don't know... it does say status =
-	'MAME (Microvision)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('microvsn', 'cart'), generic_cart_extensions),
+	'MAME (Microvision)': MameDriver(EmulatorStatus.Janky, command_lines.mame_system('microvsn', 'cart'), generic_cart_extensions),
 	#You probably want to use the software list for this so it can detect controls properly, also needs artwork that doesn't seem to be available anywhere
 	'MAME (N64)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_n64, ['v64', 'z64', 'rom', 'n64', 'bin']),
 	#Emulates a NTSC console only so PAL games will probably tell you off or otherwise not work properly; also no rumble/mempak/etc for you. Very slow on even modern systems. Marked as non-working + imperfect graphics
@@ -294,9 +295,9 @@ emulators = {
 	#Wouldn't recommend yet as it has no sound, even if most people would probably turn the sound off in real life, also some stuff doesn't work
 	'MAME (Saturn)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_saturn, mame_cdrom_formats),
 	#Non-working, imperfect sound; crashes on quite a few games and hangs to white screen sometimes
-	'MAME (Sega Pico)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_pico, ['bin', 'md']),
+	'MAME (Sega Pico)': MameDriver(EmulatorStatus.Janky, command_lines.mame_pico, ['bin', 'md']),
 	#Seems like a lot of stuff doesn't get anywhere? Probably needs the book part
-	'MAME (Select-a-Game)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('sag', 'cart'), ['bin']),
+	'MAME (Select-a-Game)': MameDriver(EmulatorStatus.Janky, command_lines.mame_system('sag', 'cart'), ['bin']),
 	#Is now a separate system as of 0.221 instead of sag_whatever individual machines
 	#See also Microvision, is similarly janky with needing artwork
 	"MAME (Super A'Can)": MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('supracan', 'cart'), ['bin']),
