@@ -56,6 +56,9 @@ software_list_platforms = [
 	#ekara stuff
 	#icanguit
 	#icanpian
+	#microvision
+	#entex_sag
+	#vic1001_cart
 
 	#Not working:
 	#rx78 (albeit kinda works)
