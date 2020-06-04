@@ -54,6 +54,7 @@ emulators = {
 	'cxNES': EmulatorInfo(EmulatorStatus.Good, command_lines.cxnes, ['nes', 'fds', 'unf', 'unif'], ['7z', 'zip']),
 	#Or is it good? Have not tried it in a fair bit
 	'Dolphin': EmulatorInfo(EmulatorStatus.Good, command_lines.dolphin, ['iso', 'ciso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs', 'm3u'], []),
+	'DuckStation': EmulatorInfo(EmulatorStatus.Good, LaunchParams('duckstation-qt', ['-batch', '-fullscreen', '$<path>']), ['bin', 'img', 'cue', 'chd'], []),
 	'Flycast': EmulatorInfo(EmulatorStatus.Good, command_lines.flycast, ['gdi', 'cdi', 'chd', 'cue'], []),
 	'FS-UAE': EmulatorInfo(EmulatorStatus.Good, command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf'], []),
 	#Note that .ipf files need a separately downloadable plugin. We could detect the presence of that, I guess
