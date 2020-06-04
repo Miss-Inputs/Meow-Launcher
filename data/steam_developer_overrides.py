@@ -47,6 +47,7 @@ developer_overrides = {
 	'ACQUIRE': 'Acquire',
 	'AGM PLAYISM': 'AGM Playism',
 	'ALICE IN DISSONANCE': 'Alice in Dissonance',
+	'ARC SYSTEM WORKS': 'Arc System Works',
 	'ASTRO PORT': 'Astro Port',
 	'Asylum entertainment': 'Asylum Entertainment',
 	'ATLUS': 'Atlus',
