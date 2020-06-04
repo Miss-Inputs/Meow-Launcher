@@ -62,10 +62,7 @@ class DataAreaROM():
 	def matches(self, crc32, sha1):
 		if not self.sha1 and not self.crc32:
 			#Dunno what to do with roms like these that just have a loadflag attribute and no content, maybe something fancy is supposed to happen
-			if self.status == 'nodump':
-				#Uh oh I don't know what I'm doing
-				return False
-			return True
+			return False
 		if sha1:
 			if self.sha1 == sha1:
 				return True
