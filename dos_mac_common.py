@@ -15,14 +15,18 @@ def init_game_list(platform):
 	db_path = main_config.mac_db_path if platform == 'mac' else main_config.dos_db_path if platform == 'dos' else None
 
 	if not os.path.exists(db_path):
-		print("You don't have {0}_db.json which is required for this to work. Let me get that for you.".format(platform))
+		print('Downloading {0}_db.json directly from GitHub which seems like a bad idea honestly but I need to rewrite this whole thing at some point anyway'.format(platform))
 		#I need to rejiggle this whole jiggly, see issue #78
 		db_url = 'https://raw.githubusercontent.com/Zowayix/computer-software-db/master/{0}_db.json'.format(platform)
 		with urllib.request.urlopen(db_url) as mac_db_request:
 			db_data = mac_db_request.read().decode('utf-8')
-		with open(db_path, 'wt') as db_local_file:
-			db_local_file.write(db_data)
-			game_list = json.loads(db_data)
+		try:
+			with open(db_path, 'wt') as db_local_file:
+				db_local_file.write(db_data)
+				game_list = json.loads(db_data)
+		except OSError as os_error:
+			print('Bugger it', os_error, 'you get nothing')
+			return {}
 	else:
 		with open(db_path, 'rt') as db_file:
 			game_list = json.load(db_file)
