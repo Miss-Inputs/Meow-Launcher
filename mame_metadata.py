@@ -247,9 +247,14 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.platform = 'Board Game'
 		if not machine.metadata.categories:
 			machine.metadata.categories = ['Games']
-	if not category and ((genre == 'Handheld' and subgenre == "Plug n' Play TV Game") or (genre == 'Rhythm' and subgenre == 'Dance') or (genre == 'MultiGame' and subgenre == 'Compilation') or (genre == 'Game Console' and subgenre == 'Fitness Game') or (genre == 'Music' and subgenre == 'Instruments')):
+	if not category and ((genre == 'Handheld' and subgenre.startswith("Plug n' Play TV Game")) or (genre == 'Rhythm' and subgenre == 'Dance') or (genre == 'MultiGame' and subgenre == 'Compilation') or (genre == 'Game Console' and subgenre == 'Fitness Game') or (genre == 'Music' and subgenre == 'Instruments')):
 		#MultiGame / Compilation is also used for some handheld systems (and also there is Arcade: MultiGame / Compilation)
 		machine.metadata.platform = 'Plug & Play'
+		if subgenre.startswith("Plug n' Play TV Game /"):
+			#Oh hey we can actually have a genre now
+			machine.metadata.genre = subgenre.split(' / ')[-1]
+			machine.metadata.subgenre = None
+			
 		if not machine.metadata.categories:
 			machine.metadata.categories = ['Games']
 	if genre == 'Electromechanical' and subgenre == 'Pinball':
