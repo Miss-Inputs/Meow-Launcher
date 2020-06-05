@@ -188,6 +188,7 @@ class Metadata():
 
 		#Set this up later with the respective objects
 		#TODO: Set screen_info up right here, and just keep track of whether it's inited or not
+		#TODO I really need to have a think about whether I really give a shit about this and I kinda wanna chuck all that out and just have specific info fields for MAME machines
 		self.cpu_info = CPUInfo()
 		self.screen_info = None
 		self.input_info = InputInfo()
@@ -195,6 +196,7 @@ class Metadata():
 		self.specific_info = {} #Stuff specific to indivdidual systems (in theory, or just when I'm too lazy to put it as an attribute here)
 		self.tv_type = None
 		self.mame_driver = None #Only really needs to be set if explicitly setting it to something not in system_info
+		self.override_name = None #TODO This will be reworked eventually if I get around to redoing all the things
 
 		self.images = {}
 

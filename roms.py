@@ -129,7 +129,11 @@ class RomGame():
 		else:
 			params = params.replace_path_argument(self.rom.path)
 
-		launchers.make_launcher(params, self.rom.name, self.metadata, 'ROM', self.rom.path)
+		name = self.rom.name
+		if self.metadata.override_name:
+			#This is just a temporary workaround until I figure out what's the best way to do this
+			name = self.metadata.override_name
+		launchers.make_launcher(params, name, self.metadata, 'ROM', self.rom.path)
 
 def try_emulator(game, emulator, system_config):
 	if game.rom.extension not in emulator.supported_extensions:

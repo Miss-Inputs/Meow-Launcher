@@ -184,7 +184,7 @@ def add_wii_homebrew_metadata(game):
 			name = meta_xml.findtext('name')
 			if name:
 				game.metadata.specific_info['Title'] = name
-				game.rom.name = name
+				game.metadata.override_name = name
 
 			coder = meta_xml.findtext('coder')
 			if not coder:
@@ -234,7 +234,7 @@ def add_wii_homebrew_metadata(game):
 		except ElementTree.ParseError as etree_error:
 			if main_config.debug:
 				print('Ah bugger this Wii homebrew XML has problems', game.rom.path, etree_error)
-			game.rom.name = os.path.basename(game.folder)
+			game.metadata.override_name = os.path.basename(game.folder)
 
 def parse_ratings(game, ratings_bytes, invert_has_rating_bit=False, use_bit_6=True):
 	ratings = {}
