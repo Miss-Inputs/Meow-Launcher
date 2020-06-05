@@ -222,6 +222,7 @@ def add_metadata_from_catlist(machine):
 			machine.metadata.categories = ['Games']
 		return
 	if machine.name.startswith(('Game & Watch: ', 'Select-A-Game: ', 'R-Zone: ')):
+		#Select-a-Game does not work this way since 0.221 but might as well keep that there for older versions
 		platform, _, machine.name = machine.name.partition(': ')
 		machine.metadata.platform = platform
 		machine.metadata.media_type = MediaType.Cartridge if platform in ('Select-A-Game', 'R-Zone') else MediaType.Standalone
@@ -254,7 +255,7 @@ def add_metadata_from_catlist(machine):
 			#Oh hey we can actually have a genre now
 			machine.metadata.genre = subgenre.split(' / ')[-1]
 			machine.metadata.subgenre = None
-			
+
 		if not machine.metadata.categories:
 			machine.metadata.categories = ['Games']
 	if genre == 'Electromechanical' and subgenre == 'Pinball':
@@ -283,20 +284,13 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.categories = ['Coin Pusher']
 	elif category == 'Arcade' and ((genre == 'Casino') or (genre == 'Slot Machine') or (genre == 'Electromechanical' and subgenre == 'Reels') or (genre == 'Multiplay' and subgenre == 'Cards')):
 		machine.metadata.categories = ['Gambling']
-	elif category == 'Arcade' and machine.coin_slots == 0:
-		#Or something among those lines, but if it has no coins then it doesn't meet the definition of "coin operated machine"
-		machine.metadata.categories = ['Non-Arcade']
 
 	if not machine.metadata.categories:
-		if category and category != 'Unknown':
-			machine.metadata.categories = ['Arcade']
-		else:
-			machine.metadata.categories = ['Non-Arcade'] if machine.coin_slots == 0 else ['Arcade']
+		#If it has no coins then it doesn't meet the definition of "coin operated machine" I guess and it seems wrong to put it in the arcade category
+		machine.metadata.categories = ['Non-Arcade'] if machine.coin_slots == 0 else ['Arcade']
 	if not machine.metadata.platform:
-		if category and category != 'Unknown':
-			machine.metadata.platform = 'Arcade'
-		else:
-			machine.metadata.platform = 'Non-Arcade' if machine.coin_slots == 0 else 'Arcade'
+		#Ditto here, although I hesitate to actually name this lack of platform "Non-Arcade" but I don't want to overthink things
+		machine.metadata.platform = 'Non-Arcade' if machine.coin_slots == 0 else 'Arcade'
 	#Misc has a lot of different things in it and I guess catlist just uses it as a catch-all for random things which don't really fit anywhere else and there's not enough to give them their own category, probably
 	#Anyway, the name 'Non-Arcade' sucks because it's just used as a "this isn't anything in particular" thing
 
