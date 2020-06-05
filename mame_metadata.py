@@ -248,7 +248,7 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.platform = 'Board Game'
 		if not machine.metadata.categories:
 			machine.metadata.categories = ['Games']
-	if not category and ((genre == 'Handheld' and subgenre.startswith("Plug n' Play TV Game")) or (genre == 'Rhythm' and subgenre == 'Dance') or (genre == 'MultiGame' and subgenre == 'Compilation') or (genre == 'Game Console' and subgenre == 'Fitness Game') or (genre == 'Music' and subgenre == 'Instruments')):
+	if not category and ((genre == 'Handheld' and (subgenre.startswith("Plug n' Play TV Game") or subgenre == 'Console Cartridge')) or (genre == 'Rhythm' and subgenre == 'Dance') or (genre == 'MultiGame' and subgenre == 'Compilation') or (genre == 'Game Console' and subgenre == 'Fitness Game') or (genre == 'Music' and subgenre == 'Instruments')):
 		#MultiGame / Compilation is also used for some handheld systems (and also there is Arcade: MultiGame / Compilation)
 		machine.metadata.platform = 'Plug & Play'
 		if subgenre.startswith("Plug n' Play TV Game /"):
@@ -278,8 +278,10 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.categories = [subgenre]
 	elif genre == 'Utilities' and subgenre in ('Test ROM', 'Test'):
 		machine.metadata.categories = ['Test ROMs']
-	elif genre == 'Electromechanical' or (category == 'Arcade' and genre in ('Utilties', 'Medal Game')):
+	elif genre == 'Electromechanical' or (category == 'Arcade' and genre in ('Medal Game', 'Utilities')):
 		machine.metadata.categories = [genre]
+		machine.metadata.genre = subgenre
+		machine.metadata.subgenre = None
 	elif (genre == 'Misc.' and subgenre == 'Coin Pusher') or (genre == 'Coin Pusher' and subgenre == 'Misc.'):
 		machine.metadata.categories = ['Coin Pusher']
 	elif category == 'Arcade' and ((genre == 'Casino') or (genre == 'Slot Machine') or (genre == 'Electromechanical' and subgenre == 'Reels') or (genre == 'Multiplay' and subgenre == 'Cards')):
