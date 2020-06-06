@@ -227,6 +227,9 @@ class SteamGame():
 		params = launchers.LaunchParams('steam', ['steam://rungameid/{0}'.format(self.app_id)])
 		launchers.make_launcher(params, self.name, self.metadata, 'Steam', self.app_id)
 
+class NotActuallyAGameYouDingusException(Exception):
+	pass
+
 class NotLaunchableError(Exception):
 	pass
 
@@ -597,6 +600,8 @@ def add_metadata_from_appinfo_common_section(game, common):
 		game.metadata.categories = ['Applications']
 	elif category == 'Demo':
 		game.metadata.categories = ['Trials']
+	elif category == 'Music':
+		raise NotActuallyAGameYouDingusException()
 	else:
 		game.metadata.categories = [category]
 
@@ -851,14 +856,67 @@ def process_launcher(game, launcher):
 			game.metadata.specific_info['Wrapper'] = 'DOSBox'
 		elif executable_basename.lower() in ('scummvm.exe', 'scummvm', 'scummvm.sh'):
 			game.metadata.specific_info['Wrapper'] = 'ScummVM'
+		elif executable_basename.lower() in ('rpg_rt.exe'):
+			game.metadata.specific_info['Engine'] = 'RPG Maker 2000' #or 2003, I guess
 	
 	if launcher['args'] and '-uplay_steam_mode' in launcher['args']:
 		game.metadata.specific_info['Launcher'] = 'uPlay'
 
-def process_game(app_id, folder, app_state):
-	#installdir is the subfolder of library_folder/steamapps/common where the game is actually located, if that's ever useful
-	#UserConfig might be interesting... normally it just has a key 'language' which is set to 'english' etc, sometimes duplicating name and app_id as 'gameid' for no reason, but also has things like 'lowviolence': '1' inside Left 4 Dead 2 for example (because I'm Australian I guess), so... well, I just think that's kinda neat, although probably not useful for our purposes here; also for TF2 it has 'betakey': 'prerelease' so I guess that has to do with opt-in beta programs
+def poke_around_in_install_dir(game):
+	install_dir = game.app_state.get('installdir')
+	if not install_dir:
+		# if main_config.debug:
+		# 	print('uh oh no installdir', game.name, game.app_id)
+		return
+	library_folder = os.path.join(game.library_folder, 'steamapps', 'common')
+	if not os.path.isdir(library_folder):
+		# if main_config.debug:
+		# 	print('uh oh no library_folder', game.name, game.app_id, library_folder)
+		return
+	folder = os.path.join(library_folder, install_dir)
+	if not os.path.isdir(folder):
+		# if main_config.debug:
+		# 	print('uh oh installdir does not exist', game.name, game.app_id, folder)
+		return
+	
+	#Let's check for things existing because we can (there's not really any other reason to do this, it's just fun)
+	#Not sure if any of these are in lowercase? Or they might be in a different directory
+	if os.path.isdir(os.path.join(folder, 'renpy')):
+		game.metadata.specific_info['Engine'] = 'Ren\'Py'
+	if os.path.isfile(os.path.join(folder, 'data.dcp')):
+		game.metadata.specific_info['Engine'] = 'Wintermute'
+	if os.path.isfile(os.path.join(folder, 'assets', 'game.unx')):
+		game.metadata.specific_info['Engine'] = 'GameMaker'
+	if os.path.isfile(os.path.join(folder, 'acsetup.cfg')):
+		game.metadata.specific_info['Engine'] = 'Adventure Game Studio'
+	if os.path.isdir(os.path.join(folder, 'Adobe AIR')) or os.path.isdir(os.path.join(folder, 'runtimes', 'Adobe AIR')):
+		game.metadata.specific_info['Engine'] = 'Adobe AIR'
+	if os.path.isfile(os.path.join(folder, 'AIR', 'arh')):
+		#"Adobe Redistribution Helper" but I dunno how reliable this detection is, to be honest, but it seems to be used sometimes; games like this seem to instead check for a system-wide AIR installation and try and install that if it's not there
+		game.metadata.specific_info['Engine'] = 'Adobe AIR'
+	for f in os.listdir(folder):
+		if f.endswith('.rgssad'):
+			game.metadata.specific_info['Engine'] = 'RPG Maker XP/VX'
+			break
+		if f.endswith('.cf'):
+			if os.path.isfile(os.path.join(folder, 'data.xp3')) and os.path.isdir(os.path.join(folder, 'plugin')):
+				game.metadata.specific_info['Engine'] = 'KiriKiri'
+			break
+		if os.path.isdir(os.path.join(folder, f)):
+			if os.path.isfile(os.path.join(folder, f, 'gameinfo.txt')) and os.path.isdir(os.path.join(folder, 'bin')) and os.path.isdir(os.path.join(folder, 'platform')):
+				game.metadata.specific_info['Engine'] = 'Source'
+				break
+			if f.lower() == 'dosbox':
+				game.metadata.specific_info['Wrapper'] = 'DOSBox'
+				break
+			if f.lower().startswith('scummvm_'):
+				#Might be ScummVM_Linux, ScummVM_Windows depending on OS
+				game.metadata.specific_info['Wrapper'] = 'ScummVM'
+				break
 
+	#libdiscord-rpc.so/discord-rpc.dll indicates Discord rich presence support?
+
+def process_game(app_id, folder, app_state):
 	#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
 	try:
 		app_id = int(app_id)
@@ -913,6 +971,7 @@ def process_game(app_id, folder, app_state):
 			game.metadata.specific_info['No-Valid-Launchers'] = True
 	process_launcher(game, launcher)
 	#Potentially do something with game.extra_launchers... I dunno, really
+	poke_around_in_install_dir(game)
 
 	#userdata/<user ID>/config/localconfig.vdf has last time played stats, so that's a thing I guess
 	#userdata/<user ID>/7/remote/sharedconfig.vdf has tags/categories etc as well
@@ -993,11 +1052,13 @@ def process_steam():
 
 		try:
 			process_game(app_id, folder, app_state)
+		except NotActuallyAGameYouDingusException as ex:
+			continue
 		except NotLaunchableError as ex:
 			if main_config.debug:
 				print(app_state.get('name', app_id), app_id, 'is skipped because', ex)
 			continue
-
+		
 	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Steam finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
