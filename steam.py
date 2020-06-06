@@ -590,21 +590,6 @@ def add_metadata_from_appinfo_common_section(game, common):
 		if is_single_player_only:
 			game.metadata.specific_info['Number-of-Players'] = 1
 		
-
-	category = common.get(b'type', b'Unknown').decode('utf-8', errors='backslashreplace')
-	if category in ('game', 'Game'):
-		#This makes the categories like how they are with DOS/Mac
-		game.metadata.categories = ['Games']
-	elif category in ('Tool', 'Application'):
-		#Tool is for SDK/level editor/dedicated server/etc stuff, Application is for general purchased software
-		game.metadata.categories = ['Applications']
-	elif category == 'Demo':
-		game.metadata.categories = ['Trials']
-	elif category == 'Music':
-		raise NotActuallyAGameYouDingusException()
-	else:
-		game.metadata.categories = [category]
-
 	has_adult_content = common.get(b'has_adult_content') #Integer object with data = 0 or 1, as most bools here seem to be
 	game.metadata.nsfw = False if has_adult_content is None else bool(has_adult_content.data)
 
@@ -774,6 +759,11 @@ def process_appinfo_config_section(game, app_info_section):
 		else:
 			raise NotLaunchableError('No launch entries in config section')
 
+def get_game_type(game, app_info_section):
+	common = app_info_section.get(b'common')
+	if common:
+		return common.get(b'type', b'Unknown').decode('utf-8', errors='backslashreplace')
+
 def add_metadata_from_appinfo(game, app_info_section):
 	#Alright let's get to the fun stuff
 	common = app_info_section.get(b'common')
@@ -936,6 +926,20 @@ def process_game(app_id, folder, app_state):
 
 	appinfo_entry = game.appinfo
 	if appinfo_entry:
+		app_type = get_game_type(game, appinfo_entry)
+		if app_type in ('game', 'Game'):
+			#This makes the categories like how they are with DOS/Mac
+			game.metadata.categories = ['Games']
+		elif app_type in ('Tool', 'Application'):
+			#Tool is for SDK/level editor/dedicated server/etc stuff, Application is for general purchased software
+			game.metadata.categories = ['Applications']
+		elif app_type == 'Demo':
+			game.metadata.categories = ['Trials']
+		elif app_type == 'Music': 
+			raise NotActuallyAGameYouDingusException()
+		else:
+			game.metadata.categories = [app_type]
+
 		process_appinfo_config_section(game, appinfo_entry)
 
 	steamplay_overrides = get_steamplay_overrides()
