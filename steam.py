@@ -842,12 +842,11 @@ def process_launcher(game, launcher):
 		game.metadata.specific_info['Executable-Name'] = executable_basename
 
 	if executable_basename:
-		if executable_basename.lower() in ('dosbox.exe', 'dosbox', 'dosbox.sh'):
-			game.metadata.specific_info['Wrapper'] = 'DOSBox'
-		elif executable_basename.lower() in ('scummvm.exe', 'scummvm', 'scummvm.sh'):
-			game.metadata.specific_info['Wrapper'] = 'ScummVM'
-		elif executable_basename.lower() in ('rpg_rt.exe'):
-			game.metadata.specific_info['Engine'] = 'RPG Maker 2000' #or 2003, I guess
+		#if executable_basename.lower() in ('dosbox.exe', 'dosbox', 'dosbox.sh'):
+		#	game.metadata.specific_info['Wrapper'] = 'DOSBox'
+		#elif executable_basename.lower() in ('scummvm.exe', 'scummvm', 'scummvm.sh'):
+		#	game.metadata.specific_info['Wrapper'] = 'ScummVM'
+		pass
 	
 	if launcher['args'] and '-uplay_steam_mode' in launcher['args']:
 		game.metadata.specific_info['Launcher'] = 'uPlay'
@@ -855,18 +854,42 @@ def process_launcher(game, launcher):
 def check_for_interesting_things_in_folder(folder, metadata):
 	#Let's check for things existing because we can (there's not really any other reason to do this, it's just fun)
 	#Not sure if any of these are in lowercase? Or they might be in a different directory
+	dir_entries = list(os.scandir(folder))
+	files = [f.name.lower() for f in dir_entries if f.is_file()]
+	subdirs = [f.name.lower() for f in dir_entries if f.is_dir()]
 
-	if os.path.isdir(os.path.join(folder, 'renpy')):
+	if ('libdiscord-rpc.so', 'discord-rpc.dll') in files:
+		metadata.specific_info['Discord-Rich-Presence'] = True
+	if 'renpy' in subdirs:
 		metadata.specific_info['Engine'] = 'Ren\'Py'
 		return True
-	if os.path.isfile(os.path.join(folder, 'data.dcp')):
+	if 'data.dcp' in files:
 		metadata.specific_info['Engine'] = 'Wintermute'
 		return True
+	if 'acsetup.cfg' in files:
+		metadata.specific_info['Engine'] = 'Adventure Game Studio'
+		return True	
+	if 'rpg_rt.exe' in files:
+		metadata.specific_info['Engine'] = 'RPG Maker 2000/2003'
+		return True
+	if 'dosbox' in subdirs or any(f.startswith('dosbox') for f in files):
+		metadata.specific_info['Wrapper'] = 'DOSBox'
+		return True	
+
+	if any(f.startswith('scummvm_') for f in subdirs) or any(f.startswith('scummvm') for f in files):
+		metadata.specific_info['Wrapper'] = 'ScummVM'
+		return True	
+	if any(f.endswith('.rgssad') for f in files):
+		metadata.specific_info['Engine'] = 'RPG Maker XP/VX'
+		return True
+	if any(f.endswith('.cf') for f in files):
+		if 'data.xp3' in files and 'plugin' in subdirs:
+			metadata.specific_info['Engine'] = 'KiriKiri'
+		return True
+
+	#Hmm should I be refactoring these lines down here
 	if os.path.isfile(os.path.join(folder, 'assets', 'game.unx')):
 		metadata.specific_info['Engine'] = 'GameMaker'
-		return True
-	if os.path.isfile(os.path.join(folder, 'acsetup.cfg')):
-		metadata.specific_info['Engine'] = 'Adventure Game Studio'
 		return True
 	if os.path.isdir(os.path.join(folder, 'Adobe AIR')) or os.path.isdir(os.path.join(folder, 'runtimes', 'Adobe AIR')):
 		metadata.specific_info['Engine'] = 'Adobe AIR'
@@ -875,27 +898,17 @@ def check_for_interesting_things_in_folder(folder, metadata):
 		#"Adobe Redistribution Helper" but I dunno how reliable this detection is, to be honest, but it seems to be used sometimes; games like this seem to instead check for a system-wide AIR installation and try and install that if it's not there
 		metadata.specific_info['Engine'] = 'Adobe AIR'
 		return True
+	#if os.path.isfile(os.path.join(folder, 'support', 'UplayInstaller.exe')):
+	#	metadata.specific_info['Launcher'] = 'uPlay'
+	#	return True
+		
 	for f in os.listdir(folder):
-		if f.endswith('.rgssad'):
-			metadata.specific_info['Engine'] = 'RPG Maker XP/VX'
-			return True
-		if f.endswith('.cf'):
-			if os.path.isfile(os.path.join(folder, 'data.xp3')) and os.path.isdir(os.path.join(folder, 'plugin')):
-				metadata.specific_info['Engine'] = 'KiriKiri'
-			return True
 		if os.path.isdir(os.path.join(folder, f)):
 			if os.path.isfile(os.path.join(folder, f, 'gameinfo.txt')) and os.path.isdir(os.path.join(folder, 'bin')) and os.path.isdir(os.path.join(folder, 'platform')):
 				metadata.specific_info['Engine'] = 'Source'
 				return True
-			if f.lower() == 'dosbox':
-				metadata.specific_info['Wrapper'] = 'DOSBox'
-				return True
-			if f.lower().startswith('scummvm_'):
-				#Might be ScummVM_Linux, ScummVM_Windows depending on OS
-				metadata.specific_info['Wrapper'] = 'ScummVM'
-				return True
 
-	#libdiscord-rpc.so/discord-rpc.dll indicates Discord rich presence support?
+	return False
 
 def poke_around_in_install_dir(game):
 	install_dir = game.app_state.get('installdir')
@@ -914,9 +927,13 @@ def poke_around_in_install_dir(game):
 		# 	print('uh oh installdir does not exist', game.name, game.app_id, folder)
 		return
 
-	check_for_interesting_things_in_folder(folder)
-	
-
+	found_something_cool = check_for_interesting_things_in_folder(folder, game.metadata)
+	if not found_something_cool:
+		for f in os.listdir(folder):
+			if os.path.isdir(os.path.join(folder, f)):
+				found_something_cool = check_for_interesting_things_in_folder(os.path.join(folder, f), game.metadata)
+				if found_something_cool:
+					break
 
 def process_game(app_id, folder, app_state):
 	#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
