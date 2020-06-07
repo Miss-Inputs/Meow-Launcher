@@ -902,7 +902,7 @@ def check_for_interesting_things_in_folder(folder, metadata):
 	files = [f.name.lower() for f in dir_entries if f.is_file()]
 	subdirs = [f.name.lower() for f in dir_entries if f.is_dir()]
 	
-	if ('libdiscord-rpc.so', 'discord-rpc.dll') in files:
+	if 'libdiscord-rpc.so' in files or 'discord-rpc.dll' in files:
 		metadata.specific_info['Discord-Rich-Presence'] = True
 	if 'dosbox' in subdirs or any(f.startswith('dosbox') for f in files):
 		metadata.specific_info['Wrapper'] = 'DOSBox'
