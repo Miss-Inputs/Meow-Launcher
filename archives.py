@@ -18,7 +18,7 @@ sevenzip_path_regex = re.compile(r'^Path\s+=\s+(.+)$', flags=re.IGNORECASE)
 sevenzip_attr_regex = re.compile(r'^Attributes\s+=\s+(.+)$', flags=re.IGNORECASE)
 def sevenzip_list(path):
 	#This is rather slow…
-	proc = subprocess.run(['7z', 'l', '-slt', path], stdout=subprocess.PIPE, universal_newlines=True)
+	proc = subprocess.run(['7z', 'l', '-slt', path], stdout=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
 		raise Bad7zException('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
 
@@ -58,7 +58,7 @@ def zip_getsize(path, filename):
 
 sevenzip_size_reg = re.compile(r'^Size\s+=\s+(\d+)$', flags=re.IGNORECASE)
 def sevenzip_getsize(path, filename):
-	proc = subprocess.run(['7z', 'l', '-slt', path, filename], stdout=subprocess.PIPE, universal_newlines=True)
+	proc = subprocess.run(['7z', 'l', '-slt', path, filename], stdout=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
 		raise Bad7zException('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
 
