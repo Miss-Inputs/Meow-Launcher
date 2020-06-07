@@ -910,10 +910,8 @@ def check_for_interesting_things_in_folder(folder, metadata):
 	if any(f.startswith('scummvm_') for f in subdirs) or any(f.startswith('scummvm') for f in files):
 		metadata.specific_info['Wrapper'] = 'ScummVM'
 
-	#if os.path.isfile(os.path.join(folder, 'support', 'UplayInstaller.exe')):
-	#	metadata.specific_info['Launcher'] = 'uPlay'
-	#	return True
-	return False
+	if os.path.isfile(os.path.join(folder, 'support', 'UplayInstaller.exe')):
+		metadata.specific_info['Launcher'] = 'uPlay'
 
 def poke_around_in_install_dir(game):
 	install_dir = game.app_state.get('installdir')
@@ -937,15 +935,12 @@ def poke_around_in_install_dir(game):
 	if engine:
 		game.metadata.specific_info['Engine'] = engine
 
-	found_something_cool = check_for_interesting_things_in_folder(folder, game.metadata)
+	check_for_interesting_things_in_folder(folder, game.metadata)
+	for f in os.listdir(folder):
+		path = os.path.join(folder, f)
+		if os.path.isdir(path):
+			check_for_interesting_things_in_folder(path, game.metadata)
 	
-	if not found_something_cool:
-		for f in os.listdir(folder):
-			if os.path.isdir(os.path.join(folder, f)):
-				found_something_cool = check_for_interesting_things_in_folder(os.path.join(folder, f), game.metadata)
-				if found_something_cool:
-					break
-
 def process_game(app_id, folder, app_state):
 	#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
 	try:
