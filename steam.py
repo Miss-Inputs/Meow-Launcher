@@ -759,10 +759,11 @@ def process_appinfo_config_section(game, app_info_section):
 		else:
 			raise NotLaunchableError('No launch entries in config section')
 
-def get_game_type(game, app_info_section):
+def get_game_type(app_info_section):
 	common = app_info_section.get(b'common')
 	if common:
 		return common.get(b'type', b'Unknown').decode('utf-8', errors='backslashreplace')
+	return None
 
 def add_metadata_from_appinfo(game, app_info_section):
 	#Alright let's get to the fun stuff
@@ -841,15 +842,58 @@ def process_launcher(game, launcher):
 			executable_basename = executable_basename.split('\\')[-1]
 		game.metadata.specific_info['Executable-Name'] = executable_basename
 
-	if executable_basename:
-		#if executable_basename.lower() in ('dosbox.exe', 'dosbox', 'dosbox.sh'):
-		#	game.metadata.specific_info['Wrapper'] = 'DOSBox'
-		#elif executable_basename.lower() in ('scummvm.exe', 'scummvm', 'scummvm.sh'):
-		#	game.metadata.specific_info['Wrapper'] = 'ScummVM'
-		pass
-	
 	if launcher['args'] and '-uplay_steam_mode' in launcher['args']:
 		game.metadata.specific_info['Launcher'] = 'uPlay'
+
+def try_and_detect_engine_from_folder(folder):
+	dir_entries = list(os.scandir(folder))
+	files = [f.name.lower() for f in dir_entries if f.is_file()]
+	subdirs = [f.name.lower() for f in dir_entries if f.is_dir()]
+
+	if 'renpy' in subdirs:
+		return "Ren'Py"
+	if 'data.dcp' in files:
+		return 'Wintermute'
+	if 'acsetup.cfg' in files:
+		return 'Adventure Game Studio'
+	if 'rpg_rt.exe' in files:
+		return 'RPG Maker 2000/2003'
+	
+	if any(f.endswith('.rgssad') for f in files):
+		return 'RPG Maker XP/VX'
+	if any(f.endswith('.cf') for f in files):
+		if 'data.xp3' in files and 'plugin' in subdirs:
+			return 'KiriKiri'
+
+	#Hmm should I be refactoring these lines down here
+	if os.path.isfile(os.path.join(folder, 'assets', 'game.unx')):
+		return 'GameMaker'
+	if 'adobe air' in subdirs or os.path.isdir(os.path.join(folder, 'runtimes', 'Adobe AIR')):
+		return 'Adobe AIR'
+	if os.path.isfile(os.path.join(folder, 'AIR', 'arh')):
+		#"Adobe Redistribution Helper" but I dunno how reliable this detection is, to be honest, but it seems to be used sometimes; games like this seem to instead check for a system-wide AIR installation and try and install that if it's not there
+		return 'Adobe AIR'
+	if 'bin' in subdirs and 'platform' in subdirs:
+		for f in os.listdir(folder):
+			if os.path.isdir(os.path.join(folder, f)):
+				if os.path.isfile(os.path.join(folder, f, 'gameinfo.txt')):
+					return 'Source'
+
+	return None
+
+def detect_engine_recursively(folder):
+	engine = try_and_detect_engine_from_folder(folder)
+	if engine:
+		return engine
+
+	for subdir in os.listdir(folder):
+		path = os.path.join(folder, subdir)
+		if os.path.isdir(path):
+			engine = try_and_detect_engine_from_folder(path)
+			if engine:
+				return engine
+
+	return None
 
 def check_for_interesting_things_in_folder(folder, metadata):
 	#Let's check for things existing because we can (there's not really any other reason to do this, it's just fun)
@@ -857,57 +901,18 @@ def check_for_interesting_things_in_folder(folder, metadata):
 	dir_entries = list(os.scandir(folder))
 	files = [f.name.lower() for f in dir_entries if f.is_file()]
 	subdirs = [f.name.lower() for f in dir_entries if f.is_dir()]
-
+	
 	if ('libdiscord-rpc.so', 'discord-rpc.dll') in files:
 		metadata.specific_info['Discord-Rich-Presence'] = True
-	if 'renpy' in subdirs:
-		metadata.specific_info['Engine'] = 'Ren\'Py'
-		return True
-	if 'data.dcp' in files:
-		metadata.specific_info['Engine'] = 'Wintermute'
-		return True
-	if 'acsetup.cfg' in files:
-		metadata.specific_info['Engine'] = 'Adventure Game Studio'
-		return True	
-	if 'rpg_rt.exe' in files:
-		metadata.specific_info['Engine'] = 'RPG Maker 2000/2003'
-		return True
 	if 'dosbox' in subdirs or any(f.startswith('dosbox') for f in files):
 		metadata.specific_info['Wrapper'] = 'DOSBox'
-		return True	
 
 	if any(f.startswith('scummvm_') for f in subdirs) or any(f.startswith('scummvm') for f in files):
 		metadata.specific_info['Wrapper'] = 'ScummVM'
-		return True	
-	if any(f.endswith('.rgssad') for f in files):
-		metadata.specific_info['Engine'] = 'RPG Maker XP/VX'
-		return True
-	if any(f.endswith('.cf') for f in files):
-		if 'data.xp3' in files and 'plugin' in subdirs:
-			metadata.specific_info['Engine'] = 'KiriKiri'
-		return True
 
-	#Hmm should I be refactoring these lines down here
-	if os.path.isfile(os.path.join(folder, 'assets', 'game.unx')):
-		metadata.specific_info['Engine'] = 'GameMaker'
-		return True
-	if os.path.isdir(os.path.join(folder, 'Adobe AIR')) or os.path.isdir(os.path.join(folder, 'runtimes', 'Adobe AIR')):
-		metadata.specific_info['Engine'] = 'Adobe AIR'
-		return True
-	if os.path.isfile(os.path.join(folder, 'AIR', 'arh')):
-		#"Adobe Redistribution Helper" but I dunno how reliable this detection is, to be honest, but it seems to be used sometimes; games like this seem to instead check for a system-wide AIR installation and try and install that if it's not there
-		metadata.specific_info['Engine'] = 'Adobe AIR'
-		return True
 	#if os.path.isfile(os.path.join(folder, 'support', 'UplayInstaller.exe')):
 	#	metadata.specific_info['Launcher'] = 'uPlay'
 	#	return True
-		
-	for f in os.listdir(folder):
-		if os.path.isdir(os.path.join(folder, f)):
-			if os.path.isfile(os.path.join(folder, f, 'gameinfo.txt')) and os.path.isdir(os.path.join(folder, 'bin')) and os.path.isdir(os.path.join(folder, 'platform')):
-				metadata.specific_info['Engine'] = 'Source'
-				return True
-
 	return False
 
 def poke_around_in_install_dir(game):
@@ -925,9 +930,15 @@ def poke_around_in_install_dir(game):
 	if not os.path.isdir(folder):
 		# if main_config.debug:
 		# 	print('uh oh installdir does not exist', game.name, game.app_id, folder)
+		#Hmm I would need to make this case insensitive for some cases
 		return
 
+	engine = detect_engine_recursively(folder)
+	if engine:
+		game.metadata.specific_info['Engine'] = engine
+
 	found_something_cool = check_for_interesting_things_in_folder(folder, game.metadata)
+	
 	if not found_something_cool:
 		for f in os.listdir(folder):
 			if os.path.isdir(os.path.join(folder, f)):
@@ -955,9 +966,9 @@ def process_game(app_id, folder, app_state):
 
 	appinfo_entry = game.appinfo
 	if appinfo_entry:
-		app_type = get_game_type(game, appinfo_entry)
+		app_type = get_game_type(appinfo_entry)
 		if app_type in ('game', 'Game'):
-			#This makes the categories like how they are with DOS/Mac
+			#This makes the categories consistent with other stuff
 			game.metadata.categories = ['Games']
 		elif app_type in ('Tool', 'Application'):
 			#Tool is for SDK/level editor/dedicated server/etc stuff, Application is for general purchased software
