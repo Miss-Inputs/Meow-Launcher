@@ -2,9 +2,13 @@
 
 <img alt="Meow Launcher's logo" src="gui/icon.png?raw=true" width="300" />
 
-Meow Launcher is a frontend for various emulators and game platforms.
+This is just a general warning that overrides anything else I say in this readme, for the time being. Right now this project is in a state where it only really makes sense for me to use it, it's just not ready for general purpose use yet. Not configurable enough. It did just evolve from a little script I made one day and I took things too far, after all; anyway it is here in the hope that one day it will be useful to others, and I guess you could look at it if there's something there useful to you, but like probably not because you could probably just use any one of the other "automatically generate the right command lines to launch an emulator" tools out there, and I didn't because I didn't like them and so I made one for my own weird purposes.
 
-This readme still sucks, and I still suck at writing stuff, but here we go. Hopefully, this gives a good idea of what it does, and where it's at right now.
+Actually I'm not sure why I'm bothering to leave the rest of this readme intact anyway, since by the time I remove that warning, it'll all be out of date. I'm sure some of that is out of date already.
+
+Truth be told this is like,,, it's not that this project is abandoned, far from it because I stare into the VS Code window every day, but right now I'm not really in a place in real life where I can focus or be that productive. I guess you could call it a hiatus of sorts, if you wanted to call it something.
+
+--- end warning
 
 So, Meow Launcher aims to take away the hassle of going through games and actually launching them. It automatically supplies the right command line options to things so they work properly, basically aims to create a "console-like" experience for as many games as possible, i.e. you say "I am going to play this game" and then you launch the game and then you can play the game, without having to think too much.
 
