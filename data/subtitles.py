@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 #TODO: Actually use this, it'll be useful for disambiguate.py probably
+#Also yeah this would be good in machine_name_matches even more so
 
 subtitles = {
 	'Catz': 'Your Virtual Petz Palz',
 	'Driver 2': 'Back on the Streets',
+	'Ehrgeiz': 'God Bless the Ring',
 	'F-22 Interceptor': 'Advanced Tactical Fighter',
 	'Fantasy Zone II': 'The Tears of Opa-Opa',
 	'Galaga': 'Demons of Death',
@@ -15,9 +17,8 @@ subtitles = {
 	'Metal Slug X': 'Super Vehicle-001',
 	'Miner 2049er': 'Starring Bounty Bob',
 	"Montezuma's Revenge - Featuring Panama Joe": 'Featuring Panama Joe',
-	'Parodius': 'Shinwa kara Owarai e',
-	#Technically wrong, Parodius is the first game on MSX and Parodius DA!  is the sequel but it's called Parodius in Europe which is annoying and I've already gotten rid of the DA! as above and everything confusing
-	'Pitfall II - Lost Caverns': 'The Lost Caverns', #Sometimes seen as just "Lost Caverns"
+	'Persona 2': 'Eternal Punishment',
+	'Pitfall II': 'Lost Caverns', #Sometimes seen with definite article
 	'Pitfall!': "Pitfall Harry's Jungle Adventure",
 	'Pit Fighter': 'The Ultimate Competition',
 	'Pokemon Box': 'Ruby & Sapphire',
@@ -28,8 +29,10 @@ subtitles = {
 	'SimEarth': 'The Living Planet',
 	'Street Fighter II': 'The World Warrior',
 	'Super Street Fighter II': 'The New Challengers',
+	'Wave Race 64': 'Kawasaki Jet Ski', #Well sort of, I guess later releases (i.e. VC) have license removed
 	'Ys III': 'Wanderers from Ys',
 	'Zool': "Ninja of the 'Nth' Dimension",
+	'Zooo': 'Action Puzzle Game',
 }
 
 non_standard_subtitles = {
