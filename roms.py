@@ -246,10 +246,6 @@ def process_emulated_system(system_config):
 			for name in sorted(files, key=sort_m3u_first()):
 				path = os.path.join(root, name)
 
-				if not main_config.full_rescan:
-					if launchers.has_been_done('ROM', path):
-						continue
-
 				rom = rom_file(path)
 
 				if rom.extension == 'm3u':
@@ -262,6 +258,10 @@ def process_emulated_system(system_config):
 
 					system = system_info.systems[system_config.name]
 					if not system.is_valid_file_type(rom.extension):
+						continue
+
+				if not main_config.full_rescan:
+					if launchers.has_been_done('ROM', path):
 						continue
 
 				try:
