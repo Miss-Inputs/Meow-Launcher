@@ -14,9 +14,12 @@ subtitles = {
 	'Madou Monogatari I': '3-Tsu no Madoukyuu',
 	'MegaMania': 'A Space Nightmare',
 	'Metal Slug 2': 'Super Vehicle-001/II',
+	'Metal Slug': 'Super Vehicle-001',
 	'Metal Slug X': 'Super Vehicle-001',
 	'Miner 2049er': 'Starring Bounty Bob',
-	"Montezuma's Revenge - Featuring Panama Joe": 'Featuring Panama Joe',
+	"Montezuma's Revenge": 'Featuring Panama Joe',
+	'Myth': 'History in the Making',
+	'Neo Drift Out': 'New Technology',
 	'Persona 2': 'Eternal Punishment',
 	'Pitfall II': 'Lost Caverns', #Sometimes seen with definite article
 	'Pitfall!': "Pitfall Harry's Jungle Adventure",
