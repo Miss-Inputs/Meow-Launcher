@@ -1074,7 +1074,7 @@ def no_longer_exists(appid):
 
 	global no_longer_exists_cached_appids
 	if no_longer_exists_cached_appids is None:
-		no_longer_exists_cached_appids = [id for folder, id, state in iter_steam_installed_appids()]
+		no_longer_exists_cached_appids = [app_id for folder, app_id, state in iter_steam_installed_appids()]
 
 	return appid not in no_longer_exists_cached_appids
 
