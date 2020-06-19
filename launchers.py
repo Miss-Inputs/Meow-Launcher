@@ -105,10 +105,17 @@ class MultiCommandLaunchParams():
 		new_commands = [command.replace_path_argument(path) for command in self.commands]
 		return MultiCommandLaunchParams(new_commands)
 
-used_filenames = []
+used_filenames = None
 def make_linux_desktop(launch_params, display_name, fields=None):
 	base_filename = make_filename(display_name)
 	filename = base_filename + '.desktop'
+
+	global used_filenames #Yeah yeah I know, I'm naughty, I'll probs rewrite it one day
+	if used_filenames is None:
+		if main_config.full_rescan:
+			used_filenames = []
+		else:
+			used_filenames = os.listdir(main_config.output_folder)
 
 	i = 0
 	while filename in used_filenames:
