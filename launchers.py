@@ -115,7 +115,10 @@ def make_linux_desktop(launch_params, display_name, fields=None):
 		if main_config.full_rescan:
 			used_filenames = []
 		else:
-			used_filenames = os.listdir(main_config.output_folder)
+			try:
+				used_filenames = os.listdir(main_config.output_folder)
+			except FileNotFoundError:
+				used_filenames = []
 
 	i = 0
 	while filename in used_filenames:
