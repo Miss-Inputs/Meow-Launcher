@@ -305,7 +305,7 @@ systems.update({
 	#Was never actually released, but prototypes exist
 	'Arduboy': BorkedSystemInfo(None, [], [], {MediaType.Digital: ['arduboy'], MediaType.Executable: ['hex']}),
 	'N-Gage': BorkedSystemInfo(None, [], [], {}), #File types are.. folders I think. That could get weird. Anyway, all emulators at this stage seem to be super-preliminary
-	'Nuon': BorkedSystemInfo(None, [], [], {MediaType.OpticalDisc: ['iso']}),
+	'Nuon': BorkedSystemInfo(None, ['nuon'], [], {MediaType.OpticalDisc: ['iso']}),
 	#There once was an emulator out there somewhere… for Windows
 	'Wii U': BorkedSystemInfo(None, [], [], {MediaType.OpticalDisc: ['iso', 'wud'], MediaType.Executable: ['rpx', 'elf']}),
 	#Decaf seems to not work on Linux at the moment
