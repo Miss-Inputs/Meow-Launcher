@@ -344,6 +344,7 @@ emulators = {
 	#Doesn't even display graphics, I'm just feeling like adding stuff at this point
 	'MAME (Advanced Pico Beena)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('beena', 'cart'), ['bin']), #Segfaults
 	'MAME (C2 Color)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('c2color', 'cart'), ['bin']),
+	'MAME (Didj)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('didj', 'cart'), ['bin']),
 	'MAME (Konami Picno)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('picno', 'cart'), ['bin']),
 	'MAME (LeapPad)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('leappad', 'cart'), ['bin']),
 	'MAME (Leapster)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('leapster', 'cart'), ['bin']), #Sometimes crashes, appears to be executing the CPU and printing debug stuff
