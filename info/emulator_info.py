@@ -286,6 +286,9 @@ emulators = {
 	#Isn't completely broken but a lot of games have broken graphics so like... ehh
 	'MAME (Mattel Aquarius)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('aquarius', 'cart', has_keyboard=True), ['bin', 'rom']),
 	#Controllers aren't emulated yet (and they're necessary for a lot of things)
+	'MAME (Mattel HyperScan)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('hyprscan', 'cdrom'), mame_cdrom_formats),
+	#Not going to bother about handling the cards, since logically you want to use those in the middle of the game and so you'd swap those in and out with the MAME file management menu
+	#No sound and a bit slow (the latter is made worse with this console having shit loading speed)
 	'MAME (Mega CD)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_mega_cd, mame_cdrom_formats),
 	#Hmm sometimes works and sometimes does not, would be good if I could use software lists to check the status more reliably but that's my bad that I don't do that right now
 	'MAME (Microtan 65)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('mt65', 'dump', has_keyboard=True), ['dmp', 'm65']),
@@ -306,6 +309,8 @@ emulators = {
 	#See also Microvision, is similarly janky with needing artwork
 	"MAME (Super A'Can)": MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('supracan', 'cart'), ['bin']),
 	#Some things work, except with no sound, so... nah
+	'MAME (Uzebox)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('uzebox', 'cart'), ['bin', 'uze']),
+	#https://mametesters.org/view.php?id=7608 ruh roh broke in 0.220 and now many things don't work properly; has always been slow
 	'MAME (V.Smile Baby)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('vsmileb', 'cart'), ['u1', 'u3', 'bin']),
 	#Seems to crash on some titles, also everything in software list is supported=no?
 	'MAME (VideoBrain)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('vidbrain', 'cart', has_keyboard=True), ['bin']),
@@ -315,7 +320,7 @@ emulators = {
 	#Doesn't do red/blue stereo 3D, instead just outputing two screens side by side (you can go cross-eyed to see the 3D effect, but that'll hurt your eyes after a while (just like in real life)). Also has a bit of graphical glitches here and there and a lot of software list items are unsupported
 	#TODO PlayStation: Would require proper region code detection, which would require looking at ISO9660 stuff properly. Anyway it is MACHINE_NOT_WORKING and often doesn't play the games (see https://mametesters.org/view.php?id=7127)
 
-	#Just here for future use or fun really; these straight up don't work:
+	#Just here for future use or the fun of creating launchers really; these straight up don't work:
 	'MAME (Buzztime Home Trivia System)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('buzztime', 'cart'), ['bin']),
 	#Inputs are not defined and it just spams random inputs (the game plays itself!!!1)
 	'MAME (Casio Loopy)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('casloopy', 'cart'), ['bin']),
@@ -328,8 +333,6 @@ emulators = {
 	#Runs too slow to verify if anything else works, but all documentation points to not
 	'MAME (Koei PasoGo)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('pasogo', 'cart'), ['bin']),
 	#No sound yet, and apparently the rest doesn't work either (I'll take their word for it so I don't have to play weird board games I don't understand)
-	'MAME (Uzebox)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('uzebox', 'cart'), ['bin', 'uze']),
-	#https://mametesters.org/view.php?id=7608 ruh roh broke in 0.220
 	'MAME (V.Smile Motion)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('vsmilem', 'cart'), ['bin', 'u1', 'u3']),
 	'MAME (3DO)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('3do', 'cdrom'), mame_cdrom_formats), #Should switch to 3do_pal when needed, but it doesn't really matter at this point
 	'MAME (Bandai RX-78)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('rx78', 'cart', has_keyboard=True), ['bin', 'rom']),

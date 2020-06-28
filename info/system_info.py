@@ -271,7 +271,7 @@ systems.update({
 	'LeapPad': BorkedSystemInfo('leappad', ['leapfrog_leappad_cart'], ['MAME (LeapPad)'], {MediaType.Cartridge: ['bin']}),
 	'Leapster': BorkedSystemInfo('leapster', ['leapster'], ['MAME (Leapster)'], {MediaType.Cartridge: ['bin']}),
 	'Little Touch LeapPad': BorkedSystemInfo('ltleappad', ['leapfrog_ltleappad_cart'], [], {MediaType.Cartridge: ['bin']}),
-	'Mattel HyperScan': BorkedSystemInfo('hyprscan', ['hyperscan'], [], {MediaType.OpticalDisc: cdrom_formats}),
+	'Mattel HyperScan': BorkedSystemInfo('hyprscan', ['hyperscan'], ['MAME (Mattel HyperScan)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'MSX Turbo-R': BorkedSystemInfo('fsa1st', ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
 	'MobiGo': BorkedSystemInfo('mobigo', ['mobigo_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Monon Color': BorkedSystemInfo('mononcol', ['monon_color'], ['MAME (Monon Color)'], {MediaType.Cartridge: ['bin']}),
