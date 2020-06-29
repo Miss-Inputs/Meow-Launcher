@@ -261,7 +261,7 @@ systems.update({
 	#This will be interesting because you're supposed to use combinations of different design carts and game carts at the same time
 	'Didj': BorkedSystemInfo('didj', ['leapfrog_didj_cart'], ['MAME (Didj)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Gizmondo': BorkedSystemInfo('gizmondo', [], [], {}), #Uses folders seemingly, so that may be weird with the file types
-	'GoGo TV Video Vision': BorkedSystemInfo('tvgogo', ['tvgogo'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	'GoGo TV Video Vision': BorkedSystemInfo('tvgogo', ['tvgogo'], ['MAME (GoGo TV Video Vision)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'GP32': BorkedSystemInfo('gp32', ['gp32'], ['MAME (GP32)'], {MediaType.Cartridge: ['smc'], MediaType.Executable: ['gxb', 'sxf', 'bin', 'gxf', 'fxe']}),
 	'GP2X': BorkedSystemInfo('gp2x', [], [], {}),
 	#TODO: File formats and things
@@ -273,9 +273,8 @@ systems.update({
 	'Little Touch LeapPad': BorkedSystemInfo('ltleappad', ['leapfrog_ltleappad_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Mattel HyperScan': BorkedSystemInfo('hyprscan', ['hyperscan'], ['MAME (Mattel HyperScan)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'MSX Turbo-R': BorkedSystemInfo('fsa1st', ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
-	'MobiGo': BorkedSystemInfo('mobigo', ['mobigo_cart'], [], {MediaType.Cartridge: ['bin']}),
+	'MobiGo': BorkedSystemInfo('mobigo', ['mobigo_cart'], ['MAME (MobiGo)'], {MediaType.Cartridge: ['bin']}),
 	'Monon Color': BorkedSystemInfo('mononcol', ['monon_color'], ['MAME (Monon Color)'], {MediaType.Cartridge: ['bin']}),
-	#Only a skeleton MAME driver with no sound or video or inputs
 	'My First LeapPad': BorkedSystemInfo('mfleappad', ['leapfrog_mfleappad_cart'], ['MAME (My First LeapPad)'], {MediaType.Cartridge: ['bin']}),
 	'Panasonic JR-200': BorkedSystemInfo('jr200', [], []),
 	'Pippin': BorkedSystemInfo('pippin', ['pippin', 'pippin_flop'], ['MAME (Pippin)'], {MediaType.OpticalDisc: cdrom_formats}),
@@ -431,11 +430,15 @@ systems.update({
 	'PipBug': BorkedSystemInfo('pipbug', [], [], {MediaType.Executable: ['pgm']}),
 	'Nascom': BorkedSystemInfo('nascom2c', ['nascom_flop', 'nascom_snap', 'nascom_socket'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Snapshot: ['nas', 'chr']}),
 	#romimage1,2 = bin, rom as well (this is probably just related to nascom_socket and doesn't sound like the kind of thing we worry about around here)
+	'Colour Genie': BorkedSystemInfo('cgenie', ['cgenie_cass', 'cgenie_flop_rom'], [], {MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['rom']}),
+	'CBM-II': BorkedSystemInfo('cbm610', ['cbm2_cart', 'cbm2_flop'], [], {MediaType.Floppy: ['d80', 'd88', 'd77'] + mame_floppy_formats, MediaType.Cartridge: ['20', '40', '60'], MediaType.Executable: ['p00', 'prg', 't64']}),
+	'Compis': BorkedSystemInfo('compis', ['compis'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav']}),
+	'Enterprise': BorkedSystemInfo('ep128', ['ep64_cart', 'ep64_cass', 'ep64_flop'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav']}),
+	#ugh don't like this one. Floppies need weirdness with both the actual thing itself and isdos from the software list and aaggh fuck off
+	'Dragon 64': BorkedSystemInfo('dragon64', ['dragon_cart', 'dragon_cass', 'dragon_flex', 'dragon_flop', 'dragon_os9'], [], {MediaType.Floppy: ['dmk', 'jvc', 'vdk', 'sdf', 'os9'] + mame_floppy_formats, MediaType.Cartridge: ['ccc', 'rom'], MediaType.Tape: ['wav', 'cas']}),
 
 	#Things where I can't be fucked right now making an UnsupportedSystemInfo object:
 	#Altair 8800 (is 8800bt a different thing)
-	#CBM-II (VIC-II and CRTC models are different maybe?)
-	#Enterprise (ep64/ep128) (ugh don't like this one. Floppies need weirdness with both the actual thing itself and isdos from the software list and aaggh fuck off)
 	#Microbee: This works except joysticks (I don't even see anything that mentions joysticks existing other than some games that ask for it), quik1 and flop1 both autoboot but the latter is only present on the newer models that have MACHINE_NOT_WORKING
 	#TIC-80 (is that a real system or a "fantasy" one I forgot) (no MAME driver)
 	#Vita (cbf to use Vita3K)
@@ -450,7 +453,6 @@ systems.update({
 	#Which of TI calculators are software compatible with which (and hence which ones would be considered individual systems)?
 		#TI-73, 81, 82, 83x, 84x, 85, 86 are Z80; 89, 92x are M68K
 	#Bandai Super Note Club: Part of VTech Genius Leader (supports glccolor software list), or its own thing (has snotec software list)?
-	#Dragon 64 part of CoCo or nah?
 	#Jupiter Ace (ZX Spectrum clone but has different compatibility?)
 	#PalmOS: Not sure if there would be something which can just run .prc files or whatsitcalled
 	#Amstrad PC20/Sinclair PC200: Is this just IBM PC compatible stuff? Have one demoscene prod which claims to be for it specifically

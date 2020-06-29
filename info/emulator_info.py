@@ -332,7 +332,8 @@ emulators = {
 	#This one works less than CD32; just takes you to the default boot screen like no CD was inserted
 	'MAME (Copera)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('copera', 'cart'), ['bin', 'md']),
 	#Displays the logo and then displays nothing
-	'MAME (GP32)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('gp32', 'memc'), ['smc']),
+	'MAME (GoGo TV Video Vision)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('tvgogo', 'cart'), ['bin']),
+	'MAME (GP32)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('gp32', 'memc'), ['smc'],),
 	#Runs too slow to verify if anything else works, but all documentation points to not
 	'MAME (Jaguar CD)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('jaguarcd', 'cdrom'), mame_cdrom_formats), #Also has cartridge port, as it is a Jaguar addon
 	'MAME (Koei PasoGo)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('pasogo', 'cart'), ['bin']),
@@ -348,6 +349,7 @@ emulators = {
 	'MAME (Konami Picno)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('picno', 'cart'), ['bin']),
 	'MAME (LeapPad)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('leappad', 'cart'), ['bin']),
 	'MAME (Leapster)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('leapster', 'cart'), ['bin']), #Sometimes crashes, appears to be executing the CPU and printing debug stuff
+	'MAME (MobiGo)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('mobigo', 'cart'), ['bin']),
 	'MAME (Monon Color)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('mononcol', 'cart'), ['bin']),
 	'MAME (My First LeapPad)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('mfleappad', 'cart'), ['bin']),
 	'MAME (Pippin)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('pippin', 'cdrom'), mame_cdrom_formats),
