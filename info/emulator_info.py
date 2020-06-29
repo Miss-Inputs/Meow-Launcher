@@ -321,6 +321,9 @@ emulators = {
 	#TODO PlayStation: Would require proper region code detection, which would require looking at ISO9660 stuff properly. Anyway it is MACHINE_NOT_WORKING and often doesn't play the games (see https://mametesters.org/view.php?id=7127)
 
 	#Just here for future use or the fun of creating launchers really; these straight up don't work:
+	'MAME (3DO)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('3do', 'cdrom'), mame_cdrom_formats), #Should switch to 3do_pal when needed, but it doesn't really matter at this point
+	'MAME (Bandai RX-78)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('rx78', 'cart', has_keyboard=True), ['bin', 'rom']),
+	#Does boot things from software list, but not from fullpath, and doesn't really work too well
 	'MAME (Buzztime Home Trivia System)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('buzztime', 'cart'), ['bin']),
 	#Inputs are not defined and it just spams random inputs (the game plays itself!!!1)
 	'MAME (Casio Loopy)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('casloopy', 'cart'), ['bin']),
@@ -331,15 +334,12 @@ emulators = {
 	#Displays the logo and then displays nothing
 	'MAME (GP32)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('gp32', 'memc'), ['smc']),
 	#Runs too slow to verify if anything else works, but all documentation points to not
+	'MAME (Jaguar CD)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('jaguarcd', 'cdrom'), mame_cdrom_formats), #Also has cartridge port, as it is a Jaguar addon
 	'MAME (Koei PasoGo)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('pasogo', 'cart'), ['bin']),
 	#No sound yet, and apparently the rest doesn't work either (I'll take their word for it so I don't have to play weird board games I don't understand)
-	'MAME (V.Smile Motion)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('vsmilem', 'cart'), ['bin', 'u1', 'u3']),
-	'MAME (3DO)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('3do', 'cdrom'), mame_cdrom_formats), #Should switch to 3do_pal when needed, but it doesn't really matter at this point
-	'MAME (Bandai RX-78)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('rx78', 'cart', has_keyboard=True), ['bin', 'rom']),
-	#Does boot things from software list, but not from fullpath, and doesn't really work too well
 	'MAME (Tomy Prin-C)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('princ', 'cart'), ['bin']),
 	#Skeleton driver that displays a green background and then doesn't go anywhere
-	'MAME (Jaguar CD)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('jaguarcd', 'cdrom'), mame_cdrom_formats), #Also has cartridge port, as it is a Jaguar addon
+	'MAME (V.Smile Motion)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('vsmilem', 'cart'), ['bin', 'u1', 'u3']),
 
 	#Doesn't even display graphics, I'm just feeling like adding stuff at this point
 	'MAME (Advanced Pico Beena)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('beena', 'cart'), ['bin']), #Segfaults
@@ -350,10 +350,10 @@ emulators = {
 	'MAME (Leapster)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('leapster', 'cart'), ['bin']), #Sometimes crashes, appears to be executing the CPU and printing debug stuff
 	'MAME (Monon Color)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('mononcol', 'cart'), ['bin']),
 	'MAME (My First LeapPad)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('mfleappad', 'cart'), ['bin']),
+	'MAME (Pippin)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('pippin', 'cdrom'), mame_cdrom_formats),
 	'MAME (Pocket Challenge W)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('pockchal', 'cart'), ['bin', 'pcw']),
 	'MAME (V.Reader)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('vreader', 'cart'), ['bin']),
 	'MAME (V.Smile Pro)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('vsmilpro', 'cdrom'), mame_cdrom_formats),
-	'MAME (Pippin)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('pippin', 'cdrom'), mame_cdrom_formats),
 }
 
 class GameEngine():
