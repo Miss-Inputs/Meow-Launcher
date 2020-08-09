@@ -1,12 +1,15 @@
-import subprocess
 import hashlib
+import subprocess
 from enum import Enum, auto
 
 import input_metadata
+import platform_metadata.atari_controllers as controllers
 from common_types import SaveType
 from info.region_info import TVSystem
 from software_list_info import find_in_software_lists, matcher_args_for_bytes
-import platform_metadata.atari_controllers as controllers
+
+from .megadrive import standard_gamepad as megadrive_pad
+
 
 #Not gonna use stella -rominfo on individual stuff as it takes too long and just detects TV type with no other useful info that isn't in the -listrominfo db
 def get_stella_database():
@@ -209,7 +212,6 @@ def add_input_info_from_peripheral(game, peripheral):
 	elif peripheral == Atari2600Controller.LightGun:
 		game.metadata.input_info.add_option(controllers.xegs_gun)
 	elif peripheral == Atari2600Controller.MegadriveGamepad:
-		from .megadrive import standard_gamepad as megadrive_pad
 		game.metadata.input_info.add_option(megadrive_pad)
 	elif peripheral == Atari2600Controller.Mindlink:
 		game.metadata.input_info.add_option(controllers.mindlink)
