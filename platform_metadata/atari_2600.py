@@ -240,7 +240,7 @@ class StellaDB():
 		def __init__(self):
 			try:
 				self.db = get_stella_database()
-			except subprocess.CalledProcessError:
+			except (subprocess.CalledProcessError, FileNotFoundError):
 				self.db = None
 
 	__instance = None
