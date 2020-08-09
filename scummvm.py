@@ -288,8 +288,10 @@ def add_vm_games(name, config_path, vm_config, game_class):
 
 
 def add_scummvm_games():
-	add_vm_games('ScummVM', scumm_config_path, vmconfig.scummvm_config, ScummVMGame)
-	add_vm_games('ResidualVM', residualvm_config_path, vmconfig.residualvm_config, ResidualVMGame)
+	if vmconfig.have_scummvm_exe:
+		add_vm_games('ScummVM', scumm_config_path, vmconfig.scummvm_config, ScummVMGame)
+	if vmconfig.have_residualvm_exe:
+		add_vm_games('ResidualVM', residualvm_config_path, vmconfig.residualvm_config, ResidualVMGame)
 
 if __name__ == '__main__':
 	add_scummvm_games()
