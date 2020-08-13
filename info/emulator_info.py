@@ -54,7 +54,7 @@ emulators = {
 	'cxNES': EmulatorInfo(EmulatorStatus.Good, command_lines.cxnes, ['nes', 'fds', 'unf', 'unif'], ['7z', 'zip']),
 	#Or is it good? Have not tried it in a fair bit
 	'Dolphin': EmulatorInfo(EmulatorStatus.Good, command_lines.dolphin, ['iso', 'ciso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs', 'm3u', 'wia', 'rvz'], []),
-	'DuckStation': EmulatorInfo(EmulatorStatus.Good, LaunchParams('duckstation-qt', ['-batch', '-fullscreen', '$<path>']), ['bin', 'img', 'cue', 'chd', 'exe'], []),
+	'DuckStation': EmulatorInfo(EmulatorStatus.Good, LaunchParams('duckstation-qt', ['-batch', '-fullscreen', '$<path>']), ['bin', 'img', 'cue', 'chd', 'exe', 'm3u'], []),
 	#TODO: The compatibility.xml file is there for the reading, but due to how the installation works it's not in a specific location. Do something with that when I get around to doing emulator-specific user config
 	'Flycast': EmulatorInfo(EmulatorStatus.Good, command_lines.flycast, ['gdi', 'cdi', 'chd', 'cue'], []),
 	'FS-UAE': EmulatorInfo(EmulatorStatus.Good, command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf'], []),
