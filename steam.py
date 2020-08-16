@@ -32,7 +32,7 @@ except ModuleNotFoundError:
 try:
 	#Have to import it like this, because the directory is inside another directory
 	#Anyway it _should_ be here since I made it a submodule anyway, but like... y'know, just to be safe
-	from steamfiles.steamfiles import acf, appinfo
+	from steamfiles import acf, appinfo
 	have_steamfiles = True
 except ModuleNotFoundError:
 	have_steamfiles = False
@@ -135,9 +135,12 @@ class SteamState():
 			SteamState.__instance = SteamState.__SteamState()
 		return SteamState.__instance
 
-steam_state = SteamState.getSteamState()
-is_steam_available = steam_state.is_steam_installed and have_steamfiles
-steam_installation = steam_state.steam_installation
+if not have_steamfiles:
+	is_steam_available = False
+else:
+	steam_state = SteamState.getSteamState()
+	is_steam_available = steam_state.is_steam_installed and have_steamfiles
+	steam_installation = steam_state.steam_installation
 
 def get_steam_library_folders():
 	with open(steam_installation.steam_library_list_path, 'rt') as steam_library_list_file:
