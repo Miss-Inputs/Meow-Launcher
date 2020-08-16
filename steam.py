@@ -139,7 +139,7 @@ if not have_steamfiles:
 	is_steam_available = False
 else:
 	steam_state = SteamState.getSteamState()
-	is_steam_available = steam_state.is_steam_installed and have_steamfiles
+	is_steam_available = steam_state.is_steam_installed
 	steam_installation = steam_state.steam_installation
 
 def get_steam_library_folders():
