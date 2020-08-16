@@ -37,86 +37,85 @@ except ModuleNotFoundError:
 	have_steamfiles = False
 
 #TODO A lot of this is messy and needs refactoring and I will leave an annoying todo comment here for myself to be bothered by until I refactor it
+#Oh really, Past Megan? Well what part is messy? Gonna elaborate on that? Thought not - Present Megan
+
+class SteamInstallation():
+	def __init__(self, path):
+		self.steamdir = path
+		try:
+			with open(self.app_info_path, 'rb') as app_info_file:
+				try:
+					self.app_info = appinfo.load(app_info_file)
+					self.app_info_available = True
+				except ValueError:
+					#This will be thrown by steamfiles.appinfo if the appinfo.vdf structure is different than expected, which apparently has happened in earlier versions of it, so I should probably be prepared for that
+					self.app_info = None
+					self.app_info_available = False
+		except FileNotFoundError:
+			self.app_info = None
+			self.app_info_available = False
+		try:
+			with open(self.config_path) as config_file:
+				self.config = acf.load(config_file)
+				self.config_available = True
+		except FileNotFoundError:
+			self.config = None
+			self.config_available = False
+		try:
+			with open(self.localization_path) as localization_file:
+				self.localization = acf.load(localization_file)
+				self.localization_available = True
+		except FileNotFoundError:
+			self.localization = None
+			self.localization_available = False
+
+	@property
+	def app_info_path(self):
+		return os.path.join(self.steamdir, 'appcache', 'appinfo.vdf')
+
+	@property
+	def config_path(self):
+		return os.path.join(self.steamdir, 'config', 'config.vdf')
+
+	@property
+	def localization_path(self):
+		return os.path.join(self.steamdir, 'appcache', 'localization.vdf')
+
+	@property
+	def icon_folder(self):
+		return os.path.join(self.steamdir, 'steam', 'games')
+
+	@property
+	def library_cache_folder(self):
+		return os.path.join(self.steamdir, 'appcache', 'librarycache')
+
+	@property
+	def steam_library_list_path(self):
+		return os.path.join(self.steamdir, 'steamapps', 'libraryfolders.vdf')
 
 class SteamState():
 	class __SteamState():
+		#If you have Steam installed twice in different locations somehow then that is your own problem, but I don't think that's really a thing that people do
 		def __init__(self):
-			self.steamdir = self.find_steam_dir()
-			if self.is_steam_installed:
-				try:
-					with open(self.app_info_path, 'rb') as app_info_file:
-						try:
-							self.app_info = appinfo.load(app_info_file)
-							self.app_info_available = True
-						except ValueError:
-							#This will be thrown by steamfiles.appinfo if the appinfo.vdf structure is different than expected, which apparently has happened in earlier versions of it, so I should probably be prepared for that
-							self.app_info = None
-							self.app_info_available = False
-				except FileNotFoundError:
-					self.app_info = None
-					self.app_info_available = False
-				try:
-					with open(self.config_path) as config_file:
-						self.config = acf.load(config_file)
-						self.config_available = True
-				except FileNotFoundError:
-					self.config = None
-					self.config_available = False
-				try:
-					with open(self.localization_path) as localization_file:
-						self.localization = acf.load(localization_file)
-						self.localization_available = True
-				except FileNotFoundError:
-					self.localization = None
-					self.localization_available = False
-			else:
-				self.app_info = None
-				self.app_info_available = False
-				self.config = None
-				self.config_available = False
-				self.localization = None
-				self.localization_available = None
-
-		@property
-		def app_info_path(self):
-			return os.path.join(self.steamdir, 'appcache', 'appinfo.vdf')
-
-		@property
-		def config_path(self):
-			return os.path.join(self.steamdir, 'config', 'config.vdf')
-
-		@property
-		def localization_path(self):
-			return os.path.join(self.steamdir, 'appcache', 'localization.vdf')
-
-		@property
-		def icon_folder(self):
-			return os.path.join(self.steamdir, 'steam', 'games')
-
-		@property
-		def is_steam_installed(self):
-			return self.steamdir is not None
-
-		@property
-		def steam_library_list_path(self):
-			return os.path.join(self.steamdir, 'steamapps', 'libraryfolders.vdf')
-
-		@staticmethod
-		def find_steam_dir():
-			#Most likely the former will be present as a symlink to the latter, I don't know if weird people have ways of installing Steam to other directories
+			#Most likely the former will be present as a symlink to the latter, I don't know if weird distros install it any differently
 			possible_locations = ['~/.steam/steam', '~/.local/share/steam', '~/.local/share/Steam']
-
+			steam_path = None
 			for location in possible_locations:
 				location = os.path.expanduser(location)
 
 				if os.path.isdir(location):
-					return location
+					steam_path = location
 				if os.path.islink(location):
-					return os.path.realpath(location)
+					steam_path = os.path.realpath(location)
+			
+			if steam_path:
+				self.steam_installation = SteamInstallation(steam_path)
 
-			return None
+		@property
+		def is_steam_installed(self):
+			return self.steam_installation is not None
 
-	__instance = None
+	instance = None
 
 	@staticmethod
 	def getSteamState():
@@ -125,27 +124,25 @@ class SteamState():
 		return SteamState.__instance
 
 steam_state = SteamState.getSteamState()
-
-def is_steam_available():
-	#If false, you won't be able to use this module
-	return steam_state.is_steam_installed and have_steamfiles
+is_steam_available = steam_state.is_steam_installed and have_steamfiles
+steam_installation = steam_state.steam_installation
 
 def get_steam_library_folders():
-	with open(steam_state.steam_library_list_path, 'rt') as steam_library_list_file:
+	with open(steam_installation.steam_library_list_path, 'rt') as steam_library_list_file:
 		steam_library_list = acf.load(steam_library_list_file)
 		library_folders = steam_library_list.get('LibraryFolders')
 		if not library_folders:
 			#Shouldn't happen unless Valve decides to mess with the format bigtime
-			return [steam_state.steamdir]
+			return [steam_installation.steamdir]
 		#Not sure I like the condition on k here, but I guess it'll work. The keys under LibraryFolders are TimeNextStatsReport and ContentStatsID (whatever those do), and then 1 2 3 4 for each library folder, but I dunno how reliable that is. Anyway, that should do the trick, I guess; if someone breaks something it's gonna break
-		return [v for k, v in library_folders.items() if k.isdigit()] + [steam_state.steamdir]
+		return [v for k, v in library_folders.items() if k.isdigit()] + [steam_installation.steamdir]
 
 def get_steamplay_overrides():
-	if not steam_state.config_available:
+	if not steam_installation.config_available:
 		return {}
 
 	try:
-		mapping = steam_state.config['InstallConfigStore']['Software']['Valve']['Steam']['CompatToolMapping']
+		mapping = steam_installation.config['InstallConfigStore']['Software']['Valve']['Steam']['CompatToolMapping']
 
 		overrides = {}
 		for k, v in mapping.items():
@@ -199,8 +196,8 @@ class SteamGame():
 
 	@property
 	def appinfo(self):
-		if steam_state.app_info_available:
-			game_app_info = steam_state.app_info.get(self.app_id)
+		if steam_installation.app_info_available:
+			game_app_info = steam_installation.app_info.get(self.app_id)
 			if game_app_info is None:
 				#Probably shouldn't happen if all is well and that game is supposed to be there
 				if main_config.debug:
@@ -241,8 +238,8 @@ class IconNotFoundError(Exception):
 
 def look_for_icon(icon_hash):
 	icon_hash = icon_hash.lower()
-	for icon_file in os.listdir(steam_state.icon_folder):
-		icon_path = os.path.join(steam_state.icon_folder, icon_file)
+	for icon_file in os.listdir(steam_installation.icon_folder):
+		icon_path = os.path.join(steam_installation.icon_folder, icon_file)
 
 		if icon_file.lower() in (icon_hash + '.ico', icon_hash + '.png', icon_hash + '.zip'):
 			is_zip = zipfile.is_zipfile(icon_path)
@@ -335,7 +332,7 @@ def normalize_developer(dev):
 def _get_steamplay_appinfo_extended():
 	steamplay_manifest_appid = 891390
 
-	steamplay_appinfo = steam_state.app_info.get(steamplay_manifest_appid)
+	steamplay_appinfo = steam_installation.app_info.get(steamplay_manifest_appid)
 	if steamplay_appinfo is None:
 		return None
 	sections = steamplay_appinfo.get('sections')
@@ -629,8 +626,8 @@ def add_metadata_from_appinfo_common_section(game, common):
 
 	game.metadata.specific_info['Controlller-Support'] = common.get(b'controller_support', b'none').decode('utf-8', errors='backslashreplace')
 
-	if steam_state.localization_available:
-		store_tag_names = steam_state.localization['localization']['english']['store_tags']
+	if steam_installation.localization_available:
+		store_tag_names = steam_installation.localization['localization']['english']['store_tags']
 		store_tag_ids_list = common.get(b'store_tags')
 		if store_tag_ids_list:
 			store_tags = [store_tag_names.get(id, id) for id in [str(value.data) for value in store_tag_ids_list.values()]]
