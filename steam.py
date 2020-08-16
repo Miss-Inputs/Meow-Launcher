@@ -93,6 +93,17 @@ class SteamInstallation():
 	def steam_library_list_path(self):
 		return os.path.join(self.steamdir, 'steamapps', 'libraryfolders.vdf')
 
+	@property
+	def userdata_folder(self):
+		return os.path.join(self.steamdir, 'userdata')
+
+	def get_users(self):
+		#Probably the most lazy way to do it, but if this is a bad idea, please don't send me to jail
+		return os.listdir(self.userdata_folder)
+
+	def get_user_library_cache_folder(self, user_id):
+		return os.path.join(self.userdata_folder, user_id, 'config', 'librarycache')
+
 class SteamState():
 	class __SteamState():
 		#If you have Steam installed twice in different locations somehow then that is your own problem, but I don't think that's really a thing that people do
@@ -115,7 +126,7 @@ class SteamState():
 		def is_steam_installed(self):
 			return self.steam_installation is not None
 
-	instance = None
+	__instance = None
 
 	@staticmethod
 	def getSteamState():
@@ -480,7 +491,8 @@ def add_icon_from_common_section(game, common_section):
 			print(game.name, game.app_id, 'does not even have an icon')
 
 def add_metadata_from_appinfo_common_section(game, common):
-	add_icon_from_common_section(game, common)
+	if 'Icon' not in game.metadata.images:
+		add_icon_from_common_section(game, common)
 
 	#oslist and osarch may come in handy (former is comma separated windows/macos/linux; latter is b'64' or purrsibly b'32'), osextended is sometimes like 'macos64'
 	#eulas is a list, so it could be used to detect if game has third-party EULA
@@ -938,6 +950,25 @@ def poke_around_in_install_dir(game):
 		if os.path.isdir(path):
 			check_for_interesting_things_in_folder(path, game.metadata)
 	
+def find_image(appid, image_name):
+	if steam_installation.library_cache_folder:
+		basename = os.path.join(steam_installation.library_cache_folder, '{0}_{1}'.format(appid, image_name))
+		#Can be either png or jpg, I guess… could also listdir or glob I guess but ehhh brain broke lately
+		for ext in ('png', 'jpg', 'jpeg'):
+			path = basename + '.' + ext
+			if os.path.isfile(path):
+				return path
+	return None
+	
+def add_images(game):
+	#Do I wanna call header a banner
+	#The cover is not always really box art but it's used in grid view, and I guess digital only games wouldn't have real box art anyway
+	#What the hell is a "hero" oh well it's there
+	for image_filename, name in (('icon', 'Icon'), ('header', 'Header'), ('library_600x900', 'Cover'), ('library_hero', 'Hero')):
+		image_path = find_image(game.app_id, image_filename)
+		if image_path:
+			game.metadata.images[name] = image_path
+
 def process_game(app_id, folder, app_state):
 	#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
 	try:
@@ -955,6 +986,8 @@ def process_game(app_id, folder, app_state):
 	game.metadata.specific_info['Steam-AppID'] = app_id
 	game.metadata.specific_info['Library-Folder'] = folder
 	game.metadata.media_type = MediaType.Digital
+
+	add_images(game)
 
 	appinfo_entry = game.appinfo
 	if appinfo_entry:
@@ -1065,7 +1098,7 @@ def iter_steam_installed_appids():
 no_longer_exists_cached_appids = None
 
 def no_longer_exists(appid):
-	if not is_steam_available():
+	if not is_steam_available:
 		#I guess if you uninstalled Steam then you're not gonna play any Steam games, huh
 		return False
 
@@ -1076,7 +1109,7 @@ def no_longer_exists(appid):
 	return appid not in no_longer_exists_cached_appids
 
 def process_steam():
-	if not is_steam_available():
+	if not is_steam_available:
 		return
 
 	time_started = time.perf_counter()
