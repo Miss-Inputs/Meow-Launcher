@@ -4,6 +4,7 @@ import calendar
 import datetime
 import glob
 import io
+import json
 import os
 import re
 import time
@@ -969,6 +970,42 @@ def add_images(game):
 		if image_path:
 			game.metadata.images[name] = image_path
 
+def add_info_from_cache_json(game, json_path, is_single_user):
+	with open(json_path, 'rt') as f:
+		j = json.load(f)
+		#Cool stuff in here:
+		#descriptions -> data -> strFullDescription (this is very verbose) (sometimes it is just #app_appid_content though)
+		#descriptions -> data -> strSnippet (not always just a shortened form of strFullDescription)
+		#friends -> Has info on which of your friends played this game (I don't think we need to put that in here anywhere)
+		#associations > Duplicated from appinfo so we don't need that
+		#workshop -> If you downloaded any workshop stuff
+		#badge -> If you're into the badge collecting that stuff is in here
+		achievements = None
+		for key, values in j:
+			if key == 'achievements':
+				achievements = values.get('data')
+
+		if is_single_user and achievements:
+			total_achievements = achievements.get('nTotal', 0)
+			achieved = achievements.get('nAchieved', 0)
+			if total_achievements:
+				#vecUnachieved has a specific list of achievements that the user hasn't done yet (for achievement lists in this and vecAchievedHidden and vecHighlight;flAchieved is how many people have done this achievement, so that could be useful for measuring how cool the user is, or how reasonable it is for the user to unlock the rest)
+				game.metadata.specific_info['Achievement-Completion'] = '{0:.0%}'.format(achieved / total_achievements)
+
+def add_info_from_user_cache(game):
+	user_list = steam_installation.get_users()
+	if not user_list:
+		#Also, that should never happen
+		return
+	single_user = len(user_list) == 1
+	#If there is more than one user here, then we don't want to look at user-specific info, because it might not be the one who's running Meow Launcher and so it might be wrong
+	for user in user_list:
+		user_cache_folder = steam_installation.get_user_library_cache_folder(user)
+		path = os.path.join(user_cache_folder, '{0}.json'.format(game.app_id))
+		if os.path.isfile(path):
+			add_info_from_cache_json(game, path, single_user)
+
+
 def process_game(app_id, folder, app_state):
 	#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
 	try:
@@ -988,6 +1025,8 @@ def process_game(app_id, folder, app_state):
 	game.metadata.media_type = MediaType.Digital
 
 	add_images(game)
+
+	add_info_from_user_cache(game)
 
 	appinfo_entry = game.appinfo
 	if appinfo_entry:
