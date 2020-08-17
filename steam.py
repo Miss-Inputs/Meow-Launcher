@@ -7,6 +7,7 @@ import io
 import json
 import os
 import re
+import statistics
 import time
 import zipfile
 from enum import IntFlag
@@ -988,15 +989,36 @@ def add_info_from_cache_json(game, json_path, is_single_user):
 			#data is array of social media links, self explanatory (strName, strURL) except eType:
 			#4 = Twitter 5 = Twitch 6 = YouTube 7 = Facebook? Are there more? If so I don't have any games that use them I guess
 		achievements = None
+		achievement_map = None #What's this about…
 		for key, values in j:
 			if key == 'achievements':
 				achievements = values.get('data')
+			elif key == 'achievementmap':
+				achievement_map = json.loads(values.get('data'))
 
 		if is_single_user and achievements:
 			total_achievements = achievements.get('nTotal', 0)
 			achieved = achievements.get('nAchieved', 0)
+
 			if total_achievements:
-				#vecUnachieved has a specific list of achievements that the user hasn't done yet (for achievement lists in this and vecAchievedHidden and vecHighlight;flAchieved is how many people have done this achievement, so that could be useful for measuring how cool the user is, or how reasonable it is for the user to unlock the rest)
+				unachieved_list = {cheevo['strID']: cheevo for cheevo in achievements.get('vecUnachieved', [])}
+				achieved_list = {cheevo['strID']: cheevo for cheevo in achievements.get('vecAchievedHidden', []) + achievements.get('vecHighlight', [])}
+				if achievement_map:
+					for achievement_id, achievement_data in achievement_map:
+						if achievement_data.get('bAchieved'):
+							achieved_list[achievement_id] = dict(achieved_list.get(achievement_id, {}), **achievement_data)
+						else:
+							unachieved_list[achievement_id] = dict(unachieved_list.get(achievement_id, {}), **achievement_data)
+				
+				if unachieved_list:
+					unachieved_stats = [cheevo.get('flAchieved', 0) / 100 for cheevo in unachieved_list.values()]
+					unachieved_percent = statistics.median(unachieved_stats)
+					game.metadata.specific_info['Average-Global-Unachieved-Completion'] = '{0:.0%}'.format(unachieved_percent)
+				if achieved_list:
+					achievement_stats = [cheevo.get('flAchieved', 0) / 100 for cheevo in achieved_list.values()]
+					achieved_percent = statistics.median(achievement_stats)
+					game.metadata.specific_info['Average-Global-Achieved-Completion'] = '{0:.0%}'.format(achieved_percent)
+		
 				game.metadata.specific_info['Achievement-Completion'] = '{0:.0%}'.format(achieved / total_achievements)
 
 def add_info_from_user_cache(game):
