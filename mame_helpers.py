@@ -53,12 +53,15 @@ class MAMENotInstalledException(Exception):
 class MameExecutable():
 	def __init__(self, path='mame'):
 		self.executable = path
-		self.xml_cache_path = os.path.join(cache_dir, self.get_version()) if self.is_installed else None
-		self._icons = None
+		self.version = self.get_version()
+		if self.version:
+			self.is_installed = True
+			self.xml_cache_path = os.path.join(cache_dir, self.version)
+		else:
+			self.is_installed = False
+			self.xml_cache_path = None
 
-	@property
-	def is_installed(self):
-		return self.get_version() is not None
+		self._icons = None
 
 	def get_version(self):
 		#Note that there is a -version option in (as of this time of writing, upcoming) MAME 0.211, but might as well just use this, because it works on older versions
@@ -125,15 +128,15 @@ class MameExecutable():
 	def listsource(self):
 		if not self.is_installed:
 			raise MAMENotInstalledException()
-		proc = subprocess.run([self.executable, '-listsource'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, universal_newlines=True)
-		#Return code should always be 0
+		proc = subprocess.run([self.executable, '-listsource'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, universal_newlines=True, check=True)
+		#Return code should always be 0 so if it's not I dunno what to do about that and let's just panic instead
 		for line in proc.stdout.splitlines():
 			#Machine names and source files both shouldn't contain spaces, so this should be fine
 			yield line.split()
 	
 	def verifysoftlist(self, software_list_name):
 		#Unfortunately it seems we cannot verify an individual software, which would probably take less time
-		proc = subprocess.run([self.executable, '-verifysoftlist', software_list_name], universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+		proc = subprocess.run([self.executable, '-verifysoftlist', software_list_name], universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=False)
 		#Don't check return code - it'll return 2 if one software in the list is bad
 
 		available = []
