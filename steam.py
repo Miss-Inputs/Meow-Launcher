@@ -974,6 +974,7 @@ def add_images(game):
 			game.metadata.images[name] = image_path
 
 def add_info_from_cache_json(game, json_path, is_single_user):
+	#This does not always exist, it's there if you've looked at it in the Steam client and it's loaded some metadata, but like why the heck not
 	with open(json_path, 'rt') as f:
 		j = json.load(f)
 		#Cool stuff in here:
@@ -983,6 +984,9 @@ def add_info_from_cache_json(game, json_path, is_single_user):
 		#associations > Duplicated from appinfo so we don't need that
 		#workshop -> If you downloaded any workshop stuff
 		#badge -> If you're into the badge collecting that stuff is in here
+		#social_media:
+			#data is array of social media links, self explanatory (strName, strURL) except eType:
+			#4 = Twitter 5 = Twitch 6 = YouTube 7 = Facebook? Are there more? If so I don't have any games that use them I guess
 		achievements = None
 		for key, values in j:
 			if key == 'achievements':
@@ -998,7 +1002,7 @@ def add_info_from_cache_json(game, json_path, is_single_user):
 def add_info_from_user_cache(game):
 	user_list = steam_installation.get_users()
 	if not user_list:
-		#Also, that should never happen
+		#Also, that should never happen (maybe if you just installed Steam and haven't logged in yet, but then what would you get out of this anyway?)
 		return
 	single_user = len(user_list) == 1
 	#If there is more than one user here, then we don't want to look at user-specific info, because it might not be the one who's running Meow Launcher and so it might be wrong
@@ -1007,7 +1011,6 @@ def add_info_from_user_cache(game):
 		path = os.path.join(user_cache_folder, '{0}.json'.format(game.app_id))
 		if os.path.isfile(path):
 			add_info_from_cache_json(game, path, single_user)
-
 
 def process_game(app_id, folder, app_state):
 	#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
