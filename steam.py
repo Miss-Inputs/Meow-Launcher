@@ -872,6 +872,8 @@ def try_and_detect_engine_from_folder(folder):
 		return 'Adventure Game Studio'
 	if 'rpg_rt.exe' in files:
 		return 'RPG Maker 2000/2003'
+	if os.path.basename(folder).lower() + '.uproject' in files:
+		return 'Unreal Engine 4'
 	
 	if any(f.endswith('.rgssad') for f in files):
 		return 'RPG Maker XP/VX'
@@ -892,7 +894,31 @@ def try_and_detect_engine_from_folder(folder):
 			if os.path.isdir(os.path.join(folder, f)):
 				if os.path.isfile(os.path.join(folder, f, 'gameinfo.txt')):
 					return 'Source'
+	for f in os.listdir(folder):
+		#Sometimes UnityPlayer.dll is not always there I think
+		if f.endswith('_Data'):
+			#appinfo.txt contains the publisher on line 1, and the name (which sometimes is formatted weirdly) on line 2
+			if os.path.isfile(os.path.join(folder, f, 'Managed', 'UnityEngine.dll')):
+				return 'Unity'
+		if (f != 'Game' and f.endswith('Game')) or f == 'P13':
+			if os.path.isdir(os.path.join(folder, f)):
+				if os.path.isfile(os.path.join(folder, f, 'CookedPC', 'Engine.u')):
+					return 'Unreal Engine 3'
+				if os.path.isdir(os.path.join(folder, f, 'CookedPCConsole')) or os.path.isdir(os.path.join(folder, f, 'CookedPCConsole_FR')) or os.path.isdir(os.path.join(folder, f, 'CookedPCConsoleFinal')):
+					return 'Unreal Engine 3'
 
+	maybe_ue4_stuff_path = os.path.join(folder, 'Engine', 'Extras', 'Redist', 'en-us')
+	if os.path.isdir(maybe_ue4_stuff_path):
+		if os.path.isfile(os.path.join(maybe_ue4_stuff_path, 'UE4PrereqSetup_x64.exe')) or os.path.isfile(os.path.join(maybe_ue4_stuff_path, 'UE4PrereqSetup_x86.exe')):
+			return 'Unreal Engine 4'
+
+	if os.path.isfile(os.path.join(folder, 'Build', 'Final', 'DefUnrealEd.ini')):
+		return 'Unreal Engine 2' #Possibly 2.5 specifically
+	if os.path.isfile(os.path.join(folder, 'Builds', 'Binaries', 'DefUnrealEd.ini')):
+		return 'Unreal Engine 2' #Possibly 2.5 specifically
+	if os.path.isfile(os.path.join(folder, 'System', 'Engine.u')):
+		return 'Unreal Engine 1'
+	
 	return None
 
 def detect_engine_recursively(folder):
