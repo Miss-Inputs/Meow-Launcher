@@ -55,6 +55,7 @@ class MameExecutable():
 		self.executable = path
 		self.version = self.get_version()
 		if self.version:
+			#Do I really wanna be checking that this MAME exists inside the object that represents it? That doesn't entirely make sense to me
 			self.is_installed = True
 			self.xml_cache_path = os.path.join(cache_dir, self.version)
 		else:
