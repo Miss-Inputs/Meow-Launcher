@@ -19,7 +19,7 @@ def _verify_supported_mappers(game, supported_mappers, detected_mappers):
 	if game.metadata.specific_info.get('Override-Mapper', False) and mapper not in detected_mappers:
 		#If the mapper in the ROM header is different than what the mapper actually is, it won't work, since we can't override it from the command line or anything
 		#But it'll be okay if the mapper is something that gets autodetected outside of the header anyway
-		raise EmulationNotSupportedException('Overriding the mapper in header is not supported')
+		raise EmulationNotSupportedException('Overriding the mapper to {0} is not supported'.format(mapper))
 
 	if mapper not in supported_mappers and mapper not in detected_mappers:
 		raise EmulationNotSupportedException('Mapper ' + mapper + ' not supported')
