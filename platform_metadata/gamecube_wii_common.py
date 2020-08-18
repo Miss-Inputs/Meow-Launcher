@@ -58,3 +58,10 @@ def add_gamecube_wii_disc_metadata(game, header):
 		if game.metadata.platform == 'GameCube' and not is_gamecube:
 			print(game.rom.path, 'lacks GameCube disc magic')
 	
+def just_read_the_wia_rvz_header_for_now(game):
+	#I'll get around to it I swear
+	wia_header = game.rom.read(amount=0x48)
+	wia_disc_struct_size = int.from_bytes(wia_header[12:16], 'big')
+	wia_disc_struct = game.rom.read(seek_to=0x48, amount=wia_disc_struct_size)
+	disc_header = wia_disc_struct[16:128]
+	add_gamecube_wii_disc_metadata(game, disc_header)

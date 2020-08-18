@@ -10,7 +10,8 @@ from data.nintendo_licensee_codes import nintendo_licensee_codes
 from metadata import CPU, Screen, ScreenInfo
 
 from .gamecube_wii_common import (NintendoDiscRegion,
-                                  add_gamecube_wii_disc_metadata)
+                                  add_gamecube_wii_disc_metadata,
+                                  just_read_the_wia_rvz_header_for_now)
 
 try:
 	from Crypto.Cipher import AES
@@ -344,3 +345,5 @@ def add_wii_metadata(game):
 		add_wad_metadata(game)
 	elif game.rom.extension in ('dol', 'elf'):
 		add_wii_homebrew_metadata(game)
+	elif game.rom.extension in ('wia', 'rvz'):
+		just_read_the_wia_rvz_header_for_now(game)

@@ -1,15 +1,17 @@
 from datetime import datetime
 
+from config import main_config
+from metadata import CPU, Screen, ScreenInfo
+
+from .gamecube_wii_common import (NintendoDiscRegion,
+                                  add_gamecube_wii_disc_metadata,
+                                  just_read_the_wia_rvz_header_for_now)
+
 try:
 	from PIL import Image
 	have_pillow = True
 except ModuleNotFoundError:
 	have_pillow = False
-
-from config import main_config
-from metadata import CPU, Screen, ScreenInfo
-
-from .gamecube_wii_common import NintendoDiscRegion, add_gamecube_wii_disc_metadata
 
 def convert3BitColor(c):
 	n = c * (256 // 0b111)
@@ -181,3 +183,5 @@ def add_gamecube_metadata(game):
 		header = game.rom.read(0, 0x2450)
 		add_gamecube_wii_disc_metadata(game, header)
 		add_gamecube_disc_metadata(game, header)
+	elif game.rom.extension in ('wia', 'rvz'):
+		just_read_the_wia_rvz_header_for_now(game)
