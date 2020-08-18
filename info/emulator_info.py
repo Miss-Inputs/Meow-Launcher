@@ -65,7 +65,8 @@ emulators = {
 	#Also in theory recognizes any extension and assumes Game Boy if not .gba or .nds, but that would be screwy
 	'Kega Fusion': EmulatorInfo(EmulatorStatus.Good, command_lines.kega_fusion, ['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', 'sc', '32x'], ['zip']),
 	#May support other CD formats for Mega CD other than iso, cue? Because it's closed source, can't really have a look, but I'm just going to presume it's only those two
-	'mGBA': EmulatorInfo(EmulatorStatus.Good, command_lines.mgba, ['gb', 'gbc', 'gba', 'srl', 'bin', 'mb'], ['7z', 'zip']),
+	'mGBA': EmulatorInfo(EmulatorStatus.Good, command_lines.mgba, ['gb', 'gbc', 'gba', 'srl', 'bin', 'mb', 'gbx'], ['7z', 'zip']),
+	#Doesn't really do GBX but it will ignore the footer
 	'Mupen64Plus': EmulatorInfo(EmulatorStatus.Good, command_lines.mupen64plus, ['z64', 'v64', 'n64'], []),
 	'PCSX2': EmulatorInfo(EmulatorStatus.Good, LaunchParams('PCSX2', ['--nogui', '--fullscreen', '--fullboot', '$<path>']), ['iso', 'cso', 'bin'], ['gz']),
 	#Takes some time to load the interface so at first it might look like it's not working; take out --fullboot if it forbids any homebrew stuff (but it should be fine, and Katamari Damacy needs it unless you will experience sound issues that are funny the first time but not subsequently).  ELF seems to not work, though it'd need a different command line anyway. Only reads the bin of bin/cues and not the cue

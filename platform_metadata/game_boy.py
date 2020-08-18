@@ -5,10 +5,10 @@ from zlib import crc32
 import input_metadata
 from common import NotAlphanumericException, convert_alphanumeric
 from common_types import SaveType
+from config import main_config
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import TVSystem
-from software_list_info import get_software_list_entry
-
+from software_list_info import get_software_list_entry, find_in_software_lists, matcher_args_for_bytes
 
 class GameBoyMapper():
 	def __init__(self, name, has_ram=False, has_battery=False, has_rtc=False, has_rumble=False, has_accelerometer=False):
@@ -91,6 +91,34 @@ mame_rom_slots = {
 	'rom_yong': 'Yong Yong',
 }
 
+gbx_mappers = {
+	#Official
+	b'ROM\0': 'ROM only',
+	b'MBC1': 'MBC1',
+	b'MBC2': 'MBC2',
+	b'MBC3': 'MBC3',
+	b'MBC5': 'MBC5',
+	b'MBC7': 'MBC7',
+	b'MB1M': 'MBC1 Multicart',
+	b'MMM1': 'MMM01',
+	b'CAMR': 'Pocket Camera',
+	#Licensed 3rd-party
+	b'HUC1': 'HuC1',
+	b'HUC3': 'HuC3',
+	b'TAM5': 'Bandai TAMA5',
+	#Unlicensed
+	b'BBD\0': 'BBD',
+	b'HITK': 'Hitek',
+	b'SNTX': 'Sintax',
+	b'NTO1': 'NT older type 1',
+	b'NTO2': 'NT older type 2',
+	b'NTN\0': 'NT newer',
+	b'LICH': 'Li Cheng',
+	b'LBMC': 'Last Bible Multicart',
+	b'LIBA': 'Liebao Technology',
+	b'PKJD': 'Pokemon Jade/Diamond bootleg'
+}
+
 class GameBoyColourFlag(IntEnum):
 	No = 0
 	Yes = 0x80
@@ -170,6 +198,34 @@ def parse_gameboy_header(game, header):
 			game.metadata.publisher = nintendo_licensee_codes[licensee_code]
 	game.metadata.specific_info['Revision'] = header[0x4c]
 
+def parse_gbx_footer(game):
+	footer = game.rom.read(seek_to=game.rom.get_size() - 64, amount=64)
+	if footer[60:64] != b'GBX!':
+		if main_config.debug:
+			print(game.rom.path, 'GBX footer is invalid, siggy is', footer[60:64])
+		return
+	if int.from_bytes(footer[48:52], 'big') != 64 or int.from_bytes(footer[52:56], 'big') != 1:
+		if main_config.debug:
+			print(game.rom.path, 'GBX has unsupported major version:', int.from_bytes(footer[52:56], 'big'), 'or size:', int.from_bytes(footer[48:52], 'big'))
+		return
+	#56:60 is minor version, which we expect to be 0, but it'd be okay if not
+
+	original_mapper = game.metadata.specific_info.get('Mapper', 'None')
+	game.metadata.specific_info['Stated-Mapper'] = original_mapper
+	new_mapper = gbx_mappers.get(footer[0:4])
+	if not new_mapper:
+		if main_config.debug:
+			print(game.rom.path, 'GBX has unknown spooky mapper:', footer[0:4])
+		new_mapper = footer[0:4].decode()
+
+	if new_mapper != original_mapper:
+		#For now we're going to assume other emus don't actually do .gbx properly
+		game.metadata.specific_info['Override-Mapper'] = True
+		game.metadata.specific_info['Mapper'] = new_mapper
+
+	#4 = has battery, #5 = has rumble, #6 = has RTC
+	#RAM size: 12:16
+
 def add_gameboy_metadata(game):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
@@ -184,7 +240,10 @@ def add_gameboy_metadata(game):
 	if game.rom.extension == 'gbc':
 		game.metadata.platform = 'Game Boy Color'
 
-	software = get_software_list_entry(game)
+	if game.rom.extension == 'gbx':
+		software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(game.rom.read(amount=game.rom.get_size() - 64)))
+	else:
+		software = get_software_list_entry(game)
 	if software:
 		software.add_standard_metadata(game.metadata)
 		game.metadata.specific_info['Has-RTC'] = software.get_part_feature('rtc') == 'yes'
@@ -192,3 +251,6 @@ def add_gameboy_metadata(game):
 
 		slot = software.get_part_feature('slot')
 		parse_slot(game, slot)
+
+	if game.rom.extension == 'gbx':
+		parse_gbx_footer(game)
