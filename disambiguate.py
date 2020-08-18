@@ -255,7 +255,7 @@ def disambiguate_names():
 	fix_duplicate_names('Version')
 	fix_duplicate_names('Revision', revision_disambiguate)
 	fix_duplicate_names('tags')
-	fix_duplicate_names('date')
+	fix_duplicate_names('date', ignore_missing_values=True)
 	fix_duplicate_names('Extension', '(.{0})'.format)
 	if main_config.debug:
 		fix_duplicate_names('check')
