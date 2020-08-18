@@ -26,7 +26,7 @@ def _verify_supported_mappers(game, supported_mappers, detected_mappers):
 
 def verify_mgba_mapper(game):
 	supported_mappers = ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5', 'HuC3', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5']
-	detected_mappers = ['MBC1 Multicart', 'MMM01', 'Wisdom Tree']
+	detected_mappers = ['MBC1 Multicart', 'MMM01', 'Wisdom Tree', 'Pokemon Jade/Diamond bootleg', 'BBD', 'Hitek']
 
 	_verify_supported_mappers(game, supported_mappers, detected_mappers)
 
