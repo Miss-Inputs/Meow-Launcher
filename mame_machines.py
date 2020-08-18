@@ -11,7 +11,7 @@ import launchers
 from common import remove_capital_article
 from common_types import SaveType
 from config import main_config
-from info import emulator_command_lines
+from info import emulator_command_line_helpers
 from mame_helpers import (consistentify_manufacturer, get_icons, get_mame_xml,
                           iter_mame_entire_xml, list_by_source_file)
 from mame_metadata import (add_metadata, add_metadata_from_catlist,
@@ -507,7 +507,7 @@ class Machine():
 				if os.path.isfile(memory_card_path):
 					slot_options['memc'] = memory_card_path
 
-		params = launchers.LaunchParams('mame', emulator_command_lines.mame_base(self.basename, slot_options=slot_options))
+		params = launchers.LaunchParams('mame', emulator_command_line_helpers.mame_base(self.basename, slot_options=slot_options))
 		#TODO: Let's put this in emulator_info, even if only MAME exists as the singular arcade emulator for now; and clean this up some more
 		icon = self.icon
 		if not icon and self.bios:
