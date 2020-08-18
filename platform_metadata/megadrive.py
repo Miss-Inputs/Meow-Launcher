@@ -11,9 +11,7 @@ from data.sega_licensee_codes import licensee_codes
 from mame_machines import get_machines_from_source_file
 from software_list_info import get_software_list_entry
 
-standard_gamepad = input_metadata.NormalController()
-standard_gamepad.face_buttons = 3
-standard_gamepad.dpads = 1
+from .atari_controllers import megadrive_pad as standard_gamepad
 
 copyright_regex = re.compile(r'\(C\)(\S{4}.)(\d{4})\.(.{3})')
 t_with_zero = re.compile(r'^T-0')

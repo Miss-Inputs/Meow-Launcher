@@ -8,7 +8,7 @@ from common_types import SaveType
 from info.region_info import TVSystem
 from software_list_info import find_in_software_lists, matcher_args_for_bytes
 
-from .megadrive import standard_gamepad as megadrive_pad
+from .atari_controllers import megadrive_pad
 
 
 #Not gonna use stella -rominfo on individual stuff as it takes too long and just detects TV type with no other useful info that isn't in the -listrominfo db

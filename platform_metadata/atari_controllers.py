@@ -32,3 +32,8 @@ xegs_gun.buttons = 1
 
 cx22_trackball = input_metadata.Trackball()
 cx22_trackball.buttons = 1 #Physically 2, but functionally 1 (they are there to be ambidextrous)
+
+#No, but also yes
+megadrive_pad = input_metadata.NormalController()
+megadrive_pad.face_buttons = 3
+megadrive_pad.dpads = 1
