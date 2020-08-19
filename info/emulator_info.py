@@ -51,7 +51,7 @@ emulators = {
 	'A7800': EmulatorInfo(EmulatorStatus.Good, command_lines.a7800, ['bin', 'a78'], ['7z', 'zip']),
 	#Forked directly from MAME with alterations to a7800.cpp driver, so will more or less work the same way as that
 	#Executable name might be a7800.Linux-x86_64 depending on how it's installed... hmm
-	'bsnes': EmulatorInfo(EmulatorStatus.Good, LaunchParams('bsnes', ['--fullscreen', '$<path>']), ['sfc', 'smc'], ['zip', '7z']),
+	'bsnes': EmulatorInfo(EmulatorStatus.Good, command_lines.bsnes, ['sfc', 'smc', 'st', 'bs'], ['zip', '7z']),
 	#TODO: Launch SGB games with ;<SGB BIOS>|;<blah.gb>
 	'cxNES': EmulatorInfo(EmulatorStatus.Good, command_lines.cxnes, ['nes', 'fds', 'unf', 'unif'], ['7z', 'zip']),
 	#Or is it good? Have not tried it in a fair bit

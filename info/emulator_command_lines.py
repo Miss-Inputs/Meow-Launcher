@@ -979,12 +979,24 @@ def a7800(game, _):
 
 	return LaunchParams('a7800', args)
 
-def bsnes(game, _):
+def bsnes(game, specific_config):
+	if game.rom.extension == 'st':
+		bios_path = specific_config.get('sufami_turbo_bios_path', None)
+		if not bios_path:
+			raise EmulationNotSupportedException('Sufami Turbo BIOS not set up, check systems.ini')
+		#We need two arguments (and the second argument has to exist), otherwise when you actually launch it you get asked for something to put in slot B and who says we ever wanted to put anything in slot B
+		#Can also use /dev/null but that's not portable and even if I don't care about that, it just gives me bad vibes
+		return LaunchParams('bsnes', ['--fullscreen', bios_path, '$<path>', '$<path>'])
+
+	#Oh it can just launch Satellaview without any fancy options huh
+
 	slot = game.metadata.specific_info.get('Slot')
 	if slot:
 		#There are a few bootleg things that will not work
 		if slot.endswith(('_bugs', '_pija', '_poke', '_sbld', '_tekken2', '_20col')):
 			raise EmulationNotSupportedException('{0} mapper not supported'.format(slot))
+	
+	return LaunchParams('bsnes', ['--fullscreen', '$<path>'])
 
 def citra(game, _):
 	if game.rom.extension != '3dsx':
