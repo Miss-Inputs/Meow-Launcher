@@ -91,7 +91,7 @@ systems = {
 	'PS2': SystemInfo('ps2', [], ['PCSX2'], {MediaType.OpticalDisc: cdrom_formats + ['cso', 'bin'], MediaType.Executable: ['elf']}),
 	'PSP': SystemInfo(None, [], ['PPSSPP'], {MediaType.OpticalDisc: cdrom_formats + ['cso'], MediaType.Executable: ['pbp']}),
 	'Saturn': SystemInfo('saturn', ['saturn', 'sat_cart', 'sat_vccart'], ['Mednafen (Saturn)', 'MAME (Saturn)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'SNES': SystemInfo('snes', ['snes', 'snes_bspack', 'snes_strom'], ['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)'], {MediaType.Cartridge: ['sfc', 'swc', 'smc', 'bs', 'st', 'bin']}, 
+	'SNES': SystemInfo('snes', ['snes', 'snes_bspack', 'snes_strom'], ['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)', 'bsnes'], {MediaType.Cartridge: ['sfc', 'swc', 'smc', 'bs', 'st', 'bin']}, 
 		{'sufami_turbo_bios_path': SpecificConfigValue(ConfigValueType.FilePath, None, 'Path to Sufami Turbo BIOS, required to run Sufami Turbo carts'),
 		'bsx_bios_path': SpecificConfigValue(ConfigValueType.FilePath, None, 'Path to BS-X BIOS, required to run Satellaview games')
 	}),
