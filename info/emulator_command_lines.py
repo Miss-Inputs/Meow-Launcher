@@ -985,7 +985,6 @@ def bsnes(game, _):
 		#There are a few bootleg things that will not work
 		if slot.endswith(('_bugs', '_pija', '_poke', '_sbld', '_tekken2', '_20col')):
 			raise EmulationNotSupportedException('{0} mapper not supported'.format(slot))
-	#Hmm… almost considering just throwing exception for funny expansion chips that don't work out of the box (SPC7110, ST018) and hence annoy me because I really don't care for trying to figure out where it wants me to put which file with what name
 
 def citra(game, _):
 	if game.rom.extension != '3dsx':
