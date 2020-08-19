@@ -8,6 +8,7 @@ from common_types import (EmulationNotSupportedException, MediaType,
 from launchers import LaunchParams, MultiCommandLaunchParams
 from platform_metadata.apple_ii import AppleIIHardware
 from platform_metadata.atari_2600 import Atari2600Controller
+from platform_metadata.game_boy import GameBoyColourFlag
 from platform_metadata.master_system import SMSPeripheral
 from platform_metadata.megadrive import MegadriveRegionCodes
 from platform_metadata.nes import NESPeripheral
@@ -16,8 +17,13 @@ from platform_metadata.snes import ExpansionChip
 from platform_metadata.wii import WiiTitleType
 from platform_metadata.zx_spectrum import ZXJoystick, ZXMachine
 
+from .emulator_command_line_helpers import (_is_highscore_cart_available,
+                                            _is_software_available,
+                                            _verify_supported_mappers,
+                                            mame_system, mednafen_base,
+                                            verify_mgba_mapper)
 from .region_info import TVSystem
-from .emulator_command_line_helpers import mame_system, _is_highscore_cart_available, _is_software_available, _verify_supported_mappers, mednafen_base, verify_mgba_mapper
+
 
 #MAME drivers
 def mame_32x(game, _):
@@ -980,6 +986,23 @@ def a7800(game, _):
 	return LaunchParams('a7800', args)
 
 def bsnes(game, specific_config):
+	if game.metadata.platform in ('Game Boy', 'Game Boy Color'):
+		sgb_bios_path = specific_config.get('super_game_boy_bios_path', None)
+		if not sgb_bios_path:
+			raise EmulationNotSupportedException('Super Game Boy BIOS not set up, check systems.ini')
+		colour_flag = game.metadata.specific_info.get('Is-Colour', GameBoyColourFlag.No)
+		if colour_flag == GameBoyColourFlag.Required:
+			raise EmulationNotSupportedException('Super Game Boy is not compatible with GBC-only games')
+		if colour_flag == GameBoyColourFlag.Yes and specific_config.get('sgb_incompatible_with_gbc', True):
+			raise EmulationNotSupportedException('We do not want to play a colour game with a Super Game Boy')
+		if specific_config.get('sgb_enhanced_only', False) and not game.metadata.specific_info.get('SGB-Enhanced', False):
+			raise EmulationNotSupportedException('We do not want to play a non-SGB enhanced game with a Super Game Boy')
+
+		#Pocket Camera is also supported by the SameBoy core, but I'm leaving it out here because bsnes doesn't do the camera
+		_verify_supported_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3'], [])
+
+		return LaunchParams('bsnes', ['--fullscreen', sgb_bios_path, '$<path>'])
+
 	if game.rom.extension == 'st':
 		bios_path = specific_config.get('sufami_turbo_bios_path', None)
 		if not bios_path:
