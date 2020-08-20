@@ -90,7 +90,8 @@ class ExpansionChip(Enum):
 	BSX = auto() #For Satellaview BIOS carts
 	CX4 = auto()
 	ST018 = auto()
-	ST01x = auto() #ST010/ST011
+	ST010 = auto()
+	ST011 = auto()
 	SPC7110 = auto()
 	DSP_2 = auto()
 	DSP_3 = auto()
@@ -114,7 +115,6 @@ rom_types = {
 	18: ROMType(has_battery=True), #Might not be used...
 	19: ROMType(ExpansionChip.SuperFX),
 	20: ROMType(ExpansionChip.SuperFX2),
-	#Well, it's a different value from 19. 19 is seen in Star Fox, this is seen in Doom... could be GSU-1 and GSU-2, I dunno
 	21: ROMType(ExpansionChip.SuperFX, has_battery=True),
 	26: ROMType(ExpansionChip.SuperFX2, has_battery=True),
 	37: ROMType(ExpansionChip.OBC_1),
@@ -128,7 +128,7 @@ rom_types = {
 	229: ROMType(ExpansionChip.BSX),
 	243: ROMType(ExpansionChip.CX4),
 	245: ROMType(ExpansionChip.ST018),
-	246: ROMType(ExpansionChip.ST01x),
+	246: ROMType(ExpansionChip.ST010), #or ST011, but it doesn't distinguish there
 	249: ROMType(ExpansionChip.SPC7110),
 }
 
@@ -207,7 +207,6 @@ def parse_snes_header(game, base_offset):
 		raise BadSNESHeaderException("Checksum and inverse checksum don't add up: %s %s" % (hex(checksum), hex(inverse_checksum)))
 
 	if licensee == 0x33:
-		#TODO: If title[-1] == 00, this is an early version that only indicates the chipset subtype. It's only used for ST010/11 games anyway though... apparently
 		try:
 			maker_code = convert_alphanumeric(header[0xb0:0xb2])
 			metadata['Licensee'] = maker_code
@@ -390,6 +389,11 @@ def add_snes_metadata(game):
 			game.metadata.specific_info['Expansion-Chip'] = ExpansionChip.DSP_3
 		elif expansion_chip == 'DSP4':
 			game.metadata.specific_info['Expansion-Chip'] = ExpansionChip.DSP_4
+		#Distinguish between subtypes properly
+		elif expansion_chip == 'ST010':
+			game.metadata.specific_info['Expansion-Chip'] = ExpansionChip.ST010
+		elif expansion_chip == 'ST011':
+			game.metadata.specific_info['Expansion-Chip'] = ExpansionChip.ST011
 
 		#Meh...
 		if software.name in ('ffant2', 'ffant2a'):

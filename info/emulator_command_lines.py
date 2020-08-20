@@ -868,7 +868,7 @@ def mednafen_snes_faust(game, _):
 	#Also does not support any other input except normal controller and multitap
 	expansion_chip = game.metadata.specific_info.get('Expansion-Chip')
 	if expansion_chip:
-		if expansion_chip not in (ExpansionChip.CX4, ExpansionChip.SA_1, ExpansionChip.DSP_1, ExpansionChip.SuperFX, ExpansionChip.SuperFX2, ExpansionChip.DSP_2, ExpansionChip.S_DD1):
+		if expansion_chip not in (ExpansionChip.CX4, ExpansionChip.SA_1, ExpansionChip.DSP_1A, ExpansionChip.DSP_1B, ExpansionChip.SuperFX, ExpansionChip.SuperFX2, ExpansionChip.DSP_2, ExpansionChip.S_DD1):
 			raise EmulationNotSupportedException('{0} not supported'.format(expansion_chip))
 	return mednafen_base('snes_faust')
 
