@@ -6,7 +6,7 @@ import shlex
 from enum import Enum
 
 import common
-from config import main_config, app_name
+from config import main_config
 from io_utils import ensure_exist
 
 try:
@@ -15,10 +15,10 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
-metadata_section_name = 'X-%s Metadata' % app_name
-id_section_name = 'X-%s ID' % app_name
-junk_section_name = 'X-%s Junk' % app_name
-image_section_name = 'X-%s Images' % app_name
+metadata_section_name = 'X-Meow Launcher Metadata'
+id_section_name = 'X-Meow Launcher ID'
+junk_section_name = 'X-Meow Launcher Junk'
+image_section_name = 'X-Meow Launcher Images'
 
 def get_desktop(path):
 	parser = configparser.ConfigParser(interpolation=None)

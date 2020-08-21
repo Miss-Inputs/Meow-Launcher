@@ -9,11 +9,11 @@ import time
 import datetime
 
 from common import normalize_name
-from config import main_config, app_name
+from config import main_config
 import launchers
 
 super_debug = '--super-debug' in sys.argv
-disambiguity_section_name = 'X-%s Disambiguity' % app_name
+disambiguity_section_name = 'X-Meow Launcher Disambiguity'
 
 def update_name(desktop, disambiguator, disambiguation_method):
 	if not disambiguator:
