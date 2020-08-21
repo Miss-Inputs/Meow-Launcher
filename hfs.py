@@ -38,9 +38,7 @@ def parse_list_item(line, path):
 
 file_not_found_regex = re.compile(r'^hls: ".+": no such file or directory$')
 def list_inside_hfv(hfv_path, unescaped_name):
-	ls_proc = subprocess.run(['hls', '-l', hfv_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='mac-roman', universal_newlines=True)
-	if ls_proc.returncode != 0:
-		raise Exception('oh no %d' % ls_proc.returncode)
+	ls_proc = subprocess.run(['hls', '-l', hfv_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='mac-roman', universal_newlines=True, check=True)
 
 	if file_not_found_regex.fullmatch(ls_proc.stderr.strip()):
 		raise FileNotFoundError(hfv_path)
@@ -62,26 +60,22 @@ def list_recursively(hfv_path, unescaped_name=None):
 			yield f
 
 def list_hfv(hfv_path):
-	mount_proc = subprocess.run(['hmount', hfv_path], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-	if mount_proc.returncode != 0:
-		raise Exception(mount_proc.stderr)
+	subprocess.run(['hmount', hfv_path], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, check=True)
 
 	try:
-		pwd_proc = subprocess.run('hpwd', stdout=subprocess.PIPE, encoding='mac-roman')
+		pwd_proc = subprocess.run('hpwd', stdout=subprocess.PIPE, encoding='mac-roman', check=True)
 		pwd = pwd_proc.stdout.rstrip('\n')
 
 		for f in list_recursively(pwd):
 
 			yield f
 	finally:
-		umount_proc = subprocess.run('humount')
+		umount_proc = subprocess.run('humount', check=True)
 		if umount_proc.returncode != 0:
 			print('Oh no')
 
 def does_exist(hfv_path, inner_path):
-	mount_proc = subprocess.run(['hmount', hfv_path], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
-	if mount_proc.returncode != 0:
-		raise Exception(mount_proc.stderr)
+	subprocess.run(['hmount', hfv_path], stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, check=False)
 
 	try:
 		list_inside_hfv(inner_path, inner_path)
@@ -89,6 +83,6 @@ def does_exist(hfv_path, inner_path):
 	except FileNotFoundError:
 		return False
 	finally:
-		umount_proc = subprocess.run('humount')
+		umount_proc = subprocess.run('humount', check=False)
 		if umount_proc.returncode != 0:
 			print('Oh no')
