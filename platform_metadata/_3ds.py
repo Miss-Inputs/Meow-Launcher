@@ -28,7 +28,7 @@ class _3DSRegionCode(Flag):
 	RegionFree = 0x7fffffff
 
 	def __str__(self):
-		return self.name
+		return str(self.name)
 
 def add_3ds_system_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
