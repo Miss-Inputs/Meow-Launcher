@@ -6,7 +6,7 @@ import time
 import launchers
 from common_types import EmulationNotSupportedException, MediaType
 from config import main_config
-from info.emulator_command_lines import mame_base
+from info.emulator_command_line_helpers import mame_base
 from info.region_info import TVSystem
 from metadata import EmulationStatus, Metadata
 from software_list_info import get_software_list_by_name
