@@ -602,7 +602,7 @@ def find_software_by_name(software_lists, name):
 					break
 			#TODO Should look at the rest of name_brackets or match_brackets for anything else looking like rev X or v1.X
 			#TODO Consider special versions
-			#Seen in the wild:  "Limited Edition", "32X", "Sega All Stars"
+			#Seen in the wild:  "Limited Edition", "32X", "Sega All Stars", "Amiga CD32 Special"
 
 			if 'v1.0' in match_brackets:
 				orig_version = True

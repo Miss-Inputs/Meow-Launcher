@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 subtitles = {
+	'Baku Baku Animal': 'World Zookeeper Contest',
 	'Catz': 'Your Virtual Petz Palz',
+	'Clockwork Knight': "Pepperouchau's Adventure",
+	'Clockwork Knight 2': "Pepperouchau's Adventure", #Why would the sequel have the same subtitle…
 	'Cybernoid II': 'The Revenge',
 	'Driver 2': 'Back on the Streets',
 	'Ehrgeiz': 'God Bless the Ring',
@@ -32,8 +35,10 @@ subtitles = {
 	'SimCity 2000': 'The Ultimate City Simulator',
 	'SimEarth': 'The Living Planet',
 	'Street Fighter II': 'The World Warrior',
+	'Super Air Zonk': 'Rockabilly-Paradise',
 	'Super Mario RPG': 'Legend of the Seven Stars',
 	'Super Street Fighter II': 'The New Challengers',
+	'Virtua Tennis': 'Sega Professional Tennis',
 	'Wave Race 64': 'Kawasaki Jet Ski', #Well sort of, I guess later releases (i.e. VC) have license removed
 	'Ys III': 'Wanderers from Ys',
 	'Zool': "Ninja of the 'Nth' Dimension",
