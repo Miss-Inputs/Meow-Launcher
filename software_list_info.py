@@ -542,12 +542,14 @@ def find_software_by_name(software_lists, name):
 		if 'demo' in name_tags and 'demo' not in software_tags:
 			return False
 
+		software_is_prototype = any(t.startswith('prototype') for t in software_tags)
+
 		for t in proto_tags:
-			if t in name_tags and not (t in software_tags or 'prototype' in software_tags):
+			if t in name_tags and not (t in software_tags or software_is_prototype):
 				return False
 			if t in software_tags and not t in name_tags:
 				return False
-		if 'prototype' in software_tags:
+		if software_is_prototype:
 			matches_proto = False
 			for t in proto_tags:
 				if t in name_tags:
@@ -613,7 +615,7 @@ def find_software_by_name(software_lists, name):
 		if len(name_and_region_and_version_matches) == 1:
 			return name_and_region_and_version_matches[0]
 
-		#print(name, 'matched too many', [m.description for m in name_and_region_matches])
+		print(name, 'matched too many', [m.description for m in name_and_region_matches])
 		
 	return None
 
