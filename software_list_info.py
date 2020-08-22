@@ -600,7 +600,7 @@ def find_software_by_name(software_lists, name):
 		if len(name_and_region_and_version_matches) == 1:
 			return name_and_region_and_version_matches[0]
 
-		print(name, 'matched too many', [m.description for m in name_and_region_matches])
+		#print(name, 'matched too many', [m.description for m in name_and_region_matches])
 		#Otherwise, I don't want to mess around with weird different revisions or re-releases for now, given that this is just sort of a hack anyway
 	
 	return None
