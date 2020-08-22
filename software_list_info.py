@@ -601,7 +601,8 @@ def find_software_by_name(software_lists, name):
 					name_and_region_and_version_matches.append(match)
 					break
 			#TODO Should look at the rest of name_brackets or match_brackets for anything else looking like rev X or v1.X
-			#TODO Consider special versions like "Limited Edition" or "32X"
+			#TODO Consider special versions
+			#Seen in the wild:  "Limited Edition", "32X", "Sega All Stars"
 
 			if 'v1.0' in match_brackets:
 				orig_version = True
