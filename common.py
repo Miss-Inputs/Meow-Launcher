@@ -1,14 +1,16 @@
 import re
 
 find_filename_tags = re.compile(r'(\([^)]+?\)+|\[[^]]+?\]+)')
-remove_extra_spaces = re.compile(r'\s(?=\s|$)')
 def remove_filename_tags(name):
 	stripped_name = find_filename_tags.sub('', name)
 	if not stripped_name:
 		#Handle weird hipster games that have (one thing in parentheses) as the title for no good reason
 		stripped_name = name
 
-	return remove_extra_spaces.sub('', stripped_name)
+	if stripped_name[-1] == ' ':
+		stripped_name = stripped_name[:-1]
+
+	return stripped_name
 
 words_regex = re.compile(r'[\w()]+')
 def normalize_name(name, care_about_spaces=True, normalize_words=True):
