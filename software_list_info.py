@@ -641,28 +641,31 @@ def get_software_list_entry(game, skip_header=0):
 		software_lists = get_software_lists_by_names(software_list_names)
 
 	if game.metadata.media_type == MediaType.OpticalDisc:
+		software = None
 		if game.rom.extension == 'chd':
 			try:
 				sha1 = get_sha1_from_chd(game.rom.path)
 				args = SoftwareMatcherArgs(None, sha1, None, None)
-				return find_in_software_lists(software_lists, args)
+				software = find_in_software_lists(software_lists, args)
 			except UnsupportedCHDError:
 				pass
-		return None
-
-	if game.subroms:
-		#TODO: Get first floppy for now, because right now we don't differentiate with parts or anything; this part of the code sucks
-		#TODO: Subroms for chds, just to make my head explode more
-		data = game.subroms[0].read(seek_to=skip_header)
-		software = find_in_software_lists(software_lists, matcher_args_for_bytes(data))
 	else:
-		if skip_header:
-			data = game.rom.read(seek_to=skip_header)
+		if game.subroms:
+			#TODO: Get first floppy for now, because right now we don't differentiate with parts or anything; this part of the code sucks
+			data = game.subroms[0].read(seek_to=skip_header)
 			software = find_in_software_lists(software_lists, matcher_args_for_bytes(data))
 		else:
-			crc32 = format_crc32_for_software_list(game.rom.get_crc32())
-			args = SoftwareMatcherArgs(crc32, None, game.rom.get_size(), lambda offset, amount: game.rom.read(seek_to=offset, amount=amount))
-			software = find_in_software_lists(software_lists, args)
+			if skip_header:
+				data = game.rom.read(seek_to=skip_header)
+				software = find_in_software_lists(software_lists, matcher_args_for_bytes(data))
+			else:
+				crc32 = format_crc32_for_software_list(game.rom.get_crc32())
+				args = SoftwareMatcherArgs(crc32, None, game.rom.get_size(), lambda offset, amount: game.rom.read(seek_to=offset, amount=amount))
+				software = find_in_software_lists(software_lists, args)
+
+	if not software and game.metadata.platform in main_config.find_software_by_name:
+		software = find_software_by_name(game.software_lists, game.rom.name)
+
 	return software
 
 def format_crc32_for_software_list(crc):
