@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ElementTree
 import zlib
 
 import io_utils
-from common import normalize_name, remove_filename_tags
+from common import normalize_name, remove_filename_tags, find_filename_tags
 from common_types import MediaType
 from config import main_config
 from info.system_info import systems
@@ -515,33 +515,69 @@ def find_in_software_lists_with_custom_matcher(software_lists, matcher, args):
 	return None
 
 def find_software_by_name(software_lists, name):
-	#This code sucks and is a big mess by the way
 	def _does_name_fuzzy_match(part, name):
 		#TODO Handle annoying multiple discs
+		proto_tags = ['beta', 'proto', 'sample']
+
 		software_full_name = normalize_name(remove_filename_tags(part.software.description))
-		return software_full_name == normalize_name(remove_filename_tags(name))
+		normalized_name = normalize_name(remove_filename_tags(name))
+		name_tags = [t.lower() for t in find_filename_tags.findall(name)]
+		#Sometimes (often) these will appear as (Region, Special Version) and not (Region) (Special Version) etc, so let's dismantle them
+		software_tags = ', '.join([t.lower()[1:-1] for t in find_filename_tags.findall(part.software.description)])
+		
+		if software_full_name != normalized_name:
+			return False
+		if 'demo' in software_tags and '(demo)' not in name_tags:
+			return False
+		if '(demo)' in name_tags and 'demo' not in software_tags:
+			return False
+
+		for t in proto_tags:
+			if ('(' + t + ')' in name_tags or '[' + t + ']' in name_tags) and not (t in software_tags or 'prototype' in software_tags):
+				return False
+			if t in software_tags and not ('(' + t + ')' in name_tags or '[' + t + ']' in name_tags):
+				return False
+		if 'prototype' in software_tags:
+			matches_proto = False
+			for t in proto_tags:
+				if '(' + t + ')' in name_tags or '[' + t + ']' in name_tags:
+					matches_proto = True
+			if not matches_proto:
+				return False
+		return True
 
 	fuzzy_name_matches = []
 	for software_list in software_lists:
 		results = software_list.find_all_software_with_custom_matcher(_does_name_fuzzy_match, [name])
 		fuzzy_name_matches += results
-
 	if len(fuzzy_name_matches) == 1:
 		return fuzzy_name_matches[0]
 	if len(fuzzy_name_matches) > 1:
 		name_and_region_matches = []
+		regions = {
+			'USA': 'USA',
+			'Euro': 'Europe',
+			'Jpn': 'Japan',
+			'Aus': 'Australia',
+			'As': 'Asia',
+			'Fra': 'France',
+			'Ger': 'Germany',
+			'Spa': 'Spain',
+			'Ita': 'Italy',
+			'Ned': 'Netherlands',
+		}
 		for match in fuzzy_name_matches:
 			#Narrow down by region
-			#TODO: Do this better
-			if match.description.endswith('(USA)') and name.endswith('(USA)'):
-				name_and_region_matches.append(match)
-			if match.description.endswith('(Europe)') and name.endswith('(Europe)'):
-				name_and_region_matches.append(match)
-			if match.description.endswith('(Jpn)') and name.endswith('(Japan)'):
-				name_and_region_matches.append(match)
-	
+			#Sometimes (often) these will appear as (Region, Special Version) and not (Region) (Special Version) etc, so let's dismantle them
+			match_brackets = ', '.join([t.lower()[1:-1] for t in find_filename_tags.findall(match.description)])
+			name_brackets = [t.lower()[1:-1] for t in find_filename_tags.findall(name)]
+			for abbrev_region, region in regions.items():				
+				if (abbrev_region.lower() in match_brackets or region.lower() in match_brackets) and region.lower() in name_brackets:
+					name_and_region_matches.append(match)
+
 		if len(name_and_region_matches) == 1:
 			return name_and_region_matches[0]
+		#print(name, 'matched too many', [m.description for m in name_and_region_matches])
 		#Otherwise, I don't want to mess around with weird different revisions or re-releases for now, given that this is just sort of a hack anyway
 	
 	return None
