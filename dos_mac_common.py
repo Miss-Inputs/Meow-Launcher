@@ -148,6 +148,8 @@ def make_launchers(system_config_name, config_path, app_class, emulator_list):
 	system_config = system_configs.configs[system_config_name]
 	if not system_config:
 		return
+	if not system_config.paths or not system_config.chosen_emulators:
+		return
 
 	time_started = time.perf_counter()
 
