@@ -525,6 +525,7 @@ def find_software_by_name(software_lists, name):
 		#Sometimes (often) these will appear as (Region, Special Version) and not (Region) (Special Version) etc, so let's dismantle them
 		software_tags = ', '.join([t.lower()[1:-1] for t in find_filename_tags.findall(part.software.description)]).split(', ')
 		
+		#TODO: Use subtitles
 		if software_full_name != normalized_name:
 			return False
 		if 'demo' in software_tags and 'demo' not in (', ').join(name_tags):
@@ -551,6 +552,7 @@ def find_software_by_name(software_lists, name):
 		results = software_list.find_all_software_with_custom_matcher(_does_name_fuzzy_match, [name])
 		fuzzy_name_matches += results
 	if len(fuzzy_name_matches) == 1:
+		#TODO: Don't do this, we still need to check the region… but only if the region needs to be checked at all, see below comment
 		return fuzzy_name_matches[0]
 	if len(fuzzy_name_matches) > 1:
 		name_and_region_matches = []
@@ -587,6 +589,7 @@ def find_software_by_name(software_lists, name):
 					name_and_region_and_version_matches.append(match)
 					break
 			#TODO Should look at the rest of name_brackets or match_brackets for anything else looking like rev X or v1.X
+			#TODO Consider special versions like "Limited Edition" or "32X"
 
 			if 'v1.0' in match_brackets:
 				orig_version = True
