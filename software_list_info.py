@@ -5,9 +5,10 @@ import xml.etree.ElementTree as ElementTree
 import zlib
 
 import io_utils
-from common import normalize_name, remove_filename_tags, find_filename_tags
+from common import find_filename_tags, normalize_name, remove_filename_tags
 from common_types import MediaType
 from config import main_config
+from data.subtitles import subtitles
 from info.system_info import systems
 from mame_helpers import (consistentify_manufacturer, get_mame_core_config,
                           verify_software_list)
@@ -519,15 +520,24 @@ def find_software_by_name(software_lists, name):
 		#TODO Handle annoying multiple discs
 		proto_tags = ['beta', 'proto', 'sample']
 
-		software_full_name = normalize_name(remove_filename_tags(part.software.description))
-		normalized_name = normalize_name(remove_filename_tags(name))
+		software_name_without_brackety_bois = remove_filename_tags(part.software.description)
+		name_without_brackety_bois = remove_filename_tags(name)
+		software_normalized_name = normalize_name(software_name_without_brackety_bois)
+		normalized_name = normalize_name(name_without_brackety_bois)
 		name_tags = [t.lower()[1:-1] for t in find_filename_tags.findall(name)]
 		#Sometimes (often) these will appear as (Region, Special Version) and not (Region) (Special Version) etc, so let's dismantle them
 		software_tags = ', '.join([t.lower()[1:-1] for t in find_filename_tags.findall(part.software.description)]).split(', ')
 		
 		#TODO: Use subtitles
-		if software_full_name != normalized_name:
-			return False
+		if software_normalized_name != normalized_name:
+			if name_without_brackety_bois in subtitles:
+				if normalize_name(name_without_brackety_bois + ': ' + subtitles[name_without_brackety_bois]) != software_normalized_name:
+					return False
+			elif software_name_without_brackety_bois in subtitles:
+				if normalize_name(software_name_without_brackety_bois + ': ' + subtitles[software_name_without_brackety_bois]) != normalized_name:
+					return False
+			else:
+				return False
 		if 'demo' in software_tags and 'demo' not in (', ').join(name_tags):
 			return False
 		if 'demo' in name_tags and 'demo' not in software_tags:
