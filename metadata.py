@@ -187,8 +187,7 @@ class Metadata():
 		self.series_index = None
 
 		#Set this up later with the respective objects
-		#TODO: Set screen_info up right here, and just keep track of whether it's inited or not
-		#TODO I really need to have a think about whether I really give a shit about this and I kinda wanna chuck all that out and just have specific info fields for MAME machines
+		#TODO I only give a shit about this info for MAME machines, move it there
 		self.cpu_info = CPUInfo()
 		self.screen_info = None
 		self.input_info = InputInfo()

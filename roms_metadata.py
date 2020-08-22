@@ -1,13 +1,9 @@
-import os
-
 import detect_things_from_filename
 import platform_metadata
 from common import machine_name_matches
 from config import main_config
 from info import region_info, system_info
-from mame_helpers import (MachineNotFoundException, get_icons, get_mame_xml,
-                          have_mame, lookup_system_cpus,
-                          lookup_system_displays)
+from mame_helpers import (MachineNotFoundException, get_icons, get_mame_xml)
 from mame_machines import Machine
 from software_list_info import get_software_lists_by_names
 from data.not_necessarily_equivalent_arcade_names import not_necessarily_equivalent_arcade_names
@@ -21,20 +17,6 @@ mame_driver_overrides = {
 	'DSi': 'nds', #For now, there is an nds skeleton driver for us to get info from but not a DSi skeleton driver, so that's fine
 	#It can also be set to New 3DS but that has no MAME driver anyway
 }
-if have_mame():
-	cpu_overrides = {
-		#Usually just look up system_info.systems, but this is here where they aren't in systems or there isn't a MAME driver so we can't get the CPU from there, or they're addons so things get weird
-		'32X': lookup_system_cpus('sega_32x_ntsc'), #This ends up being weird and having 0 clock speed when looking at the device... but if we don't override things, it just has the 68000
-		'Mega CD': lookup_system_cpus('segacd_us'),
-		'Benesse Pocket Challenge V2': lookup_system_cpus('wswan'), #Should be the same; the BPCV2 is a different system but it is effectively a boneless WonderSwan
-	}
-
-	display_overrides = {
-		'Benesse Pocket Challenge V2': lookup_system_displays('wswan'),
-	}
-else:
-	cpu_overrides = {}
-	display_overrides = {}
 
 def get_metadata_from_tags(game):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
@@ -90,37 +72,6 @@ def get_metadata_from_regions(game):
 			tv_type = region_info.get_tv_system_from_regions(game.metadata.regions)
 			if tv_type:
 				game.metadata.tv_type = tv_type
-
-def add_device_hardware_metadata(game, mame_driver):
-	source_file = None
-	if have_mame():
-		if mame_driver:
-			source_file = get_mame_xml(mame_driver).attrib['sourcefile']
-			#By definition, if we don't have a MAME driver, then Source-File shouldn't even be set
-			if source_file:
-				game.metadata.specific_info['Source-File'] = os.path.splitext(source_file)[0]
-
-		if not game.metadata.cpu_info.is_inited:
-			cpus = None
-			if game.metadata.platform in cpu_overrides:
-				cpus = cpu_overrides[game.metadata.platform]
-			elif mame_driver:
-				cpus = lookup_system_cpus(mame_driver)
-
-			if cpus is not None:
-				game.metadata.cpu_info.set_inited()
-				for cpu in cpus:
-					game.metadata.cpu_info.add_cpu(cpu)
-
-		if not game.metadata.screen_info:
-			displays = None
-			if game.metadata.platform in display_overrides:
-				displays = display_overrides[game.metadata.platform]
-			elif mame_driver:
-				displays = lookup_system_displays(mame_driver)
-
-			if displays:
-				game.metadata.screen_info = displays
 
 def find_equivalent_arcade_game(game, basename):
 	#Just to be really strict: We will only get it if the name matches
@@ -197,9 +148,7 @@ def add_metadata(game):
 		mame_driver = mame_driver_overrides[game.metadata.platform]
 	elif game.metadata.platform in system_info.systems:
 		mame_driver = system_info.systems[game.metadata.platform].mame_driver
-			
-	add_device_hardware_metadata(game, mame_driver)
-	
+				
 	equivalent_arcade = game.metadata.specific_info.get('Equivalent-Arcade')
 	if not equivalent_arcade and main_config.find_equivalent_arcade_games:
 		software_name = game.metadata.specific_info.get('MAME-Software-Name')
