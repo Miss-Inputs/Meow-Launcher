@@ -1,4 +1,5 @@
 import re
+from data.subtitles import subtitles
 
 find_filename_tags = re.compile(r'(\([^)]+?\)+|\[[^]]+?\]+)')
 def remove_filename_tags(name):
@@ -180,6 +181,14 @@ def machine_name_matches(machine_name, game_name, match_vs_system=False):
 			return False
 		machine_name = machine_name[4:]
 	for machine_name_part in machine_name.split(' / '):
+		#Hmm… we are only splitting by / here as a workaround for not parsing "Name / Alt Name" correctly
 		if normalize_name(machine_name_part, False) == normalize_name(game_name, False):
 			return True
+
+		if machine_name_part in subtitles:
+			if normalize_name(machine_name_part + ': ' + subtitles[machine_name_part], False) == normalize_name(game_name, False):
+				return True
+		elif game_name in subtitles:
+			if normalize_name(game_name + ': ' + subtitles[game_name], False) == normalize_name(machine_name_part, False):
+				return True
 	return False

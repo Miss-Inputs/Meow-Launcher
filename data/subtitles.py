@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 #TODO: Actually use this, it'll be useful for disambiguate.py probably
-#Also yeah this would be good in machine_name_matches even more so
 
 subtitles = {
 	'Catz': 'Your Virtual Petz Palz',
@@ -41,6 +40,7 @@ subtitles = {
 
 non_standard_subtitles = {
 	#Where it's not just separated by a - or :, maybe this doesn't belong here
+	#Yeah nah like how would I use this, it's more for name_consistency if anything
 	'Batman Forever The Arcade Game': 'Batman Forever',
 	'Ys - Wanderers from Ys': 'Ys III',
 	'Miner 2049er Starring Bounty Bob': 'Miner 2049er',
