@@ -98,6 +98,7 @@ disable=print-statement,
             too-many-public-methods,
             too-many-lines,
 		global-statement, #What the fuck is wrong with the global statement exactly anyway, fucking wankers
+      raise-missing-from
 
 
 # Enable the message, report, category or checker with the given id(s). You can
