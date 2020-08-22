@@ -576,6 +576,7 @@ def find_software_by_name(software_lists, name):
 			'Spa': 'Spain',
 			'Ita': 'Italy',
 			'Ned': 'Netherlands',
+			'Bra': 'Brazil',
 		}
 		name_brackets = [t.lower()[1:-1] for t in find_filename_tags.findall(name)]
 		for match in fuzzy_name_matches:
@@ -613,8 +614,7 @@ def find_software_by_name(software_lists, name):
 			return name_and_region_and_version_matches[0]
 
 		#print(name, 'matched too many', [m.description for m in name_and_region_matches])
-		#Otherwise, I don't want to mess around with weird different revisions or re-releases for now, given that this is just sort of a hack anyway
-	
+		
 	return None
 
 def find_in_software_lists(software_lists, args):
