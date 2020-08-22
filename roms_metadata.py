@@ -138,6 +138,7 @@ ignored_arcade_names = [
 	'dlair', #So many home ports that were just in name only for technical limitations, so they're not related…
 	'spaceace', #Ditto
 	'arcadecl', #That could be anyone's arcade classics… the arcade arcade classics was by Atari (and unreleased), but there's nothing stopping other companies compiling their own alleged classics, which happened
+	'blasto',
 ]
 def find_equivalent_arcade_game(game, basename):
 	#Just to be really strict: We will only get it if the name matches
