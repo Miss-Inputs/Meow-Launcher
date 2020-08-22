@@ -152,7 +152,7 @@ def make_launchers(system_config_name, config_path, app_class, emulator_list):
 	time_started = time.perf_counter()
 
 	game_list = init_game_list(system_config_name.lower())
-	if not os.path.isfile(config_path):
+	if not config_path or not os.path.isfile(config_path):
 		#TODO: Perhaps notify user they have to do ./blah.py --scan to do the thing
 		return
 
