@@ -14,7 +14,6 @@ from common_types import SaveType
 from data._3ds_publisher_overrides import consistentified_manufacturers
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import TVSystem
-from metadata import CPU, Screen, ScreenInfo
 from .wii import parse_ratings
 
 class _3DSRegionCode(Flag):
@@ -32,29 +31,6 @@ class _3DSRegionCode(Flag):
 
 def add_3ds_system_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
-
-	cpu = CPU()
-	cpu.chip_name = 'ARM11'
-	cpu.clock_speed = 268 * 1000 * 1000 #New 3DS is 804 MHz
-	game.metadata.cpu_info.add_cpu(cpu)
-
-	top_screen = Screen()
-	top_screen.width = 400
-	top_screen.height = 200
-	top_screen.type = 'lcd'
-	top_screen.tag = 'top'
-	top_screen.refresh_rate = 59.834
-
-	bottom_screen = Screen()
-	bottom_screen.width = 320
-	bottom_screen.height = 200
-	bottom_screen.type = 'lcd'
-	bottom_screen.tag = 'bottom'
-	bottom_screen.refresh_rate = 59.834
-
-	screen_info = ScreenInfo()
-	screen_info.screens = [top_screen, bottom_screen]
-	game.metadata.screen_info = screen_info
 
 	#Although we can't know for sure if the game uses the touchscreen, it's safe to assume that it probably does
 	builtin_gamepad = input_metadata.NormalController()

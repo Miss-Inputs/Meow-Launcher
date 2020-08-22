@@ -1,13 +1,12 @@
-import os
-import io
 import calendar
+import io
+import os
 import re
 
-from info.region_info import TVSystem
-from metadata import CPU, ScreenInfo, Screen
 import input_metadata
 from common_types import MediaType
 from config import main_config
+from info.region_info import TVSystem
 
 try:
 	from PIL import Image
@@ -147,28 +146,12 @@ def add_info_from_pbp(game, pbp_file):
 				game.metadata.images['Background-Image'] = pic1
 
 def add_psp_system_info(game):
-	cpu = CPU()
-	cpu.chip_name = 'Sony CXD2962GG'
-	cpu.clock_speed = 333 * 1000 * 1000
-	game.metadata.cpu_info.add_cpu(cpu)
-
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.analog_sticks = 1
 	builtin_gamepad.face_buttons = 4 #also Start, Select
 	builtin_gamepad.shoulder_buttons = 2
 	game.metadata.input_info.add_option(builtin_gamepad)
-
-	screen = Screen()
-	screen.width = 480
-	screen.height = 272
-	screen.type = 'lcd'
-	screen.tag = 'screen'
-	screen.refresh_rate = 60  #I presume so, anyway... good luck finding actual information. I bet it's not really exactly 60Hz
-
-	screen_info = ScreenInfo()
-	screen_info.screens = [screen]
-	game.metadata.screen_info = screen_info
 
 def parse_product_code(game):
 	value = game.metadata.product_code

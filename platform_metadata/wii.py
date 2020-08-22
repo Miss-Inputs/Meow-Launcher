@@ -7,7 +7,6 @@ from enum import Enum
 from common import NotAlphanumericException, convert_alphanumeric
 from config import main_config
 from data.nintendo_licensee_codes import nintendo_licensee_codes
-from metadata import CPU, Screen, ScreenInfo
 
 from .gamecube_wii_common import (NintendoDiscRegion,
                                   add_gamecube_wii_disc_metadata,
@@ -27,25 +26,6 @@ class WiiTitleType(Enum):
 	GameWithChannel = 0x00010004 #Channels that come with games, e.g. Wii Fit Plus Channel or whatevs
 	DLC = 0x00010005
 	HiddenChannel = 0x00010008
-
-def add_wii_system_info(game):
-	cpu = CPU()
-	cpu.chip_name = 'IBM PowerPC 750CL'
-	cpu.clock_speed = 729 * 1000 * 1000
-	game.metadata.cpu_info.add_cpu(cpu)
-
-	screen = Screen()
-	screen.width = 640
-	screen.height = 480
-	#Let's just go with that. PAL consoles can do 576i and interlacing confuses me (720x576?)
-	#Also anamorphic widescreen doesn't count
-	screen.type = 'raster'
-	screen.tag = 'screen'
-	screen.refresh_rate = 60
-
-	screen_info = ScreenInfo()
-	screen_info.screens = [screen]
-	game.metadata.screen_info = screen_info
 
 def round_up_to_multiple(num, factor):
 	return num + (factor - (num % factor)) % factor
@@ -332,7 +312,6 @@ def add_wii_disc_metadata(game):
 	parse_ratings(game, wii_header[0xe010:0xe020])
 
 def add_wii_metadata(game):
-	add_wii_system_info(game)
 	if game.rom.extension in ('gcz', 'iso', 'wbfs', 'gcm'):
 		if game.rom.extension in ('iso', 'gcm', 'gcz'):
 			#.gcz can be a format for Wii discs, though not recommended and uncommon

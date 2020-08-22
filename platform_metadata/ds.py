@@ -10,7 +10,6 @@ import input_metadata
 from common import NotAlphanumericException, convert_alphanumeric
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import TVSystem, get_region_by_name
-from metadata import Screen, ScreenInfo
 
 from .wii import parse_ratings
 
@@ -18,24 +17,7 @@ from .wii import parse_ratings
 #For DSiWare, we can get public.sav and private.sav filesize, and that tells us if SaveType = Internal or Nothing. But we won't worry about DSiWare for now due to lack of accessible emulation at the moment.
 
 def add_ds_system_info(game):
-	top_screen = Screen()
-	top_screen.width = 256
-	top_screen.height = 192
-	top_screen.type = 'lcd'
-	top_screen.tag = 'top'
-	top_screen.refresh_rate = 59.8261
-
-	bottom_screen = Screen()
-	bottom_screen.width = 256
-	bottom_screen.height = 192
-	bottom_screen.type = 'lcd'
-	bottom_screen.tag = 'bottom'
-	bottom_screen.refresh_rate = 59.8261
-
-	screen_info = ScreenInfo()
-	screen_info.screens = [top_screen, bottom_screen]
-	game.metadata.screen_info = screen_info
-
+	#Hmm
 	game.metadata.tv_type = TVSystem.Agnostic
 
 def convert_ds_colour_to_rgba(colour, is_transparent):
@@ -129,8 +111,6 @@ def parse_ds_header(game, header):
 	elif unit_code == 3:
 		is_dsi = True
 		game.metadata.platform = "DSi"
-		#We won't set this upgraded clock speed for DSi-enhanced DS games for now, since nothing emulates them in that mode
-		game.metadata.cpu_info.clock_speed = '133 MHz'
 
 	if is_dsi:
 		region_flags = int.from_bytes(header[0x1b0:0x1b4], 'little')

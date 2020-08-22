@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from config import main_config
-from metadata import CPU, Screen, ScreenInfo
 
 from .gamecube_wii_common import (NintendoDiscRegion,
                                   add_gamecube_wii_disc_metadata,
@@ -159,25 +158,7 @@ def add_gamecube_disc_metadata(game, header):
 		if main_config.debug:
 			print(game.rom.path, 'encountered error when parsing FST', ex)
 
-def add_gamecube_system_info(game):
-	cpu = CPU()
-	cpu.chip_name = 'IBM Gekko'
-	cpu.clock_speed = 485 * 1000 * 1000
-	game.metadata.cpu_info.add_cpu(cpu)
-
-	screen = Screen()
-	screen.width = 640
-	screen.height = 480
-	screen.type = 'raster'
-	screen.tag = 'screen'
-	screen.refresh_rate = 60
-
-	screen_info = ScreenInfo()
-	screen_info.screens = [screen]
-	game.metadata.screen_info = screen_info
-
 def add_gamecube_metadata(game):
-	add_gamecube_system_info(game)
 
 	if game.rom.extension in ('gcz', 'iso', 'gcm'):
 		header = game.rom.read(0, 0x2450)

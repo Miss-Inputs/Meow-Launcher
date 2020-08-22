@@ -94,7 +94,7 @@ def add_software_metadata(software):
 	#categories (but how?)
 	#languages (detect from regions)
 	#save_type
-	#cpu_info, screen_info, input_info
+	#input_info
 	#regions (from filename tags)
 	#nsfw? (if possible to detect from filename tags)
 	#Is notes automatic from software?
