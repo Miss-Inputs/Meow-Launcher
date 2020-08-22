@@ -10,6 +10,7 @@ from mame_helpers import (MachineNotFoundException, get_icons, get_mame_xml,
                           lookup_system_displays)
 from mame_machines import Machine
 from software_list_info import get_software_lists_by_names
+from data.not_necessarily_equivalent_arcade_names import not_necessarily_equivalent_arcade_names
 
 mame_driver_overrides = {
 	#Basically, this is when something in platform_metadata changes what game.metadata.platform is, which means we can no longer just look up that platform in system_info because it won't be in there
@@ -121,28 +122,9 @@ def add_device_hardware_metadata(game, mame_driver):
 			if displays:
 				game.metadata.screen_info = displays
 
-ignored_arcade_names = [
-	#Some arcade games that have names that are too common, there are home games with the same name that aren't necessarily related other than the same franchise potentially, and it's better to avoid messing around there since this whole find_equivalent_arcade_games thing is mostly a hack to see if we can get nice icons and genres for things
-	#Should this go in data?
-	'batman',
-	'superman',
-	'btoads',
-	'pepsiman',
-	'term2', #There are home ports of this (Terminator 2: Judgement Day), but they are called "T2: The Arcade Game" to avoid confusion with the unrelated tie ins which aren't conversions of the arcade which are called "Terminator 2: Judgement Day", even though that doesn't avoid confusion at all and merely creates it. Anyway, there are probably ways I could handle this case, but I don't feel like doing them for now.
-	'tmnt', #Same problem where someone thought putting "The Arcade Game" subtitle on the home ports would solve the problem
-	'avsp',
-	'hero', #Matches against H.E.R.O. which is different
-	'qwak',
-	'rambo', #That's a Lindbergh game, so I think not
-	'ultraman',
-	'dlair', #So many home ports that were just in name only for technical limitations, so they're not related…
-	'spaceace', #Ditto
-	'arcadecl', #That could be anyone's arcade classics… the arcade arcade classics was by Atari (and unreleased), but there's nothing stopping other companies compiling their own alleged classics, which happened
-	'blasto',
-]
 def find_equivalent_arcade_game(game, basename):
 	#Just to be really strict: We will only get it if the name matches
-	if basename in ignored_arcade_names:
+	if basename in not_necessarily_equivalent_arcade_names:
 		return None
 
 	try:
@@ -151,7 +133,7 @@ def find_equivalent_arcade_game(game, basename):
 		return None
 	machine = Machine(machine_xml, init_metadata=True)
 
-	if machine.family in ignored_arcade_names:
+	if machine.family in not_necessarily_equivalent_arcade_names:
 		return None
 
 	if machine.metadata.platform != 'Arcade' or machine.is_mechanical or machine.metadata.genre == 'Slot Machine':
