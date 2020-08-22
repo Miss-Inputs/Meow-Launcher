@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-#TODO: Actually use this, it'll be useful for disambiguate.py probably
-
 subtitles = {
 	'Catz': 'Your Virtual Petz Palz',
+	'Cybernoid II': 'The Revenge',
 	'Driver 2': 'Back on the Streets',
 	'Ehrgeiz': 'God Bless the Ring',
 	'F-22 Interceptor': 'Advanced Tactical Fighter',
@@ -20,6 +19,7 @@ subtitles = {
 	'My Paint': 'The Animated Paint Program!',
 	'Myth': 'History in the Making',
 	'Neo Drift Out': 'New Technology',
+	'Neo DriftOut': 'New Technology', #It seems we have an alternate name formatting on our hands… I'll just treat these separately for now
 	'Persona 2': 'Eternal Punishment',
 	'Pitfall II': 'Lost Caverns', #Sometimes seen with definite article
 	'Pitfall!': "Pitfall Harry's Jungle Adventure",
@@ -27,10 +27,12 @@ subtitles = {
 	'Pokemon Box': 'Ruby & Sapphire',
 	'Prince of Persia 2': 'The Shadow and the Flame',
 	'Rainbow Islands': 'The Story of Bubble Bobble 2',
+	'San Francisco Rush': 'Extreme Racing',
 	'SimAnt': 'The Electronic Ant Colony',
 	'SimCity 2000': 'The Ultimate City Simulator',
 	'SimEarth': 'The Living Planet',
 	'Street Fighter II': 'The World Warrior',
+	'Super Mario RPG': 'Legend of the Seven Stars',
 	'Super Street Fighter II': 'The New Challengers',
 	'Wave Race 64': 'Kawasaki Jet Ski', #Well sort of, I guess later releases (i.e. VC) have license removed
 	'Ys III': 'Wanderers from Ys',
