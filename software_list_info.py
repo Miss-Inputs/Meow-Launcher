@@ -521,26 +521,26 @@ def find_software_by_name(software_lists, name):
 
 		software_full_name = normalize_name(remove_filename_tags(part.software.description))
 		normalized_name = normalize_name(remove_filename_tags(name))
-		name_tags = [t.lower() for t in find_filename_tags.findall(name)]
+		name_tags = [t.lower()[1:-1] for t in find_filename_tags.findall(name)]
 		#Sometimes (often) these will appear as (Region, Special Version) and not (Region) (Special Version) etc, so let's dismantle them
-		software_tags = ', '.join([t.lower()[1:-1] for t in find_filename_tags.findall(part.software.description)])
+		software_tags = ', '.join([t.lower()[1:-1] for t in find_filename_tags.findall(part.software.description)]).split(', ')
 		
 		if software_full_name != normalized_name:
 			return False
-		if 'demo' in software_tags and '(demo)' not in name_tags:
+		if 'demo' in software_tags and 'demo' not in (', ').join(name_tags):
 			return False
-		if '(demo)' in name_tags and 'demo' not in software_tags:
+		if 'demo' in name_tags and 'demo' not in software_tags:
 			return False
 
 		for t in proto_tags:
-			if ('(' + t + ')' in name_tags or '[' + t + ']' in name_tags) and not (t in software_tags or 'prototype' in software_tags):
+			if t in name_tags and not (t in software_tags or 'prototype' in software_tags):
 				return False
-			if t in software_tags and not ('(' + t + ')' in name_tags or '[' + t + ']' in name_tags):
+			if t in software_tags and not t in name_tags:
 				return False
 		if 'prototype' in software_tags:
 			matches_proto = False
 			for t in proto_tags:
-				if '(' + t + ')' in name_tags or '[' + t + ']' in name_tags:
+				if t in name_tags:
 					matches_proto = True
 			if not matches_proto:
 				return False
@@ -566,18 +566,41 @@ def find_software_by_name(software_lists, name):
 			'Ita': 'Italy',
 			'Ned': 'Netherlands',
 		}
+		name_brackets = [t.lower()[1:-1] for t in find_filename_tags.findall(name)]
 		for match in fuzzy_name_matches:
 			#Narrow down by region
 			#Sometimes (often) these will appear as (Region, Special Version) and not (Region) (Special Version) etc, so let's dismantle them
-			match_brackets = ', '.join([t.lower()[1:-1] for t in find_filename_tags.findall(match.description)])
-			name_brackets = [t.lower()[1:-1] for t in find_filename_tags.findall(name)]
+			#TODO: Don't narrow down by region if we don't have to, e.g. a region is in the name but nowhere in the software name
+			match_brackets = ', '.join([t.lower()[1:-1] for t in find_filename_tags.findall(match.description)]).split(', ')
 			for abbrev_region, region in regions.items():				
 				if (abbrev_region.lower() in match_brackets or region.lower() in match_brackets) and region.lower() in name_brackets:
 					name_and_region_matches.append(match)
 
 		if len(name_and_region_matches) == 1:
 			return name_and_region_matches[0]
-		#print(name, 'matched too many', [m.description for m in name_and_region_matches])
+
+		name_and_region_and_version_matches = []
+		for match in name_and_region_matches:
+			match_brackets = ', '.join([t.lower()[1:-1] for t in find_filename_tags.findall(match.description)]).split(', ')
+			if 'v1.1' in match_brackets:
+				if 'v1.1' in name_brackets or 'reprint' in name_brackets or 'rerelease' in name_brackets or 'rev 1' in name_brackets:
+					name_and_region_and_version_matches.append(match)
+					break
+			#TODO Should look at the rest of name_brackets or match_brackets for anything else looking like rev X or v1.X
+
+			if 'v1.0' in match_brackets:
+				orig_version = True
+				for b in name_brackets:
+					if (b not in ('rev 0', 'v1.0') and b.startswith(('rev', 'v1.'))) or b in ('reprint', 'rerelease'):
+						orig_version = False
+						break
+				if orig_version:
+					name_and_region_and_version_matches.append(match)
+		
+		if len(name_and_region_and_version_matches) == 1:
+			return name_and_region_and_version_matches[0]
+
+		print(name, 'matched too many', [m.description for m in name_and_region_matches])
 		#Otherwise, I don't want to mess around with weird different revisions or re-releases for now, given that this is just sort of a hack anyway
 	
 	return None
