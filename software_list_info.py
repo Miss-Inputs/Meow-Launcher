@@ -528,7 +528,6 @@ def find_software_by_name(software_lists, name):
 		#Sometimes (often) these will appear as (Region, Special Version) and not (Region) (Special Version) etc, so let's dismantle them
 		software_tags = ', '.join([t.lower()[1:-1] for t in find_filename_tags.findall(part.software.description)]).split(', ')
 		
-		#TODO: Use subtitles
 		if software_normalized_name != normalized_name:
 			if name_without_brackety_bois in subtitles:
 				if normalize_name(name_without_brackety_bois + ': ' + subtitles[name_without_brackety_bois]) != software_normalized_name:
