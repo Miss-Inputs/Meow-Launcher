@@ -7,7 +7,9 @@ import input_metadata
 from common_types import SaveType
 from config import main_config
 from data.sega_licensee_codes import licensee_codes
-from software_list_info import get_software_list_entry
+
+from .minor_systems import add_generic_info
+
 
 class SaturnPeripheral(Enum):
 	StandardController = auto()
@@ -226,7 +228,4 @@ def add_saturn_metadata(game):
 
 	add_saturn_info(game, header)
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_standard_metadata(game.metadata)
-		game.metadata.notes = software.infos.get('usage')
+	add_generic_info(game)

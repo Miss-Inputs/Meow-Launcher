@@ -5,8 +5,8 @@ import re
 import cd_read
 from common_types import SaveType
 from data.sega_licensee_codes import licensee_codes
-from software_list_info import get_software_list_entry
 
+from .minor_systems import add_generic_info
 from .saturn import SaturnRegionCodes
 
 #I'm just assuming Saturn and Dreamcast have the same way of doing region codes... well, it's just mostly JUE that need worrying about at this point anyway
@@ -134,7 +134,4 @@ def add_dreamcast_metadata(game):
 	if game.rom.extension == 'gdi':
 		add_info_from_gdi(game)
 
-	software = get_software_list_entry(game)
-	if software:
-		software.add_standard_metadata(game.metadata)
-		game.metadata.notes = software.infos.get('usage')
+	add_generic_info(game)
