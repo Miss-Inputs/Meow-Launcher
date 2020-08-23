@@ -295,7 +295,7 @@ emulators = {
 	#Hmm sometimes works and sometimes does not (when does it not? Elaborate, past self)
 	'MAME (Microtan 65)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('mt65', 'dump', has_keyboard=True), ['dmp', 'm65']),
 	#System name was "microtan" prior to 0.212
-	#Aagggh, none of these inputs seem to be working properly (to the point where I can't just assume the games were like that)... maybe I'm doing it wrong, I don't know... it does say status =
+	#Aagggh, none of these inputs seem to be working properly (to the point where I can't just assume the games were like that)... maybe I'm doing it wrong, I don't know…
 	'MAME (Microvision)': MameDriver(EmulatorStatus.Janky, command_lines.mame_system('microvsn', 'cart'), generic_cart_extensions),
 	#You probably want to use the software list for this so it can detect controls properly, also needs artwork that doesn't seem to be available anywhere
 	'MAME (N64)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_n64, ['v64', 'z64', 'rom', 'n64', 'bin']),
