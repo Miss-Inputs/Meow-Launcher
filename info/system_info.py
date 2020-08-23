@@ -224,6 +224,7 @@ systems.update({
 	#kcc might also be a tape format?? ehhhh???
 	'Magnavox Odyssey²': BorkedSystemInfo('odyssey2', ['odyssey2'], ['MAME (Magnavox Odyssey²)', 'MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Mattel Aquarius': BorkedSystemInfo('aquarius', ['aquarius'], ['MAME (Mattel Aquarius)'], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav', 'caq']}),
+	'Mattel HyperScan': BorkedSystemInfo('hyprscan', ['hyperscan'], ['MAME (Mattel HyperScan)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'Microtan 65': BorkedSystemInfo('mt65', ['mt65_snap'], ['MAME (Microtan 65)'], {MediaType.Tape: ['wav'], MediaType.Executable: ['hex'], MediaType.Snapshot: ['dmp', 'm65']}), #MAME driver was "microtan" prior to 0.212
 	'Microvision': BorkedSystemInfo('microvsn', ['microvision'], ['MAME (Microvision)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'PC-6001': BorkedSystemInfo('pc6001', [], ['MAME (PC-6001)'], {MediaType.Tape: ['cas', 'p6'], MediaType.Cartridge: generic_cart_extensions}),
@@ -275,7 +276,6 @@ systems.update({
 	'LeapPad': BorkedSystemInfo('leappad', ['leapfrog_leappad_cart'], ['MAME (LeapPad)'], {MediaType.Cartridge: ['bin']}),
 	'Leapster': BorkedSystemInfo('leapster', ['leapster'], ['MAME (Leapster)'], {MediaType.Cartridge: ['bin']}),
 	'Little Touch LeapPad': BorkedSystemInfo('ltleappad', ['leapfrog_ltleappad_cart'], [], {MediaType.Cartridge: ['bin']}),
-	'Mattel HyperScan': BorkedSystemInfo('hyprscan', ['hyperscan'], ['MAME (Mattel HyperScan)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'MSX Turbo-R': BorkedSystemInfo('fsa1st', ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
 	'MobiGo': BorkedSystemInfo('mobigo', ['mobigo_cart'], ['MAME (MobiGo)'], {MediaType.Cartridge: ['bin']}),
 	'Monon Color': BorkedSystemInfo('mononcol', ['monon_color'], ['MAME (Monon Color)'], {MediaType.Cartridge: ['bin']}),
