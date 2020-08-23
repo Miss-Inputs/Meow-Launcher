@@ -292,7 +292,7 @@ emulators = {
 	#Not going to bother about handling the cards, since logically you want to use those in the middle of the game and so you'd swap those in and out with the MAME file management menu
 	#No sound and a bit slow (the latter is made worse with this console having shit loading speed)
 	'MAME (Mega CD)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_mega_cd, mame_cdrom_formats),
-	#Hmm sometimes works and sometimes does not, would be good if I could use software lists to check the status more reliably but that's my bad that I don't do that right now
+	#Hmm sometimes works and sometimes does not (when does it not? Elaborate, past self)
 	'MAME (Microtan 65)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_system('mt65', 'dump', has_keyboard=True), ['dmp', 'm65']),
 	#System name was "microtan" prior to 0.212
 	#Aagggh, none of these inputs seem to be working properly (to the point where I can't just assume the games were like that)... maybe I'm doing it wrong, I don't know... it does say status =
