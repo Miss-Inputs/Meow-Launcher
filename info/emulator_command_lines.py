@@ -181,7 +181,6 @@ def mame_atari_8bit(game, specific_config):
 			basic_path = specific_config.get('basic_path')
 			if not basic_path:
 				raise EmulationNotSupportedException('This software needs BASIC ROM to function')
-			#TODO: Allow using software list (although I guess user could just put 'basicc' as the path?)
 			slot_options['cart1'] = basic_path
 
 	machine = game.metadata.specific_info.get('Machine')
