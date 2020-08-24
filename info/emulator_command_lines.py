@@ -1256,7 +1256,6 @@ def snes9x(game, _):
 
 #Game engines
 def prboom_plus(game, specific_config):
-	#TODO TODO TODO Move this to platform_helpers or whatsitcalled
 	if game.metadata.specific_info.get('Is-PWAD', False):
 		raise NotARomException('Is PWAD and not IWAD')
 
