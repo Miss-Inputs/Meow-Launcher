@@ -30,9 +30,8 @@ def parse_icon(game, icon_bank, icon_offset_x, icon_offset_y):
 	bank_address = bank_size * icon_bank
 	if bank_address > game.rom.get_size():
 		#ROM is funny in some way, either underdumped or header is being annoying
-		#if main_config.debug:
-		#	print(game.rom.path, 'Icon address', icon_address, 'goes beyond', game.rom.get_size())
-		return
+		#This... seems to work for some reason, except on Centipede
+		bank_address %= game.rom.get_size()
 	bank_data = game.rom.read(seek_to=bank_address, amount=bank_size)
 
 	#Hm, these are meant to be 4-color (2bpp) images so maybe I could use P mode, or would that just cause more problems than it would solve
