@@ -11,6 +11,7 @@ from platform_metadata.doom import add_doom_metadata
 from platform_metadata.dreamcast import add_dreamcast_metadata
 from platform_metadata.ds import add_ds_metadata
 from platform_metadata.game_boy import add_gameboy_metadata
+from platform_metadata.game_com import add_game_com_metadata
 from platform_metadata.gamecube import add_gamecube_metadata
 from platform_metadata.gba import add_gba_metadata
 from platform_metadata.lynx import add_lynx_metadata
@@ -109,7 +110,7 @@ helpers = {
 	'Epoch Game Pocket Computer': add_game_pocket_computer_info,
 	'FM-7': add_fm7_info,
 	'Gamate': add_gamate_info,
-	'Game.com': add_game_com_info,
+	'Game.com': add_game_com_metadata,
 	'Hartung Game Master': add_hartung_game_master_info,
 	'IBM PCjr': add_ibm_pcjr_info,
 	'Intellivision': add_intellivision_info,

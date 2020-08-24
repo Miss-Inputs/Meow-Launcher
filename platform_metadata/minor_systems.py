@@ -508,18 +508,6 @@ def add_atari_5200_info(game):
 		normal_controller.analog_sticks = 1
 		game.metadata.input_info.add_option(normal_controller)
 
-def add_game_com_info(game):
-	#I read somewhere there is a header with the icon and stuff, but dunno the info, so.. hmm
-	game.metadata.tv_type = TVSystem.Agnostic
-
-	builtin_gamepad = input_metadata.NormalController()
-	builtin_gamepad.dpads = 1
-	builtin_gamepad.face_buttons = 4 #A B C D
-	game.metadata.input_info.add_option(builtin_gamepad)
-
-	#Might have saving, actually. I'm just not sure about how it works.
-	add_generic_info(game)
-
 def add_fm7_info(game):
 	#Possible input info: Keyboard and joystick but barely anything uses said joystick
 	game.metadata.tv_type = TVSystem.NTSC #Japan only
