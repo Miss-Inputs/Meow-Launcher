@@ -81,10 +81,10 @@ languages = [
 	Language('Ukrainian', 'Українська', 'Uk'),
 	Language('Vietnamese', 'Tiếng Việt', 'Vn'),
 
-	Language('Traditional Chinese', '漢語', None),
+	Language('Traditional Chinese', '漢語', 'Zh-Hant'),
 	#Dialects of other languages, where there's something that specifies it's that dialect specifically (Steam games do this, for example)
-	Language('Brazilian Portguese', 'Português do Brasil', None),
-	Language('Latin American Spanish', 'Español-Latinoamérica', None),
+	Language('Brazilian Portguese', 'Português do Brasil', 'Pt-Br'),
+	Language('Latin American Spanish', 'Español-Latinoamérica', 'Es-La'), #Actually I have never seen "Es-La" be used ever, I'm just assuming it would be
 ]
 
 regions = [
