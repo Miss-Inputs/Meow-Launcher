@@ -5,7 +5,8 @@ import re
 
 from info import region_info
 
-nointro_language_list_regex = re.compile(r'\(((?:[A-Z][a-z],)*(?:[A-Z][a-z]))\)')
+#TODO: I dunno if this should be done as a big ol' regex, maybe just see if a comma-separated list all matches languages
+nointro_language_list_regex = re.compile(r'\(((?:[A-Z][a-z](?:-[A-Z][a-z]+)?,)*(?:[A-Z][a-z](?:-[A-Z][a-z]+)?))\)')
 maybeintro_translated_regex = re.compile(r'\[(?:tr |T-|T\+)([A-Z][a-z])(?: (?:by )?[^]]+)?\]')
 tosec_language_regex = re.compile(r'\(([a-z][a-z])(?:-([a-z][a-z]))?\)')
 
