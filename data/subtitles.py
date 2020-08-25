@@ -31,6 +31,7 @@ subtitles = {
 	'Neo Drift Out': 'New Technology',
 	'Neo DriftOut': 'New Technology', #It seems we have an alternate name formatting on our hands… I'll just treat these separately
 	"Neo-Geo Cup '98": 'The Road to the Victory',
+	'Pac-Man World': '20th Anniversary',
 	'Persona 2': 'Eternal Punishment',
 	'Pitfall II': 'Lost Caverns', #Sometimes seen with definite article
 	'Pitfall!': "Pitfall Harry's Jungle Adventure",
