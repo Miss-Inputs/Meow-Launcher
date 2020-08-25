@@ -110,7 +110,7 @@ class MameExecutable():
 		
 	def get_mame_xml(self, driver):
 		if not self.is_installed:
-			raise MAMENotInstalledException()
+			raise MAMENotInstalledException('MAME not installed for get_mame_xml')
 
 		cache_file_path = os.path.join(self.xml_cache_path, driver + '.xml')
 		try:
@@ -128,7 +128,7 @@ class MameExecutable():
 
 	def listsource(self):
 		if not self.is_installed:
-			raise MAMENotInstalledException('Oh no! MAME not installed')
+			raise MAMENotInstalledException('MAME not installed for listsource')
 		proc = subprocess.run([self.executable, '-listsource'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, universal_newlines=True, check=True)
 		#Return code should always be 0 so if it's not I dunno what to do about that and let's just panic instead
 		for line in proc.stdout.splitlines():
@@ -215,13 +215,13 @@ def get_mame_core_config():
 	conf = default_mame_configuration.core_config
 	if conf:
 		return conf
-	raise MAMENotInstalledException()
+	raise MAMENotInstalledException('MAME not installed for get_mame_core_config')
 
 def get_mame_ui_config():
 	conf = default_mame_configuration.ui_config
 	if conf:
 		return conf
-	raise MAMENotInstalledException()
+	raise MAMENotInstalledException('MAME not installed for get_mame_ui_config')
 
 def have_mame():
 	return default_mame_executable.is_installed and default_mame_configuration.is_configured
