@@ -128,7 +128,7 @@ class MameExecutable():
 
 	def listsource(self):
 		if not self.is_installed:
-			raise MAMENotInstalledException()
+			raise MAMENotInstalledException('Oh no! MAME not installed')
 		proc = subprocess.run([self.executable, '-listsource'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, universal_newlines=True, check=True)
 		#Return code should always be 0 so if it's not I dunno what to do about that and let's just panic instead
 		for line in proc.stdout.splitlines():

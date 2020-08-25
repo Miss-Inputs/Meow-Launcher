@@ -8,6 +8,7 @@ import input_metadata
 from common import machine_name_matches
 from common_types import SaveType
 from data.sega_licensee_codes import licensee_codes
+from mame_helpers import MAMENotInstalledException
 from mame_machines import get_machines_from_source_file
 from software_list_info import get_software_list_entry
 
@@ -211,11 +212,20 @@ def _get_megatech_games():
 
 def try_find_equivalent_arcade(game):
 	if not hasattr(try_find_equivalent_arcade, 'arcade_bootlegs'):
-		try_find_equivalent_arcade.arcade_bootlegs = list(get_machines_from_source_file('megadriv_acbl'))
+		try:
+			try_find_equivalent_arcade.arcade_bootlegs = list(get_machines_from_source_file('megadriv_acbl'))
+		except MAMENotInstalledException:
+			try_find_equivalent_arcade.arcade_bootlegs = []
 	if not hasattr(try_find_equivalent_arcade, 'megaplay_games'):
-		try_find_equivalent_arcade.megaplay_games = list(get_machines_from_source_file('megaplay'))
+		try:
+			try_find_equivalent_arcade.megaplay_games = list(get_machines_from_source_file('megaplay'))
+		except MAMENotInstalledException:
+			try_find_equivalent_arcade.megaplay_games = []
 	if not hasattr(try_find_equivalent_arcade, 'megatech_games'):
-		try_find_equivalent_arcade.megatech_games = list(get_machines_from_source_file('megatech'))
+		try:
+			try_find_equivalent_arcade.megatech_games = list(get_machines_from_source_file('megatech'))
+		except MAMENotInstalledException:
+			try_find_equivalent_arcade.megatech_games = []
 
 	for bootleg_machine in try_find_equivalent_arcade.arcade_bootlegs:
 		if machine_name_matches(bootleg_machine.name, game.rom.name):

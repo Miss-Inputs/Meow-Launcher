@@ -7,6 +7,7 @@ from common import (NotAlphanumericException, convert_alphanumeric,
 from common_types import SaveType
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import get_region_by_name
+from mame_helpers import MAMENotInstalledException
 from mame_machines import get_machines_from_source_file
 from software_list_info import get_software_list_entry
 
@@ -348,9 +349,15 @@ def add_satellaview_metadata(game):
 
 def try_get_equivalent_arcade(game):
 	if not hasattr(try_get_equivalent_arcade, 'nss_games'):
-		try_get_equivalent_arcade.nss_games = list(get_machines_from_source_file('nss'))
+		try:
+			try_get_equivalent_arcade.nss_games = list(get_machines_from_source_file('nss'))
+		except MAMENotInstalledException:
+			try_get_equivalent_arcade.nss_games = []
 	if not hasattr(try_get_equivalent_arcade, 'arcade_bootlegs'):
-		try_get_equivalent_arcade.arcade_bootlegs = list(get_machines_from_source_file('snesb')) + list(get_machines_from_source_file('snesb51'))
+		try:
+			try_get_equivalent_arcade.arcade_bootlegs = list(get_machines_from_source_file('snesb')) + list(get_machines_from_source_file('snesb51'))
+		except MAMENotInstalledException:
+			try_get_equivalent_arcade.arcade_bootlegs = []
 
 	for bootleg_machine in try_get_equivalent_arcade.arcade_bootlegs:
 		if machine_name_matches(bootleg_machine.name, game.rom.name):

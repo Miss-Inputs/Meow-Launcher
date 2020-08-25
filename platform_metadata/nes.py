@@ -6,6 +6,7 @@ from common import machine_name_matches
 from common_types import SaveType
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import TVSystem
+from mame_helpers import MAMENotInstalledException
 from mame_machines import get_machines_from_source_file
 from software_list_info import (find_in_software_lists_with_custom_matcher,
                                 get_crc32_for_software_list,
@@ -361,9 +362,15 @@ def add_unif_metadata(game):
 
 def try_get_equivalent_arcade(game):
 	if not hasattr(try_get_equivalent_arcade, 'playchoice10_games'):
-		try_get_equivalent_arcade.playchoice10_games = list(get_machines_from_source_file('playch10'))
+		try:
+			try_get_equivalent_arcade.playchoice10_games = list(get_machines_from_source_file('playch10'))
+		except MAMENotInstalledException:
+			try_get_equivalent_arcade.playchoice10_games = []
 	if not hasattr(try_get_equivalent_arcade, 'vsnes_games'):
-		try_get_equivalent_arcade.vsnes_games = list(get_machines_from_source_file('vsnes'))
+		try:
+			try_get_equivalent_arcade.vsnes_games = list(get_machines_from_source_file('vsnes'))
+		except MAMENotInstalledException:
+			try_get_equivalent_arcade.vsnes_games = []
 
 	for vsnes_machine in try_get_equivalent_arcade.vsnes_games:
 		if machine_name_matches(vsnes_machine.name, game.rom.name, match_vs_system=True):

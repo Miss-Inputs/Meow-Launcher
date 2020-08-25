@@ -5,6 +5,7 @@ import input_metadata
 from common import machine_name_matches
 from common_types import MediaType, SaveType
 from info.region_info import TVSystem
+from mame_helpers import MAMENotInstalledException
 from mame_machines import get_machines_from_source_file
 from software_list_info import (find_in_software_lists_with_custom_matcher,
                                 get_crc32_for_software_list,
@@ -634,7 +635,10 @@ def _get_uapce_games():
 	try:
 		return _get_uapce_games.result
 	except AttributeError:
-		_get_uapce_games.result = list(get_machines_from_source_file('uapce'))
+		try:
+			_get_uapce_games.result = list(get_machines_from_source_file('uapce'))
+		except MAMENotInstalledException:
+			return []
 		return _get_uapce_games.result
 
 def add_pc_engine_info(game):
