@@ -2,11 +2,13 @@ import detect_things_from_filename
 import platform_metadata
 from common import machine_name_matches
 from config import main_config
+from data.not_necessarily_equivalent_arcade_names import \
+    not_necessarily_equivalent_arcade_names
 from info import region_info, system_info
-from mame_helpers import (MachineNotFoundException, get_icons, get_mame_xml)
+from mame_helpers import (MachineNotFoundException, MAMENotInstalledException,
+                          get_icons, get_mame_xml)
 from mame_machines import Machine
 from software_list_info import get_software_lists_by_names
-from data.not_necessarily_equivalent_arcade_names import not_necessarily_equivalent_arcade_names
 
 mame_driver_overrides = {
 	#Basically, this is when something in platform_metadata changes what game.metadata.platform is, which means we can no longer just look up that platform in system_info because it won't be in there
@@ -80,7 +82,7 @@ def find_equivalent_arcade_game(game, basename):
 
 	try:
 		machine_xml = get_mame_xml(basename)
-	except MachineNotFoundException:
+	except (MachineNotFoundException, MAMENotInstalledException):
 		return None
 	machine = Machine(machine_xml, init_metadata=True)
 
