@@ -20,7 +20,7 @@ from platform_metadata.zx_spectrum import ZXJoystick, ZXMachine
 from .emulator_command_line_helpers import (_is_highscore_cart_available,
                                             _is_software_available,
                                             _verify_supported_mappers,
-                                            mame_driver, mednafen_base,
+                                            mame_driver, mednafen_module,
                                             verify_mgba_mapper)
 from .region_info import TVSystem
 
@@ -807,28 +807,28 @@ def mednafen_apple_ii(game, _, emulator_config):
 	if required_ram and required_ram > 64:
 		raise EmulationNotSupportedException('Needs at least {0} KB RAM'.format(required_ram))
 
-	return mednafen_base('apple2', exe_path=emulator_config.exe_path)
+	return mednafen_module('apple2', exe_path=emulator_config.exe_path)
 
 def mednafen_game_gear(game, _, emulator_config):
 	mapper = game.metadata.specific_info.get('Mapper')
 	if mapper in ('Codemasters', 'EEPROM'):
 		raise EmulationNotSupportedException('{0} mapper not supported'.format(mapper))
-	return mednafen_base('gg', exe_path=emulator_config.exe_path)
+	return mednafen_module('gg', exe_path=emulator_config.exe_path)
 
 def mednafen_gb(game, _, emulator_config):
 	_verify_supported_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC7', 'HuC1', 'HuC3'], [])
-	return mednafen_base('gb', exe_path=emulator_config.exe_path)
+	return mednafen_module('gb', exe_path=emulator_config.exe_path)
 
 def mednafen_gba(game, _, emulator_config):
 	if game.rom.get_size() > (32 * 1024 * 1024):
 		raise EmulationNotSupportedException('64MB GBA Video carts not supported')
-	return mednafen_base('gba', exe_path=emulator_config.exe_path)
+	return mednafen_module('gba', exe_path=emulator_config.exe_path)
 
 def mednafen_lynx(game, _, emulator_config):
 	if game.metadata.media_type == MediaType.Cartridge and not game.metadata.specific_info.get('Headered', False):
 		raise EmulationNotSupportedException('Needs to have .lnx header')
 
-	return mednafen_base('lynx', exe_path=emulator_config.exe_path)
+	return mednafen_module('lynx', exe_path=emulator_config.exe_path)
 
 def mednafen_megadrive(game, _, emulator_config):
 	if game.metadata.specific_info.get('Uses-SVP', False):
@@ -841,7 +841,7 @@ def mednafen_megadrive(game, _, emulator_config):
 	if mapper in unsupported_mappers:
 		raise EmulationNotSupportedException(mapper + ' not supported')
 
-	return mednafen_base('md', exe_path=emulator_config.exe_path)
+	return mednafen_module('md', exe_path=emulator_config.exe_path)
 
 def mednafen_nes(game, _, emulator_config):
 	#Yeah okay, I need a cleaner way of doing this
@@ -862,7 +862,7 @@ def mednafen_nes(game, _, emulator_config):
 		if mapper in unsupported_ines_mappers:
 			raise EmulationNotSupportedException('Unsupported mapper: %d (%s)' % (mapper, game.metadata.specific_info.get('Mapper')))
 
-	return mednafen_base('nes', exe_path=emulator_config.exe_path)
+	return mednafen_module('nes', exe_path=emulator_config.exe_path)
 
 def mednafen_snes_faust(game, _, emulator_config):
 	#Also does not support any other input except normal controller and multitap
@@ -870,7 +870,7 @@ def mednafen_snes_faust(game, _, emulator_config):
 	if expansion_chip:
 		if expansion_chip not in (ExpansionChip.CX4, ExpansionChip.SA_1, ExpansionChip.DSP_1, ExpansionChip.SuperFX, ExpansionChip.SuperFX2, ExpansionChip.DSP_2, ExpansionChip.S_DD1):
 			raise EmulationNotSupportedException('{0} not supported'.format(expansion_chip))
-	return mednafen_base('snes_faust', exe_path=emulator_config.exe_path)
+	return mednafen_module('snes_faust', exe_path=emulator_config.exe_path)
 
 #VICE
 def vice_c64_base(game):
@@ -1070,6 +1070,10 @@ def dolphin(game, _, emulator_config):
 
 	return LaunchParams(emulator_config.exe_path, ['-b', '-e', '$<path>'])
 
+def duckstation(_, __, emulator_config):
+	#Nothing to see here for now
+	return LaunchParams(emulator_config.exe_path, ['-batch', '-fullscreen', '$<path>'])
+
 def flycast(_, __, emulator_config):
 	env_vars = {}
 	if emulator_config.options.get('force_opengl_version', False):
@@ -1218,8 +1222,18 @@ def mupen64plus(game, system_config, emulator_config):
 	args.append('$<path>')
 	return LaunchParams(emulator_config.exe_path, args)
 
+def pcsx2(_, __, emulator_config):
+	return LaunchParams(emulator_config.exe_path, ['--nogui', '--fullscreen', '--fullboot', '$<path>'])
+
+def pokemini(_, __, emulator_config):
+	return LaunchParams(emulator_config.exe_path, ['-fullscreen', '$<path>'])
+
 def pokemini_wrapper(_, __, emulator_config):
-	return MultiCommandLaunchParams([LaunchParams('mkdir', ['-p', os.path.expanduser('~/.config/PokeMini')]), LaunchParams('cd', [os.path.expanduser('~/.config/PokeMini')]), LaunchParams(emulator_config.exe_path, ['-fullscreen', '$<path>'])])
+	return MultiCommandLaunchParams([
+		LaunchParams('mkdir', ['-p', os.path.expanduser('~/.config/PokeMini')]), 
+		LaunchParams('cd', [os.path.expanduser('~/.config/PokeMini')]), 
+		LaunchParams(emulator_config.exe_path, ['-fullscreen', '$<path>'])
+	])
 
 def ppsspp(game, _, emulator_config):
 	if game.metadata.specific_info.get('Is-UMD-Video', False):
@@ -1243,6 +1257,9 @@ def reicast(game, _, emulator_config):
 	args.append('$<path>')
 	return LaunchParams(emulator_config.exe_path, args, env_vars)
 
+def simcoupe(_, __, emulator_config):
+	return LaunchParams(emulator_config.exe_path, ['-fullscreen', 'yes', '$<path>'])
+
 def snes9x(game, _, emulator_config):
 	slot = game.metadata.specific_info.get('Slot')
 	if slot:
@@ -1255,6 +1272,12 @@ def snes9x(game, _, emulator_config):
 		#ST018 is implemented enough here to boot to menu, but hangs when starting a match
 		#DSP-3 looks like it's going to work and then when I played around a bit and the AI was starting its turn (I think?) the game hung to a glitchy mess so I guess not
 		raise EmulationNotSupportedException('{0} not supported'.format(expansion_chip))
+	return LaunchParams(emulator_config.exe_path, ['$<path>'])
+
+def stella(_, __, emulator_config):
+	return LaunchParams(emulator_config.exe_path, ['-fullscreen', '1', '$<path>'])
+
+def yuzu(_, __, emulator_config):
 	return LaunchParams(emulator_config.exe_path, ['$<path>'])
 
 #Game engines

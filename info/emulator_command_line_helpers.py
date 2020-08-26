@@ -48,8 +48,13 @@ def _is_highscore_cart_available():
 	return _is_software_available('a7800', 'hiscore')
 	#FIXME: This is potentially wrong for A7800, where the software directory could be different than MAME... I've just decided to assume it's set up that way
 
-def mednafen_base(module, exe_path='mednafen'):
+def mednafen_module(module, exe_path='mednafen'):
 	return LaunchParams(exe_path, ['-video.fs', '1', '-force_module', module, '$<path>'])
+
+def mednafen_module_callable(module):
+	def funcy_boi(_, __, emulator_config):
+		return mednafen_module(module, exe_path=emulator_config.exe_path)
+	return funcy_boi
 
 def mame_base(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None, software=None):
 	args = ['-skip_gameinfo']
