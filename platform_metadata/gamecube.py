@@ -1,16 +1,19 @@
 from datetime import datetime
 
-from config import main_config
+import config.main_config
 
 from .gamecube_wii_common import (NintendoDiscRegion,
                                   add_gamecube_wii_disc_metadata,
                                   just_read_the_wia_rvz_header_for_now)
+
 
 try:
 	from PIL import Image
 	have_pillow = True
 except ModuleNotFoundError:
 	have_pillow = False
+
+conf = config.main_config.main_config 
 
 def convert3BitColor(c):
 	n = c * (256 // 0b111)
@@ -103,7 +106,7 @@ def add_banner_info(game, banner):
 
 			game.metadata.images['Banner'] = banner_image
 	else:
-		if main_config.debug:
+		if conf.debug:
 			print('Invalid banner magic', game.rom.path, banner_magic)
 
 
@@ -112,7 +115,7 @@ def add_fst_info(game, fst_offset, fst_size):
 		fst = game.rom.read(fst_offset, fst_size)
 		number_of_fst_entries = int.from_bytes(fst[8:12], 'big')
 		if fst_size < (number_of_fst_entries * 12):
-			if main_config.debug:
+			if conf.debug:
 				print('Invalid FST in', game.rom.path, ':', fst_size, '<', number_of_fst_entries * 12)
 			return
 		string_table = fst[number_of_fst_entries * 12:]
@@ -155,7 +158,7 @@ def add_gamecube_disc_metadata(game, header):
 	try:
 		add_fst_info(game, fst_offset, fst_size)
 	except (IndexError, ValueError) as ex:
-		if main_config.debug:
+		if conf.debug:
 			print(game.rom.path, 'encountered error when parsing FST', ex)
 
 def add_gamecube_metadata(game):

@@ -5,10 +5,12 @@ from zlib import crc32
 import input_metadata
 from common import NotAlphanumericException, convert_alphanumeric
 from common_types import SaveType
-from config import main_config
+import config.main_config
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry, find_in_software_lists, matcher_args_for_bytes
+
+conf = config.main_config.main_config
 
 class GameBoyMapper():
 	def __init__(self, name, has_ram=False, has_battery=False, has_rtc=False, has_rumble=False, has_accelerometer=False):
@@ -201,11 +203,11 @@ def parse_gameboy_header(game, header):
 def parse_gbx_footer(game):
 	footer = game.rom.read(seek_to=game.rom.get_size() - 64, amount=64)
 	if footer[60:64] != b'GBX!':
-		if main_config.debug:
+		if conf.debug:
 			print(game.rom.path, 'GBX footer is invalid, siggy is', footer[60:64])
 		return
 	if int.from_bytes(footer[48:52], 'big') != 64 or int.from_bytes(footer[52:56], 'big') != 1:
-		if main_config.debug:
+		if conf.debug:
 			print(game.rom.path, 'GBX has unsupported major version:', int.from_bytes(footer[52:56], 'big'), 'or size:', int.from_bytes(footer[48:52], 'big'))
 		return
 	#56:60 is minor version, which we expect to be 0, but it'd be okay if not
@@ -214,7 +216,7 @@ def parse_gbx_footer(game):
 	game.metadata.specific_info['Stated-Mapper'] = original_mapper
 	new_mapper = gbx_mappers.get(footer[0:4])
 	if not new_mapper:
-		if main_config.debug:
+		if conf.debug:
 			print(game.rom.path, 'GBX has unknown spooky mapper:', footer[0:4])
 		new_mapper = footer[0:4].decode()
 

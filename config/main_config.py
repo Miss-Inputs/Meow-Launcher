@@ -225,3 +225,5 @@ class Config():
 		if Config.__instance is None:
 			Config.__instance = Config.__Config()
 		return Config.__instance
+
+main_config = Config().getConfig()

@@ -6,13 +6,15 @@ import os
 import subprocess
 import time
 
+import config.main_config
 import detect_things_from_filename
 import input_metadata
 import launchers
 from common import find_filename_tags
 from common_types import MediaType, SaveType
-from config import main_config
 from metadata import Metadata
+
+conf = config.main_config.main_config 
 
 scumm_config_path = os.path.expanduser('~/.config/scummvm/scummvm.ini')
 residualvm_config_path = os.path.expanduser('~/.config/residualvm/residualvm.ini')
@@ -155,7 +157,7 @@ def get_stuff_from_filename_tags(metadata, name_tags):
 		metadata.specific_info['Version'] = version
 
 	platform, assumed_media_type = get_platform_mediatype_from_tags(name_tags)
-	if platform and main_config.use_original_platform:
+	if platform and conf.use_original_platform:
 		metadata.platform = platform
 	if assumed_media_type:
 		metadata.media_type = assumed_media_type
@@ -227,7 +229,7 @@ class ScummVMGame():
 						metadata.images['Icon'] = os.path.join(path, f)
 						break
 			else:
-				if main_config.debug:
+				if conf.debug:
 					print('Aaaa!', self.name, path, 'does not exist')
 
 		name_tags = find_filename_tags.findall(name)
@@ -273,7 +275,7 @@ def add_vm_games(name, config_path, vm_config, game_class):
 		if section == 'cloud':
 			#This is not a game either
 			continue
-		if not main_config.full_rescan:
+		if not conf.full_rescan:
 			if launchers.has_been_done('ScummVM', section):
 				continue
 
@@ -282,7 +284,7 @@ def add_vm_games(name, config_path, vm_config, game_class):
 			game.options[k] = v
 		game.make_launcher()
 
-	if main_config.print_times:
+	if conf.print_times:
 		time_ended = time.perf_counter()
 		print(name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

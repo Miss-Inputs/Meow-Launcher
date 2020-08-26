@@ -4,8 +4,8 @@ import xml.etree.ElementTree as ElementTree
 from datetime import datetime
 from enum import Enum
 
+import config.main_config
 from common import NotAlphanumericException, convert_alphanumeric
-from config import main_config
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 
 from .gamecube_wii_common import (NintendoDiscRegion,
@@ -17,6 +17,8 @@ try:
 	have_pycrypto = True
 except ModuleNotFoundError:
 	have_pycrypto = False
+
+conf = config.main_config.main_config 
 
 class WiiTitleType(Enum):
 	System = 0x00000001
@@ -213,7 +215,7 @@ def add_wii_homebrew_metadata(game):
 				game.metadata.specific_info['Long-Description'] = long_description
 
 		except ElementTree.ParseError as etree_error:
-			if main_config.debug:
+			if conf.debug:
 				print('Ah bugger this Wii homebrew XML has problems', game.rom.path, etree_error)
 			game.metadata.override_name = os.path.basename(game.folder)
 
@@ -270,7 +272,7 @@ def add_wii_disc_metadata(game):
 			elif partition_type == 0 and game_partition_offset is None:
 				game_partition_offset = partition_offset
 
-	wii_common_key = main_config.wii_common_key
+	wii_common_key = conf.wii_common_key
 	if wii_common_key:
 		if game_partition_offset and have_pycrypto:
 			game_partition_header = game.rom.read(game_partition_offset, 0x2c0)

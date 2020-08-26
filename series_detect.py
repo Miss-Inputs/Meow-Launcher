@@ -4,12 +4,14 @@ import os
 import re
 import time
 
+import config.main_config
 import launchers
 from common import (convert_roman_numeral, convert_roman_numerals_in_title,
                     remove_capital_article)
-from config import main_config
 from data.existing_series import definitely_existing_series
 from data.series_detect_overrides import series_overrides
+
+conf = config.main_config.main_config 
 
 probably_not_series_index_threshold = 20
 #Assume that a number over this is probably not referring to the nth or higher entry in the series, but is probably just any old number that means something else
@@ -129,8 +131,8 @@ def detect_series(desktop, path):
 
 def find_existing_serieses():
 	serieses = set()
-	for name in os.listdir(main_config.output_folder):
-		path = os.path.join(main_config.output_folder, name)
+	for name in os.listdir(conf.output_folder):
+		path = os.path.join(conf.output_folder, name)
 		desktop = launchers.get_desktop(path)
 
 		series = launchers.get_field(desktop, 'Series')
@@ -169,8 +171,8 @@ def get_series_from_whole_thing(series, whole_name):
 	return '1'
 
 def detect_series_index_for_things_with_series():
-	for filename in os.listdir(main_config.output_folder):
-		path = os.path.join(main_config.output_folder, filename)
+	for filename in os.listdir(conf.output_folder):
+		path = os.path.join(conf.output_folder, filename)
 		desktop = launchers.get_desktop(path)
 
 		existing_series = launchers.get_field(desktop, 'Series')
@@ -210,8 +212,8 @@ def detect_series_index_for_things_with_series():
 				add_series(desktop, path, None, get_series_from_whole_thing(existing_series, name_chunks[0].strip()))
 
 def get_existing_seriesless_launchers():
-	for name in os.listdir(main_config.output_folder):
-		path = os.path.join(main_config.output_folder, name)
+	for name in os.listdir(conf.output_folder):
+		path = os.path.join(conf.output_folder, name)
 		desktop = launchers.get_desktop(path)
 
 		if launchers.get_field(desktop, 'Series'):
@@ -235,7 +237,7 @@ def detect_series_for_all_desktops():
 
 	detect_series_index_for_things_with_series()
 
-	if main_config.print_times:
+	if conf.print_times:
 		time_ended = time.perf_counter()
 		print('Series detection finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

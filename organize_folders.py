@@ -6,9 +6,11 @@ import shutil
 import sys
 import time
 
+import config.main_config
 import launchers
-from config import main_config
 from io_utils import sanitize_name
+
+conf = config.main_config.main_config 
 
 #This is sort of considered separate from the main launcher generator.
 #Consider it to be its own kind of frontend, perhaps.
@@ -32,9 +34,9 @@ def delete_existing_output_dir():
 		except FileNotFoundError:
 			pass
 
-	if os.path.isdir(main_config.organized_output_folder):
-		for f in os.listdir(main_config.organized_output_folder):
-			path = os.path.join(main_config.organized_output_folder, f)
+	if os.path.isdir(conf.organized_output_folder):
+		for f in os.listdir(conf.organized_output_folder):
+			path = os.path.join(conf.organized_output_folder, f)
 			rmdir_recursive(path)
 			#Only files here, no directories
 
@@ -120,18 +122,18 @@ def move_into_extra_subfolder(path, desktop, subfolder, keys, missing_value=None
 			if len(folder_name) > 200:
 				folder_name = folder_name[:199] + '…'
 			if folder_name:
-				copy_to_folder(path, main_config.organized_output_folder, subfolder, sanitize_name(folder_name))
+				copy_to_folder(path, conf.organized_output_folder, subfolder, sanitize_name(folder_name))
 			else:
-				copy_to_folder(path, main_config.organized_output_folder, subfolder)
+				copy_to_folder(path, conf.organized_output_folder, subfolder)
 	else:
 		if subsubfolder:
 			folder_name = ' - '.join(subsubfolder)
 			if len(folder_name) > 200:
 				folder_name = folder_name[:199] + '…'
 			if folder_name:
-				copy_to_folder(path, main_config.organized_output_folder, subfolder, sanitize_name(folder_name))
+				copy_to_folder(path, conf.organized_output_folder, subfolder, sanitize_name(folder_name))
 			else:
-				copy_to_folder(path, main_config.organized_output_folder, subfolder)
+				copy_to_folder(path, conf.organized_output_folder, subfolder)
 
 def move_into_subfolders(path):
 	desktop = launchers.get_desktop(path)
@@ -145,19 +147,19 @@ def move_into_subfolders(path):
 	else:
 		category = 'Uncategorized'
 
-	copy_to_folder(path, main_config.organized_output_folder, 'By platform', sanitize_name(platform))
-	copy_to_folder(path, main_config.organized_output_folder, 'By category', sanitize_name(category))
+	copy_to_folder(path, conf.organized_output_folder, 'By platform', sanitize_name(platform))
+	copy_to_folder(path, conf.organized_output_folder, 'By category', sanitize_name(category))
 
 	if not languages:
-		copy_to_folder(path, main_config.organized_output_folder, 'By language', 'Unknown')
+		copy_to_folder(path, conf.organized_output_folder, 'By language', 'Unknown')
 	for language in languages:
-		copy_to_folder(path, main_config.organized_output_folder, 'By language', sanitize_name(language))
+		copy_to_folder(path, conf.organized_output_folder, 'By language', sanitize_name(language))
 
 	if year:
-		copy_to_folder(path, main_config.organized_output_folder, 'By year', sanitize_name(year.replace('x', '?')))
+		copy_to_folder(path, conf.organized_output_folder, 'By year', sanitize_name(year.replace('x', '?')))
 
-	copy_to_folder(path, main_config.organized_output_folder, 'By platform and category', sanitize_name(platform) + ' - ' + sanitize_name(category))
-	copy_to_folder(path, main_config.organized_output_folder, 'By category and platform', sanitize_name(category) + ' - ' + sanitize_name(platform))
+	copy_to_folder(path, conf.organized_output_folder, 'By platform and category', sanitize_name(platform) + ' - ' + sanitize_name(category))
+	copy_to_folder(path, conf.organized_output_folder, 'By category and platform', sanitize_name(category) + ' - ' + sanitize_name(platform))
 
 	move_into_extra_subfolder(path, desktop, 'By genre', 'Genre')
 	move_into_extra_subfolder(path, desktop, 'By subgenre', 'Genre,Subgenre')
@@ -170,26 +172,26 @@ def move_into_subfolders(path):
 	move_into_extra_subfolder(path, desktop, 'By arcade system', 'Arcade-System')
 
 	if len(languages) == 1:
-		copy_to_folder(path, main_config.organized_output_folder, 'By language', sanitize_name(languages[0]) + ' only')
+		copy_to_folder(path, conf.organized_output_folder, 'By language', sanitize_name(languages[0]) + ' only')
 
 def move_into_folders():
 	time_started = time.perf_counter()
 
 	delete_existing_output_dir()
-	if main_config.print_times:
+	if conf.print_times:
 		time_ended = time.perf_counter()
 		print('Removal of old organized folder finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
 	time_started = time.perf_counter()
 
-	for root, _, files in os.walk(main_config.output_folder):
+	for root, _, files in os.walk(conf.output_folder):
 		for f in files:
 			if f.endswith('.desktop'):
 				path = os.path.join(root, f)
 
 				move_into_subfolders(path)
 
-	if main_config.print_times:
+	if conf.print_times:
 		time_ended = time.perf_counter()
 		print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
@@ -211,13 +213,13 @@ def main():
 		else:
 			missing_value = None
 
-		for root, _, files in os.walk(main_config.output_folder):
+		for root, _, files in os.walk(conf.output_folder):
 			for f in files:
 				if f.endswith('.desktop'):
 					path = os.path.join(root, f)
 					desktop = launchers.get_desktop(path)
 					move_into_extra_subfolder(path, desktop, sanitize_name(name, supersafe=True), key, missing_value)
-		if main_config.print_times:
+		if conf.print_times:
 			time_ended = time.perf_counter()
 			print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 		

@@ -5,7 +5,7 @@ import re
 
 import input_metadata
 from common_types import MediaType
-from config import main_config
+import config.main_config
 from info.region_info import TVSystem
 
 try:
@@ -21,6 +21,8 @@ try:
 	have_pycdlib = True
 except ModuleNotFoundError:
 	have_pycdlib = False
+
+conf = config.main_config.main_config 
 
 def convert_sfo(sfo):
 	d = {}
@@ -95,7 +97,7 @@ def parse_param_sfo(game, param_sfo):
 			#HRKGMP_VER = ??? (19)
 			pass
 		else:
-			if main_config.debug:
+			if conf.debug:
 				print(game.rom.path, 'has unknown param.sfo value', key, value)
 
 def load_image_from_bytes(data):
@@ -213,7 +215,7 @@ def add_psp_metadata(game):
 					game.metadata.specific_info['Is-UMD-Video'] = True
 					return
 				except PyCdlibInvalidInput:
-					if main_config.debug:
+					if conf.debug:
 						print(game.rom.path, 'has no PARAM.SFO inside')
 			if have_pillow:
 				game.metadata.images['Banner'] = get_image_from_iso(iso, '/PSP_GAME/ICON0.PNG')
@@ -221,7 +223,7 @@ def add_psp_metadata(game):
 				game.metadata.images['Picture-0'] = get_image_from_iso(iso, '/PSP_GAME/PIC0.PNG')
 				game.metadata.images['Background-Image'] = get_image_from_iso(iso, '/PSP_GAME/PIC1.PNG')
 		except PyCdlibInvalidISO as ex:
-			if main_config.debug:
+			if conf.debug:
 				print(game.rom.path, 'is invalid ISO', ex)
 		except struct.error as ex:
 			print(game.rom.path, 'is invalid ISO and has some struct.error', ex)

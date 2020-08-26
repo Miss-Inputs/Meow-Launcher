@@ -3,13 +3,14 @@ import os
 from enum import Enum, auto
 
 import cd_read
+import config.main_config
 import input_metadata
 from common_types import SaveType
-from config import main_config
 from data.sega_licensee_codes import licensee_codes
 
 from .minor_systems import add_generic_info
 
+conf = config.main_config.main_config 
 
 class SaturnPeripheral(Enum):
 	StandardController = auto()
@@ -161,7 +162,7 @@ def add_saturn_info(game, header):
 			game.metadata.month = calendar.month_name[int(release_date[4:6])]
 			game.metadata.day = int(release_date[6:8])
 		except IndexError:
-			if main_config.debug:
+			if conf.debug:
 				print(game.rom.path, 'has invalid date in header:', release_date)
 		except ValueError:
 			pass

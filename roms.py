@@ -11,14 +11,20 @@ from zlib import crc32
 import archives
 import cd_read
 import common
+import config.emulator_config
+import config.main_config
+import config.system_config
 import io_utils
 import launchers
 import metadata
 from common_types import (EmulationNotSupportedException,
                           ExtensionNotSupportedException, NotARomException)
-from config import main_config, system_configs
 from info import emulator_info, system_info
 from roms_metadata import add_metadata
+
+conf = config.main_config.main_config
+system_configs = config.system_config.system_configs
+emulator_configs = config.emulator_config.emulator_configs
 
 #TODO: Should make this configuragble? Maybe
 max_size_for_storing_in_memory = 32 * 1024 * 1024
@@ -135,11 +141,11 @@ class RomGame():
 			name = self.metadata.override_name
 		launchers.make_launcher(params, name, self.metadata, 'ROM', self.rom.path)
 
-def try_emulator(game, emulator, system_config):
+def try_emulator(game, emulator, system_config, emulator_config):
 	if game.rom.extension not in emulator.supported_extensions:
 		raise ExtensionNotSupportedException('Unsupported extension: ' + game.rom.extension)
 
-	return emulator.get_launch_params(game, system_config.specific_config)
+	return emulator.get_launch_params(game, system_config.specific_config, emulator_config)
 
 def process_file(system_config, rom_dir, root, rom):
 	game = RomGame(rom, system_config.name, root)
@@ -148,7 +154,7 @@ def process_file(system_config, rom_dir, root, rom):
 		lines = game.rom.read().decode('utf-8').splitlines()
 		filenames = [line if line.startswith('/') else os.path.join(game.folder, line) for line in lines if not line.startswith("#")]
 		if any([not os.path.isfile(filename) for filename in filenames]):
-			if main_config.debug:
+			if conf.debug:
 				print('M3U file', game.rom.path, 'has broken references!!!!', filenames)
 			return
 		game.subroms = [rom_file(referenced_file) for referenced_file in filenames]
@@ -165,7 +171,7 @@ def process_file(system_config, rom_dir, root, rom):
 
 	exception_reason = None
 
-	if rom.warn_about_multiple_files and main_config.debug:
+	if rom.warn_about_multiple_files and conf.debug:
 		print('Warning!', rom.path, 'has more than one file and that may cause unexpected behaviour, as I only look at the first file')
 
 	emulator = None
@@ -179,9 +185,10 @@ def process_file(system_config, rom_dir, root, rom):
 
 		try:
 			potential_emulator = emulator_info.emulators[potential_emulator_name]
-			params = try_emulator(game, potential_emulator, system_config)
+			potential_emulator_config = emulator_configs[potential_emulator_name]
+			params = try_emulator(game, potential_emulator, system_config, potential_emulator_config)
 			if params:
-				if main_config.skip_mame_non_working_software and isinstance(potential_emulator, emulator_info.MameDriver):
+				if conf.skip_mame_non_working_software and isinstance(potential_emulator, emulator_info.MameDriver):
 					if game.metadata.specific_info.get('MAME-Emulation-Status', metadata.EmulationStatus.Unknown) == metadata.EmulationStatus.Broken:
 						reason = '{0} not supported'.format(game.metadata.specific_info.get('MAME-Software-Name', ''))
 						raise EmulationNotSupportedException(reason)
@@ -194,7 +201,7 @@ def process_file(system_config, rom_dir, root, rom):
 
 
 	if not emulator:
-		if main_config.debug:
+		if conf.debug:
 			if isinstance(exception_reason, EmulationNotSupportedException) and not isinstance(exception_reason, ExtensionNotSupportedException):
 				print(rom.path, 'could not be launched by', potential_emulators, 'because', exception_reason)
 		return
@@ -236,11 +243,11 @@ def process_emulated_system(system_config):
 
 	for rom_dir in system_config.paths:
 		for root, _, files in os.walk(rom_dir):
-			if common.starts_with_any(root + os.sep, main_config.ignored_directories):
+			if common.starts_with_any(root + os.sep, conf.ignored_directories):
 				continue
 			subfolders = list(pathlib.Path(root).relative_to(rom_dir).parts)
 			if subfolders:
-				if subfolders[0] in main_config.skipped_subfolder_names:
+				if subfolders[0] in conf.skipped_subfolder_names:
 					continue
 
 			for name in sorted(files, key=sort_m3u_first()):
@@ -260,7 +267,7 @@ def process_emulated_system(system_config):
 					if not system.is_valid_file_type(rom.extension):
 						continue
 
-				if not main_config.full_rescan:
+				if not conf.full_rescan:
 					if launchers.has_been_done('ROM', path):
 						continue
 
@@ -270,7 +277,7 @@ def process_emulated_system(system_config):
 				except Exception as ex:
 					print('FUCK!!!!', path, type(ex), ex)
 
-	if main_config.print_times:
+	if conf.print_times:
 		time_ended = time.perf_counter()
 		print(system_config.name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
@@ -299,14 +306,14 @@ def process_systems():
 		if arg.startswith('--exclude='):
 			excluded_systems.append(arg.partition('=')[2])
 
-	for system_name, system in system_configs.configs.items():
+	for system_name, system in system_configs.items():
 		if system_name in excluded_systems:
 			continue
 		if not system.is_available:
 			continue
 		process_system(system)
 
-	if main_config.print_times:
+	if conf.print_times:
 		time_ended = time.perf_counter()
 		print('All emulated/engined systems finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
@@ -319,7 +326,7 @@ def main():
 
 		rom = sys.argv[arg_index + 1]
 		system = sys.argv[arg_index + 2]
-		process_file(system_configs.configs[system], os.path.dirname(rom), os.path.dirname(rom), rom_file(rom))
+		process_file(system_configs[system], os.path.dirname(rom), os.path.dirname(rom), rom_file(rom))
 		return
 
 	if len(sys.argv) >= 2 and '--systems' in sys.argv:
@@ -330,7 +337,7 @@ def main():
 
 		system_list = sys.argv[arg_index + 1].split(',')
 		for system_name in system_list:
-			process_system(system_configs.configs[system_name])
+			process_system(system_configs[system_name])
 		return
 
 	process_systems()

@@ -4,15 +4,17 @@ import re
 import xml.etree.ElementTree as ElementTree
 import zlib
 
+import config.main_config
 import io_utils
 from common import find_filename_tags, normalize_name, remove_filename_tags
 from common_types import MediaType
-from config import main_config
 from data.subtitles import subtitles
 from info.system_info import systems
 from mame_helpers import (consistentify_manufacturer, get_mame_core_config,
                           verify_software_list)
 from metadata import EmulationStatus
+
+conf = config.main_config.main_config
 
 #Ideally, every platform wants to be able to get software list info. If available, it will always be preferred over what we can extract from inside the ROMs, as it's more reliable, and avoids the problem of bootlegs/hacks with invalid/missing header data, or publisher/developers that merge and change names and whatnot.
 #We currently do this by putting a block of code inside each platform_metadata helper that does the same thing. I guess I should genericize that one day. Anyway, it's not always possible.
@@ -402,7 +404,7 @@ class Software():
 		elif not (already_has_publisher and (publisher == '<unknown>')):
 			if ' / ' in publisher:
 				publishers = [consistentify_manufacturer(p) for p in publisher.split(' / ')]
-				if main_config.sort_multiple_dev_names:
+				if conf.sort_multiple_dev_names:
 					publishers.sort()
 				publisher = ', '.join(publishers)
 
@@ -678,7 +680,7 @@ def get_software_list_entry(game, skip_header=0):
 				args = SoftwareMatcherArgs(crc32, None, game.rom.get_size(), lambda offset, amount: game.rom.read(seek_to=offset, amount=amount))
 				software = find_in_software_lists(software_lists, args)
 
-	if not software and game.metadata.platform in main_config.find_software_by_name:
+	if not software and game.metadata.platform in conf.find_software_by_name:
 		software = find_software_by_name(game.software_lists, game.rom.name)
 
 	return software

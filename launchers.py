@@ -6,8 +6,10 @@ import shlex
 from enum import Enum
 
 import common
-from config import main_config
+import config.main_config
 from io_utils import ensure_exist
+
+conf = config.main_config.main_config
 
 try:
 	from PIL import Image
@@ -112,11 +114,11 @@ def make_linux_desktop(launch_params, display_name, fields=None):
 
 	global used_filenames #Yeah yeah I know, I'm naughty, I'll probs rewrite it one day
 	if used_filenames is None:
-		if main_config.full_rescan:
+		if conf.full_rescan:
 			used_filenames = []
 		else:
 			try:
-				used_filenames = os.listdir(main_config.output_folder)
+				used_filenames = os.listdir(conf.output_folder)
 			except FileNotFoundError:
 				used_filenames = []
 
@@ -125,7 +127,7 @@ def make_linux_desktop(launch_params, display_name, fields=None):
 		filename = base_filename + str(i) + '.desktop'
 		i += 1
 
-	path = os.path.join(main_config.output_folder, filename)
+	path = os.path.join(conf.output_folder, filename)
 	used_filenames.append(filename)
 
 	configwriter = configparser.ConfigParser(interpolation=None)
@@ -144,7 +146,7 @@ def make_linux_desktop(launch_params, display_name, fields=None):
 	icon_entry = None
 	try_banner_instead = False
 	if fields:
-		if main_config.use_banner_as_icon and 'Icon' not in fields[image_section_name]:
+		if conf.use_banner_as_icon and 'Icon' not in fields[image_section_name]:
 			try_banner_instead = True
 
 		for section_name, section in fields.items():
@@ -159,7 +161,7 @@ def make_linux_desktop(launch_params, display_name, fields=None):
 				if have_pillow:
 					if isinstance(v, Image.Image):
 						use_image_object = True
-						this_image_folder = os.path.join(main_config.image_folder, k)
+						this_image_folder = os.path.join(conf.image_folder, k)
 						pathlib.Path(this_image_folder).mkdir(exist_ok=True, parents=True)
 						image_path = os.path.join(this_image_folder, filename + '.png')
 						v.save(image_path, 'png')
@@ -210,7 +212,7 @@ def make_launcher(launch_params, name, metadata, id_type, unique_id):
 def _get_existing_launchers():
 	a = []
 
-	output_folder = main_config.output_folder
+	output_folder = conf.output_folder
 	if not os.path.isdir(output_folder):
 		return []
 	for name in os.listdir(output_folder):

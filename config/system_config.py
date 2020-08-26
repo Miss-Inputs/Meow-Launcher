@@ -62,3 +62,5 @@ class SystemConfigs():
 		if SystemConfigs.__instance is None:
 			SystemConfigs.__instance = SystemConfigs.__SystemConfigs()
 		return SystemConfigs.__instance
+
+system_configs = SystemConfigs.getConfigs().configs

@@ -12,10 +12,10 @@ import time
 import zipfile
 from enum import IntFlag
 
+import config.main_config
 import launchers
 from common import junk_suffixes, remove_capital_article, title_case
 from common_types import MediaType, SaveType
-from config import main_config
 from data.capitalized_words_in_names import capitalized_words
 from data.steam_developer_overrides import developer_overrides
 from data.steam_genre_ids import genre_ids
@@ -38,8 +38,7 @@ try:
 except ModuleNotFoundError:
 	have_steamfiles = False
 
-#TODO A lot of this is messy and needs refactoring and I will leave an annoying todo comment here for myself to be bothered by until I refactor it
-#Oh really, Past Megan? Well what part is messy? Gonna elaborate on that? Thought not - Present Megan
+conf = config.main_config.main_config 
 
 class SteamInstallation():
 	def __init__(self, path):
@@ -216,7 +215,7 @@ class SteamGame():
 			game_app_info = steam_installation.app_info.get(self.app_id)
 			if game_app_info is None:
 				#Probably shouldn't happen if all is well and that game is supposed to be there
-				if main_config.debug:
+				if conf.debug:
 					print(self.name, self.app_id, 'does not have an entry in appinfo.vdf')
 				return None
 
@@ -224,13 +223,13 @@ class SteamGame():
 			#last_update is a Unix timestamp for the last time the user updated the game
 			sections = game_app_info.get('sections')
 			if sections is None:
-				if main_config.debug:
+				if conf.debug:
 					print(self.name, self.app_id, 'does not have a sections key in appinfo.vdf')
 				return None
 			#This is the only key in sections, and from now on everything is a bytes instead of a str, seemingly
 			app_info_section = sections.get(b'appinfo')
 			if app_info_section is None:
-				if main_config.debug:
+				if conf.debug:
 					print(self.name, self.app_id, 'does not have a appinfo section in appinfo.vdf sections')
 				return None
 			return app_info_section
@@ -308,7 +307,7 @@ def look_for_icon(icon_hash):
 
 				#Get the biggest image file and assume that's the best icon we can have
 				extracted_icon_file = sorted(icon_files, key=lambda zip_info: zip_info.file_size, reverse=True)[0]
-				extracted_icon_folder = os.path.join(main_config.image_folder, 'Icon', 'extracted_from_zip', icon_hash)
+				extracted_icon_folder = os.path.join(conf.image_folder, 'Icon', 'extracted_from_zip', icon_hash)
 				return zip_file.extract(extracted_icon_file, path=extracted_icon_folder)
 
 	raise IconNotFoundError('{0} not found'.format(icon_hash))
@@ -332,7 +331,7 @@ def translate_language_list(languages):
 			language = get_language_by_english_name(language_name, case_insensitive=True)
 			if language:
 				langs.append(language)
-			elif main_config.debug:
+			elif conf.debug:
 				print('Unknown language:', language_name)
 
 	return langs
@@ -487,7 +486,7 @@ def add_icon_from_common_section(game, common_section):
 			icon_exception = None
 			found_an_icon = True
 			break
-	if main_config.warn_about_missing_icons:
+	if conf.warn_about_missing_icons:
 		if icon_exception:
 			print(game.name, game.app_id, icon_exception)
 		elif potentially_has_icon and not found_an_icon:
@@ -762,10 +761,10 @@ def add_metadata_from_appinfo_extended_section(game, extended):
 	#dependantonapp: Probably same sort of thing, like Half-Life: Opposing Force is dependent on original Half-Life
 
 def process_appinfo_config_section(game, app_info_section):
-	config = app_info_section.get(b'config')
-	if config:
+	config_section = app_info_section.get(b'config')
+	if config_section:
 		#contenttype = 3 in some games but not all of them? nani
-		launch = config.get(b'launch')
+		launch = config_section.get(b'launch')
 		#This key would actually tell us the executable and arguments used to actually launch the game. It's probably not a good idea to do that directly though, mostly because most games are DRM'd to Steam, so it's probably a good idea to go through the Steam client like we are now.
 		#Anyway, we're going to use it a bit more responsibly
 		if launch:
@@ -808,17 +807,17 @@ def normalize_name_case(name, name_to_test_for_upper=None):
 	if not name_to_test_for_upper:
 		name_to_test_for_upper = name
 
-	if main_config.normalize_name_case == 1:
+	if conf.normalize_name_case == 1:
 		if name_to_test_for_upper.isupper():
 			return title_case(name, words_to_ignore_case=capitalized_words)
 		return name
-	if main_config.normalize_name_case == 2:
+	if conf.normalize_name_case == 2:
 		if name_to_test_for_upper.isupper():
 			return title_case(name, words_to_ignore_case=capitalized_words)
 
 		#Assume minimum word length of 4 to avoid acronyms, although those should be in capitalized_words I guess
 		return re.sub(r"[\w'-]{4,}", lambda match: title_case(match[0], words_to_ignore_case=capitalized_words) if match[0].isupper() else match[0], name)
-	if main_config.normalize_name_case == 3:
+	if conf.normalize_name_case == 3:
 		return title_case(name, words_to_ignore_case=capitalized_words)
 	
 	return name
@@ -956,17 +955,17 @@ def check_for_interesting_things_in_folder(folder, metadata):
 def poke_around_in_install_dir(game):
 	install_dir = game.app_state.get('installdir')
 	if not install_dir:
-		# if main_config.debug:
+		# if conf.debug:
 		# 	print('uh oh no installdir', game.name, game.app_id)
 		return
 	library_folder = os.path.join(game.library_folder, 'steamapps', 'common')
 	if not os.path.isdir(library_folder):
-		# if main_config.debug:
+		# if conf.debug:
 		# 	print('uh oh no library_folder', game.name, game.app_id, library_folder)
 		return
 	folder = os.path.join(library_folder, install_dir)
 	if not os.path.isdir(folder):
-		# if main_config.debug:
+		# if conf.debug:
 		# 	print('uh oh installdir does not exist', game.name, game.app_id, folder)
 		#Hmm I would need to make this case insensitive for some cases
 		return
@@ -1065,7 +1064,7 @@ def process_game(app_id, folder, app_state):
 	try:
 		app_id = int(app_id)
 	except ValueError:
-		if main_config.debug:
+		if conf.debug:
 			print('Should not happen:', app_id, app_state.get('name'), 'is not numeric')
 		return
 
@@ -1138,7 +1137,7 @@ def process_game(app_id, folder, app_state):
 	#userdata/<user ID>/config/localconfig.vdf has last time played stats, so that's a thing I guess
 	#userdata/<user ID>/7/remote/sharedconfig.vdf has tags/categories etc as well
 
-	if game.metadata.specific_info.get('No-Valid-Launchers', False) and not main_config.force_create_launchers:
+	if game.metadata.specific_info.get('No-Valid-Launchers', False) and not conf.force_create_launchers:
 		raise NotLaunchableError('Platform not supported and Steam Play not used')
 
 	if appinfo_entry:
@@ -1168,7 +1167,7 @@ def iter_steam_installed_appids():
 				if not state_flags:
 					continue
 			except ValueError:
-				if main_config.debug:
+				if conf.debug:
 					print('Skipping', app_state.get('name'), app_id, 'as StateFlags are invalid', app_state.get('StateFlags'))
 				continue
 
@@ -1176,13 +1175,13 @@ def iter_steam_installed_appids():
 			#Anyway, we're going to check for it this way
 			last_owner = app_state.get('LastOwner')
 			if last_owner == '0':
-				if main_config.debug:
+				if conf.debug:
 					print('Skipping', app_state.get('name'), app_id, 'as nobody actually owns it')
 				continue
 
 			#Only yield fully installed games
 			if (state_flags & StateFlags.FullyInstalled) == 0:
-				if main_config.debug:
+				if conf.debug:
 					print('Skipping', app_state.get('name'), app_id, 'as it is not actually installed (StateFlags =', state_flags, ')')
 				continue
 
@@ -1208,7 +1207,7 @@ def process_steam():
 	time_started = time.perf_counter()
 
 	for folder, app_id, app_state in iter_steam_installed_appids():
-		if not main_config.full_rescan:
+		if not conf.full_rescan:
 			if launchers.has_been_done('Steam', app_id):
 				continue
 
@@ -1217,11 +1216,11 @@ def process_steam():
 		except NotActuallyAGameYouDingusException as ex:
 			continue
 		except NotLaunchableError as ex:
-			if main_config.debug:
+			if conf.debug:
 				print(app_state.get('name', app_id), app_id, 'is skipped because', ex)
 			continue
 		
-	if main_config.print_times:
+	if conf.print_times:
 		time_ended = time.perf_counter()
 		print('Steam finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

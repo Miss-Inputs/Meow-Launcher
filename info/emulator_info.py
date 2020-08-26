@@ -1,11 +1,12 @@
-import os
 from enum import Enum
 
 import info.emulator_command_lines as command_lines
-from launchers import LaunchParams, MultiCommandLaunchParams
+from launchers import LaunchParams
 
-from .system_info import (atari_2600_cartridge_extensions, mame_cdrom_formats,
-                          mame_floppy_formats, generic_cart_extensions)
+from .system_info import (atari_2600_cartridge_extensions,
+                          generic_cart_extensions, mame_cdrom_formats,
+                          mame_floppy_formats)
+
 
 class EmulatorStatus(Enum):
 	#I have not actually thought of concrete definitions for what these mean
@@ -17,16 +18,19 @@ class EmulatorStatus(Enum):
 	Borked = 1
 
 class EmulatorInfo():
-	def __init__(self, status, launch_params, supported_extensions, supported_compression):
+	def __init__(self, status, default_exe_name, launch_params, supported_extensions, supported_compression, configs=None):
 		self.status = status
+		self.default_exe_name = default_exe_name
 		self.launch_params = launch_params
 		self.supported_extensions = supported_extensions
 		self.supported_compression = supported_compression
+		self.configs = configs if configs else {}
 
-	def get_launch_params(self, game, specific_config):
+	def get_launch_params(self, game, specific_config, emulator_config):
 		#You might think sine I have game.rom here, I should just insert the path into the command line here too. I don't though, in case the final path that gets passed to the emulator needs to be different than the ROM's path (in case of temporary extracted files for emulators not supporting compression, for example)
+		#TODO: Eventually get rid of launch_params that aren't callable
 		if callable(self.launch_params):
-			return self.launch_params(game, specific_config)
+			return self.launch_params(game, specific_config, emulator_config)
 
 		return self.launch_params
 
@@ -34,64 +38,63 @@ class MednafenModule(EmulatorInfo):
 	def __init__(self, status, module, supported_extensions, params=None):
 		if not params:
 			params = command_lines.mednafen_base(module)
-		EmulatorInfo.__init__(self, status, params, supported_extensions, ['zip', 'gz'])
+		EmulatorInfo.__init__(self, status, 'mednafen', params, supported_extensions, ['zip', 'gz'])
 
 class MameDriver(EmulatorInfo):
 	def __init__(self, status, launch_params, supported_extensions):
-		EmulatorInfo.__init__(self, status, launch_params, supported_extensions, ['7z', 'zip'])
+		EmulatorInfo.__init__(self, status, 'mame', launch_params, supported_extensions, ['7z', 'zip'])
 
 class ViceEmulator(EmulatorInfo):
-	def __init__(self, status, params):
+	def __init__(self, status, default_exe_name, params):
 		#Also does z and zoo compression but I haven't done those in archives.py yet
 		#WARNING! Will write back changes to your disk images unless they are compressed or actually write protected on the file system
 		#Does support compressed tapes/disks (gz/bz2/zip/tgz) but doesn't support compressed cartridges (seemingly). This would require changing all kinds of stuff with how compression is handled here. So for now we pretend it supports no compression so we end up getting 7z to put the thing in a temporarily folder regardless
-		EmulatorInfo.__init__(self, status, params, ['d64', 'g64', 'x64', 'p64', 'd71', 'd81', 'd80', 'd82', 'd1m', 'd2m'] + ['20', '40', '60', '70', '80', 'a0', 'b0', 'e0', 'crt', 'bin'] + ['p00', 'prg', 'tap', 't64'], [])
+		EmulatorInfo.__init__(self, status, default_exe_name, params, ['d64', 'g64', 'x64', 'p64', 'd71', 'd81', 'd80', 'd82', 'd1m', 'd2m'] + ['20', '40', '60', '70', '80', 'a0', 'b0', 'e0', 'crt', 'bin'] + ['p00', 'prg', 'tap', 't64'], [])
 
 emulators = {
-	'A7800': EmulatorInfo(EmulatorStatus.Good, command_lines.a7800, ['bin', 'a78'], ['7z', 'zip']),
+	'A7800': EmulatorInfo(EmulatorStatus.Good, 'a7800', command_lines.a7800, ['bin', 'a78'], ['7z', 'zip']),
 	#Forked directly from MAME with alterations to a7800.cpp driver, so will more or less work the same way as that
 	#Executable name might be a7800.Linux-x86_64 depending on how it's installed... hmm
-	'bsnes': EmulatorInfo(EmulatorStatus.Good, command_lines.bsnes, ['sfc', 'smc', 'st', 'bs', 'gb', 'gbc'], ['zip', '7z']),
-	'cxNES': EmulatorInfo(EmulatorStatus.Good, command_lines.cxnes, ['nes', 'fds', 'unf', 'unif'], ['7z', 'zip']),
+	'bsnes': EmulatorInfo(EmulatorStatus.Good, 'bsnes', command_lines.bsnes, ['sfc', 'smc', 'st', 'bs', 'gb', 'gbc'], ['zip', '7z']),
+	'cxNES': EmulatorInfo(EmulatorStatus.Good, 'cxnes', command_lines.cxnes, ['nes', 'fds', 'unf', 'unif'], ['7z', 'zip']),
 	#Or is it good? Have not tried it in a fair bit
-	'Dolphin': EmulatorInfo(EmulatorStatus.Good, command_lines.dolphin, ['iso', 'ciso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs', 'm3u', 'wia', 'rvz'], []),
-	'DuckStation': EmulatorInfo(EmulatorStatus.Good, LaunchParams('duckstation-qt', ['-batch', '-fullscreen', '$<path>']), ['bin', 'img', 'cue', 'chd', 'exe', 'm3u'], []),
+	'Dolphin': EmulatorInfo(EmulatorStatus.Good, 'dolphin-emu', command_lines.dolphin, ['iso', 'ciso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs', 'm3u', 'wia', 'rvz'], []),
+	'DuckStation': EmulatorInfo(EmulatorStatus.Good, 'duckstation-qt', LaunchParams('duckstation-qt', ['-batch', '-fullscreen', '$<path>']), ['bin', 'img', 'cue', 'chd', 'exe', 'm3u'], []),
 	#TODO: The compatibility.xml file is there for the reading, but due to how the installation works it's not in a specific location. Do something with that when I get around to doing emulator-specific user config
-	'Flycast': EmulatorInfo(EmulatorStatus.Good, command_lines.flycast, ['gdi', 'cdi', 'chd', 'cue'], []),
-	'FS-UAE': EmulatorInfo(EmulatorStatus.Good, command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf'], []),
+	'Flycast': EmulatorInfo(EmulatorStatus.Good, 'reicast', command_lines.flycast, ['gdi', 'cdi', 'chd', 'cue'], []),
+	'FS-UAE': EmulatorInfo(EmulatorStatus.Good, 'fs-uae', command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf'], []),
 	#Note that .ipf files need a separately downloadable plugin. We could detect the presence of that, I guess
-	'Gambatte': EmulatorInfo(EmulatorStatus.Good, command_lines.gambatte, ['gb', 'gbc'], ['zip']),
+	'Gambatte': EmulatorInfo(EmulatorStatus.Good, 'gambatte_qt', command_lines.gambatte, ['gb', 'gbc'], ['zip']),
 	#--gba-cgb-mode[=0] and --force-dmg-mode[=0] may be useful in obscure situations, but that would probably require a specific thing that notes some GBC games are incompatible with GBA mode (Pocket Music) or GB incompatible with GBC (R-Type, also Pocket Sonar but that wouldn't work anyway)
-	'GBE+': EmulatorInfo(EmulatorStatus.Good, command_lines.gbe_plus, ['gb', 'gbc', 'gba'], []),
+	'GBE+': EmulatorInfo(EmulatorStatus.Good, 'gbe_plus_qt', command_lines.gbe_plus, ['gb', 'gbc', 'gba'], []),
 	#Also in theory recognizes any extension and assumes Game Boy if not .gba or .nds, but that would be screwy
-	'Kega Fusion': EmulatorInfo(EmulatorStatus.Good, command_lines.kega_fusion, ['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', 'sc', '32x'], ['zip']),
+	'Kega Fusion': EmulatorInfo(EmulatorStatus.Good, 'kega-fusion', command_lines.kega_fusion, ['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', 'sc', '32x'], ['zip']),
 	#May support other CD formats for Mega CD other than iso, cue? Because it's closed source, can't really have a look, but I'm just going to presume it's only those two
-	'mGBA': EmulatorInfo(EmulatorStatus.Good, command_lines.mgba, ['gb', 'gbc', 'gba', 'srl', 'bin', 'mb', 'gbx'], ['7z', 'zip']),
+	'mGBA': EmulatorInfo(EmulatorStatus.Good, 'mgba-qt', command_lines.mgba, ['gb', 'gbc', 'gba', 'srl', 'bin', 'mb', 'gbx'], ['7z', 'zip']),
 	#Doesn't really do GBX but it will ignore the footer
-	'Mupen64Plus': EmulatorInfo(EmulatorStatus.Good, command_lines.mupen64plus, ['z64', 'v64', 'n64'], []),
-	'PCSX2': EmulatorInfo(EmulatorStatus.Good, LaunchParams('PCSX2', ['--nogui', '--fullscreen', '--fullboot', '$<path>']), ['iso', 'cso', 'bin'], ['gz']),
+	'Mupen64Plus': EmulatorInfo(EmulatorStatus.Good, 'mupen64plus', command_lines.mupen64plus, ['z64', 'v64', 'n64'], []),
+	'PCSX2': EmulatorInfo(EmulatorStatus.Good, 'PCSX2', LaunchParams('PCSX2', ['--nogui', '--fullscreen', '--fullboot', '$<path>']), ['iso', 'cso', 'bin'], ['gz']),
 	#Takes some time to load the interface so at first it might look like it's not working; take out --fullboot if it forbids any homebrew stuff (but it should be fine, and Katamari Damacy needs it unless you will experience sound issues that are funny the first time but not subsequently).  ELF seems to not work, though it'd need a different command line anyway. Only reads the bin of bin/cues and not the cue
-	#Older versions are "pcsx2" or "PCSX2-linux" so I really need to implement that thing where I make the things selectable
-	'PokeMini': EmulatorInfo(EmulatorStatus.Janky, LaunchParams('PokeMini', ['-fullscreen', '$<path>']), ['min'], ['zip']),
+	'PokeMini': EmulatorInfo(EmulatorStatus.Janky, 'PokeMini', LaunchParams('PokeMini', ['-fullscreen', '$<path>']), ['min'], ['zip']),
 	#Puts all the config files in the current directory, which is why there's a wrapper below which you probably want to use instead of this
 	#Maybe I want to move that to emulator_command_lines because it's such a heckin mess... yike
 	#Should I even have this as opposed to just having the wrapper?
-	'PokeMini (wrapper)': EmulatorInfo(EmulatorStatus.Good, MultiCommandLaunchParams([LaunchParams('mkdir', ['-p', os.path.expanduser('~/.config/PokeMini')]), LaunchParams('cd', [os.path.expanduser('~/.config/PokeMini')]), LaunchParams('PokeMini', ['-fullscreen', '$<path>'])]), ['min'], ['zip']),
-	'PPSSPP': EmulatorInfo(EmulatorStatus.Good, command_lines.ppsspp, ['iso', 'pbp', 'cso'], []),
-	'Reicast': EmulatorInfo(EmulatorStatus.Good, command_lines.reicast, ['gdi', 'cdi', 'chd'], []),
-	'SimCoupe': EmulatorInfo(EmulatorStatus.Good, LaunchParams('simcoupe', ['-fullscreen', 'yes', '$<path>']), ['mgt', 'sad', 'dsk', 'sbt'], ['zip', 'gz']),
-	'Snes9x': EmulatorInfo(EmulatorStatus.Good, command_lines.snes9x, ['sfc', 'smc', 'swc'], ['zip', 'gz']),
+	'PokeMini (wrapper)': EmulatorInfo(EmulatorStatus.Good, 'PokeMini', command_lines.pokemini_wrapper, ['min'], ['zip']),
+	'PPSSPP': EmulatorInfo(EmulatorStatus.Good, 'ppsspp-qt', command_lines.ppsspp, ['iso', 'pbp', 'cso'], []),
+	'Reicast': EmulatorInfo(EmulatorStatus.Good, 'reicast', command_lines.reicast, ['gdi', 'cdi', 'chd'], []),
+	'SimCoupe': EmulatorInfo(EmulatorStatus.Good, 'simcoupe', LaunchParams('simcoupe', ['-fullscreen', 'yes', '$<path>']), ['mgt', 'sad', 'dsk', 'sbt'], ['zip', 'gz']),
+	'Snes9x': EmulatorInfo(EmulatorStatus.Good, 'snes9x-gtk', command_lines.snes9x, ['sfc', 'smc', 'swc'], ['zip', 'gz']),
 	#Can't set fullscreen mode from the command line so you have to set up that yourself (but it will do that automatically); GTK port can't do Sufami Turbo or Satellaview from command line due to lacking multi-cart support that Windows has (Unix non-GTK doesn't like being in fullscreen etc)
-	'Stella': EmulatorInfo(EmulatorStatus.Good, LaunchParams('stella', ['-fullscreen', '1', '$<path>']), ['a26', 'bin', 'rom'] + atari_2600_cartridge_extensions, ['gz', 'zip']),
-	'PrBoom+': EmulatorInfo(EmulatorStatus.Imperfect, command_lines.prboom_plus, ['wad'], []),
+	'Stella': EmulatorInfo(EmulatorStatus.Good, 'stella', LaunchParams('stella', ['-fullscreen', '1', '$<path>']), ['a26', 'bin', 'rom'] + atari_2600_cartridge_extensions, ['gz', 'zip']),
+	'PrBoom+': EmulatorInfo(EmulatorStatus.Imperfect, 'prboom-plus', command_lines.prboom_plus, ['wad'], []),
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
 
-	'VICE (C64)': ViceEmulator(EmulatorStatus.Good, command_lines.vice_c64),
-	'VICE (C64 Fast)': ViceEmulator(EmulatorStatus.Good, command_lines.vice_c64_fast),
-	'VICE (VIC-20)': ViceEmulator(EmulatorStatus.Good, command_lines.vice_vic20),
-	'VICE (Commodore PET)': ViceEmulator(EmulatorStatus.Good, command_lines.vice_pet),
-	'VICE (Plus/4)': ViceEmulator(EmulatorStatus.Good, command_lines.vice_plus4),
-	'VICE (C128)': ViceEmulator(EmulatorStatus.Good, command_lines.vice_c128),
+	'VICE (C64)': ViceEmulator(EmulatorStatus.Good, 'x64sc', command_lines.vice_c64),
+	'VICE (C64 Fast)': ViceEmulator(EmulatorStatus.Good, 'x64', command_lines.vice_c64_fast),
+	'VICE (VIC-20)': ViceEmulator(EmulatorStatus.Good, 'xvic', command_lines.vice_vic20),
+	'VICE (Commodore PET)': ViceEmulator(EmulatorStatus.Good, 'xpet', command_lines.vice_pet),
+	'VICE (Plus/4)': ViceEmulator(EmulatorStatus.Good, 'xplus4', command_lines.vice_plus4),
+	'VICE (C128)': ViceEmulator(EmulatorStatus.Good, 'x128', command_lines.vice_c128),
 
 	'Mednafen (Apple II)': MednafenModule(EmulatorStatus.Good, 'apple2', ['woz', 'dsk', 'po', 'do', 'd13'], command_lines.mednafen_apple_ii),
 	#Seems fine but no Apple IIe/128K?
@@ -220,9 +223,9 @@ emulators = {
 	#----- The experimental section. The emulators are still here, it's just so you, the fabulous and wonderful end user, can have more information on how to manage expectations. Or something like that.
 
 	#--These experimental emulators seem to work more often than they don't, but still describe themselves as experimental:
-	'Citra': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.citra, ['3ds', 'cxi', '3dsx'], []),
+	'Citra': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'citra-qt', command_lines.citra, ['3ds', 'cxi', '3dsx'], []),
 	#No fullscreen from command line
-	'Medusa': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.medusa, ['nds', 'gb', 'gbc', 'gba'], ['7z', 'zip']),
+	'Medusa': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'medusa-emu-qt', command_lines.medusa, ['nds', 'gb', 'gbc', 'gba'], ['7z', 'zip']),
 
 	'Mednafen (Game Boy)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'gb', ['gb', 'gbc'], command_lines.mednafen_gb),
 	#Based off an old version of VisualBoyAdvance
@@ -266,7 +269,7 @@ emulators = {
 	#Marked as not working + imperfect sound, possibly because of missing speech (also mouse is missing)
 	
 	#--Stuff that might not work with most things, or otherwise has known issues
-	'Yuzu': EmulatorInfo(EmulatorStatus.Experimental, LaunchParams('yuzu', ['$<path>']), ['xci', 'nsp', 'nro', 'nso', 'nca', 'elf', 'kip'], []),
+	'Yuzu': EmulatorInfo(EmulatorStatus.Experimental, 'yuzu', LaunchParams('yuzu', ['$<path>']), ['xci', 'nsp', 'nro', 'nso', 'nca', 'elf', 'kip'], []),
 
 	'MAME (Amiga CD32)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_amiga_cd32, mame_cdrom_formats),
 	#Hmm boots only a few things I guess

@@ -1,7 +1,7 @@
+import config.main_config
 import detect_things_from_filename
 import platform_metadata
 from common import machine_name_matches
-from config import main_config
 from data.not_necessarily_equivalent_arcade_names import \
     not_necessarily_equivalent_arcade_names
 from info import region_info, system_info
@@ -9,6 +9,8 @@ from mame_helpers import (MachineNotFoundException, MAMENotInstalledException,
                           get_icons, get_mame_xml)
 from mame_machines import Machine
 from software_list_info import get_software_lists_by_names
+
+conf = config.main_config.main_config
 
 mame_driver_overrides = {
 	#Basically, this is when something in platform_metadata changes what game.metadata.platform is, which means we can no longer just look up that platform in system_info because it won't be in there
@@ -152,7 +154,7 @@ def add_metadata(game):
 		mame_driver = system_info.systems[game.metadata.platform].mame_driver
 				
 	equivalent_arcade = game.metadata.specific_info.get('Equivalent-Arcade')
-	if not equivalent_arcade and main_config.find_equivalent_arcade_games:
+	if not equivalent_arcade and conf.find_equivalent_arcade_games:
 		software_name = game.metadata.specific_info.get('MAME-Software-Name')
 		parent_name = game.metadata.specific_info.get('MAME-Software-Parent')
 		if software_name:
@@ -165,7 +167,7 @@ def add_metadata(game):
 	if equivalent_arcade:
 		add_metadata_from_arcade(game, equivalent_arcade)
 	if 'Icon' not in game.metadata.images:
-		if main_config.use_mame_system_icons:
+		if conf.use_mame_system_icons:
 			try:
 				mame_icons = add_metadata.mame_icons
 			except AttributeError:

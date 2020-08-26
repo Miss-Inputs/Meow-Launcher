@@ -1,9 +1,11 @@
 from enum import Enum, auto
 
-from config import main_config
-from mame_helpers import consistentify_manufacturer
+import config.main_config
 from info.region_info import get_language_by_english_name
+from mame_helpers import consistentify_manufacturer
 from software_list_info import get_software_list_entry
+
+conf = config.main_config.main_config 
 
 class AppleIIHardware(Enum):
 	AppleII = auto()
@@ -126,7 +128,7 @@ def parse_woz_meta_chunk(game, chunk_data):
 			#This isn't part of the specification, but I've seen it
 			game.metadata.notes = value
 		else:
-			if main_config.debug:
+			if conf.debug:
 				print('Unknown Woz META key', game.rom.path, key, value)
 
 def parse_woz_chunk(game, position):

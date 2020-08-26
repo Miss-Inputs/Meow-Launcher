@@ -6,13 +6,17 @@ import collections
 import time
 import datetime
 
-from config import main_config, system_configs
+import config.main_config
+import config.system_config
 from metadata import Metadata
 from common_types import MediaType, EmulationNotSupportedException, NotARomException
 import launchers
 
+conf = config.main_config.main_config
+system_configs = config.system_config.system_configs
+
 def init_game_list(platform):
-	db_path = main_config.mac_db_path if platform == 'mac' else main_config.dos_db_path if platform == 'dos' else None
+	db_path = conf.mac_db_path if platform == 'mac' else conf.dos_db_path if platform == 'dos' else None
 
 	if not os.path.exists(db_path):
 		print('Downloading {0}_db.json directly from GitHub which seems like a bad idea honestly but I need to rewrite this whole thing at some point anyway'.format(platform))
@@ -40,7 +44,7 @@ def init_game_list(platform):
 					if key not in game:
 						game_list[game_name][key] = parent[key]
 			else:
-				if main_config.debug:
+				if conf.debug:
 					print('Oh no! {0} refers to undefined parent game {1}'.format(game_name, parent_name))
 
 	return game_list
@@ -100,7 +104,7 @@ class App:
 				exception_reason = ex
 
 		if not params:
-			if main_config.debug:
+			if conf.debug:
 				print(self.path, 'could not be launched by', system_config.chosen_emulators, 'because', exception_reason)
 			return
 
@@ -112,7 +116,7 @@ def scan_folders(platform, config_path, scan_function):
 	found_games = {}
 	ambiguous_games = {}
 
-	system_config = system_configs.configs[platform]
+	system_config = system_configs[platform]
 	if not system_config:
 		return
 
@@ -145,7 +149,7 @@ def scan_folders(platform, config_path, scan_function):
 	print('a better way to do this.')
 
 def make_launchers(system_config_name, config_path, app_class, emulator_list):
-	system_config = system_configs.configs[system_config_name]
+	system_config = system_configs[system_config_name]
 	if not system_config:
 		return
 	if not system_config.paths or not system_config.chosen_emulators:
@@ -163,7 +167,7 @@ def make_launchers(system_config_name, config_path, app_class, emulator_list):
 	parser.read(config_path)
 
 	for path, config_name in parser.items('Apps'):
-		if not main_config.full_rescan:
+		if not conf.full_rescan:
 			if launchers.has_been_done(system_config_name, path):
 				continue
 
@@ -173,11 +177,11 @@ def make_launchers(system_config_name, config_path, app_class, emulator_list):
 		game_config = game_list[config_name]
 		app_class(path, config_name, game_config).make_launcher(system_config, emulator_list)
 
-	do_unknown = main_config.launchers_for_unknown_dos_apps if system_config_name == 'DOS' else main_config.launchers_for_unknown_mac_apps if system_config_name == 'Mac' else False
+	do_unknown = conf.launchers_for_unknown_dos_apps if system_config_name == 'DOS' else conf.launchers_for_unknown_mac_apps if system_config_name == 'Mac' else False
 	if do_unknown:
 		for unknown, _ in parser.items('Unknown'):
 			app_class(unknown, unknown.split(':')[-1], {}).make_launcher(system_config, emulator_list)
 
-	if main_config.print_times:
+	if conf.print_times:
 		time_ended = time.perf_counter()
 		print(system_config_name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))

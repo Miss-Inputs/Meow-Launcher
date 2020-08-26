@@ -3,13 +3,15 @@ import datetime
 import sys
 import time
 
+import config.main_config
 import launchers
 from common_types import EmulationNotSupportedException, MediaType
-from config import main_config
 from info.emulator_command_line_helpers import mame_base
 from info.region_info import TVSystem
 from metadata import EmulationStatus, Metadata
 from software_list_info import get_software_list_by_name
+
+conf = config.main_config.main_config 
 
 #TODO: Actually call this from main (once below todos are resolved)
 #TODO: Platform-specific metadata (e.g. specify Neo Geo = SaveType.MemoryCard); may want to refactor platform_metadata so it can work with this (for now though I only care about Neo Geo and such which isn't in there). Neo Geo in particular could get things like genre, icon from the arcade stuff, because it will always be equivalent to an arcade game, unless it isn't
@@ -45,7 +47,7 @@ def _super_cassette_vision(software):
 
 software_list_platforms = [
 	#For simplicity we're just going to only use certain lists at the moment, I'm very sorry
-	#TODO: Will also need required_romset, and do -verifyroms on that to see that it's launchable; e.g. no point doing Neo Geo if -verifyroms aes fails, maybe like a main_driver so we get our CPU/screen/etc info from there, and we can skip it if broken and if main_config.exclude_non_working and machine.emulation_status == EmulationStatus.Broken and machine.basename not in main_config.non_working_whitelist: skip
+	#TODO: Will also need required_romset, and do -verifyroms on that to see that it's launchable; e.g. no point doing Neo Geo if -verifyroms aes fails, maybe like a main_driver so we get our CPU/screen/etc info from there, and we can skip it if broken and if conf.exclude_non_working and machine.emulation_status == EmulationStatus.Broken and machine.basename not in conf.non_working_whitelist: skip
 	SoftwareListPlatform('Coleco Quiz Wiz', {MediaType.Cartridge: ['quizwiz']}, _quizwiz),
 	SoftwareListPlatform('Neo Geo', {MediaType.Cartridge: ['neogeo']}, _neo_geo),
 	SoftwareListPlatform('Super Cassette Vision', {MediaType.Cartridge: ['scv']}, _super_cassette_vision),
@@ -80,7 +82,7 @@ class SoftwareLauncher():
 		return '{0}:{1}'.format(self.software.software_list.name, self.software.name)
 
 	def make_launcher(self):
-		if main_config.skip_mame_non_working_software:
+		if conf.skip_mame_non_working_software:
 			if self.metadata.specific_info.get('MAME-Emulation-Status', EmulationStatus.Unknown) == EmulationStatus.Broken:
 				raise EmulationNotSupportedException('Not supported')
 
@@ -109,12 +111,12 @@ def add_software_metadata(software):
 def add_software(software):
 	add_software_metadata(software)
 
-	#TODO: main_config.use_mame_arcade_icons and such
+	#TODO: conf.use_mame_arcade_icons and such
 
 	try:
 		software.make_launcher()
 	except EmulationNotSupportedException as ex:
-		if main_config.debug:
+		if conf.debug:
 			print('Could not launch {0} because {1}'.format(software.id, ex))
 
 def add_software_list_platform(platform):
@@ -143,7 +145,7 @@ def add_mame_software():
 	for platform in software_list_platforms:
 		add_software_list_platform(platform)
 
-	if main_config.print_times:
+	if conf.print_times:
 		time_ended = time.perf_counter()
 		print('MAME software finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

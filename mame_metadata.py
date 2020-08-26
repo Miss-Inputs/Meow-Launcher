@@ -2,15 +2,17 @@ import configparser
 import functools
 import os
 
+import config.main_config
 import detect_things_from_filename
 import input_metadata
 from common import find_filename_tags, pluralize
 from common_types import MediaType, SaveType
-from config import main_config
 from info.region_info import (get_language_by_english_name,
                               get_language_from_regions)
 from mame_helpers import find_cpus, get_mame_ui_config
 from metadata import CPU, EmulationStatus, ScreenInfo
+
+conf = config.main_config.main_config 
 
 #Maybe I just want to put all this back into mame_machines... it's only used there
 
@@ -352,7 +354,7 @@ def add_input_info(machine):
 	machine.metadata.input_info.set_inited()
 	if machine.input_element is None:
 		#Seems like this doesn't actually happen
-		if main_config.debug:
+		if conf.debug:
 			print('Oi m8', machine.basename, '/', machine.name, 'has no input')
 		return
 
