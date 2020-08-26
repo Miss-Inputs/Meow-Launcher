@@ -93,7 +93,7 @@ def find_equivalent_arcade_game(game, basename):
 		#I think not, only video games can be video games
 		#That comment made sense but y'know what I mean right
 		return None
-	if '(bootleg of' in machine.name:
+	if '(bootleg of' in machine.name or '(bootleg?)' in machine.name:
 		#This doesn't count
 		return None
 	software_name = game.metadata.specific_info.get('MAME-Software-Full-Name')
