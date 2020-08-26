@@ -5,7 +5,7 @@ import sys
 from common_paths import config_dir, data_dir
 from common_types import ConfigValueType
 from io_utils import ensure_exist
-from info.system_info import systems, computer_systems
+from info.system_info import systems
 
 #Static paths I guess
 _main_config_path = os.path.join(config_dir, 'config.ini')
@@ -270,50 +270,39 @@ class SystemConfig():
 
 	@property
 	def is_available(self):
-		return bool(self.paths)
+		return bool(self.paths) and bool(self.chosen_emulators)
 
 class SystemConfigs():
 	class __SystemConfigs():
 		def __init__(self):
-			self.parser = configparser.ConfigParser(interpolation=None, delimiters=('='), allow_no_value=True)
-			self.parser.optionxform = str
+			self.configs = {} #This will be an array of SystemConfig objects and that's fine and I don't think I need to refactor that right now
+			self.read_configs_from_file()
+
+		def read_configs_from_file(self):
+			parser = configparser.ConfigParser(interpolation=None, delimiters=('='), allow_no_value=True)
+			parser.optionxform = str
 
 			ensure_exist(_system_config_path)
-			self.parser.read(_system_config_path)
+			parser.read(_system_config_path)
 
-			self.init_configs()
+			for system_name in parser.sections():
+				self.configs[system_name] = SystemConfig(system_name)
 
-		def init_configs(self):
-			self.configs = {}
-			for k, v in systems.items():
-				self.init_config(k, v.specific_configs)
-			for k, v in computer_systems.items():
-				self.init_config(k, v.specific_configs)
-
-		def init_config(self, name, specific_configs):
-			self.configs[name] = SystemConfig(name)
-			if name not in self.parser:
-				return
-			section = self.parser[name]
-
-			if 'paths' not in section:
-				section['paths'] = ''
-			if 'emulators' not in section:
-				section['emulators'] = ''
-			self.configs[name].paths = parse_path_list(section['paths'])
-			emulator_choices = parse_string_list(section['emulators'])
-			#I'm bad at variable names I'm very sorry
-			chosen_emulators = []
-			for chosen_emulator in emulator_choices:
-				if chosen_emulator in ('MAME', 'Mednafen', 'VICE'):
+				section = parser[system_name]
+				self.configs[system_name].paths = parse_path_list(section.get('paths', ''))
+				chosen_emulators = []
+				for s in parse_string_list(section.get('emulators', '')):
+					if s in ('MAME', 'Mednafen', 'VICE'):
 					#Allow for convenient shortcut
-					chosen_emulator = '{0} ({1})'.format(chosen_emulator, name)
-				chosen_emulators.append(chosen_emulator)
-			self.configs[name].chosen_emulators = chosen_emulators
-			for specific_config_name, specific_config in specific_configs.items():
-				if specific_config_name not in section:
-					section[specific_config_name] = convert_value_for_ini(specific_config.default_value)
-				self.configs[name].specific_config[specific_config_name] = parse_value(section, specific_config_name, specific_config.type, specific_config.default_value)
+						s = '{0} ({1})'.format(s, system_name)
+					chosen_emulators.append(s)
+				self.configs[system_name].chosen_emulators = chosen_emulators
+				if system_name in systems:
+					#Hmm… having to import systems for this doesn't seem right
+					specific_configs = systems[system_name].specific_configs
+					for k, v in specific_configs.items():
+						self.configs[system_name].specific_config[k] = parse_value(section, k, v.type, v.default_value)
+				#Will worry about if system_name in computer systems later when I rework all that nonsense
 
 	__instance = None
 
