@@ -69,8 +69,11 @@ emulators = {
 	'cxNES': EmulatorInfo(EmulatorStatus.Good, 'cxnes', command_lines.cxnes, ['nes', 'fds', 'unf', 'unif'], ['7z', 'zip']),
 	#Or is it good? Have not tried it in a fair bit
 	'Dolphin': EmulatorInfo(EmulatorStatus.Good, 'dolphin-emu', command_lines.dolphin, ['iso', 'ciso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs', 'm3u', 'wia', 'rvz'], []),
-	'DuckStation': EmulatorInfo(EmulatorStatus.Good, 'duckstation-qt', LaunchParams('duckstation-qt', ['-batch', '-fullscreen', '$<path>']), ['bin', 'img', 'cue', 'chd', 'exe', 'm3u'], []),
-	#TODO: The compatibility.xml file is there for the reading, but due to how the installation works it's not in a specific location. Do something with that when I get around to doing emulator-specific user config
+	'DuckStation': EmulatorInfo(EmulatorStatus.Good, 'duckstation-qt', LaunchParams('duckstation-qt', ['-batch', '-fullscreen', '$<path>']), ['bin', 'img', 'cue', 'chd', 'exe', 'm3u'], [], {
+		'compatibility_xml_path': EmulatorConfigValue(ConfigValueType.FilePath, None, 'Path to where compatibility.xml is installed'), #Because DuckStation's not always installed in any particular location…
+		'compatibility_threshold': EmulatorConfigValue(ConfigValueType.Integer, 2, "Don't try and launch any game with this compatibility rating or lower"),
+		'consider_unknown_games_incompatible': EmulatorConfigValue(ConfigValueType.Bool, False, "Consider games incompatible if they aren't in the compatibility database at all")
+	}),
 	'Flycast': EmulatorInfo(EmulatorStatus.Good, 'reicast', command_lines.flycast, ['gdi', 'cdi', 'chd', 'cue'], [], {
 		'force_opengl_version': EmulatorConfigValue(ConfigValueType.Bool, False, 'Hack to force Mesa OpenGL version by environment variable if you need it')
 	}),
