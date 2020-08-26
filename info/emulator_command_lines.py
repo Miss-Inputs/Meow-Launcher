@@ -41,20 +41,20 @@ def mame_32x(game, _, emulator_config):
 		system = '32x'
 		if game.metadata.tv_type == TVSystem.PAL:
 			system = '32xe'
-	return mame_driver(game, emulator_config, system, 'cart', exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cart')
 
 def mame_amiga_cd32(game, _, emulator_config):
 	system = 'cd32'
 	if game.metadata.tv_type == TVSystem.NTSC:
 		#PAL is more likely if it is unknown
 		system = 'cd32n'
-	return mame_driver(game, emulator_config, system, 'cdrom', exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cdrom')
 
 def mame_amstrad_pcw(game, _, emulator_config):
 	if game.metadata.specific_info.get('Notes') == 'Requires CP/M':
 		#Nah too messy
 		raise EmulationNotSupportedException('Needs CP/M')
-	return mame_driver(game, emulator_config, 'pcw10', 'flop', has_keyboard=True, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, 'pcw10', 'flop', has_keyboard=True)
 
 def mame_apple_ii(game, _, emulator_config):
 	slot_options = {'gameio': 'joy'}
@@ -79,7 +79,7 @@ def mame_apple_ii(game, _, emulator_config):
 			#Not using Apple III / Apple III+ here, or Apple IIgs; or base model Apple II since that doesn't autoboot and bugger that
 			raise EmulationNotSupportedException('We don\'t use' + str(compatible_machines))
 
-	return mame_driver(game, emulator_config, system, 'flop1', slot_options, has_keyboard=True, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'flop1', slot_options, has_keyboard=True)
 
 def mame_atari_2600(game, _, emulator_config):
 	size = game.rom.get_size()
@@ -122,7 +122,7 @@ def mame_atari_2600(game, _, emulator_config):
 	else:
 		system = 'a2600'
 
-	return mame_driver(game, emulator_config, system, 'cart', slot_options=options, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cart', slot_options=options)
 
 def mame_atari_jaguar(game, _, emulator_config):
 	if game.metadata.media_type == MediaType.Cartridge:
@@ -132,7 +132,7 @@ def mame_atari_jaguar(game, _, emulator_config):
 	else:
 		#Should never happen
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
-	return mame_driver(game, emulator_config, 'jaguar', slot, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, 'jaguar', slot)
 
 _have_hiscore_software = None
 def mame_atari_7800(game, _, emulator_config):
@@ -150,9 +150,9 @@ def mame_atari_7800(game, _, emulator_config):
 		_have_hiscore_software = _is_highscore_cart_available()
 
 	if _have_hiscore_software and game.metadata.specific_info.get('Uses-Hiscore-Cart', False):
-		return mame_driver(game, emulator_config, system, 'cart2', {'cart1': 'hiscore'}, exe_path=emulator_config.exe_path)
+		return mame_driver(game, emulator_config, system, 'cart2', {'cart1': 'hiscore'})
 
-	return mame_driver(game, emulator_config, system, 'cart', exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cart')
 
 def mame_atari_8bit(game, system_config, emulator_config):
 	slot_options = {}
@@ -191,7 +191,7 @@ def mame_atari_8bit(game, system_config, emulator_config):
 	else:
 		system = 'a800pal' if game.metadata.tv_type == TVSystem.PAL else 'a800'
 	
-	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True)
 
 def mame_c64(game, _, emulator_config):
 	#While we're here building a command line, should mention that you have to manually put a joystick in the first
@@ -229,7 +229,7 @@ def mame_c64(game, _, emulator_config):
 		system = 'c64p'
 
 
-	return mame_driver(game, emulator_config, system, 'cart', {'joy1': 'joybstr', 'joy2': 'joybstr', 'iec8': ''}, True, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cart', {'joy1': 'joybstr', 'joy2': 'joybstr', 'iec8': ''}, True)
 
 def mame_coleco_adam(game, _, emulator_config):
 	slot_options = {}
@@ -246,7 +246,7 @@ def mame_coleco_adam(game, _, emulator_config):
 		#Should never happen (carts would just be ColecoVision, I think, but I could be wrong)
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 
-	return mame_driver(game, emulator_config, 'adam', slot, slot_options, has_keyboard=True, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, 'adam', slot, slot_options, has_keyboard=True)
 
 def mame_colecovision(game, _, emulator_config):
 	system = 'coleco'
@@ -254,7 +254,7 @@ def mame_colecovision(game, _, emulator_config):
 		#This probably won't happen (officially, carts are supposed to support both NTSC and PAL), but who knows
 		system = 'colecop'
 
-	return mame_driver(game, emulator_config, system, 'cart', exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cart')
 
 def mame_dreamcast(game, _, emulator_config):
 	#Possibly dctream (Treamcast) could be useful here
@@ -274,7 +274,7 @@ def mame_dreamcast(game, _, emulator_config):
 		system = 'dc'
 	
 	#No interesting slot options...
-	return mame_driver(game, emulator_config, system, 'cdrom', exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cdrom')
 
 def mame_fm_towns_marty(game, _, emulator_config):
 	if game.metadata.media_type == MediaType.Floppy:
@@ -288,7 +288,7 @@ def mame_fm_towns_marty(game, _, emulator_config):
 	#Give us 4 meganbytes of RAM just in case we need it (some do, see software list info=usage)
 	#Hopefully nothing requires 2MB explicitly or less
 	options = {'ramsize': '4M'}
-	return mame_driver(game, emulator_config, 'fmtmarty', slot, options, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, 'fmtmarty', slot, options)
 
 def mame_game_boy(game, _, emulator_config):
 	#Do all of these actually work or are they just detected? (HuC1 and HuC3 are supposedly non-working, and are treated as MBC3?)
@@ -315,13 +315,13 @@ def mame_game_boy(game, _, emulator_config):
 	elif is_sgb:
 		system = super_gb_system
 
-	return mame_driver(game, emulator_config, system, 'cart', exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cart')
 
 def mame_game_gear(game, _, emulator_config):
 	system = 'gamegear'
 	if game.metadata.specific_info.get('Region-Code') == 'Japanese':
 		system = 'gamegeaj'
-	return mame_driver(game, emulator_config, system, 'cart', exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cart')
 
 def mame_ibm_pcjr(game, _, emulator_config):
 	if game.metadata.media_type == MediaType.Cartridge:
@@ -332,7 +332,7 @@ def mame_ibm_pcjr(game, _, emulator_config):
 	else:
 		#Should never happen
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
-	return mame_driver(game, emulator_config, 'ibmpcjr', slot, has_keyboard=True, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, 'ibmpcjr', slot, has_keyboard=True)
 
 def mame_intellivision(game, _, emulator_config):
 	system = 'intv'
@@ -346,7 +346,7 @@ def mame_intellivision(game, _, emulator_config):
 	elif game.metadata.specific_info.get('Uses-Intellivoice', False):
 		system = 'intvoice'
 
-	return mame_driver(game, emulator_config, system, 'cart', has_keyboard=uses_keyboard, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cart', has_keyboard=uses_keyboard)
 
 def mame_lynx(game, _, emulator_config):
 	if game.metadata.media_type == MediaType.Cartridge and not game.metadata.specific_info.get('Headered', False):
@@ -357,7 +357,7 @@ def mame_lynx(game, _, emulator_config):
 	if game.metadata.media_type == MediaType.Executable:
 		slot = 'quik'
 
-	return mame_driver(game, emulator_config, 'lynx', slot, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, 'lynx', slot)
 
 def mame_master_system(game, _, emulator_config):
 	tv_type = TVSystem.PAL #Seems a more sensible default at this point (there are also certain homebrews with less-than-detectable TV types that demand PAL)
@@ -405,7 +405,7 @@ def mame_master_system(game, _, emulator_config):
 		slot_options['ctrl1:rapidfire:ctrl'] = controller
 		slot_options['ctrl2:rapidfire:ctrl'] = controller
 
-	return mame_driver(game, emulator_config, system, 'cart', slot_options, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cart', slot_options)
 
 def mame_mega_cd(game, _, emulator_config):
 	region_codes = game.metadata.specific_info.get('Region-Code')
@@ -423,7 +423,7 @@ def mame_mega_cd(game, _, emulator_config):
 		if game.metadata.tv_type == TVSystem.PAL:
 			system = 'megacd'
 	#megacda also exists (Asia/PAL), not sure if we need it (is that what EuropeA is for?)
-	return mame_driver(game, emulator_config, system, 'cdrom', exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cdrom')
 
 def mame_megadrive(game, _, emulator_config):
 	#Can do Sonic & Knuckles + Sonic 2/3 lockon (IIRC)
@@ -476,7 +476,7 @@ def mame_megadrive(game, _, emulator_config):
 		system = 'genesis'
 		if game.metadata.tv_type == TVSystem.PAL:
 			system = 'megadriv'
-	return mame_driver(game, emulator_config, system, 'cart', exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cart')
 
 def mame_msx1(game, _, emulator_config):
 	system = 'svi738'
@@ -493,7 +493,7 @@ def mame_msx1(game, _, emulator_config):
 		#Should not happen
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 
-	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True)
 
 def mame_msx2(game, _, emulator_config):
 	system = 'hbf1xv'
@@ -509,19 +509,19 @@ def mame_msx2(game, _, emulator_config):
 		#Should not happen
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 
-	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True)
 
 def mame_n64(game, _, emulator_config):
 	if game.metadata.tv_type == TVSystem.PAL:
 		raise EmulationNotSupportedException('NTSC only')
 
-	return mame_driver(game, emulator_config, 'n64', 'cart', exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, 'n64', 'cart')
 
 def mame_nes(game, _, emulator_config):
 	if game.rom.extension == 'fds':
 		#We don't need to detect TV type because the FDS was only released in Japan and so the Famicom can be used for everything
 		#TODO: This isn't really right, should set controllers
-		return mame_driver(game, emulator_config, 'fds', 'flop', exe_path=emulator_config.exe_path)
+		return mame_driver(game, emulator_config, 'fds', 'flop')
 
 	#27 and 103 might be unsupported too?
 	unsupported_ines_mappers = (29, 30, 55, 59, 60, 81, 84, 98,
@@ -571,7 +571,7 @@ def mame_nes(game, _, emulator_config):
 
 	#Power Glove and ROB aren't emulated, so you'll just have to use the normal controller
 
-	return mame_driver(game, emulator_config, system, 'cart', options, has_keyboard=has_keyboard, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cart', options, has_keyboard=has_keyboard)
 
 def mame_odyssey2(game, _, emulator_config):
 	system = 'odyssey2'
@@ -580,7 +580,7 @@ def mame_odyssey2(game, _, emulator_config):
 		system = 'videopac'
 	#system = 'jopac' if region == France could also be a thing? Hmm
 
-	return mame_driver(game, emulator_config, system, 'cart', exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cart')
 
 def mame_pc_engine(game, _, emulator_config):
 	#TODO: Use system_config or software list to get PCE CD BIOS, then do that (same system, but -cdrom slot instead and -cart goes to System Card; TurboGrafx System Card only works with tg16 but other combinations are fine)
@@ -590,7 +590,7 @@ def mame_pc_engine(game, _, emulator_config):
 		#It might be better to detect this differently like if software is in sgx.xml software list, or set Is-Supergrafx field that way in roms_metadata platform_helpers
 		system = 'sgx'
 
-	return mame_driver(game, emulator_config, system, 'cart', exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cart')
 
 def mame_pico(game, _, emulator_config):
 	region_codes = game.metadata.specific_info.get('Region-Code')
@@ -607,7 +607,7 @@ def mame_pico(game, _, emulator_config):
 		system = 'picoj'
 		if game.metadata.tv_type == TVSystem.PAL:
 			system = 'pico'
-	return mame_driver(game, emulator_config, system, 'cart', exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cart')
 
 def mame_saturn(game, _, emulator_config):
 	region_codes = game.metadata.specific_info.get('Region-Code')
@@ -624,7 +624,7 @@ def mame_saturn(game, _, emulator_config):
 
 	#TODO: Use ctrl1 and ctrl2 to set controllers (analog, joy_md3, joy_md6, joypad, keyboard, mouse, racing, segatap (???), trackball)
 	#Dunno if the cart slot can be used for anything useful yet
-	return mame_driver(game, emulator_config, system, 'cdrom', exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cdrom')
 
 def mame_sord_m5(game, _, emulator_config):
 	system = 'm5'
@@ -633,7 +633,7 @@ def mame_sord_m5(game, _, emulator_config):
 		#Not sure what m5p_brno is about (two floppy drives?)
 
 	#Hmm, no reason to take out the floppy drive, really... I think I was just fooling myself that it would improve performance. Also ram size really only needs to be set to 64K if that's detected as needed. Anyway I don't feel like touching things right now
-	return mame_driver(game, emulator_config, system, 'cart1', {'ramsize': '64K', 'upd765:0': ''}, has_keyboard=True, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cart1', {'ramsize': '64K', 'upd765:0': ''}, has_keyboard=True)
 
 def mame_sg1000(game, _, emulator_config):
 	slot_options = {}
@@ -659,7 +659,7 @@ def mame_sg1000(game, _, emulator_config):
 		#Should not happen
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 
-	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard)
 
 def mame_sharp_x68000(game, _, emulator_config):
 	if game.subroms:
@@ -668,8 +668,8 @@ def mame_sharp_x68000(game, _, emulator_config):
 		for i, individual_floppy in enumerate(game.subroms):
 			floppy_slots['flop%d' % (i + 1)] = individual_floppy.path
 
-		return mame_driver(game, emulator_config, 'x68000', slot=None, slot_options=floppy_slots, has_keyboard=True, exe_path=emulator_config.exe_path)
-	return mame_driver(game, emulator_config, 'x68000', 'flop1', has_keyboard=True, exe_path=emulator_config.exe_path)
+		return mame_driver(game, emulator_config, 'x68000', slot=None, slot_options=floppy_slots, has_keyboard=True)
+	return mame_driver(game, emulator_config, 'x68000', 'flop1', has_keyboard=True)
 
 _have_sufami_software = None
 _have_bsx_software = None
@@ -720,7 +720,7 @@ def mame_snes(game, system_config, emulator_config):
 
 	#TODO Set ctrl1/ctrl2: barcode_battler, joypad, miracle_piano, mouse, pachinko, sscope (also multitap, twintap which we don't need or maybe we do)
 
-	return mame_driver(game, emulator_config, system, 'cart', exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cart')
 
 def mame_super_cassette_vision(game, _, emulator_config):
 	if game.metadata.specific_info.get('Has-Extra-RAM', False):
@@ -730,7 +730,7 @@ def mame_super_cassette_vision(game, _, emulator_config):
 	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'scv_pal'
 
-	return mame_driver(game, emulator_config, system, 'cart', exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cart')
 
 def mame_vic_20(game, _, emulator_config):
 	size = game.rom.get_size()
@@ -743,7 +743,7 @@ def mame_vic_20(game, _, emulator_config):
 	else:
 		system = 'vic20'
 
-	return mame_driver(game, emulator_config, system, 'cart', {'iec8': ''}, has_keyboard=True, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, 'cart', {'iec8': ''}, has_keyboard=True)
 
 def mame_zx_spectrum(game, _, emulator_config):
 	options = {}
@@ -794,7 +794,7 @@ def mame_zx_spectrum(game, _, emulator_config):
 		#Should not happen
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 
-	return mame_driver(game, emulator_config, system, slot, options, has_keyboard=True, exe_path=emulator_config.exe_path)
+	return mame_driver(game, emulator_config, system, slot, options, has_keyboard=True)
 
 #Mednafen modules
 def mednafen_apple_ii(game, _, emulator_config):

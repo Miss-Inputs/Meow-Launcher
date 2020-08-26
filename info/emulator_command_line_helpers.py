@@ -77,12 +77,12 @@ def mame_base(driver, slot=None, slot_options=None, has_keyboard=False, autoboot
 
 	return args
 
-def mame_driver_callable(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None, exe_path='mame'):
+def mame_driver_callable(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None):
 	def callback_thingy(game, _, emulator_config):
-		return mame_driver(game, emulator_config, driver, slot, slot_options, has_keyboard, autoboot_script, exe_path)
+		return mame_driver(game, emulator_config, driver, slot, slot_options, has_keyboard, autoboot_script)
 	return callback_thingy
 
-def mame_driver(game, emulator_config, driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None, exe_path='mame'):
+def mame_driver(game, emulator_config, driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None):
 	#Hmm I might need to refactor this and mame_system when I figure out what I'm doing
 	compat_threshold = emulator_config.options.get('software_compatibility_threshold', 1)
 	if compat_threshold > -1:
@@ -96,4 +96,4 @@ def mame_driver(game, emulator_config, driver, slot=None, slot_options=None, has
 			raise EmulationNotSupportedException('Does not match anything in software list')
 
 	args = mame_base(driver, slot, slot_options, has_keyboard, autoboot_script)
-	return LaunchParams(exe_path, args)
+	return LaunchParams(emulator_config.exe_path, args)
