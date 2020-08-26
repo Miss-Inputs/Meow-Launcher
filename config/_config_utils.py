@@ -13,17 +13,20 @@ def parse_path_list(value):
 	return [os.path.expanduser(p) for p in parse_string_list(value)]
 
 def parse_value(section, name, value_type, default_value):
-	if value_type == ConfigValueType.Bool:
-		return section.getboolean(name, default_value)
-	if value_type in (ConfigValueType.FilePath, ConfigValueType.FolderPath):
-		return os.path.expanduser(section[name])
-	if value_type == ConfigValueType.StringList:
-		return parse_string_list(section[name])
-	if value_type in (ConfigValueType.FilePathList, ConfigValueType.FolderPathList):
-		return parse_path_list(section[name])
-	if value_type == ConfigValueType.Integer:
-		return section.getint(name, default_value)
-	return section[name]
+	try:
+		if value_type == ConfigValueType.Bool:
+			return section.getboolean(name, default_value)
+		if value_type in (ConfigValueType.FilePath, ConfigValueType.FolderPath):
+			return os.path.expanduser(section[name])
+		if value_type == ConfigValueType.StringList:
+			return parse_string_list(section[name])
+		if value_type in (ConfigValueType.FilePathList, ConfigValueType.FolderPathList):
+			return parse_path_list(section[name])
+		if value_type == ConfigValueType.Integer:
+			return section.getint(name, default_value)
+		return section[name]
+	except KeyError:
+		return default_value
 
 class ConfigValue():
 	def __init__(self, section, value_type, default_value, name, description):
