@@ -26,11 +26,11 @@ class EmulatorInfo():
 		self.supported_compression = supported_compression
 		self.configs = configs if configs else {}
 
-	def get_launch_params(self, game, specific_config, emulator_config):
+	def get_launch_params(self, game, system_config, emulator_config):
 		#You might think sine I have game.rom here, I should just insert the path into the command line here too. I don't though, in case the final path that gets passed to the emulator needs to be different than the ROM's path (in case of temporary extracted files for emulators not supporting compression, for example)
 		#TODO: Eventually get rid of launch_params that aren't callable
 		if callable(self.launch_params):
-			return self.launch_params(game, specific_config, emulator_config)
+			return self.launch_params(game, system_config, emulator_config)
 
 		return self.launch_params
 
@@ -363,26 +363,13 @@ emulators = {
 	'MAME (V.Smile Pro)': MameDriver(EmulatorStatus.Borked, command_lines.mame_system('vsmilpro', 'cdrom'), mame_cdrom_formats),
 }
 
-class GameEngine():
-	#Not really emulators, but files come in and games come out.
-	def __init__(self, exe_name, args, is_game_data):
-		self.exe_name = exe_name
-		self.args = args
-		self.is_game_data = is_game_data #This is supposed to be a lambda but I can't figure out how to word it so that's apparent at first glance
-
-	def get_command_line(self, game, specific_config):
-		if callable(self.args):
-			return self.exe_name, self.args(game, specific_config)
-
-		return self.exe_name, self.args
-
 class MacEmulator():
 	def __init__(self, launch_params):
 		self.launch_params = launch_params
 
-	def get_launch_params(self, app, specific_config):
+	def get_launch_params(self, app, system_config):
 		if callable(self.launch_params):
-			return self.launch_params(app, specific_config)
+			return self.launch_params(app, system_config)
 
 		return self.launch_params
 
@@ -395,9 +382,9 @@ class DOSEmulator():
 	def __init__(self, launch_params):
 		self.launch_params = launch_params
 
-	def get_launch_params(self, app, specific_config):
+	def get_launch_params(self, app, system_config):
 		if callable(self.launch_params):
-			return self.launch_params(app, specific_config)
+			return self.launch_params(app, system_config)
 
 		return self.launch_params
 

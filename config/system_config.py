@@ -14,7 +14,7 @@ class SystemConfig():
 		self.name = name
 		self.paths = []
 		self.chosen_emulators = []
-		self.specific_config = {}
+		self.options = {}
 
 	@property
 	def is_available(self):
@@ -46,14 +46,13 @@ class SystemConfigs():
 					chosen_emulators.append(s)
 				self.configs[system_name].chosen_emulators = chosen_emulators
 				if system_name in systems:
-					#Hmm… having to import systems for this doesn't seem right
-					specific_configs = systems[system_name].specific_configs
-					for k, v in specific_configs.items():
-						self.configs[system_name].specific_config[k] = parse_value(section, k, v.type, v.default_value)
+					options = systems[system_name].options
+					for k, v in options.items():
+						self.configs[system_name].options[k] = parse_value(section, k, v.type, v.default_value)
 				elif system_name in computer_systems:
-					specific_configs = computer_systems[system_name].specific_configs
-					for k, v in specific_configs.items():
-						self.configs[system_name].specific_config[k] = parse_value(section, k, v.type, v.default_value)
+					options = computer_systems[system_name].options
+					for k, v in options.items():
+						self.configs[system_name].options[k] = parse_value(section, k, v.type, v.default_value)
 						
 	__instance = None
 

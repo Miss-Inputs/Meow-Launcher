@@ -11,12 +11,12 @@ class SpecificConfigValue():
 		self.description = description
 
 class SystemInfo():
-	def __init__(self, mame_driver, mame_software_lists, emulators, file_types=None, specific_configs=None, is_virtual=False):
+	def __init__(self, mame_driver, mame_software_lists, emulators, file_types=None, options=None, is_virtual=False):
 		self.mame_driver = mame_driver
 		self.mame_software_lists = mame_software_lists
 		self.emulators = emulators
 		self.file_types = file_types if file_types else {}
-		self.specific_configs = specific_configs if specific_configs else {}
+		self.options = options if options else {}
 		self.is_virtual = is_virtual #Maybe needs better name
 
 	def is_valid_file_type(self, extension):
@@ -471,8 +471,8 @@ systems.update({
 
 class ComputerSystem():
 	#Need a better name for this shit
-	def __init__(self, specific_configs):
-		self.specific_configs = specific_configs if specific_configs else {}
+	def __init__(self, options):
+		self.options = options if options else {}
 
 computer_systems = {
 	'Mac': ComputerSystem({

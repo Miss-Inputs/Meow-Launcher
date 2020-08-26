@@ -97,7 +97,7 @@ class App:
 		for emulator in system_config.chosen_emulators:
 			emulator_name = emulator
 			try:
-				params = emulators[emulator].get_launch_params(self, system_config.specific_config)
+				params = emulators[emulator].get_launch_params(self, system_config.options)
 				if params:
 					break
 			except (EmulationNotSupportedException, NotARomException) as ex:

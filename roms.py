@@ -145,7 +145,7 @@ def try_emulator(game, emulator, system_config, emulator_config):
 	if game.rom.extension not in emulator.supported_extensions:
 		raise ExtensionNotSupportedException('Unsupported extension: ' + game.rom.extension)
 
-	return emulator.get_launch_params(game, system_config.specific_config, emulator_config)
+	return emulator.get_launch_params(game, system_config.options, emulator_config)
 
 def process_file(system_config, rom_dir, root, rom):
 	game = RomGame(rom, system_config.name, root)

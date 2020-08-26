@@ -582,7 +582,7 @@ def mame_odyssey2(game, _, emulator_config):
 	return mame_system(system, 'cart', exe_path=emulator_config.exe_path)
 
 def mame_pc_engine(game, _, emulator_config):
-	#TODO: Use specific_config or software list to get PCE CD BIOS, then do that (same system, but -cdrom slot instead and -cart goes to System Card; TurboGrafx System Card only works with tg16 but other combinations are fine)
+	#TODO: Use system_config or software list to get PCE CD BIOS, then do that (same system, but -cdrom slot instead and -cart goes to System Card; TurboGrafx System Card only works with tg16 but other combinations are fine)
 	system = 'tg16'
 	#USA system can run Japanese games, so maybe we don't need to switch to pce if Japan in regions; but USA games do need tg16 specifically
 	if game.rom.extension == 'sgx':
@@ -971,7 +971,7 @@ def a7800(game, _, emulator_config):
 		args.append('a7800p')
 	else:
 		args.append('a7800')
-	#There are also a7800u1, a7800u2, a7800pu1, a7800pu2 to change the colour palettes. Maybe that could be an specific_config option...
+	#There are also a7800u1, a7800u2, a7800pu1, a7800pu2 to change the colour palettes. Maybe that could be an emulator_config option...
 
 	global _have_hiscore_software
 	if _have_hiscore_software is None:
@@ -1273,7 +1273,7 @@ def prboom_plus(game, system_config, emulator_config):
 	return LaunchParams(emulator_config.exe_path, args)
 
 #DOS/Mac stuff
-def basilisk_ii(app, specific_config):
+def basilisk_ii(app, system_config):
 	#This is all broken, I wouldn't even bother until I've messed with this a lot
 	if 'arch' in app.config:
 		if app.config['arch'] == 'ppc':
@@ -1281,9 +1281,9 @@ def basilisk_ii(app, specific_config):
 
 	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that. Okay, so I don't want that.
 	#Ideally, HFS manipulation would be powerful enough that we could just slip an alias into the Startup Items folder ourselves and delete it afterward. That doesn't fix the problem of automatically shutting down (still need a script for that), unless we don't create an alias at all and we create a script or something on the fly that launches that path and then shuts down, but yeah. Stuff and things.
-	autoboot_txt_path = os.path.join(specific_config['shared_folder'], 'autoboot.txt')
-	width = specific_config.get('default_width', 1920) #TODO Check the type to make sure it is int and use it as such. Right now, it's actually a string representing an int
-	height = specific_config.get('default_height', 1080)
+	autoboot_txt_path = os.path.join(system_config['shared_folder'], 'autoboot.txt')
+	width = system_config.get('default_width', 1920) #TODO Check the type to make sure it is int and use it as such. Right now, it's actually a string representing an int
+	height = system_config.get('default_height', 1080)
 	if 'max_resolution' in app.config:
 		width, height = app.config['max_resolution']
 	#Can't do anything about colour depth at the moment (displaycolordepth is functional on some SDL1 builds, but not SDL2)
@@ -1294,7 +1294,7 @@ def basilisk_ii(app, specific_config):
 	#If you're not using an SDL2 build of BasiliskII, you probably want to change dga to window! Well you really want to get an SDL2 build of BasiliskII, honestly, because I assume you do. Well the worst case scenario is that it still works, but it hecks your actual host resolution
 	commands = [
 		LaunchParams('sh', ['-c', 'echo {0} > {1}'.format(inner_path, autoboot_txt_path)]), #Hack because I can't be fucked refactoring MultiCommandLaunchParams to do pipey bois/redirecty bois
-		LaunchParams('BasiliskII', ['--screen', 'dga/{0}/{1}'.format(width, height), '--extfs', specific_config['shared_folder'], '--disk', hfv_path]),
+		LaunchParams('BasiliskII', ['--screen', 'dga/{0}/{1}'.format(width, height), '--extfs', system_config['shared_folder'], '--disk', hfv_path]),
 		LaunchParams('rm', [autoboot_txt_path])
 	]
 	return MultiCommandLaunchParams(commands)
@@ -1311,7 +1311,7 @@ def _get_dosbox_config(app, folder):
 
 	return None
 
-def _make_dosbox_config(app, specific_config):
+def _make_dosbox_config(app, system_config):
 	configwriter = configparser.ConfigParser(allow_no_value=True)
 	configwriter.optionxform = str
 
@@ -1324,7 +1324,7 @@ def _make_dosbox_config(app, specific_config):
 		if 'for_xt' in app.config['required_hardware']:
 			if app.config['required_hardware']['for_xt']:
 				configwriter['cpu'] = {}
-				configwriter['cpu']['cycles'] = specific_config.get('slow_cpu_cycles', 477)
+				configwriter['cpu']['cycles'] = system_config.get('slow_cpu_cycles', 477)
 
 		if 'max_graphics' in app.config['required_hardware']:
 			configwriter['dosbox'] = {}
@@ -1332,7 +1332,7 @@ def _make_dosbox_config(app, specific_config):
 			configwriter['dosbox']['machine'] = 'svga_s3' if graphics == 'svga' else graphics
 
 	name = io_utils.sanitize_name(app.name) + '.ini'
-	folder = specific_config.get('dosbox_configs_path') #TODO default value ugh my code sucks sometimes
+	folder = system_config.get('dosbox_configs_path') #TODO default value ugh my code sucks sometimes
 	path = os.path.join(folder, name)
 
 	os.makedirs(folder, exist_ok=True)
@@ -1341,7 +1341,7 @@ def _make_dosbox_config(app, specific_config):
 
 	return path
 
-def _make_dosbox_x_config(app, specific_config):
+def _make_dosbox_x_config(app, system_config):
 	configwriter = configparser.ConfigParser(allow_no_value=True)
 	configwriter.optionxform = str
 
@@ -1355,7 +1355,7 @@ def _make_dosbox_x_config(app, specific_config):
 			if app.config['required_hardware']['for_xt']:
 				configwriter['cpu'] = {}
 				configwriter['cpu']['cputype'] = '8086'
-				configwriter['cpu']['cycles'] = specific_config.get('slow_cpu_cycles', 477)
+				configwriter['cpu']['cycles'] = system_config.get('slow_cpu_cycles', 477)
 
 		if 'max_graphics' in app.config['required_hardware']:
 			configwriter['dosbox'] = {}
@@ -1363,7 +1363,7 @@ def _make_dosbox_x_config(app, specific_config):
 			configwriter['dosbox']['machine'] = 'svga_s3' if graphics == 'svga' else graphics
 
 	name = io_utils.sanitize_name(app.name) + '.ini'
-	config_folder = specific_config.get('dosbox_x_configs_path')
+	config_folder = system_config.get('dosbox_x_configs_path')
 	path = os.path.join(config_folder, name)
 
 	#Need to do the autoexec thing manually, because DOSBox-X doesn't have that thing where you put a file in the command line and it autoexecs it
@@ -1385,17 +1385,17 @@ def _make_dosbox_x_config(app, specific_config):
 
 	return path
 	
-def dosbox(app, specific_config):
-	conf = _get_dosbox_config(app, specific_config.get('dosbox_configs_path'))
+def dosbox(app, system_config):
+	conf = _get_dosbox_config(app, system_config.get('dosbox_configs_path'))
 	if ('--regen-dos-config' in sys.argv) or not conf:
-		conf = _make_dosbox_config(app, specific_config)
+		conf = _make_dosbox_config(app, system_config)
 
 	return LaunchParams('dosbox', ['-exit', '-noautoexec', '-userconf', '-conf', conf, app.path])
 
-def dosbox_x(app, specific_config):
-	conf = _get_dosbox_config(app, specific_config.get('dosbox_x_configs_path'))
+def dosbox_x(app, system_config):
+	conf = _get_dosbox_config(app, system_config.get('dosbox_x_configs_path'))
 	if ('--regen-dos-config' in sys.argv) or not conf:
-		conf = _make_dosbox_x_config(app, specific_config)
+		conf = _make_dosbox_x_config(app, system_config)
 
 	#Hmm, interestingly the app path does nothing, but -exit still does something?
 	return LaunchParams('dosbox-x', ['-exit', '-userconf', '-conf', conf])
