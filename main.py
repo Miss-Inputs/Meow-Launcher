@@ -33,12 +33,12 @@ def main(progress_function, mame_enabled=True, roms_enabled=True, dos_enabled=Tr
 	if roms_enabled:
 		call_progress_function('Scanning ROMs')
 		roms.process_systems()
-	if mac_enabled:
-		call_progress_function('Scanning Mac software')
-		mac.make_mac_launchers()
-	if dos_enabled:
-		call_progress_function('Scanning DOS software')
-		dos.make_dos_launchers()
+	#if mac_enabled:
+	#	call_progress_function('Scanning Mac software')
+	#	mac.make_mac_launchers()
+	#if dos_enabled:
+	#	call_progress_function('Scanning DOS software')
+	#	dos.make_dos_launchers()
 	if scummvm_enabled:
 		call_progress_function('Scanning ScummVM games')
 		scummvm.add_scummvm_games()
