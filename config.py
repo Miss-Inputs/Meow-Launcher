@@ -5,7 +5,7 @@ import sys
 from common_paths import config_dir, data_dir
 from common_types import ConfigValueType
 from io_utils import ensure_exist
-from info.system_info import systems
+from info.system_info import systems, computer_systems
 
 #Static paths I guess
 _main_config_path = os.path.join(config_dir, 'config.ini')
@@ -298,8 +298,11 @@ class SystemConfigs():
 					specific_configs = systems[system_name].specific_configs
 					for k, v in specific_configs.items():
 						self.configs[system_name].specific_config[k] = parse_value(section, k, v.type, v.default_value)
-				#Will worry about if system_name in computer systems later when I rework all that nonsense
-
+				elif system_name in computer_systems:
+					specific_configs = computer_systems[system_name].specific_configs
+					for k, v in specific_configs.items():
+						self.configs[system_name].specific_config[k] = parse_value(section, k, v.type, v.default_value)
+						
 	__instance = None
 
 	@staticmethod
