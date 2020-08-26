@@ -77,9 +77,10 @@ def mame_base(driver, slot=None, slot_options=None, has_keyboard=False, autoboot
 
 	return args
 
-def mame_system(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None, exe_path='mame'):
-	args = mame_base(driver, slot, slot_options, has_keyboard, autoboot_script)
-	return LaunchParams(exe_path, args)
+def mame_driver_callable(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None, exe_path='mame'):
+	def callback_thingy(game, _, emulator_config):
+		return mame_driver(game, emulator_config, driver, slot, slot_options, has_keyboard, autoboot_script, exe_path)
+	return callback_thingy
 
 def mame_driver(game, emulator_config, driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None, exe_path='mame'):
 	#Hmm I might need to refactor this and mame_system when I figure out what I'm doing
@@ -94,4 +95,5 @@ def mame_driver(game, emulator_config, driver, slot=None, slot_options=None, has
 		if not game.metadata.specific_info.get('MAME-Software-Name'):
 			raise EmulationNotSupportedException('Does not match anything in software list')
 
-	return mame_system(driver, slot, slot_options, has_keyboard, autoboot_script, exe_path)
+	args = mame_base(driver, slot, slot_options, has_keyboard, autoboot_script)
+	return LaunchParams(exe_path, args)
