@@ -10,7 +10,6 @@ from info.system_info import systems
 #Static paths I guess
 _main_config_path = os.path.join(config_dir, 'config.ini')
 _ignored_dirs_path = os.path.join(config_dir, 'ignored_directories.txt')
-_name_consistency_path = os.path.join(os.path.dirname(__file__), 'data', 'name_consistency.ini')
 _system_config_path = os.path.join(config_dir, 'systems.ini')
 
 def parse_string_list(value):
