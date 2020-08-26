@@ -13,9 +13,6 @@ _ignored_dirs_path = os.path.join(config_dir, 'ignored_directories.txt')
 _name_consistency_path = os.path.join(os.path.dirname(__file__), 'data', 'name_consistency.ini')
 _system_config_path = os.path.join(config_dir, 'systems.ini')
 
-mac_ini_path = os.path.join(config_dir, 'mac.ini')
-dos_ini_path = os.path.join(config_dir, 'dos.ini')
-
 def parse_string_list(value):
 	if not value:
 		return []

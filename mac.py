@@ -3,10 +3,12 @@
 import os
 import sys
 
-import config
-import hfs
-from info.emulator_info import mac_emulators
 import dos_mac_common
+import hfs
+from common_paths import config_dir
+from info.emulator_info import mac_emulators
+
+mac_ini_path = os.path.join(config_dir, 'mac.ini')
 
 class MacApp(dos_mac_common.App):
 	def additional_metadata(self, metadata):
@@ -20,7 +22,7 @@ def no_longer_exists(game_id):
 	return not hfs.does_exist(hfv_path, inner_path)
 
 def make_mac_launchers():
-	dos_mac_common.make_launchers('Mac', config.mac_ini_path, MacApp, mac_emulators)
+	dos_mac_common.make_launchers('Mac', mac_ini_path, MacApp, mac_emulators)
 
 def scan_app(hfv_path, app, game_list, unknown_games, found_games, ambiguous_games):
 	overall_path = hfv_path + ':' + app['path']
@@ -46,7 +48,7 @@ def scan_mac_volume(path, game_list, unknown_games, found_games, ambiguous_games
 		scan_app(path, f, game_list, unknown_games, found_games, ambiguous_games)
 
 def scan_mac_volumes():
-	dos_mac_common.scan_folders('Mac', config.mac_ini_path, scan_mac_volume)
+	dos_mac_common.scan_folders('Mac', mac_ini_path, scan_mac_volume)
 
 if __name__ == '__main__':
 	if '--scan' in sys.argv:

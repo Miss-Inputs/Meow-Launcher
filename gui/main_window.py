@@ -169,8 +169,9 @@ class MainWindow(MeowLauncherGui):
 	def setupMainButtons(self):
 		self.mameMachineCheckBox.Enabled = mame_helpers.have_mame()
 		#Is there any condition in which it would make sense to disable the "roms" check box?
-		self.macCheckBox.Enabled = os.path.isfile(config.mac_ini_path)
-		self.dosCheckBox.Enabled = os.path.isfile(config.dos_ini_path)
+		#FIXME when I get around to rewriting everything properly
+		#self.macCheckBox.Enabled = os.path.isfile(config.mac_ini_path)
+		#self.dosCheckBox.Enabled = os.path.isfile(config.dos_ini_path)
 		self.scummvmCheckBox.Enabled = scummvm.have_something_vm()
 		self.steamCheckBox.Enabled = steam.is_steam_available()
 

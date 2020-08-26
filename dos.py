@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 
-import sys
 import os
+import sys
 
-import config
-from info.emulator_info import dos_emulators
 import common
+import config
 import dos_mac_common
+from common_paths import config_dir
+from info.emulator_info import dos_emulators
+
+dos_ini_path = os.path.join(config_dir, 'dos.ini')
 
 class DOSApp(dos_mac_common.App):
 	def additional_metadata(self, metadata):
@@ -25,7 +28,7 @@ class DOSApp(dos_mac_common.App):
 				print('Oh no!', self.name, fnfe)
 
 def make_dos_launchers():
-	dos_mac_common.make_launchers('DOS', config.dos_ini_path, DOSApp, dos_emulators)
+	dos_mac_common.make_launchers('DOS', dos_ini_path, DOSApp, dos_emulators)
 
 def scan_app(path, exe_name, game_list, unknown_games, found_games, ambiguous_games):
 	possible_games = [(game_name, game_config) for game_name, game_config in game_list.items() if game_config['app_name'].lower() == exe_name]
@@ -49,7 +52,7 @@ def scan_dos_folder(path, game_list, unknown_games, found_games, ambiguous_games
 			scan_app(path, name.lower(), game_list, unknown_games, found_games, ambiguous_games)
 
 def scan_dos_folders():
-	dos_mac_common.scan_folders('DOS', config.dos_ini_path, scan_dos_folder)
+	dos_mac_common.scan_folders('DOS', dos_ini_path, scan_dos_folder)
 
 if __name__ == '__main__':
 	if '--scan' in sys.argv:
