@@ -289,7 +289,7 @@ def mame_fm_towns_marty(game, _, emulator_config):
 	options = {'ramsize': '4M'}
 	return mame_system('fmtmarty', slot, options, exe_path=emulator_config.exe_path)
 
-def mame_game_boy(game, system_config, emulator_config):
+def mame_game_boy(game, _, emulator_config):
 	#Do all of these actually work or are they just detected? (HuC1 and HuC3 are supposedly non-working, and are treated as MBC3?)
 	#gb_slot.cpp also mentions MBC4, which isn't real
 	supported_mappers = ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5']
@@ -298,7 +298,7 @@ def mame_game_boy(game, system_config, emulator_config):
 	_verify_supported_mappers(game, supported_mappers, detected_mappers)
 
 	#Not much reason to use gameboy, other than a green tinted screen. I guess that's the only difference
-	system = 'gbcolor' if system_config.get('use_gbc_for_dmg') else 'gbpocket'
+	system = 'gbcolor' if emulator_config.get('use_gbc_for_dmg') else 'gbpocket'
 
 	#Should be just as compatible as supergb but with better timing... I think
 	super_gb_system = 'supergb2'
@@ -306,7 +306,7 @@ def mame_game_boy(game, system_config, emulator_config):
 	is_colour = game.metadata.platform == 'Game Boy Color'
 	is_sgb = game.metadata.specific_info.get('SGB-Enhanced', False)
 
-	prefer_sgb = system_config.get('prefer_sgb_over_gbc', False)
+	prefer_sgb = emulator_config.get('prefer_sgb_over_gbc', False)
 	if is_colour and is_sgb:
 		system = super_gb_system if prefer_sgb else 'gbcolor'
 	elif is_colour:
@@ -992,9 +992,9 @@ def bsnes(game, system_config, emulator_config):
 		colour_flag = game.metadata.specific_info.get('Is-Colour', GameBoyColourFlag.No)
 		if colour_flag == GameBoyColourFlag.Required:
 			raise EmulationNotSupportedException('Super Game Boy is not compatible with GBC-only games')
-		if colour_flag == GameBoyColourFlag.Yes and system_config.get('sgb_incompatible_with_gbc', True):
+		if colour_flag == GameBoyColourFlag.Yes and emulator_config.get('sgb_incompatible_with_gbc', True):
 			raise EmulationNotSupportedException('We do not want to play a colour game with a Super Game Boy')
-		if system_config.get('sgb_enhanced_only', False) and not game.metadata.specific_info.get('SGB-Enhanced', False):
+		if emulator_config.get('sgb_enhanced_only', False) and not game.metadata.specific_info.get('SGB-Enhanced', False):
 			raise EmulationNotSupportedException('We do not want to play a non-SGB enhanced game with a Super Game Boy')
 
 		#Pocket Camera is also supported by the SameBoy core, but I'm leaving it out here because bsnes doesn't do the camera
@@ -1069,14 +1069,13 @@ def dolphin(game, _, emulator_config):
 
 	return LaunchParams(emulator_config.exe_path, ['-b', '-e', '$<path>'])
 
-def flycast(_, system_config, emulator_config):
+def flycast(_, __, emulator_config):
 	env_vars = {}
-	if system_config.get('force_opengl_version', False):
+	if emulator_config.get('force_opengl_version', False):
 		#Looks like this still needs to be here
 		env_vars['MESA_GL_VERSION_OVERRIDE'] = '4.3'
 	args = ['-config', 'x11:fullscreen=1']
 	args.append('$<path>')
-	#Executable name is still called Reicast, which means until I do the custom paths to emulators thing you can't really use both Flycast and Reicast as your emulator preference for Dreamcast (but then why would you need to do that)
 	return LaunchParams(emulator_config.exe_path, args, env_vars)
 
 def fs_uae(game, system_config, emulator_config):
@@ -1226,11 +1225,11 @@ def ppsspp(game, _, emulator_config):
 		raise EmulationNotSupportedException('UMD video discs not supported')
 	return LaunchParams(emulator_config.exe_path, ['$<path>'])
 
-def reicast(game, system_config, emulator_config):
+def reicast(game, _, emulator_config):
 	if game.metadata.specific_info.get('Uses-Windows-CE', False):
 		raise EmulationNotSupportedException('Windows CE-based games not supported')
 	env_vars = {}
-	if system_config.get('force_opengl_version', False):
+	if emulator_config.get('force_opengl_version', False):
 		#This shouldn't be a thing, it's supposed to fall back to OpenGL 3.0 if 4.3 isn't supported (there was a commit that fixed an issue where it didn't), but then I guess that doesn't work for me so once again I have decided to do things the wrong way instead of what a normal sensible person would do, anyway somehow this... works just fine with this environment variable, although on a chipset only supporting 4.2 it by all logic shouldn't, and I don't really know why, because I'm not an OpenGL programmer or whatever, I'm just some Python-using dumbass
 		env_vars['MESA_GL_VERSION_OVERRIDE'] = '4.3'
 	args = ['-config', 'x11:fullscreen=1']

@@ -1,12 +1,19 @@
 from enum import Enum
 
 import info.emulator_command_lines as command_lines
+from common_types import ConfigValueType
 from launchers import LaunchParams
 
 from .system_info import (atari_2600_cartridge_extensions,
                           generic_cart_extensions, mame_cdrom_formats,
                           mame_floppy_formats)
 
+class EmulatorConfigValue():
+	#This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno
+	def __init__(self, value_type, default_value, description):
+		self.type = value_type
+		self.default_value = default_value
+		self.description = description
 
 class EmulatorStatus(Enum):
 	#I have not actually thought of concrete definitions for what these mean
@@ -35,14 +42,14 @@ class EmulatorInfo():
 		return self.launch_params
 
 class MednafenModule(EmulatorInfo):
-	def __init__(self, status, module, supported_extensions, params=None):
+	def __init__(self, status, module, supported_extensions, params=None, configs=None):
 		if not params:
 			params = command_lines.mednafen_base(module)
-		EmulatorInfo.__init__(self, status, 'mednafen', params, supported_extensions, ['zip', 'gz'])
+		EmulatorInfo.__init__(self, status, 'mednafen', params, supported_extensions, ['zip', 'gz'], configs)
 
 class MameDriver(EmulatorInfo):
-	def __init__(self, status, launch_params, supported_extensions):
-		EmulatorInfo.__init__(self, status, 'mame', launch_params, supported_extensions, ['7z', 'zip'])
+	def __init__(self, status, launch_params, supported_extensions, configs=None):
+		EmulatorInfo.__init__(self, status, 'mame', launch_params, supported_extensions, ['7z', 'zip'], configs)
 
 class ViceEmulator(EmulatorInfo):
 	def __init__(self, status, default_exe_name, params):
@@ -55,13 +62,18 @@ emulators = {
 	'A7800': EmulatorInfo(EmulatorStatus.Good, 'a7800', command_lines.a7800, ['bin', 'a78'], ['7z', 'zip']),
 	#Forked directly from MAME with alterations to a7800.cpp driver, so will more or less work the same way as that
 	#Executable name might be a7800.Linux-x86_64 depending on how it's installed... hmm
-	'bsnes': EmulatorInfo(EmulatorStatus.Good, 'bsnes', command_lines.bsnes, ['sfc', 'smc', 'st', 'bs', 'gb', 'gbc'], ['zip', '7z']),
+	'bsnes': EmulatorInfo(EmulatorStatus.Good, 'bsnes', command_lines.bsnes, ['sfc', 'smc', 'st', 'bs', 'gb', 'gbc'], ['zip', '7z'], {
+		'sgb_incompatible_with_gbc': EmulatorConfigValue(ConfigValueType.Bool, True, 'Consider Super Game Boy as incompatible with carts with any GBC compatibility, even if they are DMG compatible'),
+		'sgb_enhanced_only': EmulatorConfigValue(ConfigValueType.Bool, False, 'Consider Super Game Boy to only support games that are specifically enhanced for it'),
+	}),
 	'cxNES': EmulatorInfo(EmulatorStatus.Good, 'cxnes', command_lines.cxnes, ['nes', 'fds', 'unf', 'unif'], ['7z', 'zip']),
 	#Or is it good? Have not tried it in a fair bit
 	'Dolphin': EmulatorInfo(EmulatorStatus.Good, 'dolphin-emu', command_lines.dolphin, ['iso', 'ciso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs', 'm3u', 'wia', 'rvz'], []),
 	'DuckStation': EmulatorInfo(EmulatorStatus.Good, 'duckstation-qt', LaunchParams('duckstation-qt', ['-batch', '-fullscreen', '$<path>']), ['bin', 'img', 'cue', 'chd', 'exe', 'm3u'], []),
 	#TODO: The compatibility.xml file is there for the reading, but due to how the installation works it's not in a specific location. Do something with that when I get around to doing emulator-specific user config
-	'Flycast': EmulatorInfo(EmulatorStatus.Good, 'reicast', command_lines.flycast, ['gdi', 'cdi', 'chd', 'cue'], []),
+	'Flycast': EmulatorInfo(EmulatorStatus.Good, 'reicast', command_lines.flycast, ['gdi', 'cdi', 'chd', 'cue'], [], {
+		'force_opengl_version': EmulatorConfigValue(ConfigValueType.Bool, False, 'Hack to force Mesa OpenGL version by environment variable if you need it')
+	}),
 	'FS-UAE': EmulatorInfo(EmulatorStatus.Good, 'fs-uae', command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf'], []),
 	#Note that .ipf files need a separately downloadable plugin. We could detect the presence of that, I guess
 	'Gambatte': EmulatorInfo(EmulatorStatus.Good, 'gambatte_qt', command_lines.gambatte, ['gb', 'gbc'], ['zip']),
@@ -81,7 +93,9 @@ emulators = {
 	#Should I even have this as opposed to just having the wrapper?
 	'PokeMini (wrapper)': EmulatorInfo(EmulatorStatus.Good, 'PokeMini', command_lines.pokemini_wrapper, ['min'], ['zip']),
 	'PPSSPP': EmulatorInfo(EmulatorStatus.Good, 'ppsspp-qt', command_lines.ppsspp, ['iso', 'pbp', 'cso'], []),
-	'Reicast': EmulatorInfo(EmulatorStatus.Good, 'reicast', command_lines.reicast, ['gdi', 'cdi', 'chd'], []),
+	'Reicast': EmulatorInfo(EmulatorStatus.Good, 'reicast', command_lines.reicast, ['gdi', 'cdi', 'chd'], [], {
+		'force_opengl_version': EmulatorConfigValue(ConfigValueType.Bool, False, 'Hack to force Mesa OpenGL version by environment variable if you need it')
+	}),
 	'SimCoupe': EmulatorInfo(EmulatorStatus.Good, 'simcoupe', LaunchParams('simcoupe', ['-fullscreen', 'yes', '$<path>']), ['mgt', 'sad', 'dsk', 'sbt'], ['zip', 'gz']),
 	'Snes9x': EmulatorInfo(EmulatorStatus.Good, 'snes9x-gtk', command_lines.snes9x, ['sfc', 'smc', 'swc'], ['zip', 'gz']),
 	#Can't set fullscreen mode from the command line so you have to set up that yourself (but it will do that automatically); GTK port can't do Sufami Turbo or Satellaview from command line due to lacking multi-cart support that Windows has (Unix non-GTK doesn't like being in fullscreen etc)
@@ -148,7 +162,10 @@ emulators = {
 	#Difference between fm7 and fmnew7 seems to be that the latter boots into BASIC by default (there's dip switches involved) instead of DOS, which seems to be required for tapes to work; and disks just autoboot anyway. FM-77AV is used here despite its allegedly imperfect graphics as there are games which won't work on earlier systems and there doesn't seem to be a programmatic way to tell, and it seems backwards compatibility is fine
 	#Joystick only works with fm7/fmnew7 -centronics dsjoy... whoops; not sure what the builtin joystick does then
 	'MAME (Gamate)': MameDriver(EmulatorStatus.Good, command_lines.mame_system('gamate', 'cart'), ['bin']),
-	'MAME (Game Boy)': MameDriver(EmulatorStatus.Imperfect, command_lines.mame_game_boy, ['bin', 'gb', 'gbc']),
+	'MAME (Game Boy)': MameDriver(EmulatorStatus.Imperfect, command_lines.mame_game_boy, ['bin', 'gb', 'gbc'], {
+		'use_gbc_for_dmg': EmulatorConfigValue(ConfigValueType.Bool, True, 'Use MAME GBC driver for DMG games'),
+		'prefer_sgb_over_gbc': EmulatorConfigValue(ConfigValueType.Bool, False, 'If a game is both SGB and GBC enhanced, use MAME SGB driver instead of GBC'),
+	}),
 	#This supports some bootleg mappers that other emus tend to not; fails on really fancy tricks like the Demotronic trick (it does run the demo, but the effect doesn't look right); and has sound issues with GBC (MT06441, MT04949)
 	#There are comments in the source file that point out that Super Game Boy should be part of the snes driver with the BIOS cart inserted, rather than a separate system, so that might not exist in the future
 	'MAME (Game.com)': MameDriver(EmulatorStatus.Good, command_lines.mame_system('gamecom', 'cart1'), ['bin', 'tgc']),
