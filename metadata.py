@@ -1,15 +1,9 @@
 import collections
 
-from enum import Enum, auto
+from enum import Enum
 from input_metadata import InputInfo
 from common_types import MediaType, SaveType
 from launchers import metadata_section_name, image_section_name, junk_section_name
-
-class EmulationStatus(Enum):
-	Good = auto()
-	Imperfect = auto()
-	Broken = auto()
-	Unknown = auto()
 
 class CPU():
 	def __init__(self):

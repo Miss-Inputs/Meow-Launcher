@@ -6,11 +6,11 @@ import config.main_config
 import detect_things_from_filename
 import input_metadata
 from common import find_filename_tags, pluralize
-from common_types import MediaType, SaveType
+from common_types import MediaType, SaveType, EmulationStatus
 from info.region_info import (get_language_by_english_name,
                               get_language_from_regions)
 from mame_helpers import find_cpus, get_mame_ui_config
-from metadata import CPU, EmulationStatus, ScreenInfo
+from metadata import CPU, ScreenInfo
 
 conf = config.main_config.main_config 
 

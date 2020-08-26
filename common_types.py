@@ -1,4 +1,4 @@
-from enum import Enum, auto
+from enum import Enum, IntEnum, auto
 
 class ConfigValueType(Enum):
 	Bool = auto()
@@ -40,3 +40,9 @@ class ExtensionNotSupportedException(EmulationNotSupportedException):
 class NotARomException(Exception):
 	#File type mismatch, etc
 	pass
+
+class EmulationStatus(IntEnum):
+	Good = 2
+	Imperfect = 1
+	Broken = 0
+	Unknown = -1

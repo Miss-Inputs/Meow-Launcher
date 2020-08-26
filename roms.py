@@ -188,10 +188,6 @@ def process_file(system_config, rom_dir, root, rom):
 			potential_emulator_config = emulator_configs[potential_emulator_name]
 			params = try_emulator(game, potential_emulator, system_config, potential_emulator_config)
 			if params:
-				if conf.skip_mame_non_working_software and isinstance(potential_emulator, emulator_info.MameDriver):
-					if game.metadata.specific_info.get('MAME-Emulation-Status', metadata.EmulationStatus.Unknown) == metadata.EmulationStatus.Broken:
-						reason = '{0} not supported'.format(game.metadata.specific_info.get('MAME-Software-Name', ''))
-						raise EmulationNotSupportedException(reason)
 				emulator = potential_emulator
 				emulator_name = potential_emulator_name
 				launch_params = params

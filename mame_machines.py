@@ -10,13 +10,13 @@ import time
 import config.main_config
 import launchers
 from common import remove_capital_article
-from common_types import SaveType
+from common_types import SaveType, EmulationStatus
 from info import emulator_command_line_helpers
 from mame_helpers import (consistentify_manufacturer, get_icons, get_mame_xml,
                           iter_mame_entire_xml, list_by_source_file)
 from mame_metadata import (add_metadata, add_metadata_from_catlist,
                            get_machine_folder, mame_statuses)
-from metadata import EmulationStatus, Metadata
+from metadata import Metadata
 
 conf = config.main_config.main_config 
 

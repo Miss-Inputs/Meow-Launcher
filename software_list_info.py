@@ -7,12 +7,11 @@ import zlib
 import config.main_config
 import io_utils
 from common import find_filename_tags, normalize_name, remove_filename_tags
-from common_types import MediaType
+from common_types import MediaType, EmulationStatus
 from data.subtitles import subtitles
 from info.system_info import systems
 from mame_helpers import (consistentify_manufacturer, get_mame_core_config,
                           verify_software_list)
-from metadata import EmulationStatus
 
 conf = config.main_config.main_config
 

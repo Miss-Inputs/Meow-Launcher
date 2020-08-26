@@ -8,7 +8,7 @@ import launchers
 from common_types import EmulationNotSupportedException, MediaType
 from info.emulator_command_line_helpers import mame_base
 from info.region_info import TVSystem
-from metadata import EmulationStatus, Metadata
+from metadata import Metadata
 from software_list_info import get_software_list_by_name
 
 conf = config.main_config.main_config 
@@ -82,9 +82,10 @@ class SoftwareLauncher():
 		return '{0}:{1}'.format(self.software.software_list.name, self.software.name)
 
 	def make_launcher(self):
-		if conf.skip_mame_non_working_software:
-			if self.metadata.specific_info.get('MAME-Emulation-Status', EmulationStatus.Unknown) == EmulationStatus.Broken:
-				raise EmulationNotSupportedException('Not supported')
+		#if conf.skip_mame_non_working_software:
+		#	if self.metadata.specific_info.get('MAME-Emulation-Status', EmulationStatus.Unknown) == EmulationStatus.Broken:
+		#		raise EmulationNotSupportedException('Not supported')
+		#TODO Have option to skip if not working
 
 		launch_params = launchers.LaunchParams('mame', self.platform.get_launch_params(self))
 

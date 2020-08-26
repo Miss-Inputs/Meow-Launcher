@@ -1,8 +1,9 @@
 import os
-from common_types import EmulationNotSupportedException
+
+from common_types import EmulationNotSupportedException, EmulationStatus
+from launchers import LaunchParams
 from mame_helpers import have_mame
 from software_list_info import get_software_list_by_name
-from launchers import LaunchParams
 
 def _get_autoboot_script_by_name(name):
 	this_package = os.path.dirname(__file__)
@@ -79,3 +80,18 @@ def mame_base(driver, slot=None, slot_options=None, has_keyboard=False, autoboot
 def mame_system(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None, exe_path='mame'):
 	args = mame_base(driver, slot, slot_options, has_keyboard, autoboot_script)
 	return LaunchParams(exe_path, args)
+
+def mame_driver(game, emulator_config, driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None, exe_path='mame'):
+	#Hmm I might need to refactor this and mame_system when I figure out what I'm doing
+	compat_threshold = emulator_config.options.get('software_compatibility_threshold', 1)
+	if compat_threshold > -1:
+		game_compatibility = game.metadata.specific_info.get('MAME-Emulation-Status', EmulationStatus.Good)
+		if game_compatibility < compat_threshold:
+			raise EmulationNotSupportedException('{0} is {1}'.format(game.metadata.specific_info.get('MAME-Software-Name'), game_compatibility.name))
+
+	skip_unknown = emulator_config.options.get('skip_unknown_stuff', False)
+	if skip_unknown:
+		if not game.metadata.specific_info.get('MAME-Software-Name'):
+			raise EmulationNotSupportedException('Does not match anything in software list')
+
+	return mame_system(driver, slot, slot_options, has_keyboard, autoboot_script, exe_path)
