@@ -34,7 +34,10 @@ class EmulatorConfigs():
 				self.configs[name] = EmulatorConfig(name)
 				if name in parser:
 					section = parser[name]
-					self.configs[name].exe_path = parse_value(section, 'path', ConfigValueType.String, emulator.default_exe_name)
+					try:
+						self.configs[name].exe_path = parse_value(section, 'path', ConfigValueType.String, emulator.default_exe_name)
+					except KeyError:
+						self.configs[name].exe_path = emulator.default_exe_name
 					for k, v in emulator.configs.items():
 						self.configs[name].options[k] = parse_value(section, k, v.type, v.default_value)
 				else:
