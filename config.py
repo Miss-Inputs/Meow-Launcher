@@ -283,33 +283,23 @@ class SystemConfigs():
 
 			self.init_configs()
 
-		def rewrite_config(self):
-			with open(_system_config_path, 'wt') as f:
-				self.parser.write(f)
-
 		def init_configs(self):
 			self.configs = {}
 			for k, v in systems.items():
-				self.init_config(k, v.specific_configs, add_if_not_exist=not v.is_borked)
+				self.init_config(k, v.specific_configs)
 			for k, v in computer_systems.items():
 				self.init_config(k, v.specific_configs)
 
-		def init_config(self, name, specific_configs, add_if_not_exist=True):
+		def init_config(self, name, specific_configs):
 			self.configs[name] = SystemConfig(name)
 			if name not in self.parser:
-				if add_if_not_exist:
-					self.parser.add_section(name)
-					self.rewrite_config()
-				else:
-					return
+				return
 			section = self.parser[name]
 
 			if 'paths' not in section:
 				section['paths'] = ''
-				self.rewrite_config()
 			if 'emulators' not in section:
 				section['emulators'] = ''
-				self.rewrite_config()
 			self.configs[name].paths = parse_path_list(section['paths'])
 			emulator_choices = parse_string_list(section['emulators'])
 			#I'm bad at variable names I'm very sorry
@@ -323,7 +313,6 @@ class SystemConfigs():
 			for specific_config_name, specific_config in specific_configs.items():
 				if specific_config_name not in section:
 					section[specific_config_name] = convert_value_for_ini(specific_config.default_value)
-					self.rewrite_config()
 				self.configs[name].specific_config[specific_config_name] = parse_value(section, specific_config_name, specific_config.type, specific_config.default_value)
 
 	__instance = None
