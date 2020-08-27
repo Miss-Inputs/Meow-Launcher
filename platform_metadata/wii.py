@@ -218,7 +218,7 @@ def add_wii_homebrew_metadata(game):
 			if conf.debug:
 				print('Ah bugger this Wii homebrew XML has problems', game.rom.path, etree_error)
 			game.metadata.override_name = os.path.basename(game.folder)
-	else:
+	elif game.rom.name.lower() == 'boot':
 		game.metadata.override_name = os.path.basename(game.folder)
 
 def parse_ratings(game, ratings_bytes, invert_has_rating_bit=False, use_bit_6=True):
