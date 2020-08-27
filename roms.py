@@ -272,7 +272,7 @@ def process_emulated_system(system_config):
 					process_file(system_config, rom_dir, root, rom)
 				#pylint: disable=broad-except
 				except Exception as ex:
-					print('FUCK!!!!', path, type(ex), traceback.extract_stack()[0])
+					print('FUCK!!!!', path, type(ex), traceback.extract_tb(ex.__traceback__)[1:])
 
 	if conf.print_times:
 		time_ended = time.perf_counter()
