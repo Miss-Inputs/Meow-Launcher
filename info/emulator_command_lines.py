@@ -304,7 +304,7 @@ def mame_game_boy(game, _, emulator_config):
 	#Should be just as compatible as supergb but with better timing... I think
 	super_gb_system = 'supergb2'
 
-	is_colour = game.metadata.platform == 'Game Boy Color'
+	is_colour = game.metadata.specific_info.get('Is-Colour', GameBoyColourFlag.No) in (GameBoyColourFlag.Required, GameBoyColourFlag.Yes)
 	is_sgb = game.metadata.specific_info.get('SGB-Enhanced', False)
 
 	prefer_sgb = emulator_config.options.get('prefer_sgb_over_gbc', False)
@@ -986,7 +986,7 @@ def a7800(game, _, emulator_config):
 	return LaunchParams(emulator_config.exe_path, args)
 
 def bsnes(game, system_config, emulator_config):
-	if game.metadata.platform in ('Game Boy', 'Game Boy Color'):
+	if game.system_name == 'Game Boy':
 		sgb_bios_path = system_config.get('super_game_boy_bios_path', None)
 		if not sgb_bios_path:
 			raise EmulationNotSupportedException('Super Game Boy BIOS not set up, check systems.ini')
@@ -1085,9 +1085,9 @@ def flycast(_, __, emulator_config):
 
 def fs_uae(game, system_config, emulator_config):
 	args = ['--fullscreen']
-	if game.metadata.platform == 'Amiga CD32':
+	if game.system_name == 'Amiga CD32':
 		args.extend(['--amiga_model=CD32', '--joystick_port_0_mode=cd32 gamepad', '--cdrom_drive_0=$<path>'])
-	elif game.metadata.platform == 'Commodore CDTV':
+	elif game.system_name == 'Commodore CDTV':
 		args.extend(['--amiga_model=CDTV', '--cdrom_drive_0=$<path>'])
 	else:
 		model = None
@@ -1163,11 +1163,11 @@ def medusa(game, _, emulator_config):
 	if game.metadata.specific_info.get('Is-iQue', False):
 		raise EmulationNotSupportedException('iQue DS not supported')
 
-	if game.metadata.platform in ('Game Boy', 'Game Boy Color'):
+	if game.system_name == 'Game Boy':
 		verify_mgba_mapper(game)
 
 	args = ['-f']
-	if game.metadata.platform != 'DS':
+	if game.system_name != 'DS':
 		#(for GB/GBA stuff only, otherwise BIOS is mandatory whether you like it or not)
 		if not game.metadata.specific_info.get('Nintendo-Logo-Valid', True):
 			args.append('-C')
@@ -1177,7 +1177,7 @@ def medusa(game, _, emulator_config):
 	return LaunchParams(emulator_config.exe_path, args)
 
 def mgba(game, _, emulator_config):
-	if game.metadata.platform in ('Game Boy', 'Game Boy Color'):
+	if game.system_name == 'Game Boy':
 		verify_mgba_mapper(game)
 
 	args = ['-f']

@@ -98,7 +98,7 @@ def add_megadrive_info(game, header):
 		game.metadata.specific_info['Bad-TMSS'] = True
 		return
 
-	if game.metadata.platform == 'Mega CD' and console_name.startswith('SEGA 32X'):
+	if game.system_name == 'Mega CD' and console_name.startswith('SEGA 32X'):
 		#Could also set platform to something like "Mega CD 32X" I guess
 		game.metadata.specific_info['32X-Only'] = True
 
@@ -145,7 +145,7 @@ def add_megadrive_info(game, header):
 	peripherals = [c for c in header[144:160].decode('ascii', errors='ignore') if c not in ('\x00', ' ')]
 	parse_peripherals(game, peripherals)
 
-	if game.metadata.platform == 'Mega Drive':
+	if game.system_name == 'Mega Drive':
 		save_id = header[0xb0:0xb4]
 		#Apparently... what the heck
 		#This seems to be different on Mega CD, and also 32X
@@ -254,7 +254,7 @@ def add_megadrive_metadata(game):
 		header = game.rom.read(0x100, 0x100)
 
 	add_megadrive_info(game, header)
-	if game.metadata.platform == 'Mega Drive':
+	if game.system_name == 'Mega Drive':
 		equivalent_arcade = try_find_equivalent_arcade(game)
 		if equivalent_arcade:
 			game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
@@ -269,7 +269,7 @@ def add_megadrive_metadata(game):
 		slot = software.get_part_feature('slot')
 		if slot == 'rom_eeprom' or software.has_data_area('sram'):
 			game.metadata.save_type = SaveType.Cart
-		elif game.metadata.platform == 'Mega Drive':
+		elif game.system_name == 'Mega Drive':
 			game.metadata.save_type = SaveType.Nothing
 
 		if software.name == 'aqlian':

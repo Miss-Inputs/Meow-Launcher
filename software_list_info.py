@@ -653,7 +653,7 @@ def get_software_list_entry(game, skip_header=0):
 	if game.software_lists:
 		software_lists = game.software_lists
 	else:
-		software_list_names = systems[game.metadata.platform].mame_software_lists
+		software_list_names = systems[game.system_name].mame_software_lists
 		software_lists = get_software_lists_by_names(software_list_names)
 
 	if game.metadata.media_type == MediaType.OpticalDisc:
@@ -679,7 +679,7 @@ def get_software_list_entry(game, skip_header=0):
 				args = SoftwareMatcherArgs(crc32, None, game.rom.get_size(), lambda offset, amount: game.rom.read(seek_to=offset, amount=amount))
 				software = find_in_software_lists(software_lists, args)
 
-	if not software and game.metadata.platform in conf.find_software_by_name:
+	if not software and game.system_name in conf.find_software_by_name:
 		software = find_software_by_name(game.software_lists, game.rom.name)
 
 	return software

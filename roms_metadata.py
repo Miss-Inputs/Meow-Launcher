@@ -12,16 +12,6 @@ from software_list_info import get_software_lists_by_names
 
 conf = config.main_config.main_config
 
-mame_driver_overrides = {
-	#Basically, this is when something in platform_metadata changes what game.metadata.platform is, which means we can no longer just look up that platform in system_info because it won't be in there
-	'FDS': 'fds',
-	'Game Boy Color': 'gbcolor',
-	'Satellaview': 'gbcolor',
-	'Sufami Turbo': 'gbcolor',
-	'DSi': 'nds', #For now, there is an nds skeleton driver for us to get info from but not a DSi skeleton driver, so that's fine
-	#It can also be set to New 3DS but that has no MAME driver anyway
-}
-
 def get_metadata_from_tags(game):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = game.filename_tags
@@ -131,15 +121,14 @@ def add_metadata_from_arcade(game, machine):
 def add_metadata(game):
 	game.metadata.extension = game.rom.extension
 
-	system = system_info.systems[game.metadata.platform]
-	game.metadata.media_type = system.get_media_type(game.rom.extension)
+	game.metadata.media_type = game.system.get_media_type(game.rom.extension)
 
-	software_list_names = system.mame_software_lists
+	software_list_names = game.system.mame_software_lists
 	if software_list_names:
 		game.software_lists = get_software_lists_by_names(software_list_names)
 
-	if game.metadata.platform in platform_metadata.helpers:
-		platform_metadata.helpers[game.metadata.platform](game)
+	if game.system_name in platform_metadata.helpers:
+		platform_metadata.helpers[game.system_name](game)
 	else:
 		#For anything else, use this one to just get basic software list info.
 		#This would only work for optical discs if they are in .chd format though. Also see MAME GitHub issue #2517, which makes a lot of newly created CHDs invalid with older softlists
@@ -148,10 +137,8 @@ def add_metadata(game):
 	mame_driver = None
 	if game.metadata.mame_driver:
 		mame_driver = game.metadata.mame_driver
-	elif game.metadata.platform in mame_driver_overrides:
-		mame_driver = mame_driver_overrides[game.metadata.platform]
-	elif game.metadata.platform in system_info.systems:
-		mame_driver = system_info.systems[game.metadata.platform].mame_driver
+	elif game.system_name in system_info.systems:
+		mame_driver = system_info.systems[game.system_name].mame_driver
 				
 	equivalent_arcade = game.metadata.specific_info.get('Equivalent-Arcade')
 	if not equivalent_arcade and conf.find_equivalent_arcade_games:

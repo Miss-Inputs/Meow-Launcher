@@ -107,11 +107,11 @@ def rom_file(path):
 	return RomFile(path)
 
 class RomGame():
-	def __init__(self, rom, platform, folder):
+	def __init__(self, rom, system_name, system, folder):
 		self.rom = rom
 		self.metadata = metadata.Metadata()
-		#Should arguably check is_virtual but oh well
-		self.metadata.platform = platform
+		self.system_name = self.metadata.platform = system_name
+		self.system = system
 		self.metadata.categories = []
 		self.folder = folder
 		self.filename_tags = []
@@ -149,7 +149,7 @@ def try_emulator(game, emulator, system_config, emulator_config):
 	return emulator.get_launch_params(game, system_config.options, emulator_config)
 
 def process_file(system_config, rom_dir, root, rom):
-	game = RomGame(rom, system_config.name, root)
+	game = RomGame(rom, system_config.name, system_info.systems[system_config.name], root)
 
 	if game.rom.extension == 'm3u':
 		lines = game.rom.read().decode('utf-8').splitlines()
