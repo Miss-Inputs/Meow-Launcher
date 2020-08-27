@@ -272,6 +272,7 @@ def process_emulated_system(system_config):
 					process_file(system_config, rom_dir, root, rom)
 				#pylint: disable=broad-except
 				except Exception as ex:
+					#It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
 					print('FUCK!!!!', path, type(ex), traceback.extract_tb(ex.__traceback__)[1:])
 
 	if conf.print_times:
