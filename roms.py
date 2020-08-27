@@ -6,6 +6,7 @@ import pathlib
 import sys
 import tempfile
 import time
+import traceback
 from zlib import crc32
 
 import archives
@@ -271,9 +272,7 @@ def process_emulated_system(system_config):
 					process_file(system_config, rom_dir, root, rom)
 				#pylint: disable=broad-except
 				except Exception as ex:
-					#Pylint lies
-					#pylint: disable=no-member
-					print('FUCK!!!!', path, type(ex), ex.__traceback__.tb_next.tb_frame)
+					print('FUCK!!!!', path, type(ex), traceback.extract_stack()[0])
 
 	if conf.print_times:
 		time_ended = time.perf_counter()
