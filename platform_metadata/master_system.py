@@ -180,7 +180,7 @@ def add_info_from_software_list(game, software):
 	else:
 		game.metadata.save_type = SaveType.Nothing
 
-	if game.system_name == 'Master System':
+	if game.metadata.platform == 'Master System':
 		builtin_gamepad = input_metadata.NormalController()
 		builtin_gamepad.dpads = 1
 		builtin_gamepad.face_buttons = 2

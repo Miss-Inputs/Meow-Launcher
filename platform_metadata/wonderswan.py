@@ -53,7 +53,7 @@ def add_wonderswan_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
-	if game.system_name == 'Benesse Pocket Challenge V2':
+	if game.metadata.platform == 'Benesse Pocket Challenge V2':
 		builtin_gamepad.face_buttons = 3 #I don't know what they're called
 	else:
 		#Because of the rotation, it's hard to say which one of the sets of 4 buttons is the one used for directional control; but one of them will be

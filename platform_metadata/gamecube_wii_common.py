@@ -55,9 +55,9 @@ def add_gamecube_wii_disc_metadata(game, header):
 	if not is_wii and not is_gamecube:
 		game.metadata.specific_info['No-Disc-Magic'] = True
 	elif conf.debug:
-		if game.system_name == 'Wii' and not is_wii:
+		if game.metadata.platform == 'Wii' and not is_wii:
 			print(game.rom.path, 'lacks Wii disc magic')
-		if game.system_name == 'GameCube' and not is_gamecube:
+		if game.metadata.platform == 'GameCube' and not is_gamecube:
 			print(game.rom.path, 'lacks GameCube disc magic')
 	
 def just_read_the_wia_rvz_header_for_now(game):
