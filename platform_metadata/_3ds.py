@@ -5,7 +5,7 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 import os
-from enum import Flag
+from enum import Flag, Enum
 
 import input_metadata
 from common import (NotAlphanumericException, convert_alphanumeric,
@@ -28,6 +28,14 @@ class _3DSRegionCode(Flag):
 
 	def __str__(self):
 		return str(self.name)
+
+class _3DSVirtualConsolePlatform(Enum):
+	GameBoy = 'R'
+	GameBoyColor = 'Q'
+	GameGear = 'G'
+	NES = 'T'
+	SNES = 'U'
+	GBA = 'P'
 
 def add_3ds_system_info(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -66,7 +74,10 @@ def parse_ncch(game, offset):
 		game.metadata.product_code = product_code
 		#As usual, can get country and type from here, but it has more letters and as such you can also get category as well, or like... type 2 electric boogaloo. This also means we can't use convert_alphanumeric because it contains dashes, so I guess I need to fiddle with that method if I want to use it like that
 		#(To be precise: P = retail/cart, N = digital only, M = DLC, T = demos, U = patches)
-		#Should ignore everything if it's CTR-P-CTAP
+		try:
+			game.metadata.specific_info['Virtual-Console-Platform'] = _3DSVirtualConsolePlatform(product_code[6])
+		except ValueError:
+			pass
 	except UnicodeDecodeError:
 		pass
 	#Extended header hash: 92-124

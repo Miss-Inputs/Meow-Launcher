@@ -29,7 +29,7 @@ class WiiTitleType(Enum):
 	DLC = 0x00010005
 	HiddenChannel = 0x00010008
 
-class VirtualConsolePlatform(Enum):
+class WiiVirtualConsolePlatform(Enum):
 	Commodore64 = 'C'
 	Arcade = 'E' #Includes Neo Geo
 	NES = 'F' #F for Famicom presumably
@@ -60,7 +60,7 @@ def parse_tmd(game, tmd):
 		game.metadata.product_code = product_code
 
 		try:
-			game.metadata.specific_info['Virtual-Console-Platform'] = VirtualConsolePlatform(product_code[0])
+			game.metadata.specific_info['Virtual-Console-Platform'] = WiiVirtualConsolePlatform(product_code[0])
 		except ValueError:
 			pass
 	except UnicodeDecodeError:
