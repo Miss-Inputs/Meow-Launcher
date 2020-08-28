@@ -59,10 +59,11 @@ def parse_tmd(game, tmd):
 		product_code = tmd[400:404].decode('ascii')
 		game.metadata.product_code = product_code
 
-		try:
-			game.metadata.specific_info['Virtual-Console-Platform'] = WiiVirtualConsolePlatform(product_code[0])
-		except ValueError:
-			pass
+		if product_code:
+			try:
+				game.metadata.specific_info['Virtual-Console-Platform'] = WiiVirtualConsolePlatform(product_code[0])
+			except ValueError:
+				pass
 	except UnicodeDecodeError:
 		pass
 	#Title flags: 404-408
