@@ -29,6 +29,18 @@ class WiiTitleType(Enum):
 	DLC = 0x00010005
 	HiddenChannel = 0x00010008
 
+class VirtualConsolePlatform(Enum):
+	Commodore64 = 'C'
+	Arcade = 'E' #Includes Neo Geo
+	NES = 'F' #F for Famicom presumably
+	SNES = 'J'
+	MasterSystem = 'L'
+	MegaDrive = 'M'
+	N64 = 'N'
+	PCEngine = 'P'
+	PCEngineCD = 'Q'
+	MSX = 'X'
+
 def round_up_to_multiple(num, factor):
 	return num + (factor - (num % factor)) % factor
 
@@ -46,9 +58,13 @@ def parse_tmd(game, tmd):
 	try:
 		product_code = tmd[400:404].decode('ascii')
 		game.metadata.product_code = product_code
+
+		try:
+			game.metadata.specific_info['Virtual-Console-Platform'] = VirtualConsolePlatform(product_code[0])
+		except ValueError:
+			pass
 	except UnicodeDecodeError:
 		pass
-	#Product code format is like that of GameCube/Wii discs, we could get country or type from it I guess
 	#Title flags: 404-408
 	try:
 		maker_code = convert_alphanumeric(tmd[408:410])
