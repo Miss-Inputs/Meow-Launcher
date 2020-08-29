@@ -283,6 +283,7 @@ emulators = {
 	#Autoboots floppies unless they have more than one thing to boot on them, which I guess makes sense
 	#Apparently not working (mz2000 is not either), so I dunno
 	'MAME (Sony SMC-777)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('smc777', 'flop1', has_keyboard=True), mame_floppy_formats + ['1dd']),
+	'MAME (Uzebox)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('uzebox', 'cart'), ['bin', 'uze']),
 	'MAME (V.Tech Socrates)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('socrates', 'cart'), ['bin']),
 	#Marked as not working + imperfect sound, possibly because of missing speech (also mouse is missing)
 	
@@ -332,8 +333,6 @@ emulators = {
 	#See also Microvision, is similarly janky with needing artwork
 	"MAME (Super A'Can)": MameDriver(EmulatorStatus.Experimental, mame_driver_callable('supracan', 'cart'), ['bin']),
 	#Some things work, except with no sound, so... nah
-	'MAME (Uzebox)': MameDriver(EmulatorStatus.Experimental, mame_driver_callable('uzebox', 'cart'), ['bin', 'uze']),
-	#https://mametesters.org/view.php?id=7608 ruh roh broke in 0.220 and now many things don't work properly; has always been slow
 	'MAME (V.Smile Baby)': MameDriver(EmulatorStatus.Experimental, mame_driver_callable('vsmileb', 'cart'), ['u1', 'u3', 'bin']),
 	#Seems to crash on some titles, also everything in software list is supported=no?
 	'MAME (VideoBrain)': MameDriver(EmulatorStatus.Experimental, mame_driver_callable('vidbrain', 'cart', has_keyboard=True), ['bin']),
