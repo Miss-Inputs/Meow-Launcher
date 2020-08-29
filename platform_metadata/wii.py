@@ -125,9 +125,6 @@ def parse_opening_bnr(game, opening_bnr):
 		#It seems \x00 is sometimes in the middle as some type of line/subtitle separator?
 		#We will probably not really want to try and infer supported languages by what is not zeroed out here, I don't think that's how it works
 
-	for lang, title in names.items():
-		game.metadata.add_alternate_name(title, '{0}-Banner-Title'.format(lang.replace(' ', '-')))
-	
 	region_code = game.metadata.specific_info.get('Region-Code')
 	local_title = None
 	if region_code == NintendoDiscRegion.NTSC_J:
@@ -142,6 +139,10 @@ def parse_opening_bnr(game, opening_bnr):
 
 	if local_title:
 		game.metadata.add_alternate_name(local_title, 'Banner-Title')
+	for lang, title in names.items():
+		if title != local_title:
+			game.metadata.add_alternate_name(title, '{0}-Banner-Title'.format(lang.replace(' ', '-')))
+	
 
 def add_wad_metadata(game):
 	header = game.rom.read(amount=0x40)
