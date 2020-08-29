@@ -33,6 +33,7 @@ class SystemInfo():
 
 	@property
 	def is_borked(self):
+		#TODO: I really want to just check if all emulators have status <= Experimental! But that creates circular imports right now
 		return False
 
 class BorkedSystemInfo(SystemInfo):
