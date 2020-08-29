@@ -162,10 +162,9 @@ def clean_string(s):
 	return ''.join([c for c in s if c.isprintable()])
 
 def machine_name_matches(machine_name, game_name, match_vs_system=False):
-	#TODO: Take subtitles into account
-	#Should also use name_consistency stuff once I refactor that (Turbo OutRun > Turbo Out Run)
-	#This might need to be updated once I do the thing where I take care of alternate names in titles (Cool Game / Other Region Cool Game)
-	#This arguably shouldn't really be here
+	#TODO Should also use name_consistency stuff once I refactor that (Turbo OutRun > Turbo Out Run)
+	#TODO This will need to be updated once I do the thing where I take care of alternate names in titles (Cool Game / Other Region Cool Game)
+	#I don't know if this should be in common, or some MAME-related module instead
 	
 	machine_name = remove_filename_tags(machine_name)
 	game_name = remove_filename_tags(game_name)
