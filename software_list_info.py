@@ -253,6 +253,31 @@ class SoftwarePart():
 		#Should probably use name in self.data_areas directly
 		return name in self.data_areas
 
+split_preserve_brackets = re.compile(r', (?![^(]*\))')
+ends_with_brackets = re.compile(r'([^()]+)\s\(([^()]+)\)$')
+def parse_alt_title(metadata, alt_title):
+	#Argh this is annoying because we don't want to split in the middle of brackets
+	for piece in split_preserve_brackets.split(alt_title):
+		ends_with_brackets_match = ends_with_brackets.match(piece)
+		if ends_with_brackets_match:
+			name_type = ends_with_brackets_match[2]
+			if name_type in ('Box', 'USA Box', 'US Box', 'French Box', 'Box?', 'Cart', 'cart', 'Label', 'label', 'Fra Box'):
+				#There must be a better way for me to do this…
+				metadata.add_alternate_name(ends_with_brackets_match[1], name_type.title().replace(' ', '-').replace('?', '') + '-Title')
+			elif name_type in ('Box, Cart', 'Box/Card'):
+				#Grr
+				metadata.add_alternate_name(ends_with_brackets_match[1], 'Box-Title')
+				metadata.add_alternate_name(ends_with_brackets_match[1], 'Cart-Title')
+			elif name_type == 'Japan':
+				metadata.add_alternate_name(ends_with_brackets_match[1], 'Japanese-Name')
+			elif name_type == 'China':
+				metadata.add_alternate_name(ends_with_brackets_match[1], 'Chinese-Name')
+			else:
+				#Sometimes the brackets are actually part of the name
+				metadata.add_alternate_name(piece, name_type)
+		else:
+			metadata.add_alternate_name(piece)
+
 class Software():
 	def __init__(self, xml, software_list):
 		self.xml = xml
@@ -378,7 +403,7 @@ class Software():
 		alt_title = self.infos.get('alt_title', self.infos.get('alt_name', self.infos.get('alt_disk')))
 		#TODO This may require further parsing to use properly (there is sometimes more than one alt name, or something like Blah (Box) and we would then want to put Blah as Box-Title)
 		if alt_title:
-			metadata.add_alternate_name(alt_title)
+			parse_alt_title(metadata, alt_title)
 
 		year = self.xml.findtext('year')
 		if metadata.year:
