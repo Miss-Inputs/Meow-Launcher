@@ -7,8 +7,8 @@ from common import (NotAlphanumericException, convert_alphanumeric,
 from common_types import SaveType
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import get_region_by_name
-from mame_helpers import (MAMENotInstalledException,
-                          get_machines_from_source_file)
+from mame_helpers import MAMENotInstalledException
+from mame_machines import get_machines_from_source_file
 from software_list_info import get_software_list_entry
 
 

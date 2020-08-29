@@ -5,8 +5,8 @@ import input_metadata
 from common import machine_name_matches
 from common_types import MediaType, SaveType
 from info.region_info import TVSystem
-from mame_helpers import (MAMENotInstalledException,
-                          get_machines_from_source_file)
+from mame_helpers import MAMENotInstalledException
+from mame_machines import get_machines_from_source_file
 from software_list_info import (find_in_software_lists_with_custom_matcher,
                                 get_crc32_for_software_list,
                                 get_software_list_entry)

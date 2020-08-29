@@ -9,7 +9,6 @@ from common import junk_suffixes
 from common_paths import cache_dir
 from data.mame_manufacturers import dont_remove_suffix, manufacturer_overrides
 from metadata import CPU, ScreenInfo
-from mame_machine import Machine
 
 def consistentify_manufacturer(manufacturer):
 	if not manufacturer:
@@ -298,11 +297,6 @@ def lookup_system_displays(driver_name):
 	screen_info = ScreenInfo()
 	screen_info.load_from_xml_list(displays)
 	return screen_info
-
-def get_machines_from_source_file(source_file):
-	for machine_name, source_file_with_ext in list_by_source_file():
-		if os.path.splitext(source_file_with_ext)[0] == source_file:
-			yield Machine(get_mame_xml(machine_name))
 
 def verify_romset(basename):
 	return default_mame_executable.verifyroms(basename)
