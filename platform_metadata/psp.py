@@ -71,7 +71,7 @@ def parse_param_sfo(game, param_sfo):
 		elif key == 'DISC_TOTAL':
 			game.metadata.disc_total = value
 		elif key == 'TITLE':
-			game.metadata.specific_info['Banner-Title'] = value
+			game.metadata.add_alternate_name(value, 'Banner-Title')
 		elif key == 'PARENTAL_LEVEL':
 			#Seems this doesn't actually mean anything by itself, and is Sony's own rating system, so don't try and think about it too much
 			game.metadata.specific_info['Parental-Level'] = value

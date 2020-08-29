@@ -126,7 +126,7 @@ def parse_opening_bnr(game, opening_bnr):
 		#We will probably not really want to try and infer supported languages by what is not zeroed out here, I don't think that's how it works
 
 	for lang, title in names.items():
-		game.metadata.specific_info['{0}-Banner-Title'.format(lang.replace(' ', '-'))] = title
+		game.metadata.add_alternate_name(title, '{0}-Banner-Title'.format(lang.replace(' ', '-')))
 	
 	region_code = game.metadata.specific_info.get('Region-Code')
 	local_title = None
@@ -141,7 +141,7 @@ def parse_opening_bnr(game, opening_bnr):
 		local_title = list(names.values())[0]
 
 	if local_title:
-		game.metadata.specific_info['Banner-Title'] = local_title
+		game.metadata.add_alternate_name(local_title, 'Banner-Title')
 
 def add_wad_metadata(game):
 	header = game.rom.read(amount=0x40)
