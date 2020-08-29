@@ -92,7 +92,7 @@ def process_machine(machine):
 
 	add_metadata(machine)
 	
-	machine.make_launcher()
+	make_machine_launcher(machine)
 
 def no_longer_exists(game_id):
 	#This is used to determine what launchers to delete if not doing a full rescan
