@@ -198,28 +198,6 @@ def parse_smdh_data(game, smdh):
 		return
 	#Version = 4-6
 	#Reserved = 6-8
-	#Titles = 8-0x2008 (512 bytes each (128 short title + 256 long title + 128 publisher ) * 16 languages)
-	#We're only gonna worry about English for now
-	english_titles_offset = 8 + 512
-
-	english_short_title_offset = english_titles_offset
-	english_long_title_offset = english_short_title_offset + 128
-	english_publisher_offset = english_long_title_offset + 256
-
-	english_short_title = smdh[english_short_title_offset: english_long_title_offset].decode('utf16').rstrip('\0')
-	if english_short_title:
-		game.metadata.add_alternate_name(english_short_title, 'Banner-Short-Title')
-	english_long_title = smdh[english_long_title_offset: english_publisher_offset].decode('utf16').rstrip('\0')
-	if english_long_title:
-		game.metadata.add_alternate_name(english_long_title, 'Banner-Title')
-
-	try:
-		publisher = smdh[english_publisher_offset: english_publisher_offset + 0x80].decode('utf16').rstrip('\0')
-		publisher = junk_suffixes.sub('', publisher)
-		if publisher:
-			game.metadata.publisher = consistentified_manufacturers.get(publisher, publisher)
-	except UnicodeDecodeError:
-		pass
 
 	parse_ratings(game, smdh[0x2008:0x2018], True, False)
 
@@ -268,6 +246,103 @@ def parse_smdh_data(game, smdh):
 
 		large_icon = smdh[0x24c0:0x36c0]
 		game.metadata.images['Icon'] = decode_icon(large_icon, 48)
+
+	languages = {
+		0: 'Japanese',
+		1: 'English',
+		2: 'French',
+		3: 'German',
+		4: 'Italian',
+		5: 'Spanish',
+		6: 'Simplified Chinese',
+		7: 'Korean',
+		8: 'Dutch',
+		9: 'Portugese',
+		10: 'Russian',
+		11: 'Traditional Chinese',
+		12: 'Japanese',
+		#Theoretically there could be 3 more languages here, but there are probably not
+		13: 'Unknown language 1',
+		14: 'Unknown language 2',
+		15: 'Unknown language 3',
+	}
+
+	short_titles = {}
+	long_titles = {}
+	publishers = {}
+	for i, language in languages.items():
+		titles_offset = 8 + (512 * i)
+		long_title_offset = titles_offset + 128
+		publisher_offset = long_title_offset + 256
+
+		try:
+			short_title = smdh[titles_offset: long_title_offset].decode('utf16').rstrip('\0')
+			if short_title:
+				short_titles[language] = short_title
+		except UnicodeDecodeError:
+			pass
+		try:
+			long_title = smdh[long_title_offset: publisher_offset].decode('utf16').rstrip('\0')
+			if long_title:
+				long_titles[language] = long_title
+		except UnicodeDecodeError:
+			pass
+		try:
+			publisher = smdh[publisher_offset: publisher_offset + 0x80].decode('utf16').rstrip('\0')
+			if publisher:
+				publisher = junk_suffixes.sub('', publisher)
+				publishers[language] = consistentified_manufacturers.get(publisher, publisher)
+		except UnicodeDecodeError:
+			pass
+	
+	local_short_title = None
+	local_long_title = None
+	local_publisher = None
+	if _3DSRegionCode.RegionFree in region_codes or _3DSRegionCode.USA in region_codes or _3DSRegionCode.Europe in region_codes:
+		#We shouldn't assume that Europe is English-speaking but we're going to
+		local_short_title = short_titles.get('English')
+		local_long_title = long_titles.get('English')
+		local_publisher = publishers.get('English')
+	elif _3DSRegionCode.Japan in region_codes:
+		local_short_title = short_titles.get('Japanese')
+		local_long_title = long_titles.get('Japanese')
+		local_publisher = publishers.get('Japanese')
+	elif _3DSRegionCode.China in region_codes:
+		local_short_title = short_titles.get('Simplified Chinese')
+		local_long_title = long_titles.get('Simplified Chinese')
+		local_publisher = publishers.get('Simplified Chinese')
+	elif _3DSRegionCode.Korea in region_codes:
+		local_short_title = short_titles.get('Korean')
+		local_long_title = long_titles.get('Korean')
+		local_publisher = publishers.get('Korean')
+	elif _3DSRegionCode.Taiwan in region_codes:
+		local_short_title = short_titles.get('Traditional Chinese')
+		local_long_title = long_titles.get('Traditional Chinese')
+		local_publisher = publishers.get('Traditional Chinese')
+	else: #If none of that is in the region code? Unlikely but I dunno maybe
+		if short_titles:
+			local_short_title = list(short_titles.values())[0]
+		if long_titles:
+			local_long_title = list(long_titles.values())[0]
+		if publishers:
+			local_publisher = list(publishers.values())[0]
+
+	if local_short_title:
+		game.metadata.add_alternate_name(local_short_title, 'Banner-Short-Title')
+	if local_long_title:
+		game.metadata.add_alternate_name(local_long_title, 'Banner-Title')
+	if local_publisher:
+		game.metadata.publisher = local_publisher
+
+	for lang, short_title in short_titles.items():
+		if short_title != local_short_title:
+			game.metadata.add_alternate_name(short_title, '{0}-Banner-Short-Title'.format(lang.replace(' ', '-')))
+	for lang, long_title in long_titles.items():
+		if long_title != local_long_title:
+			game.metadata.add_alternate_name(long_title, '{0}-Banner-Title'.format(lang.replace(' ', '-')))
+	for lang, publisher in publishers.items():
+		if publisher != local_publisher:
+			game.metadata.specific_info['{0}-Publisher'.format(lang.replace(' ', '-'))] = publisher
 
 tile_order = [
 	#What the actual balls?
