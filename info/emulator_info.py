@@ -225,7 +225,9 @@ emulators = {
 	#More similar to the C64 (works and performs just as well as that driver) than the VIC-20, need to plug a joystick into both ports because once again games can use either port and thanks I hate it. At least there's only one TV type
 	#Sometimes I see this called the Commodore MAX Machine or Ultimax or VC-10, but... well, I'm not sure where the VIC-10 name comes from other than that's what the driver's called
 	'MAME (VIC-20)': MameDriver(EmulatorStatus.Good, command_lines.mame_vic_20, ['20', '40', '60', '70', 'a0', 'b0', 'crt']),
-	'MAME (V.Smile)': MameDriver(EmulatorStatus.Good, mame_driver_callable('vsmile', 'cart'), ['u1', 'u3', 'bin']),
+	'MAME (V.Smile)': MameDriver(EmulatorStatus.Good, mame_driver_callable('vsmile', 'cart'), generic_cart_extensions),
+	'MAME (V.Smile Motion)': MameDriver(EmulatorStatus.Good, mame_driver_callable('vsmilem', 'cart'), generic_cart_extensions),
+	#No motion controls, but the games are playable without them
 	'MAME (VZ-200)': MameDriver(EmulatorStatus.Good, mame_driver_callable('vz200', 'dump', {'io': 'joystick', 'mem': 'laser_64k'}, True), ['vz']),
 	#In the Laser 200/Laser 210 family, but Dick Smith variant should do.
 	#Joystick interface doesn't seem to be used by any games, but I guess it does more than leaving the IO slot unfilled. That sucks, because otherwise no game ever uses the keyboard consistently, because of course not. Even modern homebrew games. Why y'all gotta be like that?
@@ -362,8 +364,7 @@ emulators = {
 	#No sound yet, and apparently the rest doesn't work either (I'll take their word for it so I don't have to play weird board games I don't understand)
 	'MAME (Tomy Prin-C)': MameDriver(EmulatorStatus.Borked, mame_driver_callable('princ', 'cart'), ['bin']),
 	#Skeleton driver that displays a green background and then doesn't go anywhere
-	'MAME (V.Smile Motion)': MameDriver(EmulatorStatus.Borked, mame_driver_callable('vsmilem', 'cart'), ['bin', 'u1', 'u3']),
-
+	
 	#Doesn't even display graphics, I'm just feeling like adding stuff at this point
 	'MAME (Advanced Pico Beena)': MameDriver(EmulatorStatus.Borked, mame_driver_callable('beena', 'cart'), ['bin']), #Segfaults
 	'MAME (C2 Color)': MameDriver(EmulatorStatus.Borked, mame_driver_callable('c2color', 'cart'), ['bin']),

@@ -136,6 +136,7 @@ systems = {
 	'VC 4000': SystemInfo('vc4000', ['vc4000', 'database'], ['MAME (VC 4000)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Vectrex': SystemInfo('vectrex', ['vectrex'], ['MAME (Vectrex)'], {MediaType.Cartridge: ['vec', 'gam', 'bin']}),
 	'Virtual Boy': SystemInfo('vboy', ['vboy'], ['Mednafen (Virtual Boy)', 'MAME (Virtual Boy)'], {MediaType.Cartridge: ['vb', 'vboy', 'bin']}),
+	'V.Smile Motion': SystemInfo('vsmilem', ['vsmilem_cart'], ['MAME (V.Smile Motion)'], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
 	'V.Tech Socrates': SystemInfo('socrates', ['socrates'], ['MAME (V.Tech Socrates)'], {MediaType.Cartridge: ['bin']}),
 	'Watara Supervision': SystemInfo('svision', ['svision'], ['MAME (Watara Supervision)'], {MediaType.Cartridge: ['ws', 'sv', 'bin']}),
 
@@ -235,8 +236,6 @@ systems.update({
 	'Videoton TVC': BorkedSystemInfo('tvc64', ['tvc_cart', 'tvc_cass', 'tvc_flop'], ['MAME (Videoton TVC)'], {MediaType.Cartridge: ['bin', 'rom', 'crt'], MediaType.Tape: ['wav', 'cas']}),
 	#.cas is also quickload? I donut understand
 	'V.Smile Baby': SystemInfo('vsmileb', ['vsmileb_cart'], ['MAME (V.Smile Baby)'], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
-	'V.Smile Motion': BorkedSystemInfo('vsmilem', ['vsmilem_cart'], ['MAME (V.Smile Motion)'], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
-	#Games boot, but the actual motion part is not implemented, so you can't do anything (you can also boot these in normal vsmile it seems, but that also won't respond to input; I forgot if the two systems were supposed to be cross-compatible in real life?)
 	'VideoBrain': BorkedSystemInfo('vidbrain', ['vidbrain'], ['MAME (VideoBrain)'], {MediaType.Cartridge: ['bin']}),
 
 	#No emulators that are cool enough on Linux (any available are too preliminary to work). Yet. Maybe? That I know of. They're here for completeness. Or no emulators at all.
