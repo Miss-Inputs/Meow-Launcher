@@ -21,6 +21,7 @@ metadata_section_name = 'X-Meow Launcher Metadata'
 id_section_name = 'X-Meow Launcher ID'
 junk_section_name = 'X-Meow Launcher Junk'
 image_section_name = 'X-Meow Launcher Images'
+name_section_name = 'X-Meow Launcher Names'
 
 def get_desktop(path):
 	parser = configparser.ConfigParser(interpolation=None)
@@ -150,6 +151,8 @@ def make_linux_desktop(launch_params, display_name, fields=None):
 			try_banner_instead = True
 
 		for section_name, section in fields.items():
+			if not section:
+				continue
 			configwriter.add_section(section_name)
 			section_writer = configwriter[section_name]
 

@@ -3,9 +3,10 @@ import collections
 from enum import Enum
 from input_metadata import InputInfo
 from common_types import MediaType, SaveType
-from launchers import metadata_section_name, image_section_name, junk_section_name
+from launchers import metadata_section_name, image_section_name, junk_section_name, name_section_name
 
 class CPU():
+	#TODO I only give a shit about this info for MAME machines, move it there
 	def __init__(self):
 		self.chip_name = None
 		self.clock_speed = None
@@ -181,17 +182,18 @@ class Metadata():
 		self.series_index = None
 
 		#Set this up later with the respective objects
-		#TODO I only give a shit about this info for MAME machines, move it there
 		self.cpu_info = CPUInfo()
 		self.screen_info = None
 		self.input_info = InputInfo()
 
-		self.specific_info = {} #Stuff specific to indivdidual systems (in theory, or just when I'm too lazy to put it as an attribute here)
+		self.specific_info = {} #Stuff that's too specific to put as an attribute here
 		self.tv_type = None
 		self.mame_driver = None #Only really needs to be set if explicitly setting it to something not in system_info
 		self.override_name = None #TODO This will be reworked eventually if I get around to redoing all the things
 
 		self.images = {}
+		#TODO: The override name shenanigans in Wii/PSP: Check for name = None in launchers, and set name = None if overriding it to something else, and put the overriden name in here
+		self.names = {}
 
 	def to_launcher_fields(self):
 		fields = {}
@@ -257,5 +259,9 @@ class Metadata():
 			fields[image_section_name] = {}
 			for k, v in self.images.items():
 				fields[image_section_name][k] = v
-
+		
+		if self.names:
+			fields[name_section_name] = {}
+			for k, v in self.names.items():
+				fields[name_section_name][k] = v
 		return fields

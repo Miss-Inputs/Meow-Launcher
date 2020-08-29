@@ -2,7 +2,7 @@ import os
 import re
 
 import config.main_config
-from common import remove_capital_article
+from common import remove_capital_article, find_filename_tags
 from common_types import EmulationStatus
 from mame_helpers import consistentify_manufacturer, get_icons, get_mame_xml
 from mame_metadata import (add_metadata_from_catlist, get_machine_folder,
@@ -321,6 +321,7 @@ arcade_systems = {
 	'Destiny Hardware': ArcadeSystem(source_file='deshoros'),
 	'Don Den Lover Hardware': ArcadeSystem(source_file='ddenlovr'),
 	'Donkey Kong Hardware': ArcadeSystem(source_file='dkong'),
+	'Donkey Kong / Mario Bros Multigame Hardware': ArcadeSystem(source_file='dkmb'),
 	'Erotictac Hardware': ArcadeSystem(source_file='ertictac'), #Acorn Archimedes based
 	'Exterminator Hardware': ArcadeSystem(source_file='exterm'),
 	'Final Crash Hardware': ArcadeSystem(source_file='fcrash'), #Bootleg of Final Fight; this is used for other bootlegs too
@@ -372,10 +373,18 @@ arcade_systems = {
 	'Play Mechanix VP50/VP100/VP101': ArcadeSystem(source_file='vp101'),
 }
 
+def find_arcade_system(machine):
+	for name, arcade_system in arcade_systems.items():
+		#Ideally, this should only match one, otherwise it means I'm doing it wrong I guess
+		if arcade_system.contains_machine(machine):
+			return name
+	return None
+
 licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
 licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
 hack_regex = re.compile(r'^hack \((.+)\)$')
 bootleg_with_publisher_regex = re.compile(r'^bootleg \((.+)\)$')
+slashes_in_brackets_regex = re.compile(r'([^/(]+) (\([^/)]+ / [^/(]+\))$')
 class Machine():
 	def __init__(self, xml, init_metadata=False):
 		self.xml = xml
@@ -384,10 +393,45 @@ class Machine():
 		self.metadata = Metadata()
 		self._has_inited_metadata = False
 		add_metadata_from_catlist(self)
+		self.arcade_system = find_arcade_system(self)
+		self.add_alternate_names()
 
 		if init_metadata:
 			self._add_metadata_fields()
 	
+	def add_alternate_names(self):
+		if self.arcade_system in ('Space Invaders / Qix Silver Anniversary Edition Hardware', 'ISG Selection Master Type 2006', 'Cosmodog Hardware', 'Donkey Kong / Mario Bros Multigame Hardware'):
+			#These don't use the / as a delimiter in the same way
+			return
+		#We don't want to touch Blah (Fgsfds / Zzzz)
+		bracket_at_end = slashes_in_brackets_regex.match(self.name)
+		name = self.name
+		if bracket_at_end:
+			name = bracket_at_end[1]
+		if ' / ' not in name:
+			return
+
+		splitty_bois = name.split(' / ')
+		primary_name = splitty_bois[0]
+		alt_names = splitty_bois[1:]
+		if alt_names[-1].endswith(')') and not primary_name.endswith(')'):
+			#This stuff in brackets was probably a part of the whole thing, not the last alternate name
+			tags = find_filename_tags.findall(alt_names[-1])
+			primary_name += ' ' + ', '.join(tags)
+			alt_names[-1] = find_filename_tags.sub('', alt_names[-1])[:-1]
+
+		if len(alt_names) == 1:
+			self.metadata.names['Alternate-Name'] = alt_names[0]
+		elif len(alt_names) > 1:
+			for i, name in enumerate(alt_names):
+				self.metadata.names['Alternate-Name-{0}'.format(i + 1)] = name
+		
+		if bracket_at_end:
+			#Put that back when we are done
+			self.name = primary_name + bracket_at_end[2]
+		else:
+			self.name = primary_name
+
 	def __str__(self):
 		return self.name
 
@@ -460,14 +504,6 @@ class Machine():
 	@property
 	def source_file(self):
 		return os.path.splitext(self.xml.attrib['sourcefile'])[0]
-
-	@property
-	def arcade_system(self):
-		for name, arcade_system in arcade_systems.items():
-			#Ideally, this should only match one, otherwise it means I'm doing it wrong I guess
-			if arcade_system.contains_machine(self):
-				return name
-		return None
 
 	@property
 	def icon(self):
