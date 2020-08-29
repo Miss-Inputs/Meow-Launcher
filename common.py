@@ -1,5 +1,4 @@
 import re
-from data.subtitles import subtitles
 
 find_filename_tags = re.compile(r'(\([^)]+?\)+|\[[^]]+?\]+)')
 def remove_filename_tags(name):
@@ -160,34 +159,3 @@ def remove_capital_article(s):
 
 def clean_string(s):
 	return ''.join([c for c in s if c.isprintable()])
-
-def machine_name_matches(machine_name, game_name, match_vs_system=False):
-	#TODO Should also use name_consistency stuff once I refactor that (Turbo OutRun > Turbo Out Run)
-	#TODO This will need to be updated once I do the thing where I take care of alternate names in titles (Cool Game / Other Region Cool Game)
-	#I don't know if this should be in common, or some MAME-related module instead
-	
-	machine_name = remove_filename_tags(machine_name)
-	game_name = remove_filename_tags(game_name)
-
-	#Until I do mess around with name_consistency.ini though, here's some common substitutions
-	machine_name = machine_name.replace('Bros.', 'Brothers')
-	game_name = game_name.replace('Bros.', 'Brothers')
-	machine_name = machine_name.replace('Jr.', 'Junior')
-	game_name = game_name.replace('Jr.', 'Junior')
-
-	if match_vs_system:
-		if not machine_name.upper().startswith('VS. '):
-			return False
-		machine_name = machine_name[4:]
-	for machine_name_part in machine_name.split(' / '):
-		#Hmm… we are only splitting by / here as a workaround for not parsing "Name / Alt Name" correctly
-		if normalize_name(machine_name_part, False) == normalize_name(game_name, False):
-			return True
-
-		if machine_name_part in subtitles:
-			if normalize_name(machine_name_part + ': ' + subtitles[machine_name_part], False) == normalize_name(game_name, False):
-				return True
-		elif game_name in subtitles:
-			if normalize_name(game_name + ': ' + subtitles[game_name], False) == normalize_name(machine_name_part, False):
-				return True
-	return False

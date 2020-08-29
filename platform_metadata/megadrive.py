@@ -5,11 +5,10 @@ from enum import Enum, auto
 
 import cd_read
 import input_metadata
-from common import machine_name_matches
 from common_types import SaveType
 from data.sega_licensee_codes import licensee_codes
 from mame_helpers import MAMENotInstalledException
-from mame_machines import get_machines_from_source_file
+from mame_machine import does_machine_match_game, get_machines_from_source_file
 from software_list_info import get_software_list_entry
 
 from .atari_controllers import megadrive_pad as standard_gamepad
@@ -228,13 +227,13 @@ def try_find_equivalent_arcade(game):
 			try_find_equivalent_arcade.megatech_games = []
 
 	for bootleg_machine in try_find_equivalent_arcade.arcade_bootlegs:
-		if machine_name_matches(bootleg_machine.name, game.rom.name):
+		if does_machine_match_game(game.rom.name, game.metadata, bootleg_machine):
 			return bootleg_machine
 	for megaplay_machine in try_find_equivalent_arcade.megaplay_games:
-		if machine_name_matches(megaplay_machine.name, game.rom.name):
+		if does_machine_match_game(game.rom.name, game.metadata, megaplay_machine):
 			return megaplay_machine
 	for megatech_machine in try_find_equivalent_arcade.megatech_games:
-		if machine_name_matches(megatech_machine.name, game.rom.name):
+		if does_machine_match_game(game.rom.name, game.metadata, megatech_machine):
 			return megatech_machine	
 	return None
 

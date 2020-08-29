@@ -61,18 +61,6 @@ subtitles = {
 	'Zooo': 'Action Puzzle Game',
 }
 
-arcade_names_with_alternate_titles = {
-	#This shouldn't exist and should be parsed by mame_machine
-	'Art of Fighting / Ryuuko no Ken': 'Art of Fighting',
-	'Voltage Fighter - Gowcaizer / Choujin Gakuen Gowcaizer': 'Voltage Fighter - Gowcaizer',
-	'The King of Fighters \'98 - The Slugfest / King of Fighters \'98 - Dream Match Never Ends': 'The King of Fighters \'98',
-	'Space Invaders / Space Invaders M': 'Space Invaders',
-	'Puzzle Bobble 2 / Bust-A-Move Again': 'Puzzle Bobble 2',
-	'Puzzle Bobble / Bust-A-Move': 'Puzzle Bobble',
-	'Circus / Acrobat TV': 'Circus',
-	'Blue\'s Journey / Raguy': 'Blue\'s Journey',
-}
-
 names_with_alternate_titles = {
 	#This shouldn't exist and should be parsed in the roms stuff
 	'After Burner Complete ~ After Burner': 'After Burner Complete',

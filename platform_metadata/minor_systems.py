@@ -2,11 +2,10 @@
 from enum import Enum, auto
 
 import input_metadata
-from common import machine_name_matches
 from common_types import MediaType, SaveType
 from info.region_info import TVSystem
 from mame_helpers import MAMENotInstalledException
-from mame_machines import get_machines_from_source_file
+from mame_machine import does_machine_match_game, get_machines_from_source_file
 from software_list_info import (find_in_software_lists_with_custom_matcher,
                                 get_crc32_for_software_list,
                                 get_software_list_entry)
@@ -645,7 +644,7 @@ def add_pc_engine_info(game):
 	#Not sure how to detect 2/6 buttons, or usage of TurboBooster-Plus, but I want to
 	equivalent_arcade = None
 	for uapce_machine in _get_uapce_games():
-		if machine_name_matches(uapce_machine.name, game.rom.name):
+		if does_machine_match_game(game.rom.name, game.metadata, uapce_machine):
 			equivalent_arcade = uapce_machine
 			break
 	if equivalent_arcade:

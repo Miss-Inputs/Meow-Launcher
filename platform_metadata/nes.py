@@ -2,12 +2,11 @@ import calendar
 from enum import Enum, auto
 
 import input_metadata
-from common import machine_name_matches
 from common_types import SaveType
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import TVSystem
 from mame_helpers import MAMENotInstalledException
-from mame_machines import get_machines_from_source_file
+from mame_machine import does_machine_match_game, get_machines_from_source_file
 from software_list_info import (find_in_software_lists_with_custom_matcher,
                                 get_crc32_for_software_list,
                                 get_software_list_entry)
@@ -373,11 +372,11 @@ def try_get_equivalent_arcade(game):
 			try_get_equivalent_arcade.vsnes_games = []
 
 	for vsnes_machine in try_get_equivalent_arcade.vsnes_games:
-		if machine_name_matches(vsnes_machine.name, game.rom.name, match_vs_system=True):
+		if does_machine_match_game(game.rom.name, game.metadata, vsnes_machine, match_vs_system=True):
 			return vsnes_machine
 
 	for playchoice10_machine in try_get_equivalent_arcade.playchoice10_games:
-		if machine_name_matches(playchoice10_machine.name, game.rom.name):
+		if does_machine_match_game(game.rom.name, game.metadata, playchoice10_machine):
 			return playchoice10_machine
 	
 	return None

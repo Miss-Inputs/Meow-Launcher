@@ -9,21 +9,11 @@ import config.main_config
 import launchers
 from common_types import EmulationStatus, SaveType
 from info import emulator_command_line_helpers
-from mame_helpers import (get_mame_xml,
-                          iter_mame_entire_xml, verify_romset, list_by_source_file)
-from mame_machine import Machine
+from mame_helpers import get_mame_xml, iter_mame_entire_xml, verify_romset
+from mame_machine import Machine, get_machines_from_source_file
 from mame_metadata import add_metadata
 
 conf = config.main_config.main_config 
-
-def get_machine(driver):
-	#Hmm, this is the only place for these two methods to go right now
-	return Machine(get_mame_xml(driver))
-
-def get_machines_from_source_file(source_file):
-	for machine_name, source_file_with_ext in list_by_source_file():
-		if os.path.splitext(source_file_with_ext)[0] == source_file:
-			yield Machine(get_mame_xml(machine_name))
 
 def is_actually_machine(machine):
 	if machine.xml.attrib.get('runnable', 'yes') == 'no':

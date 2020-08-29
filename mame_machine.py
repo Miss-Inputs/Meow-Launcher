@@ -2,9 +2,12 @@ import os
 import re
 
 import config.main_config
-from common import remove_capital_article, find_filename_tags
+from common import (find_filename_tags, normalize_name, remove_capital_article,
+                    remove_filename_tags)
 from common_types import EmulationStatus
-from mame_helpers import consistentify_manufacturer, get_icons, get_mame_xml
+from data.subtitles import subtitles
+from mame_helpers import (consistentify_manufacturer, get_icons, get_mame_xml,
+                          list_by_source_file)
 from mame_metadata import (add_metadata_from_catlist, get_machine_folder,
                            mame_statuses)
 from metadata import Metadata
@@ -764,3 +767,55 @@ class Machine():
 			if series not in not_real_series:
 				return remove_capital_article(series)
 		return None
+
+def get_machine(driver):
+	return Machine(get_mame_xml(driver))
+
+def get_machines_from_source_file(source_file):
+	for machine_name, source_file_with_ext in list_by_source_file():
+		if os.path.splitext(source_file_with_ext)[0] == source_file:
+			yield Machine(get_mame_xml(machine_name))
+
+def machine_name_matches(machine_name, game_name, match_vs_system=False):
+	#TODO Should also use name_consistency stuff once I refactor that (Turbo OutRun > Turbo Out Run)
+	#TODO This will need to be updated once I do the thing where I take care of alternate names in titles (Cool Game / Other Region Cool Game)
+	
+	machine_name = remove_filename_tags(machine_name)
+	game_name = remove_filename_tags(game_name)
+
+	#Until I do mess around with name_consistency.ini though, here's some common substitutions
+	machine_name = machine_name.replace('Bros.', 'Brothers')
+	game_name = game_name.replace('Bros.', 'Brothers')
+	machine_name = machine_name.replace('Jr.', 'Junior')
+	game_name = game_name.replace('Jr.', 'Junior')
+
+	if match_vs_system:
+		if not machine_name.upper().startswith('VS. '):
+			return False
+		machine_name = machine_name[4:]
+
+	if normalize_name(machine_name, False) == normalize_name(game_name, False):
+		return True
+
+	if machine_name in subtitles:
+		if normalize_name(machine_name + ': ' + subtitles[machine_name], False) == normalize_name(game_name, False):
+			return True
+	elif game_name in subtitles:
+		if normalize_name(game_name + ': ' + subtitles[game_name], False) == normalize_name(machine_name, False):
+			return True
+	return False
+
+def does_machine_match_name(name, machine, match_vs_system=False):
+	for machine_name in list(machine.metadata.names.values()) + [machine.name]:
+		if machine_name_matches(machine_name, name, match_vs_system):
+			return True
+	return False
+
+def does_machine_match_game(game_rom_name, game_metadata, machine, match_vs_system=False):
+	#if machine_name_matches(machine.name, game_rom_name, match_vs_system):
+	#	return True
+	for game_name in list(game_metadata.names.values()) + [game_rom_name]:
+		#Perhaps some keys in game names don't need to be looked at here
+		if does_machine_match_name(game_name, machine, match_vs_system):
+			return True
+	return False

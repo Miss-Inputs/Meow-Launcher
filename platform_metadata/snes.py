@@ -2,15 +2,13 @@ import calendar
 from enum import Enum, auto
 
 import input_metadata
-from common import (NotAlphanumericException, convert_alphanumeric,
-                    machine_name_matches)
+from common import NotAlphanumericException, convert_alphanumeric
 from common_types import SaveType
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import get_region_by_name
 from mame_helpers import MAMENotInstalledException
-from mame_machines import get_machines_from_source_file
+from mame_machine import does_machine_match_game, get_machines_from_source_file
 from software_list_info import get_software_list_entry
-
 
 #List of available controllers, which we will put up here for code reuse (since Uzebox also needs it)
 def get_snes_controller():
@@ -360,11 +358,11 @@ def try_get_equivalent_arcade(game):
 			try_get_equivalent_arcade.arcade_bootlegs = []
 
 	for bootleg_machine in try_get_equivalent_arcade.arcade_bootlegs:
-		if machine_name_matches(bootleg_machine.name, game.rom.name):
+		if does_machine_match_game(game.rom.name, game.metadata, bootleg_machine):
 			return bootleg_machine
 
 	for nss_machine in try_get_equivalent_arcade.nss_games:
-		if machine_name_matches(nss_machine.name, game.rom.name):
+		if does_machine_match_game(game.rom.name, game.metadata, nss_machine):
 			return nss_machine
 	
 	return None
