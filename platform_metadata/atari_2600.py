@@ -117,7 +117,7 @@ def parse_stella_cart_note(game, note):
 	if note.startswith('AKA '):
 		#There is an "AKA Bachelor Party, Uses the paddle controllers" but we will ignore that, apparently
 		#TODO: Will need to check for ", " anyway as some games have more than one alternate name
-		game.metadata.specific_info['Alternate-Title'] = note[4:]
+		game.metadata.add_alternate_name(note[4:])
 	elif note == 'Uses Joystick (left) and Keypad (right) Controllers':
 		#We should already know this from the controller fields but might as well add it while we're here
 		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Joystick
@@ -163,7 +163,7 @@ def parse_stella_cart_note(game, note):
 		game.metadata.notes = note
 
 def parse_stella_db(game, game_info):
-	game.metadata.specific_info['Stella-Title'] = game_info.get('Cartridge_Name', game_info.get('Cart_Name'))
+	game.metadata.add_alternate_name(game_info.get('Cartridge_Name', game_info.get('Cart_Name')), 'Stella-Name')
 	note = game_info.get('Cartridge_Note', game_info.get('Cart_Note'))
 	
 	manufacturer = game_info.get('Cartridge_Manufacturer', game_info.get('Cart_Manufacturer'))

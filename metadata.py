@@ -195,6 +195,20 @@ class Metadata():
 		#TODO: The override name shenanigans in Wii/PSP: Check for name = None in launchers, and set name = None if overriding it to something else, and put the overriden name in here
 		self.names = {}
 
+	def add_alternate_name(self, name, field='Alternate-Name'):
+		if field in self.names:
+			self.names[field + '-1'] = self.names[field]
+			self.names[field + '-2'] = name
+			self.names.pop(field)
+			return
+		if field + '-1' in self.names:
+			i = 2
+			while '{0}-{1}'.format(field, i) in self.names:
+				i += 1
+			self.names['{0}-{1}'.format(field, i)] = name
+			return
+		self.names[field] = name
+
 	def to_launcher_fields(self):
 		fields = {}
 

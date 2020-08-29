@@ -349,6 +349,8 @@ class Software():
 	def add_standard_metadata(self, metadata):
 		metadata.specific_info['MAME-Software-Name'] = self.name
 		metadata.specific_info['MAME-Software-Full-Name'] = self.description
+		#We'll need to use that as more than just a name, though, I think; and by that I mean I get dizzy if I think about whether I need to do that or not right now
+		metadata.add_alternate_name(self.description, 'Software-List-Name')
 
 		cloneof = self.xml.attrib.get('cloneof')
 		if cloneof:
@@ -374,9 +376,9 @@ class Software():
 			metadata.specific_info['Version'] = version
 
 		alt_title = self.infos.get('alt_title', self.infos.get('alt_name', self.infos.get('alt_disk')))
-		#This may require further parsing to use properly
+		#TODO This may require further parsing to use properly (there is sometimes more than one alt name, or something like Blah (Box) and we would then want to put Blah as Box-Title)
 		if alt_title:
-			metadata.specific_info['Alternate-Title'] = alt_title
+			metadata.add_alternate_name(alt_title)
 
 		year = self.xml.findtext('year')
 		if metadata.year:

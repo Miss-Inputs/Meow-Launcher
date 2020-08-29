@@ -208,10 +208,10 @@ def parse_smdh_data(game, smdh):
 
 	english_short_title = smdh[english_short_title_offset: english_long_title_offset].decode('utf16').rstrip('\0')
 	if english_short_title:
-		game.metadata.specific_info['Banner-Short-Title'] = english_short_title
+		game.metadata.add_alternate_name(english_short_title, 'Banner-Short-Title')
 	english_long_title = smdh[english_long_title_offset: english_publisher_offset].decode('utf16').rstrip('\0')
 	if english_long_title:
-		game.metadata.specific_info['Banner-Title'] = english_long_title
+		game.metadata.add_alternate_name(english_long_title, 'Banner-Title')
 
 	try:
 		publisher = smdh[english_publisher_offset: english_publisher_offset + 0x80].decode('utf16').rstrip('\0')

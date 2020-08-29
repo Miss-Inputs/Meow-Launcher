@@ -423,11 +423,8 @@ class Machine():
 			primary_name += ' ' + ', '.join(tags)
 			alt_names[-1] = find_filename_tags.sub('', alt_names[-1])[:-1]
 
-		if len(alt_names) == 1:
-			self.metadata.names['Alternate-Name'] = alt_names[0]
-		elif len(alt_names) > 1:
-			for i, name in enumerate(alt_names):
-				self.metadata.names['Alternate-Name-{0}'.format(i + 1)] = name
+		for alt_name in alt_names:
+			self.metadata.add_alternate_name(alt_name)
 		
 		if bracket_at_end:
 			#Put that back when we are done
@@ -812,8 +809,6 @@ def does_machine_match_name(name, machine, match_vs_system=False):
 	return False
 
 def does_machine_match_game(game_rom_name, game_metadata, machine, match_vs_system=False):
-	#if machine_name_matches(machine.name, game_rom_name, match_vs_system):
-	#	return True
 	for game_name in list(game_metadata.names.values()) + [game_rom_name]:
 		#Perhaps some keys in game names don't need to be looked at here
 		if does_machine_match_name(game_name, machine, match_vs_system):
