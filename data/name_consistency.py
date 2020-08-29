@@ -27,12 +27,23 @@ name_replacements = {
 	"Street Fighter II'": 'Street Fighter II',
 	'Wolfenstein 3-D': 'Wolfenstein 3D',
 
-	#Usage of subtitle
+	#Usage of subtitle, or sort of subtitles that are weird
 	'Arkanoid - Revenge of DOH': 'Arkanoid II - Revenge of Doh',
 	'Arkanoid Revenge of DOH': 'Arkanoid II - Revenge of Doh',
 	'Chuck Norris - Super Kicks': 'Chuck Norris Superkicks',
-	'Parodius DA!': 'Parodius', #I think this isn't necessarily correct
+	#'Parodius DA!': 'Parodius', #I think this isn't necessarily correct
 	'Robotron - 2084': 'Robotron 2084 ',
+	'Batman Forever The Arcade Game': 'Batman Forever',
+	'Ys - Wanderers from Ys': 'Ys III',
+	'Montezuma\'s Revenge featuring Panama Joe': 'Montezuma\'s Revenge',
+	'Q*bert for Game Boy': 'Q*bert',
+	'Miner 2049er Starring Bounty Bob': 'Miner 2049er',
+
+	#Prefixes
+	'Chaotix Featuring Knuckles the Echidna': "Knuckles' Chaotix",
+	"Ironman Ivan Stewart's Super Off-Road": 'Super Off-Road',
+	"Ivan 'Ironman' Stewart's Super Off Road": 'Super Off-Road',
+	"David Crane's Pitfall II - Lost Caverns": 'Pitfall II',
 
 	#Abbrevs
 	'Donkey Kong Junior': 'Donkey Kong Jr.',

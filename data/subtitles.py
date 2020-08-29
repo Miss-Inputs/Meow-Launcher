@@ -61,21 +61,6 @@ subtitles = {
 	'Zooo': 'Action Puzzle Game',
 }
 
-non_standard_subtitles = {
-	#Where it's not just separated by a - or :, maybe this doesn't belong here
-	#Yeah nah like how would I use this, it's more for name_consistency if anything
-	'Batman Forever The Arcade Game': 'Batman Forever',
-	'Ys - Wanderers from Ys': 'Ys III',
-	'Miner 2049er Starring Bounty Bob': 'Miner 2049er',
-	'Chaotix Featuring Knuckles the Echidna': 'Knuckles\' Chaotix',
-	'Circus Atari': 'Circus',
-	'David Crane\'s Pitfall II - Lost Caverns': 'Pitfall II',
-	'Q*bert for Game Boy': 'Q*bert',
-	'Montezuma\'s Revenge featuring Panama Joe': 'Montezuma\'s Revenge',
-	'Ironman Ivan Stewart\'s Super Off-Road': 'Super Off-Road',
-	'Ivan \'Ironman\' Stewart\'s Super Off Road': 'Super Off-Road',
-}
-
 arcade_names_with_alternate_titles = {
 	#This shouldn't exist and should be parsed by mame_machine
 	'Art of Fighting / Ryuuko no Ken': 'Art of Fighting',
