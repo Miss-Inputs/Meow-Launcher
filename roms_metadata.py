@@ -6,7 +6,7 @@ from data.not_necessarily_equivalent_arcade_names import \
 from info import region_info, system_info
 from mame_helpers import (MachineNotFoundException, MAMENotInstalledException,
                           get_icons, get_mame_xml)
-from mame_machine import Machine, does_machine_match_game, does_machine_match_name
+from mame_machine import Machine, does_machine_match_game
 from software_list_info import get_software_lists_by_names
 
 conf = config.main_config.main_config
@@ -87,11 +87,6 @@ def find_equivalent_arcade_game(game, basename):
 	if '(bootleg of' in machine.name or '(bootleg?)' in machine.name:
 		#This doesn't count
 		return None
-	software_name = game.metadata.specific_info.get('MAME-Software-Full-Name')
-	if software_name:
-		#TODO: This shouldn't be needed, MAME-Software-Full-Name should be part of names
-		if does_machine_match_name(software_name, machine):
-			return machine
 	if does_machine_match_game(game.rom.name, game.metadata, machine):
 		return machine
 	return None
