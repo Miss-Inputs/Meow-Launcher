@@ -4,7 +4,7 @@ import info.emulator_command_lines as command_lines
 from info.emulator_command_line_helpers import mame_driver_callable, mednafen_module_callable #It would be infeasible to create a function in emulator_command_lines for everything, I guess
 from common_types import ConfigValueType
 
-from .system_info import (atari_2600_cartridge_extensions,
+from .format_info import (atari_2600_cartridge_extensions,
                           generic_cart_extensions, mame_cdrom_formats,
                           mame_floppy_formats)
 
