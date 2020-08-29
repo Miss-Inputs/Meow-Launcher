@@ -48,7 +48,7 @@ def parse_sdsc_header(game, header):
 			pass
 	if 0 < name_offset < 0xffff:
 		try:
-			game.metadata.specific_info['Title'] = game.rom.read(seek_to=name_offset, amount=255).partition(b'\x00')[0].decode('ascii')
+			game.metadata.add_alternate_name(game.rom.read(seek_to=name_offset, amount=255).partition(b'\x00')[0].decode('ascii'), 'Header-Title')
 		except UnicodeDecodeError:
 			pass
 	if 0 < description_offset < 0xffff:

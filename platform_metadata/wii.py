@@ -183,7 +183,7 @@ def add_wii_homebrew_metadata(game):
 			meta_xml = ElementTree.parse(xml_path)
 			name = meta_xml.findtext('name')
 			if name:
-				game.metadata.specific_info['Title'] = name
+				game.metadata.add_alternate_name(name, 'Banner-Title')
 				game.metadata.override_name = name
 
 			coder = meta_xml.findtext('coder')

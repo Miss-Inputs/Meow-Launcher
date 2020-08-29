@@ -80,7 +80,7 @@ def parse_woz_meta_chunk(game, chunk_data):
 				value = 'v' + value
 			game.metadata.specific_info['Version'] = value
 		elif key == 'title':
-			game.metadata.specific_info['Title'] = value
+			game.metadata.add_alternate_name(value, 'Header-Title')
 		elif key == 'subtitle':
 			game.metadata.specific_info['Subtitle'] = value
 		elif key == 'requires_machine':
@@ -163,6 +163,8 @@ def add_woz_metadata(game):
 		position = parse_woz_chunk(game, position)
 		if position >= size:
 			break
+	if 'Header-Title' in game.metadata.names and 'Subtitle' in game.metadata.specific_info:
+		game.metadata.add_alternate_name(game.metadata.names['Header-Title'] + ': ' + game.metadata.specific_info['Subtitle'], 'Header-Title-with-Subtitle')
 
 def _set_mame_driver(game, machines):
 	if not machines:

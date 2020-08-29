@@ -24,7 +24,7 @@ def _add_atari_7800_header_info(game, header):
 
 	#Header version: 0
 	#Magic: 1-17
-	game.metadata.specific_info['Title'] = header[17:49].decode('ascii', errors='backslashreplace').rstrip('\0 ')
+	game.metadata.add_alternate_name(header[17:49].decode('ascii', errors='backslashreplace').rstrip('\0 '), 'Header-Title')
 	#ROM size excluding header: Big endian 49-53
 	#Special cart type: 53
 	#Cart type: 54
