@@ -62,7 +62,7 @@ subtitles = {
 }
 
 names_with_alternate_titles = {
-	#This shouldn't exist and should be parsed in the roms stuff
+	#TODO This shouldn't exist and should be parsed in the roms stuff
 	'After Burner Complete ~ After Burner': 'After Burner Complete',
 	'Air-Sea Battle ~ Target Fun': 'Air-Sea Battle',
 	'Bachelor Party ~ Gigolo': 'Bachelor Party',
