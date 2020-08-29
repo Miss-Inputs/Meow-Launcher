@@ -114,11 +114,11 @@ def parse_opening_bnr(game, opening_bnr):
 		9: 'Korean',
 	}
 	names = {}
-	for i in range(10):
+	for i, language in languages.items():
 		try:
 			name = imet[92 + (i * 84): 92 + (i * 84) + 84].decode('utf-16be').rstrip('\0 ')
 			if name:
-				names[languages[i]] = name
+				names[language] = name
 		except UnicodeDecodeError:
 			continue #I guess
 		#Why 84 characters long? Who knows
