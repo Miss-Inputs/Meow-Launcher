@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 subtitles = {
 	'Baku Baku Animal': 'World Zookeeper Contest',
+	'Bubble Memories': 'The Story Of Bubble Bobble III',
 	'Bonk III': "Bonk's Big Adventure",
 	'Catz': 'Your Virtual Petz Palz',
 	'Clockwork Knight': "Pepperouchau's Adventure",
@@ -12,6 +13,7 @@ subtitles = {
 	'F-22 Interceptor': 'Advanced Tactical Fighter',
 	'Fantasy Zone II': 'The Tears of Opa-Opa',
 	'Galaga': 'Demons of Death',
+	'Gradius II': 'GOFER no Yabou',
 	'H.E.R.O.': 'Helicopter Emergency Rescue Operation',
 	'Kirby 64': 'The Crystal Shards',
 	"King's Quest V": 'Absence Makes the Heart Go Yonder',
@@ -39,6 +41,7 @@ subtitles = {
 	'Pokemon Box': 'Ruby & Sapphire',
 	'Pokemon XD': 'Gale of Darkness',
 	'Prince of Persia 2': 'The Shadow and the Flame',
+	'Raiden Fighters 2': 'Operation Hell Dive',
 	'Rainbow Islands': 'The Story of Bubble Bobble 2',
 	'Resident Evil 3': 'Nemesis',
 	'Ristar': 'The Shooting Star',
