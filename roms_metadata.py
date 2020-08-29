@@ -7,7 +7,7 @@ from data.not_necessarily_equivalent_arcade_names import \
 from info import region_info, system_info
 from mame_helpers import (MachineNotFoundException, MAMENotInstalledException,
                           get_icons, get_mame_xml)
-from mame_machines import Machine
+from mame_machine import Machine
 from software_list_info import get_software_lists_by_names
 
 conf = config.main_config.main_config

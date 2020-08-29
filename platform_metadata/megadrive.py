@@ -8,8 +8,8 @@ import input_metadata
 from common import machine_name_matches
 from common_types import SaveType
 from data.sega_licensee_codes import licensee_codes
-from mame_helpers import MAMENotInstalledException
-from mame_machines import get_machines_from_source_file
+from mame_helpers import (MAMENotInstalledException,
+                          get_machines_from_source_file)
 from software_list_info import get_software_list_entry
 
 from .atari_controllers import megadrive_pad as standard_gamepad

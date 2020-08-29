@@ -77,7 +77,7 @@ non_standard_subtitles = {
 }
 
 arcade_names_with_alternate_titles = {
-	#This shouldn't exist and should be parsed by mame_machines
+	#This shouldn't exist and should be parsed by mame_machine
 	'Art of Fighting / Ryuuko no Ken': 'Art of Fighting',
 	'Voltage Fighter - Gowcaizer / Choujin Gakuen Gowcaizer': 'Voltage Fighter - Gowcaizer',
 	'The King of Fighters \'98 - The Slugfest / King of Fighters \'98 - Dream Match Never Ends': 'The King of Fighters \'98',

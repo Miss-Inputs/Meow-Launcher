@@ -2,7 +2,6 @@
 
 import datetime
 import os
-import subprocess
 import sys
 import time
 
@@ -10,8 +9,8 @@ import config.main_config
 import launchers
 from common_types import EmulationStatus, SaveType
 from info import emulator_command_line_helpers
-from mame_helpers import (get_mame_xml, iter_mame_entire_xml,
-                          list_by_source_file)
+from mame_helpers import (get_machines_from_source_file, get_mame_xml,
+                          iter_mame_entire_xml, verify_romset)
 from mame_machine import Machine
 from mame_metadata import add_metadata
 
@@ -19,14 +18,6 @@ conf = config.main_config.main_config
 
 def get_machine(driver):
 	return Machine(get_mame_xml(driver))
-
-def mame_verifyroms(basename):		
-	try:
-		#Note to self: Stop wasting time thinking you can make this faster
-		subprocess.run(['mame', '-verifyroms', basename], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
-		return True
-	except subprocess.CalledProcessError:
-		return False
 
 def is_actually_machine(machine):
 	if machine.xml.attrib.get('runnable', 'yes') == 'no':
@@ -88,7 +79,7 @@ def process_machine(machine):
 		#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
 		#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
 
-		#We'll do this check _after_ mame_verifyroms so we don't spam debug print for a bunch of skeleton drivers we don't have
+		#We'll do this check _after_ verify_romset so we don't spam debug print for a bunch of skeleton drivers we don't have
 		if conf.debug:
 			print('Skipping %s (%s, %s) as it is probably a skeleton driver' % (machine.name, machine.basename, machine.source_file))
 		return
@@ -99,7 +90,7 @@ def process_machine(machine):
 
 def no_longer_exists(game_id):
 	#This is used to determine what launchers to delete if not doing a full rescan
-	return not mame_verifyroms(game_id)
+	return not verify_romset(game_id)
 
 def process_machine_element(machine_element):
 	machine = Machine(machine_element)
@@ -120,8 +111,7 @@ def process_machine_element(machine_element):
 		#The code behind -listxml is of the opinion that protection = imperfect should result in a system being considered entirely broken, but I'm not so sure if that works out
 		return
 
-	#if not machine.romless:
-	if not mame_verifyroms(machine.basename):
+	if not verify_romset(machine.basename):
 		#We do this as late as we can after checks to see if we want to actually add this machine or not, because it takes a while (in a loop of tens of thousands of machines), and hence if we can get out of having to do it we should
 		#However this is a reminder to myself to stop trying to be clever (because I am not); we cannot assume -verifyroms would succeed if machine.romless is true because there might be a device which is not romless
 		return
@@ -141,11 +131,6 @@ def process_arcade():
 	if conf.print_times:
 		time_ended = time.perf_counter()
 		print('Arcade finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-
-def get_machines_from_source_file(source_file):
-	for machine_name, source_file_with_ext in list_by_source_file():
-		if os.path.splitext(source_file_with_ext)[0] == source_file:
-			yield Machine(get_mame_xml(machine_name))
 
 def main():
 	if '--drivers' in sys.argv:
@@ -170,7 +155,7 @@ def main():
 				continue
 			if not is_machine_launchable(machine):
 				continue
-			if not mame_verifyroms(machine.basename):
+			if not verify_romset(machine.basename):
 				continue
 			process_machine(machine)
 		return
