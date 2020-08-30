@@ -421,16 +421,16 @@ class Machine():
 			#This stuff in brackets was probably a part of the whole thing, not the last alternate name
 			tags = find_filename_tags.findall(alt_names[-1])
 			primary_name += ' ' + ' '.join(tags)
-			alt_names[-1] = find_filename_tags.sub('', alt_names[-1])[:-1]
+			alt_names[-1] = find_filename_tags.sub('', alt_names[-1]).rstrip()
 
 		for alt_name in alt_names:
 			self.metadata.add_alternate_name(alt_name)
 		
 		if bracket_at_end:
 			#Put that back when we are done
-			self.name = primary_name + bracket_at_end[2]
+			self.name = (primary_name + bracket_at_end[2]).rstrip()
 		else:
-			self.name = primary_name
+			self.name = primary_name.rstrip()
 
 	def __str__(self):
 		return self.name
