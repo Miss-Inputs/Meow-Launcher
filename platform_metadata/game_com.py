@@ -25,14 +25,14 @@ except ModuleNotFoundError:
 #     uint8_t  pad[3];
 # } romHeader;
 
-def parse_icon(game, icon_bank, icon_offset_x, icon_offset_y):
+def parse_icon(rom, metadata, icon_bank, icon_offset_x, icon_offset_y):
 	bank_size = (256 * 256) // 4
 	bank_address = bank_size * icon_bank
-	if bank_address > game.rom.get_size():
+	if bank_address > rom.get_size():
 		#ROM is funny in some way, either underdumped or header is being annoying
 		#This... seems to work for some reason, except on Centipede
-		bank_address %= game.rom.get_size()
-	bank_data = game.rom.read(seek_to=bank_address, amount=bank_size)
+		bank_address %= rom.get_size()
+	bank_data = rom.read(seek_to=bank_address, amount=bank_size)
 
 	#Hm, these are meant to be 4-color (2bpp) images so maybe I could use P mode, or would that just cause more problems than it would solve
 	white = (255, 255, 255)
@@ -58,11 +58,11 @@ def parse_icon(game, icon_bank, icon_offset_x, icon_offset_y):
 			whole_bank.putpixel((x, y), colours[j])
 
 	icon = whole_bank.crop((icon_offset_x, icon_offset_y, icon_offset_x + 64, icon_offset_y + 64))
-	game.metadata.images['Icon'] = icon
+	metadata.images['Icon'] = icon
 
-def parse_rom_header(game, header):
+def parse_rom_header(rom, metadata, header):
 	#Shoutouts to https://github.com/Tpot-SSL/GameComHDK and https://github.com/simontime/gcfix/blob/master/gcfix.c and https://github.com/GerbilSoft/rom-properties/blob/master/src/libromdata/Handheld/gcom_structs.h because there is no other documentation that I know of
-	game.metadata.specific_info['Internal-Title'] = header[17:26].decode('ascii', errors='ignore').rstrip()
+	metadata.specific_info['Internal-Title'] = header[17:26].decode('ascii', errors='ignore').rstrip()
 	#26:28: Game ID, but does that have any relation to product code?
 
 	if have_pillow:
@@ -70,7 +70,7 @@ def parse_rom_header(game, header):
 		icon_offset_x = header[15]
 		icon_offset_y = header[16]
 		
-		parse_icon(game, icon_bank, icon_offset_x, icon_offset_y)
+		parse_icon(rom, metadata, icon_bank, icon_offset_x, icon_offset_y)
 
 def add_game_com_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
@@ -85,7 +85,7 @@ def add_game_com_metadata(game):
 		rom_header = game.rom.read(amount=31, seek_to=0x40000)
 	if rom_header[5:14] == b'TigerDMGC':
 		#If it still isn't there, never mind
-		parse_rom_header(game, rom_header)
+		parse_rom_header(game.rom, game.metadata, rom_header)
 
 	#Might have saving, actually. I'm just not sure about how it works.
 	add_generic_info(game)

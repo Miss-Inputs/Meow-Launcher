@@ -97,7 +97,7 @@ def _controller_from_stella_db_name(controller):
 	#Track & Field controller is just a joystick with no up or down, so Stella doesn't count it as separate from joystick
 	return Atari2600Controller.Other
 
-def parse_stella_cart_note(game, note):
+def parse_stella_cart_note(metadata, note):
 	#Adventures in the Park
 	#Featuring Panama Joe
 	#Hack of Adventure
@@ -117,125 +117,125 @@ def parse_stella_cart_note(game, note):
 	if note.startswith('AKA '):
 		#There is an "AKA Bachelor Party, Uses the paddle controllers" but we will ignore that, apparently
 		#TODO: Will need to check for ", " anyway as some games have more than one alternate name
-		game.metadata.add_alternate_name(note[4:])
+		metadata.add_alternate_name(note[4:])
 	elif note == 'Uses Joystick (left) and Keypad (right) Controllers':
 		#We should already know this from the controller fields but might as well add it while we're here
-		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Joystick
-		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.KeyboardController
+		metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Joystick
+		metadata.specific_info['Right-Peripheral'] = Atari2600Controller.KeyboardController
 	elif note == 'Uses Mindlink Controller (left only)':
-		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Mindlink
-		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Nothing
+		metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Mindlink
+		metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Nothing
 	elif note in ('Uses the Keypad Controllers (left only)', 'Uses Keypad Controller'):
-		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.KeyboardController
-		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Nothing
+		metadata.specific_info['Left-Peripheral'] = Atari2600Controller.KeyboardController
+		metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Nothing
 	elif note == 'Uses the Paddle Controllers (left only)':
-		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Paddle
-		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Nothing
+		metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Paddle
+		metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Nothing
 	elif note == 'Uses the Light Gun Controller (left only)':
-		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.LightGun
-		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Nothing
+		metadata.specific_info['Left-Peripheral'] = Atari2600Controller.LightGun
+		metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Nothing
 	elif note == 'Uses right joystick controller':
-		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Nothing
-		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Joystick
+		metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Nothing
+		metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Joystick
 	elif note in ('Uses the KidVid Controller', 'Uses the Kid Vid Controller'):
-		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Joystick
-		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.KidVid
+		metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Joystick
+		metadata.specific_info['Right-Peripheral'] = Atari2600Controller.KidVid
 	elif note == 'Uses the Driving Controllers':
-		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.DrivingController
-		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.DrivingController
+		metadata.specific_info['Left-Peripheral'] = Atari2600Controller.DrivingController
+		metadata.specific_info['Right-Peripheral'] = Atari2600Controller.DrivingController
 	elif note in ('Uses the Keypad Controllers', 'Uses Keypad Controllers'):
-		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.KeyboardController
-		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.KeyboardController
+		metadata.specific_info['Left-Peripheral'] = Atari2600Controller.KeyboardController
+		metadata.specific_info['Right-Peripheral'] = Atari2600Controller.KeyboardController
 	elif note in ('Uses the paddle controllers', 'Uses the Paddle Controllers'):
-		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Paddle
-		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Paddle
+		metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Paddle
+		metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Paddle
 	elif note == 'Uses the Joystick Controllers (swapped)':
-		game.metadata.specific_info['Swap-Ports'] = True
-		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Joystick
-		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Joystick
+		metadata.specific_info['Swap-Ports'] = True
+		metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Joystick
+		metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Joystick
 	elif note == 'Uses the Paddle Controllers (swapped)':
-		game.metadata.specific_info['Swap-Ports'] = True
-		game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Paddle
-		game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Paddle
+		metadata.specific_info['Swap-Ports'] = True
+		metadata.specific_info['Left-Peripheral'] = Atari2600Controller.Paddle
+		metadata.specific_info['Right-Peripheral'] = Atari2600Controller.Paddle
 	elif note == 'Console ports are swapped':
-		game.metadata.specific_info['Swap-Ports'] = True
+		metadata.specific_info['Swap-Ports'] = True
 	else:
-		game.metadata.notes = note
+		metadata.notes = note
 
-def parse_stella_db(game, game_info):
-	game.metadata.add_alternate_name(game_info.get('Cartridge_Name', game_info.get('Cart_Name')), 'Stella-Name')
+def parse_stella_db(metadata, game_info):
+	metadata.add_alternate_name(game_info.get('Cartridge_Name', game_info.get('Cart_Name')), 'Stella-Name')
 	note = game_info.get('Cartridge_Note', game_info.get('Cart_Note'))
 	
 	manufacturer = game_info.get('Cartridge_Manufacturer', game_info.get('Cart_Manufacturer'))
 	if manufacturer:
 		if ', ' in manufacturer:
-			game.metadata.publisher, _, game.metadata.developer = manufacturer.partition(', ')
+			metadata.publisher, _, metadata.developer = manufacturer.partition(', ')
 		else:
-			game.metadata.publisher = manufacturer
+			metadata.publisher = manufacturer
 			#TODO: Clean up manufacturer names (UA Limited > UA)
 	
-	game.metadata.product_code = game_info.get('Cartridge_ModelNo', game_info.get('Cart_ModelNo'))
-	game.metadata.specific_info['Rarity'] = game_info.get('Cartridge_Rarity', game_info.get('Cart_Rarity'))
+	metadata.product_code = game_info.get('Cartridge_ModelNo', game_info.get('Cart_ModelNo'))
+	metadata.specific_info['Rarity'] = game_info.get('Cartridge_Rarity', game_info.get('Cart_Rarity'))
 	if 'Display_Format' in game_info:
 		display_format = game_info['Display_Format']
 		if display_format in ('NTSC', 'PAL60', 'SECAM60'):
 			#Treat PAL60 etc as NTSC because meh
-			game.metadata.tv_type = TVSystem.NTSC
+			metadata.tv_type = TVSystem.NTSC
 		elif display_format in ('PAL', 'SECAM', 'NTSC50'):
-			game.metadata_tv_type = TVSystem.PAL
+			metadata.tv_type = TVSystem.PAL
 
 	left_controller = game_info.get('Controller_Left')
 	right_controller = game_info.get('Controller_Right')
-	game.metadata.specific_info['Left-Peripheral'] = _controller_from_stella_db_name(left_controller)
-	game.metadata.specific_info['Right-Peripheral'] = _controller_from_stella_db_name(right_controller)
+	metadata.specific_info['Left-Peripheral'] = _controller_from_stella_db_name(left_controller)
+	metadata.specific_info['Right-Peripheral'] = _controller_from_stella_db_name(right_controller)
 
 	if game_info.get('Controller_SwapPorts', 'NO') == 'YES' or game_info.get('Controller_SwapPaddles', 'NO') == 'YES':
 		#Not exactly sure how this works
-		game.metadata.specific_info['Swap-Ports'] = True
+		metadata.specific_info['Swap-Ports'] = True
 	if note:
-		parse_stella_cart_note(game, note)
+		parse_stella_cart_note(metadata, note)
 
-def add_input_info_from_peripheral(game, peripheral):
+def add_input_info_from_peripheral(metadata, peripheral):
 	if peripheral == Atari2600Controller.Nothing:
 		return
 		
 	if peripheral == Atari2600Controller.Joystick:
-		game.metadata.input_info.add_option(controllers.joystick)
+		metadata.input_info.add_option(controllers.joystick)
 	elif peripheral == Atari2600Controller.Boostergrip:
-		game.metadata.input_info.add_option(controllers.boostergrip)
+		metadata.input_info.add_option(controllers.boostergrip)
 	elif peripheral == Atari2600Controller.Compumate:
-		game.metadata.input_info.add_option(controllers.compumate)
+		metadata.input_info.add_option(controllers.compumate)
 	elif peripheral == Atari2600Controller.DrivingController:
-		game.metadata.input_info.add_option(controllers.driving_controller)
+		metadata.input_info.add_option(controllers.driving_controller)
 	elif peripheral == Atari2600Controller.KeyboardController:
-		game.metadata.input_info.add_option(controllers.keypad)
+		metadata.input_info.add_option(controllers.keypad)
 	elif peripheral == Atari2600Controller.LightGun:
-		game.metadata.input_info.add_option(controllers.xegs_gun)
+		metadata.input_info.add_option(controllers.xegs_gun)
 	elif peripheral == Atari2600Controller.MegadriveGamepad:
-		game.metadata.input_info.add_option(megadrive_pad)
+		metadata.input_info.add_option(megadrive_pad)
 	elif peripheral == Atari2600Controller.Mindlink:
-		game.metadata.input_info.add_option(controllers.mindlink)
+		metadata.input_info.add_option(controllers.mindlink)
 	elif peripheral == Atari2600Controller.Mouse:
-		game.metadata.input_info.add_option(controllers.atari_st_mouse)
+		metadata.input_info.add_option(controllers.atari_st_mouse)
 	elif peripheral == Atari2600Controller.Paddle:
-		game.metadata.input_info.add_option(controllers.paddle)
+		metadata.input_info.add_option(controllers.paddle)
 	elif peripheral == Atari2600Controller.Trackball:
-		game.metadata.input_info.add_option(controllers.cx22_trackball)
+		metadata.input_info.add_option(controllers.cx22_trackball)
 	elif peripheral == Atari2600Controller.Other:
-		game.metadata.input_info.add_option(input_metadata.Custom())
+		metadata.input_info.add_option(input_metadata.Custom())
 
-def parse_peripherals(game):
-	left = game.metadata.specific_info.get('Left-Peripheral')
-	right = game.metadata.specific_info.get('Right-Peripheral')
+def parse_peripherals(metadata):
+	left = metadata.specific_info.get('Left-Peripheral')
+	right = metadata.specific_info.get('Right-Peripheral')
 
-	game.metadata.save_type = SaveType.MemoryCard if right in (Atari2600Controller.AtariVox, Atari2600Controller.SaveKey) else SaveType.Nothing
+	metadata.save_type = SaveType.MemoryCard if right in (Atari2600Controller.AtariVox, Atari2600Controller.SaveKey) else SaveType.Nothing
 	if right == Atari2600Controller.KidVid:
-		game.metadata.specific_info['Uses-Kid-Vid'] = True
+		metadata.specific_info['Uses-Kid-Vid'] = True
 
 	if left:
-		add_input_info_from_peripheral(game, left)
+		add_input_info_from_peripheral(metadata, left)
 	if right is not None and right != left:
-		add_input_info_from_peripheral(game, right)
+		add_input_info_from_peripheral(metadata, right)
 
 class StellaDB():
 	class __StellaDB():
@@ -260,7 +260,7 @@ def add_atari_2600_metadata(game):
 		md5 = hashlib.md5(whole_cart).hexdigest().lower()
 		if md5 in stella_db:
 			game_info = stella_db[md5]
-			parse_stella_db(game, game_info)
+			parse_stella_db(game.metadata, game_info)
 
 	software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(whole_cart))
 	if software:
@@ -290,4 +290,4 @@ def add_atari_2600_metadata(game):
 				game.metadata.specific_info['Left-Peripheral'] = Atari2600Controller.KeyboardController
 				game.metadata.specific_info['Right-Peripheral'] = Atari2600Controller.KeyboardController
 
-	parse_peripherals(game)
+	parse_peripherals(game.metadata)
