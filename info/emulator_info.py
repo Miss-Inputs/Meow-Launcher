@@ -162,6 +162,9 @@ emulators = {
 	#Tapes work, but they require run"" and then pressing play on the tape, the latter not being Lua-autoboot-scriptable yet.
 	#Difference between fm7 and fmnew7 seems to be that the latter boots into BASIC by default (there's dip switches involved) instead of DOS, which seems to be required for tapes to work; and disks just autoboot anyway. FM-77AV is used here despite its allegedly imperfect graphics as there are games which won't work on earlier systems and there doesn't seem to be a programmatic way to tell, and it seems backwards compatibility is fine
 	#Joystick only works with fm7/fmnew7 -centronics dsjoy... whoops; not sure what the builtin joystick does then
+	'MAME (G7400)': MameDriver(EmulatorStatus.Good, mame_driver_callable('g7400', 'cart'), ['bin', 'rom']),
+	#There is also an unreleased odyssey3 prototype if that is useful for USA (presumably unreleased) games, also jotac for France
+	#Should this be merged with Odyssey 2 if it's compatible like that?
 	'MAME (Gamate)': MameDriver(EmulatorStatus.Good, mame_driver_callable('gamate', 'cart'), ['bin']),
 	'MAME (Game Boy)': MameDriver(EmulatorStatus.Imperfect, command_lines.mame_game_boy, ['bin', 'gb', 'gbc'], {
 		'use_gbc_for_dmg': EmulatorConfigValue(ConfigValueType.Bool, True, 'Use MAME GBC driver for DMG games'),
@@ -179,6 +182,7 @@ emulators = {
 	'MAME (Intellivision)': MameDriver(EmulatorStatus.Good, command_lines.mame_intellivision, ['bin', 'int', 'rom', 'itv']),
 	'MAME (Lynx)': MameDriver(EmulatorStatus.Good, command_lines.mame_lynx, ['lnx', 'lyx', 'o']),
 	#Could be weird where rotation is involved
+	'MAME (Magnavox Odyssey²)': MameDriver(EmulatorStatus.Good, command_lines.mame_odyssey2, ['bin', 'rom']),
 	'MAME (Master System)': MameDriver(EmulatorStatus.Good, command_lines.mame_master_system, ['bin', 'sms']),
 	'MAME (Mattel Juice Box)': MameDriver(EmulatorStatus.Good, mame_driver_callable('juicebox', 'memcard'), ['smc']),
 	'MAME (Mega Drive)': MameDriver(EmulatorStatus.Good, command_lines.mame_megadrive, ['bin', 'md', 'smd', 'gen']),
@@ -300,16 +304,12 @@ emulators = {
 	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it; anyway it works
 	'MAME (Dreamcast)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_dreamcast, mame_cdrom_formats),
 	#Sloooow, marked as non-working + imperfect sound
-	'MAME (G7400)': MameDriver(EmulatorStatus.Experimental, mame_driver_callable('g7400', 'cart'), ['bin', 'rom']),
-	#just has the same graphics problems as Odyssey 2... there's a odyssey3 driver that was never released but I guess it would be for NTSC games. Actually, all the software list items say unsupported... hmm
 	'MAME (IBM PC)': MameDriver(EmulatorStatus.Janky, mame_driver_callable('ibm5150', 'flop1', {'isa5': 'sblaster1_5'}, has_keyboard=True), mame_floppy_formats + ['img']),
 	#Sound Blaster 1.5 is added here primarily just to give this a joystick, but then that seems to not work anyway... also, there's DIP switches you might need to set in order for video output to work (it's set to monochrome by default and not CGA)
 	'MAME (Jaguar)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_atari_jaguar, ['j64', 'rom', 'bin', 'abs', 'cof', 'jag', 'prg']),
 	#Hmm. Mostly not working. Some stuff does though
 	'MAME (KC-85)': MameDriver(EmulatorStatus.Experimental, mame_driver_callable('kc85_3', 'quik'), ['kcc']),
 	#All marked as MACHINE_NOT_WORKING (some stuff doesn't seem to have sound or boot)
-	'MAME (Magnavox Odyssey²)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_odyssey2, ['bin', 'rom']),
-	#Isn't completely broken but a lot of games have broken graphics so like... ehh
 	'MAME (Mattel Aquarius)': MameDriver(EmulatorStatus.Experimental, mame_driver_callable('aquarius', 'cart', has_keyboard=True), ['bin', 'rom']),
 	#Controllers aren't emulated yet (and they're necessary for a lot of things)
 	'MAME (Mattel HyperScan)': MameDriver(EmulatorStatus.Experimental, mame_driver_callable('hyprscan', 'cdrom'), mame_cdrom_formats),

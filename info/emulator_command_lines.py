@@ -578,7 +578,7 @@ def mame_odyssey2(game, _, emulator_config):
 
 	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'videopac'
-	#system = 'jopac' if region == France could also be a thing? Hmm
+	#system = 'videopacf' if region == France could also be a thing? Hmm
 
 	return mame_driver(game, emulator_config, system, 'cart')
 

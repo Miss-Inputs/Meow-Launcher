@@ -62,6 +62,7 @@ systems = {
 	'GBA': SystemInfo('gba', ['gba'], ['mGBA', 'Mednafen (GBA)', 'MAME (GBA)', 'Medusa', 'GBE+'], {MediaType.Cartridge: ['gba', 'bin', 'srl'], MediaType.Executable: ['elf', 'mb']}),
 	'Intellivision': SystemInfo('intv', ['intv', 'intvecs'], ['MAME (Intellivision)'], {MediaType.Cartridge: ['bin', 'int', 'rom', 'itv']}),
 	'Lynx': SystemInfo('lynx', ['lynx'], ['Mednafen (Lynx)', 'MAME (Lynx)'], {MediaType.Cartridge: ['lnx', 'lyx'], MediaType.Executable: ['o']}),
+	'Magnavox Odyssey²': SystemInfo('odyssey2', ['odyssey2'], ['MAME (Magnavox Odyssey²)', 'MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Master System': SystemInfo('sms', ['sms'], ['Kega Fusion', 'Mednafen (Master System)', 'MAME (Master System)'], {MediaType.Cartridge: ['sms', 'gg', 'bin']}),
 	'Mega Drive': SystemInfo('megadriv', ['megadriv'], ['Kega Fusion', 'Mednafen (Mega Drive)', 'MAME (Mega Drive)'], {MediaType.Cartridge: ['bin', 'gen', 'md', 'smd', 'sgd']}),
 	'N64': SystemInfo('n64', ['n64'], ['Mupen64Plus', 'MAME (N64)'], {MediaType.Cartridge: ['z64', 'v64', 'n64', 'bin']}, 
@@ -105,6 +106,7 @@ systems = {
 	'Commodore CDTV': SystemInfo('cdtv', ['cdtv'], ['FS-UAE', 'MAME (Commodore CDTV)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'Entex Adventure Vision': SystemInfo('advision', ['advision'], ['MAME (Entex Adventure Vision)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Epoch Game Pocket Computer': SystemInfo('gamepock', ['gamepock'], ['MAME (Epoch Game Pocket Computer)'], {MediaType.Cartridge: ['bin']}),
+	'G7400': SystemInfo('g7400', ['g7400'], ['MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Gamate': SystemInfo('gamate', ['gamate'], ['MAME (Gamate)'], {MediaType.Cartridge: ['bin']}),
 	'Game.com': SystemInfo('gamecom', ['gamecom'], ['MAME (Game.com)'], {MediaType.Cartridge: ['tgc', 'bin']}),
 	'GameKing': SystemInfo('gameking', ['gameking'], ['MAME (GameKing)'], {MediaType.Cartridge: ['bin', 'gk']}),
@@ -199,12 +201,10 @@ systems.update({
 	#Theoretically supported, but not supported enough to be considered playable (see emulator_info for commentary there), but you can manually add them to systems.ini if you really want
 	'Amstrad PCW': BorkedSystemInfo('pcw10', ['pcw'], ['MAME (Amstrad PCW)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['com']}),
 	'CreatiVision': BorkedSystemInfo('crvision', ['crvision'], ['MAME (CreatiVision)'], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav']}),
-	'G7400': BorkedSystemInfo('g7400', ['g7400'], ['MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Gachinko Contest! Slot Machine TV': BorkedSystemInfo('gcslottv', ['gcslottv'], ['MAME (Gachinko Contest! Slot Machine TV)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Jaguar': BorkedSystemInfo('jaguar', ['jaguar'], ['MAME (Jaguar)'], {MediaType.Cartridge: ['j64', 'bin', 'rom'], MediaType.Executable: ['abs', 'cof', 'jag', 'prg']}),
 	'KC-85': BorkedSystemInfo('kc85_5', ['kc_cart', 'kc_cass', 'kc_flop'], ['MAME (KC-85)'], {MediaType.Executable: ['kcc'], MediaType.Tape: ['wav', 'kcb', 'tap', '853', '854', '855', 'tp2', 'kcm', 'sss'], MediaType.Cartridge: ['bin']}),
 	#kcc might also be a tape format?? ehhhh???
-	'Magnavox Odyssey²': BorkedSystemInfo('odyssey2', ['odyssey2'], ['MAME (Magnavox Odyssey²)', 'MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Mattel Aquarius': BorkedSystemInfo('aquarius', ['aquarius'], ['MAME (Mattel Aquarius)'], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav', 'caq']}),
 	'Mattel HyperScan': BorkedSystemInfo('hyprscan', ['hyperscan'], ['MAME (Mattel HyperScan)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'Microtan 65': BorkedSystemInfo('mt65', ['mt65_snap'], ['MAME (Microtan 65)'], {MediaType.Tape: ['wav'], MediaType.Executable: ['hex'], MediaType.Snapshot: ['dmp', 'm65']}), #MAME driver was "microtan" prior to 0.212
