@@ -420,7 +420,7 @@ class Machine():
 		if alt_names[-1].endswith(')') and not primary_name.endswith(')'):
 			#This stuff in brackets was probably a part of the whole thing, not the last alternate name
 			tags = find_filename_tags.findall(alt_names[-1])
-			primary_name += ' ' + ', '.join(tags)
+			primary_name += ' ' + ' '.join(tags)
 			alt_names[-1] = find_filename_tags.sub('', alt_names[-1])[:-1]
 
 		for alt_name in alt_names:
