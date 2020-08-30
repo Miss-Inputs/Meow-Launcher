@@ -75,7 +75,7 @@ def add_info_from_database_entry(game, database_entry):
 	#Status seems... out of date
 
 	#This is just here for debugging etc
-	game.metadata.specific_info['GoodName'] = database_entry.get('GoodName')
+	game.metadata.add_alternate_name(database_entry.get('GoodName'), 'GoodName')
 
 	if 'Players' in database_entry:
 		game.metadata.specific_info['Number-of-Players'] = database_entry['Players']
