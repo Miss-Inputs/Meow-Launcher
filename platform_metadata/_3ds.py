@@ -37,8 +37,8 @@ class _3DSVirtualConsolePlatform(Enum):
 	SNES = 'U'
 	GBA = 'P'
 
-def add_3ds_system_info(game):
-	game.metadata.tv_type = TVSystem.Agnostic
+def add_3ds_system_info(metadata):
+	metadata.tv_type = TVSystem.Agnostic
 
 	#Although we can't know for sure if the game uses the touchscreen, it's safe to assume that it probably does
 	builtin_gamepad = input_metadata.NormalController()
@@ -48,7 +48,7 @@ def add_3ds_system_info(game):
 	builtin_gamepad.shoulder_buttons = 2
 
 	controller = input_metadata.CombinedController([builtin_gamepad, input_metadata.Touchscreen()])
-	game.metadata.input_info.add_option(controller)
+	metadata.input_info.add_option(controller)
 
 media_unit = 0x200
 
@@ -428,7 +428,7 @@ def parse_3dsx(game):
 				parse_smdh_data(game, smdh_file.read())
 
 def add_3ds_metadata(game):
-	add_3ds_system_info(game)
+	add_3ds_system_info(game.metadata)
 	magic = game.rom.read(seek_to=0x100, amount=4)
 	#Hmm... do we really need this or should we just look at extension?
 	if magic == b'NCSD':
