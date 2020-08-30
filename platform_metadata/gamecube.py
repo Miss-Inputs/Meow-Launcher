@@ -40,7 +40,7 @@ def convert_rgb5a3(colour):
 		blue = convert5BitColor(colour & 0b0_00000_00000_11111)
 	return (red, green, blue, alpha)
 
-def parse_gamecube_banner_text(game, banner_bytes, encoding, lang=None):
+def parse_gamecube_banner_text(metadata, banner_bytes, encoding, lang=None):
 	short_title_line_1 = banner_bytes[0:0x20].decode(encoding, errors='backslashreplace').rstrip('\0 ')
 	short_title_line_2 = banner_bytes[0x20:0x40].decode(encoding, errors='backslashreplace').rstrip('\0 ')
 	title_line_1 = banner_bytes[0x40:0x80].decode(encoding, errors='backslashreplace').rstrip('\0 ')
@@ -50,11 +50,11 @@ def parse_gamecube_banner_text(game, banner_bytes, encoding, lang=None):
 	prefix = 'Banner'
 	if lang:
 		prefix = '{0}-{1}'.format(lang, prefix)
-	game.metadata.add_alternate_name(short_title_line_1, '{0}-Short-Title'.format(prefix))
-	game.metadata.specific_info['{0}-Short-Title-Line-2'.format(prefix)] = short_title_line_2
-	game.metadata.add_alternate_name(title_line_1, '{0}-Title'.format(prefix))
-	game.metadata.specific_info['{0}-Title-Line-2'.format(prefix)] = title_line_2
-	game.metadata.specific_info['{0}-Description'.format(prefix)] = description
+	metadata.add_alternate_name(short_title_line_1, '{0}-Short-Title'.format(prefix))
+	metadata.specific_info['{0}-Short-Title-Line-2'.format(prefix)] = short_title_line_2
+	metadata.add_alternate_name(title_line_1, '{0}-Title'.format(prefix))
+	metadata.specific_info['{0}-Title-Line-2'.format(prefix)] = title_line_2
+	metadata.specific_info['{0}-Description'.format(prefix)] = description
 
 
 def add_banner_info(game, banner):
@@ -64,7 +64,7 @@ def add_banner_info(game, banner):
 		#Dolphin uses line 2 as Publisher field but that's not always accurate (e.g. Paper Mario: The Thousand Year Door puts subtitle of the game's name on line 2) so it won't be used here
 		#Very often, short title and not-short title are exactly the same, but not always. I guess it just be like that
 		encoding = 'shift_jis' if game.metadata.specific_info['Region-Code'] == NintendoDiscRegion.NTSC_J else 'latin-1'
-		parse_gamecube_banner_text(game, banner[0x1820:0x1960], encoding)
+		parse_gamecube_banner_text(game.metadata, banner[0x1820:0x1960], encoding)
 
 		if banner_magic == b'BNR2':
 			languages = {
@@ -77,7 +77,7 @@ def add_banner_info(game, banner):
 			}
 			for i, lang_name in languages.items():
 				offset = 0x1820 + (i * 0x140)
-				parse_gamecube_banner_text(game, banner[offset: offset + 0x140], encoding, lang_name)
+				parse_gamecube_banner_text(game.metadata, banner[offset: offset + 0x140], encoding, lang_name)
 
 		if have_pillow:
 			banner_width = 96
