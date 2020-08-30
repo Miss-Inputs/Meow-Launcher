@@ -52,30 +52,30 @@ def add_3ds_system_info(metadata):
 
 media_unit = 0x200
 
-def parse_ncch(game, offset):
+def parse_ncch(rom, metadata, offset):
 	#Skip over SHA-256 siggy and magic
-	header = game.rom.read(seek_to=offset + 0x104, amount=0x100)
+	header = rom.read(seek_to=offset + 0x104, amount=0x100)
 	#Content size: 0-4 (media unit)
 	#Partition ID: 4-12
 	try:
 		maker = convert_alphanumeric(header[12:14])
 		if maker in nintendo_licensee_codes:
-			game.metadata.publisher = nintendo_licensee_codes[maker]
+			metadata.publisher = nintendo_licensee_codes[maker]
 	except NotAlphanumericException:
 		pass
 	#NCCH version: 14-16 (always 2?)
-	game.metadata.specific_info['NCCH-Version'] = int.from_bytes(header[14:16], 'little')
+	metadata.specific_info['NCCH-Version'] = int.from_bytes(header[14:16], 'little')
 	#Something about a hash: 16-20
 	#Program ID: 20-28
 	#Reserved: 28-44
 	#Logo region hash: 44-76
 	try:
 		product_code = header[76:86].decode('ascii')
-		game.metadata.product_code = product_code
+		metadata.product_code = product_code
 		#As usual, can get country and type from here, but it has more letters and as such you can also get category as well, or like... type 2 electric boogaloo. This also means we can't use convert_alphanumeric because it contains dashes, so I guess I need to fiddle with that method if I want to use it like that
 		#(To be precise: P = retail/cart, N = digital only, M = DLC, T = demos, U = patches)
 		try:
-			game.metadata.specific_info['Virtual-Console-Platform'] = _3DSVirtualConsolePlatform(product_code[6])
+			metadata.specific_info['Virtual-Console-Platform'] = _3DSVirtualConsolePlatform(product_code[6])
 		except ValueError:
 			pass
 	except UnicodeDecodeError:
@@ -87,13 +87,13 @@ def parse_ncch(game, offset):
 	is_data = (flags[5] & 1) > 0
 	is_executable = (flags[5] & 2) > 0
 	is_not_cxi = is_data and not is_executable
-	game.metadata.specific_info['Is-CXI'] = not is_not_cxi
+	metadata.specific_info['Is-CXI'] = not is_not_cxi
 	#Is system update = flags[5] & 4
 	#Is electronic manual = flags[5] & 8
 	#Is trial = flags[5] & 16
 	#Is zero key encrypted = flags[7] & 1
 	is_decrypted = (flags[7] & 4) > 0
-	game.metadata.specific_info['Decrypted'] = is_decrypted
+	metadata.specific_info['Decrypted'] = is_decrypted
 
 	plain_region_offset = (int.from_bytes(header[140:144], 'little') * media_unit) + offset
 	plain_region_length = (int.from_bytes(header[144:148], 'little') * media_unit)
@@ -105,21 +105,21 @@ def parse_ncch(game, offset):
 	#romfs_length = (int.from_bytes(header[176:180], 'little') * media_unit)
 
 	if plain_region_length:
-		parse_plain_region(game, plain_region_offset, plain_region_length)
+		parse_plain_region(rom, metadata, plain_region_offset, plain_region_length)
 	#Logo region: Stuff and things
 	if exefs_length:
-		parse_exefs(game, exefs_offset)
+		parse_exefs(rom, metadata, exefs_offset)
 	#RomFS: Filesystem really
 
 	if (not is_not_cxi) and is_decrypted:
-		extended_header = game.rom.read(seek_to=offset + 0x200, amount=0x800)
+		extended_header = rom.read(seek_to=offset + 0x200, amount=0x800)
 		system_control_info = extended_header[0:0x200]
 		#Access control info: 0x200:0x400
 		#AccessDesc signature: 0x400:0x500
 		#RSA-2048 public key: 0x500:0x600
 		#Access control info 2: 0x600:0x800
 		
-		game.metadata.specific_info['Internal-Title'] = system_control_info[0:8].decode('ascii', errors='ignore').rstrip('\0')
+		metadata.specific_info['Internal-Title'] = system_control_info[0:8].decode('ascii', errors='ignore').rstrip('\0')
 		#Reserved: 0x8:0xd
 		#Flags (bit 0 = CompressExefsCode, bit 1 = SDApplication): 0xd
 		#Remaster version: 0xe:0x10
@@ -132,7 +132,7 @@ def parse_ncch(game, offset):
 		#Dependency module ID list: 0x40:0x1c0
 		#SystemInfo: 0x1c0:0x200
 		save_size = int.from_bytes(system_control_info[0x1c0:0x1c8], 'little')
-		game.metadata.save_type = SaveType.Internal if save_size > 0 else SaveType.Nothing
+		metadata.save_type = SaveType.Internal if save_size > 0 else SaveType.Nothing
 		#access_control_info = extended_header[0x200:0x400]
 		#arm11_local_sys_capabilities = access_control_info[0:0x170]
 		#flag1 = arm11_local_sys_capabilities[0xc] Enable L2 cache, 804MHz CPU speed
@@ -143,37 +143,38 @@ def parse_ncch(game, offset):
 		#extended_service_access_control = arm11_local_sys_capabilities[0x150:0x160]
 
 
-def parse_plain_region(game, offset, length):
+def parse_plain_region(rom, metadata, offset, length):
 	#Plain region stores the libraries used, at least for official games
 	#See also: https://github.com/Zowayix/ROMniscience/wiki/3DS-libraries-used for research
-	plain_region = game.rom.read(seek_to=offset, amount=length)
+	#Hmm… since I sort of abandoned ROMniscience I should put that somewhere else
+	plain_region = rom.read(seek_to=offset, amount=length)
 	libraries = [lib.decode('ascii', errors='backslashreplace') for lib in plain_region.split(b'\x00') if lib]
 
 	#TODO: If a game has an update which adds functionality identified by one of these library names, then that'll be a separate file, so it's like... how do we know that Super Smash Bros the .3ds file has amiibo support when Super Smash Bros 1.1.7 update data the .cxi is where it says that, because with and only with the update data it would support amiibos, etc; if that all makes sense
 	#Unless like... I search ~/.local/share/citra-emu/sdmc/Nintendo 3DS for what update CIAs are installed and... aaaaaaaaaaaaaaaa
 	for library in libraries:
 		if library.startswith('[SDK+ISP:QRDec'):
-			game.metadata.specific_info['Reads-QR-Codes'] = True
+			metadata.specific_info['Reads-QR-Codes'] = True
 		elif library.startswith('[SDK+ISP:QREnc'):
-			game.metadata.specific_info['Makes-QR-Codes'] = True
+			metadata.specific_info['Makes-QR-Codes'] = True
 		elif library == '[SDK+NINTENDO:ExtraPad]':
-			game.metadata.specific_info['Uses-Circle-Pad-Pro'] = True
+			metadata.specific_info['Uses-Circle-Pad-Pro'] = True
 			#ZL + ZR + right analog stick; New 3DS has these too but the extra controls there are internally represented as a Circle Pad Pro for compatibility so this all works out I think
-			game.metadata.input_info.input_options[0].inputs[0].components[0].analog_sticks += 1
-			game.metadata.input_info.input_options[0].inputs[0].components[0].shoulder_buttons += 2
+			metadata.input_info.input_options[0].inputs[0].components[0].analog_sticks += 1
+			metadata.input_info.input_options[0].inputs[0].components[0].shoulder_buttons += 2
 		elif library.startswith == '[SDK+NINTENDO:Gyroscope]':
-			game.metadata.specific_info['Uses-Gyroscope'] = True
-			game.metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls())
+			metadata.specific_info['Uses-Gyroscope'] = True
+			metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls())
 		elif library == '[SDK+NINTENDO:IsRunOnSnake]':
 			#There's also an IsRunOnSnakeForApplet found in some not-completely-sure-what-they-are builtin apps and amiibo Settings. Not sure if it does what I think it does
-			game.metadata.specific_info['New-3DS-Enhanced'] = True
+			metadata.specific_info['New-3DS-Enhanced'] = True
 		elif library == '[SDK+NINTENDO:NFP]':
-			game.metadata.specific_info['Uses-Amiibo'] = True
+			metadata.specific_info['Uses-Amiibo'] = True
 		elif library.startswith('[SDK+NINTENDO:CTRFaceLibrary-'):
-			game.metadata.specific_info['Uses-Miis'] = True
+			metadata.specific_info['Uses-Miis'] = True
 
-def parse_exefs(game, offset):
-	header = game.rom.read(seek_to=offset, amount=0x200)
+def parse_exefs(rom, metadata, offset):
+	header = rom.read(seek_to=offset, amount=0x200)
 	for i in range(0, 10):
 		try:
 			filename = header[(i * 16): (i * 16) + 8].decode('ascii').rstrip('\x00')
@@ -182,24 +183,24 @@ def parse_exefs(game, offset):
 		file_offset = int.from_bytes(header[(i * 16) + 8: (i * 16) + 8 + 4], 'little') + 0x200 + offset
 		file_length = int.from_bytes(header[(i * 16) + 12: (i * 16) + 12 + 4], 'little')
 		if filename == 'icon':
-			parse_smdh(game, file_offset, file_length)
+			parse_smdh(rom, metadata, file_offset, file_length)
 		#Logo contains some stuff, banner contains 3D graphics and sounds for the home menu, .code contains actual executable
 
 
-def parse_smdh(game, offset=0, length=-1):
-	game.metadata.specific_info['Has-SMDH'] = True
+def parse_smdh(rom, metadata, offset=0, length=-1):
+	metadata.specific_info['Has-SMDH'] = True
 	#At this point it's fine to just read in the whole thing
-	smdh = game.rom.read(seek_to=offset, amount=length)
-	parse_smdh_data(game, smdh)
+	smdh = rom.read(seek_to=offset, amount=length)
+	parse_smdh_data(metadata, smdh)
 
-def parse_smdh_data(game, smdh):
+def parse_smdh_data(metadata, smdh):
 	magic = smdh[:4]
 	if magic != b'SMDH':
 		return
 	#Version = 4-6
 	#Reserved = 6-8
 
-	parse_ratings(game, smdh[0x2008:0x2018], True, False)
+	parse_ratings(metadata, smdh[0x2008:0x2018], True, False)
 
 	region_code_flag = int.from_bytes(smdh[0x2018:0x201c], 'little')
 	if region_code_flag in (_3DSRegionCode.RegionFree, 0xffffffff):
@@ -213,7 +214,7 @@ def parse_smdh_data(game, smdh):
 			if region.value & region_code_flag:
 				region_codes.append(region)
 	if region_codes:
-		game.metadata.specific_info['Region-Code'] = region_codes
+		metadata.specific_info['Region-Code'] = region_codes
 	#Match maker IDs for online play = 0x201c-0x2028
 	flags = int.from_bytes(smdh[0x2028:0x202c], 'little')
 	#Visible on home menu: flags & 1
@@ -231,21 +232,21 @@ def parse_smdh_data(game, smdh):
 	#	#I guess this'd be SaveType.MemoryCard in some cases, but... meh
 	#	game.metadata.save_type = SaveType.Internal if has_save else SaveType.Nothing
 	if flags & 4096:
-		game.metadata.platform = 'New 3DS'
+		metadata.platform = 'New 3DS'
 
 	#EULA version: 0x202c-0x202e
 	#Reserved 2 = 0x202e-0x2030
 	#Optimal animation default frame = 0x2030-0x2034
 	cec_id = smdh[0x2034:0x2038]
-	game.metadata.specific_info['Uses-StreetPass'] = cec_id != b'\x00\x00\x00\x00'
+	metadata.specific_info['Uses-StreetPass'] = cec_id != b'\x00\x00\x00\x00'
 	#Reserved: 0x2038-0x2040
 	
 	if have_pillow:
 		smol_icon = smdh[0x2040:0x24c0]
-		game.metadata.images['Small-Icon'] = decode_icon(smol_icon, 24)
+		metadata.images['Small-Icon'] = decode_icon(smol_icon, 24)
 
 		large_icon = smdh[0x24c0:0x36c0]
-		game.metadata.images['Icon'] = decode_icon(large_icon, 48)
+		metadata.images['Icon'] = decode_icon(large_icon, 48)
 
 	languages = {
 		0: 'Japanese',
@@ -328,21 +329,21 @@ def parse_smdh_data(game, smdh):
 			local_publisher = list(publishers.values())[0]
 
 	if local_short_title:
-		game.metadata.add_alternate_name(local_short_title, 'Banner-Short-Title')
+		metadata.add_alternate_name(local_short_title, 'Banner-Short-Title')
 	if local_long_title:
-		game.metadata.add_alternate_name(local_long_title, 'Banner-Title')
+		metadata.add_alternate_name(local_long_title, 'Banner-Title')
 	if local_publisher:
-		game.metadata.publisher = local_publisher
+		metadata.publisher = local_publisher
 
 	for lang, short_title in short_titles.items():
 		if short_title != local_short_title:
-			game.metadata.add_alternate_name(short_title, '{0}-Banner-Short-Title'.format(lang.replace(' ', '-')))
+			metadata.add_alternate_name(short_title, '{0}-Banner-Short-Title'.format(lang.replace(' ', '-')))
 	for lang, long_title in long_titles.items():
 		if long_title != local_long_title:
-			game.metadata.add_alternate_name(long_title, '{0}-Banner-Title'.format(lang.replace(' ', '-')))
+			metadata.add_alternate_name(long_title, '{0}-Banner-Title'.format(lang.replace(' ', '-')))
 	for lang, publisher in publishers.items():
 		if publisher != local_publisher:
-			game.metadata.specific_info['{0}-Publisher'.format(lang.replace(' ', '-'))] = publisher
+			metadata.specific_info['{0}-Publisher'.format(lang.replace(' ', '-'))] = publisher
 
 tile_order = [
 	#What the actual balls?
@@ -376,10 +377,10 @@ def decode_icon(icon_data, size):
 				i += 2
 	return icon
 
-def parse_ncsd(game):
+def parse_ncsd(rom, metadata):
 	#Assuming CCI (.3ds) here
 	#Skip over SHA-256 signature and magic
-	header = game.rom.read(seek_to=0x104, amount=0x100)
+	header = rom.read(seek_to=0x104, amount=0x100)
 	#ROM size: 0-4
 	#Media ID: 4-12
 	#Partition types: 12-20
@@ -394,46 +395,46 @@ def parse_ncsd(game):
 		partition_lengths.append(partition_length)
 	if partition_lengths[0]:
 		#Ignore lengths, we're not just gonna read the whole NCCH in one block because that would use a heckton of memory and whatnot
-		parse_ncch(game, partition_offsets[0])
+		parse_ncch(rom, metadata, partition_offsets[0])
 	#Partition 1: Electronic manual
 	#Partition 2: Download Play child
 	#Partition 6: New 3DS update data
 	#Partition 7: Update data
-	card_info_header = game.rom.read(seek_to=0x200, amount=0x314)
+	card_info_header = rom.read(seek_to=0x200, amount=0x314)
 	card2_writeable_address = int.from_bytes(card_info_header[:4], 'little')
 	if card2_writeable_address != 0xffffffff:
-		game.metadata.save_type = SaveType.Cart
-	game.metadata.specific_info['Title-Version'] = int.from_bytes(card_info_header[0x210:0x212], 'little')
-	game.metadata.specific_info['Card-Version'] = int.from_bytes(card_info_header[0x212:0x214], 'little')
+		metadata.save_type = SaveType.Cart
+	metadata.specific_info['Title-Version'] = int.from_bytes(card_info_header[0x210:0x212], 'little')
+	metadata.specific_info['Card-Version'] = int.from_bytes(card_info_header[0x212:0x214], 'little')
 
-def parse_3dsx(game):
-	header = game.rom.read(amount=0x20)
+def parse_3dsx(rom, metadata):
+	header = rom.read(amount=0x20)
 	header_size = int.from_bytes(header[4:6], 'little')
 	has_extended_header = header_size > 32
 
 	look_for_smdh_file = True
 	if has_extended_header:
-		extended_header = game.rom.read(seek_to=0x20, amount=12)
+		extended_header = rom.read(seek_to=0x20, amount=12)
 		smdh_offset = int.from_bytes(extended_header[0:4], 'little')
 		smdh_size = int.from_bytes(extended_header[4:8], 'little')
 
 		if smdh_size:
 			look_for_smdh_file = False
-			parse_smdh(game, smdh_offset, smdh_size)
+			parse_smdh(rom, metadata, smdh_offset, smdh_size)
 
 	if look_for_smdh_file:
-		smdh_name = os.path.splitext(game.rom.path)[0] + '.smdh'
+		smdh_name = os.path.splitext(rom.path)[0] + '.smdh'
 		if os.path.isfile(smdh_name):
 			with open(smdh_name, 'rb') as smdh_file:
-				parse_smdh_data(game, smdh_file.read())
+				parse_smdh_data(metadata, smdh_file.read())
 
 def add_3ds_metadata(game):
 	add_3ds_system_info(game.metadata)
 	magic = game.rom.read(seek_to=0x100, amount=4)
 	#Hmm... do we really need this or should we just look at extension?
 	if magic == b'NCSD':
-		parse_ncsd(game)
+		parse_ncsd(game.rom, game.metadata)
 	elif magic == b'NCCH':
-		parse_ncch(game, 0)
+		parse_ncch(game.rom, game.metadata, 0)
 	elif game.rom.extension == '3dsx':
-		parse_3dsx(game)
+		parse_3dsx(game.rom, game.metadata)

@@ -9,16 +9,12 @@ import struct
 import input_metadata
 from common import NotAlphanumericException, convert_alphanumeric
 from data.nintendo_licensee_codes import nintendo_licensee_codes
-from info.region_info import TVSystem, get_region_by_name
+from info.region_info import get_region_by_name
 
 from .wii import parse_ratings
 
 #TODO: Detect PassMe carts, and reject the rest of the header if so (well, product code and publisher)
 #For DSiWare, we can get public.sav and private.sav filesize, and that tells us if SaveType = Internal or Nothing. But we won't worry about DSiWare for now due to lack of accessible emulation at the moment.
-
-def add_ds_system_info(game):
-	#Hmm
-	game.metadata.tv_type = TVSystem.Agnostic
 
 def convert_ds_colour_to_rgba(colour, is_transparent):
 	red = (colour & 0b_00000_00000_11111) << 3
@@ -62,7 +58,7 @@ def parse_dsi_region_flags(region_flags):
 		regions.append(get_region_by_name('Korea'))
 	return regions
 
-def add_banner_title_metadata(game, banner_title, language=None):
+def add_banner_title_metadata(metadata, banner_title, language=None):
 	lines = banner_title.splitlines()
 	metadata_name = 'Banner-Title'
 	if language:
@@ -76,41 +72,40 @@ def add_banner_title_metadata(game, banner_title, language=None):
 		#Can't decide what to eat?
 		#Nintendo
 		if len(lines) == 1:
-			game.metadata.specific_info[metadata_name] = lines[0]
+			metadata.specific_info[metadata_name] = lines[0]
 		else:
-			game.metadata.specific_info[metadata_name] = ' '.join(lines[:-1])
-			#This is usually the publisher! But it has a decent chance of being something else so I'm not gonna set game.metadata.publisher from it
-			#Wait, why am I putting it in the metadata then? Oh well
-			game.metadata.specific_info[metadata_name + '-Final-Line'] = lines[-1]
+			metadata.specific_info[metadata_name] = ' '.join(lines[:-1])
+			#This is usually the publisher… but it has a decent chance of being something else so I'm not gonna set metadata.publisher from it
+			metadata.specific_info[metadata_name + '-Final-Line'] = lines[-1]
 
-def parse_ds_header(game, header):
+def parse_ds_header(rom, metadata, header):
 	internal_title = header[0:12].decode('ascii', errors='backslashreplace').rstrip('\0')
 	if internal_title:
-		game.metadata.specific_info['Internal-Title'] = internal_title
+		metadata.specific_info['Internal-Title'] = internal_title
 
 	try:
 		product_code = convert_alphanumeric(header[12:16])
-		game.metadata.product_code = product_code
+		metadata.product_code = product_code
 	except NotAlphanumericException:
 		pass
 
 	try:
 		licensee_code = convert_alphanumeric(header[16:18])
 		if licensee_code in nintendo_licensee_codes:
-			game.metadata.publisher = nintendo_licensee_codes[licensee_code]
+			metadata.publisher = nintendo_licensee_codes[licensee_code]
 	except NotAlphanumericException:
 		pass
 
 	is_dsi = False
 	unit_code = header[18]
 	if unit_code == 0:
-		game.metadata.specific_info['DSi-Enhanced'] = False
+		metadata.specific_info['DSi-Enhanced'] = False
 	elif unit_code == 2:
 		is_dsi = True
-		game.metadata.specific_info['DSi-Enhanced'] = True
+		metadata.specific_info['DSi-Enhanced'] = True
 	elif unit_code == 3:
 		is_dsi = True
-		game.metadata.platform = "DSi"
+		metadata.platform = "DSi"
 
 	if is_dsi:
 		region_flags = int.from_bytes(header[0x1b0:0x1b4], 'little')
@@ -118,25 +113,25 @@ def parse_ds_header(game, header):
 			#If they're set any higher than this, it's region free
 			#GBATEK says region free is 0xffffffff specifically but Pokemon gen 5 is 0xffffffef so who knows
 			#Although either way, it doesn't imply regions is world, it just means it'll work worldwide, so like... ehh... regions is a weird metadata field tbh
-			game.metadata.regions = parse_dsi_region_flags(region_flags)
-		parse_ratings(game, header[0x2f0:0x300], True, False)
+			metadata.regions = parse_dsi_region_flags(region_flags)
+		parse_ratings(metadata, header[0x2f0:0x300], True, False)
 	else:
 		region = header[29]
 		if region == 0x40:
-			game.metadata.regions = [get_region_by_name('Korea')]
+			metadata.regions = [get_region_by_name('Korea')]
 		elif region == 0x80:
-			game.metadata.regions = [get_region_by_name('China')]
-			game.metadata.specific_info['Is-iQue'] = True
+			metadata.regions = [get_region_by_name('China')]
+			metadata.specific_info['Is-iQue'] = True
 		#If 0, could be anywhere else
-	game.metadata.specific_info['Revision'] = header[30]
+	metadata.specific_info['Revision'] = header[30]
 
 	banner_offset = int.from_bytes(header[0x68:0x6C], 'little')
 	if banner_offset:
 		#The extended part of the banner if is_dsi contains animated icon frames, so we don't really need it
 		banner_size = int.from_bytes(header[0x208:0x20c], 'little') if is_dsi else 0xA00
-		banner = game.rom.read(seek_to=banner_offset, amount=banner_size)
+		banner = rom.read(seek_to=banner_offset, amount=banner_size)
 		version = int.from_bytes(banner[0:2], 'little')
-		game.metadata.specific_info['Banner-Version'] = version
+		metadata.specific_info['Banner-Version'] = version
 		#2 = has Chinese, 3 = has Korean, 0x103, has DSi stuff
 
 		if version in (1, 2, 3, 0x103):
@@ -162,20 +157,20 @@ def parse_ds_header(game, header):
 					continue
 			
 			for lang, title in banner_titles.items():
-				add_banner_title_metadata(game, title, lang)
+				add_banner_title_metadata(metadata, title, lang)
 
 			#TODO: Not sure if every game has an English title, it is normally a region free system but maybe iQue carts don't have a proper English title
 			if banner_titles:
 				banner_title = banner_titles.get('English', list(banner_titles.values())[0])
-				add_banner_title_metadata(game, banner_title)
+				add_banner_title_metadata(metadata, banner_title)
 
 			if len(banner) >= 0x240:
 				if have_pillow:
 					icon_bitmap = banner[0x20:0x220]
 					icon_palette = struct.unpack('H' * 16, banner[0x220:0x240])
-					game.metadata.images['Icon'] = decode_icon(icon_bitmap, icon_palette)
+					metadata.images['Icon'] = decode_icon(icon_bitmap, icon_palette)
 
-def add_ds_input_info(game):
+def add_ds_input_info(metadata):
 	builtin_buttons = input_metadata.NormalController()
 	builtin_buttons.dpads = 1
 	builtin_buttons.face_buttons = 4 #I forgot why we're not counting Start and Select but I guess that's a thing
@@ -185,17 +180,17 @@ def add_ds_input_info(game):
 	bluetooth_keyboard = input_metadata.Keyboard()
 	bluetooth_keyboard.keys = 64 #If I counted correctly from the image...
 
-	if game.metadata.product_code:
-		if game.metadata.product_code.startswith('UZP'):
+	if metadata.product_code:
+		if metadata.product_code.startswith('UZP'):
 			#For now, we'll detect stuff by product code... this is Learn with Pokemon Typing Adventure, and it's different because the Bluetooth adapter is in the cartridge itself
-			game.metadata.specific_info['Uses-Keyboard'] = True
+			metadata.specific_info['Uses-Keyboard'] = True
 			#Keyboard is technically optional, as I understand it, so I guess it's a separate option
-			game.metadata.input_info.add_option(bluetooth_keyboard)
+			metadata.input_info.add_option(bluetooth_keyboard)
 
-	if game.metadata.platform == 'DSi':
+	if metadata.platform == 'DSi':
 		#Since the DSi has no GBA slot, there's nothing to put funny expansion devices into.
 		#Hmmm... would I be able to make that assumption with DSi-enhanced games?
-		game.metadata.input_info.add_option(builtin_gamepad)
+		metadata.input_info.add_option(builtin_gamepad)
 		return
 
 	#Certain games use other input_info that I haven't automagically detected:
@@ -207,12 +202,10 @@ def add_ds_input_info(game):
 	#Various homebrew: DS Motion Pack
 
 	#But for now let's just do the standard controls, and hence cause code duplication
-	game.metadata.input_info.add_option(builtin_gamepad)
+	metadata.input_info.add_option(builtin_gamepad)
 
 
 def add_ds_metadata(game):
-	add_ds_system_info(game)
-
 	header = game.rom.read(amount=0x300)
-	parse_ds_header(game, header)
-	add_ds_input_info(game)
+	parse_ds_header(game.rom, game.metadata, header)
+	add_ds_input_info(game.metadata)
