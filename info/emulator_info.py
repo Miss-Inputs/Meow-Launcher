@@ -274,6 +274,8 @@ emulators = {
 	#As it says right there in the fmtowns.cpp comments: "Issues: Video emulation is far from complete." and still marked not working, but it seems okay for a few games actually; creating floppies (for games that make you do that) seems like a weird time
 	'MAME (Gachinko Contest! Slot Machine TV)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('gcslottv', 'cart'), generic_cart_extensions),
 	#Not working and imperfect sound
+	'MAME (GameKing)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('gameking', 'cart'), ['bin', 'gk']),
+	'MAME (GameKing 3)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('gamekin3', 'cart'), ['bin', 'gk3']),
 	'MAME (Hartung Game Master)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('gmaster', 'cart'), ['bin']),
 	#Hmm... says not working and imperfect sound. I guess it does run the games, though
 	'MAME (PC-6001)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('pc6001', 'cart1', has_keyboard=True), ['bin', 'rom']),
@@ -298,8 +300,6 @@ emulators = {
 	#The controller is part of the keyboard, and it's treated as though the only thing is the keyboard so it gets way too weird to set up. This makes about as much sense as I worded it; anyway it works
 	'MAME (Dreamcast)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_dreamcast, mame_cdrom_formats),
 	#Sloooow, marked as non-working + imperfect sound
-	'MAME (GameKing)': MameDriver(EmulatorStatus.Experimental, mame_driver_callable('gameking', 'cart'), ['bin', 'gk']), #No sound yet
-	'MAME (GameKing 3)': MameDriver(EmulatorStatus.Experimental, mame_driver_callable('gamekin3', 'cart'), ['bin', 'gk3']), #No sound yet
 	'MAME (G7400)': MameDriver(EmulatorStatus.Experimental, mame_driver_callable('g7400', 'cart'), ['bin', 'rom']),
 	#just has the same graphics problems as Odyssey 2... there's a odyssey3 driver that was never released but I guess it would be for NTSC games. Actually, all the software list items say unsupported... hmm
 	'MAME (IBM PC)': MameDriver(EmulatorStatus.Janky, mame_driver_callable('ibm5150', 'flop1', {'isa5': 'sblaster1_5'}, has_keyboard=True), mame_floppy_formats + ['img']),

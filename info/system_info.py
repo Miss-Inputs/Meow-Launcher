@@ -107,6 +107,8 @@ systems = {
 	'Epoch Game Pocket Computer': SystemInfo('gamepock', ['gamepock'], ['MAME (Epoch Game Pocket Computer)'], {MediaType.Cartridge: ['bin']}),
 	'Gamate': SystemInfo('gamate', ['gamate'], ['MAME (Gamate)'], {MediaType.Cartridge: ['bin']}),
 	'Game.com': SystemInfo('gamecom', ['gamecom'], ['MAME (Game.com)'], {MediaType.Cartridge: ['tgc', 'bin']}),
+	'GameKing': SystemInfo('gameking', ['gameking'], ['MAME (GameKing)'], {MediaType.Cartridge: ['bin', 'gk']}),
+	'GameKing 3': SystemInfo('gamekin3', ['gameking3'], ['MAME (GameKing 3)'], {MediaType.Cartridge: ['bin', 'gk3']}),
 	'Hartung Game Master': SystemInfo('gmaster', ['gmaster'], ['MAME (Hartung Game Master)'], {MediaType.Cartridge: ['bin']}),
 	'Mattel Juice Box': SystemInfo('juicebox', ['juicebox'], ['MAME (Mattel Juice Box)'], {MediaType.Cartridge: ['smc']}),
 	#Now for those who actually do know what this is, you may be thinking: But doesn't that just play videos? Isn't this really pointless? And the answer is yes, yes it is. I love pointless.
@@ -199,9 +201,6 @@ systems.update({
 	'CreatiVision': BorkedSystemInfo('crvision', ['crvision'], ['MAME (CreatiVision)'], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav']}),
 	'G7400': BorkedSystemInfo('g7400', ['g7400'], ['MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Gachinko Contest! Slot Machine TV': BorkedSystemInfo('gcslottv', ['gcslottv'], ['MAME (Gachinko Contest! Slot Machine TV)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'GameKing': BorkedSystemInfo('gameking', ['gameking'], ['MAME (GameKing)'], {MediaType.Cartridge: ['bin', 'gk']}),
-	#Still no sound
-	'GameKing 3': BorkedSystemInfo('gamekin3', ['gameking3'], ['MAME (GameKing 3)'], {MediaType.Cartridge: ['bin', 'gk3']}),
 	'Jaguar': BorkedSystemInfo('jaguar', ['jaguar'], ['MAME (Jaguar)'], {MediaType.Cartridge: ['j64', 'bin', 'rom'], MediaType.Executable: ['abs', 'cof', 'jag', 'prg']}),
 	'KC-85': BorkedSystemInfo('kc85_5', ['kc_cart', 'kc_cass', 'kc_flop'], ['MAME (KC-85)'], {MediaType.Executable: ['kcc'], MediaType.Tape: ['wav', 'kcb', 'tap', '853', '854', '855', 'tp2', 'kcm', 'sss'], MediaType.Cartridge: ['bin']}),
 	#kcc might also be a tape format?? ehhhh???
