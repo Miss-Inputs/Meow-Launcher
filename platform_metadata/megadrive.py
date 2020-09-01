@@ -31,53 +31,53 @@ class MegadriveRegionCodes(Enum):
 	Europe8 = auto() #8, not sure what's different than normal Europe?
 	USAEurope = auto() #C, not sure what's different than World?
 
-def parse_peripherals(game, peripherals):
-	game.metadata.input_info.buttons = 3
+def parse_peripherals(metadata, peripherals):
+	metadata.input_info.buttons = 3
 	for peripheral_char in peripherals:
 		if peripheral_char == 'M':
 			#3 buttons if I'm not mistaken
 			mouse = input_metadata.Mouse()
 			mouse.buttons = 3
-			game.metadata.input_info.add_option(mouse)
+			metadata.input_info.add_option(mouse)
 		elif peripheral_char == 'V':
 			#Is this just the SMS paddle?
-			game.metadata.input_info.add_option(input_metadata.Paddle())
+			metadata.input_info.add_option(input_metadata.Paddle())
 		elif peripheral_char == 'A':
 			xe_1_ap = input_metadata.NormalController()
 			xe_1_ap.face_buttons = 10
 			xe_1_ap.shoulder_buttons = 4
 			xe_1_ap.analog_sticks = 2 #The second one only has one axis, though
-			game.metadata.input_info.add_option(xe_1_ap)
+			metadata.input_info.add_option(xe_1_ap)
 		elif peripheral_char == 'G':
 			menacer = input_metadata.LightGun()
 			menacer.buttons = 2 #Also pause button
-			game.metadata.input_info.add_option(menacer)
+			metadata.input_info.add_option(menacer)
 		elif peripheral_char == 'K':
 			xband_keyboard = input_metadata.Keyboard()
 			xband_keyboard.keys = 68 #I think I counted that right... I was just looking at the picture
-			game.metadata.input_info.add_option(xband_keyboard)
+			metadata.input_info.add_option(xband_keyboard)
 		elif peripheral_char == 'J':
-			game.metadata.input_info.add_option(standard_gamepad)
+			metadata.input_info.add_option(standard_gamepad)
 		elif peripheral_char == '6':
 			six_button_gamepad = input_metadata.NormalController()
 			six_button_gamepad.face_buttons = 6
 			six_button_gamepad.dpads = 1
-			game.metadata.input_info.add_option(six_button_gamepad)
-			game.metadata.specific_info['Uses-6-Button-Controller'] = True
+			metadata.input_info.add_option(six_button_gamepad)
+			metadata.specific_info['Uses-6-Button-Controller'] = True
 		elif peripheral_char == '0':
 			sms_gamepad = input_metadata.NormalController()
 			sms_gamepad.face_buttons = 2
 			sms_gamepad.dpads = 1
-			game.metadata.input_info.add_option(sms_gamepad)
+			metadata.input_info.add_option(sms_gamepad)
 		elif peripheral_char == 'L':
 			#Activator
-			game.metadata.input_info.add_option(input_metadata.MotionControls())
+			metadata.input_info.add_option(input_metadata.MotionControls())
 		elif peripheral_char in ('4', 'O'):
 			#Team Play and J-Cart respectively
 			#num_players = 4
 			pass
 		elif peripheral_char == 'C':
-			game.metadata.specific_info['Uses-CD'] = True
+			metadata.specific_info['Uses-CD'] = True
 		#Apparently these also exist with dubious/unclear definitions:
 		#P: "Printer"
 		#B: "Control Ball"
@@ -85,35 +85,35 @@ def parse_peripherals(game, peripherals):
 		#R: "RS232C Serial"
 		#T: "Tablet"
 
-def add_megadrive_info(game, header):
+def add_megadrive_info(metadata, header):
 	try:
 		console_name = header[:16].decode('ascii')
 	except UnicodeDecodeError:
-		game.metadata.specific_info['Bad-TMSS'] = True
+		metadata.specific_info['Bad-TMSS'] = True
 		return
 
 	if not console_name.startswith('SEGA') and not console_name.startswith(' SEGA') and console_name not in ('IMA IKUNOUJYUKU ', 'IMA IKUNOJYUKU  ', 'SAMSUNG PICO    '):
-		game.metadata.specific_info['Console-Name'] = console_name
-		game.metadata.specific_info['Bad-TMSS'] = True
+		metadata.specific_info['Console-Name'] = console_name
+		metadata.specific_info['Bad-TMSS'] = True
 		return
 
-	if game.metadata.platform == 'Mega CD' and console_name.startswith('SEGA 32X'):
+	if metadata.platform == 'Mega CD' and console_name.startswith('SEGA 32X'):
 		#Could also set platform to something like "Mega CD 32X" I guess
-		game.metadata.specific_info['32X-Only'] = True
+		metadata.specific_info['32X-Only'] = True
 
 	try:
 		copyright_string = header[16:32].decode('ascii')
-		game.metadata.specific_info['Copyright'] = copyright_string
+		metadata.specific_info['Copyright'] = copyright_string
 		copyright_match = copyright_regex.match(copyright_string)
 		if copyright_match:
 			maker = copyright_match[1].strip().rstrip(',')
 			maker = t_with_zero.sub('T-', maker)
 			maker = t_not_followed_by_dash.sub('T-', maker)
 			if maker in licensee_codes:
-				game.metadata.publisher = licensee_codes[maker]
-			game.metadata.year = copyright_match[2]
+				metadata.publisher = licensee_codes[maker]
+			metadata.year = copyright_match[2]
 			try:
-				game.metadata.month = datetime.strptime(copyright_match[3], '%b').strftime('%B')
+				metadata.month = datetime.strptime(copyright_match[3], '%b').strftime('%B')
 			except ValueError:
 				#There are other spellings such as JUR, JLY out there, but oh well
 				pass
@@ -123,32 +123,32 @@ def add_megadrive_info(game, header):
 	domestic_title = header[32:80].decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
 	overseas_title = header[80:128].decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
 	if domestic_title:
-		game.metadata.specific_info['Internal-Title'] = domestic_title
+		metadata.specific_info['Internal-Title'] = domestic_title
 	if overseas_title:
 		#Often the same as domestic title, but for games that get their names changed yet work on multiple regions, domestic is the title in Japan and and overseas is in USA (and maybe Europe). I don't know what happens if a game is originally in USA then gets its name changed when it goes to Japan, but it might just be "Japan is domestic and everwhere else is overseas"
-		game.metadata.specific_info['Internal-Overseas-Title'] = overseas_title
+		metadata.specific_info['Internal-Overseas-Title'] = overseas_title
 	#Product type: 128:130, it's usually GM for game but then some other values appear too (especially in Sega Pico)
 	#Space for padding: 130
 
 	try:
 		serial = header[131:142].decode('ascii')
-		game.metadata.product_code = serial[:8].rstrip('\0 ')
+		metadata.product_code = serial[:8].rstrip('\0 ')
 		#- in between
 		version = serial[-2]
 		if version.isdigit():
-			game.metadata.specific_info['Revision'] = int(version)
+			metadata.specific_info['Revision'] = int(version)
 	except UnicodeDecodeError:
 		pass
 	#Checksum: header[142:144]
 
 	peripherals = [c for c in header[144:160].decode('ascii', errors='ignore') if c not in ('\x00', ' ')]
-	parse_peripherals(game, peripherals)
+	parse_peripherals(metadata, peripherals)
 
-	if game.metadata.platform == 'Mega Drive':
+	if metadata.platform == 'Mega Drive':
 		save_id = header[0xb0:0xb4]
 		#Apparently... what the heck
 		#This seems to be different on Mega CD, and also 32X
-		game.metadata.save_type = SaveType.Cart if save_id[:2] == b'RA' else SaveType.Nothing
+		metadata.save_type = SaveType.Cart if save_id[:2] == b'RA' else SaveType.Nothing
 
 	regions = header[0xf0:0xf3]
 	region_codes = []
@@ -174,11 +174,11 @@ def add_megadrive_info(game, header):
 		region_codes.append(MegadriveRegionCodes.USAEurope) #Apparently...
 	#Seen in some betas and might just be invalid:
 	#D - Brazil?
-	game.metadata.specific_info['Region-Code'] = region_codes
+	metadata.specific_info['Region-Code'] = region_codes
 
-def get_smd_header(game):
+def get_smd_header(rom):
 	#Just get the first block which is all that's needed for the header, otherwise this would be a lot more complicated (just something to keep in mind if you ever need to convert a whole-ass .smd ROM)
-	block = game.rom.read(seek_to=512, amount=16384)
+	block = rom.read(seek_to=512, amount=16384)
 
 	buf = bytearray(16386)
 	midpoint = 8192
@@ -209,7 +209,7 @@ def _get_megatech_games():
 		_get_megatech_games.result = list(get_machines_from_source_file('megatech'))
 		return _get_megatech_games.result
 
-def try_find_equivalent_arcade(game):
+def try_find_equivalent_arcade(rom, metadata):
 	if not hasattr(try_find_equivalent_arcade, 'arcade_bootlegs'):
 		try:
 			try_find_equivalent_arcade.arcade_bootlegs = list(get_machines_from_source_file('megadriv_acbl'))
@@ -227,13 +227,13 @@ def try_find_equivalent_arcade(game):
 			try_find_equivalent_arcade.megatech_games = []
 
 	for bootleg_machine in try_find_equivalent_arcade.arcade_bootlegs:
-		if does_machine_match_game(game.rom.name, game.metadata, bootleg_machine):
+		if does_machine_match_game(rom.name, metadata, bootleg_machine):
 			return bootleg_machine
 	for megaplay_machine in try_find_equivalent_arcade.megaplay_games:
-		if does_machine_match_game(game.rom.name, game.metadata, megaplay_machine):
+		if does_machine_match_game(rom.name, metadata, megaplay_machine):
 			return megaplay_machine
 	for megatech_machine in try_find_equivalent_arcade.megatech_games:
-		if does_machine_match_game(game.rom.name, game.metadata, megatech_machine):
+		if does_machine_match_game(rom.name, metadata, megatech_machine):
 			return megatech_machine	
 	return None
 
@@ -248,13 +248,13 @@ def add_megadrive_metadata(game):
 		except NotImplementedError:
 			return
 	elif game.rom.extension == 'smd':
-		header = get_smd_header(game)
+		header = get_smd_header(game.rom)
 	else:
 		header = game.rom.read(0x100, 0x100)
 
-	add_megadrive_info(game, header)
+	add_megadrive_info(game.metadata, header)
 	if game.metadata.platform == 'Mega Drive':
-		equivalent_arcade = try_find_equivalent_arcade(game)
+		equivalent_arcade = try_find_equivalent_arcade(game.rom, game.metadata)
 		if equivalent_arcade:
 			game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
 

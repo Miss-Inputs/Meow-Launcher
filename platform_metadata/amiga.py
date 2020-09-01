@@ -1,6 +1,6 @@
 from software_list_info import get_software_list_entry
 
-def _set_mame_driver(game, machine, chipset):
+def _set_mame_driver(metadata, machine, chipset):
 	driver = {
 		'A1000': 'a1000', 
 		'A1200': 'a1200', 
@@ -18,7 +18,7 @@ def _set_mame_driver(game, machine, chipset):
 		#'A600HD': '',
 	}.get(machine)
 	if driver:
-		game.metadata.mame_driver = driver
+		metadata.mame_driver = driver
 		return
 	
 	driver = {
@@ -27,7 +27,7 @@ def _set_mame_driver(game, machine, chipset):
 		'AGA': 'a1200',
 	}.get(chipset)
 	if driver:
-		game.metadata.mame_driver = driver
+		metadata.mame_driver = driver
 		return
 
 def add_amiga_metadata(game):
@@ -98,4 +98,4 @@ def add_amiga_metadata(game):
 				chipset = 'OCS'
 				break
 	game.metadata.specific_info['Chipset'] = chipset
-	_set_mame_driver(game, game.metadata.specific_info.get('Machine'), chipset)
+	game.metadata.mame_driver = _set_mame_driver(game.metadata, game.metadata.specific_info.get('Machine'), chipset)

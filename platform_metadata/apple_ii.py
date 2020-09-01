@@ -18,7 +18,7 @@ class AppleIIHardware(Enum):
 	AppleIII = auto()
 	AppleIIIPlus = auto()
 
-def parse_woz_info_chunk(game, chunk_data):
+def parse_woz_info_chunk(metadata, chunk_data):
 	info_version = chunk_data[0]
 	#1: Disk type = 5.25" if 1 else 3.25 if 2
 	#2: 1 if write protected
@@ -44,10 +44,10 @@ def parse_woz_info_chunk(game, chunk_data):
 				machines.append(AppleIIHardware.AppleIII)
 			if compatible_hardware & 256:
 				machines.append(AppleIIHardware.AppleIIIPlus)
-			game.metadata.specific_info['Machine'] = machines
+			metadata.specific_info['Machine'] = machines
 		minimum_ram = int.from_bytes(chunk_data[42:44], 'little')
 		if minimum_ram:
-			game.metadata.specific_info['Minimum-RAM'] = minimum_ram
+			metadata.specific_info['Minimum-RAM'] = minimum_ram
 
 woz_meta_machines = {
 	'2': AppleIIHardware.AppleII,
@@ -61,7 +61,7 @@ woz_meta_machines = {
 	'3+': AppleIIHardware.AppleIIIPlus,
 }
 
-def parse_woz_meta_chunk(game, chunk_data):
+def parse_woz_meta_chunk(rom, metadata, chunk_data):
 	rows = chunk_data.split(b'\x0a')
 	for row in rows:
 		try:
@@ -78,13 +78,13 @@ def parse_woz_meta_chunk(game, chunk_data):
 			#Note that this is free text
 			if not value.startswith('v'):
 				value = 'v' + value
-			game.metadata.specific_info['Version'] = value
+			metadata.specific_info['Version'] = value
 		elif key == 'title':
-			game.metadata.add_alternate_name(value, 'Header-Title')
+			metadata.add_alternate_name(value, 'Header-Title')
 		elif key == 'subtitle':
-			game.metadata.specific_info['Subtitle'] = value
+			metadata.specific_info['Subtitle'] = value
 		elif key == 'requires_machine':
-			if game.metadata.specific_info.get('Machine'):
+			if metadata.specific_info.get('Machine'):
 				#Trust the info from the INFO chunk more if it exists
 				continue
 			machines = []
@@ -92,95 +92,95 @@ def parse_woz_meta_chunk(game, chunk_data):
 				if machine in woz_meta_machines:
 					machines.append(woz_meta_machines[machine])
 				else:
-					print('Unknown compatible machine in Woz META chunk', game.rom.path, machine)
-			game.metadata.specific_info['Machine'] = machines
+					print('Unknown compatible machine in Woz META chunk', rom.path, machine)
+			metadata.specific_info['Machine'] = machines
 		elif key == 'requires_ram':
 			#Should be in INFO chunk, but sometimes isn't
 			if value[-1].lower() == 'k':
 				value = value[:-1]
 			try:
-				game.metadata.specific_info['Minimum-RAM'] = int(value)
+				metadata.specific_info['Minimum-RAM'] = int(value)
 			except ValueError:
 				pass
 		elif key == 'publisher':
-			game.metadata.publisher = consistentify_manufacturer(value)
+			metadata.publisher = consistentify_manufacturer(value)
 		elif key == 'developer':
-			game.metadata.developer = consistentify_manufacturer(value)
+			metadata.developer = consistentify_manufacturer(value)
 		elif key == 'copyright':
-			game.metadata.specific_info['Copyright'] = value
+			metadata.specific_info['Copyright'] = value
 			try:
-				game.metadata.year = int(value)
+				metadata.year = int(value)
 			except ValueError:
 				pass
 		elif key == 'language':
-			game.metadata.languages = []
+			metadata.languages = []
 			for lang in value.split('|'):
 				language = get_language_by_english_name(lang)
 				if language:
-					game.metadata.languages.append(language)
+					metadata.languages.append(language)
 		elif key == 'genre':
 			#This isn't part of the specification, but I've seen it
 			if value == 'rpg':
-				game.metadata.genre = 'RPG'
+				metadata.genre = 'RPG'
 			else:
-				game.metadata.genre = value.capitalize() if value.islower() else value
+				metadata.genre = value.capitalize() if value.islower() else value
 		elif key == 'notes':
 			#This isn't part of the specification, but I've seen it
-			game.metadata.notes = value
+			metadata.notes = value
 		else:
 			if conf.debug:
-				print('Unknown Woz META key', game.rom.path, key, value)
+				print('Unknown Woz META key', rom.path, key, value)
 
-def parse_woz_chunk(game, position):
-	chunk_header = game.rom.read(seek_to=position, amount=8)
+def parse_woz_chunk(rom, metadata, position):
+	chunk_header = rom.read(seek_to=position, amount=8)
 	chunk_id = chunk_header[0:4].decode('ascii', errors='ignore')
 	chunk_data_size = int.from_bytes(chunk_header[4:8], 'little')
 
 	if chunk_id == 'INFO':
-		chunk_data = game.rom.read(seek_to=position+8, amount=chunk_data_size)
-		parse_woz_info_chunk(game, chunk_data)
+		chunk_data = rom.read(seek_to=position+8, amount=chunk_data_size)
+		parse_woz_info_chunk(metadata, chunk_data)
 	elif chunk_id == 'META':
-		chunk_data = game.rom.read(seek_to=position+8, amount=chunk_data_size)
-		parse_woz_meta_chunk(game, chunk_data)
+		chunk_data = rom.read(seek_to=position+8, amount=chunk_data_size)
+		parse_woz_meta_chunk(rom, metadata, chunk_data)
 
 	return position + chunk_data_size + 8
 
-def add_woz_metadata(game):
+def add_woz_metadata(rom, metadata):
 	#https://applesaucefdc.com/woz/reference1/
 	#https://applesaucefdc.com/woz/reference2/
-	magic = game.rom.read(amount=8)
+	magic = rom.read(amount=8)
 	if magic == b'WOZ1\xff\n\r\n':
-		game.metadata.specific_info['ROM-Format'] = 'WOZ v1'
+		metadata.specific_info['ROM-Format'] = 'WOZ v1'
 	elif magic == b'WOZ2\xff\n\r\n':
-		game.metadata.specific_info['ROM-Format'] = 'WOZ v2'
+		metadata.specific_info['ROM-Format'] = 'WOZ v2'
 	else:
-		print(game.rom.path, magic)
+		print('Weird .woz magic', rom.path, magic)
 		return
 
 	position = 12
-	size = game.rom.get_size()
+	size = rom.get_size()
 	while position:
-		position = parse_woz_chunk(game, position)
+		position = parse_woz_chunk(rom, metadata, position)
 		if position >= size:
 			break
-	if 'Header-Title' in game.metadata.names and 'Subtitle' in game.metadata.specific_info:
-		game.metadata.add_alternate_name(game.metadata.names['Header-Title'] + ': ' + game.metadata.specific_info['Subtitle'], 'Header-Title-with-Subtitle')
+	if 'Header-Title' in metadata.names and 'Subtitle' in metadata.specific_info:
+		metadata.add_alternate_name(metadata.names['Header-Title'] + ': ' + metadata.specific_info['Subtitle'], 'Header-Title-with-Subtitle')
 
-def _set_mame_driver(game, machines):
+def _set_mame_driver(metadata, machines):
 	if not machines:
 		return
 
 	if AppleIIHardware.AppleII in machines:
-		game.metadata.mame_driver = 'apple2'
+		metadata.mame_driver = 'apple2'
 	elif AppleIIHardware.AppleIIPlus in machines:
-		game.metadata.mame_driver = 'apple2p'
+		metadata.mame_driver = 'apple2p'
 	elif AppleIIHardware.AppleIIE in machines:
-		game.metadata.mame_driver = 'apple2e'
+		metadata.mame_driver = 'apple2e'
 	#Could keep going, but I don't feel like it, because it seems like all Apple II software can be categorized into one of these three eras
 
 def add_apple_ii_metadata(game):
 	if game.metadata.extension == 'woz':
-		add_woz_metadata(game)
+		add_woz_metadata(game.rom, game.metadata)
 
 	#Possible input info: Keyboard and joystick by default, mouse if mouse card exists
 
@@ -220,4 +220,4 @@ def add_apple_ii_metadata(game):
 					#Apple IIc+ doesn't show up in this list so far
 				game.metadata.specific_info['Machine'] = machines
 
-	_set_mame_driver(game, game.metadata.specific_info.get('Machine'))
+	_set_mame_driver(game.metadata, game.metadata.specific_info.get('Machine'))

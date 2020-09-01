@@ -342,11 +342,11 @@ def add_wii_metadata(game):
 			header = game.rom.read(0, 0x2450)
 		elif game.rom.extension == 'wbfs':
 			header = game.rom.read(amount=0x2450, seek_to=0x200)
-		add_gamecube_wii_disc_metadata(game, header)
+		add_gamecube_wii_disc_metadata(game.rom, game.metadata, header)
 		add_wii_disc_metadata(game.rom, game.metadata)
 	elif game.rom.extension == 'wad':
 		add_wad_metadata(game.rom, game.metadata)
 	elif game.rom.extension in ('dol', 'elf'):
 		add_wii_homebrew_metadata(game.rom, game.metadata)
 	elif game.rom.extension in ('wia', 'rvz'):
-		just_read_the_wia_rvz_header_for_now(game)
+		just_read_the_wia_rvz_header_for_now(game.rom, game.metadata)

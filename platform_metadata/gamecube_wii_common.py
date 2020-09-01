@@ -14,9 +14,9 @@ class NintendoDiscRegion(Enum):
 	RegionFree = 3  # Seemingly Wii only
 	NTSC_K = 4  # Seemingly Wii only
 
-def add_gamecube_wii_disc_metadata(game, header):
+def add_gamecube_wii_disc_metadata(rom, metadata, header):
 	internal_title = header[32:128]
-	game.metadata.specific_info['Internal-Title'] = internal_title.decode('ascii', errors='backslashreplace').rstrip('\0 ')
+	metadata.specific_info['Internal-Title'] = internal_title.decode('ascii', errors='backslashreplace').rstrip('\0 ')
 	if internal_title[:28] == b'GAMECUBE HOMEBREW BOOTLOADER':
 		return
 
@@ -35,14 +35,14 @@ def add_gamecube_wii_disc_metadata(game, header):
 
 	if not (product_code == 'RELS' and licensee_code == 'AB'):
 		# This is found on a few prototype discs, it's not valid
-		game.metadata.product_code = product_code
-		game.metadata.publisher = publisher
+		metadata.product_code = product_code
+		metadata.publisher = publisher
 
 	disc_number = header[6] + 1
 	if disc_number:
-		game.metadata.disc_number = disc_number
+		metadata.disc_number = disc_number
 
-	game.metadata.specific_info['Revision'] = header[7]
+	metadata.specific_info['Revision'] = header[7]
 
 	#Audio streaming: header[8] > 1
 	#Audio streaming buffer size: header[9]
@@ -53,17 +53,17 @@ def add_gamecube_wii_disc_metadata(game, header):
 	# Is this ever set to both? In theory no, but... hmm
 
 	if not is_wii and not is_gamecube:
-		game.metadata.specific_info['No-Disc-Magic'] = True
+		metadata.specific_info['No-Disc-Magic'] = True
 	elif conf.debug:
-		if game.metadata.platform == 'Wii' and not is_wii:
-			print(game.rom.path, 'lacks Wii disc magic')
-		if game.metadata.platform == 'GameCube' and not is_gamecube:
-			print(game.rom.path, 'lacks GameCube disc magic')
+		if metadata.platform == 'Wii' and not is_wii:
+			print(rom.path, 'lacks Wii disc magic')
+		if metadata.platform == 'GameCube' and not is_gamecube:
+			print(rom.path, 'lacks GameCube disc magic')
 	
-def just_read_the_wia_rvz_header_for_now(game):
+def just_read_the_wia_rvz_header_for_now(rom, metadata):
 	#I'll get around to it I swear
-	wia_header = game.rom.read(amount=0x48)
+	wia_header = rom.read(amount=0x48)
 	wia_disc_struct_size = int.from_bytes(wia_header[12:16], 'big')
-	wia_disc_struct = game.rom.read(seek_to=0x48, amount=wia_disc_struct_size)
+	wia_disc_struct = rom.read(seek_to=0x48, amount=wia_disc_struct_size)
 	disc_header = wia_disc_struct[16:128]
-	add_gamecube_wii_disc_metadata(game, disc_header)
+	add_gamecube_wii_disc_metadata(rom, metadata, disc_header)

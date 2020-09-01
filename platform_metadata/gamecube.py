@@ -57,14 +57,14 @@ def parse_gamecube_banner_text(metadata, banner_bytes, encoding, lang=None):
 	metadata.specific_info['{0}-Description'.format(prefix)] = description
 
 
-def add_banner_info(game, banner):
+def add_banner_info(rom, metadata, banner):
 	banner_magic = banner[:4]
 	if banner_magic in (b'BNR1', b'BNR2'):
 		#(BNR2 has 6 instances of all of these with English, German, French, Spanish, Italian, Dutch in that order)
 		#Dolphin uses line 2 as Publisher field but that's not always accurate (e.g. Paper Mario: The Thousand Year Door puts subtitle of the game's name on line 2) so it won't be used here
 		#Very often, short title and not-short title are exactly the same, but not always. I guess it just be like that
-		encoding = 'shift_jis' if game.metadata.specific_info['Region-Code'] == NintendoDiscRegion.NTSC_J else 'latin-1'
-		parse_gamecube_banner_text(game.metadata, banner[0x1820:0x1960], encoding)
+		encoding = 'shift_jis' if metadata.specific_info['Region-Code'] == NintendoDiscRegion.NTSC_J else 'latin-1'
+		parse_gamecube_banner_text(metadata, banner[0x1820:0x1960], encoding)
 
 		if banner_magic == b'BNR2':
 			languages = {
@@ -77,7 +77,7 @@ def add_banner_info(game, banner):
 			}
 			for i, lang_name in languages.items():
 				offset = 0x1820 + (i * 0x140)
-				parse_gamecube_banner_text(game.metadata, banner[offset: offset + 0x140], encoding, lang_name)
+				parse_gamecube_banner_text(metadata, banner[offset: offset + 0x140], encoding, lang_name)
 
 		if have_pillow:
 			banner_width = 96
@@ -104,19 +104,19 @@ def add_banner_info(game, banner):
 							banner_image.putpixel((image_x, image_y), converted_colour)
 							offset += 2
 
-			game.metadata.images['Banner'] = banner_image
+			metadata.images['Banner'] = banner_image
 	else:
 		if conf.debug:
-			print('Invalid banner magic', game.rom.path, banner_magic)
+			print('Invalid banner magic', rom.path, banner_magic)
 
 
-def add_fst_info(game, fst_offset, fst_size):
+def add_fst_info(rom, metadata, fst_offset, fst_size):
 	if fst_offset and fst_size and fst_size < (128 * 1024 * 1024):
-		fst = game.rom.read(fst_offset, fst_size)
+		fst = rom.read(fst_offset, fst_size)
 		number_of_fst_entries = int.from_bytes(fst[8:12], 'big')
 		if fst_size < (number_of_fst_entries * 12):
 			if conf.debug:
-				print('Invalid FST in', game.rom.path, ':', fst_size, '<', number_of_fst_entries * 12)
+				print('Invalid FST in', rom.path, ':', fst_size, '<', number_of_fst_entries * 12)
 			return
 		string_table = fst[number_of_fst_entries * 12:]
 		for i in range(1, number_of_fst_entries):
@@ -129,18 +129,18 @@ def add_fst_info(game, fst_offset, fst_size):
 			if banner_name == b'opening.bnr':
 				file_offset = int.from_bytes(entry[4:8], 'big')
 				file_length = int.from_bytes(entry[8:12], 'big')
-				banner = game.rom.read(file_offset, file_length)
-				add_banner_info(game, banner)
+				banner = rom.read(file_offset, file_length)
+				add_banner_info(rom, metadata, banner)
 
-def add_gamecube_disc_metadata(game, header):
-	game.metadata.platform = 'GameCube'
+def add_gamecube_disc_metadata(rom, metadata, header):
+	metadata.platform = 'GameCube'
 	try:
 		apploader_date = header[0x2440:0x2450].decode('ascii').rstrip('\x00')
 		try:
 			actual_date = datetime.strptime(apploader_date, '%Y/%m/%d')
-			game.metadata.year = actual_date.year
-			game.metadata.month = actual_date.strftime('%B')
-			game.metadata.day = actual_date.day
+			metadata.year = actual_date.year
+			metadata.month = actual_date.strftime('%B')
+			metadata.day = actual_date.day
 		except ValueError:
 			pass
 	except UnicodeDecodeError:
@@ -148,7 +148,7 @@ def add_gamecube_disc_metadata(game, header):
 
 	region_code = int.from_bytes(header[0x458:0x45c], 'big')
 	try:
-		game.metadata.specific_info['Region-Code'] = NintendoDiscRegion(region_code)
+		metadata.specific_info['Region-Code'] = NintendoDiscRegion(region_code)
 	except ValueError:
 		pass
 
@@ -156,16 +156,16 @@ def add_gamecube_disc_metadata(game, header):
 	fst_size = int.from_bytes(header[0x428:0x42c], 'big')
 
 	try:
-		add_fst_info(game, fst_offset, fst_size)
+		add_fst_info(rom, metadata, fst_offset, fst_size)
 	except (IndexError, ValueError) as ex:
 		if conf.debug:
-			print(game.rom.path, 'encountered error when parsing FST', ex)
+			print(rom.path, 'encountered error when parsing FST', ex)
 
 def add_gamecube_metadata(game):
 
 	if game.rom.extension in ('gcz', 'iso', 'gcm'):
 		header = game.rom.read(0, 0x2450)
-		add_gamecube_wii_disc_metadata(game, header)
-		add_gamecube_disc_metadata(game, header)
+		add_gamecube_wii_disc_metadata(game.rom, game.metadata, header)
+		add_gamecube_disc_metadata(game.rom, game.metadata, header)
 	elif game.rom.extension in ('wia', 'rvz'):
-		just_read_the_wia_rvz_header_for_now(game)
+		just_read_the_wia_rvz_header_for_now(game.rom, game.metadata)

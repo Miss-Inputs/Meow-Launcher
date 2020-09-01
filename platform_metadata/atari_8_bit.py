@@ -4,16 +4,18 @@ from software_list_info import get_software_list_entry
 from common_types import MediaType
 import platform_metadata.atari_controllers as controllers
 
-def add_info_from_software_list(game, software):
-	software.add_standard_metadata(game.metadata)
+def add_info_from_software_list(metadata, software):
+	software.add_standard_metadata(metadata)
 	compatibility = software.compatibility
 	if compatibility:
 		if 'XL' in compatibility or 'XL/XE' in compatibility:
-			game.metadata.specific_info['Machine'] = 'XL'
-			game.metadata.mame_driver = 'a800xl'
-		#TODO: Should XE (but not XL) ever appear as compatibility?
+			metadata.specific_info['Machine'] = 'XL'
+			metadata.mame_driver = 'a800xl'
+		elif 'XE' in compatibility:
+			metadata.specific_info['Machine'] = 'XE'
+			metadata.mame_driver = 'a800xe'
 		if 'OSb' in compatibility:
-			game.metadata.specific_info['Requires-OS-B'] = True
+			metadata.specific_info['Requires-OS-B'] = True
 
 	peripheral = software.get_part_feature('peripheral')
 
@@ -25,36 +27,36 @@ def add_info_from_software_list(game, software):
 
 	if peripheral == 'cx77_touch':
 		#Tablet
-		game.metadata.input_info.add_option(input_metadata.Touchscreen())
+		metadata.input_info.add_option(input_metadata.Touchscreen())
 	elif peripheral == 'cx75_pen':
 		#Light pen
-		game.metadata.input_info.add_option(input_metadata.LightGun())
+		metadata.input_info.add_option(input_metadata.LightGun())
 	elif peripheral == 'koala_pad,koala_pen':
 		#Combination tablet/light pen
-		game.metadata.input_info.add_option([input_metadata.LightGun(), input_metadata.Touchscreen])
+		metadata.input_info.add_option([input_metadata.LightGun(), input_metadata.Touchscreen])
 	elif peripheral == 'trackball':
-		game.metadata.input_info.add_option(controllers.cx22_trackball)
+		metadata.input_info.add_option(controllers.cx22_trackball)
 	elif peripheral == 'lightgun':
 		#XEGS only
-		game.metadata.input_info.add_option(controllers.xegs_gun)
+		metadata.input_info.add_option(controllers.xegs_gun)
 	else:
 		#trackfld = Track & Field controller but is that just a spicy joystick?
-		game.metadata.input_info.add_option([joystick, keyboard])
+		metadata.input_info.add_option([joystick, keyboard])
 
-	game.metadata.specific_info['Peripheral'] = peripheral
+	metadata.specific_info['Peripheral'] = peripheral
 
 	requirement = software.get_shared_feature('requirement')
 	if requirement == 'a800:basicb':
-		game.metadata.specific_info['Requires-BASIC'] = True
+		metadata.specific_info['Requires-BASIC'] = True
 		#Also: a800:msbasic2, a800:basxe41, a800:writerd, a800:spectra2 (none of those are games, the first two are just language extensions, the latter is noted as not being supported anyway, therefore meh)
 
 	usage = software.get_info('usage')
 	if usage == 'Plays music only in PAL':
-		game.metadata.tv_type = TVSystem.PAL
+		metadata.tv_type = TVSystem.PAL
 	elif usage == 'BASIC must be enabled.':
-		game.metadata.specific_info['Requires-BASIC'] = True
+		metadata.specific_info['Requires-BASIC'] = True
 	else:
-		game.metadata.notes = usage
+		metadata.notes = usage
 	#To be used with Atari 1400 onboard modem.
 	#3 or 4 player gameplay available only on 400/800 systems
 	#Chalkboard Inc.'s Powerpad Tablet required
@@ -91,7 +93,7 @@ def add_atari_8bit_metadata(game):
 
 	software = get_software_list_entry(game, skip_header=16 if headered else 0)
 	if software:
-		add_info_from_software_list(game, software)
+		add_info_from_software_list(game.metadata, software)
 
 	if 'Machine' not in game.metadata.specific_info:
 		for tag in game.filename_tags:

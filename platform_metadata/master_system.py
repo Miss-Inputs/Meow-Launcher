@@ -22,20 +22,20 @@ def decode_bcd(i):
 	lo = i & 0x0f
 	return (hi * 10) + lo
 
-def parse_sdsc_header(game, header):
+def parse_sdsc_header(rom, metadata, header):
 	major_version = decode_bcd(header[0])
 	minor_version = decode_bcd(header[1])
-	game.metadata.specific_info['Version'] = 'v{0}.{1}'.format(major_version, minor_version)
+	metadata.specific_info['Version'] = 'v{0}.{1}'.format(major_version, minor_version)
 
 	day = decode_bcd(header[2])
 	month = decode_bcd(header[3])
 	year = decode_bcd(header[4:6])
 	if 1 <= day <= 31:
-		game.metadata.day = day
+		metadata.day = day
 	if 1 <= month <= 12:
-		game.metadata.month = calendar.month_name[month]
+		metadata.month = calendar.month_name[month]
 	if year:
-		game.metadata.year = year
+		metadata.year = year
 
 	author_offset = int.from_bytes(header[6:8], 'little')
 	name_offset = int.from_bytes(header[8:10], 'little')
@@ -43,17 +43,17 @@ def parse_sdsc_header(game, header):
 	if 0 < author_offset < 0xffff:
 		#Assume sane maximum of 255 chars
 		try:
-			game.metadata.developer = game.metadata.publisher = game.rom.read(seek_to=author_offset, amount=255).partition(b'\x00')[0].decode('ascii')
+			metadata.developer = metadata.publisher = rom.read(seek_to=author_offset, amount=255).partition(b'\x00')[0].decode('ascii')
 		except UnicodeDecodeError:
 			pass
 	if 0 < name_offset < 0xffff:
 		try:
-			game.metadata.add_alternate_name(game.rom.read(seek_to=name_offset, amount=255).partition(b'\x00')[0].decode('ascii'), 'Header-Title')
+			metadata.add_alternate_name(rom.read(seek_to=name_offset, amount=255).partition(b'\x00')[0].decode('ascii'), 'Header-Title')
 		except UnicodeDecodeError:
 			pass
 	if 0 < description_offset < 0xffff:
 		try:
-			game.metadata.specific_info['Description'] = game.rom.read(seek_to=description_offset, amount=255).partition(b'\x00')[0].decode('ascii')
+			metadata.specific_info['Description'] = rom.read(seek_to=description_offset, amount=255).partition(b'\x00')[0].decode('ascii')
 		except UnicodeDecodeError:
 			pass
 	
@@ -70,9 +70,9 @@ regions = {
 	7: ('International', True),
 }
 
-def parse_standard_header(game, base_offset):
+def parse_standard_header(rom, base_offset):
 	header_data = {}
-	header = game.rom.read(seek_to=base_offset, amount=16)
+	header = rom.read(seek_to=base_offset, amount=16)
 
 	if header[:8] != b'TMR SEGA':
 		raise BadSMSHeaderException('TMR missing')
@@ -104,8 +104,8 @@ def parse_standard_header(game, base_offset):
 
 	return header_data
 
-def try_parse_standard_header(game):
-	rom_size = game.rom.get_size()
+def try_parse_standard_header(rom, metadata):
+	rom_size = rom.get_size()
 	possible_offsets = [0x1ff0, 0x3ff0, 0x7ff0]
 
 	header_data = None
@@ -114,73 +114,73 @@ def try_parse_standard_header(game):
 			continue
 
 		try:
-			header_data = parse_standard_header(game, possible_offset)
+			header_data = parse_standard_header(rom, possible_offset)
 			break
 		except BadSMSHeaderException:
 			continue
 
 	if header_data:
-		game.metadata.specific_info['Revision'] = header_data['Revision']
-		game.metadata.product_code = header_data['Product code']
-		game.metadata.specific_info['Region-Code'] = header_data['Region'] #Too lazy to make an enum for both SMS and GG regions
+		metadata.specific_info['Revision'] = header_data['Revision']
+		metadata.product_code = header_data['Product code']
+		metadata.specific_info['Region-Code'] = header_data['Region'] #Too lazy to make an enum for both SMS and GG regions
 
 		if header_data['Is Game Gear']:
-			game.metadata.platform = 'Game Gear'
+			metadata.platform = 'Game Gear'
 		else:
-			game.metadata.platform = 'Master System'
+			metadata.platform = 'Master System'
 
 		if 'Publisher' in header_data:
-			game.metadata.publisher = header_data['Publisher']
+			metadata.publisher = header_data['Publisher']
 	else:
 		#All non-Japanese/Korean systems have a BIOS which checks the checksum, so if there's no header at all, they just won't boot it
-		game.metadata.specific_info['Japanese-Only'] = True
+		metadata.specific_info['Japanese-Only'] = True
 
-def add_info_from_software_list(game, software):
-	software.add_standard_metadata(game.metadata)
+def add_info_from_software_list(metadata, software):
+	software.add_standard_metadata(metadata)
 
 	usage = software.infos.get('usage')
 	if usage == 'Only runs with PAL/50Hz drivers, e.g. smspal':
-		game.metadata.tv_type = TVSystem.PAL
+		metadata.tv_type = TVSystem.PAL
 	elif usage in ('Input works only with drivers of Japanese region, e.g. sms1kr,smsj', 'Only runs with certain drivers, e.g. smsj - others show SOFTWARE ERROR'):
-		game.metadata.specific_info['Japanese-Only'] = True
+		metadata.specific_info['Japanese-Only'] = True
 	elif usage == 'Video mode is correct only on SMS 2 drivers, e.g. smspal':
-		game.metadata.specific_info['SMS2-Only'] = True
+		metadata.specific_info['SMS2-Only'] = True
 	elif usage == 'Video only works correctly on drivers with SMS1 VDP, e.g. smsj':
-		game.metadata.specific_info['SMS1-Only'] = True
+		metadata.specific_info['SMS1-Only'] = True
 	else:
-		game.metadata.notes = usage
+		metadata.notes = usage
 	#Other usage strings:
 	#To play in 3-D on SMS1, hold buttons 1 and 2 while powering up the system.
 
 	slot = software.get_part_feature('slot')
 	if slot == 'codemasters':
-		game.metadata.specific_info['Mapper'] = 'Codemasters'
+		metadata.specific_info['Mapper'] = 'Codemasters'
 	elif slot == 'eeprom':
-		game.metadata.specific_info['Mapper'] = 'EEPROM' #Is this really describable as a "mapper"?
-		game.metadata.save_type = SaveType.Cart
+		metadata.specific_info['Mapper'] = 'EEPROM' #Is this really describable as a "mapper"?
+		metadata.save_type = SaveType.Cart
 	elif slot == '4pak':
-		game.metadata.specific_info['Mapper'] = '4 Pak'
+		metadata.specific_info['Mapper'] = '4 Pak'
 	elif slot == 'hicom':
-		game.metadata.specific_info['Mapper'] = 'Hi-Com'
+		metadata.specific_info['Mapper'] = 'Hi-Com'
 	elif slot == 'korean':
-		game.metadata.specific_info['Mapper'] = 'Korean'
+		metadata.specific_info['Mapper'] = 'Korean'
 	elif slot == 'korean_nb':
-		game.metadata.specific_info['Mapper'] = 'Korean Unbanked'
+		metadata.specific_info['Mapper'] = 'Korean Unbanked'
 	elif slot == 'zemina':
-		game.metadata.specific_info['Mapper'] = 'Zemina'
+		metadata.specific_info['Mapper'] = 'Zemina'
 	elif slot == 'janggun':
-		game.metadata.specific_info['Mapper'] = 'Janggun'
+		metadata.specific_info['Mapper'] = 'Janggun'
 	elif slot == 'nemesis':
-		game.metadata.specific_info['Mapper'] = 'Nemesis'
+		metadata.specific_info['Mapper'] = 'Nemesis'
 	elif slot == 'seojin':
-		game.metadata.specific_info['Mapper'] = 'Seo Jin'
+		metadata.specific_info['Mapper'] = 'Seo Jin'
 
 	if software.get_part_feature('battery') == 'yes':
-		game.metadata.save_type = SaveType.Cart
+		metadata.save_type = SaveType.Cart
 	else:
-		game.metadata.save_type = SaveType.Nothing
+		metadata.save_type = SaveType.Nothing
 
-	if game.metadata.platform == 'Master System':
+	if metadata.platform == 'Master System':
 		builtin_gamepad = input_metadata.NormalController()
 		builtin_gamepad.dpads = 1
 		builtin_gamepad.face_buttons = 2
@@ -192,34 +192,34 @@ def add_info_from_software_list(game, software):
 		#All of these peripherals have 2 buttons as well?
 		if controller_1 == 'graphic':
 			peripheral = SMSPeripheral.Tablet
-			game.metadata.input_info.add_option(input_metadata.Touchscreen())
+			metadata.input_info.add_option(input_metadata.Touchscreen())
 		elif controller_1 == 'lphaser':
 			peripheral = SMSPeripheral.Lightgun
 			light_phaser = input_metadata.LightGun()
 			light_phaser.buttons = 1
-			game.metadata.input_info.add_option(light_phaser)
+			metadata.input_info.add_option(light_phaser)
 		elif controller_1 == 'paddle':
 			peripheral = SMSPeripheral.Paddle
 			paddle = input_metadata.Paddle()
 			paddle.buttons = 2
-			game.metadata.input_info.add_option(paddle)
+			metadata.input_info.add_option(paddle)
 		elif controller_1 == 'sportspad':
 			peripheral = SMSPeripheral.SportsPad
 			sports_pad = input_metadata.Trackball()
 			sports_pad.buttons = 2
-			game.metadata.input_info.add_option(sports_pad)
+			metadata.input_info.add_option(sports_pad)
 		else:
 			#Not sure if this is an option for games that use lightgun/paddle/etc? I'll assume it's not
-			game.metadata.input_info.add_option(builtin_gamepad)
+			metadata.input_info.add_option(builtin_gamepad)
 
-		game.metadata.specific_info['Peripheral'] = peripheral
+		metadata.specific_info['Peripheral'] = peripheral
 
 def get_sms_metadata(game):
 	sdsc_header = game.rom.read(seek_to=0x7fe0, amount=16)
 	if sdsc_header[:4] == b'SDSC':
-		parse_sdsc_header(game, sdsc_header[4:])
+		parse_sdsc_header(game.rom, game.metadata, sdsc_header[4:])
 
-	try_parse_standard_header(game)
+	try_parse_standard_header(game.rom, game.metadata)
 
 	if game.metadata.platform == 'Game Gear':
 		game.metadata.tv_type = TVSystem.Agnostic
@@ -231,4 +231,4 @@ def get_sms_metadata(game):
 
 	software = get_software_list_entry(game)
 	if software:
-		add_info_from_software_list(game, software)
+		add_info_from_software_list(game.metadata, software)
