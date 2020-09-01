@@ -4,10 +4,12 @@ import os
 import sys
 
 import common
-import config
+import config.main_config
 import dos_mac_common
 from common_paths import config_dir
 from info.emulator_info import dos_emulators
+
+conf = config.main_config.main_config
 
 dos_ini_path = os.path.join(config_dir, 'dos.ini')
 
@@ -24,7 +26,7 @@ class DOSApp(dos_mac_common.App):
 				if f_lowercase in (basename + '.ico', 'game.ico', 'icon.ico', 'icon.png') or (f_lowercase.startswith('goggame') and f_lowercase.endswith('.ico')):
 					metadata.images['Icon'] = os.path.join(base_dir, f)
 		except FileNotFoundError as fnfe:
-			if config.main_config.debug:
+			if conf.debug:
 				print('Oh no!', self.name, fnfe)
 
 def make_dos_launchers():
@@ -41,7 +43,7 @@ def scan_app(path, exe_name, game_list, unknown_games, found_games, ambiguous_ga
 
 def scan_dos_folder(path, game_list, unknown_games, found_games, ambiguous_games):
 	for root, _, files in os.walk(path):
-		if common.starts_with_any(root + os.sep, config.main_config.ignored_directories):
+		if common.starts_with_any(root + os.sep, conf.ignored_directories):
 			continue
 		for name in files:
 			ext = os.path.splitext(name)[1][1:].lower()
