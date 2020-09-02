@@ -7,7 +7,6 @@ from common import NotAlphanumericException, convert_alphanumeric
 from common_types import SaveType
 import config.main_config
 from data.nintendo_licensee_codes import nintendo_licensee_codes
-from info.region_info import TVSystem
 from software_list_info import get_software_list_entry, find_in_software_lists, matcher_args_for_bytes
 
 conf = config.main_config.main_config
@@ -234,8 +233,6 @@ def add_gameboy_metadata(game):
 	builtin_gamepad.face_buttons = 2 #A B
 	game.metadata.input_info.add_option(builtin_gamepad)
 
-	game.metadata.tv_type = TVSystem.Agnostic
-
 	header = game.rom.read(seek_to=0x100, amount=0x50)
 	parse_gameboy_header(game.metadata, header)
 
@@ -252,7 +249,7 @@ def add_gameboy_metadata(game):
 		game.metadata.save_type = SaveType.Cart if software.has_data_area('nvram') else SaveType.Nothing
 
 		slot = software.get_part_feature('slot')
-		parse_slot(game, slot)
+		parse_slot(game.metadata, slot)
 
 	if game.rom.extension == 'gbx':
 		parse_gbx_footer(game.rom, game.metadata)
