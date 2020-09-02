@@ -237,7 +237,7 @@ def add_gameboy_metadata(game):
 	game.metadata.tv_type = TVSystem.Agnostic
 
 	header = game.rom.read(seek_to=0x100, amount=0x50)
-	parse_gameboy_header(game, header)
+	parse_gameboy_header(game.metadata, header)
 
 	if game.rom.extension == 'gbc':
 		game.metadata.platform = 'Game Boy Color'
