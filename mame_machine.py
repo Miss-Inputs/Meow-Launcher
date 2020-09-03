@@ -403,7 +403,7 @@ class Machine():
 			self._add_metadata_fields()
 	
 	def add_alternate_names(self):
-		if self.arcade_system in ('Space Invaders / Qix Silver Anniversary Edition Hardware', 'ISG Selection Master Type 2006', 'Cosmodog Hardware', 'Donkey Kong / Mario Bros Multigame Hardware'):
+		if self.arcade_system in ('Space Invaders / Qix Silver Anniversary Edition Hardware', 'ISG Selection Master Type 2006', 'Cosmodog Hardware', 'Donkey Kong / Mario Bros Multigame Hardware') or self.metadata.platform != 'Arcade':
 			#These don't use the / as a delimiter in the same way
 			return
 		#We don't want to touch Blah (Fgsfds / Zzzz)
