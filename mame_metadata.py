@@ -67,6 +67,8 @@ def get_category(basename):
 		if subgenre.endswith('* Mature *'):
 			is_nsfw = True
 			subgenre = subgenre[:-10]
+		if genre.startswith('TTL * '):
+			genre = genre[len('TTL * '):]
 
 		return category, genre, subgenre, is_nsfw
 
