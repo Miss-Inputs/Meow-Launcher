@@ -6,7 +6,6 @@ import re
 import input_metadata
 from common_types import MediaType
 import config.main_config
-from info.region_info import TVSystem
 
 try:
 	from PIL import Image
@@ -57,7 +56,7 @@ def convert_sfo(sfo):
 
 valid_product_code = re.compile(r'^\w{4}\d{5}$')
 
-def parse_param_sfo(game, param_sfo):
+def parse_param_sfo(rom, metadata, param_sfo):
 	magic = param_sfo[:4]
 	if magic != b'\x00PSF':
 		return
@@ -65,26 +64,26 @@ def parse_param_sfo(game, param_sfo):
 		if key == 'DISC_ID':
 			if value != 'UCJS10041':
 				#That one's used by all the homebrews
-				game.metadata.product_code = value
+				metadata.product_code = value
 		elif key == 'DISC_NUMBER':
-			game.metadata.disc_number = value
+			metadata.disc_number = value
 		elif key == 'DISC_TOTAL':
-			game.metadata.disc_total = value
+			metadata.disc_total = value
 		elif key == 'TITLE':
-			game.metadata.add_alternate_name(value, 'Banner-Title')
+			metadata.add_alternate_name(value, 'Banner-Title')
 		elif key == 'PARENTAL_LEVEL':
 			#Seems this doesn't actually mean anything by itself, and is Sony's own rating system, so don't try and think about it too much
-			game.metadata.specific_info['Parental-Level'] = value
+			metadata.specific_info['Parental-Level'] = value
 			if value >= 9:
-				game.metadata.nsfw = True
+				metadata.nsfw = True
 		elif key == 'CATEGORY':
 			#This is a two letter code which generally means something like "Memory stick game" "Update" "PS1 Classics", see ROMniscience notes
 			if value == 'UV':
-				game.metadata.specific_info['Is-UMD-Video'] = True
+				metadata.specific_info['Is-UMD-Video'] = True
 		elif key == 'DISC_VERSION':
 			if value[0] != 'v':
 				value = 'v' + value
-			game.metadata.specific_info['Version'] = value
+			metadata.specific_info['Version'] = value
 		elif key in ('APP_VER', 'BOOTABLE', 'MEMSIZE', 'PSP_SYSTEM_VER', 'REGION', 'USE_USB', 'ATTRIBUTE', 'HRKGMP_VER'):
 			#These are known, but not necessarily useful to us or we just don't feel like putting it in the metadata or otherwise doing anything with it at this point
 			#APP_VER: ??? not sure how it's different from DISC_VERSION also seems to be 01.00
@@ -98,7 +97,7 @@ def parse_param_sfo(game, param_sfo):
 			pass
 		else:
 			if conf.debug:
-				print(game.rom.path, 'has unknown param.sfo value', key, value)
+				print(rom.path, 'has unknown param.sfo value', key, value)
 
 def load_image_from_bytes(data):
 	bitmap_data_io = io.BytesIO(data)
@@ -110,7 +109,7 @@ def load_image_from_bytes(data):
 		#Why is it SyntaxError though? Agggggh
 		return None
 
-def add_info_from_pbp(game, pbp_file):
+def add_info_from_pbp(rom, metadata, pbp_file):
 	magic = pbp_file[:4]
 	if magic != b'\x00PBP':
 		#You have the occasional b'\x7ELF' here
@@ -127,48 +126,48 @@ def add_info_from_pbp(game, pbp_file):
 	#These embedded files are supposedly always in this order, so you get the size by getting the difference between that file's offset and the next one (or the end of the file if it's the last one)
 	if param_sfo_offset > 0x24:
 		param_sfo = pbp_file[param_sfo_offset:icon0_offset]
-		parse_param_sfo(game, param_sfo)
+		parse_param_sfo(rom, metadata, param_sfo)
 	if have_pillow:
 		if icon0_offset > param_sfo_offset:
 			banner = load_image_from_bytes(pbp_file[icon0_offset:icon1_offset])
 			if banner:
-				game.metadata.images['Banner'] = banner
+				metadata.images['Banner'] = banner
 		if icon1_offset > icon0_offset:
 			#Dunno what these 3 other images do exactly, so they have crap names for now
 			icon1 = load_image_from_bytes(pbp_file[icon1_offset:pic0_offset])
 			if icon1:
-				game.metadata.images['Icon-1'] = icon1
+				metadata.images['Icon-1'] = icon1
 		if pic0_offset > icon1_offset:
 			pic0 = load_image_from_bytes(pbp_file[pic0_offset:pic1_offset])
 			if pic0:
-				game.metadata.images['Picture-0'] = pic0
+				metadata.images['Picture-0'] = pic0
 		if pic1_offset > pic0_offset:
 			pic1 = load_image_from_bytes(pbp_file[pic1_offset:snd0_offset])
 			if pic1:
-				game.metadata.images['Background-Image'] = pic1
+				metadata.images['Background-Image'] = pic1
 
-def add_psp_system_info(game):
+def add_psp_system_info(metadata):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.analog_sticks = 1
 	builtin_gamepad.face_buttons = 4 #also Start, Select
 	builtin_gamepad.shoulder_buttons = 2
-	game.metadata.input_info.add_option(builtin_gamepad)
+	metadata.input_info.add_option(builtin_gamepad)
 
-def parse_product_code(game):
-	value = game.metadata.product_code
+def parse_product_code(metadata):
+	value = metadata.product_code
 	if valid_product_code.fullmatch(value):
 		if value[0] == 'U':
 			#Physical media (U specifically is PSP UMD)
 			if value[1] == 'C':
 				#(C)opyrighted by Sony as opposed to (L)icensed to Sony
 				#value[2] would indicate a specific branch of Sony (P = Japan PS1/PS2)
-				game.metadata.publisher = 'Sony'
+				metadata.publisher = 'Sony'
 		elif value.startswith('NP'):
 			#Digital release
-			game.metadata.media_type = MediaType.Digital
+			metadata.media_type = MediaType.Digital
 			if value[3] in ('A', 'C', 'F', 'G', 'I', 'K', 'W', 'X', 'Y', 'Z'):
-				game.metadata.publisher = 'Sony'
+				metadata.publisher = 'Sony'
 
 def get_image_from_iso(iso, path):
 	buf = io.BytesIO()
@@ -185,14 +184,13 @@ def get_image_from_iso(iso, path):
 		pass
 
 def add_psp_metadata(game):
-	game.metadata.tv_type = TVSystem.Agnostic
-	add_psp_system_info(game)
+	add_psp_system_info(game.metadata)
 
 	if game.rom.extension == 'pbp':
 		#These are basically always named EBOOT.PBP (due to how PSPs work I guess), so that's not a very good launcher name, and use the folder it's stored in instead
 		game.metadata.override_name = os.path.basename(game.folder)
 		game.metadata.categories = game.metadata.categories[:-1]
-		add_info_from_pbp(game, game.rom.read())
+		add_info_from_pbp(game.rom, game.metadata, game.rom.read())
 	elif game.rom.extension == 'iso' and have_pycdlib:
 		iso = PyCdlib()
 		try:
@@ -206,7 +204,7 @@ def add_psp_metadata(game):
 				game.metadata.year = date.years_since_1900 + 1900
 				game.metadata.month = calendar.month_name[date.month]
 				game.metadata.day = date.day_of_month
-				parse_param_sfo(game, param_sfo_buf.getvalue())
+				parse_param_sfo(game.rom, game.metadata, param_sfo_buf.getvalue())
 			except PyCdlibInvalidInput:
 				try:
 					iso.get_record(iso_path='/UMD_VIDEO/PARAM.SFO')
@@ -230,4 +228,4 @@ def add_psp_metadata(game):
 
 	#https://www.psdevwiki.com/ps3/Productcode#Physical
 	if game.metadata.product_code:
-		parse_product_code(game)
+		parse_product_code(game.metadata)

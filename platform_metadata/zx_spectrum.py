@@ -54,12 +54,12 @@ zx_hardware = {
 	16: (ZXMachine.TimexSinclair2068, None),
 }
 
-def add_z80_metadata(game):
+def add_z80_metadata(rom, metadata):
 	#https://www.worldofspectrum.org/faq/reference/z80format.htm
-	header = game.rom.read(amount=86)
+	header = rom.read(amount=86)
 	flags = header[29]
 	joystick_flag = (flags & 0b_1100_0000) >> 6
-	game.metadata.specific_info['Joystick-Type'] = ZXJoystick(joystick_flag)
+	metadata.specific_info['Joystick-Type'] = ZXJoystick(joystick_flag)
 	#Does joystick_flag == 1 imply expansion == Kempston?
 
 	program_counter = int.from_bytes(header[6:8], 'little')
@@ -96,13 +96,13 @@ def add_z80_metadata(game):
 		elif hardware_modifier_flag and machine == ZXMachine.SpectrumPlus3:
 			machine = ZXMachine.SpectrumPlus2A
 
-	game.metadata.specific_info['Machine'] = machine
+	metadata.specific_info['Machine'] = machine
 	if expansion:
-		game.metadata.specific_info['Expansion'] = expansion
+		metadata.specific_info['Expansion'] = expansion
 
-	game.metadata.specific_info['ROM-Format'] = 'Z80 v%d' % header_version
+	metadata.specific_info['ROM-Format'] = 'Z80 v%d' % header_version
 
-def _set_mame_driver(game, machine):
+def _set_mame_driver(metadata, machine):
 	driver = {
 		ZXMachine.ZX16k: 'spectrum',
 		ZXMachine.ZX48k: 'spectrum',
@@ -118,11 +118,11 @@ def _set_mame_driver(game, machine):
 		ZXMachine.TimexSinclair2068: 'ts2068',
 	}.get(machine)
 	if driver:
-		game.metadata.mame_driver = driver
+		metadata.mame_driver = driver
 
 def add_speccy_metadata(game):
 	if game.rom.extension == 'z80':
-		add_z80_metadata(game)
+		add_z80_metadata(game.rom, game.metadata)
 
 	if 'Machine' not in game.metadata.specific_info:
 		for tag in game.filename_tags:
@@ -151,4 +151,4 @@ def add_speccy_metadata(game):
 			#Disk has no autorun menu, requires loading each game from Basic.
 			game.metadata.notes = usage
 
-	_set_mame_driver(game, game.metadata.specific_info.get('Machine'))
+	_set_mame_driver(game.metadata, game.metadata.specific_info.get('Machine'))

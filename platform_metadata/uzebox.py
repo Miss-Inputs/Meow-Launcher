@@ -2,10 +2,9 @@ from software_list_info import get_software_list_entry
 from .snes import get_snes_controller, get_snes_mouse
 
 def add_uzebox_metadata(game):
-	#TV system: ??? maybe agnostic in this day and age?
 	#Save type: ????
 
-	uses_mouse = False #finna make an assumption that headerless ROMs don't use weird peripherals
+	uses_mouse = False #Make an assumption that headerless ROMs don't use weird peripherals
 
 	header = game.rom.read(amount=512)
 	magic = header[0:6]

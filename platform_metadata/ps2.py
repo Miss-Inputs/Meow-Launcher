@@ -15,10 +15,10 @@ except ModuleNotFoundError:
 
 conf = config.main_config.main_config 
 
-def parse_product_code(game):
+def parse_product_code(metadata):
 	#https://www.psdevwiki.com/ps3/Productcode#Physical
-	if game.metadata.product_code.startswith('SC'):
-		game.metadata.publisher = 'Sony'
+	if metadata.product_code.startswith('SC'):
+		metadata.publisher = 'Sony'
 
 boot_line_regex = re.compile(r'^BOOT2\s*=\s*cdrom0:\\(.+);1$')
 vmode_line_regex = re.compile(r'^VMODE\s*=\s*(.+)$')
@@ -73,4 +73,4 @@ def add_ps2_metadata(game):
 			print(game.rom.path, 'is invalid ISO and has some struct.error', ex)
 	#.elf is just a standard ordinary whole entire .elf
 	if game.metadata.product_code:
-		parse_product_code(game)
+		parse_product_code(game.metadata)
