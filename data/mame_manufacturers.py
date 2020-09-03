@@ -77,6 +77,7 @@ manufacturer_overrides = {
 	'Seta Corporation': 'Seta',
 	'Bonsai Entertainment Corporation': 'Bonsai Entertainment',
 	'Sammy USA Corporation': 'Sammy USA',
+	'Tandy Corporation': 'Tandy',
 	#"Electric"
 	'Kaneko Elc.': 'Kaneko',
 	'Omori Electric': 'Omori',
@@ -237,6 +238,7 @@ manufacturer_overrides = {
 	'電波新聞社 (Dempa Shinbunsha)': 'Dempa',
 	'ビング (Ving)': 'Ving',
 	'エレクトロニック・アーツ・ビクター (Electronic Arts Victor)': 'Electronic Arts Victor',
+	'アリスソフト (AliceSoft)': 'AliceSoft',
 
 	#YELLING CASE / other capitalisation stuff
 	'BEC': 'Bec',

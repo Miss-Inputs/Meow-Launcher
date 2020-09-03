@@ -19,6 +19,7 @@ developer_overrides = {
 	'DotEmu SAS.': 'DotEmu',
 	'EQGames': 'EQ Games',
 	'Forever Entertainment S. A.': 'Forever Entertainment',
+	'GAME FREAK inc.': 'Game Freak',
 	'IKEA Communications AB': 'IKEA Communications',
 	'Killmonday Games AB': 'Killmonday Games',
 	'KISS ltd': 'KISS',
@@ -26,6 +27,7 @@ developer_overrides = {
 	'Konami Digital Entertainement': 'Konami',
 	'Lupus Studios Limited': 'Lupus Studios',
 	'M2 Co.,LTD': 'M2',
+	'Majesco Entertainment': 'Majesco',
 	'NAMCO BANDAI Games': 'Namco Bandai', #Should be merged with Bandai Namco? Maybe? I don't know anything anymore
 	'NAMCO BANDAI Games Europe S.A.S.': 'Namco Bandai Europe',
 	'NAMCO BANDAI Studio': 'Namco Bandai',
@@ -70,10 +72,12 @@ developer_overrides = {
 	'XSEED': 'XSeed',
 
 	#These could be sorta like different brands of the same company, but I'm gonna go with the opinion that they should be treated as the same company. But this section could be like... subjective I guess
+	#Maybe it could be optional? Like maybe all of this could be optional, have some kinda "normalize dev names" option
 	'Idea Factory International': 'Idea Factory',
 	'Microsoft Studios': 'Microsoft',
 	'Team17 Digital': 'Team17',
 	'Two Tribes Publishing': 'Two Tribes',
+	'Xbox Game Studios': 'Microsoft',
 
 	#Why
 	'Image &amp; Form Games': 'Image & Form Games',
