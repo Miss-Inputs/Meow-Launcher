@@ -1,6 +1,5 @@
 import configparser
 import os
-import sys
 
 import io_utils
 from common_types import (EmulationNotSupportedException, MediaType,
