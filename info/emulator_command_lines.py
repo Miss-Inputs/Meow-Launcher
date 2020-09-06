@@ -1338,9 +1338,6 @@ def _make_dosbox_config(app, system_config):
 	configwriter = configparser.ConfigParser(allow_no_value=True)
 	configwriter.optionxform = str
 
-	configwriter['sdl'] = {}
-	configwriter['sdl']['fullscreen'] = 'true'
-
 	if 'required_hardware' in app.config:
 		if 'for_xt' in app.config['required_hardware']:
 			if app.config['required_hardware']['for_xt']:
@@ -1351,6 +1348,9 @@ def _make_dosbox_config(app, system_config):
 			configwriter['dosbox'] = {}
 			graphics = app.config['required_hardware']['max_graphics']
 			configwriter['dosbox']['machine'] = 'svga_s3' if graphics == 'svga' else graphics
+
+	if not configwriter.sections():
+		return None
 
 	name = io_utils.sanitize_name(app.name) + '.ini'
 	folder = system_config.get('dosbox_configs_path') #TODO default value ugh my code sucks sometimes
@@ -1363,11 +1363,15 @@ def _make_dosbox_config(app, system_config):
 	return path
 	
 def dosbox(app, system_config):
-	conf = _get_dosbox_config(app, system_config.get('dosbox_configs_path'))
-	if ('--regen-dos-config' in sys.argv) or not conf:
-		conf = _make_dosbox_config(app, system_config)
+	args = ['-fullscreen', '-exit', '-noautoexec']
 
-	return LaunchParams('dosbox', ['-exit', '-noautoexec', '-userconf', '-conf', conf, app.path])
+	game_conf = _get_dosbox_config(app, system_config.get('dosbox_configs_path'))
+	if ('--regen-dos-config' in sys.argv) or not game_conf:
+		game_conf = _make_dosbox_config(app, system_config)
+	if game_conf:
+		args += ['-conf', game_conf]
+
+	return LaunchParams('dosbox', args + [app.path])
 
 def dosbox_x(app, _):
 	confs = {}
