@@ -1340,8 +1340,6 @@ def _make_dosbox_config(app, system_config):
 
 	configwriter['sdl'] = {}
 	configwriter['sdl']['fullscreen'] = 'true'
-	configwriter['sdl']['fullresolution'] = 'desktop'
-	#TODO: Set mapper file, which will of course require another separate directory to store crap
 
 	if 'required_hardware' in app.config:
 		if 'for_xt' in app.config['required_hardware']:
