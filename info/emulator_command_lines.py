@@ -1322,18 +1322,6 @@ def basilisk_ii(app, system_config):
 	]
 	return MultiCommandLaunchParams(commands)
 
-def _get_dosbox_config(app, folder):
-	if not os.path.isdir(folder):
-		return None
-
-	for conf in os.listdir(folder):
-		path = os.path.join(folder, conf)
-		name, _ = os.path.splitext(conf)
-		if app.name in (name, name.replace(' - ', ': ')):
-			return path
-
-	return None
-
 def _make_dosbox_config(app, system_config):
 	configwriter = configparser.ConfigParser(allow_no_value=True)
 	configwriter.optionxform = str
@@ -1363,11 +1351,9 @@ def _make_dosbox_config(app, system_config):
 	return path
 	
 def dosbox(app, system_config):
-	args = ['-fullscreen', '-exit', '-noautoexec']
+	args = ['-fullscreen', '-exit', '-noautoexec', '-userconf']
 
-	game_conf = _get_dosbox_config(app, system_config.get('dosbox_configs_path'))
-	if ('--regen-dos-config' in sys.argv) or not game_conf:
-		game_conf = _make_dosbox_config(app, system_config)
+	game_conf = _make_dosbox_config(app, system_config)
 	if game_conf:
 		args += ['-conf', game_conf]
 
