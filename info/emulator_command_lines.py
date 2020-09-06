@@ -1347,7 +1347,7 @@ def _make_dosbox_config(app, system_config):
 		if 'for_xt' in app.config['required_hardware']:
 			if app.config['required_hardware']['for_xt']:
 				configwriter['cpu'] = {}
-				configwriter['cpu']['cycles'] = system_config.get('slow_cpu_cycles', 477)
+				configwriter['cpu']['cycles'] = 'fixed 477'
 
 		if 'max_graphics' in app.config['required_hardware']:
 			configwriter['dosbox'] = {}
@@ -1363,50 +1363,6 @@ def _make_dosbox_config(app, system_config):
 		configwriter.write(config_file)
 
 	return path
-
-def _make_dosbox_x_config(app, system_config):
-	configwriter = configparser.ConfigParser(allow_no_value=True)
-	configwriter.optionxform = str
-
-	configwriter['sdl'] = {}
-	configwriter['sdl']['fullscreen'] = 'true'
-	configwriter['sdl']['fullresolution'] = 'desktop'
-	#TODO: Set mapper file, which will of course require another separate directory to store crap
-
-	if 'required_hardware' in app.config:
-		if 'for_xt' in app.config['required_hardware']:
-			if app.config['required_hardware']['for_xt']:
-				configwriter['cpu'] = {}
-				configwriter['cpu']['cputype'] = '8086'
-				configwriter['cpu']['cycles'] = system_config.get('slow_cpu_cycles', 477)
-
-		if 'max_graphics' in app.config['required_hardware']:
-			configwriter['dosbox'] = {}
-			graphics = app.config['required_hardware']['max_graphics']
-			configwriter['dosbox']['machine'] = 'svga_s3' if graphics == 'svga' else graphics
-
-	name = io_utils.sanitize_name(app.name) + '.ini'
-	config_folder = system_config.get('dosbox_x_configs_path')
-	path = os.path.join(config_folder, name)
-
-	#Need to do the autoexec thing manually, because DOSBox-X doesn't have that thing where you put a file in the command line and it autoexecs it
-	folder, name = os.path.split(app.path)
-	autoexec = [
-		'MOUNT -u D:', #It's ours now. Surely there must be a better way to do this...
-		'MOUNT D: {0}'.format(folder),
-		'D:',
-		name,
-	]
-	
-	os.makedirs(config_folder, exist_ok=True)
-	with open(path, 'wt') as config_file:
-		configwriter.write(config_file)
-		config_file.write('[autoexec]\n')
-		for line in autoexec:
-			config_file.write(line)
-			config_file.write('\n')
-
-	return path
 	
 def dosbox(app, system_config):
 	conf = _get_dosbox_config(app, system_config.get('dosbox_configs_path'))
@@ -1415,10 +1371,24 @@ def dosbox(app, system_config):
 
 	return LaunchParams('dosbox', ['-exit', '-noautoexec', '-userconf', '-conf', conf, app.path])
 
-def dosbox_x(app, system_config):
-	conf = _get_dosbox_config(app, system_config.get('dosbox_x_configs_path'))
-	if ('--regen-dos-config' in sys.argv) or not conf:
-		conf = _make_dosbox_x_config(app, system_config)
+def dosbox_x(app, _):
+	confs = {}
 
-	#Hmm, interestingly the app path does nothing, but -exit still does something?
-	return LaunchParams('dosbox-x', ['-exit', '-userconf', '-conf', conf])
+	if 'required_hardware' in app.config:
+		if 'for_xt' in app.config['required_hardware']:
+			if app.config['required_hardware']['for_xt']:
+				#confs['cputype'] = '8086'
+				#This doesn't even work anyway, it's just the best we can do I guess
+				confs['machine'] = 'cga'
+				confs['cycles'] = 'fixed 477'
+
+		if 'max_graphics' in app.config['required_hardware']:
+			graphics = app.config['required_hardware']['max_graphics']
+			confs['machine'] = 'svga_s3' if graphics == 'svga' else graphics
+
+	args = ['-exit', '-noautoexec', '-fullscreen', '-fastlaunch']
+	for k, v in confs.items():
+		args.append('-set')
+		args.append('{0}={1}'.format(k, v))
+
+	return LaunchParams('dosbox-x', args + [app.path])
