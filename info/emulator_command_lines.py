@@ -1345,7 +1345,7 @@ def _make_dosbox_config(app, system_config):
 		if 'for_xt' in app.config['required_hardware']:
 			if app.config['required_hardware']['for_xt']:
 				configwriter['cpu'] = {}
-				configwriter['cpu']['cycles'] = 'fixed 4772'
+				configwriter['cpu']['cycles'] = 'fixed 315' #DOSBox wiki says this is somewhat equivalent to 8086 @ 4.77MHz
 
 		if 'max_graphics' in app.config['required_hardware']:
 			configwriter['dosbox'] = {}
@@ -1378,7 +1378,7 @@ def dosbox_x(app, _):
 				#confs['cputype'] = '8086'
 				#This doesn't even work anyway, it's just the best we can do I guess
 				confs['machine'] = 'cga'
-				confs['cycles'] = 'fixed 4772'
+				confs['cycles'] = 'fixed 315'
 
 		if 'max_graphics' in app.config['required_hardware']:
 			graphics = app.config['required_hardware']['max_graphics']
