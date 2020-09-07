@@ -4,13 +4,11 @@ import os
 import time
 
 import config.main_config
-import config.system_config
 from common_paths import config_dir
 from common_types import MediaType
 from metadata import Metadata
 
 conf = config.main_config.main_config
-system_configs = config.system_config.system_configs
 
 class App:
 	def __init__(self, info):
@@ -55,12 +53,6 @@ def process_app(app_info, app_class):
 	app.make_launcher()
 
 def make_launchers(platform, app_class):
-	system_config = system_configs[platform]
-	if not system_config:
-		return
-	if not system_config.chosen_emulators:
-		return
-
 	time_started = time.perf_counter()
 
 	app_list_path = os.path.join(config_dir, platform.lower() + '.json')

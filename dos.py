@@ -50,6 +50,8 @@ class DOSApp(pc.App):
 
 def make_dos_launchers():
 	if dos_config:
+		if not dos_config.chosen_emulators:
+			return
 		pc.make_launchers('DOS', DOSApp)
 
 # def scan_app(path, exe_name, game_list, unknown_games, found_games, ambiguous_games):
