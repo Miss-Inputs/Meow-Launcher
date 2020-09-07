@@ -1,11 +1,34 @@
 import os
 
-def look_for_icon(folder):
+#Hmm, are other extensions going to work as icons in a file manager
+icon_extensions = ('png', 'ico', 'xpm', 'svg')
+
+def look_for_icon_next_to_file(path):
+	#TODO: Use pefile etc to extract icon from path if it is an exe
+	parent_folder = os.path.dirname(path)
+	for f in os.listdir(parent_folder):
+		for ext in icon_extensions:
+			if f.lower() == os.path.splitext(os.path.basename(path))[0].lower() + os.path.extsep + ext:
+				return os.path.join(parent_folder, f)
+
+	return look_for_icon_in_folder(parent_folder, False)
+
+def look_for_icon_in_folder(folder, look_for_any_ico=True):
 	for f in os.listdir(folder):
-		if f.lower().endswith('.ico'):
-			return os.path.join(folder, f)
-		if f.lower() in ('icon.png', 'icon.xpm'):
-			return os.path.join(folder, f)
+		for ext in icon_extensions:
+			if f.lower() == 'icon' + os.path.extsep + ext:
+				return os.path.join(folder, f)
+			if f.startswith('goggame-') and f.endswith(icon_extensions):
+				return os.path.join(folder, f)
+			if f == 'gfw_high.ico':
+				#Some kind of older GOG icon? Except not in actual GOG games, just stuff that was distributed elsewhere I guess
+				return os.path.join(folder, f)
+
+	if look_for_any_ico:
+		#Just get the first ico if we didn't find anything specific
+		for f in os.listdir(folder):
+			if f.lower().endswith('.ico'):
+				return os.path.join(folder, f)
 	return None
 
 def try_and_detect_engine_from_folder(folder):

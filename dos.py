@@ -8,6 +8,7 @@ import config.main_config
 import dos_mac_common
 from common_paths import config_dir
 from info.emulator_info import dos_emulators
+from pc_common_metadata import look_for_icon_next_to_file
 
 conf = config.main_config.main_config
 
@@ -16,15 +17,12 @@ dos_ini_path = os.path.join(config_dir, 'dos.ini')
 class DOSApp(dos_mac_common.App):
 	def additional_metadata(self, metadata):
 		metadata.platform = 'DOS'
-		basename, extension = os.path.splitext(self.path)
+		_, extension = os.path.splitext(self.path)
 		metadata.extension = extension[1][1:].lower()
-		basename = os.path.basename(basename).lower()
 		try:
-			base_dir = os.path.dirname(self.path)
-			for f in os.listdir(base_dir):
-				f_lowercase = f.lower()
-				if f_lowercase in (basename + '.ico', 'game.ico', 'icon.ico', 'icon.png') or (f_lowercase.startswith('goggame') and f_lowercase.endswith('.ico')):
-					metadata.images['Icon'] = os.path.join(base_dir, f)
+			icon = look_for_icon_next_to_file(self.path)
+			if icon:
+				metadata.images['Icon'] = icon
 		except FileNotFoundError as fnfe:
 			if conf.debug:
 				print('Oh no!', self.name, fnfe)
