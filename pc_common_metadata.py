@@ -1,5 +1,13 @@
 import os
 
+def look_for_icon(folder):
+	for f in os.listdir(folder):
+		if f.lower().endswith('.ico'):
+			return os.path.join(folder, f)
+		if f.lower() in ('icon.png', 'icon.xpm'):
+			return os.path.join(folder, f)
+	return None
+
 def try_and_detect_engine_from_folder(folder):
 	dir_entries = list(os.scandir(folder))
 	files = [f.name.lower() for f in dir_entries if f.is_file()]

@@ -13,6 +13,7 @@ import launchers
 from common import find_filename_tags
 from common_types import MediaType, SaveType
 from metadata import Metadata
+from pc_common_metadata import look_for_icon
 
 conf = config.main_config.main_config 
 
@@ -221,16 +222,15 @@ class ScummVMGame():
 		path = self.options.get('path')
 		if path:
 			if os.path.isdir(path):
-				for f in os.listdir(path):
-					if f.lower().endswith('.ico'):
-						metadata.images['Icon'] = os.path.join(path, f)
-						break
-					if f.lower() in ('icon.png', 'icon.xpm'):
-						metadata.images['Icon'] = os.path.join(path, f)
-						break
+				icon = look_for_icon(path)
+				if icon:
+					metadata.images['Icon'] = icon
 			else:
 				if conf.debug:
 					print('Aaaa!', self.name, path, 'does not exist')
+		else:
+			if conf.debug:
+				print('Wait what?', self.name, 'has no image')
 
 		name_tags = find_filename_tags.findall(name)
 		get_stuff_from_filename_tags(metadata, name_tags)

@@ -22,7 +22,7 @@ from data.steam_genre_ids import genre_ids
 from data.steam_store_categories import store_categories
 from info.region_info import get_language_by_english_name
 from metadata import Metadata
-from pc_metadata import (check_for_interesting_things_in_folder,
+from pc_common_metadata import (check_for_interesting_things_in_folder,
                          detect_engine_recursively)
 from series_detect import chapter_matcher
 
