@@ -2,7 +2,7 @@ import configparser
 import os
 
 from common_paths import config_dir
-from info.system_info import computer_systems, systems
+from info.system_info import pc_systems, systems
 from io_utils import ensure_exist
 
 from ._config_utils import parse_path_list, parse_string_list, parse_value
@@ -49,8 +49,8 @@ class SystemConfigs():
 					options = systems[system_name].options
 					for k, v in options.items():
 						self.configs[system_name].options[k] = parse_value(section, k, v.type, v.default_value)
-				elif system_name in computer_systems:
-					options = computer_systems[system_name].options
+				elif system_name in pc_systems:
+					options = pc_systems[system_name].options
 					for k, v in options.items():
 						self.configs[system_name].options[k] = parse_value(section, k, v.type, v.default_value)
 						

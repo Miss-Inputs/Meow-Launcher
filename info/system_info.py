@@ -435,17 +435,16 @@ systems.update({
 
 })
 
-class ComputerSystem():
-	#Need a better name for this shit
+class PCSystem():
 	def __init__(self, options):
 		self.options = options if options else {}
 
-computer_systems = {
-	'Mac': ComputerSystem({
+pc_systems = {
+	'Mac': PCSystem({
 		'shared_folder': SystemConfigValue(ConfigValueType.FolderPath, None, 'Path to shared folder on host that guest can see. This is mandatory for all this Mac stuff to work'),
 		'default_width': SystemConfigValue(ConfigValueType.String, 1920, 'Emulated screen width to run at if a game doesn\'t need a specific screen resolution'), 'default_height': SystemConfigValue(ConfigValueType.String, 1080, 'Emulated screen height to run at if a game doesn\'t need a specific screen resolution')
 	}),
-	'DOS': ComputerSystem({
+	'DOS': PCSystem({
 		'dosbox_configs_path': SystemConfigValue(ConfigValueType.FolderPath, os.path.join(data_dir, 'dosbox_configs'), 'Folder to store DOSBox per-application configuration files'),
 	})
 }

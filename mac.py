@@ -3,10 +3,12 @@
 import os
 import sys
 
-import dos_mac_common
+import pc
 import hfs
 from common_paths import config_dir
 from info.emulator_info import mac_emulators
+
+#Just pretend this file doesn't exist for now
 
 mac_ini_path = os.path.join(config_dir, 'mac.ini')
 

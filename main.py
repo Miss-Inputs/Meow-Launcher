@@ -2,7 +2,7 @@ import os
 
 import config.main_config
 import dos
-import mac
+#import mac
 import mame_machines
 import roms
 import scummvm
@@ -28,22 +28,22 @@ def main(progress_function, mame_enabled=True, roms_enabled=True, dos_enabled=Tr
 	os.makedirs(main_config.output_folder, exist_ok=True)
 
 	if mame_enabled:
-		call_progress_function('Scanning MAME machines')
+		call_progress_function('Adding MAME machines')
 		mame_machines.process_arcade()
 	if roms_enabled:
-		call_progress_function('Scanning ROMs')
+		call_progress_function('Adding ROMs')
 		roms.process_systems()
 	#if mac_enabled:
 	#	call_progress_function('Scanning Mac software')
 	#	mac.make_mac_launchers()
-	#if dos_enabled:
-	#	call_progress_function('Scanning DOS software')
-	#	dos.make_dos_launchers()
+	if dos_enabled:
+		call_progress_function('Adding DOS software')
+		dos.make_dos_launchers()
 	if scummvm_enabled:
-		call_progress_function('Scanning ScummVM games')
+		call_progress_function('Adding ScummVM games')
 		scummvm.add_scummvm_games()
 	if steam_enabled:
-		call_progress_function('Scanning Steam games')
+		call_progress_function('Adding Steam games')
 		steam.process_steam()
 
 	if not main_config.full_rescan:

@@ -1325,15 +1325,15 @@ def _make_dosbox_config(app, system_config):
 	configwriter = configparser.ConfigParser(allow_no_value=True)
 	configwriter.optionxform = str
 
-	if 'required_hardware' in app.config:
-		if 'for_xt' in app.config['required_hardware']:
+	if 'required_hardware' in app.info:
+		if 'for_xt' in app.info['required_hardware']:
 			if app.config['required_hardware']['for_xt']:
 				configwriter['cpu'] = {}
 				configwriter['cpu']['cycles'] = 'fixed 315' #DOSBox wiki says this is somewhat equivalent to 8086 @ 4.77MHz
 
-		if 'max_graphics' in app.config['required_hardware']:
+		if 'max_graphics' in app.info['required_hardware']:
 			configwriter['dosbox'] = {}
-			graphics = app.config['required_hardware']['max_graphics']
+			graphics = app.info['required_hardware']['max_graphics']
 			configwriter['dosbox']['machine'] = 'svga_s3' if graphics == 'svga' else graphics
 
 	if not configwriter.sections():
@@ -1362,15 +1362,15 @@ def dosbox_x(app, _):
 	confs = {}
 
 	if 'required_hardware' in app.config:
-		if 'for_xt' in app.config['required_hardware']:
-			if app.config['required_hardware']['for_xt']:
+		if 'for_xt' in app.info['required_hardware']:
+			if app.info['required_hardware']['for_xt']:
 				#confs['cputype'] = '8086'
 				#This doesn't even work anyway, it's just the best we can do I guess
 				confs['machine'] = 'cga'
 				confs['cycles'] = 'fixed 315'
 
-		if 'max_graphics' in app.config['required_hardware']:
-			graphics = app.config['required_hardware']['max_graphics']
+		if 'max_graphics' in app.info['required_hardware']:
+			graphics = app.info['required_hardware']['max_graphics']
 			confs['machine'] = 'svga_s3' if graphics == 'svga' else graphics
 
 	args = ['-exit', '-noautoexec', '-fullscreen', '-fastlaunch']
