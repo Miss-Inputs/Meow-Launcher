@@ -16,7 +16,6 @@ class App:
 		self.info = info
 		self.path = info['path']
 		self.name = info['name']
-		self.add_metadata()
 
 	def add_metadata(self):
 		self.additional_metadata()
@@ -50,6 +49,11 @@ class App:
 		# self.series_index = None
 		#Maybe?
 
+	@property
+	def is_valid(self):
+		#To be overriden by subclass
+		return True
+
 	def additional_metadata(self):
 		#To be overriden by subclass
 		pass
@@ -60,7 +64,14 @@ class App:
 
 def process_app(app_info, app_class):
 	app = app_class(app_info)
-	app.make_launcher()
+	try:
+		if not app.is_valid:
+			print('Skipping', app.name, app.path, 'config is not valid')
+			return
+		app.add_metadata()
+		app.make_launcher()
+	except Exception as ex: #pylint: disable=broad-except
+		print('Ah bugger', app.path, app.name, ex, type(ex))
 
 def make_launchers(platform, app_class):
 	time_started = time.perf_counter()

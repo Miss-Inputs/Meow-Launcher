@@ -15,17 +15,17 @@ system_configs = config.system_config.system_configs
 dos_config = system_configs.get('DOS')
 
 class DOSApp(pc.App):
+	@property
+	def is_valid(self):
+		return os.path.isfile(self.path)
+
 	def additional_metadata(self):
 		self.metadata.platform = 'DOS'
 		_, extension = os.path.splitext(self.path)
 		self.metadata.extension = extension[1:].lower()
-		try:
-			icon = look_for_icon_next_to_file(self.path)
-			if icon:
-				self.metadata.images['Icon'] = icon
-		except FileNotFoundError as fnfe:
-			if conf.debug:
-				print('Oh no!', self.name, fnfe)
+		icon = look_for_icon_next_to_file(self.path)
+		if icon:
+			self.metadata.images['Icon'] = icon
 
 	def make_launcher(self):
 		emulator_name = None
