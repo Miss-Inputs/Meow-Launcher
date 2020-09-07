@@ -1327,7 +1327,7 @@ def _make_dosbox_config(app, system_config):
 
 	if 'required_hardware' in app.info:
 		if 'for_xt' in app.info['required_hardware']:
-			if app.config['required_hardware']['for_xt']:
+			if app.info['required_hardware']['for_xt']:
 				configwriter['cpu'] = {}
 				configwriter['cpu']['cycles'] = 'fixed 315' #DOSBox wiki says this is somewhat equivalent to 8086 @ 4.77MHz
 
@@ -1361,7 +1361,7 @@ def dosbox(app, system_config):
 def dosbox_x(app, _):
 	confs = {}
 
-	if 'required_hardware' in app.config:
+	if 'required_hardware' in app.info:
 		if 'for_xt' in app.info['required_hardware']:
 			if app.info['required_hardware']['for_xt']:
 				#confs['cputype'] = '8086'
