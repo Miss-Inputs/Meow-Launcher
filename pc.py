@@ -38,7 +38,17 @@ class App:
 			self.metadata.nsfw = self.info['is_adult']
 		if 'notes' in self.info:
 			self.metadata.notes = self.info['notes']
-		#Could put anything here, really
+		
+		# self.languages = []
+		# self.save_type = SaveType.Unknown
+		# self.product_code = None
+		# self.regions = []
+		# self.media_type = None
+		# self.disc_number = None
+		# self.disc_total = None
+		# self.series = None
+		# self.series_index = None
+		#Maybe?
 
 	def additional_metadata(self):
 		#To be overriden by subclass
