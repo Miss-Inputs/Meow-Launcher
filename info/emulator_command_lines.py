@@ -1340,7 +1340,7 @@ def _make_dosbox_config(app, system_config):
 		return None
 
 	name = io_utils.sanitize_name(app.name) + '.ini'
-	folder = system_config.get('dosbox_configs_path') #TODO default value ugh my code sucks sometimes
+	folder = system_config.get('dosbox_configs_path')
 	path = os.path.join(folder, name)
 
 	os.makedirs(folder, exist_ok=True)
