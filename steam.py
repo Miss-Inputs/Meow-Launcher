@@ -1015,16 +1015,16 @@ def process_game(app_id, folder, app_state):
 		raise NotLaunchableError('Game cannot be launched')
 
 	launcher = list(game.launchers.values())[0]
-	if appid_str in steamplay_overrides:
+	if appid_str in steamplay_whitelist:
+		tool = steamplay_whitelist[appid_str]
+		game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
+		game.metadata.specific_info['Steam-Play-Whitelisted'] = True
+	elif appid_str in steamplay_overrides:
 		#Natively ported game, but forced to use Proton/etc for reasons
 		tool = steamplay_overrides[appid_str]
 		if tool:
 			game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
 			game.metadata.specific_info['Steam-Play-Forced'] = True
-	elif appid_str in steamplay_whitelist:
-		tool = steamplay_whitelist[appid_str]
-		game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
-		game.metadata.specific_info['Steam-Play-Whitelisted'] = True
 	elif 'linux' in game.launchers:
 		launcher = game.launchers['linux']
 	elif 'linux_64' in game.launchers:
