@@ -9,7 +9,7 @@ commodore_disk_formats = ['d64', 'g64', 'x64', 'p64', 'd71', 'd81', 'd80', 'd82'
 #Would be better to just use crt everywhere, but sometimes that just doesn't happen and so the load address has to be stored in the extension
 commodore_cart_formats = ['20', '40', '60', '70', '80', 'a0', 'b0', 'e0', 'crt', 'bin']
 #There is also .cu which is some Harmony Cart format which might not work so easily… .ar is actually Supercharger which also might be different
-atari_2600_cartridge_extensions = ['2k', '4k', 'f8', 'ef', 'efs', 'f4', 'f4s', 'fa', 'fe', '3f', '3e', 'e0', 'f8s', 'f6', 'f6s', 'e7', 'cv', 'ua', 'ar', 'dpc', '084']
+atari_2600_cartridge_extensions = ['2k', '4k', 'f8', 'ef', 'efs', 'f4', 'f4s', 'fa', 'fe', '3f', '3e', '3ex', '3ep', '3e+', 'e0', 'f8s', 'f6', 'f6s', 'e7', 'cv', 'ua', 'ar', 'dpc', '084']
 
 #Used where the extension doesn't really mean anything and it's just a generic ol' rom, but this is the file extensions that normal people use
 #Ideally the usage of this would signifify to not try and use file extensions to detect type
