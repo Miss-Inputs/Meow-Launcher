@@ -12,7 +12,7 @@ from info.emulator_info import mac_emulators
 
 mac_ini_path = os.path.join(config_dir, 'mac.ini')
 
-class MacApp(dos_mac_common.App):
+class MacApp(pc.App):
 	def additional_metadata(self, metadata):
 		metadata.platform = 'Mac'
 
