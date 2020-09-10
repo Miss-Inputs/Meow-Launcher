@@ -126,6 +126,15 @@ def add_alternate_names(rom, metadata):
 	primary_name = splits[0]
 	alt_names = splits[1:]
 
+	#This is which way around they are in No-Intro etc, but… no
+	not_allowed_to_be_primary_name = ["Tony Hawk's Skateboarding", 'Senjou no Ookami II', 'G-Sonic', 'Chaotix', 'After Burner Complete']
+	if primary_name in not_allowed_to_be_primary_name:
+		alt_names.append(primary_name)
+		primary_name = alt_names.pop(0)
+	if primary_name == 'Ax Battler - A Legend of Golden Axe':
+		#I refuse to let "Golden Axe" be the alternate name when that's a completely different thing
+		return
+		
 	primary_name_tags = find_filename_tags_at_end.findall(primary_name)
 	if tags_at_end:
 		if not primary_name_tags:
@@ -135,15 +144,6 @@ def add_alternate_names(rom, metadata):
 		else:
 			#The name is something like "aaa (bbb) ~ ccc (ddd)" so the (ddd) here actually belongs to the ccc, not the whole thing (this wouldn't usually happen with any naming convention I know of, but I copypasta'd this code from mame_machine.py and I guess why not handle a possible thing happening while we're here)
 			alt_names[-1] += ' ' + ' '.join(tags_at_end)
-
-	#This is which way around they are in No-Intro etc, but… no
-	not_allowed_to_be_primary_name = ["Tony Hawk's Skateboarding", 'Senjou no Ookami II', 'G-Sonic', 'Chaotix', 'After Burner Complete']
-	if primary_name in not_allowed_to_be_primary_name:
-		alt_names.append(primary_name)
-		primary_name = alt_names.pop(0)
-	if primary_name == 'Ax Battler - A Legend of Golden Axe':
-		#I refuse to let "Golden Axe" be the alternate name when that's a completely different thing
-		return
 
 	rom.name = primary_name
 	for alt_name in alt_names:
