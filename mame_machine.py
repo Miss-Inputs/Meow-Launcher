@@ -388,7 +388,6 @@ licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
 licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
 hack_regex = re.compile(r'^hack \((.+)\)$')
 bootleg_with_publisher_regex = re.compile(r'^bootleg \((.+)\)$')
-slashes_in_brackets_regex = re.compile(r'([^/(]+) (\([^/)]+ / [^/(]+\))$')
 class Machine():
 	def __init__(self, xml, init_metadata=False):
 		self.xml = xml
@@ -414,27 +413,24 @@ class Machine():
 			#We don't want to touch Blah (Fgsfds / Zzzz) (or bother trying to do something for a name that never had any / in it to begin with)
 			return
 
-		if '(' in name:
-			#Bail out for now until I figure out the issue of aaa (bbb) / ccc (ddd)
-			return
-
 		splitty_bois = name.split(' / ')
 		primary_name = splitty_bois[0]
 		alt_names = splitty_bois[1:]
-		if alt_names[-1].endswith(')') and not primary_name.endswith(')'):
-			#This stuff in brackets was probably a part of the whole thing, not the last alternate name
-			last_alt_tags = find_filename_tags_at_end.findall(alt_names[-1])
-			primary_name += ' ' + ' '.join(last_alt_tags)
-			alt_names[-1] = find_filename_tags_at_end.sub('', alt_names[-1]).rstrip()
+
+		primary_name_tags = find_filename_tags_at_end.findall(primary_name)
+		if tags_at_end:
+			if not primary_name_tags:
+				#This stuff in brackets was probably a part of the whole thing, not the last alternate name
+				primary_name += ' ' + ' '.join(tags_at_end)
+				alt_names[-1] = remove_filename_tags(alt_names[-1])
+			else:
+				#The name is something like "aaa (bbb) / ccc (ddd)" so the (ddd) here actually belongs to the ccc, not the whole thing
+				alt_names[-1] += ' ' + ' '.join(tags_at_end)
 
 		for alt_name in alt_names:
 			self.metadata.add_alternate_name(alt_name)
 		
-		if tags_at_end:
-			#Put that back when we are done
-			self.name = primary_name + ' ' + ' '.join(tags_at_end)
-		else:
-			self.name = primary_name #.rstrip()
+		self.name = primary_name
 
 	def __str__(self):
 		return self.name
