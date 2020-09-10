@@ -1,6 +1,7 @@
 import config.main_config
 import detect_things_from_filename
 import platform_metadata
+from common import find_filename_tags_at_end, remove_filename_tags
 from data.not_necessarily_equivalent_arcade_names import \
     not_necessarily_equivalent_arcade_names
 from info import region_info, system_info
@@ -113,7 +114,45 @@ def add_metadata_from_arcade(game, machine):
 		game.metadata.series = machine.metadata.series
 	#Well, I guess not much else can be inferred here. Still, though!
 		
+def add_alternate_names(rom, metadata):
+	tags_at_end = find_filename_tags_at_end.findall(rom.name)
+	name = remove_filename_tags(rom.name)
+
+	#Unlikely that there would be an "aaa (bbb ~ ccc)" but still
+	if ' ~ ' not in rom.name:
+		return
+
+	splits = name.split(' ~ ')
+	primary_name = splits[0]
+	alt_names = splits[1:]
+
+	primary_name_tags = find_filename_tags_at_end.findall(primary_name)
+	if tags_at_end:
+		if not primary_name_tags:
+			#This stuff in brackets was probably a part of the whole thing, not the last alternate name
+			primary_name += ' ' + ' '.join(tags_at_end)
+			alt_names[-1] = remove_filename_tags(alt_names[-1])
+		else:
+			#The name is something like "aaa (bbb) ~ ccc (ddd)" so the (ddd) here actually belongs to the ccc, not the whole thing (this wouldn't usually happen with any naming convention I know of, but I copypasta'd this code from mame_machine.py and I guess why not handle a possible thing happening while we're here)
+			alt_names[-1] += ' ' + ' '.join(tags_at_end)
+
+	#This is which way around they are in No-Intro etc, but… no
+	not_allowed_to_be_primary_name = ["Tony Hawk's Skateboarding", 'Senjou no Ookami II', 'G-Sonic', 'Chaotix', 'After Burner Complete']
+	if primary_name in not_allowed_to_be_primary_name:
+		alt_names.append(primary_name)
+		primary_name = alt_names.pop(0)
+	if primary_name == 'Ax Battler - A Legend of Golden Axe':
+		#I refuse to let "Golden Axe" be the alternate name when that's a completely different thing
+		return
+
+	rom.name = primary_name
+	for alt_name in alt_names:
+		metadata.add_alternate_name(alt_name)
+
 def add_metadata(game):
+	add_alternate_names(game.rom, game.metadata)
+	#I guess if game.subroms was ever used you would loop through each one (I swear I will do the thing one day)
+
 	game.metadata.extension = game.rom.extension
 
 	game.metadata.media_type = game.system.get_media_type(game.rom.extension)
