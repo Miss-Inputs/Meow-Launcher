@@ -196,6 +196,7 @@ def make_linux_desktop(launch_params, display_name, fields=None):
 	#Set executable, but also set everything else because whatever
 	os.chmod(path, 0o7777)
 
+split_brackets = re.compile(r' (?=\()')
 def make_launcher(launch_params, name, metadata, id_type, unique_id):
 	display_name = common.remove_filename_tags(name)
 	filename_tags = common.find_filename_tags_at_end.search(name)
@@ -203,7 +204,7 @@ def make_launcher(launch_params, name, metadata, id_type, unique_id):
 	fields = metadata.to_launcher_fields()
 
 	if filename_tags:
-		fields[junk_section_name]['Filename-Tags'] = filename_tags[0]
+		fields[junk_section_name]['Filename-Tags'] = split_brackets.split(filename_tags[0])
 	fields[junk_section_name]['Original-Name'] = name
 
 	fields[id_section_name] = {}
