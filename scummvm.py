@@ -230,10 +230,11 @@ class ScummVMGame():
 					print('Aaaa!', self.name, path, 'does not exist')
 		else:
 			if conf.debug:
-				print('Wait what?', self.name, 'has no image')
+				print('Wait what?', self.name, 'has no path')
 
-		name_tags = find_filename_tags_at_end.findall(name)
-		get_stuff_from_filename_tags(metadata, name_tags)
+		name_tags = find_filename_tags_at_end.search(name)
+		if name_tags:
+			get_stuff_from_filename_tags(metadata, name_tags[0])
 
 		#Hmm, could use ResidualVM as the launcher type for ResidualVM games... but it's just a unique identifier type thing, so it should be fine
 		launchers.make_launcher(launch_params, name, metadata, 'ScummVM', self.name)
