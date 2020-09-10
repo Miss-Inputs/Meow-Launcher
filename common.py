@@ -1,6 +1,6 @@
 import re
 
-find_filename_tags = re.compile(r'(\([^)]+?\)+|\[[^]]+?\]+)')
+find_filename_tags = re.compile(r'(?:(\([^)]+?\)+|\[[^]]+?\]+)\s*)+$')
 def remove_filename_tags(name):
 	stripped_name = find_filename_tags.sub('', name)
 	if not stripped_name:
