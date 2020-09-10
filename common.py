@@ -1,6 +1,7 @@
 import re
 
 find_filename_tags_at_end = re.compile(r'(?:(\([^)]+?\)+|\[[^]]+?\]+)\s*)+$')
+find_brackets = re.compile(r'(\([^)]+?\)+|\[[^]]+?\]+)')
 def remove_filename_tags(name):
 	stripped_name = find_filename_tags_at_end.sub('', name)
 	if not stripped_name:
