@@ -2,7 +2,8 @@ import os
 import re
 
 import config.main_config
-from common import (find_filename_tags, normalize_name, remove_capital_article,
+from common import (find_filename_tags_at_end,
+                    normalize_name, remove_capital_article,
                     remove_filename_tags)
 from common_types import EmulationStatus
 from data.subtitles import subtitles
@@ -404,14 +405,17 @@ class Machine():
 	
 	def add_alternate_names(self):
 		if self.arcade_system in ('Space Invaders / Qix Silver Anniversary Edition Hardware', 'ISG Selection Master Type 2006', 'Cosmodog Hardware', 'Donkey Kong / Mario Bros Multigame Hardware') or self.name.endswith('Two in One'):
-			#These don't use the / as a delimiter in the same way
+			#These don't use the / as a delimiter for alternate names, they're like two things in one or whatever
 			return
-		#We don't want to touch Blah (Fgsfds / Zzzz)
-		bracket_at_end = slashes_in_brackets_regex.match(self.name)
-		name = self.name
-		if bracket_at_end:
-			name = bracket_at_end[1]
+
+		tags_at_end = find_filename_tags_at_end.findall(self.name)
+		name = remove_filename_tags(self.name)
 		if ' / ' not in name:
+			#We don't want to touch Blah (Fgsfds / Zzzz) (or bother trying to do something for a name that never had any / in it to begin with)
+			return
+
+		if '(' in name:
+			#Bail out for now until I figure out the issue of aaa (bbb) / ccc (ddd)
 			return
 
 		splitty_bois = name.split(' / ')
@@ -419,18 +423,18 @@ class Machine():
 		alt_names = splitty_bois[1:]
 		if alt_names[-1].endswith(')') and not primary_name.endswith(')'):
 			#This stuff in brackets was probably a part of the whole thing, not the last alternate name
-			tags = find_filename_tags.findall(alt_names[-1])
-			primary_name += ' ' + ' '.join(tags)
-			alt_names[-1] = find_filename_tags.sub('', alt_names[-1]).rstrip()
+			last_alt_tags = find_filename_tags_at_end.findall(alt_names[-1])
+			primary_name += ' ' + ' '.join(last_alt_tags)
+			alt_names[-1] = find_filename_tags_at_end.sub('', alt_names[-1]).rstrip()
 
 		for alt_name in alt_names:
 			self.metadata.add_alternate_name(alt_name)
 		
-		if bracket_at_end:
+		if tags_at_end:
 			#Put that back when we are done
-			self.name = (primary_name + bracket_at_end[2]).rstrip()
+			self.name = primary_name + ' ' + ' '.join(tags_at_end)
 		else:
-			self.name = primary_name.rstrip()
+			self.name = primary_name #.rstrip()
 
 	def __str__(self):
 		return self.name
