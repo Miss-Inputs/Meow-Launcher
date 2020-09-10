@@ -40,7 +40,6 @@ def try_detect_unity(folder):
 				return True
 	return False
 
-
 def try_and_detect_engine_from_folder(folder):
 	dir_entries = list(os.scandir(folder))
 	files = [f.name.lower() for f in dir_entries if f.is_file()]
@@ -123,7 +122,7 @@ def detect_engine_recursively(folder):
 
 	return None
 
-def check_for_interesting_things_in_folder(folder, metadata):
+def check_for_interesting_things_in_folder(folder, metadata, find_wrappers=False):
 	#Let's check for things existing because we can (there's not really any other reason to do this, it's just fun)
 	#Not sure if any of these are in lowercase? Or they might be in a different directory
 	dir_entries = list(os.scandir(folder))
@@ -132,11 +131,14 @@ def check_for_interesting_things_in_folder(folder, metadata):
 	
 	if 'libdiscord-rpc.so' in files or 'discord-rpc.dll' in files:
 		metadata.specific_info['Discord-Rich-Presence'] = True
-	if 'dosbox' in subdirs or any(f.startswith('dosbox') for f in files):
-		metadata.specific_info['Wrapper'] = 'DOSBox'
 
-	if any(f.startswith('scummvm_') for f in subdirs) or any(f.startswith('scummvm') for f in files):
-		metadata.specific_info['Wrapper'] = 'ScummVM'
+	if find_wrappers:
+		#This is only really relevant for Steam etc
+		if 'dosbox' in subdirs or any(f.startswith('dosbox') for f in files):
+			metadata.specific_info['Wrapper'] = 'DOSBox'
 
-	if os.path.isfile(os.path.join(folder, 'support', 'UplayInstaller.exe')):
-		metadata.specific_info['Launcher'] = 'uPlay'
+		if any(f.startswith('scummvm_') for f in subdirs) or any(f.startswith('scummvm') for f in files):
+			metadata.specific_info['Wrapper'] = 'ScummVM'
+
+		if os.path.isfile(os.path.join(folder, 'support', 'UplayInstaller.exe')):
+			metadata.specific_info['Launcher'] = 'uPlay'

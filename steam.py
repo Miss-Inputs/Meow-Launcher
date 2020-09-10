@@ -882,11 +882,11 @@ def poke_around_in_install_dir(game):
 	if engine:
 		game.metadata.specific_info['Engine'] = engine
 
-	check_for_interesting_things_in_folder(folder, game.metadata)
+	check_for_interesting_things_in_folder(folder, game.metadata, find_wrappers=True)
 	for f in os.listdir(folder):
 		path = os.path.join(folder, f)
 		if os.path.isdir(path):
-			check_for_interesting_things_in_folder(path, game.metadata)
+			check_for_interesting_things_in_folder(path, game.metadata, find_wrappers=True)
 	
 def find_image(appid, image_name):
 	if steam_installation.library_cache_folder:
