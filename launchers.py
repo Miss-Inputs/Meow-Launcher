@@ -198,7 +198,7 @@ def make_linux_desktop(launch_params, display_name, fields=None):
 
 def make_launcher(launch_params, name, metadata, id_type, unique_id):
 	display_name = common.remove_filename_tags(name)
-	filename_tags = common.find_filename_tags.findall(name)
+	filename_tags = common.find_filename_tags_at_end.findall(name)
 
 	fields = metadata.to_launcher_fields()
 

@@ -3,7 +3,7 @@
 
 from info.region_info import TVSystem, Region, Language, get_language_from_regions, get_tv_system_from_regions
 from detect_things_from_filename import get_languages_from_filename_tags, get_regions_from_filename_tags, get_tv_system_from_filename_tags
-from common import find_filename_tags
+from common import find_filename_tags_at_end
 
 def are_regions_equal(region, other_region):
 	if region == other_region:
@@ -80,7 +80,7 @@ class Test():
 
 	def run(self):
 		try:
-			tags = find_filename_tags.findall(self.filename)
+			tags = find_filename_tags_at_end.findall(self.filename)
 
 			regions = get_regions_from_filename_tags(tags)
 			if not region_array_equal(regions, self.expected_regions):

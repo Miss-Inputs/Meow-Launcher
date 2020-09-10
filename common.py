@@ -1,8 +1,8 @@
 import re
 
-find_filename_tags = re.compile(r'(?:(\([^)]+?\)+|\[[^]]+?\]+)\s*)+$')
+find_filename_tags_at_end = re.compile(r'(?:(\([^)]+?\)+|\[[^]]+?\]+)\s*)+$')
 def remove_filename_tags(name):
-	stripped_name = find_filename_tags.sub('', name)
+	stripped_name = find_filename_tags_at_end.sub('', name)
 	if not stripped_name:
 		#Handle weird hipster games that have (one thing in parentheses) as the title for no good reason
 		stripped_name = name

@@ -5,7 +5,7 @@ import os
 import config.main_config
 import detect_things_from_filename
 import input_metadata
-from common import find_filename_tags, pluralize
+from common import find_filename_tags_at_end, pluralize
 from common_types import MediaType, SaveType, EmulationStatus
 from info.region_info import (get_language_by_english_name,
                               get_language_from_regions)
@@ -173,7 +173,7 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.genre = genre
 		machine.metadata.subgenre = subgenre
 
-	filename_tags = find_filename_tags.findall(machine.name)
+	filename_tags = find_filename_tags_at_end.findall(machine.name)
 	for tag in filename_tags:
 		if 'prototype' in tag.lower() or 'location test' in tag.lower():
 			if machine.has_parent:
@@ -335,7 +335,7 @@ def add_metadata(machine):
 	add_input_info(machine)
 	add_save_type(machine)
 
-	name_tags = find_filename_tags.findall(machine.name)
+	name_tags = find_filename_tags_at_end.findall(machine.name)
 	machine.metadata.regions = detect_things_from_filename.get_regions_from_filename_tags(name_tags, loose=True)
 
 	add_languages(machine, name_tags)

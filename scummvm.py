@@ -10,7 +10,7 @@ import config.main_config
 import detect_things_from_filename
 import input_metadata
 import launchers
-from common import find_filename_tags
+from common import find_filename_tags_at_end
 from common_types import MediaType, SaveType
 from metadata import Metadata
 from pc_common_metadata import look_for_icon_in_folder
@@ -232,7 +232,7 @@ class ScummVMGame():
 			if conf.debug:
 				print('Wait what?', self.name, 'has no image')
 
-		name_tags = find_filename_tags.findall(name)
+		name_tags = find_filename_tags_at_end.findall(name)
 		get_stuff_from_filename_tags(metadata, name_tags)
 
 		#Hmm, could use ResidualVM as the launcher type for ResidualVM games... but it's just a unique identifier type thing, so it should be fine
