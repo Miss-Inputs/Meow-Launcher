@@ -19,6 +19,7 @@ not_necessarily_equivalent_arcade_names = [
 	'fotns',
 	'gijoe',
 	'godzilla',
+	'golgo13',
 	'hook',
 	'jdredd',
 	'jpark',
