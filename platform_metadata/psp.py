@@ -187,10 +187,12 @@ def add_psp_metadata(game):
 	add_psp_system_info(game.metadata)
 
 	if game.rom.extension == 'pbp':
-		#These are basically always named EBOOT.PBP (due to how PSPs work I guess), so that's not a very good launcher name, and use the folder it's stored in instead
-		game.metadata.override_name = os.path.basename(game.folder)
 		game.metadata.categories = game.metadata.categories[:-1]
 		add_info_from_pbp(game.rom, game.metadata, game.rom.read())
+		#These are basically always named EBOOT.PBP (due to how PSPs work I guess), so that's not a very good launcher name, and use the folder it's stored in instead
+		if game.rom.name.lower() == 'eboot':
+			game.metadata.add_alternate_name(os.path.basename(os.path.dirname(game.rom.path)), 'Folder-Name')
+			game.rom.ignore_name = True
 	elif game.rom.extension == 'iso' and have_pycdlib:
 		iso = PyCdlib()
 		try:

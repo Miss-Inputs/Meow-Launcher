@@ -189,7 +189,6 @@ class Metadata():
 		self.specific_info = {} #Stuff that's too specific to put as an attribute here
 		self.tv_type = None
 		self.mame_driver = None #Only really needs to be set if explicitly setting it to something not in system_info
-		self.override_name = None #TODO This will be reworked eventually if I get around to redoing all the things
 
 		self.images = {}
 		#TODO: The override name shenanigans in Wii/PSP: Check for name = None in launchers, and set name = None if overriding it to something else, and put the overriden name in here

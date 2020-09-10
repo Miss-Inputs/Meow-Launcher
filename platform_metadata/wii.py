@@ -186,7 +186,8 @@ def add_wii_homebrew_metadata(rom, metadata):
 			name = meta_xml.findtext('name')
 			if name:
 				metadata.add_alternate_name(name, 'Banner-Title')
-				metadata.override_name = name
+				metadata.add_alternate_name(os.path.basename(os.path.dirname(rom.path)), 'Folder-Name')
+				rom.ignore_name = True
 
 			coder = meta_xml.findtext('coder')
 			if not coder:
@@ -236,10 +237,8 @@ def add_wii_homebrew_metadata(rom, metadata):
 		except ElementTree.ParseError as etree_error:
 			if conf.debug:
 				print('Ah bugger this Wii homebrew XML has problems', rom.path, etree_error)
-			#metadata.override_name = os.path.basename(game.folder)
-			metadata.override_name = os.path.basename(os.path.dirname(rom.path))
 	elif rom.name.lower() == 'boot':
-		metadata.override_name = os.path.basename(os.path.dirname(rom.path))
+		rom.ignore_name = True
 
 def parse_ratings(metadata, ratings_bytes, invert_has_rating_bit=False, use_bit_6=True):
 	ratings = {}

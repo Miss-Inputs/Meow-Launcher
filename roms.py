@@ -34,6 +34,7 @@ class RomFile():
 	def __init__(self, path):
 		self.path = path
 		self.warn_about_multiple_files = False
+		self.ignore_name = False
 
 		original_name = os.path.basename(path)
 		name_without_extension, self.original_extension = os.path.splitext(original_name)
@@ -137,9 +138,8 @@ class RomGame():
 			params = params.replace_path_argument(self.rom.path)
 
 		name = self.rom.name
-		if self.metadata.override_name:
-			#This is just a temporary workaround until I figure out what's the best way to do this
-			name = self.metadata.override_name
+		if self.rom.ignore_name and self.metadata.names:
+			name = list(self.metadata.names.values())[0]
 		launchers.make_launcher(params, name, self.metadata, 'ROM', self.rom.path)
 
 def try_emulator(game, emulator, system_config, emulator_config):
