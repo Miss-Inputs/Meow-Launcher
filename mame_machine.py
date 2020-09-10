@@ -403,7 +403,7 @@ class Machine():
 			self._add_metadata_fields()
 	
 	def add_alternate_names(self):
-		if self.arcade_system in ('Space Invaders / Qix Silver Anniversary Edition Hardware', 'ISG Selection Master Type 2006', 'Cosmodog Hardware', 'Donkey Kong / Mario Bros Multigame Hardware') or self.name.endswith('Two in One'):
+		if self.arcade_system in ('Space Invaders / Qix Silver Anniversary Edition Hardware', 'ISG Selection Master Type 2006', 'Cosmodog Hardware', 'Donkey Kong / Mario Bros Multigame Hardware') or self.basename == 'jak_hmhsm':
 			#These don't use the / as a delimiter for alternate names, they're like two things in one or whatever
 			return
 
