@@ -132,7 +132,7 @@ def add_fst_info(rom, metadata, fst_offset, fst_size, offset=0):
 def add_gamecube_disc_metadata(rom, metadata, header, tgc_data=None):
 	metadata.platform = 'GameCube'
 
-	if rom.extension != 'tgc':
+	if rom.extension != 'tgc' and not (metadata.year or metadata.month or metadata.day):
 		#Not gonna bother working out what's going on with apploader offsets in tgc
 		try:
 			apploader_date = header[0x2440:0x2450].decode('ascii').rstrip('\x00')
