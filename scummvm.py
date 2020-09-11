@@ -163,7 +163,7 @@ class ScummVMGame():
 			platform = self.options.get('platform')
 			if platform:
 				self.metadata.platform = format_platform(platform)
-			if platform == 'amiga' and extra == 'cd32':
+			if platform == 'amiga' and extra == 'CD32':
 				self.metadata.platform = 'Amiga CD32'
 		
 		language_code = self.options.get('language')
