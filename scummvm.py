@@ -60,6 +60,7 @@ class ScummVMConfig():
 					if name.endswith(' [all games]'):
 						name = name[:-12]
 					engines[engine_id] = name
+				engines['agi'] = 'AGI' #Not this weird 'AGI v32qrrbvdsnuignedogsafgd' business
 				return engines
 			except subprocess.CalledProcessError:
 				return []
@@ -141,6 +142,37 @@ def get_platform_mediatype_from_tags(tags):
 
 	return None, None
 
+def format_platform(platform):
+	#https://github.com/scummvm/scummvm/blob/master/common/platform.cpp#L28
+	return {
+		#We'll use the same formatting as in system_info
+		'2gs': 'Apple IIgs',
+		'apple2': 'Apple II',
+		'3do': '3DO',
+		'acorn': 'Acorn Archimedes',
+		'amiga': 'Amiga',
+		'atari8': 'Atari 8-bit',
+		'atari': 'Atari ST',
+		'c64': 'C64',
+		'pc': 'DOS',
+		'pc98': 'PC-98',
+		'wii': 'Wii',
+		'coco3': 'Tandy CoCo',
+		'fmtowns': 'FM Towns',
+		'linux': 'Linux',
+		'macintosh': 'Mac',
+		'pce': 'PC Engine CD', #All the PC Engine games supported would be CDs, not cards
+		'nes': 'NES',
+		'segacd': 'Mega CD',
+		'windows': 'Windows',
+		'playstation': 'PlayStation',
+		'cdi': 'CD-i',
+		'ios': 'iOS',
+		'os2': 'OS/2',
+		'beos': 'BeOS',
+		'ppc': 'PocketPC',
+	}.get(platform, platform)
+
 def get_stuff_from_filename_tags(metadata, name_tags):
 	languages = detect_things_from_filename.get_languages_from_filename_tags(name_tags)
 	if languages:
@@ -158,7 +190,7 @@ def get_stuff_from_filename_tags(metadata, name_tags):
 		metadata.specific_info['Version'] = version
 
 	platform, assumed_media_type = get_platform_mediatype_from_tags(name_tags)
-	if platform and conf.use_original_platform:
+	if platform and conf.use_original_platform and not metadata.platform:
 		metadata.platform = platform
 	if assumed_media_type:
 		metadata.media_type = assumed_media_type
@@ -182,10 +214,15 @@ def get_stuff_from_filename_tags(metadata, name_tags):
 		#Others: final, VGA, EGA, Masterpiece Edition, Talkie, Latest version, unknown version
 		
 class ScummVMGame():
-	def __init__(self, name):
+	def __init__(self, name, vm_config):
 		#The [game-name] is also user-modifiable and shouldn't be relied on to mean anything, but it is used for scummvm to actually launch the game and can be trusted to be unique
 		self.name = name
 		self.options = {}
+		for k, v in vm_config.items(name):
+			self.options[k] = v
+
+		self.metadata = Metadata()
+		self.add_metadata()
 
 	@staticmethod
 	def _engine_list_to_use():
@@ -198,33 +235,34 @@ class ScummVMGame():
 	def _get_emulator_name():
 		return 'ScummVM'
 
-	def make_launcher(self):
+	def add_metadata(self):
 		#Note that I actually shouldn't rely on this, because it can be changed by the user
 		name = self.options.get('description', self.name)
 		name = name.replace('/', ') (') #Names are usually something like Cool Game (CD/DOS/English); we convert it to Cool Game (CD) (DOS) (English) to make it work better with disambiguate etc
 
-		launch_params = launchers.LaunchParams(*self._get_launch_params())
-		metadata = Metadata()
-		metadata.input_info.add_option([input_metadata.Mouse(), input_metadata.Keyboard()]) #Can use gamepad if you enable it, but I guess to add that as input_info I'd have to know exactly how many buttons and sticks etc it uses
-		metadata.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
-		metadata.emulator_name = self._get_emulator_name()
-		metadata.categories = ['Games'] #Safe to assume this by default
+		self.metadata.input_info.add_option([input_metadata.Mouse(), input_metadata.Keyboard()]) #Can use gamepad if you enable it, but I guess to add that as input_info I'd have to know exactly how many buttons and sticks etc it uses
+		self.metadata.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
+		self.metadata.emulator_name = self._get_emulator_name()
+		self.metadata.categories = ['Games'] #Safe to assume this by default
 		if self.options.get('gameid') == 'agi-fanmade':
-			metadata.categories = ['Homebrew']
+			self.metadata.categories = ['Homebrew']
 		#metadata.nsfw is false by default, but in some ScummVM-supported games (e.g. Plumbers Don't Wear Ties) it would arguably be true; but there's not any way to detect that unless we just do "if game in [list_of_stuff_with_adult_content] then nsfw = true" 
 		#genre/subgenre is _probably_ always point and click adventure, but maybe not? (Plumbers is arguably a visual novel (don't @ me), and there's something about some casino card games in the list of supported games)
 		#Would be nice to set things like developer/publisher/year but can't really do that unfortunately
 		#Let series and series_index be detected by series_detect
 		
 		engine_id = self.options.get('engineid')
-		metadata.specific_info['Engine'] = self._engine_list_to_use().get(engine_id)
+		self.metadata.specific_info['Engine'] = self._engine_list_to_use().get(engine_id)
+		if conf.use_original_platform:
+			platform = self.options.get('platform')
+			self.metadata.platform = format_platform(platform)
 
 		path = self.options.get('path')
 		if path:
 			if os.path.isdir(path):
 				icon = look_for_icon_in_folder(path)
 				if icon:
-					metadata.images['Icon'] = icon
+					self.metadata.images['Icon'] = icon
 			else:
 				if conf.debug:
 					print('Aaaa!', self.name, path, 'does not exist')
@@ -234,10 +272,16 @@ class ScummVMGame():
 
 		name_tags = find_filename_tags_at_end.search(name)
 		if name_tags:
-			get_stuff_from_filename_tags(metadata, name_tags[0])
+			get_stuff_from_filename_tags(self.metadata, name_tags[0])
+
+	def make_launcher(self):
+		name = self.options.get('description', self.name)
+		name = name.replace('/', ') (') #Names are usually something like Cool Game (CD/DOS/English); we convert it to Cool Game (CD) (DOS) (English) to make it work better with disambiguate etc
+
+		launch_params = launchers.LaunchParams(*self._get_launch_params())
 
 		#Hmm, could use ResidualVM as the launcher type for ResidualVM games... but it's just a unique identifier type thing, so it should be fine
-		launchers.make_launcher(launch_params, name, metadata, 'ScummVM', self.name)
+		launchers.make_launcher(launch_params, name, self.metadata, 'ScummVM', self.name)
 
 class ResidualVMGame(ScummVMGame):
 	@staticmethod
@@ -280,9 +324,7 @@ def add_vm_games(name, config_path, vm_config, game_class):
 			if launchers.has_been_done('ScummVM', section):
 				continue
 
-		game = game_class(section)
-		for k, v in vm_config.items(section):
-			game.options[k] = v
+		game = game_class(section, vm_config)
 		game.make_launcher()
 
 	if conf.print_times:
