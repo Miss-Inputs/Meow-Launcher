@@ -154,7 +154,7 @@ class ScummVMGame():
 		self.metadata.specific_info['Engine'] = self._engine_list_to_use().get(engine_id)
 		extra = self.options.get('extra')
 		if extra:
-			self.metadata.version = extra #Hmm, I guess that'd be how we should use this properly…
+			self.metadata.specific_info['Version'] = extra #Hmm, I guess that'd be how we should use this properly…
 			if 'demo' in extra.lower():
 				#Keeping the category names consistent with everything else here, though people might like to call it "Demos" or whatever instead and technically there's no reason why we can't do that and this should be an option and I will put this ramble here to remind myself to make it an option eventually
 				self.metadata.categories = ['Trials']
