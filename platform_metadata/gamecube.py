@@ -110,7 +110,7 @@ def add_banner_info(rom, metadata, banner):
 			print('Invalid banner magic', rom.path, banner_magic)
 
 
-def add_fst_info(rom, metadata, fst_offset, fst_size):
+def add_fst_info(rom, metadata, fst_offset, fst_size, offset=0):
 	if fst_offset and fst_size and fst_size < (128 * 1024 * 1024):
 		fst = rom.read(fst_offset, fst_size)
 		number_of_fst_entries = int.from_bytes(fst[8:12], 'big')
@@ -127,24 +127,27 @@ def add_fst_info(rom, metadata, fst_offset, fst_size):
 			#Actually it's a null terminated string but we only care about the one file, so cbf finding a null, I'll just check for the expected length
 			banner_name = string_table[offset_into_string_table:offset_into_string_table+len('opening.bnr')]
 			if banner_name == b'opening.bnr':
-				file_offset = int.from_bytes(entry[4:8], 'big')
+				file_offset = int.from_bytes(entry[4:8], 'big') + offset
 				file_length = int.from_bytes(entry[8:12], 'big')
 				banner = rom.read(file_offset, file_length)
 				add_banner_info(rom, metadata, banner)
 
-def add_gamecube_disc_metadata(rom, metadata, header):
+def add_gamecube_disc_metadata(rom, metadata, header, tgc_data=None):
 	metadata.platform = 'GameCube'
-	try:
-		apploader_date = header[0x2440:0x2450].decode('ascii').rstrip('\x00')
+
+	if rom.extension != 'tgc':
+		#Not gonna bother working out what's going on with apploader offsets in tgc
 		try:
-			actual_date = datetime.strptime(apploader_date, '%Y/%m/%d')
-			metadata.year = actual_date.year
-			metadata.month = actual_date.strftime('%B')
-			metadata.day = actual_date.day
-		except ValueError:
+			apploader_date = header[0x2440:0x2450].decode('ascii').rstrip('\x00')
+			try:
+				actual_date = datetime.strptime(apploader_date, '%Y/%m/%d')
+				metadata.year = actual_date.year
+				metadata.month = actual_date.strftime('%B')
+				metadata.day = actual_date.day
+			except ValueError:
+				pass
+		except UnicodeDecodeError:
 			pass
-	except UnicodeDecodeError:
-		pass
 
 	region_code = int.from_bytes(header[0x458:0x45c], 'big')
 	try:
@@ -152,20 +155,55 @@ def add_gamecube_disc_metadata(rom, metadata, header):
 	except ValueError:
 		pass
 
-	fst_offset = int.from_bytes(header[0x424:0x428], 'big')
-	fst_size = int.from_bytes(header[0x428:0x42c], 'big')
+	if tgc_data:
+		fst_offset = tgc_data['fst offset']
+		fst_size = tgc_data['fst size']
+	else:
+		fst_offset = int.from_bytes(header[0x424:0x428], 'big')
+		fst_size = int.from_bytes(header[0x428:0x42c], 'big')
 
 	try:
-		add_fst_info(rom, metadata, fst_offset, fst_size)
+		if tgc_data:
+			add_fst_info(rom, metadata, fst_offset, fst_size, tgc_data['file offset'])
+		else:
+			add_fst_info(rom, metadata, fst_offset, fst_size)
 	except (IndexError, ValueError) as ex:
 		if conf.debug:
 			print(rom.path, 'encountered error when parsing FST', ex)
 
-def add_gamecube_metadata(game):
+def add_tgc_metadata(rom, metadata):
+	tgc_header = rom.read(0, 60) #Actually it is bigger than that
+	magic = tgc_header[0:4]
+	if magic != b'\xae\x0f8\xa2':
+		if conf.debug:
+			print('Hmm', rom.path, 'is .tgc but TGC magic is invalid', magic)
+		return
+	tgc_header_size = int.from_bytes(tgc_header[8:12], 'big')
+	fst_real_offset = int.from_bytes(tgc_header[16:20], 'big')
+	fst_real_size = int.from_bytes(tgc_header[20:24], 'big')
+	#apploader_real_offset = int.from_bytes(tgc_header[28:32], 'big')
+	#apploader_real_size = int.from_bytes(tgc_header[32:36], 'big')
+	#These fields are "?" in YAGD, but Dolphin uses them, so they probably know what they're doing and this is probably the right way
+	real_offset = int.from_bytes(tgc_header[36:40], 'big')
+	virtual_offset = int.from_bytes(tgc_header[52:56], 'big')
+	file_offset = real_offset - virtual_offset
 
+	header = rom.read(tgc_header_size, 0x460)
+
+	add_gamecube_disc_metadata(rom, metadata, header, {
+		#'apploader offset': apploader_real_offset,
+		#'apploader size': apploader_real_size,
+		'fst offset': fst_real_offset,
+		'fst size': fst_real_size,
+		'file offset': file_offset,
+	})
+
+def add_gamecube_metadata(game):
 	if game.rom.extension in ('gcz', 'iso', 'gcm'):
 		header = game.rom.read(0, 0x2450)
 		add_gamecube_wii_disc_metadata(game.rom, game.metadata, header)
 		add_gamecube_disc_metadata(game.rom, game.metadata, header)
+	elif game.rom.extension == 'tgc':
+		add_tgc_metadata(game.rom, game.metadata)
 	elif game.rom.extension in ('wia', 'rvz'):
 		just_read_the_wia_rvz_header_for_now(game.rom, game.metadata)
