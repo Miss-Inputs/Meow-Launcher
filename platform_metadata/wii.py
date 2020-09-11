@@ -11,7 +11,8 @@ from data.nintendo_licensee_codes import nintendo_licensee_codes
 
 from .gamecube_wii_common import (NintendoDiscRegion,
                                   add_gamecube_wii_disc_metadata,
-                                  just_read_the_wia_rvz_header_for_now)
+                                  just_read_the_wia_rvz_header_for_now, tdb)
+from .gametdb import add_info_from_tdb
 
 try:
 	from Crypto.Cipher import AES
@@ -54,6 +55,7 @@ def parse_tmd(metadata, tmd):
 	except ValueError:
 		pass
 
+	product_code = None
 	try:
 		product_code = tmd[400:404].decode('ascii')
 		metadata.product_code = product_code
@@ -66,12 +68,18 @@ def parse_tmd(metadata, tmd):
 	except UnicodeDecodeError:
 		pass
 	#Title flags: 404-408
+	maker_code = None
 	try:
 		maker_code = convert_alphanumeric(tmd[408:410])
 		if maker_code in nintendo_licensee_codes:
 			metadata.publisher = nintendo_licensee_codes[maker_code]
 	except NotAlphanumericException:
 		pass
+	
+	if product_code:
+		#Inconsistently enough WiiWare doesn't require appending the maker code, apparently
+		add_info_from_tdb(tdb, metadata, product_code)
+
 	#Unused: 410-412
 	region_code = int.from_bytes(tmd[412:414], 'big')
 	try:
@@ -142,7 +150,6 @@ def parse_opening_bnr(metadata, opening_bnr):
 		if title != local_title:
 			metadata.add_alternate_name(title, '{0}-Banner-Title'.format(lang.replace(' ', '-')))
 	
-
 def add_wad_metadata(rom, metadata):
 	header = rom.read(amount=0x40)
 	header_size = int.from_bytes(header[0:4], 'big')

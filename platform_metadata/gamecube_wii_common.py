@@ -1,8 +1,12 @@
 from enum import Enum
+from xml.etree import ElementTree
 
 from common import NotAlphanumericException, convert_alphanumeric
 from config.main_config import main_config
+from config.system_config import system_configs
 from data.nintendo_licensee_codes import nintendo_licensee_codes
+
+from .gametdb import add_info_from_tdb
 
 class NintendoDiscRegion(Enum):
 	# Also seems to be used for Wii discs and WiiWare
@@ -11,6 +15,22 @@ class NintendoDiscRegion(Enum):
 	PAL = 2
 	RegionFree = 3  # Seemingly Wii only
 	NTSC_K = 4  # Seemingly Wii only
+
+def load_tdb():
+	if 'Wii' not in system_configs:
+		return None
+
+	tdb_path = system_configs['Wii'].options.get('tdb_path')
+	if not tdb_path:
+		return None
+
+	try:
+		return ElementTree.parse(tdb_path)
+	except (ElementTree.ParseError, OSError) as blorp:
+		if main_config.debug:
+			print('Oh no failed to load Wii TDB because', blorp)
+		return None
+tdb = load_tdb()
 
 def add_gamecube_wii_disc_metadata(rom, metadata, header):
 	internal_title = header[32:128]
@@ -25,6 +45,7 @@ def add_gamecube_wii_disc_metadata(rom, metadata, header):
 		pass
 
 	publisher = None
+	licensee_code = None
 	try:
 		licensee_code = convert_alphanumeric(header[4:6])
 		publisher = nintendo_licensee_codes.get(licensee_code)
@@ -35,6 +56,8 @@ def add_gamecube_wii_disc_metadata(rom, metadata, header):
 		# This is found on a few prototype discs, it's not valid
 		metadata.product_code = product_code
 		metadata.publisher = publisher
+		if product_code and licensee_code:
+			add_info_from_tdb(tdb, metadata, product_code + licensee_code)
 
 	disc_number = header[6] + 1
 	if disc_number:
