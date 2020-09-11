@@ -22,6 +22,7 @@ from platform_metadata.neo_geo_pocket import add_ngp_metadata
 from platform_metadata.nes import add_nes_metadata
 from platform_metadata.pokemon_mini import add_pokemini_metadata
 from platform_metadata.psp import add_psp_metadata
+from platform_metadata.ps1 import add_ps1_metadata
 from platform_metadata.ps2 import add_ps2_metadata
 from platform_metadata.saturn import add_saturn_metadata
 from platform_metadata.snes import add_snes_metadata
@@ -73,6 +74,7 @@ helpers = {
 	'N64': add_n64_metadata,
 	'Neo Geo Pocket': add_ngp_metadata,
 	'NES': add_nes_metadata,
+	'PlayStation': add_ps1_metadata,
 	'Pokemon Mini': add_pokemini_metadata,
 	'PS2': add_ps2_metadata,
 	'PSP': add_psp_metadata,
