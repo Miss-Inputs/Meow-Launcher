@@ -14,6 +14,7 @@ def remove_filename_tags(name):
 	return stripped_name
 
 words_regex = re.compile(r'[\w()]+')
+apostrophes_at_word_boundary_regex = re.compile(r"\B'|'\B")
 def normalize_name(name, care_about_spaces=True, normalize_words=True):
 	name = convert_roman_numerals_in_title(name)
 	name = name.lower()
@@ -21,6 +22,7 @@ def normalize_name(name, care_about_spaces=True, normalize_words=True):
 	name = name.replace('&', 'and')
 	name = name.replace('é', 'e')
 	name = name.replace(': ', ' - ')
+	name = apostrophes_at_word_boundary_regex.sub('', name)
 
 	if normalize_words:
 		return ('-' if care_about_spaces else '').join(words_regex.findall(name))
