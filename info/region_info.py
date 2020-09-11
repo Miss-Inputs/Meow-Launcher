@@ -269,9 +269,13 @@ regions = [
 	#Though it's probably in English; No-Intro uses this as shorthand for (Japan, USA, Europe) because nobody told them that's not the only three regions in the world. It is safe to say that anything released in those three regions would indeed need to be TV-agnostic though
 ]
 
-def get_language_by_short_code(code):
+def get_language_by_short_code(code, case_insensitive=False):
+	if case_insensitive:
+		code = code.lower()
 	for language in languages:
-		if language.short_code == code:
+		if not language.short_code:
+			continue
+		if (language.short_code.lower() if case_insensitive else language.short_code) == code:
 			return language
 
 	return None
@@ -292,9 +296,11 @@ def get_region_by_name(name):
 
 	return None
 
-def get_region_by_short_code(short_code):
+def get_region_by_short_code(short_code, case_insensitive=False):
+	if case_insensitive:
+		short_code = short_code.lower()
 	for region in regions:
-		if region.short_code == short_code:
+		if (region.short_code.lower() if case_insensitive else region.short_code) == short_code:
 			return region
 
 	return None

@@ -7,11 +7,10 @@ import subprocess
 import time
 
 import config.main_config
-import detect_things_from_filename
 import input_metadata
 import launchers
-from common import find_filename_tags_at_end
-from common_types import MediaType, SaveType
+from common_types import SaveType
+from info.region_info import get_language_by_short_code
 from metadata import Metadata
 from pc_common_metadata import look_for_icon_in_folder
 
@@ -86,62 +85,6 @@ vmconfig = ScummVMConfig.getScummVMConfig()
 def have_something_vm():
 	return vmconfig.have_scummvm or vmconfig.have_residualvm
 
-def get_platform_mediatype_from_tags(tags):
-	if '(Apple II)' in tags:
-		return 'Apple II', MediaType.Floppy
-	if '(Apple IIgs)' in tags:
-		return 'Apple IIgs', MediaType.Floppy
-	if '(3DO)' in tags:
-		return '3DO', MediaType.OpticalDisc
-	if '(Acorn)' in tags:
-		return 'Acorn Archimedes', MediaType.Floppy #Let the rest of the code detect if it's a CD
-	if '(Amiga)' in tags:
-		if '(CD32)' in tags:
-			return 'Amiga CD32', MediaType.OpticalDisc
-		return 'Amiga', MediaType.Floppy
-	if '(Atari 8-bit)' in tags:
-		return 'Atari 8-bit', MediaType.Floppy
-	if '(Atari ST)' in tags:
-		return 'Atari ST', MediaType.Floppy
-	if '(Commodore 64)' in tags:
-		return 'C64', MediaType.Floppy
-	if '(DOS)' in tags:
-		return 'DOS', None #Either floppy or executable I dunno mate
-	if '(PC-98)' in tags:
-		return 'PC-98', None
-	if '(Nintendo Wii)' in tags:
-		return 'Wii', MediaType.OpticalDisc #I think none of the ScummVM games are WiiWare, slap me if I am wrong
-	if '(CoCo3)' in tags:
-		return 'Tandy CoCo', MediaType.Floppy
-	if '(FM-TOWNS)' in tags:
-		return 'FM Towns', None
-	if '(Linux)' in tags or '(Linux Demo)' in tags:
-		return 'Linux', None #Could argue platform is blank here, but like… eh
-	if '(Macintosh)' in tags:
-		return 'Mac', None
-	if '(PC-Engine)' in tags:
-		return 'PC Engine CD', MediaType.OpticalDisc #Doesn't actually do PC Engine cards last time I checked, if this becomes wrong, then check for CD in tags or whatever
-	if '(NES)' in tags:
-		return 'NES', MediaType.Cartridge
-	if '(SegaCD)' in tags:
-		return 'Mega CD', MediaType.OpticalDisc
-	if '(Windows)' in tags:
-		return 'Windows', None
-	if '(Sony PlayStation)' in tags:
-		return 'PlayStation', MediaType.OpticalDisc
-	if '(Philips CD-i)' in tags:
-		return 'CD-i', MediaType.OpticalDisc
-	if '(Apple iOS)' in tags:
-		return 'iOS', MediaType.Digital
-	if '(OS/2)' in tags:
-		return 'OS/2', None
-	if '(BeOS)' in tags:
-		return 'BeOS', None
-	if '(PocketPC)' in tags:
-		return 'PocketPC', None
-
-	return None, None
-
 def format_platform(platform):
 	#https://github.com/scummvm/scummvm/blob/master/common/platform.cpp#L28
 	return {
@@ -173,46 +116,6 @@ def format_platform(platform):
 		'ppc': 'PocketPC',
 	}.get(platform, platform)
 
-def get_stuff_from_filename_tags(metadata, name_tags):
-	languages = detect_things_from_filename.get_languages_from_filename_tags(name_tags)
-	if languages:
-		#This will parse "English (US)" as "English" which is what we want really
-		metadata.languages = languages
-	year, _, _ = detect_things_from_filename.get_date_from_filename_tags(name_tags)
-	#Would not expect month/day to ever be detected
-	if year:
-		metadata.year = year
-	revision = detect_things_from_filename.get_revision_from_filename_tags(name_tags)
-	if revision:
-		metadata.specific_info['Revision'] = revision
-	version = detect_things_from_filename.get_version_from_filename_tags(name_tags)
-	if version:
-		metadata.specific_info['Version'] = version
-
-	platform, assumed_media_type = get_platform_mediatype_from_tags(name_tags)
-	if platform and conf.use_original_platform and not metadata.platform:
-		metadata.platform = platform
-	if assumed_media_type:
-		metadata.media_type = assumed_media_type
-
-	for tag in name_tags:
-		tag = tag.lstrip('(').rstrip(')')
-
-		if tag in ('Demo', 'Linux Demo', 'CD Demo'):
-			metadata.categories = ['Trials']
-		if tag == 'Non-Interactive Demo':
-			#One day, I'll think of some kind of standard for the categories names, but until then I've decided everything non-interactive should be in Demos
-			metadata.categories = ['Demos']
-		if tag in ('CD', 'CD Demo') or tag.endswith(' cd'):
-			#The latter shows up alongside a version number infrequently, e.g. "v0.0372 cd"
-			metadata.media_type = MediaType.OpticalDisc
-		if tag == '1.1':
-			#Oddball version number tag
-			metadata.specific_info['Version'] = 'v1.1'
-
-		#Versions: Freeware v1.1, Freeware v1.0
-		#Others: final, VGA, EGA, Masterpiece Edition, Talkie, Latest version, unknown version
-		
 class ScummVMGame():
 	def __init__(self, name, vm_config):
 		#The [game-name] is also user-modifiable and shouldn't be relied on to mean anything, but it is used for scummvm to actually launch the game and can be trusted to be unique
@@ -236,10 +139,6 @@ class ScummVMGame():
 		return 'ScummVM'
 
 	def add_metadata(self):
-		#Note that I actually shouldn't rely on this, because it can be changed by the user
-		name = self.options.get('description', self.name)
-		name = name.replace('/', ') (') #Names are usually something like Cool Game (CD/DOS/English); we convert it to Cool Game (CD) (DOS) (English) to make it work better with disambiguate etc
-
 		self.metadata.input_info.add_option([input_metadata.Mouse(), input_metadata.Keyboard()]) #Can use gamepad if you enable it, but I guess to add that as input_info I'd have to know exactly how many buttons and sticks etc it uses
 		self.metadata.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
 		self.metadata.emulator_name = self._get_emulator_name()
@@ -253,9 +152,31 @@ class ScummVMGame():
 		
 		engine_id = self.options.get('engineid')
 		self.metadata.specific_info['Engine'] = self._engine_list_to_use().get(engine_id)
+		extra = self.options.get('extra')
+		if extra:
+			self.metadata.version = extra #Hmm, I guess that'd be how we should use this properly…
+			if 'demo' in extra.lower():
+				#Keeping the category names consistent with everything else here, though people might like to call it "Demos" or whatever instead and technically there's no reason why we can't do that and this should be an option and I will put this ramble here to remind myself to make it an option eventually
+				self.metadata.categories = ['Trials']
+		
 		if conf.use_original_platform:
 			platform = self.options.get('platform')
-			self.metadata.platform = format_platform(platform)
+			if platform:
+				self.metadata.platform = format_platform(platform)
+			if platform == 'amiga' and extra == 'cd32':
+				self.metadata.platform = 'Amiga CD32'
+		
+		language_code = self.options.get('language')
+		if language_code:
+			if language_code == 'br':
+				language = get_language_by_short_code('Pt-Br')
+			elif language_code == 'se':
+				#…That's the region code for Sweden, not the language code for Swedish, so that's odd but that's how it ends up being
+				language = get_language_by_short_code('Sv')
+			else:
+				language = get_language_by_short_code(language_code, case_insensitive=True)
+			if language:
+				self.metadata.languages = [language]
 
 		path = self.options.get('path')
 		if path:
@@ -269,10 +190,7 @@ class ScummVMGame():
 		else:
 			if conf.debug:
 				print('Wait what?', self.name, 'has no path')
-
-		name_tags = find_filename_tags_at_end.search(name)
-		if name_tags:
-			get_stuff_from_filename_tags(self.metadata, name_tags[0])
+		#Everything else is gonna be an actual option
 
 	def make_launcher(self):
 		name = self.options.get('description', self.name)
