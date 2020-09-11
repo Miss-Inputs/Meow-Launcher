@@ -1,4 +1,6 @@
+from common import junk_suffixes
 from config.main_config import main_config
+
 
 def add_info_from_tdb(tdb, metadata, search_key):
 	if not tdb:
@@ -21,13 +23,12 @@ def add_info_from_tdb(tdb, metadata, search_key):
 				if element.tag not in ('developer', 'publisher', 'date', 'rating', 'id', 'type', 'region', 'languages', 'locale', 'genre', 'wi-fi', 'input', 'rom', 'case', 'save'):
 					print('uwu', game.attrib['name'], 'has unknown', element, 'tag')
 
-		#TODO: Take "Ltd." etc off the end of this
 		developer = game.findtext('developer')
 		if developer:
-			metadata.developer = developer
+			metadata.developer = junk_suffixes.sub('', developer)
 		publisher = game.findtext('publisher')
 		if publisher:
-			metadata.publisher = publisher
+			metadata.publisher =  junk_suffixes.sub('', publisher)
 		date = game.find('date')
 		if date is not None:
 			year = date.attrib.get('year')
@@ -69,4 +70,3 @@ def add_info_from_tdb(tdb, metadata, search_key):
 					#cbf setting up input_info just yet
 					metadata.specific_info['Optional-Additional-Controls'] = [e.attrib.get('type') for e in controls if e.attrib.get('required', 'false') == 'false']
 					metadata.specific_info['Required-Additional-Controls'] = [e.attrib.get('type') for e in controls if e.attrib.get('required', 'false') == 'true']
-		
