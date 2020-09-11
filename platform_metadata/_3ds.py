@@ -60,14 +60,19 @@ def load_tdb():
 	if not tdb_path:
 		return None
 
-	tdb_parser = ElementTree.XMLParser()
-	with open(tdb_path, 'rb') as tdb_file:
-		#We have to do this the hard way because there is an invalid element in there
-		for line in tdb_file.readlines():
-			if line.lstrip().startswith(b'<3DSTDB'):
-				continue
-			tdb_parser.feed(line)
-	return tdb_parser.close()
+	try:
+		tdb_parser = ElementTree.XMLParser()
+		with open(tdb_path, 'rb') as tdb_file:
+			#We have to do this the hard way because there is an invalid element in there
+			for line in tdb_file.readlines():
+				if line.lstrip().startswith(b'<3DSTDB'):
+					continue
+				tdb_parser.feed(line)
+		return tdb_parser.close()
+	except (ElementTree.ParseError, OSError) as blorp:
+		if main_config.debug:
+			print('Oh no failed to load 3DS TDB because', blorp)
+		return None
 tdb = load_tdb()
 
 def add_info_from_tdb(metadata):
