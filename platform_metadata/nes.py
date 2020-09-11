@@ -3,6 +3,7 @@ from enum import Enum, auto
 
 import input_metadata
 from common_types import SaveType
+from config.system_config import system_configs
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import TVSystem
 from mame_helpers import MAMENotInstalledException
@@ -10,6 +11,8 @@ from mame_machine import does_machine_match_game, get_machines_from_source_file
 from software_list_info import (find_in_software_lists_with_custom_matcher,
                                 get_crc32_for_software_list,
                                 get_software_list_entry)
+
+nes_config = system_configs.get('NES')
 
 ines_mappers = {
 	#6, 8, 17 are some kind of copier thing
@@ -196,7 +199,8 @@ def decode_bcd(i):
 	return (hi * 10) + lo
 
 def add_fds_metadata(rom, metadata):
-	metadata.platform = 'FDS'
+	if nes_config and nes_config.options.get('set_fds_as_different_platform'):
+		metadata.platform = 'FDS'
 	metadata.tv_type = TVSystem.NTSC
 
 	header = rom.read(amount=56)
