@@ -229,7 +229,7 @@ class ScummVMGame():
 		return vmconfig.scummvm_engines
 
 	def _get_launch_params(self):
-		return 'scummvm', ['-f', self.name]
+		return launchers.LaunchParams('scummvm', ['-f', self.name])
 
 	@staticmethod
 	def _get_emulator_name():
@@ -278,10 +278,8 @@ class ScummVMGame():
 		name = self.options.get('description', self.name)
 		name = name.replace('/', ') (') #Names are usually something like Cool Game (CD/DOS/English); we convert it to Cool Game (CD) (DOS) (English) to make it work better with disambiguate etc
 
-		launch_params = launchers.LaunchParams(*self._get_launch_params())
-
 		#Hmm, could use ResidualVM as the launcher type for ResidualVM games... but it's just a unique identifier type thing, so it should be fine
-		launchers.make_launcher(launch_params, name, self.metadata, 'ScummVM', self.name)
+		launchers.make_launcher(self._get_launch_params(), name, self.metadata, 'ScummVM', self.name)
 
 class ResidualVMGame(ScummVMGame):
 	@staticmethod
@@ -293,7 +291,7 @@ class ResidualVMGame(ScummVMGame):
 		return vmconfig.residualvm_engines
 
 	def _get_launch_params(self):
-		return 'residualvm', ['-f', self.name]
+		return launchers.LaunchParams('residualvm', ['-f', self.name])
 
 def no_longer_exists(game_id):
 	if vmconfig.have_scummvm:
