@@ -6,10 +6,13 @@ import input_metadata
 from common import NotAlphanumericException, convert_alphanumeric
 from common_types import SaveType
 import config.main_config
+import config.system_config
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 from software_list_info import get_software_list_entry, find_in_software_lists, matcher_args_for_bytes
 
 conf = config.main_config.main_config
+system_configs = config.system_config.system_configs
+game_boy_config = system_configs.get('Game Boy')
 
 class GameBoyMapper():
 	def __init__(self, name, has_ram=False, has_battery=False, has_rtc=False, has_rumble=False, has_accelerometer=False):
@@ -236,8 +239,9 @@ def add_gameboy_metadata(game):
 	header = game.rom.read(seek_to=0x100, amount=0x50)
 	parse_gameboy_header(game.metadata, header)
 
-	if game.rom.extension == 'gbc':
-		game.metadata.platform = 'Game Boy Color'
+	if game_boy_config and game_boy_config.options.get('set_gbc_as_different_platform'):
+		if game.rom.extension == 'gbc' or game.metadata.specific_info.get('Is-Colour') == GameBoyColourFlag.Required:
+			game.metadata.platform = 'Game Boy Color'
 
 	if game.rom.extension == 'gbx':
 		software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(game.rom.read(amount=game.rom.get_size() - 64)))
