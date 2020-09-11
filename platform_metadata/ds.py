@@ -5,16 +5,36 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 import struct
+from xml.etree import ElementTree
 
 import input_metadata
 from common import NotAlphanumericException, convert_alphanumeric
+from config.main_config import main_config
+from config.system_config import system_configs
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import get_region_by_name
 
+from .gametdb import add_info_from_tdb
 from .wii import parse_ratings
 
 #TODO: Detect PassMe carts, and reject the rest of the header if so (well, product code and publisher)
 #For DSiWare, we can get public.sav and private.sav filesize, and that tells us if SaveType = Internal or Nothing. But we won't worry about DSiWare for now due to lack of accessible emulation at the moment.
+
+def load_tdb():
+	if 'DS' not in system_configs:
+		return None
+
+	tdb_path = system_configs['DS'].options.get('tdb_path')
+	if not tdb_path:
+		return None
+
+	try:
+		return ElementTree.parse(tdb_path)
+	except (ElementTree.ParseError, OSError) as blorp:
+		if main_config.debug:
+			print('Oh no failed to load DS TDB because', blorp)
+		return None
+tdb = load_tdb()
 
 def convert_ds_colour_to_rgba(colour, is_transparent):
 	red = (colour & 0b_00000_00000_11111) << 3
@@ -86,13 +106,15 @@ def parse_ds_header(rom, metadata, header):
 	try:
 		product_code = convert_alphanumeric(header[12:16])
 		metadata.product_code = product_code
+		add_info_from_tdb(tdb, metadata, product_code)
 	except NotAlphanumericException:
 		pass
 
 	try:
-		licensee_code = convert_alphanumeric(header[16:18])
-		if licensee_code in nintendo_licensee_codes:
-			metadata.publisher = nintendo_licensee_codes[licensee_code]
+		if not metadata.publisher:
+			licensee_code = convert_alphanumeric(header[16:18])
+			if licensee_code in nintendo_licensee_codes:
+				metadata.publisher = nintendo_licensee_codes[licensee_code]
 	except NotAlphanumericException:
 		pass
 

@@ -1,7 +1,6 @@
 from common import junk_suffixes
 from config.main_config import main_config
 
-
 def add_info_from_tdb(tdb, metadata, search_key):
 	if not tdb:
 		return
@@ -60,6 +59,7 @@ def add_info_from_tdb(tdb, metadata, search_key):
 		
 		input_element = game.find('input')
 		if input_element is not None:
+			#TODO: DS has players-multi-cart and players-single-cart instead (which one do I want?)
 			number_of_players = input_element.attrib.get('players', None)
 			if number_of_players is not None: #Maybe 0 could be a valid amount? For like demos or something
 				metadata.specific_info['Number-of-Players'] = number_of_players
