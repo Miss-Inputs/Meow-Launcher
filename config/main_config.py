@@ -49,19 +49,11 @@ _config_ini_values = {
 	'exclude_non_working': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude non-working', 'Skip any driver marked as not working'),
 	'non_working_whitelist': ConfigValue('Arcade', ConfigValueType.StringList, [], 'Non-working whitelist', 'If exclude_non_working is True, allow these machines anyway even if they are marked as not working'),
 
-	#These should be in their respective sections anyway
-	# 'mac_db_path': ConfigValue('Mac', ConfigValueType.FilePath, None, 'mac_db.json path', 'Path to mac_db.json from ComputerGameDB'),
-	# 'launchers_for_unknown_mac_apps': ConfigValue('Mac', ConfigValueType.Bool, False, 'Launchers for unknown apps', 'Whether or not to create launchers for Mac programs that are found but not in the database'),
-
-	# 'dos_db_path': ConfigValue('DOS', ConfigValueType.FilePath, None, 'dos_db.json path', 'Path to dos_db.json from ComputerGameDB'),
-	# 'launchers_for_unknown_dos_apps': ConfigValue('DOS', ConfigValueType.Bool, False, 'Launchers for unknown apps', 'Whether or not to create launchers for DOS programs that are found but not in the database'),
-
 	#TODO: Put this in a general section, use it in the other modules
 	'normalize_name_case': ConfigValue('Steam', ConfigValueType.Integer, 0, 'Normalize name case', 'Apply title case to uppercase things (1: only if whole title is uppercase, 2: capitalize individual uppercase words, 3: title case the whole thing regardless)'),
 	'force_create_launchers': ConfigValue('Steam', ConfigValueType.Bool, False, 'Force create launchers', 'Create launchers even for games which are\'nt launchable'),
 	'warn_about_missing_icons': ConfigValue('Steam', ConfigValueType.Bool, False, 'Warn about missing icons', 'Spam console with debug messages about icons not existing or being missing'),
 
-	'wii_common_key': ConfigValue('Roms', ConfigValueType.String, '', 'Wii common key', 'Wii common key used for decrypting Wii discs which some projects are brave enough to hardcode but I am not'), #TODO: Once #107 is done, put this in Wii system config
 	'skipped_subfolder_names': ConfigValue('Roms', ConfigValueType.StringList, [], 'Skipped subfolder names', 'Always skip these subfolders in every ROM dir'),
 	'use_mame_system_icons': ConfigValue('Roms', ConfigValueType.Bool, False, 'Use MAME system icons', 'If a game does not have an icon, use the MAME icon for its system if available'),
 	'find_equivalent_arcade_games': ConfigValue('Roms', ConfigValueType.Bool, False, 'Find equivalent arcade games by name', 'Get metadata from MAME machines of the same name'),

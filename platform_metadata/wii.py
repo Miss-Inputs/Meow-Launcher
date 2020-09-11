@@ -5,6 +5,7 @@ from datetime import datetime
 from enum import Enum
 
 import config.main_config
+import config.system_config
 from common import NotAlphanumericException, convert_alphanumeric
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 
@@ -18,7 +19,8 @@ try:
 except ModuleNotFoundError:
 	have_pycrypto = False
 
-conf = config.main_config.main_config 
+conf = config.main_config.main_config
+wii_config = config.system_config.system_configs.get('Wii')
 
 class WiiTitleType(Enum):
 	System = 0x00000001
@@ -293,14 +295,16 @@ def add_wii_disc_metadata(rom, metadata):
 			elif partition_type == 0 and game_partition_offset is None:
 				game_partition_offset = partition_offset
 
-	wii_common_key = conf.wii_common_key
-	if wii_common_key:
+	common_key = None
+	if wii_config:
+		common_key = wii_config.options.get('common_key')
+	if common_key:
 		if game_partition_offset and have_pycrypto:
 			game_partition_header = rom.read(game_partition_offset, 0x2c0)
 			title_iv = game_partition_header[0x1dc:0x1e4] + (b'\x00' * 8)
 			data_offset = int.from_bytes(game_partition_header[0x2b8:0x2bc], 'big') << 2
 
-			master_key = bytes.fromhex(wii_common_key)
+			master_key = bytes.fromhex(common_key)
 			aes = AES.new(master_key, AES.MODE_CBC, title_iv)
 			encrypted_key = game_partition_header[0x1bf:0x1cf]
 			key = aes.decrypt(encrypted_key)
