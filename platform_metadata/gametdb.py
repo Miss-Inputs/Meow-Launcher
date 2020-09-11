@@ -13,7 +13,6 @@ def add_info_from_tdb(tdb, metadata, search_key):
 		#region: PAL, etc (we can see region code already)
 		#languages: "EN" "JA" etc (I guess we could parse this if the filename isn't good enough for us)
 		#locale lang="EN" etc: Contains title (hmm) and synopsis (ooh, interesting) (sometimes) for each language
-		#genre: A comma separated list #TODO parse: will need to be tricky about parsing to see what is a maingenre and what is a subgenre
 		#rom: What they think the ROM should be named
 		#case: Has "color" and "versions" attribute? I don't know what versions does but I presume it all has to do with the game box
 		#save: How many blocks this has (wait maybe this can be save type) (but it's hardly used)
@@ -39,6 +38,12 @@ def add_info_from_tdb(tdb, metadata, search_key):
 				metadata.month = month
 			if day:
 				metadata.day = day
+
+		genre = game.findtext('genre')
+		if genre:
+			if ',' not in genre:
+				metadata.genre = genre.title()
+			#TODO: If it is, figure out what's a "main genre" and what's a subgenre because there seems to be a distinction, and maybe some need to be combined
 		
 		rating = game.find('rating')
 		if rating is not None:
