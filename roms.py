@@ -12,20 +12,16 @@ from zlib import crc32
 import archives
 import cd_read
 import common
-import config.emulator_config
-import config.main_config
-import config.system_config
 import io_utils
 import launchers
 import metadata
 from common_types import (EmulationNotSupportedException,
                           ExtensionNotSupportedException, NotARomException)
+from config.emulator_config import emulator_configs
+from config.main_config import main_config
+from config.system_config import system_configs
 from info import emulator_info, system_info
 from roms_metadata import add_metadata
-
-conf = config.main_config.main_config
-system_configs = config.system_config.system_configs
-emulator_configs = config.emulator_config.emulator_configs
 
 #TODO: Should make this configuragble? Maybe
 max_size_for_storing_in_memory = 32 * 1024 * 1024
@@ -155,7 +151,7 @@ def process_file(system_config, rom_dir, root, rom):
 		lines = game.rom.read().decode('utf-8').splitlines()
 		filenames = [line if line.startswith('/') else os.path.join(game.folder, line) for line in lines if not line.startswith("#")]
 		if any([not os.path.isfile(filename) for filename in filenames]):
-			if conf.debug:
+			if main_config.debug:
 				print('M3U file', game.rom.path, 'has broken references!!!!', filenames)
 			return
 		game.subroms = [rom_file(referenced_file) for referenced_file in filenames]
@@ -172,7 +168,7 @@ def process_file(system_config, rom_dir, root, rom):
 
 	exception_reason = None
 
-	if rom.warn_about_multiple_files and conf.debug:
+	if rom.warn_about_multiple_files and main_config.debug:
 		print('Warning!', rom.path, 'has more than one file and that may cause unexpected behaviour, as I only look at the first file')
 
 	emulator = None
@@ -198,7 +194,7 @@ def process_file(system_config, rom_dir, root, rom):
 
 
 	if not emulator:
-		if conf.debug:
+		if main_config.debug:
 			if isinstance(exception_reason, EmulationNotSupportedException) and not isinstance(exception_reason, ExtensionNotSupportedException):
 				print(rom.path, 'could not be launched by', potential_emulators, 'because', exception_reason)
 		return
@@ -240,11 +236,11 @@ def process_emulated_system(system_config):
 
 	for rom_dir in system_config.paths:
 		for root, _, files in os.walk(rom_dir):
-			if common.starts_with_any(root + os.sep, conf.ignored_directories):
+			if common.starts_with_any(root + os.sep, main_config.ignored_directories):
 				continue
 			subfolders = list(pathlib.Path(root).relative_to(rom_dir).parts)
 			if subfolders:
-				if subfolders[0] in conf.skipped_subfolder_names:
+				if subfolders[0] in main_config.skipped_subfolder_names:
 					continue
 
 			for name in sorted(files, key=sort_m3u_first()):
@@ -264,7 +260,7 @@ def process_emulated_system(system_config):
 					if not system.is_valid_file_type(rom.extension):
 						continue
 
-				if not conf.full_rescan:
+				if not main_config.full_rescan:
 					if launchers.has_been_done('ROM', path):
 						continue
 
@@ -275,7 +271,7 @@ def process_emulated_system(system_config):
 					#It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
 					print('FUCK!!!!', path, ex, type(ex), traceback.extract_tb(ex.__traceback__)[1:])
 
-	if conf.print_times:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print(system_config.name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
@@ -311,7 +307,7 @@ def process_systems():
 			continue
 		process_system(system)
 
-	if conf.print_times:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('All emulated/engined systems finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

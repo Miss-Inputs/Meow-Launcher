@@ -5,15 +5,13 @@ import os
 import sys
 import time
 
-import config.main_config
 import launchers
 from common_types import EmulationStatus, SaveType
+from config.main_config import main_config
 from info import emulator_command_line_helpers
 from mame_helpers import get_mame_xml, iter_mame_entire_xml, verify_romset
 from mame_machine import Machine, get_machines_from_source_file
 from mame_metadata import add_metadata
-
-conf = config.main_config.main_config 
 
 def is_actually_machine(machine):
 	if machine.xml.attrib.get('runnable', 'yes') == 'no':
@@ -34,11 +32,11 @@ def is_machine_launchable(machine):
 	return True
 
 def does_user_want_machine(machine):
-	if conf.exclude_non_arcade and machine.metadata.platform == 'Non-Arcade':
+	if main_config.exclude_non_arcade and machine.metadata.platform == 'Non-Arcade':
 		return False
-	if conf.exclude_pinball and machine.metadata.platform == 'Pinball':
+	if main_config.exclude_pinball and machine.metadata.platform == 'Pinball':
 		return False
-	if conf.exclude_standalone_systems and machine.metadata.platform == 'Standalone System':
+	if main_config.exclude_standalone_systems and machine.metadata.platform == 'Standalone System':
 		return False
 
 	return True
@@ -49,12 +47,12 @@ def make_machine_launcher(machine):
 		machine._add_metadata_fields()
 
 	slot_options = {}
-	if machine.metadata.save_type == SaveType.MemoryCard and machine.source_file == 'neogeo' and conf.memcard_path:
-		memory_card_path = os.path.join(conf.memcard_path, machine.basename + '.neo')
+	if machine.metadata.save_type == SaveType.MemoryCard and machine.source_file == 'neogeo' and main_config.memcard_path:
+		memory_card_path = os.path.join(main_config.memcard_path, machine.basename + '.neo')
 		if os.path.isfile(memory_card_path):
 			slot_options['memc'] = memory_card_path
 		else:
-			memory_card_path = os.path.join(conf.memcard_path, machine.family + '.neo')
+			memory_card_path = os.path.join(main_config.memcard_path, machine.family + '.neo')
 			if os.path.isfile(memory_card_path):
 				slot_options['memc'] = memory_card_path
 
@@ -76,7 +74,7 @@ def process_machine(machine):
 		#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
 
 		#We'll do this check _after_ verify_romset so we don't spam debug print for a bunch of skeleton drivers we don't have
-		if conf.debug:
+		if main_config.debug:
 			print('Skipping %s (%s, %s) as it is probably a skeleton driver' % (machine.name, machine.basename, machine.source_file))
 		return
 
@@ -90,7 +88,7 @@ def no_longer_exists(game_id):
 
 def process_machine_element(machine_element):
 	machine = Machine(machine_element)
-	if machine.source_file in conf.skipped_source_files:
+	if machine.source_file in main_config.skipped_source_files:
 		return
 
 	if not is_actually_machine(machine):
@@ -102,7 +100,7 @@ def process_machine_element(machine_element):
 	if not does_user_want_machine(machine):
 		return
 
-	if conf.exclude_non_working and machine.emulation_status == EmulationStatus.Broken and machine.basename not in conf.non_working_whitelist:
+	if main_config.exclude_non_working and machine.emulation_status == EmulationStatus.Broken and machine.basename not in main_config.non_working_whitelist:
 		#This will need to be refactored if anything other than MAME is added
 		#The code behind -listxml is of the opinion that protection = imperfect should result in a system being considered entirely broken, but I'm not so sure if that works out
 		return
@@ -118,13 +116,13 @@ def process_arcade():
 	time_started = time.perf_counter()
 
 	for machine_name, machine_element in iter_mame_entire_xml():
-		if not conf.full_rescan:
+		if not main_config.full_rescan:
 			if launchers.has_been_done('MAME machine', machine_name):
 				continue
 
 		process_machine_element(machine_element)
 
-	if conf.print_times:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Arcade finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

@@ -4,9 +4,9 @@ import xml.etree.ElementTree as ElementTree
 from datetime import datetime
 from enum import Enum
 
-import config.main_config
-import config.system_config
 from common import NotAlphanumericException, convert_alphanumeric
+from config.main_config import main_config
+from config.system_config import system_configs
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 
 from .gamecube_wii_common import (NintendoDiscRegion,
@@ -19,8 +19,7 @@ try:
 except ModuleNotFoundError:
 	have_pycrypto = False
 
-conf = config.main_config.main_config
-wii_config = config.system_config.system_configs.get('Wii')
+wii_config = system_configs.get('Wii')
 
 class WiiTitleType(Enum):
 	System = 0x00000001
@@ -237,7 +236,7 @@ def add_wii_homebrew_metadata(rom, metadata):
 				metadata.specific_info['Long-Description'] = long_description
 
 		except ElementTree.ParseError as etree_error:
-			if conf.debug:
+			if main_config.debug:
 				print('Ah bugger this Wii homebrew XML has problems', rom.path, etree_error)
 	elif rom.name.lower() == 'boot':
 		rom.ignore_name = True

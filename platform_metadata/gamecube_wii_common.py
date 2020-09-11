@@ -1,10 +1,8 @@
 from enum import Enum
 
-import config.main_config
 from common import NotAlphanumericException, convert_alphanumeric
+from config.main_config import main_config
 from data.nintendo_licensee_codes import nintendo_licensee_codes
-
-conf = config.main_config.main_config 
 
 class NintendoDiscRegion(Enum):
 	# Also seems to be used for Wii discs and WiiWare
@@ -54,7 +52,7 @@ def add_gamecube_wii_disc_metadata(rom, metadata, header):
 
 	if not is_wii and not is_gamecube:
 		metadata.specific_info['No-Disc-Magic'] = True
-	elif conf.debug:
+	elif main_config.debug:
 		if metadata.platform == 'Wii' and not is_wii:
 			print(rom.path, 'lacks Wii disc magic')
 		if metadata.platform == 'GameCube' and not is_gamecube:

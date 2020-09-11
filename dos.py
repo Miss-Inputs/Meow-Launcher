@@ -2,16 +2,14 @@
 
 import os
 
-import config.main_config
-import config.system_config
 import launchers
 import pc
 from common_types import EmulationNotSupportedException, NotARomException
+from config.main_config import main_config
+from config.system_config import system_configs
 from info.emulator_info import dos_emulators
 from pc_common_metadata import look_for_icon_next_to_file
 
-conf = config.main_config.main_config
-system_configs = config.system_config.system_configs
 dos_config = system_configs.get('DOS')
 
 class DOSApp(pc.App):
@@ -41,7 +39,7 @@ class DOSApp(pc.App):
 				exception_reason = ex
 
 		if not params:
-			if conf.debug:
+			if main_config.debug:
 				print(self.path, 'could not be launched by', dos_config.chosen_emulators, 'because', exception_reason)
 			return
 
@@ -65,7 +63,7 @@ def make_dos_launchers():
 
 # def scan_dos_folder(path, game_list, unknown_games, found_games, ambiguous_games):
 # 	for root, _, files in os.walk(path):
-# 		if common.starts_with_any(root + os.sep, conf.ignored_directories):
+# 		if common.starts_with_any(root + os.sep, main_config.ignored_directories):
 # 			continue
 # 		for name in files:
 # 			ext = os.path.splitext(name)[1][1:].lower()

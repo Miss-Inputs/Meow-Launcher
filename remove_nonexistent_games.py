@@ -1,25 +1,22 @@
 #!/usr/bin/env python
 
-import os
 import datetime
+import os
 import time
 
-import config.main_config
-from launchers import get_desktop, get_field, id_section_name
-
+import mac
 import mame_machines
 import scummvm
-import mac
 import steam
-
-conf = config.main_config.main_config 
+from config.main_config import main_config
+from launchers import get_desktop, get_field, id_section_name
 
 def remove_nonexistent_games():
 	#If not doing a full rescan, we want to remove games that are no longer there
 
 	time_started = time.perf_counter()
 
-	output_folder = conf.output_folder
+	output_folder = main_config.output_folder
 	for name in os.listdir(output_folder):
 		path = os.path.join(output_folder, name)
 
@@ -43,11 +40,11 @@ def remove_nonexistent_games():
 		#Hmm, not sure what I should do if game_type is unrecognized. I guess ignore it, it might be from somewhere else and therefore not my business
 
 		if should_remove:
-			if conf.debug:
+			if main_config.debug:
 				print(game_type, game_id, 'no longer exists, removing')
 			os.remove(path)
 
-	if conf.print_times:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Removal of non-existent items finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

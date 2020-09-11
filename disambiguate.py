@@ -9,10 +9,8 @@ import time
 import datetime
 
 from common import normalize_name
-import config.main_config
+from config.main_config import main_config
 import launchers
-
-conf = config.main_config.main_config
 
 super_debug = '--super-debug' in sys.argv
 disambiguity_section_name = 'X-Meow Launcher Disambiguity'
@@ -174,7 +172,7 @@ def resolve_duplicates(group, method, format_function=None, ignore_missing_value
 		resolve_duplicates_by_metadata(group, method, format_function, ignore_missing_values)
 
 def fix_duplicate_names(method, format_function=None, ignore_missing_values=None):
-	files = [(path, launchers.get_desktop(path)) for path in [os.path.join(conf.output_folder, f) for f in os.listdir(conf.output_folder)]]
+	files = [(path, launchers.get_desktop(path)) for path in [os.path.join(main_config.output_folder, f) for f in os.listdir(main_config.output_folder)]]
 	if method == 'dev-status':
 		resolve_duplicates_by_dev_status(files)
 		return
@@ -214,7 +212,7 @@ def arcade_system_disambiguate(arcade_system, name):
 
 def reambiguate():
 	#This seems counter-intuitive, but if we're not doing a full rescan, we want to do this before disambiguating again or else it gets weird
-	output_folder = conf.output_folder
+	output_folder = main_config.output_folder
 	for name in os.listdir(output_folder):
 		path = os.path.join(output_folder, name)
 
@@ -242,7 +240,7 @@ def reambiguate():
 def disambiguate_names():
 	time_started = time.perf_counter()
 
-	if not conf.full_rescan:
+	if not main_config.full_rescan:
 		reambiguate()
 
 	fix_duplicate_names('Platform')
@@ -259,10 +257,10 @@ def disambiguate_names():
 	fix_duplicate_names('tags')
 	fix_duplicate_names('date', ignore_missing_values=True)
 	fix_duplicate_names('Extension', '(.{0})'.format)
-	if conf.debug:
+	if main_config.debug:
 		fix_duplicate_names('check')
 
-	if conf.print_times:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Name disambiguation finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

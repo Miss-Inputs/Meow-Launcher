@@ -6,15 +6,13 @@ import os
 import subprocess
 import time
 
-import config.main_config
 import input_metadata
 import launchers
 from common_types import SaveType
+from config.main_config import main_config
 from info.region_info import get_language_by_short_code
 from metadata import Metadata
 from pc_common_metadata import look_for_icon_in_folder
-
-conf = config.main_config.main_config 
 
 scumm_config_path = os.path.expanduser('~/.config/scummvm/scummvm.ini')
 residualvm_config_path = os.path.expanduser('~/.config/residualvm/residualvm.ini')
@@ -159,7 +157,7 @@ class ScummVMGame():
 				#Keeping the category names consistent with everything else here, though people might like to call it "Demos" or whatever instead and technically there's no reason why we can't do that and this should be an option and I will put this ramble here to remind myself to make it an option eventually
 				self.metadata.categories = ['Trials']
 		
-		if conf.use_original_platform:
+		if main_config.use_original_platform:
 			platform = self.options.get('platform')
 			if platform:
 				self.metadata.platform = format_platform(platform)
@@ -185,10 +183,10 @@ class ScummVMGame():
 				if icon:
 					self.metadata.images['Icon'] = icon
 			else:
-				if conf.debug:
+				if main_config.debug:
 					print('Aaaa!', self.name, path, 'does not exist')
 		else:
-			if conf.debug:
+			if main_config.debug:
 				print('Wait what?', self.name, 'has no path')
 		#Everything else is gonna be an actual option
 
@@ -236,14 +234,14 @@ def add_vm_games(name, config_path, vm_config, game_class):
 		if section == 'cloud':
 			#This is not a game either
 			continue
-		if not conf.full_rescan:
+		if not main_config.full_rescan:
 			if launchers.has_been_done('ScummVM', section):
 				continue
 
 		game = game_class(section, vm_config)
 		game.make_launcher()
 
-	if conf.print_times:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print(name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 

@@ -2,7 +2,7 @@ import calendar
 import io
 import re
 
-import config.main_config
+from config.main_config import main_config
 from info.region_info import TVSystem
 
 try:
@@ -12,8 +12,6 @@ try:
 	have_pycdlib = True
 except ModuleNotFoundError:
 	have_pycdlib = False
-
-conf = config.main_config.main_config 
 
 def parse_product_code(metadata):
 	#https://www.psdevwiki.com/ps3/Productcode#Physical
@@ -56,7 +54,7 @@ def add_ps2_metadata(game):
 							except ValueError:
 								pass
 			except PyCdlibInvalidInput:
-				if conf.debug:
+				if main_config.debug:
 					print(game.rom.path, 'has no SYSTEM.CNF inside')
 			#Sometimes there is a system.ini that looks like this:
 			#[SYSTEM]
@@ -67,7 +65,7 @@ def add_ps2_metadata(game):
 			#LANGUAGE = ENGLISH
 			#WARNING = NO
 		except PyCdlibInvalidISO as ex:
-			if conf.debug:
+			if main_config.debug:
 				print(game.rom.path, 'is invalid ISO', ex)
 		except struct.error as ex:
 			print(game.rom.path, 'is invalid ISO and has some struct.error', ex)

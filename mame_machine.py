@@ -1,11 +1,10 @@
 import os
 import re
 
-import config.main_config
-from common import (find_filename_tags_at_end,
-                    normalize_name, remove_capital_article,
-                    remove_filename_tags)
+from common import (find_filename_tags_at_end, normalize_name,
+                    remove_capital_article, remove_filename_tags)
 from common_types import EmulationStatus
+from config.main_config import main_config
 from data.subtitles import subtitles
 from mame_helpers import (consistentify_manufacturer, get_icons, get_mame_xml,
                           list_by_source_file)
@@ -13,7 +12,6 @@ from mame_metadata import (add_metadata_from_catlist, get_machine_folder,
                            mame_statuses)
 from metadata import Metadata
 
-conf = config.main_config.main_config 
 
 class MediaSlot():
 	def __init__(self, xml):
@@ -707,7 +705,7 @@ class Machine():
 			if ' / ' in manufacturer:
 				#Let's try and clean up things a bit when this happens
 				manufacturers = [consistentify_manufacturer(m) for m in manufacturer.split(' / ')]
-				if conf.sort_multiple_dev_names:
+				if main_config.sort_multiple_dev_names:
 					manufacturers.sort()
 
 				developer = publisher = ', '.join(manufacturers)

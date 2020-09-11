@@ -1,6 +1,6 @@
 import os
 
-import config.main_config
+from config.main_config import main_config
 import dos
 #import mac
 import mame_machines
@@ -11,8 +11,6 @@ import remove_nonexistent_games
 import series_detect
 import disambiguate
 import organize_folders
-
-main_config = config.main_config.main_config
 
 def main(progress_function, mame_enabled=True, roms_enabled=True, dos_enabled=True, mac_enabled=True, scummvm_enabled=True, steam_enabled=True):
 	def call_progress_function(data, should_increment=True):

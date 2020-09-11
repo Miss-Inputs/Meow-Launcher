@@ -3,12 +3,10 @@ import json
 import os
 import time
 
-import config.main_config
 from common_paths import config_dir
 from common_types import MediaType
+from config.main_config import main_config
 from metadata import Metadata
-
-conf = config.main_config.main_config
 
 class App:
 	def __init__(self, info):
@@ -90,6 +88,6 @@ def make_launchers(platform, app_class):
 	except FileNotFoundError:
 		return
 
-	if conf.print_times:
+	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print(platform, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
