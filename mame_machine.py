@@ -773,7 +773,6 @@ def get_machines_from_source_file(source_file):
 
 def machine_name_matches(machine_name, game_name, match_vs_system=False):
 	#TODO Should also use name_consistency stuff once I refactor that (Turbo OutRun > Turbo Out Run)
-	#TODO This will need to be updated once I do the thing where I take care of alternate names in titles (Cool Game / Other Region Cool Game)
 	
 	machine_name = remove_filename_tags(machine_name)
 	game_name = remove_filename_tags(game_name)
