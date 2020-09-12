@@ -395,7 +395,6 @@ class Software():
 			metadata.specific_info['Version'] = version
 
 		alt_title = self.infos.get('alt_title', self.infos.get('alt_name', self.infos.get('alt_disk')))
-		#TODO This may require further parsing to use properly (there is sometimes more than one alt name, or something like Blah (Box) and we would then want to put Blah as Box-Title)
 		if alt_title:
 			parse_alt_title(metadata, alt_title)
 
