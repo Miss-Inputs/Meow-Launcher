@@ -283,13 +283,17 @@ def _does_nes_rom_match(part, prg_crc, chr_crc):
 		prg_matches = prg_area.roms[0].matches(prg_crc, None)
 	else:
 		prg_matches = False #prg_crc is None?
+	if not prg_matches:
+		return False
 
 	if chr_area:
 		chr_matches = chr_area.roms[0].matches(chr_crc, None)
 	else:
 		chr_matches = chr_crc is None
+	if not chr_matches:
+		return False
 
-	return prg_matches and chr_matches
+	return True
 
 def _get_headered_nes_rom_software_list_entry(game):
 	prg_crc32 = game.metadata.specific_info.get('PRG-CRC')
