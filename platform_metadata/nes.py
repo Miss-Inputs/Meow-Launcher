@@ -268,10 +268,6 @@ def add_ines_metadata(metadata, header):
 
 def _does_nes_rom_match(part, prg_crc, chr_crc):
 	prg_area = part.data_areas.get('prg')
-	chr_area = part.data_areas.get('chr')
-	if len(part.data_areas) == 2 and prg_area and not chr_area:
-		#This doesn't happen often, but... hmm
-		chr_area = part.data_areas.get('rom')
 	#These two data area names seem to be used for alternate types of carts (Aladdin Deck Enhancer/Datach/etc)
 	if not prg_area:
 		prg_area = part.data_areas.get('rom')
@@ -286,6 +282,11 @@ def _does_nes_rom_match(part, prg_crc, chr_crc):
 	if not prg_matches:
 		return False
 
+	chr_area = part.data_areas.get('chr')
+	if len(part.data_areas) == 2 and prg_area and not chr_area:
+		#This doesn't happen often, but... hmm
+		chr_area = part.data_areas.get('rom')
+	
 	if chr_area:
 		chr_matches = chr_area.roms[0].matches(chr_crc, None)
 	else:
