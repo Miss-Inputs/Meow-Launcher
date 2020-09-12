@@ -8,7 +8,6 @@ from pathlib import Path
 from common import junk_suffixes
 from common_paths import cache_dir
 from data.name_cleanup.mame_manufacturer_name_cleanup import dont_remove_suffix, manufacturer_name_cleanup
-from metadata import CPU, ScreenInfo
 
 def consistentify_manufacturer(manufacturer):
 	if not manufacturer:
@@ -275,28 +274,6 @@ def find_cpus(machine_xml):
 	cpu_xmls = [cpu for cpu in cpu_xmls if not _tag_starts_with(cpu.attrib.get('tag'), controller_tags)]
 	
 	return cpu_xmls
-
-def lookup_system_cpus(driver_name):
-	machine = get_mame_xml(driver_name)
-	#Guess I'll pass the potential MAMENotInstalledException to caller
-
-	cpu_list = []
-	cpus = find_cpus(machine)
-	if cpus:
-		for cpu_xml in cpus:
-			cpu = CPU()
-			cpu.load_from_xml(cpu_xml)
-			cpu_list.append(cpu)
-
-	return cpu_list
-
-def lookup_system_displays(driver_name):
-	machine = get_mame_xml(driver_name)
-
-	displays = machine.findall('display')
-	screen_info = ScreenInfo()
-	screen_info.load_from_xml_list(displays)
-	return screen_info
 
 def verify_romset(basename):
 	return default_mame_executable.verifyroms(basename)
