@@ -8,11 +8,9 @@ from common import convert_alphanumeric, NotAlphanumericException
 from software_list_info import find_in_software_lists, matcher_args_for_bytes
 
 def _byteswap(b):
-	byte_array = bytearray(b)
-	for i in range(0, len(byte_array), 2):
-		temp = byte_array[i]
-		byte_array[i] = byte_array[i + 1]
-		byte_array[i + 1] = temp
+	byte_array = bytearray(len(b))
+	byte_array[0::2] = b[1::2]
+	byte_array[1::2] = b[0::2]
 	return bytes(byte_array)
 
 _mupen64plus_database = None
@@ -121,8 +119,6 @@ def add_n64_metadata(game):
 
 	parse_n64_header(game.metadata, header)
 
-	rom_md5 = hashlib.md5(entire_rom).hexdigest().upper()
-
 	normal_controller = input_metadata.NormalController()
 	normal_controller.face_buttons = 6 #A, B, 4 * C
 	normal_controller.shoulder_buttons = 3 #L, R, and I guess Z will have to be counted as a shoulder button
@@ -132,6 +128,7 @@ def add_n64_metadata(game):
 
 	database = get_mupen64plus_database()
 	if database:
+		rom_md5 = hashlib.md5(entire_rom).hexdigest().upper()
 		database_entry = database.get(rom_md5)
 		if database_entry:
 			add_info_from_database_entry(game.metadata, database_entry)
