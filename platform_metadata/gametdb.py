@@ -1,4 +1,5 @@
 from common import junk_suffixes
+from common_types import SaveType
 from config.main_config import main_config
 
 def add_info_from_tdb(tdb, metadata, search_key):
@@ -15,7 +16,7 @@ def add_info_from_tdb(tdb, metadata, search_key):
 		#locale lang="EN" etc: Contains title (hmm) and synopsis (ooh, interesting) (sometimes) for each language
 		#rom: What they think the ROM should be named
 		#case: Has "color" and "versions" attribute? I don't know what versions does but I presume it all has to do with the game box
-		#save: How many blocks this has (wait maybe this can be save type) (but it's hardly used)
+		
 		if main_config.debug:
 			for element in game:
 				if element.tag not in ('developer', 'publisher', 'date', 'rating', 'id', 'type', 'region', 'languages', 'locale', 'genre', 'wi-fi', 'input', 'rom', 'case', 'save'):
@@ -51,8 +52,19 @@ def add_info_from_tdb(tdb, metadata, search_key):
 			descriptors = [e.text for e in rating.findall('descriptor')]
 			if descriptors:
 				metadata.specific_info['Content-Warnings'] = descriptors
-		
+
 		#This stuff will depend on platform…
+
+		save = game.find('save')
+		if save is not None:
+			blocks = save.attrib.get('blocks')
+			#Other platforms may have "size" instead, also there are "copy" and "move" attributes which we'll ignore
+			if blocks:
+				if metadata.platform == 'Wii':
+					metadata.save_type = SaveType.Internal
+				elif metadata.platform == 'GameCube':
+					metadata.save_type = SaveType.MemoryCard
+			#Have not seen a game with blocks = 0 or missing blocks or size
 
 		if metadata.platform != 'GameCube':
 			wifi = game.find('wi-fi')
