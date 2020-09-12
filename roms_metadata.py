@@ -6,9 +6,10 @@ from data.not_necessarily_equivalent_arcade_names import \
     not_necessarily_equivalent_arcade_names
 from info import region_info, system_info
 from mame_helpers import (MachineNotFoundException, MAMENotInstalledException,
-                          get_icons, get_mame_xml)
+                          get_mame_xml, get_image, image_config_keys)
 from mame_machine import Machine, does_machine_match_game
 from software_list_info import get_software_lists_by_names
+
 
 def get_metadata_from_tags(game):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
@@ -187,13 +188,9 @@ def add_metadata(game):
 		add_metadata_from_arcade(game, equivalent_arcade)
 	if 'Icon' not in game.metadata.images:
 		if main_config.use_mame_system_icons:
-			try:
-				mame_icons = add_metadata.mame_icons
-			except AttributeError:
-				mame_icons = add_metadata.mame_icons = get_icons()
-
-			if mame_driver in mame_icons:
-				game.metadata.images['Icon'] = mame_icons[mame_driver]
+			system_icon = get_image(image_config_keys['Icon'], mame_driver)
+			if system_icon:
+				game.metadata.images['Icon'] = system_icon
 
 	get_metadata_from_tags(game)
 	get_metadata_from_regions(game)
