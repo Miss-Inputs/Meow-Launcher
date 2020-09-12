@@ -42,6 +42,7 @@ def get_mame_folder(name):
 	
 	return parser
 
+@functools.lru_cache(maxsize=None)
 def get_machine_folder(basename, folder_name):
 	folder = get_mame_folder(folder_name)
 
@@ -51,6 +52,7 @@ def get_machine_folder(basename, folder_name):
 			sections.append(section)
 	return sections
 
+@functools.lru_cache(maxsize=None)
 def get_category(basename):
 	cats = get_machine_folder(basename, 'catlist')
 	#It would theoretically be possible for a machine to appear twice, but catlist doesn't do that I think
