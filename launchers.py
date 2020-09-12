@@ -106,32 +106,20 @@ class MultiCommandLaunchParams():
 		new_commands = [command.replace_path_argument(path) for command in self.commands]
 		return MultiCommandLaunchParams(new_commands)
 
-used_filenames = None
-def pick_new_filename(display_name, extension):
+def pick_new_filename(folder, display_name, extension):
 	base_filename = make_filename(display_name)
 	filename = base_filename + os.extsep + extension
 
-	global used_filenames #Yeah yeah I know, I'm naughty, I'll probs rewrite it one day
-	if used_filenames is None:
-		if main_config.full_rescan:
-			used_filenames = []
-		else:
-			try:
-				used_filenames = os.listdir(main_config.output_folder)
-			except FileNotFoundError:
-				used_filenames = []
-
-	i = 0
-	while filename in used_filenames:
+	i = 2
+	while os.path.isfile(os.path.join(folder, filename)):
 		filename = base_filename + str(i) + os.extsep + extension
 		i += 1
 	return filename
 
 def make_linux_desktop(launch_params, display_name, fields=None):
-	filename = pick_new_filename(display_name, 'desktop')
+	filename = pick_new_filename(main_config.output_folder, display_name, 'desktop')
 	
 	path = os.path.join(main_config.output_folder, filename)
-	used_filenames.append(filename)
 
 	configwriter = configparser.ConfigParser(interpolation=None)
 	configwriter.optionxform = str
