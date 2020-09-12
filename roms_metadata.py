@@ -93,7 +93,9 @@ def find_equivalent_arcade_game(game, basename):
 
 def add_metadata_from_arcade(game, machine):
 	if 'Icon' not in game.metadata.images:
-		game.metadata.images['Icon'] = machine.icon
+		machine_icon = get_image(image_config_keys['Icon'], machine.basename)
+		if machine_icon:
+			game.metadata.images['Icon'] = machine_icon
 
 	if machine.family in ('monopoly', 'scrabble'):
 		#The arcade games Monopoly and Scrabble are some weird quiz games that have the licensed board games as a theme, whereas every Monopoly and Scrabble in the software list is not going to be that at all, and just a normal conversion of the board game like you expect, so all metadata except the icon isn't necessarily going to be accurate. I choose to hardcode these cases because they annoy me
