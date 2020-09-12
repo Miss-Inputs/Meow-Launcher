@@ -497,7 +497,7 @@ class Machine():
 
 	@property
 	def family_name(self):
-		return self.parent.name if self.has_parent else self.name
+		return self.parent.name if self.parent_basename else self.name
 
 	@property
 	def source_file(self):
