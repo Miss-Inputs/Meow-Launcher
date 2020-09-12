@@ -39,18 +39,22 @@ class ArcadeSystem():
 		use_source_file_match = self.source_files is not None
 		use_bios_match = self.bioses is not None
 
-		source_file_match = not use_source_file_match #If we don't care about the source file (not a part of how we define this arcade system), then we are happy with whatever machine's source file is, if that made any sense
-		bios_match = not use_bios_match
-
 		if use_source_file_match:
 			source_file_match = machine.source_file in self.source_files
+			if not source_file_match:
+				return False
+
 		if use_bios_match:
 			machine_bios = machine.bios_basename
 			if not machine_bios:
 				bios_match = None in self.bioses
 			else:
 				bios_match = machine_bios in self.bioses
-		return source_file_match and bios_match
+		
+			if not bios_match:
+				return False
+
+		return True
 
 arcade_systems = {
 	#Right now, this is kiinda pointless and only really used by 1) disambiguate 2) the user's own interest, but one day when there are non-MAME emulators in here, it would make sense for this list to be as big as it is... but anyway, I do what I want
