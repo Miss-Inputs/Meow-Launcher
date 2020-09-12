@@ -16,8 +16,8 @@ import launchers
 from common import junk_suffixes, remove_capital_article, title_case
 from common_types import MediaType, SaveType
 from config.main_config import main_config
-from data.capitalized_words_in_names import capitalized_words
-from data.steam_developer_overrides import developer_overrides
+from data.name_cleanup.capitalized_words_in_names import capitalized_words
+from data.name_cleanup.steam_developer_overrides import developer_overrides
 from data.steam_genre_ids import genre_ids
 from data.steam_store_categories import store_categories
 from info.region_info import get_language_by_english_name

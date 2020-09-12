@@ -14,7 +14,7 @@ from common import (NotAlphanumericException, convert_alphanumeric,
 from common_types import SaveType
 from config.main_config import main_config
 from config.system_config import system_configs
-from data._3ds_publisher_overrides import consistentified_manufacturers
+from data.name_cleanup._3ds_publisher_overrides import consistentified_manufacturers
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 
 from .wii import parse_ratings

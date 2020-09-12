@@ -7,7 +7,7 @@ from pathlib import Path
 
 from common import junk_suffixes
 from common_paths import cache_dir
-from data.mame_manufacturers import dont_remove_suffix, manufacturer_overrides
+from data.name_cleanup.mame_manufacturer_name_cleanup import dont_remove_suffix, manufacturer_name_cleanup
 from metadata import CPU, ScreenInfo
 
 def consistentify_manufacturer(manufacturer):
@@ -17,8 +17,8 @@ def consistentify_manufacturer(manufacturer):
 		manufacturer = junk_suffixes.sub('', manufacturer)
 	manufacturer = manufacturer.strip()
 	if manufacturer[-1] == '?':
-		return manufacturer_overrides.get(manufacturer[:-1], manufacturer[:-1]) + '?'
-	return manufacturer_overrides.get(manufacturer, manufacturer)
+		return manufacturer_name_cleanup.get(manufacturer[:-1], manufacturer[:-1]) + '?'
+	return manufacturer_name_cleanup.get(manufacturer, manufacturer)
 
 mame_config_comment = re.compile(r'#.+$')
 mame_config_line = re.compile(r'^(?P<key>\w+)\s+(?P<value>.+)$')

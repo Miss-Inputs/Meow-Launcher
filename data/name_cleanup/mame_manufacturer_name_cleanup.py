@@ -1,4 +1,4 @@
-manufacturer_overrides = {
+manufacturer_name_cleanup = {
 	#Stuff that appears in machines/software lists but it's the same company but formatted in different ways (suffixes/punctuation/spacing/whatnot), and maybe neither is more correct but it's no fun to have inconsistent naming
 
 	#Anyway. Some of these are bit... contentious? Is that the right word? Like, some of these are definitely different ways of spelling the same company and that's definitely a valid thing to deal with, but then some of these might well just be different brands used by the same company, because companies are weird like that. So at some point I'll probably need to clean this up. Hmm...
