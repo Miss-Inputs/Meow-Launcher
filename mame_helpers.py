@@ -166,6 +166,27 @@ class DefaultMameExecutable():
 			DefaultMameExecutable.__instance = MameExecutable()
 		return DefaultMameExecutable.__instance
 
+image_config_keys = {
+	'Cabinet': 'cabinets_directory',
+	'Control Panel': 'cpanels_directory',
+	'PCB': 'pcbs_directory',
+	'Flyer': 'flyers_directory',
+	'Title-Screen': 'titles_directory',
+	'End-Screen': 'ends_directory',
+	'Marquee': 'marquees_directory',
+	'Artwork-Preview': 'artwork_preview_directory',
+	'Boss-Screen': 'bosses_directory',
+	'Logo-Screen': 'logos_directory',
+	'Score-Screen': 'scores_directory',
+	'Versus-Screen': 'versus_directory',
+	'Game-Over-Screen': 'gameover_directory',
+	'How-To-Screen': 'howto_directory',
+	'Select-Screen': 'select_directory',
+	'Icon': 'icons_directory',
+	'Cover': 'covers_directory', #Software only
+}
+image_types = ('ico', 'png', 'jpg', 'bmp')
+
 class MameConfiguration():
 	def __init__(self, core_config_path=None, ui_config_path=None):
 		self.is_configured = True
@@ -188,22 +209,16 @@ class MameConfiguration():
 
 		self._icons = None
 
-	@property
-	def icons(self):
-		if self._icons is None:
-			d = {}
-			try:
-				for icon_directory in self.ui_config.get('icons_directory', []):
-					if os.path.isdir(icon_directory):
-						for icon_file in os.listdir(icon_directory):
-							name, ext = os.path.splitext(icon_file)
-							if ext == '.ico': #Perhaps should have other formats?
-								d[name] = os.path.join(icon_directory, icon_file)
-
-				self._icons = d
-			except FileNotFoundError:
-				self._icons = d
-		return self._icons
+	def get_image(self, config_key, machine_or_list_name, software_name=None):
+		for directory in self.ui_config.get(config_key, []):
+			basename = os.path.join(directory, machine_or_list_name)
+			if software_name:
+				basename = os.path.join(basename, machine_or_list_name)
+			for ext in image_types:
+				path = basename + os.path.extsep + ext
+				if os.path.isfile(path):
+					return path
+		return None
 
 class DefaultMameConfiguration():
 	__instance = None
@@ -244,8 +259,8 @@ def list_by_source_file():
 def verify_software_list(software_list_name):
 	return default_mame_executable.verifysoftlist(software_list_name)
 
-def get_icons():
-	return default_mame_configuration.icons
+def get_image(config_key, machine_or_list_name, software_name=None):
+	return default_mame_configuration.get_image(config_key, machine_or_list_name, software_name)
 
 def _tag_starts_with(tag, tag_list):
 	if not tag:

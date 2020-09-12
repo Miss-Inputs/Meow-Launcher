@@ -6,7 +6,7 @@ from common import (find_filename_tags_at_end, normalize_name,
 from common_types import EmulationStatus
 from config.main_config import main_config
 from data.subtitles import subtitles
-from mame_helpers import (consistentify_manufacturer, get_icons, get_mame_xml,
+from mame_helpers import (consistentify_manufacturer, get_mame_xml,
                           list_by_source_file)
 from mame_metadata import (add_metadata_from_catlist, get_machine_folder,
                            mame_statuses)
@@ -509,22 +509,6 @@ class Machine():
 	@property
 	def source_file(self):
 		return os.path.splitext(self.xml.attrib['sourcefile'])[0]
-
-	@property
-	def icon(self):
-		icons = get_icons()
-		if not icons:
-			return None
-
-		basename_icon = icons.get(self.basename)
-		if basename_icon:
-			return basename_icon
-
-		family_icon = icons.get(self.family)
-		if family_icon:
-			return family_icon
-
-		return None
 
 	@property
 	def is_mechanical(self):

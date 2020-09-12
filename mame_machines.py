@@ -13,6 +13,7 @@ from mame_helpers import get_mame_xml, iter_mame_entire_xml, verify_romset
 from mame_machine import Machine, get_machines_from_source_file
 from mame_metadata import add_metadata
 
+
 def is_actually_machine(machine):
 	if machine.xml.attrib.get('runnable', 'yes') == 'no':
 		return False
@@ -58,13 +59,6 @@ def make_machine_launcher(machine):
 
 	params = launchers.LaunchParams('mame', emulator_command_line_helpers.mame_base(machine.basename, slot_options=slot_options))
 	#TODO: Let's put this in emulator_info, even if only MAME exists as the singular arcade emulator for now; and clean this up some more
-	icon = machine.icon
-	if not icon and machine.bios:
-		bios_icon = machine.bios.icon
-		if bios_icon:
-			icon = bios_icon
-	machine.metadata.images['Icon'] = icon
-
 	launchers.make_launcher(params, machine.name, machine.metadata, 'MAME machine', machine.basename)
 
 

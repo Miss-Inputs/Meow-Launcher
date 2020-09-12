@@ -9,7 +9,8 @@ from common_types import EmulationStatus, MediaType, SaveType
 from config.main_config import main_config
 from info.region_info import (get_language_by_english_name,
                               get_language_from_regions)
-from mame_helpers import find_cpus, get_mame_ui_config
+from mame_helpers import (find_cpus, get_image, get_mame_ui_config,
+                          image_config_keys)
 from metadata import CPU, ScreenInfo
 
 #Maybe I just want to put all this back into mame_machines... it's only used there
@@ -319,7 +320,24 @@ def add_languages(machine, name_tags):
 			if region_language:
 				machine.metadata.languages = [region_language]
 
+def add_images(machine):
+	for image_name, config_key in image_config_keys.items():
+		image = get_image(config_key, machine.basename)
+		if image:
+			machine.metadata.images[image_name] = image
+			continue
+		if machine.has_parent:
+			image = get_image(config_key, machine.parent_basename)
+			if image:
+				machine.metadata.images[image_name] = image
+		if image_name == 'Icon' and machine.bios_basename:
+			image = get_image(config_key, machine.bios_basename)
+			if image:
+				machine.metadata.images[image_name] = image
+		
 def add_metadata(machine):
+	add_images(machine)
+
 	machine.metadata.cpu_info.set_inited()
 	cpus = find_cpus(machine.xml)
 	if cpus:
