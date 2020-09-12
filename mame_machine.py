@@ -393,8 +393,18 @@ bootleg_with_publisher_regex = re.compile(r'^bootleg \((.+)\)$')
 class Machine():
 	def __init__(self, xml, init_metadata=False):
 		self.xml = xml
-		#This can't be an attribute because we might need to override it later! Bad Megan!
+		#This can't be a property because we might need to override it later, so stop trying to do that
 		self.name = self.xml.findtext('description')
+
+		cloneof = self.xml.attrib.get('cloneof')
+		if cloneof:
+			self.has_parent = True
+			self.parent_basename = cloneof
+		else:
+			self.has_parent = False
+			self.parent_basename = None
+		self._parent = None #We will add this later when it is needed
+
 		self.metadata = Metadata()
 		self._has_inited_metadata = False
 		add_metadata_from_catlist(self)
@@ -480,28 +490,21 @@ class Machine():
 		return self.xml.attrib['name']
 
 	@property
-	def has_parent(self):
-		return 'cloneof' in self.xml.attrib
-
-	@property
 	def parent(self):
-		parent_name = self.parent_basename
-		if not parent_name:
+		if not self.has_parent:
 			return None
-		return Machine(get_mame_xml(parent_name), True)
-
-	@property
-	def parent_basename(self):
-		#For when you don't need a whole entire Machine object
-		return self.xml.attrib.get('cloneof')
+			
+		if not self._parent:
+			self._parent = Machine(get_mame_xml(self.parent_basename), True)
+		return self._parent
 
 	@property
 	def family(self):
-		return self.xml.attrib.get('cloneof', self.basename)
+		return self.parent_basename if self.has_parent else self.basename
 
 	@property
 	def family_name(self):
-		return self.parent.name if self.parent_basename else self.name
+		return self.parent.name if self.has_parent else self.name
 
 	@property
 	def source_file(self):
