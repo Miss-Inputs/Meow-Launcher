@@ -217,7 +217,7 @@ class MameConfiguration():
 		for directory in self.ui_config.get(config_key, []):
 			basename = os.path.join(directory, machine_or_list_name)
 			if software_name:
-				basename = os.path.join(basename, machine_or_list_name, software_name)
+				basename = os.path.join(basename, software_name)
 			for ext in image_types:
 				path = basename + os.path.extsep + ext
 				if os.path.isfile(path):
