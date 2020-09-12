@@ -12,18 +12,10 @@ from config.main_config import main_config
 from data.subtitles import subtitles
 from info.system_info import systems
 from mame_helpers import (consistentify_manufacturer, get_mame_core_config,
-                          verify_software_list)
+                          image_config_keys, verify_software_list, get_image)
 
 #Ideally, every platform wants to be able to get software list info. If available, it will always be preferred over what we can extract from inside the ROMs, as it's more reliable, and avoids the problem of bootlegs/hacks with invalid/missing header data, or publisher/developers that merge and change names and whatnot.
 #We currently do this by putting a block of code inside each platform_metadata helper that does the same thing. I guess I should genericize that one day. Anyway, it's not always possible.
-
-#Has no software list:
-#3DS
-#DS
-#GameCube
-#PS2
-#PSP
-#Wii
 
 def parse_size_attribute(attrib):
 	if not attrib:
@@ -291,7 +283,6 @@ class Software():
 		for info in self.xml.findall('info'):
 			self.infos[info.attrib.get('name')] = info.attrib.get('value')
 
-
 	@property
 	def name(self):
 		return self.xml.attrib.get('name')
@@ -370,6 +361,10 @@ class Software():
 			return compat
 		return compat.split(',')
 
+	@property
+	def parent_name(self):
+		return self.xml.attrib.get('cloneof')
+
 	def add_standard_metadata(self, metadata):
 		metadata.specific_info['MAME-Software-Name'] = self.name
 		metadata.specific_info['MAME-Software-Full-Name'] = self.description
@@ -434,6 +429,16 @@ class Software():
 				publisher = ', '.join(publishers)
 
 			metadata.publisher = publisher
+
+		for image_name, config_key in image_config_keys.items():
+			image = get_image(config_key, self.software_list_name, self.name)
+			if image:
+				metadata.images[image_name] = image
+				continue
+			if self.parent_name:
+				image = get_image(config_key, self.software_list_name, self.parent_name)
+				if image:
+					metadata.images[image_name] = image
 
 class SoftwareMatcherArgs():
 	def __init__(self, crc32, sha1, size, reader):
