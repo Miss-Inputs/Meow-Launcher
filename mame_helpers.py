@@ -1,4 +1,5 @@
 import copy
+import functools
 import os
 import re
 import subprocess
@@ -7,7 +8,9 @@ from pathlib import Path
 
 from common import junk_suffixes
 from common_paths import cache_dir
-from data.name_cleanup.mame_manufacturer_name_cleanup import dont_remove_suffix, manufacturer_name_cleanup
+from data.name_cleanup.mame_manufacturer_name_cleanup import (
+    dont_remove_suffix, manufacturer_name_cleanup)
+
 
 def consistentify_manufacturer(manufacturer):
 	if not manufacturer:
@@ -263,6 +266,7 @@ def list_by_source_file():
 def verify_software_list(software_list_name):
 	return default_mame_executable.verifysoftlist(software_list_name)
 
+@functools.lru_cache(maxsize=None)
 def get_image(config_key, machine_or_list_name, software_name=None):
 	return default_mame_configuration.get_image(config_key, machine_or_list_name, software_name)
 
