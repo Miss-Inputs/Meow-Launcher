@@ -1,6 +1,7 @@
 from common import junk_suffixes
 from common_types import SaveType
 from config.main_config import main_config
+from data.name_cleanup.gametdb_company_name_cleanup import company_name_cleanup
 
 def parse_genre(_, metadata, genre_list):
 	genres = [g.title() for g in genre_list.split(',')]
@@ -13,6 +14,22 @@ def parse_genre(_, metadata, genre_list):
 		if len(genres) > 1:
 			metadata.specific_info['Additional-Genres'] = genres[1:]
 			#TODO: Use the tdb to look at what's maingenre and what's a subgenre of those genres
+
+def clean_up_company_name(company_name):
+	whaa = {
+		"Take2 / Den'Z / Global Star": 'Global Star Software', #Someone's trying to just read the licensee code according to the database and calling it a day…
+		'HAL/Sora/Harox': 'Sora / HAL Laboratory', #wat? What the heck is Harox? Where did that one even come from?
+	}
+
+	names = whaa.get(company_name, company_name).split(' / ')
+	cleaned_names = []
+	for name in names:
+		while junk_suffixes.search(name):
+			name = junk_suffixes.sub('', name)
+		name = company_name_cleanup.get(name, name)
+		cleaned_names.append(name)
+
+	return ', '.join(sorted(cleaned_names))
 
 def add_info_from_tdb(tdb, metadata, search_key):
 	if not tdb:
@@ -36,10 +53,10 @@ def add_info_from_tdb(tdb, metadata, search_key):
 
 		developer = game.findtext('developer')
 		if developer:
-			metadata.developer = junk_suffixes.sub('', developer)
+			metadata.developer = clean_up_company_name(developer)
 		publisher = game.findtext('publisher')
 		if publisher:
-			metadata.publisher =  junk_suffixes.sub('', publisher)
+			metadata.publisher =  clean_up_company_name(publisher)
 		date = game.find('date')
 		if date is not None:
 			year = date.attrib.get('year')
