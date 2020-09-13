@@ -2,6 +2,18 @@ from common import junk_suffixes
 from common_types import SaveType
 from config.main_config import main_config
 
+def parse_genre(_, metadata, genre_list):
+	genres = [g.title() for g in genre_list.split(',')]
+	if 'Software' in genres:
+		#This isn't really a genre so much as a category
+		genres.remove('Software')
+	
+	if genres:
+		metadata.genre = genres[0]
+		if len(genres) > 1:
+			metadata.specific_info['Additional-Genres'] = genres[1:]
+			#TODO: Use the tdb to look at what's maingenre and what's a subgenre of those genres
+
 def add_info_from_tdb(tdb, metadata, search_key):
 	if not tdb:
 		return
@@ -42,9 +54,7 @@ def add_info_from_tdb(tdb, metadata, search_key):
 
 		genre = game.findtext('genre')
 		if genre:
-			if ',' not in genre:
-				metadata.genre = genre.title()
-			#TODO: If it is, figure out what's a "main genre" and what's a subgenre because there seems to be a distinction, and maybe some need to be combined
+			parse_genre(tdb, metadata, genre)
 		
 		rating = game.find('rating')
 		if rating is not None:
