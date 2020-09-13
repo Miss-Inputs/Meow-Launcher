@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
 import datetime
-import os
 import sys
 import time
 
 import launchers
-from common_types import EmulationStatus, SaveType
+from common_types import EmulationStatus
 from config.main_config import main_config
 from info import emulator_command_line_helpers
 from mame_helpers import get_mame_xml, iter_mame_entire_xml, verify_romset
@@ -48,14 +47,6 @@ def make_machine_launcher(machine):
 		machine._add_metadata_fields()
 
 	slot_options = {}
-	if machine.metadata.save_type == SaveType.MemoryCard and machine.source_file == 'neogeo' and main_config.memcard_path:
-		memory_card_path = os.path.join(main_config.memcard_path, machine.basename + '.neo')
-		if os.path.isfile(memory_card_path):
-			slot_options['memc'] = memory_card_path
-		else:
-			memory_card_path = os.path.join(main_config.memcard_path, machine.family + '.neo')
-			if os.path.isfile(memory_card_path):
-				slot_options['memc'] = memory_card_path
 
 	params = launchers.LaunchParams('mame', emulator_command_line_helpers.mame_base(machine.basename, slot_options=slot_options))
 	#TODO: Let's put this in emulator_info, even if only MAME exists as the singular arcade emulator for now; and clean this up some more
