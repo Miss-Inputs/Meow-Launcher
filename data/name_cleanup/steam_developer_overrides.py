@@ -30,9 +30,9 @@ developer_overrides = {
 	'Lupus Studios Limited': 'Lupus Studios',
 	'M2 Co.,LTD': 'M2',
 	'Majesco Entertainment': 'Majesco',
-	'NAMCO BANDAI Games': 'Namco Bandai', #Should be merged with Bandai Namco? Maybe? I don't know anything anymore
-	'NAMCO BANDAI Games Europe S.A.S.': 'Namco Bandai Europe',
-	'NAMCO BANDAI Studio': 'Namco Bandai',
+	'NAMCO BANDAI Games': 'Bandai Namco',
+	'NAMCO BANDAI Games Europe S.A.S.': 'Bandai Namco Europe',
+	'NAMCO BANDAI Studio': 'Bandai Namco',
 	'OVERKILL - a Starbreeze Studio.': 'Overkill Software',
 	'Reality Pump Studios': 'Reality Pump',
 	'Reflections, a Ubisoft Studio': 'Reflections',
