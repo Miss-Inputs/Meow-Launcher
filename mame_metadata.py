@@ -330,6 +330,7 @@ def add_images(machine):
 			image = get_image(config_key, machine.parent_basename)
 			if image:
 				machine.metadata.images[image_name] = image
+				continue
 		if image_name == 'Icon' and machine.bios_basename:
 			image = get_image(config_key, machine.bios_basename)
 			if image:
