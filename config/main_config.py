@@ -38,7 +38,7 @@ _config_ini_values = {
 	'image_folder': ConfigValue('Paths', ConfigValueType.FolderPath, os.path.join(data_dir, 'images'), 'Image folder', 'Folder to store images extracted from games with embedded images'),
 
 	'get_series_from_name': ConfigValue('General', ConfigValueType.Bool, False, 'Get series from name', 'Attempt to get series from parsing name'),
-	'use_banner_as_icon': ConfigValue('General', ConfigValueType.Bool, False, 'Use banner as icon', 'If there is a banner image but not an icon, use that as icon'),
+	'use_other_images_as_icons': ConfigValue('General', ConfigValueType.StringList, [], 'Use other images as icons', 'If there is no icon, use these images as icons if they are there'),
 	'sort_multiple_dev_names': ConfigValue('General', ConfigValueType.Bool, False, 'Sort multiple developer/publisher names', 'For games with multiple entities in developer/publisher field, sort alphabetically'),
 
 	'skipped_source_files': ConfigValue('Arcade', ConfigValueType.StringList, [], 'Skipped source files', 'List of MAME source files to skip (not including extension)'),

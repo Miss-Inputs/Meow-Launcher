@@ -169,10 +169,11 @@ def make_linux_desktop(launch_params, display_name, fields=None):
 				section_writer[k.replace('_', '-')] = value_as_string
 
 	if image_section_name in configwriter:
-		if 'Icon' in configwriter[image_section_name]:
-			desktop_entry['Icon'] = configwriter[image_section_name]['Icon']
-		elif main_config.use_banner_as_icon and 'Banner' in configwriter[image_section_name]:
-			desktop_entry['Icon'] = configwriter[image_section_name]['Banner']
+		keys_to_try = ['Icon'] + main_config.use_other_images_as_icons
+		for k in keys_to_try:
+			if k in configwriter[image_section_name]:
+				desktop_entry['Icon'] = configwriter[image_section_name][k]
+				break
 
 	ensure_exist(path)
 	with open(path, 'wt') as f:
