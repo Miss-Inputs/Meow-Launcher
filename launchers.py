@@ -134,12 +134,7 @@ def make_linux_desktop(launch_params, display_name, fields=None):
 	desktop_entry['Name'] = display_name
 	desktop_entry['Exec'] = launch_params.make_linux_command_string()
 
-	icon_entry = None
-	try_banner_instead = False
 	if fields:
-		if main_config.use_banner_as_icon and 'Icon' not in fields[image_section_name]:
-			try_banner_instead = True
-
 		for section_name, section in fields.items():
 			if not section:
 				continue
@@ -172,12 +167,12 @@ def make_linux_desktop(launch_params, display_name, fields=None):
 
 				value_as_string = common.clean_string(value_as_string)
 				section_writer[k.replace('_', '-')] = value_as_string
-				if (k == 'Banner') if try_banner_instead else (k == 'Icon'):
-					icon_entry = value_as_string
-					#Maybe should skip putting this in the images section, but eh, it's fine
 
-	if icon_entry:
-		desktop_entry['Icon'] = common.clean_string(icon_entry)
+	if image_section_name in configwriter:
+		if 'Icon' in configwriter[image_section_name]:
+			desktop_entry['Icon'] = configwriter[image_section_name]['Icon']
+		elif main_config.use_banner_as_icon and 'Banner' in configwriter[image_section_name]:
+			desktop_entry['Icon'] = configwriter[image_section_name]['Banner']
 
 	ensure_exist(path)
 	with open(path, 'wt') as f:
