@@ -172,7 +172,7 @@ class DefaultMameExecutable():
 
 image_config_keys = {
 	'Cabinet': 'cabinets_directory',
-	'Control Panel': 'cpanels_directory',
+	'Control-Panel': 'cpanels_directory',
 	'PCB': 'pcbs_directory',
 	'Flyer': 'flyers_directory',
 	'Title-Screen': 'titles_directory',
