@@ -555,9 +555,9 @@ def find_software_by_name(software_lists, name):
 		name_without_brackety_bois = remove_filename_tags(name)
 		software_normalized_name = normalize_name(software_name_without_brackety_bois)
 		normalized_name = normalize_name(name_without_brackety_bois)
-		name_tags = [t.lower()[1:-1] for t in find_filename_tags_at_end.findall(name)]
+		name_tags = [t.lower()[1:-1] for t in find_filename_tags_at_end(name)]
 		#Sometimes (often) these will appear as (Region, Special Version) and not (Region) (Special Version) etc, so let's dismantle them
-		software_tags = ', '.join([t.lower()[1:-1] for t in find_filename_tags_at_end.findall(part.software.description)]).split(', ')
+		software_tags = ', '.join([t.lower()[1:-1] for t in find_filename_tags_at_end(part.software.description)]).split(', ')
 		
 		if software_normalized_name != normalized_name:
 			if name_without_brackety_bois in subtitles:
@@ -611,12 +611,12 @@ def find_software_by_name(software_lists, name):
 			'Ned': 'Netherlands',
 			'Bra': 'Brazil',
 		}
-		name_brackets = [t.lower()[1:-1] for t in find_filename_tags_at_end.findall(name)]
+		name_brackets = [t.lower()[1:-1] for t in find_filename_tags_at_end(name)]
 		for match in fuzzy_name_matches:
 			#Narrow down by region
 			#Sometimes (often) these will appear as (Region, Special Version) and not (Region) (Special Version) etc, so let's dismantle them
 			#TODO: Don't narrow down by region if we don't have to, e.g. a region is in the name but nowhere in the software name
-			match_brackets = ', '.join([t.lower()[1:-1] for t in find_filename_tags_at_end.findall(match.description)]).split(', ')
+			match_brackets = ', '.join([t.lower()[1:-1] for t in find_filename_tags_at_end(match.description)]).split(', ')
 			for abbrev_region, region in regions.items():				
 				if (abbrev_region.lower() in match_brackets or region.lower() in match_brackets) and region.lower() in name_brackets:
 					name_and_region_matches.append(match)
@@ -626,7 +626,7 @@ def find_software_by_name(software_lists, name):
 
 		name_and_region_and_version_matches = []
 		for match in name_and_region_matches:
-			match_brackets = ', '.join([t.lower()[1:-1] for t in find_filename_tags_at_end.findall(match.description)]).split(', ')
+			match_brackets = ', '.join([t.lower()[1:-1] for t in find_filename_tags_at_end(match.description)]).split(', ')
 			if 'v1.1' in match_brackets:
 				if 'v1.1' in name_brackets or 'reprint' in name_brackets or 'rerelease' in name_brackets or 'rev 1' in name_brackets:
 					name_and_region_and_version_matches.append(match)

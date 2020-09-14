@@ -116,7 +116,7 @@ def add_metadata_from_arcade(game, machine):
 	#Well, I guess not much else can be inferred here. Still, though!
 		
 def add_alternate_names(rom, metadata):
-	tags_at_end = find_filename_tags_at_end.findall(rom.name)
+	tags_at_end = find_filename_tags_at_end(rom.name)
 	name = remove_filename_tags(rom.name)
 
 	#Unlikely that there would be an "aaa (bbb ~ ccc)" but still
@@ -136,7 +136,7 @@ def add_alternate_names(rom, metadata):
 		#I refuse to let "Golden Axe" be the alternate name when that's a completely different thing
 		return
 		
-	primary_name_tags = find_filename_tags_at_end.findall(primary_name)
+	primary_name_tags = find_filename_tags_at_end(primary_name)
 	if tags_at_end:
 		if not primary_name_tags:
 			#This stuff in brackets was probably a part of the whole thing, not the last alternate name

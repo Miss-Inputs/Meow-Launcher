@@ -419,7 +419,7 @@ class Machine():
 			#These don't use the / as a delimiter for alternate names, they're like two things in one or whatever
 			return
 
-		tags_at_end = find_filename_tags_at_end.findall(self.name)
+		tags_at_end = find_filename_tags_at_end(self.name)
 		name = remove_filename_tags(self.name)
 		if ' / ' not in name:
 			#We don't want to touch Blah (Fgsfds / Zzzz) (or bother trying to do something for a name that never had any / in it to begin with)
@@ -429,7 +429,7 @@ class Machine():
 		primary_name = splitty_bois[0]
 		alt_names = splitty_bois[1:]
 
-		primary_name_tags = find_filename_tags_at_end.findall(primary_name)
+		primary_name_tags = find_filename_tags_at_end(primary_name)
 		if tags_at_end:
 			if not primary_name_tags:
 				#This stuff in brackets was probably a part of the whole thing, not the last alternate name

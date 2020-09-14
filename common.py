@@ -1,17 +1,31 @@
 import re
 
-find_filename_tags_at_end = re.compile(r'(?:(\([^)]+?\)+|\[[^]]+?\]+)\s*)+$')
-find_brackets = re.compile(r'(\([^)]+?\)+|\[[^]]+?\]+)')
+find_brackets = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)')
+find_brackets_at_end = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)$')
+
+def _find_tags(name):
+	#Where did I come up with the word "tags" anyway
+	result = name
+	tags = []
+	while True:
+		search = find_brackets_at_end.search(result)
+		if not search:
+			break
+		tags.append(search[0])
+		start = search.span()[0]
+		result = result[:start]
+		if not result:
+			#Handle the whole name being (all in parentheses)
+			return name, []
+		if result[-1] == ' ':
+			result = result[:-1]
+	return result, tags[::-1]
+
+def find_filename_tags_at_end(name):
+	return _find_tags(name)[1]
+
 def remove_filename_tags(name):
-	stripped_name = find_filename_tags_at_end.sub('', name)
-	if not stripped_name:
-		#Handle weird hipster games that have (one thing in parentheses) as the title for no good reason
-		stripped_name = name
-
-	if stripped_name[-1] == ' ':
-		stripped_name = stripped_name[:-1]
-
-	return stripped_name
+	return _find_tags(name)[0]
 
 words_regex = re.compile(r'[\w()]+')
 apostrophes_at_word_boundary_regex = re.compile(r"\B'|'\B")

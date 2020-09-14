@@ -80,7 +80,7 @@ class Test():
 
 	def run(self):
 		try:
-			tags = find_filename_tags_at_end.findall(self.filename)
+			tags = find_filename_tags_at_end(self.filename)
 
 			regions = get_regions_from_filename_tags(tags)
 			if not region_array_equal(regions, self.expected_regions):
