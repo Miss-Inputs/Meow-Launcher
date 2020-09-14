@@ -6,7 +6,7 @@ from config.main_config import main_config
 from config.system_config import system_configs
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 
-from .gametdb import add_info_from_tdb
+from .gametdb import add_info_from_tdb, TDB
 
 class NintendoDiscRegion(Enum):
 	# Also seems to be used for Wii discs and WiiWare
@@ -25,7 +25,7 @@ def load_tdb():
 		return None
 
 	try:
-		return ElementTree.parse(tdb_path)
+		return TDB(ElementTree.parse(tdb_path))
 	except (ElementTree.ParseError, OSError) as blorp:
 		if main_config.debug:
 			print('Oh no failed to load Wii TDB because', blorp)

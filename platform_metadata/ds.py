@@ -14,7 +14,7 @@ from config.system_config import system_configs
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import get_region_by_name
 
-from .gametdb import add_info_from_tdb
+from .gametdb import add_info_from_tdb, TDB
 from .wii import parse_ratings
 
 #TODO: Detect PassMe carts, and reject the rest of the header if so (well, product code and publisher)
@@ -29,7 +29,7 @@ def load_tdb():
 		return None
 
 	try:
-		return ElementTree.parse(tdb_path)
+		return TDB(ElementTree.parse(tdb_path))
 	except (ElementTree.ParseError, OSError) as blorp:
 		if main_config.debug:
 			print('Oh no failed to load DS TDB because', blorp)

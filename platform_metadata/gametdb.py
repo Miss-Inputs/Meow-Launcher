@@ -3,50 +3,56 @@ from common_types import SaveType
 from config.main_config import main_config
 from data.name_cleanup.gametdb_company_name_cleanup import company_name_cleanup
 
-def parse_genre(tdb, metadata, genre_list):
-	#genres = [g.title() for g in genre_list.split(',')]
-	genres = genre_list.split(',')
-	if 'software' in genres:
-		#This isn't really a genre so much as a category
-		genres.remove('software')
-	
-	if not genres:
-		return
+class TDB():
+	def __init__(self, xml):
+		self.xml = xml
+		
+		genre_element = xml.find('genres')
+		#Can assume this is here, and that all genres not in maingenres are subgenres
+		self.genres = {main_genre.attrib['name']: [subgenre.attrib['name'] for subgenre in main_genre.findall('subgenre')] for main_genre in genre_element.findall('maingenre')}
 
-	tdb_genres = tdb.find('genres')
-	#Can assume this is here, and that all genres not in maingenres are subgenres
-	tdb_main_genres = {main_genre.attrib['name']: [subgenre.attrib['name'] for subgenre in main_genre.findall('subgenre')] for main_genre in tdb_genres.findall('maingenre')}
+	def find_game(self, search_key):
+		return self.xml.find('game[id="{0}"]'.format(search_key))
 
-	main_genres = {}
-	for genre in genres:
-		if genre in tdb_main_genres.keys():
-			if genre not in main_genres:
-				main_genres[genre] = set()
-		else:
-			for main_genre, subgenres in tdb_main_genres.items():
-				for subgenre in subgenres:
-					if genre == subgenre:
-						if main_genre in ('general', 'theme', 'traditional', 'others'):
-							if subgenre not in main_genres:
-								main_genres[subgenre] = set()
-						else:
-							if main_genre not in main_genres:
-								main_genres[main_genre] = set()
-							main_genres[main_genre].add(genre)
-							break
+	def parse_genre(self, metadata, genre_list):
+		#genres = [g.title() for g in genre_list.split(',')]
+		genres = genre_list.split(',')
+		if 'software' in genres:
+			#This isn't really a genre so much as a category
+			genres.remove('software')
+		
+		if not genres:
+			return
+		
+		main_genres = {}
+		for genre in genres:
+			if genre in self.genres.keys():
+				if genre not in main_genres:
+					main_genres[genre] = set()
+			else:
+				for main_genre, subgenres in self.genres.items():
+					for subgenre in subgenres:
+						if genre == subgenre:
+							if main_genre in ('general', 'theme', 'traditional', 'others'):
+								if subgenre not in main_genres:
+									main_genres[subgenre] = set()
+							else:
+								if main_genre not in main_genres:
+									main_genres[main_genre] = set()
+								main_genres[main_genre].add(genre)
+								break
 
-	print(main_genres)
-	items = list(main_genres.items())
-	if items:
-		metadata.genre = items[0][0].title()
-		subgenres = items[0][1]
-		if subgenres:
-			metadata.subgenre = ', '.join([s.title() for s in subgenres])
-		if len(items) > 1:
-			metadata.specific_info['Additional-Genres'] = ', '.join([g[0].title() for g in items[1:]])
-			additional_subgenres = {s.title() for g in items[1:] for s in g[1]}
-			if additional_subgenres:
-				metadata.specific_info['Additional-Subgenres'] = ', '.join(additional_subgenres)
+		items = list(main_genres.items())
+		if items:
+			metadata.genre = items[0][0].title()
+			subgenres = items[0][1]
+			if subgenres:
+				metadata.subgenre = ', '.join([s.title() for s in subgenres])
+			if len(items) > 1:
+				metadata.specific_info['Additional-Genres'] = ', '.join([g[0].title() for g in items[1:]])
+				additional_subgenres = {s.title() for g in items[1:] for s in g[1]}
+				if additional_subgenres:
+					metadata.specific_info['Additional-Subgenres'] = ', '.join(additional_subgenres)
 			
 
 def clean_up_company_name(company_name):
@@ -69,7 +75,7 @@ def add_info_from_tdb(tdb, metadata, search_key):
 	if not tdb:
 		return
 
-	game = tdb.find('game[id="{0}"]'.format(search_key))
+	game = tdb.find_game(search_key)
 	if game is not None:
 		metadata.add_alternate_name(game.attrib['name'], 'GameTDB-Name')
 		#(Pylint is on drugs if I don't add more text here) id: What we just found
@@ -105,7 +111,7 @@ def add_info_from_tdb(tdb, metadata, search_key):
 
 		genre = game.findtext('genre')
 		if genre:
-			parse_genre(tdb, metadata, genre)
+			tdb.parse_genre(metadata, genre)
 		
 		rating = game.find('rating')
 		if rating is not None:

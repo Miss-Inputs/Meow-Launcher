@@ -18,7 +18,7 @@ from data.name_cleanup._3ds_publisher_overrides import consistentified_manufactu
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 
 from .wii import parse_ratings
-from .gametdb import add_info_from_tdb
+from .gametdb import add_info_from_tdb, TDB
 
 class _3DSRegionCode(Flag):
 	Japan = 1
@@ -69,7 +69,7 @@ def load_tdb():
 				if line.lstrip().startswith(b'<3DSTDB'):
 					continue
 				tdb_parser.feed(line)
-		return tdb_parser.close()
+		return TDB(tdb_parser.close())
 	except (ElementTree.ParseError, OSError) as blorp:
 		if main_config.debug:
 			print('Oh no failed to load 3DS TDB because', blorp)
