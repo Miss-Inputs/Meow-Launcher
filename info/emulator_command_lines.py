@@ -872,7 +872,7 @@ def mednafen_snes_faust(game, _, emulator_config):
 	return mednafen_module('snes_faust', exe_path=emulator_config.exe_path)
 
 #VICE
-def vice_c64_base(game):
+def vice_c64(game, _, emulator_config):
 	#http://vice-emu.sourceforge.net/vice_7.html#SEC94
 	#Eh, maybe I should sort this. Or maybe convert it into unsupported_cartridge_types which seems like it would be a smaller list.
 	supported_cartridge_types = [0, 1, 50, 35, 30, 9, 15, 34, 21, 24, 25, 26, 52, 17, 32, 10, 44, 13, 3, 29, 45, 46, 7, 42, 39, 2, 51, 19, 14, 28, 38, 5, 43, 27, 12, 36, 23, 4, 47, 31, 22, 48, 8, 40, 20, 16, 11, 18]
@@ -893,14 +893,8 @@ def vice_c64_base(game):
 	elif game.metadata.tv_type == TVSystem.PAL:
 		args += ['-model', 'pal']
 	args.append('$<path>')
-	return args
 
-def vice_c64(game, _, emulator_config):
-	#x64 and x64sc have the same command line structure, just different exe names
-	return LaunchParams(emulator_config.exe_path, vice_c64_base(game))
-
-def vice_c64_fast(game, _, emulator_config):
-	return LaunchParams(emulator_config.exe_path, vice_c64_base(game))
+	return LaunchParams(emulator_config.exe_path, args)
 
 def vice_c128(game, _, emulator_config):
 	args = ['-VDCfull']

@@ -105,7 +105,8 @@ emulators = {
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
 
 	'VICE (C64)': ViceEmulator(EmulatorStatus.Good, 'x64sc', command_lines.vice_c64),
-	'VICE (C64 Fast)': ViceEmulator(EmulatorStatus.Good, 'x64', command_lines.vice_c64_fast),
+	#x64 and x64sc have the same command line structure, just different exe names
+	'VICE (C64 Fast)': ViceEmulator(EmulatorStatus.Good, 'x64', command_lines.vice_c64),
 	'VICE (VIC-20)': ViceEmulator(EmulatorStatus.Good, 'xvic', command_lines.vice_vic20),
 	'VICE (Commodore PET)': ViceEmulator(EmulatorStatus.Good, 'xpet', command_lines.vice_pet),
 	'VICE (Plus/4)': ViceEmulator(EmulatorStatus.Good, 'xplus4', command_lines.vice_plus4),
