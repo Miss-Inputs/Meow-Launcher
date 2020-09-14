@@ -1,5 +1,5 @@
 company_name_cleanup = {
-	#Arguably all of this could be corrected in the actual database, but that requires them sending me the validation email and not all of this being objective
+	#Arguably all of this could be corrected in the actual database, but that requires them sending me the validation email and all of this being objective
 
 	#Oddities in formatting
 	'Alphadream': 'AlphaDream',
@@ -14,7 +14,7 @@ company_name_cleanup = {
 	'SEGA of America': 'Sega of America',
 
 	#wha
-	'Lucas': 'LucasArts',
+	'Lucas ': 'LucasArts',
 	
 	#Full names that people don't really use (a bit subjective)
 	'Bandai Namco Entertainment': 'Bandai Namco',

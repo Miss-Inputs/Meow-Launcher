@@ -3,17 +3,51 @@ from common_types import SaveType
 from config.main_config import main_config
 from data.name_cleanup.gametdb_company_name_cleanup import company_name_cleanup
 
-def parse_genre(_, metadata, genre_list):
-	genres = [g.title() for g in genre_list.split(',')]
-	if 'Software' in genres:
+def parse_genre(tdb, metadata, genre_list):
+	#genres = [g.title() for g in genre_list.split(',')]
+	genres = genre_list.split(',')
+	if 'software' in genres:
 		#This isn't really a genre so much as a category
-		genres.remove('Software')
+		genres.remove('software')
 	
-	if genres:
-		metadata.genre = genres[0]
-		if len(genres) > 1:
-			metadata.specific_info['Additional-Genres'] = genres[1:]
-			#TODO: Use the tdb to look at what's maingenre and what's a subgenre of those genres
+	if not genres:
+		return
+
+	tdb_genres = tdb.find('genres')
+	#Can assume this is here, and that all genres not in maingenres are subgenres
+	tdb_main_genres = {main_genre.attrib['name']: [subgenre.attrib['name'] for subgenre in main_genre.findall('subgenre')] for main_genre in tdb_genres.findall('maingenre')}
+
+	main_genres = {}
+	for genre in genres:
+		if genre in tdb_main_genres.keys():
+			if genre not in main_genres:
+				main_genres[genre] = set()
+		else:
+			for main_genre, subgenres in tdb_main_genres.items():
+				for subgenre in subgenres:
+					if genre == subgenre:
+						if main_genre in ('general', 'theme', 'traditional', 'others'):
+							if subgenre not in main_genres:
+								main_genres[subgenre] = set()
+						else:
+							if main_genre not in main_genres:
+								main_genres[main_genre] = set()
+							main_genres[main_genre].add(genre)
+							break
+
+	print(main_genres)
+	items = list(main_genres.items())
+	if items:
+		metadata.genre = items[0][0].title()
+		subgenres = items[0][1]
+		if subgenres:
+			metadata.subgenre = ', '.join([s.title() for s in subgenres])
+		if len(items) > 1:
+			metadata.specific_info['Additional-Genres'] = ', '.join([g[0].title() for g in items[1:]])
+			additional_subgenres = {s.title() for g in items[1:] for s in g[1]}
+			if additional_subgenres:
+				metadata.specific_info['Additional-Subgenres'] = ', '.join(additional_subgenres)
+			
 
 def clean_up_company_name(company_name):
 	whaa = {
