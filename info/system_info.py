@@ -73,6 +73,7 @@ systems = {
 	}),
 	'Switch': SystemInfo(None, [], ['Yuzu'], {MediaType.Cartridge: ['xci'], MediaType.Digital: ['nsp', 'nca'], MediaType.Executable: ['nro', 'nso', 'elf']}),
 	'Virtual Boy': SystemInfo('vboy', ['vboy'], ['Mednafen (Virtual Boy)', 'MAME (Virtual Boy)'], {MediaType.Cartridge: ['vb', 'vboy', 'bin']}),
+	'Vita': SystemInfo(None, [], [], {MediaType.Digital: ['vpk']}),
 	'Xbox': SystemInfo('xbox', [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xbe']}),
 	'Xbox 360': SystemInfo(None, [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xex']}),
 	'Wii': SystemInfo(None, [], ['Dolphin'], {MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz', 'wbfs', 'ciso', 'wia', 'rvz'], MediaType.Executable: ['dol', 'elf'], MediaType.Digital: ['wad']}, {
@@ -100,6 +101,7 @@ systems = {
 	'Channel F': SystemInfo('channelf', ['channelf'], ['MAME (Channel F)'], {MediaType.Cartridge: ['chf', 'bin']}),
 	'Coleco Telstar Arcade': SystemInfo(None, [], [], {}),
 	'CreatiVision': SystemInfo('crvision', ['crvision'], ['MAME (CreatiVision)'], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav']}),
+	'Dreamcast VMU': SystemInfo('svmu', ['svmu'], [], {MediaType.Executable: ['bin'], MediaType.Digital: ['vms']}),
 	'Entex Adventure Vision': SystemInfo('advision', ['advision'], ['MAME (Entex Adventure Vision)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Epoch Game Pocket Computer': SystemInfo('gamepock', ['gamepock'], ['MAME (Epoch Game Pocket Computer)'], {MediaType.Cartridge: ['bin']}),
 	'G7400': SystemInfo('g7400', ['g7400'], ['MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}),
@@ -122,8 +124,9 @@ systems = {
 	'Neo Geo CD': SystemInfo('neocdz', ['neocd'], ['MAME (Neo Geo CD)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'Nuon': SystemInfo(None, ['nuon'], [], {MediaType.OpticalDisc: ['iso']}),
 	'PC-FX': SystemInfo('pcfx', ['pcfx'], ['Mednafen (PC-FX)'], {MediaType.OpticalDisc: cdrom_formats}),
+	'PocketStation': SystemInfo('pockstat', [], [], {MediaType.Digital: ['gme']}),
 	'Pokemon Mini': SystemInfo('pokemini', ['pokemini'], ['PokeMini', 'PokeMini (wrapper)', 'MAME (Pokemon Mini)'], {MediaType.Cartridge: ['min', 'bin']}),
-	'Select-a-Game': SystemInfo('sag', ['entex_sag'], ['MAME (Select-a-Game)'], {MediaType.Cartridge: ['bin']}),
+	'RCA Studio 2': SystemInfo('studio2', ['studio2'], [], {MediaType.Cartridge: ['st2', 'bin', 'rom']}), #This console sucks and I hate it, anyway; I'd need to make multiple autoboot scripts that press F3 and then combinations of buttons depending on software list > usage somehow? God fuck I hate this console so much. PAL games (and some homebrew stuff) need mpt02'Select-a-Game': SystemInfo('sag', ['entex_sag'], ['MAME (Select-a-Game)'], {MediaType.Cartridge: ['bin']}),
 	'SG-1000': SystemInfo('sg1000', ['sg1000', 'sc3000_cart', 'sc3000_cass', 'sf7000'], ['Kega Fusion', 'MAME (SG-1000)'], {MediaType.Cartridge: ['sg', 'bin', 'sc'], MediaType.Tape: ['wav', 'bit'], MediaType.Floppy: mame_floppy_formats + ['sf', 'sf7']}),
 	"Super A'Can": SystemInfo('supracan', ['supracan'], ["MAME (Super A'Can)"], {MediaType.Cartridge: ['bin']}),
 	'Super Cassette Vision': SystemInfo('scv', ['scv'], ['MAME (Super Cassette Vision)'], {MediaType.Cartridge: ['bin']}),
@@ -131,6 +134,7 @@ systems = {
 	'Vectrex': SystemInfo('vectrex', ['vectrex'], ['MAME (Vectrex)'], {MediaType.Cartridge: ['vec', 'gam', 'bin']}),
 	'Watara Supervision': SystemInfo('svision', ['svision'], ['MAME (Watara Supervision)'], {MediaType.Cartridge: ['ws', 'sv', 'bin']}),
 	'ZAPit Game Wave': SystemInfo(None, [], [], {MediaType.OpticalDisc: ['iso']}),
+	'Zeebo': SystemInfo(None, [], [], {}), #Folders with "mif" and "mod"?
 
 	#Homebrew projects or whatever
 	'Arduboy': SystemInfo(None, [], [], {MediaType.Digital: ['arduboy'], MediaType.Executable: ['hex']}),
@@ -187,10 +191,12 @@ systems = {
 
 	#Addons for other systems that we're going to treat as separate things because it seems to make more sense that way, until it doesn't
 	'32X': SystemInfo('32x', ['32x'], ['Kega Fusion', 'MAME (32X)'], {MediaType.Cartridge: ['32x', 'bin']}),
+	'64DD': SystemInfo('n64dd', ['n64dd'], [], {MediaType.Floppy: ['ndd', 'ddd']}),
 	'e-Reader': SystemInfo('gba', ['gba_ereader'], [], {MediaType.Barcode: ['bin', 'raw', 'bmp']}),
 	'Jaguar CD': SystemInfo('jaguarcd', [], ['MAME (Jaguar CD)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'Mega CD': SystemInfo('megacdj', ['megacd', 'megacdj', 'segacd'], ['Kega Fusion', 'MAME (Mega CD)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'PC Engine CD': SystemInfo('pce', ['pcecd'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)'], {MediaType.OpticalDisc: cdrom_formats}),
+	'Play-Yan': SystemInfo('gba', [], [], {MediaType.Digital: ['asf']}),
 
 	#PDA type things that I don't really wanna put under computers
 	'Cybiko': SystemInfo('cybikov1', [], [], {MediaType.Digital: ['app']}),
@@ -200,6 +206,7 @@ systems = {
 	'Tapwave Zodiac': SystemInfo(None, [], [], {}), #File type is like, kinda .prc but kinda not (the device runs spicy PalmOS, would it be considered part of that if any of that was emulated?)
 	
 	#Computers that most people are here for (wew I'm being subjective again)
+	'Acorn Electron': SystemInfo('electron', ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl']}), #TODO Same Shift+Break shenanigans as BBC Micro
 	'Amiga': SystemInfo('a500', ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench'], ['FS-UAE'], {MediaType.Floppy: ['adf', 'ipf', 'dms']},
 		{'default_chipset': SystemConfigValue(ConfigValueType.String, 'AGA', 'Default chipset to use if a game doesn\'t specify what chipset it should use (AGA, OCS, ECS)')
 	}),
@@ -209,6 +216,7 @@ systems = {
 		{'basic_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to BASIC ROM for floppy software which requires that, or use "basicc" to use software')
 	}),
 	'Atari ST': SystemInfo('st', ['st_flop', 'st_cart'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Floppy: mame_floppy_formats + ['st', 'stx', 'msa']}),
+	'BBC Micro': SystemInfo('bbcb', ['bbca_cass', 'bbcb_cass', 'bbcb_cass_de', 'bbcb_flop', 'bbcb_flop_orig', 'bbc_flop_65c102', 'bbc_flop_6502', 'bbc_flop_32016', 'bbc_flop_68000', 'bbc_flop_80186', 'bbc_flop_arm', 'bbc_flop_torch', 'bbc_flop_z80'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl', 'fds', 'dsk', 'ima', 'ufi', '360'], MediaType.Cartridge: ['rom', 'bin']}), #TODO The key combination to boot a floppy is Shift+Break which is rather awkward to press, so I want an autoboot script
 	'C64': SystemInfo('c64', ['c64_cart', 'c64_cass', 'c64_flop', 'c64_flop_clcracked', 'c64_flop_orig', 'c64_flop_misc'], ['MAME (C64)', 'VICE (C64)', 'VICE (C64 Fast)'],
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}),
 	'FM Towns': SystemInfo('fmtmarty', ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats + ['bin'], MediaType.OpticalDisc: cdrom_formats}),
@@ -216,6 +224,7 @@ systems = {
 	'MSX': SystemInfo('svi738', ['msx1_cart', 'msx1_cass', 'msx1_flop'], ['MAME (MSX)', 'MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions}),
 	'MSX2': SystemInfo('fsa1wsx', ['msx2_cart', 'msx2_cass', 'msx2_flop', 'msx2p_flop'], ['MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions}),
 	'MSX Turbo-R': SystemInfo('fsa1st', ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
+	'PC-98': SystemInfo('pc9801rs', ['pc98', 'pc98_cd'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}), #TODO This does somewhat work, but I probably want to filter out stuff that requires HDD install (only some stuff autoboots from floppy)
 	'Sharp X68000': SystemInfo('x68000', ['x68k_flop'], ['MAME (Sharp X68000)'], {MediaType.Floppy: mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim'], MediaType.HardDisk: ['hdf']}),
 	'Tandy CoCo': SystemInfo('coco3', ['coco_cart', 'coco_flop'], ['MAME (Tandy CoCo)'], {MediaType.Cartridge: ['ccc', 'rom', 'bin'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: mame_floppy_formats + ['dmk', 'jvc'], MediaType.HardDisk: ['vhd']}),
 	'TRS-80': SystemInfo('trs80l2', [], ['MAME (TRS-80)'], {MediaType.Executable: ['cmd'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: ['dmk'] + mame_floppy_formats}),
@@ -225,11 +234,15 @@ systems = {
 
 	#Other computers
 	'Acorn Archimedes': SystemInfo('aa310', ['archimedes'], [], {MediaType.Floppy: mame_floppy_formats + ['adf']}), #TODO: Put MAME driver in there anyway, even if I need to click the thing
+	'Alice 32': SystemInfo('alice32', ['alice32', 'alice90'], [], {MediaType.Tape: ['wav', 'cas', 'c10', 'k7']}),
 	'Amstrad PCW': SystemInfo('pcw10', ['pcw'], ['MAME (Amstrad PCW)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['com']}),
+	'Apogey BK-01': SystemInfo('apogee', ['apogee'], [], {MediaType.Tape: ['wav', 'rka']}),
+	'Apple I': SystemInfo('apple1', ['apple1'], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['snp']}), #Loading tapes would require parsing software list usage to figure out where to put load addresses and things to make an autoboot script, because otherwise it's just way too messy to warrant being in a frontend. Snapshots supposedly exist, but I haven't seen any whoops
 	'Apple III': SystemInfo('apple3', ['apple3'], ['MAME (Apple III)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib', 'woz']}),
 	'Apple Lisa': SystemInfo('lisa', ['lisa'], [], {MediaType.Floppy: mame_floppy_formats + ['dc', 'dc42']}),
 	'Atari Portfolio': SystemInfo('pofo', ['pofo'], [], {MediaType.Cartridge: ['bin', 'rom']}),
 	'Bandai RX-78': SystemInfo('rx78', ['rx78'], ['MAME (Bandai RX-78)'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav']}),
+	'C64DTV': SystemInfo('c64dtv', [], [], {MediaType.Floppy: commodore_disk_formats, MediaType.Executable: ['prg']}),
 	'C128': SystemInfo('c128', ['c128_cart', 'c128_flop', 'c128_rom'], ['VICE (C128)'],
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}
 	),
@@ -241,21 +254,34 @@ systems = {
 	'Commodore PET': SystemInfo('pet2001', ['pet_cass', 'pet_flop', 'pet_hdd', 'pet_quik', 'pet_rom'], ['VICE (Commodore PET)'], {MediaType.Floppy: commodore_disk_formats, MediaType.Cartridge: ['bin', 'rom'], MediaType.Executable: ['prg', 'p00'], MediaType.Tape: ['wav', 'tap']}),
 	#Unsure which one the "main" driver is, or if some of them count as separate systems...
 	#TODO: This can work with MAME by using -quik and autoboot, and... there's cartridges? Huh?
+	'Electronika BK': SystemInfo('bk0011m', ['bk0010'], [], {MediaType.Tape: ['wav', 'tap'], MediaType.Floppy: mame_floppy_formats, MediaType.HardDisk: ['hdi'], MediaType.Executable: ['bin']}),
 	'FM-7': SystemInfo('fm7', ['fm7_cass', 'fm7_disk', 'fm77av'], ['MAME (FM-7)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav', 't77']}),
+	'Galaksija': SystemInfo('galaxyp', ['galaxy'], [], {MediaType.Snapshot: ['gal'], MediaType.Tape: ['wav', 'gtp']}), #This needs tape control automation to work with tapes (type OLD, then play tape, then RUN); dumps just need to press enter because MAME will type "RUN" for you. But not enter for you. Dunno why. Anyway, we'd go with those and make an autoboot script (maybe just -autoboot_command '\n' would work with suitable delay). galaxy is regular system, galaxyp is an upgraded one which appears to be completely backwards compatible
 	'IBM PCjr': SystemInfo('ibmpcjr', ['ibmpcjr_cart'], ['MAME (IBM PCjr)'], {MediaType.Cartridge: ['bin', 'jrc'], MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['exe', 'com', 'bat']}),
 	#Most software is going to go under DOS or PC Booter, but this would be the carts… hmm… does this make sense, actually
+	'Interact': SystemInfo('interact', ['interact'], [], {MediaType.Tape: ['wav', 'k7', 'cin', 'for']}),
 	'KC-85': SystemInfo('kc85_5', ['kc_cart', 'kc_cass', 'kc_flop'], ['MAME (KC-85)'], {MediaType.Executable: ['kcc'], MediaType.Tape: ['wav', 'kcb', 'tap', '853', '854', '855', 'tp2', 'kcm', 'sss'], MediaType.Cartridge: ['bin']}), #kcc might also be a tape format?? ehhhh???
+	'Luxor ABC80': SystemInfo('abc80', ['abc80_cass', 'abc80_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Snapshot: ['bac']}), #Requires "RUN " and the program name, where the program name is completely arbitrary and variable, so there's not really any way to do it automatically and programmatically
 	'Mattel Aquarius': SystemInfo('aquarius', ['aquarius'], ['MAME (Mattel Aquarius)'], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav', 'caq']}),
+	'Microbee': SystemInfo('mbee', [], [], {MediaType.Tape: ['wav', 'tap'], MediaType.Floppy: [mame_floppy_formats], MediaType.Executable: ['mwb', 'com', 'bee']}), #Also a second .bin quickload?
 	'Microtan 65': SystemInfo('mt65', ['mt65_snap'], ['MAME (Microtan 65)'], {MediaType.Tape: ['wav'], MediaType.Executable: ['hex'], MediaType.Snapshot: ['dmp', 'm65']}), #MAME driver was "microtan" prior to 0.212
+	'Mikrosha': SystemInfo('mikrosha', ['mikrosha_cart', 'mikrosha_cass'], [], {MediaType.Tape: ['wav', 'rkm'], MediaType.Cartridge: ['bin', 'rom']}),
+	'Oric': SystemInfo('orica', [], [], {MediaType.Tape: ['wav', 'tap']}),
+	'Orion-128': SystemInfo('orion128', ['orion_cart', 'orion_cass', 'orion_flop'], [], {MediaType.Tape: ['wav', 'rkp'], MediaType.Floppy: mame_floppy_formats + ['odi'], MediaType.Cartridge: ['bin']}),
 	'Panasonic JR-200': SystemInfo('jr200', [], []),
+	'Partner 01.01': SystemInfo('partner', ['partner_cass', 'partner_flop'], [], {MediaType.Tape: ['wav', 'rkp'], MediaType.Floppy: mame_floppy_formats + ['odi']}),
 	'PC Booter': SystemInfo('ibm5150', ['ibm5150'], ['MAME (IBM PCjr)', 'MAME (IBM PC)'], {MediaType.Floppy: mame_floppy_formats + ['img'], MediaType.Executable: ['exe', 'com', 'bat']}), #TODO: Reconsider this name; does it make more sense to be called "IBM PC"? Are PCjr carts not just PC booters that are carts instead of floppies (hot take)?
 	'PC-6001': SystemInfo('pc6001', [], ['MAME (PC-6001)'], {MediaType.Tape: ['cas', 'p6'], MediaType.Cartridge: generic_cart_extensions}),
 	'PC-88': SystemInfo('pc8801', ['pc8801_cass', 'pc8801_flop', 'pc8201', 'pc88va'], ['MAME (PC-88)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav']}),
+	'PDP-1': SystemInfo('pdp1', [], [], {MediaType.Tape: ['tap', 'rim']}), #TODO autoboot script; MAME needs us to press control panel key + read in, and then it does the thing and all is well
 	'Plus/4': SystemInfo('c16', ['plus4_cart', 'plus4_cass', 'plus4_flop'], ['VICE (Plus/4)'],
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}
 	), 	#Also includes C16 and C116 (I admit I am not cool enough to know the difference)
+	'PMD 85': SystemInfo('pmd853', ['pmd85_cass'], [], {MediaType.Tape: ['wav', 'pmd', 'tap', 'ptp']}), #This has quite a few variants and apparently works, pmd85.cpp has todos/notes. Notably, floppy interface and speaker apparently not there yet. Anyway, boo tapes
+	'Radio 86-RK': SystemInfo('radio86', ['radio86_cart', 'radio86_cass'], [], {MediaType.Tape: ['wav', 'rk', 'rkr', 'gam', 'g16', 'pki']}),
 	'Robotron Z1013': SystemInfo('z1013', [], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['z80']}),
 	'SAM Coupe': SystemInfo('samcoupe', ['samcoupe_cass', 'samcoupe_flop'], ['SimCoupe', 'MAME (SAM Coupe)'], {MediaType.Floppy: ['mgt', 'sad', 'dsk', 'sdf'], MediaType.Executable: ['sbt']}),
+	'Sharp MZ-700': SystemInfo('mz700', ['mz700'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt']}),
 	'Sharp MZ-800': SystemInfo('mz800', ['mz800'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt']}),
 	'Sharp MZ-2000': SystemInfo('mz2000', ['mz2000_cass', 'mz2000_flop'], ['MAME (Sharp MZ-2000)'], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt'], MediaType.Floppy: ['2d'] + mame_floppy_formats}),
 	'Sharp X1': SystemInfo('x1', ['x1_cass', 'x1_flop'], ['MAME (Sharp X1)'], {MediaType.Floppy: ['2d'] + mame_floppy_formats, MediaType.Tape: ['wav', 'tap']}),
@@ -266,6 +292,7 @@ systems = {
 	'SVI-3x8': SystemInfo('svi328', ['svi318_cart', 'svi318_cass', 'svi318_flop'], ['MAME (SVI-3x8)'], {MediaType.Tape: ['wav', 'cas'], MediaType.Cartridge: ['bin', 'rom']}),
 	'Thomson MO5': SystemInfo('mo5', ['mo5_cart', 'mo5_cass', 'mo5_flop', 'mo5_qd'], ['MAME (Thomson MO5)'], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}),
 	'Tomy Tutor': SystemInfo('tutor', ['tutor'], ['MAME (Tomy Tutor)'], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav']}),
+	'Toshiba Pasopia': SystemInfo('pasopia', ['pasopia_cass'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats}),	#Ow my freaking ears… every tape seems to take a long time to get anywhere
 	'VIC-10': SystemInfo('vic10', ['vic10'], ['MAME (VIC-10)'], {MediaType.Cartridge: ['crt', 'bin', '80', 'e0'], MediaType.Tape: ['wav', 'tap', 't64']}),
 	'VIC-20': SystemInfo('vic20', ['vic1001_cart', 'vic1001_cass', 'vic1001_flop'], ['MAME (VIC-20)', 'VICE (VIC-20)'],
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['wav', 'tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}
@@ -287,49 +314,10 @@ systems = {
 }
 
 #TODO: None of this stuff should be down here:
-systems.update({
-	#TODO: Put all these comments in emulator_info before putting these where they belong
-	'64DD': SystemInfo('n64dd', ['n64dd'], [], {MediaType.Floppy: ['ndd', 'ddd']}),
-	#Mupen64Plus would work, but right now it has issues with usability that it says right in the readme (so it's not just me picking on them, they say it themselves). Basically you have to have a cart inserted which has the same properties as the 64DD software you want to emulate, and that wouldn't work for our launchering purposes. MAME doesn't seem to work with .ndd format dumps
-	'Alice 32': SystemInfo('alice32', ['alice32', 'alice90'], [], {MediaType.Tape: ['wav', 'cas', 'c10', 'k7']}),
-	'Apple I': SystemInfo('apple1', ['apple1'], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['snp']}),
-	#Loading tapes would require parsing software list usage to figure out where to put load addresses and things to make an autoboot script, because otherwise it's just way too messy to warrant being in a frontend. Snapshots supposedly exist, but I haven't seen any evidence they actually do, so... whoops
-	'C64DTV': SystemInfo('c64dtv', [], [], {MediaType.Floppy: commodore_disk_formats, MediaType.Executable: ['prg']}),
-	#Commodore 64 plug and play UnsupportedSystem that has its own unique software, apparently. MAME driver is skeleton, and VICE doesn't seem to boot anything (it is noted as being WIP/experimental)
-	'Dreamcast VMU': SystemInfo('svmu', ['svmu'], [], {MediaType.Executable: ['bin'], MediaType.Digital: ['vms']}),
-	'Electronika BK': SystemInfo('bk0011m', ['bk0010'], [], {MediaType.Tape: ['wav', 'tap'], MediaType.Floppy: mame_floppy_formats, MediaType.HardDisk: ['hdi'], MediaType.Executable: ['bin']}),
-	#Preliminary driver and only supports .wav tapes as media
-	'Interact': SystemInfo('interact', ['interact'], [], {MediaType.Tape: ['wav', 'k7', 'cin', 'for']}),
-	#Eww, tapes (otherwise works I guess)
-	'Luxor ABC80': SystemInfo('abc80', ['abc80_cass', 'abc80_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Snapshot: ['bac']}),
-	#Requires "RUN " and the program name, where the program name is completely arbitrary and variable, so there's not really any way to do it automatically and programmatically
-	'Oric': SystemInfo('orica', [], [], {MediaType.Tape: ['wav', 'tap']}),
-	#MAME has oric1 as well... either way, they don't seem to actually load anything I've tried. There's no software lists, so nothing that says anything is supposed to work
-	#Oricutron loads things automatically and other nice things, but has issues with fullscreen
-	'PMD 85': SystemInfo('pmd853', ['pmd85_cass'], [], {MediaType.Tape: ['wav', 'pmd', 'tap', 'ptp']}),
-	#This has quite a few variants and apparently works, pmd85.cpp has todos/notes. Notably, floppy interface and speaker apparently not there yet. Anyway, boo tapes
-	'PocketStation': SystemInfo('pockstat', [], [], {MediaType.Digital: ['gme']}),
-	'Sharp MZ-700': SystemInfo('mz700', ['mz700'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt']}),
-	'Toshiba Pasopia': SystemInfo('pasopia', ['pasopia_cass'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats}),	#Ow my freaking ears… every tape seems to take a long time to get anywhere
-	'Radio 86-RK': SystemInfo('radio86', ['radio86_cart', 'radio86_cass'], [], {MediaType.Tape: ['wav', 'rk', 'rkr', 'gam', 'g16', 'pki']}),
-	#These and the other USSR systems below are all sorta the same (but might not be software-compatible?) anyway they only have tapes for software other than system stuff, and are mostly only emulated by MAME which has the ol' tape problems of having to type in weird commands, or that online thing which is online and not suitable for a launcher
-	'Mikrosha': SystemInfo('mikrosha', ['mikrosha_cart', 'mikrosha_cass'], [], {MediaType.Tape: ['wav', 'rkm'], MediaType.Cartridge: ['bin', 'rom']}),
-	'Apogey BK-01': SystemInfo('apogee', ['apogee'], [], {MediaType.Tape: ['wav', 'rka']}),
-	'Partner 01.01': SystemInfo('partner', ['partner_cass', 'partner_flop'], [], {MediaType.Tape: ['wav', 'rkp'], MediaType.Floppy: mame_floppy_formats + ['odi']}),
-	'Orion-128': SystemInfo('orion128', ['orion_cart', 'orion_cass', 'orion_flop'], [], {MediaType.Tape: ['wav', 'rkp'], MediaType.Floppy: mame_floppy_formats + ['odi'], MediaType.Cartridge: ['bin']}),
-	
+systems.update({	
 	#TODO: Requires an autoboot script for these to work smoothly, or otherwise effort that I haven't done yet:
-	'Acorn Electron': SystemInfo('electron', ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl']}),
-	#Seems to require the same Shift+Break to boot as BBC Micro, so... dang
-	'BBC Micro': SystemInfo('bbcb', ['bbca_cass', 'bbcb_cass', 'bbcb_cass_de', 'bbcb_flop', 'bbcb_flop_orig', 'bbc_flop_65c102', 'bbc_flop_6502', 'bbc_flop_32016', 'bbc_flop_68000', 'bbc_flop_80186', 'bbc_flop_arm', 'bbc_flop_torch', 'bbc_flop_z80'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl', 'fds', 'dsk', 'ima', 'ufi', '360'], MediaType.Cartridge: ['rom', 'bin']}),
-	#The key combination to boot a floppy is Shift+Break which is rather awkward to press especially every time you just want to use some software, so I'm not going anywhere without an autoboot script
-	#Otherwise, it does seem to boot floppies..
 	'Cambridge Z88': SystemInfo('z88', ['z88_cart'], [], {MediaType.Cartridge: ['epr', 'bin']}),
 	#Marked as not working due to missing expansion interface and serial port and other things, not sure how important that would be... anyway, I'd need to do an autoboot thing to press the key to start the thing, because otherwise it's annoying to navigate every time, and then... hmm, I guess I dunno what actually is a function of things not working yet
-	'Galaksija': SystemInfo('galaxyp', ['galaxy'], [], {MediaType.Snapshot: ['gal'], MediaType.Tape: ['wav', 'gtp']}),
-	#This needs tape control automation to work with tapes (type OLD, then play tape, then RUN); dumps just need to press enter because MAME will type "RUN" for you. But not enter for you. Dunno why. Anyway, we'd go with those and make an autoboot script (maybe just -autoboot_command '\n' would work with suitable delay). galaxy is regular system, galaxyp is an upgraded one which appears to be completely backwards compatible
-	'RCA Studio 2': SystemInfo('studio2', ['studio2'], [], {MediaType.Cartridge: ['st2', 'bin', 'rom']}),
-	#This console sucks and I hate it, anyway; I'd need to make multiple autoboot scripts that press F3 and then combinations of buttons depending on software list > usage. God fuck I hate this console so much. PAL games (and some homebrew stuff) need mpt02
 	'Thomson MO6': SystemInfo('mo6', ['mo6_cass', 'mo6_flop'], [], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}),
 	#MO6 is an upgraded model, Prodest PC 128 is an Italian MO6
 	#Floppies work (and cassettes and carts have same problem as MO5), but this time we need to press the F1 key and I don't waaaanna do that myself
@@ -338,11 +326,7 @@ systems.update({
 	'TI-99': SystemInfo('ti99_4a', ['ti99_cart'], [], {MediaType.Cartridge: ['bin', 'rpk', 'c', 'g'], MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats}),
 	#Carts need to press the any key and then 2 to actually load them. Floppies are the most asinine irritating thing ever fuck it
 	#Actually if we can detect that a floppy has Extended BASIC autoboot that could work with an autoboot script in the same way that cartridges work
-	'PDP-1': SystemInfo('pdp1', [], [], {MediaType.Tape: ['tap', 'rim']}),
-	#MAME needs us to press control panel key + read in, and then it does the thing and all is well
-	'PC-98': SystemInfo('pc9801rs', ['pc98', 'pc98_cd'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}),
-	#This does somewhat work, but I may have to filter out stuff that requires HDD install (only some stuff autoboots from floppy)
-
+	
 	#TODO: Things that I haven't been able to check work or not, or just haven't entirely:
 	'Acorn Atom': SystemInfo('atom', ['atom_cass', 'atom_flop', 'atom_rom'], [], {MediaType.Floppy: ['40t', 'dsk'], MediaType.Tape: ['wav', 'tap', 'csw', 'uef'], MediaType.Executable: ['atm'], MediaType.Cartridge: ['bin', 'rom']}),
 	'Amstrad CPC': SystemInfo('cpc464', ['cpc_cass', 'cpc_flop'], [], {MediaType.Snapshot: ['sna'], MediaType.Tape: ['wav', 'cdt'], MediaType.Floppy: mame_floppy_formats}),
@@ -376,10 +360,7 @@ systems.update({
 
 	#Things where I can't be fucked right now making a SystemInfo object:
 	#Altair 8800 (is 8800bt a different thing)
-	#Microbee: This works except joysticks (I don't even see anything that mentions joysticks existing other than some games that ask for it), quik1 and flop1 both autoboot but the latter is only present on the newer models that have MACHINE_NOT_WORKING
-	#TIC-80 (is that a real system or a "fantasy" one I forgot) (no MAME driver)
-	#Vita (cbf to use Vita3K)
-	#Zeebo (good luck finding emulation, this would probably just be a placeholder)
+	#TIC-80 (one of those non-existent systems)
 	#Sharp MZ-2200 (could be part of MZ-2000? If it's compatible with MZ-2000 software, just use it as the main system for both)
 	#TRS-80 Model 3
 	#TRS-80 MC-10
@@ -392,11 +373,9 @@ systems.update({
 	#Bandai Super Note Club: Part of VTech Genius Leader (supports glccolor software list), or its own thing (has snotec software list)?
 	#Jupiter Ace (ZX Spectrum clone but has different compatibility?)
 	#PalmOS: Not sure if there would be something which can just run .prc files or whatsitcalled
-	#Amstrad PC20/Sinclair PC200: Is this just IBM PC compatible stuff? Have one demoscene prod which claims to be for it specifically
+	#Amstrad PC20/Sinclair PC200: Is this just IBM PC compatible stuff? Have seen one demoscene prod which claims to be for it specifically
 	#Epoch (not Super) Cassette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
 	#Pioneer LaserActive probably just counts as Mega CD and PC Engine CD except with Laserdisc instead of CD, but I'll worry about that when emulation for it becomes a thing
-	#Play-Yan: Part of GBA or counts as a separate thing? (Doesn't matter at this point since no emulation)
-
 })
 
 class PCSystem():
