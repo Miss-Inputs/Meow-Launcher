@@ -62,6 +62,7 @@ systems = {
 	'N64': SystemInfo('n64', ['n64'], ['Mupen64Plus', 'MAME (N64)'], {MediaType.Cartridge: ['z64', 'v64', 'n64', 'bin']}, 
 		{'prefer_controller_pak_over_rumble': SystemConfigValue(ConfigValueType.Bool, True, 'If a game can use both the Controller Pak and the Rumble Pak, use the Controller Pak')
 	}),
+	'Neo Geo AES': SystemInfo('aes', ['neogoeo'], [], {MediaType.Cartridge: ['bin']}), #For software list usage
 	'Neo Geo Pocket': SystemInfo('ngpc', ['ngp', 'ngpc'], ['Mednafen (Neo Geo Pocket)', 'MAME (Neo Geo Pocket)'], {MediaType.Cartridge: ['ngp', 'npc', 'ngc', 'bin']}),
 	'NES': SystemInfo('nes', ['nes', 'nes_ade', 'nes_datach', 'nes_kstudio', 'nes_ntbrom', 'famicom_cass', 'famicom_flop'], ['Mednafen (NES)', 'MAME (NES)', 'cxNES'], {MediaType.Cartridge: ['nes', 'unf', 'unif'], MediaType.Floppy: ['fds', 'qd']}, {
 		'set_fds_as_different_platform': SystemConfigValue(ConfigValueType.Bool, False, 'Set the platform of FDS games to FDS instead of leaving them as NES'),
@@ -309,8 +310,6 @@ systems.update({
 	#Stuff that at the moment is only useful in mame_software.py, but it is here for reference or if some other emulator shows up
 	'Commodore 65': SystemInfo('c65', ['c65_flop'], [], {MediaType.Floppy: commodore_disk_formats}),
 	#This was actually never released, but there's software for it anyway. However, this is only supported by MAME, and it seems it only supports loading by software lists (there are no media slots), which won't work for our purposes at this point in time
-	'Neo Geo AES': SystemInfo('aes', ['neogoeo'], [], {MediaType.Cartridge: ['bin']}),
-	#Theoretically this works, but fullpath loading only works as a single .bin file which nothing ever is dumped as. This would only ever be useful with software list support. As for separate Neo Geo emulators... well, they all only seem interested in MVS and CD
 	
 	#Things that have usability issues that make things unsuitable for launchering purposes at this point in time, but otherwise might well work
 	'64DD': SystemInfo('n64dd', ['n64dd'], [], {MediaType.Floppy: ['ndd', 'ddd']}),
