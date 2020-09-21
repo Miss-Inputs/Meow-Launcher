@@ -380,6 +380,46 @@ emulators = {
 	'MAME (Pocket Challenge W)': MameDriver(EmulatorStatus.Borked, mame_driver_callable('pockchal', 'cart'), ['bin', 'pcw']),
 	'MAME (V.Reader)': MameDriver(EmulatorStatus.Borked, mame_driver_callable('vreader', 'cart'), ['bin']),
 	'MAME (V.Smile Pro)': MameDriver(EmulatorStatus.Borked, mame_driver_callable('vsmilpro', 'cdrom'), mame_cdrom_formats),
+
+	#TODO: Comments from system_info that indicate I feel the need to create an autoboot for stuff (because I guess typing arcane shit just sucks too much, and yeah it does make me think that some tapes_are_okay or menus_are_okay option is needed)
+	#z88: 	#Marked as not working due to missing expansion interface and serial port and other things, not sure how important that would be... anyway, I'd need to do an autoboot thing to press the key to start the thing, because otherwise it's annoying to navigate every time, and then... hmm, I guess I dunno what actually is a function of things not working yet
+	#mo6: #Floppies work (and cassettes and carts have same problem as MO5), but this time we need to press the F1 key and I don't waaaanna do that myself
+	#to7/to8: 	#Fuck I hate this. Carts need to press 1 on TO7 or press the button with the lightpen on TO8/9 and also they suck, floppies need BASIC cart inserted on TO7 (and then the same method to boot that cart) or press B on TO8/9, tapes are a shitload of fuck right now (same broken as MO5/MO6), not all of this seems to be cross compatible so might need to separate systems or work out what's going on there
+	#ti99_4a: 	#Carts need to press the any key and then 2 to actually load them. Floppies are the most asinine irritating thing ever fuck it Actually if we can detect that a floppy has Extended BASIC autoboot that could work with an autoboot script in the same way that cartridges work
+	#studio2: #This console sucks and I hate it, anyway; I'd need to make multiple autoboot scripts that press F3 and then combinations of buttons depending on software list > usage somehow? God fuck I hate this console so much. PAL games (and some homebrew stuff) need mpt02
+	#bbcb: The key combination to boot a floppy is Shift+Break which is rather awkward to press, so I want an autoboot script
+	#galaxy/galaxyp:  #This needs tape control automation to work with tapes (type OLD, then play tape, then RUN); dumps just need to press enter because MAME will type "RUN" for you. But not enter for you. Dunno why. Anyway, we'd go with those and make an autoboot script (maybe just -autoboot_command '\n' would work with suitable delay). galaxy is regular system, galaxyp is an upgraded one which appears to be completely backwards compatible
+	#abc80: #Requires "RUN " and the program name, where the program name is completely arbitrary and variable, so there's not really any way to do it automatically and programmatically
+	#pdp1: MAME needs us to press control panel key + read in, and then it does the thing and all is well
+	#zx81: 	#Gotta press J and then Shift+P twice to type LOAD "" and then enter, and then start the tape, and then wait and then press run, and it seems if you screw up any step at all you gotta reset the whole thing baaggghghh which is why I haven't bothered trying more of this
+
+	#Have not gotten around to trying:
+	#atom
+	#CPC/CPC+, maybe CPC+ and GX4000 should be merged?
+	#pcw16 	#Marked as MACHINE_NOT_WORKING and MAME pcw.cpp mentions needing an OS rescue disk, probably doesn't work conveniently or at all
+	#apfimag
+	#bbcm
+	#sorcerer:	#Would need automated tape loading to do anything interesting (carts and floppies are just BASIC/OS stuff, also what even is the file type for floppies?) hnmn so probably not
+	#fc100
+	#mtx512
+	#vector06: 	#MAME driver is marked as working but clones are not; needs to hold F2 then press F11 then F12 to boot from cartridge so that may be wacky; and I can't get that working, not sure if floppies/tapes do work
+	#mc10 hmm tapes tho
+	#cd2650
+	#instruct
+	#pipbug
+	#nascom/nascom2c
+	#cgenie
+	#CBM-II
+	#compis
+	#ep128 #hhhhh needs isdos from software list for floppies I think
+	#dragon64
+
+	#Do the thing idiot:
+	#mbee
+	#TODO: Commodore PET can work with MAME by using -quik and autoboot, apparently?
+	#TODO Add the FM Towns Not-Marty driver coward
+	#TODO PC-98 does somewhat work, but I probably want to filter out stuff that requires HDD install (only some stuff autoboots from floppy)
+	#TODO: Put Acorn Archimedes MAME driver in there anyway, even if I need to click the thing, I think that is not too unreasonable
 }
 
 class MacEmulator():
