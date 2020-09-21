@@ -295,8 +295,8 @@ systems = {
 	'Robotron Z1013': SystemInfo(['z1013'], [], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['z80']}),
 	'SAM Coupe': SystemInfo(['samcoupe'], ['samcoupe_cass', 'samcoupe_flop'], ['SimCoupe', 'MAME (SAM Coupe)'], {MediaType.Floppy: ['mgt', 'sad', 'dsk', 'sdf'], MediaType.Executable: ['sbt']}),
 	'Sharp MZ-700': SystemInfo(['mz700'], ['mz700'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt']}),
-	'Sharp MZ-800': SystemInfo(['mz800'], ['mz800'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt']}),
-	'Sharp MZ-2000': SystemInfo(['mz2000'], ['mz2000_cass', 'mz2000_flop'], ['MAME (Sharp MZ-2000)'], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt'], MediaType.Floppy: ['2d'] + mame_floppy_formats}),
+	'Sharp MZ-800': SystemInfo(['mz800', 'mz1500'], ['mz800'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt']}),
+	'Sharp MZ-2000': SystemInfo(['mz2000', 'mz80b'], ['mz2000_cass', 'mz2000_flop', 'mz2200_cass'], ['MAME (Sharp MZ-2000)'], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt'], MediaType.Floppy: ['2d'] + mame_floppy_formats}),
 	'Sharp X1': SystemInfo(['x1'], ['x1_cass', 'x1_flop'], ['MAME (Sharp X1)'], {MediaType.Floppy: ['2d'] + mame_floppy_formats, MediaType.Tape: ['wav', 'tap']}),
 	'Sinclair QL': SystemInfo(['ql', 'tonto'], ['ql_cart', 'ql_cass', 'ql_flop'], [], {MediaType.Tape: ['mdv'], MediaType.Cartridge: ['bin', 'rom'], MediaType.Floppy: mame_floppy_formats}),
 	'Sony SMC-777': SystemInfo(['smc777'], ['smc777'], ['MAME (Sony SMC-777)'], {MediaType.Floppy: mame_floppy_formats + ['1dd'], MediaType.Executable: ['com', 'cpm']}),
@@ -332,7 +332,6 @@ systems = {
 #Things where I can't be fucked right now making a SystemInfo object:
 #Altair 8800 (is 8800bt a different thing)
 #TIC-80 (one of those non-existent systems)
-#Sharp MZ-2200 (could be part of MZ-2000? If it's compatible with MZ-2000 software, just use it as the main system for both)
 #TRS-80 Model 3
 #TRS-80 MC-10
 #Hitachi S1
@@ -347,7 +346,6 @@ systems = {
 #Amstrad PC20/Sinclair PC200: Is this just IBM PC compatible stuff? Have seen one demoscene prod which claims to be for it specifically
 #Epoch (not Super) Cassette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
 #Pioneer LaserActive probably just counts as Mega CD and PC Engine CD except with Laserdisc instead of CD, but I'll worry about that when emulation for it becomes a thing
-#MZ-1500 related to MZ-700/800? MZ-80B related to MZ-2000?
 
 class PCSystem():
 	def __init__(self, options):
