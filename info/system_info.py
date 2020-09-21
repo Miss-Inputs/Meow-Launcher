@@ -271,6 +271,7 @@ systems = {
 	#Most software is going to go under DOS or PC Booter, but this would be the carts… hmm… does this make sense, actually
 	'Instructor 50': SystemInfo(['instruct'], [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['pgm']}),
 	'Interact': SystemInfo(['interact', 'hec2hrp'], ['interact'], [], {MediaType.Tape: ['wav', 'k7', 'cin', 'for']}),
+	'Jupiter Ace': SystemInfo(['jupace'], ['jupace_snap', 'jupace_cass'], [], {MediaType.Tape: ['wav', 'tap'], MediaType.Snapshot: ['ace']}),
 	'KC-85': SystemInfo(['kc85_2'], ['kc_cart', 'kc_cass', 'kc_flop'], ['MAME (KC-85)'], {MediaType.Executable: ['kcc'], MediaType.Tape: ['wav', 'kcb', 'tap', '853', '854', '855', 'tp2', 'kcm', 'sss'], MediaType.Cartridge: ['bin']}), #kcc might also be a tape format?? ehhhh???
 	'Luxor ABC80': SystemInfo(['abc80'], ['abc80_cass', 'abc80_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Snapshot: ['bac']}), 'Mattel Aquarius': SystemInfo(['aquarius'], ['aquarius'], ['MAME (Mattel Aquarius)'], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav', 'caq']}),
 	'Memotech MTX': SystemInfo(['mtx512'], ['mtx_cart', 'mtx_cass', 'mtx_rom'], [], {MediaType.Snapshot: ['mtx'], MediaType.Executable: ['run'], MediaType.Tape: ['wav'], MediaType.Cartridge: ['bin', 'rom']}),
@@ -341,11 +342,10 @@ systems = {
 #Which of TI calculators are software compatible with which (and hence which ones would be considered individual systems)?
 	#TI-73, 81, 82, 83x, 84x, 85, 86 are Z80; 89, 92x are M68K
 #Bandai Super Note Club: Part of VTech Genius Leader (supports glccolor software list), or its own thing (has snotec software list)?
-#Jupiter Ace (ZX Spectrum clone but has different compatibility?)
 #PalmOS: Not sure if there would be something which can just run .prc files or whatsitcalled
 #Amstrad PC20/Sinclair PC200: Is this just IBM PC compatible stuff? Have seen one demoscene prod which claims to be for it specifically
 #Epoch (not Super) Cassette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
-#Pioneer LaserActive probably just counts as Mega CD and PC Engine CD except with Laserdisc instead of CD, but I'll worry about that when emulation for it becomes a thing
+#Pioneer LaserActive probably just counts as Mega CD and PC Engine CD except with Laserdisc instead of CD, but I'll worry about that when emulation for it becomes a thing (it is in there as laseract as a Sega CD derivative)
 
 class PCSystem():
 	def __init__(self, options):

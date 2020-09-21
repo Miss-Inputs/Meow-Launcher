@@ -414,6 +414,7 @@ emulators = {
 	#compis
 	#ep128 #hhhhh needs isdos from software list for floppies I think
 	#dragon64
+	#jupace
 
 	#Do the thing idiot:
 	#mbee
