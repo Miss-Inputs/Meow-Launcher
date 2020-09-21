@@ -188,11 +188,6 @@ def add_metadata(game):
 	
 	if equivalent_arcade:
 		add_metadata_from_arcade(game, equivalent_arcade)
-	if 'Icon' not in game.metadata.images:
-		if main_config.use_mame_system_icons:
-			system_icon = get_image(image_config_keys['Icon'], mame_driver)
-			if system_icon:
-				game.metadata.images['Icon'] = system_icon
 
 	get_metadata_from_tags(game)
 	get_metadata_from_regions(game)

@@ -1,35 +1,5 @@
 from software_list_info import get_software_list_entry
 
-def _set_mame_driver(metadata, machine, chipset):
-	driver = {
-		'A1000': 'a1000', 
-		'A1200': 'a1200', 
-		'A2000': 'a2000', 
-		#'A2024': '', 
-		#'A2500': '', 
-		'A3000': 'a3000', 
-		#'A3000UX': '',
-		'A4000': 'a4000',
-		'A4000T': 'a4000t',
-		'A500': 'a500', 
-		'A500+': 'a500p', 
-		#'A570': '', 
-		'A600': 'a600', 
-		#'A600HD': '',
-	}.get(machine)
-	if driver:
-		metadata.mame_driver = driver
-		return
-	
-	driver = {
-		'OCS': 'a500',
-		'ECS': 'a600',
-		'AGA': 'a1200',
-	}.get(chipset)
-	if driver:
-		metadata.mame_driver = driver
-		return
-
 def add_amiga_metadata(game):
 	software = get_software_list_entry(game)
 	chipset = None
@@ -98,4 +68,3 @@ def add_amiga_metadata(game):
 				chipset = 'OCS'
 				break
 	game.metadata.specific_info['Chipset'] = chipset
-	game.metadata.mame_driver = _set_mame_driver(game.metadata, game.metadata.specific_info.get('Machine'), chipset)
