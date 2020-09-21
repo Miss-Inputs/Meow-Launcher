@@ -388,6 +388,7 @@ emulators = {
 	#ti99_4a: 	#Carts need to press the any key and then 2 to actually load them. Floppies are the most asinine irritating thing ever fuck it Actually if we can detect that a floppy has Extended BASIC autoboot that could work with an autoboot script in the same way that cartridges work
 	#studio2: #This console sucks and I hate it, anyway; I'd need to make multiple autoboot scripts that press F3 and then combinations of buttons depending on software list > usage somehow? God fuck I hate this console so much. PAL games (and some homebrew stuff) need mpt02
 	#bbcb: The key combination to boot a floppy is Shift+Break which is rather awkward to press, so I want an autoboot script
+	#electron: Same
 	#galaxy/galaxyp:  #This needs tape control automation to work with tapes (type OLD, then play tape, then RUN); dumps just need to press enter because MAME will type "RUN" for you. But not enter for you. Dunno why. Anyway, we'd go with those and make an autoboot script (maybe just -autoboot_command '\n' would work with suitable delay). galaxy is regular system, galaxyp is an upgraded one which appears to be completely backwards compatible
 	#abc80: #Requires "RUN " and the program name, where the program name is completely arbitrary and variable, so there's not really any way to do it automatically and programmatically
 	#pdp1: MAME needs us to press control panel key + read in, and then it does the thing and all is well
