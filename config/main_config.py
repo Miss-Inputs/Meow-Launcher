@@ -44,7 +44,7 @@ _config_ini_values = {
 	'skipped_source_files': ConfigValue('Arcade', ConfigValueType.StringList, [], 'Skipped source files', 'List of MAME source files to skip (not including extension)'),
 	'exclude_non_arcade': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude non-arcade', 'Skip machines not categorized as arcade games or as any other particular category (various devices and gadgets, etc)'),
 	'exclude_pinball': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude pinball', 'Whether or not to skip pinball games (physical pinball, not video pinball)'),
-	'exclude_standalone_systems': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude standalone systems', 'Skip machines categorized as "standalone systems" (computers, game consoles, etc)'),
+	'exclude_system_drivers': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude system drivers', 'Skip machines used to launch other software (computers, consoles, etc)'),
 	'exclude_non_working': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude non-working', 'Skip any driver marked as not working'),
 	'non_working_whitelist': ConfigValue('Arcade', ConfigValueType.StringList, [], 'Non-working whitelist', 'If exclude_non_working is True, allow these machines anyway even if they are marked as not working'),
 

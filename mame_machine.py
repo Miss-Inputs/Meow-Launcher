@@ -6,6 +6,7 @@ from common import (find_filename_tags_at_end, normalize_name,
 from common_types import EmulationStatus
 from config.main_config import main_config
 from data.subtitles import subtitles
+from info.system_info import all_mame_drivers
 from mame_helpers import (consistentify_manufacturer, get_mame_xml,
                           list_by_source_file)
 from mame_metadata import (add_metadata_from_catlist, get_machine_folder,
@@ -505,7 +506,7 @@ class Machine():
 	@property
 	def family_name(self):
 		return self.parent.name if self.has_parent else self.name
-
+	
 	@property
 	def source_file(self):
 		return os.path.splitext(self.xml.attrib['sourcefile'])[0]
@@ -753,7 +754,12 @@ class Machine():
 			if series not in not_real_series:
 				return remove_capital_article(series)
 		return None
+		
+	@property
+	def is_system_driver(self):
+		return self.family in all_mame_drivers
 
+	
 def get_machine(driver):
 	return Machine(get_mame_xml(driver))
 

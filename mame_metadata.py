@@ -128,20 +128,6 @@ def add_status(machine):
 	if unemulated_features:
 		machine.metadata.specific_info['MAME-Unemulated-Features'] = unemulated_features
 
-#Stealing this from mame_machines.py while I'm still using it there
-#These all indicate something that _is_ a plug & play system if they exist
-plug_and_play_software_lists = ('vii', 'jakks_gamekey', 'ekara')
-def is_plug_and_play(machine):
-	#"Game Console / Home Videogame Console" in catlist.ini doesn't differentiate between plug & play systems that are meant to be used by themselves, and normal consoles which are meant to be used by other software. So, we'll do that ourselves
-	if machine.software_lists:
-		for software_list in machine.software_lists:
-			if software_list.startswith(plug_and_play_software_lists):
-				return True
-		return False
-
-	#Hmm...
-	return True
-
 def add_metadata_from_catlist(machine):
 	category, genre, subgenre, nsfw = get_category(machine.basename)
 	if category == 'Unknown' and machine.has_parent:
@@ -240,17 +226,14 @@ def add_metadata_from_catlist(machine):
 			machine.metadata.categories = ['Games']
 		return
 
-	if (genre == 'Computer' and subgenre in ('Business - Terminal', 'Home System', 'Laptop - Notebook - Portable', 'Child Computer', 'Microcomputer')) or (genre == 'Calculator' and subgenre == 'Pocket Computer') or (genre == 'Handheld' and subgenre in ('Pocket Device - Pad - PDA', 'Child Computer')) or (genre == 'Board Game') or (genre == 'Utilities' and subgenre in ('Arcade System', 'Redemption Board')) or (genre == 'Misc.' and subgenre == 'Virtual Environment'):
-		#Board Game is more like chess machines than actual board games
-		#Hmm, need a better name for this I think
-		machine.metadata.platform = 'Standalone System'
 	if genre == 'Game Console' and subgenre == 'Home Videogame':
-		if is_plug_and_play(machine):
+		if machine.is_system_driver:
 			machine.metadata.platform = 'Plug & Play'
 			if not machine.metadata.categories:
 				machine.metadata.categories = ['Games']
 		else:
-			machine.metadata.platform = 'Standalone System'
+			#machine.metadata.platform = 'Standalone System'
+			pass
 	if genre == 'Utilities' and subgenre == 'Update':
 		machine.metadata.categories = ['Applications']
 	if genre == 'Misc.' and subgenre in ('Electronic Game', 'Electronic Board Game'):
@@ -275,7 +258,9 @@ def add_metadata_from_catlist(machine):
 		#Home Videogame Console seems to be used for stuff that would be normally excluded due to having software lists and hence being a platform for other software (e.g. GBA), or stuff that ends up there because it has no software list yet (e.g. Gizmondo, Sony PocketStation), but also some stuff like kcontra (Contra handheld) that should definitely be called a handheld, or various "plug & play" (except without the plug) stuff like BittBoy 300 in 1 or VG Pocket
 		#Anyway that's why I put that there
 		#Other genres of handheld: Pocket Device - Pad - PDA; Child Computer (e.g. Speak & Spell) but those seem more suited to Standalone System particularly the former
-		machine.metadata.platform = 'Handheld' if is_plug_and_play(machine) else 'Standalone System'
+		if machine.is_system_driver:
+			#Hmm
+			machine.metadata.platform = 'Handheld'
 	if genre == 'Misc.' and subgenre == 'Unknown':
 		machine.metadata.genre = 'Unknown'
 	

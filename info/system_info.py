@@ -352,6 +352,8 @@ systems = {
 	}, is_virtual=True),
 }
 
+all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers]
+
 #Things where I can't be fucked right now making a SystemInfo object:
 #Altair 8800 (is 8800bt a different thing)
 #TIC-80 (one of those non-existent systems)

@@ -17,7 +17,7 @@ def is_actually_machine(machine):
 	if machine.xml.attrib.get('runnable', 'yes') == 'no':
 		return False
 
-	if machine.xml.attrib.get('isbios', 'no') == 'yes':
+	if machine.xml.attrib.get('isbios', 'no') == 'yes': #Hmm, technically there's nothing stopping you launching these
 		return False
 
 	if machine.xml.attrib.get('isdevice', 'no') == 'yes':
@@ -36,7 +36,7 @@ def does_user_want_machine(machine):
 		return False
 	if main_config.exclude_pinball and machine.metadata.platform == 'Pinball':
 		return False
-	if main_config.exclude_standalone_systems and machine.metadata.platform == 'Standalone System':
+	if main_config.exclude_system_drivers and machine.is_system_driver:
 		return False
 
 	return True
