@@ -191,6 +191,7 @@ emulators = {
 	'MAME (Memorex VIS)': MameDriver(EmulatorStatus.Good, mame_driver_callable('vis', 'cdrom'), mame_cdrom_formats),
 	'MAME (MSX)': MameDriver(EmulatorStatus.Good, command_lines.mame_msx1, generic_cart_extensions + mame_floppy_formats),
 	'MAME (MSX2)': MameDriver(EmulatorStatus.Good, command_lines.mame_msx2, generic_cart_extensions + mame_floppy_formats),
+	'MAME (MSX2+)': MameDriver(EmulatorStatus.Good, command_lines.mame_msx2plus, generic_cart_extensions + mame_floppy_formats),
 	'MAME (Neo Geo CD)': MameDriver(EmulatorStatus.Good, mame_driver_callable('neocdz', 'cdrom'), mame_cdrom_formats),
 	#Don't think it has region lock so I should never need to use neocdzj? (neocd doesn't work, apparently because it thinks it has the drive tray open constantly)
 	'MAME (Neo Geo Pocket)': MameDriver(EmulatorStatus.Good, mame_driver_callable('ngpc', 'cart'), ['bin', 'ngp', 'npc', 'ngc']),

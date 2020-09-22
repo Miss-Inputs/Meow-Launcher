@@ -47,14 +47,9 @@ working_msx2_drivers = other_msx2_drivers + arabic_msx2_drivers + korean_msx2_dr
 broken_msx2_drivers = ['cpg120', 'y503iiir', 'y805256', 'mbh70', 'victhc95', 'hotbit20', 'mpc27', 'nms8260', 'mpc2300', 'mpc2500f', 'phc77', 'hbf1', 'hbf12']
 msx2_drivers = working_msx2_drivers + broken_msx2_drivers
 
-working_msx2plus_drivers = ['fsa1fx', 'fsa1wxa', 'fsa1wsx', 'hbf1xdj', 'hbf1xv', 'phc70fd2', 'phc35j', 'hbf9sp']
+working_msx2plus_drivers = ['hbf1xv', 'fsa1fx', 'fsa1wxa', 'fsa1wsx', 'hbf1xdj', 'phc70fd2', 'phc35j', 'hbf9sp']
 broken_msx2plus_drivers = ['expert3i', 'expert3t', 'expertac', 'expertdx']
 msx2plus_drivers = working_msx2plus_drivers + broken_msx2plus_drivers
-
-#Since we are combining MSX2 and MSX2+ for now
-all_working_msx2_drivers = working_msx2plus_drivers + working_msx2_drivers
-all_japanese_msx2_drivers = working_msx2plus_drivers + japanese_msx2_drivers
-all_msx2_drivers = msx2_drivers + msx2plus_drivers
 
 msxtr_drivers = ['fsa1gt', 'fsa1st'] #Neither of these are working
 
@@ -251,7 +246,8 @@ systems = {
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}),
 	'FM Towns': SystemInfo(['fmtowns', 'fmtmarty'], ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats + ['bin'], MediaType.OpticalDisc: cdrom_formats}),
 	'MSX': SystemInfo(msx1_drivers, ['msx1_cart', 'msx1_cass', 'msx1_flop'], ['MAME (MSX)', 'MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions}),
-	'MSX2': SystemInfo(all_msx2_drivers, ['msx2_cart', 'msx2_cass', 'msx2_flop', 'msx2p_flop'], ['MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions}),
+	'MSX2': SystemInfo(msx2_drivers, ['msx2_cart', 'msx2_cass', 'msx2_flop'], ['MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions}),
+	'MSX2+': SystemInfo(msx2plus_drivers, ['msx2p_flop'], [], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions}),
 	'MSX Turbo-R': SystemInfo(msxtr_drivers, ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
 	'PC-98': SystemInfo(['pc9801f', 'pc9801rs', 'pc9801ux', 'pc9821'], ['pc98', 'pc98_cd'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}),
 	'Sharp X68000': SystemInfo(['x68000'], ['x68k_flop'], ['MAME (Sharp X68000)'], {MediaType.Floppy: mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim'], MediaType.HardDisk: ['hdf']}),

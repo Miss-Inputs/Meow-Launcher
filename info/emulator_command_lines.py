@@ -496,7 +496,21 @@ def mame_msx1(game, _, emulator_config):
 
 def mame_msx2(game, _, emulator_config):
 	system = 'hbf1xv'
-	#This one is MSX2+ and seems to have all the features, fsa1wsx makes you press "0" to go to BASIC for disks
+	slot_options = {}
+	if game.metadata.media_type == MediaType.Floppy:
+		#Defaults to 35ssdd, but 720KB disks need this one instead
+		slot_options['fdc:0'] = '35dd'
+		slot = 'flop1'
+	elif game.metadata.media_type == MediaType.Cartridge:
+		slot = 'cart1'
+	else:
+		#Should not happen
+		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
+
+	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True)
+
+def mame_msx2plus(game, _, emulator_config):
+	system = 'hbf1xv'
 	slot_options = {}
 	if game.metadata.media_type == MediaType.Floppy:
 		#Defaults to 35ssdd, but 720KB disks need this one instead
