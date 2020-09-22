@@ -31,6 +31,33 @@ class SystemInfo():
 				return media_type
 		return None
 
+arabic_msx1_drivers = ['ax150', 'ax170', 'svi738ar']
+japanese_msx1_drivers = ['fmx', 'mbh2', 'mbh25', 'mbh50', 'mlf110', 'mlf120', 'cf1200', 'cf2000', 'cf2700', 'cf3000', 'cf3300', 'fs1300', 'fs4000', 'mpc64', 'hb701fd', 'hc7', 'cx5f']
+korean_msx1_drivers = ['cpc88', 'dpc200', 'gsfc80u', 'cpc51', 'gfc1080', 'gfc1080a', 'mx64']
+other_msx1_drivers = ['svi728', 'svi738', 'canonv8', 'canonv20', 'mx10', 'pv7', 'pv16', 'dpc200e', 'dgnmsx', 'fdpc200', 'fpc500', 'fspc800', 'bruc100', 'gsfc200', 'jvchc7gb', 'mlf48', 'mlf80', 'mlfx1', 'phc2', 'phc28', 'cf2700g', 'perfect1', 'nms801', 'vg8010', 'vg802020', 'piopx7', 'spc800', 'mpc100', 'mpc200', 'phc28l', 'phc28s', 'mpc10', 'hb10p', 'hb101p', 'hb20p', 'hb201p', 'hb501p', 'hb55p', 'hb75p', 'hx10', 'hx20', 'cx5m128', 'yis303', 'yis503', 'yc64', 'expert13', 'expertdp', 'expertpl', 'hotbi13p'] #Anything that isn't one of those other three (which are apparently specifically different or needed in some cases)
+working_msx1_drivers = other_msx1_drivers + arabic_msx1_drivers + japanese_msx1_drivers + korean_msx1_drivers
+broken_msx1_drivers = ['hx21', 'hx22']
+msx1_drivers = working_msx1_drivers + broken_msx1_drivers
+
+arabic_msx2_drivers = ['ax350', 'ax370']
+korean_msx2_drivers = ['cpc300', 'cpc300e', 'cpc330k', 'cpc400', 'cpc400s', 'cpc61']
+japanese_msx2_drivers = ['kmc5000', 'mlg10', 'fs5500f2', 'fs4500', 'fs4700', 'fs5000', 'fs4600', 'fsa1a', 'fsa1mk2', 'fsa1f', 'fsa1fm', 'nms8250j', 'hbf500', 'hbf900a', 'hx33', 'yis604', 'phc23', 'phc55fd2', 'hbf1xd', 'hbf1xdm2']
+other_msx2_drivers = ['canonv25', 'canonv30', 'fpc900', 'expert20', 'mlg1', 'mlg3', 'mlg30', 'nms8220a', 'vg8230', 'vg8235', 'vg8240', 'nms8245', 'nms8255', 'nms8280', 'mpc25fd', 'hx34i', 'fstm1', 'hbf5', 'hbf9p', 'hbf500p', 'hbf700p', 'hbg900ap', 'hbg900p', 'tpc310', 'tpp311', 'tps312', 'hx23i', 'cx7m128']
+working_msx2_drivers = other_msx2_drivers + arabic_msx2_drivers + korean_msx2_drivers + japanese_msx2_drivers
+broken_msx2_drivers = ['cpg120', 'y503iiir', 'y805256', 'mbh70', 'victhc95', 'hotbit20', 'mpc27', 'nms8260', 'mpc2300', 'mpc2500f', 'phc77', 'hbf1', 'hbf12']
+msx2_drivers = working_msx2_drivers + broken_msx2_drivers
+
+working_msx2plus_drivers = ['fsa1fx', 'fsa1wxa', 'fsa1wsx', 'hbf1xdj', 'hbf1xv', 'phc70fd2', 'phc35j', 'hbf9sp']
+broken_msx2plus_drivers = ['expert3i', 'expert3t', 'expertac', 'expertdx']
+msx2plus_drivers = working_msx2plus_drivers + broken_msx2plus_drivers
+
+#Since we are combining MSX2 and MSX2+ for now
+all_working_msx2_drivers = working_msx2plus_drivers + working_msx2_drivers
+all_japanese_msx2_drivers = working_msx2plus_drivers + japanese_msx2_drivers
+all_msx2_drivers = msx2_drivers + msx2plus_drivers
+
+msxtr_drivers = ['fsa1gt', 'fsa1st'] #Neither of these are working
+
 systems = {
 	#Put all the "most normal people would be interested in" consoles up here, which is completely subjective and not even the same as my own personal view of notable, not to mention completely meaningless because it's a dict and the order shouldn't matter, and even if it did, ROMs are scanned in the order they're listed in systems.ini anyway. I guess it makes this a bit easier to read than having a huge wall of text though
 	'3DS': SystemInfo([], [], ['Citra'], {MediaType.Cartridge: ['3ds'], MediaType.Digital: ['cxi'], MediaType.Executable: ['3dsx']}, {
@@ -223,9 +250,9 @@ systems = {
 	'C64': SystemInfo(['c64'], ['c64_cart', 'c64_cass', 'c64_flop', 'c64_flop_clcracked', 'c64_flop_orig', 'c64_flop_misc'], ['MAME (C64)', 'VICE (C64)', 'VICE (C64 Fast)'],
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}),
 	'FM Towns': SystemInfo(['fmtowns', 'fmtmarty'], ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats + ['bin'], MediaType.OpticalDisc: cdrom_formats}),
-	'MSX': SystemInfo(['svi738'], ['msx1_cart', 'msx1_cass', 'msx1_flop'], ['MAME (MSX)', 'MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions}),
-	'MSX2': SystemInfo(['fsa1wsx'], ['msx2_cart', 'msx2_cass', 'msx2_flop', 'msx2p_flop'], ['MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions}),
-	'MSX Turbo-R': SystemInfo(['fsa1st'], ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
+	'MSX': SystemInfo(msx1_drivers, ['msx1_cart', 'msx1_cass', 'msx1_flop'], ['MAME (MSX)', 'MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions}),
+	'MSX2': SystemInfo(all_msx2_drivers, ['msx2_cart', 'msx2_cass', 'msx2_flop', 'msx2p_flop'], ['MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions}),
+	'MSX Turbo-R': SystemInfo(msxtr_drivers, ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
 	'PC-98': SystemInfo(['pc9801f', 'pc9801rs', 'pc9801ux', 'pc9821'], ['pc98', 'pc98_cd'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}),
 	'Sharp X68000': SystemInfo(['x68000'], ['x68k_flop'], ['MAME (Sharp X68000)'], {MediaType.Floppy: mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim'], MediaType.HardDisk: ['hdf']}),
 	'Tandy CoCo': SystemInfo(['coco'], ['coco_cart', 'coco_flop'], ['MAME (Tandy CoCo)'], {MediaType.Cartridge: ['ccc', 'rom', 'bin'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: mame_floppy_formats + ['dmk', 'jvc'], MediaType.HardDisk: ['vhd']}),
