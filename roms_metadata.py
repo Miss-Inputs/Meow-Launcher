@@ -168,12 +168,6 @@ def add_metadata(game):
 		#For anything else, use this one to just get basic software list info.
 		#This would only work for optical discs if they are in .chd format though. Also see MAME GitHub issue #2517, which makes a lot of newly created CHDs invalid with older softlists
 		platform_metadata.generic_helper(game)
-
-	mame_driver = None
-	if game.metadata.mame_driver:
-		mame_driver = game.metadata.mame_driver
-	elif game.system_name in system_info.systems:
-		mame_driver = system_info.systems[game.system_name].mame_driver
 				
 	equivalent_arcade = game.metadata.specific_info.get('Equivalent-Arcade')
 	if not equivalent_arcade and main_config.find_equivalent_arcade_games:
