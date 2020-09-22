@@ -227,13 +227,10 @@ def add_metadata_from_catlist(machine):
 		return
 
 	if genre == 'Game Console' and subgenre == 'Home Videogame':
-		if machine.is_system_driver:
+		if not machine.is_system_driver:
 			machine.metadata.platform = 'Plug & Play'
 			if not machine.metadata.categories:
 				machine.metadata.categories = ['Games']
-		else:
-			#machine.metadata.platform = 'Standalone System'
-			pass
 	if genre == 'Utilities' and subgenre == 'Update':
 		machine.metadata.categories = ['Applications']
 	if genre == 'Misc.' and subgenre in ('Electronic Game', 'Electronic Board Game'):
@@ -258,7 +255,7 @@ def add_metadata_from_catlist(machine):
 		#Home Videogame Console seems to be used for stuff that would be normally excluded due to having software lists and hence being a platform for other software (e.g. GBA), or stuff that ends up there because it has no software list yet (e.g. Gizmondo, Sony PocketStation), but also some stuff like kcontra (Contra handheld) that should definitely be called a handheld, or various "plug & play" (except without the plug) stuff like BittBoy 300 in 1 or VG Pocket
 		#Anyway that's why I put that there
 		#Other genres of handheld: Pocket Device - Pad - PDA; Child Computer (e.g. Speak & Spell) but those seem more suited to Standalone System particularly the former
-		if machine.is_system_driver:
+		if not machine.is_system_driver:
 			#Hmm
 			machine.metadata.platform = 'Handheld'
 	if genre == 'Misc.' and subgenre == 'Unknown':
