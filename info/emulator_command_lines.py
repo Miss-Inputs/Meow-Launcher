@@ -278,6 +278,22 @@ def mame_dreamcast(game, _, emulator_config):
 	#No interesting slot options...
 	return mame_driver(game, emulator_config, system, 'cdrom')
 
+def mame_fm_towns(game, _, emulator_config):
+	#Hmm… does this really need to be here along with fmtmarty when they are mostly identical
+	if game.metadata.media_type == MediaType.Floppy:
+		slot = 'flop1'
+	elif game.metadata.media_type == MediaType.OpticalDisc:
+		slot = 'cdrom'
+	else:
+		#Should never happen
+		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
+	
+	#Give us 10 meganbytes of RAM because we can (some software requires 4MB ram for example)
+	#Hopefully nothing requires 2MB explicitly or less
+	options = {'ramsize': '10M'}
+	#Vanilla fmtowns seems to be a bit crashy? It is all MACHINE_NOT_WORKING anyway so nothing is expected
+	return mame_driver(game, emulator_config, 'fmtownsux', slot, options)
+
 def mame_fm_towns_marty(game, _, emulator_config):
 	if game.metadata.media_type == MediaType.Floppy:
 		slot = 'flop1'
