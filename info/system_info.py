@@ -362,7 +362,7 @@ systems = {
 }
 
 #For Machine.is_system_driver to work correctly
-ibmpc_drivers = ['ibm5150', 'ibm5170']
+ibmpc_drivers = ['ibm5150', 'ibm5170', 'pcipc', 'pcipctx', 'nforcepc']
 mac_drivers = ['mac128k', 'macplus', 'macse', 'macsefd', 'macclasc', 'macii', 'mac2fdhd', 'macprtb', 'maciici', 'maciifx', 'maclc', 'maciisi', 'macpb100', 'macpb140', 'macclas2', 'maclc2', 'macpb160', 'macpd210', 'maccclas', 'maclc3', 'maciivx', 'maclc520', 'pmac6100']
 
 all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers] + ibmpc_drivers + mac_drivers
