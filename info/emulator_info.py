@@ -284,6 +284,7 @@ emulators = {
 	'MAME (GameKing 3)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('gamekin3', 'cart'), ['bin', 'gk3']),
 	'MAME (Hartung Game Master)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('gmaster', 'cart'), ['bin']),
 	#Hmm... says not working and imperfect sound. I guess it does run the games, though
+	'MAME (Microbee)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_microbee, ['mwb', 'com', 'bee'] + mame_floppy_formats),
 	'MAME (PC-6001)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('pc6001', 'cart1', has_keyboard=True), ['bin', 'rom']),
 	#Preliminary and notes in source file comments it doesn't load tapes yet (the cart2 slot seems to be a hack that does that)
 	#Use pc6001a for USA version if needed, pc6001mk2 and pc6001sr might also do something, pc6601 should have a floppy drive but doesn't yet

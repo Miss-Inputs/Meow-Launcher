@@ -480,6 +480,17 @@ def mame_megadrive(game, _, emulator_config):
 			system = 'megadriv'
 	return mame_driver(game, emulator_config, system, 'cart')
 
+def mame_microbee(game, _, emulator_config):
+	system = 'mbeepc' #Either will do but this gives us colour (although mbeeppc seems to not play nicely with quickload)
+	if game.metadata.media_type == MediaType.Executable:
+		slot = 'quik1'
+	elif game.metadata.media_type == MediaType.Floppy:
+		system = 'mbee128'#We need a system with a floppy drive, this is apparently not working but it seems fine (the other floppy ones do not seem fine)
+		slot = 'flop1'
+	else:
+		raise EmulationNotSupportedException('Unknown media type', game.metadata.media_type)
+	return mame_driver(game, emulator_config, system, slot, has_keyboard=True)
+
 _msx1_system = None
 def mame_msx1(game, _, emulator_config):
 	#Possible slot options: centronics is there to attach printers and such; if using a floppy can put bm_012 (MIDI interface) or moonsound (OPL4 sound card, does anything use that?) in the cart port but I'm not sure that's needed; the slots are the same for MSX2
