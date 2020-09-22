@@ -176,13 +176,6 @@ def process_file(system_config, rom_dir, root, rom):
 	launch_params = None
 
 	for potential_emulator_name in potential_emulators:
-		if potential_emulator_name not in emulator_info.emulators:
-			print(potential_emulator_name, 'is not a valid emulator')
-			continue
-		if potential_emulator_name not in system_info.systems[system_config.name].emulators:
-			print(potential_emulator_name, 'is not a valid emulator for', system_info.systems[system_config.name])
-			continue
-
 		try:
 			potential_emulator = emulator_info.emulators[potential_emulator_name]
 			potential_emulator_config = emulator_configs[potential_emulator_name]
@@ -236,6 +229,12 @@ def sort_m3u_first():
 used_m3u_filenames = []
 def process_emulated_system(system_config):
 	time_started = time.perf_counter()
+
+	for emulator_name in system_config.chosen_emulators:
+		if emulator_name not in emulator_info.emulators:
+			print('Config warning:', emulator_name, 'is not a valid emulator')
+		elif emulator_name not in system_info.systems[system_config.name].emulators:
+			print('Config warning:', emulator_name, 'is not a valid emulator for', system_config.name)
 
 	for rom_dir in system_config.paths:
 		for root, _, files in os.walk(rom_dir):
