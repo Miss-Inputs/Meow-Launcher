@@ -177,7 +177,10 @@ def process_file(system_config, rom_dir, root, rom):
 
 	for potential_emulator_name in potential_emulators:
 		if potential_emulator_name not in emulator_info.emulators:
-			#Should I warn about this? hmm
+			print(potential_emulator_name, 'is not a valid emulator')
+			continue
+		if potential_emulator_name not in system_info.systems[system_config.name].emulators:
+			print(potential_emulator_name, 'is not a valid emulator for', system_info.systems[system_config.name])
 			continue
 
 		try:
@@ -275,18 +278,8 @@ def process_emulated_system(system_config):
 		time_ended = time.perf_counter()
 		print(system_config.name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
-
-def validate_emulator_choices(system_config, system):
-	for chosen_emulator in system_config.chosen_emulators:
-		if chosen_emulator not in system.emulators:
-			print(chosen_emulator, 'is not valid for', system_config.name)
-			return False
-	return True
-
 def process_system(system_config):
 	if system_config.name in system_info.systems:
-		if not validate_emulator_choices(system_config, system_info.systems[system_config.name]):
-			return
 		process_emulated_system(system_config)
 	else:
 		#Let DOS and Mac fall through, as those are in systems.ini but not handled here
