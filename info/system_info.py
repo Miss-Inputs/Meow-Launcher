@@ -119,6 +119,7 @@ systems = {
 	'Bandai Super Vision 8000': SystemInfo(['sv8000'], ['sv8000'], ['MAME (Bandai Super Vision 8000)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'C2 Color': SystemInfo(['c2color'], ['c2color_cart'], ['MAME (C2 Color)'], {MediaType.Cartridge: ['bin']}),
 	'Casio PV-1000': SystemInfo(['pv1000'], ['pv1000'], ['MAME (Casio PV-1000)'], {MediaType.Cartridge: generic_cart_extensions}),
+	'Champion 2711': SystemInfo(['unichamp'], ['unichamp'], [], {MediaType.Cartridge: generic_cart_extensions}),
 	'Channel F': SystemInfo(['channelf', 'channlf2'], ['channelf'], ['MAME (Channel F)'], {MediaType.Cartridge: ['chf', 'bin']}),
 	'Coleco Telstar Arcade': SystemInfo([], [], [], {}),
 	'CreatiVision': SystemInfo(['crvision', 'lasr2001', 'manager'], ['crvision', 'laser2001_cart'], ['MAME (CreatiVision)'], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav']}),
@@ -216,7 +217,7 @@ systems = {
 	'64DD': SystemInfo(['n64dd'], ['n64dd'], [], {MediaType.Floppy: ['ndd', 'ddd']}),
 	'e-Reader': SystemInfo(['gba'], ['gba_ereader'], [], {MediaType.Barcode: ['bin', 'raw', 'bmp']}),
 	'Jaguar CD': SystemInfo(['jaguarcd'], [], ['MAME (Jaguar CD)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'Mega CD': SystemInfo(['segacd', '32x_scd', 'cdx', 'segacd2', 'xeye'], ['megacd', 'megacdj', 'segacd'], ['Kega Fusion', 'MAME (Mega CD)'], {MediaType.OpticalDisc: cdrom_formats}),
+	'Mega CD': SystemInfo(['segacd', '32x_scd', 'cdx', 'segacd2', 'xeye', 'laseract'], ['megacd', 'megacdj', 'segacd'], ['Kega Fusion', 'MAME (Mega CD)'], {MediaType.OpticalDisc: cdrom_formats}), #LaserActive counts as this for now
 	'PC Engine CD': SystemInfo(['pce'], ['pcecd'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'Play-Yan': SystemInfo(['gba'], [], [], {MediaType.Digital: ['asf']}),
 
@@ -233,7 +234,7 @@ systems = {
 		{'default_chipset': SystemConfigValue(ConfigValueType.String, 'AGA', 'Default chipset to use if a game doesn\'t specify what chipset it should use (AGA, OCS, ECS)')
 	}),
 	'Amstrad CPC': SystemInfo(['cpc464'], ['cpc_cass', 'cpc_flop'], [], {MediaType.Snapshot: ['sna'], MediaType.Tape: ['wav', 'cdt'], MediaType.Floppy: mame_floppy_formats}),
-	'Apple II': SystemInfo(['apple2', 'apple2c', 'apple2e'], ['apple2', 'apple2_cass', 'apple2_flop_orig', 'apple2_flop_clcracked', 'apple2_flop_misc'], ['MAME (Apple II)', 'Mednafen (Apple II)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib', 'woz', 'shk', 'bxy'], MediaType.Tape: ['wav']}),
+	'Apple II': SystemInfo(['apple2', 'apple2c', 'apple2e', 'cece', 'cecg', 'ceci', 'cecm', 'cec2000'], ['apple2', 'apple2_cass', 'apple2_flop_orig', 'apple2_flop_clcracked', 'apple2_flop_misc'], ['MAME (Apple II)', 'Mednafen (Apple II)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib', 'woz', 'shk', 'bxy'], MediaType.Tape: ['wav']}),
 	'Apple IIgs': SystemInfo(['apple2gs'], ['apple2gs'], ['MAME (Apple IIgs)'], {MediaType.Floppy: mame_floppy_formats + ['2mg', '2img', 'dc', 'shk', 'bxy']}),
 	'Atari 8-bit': SystemInfo(['a800', 'a400', 'a800xl', 'xegs'], ['a800', 'a800_flop', 'xegs'], ['MAME (Atari 8-bit)'], {MediaType.Floppy: ['atr', 'dsk', 'xfd', 'dcm'], MediaType.Executable: ['xex', 'bas', 'com'], MediaType.Cartridge: ['bin', 'rom', 'car'], MediaType.Tape: ['wav']}, 
 		{'basic_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to BASIC ROM for floppy software which requires that, or use "basicc" to use software')
@@ -246,12 +247,12 @@ systems = {
 	'FM Towns': SystemInfo(['fmtowns', 'fmtmarty'], ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats + ['bin'], MediaType.OpticalDisc: cdrom_formats}),
 	'MSX': SystemInfo(msx1_drivers, ['msx1_cart', 'msx1_cass', 'msx1_flop'], ['MAME (MSX)', 'MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions}),
 	'MSX2': SystemInfo(msx2_drivers, ['msx2_cart', 'msx2_cass', 'msx2_flop'], ['MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions}),
-	'MSX2+': SystemInfo(msx2plus_drivers, ['msx2p_flop'], [], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions}),
+	'MSX2+': SystemInfo(msx2plus_drivers, ['msx2p_flop'], ['MAME (MSX2+)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions}),
 	'MSX Turbo-R': SystemInfo(msxtr_drivers, ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
 	'PC-98': SystemInfo(['pc9801f', 'pc9801rs', 'pc9801ux', 'pc9821'], ['pc98', 'pc98_cd'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}),
 	'Sharp X68000': SystemInfo(['x68000'], ['x68k_flop'], ['MAME (Sharp X68000)'], {MediaType.Floppy: mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim'], MediaType.HardDisk: ['hdf']}),
 	'Tandy CoCo': SystemInfo(['coco'], ['coco_cart', 'coco_flop'], ['MAME (Tandy CoCo)'], {MediaType.Cartridge: ['ccc', 'rom', 'bin'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: mame_floppy_formats + ['dmk', 'jvc'], MediaType.HardDisk: ['vhd']}),
-	'TRS-80': SystemInfo(['trs80', 'trs80l2'], [], ['MAME (TRS-80)'], {MediaType.Executable: ['cmd'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: ['dmk'] + mame_floppy_formats}),
+	'TRS-80': SystemInfo(['trs80', 'trs80l2', 'trs80m3'], [], ['MAME (TRS-80)'], {MediaType.Executable: ['cmd'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: ['dmk'] + mame_floppy_formats}),
 	'ZX Spectrum': SystemInfo(['spectrum', 'spec128'], ['spectrum_cart', 'spectrum_cass', 'specpls3_flop'], ['MAME (ZX Spectrum)'], {MediaType.Snapshot: ['z80', 'sna'], MediaType.Tape: ['wav', 'cas', 'tap', 'tzx'], MediaType.Executable: ['raw', 'scr'], MediaType.Floppy: ['dsk', 'ipf', 'trd', 'td0', 'scl', 'fdi', 'opd', 'opu'], MediaType.Cartridge: ['bin', 'rom']}), #There's actually like a katrillion file formats so I won't bother with all of them until I see them in the wild tbh
 
 	#Other computers
@@ -304,10 +305,12 @@ systems = {
 	'Oric': SystemInfo(['oric1'], [], [], {MediaType.Tape: ['wav', 'tap']}),
 	'Orion-128': SystemInfo(['orion128'], ['orion_cart', 'orion_cass', 'orion_flop'], [], {MediaType.Tape: ['wav', 'rkp'], MediaType.Floppy: mame_floppy_formats + ['odi'], MediaType.Cartridge: ['bin']}),
 	'Panasonic JR-200': SystemInfo(['jr200'], [], []),
+	'Pasopia 7': SystemInfo(['pasopia7'], [], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats}),
+	'Pasopia 1600': SystemInfo(['paso1600'], [], [], {}),
 	'Partner 01.01': SystemInfo(['partner'], ['partner_cass', 'partner_flop'], [], {MediaType.Tape: ['wav', 'rkp'], MediaType.Floppy: mame_floppy_formats + ['odi']}), #Another Radio 86 clone?
 	'PC Booter': SystemInfo(['ibm5150'], ['ibm5150'], ['MAME (IBM PCjr)', 'MAME (IBM PC)'], {MediaType.Floppy: mame_floppy_formats + ['img'], MediaType.Executable: ['exe', 'com', 'bat']}), #TODO: Reconsider this name; does it make more sense to be called "IBM PC"? Are PCjr carts not just PC booters that are carts instead of floppies (hot take)?
 	'PC-6001': SystemInfo(['pc6001'], [], ['MAME (PC-6001)'], {MediaType.Tape: ['cas', 'p6'], MediaType.Cartridge: generic_cart_extensions}),
-	'PC-88': SystemInfo(['pc8801'], ['pc8801_cass', 'pc8801_flop', 'pc8201', 'pc88va'], ['MAME (PC-88)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav']}),
+	'PC-88': SystemInfo(['pc8801', 'pc88va'], ['pc8801_cass', 'pc8801_flop', 'pc8201', 'pc88va'], ['MAME (PC-88)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav']}),
 	'PDP-1': SystemInfo(['pdp1'], [], [], {MediaType.Tape: ['tap', 'rim']}),
 	'Plus/4': SystemInfo(['c264'], ['plus4_cart', 'plus4_cass', 'plus4_flop'], ['VICE (Plus/4)'],
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}
@@ -330,7 +333,7 @@ systems = {
 	'Thomson MO5': SystemInfo(['mo5', 'mo5nr'], ['mo5_cart', 'mo5_cass', 'mo5_flop', 'mo5_qd'], ['MAME (Thomson MO5)'], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}),
 	'Thomson MO6': SystemInfo(['mo6'], ['mo6_cass', 'mo6_flop'], [], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}),
 	'Thomson TO': SystemInfo(['to7', 'to770', 'to8', 'to9', 'to9p'], ['to7_cart', 'to7_cass', 'to7_qd', 'to8_cass', 'to8_qd', 'to770a_cart', 'to770_cart'], [], {MediaType.Tape: ['wav', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m7', 'bin', 'rom']}),
-	'TI-99': SystemInfo(['ti99_4', 'ti99_4a'], ['ti99_cart'], [], {MediaType.Cartridge: ['bin', 'rpk', 'c', 'g'], MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats}),
+	'TI-99': SystemInfo(['ti99_4', 'ti99_4a', 'ti99_8'], ['ti99_cart'], [], {MediaType.Cartridge: ['bin', 'rpk', 'c', 'g'], MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats}),
 	'Tomy Tutor': SystemInfo(['tutor'], ['tutor'], ['MAME (Tomy Tutor)'], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav']}),
 	'Toshiba Pasopia': SystemInfo(['pasopia'], ['pasopia_cass'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats}),	#Ow my freaking ears… every tape seems to take a long time to get anywhere
 	'Vector-06C': SystemInfo(['vector06'], ['vector06_cart', 'vector06_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['bin', 'emr']}),
@@ -352,24 +355,40 @@ systems = {
 	}, is_virtual=True),
 }
 
-all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers]
+#For Machine.is_system_driver to work correctly
+ibmpc_drivers = ['ibm5150', 'ibm5170']
+mac_drivers = ['mac128k', 'macplus', 'macse', 'macsefd', 'macclasc', 'macii', 'mac2fdhd', 'macprtb', 'maciici', 'maciifx', 'maclc', 'maciisi', 'macpb100', 'macpb140', 'macclas2', 'maclc2', 'macpb160', 'macpd210', 'maccclas', 'maclc3', 'maciivx', 'maclc520', 'pmac6100']
+
+all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers] + ibmpc_drivers + mac_drivers
 
 #Things where I can't be fucked right now making a SystemInfo object:
 #Altair 8800 (is 8800bt a different thing)
 #TIC-80 (one of those non-existent systems)
-#TRS-80 Model 3
+#TRS-80 Model 2
 #TRS-80 MC-10
 #Hitachi S1
 #Virtual systems: Flash, J2ME, TADS, Z-Machine (not that I have found cool emulators for any of that)
+#Acorn System (acrnsys3, acrnsys5)
+#Tatung Einstein (einstein, einst256)
+#ETI-660
+#Amstrad PC1512 (pc1512, pc1640)
+#Hanimex Pencil II (pencil2)
+#Indy (indy_4610, indigo2_4415)
+#Tiki 100
+#Cosmac VIP
+#Wave Mate Bullet (wmbullet)
+#Telcon Zorba
+#Canon X07
+#Elf II
 
 #Confusing things:
 #Which of TI calculators are software compatible with which (and hence which ones would be considered individual systems)?
 	#TI-73, 81, 82, 83x, 84x, 85, 86 are Z80; 89, 92x are M68K
-#Bandai Super Note Club: Part of VTech Genius Leader (supports glccolor software list), or its own thing (has snotec software list)?
+#Bandai Super Note Club (snotec, snotecu, snotecex): Part of VTech Genius Leader (supports glccolor software list), or its own thing (has snotec software list)?
 #PalmOS: Not sure if there would be something which can just run .prc files or whatsitcalled
 #Amstrad PC20/Sinclair PC200: Is this just IBM PC compatible stuff? Have seen one demoscene prod which claims to be for it specifically
 #Epoch (not Super) Cassette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
-#Pioneer LaserActive probably just counts as Mega CD and PC Engine CD except with Laserdisc instead of CD, but I'll worry about that when emulation for it becomes a thing (it is in there as laseract as a Sega CD derivative)
+#DEC Rainbow: Uses DOS so maybe goes in pc_systems but maybe the CP/M part is normal
 
 class PCSystem():
 	def __init__(self, options):
