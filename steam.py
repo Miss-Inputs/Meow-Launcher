@@ -397,8 +397,8 @@ def format_genre(genre_id):
 
 def process_launchers(game, launch):
 	launch_items = {}
-	user_config = game.app_state.get('UserConfig')
-	installed_betakey = user_config.get('betakey') if user_config else None
+	#user_config = game.app_state.get('UserConfig')
+	#installed_betakey = user_config.get('betakey') if user_config else None
 	for launch_item in launch.values():
 		#Key here is 0, 1, 2, n... which is a bit useless, it's really just a boneless list. Anyway, each of these values is another dict containing launch parameters, for each individual platform or configuration, e.g. Windows 32-bit, Windows 64-bit, MacOS, etc
 		#If you wanted to do secret evil things: b'executable' = 'CoolGame.sh' b'arguments' (optional) = '--fullscreen --blah' b'description' = 'Cool Game'
@@ -438,9 +438,9 @@ def process_launchers(game, launch):
 				osarch = launch_item_config.get(b'osarch')
 				if osarch:
 					platform += '_' + (str(osarch.data) if isinstance(osarch, appinfo.Integer) else osarch.decode('utf-8', errors='backslashreplace'))
-			betakey = launch_item_config.get(b'betakey')
-			if betakey and betakey != installed_betakey:
-				continue
+			#betakey = launch_item_config.get(b'betakey')
+			#if betakey and betakey != installed_betakey:
+			#	continue
 		if platform not in launch_items:
 			launch_items[platform] = []
 		launch_items[platform].append(launcher)
