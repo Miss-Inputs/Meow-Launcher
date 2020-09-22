@@ -123,7 +123,7 @@ systems = {
 	'Channel F': SystemInfo(['channelf', 'channlf2'], ['channelf'], ['MAME (Channel F)'], {MediaType.Cartridge: ['chf', 'bin']}),
 	'Coleco Telstar Arcade': SystemInfo([], [], [], {}),
 	'CreatiVision': SystemInfo(['crvision', 'lasr2001', 'manager'], ['crvision', 'laser2001_cart'], ['MAME (CreatiVision)'], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav']}),
-	'Dreamcast VMU': SystemInfo(['svmu'], ['svmu'], [], {MediaType.Executable: ['bin'], MediaType.Digital: ['vms']}),
+	'Dreamcast VMU': SystemInfo(['svmu'], ['svmu'], ['MAME (Dreamcast VMU)'], {MediaType.Executable: ['bin'], MediaType.Digital: ['vms']}),
 	'Entex Adventure Vision': SystemInfo(['advision'], ['advision'], ['MAME (Entex Adventure Vision)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Epoch Game Pocket Computer': SystemInfo(['gamepock'], ['gamepock'], ['MAME (Epoch Game Pocket Computer)'], {MediaType.Cartridge: ['bin']}),
 	'G7400': SystemInfo(['g7400'], ['g7400'], ['MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}),

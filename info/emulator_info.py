@@ -277,6 +277,8 @@ emulators = {
 	'MAME (Casio PV-2000)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('pv2000', 'cart', has_keyboard=True), ['bin']),
 	#Not the same as the PV-1000, albeit similar. Driver marked as non-working but it seems alright, other than it's supposed to have joysticks and doesn't (so you just set up a gamepad to map to emulated cursor keys) which maybe is why
 	'MAME (CD-i)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('cdimono1', 'cdrom'), mame_cdrom_formats), #This is the only CD-i model that works according to wisdom passed down the ages (is it still true or does other stuff work now?), and it says it's imperfect graphics/sound, no digital video stuff
+	'MAME (Dreamcast VMU)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('svmu', 'quik', {'bios': 'dev1004'}), ['vms', 'bin']),
+	#This doesn't save the RTC so you have to set that every time you boot it up, which would be too annoying… but this development BIOS instantly boots up whatever game is in the flash; claims to have no sound but it does do the sound? Unless it's supposed to have more sound than just beep
 	'MAME (FM Towns)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_fm_towns, mame_cdrom_formats + mame_floppy_formats + ['bin']),
 	'MAME (FM Towns Marty)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_fm_towns_marty, mame_cdrom_formats + mame_floppy_formats + ['bin']),
 	#As it says right there in the fmtowns.cpp comments: "Issues: Video emulation is far from complete." and still marked not working, but it seems okay for a few games actually; creating floppies (for games that make you do that) seems like a weird time
