@@ -151,8 +151,7 @@ emulators = {
 	'MAME (BBC Bridge Companion)': MameDriver(EmulatorStatus.Good, mame_driver_callable('bbcbc', 'cart'), ['bin']),
 	'MAME (C64)': MameDriver(EmulatorStatus.Good, command_lines.mame_c64, ['80', 'a0', 'e0', 'crt']),
 	'MAME (Casio PV-1000)': MameDriver(EmulatorStatus.Good, mame_driver_callable('pv1000', 'cart'), ['bin']),
-	'MAME (CD-i)': MameDriver(EmulatorStatus.Good, mame_driver_callable('cdimono1', 'cdrom'), mame_cdrom_formats),
-	#This is the only CD-i model that works according to wisdom passed down the ages (is it still true or does other stuff work now?), and it says it's imperfect graphics/sound, no digital video stuff
+	'MAME (Champion 2711)': MameDriver(EmulatorStatus.Good, mame_driver_callable('unichamp', 'cart'), generic_cart_extensions),
 	'MAME (Channel F)': MameDriver(EmulatorStatus.Good, mame_driver_callable('channelf', 'cart'), ['bin', 'chf']),
 	'MAME (ColecoVision)': MameDriver(EmulatorStatus.Good, command_lines.mame_colecovision, ['bin', 'col', 'rom']),
 	#MT06554: Roller controller is inaccurate
@@ -181,6 +180,7 @@ emulators = {
 	#Does not let you do GBA-enhanced GBC games
 	'MAME (IBM PCjr)': MameDriver(EmulatorStatus.Good, command_lines.mame_ibm_pcjr, mame_floppy_formats + ['img', 'bin', 'jrc']),
 	'MAME (Intellivision)': MameDriver(EmulatorStatus.Good, command_lines.mame_intellivision, ['bin', 'int', 'rom', 'itv']),
+	'MAME (Jupiter Ace)': MameDriver(EmulatorStatus.Good, mame_driver_callable('jupace', 'dump', {'ramsize': '48K'}, has_keyboard=True), ['ace']),
 	'MAME (Lynx)': MameDriver(EmulatorStatus.Good, command_lines.mame_lynx, ['lnx', 'lyx', 'o']),
 	#Could be weird where rotation is involved
 	'MAME (Magnavox Odyssey²)': MameDriver(EmulatorStatus.Good, command_lines.mame_odyssey2, ['bin', 'rom']),
@@ -276,6 +276,7 @@ emulators = {
 	'MAME (Amstrad PCW)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_amstrad_pcw, mame_floppy_formats),
 	'MAME (Casio PV-2000)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('pv2000', 'cart', has_keyboard=True), ['bin']),
 	#Not the same as the PV-1000, albeit similar. Driver marked as non-working but it seems alright, other than it's supposed to have joysticks and doesn't (so you just set up a gamepad to map to emulated cursor keys) which maybe is why
+	'MAME (CD-i)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('cdimono1', 'cdrom'), mame_cdrom_formats), #This is the only CD-i model that works according to wisdom passed down the ages (is it still true or does other stuff work now?), and it says it's imperfect graphics/sound, no digital video stuff
 	'MAME (FM Towns)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_fm_towns, mame_cdrom_formats + mame_floppy_formats + ['bin']),
 	'MAME (FM Towns Marty)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_fm_towns_marty, mame_cdrom_formats + mame_floppy_formats + ['bin']),
 	#As it says right there in the fmtowns.cpp comments: "Issues: Video emulation is far from complete." and still marked not working, but it seems okay for a few games actually; creating floppies (for games that make you do that) seems like a weird time
@@ -417,8 +418,12 @@ emulators = {
 	#compis
 	#ep128 #hhhhh needs isdos from software list for floppies I think
 	#dragon64
-	#jupace
-	#unichamp
+	#elfii
+
+	#Have not gotten around to trying and don't feel like it (give me games or give me death)
+	#x07 (video expansion is not there)
+	#zorba
+	#wmbullet
 
 	#Do the thing idiot:
 	#TODO: Commodore PET can work with MAME by using -quik and autoboot, apparently?
