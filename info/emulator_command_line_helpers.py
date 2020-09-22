@@ -2,7 +2,7 @@ import os
 
 from common_types import EmulationNotSupportedException, EmulationStatus
 from launchers import LaunchParams
-from mame_helpers import have_mame
+from mame_helpers import have_mame, verify_romset
 from software_list_info import get_software_list_by_name
 
 def _get_autoboot_script_by_name(name):
@@ -102,3 +102,9 @@ def mame_driver(game, emulator_config, driver, slot=None, slot_options=None, has
 
 	args = mame_base(driver, slot, slot_options, has_keyboard, autoboot_script)
 	return LaunchParams(emulator_config.exe_path, args)
+
+def first_available_system(system_list):
+	for system in system_list:
+		if verify_romset(system):
+			return system
+	return None

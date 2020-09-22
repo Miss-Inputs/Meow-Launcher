@@ -104,7 +104,6 @@ systems = {
 	}),
 	'Wii U': SystemInfo([], [], [], {MediaType.OpticalDisc: ['iso', 'wud'], MediaType.Executable: ['rpx', 'elf']}),
 	'WonderSwan': SystemInfo(['wswan'], ['wswan', 'wscolor'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['ws', 'wsc', 'bin']}),
-	#Rotates around so that sometimes the dpad becomes buttons and vice versa and there's like two dpads??? but if you use Mednafen's rotation auto-adjust thing it kinda works
 	
 	#Less notable stuff goes here
 	'3DO': SystemInfo(['3do'], [], ['MAME (3DO)'], {MediaType.OpticalDisc: cdrom_formats}),

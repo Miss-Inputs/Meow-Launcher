@@ -19,9 +19,12 @@ from platform_metadata.zx_spectrum import ZXJoystick, ZXMachine
 from .emulator_command_line_helpers import (_is_highscore_cart_available,
                                             _is_software_available,
                                             _verify_supported_mappers,
+                                            first_available_system,
                                             mame_driver, mednafen_module,
                                             verify_mgba_mapper)
 from .region_info import TVSystem
+from .system_info import (working_msx1_drivers, working_msx2_drivers,
+                          working_msx2plus_drivers)
 
 
 #MAME drivers
@@ -477,10 +480,15 @@ def mame_megadrive(game, _, emulator_config):
 			system = 'megadriv'
 	return mame_driver(game, emulator_config, system, 'cart')
 
+_msx1_system = None
 def mame_msx1(game, _, emulator_config):
-	system = 'svi738'
-	#This one is in English and seems to work, so we'll go with that. I suppose ideally I would have a list of potential systems that all work, and then get the first one which is available, but that would require effort, so nah
 	#Possible slot options: centronics is there to attach printers and such; if using a floppy can put bm_012 (MIDI interface) or moonsound (OPL4 sound card, does anything use that?) in the cart port but I'm not sure that's needed; the slots are the same for MSX2
+	global _msx1_system
+	if _msx1_system is None:
+		_msx1_system = first_available_system(working_msx1_drivers)
+		if _msx1_system is None:
+			raise EmulationNotSupportedException('No MSX1 driver available')
+
 	slot_options = {}
 	if game.metadata.media_type == MediaType.Floppy:
 		#Defaults to 35ssdd, but 720KB disks need this one instead
@@ -492,10 +500,16 @@ def mame_msx1(game, _, emulator_config):
 		#Should not happen
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 
-	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True)
+	return mame_driver(game, emulator_config, _msx1_system, slot, slot_options, has_keyboard=True)
 
+_msx2_system = None
 def mame_msx2(game, _, emulator_config):
-	system = 'hbf1xv'
+	global _msx2_system
+	if _msx2_system is None:
+		_msx2_system = first_available_system(working_msx2_drivers)
+		if _msx2_system is None:
+			raise EmulationNotSupportedException('No MSX2 driver available')
+
 	slot_options = {}
 	if game.metadata.media_type == MediaType.Floppy:
 		#Defaults to 35ssdd, but 720KB disks need this one instead
@@ -507,10 +521,16 @@ def mame_msx2(game, _, emulator_config):
 		#Should not happen
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 
-	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True)
+	return mame_driver(game, emulator_config, _msx2_system, slot, slot_options, has_keyboard=True)
 
+_msx2plus_system = None
 def mame_msx2plus(game, _, emulator_config):
-	system = 'hbf1xv'
+	global _msx2plus_system
+	if _msx2plus_system is None:
+		_msx2plus_system = first_available_system(working_msx2plus_drivers)
+		if _msx2plus_system is None:
+			raise EmulationNotSupportedException('No MSX2+ driver available')
+
 	slot_options = {}
 	if game.metadata.media_type == MediaType.Floppy:
 		#Defaults to 35ssdd, but 720KB disks need this one instead
@@ -522,7 +542,7 @@ def mame_msx2plus(game, _, emulator_config):
 		#Should not happen
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 
-	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True)
+	return mame_driver(game, emulator_config, _msx2plus_system, slot, slot_options, has_keyboard=True)
 
 def mame_n64(game, _, emulator_config):
 	if game.metadata.tv_type == TVSystem.PAL:
