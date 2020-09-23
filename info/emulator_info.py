@@ -286,6 +286,8 @@ emulators = {
 	#Not working and imperfect sound
 	'MAME (GameKing)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('gameking', 'cart'), ['bin', 'gk']),
 	'MAME (GameKing 3)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('gamekin3', 'cart'), ['bin', 'gk3']),
+	'MAME (GP32)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('gp32', 'memc'), ['smc'],),
+	#Bad performance (60-ish% on i5-9600kf) but otherwise might kinda work?
 	'MAME (Hartung Game Master)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('gmaster', 'cart'), ['bin']),
 	#Hmm... says not working and imperfect sound. I guess it does run the games, though
 	'MAME (Microbee)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_microbee, ['mwb', 'com', 'bee'] + mame_floppy_formats),
@@ -364,8 +366,6 @@ emulators = {
 	'MAME (Copera)': MameDriver(EmulatorStatus.Borked, mame_driver_callable('copera', 'cart'), ['bin', 'md']),
 	#Displays the logo and then displays nothing
 	'MAME (GoGo TV Video Vision)': MameDriver(EmulatorStatus.Borked, mame_driver_callable('tvgogo', 'cart'), ['bin']),
-	'MAME (GP32)': MameDriver(EmulatorStatus.Borked, mame_driver_callable('gp32', 'memc'), ['smc'],),
-	#Runs too slow to verify if anything else works, but all documentation points to not
 	'MAME (Jaguar CD)': MameDriver(EmulatorStatus.Borked, mame_driver_callable('jaguarcd', 'cdrom'), mame_cdrom_formats), #Also has cartridge port, as it is a Jaguar addon
 	'MAME (Koei PasoGo)': MameDriver(EmulatorStatus.Borked, mame_driver_callable('pasogo', 'cart'), ['bin']),
 	#No sound yet, and apparently the rest doesn't work either (I'll take their word for it so I don't have to play weird board games I don't understand)
