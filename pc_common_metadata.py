@@ -33,6 +33,9 @@ def look_for_icon_in_folder(folder, look_for_any_ico=True):
 
 def try_detect_unity(folder):
 	for f in os.listdir(folder):
+		if not os.path.isdir(os.path.join(folder, f)):
+			continue
+
 		if f == 'Build':
 			if os.path.isfile(os.path.join(folder, f, 'UnityLoader.js')):
 				#Web version of Unity, there should be some .unityweb files here
@@ -61,6 +64,8 @@ def try_detect_ue4(folder):
 	redist_folder = os.path.join(engine_folder, 'Extras', 'Redist')
 	if os.path.isdir(redist_folder):
 		for subdir in os.listdir(redist_folder):
+			if not os.path.isdir(os.path.join(redist_folder, subdir)):
+				continue
 			#subdir will probably be something like "en-us" but that's a language so maybe not
 			if os.path.isfile(os.path.join(redist_folder, subdir, 'UE4PrereqSetup_x64.exe')) or os.path.isfile(os.path.join(redist_folder, subdir, 'UE4PrereqSetup_x86.exe')):
 				return True
@@ -73,6 +78,8 @@ def try_detect_ue4(folder):
 		if subdir == 'Engine':
 			continue
 		for subsubdir in os.listdir(os.path.join(folder, subdir)):
+			if not os.path.isdir(os.path.join(folder, subdir, subsubdir)):
+				continue
 			if subsubdir == 'Binaries':
 				project_name = subdir
 				binaries_folder = os.path.join(folder, subdir, subsubdir)
@@ -138,6 +145,9 @@ def try_detect_source(folder):
 	have_platform = False
 	game_folder = None
 	for subdir in os.listdir(folder):
+		if not os.path.isdir(os.path.join(folder, subdir)):
+			continue
+
 		if subdir == 'bin':
 			have_bin = True
 			continue
@@ -145,7 +155,7 @@ def try_detect_source(folder):
 			have_platform = True
 			continue
 		#Looking for 'hl2', 'ep1', etc
-		for f in os.path.join(folder, subdir):
+		for f in os.listdir(os.path.join(folder, subdir)):
 			if f == 'gameinfo.txt':
 				#gameinfo.txt contains metadata but then this would probably only appear on games that are from Steam and we get all the metadata from there anyway
 				#Also there might be more than one gameinfo.txt inside multiple subdirs in folder (like the Half-Life 2 install dir having all the episodes)
