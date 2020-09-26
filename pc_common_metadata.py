@@ -33,11 +33,127 @@ def look_for_icon_in_folder(folder, look_for_any_ico=True):
 
 def try_detect_unity(folder):
 	for f in os.listdir(folder):
+		if f == 'Build':
+			if os.path.isfile(os.path.join(folder, f, 'UnityLoader.js')):
+				#Web version of Unity, there should be some .unityweb files here
+				return True
+
 		if f.endswith('_Data'):
-			#This folder will probably be named after an executable in the folder? Maybe
+			#This folder "blah_Data" seems to always go with an executable named "blah", "blah.exe" (on Windows), "blah.x86", "blah.x86_64"
 			#appinfo.txt contains the publisher on line 1, and the name (which sometimes is formatted weirdly) on line 2
 			if os.path.isfile(os.path.join(folder, f, 'Managed', 'UnityEngine.dll')):
 				return True
+	return False
+
+def try_detect_ue4(folder):
+	if os.path.isfile(os.path.basename(folder) + '.uproject'):
+		return True
+
+	engine_folder = os.path.join(folder, 'Engine') #I guess this is always there… dunno if anything is _always_ in there though (Binaries + Content?)
+	if not os.path.isdir(engine_folder):
+		return False
+	
+	if os.path.isfile(os.path.join(engine_folder, 'Binaries', 'Linux', 'UE4Game-Linux-Shipping')):
+		return True
+	if os.path.isfile(os.path.join(engine_folder, 'Binaries', 'Win64', 'UE4Game-Win64-Shipping.exe')):
+		return True
+
+	redist_folder = os.path.join(engine_folder, 'Extras', 'Redist')
+	if os.path.isdir(redist_folder):
+		for subdir in os.listdir(redist_folder):
+			#subdir will probably be something like "en-us" but that's a language so maybe not
+			if os.path.isfile(os.path.join(redist_folder, subdir, 'UE4PrereqSetup_x64.exe')) or os.path.isfile(os.path.join(redist_folder, subdir, 'UE4PrereqSetup_x86.exe')):
+				return True
+
+	#Hmm…
+	#Something like Blah/Binaries/Linux/Blah-Linux-Shipping
+	project_name = None
+	binaries_folder = None
+	for subdir in os.listdir(folder):
+		if subdir == 'Engine':
+			continue
+		for subsubdir in os.listdir(os.path.join(folder, subdir)):
+			if subsubdir == 'Binaries':
+				project_name = subdir
+				binaries_folder = os.path.join(folder, subdir, subsubdir)
+				break
+		if binaries_folder:
+			break
+
+	if not binaries_folder or not os.path.isdir(binaries_folder):
+		#Gonna assume probably not then
+		return False
+
+	if not os.path.isdir(os.path.join(folder, project_name, 'Content', 'Paks')):
+		return False
+	
+	if os.path.isfile(os.path.join(binaries_folder, 'Linux', project_name + '-Linux-Shipping')) or os.path.isfile(os.path.join(binaries_folder, 'Linux', project_name)):
+		#HMMMMMMMMMmmmmmm
+		return True
+	if os.path.isfile(os.path.join(binaries_folder, 'Win64', project_name + '-Win64-Shipping.exe')):
+		return True	
+	
+	return False
+
+def try_detect_build(folder):
+	files = [f.name.lower() for f in os.scandir(folder) if f.is_file()]
+	if 'build.exe' in files and 'bsetup.exe' in files and 'editart.exe' in files:
+		return True
+	for f in os.listdir(folder):
+		if f.lower() == 'build':
+			if try_detect_build(os.path.join(folder, f)):
+				return True
+	return False
+
+def try_detect_ue3(folder):
+	for f in os.listdir(folder):
+		if (f != 'Game' and f.endswith('Game')) or f == 'P13':
+			if os.path.isdir(os.path.join(folder, f)):
+				if os.path.isfile(os.path.join(folder, f, 'CookedPC', 'Engine.u')):
+					return True
+				if os.path.isdir(os.path.join(folder, f, 'CookedPCConsole')) or os.path.isdir(os.path.join(folder, f, 'CookedPCConsole_FR')) or os.path.isdir(os.path.join(folder, f, 'CookedPCConsoleFinal')):
+					return True
+	return False
+
+def try_detect_gamemaker(folder):
+	if os.path.isfile(os.path.join(folder, 'audiogroup1.dat')) and os.path.isfile(os.path.join(folder, 'data.win')) and os.path.isfile(os.path.join(folder, 'options.ini')):
+		#Hmmmmmmmmmmmmm probably
+		#data.win generally has "FORM" magic? audiogroup1/2/3.dat and options.ini might not always be there but I wanna be more sure if I don't poke around in files
+		return True
+	
+	#Linux ports are a bit different (assets folder seems to always be there? But game.unx is not always in there)
+	assets_folder = os.path.join(folder, 'assets')
+	if not os.path.isdir(assets_folder):
+		return False
+	#icon.png might be in here, usually seems to be
+
+	#game.unx seems to also always have FORM magic
+	if (os.path.isfile(os.path.join(folder, 'game.unx')) or os.path.isfile(os.path.join(assets_folder, 'game.unx'))) and os.path.isfile(os.path.join(assets_folder, 'options.ini')):
+		return True
+
+	return False
+
+def try_detect_source(folder):
+	have_bin = False
+	have_platform = False
+	game_folder = None
+	for subdir in os.listdir(folder):
+		if subdir == 'bin':
+			have_bin = True
+			continue
+		if subdir == 'platform':
+			have_platform = True
+			continue
+		#Looking for 'hl2', 'ep1', etc
+		for f in os.path.join(folder, subdir):
+			if f == 'gameinfo.txt':
+				#gameinfo.txt contains metadata but then this would probably only appear on games that are from Steam and we get all the metadata from there anyway
+				#Also there might be more than one gameinfo.txt inside multiple subdirs in folder (like the Half-Life 2 install dir having all the episodes)
+				game_folder = os.path.join(folder, subdir)
+				break
+	if have_bin and have_platform and game_folder:
+		return True
+	
 	return False
 
 def try_and_detect_engine_from_folder(folder):
@@ -45,7 +161,17 @@ def try_and_detect_engine_from_folder(folder):
 	files = [f.name.lower() for f in dir_entries if f.is_file()]
 	subdirs = [f.name.lower() for f in dir_entries if f.is_dir()]
 
-	#These are simple enough to detect with just one line…
+	#Godot = .pck with "GDPC" magic, but that requires poking inside files and I don't wanna do that just yet
+	#XNA: Might have a "common redistributables" folder with an installer in it?
+
+	#These are simple enough to detect with just one line…	
+	if ('nw.pak' in files or 'nw_100_percent.pak' in files or 'nw_200_percent.pak' in files) and ('package.json' in files or 'package.nw' in files):
+		#package.nw is a zip with package.json and other fun stuff in it, package.json might have metadata
+		return 'NW.js'
+	if 'fna.dll' in files:
+		return 'FNA'
+	if 'monogame.framework.dll' in files or 'monogame.framework.lite.dll' in files:
+		return 'MonoGame'
 	if 'renpy' in subdirs and 'game' in subdirs and 'lib' in subdirs:
 		return "Ren'Py"
 	if 'data.dcp' in files or 'data_sd.dcp' in files or 'data_hd.dcp' in files:
@@ -60,45 +186,13 @@ def try_and_detect_engine_from_folder(folder):
 	if 'logdir' in files and 'object' in files and 'picdir' in files and 'viewdir' in files and 'snddir' in files and 'vol.0' in files and 'words.tok' in files:
 		#Apparently there can be .wag files?
 		return 'AGI' #v2
-
-	if os.path.basename(folder).lower() + '.uproject' in files:
-		return 'Unreal Engine 4'
+	if 'visplayer' in files and any(f.endswith('.vis') for f in files): #.vis magic is "VIS3"?
+		return 'Visionaire Studio'
 	if any(f.endswith('.rgssad') for f in files):
-		return 'RPG Maker XP/VX'
+		return 'RPG Maker XP/VX' #If mkxp.conf is there, uses mkxp replacement implementation
 	if any(f.endswith('.cf') for f in files):
 		if 'data.xp3' in files and 'plugin' in subdirs:
 			return 'KiriKiri'
-
-	#Hmm should I be refactoring these lines down here
-	if os.path.isfile(os.path.join(folder, 'assets', 'game.unx')):
-		#game.win on Windows… that's too false-positivey for me
-		return 'GameMaker'
-	if 'adobe air' in subdirs or os.path.isdir(os.path.join(folder, 'runtimes', 'Adobe AIR')):
-		return 'Adobe AIR'
-	if os.path.isfile(os.path.join(folder, 'AIR', 'arh')):
-		#"Adobe Redistribution Helper" but I dunno how reliable this detection is, to be honest, but it seems to be used sometimes; games like this seem to instead check for a system-wide AIR installation and try and install that if it's not there
-		return 'Adobe AIR'
-	if 'bin' in subdirs and 'platform' in subdirs:
-		for f in os.listdir(folder):
-			if os.path.isdir(os.path.join(folder, f)): #'hl2', 'ep1', etc
-				if os.path.isfile(os.path.join(folder, f, 'gameinfo.txt')):
-					#gameinfo.txt contains metadata but then this would probably only appear on games that are from Steam and we get all the metadata from there anyway
-					return 'Source'
-	if try_detect_unity(folder):
-		return 'Unity'
-	for f in os.listdir(folder):
-		if (f != 'Game' and f.endswith('Game')) or f == 'P13':
-			if os.path.isdir(os.path.join(folder, f)):
-				if os.path.isfile(os.path.join(folder, f, 'CookedPC', 'Engine.u')):
-					return 'Unreal Engine 3'
-				if os.path.isdir(os.path.join(folder, f, 'CookedPCConsole')) or os.path.isdir(os.path.join(folder, f, 'CookedPCConsole_FR')) or os.path.isdir(os.path.join(folder, f, 'CookedPCConsoleFinal')):
-					return 'Unreal Engine 3'
-
-	maybe_ue4_stuff_path = os.path.join(folder, 'Engine', 'Extras', 'Redist', 'en-us')
-	if os.path.isdir(maybe_ue4_stuff_path):
-		if os.path.isfile(os.path.join(maybe_ue4_stuff_path, 'UE4PrereqSetup_x64.exe')) or os.path.isfile(os.path.join(maybe_ue4_stuff_path, 'UE4PrereqSetup_x86.exe')):
-			return 'Unreal Engine 4'
-
 	if os.path.isfile(os.path.join(folder, 'Build', 'Final', 'DefUnrealEd.ini')):
 		return 'Unreal Engine 2' #Possibly 2.5 specifically
 	if os.path.isfile(os.path.join(folder, 'Builds', 'Binaries', 'DefUnrealEd.ini')):
@@ -106,6 +200,26 @@ def try_and_detect_engine_from_folder(folder):
 	if os.path.isfile(os.path.join(folder, 'System', 'Engine.u')):
 		return 'Unreal Engine 1'
 	
+	if try_detect_gamemaker(folder):
+		return 'GameMaker'
+	if try_detect_build(folder):
+		return 'Build'
+	if try_detect_ue3(folder):
+		return 'Unreal Engine 3'
+	if try_detect_ue4(folder):
+		return 'Unreal Engine 4'
+	if try_detect_unity(folder):
+		return 'Unity'
+	if try_detect_source(folder):
+		return 'Source'
+
+	#Hmm should I be refactoring these lines down here
+	if 'adobe air' in subdirs or os.path.isdir(os.path.join(folder, 'runtimes', 'Adobe AIR')):
+		return 'Adobe AIR'
+	if os.path.isfile(os.path.join(folder, 'AIR', 'arh')):
+		#"Adobe Redistribution Helper" but I dunno how reliable this detection is, to be honest, but it seems to be used sometimes; games like this seem to instead check for a system-wide AIR installation and try and install that if it's not there
+		return 'Adobe AIR'
+
 	return None
 
 def detect_engine_recursively(folder):
