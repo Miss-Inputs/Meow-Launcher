@@ -1039,7 +1039,10 @@ def process_game(app_id, folder, app_state):
 			game.metadata.specific_info['No-Valid-Launchers'] = True
 	process_launcher(game, launcher)
 	#Potentially do something with game.extra_launchers... I dunno, really
-	poke_around_in_install_dir(game)
+	try:
+		poke_around_in_install_dir(game)
+	except OSError:
+		pass
 
 	#userdata/<user ID>/config/localconfig.vdf has last time played stats, so that's a thing I guess
 	#userdata/<user ID>/7/remote/sharedconfig.vdf has tags/categories etc as well
