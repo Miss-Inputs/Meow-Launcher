@@ -77,9 +77,9 @@ def try_detect_ue4(folder):
 	for subdir in os.listdir(folder):
 		if subdir == 'Engine':
 			continue
+		if not os.path.isdir(os.path.join(folder, subdir)):
+			continue
 		for subsubdir in os.listdir(os.path.join(folder, subdir)):
-			if not os.path.isdir(os.path.join(folder, subdir, subsubdir)):
-				continue
 			if subsubdir == 'Binaries':
 				project_name = subdir
 				binaries_folder = os.path.join(folder, subdir, subsubdir)
@@ -107,7 +107,7 @@ def try_detect_build(folder):
 	if 'build.exe' in files and 'bsetup.exe' in files and 'editart.exe' in files:
 		return True
 	for f in os.listdir(folder):
-		if f.lower() == 'build':
+		if f.lower() == 'build' and os.path.isdir(os.path.join(folder, f)):
 			if try_detect_build(os.path.join(folder, f)):
 				return True
 	return False
