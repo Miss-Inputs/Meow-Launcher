@@ -63,11 +63,11 @@ def add_z80_metadata(rom, metadata):
 	#Does joystick_flag == 1 imply expansion == Kempston?
 
 	program_counter = int.from_bytes(header[6:8], 'little')
+	machine = ZXMachine.ZX48k
+	expansion = None
 	if program_counter != 0:
 		header_version = 1
-		#v1 can only save 48k snapshots
-		machine = ZXMachine.ZX48k
-		expansion = None #Presumably
+		#v1 can only save 48k snapshots and presumably doesn't do expansions
 	else:
 		header_length = int.from_bytes(header[30:32], 'little')
 		if header_length == 23:

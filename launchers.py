@@ -146,6 +146,7 @@ def make_linux_desktop(launch_params, display_name, fields=None):
 					continue
 
 				use_image_object = False
+				value_as_string = None
 				if have_pillow:
 					if isinstance(v, Image.Image):
 						use_image_object = True

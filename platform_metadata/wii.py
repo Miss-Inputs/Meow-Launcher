@@ -346,6 +346,7 @@ def add_wii_disc_metadata(rom, metadata):
 
 def add_wii_metadata(game):
 	if game.rom.extension in ('gcz', 'iso', 'wbfs', 'gcm'):
+		header = None
 		if game.rom.extension in ('iso', 'gcm', 'gcz'):
 			#.gcz can be a format for Wii discs, though not recommended and uncommon
 			header = game.rom.read(0, 0x2450)
