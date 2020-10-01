@@ -6,11 +6,11 @@ import subprocess
 import xml.etree.ElementTree as ElementTree
 from pathlib import Path
 
+from config.main_config import main_config
 from common import junk_suffixes
 from common_paths import cache_dir
 from data.name_cleanup.mame_manufacturer_name_cleanup import (
     dont_remove_suffix, manufacturer_name_cleanup)
-
 
 def consistentify_manufacturer(manufacturer):
 	if not manufacturer:
@@ -84,19 +84,22 @@ class MameExecutable():
 		print('New MAME version found: ' + self.get_version() + '; creating XML; this may take a while the first time it is run')
 		os.makedirs(self.xml_cache_path, exist_ok=True)
 
-		proc = subprocess.Popen([self.executable, '-listxml'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
-		#TODO Handle errors properly
-		#I'm doing what the documentation tells me to not do and using proc.stdout.read
-		for _, element in ElementTree.iterparse(proc.stdout):
-			if element.tag == 'machine':
-				my_copy = copy.copy(element)
-				machine_name = element.attrib['name']
+		with subprocess.Popen([self.executable, '-listxml'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as proc:
+			#I'm doing what the documentation tells me to not do and effectively using proc.stdout.read
+			try:
+				for _, element in ElementTree.iterparse(proc.stdout):
+					if element.tag == 'machine':
+						my_copy = copy.copy(element)
+						machine_name = element.attrib['name']
 
-				with open(os.path.join(self.xml_cache_path, machine_name + '.xml'), 'wb') as cache_file:
-					cache_file.write(ElementTree.tostring(element))
-				yield machine_name, my_copy
-				element.clear()
-		proc.wait()
+						with open(os.path.join(self.xml_cache_path, machine_name + '.xml'), 'wb') as cache_file:
+							cache_file.write(ElementTree.tostring(element))
+						yield machine_name, my_copy
+						element.clear()
+			except ElementTree.ParseError as fuck:
+				#Hmm, this doesn't show us where the error really is
+				if main_config.debug:
+					print('baaagh XML error in listxml', fuck)
 		#Guard against the -listxml process being interrupted and screwing up everything
 		Path(self.xml_cache_path, 'is_done').touch()
 
