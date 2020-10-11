@@ -31,17 +31,21 @@ def get_mame_folder(name):
 	if not mame_categories_folders:
 		return None
 	
-	#TODO: strict=False is there to prevent DuplicateOptionError, but it seems like this should indicate to me that configparser might not actually be the best tool for the job, maybe just write a custom thing to do it?
-	parser = configparser.ConfigParser(interpolation=None, allow_no_value=True, strict=False)
-	parser.optionxform = str
-		
-	for folder in mame_categories_folders:
-		category_file_path = os.path.join(folder, name + '.ini')
+	try:
+		#TODO: strict=False is there to prevent DuplicateOptionError, but it seems like this should indicate to me that configparser might not actually be the best tool for the job, maybe just write a custom thing to do it?
+		parser = configparser.ConfigParser(interpolation=None, allow_no_value=True, strict=False)
+		parser.optionxform = str
+			
+		for folder in mame_categories_folders:
+			category_file_path = os.path.join(folder, name + '.ini')
 
-		#This won't fail if category_file_path doesn't exist, so I guess it's fine
-		parser.read(category_file_path)
-	
-	return parser
+			#This won't fail if category_file_path doesn't exist, so I guess it's fine
+			parser.read(category_file_path)
+		
+		return parser
+	except UnicodeDecodeError:
+		print('UnicodeDecodeError in get_mame_folder for ', name, 'skipping')
+		return None
 
 @functools.lru_cache(maxsize=None)
 def get_machine_folder(basename, folder_name):
