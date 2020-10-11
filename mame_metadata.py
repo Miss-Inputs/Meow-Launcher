@@ -270,7 +270,7 @@ def add_metadata_from_catlist(machine):
 	if (category == 'Arcade' and (genre == 'Misc.' and subgenre in ('Laserdisc Simulator', 'Print Club', 'Redemption'))) or (genre == 'Music' and subgenre in ('Jukebox', 'JukeBox')):
 		machine.metadata.categories = [subgenre]
 	elif genre == 'Utilities' and subgenre in ('Test ROM', 'Test'):
-		machine.metadata.categories = ['Test ROMs']
+		machine.metadata.categories = ['Tests']
 	elif genre == 'Electromechanical' or (category == 'Arcade' and genre in ('Medal Game', 'Utilities')):
 		machine.metadata.categories = [genre]
 		machine.metadata.genre = subgenre
