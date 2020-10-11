@@ -44,12 +44,14 @@ def get_mame_folder(name):
 		
 		return parser
 	except UnicodeDecodeError:
-		print('UnicodeDecodeError in get_mame_folder for ', name, 'skipping')
+		print('UnicodeDecodeError in get_mame_folder for', name, 'skipping')
 		return None
 
 @functools.lru_cache(maxsize=None)
 def get_machine_folder(basename, folder_name):
 	folder = get_mame_folder(folder_name)
+	if not folder:
+		return []
 
 	sections = []
 	for section in folder.sections():
