@@ -157,7 +157,7 @@ systems = {
 	'Vectrex': SystemInfo(['vectrex'], ['vectrex'], ['MAME (Vectrex)'], {MediaType.Cartridge: ['vec', 'gam', 'bin']}),
 	'Watara Supervision': SystemInfo(['svision'], ['svision'], ['MAME (Watara Supervision)'], {MediaType.Cartridge: ['ws', 'sv', 'bin']}),
 	'ZAPit Game Wave': SystemInfo([], [], [], {MediaType.OpticalDisc: ['iso']}),
-	'Zeebo': SystemInfo([], [], [], {}), #Folders with "mif" and "mod"?
+	'Zeebo': SystemInfo(['zeebo'], [], [], {}), #Folders with "mif" and "mod"?
 
 	#Homebrew projects or whatever
 	'Arduboy': SystemInfo([], [], [], {MediaType.Digital: ['arduboy'], MediaType.Executable: ['hex']}),
