@@ -166,6 +166,25 @@ def try_detect_source(folder):
 	
 	return False
 
+def try_detect_adobe_air(folder):
+	if os.path.isdir(os.path.join(folder, 'Adobe AIR')):
+		return True
+	if os.path.isdir(os.path.join(folder, 'runtimes', 'Adobe AIR')):
+		return True
+	
+	if os.path.isfile(os.path.join(folder, 'AIR', 'arh')):
+		#"Adobe Redistribution Helper" but I dunno how reliable this detection is, to be honest, but it seems to be used sometimes; games like this seem to instead check for a system-wide AIR installation and try and install that if it's not there
+		return True
+
+	metainf_dir = os.path.join(folder, 'META-INF', 'AIR')
+	if os.path.isdir(metainf_dir):
+		if os.path.isfile(os.path.join(metainf_dir, 'application.xml')) and os.path.isfile(os.path.join(metainf_dir, 'hash')):
+			return True
+
+	#file named "mimetype" might also exist with content of "application/vnd.adobe.air-application-installer-package+zip"
+
+	return False
+
 def try_and_detect_engine_from_folder(folder):
 	dir_entries = list(os.scandir(folder))
 	files = [f.name.lower() for f in dir_entries if f.is_file()]
@@ -209,6 +228,10 @@ def try_and_detect_engine_from_folder(folder):
 		return 'Unreal Engine 2' #Possibly 2.5 specifically
 	if os.path.isfile(os.path.join(folder, 'System', 'Engine.u')):
 		return 'Unreal Engine 1'
+	if 'data.wolf' in files and 'config.exe' in files:
+		#TODO: Also might have a Data folder with .wolf files inside it
+		#Is GuruguruSMF4.dll always there? Doesn't seem to be part of the thing
+		return 'Wolf RPG Editor'
 	
 	if try_detect_gamemaker(folder):
 		return 'GameMaker'
@@ -222,12 +245,7 @@ def try_and_detect_engine_from_folder(folder):
 		return 'Unity'
 	if try_detect_source(folder):
 		return 'Source'
-
-	#Hmm should I be refactoring these lines down here
-	if 'adobe air' in subdirs or os.path.isdir(os.path.join(folder, 'runtimes', 'Adobe AIR')):
-		return 'Adobe AIR'
-	if os.path.isfile(os.path.join(folder, 'AIR', 'arh')):
-		#"Adobe Redistribution Helper" but I dunno how reliable this detection is, to be honest, but it seems to be used sometimes; games like this seem to instead check for a system-wide AIR installation and try and install that if it's not there
+	if try_detect_adobe_air(folder):
 		return 'Adobe AIR'
 
 	return None
