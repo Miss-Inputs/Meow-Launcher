@@ -232,6 +232,8 @@ def try_and_detect_engine_from_folder(folder):
 		#TODO: Also might have a Data folder with .wolf files inside it
 		#Is GuruguruSMF4.dll always there? Doesn't seem to be part of the thing
 		return 'Wolf RPG Editor'
+	if 'game.dmanifest' in files and 'game.arcd' in files and 'game.arci' in files:
+		return 'Defold'
 	
 	if try_detect_gamemaker(folder):
 		return 'GameMaker'
