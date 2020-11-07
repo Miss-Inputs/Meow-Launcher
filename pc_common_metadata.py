@@ -234,7 +234,9 @@ def try_and_detect_engine_from_folder(folder):
 		return 'Wolf RPG Editor'
 	if 'game.dmanifest' in files and 'game.arcd' in files and 'game.arci' in files:
 		return 'Defold'
-	
+	if 'libogremain.so' in files or 'ogremain.dll' in files:
+		return 'OGRE'
+
 	if try_detect_gamemaker(folder):
 		return 'GameMaker'
 	if try_detect_build(folder):
