@@ -340,6 +340,7 @@ systems = {
 	'Squale': SystemInfo(['squale'], ['squale_cart'], ['MAME (Squale)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['bin']}),
 	'SVI-3x8': SystemInfo(['svi318', 'svi328'], ['svi318_cart', 'svi318_cass', 'svi318_flop'], ['MAME (SVI-3x8)'], {MediaType.Tape: ['wav', 'cas'], MediaType.Cartridge: ['bin', 'rom']}),
 	'Tandy MC-10': SystemInfo(['mc10'], ['mc10'], [], {MediaType.Tape: ['wav', 'cas', 'c10']}),
+	'Tatung Einstein': SystemInfo(['einstein', 'einst256'], ['einstein'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav'], MediaType.Executable: ['com']}),
 	'Thomson MO5': SystemInfo(['mo5', 'mo5nr'], ['mo5_cart', 'mo5_cass', 'mo5_flop', 'mo5_qd'], ['MAME (Thomson MO5)'], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}),
 	'Thomson MO6': SystemInfo(['mo6'], ['mo6_cass', 'mo6_flop'], [], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}),
 	'Thomson TO': SystemInfo(['to7', 'to770', 'to8', 'to9', 'to9p'], ['to7_cart', 'to7_cass', 'to7_qd', 'to8_cass', 'to8_qd', 'to770a_cart', 'to770_cart'], [], {MediaType.Tape: ['wav', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m7', 'bin', 'rom']}),
@@ -363,7 +364,7 @@ systems = {
 
 #For Machine.is_system_driver to work correctly
 ibmpc_drivers = ['ibm5150', 'ibm5170', 'pcipc', 'pcipctx', 'nforcepc']
-mac_drivers = ['mac128k', 'macplus', 'macse', 'macsefd', 'macclasc', 'macii', 'mac2fdhd', 'macprtb', 'maciici', 'maciifx', 'maclc', 'maciisi', 'macpb100', 'macpb140', 'macclas2', 'maclc2', 'macpb160', 'macpd210', 'maccclas', 'maclc3', 'maciivx', 'maclc520', 'pmac6100']
+mac_drivers = ['mac128k', 'macplus', 'macse', 'macsefd', 'macclasc', 'macii', 'mac2fdhd', 'macprtb', 'maciici', 'maciifx', 'maclc', 'maciisi', 'macpb100', 'macpb140', 'macclas2', 'maclc2', 'macpb160', 'macpd210', 'maccclas', 'maclc3', 'maciivx', 'maclc520', 'pmac6100', 'macqd700']
 
 all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers] + ibmpc_drivers + mac_drivers
 
@@ -375,13 +376,13 @@ all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers] + ibmpc
 #Hitachi S1
 #Virtual systems: Flash, J2ME, TADS, Z-Machine (not that I have found cool emulators for any of that)
 #Acorn System (acrnsys3, acrnsys5)
-#Tatung Einstein (einstein, einst256)
 #ETI-660
 #Amstrad PC1512 (pc1512, pc1640)
 #Hanimex Pencil II (pencil2)
 #Indy (indy_4610, indigo2_4415)
 #Tiki 100
 #Cosmac VIP
+#MikroMikko 1
 
 #Confusing things:
 #Which of TI calculators are software compatible with which (and hence which ones would be considered individual systems)?

@@ -399,6 +399,7 @@ emulators = {
 	#abc80: #Requires "RUN " and the program name, where the program name is completely arbitrary and variable, so there's not really any way to do it automatically and programmatically
 	#pdp1: MAME needs us to press control panel key + read in, and then it does the thing and all is well
 	#zx81: 	#Gotta press J and then Shift+P twice to type LOAD "" and then enter, and then start the tape, and then wait and then press run, and it seems if you screw up any step at all you gotta reset the whole thing baaggghghh which is why I haven't bothered trying more of this
+	#einstein: Works fine but you need to type in the name of the program (this isn't in the usage field of SL)
 
 	#Have not gotten around to trying:
 	#atom
