@@ -73,6 +73,7 @@ def add_gba_metadata(game):
 			has_save = True
 			break
 	game.metadata.specific_info['Has-RTC'] = b'SIIRTC_V' in entire_cart
+	game.metadata.specific_info['Uses-Wireless-Adapter'] = b'RFU_V10' in entire_cart
 	game.metadata.save_type = SaveType.Cart if has_save else SaveType.Nothing
 
 	if b'AUDIO ERROR, too many notes on channel 0.increase polyphony RAM' in entire_cart:
