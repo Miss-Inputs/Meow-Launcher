@@ -37,6 +37,8 @@ def remove_nonexistent_games():
 			should_remove = scummvm.no_longer_exists(game_id)
 		elif game_type == 'Steam':
 			should_remove = steam.no_longer_exists(game_id)
+		elif game_type == 'GOG':
+			should_remove = not os.path.exists(game_id)
 		#Hmm, not sure what I should do if game_type is unrecognized. I guess ignore it, it might be from somewhere else and therefore not my business
 
 		if should_remove:
