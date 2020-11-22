@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import json
 import os
 
 import launchers
@@ -7,7 +8,7 @@ import pc_common_metadata
 from common_types import MediaType
 from config.main_config import main_config
 from metadata import Metadata
-
+from info import region_info
 
 class GOGGameInfo():
 	def __init__(self, path):
@@ -45,7 +46,7 @@ class GOGGame():
 			self.metadata.images['Icon'] = icon
 		self.metadata.specific_info['Version'] = self.info.version
 		self.metadata.specific_info['Dev-Version'] = self.info.dev_version
-		#self.metadata.specific_info['Language-Code'] = self.info.language
+		self.metadata.specific_info['Language-Code'] = self.info.language
 		self.metadata.specific_info['GOG-ProductID'] = self.info.gameid
 
 		self.metadata.platform = 'Linux' #TODO: Option to have this as "GOG"
@@ -80,9 +81,25 @@ class GOGGame():
 class NormalGOGGame(GOGGame):
 	def add_metadata(self):
 		super().add_metadata()
-		engine = pc_common_metadata.try_and_detect_engine_from_folder(os.path.join(self.folder, 'game'))
+		game_data_folder = os.path.join(self.folder, 'game')
+		engine = pc_common_metadata.try_and_detect_engine_from_folder(game_data_folder)
 		if engine:
 			self.metadata.specific_info['Engine'] = engine
+		for filename in os.listdir(game_data_folder):
+			if filename.startswith('goggame-') and filename.endswith('.info'):
+				#This isn't always here, usually this is used for Windows games, but might as well poke at it if it's here
+				with open(os.path.join(game_data_folder, filename), 'rt') as f:
+					j = json.load(f)
+					self.metadata.specific_info['Build-ID'] = j.get('buildId')
+					self.metadata.specific_info['Client-ID'] = j.get('clientId')
+					self.metadata.specific_info['GOG-ProductID'] = j.get('gameId')
+					lang_name = j.get('language')
+					if lang_name:
+						lang = region_info.get_language_by_english_name(lang_name)
+						self.metadata.languages.append(lang)
+					#We won't do anything special with playTasks, not sure it's completely accurate as it doesn't seem to include arguments to executables where that would be expected (albeit this is in the case of Pushover, which is a DOSBox game hiding as a normal game)
+					#Looking at 'category' for the task with 'isPrimary' = true though might be interesting
+				break
 
 class DOSBoxGOGGame(GOGGame):
 	#TODO: Let user use native DOSBox
