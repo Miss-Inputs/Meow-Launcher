@@ -49,7 +49,7 @@ class GOGGame():
 		self.metadata.specific_info['Language-Code'] = self.info.language
 		self.metadata.specific_info['GOG-ProductID'] = self.info.gameid
 
-		self.metadata.platform = 'Linux' #TODO: Option to have this as "GOG"
+		self.metadata.platform = 'GOG' if main_config.use_gog_as_platform else 'Linux'
 		self.metadata.media_type = MediaType.Digital
 		self.metadata.categories = ['Trials'] if self.is_demo else ['Games'] #There are movies on GOG but I'm not sure how they work, no software I think
 		#Dang… everything else would require the API, I guess

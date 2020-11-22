@@ -438,6 +438,7 @@ def process_launchers(game, launch):
 			#betakey = launch_item_config.get(b'betakey')
 			#if betakey and betakey != installed_betakey:
 			#	continue
+			launcher['platform'] = platform
 		if platform not in launch_items:
 			launch_items[platform] = []
 		launch_items[platform].append(launcher)
@@ -495,7 +496,6 @@ def add_metadata_from_appinfo_common_section(game, common):
 	if 'Icon' not in game.metadata.images:
 		add_icon_from_common_section(game, common)
 
-	#oslist and osarch may come in handy (former is comma separated windows/macos/linux; latter is b'64' or purrsibly b'32'), osextended is sometimes like 'macos64'
 	#eulas is a list, so it could be used to detect if game has third-party EULA
 	#small_capsule and header_image refer to image files that don't seem to be there so I dunno
 	#workshop_visible and community_hub_visible could also tell you stuff about if the game has a workshop and a... community hub
@@ -503,6 +503,18 @@ def add_metadata_from_appinfo_common_section(game, common):
 	#exfgls = exclude from game library sharing
 	#b'requireskbmouse' and b'kbmousegame' are also things, but don't seem to be 1:1 with games that have controllersupport = none
 	#name_localized has a dict with e.g. b'japanese' as the keys; will worry about that later...
+
+	oslist = common.get(b'oslist')
+	if not main_config.use_steam_as_platform:
+		#It's comma separated, but we can assume platform if there's only one (and sometimes config section doesn't do the thing)
+		if oslist == b'windows':
+			game.metadata.platform = 'Windows'
+		if oslist == b'macos':
+			game.metadata.platform = 'Mac'
+		if oslist == b'linux':
+			game.metadata.platform = 'Linux'
+		
+	#osarch is something like b'32' or b'64', osextended is sometimes 'macos64' etc
 
 	app_retired_publisher_request = common.get(b'app_retired_publisher_request')
 	if app_retired_publisher_request:
@@ -811,6 +823,16 @@ def process_launcher(game, launcher):
 
 	if launcher['args'] and '-uplay_steam_mode' in launcher['args']:
 		game.metadata.specific_info['Launcher'] = 'uPlay'
+	if not main_config.use_steam_as_platform:
+		launcher_platform = launcher.get('platform')
+		if launcher_platform:
+			if 'linux' in launcher_platform.lower():
+				game.metadata.platform = 'Linux'
+			elif 'win' in launcher_platform.lower():
+				game.metadata.platform = 'Windows'
+			elif 'mac' in launcher_platform.lower():
+				#Why not
+				game.metadata.platform = 'Mac'
 
 def poke_around_in_install_dir(game):
 	install_dir = game.app_state.get('installdir')
@@ -929,7 +951,11 @@ def process_game(app_id, folder, app_state):
 		return
 
 	game = SteamGame(app_id, folder, app_state)
-	game.metadata.platform = 'Steam'
+	if main_config.use_steam_as_platform:
+		game.metadata.platform = 'Steam'
+	else:
+		#I guess we might assume it's Windows if there's no other info specifying the platform, this seems to happen with older games
+		game.metadata.platform = 'Windows'
 	lowviolence = app_state.get('UserConfig', {}).get('lowviolence')
 	if lowviolence:
 		game.metadata.specific_info['Low-Violence'] = lowviolence == '1'
