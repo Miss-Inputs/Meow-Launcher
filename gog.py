@@ -35,7 +35,8 @@ class GOGGame():
 		self.info = info
 		self.start_script = start_script
 		self.support_folder = support_folder #Is this necessary to pass as an argument? I guess not but I've already found it in look_in_linux_gog_folder
-
+		
+		self.name = pc_common_metadata.fix_name(self.info.name)
 		self.metadata = Metadata()
 
 	def add_metadata(self):
@@ -49,7 +50,7 @@ class GOGGame():
 
 		self.metadata.platform = 'Linux' #TODO: Option to have this as "GOG"
 		self.metadata.media_type = MediaType.Digital
-		self.metadata.categories = ['Games'] #There are movies on GOG but I'm not sure how they work, no software I think
+		self.metadata.categories = ['Trials'] if self.is_demo else ['Games'] #There are movies on GOG but I'm not sure how they work, no software I think
 		#Dang… everything else would require the API, I guess
 
 	@property
@@ -60,9 +61,21 @@ class GOGGame():
 				return icon_path
 		return None
 
+	@property
+	def is_demo(self):
+		#The API doesn't even say this for a given product ID, we'll just have to figure it out ourselves
+		if self.info.version and 'demo' in self.info.version.lower():
+			return True
+		if self.info.dev_version and 'demo' in self.info.dev_version.lower():
+			return True
+		for demo_suffix in pc_common_metadata.demo_suffixes:
+			if '({0})'.format(demo_suffix.lower()) in self.name.lower():
+				return True
+		return False
+
 	def make_launcher(self):
 		params = launchers.LaunchParams(self.start_script, [])
-		launchers.make_launcher(params, self.info.name, self.metadata, 'GOG', self.folder)
+		launchers.make_launcher(params, self.name, self.metadata, 'GOG', self.folder)
 
 class NormalGOGGame(GOGGame):
 	def add_metadata(self):

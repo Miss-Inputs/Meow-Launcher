@@ -6,25 +6,22 @@ import glob
 import io
 import json
 import os
-import re
 import statistics
 import time
 import zipfile
 from enum import IntFlag
 
 import launchers
-from common import junk_suffixes, remove_capital_article, title_case
+from common import junk_suffixes, remove_capital_article
 from common_types import MediaType, SaveType
 from config.main_config import main_config
-from data.name_cleanup.capitalized_words_in_names import capitalized_words
 from data.name_cleanup.steam_developer_overrides import developer_overrides
 from data.steam_genre_ids import genre_ids
 from data.steam_store_categories import store_categories
 from info.region_info import get_language_by_english_name
 from metadata import Metadata
 from pc_common_metadata import (check_for_interesting_things_in_folder,
-                                detect_engine_recursively)
-from series_detect import chapter_matcher
+                                detect_engine_recursively, fix_name, normalize_name_case)
 
 try:
 	from PIL import Image, IcoImagePlugin
@@ -799,49 +796,6 @@ def add_metadata_from_appinfo(game, app_info_section):
 	else:
 		#I think it's a fair assumption that every game on Steam will have _some_ sort of save data (even if just settings and not progress) so until I'm proven wrong... whaddya gonna do
 		game.metadata.save_type = SaveType.Internal
-
-fluff_editions = ['GOTY', 'Game of the Year', 'Definitive', 'Enhanced', 'Special', 'Ultimate', 'Premium', 'Gold', 'Extended', 'Super Turbo Championship', 'Digital', 'Megaton', 'Deluxe', 'Masterpiece']
-name_suffixes = ['Demo', 'Beta', 'GOTY', "Director's Cut", 'Unstable', 'Complete', 'Complete Collection', "Developer's Cut"] + [e + ' Edition' for e in fluff_editions]
-name_suffix_matcher = re.compile(r'(?: | - |: )?(?:The )?(' + '|'.join(name_suffixes) + ')$', re.RegexFlag.IGNORECASE)
-def normalize_name_case(name, name_to_test_for_upper=None):
-	if not name_to_test_for_upper:
-		name_to_test_for_upper = name
-
-	if main_config.normalize_name_case == 1:
-		if name_to_test_for_upper.isupper():
-			return title_case(name, words_to_ignore_case=capitalized_words)
-		return name
-	if main_config.normalize_name_case == 2:
-		if name_to_test_for_upper.isupper():
-			return title_case(name, words_to_ignore_case=capitalized_words)
-
-		#Assume minimum word length of 4 to avoid acronyms, although those should be in capitalized_words I guess
-		return re.sub(r"[\w'-]{4,}", lambda match: title_case(match[0], words_to_ignore_case=capitalized_words) if match[0].isupper() else match[0], name)
-	if main_config.normalize_name_case == 3:
-		return title_case(name, words_to_ignore_case=capitalized_words)
-	
-	return name
-
-why = re.compile(r' -(?=\w)') #This bothers me
-def fix_name(name):
-	name = name.replace('™', '')
-	name = name.replace('®', '')
-	name = name.replace(' : ', ': ') #Oi mate what kinda punctuation is this
-	name = name.replace('[diary]', 'diary') #Stop that
-	name = name.replace('(VI)', 'VI') #Why is Tomb Raider: The Angel of Darkness like this
-	name = why.sub(' - ', name)
-
-	if name.startswith('ARCADE GAME SERIES'):
-		#This is slightly subjective as to whether or not one should do this, but I believe it should
-		name = name[20:] + ' (ARCADE GAME SERIES)'
-
-	name_to_test_for_upper = chapter_matcher.sub('', name)
-	name_to_test_for_upper = name_suffix_matcher.sub('', name_to_test_for_upper)
-	name = normalize_name_case(name, name_to_test_for_upper)
-		
-	#Hmm... this is primarily so series_detect and disambiguate work well, it may be worthwhile putting them back afterwards (put them in some kind of field similar to Filename-Tags but disambiguate always adds them in); depending on how important it is to have "GOTY" or "Definitive Edition" etc in the name if not ambiguous
-	name = name_suffix_matcher.sub(r' (\1)', name)
-	return name
 
 def process_launcher(game, launcher):
 	game.metadata.extension = os.path.splitext(launcher['exe'])[-1][1:].lower()
