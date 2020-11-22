@@ -243,7 +243,7 @@ def disambiguate_names():
 	if not main_config.full_rescan:
 		reambiguate()
 
-	fix_duplicate_names('Type', field_section=launchers.id_section_name)
+	#fix_duplicate_names('Type', field_section=launchers.id_section_name)
 	fix_duplicate_names('Platform')
 	fix_duplicate_names('dev-status')
 	fix_duplicate_names('Arcade-System', arcade_system_disambiguate)
