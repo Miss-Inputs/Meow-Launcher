@@ -25,7 +25,7 @@ def remove_nonexistent_games():
 		game_id = get_field(launcher, 'Unique-ID', id_section_name)
 
 		should_remove = False
-		if game_type == 'MAME machine':
+		if game_type in ('MAME', 'Arcade'):
 			should_remove = mame_machines.no_longer_exists(game_id)
 		elif game_type in 'ROM':
 			should_remove = not os.path.exists(game_id)

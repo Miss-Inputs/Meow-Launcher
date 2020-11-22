@@ -50,7 +50,7 @@ def make_machine_launcher(machine):
 
 	params = launchers.LaunchParams('mame', emulator_command_line_helpers.mame_base(machine.basename, slot_options=slot_options))
 	#TODO: Let's put this in emulator_info, even if only MAME exists as the singular arcade emulator for now; and clean this up some more
-	launchers.make_launcher(params, machine.name, machine.metadata, 'MAME machine', machine.basename)
+	launchers.make_launcher(params, machine.name, machine.metadata, 'Arcade' if machine.metadata.platform == 'Arcade' else 'MAME', machine.basename)
 
 
 def process_machine(machine):
@@ -102,7 +102,9 @@ def process_arcade():
 
 	for machine_name, machine_element in iter_mame_entire_xml():
 		if not main_config.full_rescan:
-			if launchers.has_been_done('MAME machine', machine_name):
+			if launchers.has_been_done('Arcade', machine_name):
+				continue
+			if launchers.has_been_done('MAME', machine_name):
 				continue
 
 		process_machine_element(machine_element)

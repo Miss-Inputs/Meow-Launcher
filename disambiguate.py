@@ -42,10 +42,10 @@ def update_name(desktop, disambiguator, disambiguation_method):
 	with open(desktop[0], 'wt') as f:
 		desktop[1].write(f)
 
-def resolve_duplicates_by_metadata(group, field, format_function=None, ignore_missing_values=False):
-	value_counter = collections.Counter(launchers.get_field(d[1], field) for d in group)
+def resolve_duplicates_by_metadata(group, field, format_function=None, ignore_missing_values=False, field_section=launchers.metadata_section_name):
+	value_counter = collections.Counter(launchers.get_field(d[1], field, field_section) for d in group)
 	for dup in group:
-		field_value = launchers.get_field(dup[1], field)
+		field_value = launchers.get_field(dup[1], field, field_section)
 		name = launchers.get_field(dup[1], 'Name', 'Desktop Entry')
 
 		#See if this launcher is unique in this group (of launchers with the same
@@ -161,7 +161,7 @@ def resolve_duplicates_by_date(group):
 
 			update_name(dup, '(' + date_string + ')', 'date')
 
-def resolve_duplicates(group, method, format_function=None, ignore_missing_values=None):
+def resolve_duplicates(group, method, format_function=None, ignore_missing_values=None, field_section=launchers.metadata_section_name):
 	if method == 'tags':
 		resolve_duplicates_by_filename_tags(group)
 	elif method == 'dev-status':
@@ -169,9 +169,9 @@ def resolve_duplicates(group, method, format_function=None, ignore_missing_value
 	elif method == 'date':
 		resolve_duplicates_by_date(group)
 	else:
-		resolve_duplicates_by_metadata(group, method, format_function, ignore_missing_values)
+		resolve_duplicates_by_metadata(group, method, format_function, ignore_missing_values, field_section)
 
-def fix_duplicate_names(method, format_function=None, ignore_missing_values=None):
+def fix_duplicate_names(method, format_function=None, ignore_missing_values=None, field_section=launchers.metadata_section_name):
 	files = [(path, launchers.get_desktop(path)) for path in [os.path.join(main_config.output_folder, f) for f in os.listdir(main_config.output_folder)]]
 	if method == 'dev-status':
 		resolve_duplicates_by_dev_status(files)
@@ -193,7 +193,7 @@ def fix_duplicate_names(method, format_function=None, ignore_missing_values=None
 		if method == 'check':
 			print('Duplicate name still remains: ', k, [(d[1][launchers.junk_section_name].get('Original-Name', '<no Original-Name>') if launchers.junk_section_name in d[1] else '<no junk section>') for d in v])
 		else:
-			resolve_duplicates(v, method, format_function, ignore_missing_values)
+			resolve_duplicates(v, method, format_function, ignore_missing_values, field_section)
 
 def revision_disambiguate(rev, _):
 	if rev == '0':
@@ -243,6 +243,7 @@ def disambiguate_names():
 	if not main_config.full_rescan:
 		reambiguate()
 
+	fix_duplicate_names('Type', field_section=launchers.id_section_name)
 	fix_duplicate_names('Platform')
 	fix_duplicate_names('dev-status')
 	fix_duplicate_names('Arcade-System', arcade_system_disambiguate)
