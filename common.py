@@ -29,8 +29,9 @@ def remove_filename_tags(name):
 
 words_regex = re.compile(r'[\w()]+')
 apostrophes_at_word_boundary_regex = re.compile(r"\B'|'\B")
-def normalize_name(name, care_about_spaces=True, normalize_words=True):
-	name = convert_roman_numerals_in_title(name)
+def normalize_name(name, care_about_spaces=True, normalize_words=True, care_about_numerals=False):
+	if care_about_numerals:
+		name = convert_roman_numerals_in_title(name)
 	name = name.lower()
 	name = name.replace('3-d', '3d')
 	name = name.replace('&', 'and')
