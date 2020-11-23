@@ -27,13 +27,24 @@ class MediaSlot():
 
 arcade_system_names = {
 
+	#Not really names of arcade systems
+	'megadriv_acbl': 'Mega Drive Bootleg', #Mega Drive based ofc
+	'snesb': 'SNES Bootleg',
+	'snesb51': 'SNES Bootleg',
+	'pcxt': 'IBM PC-XT', #Games running off a PC-XT (mostly bootlegs, but not necessarily)
+	'astrocde': 'Astrocade', #The home console used the same hardware, I can't remember the names of all the different things
+	'cdi': 'Philips CD-i', #Literally a CD-i player with a JAMMA adapter (used for some quiz games)
+	'cps1bl_pic': 'CPS-1 Bootleg with PIC',
+	'cps1bl_5205': 'CPS-1 Bootleg',
+	'vectrex': 'Vectrex', #Also used for actual Vectrex console
+	'sms_bootleg': 'Master System Bootleg',
+
 	'20pacgal': 'Namco Anniversary',
 	'alien': 'Capcom Medalusion',
 	'aristmk4': 'Aristocrat MK4', #Gambling
 	'aristmk5': 'Aristocrat MK5', #Gambling, Acorn Archimedes based purrhaps
 	'aristmk6': 'Aristocrat MK6', #Gambling
 	'arsystems': 'Arcadia System', #Amiga 500 based
-	'astrocde': 'Astrocade', #The home console used the same hardware, I can't remember the names of all the different things
 	'atarig1': 'Atari G1',
 	'atarig42': 'Atari G42',
 	'atarigt': 'Atari GT',
@@ -44,13 +55,11 @@ arcade_system_names = {
 	'atlantis': 'Midway Atlantis', #Linux based (on MIPS CPU)
 	'balsente': 'Bally/Sente SAC-1',
 	'calchase': 'AUSCOM System 1', #PC (Windows 98, Cyrix 686MX + Trident TGUI9680) based
-	'cdi': 'Philips CD-i', #Literally a CD-i player with a JAMMA adapter (used for some quiz games)
 	'cedar_magnet': 'Cedar Magnet System',
 	'chihiro': 'Chihiro', #Based on Xbox
 	'circus': 'Exidy Universal Game Board v1',
 	'cobra': 'Konami Cobra System',
 	'coolridr': 'Sega System H1',
-	'cps1bl_pic': 'CPS-1 Bootleg with PIC',
 	'cps1': 'CPS-1',
 	'cps2': 'CPS-2',
 	'cps3': 'CPS-3',
@@ -81,7 +90,10 @@ arcade_system_names = {
 	'hornet': 'Konami Hornet',
 	'iteagle': 'Incredible Technologies Eagle',
 	'jaguar': 'Atari CoJag', #This is the same source file used for the Jaguar console too
+	'jpmimpct': 'JPM Impact',
+	'jpmsys5': 'JPM System 5',
 	'konamigq': 'Konami GQ', #Based on PS1
+	'konamigs': 'Konami GSAN1', 
 	'konamigv': 'Konami GV', #Based on PS1
 	'konamigx': 'Konami GX',
 	'konamim2': 'Konami M2', #Based on unreleased Panasonic M2
@@ -103,7 +115,6 @@ arcade_system_names = {
 	'mcr3': 'Midway MCR-3', #Also "MCR-Scroll", "MCR-Monobard"
 	'mcr68': 'Midway MCR-68k',
 	'mediagx': 'Atari Media GX', #Based on Cyrix multimedia PC
-	'megadriv_acbl': 'Mega Drive Bootleg', #Mega Drive based ofc
 	'megaplay': 'Mega-Play', #Megadrive based (home games converted to arcade format, coins buy lives)
 	'megasys1': 'Jaleco Mega System 1',
 	'megatech': 'Mega-Tech', #Megadrive games with timer
@@ -136,7 +147,6 @@ arcade_system_names = {
 	'nexus3d': 'Nexus 3D', #Skeleton
 	'nss': 'Nintendo Super System', #SNES games with timer
 	'nwk-tr': 'Konami NWK-TR',
-	'pcxt': 'IBM PC-XT', #Games running off a PC-XT (mostly bootlegs, but not necessarily)
 	'pgm2': 'PolyGame Master 2',
 	'pgm3': 'PolyGame Master 3',
 	'pgm': 'PolyGame Master',
@@ -150,7 +160,7 @@ arcade_system_names = {
 	'rastersp': 'Bell-Fruit/ATD RasterSpeed',
 	'redalert': 'Irem M27',
 	'seattle': 'Midway Seattle',
-	'segaatom': 'Sega Atom', #Basically a skeleton
+	'segaatom': 'Sega Atom',
 	'segac2': 'Sega System C2', #Similar to Megadrive
 	'segae': 'Sega System E', #Similar to Master System
 	'segag80r': 'Sega G-80 Raster',
@@ -164,10 +174,11 @@ arcade_system_names = {
 	'segaufo': 'Sega UFO Board', #Mechanical
 	'segaxbd': 'Sega X-Board',
 	'segaybd': 'Sega Y-Board',
+	'seibucats': 'E-Touch Mahjong Series',
 	'seibuspi': 'Seibu SPI',
 	'sfcbox': 'Super Famicom Box', #Arcadified SNES sorta
 	'sg1000a': 'Sega SG-1000', #Same hardware as the home system
-	'shootaway2': 'Namco M74', #Skeleton (mechanical?)
+	'shootaway2': 'Namco M74', #Mechanical?
 	'simpl156': 'Deco Simple 156',
 	'ssv': 'SSV', #Sammy Seta Visco
 	'stv': 'Sega ST-V', #Based on Saturn
@@ -195,7 +206,6 @@ arcade_system_names = {
 	'twinkle': 'Konami Bemani Twinkle', #PS1 based (but not System 573 related)
 	'uapce': 'United Amusements PC Engine', #PC Engine with JAMMA connector
 	'ultrsprt': 'Konami Ultra Sports',
-	'vectrex': 'Vectrex', #Also used for actual Vectrex console
 	'vegaeo': 'Eolith Vega System',
 	'vegas': 'Midway Vegas',
 	'vicdual': 'VIC Dual',
@@ -206,12 +216,11 @@ arcade_system_names = {
 	'namcos21': 'Namco System 21',
 	'namcos21_c67': 'Namco System 21',
 	'namcos21_de': 'Namco System 21', #Drivers Eyes
-	'snesb': 'SNES Bootleg',
-	'snesb51': 'SNES Bootleg',
 
 	#Arcade platforms that don't have a name or anything, but companies consistently use them
 	'alg': 'American Laser Games Hardware', #Amiga 500 based (w/ laserdisc player)
 	'artmagic': 'Art & Magic Hardware',
+	'atarittl': 'Atari TTL Hardware',
 	'cave': 'Cave 68K Hardware',
 	'cavepc': 'Cave PC Hardware', #Athlon 64 X2 + Radeon 3200 based
 	'cinemat': 'Cinematronics Vector Hardware',
@@ -232,6 +241,8 @@ arcade_system_names = {
 	'itech32': 'Incredible Technologies 32-bit Blitter Hardware',
 	'itech8': 'Incredible Technologies 8-bit Blitter Hardware',
 	'kaneko16': 'Kaneko 16-bit Hardware',
+	'konmedal': 'Konami Z80 Medal Games Hardware',
+	'konmedal68k': 'Konami 68K Medal Games Hardware',
 	'leland': 'Leland Hardware',
 	'meadows': 'Meadows S2650 Hardware',
 	'metro': 'Metro Hardware',
@@ -258,9 +269,11 @@ arcade_system_names = {
 	'yunsun16': 'Yun Sung 16 Bit Hardware',
 
 	#Arcade platforms that don't really have a name except a game that uses them; I try not to fill this up with every single remaining source file, just where it's notable for having other games on it or some other reason (because it's based on a home console/computer perhaps, or because it's 3D or modern and therefore interesting), or maybe I do because I feel like it sometimes, oh well
+	'8080bw': '8080 Black & White Hardware',
 	'ambush': 'Ambush Hardware',
 	'arkanoid': 'Arkanoid Hardware',
 	'armedf': 'Armed Formation Hardware',
+	'atetris': 'Atari Tetris Hardware',
 	'backfire': 'Backfire! Hardware',
 	'battlera': 'Battle Rangers Hardware', #PC Engine based
 	'btoads': 'Battletoads Hardware',
@@ -306,6 +319,7 @@ arcade_system_names = {
 	'pcat_nit': 'Street Games Hardware', #PC-AT 386 based
 	'mappy': 'Super Pac-Man Hardware', #While the source file is called mappy, this seems to be more commonly known as the Super Pac-Man board
 	'tvcapcom': 'Tatsunoko vs. Capcom Hardware', #Wii based
+	'tetrisp2': 'Tetris Plus 2 Hardware',
 	'tnzs': 'The NewZealand Story Hardware',
 	'tmnt': 'TMNT Hardware',
 	'tourtabl': 'Tournament Table Hardware', #Atari 2600 based
@@ -325,6 +339,7 @@ arcade_system_names = {
 	'namcops2': 'Namco System 246/256', #Based on PS2
 	'system1': 'Sega System 1/2',
 	'vp101': 'Play Mechanix VP50/VP100/VP101',
+	'system16': 'Sega System 16/18 Bootleg',
 }
 
 arcade_system_bios_names = {
@@ -356,6 +371,7 @@ arcade_system_bios_names = {
 	('zn', 'coh1002m'): 'Tecmo TPS', #PS1 based
 	('zn', 'coh1002v'): 'Video System PSX', #PS1 based
 	('zn', 'coh3002c'): 'Capcom ZN2', #PS1 based
+	('mpu4vid', 'v4bios'): 'MPU4 Video',
 
 	('3do', 'alg3do'): 'American Laser Games 3DO Hardware',
 
