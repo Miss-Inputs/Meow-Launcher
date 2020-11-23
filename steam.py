@@ -1114,10 +1114,13 @@ def process_steam():
 
 	time_started = time.perf_counter()
 
+	compat_tool_appids = [str(compat_tool[0]) for compat_tool in get_steamplay_compat_tools().values()]
 	for folder, app_id, app_state in iter_steam_installed_appids():
 		if not main_config.full_rescan:
 			if launchers.has_been_done('Steam', app_id):
 				continue
+		if app_id in compat_tool_appids:
+			continue
 
 		try:
 			process_game(app_id, folder, app_state)
