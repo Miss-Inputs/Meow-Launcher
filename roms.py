@@ -54,6 +54,7 @@ class RomFile():
 
 				if os.pathsep in entry:
 					self.name, self.extension = entry.rsplit(os.pathsep, 1)
+					self.extension = self.extension.lower()
 				else:
 					self.name = entry
 				self.compressed_entry = entry
@@ -62,8 +63,6 @@ class RomFile():
 			self.compressed_entry = None
 			self.name = name_without_extension
 			
-		self.extension = self.extension.lower()
-
 		self.store_entire_file = False
 		self.entire_file = b''
 		if self._get_size() < max_size_for_storing_in_memory:
