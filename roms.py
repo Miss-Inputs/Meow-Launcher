@@ -36,10 +36,10 @@ class RomFile():
 		self.original_extension = None
 		if os.pathsep in original_name:
 			name_without_extension, self.original_extension = original_name.rsplit(os.pathsep, 1)
+			self.original_extension = self.original_extension.lower()
 		else:
 			name_without_extension = original_name
 
-		self.original_extension = self.original_extension.lower()
 		self.extension = self.original_extension
 
 		if self.original_extension in archives.compressed_exts:
