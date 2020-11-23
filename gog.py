@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 
+import datetime
 import json
 import os
+import time
 
 import launchers
 import pc_common_metadata
 from common_types import MediaType
 from config.main_config import main_config
-from metadata import Metadata
 from info import region_info
+from metadata import Metadata
+
 
 class GOGGameInfo():
 	def __init__(self, path):
@@ -140,6 +143,8 @@ def look_in_linux_gog_folder(folder):
 	return None
 
 def do_gog_games():
+	time_started = time.perf_counter()
+
 	for gog_folder in main_config.gog_folders:
 		for subfolder in os.listdir(gog_folder):
 			path = os.path.join(gog_folder, subfolder)
@@ -152,6 +157,11 @@ def do_gog_games():
 
 			game.add_metadata()
 			game.make_launcher()
+	
+	if main_config.print_times:
+		time_ended = time.perf_counter()
+		print('GOG finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+
 
 if __name__ == '__main__':
 	do_gog_games()
