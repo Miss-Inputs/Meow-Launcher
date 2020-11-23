@@ -365,11 +365,13 @@ def get_steamplay_compat_tools():
 
 	tools = {}
 	for k, v in compat_tools_list.items():
-		#appid, from_oslist, to_oslist might be useful in some situation
+		#appid, to_oslist might be useful in some situation
 		#This just maps "proton_37" to "Proton 3.7-8" etc
 		display_name = v.get(b'display_name')
-		if display_name:
-			tools[k.decode('utf-8', errors='ignore')] = display_name.decode('utf-8', errors='ignore')
+		appid = v.get(b'appid')
+		from_oslist = v.get(b'from_oslist')
+		to_oslist = v.get(b'to_oslist')
+		tools[k.decode('utf-8', errors='ignore')] = (appid.data if appid else None, display_name.decode('utf-8', errors='ignore') if display_name else None, from_oslist.decode('utf-8', errors='ignore') if from_oslist else None, to_oslist.decode('utf-8', errors='ignore') if to_oslist else None)
 	return tools
 
 def get_steamplay_whitelist():
@@ -994,16 +996,23 @@ def process_game(app_id, folder, app_state):
 	if not game.launchers:
 		raise NotLaunchableError('Game cannot be launched')
 
-	launcher = list(game.launchers.values())[0]
+	launcher = list(game.launchers.values())[0] #Hmm
+	tools = get_steamplay_compat_tools()
 	if appid_str in steamplay_whitelist:
-		tool = steamplay_whitelist[appid_str]
-		game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
+		tool_id = steamplay_whitelist[appid_str]
+		tool = tools.get(tool_id, (None, tool_id, None, None))
+		game.metadata.emulator_name = tool[1]
+		if tool[2] in game.launchers:
+			launcher = game.launchers[tool[2]]
 		game.metadata.specific_info['Steam-Play-Whitelisted'] = True
 	elif appid_str in steamplay_overrides:
 		#Natively ported game, but forced to use Proton/etc for reasons
-		tool = steamplay_overrides[appid_str]
-		if tool:
-			game.metadata.emulator_name = get_steamplay_compat_tools().get(tool, tool)
+		tool_id = steamplay_overrides[appid_str]
+		if tool_id: #Would there be a situation in which this is none? Hmm I dunno
+			tool = tools.get(tool_id, (None, tool_id, None, None))
+			game.metadata.emulator_name = tool[1]
+			if tool[2] in game.launchers:
+				launcher = game.launchers[tool[2]]		
 			game.metadata.specific_info['Steam-Play-Forced'] = True
 	elif 'linux' in game.launchers:
 		launcher = game.launchers['linux']
@@ -1012,14 +1021,24 @@ def process_game(app_id, folder, app_state):
 	elif 'linux_32' in game.launchers:
 		launcher = game.launchers['linux_32']
 	else:
-		global_tool = steamplay_overrides.get('0')
-		if global_tool:
-			game.metadata.emulator_name = get_steamplay_compat_tools().get(global_tool, global_tool)
+		global_tool_id = steamplay_overrides.get('0')
+		if global_tool_id:
+			#game.metadata.emulator_name = tools.get(global_tool, (None,global_tool))[1]
+			global_tool = tools.get(global_tool_id, (None, global_tool_id, None, None))
+			game.metadata.emulator_name = global_tool[1]
+			if global_tool[2] in game.launchers:
+				launcher = game.launchers[global_tool[2]]
+			#"tool" doesn't look like a word anymore help
 			game.metadata.specific_info['Steam-Play-Whitelisted'] = False
 		else:
 			#If global tool is not set; this game can't be launched and will instead say "Invalid platform"
 			game.metadata.specific_info['No-Valid-Launchers'] = True
-	process_launcher(game, launcher)
+			launcher = None
+			if not main_config.force_create_launchers:
+				raise NotLaunchableError('Platform not supported and Steam Play not used')
+
+	if launcher:
+		process_launcher(game, launcher)
 	#Potentially do something with game.extra_launchers... I dunno, really
 	try:
 		poke_around_in_install_dir(game)
@@ -1028,9 +1047,6 @@ def process_game(app_id, folder, app_state):
 
 	#userdata/<user ID>/config/localconfig.vdf has last time played stats, so that's a thing I guess
 	#userdata/<user ID>/7/remote/sharedconfig.vdf has tags/categories etc as well
-
-	if game.metadata.specific_info.get('No-Valid-Launchers', False) and not main_config.force_create_launchers:
-		raise NotLaunchableError('Platform not supported and Steam Play not used')
 
 	if appinfo_entry:
 		add_metadata_from_appinfo(game, appinfo_entry)
