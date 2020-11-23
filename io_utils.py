@@ -12,7 +12,7 @@ def ensure_exist(path):
 
 def get_real_size(path, compressed_entry=None):
 	if compressed_entry is None:
-		return os.path.getsize(path)
+		return os.stat(path).st_size
 
 	return archives.compressed_getsize(path, compressed_entry)
 
