@@ -34,8 +34,8 @@ class RomFile():
 
 		original_name = os.path.basename(path)
 		self.original_extension = None
-		if os.pathsep in original_name:
-			name_without_extension, self.original_extension = original_name.rsplit(os.pathsep, 1)
+		if os.extsep in original_name:
+			name_without_extension, self.original_extension = original_name.rsplit(os.extsep, 1)
 			self.original_extension = self.original_extension.lower()
 		else:
 			name_without_extension = original_name
@@ -52,8 +52,8 @@ class RomFile():
 					continue
 				found_file_already = True
 
-				if os.pathsep in entry:
-					self.name, self.extension = entry.rsplit(os.pathsep, 1)
+				if os.extsep in entry:
+					self.name, self.extension = entry.rsplit(os.extsep, 1)
 					self.extension = self.extension.lower()
 				else:
 					self.name = entry
@@ -100,7 +100,7 @@ class GCZRomFile(RomFile):
 		return cd_read.read_gcz(self.path, seek_to, amount)
 
 def rom_file(path):
-	ext = path.rsplit(os.pathsep, 1)[-1]
+	ext = path.rsplit(os.extsep, 1)[-1]
 	if ext.lower() == 'gcz':
 		return GCZRomFile(path)
 	return RomFile(path)
