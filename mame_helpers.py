@@ -105,11 +105,14 @@ class MameExecutable():
 
 	def _cached_iter_mame_entire_xml(self):
 		for cached_file in os.listdir(self.xml_cache_path):
-			driver_name, ext = cached_file.rsplit('.', 1)
+			splitty = cached_file.rsplit('.', 1)
+			if len(splitty) != 2:
+				continue
+			driver_name, ext = splitty
 			if ext != 'xml':
 				continue
 			yield driver_name, ElementTree.parse(os.path.join(self.xml_cache_path, cached_file)).getroot()
-
+			
 	def iter_mame_entire_xml(self):
 		if os.path.isfile(os.path.join(self.xml_cache_path, 'is_done')):
 			yield from self._cached_iter_mame_entire_xml()

@@ -33,9 +33,14 @@ class RomFile():
 		self.ignore_name = False
 
 		original_name = os.path.basename(path)
-		name_without_extension, self.original_extension = original_name.rsplit(os.pathsep, 1)
+		self.original_extension = None
+		if os.pathsep in original_name:
+			name_without_extension, self.original_extension = original_name.rsplit(os.pathsep, 1)
+		else:
+			name_without_extension = original_name
 
 		self.original_extension = self.original_extension.lower()
+		self.extension = self.original_extension
 
 		if self.original_extension in archives.compressed_exts:
 			self.is_compressed = True
@@ -47,14 +52,16 @@ class RomFile():
 					continue
 				found_file_already = True
 
-				self.name, self.extension = entry.rsplit(os.pathsep, 1)
+				if os.pathsep in entry:
+					self.name, self.extension = entry.rsplit(os.pathsep, 1)
+				else:
+					self.name = entry
 				self.compressed_entry = entry
 		else:
 			self.is_compressed = False
 			self.compressed_entry = None
 			self.name = name_without_extension
-			self.extension = self.original_extension
-
+			
 		self.extension = self.extension.lower()
 
 		self.store_entire_file = False
@@ -94,7 +101,7 @@ class GCZRomFile(RomFile):
 		return cd_read.read_gcz(self.path, seek_to, amount)
 
 def rom_file(path):
-	_, ext = path.rsplit(os.pathsep)
+	ext = path.rsplit(os.pathsep, 1)[-1]
 	if ext.lower() == 'gcz':
 		return GCZRomFile(path)
 	return RomFile(path)
