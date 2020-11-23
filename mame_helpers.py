@@ -105,8 +105,8 @@ class MameExecutable():
 
 	def _cached_iter_mame_entire_xml(self):
 		for cached_file in os.listdir(self.xml_cache_path):
-			driver_name, ext = os.path.splitext(cached_file)
-			if ext != '.xml':
+			driver_name, ext = cached_file.rsplit('.', 1)
+			if ext != 'xml':
 				continue
 			yield driver_name, ElementTree.parse(os.path.join(self.xml_cache_path, cached_file)).getroot()
 

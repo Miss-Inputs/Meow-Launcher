@@ -1,4 +1,3 @@
-import os
 import re
 
 from common import (find_filename_tags_at_end, normalize_name,
@@ -509,7 +508,7 @@ class Machine():
 	
 	@property
 	def source_file(self):
-		return os.path.splitext(self.xml.attrib['sourcefile'])[0]
+		return self.xml.attrib['sourcefile'].rsplit('.', 1)[0]
 
 	@property
 	def is_mechanical(self):
@@ -765,7 +764,7 @@ def get_machine(driver):
 
 def get_machines_from_source_file(source_file):
 	for machine_name, source_file_with_ext in list_by_source_file():
-		if os.path.splitext(source_file_with_ext)[0] == source_file:
+		if source_file_with_ext.rsplit('.', 1)[0] == source_file:
 			yield Machine(get_mame_xml(machine_name))
 
 def machine_name_matches(machine_name, game_name, match_vs_system=False):
