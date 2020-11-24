@@ -718,6 +718,9 @@ class Machine():
 						#And here, too
 						developer = manufacturers[0] if manufacturers[1] == 'Namco' else manufacturers[1]
 						publisher = manufacturers[1] if manufacturers[1] == 'Namco' else manufacturers[0]
+					elif 'Sammy' in manufacturers and arcade_system and arcade_system == 'Atomiswave':
+						developer = manufacturers[0] if manufacturers[1] == 'Sammy' else manufacturers[1]
+						publisher = manufacturers[1] if manufacturers[1] == 'Sammy' else manufacturers[0]
 					elif manufacturer == 'Rare / Electronic Arts':
 						#Well at least we know what's going on in this case
 						developer = 'Rare'
