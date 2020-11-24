@@ -73,7 +73,7 @@ emulators = {
 		'compatibility_threshold': EmulatorConfigValue(ConfigValueType.Integer, 2, "Don't try and launch any game with this compatibility rating or lower"),
 		'consider_unknown_games_incompatible': EmulatorConfigValue(ConfigValueType.Bool, False, "Consider games incompatible if they aren't in the compatibility database at all")
 	}),
-	'Flycast': EmulatorInfo(EmulatorStatus.Good, 'reicast', command_lines.flycast, ['gdi', 'cdi', 'chd', 'cue'], [], {
+	'Flycast': EmulatorInfo(EmulatorStatus.Good, 'flycast', command_lines.flycast, ['gdi', 'cdi', 'chd', 'cue'], [], {
 		'force_opengl_version': EmulatorConfigValue(ConfigValueType.Bool, False, 'Hack to force Mesa OpenGL version by environment variable if you need it')
 	}),
 	'FS-UAE': EmulatorInfo(EmulatorStatus.Good, 'fs-uae', command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf'], []),
