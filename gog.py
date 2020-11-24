@@ -27,7 +27,7 @@ class GOGGameInfo():
 			try:
 				self.name = lines[0]
 				self.version = lines[1]
-				self.dev_version = lines[2]
+				self.dev_version = lines[2] if lines[2] != 'n/a' else None
 				self.language = lines[3]
 				self.gameid = lines[4]
 			except IndexError:
