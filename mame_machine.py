@@ -26,19 +26,7 @@ class MediaSlot():
 		self.extensions = {extension_xml.attrib.get('name') for extension_xml in xml.findall('extension')}
 
 arcade_system_names = {
-
-	#Not really names of arcade systems
-	'megadriv_acbl': 'Mega Drive Bootleg', #Mega Drive based ofc
-	'snesb': 'SNES Bootleg',
-	'snesb51': 'SNES Bootleg',
-	'pcxt': 'IBM PC-XT', #Games running off a PC-XT (mostly bootlegs, but not necessarily)
-	'astrocde': 'Astrocade', #The home console used the same hardware, I can't remember the names of all the different things
-	'cdi': 'Philips CD-i', #Literally a CD-i player with a JAMMA adapter (used for some quiz games)
-	'cps1bl_pic': 'CPS-1 Bootleg with PIC',
-	'cps1bl_5205': 'CPS-1 Bootleg',
-	'vectrex': 'Vectrex', #Also used for actual Vectrex console
-	'sms_bootleg': 'Master System Bootleg',
-
+	#Normal stuff
 	'20pacgal': 'Namco Anniversary',
 	'alien': 'Capcom Medalusion',
 	'aristmk4': 'Aristocrat MK4', #Gambling
@@ -82,9 +70,8 @@ arcade_system_names = {
 	'fuukifg2': 'Fuuki FG-2',
 	'fuukifg3': 'Fuuki FG-3',
 	'gaelco2': 'Gaelco CG-1V/GAE1',
-	'gammagic': 'Bally V8000', #Pentium PC based, skeleton
+	'gammagic': 'Bally V8000', #Pentium PC based
 	'ghosteo': 'Eolith Ghost',
-	'gts1': 'Gottlieb System 1', #Pinball, I think?
 	'hikaru': 'Sega Hikaru',
 	'hng64': 'Hyper Neo Geo 64',
 	'hornet': 'Konami Hornet',
@@ -144,7 +131,7 @@ arcade_system_names = {
 	'namcos2': 'Namco System 2',
 	'namcos86': 'Namco System 86',
 	'neoprint': 'Neo Print',
-	'nexus3d': 'Nexus 3D', #Skeleton
+	'nexus3d': 'Nexus 3D',
 	'nss': 'Nintendo Super System', #SNES games with timer
 	'nwk-tr': 'Konami NWK-TR',
 	'pgm2': 'PolyGame Master 2',
@@ -216,7 +203,33 @@ arcade_system_names = {
 	'namcos21': 'Namco System 21',
 	'namcos21_c67': 'Namco System 21',
 	'namcos21_de': 'Namco System 21', #Drivers Eyes
+	
+	#Not really names of arcade systems
+	'megadriv_acbl': 'Mega Drive Bootleg', #Mega Drive based ofc
+	'snesb': 'SNES Bootleg',
+	'snesb51': 'SNES Bootleg',
+	'pcxt': 'IBM PC-XT', #Games running off a PC-XT (mostly bootlegs, but not necessarily)
+	'astrocde': 'Astrocade', #The home console used the same hardware, I can't remember the names of all the different things
+	'cdi': 'Philips CD-i', #Literally a CD-i player with a JAMMA adapter (used for some quiz games)
+	'cps1bl_pic': 'CPS-1 Bootleg with PIC',
+	'cps1bl_5205': 'CPS-1 Bootleg',
+	'vectrex': 'Vectrex', #Also used for actual Vectrex console
+	'sms_bootleg': 'Master System Bootleg',
 
+	#Pinned ball
+	'de_3': 'Data East/Sega Version 3',
+	'de_3b': 'Data East/Sega Version 3B',
+	'gp_1': 'Game Plan MPU-1',
+	'gts1': 'Gottlieb System 1',
+	'gts3': 'Gottlieb System 3',
+	'gts3a': 'Gottlieb System 3', #With dot matrix display
+	'gts80a': 'Gottlieb System 80A',
+	'pinball2k': 'Pinball 2000',
+	's11b': 'Williams System 11B',
+	'whitestar': 'Sega/Stern Whitestar',
+	'white_mod': 'Sega/Stern Whitestar', #Modified
+	'wpc_flip2': 'Williams WPC Flipstar 2',
+	
 	#Arcade platforms that don't have a name or anything, but companies consistently use them
 	'alg': 'American Laser Games Hardware', #Amiga 500 based (w/ laserdisc player)
 	'artmagic': 'Art & Magic Hardware',
@@ -372,6 +385,8 @@ arcade_system_bios_names = {
 	('zn', 'coh1002v'): 'Video System PSX', #PS1 based
 	('zn', 'coh3002c'): 'Capcom ZN2', #PS1 based
 	('mpu4vid', 'v4bios'): 'MPU4 Video',
+
+	('allied', 'allied'): 'Allied System',
 
 	('3do', 'alg3do'): 'American Laser Games 3DO Hardware',
 
