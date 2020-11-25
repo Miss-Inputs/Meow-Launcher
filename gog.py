@@ -146,6 +146,11 @@ def do_gog_games():
 	time_started = time.perf_counter()
 
 	for gog_folder in main_config.gog_folders:
+		if not os.path.isdir(gog_folder):
+			if main_config.debug:
+				print(gog_folder, 'does not exist/is not directory')
+			continue
+
 		for subfolder in os.listdir(gog_folder):
 			path = os.path.join(gog_folder, subfolder)
 			if not os.path.isdir(path):
