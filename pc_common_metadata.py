@@ -225,6 +225,8 @@ def try_and_detect_engine_from_folder(folder):
 		return 'Visionaire Studio'
 	if any(f.endswith('.rgssad') for f in files):
 		return 'RPG Maker XP/VX' #If mkxp.conf is there, uses mkxp replacement implementation
+	if any(f.endswith('.rvproj2') for f in files):
+		return 'RPG Maker VX Ace'
 	if any(f.endswith('.cf') for f in files):
 		if 'data.xp3' in files and 'plugin' in subdirs:
 			return 'KiriKiri'
