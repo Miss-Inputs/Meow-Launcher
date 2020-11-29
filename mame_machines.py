@@ -7,6 +7,8 @@ import time
 import launchers
 from common_types import EmulationStatus
 from config.main_config import main_config
+from data.machines_with_inbuilt_games import (bioses_with_inbuilt_games,
+                                              machines_with_inbuilt_games)
 from info import emulator_command_line_helpers
 from mame_helpers import get_mame_xml, iter_mame_entire_xml, verify_romset
 from mame_machine import Machine, get_machines_from_source_file
@@ -52,7 +54,6 @@ def make_machine_launcher(machine):
 	#TODO: Let's put this in emulator_info, even if only MAME exists as the singular arcade emulator for now; and clean this up some more
 	launchers.make_launcher(params, machine.name, machine.metadata, 'Arcade' if machine.metadata.platform == 'Arcade' else 'MAME', machine.basename)
 
-
 def process_machine(machine):
 	if machine.is_skeleton_driver:
 		#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
@@ -97,6 +98,25 @@ def process_machine_element(machine_element):
 
 	process_machine(machine)
 
+def process_inbuilt_game(machine_name, inbuilt_game, bios_name=None):
+	if not verify_romset(machine_name):
+		return
+
+	machine_xml = get_mame_xml(machine_name)
+	#MachineNotFoundException shouldn't happen because verify_romset already returned true? Probably
+	machine = Machine(machine_xml, init_metadata=True)
+	
+	machine.metadata.platform = inbuilt_game[1]
+	machine.metadata.categories = [inbuilt_game[2]]
+
+	args = emulator_command_line_helpers.mame_base(machine_name, bios=bios_name)
+	launch_params = launchers.LaunchParams('mame', args) #I guess this should be refactored one day to allow for different MAME paths
+
+	unique_id = machine_name
+	if bios_name:
+		unique_id += ':' + bios_name
+	launchers.make_launcher(launch_params, inbuilt_game[0], machine.metadata, 'Inbuilt game', unique_id)
+
 def process_arcade():
 	time_started = time.perf_counter()
 
@@ -111,7 +131,24 @@ def process_arcade():
 
 	if main_config.print_times:
 		time_ended = time.perf_counter()
-		print('Arcade finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+		print('Arcade/MAME machines finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+
+	time_started = time.perf_counter()
+
+	for machine_name, inbuilt_game in machines_with_inbuilt_games.items():
+		if not main_config.full_rescan:
+			if launchers.has_been_done('Inbuilt game', machine_name):
+				continue
+		process_inbuilt_game(machine_name, inbuilt_game)
+	for machine_and_bios_name, inbuilt_game in bioses_with_inbuilt_games.items():
+		if not main_config.full_rescan:
+			if launchers.has_been_done('Inbuilt game', machine_and_bios_name[0] + ':' + machine_and_bios_name[1]):
+				continue
+		process_inbuilt_game(machine_and_bios_name[0], inbuilt_game, machine_and_bios_name[1])
+
+	if main_config.print_times:
+		time_ended = time.perf_counter()
+		print('Machines with inbuilt games finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
 def main():
 	if '--drivers' in sys.argv:

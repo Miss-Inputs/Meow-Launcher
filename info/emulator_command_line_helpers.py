@@ -56,10 +56,14 @@ def mednafen_module_callable(module):
 		return mednafen_module(module, exe_path=emulator_config.exe_path)
 	return funcy_boi
 
-def mame_base(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None, software=None):
+def mame_base(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None, software=None, bios=None):
 	args = ['-skip_gameinfo']
 	if has_keyboard:
 		args.append('-ui_active')
+
+	if bios:
+		args.append('-bios')
+		args.append(bios)
 
 	args.append(driver)
 	if software:
