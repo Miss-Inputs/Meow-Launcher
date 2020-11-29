@@ -12,7 +12,7 @@ from data.machines_with_inbuilt_games import (bioses_with_inbuilt_games,
 from info import emulator_command_line_helpers
 from mame_helpers import get_mame_xml, iter_mame_entire_xml, verify_romset
 from mame_machine import Machine, get_machines_from_source_file
-from mame_metadata import add_metadata
+from mame_metadata import add_metadata, add_status
 
 
 def is_actually_machine(machine):
@@ -108,9 +108,15 @@ def process_inbuilt_game(machine_name, inbuilt_game, bios_name=None):
 	
 	machine.metadata.platform = inbuilt_game[1]
 	machine.metadata.categories = [inbuilt_game[2]]
+	machine.metadata.genre = None #We don't actually know these and it's probably not accurate to call a game "Home Videogame Console" etc
+	machine.metadata.subgenre = None #Could possibly add it ourselves to the inbuilt games list but that requires me knowing what I'm talking about when it comes to genres
+	machine.metadata.developer = None #We also don't know this necessarily, but it does make sense that the publisher of a built-in game would be the publisher of the console it's built into
+	machine.metadata.specific_info.pop('Number-of-Players') #This also doesn't necessarily match up, you can have a console that supports 2 players but the inbuilt game is for just one
+	add_status(machine)
 
 	args = emulator_command_line_helpers.mame_base(machine_name, bios=bios_name)
 	launch_params = launchers.LaunchParams('mame', args) #I guess this should be refactored one day to allow for different MAME paths
+	machine.metadata.emulator_name = 'MAME'
 
 	unique_id = machine_name
 	if bios_name:
