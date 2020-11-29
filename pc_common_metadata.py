@@ -221,7 +221,7 @@ def try_and_detect_engine_from_folder(folder):
 	if 'logdir' in files and 'object' in files and 'picdir' in files and 'viewdir' in files and 'snddir' in files and 'vol.0' in files and 'words.tok' in files:
 		#Apparently there can be .wag files?
 		return 'AGI' #v2
-	if 'visplayer' in files and any(f.endswith('.vis') for f in files): #.vis magic is "VIS3"?
+	if ('visplayer' in files and any(f.endswith('.vis') for f in files)) or ('data.vis' in files): #.vis magic is "VIS3"?
 		return 'Visionaire Studio'
 	if any(f.endswith('.rgssad') for f in files):
 		return 'RPG Maker XP/VX' #If mkxp.conf is there, uses mkxp replacement implementation
