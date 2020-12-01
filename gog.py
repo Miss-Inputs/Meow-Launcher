@@ -94,6 +94,10 @@ class GOGJSONGameInfo():
 			self.name = j.get('name')
 			self.play_tasks = [GOGTask(task_json) for task_json in j.get('playTasks', [])]
 			#supportTasks follow the same format (type = URLTask, FileTask, etc) but link to documentation/support stuff instead (name = Manual, Readme, etc); will bother with that once I put in a section in launchers for documents I guess
+			#version: Always 1?
+			# for key in j.keys():
+			# 	if key not in ('gameId', 'rootGameId', 'version', 'buildId', 'clientId', 'standalone', 'dependencyGameId', 'language', 'languages', 'name', 'playTasks', 'supportTasks'):
+			# 		print('Ooh interesting', path, key, j[key])
 
 	@property
 	def primary_play_task(self):
@@ -159,7 +163,7 @@ class NormalGOGGame(GOGGame):
 			self.metadata.specific_info['Engine'] = engine
 		for filename in os.listdir(game_data_folder):
 			if filename.startswith('goggame-') and filename.endswith('.info'):
-				json_info = GOGJSONGameInfo(filename)
+				json_info = GOGJSONGameInfo(os.path.join(game_data_folder, filename))
 				#This isn't always here, usually this is used for Windows games, but might as well poke at it if it's here
 				self.metadata.specific_info['Build-ID'] = json_info.build_id
 				self.metadata.specific_info['Client-ID'] = json_info.client_id
