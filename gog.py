@@ -58,7 +58,7 @@ class GOGTask():
 	def __init__(self, json_object):
 		self.is_primary = json_object.get('isPrimary', False)
 		self.task_type = json_object.get('type')
-		self.path = json_object.get('path')
+		self.path = json_object.get('path') #I guess this is also only for FileTask
 		if self.path:
 			self.path = self.path.replace('\\', os.path.sep)
 		self.working_directory = json_object.get('workingDir') #This would only matter for FileTask I guess
@@ -70,7 +70,13 @@ class GOGTask():
 			self.args = shlex.split(args)
 		else:
 			self.args = []
-		#languages: Presumably language codes, but seems to be ['*'] most of the time
+		#languages: Language codes (without dialect eg just "en"), but seems to be ['*'] most of the time
+		self.name = json_object.get('name') #Might not be provided if it is the primary task
+		self.is_hidden = json_object.get('isHidden', False)
+		self.compatibility_flags = json_object.get('compatibilityFlags', '').split(' ') #These seem to be those from https://docs.microsoft.com/en-us/windows/deployment/planning/compatibility-fixes-for-windows-8-windows-7-and-windows-vista (but not always case sensitive?), probably important but I'm not sure what to do about them for now
+		#osBitness: As in GOGJSONGameInfo
+		#link: For URLTask
+		#icon: More specific icon I guess, but this can be an exe or DLL to annoy me
 
 	@property
 	def is_dosbox(self):
@@ -86,18 +92,17 @@ class GOGJSONGameInfo():
 			self.game_id = j.get('gameId')
 			self.build_id = j.get('buildId')
 			self.client_id = j.get('clientId')
-			#rootGameId: This is usually the same as gameId, but maybe there's some cases where it's not? I can only imagine it's something to do with DLC
-			#standalone: Usually true?
+			#rootGameId: This seems to always be the same as gameId, but maybe there's some cases where it's not? I can only imagine it's something to do with DLC
+			#standalone: Usually true or not provided?
 			#dependencyGameId: Usually blank?
 			self.language_name = j.get('language') #English name of the language (I guess the default language?)
 			#languages: Array of language codes (e.g. en-US)
 			self.name = j.get('name')
 			self.play_tasks = [GOGTask(task_json) for task_json in j.get('playTasks', [])]
 			#supportTasks follow the same format (type = URLTask, FileTask, etc) but link to documentation/support stuff instead (name = Manual, Readme, etc); will bother with that once I put in a section in launchers for documents I guess
-			#version: Always 1?
-			# for key in j.keys():
-			# 	if key not in ('gameId', 'rootGameId', 'version', 'buildId', 'clientId', 'standalone', 'dependencyGameId', 'language', 'languages', 'name', 'playTasks', 'supportTasks'):
-			# 		print('Ooh interesting', path, key, j[key])
+			#version: Always 1 if there?
+			#osBitness: Array containing '64' as a string rather than just a number like a normal person? I guess we don't need it (unless we care about 32-bit Wine users)
+			#overlaySupported: Probably GOG Galaxy related
 
 	@property
 	def primary_play_task(self):
@@ -238,6 +243,10 @@ class WindowsGOGGame():
 		if self.info.primary_play_task.is_dosbox:
 			self.metadata.specific_info['Wrapper'] = 'DOSBox'
 		self.metadata.emulator_name = 'Wine'
+
+		engine = pc_common_metadata.try_and_detect_engine_from_folder(self.folder)
+		if engine:
+			self.metadata.specific_info['Engine'] = engine
 
 		self.metadata.platform = 'GOG' if main_config.use_gog_as_platform else 'Windows'
 		self.metadata.media_type = MediaType.Digital
