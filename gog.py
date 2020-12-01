@@ -273,10 +273,10 @@ class WindowsGOGGame():
 		if main_config.wineprefix:
 			env_vars = {'WINEPREFIX': main_config.wineprefix}
 		primary_task = self.info.primary_play_task
-		args = ['start', '/unix']
+		args = ['start']
 		if primary_task.working_directory:
 			args += ['/d', find_subpath_case_insensitive(self.folder, primary_task.working_directory)]
-		args.append(find_subpath_case_insensitive(self.folder, primary_task.path))
+		args += ['/unix', find_subpath_case_insensitive(self.folder, primary_task.path)]
 		args += primary_task.args
 		params = launchers.LaunchParams(main_config.wine_path, args, env_vars)
 		launchers.make_launcher(params, self.name, self.metadata, 'GOG', self.folder)
