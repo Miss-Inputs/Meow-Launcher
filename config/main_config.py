@@ -62,6 +62,9 @@ _config_ini_values = {
 
 	'gog_folders': ConfigValue('GOG', ConfigValueType.FolderPathList, [], 'GOG folders', 'Folders where GOG games are installed'),
 	'use_gog_as_platform': ConfigValue('GOG', ConfigValueType.Bool, False, 'Use GOG as platform', 'Set platform in metadata to GOG instead of underlying platform'),
+	'wine_path': ConfigValue('GOG', ConfigValueType.FilePath, 'wine', 'Wine path', 'Path to Wine executable to use for Windows GOG games'), #TODO: This should be in general section later on (but for now it's just used for GOG Windows)
+	'wineprefix': ConfigValue('GOG', ConfigValueType.FolderPath, None, 'Wine prefix', 'Optional Wine prefix to use for Windows GOG games'),
+	'windows_gog_folders': ConfigValue('GOG', ConfigValueType.FolderPathList, [], 'Windows GOG folders', 'Folders where Windows GOG games are installed'),
 
 	#These shouldn't end up in config.ini as they're intended to be set per-run
 	'debug': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Debug', 'Enable debug mode, which is really verbose mode, oh well'),
