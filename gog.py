@@ -13,6 +13,7 @@ from common_types import MediaType
 from config.main_config import main_config
 from info import region_info
 from metadata import Metadata
+from pc_common_metadata import is_probably_related_tool
 
 
 class GOGGameInfo():
@@ -272,17 +273,41 @@ class WindowsGOGGame():
 		env_vars = None
 		if main_config.wineprefix:
 			env_vars = {'WINEPREFIX': main_config.wineprefix}
-		
+
+		if not task.path:
+			print('Oh dear - we cannot deal with tasks that have no path', self.name)
+			return
+
+		if task.path.lower().endswith('.lnk'):
+			print(self.name, 'cannot be launched - we cannot deal with shortcuts right now (we should parse them but I cannot be arsed right now)', self.name)
+			return
+
 		args = ['start']
 		if task.working_directory:
 			args += ['/d', find_subpath_case_insensitive(self.folder, task.working_directory)]
 		args += ['/unix', find_subpath_case_insensitive(self.folder, task.path)]
 		args += task.args
 		params = launchers.LaunchParams(main_config.wine_path, args, env_vars)
-		launchers.make_launcher(params, self.name, self.metadata, 'GOG', self.folder)
+
+		#TODO: Specifically set category to Applications if task.category == tool (but this requires cloning metadata object, or changing it each time which seems weird)
+
+		name = self.name
+		if task.name and not task.is_primary:
+			if task.category == 'tool' or is_probably_related_tool(task.name) or is_probably_related_tool(task.path):
+				name += ' ({0})'.format(task.name)
+			else:
+				name = pc_common_metadata.fix_name(task.name)
+
+		launchers.make_launcher(params, name, self.metadata, 'GOG', self.folder)
 
 	def make_launchers(self):
-		self.make_launcher(self.info.primary_play_task)
+		#self.make_launcher(self.info.primary_play_task)
+		for task in self.info.play_tasks:
+			if task.category == 'document':
+				continue
+			if task.is_hidden:
+				continue
+			self.make_launcher(task)
 
 def look_in_windows_gog_folder(folder):
 	info_file = None
