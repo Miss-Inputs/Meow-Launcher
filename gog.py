@@ -57,7 +57,7 @@ def find_subpath_case_insensitive(path, subpath):
 class GOGTask():
 	def __init__(self, json_object):
 		self.is_primary = json_object.get('isPrimary', False)
-		self.task_type = json_object.get('type')
+		self.task_type = json_object.get('type') #Just FileTask or URLTask?
 		self.path = json_object.get('path') #I guess this is also only for FileTask
 		if self.path:
 			self.path = self.path.replace('\\', os.path.sep)
@@ -67,7 +67,7 @@ class GOGTask():
 		self.category = json_object.get('category') #"game", "tool", "document"
 		args = json_object.get('arguments')
 		if args:
-			self.args = shlex.split(args)
+			self.args = shlex.split(args) #We don't need to convert backslashes here because the wine'd executable uses them
 		else:
 			self.args = []
 		#languages: Language codes (without dialect eg just "en"), but seems to be ['*'] most of the time
@@ -268,18 +268,21 @@ class WindowsGOGGame():
 				return icon_path
 		return None
 
-	def make_launcher(self):
+	def make_launcher(self, task):
 		env_vars = None
 		if main_config.wineprefix:
 			env_vars = {'WINEPREFIX': main_config.wineprefix}
-		primary_task = self.info.primary_play_task
+		
 		args = ['start']
-		if primary_task.working_directory:
-			args += ['/d', find_subpath_case_insensitive(self.folder, primary_task.working_directory)]
-		args += ['/unix', find_subpath_case_insensitive(self.folder, primary_task.path)]
-		args += primary_task.args
+		if task.working_directory:
+			args += ['/d', find_subpath_case_insensitive(self.folder, task.working_directory)]
+		args += ['/unix', find_subpath_case_insensitive(self.folder, task.path)]
+		args += task.args
 		params = launchers.LaunchParams(main_config.wine_path, args, env_vars)
 		launchers.make_launcher(params, self.name, self.metadata, 'GOG', self.folder)
+
+	def make_launchers(self):
+		self.make_launcher(self.info.primary_play_task)
 
 def look_in_windows_gog_folder(folder):
 	info_file = None
@@ -333,7 +336,7 @@ def do_gog_games():
 					continue
 				
 				game.add_metadata()
-				game.make_launcher()
+				game.make_launchers()
 
 	if main_config.print_times:
 		time_ended = time.perf_counter()
