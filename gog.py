@@ -241,9 +241,12 @@ class WindowsGOGGame():
 		if lang_name:
 			lang = region_info.get_language_by_english_name(lang_name)
 			self.metadata.languages.append(lang)
-		if self.info.primary_play_task.is_dosbox:
-			self.metadata.specific_info['Wrapper'] = 'DOSBox'
 		self.metadata.emulator_name = 'Wine'
+		primary_task = self.info.primary_play_task
+		if primary_task:
+			if primary_task.is_dosbox:
+				self.metadata.specific_info['Wrapper'] = 'DOSBox'
+			self.metadata.specific_info['Compatibility-Flags'] = primary_task.compatibility_flags
 
 		engine = pc_common_metadata.try_and_detect_engine_from_folder(self.folder)
 		if engine:
