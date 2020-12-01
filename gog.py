@@ -74,7 +74,11 @@ class GOGTask():
 		#languages: Language codes (without dialect eg just "en"), but seems to be ['*'] most of the time
 		self.name = json_object.get('name') #Might not be provided if it is the primary task
 		self.is_hidden = json_object.get('isHidden', False)
-		self.compatibility_flags = json_object.get('compatibilityFlags', '').split(' ') #These seem to be those from https://docs.microsoft.com/en-us/windows/deployment/planning/compatibility-fixes-for-windows-8-windows-7-and-windows-vista (but not always case sensitive?), probably important but I'm not sure what to do about them for now
+		compatFlags = json_object.get('compatibilityFlags', '')
+		if compatFlags:
+			self.compatibility_flags = compatFlags.split(' ') #These seem to be those from https://docs.microsoft.com/en-us/windows/deployment/planning/compatibility-fixes-for-windows-8-windows-7-and-windows-vista (but not always case sensitive?), probably important but I'm not sure what to do about them for now
+		else:
+			self.compatibility_flags = []
 		#osBitness: As in GOGJSONGameInfo
 		#link: For URLTask
 		#icon: More specific icon I guess, but this can be an exe or DLL to annoy me
@@ -84,6 +88,12 @@ class GOGTask():
 		if not self.path or not self.working_directory:
 			return False
 		return self.path.lower() == 'dosbox/dosbox.exe' and self.working_directory.lower() == 'dosbox' and self.task_type == 'FileTask'
+
+	@property
+	def is_scummvm(self):
+		if not self.path or not self.working_directory:
+			return False
+		return self.path.lower() == 'scummvm/scummvm.exe' and self.working_directory.lower() == 'scummvm' and self.task_type == 'FileTask'
 
 class GOGJSONGameInfo():
 	#File named "gog-<gameid>.info" for Windows games (and sometimes distributed in game folder of Linux games)
@@ -246,6 +256,8 @@ class WindowsGOGGame():
 		if primary_task:
 			if primary_task.is_dosbox:
 				self.metadata.specific_info['Wrapper'] = 'DOSBox'
+			if primary_task.is_scummvm:
+				self.metadata.specific_info['Wrapper'] = 'ScummVM'
 			self.metadata.specific_info['Compatibility-Flags'] = primary_task.compatibility_flags
 
 		engine = pc_common_metadata.try_and_detect_engine_from_folder(self.folder)
@@ -273,6 +285,8 @@ class WindowsGOGGame():
 		return None
 
 	def make_launcher(self, task):
+		#TODO: Let user use native DOSBox/ScummVM
+
 		env_vars = None
 		if main_config.wineprefix:
 			env_vars = {'WINEPREFIX': main_config.wineprefix}
