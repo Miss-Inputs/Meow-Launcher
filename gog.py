@@ -139,7 +139,7 @@ class GOGGame():
 		self.metadata.specific_info['Version'] = self.info.version
 		self.metadata.specific_info['Dev-Version'] = self.info.dev_version
 		self.metadata.specific_info['Language-Code'] = self.info.language
-		self.metadata.specific_info['GOG-ProductID'] = self.info.gameid
+		self.metadata.specific_info['GOG-Product-ID'] = self.info.gameid
 
 		self.metadata.platform = 'GOG' if main_config.use_gog_as_platform else 'Linux'
 		self.metadata.media_type = MediaType.Digital
@@ -246,7 +246,7 @@ class WindowsGOGGame():
 		if icon:
 			self.metadata.images['Icon'] = icon
 
-		self.metadata.specific_info['GOG-ProductID'] = self.info.game_id
+		self.metadata.specific_info['GOG-Product-ID'] = self.info.game_id
 		lang_name = self.info.language_name
 		if lang_name:
 			lang = region_info.get_language_by_english_name(lang_name)
@@ -292,11 +292,13 @@ class WindowsGOGGame():
 			env_vars = {'WINEPREFIX': main_config.wineprefix}
 
 		if not task.path:
-			print('Oh dear - we cannot deal with tasks that have no path', self.name)
+			if main_config.debug:
+				print('Oh dear - we cannot deal with tasks that have no path', self.name)
 			return
 
 		if task.path.lower().endswith('.lnk'):
-			print(self.name, 'cannot be launched - we cannot deal with shortcuts right now (we should parse them but I cannot be arsed right now)', self.name)
+			if main_config.debug:
+				print(self.name, 'cannot be launched - we cannot deal with shortcuts right now (we should parse them but I cannot be arsed right now)', self.name)
 			return
 
 		args = ['start']
