@@ -998,15 +998,10 @@ def process_game(app_id, folder, app_state):
 
 	launcher = list(game.launchers.values())[0] #Hmm
 	tools = get_steamplay_compat_tools()
-	if appid_str in steamplay_whitelist:
-		tool_id = steamplay_whitelist[appid_str]
-		tool = tools.get(tool_id, (None, tool_id, None, None))
-		game.metadata.emulator_name = tool[1]
-		if tool[2] in game.launchers:
-			launcher = game.launchers[tool[2]]
-		game.metadata.specific_info['Steam-Play-Whitelisted'] = True
-	elif appid_str in steamplay_overrides:
-		#Natively ported game, but forced to use Proton/etc for reasons
+	override = False
+	if appid_str in steamplay_overrides:
+		#Specifically selected in the dropdown box
+		override = True
 		tool_id = steamplay_overrides[appid_str]
 		if tool_id: #Would there be a situation in which this is none? Hmm I dunno
 			tool = tools.get(tool_id, (None, tool_id, None, None))
@@ -1014,6 +1009,14 @@ def process_game(app_id, folder, app_state):
 			if tool[2] in game.launchers:
 				launcher = game.launchers[tool[2]]		
 			game.metadata.specific_info['Steam-Play-Forced'] = True
+	if appid_str in steamplay_whitelist:
+		if not override:
+			tool_id = steamplay_whitelist[appid_str]
+			tool = tools.get(tool_id, (None, tool_id, None, None))
+			game.metadata.emulator_name = tool[1]
+			if tool[2] in game.launchers:
+				launcher = game.launchers[tool[2]]
+		game.metadata.specific_info['Steam-Play-Whitelisted'] = True
 	elif 'linux' in game.launchers:
 		launcher = game.launchers['linux']
 	elif 'linux_64' in game.launchers:
