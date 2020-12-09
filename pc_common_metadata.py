@@ -227,6 +227,8 @@ def try_and_detect_engine_from_folder(folder):
 		return 'RPG Maker XP/VX' #If mkxp.conf is there, uses mkxp replacement implementation
 	if any(f.endswith('.rvproj2') for f in files):
 		return 'RPG Maker VX Ace'
+	if 'rgss102j.dll' in files or 'rgss102e.dll' in files:
+		return 'RPG Maker XP'
 	if any(f.endswith('.cf') for f in files):
 		if 'data.xp3' in files and 'plugin' in subdirs:
 			return 'KiriKiri'
