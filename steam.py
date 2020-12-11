@@ -97,7 +97,7 @@ class SteamInstallation():
 
 	def get_users(self):
 		#Probably the most lazy way to do it, but if this is a bad idea, please don't send me to jail
-		return os.listdir(self.userdata_folder)
+		return [user for user in os.listdir(self.userdata_folder) if user != 'ac']
 
 	def get_user_library_cache_folder(self, user_id):
 		return os.path.join(self.userdata_folder, user_id, 'config', 'librarycache')
