@@ -293,12 +293,12 @@ class WindowsGOGGame():
 
 		if not task.path:
 			if main_config.debug:
-				print('Oh dear - we cannot deal with tasks that have no path', self.name)
+				print('Oh dear - we cannot deal with tasks that have no path', self.name, task.name, task.args, task.type, task.category)
 			return
 
 		if task.path.lower().endswith('.lnk'):
 			if main_config.debug:
-				print(self.name, 'cannot be launched - we cannot deal with shortcuts right now (we should parse them but I cannot be arsed right now)', self.name)
+				print(self.name, 'cannot be launched - we cannot deal with shortcuts right now (we should parse them but I cannot be arsed right now)', self.name, task.name, task.args, task.type, task.category)
 			return
 
 		args = ['start']
