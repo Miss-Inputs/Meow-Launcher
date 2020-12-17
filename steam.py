@@ -286,7 +286,7 @@ def look_for_icon(icon_hash):
 							raise IconError('.ico file {0} is not actually an .ico file at all'.format(icon_file)) from syntax_error
 
 					#Guess it's still broken
-					raise IconError('.ico file {0} has some annoying error: {1}'.format(icon_file, str(ex))) from ex
+					raise IconError('.ico file {0} has some annoying error: {1}'.format(icon_file, str(ex)))
 
 			if not is_zip:
 				return icon_path
