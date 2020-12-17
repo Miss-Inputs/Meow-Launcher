@@ -107,11 +107,15 @@ def format_platform(platform):
 		'segacd': 'Mega CD',
 		'windows': 'Windows',
 		'playstation': 'PlayStation',
+		'playstation2': 'PS2',
+		'xbox': 'Xbox',
 		'cdi': 'CD-i',
 		'ios': 'iOS',
 		'os2': 'OS/2',
 		'beos': 'BeOS',
 		'ppc': 'PocketPC',
+		'megadrive': 'Mega Drive',
+		'saturn': 'Saturn',
 	}.get(platform, platform)
 
 class ScummVMGame():
