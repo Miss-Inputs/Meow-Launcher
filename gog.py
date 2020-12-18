@@ -293,7 +293,7 @@ class WindowsGOGGame():
 
 		if not task.path:
 			if main_config.debug:
-				print('Oh dear - we cannot deal with tasks that have no path', self.name, task.name, task.args, task.type, task.category)
+				print('Oh dear - we cannot deal with tasks that have no path', self.name, task.name, task.args, task.task_type, task.category)
 			return
 
 		if task.path.lower().endswith('.lnk'):
