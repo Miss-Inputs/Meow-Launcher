@@ -181,7 +181,6 @@ def parse_ds_header(rom, metadata, header):
 			for lang, title in banner_titles.items():
 				add_banner_title_metadata(metadata, title, lang)
 
-			#TODO: Not sure if every game has an English title, it is normally a region free system but maybe iQue carts don't have a proper English title
 			if banner_titles:
 				banner_title = banner_titles.get('English', list(banner_titles.values())[0])
 				add_banner_title_metadata(metadata, banner_title)
