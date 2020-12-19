@@ -699,7 +699,6 @@ def add_metadata_from_appinfo_common_section(game, common):
 				game.metadata.series = remove_capital_article(franchise_name)
 
 		if 'developer' in associations_dict:
-			#TODO: Maybe we want to pick up on stuff among the lines of "Blah Blah (Linux)" and then instead of putting that in the developer list as normal have Linux-Developer = Blah Blah or Ported-By = Blah Blah (and skip if OS isn't Linux (but that might get complicated))
 			devs = []
 			for dev in associations_dict['developer']:
 				dev = normalize_developer(dev)
