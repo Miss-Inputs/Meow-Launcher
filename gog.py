@@ -324,6 +324,8 @@ class WindowsGOGGame():
 		for task in self.info.play_tasks:
 			if task.category == 'document':
 				continue
+			if task.task_type == 'URLTask':
+				continue
 			if task.is_hidden:
 				continue
 			self.make_launcher(task)
