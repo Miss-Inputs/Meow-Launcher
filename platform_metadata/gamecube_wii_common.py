@@ -11,7 +11,6 @@ from .gametdb import TDB, add_info_from_tdb
 
 
 class NintendoDiscRegion(Enum):
-	# Also seems to be used for Wii discs and WiiWare
 	NTSC_J = 0
 	NTSC_U = 1
 	PAL = 2
