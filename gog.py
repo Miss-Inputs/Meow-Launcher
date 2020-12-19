@@ -298,7 +298,7 @@ class WindowsGOGGame():
 
 		if task.path.lower().endswith('.lnk'):
 			if main_config.debug:
-				print(self.name, 'cannot be launched - we cannot deal with shortcuts right now (we should parse them but I cannot be arsed right now)', self.name, task.name, task.args, task.type, task.category)
+				print(self.name, 'cannot be launched - we cannot deal with shortcuts right now (we should parse them but I cannot be arsed right now)', self.name, task.name, task.args, task.task_type, task.category)
 			return
 
 		args = ['start']
