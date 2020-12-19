@@ -1,3 +1,4 @@
+import os
 from enum import Enum
 from xml.etree import ElementTree
 
@@ -6,7 +7,8 @@ from config.main_config import main_config
 from config.system_config import system_configs
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 
-from .gametdb import add_info_from_tdb, TDB
+from .gametdb import TDB, add_info_from_tdb
+
 
 class NintendoDiscRegion(Enum):
 	# Also seems to be used for Wii discs and WiiWare
@@ -31,6 +33,20 @@ def load_tdb():
 			print('Oh no failed to load Wii TDB because', blorp)
 		return None
 tdb = load_tdb()
+
+def add_cover(metadata, product_code, licensee_code):
+	#Intended for the covers database from GameTDB
+	if 'Wii' not in system_configs:
+		return
+
+	covers_path = system_configs['Wii'].options.get('covers_path')
+	if not covers_path:
+		return
+	cover_path = os.path.join(covers_path, product_code + licensee_code)
+	for ext in ('png', 'jpg'):
+		if os.path.isfile(cover_path + os.extsep + ext):
+			metadata.images['Cover'] = cover_path + os.extsep + ext
+			return
 
 def add_gamecube_wii_disc_metadata(rom, metadata, header):
 	internal_title = header[32:128]
@@ -58,6 +74,7 @@ def add_gamecube_wii_disc_metadata(rom, metadata, header):
 		metadata.publisher = publisher
 		if product_code and licensee_code:
 			add_info_from_tdb(tdb, metadata, product_code + licensee_code)
+			add_cover(metadata, product_code, licensee_code)
 
 	disc_number = header[6] + 1
 	if disc_number:

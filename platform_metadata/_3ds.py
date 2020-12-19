@@ -14,11 +14,13 @@ from common import (NotAlphanumericException, convert_alphanumeric,
 from common_types import SaveType
 from config.main_config import main_config
 from config.system_config import system_configs
-from data.name_cleanup._3ds_publisher_overrides import consistentified_manufacturers
+from data.name_cleanup._3ds_publisher_overrides import \
+    consistentified_manufacturers
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 
+from .gametdb import TDB, add_info_from_tdb
 from .wii import parse_ratings
-from .gametdb import add_info_from_tdb, TDB
+
 
 class _3DSRegionCode(Flag):
 	Japan = 1
@@ -76,6 +78,17 @@ def load_tdb():
 		return None
 tdb = load_tdb()
 
+def add_cover(metadata, product_code):
+	#Intended for the covers database from GameTDB
+	covers_path = system_configs['3DS'].options.get('covers_path')
+	if not covers_path:
+		return
+	cover_path = os.path.join(covers_path, product_code)
+	for ext in ('png', 'jpg'):
+		if os.path.isfile(cover_path + os.extsep + ext):
+			metadata.images['Cover'] = cover_path + os.extsep + ext
+			break
+
 def parse_ncch(rom, metadata, offset):
 	#Skip over SHA-256 siggy and magic
 	header = rom.read(seek_to=offset + 0x104, amount=0x100)
@@ -103,7 +116,9 @@ def parse_ncch(rom, metadata, offset):
 		except ValueError:
 			pass
 		if len(product_code) == 10:
-			add_info_from_tdb(tdb, metadata, metadata.product_code[6:])
+			short_product_code = product_code[6:]
+			add_info_from_tdb(tdb, metadata, short_product_code)
+			add_cover(metadata, short_product_code)
 	except UnicodeDecodeError:
 		pass
 	#Extended header hash: 92-124

@@ -57,6 +57,7 @@ systems = {
 	#Put all the "most normal people would be interested in" consoles up here, which is completely subjective and not even the same as my own personal view of notable, not to mention completely meaningless because it's a dict and the order shouldn't matter, and even if it did, ROMs are scanned in the order they're listed in systems.ini anyway. I guess it makes this a bit easier to read than having a huge wall of text though
 	'3DS': SystemInfo([], [], ['Citra'], {MediaType.Cartridge: ['3ds'], MediaType.Digital: ['cxi'], MediaType.Executable: ['3dsx']}, {
 		'tdb_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB 3dstdb.xml file (https://www.gametdb.com/3dstdb.zip)'),
+		'covers_path': SystemConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after 4-letter product code'),
 	}),
 	'Atari 2600': SystemInfo(['a2600'], ['a2600', 'a2600_cass'], ['Stella', 'MAME (Atari 2600)'], {MediaType.Cartridge: ['a26'] + atari_2600_cartridge_extensions + generic_cart_extensions}),
 	'ColecoVision': SystemInfo(['coleco', 'bit90', 'czz50'], ['coleco'], ['MAME (ColecoVision)'], {MediaType.Cartridge: ['col'] + generic_cart_extensions}),
@@ -101,6 +102,7 @@ systems = {
 	'Wii': SystemInfo([], [], ['Dolphin'], {MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz', 'wbfs', 'ciso', 'wia', 'rvz'], MediaType.Executable: ['dol', 'elf'], MediaType.Digital: ['wad']}, {
 		'tdb_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB wiitdb.xml file (https://www.gametdb.com/wiitdb.zip), note that GameCube will use this too!'),
 		'common_key': SystemConfigValue(ConfigValueType.String, '', 'Wii common key used for decrypting Wii discs which some projects are brave enough to hardcode but I am not'),
+		'covers_path': SystemConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after product code, used by GameCube too'),
 	}),
 	'Wii U': SystemInfo([], [], [], {MediaType.OpticalDisc: ['iso', 'wud'], MediaType.Executable: ['rpx', 'elf']}),
 	'WonderSwan': SystemInfo(['wswan'], ['wswan', 'wscolor'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['ws', 'wsc', 'bin']}),

@@ -3,6 +3,7 @@ from common_types import SaveType
 from config.main_config import main_config
 from data.name_cleanup.gametdb_company_name_cleanup import company_name_cleanup
 
+
 class TDB():
 	def __init__(self, xml):
 		self.xml = xml
