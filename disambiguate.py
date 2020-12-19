@@ -256,10 +256,10 @@ def disambiguate_names():
 	fix_duplicate_names('Revision', revision_disambiguate)
 	fix_duplicate_names('Languages', lambda languages, _: '({0})'.format(languages.replace(';', ', ')), ignore_missing_values=True)
 	#fix_duplicate_names('date', ignore_missing_values=True)
-	fix_duplicate_names('Extension', '(.{0})'.format, ignore_missing_values=True)
 	fix_duplicate_names('Publisher', ignore_missing_values=True)
 	fix_duplicate_names('Developer', ignore_missing_values=True)
 	fix_duplicate_names('tags')
+	fix_duplicate_names('Extension', '(.{0})'.format, ignore_missing_values=True)
 	if main_config.debug:
 		fix_duplicate_names('check')
 
