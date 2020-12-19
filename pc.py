@@ -31,8 +31,6 @@ class App:
 			self.metadata.genre = self.info['genre']
 		if 'subgenre' in self.info:
 			self.metadata.subgenre = self.info['subgenre']
-		if 'is_adult' in self.info:
-			self.metadata.nsfw = self.info['is_adult']
 		if 'notes' in self.info:
 			self.metadata.notes = self.info['notes']
 		

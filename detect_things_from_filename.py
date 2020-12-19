@@ -176,14 +176,6 @@ def get_tv_system_from_filename_tags(tags):
 
 	return None
 
-def determine_is_nsfw_from_filename(tags):
-	#TOSEC has been known to use these in the "extra data" or whatsitcalled field at the end to specify that a game is adults only
-	nsfw_tags = {'[adult]', '[XXX]', '[X-rated version]'}
-	for nsfw_tag in nsfw_tags:
-		if nsfw_tag in tags:
-			return True
-	return False
-
 date_regex = re.compile(r'\((?P<year>[x\d]{4})\)|\((?P<year2>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})\)|\((?P<day2>\d{2})\.(?P<month2>\d{2})\.(?P<year3>\d{4})\)')
 def get_date_from_filename_tags(tags):
 	for tag in tags:

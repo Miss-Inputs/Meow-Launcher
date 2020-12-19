@@ -70,14 +70,14 @@ def get_category(basename):
 	if ': ' in cat:
 		category, _, genres = cat.partition(': ')
 		genre, _, subgenre = genres.partition(' / ')
-		is_nsfw = False
+		is_mature = False
 		if subgenre.endswith('* Mature *'):
-			is_nsfw = True
+			is_mature = True
 			subgenre = subgenre[:-10]
 		if genre.startswith('TTL * '):
 			genre = genre[len('TTL * '):]
 
-		return category, genre, subgenre, is_nsfw
+		return category, genre, subgenre, is_mature
 
 	genre, _, subgenre = cat.partition(' / ')
 	return None, genre, subgenre, False
@@ -135,9 +135,9 @@ def add_status(machine):
 		machine.metadata.specific_info['MAME-Unemulated-Features'] = unemulated_features
 
 def add_metadata_from_catlist(machine):
-	category, genre, subgenre, nsfw = get_category(machine.basename)
+	category, genre, subgenre, is_mature = get_category(machine.basename)
 	if category == 'Unknown' and machine.has_parent:
-		category, genre, subgenre, nsfw = get_category(machine.parent_basename)
+		category, genre, subgenre, is_mature = get_category(machine.parent_basename)
 	
 	#Fix some errata present in the default catlist.ini, maybe one day I should tell them about it, but I'm shy or maybe they're meant to be like that
 	if subgenre == 'Laser Disk Simulator':
@@ -160,7 +160,7 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.platform = category
 		machine.metadata.genre = genre
 		machine.metadata.subgenre = subgenre
-		machine.metadata.nsfw = nsfw
+		machine.metadata.specific_info['Is-Mature'] = is_mature
 	else:
 		#Non-arcade thing
 		machine.metadata.genre = genre

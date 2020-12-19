@@ -96,7 +96,6 @@ def add_software_metadata(software):
 	#save_type
 	#input_info
 	#regions (from filename tags)
-	#nsfw? (if possible to detect from filename tags)
 	#Is notes automatic from software?
 	#disc_number, disc_total: From part stuff
 	#tv_type: From region/tags

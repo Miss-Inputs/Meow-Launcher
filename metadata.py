@@ -167,7 +167,6 @@ class Metadata():
 
 		self.genre = None
 		self.subgenre = None
-		self.nsfw = False
 		self.languages = []
 		self.developer = None
 		self.publisher = None
@@ -213,7 +212,6 @@ class Metadata():
 		metadata_fields = {
 			'Genre': self.genre,
 			'Subgenre': self.subgenre,
-			'NSFW': self.nsfw,
 			'Languages': [language.native_name for language in self.languages if language],
 			'Year': self.year,
 			'Month': self.month,

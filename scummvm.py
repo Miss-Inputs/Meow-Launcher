@@ -147,7 +147,6 @@ class ScummVMGame():
 		self.metadata.categories = ['Games'] #Safe to assume this by default
 		if self.options.get('gameid') == 'agi-fanmade':
 			self.metadata.categories = ['Homebrew']
-		#metadata.nsfw is false by default, but in some ScummVM-supported games (e.g. Plumbers Don't Wear Ties) it would arguably be true; but there's not any way to detect that unless we just do "if game in [list_of_stuff_with_adult_content] then nsfw = true" 
 		#genre/subgenre is _probably_ always point and click adventure, but maybe not? (Plumbers is arguably a visual novel (don't @ me), and there's something about some casino card games in the list of supported games)
 		#Would be nice to set things like developer/publisher/year but can't really do that unfortunately
 		#Let series and series_index be detected by series_detect

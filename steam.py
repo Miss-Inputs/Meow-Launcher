@@ -615,8 +615,9 @@ def add_metadata_from_appinfo_common_section(game, common):
 			game.metadata.specific_info['Number-of-Players'] = 1
 		
 	has_adult_content = common.get(b'has_adult_content') #Integer object with data = 0 or 1, as most bools here seem to be
-	game.metadata.nsfw = False if has_adult_content is None else bool(has_adult_content.data)
-
+	if has_adult_content:
+		game.metadata.specific_info['Has-Adult-Content'] = bool(has_adult_content.data)
+	
 	only_vr = common.get(b'onlyvrsupport')
 	vr_support = common.get(b'openvrsupport')
 	if only_vr is not None and only_vr.data:

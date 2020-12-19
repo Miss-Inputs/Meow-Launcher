@@ -15,11 +15,6 @@ def get_metadata_from_tags(game):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = game.filename_tags
 
-	is_nsfw_from_tags = detect_things_from_filename.determine_is_nsfw_from_filename(tags)
-	if is_nsfw_from_tags:
-		#There is no tag to detect that would determine nsfw = definitely false
-		game.metadata.nsfw = True
-
 	year, month, day = detect_things_from_filename.get_date_from_filename_tags(tags)
 	if year and not game.metadata.year:
 		game.metadata.year = year
@@ -109,8 +104,6 @@ def add_metadata_from_arcade(game, machine):
 		game.metadata.subgenre = machine.metadata.subgenre
 	if not game.metadata.categories and 'Arcade' not in machine.metadata.categories:
 		game.metadata.categories = machine.metadata.categories
-	if machine.metadata.nsfw:
-		game.metadata.nsfw = True
 	if not game.metadata.series:
 		game.metadata.series = machine.metadata.series
 	#Well, I guess not much else can be inferred here. Still, though!

@@ -275,7 +275,6 @@ def parse_ratings(metadata, ratings_bytes, invert_has_rating_bit=False, use_bit_
 		rating = max(ratings_list)
 
 	metadata.specific_info['Age-Rating'] = rating
-	metadata.nsfw = rating >= 18
 
 def add_wii_disc_metadata(rom, metadata):
 	wii_header = rom.read(0x40_000, 0xf000)

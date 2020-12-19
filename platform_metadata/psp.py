@@ -72,8 +72,6 @@ def parse_param_sfo(rom, metadata, param_sfo):
 		elif key == 'PARENTAL_LEVEL':
 			#Seems this doesn't actually mean anything by itself, and is Sony's own rating system, so don't try and think about it too much
 			metadata.specific_info['Parental-Level'] = value
-			if value >= 9:
-				metadata.nsfw = True
 		elif key == 'CATEGORY':
 			#This is a two letter code which generally means something like "Memory stick game" "Update" "PS1 Classics", see ROMniscience notes
 			if value == 'UV':
