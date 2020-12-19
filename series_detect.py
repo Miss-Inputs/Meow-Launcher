@@ -8,7 +8,6 @@ import launchers
 from common import (convert_roman_numeral, convert_roman_numerals_in_title,
                     remove_capital_article)
 from config.main_config import main_config
-from data.series_detect.existing_series import definitely_existing_series
 from data.series_detect.series_detect_overrides import series_overrides
 
 probably_not_series_index_threshold = 20
@@ -137,7 +136,6 @@ def find_existing_serieses():
 		if series:
 			serieses.add(series)
 
-	serieses.update(definitely_existing_series)
 	return serieses
 
 def detect_series_by_subtitle(desktop, path, existing):
