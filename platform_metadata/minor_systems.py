@@ -667,11 +667,12 @@ def add_fm_towns_info(game):
 	if software:
 		software.add_standard_metadata(game.metadata)
 		usage = software.get_info('usage')
-		match = requires_ram_regex.match(usage)
-		if match:
-			game.metadata.specific_info['Minimum-RAM'] = match[1]
-			if match.end() < len(usage):
-				game.metadata.notes = usage
+		if usage:
+			match = requires_ram_regex.match(usage)
+			if match:
+				game.metadata.specific_info['Minimum-RAM'] = match[1]
+				if match.end() < len(usage):
+					game.metadata.notes = usage
 
 def add_generic_info(game):
 	#For any system not otherwise specified
