@@ -53,9 +53,9 @@ def mame_amiga_cd32(game, _, emulator_config):
 	return mame_driver(game, emulator_config, system, 'cdrom')
 
 def mame_amstrad_pcw(game, _, emulator_config):
-	if game.metadata.specific_info.get('Notes') == 'Requires CP/M':
+	if game.metadata.specific_info.get('Requires-CPM'):
 		#Nah too messy
-		raise EmulationNotSupportedException('Needs CP/M')
+		raise EmulationNotSupportedException('Needs CP/M and apparently I don''t feel like fiddling around with that or something')
 	return mame_driver(game, emulator_config, 'pcw10', 'flop', has_keyboard=True)
 
 def mame_apple_ii(game, _, emulator_config):

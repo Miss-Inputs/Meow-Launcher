@@ -1,4 +1,5 @@
 #For mildly uninteresting systems that I still want to add system info for etc
+import re
 from enum import Enum, auto
 
 import input_metadata
@@ -652,6 +653,26 @@ def add_pc_engine_info(game):
 
 	add_generic_info(game)
 	
+def add_amstrad_pcw_info(game):
+	software = get_software_list_entry(game)
+	if software:
+		software.add_standard_metadata(game.metadata)
+		usage = software.get_info('usage')
+		if usage == 'Requires CP/M':
+			game.metadata.specific_info['Requires-CPM'] = True
+
+requires_ram_regex = re.compile(r'Requires (\d+) MB of RAM')
+def add_fm_towns_info(game):
+	software = get_software_list_entry(game)
+	if software:
+		software.add_standard_metadata(game.metadata)
+		usage = software.get_info('usage')
+		match = requires_ram_regex.match(usage)
+		if match:
+			game.metadata.specific_info['Minimum-RAM'] = match[1]
+			if match.end() < len(usage):
+				game.metadata.notes = usage
+
 def add_generic_info(game):
 	#For any system not otherwise specified
 	software = get_software_list_entry(game)

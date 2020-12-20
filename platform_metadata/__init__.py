@@ -97,6 +97,7 @@ helpers = {
 
 	#Just get basic system info and software list stuff for now (see minor_systems.py). Not as fun as the others.
 	'Amiga CD32': add_cd32_info,
+	'Amstrad PCW': add_amstrad_pcw_info,
 	'APF-MP1000': add_apfm1000_info,
 	'Arcadia 2001': add_arcadia_info,
 	'Astrocade': add_astrocade_info,
@@ -111,6 +112,7 @@ helpers = {
 	'Entex Adventure Vision': add_entex_adventure_vision_info,
 	'Epoch Game Pocket Computer': add_game_pocket_computer_info,
 	'FM-7': add_fm7_info,
+	'FM Towns': add_fm_towns_info,
 	'Gamate': add_gamate_info,
 	'Game.com': add_game_com_metadata,
 	'Hartung Game Master': add_hartung_game_master_info,
