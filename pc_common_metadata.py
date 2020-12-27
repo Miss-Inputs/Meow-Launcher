@@ -246,6 +246,8 @@ def try_and_detect_engine_from_folder(folder):
 		return 'Defold'
 	if 'libogremain.so' in files or 'ogremain.dll' in files:
 		return 'OGRE'
+	if os.path.isfile(os.path.join(folder, 'bin', 'libUnigine_x64.so')) or os.path.isfile(os.path.join(folder, 'bin', 'libUnigine_x86.so')) or os.path.isfile(os.path.join(folder, 'bin', 'Unigine_x86.dll')) or os.path.isfile(os.path.join(folder, 'bin', 'Unigine_x64.dll')):
+		return 'Unigine'
 
 	if try_detect_gamemaker(folder):
 		return 'GameMaker'
