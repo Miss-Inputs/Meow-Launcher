@@ -165,7 +165,7 @@ def move_into_subfolders(path):
 	move_into_extra_subfolder(path, desktop, 'By publisher', 'Publisher')
 	#move_into_extra_subfolder(path, desktop, 'By platform and category', 'Platform,Categories*') #We might just only care about first category...
 	move_into_extra_subfolder(path, desktop, 'By platform and genre', 'Platform,Genre')
-	move_into_extra_subfolder(path, desktop, 'Contains mature content', 'Is-Mature?')
+	move_into_extra_subfolder(path, desktop, 'Contains mature content', 'Has-Adult-Content?')
 	move_into_extra_subfolder(path, desktop, 'By series', 'Series')
 	move_into_extra_subfolder(path, desktop, 'By arcade system', 'Arcade-System')
 

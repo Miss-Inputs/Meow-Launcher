@@ -160,7 +160,7 @@ def add_metadata_from_catlist(machine):
 		machine.metadata.platform = category
 		machine.metadata.genre = genre
 		machine.metadata.subgenre = subgenre
-		machine.metadata.specific_info['Is-Mature'] = is_mature
+		machine.metadata.specific_info['Has-Adult-Content'] = is_mature
 	else:
 		#Non-arcade thing
 		machine.metadata.genre = genre
