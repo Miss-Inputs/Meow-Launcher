@@ -93,7 +93,7 @@ def add_info_from_tdb(tdb, metadata, search_key):
 					print('uwu', game.attrib['name'], 'has unknown', element, 'tag')
 
 		developer = game.findtext('developer')
-		if developer:
+		if developer and developer != 'N/A':
 			metadata.developer = clean_up_company_name(developer)
 		publisher = game.findtext('publisher')
 		if publisher:
