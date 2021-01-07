@@ -9,6 +9,7 @@ developer_overrides = {
 	'Bethesda-Softworks': 'Bethesda',
 	'Bethesda Softworks': 'Bethesda',
 	'Blind Squirrel Games': 'Blind Squirrel',
+	'Bugbear Entertainment': 'Bugbear',
 	'Capcom U.S.A.': 'Capcom USA',
 	'Codemasters Racing Studio': 'Codemasters Racing',
 	'Crytek Studios': 'Crytek',
@@ -33,12 +34,16 @@ developer_overrides = {
 	'NAMCO BANDAI Games': 'Bandai Namco',
 	'NAMCO BANDAI Games Europe S.A.S.': 'Bandai Namco Europe',
 	'NAMCO BANDAI Studio': 'Bandai Namco',
+	'Ocean Software': 'Ocean',
 	'OVERKILL - a Starbreeze Studio.': 'Overkill Software',
 	'Reality Pump Studios': 'Reality Pump',
 	'Reflections, a Ubisoft Studio': 'Reflections',
+	'Remedy Entertainment': 'Remedy',
 	'Rockin Android': 'Rockin\' Android',
 	'SNK CORPORATION': 'SNK',
 	'Starbreeze Publishing AB': 'Starbreeze',
+	'Starbreeze Studios AB': 'Starbreeze', #Maybe one is developer and one is publisher?
+	'Telltale Games': 'Telltale',
 	'Topware Interactive ACE': 'Topware Interactive',
 	'TT Games': "Traveller's Tales",
 	'Warner Bros. Interactive Entertainment': 'Warner Bros',
@@ -63,12 +68,14 @@ developer_overrides = {
 	'CAPCOM CO., LTD.': 'Capcom',
 	'CD PROJEKT RED': 'CD Projekt Red',
 	'COMPILE HEART': 'Compile Heart',
+	'D3T': 'd3t',
 	'DIMPS': 'Dimps',
 	'DONTNOD Entertainment': 'Dontnod Entertainment',
 	'FELISTELLA': 'Felistella',
 	'FIVE-BN GAMES': 'Five-BN Games',
 	'GATO STUDIO': 'Gato Studio', #Also seen as "Gato Salvaje", although that doesn't transate exactly to the English name
 	'IDEA FACTORY': 'Idea Factory',
+	'Io Interactive': 'IO Interactive', #Which one is correct?
 	'INTI CREATES CO., LTD.': 'Inti Creates',
 	'KEMCO': 'Kemco',
 	'KITATUS STUDIOS': 'Kitatus Studios',
@@ -89,6 +96,8 @@ developer_overrides = {
 	'Team17 Digital': 'Team17',
 	'Two Tribes Publishing': 'Two Tribes',
 	'Xbox Game Studios': 'Microsoft',
+	'Disney Interactive': 'Disney',
+	'Disney Interactive Studios': 'Disney',
 
 	#Why
 	'Image &amp; Form Games': 'Image & Form Games',
