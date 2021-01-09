@@ -284,9 +284,7 @@ class WindowsGOGGame():
 				return icon_path
 		return None
 
-	def make_launcher(self, task):
-		#TODO: Let user use native DOSBox/ScummVM
-
+	def get_wine_launch_params(self, task):
 		env_vars = None
 		if main_config.wineprefix:
 			env_vars = {'WINEPREFIX': main_config.wineprefix}
@@ -306,7 +304,11 @@ class WindowsGOGGame():
 			args += ['/d', find_subpath_case_insensitive(self.folder, task.working_directory)]
 		args += ['/unix', find_subpath_case_insensitive(self.folder, task.path)]
 		args += task.args
-		params = launchers.LaunchParams(main_config.wine_path, args, env_vars)
+		return launchers.LaunchParams(main_config.wine_path, args, env_vars)
+
+	def make_launcher(self, task):
+		#TODO: Let user use native DOSBox/ScummVM
+		params = self.get_wine_launch_params(task)
 
 		#TODO: Specifically set category to Applications if task.category == tool (but this requires cloning metadata object, or changing it each time which seems weird)
 
