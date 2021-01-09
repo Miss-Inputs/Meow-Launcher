@@ -65,6 +65,9 @@ _config_ini_values = {
 	'wine_path': ConfigValue('GOG', ConfigValueType.FilePath, 'wine', 'Wine path', 'Path to Wine executable to use for Windows GOG games'), #TODO: This should be in general section later on (but for now it's just used for GOG Windows)
 	'wineprefix': ConfigValue('GOG', ConfigValueType.FolderPath, None, 'Wine prefix', 'Optional Wine prefix to use for Windows GOG games'),
 	'windows_gog_folders': ConfigValue('GOG', ConfigValueType.FolderPathList, [], 'Windows GOG folders', 'Folders where Windows GOG games are installed'),
+	'use_system_dosbox': ConfigValue('GOG', ConfigValueType.Bool, True, 'Use system DOSBox', 'Use the version of DOSBox on this system instead of running Windows DOSBox through Wine'),
+	'dosbox_path': ConfigValue('GOG', ConfigValueType.FilePath, "dosbox", 'DOSBox path', 'If using system DOSBox, executable name/path or just "dosbox" if left blank'),
+	
 
 	#These shouldn't end up in config.ini as they're intended to be set per-run
 	'debug': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Debug', 'Enable debug mode, which is really verbose mode, oh well'),

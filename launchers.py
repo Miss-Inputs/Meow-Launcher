@@ -57,10 +57,11 @@ def make_filename(name):
 	return name
 
 class LaunchParams():
-	def __init__(self, exe_name, exe_args, env_vars=None):
+	def __init__(self, exe_name, exe_args, env_vars=None, working_directory=None):
 		self.exe_name = exe_name
 		self.exe_args = exe_args
 		self.env_vars = {} if env_vars is None else env_vars
+		self.working_directory = working_directory
 
 	def make_linux_command_string(self):
 		exe_args_quoted = ' '.join(shlex.quote(arg) for arg in self.exe_args)
@@ -133,6 +134,8 @@ def make_linux_desktop(launch_params, display_name, fields=None):
 
 	desktop_entry['Name'] = display_name
 	desktop_entry['Exec'] = launch_params.make_linux_command_string()
+	if launch_params.working_directory:
+		desktop_entry['Path'] = launch_params.working_directory
 
 	if fields:
 		for section_name, section in fields.items():

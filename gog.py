@@ -167,7 +167,7 @@ class GOGGame():
 		return False
 
 	def make_launcher(self):
-		params = launchers.LaunchParams(self.start_script, [])
+		params = launchers.LaunchParams(self.start_script, [], working_directory=self.folder)
 		launchers.make_launcher(params, self.name, self.metadata, 'GOG', self.folder)
 
 class NormalGOGGame(GOGGame):
@@ -251,14 +251,6 @@ class WindowsGOGGame():
 		if lang_name:
 			lang = region_info.get_language_by_english_name(lang_name)
 			self.metadata.languages.append(lang)
-		self.metadata.emulator_name = 'Wine'
-		primary_task = self.info.primary_play_task
-		if primary_task:
-			if primary_task.is_dosbox:
-				self.metadata.specific_info['Wrapper'] = 'DOSBox'
-			if primary_task.is_scummvm:
-				self.metadata.specific_info['Wrapper'] = 'ScummVM'
-			self.metadata.specific_info['Compatibility-Flags'] = primary_task.compatibility_flags
 
 		engine = pc_common_metadata.try_and_detect_engine_from_folder(self.folder)
 		if engine:
@@ -284,6 +276,19 @@ class WindowsGOGGame():
 				return icon_path
 		return None
 
+	def fix_subfolder_relative_folder(self, folder, subfolder):
+		if folder.startswith('..\\'):
+			return find_subpath_case_insensitive(self.folder, folder.replace('..\\', ''))
+		if folder.startswith('.\\'):
+			return find_subpath_case_insensitive(self.folder, folder.replace('.\\', subfolder + os.path.sep))
+		return folder
+
+	def get_dosbox_launch_params(self, task):
+		args = [self.fix_subfolder_relative_folder(arg, 'dosbox') for arg in task.args]
+		dosbox_path = main_config.dosbox_path
+		dosbox_folder = find_subpath_case_insensitive(self.folder, 'dosbox') #Game's config files are expecting to be launched from here
+		return launchers.LaunchParams(dosbox_path, args, working_directory=dosbox_folder)
+
 	def get_wine_launch_params(self, task):
 		env_vars = None
 		if main_config.wineprefix:
@@ -306,13 +311,19 @@ class WindowsGOGGame():
 		args += task.args
 		return launchers.LaunchParams(main_config.wine_path, args, env_vars)
 
+	def get_launcher_params(self, task):
+		if main_config.use_system_dosbox and task.is_dosbox:
+			return 'DOSBox', self.get_dosbox_launch_params(task)
+		
+		return 'Wine', self.get_wine_launch_params(task)
+		
 	def make_launcher(self, task):
-		#TODO: Let user use native DOSBox/ScummVM
-		params = self.get_wine_launch_params(task)
+		_, params = self.get_launcher_params(task)
 		if not params:
 			return
 
 		#TODO: Specifically set category to Applications if task.category == tool (but this requires cloning metadata object, or changing it each time which seems weird)
+		#Also set emulator name, wrapper (if not using use_system_dosbox etc), compatibility flags
 
 		name = self.name
 		if task.name and not task.is_primary:
