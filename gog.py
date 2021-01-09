@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import copy
 import datetime
 import json
 import os
@@ -13,7 +14,8 @@ from common_types import MediaType
 from config.main_config import main_config
 from info import region_info
 from metadata import Metadata
-from pc_common_metadata import is_probably_related_tool, is_probably_different_mode
+from pc_common_metadata import (is_probably_different_mode,
+                                is_probably_related_tool)
 
 
 class GOGGameInfo():
@@ -331,25 +333,31 @@ class WindowsGOGGame():
 		return 'Wine', self.get_wine_launch_params(task)
 		
 	def make_launcher(self, task):
-		_, params = self.get_launcher_params(task)
+		emulator_name, params = self.get_launcher_params(task)
 		if not params:
 			return
 
-		#TODO: Specifically set category to Applications if task.category == tool (but this requires cloning metadata object, or changing it each time which seems weird)
-		#Also set emulator name, wrapper (if not using use_system_dosbox etc), compatibility flags
+		task_metadata = copy.deepcopy(self.metadata)
+		if task.category == 'tool':
+			task_metadata.categories = ['Applications']
+		task_metadata.emulator_name = emulator_name
+		task_metadata.specific_info['Compatibility-Flags'] = task.compatibility_flags
+		if task.is_dosbox and emulator_name != 'DOSBox':
+			task_metadata.specific_info['Wrapper'] = 'DOSBox'
+		if task.is_scummvm and emulator_name != 'ScummVM':
+			task_metadata.specific_info['Wrapper'] = 'ScummVM'
 
 		name = self.name
 		if task.name:
 			if task.is_probably_subtask:
 				if task.name.startswith(self.original_name):
-					#name = '{0} ({1})'.format(self.)
 					name = task.name.replace(self.original_name, self.name)
 				else:
 					name += ' ({0})'.format(task.name)
 			else:
 				name = pc_common_metadata.fix_name(task.name)
 
-		launchers.make_launcher(params, name, self.metadata, 'GOG', self.folder)
+		launchers.make_launcher(params, name, task_metadata, 'GOG', self.folder)
 
 	def make_launchers(self):
 		for task in self.info.play_tasks:

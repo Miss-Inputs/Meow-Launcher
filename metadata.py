@@ -186,7 +186,7 @@ class Metadata():
 		self.input_info = InputInfo()
 
 		self.specific_info = {} #Stuff that's too specific to put as an attribute here
-		self.tv_type = None
+		self.tv_type = None #This shouldn't be a general field
 
 		self.images = {}
 		#TODO: The override name shenanigans in Wii/PSP: Check for name = None in launchers, and set name = None if overriding it to something else, and put the overriden name in here
