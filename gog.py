@@ -292,12 +292,12 @@ class WindowsGOGGame():
 		if not task.path:
 			if main_config.debug:
 				print('Oh dear - we cannot deal with tasks that have no path', self.name, task.name, task.args, task.task_type, task.category)
-			return
+			return None
 
 		if task.path.lower().endswith('.lnk'):
 			if main_config.debug:
 				print(self.name, 'cannot be launched - we cannot deal with shortcuts right now (we should parse them but I cannot be arsed right now)', self.name, task.name, task.args, task.task_type, task.category)
-			return
+			return None
 
 		args = ['start']
 		if task.working_directory:
@@ -309,6 +309,8 @@ class WindowsGOGGame():
 	def make_launcher(self, task):
 		#TODO: Let user use native DOSBox/ScummVM
 		params = self.get_wine_launch_params(task)
+		if not params:
+			return
 
 		#TODO: Specifically set category to Applications if task.category == tool (but this requires cloning metadata object, or changing it each time which seems weird)
 
