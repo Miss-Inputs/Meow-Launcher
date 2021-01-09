@@ -345,7 +345,12 @@ def fix_name(name):
 	name = name_suffix_matcher.sub(r' (\1)', name)
 	return name
 
-tool_names = ('settings', 'setup', 'config', 'dedicated server', 'editor', 'safe mode')
+tool_names = ('settings', 'setup', 'config', 'dedicated server', 'editor')
 def is_probably_related_tool(name):
 	lower = name.lower()
 	return any(tool_name in lower for tool_name in tool_names)
+
+mode_names = ('safe mode', 'play windowed')
+def is_probably_different_mode(name):
+	lower = name.lower()
+	return any(mode_name in lower for mode_name in mode_names)

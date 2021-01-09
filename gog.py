@@ -13,7 +13,7 @@ from common_types import MediaType
 from config.main_config import main_config
 from info import region_info
 from metadata import Metadata
-from pc_common_metadata import is_probably_related_tool
+from pc_common_metadata import is_probably_related_tool, is_probably_different_mode
 
 
 class GOGGameInfo():
@@ -82,6 +82,16 @@ class GOGTask():
 		#osBitness: As in GOGJSONGameInfo
 		#link: For URLTask
 		#icon: More specific icon I guess, but this can be an exe or DLL to annoy me
+
+	@property
+	def is_probably_subtask(self):
+		if self.is_primary:
+			return False
+
+		if self.category == 'tool' or is_probably_related_tool(self.name) or is_probably_related_tool(self.path) or is_probably_different_mode(self.name) or is_probably_different_mode(self.path):
+			return True
+
+		return False
 
 	@property
 	def is_dosbox(self):
@@ -238,7 +248,8 @@ class WindowsGOGGame():
 			print('Interesting, in', folder, 'game ID is ', game_id, 'but in the info file it is', self.info.game_id)
 		self.folder = folder
 
-		self.name = pc_common_metadata.fix_name(self.info.name)
+		self.original_name = self.info.name
+		self.name = pc_common_metadata.fix_name(self.original_name)
 		self.metadata = Metadata()
 
 	def add_metadata(self):
@@ -314,6 +325,8 @@ class WindowsGOGGame():
 	def get_launcher_params(self, task):
 		if main_config.use_system_dosbox and task.is_dosbox:
 			return 'DOSBox', self.get_dosbox_launch_params(task)
+
+		#Bruh how we gonna do ScummVM when the .ini file gonna have Windows paths though?
 		
 		return 'Wine', self.get_wine_launch_params(task)
 		
@@ -326,19 +339,23 @@ class WindowsGOGGame():
 		#Also set emulator name, wrapper (if not using use_system_dosbox etc), compatibility flags
 
 		name = self.name
-		if task.name and not task.is_primary:
-			if task.category == 'tool' or is_probably_related_tool(task.name) or is_probably_related_tool(task.path):
-				name += ' ({0})'.format(task.name)
+		if task.name:
+			if task.is_probably_subtask:
+				if task.name.startswith(self.original_name):
+					#name = '{0} ({1})'.format(self.)
+					name = task.name.replace(self.original_name, self.name)
+				else:
+					name += ' ({0})'.format(task.name)
 			else:
 				name = pc_common_metadata.fix_name(task.name)
 
 		launchers.make_launcher(params, name, self.metadata, 'GOG', self.folder)
 
 	def make_launchers(self):
-		#self.make_launcher(self.info.primary_play_task)
 		for task in self.info.play_tasks:
 			if task.category == 'document':
 				continue
+			#Should put this in a documentation section, also names that are not supposed to be launched and are documents: "FAQ", "Manual", "Map of Avernum", "Reference Card"
 			if task.task_type == 'URLTask':
 				continue
 			if task.is_hidden:
