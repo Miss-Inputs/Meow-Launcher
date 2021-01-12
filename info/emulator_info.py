@@ -252,6 +252,7 @@ emulators = {
 	'Citra': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'citra-qt', command_lines.citra, ['3ds', 'cxi', '3dsx'], []),
 	#No fullscreen from command line
 	'Medusa': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'medusa-emu-qt', command_lines.medusa, ['nds', 'gb', 'gbc', 'gba'], ['7z', 'zip']),
+	'Yuzu': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'yuzu', command_lines.yuzu, ['xci', 'nsp', 'nro', 'nso', 'nca', 'elf', 'kip'], []),
 
 	'Mednafen (Game Boy)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'gb', ['gb', 'gbc'], command_lines.mednafen_gb),
 	#Based off an old version of VisualBoyAdvance
@@ -305,8 +306,6 @@ emulators = {
 	#Marked as not working + imperfect sound, possibly because of missing speech (also mouse is missing)
 	
 	#--Stuff that might not work with most things, or otherwise has known issues
-	'Yuzu': EmulatorInfo(EmulatorStatus.Experimental, 'yuzu', command_lines.yuzu, ['xci', 'nsp', 'nro', 'nso', 'nca', 'elf', 'kip'], []),
-
 	'MAME (Amiga CD32)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_amiga_cd32, mame_cdrom_formats),
 	#Hmm boots only a few things I guess
 	'MAME (CreatiVision)': MameDriver(EmulatorStatus.Janky, mame_driver_callable('crvision', 'cart', has_keyboard=True), ['bin', 'rom']),
