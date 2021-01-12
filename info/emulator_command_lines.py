@@ -1332,7 +1332,7 @@ def stella(_, __, emulator_config):
 	return LaunchParams(emulator_config.exe_path, ['-fullscreen', '1', '$<path>'])
 
 def yuzu(_, __, emulator_config):
-	return LaunchParams(emulator_config.exe_path, ['$<path>'])
+	return LaunchParams(emulator_config.exe_path, ['-f', '-g', '$<path>'])
 
 #Game engines
 def prboom_plus(game, system_config, emulator_config):
