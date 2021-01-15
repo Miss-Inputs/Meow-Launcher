@@ -86,8 +86,9 @@ class LaunchParams():
 
 class MultiCommandLaunchParams():
 	#I think this shouldn't inherit from LaunchParams because duck typing (but doesn't actually reuse anything from LaunchParams). I _think_ I know what I'm doing. Might not.
-	def __init__(self, commands):
+	def __init__(self, commands, working_directory=None):
 		self.commands = commands
+		self.working_directory = working_directory
 
 	def make_linux_command_string(self):
 		#Purrhaps I should add an additional field for this object to use ; instead of &&
