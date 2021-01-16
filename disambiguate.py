@@ -248,7 +248,7 @@ def disambiguate_names():
 	fix_duplicate_names('dev-status')
 	fix_duplicate_names('Arcade-System', arcade_system_disambiguate)
 	fix_duplicate_names('Media-Type', ignore_missing_values=True)
-	fix_duplicate_names('Is-Colour', lambda is_colour, _: None if is_colour in (False, 'No') else 'Colour')
+	fix_duplicate_names('Is-Colour', lambda is_colour, _: None if is_colour in (False, 'No') else '(Colour)')
 	fix_duplicate_names('Regions', lambda regions, _: '({0})'.format(regions.replace(';', ', ')), ignore_missing_values=True)
 	fix_duplicate_names('Region-Code')
 	fix_duplicate_names('TV-Type', ignore_missing_values=True)
