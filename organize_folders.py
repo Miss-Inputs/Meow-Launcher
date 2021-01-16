@@ -165,9 +165,10 @@ def move_into_subfolders(path):
 	move_into_extra_subfolder(path, desktop, 'By publisher', 'Publisher')
 	#move_into_extra_subfolder(path, desktop, 'By platform and category', 'Platform,Categories*') #We might just only care about first category...
 	move_into_extra_subfolder(path, desktop, 'By platform and genre', 'Platform,Genre')
-	move_into_extra_subfolder(path, desktop, 'Contains mature content', 'Has-Adult-Content?')
 	move_into_extra_subfolder(path, desktop, 'By series', 'Series')
 	move_into_extra_subfolder(path, desktop, 'By arcade system', 'Arcade-System')
+	move_into_extra_subfolder(path, desktop, 'By emulator', 'Emulator')
+	move_into_extra_subfolder(path, desktop, 'By engine', 'Engine')
 
 	if len(languages) == 1:
 		copy_to_folder(path, main_config.organized_output_folder, 'By language', sanitize_name(languages[0]) + ' only')
