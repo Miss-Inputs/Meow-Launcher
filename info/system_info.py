@@ -62,8 +62,9 @@ systems = {
 	'Atari 2600': SystemInfo(['a2600'], ['a2600', 'a2600_cass'], ['Stella', 'MAME (Atari 2600)'], {MediaType.Cartridge: ['a26'] + atari_2600_cartridge_extensions + generic_cart_extensions}),
 	'ColecoVision': SystemInfo(['coleco', 'bit90', 'czz50'], ['coleco'], ['MAME (ColecoVision)'], {MediaType.Cartridge: ['col'] + generic_cart_extensions}),
 	'Dreamcast': SystemInfo(['dcjp', 'dcdev'], ['dc'], ['Reicast', 'Flycast', 'MAME (Dreamcast)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'DS': SystemInfo(['nds'], [], ['Medusa'], {MediaType.Cartridge: ['nds', 'dsi', 'ids']}, {
-		'tdb_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB dstdb.xml file (https://www.gametdb.com/dstdb.zip)')
+	'DS': SystemInfo(['nds'], [], ['melonDS', 'Medusa'], {MediaType.Cartridge: ['nds', 'dsi', 'ids', 'srl']}, {
+		'tdb_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB dstdb.xml file (https://www.gametdb.com/dstdb.zip)'),
+		'covers_path': SystemConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after 4-letter product code'),
 	}),
 	'Game Boy': SystemInfo(['gameboy', 'gbcolor'], ['gameboy', 'gbcolor'], ['Gambatte', 'mGBA', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'Medusa', 'GBE+', 'bsnes'], {MediaType.Cartridge: ['gb', 'gbc', 'gbx', 'sgb']},
 		{'super_game_boy_bios_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to Super Game Boy BIOS to use'),

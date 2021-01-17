@@ -1230,6 +1230,18 @@ def medusa(game, _, emulator_config):
 	args.append('$<path>')
 	return LaunchParams(emulator_config.exe_path, args)
 
+def melonds(game, _, emulator_config):
+	if game.metadata.platform == 'DSi':
+		raise EmulationNotSupportedException("DSi is too experimental so let's say for all intents and purposes it doesn't work")
+	if game.metadata.specific_info.get('Is-iQue', False):
+		#Maybe it is if you use an iQue firmware?
+		raise EmulationNotSupportedException('iQue DS not supported')
+
+	#No argument for fullscreen here yet
+	#It looks like you can pass a GBA cart via the second argument, so that might get interesting
+
+	return LaunchParams(emulator_config.exe_path, ['$<path>'])
+
 def mgba(game, _, emulator_config):
 	if game.system_name == 'Game Boy':
 		verify_mgba_mapper(game)

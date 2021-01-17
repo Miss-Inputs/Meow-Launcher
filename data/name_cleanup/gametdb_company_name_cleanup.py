@@ -8,6 +8,7 @@ company_name_cleanup = {
 	'capcom': 'Capcom',
 	'ChunSoft': 'Chunsoft',
 	'EA': 'Electronic Arts',
+	'GAME FREAK': 'Game Freak',
 	'HUDSON SOFT': 'Hudson Soft',
 	'KOCH Media': 'Koch Media',
 	'Monolith Software (JP)': 'Monolith Software',

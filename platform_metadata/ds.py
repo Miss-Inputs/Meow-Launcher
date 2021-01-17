@@ -4,6 +4,7 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
+import os
 import struct
 from xml.etree import ElementTree
 
@@ -14,7 +15,7 @@ from config.system_config import system_configs
 from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import get_region_by_name
 
-from .gametdb import add_info_from_tdb, TDB
+from .gametdb import TDB, add_info_from_tdb
 from .wii import parse_ratings
 
 #TODO: Detect PassMe carts, and reject the rest of the header if so (well, product code and publisher)
@@ -35,6 +36,17 @@ def load_tdb():
 			print('Oh no failed to load DS TDB because', blorp)
 		return None
 tdb = load_tdb()
+
+def add_cover(metadata, product_code):
+	#Intended for the covers database from GameTDB
+	covers_path = system_configs['DS'].options.get('covers_path')
+	if not covers_path:
+		return
+	cover_path = os.path.join(covers_path, product_code)
+	for ext in ('png', 'jpg'):
+		if os.path.isfile(cover_path + os.extsep + ext):
+			metadata.images['Cover'] = cover_path + os.extsep + ext
+			break
 
 def convert_ds_colour_to_rgba(colour, is_transparent):
 	red = (colour & 0b_00000_00000_11111) << 3
@@ -107,6 +119,8 @@ def parse_ds_header(rom, metadata, header):
 		product_code = convert_alphanumeric(header[12:16])
 		metadata.product_code = product_code
 		add_info_from_tdb(tdb, metadata, product_code)
+		add_cover(metadata, product_code)
+		
 	except NotAlphanumericException:
 		pass
 
