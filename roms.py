@@ -23,9 +23,6 @@ from config.system_config import system_configs
 from info import emulator_info, system_info
 from roms_metadata import add_metadata
 
-#TODO: Should make this configuragble? Maybe
-max_size_for_storing_in_memory = 32 * 1024 * 1024
-
 class RomFile():
 	def __init__(self, path):
 		self.path = path
@@ -65,7 +62,7 @@ class RomFile():
 			
 		self.store_entire_file = False
 		self.entire_file = b''
-		if self._get_size() < max_size_for_storing_in_memory:
+		if self._get_size() < main_config.max_size_for_storing_in_memory:
 			self.store_entire_file = True
 			self.entire_file = self._read()
 

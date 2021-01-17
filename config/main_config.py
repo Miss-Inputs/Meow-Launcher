@@ -57,6 +57,7 @@ _config_ini_values = {
 	'skipped_subfolder_names': ConfigValue('Roms', ConfigValueType.StringList, [], 'Skipped subfolder names', 'Always skip these subfolders in every ROM dir'),
 	'find_equivalent_arcade_games': ConfigValue('Roms', ConfigValueType.Bool, False, 'Find equivalent arcade games by name', 'Get metadata from MAME machines of the same name'),
 	'find_software_by_name': ConfigValue('Roms', ConfigValueType.StringList, [], 'Systems to find software by name', 'For these platforms, use the filename to match something in the software list'), #TODO This should be a global option for each system
+	'max_size_for_storing_in_memory': ConfigValue('Roms', ConfigValueType.Integer, 32 * 1024 * 1024, 'Max size for storing in memory', 'Size in bytes, any ROM smaller than this will have the whole thing stored in memory for speedup'),
 
 	'use_original_platform': ConfigValue('ScummVM', ConfigValueType.Bool, False, 'Use original platform', 'Set the platform in metadata to the original platform instead of leaving blank'),
 
@@ -67,7 +68,6 @@ _config_ini_values = {
 	'windows_gog_folders': ConfigValue('GOG', ConfigValueType.FolderPathList, [], 'Windows GOG folders', 'Folders where Windows GOG games are installed'),
 	'use_system_dosbox': ConfigValue('GOG', ConfigValueType.Bool, True, 'Use system DOSBox', 'Use the version of DOSBox on this system instead of running Windows DOSBox through Wine'),
 	'dosbox_path': ConfigValue('GOG', ConfigValueType.FilePath, "dosbox", 'DOSBox path', 'If using system DOSBox, executable name/path or just "dosbox" if left blank'),
-	
 
 	#These shouldn't end up in config.ini as they're intended to be set per-run
 	'debug': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Debug', 'Enable debug mode, which is really verbose mode, oh well'),
