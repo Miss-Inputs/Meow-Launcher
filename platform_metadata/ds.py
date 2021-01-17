@@ -104,9 +104,9 @@ def add_banner_title_metadata(metadata, banner_title, language=None):
 		#Can't decide what to eat?
 		#Nintendo
 		if len(lines) == 1:
-			metadata.specific_info[metadata_name] = lines[0]
+			metadata.add_alternate_name(lines[0], metadata_name)
 		else:
-			metadata.specific_info[metadata_name] = ' '.join(lines[:-1])
+			metadata.add_alternate_name(' '.join(lines[:-1]), metadata_name)
 			#This is usually the publisher… but it has a decent chance of being something else so I'm not gonna set metadata.publisher from it
 			metadata.specific_info[metadata_name + '-Final-Line'] = lines[-1]
 
@@ -227,6 +227,8 @@ def add_ds_input_info(metadata):
 		#Hmmm... would I be able to make that assumption with DSi-enhanced games?
 		metadata.input_info.add_option(builtin_gamepad)
 		return
+
+	#Rumble is detected from GameTDB
 
 	#Certain games use other input_info that I haven't automagically detected:
 	#Slide Adventure MAGKID: Slidey thing (effectively a mouse)
