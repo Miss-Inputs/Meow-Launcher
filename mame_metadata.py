@@ -232,7 +232,7 @@ def add_metadata_from_catlist(machine):
 			machine.metadata.categories = ['Games']
 		return
 
-	if genre == 'Game Console' and subgenre == 'Home Videogame':
+	if genre == 'Game Console' and subgenre in ('Home Videogame', 'MultiGames'):
 		if not machine.is_system_driver:
 			machine.metadata.platform = 'Plug & Play'
 			if not machine.metadata.categories:
