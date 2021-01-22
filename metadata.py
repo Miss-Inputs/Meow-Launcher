@@ -187,7 +187,7 @@ class Date():
 		return False
 
 	def __str__(self):
-		parts = [self.year]
+		parts = [self.year if self.year else '????']
 		if self.month:
 			parts.append(self.month.rjust(2, '0'))
 		else:
