@@ -140,7 +140,7 @@ def add_gamecube_disc_metadata(rom, metadata, header, tgc_data=None):
 			try:
 				actual_date = datetime.strptime(apploader_date, '%Y/%m/%d')
 				year = actual_date.year
-				month = actual_date.strftime('%B')
+				month = actual_date.month
 				day = actual_date.day
 				metadata.specific_info['Build-Date'] = Date(year, month, day)
 				if not metadata.release_date or metadata.release_date.is_guessed:
