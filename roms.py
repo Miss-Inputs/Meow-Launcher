@@ -238,6 +238,9 @@ def process_emulated_system(system_config):
 			print('Config warning:', emulator_name, 'is not a valid emulator for', system_config.name)
 
 	for rom_dir in system_config.paths:
+		if not os.path.isdir(rom_dir):
+			print('Oh no', system_config.name, 'has invalid ROM dir', rom_dir)
+			continue
 		for root, _, files in os.walk(rom_dir):
 			if common.starts_with_any(root + os.sep, main_config.ignored_directories):
 				continue
