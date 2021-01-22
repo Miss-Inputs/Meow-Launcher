@@ -104,7 +104,8 @@ def add_info_from_tdb(tdb, metadata, search_key):
 			year = date.attrib.get('year')
 			month = date.attrib.get('month')
 			day = date.attrib.get('day')
-			metadata.release_date = Date(year, month, day)
+			if any([year, month, day]):
+				metadata.release_date = Date(year, month, day)
 
 		genre = game.findtext('genre')
 		if genre:
