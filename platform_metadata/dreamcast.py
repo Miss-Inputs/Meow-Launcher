@@ -1,4 +1,3 @@
-import calendar
 import os
 import re
 
@@ -94,9 +93,9 @@ def add_info_from_main_track(metadata, track_path, sector_size):
 	release_date = header[80:96].decode('ascii', errors='backslashreplace').rstrip()
 
 	try:
-		year = int(release_date[0:4])
-		month = calendar.month_name[int(release_date[4:6])]
-		day = int(release_date[6:8])
+		year = release_date[0:4]
+		month = release_date[4:6]
+		day = release_date[6:8]
 		metadata.specific_info['Header-Date'] = Date(year, month, day)
 		guessed = Date(year, month, day, True)
 		if guessed.is_better_than(metadata.release_date):
