@@ -1,11 +1,12 @@
-import calendar
 from enum import Enum, auto
 
 import input_metadata
 from common_types import SaveType
-from info.region_info import TVSystem
-from software_list_info import get_software_list_entry
 from data.sega_licensee_codes import licensee_codes
+from info.region_info import TVSystem
+from metadata import Date
+from software_list_info import get_software_list_entry
+
 
 class SMSPeripheral(Enum):
 	StandardController = auto()
@@ -30,12 +31,7 @@ def parse_sdsc_header(rom, metadata, header):
 	day = decode_bcd(header[2])
 	month = decode_bcd(header[3])
 	year = decode_bcd(header[4:6])
-	if 1 <= day <= 31:
-		metadata.day = day
-	if 1 <= month <= 12:
-		metadata.month = calendar.month_name[month]
-	if year:
-		metadata.year = year
+	metadata.release_date = Date(year, month, day)
 
 	author_offset = int.from_bytes(header[6:8], 'little')
 	name_offset = int.from_bytes(header[8:10], 'little')

@@ -1,4 +1,3 @@
-import calendar
 from enum import Enum, auto
 
 import input_metadata
@@ -8,6 +7,7 @@ from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import TVSystem
 from mame_helpers import MAMENotInstalledException
 from mame_machine import does_machine_match_game, get_machines_from_source_file
+from metadata import Date
 from software_list_info import (find_in_software_lists_with_custom_matcher,
                                 get_crc32_for_software_list,
                                 get_software_list_entry)
@@ -221,13 +221,13 @@ def add_fds_metadata(rom, metadata):
 	if 61 <= year <= 99:
 		#Showa 61 = 1986 when the FDS was released. Year > 99 wouldn't be valid BCD, so... I'll check back in 2025 to see if anyone's written homebrew for the FDS in that year and then I'll figure out what I'm doing. But homebrew right now seems to leave the year as 00 anyway, though
 		year = 1925 + year
-		metadata.year = year
+	else:
+		year = 1900 + year
 	month = decode_bcd(header[32])
-	if 1 <= month <= 12:
-		metadata.month = calendar.month_name[month]
 	day = decode_bcd(header[33])
-	if 1 <= day <= 28:
-		metadata.day = day
+	if not metadata.release_date:
+		metadata.release_date = Date(year, month, day, True)
+	
 
 def add_ines_metadata(metadata, header):
 	metadata.specific_info['Headered'] = True

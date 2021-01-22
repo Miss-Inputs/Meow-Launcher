@@ -4,6 +4,7 @@ from config.main_config import main_config
 from info.region_info import get_language_by_english_name
 from mame_helpers import consistentify_manufacturer
 from software_list_info import get_software_list_entry
+from metadata import Date
 
 class AppleIIHardware(Enum):
 	AppleII = auto()
@@ -107,7 +108,7 @@ def parse_woz_meta_chunk(rom, metadata, chunk_data):
 		elif key == 'copyright':
 			metadata.specific_info['Copyright'] = value
 			try:
-				metadata.year = int(value)
+				metadata.release_date = Date(value)
 			except ValueError:
 				pass
 		elif key == 'language':

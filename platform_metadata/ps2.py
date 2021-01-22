@@ -1,14 +1,15 @@
-import calendar
 import io
 import re
 
 from config.main_config import main_config
 from info.region_info import TVSystem
+from metadata import Date
 
 try:
+	import struct  # To handle struct.error
+
 	from pycdlib import PyCdlib
-	from pycdlib.pycdlibexception import PyCdlibInvalidISO, PyCdlibInvalidInput
-	import struct #To handle struct.error
+	from pycdlib.pycdlibexception import PyCdlibInvalidInput, PyCdlibInvalidISO
 	have_pycdlib = True
 except ModuleNotFoundError:
 	have_pycdlib = False
@@ -31,11 +32,17 @@ def add_ps2_metadata(game):
 			try:
 				#I dunno what the ;1 is for
 				iso.get_file_from_iso_fp(system_cnf_buf, iso_path='/SYSTEM.CNF;1')
-				date = iso.get_record(iso_path='/SYSTEM.CNF;1').date
+				date_record = iso.get_record(iso_path='/SYSTEM.CNF;1').date
 				#This would be more like a build date (seems to be the same across all files) rather than the release date, but it seems to be close enough
-				game.metadata.year = date.years_since_1900 + 1900
-				game.metadata.month = calendar.month_name[date.month]
-				game.metadata.day = date.day_of_month
+				year = date_record.years_since_1900 + 1900
+				month = date_record.month
+				day = date_record.day_of_month
+				build_date = Date(year, month, day)
+				game.metadata.specific_info['Build-Date'] = build_date
+				guessed_date = Date(year, month, day, True)
+				if guessed_date.is_better_than(game.metadata.release_date):
+					game.metadata.release_date = guessed_date
+
 				system_cnf = system_cnf_buf.getvalue().decode('utf-8', errors='backslashreplace')
 				for line in system_cnf.splitlines():
 					boot_line_match = boot_line_regex.match(line)

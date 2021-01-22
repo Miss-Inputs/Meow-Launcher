@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-import calendar
 import re
 
 from info import region_info
+from metadata import Date
 
 #TODO: I dunno if this should be done as a big ol' regex, maybe just see if a comma-separated list all matches languages
 nointro_language_list_regex = re.compile(r'\(((?:[A-Z][a-z](?:-[A-Z][a-z]+)?,)*(?:[A-Z][a-z](?:-[A-Z][a-z]+)?))\)')
@@ -191,18 +191,11 @@ def get_date_from_filename_tags(tags):
 			_month2 = groupdict.get('month2')
 
 			month_match = _month if _month else _month2
-			if month_match:
-				try:
-					month = calendar.month_name[int(month_match)]
-				except (ValueError, IndexError):
-					month = month_match
-			else:
-				month = None
 			_day = groupdict.get('day') 
 			_day2 = groupdict.get('day2') 
 			day = _day if _day else _day2
-			return year, month, day
-	return None, None, None
+			return Date(year, month_match, day)
+	return None
 
 revision_regex = re.compile(r'\([Rr]ev(?:ision)? ([A-Z\d]+?)\)')
 def get_revision_from_filename_tags(tags):

@@ -1,4 +1,3 @@
-import calendar
 import io
 import os
 import re
@@ -6,6 +5,7 @@ import re
 import input_metadata
 from common_types import MediaType
 from config.main_config import main_config
+from metadata import Date
 
 try:
 	from PIL import Image
@@ -14,9 +14,10 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 try:
+	import struct  # To handle struct.error
+
 	from pycdlib import PyCdlib
-	from pycdlib.pycdlibexception import PyCdlibInvalidISO, PyCdlibInvalidInput
-	import struct #To handle struct.error
+	from pycdlib.pycdlibexception import PyCdlibInvalidInput, PyCdlibInvalidISO
 	have_pycdlib = True
 except ModuleNotFoundError:
 	have_pycdlib = False
@@ -198,10 +199,14 @@ def add_psp_metadata(game):
 			try:
 				iso.get_file_from_iso_fp(param_sfo_buf, iso_path='/PSP_GAME/PARAM.SFO')
 				date = iso.get_record(iso_path='/PSP_GAME/PARAM.SFO').date
-				#This would be more like a build date (seems to be the same across all files) rather than the release date, but it seems to be close enough
-				game.metadata.year = date.years_since_1900 + 1900
-				game.metadata.month = calendar.month_name[date.month]
-				game.metadata.day = date.day_of_month
+				#This would be more like a build date (seems to be the same across all files) rather than the release date
+				year = date.years_since_1900 + 1900
+				month = date.month
+				day = date.day_of_month
+				game.metadata.specific_info['Build-Date'] = Date(year, month, day)
+				guessed = Date(year, month, day, True)
+				if guessed.is_better_than(game.metadata.release_date):
+					game.metadata.release_date = guessed
 				parse_param_sfo(game.rom, game.metadata, param_sfo_buf.getvalue())
 			except PyCdlibInvalidInput:
 				try:

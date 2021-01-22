@@ -1,4 +1,3 @@
-import calendar
 import os
 from enum import Enum, auto
 
@@ -7,8 +6,10 @@ import input_metadata
 from common_types import SaveType
 from config.main_config import main_config
 from data.sega_licensee_codes import licensee_codes
+from metadata import Date
 
 from .minor_systems import add_generic_info
+
 
 class SaturnPeripheral(Enum):
 	StandardController = auto()
@@ -153,12 +154,17 @@ def add_saturn_info(rom, metadata, header):
 
 	release_date = header[48:56].decode('ascii', errors='backslashreplace').rstrip()
 
-	if not release_date.startswith('0'):
+	if not release_date.startswith('0') and '-' not in release_date:
 		#If it starts with 0 the date format is WRONG stop it because I know the Saturn wasn't invented yet before 1000 AD
+		#Also sometimes it's formatted with dashes which means there are 2 bytes that shouldn't be there and are technically part of device info? Weird
 		try:
-			metadata.year = int(release_date[0:4])
-			metadata.month = calendar.month_name[int(release_date[4:6])]
-			metadata.day = int(release_date[6:8])
+			year = release_date[0:4]
+			month = release_date[4:6]
+			day = release_date[6:8]
+			metadata.specific_info['Header-Date'] = Date(year, month, day)
+			guessed = Date(year, month, day, True)
+			if guessed.is_better_than(metadata.release_date):
+				metadata.release_date = guessed
 		except IndexError:
 			if main_config.debug:
 				print(rom.path, 'has invalid date in header:', release_date)

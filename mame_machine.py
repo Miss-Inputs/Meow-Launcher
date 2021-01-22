@@ -10,7 +10,7 @@ from mame_helpers import (consistentify_manufacturer, get_mame_xml,
                           list_by_source_file)
 from mame_metadata import (add_metadata_from_catlist, get_machine_folder,
                            mame_statuses)
-from metadata import Metadata
+from metadata import Metadata, Date
 
 
 class MediaSlot():
@@ -462,7 +462,7 @@ class Machine():
 		self.metadata.specific_info['Family'] = self.family_name
 		self.metadata.specific_info['Has-Parent'] = self.has_parent
 
-		self.metadata.year = self.xml.findtext('year')
+		self.metadata.release_date = Date(self.xml.findtext('year'))
 
 		self.metadata.specific_info['Number-of-Players'] = self.number_of_players
 		self.metadata.specific_info['Is-Mechanical'] = self.is_mechanical

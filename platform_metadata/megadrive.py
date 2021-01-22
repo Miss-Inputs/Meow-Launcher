@@ -9,6 +9,7 @@ from common_types import SaveType
 from data.sega_licensee_codes import licensee_codes
 from mame_helpers import MAMENotInstalledException
 from mame_machine import does_machine_match_game, get_machines_from_source_file
+from metadata import Date
 from software_list_info import get_software_list_entry
 
 from .atari_controllers import megadrive_pad as standard_gamepad
@@ -111,12 +112,15 @@ def add_megadrive_info(metadata, header):
 			maker = t_not_followed_by_dash.sub('T-', maker)
 			if maker in licensee_codes:
 				metadata.publisher = licensee_codes[maker]
-			metadata.year = copyright_match[2]
+			year = copyright_match[2]
 			try:
-				metadata.month = datetime.strptime(copyright_match[3], '%b').strftime('%B')
+				month = datetime.strptime(copyright_match[3], '%b').month
 			except ValueError:
 				#There are other spellings such as JUR, JLY out there, but oh well
-				pass
+				month = '??'
+			metadata.specific_info['Copyright-Date'] = Date(year, month)
+			if not metadata.release_date:
+				metadata.release_date = Date(year, month, is_guessed=True)
 	except UnicodeDecodeError:
 		pass
 	

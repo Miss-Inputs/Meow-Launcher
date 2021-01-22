@@ -1,5 +1,8 @@
+from metadata import Date
 from software_list_info import get_software_list_entry
+
 from .snes import get_snes_controller, get_snes_mouse
+
 
 def add_uzebox_metadata(game):
 	#Save type: ????
@@ -15,8 +18,8 @@ def add_uzebox_metadata(game):
 		#Header version: 6
 		#Target: 7 (0 = ATmega644, 1 = reserved for ATmega1284)
 		#Program size: 8-0xc (LE)
-		game.metadata.year = int.from_bytes(header[0xc:0xe], 'little')
-		game.metadata.specific_info['Banner-Title'] = header[0xe:0x2e].decode('ascii', errors='backslashreplace').rstrip('\0')
+		game.metadata.release_date = Date(int.from_bytes(header[0xc:0xe], 'little'))
+		game.metadata.add_alternate_name(header[0xe:0x2e].decode('ascii', errors='backslashreplace').rstrip('\0'), 'Banner-Title')
 		game.metadata.developer = game.metadata.publisher = header[0x2e:0x4e].decode('ascii', errors='backslashreplace').rstrip('\0')
 		#Icon (sadly unused) (16 x 16, BBGGGRRR): 0x4e:0x14e
 		#CRC32: 0x14e:0x152

@@ -1,9 +1,11 @@
 import collections
-
 from enum import Enum
-from input_metadata import InputInfo
+
 from common_types import MediaType, SaveType
-from launchers import metadata_section_name, image_section_name, junk_section_name, name_section_name
+from input_metadata import InputInfo
+from launchers import (image_section_name, junk_section_name,
+                       metadata_section_name, name_section_name)
+
 
 class CPU():
 	#TODO I only give a shit about this info for MAME machines, move it there
@@ -155,13 +157,55 @@ class ScreenInfo():
 	def get_display_tags(self):
 		return _format_count([screen.tag for screen in self.screens if screen.tag])
 
+class Date():
+	#Class to hold a maybe-incorrect/maybe-guessed/maybe-incomplete date, but I thought MaybeIncompleteMaybeGuessedDate was a bit too much of a mouthful and I'm not clever enough to know what else to call it
+	def __init__(self, year=None, month=None, day=None, is_guessed=False):
+		self.year = str(year) if year else None
+		self.month = str(month) if month else None
+		self.day = str(day) if day else None
+		self.is_guessed = is_guessed
+
+	@property
+	def is_partly_unknown(self):
+		if not self.month:
+			return True
+		if not self.day:
+			return True
+		if not self.year:
+			return True
+		#pylint: disable=unsupported-membership-test #I already checked for none you fucking knob
+		return 'x' in self.year or 'x' in self.month or 'x' in self.day or '?' in self.year or '?' in self.month or '?' in self.day
+	
+	def is_better_than(self, other_date):
+		if not other_date:
+			return True
+		if other_date.is_guessed and not self.is_guessed:
+			return True
+		if (other_date.is_partly_unknown and not self.is_partly_unknown) and not self.is_guessed:
+			return True
+
+		return False
+
+	def __str__(self):
+		parts = [self.year]
+		if self.month:
+			parts.append(self.month.rjust(2, '0'))
+		else:
+			parts.append('??')
+		if self.day:
+			parts.append(self.day.rjust(2, '0'))
+		else:
+			parts.append('??')
+		s = '-'.join(parts)
+		if self.is_guessed:
+			s += '?'
+		return s
+
 class Metadata():
 	def __init__(self):
 		self.platform = None
 		self.categories = []
-		self.year = None
-		self.month = None
-		self.day = None
+		self.release_date = None
 		self.emulator_name = None
 		self.extension = None
 
@@ -213,9 +257,7 @@ class Metadata():
 			'Genre': self.genre,
 			'Subgenre': self.subgenre,
 			'Languages': [language.native_name for language in self.languages if language],
-			'Year': self.year,
-			'Month': self.month,
-			'Day': self.day,
+			'Release-Date': self.release_date,
 			'Emulator': self.emulator_name,
 			'Extension': self.extension,
 			'Categories': self.categories,
@@ -234,6 +276,8 @@ class Metadata():
 
 			'TV-Type': self.tv_type.name if self.tv_type else None,
 		}
+		if self.release_date:
+			metadata_fields['Year'] = self.release_date.year + '?' if self.release_date.is_guessed else self.release_date.year
 
 		if self.cpu_info.is_inited:
 			metadata_fields['Number-of-CPUs'] = self.cpu_info.number_of_cpus

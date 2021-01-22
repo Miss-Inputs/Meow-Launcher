@@ -8,6 +8,7 @@ from common import NotAlphanumericException, convert_alphanumeric
 from config.main_config import main_config
 from config.system_config import system_configs
 from data.nintendo_licensee_codes import nintendo_licensee_codes
+from metadata import Date
 
 from .gamecube_wii_common import (NintendoDiscRegion,
                                   add_gamecube_wii_disc_metadata,
@@ -231,9 +232,10 @@ def add_wii_homebrew_metadata(rom, metadata):
 					except ValueError:
 						continue
 				if actual_date:
-					metadata.year = actual_date.year
-					metadata.month = actual_date.strftime('%B')
-					metadata.day = actual_date.day
+					year = actual_date.year
+					month = actual_date.month
+					day = actual_date.day
+					metadata.release_date = Date(year, month, day)
 
 			short_description = meta_xml.findtext('short_description')
 			if short_description:
@@ -324,12 +326,12 @@ def add_wii_disc_metadata(rom, metadata):
 
 			try:
 				apploader_date = decrypted_chunk[0x2440:0x2450].decode('ascii').rstrip('\0')
-				#Not quite release date but it will do
 				try:
-					actual_date = datetime.strptime(apploader_date, '%Y/%m/%d')
-					metadata.year = actual_date.year
-					metadata.month = actual_date.strftime('%B')
-					metadata.day = actual_date.day
+					d = datetime.strptime(apploader_date, '%Y/%m/%d')
+					metadata.specific_info['Build-Date'] = Date(d.year, d.month, d.day)
+					guessed = Date(d.year, d.month, d.day, True)
+					if guessed.is_better_than(metadata.release_date):
+						metadata.release_date = guessed
 				except ValueError:
 					pass
 			except UnicodeDecodeError:

@@ -1,6 +1,8 @@
 import input_metadata
 from common import NotAlphanumericException, convert_alphanumeric
 from info.region_info import TVSystem
+from metadata import Date
+
 from platform_metadata.minor_systems import add_generic_info
 
 
@@ -15,15 +17,15 @@ def add_vectrex_metadata(game):
 
 	add_generic_info(game)
 
-	if not game.metadata.year:
-		#Only do things the wrong way if we can't find year by software list
+	#Only do things the wrong way if we can't find year by software list
+	try:
+		year = convert_alphanumeric(game.rom.read(seek_to=6, amount=4))
 		try:
-			year = convert_alphanumeric(game.rom.read(seek_to=6, amount=4))
-			try:
-				year = int(year)
-				if year > 1982:
-					game.metadata.year = year
-			except ValueError:
-				pass
-		except NotAlphanumericException:
+			if int(year) > 1982:
+				year_date = Date(year, is_guessed=True)
+				if year_date.is_better_than(game.metadata.release_date):
+					game.metadata.release_date = game.metadata.release_date
+		except ValueError:
 			pass
+	except NotAlphanumericException:
+		pass

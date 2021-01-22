@@ -6,7 +6,7 @@ import time
 from common_paths import config_dir
 from common_types import MediaType
 from config.main_config import main_config
-from metadata import Metadata
+from metadata import Metadata, Date
 
 class App:
 	def __init__(self, info):
@@ -24,7 +24,7 @@ class App:
 		if 'publisher' in self.info:
 			self.metadata.publisher = self.info['publisher']
 		if 'year' in self.info:
-			self.metadata.year = self.info['year']
+			self.metadata.release_date = Date(self.info['year'])
 		if 'category' in self.info:
 			self.metadata.categories = [self.info['category']]
 		if 'genre' in self.info:

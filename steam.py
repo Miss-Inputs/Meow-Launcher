@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import calendar
 import datetime
 import glob
 import io
@@ -19,12 +18,13 @@ from data.name_cleanup.steam_developer_overrides import developer_overrides
 from data.steam_genre_ids import genre_ids
 from data.steam_store_categories import store_categories
 from info.region_info import get_language_by_english_name
-from metadata import Metadata
+from metadata import Date, Metadata
 from pc_common_metadata import (check_for_interesting_things_in_folder,
-                                detect_engine_recursively, fix_name, normalize_name_case)
+                                detect_engine_recursively, fix_name,
+                                normalize_name_case)
 
 try:
-	from PIL import Image, IcoImagePlugin
+	from PIL import IcoImagePlugin, Image
 	have_pillow = True
 except ModuleNotFoundError:
 	have_pillow = False
@@ -580,23 +580,22 @@ def add_metadata_from_appinfo_common_section(game, common):
 		game.metadata.specific_info['Content-Warnings'] = [format_genre(id) for id in content_warning_ids]
 	#"genre" doesn't look like a word anymore
 
-	steam_release_date = common.get(b'steam_release_date')
+	steam_release_timestamp = common.get(b'steam_release_date')
 	#Seems that original_release_date is here sometimes, and original_release_date sometimes appears along with steam_release_date where a game was only put on Steam later than when it was actually released elsewhere
 	#Sometimes these are equal, or off by like one day (which is possibly timezone related)
-	original_release_date = common.get(b'original_release_date')
+	original_release_timestamp = common.get(b'original_release_date')
 
-	release_date = original_release_date
+	release_date = original_release_timestamp
 	if not release_date:
-		release_date = steam_release_date
+		release_date = steam_release_timestamp
 	#Maybe I should put in an option to prefer Steam release date
 		
 	if release_date:
 		release_datetime = datetime.datetime.fromtimestamp(release_date.data)
-		game.metadata.year = release_datetime.year
-		game.metadata.month = calendar.month_name[release_datetime.month]
-		game.metadata.day = release_datetime.day
-	if original_release_date and steam_release_date:
-		game.metadata.specific_info['Steam-Release-Date'] = datetime.datetime.fromtimestamp(steam_release_date.data)
+		game.metadata.release_date = Date(release_datetime.year, release_datetime.month, release_datetime.day)
+	if original_release_timestamp and steam_release_timestamp:
+		steam_release_datetime = datetime.datetime.fromtimestamp(steam_release_timestamp.data)
+		game.metadata.specific_info['Steam-Release-Date'] = Date(steam_release_datetime.year, steam_release_datetime.month, steam_release_datetime.day)
 
 	store_categories_list = common.get(b'category')
 	if store_categories_list:

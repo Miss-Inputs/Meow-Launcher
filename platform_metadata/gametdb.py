@@ -2,6 +2,7 @@ from common import junk_suffixes
 from common_types import SaveType
 from config.main_config import main_config
 from data.name_cleanup.gametdb_company_name_cleanup import company_name_cleanup
+from metadata import Date
 
 
 class TDB():
@@ -103,12 +104,7 @@ def add_info_from_tdb(tdb, metadata, search_key):
 			year = date.attrib.get('year')
 			month = date.attrib.get('month')
 			day = date.attrib.get('day')
-			if year:
-				metadata.year = year
-			if month:
-				metadata.month = month
-			if day:
-				metadata.day = day
+			metadata.release_date = Date(year, month, day)
 
 		genre = game.findtext('genre')
 		if genre:

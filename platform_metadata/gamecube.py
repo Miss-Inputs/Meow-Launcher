@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from config.main_config import main_config
+from metadata import Date
 
 from .gamecube_wii_common import (NintendoDiscRegion,
                                   add_gamecube_wii_disc_metadata,
@@ -132,15 +133,18 @@ def add_fst_info(rom, metadata, fst_offset, fst_size, offset=0):
 def add_gamecube_disc_metadata(rom, metadata, header, tgc_data=None):
 	metadata.platform = 'GameCube'
 
-	if rom.extension != 'tgc' and not (metadata.year or metadata.month or metadata.day):
+	if rom.extension != 'tgc':
 		#Not gonna bother working out what's going on with apploader offsets in tgc
 		try:
 			apploader_date = header[0x2440:0x2450].decode('ascii').rstrip('\x00')
 			try:
 				actual_date = datetime.strptime(apploader_date, '%Y/%m/%d')
-				metadata.year = actual_date.year
-				metadata.month = actual_date.strftime('%B')
-				metadata.day = actual_date.day
+				year = actual_date.year
+				month = actual_date.strftime('%B')
+				day = actual_date.day
+				metadata.specific_info['Build-Date'] = Date(year, month, day)
+				if not metadata.release_date or metadata.release_date.is_guessed:
+					metadata.release_date = Date(year, month, day, True)
 			except ValueError:
 				pass
 		except UnicodeDecodeError:

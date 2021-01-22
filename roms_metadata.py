@@ -4,7 +4,7 @@ from common import find_filename_tags_at_end, remove_filename_tags
 from config.main_config import main_config
 from data.not_necessarily_equivalent_arcade_names import \
     not_necessarily_equivalent_arcade_names
-from info import region_info, system_info
+from info import region_info
 from mame_helpers import (MachineNotFoundException, MAMENotInstalledException,
                           get_mame_xml, get_image, image_config_keys)
 from mame_machine import Machine, does_machine_match_game
@@ -15,18 +15,11 @@ def get_metadata_from_tags(game):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = game.filename_tags
 
-	year, month, day = detect_things_from_filename.get_date_from_filename_tags(tags)
-	if year and not game.metadata.year:
-		game.metadata.year = year
-	if (year and ('x' not in str(year)) and ('?' not in str(year))) and (game.metadata.year and ('x' in str(game.metadata.year) or '?' in str(game.metadata.year))):
-		#Maybe when I am sober this line can be rewritten to be more good
-		#TODO Actually it should be more like (if platform_metadata/software list year/month/day is partially unknown, but tag year/month/day is all known, use latter)
-		game.metadata.year = year
-	if month and not game.metadata.month:
-		game.metadata.month = month
-	if day and not game.metadata.day:
-		game.metadata.day = day
-
+	filename_date = detect_things_from_filename.get_date_from_filename_tags(tags)
+	if filename_date:
+		if filename_date.is_better_than(game.metadata.release_date):
+			game.metadata.release_date = filename_date
+	
 	revision = detect_things_from_filename.get_revision_from_filename_tags(tags)
 	if revision and 'Revision' not in game.metadata.specific_info:
 		game.metadata.specific_info['Revision'] = revision

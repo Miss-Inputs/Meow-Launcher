@@ -1,4 +1,3 @@
-import calendar
 import os
 import re
 import xml.etree.ElementTree as ElementTree
@@ -11,8 +10,10 @@ from common_types import EmulationStatus, MediaType
 from config.main_config import main_config
 from data.subtitles import subtitles
 from info.system_info import systems
-from mame_helpers import (consistentify_manufacturer, get_mame_core_config,
-                          image_config_keys, verify_software_list, get_image)
+from mame_helpers import (consistentify_manufacturer, get_image,
+                          get_mame_core_config, image_config_keys,
+                          verify_software_list)
+from metadata import Date
 
 #Ideally, every platform wants to be able to get software list info. If available, it will always be preferred over what we can extract from inside the ROMs, as it's more reliable, and avoids the problem of bootlegs/hacks with invalid/missing header data, or publisher/developers that merge and change names and whatnot.
 #We currently do this by putting a block of code inside each platform_metadata helper that does the same thing. I guess I should genericize that one day. Anyway, it's not always possible.
@@ -398,14 +399,25 @@ class Software():
 		if alt_title:
 			parse_alt_title(metadata, alt_title)
 
-		year = self.xml.findtext('year')
-		if metadata.year:
-			already_has_valid_year = '?' not in metadata.year if isinstance(metadata.year, str) else True
+		year_text = self.xml.findtext('year')
+		year_guessed = False
+		if len(year_text) == 5 and year_text[-1] == '?':
+			#Guess I've created a year 10000 problem, please fix this code in several millennia to be more smart
+			year_guessed = True
+			year_text = year_text[:-1]
+		year = Date(year_text, is_guessed=year_guessed)
+		if year.is_better_than(metadata.release_date):
+			metadata.release_date = year
+
+		release = self.infos.get('release')
+		if release:
+			release_date = parse_release_date(release)
 		else:
-			already_has_valid_year = False
-		if not ('?' in year and already_has_valid_year):
-			metadata.year = year
-		parse_release_date(metadata, self.infos.get('release'))
+			release_date = None
+
+		if release_date:
+			if release_date.is_better_than(metadata.release_date):
+				metadata.release_date = release_date
 
 		metadata.specific_info['MAME-Emulation-Status'] = self.emulation_status
 		developer = consistentify_manufacturer(self.infos.get('developer'))
@@ -721,30 +733,15 @@ def get_crc32_for_software_list(data):
 	return format_crc32_for_software_list(zlib.crc32(data) & 0xffffffff)
 
 is_release_date_with_thing_at_end = re.compile(r'\d{8}\s\(\w+\)')
-def parse_release_date(metadata, release_info):
-	if not release_info:
-		return
-
+def parse_release_date(release_info):
 	if is_release_date_with_thing_at_end.match(release_info):
 		release_info = release_info[:8]
 
 	if len(release_info) != 8:
-		return
+		return None
 
-	#Some dates contain "x" but like... ehhh, I'll just skip over the unknown parts
 	year = release_info[0:4]
 	month = release_info[4:6]
 	day = release_info[6:8]
-
-	try:
-		metadata.year = int(year)
-	except ValueError:
-		pass
-	try:
-		metadata.month = calendar.month_name[int(month)]
-	except (ValueError, IndexError):
-		pass
-	try:
-		metadata.day = int(day)
-	except ValueError:
-		pass
+	
+	return Date(year=None if year == 'xxxx' else year, month=None if month == 'xx' else month, day=None if day == 'xx' else day, is_guessed='x' in release_info or '?' in release_info)

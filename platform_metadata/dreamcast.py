@@ -5,6 +5,7 @@ import re
 import cd_read
 from common_types import SaveType
 from data.sega_licensee_codes import licensee_codes
+from metadata import Date
 
 from .minor_systems import add_generic_info
 from .saturn import SaturnRegionCodes
@@ -93,9 +94,13 @@ def add_info_from_main_track(metadata, track_path, sector_size):
 	release_date = header[80:96].decode('ascii', errors='backslashreplace').rstrip()
 
 	try:
-		metadata.year = int(release_date[0:4])
-		metadata.month = calendar.month_name[int(release_date[4:6])]
-		metadata.day = int(release_date[6:8])
+		year = int(release_date[0:4])
+		month = calendar.month_name[int(release_date[4:6])]
+		day = int(release_date[6:8])
+		metadata.specific_info['Header-Date'] = Date(year, month, day)
+		guessed = Date(year, month, day, True)
+		if guessed.is_better_than(metadata.release_date):
+			metadata.release_date = guessed
 	except ValueError:
 		pass
 
