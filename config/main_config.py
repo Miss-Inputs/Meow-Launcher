@@ -138,7 +138,7 @@ def load_ignored_directories():
 		for ignored_dir in parse_path_list(arg):
 			ignored_directories.append(ignored_dir)
 
-	ignored_directories = [dir if dir.endswith(os.sep) else dir + os.sep for dir in ignored_directories]
+	ignored_directories = [dir if dir.endswith(os.sep) else dir + os.sep for dir in ignored_directories if dir.strip()]
 
 	return ignored_directories
 
