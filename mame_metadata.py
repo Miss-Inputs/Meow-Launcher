@@ -149,6 +149,19 @@ def add_metadata_from_catlist(machine):
 	#kuzmich is just Platform / Run Jump, it's an arcade machine though (but it kinda doesn't have coins at this point in time, and I dunno if it's supposed to, or it just be like that)
 	#evio is Music / Instruments which is the genre, yes, but it is indeed plug & play. Hmm...
 	
+	#TODO: This function sucks, needs refactoring to make it easier to read
+	#I guess you have results here from catlist -
+	#Arcade: Has a genre and subgenre, takes coins, can be mature
+	#Plug & play with genre
+	#Plug & play without genre
+	#Handheld: LCD handhelds, etc
+	#Game consoles with the chip inside the cart: XavixPORT, CPS Changer, Domyos Interactive System, Select-a-Game (pre-0.221), R-Zone
+	#Game & Watch: Handheld but we call it a different platform because it's what most people would expect
+	#Board games
+	#Pinball: Arcade but we call it a different platform I guess
+	#Other non-game systems that are just like computers or whatever that aren't in system_info
+
+
 	machine.metadata.media_type = MediaType.Standalone
 
 	if category == 'Unknown':
