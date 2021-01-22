@@ -113,7 +113,11 @@ def add_info_from_tdb(tdb, metadata, search_key):
 		
 		rating = game.find('rating')
 		if rating is not None:
-			#We can already get the actual rating value from the SMDH, but this has more fun stuff
+			#Rating board (attrib "type") is implied by region (games released in e.g. both Europe and Australia just tend to not have this here)
+			value = rating.attrib.get('value')
+			if value:
+				metadata.specific_info['Age-Rating'] = value
+
 			descriptors = [e.text for e in rating.findall('descriptor')]
 			if descriptors:
 				metadata.specific_info['Content-Warnings'] = descriptors
@@ -133,11 +137,10 @@ def add_info_from_tdb(tdb, metadata, search_key):
 
 		if metadata.platform != 'GameCube':
 			wifi = game.find('wi-fi')
-			supports_online = False
 			if wifi:
-				supports_online = any(e.text == 'online' for e in wifi.findall('feature'))
-			metadata.specific_info['Supports-Online'] = supports_online
-			#Other feature elements seen are "download" and "score" but I dunno what those do
+				features = [feature.text for feature in wifi.findall('feature')]
+				metadata.specific_info['Wifi-Features'] = features
+				#online, download, score, nintendods
 		
 		input_element = game.find('input')
 		if input_element is not None:
@@ -148,6 +151,7 @@ def add_info_from_tdb(tdb, metadata, search_key):
 			
 			if metadata.platform != 'GameCube':
 				controls = input_element.findall('control')
+				#wiimote, nunchuk, motionplus, gamecube, nintendods, classiccontroller, wheel, zapper, balanceboard, wiispeak, microphone, guitar, drums, dancepad, keyboard, draw
 				if controls:
 					#cbf setting up input_info just yet
 					metadata.specific_info['Optional-Additional-Controls'] = [e.attrib.get('type') for e in controls if e.attrib.get('required', 'false') == 'false']
