@@ -27,7 +27,7 @@ def add_uzebox_metadata(game):
 		description = header[0x153:0x193].decode('ascii', errors='backslashreplace').rstrip('\0')
 		if description:
 			#Official documentation claims this is unused, but it seems that it is used after all (although often identical to title)
-			game.metadata.specific_info['Banner-Description'] = description
+			game.metadata.descriptions['Banner-Description'] = description
 		
 	game.metadata.specific_info['Headered'] = has_header
 

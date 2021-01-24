@@ -3,7 +3,8 @@ from enum import Enum
 
 from common_types import MediaType, SaveType
 from input_metadata import InputInfo
-from launchers import (image_section_name, junk_section_name,
+from launchers import (description_section_name, document_section_name,
+                       image_section_name, junk_section_name,
                        metadata_section_name, name_section_name)
 
 
@@ -235,6 +236,8 @@ class Metadata():
 		self.images = {}
 		#TODO: The override name shenanigans in Wii/PSP: Check for name = None in launchers, and set name = None if overriding it to something else, and put the overriden name in here
 		self.names = {}
+		self.documents = {}
+		self.descriptions = {}
 
 	def add_alternate_name(self, name, field='Alternate-Name'):
 		if field in self.names:
@@ -317,4 +320,15 @@ class Metadata():
 			fields[name_section_name] = {}
 			for k, v in self.names.items():
 				fields[name_section_name][k] = v
+
+		if self.documents:
+			fields[document_section_name] = {}
+			for k, v in self.documents.items():
+				fields[document_section_name][k] = v
+
+		if self.descriptions:
+			fields[description_section_name] = {}
+			for k, v in self.descriptions.items():
+				fields[description_section_name][k] = v
+
 		return fields

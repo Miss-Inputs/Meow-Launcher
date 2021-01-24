@@ -84,7 +84,6 @@ def add_info_from_tdb(tdb, metadata, search_key):
 		#(it thinks I need an indented block) type: 3DS, 3DSWare, VC, etc (we probably don't need to worry about that)
 		#region: PAL, etc (we can see region code already)
 		#languages: "EN" "JA" etc (I guess we could parse this if the filename isn't good enough for us)
-		#locale lang="EN" etc: Contains title (hmm) and synopsis (ooh, interesting) (sometimes) for each language
 		#rom: What they think the ROM should be named
 		#case: Has "color" and "versions" attribute? I don't know what versions does but I presume it all has to do with the game box
 		
@@ -110,6 +109,13 @@ def add_info_from_tdb(tdb, metadata, search_key):
 		genre = game.findtext('genre')
 		if genre:
 			tdb.parse_genre(metadata, genre)
+
+		locales = game.findall('locale')
+		for locale in locales:
+			synopsis = locale.findtext('synopsis')
+			if synopsis:
+				key_name = 'Synopsis-' + locale.attrib.get('lang')
+				metadata.descriptions[key_name] = synopsis
 		
 		rating = game.find('rating')
 		if rating is not None:

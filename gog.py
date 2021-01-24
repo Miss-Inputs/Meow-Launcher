@@ -82,7 +82,7 @@ class GOGTask():
 		else:
 			self.compatibility_flags = []
 		#osBitness: As in GOGJSONGameInfo
-		#link: For URLTask
+		self.link = json_object.get('link') #For URLTask
 		#icon: More specific icon I guess, but this can be an exe or DLL to annoy me
 
 	@property
@@ -122,7 +122,7 @@ class GOGJSONGameInfo():
 			#languages: Array of language codes (e.g. en-US)
 			self.name = j.get('name')
 			self.play_tasks = [GOGTask(task_json) for task_json in j.get('playTasks', [])]
-			#supportTasks follow the same format (type = URLTask, FileTask, etc) but link to documentation/support stuff instead (name = Manual, Readme, etc); will bother with that once I put in a section in launchers for documents I guess
+			self.support_tasks = [GOGTask(task_json) for task_json in j.get('supportTasks', [])]
 			#version: Always 1 if there?
 			#osBitness: Array containing '64' as a string rather than just a number like a normal person? I guess we don't need it (unless we care about 32-bit Wine users)
 			#overlaySupported: Probably GOG Galaxy related
@@ -132,7 +132,7 @@ class GOGJSONGameInfo():
 		primary_tasks = [task for task in self.play_tasks if task.is_primary]
 		if len(primary_tasks) == 1:
 			return primary_tasks[0]
-		return None #Not sure what happens if more than one has isPrimary tbh, guess I'll find out
+		return None #Not sure what happens if more than one has isPrimary tbh, guess it doesn't matter
 
 class GOGGame():
 	def __init__(self, game_folder, info, start_script, support_folder):
@@ -360,14 +360,21 @@ class WindowsGOGGame():
 		launchers.make_launcher(params, name, task_metadata, 'GOG', self.folder)
 
 	def make_launchers(self):
+		actual_tasks = []
+		documents = []
 		for task in self.info.play_tasks:
 			if task.category == 'document':
+				documents.append(task)
+			#TODO Also names that are not supposed to be launched and are documents: "FAQ", "Manual", "Map of Avernum", "Reference Card"
+			elif task.task_type == 'URLTask':
+				documents.append(task)
+			elif task.is_hidden:
 				continue
-			#Should put this in a documentation section, also names that are not supposed to be launched and are documents: "FAQ", "Manual", "Map of Avernum", "Reference Card"
-			if task.task_type == 'URLTask':
-				continue
-			if task.is_hidden:
-				continue
+			else:
+				actual_tasks.append(task)
+		for task in self.info.support_tasks:
+			self.metadata.documents[task.name] = task.link if task.task_type == 'URLTask' else find_subpath_case_insensitive(self.folder, task.path)
+		for task in actual_tasks:
 			self.make_launcher(task)
 
 def look_in_windows_gog_folder(folder):

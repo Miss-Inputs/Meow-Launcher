@@ -52,7 +52,7 @@ def parse_gamecube_banner_text(metadata, banner_bytes, encoding, lang=None):
 	metadata.specific_info['{0}-Short-Title-Line-2'.format(prefix)] = short_title_line_2
 	metadata.add_alternate_name(title_line_1, '{0}-Title'.format(prefix))
 	metadata.specific_info['{0}-Title-Line-2'.format(prefix)] = title_line_2
-	metadata.specific_info['{0}-Description'.format(prefix)] = description
+	metadata.descriptions['{0}-Description'.format(prefix)] = description
 
 
 def add_banner_info(rom, metadata, banner):

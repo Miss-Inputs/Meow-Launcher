@@ -504,7 +504,6 @@ def add_metadata_from_appinfo_common_section(game, common):
 	#releasestate: 'released' might be to do with early access?
 	#exfgls = exclude from game library sharing
 	#b'requireskbmouse' and b'kbmousegame' are also things, but don't seem to be 1:1 with games that have controllersupport = none
-	#name_localized has a dict with e.g. b'japanese' as the keys; will worry about that later...
 
 	oslist = common.get(b'oslist')
 	if not main_config.use_steam_as_platform:
@@ -597,6 +596,11 @@ def add_metadata_from_appinfo_common_section(game, common):
 		steam_release_datetime = datetime.datetime.fromtimestamp(steam_release_timestamp.data)
 		game.metadata.specific_info['Steam-Release-Date'] = Date(steam_release_datetime.year, steam_release_datetime.month, steam_release_datetime.day)
 
+	store_asset_mtime = common.get(b'store_asset_mtime')
+	if store_asset_mtime:
+		store_asset_timestamp = datetime.datetime.fromtimestamp(store_asset_mtime.data)
+		game.metadata.specific_info['Store-Asset-Modification-Time'] = Date(store_asset_timestamp.year, store_asset_timestamp.month, store_asset_timestamp.day)
+
 	store_categories_list = common.get(b'category')
 	if store_categories_list:
 		#keys are category_X where X is some arbitrary ID, values are always Integer = 1
@@ -616,6 +620,9 @@ def add_metadata_from_appinfo_common_section(game, common):
 	has_adult_content = common.get(b'has_adult_content') #Integer object with data = 0 or 1, as most bools here seem to be
 	if has_adult_content:
 		game.metadata.specific_info['Has-Adult-Content'] = bool(has_adult_content.data)
+	has_sex = common.get(b'has_adult_content_sex') #uwu
+	if has_sex:
+		game.metadata.specific_info['Has-Sexual-Content'] = bool(has_sex.data)
 	
 	only_vr = common.get(b'onlyvrsupport')
 	vr_support = common.get(b'openvrsupport')
@@ -631,7 +638,7 @@ def add_metadata_from_appinfo_common_section(game, common):
 		game.metadata.specific_info['Metacritic-Score'] = metacritic_score.data
 	metacritic_url = common.get(b'metacritic_fullurl')
 	if metacritic_url:
-		game.metadata.specific_info['Metacritic-URL'] = metacritic_url.decode('utf8', errors='ignore')
+		game.metadata.documents['Metacritic-Page'] = metacritic_url.decode('utf8', errors='ignore')
 	metacritic_name = common.get(b'metacritic_name')
 	if metacritic_name:
 		game.metadata.add_alternate_name(metacritic_name.decode('utf8', errors='ignore'), 'Metacritic-Name')
@@ -747,13 +754,13 @@ def add_metadata_from_appinfo_extended_section(game, extended):
 
 	homepage = extended.get(b'homepage')
 	if homepage:
-		game.metadata.specific_info['URL'] = homepage.decode('utf-8', errors='backslashreplace')
+		game.metadata.documents['Homepage'] = homepage.decode('utf-8', errors='backslashreplace')
 	developer_url = extended.get(b'developer_url')
 	if developer_url:
-		game.metadata.specific_info['Author-URL'] = developer_url.decode('utf-8', errors='backslashreplace')
+		game.metadata.documents['Developer-Homepage'] = developer_url.decode('utf-8', errors='backslashreplace')
 	gamemanualurl = extended.get(b'gamemanualurl')
 	if gamemanualurl:
-		game.metadata.specific_info['Manual-URL'] = gamemanualurl.decode('utf-8', errors='backslashreplace')
+		game.metadata.documents['Manual'] = gamemanualurl.decode('utf-8', errors='backslashreplace')
 
 	isfreeapp = extended.get(b'isfreeapp')
 	if isfreeapp:
@@ -888,22 +895,42 @@ def add_info_from_cache_json(game, json_path, is_single_user):
 	with open(json_path, 'rt') as f:
 		j = json.load(f)
 		#Cool stuff in here:
-		#descriptions -> data -> strFullDescription (this is very verbose) (sometimes it is just #app_appid_content though)
-		#descriptions -> data -> strSnippet (not always just a shortened form of strFullDescription)
 		#friends -> Has info on which of your friends played this game (I don't think we need to put that in here anywhere)
 		#associations > Duplicated from appinfo so we don't need that
 		#workshop -> If you downloaded any workshop stuff
 		#badge -> If you're into the badge collecting that stuff is in here
-		#social_media:
-			#data is array of social media links, self explanatory (strName, strURL) except eType:
-			#4 = Twitter 5 = Twitch 6 = YouTube 7 = Facebook? Are there more? If so I don't have any games that use them I guess
+		#usernews and gameactivity sound cool, but they're blank? Hmm
 		achievements = None
 		achievement_map = None #What's this about…
+		descriptions = None
+		social_media = None
 		for key, values in j:
 			if key == 'achievements':
 				achievements = values.get('data')
 			elif key == 'achievementmap':
 				achievement_map = json.loads(values.get('data'))
+			elif key == 'descriptions':
+				descriptions = values.get('data')
+			elif key == 'socialmedia':
+				social_media = values.get('data')
+
+		if descriptions:
+			game.metadata.descriptions['Snippet'] = descriptions.get('strSnippet')
+			full_description = descriptions.get('strFullDescription')
+			if full_description and not full_description.startswith('#app_'):
+				game.metadata.descriptions['Full-Description'] = full_description
+
+		if social_media:
+			social_media_types = {
+					4: 'Twitter',
+					5: 'Twitch',
+					6: 'YouTube',
+					7: 'Facebook',
+			}
+			for social_medium in social_media:
+				#strName is just the account's name on that platform I think?
+				key = social_media_types.get(social_medium.get('eType'), 'Unknown-Social-Media-{0}'.format(social_medium.get('eType')))
+				game.metadata.documents[key] = social_medium.get('strURL')
 
 		if is_single_user and achievements:
 			total_achievements = achievements.get('nTotal', 0)

@@ -239,10 +239,10 @@ def add_wii_homebrew_metadata(rom, metadata):
 
 			short_description = meta_xml.findtext('short_description')
 			if short_description:
-				metadata.specific_info['Description'] = short_description
+				metadata.descriptions['Description'] = short_description
 			long_description = meta_xml.findtext('long_description')
 			if long_description:
-				metadata.specific_info['Long-Description'] = long_description
+				metadata.descriptions['Long-Description'] = long_description
 
 		except ElementTree.ParseError as etree_error:
 			if main_config.debug:

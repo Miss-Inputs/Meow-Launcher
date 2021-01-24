@@ -20,6 +20,8 @@ id_section_name = 'X-Meow Launcher ID'
 junk_section_name = 'X-Meow Launcher Junk'
 image_section_name = 'X-Meow Launcher Images'
 name_section_name = 'X-Meow Launcher Names'
+document_section_name = 'X-Meow Launcher Documents'
+description_section_name = 'X-Meow Launcher Descriptions'
 
 def get_desktop(path):
 	parser = configparser.ConfigParser(interpolation=None)

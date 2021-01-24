@@ -49,7 +49,7 @@ def parse_sdsc_header(rom, metadata, header):
 			pass
 	if 0 < description_offset < 0xffff:
 		try:
-			metadata.specific_info['Description'] = rom.read(seek_to=description_offset, amount=255).partition(b'\x00')[0].decode('ascii')
+			metadata.descriptions['Description'] = rom.read(seek_to=description_offset, amount=255).partition(b'\x00')[0].decode('ascii')
 		except UnicodeDecodeError:
 			pass
 	
