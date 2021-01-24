@@ -13,7 +13,7 @@ def add_nacp_metadata(metadata, nacp):
 	#TODO 0x302c:0x3030 SupportedLanguages - See also https://gbatemp.net/threads/bigbluebox-says-all-the-other-nsps-are-wrong.515145/page-10
 	#0x3040:0x3060 RatingAge - I wonder if this is the same format as the previous consoles (but this probably won't mean anything until we get NACPs from non-homebrew games)
 	try:
-		metadata.specific_info['Banner-Title'] = nacp[0:0x200].decode('utf-8').rstrip()
+		metadata.add_alternate_name(nacp[0:0x200].decode('utf-8').rstrip(), 'Banner-Title')
 	except UnicodeDecodeError:
 		pass
 	try:
