@@ -15,5 +15,7 @@ atari_2600_cartridge_extensions = ['2k', '4k', 'f8', 'ef', 'efs', 'f4', 'f4s', '
 #Ideally the usage of this would signifify to not try and use file extensions to detect type
 generic_cart_extensions = ['bin', 'rom', 'u1', 'u3']
 
+generic_tape_extensions = ['wav', 'tap', 'cas']
+
 #All known possible CD-ROM formats, for use with file_types and MediaType.OpticalDisc; of course emulator support may vary
 cdrom_formats = mame_cdrom_formats + ['cdi', 'ccd']
