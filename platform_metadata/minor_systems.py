@@ -693,7 +693,7 @@ def add_generic_info(game):
 	#Coleco Adam: Input info: Keyboard / Coleco numpad?
 	#MSX1/2: Input info: Keyboard or joystick; Other info you can get from carts here: PCB, slot (something like ascii8 or whatever), mapper
 	#GX4000: Input info: 2-button gamepad, analog stick, or light gun (Skeet Shoot, The Enforcer); gx4000.xml software list decides to put that inside a comment above the <software> element rather than anything parseable
-	#Sord M5: Input info: Keyboard (55 keys), maybe joystick (0 buttons??)? Take note of info > usage = requiring 36K RAM, though we just set our M5 to have max RAM anyway, seems to be harmless
+	#Sord M5: Input info: Keyboard (55 keys), maybe joystick (0 buttons??)? Take note of info > usage = requiring 36K RAM
 	#Jaguar input info: There's the default ugly gamepad and also another ugly gamepad with more buttons which I dunno what's compatible with
 	#CD-i: That one controller but could also be the light gun thingo
 	#Memorex VIS: 4-button wireless not-quite-gamepad-but-effectively-one-thing (A, B, 1, 2), can have 2-button mouse? There are also 3 and 4 buttons and 2-1-Solo switch that aren't emulated yet
