@@ -276,6 +276,7 @@ emulators = {
 	'MAME (32X)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_32x, ['32x', 'bin']),
 	#Higher host CPU requirements than what you might expect
 	'MAME (Amstrad PCW)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_amstrad_pcw, mame_floppy_formats),
+	'MAME (Bandai RX-78)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('rx78', 'cart', has_keyboard=True), ['bin', 'rom']), #Supports savestate but otherwise emulation = preliminary
 	'MAME (Casio PV-2000)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('pv2000', 'cart', has_keyboard=True), ['bin']),
 	#Not the same as the PV-1000, albeit similar. Driver marked as non-working but it seems alright, other than it's supposed to have joysticks and doesn't (so you just set up a gamepad to map to emulated cursor keys) which maybe is why
 	'MAME (CD-i)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, mame_driver_callable('cdimono1', 'cdrom'), mame_cdrom_formats), #This is the only CD-i model that works according to wisdom passed down the ages (is it still true or does other stuff work now?), and it says it's imperfect graphics/sound, no digital video stuff
@@ -355,8 +356,6 @@ emulators = {
 
 	#Just here for future use or the fun of creating launchers really; these straight up don't work:
 	'MAME (3DO)': MameDriver(EmulatorStatus.Borked, mame_driver_callable('3do', 'cdrom'), mame_cdrom_formats), #Should switch to 3do_pal when needed, but it doesn't really matter at this point
-	'MAME (Bandai RX-78)': MameDriver(EmulatorStatus.Borked, mame_driver_callable('rx78', 'cart', has_keyboard=True), ['bin', 'rom']),
-	#Does boot things from software list, but not from fullpath, and doesn't really work too well
 	'MAME (Buzztime Home Trivia System)': MameDriver(EmulatorStatus.Borked, mame_driver_callable('buzztime', 'cart'), ['bin']),
 	#Inputs are not defined and it just spams random inputs (the game plays itself!!!1)
 	'MAME (Casio Loopy)': MameDriver(EmulatorStatus.Borked, mame_driver_callable('casloopy', 'cart'), ['bin']),

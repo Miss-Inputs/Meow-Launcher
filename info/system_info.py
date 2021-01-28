@@ -171,6 +171,9 @@ systems = {
 	'ClickStart': SystemInfo(['clikstrt'], ['clickstart_cart'], [], {MediaType.Cartridge: ['bin']}),
 	'Copera': SystemInfo(['copera'], ['copera'], ['MAME (Copera)'], {MediaType.Cartridge: ['bin', 'md']}), #Pico-related, but not quite the same (software will show warning message on Pico)
 	'Didj': SystemInfo(['didj'], ['leapfrog_didj_cart'], ['MAME (Didj)'], {MediaType.Cartridge: generic_cart_extensions}),
+	'InnoTab': SystemInfo(['innotab2'], ['vtech_innotab_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	'InnoTV': SystemInfo(['innotv'], ['vtech_innotv_innotabmax_cart'], [], {MediaType.Cartridge: generic_cart_extensions}), #The InnoTab MAX is another system that uses the same cartridges
+	'iQuest': SystemInfo(['iquest'], ['leapfrog_iquest_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
 	'LeapPad': SystemInfo(['leappad'], ['leapfrog_leappad_cart'], ['MAME (LeapPad)'], {MediaType.Cartridge: ['bin']}),
 	'Leapster': SystemInfo(['leapster'], ['leapster'], ['MAME (Leapster)'], {MediaType.Cartridge: ['bin']}),
 	'Little Touch LeapPad': SystemInfo(['ltleappad'], ['leapfrog_ltleappad_cart'], [], {MediaType.Cartridge: ['bin']}),
@@ -258,7 +261,7 @@ systems = {
 	'TRS-80': SystemInfo(['trs80', 'trs80l2', 'trs80m3'], [], ['MAME (TRS-80)'], {MediaType.Executable: ['cmd'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: ['dmk'] + mame_floppy_formats}),
 	'ZX Spectrum': SystemInfo(['spectrum', 'spec128'], ['spectrum_cart', 'spectrum_cass', 'specpls3_flop'], ['MAME (ZX Spectrum)'], {MediaType.Snapshot: ['z80', 'sna'], MediaType.Tape: ['wav', 'cas', 'tap', 'tzx'], MediaType.Executable: ['raw', 'scr'], MediaType.Floppy: ['dsk', 'ipf', 'trd', 'td0', 'scl', 'fdi', 'opd', 'opu'], MediaType.Cartridge: ['bin', 'rom']}), #There's actually like a katrillion file formats so I won't bother with all of them until I see them in the wild tbh
 
-	#Other computers
+	#Other computers that aren't as exciting
 	'Acorn Archimedes': SystemInfo(['aa310', 'aa4000', 'aa5000'], ['archimedes'], [], {MediaType.Floppy: mame_floppy_formats + ['adf']}), 
 	'Apple I': SystemInfo(['apple1'], ['apple1'], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['snp']}), #Loading tapes would require parsing software list usage to figure out where to put load addresses and things to make an autoboot script, because otherwise it's just way too messy to warrant being in a frontend. Snapshots supposedly exist, but I haven't seen any whoops
 	'Apple III': SystemInfo(['apple3'], ['apple3'], ['MAME (Apple III)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib', 'woz']}),
@@ -297,7 +300,7 @@ systems = {
 	'APF Imagination Machine': SystemInfo(['apfimag'], ['apfimag_cass', 'apfm1000'], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas', 'cpf', 'apt'], MediaType.Floppy: mame_floppy_formats}), #Considered separate from APF-M1000 (same predicament as Coleco Adam) (or is it? (maybe?))
 	'Apogey BK-01': SystemInfo(['apogee'], ['apogee'], [], {MediaType.Tape: ['wav', 'rka']}), #Should this be rolled up into Radio 86?
 	'Atari Portfolio': SystemInfo(['pofo'], ['pofo'], [], {MediaType.Cartridge: ['bin', 'rom']}),
-	'Bandai RX-78': SystemInfo(['rx78'], ['rx78'], ['MAME (Bandai RX-78)'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav']}),
+	'Bandai RX-78': SystemInfo(['rx78'], ['rx78_cart', 'rx78_cass'], ['MAME (Bandai RX-78)'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav']}), #Software list was just rx78 prior to MAME 0.228
 	'Bullet': SystemInfo(['wmbullet'], ['wmbullet'], [], {MediaType.Floppy: mame_floppy_formats}),
 	'Cambridge Z88': SystemInfo(['z88'], ['z88_cart'], [], {MediaType.Cartridge: ['epr', 'bin']}),
 	'Camputers Lynx': SystemInfo(['lynx48k'], ['camplynx_cass', 'camplynx_flop'], [], {MediaType.Floppy: mame_floppy_formats + ['ldf'], MediaType.Tape: ['wav', 'tap']}),
@@ -312,6 +315,7 @@ systems = {
 	'Electronika BK': SystemInfo(['bk0010'], ['bk0010'], [], {MediaType.Tape: ['wav', 'tap'], MediaType.Floppy: mame_floppy_formats, MediaType.HardDisk: ['hdi'], MediaType.Executable: ['bin']}),
 	'Elf II': SystemInfo(['elf2'], [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['bin']}),
 	'Enterprise': SystemInfo(['ep64'], ['ep64_cart', 'ep64_cass', 'ep64_flop'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav']}),
+	'ETI-660': SystemInfo(['eti660'], ['eti660_quik'], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['bin', 'c8', 'ch8']}), #Are these executables just Chip-8? Does it make sense to put this here?
 	'Exidy Sorcerer': SystemInfo(['sorcerer'], ['sorcerer_cart', 'sorcerer_cass', 'sorcerer_flop'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav', 'tape'], MediaType.Snapshot: ['snp']}),
 	'Galaksija': SystemInfo(['galaxy', 'galaxyp'], ['galaxy'], [], {MediaType.Snapshot: ['gal'], MediaType.Tape: ['wav', 'gtp']}),
 	'Goldstar FC-100': SystemInfo(['fc100'], [], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas']}), #Some kind of PC-6001 clone or something, apparently
@@ -374,18 +378,19 @@ all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers] + ibmpc
 #Things where I can't be fucked right now making a SystemInfo object:
 #Altair 8800 (is 8800bt a different thing)
 #TIC-80 (one of those non-existent systems)
-#TRS-80 Model 2
-#TRS-80 MC-10
+#TRS-80 Model 2 (trs80m2)
+#TRS-80 MC-10 (mc10)
 #Hitachi S1
 #Virtual systems: Flash, J2ME, TADS, Z-Machine (not that I have found cool emulators for any of that)
 #Acorn System (acrnsys3, acrnsys5)
-#ETI-660
 #Amstrad PC1512 (pc1512, pc1640)
 #Hanimex Pencil II (pencil2)
 #Indy (indy_4610, indigo2_4415)
-#Tiki 100
-#Cosmac VIP
-#MikroMikko 1
+#Tiki 100 (kontiki, tiki100)
+#Cosmac VIP (vip, vp111)
+#MikroMikko 1 (mm1m6, mm1m7)
+#Leapfrog Turbo Extreme (turboex)
+#Leapfrog Turbo Twist Brain Quest (ttwistbq)
 
 #Confusing things:
 #Which of TI calculators are software compatible with which (and hence which ones would be considered individual systems)?
@@ -394,7 +399,7 @@ all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers] + ibmpc
 #PalmOS: Not sure if there would be something which can just run .prc files or whatsitcalled
 #Amstrad PC20/Sinclair PC200: Is this just IBM PC compatible stuff? Have seen one demoscene prod which claims to be for it specifically
 #Epoch (not Super) Cassette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
-#DEC Rainbow: Uses DOS so maybe goes in pc_systems but maybe the CP/M part is normal
+#DEC Rainbow: Uses DOS so maybe goes in pc_systems but maybe the CP/M part is its own thing
 
 class PCSystem():
 	def __init__(self, options):
