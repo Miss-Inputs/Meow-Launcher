@@ -167,32 +167,35 @@ systems = {
 	'Uzebox': SystemInfo(['uzebox'], ['uzebox'], ['MAME (Uzebox)'], {MediaType.Executable: ['bin', 'uze']}),
 
 	#Educational sort-of-game consoles
-	'Advanced Pico Beena': SystemInfo(['beena'], ['sega_beena_cart'], ['MAME (Advanced Pico Beena)'], {MediaType.Cartridge: ['bin']}),
-	'ClickStart': SystemInfo(['clikstrt'], ['clickstart_cart'], [], {MediaType.Cartridge: ['bin']}),
+	'Advanced Pico Beena': SystemInfo(['beena'], ['sega_beena_cart'], ['MAME (Advanced Pico Beena)'], {MediaType.Cartridge: generic_cart_extensions}),
+	'ClickStart': SystemInfo(['clikstrt'], ['clickstart_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
 	'Copera': SystemInfo(['copera'], ['copera'], ['MAME (Copera)'], {MediaType.Cartridge: ['bin', 'md']}), #Pico-related, but not quite the same (software will show warning message on Pico)
 	'Didj': SystemInfo(['didj'], ['leapfrog_didj_cart'], ['MAME (Didj)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'InnoTab': SystemInfo(['innotab2'], ['vtech_innotab_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
 	'InnoTV': SystemInfo(['innotv'], ['vtech_innotv_innotabmax_cart'], [], {MediaType.Cartridge: generic_cart_extensions}), #The InnoTab MAX is another system that uses the same cartridges
 	'iQuest': SystemInfo(['iquest'], ['leapfrog_iquest_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
-	'LeapPad': SystemInfo(['leappad'], ['leapfrog_leappad_cart'], ['MAME (LeapPad)'], {MediaType.Cartridge: ['bin']}),
-	'Leapster': SystemInfo(['leapster'], ['leapster'], ['MAME (Leapster)'], {MediaType.Cartridge: ['bin']}),
-	'Little Touch LeapPad': SystemInfo(['ltleappad'], ['leapfrog_ltleappad_cart'], [], {MediaType.Cartridge: ['bin']}),
-	'MobiGo': SystemInfo(['mobigo', 'mobigo2'], ['mobigo_cart'], ['MAME (MobiGo)'], {MediaType.Cartridge: ['bin']}),
-	'My First LeapPad': SystemInfo(['mfleappad'], ['leapfrog_mfleappad_cart'], ['MAME (My First LeapPad)'], {MediaType.Cartridge: ['bin']}),
+	'LeapPad': SystemInfo(['leappad'], ['leapfrog_leappad_cart'], ['MAME (LeapPad)'], {MediaType.Cartridge: generic_cart_extensions}),
+	'Leapster': SystemInfo(['leapster'], ['leapster'], ['MAME (Leapster)'], {MediaType.Cartridge: generic_cart_extensions}),
+	'Little Touch LeapPad': SystemInfo(['ltleappad'], ['leapfrog_ltleappad_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	'MobiGo': SystemInfo(['mobigo', 'mobigo2'], ['mobigo_cart'], ['MAME (MobiGo)'], {MediaType.Cartridge: generic_cart_extensions}),
+	'My First LeapPad': SystemInfo(['mfleappad'], ['leapfrog_mfleappad_cart'], ['MAME (My First LeapPad)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Sawatte Pico': SystemInfo(['sawatte'], ['sawatte'], [], {}),
 	'Sega Pico': SystemInfo(['pico'], ['pico'], ['Kega Fusion', 'MAME (Sega Pico)'], {MediaType.Cartridge: ['bin', 'md']}),
-	'SmarTV Adventures': SystemInfo(['smartvad'], ['smarttv_cart'], [], {MediaType.Cartridge: ['bin']}),
-	'Story Reader': SystemInfo(['pi_stry'], ['pi_storyreader_cart'], [], {MediaType.Cartridge: ['bin']}),
-	'Story Reader 2': SystemInfo(['pi_stry2'], ['pi_storyreader_v2_cart'], [], {MediaType.Cartridge: ['bin']}),
-	'Telestory': SystemInfo(['telestry'], ['telestory_cart'], [], {MediaType.Cartridge: ['bin']}),
-	'Tomy Prin-C': SystemInfo(['princ'], ['princ'], ['MAME (Tomy Prin-C)'], {MediaType.Cartridge: ['bin']}),
-	'V.Reader': SystemInfo(['vreader'], ['vtech_storio_cart'], ['MAME (V.Reader)'], {MediaType.Cartridge: ['bin']}), 
+	'SmarTV Adventures': SystemInfo(['smartvad'], ['smarttv_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	'Story Reader': SystemInfo(['pi_stry'], ['pi_storyreader_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	'Story Reader 2': SystemInfo(['pi_stry2'], ['pi_storyreader_v2_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	'Telestory': SystemInfo(['telestry'], ['telestory_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	'Tomy Prin-C': SystemInfo(['princ'], ['princ'], ['MAME (Tomy Prin-C)'], {MediaType.Cartridge: generic_cart_extensions}),
+	'Turbo Extreme': SystemInfo(['turboex'], ['leapfrog_turboextreme_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	'Turbo Twist Brain Quest': SystemInfo(['ttwistbq'], ['leapfrog_turbotwistbrainquest_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	'Turbo Twist Math': SystemInfo(['ttwistm'], ['leapfrog_turbotwistmath_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	'V.Reader': SystemInfo(['vreader'], ['vtech_storio_cart'], ['MAME (V.Reader)'], {MediaType.Cartridge: generic_cart_extensions}), 
 	#Skeleton driver, apparently also known as Storio, or something like that
 	'V.Smile Pro': SystemInfo(['vsmilpro'], ['vsmile_cd'], ['MAME (V.Smile Pro)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'V.Smile': SystemInfo(['vsmile'], ['vsmile_cart'], ['MAME (V.Smile)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'V.Smile Baby': SystemInfo(['vsmileb'], ['vsmileb_cart'], ['MAME (V.Smile Baby)'], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
-	'V.Smile Motion': SystemInfo(['vsmilem'], ['vsmilem_cart'], ['MAME (V.Smile Motion)'], {MediaType.Cartridge: ['bin', 'u1', 'u3']}),
-	'V.Tech Socrates': SystemInfo(['socrates'], ['socrates'], ['MAME (V.Tech Socrates)'], {MediaType.Cartridge: ['bin']}),
+	'V.Smile Baby': SystemInfo(['vsmileb'], ['vsmileb_cart'], ['MAME (V.Smile Baby)'], {MediaType.Cartridge: generic_cart_extensions}),
+	'V.Smile Motion': SystemInfo(['vsmilem'], ['vsmilem_cart'], ['MAME (V.Smile Motion)'], {MediaType.Cartridge: generic_cart_extensions}),
+	'V.Tech Socrates': SystemInfo(['socrates'], ['socrates'], ['MAME (V.Tech Socrates)'], {MediaType.Cartridge: generic_cart_extensions}),
 	
 	#Consoles that barely count as consoles because aren't for gaming or whatever (or games push the definition), but for the purposes of creating a launcher, might as well be consoles
 	'Action Max': SystemInfo([], [], [], {}),
@@ -232,6 +235,7 @@ systems = {
 	#'Cybiko Xtreme': SystemInfo('cybikoxt', [], [], {MediaType.Digital: ['app']}), #Does this really qualify as a different thing?
 	'Gizmondo': SystemInfo(['gizmondo'], [], [], {}), #Uses folders seemingly, so that may be weird with the file types
 	'N-Gage': SystemInfo([], [], [], {MediaType.Digital: ['app']}),
+	'Sharp Wizard': SystemInfo(['iq7000'], ['wizard_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
 	'Tapwave Zodiac': SystemInfo([], [], [], {}), #File type is like, kinda .prc but kinda not (the device runs spicy PalmOS, would it be considered part of that if any of that was emulated?)
 	
 	#Computers that most people are here for (wew I'm being subjective again)
@@ -312,21 +316,27 @@ systems = {
 	'Colour Genie': SystemInfo(['cgenie'], ['cgenie_cass', 'cgenie_flop_rom'], [], {MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['rom']}),
 	'Commodore 65': SystemInfo(['c65'], ['c65_flop'], [], {MediaType.Floppy: commodore_disk_formats}), #Never actually released, has software anyway; only good for software lists
 	'Compis': SystemInfo(['compis'], ['compis'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav']}),
+	'Cosmac VIP': SystemInfo(['vip'], ['vip'], [], {MediaType.Tape: ['wav']}), #Also a Chip-8 interpreter
+	'Dream 6800': SystemInfo(['d6800'], [], [], {MediaType.Tape: ['wav']}), #Chip-8 interpreter
 	'Electronika BK': SystemInfo(['bk0010'], ['bk0010'], [], {MediaType.Tape: ['wav', 'tap'], MediaType.Floppy: mame_floppy_formats, MediaType.HardDisk: ['hdi'], MediaType.Executable: ['bin']}),
 	'Elf II': SystemInfo(['elf2'], [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['bin']}),
 	'Enterprise': SystemInfo(['ep64'], ['ep64_cart', 'ep64_cass', 'ep64_flop'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav']}),
-	'ETI-660': SystemInfo(['eti660'], ['eti660_quik'], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['bin', 'c8', 'ch8']}), #Are these executables just Chip-8? Does it make sense to put this here?
+	'ETI-660': SystemInfo(['eti660'], ['eti660_quik'], [], {MediaType.Tape: ['wav']}), #A Chip-8 interpreting machine
 	'Exidy Sorcerer': SystemInfo(['sorcerer'], ['sorcerer_cart', 'sorcerer_cass', 'sorcerer_flop'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav', 'tape'], MediaType.Snapshot: ['snp']}),
 	'Galaksija': SystemInfo(['galaxy', 'galaxyp'], ['galaxy'], [], {MediaType.Snapshot: ['gal'], MediaType.Tape: ['wav', 'gtp']}),
 	'Goldstar FC-100': SystemInfo(['fc100'], [], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas']}), #Some kind of PC-6001 clone or something, apparently
+	#Hanimex Pencil II (pencil2)
+	'Pencil II': SystemInfo(['pencil2'], ['pencil2'], [], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav']}),
 	'Instructor 50': SystemInfo(['instruct'], [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['pgm']}),
 	'Interact': SystemInfo(['interact', 'hec2hrp'], ['interact'], [], {MediaType.Tape: ['wav', 'k7', 'cin', 'for']}),
 	'Jupiter Ace': SystemInfo(['jupace'], ['jupace_snap', 'jupace_cass'], ['MAME (Jupiter Ace)'], {MediaType.Tape: ['wav', 'tap', 'tzx'], MediaType.Snapshot: ['ace']}),
 	'KC-85': SystemInfo(['kc85_2'], ['kc_cart', 'kc_cass', 'kc_flop'], ['MAME (KC-85)'], {MediaType.Executable: ['kcc'], MediaType.Tape: ['wav', 'kcb', 'tap', '853', '854', '855', 'tp2', 'kcm', 'sss'], MediaType.Cartridge: ['bin']}), #kcc might also be a tape format?? ehhhh???
 	'Luxor ABC80': SystemInfo(['abc80'], ['abc80_cass', 'abc80_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Snapshot: ['bac']}), 'Mattel Aquarius': SystemInfo(['aquarius'], ['aquarius_cart', 'aquarius_cass'], ['MAME (Mattel Aquarius)'], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav', 'caq']}), #Software list was just "aquarius" prior to 0.226
+	'Orao': SystemInfo(['orao'], ['orao'], [], {MediaType.Tape: ['wav', 'tap']}),
 	'Memotech MTX': SystemInfo(['mtx512'], ['mtx_cart', 'mtx_cass', 'mtx_rom'], [], {MediaType.Snapshot: ['mtx'], MediaType.Executable: ['run'], MediaType.Tape: ['wav'], MediaType.Cartridge: ['bin', 'rom']}),
 	'Microbee': SystemInfo(['mbee'], [], ['MAME (Microbee)'], {MediaType.Tape: ['wav', 'tap'], MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['mwb', 'com', 'bee']}), #Also a second .bin quickload?
 	'Microtan 65': SystemInfo(['mt65'], ['mt65_snap'], ['MAME (Microtan 65)'], {MediaType.Tape: ['wav'], MediaType.Executable: ['hex'], MediaType.Snapshot: ['dmp', 'm65']}), #MAME driver was "microtan" prior to 0.212
+	'MikroMikko 1': SystemInfo(['mm1m6'], ['mm1_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
 	'Mikrosha': SystemInfo(['mikrosha'], ['mikrosha_cart', 'mikrosha_cass'], [], {MediaType.Tape: ['wav', 'rkm'], MediaType.Cartridge: ['bin', 'rom']}), #Maybe should just be part of Radio 86?
 	'Nascom': SystemInfo(['nascom1', 'nascom2'], ['nascom_flop', 'nascom_snap', 'nascom_socket'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Snapshot: ['nas', 'chr']}),
 	'Oric': SystemInfo(['oric1'], [], [], {MediaType.Tape: ['wav', 'tap']}),
@@ -351,6 +361,7 @@ systems = {
 	'Thomson MO5': SystemInfo(['mo5', 'mo5nr'], ['mo5_cart', 'mo5_cass', 'mo5_flop', 'mo5_qd'], ['MAME (Thomson MO5)'], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}),
 	'Thomson MO6': SystemInfo(['mo6'], ['mo6_cass', 'mo6_flop'], [], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}),
 	'Thomson TO': SystemInfo(['to7', 'to770', 'to8', 'to9', 'to9p'], ['to7_cart', 'to7_cass', 'to7_qd', 'to8_cass', 'to8_qd', 'to770a_cart', 'to770_cart'], [], {MediaType.Tape: ['wav', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m7', 'bin', 'rom']}),
+	'Tiki 100': SystemInfo(['kontiki'], ['tiki100'], [], {MediaType.HardDisk: ['chd', 'hd', 'hdv', 'hdi'], MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav']}),
 	'Tomy Tutor': SystemInfo(['tutor'], ['tutor'], ['MAME (Tomy Tutor)'], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav']}),
 	'Toshiba Pasopia': SystemInfo(['pasopia'], ['pasopia_cass'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats}),	#Ow my freaking ears… every tape seems to take a long time to get anywhere
 	'Vector-06C': SystemInfo(['vector06'], ['vector06_cart', 'vector06_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['bin', 'emr']}),
@@ -362,6 +373,9 @@ systems = {
 
 	#Hmm, not quite computers or any particular hardware so much as OSes which probably don't belong here anyway
 	'Android': SystemInfo([], [], [], {MediaType.Digital: ['apk']}),
+	
+	#Interpreted virtual machine thingy…
+	'Chip-8': SystemInfo([], ['chip8_quik'], [], {MediaType.Executable: ['bin', 'c8', 'ch8']}), #Many interpreters available in MAME - Cosmac VIP, Dream 6800, ETI-660, etc; though I'm not sure if it makes sense to put them as the mame_driver for this, but when I get around to that I suppose they would be emulators for it
 
 	#Stuff that isn't actually hardware but we can pretend it is one
 	'Doom': SystemInfo([], [], ['PrBoom+'], {MediaType.Digital: ['wad']}, {
@@ -384,15 +398,7 @@ all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers] + ibmpc
 #Virtual systems: Flash, J2ME, TADS, Z-Machine, Adobe AIR, Pico-8 (not that I have found cool "emulators" for any of that)
 #Acorn System (acrnsys3, acrnsys5)
 #Amstrad PC1512 (pc1512, pc1640)
-#Hanimex Pencil II (pencil2)
 #Indy (indy_4610, indigo2_4415)
-#Tiki 100 (kontiki, tiki100)
-#Cosmac VIP (vip, vp111)
-#MikroMikko 1 (mm1m6, mm1m7)
-#Leapfrog Turbo Extreme (turboex)
-#Leapfrog Turbo Twist Brain Quest (ttwistbq)
-#Orao
-#Sharp Wizard series (IQ-7000, etc)
 
 #Confusing things:
 #Which of TI calculators are software compatible with which (and hence which ones would be considered individual systems)?
