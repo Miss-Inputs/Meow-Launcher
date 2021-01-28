@@ -191,6 +191,7 @@ systems = {
 	'Turbo Extreme': SystemInfo(['turboex'], ['leapfrog_turboextreme_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
 	'Turbo Twist Brain Quest': SystemInfo(['ttwistbq'], ['leapfrog_turbotwistbrainquest_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
 	'Turbo Twist Math': SystemInfo(['ttwistm'], ['leapfrog_turbotwistmath_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	'V.Baby': SystemInfo(['vbaby'], ['vbaby_cart'], [], {MediaType.Cartridge: generic_cart_extensions}), #Not compatible at all with V.Smile Baby which is confusing
 	'V.Reader': SystemInfo(['vreader'], ['vtech_storio_cart'], ['MAME (V.Reader)'], {MediaType.Cartridge: generic_cart_extensions}), 
 	#Skeleton driver, apparently also known as Storio, or something like that
 	'V.Smile Pro': SystemInfo(['vsmilpro'], ['vsmile_cd'], ['MAME (V.Smile Pro)'], {MediaType.OpticalDisc: cdrom_formats}),
@@ -400,6 +401,7 @@ all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers] + ibmpc
 #Acorn System (acrnsys3, acrnsys5)
 #Amstrad PC1512 (pc1512, pc1640)
 #Indy (indy_4610, indigo2_4415)
+#SSEM
 
 #Confusing things:
 #Which of TI calculators are software compatible with which (and hence which ones would be considered individual systems)?
