@@ -189,14 +189,15 @@ class Date():
 
 	def __str__(self):
 		parts = [self.year if self.year else '????']
-		if self.month:
-			parts.append(self.month.rjust(2, '0'))
-		else:
-			parts.append('??')
-		if self.day:
-			parts.append(self.day.rjust(2, '0'))
-		else:
-			parts.append('??')
+		if self.month or self.day:
+			if self.month:
+				parts.append(self.month.rjust(2, '0'))
+			else:
+				parts.append('??')
+			if self.day:
+				parts.append(self.day.rjust(2, '0'))
+			else:
+				parts.append('??')
 		s = '-'.join(parts)
 		if self.is_guessed:
 			s += '?'
