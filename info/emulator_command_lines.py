@@ -693,7 +693,7 @@ def mame_sord_m5(game, _, emulator_config):
 		#Not sure what m5p_brno is about (two floppy drives?)
 
 	#ramsize can be set to 64K pre-0.227
-	return mame_driver(game, emulator_config, system, 'cart1', {}, has_keyboard=True)
+	return mame_driver(game, emulator_config, system, 'cart1', has_keyboard=True)
 
 def mame_sg1000(game, _, emulator_config):
 	slot_options = {}
