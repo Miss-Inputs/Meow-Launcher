@@ -381,7 +381,7 @@ all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers] + ibmpc
 #TRS-80 Model 2 (trs80m2)
 #TRS-80 MC-10 (mc10)
 #Hitachi S1
-#Virtual systems: Flash, J2ME, TADS, Z-Machine (not that I have found cool emulators for any of that)
+#Virtual systems: Flash, J2ME, TADS, Z-Machine, Adobe AIR, Pico-8 (not that I have found cool "emulators" for any of that)
 #Acorn System (acrnsys3, acrnsys5)
 #Amstrad PC1512 (pc1512, pc1640)
 #Hanimex Pencil II (pencil2)
@@ -391,6 +391,8 @@ all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers] + ibmpc
 #MikroMikko 1 (mm1m6, mm1m7)
 #Leapfrog Turbo Extreme (turboex)
 #Leapfrog Turbo Twist Brain Quest (ttwistbq)
+#Orao
+#Sharp Wizard series (IQ-7000, etc)
 
 #Confusing things:
 #Which of TI calculators are software compatible with which (and hence which ones would be considered individual systems)?
