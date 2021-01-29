@@ -112,7 +112,7 @@ systems = {
 	'N64': SystemInfo(
 		['n64'], ['n64'], ['Mupen64Plus', 'MAME (N64)'], {MediaType.Cartridge: ['z64', 'v64', 'n64', 'bin']}, 
 		{'prefer_controller_pak_over_rumble': SystemConfigValue(ConfigValueType.Bool, True, 'If a game can use both the Controller Pak and the Rumble Pak, use the Controller Pak')}, 
-		dat_names=['Nintendo - Nintendo 64'] #TODO This will need to be byteswapped…
+		dat_names=['Nintendo - Nintendo 64'] #Byteswapped
 	),
 	'Neo Geo AES': SystemInfo(
 		#For software list usage
@@ -127,7 +127,7 @@ systems = {
 		['nes', 'famicom', 'iq501', 'sb486'], ['nes', 'nes_ade', 'nes_datach', 'nes_kstudio', 'nes_ntbrom', 'famicom_cass', 'famicom_flop'], 
 		['Mednafen (NES)', 'MAME (NES)', 'cxNES'], {MediaType.Cartridge: ['nes', 'unf', 'unif'], MediaType.Floppy: ['fds', 'qd']}, 
 		{'set_fds_as_different_platform': SystemConfigValue(ConfigValueType.Bool, False, 'Set the platform of FDS games to FDS instead of leaving them as NES')},
-		dat_names=['Nintendo - Nintendo Entertainment System', 'Nintendo - Family Computer Disk System'] #TODO: iNES headers will need to be taken off for that to work
+		dat_names=['Nintendo - Nintendo Entertainment System', 'Nintendo - Family Computer Disk System']
 	),
 	'PC Engine': SystemInfo(
 		['pce'], ['pce', 'sgx', 'tg16'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)', 'MAME (PC Engine)'], {MediaType.Cartridge: ['pce', 'sgx', 'bin']},

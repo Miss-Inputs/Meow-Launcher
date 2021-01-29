@@ -5,9 +5,11 @@ from config.main_config import main_config
 from data.not_necessarily_equivalent_arcade_names import \
     not_necessarily_equivalent_arcade_names
 from info import region_info
+from libretro_database import parse_all_dats_for_system
 from mame_helpers import (MachineNotFoundException, MAMENotInstalledException,
-                          get_mame_xml, get_image, image_config_keys)
+                          get_image, get_mame_xml, image_config_keys)
 from mame_machine import Machine, does_machine_match_game
+from metadata import Date
 from software_list_info import get_software_lists_by_names
 
 
@@ -136,6 +138,81 @@ def add_alternate_names(rom, metadata):
 	for alt_name in alt_names:
 		metadata.add_alternate_name(alt_name)
 
+def add_metadata_from_libretro_database(metadata, database, key):
+	database_entry = database.get(key)
+	if database_entry:
+		name = database_entry.get('comment', database_entry.get('name'))
+		if name:
+			metadata.add_alternate_name(name, 'Libretro-Database-Name')
+		if 'serial' in database_entry and not metadata.product_code:
+			metadata.product_code = database_entry['serial']
+		#seems name = description = comment = usually just the name of the file from No-Intro/Redump, region we already know, enhancement_hw we already know (just SNES and Mega Drive)
+		if 'description' in database_entry:
+			description = database_entry['description']
+			if description not in (database_entry.get('comment'), database_entry.get('name')):
+				metadata.descriptions['Libretro-Description'] = description
+
+
+		date = Date()
+		if 'releaseyear' in database_entry:
+			date.year = database_entry['releaseyear']
+		elif 'year' in database_entry:
+			#Unusual but can happen apparently
+			date.year = database_entry['year']
+		if 'releasemonth' in database_entry:
+			date.month = database_entry['releasemonth']
+		if 'releaseday' in database_entry:
+			date.day = database_entry['releaseday']
+		if date.is_better_than(metadata.release_date):
+			metadata.release_date = date
+
+		if 'developer' in database_entry:
+			metadata.developer = database_entry['developer']
+		if 'publisher' in database_entry:
+			metadata.publisher = database_entry['publisher']
+		if 'genre' in database_entry:
+			metadata.genre = database_entry['genre']
+		if 'franchise' in database_entry:
+			metadata.series = database_entry['franchise']
+		if 'version' in database_entry:
+			metadata.version = database_entry['version']
+
+		if 'users' in database_entry:
+			metadata.specific_info['Number-of-Players'] = database_entry['users']
+		if 'homepage' in database_entry:
+			metadata.documents['Homepage'] = database_entry['homepage']
+		if 'patch' in database_entry:
+			metadata.documents['Patch-Homepage'] = database_entry['patch']
+		if 'esrb_rating' in database_entry:
+			metadata.specific_info['ESRB-Rating'] = database_entry['esrb_rating']
+		if 'bbfc_rating' in database_entry:
+			metadata.specific_info['BBFC-Rating'] = database_entry['bbfc_rating']
+		if 'elspa_rating' in database_entry:
+			metadata.specific_info['ELSPA-Rating'] = database_entry['elspa_rating']
+		if 'origin' in database_entry:
+			metadata.specific_info['Development-Origin'] = database_entry['origin']
+		if 'edge_review' in database_entry:
+			metadata.descriptions['EDGE-Review'] = database_entry['edge_review']
+		if 'edge_rating' in database_entry:
+			metadata.specific_info['EDGE-Rating'] = database_entry['edge_rating']
+		if 'edge_issue' in database_entry:
+			metadata.specific_info['EDGE-Issue'] = database_entry['edge_issue']
+		if 'famitsu_rating' in database_entry:
+			metadata.specific_info['Famitsu-Rating'] = database_entry['famitsu_rating']
+		
+		if database_entry.get('analog', 0) == 1:
+			#This is PS1 specific
+			metadata.specific_info['Uses-DualShock'] = True
+		if database_entry.get('rumble', 0) == 1:
+			metadata.specific_info['Force-Feedback'] = True
+
+		# for k, v in database_entry.items():
+		# 	if k not in ('name', 'description', 'region', 'releaseyear', 'releasemonth', 'releaseday', 'genre', 'developer', 'serial', 'comment', 'franchise', 'version', 'homepage', 'patch', 'publisher', 'users', 'esrb_rating', 'origin', 'enhancement_hw', 'edge_review', 'edge_rating', 'edge_issue', 'famitsu_rating', 'analog', 'rumble'):
+		# 		print('uwu', database_entry.get('comment'), k, v)
+		return True
+	return False
+
+
 def add_metadata(game):
 	add_alternate_names(game.rom, game.metadata)
 	#I guess if game.subroms was ever used you would loop through each one (I swear I will do the thing one day)
@@ -171,3 +248,17 @@ def add_metadata(game):
 
 	get_metadata_from_tags(game)
 	get_metadata_from_regions(game)
+
+	if game.system.dat_names:
+		key = game.metadata.product_code if game.system.dat_uses_serial else game.rom.get_crc32()
+		#TODO: Properly get CRC for NES, Lynx (remove header), N64 (byteswapped)
+		if key:
+			for dat_name in game.system.dat_names:
+				database = parse_all_dats_for_system(dat_name, game.system.dat_uses_serial)
+				if database:
+					if game.system.dat_uses_serial and ', ' in key:
+						for product_code in key.split(', '):
+							if add_metadata_from_libretro_database(game.metadata, database, product_code):
+								break
+					else:
+						add_metadata_from_libretro_database(game.metadata, database, key)
