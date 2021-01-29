@@ -14,13 +14,15 @@ class SystemConfigValue():
 		self.description = description
 
 class SystemInfo():
-	def __init__(self, mame_drivers, mame_software_lists, emulators, file_types=None, options=None, is_virtual=False):
+	def __init__(self, mame_drivers, mame_software_lists, emulators, file_types=None, options=None, is_virtual=False, dat_names=None, dat_uses_serial=False):
 		self.mame_drivers = mame_drivers #Parent drivers that represent this system
 		self.mame_software_lists = mame_software_lists
 		self.emulators = emulators
 		self.file_types = file_types if file_types else {}
 		self.options = options if options else {}
 		self.is_virtual = is_virtual #Maybe needs better name
+		self.dat_names = dat_names if dat_names else [] #For libretro-database
+		self.dat_uses_serial = dat_uses_serial
 
 	def is_valid_file_type(self, extension):
 		return any([extension in extensions for _, extensions in self.file_types.items()])
@@ -55,95 +57,207 @@ msxtr_drivers = ['fsa1gt', 'fsa1st'] #Neither of these are working
 
 systems = {
 	#Put all the "most normal people would be interested in" consoles up here, which is completely subjective and not even the same as my own personal view of notable, not to mention completely meaningless because it's a dict and the order shouldn't matter, and even if it did, ROMs are scanned in the order they're listed in systems.ini anyway. I guess it makes this a bit easier to read than having a huge wall of text though
-	'3DS': SystemInfo([], [], ['Citra'], {MediaType.Cartridge: ['3ds'], MediaType.Digital: ['cxi'], MediaType.Executable: ['3dsx']}, {
+	'3DS': SystemInfo(
+		[], [], ['Citra'], {MediaType.Cartridge: ['3ds'], MediaType.Digital: ['cxi'], MediaType.Executable: ['3dsx']}, {
 		'tdb_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB 3dstdb.xml file (https://www.gametdb.com/3dstdb.zip)'),
 		'covers_path': SystemConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after 4-letter product code'),
 	}),
-	'Atari 2600': SystemInfo(['a2600'], ['a2600', 'a2600_cass'], ['Stella', 'MAME (Atari 2600)'], {MediaType.Cartridge: ['a26'] + atari_2600_cartridge_extensions + generic_cart_extensions}),
-	'ColecoVision': SystemInfo(['coleco', 'bit90', 'czz50'], ['coleco'], ['MAME (ColecoVision)'], {MediaType.Cartridge: ['col'] + generic_cart_extensions}),
-	'Dreamcast': SystemInfo(['dcjp', 'dcdev'], ['dc'], ['Reicast', 'Flycast', 'MAME (Dreamcast)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'DS': SystemInfo(['nds'], [], ['melonDS', 'Medusa'], {MediaType.Cartridge: ['nds', 'dsi', 'ids', 'srl']}, {
+	'Atari 2600': SystemInfo(
+		['a2600'], ['a2600', 'a2600_cass'], ['Stella', 'MAME (Atari 2600)'], {MediaType.Cartridge: ['a26'] + atari_2600_cartridge_extensions + generic_cart_extensions}
+	),
+	'ColecoVision': SystemInfo(
+		['coleco', 'bit90', 'czz50'], ['coleco'], ['MAME (ColecoVision)'], {MediaType.Cartridge: ['col'] + generic_cart_extensions}, dat_names=['Coleco - ColecoVision']
+	),
+	'Dreamcast': SystemInfo(
+		['dcjp', 'dcdev'], ['dc'], ['Reicast', 'Flycast', 'MAME (Dreamcast)'], {MediaType.OpticalDisc: cdrom_formats}, dat_names=['Sega - Dreamcast'], dat_uses_serial=True
+	),
+	'DS': SystemInfo(
+		['nds'], [], ['melonDS', 'Medusa'], {MediaType.Cartridge: ['nds', 'dsi', 'ids', 'srl']}, {
 		'tdb_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB dstdb.xml file (https://www.gametdb.com/dstdb.zip)'),
 		'covers_path': SystemConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after 4-letter product code'),
-	}),
-	'Game Boy': SystemInfo(['gameboy', 'gbcolor'], ['gameboy', 'gbcolor'], ['Gambatte', 'mGBA', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'Medusa', 'GBE+', 'bsnes'], {MediaType.Cartridge: ['gb', 'gbc', 'gbx', 'sgb']},
-		{'super_game_boy_bios_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to Super Game Boy BIOS to use'),
-		'set_gbc_as_different_platform': SystemConfigValue(ConfigValueType.Bool, False, 'Set the platform of GBC games to Game Boy Color instead of leaving them as Game Boy'),
-	}),
-	'GameCube': SystemInfo(['gcjp'], [], ['Dolphin'], {MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz', 'ciso', 'rvz'], MediaType.Executable: ['dol', 'elf']}),
-	'Game Gear': SystemInfo(['gamegear'], ['gamegear'], ['Kega Fusion', 'Mednafen (Game Gear)', 'MAME (Game Gear)'], {MediaType.Cartridge: ['sms', 'gg', 'bin']}),
-	'GBA': SystemInfo(['gba'], ['gba'], ['mGBA', 'Mednafen (GBA)', 'MAME (GBA)', 'Medusa', 'GBE+'], {MediaType.Cartridge: ['gba', 'bin', 'srl'], MediaType.Executable: ['elf', 'mb']}),
-	'Intellivision': SystemInfo(['intv'], ['intv', 'intvecs'], ['MAME (Intellivision)'], {MediaType.Cartridge: ['bin', 'int', 'rom', 'itv']}),
-	'Master System': SystemInfo(['sms'], ['sms'], ['Kega Fusion', 'Mednafen (Master System)', 'MAME (Master System)'], {MediaType.Cartridge: ['sms', 'gg', 'bin']}),
-	'Mega Drive': SystemInfo(['genesis', 'gen_nomd'], ['megadriv'], ['Kega Fusion', 'Mednafen (Mega Drive)', 'MAME (Mega Drive)'], {MediaType.Cartridge: ['bin', 'gen', 'md', 'smd', 'sgd']}),
-	'N64': SystemInfo(['n64'], ['n64'], ['Mupen64Plus', 'MAME (N64)'], {MediaType.Cartridge: ['z64', 'v64', 'n64', 'bin']}, 
-		{'prefer_controller_pak_over_rumble': SystemConfigValue(ConfigValueType.Bool, True, 'If a game can use both the Controller Pak and the Rumble Pak, use the Controller Pak')
-	}),
-	'Neo Geo AES': SystemInfo(['aes'], ['neogoeo'], [], {MediaType.Cartridge: ['bin']}), #For software list usage
-	'Neo Geo Pocket': SystemInfo(['ngp'], ['ngp', 'ngpc'], ['Mednafen (Neo Geo Pocket)', 'MAME (Neo Geo Pocket)'], {MediaType.Cartridge: ['ngp', 'npc', 'ngc', 'bin']}),
-	'NES': SystemInfo(['nes', 'famicom', 'iq501', 'sb486'], ['nes', 'nes_ade', 'nes_datach', 'nes_kstudio', 'nes_ntbrom', 'famicom_cass', 'famicom_flop'], ['Mednafen (NES)', 'MAME (NES)', 'cxNES'], {MediaType.Cartridge: ['nes', 'unf', 'unif'], MediaType.Floppy: ['fds', 'qd']}, {
-		'set_fds_as_different_platform': SystemConfigValue(ConfigValueType.Bool, False, 'Set the platform of FDS games to FDS instead of leaving them as NES'),
-	}),
-	'PC Engine': SystemInfo(['pce'], ['pce', 'sgx', 'tg16'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)', 'MAME (PC Engine)'], {MediaType.Cartridge: ['pce', 'sgx', 'bin']}),
-	'PlayStation': SystemInfo(['psj'], ['psx'], ['Mednafen (PlayStation)', 'DuckStation', 'PCSX2'], {MediaType.OpticalDisc: cdrom_formats, MediaType.Executable: ['exe', 'psx']}, {
-	}),
-	'PS2': SystemInfo(['ps2'], [], ['PCSX2'], {MediaType.OpticalDisc: cdrom_formats + ['cso', 'bin'], MediaType.Executable: ['elf']}),
-	'PS3': SystemInfo([], [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Digital: ['pkg'], MediaType.Executable: ['self', 'elf', 'bin']}),
-	'PSP': SystemInfo([], [], ['PPSSPP'], {MediaType.OpticalDisc: cdrom_formats + ['cso'], MediaType.Executable: ['pbp']}),
-	'Saturn': SystemInfo(['saturn'], ['saturn', 'sat_cart', 'sat_vccart'], ['Mednafen (Saturn)', 'MAME (Saturn)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'SNES': SystemInfo(['snes'], ['snes', 'snes_bspack', 'snes_strom'], ['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)', 'bsnes'], {MediaType.Cartridge: ['sfc', 'swc', 'smc', 'bs', 'st', 'bin']}, 
-		{'sufami_turbo_bios_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to Sufami Turbo BIOS, required to run Sufami Turbo carts'),
-		'bsx_bios_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to BS-X BIOS, required to run Satellaview games'),
-	}),
-	'Switch': SystemInfo([], [], ['Yuzu'], {MediaType.Cartridge: ['xci'], MediaType.Digital: ['nsp', 'nca'], MediaType.Executable: ['nro', 'nso', 'elf']}),
-	'Virtual Boy': SystemInfo(['vboy'], ['vboy'], ['Mednafen (Virtual Boy)', 'MAME (Virtual Boy)'], {MediaType.Cartridge: ['vb', 'vboy', 'bin']}),
-	'Vita': SystemInfo([], [], [], {MediaType.Digital: ['vpk']}),
-	'Xbox': SystemInfo(['xbox'], [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xbe']}),
-	'Xbox 360': SystemInfo([], [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xex']}),
-	'Wii': SystemInfo([], [], ['Dolphin'], {MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz', 'wbfs', 'ciso', 'wia', 'rvz'], MediaType.Executable: ['dol', 'elf'], MediaType.Digital: ['wad']}, {
-		'tdb_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB wiitdb.xml file (https://www.gametdb.com/wiitdb.zip), note that GameCube will use this too!'),
-		'common_key': SystemConfigValue(ConfigValueType.String, '', 'Wii common key used for decrypting Wii discs which some projects are brave enough to hardcode but I am not'),
-		'covers_path': SystemConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after product code, used by GameCube too'),
-	}),
-	'Wii U': SystemInfo([], [], [], {MediaType.OpticalDisc: ['iso', 'wud'], MediaType.Executable: ['rpx', 'elf']}),
-	'WonderSwan': SystemInfo(['wswan'], ['wswan', 'wscolor'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['ws', 'wsc', 'bin']}),
+		},
+		dat_names=['Nintendo - Nintendo DS']
+	),
+	'Game Boy': SystemInfo(
+		['gameboy', 'gbcolor'], ['gameboy', 'gbcolor'], 
+		['Gambatte', 'mGBA', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'Medusa', 'GBE+', 'bsnes'], {MediaType.Cartridge: ['gb', 'gbc', 'gbx', 'sgb']},
+		{
+			'super_game_boy_bios_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to Super Game Boy BIOS to use'),
+			'set_gbc_as_different_platform': SystemConfigValue(ConfigValueType.Bool, False, 'Set the platform of GBC games to Game Boy Color instead of leaving them as Game Boy'),
+		},
+		dat_names=['Nintendo - Game Boy', 'Nintendo - Game Boy Color']
+	),
+	'GameCube': SystemInfo(
+		['gcjp'], [], ['Dolphin'], {MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz', 'ciso', 'rvz'], MediaType.Executable: ['dol', 'elf']}
+	),
+	'Game Gear': SystemInfo(
+		['gamegear'], ['gamegear'], ['Kega Fusion', 'Mednafen (Game Gear)', 'MAME (Game Gear)'], {MediaType.Cartridge: ['sms', 'gg', 'bin']}, dat_names=['Sega - Game Gear']
+	),
+	'GBA': SystemInfo(
+		['gba'], ['gba'],
+		['mGBA', 'Mednafen (GBA)', 'MAME (GBA)', 'Medusa', 'GBE+'], {MediaType.Cartridge: ['gba', 'bin', 'srl'], MediaType.Executable: ['elf', 'mb']},
+		dat_names=['Nintendo - Game Boy Advance']
+	),
+	'Intellivision': SystemInfo(
+		['intv'], ['intv', 'intvecs'], ['MAME (Intellivision)'], {MediaType.Cartridge: ['bin', 'int', 'rom', 'itv']}, dat_names=['Mattel - Intellivision']
+	),
+	'Master System': SystemInfo(
+		['sms'], ['sms'],
+		['Kega Fusion', 'Mednafen (Master System)', 'MAME (Master System)'], {MediaType.Cartridge: ['sms', 'gg', 'bin']}, dat_names=['Sega - Master System - Mark III']
+	),
+	'Mega Drive': SystemInfo(
+		['genesis', 'gen_nomd'], ['megadriv'],
+		['Kega Fusion', 'Mednafen (Mega Drive)', 'MAME (Mega Drive)'], {MediaType.Cartridge: ['bin', 'gen', 'md', 'smd', 'sgd']}, dat_names=['Sega - Mega Drive - Genesis']
+	),
+	'N64': SystemInfo(
+		['n64'], ['n64'], ['Mupen64Plus', 'MAME (N64)'], {MediaType.Cartridge: ['z64', 'v64', 'n64', 'bin']}, 
+		{'prefer_controller_pak_over_rumble': SystemConfigValue(ConfigValueType.Bool, True, 'If a game can use both the Controller Pak and the Rumble Pak, use the Controller Pak')}, 
+		dat_names=['Nintendo - Nintendo 64'] #TODO This will need to be byteswapped…
+	),
+	'Neo Geo AES': SystemInfo(
+		#For software list usage
+		['aes'], ['neogoeo'], [], {MediaType.Cartridge: ['bin']}
+	), 
+	'Neo Geo Pocket': SystemInfo(
+		['ngp'], ['ngp', 'ngpc'],
+		['Mednafen (Neo Geo Pocket)', 'MAME (Neo Geo Pocket)'], {MediaType.Cartridge: ['ngp', 'npc', 'ngc', 'bin']},
+		dat_names=['SNK - Neo Geo Pocket', 'SNK - Neo Geo Pocket Color']
+	),
+	'NES': SystemInfo(
+		['nes', 'famicom', 'iq501', 'sb486'], ['nes', 'nes_ade', 'nes_datach', 'nes_kstudio', 'nes_ntbrom', 'famicom_cass', 'famicom_flop'], 
+		['Mednafen (NES)', 'MAME (NES)', 'cxNES'], {MediaType.Cartridge: ['nes', 'unf', 'unif'], MediaType.Floppy: ['fds', 'qd']}, 
+		{'set_fds_as_different_platform': SystemConfigValue(ConfigValueType.Bool, False, 'Set the platform of FDS games to FDS instead of leaving them as NES')},
+		dat_names=['Nintendo - Nintendo Entertainment System', 'Nintendo - Family Computer Disk System'] #TODO: iNES headers will need to be taken off for that to work
+	),
+	'PC Engine': SystemInfo(
+		['pce'], ['pce', 'sgx', 'tg16'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)', 'MAME (PC Engine)'], {MediaType.Cartridge: ['pce', 'sgx', 'bin']},
+		dat_names=['NEC - PC Engine - TurboGrafx 16']
+	),
+	'PlayStation': SystemInfo(
+		['psj'], ['psx'],
+		['Mednafen (PlayStation)', 'DuckStation', 'PCSX2'], {MediaType.OpticalDisc: cdrom_formats, MediaType.Executable: ['exe', 'psx']},
+		dat_names=['Sony - PlayStation'], dat_uses_serial=True
+	),
+	'PS2': SystemInfo(
+		['ps2'], [], ['PCSX2'], {MediaType.OpticalDisc: cdrom_formats + ['cso', 'bin'], MediaType.Executable: ['elf']},
+		dat_names=['Sony - PlayStation 2'], dat_uses_serial=True
+	),
+	'PS3': SystemInfo(
+		[], [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Digital: ['pkg'], MediaType.Executable: ['self', 'elf', 'bin']}
+	),
+	'PSP': SystemInfo(
+		[], [], ['PPSSPP'], {MediaType.OpticalDisc: cdrom_formats + ['cso'], MediaType.Executable: ['pbp']}, dat_names=['Sony - PlayStation Portable'], dat_uses_serial=True
+	),
+	'Saturn': SystemInfo(
+		['saturn'], ['saturn', 'sat_cart', 'sat_vccart'], ['Mednafen (Saturn)', 'MAME (Saturn)'], {MediaType.OpticalDisc: cdrom_formats}
+	),
+	'SNES': SystemInfo(
+		['snes'], ['snes', 'snes_bspack', 'snes_strom'],
+		['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)', 'bsnes'], {MediaType.Cartridge: ['sfc', 'swc', 'smc', 'bs', 'st', 'bin']}, 
+		{
+			'sufami_turbo_bios_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to Sufami Turbo BIOS, required to run Sufami Turbo carts'),
+			'bsx_bios_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to BS-X BIOS, required to run Satellaview games'),
+		},
+		dat_names=['Nintendo - Super Nintendo Entertainment System', 'Nintendo - Satellaview', 'Nintendo - Sufami Turbo']
+	),
+	'Switch': SystemInfo(
+		[], [], ['Yuzu'], {MediaType.Cartridge: ['xci'], MediaType.Digital: ['nsp', 'nca'], MediaType.Executable: ['nro', 'nso', 'elf']}
+	),
+	'Virtual Boy': SystemInfo(
+		['vboy'], ['vboy'], ['Mednafen (Virtual Boy)', 'MAME (Virtual Boy)'], {MediaType.Cartridge: ['vb', 'vboy', 'bin']}, dat_names=['Nintendo - Virtual Boy']
+	),
+	'Vita': SystemInfo(
+		[], [], [], {MediaType.Digital: ['vpk']}
+	),
+	'Xbox': SystemInfo(
+		['xbox'], [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xbe']}
+	),
+	'Xbox 360': SystemInfo(
+		[], [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xex']}
+	),
+	'Wii': SystemInfo([], [], ['Dolphin'], 
+		{MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz', 'wbfs', 'ciso', 'wia', 'rvz'], MediaType.Executable: ['dol', 'elf'], MediaType.Digital: ['wad']}, 
+		{
+			'tdb_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB wiitdb.xml file (https://www.gametdb.com/wiitdb.zip), note that GameCube will use this too!'),
+			'common_key': SystemConfigValue(ConfigValueType.String, '', 'Wii common key used for decrypting Wii discs which some projects are brave enough to hardcode but I am not'),
+			'covers_path': SystemConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after product code, used by GameCube too'),
+		},
+	),
+	'Wii U': SystemInfo(
+		[], [], [], {MediaType.OpticalDisc: ['iso', 'wud'], MediaType.Executable: ['rpx', 'elf']}
+	),
+	'WonderSwan': SystemInfo(
+		['wswan'], ['wswan', 'wscolor'], 
+		['Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['ws', 'wsc', 'bin']}, dat_names=['Bandai - WonderSwan', 'Bandai - WonderSwan Color']
+	),
 	
 	#Less notable stuff goes here
 	'3DO': SystemInfo(['3do'], [], ['MAME (3DO)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'Amiga CD32': SystemInfo(['cd32'], ['cd32'], ['FS-UAE', 'MAME (Amiga CD32)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'Atari 7800': SystemInfo(['a7800'], ['a7800'], ['A7800', 'MAME (Atari 7800)'], {MediaType.Cartridge: ['a78'] + generic_cart_extensions}),
-	'Channel F': SystemInfo(['channelf', 'channlf2'], ['channelf'], ['MAME (Channel F)'], {MediaType.Cartridge: ['chf'] + generic_cart_extensions}),
-	'Coleco Telstar Arcade': SystemInfo([], [], [], {}),
+	'Atari 7800': SystemInfo(
+		['a7800'], ['a7800'], ['A7800', 'MAME (Atari 7800)'], {MediaType.Cartridge: ['a78'] + generic_cart_extensions}, dat_names=['Atari - 7800'] #Actually headered
+	),
+	'Channel F': SystemInfo(
+		['channelf', 'channlf2'], ['channelf'],
+		['MAME (Channel F)'], {MediaType.Cartridge: ['chf'] + generic_cart_extensions}, dat_names=['Fairchild - Channel F']
+	),
 	'Dreamcast VMU': SystemInfo(['svmu'], ['svmu'], ['MAME (Dreamcast VMU)'], {MediaType.Executable: ['bin'], MediaType.Digital: ['vms']}),
-	'Game.com': SystemInfo(['gamecom'], ['gamecom'], ['MAME (Game.com)'], {MediaType.Cartridge: ['tgc', 'bin']}),
+	'Game.com': SystemInfo(['gamecom'], ['gamecom'], ['MAME (Game.com)'], {MediaType.Cartridge: ['tgc', 'bin']}, dat_names=['Tiger - Game.com']),
 	'GP2X': SystemInfo(['gp2x'], [], [], {}), #TODO: File formats and things
-	'GP32': SystemInfo(['gp32'], ['gp32'], ['MAME (GP32)'], {MediaType.Cartridge: ['smc'], MediaType.Executable: ['gxb', 'sxf', 'bin', 'gxf', 'fxe']}),
-	'Jaguar': SystemInfo(['jaguar'], ['jaguar'], ['MAME (Jaguar)'], {MediaType.Cartridge: ['j64'] + generic_cart_extensions, MediaType.Executable: ['abs', 'cof', 'jag', 'prg']}),
-	'Lynx': SystemInfo(['lynx'], ['lynx'], ['Mednafen (Lynx)', 'MAME (Lynx)'], {MediaType.Cartridge: ['lnx', 'lyx'], MediaType.Executable: ['o']}),
-	'Magnavox Odyssey²': SystemInfo(['videopac'], ['videopac'], ['MAME (Magnavox Odyssey²)', 'MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}),
+	'GP32': SystemInfo(
+		['gp32'], ['gp32'], ['MAME (GP32)'], {MediaType.Cartridge: ['smc'], MediaType.Executable: ['gxb', 'sxf', 'bin', 'gxf', 'fxe']}, dat_names=['GamePark - GP32']
+	),
+	'Jaguar': SystemInfo(
+		['jaguar'], ['jaguar'], ['MAME (Jaguar)'], 
+		{MediaType.Cartridge: ['j64'] + generic_cart_extensions, MediaType.Executable: ['abs', 'cof', 'jag', 'prg']}, dat_names=['Atari - Jaguar'] #j64
+	),
+	'Lynx': SystemInfo(
+		['lynx'], ['lynx'],
+		['Mednafen (Lynx)', 'MAME (Lynx)'], {MediaType.Cartridge: ['lnx', 'lyx'], MediaType.Executable: ['o']}, dat_names=['Atari - Lynx'] #This will need header removed
+	),
+	'Magnavox Odyssey²': SystemInfo(
+		['videopac'], ['videopac'], ['MAME (Magnavox Odyssey²)', 'MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['Magnavox - Odyssey2']
+	),
 	'Mattel HyperScan': SystemInfo(['hyprscan'], ['hyperscan'], ['MAME (Mattel HyperScan)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'Microvision': SystemInfo(['microvsn'], ['microvision'], ['MAME (Microvision)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Neo Geo CD': SystemInfo(['neocdz'], ['neocd'], ['MAME (Neo Geo CD)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'PC-FX': SystemInfo(['pcfx'], ['pcfx'], ['Mednafen (PC-FX)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'PocketStation': SystemInfo(['pockstat'], [], [], {MediaType.Digital: ['gme']}),
-	'Pokemon Mini': SystemInfo(['pokemini'], ['pokemini'], ['PokeMini', 'PokeMini (wrapper)', 'MAME (Pokemon Mini)'], {MediaType.Cartridge: ['min', 'bin']}),
-	'SG-1000': SystemInfo(['sg1000', 'sc3000'], ['sg1000', 'sc3000_cart', 'sc3000_cass', 'sf7000'], ['Kega Fusion', 'MAME (SG-1000)'], {MediaType.Cartridge: ['sg', 'bin', 'sc'], MediaType.Tape: ['wav', 'bit'], MediaType.Floppy: mame_floppy_formats + ['sf', 'sf7']}),
-	'Zeebo': SystemInfo(['zeebo'], [], [], {}), #Folders with "mif" and "mod"?
-
+	'Pokemon Mini': SystemInfo(
+		['pokemini'], ['pokemini'], ['PokeMini', 'PokeMini (wrapper)', 'MAME (Pokemon Mini)'], {MediaType.Cartridge: ['min', 'bin']}, dat_names=['Nintendo - Pokemon Mini']
+	),
+	'SG-1000': SystemInfo(
+		['sg1000', 'sc3000'], ['sg1000', 'sc3000_cart', 'sc3000_cass', 'sf7000'],
+		['Kega Fusion', 'MAME (SG-1000)'], {MediaType.Cartridge: ['sg', 'bin', 'sc'], MediaType.Tape: ['wav', 'bit'], MediaType.Floppy: mame_floppy_formats + ['sf', 'sf7']},
+		dat_names=['Sega - SG-1000']
+	),
+	'Watara Supervision': SystemInfo(['svision'], ['svision'], ['MAME (Watara Supervision)'], {MediaType.Cartridge: ['ws', 'sv', 'bin']}, dat_names=['Watara - Supervision']),
+	
 	#Consoles likely uncared about (I'm being subjective woohoo) just to make the list less of a chungus
 	'3DO M2': SystemInfo([], ['3do_m2'], [], {MediaType.OpticalDisc: cdrom_formats}), #Was never actually released, but prototypes exist
 	'Amstrad GX4000': SystemInfo(['gx4000'], ['gx4000'], ['MAME (Amstrad GX4000)'], {MediaType.Cartridge: ['cpr'] + generic_cart_extensions}),
 	'APF-MP1000': SystemInfo(['apfm1000'], ['apfm1000'], ['MAME (APF-MP1000)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Arcadia 2001': SystemInfo(['arcadia', 'intmpt03', 'orbituvi', 'ormatu', 'plldium'], ['arcadia'], ['MAME (Arcadia 2001)'], {MediaType.Cartridge: generic_cart_extensions}),
+	'Arcadia 2001': SystemInfo(
+		['arcadia', 'intmpt03', 'orbituvi', 'ormatu', 'plldium'], ['arcadia'],
+		['MAME (Arcadia 2001)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['Emerson - Arcadia 2001']
+		),
 	'Astrocade': SystemInfo(['astrocde'], ['astrocde'], ['MAME (Astrocade)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Atari 5200': SystemInfo(['a5200'], ['a5200'], ['MAME (Atari 5200)'], {MediaType.Cartridge: ['a52', 'car'] + generic_cart_extensions, MediaType.Tape: generic_tape_extensions}), #Does it actually do tapes or is it just a side effect of it being a spicy Atari 8-bit computer?
+	'Atari 5200': SystemInfo(
+		#Does it actually do tapes or is it just a side effect of it being a spicy Atari 8-bit computer?
+		['a5200'], ['a5200'],
+		['MAME (Atari 5200)'], {MediaType.Cartridge: ['a52', 'car'] + generic_cart_extensions, MediaType.Tape: generic_tape_extensions}, dat_names=['Atari - 5200']
+	), 
 	'Bandai Playdia': SystemInfo([], [], [], {MediaType.OpticalDisc: cdrom_formats}),
 	'Bandai Super Vision 8000': SystemInfo(['sv8000'], ['sv8000'], ['MAME (Bandai Super Vision 8000)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'C2 Color': SystemInfo(['c2color'], ['c2color_cart'], ['MAME (C2 Color)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Casio PV-1000': SystemInfo(['pv1000'], ['pv1000'], ['MAME (Casio PV-1000)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Champion 2711': SystemInfo(['unichamp'], ['unichamp'], ['MAME (Champion 2711)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'CreatiVision': SystemInfo(['crvision', 'lasr2001', 'manager'], ['crvision', 'laser2001_cart'], ['MAME (CreatiVision)'], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: generic_tape_extensions}),
-	'Entex Adventure Vision': SystemInfo(['advision'], ['advision'], ['MAME (Entex Adventure Vision)'], {MediaType.Cartridge: generic_cart_extensions}),
+	'Coleco Telstar Arcade': SystemInfo([], [], [], {}),
+	'CreatiVision': SystemInfo(
+		['crvision', 'lasr2001', 'manager'], ['crvision', 'laser2001_cart'],
+		['MAME (CreatiVision)'], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: generic_tape_extensions}, dat_names=['VTech - CreatiVision']
+	),
+	'Entex Adventure Vision': SystemInfo(['advision'], ['advision'], ['MAME (Entex Adventure Vision)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['Entex - Adventure Vision']),
 	'Epoch Game Pocket Computer': SystemInfo(['gamepock'], ['gamepock'], ['MAME (Epoch Game Pocket Computer)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'G7400': SystemInfo(['videopacp'], ['videopac'], ['MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}), #Uses same software list as Odyssey 2 currently
 	'Gamate': SystemInfo(['gamate'], ['gamate'], ['MAME (Gamate)'], {MediaType.Cartridge: generic_cart_extensions}),
@@ -155,14 +269,16 @@ systems = {
 	'Mega Duck': SystemInfo(['megaduck', 'mduckspa'], ['megaduck'], ['MAME (Mega Duck)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Monon Color': SystemInfo(['mononcol'], ['monon_color'], ['MAME (Monon Color)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Nuon': SystemInfo([], ['nuon'], [], {MediaType.OpticalDisc: ['iso']}),
-	'RCA Studio 2': SystemInfo(['studio2'], ['studio2'], [], {MediaType.Cartridge: ['st2'] + generic_cart_extensions}),
+	'RCA Studio 2': SystemInfo(['studio2'], ['studio2'], [], {MediaType.Cartridge: ['st2'] + generic_cart_extensions}, dat_names=['RCA - Studio II']), #Headered
 	'Select-a-Game': SystemInfo(['sag'], ['entex_sag'], ['MAME (Select-a-Game)'], {MediaType.Cartridge: generic_cart_extensions}),
 	"Super A'Can": SystemInfo(['supracan'], ['supracan'], ["MAME (Super A'Can)"], {MediaType.Cartridge: generic_cart_extensions}),
-	'Super Cassette Vision': SystemInfo(['scv'], ['scv'], ['MAME (Super Cassette Vision)'], {MediaType.Cartridge: generic_cart_extensions}),
+	'Super Cassette Vision': SystemInfo(
+		['scv'], ['scv'], ['MAME (Super Cassette Vision)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['Epoch - Super Cassette Vision']
+	),
 	'VC 4000': SystemInfo(['vc4000', '1292apvs', 'database', 'elektor', 'h21', 'krvnjvtv', 'mpt05', 'rwtrntcs'], ['vc4000', 'database'], ['MAME (VC 4000)'], {MediaType.Cartridge: generic_cart_extensions}), #Which one is the "main" system, really, bit of a clusterfuck (well the software list is named vc4000 I guess)
 	'Vectrex': SystemInfo(['vectrex'], ['vectrex'], ['MAME (Vectrex)'], {MediaType.Cartridge: ['vec', 'gam', 'bin']}),
-	'Watara Supervision': SystemInfo(['svision'], ['svision'], ['MAME (Watara Supervision)'], {MediaType.Cartridge: ['ws', 'sv', 'bin']}),
 	'ZAPit Game Wave': SystemInfo([], [], [], {MediaType.OpticalDisc: ['iso']}),
+	'Zeebo': SystemInfo(['zeebo'], [], [], {}), #Folders with "mif" and "mod"?
 
 	#Homebrew projects or whatever
 	'Arduboy': SystemInfo([], [], [], {MediaType.Digital: ['arduboy'], MediaType.Executable: ['hex']}),
@@ -182,7 +298,7 @@ systems = {
 	'MobiGo': SystemInfo(['mobigo', 'mobigo2'], ['mobigo_cart'], ['MAME (MobiGo)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'My First LeapPad': SystemInfo(['mfleappad'], ['leapfrog_mfleappad_cart'], ['MAME (My First LeapPad)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Sawatte Pico': SystemInfo(['sawatte'], ['sawatte'], [], {}),
-	'Sega Pico': SystemInfo(['pico'], ['pico'], ['Kega Fusion', 'MAME (Sega Pico)'], {MediaType.Cartridge: ['bin', 'md']}),
+	'Sega Pico': SystemInfo(['pico'], ['pico'], ['Kega Fusion', 'MAME (Sega Pico)'], {MediaType.Cartridge: ['bin', 'md']}, dat_names=['Sega - PICO']),
 	'SmarTV Adventures': SystemInfo(['smartvad'], ['smarttv_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
 	'Story Reader': SystemInfo(['pi_stry'], ['pi_storyreader_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
 	'Story Reader 2': SystemInfo(['pi_stry2'], ['pi_storyreader_v2_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
@@ -206,7 +322,7 @@ systems = {
 	'BBC Bridge Companion': SystemInfo(['bbcbc'], ['bbcbc'], ['MAME (BBC Bridge Companion)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Benesse Pocket Challenge V2': SystemInfo([], ['pockchalv2'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['pc2', 'bin']}), #Sort of WonderSwan with different controls
 	'Buzztime Home Trivia System':  SystemInfo(['buzztime'], ['buzztime_cart'], ['MAME (Buzztime Home Trivia System)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Casio Loopy': SystemInfo(['casloopy'], ['casloopy'], ['MAME (Casio Loopy)'], {MediaType.Cartridge: generic_cart_extensions}),
+	'Casio Loopy': SystemInfo(['casloopy'], ['casloopy'], ['MAME (Casio Loopy)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['Casio - Loopy']),
 	'Design Master Denshi Mangajuku': SystemInfo(['bdesignm'], ['bdesignm_design_cart', 'bdesignm_game_cart'], [], {MediaType.Cartridge: generic_cart_extensions}), #This will be interesting because you're supposed to use combinations of different design carts and game carts at the same time
 	'Gachinko Contest! Slot Machine TV': SystemInfo(['gcslottv'], ['gcslottv'], ['MAME (Gachinko Contest! Slot Machine TV)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Koei PasoGo': SystemInfo(['pasogo'], ['pasogo'], ['MAME (Koei PasoGo)'], {MediaType.Cartridge: generic_cart_extensions}),
@@ -225,12 +341,18 @@ systems = {
 	'Pippin': SystemInfo(['pippin'], ['pippin', 'pippin_flop'], ['MAME (Pippin)'], {MediaType.OpticalDisc: cdrom_formats}),
 
 	#Addons for other systems that we're going to treat as separate things because it seems to make more sense that way, until it doesn't
-	'32X': SystemInfo(['32x'], ['32x'], ['Kega Fusion', 'MAME (32X)'], {MediaType.Cartridge: ['32x', 'bin']}),
-	'64DD': SystemInfo(['n64dd'], ['n64dd'], [], {MediaType.Floppy: ['ndd', 'ddd']}),
+	'32X': SystemInfo(['32x'], ['32x'], ['Kega Fusion', 'MAME (32X)'], {MediaType.Cartridge: ['32x', 'bin']}, dat_names=['Sega - 32X']),
+	'64DD': SystemInfo(['n64dd'], ['n64dd'], [], {MediaType.Floppy: ['ndd', 'ddd']}, dat_names=['Nintendo - Nintendo 64DD']),
 	'e-Reader': SystemInfo(['gba'], ['gba_ereader'], [], {MediaType.Barcode: ['bin', 'raw', 'bmp']}),
 	'Jaguar CD': SystemInfo(['jaguarcd'], [], ['MAME (Jaguar CD)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'Mega CD': SystemInfo(['segacd', '32x_scd', 'cdx', 'segacd2', 'xeye', 'laseract'], ['megacd', 'megacdj', 'segacd'], ['Kega Fusion', 'MAME (Mega CD)'], {MediaType.OpticalDisc: cdrom_formats}), #LaserActive counts as this for now
-	'PC Engine CD': SystemInfo(['pce'], ['pcecd'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)'], {MediaType.OpticalDisc: cdrom_formats}),
+	'Mega CD': SystemInfo(
+		#LaserActive counts as this for now
+		['segacd', '32x_scd', 'cdx', 'segacd2', 'xeye', 'laseract'], ['megacd', 'megacdj', 'segacd'],
+		['Kega Fusion', 'MAME (Mega CD)'], {MediaType.OpticalDisc: cdrom_formats}
+	),
+	'PC Engine CD': SystemInfo(
+		['pce'], ['pcecd'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)'], {MediaType.OpticalDisc: cdrom_formats}
+	),
 	'Play-Yan': SystemInfo(['gba'], [], [], {MediaType.Digital: ['asf']}),
 
 	#PDA type things that I don't really wanna put under computers
@@ -249,18 +371,35 @@ systems = {
 	'Amstrad CPC': SystemInfo(['cpc464'], ['cpc_cass', 'cpc_flop'], [], {MediaType.Snapshot: ['sna'], MediaType.Tape: ['wav', 'cdt'], MediaType.Floppy: mame_floppy_formats}),
 	'Apple II': SystemInfo(['apple2', 'apple2c', 'apple2e', 'cece', 'cecg', 'ceci', 'cecm', 'cec2000'], ['apple2', 'apple2_cass', 'apple2_flop_orig', 'apple2_flop_clcracked', 'apple2_flop_misc'], ['MAME (Apple II)', 'Mednafen (Apple II)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib', 'woz', 'shk', 'bxy'], MediaType.Tape: generic_tape_extensions}),
 	'Apple IIgs': SystemInfo(['apple2gs'], ['apple2gs'], ['MAME (Apple IIgs)'], {MediaType.Floppy: mame_floppy_formats + ['2mg', '2img', 'dc', 'shk', 'bxy']}),
-	'Atari 8-bit': SystemInfo(['a800', 'a400', 'a800xl', 'xegs'], ['a800', 'a800_flop', 'xegs'], ['MAME (Atari 8-bit)'], {MediaType.Floppy: ['atr', 'dsk', 'xfd', 'dcm'], MediaType.Executable: ['xex', 'bas', 'com'], MediaType.Cartridge: ['bin', 'rom', 'car'], MediaType.Tape: generic_tape_extensions}, 
+	'Atari 8-bit': SystemInfo(
+		['a800', 'a400', 'a800xl', 'xegs'], ['a800', 'a800_flop', 'xegs'], 
+		['MAME (Atari 8-bit)'], {MediaType.Floppy: ['atr', 'dsk', 'xfd', 'dcm'], MediaType.Executable: ['xex', 'bas', 'com'], MediaType.Cartridge: ['bin', 'rom', 'car'], MediaType.Tape: generic_tape_extensions}, 
 		{'basic_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to BASIC ROM for floppy software which requires that, or use "basicc" to use software')
 	}),
 	'Atari ST': SystemInfo(['st', 'ste', 'tt030', 'falcon30'], ['st_flop', 'st_cart'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Floppy: mame_floppy_formats + ['st', 'stx', 'msa']}),
 	'BBC Master': SystemInfo(['bbcm', 'bbcmc'], ['bbcm_cart', 'bbcm_cass', 'bbcmc_flop', 'bbcm_flop'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl', 'fds', 'ima', 'ufi', '360'] + mame_floppy_formats, MediaType.Cartridge: ['rom', 'bin']}),
 	'BBC Micro': SystemInfo(['bbcb', 'bbcbp'], ['bbca_cass', 'bbcb_cass', 'bbcb_cass_de', 'bbcb_flop', 'bbcb_flop_orig', 'bbc_flop_65c102', 'bbc_flop_6502', 'bbc_flop_32016', 'bbc_flop_68000', 'bbc_flop_80186', 'bbc_flop_arm', 'bbc_flop_torch', 'bbc_flop_z80'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl', 'fds', 'dsk', 'ima', 'ufi', '360'], MediaType.Cartridge: ['rom', 'bin']}),
-	'C64': SystemInfo(['c64'], ['c64_cart', 'c64_cass', 'c64_flop', 'c64_flop_clcracked', 'c64_flop_orig', 'c64_flop_misc'], ['MAME (C64)', 'VICE (C64)', 'VICE (C64 Fast)'],
-		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}),
+	'C64': SystemInfo(
+		['c64'], ['c64_cart', 'c64_cass', 'c64_flop', 'c64_flop_clcracked', 'c64_flop_orig', 'c64_flop_misc'], 
+		['MAME (C64)', 'VICE (C64)', 'VICE (C64 Fast)'], {MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats},
+	),
 	'FM Towns': SystemInfo(['fmtowns', 'fmtmarty'], ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns)', 'MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats + ['bin'], MediaType.OpticalDisc: cdrom_formats}),
-	'MSX': SystemInfo(msx1_drivers, ['msx1_cart', 'msx1_cass', 'msx1_flop'], ['MAME (MSX)', 'MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions}),
-	'MSX2': SystemInfo(msx2_drivers, ['msx2_cart', 'msx2_cass', 'msx2_flop'], ['MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions}),
-	'MSX2+': SystemInfo(msx2plus_drivers, ['msx2p_flop'], ['MAME (MSX2+)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions}),
+	'MSX': SystemInfo(
+		msx1_drivers, ['msx1_cart', 'msx1_cass', 'msx1_flop'],
+		['MAME (MSX)', 'MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
+		dat_names=['Microsoft - MSX']
+	),
+	'MSX2': SystemInfo(
+		msx2_drivers, ['msx2_cart', 'msx2_cass', 'msx2_flop'],
+		['MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
+		dat_names=['Microsoft - MSX 2']
+	),
+	'MSX2+': SystemInfo(
+		#Should this be considered the same system as MSX2? Oh dear, I've gotten confused
+		msx2plus_drivers, ['msx2p_flop'],
+		['MAME (MSX2+)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
+		dat_names=['Microsoft - MSX 2']
+	),
 	'MSX Turbo-R': SystemInfo(msxtr_drivers, ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
 	'PC-98': SystemInfo(['pc9801f', 'pc9801rs', 'pc9801ux', 'pc9821'], ['pc98', 'pc98_cd'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}),
 	'Sharp X68000': SystemInfo(['x68000'], ['x68k_flop'], ['MAME (Sharp X68000)'], {MediaType.Floppy: mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim'], MediaType.HardDisk: ['hdf']}),
@@ -273,7 +412,6 @@ systems = {
 	'Apple I': SystemInfo(['apple1'], ['apple1'], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['snp']}), #Loading tapes would require parsing software list usage to figure out where to put load addresses and things to make an autoboot script, because otherwise it's just way too messy to warrant being in a frontend. Snapshots supposedly exist, but I haven't seen any whoops
 	'Apple III': SystemInfo(['apple3'], ['apple3'], ['MAME (Apple III)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib', 'woz']}),
 	'Apple Lisa': SystemInfo(['lisa', 'lisa2'], ['lisa'], [], {MediaType.Floppy: mame_floppy_formats + ['dc', 'dc42']}),
-	'C64DTV': SystemInfo(['c64dtv'], [], [], {MediaType.Floppy: commodore_disk_formats, MediaType.Executable: ['prg']}),
 	'C128': SystemInfo(['c128', 'c128p'], ['c128_cart', 'c128_flop', 'c128_rom'], ['VICE (C128)'],
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}
 	),
@@ -309,6 +447,7 @@ systems = {
 	'Atari Portfolio': SystemInfo(['pofo'], ['pofo'], [], {MediaType.Cartridge: ['bin', 'rom']}),
 	'Bandai RX-78': SystemInfo(['rx78'], ['rx78_cart', 'rx78_cass'], ['MAME (Bandai RX-78)'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav']}), #Software list was just rx78 prior to MAME 0.228
 	'Bullet': SystemInfo(['wmbullet'], ['wmbullet'], [], {MediaType.Floppy: mame_floppy_formats}),
+	'C64DTV': SystemInfo(['c64dtv'], [], [], {MediaType.Floppy: commodore_disk_formats, MediaType.Executable: ['prg']}),
 	'Cambridge Z88': SystemInfo(['z88'], ['z88_cart'], [], {MediaType.Cartridge: ['epr', 'bin']}),
 	'Camputers Lynx': SystemInfo(['lynx48k'], ['camplynx_cass', 'camplynx_flop'], [], {MediaType.Floppy: mame_floppy_formats + ['ldf'], MediaType.Tape: ['wav', 'tap']}),
 	#Convinced that whoever invented this system and the way it loads programs personally hates me, even though I wasn't born when it was made and so that's not really possible
@@ -380,9 +519,11 @@ systems = {
 	'Chip-8': SystemInfo([], ['chip8_quik'], [], {MediaType.Executable: ['bin', 'c8', 'ch8']}), #Many interpreters available in MAME - Cosmac VIP, Dream 6800, ETI-660, etc; though I'm not sure if it makes sense to put them as the mame_driver for this, but when I get around to that I suppose they would be emulators for it
 
 	#Stuff that isn't actually hardware but we can pretend it is one
-	'Doom': SystemInfo([], [], ['PrBoom+'], {MediaType.Digital: ['wad']}, {
-		'save_dir': SystemConfigValue(ConfigValueType.FolderPath, None, 'Folder to put save files in')
-	}, is_virtual=True),
+	'Doom': SystemInfo(
+		[], [], ['PrBoom+'], {MediaType.Digital: ['wad']}, 
+		{'save_dir': SystemConfigValue(ConfigValueType.FolderPath, None, 'Folder to put save files in')},
+		is_virtual=True, dat_names=['DOOM']
+	),
 }
 
 #For Machine.is_system_driver to work correctly
