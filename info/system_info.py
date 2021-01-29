@@ -464,7 +464,7 @@ systems = {
 	'Elf II': SystemInfo(['elf2'], [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['bin']}),
 	'Enterprise': SystemInfo(['ep64'], ['ep64_cart', 'ep64_cass', 'ep64_flop'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav']}),
 	'ETI-660': SystemInfo(['eti660'], ['eti660_quik'], [], {MediaType.Tape: ['wav']}), #A Chip-8 interpreting machine
-	'Exidy Sorcerer': SystemInfo(['sorcerer'], ['sorcerer_cart', 'sorcerer_cass', 'sorcerer_flop'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav', 'tape'], MediaType.Snapshot: ['snp']}),
+	'Exidy Sorcerer': SystemInfo(['sorcerer'], ['sorcerer_cart', 'sorcerer_cass', 'sorcerer_flop'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav', 'tape'], MediaType.Snapshot: ['snp'], MediaType.Executable: ['bin']}),
 	'Galaksija': SystemInfo(['galaxy', 'galaxyp'], ['galaxy'], [], {MediaType.Snapshot: ['gal'], MediaType.Tape: ['wav', 'gtp']}),
 	'Goldstar FC-100': SystemInfo(['fc100'], [], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas']}), #Some kind of PC-6001 clone or something, apparently
 	'Pencil II': SystemInfo(['pencil2'], ['pencil2'], [], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav']}),
