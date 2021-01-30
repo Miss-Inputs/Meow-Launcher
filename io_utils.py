@@ -3,9 +3,8 @@ import pathlib
 import zlib
 
 import archives
-from config.main_config import main_config
 
-crc_chunk_size = main_config.max_size_for_storing_in_memory
+crc_chunk_size = 128 * 1024 * 1024
 
 def ensure_exist(path):
 	pathlib.Path(os.path.dirname(path)).mkdir(exist_ok=True, parents=True)
