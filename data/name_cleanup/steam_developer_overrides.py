@@ -47,6 +47,7 @@ developer_overrides = {
 	'Topware Interactive ACE': 'Topware Interactive',
 	'TT Games': "Traveller's Tales",
 	'Warner Bros. Interactive Entertainment': 'Warner Bros',
+	'WaterMelon': 'Watermelon Development',
 	'XSEED Games': 'XSeed',
 	'XSEED GAMES': 'XSeed',
 	'YAGER': 'Yager Development',
@@ -94,7 +95,9 @@ developer_overrides = {
 	#Maybe it could be optional? Like maybe all of this could be optional, have some kinda "normalize dev names" option
 	'Disney Interactive': 'Disney',
 	'Disney Interactive Studios': 'Disney',
+	'Gremlin Interactive': 'Gremlin Graphics', #Name change
 	'Idea Factory International': 'Idea Factory',
+	'Imagitec Design': 'Imagitec',
 	'Microsoft Studios': 'Microsoft',
 	'Team17 Digital': 'Team17',
 	'Two Tribes Publishing': 'Two Tribes',

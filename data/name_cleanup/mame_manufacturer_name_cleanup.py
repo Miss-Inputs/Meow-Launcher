@@ -275,6 +275,7 @@ manufacturer_name_cleanup = {
 	'HiTEC Software': 'HiTec Software',
 	'Icom Simulations': 'ICOM Simulations',
 	'Microprose': 'MicroProse',
+	'RasterSoft': 'Rastersoft',
 	'RazorSoft': 'Razorsoft',
 	'SONY': 'Sony',
 	'SpectraVideo': 'Spectravideo',
@@ -299,7 +300,7 @@ manufacturer_name_cleanup = {
 	'Connonwealth': 'Commonwealth',
 	'Mindscapce': 'Mindscape',
 	'Minscape': 'Mindscape',
-	'Sydney Developmeent ': 'Sydney Development',
+	'Sydney Developmeent': 'Sydney Development',
 	'unknown': '<unknown>', #This shows up in sv8000 software list, so it might actually just be Bandai, but when you presume you make a pres out of u and me, so we'll just lump it in with the other unknowns
 }
 

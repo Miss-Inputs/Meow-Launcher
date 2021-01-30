@@ -23,8 +23,10 @@ company_name_cleanup = {
 	'SEGA of America': 'Sega of America',
 	"Shin'en Multimedia": "Shin'en",
 	'Shinen Multimedia': "Shin'en",
+	'Square-Enix': 'Square Enix',
 	'Team 17': 'Team17',
 	'Wayforward': 'WayForward',
+	'WOW Entertainment': 'Wow Entertainment',
 
 	#wha
 	'Lucas ': 'LucasArts',
@@ -34,20 +36,25 @@ company_name_cleanup = {
 	'EA Bright Light Studio': 'EA Bright Light',
 	'EA Games': 'Electronic Arts',
 	'Eurocom Entertainment Software': 'Eurocom',
+	'HAL Laboratory': 'HAL',
+	'Jupiter Corporation': 'Jupiter',
 	'LucasArts Entertainment': 'LucasArts',
 	'Namco Bandai': 'Bandai Namco', #This ordering was used for some period of time
 	'Namco Bandai Games': 'Bandai Namco',
+	'Namco Bandai Games Inc,': 'Bandai Namco',
 	'NAMCO BANDAI Games': 'Bandai Namco',
 	'NAMCO BANDAI Games ': 'Bandai Namco', #Bloody hell
 	'NAMCO BANDAI Games America': 'Bandai Namco',
 	'Rareware': 'Rare', #Was a trademark used for 1991-2003
 	'Sonic Team Japan': 'Sonic Team', #Is there not only one Sonic Team? I hope I'm not just misinformed
+	'Telltale Games': 'Telltale',
 	'Ubi Soft Entertainment': 'Ubisoft',
 	'Warner Bros Interactive Entertainment': 'Warner Bros',
 
 	#Full names that people do use, I guess?
 	'Data Design': 'Data Design Interactive',
 	'Digital Illusions': 'DICE',
+	'Pipeworks': 'Pipeworks Software',
 	
 	#Hmm branches of companies that nobody really refers to with that amount of specificity (very subjective here)
 	'Disney Interactive Studios': 'Disney',
