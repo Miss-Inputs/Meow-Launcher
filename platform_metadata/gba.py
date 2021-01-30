@@ -1,11 +1,11 @@
 from zlib import crc32
 
 import input_metadata
-from common import convert_alphanumeric, NotAlphanumericException
+from common import NotAlphanumericException, convert_alphanumeric
 from common_types import SaveType
-from info.region_info import TVSystem
-from software_list_info import find_in_software_lists, matcher_args_for_bytes
 from data.nintendo_licensee_codes import nintendo_licensee_codes
+from info.region_info import TVSystem
+from software_list_info import get_software_list_entry
 
 nintendo_gba_logo_crc32 = 0xD0BEB55E
 def parse_gba_header(metadata, header):
@@ -80,6 +80,6 @@ def add_gba_metadata(game):
 		#Look for Rare sound driver because I can
 		game.metadata.developer = 'Rare'
 
-	software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(entire_cart))
+	software = get_software_list_entry(game)
 	if software:
 		software.add_standard_metadata(game.metadata)
