@@ -334,7 +334,8 @@ def translate_language_list(languages):
 	return langs
 
 def normalize_developer(dev):
-	dev = junk_suffixes.sub('', dev)
+	while junk_suffixes.search(dev):
+		dev = junk_suffixes.sub('', dev)
 	dev = dev.strip()
 
 	if dev in developer_overrides:

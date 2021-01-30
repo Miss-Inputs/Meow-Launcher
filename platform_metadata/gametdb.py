@@ -66,6 +66,7 @@ def clean_up_company_name(company_name):
 	names = whaa.get(company_name, company_name).split(' / ')
 	cleaned_names = []
 	for name in names:
+		name = name.rstrip()
 		while junk_suffixes.search(name):
 			name = junk_suffixes.sub('', name)
 		name = company_name_cleanup.get(name, name)

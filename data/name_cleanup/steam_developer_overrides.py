@@ -22,7 +22,7 @@ developer_overrides = {
 	'Forever Entertainment S. A.': 'Forever Entertainment',
 	'GAME FREAK inc.': 'Game Freak',
 	'IKEA Communications AB': 'IKEA Communications',
-	'IO Interactive A/S': 'Io Interactive',
+	'IO Interactive A/S': 'IO Interactive',
 	'Killmonday Games AB': 'Killmonday Games',
 	'KISS ltd': 'KISS',
 	'Konami Digital Entertainment': 'Konami',
@@ -75,30 +75,31 @@ developer_overrides = {
 	'FIVE-BN GAMES': 'Five-BN Games',
 	'GATO STUDIO': 'Gato Studio', #Also seen as "Gato Salvaje", although that doesn't transate exactly to the English name
 	'IDEA FACTORY': 'Idea Factory',
-	'Io Interactive': 'IO Interactive', #Which one is correct?
 	'INTI CREATES CO., LTD.': 'Inti Creates',
 	'KEMCO': 'Kemco',
 	'KITATUS STUDIOS': 'Kitatus Studios',
+	'Microprose': 'MicroProse',
 	'MONKEYCRAFT': 'Monkeycraft',
 	'NVIDIA': 'Nvidia',
 	'OKYO GAMES': 'Okyo Games',
 	'OVERDRIVE': 'Overdrive',
 	'PLAYISM': 'Playism',
 	'QUICKTEQUILA': 'Quicktequila',
+	'RONIN GAMES': 'Ronin Games',
 	'SEGA': 'Sega',
 	'SQUARE ENIX': 'Square Enix',
 	'XSEED': 'XSeed',
 
 	#These could be sorta like different brands of the same company, but I'm gonna go with the opinion that they should be treated as the same company. But this section could be like... subjective I guess
 	#Maybe it could be optional? Like maybe all of this could be optional, have some kinda "normalize dev names" option
+	'Disney Interactive': 'Disney',
+	'Disney Interactive Studios': 'Disney',
 	'Idea Factory International': 'Idea Factory',
 	'Microsoft Studios': 'Microsoft',
 	'Team17 Digital': 'Team17',
 	'Two Tribes Publishing': 'Two Tribes',
 	'Xbox Game Studios': 'Microsoft',
-	'Disney Interactive': 'Disney',
-	'Disney Interactive Studios': 'Disney',
-
+	
 	#Why
 	'Image &amp; Form Games': 'Image & Form Games',
 	'Kinelco &amp; Lone Elk Creative': 'Kinelco & Lone Elk Creative',

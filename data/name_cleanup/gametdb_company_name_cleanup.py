@@ -1,6 +1,9 @@
 company_name_cleanup = {
 	#Arguably all of this could be corrected in the actual database, but that requires them sending me the validation email and all of this being objective
 
+	#Appears to be just straight up typos…
+	'1st Playable Prodution': '1st Playable Productions',
+
 	#Oddities in formatting
 	'Alphadream': 'AlphaDream',
 	'Artificial Mind & Movement': 'Artificial Mind and Movement', #Neither are really wrong but pick one
@@ -18,6 +21,8 @@ company_name_cleanup = {
 	'Platinum Games': 'PlatinumGames',
 	'SEGA': 'Sega',
 	'SEGA of America': 'Sega of America',
+	"Shin'en Multimedia": "Shin'en",
+	'Shinen Multimedia': "Shin'en",
 	'Team 17': 'Team17',
 	'Wayforward': 'WayForward',
 
@@ -38,6 +43,7 @@ company_name_cleanup = {
 	'Rareware': 'Rare', #Was a trademark used for 1991-2003
 	'Sonic Team Japan': 'Sonic Team', #Is there not only one Sonic Team? I hope I'm not just misinformed
 	'Ubi Soft Entertainment': 'Ubisoft',
+	'Warner Bros Interactive Entertainment': 'Warner Bros',
 
 	#Full names that people do use, I guess?
 	'Data Design': 'Data Design Interactive',
@@ -51,4 +57,6 @@ company_name_cleanup = {
 	'Nintendo EAD': 'Nintendo',
 	'Nintendo EAD Tokyo': 'Nintendo',
 	'Sega Japan': 'Sega',
+
+	'AWE Productions': 'AWE Games', #Company goes by two names to be annoying
 }

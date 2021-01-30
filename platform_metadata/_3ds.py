@@ -331,7 +331,8 @@ def parse_smdh_data(metadata, smdh):
 		try:
 			publisher = smdh[publisher_offset: publisher_offset + 0x80].decode('utf16').rstrip('\0')
 			if publisher:
-				publisher = junk_suffixes.sub('', publisher)
+				while junk_suffixes.search(publisher):
+					publisher = junk_suffixes.sub('', publisher)
 				publishers[language] = consistentified_manufacturers.get(publisher, publisher)
 		except UnicodeDecodeError:
 			pass

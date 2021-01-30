@@ -16,7 +16,8 @@ def consistentify_manufacturer(manufacturer):
 	if not manufacturer:
 		return None
 	if manufacturer not in dont_remove_suffix:
-		manufacturer = junk_suffixes.sub('', manufacturer)
+		while junk_suffixes.search(manufacturer):
+			manufacturer = junk_suffixes.sub('', manufacturer)
 	manufacturer = manufacturer.strip()
 	if manufacturer[-1] == '?':
 		return manufacturer_name_cleanup.get(manufacturer[:-1], manufacturer[:-1]) + '?'

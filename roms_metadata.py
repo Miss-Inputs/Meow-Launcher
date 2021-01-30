@@ -1,7 +1,10 @@
 import detect_things_from_filename
 import platform_metadata
-from common import find_filename_tags_at_end, remove_filename_tags
+from common import (find_filename_tags_at_end, junk_suffixes,
+                    remove_filename_tags)
 from config.main_config import main_config
+from data.name_cleanup.libretro_database_company_name_cleanup import \
+    company_name_overrides
 from data.not_necessarily_equivalent_arcade_names import \
     not_necessarily_equivalent_arcade_names
 from info import region_info
@@ -167,9 +170,16 @@ def add_metadata_from_libretro_database(metadata, database, key):
 			metadata.release_date = date
 
 		if 'developer' in database_entry:
-			metadata.developer = database_entry['developer']
+			developer = database_entry['developer']
+			while junk_suffixes.search(developer):
+				developer = junk_suffixes.sub('', developer)
+			metadata.developer = company_name_overrides.get(developer, developer)
 		if 'publisher' in database_entry:
-			metadata.publisher = database_entry['publisher']
+			publisher = database_entry['publisher']
+			while junk_suffixes.search(publisher):
+				publisher = junk_suffixes.sub('', publisher)
+			metadata.developer = company_name_overrides.get(publisher, publisher)
+
 		if 'genre' in database_entry:
 			metadata.genre = database_entry['genre']
 		if 'franchise' in database_entry:
