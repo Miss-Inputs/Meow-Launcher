@@ -69,14 +69,8 @@ class DataArea():
 	def __init__(self, xml, part):
 		self.xml = xml
 		self.part = part
-		self.roms = []
-
-		for rom_xml in self.xml.findall('rom'):
-			self.roms.append(DataAreaROM(rom_xml, self))
-
-	@property
-	def name(self):
-		return self.xml.attrib.get('name')
+		self.name = xml.attrib.get('name')
+		self.roms = [DataAreaROM(rom_xml, self) for rom_xml in self.xml.findall('rom')]
 
 	@property
 	def size(self):
@@ -94,13 +88,12 @@ class DataArea():
 
 	def matches(self, args):
 		if len(self.roms) == 1:
-			roms = self.roms
-			if not roms:
-				#Ignore data areas such as "sram" that don't have any ROMs associated with them.
-				return False
-			for rom in roms:
-				if rom.matches(args.crc32, args.sha1):
-					return True
+			# if not self.roms:
+			# 	#Ignore data areas such as "sram" that don't have any ROMs associated with them.
+			#Wait, what? But we just checked len(self.roms)
+			# 	return False
+			if self.roms[0].matches(args.crc32, args.sha1):
+				return True
 		elif args.reader:
 			if self.size != args.size:
 				return False
@@ -167,15 +160,8 @@ class SoftwarePart():
 	def __init__(self, xml, software):
 		self.xml = xml
 		self.software = software
-		self.data_areas = {}
-		self.disk_areas = {}
-
-		for data_area_xml in self.xml.findall('dataarea'):
-			data_area = DataArea(data_area_xml, self)
-			self.data_areas[data_area.name] = data_area
-		for disk_area_xml in self.xml.findall('diskarea'):
-			disk_area = DiskArea(disk_area_xml, self)
-			self.disk_areas[disk_area.name] = disk_area
+		self.data_areas = {data_area.name: data_area for data_area in [DataArea(data_area_xml, self) for data_area_xml in self.xml.findall('dataarea')]}
+		self.disk_areas = {disk_area.name: disk_area for disk_area in [DiskArea(disk_area_xml, self) for disk_area_xml in self.xml.findall('diskarea')]}
 
 	@property
 	def name(self):
@@ -275,14 +261,8 @@ class Software():
 		self.xml = xml
 		self.software_list = software_list
 
-		self.parts = {}
-		for part_xml in self.xml.findall('part'):
-			part = SoftwarePart(part_xml, self)
-			self.parts[part.name] = part
-
-		self.infos = {}
-		for info in self.xml.findall('info'):
-			self.infos[info.attrib.get('name')] = info.attrib.get('value')
+		self.parts = {part.name: part for part in [SoftwarePart(part_xml, self) for part_xml in self.xml.findall('part')]}
+		self.infos = {info.attrib.get('name'): info.attrib.get('value') for info in self.xml.findall('info')}
 
 	@property
 	def name(self):
