@@ -714,11 +714,12 @@ def get_software_list_entry(game, skip_header=0):
 			software = find_in_software_lists(software_lists, matcher_args_for_bytes(data))
 		else:
 			if skip_header:
+				#Hmm might deprecate this in favour of header_length_for_crc_calculation
 				data = game.rom.read(seek_to=skip_header)
 				software = find_in_software_lists(software_lists, matcher_args_for_bytes(data))
 			else:
 				crc32 = format_crc32_for_software_list(game.rom.get_crc32())
-				args = SoftwareMatcherArgs(crc32, None, game.rom.get_size(), lambda offset, amount: game.rom.read(seek_to=offset, amount=amount))
+				args = SoftwareMatcherArgs(crc32, None, game.rom.get_size() - game.rom.header_length_for_crc_calculation, lambda offset, amount: game.rom.read(seek_to=offset, amount=amount))
 				software = find_in_software_lists(software_lists, args)
 
 	if not software and game.system_name in main_config.find_software_by_name:

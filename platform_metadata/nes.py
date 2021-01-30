@@ -207,6 +207,7 @@ def add_fds_metadata(rom, metadata):
 	if header[:4] == b'FDS\x1a':
 		metadata.specific_info['Headered'] = True
 		metadata.specific_info['Header-Format'] = 'fwNES'
+		rom.header_length_for_crc_calculation = 16
 		header = rom.read(seek_to=16, amount=56)
 	else:
 		metadata.specific_info['Headered'] = False
@@ -229,10 +230,11 @@ def add_fds_metadata(rom, metadata):
 		metadata.release_date = Date(year, month, day, True)
 	
 
-def add_ines_metadata(metadata, header):
+def add_ines_metadata(rom, metadata, header):
 	metadata.specific_info['Headered'] = True
 	#Some emulators are okay with not having a header if they have something like an internal database, others are not.
 	#Note that \x00 at the end instead of \x1a indicates this is actually Wii U VC, but it's still the same header format
+	rom.header_length_for_crc_calculation = 16 #We use a custom software list matcher anyway, but we need to just chop the header off to find it in libretro-database
 	prg_size = header[4]
 	chr_size = header[5]
 
@@ -401,20 +403,17 @@ def add_nes_metadata(game):
 		header = game.rom.read(amount=16)
 		magic = header[:4]
 		if magic in (b'NES\x00', b'NES\x1a'):
-			add_ines_metadata(game.metadata, header)
+			add_ines_metadata(game.rom, game.metadata, header)
 		elif magic == b'UNIF':
 			add_unif_metadata(game.rom, game.metadata)
 		else:
 			game.metadata.specific_info['Headered'] = False
 
 	software = None
-	if not game.metadata.specific_info.get('Headered', False):
+	if not game.metadata.specific_info.get('Headered', False) or game.metadata.specific_info.get('Header-Format') == 'fwNES':
 		software = get_software_list_entry(game)
-	else:
-		if game.metadata.specific_info.get('Header-Format') == 'fwNES':
-			software = get_software_list_entry(game, skip_header=16)
-		elif game.metadata.specific_info.get('Header-Format') in ('iNES', 'NES 2.0', 'UNIF'):
-			software = _get_headered_nes_rom_software_list_entry(game)
+	elif game.metadata.specific_info.get('Header-Format') in ('iNES', 'NES 2.0', 'UNIF'):
+		software = _get_headered_nes_rom_software_list_entry(game)
 
 	nes_peripheral = NESPeripheral.NormalController
 

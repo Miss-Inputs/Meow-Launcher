@@ -35,6 +35,8 @@ def add_lynx_metadata(game):
 		elif rotation == 2:
 			game.metadata.specific_info['Screen-Rotation'] = 'Right'
 
-	software = get_software_list_entry(game, skip_header=64 if is_headered else 0)
+		game.rom.header_length_for_crc_calculation = 64
+
+	software = get_software_list_entry(game)
 	if software:
 		software.add_standard_metadata(game.metadata)

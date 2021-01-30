@@ -66,6 +66,9 @@ class RomFile():
 			self.store_entire_file = True
 			self.entire_file = self._read()
 
+		self.crc_for_database = None
+		self.header_length_for_crc_calculation = 0
+
 	def _read(self, seek_to=0, amount=-1):
 		return io_utils.read_file(self.path, self.compressed_entry, seek_to, amount)
 
@@ -88,9 +91,20 @@ class RomFile():
 		return io_utils.get_crc32(self.path, self.compressed_entry)
 
 	def get_crc32(self):
+		if self.crc_for_database:
+			return self.crc_for_database
+		
+		if self.header_length_for_crc_calculation > 0:
+			crc = crc32(self.read(seek_to=self.header_length_for_crc_calculation)) & 0xffffffff
+			self.crc_for_database = crc
+			return crc
+
 		if self.store_entire_file:
-			return crc32(self.entire_file) & 0xffffffff
-		return self._get_crc32()
+			crc = crc32(self.entire_file) & 0xffffffff
+		else:
+			crc = self._get_crc32()
+		self.crc_for_database = crc
+		return crc
 
 class GCZRomFile(RomFile):
 	def read(self, seek_to=0, amount=-1):

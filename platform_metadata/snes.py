@@ -234,6 +234,7 @@ def add_normal_snes_header(rom, metadata):
 	rom_size = rom.get_size()
 	if rom_size % 1024 == 512:
 		#512-byte copier header at beginning
+		rom.header_length_for_crc_calculation = 512
 		metadata.specific_info['Has-Copier-Header'] = True
 		possible_offsets = [offset + 512 for offset in possible_offsets]
 		#While the copier header specifies LoROM/HiROM/etc, they are sometimes wrong, so I will ignore them
@@ -375,7 +376,7 @@ def add_snes_metadata(game):
 	if equivalent_arcade:
 		game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
 
-	software = get_software_list_entry(game, skip_header=512 if game.metadata.specific_info.get('Has-Copier-Header', False) else 0)
+	software = get_software_list_entry(game)
 	if software:
 		software.add_standard_metadata(game.metadata)
 		if game.metadata.save_type == SaveType.Unknown and game.metadata.platform != 'Satellaview':

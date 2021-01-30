@@ -1,11 +1,12 @@
-import hashlib
 import configparser
+import hashlib
 import os
+import zlib
 
 import input_metadata
+from common import NotAlphanumericException, convert_alphanumeric
 from common_types import SaveType
-from common import convert_alphanumeric, NotAlphanumericException
-from software_list_info import find_in_software_lists, matcher_args_for_bytes
+from software_list_info import get_software_list_entry
 
 def _byteswap(b):
 	byte_array = bytearray(len(b))
@@ -135,7 +136,9 @@ def add_n64_metadata(game):
 
 	if not byte_swap:
 		entire_rom = _byteswap(entire_rom)
-		#For some reason, MAME uses little endian dumps in its software list at the moment, hence "not byte_swap" which would be wrong otherwise
-	software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(entire_rom))
+		game.rom.crc_for_database = zlib.crc32(entire_rom) & 0xffffffff
+		#Both MAME SL and libretro-database expect the byteswapped ROM I dunno why
+	#software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(entire_rom))
+	software = get_software_list_entry(game)
 	if software:
 		software.add_standard_metadata(game.metadata)

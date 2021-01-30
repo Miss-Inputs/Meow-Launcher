@@ -262,7 +262,6 @@ def add_metadata(game):
 
 	if game.system.dat_names:
 		key = game.metadata.product_code if game.system.dat_uses_serial else game.rom.get_crc32()
-		#TODO: Properly get CRC for NES, Lynx (remove header), N64 (byteswapped)
 		if key:
 			for dat_name in game.system.dat_names:
 				database = parse_all_dats_for_system(dat_name, game.system.dat_uses_serial)
