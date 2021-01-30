@@ -14,7 +14,7 @@ class SystemConfigValue():
 		self.description = description
 
 class SystemInfo():
-	def __init__(self, mame_drivers, mame_software_lists, emulators, file_types=None, options=None, is_virtual=False, dat_names=None, dat_uses_serial=False):
+	def __init__(self, mame_drivers, mame_software_lists, emulators, file_types=None, options=None, is_virtual=False, dat_names=None, dat_uses_serial=False, databases_are_byteswapped=False):
 		self.mame_drivers = mame_drivers #Parent drivers that represent this system
 		self.mame_software_lists = mame_software_lists
 		self.emulators = emulators
@@ -23,6 +23,7 @@ class SystemInfo():
 		self.is_virtual = is_virtual #Maybe needs better name
 		self.dat_names = dat_names if dat_names else [] #For libretro-database
 		self.dat_uses_serial = dat_uses_serial
+		self.databases_are_byteswapped = databases_are_byteswapped #Arguably I should create two separate parameters for both MAME SL and libretro-database, but so far this is only needed for N64 which has both swapped
 
 	def is_valid_file_type(self, extension):
 		return any([extension in extensions for _, extensions in self.file_types.items()])
@@ -112,7 +113,7 @@ systems = {
 	'N64': SystemInfo(
 		['n64'], ['n64'], ['Mupen64Plus', 'MAME (N64)'], {MediaType.Cartridge: ['z64', 'v64', 'n64', 'bin']}, 
 		{'prefer_controller_pak_over_rumble': SystemConfigValue(ConfigValueType.Bool, True, 'If a game can use both the Controller Pak and the Rumble Pak, use the Controller Pak')}, 
-		dat_names=['Nintendo - Nintendo 64'] #Byteswapped
+		dat_names=['Nintendo - Nintendo 64'], databases_are_byteswapped=True
 	),
 	'Neo Geo AES': SystemInfo(
 		#For software list usage
@@ -365,9 +366,12 @@ systems = {
 	
 	#Computers that most people are here for (wew I'm being subjective again)
 	'Acorn Electron': SystemInfo(['electron'], ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl']}),
-	'Amiga': SystemInfo(['a1000', 'a1200', 'a2000', 'a3000', 'a4000', 'a4000t', 'a500', 'a500p', 'a600'], ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench'], ['FS-UAE'], {MediaType.Floppy: ['adf', 'ipf', 'dms']},
-		{'default_chipset': SystemConfigValue(ConfigValueType.String, 'AGA', 'Default chipset to use if a game doesn\'t specify what chipset it should use (AGA, OCS, ECS)')
-	}),
+	'Amiga': SystemInfo(
+		 #TODO: There should be CD images for this too, albeit I'm not sure how they work
+		['a1000', 'a1200', 'a2000', 'a3000', 'a4000', 'a4000t', 'a500', 'a500p', 'a600'], ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench'], 
+		['FS-UAE'], {MediaType.Floppy: ['adf', 'ipf', 'dms']},
+		{'default_chipset': SystemConfigValue(ConfigValueType.String, 'AGA', 'Default chipset to use if a game doesn\'t specify what chipset it should use (AGA, OCS, ECS)')}
+	),
 	'Amstrad CPC': SystemInfo(['cpc464'], ['cpc_cass', 'cpc_flop'], [], {MediaType.Snapshot: ['sna'], MediaType.Tape: ['wav', 'cdt'], MediaType.Floppy: mame_floppy_formats}),
 	'Apple II': SystemInfo(['apple2', 'apple2c', 'apple2e', 'cece', 'cecg', 'ceci', 'cecm', 'cec2000'], ['apple2', 'apple2_cass', 'apple2_flop_orig', 'apple2_flop_clcracked', 'apple2_flop_misc'], ['MAME (Apple II)', 'Mednafen (Apple II)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib', 'woz', 'shk', 'bxy'], MediaType.Tape: generic_tape_extensions}),
 	'Apple IIgs': SystemInfo(['apple2gs'], ['apple2gs'], ['MAME (Apple IIgs)'], {MediaType.Floppy: mame_floppy_formats + ['2mg', '2img', 'dc', 'shk', 'bxy']}),

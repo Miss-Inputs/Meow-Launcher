@@ -1,18 +1,11 @@
 import configparser
 import hashlib
 import os
-import zlib
 
 import input_metadata
-from common import NotAlphanumericException, convert_alphanumeric
+from common import NotAlphanumericException, convert_alphanumeric, byteswap
 from common_types import SaveType
 from software_list_info import get_software_list_entry
-
-def _byteswap(b):
-	byte_array = bytearray(len(b))
-	byte_array[0::2] = b[1::2]
-	byte_array[1::2] = b[0::2]
-	return bytes(byte_array)
 
 _mupen64plus_database = None
 def get_mupen64plus_database():
@@ -103,11 +96,11 @@ def add_n64_metadata(game):
 
 	magic = entire_rom[:4]
 
-	byte_swap = False
+	is_byteswapped = False
 	if magic == b'\x80\x37\x12\x40':
 		game.metadata.specific_info['ROM-Format'] = 'Z64'
 	elif magic == b'\x37\x80\x40\x12':
-		byte_swap = True
+		is_byteswapped = True
 		game.metadata.specific_info['ROM-Format'] = 'V64'
 	else:
 		#TODO: Detect other formats (there are a few homebrews that start with 0x80 0x37 but not 0x12 0x40 after that, which may be launchable on some emulators but not on others)
@@ -115,8 +108,8 @@ def add_n64_metadata(game):
 		return
 
 	header = entire_rom[:64]
-	if byte_swap:
-		header = _byteswap(header)
+	if is_byteswapped:
+		header = byteswap(header)
 
 	parse_n64_header(game.metadata, header)
 
@@ -134,11 +127,6 @@ def add_n64_metadata(game):
 		if database_entry:
 			add_info_from_database_entry(game.metadata, database_entry)
 
-	if not byte_swap:
-		entire_rom = _byteswap(entire_rom)
-		game.rom.crc_for_database = zlib.crc32(entire_rom) & 0xffffffff
-		#Both MAME SL and libretro-database expect the byteswapped ROM I dunno why
-	#software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(entire_rom))
 	software = get_software_list_entry(game)
 	if software:
 		software.add_standard_metadata(game.metadata)

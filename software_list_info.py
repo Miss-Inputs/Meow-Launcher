@@ -1,4 +1,3 @@
-from math import prod
 import os
 import re
 import xml.etree.ElementTree as ElementTree
@@ -6,7 +5,7 @@ import zlib
 
 import io_utils
 from common import (find_filename_tags_at_end, normalize_name,
-                    remove_filename_tags)
+                    remove_filename_tags, byteswap)
 from common_types import EmulationStatus, MediaType
 from config.main_config import main_config
 from data.subtitles import subtitles
@@ -726,8 +725,11 @@ def get_software_list_entry(game, skip_header=0):
 				data = game.rom.read(seek_to=skip_header)
 				software = find_in_software_lists(software_lists, matcher_args_for_bytes(data))
 			else:
-				crc32 = format_crc32_for_software_list(game.rom.get_crc32())
-				args = SoftwareMatcherArgs(crc32, None, game.rom.get_size() - game.rom.header_length_for_crc_calculation, lambda offset, amount: game.rom.read(seek_to=offset, amount=amount))
+				if game.system.databases_are_byteswapped:
+					crc32 = format_crc32_for_software_list(zlib.crc32(byteswap(game.rom.read())) & 0xffffffff)
+				else:
+					crc32 = format_crc32_for_software_list(game.rom.get_crc32())
+				args = SoftwareMatcherArgs(crc32, None, game.rom.get_size() - game.rom.header_length_for_crc_calculation, lambda offset, amount: byteswap(game.rom.read(seek_to=offset, amount=amount)) if game.system.databases_are_byteswapped else game.rom.read(seek_to=offset, amount=amount))
 				software = find_in_software_lists(software_lists, args)
 
 	if not software and (game.system_name in main_config.find_software_by_name):
