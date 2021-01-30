@@ -116,7 +116,8 @@ def parse_all_dats_for_system(name, use_serial):
 			rom = game.get('rom')
 			if not rom:
 				#Well that shouldn't happen surely
-				print("Well that shouldn't happen surely", dat, game)
+				#print("Well that shouldn't happen surely", dat, game)
+				#Narrator: It does happen
 				continue
 			if use_serial:
 				key = rom.get('serial')
