@@ -110,6 +110,49 @@ def add_banner_title_metadata(metadata, banner_title, language=None):
 			#This is usually the publisher… but it has a decent chance of being something else so I'm not gonna set metadata.publisher from it
 			metadata.specific_info[metadata_name + '-Final-Line'] = lines[-1]
 
+def parse_banner(rom, metadata, header, is_dsi, banner_offset):
+	#The extended part of the banner if is_dsi contains animated icon frames, so we don't really need it
+	banner_size = int.from_bytes(header[0x208:0x20c], 'little') if is_dsi else 0xA00
+	banner = rom.read(seek_to=banner_offset, amount=banner_size)
+	version = int.from_bytes(banner[0:2], 'little')
+	metadata.specific_info['Banner-Version'] = version
+	#2 = has Chinese, 3 = has Korean, 0x103, has DSi stuff
+
+	if version in (1, 2, 3, 0x103):
+		banner_titles = {}
+		banner_languages = {
+			0: 'Japanese',
+			1: 'English',
+			2: 'French',
+			3: 'German',
+			4: 'Italian',
+			5: 'Spanish',
+			6: 'Chinese', #Version >= 2
+			7: 'Korean' #Version >= 3
+		}
+
+		for i in range(7):
+			try:
+				banner_title = banner[0x240 + (i * 256): 0x240 + (i * 256) + 256].decode('utf-16le').rstrip('\0 \uffff')
+				#if banner_title and not all([c == '\uffff' for c in banner_title]):
+				if banner_title:
+					banner_titles[banner_languages[i]] = banner_title
+			except (UnicodeDecodeError, IndexError):
+				continue
+		
+		for lang, title in banner_titles.items():
+			add_banner_title_metadata(metadata, title, lang)
+
+		if banner_titles:
+			banner_title = banner_titles.get('English', list(banner_titles.values())[0])
+			add_banner_title_metadata(metadata, banner_title)
+
+		if len(banner) >= 0x240:
+			if have_pillow:
+				icon_bitmap = banner[0x20:0x220]
+				icon_palette = struct.unpack('H' * 16, banner[0x220:0x240])
+				metadata.images['Icon'] = decode_icon(icon_bitmap, icon_palette)
+
 def parse_ds_header(rom, metadata, header):
 	internal_title = header[0:12].decode('ascii', errors='backslashreplace').rstrip('\0')
 	if internal_title:
@@ -163,47 +206,7 @@ def parse_ds_header(rom, metadata, header):
 
 	banner_offset = int.from_bytes(header[0x68:0x6C], 'little')
 	if banner_offset:
-		#The extended part of the banner if is_dsi contains animated icon frames, so we don't really need it
-		banner_size = int.from_bytes(header[0x208:0x20c], 'little') if is_dsi else 0xA00
-		banner = rom.read(seek_to=banner_offset, amount=banner_size)
-		version = int.from_bytes(banner[0:2], 'little')
-		metadata.specific_info['Banner-Version'] = version
-		#2 = has Chinese, 3 = has Korean, 0x103, has DSi stuff
-
-		if version in (1, 2, 3, 0x103):
-			banner_titles = {}
-			banner_languages = {
-				0: 'Japanese',
-				1: 'English',
-				2: 'French',
-				3: 'German',
-				4: 'Italian',
-				5: 'Spanish',
-				6: 'Chinese', #Version >= 2
-				7: 'Korean' #Version >= 3
-			}
-
-			for i in range(7):
-				try:
-					banner_title = banner[0x240 + (i * 256): 0x240 + (i * 256) + 256].decode('utf-16le').rstrip('\0 \uffff')
-					#if banner_title and not all([c == '\uffff' for c in banner_title]):
-					if banner_title:
-						banner_titles[banner_languages[i]] = banner_title
-				except (UnicodeDecodeError, IndexError):
-					continue
-			
-			for lang, title in banner_titles.items():
-				add_banner_title_metadata(metadata, title, lang)
-
-			if banner_titles:
-				banner_title = banner_titles.get('English', list(banner_titles.values())[0])
-				add_banner_title_metadata(metadata, banner_title)
-
-			if len(banner) >= 0x240:
-				if have_pillow:
-					icon_bitmap = banner[0x20:0x220]
-					icon_palette = struct.unpack('H' * 16, banner[0x220:0x240])
-					metadata.images['Icon'] = decode_icon(icon_bitmap, icon_palette)
+		parse_banner(rom, metadata, header, is_dsi, banner_offset)
 
 def add_ds_input_info(metadata):
 	builtin_buttons = input_metadata.NormalController()
