@@ -38,19 +38,19 @@ def look_for_icon_in_folder(folder, look_for_any_ico=True):
 	return None
 
 def try_detect_unity(folder):
-	for f in os.listdir(folder):
-		if not os.path.isdir(os.path.join(folder, f)):
+	for f in os.scandir(folder):
+		if not f.is_dir():
 			continue
 
-		if f == 'Build':
-			if os.path.isfile(os.path.join(folder, f, 'UnityLoader.js')):
+		if f.name == 'Build':
+			if os.path.isfile(os.path.join(f.path, 'UnityLoader.js')):
 				#Web version of Unity, there should be some .unityweb files here
 				return True
 
-		if f.endswith('_Data'):
+		if f.name.endswith('_Data'):
 			#This folder "blah_Data" seems to always go with an executable named "blah", "blah.exe" (on Windows), "blah.x86", "blah.x86_64"
 			#appinfo.txt contains the publisher on line 1, and the name (which sometimes is formatted weirdly) on line 2
-			if os.path.isfile(os.path.join(folder, f, 'Managed', 'UnityEngine.dll')):
+			if os.path.isfile(os.path.join(f.path, 'Managed', 'UnityEngine.dll')):
 				return True
 	return False
 
@@ -69,26 +69,26 @@ def try_detect_ue4(folder):
 
 	redist_folder = os.path.join(engine_folder, 'Extras', 'Redist')
 	if os.path.isdir(redist_folder):
-		for subdir in os.listdir(redist_folder):
-			if not os.path.isdir(os.path.join(redist_folder, subdir)):
+		for subdir in os.scandir(redist_folder):
+			if not subdir.is_dir():
 				continue
 			#subdir will probably be something like "en-us" but that's a language so maybe not
-			if os.path.isfile(os.path.join(redist_folder, subdir, 'UE4PrereqSetup_x64.exe')) or os.path.isfile(os.path.join(redist_folder, subdir, 'UE4PrereqSetup_x86.exe')):
+			if os.path.isfile(os.path.join(subdir.path, 'UE4PrereqSetup_x64.exe')) or os.path.isfile(os.path.join(subdir.path, 'UE4PrereqSetup_x86.exe')):
 				return True
 
 	#Hmm…
 	#Something like Blah/Binaries/Linux/Blah-Linux-Shipping
 	project_name = None
 	binaries_folder = None
-	for subdir in os.listdir(folder):
-		if subdir == 'Engine':
+	for subdir in os.scandir(folder):
+		if subdir.name == 'Engine':
 			continue
-		if not os.path.isdir(os.path.join(folder, subdir)):
+		if not subdir.is_dir():
 			continue
-		for subsubdir in os.listdir(os.path.join(folder, subdir)):
+		for subsubdir in os.listdir(subdir.path):
 			if subsubdir == 'Binaries':
-				project_name = subdir
-				binaries_folder = os.path.join(folder, subdir, subsubdir)
+				project_name = subdir.name
+				binaries_folder = os.path.join(subdir.path, subsubdir)
 				break
 		if binaries_folder:
 			break
@@ -112,19 +112,19 @@ def try_detect_build(folder):
 	files = [f.name.lower() for f in os.scandir(folder) if f.is_file()]
 	if 'build.exe' in files and 'bsetup.exe' in files and 'editart.exe' in files:
 		return True
-	for f in os.listdir(folder):
-		if f.lower() == 'build' and os.path.isdir(os.path.join(folder, f)):
+	for f in os.scandir(folder):
+		if f.name.lower() == 'build' and f.is_dir():
 			if try_detect_build(os.path.join(folder, f)):
 				return True
 	return False
 
 def try_detect_ue3(folder):
-	for f in os.listdir(folder):
-		if (f != 'Game' and f.endswith('Game')) or f == 'P13':
-			if os.path.isdir(os.path.join(folder, f)):
-				if os.path.isfile(os.path.join(folder, f, 'CookedPC', 'Engine.u')):
+	for f in os.scandir(folder):
+		if (f.name != 'Game' and f.name.endswith('Game')) or f.name == 'P13':
+			if f.is_dir():
+				if os.path.isfile(os.path.join(f.path, 'CookedPC', 'Engine.u')):
 					return True
-				if os.path.isdir(os.path.join(folder, f, 'CookedPCConsole')) or os.path.isdir(os.path.join(folder, f, 'CookedPCConsole_FR')) or os.path.isdir(os.path.join(folder, f, 'CookedPCConsoleFinal')):
+				if os.path.isdir(os.path.join(f.path, 'CookedPCConsole')) or os.path.isdir(os.path.join(f.path, 'CookedPCConsole_FR')) or os.path.isdir(os.path.join(f.path, 'CookedPCConsoleFinal')):
 					return True
 	return False
 
@@ -150,22 +150,22 @@ def try_detect_source(folder):
 	have_bin = False
 	have_platform = False
 	game_folder = None
-	for subdir in os.listdir(folder):
-		if not os.path.isdir(os.path.join(folder, subdir)):
+	for subdir in os.scandir(folder):
+		if not subdir.is_dir():
 			continue
 
-		if subdir == 'bin':
+		if subdir.name == 'bin':
 			have_bin = True
 			continue
-		if subdir == 'platform':
+		if subdir.name == 'platform':
 			have_platform = True
 			continue
 		#Looking for 'hl2', 'ep1', etc
-		for f in os.listdir(os.path.join(folder, subdir)):
+		for f in os.listdir(subdir.path):
 			if f == 'gameinfo.txt':
 				#gameinfo.txt contains metadata but then this would probably only appear on games that are from Steam and we get all the metadata from there anyway
 				#Also there might be more than one gameinfo.txt inside multiple subdirs in folder (like the Half-Life 2 install dir having all the episodes)
-				game_folder = os.path.join(folder, subdir)
+				game_folder = subdir.path
 				break
 	if have_bin and have_platform and game_folder:
 		return True
@@ -271,10 +271,9 @@ def detect_engine_recursively(folder):
 	if engine:
 		return engine
 
-	for subdir in os.listdir(folder):
-		path = os.path.join(folder, subdir)
-		if os.path.isdir(path):
-			engine = try_and_detect_engine_from_folder(path)
+	for subdir in os.scandir(folder):
+		if subdir.is_dir():
+			engine = try_and_detect_engine_from_folder(subdir.path)
 			if engine:
 				return engine
 

@@ -399,14 +399,13 @@ def do_gog_games():
 				print(gog_folder, 'does not exist/is not a directory')
 			continue
 
-		for subfolder in os.listdir(gog_folder):
-			path = os.path.join(gog_folder, subfolder)
-			if not os.path.isdir(path):
+		for subfolder in os.scandir(gog_folder):
+			if not subfolder.is_dir():
 				continue
-			game = look_in_linux_gog_folder(path)
+			game = look_in_linux_gog_folder(subfolder.path)
 			if not game:
 				if main_config.debug:
-					print('GOG subfolder does not have a GOG game (detection may have failed)', path)
+					print('GOG subfolder does not have a GOG game (detection may have failed)', subfolder.path)
 
 			game.add_metadata()
 			game.make_launcher()
@@ -418,14 +417,13 @@ def do_gog_games():
 					print(windows_gog_folder, 'does not exist/is not a directory')
 				continue
 
-			for subfolder in os.listdir(windows_gog_folder):
-				path = os.path.join(windows_gog_folder, subfolder)
-				if not os.path.isdir(path):
+			for subfolder in os.scandir(windows_gog_folder):
+				if not subfolder.is_dir():
 					continue
-				game = look_in_windows_gog_folder(path)
+				game = look_in_windows_gog_folder(subfolder.path)
 				if not game:
 					if main_config.debug:
-						print('GOG subfolder does not have a GOG game (detection may have failed)', path)
+						print('GOG subfolder does not have a GOG game (detection may have failed)', subfolder.path)
 					continue
 				
 				game.add_metadata()

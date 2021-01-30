@@ -172,7 +172,7 @@ def resolve_duplicates(group, method, format_function=None, ignore_missing_value
 		resolve_duplicates_by_metadata(group, method, format_function, ignore_missing_values, field_section)
 
 def fix_duplicate_names(method, format_function=None, ignore_missing_values=None, field_section=launchers.metadata_section_name):
-	files = [(path, launchers.get_desktop(path)) for path in [os.path.join(main_config.output_folder, f) for f in os.listdir(main_config.output_folder)]]
+	files = [(path, launchers.get_desktop(path)) for path in [f.path for f in os.scandir(main_config.output_folder)]]
 	if method == 'dev-status':
 		resolve_duplicates_by_dev_status(files)
 		return
@@ -213,12 +213,10 @@ def arcade_system_disambiguate(arcade_system, name):
 def reambiguate():
 	#This seems counter-intuitive, but if we're not doing a full rescan, we want to do this before disambiguating again or else it gets weird
 	output_folder = main_config.output_folder
-	for name in os.listdir(output_folder):
-		path = os.path.join(output_folder, name)
-
+	for file in os.scandir(output_folder):
 		desktop = configparser.ConfigParser(interpolation=None)
 		desktop.optionxform = str
-		desktop.read(path)
+		desktop.read(file.path)
 		desktop_entry = desktop['Desktop Entry']
 		if disambiguity_section_name not in desktop:
 			#If name wasn't ambiguous to begin with, we don't need to worry about it
@@ -234,7 +232,7 @@ def reambiguate():
 			del disambiguity_section['Ambiguous-Name']
 		del desktop[disambiguity_section_name]
 
-		with open(path, 'wt') as f:
+		with open(file.path, 'wt') as f:
 			desktop.write(f)
 
 def disambiguate_names():
