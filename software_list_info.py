@@ -1,3 +1,4 @@
+from math import prod
 import os
 import re
 import xml.etree.ElementTree as ElementTree
@@ -663,6 +664,13 @@ def find_software_by_name(software_lists, name):
 		
 	return None
 
+def software_list_product_code_matcher(part, product_code):
+	part_code = part.software.infos.get('serial')
+	if not part_code:
+		return False
+
+	return product_code in part_code.split(', ')
+
 def find_in_software_lists(software_lists, args):
 	#TODO: Handle hash collisions. Could happen, even if we're narrowing down to specific software lists
 	for software_list in software_lists:
@@ -722,8 +730,10 @@ def get_software_list_entry(game, skip_header=0):
 				args = SoftwareMatcherArgs(crc32, None, game.rom.get_size() - game.rom.header_length_for_crc_calculation, lambda offset, amount: game.rom.read(seek_to=offset, amount=amount))
 				software = find_in_software_lists(software_lists, args)
 
-	if not software and game.system_name in main_config.find_software_by_name:
+	if not software and (game.system_name in main_config.find_software_by_name):
 		software = find_software_by_name(game.software_lists, game.rom.name)
+	if not software and (game.system_name in main_config.find_software_by_product_code and game.metadata.product_code):
+		software = find_in_software_lists_with_custom_matcher(game.software_lists, software_list_product_code_matcher, [game.metadata.product_code])
 
 	return software
 
