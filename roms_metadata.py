@@ -141,7 +141,7 @@ def add_alternate_names(rom, metadata):
 	for alt_name in alt_names:
 		metadata.add_alternate_name(alt_name)
 
-def add_metadata_from_libretro_database(metadata, database, key):
+def add_metadata_from_libretro_database_entry(metadata, database, key):
 	database_entry = database.get(key)
 	if database_entry:
 		name = database_entry.get('comment', database_entry.get('name'))
@@ -223,6 +223,19 @@ def add_metadata_from_libretro_database(metadata, database, key):
 		return True
 	return False
 
+def add_metadata_from_libretro_database(game):
+	key = game.metadata.product_code if game.system.dat_uses_serial else game.rom.get_crc32()
+	if key:
+		for dat_name in game.system.dat_names:
+			database = parse_all_dats_for_system(dat_name, game.system.dat_uses_serial)
+			if database:
+				if game.system.dat_uses_serial and ', ' in key:
+					for product_code in key.split(', '):
+						if add_metadata_from_libretro_database_entry(game.metadata, database, product_code):
+							break
+				else:
+					add_metadata_from_libretro_database_entry(game.metadata, database, key)
+
 
 def add_metadata(game):
 	add_alternate_names(game.rom, game.metadata)
@@ -261,14 +274,5 @@ def add_metadata(game):
 	get_metadata_from_regions(game)
 
 	if game.system.dat_names:
-		key = game.metadata.product_code if game.system.dat_uses_serial else game.rom.get_crc32()
-		if key:
-			for dat_name in game.system.dat_names:
-				database = parse_all_dats_for_system(dat_name, game.system.dat_uses_serial)
-				if database:
-					if game.system.dat_uses_serial and ', ' in key:
-						for product_code in key.split(', '):
-							if add_metadata_from_libretro_database(game.metadata, database, product_code):
-								break
-					else:
-						add_metadata_from_libretro_database(game.metadata, database, key)
+		add_metadata_from_libretro_database(game)
+		
