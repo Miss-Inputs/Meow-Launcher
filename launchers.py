@@ -24,8 +24,8 @@ document_section_name = 'X-Meow Launcher Documents'
 description_section_name = 'X-Meow Launcher Descriptions'
 
 def get_desktop(path):
-	parser = configparser.ConfigParser(interpolation=None)
-	parser.optionxform = str #Can you actually fuck off?
+	parser = configparser.ConfigParser(interpolation=None, delimiters=('='), comment_prefixes=('#'))
+	parser.optionxform = str
 	parser.read(path)
 	return parser
 
