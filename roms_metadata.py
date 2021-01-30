@@ -181,7 +181,8 @@ def add_metadata_from_libretro_database(metadata, database, key):
 			metadata.developer = company_name_overrides.get(publisher, publisher)
 
 		if 'genre' in database_entry:
-			metadata.genre = database_entry['genre']
+			genre = database_entry['genre']
+			metadata.genre = 'Driving' if genre == 'Racing / Driving' else genre
 		if 'franchise' in database_entry:
 			metadata.series = database_entry['franchise']
 		if 'version' in database_entry:
