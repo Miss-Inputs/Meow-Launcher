@@ -102,6 +102,21 @@ def add_z80_metadata(rom, metadata):
 
 	metadata.specific_info['ROM-Format'] = 'Z80 v%d' % header_version
 
+def add_speccy_software_list_metadata(software, metadata):
+	software.add_standard_metadata(metadata)
+	usage = software.infos.get('usage')
+	if usage == 'Requires Multiface':
+		metadata.specific_info['Expansion'] = ZXExpansion.Multiface
+	elif usage == 'Requires Gun Stick light gun':
+		#This could either go into the Sinclair Interface 2 or Kempton expansions, so.. hmm
+		metadata.specific_info['Uses-Gun'] = True
+	else:
+		#Side B requires Locomotive CP/M+
+		#Requires manual for password protection
+		#Disk has no autorun menu, requires loading each game from Basic.
+		metadata.notes = usage
+
+
 def add_speccy_metadata(game):
 	if game.rom.extension == 'z80':
 		add_z80_metadata(game.rom, game.metadata)
@@ -120,15 +135,4 @@ def add_speccy_metadata(game):
 
 	software = get_software_list_entry(game)
 	if software:
-		software.add_standard_metadata(game.metadata)
-		usage = software.infos.get('usage')
-		if usage == 'Requires Multiface':
-			game.metadata.specific_info['Expansion'] = ZXExpansion.Multiface
-		elif usage == 'Requires Gun Stick light gun':
-			#This could either go into the Sinclair Interface 2 or Kempton expansions, so.. hmm
-			game.metadata.specific_info['Uses-Gun'] = True
-		else:
-			#Side B requires Locomotive CP/M+
-			#Requires manual for password protection
-			#Disk has no autorun menu, requires loading each game from Basic.
-			game.metadata.notes = usage
+		add_speccy_software_list_metadata(software, game.metadata)

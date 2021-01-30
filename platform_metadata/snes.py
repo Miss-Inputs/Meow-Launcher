@@ -364,6 +364,35 @@ def try_get_equivalent_arcade(rom, metadata):
 	
 	return None
 
+def add_snes_software_list_metadata(software, metadata):
+	software.add_standard_metadata(metadata)
+	if metadata.save_type == SaveType.Unknown and metadata.platform != 'Satellaview':
+		metadata.save_type = SaveType.Cart if software.has_data_area('nvram') else SaveType.Nothing
+	#We can actually get lorom/hirom from feature = slot. Hmm...
+	metadata.specific_info['Slot'] = software.get_part_feature('slot')
+	expansion_chip = software.get_part_feature('enhancement')
+	#This stuff is detected as DSP_1 from the ROM header, so let's do that properly
+	if expansion_chip == 'DSP2':
+		metadata.specific_info['Expansion-Chip'] = ExpansionChip.DSP_2
+	elif expansion_chip == 'DSP3':
+		metadata.specific_info['Expansion-Chip'] = ExpansionChip.DSP_3
+	elif expansion_chip == 'DSP4':
+		metadata.specific_info['Expansion-Chip'] = ExpansionChip.DSP_4
+	#Distinguish between subtypes properly
+	elif expansion_chip == 'ST010':
+		metadata.specific_info['Expansion-Chip'] = ExpansionChip.ST010
+	elif expansion_chip == 'ST011':
+		metadata.specific_info['Expansion-Chip'] = ExpansionChip.ST011
+
+	#Meh...
+	if software.name in ('ffant2', 'ffant2a'):
+		metadata.series = 'Final Fantasy'
+		metadata.series_index = '4'
+	elif software.name in ('ffant3', 'ffant3a', 'ffant3p'):
+		metadata.series = 'Final Fantasy'
+		metadata.series_index = '6'
+		
+
 def add_snes_metadata(game):
 	if game.rom.extension in ['sfc', 'smc', 'swc']:
 		add_normal_snes_header(game.rom, game.metadata)
@@ -378,31 +407,5 @@ def add_snes_metadata(game):
 
 	software = get_software_list_entry(game)
 	if software:
-		software.add_standard_metadata(game.metadata)
-		if game.metadata.save_type == SaveType.Unknown and game.metadata.platform != 'Satellaview':
-			game.metadata.save_type = SaveType.Cart if software.has_data_area('nvram') else SaveType.Nothing
-		#We can actually get lorom/hirom from feature = slot. Hmm...
-		game.metadata.specific_info['Slot'] = software.get_part_feature('slot')
-		expansion_chip = software.get_part_feature('enhancement')
-		#This stuff is detected as DSP_1 from the ROM header, so let's do that properly
-		if expansion_chip == 'DSP2':
-			game.metadata.specific_info['Expansion-Chip'] = ExpansionChip.DSP_2
-		elif expansion_chip == 'DSP3':
-			game.metadata.specific_info['Expansion-Chip'] = ExpansionChip.DSP_3
-		elif expansion_chip == 'DSP4':
-			game.metadata.specific_info['Expansion-Chip'] = ExpansionChip.DSP_4
-		#Distinguish between subtypes properly
-		elif expansion_chip == 'ST010':
-			game.metadata.specific_info['Expansion-Chip'] = ExpansionChip.ST010
-		elif expansion_chip == 'ST011':
-			game.metadata.specific_info['Expansion-Chip'] = ExpansionChip.ST011
-
-		#Meh...
-		if software.name in ('ffant2', 'ffant2a'):
-			game.metadata.series = 'Final Fantasy'
-			game.metadata.series_index = '4'
-		elif software.name in ('ffant3', 'ffant3a', 'ffant3p'):
-			game.metadata.series = 'Final Fantasy'
-			game.metadata.series_index = '6'
-		
+		add_snes_software_list_metadata(software, game.metadata)
 	#Can't get input_info at this point as there's nothing to distinguish stuff that uses mouse/gun/etc

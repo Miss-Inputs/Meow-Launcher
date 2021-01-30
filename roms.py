@@ -241,7 +241,6 @@ def sort_m3u_first():
 
 	return Sorter
 
-used_m3u_filenames = []
 def process_emulated_system(system_config):
 	time_started = time.perf_counter()
 
@@ -252,6 +251,7 @@ def process_emulated_system(system_config):
 			print('Config warning:', emulator_name, 'is not a valid emulator for', system_config.name)
 
 	for rom_dir in system_config.paths:
+		used_m3u_filenames = []
 		if not os.path.isdir(rom_dir):
 			print('Oh no', system_config.name, 'has invalid ROM dir', rom_dir)
 			continue

@@ -1,10 +1,9 @@
 from software_list_info import get_software_list_entry
 
-def add_amiga_metadata(game):
-	software = get_software_list_entry(game)
+def add_amiga_metadata_from_software_list(software, metadata):
 	chipset = None
 	if software:
-		software.add_standard_metadata(game.metadata)
+		software.add_standard_metadata(metadata)
 		chipset = 'OCS'
 		usage = software.get_info('usage')
 		if usage in ('Requires ECS', 'Requires ECS, includes Amiga Text'):
@@ -13,7 +12,7 @@ def add_amiga_metadata(game):
 			chipset = 'AGA'
 		else:
 			#The remainder is something like "Requires <some other software> to work", because it's a level editor or save editor or something like that
-			game.metadata.notes = usage
+			metadata.notes = usage
 
 		#info name="additional":
 		#Features Kid Gloves demo
@@ -22,6 +21,13 @@ def add_amiga_metadata(game):
 		#Mastered with virus
 		#info name="alt_disk": Names of some disks?
 		#info name="magazine": What magazine it came from?
+	metadata.specific_info['Chipset'] = chipset
+
+
+def add_amiga_metadata(game):
+	software = get_software_list_entry(game)
+	if software:
+		add_amiga_metadata_from_software_list(software, game.metadata)
 
 	for tag in game.filename_tags:
 		if tag == '[HD]':
@@ -56,7 +62,8 @@ def add_amiga_metadata(game):
 		elif tag == '(A500-A1200-A2000-A4000)':
 			game.metadata.specific_info['Machine'] = 'A4000'
 			
-	if not chipset:
+	if 'Chipset' not in game.metadata.specific_info:
+		chipset = None
 		for tag in game.filename_tags:
 			if tag in ('(AGA)', '(OCS-AGA)', '(ECS-AGA)', '(AGA-CD32)'):
 				chipset = 'AGA'
@@ -67,4 +74,5 @@ def add_amiga_metadata(game):
 			if tag == '(OCS)':
 				chipset = 'OCS'
 				break
-	game.metadata.specific_info['Chipset'] = chipset
+		if chipset:
+			game.metadata.specific_info['Chipset'] = chipset

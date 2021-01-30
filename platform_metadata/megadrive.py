@@ -241,6 +241,29 @@ def try_find_equivalent_arcade(rom, metadata):
 			return megatech_machine	
 	return None
 
+def add_megadrive_software_list_metadata(software, metadata):
+	software.add_standard_metadata(metadata)
+	metadata.specific_info['Uses-SVP'] = software.get_shared_feature('addon') == 'SVP'
+	if software.get_shared_feature('incompatibility') == 'TMSS':
+		metadata.specific_info['Bad-TMSS'] = True
+
+	slot = software.get_part_feature('slot')
+	if slot == 'rom_eeprom' or software.has_data_area('sram'):
+		metadata.save_type = SaveType.Cart
+	elif metadata.platform == 'Mega Drive':
+		metadata.save_type = SaveType.Nothing
+
+	if software.name == 'aqlian':
+		#This is naughty, but this bootleg game doesn't run on some stuff so I want to be able to detect it
+		metadata.specific_info['Mapper'] = 'aqlian'
+	else:
+		if slot not in (None, 'rom_sram'):
+			metadata.specific_info['Mapper'] = slot
+		if software.name == 'pokemon' and software.software_list_name == 'megadriv':
+			#This is also a bit naughty, but Pocket Monsters has different compatibility compared to other games with rom_kof99
+			metadata.specific_info['Mapper'] = slot + '_pokemon'
+
+
 def add_megadrive_metadata(game):
 	if game.rom.extension == 'cue':
 		first_track, sector_size = cd_read.get_first_data_cue_track(game.rom.path)
@@ -264,23 +287,4 @@ def add_megadrive_metadata(game):
 
 	software = get_software_list_entry(game)
 	if software:
-		software.add_standard_metadata(game.metadata)
-		game.metadata.specific_info['Uses-SVP'] = software.get_shared_feature('addon') == 'SVP'
-		if software.get_shared_feature('incompatibility') == 'TMSS':
-			game.metadata.specific_info['Bad-TMSS'] = True
-
-		slot = software.get_part_feature('slot')
-		if slot == 'rom_eeprom' or software.has_data_area('sram'):
-			game.metadata.save_type = SaveType.Cart
-		elif game.metadata.platform == 'Mega Drive':
-			game.metadata.save_type = SaveType.Nothing
-
-		if software.name == 'aqlian':
-			#This is naughty, but this bootleg game doesn't run on some stuff so I want to be able to detect it
-			game.metadata.specific_info['Mapper'] = 'aqlian'
-		else:
-			if slot not in (None, 'rom_sram'):
-				game.metadata.specific_info['Mapper'] = slot
-			if software.name == 'pokemon' and software.software_list_name == 'megadriv':
-				#This is also a bit naughty, but Pocket Monsters has different compatibility compared to other games with rom_kof99
-				game.metadata.specific_info['Mapper'] = slot + '_pokemon'
+		add_megadrive_software_list_metadata(software, game.metadata)

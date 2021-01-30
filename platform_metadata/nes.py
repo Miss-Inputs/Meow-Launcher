@@ -392,6 +392,91 @@ def try_get_equivalent_arcade(rom, metadata):
 	
 	return None
 
+standard_controller = input_metadata.NormalController()
+standard_controller.dpads = 1
+standard_controller.face_buttons = 2 #A B
+
+def add_nes_software_list_metadata(software, metadata):
+	software.add_standard_metadata(metadata)
+
+	nes_peripheral = None
+
+	#FIXME: Acktually, you can have multiple feature = peripherals
+	#See also: SMB / Duck Hunt / World Class Track Meet multicart, with both zapper and powerpad
+	#Actually, how does that even work in real life? Are the controllers hotplugged? Different ports?
+	peripheral = software.get_part_feature('peripheral')
+	if peripheral == 'zapper':
+		nes_peripheral = NESPeripheral.Zapper
+		zapper = input_metadata.LightGun()
+		zapper.buttons = 1
+		metadata.input_info.add_option(zapper)
+	elif peripheral == 'vaus':
+		nes_peripheral = NESPeripheral.ArkanoidPaddle
+		vaus = input_metadata.Paddle()
+		vaus.buttons = 1
+		metadata.input_info.add_option(vaus)
+		#Can still use standard controller
+		metadata.input_info.add_option(standard_controller)
+	elif peripheral in ('powerpad', 'ftrainer', 'fffitness'):
+		nes_peripheral = NESPeripheral.PowerPad
+
+		power_pad = input_metadata.NormalController()
+		power_pad.face_buttons = 12 #"face"
+		metadata.input_info.add_option(power_pad)
+	elif peripheral == 'powerglove':
+		nes_peripheral = NESPeripheral.PowerGlove
+		#Hmm... apparently it functions as a standard NES controller, but there are 2 games specifically designed for glove usage? So it must do something extra I guess
+
+		power_glove = input_metadata.MotionControls()
+		#game.metadata.input_info.buttons = 11 #Standard A + B + 9 program buttons
+		metadata.input_info.add_option(power_glove)
+	elif peripheral == 'rob':
+		nes_peripheral = NESPeripheral.ROB
+		#I'll leave input info alone, because I'm not sure how I would classify ROB
+		metadata.input_info.add_option(standard_controller)
+	elif peripheral == 'fc_keyboard':
+		nes_peripheral = NESPeripheral.FamicomKeyboard
+
+		famicom_keyboard = input_metadata.Keyboard()
+		famicom_keyboard.keys = 72
+		metadata.input_info.add_option(famicom_keyboard)
+	elif peripheral == 'subor_keyboard':
+		nes_peripheral = NESPeripheral.SuborKeyboard
+
+		subor_keyboard = input_metadata.Keyboard()
+		subor_keyboard.keys = 96
+		metadata.input_info.add_option(subor_keyboard)
+	elif peripheral == 'mpiano':
+		nes_peripheral = NESPeripheral.Piano
+		#Apparently, it's actually just a MIDI keyboard, hence the MAME driver adds MIDI in/out ports
+
+		miracle_piano = input_metadata.Custom('88-key piano')
+		#game.metadata.input_info.buttons = 88
+		metadata.input_info.add_option(miracle_piano)
+	else:
+		metadata.input_info.add_option(standard_controller)
+
+	#Well, it wouldn't be a controller... not sure how this one works exactly
+	metadata.specific_info['Uses-3D-Glasses'] = peripheral == '3dglasses'
+	if peripheral == 'turbofile':
+		#Thing that goes into Famicom controller expansion port and saves stuff
+		metadata.save_type = SaveType.MemoryCard
+	#There's a "battlebox" which Armadillo (Japan) uses?
+	#Barcode World (Japan) uses "barcode"
+	#Peripheral = 4p_adapter: 4 players
+	#Gimmi a Break stuff: "partytap"?
+	#Hyper Olympic (Japan): "hypershot"
+	#Ide Yousuke Meijin no Jissen Mahjong (Jpn, Rev. A): "mjcontroller" (mahjong controller?)
+	#RacerMate Challenge 2: "racermate"
+	#Top Rider (Japan): "toprider"
+
+	metadata.notes = software.infos.get('usage')
+	#This only works on a Famicom with Mahjong Controller attached
+	#This only is only supported by Famicom [sic?]
+
+	if nes_peripheral:
+		metadata.specific_info['Peripheral'] = nes_peripheral
+
 def add_nes_metadata(game):
 	equivalent_arcade = try_get_equivalent_arcade(game.rom, game.metadata)
 	if equivalent_arcade:
@@ -415,86 +500,7 @@ def add_nes_metadata(game):
 	elif game.metadata.specific_info.get('Header-Format') in ('iNES', 'NES 2.0', 'UNIF'):
 		software = _get_headered_nes_rom_software_list_entry(game)
 
-	nes_peripheral = NESPeripheral.NormalController
-
-	standard_controller = input_metadata.NormalController()
-	standard_controller.dpads = 1
-	standard_controller.face_buttons = 2 #A B
+	game.metadata.specific_info['Peripheral'] = NESPeripheral.NormalController
 
 	if software:
-		software.add_standard_metadata(game.metadata)
-
-		#FIXME: Acktually, you can have multiple feature = peripherals
-		#See also: SMB / Duck Hunt / World Class Track Meet multicart, with both zapper and powerpad
-		#Actually, how does that even work in real life? Are the controllers hotplugged? Different ports?
-		peripheral = software.get_part_feature('peripheral')
-		if peripheral == 'zapper':
-			nes_peripheral = NESPeripheral.Zapper
-			zapper = input_metadata.LightGun()
-			zapper.buttons = 1
-			game.metadata.input_info.add_option(zapper)
-		elif peripheral == 'vaus':
-			nes_peripheral = NESPeripheral.ArkanoidPaddle
-			vaus = input_metadata.Paddle()
-			vaus.buttons = 1
-			game.metadata.input_info.add_option(vaus)
-			#Can still use standard controller
-			game.metadata.input_info.add_option(standard_controller)
-		elif peripheral in ('powerpad', 'ftrainer', 'fffitness'):
-			nes_peripheral = NESPeripheral.PowerPad
-
-			power_pad = input_metadata.NormalController()
-			power_pad.face_buttons = 12 #"face"
-			game.metadata.input_info.add_option(power_pad)
-		elif peripheral == 'powerglove':
-			nes_peripheral = NESPeripheral.PowerGlove
-			#Hmm... apparently it functions as a standard NES controller, but there are 2 games specifically designed for glove usage? So it must do something extra I guess
-
-			power_glove = input_metadata.MotionControls()
-			#game.metadata.input_info.buttons = 11 #Standard A + B + 9 program buttons
-			game.metadata.input_info.add_option(power_glove)
-		elif peripheral == 'rob':
-			nes_peripheral = NESPeripheral.ROB
-			#I'll leave input info alone, because I'm not sure how I would classify ROB
-			game.metadata.input_info.add_option(standard_controller)
-		elif peripheral == 'fc_keyboard':
-			nes_peripheral = NESPeripheral.FamicomKeyboard
-
-			famicom_keyboard = input_metadata.Keyboard()
-			famicom_keyboard.keys = 72
-			game.metadata.input_info.add_option(famicom_keyboard)
-		elif peripheral == 'subor_keyboard':
-			nes_peripheral = NESPeripheral.SuborKeyboard
-
-			subor_keyboard = input_metadata.Keyboard()
-			subor_keyboard.keys = 96
-			game.metadata.input_info.add_option(subor_keyboard)
-		elif peripheral == 'mpiano':
-			nes_peripheral = NESPeripheral.Piano
-			#Apparently, it's actually just a MIDI keyboard, hence the MAME driver adds MIDI in/out ports
-
-			miracle_piano = input_metadata.Custom('88-key piano')
-			#game.metadata.input_info.buttons = 88
-			game.metadata.input_info.add_option(miracle_piano)
-		else:
-			game.metadata.input_info.add_option(standard_controller)
-
-		#Well, it wouldn't be a controller... not sure how this one works exactly
-		game.metadata.specific_info['Uses-3D-Glasses'] = peripheral == '3dglasses'
-		if peripheral == 'turbofile':
-			#Thing that goes into Famicom controller expansion port and saves stuff
-			game.metadata.save_type = SaveType.MemoryCard
-		#There's a "battlebox" which Armadillo (Japan) uses?
-		#Barcode World (Japan) uses "barcode"
-		#Peripheral = 4p_adapter: 4 players
-		#Gimmi a Break stuff: "partytap"?
-		#Hyper Olympic (Japan): "hypershot"
-		#Ide Yousuke Meijin no Jissen Mahjong (Jpn, Rev. A): "mjcontroller" (mahjong controller?)
-		#RacerMate Challenge 2: "racermate"
-		#Top Rider (Japan): "toprider"
-
-		game.metadata.notes = software.infos.get('usage')
-		#This only works on a Famicom with Mahjong Controller attached
-		#This only is only supported by Famicom
-
-	game.metadata.specific_info['Peripheral'] = nes_peripheral
+		add_nes_software_list_metadata(software, game.metadata)
