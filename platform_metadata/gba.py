@@ -51,6 +51,21 @@ def parse_gba_header(metadata, header):
 	#Checksum (see ROMniscience for how to calculate it, because I don't feel like describing it all in a single line of comment): 0xbd
 	#Reserved: 0xbe - 0xc0
 
+def look_for_strings_in_cart(entire_cart, metadata):
+	has_save = False
+	save_strings = [b'EEPROM_V', b'SRAM_V', b'SRAM_F_V', b'FLASH_V', b'FLASH512_V', b'FLASH1M_V']
+	for string in save_strings:
+		if string in entire_cart:
+			has_save = True
+			break
+	metadata.specific_info['Has-RTC'] = b'SIIRTC_V' in entire_cart
+	metadata.specific_info['Uses-Wireless-Adapter'] = b'RFU_V10' in entire_cart
+	metadata.save_type = SaveType.Cart if has_save else SaveType.Nothing
+
+	if b'AUDIO ERROR, too many notes on channel 0.increase polyphony RAM' in entire_cart:
+		#Look for Rare sound driver because I can
+		metadata.developer = 'Rare'
+
 
 def add_gba_metadata(game):
 	builtin_gamepad = input_metadata.NormalController()
@@ -66,19 +81,7 @@ def add_gba_metadata(game):
 		header = entire_cart[0:0xc0]
 		parse_gba_header(game.metadata, header)
 
-	has_save = False
-	save_strings = [b'EEPROM_V', b'SRAM_V', b'SRAM_F_V', b'FLASH_V', b'FLASH512_V', b'FLASH1M_V']
-	for string in save_strings:
-		if string in entire_cart:
-			has_save = True
-			break
-	game.metadata.specific_info['Has-RTC'] = b'SIIRTC_V' in entire_cart
-	game.metadata.specific_info['Uses-Wireless-Adapter'] = b'RFU_V10' in entire_cart
-	game.metadata.save_type = SaveType.Cart if has_save else SaveType.Nothing
-
-	if b'AUDIO ERROR, too many notes on channel 0.increase polyphony RAM' in entire_cart:
-		#Look for Rare sound driver because I can
-		game.metadata.developer = 'Rare'
+	look_for_strings_in_cart(entire_cart, game.metadata)
 
 	software = get_software_list_entry(game)
 	if software:
