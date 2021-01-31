@@ -38,14 +38,14 @@ def look_for_icon_in_folder(folder, look_for_any_ico=True):
 	return None
 
 def try_detect_unity(folder):
+	if os.path.isfile(os.path.join(folder, 'Build', 'UnityLoader.js')):
+		#Web version of Unity, there should be some .unityweb files here
+		return True
+
+
 	for f in os.scandir(folder):
 		if not f.is_dir():
 			continue
-
-		if f.name == 'Build':
-			if os.path.isfile(os.path.join(f.path, 'UnityLoader.js')):
-				#Web version of Unity, there should be some .unityweb files here
-				return True
 
 		if f.name.endswith('_Data'):
 			#This folder "blah_Data" seems to always go with an executable named "blah", "blah.exe" (on Windows), "blah.x86", "blah.x86_64"
@@ -85,15 +85,12 @@ def try_detect_ue4(folder):
 			continue
 		if not subdir.is_dir():
 			continue
-		for subsubdir in os.listdir(subdir.path):
-			if subsubdir == 'Binaries':
-				project_name = subdir.name
-				binaries_folder = os.path.join(subdir.path, subsubdir)
-				break
-		if binaries_folder:
-			break
+		maybe_binaries_path = os.path.join(subdir.path, 'Binaries')
+		if os.path.isdir(maybe_binaries_path):
+			project_name = subdir.name
+			binaries_folder = maybe_binaries_path
 
-	if not binaries_folder or not os.path.isdir(binaries_folder):
+	if not binaries_folder:
 		#Gonna assume probably not then
 		return False
 
