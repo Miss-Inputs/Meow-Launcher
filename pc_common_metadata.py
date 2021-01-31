@@ -160,13 +160,12 @@ def try_detect_source(folder):
 		if subdir.name == 'platform':
 			have_platform = True
 			continue
-		#Looking for 'hl2', 'ep1', etc
-		for f in os.listdir(subdir.path):
-			if f == 'gameinfo.txt':
-				#gameinfo.txt contains metadata but then this would probably only appear on games that are from Steam and we get all the metadata from there anyway
-				#Also there might be more than one gameinfo.txt inside multiple subdirs in folder (like the Half-Life 2 install dir having all the episodes)
-				game_folder = subdir.path
-				break
+		
+		#Checking for 'hl2', 'ep1', etc
+		if os.path.isfile(os.path.join(subdir.path, 'gameinfo.txt')):
+			game_folder = subdir.path
+		 	#gameinfo.txt contains metadata but then this would probably only appear on games that are from Steam and we get all the metadata from there anyway
+		 	#Also there might be more than one gameinfo.txt inside multiple subdirs in folder (like the Half-Life 2 install dir having all the episodes)
 	if have_bin and have_platform and game_folder:
 		return True
 	
