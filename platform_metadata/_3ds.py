@@ -402,6 +402,7 @@ def decode_icon(icon_data, size):
 	icon = Image.new('RGB', (size, size))
 
 	i = 0
+	data = [0] * size * size
 	for tile_y in range(0, size, 8):
 		for tile_x in range(0, size, 8):
 			for tile in range(0, 8 * 8):
@@ -414,8 +415,10 @@ def decode_icon(icon_data, size):
 				green = ((pixel >> 5) & 0b0011_1111) << 2
 				red = ((pixel >> 11) & 0b0001_1111) << 3
 
-				icon.putpixel((x, y), (red, green, blue))
+				#icon.putpixel((x, y), (red, green, blue))
+				data[y * size + x] = (red, green, blue)
 				i += 2
+	icon.putdata(data)
 	return icon
 
 def parse_ncsd(rom, metadata):
