@@ -493,6 +493,9 @@ class Machine():
 
 		self.metadata.developer, self.metadata.publisher = self.developer_and_publisher
 
+		self.metadata.specific_info['BestGames-Rating'] = self.bestgames_opinion
+		self.metadata.specific_info['Version-Added'] = self.version_added
+
 	@property
 	def basename(self):
 		return self.xml.attrib['name']
@@ -768,6 +771,14 @@ class Machine():
 	@property
 	def is_system_driver(self):
 		return self.family in all_mame_drivers
+
+	@property
+	def bestgames_opinion(self):
+		return get_machine_folder(self.basename, 'bestgames')
+
+	@property
+	def version_added(self):
+		return get_machine_folder(self.basename, 'version')
 
 	
 def get_machine(driver):
