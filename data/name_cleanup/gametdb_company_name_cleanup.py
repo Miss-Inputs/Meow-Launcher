@@ -49,7 +49,10 @@ company_name_cleanup = {
 	'Sonic Team Japan': 'Sonic Team', #Is there not only one Sonic Team? I hope I'm not just misinformed
 	'Telltale Games': 'Telltale',
 	'Ubi Soft Entertainment': 'Ubisoft',
+	'Ubisoft Entertainment': 'Ubisoft',
 	'Warner Bros Interactive Entertainment': 'Warner Bros',
+	'Warner Bros. Interactive Entertainment': 'Warner Bros',
+	'Xseed Games': 'XSeed',
 
 	#Full names that people do use, I guess?
 	'Data Design': 'Data Design Interactive',
