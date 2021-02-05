@@ -1,7 +1,6 @@
 import re
 import subprocess
 import zipfile
-import zlib
 
 compressed_exts = ['7z', 'zip', 'gz', 'bz2', 'tar', 'tgz', 'tbz']
 #7z supports more, but I don't expect to see them (in the case of things like .rar, I don't want them to be treated as
@@ -14,8 +13,9 @@ def zip_list(path):
 	with zipfile.ZipFile(path, 'r') as zip_file:
 		return zip_file.namelist()
 
-sevenzip_path_regex = re.compile(r'^Path\s+=\s+(.+)$', flags=re.IGNORECASE)
-sevenzip_attr_regex = re.compile(r'^Attributes\s+=\s+(.+)$', flags=re.IGNORECASE)
+sevenzip_path_regex = re.compile(r'^Path\s+=\s+(.+)$')
+sevenzip_attr_regex = re.compile(r'^Attributes\s+=\s+(.+)$')
+sevenzip_crc_regex = re.compile(r'^CRC\s+=\s+([\dA-Fa-f]+)$')
 def sevenzip_list(path):
 	#This is rather slow…
 	proc = subprocess.run(['7z', 'l', '-slt', path], stdout=subprocess.PIPE, universal_newlines=True, check=False)
@@ -42,6 +42,26 @@ def sevenzip_list(path):
 	files.append(inner_filename + '/' if is_directory else inner_filename)
 
 	return files
+	
+def sevenzip_crc(path, filename):
+	#See also https://fastapi.metacpan.org/source/BJOERN/Compress-Deflate7-1.0/7zip/DOC/7zFormat.txt to do things the hard way
+	proc = subprocess.run(['7z', 'l', '-slt', path], stdout=subprocess.PIPE, universal_newlines=True, check=False)
+	if proc.returncode != 0:
+		raise Bad7zException('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
+
+	this_filename = None
+	for line in proc.stdout.splitlines():
+		if filename == this_filename:
+			crc_match = sevenzip_crc_regex.fullmatch(line)
+			if crc_match:
+				return int(crc_match, 16)
+
+		sevenzip_path_match = sevenzip_path_regex.fullmatch(line)
+		if sevenzip_path_match:
+			this_filename = sevenzip_path_match[1]
+			continue
+	
+	return FileNotFoundError(filename)
 	
 def compressed_list(path):
 	if zipfile.is_zipfile(path):
@@ -107,6 +127,5 @@ def get_crc32_of_archive(path, filename):
 			return get_zip_crc32(path, filename)
 		except zipfile.BadZipFile:
 			pass
-	#TODO: Get them out of 7z, which might end up being faster than reading the whole thing
-	#See also https://fastapi.metacpan.org/source/BJOERN/Compress-Deflate7-1.0/7zip/DOC/7zFormat.txt
-	return zlib.crc32(sevenzip_get(path, filename)) & 0xffffffff
+	return sevenzip_crc(path, filename)
+	#return zlib.crc32(sevenzip_get(path, filename)) & 0xffffffff
