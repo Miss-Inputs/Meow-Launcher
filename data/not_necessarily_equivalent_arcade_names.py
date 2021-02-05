@@ -7,10 +7,12 @@ not_necessarily_equivalent_arcade_names = [
 	'btoads',
 	'checkmat',
 	'dlair', #So many home ports that were just in name only for technical limitations, so they're not related…
+	'fantasia',
 	'hero', #Matches against H.E.R.O. which is different
 	'inca',
 	'qwak',
 	'spaceace', #Same situation as dlair
+	'warrior',
 	'witch',
 
 	#Franchises where the title is used for multiple adaptations
@@ -26,6 +28,7 @@ not_necessarily_equivalent_arcade_names = [
 	'macross',
 	'pepsiman',
 	'rambo',
+	'stargate',
 	'starwars',
 	'superman',
 	'term2', #There are home ports of this (Terminator 2: Judgement Day), but they are called "T2: The Arcade Game" to avoid confusion with the unrelated tie ins which aren't conversions of the arcade which are called "Terminator 2: Judgement Day", even though that doesn't avoid confusion at all and merely creates it. Anyway, there are probably ways I could handle this case, but I don't feel like doing them for now.
