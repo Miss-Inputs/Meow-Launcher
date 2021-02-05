@@ -144,20 +144,16 @@ def try_detect_gamemaker(folder):
 	return False
 
 def try_detect_source(folder):
-	have_bin = False
-	have_platform = False
+	have_bin = os.path.isdir(os.path.join(folder, 'bin'))
+	have_platform = os.path.isdir(os.path.join(folder, 'platform'))
+	if not (have_bin or have_platform):
+		return False
+
 	game_folder = None
 	for subdir in os.scandir(folder):
 		if not subdir.is_dir():
 			continue
 
-		if subdir.name == 'bin':
-			have_bin = True
-			continue
-		if subdir.name == 'platform':
-			have_platform = True
-			continue
-		
 		#Checking for 'hl2', 'ep1', etc
 		if os.path.isfile(os.path.join(subdir.path, 'gameinfo.txt')):
 			game_folder = subdir.path
