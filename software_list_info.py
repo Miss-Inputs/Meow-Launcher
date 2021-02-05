@@ -12,7 +12,7 @@ from data.subtitles import subtitles
 from info.system_info import systems
 from mame_helpers import (consistentify_manufacturer, get_image,
                           get_mame_core_config, image_config_keys,
-                          verify_software_list)
+                          verify_software_list, add_history)
 from metadata import Date
 
 #Ideally, every platform wants to be able to get software list info. If available, it will always be preferred over what we can extract from inside the ROMs, as it's more reliable, and avoids the problem of bootlegs/hacks with invalid/missing header data, or publisher/developers that merge and change names and whatnot.
@@ -430,6 +430,8 @@ class Software():
 				image = get_image(config_key, self.software_list_name, self.parent_name)
 				if image:
 					metadata.images[image_name] = image
+
+		add_history(metadata, self.software_list_name, self.name)
 
 class SoftwareMatcherArgs():
 	def __init__(self, crc32, sha1, size, reader):

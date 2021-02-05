@@ -1,7 +1,6 @@
 import configparser
 import functools
 import os
-from xml.etree import ElementTree
 
 import detect_things_from_filename
 import input_metadata
@@ -11,7 +10,7 @@ from config.main_config import main_config
 from info.region_info import (get_language_by_english_name,
                               get_language_from_regions)
 from mame_helpers import (find_cpus, get_image, get_mame_ui_config,
-                          image_config_keys)
+                          image_config_keys, add_history)
 from metadata import CPU, ScreenInfo
 
 #Maybe I just want to put all this back into mame_machines... it's only used there
@@ -338,115 +337,6 @@ def add_images(machine):
 			if image:
 				machine.metadata.images[image_name] = image
 		
-def get_history_xml():
-	dat_paths = get_mame_ui_config().get('historypath')
-	if not dat_paths:
-		return None
-	for dat_path in dat_paths:
-		historypath = os.path.join(dat_path, 'history.xml')
-		#Yeah soz not gonna bother parsing the old history format
-		try:
-			return ElementTree.parse(historypath)
-		except FileNotFoundError:
-			continue
-	return None
-	
-def get_history(machine):
-	if not hasattr(get_history, 'history_xml'):
-		get_history.history_xml = get_history_xml()
-	if not get_history.history_xml:
-		return None
-
-	#entry = get_history.history_xml.find('entry/systems/system[@name="{0}"]/../..'.format(machine.basename)) #Is this a good idea? Will it always work? Hmm
-	#if entry is None:
-	#	return None
-	
-	#return entry.findtext('text')
-
-	for entry in get_history.history_xml.findall('entry'):
-		systems = entry.find('systems')
-		if systems is None:
-			continue
-		if any(system.attrib.get('name') == machine.basename for system in systems.findall('system')):
-			return entry.findtext('text')
-	return None
-
-
-def add_history(machine):
-	history = get_history(machine)
-	if not history:
-		return
-
-	#Line 0 is always the "Arcade video game published 999 years ago" stuff… actually it is not always there
-	#Line 2 is always copyright
-	#Line 1 and 3 are blank lines
-	lines = [line.strip() for line in history.strip().splitlines()]
-	description_start = 0
-	if '(c)' in lines[0]:
-		description_start = 2
-	if '(c)' in lines[2]:
-		description_start = 4
-
-	cast_start = None
-	technical_start = None
-	trivia_start = None
-	updates_start = None
-	scoring_start = None
-	tips_and_tricks_start = None
-	series_start = None
-	staff_start = None
-	ports_start = None
-	end_line = len(lines) - 1
-	for i, line in enumerate(lines):
-		if line in ('- CAST OF CHARACTERS -', '- CAST OF ELEMENTS -'):
-			#I think they are the same thing but only one will appear
-			cast_start = i
-		elif line == '- TECHNICAL -':
-			technical_start = i
-		elif line == '- TRIVIA -':
-			trivia_start = i
-		elif line == '- UPDATES -':
-			updates_start = i
-		elif line == '- SCORING -':
-			scoring_start = i
-		elif line == '- TIPS AND TRICKS -':
-			tips_and_tricks_start = i
-		elif line == '- SERIES -':
-			series_start = i
-		elif line == '- STAFF -':
-			staff_start = i
-		elif line == '- PORTS -':
-			ports_start = i
-		elif line == '- CONTRIBUTE -':
-			end_line = i #We don't care about things after this
-		#elif len(line) > 4 and line.startswith('-') and line.endswith('-') and line[2:-2].isupper():
-		#	print('Hmm', machine.basename, 'has a new section', line)
-	
-	sections = [description_start, cast_start, technical_start, trivia_start, updates_start, scoring_start, tips_and_tricks_start, series_start, staff_start, ports_start, end_line]
-	description_end = next(section for section in sections[1:] if section)
-	if description_end - 1 > description_start:
-		description = '\n'.join(lines[description_start:description_end])
-		if 'Description' in machine.metadata.descriptions:
-			machine.metadata.descriptions['History-Description'] = description
-		else:
-			machine.metadata.descriptions['Description'] = description
-	
-	if technical_start:
-		technical_end = next(section for section in sections[3:] if section)
-		technical = '\n'.join(lines[technical_start + 1: technical_end])
-		machine.metadata.descriptions['Technical'] = technical
-	if trivia_start:
-		trivia_end = next(section for section in sections[4:] if section)
-		trivia = '\n'.join(lines[trivia_start + 1: trivia_end])
-		machine.metadata.descriptions['Trivia'] = trivia
-	if tips_and_tricks_start:
-		tips_and_tricks_end = next(section for section in sections[7:] if section)
-		tips_and_tricks = '\n'.join(lines[tips_and_tricks_start + 1: tips_and_tricks_end])
-		machine.metadata.descriptions['Tips-And-Tricks'] = tips_and_tricks
-	if updates_start:
-		updates_end = next(section for section in sections[5:] if section)
-		updates = '\n'.join(lines[updates_start + 1: updates_end])
-		machine.metadata.descriptions['Updates'] = updates
 
 def add_metadata(machine):
 	add_images(machine)
@@ -482,7 +372,7 @@ def add_metadata(machine):
 	machine.metadata.emulator_name = 'MAME'
 
 	add_status(machine)
-	add_history(machine)
+	add_history(machine.metadata, machine.basename)
 
 def add_input_info(machine):
 	machine.metadata.input_info.set_inited()
