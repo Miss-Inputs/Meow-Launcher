@@ -54,7 +54,7 @@ def sevenzip_crc(path, filename):
 		if filename == this_filename:
 			crc_match = sevenzip_crc_regex.fullmatch(line)
 			if crc_match:
-				return int(crc_match, 16)
+				return int(crc_match[1], 16)
 
 		sevenzip_path_match = sevenzip_path_regex.fullmatch(line)
 		if sevenzip_path_match:
