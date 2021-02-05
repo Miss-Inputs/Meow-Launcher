@@ -357,11 +357,20 @@ def get_history(machine):
 	if not get_history.history_xml:
 		return None
 
-	entry = get_history.history_xml.find('entry/systems/system[@name="{0}"]/../..'.format(machine.basename)) #Is this a good idea? Will it always work? Hmm
-	if entry is None:
-		return None
+	#entry = get_history.history_xml.find('entry/systems/system[@name="{0}"]/../..'.format(machine.basename)) #Is this a good idea? Will it always work? Hmm
+	#if entry is None:
+	#	return None
 	
-	return entry.findtext('text')
+	#return entry.findtext('text')
+
+	for entry in get_history.history_xml.findall('entry'):
+		systems = entry.find('systems')
+		if systems is None:
+			continue
+		if any(system.attrib.get('name') == machine.basename for system in systems.findall('system')):
+			return entry.findtext('text')
+	return None
+
 
 def add_history(machine):
 	history = get_history(machine)
