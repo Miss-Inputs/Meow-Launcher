@@ -1344,8 +1344,6 @@ def stella(_, __, emulator_config):
 	return LaunchParams(emulator_config.exe_path, ['-fullscreen', '1', '$<path>'])
 
 def xemu(game, __, emulator_config):
-	#define GLOBAL_LSEEK_OFFSET       0xFD90000ul
-#define XGD3_LSEEK_OFFSET         0x2080000ul
 	#Values yoinked from extract-xiso, I hope they don't mind
 	global_lseek_offset = 0xfd90000
 	xgd3_lseek_offset = 0x2080000
