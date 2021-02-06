@@ -45,13 +45,13 @@ from platform_metadata.minor_systems import *
 #APF: Menu text
 #Vectrex: Title screen text
 #Konami Picno: Product code
+#Xbox: Publisher, year/month/day; albeit just for executables and not discs, so I'm not gonna bother since we only launch discs right now
 
 #If I had them emulated/added to system info there can be metadatum extracted, but there's no point implementing them here yet:
 #64DD: Publisher, product code, version
 #e-Reader: Hmm. Not a lot actually, but which "region" (Japan, export, Japan+) would end up being necessary I think
 #RCA Studio 2 (community-developed .st2 header): developer, product code
 #Wii U: Publisher, icon (if Pillow can do .tga or if that can just be put in .desktop files as an icon natively)
-#Xbox: Publisher, year/month/day; albeit just for executables and not discs
 #Xbox 360: Publisher, icon (for XBLA), number of players (for XBLA), genre (for XBLA)
 
 helpers = {

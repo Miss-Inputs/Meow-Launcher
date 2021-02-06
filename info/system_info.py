@@ -171,7 +171,7 @@ systems = {
 		[], [], [], {MediaType.Digital: ['vpk']}
 	),
 	'Xbox': SystemInfo(
-		['xbox'], [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xbe']}
+		['xbox'], [], ['Xemu'], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xbe']}
 	),
 	'Xbox 360': SystemInfo(
 		[], [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xex']}

@@ -308,6 +308,8 @@ emulators = {
 	#Marked as not working + imperfect sound, possibly because of missing speech (also mouse is missing)
 	
 	#--Stuff that might not work with most things, or otherwise has known issues
+	'Xemu': EmulatorInfo(EmulatorStatus.Experimental, 'xemu', command_lines.xemu, ['iso'], []), #Requires the game partition to be separated out of the disc image, also no controller rebinding for you
+
 	'MAME (Amiga CD32)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_amiga_cd32, mame_cdrom_formats),
 	#Hmm boots only a few things I guess
 	'MAME (CreatiVision)': MameDriver(EmulatorStatus.Janky, mame_driver_callable('crvision', 'cart', has_keyboard=True), ['bin', 'rom']),

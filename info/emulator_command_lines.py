@@ -1343,6 +1343,31 @@ def snes9x(game, _, emulator_config):
 def stella(_, __, emulator_config):
 	return LaunchParams(emulator_config.exe_path, ['-fullscreen', '1', '$<path>'])
 
+def xemu(game, __, emulator_config):
+	#define GLOBAL_LSEEK_OFFSET       0xFD90000ul
+#define XGD3_LSEEK_OFFSET         0x2080000ul
+	#Values yoinked from extract-xiso, I hope they don't mind
+	global_lseek_offset = 0xfd90000
+	xgd3_lseek_offset = 0x2080000
+	xiso_header_offset = 0x10000
+	xiso_string = b'MICROSOFT*XBOX*MEDIA'
+
+	#Checking for this stuff inside the emulator-command-line-maker seems odd, but it doesn't make sense to make a metadata helper for it either
+	size = game.rom.get_size()
+	good = False
+	for possible_location in (xiso_header_offset, global_lseek_offset + xiso_header_offset, xgd3_lseek_offset + xiso_header_offset):
+		if size < possible_location:
+			continue
+		magic = game.rom.read(seek_to=possible_location, amount=20)
+		if magic == xiso_string:
+			good = True
+			break
+	if not good:
+		raise EmulationNotSupportedException('Probably a Redump-style dump, you need to extract the game partition')
+	#This still doesn't guarantee it'll be seen as a valid disc…
+
+	return LaunchParams(emulator_config.exe_path, ['-full-screen', '-dvd_path', '$<path>'])
+
 def yuzu(_, __, emulator_config):
 	return LaunchParams(emulator_config.exe_path, ['-f', '-g', '$<path>'])
 
