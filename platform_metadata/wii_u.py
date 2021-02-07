@@ -61,10 +61,10 @@ def add_meta_xml_metadata(metadata, meta_xml):
 	metadata.specific_info['Account-Save-Size'] = int(meta_xml.findtext('account_save_size'), 16)
 
 	region = meta_xml.findtext('region')
+	region_codes = []
 	if region:
 		try:
 			region_flags = int(region, 16)
-			region_codes = []
 			for region in _3DSRegionCode:
 				if region in (_3DSRegionCode.RegionFree, _3DSRegionCode.WiiURegionFree):
 					continue
@@ -97,12 +97,85 @@ def add_meta_xml_metadata(metadata, meta_xml):
 	#network = meta_xml.findtext('network_use') != '0'
 	#online_account = meta_xml.findtext('online_account_use') != '0'
 
-	short_name = meta_xml.findtext('shortname_en')
-	long_name = meta_xml.findtext('longname_en') #Also have ja, fr, de, etc, often zhs/ko/nl/pt/ru/zht is not filled in
-	#TODO: Stop being eurocentric and add other languages
-	#TODO: Add publisher too
-	metadata.add_alternate_name(short_name, 'Short-Name')
-	metadata.add_alternate_name(long_name, 'Long-Name')
+	languages = {
+		'ja': 'Japanese',
+		'en': 'English',
+		'fr': 'French',
+		'de': 'German',
+		'it': 'Italian',
+		'es': 'Spanish',
+		'zhs': 'Simplified Chinese',
+		'ko': 'Korean',
+		'nl': 'Dutch',
+		'pt': 'Portugese',
+		'ru': 'Russia',
+		'zht': 'Traditional Chinese',
+	}
+	
+	short_names = {}
+	long_names = {}
+	publishers = {}
+	for lang_code, lang_name in languages.items():
+		short_name = meta_xml.findtext('shortname_' + lang_code)
+		if short_name:
+			short_names[lang_name] = short_name
+		long_name = meta_xml.findtext('longname_' + lang_code)
+		if long_name:
+			long_names[lang_name] = long_name.replace('\n', ': ') #Newlines seem to be used here to separate subtitles
+		publisher = meta_xml.findtext('publisher_' + lang_code)
+		if publisher:
+			publishers[lang_name] = publisher
+
+	#Just straight up copypaste from _3ds.py fuck it
+	local_short_title = None
+	local_long_title = None
+	local_publisher = None
+	if _3DSRegionCode.RegionFree in region_codes or _3DSRegionCode.USA in region_codes or _3DSRegionCode.Europe in region_codes:
+		#We shouldn't assume that Europe is English-speaking but we're going to
+		local_short_title = short_names.get('English')
+		local_long_title = long_names.get('English')
+		local_publisher = publishers.get('English')
+	elif _3DSRegionCode.Japan in region_codes:
+		local_short_title = short_names.get('Japanese')
+		local_long_title = long_names.get('Japanese')
+		local_publisher = publishers.get('Japanese')
+	elif _3DSRegionCode.China in region_codes:
+		local_short_title = short_names.get('Simplified Chinese')
+		local_long_title = long_names.get('Simplified Chinese')
+		local_publisher = publishers.get('Simplified Chinese')
+	elif _3DSRegionCode.Korea in region_codes:
+		local_short_title = short_names.get('Korean')
+		local_long_title = long_names.get('Korean')
+		local_publisher = publishers.get('Korean')
+	elif _3DSRegionCode.Taiwan in region_codes:
+		local_short_title = short_names.get('Traditional Chinese')
+		local_long_title = long_names.get('Traditional Chinese')
+		local_publisher = publishers.get('Traditional Chinese')
+	else: #If none of that is in the region code? Unlikely but I dunno maybe
+		if short_names:
+			local_short_title = list(short_names.values())[0]
+		if long_names:
+			local_long_title = list(long_names.values())[0]
+		if publishers:
+			local_publisher = list(publishers.values())[0]
+
+	if local_short_title:
+		metadata.add_alternate_name(local_short_title, 'Short-Title')
+	if local_long_title:
+		metadata.add_alternate_name(local_long_title, 'Title')
+	if local_publisher:
+		metadata.publisher = local_publisher
+
+	for lang, short_title in short_names.items():
+		if short_title != local_short_title:
+			metadata.add_alternate_name(short_title, '{0}-Short-Title'.format(lang.replace(' ', '-')))
+	for lang, long_title in long_names.items():
+		if long_title != local_long_title:
+			metadata.add_alternate_name(long_title, '{0}-Title'.format(lang.replace(' ', '-')))
+	for lang, publisher in publishers.items():
+		if publisher != local_publisher:
+			metadata.specific_info['{0}-Publisher'.format(lang.replace(' ', '-'))] = publisher
+
 
 def add_homebrew_meta_xml_metadata(rom, metadata, meta_xml):
 	name = meta_xml.findtext('name')

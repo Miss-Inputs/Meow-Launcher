@@ -299,7 +299,7 @@ def parse_smdh_data(metadata, smdh):
 		9: 'Portugese',
 		10: 'Russian',
 		11: 'Traditional Chinese',
-		12: 'Japanese',
+		12: 'Japanese', #Wait how's that work
 		#Theoretically there could be 3 more languages here, but there are probably not
 		13: 'Unknown language 1',
 		14: 'Unknown language 2',
