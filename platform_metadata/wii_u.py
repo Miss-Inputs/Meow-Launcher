@@ -37,6 +37,21 @@ def load_tdb():
 		return None
 tdb = load_tdb()
 
+def add_cover(metadata, product_code, licensee_code):
+	#Intended for the covers database from GameTDB
+	covers_path = system_configs['Wii U'].options.get('covers_path')
+	if not covers_path:
+		return
+	cover_path = os.path.join(covers_path, product_code)
+	other_cover_path = os.path.join(covers_path + licensee_code, product_code)
+	for ext in ('png', 'jpg'):
+		if os.path.isfile(cover_path + os.extsep + ext):
+			metadata.images['Cover'] = cover_path + os.extsep + ext
+			break
+		if os.path.isfile(other_cover_path + os.extsep + ext):
+			metadata.images['Cover'] = other_cover_path + os.extsep + ext
+			break
+
 def add_meta_xml_metadata(metadata, meta_xml):
 	#version = 33 for digital stuff, sometimes 32 otherwise?, content_platform = WUP, publisher_ja/en/etc, ext_dev_urcc = some kiosk related thingo
 	#mastering_date = blank? (it is something like 2021-02-07 18:59:24 on discs), logo_type = 2 on third party stuff?, app_launch_type = 1 on parental controls/H&S/Wii U Chat and 0 on everything else?, invisible_flag = maybe just for keeping stuff out of the daily log?, no_managed_flag, no_event_log, no_icon_database, launching_flag, install_flag, closing_msg, title_version, title_id, group_id, boss_id, os_version, app_size, common_boss_size, account_boss_size, save_no_rollback, join_game_id, join_game_mode_mask, bg_daemon_enable, olv_accesskey, wood_tin, e_manual = I guess it's 1 if it has a manual, e_manual_version, eula_version, direct_boot, reserved_flag{0-7}, add_on_unique_id{0-31} = DLC probs?
@@ -55,6 +70,8 @@ def add_meta_xml_metadata(metadata, meta_xml):
 	elif len(company_code) == 4 and company_code.startswith('00'):
 		if company_code[2:] in nintendo_licensee_codes:
 			metadata.publisher = nintendo_licensee_codes[company_code[2:]]
+		
+	add_cover(metadata, product_code[-4:], company_code[2:])
 
 	#Maybe we can use these to figure out if it creates a save file or not…
 	metadata.specific_info['Common-Save-Size'] = int(meta_xml.findtext('common_save_size'), 16)
