@@ -91,7 +91,9 @@ def add_meta_xml_metadata(metadata, meta_xml):
 	metadata.specific_info['Account-Save-Size'] = int(meta_xml.findtext('account_save_size'), 16)
 
 	metadata.specific_info['Title-ID'] = meta_xml.findtext('title_id')
-	metadata.specific_info['Version'] = meta_xml.findtext('title_version')
+	version = meta_xml.findtext('title_version')
+	if version:
+		metadata.specific_info['Version'] = 'v' + version
 
 	region = meta_xml.findtext('region')
 	region_codes = []
@@ -209,7 +211,6 @@ def add_meta_xml_metadata(metadata, meta_xml):
 		if publisher != local_publisher:
 			metadata.specific_info['{0}-Publisher'.format(lang.replace(' ', '-'))] = publisher
 
-
 def add_homebrew_meta_xml_metadata(rom, metadata, meta_xml):
 	name = meta_xml.findtext('name')
 	if name:
@@ -256,6 +257,7 @@ def add_rpx_metadata(rom, metadata):
 	rom.ignore_name = True
 	metadata.add_alternate_name(os.path.basename(base_dir), 'Folder-Name')
 	metadata.categories = metadata.categories[:-2]
+	metadata.specific_info['Executable-Name'] = rom.name
 
 	#While we are here… using pc_common_metadata engine detect on the content folder almost seems like a good idea too, but it won't accomplish much so far
 	if os.path.isfile(os.path.join(parent_folder, 'UnityEngine_dll.rpl')):

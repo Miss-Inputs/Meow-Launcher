@@ -342,6 +342,7 @@ class WindowsGOGGame():
 			task_metadata.specific_info['Wrapper'] = 'DOSBox'
 		if task.is_scummvm and emulator_name != 'ScummVM':
 			task_metadata.specific_info['Wrapper'] = 'ScummVM'
+		task_metadata.specific_info['Executable-Name'] = os.path.basename(task.path)
 
 		name = self.name
 		if task.name:

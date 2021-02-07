@@ -258,6 +258,7 @@ def disambiguate_names():
 	fix_duplicate_names('Developer', ignore_missing_values=True)
 	fix_duplicate_names('tags')
 	fix_duplicate_names('Extension', '(.{0})'.format, ignore_missing_values=True)
+	fix_duplicate_names('Executable-Name', ignore_missing_values=True)
 	if main_config.debug:
 		fix_duplicate_names('check')
 
