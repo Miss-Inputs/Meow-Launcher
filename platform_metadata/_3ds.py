@@ -34,7 +34,7 @@ class _3DSRegionCode(IntFlag):
 	WiiURegionFree = 0xffffffff
 
 	def __str__(self):
-		return str(self.name)
+		return repr(self)
 
 class _3DSVirtualConsolePlatform(Enum):
 	GameBoy = 'R'
