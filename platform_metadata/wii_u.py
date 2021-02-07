@@ -6,6 +6,7 @@ from xml.etree import ElementTree
 from config.main_config import main_config
 from config.system_config import system_configs
 from data.nintendo_licensee_codes import nintendo_licensee_codes
+from metadata import Date
 
 from ._3ds import \
     _3DSRegionCode  # I should move this to some common module, maybe
@@ -95,6 +96,22 @@ def add_meta_xml_metadata(metadata, meta_xml):
 	metadata.add_alternate_name(short_name, 'Short-Name')
 	metadata.add_alternate_name(long_name, 'Long-Name')
 
+def add_homebrew_meta_xml_metadata(rom, metadata, meta_xml):
+	name = meta_xml.findtext('name')
+	if name:
+		rom.ignore_name = True
+		metadata.add_alternate_name(name, 'Banner-Title')
+	metadata.developer = metadata.publisher = meta_xml.findtext('coder')
+	metadata.specific_info['Version'] = meta_xml.findtext('version')
+	metadata.documents['Homepage'] = meta_xml.findtext('url')
+	release_date_text = meta_xml.findtext('release_date')
+	if release_date_text:
+		metadata.release_date = Date(release_date_text[0:4], release_date_text[4:6], release_date_text[6:8])
+
+	metadata.descriptions['Short-Description'] = meta_xml.findtext('short_description')
+	metadata.descriptions['Long-Description'] = meta_xml.findtext('long_description')
+	metadata.specific_info['Homebrew-Category'] = meta_xml.findtext('category') #Makes me wonder if it's feasible to include an option to get categories not from folders…
+
 def add_rpx_metadata(rom, metadata):
 	#The .rpx itself is not interesting and basically just a spicy ELF
 
@@ -103,6 +120,15 @@ def add_rpx_metadata(rom, metadata):
 	#print(rom.path, parent_folder, os.path.basename(parent_folder))
 	if os.path.basename(parent_folder) != 'code':
 		#Might be a homebrew game or something, I dunno but either way if we don't have a standard folder structure we have nothing to do here
+		try:
+			#info.json has the same info? But it's not always there
+			add_homebrew_meta_xml_metadata(rom, metadata, ElementTree.parse(os.path.join(parent_folder, 'meta.xml')))
+		except FileNotFoundError:
+			pass
+		homebrew_banner_path = os.path.join(parent_folder, 'icon.png')
+		if os.path.isfile(homebrew_banner_path):
+			metadata.images['Banner'] = homebrew_banner_path
+
 		return 
 
 	base_dir = os.path.dirname(parent_folder)
