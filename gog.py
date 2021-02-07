@@ -303,10 +303,6 @@ class WindowsGOGGame():
 		return launchers.LaunchParams(dosbox_path, args, working_directory=dosbox_folder)
 
 	def get_wine_launch_params(self, task):
-		env_vars = None
-		if main_config.wineprefix:
-			env_vars = {'WINEPREFIX': main_config.wineprefix}
-
 		if not task.path:
 			if main_config.debug:
 				print('Oh dear - we cannot deal with tasks that have no path', self.name, task.name, task.args, task.task_type, task.category)
@@ -317,12 +313,12 @@ class WindowsGOGGame():
 				print(self.name, 'cannot be launched - we cannot deal with shortcuts right now (we should parse them but I cannot be arsed right now)', self.name, task.name, task.args, task.task_type, task.category)
 			return None
 
-		args = ['start']
+		exe_path = find_subpath_case_insensitive(self.folder, task.path)
+		working_directory = None
 		if task.working_directory:
-			args += ['/d', find_subpath_case_insensitive(self.folder, task.working_directory)]
-		args += ['/unix', find_subpath_case_insensitive(self.folder, task.path)]
-		args += task.args
-		return launchers.LaunchParams(main_config.wine_path, args, env_vars)
+			working_directory = find_subpath_case_insensitive(self.folder, task.working_directory)
+		
+		return launchers.get_wine_launch_params(exe_path, task.args, working_directory)
 
 	def get_launcher_params(self, task):
 		if main_config.use_system_dosbox and task.is_dosbox:
@@ -410,7 +406,7 @@ def do_gog_games():
 			game.add_metadata()
 			game.make_launcher()
 	
-	if os.path.isfile(main_config.wine_path):
+	if os.path.isfile(main_config.wine_path) or not main_config.wine_path.startswith('/'):
 		for windows_gog_folder in main_config.windows_gog_folders:
 			if not os.path.isdir(windows_gog_folder):
 				if main_config.debug:
