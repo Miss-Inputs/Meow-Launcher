@@ -5,7 +5,7 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 import os
-from enum import Enum, IntFlag
+from enum import Enum, Flag
 from xml.etree import ElementTree
 
 import input_metadata
@@ -22,7 +22,7 @@ from .gametdb import TDB, add_info_from_tdb
 from .wii import parse_ratings
 
 
-class _3DSRegionCode(IntFlag):
+class _3DSRegionCode(Flag):
 	Japan = 1
 	USA = 2
 	Europe = 4
