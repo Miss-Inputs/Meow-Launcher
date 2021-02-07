@@ -381,7 +381,7 @@ def parse_smdh_data(metadata, smdh):
 		if long_title != local_long_title:
 			metadata.add_alternate_name(long_title, '{0}-Banner-Title'.format(lang.replace(' ', '-')))
 	for lang, publisher in publishers.items():
-		if publisher != local_publisher:
+		if publisher != metadata.publisher:
 			metadata.specific_info['{0}-Publisher'.format(lang.replace(' ', '-'))] = publisher
 
 tile_order = [
