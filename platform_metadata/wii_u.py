@@ -1,5 +1,6 @@
 import os
 import statistics
+from datetime import datetime
 from enum import Enum
 from xml.etree import ElementTree
 
@@ -53,8 +54,8 @@ def add_cover(metadata, product_code, licensee_code):
 			break
 
 def add_meta_xml_metadata(metadata, meta_xml):
-	#version = 33 for digital stuff, sometimes 32 otherwise?, content_platform = WUP, publisher_ja/en/etc, ext_dev_urcc = some kiosk related thingo
-	#mastering_date = blank? (it is something like 2021-02-07 18:59:24 on discs), logo_type = 2 on third party stuff?, app_launch_type = 1 on parental controls/H&S/Wii U Chat and 0 on everything else?, invisible_flag = maybe just for keeping stuff out of the daily log?, no_managed_flag, no_event_log, no_icon_database, launching_flag, install_flag, closing_msg, title_version, title_id, group_id, boss_id, os_version, app_size, common_boss_size, account_boss_size, save_no_rollback, join_game_id, join_game_mode_mask, bg_daemon_enable, olv_accesskey, wood_tin, e_manual = I guess it's 1 if it has a manual, e_manual_version, eula_version, direct_boot, reserved_flag{0-7}, add_on_unique_id{0-31} = DLC probs?
+	#version = 33 for digital stuff, sometimes 32 otherwise?, content_platform = WUP, ext_dev_urcc = some kiosk related thingo
+	#logo_type = 2 on third party stuff?, app_launch_type = 1 on parental controls/H&S/Wii U Chat and 0 on everything else?, invisible_flag = maybe just for keeping stuff out of the daily log?, no_managed_flag, no_event_log, no_icon_database, launching_flag, install_flag, closing_msg, group_id, boss_id, os_version, app_size, common_boss_size, account_boss_size, save_no_rollback, join_game_id, join_game_mode_mask, bg_daemon_enable, olv_accesskey, wood_tin, e_manual = I guess it's 1 if it has a manual, e_manual_version, eula_version, direct_boot, reserved_flag{0-7}, add_on_unique_id{0-31} = DLC probs?
 	product_code = meta_xml.findtext('product_code')
 	metadata.product_code = product_code
 	try:
@@ -73,9 +74,24 @@ def add_meta_xml_metadata(metadata, meta_xml):
 		
 	add_cover(metadata, product_code[-4:], company_code[2:])
 
+	mastering_date_text = meta_xml.findtext('mastering_date')
+	#Usually blank? Sometimes exists though
+	if mastering_date_text:
+		try:
+			mastering_datetime = datetime.fromisoformat(mastering_date_text)
+			mastering_date = Date(mastering_datetime.year, mastering_datetime.month, mastering_datetime.day)
+			metadata.specific_info['Mastering-Date'] = mastering_date
+			guessed_date = Date(mastering_date.year, mastering_date.month, mastering_date.day, True)
+			if guessed_date.is_better_than(metadata.release_date):
+				metadata.release_date = guessed_date
+		except ValueError:
+			print(mastering_date_text)
 	#Maybe we can use these to figure out if it creates a save file or not…
 	metadata.specific_info['Common-Save-Size'] = int(meta_xml.findtext('common_save_size'), 16)
 	metadata.specific_info['Account-Save-Size'] = int(meta_xml.findtext('account_save_size'), 16)
+
+	metadata.specific_info['Title-ID'] = meta_xml.findtext('title_id')
+	metadata.specific_info['Version'] = meta_xml.findtext('title_version')
 
 	region = meta_xml.findtext('region')
 	region_codes = []
