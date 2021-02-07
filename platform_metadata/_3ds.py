@@ -31,6 +31,7 @@ class _3DSRegionCode(Flag):
 	Korea = 32
 	Taiwan = 64
 	RegionFree = 0x7fffffff
+	WiiURegionFree = 0xffffffff
 
 	def __str__(self):
 		return str(self.name)

@@ -31,6 +31,7 @@ from platform_metadata.uzebox import add_uzebox_metadata
 from platform_metadata.vectrex import add_vectrex_metadata
 from platform_metadata.virtual_boy import add_virtual_boy_metadata
 from platform_metadata.wii import add_wii_metadata
+from platform_metadata.wii_u import add_wii_u_metadata
 from platform_metadata.wonderswan import add_wonderswan_metadata
 from platform_metadata.zx_spectrum import add_speccy_metadata
 
@@ -51,7 +52,6 @@ from platform_metadata.minor_systems import *
 #64DD: Publisher, product code, version
 #e-Reader: Hmm. Not a lot actually, but which "region" (Japan, export, Japan+) would end up being necessary I think
 #RCA Studio 2 (community-developed .st2 header): developer, product code
-#Wii U: Publisher, icon (if Pillow can do .tga or if that can just be put in .desktop files as an icon natively)
 #Xbox 360: Publisher, icon (for XBLA), number of players (for XBLA), genre (for XBLA)
 
 helpers = {
@@ -85,6 +85,7 @@ helpers = {
 	'Vectrex': add_vectrex_metadata,
 	'Virtual Boy': add_virtual_boy_metadata,
 	'Wii': add_wii_metadata,
+	'Wii U': add_wii_u_metadata,
 	'WonderSwan': add_wonderswan_metadata,
 	'ZX Spectrum': add_speccy_metadata,
 
