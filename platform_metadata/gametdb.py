@@ -15,7 +15,10 @@ class TDB():
 
 	def find_game(self, search_key):
 		#return self.xml.find('game[id="{0}"]'.format(search_key))
-		return next(game for game in self.xml.findall('game') if game.findtext('id') == search_key)
+		try:
+			return next(game for game in self.xml.findall('game') if game.findtext('id') == search_key)
+		except StopIteration:
+			return None
 
 	def parse_genre(self, metadata, genre_list):
 		#genres = [g.title() for g in genre_list.split(',')]
