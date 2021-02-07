@@ -86,6 +86,18 @@ class LaunchParams():
 	def replace_path_argument(self, path):
 		return LaunchParams(self.exe_name, [arg.replace('$<path>', path) for arg in self.exe_args], self.env_vars)
 
+def get_wine_launch_params(exe_path, exe_args, working_directory=None):
+	env_vars = None
+	if main_config.wineprefix:
+		env_vars = {'WINEPREFIX': main_config.wineprefix}
+
+	args = ['start']
+	if working_directory:
+		args += ['/d', working_directory]
+	args += ['/unix', exe_path]
+	args += exe_args
+	return LaunchParams(main_config.wine_path, args, env_vars)
+
 class MultiCommandLaunchParams():
 	#I think this shouldn't inherit from LaunchParams because duck typing (but doesn't actually reuse anything from LaunchParams). I _think_ I know what I'm doing. Might not.
 	def __init__(self, commands, working_directory=None):

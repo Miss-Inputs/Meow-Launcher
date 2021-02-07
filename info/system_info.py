@@ -185,7 +185,8 @@ systems = {
 		},
 	),
 	'Wii U': SystemInfo(
-		[], [], [], {MediaType.OpticalDisc: ['iso', 'wud'], MediaType.Executable: ['rpx', 'elf']}
+		#TODO: When we get around to rewriting roms.py, should have this exclude content and meta subfolders if we see a code/*.rpx in a given folder
+		[], [], ['Cemu'], {MediaType.OpticalDisc: ['iso', 'wud', 'wux'], MediaType.Executable: ['rpx', 'elf']}
 	),
 	'WonderSwan': SystemInfo(
 		['wswan'], ['wswan', 'wscolor'], 

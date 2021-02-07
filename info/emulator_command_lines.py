@@ -4,7 +4,7 @@ import os
 import io_utils
 from common_types import (EmulationNotSupportedException, MediaType,
                           NotARomException)
-from launchers import LaunchParams, MultiCommandLaunchParams
+from launchers import LaunchParams, MultiCommandLaunchParams, get_wine_launch_params
 from platform_metadata.apple_ii import AppleIIHardware
 from platform_metadata.atari_2600 import Atari2600Controller
 from platform_metadata.game_boy import GameBoyColourFlag
@@ -1074,6 +1074,9 @@ def bsnes(game, system_config, emulator_config):
 			raise EmulationNotSupportedException('{0} mapper not supported'.format(slot))
 	
 	return LaunchParams(emulator_config.exe_path, ['--fullscreen', '$<path>'])
+
+def cemu(_, __, emulator_config):
+	return get_wine_launch_params(emulator_config.exe_path, ['-f', '-g', 'Z:$<path>'])
 
 def citra(game, _, emulator_config):
 	if game.rom.extension != '3dsx':

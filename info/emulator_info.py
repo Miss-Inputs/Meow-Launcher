@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, auto
 
 import info.emulator_command_lines as command_lines
 from info.emulator_command_line_helpers import mame_driver_callable, mednafen_module_callable #It would be infeasible to create a function in emulator_command_lines for everything, I guess
@@ -24,14 +24,21 @@ class EmulatorStatus(Enum):
 	Janky = 2 #Weird to set up or launch normally
 	Borked = 1
 
+class EmulatorPlatform():
+	#Actually I'm not using this right now because I return a specific LaunchParams anyway, but it seems like it'd be useful just to note that in the emulator object
+	Native = auto()
+	Windows = auto()
+	DotNet = auto()
+
 class EmulatorInfo():
-	def __init__(self, status, default_exe_name, launch_params_func, supported_extensions, supported_compression, configs=None):
+	def __init__(self, status, default_exe_name, launch_params_func, supported_extensions, supported_compression=None, configs=None, platform=EmulatorPlatform.Native):
 		self.status = status
 		self.default_exe_name = default_exe_name
 		self.get_launch_params = launch_params_func
 		self.supported_extensions = supported_extensions
-		self.supported_compression = supported_compression
+		self.supported_compression = supported_compression if supported_compression else []
 		self.configs = configs if configs else {}
+		self.platform = platform
 
 class MednafenModule(EmulatorInfo):
 	def __init__(self, status, module, supported_extensions, params_func=None, configs=None):
@@ -73,14 +80,14 @@ emulators = {
 		'compatibility_threshold': EmulatorConfigValue(ConfigValueType.Integer, 2, "Don't try and launch any game with this compatibility rating or lower"),
 		'consider_unknown_games_incompatible': EmulatorConfigValue(ConfigValueType.Bool, False, "Consider games incompatible if they aren't in the compatibility database at all")
 	}),
-	'Flycast': EmulatorInfo(EmulatorStatus.Good, 'flycast', command_lines.flycast, ['gdi', 'cdi', 'chd', 'cue'], [], {
+	'Flycast': EmulatorInfo(EmulatorStatus.Good, 'flycast', command_lines.flycast, ['gdi', 'cdi', 'chd', 'cue'], {
 		'force_opengl_version': EmulatorConfigValue(ConfigValueType.Bool, False, 'Hack to force Mesa OpenGL version by environment variable if you need it')
 	}),
-	'FS-UAE': EmulatorInfo(EmulatorStatus.Good, 'fs-uae', command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf'], []),
+	'FS-UAE': EmulatorInfo(EmulatorStatus.Good, 'fs-uae', command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf']),
 	#Note that .ipf files need a separately downloadable plugin. We could detect the presence of that, I guess
 	'Gambatte': EmulatorInfo(EmulatorStatus.Good, 'gambatte_qt', command_lines.gambatte, ['gb', 'gbc'], ['zip']),
 	#--gba-cgb-mode[=0] and --force-dmg-mode[=0] may be useful in obscure situations, but that would probably require a specific thing that notes some GBC games are incompatible with GBA mode (Pocket Music) or GB incompatible with GBC (R-Type, also Pocket Sonar but that wouldn't work anyway)
-	'GBE+': EmulatorInfo(EmulatorStatus.Good, 'gbe_plus_qt', command_lines.gbe_plus, ['gb', 'gbc', 'gba'], []),
+	'GBE+': EmulatorInfo(EmulatorStatus.Good, 'gbe_plus_qt', command_lines.gbe_plus, ['gb', 'gbc', 'gba']),
 	#Also in theory recognizes any extension and assumes Game Boy if not .gba or .nds, but that would be screwy
 	'Kega Fusion': EmulatorInfo(EmulatorStatus.Good, 'kega-fusion', command_lines.kega_fusion, ['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', 'sc', '32x'], ['zip']),
 	#May support other CD formats for Mega CD other than iso, cue? Because it's closed source, can't really have a look, but I'm just going to presume it's only those two
@@ -94,15 +101,15 @@ emulators = {
 	#Puts all the config files in the current directory, which is why there's a wrapper below which you probably want to use instead of this
 	#Should I even have this as opposed to just having the wrapper?
 	'PokeMini (wrapper)': EmulatorInfo(EmulatorStatus.Good, 'PokeMini', command_lines.pokemini_wrapper, ['min'], ['zip']),
-	'PPSSPP': EmulatorInfo(EmulatorStatus.Good, 'ppsspp-qt', command_lines.ppsspp, ['iso', 'pbp', 'cso'], []),
-	'Reicast': EmulatorInfo(EmulatorStatus.Good, 'reicast', command_lines.reicast, ['gdi', 'cdi', 'chd'], [], {
+	'PPSSPP': EmulatorInfo(EmulatorStatus.Good, 'ppsspp-qt', command_lines.ppsspp, ['iso', 'pbp', 'cso']),
+	'Reicast': EmulatorInfo(EmulatorStatus.Good, 'reicast', command_lines.reicast, ['gdi', 'cdi', 'chd'], {
 		'force_opengl_version': EmulatorConfigValue(ConfigValueType.Bool, False, 'Hack to force Mesa OpenGL version by environment variable if you need it')
 	}),
 	'SimCoupe': EmulatorInfo(EmulatorStatus.Good, 'simcoupe', command_lines.simcoupe, ['mgt', 'sad', 'dsk', 'sbt'], ['zip', 'gz']),
 	'Snes9x': EmulatorInfo(EmulatorStatus.Good, 'snes9x-gtk', command_lines.snes9x, ['sfc', 'smc', 'swc'], ['zip', 'gz']),
 	#Can't set fullscreen mode from the command line so you have to set up that yourself (but it will do that automatically); GTK port can't do Sufami Turbo or Satellaview from command line due to lacking multi-cart support that Windows has (Unix non-GTK doesn't like being in fullscreen etc)
 	'Stella': EmulatorInfo(EmulatorStatus.Good, 'stella', command_lines.stella, ['a26', 'bin', 'rom'] + atari_2600_cartridge_extensions, ['gz', 'zip']),
-	'PrBoom+': EmulatorInfo(EmulatorStatus.Imperfect, 'prboom-plus', command_lines.prboom_plus, ['wad'], []),
+	'PrBoom+': EmulatorInfo(EmulatorStatus.Imperfect, 'prboom-plus', command_lines.prboom_plus, ['wad']),
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
 
 	'VICE (C64)': ViceEmulator(EmulatorStatus.Good, 'x64sc', command_lines.vice_c64),
@@ -250,10 +257,11 @@ emulators = {
 	#----- The experimental section. The emulators are still here, it's just so you, the fabulous and wonderful end user, can have more information on how to manage expectations. Or something like that.
 
 	#--These experimental emulators seem to work more often than they don't, but still describe themselves as experimental:
-	'Citra': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'citra-qt', command_lines.citra, ['3ds', 'cxi', '3dsx'], []),
+	'Cemu': EmulatorInfo(EmulatorStatus.Experimental, 'Cemu.exe', command_lines.cemu, ['wud', 'wux', 'rpx'], platform=EmulatorPlatform.Windows),
+	'Citra': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'citra-qt', command_lines.citra, ['3ds', 'cxi', '3dsx']),
 	#No fullscreen from command line
 	'Medusa': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'medusa-emu-qt', command_lines.medusa, ['nds', 'gb', 'gbc', 'gba'], ['7z', 'zip']),
-	'Yuzu': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'yuzu', command_lines.yuzu, ['xci', 'nsp', 'nro', 'nso', 'nca', 'elf', 'kip'], []),
+	'Yuzu': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'yuzu', command_lines.yuzu, ['xci', 'nsp', 'nro', 'nso', 'nca', 'elf', 'kip']),
 
 	'Mednafen (Game Boy)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'gb', ['gb', 'gbc'], command_lines.mednafen_gb),
 	#Based off an old version of VisualBoyAdvance
