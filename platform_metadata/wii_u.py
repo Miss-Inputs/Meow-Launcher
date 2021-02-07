@@ -21,6 +21,7 @@ class WiiUVirtualConsolePlatform(Enum):
 	N64 = 'N'
 	GBAOrPCEngine = 'P' #interesting…
 	Wii = 'V' #Not really virtual console but eh
+	MSX = 'M'
 	#Is there a Game Boy one (for the Kirby's Dream Land inside SSB4, if that works that way?)
 
 def load_tdb():
