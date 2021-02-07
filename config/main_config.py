@@ -40,7 +40,9 @@ _config_ini_values = {
 	'get_series_from_name': ConfigValue('General', ConfigValueType.Bool, False, 'Get series from name', 'Attempt to get series from parsing name'),
 	'use_other_images_as_icons': ConfigValue('General', ConfigValueType.StringList, [], 'Use other images as icons', 'If there is no icon, use these images as icons if they are there'),
 	'sort_multiple_dev_names': ConfigValue('General', ConfigValueType.Bool, False, 'Sort multiple developer/publisher names', 'For games with multiple entities in developer/publisher field, sort alphabetically'),
-
+	'wine_path': ConfigValue('General', ConfigValueType.FilePath, 'wine', 'Wine path', 'Path to Wine executable for Windows games/emulators'),
+	'wineprefix': ConfigValue('General', ConfigValueType.FolderPath, None, 'Wine prefix', 'Optional Wine prefix to use for Wine'),
+	
 	'skipped_source_files': ConfigValue('Arcade', ConfigValueType.StringList, [], 'Skipped source files', 'List of MAME source files to skip (not including extension)'),
 	'exclude_non_arcade': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude non-arcade', 'Skip machines not categorized as arcade games or as any other particular category (various devices and gadgets, etc)'),
 	'exclude_pinball': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude pinball', 'Whether or not to skip pinball games (physical pinball, not video pinball)'),
@@ -65,8 +67,6 @@ _config_ini_values = {
 
 	'gog_folders': ConfigValue('GOG', ConfigValueType.FolderPathList, [], 'GOG folders', 'Folders where GOG games are installed'),
 	'use_gog_as_platform': ConfigValue('GOG', ConfigValueType.Bool, False, 'Use GOG as platform', 'Set platform in metadata to GOG instead of underlying platform'),
-	'wine_path': ConfigValue('GOG', ConfigValueType.FilePath, 'wine', 'Wine path', 'Path to Wine executable to use for Windows GOG games'), #TODO: This should be in general section later on (but for now it's just used for GOG Windows)
-	'wineprefix': ConfigValue('GOG', ConfigValueType.FolderPath, None, 'Wine prefix', 'Optional Wine prefix to use for Windows GOG games'),
 	'windows_gog_folders': ConfigValue('GOG', ConfigValueType.FolderPathList, [], 'Windows GOG folders', 'Folders where Windows GOG games are installed'),
 	'use_system_dosbox': ConfigValue('GOG', ConfigValueType.Bool, True, 'Use system DOSBox', 'Use the version of DOSBox on this system instead of running Windows DOSBox through Wine'),
 	'dosbox_path': ConfigValue('GOG', ConfigValueType.FilePath, "dosbox", 'DOSBox path', 'If using system DOSBox, executable name/path or just "dosbox" if left blank'),
