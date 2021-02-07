@@ -38,8 +38,8 @@ def load_tdb():
 tdb = load_tdb()
 
 def add_meta_xml_metadata(metadata, meta_xml):
-	#version = 33 for digital stuff, sometimes 32 otherwise?, content_platform = WUP, common_save_size, account_save_size, region = flags (eg 4), publisher_ja/en/etc, ext_dev_urcc = some kiosk related thingo
-	#mastering_date = blank? (it is something like 2021-02-07 18:59:24 on discs), logo_type = 2 on third party stuff?, app_launch_type = 1 on parental controls/H&S/Wii U Chat and 0 on everything else?, invisible_flag = maybe just for keeping stuff out of the daily log?, no_managed_flag, no_event_log, no_icon_database, launching_flag, install_flag, closing_msg, title_version, title_id, group_id, boss_id, os_version, app_size, common_boss_size, account_boss_size, save_no_rollback, join_game_id, join_game_mode_mask, bg_daemon_enable, olv_accesskey, wood_tin, e_manual, e_manual_version, eula_version, direct_boot, reserved_flag{0-7}, add_on_unique_id{0-31} = DLC probs?
+	#version = 33 for digital stuff, sometimes 32 otherwise?, content_platform = WUP, publisher_ja/en/etc, ext_dev_urcc = some kiosk related thingo
+	#mastering_date = blank? (it is something like 2021-02-07 18:59:24 on discs), logo_type = 2 on third party stuff?, app_launch_type = 1 on parental controls/H&S/Wii U Chat and 0 on everything else?, invisible_flag = maybe just for keeping stuff out of the daily log?, no_managed_flag, no_event_log, no_icon_database, launching_flag, install_flag, closing_msg, title_version, title_id, group_id, boss_id, os_version, app_size, common_boss_size, account_boss_size, save_no_rollback, join_game_id, join_game_mode_mask, bg_daemon_enable, olv_accesskey, wood_tin, e_manual = I guess it's 1 if it has a manual, e_manual_version, eula_version, direct_boot, reserved_flag{0-7}, add_on_unique_id{0-31} = DLC probs?
 	product_code = meta_xml.findtext('product_code')
 	metadata.product_code = product_code
 	try:
@@ -63,7 +63,14 @@ def add_meta_xml_metadata(metadata, meta_xml):
 	region = meta_xml.findtext('region')
 	if region:
 		try:
-			metadata.specific_info['Region-Code'] = _3DSRegionCode(int(region, 16))
+			region_flags = int(region, 16)
+			region_codes = []
+			for region in _3DSRegionCode:
+				if region in (_3DSRegionCode.RegionFree, _3DSRegionCode.WiiURegionFree):
+					continue
+				if region.value & region_flags:
+					region_codes.append(region)
+			metadata.specific_info['Region-Code'] = region_codes
 		except ValueError:
 			metadata.specific_info['Region-Code'] = '0x' + region
 
