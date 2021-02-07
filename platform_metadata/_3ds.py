@@ -33,9 +33,6 @@ class _3DSRegionCode(Flag):
 	RegionFree = 0x7fffffff
 	WiiURegionFree = 0xffffffff
 
-	def __str__(self):
-		return repr(self)
-
 class _3DSVirtualConsolePlatform(Enum):
 	GameBoy = 'R'
 	GameBoyColor = 'Q'

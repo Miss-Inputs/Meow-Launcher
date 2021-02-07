@@ -1,5 +1,4 @@
 import collections
-from enum import Enum
 
 from common_types import MediaType, SaveType
 from input_metadata import InputInfo
@@ -306,8 +305,7 @@ class Metadata():
 			metadata_fields['Standard-Input'] = self.input_info.has_standard_inputs
 			metadata_fields['Input-Methods'] = self.input_info.describe()
 
-		for k, v in self.specific_info.items():
-			metadata_fields[k] = v.name if isinstance(v, Enum) else v
+		metadata_fields.update(self.specific_info)
 
 		fields[metadata_section_name] = metadata_fields
 		fields[junk_section_name] = {}

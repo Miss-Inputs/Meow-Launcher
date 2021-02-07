@@ -3,7 +3,7 @@ import os
 import pathlib
 import re
 import shlex
-from enum import Enum
+from enum import Enum, Flag
 
 import common
 from config.main_config import main_config
@@ -179,8 +179,12 @@ def make_linux_desktop(launch_params, display_name, fields=None):
 						continue
 					value_as_string = ';'.join(['None' if item is None else item.name if isinstance(item, Enum) else str(item) for item in v])
 				elif isinstance(v, Enum):
-					value_as_string = v.name
-				#else:
+					if v.name:
+						value_as_string = v.name
+					elif isinstance(v, Flag):
+						value_as_string = str(v).replace('|', ';')
+						value_as_string = value_as_string[value_as_string.find('.') + 1:]
+
 				elif not use_image_object:
 					value_as_string = str(v)
 
