@@ -209,7 +209,7 @@ def add_meta_xml_metadata(metadata, meta_xml):
 		if long_title != local_long_title:
 			metadata.add_alternate_name(long_title, '{0}-Title'.format(lang.replace(' ', '-')))
 	for lang, publisher in publishers.items():
-		if publisher != metadata.publisher:
+		if publisher not in (metadata.publisher, local_publisher):
 			metadata.specific_info['{0}-Publisher'.format(lang.replace(' ', '-'))] = publisher
 
 def add_homebrew_meta_xml_metadata(rom, metadata, meta_xml):
