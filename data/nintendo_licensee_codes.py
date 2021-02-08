@@ -1,12 +1,12 @@
-nintendo_licensee_codes = {
-	#Big list! Used in every Nintendo system except: NES (but FDS does use it), N64 (but 64DD does use it), e-Reader, and depending on who you ask Pokemon Mini either has 2P for every game (i.e. if you ask me) or it doesn't use this. Well, I presume Switch does in some way; 3DS seems to be a bit weird, and Wii U uses 4 characters so I guess they ran out of codes with all the indie publishers (most just use this list prepended with 00)
+
+licensee_codes = {
+	#Big list! Used in every Nintendo system except: NES (but FDS does use it), N64 (but 64DD does use it), e-Reader, and depending on who you ask Pokemon Mini either has 2P for every game (i.e. if you ask me) or it doesn't use this. Well, I presume Switch does in some way; 3DS seems to be a bit weird (most have 00? But it is used), and Wii U uses 4 characters so I guess they ran out of codes with all the indie publishers (most just use this list prepended with 00)
 	#Preferred format that I probably don't always use consistently:
 	#Company without Co, Inc, Ltd, etc
 	#Company (Brand name used by company)
 	#Company A / Company B which purchased A or A otherwise got absorbed into
 	#Company A / New name of Company A
 
-	#These are definitely what they are, appears in multiple games that are definitely published by that thing
 	'01': 'Nintendo',
 	'08': 'Capcom',
 	'0A': 'Jaleco',
@@ -27,9 +27,11 @@ nintendo_licensee_codes = {
 	'30': 'Viacom',
 	'35': 'DTMC',
 	'36': 'Codemasters',
+	'38': 'Laguna',
 	'39': 'Event Evolution Entertainment',
 	'41': 'Ubisoft',
 	'46': 'System 3', #The old one, used as their licensee code before they started using the other licensee code whenever and whyever they did that
+	'47': 'Spectrum Holobyte',
 	'49': 'Irem',
 	'4B': 'Raya Systems',
 	'4S': 'Black Pearl Software',
@@ -50,9 +52,12 @@ nintendo_licensee_codes = {
 	'5K': 'Hasbro',
 	'5L': 'NewKidCo',
 	'5M': 'Telegames',
+	'5N': 'Metro3D',
 	'5P': 'Vatical Entertainment',
 	'5Q': 'Lego',
 	'5T': 'Cryo Interactive',
+	'5V': 'Agetec',
+	'5W': 'Red Storm Entertainment',
 	'5X': 'Microids',
 	'60': 'Titus',
 	'61': 'Virgin',
@@ -60,16 +65,19 @@ nintendo_licensee_codes = {
 	'64': 'LucasArts',
 	'67': 'Ocean',
 	'69': 'Electronic Arts', #nice
-	'6B': 'Laser Beam Entertainment', #Publishing arm of Beam Software.
+	'6B': 'Laser Beam Entertainment', #Publishing arm of Beam Software
 	'6F': 'Electro Brain',
 	'6H': 'BBC Multimedia', #Also "BBC Worldwide"
 	'6J': 'Software 2000',
+	'6K': 'UFO Interactive',
 	'6L': 'BAM! Entertainment',
 	'6M': 'System 3', #The new one. What the fuck? They didn't even change the spelling or anything, it really is the same company. Gee System 3! How come your mum lets you eat _two_ weiners?
+	'6N': 'Midas',
 	'6S': 'TDK Mediactive', #TDK's Not-Japan publishing branch
+	'6U': 'DreamCatcher Interactive',
 	'6V': 'JoWooD Entertainment',
 	'6X': 'Wanadoo', #Seems closely related to LSP
-	'6Y': 'L.S.P.', #Seems closely related to Wanadoo
+	'6Y': 'L.S.P.', #Seems closely related to Wanadoo (maybe one does Europe and one does USA?)
 	'71': 'Interplay',
 	'72': 'JVC',
 	'73': 'Parker Brothers',
@@ -83,12 +91,15 @@ nintendo_licensee_codes = {
 	'7L': 'Simon & Schuster',
 	'7N': 'Empire Interactive',
 	'7S': 'Rockstar Games', #Although they have used 54 before for 3 GBC games, uses this for GBA which seems to be exclusive; so this one is a bit confusing
+	'7T': 'Scholastic',
 	'7U': 'Ignition Entertainment',
 	'82': 'Namcot', #Some division of Namco that was apparently necessary to create as a separate thing.... I don't know
 	'8B': 'Bullet-Proof Software',
+	'8C': 'Vic Tokai',
 	'8E': 'Character Soft',
 	'8F': "I'Max",
 	'8M': 'CyberFront',
+	'8N': 'Success',
 	'8P': 'Sega',
 	'91': 'Chunsoft',
 	'93': 'Bec', #Also "Interbec"
@@ -106,6 +117,7 @@ nintendo_licensee_codes = {
 	'A5': 'K Amusement Leasing', #Or "KAC"
 	'A7': 'Takara', #Vast Fame also uses this for most of their GBC bootlegs, interestingly
 	'A8': 'Royal Industries', #Also a sewing machine company that is also known as Royal Kyougou, which I guess is just Japanese for Royal Industries, so I dunno which is the proper thing to call them
+	'AC': 'Toei Animation',
 	'AD': 'Toho',
 	'AH': 'J-Wing',
 	'AL': 'Media Factory',
@@ -115,6 +127,7 @@ nintendo_licensee_codes = {
 	'B3': 'Soft Pro',
 	'B4': 'Enix',
 	'B6': 'HAL',
+	'B7': 'SNK',
 	'BA': 'Culture Brain',
 	'BB': 'Sunsoft',
 	'BC': 'Toshiba EMI',
@@ -135,6 +148,7 @@ nintendo_licensee_codes = {
 	'CP': 'Enterbrain',
 	'D1': 'Sofel',
 	'D2': 'Japan National Tax Agency', #Only ever made Wakusei Aton Gaiden for FDS
+	'D6': 'Naxat',
 	'D9': 'Banpresto',
 	'DA': 'Tomy',
 	'DD': 'Masaya', #Brand that Nippon Computer Systems uses to distribute games... maybe more adequately called that?
@@ -145,13 +159,19 @@ nintendo_licensee_codes = {
 	'E4': 'T&E Soft',
 	'E5': 'Epoch',
 	'E7': 'Athena',
+	'E8': 'Asmik', #Merged with Ace to become Asmik Ace in 1998
 	'E9': 'Natsume',
 	'EA': 'King Records',
 	'EB': 'Atlus',
+	'EC': 'Epic / Sony Records',
+	'EE': 'Information Global Services',
+	'EJ': 'NTT',
 	'EL': 'Spike',
+	'EY': 'VBlank Entertainment',
 	'F1': 'Motown Software', #Only ever made 2 games, which were both distributed by Mandingo Entertainment, so it could also be that in theory
 	'FJ': 'Virtual Toys',
 	'FK': 'The Game Factory',
+	'FH': 'Foreign Media Games',
 	'FQ': 'iQue', #Sort of. Only WarioWare: Touched, Polarium, and Yoshi: Touch & Go use this, the other three iQue games: New Super Mario Bros, Super Mario 64, and Nintendogs (kiosk demo) use Nintendo instead. Those were all 2007 or later, the latter being on the iQue DSi, so it may be something corporate related going on there
 	'FR': 'Digital Tainment Pool', #Or DTP Entertainment if you prefer
 	'FT': 'Daiwon C & A',
@@ -159,33 +179,53 @@ nintendo_licensee_codes = {
 	'G9': 'D3 Publisher',
 	'GD': 'Square Enix',
 	'GL': 'Gameloft',
+	'GN': 'Oxygen Interactive/OG International', #Also used "Liquid Games" as a publishing label
 	'GT': '505 Games',
 	'GW': 'Mercury Games',
 	'GX': 'Commodore Gaming', #Supposedly, this is the name of the company that published the Wii C64 Virtual Console games. Seems to be defunct now, whoever they are.
 	'HF': 'Level5',
+	'HN': 'High Voltage Software',
 	'HW': 'Incredible Technologies',
 	'J8': 'D4 Enterprise',
+	'JW': 'BigBen Interactive',
 	'JS': 'Digital Leisure',
+	'JX': "Shin'en",
+	'KJ': 'Gamebridge',
 	'KR': 'Krea Medie',
 	'KM': 'Deep Silver',
 	'KX': 'UIG', #A lot of hacked DS games use this for some reason
+	'L9': 'Genterprise',
 	'LN': 'GameOn',
+	'LR': 'Asylum Entertainment',
+	'MT': 'Blast',
+	'N6': 'McDonalds',
+	'NR': 'Destineer',
+	'NS': 'NIS',
 	'PQ': 'PopCap Games',
 	'PV': 'Pan Vision Games',
+	'PZ': 'GameMill Entertainment',
+	'QQ': 'Gamelion Studios',
 	'QU': 'QubicGames',
+	'QV': 'Ludia',
+	'RB': 'Detune',
 	'RG': 'Romino Games',
 	'RW': 'RealNetworks', #Or GameHouse, or Real Arcade; which are sorta subsidiaries I guess
+	'S5': 'SouthPeak Interactive',
 	'TR': 'Tetris Online',
+	'UG': 'Data Design Interactive',
 	'VJ': 'Némopolis',
 	'WB': 'Google', #YouTube app on Wii/Wii U/3DS, so if "YouTube Inc" is counted as a separate company (as the 3DS banner implies) then it could be that
 	'WD': 'Amazon',
 	'WR': 'Warner Bros',
 	'WY': 'WayForward',
 	'XB': 'Hulu',
+	'XJ': 'XSeed',
 	'XN': 'Netflix',
 	'XS': 'Aksys Games',
-
-	#Mostly verified, just that companies buy each other out and change their names and things, so these are a bit weird and dependent on what year it is
+	'Y4': 'Zen Studios',
+	'YV': 'KnapNok Games',
+	
+	#Mostly verified, just that companies buy each other out and change their names and things just to personally annoy me, so these are a bit weird and dependent on what year it is
 	'4F': 'U.S. Gold/Eidos', #Eidos purchased U.S. Gold in 1996; also this appears in the Gauntlet DS proto, but that wasn't going to be published by Eidos nor did they develop it
 	'4Q': 'Disney/Buena Vista Interactive', #What's maximum spooky is that this also shows up in the Spiderman: Friend or Foe trailer, but that was 2007 and Disney hadn't purchased Marvel yet. Disney Interactive Studios spun off Buena Vista Interactive from 2003 to 2007 but that still doesn't explain Spiderman. It's not in any of the other DS downloadable videos. What the crap?
 	'54': 'GameTek/Take-Two Interactive/Global Star Software', #Oof this one's a really fun one. Some documentation says "Konami/GameTek" which is just garbage because Konami has nothing to do with this, but some older games using this code like Wheel of Fortune on SNES and the InfoGenius Productivity Pak on GB are indeed published under GameTek. Where it gets fun is that GameTek became Take-Two Interactive at some point, and Duke Nukem Advance uses this code too and was published under the Take-Two Interactive name.. but then Dora the Explorer: Dora's World Adventures also uses this code but was published under Global Star Software, which was a company that became 2K Play which is then a branch of 2K Games and if you've lost track of everything I don't blame you and I just spent several tens of minutes googling around for info on Dora the Explorer why do I do this to myself
@@ -196,92 +236,128 @@ nintendo_licensee_codes = {
 	'99': 'Pack-in Video/Victor Interactive/Marvelous Interactive', #Merged with Victor in 1997 and then with Marvelous in 2003, so Victor and Marvelous probably used different codes before then (or weren't involved with Nintendo)
 	'AF': 'Namco/Bandai Namco', #Namco games have always used this, but when they merged with Bandai (Sep 2005), they kept this code, which is interesting because Square Enix doesn't reuse Squaresoft or Enix's licensee codes and gets a new one
 	'CE': 'Pony Canyon/FCI', #Seems to be Fujisankei Communications International (as FCI Inc) for USA releases, Pony Canyon for Japanese releases, both are owned by Fujisankei Communications Group
+	'5Z': 'Conspiracy Entertainment / Swing Entertainment', #Hmm I don't know the particular connection with these two companies but they definitely both use 5Z
 
-	#So far, only seen once (in a reliable source, i.e. not protos or anything like that)
-	'09': 'Hot-B',
-	'19': 'Bandai (B-AI)',
-	'1P': 'Creatures',
-	'38': 'Laguna',
-	'3E': 'Gremlin Graphics',
-	'40': 'Seika',
-	'47': 'Spectrum Holobyte',
-	'4A': 'Gakken',
-	'4G': 'Playmates',
+	#So far, only seen once so it might be wrong or inaccurate, hopefully not
+	'09': 'Hot-B', 
+	'10': 'Bandai (Banalex)',
+	'19': 'Bandai (B-AI)', 
+	'1P': 'Creatures', 
+	'2M': 'Jorudan', 
+	'2Q': 'ND Cube', 
+	'3E': 'Gremlin Graphics', 
+	'40': 'Seika', 
+	'4A': 'Gakken', 
+	'4D': 'Malibu Interactive', 
+	'4G': 'Playmates', 
 	'4J': 'Fox Interactive', 
+	'57': 'Matchbox', 
+	'5B': 'Romstar', 
 	'5S': 'Xicat Interactive', 
-	'5V': 'Agetec', 
+	'68': 'ZeniMax Europe',
 	'6E': 'Elite Systems', 
-	'6K': 'UFO Interactive', 
 	'6P': 'Ravensburger Interactive', 
 	'6R': 'Sound Source', 
-	'7T': 'Scholastic', 
-	'8C': 'Vic Tokai', 
+	'6T': 'Interactive Imagination', 
+	'7H': 'Encore Software', 
+	'7Q': 'Jester Interactive', 
+	'7V': 'Summitsoft Entertainment', 
+	'81': 'Teichiku', 
+	'83': 'LOZC', 
 	'8H': 'TNN', 
+	'8J': 'Kadokawa Shoten',
 	'8K': 'Nippon System', 
-	'8N': 'Success', 
 	'92': 'Video System', 
+	'9J': 'TGL', 
 	'A6': 'Kawada', 
 	'A9': 'Technos Japan', 
-	'AC': 'Toei Animation', 
+	'AA': 'Victor Musical Industries', 
 	'AM': 'Biox', 
+	'AT': 'CoderChild',
+	'CD': 'Meldac', 
 	'CL': 'Sekaibunka', 
 	'CU': 'Marvelous AQL', 
 	'D4': 'Ask Kodansha', 
-	'D6': 'Naxat', 
 	'DB': 'Hiro', 
+	'DG': 'Good House', 
 	'E1': 'Towa Chiki', 
-	'E8': 'Asmik', #Merged with Ace to become Asmik Ace in 1998
-	'EC': 'Epic / Sony Records', 
-	'EE': 'Information Global Services', 
+	'EH': 'Right Stuff', 
 	'F3': 'Extreme Entertainment', 
 	'FE': 'Davidson & Associates', 
-	'FH': 'Foreign Media Games', 
 	'FL': 'Hip Games', 
+	'FM': 'Aspyr', 
 	'FN': 'Pocket Direct', 
+	'FP': 'Mastiff',
+	'FV': 'Hörberg Productions',
+	'FZ': 'Frozenbyte',
+	'G0': 'Alpha Unit', 
 	'GM': 'Gamecock Media Group', 
-	'GN': 'OG International', 
 	'GU': 'Bayer', 
 	'GY': 'The Game Factory', 
+	'H2': 'Aruze', 
+	'H3': 'Ertain', 
 	'H4': 'SNK Playmore', 
+	'HE': 'Gust', 
+	'HJ': 'Genius Products',
 	'HL': 'Frontier Developments', 
-	'HN': 'High Voltage', 
 	'HS': 'HES', 
 	'J9': 'AQ Interactive', 
+	'JD': 'Skonec Entertainment',
 	'JT': 'Empty Clip Studios', 
-	'JW': 'BigBen Interactive', 
-	'JX': "Shin'en", 
 	'JY': 'Steel Penny', 
 	'KA': 'Alchemist', 
-	'KJ': 'Gamebridge', 
+	'KD': 'DigiToys', 
+	'KH': 'Joju Games',
 	'KL': 'Abylight', 
 	'LH': 'GameOn', 
-	'LR': 'Asylum Entertainment', 
 	'ML': 'DTP Young Entertainment', 
-	'MT': 'Blast', 
-	'NP': 'Nobilis', 
-	'NR': 'Destineer', 
+	'NG': 'Nordic Games Publishing',
 	'NJ': 'Enjoy Gaming', 
-	'QQ': 'Gamelion Studios', 
-	'RB': 'Detune', 
-	'S3': 'Genius Sonority', 
-	'SZ': 'Storm City Entertainment', 
-	'TH': 'Kolkom', 
-	'TL': 'Telltale Games', 
+	'NP': 'Nobilis', 
+	'NT': 'Nocturnal Entertainment', 
+	'PN': 'Pinnacle',
 	'Q7': 'Nexon', 
 	'QH': 'Virtual Play Games', 
+	'RT': 'Keen Games',
+	'S3': 'Genius Sonority', 
+	'SE': 'Yume no Machi Souzou Iinkai',
+	'SF': 'Yoshimoto Kogyo',
+	'SZ': 'Storm City Entertainment', 
+	'T2': 'Dwango',
+	'TH': 'Kolkom', 
+	'TJ': 'Broken Rules',
+	'TL': 'Telltale Games', 
+	'TY': 'Teyon', 
+	'UV': 'Fugazo',
 	'UZ': 'Circle Entertainment', 
+	'VS': 'Korner',
 	'VT': 'Microforum', 
-	'X0': 'SDP Games', #Also known as Smack Down Productions
+	'VZ': 'Little Orbit', 
+	'W8': 'HullBreach Studios',
+	'WW': 'Slang',
+	'X0': 'SDP Games', 
+	'X5': 'Grab Games', 
 	'XG': 'XGen Studios', 
 	'XH': 'Ideas Pad', 
-	'XJ': 'XSeed', 
-	'Y4': 'Zen Studios', 
-	'Y7': 'The Learning Company', 
-	'YJ': 'Frozen Codebase', 
-	'YV': 'KnapNok Games', 
 	'XT': 'Funbox Media', 
+	'XZ': 'PQube', 
+	'Y1': 'Tubby Games',
+	'Y7': 'The Learning Company', 
+	'YK': 'MAD Multimedia',
+	'YJ': 'Frozen Codebase', 
+	'YR': 'Cypronia',
+	'YX': 'Selectsoft Publishing',
 	'Z1': 'Studio9', 
 
-	#FF is 100% junk; it'll basically only show up when the rest of the header is junk (unlicensed, or SNES game with incorrectly detected header)
-	#33 and ZZ also seem to not be valid
+	#Duplicates, may be dubious but some really are used with two different codes and what the heck?
+	'42': 'Sunsoft', #Only seen in Project S-11 which is indeed Sunsoft (also some cheeky bugger homebrew games that want to use 42)
+	'6Q': 'Classified Games', #Only in Microsoft Pinball Arcade (USA) (GBC)
+	'9G': 'Take-Two Interactive/Global Star Software', #Confusingly, also used by Spark World (Japan) (SNES) which is by Den'Z and unrelated
+	'C2': 'Kemco', #Used by Japanese FDS games and The Sword of Hope (USA) (GB), could be "Kotobuki System"? but Electrician's title screen doesn't say that, it says Kemco, and The Sword of Hope says "Kemco * Seika"
+	'CA': 'Konami', #Definitely Konami, but also used for Ultra Games and Palcom? Not consistently though
+	'G8': 'Takara', #Only seen in that Inuyasha game for GBA
+	'CM': 'Konami', #For Power Pro Kun Pocket
+	'RR': 'Namco Bandai', #Namco Bandai branding as opposed to Bandai Namco? Seen in Winx Club: Believix in You, could be just Rainbow s.r.l?
+	'E0': 'Jaleco', #Royal Conquest (Japan) (SNES)
+
 }
