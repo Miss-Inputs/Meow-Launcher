@@ -265,7 +265,9 @@ def add_rpx_metadata(rom, metadata):
 	if os.path.isfile(os.path.join(parent_folder, 'UnityEngine_dll.rpl')):
 		#Unity games on Wii U just have a "Data" folder under content with no executable (because it's over here in code), so our usual detection won't work; not sure about other cross platform engines
 		metadata.specific_info['Engine'] = 'Unity'
-	
+	if os.path.isdir(os.path.join(content_dir, 'assets')) and all(os.path.isfile(os.path.join(content_dir, 'app', file)) for file in ('appinfo.xml', 'config.xml', 'index.html')):
+		metadata.specific_info['Engine'] = 'Nintendo Web Framework'
+
 	icon_path = os.path.join(meta_dir, 'iconTex.tga')
 	if os.path.isfile(icon_path):
 		metadata.images['Icon'] = icon_path
