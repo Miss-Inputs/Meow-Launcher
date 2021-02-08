@@ -79,14 +79,15 @@ def add_meta_xml_metadata(metadata, meta_xml):
 	#Usually blank? Sometimes exists though
 	if mastering_date_text:
 		try:
-			mastering_datetime = datetime.fromisoformat(mastering_date_text)
+			mastering_datetime = datetime.fromisoformat(mastering_date_text[:10])
 			mastering_date = Date(mastering_datetime.year, mastering_datetime.month, mastering_datetime.day)
 			metadata.specific_info['Mastering-Date'] = mastering_date
 			guessed_date = Date(mastering_date.year, mastering_date.month, mastering_date.day, True)
 			if guessed_date.is_better_than(metadata.release_date):
 				metadata.release_date = guessed_date
 		except ValueError:
-			print(mastering_date_text)
+			#print(mastering_date_text)
+			pass
 	#Maybe we can use these to figure out if it creates a save file or not…
 	metadata.specific_info['Common-Save-Size'] = int(meta_xml.findtext('common_save_size'), 16)
 	metadata.specific_info['Account-Save-Size'] = int(meta_xml.findtext('account_save_size'), 16)
