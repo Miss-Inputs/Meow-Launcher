@@ -751,6 +751,9 @@ class Machine():
 	@property
 	def series(self):
 		serieses = get_machine_folder(self.basename, 'series')
+		if not serieses and self.family:
+			serieses = get_machine_folder(self.family, 'series')
+
 		if serieses:
 			#It is actually possible to have more than one series (e.g. invqix is both part of Space Invaders and Qix)
 			#I didn't think this far ahead so just get the first one for now
@@ -774,12 +777,14 @@ class Machine():
 
 	@property
 	def bestgames_opinion(self):
-		return get_machine_folder(self.basename, 'bestgames')
+		bestgames = get_machine_folder(self.basename, 'bestgames')
+		if not bestgames and self.family:
+			bestgames = get_machine_folder(self.family, 'bestgames')
+		return bestgames
 
 	@property
 	def version_added(self):
 		return get_machine_folder(self.basename, 'version')
-
 	
 def get_machine(driver):
 	return Machine(get_mame_xml(driver))
