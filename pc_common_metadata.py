@@ -1,16 +1,112 @@
+import io
 import os
 import re
+import struct
 
 from common import title_case
 from config.main_config import main_config
 from data.name_cleanup.capitalized_words_in_names import capitalized_words
 from series_detect import chapter_matcher
 
+try:
+	import pefile
+	have_pefile = True
+except ModuleNotFoundError:
+	have_pefile = False
+
+try:
+	from PIL import Image
+	have_pillow = True
+except ModuleNotFoundError:
+	have_pillow = False
+
+
 #Hmm, are other extensions going to work as icons in a file manager
 icon_extensions = ('png', 'ico', 'xpm', 'svg')
 
+def pe_directory_to_dict(directory):
+	d = {}
+	for entry in directory.entries:
+		if hasattr(entry, 'directory'):
+			v = pe_directory_to_dict(entry.directory)
+		else:
+			v = entry
+		d[entry.name if entry.name else entry.id] = v
+	return d
+
+def get_pe_resources(pe, resource_type):
+	if not hasattr(pe, 'DIRECTORY_ENTRY_RESOURCE'):
+		#weirdo has no resources
+		return None
+	for entry in pe.DIRECTORY_ENTRY_RESOURCE.entries:
+		if entry.id == resource_type:
+			return pe_directory_to_dict(entry.directory)
+	return None
+
+def get_first_pe_resource(resource_dict):
+	for k, v in resource_dict.items():
+		if isinstance(v, dict):
+			return get_first_pe_resource(v)
+		return k, v
+
+def parse_pe_group_icon_directory(data):
+	struct_format = '<BBBBHHIH'
+	_, _, count = struct.unpack('<HHH', data[:6]) #don't need type I think
+	return {entry_id: {'width': width, 'height': height, 'colour_count': colour_count, 'planes': planes, 'bit_count': bit_count, 'bytes_in_res': bytes_in_res}
+		for width, height, colour_count, _, planes, bit_count, bytes_in_res, entry_id in struct.iter_unpack(struct_format, data[6:6 + (struct.calcsize(struct_format) * count)])}
+
+def get_icon_from_pe(pe):
+	group_icons = get_pe_resources(pe, pefile.RESOURCE_TYPE['RT_GROUP_ICON'])
+	if not group_icons:
+		return None
+	_, first_group_icon = get_first_pe_resource(group_icons)
+	
+	first_group_icon_data = pe.get_data(first_group_icon.data.struct.OffsetToData, first_group_icon.data.struct.Size)
+	header = first_group_icon_data[:6]
+	group_icon_entries = parse_pe_group_icon_directory(first_group_icon_data)
+	icons_dir = get_pe_resources(pe, pefile.RESOURCE_TYPE['RT_ICON'])
+	ico_entry_format = '<BBBBHHII'
+	offset = 6 + (len(group_icon_entries) * struct.calcsize(ico_entry_format))
+	data = b''
+	for k, v in group_icon_entries.items():
+		icon_resource = icons_dir.get(k)
+		#if not icon_resource:
+		#	#Odd, this should not happen
+		#	continue
+		if isinstance(icon_resource, dict):
+			icon_resource = list(icon_resource.values())[0]
+		icon_resource_data = pe.get_data(icon_resource.data.struct.OffsetToData, icon_resource.data.struct.Size)
+		#This is the raw bytes so we need to make the .ico ourselves
+		ico_entry = struct.pack(ico_entry_format, v['width'], v['height'], v['colour_count'], 0, v['planes'], v['bit_count'], v['bytes_in_res'], offset)
+		offset += v['bytes_in_res']
+		header += ico_entry
+		data += icon_resource_data
+	ico = header + data
+	return Image.open(io.BytesIO(ico))
+
+def get_icon_inside_exe(path):
+	if have_pefile:
+		try:
+			pe = pefile.PE(path, fast_load=True)
+			pe.parse_data_directories(pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_RESOURCE'])
+			try:
+				icon = get_icon_from_pe(pe)
+			#pylint: disable=broad-except
+			except Exception as ex:
+				if main_config.debug:
+					print('Something weird happened in get_icon_from_pe', path, ex)
+				return None
+			if icon:
+				return icon
+		except pefile.PEFormatError:
+			pass
+	return None
+
 def look_for_icon_next_to_file(path):
-	#TODO: Use pefile etc to extract icon from path if it is an exe
+	exe_icon = get_icon_inside_exe(path)
+	if exe_icon:
+		return exe_icon
+
 	parent_folder = os.path.dirname(path)
 	for f in os.listdir(parent_folder):
 		for ext in icon_extensions:

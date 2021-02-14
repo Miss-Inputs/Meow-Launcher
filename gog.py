@@ -14,7 +14,8 @@ from common_types import MediaType
 from config.main_config import main_config
 from info import region_info
 from metadata import Metadata
-from pc_common_metadata import (is_probably_different_mode,
+from pc_common_metadata import (get_icon_inside_exe,
+                                is_probably_different_mode,
                                 is_probably_related_tool)
 
 
@@ -343,6 +344,11 @@ class WindowsGOGGame():
 		if task.is_scummvm and emulator_name != 'ScummVM':
 			task_metadata.specific_info['Wrapper'] = 'ScummVM'
 		task_metadata.specific_info['Executable-Name'] = os.path.basename(task.path)
+
+		if not (task.is_dosbox or task.is_scummvm):
+			exe_icon = get_icon_inside_exe(find_subpath_case_insensitive(self.folder, task.path))
+			if exe_icon:
+				task_metadata.images['Icon'] = exe_icon
 
 		name = self.name
 		if task.name:
