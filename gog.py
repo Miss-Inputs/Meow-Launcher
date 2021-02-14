@@ -100,7 +100,7 @@ class GOGTask():
 	def is_dosbox(self):
 		if not self.path or not self.working_directory:
 			return False
-		return self.path.lower() == 'dosbox/dosbox.exe' and self.working_directory.lower() == 'dosbox' and self.task_type == 'FileTask'
+		return os.path.basename(self.path.lower()) == 'dosbox.exe' and self.working_directory.lower().rstrip('/') in ('dosbox', 'dosbox_windows') and self.task_type == 'FileTask'
 
 	@property
 	def is_scummvm(self):
