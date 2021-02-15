@@ -153,7 +153,7 @@ class ItchGame():
 		self.add_metadata_from_folder()
 		self.add_metadata_from_receipt()
 		
-		self.metadata.specific_info['Category'] = self.category
+		self.metadata.specific_info['Game-Category'] = self.category
 		category = 'Games'
 		if self.is_demo:
 			category = 'Trials'
@@ -176,7 +176,7 @@ class ItchGame():
 				platform = 'HTML'
 			else:
 				platform = '/'.join(['Mac' if plat == 'osx' else plat.title() for plat in self.platforms])
-		self.metadata.specific_info['Type'] = self.game_type
+		self.metadata.specific_info['Game-Type'] = self.game_type
 		self.metadata.platform = platform
 
 	def try_and_find_exe(self, os_filter=None, no_arch_filter=False):
