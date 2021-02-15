@@ -27,6 +27,32 @@ except ModuleNotFoundError:
 #Hmm, are other extensions going to work as icons in a file manager
 icon_extensions = ('png', 'ico', 'xpm', 'svg')
 
+def get_pe_file_info(pe):
+	if not hasattr(pe, 'FileInfo'):
+		return None
+	for file_info in pe.FileInfo:
+		for info in file_info:
+			if hasattr(info, 'StringTable'):
+				for string_table in info.StringTable:
+					return {k.decode('ascii', errors='ignore'): v.decode('ascii', errors='ignore') for k, v in string_table.entries.items()}
+	return None
+
+def get_exe_properties(path):
+	if have_pefile:
+		try:
+			pe = pefile.PE(path, fast_load=True)
+			pe.parse_data_directories(pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_RESOURCE'])
+			try:
+				return get_pe_file_info(pe)
+			#pylint: disable=broad-except
+			except Exception as ex:
+				if main_config.debug:
+					print('Something weird happened in get_exe_properties', path, ex)
+				return None
+		except pefile.PEFormatError:
+			pass
+	return None
+
 def pe_directory_to_dict(directory):
 	d = {}
 	for entry in directory.entries:
@@ -372,6 +398,24 @@ def try_detect_nw(folder, metadata=None):
 
 	return True
 
+def try_detect_cryengine(folder):
+	cryengine32_path = os.path.join(folder, 'Bin32', 'CrySystem.dll')
+	cryengine64_path = os.path.join(folder, 'Bin64', 'CrySystem.dll')
+	if os.path.isfile(cryengine64_path):
+		cryengine_dll = cryengine64_path
+	elif os.path.isfile(cryengine32_path):
+		cryengine_dll = cryengine32_path
+	else:
+		return False
+
+	engine_version = 'CryEngine'
+	#If we don't have pefile, this will safely return none and it's not so bad to just say "CryEngine" when it's specifically CryEngine 2
+	info = get_exe_properties(cryengine_dll)
+	if info:
+		if info.get('ProductName') == 'CryEngine2':
+			engine_version = 'CryEngine 2'
+	return engine_version
+
 def try_and_detect_engine_from_folder(folder, metadata=None):
 	dir_entries = list(os.scandir(folder))
 	files = [f.name.lower() for f in dir_entries if f.is_file()]
@@ -443,6 +487,9 @@ def try_and_detect_engine_from_folder(folder, metadata=None):
 		return 'Adobe AIR'
 	if try_detect_nw(folder, metadata):
 		return 'NW.js'
+	cryengine_version = try_detect_cryengine(folder)
+	if cryengine_version:
+		return cryengine_version
 	
 	return None
 
