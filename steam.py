@@ -19,7 +19,8 @@ from data.steam_genre_ids import genre_ids
 from data.steam_store_categories import store_categories
 from info.region_info import get_language_by_english_name
 from metadata import Date, Metadata
-from pc_common_metadata import (check_for_interesting_things_in_folder,
+from pc_common_metadata import (add_metadata_for_raw_exe,
+                                check_for_interesting_things_in_folder,
                                 detect_engine_recursively, fix_name,
                                 normalize_name_case)
 
@@ -830,6 +831,10 @@ def process_launcher(game, launcher):
 		elif '\\' in executable_basename:
 			executable_basename = executable_basename.split('\\')[-1]
 		game.metadata.specific_info['Executable-Name'] = executable_basename
+
+	launcher_full_path = os.path.join(game.library_folder, 'steamapps', 'common', game.app_state.get('installdir'), launcher['exe'])
+	if os.path.isfile(launcher_full_path):
+		add_metadata_for_raw_exe(launcher_full_path, game.metadata)
 
 	if launcher['args'] and '-uplay_steam_mode' in launcher['args']:
 		game.metadata.specific_info['Launcher'] = 'uPlay'

@@ -95,7 +95,7 @@ def add_metadata_for_raw_exe(path, metadata):
 	timedatestamp = props.get('TimeDateStamp')
 	if timedatestamp:
 		build_date = Date(timedatestamp.year, timedatestamp.month, timedatestamp.day)
-		metadata.specific_info['BuildDate'] = build_date
+		metadata.specific_info['Build-Date'] = build_date
 		guessed_date = Date(build_date.year, build_date.month, build_date.day, True)
 		if guessed_date.is_better_than(metadata.release_date):
 			metadata.release_date = guessed_date

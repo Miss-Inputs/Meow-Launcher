@@ -222,7 +222,7 @@ class ItchGame():
 				print(self.path, 'Not dealing with', flavour, exe_path, self.platforms, self.metadata.platform, 'yet')
 			return
 		if params[1]:
-			metadata.specific_info['Emulator-Name'] = params[1]
+			metadata.emulator_name = params[1]
 
 		launchers.make_launcher(params[0], self.name, metadata, 'itch.io', self.path)
 
