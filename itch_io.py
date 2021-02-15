@@ -257,6 +257,8 @@ class ItchGame():
 			if (len(candidates) == 2 and os.path.basename(path) == 'nwjc') or (len(candidates) == 3 and ('nw' in candidate_basenames and 'nwjc' in candidate_basenames and os.path.basename(path) in ('nw', 'nwjc'))):
 				#And you…
 				continue
+			if len(candidates) > 1 and os.path.basename(path) in ('notification_helper.exe', 'crashpad_handler', 'UnityCrashHandler64.exe', 'winsetup.exe'):
+				continue
 			self.make_exe_launcher(flavour, path, windows_info)
 			
 		
