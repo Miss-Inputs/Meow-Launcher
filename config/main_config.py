@@ -71,6 +71,9 @@ _config_ini_values = {
 	'use_system_dosbox': ConfigValue('GOG', ConfigValueType.Bool, True, 'Use system DOSBox', 'Use the version of DOSBox on this system instead of running Windows DOSBox through Wine'),
 	'dosbox_path': ConfigValue('GOG', ConfigValueType.FilePath, "dosbox", 'DOSBox path', 'If using system DOSBox, executable name/path or just "dosbox" if left blank'),
 
+	'itch_io_folders': ConfigValue('itch.io', ConfigValueType.FolderPathList, [], 'itch.io folders', 'Folders where itch.io games are installed'),
+	'use_itch_io_as_platform': ConfigValue('itch.io', ConfigValueType.Bool, False, 'Use itch.io as platform', 'Set platform in metadata to itch.io instead of underlying platform'),
+
 	#These shouldn't end up in config.ini as they're intended to be set per-run
 	'debug': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Debug', 'Enable debug mode, which is really verbose mode, oh well'),
 	'print_times': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Print times', 'Print how long it takes to do things'),

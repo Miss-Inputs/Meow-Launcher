@@ -3,6 +3,7 @@ import os
 import disambiguate
 import dos
 import gog
+import itch_io
 #import mac
 import mame_machines
 import organize_folders
@@ -13,7 +14,8 @@ import series_detect
 import steam
 from config.main_config import main_config
 
-def main(progress_function, mame_enabled=True, roms_enabled=True, dos_enabled=True, mac_enabled=True, scummvm_enabled=True, steam_enabled=True, gog_enabled=True):
+
+def main(progress_function, mame_enabled=True, roms_enabled=True, dos_enabled=True, mac_enabled=True, scummvm_enabled=True, steam_enabled=True, gog_enabled=True, itch_io_enabled=True):
 	def call_progress_function(data, should_increment=True):
 		if progress_function:
 			progress_function(data, should_increment)
@@ -47,6 +49,9 @@ def main(progress_function, mame_enabled=True, roms_enabled=True, dos_enabled=Tr
 	if gog_enabled:
 		call_progress_function('Adding GOG games')
 		gog.do_gog_games()
+	if itch_io_enabled:
+		call_progress_function('Adding itch.io games')
+		itch_io.do_itch_io_games()
 
 	if not main_config.full_rescan:
 		call_progress_function('Removing games which no longer exist')
