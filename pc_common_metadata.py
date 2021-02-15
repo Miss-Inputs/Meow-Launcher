@@ -218,7 +218,11 @@ def try_detect_unity(folder, metadata=None):
 					with open(os.path.join(folder, 'Build', f)) as json_file:
 						info_json = json.load(json_file)
 						if not metadata.publisher and not metadata.developer:
-							metadata.developer = metadata.publisher = info_json.get('companyName')
+							company_name = info_json.get('companyName')
+							if company_name:
+								while junk_suffixes.search(company_name):
+									company_name = junk_suffixes.sub('', company_name)
+								metadata.developer = metadata.publisher = company_name
 						metadata.add_alternate_name(info_json.get('productName'), 'Unity-Name')
 		return True
 
@@ -242,7 +246,11 @@ def try_detect_unity(folder, metadata=None):
 						with open(appinfo_path, 'rt') as appinfo:
 							appinfo_lines = appinfo.readlines()
 							if not metadata.publisher and not metadata.developer:
-								metadata.developer = metadata.publisher = appinfo_lines[0]
+								company_name = appinfo_lines[0]
+								if company_name:
+									while junk_suffixes.search(company_name):
+										company_name = junk_suffixes.sub('', company_name)
+									metadata.developer = metadata.publisher = company_name
 							if len(appinfo_lines) > 1:
 								metadata.add_alternate_name(appinfo_lines[1], 'Unity-Name')
 					except FileNotFoundError:
