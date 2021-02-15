@@ -403,6 +403,9 @@ def do_gog_games():
 			continue
 
 		for subfolder in os.scandir(gog_folder):
+			if not main_config.full_rescan:
+				if launchers.has_been_done('GOG', subfolder.path):
+					continue
 			if not subfolder.is_dir():
 				continue
 			game = look_in_linux_gog_folder(subfolder.path)
@@ -421,6 +424,9 @@ def do_gog_games():
 				continue
 
 			for subfolder in os.scandir(windows_gog_folder):
+				if not main_config.full_rescan:
+					if launchers.has_been_done('GOG', subfolder.path):
+						continue
 				if not subfolder.is_dir():
 					continue
 				game = look_in_windows_gog_folder(subfolder.path)

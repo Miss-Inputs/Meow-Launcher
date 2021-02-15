@@ -274,6 +274,9 @@ def do_itch_io_games():
 			continue
 	
 		for subfolder in os.scandir(itch_io_folder):
+			if not main_config.full_rescan:
+				if launchers.has_been_done('itch.io', subfolder.path):
+					continue
 			if not subfolder.is_dir():
 				continue
 			if subfolder.name == 'downloads':
