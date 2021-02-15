@@ -208,10 +208,13 @@ class ItchGame():
 		elif flavour == 'html':
 			metadata.platform = 'HTML'
 
-		if os.path.isfile(exe_path) and 'icon' not in metadata.images:
-			icon = pc_common_metadata.look_for_icon_next_to_file(exe_path)
-			if icon:
-				metadata.images['Icon'] = icon
+		if os.path.isfile(exe_path):
+			#Might be a folder if Mac, I guess
+			pc_common_metadata.add_metadata_for_raw_exe(exe_path, self.metadata)
+			if 'icon' not in metadata.images:
+				icon = pc_common_metadata.look_for_icon_next_to_file(exe_path)
+				if icon:
+					metadata.images['Icon'] = icon
 
 		params = get_launch_params(flavour, exe_path, windows_info)
 		if not params:

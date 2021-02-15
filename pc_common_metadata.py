@@ -1,4 +1,5 @@
 import configparser
+import datetime
 import io
 import json
 import os
@@ -6,10 +7,11 @@ import re
 import struct
 import zipfile
 
-from common import title_case
+from common import junk_suffixes, title_case
 from config.main_config import main_config
 from data.name_cleanup.capitalized_words_in_names import capitalized_words
 from series_detect import chapter_matcher
+from metadata import Date
 
 try:
 	import pefile
@@ -34,7 +36,10 @@ def get_pe_file_info(pe):
 		for info in file_info:
 			if hasattr(info, 'StringTable'):
 				for string_table in info.StringTable:
-					return {k.decode('ascii', errors='ignore'): v.decode('ascii', errors='ignore') for k, v in string_table.entries.items()}
+					d = {k.decode('ascii', errors='ignore'): v.rstrip(b'\0').decode('ascii', errors='ignore') for k, v in string_table.entries.items()}
+					if hasattr(pe, 'FILE_HEADER'):
+						d['TimeDateStamp'] = datetime.datetime.fromtimestamp(pe.FILE_HEADER.TimeDateStamp)
+					return d
 	return None
 
 def get_exe_properties(path):
@@ -52,6 +57,48 @@ def get_exe_properties(path):
 		except pefile.PEFormatError:
 			pass
 	return None
+
+def add_metadata_for_raw_exe(path, metadata):
+	props = get_exe_properties(path)
+	if not props:
+		return
+	
+	#Possible values to expect: https://docs.microsoft.com/en-us/windows/win32/api/winver/nf-winver-verqueryvaluea#remarks
+
+	# if props.get('InternalName'):
+	# 	if props.get('InternalName') != props.get('OriginalFilename'):
+	# 		print(path, props.get('InternalName'), props.get('OriginalFilename'))
+
+	if not metadata.publisher and not metadata.developer:
+		company_name = props.get('CompanyName')
+		if company_name:
+			while junk_suffixes.search(company_name):
+				company_name = junk_suffixes.sub('', company_name)
+			metadata.publisher = company_name
+
+	product_name = props.get('ProductName')
+	if product_name:
+		metadata.add_alternate_name(product_name, 'Name')
+	copyright_string = props.get('LegalCopyright')
+	if copyright_string:
+		metadata.specific_info['Copyright'] = copyright_string
+	description = props.get('FileDescription')
+	if description and description != product_name:
+		metadata.descriptions['File-Description'] = description
+	comments = props.get('Comments')
+	if comments and comments != product_name:
+		metadata.specific_info['File-Comment'] = comments
+	trademarks = props.get('LegalTrademarks')
+	if trademarks and trademarks != copyright_string:
+		metadata.specific_info['Trademarks'] = trademarks
+	
+	timedatestamp = props.get('TimeDateStamp')
+	if timedatestamp:
+		build_date = Date(timedatestamp.year, timedatestamp.month, timedatestamp.day)
+		metadata.specific_info['BuildDate'] = build_date
+		guessed_date = Date(build_date.year, build_date.month, build_date.day, True)
+		if guessed_date.is_better_than(metadata.release_date):
+			metadata.release_date = guessed_date
 
 def pe_directory_to_dict(directory):
 	d = {}
