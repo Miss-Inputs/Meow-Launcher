@@ -100,7 +100,7 @@ class ItchGame():
 
 		description = game.get('shortText')
 		if description:
-			self.metadata.descriptions['Description'] = 'shortText'
+			self.metadata.descriptions['Description'] = description
 
 		self.game_type = game.get('type', 'default') #Default, flash, unity, java, html
 		self.category = game.get('classification', 'game') #game, tool, assets, game_mod, physical_game, soundtrack, other, comic, book
