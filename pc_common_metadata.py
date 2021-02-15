@@ -1,7 +1,10 @@
+import configparser
 import io
+import json
 import os
 import re
 import struct
+import zipfile
 
 from common import title_case
 from config.main_config import main_config
@@ -133,11 +136,18 @@ def look_for_icon_in_folder(folder, look_for_any_ico=True):
 				return os.path.join(folder, f)
 	return None
 
-def try_detect_unity(folder):
+def try_detect_unity(folder, metadata=None):
 	if os.path.isfile(os.path.join(folder, 'Build', 'UnityLoader.js')):
 		#Web version of Unity, there should be some .unityweb files here
+		if metadata:
+			for f in os.listdir(os.path.join(folder, 'Build')):
+				if f.endswith('.json'):
+					with open(os.path.join(folder, 'Build', f)) as json_file:
+						info_json = json.load(json_file)
+						if not metadata.publisher and not metadata.developer:
+							metadata.developer = metadata.publisher = info_json.get('companyName')
+						metadata.add_alternate_name(info_json.get('productName'), 'Unity-Name')
 		return True
-
 
 	for f in os.scandir(folder):
 		if not f.is_dir():
@@ -145,8 +155,26 @@ def try_detect_unity(folder):
 
 		if f.name.endswith('_Data'):
 			#This folder "blah_Data" seems to always go with an executable named "blah", "blah.exe" (on Windows), "blah.x86", "blah.x86_64"
-			#appinfo.txt contains the publisher on line 1, and the name (which sometimes is formatted weirdly) on line 2
-			if os.path.isfile(os.path.join(f.path, 'Managed', 'UnityEngine.dll')):
+			#boot.config may be interesting? I dunno there's a vr-enabled in there
+			if os.path.isfile(os.path.join(f.path, 'Managed', 'UnityEngine.dll')) or os.path.isfile(os.path.join(f.path, 'Resources', 'unity default resources')):
+				if metadata:
+					icon_path = os.path.join(f.path, 'Resources', 'UnityPlayer.png')
+					if os.path.isfile(icon_path):
+						metadata.images['Icon'] = icon_path
+					screen_selector_path = os.path.join(f.path, 'ScreenSelector.png')
+					if os.path.isfile(screen_selector_path):
+						metadata.images['Banner'] = screen_selector_path #kinda?
+					appinfo_path = os.path.join(f.path, 'app.info')
+					try:
+						with open(appinfo_path, 'rt') as appinfo:
+							appinfo_lines = appinfo.readlines()
+							if not metadata.publisher and not metadata.developer:
+								metadata.developer = metadata.publisher = appinfo_lines[0]
+							if len(appinfo_lines) > 1:
+								metadata.add_alternate_name(appinfo_lines[1], 'Unity-Name')
+					except FileNotFoundError:
+						pass
+
 				return True
 	return False
 
@@ -221,7 +249,7 @@ def try_detect_ue3(folder):
 					return True
 	return False
 
-def try_detect_gamemaker(folder):
+def try_detect_gamemaker(folder, metadata=None):
 	if os.path.isfile(os.path.join(folder, 'audiogroup1.dat')) and os.path.isfile(os.path.join(folder, 'data.win')) and os.path.isfile(os.path.join(folder, 'options.ini')):
 		#Hmmmmmmmmmmmmm probably
 		#data.win generally has "FORM" magic? audiogroup1/2/3.dat and options.ini might not always be there but I wanna be more sure if I don't poke around in files
@@ -234,7 +262,19 @@ def try_detect_gamemaker(folder):
 	#icon.png might be in here, usually seems to be
 
 	#game.unx seems to also always have FORM magic
-	if (os.path.isfile(os.path.join(folder, 'game.unx')) or os.path.isfile(os.path.join(assets_folder, 'game.unx'))) and os.path.isfile(os.path.join(assets_folder, 'options.ini')):
+	options_ini_path = os.path.join(assets_folder, 'options.ini')
+	if (os.path.isfile(os.path.join(folder, 'game.unx')) or os.path.isfile(os.path.join(assets_folder, 'game.unx'))) and os.path.isfile(options_ini_path):
+		if metadata:
+			icon_path = os.path.join(assets_folder, 'icon.png')
+			if os.path.isfile(icon_path):
+				metadata.images['Icon'] = icon_path
+			parser = configparser.ConfigParser(interpolation=None)
+			parser.optionxform = str
+			parser.read(options_ini_path)
+			if parser.has_section('Linux'):
+				#There is also an Icon and Splash that seem to refer to images that don't exist…
+				#What could AppId be for?
+				metadata.add_alternate_name(parser['Linux']['DisplayName'], 'Display-Name')
 		return True
 
 	return False
@@ -279,7 +319,60 @@ def try_detect_adobe_air(folder):
 
 	return False
 
-def try_and_detect_engine_from_folder(folder):
+def add_metadata_from_nw_package_json(package_json, metadata):
+	#main might come in handy
+	metadata.descriptions['Package-Description'] = package_json.get('description')
+	metadata.add_alternate_name(package_json.get('name'), 'Name')
+	window = package_json.get('window')
+	if window:
+		#I need a better way of doing that…
+		metadata.specific_info['Icon-Relative-Path'] = window.get('icon')
+		metadata.add_alternate_name(window.get('title'), 'Window-Title')
+
+def try_detect_nw(folder, metadata=None):
+	if not os.path.isfile(os.path.join(folder, 'nw.pak')) and not os.path.isfile(os.path.join(folder, 'nw_100_percent.pak')) and not os.path.isfile(os.path.join(folder, 'nw_200_percent.pak')):
+		return False
+	
+	have_package = False
+	package_json_path = os.path.join(folder, 'package.json')
+	package_nw_path = os.path.join(folder, 'package.nw')
+	if os.path.isfile(package_json_path):
+		have_package = True
+		if metadata:
+			with open(package_json_path, 'rb') as package_json:
+				add_metadata_from_nw_package_json(json.load(package_json), metadata)
+			if 'Icon-Relative-Path' in metadata.specific_info:
+				icon_path = os.path.join(folder, metadata.specific_info.pop('Icon-Relative-Path'))
+				if os.path.isfile(icon_path) and 'Icon' not in metadata.images:
+					metadata.images['Icon'] = icon_path
+	elif os.path.isfile(package_nw_path):
+		have_package = True
+		if metadata:
+			try:
+				with zipfile.ZipFile(package_nw_path) as package_nw:
+					try:
+						with package_nw.open('package.json', 'r') as package_json:
+							add_metadata_from_nw_package_json(json.load(package_json), metadata)
+						if 'Icon-Relative-Path' in metadata.specific_info:
+							icon_path = metadata.specific_info.pop('Icon-Relative-Path')
+							if 'Icon' not in metadata.images:
+								try:
+									with package_nw.open(icon_path, 'r') as icon_data:
+										metadata.images['Icon'] = Image.open(io.BytesIO(icon_data.read()))
+								except KeyError:
+									pass
+
+					except KeyError:
+						return False #Maybe
+			except zipfile.BadZipFile:
+				return False
+	
+	if not have_package:
+		return False
+
+	return True
+
+def try_and_detect_engine_from_folder(folder, metadata=None):
 	dir_entries = list(os.scandir(folder))
 	files = [f.name.lower() for f in dir_entries if f.is_file()]
 	subdirs = [f.name.lower() for f in dir_entries if f.is_dir()]
@@ -288,9 +381,6 @@ def try_and_detect_engine_from_folder(folder):
 	#XNA: Might have a "common redistributables" folder with an installer in it?
 
 	#These are simple enough to detect with just one line…	
-	if ('nw.pak' in files or 'nw_100_percent.pak' in files or 'nw_200_percent.pak' in files) and ('package.json' in files or 'package.nw' in files):
-		#package.nw is a zip with package.json and other fun stuff in it, package.json might have metadata
-		return 'NW.js'
 	if 'fna.dll' in files:
 		return 'FNA'
 	if 'monogame.framework.dll' in files or 'monogame.framework.lite.dll' in files:
@@ -337,7 +427,7 @@ def try_and_detect_engine_from_folder(folder):
 	if os.path.isfile(os.path.join(folder, 'bin', 'libUnigine_x64.so')) or os.path.isfile(os.path.join(folder, 'bin', 'libUnigine_x86.so')) or os.path.isfile(os.path.join(folder, 'bin', 'Unigine_x86.dll')) or os.path.isfile(os.path.join(folder, 'bin', 'Unigine_x64.dll')):
 		return 'Unigine'
 
-	if try_detect_gamemaker(folder):
+	if try_detect_gamemaker(folder, metadata):
 		return 'GameMaker'
 	if try_detect_build(folder):
 		return 'Build'
@@ -345,23 +435,25 @@ def try_and_detect_engine_from_folder(folder):
 		return 'Unreal Engine 3'
 	if try_detect_ue4(folder):
 		return 'Unreal Engine 4'
-	if try_detect_unity(folder):
+	if try_detect_unity(folder, metadata):
 		return 'Unity'
 	if try_detect_source(folder):
 		return 'Source'
 	if try_detect_adobe_air(folder):
 		return 'Adobe AIR'
-
+	if try_detect_nw(folder, metadata):
+		return 'NW.js'
+	
 	return None
 
-def detect_engine_recursively(folder):
-	engine = try_and_detect_engine_from_folder(folder)
+def detect_engine_recursively(folder, metadata=None):
+	engine = try_and_detect_engine_from_folder(folder, metadata)
 	if engine:
 		return engine
 
 	for subdir in os.scandir(folder):
 		if subdir.is_dir():
-			engine = try_and_detect_engine_from_folder(subdir.path)
+			engine = try_and_detect_engine_from_folder(subdir.path, metadata)
 			if engine:
 				return engine
 

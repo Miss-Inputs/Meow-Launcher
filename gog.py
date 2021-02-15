@@ -187,7 +187,7 @@ class NormalGOGGame(GOGGame):
 	def add_metadata(self):
 		super().add_metadata()
 		game_data_folder = os.path.join(self.folder, 'game')
-		engine = pc_common_metadata.try_and_detect_engine_from_folder(game_data_folder)
+		engine = pc_common_metadata.try_and_detect_engine_from_folder(game_data_folder, self.metadata)
 		if engine:
 			self.metadata.specific_info['Engine'] = engine
 		for filename in os.listdir(game_data_folder):
@@ -266,7 +266,7 @@ class WindowsGOGGame():
 			lang = region_info.get_language_by_english_name(lang_name)
 			self.metadata.languages.append(lang)
 
-		engine = pc_common_metadata.try_and_detect_engine_from_folder(self.folder)
+		engine = pc_common_metadata.try_and_detect_engine_from_folder(self.folder, self.metadata)
 		if engine:
 			self.metadata.specific_info['Engine'] = engine
 

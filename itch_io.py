@@ -80,7 +80,7 @@ class ItchGame():
 		self.game_type = 'default'
 
 	def add_metadata_from_folder(self):
-		engine = pc_common_metadata.detect_engine_recursively(self.path)
+		engine = pc_common_metadata.detect_engine_recursively(self.path, self.metadata)
 		if engine:
 			self.metadata.specific_info['Engine'] = engine
 
@@ -208,7 +208,7 @@ class ItchGame():
 		elif flavour == 'html':
 			metadata.platform = 'HTML'
 
-		if os.path.isfile(exe_path):
+		if os.path.isfile(exe_path) and 'icon' not in metadata.images:
 			icon = pc_common_metadata.look_for_icon_next_to_file(exe_path)
 			if icon:
 				metadata.images['Icon'] = icon

@@ -862,7 +862,7 @@ def poke_around_in_install_dir(game):
 		#Hmm I would need to make this case insensitive for some cases
 		return
 
-	engine = detect_engine_recursively(folder)
+	engine = detect_engine_recursively(folder, game.metadata)
 	if engine:
 		game.metadata.specific_info['Engine'] = engine
 
@@ -992,8 +992,11 @@ def process_game(app_id, folder, app_state):
 	game.metadata.specific_info['Library-Folder'] = folder
 	game.metadata.media_type = MediaType.Digital
 
+	try:
+		poke_around_in_install_dir(game)
+	except OSError:
+		pass
 	add_images(game)
-
 	add_info_from_user_cache(game)
 
 	appinfo_entry = game.appinfo
@@ -1068,10 +1071,6 @@ def process_game(app_id, folder, app_state):
 	if launcher:
 		process_launcher(game, launcher)
 	#Potentially do something with game.extra_launchers... I dunno, really
-	try:
-		poke_around_in_install_dir(game)
-	except OSError:
-		pass
 
 	#userdata/<user ID>/config/localconfig.vdf has last time played stats, so that's a thing I guess
 	#userdata/<user ID>/7/remote/sharedconfig.vdf has tags/categories etc as well
