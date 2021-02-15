@@ -153,7 +153,6 @@ class ItchGame():
 		self.add_metadata_from_folder()
 		self.add_metadata_from_receipt()
 		
-		self.metadata.specific_info['Game-Category'] = self.category
 		category = 'Games'
 		if self.is_demo:
 			category = 'Trials'
