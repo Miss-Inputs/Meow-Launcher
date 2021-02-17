@@ -108,6 +108,12 @@ class GOGTask():
 			return False
 		return self.path.lower() == 'scummvm/scummvm.exe' and self.working_directory.lower() == 'scummvm' and self.task_type == 'FileTask'
 
+	@property
+	def is_residualvm(self):
+		if not self.path or not self.working_directory:
+			return False
+		return self.path.lower() == 'residualvm/residualvm.exe' and self.working_directory.lower() == 'residualvm' and self.task_type == 'FileTask'
+
 class GOGJSONGameInfo():
 	#File named "gog-<gameid>.info" for Windows games (and sometimes distributed in game folder of Linux games)
 	def __init__(self, path):
@@ -343,9 +349,11 @@ class WindowsGOGGame():
 			task_metadata.specific_info['Wrapper'] = 'DOSBox'
 		if task.is_scummvm and emulator_name != 'ScummVM':
 			task_metadata.specific_info['Wrapper'] = 'ScummVM'
+		if task.is_residualvm and emulator_name != 'ScummVM':
+			task_metadata.specific_info['Wrapper'] = 'ResidualVM'
 		task_metadata.specific_info['Executable-Name'] = os.path.basename(task.path)
 
-		if not (task.is_dosbox or task.is_scummvm):
+		if not (task.is_dosbox or task.is_scummvm or task.is_residualvm):
 			exe_path = find_subpath_case_insensitive(self.folder, task.path)
 			exe_icon = get_icon_inside_exe(exe_path)
 			if exe_icon:
