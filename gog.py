@@ -252,6 +252,12 @@ def look_in_linux_gog_folder(folder):
 class WindowsGOGGame():
 	def __init__(self, folder, info_file, game_id):
 		self.info = GOGJSONGameInfo(info_file)
+		self.id_file = None
+		id_path = info_file.rsplit(os.path.extsep, 1)[0] + os.path.extsep + 'id'
+		if os.path.isfile(id_path):
+			with open(id_path, 'rb') as id_file:
+				self.id_file = json.load(id_file)
+
 		self.game_id = game_id
 		if game_id != self.info.game_id:
 			print('Interesting, in', folder, 'game ID is ', game_id, 'but in the info file it is', self.info.game_id)
@@ -280,6 +286,9 @@ class WindowsGOGGame():
 		self.metadata.media_type = MediaType.Digital
 		self.metadata.categories = ['Trials'] if self.is_demo else ['Games'] #There are movies on GOG but I'm not sure how they work, no software I think
 		#Dang… everything else would require the API, I guess
+
+		if self.id_file and not self.metadata.specific_info.get('Build-ID'):
+			self.metadata.specific_info['Build-ID'] = self.id_file.get('buildId')
 
 	@property
 	def is_demo(self):
