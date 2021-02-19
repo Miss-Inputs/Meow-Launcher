@@ -94,11 +94,14 @@ def add_metadata_for_raw_exe(path, metadata):
 	
 	timedatestamp = props.get('TimeDateStamp')
 	if timedatestamp:
-		build_date = Date(timedatestamp.year, timedatestamp.month, timedatestamp.day)
-		metadata.specific_info['Build-Date'] = build_date
-		guessed_date = Date(build_date.year, build_date.month, build_date.day, True)
-		if guessed_date.is_better_than(metadata.release_date):
-			metadata.release_date = guessed_date
+		if not (timedatestamp > datetime.datetime.now() or timedatestamp.year < 1993):
+			#If the date has not even happened yet, or is before Windows NT 3.1 and hence the PE format was even invented, I think the fuck not
+
+			build_date = Date(timedatestamp.year, timedatestamp.month, timedatestamp.day)
+			metadata.specific_info['Build-Date'] = build_date
+			guessed_date = Date(build_date.year, build_date.month, build_date.day, True)
+			if guessed_date.is_better_than(metadata.release_date):
+				metadata.release_date = guessed_date
 
 def pe_directory_to_dict(directory):
 	d = {}
