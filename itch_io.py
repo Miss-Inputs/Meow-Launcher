@@ -58,9 +58,11 @@ def get_launch_params(flavour, exe_path, windows_info):
 		#gui might also be useful if it is false
 		return launchers.get_wine_launch_params(exe_path, []), 'Wine'
 	if flavour == 'jar':
+		#Guess we can just assume it's installed who cares
 		return launchers.LaunchParams('java', ['-jar', exe_path]), None
-	
-	#TODO: Love
+	if flavour == 'love':
+		#Guess we can also just assume this is installed who cares
+		return launchers.LaunchParams('love', [exe_path]), 'LOVE'
 
 	return None
 
