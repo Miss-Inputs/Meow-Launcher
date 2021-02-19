@@ -363,7 +363,7 @@ class WindowsGOGGame():
 		executable_name = os.path.basename(task.path)
 		task_metadata.specific_info['Executable-Name'] = executable_name
 		if os.path.extsep in executable_name:
-			task_metadata.extension = executable_name.rsplit(os.path.extsep, 1)[-1]
+			task_metadata.extension = executable_name.rsplit(os.path.extsep, 1)[-1].lower()
 
 		if not (task.is_dosbox or task.is_scummvm or task.is_residualvm):
 			exe_path = find_subpath_case_insensitive(self.folder, task.path)

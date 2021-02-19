@@ -820,7 +820,7 @@ def add_metadata_from_appinfo(game, app_info_section):
 
 def process_launcher(game, launcher):
 	if os.path.extsep in launcher['exe']:
-		extension = launcher['exe'].rsplit(os.path.extsep)[-1].lower()
+		extension = launcher['exe'].rsplit(os.path.extsep, 1)[-1].lower()
 		if extension:
 			game.metadata.extension = extension
 	#See what we can tell about the game exe. Everything that is a DOS game packaged with DOSBox will have DOSBox for all launchers (from what I know so far), except for Duke Nukem 3D, which has a "launch OpenGL" and a "launch DOS" thing, so.. hmm
