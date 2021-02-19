@@ -145,7 +145,7 @@ def add_meta_xml_metadata(metadata, meta_xml):
 		'ko': 'Korean',
 		'nl': 'Dutch',
 		'pt': 'Portugese',
-		'ru': 'Russia',
+		'ru': 'Russian',
 		'zht': 'Traditional Chinese',
 	}
 	
