@@ -819,9 +819,10 @@ def add_metadata_from_appinfo(game, app_info_section):
 		game.metadata.save_type = SaveType.Internal
 
 def process_launcher(game, launcher):
-	extension = launcher['exe'].rsplit(os.extsep)[-1].lower()
-	if extension:
-		game.metadata.extension = extension
+	if os.path.extsep in launcher['exe']:
+		extension = launcher['exe'].rsplit(os.path.extsep)[-1].lower()
+		if extension:
+			game.metadata.extension = extension
 	#See what we can tell about the game exe. Everything that is a DOS game packaged with DOSBox will have DOSBox for all launchers (from what I know so far), except for Duke Nukem 3D, which has a "launch OpenGL" and a "launch DOS" thing, so.. hmm
 	#You can't detect that a game uses Origin that I can tell... dang
 	executable_basename = launcher['exe']
