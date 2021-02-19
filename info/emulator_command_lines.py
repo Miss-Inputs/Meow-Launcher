@@ -1369,7 +1369,10 @@ def xemu(game, __, emulator_config):
 
 	return LaunchParams(emulator_config.exe_path, ['-full-screen', '-dvd_path', '$<path>'])
 
-def yuzu(_, __, emulator_config):
+def yuzu(game, __, emulator_config):
+	title_type = game.metadata.specific_info.get('Title-Type')
+	if title_type == 'Patch': #AddOnContent as well, I guess? But I don't know how that's capitalized in the XML, because I haven't seen a DLC with the XML, blah
+		raise NotARomException('Cannot boot a {0}'.format(title_type))
 	return LaunchParams(emulator_config.exe_path, ['-f', '-g', '$<path>'])
 
 #Game engines

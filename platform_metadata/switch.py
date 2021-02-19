@@ -5,6 +5,12 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 import io
+from xml.etree import ElementTree
+
+from config.main_config import main_config
+
+class NotPFS0Exception(Exception):
+	pass
 
 def add_nacp_metadata(metadata, nacp):
 	#There are a heckload of different flags here so just see https://switchbrew.org/wiki/NACP_Format
@@ -21,6 +27,50 @@ def add_nacp_metadata(metadata, nacp):
 	except UnicodeDecodeError:
 		pass
 
+def add_cnmt_xml_metadata(xml, metadata):
+	metadata.specific_info['Title-Type'] = xml.findtext('Type')
+	title_id = xml.findtext('Id')
+	if title_id:
+		metadata.specific_info['Title-ID'] = title_id[2:]
+	metadata.specific_info['Version'] = xml.findtext('Version')
+	#We also have RequiredDownloadSystemVersion, Digest, KeyGenerationMin, RequiredSystemVersion, PatchId if those are interesting/useful
+	#Content contains Size, KeyGeneration, Hash, Type
+
+def add_nsp_metadata(rom, metadata):
+	#Decrypting NCAs is hard, let's go shopping
+	#Sometimes there is an xml there though so we can read that and it's not encrypted
+	header = rom.read(amount=16)
+	if header[:4] != b'PFS0':
+		raise NotPFS0Exception(header[:4])
+	number_of_files = int.from_bytes(header[4:8], 'little')
+	size_of_string_table = int.from_bytes(header[8:12], 'little')
+
+	file_entry_table_size = 24 * number_of_files
+	file_entry_table = rom.read(seek_to=16, amount=file_entry_table_size)
+	string_table = rom.read(seek_to=16 + file_entry_table_size, amount=size_of_string_table)
+	data_offset = 16 + file_entry_table_size + size_of_string_table
+
+	files = {}
+
+	for i in range(number_of_files):
+		entry = file_entry_table[0x18 * i: 0x18 * i + 0x18]
+		string_table_offset = int.from_bytes(entry[0x10:0x14], 'little')
+		name = string_table[string_table_offset:]
+		if b'\x00' in name:
+			name = name[:name.index(b'\x00')]
+		offset = int.from_bytes(entry[0:8], 'little')
+		size = int.from_bytes(entry[8:16], 'little')
+		files[name.decode('utf-8', errors='backslashreplace')] = (offset + data_offset, size)
+
+	for filename, offsetsize in files.items():
+		if filename.endswith('.cnmt.xml'):
+			xml_data = rom.read(seek_to=offsetsize[0], amount=offsetsize[1])
+			try:
+				xml = ElementTree.fromstring(xml_data.decode('utf-8'))
+			except UnicodeDecodeError:
+				continue
+			add_cnmt_xml_metadata(xml, metadata)
+			
 def add_nro_metadata(rom, metadata):
 	header = rom.read(amount=0x50, seek_to=16)
 	if header[:4] != b'NRO0':
@@ -51,3 +101,9 @@ def add_nro_metadata(rom, metadata):
 def add_switch_metadata(game):
 	if game.rom.extension == 'nro':
 		add_nro_metadata(game.rom, game.metadata)
+	if game.rom.extension == 'nsp':
+		try:
+			add_nsp_metadata(game.rom, game.metadata)
+		except NotPFS0Exception:
+			if main_config.debug:
+				print(game.rom.path, 'has .nsp extension but no PFS0')
