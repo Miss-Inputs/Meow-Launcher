@@ -267,6 +267,11 @@ def add_rpx_metadata(rom, metadata):
 		metadata.specific_info['Engine'] = 'Unity'
 	if os.path.isdir(os.path.join(content_dir, 'assets')) and all(os.path.isfile(os.path.join(content_dir, 'app', file)) for file in ('appinfo.xml', 'config.xml', 'index.html')):
 		metadata.specific_info['Engine'] = 'Nintendo Web Framework'
+	for content_subdir in os.scandir(content_dir):
+		if content_subdir.is_dir() and content_subdir.name.endswith('Game') and len(content_subdir.name) > 4:
+			if os.path.isfile(os.path.join(content_subdir.path, 'CookedWiiU', 'Engine.xxx')):
+				metadata.specific_info['Engine'] = 'Unreal Engine 3'
+			break
 
 	icon_path = os.path.join(meta_dir, 'iconTex.tga')
 	if os.path.isfile(icon_path):
