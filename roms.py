@@ -266,7 +266,10 @@ def process_emulated_system(system_config):
 			for name in sorted(files, key=sort_m3u_first()):
 				path = os.path.join(root, name)
 
-				rom = rom_file(path)
+				try:
+					rom = rom_file(path)
+				except archives.Bad7zException:
+					print('Uh oh fucky wucky!', path, 'is an archive file that we just tried to open with 7z but it was invalid')
 
 				if rom.extension == 'm3u':
 					used_m3u_filenames.extend(parse_m3u(path))
