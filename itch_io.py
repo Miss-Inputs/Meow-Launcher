@@ -196,7 +196,10 @@ class ItchGame():
 
 	def make_exe_launcher(self, flavour, exe_path, windows_info):
 		metadata = copy.deepcopy(self.metadata)
-		metadata.specific_info['Executable-Name'] = os.path.basename(exe_path)
+		executable_name = os.path.basename(exe_path)
+		metadata.specific_info['Executable-Name'] = executable_name
+		if os.path.extsep in executable_name:
+			metadata.extension = executable_name.rsplit(os.path.extsep, 1)[-1]
 		metadata.specific_info['Executable-Type'] = flavour
 		#This shouldn't really happen, but sometimes the platform field in upload in the receipt is inaccurate
 		#Pretend Mac doesn't exist
@@ -208,6 +211,8 @@ class ItchGame():
 			metadata.platform = 'Java' #That will do
 		elif flavour == 'html':
 			metadata.platform = 'HTML'
+		elif flavour == 'love':
+			metadata.platform = 'LOVE'
 
 		if os.path.isfile(exe_path):
 			#Might be a folder if Mac, I guess

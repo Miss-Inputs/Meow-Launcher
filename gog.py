@@ -360,7 +360,10 @@ class WindowsGOGGame():
 			task_metadata.specific_info['Wrapper'] = 'ScummVM'
 		if task.is_residualvm and emulator_name != 'ScummVM':
 			task_metadata.specific_info['Wrapper'] = 'ResidualVM'
-		task_metadata.specific_info['Executable-Name'] = os.path.basename(task.path)
+		executable_name = os.path.basename(task.path)
+		task_metadata.specific_info['Executable-Name'] = executable_name
+		if os.path.extsep in executable_name:
+			task_metadata.extension = executable_name.rsplit(os.path.extsep, 1)[-1]
 
 		if not (task.is_dosbox or task.is_scummvm or task.is_residualvm):
 			exe_path = find_subpath_case_insensitive(self.folder, task.path)
