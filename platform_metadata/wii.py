@@ -49,8 +49,11 @@ def round_up_to_multiple(num, factor):
 
 def parse_tmd(metadata, tmd):
 	#Stuff that I dunno about: 0 - 388
+	if tmd[387]:
+		metadata.specific_info['Is-vWii'] = True
 	#IOS version: 388-396
-	#Title ID: 396-400
+	#Title ID is just title type + hex product code, so don't worry about that
+
 	try:
 		metadata.specific_info['Title-Type'] = WiiTitleType(int.from_bytes(tmd[396:400], 'big'))
 	except ValueError:
