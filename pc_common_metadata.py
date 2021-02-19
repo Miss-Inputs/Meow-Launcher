@@ -634,7 +634,14 @@ def is_probably_related_tool(name):
 	lower = name.lower()
 	return any(tool_name in lower for tool_name in tool_names)
 
-mode_names = ('safe mode', 'play windowed')
+mode_names = ('safe mode', 'play windowed', 'launch fullscreen', 'launch windowed')
 def is_probably_different_mode(name):
 	lower = name.lower()
 	return any(mode_name in lower for mode_name in mode_names)
+
+			#TODO Also names that are not supposed to be launched and are documents: "FAQ", "Manual", "Map of Avernum", "Reference Card"
+
+document_names = ('faq', 'manual', 'map of avernum', 'reference card')
+def is_probably_documentation(name):
+	lower = name.lower()
+	return any(document_name in lower for document_name in document_names)

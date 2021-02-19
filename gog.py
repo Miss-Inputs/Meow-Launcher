@@ -390,14 +390,15 @@ class WindowsGOGGame():
 		for task in self.info.play_tasks:
 			if task.category == 'document':
 				documents.append(task)
-			#TODO Also names that are not supposed to be launched and are documents: "FAQ", "Manual", "Map of Avernum", "Reference Card"
+			elif task.name and pc_common_metadata.is_probably_documentation(task.name):
+				documents.append(task)
 			elif task.task_type == 'URLTask':
 				documents.append(task)
 			elif task.is_hidden:
 				continue
 			else:
 				actual_tasks.append(task)
-		for task in self.info.support_tasks:
+		for task in self.info.support_tasks + documents:
 			self.metadata.documents[task.name] = task.link if task.task_type == 'URLTask' else find_subpath_case_insensitive(self.folder, task.path)
 		for task in actual_tasks:
 			self.make_launcher(task)
