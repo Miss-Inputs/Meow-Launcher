@@ -54,7 +54,6 @@ def parse_gamecube_banner_text(metadata, banner_bytes, encoding, lang=None):
 	metadata.specific_info['{0}-Title-Line-2'.format(prefix)] = title_line_2
 	metadata.descriptions['{0}-Description'.format(prefix)] = description
 
-
 def add_banner_info(rom, metadata, banner):
 	banner_magic = banner[:4]
 	if banner_magic in (b'BNR1', b'BNR2'):
@@ -107,7 +106,6 @@ def add_banner_info(rom, metadata, banner):
 		if main_config.debug:
 			print('Invalid banner magic', rom.path, banner_magic)
 
-
 def add_fst_info(rom, metadata, fst_offset, fst_size, offset=0):
 	if fst_offset and fst_size and fst_size < (128 * 1024 * 1024):
 		fst = rom.read(fst_offset, fst_size)
@@ -136,7 +134,7 @@ def add_gamecube_disc_metadata(rom, metadata, header, tgc_data=None):
 	if rom.extension != 'tgc':
 		#Not gonna bother working out what's going on with apploader offsets in tgc
 		try:
-			apploader_date = header[0x2440:0x2450].decode('ascii').rstrip('\x00')
+			apploader_date = header[0x2440:0x2450].decode('ascii').rstrip('\0')
 			try:
 				actual_date = datetime.strptime(apploader_date, '%Y/%m/%d')
 				year = actual_date.year
