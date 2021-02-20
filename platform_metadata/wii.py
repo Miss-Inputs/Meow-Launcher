@@ -171,8 +171,10 @@ def add_wad_metadata(rom, metadata):
 	ticket_offset = cert_chain_offset + round_up_to_multiple(cert_chain_size, 64)
 	tmd_offset = ticket_offset + round_up_to_multiple(ticket_size, 64)
 
-	tmd = rom.read(seek_to=tmd_offset, amount=round_up_to_multiple(tmd_size, 64))
-	parse_tmd(metadata, tmd)
+	real_tmd_size = round_up_to_multiple(tmd_size, 64)
+	if real_tmd_size >= 768:
+		tmd = rom.read(seek_to=tmd_offset, amount=real_tmd_size)
+		parse_tmd(metadata, tmd)
 
 	data_offset = tmd_offset + round_up_to_multiple(tmd_size, 64)
 	footer_offset = data_offset + round_up_to_multiple(data_size, 64)
