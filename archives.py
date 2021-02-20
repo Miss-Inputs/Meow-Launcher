@@ -1,6 +1,8 @@
+import gzip
 import re
 import subprocess
 import zipfile
+import zlib
 
 compressed_exts = ['7z', 'zip', 'gz', 'bz2', 'tar', 'tgz', 'tbz']
 #7z supports more, but I don't expect to see them (in the case of things like .rar, I don't want them to be treated as
@@ -90,7 +92,14 @@ def sevenzip_getsize(path, filename):
 		if found_file_line and sevenzip_size_reg.fullmatch(line):
 			return int(sevenzip_size_reg.fullmatch(line).group(1))
 
-	return None
+	#Resort to ugly slow method if we have to, but this is of course not optimal, and would only really happen with .gz I think
+	return len(sevenzip_get(path, filename))
+
+def gzip_getsize(path):
+	#Filename is ignored, there is only one in there
+	with gzip.GzipFile(path, 'rb') as f:
+		f.seek(0, 2)
+		return f.tell()
 
 def compressed_getsize(path, filename):
 	if zipfile.is_zipfile(path):
@@ -98,6 +107,8 @@ def compressed_getsize(path, filename):
 			return zip_getsize(path, filename)
 		except zipfile.BadZipFile:
 			pass
+	if path.endswith('.gz'):
+		return gzip_getsize(path)
 	return sevenzip_getsize(path, filename)
 
 def sevenzip_get(path, filename):
@@ -109,12 +120,18 @@ def zip_get(path, filename):
 		with zip_file.open(filename, 'r') as file:
 			return file.read()
 
+def gzip_get(path):
+	with gzip.GzipFile(path) as gzip_file:
+		return gzip_file.read()
+
 def compressed_get(path, filename):
 	if zipfile.is_zipfile(path):
 		try:
 			return zip_get(path, filename)
 		except zipfile.BadZipFile:
 			pass
+	if path.endswith('.gz'):
+		return gzip_get(path)
 	return sevenzip_get(path, filename)
 
 def get_zip_crc32(path, filename):
@@ -127,5 +144,8 @@ def get_crc32_of_archive(path, filename):
 			return get_zip_crc32(path, filename)
 		except zipfile.BadZipFile:
 			pass
+	if path.endswith('.gz'):
+		#Do things the old fashioned way, since the crc32 isn't in there
+		return zlib.crc32(gzip_get(path)) & 0xffffffff
 	return sevenzip_crc(path, filename)
-	#return zlib.crc32(sevenzip_get(path, filename)) & 0xffffffff
+	
