@@ -13,7 +13,6 @@ from ._3ds import \
     _3DSRegionCode  # I should move this to some common module, maybe
 from .gametdb import TDB, add_info_from_tdb
 
-
 class WiiUVirtualConsolePlatform(Enum):
 	DS = 'D'
 	NES = 'F'
@@ -23,6 +22,10 @@ class WiiUVirtualConsolePlatform(Enum):
 	Wii = 'V' #Not really virtual console but eh
 	MSX = 'M'
 	#Is there a Game Boy one (for the Kirby's Dream Land inside SSB4, if that works that way?)
+
+	#Just putting these here in the enum so I can properly use them
+	GBA = 'GBA'
+	PCEngine = 'PCEngine'
 
 def load_tdb():
 	if not 'Wii U' in system_configs:
@@ -293,6 +296,9 @@ def add_rpx_metadata(rom, metadata):
 		add_meta_xml_metadata(metadata, meta_xml)
 	except FileNotFoundError:
 		pass
+
+	if metadata.specific_info.get('Virtual-Console-Platform') == WiiUVirtualConsolePlatform.GBAOrPCEngine:
+		metadata.specific_info['Virtual-Console-Platform'] = WiiUVirtualConsolePlatform.GBA if rom.name == 'm2engage' else WiiUVirtualConsolePlatform.PCEngine
 
 def add_wii_u_metadata(game):
 	if game.rom.extension == 'rpx':
