@@ -18,7 +18,7 @@ sevenzip_attr_regex = re.compile(r'^Attributes\s+=\s+(.+)$')
 sevenzip_crc_regex = re.compile(r'^CRC\s+=\s+([\dA-Fa-f]+)$')
 def sevenzip_list(path):
 	#This is rather slow…
-	proc = subprocess.run(['7z', 'l', '-slt', path], stdout=subprocess.PIPE, universal_newlines=True, check=False)
+	proc = subprocess.run(['7z', 'l', '-slt', '--', path], stdout=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
 		raise Bad7zException('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
 
@@ -45,7 +45,7 @@ def sevenzip_list(path):
 	
 def sevenzip_crc(path, filename):
 	#See also https://fastapi.metacpan.org/source/BJOERN/Compress-Deflate7-1.0/7zip/DOC/7zFormat.txt to do things the hard way
-	proc = subprocess.run(['7z', 'l', '-slt', path], stdout=subprocess.PIPE, universal_newlines=True, check=False)
+	proc = subprocess.run(['7z', 'l', '-slt', '--', path, filename], stdout=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
 		raise Bad7zException('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
 
@@ -78,7 +78,7 @@ def zip_getsize(path, filename):
 
 sevenzip_size_reg = re.compile(r'^Size\s+=\s+(\d+)$', flags=re.IGNORECASE)
 def sevenzip_getsize(path, filename):
-	proc = subprocess.run(['7z', 'l', '-slt', path, filename], stdout=subprocess.PIPE, universal_newlines=True, check=False)
+	proc = subprocess.run(['7z', 'l', '-slt', '--', path, filename], stdout=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
 		raise Bad7zException('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
 
@@ -101,7 +101,7 @@ def compressed_getsize(path, filename):
 	return sevenzip_getsize(path, filename)
 
 def sevenzip_get(path, filename):
-	with subprocess.Popen(['7z', 'e', '-so', path, filename], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as proc:
+	with subprocess.Popen(['7z', 'e', '-so', '--', path, filename], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as proc:
 		return proc.stdout.read()
 
 def zip_get(path, filename):
