@@ -73,7 +73,7 @@ class ContentType(Enum):
 	DeltaFragment = 6
 
 nacp_languages = {
-	#The formatting of the values here is how the icon files in the control NCA are named
+	#The names and their CamelCase formatting here aren't arbitrary, they're referred to in the icon files that way
 	0: 'AmericanEnglish',
 	1: 'BritishEnglish',
 	2: 'Japanese',
@@ -89,6 +89,7 @@ nacp_languages = {
 	12: 'Korean',
 	13: 'TraditionalChinese',
 	14: 'SimplifiedChinese',
+	#There's space for #15 here (BrazilianPortugese?) but that never seems to be used
 }
 
 def add_titles(metadata, titles, icons=None):
@@ -156,8 +157,8 @@ def add_nacp_metadata(metadata, nacp, icons=None):
 	if any(isbn):
 		#Aww why isn't this ever filled in
 		metadata.specific_info['ISBN'] = isbn
-	supported_language_flag = int.from_bytes(nacp[0x302c:0x3030], 'little') #This might line up with nacp_languages
-	#parental_control_flag = int.from_bytes(nacp[0x3030:0x3034], 'little') #Wazzis do
+
+	supported_language_flag = int.from_bytes(nacp[0x302c:0x3030], 'little') #This might line up with nacp_languages	
 	supported_languages = set()
 	for k, v in nacp_languages.items():
 		if supported_language_flag & (1 << k):
@@ -177,6 +178,7 @@ def add_nacp_metadata(metadata, nacp, icons=None):
 				if v:
 					supported_languages.add(supported_language)
 	metadata.languages = list(supported_languages)
+
 	#Screenshot = nacp[0x3034] sounds interesting?
 	metadata.specific_info['Video-Capture-Allowed'] = nacp[0x3035] != 0 #2 (instead of 1) indicates memory is allocated automatically who cares
 
@@ -184,7 +186,7 @@ def add_nacp_metadata(metadata, nacp, icons=None):
 	parse_ratings(metadata, rating_age)
 	
 	metadata.specific_info['Version'] = nacp[0x3060:0x3070].decode('utf-8', errors='ignore').rstrip('\0')
-	#'SaveDataOwnerId:', bytes.hex(nacp[0x3078:0x3080][::-1]) #Seems like title ID?
+
 	user_account_save_size = int.from_bytes(nacp[0x3080:0x3088], 'little')
 	device_save_size = int.from_bytes(nacp[0x3090:0x3098], 'little')
 	metadata.save_type = SaveType.Internal if user_account_save_size or device_save_size else SaveType.Nothing
