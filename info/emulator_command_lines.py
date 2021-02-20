@@ -13,6 +13,7 @@ from platform_metadata.megadrive import MegadriveRegionCodes
 from platform_metadata.nes import NESPeripheral
 from platform_metadata.saturn import SaturnRegionCodes
 from platform_metadata.snes import ExpansionChip
+from platform_metadata.switch import ContentMetaType
 from platform_metadata.wii import WiiTitleType
 from platform_metadata.zx_spectrum import ZXJoystick, ZXMachine
 
@@ -1371,7 +1372,8 @@ def xemu(game, __, emulator_config):
 
 def yuzu(game, __, emulator_config):
 	title_type = game.metadata.specific_info.get('Title-Type')
-	if title_type == 'Patch': #AddOnContent as well, I guess? But I don't know how that's capitalized in the XML, because I haven't seen a DLC with the XML, blah
+	if title_type in ('Patch', 'AddOnContent', ContentMetaType.Patch, ContentMetaType.AddOnContent):
+		#If we used the .cnmt.xml, it will just be a string
 		raise NotARomException('Cannot boot a {0}'.format(title_type))
 	return LaunchParams(emulator_config.exe_path, ['-f', '-g', '$<path>'])
 
