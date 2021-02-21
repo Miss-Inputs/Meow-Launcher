@@ -1076,7 +1076,15 @@ def bsnes(game, system_config, emulator_config):
 	
 	return LaunchParams(emulator_config.exe_path, ['--fullscreen', '$<path>'])
 
-def cemu(_, __, emulator_config):
+def cemu(game, __, emulator_config):
+	title_id = game.get('Title-ID')
+	if title_id:
+		category = title_id[4:8]
+		if category == '000C':
+			raise NotARomException('Cannot boot DLC')
+		if category == '000E':
+			raise NotARomException('Cannot boot update')
+
 	return get_wine_launch_params(emulator_config.exe_path, ['-f', '-g', 'Z:$<path>'])
 
 def citra(game, _, emulator_config):
