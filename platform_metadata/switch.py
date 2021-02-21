@@ -135,7 +135,7 @@ def add_titles(metadata, titles, icons=None):
 				found_first_lang = True
 				if icons and lang_name in icons:
 					metadata.images['Icon'] = icons[lang_name]
-				metadata.add_alternate_name(publisher, 'Banner-Title')
+				metadata.add_alternate_name(name, 'Banner-Title')
 				#TODO: Cleanup publisher
 				metadata.publisher = publisher
 
