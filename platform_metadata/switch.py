@@ -98,6 +98,7 @@ def add_titles(metadata, titles, icons=None):
 	found_first_lang = False
 	first_name = None
 	first_publisher = None
+	first_icon = None
 	for i in range(15):
 		#Just because it's naughty to enumerate dictionaries and expect an order, and we want to find the first supported language in that order and call that the "main" one
 		#There's not really a region code to use otherwise
@@ -124,7 +125,9 @@ def add_titles(metadata, titles, icons=None):
 					prefix = 'Chinese'
 
 				if icons and lang_name in icons:
-					metadata.images[prefix + '-Icon'] = icons[lang_name]
+					local_icon = icons[lang_name]
+					if local_icon != first_icon:
+						metadata.images[prefix + '-Icon'] = Image.open(io.BytesIO(local_icon))
 				if name != first_name:
 					metadata.add_alternate_name(name, prefix + '-Banner-Title')
 				if publisher != first_publisher:
@@ -134,7 +137,8 @@ def add_titles(metadata, titles, icons=None):
 				first_publisher = publisher
 				found_first_lang = True
 				if icons and lang_name in icons:
-					metadata.images['Icon'] = icons[lang_name]
+					first_icon = icons[lang_name]
+					metadata.images['Icon'] = Image.open(io.BytesIO(first_icon))
 				metadata.add_alternate_name(name, 'Banner-Title')
 				#TODO: Cleanup publisher
 				metadata.publisher = publisher
@@ -301,7 +305,7 @@ def list_cnmt(cnmt, rom, metadata, files, extra_offset=0):
 						#We would expect only one
 						nacp = control_nca_files[control_nca_filename]
 					elif have_pillow and control_nca_filename.startswith('icon_') and control_nca_filename.endswith('.dat'):
-						icons[control_nca_filename[5:][:-4]] = Image.open(io.BytesIO(control_nca_files[control_nca_filename]))
+						icons[control_nca_filename[5:][:-4]] = control_nca_files[control_nca_filename]
 				if nacp:
 					add_nacp_metadata(metadata, nacp, icons)
 				elif main_config.debug:
