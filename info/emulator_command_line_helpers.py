@@ -81,7 +81,7 @@ def mame_base(driver, slot=None, slot_options=None, has_keyboard=False, autoboot
 		args.append('$<path>')
 
 	if autoboot_script:
-		args.append('-autoboot-script')
+		args.append('-autoboot_script')
 		args.append(_get_autoboot_script_by_name(autoboot_script))
 
 	return args
