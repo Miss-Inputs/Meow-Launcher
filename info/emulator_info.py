@@ -139,7 +139,7 @@ emulators = {
 	#MT06201 (issue with emulated monochrome monitor), MT6509 lists various compatibility issues
 	'MAME (APF-MP1000)': MameDriver(EmulatorStatus.Good, mame_driver_callable('apfm1000', 'cart'), ['bin']),
 	'MAME (Apple II)': MameDriver(EmulatorStatus.Good, command_lines.mame_apple_ii, mame_floppy_formats + ['nib', 'do', 'po', 'woz']), #nib support only >= 0.229
-	'MAME (Apple IIgs)': MameDriver(EmulatorStatus.Good, mame_driver_callable('apple2gsr1', 'flop3', {'gameio': 'joy'}, has_keyboard=True), mame_floppy_formats + ['2mg', '2img', 'dc']),
+	'MAME (Apple IIgs)': MameDriver(EmulatorStatus.Good, mame_driver_callable('apple2gsr1', 'flop3', {'gameio': 'joy'}, has_keyboard=True), mame_floppy_formats + ['2mg', '2img', 'dc', 'woz']),
 	#Rev 1 is needed because some stuff doesn't work on rev 3 (happens in real life), flop1 and flop2 are for Apple II-not-GS software
 	#ramsize can go up to 8M if need be and there are a lot of slot options (4play might be useful for our 1337 pro gaming purposes? arcbd sounds cool?)
 	'MAME (Apple III)': MameDriver(EmulatorStatus.Good, mame_driver_callable('apple3', 'flop1', has_keyboard=True), mame_floppy_formats + ['do', 'po']),
