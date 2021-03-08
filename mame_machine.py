@@ -496,6 +496,11 @@ class Machine():
 		self.metadata.specific_info['BestGames-Rating'] = self.bestgames_opinion
 		self.metadata.specific_info['Version-Added'] = self.version_added
 
+		self.metadata.specific_info['Requires-Artwork'] = self.requires_artwork
+		self.metadata.specific_info['Is-Unofficial'] = self.unofficial
+		self.metadata.specific_info['Has-No-Sound-Hardware'] = self.no_sound_hardware
+		self.metadata.specific_info['Is-Incomplete'] = self.incomplete
+
 	@property
 	def basename(self):
 		return self.xml.attrib['name']
@@ -785,6 +790,32 @@ class Machine():
 	@property
 	def version_added(self):
 		return get_machine_folder(self.basename, 'version')
+
+	def _get_driver_bool_attrib(self, name, default=False):
+		if self.driver_element is None:
+			#Should this ever happen anyway? Oh well the other code does it
+			return False
+		return self.driver_element.attrib.get(name, 'yes' if default else 'no') == 'yes'
+
+	@property
+	def requires_artwork(self):
+		#Added in MAME 0.229, so we assume everything from previous versions doesn't require artwork
+		return self._get_driver_bool_attrib('requiresartwork')
+
+	@property
+	def unofficial(self):
+		#Added in MAME 0.229, so we assume everything from previous versions is official
+		return self._get_driver_bool_attrib('unofficial')
+
+	@property
+	def no_sound_hardware(self):
+		#Added in MAME 0.229, so we assume everything from previous versions is complete
+		return self._get_driver_bool_attrib('nosoundhardware')
+
+	@property
+	def incomplete(self):
+		#Added in MAME 0.229, so we assume everything from previous versions is complete
+		return self._get_driver_bool_attrib('incomplete')
 	
 def get_machine(driver):
 	return Machine(get_mame_xml(driver))
