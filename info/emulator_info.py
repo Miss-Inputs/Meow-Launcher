@@ -267,7 +267,7 @@ emulators = {
 	#Based off an old version of VisualBoyAdvance
 	'Mednafen (Game Gear)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'gg', ['gg'], command_lines.mednafen_game_gear),
 	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes". This is based off SMS Plus
-	'Mednafen (GBA)': MednafenModule('gba', ['gba'], command_lines.mednafen_gba),
+	'Mednafen (GBA)': MednafenModule(EmulatorStatus.Imperfect, 'gba', ['gba'], command_lines.mednafen_gba),
 	#Based off an old version of VisualBoyAdvance
 	'Mednafen (Master System)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'sms', ['sms', 'bin']),
 	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes". Based off SMS Plus
