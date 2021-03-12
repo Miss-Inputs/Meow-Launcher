@@ -44,6 +44,23 @@ def butler_configure(folder, os_filter=None, ignore_arch=False):
 	except (subprocess.CalledProcessError, FileNotFoundError):
 		return None
 
+def is_probably_unwanted_candidate(path, all_candidate_basenames):
+	name = os.path.basename(path)
+	if name in ('LinuxPlayer_s.debug', 'UnityPlayer_s.debug'):
+		#Sorry we don't need debug mode go away (also are these just libraries anyway?)
+		return True
+	if path.endswith('.dso'):
+		#This isn't even launchable?
+		return True
+	if name in ('nacl_helper', 'nacl_helper_bootstrap'):
+		return True
+	if (len(all_candidate_basenames) == 2 and name == 'nwjc') or (len(all_candidate_basenames) == 3 and ('nw' in all_candidate_basenames and 'nwjc' in all_candidate_basenames and name in ('nw', 'nwjc'))):
+		return True
+	if len(all_candidate_basenames) > 1 and name in ('notification_helper.exe', 'crashpad_handler', 'UnityCrashHandler64.exe', 'winsetup.exe'):
+		return True
+
+	return False
+
 def get_launch_params(flavour, exe_path, windows_info):
 	if flavour in ('linux', 'script'):
 		#ez pez
@@ -251,22 +268,9 @@ class ItchGame():
 		candidate_basenames = [os.path.basename(path) for _, path, _ in candidates]
 
 		for flavour, path, windows_info in candidates:
-			if ('LinuxPlayer_s.debug' in candidate_basenames and 'UnityPlayer_s.debug' in candidate_basenames) and os.path.basename(path) in ('LinuxPlayer_s.debug', 'UnityPlayer_s.debug'):
-				#Sorry we don't need debug mode go away
-				continue
-			if path.endswith('.dso'):
-				#You go away too thanks
-				continue
-			if ('nacl_helper' in candidate_basenames and 'nacl_helper_bootstrap' in candidate_basenames) and os.path.basename(path) in ('nacl_helper', 'nacl_helper_bootstrap'):
-				#And you
-				continue
-			if (len(candidates) == 2 and os.path.basename(path) == 'nwjc') or (len(candidates) == 3 and ('nw' in candidate_basenames and 'nwjc' in candidate_basenames and os.path.basename(path) in ('nw', 'nwjc'))):
-				#And you…
-				continue
-			if len(candidates) > 1 and os.path.basename(path) in ('notification_helper.exe', 'crashpad_handler', 'UnityCrashHandler64.exe', 'winsetup.exe'):
+			if is_probably_unwanted_candidate(path, candidate_basenames):
 				continue
 			self.make_exe_launcher(flavour, path, windows_info)
-			
 		
 def scan_itch_dir(path):
 	if not os.path.isdir(os.path.join(path, '.itch')):
