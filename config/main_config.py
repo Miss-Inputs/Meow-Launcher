@@ -42,6 +42,7 @@ _config_ini_values = {
 	'sort_multiple_dev_names': ConfigValue('General', ConfigValueType.Bool, False, 'Sort multiple developer/publisher names', 'For games with multiple entities in developer/publisher field, sort alphabetically'),
 	'wine_path': ConfigValue('General', ConfigValueType.FilePath, 'wine', 'Wine path', 'Path to Wine executable for Windows games/emulators'),
 	'wineprefix': ConfigValue('General', ConfigValueType.FolderPath, None, 'Wine prefix', 'Optional Wine prefix to use for Wine'),
+	'simple_disambiguate': ConfigValue('General', ConfigValueType.Bool, True, 'Simple disambiguation', 'Use a simpler method of disambiguating games with same names'),
 	
 	'skipped_source_files': ConfigValue('Arcade', ConfigValueType.StringList, [], 'Skipped source files', 'List of MAME source files to skip (not including extension)'),
 	'exclude_non_arcade': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude non-arcade', 'Skip machines not categorized as arcade games or as any other particular category (various devices and gadgets, etc)'),
