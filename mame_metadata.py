@@ -1,4 +1,3 @@
-import configparser
 import functools
 import os
 
@@ -27,39 +26,39 @@ def get_mame_categories_folders():
 
 @functools.lru_cache(maxsize=None)
 def get_mame_folder(name):
-	mame_categories_folders = get_mame_categories_folders()
-	if not mame_categories_folders:
-		return None
-	
-	try:
-		#TODO: strict=False is there to prevent DuplicateOptionError, but it seems like this should indicate to me that configparser might not actually be the best tool for the job, maybe just write a custom thing to do it?
-		parser = configparser.ConfigParser(interpolation=None, allow_no_value=True, strict=False)
-		parser.optionxform = str
-			
-		for folder in mame_categories_folders:
-			category_file_path = os.path.join(folder, name + '.ini')
+	category_folders = get_mame_categories_folders()
+	if not category_folders:
+		return {}
 
-			#This won't fail if category_file_path doesn't exist, so I guess it's fine
-			parser.read(category_file_path)
-		
-		return parser
-	except UnicodeDecodeError:
-		print('UnicodeDecodeError in get_mame_folder for', name, 'skipping')
-		return None
+	d = {}
+	for folder in category_folders:
+		cat_path = os.path.join(folder, name + '.ini')
+		try:
+			with open(cat_path, 'rt') as f:
+				current_section = None
+				for line in f:
+					line = line.strip()
+					#Don't need to worry about FOLDER_SETTINGS or ROOT_FOLDER sections though I guess this code is gonna put them in there
+					if line.startswith(';'):
+						continue
+					if line.startswith('['):
+						current_section = line[1:-1]
+					elif current_section:
+						if current_section not in d:
+							d[current_section] = []
+						d[current_section].append(line)
+						
+		except FileNotFoundError:
+			pass
+	return d
 
 @functools.lru_cache(maxsize=None)
 def get_machine_folder(basename, folder_name):
 	folder = get_mame_folder(folder_name)
 	if not folder:
-		return []
+		return None
+	return [section for section, names in folder.items() if basename in names]
 
-	sections = []
-	for section in folder.sections():
-		if basename in folder[section]:
-			sections.append(section)
-	return sections
-
-@functools.lru_cache(maxsize=None)
 def get_category(basename):
 	cats = get_machine_folder(basename, 'catlist')
 	#It would theoretically be possible for a machine to appear twice, but catlist doesn't do that I think
