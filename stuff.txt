@@ -1,0 +1,18 @@
+This should go in the readme, but since I don't know where I'm going with anything right now, I'll just mention it here
+
+Gonna use stuff that's new to Python 3.7 so no trying to run this on an OS you haven't upgraded in 10 years or whatever
+
+Stuff that is called by subprocess:
+7z (did I make this optional? I guess it can't be)
+hls, hmount, hpwd, etc (for Mac stuff which isn't even working right now)
+butler (from itch.io desktop app, if using itch.io)
+mame (gotta make sure this is optional for those only using normal ROMs and not arcade stuff)
+scummvm (if using it)
+stella (for Atari 2600, should be optional)
+hactool or nstool (for Switch, should be optional)
+
+Files that might be installed that we can use:
+libretro-database (as an option)
+MAME history.dat, catlist.ini, series.ini, languages.ini, bestgames.ini, version.ini (the paths are taken from mame.ini/ui.ini, all should be optional though catlist is a good idea to have)
+GameTDB (as an option)
+mupen64plus.ini (for N64, optional)
