@@ -1,4 +1,5 @@
 import importlib.resources
+import json
 import re
 
 find_brackets = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)')
@@ -204,3 +205,10 @@ def load_list(subpackage, resource):
 	if subpackage:
 		package += '.' + subpackage
 	return [line for line in [line.split('#', 1)[0] for line in importlib.resources.read_text(package, resource + '.list').splitlines()] if line]
+
+def load_json(subpackage, resource):
+	package = 'data'
+	if subpackage:
+		package += '.' + subpackage
+	with importlib.resources.open_binary(package, resource) as f: #It would be text, but I don't know if I wanna accidentally fuck around with encodings
+		return json.load(f)
