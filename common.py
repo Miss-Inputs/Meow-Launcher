@@ -186,7 +186,7 @@ def byteswap(b):
 	byte_array[1::2] = b[0::2]
 	return bytes(byte_array)
 
-dict_line_regex = re.compile(r'(?P<kquote>\'|\")(?P<key>.+?)(?P=kquote):\s*(?P<vquote>\'|\")(?P<value>.+?)(?P=vquote),?(?:\s*#.+)?$')
+dict_line_regex = re.compile(r'(?P<kquote>\'|\"|)(?P<key>.+?)(?P=kquote):\s*(?P<vquote>\'|\")(?P<value>.+?)(?P=vquote),?(?:\s*#.+)?$')
 def load_dict(subpackage, resource):
 	d = {}
 	package = 'data'
@@ -197,7 +197,10 @@ def load_dict(subpackage, resource):
 			continue
 		match = dict_line_regex.match(line)
 		if match:
-			d[match['key']] = match['value']
+			key = match['key']
+			if not match['kquote']:
+				key = int(key)
+			d[key] = match['value']
 	return d
 
 def load_list(subpackage, resource):
