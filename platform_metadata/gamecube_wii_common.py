@@ -2,14 +2,13 @@ import os
 from enum import Enum
 from xml.etree import ElementTree
 
-from common import NotAlphanumericException, convert_alphanumeric
+from common import NotAlphanumericException, convert_alphanumeric, load_dict
 from config.main_config import main_config
 from config.system_config import system_configs
-from data.nintendo_licensee_codes import nintendo_licensee_codes
 
 from .gametdb import TDB, add_info_from_tdb
 
-
+nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 class NintendoDiscRegion(Enum):
 	NTSC_J = 0
 	NTSC_U = 1

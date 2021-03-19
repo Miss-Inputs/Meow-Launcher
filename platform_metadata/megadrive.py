@@ -5,14 +5,16 @@ from enum import Enum, auto
 
 import cd_read
 import input_metadata
+from common import load_dict
 from common_types import SaveType
-from data.sega_licensee_codes import licensee_codes
 from mame_helpers import MAMENotInstalledException
 from mame_machine import does_machine_match_game, get_machines_from_source_file
 from metadata import Date
 from software_list_info import get_software_list_entry
 
 from .atari_controllers import megadrive_pad as standard_gamepad
+
+licensee_codes = load_dict(None, 'sega_licensee_codes')
 
 copyright_regex = re.compile(r'\(C\)(\S{4}.)(\d{4})\.(.{3})')
 t_with_zero = re.compile(r'^T-0')

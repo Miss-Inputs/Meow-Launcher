@@ -3,13 +3,14 @@ from enum import Enum, auto
 
 import cd_read
 import input_metadata
+from common import load_dict
 from common_types import SaveType
 from config.main_config import main_config
-from data.sega_licensee_codes import licensee_codes
 from metadata import Date
 
 from .minor_systems import add_generic_info
 
+licensee_codes = load_dict(None, 'sega_licensee_codes')
 
 class SaturnPeripheral(Enum):
 	StandardController = auto()

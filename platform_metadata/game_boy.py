@@ -3,16 +3,16 @@ from enum import IntEnum
 from zlib import crc32
 
 import input_metadata
-from common import NotAlphanumericException, convert_alphanumeric
+from common import NotAlphanumericException, convert_alphanumeric, load_dict
 from common_types import SaveType
 from config.main_config import main_config
 from config.system_config import system_configs
-from data.nintendo_licensee_codes import nintendo_licensee_codes
 from software_list_info import (find_in_software_lists,
                                 get_software_list_entry,
                                 matcher_args_for_bytes)
 
 game_boy_config = system_configs.get('Game Boy')
+nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 class GameBoyMapper():
 	def __init__(self, name, has_ram=False, has_battery=False, has_rtc=False, has_rumble=False, has_accelerometer=False):

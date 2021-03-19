@@ -1,3 +1,4 @@
+import importlib.resources
 import re
 
 find_brackets = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)')
@@ -183,3 +184,23 @@ def byteswap(b):
 	byte_array[0::2] = b[1::2]
 	byte_array[1::2] = b[0::2]
 	return bytes(byte_array)
+
+dict_line_regex = re.compile(r'(?P<kquote>\'|\")(?P<key>.+?)(?P=kquote):\s*(?P<vquote>\'|\")(?P<value>.+?)(?P=vquote),?(?:\s*#.+)?$')
+def load_dict(subpackage, resource):
+	d = {}
+	package = 'data'
+	if subpackage:
+		package += '.' + subpackage
+	for line in importlib.resources.read_text(package, resource + '.dict').splitlines():
+		if line.startswith('#'):
+			continue
+		match = dict_line_regex.match(line)
+		if match:
+			d[match['key']] = match['value']
+	return d
+
+def load_list(subpackage, resource):
+	package = 'data'
+	if subpackage:
+		package += '.' + subpackage
+	return [line for line in [line.split('#', 1)[0] for line in importlib.resources.read_text(package, resource + '.list').splitlines()] if line]

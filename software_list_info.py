@@ -4,16 +4,17 @@ import xml.etree.ElementTree as ElementTree
 import zlib
 
 import io_utils
-from common import (find_filename_tags_at_end, normalize_name,
-                    remove_filename_tags, byteswap)
+from common import (byteswap, find_filename_tags_at_end, load_dict,
+                    normalize_name, remove_filename_tags)
 from common_types import EmulationStatus, MediaType
 from config.main_config import main_config
-from data.subtitles import subtitles
 from info.system_info import systems
-from mame_helpers import (consistentify_manufacturer, get_image,
+from mame_helpers import (add_history, consistentify_manufacturer, get_image,
                           get_mame_core_config, image_config_keys,
-                          verify_software_list, add_history)
+                          verify_software_list)
 from metadata import Date
+
+subtitles = load_dict(None, 'subtitles')
 
 #Ideally, every platform wants to be able to get software list info. If available, it will always be preferred over what we can extract from inside the ROMs, as it's more reliable, and avoids the problem of bootlegs/hacks with invalid/missing header data, or publisher/developers that merge and change names and whatnot.
 #We currently do this by putting a block of code inside each platform_metadata helper that does the same thing. I guess I should genericize that one day. Anyway, it's not always possible.

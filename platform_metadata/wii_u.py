@@ -4,14 +4,16 @@ from datetime import datetime
 from enum import Enum
 from xml.etree import ElementTree
 
+from common import load_dict
 from config.main_config import main_config
 from config.system_config import system_configs
-from data.nintendo_licensee_codes import nintendo_licensee_codes
 from metadata import Date
 
 from ._3ds import \
     _3DSRegionCode  # I should move this to some common module, maybe
 from .gametdb import TDB, add_info_from_tdb
+
+nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 class WiiUVirtualConsolePlatform(Enum):
 	DS = 'D'

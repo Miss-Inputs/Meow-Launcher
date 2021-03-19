@@ -1,17 +1,17 @@
 import re
 
-from common import (find_filename_tags_at_end, normalize_name,
+from common import (find_filename_tags_at_end, load_dict, normalize_name,
                     remove_capital_article, remove_filename_tags)
 from common_types import EmulationStatus
 from config.main_config import main_config
-from data.subtitles import subtitles
 from info.system_info import all_mame_drivers
 from mame_helpers import (consistentify_manufacturer, get_mame_xml,
                           list_by_source_file)
 from mame_metadata import (add_metadata_from_catlist, get_machine_folder,
                            mame_statuses)
-from metadata import Metadata, Date
+from metadata import Date, Metadata
 
+subtitles = load_dict(None, 'subtitles')
 
 class MediaSlot():
 	def __init__(self, xml):

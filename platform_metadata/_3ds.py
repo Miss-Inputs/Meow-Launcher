@@ -10,17 +10,17 @@ from xml.etree import ElementTree
 
 import input_metadata
 from common import (NotAlphanumericException, convert_alphanumeric,
-                    junk_suffixes)
+                    junk_suffixes, load_dict)
 from common_types import SaveType
 from config.main_config import main_config
 from config.system_config import system_configs
 from data.name_cleanup._3ds_publisher_overrides import \
     consistentified_manufacturers
-from data.nintendo_licensee_codes import nintendo_licensee_codes
 
 from .gametdb import TDB, add_info_from_tdb
 from .wii import parse_ratings
 
+nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 class _3DSRegionCode(Flag):
 	Japan = 1

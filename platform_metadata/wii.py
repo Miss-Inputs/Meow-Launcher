@@ -4,16 +4,17 @@ import xml.etree.ElementTree as ElementTree
 from datetime import datetime
 from enum import Enum
 
-from common import NotAlphanumericException, convert_alphanumeric
+from common import NotAlphanumericException, convert_alphanumeric, load_dict
 from config.main_config import main_config
 from config.system_config import system_configs
-from data.nintendo_licensee_codes import nintendo_licensee_codes
 from metadata import Date
 
 from .gamecube_wii_common import (NintendoDiscRegion,
                                   add_gamecube_wii_disc_metadata,
                                   just_read_the_wia_rvz_header_for_now, tdb)
 from .gametdb import add_info_from_tdb
+
+nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 try:
 	from Crypto.Cipher import AES

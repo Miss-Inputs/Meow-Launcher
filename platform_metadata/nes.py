@@ -1,9 +1,9 @@
 from enum import Enum, auto
 
 import input_metadata
+from common import load_dict
 from common_types import SaveType
 from config.system_config import system_configs
-from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import TVSystem
 from mame_helpers import MAMENotInstalledException
 from mame_machine import does_machine_match_game, get_machines_from_source_file
@@ -13,6 +13,7 @@ from software_list_info import (find_in_software_lists_with_custom_matcher,
                                 get_software_list_entry)
 
 nes_config = system_configs.get('NES')
+nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 ines_mappers = {
 	#6, 8, 17 are some kind of copier thing

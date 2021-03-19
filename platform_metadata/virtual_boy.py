@@ -1,9 +1,10 @@
 import input_metadata
-from common import convert_alphanumeric, NotAlphanumericException
+from common import convert_alphanumeric, NotAlphanumericException, load_dict
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
 from common_types import SaveType
-from data.nintendo_licensee_codes import nintendo_licensee_codes
+
+nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 unofficial_vb_publishers = {
 	#From https://planetvb.com/modules/dokuwiki/doku.php?id=info_at_the_end_of_the_rom

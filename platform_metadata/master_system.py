@@ -1,12 +1,13 @@
 from enum import Enum, auto
 
 import input_metadata
+from common import load_dict
 from common_types import SaveType
-from data.sega_licensee_codes import licensee_codes
 from info.region_info import TVSystem
 from metadata import Date
 from software_list_info import get_software_list_entry
 
+licensee_codes = load_dict(None, 'sega_licensee_codes')
 
 class SMSPeripheral(Enum):
 	StandardController = auto()

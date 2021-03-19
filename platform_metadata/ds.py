@@ -9,14 +9,15 @@ import struct
 from xml.etree import ElementTree
 
 import input_metadata
-from common import NotAlphanumericException, convert_alphanumeric
+from common import NotAlphanumericException, convert_alphanumeric, load_dict
 from config.main_config import main_config
 from config.system_config import system_configs
-from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import get_region_by_name
 
 from .gametdb import TDB, add_info_from_tdb
 from .wii import parse_ratings
+
+nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 #TODO: Detect PassMe carts, and reject the rest of the header if so (well, product code and publisher)
 #For DSiWare, we can get public.sav and private.sav filesize, and that tells us if SaveType = Internal or Nothing. But we won't worry about DSiWare for now due to lack of accessible emulation at the moment.

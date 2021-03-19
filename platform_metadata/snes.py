@@ -2,13 +2,14 @@ import calendar
 from enum import Enum, auto
 
 import input_metadata
-from common import NotAlphanumericException, convert_alphanumeric
+from common import NotAlphanumericException, convert_alphanumeric, load_dict
 from common_types import SaveType
-from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import get_region_by_name
 from mame_helpers import MAMENotInstalledException
 from mame_machine import does_machine_match_game, get_machines_from_source_file
 from software_list_info import get_software_list_entry
+
+nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 #List of available controllers, which we will put up here for code reuse (since Uzebox also needs it)
 def get_snes_controller():

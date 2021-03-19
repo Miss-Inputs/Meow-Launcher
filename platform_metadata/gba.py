@@ -1,11 +1,12 @@
 from zlib import crc32
 
 import input_metadata
-from common import NotAlphanumericException, convert_alphanumeric
+from common import NotAlphanumericException, convert_alphanumeric, load_dict
 from common_types import SaveType
-from data.nintendo_licensee_codes import nintendo_licensee_codes
 from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
+
+nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 nintendo_gba_logo_crc32 = 0xD0BEB55E
 def parse_gba_header(metadata, header):

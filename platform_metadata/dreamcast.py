@@ -2,12 +2,14 @@ import os
 import re
 
 import cd_read
+from common import load_dict
 from common_types import SaveType
-from data.sega_licensee_codes import licensee_codes
 from metadata import Date
 
 from .minor_systems import add_generic_info
 from .saturn import SaturnRegionCodes
+
+licensee_codes = load_dict(None, 'sega_licensee_codes')
 
 #I'm just assuming Saturn and Dreamcast have the same way of doing region codes... well, it's just mostly JUE that need worrying about at this point anyway
 

@@ -1,12 +1,10 @@
 import detect_things_from_filename
 import platform_metadata
-from common import (find_filename_tags_at_end, junk_suffixes,
+from common import (find_filename_tags_at_end, junk_suffixes, load_list,
                     remove_filename_tags)
 from config.main_config import main_config
 from data.name_cleanup.libretro_database_company_name_cleanup import \
     company_name_overrides
-from data.not_necessarily_equivalent_arcade_names import \
-    not_necessarily_equivalent_arcade_names
 from info import region_info
 from libretro_database import parse_all_dats_for_system
 from mame_helpers import (MachineNotFoundException, MAMENotInstalledException,
@@ -15,6 +13,7 @@ from mame_machine import Machine, does_machine_match_game
 from metadata import Date
 from software_list_info import get_software_lists_by_names
 
+not_necessarily_equivalent_arcade_names = load_list(None, 'not_necessarily_equivalent_arcade_names')
 
 def get_metadata_from_tags(game):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.

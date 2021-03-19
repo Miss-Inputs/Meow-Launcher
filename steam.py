@@ -11,12 +11,10 @@ import zipfile
 from enum import IntFlag
 
 import launchers
-from common import junk_suffixes, remove_capital_article
+from common import junk_suffixes, remove_capital_article, load_dict
 from common_types import MediaType, SaveType
 from config.main_config import main_config
 from data.name_cleanup.steam_developer_overrides import developer_overrides
-from data.steam_genre_ids import genre_ids
-from data.steam_store_categories import store_categories
 from info.region_info import get_language_by_english_name
 from metadata import Date, Metadata
 from pc_common_metadata import (add_metadata_for_raw_exe,
@@ -37,6 +35,9 @@ try:
 	have_steamfiles = True
 except ModuleNotFoundError:
 	have_steamfiles = False
+
+store_categories = load_dict(None, 'steam_store_categories')
+genre_ids = load_dict(None, 'steam_genre_ids')
 
 class SteamInstallation():
 	def __init__(self, path):
