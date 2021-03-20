@@ -100,7 +100,7 @@ def add_crap_from_rom_header(rom, metadata):
 		title_bytes = footer[:20].rstrip(b'\0')
 		if title_bytes:
 			title = ''.join([atari_5200_charset.get(b, '\0x{0:x}'.format(b)) for b in title_bytes])
-			metadata.add_alternate_name(title, 'Banner-Title')
+			metadata.add_alternate_name(title.strip(), 'Banner-Title')
 		try:
 			year_first_digit = int(atari_5200_charset[year[0]])
 			year_second_digit = int(atari_5200_charset[year[1]])
