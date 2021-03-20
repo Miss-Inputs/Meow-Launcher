@@ -4,6 +4,7 @@ from platform_metadata._3ds import add_3ds_metadata
 from platform_metadata.amiga import add_amiga_metadata
 from platform_metadata.apple_ii import add_apple_ii_metadata
 from platform_metadata.atari_2600 import add_atari_2600_metadata
+from platform_metadata.atari_5200 import add_atari_5200_metadata
 from platform_metadata.atari_7800 import add_atari_7800_metadata
 from platform_metadata.atari_8_bit import add_atari_8bit_metadata
 from platform_metadata.commodore_64 import add_commodore_64_metadata
@@ -41,7 +42,6 @@ from platform_metadata.minor_systems import *
 #I guess this is duplicating a lot of ROMniscience code, huh? Well, it's my project, and I'll use it for reference for my other project if I want. But I guess there is duplication there. I mean, it's C# and Python, so I can't really combine them directly, but it makes me think... it makes me overthink. That's the best kind of think.
 
 #Stuff that can be extracted from the ROM but we haven't done that because it's not worth doing:
-#Atari 5200: Year (unreliable, has Y2K bug. It's actually just the 3rd and 4th digit stored as 5200 characters, and then printing 19 + those characters); also title I guess
 #ColecoVision: Year (unreliable, from copyright string on title screen), author (also unreliable and from copyright string; and in uppercase so you'd probably wanna call .titlecase() or whatsitcalled or something), title
 #APF: Menu text
 #Vectrex: Title screen text
@@ -59,6 +59,7 @@ helpers = {
 	'Amiga': add_amiga_metadata,
 	'Apple II': add_apple_ii_metadata,
 	'Atari 2600': add_atari_2600_metadata,
+	'Atari 5200': add_atari_5200_metadata,
 	'Atari 7800': add_atari_7800_metadata,
 	'Atari 8-bit': add_atari_8bit_metadata,
 	'C64': add_commodore_64_metadata,
@@ -102,7 +103,6 @@ helpers = {
 	'APF-MP1000': add_apfm1000_info,
 	'Arcadia 2001': add_arcadia_info,
 	'Astrocade': add_astrocade_info,
-	'Atari 5200': add_atari_5200_info,
 	'Bandai Super Vision 8000': add_bandai_sv8000_info,
 	'BBC Bridge Companion': add_bbc_bridge_companion_info,
 	'Casio PV-1000': add_casio_pv1000_info,

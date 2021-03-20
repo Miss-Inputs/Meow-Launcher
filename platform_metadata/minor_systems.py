@@ -487,28 +487,6 @@ def add_juicebox_info(game):
 
 	add_generic_info(game)
 
-def add_atari_5200_info(game):
-	#Can get the title screen information from inside the ROM to get the year (and also title). But that's hella unreliable, won't work properly for homebrews released after 2000, and requires implementing the 5200 title screen's custom character set (which I do know, it's just a pain in the arse)
-
-	uses_trackball = False
-	software = get_software_list_entry(game)
-	if software:
-		software.add_standard_metadata(game.metadata)
-		uses_trackball = software.get_part_feature('peripheral') == 'trackball'
-
-	game.metadata.save_type = SaveType.Nothing #Probably
-
-	#This doesn't really matter anyway, because MAME doesn't let you select controller type by slot device yet; and none of the other 5200 emulators are cool
-	game.metadata.specific_info['Uses-Trackball'] = uses_trackball
-
-	if uses_trackball:
-		game.metadata.input_info.add_option(input_metadata.Trackball())
-	else:
-		normal_controller = input_metadata.NormalController()
-		normal_controller.face_buttons = 2 #1, 2, (Pause, Reset, Start) I think? I think it works the same way for trackballs
-		normal_controller.analog_sticks = 1
-		game.metadata.input_info.add_option(normal_controller)
-
 def add_fm7_info(game):
 	#Possible input info: Keyboard and joystick but barely anything uses said joystick
 	game.metadata.tv_type = TVSystem.NTSC #Japan only
