@@ -156,6 +156,31 @@ def add_megadrive_info(metadata, header):
 		#This seems to be different on Mega CD, and also 32X
 		metadata.save_type = SaveType.Cart if save_id[:2] == b'RA' else SaveType.Nothing
 
+	modem_info = header[0xbc:0xc8]
+	memo_bytes = header[0xc8:0xf0]
+	modem_string = None
+	if modem_info[:2] == b'MO':
+		metadata.specific_info['Supports-Modem'] = True
+	elif modem_info[:11] == b'No modem...':
+		metadata.specific_info['Supports-Modem'] = False
+	else:
+		modem_string = modem_info.decode('ascii', errors='ignore').strip('\0 ')
+		
+	try:
+		memo = memo_bytes.decode('ascii').strip('\0 ')
+		if modem_string:
+			#Not really correct, but a few homebrews use the modem part to put in a longer message (and sometimes, varying amounts of it - the first 2 or 4 bytes might be filled with garbage data…)
+			memo = modem_string + memo
+		
+		if memo:
+			if memo == 'SV':
+				metadata.specific_info['Uses-SVP'] = True
+			else:
+				#This only seems to really be used for homebrews bootlegs etc
+				metadata.descriptions['Memo'] = memo
+	except UnicodeDecodeError:
+		pass
+
 	regions = header[0xf0:0xf3]
 	region_codes = []
 	if b'J' in regions:
@@ -181,6 +206,9 @@ def add_megadrive_info(metadata, header):
 	#Seen in some betas and might just be invalid:
 	#D - Brazil?
 	metadata.specific_info['Region-Code'] = region_codes
+	if console_name[:12] == 'SEGA GENESIS' and not region_codes:
+		#Make a cheeky guess
+		metadata.specific_info['Region-Code'] = [MegadriveRegionCodes.USA]
 
 def get_smd_header(rom):
 	#Just get the first block which is all that's needed for the header, otherwise this would be a lot more complicated (just something to keep in mind if you ever need to convert a whole-ass .smd ROM)
@@ -245,7 +273,8 @@ def try_find_equivalent_arcade(rom, metadata):
 
 def add_megadrive_software_list_metadata(software, metadata):
 	software.add_standard_metadata(metadata)
-	metadata.specific_info['Uses-SVP'] = software.get_shared_feature('addon') == 'SVP'
+	if software.get_shared_feature('addon') == 'SVP':
+		metadata.specific_info['Uses-SVP'] = True
 	if software.get_shared_feature('incompatibility') == 'TMSS':
 		metadata.specific_info['Bad-TMSS'] = True
 
