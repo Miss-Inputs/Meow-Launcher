@@ -108,6 +108,7 @@ class SteamState():
 	class __SteamState():
 		#If you have Steam installed twice in different locations somehow then that is your own problem, but I don't think that's really a thing that people do
 		def __init__(self):
+			self.steam_installation = None
 			#Most likely the former will be present as a symlink to the latter, I don't know if weird distros install it any differently
 			possible_locations = ['~/.steam/steam', '~/.local/share/steam', '~/.local/share/Steam']
 			steam_path = None
