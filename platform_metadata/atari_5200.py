@@ -1,4 +1,3 @@
-from wx.core import SL_VALUE_LABEL
 import input_metadata
 from common_types import SaveType
 from metadata import Date
