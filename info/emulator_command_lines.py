@@ -1077,7 +1077,7 @@ def bsnes(game, system_config, emulator_config):
 	return LaunchParams(emulator_config.exe_path, ['--fullscreen', '$<path>'])
 
 def cemu(game, __, emulator_config):
-	title_id = game.metadata.get('Title-ID')
+	title_id = game.metadata.specific_info.get('Title-ID')
 	if title_id:
 		category = title_id[4:8]
 		if category == '000C':
