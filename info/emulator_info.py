@@ -152,7 +152,7 @@ emulators = {
 	'MAME (Atari 5200)': MameDriver(EmulatorStatus.Imperfect, mame_driver_callable('a5200', 'cart'), ['bin', 'rom', 'car', 'a52']),
 	#Could use -sio casette -cass *.wav if there was ever a game that came as a .wav which apparently could be a thing in theory (or is that just there because Atari 8-bit computers can do that)
 	#MT06972: Nondescript input issues; MT07248: Galaxian doesn't work
-	'MAME (Atari 7800)': MameDriver(EmulatorStatus.Good, command_lines.mame_atari_7800, ['bin', 'a78']),
+	'MAME (Atari 7800)': MameDriver(EmulatorStatus.Good, command_lines.mame_atari_7800, ['a78']),
 	'MAME (Atari 8-bit)': MameDriver(EmulatorStatus.Good, command_lines.mame_atari_8bit, ['bin', 'rom', 'car', 'atr', 'dsk']),
 	#Has issues with XEGS carts that it should be able to load (because they do run on the real system) but it says it doesn't because they should be run on XEGS instead, and then doesn't support a few cart types anyway; otherwise fine
 	'MAME (Bandai Super Vision 8000)': MameDriver(EmulatorStatus.Good, mame_driver_callable('sv8000', 'cart'), ['bin']),
