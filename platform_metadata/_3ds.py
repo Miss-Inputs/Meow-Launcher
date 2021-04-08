@@ -113,7 +113,7 @@ def parse_ncch(rom, metadata, offset):
 			metadata.specific_info['Virtual-Console-Platform'] = _3DSVirtualConsolePlatform(product_code[6])
 		except ValueError:
 			pass
-		if len(product_code) == 10:
+		if len(product_code) == 10 and '\0' not in product_code:
 			short_product_code = product_code[6:]
 			add_info_from_tdb(tdb, metadata, short_product_code)
 			add_cover(metadata, short_product_code)
