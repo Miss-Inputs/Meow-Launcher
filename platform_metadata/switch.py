@@ -414,7 +414,7 @@ def add_nsp_metadata(rom, metadata):
 			except UnicodeDecodeError:
 				continue
 
-	if try_fallback_to_xml:
+	if try_fallback_to_xml and cnmt_xml:
 		#We could look at the list of contents in there, but there's not much point seeing as how we'd need to decrypt the content NCA anyway
 		add_cnmt_xml_metadata(cnmt_xml, metadata)
 
