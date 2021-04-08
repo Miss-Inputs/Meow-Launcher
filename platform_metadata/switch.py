@@ -514,7 +514,7 @@ def add_xci_metadata(rom, metadata):
 					print(k, 'is an invalid cnmt.nca', ex)
 					continue
 				except ExternalToolNotHappeningException as ex:
-					print(ex)
+					#print(ex)
 					return
 
 		main_cnmt = choose_main_cnmt(cnmts)
