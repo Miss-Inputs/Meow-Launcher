@@ -274,8 +274,8 @@ def process_emulated_system(system_config):
 						if process_file(system_config, rom_dir, root, folder_rom):
 							continue
 					actual_subdirs.append(d)
-				actual_subdirs.sort()
 				dirs[:] = actual_subdirs
+			dirs.sort()
 
 			for name in sorted(files, key=sort_m3u_first()):
 				path = os.path.join(root, name)
