@@ -1,4 +1,5 @@
 import os
+import json
 from .playstation_common import parse_param_sfo, parse_product_code
 
 def add_game_folder_metadata(rom, metadata):
@@ -34,9 +35,6 @@ def add_game_folder_metadata(rom, metadata):
 		with open(param_sfo_path, 'rb') as f:
 			parse_param_sfo(rom, metadata, f.read())
 
-	if metadata.product_code:
-		parse_product_code(metadata)
-
 	#Messy hack time
 	if is_installed_to_rpcs3_hdd and metadata.names:
 		rom.ignore_name = True
@@ -45,6 +43,26 @@ def add_game_folder_metadata(rom, metadata):
 		if not is_installed_to_rpcs3_hdd:
 			metadata.add_alternate_name(os.path.basename(os.path.dirname(rom.path)), 'Name')
 		
+def check_rpcs3_compat(metadata):
+	compat_db_path = os.path.expanduser('~/.config/rpcs3/GuiConfigs/compat_database.dat')
+	if hasattr(check_rpcs3_compat, 'db'):
+		db = check_rpcs3_compat.db
+	else:
+		try:
+			with open(compat_db_path, 'rb') as f:
+				db = check_rpcs3_compat.db = json.load(f)
+		except OSError:
+			return
+	try:
+		game = db['results'][metadata.product_code]
+		metadata.specific_info['RPCS3-Compatibility'] = game.get('status', 'Unknown')
+	except KeyError:
+		return
+
 def add_ps3_metadata(game):
 	if game.rom.is_folder:
 		add_game_folder_metadata(game.rom, game.metadata)
+
+	if game.metadata.product_code:
+		parse_product_code(game.metadata)
+		check_rpcs3_compat(game.metadata)
