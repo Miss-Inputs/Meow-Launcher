@@ -206,10 +206,17 @@ def parse_param_sfo(rom, metadata, param_sfo):
 		elif key in ('PSP_SYSTEM_VER', 'PS3_SYSTEM_VER'):
 			metadata.specific_info['Required-Firmware'] = value
 		elif key == 'ATTRIBUTE':
-			try:
-				metadata.specific_info['Attribute-Flags'] = AttributeFlags(value)
-			except ValueError:
-				metadata.specific_info['Attribute-Flags'] = hex(value)
+			if value:
+				try:
+					flags = AttributeFlags(value)
+					if flags & AttributeFlags.MoveControllerEnabled:
+						metadata.specific_info['Uses-Move-Controller'] = True
+					#metadata.specific_info['Attribute-Flags'] = flags
+
+				except ValueError:
+					#metadata.specific_info['Attribute-Flags'] = hex(value)
+					if main_config.debug:
+						print(rom.path, 'has funny attributes flag', hex(value))
 		elif key == 'RESOLUTION':
 			try:
 				metadata.specific_info['Supported-Resolutions'] = [res[1:] for res in str(Resolutions(value))[12:].split('|')]
@@ -225,7 +232,7 @@ def parse_param_sfo(rom, metadata, param_sfo):
 		elif key in ('MEMSIZE', 'REGION', 'HRKGMP_VER', 'NP_COMMUNICATION_ID'):
 			#These are known, but not necessarily useful to us or we just don't feel like putting it in the metadata or otherwise doing anything with it at this point
 			#MEMSIZE: PSP, 1 if game uses extra RAM?
-			#REGION: Seems to always be 32768 (is anything region locked?)
+			#REGION: Seems to always be 32768 (is anything region locked?) and also only on PSP??
 			#HRKGMP_VER = ??? (19)
 			#NP_COMMUNICATION_ID = PS3, ID used for online features I guess, also the subdirectory of TROPDIR containing TROPHY.TRP
 			#print('ooo', rom.path, key, value)
