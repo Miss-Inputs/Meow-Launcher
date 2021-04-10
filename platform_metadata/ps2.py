@@ -5,6 +5,8 @@ from config.main_config import main_config
 from info.region_info import TVSystem
 from metadata import Date
 
+from .playstation_common import parse_product_code
+
 try:
 	import struct  # To handle struct.error
 
@@ -13,11 +15,6 @@ try:
 	have_pycdlib = True
 except ModuleNotFoundError:
 	have_pycdlib = False
-
-def parse_product_code(metadata):
-	#https://www.psdevwiki.com/ps3/Productcode#Physical
-	if metadata.product_code.startswith('SC'):
-		metadata.publisher = 'Sony'
 
 boot_line_regex = re.compile(r'^BOOT2\s*=\s*cdrom0:\\(.+);1$')
 vmode_line_regex = re.compile(r'^VMODE\s*=\s*(.+)$')

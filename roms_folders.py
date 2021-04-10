@@ -17,7 +17,7 @@ class FolderROM():
 			for f in os.scandir(self.path):
 				if f.is_dir() and f.name.lower() == subpath.lower():
 					return f.path
-		return path
+		return None
 	
 	def get_file(self, subpath, ignore_case=False):
 		path = os.path.join(self.path, subpath)
@@ -27,7 +27,7 @@ class FolderROM():
 			for f in os.scandir(self.path):
 				if f.is_file() and f.name.lower() == subpath.lower():
 					return f.path
-		return path
+		return None
 
 	def has_subfolder(self, subpath):
 		return os.path.isdir(os.path.join(self.path, subpath))

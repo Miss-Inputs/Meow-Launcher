@@ -150,7 +150,7 @@ class RomGame():
 
 		name = self.rom.name
 		if self.rom.ignore_name and self.metadata.names:
-			name = list(self.metadata.names.values())[0]
+			name = self.metadata.names.get('Name', list(self.metadata.names.values())[0])
 		launchers.make_launcher(params, name, self.metadata, 'ROM', self.rom.path)
 
 def process_file(system_config, rom_dir, root, rom):

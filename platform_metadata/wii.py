@@ -186,7 +186,7 @@ def add_wad_metadata(rom, metadata):
 def add_wii_homebrew_metadata(rom, metadata):
 	#icon_path = rom.relevant_files['icon.png']
 	icon_path = rom.get_file('icon.png', True)
-	if os.path.isfile(icon_path):
+	if icon_path:
 		metadata.images['Banner'] = icon_path
 		#Unfortunately the aspect ratio means it's not really great as an icon
 

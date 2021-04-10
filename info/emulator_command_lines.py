@@ -1323,7 +1323,7 @@ def pokemini_wrapper(_, __, emulator_config):
 	])
 
 def ppsspp(game, _, emulator_config):
-	if game.metadata.specific_info.get('Is-UMD-Video', False):
+	if game.metadata.specific_info.get('PlayStation-Category') == 'UMD Video':
 		raise EmulationNotSupportedException('UMD video discs not supported')
 	return LaunchParams(emulator_config.exe_path, ['$<path>'])
 
@@ -1344,7 +1344,10 @@ def reicast(game, _, emulator_config):
 	args.append('$<path>')
 	return LaunchParams(emulator_config.exe_path, args, env_vars)
 
-def rpcs3(_, __, emulator_config):
+def rpcs3(game, _, emulator_config):
+	if game.metadata.specific_info.get('Should-Not-Be-Bootable', False):
+		raise NotARomException('Cannot boot', game.metadata.specific_info.get('PlayStation-Category', 'this'))
+
 	#It's clever enough to boot folders specified as a path
 	return LaunchParams(emulator_config.exe_path, ['--no-gui', '$<path>'])
 

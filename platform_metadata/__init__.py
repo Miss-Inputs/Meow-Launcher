@@ -3,10 +3,10 @@
 from platform_metadata._3ds import add_3ds_metadata
 from platform_metadata.amiga import add_amiga_metadata
 from platform_metadata.apple_ii import add_apple_ii_metadata
+from platform_metadata.atari_8_bit import add_atari_8bit_metadata
 from platform_metadata.atari_2600 import add_atari_2600_metadata
 from platform_metadata.atari_5200 import add_atari_5200_metadata
 from platform_metadata.atari_7800 import add_atari_7800_metadata
-from platform_metadata.atari_8_bit import add_atari_8bit_metadata
 from platform_metadata.commodore_64 import add_commodore_64_metadata
 from platform_metadata.doom import add_doom_metadata
 from platform_metadata.dreamcast import add_dreamcast_metadata
@@ -18,13 +18,15 @@ from platform_metadata.gba import add_gba_metadata
 from platform_metadata.lynx import add_lynx_metadata
 from platform_metadata.master_system import get_sms_metadata
 from platform_metadata.megadrive import add_megadrive_metadata
+from platform_metadata.minor_systems import *
 from platform_metadata.n64 import add_n64_metadata
 from platform_metadata.neo_geo_pocket import add_ngp_metadata
 from platform_metadata.nes import add_nes_metadata
 from platform_metadata.pokemon_mini import add_pokemini_metadata
-from platform_metadata.psp import add_psp_metadata
 from platform_metadata.ps1 import add_ps1_metadata
 from platform_metadata.ps2 import add_ps2_metadata
+from platform_metadata.ps3 import add_ps3_metadata
+from platform_metadata.psp import add_psp_metadata
 from platform_metadata.saturn import add_saturn_metadata
 from platform_metadata.snes import add_snes_metadata
 from platform_metadata.switch import add_switch_metadata
@@ -35,8 +37,6 @@ from platform_metadata.wii import add_wii_metadata
 from platform_metadata.wii_u import add_wii_u_metadata
 from platform_metadata.wonderswan import add_wonderswan_metadata
 from platform_metadata.zx_spectrum import add_speccy_metadata
-
-from platform_metadata.minor_systems import *
 
 #For roms.py, gets metadata in ways specific to certain platforms
 #I guess this is duplicating a lot of ROMniscience code, huh? Well, it's my project, and I'll use it for reference for my other project if I want. But I guess there is duplication there. I mean, it's C# and Python, so I can't really combine them directly, but it makes me think... it makes me overthink. That's the best kind of think.
@@ -78,6 +78,7 @@ helpers = {
 	'PlayStation': add_ps1_metadata,
 	'Pokemon Mini': add_pokemini_metadata,
 	'PS2': add_ps2_metadata,
+	'PS3': add_ps3_metadata,
 	'PSP': add_psp_metadata,
 	'Saturn': add_saturn_metadata,
 	'SNES': add_snes_metadata,

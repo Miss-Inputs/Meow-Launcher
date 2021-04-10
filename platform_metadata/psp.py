@@ -1,13 +1,11 @@
 import io
 import os
-import re
 
 import input_metadata
-from common_types import MediaType
 from config.main_config import main_config
 from metadata import Date
 
-from .playstation_common import parse_param_sfo
+from .playstation_common import parse_param_sfo, parse_product_code
 
 try:
 	from PIL import Image
@@ -79,22 +77,6 @@ def add_psp_system_info(metadata):
 	builtin_gamepad.shoulder_buttons = 2
 	metadata.input_info.add_option(builtin_gamepad)
 
-valid_product_code = re.compile(r'^\w{4}\d{5}$')
-def parse_product_code(metadata):
-	value = metadata.product_code
-	if valid_product_code.fullmatch(value):
-		if value[0] == 'U':
-			#Physical media (U specifically is PSP UMD)
-			if value[1] == 'C':
-				#(C)opyrighted by Sony as opposed to (L)icensed to Sony
-				#value[2] would indicate a specific branch of Sony (P = Japan PS1/PS2)
-				metadata.publisher = 'Sony'
-		elif value.startswith('NP'):
-			#Digital release
-			metadata.media_type = MediaType.Digital
-			if value[3] in ('A', 'C', 'F', 'G', 'I', 'K', 'W', 'X', 'Y', 'Z'):
-				metadata.publisher = 'Sony'
-
 def get_image_from_iso(iso, path):
 	buf = io.BytesIO()
 	try:
@@ -142,7 +124,7 @@ def add_psp_metadata(game):
 					iso.get_record(iso_path='/UMD_VIDEO/PARAM.SFO')
 					#We could parse this PARAM.SFO but there's not much point given we aren't going to make a launcher for UMD videos at this stage
 					#TODO There is also potentially /UMD_AUDIO/ I think too so I should rewrite this one day
-					game.metadata.specific_info['Is-UMD-Video'] = True
+					game.metadata.specific_info['PlayStation-Category'] = 'UMD Video'
 					return
 				except PyCdlibInvalidInput:
 					if main_config.debug:
