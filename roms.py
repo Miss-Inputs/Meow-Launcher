@@ -153,16 +153,6 @@ class RomGame():
 			name = list(self.metadata.names.values())[0]
 		launchers.make_launcher(params, name, self.metadata, 'ROM', self.rom.path)
 
-def try_emulator(game, emulator, system_config, emulator_config):
-	if game.rom.is_folder:
-		if not emulator.supports_folders:
-			raise ExtensionNotSupportedException('Does not support folders')
-	else:
-		if game.rom.extension not in emulator.supported_extensions:
-			raise ExtensionNotSupportedException('Unsupported extension: ' + game.rom.extension)
-
-	return emulator.get_launch_params(game, system_config.options, emulator_config)
-
 def process_file(system_config, rom_dir, root, rom):
 	game = RomGame(rom, system_config.name, system_info.systems[system_config.name], root)
 
@@ -179,6 +169,20 @@ def process_file(system_config, rom_dir, root, rom):
 	if not potential_emulators:
 		return False
 
+	have_emulator_that_supports_extension = False
+	for potential_emulator_name in potential_emulators:
+		potential_emulator = emulator_info.emulators[potential_emulator_name]
+		potential_emulator_config = emulator_configs[potential_emulator_name]
+		if rom.is_folder:
+			if potential_emulator.supports_folders:
+				have_emulator_that_supports_extension = True
+				break
+		else:
+			if rom.extension in potential_emulator.supported_extensions:
+				have_emulator_that_supports_extension = True
+	if not have_emulator_that_supports_extension:
+		return False
+			
 	game.metadata.categories = [cat for cat in list(pathlib.Path(root).relative_to(rom_dir).parts) if cat != rom.name]
 	game.filename_tags = common.find_filename_tags_at_end(game.rom.name)
 	add_metadata(game)
@@ -197,7 +201,7 @@ def process_file(system_config, rom_dir, root, rom):
 		try:
 			potential_emulator = emulator_info.emulators[potential_emulator_name]
 			potential_emulator_config = emulator_configs[potential_emulator_name]
-			params = try_emulator(game, potential_emulator, system_config, potential_emulator_config)
+			params = potential_emulator.get_launch_params(game, system_config.options, potential_emulator_config)
 			if params:
 				emulator = potential_emulator
 				emulator_name = potential_emulator_name
