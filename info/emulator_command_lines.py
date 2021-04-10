@@ -1085,7 +1085,11 @@ def cemu(game, __, emulator_config):
 		if category == '000E':
 			raise NotARomException('Cannot boot update')
 
-	return get_wine_launch_params(emulator_config.exe_path, ['-f', '-g', 'Z:$<path>'])
+	if game.rom.is_folder:
+		path = game.rom.relevant_files['rpx']
+	else:
+		path = '$<path>'
+	return get_wine_launch_params(emulator_config.exe_path, ['-f', '-g', 'Z:{0}'.format(path)])
 
 def citra(game, _, emulator_config):
 	if game.rom.extension != '3dsx':

@@ -242,7 +242,10 @@ def add_metadata(game):
 
 	game.metadata.extension = game.rom.extension
 
-	game.metadata.media_type = game.system.get_media_type(game.rom)
+	if game.rom.is_folder:
+		game.metadata.media_type = game.rom.media_type
+	else:
+		game.metadata.media_type = game.system.get_media_type(game.rom)
 
 	software_list_names = game.system.mame_software_lists
 	if software_list_names:

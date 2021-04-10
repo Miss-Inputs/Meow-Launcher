@@ -22,11 +22,11 @@ from config.main_config import main_config
 from config.system_config import system_configs
 from info import emulator_info, system_info
 from roms_metadata import add_metadata
+from roms_folders import folder_checks, FolderROM
 
 class RomFile():
 	def __init__(self, path):
 		self.path = path
-		self.warn_about_multiple_files = False
 		self.ignore_name = False
 
 		original_name = os.path.basename(path)
@@ -42,12 +42,7 @@ class RomFile():
 		if self.original_extension in archives.compressed_exts:
 			self.is_compressed = True
 
-			found_file_already = False
 			for entry in archives.compressed_list(self.path):
-				if found_file_already:
-					self.warn_about_multiple_files = True
-					continue
-				found_file_already = True
 
 				if os.extsep in entry:
 					self.name, self.extension = entry.rsplit(os.extsep, 1)
@@ -105,6 +100,10 @@ class RomFile():
 			crc = self._get_crc32()
 		self.crc_for_database = crc
 		return crc
+	
+	@property
+	def is_folder(self):
+		return False
 
 class GCZRomFile(RomFile):
 	def read(self, seek_to=0, amount=-1):
@@ -152,8 +151,12 @@ class RomGame():
 		launchers.make_launcher(params, name, self.metadata, 'ROM', self.rom.path)
 
 def try_emulator(game, emulator, system_config, emulator_config):
-	if game.rom.extension not in emulator.supported_extensions:
-		raise ExtensionNotSupportedException('Unsupported extension: ' + game.rom.extension)
+	if game.rom.is_folder:
+		if not emulator.supports_folders:
+			raise ExtensionNotSupportedException('Does not support folders')
+	else:
+		if game.rom.extension not in emulator.supported_extensions:
+			raise ExtensionNotSupportedException('Unsupported extension: ' + game.rom.extension)
 
 	return emulator.get_launch_params(game, system_config.options, emulator_config)
 
@@ -166,12 +169,12 @@ def process_file(system_config, rom_dir, root, rom):
 		if any([not os.path.isfile(filename) for filename in filenames]):
 			if main_config.debug:
 				print('M3U file', game.rom.path, 'has broken references!!!!', filenames)
-			return
+			return False
 		game.subroms = [rom_file(referenced_file) for referenced_file in filenames]
 
 	potential_emulators = system_config.chosen_emulators
 	if not potential_emulators:
-		return
+		return False
 
 	game.metadata.categories = [cat for cat in list(pathlib.Path(root).relative_to(rom_dir).parts) if cat != rom.name]
 	game.filename_tags = common.find_filename_tags_at_end(game.rom.name)
@@ -180,9 +183,6 @@ def process_file(system_config, rom_dir, root, rom):
 		game.metadata.categories = [game.metadata.platform]
 
 	exception_reason = None
-
-	if rom.warn_about_multiple_files and main_config.debug:
-		print('Warning!', rom.path, 'has more than one file and that may cause unexpected behaviour, as I only look at the first file')
 
 	emulator = None
 	emulator_name = None
@@ -203,12 +203,11 @@ def process_file(system_config, rom_dir, root, rom):
 		except (EmulationNotSupportedException, NotARomException) as ex:
 			exception_reason = ex
 
-
 	if not emulator:
 		if main_config.debug:
 			if isinstance(exception_reason, EmulationNotSupportedException) and not isinstance(exception_reason, ExtensionNotSupportedException):
 				print(rom.path, 'could not be launched by', potential_emulators, 'because', exception_reason)
-		return
+		return False
 
 	game.emulator = emulator
 	game.launch_params = launch_params
@@ -221,6 +220,7 @@ def process_file(system_config, rom_dir, root, rom):
 	else:
 		game.metadata.emulator_name = emulator_name
 	game.make_launcher()
+	return True
 
 def parse_m3u(path):
 	with open(path, 'rt') as f:
@@ -255,13 +255,27 @@ def process_emulated_system(system_config):
 		if not os.path.isdir(rom_dir):
 			print('Oh no', system_config.name, 'has invalid ROM dir', rom_dir)
 			continue
-		for root, _, files in os.walk(rom_dir):
+		for root, dirs, files in os.walk(rom_dir):
 			if common.starts_with_any(root + os.sep, main_config.ignored_directories):
 				continue
 			subfolders = list(pathlib.Path(root).relative_to(rom_dir).parts)
 			if subfolders:
 				if subfolders[0] in main_config.skipped_subfolder_names:
 					continue
+
+			if system_config.name in folder_checks:
+				actual_subdirs = []
+				for d in dirs:
+					folder_path = os.path.join(root, d)
+					folder_rom = FolderROM(folder_path)
+					media_type = folder_checks[system_config.name](folder_rom)
+					if media_type:
+						folder_rom.media_type = media_type
+						if process_file(system_config, rom_dir, root, folder_rom):
+							continue
+					actual_subdirs.append(d)
+				actual_subdirs.sort()
+				dirs[:] = actual_subdirs
 
 			for name in sorted(files, key=sort_m3u_first()):
 				path = os.path.join(root, name)

@@ -26,7 +26,7 @@ class SystemInfo():
 		self.databases_are_byteswapped = databases_are_byteswapped #Arguably I should create two separate parameters for both MAME SL and libretro-database, but so far this is only needed for N64 which has both swapped
 
 	def is_valid_file_type(self, extension):
-		return any([extension in extensions for _, extensions in self.file_types.items()])
+		return any([extension in extensions for extensions in self.file_types.values() if type(extension) == str])
 
 	def get_media_type(self, rom):
 		for media_type, extensions in self.file_types.items():

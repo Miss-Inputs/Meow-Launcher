@@ -236,38 +236,30 @@ def add_homebrew_meta_xml_metadata(rom, metadata, meta_xml):
 
 def add_rpx_metadata(rom, metadata):
 	#The .rpx itself is not interesting and basically just a spicy ELF
+	#This is going to assume we are looking at a homebrew folder
 
-	#This is again where we want a get_sibling_file method I think
 	parent_folder = os.path.dirname(rom.path)
-	#print(rom.path, parent_folder, os.path.basename(parent_folder))
-	if os.path.basename(parent_folder) != 'code':
-		#Might be a homebrew game or something, I dunno but either way if we don't have a standard folder structure we have nothing to do here
-		try:
-			#info.json has the same info? But it's not always there
-			add_homebrew_meta_xml_metadata(rom, metadata, ElementTree.parse(os.path.join(parent_folder, 'meta.xml')))
-			metadata.categories = metadata.categories[:-1]
-		except FileNotFoundError:
-			pass
-		homebrew_banner_path = os.path.join(parent_folder, 'icon.png')
-		if os.path.isfile(homebrew_banner_path):
-			metadata.images['Banner'] = homebrew_banner_path
 
-		return 
+	try:
+		#info.json has the same info? But it's not always there
+		add_homebrew_meta_xml_metadata(rom, metadata, ElementTree.parse(os.path.join(parent_folder, 'meta.xml')))
+		metadata.categories = metadata.categories[:-1]
+	except FileNotFoundError:
+		pass
+	homebrew_banner_path = os.path.join(parent_folder, 'icon.png')
+	if os.path.isfile(homebrew_banner_path):
+		metadata.images['Banner'] = homebrew_banner_path
 
-	base_dir = os.path.dirname(parent_folder)
-	content_dir = os.path.join(base_dir, 'content')
-	meta_dir = os.path.join(base_dir, 'meta')
-	#We don't really need the content dir for anything right now, but it's probably good to check that we really are looking at a normal folder dump of a Wii U game and not anything weird
-	if not (os.path.isdir(content_dir) and os.path.isdir(meta_dir)):
-		return
+	return 
 
-	rom.ignore_name = True
-	metadata.add_alternate_name(os.path.basename(base_dir), 'Folder-Name')
-	metadata.categories = metadata.categories[:-2]
-	metadata.specific_info['Executable-Name'] = rom.name
+def add_folder_metadata(rom, metadata):
+	content_dir = rom.get_subfolder('content')
+	meta_dir = rom.get_subfolder('meta')
+	
+	metadata.specific_info['Executable-Name'] = os.path.basename(rom.relevant_files['rpx'])
 
 	#While we are here… using pc_common_metadata engine detect on the content folder almost seems like a good idea too, but it won't accomplish much so far
-	if os.path.isfile(os.path.join(parent_folder, 'UnityEngine_dll.rpl')):
+	if os.path.isfile(os.path.join(rom.path, 'code', 'UnityEngine_dll.rpl')):
 		#Unity games on Wii U just have a "Data" folder under content with no executable (because it's over here in code), so our usual detection won't work; not sure about other cross platform engines
 		metadata.specific_info['Engine'] = 'Unity'
 	if os.path.isdir(os.path.join(content_dir, 'assets')) and all(os.path.isfile(os.path.join(content_dir, 'app', file)) for file in ('appinfo.xml', 'config.xml', 'index.html')):
@@ -278,6 +270,7 @@ def add_rpx_metadata(rom, metadata):
 				metadata.specific_info['Engine'] = 'Unreal Engine 3'
 			break
 
+	#Seemingly this can actually sometimes be all lowercase? I should make this check case insensitive but I don't really care too much
 	icon_path = os.path.join(meta_dir, 'iconTex.tga')
 	if os.path.isfile(icon_path):
 		metadata.images['Icon'] = icon_path
@@ -303,6 +296,8 @@ def add_rpx_metadata(rom, metadata):
 		metadata.specific_info['Virtual-Console-Platform'] = WiiUVirtualConsolePlatform.GBA if rom.name == 'm2engage' else WiiUVirtualConsolePlatform.PCEngine
 
 def add_wii_u_metadata(game):
+	if game.rom.is_folder:
+		add_folder_metadata(game.rom, game.metadata)
 	if game.rom.extension == 'rpx':
 		add_rpx_metadata(game.rom, game.metadata)
-	#We could leverage Cemu to get the meta.xml out of discs with -e <disc.wud> -p meta/meta.xml but that 1) sounds annoying to go back into emulator_config to get the path and such and that might inevitably cause a recursive import 2) pops up a dialog box if the key for the wud isn't there or fails in some other way
+	#We could leverage Cemu to get the meta.xml out of discs with -e <disc.wud> -p meta/meta.xml but that 1) sounds annoying to go back into emulator_config to get the path of Cemu and such and that might inevitably cause a recursive import 2) pops up a dialog box if the key for the wud isn't there or fails in some other way

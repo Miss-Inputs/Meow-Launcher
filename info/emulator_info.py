@@ -39,6 +39,7 @@ class EmulatorInfo():
 		self.supported_compression = supported_compression if supported_compression else []
 		self.configs = configs if configs else {}
 		self.platform = platform
+		self.supports_folders = '/' in supported_extensions
 
 class MednafenModule(EmulatorInfo):
 	def __init__(self, status, module, supported_extensions, params_func=None, configs=None):
@@ -257,7 +258,7 @@ emulators = {
 	#----- The experimental section. The emulators are still here, it's just so you, the fabulous and wonderful end user, can have more information on how to manage expectations. Or something like that.
 
 	#--These experimental emulators seem to work more often than they don't, but still describe themselves as experimental:
-	'Cemu': EmulatorInfo(EmulatorStatus.Experimental, 'Cemu.exe', command_lines.cemu, ['wud', 'wux', 'rpx'], platform=EmulatorPlatform.Windows),
+	'Cemu': EmulatorInfo(EmulatorStatus.Experimental, 'Cemu.exe', command_lines.cemu, ['wud', 'wux', 'rpx', '/'], platform=EmulatorPlatform.Windows),
 	'Citra': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'citra-qt', command_lines.citra, ['3ds', 'cxi', '3dsx']),
 	#No fullscreen from command line
 	'Medusa': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'medusa-emu-qt', command_lines.medusa, ['nds', 'gb', 'gbc', 'gba'], ['7z', 'zip']),
