@@ -57,13 +57,16 @@ class RomFile():
 			
 		self.store_entire_file = False
 		self.entire_file = b''
-		if self._get_size() < main_config.max_size_for_storing_in_memory:
-			self.store_entire_file = True
-			self.entire_file = self._read()
-
 		self.crc_for_database = None
 		self.header_length_for_crc_calculation = 0
 
+	def maybe_read_whole_thing(self):
+		#Please call this before doing anything, it's just so you can check if the extension is something even relevant before reading a whole entire file in there
+		#I guess you don't have to if you think there's a good chance it's like a CD image or whatever, this whole thing is just an optimization
+		if self._get_size() < main_config.max_size_for_storing_in_memory:
+			self.store_entire_file = True
+			self.entire_file = self._read()
+		
 	def _read(self, seek_to=0, amount=-1):
 		return io_utils.read_file(self.path, self.compressed_entry, seek_to, amount)
 
@@ -301,6 +304,7 @@ def process_emulated_system(system_config):
 					if launchers.has_been_done('ROM', path):
 						continue
 
+				rom.maybe_read_whole_thing()
 				try:
 					process_file(system_config, rom_dir, root, rom)
 				#pylint: disable=broad-except
