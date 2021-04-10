@@ -147,7 +147,7 @@ def make_linux_desktop(launch_params, display_name, fields=None):
 	desktop_entry['Type'] = 'Application'
 	desktop_entry['Encoding'] = 'UTF-8'
 
-	desktop_entry['Name'] = display_name
+	desktop_entry['Name'] = common.clean_string(display_name)
 	desktop_entry['Exec'] = launch_params.make_linux_command_string()
 	if launch_params.working_directory:
 		desktop_entry['Path'] = launch_params.working_directory
