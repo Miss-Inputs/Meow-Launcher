@@ -28,9 +28,9 @@ class SystemInfo():
 	def is_valid_file_type(self, extension):
 		return any([extension in extensions for _, extensions in self.file_types.items()])
 
-	def get_media_type(self, extension):
+	def get_media_type(self, rom):
 		for media_type, extensions in self.file_types.items():
-			if extension in extensions:
+			if rom.extension in extensions:
 				return media_type
 		return None
 
