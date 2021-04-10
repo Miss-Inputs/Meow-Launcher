@@ -184,24 +184,19 @@ def add_wad_metadata(rom, metadata):
 	parse_opening_bnr(metadata, footer)
 
 def add_wii_homebrew_metadata(rom, metadata):
-	#icon_path = os.path.join(game.folder, 'icon.png')
-	#TODO Use some kind of RomFile.get_sibling_file method
-	icon_path = os.path.join(os.path.dirname(rom.path), 'icon.png')
+	#icon_path = rom.relevant_files['icon.png']
+	icon_path = rom.get_file('icon.png', True)
 	if os.path.isfile(icon_path):
 		metadata.images['Banner'] = icon_path
 		#Unfortunately the aspect ratio means it's not really great as an icon
 
-	#xml_path = os.path.join(game.folder, 'meta.xml')
-	xml_path = os.path.join(os.path.dirname(rom.path), 'meta.xml')
+	xml_path = rom.relevant_files['meta.xml']
 	if os.path.isfile(xml_path):
-		#boot is not a helpful launcher name
-		metadata.categories = metadata.categories[:-1]
 		try:
 			meta_xml = ElementTree.parse(xml_path)
 			name = meta_xml.findtext('name')
 			if name:
 				metadata.add_alternate_name(name, 'Banner-Title')
-				metadata.add_alternate_name(os.path.basename(os.path.dirname(rom.path)), 'Folder-Name')
 				rom.ignore_name = True
 
 			coder = meta_xml.findtext('coder')
@@ -253,8 +248,6 @@ def add_wii_homebrew_metadata(rom, metadata):
 		except ElementTree.ParseError as etree_error:
 			if main_config.debug:
 				print('Ah bugger this Wii homebrew XML has problems', rom.path, etree_error)
-	elif rom.name.lower() == 'boot':
-		rom.ignore_name = True
 
 def parse_ratings(metadata, ratings_bytes, invert_has_rating_bit=False, use_bit_6=True):
 	ratings = {}
@@ -363,7 +356,12 @@ def add_wii_metadata(game):
 		add_wii_disc_metadata(game.rom, game.metadata)
 	elif game.rom.extension == 'wad':
 		add_wad_metadata(game.rom, game.metadata)
-	elif game.rom.extension in ('dol', 'elf'):
+	elif game.rom.is_folder:
 		add_wii_homebrew_metadata(game.rom, game.metadata)
+	elif game.rom.extension in ('dol', 'elf'):
+		if game.rom.name.lower() == 'boot': #Shouldn't happen I guess if homebrew detection works correctly but sometimes it be like that
+			game.metadata.categories = game.metadata.categories[:-1]
+			game.metadata.add_alternate_name(os.path.basename(os.path.dirname(game.rom.path)), 'Folder-Name')
+			game.rom.ignore_name = True
 	elif game.rom.extension in ('wia', 'rvz'):
 		just_read_the_wia_rvz_header_for_now(game.rom, game.metadata)

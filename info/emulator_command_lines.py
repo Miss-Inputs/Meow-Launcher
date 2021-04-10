@@ -1138,7 +1138,12 @@ def dolphin(game, _, emulator_config):
 			#Technically Wii Menu versions are WiiTitleType.System but can be booted, but eh
 			raise NotARomException('Cannot boot a {0}'.format(title_type.name))
 
-	return LaunchParams(emulator_config.exe_path, ['-b', '-e', '$<path>'])
+	if game.rom.is_folder:
+		#Homebrew
+		path = game.rom.relevant_files['boot.dol']
+	else:
+		path = '$<path>'
+	return LaunchParams(emulator_config.exe_path, ['-b', '-e', path])
 
 def duckstation(_, __, emulator_config):
 	#Nothing to see here for now
