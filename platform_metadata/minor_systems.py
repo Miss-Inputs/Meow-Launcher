@@ -654,6 +654,8 @@ def add_fm_towns_info(game):
 
 def add_generic_info(game):
 	#For any system not otherwise specified
+	if game.rom.is_folder:
+		return
 	software = get_software_list_entry(game)
 
 	if software:

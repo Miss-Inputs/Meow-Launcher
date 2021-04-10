@@ -148,7 +148,8 @@ systems = {
 		dat_names=['Sony - PlayStation 2'], dat_uses_serial=True
 	),
 	'PS3': SystemInfo(
-		[], [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Digital: ['pkg'], MediaType.Executable: ['self', 'elf', 'bin']}
+		#Tech tip: Add ~/.config/rpcs3/dev_hdd0/game to rom paths
+		[], [], ['RPCS3'], {MediaType.OpticalDisc: ['iso'], MediaType.Digital: ['pkg'], MediaType.Executable: ['self', 'elf', 'bin']}
 	),
 	'PSP': SystemInfo(
 		[], [], ['PPSSPP'], {MediaType.OpticalDisc: cdrom_formats + ['cso'], MediaType.Executable: ['pbp']}, dat_names=['Sony - PlayStation Portable'], dat_uses_serial=True

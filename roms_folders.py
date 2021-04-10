@@ -85,7 +85,17 @@ def is_wii_u_folder(folder):
 				return MediaType.Digital
 	return None
 
+def is_ps3_folder(folder):
+	if folder.has_subfolder('PS3_GAME') and folder.has_file('PS3_DISC.SFB'):
+		#exe = PS3_GAME/USRDIR/EBOOT.BIN (PS3_GAME has PARAM.SFO and fun stuff)
+		return MediaType.OpticalDisc
+	if folder.has_file('PARAM.SFO') and folder.has_subfolder('USRDIR'):
+		#Hmm this technically applies to the PS3_GAME subfolder of a disc game
+		return MediaType.Digital
+	return None
+
 folder_checks = {
+	'PS3': is_ps3_folder,
 	'Wii': is_wii_homebrew_folder,
 	'Wii U': is_wii_u_folder,
 }

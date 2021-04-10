@@ -262,6 +262,7 @@ emulators = {
 	'Citra': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'citra-qt', command_lines.citra, ['3ds', 'cxi', '3dsx']),
 	#No fullscreen from command line
 	'Medusa': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'medusa-emu-qt', command_lines.medusa, ['nds', 'gb', 'gbc', 'gba'], ['7z', 'zip']),
+	'RPCS3': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'rpcs3', command_lines.rpcs3, ['/', 'elf', 'self', 'bin']),
 	'Yuzu': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'yuzu', command_lines.yuzu, ['xci', 'nsp', 'nro', 'nso', 'nca', 'elf', 'kip']),
 
 	'Mednafen (Game Boy)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'gb', ['gb', 'gbc'], command_lines.mednafen_gb),

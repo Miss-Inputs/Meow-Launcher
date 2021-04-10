@@ -1344,6 +1344,10 @@ def reicast(game, _, emulator_config):
 	args.append('$<path>')
 	return LaunchParams(emulator_config.exe_path, args, env_vars)
 
+def rpcs3(_, __, emulator_config):
+	#It's clever enough to boot folders specified as a path
+	return LaunchParams(emulator_config.exe_path, ['--no-gui', '$<path>'])
+
 def simcoupe(_, __, emulator_config):
 	return LaunchParams(emulator_config.exe_path, ['-fullscreen', 'yes', '$<path>'])
 
