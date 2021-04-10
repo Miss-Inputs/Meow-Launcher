@@ -189,7 +189,7 @@ systems = {
 		},
 	),
 	'Wii U': SystemInfo(
-		#TODO: When we get around to rewriting roms.py, should have this exclude content and meta subfolders if we see a code/*.rpx in a given folder
+		#See roms_folders for how this mostly works
 		[], [], ['Cemu'], {MediaType.OpticalDisc: ['iso', 'wud', 'wux'], MediaType.Executable: ['rpx', 'elf']},
 		{
 			'tdb_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB wiiutdb.xml file (https://www.gametdb.com/wiiutdb.zip)'),
