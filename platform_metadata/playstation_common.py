@@ -166,7 +166,7 @@ def parse_param_sfo(rom, metadata, param_sfo):
 		elif key == 'TITLE':
 			metadata.add_alternate_name(value, 'Banner-Title')
 		elif len(key) == 8 and key[:5] == 'TITLE' and key[-2:].isdigit():
-			lang_id = key[-2:]
+			lang_id = int(key[-2:])
 			prefix = title_languages.get(lang_id)
 			name_name = 'Banner-Title'
 			if prefix:
