@@ -281,8 +281,10 @@ def process_emulated_system(system_config):
 					media_type = folder_checks[system_config.name](folder_rom)
 					if media_type:
 						folder_rom.media_type = media_type
-						if process_file(system_config, rom_dir, root, folder_rom):
-							continue
+						#if process_file(system_config, rom_dir, root, folder_rom):
+						#Theoretically we might want to continue descending if we couldn't make a launcher for this folder, because maybe we also have another emulator which doesn't work with folders, but does support a file inside it. That results in weird stuff where we try to launch a file inside the folder using the same emulator we just failed to launch the folder with though, meaning we actually don't want it but now it just lacks metadata, so I'm gonna just do this for now
+						process_file(system_config, rom_dir, root, folder_rom)
+						continue
 					actual_subdirs.append(d)
 				dirs[:] = actual_subdirs
 			dirs.sort()
