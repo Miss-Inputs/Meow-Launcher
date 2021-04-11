@@ -202,7 +202,7 @@ def parse_param_sfo(rom, metadata, param_sfo):
 		elif key == 'CONTENT_ID':
 			metadata.specific_info['Content-ID'] = value
 		elif key == 'USE_USB':
-			metadata.specific_info['Uses-USB'] = value
+			metadata.specific_info['Uses-USB'] = value != 0
 		elif key in ('PSP_SYSTEM_VER', 'PS3_SYSTEM_VER'):
 			metadata.specific_info['Required-Firmware'] = value
 		elif key == 'ATTRIBUTE':
