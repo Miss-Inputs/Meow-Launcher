@@ -325,11 +325,15 @@ def try_detect_build(folder):
 
 def try_detect_ue3(folder):
 	for f in os.scandir(folder):
-		if (f.name != 'Game' and f.name.endswith('Game')) or f.name == 'P13':
+		if (f.name != 'Game' and f.name.endswith('Game')) or f.name == 'P13' or (f.name.isupper() and f.name != 'GAME' and f.name.endswith('GAME')):
 			if f.is_dir():
 				if os.path.isfile(os.path.join(f.path, 'CookedPC', 'Engine.u')):
 					return True
 				if os.path.isdir(os.path.join(f.path, 'CookedPCConsole')) or os.path.isdir(os.path.join(f.path, 'CookedPCConsole_FR')) or os.path.isdir(os.path.join(f.path, 'CookedPCConsoleFinal')):
+					return True
+				if os.path.isfile(os.path.join(f.path, 'CookedWiiU', 'Engine.xxx')):
+					return True
+				if os.path.isfile(os.path.join(f.path, 'COOKEDPS3', 'ENGINE.XXX')): #PS3 filesystems are in yelling case
 					return True
 	return False
 

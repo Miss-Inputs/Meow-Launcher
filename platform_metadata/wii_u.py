@@ -8,6 +8,7 @@ from common import load_dict
 from config.main_config import main_config
 from config.system_config import system_configs
 from metadata import Date
+from pc_common_metadata import try_and_detect_engine_from_folder
 
 from ._3ds import \
     _3DSRegionCode  # I should move this to some common module, maybe
@@ -265,11 +266,10 @@ def add_folder_metadata(rom, metadata):
 		metadata.specific_info['Engine'] = 'Unity'
 	if os.path.isdir(os.path.join(content_dir, 'assets')) and all(os.path.isfile(os.path.join(content_dir, 'app', file)) for file in ('appinfo.xml', 'config.xml', 'index.html')):
 		metadata.specific_info['Engine'] = 'Nintendo Web Framework'
-	for content_subdir in os.scandir(content_dir):
-		if content_subdir.is_dir() and content_subdir.name.endswith('Game') and len(content_subdir.name) > 4:
-			if os.path.isfile(os.path.join(content_subdir.path, 'CookedWiiU', 'Engine.xxx')):
-				metadata.specific_info['Engine'] = 'Unreal Engine 3'
-			break
+	
+	engine = try_and_detect_engine_from_folder(content_dir, metadata)
+	if engine:
+		metadata.specific_info['Engine'] = engine
 
 	#Seemingly this can actually sometimes be all lowercase? I should make this check case insensitive but I don't really care too much
 	icon_path = os.path.join(meta_dir, 'iconTex.tga')

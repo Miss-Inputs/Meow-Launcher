@@ -1,5 +1,6 @@
 import os
 import json
+from pc_common_metadata import try_and_detect_engine_from_folder
 from .playstation_common import parse_param_sfo, parse_product_code
 
 def add_game_folder_metadata(rom, metadata):
@@ -20,6 +21,11 @@ def add_game_folder_metadata(rom, metadata):
 		#PIC2.PNG is for 4:3 instead of 16:9 go away nerds
 		if os.path.isdir(os.path.join(rom.path, 'PS3_GAME', 'TROPDIR')):
 			metadata.specific_info['Supports-Trophies'] = True
+		usrdir = os.path.join(rom.get_subfolder('PS3_GAME'), 'USRDIR')
+		if os.path.isdir(usrdir): #Should always be there but who knows
+			engine = try_and_detect_engine_from_folder(usrdir, metadata)
+			if engine:
+				metadata.specific_info['Engine'] = engine
 	else:
 		param_sfo_path = rom.get_file('PARAM.SFO')
 		metadata.images['Banner'] = rom.get_file('ICON0.PNG', True)
@@ -28,6 +34,9 @@ def add_game_folder_metadata(rom, metadata):
 		metadata.images['Background-Image'] = rom.get_file('PIC1.PNG', True)
 		if rom.has_subfolder('TROPDIR'):
 			metadata.specific_info['Supports-Trophies'] = True
+		engine = try_and_detect_engine_from_folder(rom.get_subfolder('USRDIR'), metadata)
+		if engine:
+			metadata.specific_info['Engine'] = engine
 
 	is_installed_to_rpcs3_hdd = os.path.dirname(rom.path) == os.path.expanduser('~/.config/rpcs3/dev_hdd0/game')
 	
