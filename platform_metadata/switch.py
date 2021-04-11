@@ -271,7 +271,11 @@ def decrypt_cnmt_nca_with_hactool(cnmt_nca):
 		except (subprocess.CalledProcessError, FileNotFoundError) as cactus:
 			try:
 				#Plan B
-				subprocess.run(['nstool', '-t', 'nca', '--part0', temp_folder, temp_filename], stdout=subprocess.DEVNULL, check=True, stderr=subprocess.DEVNULL)
+				nstool = subprocess.run(['nstool', '-t', 'nca', '--part0', temp_folder, temp_filename], stdout=subprocess.PIPE, check=True, stderr=subprocess.DEVNULL)
+				stdout = nstool.stdout.strip() #It prints error messages to stdout…
+				if stdout.decode('utf-8', errors='ignore') == '[NcaProcess ERROR] NCA FS Header [':
+					#I guess that's the error message
+					raise InvalidNCAException('Header wrong')
 			except (subprocess.CalledProcessError, FileNotFoundError):
 				decrypt_cnmt_nca_with_hactool.failed = cactus
 				raise ExternalToolNotHappeningException('No can do {0}'.format(cactus))
@@ -400,8 +404,8 @@ def add_nsp_metadata(rom, metadata):
 			try:
 				cnmts.append(list_cnmt_nca(cnmt_nca))
 			except InvalidNCAException as ex:
-				if main_config.debug:
-					print(filename, 'is an invalid cnmt.nca in', rom.path, ex)
+				#if main_config.debug:
+				#	print(filename, 'is an invalid cnmt.nca in', rom.path, ex)
 				continue
 			except ExternalToolNotHappeningException as ex:
 				try_fallback_to_xml = True
@@ -511,7 +515,7 @@ def add_xci_metadata(rom, metadata):
 				#except ValueError as v:
 				#	print('Bugger bugger bugger', v)
 				except InvalidNCAException as ex:
-					print(k, 'is an invalid cnmt.nca', ex)
+					#print(k, 'is an invalid cnmt.nca', ex)
 					continue
 				except ExternalToolNotHappeningException as ex:
 					#print(ex)
@@ -520,8 +524,8 @@ def add_xci_metadata(rom, metadata):
 		main_cnmt = choose_main_cnmt(cnmts)
 		if main_cnmt:
 			list_cnmt(main_cnmt, rom, metadata, secure_files, secure_offset_diff)
-		else:
-			print('Uh oh no cnmt.nca?')
+		#else:
+		#	print('Uh oh no cnmt.nca?')
 
 def add_nro_metadata(rom, metadata):
 	header = rom.read(amount=0x50, seek_to=16)
