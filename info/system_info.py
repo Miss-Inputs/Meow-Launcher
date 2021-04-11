@@ -152,6 +152,7 @@ systems = {
 	'PS3': SystemInfo(
 		#Tech tip: Add ~/.config/rpcs3/dev_hdd0/game to rom paths
 		[], [], ['RPCS3'], {MediaType.OpticalDisc: ['iso'], MediaType.Digital: ['pkg'], MediaType.Executable: ['self', 'elf', 'bin']}, dat_names=['Sony - PlayStation 3'], dat_uses_serial=True, options={
+			'covers_path': SystemConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after product code'),
 			'tdb_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB ps3tdb.xml file (https://www.gametdb.com/ps3tdb.zip)'),
 		}
 	),

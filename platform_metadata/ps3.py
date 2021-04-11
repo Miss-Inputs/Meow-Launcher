@@ -102,6 +102,20 @@ def check_rpcs3_compat(metadata):
 	except KeyError:
 		return
 
+def add_cover(metadata, product_code):
+	#Intended for the covers database from GameTDB
+	try:
+		covers_path = system_configs['PS3'].options['covers_path']
+	except KeyError:
+		return
+	if not covers_path:
+		return
+	cover_path = os.path.join(covers_path, product_code)
+	for ext in ('png', 'jpg'):
+		if os.path.isfile(cover_path + os.extsep + ext):
+			metadata.images['Cover'] = cover_path + os.extsep + ext
+			break
+
 def add_ps3_metadata(game):
 	if game.rom.is_folder:
 		add_game_folder_metadata(game.rom, game.metadata)
@@ -110,3 +124,4 @@ def add_ps3_metadata(game):
 		parse_product_code(game.metadata)
 		check_rpcs3_compat(game.metadata)
 		add_info_from_tdb(tdb, game.metadata, game.metadata.product_code)
+		add_cover(game.metadata, game.metadata.product_code)
