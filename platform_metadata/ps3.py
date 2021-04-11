@@ -2,6 +2,7 @@ import os
 import json
 from pc_common_metadata import try_and_detect_engine_from_folder
 from .playstation_common import parse_param_sfo, parse_product_code
+from enum import Enum
 
 def add_game_folder_metadata(rom, metadata):
 	if rom.has_subfolder('PS3_GAME'):
@@ -52,6 +53,12 @@ def add_game_folder_metadata(rom, metadata):
 		if not is_installed_to_rpcs3_hdd:
 			metadata.add_alternate_name(os.path.basename(os.path.dirname(rom.path)), 'Name')
 		
+class RPCS3Compatibility(Enum):
+	Loadable = 1
+	Intro = 2
+	Ingame = 3
+	Playable = 4
+
 def check_rpcs3_compat(metadata):
 	compat_db_path = os.path.expanduser('~/.config/rpcs3/GuiConfigs/compat_database.dat')
 	if hasattr(check_rpcs3_compat, 'db'):
@@ -64,7 +71,12 @@ def check_rpcs3_compat(metadata):
 			return
 	try:
 		game = db['results'][metadata.product_code]
-		metadata.specific_info['RPCS3-Compatibility'] = game.get('status', 'Unknown')
+		status = game.get('status', 'Unknown')
+		
+		try:
+			metadata.specific_info['RPCS3-Compatibility'] = RPCS3Compatibility[status]
+		except KeyError:
+			pass
 	except KeyError:
 		return
 

@@ -1347,6 +1347,14 @@ def reicast(game, _, emulator_config):
 def rpcs3(game, _, emulator_config):
 	if game.metadata.specific_info.get('Should-Not-Be-Bootable', False):
 		raise NotARomException('Cannot boot', game.metadata.specific_info.get('PlayStation-Category', 'this'))
+	if emulator_config.options.get('require_compat_entry', False) and 'RPCS3-Compatibility' not in game.metadata.specific_info:
+		raise EmulationNotSupportedException('Not in compatibility DB')
+	threshold = emulator_config.options.get('compat_threshold')
+	if threshold:
+		game_compat = game.metadata.specific_info.get('RPCS3-Compatibility')
+		if game_compat:
+			if game_compat.value < threshold:
+				raise EmulationNotSupportedException('Game is only {0} status'.format(game_compat.name))
 
 	#It's clever enough to boot folders specified as a path
 	return LaunchParams(emulator_config.exe_path, ['--no-gui', '$<path>'])

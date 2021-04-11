@@ -262,7 +262,10 @@ emulators = {
 	'Citra': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'citra-qt', command_lines.citra, ['3ds', 'cxi', '3dsx']),
 	#No fullscreen from command line
 	'Medusa': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'medusa-emu-qt', command_lines.medusa, ['nds', 'gb', 'gbc', 'gba'], ['7z', 'zip']),
-	'RPCS3': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'rpcs3', command_lines.rpcs3, ['/', 'elf', 'self', 'bin']),
+	'RPCS3': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'rpcs3', command_lines.rpcs3, ['/', 'elf', 'self', 'bin'], configs={
+		'require_compat_entry': EmulatorConfigValue(ConfigValueType.Bool, False, 'Do not make launchers for games which are not in the compatibility database at all'),
+		'compat_threshold': EmulatorConfigValue(ConfigValueType.Integer, 0, 'Games that are under this level of compatibility will not get launchers made; 1 = Loadable 2 = Intro 3 = Ingame 4 = Playable (all the way through)'),
+	}),
 	'Yuzu': EmulatorInfo(EmulatorStatus.ExperimentalButSeemsOkay, 'yuzu', command_lines.yuzu, ['xci', 'nsp', 'nro', 'nso', 'nca', 'elf', 'kip']),
 
 	'Mednafen (Game Boy)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'gb', ['gb', 'gbc'], command_lines.mednafen_gb),
