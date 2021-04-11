@@ -151,7 +151,9 @@ systems = {
 	),
 	'PS3': SystemInfo(
 		#Tech tip: Add ~/.config/rpcs3/dev_hdd0/game to rom paths
-		[], [], ['RPCS3'], {MediaType.OpticalDisc: ['iso'], MediaType.Digital: ['pkg'], MediaType.Executable: ['self', 'elf', 'bin']}, dat_names=['Sony - PlayStation 3'], dat_uses_serial=True
+		[], [], ['RPCS3'], {MediaType.OpticalDisc: ['iso'], MediaType.Digital: ['pkg'], MediaType.Executable: ['self', 'elf', 'bin']}, dat_names=['Sony - PlayStation 3'], dat_uses_serial=True, options={
+			'tdb_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB ps3tdb.xml file (https://www.gametdb.com/ps3tdb.zip)'),
+		}
 	),
 	'PSP': SystemInfo(
 		[], [], ['PPSSPP'], {MediaType.OpticalDisc: cdrom_formats + ['cso'], MediaType.Executable: ['pbp']}, dat_names=['Sony - PlayStation Portable'], dat_uses_serial=True

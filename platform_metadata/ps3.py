@@ -1,8 +1,30 @@
-import os
 import json
-from pc_common_metadata import try_and_detect_engine_from_folder
-from .playstation_common import parse_param_sfo, parse_product_code
+import os
 from enum import Enum
+from xml.etree import ElementTree
+
+from config.main_config import main_config
+from config.system_config import system_configs
+from pc_common_metadata import try_and_detect_engine_from_folder
+
+from .gametdb import TDB, add_info_from_tdb
+from .playstation_common import parse_param_sfo, parse_product_code
+
+def load_tdb():
+	if 'PS3' not in system_configs:
+		return None
+
+	tdb_path = system_configs['PS3'].options.get('tdb_path')
+	if not tdb_path:
+		return None
+
+	try:
+		return TDB(ElementTree.parse(tdb_path))
+	except (ElementTree.ParseError, OSError) as blorp:
+		if main_config.debug:
+			print('Oh no failed to load PS3 TDB because', blorp)
+		return None
+tdb = load_tdb()
 
 def add_game_folder_metadata(rom, metadata):
 	if rom.has_subfolder('PS3_GAME'):
@@ -87,3 +109,4 @@ def add_ps3_metadata(game):
 	if game.metadata.product_code:
 		parse_product_code(game.metadata)
 		check_rpcs3_compat(game.metadata)
+		add_info_from_tdb(tdb, game.metadata, game.metadata.product_code)
