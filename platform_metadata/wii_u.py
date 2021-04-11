@@ -243,7 +243,8 @@ def add_rpx_metadata(rom, metadata):
 	try:
 		#info.json has the same info? But it's not always there
 		add_homebrew_meta_xml_metadata(rom, metadata, ElementTree.parse(os.path.join(parent_folder, 'meta.xml')))
-		metadata.categories = metadata.categories[:-1]
+		if metadata.categories[-1] == os.path.basename(parent_folder):
+			metadata.categories = metadata.categories[:-1]
 	except FileNotFoundError:
 		pass
 	homebrew_banner_path = os.path.join(parent_folder, 'icon.png')
