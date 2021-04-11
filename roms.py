@@ -171,6 +171,8 @@ def process_file(system_config, rom_dir, root, rom):
 
 	have_emulator_that_supports_extension = False
 	for potential_emulator_name in potential_emulators:
+		if potential_emulator_name not in emulator_info.emulators:
+			continue
 		potential_emulator = emulator_info.emulators[potential_emulator_name]
 		potential_emulator_config = emulator_configs[potential_emulator_name]
 		if rom.is_folder:
