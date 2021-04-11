@@ -93,16 +93,21 @@ def parse_all_dats_for_system(name, use_serial):
 	libretro_database_path = main_config.libretro_database_path
 	if not libretro_database_path:
 		return None
+	dat_folder = os.path.join(main_config.libretro_database_path, 'dat')
 	metadat_folder = os.path.join(main_config.libretro_database_path, 'metadat')
-	if not os.path.isdir(metadat_folder):
-		return None
-
-	for root, _, files in os.walk(metadat_folder):
-		for file in files:
+	
+	if os.path.isdir(dat_folder):
+		for file in os.listdir(dat_folder):
 			if file == name + '.dat':
-				path = os.path.join(root, file)
-				if os.path.isfile(path):
-					relevant_dats.append(path)
+				path = os.path.join(dat_folder, file)
+				relevant_dats.append(path)
+	if os.path.isdir(metadat_folder):
+		for root, _, files in os.walk(metadat_folder):
+			for file in files:
+				if file == name + '.dat':
+					path = os.path.join(root, file)
+					if os.path.isfile(path):
+						relevant_dats.append(path)
 	
 	if not relevant_dats:
 		print('Megan is a dork error:', name)

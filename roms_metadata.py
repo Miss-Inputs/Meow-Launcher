@@ -177,7 +177,13 @@ def add_metadata_from_libretro_database_entry(metadata, database, key):
 			publisher = database_entry['publisher']
 			while junk_suffixes.search(publisher):
 				publisher = junk_suffixes.sub('', publisher)
-			metadata.developer = company_name_overrides.get(publisher, publisher)
+			metadata.publisher = company_name_overrides.get(publisher, publisher)
+		if 'manufacturer' in database_entry:
+			publisher = database_entry['manufacturer']
+			while junk_suffixes.search(publisher):
+				publisher = junk_suffixes.sub('', publisher)
+			metadata.publisher = company_name_overrides.get(publisher, publisher)
+
 
 		if 'genre' in database_entry:
 			genre = database_entry['genre']
