@@ -421,9 +421,9 @@ def add_nsp_metadata(rom, metadata):
 	main_cnmt = choose_main_cnmt(cnmts)
 	if main_cnmt:
 		list_cnmt(main_cnmt, rom, metadata, files)
-	else:
-		if main_config.debug:
-			print('Uh oh no cnmt.nca in', rom.path, '?')
+	#else:
+	#	if main_config.debug:
+	#		print('Uh oh no cnmt.nca in', rom.path, '?')
 
 def read_hfs0(rom, offset, max_size=None):
 	header = rom.read(offset, 16)
