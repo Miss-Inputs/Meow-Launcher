@@ -368,7 +368,7 @@ def mame_intellivision(game, _, emulator_config):
 	return mame_driver(game, emulator_config, system, 'cart', has_keyboard=uses_keyboard)
 
 def mame_lynx(game, _, emulator_config):
-	if game.metadata.media_type == MediaType.Cartridge and not game.metadata.specific_info.get('Headered', False):
+	if game.metadata.media_type == MediaType.Cartridge and not game.rom.extension == 'lyx' and not game.metadata.specific_info.get('Headered', False):
 		raise EmulationNotSupportedException('Needs to have .lnx header')
 
 	slot = 'cart'
