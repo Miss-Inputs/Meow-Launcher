@@ -123,7 +123,7 @@ emulators = {
 
 	'Mednafen (Apple II)': MednafenModule(EmulatorStatus.Good, 'apple2', ['woz', 'dsk', 'po', 'do', 'd13'], command_lines.mednafen_apple_ii),
 	#Seems fine but no Apple IIe/128K?
-	'Mednafen (Lynx)': MednafenModule(EmulatorStatus.Good, 'lynx', ['lnx', 'lyx', 'o'], command_lines.mednafen_lynx),
+	'Mednafen (Lynx)': MednafenModule(EmulatorStatus.Good, 'lynx', ['lnx', 'o'], command_lines.mednafen_lynx),
 	#Based on Handy, but that hasn't been updated in 14 years, so I guess this probably has some more updates
 	'Mednafen (Neo Geo Pocket)': MednafenModule(EmulatorStatus.Good, 'ngp', ['ngp', 'npc', 'ngc']),
 	#Based off NeoPop, which hasn't been updated in 15 years, so presumably with improvements. Does say that this is unsuitable for homebrew development (due to lack of accuracy) and MAME is more suitable for that, so believe that if you want
