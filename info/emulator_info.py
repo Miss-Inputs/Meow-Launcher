@@ -227,10 +227,6 @@ emulators = {
 	#Use mo5e for export version or mo5nr for network version (I don't know what they would be useful for)
 	'MAME (Tomy Tutor)': MameDriver(EmulatorStatus.Good, mame_driver_callable('tutor', 'cart', has_keyboard=True, autoboot_script='tomy_tutor'), ['bin']),
 	#There is pyuuta if you want to read Japanese instead
-	'MAME (TRS-80)': MameDriver(EmulatorStatus.Good, mame_driver_callable('trs80l2', 'quik', has_keyboard=True), ['cmd']),
-	#trs80 only has tapes I guess, there are lots of clones of trs80l2
-	#I didn't manage to figure out disks, tapes of course require typing non-programmatically-typeable things
-	#TRS-80 Model 3 is there but sound seems to not work for backwards compatibility so like I dunno, still need to figure out if I want it as a separate system entirely
 	'MAME (VC 4000)': MameDriver(EmulatorStatus.Good, mame_driver_callable('vc4000', 'cart'), ['bin', 'rom']),
 	#There's like 30 different clones of this, and most of them aren't even clones in the MAME sense, they're literally hardware clones. But they're apparently all software-compatible, although the cartridges aren't hardware-compatible, they just contain the same software... so this all gets confusing. Anyway, the software list with all these is named "vc4000" so I guess that's the "main" one, so we'll use that. Seems that all models use 50Hz display so there shouldn't need to be model switching based on TV type
 	#TODO: Quickload slot (.pgm, .tvc)
@@ -360,6 +356,10 @@ emulators = {
 	#See also Microvision, is similarly janky with needing artwork
 	"MAME (Super A'Can)": MameDriver(EmulatorStatus.Experimental, mame_driver_callable('supracan', 'cart'), ['bin']),
 	#Some things work, except with no sound, so... nah
+	'MAME (TRS-80)': MameDriver(EmulatorStatus.Experimental, mame_driver_callable('trs80l2', 'quik', has_keyboard=True), ['cmd']),
+	#trs80 only has tapes I guess, there are lots of clones of trs80l2
+	#I didn't manage to figure out disks, tapes of course require typing non-programmatically-typeable things
+	#TRS-80 Model 3 is there but sound seems to not work for backwards compatibility so like I dunno, still need to figure out if I want it as a separate system entirely
 	'MAME (V.Smile Baby)': MameDriver(EmulatorStatus.Experimental, mame_driver_callable('vsmileb', 'cart'), ['u1', 'u3', 'bin']),
 	#Seems to crash on some titles, also everything in software list is supported=no?
 	'MAME (VideoBrain)': MameDriver(EmulatorStatus.Experimental, mame_driver_callable('vidbrain', 'cart', has_keyboard=True), ['bin']),
