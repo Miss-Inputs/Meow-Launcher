@@ -153,7 +153,7 @@ class RomGame():
 			name = self.metadata.names.get('Name', list(self.metadata.names.values())[0])
 		launchers.make_launcher(params, name, self.metadata, 'ROM', self.rom.path)
 
-def process_file(system_config, rom_dir, root, rom):
+def process_file(system_config, potential_emulators, rom_dir, root, rom):
 	game = RomGame(rom, system_config.name, system_info.systems[system_config.name], root)
 
 	if game.rom.extension == 'm3u':
@@ -165,14 +165,8 @@ def process_file(system_config, rom_dir, root, rom):
 			return False
 		game.subroms = [rom_file(referenced_file) for referenced_file in filenames]
 
-	potential_emulators = system_config.chosen_emulators
-	if not potential_emulators:
-		return False
-
 	have_emulator_that_supports_extension = False
 	for potential_emulator_name in potential_emulators:
-		if potential_emulator_name not in emulator_info.emulators:
-			continue
 		potential_emulator = emulator_info.emulators[potential_emulator_name]
 		potential_emulator_config = emulator_configs[potential_emulator_name]
 		if rom.is_folder:
@@ -198,8 +192,6 @@ def process_file(system_config, rom_dir, root, rom):
 	launch_params = None
 
 	for potential_emulator_name in potential_emulators:
-		if potential_emulator_name not in emulator_info.emulators:
-			continue
 		try:
 			potential_emulator = emulator_info.emulators[potential_emulator_name]
 			potential_emulator_config = emulator_configs[potential_emulator_name]
@@ -253,11 +245,14 @@ def sort_m3u_first():
 def process_emulated_system(system_config):
 	time_started = time.perf_counter()
 
+	potential_emulators = []
 	for emulator_name in system_config.chosen_emulators:
 		if emulator_name not in emulator_info.emulators:
 			print('Config warning:', emulator_name, 'is not a valid emulator')
 		elif emulator_name not in system_info.systems[system_config.name].emulators:
 			print('Config warning:', emulator_name, 'is not a valid emulator for', system_config.name)
+		else:
+			potential_emulators.append(emulator_name)
 
 	for rom_dir in system_config.paths:
 		rom_dir = os.path.expanduser(rom_dir)
@@ -283,7 +278,7 @@ def process_emulated_system(system_config):
 						folder_rom.media_type = media_type
 						#if process_file(system_config, rom_dir, root, folder_rom):
 						#Theoretically we might want to continue descending if we couldn't make a launcher for this folder, because maybe we also have another emulator which doesn't work with folders, but does support a file inside it. That results in weird stuff where we try to launch a file inside the folder using the same emulator we just failed to launch the folder with though, meaning we actually don't want it but now it just lacks metadata, so I'm gonna just do this for now
-						process_file(system_config, rom_dir, root, folder_rom)
+						process_file(system_config, potential_emulators, rom_dir, root, folder_rom)
 						continue
 					actual_subdirs.append(d)
 				dirs[:] = actual_subdirs
@@ -315,7 +310,7 @@ def process_emulated_system(system_config):
 
 				rom.maybe_read_whole_thing()
 				try:
-					process_file(system_config, rom_dir, root, rom)
+					process_file(system_config, potential_emulators, rom_dir, root, rom)
 				#pylint: disable=broad-except
 				except Exception as ex:
 					#It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
