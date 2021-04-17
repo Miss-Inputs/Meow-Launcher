@@ -398,7 +398,7 @@ systems = {
 		['c64'], ['c64_cart', 'c64_cass', 'c64_flop', 'c64_flop_clcracked', 'c64_flop_orig', 'c64_flop_misc'], 
 		['MAME (C64)', 'VICE (C64)', 'VICE (C64 Fast)'], {MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats},
 	),
-	'FM Towns': SystemInfo(['fmtowns', 'fmtmarty'], ['fmtowns_cd', 'fmtowns_flop'], ['MAME (FM Towns)', 'MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats + ['bin'], MediaType.OpticalDisc: cdrom_formats}),
+	'FM Towns': SystemInfo(['fmtowns', 'fmtmarty'], ['fmtowns_cd', 'fmtowns_flop_cracked', 'fmtowns_flop_misc', 'fmtowns_flop_orig'], ['MAME (FM Towns)', 'MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats + ['bin'], MediaType.OpticalDisc: cdrom_formats}), #Floppy list was just fmtowns_flop prior to 0.230
 	'MSX': SystemInfo(
 		msx1_drivers, ['msx1_cart', 'msx1_cass', 'msx1_flop'],
 		['MAME (MSX)', 'MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
