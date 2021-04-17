@@ -205,14 +205,11 @@ def mame_c64(game, _, emulator_config):
 	#normal.  _Should_ be fine
 	#(Super cool pro tip: Bind F1 to Start)
 
-	#Explicitly listed as UNSUPPORTED in the cbm_crt.cpp source file
+	#Explicitly listed as UNSUPPORTED in https://github.com/mamedev/mame/blob/master/src/lib/formats/cbm_crt.cpp
 	unsupported_mappers = [1, 2, 6, 9, 20, 29, 30, 33, 34, 35, 36, 37, 38, 40, 42, 45, 46, 47, 50, 52, 54]
 	#Not listed as unsupported, but from anecdotal experience doesn't seem to work. Should try these again one day
-	unsupported_mappers += [18, 32]
-	#18 = Sega (Zaxxon/Super Zaxxon), nothing in the source there that says it's unsupported, but it consistently segfaults every time I try to launch it, so I guess it doesn't actually work
+	unsupported_mappers += [32]
 	#32 = EasyFlash. Well, at least it doesn't segfault. Just doesn't boot, even if I play with the dip switch that says "Boot". Maybe I'm missing something here?
-		#There's a Prince of Persia cart in c64_cart.xml that uses easyflash type and is listed as being perfectly supported, but maybe it's one of those things where it'll work from the software list but not as a normal ROM (it's broken up into multiple ROMs)
-	#15 (System 3/C64GS) does seem to be a bit weird too, oh well
 	cart_type = game.metadata.specific_info.get('Mapper-Number', None)
 	cart_type_name = game.metadata.specific_info.get('Mapper', None)
 
@@ -221,12 +218,8 @@ def mame_c64(game, _, emulator_config):
 
 	system = 'c64'
 
-	if cart_type == 15:
-		#For some reason, C64GS carts don't work on a regular C64 in MAME, and we have to use...  the thing specifically designed for playing games (but we normally wouldn't use this, since some cartridge games still need the keyboard, even if just for the menus, and that's why it actually sucks titty balls IRL.  But if it weren't for that, we totes heckin would)
-		#Note that C64GS doesn't really work properly in MAME anyway, but the carts... not work... less than in the regular C64 driver
-		system = 'c64gs'
-
-	#Don't think we really need c64c unless we really want the different SID chip. Maybe that could be an option?
+	#Don't think we really need c64c unless we really want the different SID chip. Maybe that could be an emulator option?
+	#Don't think we really need c64gs either
 
 	if game.metadata.tv_type == TVSystem.PAL:
 		system = 'c64p'
