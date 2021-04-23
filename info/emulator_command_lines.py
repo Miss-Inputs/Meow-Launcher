@@ -17,7 +17,7 @@ from platform_metadata.switch import ContentMetaType
 from platform_metadata.wii import WiiTitleType
 from platform_metadata.zx_spectrum import ZXJoystick, ZXMachine
 
-from .emulator_command_line_helpers import (_is_highscore_cart_available,
+from .emulator_command_line_helpers import (is_highscore_cart_available,
                                             _is_software_available,
                                             _verify_supported_mappers,
                                             first_available_system,
@@ -150,7 +150,7 @@ def mame_atari_7800(game, _, emulator_config):
 
 	global _have_hiscore_software
 	if _have_hiscore_software is None:
-		_have_hiscore_software = _is_highscore_cart_available()
+		_have_hiscore_software = is_highscore_cart_available()
 
 	if _have_hiscore_software and game.metadata.specific_info.get('Uses-Hiscore-Cart', False):
 		return mame_driver(game, emulator_config, system, 'cart2', {'cart1': 'hiscore'})
@@ -1024,7 +1024,7 @@ def a7800(game, _, emulator_config):
 
 	global _have_hiscore_software
 	if _have_hiscore_software is None:
-		_have_hiscore_software = _is_highscore_cart_available()
+		_have_hiscore_software = is_highscore_cart_available()
 
 	if _have_hiscore_software and game.metadata.specific_info.get('Uses-Hiscore-Cart', False):
 		args += ['-cart1', 'hiscore', '-cart2', '$<path>']

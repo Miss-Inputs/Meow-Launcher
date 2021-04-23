@@ -44,7 +44,7 @@ def _is_software_available(software_list_name, software_name):
 			return True
 	return False
 
-def _is_highscore_cart_available():
+def is_highscore_cart_available():
 	return _is_software_available('a7800', 'hiscore')
 	#FIXME: This is potentially wrong for A7800, where the software directory could be different than MAME... I've just decided to assume it's set up that way
 
