@@ -320,36 +320,40 @@ def get_history_xml():
 		except FileNotFoundError:
 			continue
 	return None
-	
-def get_history(machine_or_softlist, software_name=None):
-	if not hasattr(get_history, 'history_xml'):
-		get_history.history_xml = get_history_xml()
-	if not get_history.history_xml:
-		return None
 
-	#entry = get_history.history_xml.find('entry/systems/system[@name="{0}"]/../..'.format(machine.basename)) #Is this a good idea? Will it always work? Hmm
-	#if entry is None:
-	#	return None
-	
-	#return entry.findtext('text')
+def get_histories():
+	system_histories = {}
+	software_histories = {}
 
-	for entry in get_history.history_xml.findall('entry'):
-		if software_name:
-			software = entry.find('software')
-			if software is None:
-				continue
-			if any(item.attrib.get('list') == machine_or_softlist and item.attrib.get('name') == software_name for item in software.findall('item')):
-				return entry.findtext('text')
-		else:
-			systems = entry.find('systems')
-			if systems is None:
-				continue
-			if any(system.attrib.get('name') == machine_or_softlist for system in systems.findall('system')):
-				return entry.findtext('text')
-	return None
+	xml = get_history_xml()
+	for entry in xml.findall('entry'):
+		text = entry.findtext('text')
+
+		systems = entry.find('systems')
+		if systems is not None:
+			for system in systems.findall('system'):
+				system_histories[system.attrib['name']] = text
+		softwares = entry.find('software')
+		if softwares is not None:
+			for item in softwares.findall('item'):
+				if item.attrib['list'] not in software_histories:
+					software_histories[item.attrib['list']] = {}
+				software_histories[item.attrib['list']][item.attrib['name']] = text
+	return system_histories, software_histories
 
 def add_history(metadata, machine_or_softlist, software_name=None):
-	history = get_history(machine_or_softlist, software_name)
+	if not hasattr(add_history, 'systems') or not hasattr(add_history, 'softwares'):
+		add_history.systems, add_history.softwares = get_histories()
+
+	if software_name:
+		softlist = add_history.softwares.get(machine_or_softlist)
+		if not softlist:
+			return
+		history = softlist.get(software_name)
+	else:
+		history = add_history.systems.get(machine_or_softlist)
+
+	#history = get_history(machine_or_softlist, software_name)
 	if not history:
 		return
 
