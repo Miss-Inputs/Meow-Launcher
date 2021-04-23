@@ -574,6 +574,7 @@ class PCSystem():
 
 pc_systems = {
 	'Mac': PCSystem({
+		#TODO: Literally just get extfs from ~/.basilisk_prefs you bastard
 		'shared_folder': SystemConfigValue(ConfigValueType.FolderPath, None, 'Path to shared folder on host that guest can see. This is mandatory for all this Mac stuff to work'),
 		'default_width': SystemConfigValue(ConfigValueType.String, 1920, 'Emulated screen width to run at if a game doesn\'t need a specific screen resolution'), 'default_height': SystemConfigValue(ConfigValueType.String, 1080, 'Emulated screen height to run at if a game doesn\'t need a specific screen resolution')
 	}),
