@@ -3,19 +3,31 @@ import json
 import os
 import time
 
+import launchers
 from common_paths import config_dir
-from common_types import MediaType
+from common_types import (EmulationNotSupportedException, MediaType,
+                          NotARomException)
 from config.main_config import main_config
-from metadata import Metadata, Date
+from metadata import Date, Metadata
+
 
 class App:
 	def __init__(self, info):
 		self.metadata = Metadata()
 		self.info = info
 		self.path = info['path']
-		self.name = info['name']
+		self.name = info.get('name', self.get_fallback_name())
+
+	@property
+	def platform_name(self):
+		#Intended to be overridden by subclass
+		return 'PC'
+
+	def get_fallback_name(self):
+		return os.path.basename(self.path)
 
 	def add_metadata(self):
+		self.metadata.platform = self.platform_name
 		self.additional_metadata()
 		self.metadata.media_type = MediaType.Executable
 
@@ -54,22 +66,39 @@ class App:
 		#To be overriden by subclass
 		pass
 
-	def make_launcher(self):
-		#To be overriden by subclass
-		pass
+	def make_launcher(self, emulator_list, config):
+		emulator_name = None
+		params = None
+		exception_reason = None
+		for emulator in config.chosen_emulators:
+			emulator_name = emulator
+			try:
+				params = emulator_list[emulator].get_launch_params(self, config.options)
+				if params:
+					break
+			except (EmulationNotSupportedException, NotARomException) as ex:
+				exception_reason = ex
 
-def process_app(app_info, app_class):
-	app = app_class(app_info)
-	try:
-		if not app.is_valid:
-			print('Skipping', app.name, app.path, 'config is not valid')
+		if not params:
+			if main_config.debug:
+				print(self.path, 'could not be launched by', config.chosen_emulators, 'because', exception_reason)
 			return
-		app.add_metadata()
-		app.make_launcher()
-	except Exception as ex: #pylint: disable=broad-except
-		print('Ah bugger', app.path, app.name, ex, type(ex))
 
-def make_launchers(platform, app_class):
+		self.metadata.emulator_name = emulator_name
+		launchers.make_launcher(params, self.name, self.metadata, self.platform_name, self.path)
+
+def process_app(app_info, app_class, emulator_list, config):
+	app = app_class(app_info)
+	#try:
+	if not app.is_valid:
+		print('Skipping', app.name, app.path, 'config is not valid')
+		return
+	app.add_metadata()
+	app.make_launcher(emulator_list, config)
+	#except Exception as ex: #pylint: disable=broad-except
+	#	print('Ah bugger', app.path, app.name, ex, type(ex))
+
+def make_launchers(platform, app_class, emulator_list, config):
 	time_started = time.perf_counter()
 
 	app_list_path = os.path.join(config_dir, platform.lower() + '.json')
@@ -78,7 +107,7 @@ def make_launchers(platform, app_class):
 			app_list = json.load(f)
 			for app in app_list:
 				try:
-					process_app(app, app_class)
+					process_app(app, app_class, emulator_list, config)
 				except KeyError:
 					print(app_list_path, 'has unknown entry that is missing needed keys (path, name)')
 	except json.JSONDecodeError as json_fuckin_bloody_error:

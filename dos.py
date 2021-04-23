@@ -2,10 +2,7 @@
 
 import os
 
-import launchers
 import pc
-from common_types import EmulationNotSupportedException, NotARomException
-from config.main_config import main_config
 from config.system_config import system_configs
 from info.emulator_info import dos_emulators
 from pc_common_metadata import look_for_icon_next_to_file
@@ -18,39 +15,17 @@ class DOSApp(pc.App):
 		return os.path.isfile(self.path)
 
 	def additional_metadata(self):
-		self.metadata.platform = 'DOS'
 		_, extension = os.path.splitext(self.path)
 		self.metadata.extension = extension[1:].lower()
 		icon = look_for_icon_next_to_file(self.path)
 		if icon:
 			self.metadata.images['Icon'] = icon
 
-	def make_launcher(self):
-		emulator_name = None
-		params = None
-		exception_reason = None
-		for emulator in dos_config.chosen_emulators:
-			emulator_name = emulator
-			try:
-				params = dos_emulators[emulator].get_launch_params(self, dos_config.options)
-				if params:
-					break
-			except (EmulationNotSupportedException, NotARomException) as ex:
-				exception_reason = ex
-
-		if not params:
-			if main_config.debug:
-				print(self.path, 'could not be launched by', dos_config.chosen_emulators, 'because', exception_reason)
-			return
-
-		self.metadata.emulator_name = emulator_name
-		launchers.make_launcher(params, self.name, self.metadata, 'DOS', self.path)
-
 def make_dos_launchers():
 	if dos_config:
 		if not dos_config.chosen_emulators:
 			return
-		pc.make_launchers('DOS', DOSApp)
+		pc.make_launchers('DOS', DOSApp, dos_emulators, dos_config)
 
 # def scan_app(path, exe_name, game_list, unknown_games, found_games, ambiguous_games):
 # 	possible_games = [(game_name, game_config) for game_name, game_config in game_list.items() if game_config['app_name'].lower() == exe_name]

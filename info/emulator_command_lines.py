@@ -1,10 +1,12 @@
 import configparser
 import os
+import shlex
 
 import io_utils
 from common_types import (EmulationNotSupportedException, MediaType,
                           NotARomException)
-from launchers import LaunchParams, MultiCommandLaunchParams, get_wine_launch_params
+from launchers import (LaunchParams, MultiCommandLaunchParams,
+                       get_wine_launch_params)
 from platform_metadata.apple_ii import AppleIIHardware
 from platform_metadata.atari_2600 import Atari2600Controller
 from platform_metadata.game_boy import GameBoyColourFlag
@@ -17,10 +19,10 @@ from platform_metadata.switch import ContentMetaType
 from platform_metadata.wii import WiiTitleType
 from platform_metadata.zx_spectrum import ZXJoystick, ZXMachine
 
-from .emulator_command_line_helpers import (is_highscore_cart_available,
-                                            _is_software_available,
+from .emulator_command_line_helpers import (_is_software_available,
                                             _verify_supported_mappers,
                                             first_available_system,
+                                            is_highscore_cart_available,
                                             mame_driver, mednafen_module,
                                             verify_mgba_mapper)
 from .region_info import TVSystem
@@ -1419,27 +1421,31 @@ def prboom_plus(game, system_config, emulator_config):
 
 #DOS/Mac stuff
 def basilisk_ii(app, system_config):
-	#This is all broken, I wouldn't even bother until I've messed with this a lot
-	if 'arch' in app.config:
-		if app.config['arch'] == 'ppc':
+	if 'arch' in app.info:
+		if app.info['arch'] == 'ppc':
 			raise EmulationNotSupportedException('PPC not supported')
 
 	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that. Okay, so I don't want that.
 	#Ideally, HFS manipulation would be powerful enough that we could just slip an alias into the Startup Items folder ourselves and delete it afterward. That doesn't fix the problem of automatically shutting down (still need a script for that), unless we don't create an alias at all and we create a script or something on the fly that launches that path and then shuts down, but yeah. Stuff and things.
 	autoboot_txt_path = os.path.join(system_config['shared_folder'], 'autoboot.txt')
-	width = system_config.get('default_width', 1920) #TODO Check the type to make sure it is int and use it as such. Right now, it's actually a string representing an int
-	height = system_config.get('default_height', 1080)
-	if 'max_resolution' in app.config:
-		width, height = app.config['max_resolution']
-	#Can't do anything about colour depth at the moment (displaycolordepth is functional on some SDL1 builds, but not SDL2)
-	#Or controls... but I swear I will find a way!!!!
 
-	hfv_path, inner_path = app.path.split(':', 1)
+	args = ['--extfs', system_config['shared_folder'], '--disk', app.hfv_path]
+	if 'max_resolution' in app.info:
+		width, height = app.info['max_resolution'].split('x')
+		args += ['--screen', 'dga/{0}/{1}'.format(width, height)]
 	
 	#If you're not using an SDL2 build of BasiliskII, you probably want to change dga to window! Well you really want to get an SDL2 build of BasiliskII, honestly, because I assume you do. Well the worst case scenario is that it still works, but it hecks your actual host resolution
 	commands = [
-		LaunchParams('sh', ['-c', 'echo {0} > {1}'.format(inner_path, autoboot_txt_path)]), #Hack because I can't be fucked refactoring MultiCommandLaunchParams to do pipey bois/redirecty bois
-		LaunchParams('BasiliskII', ['--screen', 'dga/{0}/{1}'.format(width, height), '--extfs', system_config['shared_folder'], '--disk', hfv_path]),
+		LaunchParams('sh', ['-c', 'echo {0} > {1}'.format(shlex.quote(app.path), shlex.quote(autoboot_txt_path))]), #Hack because I can't be fucked refactoring MultiCommandLaunchParams to do pipey bois/redirecty bois
+	]
+	if 'max_bit_depth' in app.info:
+		#--displaycolordepth doesn't work or doesn't do what I think it does, so we are setting depth from inside the thing instead
+		#This requires some AppleScript extension known as GTQ Programming Suite until I one day figure out a better way to do this
+		commands += [
+			LaunchParams('sh', ['-c', 'echo {0} > {1}'.format(app.info['max_bit_depth'], shlex.quote(autoboot_txt_path))])
+		]
+	commands += [
+		LaunchParams('BasiliskII', args),
 		LaunchParams('rm', [autoboot_txt_path])
 	]
 	return MultiCommandLaunchParams(commands)
