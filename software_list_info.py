@@ -531,8 +531,9 @@ def get_software_list_by_name(name):
 					software_list = SoftwareList(list_path)
 					get_software_list_by_name._cache[name] = software_list
 					return software_list
-		if main_config.debug:
-			print('Programmer (not user) error - called get_software_list_by_name with non-existent {0} softlist'.format(name))
+		#if main_config.debug:
+		#	print('Programmer (not user) error - called get_software_list_by_name with non-existent {0} softlist'.format(name))
+		#We should print that warning but not like 900000 times
 		return None #In theory though, we shouldn't be asking for software lists that don't exist
 	except FileNotFoundError:
 		return None
