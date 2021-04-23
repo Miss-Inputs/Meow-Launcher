@@ -1431,7 +1431,7 @@ def basilisk_ii(app, system_config):
 
 	args = ['--extfs', system_config['shared_folder'], '--disk', app.hfv_path]
 	if 'max_resolution' in app.info:
-		width, height = app.info['max_resolution'].split('x')
+		width, height = app.info['max_resolution']
 		args += ['--screen', 'dga/{0}/{1}'.format(width, height)]
 	
 	#If you're not using an SDL2 build of BasiliskII, you probably want to change dga to window! Well you really want to get an SDL2 build of BasiliskII, honestly, because I assume you do. Well the worst case scenario is that it still works, but it hecks your actual host resolution
