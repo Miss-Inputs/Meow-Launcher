@@ -4,7 +4,7 @@ import disambiguate
 import dos
 import gog
 import itch_io
-#import mac
+import mac
 import mame_machines
 import organize_folders
 import remove_nonexistent_games
@@ -34,9 +34,9 @@ def main(progress_function, mame_enabled=True, roms_enabled=True, dos_enabled=Tr
 	if roms_enabled:
 		call_progress_function('Adding ROMs')
 		roms.process_systems()
-	#if mac_enabled:
-	#	call_progress_function('Scanning Mac software')
-	#	mac.make_mac_launchers()
+	if mac_enabled:
+		call_progress_function('Adding Mac software')
+		mac.make_mac_launchers()
 	if dos_enabled:
 		call_progress_function('Adding DOS software')
 		dos.make_dos_launchers()

@@ -4,7 +4,6 @@ Gonna use stuff that's new to Python 3.7 so no trying to run this on an OS you h
 
 Stuff that is called by subprocess:
 7z (did I make this optional? I guess it can't be)
-hls, hmount, hpwd, etc (for Mac stuff which isn't even working right now)
 butler (from itch.io desktop app, if using itch.io)
 mame (gotta make sure this is optional for those only using normal ROMs and not arcade stuff)
 scummvm (if using it)

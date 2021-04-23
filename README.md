@@ -63,7 +63,7 @@ So, what games does Meow Launcher launch, anyway? Should I have put this part so
 
 In progress is MAME software but I haven't done that yet.
 
-TODO: Describe the config files in more detail:
+TODO: Describe the config files in more detail and also dos.json/mac.json is wrong:
 
 - config.ini: General configuration
 - systems.ini: For ROMs, specifies where you put them, and also what emulators you want to use
