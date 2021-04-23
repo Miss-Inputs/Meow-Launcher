@@ -24,7 +24,12 @@ class App:
 		return 'PC'
 
 	def get_fallback_name(self):
+		#Might want to override in subclass, maybe not
 		return os.path.basename(self.path)
+	
+	def get_launcher_id(self):
+		#Might want to override in subclass, maybe not
+		return self.path
 
 	def add_metadata(self):
 		self.metadata.platform = self.platform_name
@@ -85,7 +90,7 @@ class App:
 			return
 
 		self.metadata.emulator_name = emulator_name
-		launchers.make_launcher(params, self.name, self.metadata, self.platform_name, self.path)
+		launchers.make_launcher(params, self.name, self.metadata, self.platform_name, self.get_launcher_id())
 
 def process_app(app_info, app_class, emulator_list, config):
 	app = app_class(app_info)

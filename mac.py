@@ -26,8 +26,11 @@ class MacApp(pc.App):
 	def additional_metadata(self):
 		self.metadata.platform = 'Mac'
 
+	def get_launcher_id(self):
+		return self.hfv_path + '/' + self.path
+
 def no_longer_exists(game_id):
-	hfv_path, inner_path = game_id.split(':', 1)
+	hfv_path, inner_path = game_id.split('/', 1)
 	if not os.path.isfile(hfv_path):
 		return True
 
