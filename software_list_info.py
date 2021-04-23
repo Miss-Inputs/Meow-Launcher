@@ -515,11 +515,12 @@ def get_software_lists_by_names(names):
 		return []
 	return [software_list for software_list in [get_software_list_by_name(name) for name in names] if software_list]
 
-_software_list_cache = {}
 def get_software_list_by_name(name):
-	global _software_list_cache
-	if name in _software_list_cache:
-		return _software_list_cache[name]
+	if not hasattr(get_software_list_by_name, '_cache'):
+		get_software_list_by_name._cache = {}
+
+	if name in get_software_list_by_name._cache:
+		return get_software_list_by_name._cache[name]
 
 	try:
 		mame_config = get_mame_core_config()
@@ -528,7 +529,7 @@ def get_software_list_by_name(name):
 				list_path = os.path.join(hash_path, name + '.xml')
 				if os.path.isfile(list_path):
 					software_list = SoftwareList(list_path)
-					_software_list_cache[name] = software_list
+					get_software_list_by_name._cache[name] = software_list
 					return software_list
 		if main_config.debug:
 			print('Programmer (not user) error - called get_software_list_by_name with non-existent {0} softlist'.format(name))
