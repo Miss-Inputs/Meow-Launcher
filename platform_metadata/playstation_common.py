@@ -12,7 +12,7 @@ categories = {
 	'AT': ('TV App', 'Applications'),
 	'WT': ('Web TV App', 'Applications'),
 	'HG': ('HDD Game', 'Games'),
-	'CB': ('CB', 'Applications'), #Folding@home, etc
+	'CB': ('Network App', 'Applications'), #Folding@home, etc, RPCS3 says this is what CB means and I guess homebrew apps that are like web browsers etc use it
 	'AS': ('App Store', 'Tools'),
 	'HM': ('Home', 'Tools'),
 	'SF': ('Shopfront', 'Tools'),
