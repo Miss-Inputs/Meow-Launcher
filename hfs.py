@@ -5,7 +5,8 @@ except ImportError:
 	have_machfs = False
 
 def get_path(volume, path):
-	return volume[tuple(path.split(':'))]
+	#Skip the first part since that's the volume name and the tuple indexing for machfs.Volume doesn't work that way
+	return volume[tuple(path.split(':')[1:])]
 
 def does_exist(hfv_path, path):
 	if not have_machfs:
