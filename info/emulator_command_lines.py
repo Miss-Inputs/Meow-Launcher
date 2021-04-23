@@ -1347,7 +1347,7 @@ def rpcs3(game, _, emulator_config):
 		game_compat = game.metadata.specific_info.get('RPCS3-Compatibility')
 		if game_compat:
 			if game_compat.value < threshold:
-				raise EmulationNotSupportedException('Game is only {0} status'.format(game_compat.name))
+				raise EmulationNotSupportedException('Game ({0}) is only {1} status'.format(game.metadata.names.get('Banner-Title'), game_compat.name))
 
 	#It's clever enough to boot folders specified as a path
 	return LaunchParams(emulator_config.exe_path, ['--no-gui', '$<path>'])
