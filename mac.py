@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from enum import Enum
 import os
+from enum import Enum
 
 import pc
 from config.main_config import main_config
@@ -131,7 +131,6 @@ def _machfs_read_file(path):
 		return v
 _machfs_read_file._current_file = None
 _machfs_read_file._current_file_path = None
-
 
 def does_exist(hfv_path, path):
 	if not have_machfs:
