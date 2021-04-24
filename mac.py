@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from metadata import Date
 import os
 from enum import Enum
 
@@ -329,12 +330,36 @@ class MacApp(pc.App):
 						self.metadata.specific_info['Language-Code'] = language_code
 					try:
 						short_version_length = vers[6] #Pascal style strings
-						short_version = vers[7:7+short_version_length].decode('mac-roman')
 						long_version_length = vers[7+short_version_length]
-						long_version = vers[7+short_version_length + 1:7+short_version_length + 1 + long_version_length].decode('mac-roman')
-						#These seem to be used for copyright strings more than actual versions
-						self.metadata.descriptions['Short-Version'] = short_version
-						self.metadata.descriptions['Long-Version'] = long_version
+						actual_short_version = None
+						actual_long_version = None
+						if short_version_length:
+							short_version = vers[7:7+short_version_length].decode('mac-roman')
+							if short_version.startswith('©'):
+								self.metadata.specific_info['Short-Copyright'] = short_version
+							else:
+								actual_short_version = short_version
+						if long_version_length:
+							long_version = vers[7+short_version_length + 1:7+short_version_length + 1 + long_version_length].decode('mac-roman')
+							copyright = None
+							if ', ©' in long_version:
+								actual_long_version, copyright = long_version.split(', ©')
+							elif ' ©' in long_version:
+								actual_long_version, copyright = long_version.split(' ©')
+							elif '©' in long_version:
+								actual_long_version, copyright = long_version.split('©')
+							else:
+								actual_long_version = long_version
+							if copyright:
+								if copyright[:4].isdigit() and (len(copyright) == 4 or copyright[5] in (',', ' ')):
+									copyright_year = Date(year=copyright[:4], is_guessed=True)
+									if copyright_year.is_better_than(self.metadata.release_date):
+										self.metadata.release_date = copyright_year
+								self.metadata.specific_info['Copyright'] = '©' + copyright
+						if actual_short_version:
+							self.metadata.specific_info['Version'] = actual_short_version
+						if actual_long_version and actual_long_version != actual_short_version:
+							self.metadata.specific_info['Long-Version'] = actual_long_version
 					except UnicodeDecodeError:
 						pass
 		else:
