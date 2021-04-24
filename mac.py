@@ -257,6 +257,7 @@ class MacApp(pc.App):
 		return None
 
 	def additional_metadata(self):
+		self.metadata.specific_info['Executable-Name'] = self.path.split(':')[-1]
 		if have_machfs:
 			creator = self._get_file().creator.decode('mac-roman', errors='backslashreplace')
 			self.metadata.specific_info['Creator-Code'] = creator

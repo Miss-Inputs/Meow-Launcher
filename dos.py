@@ -20,6 +20,7 @@ class DOSApp(pc.App):
 
 	def additional_metadata(self):
 		_, extension = os.path.splitext(self.path)
+		self.metadata.specific_info['Executable-Name'] = os.path.basename(self.path)
 		self.metadata.extension = extension[1:].lower()
 		icon = look_for_icon_next_to_file(self.path)
 		if icon:
