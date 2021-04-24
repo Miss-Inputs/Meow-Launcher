@@ -124,6 +124,8 @@ class MacApp(pc.App):
 		
 	@property
 	def is_valid(self):
+		if self._get_file():
+			return True
 		return does_exist(self.hfv_path, self.path)
 
 	def get_fallback_name(self):
