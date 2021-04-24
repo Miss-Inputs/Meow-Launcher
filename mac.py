@@ -224,7 +224,12 @@ class MacApp(pc.App):
 			resource_id = 128 #Usually the icon the Finder displays has ID 128, but we will check the BNDL to be sure if it has one
 			bndls = resources.get(b'BNDL', {})
 			if bndls:
-				bndl = list(bndls.values())[0] #Probably has ID 128, and is supposed to, but sometimes doesn't
+				try:
+					#Supposed to be BNDL 128, but not always
+					bndl = [b for b in bndls.values() if b[0:4] == self._get_file().creator][0]
+				except IndexError:
+					bndl = list(bndls.values())[0]
+
 				for fref in resources.get(b'FREF', {}).values():
 					if fref[0:4] == self._get_file().type:
 						icon_local_id = int.from_bytes(fref[4:6], 'big')
@@ -372,8 +377,10 @@ class MacApp(pc.App):
 							self.metadata.specific_info['Long-Version'] = actual_long_version
 					except UnicodeDecodeError:
 						pass
-		else:
-			self.metadata.specific_info['Architecture'] = self.info.get('arch')
+		
+		if 'arch' in self.info:
+			#Allow manual override (sometimes apps are jerks and have 68K code just for the sole purpose of showing you a dialog box saying you can't run it on a 68K processor)
+			self.metadata.specific_info['Architecture'] = self.info['arch']
 				
 	def get_launcher_id(self):
 		return self.hfv_path + '/' + self.path
