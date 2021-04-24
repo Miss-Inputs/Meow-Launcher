@@ -117,20 +117,33 @@ def get_path(volume, path):
 	#Skip the first part since that's the volume name and the tuple indexing for machfs.Volume doesn't work that way
 	return volume[tuple(path.split(':')[1:])]
 
+def _machfs_read_file(path):
+	#Try to avoid having to slurp really big files for each app by keeping it in memory if it's the same disk image
+	if _machfs_read_file._current_file_path == path:
+		return _machfs_read_file._current_file
+
+	with open(path, 'rb') as f:
+		#Hmm, this could be slurping very large (maybe gigabyte(s)) files all at once
+		v = machfs.Volume()
+		v.read(f.read())
+		_machfs_read_file._current_file = v
+		_machfs_read_file._current_file_path = path
+		return v
+_machfs_read_file._current_file = None
+_machfs_read_file._current_file_path = None
+
+
 def does_exist(hfv_path, path):
 	if not have_machfs:
 		#I guess it might just be safer to assume it's still there
 		return True
-	v = machfs.Volume()
 	try:
-		with open(hfv_path, 'rb') as f:
-		#Hmm, this could be slurping very large (maybe gigabyte(s)) files all at once
-			v.read(f.read())
-			try:
-				get_path(v, path)
-				return True
-			except KeyError:
-				return False
+		try:
+			v = _machfs_read_file(hfv_path)
+			get_path(v, path)
+			return True
+		except KeyError:
+			return False
 	except FileNotFoundError:
 		return False
 
@@ -145,12 +158,9 @@ class MacApp(pc.App):
 		return "Mac"
 
 	def _real_get_file(self):
-		v = machfs.Volume()
 		try:
-			with open(self.hfv_path, 'rb') as f:
-			#Hmm, this could be slurping very large (maybe gigabyte(s)) files all at once
-				v.read(f.read())
-				return get_path(v, self.path)
+			v = _machfs_read_file(self.hfv_path)
+			return get_path(v, self.path)
 		except (KeyError, FileNotFoundError):
 			return None
 
