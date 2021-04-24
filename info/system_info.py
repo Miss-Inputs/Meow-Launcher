@@ -569,14 +569,11 @@ all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers] + ibmpc
 #DEC Rainbow: Uses DOS so maybe goes in pc_systems but maybe the CP/M part is its own thing
 
 class PCSystem():
-	def __init__(self, options):
+	def __init__(self, options=None):
 		self.options = options if options else {}
 
 pc_systems = {
-	'Mac': PCSystem({
-		#TODO: Literally just get extfs from ~/.basilisk_prefs you bastard
-		'shared_folder': SystemConfigValue(ConfigValueType.FolderPath, None, 'Path to shared folder on host that guest can see. This is mandatory for all this Mac stuff to work'),
-	}),
+	'Mac': PCSystem(),
 	'DOS': PCSystem({
 		'dosbox_configs_path': SystemConfigValue(ConfigValueType.FolderPath, os.path.join(data_dir, 'dosbox_configs'), 'Folder to store DOSBox per-application configuration files'),
 	})

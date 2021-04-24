@@ -1426,9 +1426,21 @@ def basilisk_ii(app, system_config):
 
 	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that. Okay, so I don't want that.
 	#Ideally, HFS manipulation would be powerful enough that we could just slip an alias into the Startup Items folder ourselves and delete it afterward. That doesn't fix the problem of automatically shutting down (still need a script for that), unless we don't create an alias at all and we create a script or something on the fly that launches that path and then shuts down, but yeah. Stuff and things.
-	autoboot_txt_path = os.path.join(system_config['shared_folder'], 'autoboot.txt')
+	shared_folder = None
+	try:
+		with open(os.path.expanduser('~/.basilisk_ii_prefs'), 'rt') as f:
+			for line in f.readlines():
+				if line.startswith('extfs '):
+					shared_folder = line[6:-1]
+					break
+	except FileNotFoundError:
+		pass
+	if not shared_folder:
+		raise EmulationNotSupportedException('You need to set up your shared folder first')
 
-	args = ['--extfs', system_config['shared_folder'], '--disk', app.hfv_path]
+	autoboot_txt_path = os.path.join(shared_folder, 'autoboot.txt')
+
+	args = ['--disk', app.hfv_path]
 	if 'max_resolution' in app.info:
 		width, height = app.info['max_resolution']
 		args += ['--screen', 'dga/{0}/{1}'.format(width, height)]
