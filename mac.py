@@ -192,8 +192,9 @@ class MacApp(pc.App):
 			resource_id = -16455
 		else:
 			resource_id = 128 #Usually the icon the Finder displays has ID 128, but we will check the BNDL to be sure if it has one
-			bndl = resources.get(b'BNDL', {}).get(128)
-			if bndl:
+			bndls = resources.get(b'BNDL', {})
+			if bndls:
+				bndl = list(bndls.values())[0] #Probably has ID 128, and is supposed to, but sometimes doesn't
 				for fref in resources.get(b'FREF', {}).values():
 					if fref[0:4] == self._get_file().type:
 						icon_local_id = int.from_bytes(fref[4:6], 'big')
