@@ -1441,7 +1441,7 @@ def basilisk_ii(app, system_config):
 		#--displaycolordepth doesn't work or doesn't do what I think it does, so we are setting depth from inside the thing instead
 		#This requires some AppleScript extension known as GTQ Programming Suite until I one day figure out a better way to do this
 		commands += [
-			LaunchParams('sh', ['-c', 'echo {0} > {1}'.format(app.info['max_bit_depth'], shlex.quote(autoboot_txt_path))])
+			LaunchParams('sh', ['-c', 'echo {0} >> {1}'.format(app.info['max_bit_depth'], shlex.quote(autoboot_txt_path))])
 		]
 	commands += [
 		LaunchParams('BasiliskII', args),
