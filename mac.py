@@ -228,10 +228,11 @@ class MacApp(pc.App):
 				if have_pillow:
 					self.metadata.images['Icon'] = self._get_icon()
 			
-				vers = self._get_resources().get(b'vers', {}).get(128)
+				verses = self._get_resources().get(b'vers', {})
+				vers = verses.get(1, verses.get(128)) #There are other vers resources too but 1 is the main one (I think?), 128 is used in older apps? maybe?
 				if vers:
 					version, revision = vers[0:2]
-					self.metadata.specific_info['Version'] = '{0}.{1}'.format(version, revision) #If revision is 2 digits it should maybe be version.x.y?
+					self.metadata.specific_info['Version'] = str(version) + '.' + '.'.join('{0:x}'.format(revision))
 					if vers[2] != 0x80 and not self.metadata.categories:
 						#0x80 = final, 0x60 = beta, 0x40 = alpha, 0x20 = development
 						self.metadata.categories = ['Betas']
