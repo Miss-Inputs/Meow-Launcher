@@ -257,7 +257,7 @@ class MacApp(pc.App):
 		if icl4:
 			if len(icl4) != 512:
 				if main_config.debug:
-					print('Baaa', self.path, 'has a bad icl8 with size', len(icl4), 'should be 512')
+					print('Baaa', self.path, 'has a bad icl4 with size', len(icl4), 'should be 512')
 			else:
 				#Since this is 4-bit colour we need to unpack 0b1111_1111 to 0b0000_1111 0b0000_1111
 				
