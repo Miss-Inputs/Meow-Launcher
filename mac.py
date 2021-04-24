@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from metadata import Date
+import datetime
 import os
 from enum import Enum
 
@@ -8,6 +8,7 @@ import pc
 from config.main_config import main_config
 from config.system_config import system_configs
 from info.emulator_info import mac_emulators
+from metadata import Date
 
 try:
 	import machfs
@@ -130,6 +131,8 @@ class CountryCode(Enum):
 	Thailand = 54
 	Brazil = 71
 	#I know there are more than these, ResEdit says so… must have been in a later version though because Inside Macintosh only lists these
+
+mac_epoch = datetime.datetime(1904, 1, 1)
 
 def get_path(volume, path):
 	#Skip the first part since that's the volume name and the tuple indexing for machfs.Volume doesn't work that way
@@ -288,6 +291,13 @@ class MacApp(pc.App):
 		if have_machfs:
 			creator = self._get_file().creator.decode('mac-roman', errors='backslashreplace')
 			self.metadata.specific_info['Creator-Code'] = creator
+
+			#Can also get mddate if wanted
+			creation_datetime = mac_epoch + datetime.timedelta(seconds=self._get_file().crdate)
+			creation_date = Date(creation_datetime.year, creation_datetime.month, creation_datetime.day, True)
+			if creation_date.is_better_than(self.metadata.release_date):
+				self.metadata.release_date = creation_date
+
 			#self.metadata.specific_info['File-Flags'] = self._get_file().flags
 			if have_macresources:
 				#If you have machfs you do have macresources too, but still
