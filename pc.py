@@ -50,17 +50,6 @@ class App:
 			self.metadata.subgenre = self.info['subgenre']
 		if 'notes' in self.info:
 			self.metadata.notes = self.info['notes']
-		
-		# self.languages = []
-		# self.save_type = SaveType.Unknown
-		# self.product_code = None
-		# self.regions = []
-		# self.media_type = None
-		# self.disc_number = None
-		# self.disc_total = None
-		# self.series = None
-		# self.series_index = None
-		#Maybe?
 
 	@property
 	def is_valid(self):
