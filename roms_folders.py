@@ -76,7 +76,7 @@ def is_wii_homebrew_folder(folder):
 
 def is_wii_u_folder(folder):
 	#If we find a digital dump we stop there instead of descending into it
-	#TODO: You could have two rpxes which is tricky (see also Wii U Sports Club (but do I care))
+	#Note: If there are two rpxes (I swear I've seen that once) you want the one referred to in cos.xml, is that file always there?
 	if folder.has_subfolder('code') and folder.has_subfolder('content') and folder.has_subfolder('meta'):
 		for f in os.scandir(folder.get_subfolder('code')):
 			if f.is_file() and f.name.endswith('.rpx'):
