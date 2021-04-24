@@ -96,7 +96,7 @@ class CountryCode(Enum):
 	Spain = 8
 	Denmark = 9
 	Portugal = 10
-	Canada = 11
+	FrenchCanada = 11
 	Norway = 12
 	Israel = 13
 	Japan = 14
@@ -110,7 +110,24 @@ class CountryCode(Enum):
 	Malta = 22
 	Cyprus = 23
 	Turkey = 24
-	Yugoslavia = 25
+	YugoslaviaCroatia = 25
+	HindiIndia = 33
+	UrduPakistan = 34
+	Lithuania = 41
+	Poland = 42
+	Hungary = 43
+	Estonia = 44
+	Latvia = 45
+	Lapland = 46
+	FaroeIslands = 47
+	Iran = 48
+	Russia = 49
+	Ireland = 50
+	Korea = 51
+	China = 52
+	Taiwan = 53
+	Thailand = 54
+	Brazil = 71
 	#I know there are more than these, ResEdit says so… must have been in a later version though because Inside Macintosh only lists these
 
 def get_path(volume, path):
