@@ -2,14 +2,38 @@
 
 import os
 
-import hfs
 import pc
 from config.system_config import system_configs
 from info.emulator_info import mac_emulators
 
-#Just pretend this file doesn't exist for now
+try:
+	import machfs
+	have_machfs = True
+except ImportError:
+	have_machfs = False
 
 mac_config = system_configs.get('Mac')
+
+def get_path(volume, path):
+	#Skip the first part since that's the volume name and the tuple indexing for machfs.Volume doesn't work that way
+	return volume[tuple(path.split(':')[1:])]
+
+def does_exist(hfv_path, path):
+	if not have_machfs:
+		#I guess it might just be safer to assume it's still there
+		return True
+	v = machfs.Volume()
+	try:
+		with open(hfv_path, 'rb') as f:
+		#Hmm, this could be slurping very large (maybe gigabyte(s)) files all at once
+			v.read(f.read())
+			try:
+				get_path(v, path)
+				return True
+			except KeyError:
+				return False
+	except FileNotFoundError:
+		return False
 
 class MacApp(pc.App):
 	def __init__(self, info):
@@ -18,7 +42,7 @@ class MacApp(pc.App):
 
 	@property
 	def is_valid(self):
-		return hfs.does_exist(self.hfv_path, self.path)
+		return does_exist(self.hfv_path, self.path)
 
 	def get_fallback_name(self):
 		return self.path.split(':')[-1]
@@ -34,7 +58,7 @@ def no_longer_exists(game_id):
 	if not os.path.isfile(hfv_path):
 		return True
 
-	return not hfs.does_exist(hfv_path, inner_path)
+	return not does_exist(hfv_path, inner_path)
 
 def make_mac_launchers():
 	if mac_config:
