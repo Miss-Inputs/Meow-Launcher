@@ -94,14 +94,14 @@ class App:
 
 def process_app(app_info, app_class, emulator_list, config):
 	app = app_class(app_info)
-	#try:
-	if not app.is_valid:
-		print('Skipping', app.name, app.path, 'config is not valid')
-		return
-	app.add_metadata()
-	app.make_launcher(emulator_list, config)
-	#except Exception as ex: #pylint: disable=broad-except
-	#	print('Ah bugger', app.path, app.name, ex, type(ex))
+	try:
+		if not app.is_valid:
+			print('Skipping', app.name, app.path, 'config is not valid')
+			return
+		app.add_metadata()
+		app.make_launcher(emulator_list, config)
+	except Exception as ex: #pylint: disable=broad-except
+		print('Ah bugger', app.path, app.name, ex, type(ex))
 
 def make_launchers(platform, app_class, emulator_list, config):
 	time_started = time.perf_counter()
