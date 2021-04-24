@@ -104,6 +104,7 @@ class MacApp(pc.App):
 		self.hfv_path = info['hfv_path']
 		self._file = None #Lazy load it
 	
+	@property
 	def platform_name(self):
 		return "Mac"
 
