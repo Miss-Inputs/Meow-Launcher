@@ -275,6 +275,19 @@ class MacApp(pc.App):
 				#If you have machfs you do have macresources too, but still
 				if have_pillow:
 					self.metadata.images['Icon'] = self._get_icon()
+
+				#According to https://support.apple.com/kb/TA21606?locale=en_AU this should work
+				has_ppc = b'cfrg' in self._get_resources() #Code fragment, ID always 0
+				has_68k = b'CODE' in self._get_resources()
+				if has_ppc:
+					if has_68k:
+						self.metadata.specific_info['Architecture'] = 'Fat'
+					else:
+						self.metadata.specific_info['Architecture'] = 'PPC'
+				elif has_68k:
+					self.metadata.specific_info['Architecture'] = '68k'
+				else:
+					self.metadata.specific_info['Architecture'] = 'Unknown' #Maybe this will happen for really old stuff
 			
 				verses = self._get_resources().get(b'vers', {})
 				vers = verses.get(1, verses.get(128)) #There are other vers resources too but 1 is the main one (I think?), 128 is used in older apps? maybe?
@@ -306,6 +319,8 @@ class MacApp(pc.App):
 						self.metadata.descriptions['Long-Version'] = long_version
 					except UnicodeDecodeError:
 						pass
+		else:
+			self.metadata.specific_info['Architecture'] = self.info.get('arch')
 				
 	def get_launcher_id(self):
 		return self.hfv_path + '/' + self.path
