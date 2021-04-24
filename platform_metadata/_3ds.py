@@ -246,7 +246,7 @@ def parse_smdh_data(metadata, smdh):
 	else:
 		region_codes = []
 		for region in _3DSRegionCode:
-			if region == _3DSRegionCode.RegionFree:
+			if region in (_3DSRegionCode.RegionFree, _3DSRegionCode.WiiURegionFree):
 				continue
 			#I want a list here so this looks weird
 			if region.value & region_code_flag:
