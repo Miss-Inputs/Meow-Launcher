@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from enum import Enum
 import os
 
 import pc
@@ -76,6 +77,41 @@ mac_os_16_palette = [
 	64, 64, 64,
 	0, 0, 0,
 ]
+
+class BuildStage(Enum):
+	Final = 0x80
+	Beta = 0x60
+	Alpha = 0x40
+	Development = 0x20
+
+class CountryCode(Enum):
+	USA = 0
+	France = 1
+	Britain = 2
+	Germany = 3
+	Italy = 4
+	Netherlands = 5
+	BelgiumLuxembourg = 6
+	Sweden = 7
+	Spain = 8
+	Denmark = 9
+	Portugal = 10
+	Canada = 11
+	Norway = 12
+	Israel = 13
+	Japan = 14
+	Australia = 15
+	Arabia = 16
+	Finland = 17
+	FrenchSwiss = 18
+	GermanSwiss = 19
+	Greece = 20
+	Iceland = 21
+	Malta = 22
+	Cyprus = 23
+	Turkey = 24
+	Yugoslavia = 25
+	#I know there are more than these, ResEdit says so… must have been in a later version though because Inside Macintosh only lists these
 
 def get_path(volume, path):
 	#Skip the first part since that's the volume name and the tuple indexing for machfs.Volume doesn't work that way
@@ -234,11 +270,21 @@ class MacApp(pc.App):
 				if vers:
 					version, revision = vers[0:2]
 					self.metadata.specific_info['Version'] = str(version) + '.' + '.'.join('{0:x}'.format(revision))
-					if vers[2] != 0x80 and not self.metadata.categories:
-						#0x80 = final, 0x60 = beta, 0x40 = alpha, 0x20 = development
-						self.metadata.categories = ['Betas']
-					#Build number: vers[3]
-					self.metadata.specific_info['Language-Code'] = int.from_bytes(vers[4:6], 'big')
+					if vers[2] != 0x80:
+						try:
+							self.metadata.specific_info['Build-Stage'] = BuildStage(vers[2])
+						except ValueError:
+							pass
+						if not self.metadata.categories:
+							self.metadata.categories = ['Betas']
+					if vers[3]: #"Non-release" / build number
+						self.metadata.specific_info['Revision'] = vers[3]
+					language_code = int.from_bytes(vers[4:6], 'big') #Or is it a country? I don't know
+					try:
+						#TODO: Fill out region/language fields using this
+						self.metadata.specific_info['Language-Code'] = CountryCode(language_code)
+					except ValueError:
+						self.metadata.specific_info['Language-Code'] = language_code
 					try:
 						short_version_length = vers[6] #Pascal style strings
 						short_version = vers[7:7+short_version_length].decode('mac-roman')
