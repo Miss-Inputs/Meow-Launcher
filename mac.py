@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from common import format_byte_size
 import datetime
 import os
 from enum import Enum
@@ -308,6 +309,27 @@ class MacApp(pc.App):
 				#If you have machfs you do have macresources too, but still
 				if have_pillow:
 					self.metadata.images['Icon'] = self._get_icon()
+
+				sizes = self._get_resources().get(b'SIZE')
+				if sizes:
+					#Supposed to be -1, 0 and 1 are created when user manually changes preferred/minimum RAM?
+					size = sizes.get(-1, sizes.get(0, sizes.get(1)))
+					if size:
+						#Bit 0: Save screen (obsolete)
+						#Bit 1: Accept suspend/resume events
+						#Bit 2: Disable option (obsolete)
+						#Bit 3: Can background
+						#Bit 4: Does activate on FG switch
+						#Bit 5: Only background (has no user interface)
+						#Bit 6: Get front clicks
+						#Bit 7: Accept app died events (debuggers) (the good book says "app launchers use this" and apparently applications use ignoreAppDiedEvents)
+						#Bit 9 (bit 1 of second byte): High level event aware
+						#Bit 10: Local and remote high level events
+						#Bit 11: Stationery aware
+						#Bit 12: Use text edit services ("inline services"?)
+						if size[1] & (1 << 7) == 0: #I guess the bits go that way around I dunno
+							self.metadata.specific_info['Not-32-Bit-Clean'] = True
+						self.metadata.specific_info['Minimum-RAM'] = format_byte_size(int.from_bytes(size[6:10], 'big'))
 
 				if self._get_file().type == b'APPL':
 					#According to https://support.apple.com/kb/TA21606?locale=en_AU this should work

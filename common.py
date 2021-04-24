@@ -1,5 +1,6 @@
 import importlib.resources
 import json
+import math
 import re
 
 find_brackets = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)')
@@ -215,3 +216,18 @@ def load_json(subpackage, resource):
 		package += '.' + subpackage
 	with importlib.resources.open_binary(package, resource) as f: #It would be text, but I don't know if I wanna accidentally fuck around with encodings
 		return json.load(f)
+
+def _format_unit(n, suffix, base_unit=1000, singular_suffix=None):
+	try:
+		if n < base_unit:
+			return '{0} {1}'.format(n, singular_suffix if singular_suffix else suffix)
+	except TypeError:
+		return n
+	
+	exp = int(math.log(n, base_unit))
+	unit_suffix = 'KMGTPE'[exp - 1]
+	d = round(n / math.pow(base_unit, exp), 2)
+	return '{0} {1}{2}'.format(d, unit_suffix, suffix)
+
+def format_byte_size(b, metric=True):
+	return _format_unit(b, 'B' if metric else 'iB', 1000 if metric else 1024, 'bytes')
