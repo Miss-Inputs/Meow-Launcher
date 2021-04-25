@@ -460,7 +460,7 @@ class MacEmulator():
 
 mac_emulators = {
 	'BasiliskII': MacEmulator(command_lines.basilisk_ii),
-	#TODO: Add SheepShaver here, even if we would have to do the vm.mmap thingy
+	'SheepShaver': MacEmulator(command_lines.sheepshaver),
 }
 
 class DOSEmulator():

@@ -1420,6 +1420,27 @@ def prboom_plus(game, system_config, emulator_config):
 	return LaunchParams(emulator_config.exe_path, args)
 
 #DOS/Mac stuff
+def _macemu_args(app, autoboot_txt_path, command_name):
+	args = ['--disk', app.hfv_path]
+	if 'max_resolution' in app.info:
+		width, height = app.info['max_resolution']
+		args += ['--screen', 'dga/{0}/{1}'.format(width, height)]
+	
+	commands = [
+		LaunchParams('sh', ['-c', 'echo {0} > {1}'.format(shlex.quote(app.path), shlex.quote(autoboot_txt_path))]), #Hack because I can't be fucked refactoring MultiCommandLaunchParams to do pipey bois/redirecty bois
+	]
+	if 'max_bit_depth' in app.info:
+		#--displaycolordepth doesn't work or doesn't do what I think it does, so we are setting depth from inside the thing instead
+		#This requires some AppleScript extension known as GTQ Programming Suite until I one day figure out a better way to do this
+		commands += [
+			LaunchParams('sh', ['-c', 'echo {0} >> {1}'.format(app.info['max_bit_depth'], shlex.quote(autoboot_txt_path))])
+		]
+	commands += [
+		LaunchParams(command_name, args),
+		LaunchParams('rm', [autoboot_txt_path])
+	]
+	return MultiCommandLaunchParams(commands)
+
 def basilisk_ii(app, _):
 	if app.metadata.specific_info.get('Architecture') == 'PPC':
 		raise EmulationNotSupportedException('PPC not supported')
@@ -1439,27 +1460,26 @@ def basilisk_ii(app, _):
 		raise EmulationNotSupportedException('You need to set up your shared folder first')
 
 	autoboot_txt_path = os.path.join(shared_folder, 'autoboot.txt')
+	return _macemu_args(app, autoboot_txt_path, 'BasiliskII')
 
-	args = ['--disk', app.hfv_path]
-	if 'max_resolution' in app.info:
-		width, height = app.info['max_resolution']
-		args += ['--screen', 'dga/{0}/{1}'.format(width, height)]
-	
-	#If you're not using an SDL2 build of BasiliskII, you probably want to change dga to window! Well you really want to get an SDL2 build of BasiliskII, honestly, because I assume you do. Well the worst case scenario is that it still works, but it hecks your actual host resolution
-	commands = [
-		LaunchParams('sh', ['-c', 'echo {0} > {1}'.format(shlex.quote(app.path), shlex.quote(autoboot_txt_path))]), #Hack because I can't be fucked refactoring MultiCommandLaunchParams to do pipey bois/redirecty bois
-	]
-	if 'max_bit_depth' in app.info:
-		#--displaycolordepth doesn't work or doesn't do what I think it does, so we are setting depth from inside the thing instead
-		#This requires some AppleScript extension known as GTQ Programming Suite until I one day figure out a better way to do this
-		commands += [
-			LaunchParams('sh', ['-c', 'echo {0} >> {1}'.format(app.info['max_bit_depth'], shlex.quote(autoboot_txt_path))])
-		]
-	commands += [
-		LaunchParams('BasiliskII', args),
-		LaunchParams('rm', [autoboot_txt_path])
-	]
-	return MultiCommandLaunchParams(commands)
+def sheepshaver(app, _):
+	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that. Okay, so I don't want that.
+	#Ideally, HFS manipulation would be powerful enough that we could just slip an alias into the Startup Items folder ourselves and delete it afterward. That doesn't fix the problem of automatically shutting down (still need a script for that), unless we don't create an alias at all and we create a script or something on the fly that launches that path and then shuts down, but yeah. Stuff and things.
+	shared_folder = None
+	try:
+		with open(os.path.expanduser('~/.sheepshaver_prefs'), 'rt') as f:
+			for line in f.readlines():
+				if line.startswith('extfs '):
+					shared_folder = line[6:-1]
+					break
+	except FileNotFoundError:
+		pass
+	if not shared_folder:
+		raise EmulationNotSupportedException('You need to set up your shared folder first')
+
+	autoboot_txt_path = os.path.join(shared_folder, 'autoboot.txt')
+
+	return _macemu_args(app, autoboot_txt_path, 'SheepShaver')
 
 def _make_dosbox_config(app, system_config):
 	configwriter = configparser.ConfigParser(allow_no_value=True)

@@ -60,14 +60,14 @@ class App:
 		#To be overriden by subclass
 		pass
 
-	def make_launcher(self, emulator_list, config):
+	def make_launcher(self, emulator_list, system_config):
 		emulator_name = None
 		params = None
 		exception_reason = None
-		for emulator in config.chosen_emulators:
+		for emulator in system_config.chosen_emulators:
 			emulator_name = emulator
 			try:
-				params = emulator_list[emulator].get_launch_params(self, config.options)
+				params = emulator_list[emulator].get_launch_params(self, system_config.options)
 				if params:
 					break
 			except (EmulationNotSupportedException, NotARomException) as ex:
@@ -75,24 +75,24 @@ class App:
 
 		if not params:
 			if main_config.debug:
-				print(self.path, 'could not be launched by', config.chosen_emulators, 'because', exception_reason)
+				print(self.path, 'could not be launched by', system_config.chosen_emulators, 'because', exception_reason)
 			return
 
 		self.metadata.emulator_name = emulator_name
 		launchers.make_launcher(params, self.name, self.metadata, self.platform_name, self.get_launcher_id())
 
-def process_app(app_info, app_class, emulator_list, config):
+def process_app(app_info, app_class, emulator_list, system_config):
 	app = app_class(app_info)
 	try:
 		if not app.is_valid:
 			print('Skipping', app.name, app.path, 'config is not valid')
 			return
 		app.add_metadata()
-		app.make_launcher(emulator_list, config)
+		app.make_launcher(emulator_list, system_config)
 	except Exception as ex: #pylint: disable=broad-except
 		print('Ah bugger', app.path, app.name, ex, type(ex))
 
-def make_launchers(platform, app_class, emulator_list, config):
+def make_launchers(platform, app_class, emulator_list, system_config):
 	time_started = time.perf_counter()
 
 	app_list_path = os.path.join(config_dir, platform.lower() + '.json')
@@ -101,7 +101,7 @@ def make_launchers(platform, app_class, emulator_list, config):
 			app_list = json.load(f)
 			for app in app_list:
 				try:
-					process_app(app, app_class, emulator_list, config)
+					process_app(app, app_class, emulator_list, system_config)
 				except KeyError:
 					print(app_list_path, 'has unknown entry that is missing needed keys (path, name)')
 	except json.JSONDecodeError as json_fuckin_bloody_error:
