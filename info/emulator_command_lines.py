@@ -1420,7 +1420,7 @@ def prboom_plus(game, system_config, emulator_config):
 	return LaunchParams(emulator_config.exe_path, args)
 
 #DOS/Mac stuff
-def basilisk_ii(app, system_config):
+def basilisk_ii(app, _):
 	if app.metadata.specific_info.get('Architecture') == 'PPC':
 		raise EmulationNotSupportedException('PPC not supported')
 
