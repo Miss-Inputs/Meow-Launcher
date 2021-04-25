@@ -170,13 +170,33 @@ def does_exist(hfv_path, path):
 
 class MacApp(pc.App):
 	def __init__(self, info):
-		super().__init__(info)
 		self.hfv_path = info['hfv_path']
 		self._file = None #Lazy load it
+		super().__init__(info)
+
+	@property
+	def _carbon_path(self):
+		if not self.path.endswith('.app'):
+			return None
+		try:
+			v = _machfs_read_file(self.hfv_path)
+			if isinstance(get_path(v, self.path), machfs.Folder):
+				basename = self.path.split(':')[-1][:-4]
+				contents = get_path(v, self.path)['Contents']
+				if 'MacOSClassic' in contents:
+					return self.path + ':Contents:MacOSClassic:' + basename
+				elif 'MacOS' in contents:
+					return self.path + ':Contents:MacOS:' + basename
+		except (KeyError, FileNotFoundError):
+			pass
+		return None
 
 	def _real_get_file(self):
 		try:
 			v = _machfs_read_file(self.hfv_path)
+			carbon_path = self._carbon_path
+			if carbon_path:
+				return get_path(v, carbon_path)
 			return get_path(v, self.path)
 		except (KeyError, FileNotFoundError):
 			return None
@@ -194,6 +214,9 @@ class MacApp(pc.App):
 		return does_exist(self.hfv_path, self.path)
 
 	def get_fallback_name(self):
+		if have_machfs:
+			if self._carbon_path:
+				return self.path.split(':')[-1][:-4]
 		return self.path.split(':')[-1]
 
 	def _get_resources(self):
@@ -300,6 +323,11 @@ class MacApp(pc.App):
 	def additional_metadata(self):
 		self.metadata.specific_info['Executable-Name'] = self.path.split(':')[-1]
 		if have_machfs:
+			carbon_path = self._carbon_path
+			if carbon_path:
+				self.metadata.specific_info['Is-Carbon'] = True
+				self.metadata.specific_info['Carbon-Path'] = carbon_path
+				self.metadata.specific_info['Architecture'] = 'PPC' #This has to be manually specified because some pretend to be fat binaries?
 			creator = self._get_file().creator.decode('mac-roman', errors='backslashreplace')
 			self.metadata.specific_info['Creator-Code'] = creator
 
@@ -336,7 +364,7 @@ class MacApp(pc.App):
 							self.metadata.specific_info['Not-32-Bit-Clean'] = True
 						self.metadata.specific_info['Minimum-RAM'] = format_byte_size(int.from_bytes(size[6:10], 'big'))
 
-				if self._get_file().type == b'APPL':
+				if self._get_file().type == b'APPL' and 'Architecture' not in self.metadata.specific_info:
 					#According to https://support.apple.com/kb/TA21606?locale=en_AU this should work
 					has_ppc = b'cfrg' in self._get_resources() #Code fragment, ID always 0
 					has_68k = b'CODE' in self._get_resources()

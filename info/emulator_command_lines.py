@@ -1426,8 +1426,9 @@ def _macemu_args(app, autoboot_txt_path, emulator_config):
 		width, height = app.info['max_resolution']
 		args += ['--screen', 'dga/{0}/{1}'.format(width, height)]
 	
+	app_path = app.metadata.specific_info.get('Carbon-Path', app.path)
 	commands = [
-		LaunchParams('sh', ['-c', 'echo {0} > {1}'.format(shlex.quote(app.path), shlex.quote(autoboot_txt_path))]), #Hack because I can't be fucked refactoring MultiCommandLaunchParams to do pipey bois/redirecty bois
+		LaunchParams('sh', ['-c', 'echo {0} > {1}'.format(shlex.quote(app_path), shlex.quote(autoboot_txt_path))]), #Hack because I can't be fucked refactoring MultiCommandLaunchParams to do pipey bois/redirecty bois
 	]
 	if 'max_bit_depth' in app.info:
 		#--displaycolordepth doesn't work or doesn't do what I think it does, so we are setting depth from inside the thing instead
