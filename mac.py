@@ -8,7 +8,6 @@ from enum import Enum
 import pc
 from config.main_config import main_config
 from config.system_config import system_configs
-from info.emulator_info import mac_emulators
 from metadata import Date
 
 try:
@@ -418,7 +417,7 @@ def make_mac_launchers():
 	if mac_config:
 		if not mac_config.chosen_emulators:
 			return
-	pc.make_launchers('Mac', MacApp, mac_emulators, mac_config)
+	pc.make_launchers('Mac', MacApp, mac_config)
 
 # def scan_app(hfv_path, app, game_list, unknown_games, found_games, ambiguous_games):
 # 	overall_path = hfv_path + ':' + app['path']

@@ -448,32 +448,24 @@ emulators = {
 	#TODO: Put Acorn Archimedes MAME driver in there anyway, even if I need to click the thing, I think that is not too unreasonable
 }
 
-class MacEmulator():
+class PCEmulator():
 	def __init__(self, launch_params):
 		self.launch_params = launch_params
-
 	def get_launch_params(self, app, system_config):
 		if callable(self.launch_params):
 			return self.launch_params(app, system_config)
 
 		return self.launch_params
+class MacEmulator(PCEmulator):
+	#Wait do we need this to be a separate class actually
+	pass
+	
+class DOSEmulator(PCEmulator):
+	pass
 
-mac_emulators = {
+pc_emulators = {
 	'BasiliskII': MacEmulator(command_lines.basilisk_ii),
 	'SheepShaver': MacEmulator(command_lines.sheepshaver),
-}
-
-class DOSEmulator():
-	def __init__(self, launch_params):
-		self.launch_params = launch_params
-
-	def get_launch_params(self, app, system_config):
-		if callable(self.launch_params):
-			return self.launch_params(app, system_config)
-
-		return self.launch_params
-
-dos_emulators = {
 	'DOSBox': DOSEmulator(command_lines.dosbox),
 	'DOSBox-X': DOSEmulator(command_lines.dosbox_x)
 }

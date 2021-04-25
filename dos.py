@@ -4,7 +4,6 @@ import os
 
 import pc
 from config.system_config import system_configs
-from info.emulator_info import dos_emulators
 from pc_common_metadata import look_for_icon_next_to_file
 
 dos_config = system_configs.get('DOS')
@@ -30,7 +29,7 @@ def make_dos_launchers():
 	if dos_config:
 		if not dos_config.chosen_emulators:
 			return
-		pc.make_launchers('DOS', DOSApp, dos_emulators, dos_config)
+		pc.make_launchers('DOS', DOSApp, dos_config)
 
 # def scan_app(path, exe_name, game_list, unknown_games, found_games, ambiguous_games):
 # 	possible_games = [(game_name, game_config) for game_name, game_config in game_list.items() if game_config['app_name'].lower() == exe_name]

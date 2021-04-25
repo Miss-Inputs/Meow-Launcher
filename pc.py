@@ -9,7 +9,7 @@ from common_types import (EmulationNotSupportedException, MediaType,
                           NotARomException)
 from config.main_config import main_config
 from metadata import Date, Metadata
-
+from info.emulator_info import pc_emulators
 
 class App:
 	def __init__(self, info):
@@ -60,14 +60,14 @@ class App:
 		#To be overriden by subclass
 		pass
 
-	def make_launcher(self, emulator_list, system_config):
+	def make_launcher(self, system_config):
 		emulator_name = None
 		params = None
 		exception_reason = None
 		for emulator in system_config.chosen_emulators:
 			emulator_name = emulator
 			try:
-				params = emulator_list[emulator].get_launch_params(self, system_config.options)
+				params = pc_emulators[emulator].get_launch_params(self, system_config.options)
 				if params:
 					break
 			except (EmulationNotSupportedException, NotARomException) as ex:
@@ -81,18 +81,18 @@ class App:
 		self.metadata.emulator_name = emulator_name
 		launchers.make_launcher(params, self.name, self.metadata, self.platform_name, self.get_launcher_id())
 
-def process_app(app_info, app_class, emulator_list, system_config):
+def process_app(app_info, app_class, system_config):
 	app = app_class(app_info)
 	try:
 		if not app.is_valid:
 			print('Skipping', app.name, app.path, 'config is not valid')
 			return
 		app.add_metadata()
-		app.make_launcher(emulator_list, system_config)
+		app.make_launcher(system_config)
 	except Exception as ex: #pylint: disable=broad-except
 		print('Ah bugger', app.path, app.name, ex, type(ex))
 
-def make_launchers(platform, app_class, emulator_list, system_config):
+def make_launchers(platform, app_class, system_config):
 	time_started = time.perf_counter()
 
 	app_list_path = os.path.join(config_dir, platform.lower() + '.json')
@@ -101,7 +101,7 @@ def make_launchers(platform, app_class, emulator_list, system_config):
 			app_list = json.load(f)
 			for app in app_list:
 				try:
-					process_app(app, app_class, emulator_list, system_config)
+					process_app(app, app_class, system_config)
 				except KeyError:
 					print(app_list_path, 'has unknown entry that is missing needed keys (path, name)')
 	except json.JSONDecodeError as json_fuckin_bloody_error:
