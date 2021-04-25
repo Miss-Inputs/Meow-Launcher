@@ -172,10 +172,6 @@ class MacApp(pc.App):
 		super().__init__(info)
 		self.hfv_path = info['hfv_path']
 		self._file = None #Lazy load it
-	
-	@property
-	def platform_name(self):
-		return "Mac"
 
 	def _real_get_file(self):
 		try:

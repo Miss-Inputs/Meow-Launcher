@@ -18,11 +18,6 @@ class App:
 		self.path = info['path']
 		self.name = info.get('name', self.get_fallback_name())
 
-	@property
-	def platform_name(self):
-		#Intended to be overridden by subclass
-		return 'PC'
-
 	def get_fallback_name(self):
 		#Might want to override in subclass, maybe not
 		return os.path.basename(self.path)
@@ -32,10 +27,7 @@ class App:
 		return self.path
 
 	def add_metadata(self):
-		self.metadata.platform = self.platform_name
-		self.additional_metadata()
 		self.metadata.media_type = MediaType.Executable
-
 		if 'developer' in self.info:
 			self.metadata.developer = self.info['developer']
 		if 'publisher' in self.info:
@@ -50,14 +42,15 @@ class App:
 			self.metadata.subgenre = self.info['subgenre']
 		if 'notes' in self.info:
 			self.metadata.notes = self.info['notes']
+		self.additional_metadata()
 
 	@property
 	def is_valid(self):
-		#To be overriden by subclass
+		#To be overriden by subclass - return true if this config is pointing to something that actually exists
 		return True
 
 	def additional_metadata(self):
-		#To be overriden by subclass
+		#To be overriden by subclass - optional, put any other platform-specific metadata you want in here
 		pass
 
 	def make_launcher(self, system_config):
@@ -79,7 +72,7 @@ class App:
 			return
 
 		self.metadata.emulator_name = emulator_name
-		launchers.make_launcher(params, self.name, self.metadata, self.platform_name, self.get_launcher_id())
+		launchers.make_launcher(params, self.name, self.metadata, system_config.name, self.get_launcher_id())
 
 def process_app(app_info, app_class, system_config):
 	app = app_class(app_info)
@@ -87,6 +80,7 @@ def process_app(app_info, app_class, system_config):
 		if not app.is_valid:
 			print('Skipping', app.name, app.path, 'config is not valid')
 			return
+		app.metadata.platform = system_config.name
 		app.add_metadata()
 		app.make_launcher(system_config)
 	except Exception as ex: #pylint: disable=broad-except

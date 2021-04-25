@@ -13,10 +13,6 @@ class DOSApp(pc.App):
 	def is_valid(self):
 		return os.path.isfile(self.path)
 
-	@property
-	def platform_name(self):
-		return 'DOS'
-
 	def additional_metadata(self):
 		_, extension = os.path.splitext(self.path)
 		self.metadata.specific_info['Executable-Name'] = os.path.basename(self.path)
