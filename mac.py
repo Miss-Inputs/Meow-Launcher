@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
-from common import format_byte_size
 import datetime
+import io
 import os
 from enum import Enum
 
 import pc
+from common import format_byte_size
 from config.main_config import main_config
 from config.system_config import system_configs
 from metadata import Date
@@ -23,7 +24,7 @@ except ImportError:
 	have_macresources = False
 
 try:
-	from PIL import Image
+	from PIL import Image, UnidentifiedImageError
 	have_pillow = True
 except ImportError:
 	have_pillow = False
@@ -208,16 +209,25 @@ class MacApp(pc.App):
 
 	def _get_icon(self):
 		resources = self._get_resources()
+		try:
+			if -16455 in resources.get(b'icns', {}):
+				#Get custom icns if we have one, are these ever referred to in a bundle?
+				return Image.open(io.BytesIO(resources[b'icns'][-16455]))
+		except UnidentifiedImageError:
+			#I guess sometimes it's janky and not loadable by us, which is strange
+			pass
+
 		mask = None
 		icon_bw = None
 		icon_16 = None
 		icon_256 = None
 		
 		if -16455 in resources.get(b'ICN#', {}):
-			#Get custom icon if we have one
+			#Get custom icon if we have one (this is controlled by the "has custom icon" flag in HFS but imo it's easier to just check for this ID)
 			resource_id = -16455
 		else:
 			resource_id = 128 #Usually the icon the Finder displays has ID 128, but we will check the BNDL to be sure if it has one
+			#This is normally controlled by the "Has bundle" flag in HFS but we don't really have a way of reading that I think
 			bndls = resources.get(b'BNDL', {})
 			if bndls:
 				try:
