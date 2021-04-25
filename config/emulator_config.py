@@ -2,7 +2,7 @@ import configparser
 import os
 
 from common_paths import config_dir
-from info.emulator_info import emulators
+from info.emulator_info import all_emulators
 from io_utils import ensure_exist
 from common_types import ConfigValueType
 
@@ -29,7 +29,7 @@ class EmulatorConfigs():
 			ensure_exist(_emulator_config_path)
 			parser.read(_emulator_config_path)
 
-			for name, emulator in emulators.items():
+			for name, emulator in all_emulators.items():
 				#Every emulator will need its own entry in this dict
 				self.configs[name] = EmulatorConfig(name)
 				if name in parser:

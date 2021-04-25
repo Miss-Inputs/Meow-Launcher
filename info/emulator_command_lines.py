@@ -1420,7 +1420,7 @@ def prboom_plus(game, system_config, emulator_config):
 	return LaunchParams(emulator_config.exe_path, args)
 
 #DOS/Mac stuff
-def _macemu_args(app, autoboot_txt_path, command_name):
+def _macemu_args(app, autoboot_txt_path, emulator_config):
 	args = ['--disk', app.hfv_path]
 	if 'max_resolution' in app.info:
 		width, height = app.info['max_resolution']
@@ -1436,12 +1436,12 @@ def _macemu_args(app, autoboot_txt_path, command_name):
 			LaunchParams('sh', ['-c', 'echo {0} >> {1}'.format(app.info['max_bit_depth'], shlex.quote(autoboot_txt_path))])
 		]
 	commands += [
-		LaunchParams(command_name, args),
+		LaunchParams(emulator_config.exe_path, args),
 		LaunchParams('rm', [autoboot_txt_path])
 	]
 	return MultiCommandLaunchParams(commands)
 
-def basilisk_ii(app, _):
+def basilisk_ii(app, emulator_config, _):
 	if app.metadata.specific_info.get('Architecture') == 'PPC':
 		raise EmulationNotSupportedException('PPC not supported')
 
@@ -1460,9 +1460,9 @@ def basilisk_ii(app, _):
 		raise EmulationNotSupportedException('You need to set up your shared folder first')
 
 	autoboot_txt_path = os.path.join(shared_folder, 'autoboot.txt')
-	return _macemu_args(app, autoboot_txt_path, 'BasiliskII')
+	return _macemu_args(app, autoboot_txt_path, emulator_config)
 
-def sheepshaver(app, _):
+def sheepshaver(app, emulator_config, _):
 	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that. Okay, so I don't want that.
 	#Ideally, HFS manipulation would be powerful enough that we could just slip an alias into the Startup Items folder ourselves and delete it afterward. That doesn't fix the problem of automatically shutting down (still need a script for that), unless we don't create an alias at all and we create a script or something on the fly that launches that path and then shuts down, but yeah. Stuff and things.
 	shared_folder = None
@@ -1479,7 +1479,7 @@ def sheepshaver(app, _):
 
 	autoboot_txt_path = os.path.join(shared_folder, 'autoboot.txt')
 
-	return _macemu_args(app, autoboot_txt_path, 'SheepShaver')
+	return _macemu_args(app, autoboot_txt_path, emulator_config)
 
 def _make_dosbox_config(app, system_config):
 	configwriter = configparser.ConfigParser(allow_no_value=True)
@@ -1509,16 +1509,16 @@ def _make_dosbox_config(app, system_config):
 
 	return path
 	
-def dosbox(app, system_config):
+def dosbox(app, emulator_config, system_config):
 	args = ['-fullscreen', '-exit', '-noautoexec', '-userconf']
 
 	game_conf = _make_dosbox_config(app, system_config)
 	if game_conf:
 		args += ['-conf', game_conf]
 
-	return LaunchParams('dosbox', args + [app.path])
+	return LaunchParams(emulator_config.exe_path, args + [app.path])
 
-def dosbox_x(app, _):
+def dosbox_x(app, emulator_config, _):
 	confs = {}
 
 	if 'required_hardware' in app.info:
@@ -1538,4 +1538,4 @@ def dosbox_x(app, _):
 		args.append('-set')
 		args.append('{0}={1}'.format(k, v))
 
-	return LaunchParams('dosbox-x', args + [app.path])
+	return LaunchParams(emulator_config.exe_path, args + [app.path])

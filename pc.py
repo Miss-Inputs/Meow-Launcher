@@ -7,9 +7,11 @@ import launchers
 from common_paths import config_dir
 from common_types import (EmulationNotSupportedException, MediaType,
                           NotARomException)
+from config.emulator_config import emulator_configs
 from config.main_config import main_config
-from metadata import Date, Metadata
 from info.emulator_info import pc_emulators
+from metadata import Date, Metadata
+
 
 class App:
 	def __init__(self, info):
@@ -59,8 +61,9 @@ class App:
 		exception_reason = None
 		for emulator in system_config.chosen_emulators:
 			emulator_name = emulator
+			emulator_config = emulator_configs[emulator]
 			try:
-				params = pc_emulators[emulator].get_launch_params(self, system_config.options)
+				params = pc_emulators[emulator].get_launch_params(self, emulator_config, system_config.options)
 				if params:
 					break
 			except (EmulationNotSupportedException, NotARomException) as ex:
