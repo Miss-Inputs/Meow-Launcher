@@ -42,21 +42,12 @@ def get_metadata_from_tags(game):
 		if languages:
 			game.metadata.languages = languages			
 
-	if 'TV-Type' not in game.metadata.specific_info:
-		tv_type = detect_things_from_filename.get_tv_system_from_filename_tags(tags)
-		if tv_type:
-			game.metadata.specific_info['TV-Type'] = tv_type
-
 def get_metadata_from_regions(game):
 	if game.metadata.regions:
 		if not game.metadata.languages:
 			region_language = region_info.get_language_from_regions(game.metadata.regions)
 			if region_language:
 				game.metadata.languages = [region_language]
-		if 'TV-Type' not in game.metadata.specific_info:
-			tv_type = region_info.get_tv_system_from_regions(game.metadata.regions)
-			if tv_type:
-				game.metadata.specific_info['TV-Type'] = tv_type
 
 def find_equivalent_arcade_game(game, basename):
 	#Just to be really strict: We will only get it if the name matches
@@ -241,6 +232,19 @@ def add_metadata_from_libretro_database(game):
 				else:
 					add_metadata_from_libretro_database_entry(game.metadata, database, key)
 
+def autodetect_tv_type(game):
+	if game.metadata.specific_info.get('TV-Type'):
+		return
+	
+	from_tags = detect_things_from_filename.get_tv_system_from_filename_tags(game.filename_tags)
+	if from_tags:
+		game.metadata.specific_info['TV-Type'] = from_tags
+		return
+	
+	from_region = region_info.get_tv_system_from_regions(game.metadata.regions)
+	if from_region:
+		game.metadata.specific_info['TV-Type'] = from_region
+		return
 
 def add_metadata(game):
 	add_alternate_names(game.rom, game.metadata)
@@ -283,4 +287,5 @@ def add_metadata(game):
 
 	if game.system.dat_names:
 		add_metadata_from_libretro_database(game)
-		
+	if game.system.autodetect_tv_type:
+		autodetect_tv_type(game)
