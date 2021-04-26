@@ -1,3 +1,4 @@
+from info.region_info import TVSystem
 from software_list_info import get_software_list_entry, find_in_software_lists, matcher_args_for_bytes
 
 ccs64_cart_types = {
@@ -111,5 +112,9 @@ def add_commodore_64_metadata(game):
 		#Also see 'requirement' info field... may be useful at some point, contains a value among the lines of "c64_cart:blah" where blah is some addon cart for a floppy or tape software to work properly (cpm, fcc, magicvce, midipp, music64, ps64, sfxse, speakez, supercpu, goliath)
 		#There's dataarea nvram, but those are two carts which are more accurately described as device BIOSes, so I won't bother
 
-		#Also info = protection and info = video (NTSC/PAL)
-		#TODO: info video and software.compatibility should be used to determine TVSystem
+		#Also info = protection
+		try:
+			game.metadata.specific_info['TV-Type'] = TVSystem(software.get_info('video'))
+		except ValueError:
+			pass
+		#TODO: software.compatibility should be used to determine TVSystem

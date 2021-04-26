@@ -1,6 +1,5 @@
 import input_metadata
 from common_types import SaveType
-from info.region_info import TVSystem
 from platform_metadata.minor_systems import add_generic_info
 
 publishers = {
@@ -50,7 +49,6 @@ publishers = {
 }
 
 def add_wonderswan_metadata(game):
-	game.metadata.tv_type = TVSystem.Agnostic
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	if game.metadata.platform == 'Benesse Pocket Challenge V2':

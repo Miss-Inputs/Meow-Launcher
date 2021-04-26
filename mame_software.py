@@ -39,7 +39,7 @@ def _neo_geo(software):
 	return _launch_with_software('aes', software)
 
 def _super_cassette_vision(software):
-	machine = 'scv_pal' if software.metadata.tv_type == TVSystem.PAL else 'scv'
+	machine = 'scv_pal' if software.metadata.specific_info.get('TV-Type') == TVSystem.PAL else 'scv'
 	return _launch_with_software(machine, software)
 
 software_list_platforms = [

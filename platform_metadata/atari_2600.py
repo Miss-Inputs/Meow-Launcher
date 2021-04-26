@@ -180,9 +180,9 @@ def parse_stella_db(metadata, game_info):
 		display_format = game_info['Display_Format']
 		if display_format in ('NTSC', 'PAL60', 'SECAM60'):
 			#Treat PAL60 etc as NTSC because meh
-			metadata.tv_type = TVSystem.NTSC
+			metadata.specific_info['TV-Type'] = TVSystem.NTSC
 		elif display_format in ('PAL', 'SECAM', 'NTSC50'):
-			metadata.tv_type = TVSystem.PAL
+			metadata.specific_info['TV-Type'] = TVSystem.PAL
 
 	left_controller = game_info.get('Controller_Left')
 	right_controller = game_info.get('Controller_Right')

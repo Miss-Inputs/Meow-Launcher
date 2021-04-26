@@ -1,14 +1,11 @@
 import input_metadata
 from common import NotAlphanumericException, convert_alphanumeric
-from info.region_info import TVSystem
 from metadata import Date
 
 from platform_metadata.minor_systems import add_generic_info
 
 
 def add_vectrex_metadata(game):
-	game.metadata.tv_type = TVSystem.Agnostic
-
 	gamepad = input_metadata.NormalController()
 	gamepad.face_buttons = 4 #All arranged in a row, not rectangle
 	gamepad.analog_sticks = 1

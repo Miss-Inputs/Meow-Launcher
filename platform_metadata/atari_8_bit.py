@@ -50,7 +50,7 @@ def add_info_from_software_list(metadata, software):
 
 	usage = software.get_info('usage')
 	if usage == 'Plays music only in PAL':
-		metadata.tv_type = TVSystem.PAL
+		metadata.specific_info['TV-Type'] = TVSystem.PAL
 	elif usage == 'BASIC must be enabled.':
 		metadata.specific_info['Requires-BASIC'] = True
 	else:

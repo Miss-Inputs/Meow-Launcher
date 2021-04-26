@@ -1,9 +1,9 @@
-from info.region_info import TVSystem
 import input_metadata
+
 from platform_metadata.minor_systems import add_generic_info
 
+
 def add_ngp_metadata(game):
-	game.metadata.tv_type = TVSystem.Agnostic
 
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1

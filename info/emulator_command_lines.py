@@ -44,13 +44,13 @@ def mame_32x(game, _, emulator_config):
 			system = '32x'
 	else:
 		system = '32x'
-		if game.metadata.tv_type == TVSystem.PAL:
+		if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 			system = '32xe'
 	return mame_driver(game, emulator_config, system, 'cart')
 
 def mame_amiga_cd32(game, _, emulator_config):
 	system = 'cd32'
-	if game.metadata.tv_type == TVSystem.NTSC:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.NTSC:
 		#PAL is more likely if it is unknown
 		system = 'cd32n'
 	return mame_driver(game, emulator_config, system, 'cdrom')
@@ -122,7 +122,7 @@ def mame_atari_2600(game, _, emulator_config):
 	elif right == Atari2600Controller.DrivingController:
 		options['joyport2'] = 'wheel'
 
-	if game.metadata.tv_type == TVSystem.PAL:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		system = 'a2600p'
 	else:
 		system = 'a2600'
@@ -145,7 +145,7 @@ def mame_atari_7800(game, _, emulator_config):
 		#This would only be supported via software list
 		raise EmulationNotSupportedException('No header')
 
-	if game.metadata.tv_type == TVSystem.PAL:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		system = 'a7800p'
 	else:
 		system = 'a7800'
@@ -190,11 +190,11 @@ def mame_atari_8bit(game, system_config, emulator_config):
 
 	machine = game.metadata.specific_info.get('Machine')
 	if machine == 'XL':
-		system = 'a800xlp' if game.metadata.tv_type == TVSystem.PAL else 'a800xl'
+		system = 'a800xlp' if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL else 'a800xl'
 	elif machine == 'XE':
 		system = 'a65xe' #No PAL XE machine in MAME?
 	else:
-		system = 'a800pal' if game.metadata.tv_type == TVSystem.PAL else 'a800'
+		system = 'a800pal' if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL else 'a800'
 	
 	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True)
 
@@ -223,7 +223,7 @@ def mame_c64(game, _, emulator_config):
 	#Don't think we really need c64c unless we really want the different SID chip. Maybe that could be an emulator option?
 	#Don't think we really need c64gs either
 
-	if game.metadata.tv_type == TVSystem.PAL:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		system = 'c64p'
 
 
@@ -248,7 +248,7 @@ def mame_coleco_adam(game, _, emulator_config):
 
 def mame_colecovision(game, _, emulator_config):
 	system = 'coleco'
-	if game.metadata.tv_type == TVSystem.PAL:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		#This probably won't happen (officially, carts are supposed to support both NTSC and PAL), but who knows
 		system = 'colecop'
 
@@ -376,7 +376,7 @@ def mame_lynx(game, _, emulator_config):
 def mame_master_system(game, _, emulator_config):
 	tv_type = TVSystem.PAL #Seems a more sensible default at this point (there are also certain homebrews with less-than-detectable TV types that demand PAL)
 
-	if game.metadata.tv_type in (TVSystem.NTSC, TVSystem.Agnostic):
+	if game.metadata.specific_info.get('TV-Type') in (TVSystem.NTSC, TVSystem.Agnostic):
 		tv_type = TVSystem.NTSC
 
 	if game.metadata.specific_info.get('Japanese-Only', False):
@@ -434,7 +434,7 @@ def mame_mega_cd(game, _, emulator_config):
 			system = 'segacd'
 	else:
 		system = 'segacd'
-		if game.metadata.tv_type == TVSystem.PAL:
+		if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 			system = 'megacd'
 	#megacda also exists (Asia/PAL), not sure if we need it (is that what EuropeA is for?)
 	return mame_driver(game, emulator_config, system, 'cdrom')
@@ -488,7 +488,7 @@ def mame_megadrive(game, _, emulator_config):
 		#This would happen if unlicensed/no TMSS stuff and so there is no region code info at all in the header
 		#genesis and megadrij might not always be compatible...
 		system = 'genesis'
-		if game.metadata.tv_type == TVSystem.PAL:
+		if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 			system = 'megadriv'
 	return mame_driver(game, emulator_config, system, 'cart')
 
@@ -568,7 +568,7 @@ def mame_msx2plus(game, _, emulator_config):
 	return mame_driver(game, emulator_config, _msx2plus_system, slot, slot_options, has_keyboard=True)
 
 def mame_n64(game, _, emulator_config):
-	if game.metadata.tv_type == TVSystem.PAL:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		raise EmulationNotSupportedException('NTSC only')
 
 	return mame_driver(game, emulator_config, 'n64', 'cart')
@@ -593,7 +593,7 @@ def mame_nes(game, _, emulator_config):
 	has_keyboard = False
 
 	#There doesn't seem to be a way to know if we should use dendy, so I hope we don't actually need to
-	if game.metadata.tv_type == TVSystem.PAL:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		system = 'nespal'
 	else:
 		#There's both a "famicom" driver and also a "nes" driver which does include the Famicom (as well as NTSC NES), this seems to only matter for what peripherals can be connected
@@ -632,7 +632,7 @@ def mame_nes(game, _, emulator_config):
 def mame_odyssey2(game, _, emulator_config):
 	system = 'odyssey2'
 
-	if game.metadata.tv_type == TVSystem.PAL:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		system = 'videopac'
 	#system = 'videopacf' if region == France could also be a thing? Hmm
 
@@ -661,7 +661,7 @@ def mame_pico(game, _, emulator_config):
 			system = 'picoj' #Seems the most likely default
 	else:
 		system = 'picoj'
-		if game.metadata.tv_type == TVSystem.PAL:
+		if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 			system = 'pico'
 	return mame_driver(game, emulator_config, system, 'cart')
 
@@ -684,7 +684,7 @@ def mame_saturn(game, _, emulator_config):
 
 def mame_sord_m5(game, _, emulator_config):
 	system = 'm5'
-	if game.metadata.tv_type == TVSystem.PAL:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		system = 'm5p'
 		#Not sure what m5p_brno is about (two floppy drives?)
 
@@ -768,7 +768,7 @@ def mame_snes(game, system_config, emulator_config):
 		if slot.endswith(('_poke', '_sbld', '_tekken2', '_20col')):
 			raise EmulationNotSupportedException('{0} mapper not supported'.format(slot))
 
-	if game.metadata.tv_type == TVSystem.PAL:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		system = 'snespal'
 	else:
 		#American SNES and Super Famicom are considered to be the same system, so that works out nicely
@@ -783,7 +783,7 @@ def mame_super_cassette_vision(game, _, emulator_config):
 		raise EmulationNotSupportedException('RAM on cartridge not supported except from software list (game would malfunction)')
 
 	system = 'scv'
-	if game.metadata.tv_type == TVSystem.PAL:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		system = 'scv_pal'
 
 	return mame_driver(game, emulator_config, system, 'cart')
@@ -794,7 +794,7 @@ def mame_vic_20(game, _, emulator_config):
 		#It too damn big (only likes 8KB with 2 byte header at most)
 		raise EmulationNotSupportedException('Single-part >8K cart not supported: %d' % size)
 
-	if game.metadata.tv_type == TVSystem.PAL:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		system = 'vic20p'
 	else:
 		system = 'vic20'
@@ -945,9 +945,9 @@ def vice_c64(game, _, emulator_config):
 				raise EmulationNotSupportedException('Cart type %s not supported' % cart_type_name)
 
 	args = ['-VICIIfull']
-	if game.metadata.tv_type == TVSystem.NTSC:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.NTSC:
 		args += ['-model', 'ntsc']
-	elif game.metadata.tv_type == TVSystem.PAL:
+	elif game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		args += ['-model', 'pal']
 	args.append('$<path>')
 
@@ -955,18 +955,18 @@ def vice_c64(game, _, emulator_config):
 
 def vice_c128(game, _, emulator_config):
 	args = ['-VDCfull']
-	if game.metadata.tv_type == TVSystem.NTSC:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.NTSC:
 		args += ['-model', 'ntsc']
-	elif game.metadata.tv_type == TVSystem.PAL:
+	elif game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		args += ['-model', 'pal']
 	args.append('$<path>')
 	return LaunchParams(emulator_config.exe_path, args)
 
 def vice_pet(game, _, emulator_config):
 	args = ['-CRTCfull']
-	if game.metadata.tv_type == TVSystem.NTSC:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.NTSC:
 		args += ['-ntsc']
-	elif game.metadata.tv_type == TVSystem.PAL:
+	elif game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		args += ['-pal']
 	
 	machine = game.metadata.specific_info.get('Machine')
@@ -983,18 +983,18 @@ def vice_pet(game, _, emulator_config):
 
 def vice_plus4(game, _, emulator_config):
 	args = ['-TEDfull']
-	if game.metadata.tv_type == TVSystem.NTSC:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.NTSC:
 		args += ['-model', 'plus4ntsc']
-	elif game.metadata.tv_type == TVSystem.PAL:
+	elif game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		args += ['-model', 'plus4pal']
 	args.append('$<path>')
 	return LaunchParams(emulator_config.exe_path, args)
 
 def vice_vic20(game, _, emulator_config):
 	args = ['-VICfull']
-	if game.metadata.tv_type == TVSystem.NTSC:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.NTSC:
 		args += ['-model', 'vic20ntsc']
-	elif game.metadata.tv_type == TVSystem.PAL:
+	elif game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		args += ['-model', 'vic20pal']
 	if game.metadata.media_type == MediaType.Cartridge:
 		args.append('-cartgeneric')
@@ -1018,7 +1018,7 @@ def a7800(game, _, emulator_config):
 		raise EmulationNotSupportedException('No header')
 
 	args = []
-	if game.metadata.tv_type == TVSystem.PAL:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		args.append('a7800p')
 	else:
 		args.append('a7800')
@@ -1204,7 +1204,7 @@ def fs_uae(game, system_config, emulator_config):
 
 		#Hmm... there is also --cpu=68060 which some demoscene productions use so maybe I should look into that...
 		args.append('--floppy_drive_0=$<path>')
-	if game.metadata.tv_type == TVSystem.NTSC:
+	if game.metadata.specific_info.get('TV-Type') == TVSystem.NTSC:
 		args.append('--ntsc_mode=1')
 	return LaunchParams(emulator_config.exe_path, args)
 

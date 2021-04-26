@@ -1,6 +1,6 @@
 import input_metadata
 from common import NotAlphanumericException, convert_alphanumeric
-from info.region_info import TVSystem
+
 from platform_metadata.minor_systems import add_generic_info
 
 
@@ -12,7 +12,6 @@ def add_pokemini_metadata(game):
 	builtin_gamepad.shoulder_buttons = 1 #C
 	game.metadata.input_info.add_option(builtin_gamepad)
 	#Technically you could say Motion Controls because of the shake detection, but not all games use it, and you can't really tell which do and which don't programmatically
-	game.metadata.tv_type = TVSystem.Agnostic
 
 	product_code_bytes = game.rom.read(seek_to=0x21ac, amount=4)
 	try:

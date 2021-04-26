@@ -63,9 +63,9 @@ def _add_atari_7800_header_info(rom, metadata, header):
 	tv_type = header[57]
 
 	if tv_type == 1:
-		metadata.tv_type = TVSystem.PAL
+		metadata.specific_info['TV-Type'] = TVSystem.PAL
 	elif tv_type == 0:
-		metadata.tv_type = TVSystem.NTSC
+		metadata.specific_info['TV-Type'] = TVSystem.NTSC
 	else:
 		if main_config.debug:
 			print('Something is wrong with', rom.path, ', has TV type byte of', tv_type)

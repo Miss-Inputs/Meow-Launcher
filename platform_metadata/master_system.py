@@ -137,7 +137,7 @@ def add_info_from_software_list(metadata, software):
 
 	usage = software.infos.get('usage')
 	if usage == 'Only runs with PAL/50Hz drivers, e.g. smspal':
-		metadata.tv_type = TVSystem.PAL
+		metadata.specific_info['TV-Type'] = TVSystem.PAL
 	elif usage in ('Input works only with drivers of Japanese region, e.g. sms1kr,smsj', 'Only runs with certain drivers, e.g. smsj - others show SOFTWARE ERROR'):
 		metadata.specific_info['Japanese-Only'] = True
 	elif usage == 'Video mode is correct only on SMS 2 drivers, e.g. smspal':

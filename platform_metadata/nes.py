@@ -202,7 +202,6 @@ def decode_bcd(i):
 def add_fds_metadata(rom, metadata):
 	if nes_config and nes_config.options.get('set_fds_as_different_platform'):
 		metadata.platform = 'FDS'
-	metadata.tv_type = TVSystem.NTSC
 
 	header = rom.read(amount=56)
 	if header[:4] == b'FDS\x1a':
@@ -327,11 +326,11 @@ def parse_unif_chunk(metadata, chunk_type, chunk_data):
 	elif chunk_type == 'TVCI':
 		tv_type = chunk_data[0]
 		if tv_type == 0:
-			metadata.tv_type = TVSystem.NTSC
+			metadata.specific_info['TV-Type'] = TVSystem.NTSC
 		elif tv_type == 1:
-			metadata.tv_type = TVSystem.PAL
+			metadata.specific_info['TV-Type'] = TVSystem.PAL
 		elif tv_type == 2:
-			metadata.tv_type = TVSystem.Agnostic
+			metadata.specific_info['TV-Type'] = TVSystem.Agnostic
 	elif chunk_type == 'BATR':
 		metadata.save_type = SaveType.Cart if chunk_data[0] else SaveType.Nothing
 	elif chunk_type == 'CTRL':

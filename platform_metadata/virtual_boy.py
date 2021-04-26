@@ -1,8 +1,7 @@
 import input_metadata
-from common import convert_alphanumeric, NotAlphanumericException, load_dict
-from info.region_info import TVSystem
-from software_list_info import get_software_list_entry
+from common import NotAlphanumericException, convert_alphanumeric, load_dict
 from common_types import SaveType
+from software_list_info import get_software_list_entry
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
@@ -26,8 +25,6 @@ unofficial_vb_publishers = {
 }
 
 def add_virtual_boy_metadata(game):
-	game.metadata.tv_type = TVSystem.Agnostic
-
 	rom_size = game.rom.get_size()
 	header_start_position = rom_size - 544 #Yeah I dunno
 	header = game.rom.read(seek_to=header_start_position, amount=32)

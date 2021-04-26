@@ -4,6 +4,7 @@ from enum import Enum, auto
 
 import input_metadata
 from common_types import MediaType, SaveType
+from info.region_info import TVSystem
 from mame_helpers import MAMENotInstalledException
 from mame_machine import does_machine_match_game, get_machines_from_source_file
 from software_list_info import (find_in_software_lists_with_custom_matcher,
@@ -600,8 +601,12 @@ def add_generic_info(game):
 		software.add_standard_metadata(game.metadata)
 		game.metadata.notes = software.get_info('usage')
 		game.metadata.specific_info['Requirement'] = software.get_shared_feature('requirement')
+		try:
+			game.metadata.specific_info['TV-Type'] = TVSystem(software.get_info('video'))
+		except ValueError:
+			pass
 		for info_name, info_value in software.infos.items():
-			if info_name in ('usage', 'release', 'serial', 'developer', 'alt_title', 'alt_name', 'alt_disk', 'barcode', 'ring_code', 'version'):
+			if info_name in ('usage', 'release', 'serial', 'developer', 'alt_title', 'alt_name', 'alt_disk', 'barcode', 'ring_code', 'version', 'video'):
 				#We have already added this
 				continue
 			game.metadata.specific_info[info_name.replace('_', '-').replace(' ', '-').title()] = info_value

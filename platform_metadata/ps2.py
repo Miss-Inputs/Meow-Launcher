@@ -54,7 +54,7 @@ def add_ps2_metadata(game):
 						vmode_line_match = vmode_line_regex.match(line)
 						if vmode_line_match:
 							try:
-								game.metadata.tv_type = TVSystem[vmode_line_match[1]]
+								game.metadata.specific_info['TV-Type'] = TVSystem[vmode_line_match[1]]
 							except ValueError:
 								pass
 			except PyCdlibInvalidInput:

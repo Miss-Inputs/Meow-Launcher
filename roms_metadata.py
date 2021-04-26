@@ -42,10 +42,10 @@ def get_metadata_from_tags(game):
 		if languages:
 			game.metadata.languages = languages			
 
-	if not game.metadata.tv_type:
+	if 'TV-Type' not in game.metadata.specific_info:
 		tv_type = detect_things_from_filename.get_tv_system_from_filename_tags(tags)
 		if tv_type:
-			game.metadata.tv_type = tv_type
+			game.metadata.specific_info['TV-Type'] = tv_type
 
 def get_metadata_from_regions(game):
 	if game.metadata.regions:
@@ -53,10 +53,10 @@ def get_metadata_from_regions(game):
 			region_language = region_info.get_language_from_regions(game.metadata.regions)
 			if region_language:
 				game.metadata.languages = [region_language]
-		if not game.metadata.tv_type:
+		if 'TV-Type' not in game.metadata.specific_info:
 			tv_type = region_info.get_tv_system_from_regions(game.metadata.regions)
 			if tv_type:
-				game.metadata.tv_type = tv_type
+				game.metadata.specific_info['TV-Type'] = tv_type
 
 def find_equivalent_arcade_game(game, basename):
 	#Just to be really strict: We will only get it if the name matches

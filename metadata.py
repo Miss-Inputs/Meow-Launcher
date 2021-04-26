@@ -231,7 +231,6 @@ class Metadata():
 		self.input_info = InputInfo()
 
 		self.specific_info = {} #Stuff that's too specific to put as an attribute here
-		self.tv_type = None #This shouldn't be a general field
 
 		self.images = {}
 		#TODO: The override name shenanigans in Wii/PSP: Check for name = None in launchers, and set name = None if overriding it to something else, and put the overriden name in here
@@ -276,8 +275,6 @@ class Metadata():
 			'Disc-Total': self.disc_total,
 			'Series': self.series,
 			'Series-Index': self.series_index,
-
-			'TV-Type': self.tv_type.name if self.tv_type else None,
 		}
 		if self.release_date:
 			metadata_fields['Year'] = self.release_date.year + '?' if self.release_date.is_guessed else self.release_date.year
