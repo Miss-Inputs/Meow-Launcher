@@ -232,13 +232,6 @@ class MacApp(pc.App):
 
 	def _get_icon(self):
 		resources = self._get_resources()
-		try:
-			if -16455 in resources.get(b'icns', {}):
-				#Get custom icns if we have one, are these ever referred to in a bundle?
-				return Image.open(io.BytesIO(resources[b'icns'][-16455]))
-		except UnidentifiedImageError:
-			#I guess sometimes it's janky and not loadable by us, which is strange
-			pass
 
 		mask = None
 		icon_bw = None
@@ -276,6 +269,12 @@ class MacApp(pc.App):
 										resource_id = int.from_bytes(this_id[2:4], 'big')
 										break
 						break
+		try:
+			if resource_id in resources.get(b'icns', {}):
+				return Image.open(io.BytesIO(resources[b'icns'][resource_id]))
+		except UnidentifiedImageError:
+			#I guess sometimes it's janky and not loadable by us, which is strange
+			pass
 
 		icn_resource = resources.get(b'ICN#', {}).get(resource_id)
 		if icn_resource:
