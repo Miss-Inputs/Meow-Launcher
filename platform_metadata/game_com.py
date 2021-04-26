@@ -1,5 +1,4 @@
 import input_metadata
-from info.region_info import TVSystem
 
 from .minor_systems import add_generic_info
 
@@ -73,8 +72,6 @@ def parse_rom_header(rom, metadata, header):
 		parse_icon(rom, metadata, icon_bank, icon_offset_x, icon_offset_y)
 
 def add_game_com_metadata(game):
-	game.metadata.tv_type = TVSystem.Agnostic
-
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4 #A B C D

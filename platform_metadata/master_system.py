@@ -219,7 +219,6 @@ def get_sms_metadata(game):
 	try_parse_standard_header(game.rom, game.metadata)
 
 	if game.metadata.platform == 'Game Gear':
-		game.metadata.tv_type = TVSystem.Agnostic
 		#Because there's no accessories to make things confusing, we can assume the Game Gear's input info, but not the Master System's
 		builtin_gamepad = input_metadata.NormalController()
 		builtin_gamepad.dpads = 1

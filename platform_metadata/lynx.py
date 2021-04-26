@@ -1,10 +1,8 @@
-from info.region_info import TVSystem
-from software_list_info import get_software_list_entry
 import input_metadata
+from software_list_info import get_software_list_entry
+
 
 def add_lynx_metadata(game):
-	game.metadata.tv_type = TVSystem.Agnostic
-
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4 #Option 1, Option 2, A, B; these are flipped so you might think there's 8

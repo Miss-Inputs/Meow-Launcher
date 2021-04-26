@@ -4,7 +4,6 @@ from enum import Enum, auto
 
 import input_metadata
 from common_types import MediaType, SaveType
-from info.region_info import TVSystem
 from mame_helpers import MAMENotInstalledException
 from mame_machine import does_machine_match_game, get_machines_from_source_file
 from software_list_info import (find_in_software_lists_with_custom_matcher,
@@ -13,8 +12,6 @@ from software_list_info import (find_in_software_lists_with_custom_matcher,
 
 
 def add_entex_adventure_vision_info(game):
-	game.metadata.tv_type = TVSystem.Agnostic
-
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4 #Physically, they're on both sides of the system, but those are duplicates (for ambidextrousity)
@@ -26,8 +23,6 @@ def add_entex_adventure_vision_info(game):
 	add_generic_info(game)
 
 def add_game_pocket_computer_info(game):
-	game.metadata.tv_type = TVSystem.Agnostic
-
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4
@@ -39,8 +34,6 @@ def add_game_pocket_computer_info(game):
 	add_generic_info(game)
 
 def add_gamate_info(game):
-	game.metadata.tv_type = TVSystem.Agnostic
-
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
@@ -52,9 +45,6 @@ def add_gamate_info(game):
 	add_generic_info(game)
 
 def add_casio_pv1000_info(game):
-	game.metadata.tv_type = TVSystem.NTSC
-	#Japan only. I won't assume the region in case some maniac decides to make homebrew for it or something, but it could only ever be NTSC
-
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
@@ -67,8 +57,6 @@ def add_casio_pv1000_info(game):
 	add_generic_info(game)
 
 def add_mega_duck_info(game):
-	game.metadata.tv_type = TVSystem.Agnostic
-
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
@@ -79,8 +67,6 @@ def add_mega_duck_info(game):
 	add_generic_info(game)
 
 def add_watara_supervision_info(game):
-	game.metadata.tv_type = TVSystem.Agnostic
-
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
@@ -90,15 +76,6 @@ def add_watara_supervision_info(game):
 	game.metadata.save_type = SaveType.Nothing
 
 	add_generic_info(game)
-
-def add_apfm1000_info(game):
-	#TODO: Input info should always be keypad... I think?
-
-	#Until proven otherwise
-	game.metadata.save_type = SaveType.Nothing
-
-	add_generic_info(game)
-	#There's not really anything in there which tells us if we need the Imagination Machine for a particular cart. There's something about RAM, though.
 
 def add_arcadia_info(game):
 	keypad = input_metadata.Keypad() #2 controllers hardwired into the system. If MAME is any indication, the buttons on the side don't do anything or are equivalent to keypad 2?
@@ -132,27 +109,9 @@ def add_astrocade_info(game):
 
 	add_generic_info(game)
 
-def add_casio_pv2000_info(game):
-	#Input info is keyboard and joystick I guess? Maybe only one of them sometimes?
-
-	#Until proven otherwise
-	game.metadata.save_type = SaveType.Nothing
-
-	add_generic_info(game)
-
-def add_channel_f_info(game):
-	#Input info is uhhh that weird twisty thing I guess (I still cannot understand it)
-
-	#Until proven otherwise
-	game.metadata.save_type = SaveType.Nothing
-
-	add_generic_info(game)
-	#Usage: Hit CTRL and A to start.
-
 def add_pc88_info(game):
 	#Input info: Keyboard or joystick
 
-	game.metadata.tv_type = TVSystem.NTSC
 	add_generic_info(game)
 	#Needs BASIC V1 or older
 	#Mount both disk A and B to start
@@ -186,7 +145,6 @@ def add_sg1000_info(game):
 def add_sharp_x1_info(game):
 	#Input info: Keyboard and/or joystick
 
-	game.metadata.tv_type = TVSystem.NTSC
 	add_generic_info(game)
 	#Type FILES then move the cursor to the line of the game and type LOAD (to load) and type RUN when loaded
 	#Runs in HuBASIC
@@ -197,7 +155,6 @@ def add_sharp_x1_info(game):
 def add_sharp_x68k_info(game):
 	#Input info: Keyboard and/or joystick
 
-	game.metadata.tv_type = TVSystem.NTSC
 	#Many games are known to have SaveType.Floppy, but can't tell programmatically...
 	add_generic_info(game)
 	#Requires Disk 1 and Disk 3 mounted to boot
@@ -208,14 +165,6 @@ def add_sharp_x68k_info(game):
 	#Use command.x in Human68k OS
 	#Type BPHXTST in Human68k OS
 	#Type S_MARIO.X in Human68k OS
-
-def add_tomy_tutor_info(game):
-	#Input info: Keyboard (56 keys) and/or joystick (2 buttons + dpad)
-
-	#Until proven otherwise
-	game.metadata.save_type = SaveType.Nothing
-
-	add_generic_info(game)
 
 def add_vc4000_info(game):
 	normal_controller = input_metadata.NormalController()
@@ -331,8 +280,6 @@ def add_colecovision_info(game):
 	#Doesn't look like you can set controller via command line at the moment, oh well
 
 def add_hartung_game_master_info(game):
-	game.metadata.tv_type = TVSystem.Agnostic
-
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
@@ -341,8 +288,6 @@ def add_hartung_game_master_info(game):
 	add_generic_info(game)
 
 def add_bandai_sv8000_info(game):
-	game.metadata.tv_type = TVSystem.NTSC #Japan only
-
 	keypad = input_metadata.Keypad() #2 of these
 	keypad.keys = 12 #Digits + # *
 	joystick = input_metadata.NormalController()
@@ -356,8 +301,6 @@ def add_bandai_sv8000_info(game):
 	add_generic_info(game)
 
 def add_nichibutsu_my_vision_info(game):
-	game.metadata.tv_type = TVSystem.NTSC #Japan only
-
 	buttons = input_metadata.NormalController() #Not normal, but closest there is
 	#It's like a keyboard except not; MAME defines it as 14-button "mahjong" + 8-way joystick with 1 button and hmm
 	buttons.face_buttons = 19 #Numbered 1 to 14 in a row, then A B C D arranged in directions above that, and an E button next to that
@@ -366,8 +309,6 @@ def add_nichibutsu_my_vision_info(game):
 	add_generic_info(game)
 
 def add_bbc_bridge_companion_info(game):
-	game.metadata.tv_type = TVSystem.PAL #UK only
-
 	buttons = input_metadata.NormalController()
 	buttons.face_buttons = 10 #According to the MAME driver, I'm too lazy to look at pictures of the thing
 	game.metadata.input_info.add_option(buttons)
@@ -477,8 +418,6 @@ def add_intellivision_info(game):
 
 def add_juicebox_info(game):
 	#Hmm... apparently there's 0x220 bytes at the beginning which need to be copied from retail carts to get homebrew test ROMs to boot
-	game.metadata.tv_type = TVSystem.Agnostic
-
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.face_buttons = 5 #Rewind/forward/stop/play/function
 	game.metadata.input_info.add_option(builtin_gamepad)
@@ -489,7 +428,6 @@ def add_juicebox_info(game):
 
 def add_fm7_info(game):
 	#Possible input info: Keyboard and joystick but barely anything uses said joystick
-	game.metadata.tv_type = TVSystem.NTSC #Japan only
 
 	#info usage strings to make use of:
 	#"Requires FM77AV40" (unsupported system)

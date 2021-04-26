@@ -3,7 +3,6 @@ from zlib import crc32
 import input_metadata
 from common import NotAlphanumericException, convert_alphanumeric, load_dict
 from common_types import SaveType
-from info.region_info import TVSystem
 from software_list_info import get_software_list_entry
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
@@ -74,8 +73,6 @@ def add_gba_metadata(game):
 	builtin_gamepad.face_buttons = 2 #A B
 	builtin_gamepad.shoulder_buttons = 2 #L R
 	game.metadata.input_info.add_option(builtin_gamepad)
-
-	game.metadata.tv_type = TVSystem.Agnostic
 
 	entire_cart = game.rom.read()
 	if len(entire_cart) >= 0xc0:
