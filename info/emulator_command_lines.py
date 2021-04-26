@@ -1445,6 +1445,8 @@ def _macemu_args(app, autoboot_txt_path, emulator_config):
 def basilisk_ii(app, emulator_config, _):
 	if app.metadata.specific_info.get('Architecture') == 'PPC':
 		raise EmulationNotSupportedException('PPC not supported')
+	if app.info.get('ppc_enhanced', False) and emulator_config.options.get('skip_if_ppc_enhanced', False):
+		raise EmulationNotSupportedException('PPC enhanced')
 
 	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that. Okay, so I don't want that.
 	#Ideally, HFS manipulation would be powerful enough that we could just slip an alias into the Startup Items folder ourselves and delete it afterward. That doesn't fix the problem of automatically shutting down (still need a script for that), unless we don't create an alias at all and we create a script or something on the fly that launches that path and then shuts down, but yeah. Stuff and things.
