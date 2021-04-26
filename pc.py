@@ -104,7 +104,7 @@ def make_launchers(platform, app_class, system_config):
 				try:
 					process_app(app, app_class, system_config)
 				except KeyError:
-					print(app_list_path, 'has unknown entry that is missing needed keys (path, name)')
+					print(app_list_path, 'has unknown entry that is missing needed path key')
 	except json.JSONDecodeError as json_fuckin_bloody_error:
 		print(app_list_path, 'is borked, skipping', platform, json_fuckin_bloody_error)
 	except FileNotFoundError:
