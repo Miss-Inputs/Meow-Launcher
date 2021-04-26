@@ -246,7 +246,7 @@ class MacApp(pc.App):
 			resource_id = -16455
 		else:
 			resource_id = 128 #Usually the icon the Finder displays has ID 128, but we will check the BNDL to be sure if it has one
-			#This is normally controlled by the "Has bundle" flag in HFS but we don't really have a way of reading that I think
+			#I think this is controlled by the "Has bundle" HFS flag but I don't know what that is or if it's real and this seems a lot easier and sensibler
 			bndls = resources.get(b'BNDL', {})
 			if bndls:
 				try:
@@ -364,8 +364,9 @@ class MacApp(pc.App):
 						#Bit 10: Local and remote high level events
 						#Bit 11: Stationery aware
 						#Bit 12: Use text edit services ("inline services"?)
-						if size[1] & (1 << 7) == 0: #I guess the bits go that way around I dunno
-							self.metadata.specific_info['Not-32-Bit-Clean'] = True
+						if size[0] and size[1]: #If all flags are 0 then this is probably lies
+							if size[1] & (1 << 7) == 0: #I guess the bits go that way around I dunno
+								self.metadata.specific_info['Not-32-Bit-Clean'] = True
 						self.metadata.specific_info['Minimum-RAM'] = format_byte_size(int.from_bytes(size[6:10], 'big'))
 
 				if self._get_file().type == b'APPL' and 'Architecture' not in self.metadata.specific_info:
