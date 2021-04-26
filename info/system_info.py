@@ -2,9 +2,12 @@ import os
 
 from common_paths import data_dir
 from common_types import ConfigValueType, MediaType
+
 from info.format_info import (atari_2600_cartridge_extensions, cdrom_formats,
                               commodore_cart_formats, commodore_disk_formats,
-                              generic_cart_extensions, mame_floppy_formats, generic_tape_extensions)
+                              generic_cart_extensions, generic_tape_extensions,
+                              mame_floppy_formats)
+
 
 class SystemConfigValue():
 	#This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno
@@ -569,12 +572,13 @@ all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers] + ibmpc
 #DEC Rainbow: Uses DOS so maybe goes in pc_systems but maybe the CP/M part is its own thing
 
 class PCSystem():
-	def __init__(self, options=None):
+	def __init__(self, json_name, options=None):
+		self.json_name = json_name
 		self.options = options if options else {}
 
 pc_systems = {
-	'Mac': PCSystem(),
-	'DOS': PCSystem({
+	'Mac': PCSystem('mac'),
+	'DOS': PCSystem('dos', {
 		'dosbox_configs_path': SystemConfigValue(ConfigValueType.FolderPath, os.path.join(data_dir, 'dosbox_configs'), 'Folder to store DOSBox per-application configuration files'),
 	})
 }

@@ -10,6 +10,7 @@ from common_types import (EmulationNotSupportedException, MediaType,
 from config.emulator_config import emulator_configs
 from config.main_config import main_config
 from info.emulator_info import pc_emulators
+from info.system_info import pc_systems
 from metadata import Date, Metadata
 
 
@@ -95,7 +96,7 @@ def process_app(app_info, app_class, system_config):
 def make_launchers(platform, app_class, system_config):
 	time_started = time.perf_counter()
 
-	app_list_path = os.path.join(config_dir, platform.lower() + '.json')
+	app_list_path = os.path.join(config_dir, pc_systems[platform].json_name + '.json')
 	try:
 		with open(app_list_path, 'rt') as f:
 			app_list = json.load(f)
