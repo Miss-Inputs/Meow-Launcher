@@ -238,8 +238,11 @@ class MacApp(pc.App):
 		icon_16 = None
 		icon_256 = None
 		
-		if -16455 in resources.get(b'ICN#', {}):
-			#Get custom icon if we have one (this is controlled by the "has custom icon" flag in HFS but imo it's easier to just check for this ID)
+		has_custom_icn = -16455 in resources.get(b'ICN#', {})
+		has_custom_icns = -16455 in resources.get(b'icns', {})
+		not_custom_resource_id = 128
+		if (self._get_file().flags & 1024 > 0) and (has_custom_icn or has_custom_icns):
+			#"Use custom icon" flag in HFS, but sometimes it lies
 			resource_id = -16455
 		else:
 			resource_id = 128 #Usually the icon the Finder displays has ID 128, but we will check the BNDL to be sure if it has one
@@ -266,7 +269,7 @@ class MacApp(pc.App):
 								for i in range(0, count_of_ids):
 									this_id = ids[i * 4: (i * 4) + 4]
 									if int.from_bytes(this_id[0:2], 'big') == icon_local_id:
-										resource_id = int.from_bytes(this_id[2:4], 'big')
+										not_custom_resource_id = resource_id = int.from_bytes(this_id[2:4], 'big')
 										break
 						break
 		try:
@@ -274,6 +277,8 @@ class MacApp(pc.App):
 				return Image.open(io.BytesIO(resources[b'icns'][resource_id]))
 		except UnidentifiedImageError:
 			#I guess sometimes it's janky and not loadable by us, which is strange
+			if resource_id == -16455 and not has_custom_icn:
+				resource_id = not_custom_resource_id
 			pass
 
 		icn_resource = resources.get(b'ICN#', {}).get(resource_id)
