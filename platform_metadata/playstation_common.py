@@ -2,6 +2,7 @@ from enum import Flag
 
 from common_types import MediaType
 from config.main_config import main_config
+from pc_common_metadata import fix_name
 
 categories = {
 	#Second item is what we want to set metadata.category to
@@ -164,14 +165,14 @@ def parse_param_sfo(rom, metadata, param_sfo):
 		elif key == 'DISC_TOTAL':
 			metadata.disc_total = value
 		elif key == 'TITLE':
-			metadata.add_alternate_name(value, 'Banner-Title')
+			metadata.add_alternate_name(fix_name(value), 'Banner-Title')
 		elif len(key) == 8 and key[:5] == 'TITLE' and key[-2:].isdigit():
 			lang_id = int(key[-2:])
 			prefix = title_languages.get(lang_id)
 			name_name = 'Banner-Title'
 			if prefix:
 				name_name = prefix.replace(' ', '-') + '-' + name_name
-			metadata.add_alternate_name(value, name_name)
+			metadata.add_alternate_name(fix_name(value), name_name)
 		elif key == 'PARENTAL_LEVEL':
 			#Seems this doesn't actually mean anything by itself, and is Sony's own rating system, so don't try and think about it too much
 			metadata.specific_info['Parental-Level'] = value
