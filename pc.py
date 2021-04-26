@@ -12,14 +12,14 @@ from config.main_config import main_config
 from info.emulator_info import pc_emulators
 from info.system_info import pc_systems
 from metadata import Date, Metadata
-
+from pc_common_metadata import fix_name
 
 class App:
 	def __init__(self, info):
 		self.metadata = Metadata()
 		self.info = info
 		self.path = info['path']
-		self.name = info.get('name', self.get_fallback_name())
+		self.name = info.get('name', fix_name(self.get_fallback_name()))
 
 	def get_fallback_name(self):
 		#Might want to override in subclass, maybe not
