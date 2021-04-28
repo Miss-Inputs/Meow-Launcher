@@ -22,8 +22,16 @@ class App:
 		self.name = info.get('name', fix_name(self.get_fallback_name()))
 		if 'cd_path' in info:
 			cd_paths = info['cd_path'] if isinstance(info['cd_path'], list) else [info['cd_path']]
+			if self.base_folder:
+				cd_paths = [os.path.join(self.base_folder, cd_path) for cd_path in cd_paths]
 			self.cd_path = cd_paths[0]
 			self.other_cd_paths = cd_paths[1:]
+
+	@property
+	def base_folder(self):
+		#Might want to override this in subclass, returns a folder on the host that might have other files related to the game (CD images, etc)
+		#Return none if this is not relevant
+		return os.path.dirname(self.path)
 
 	def get_fallback_name(self):
 		#Might want to override in subclass, maybe not - return something that should be used as the name if the user doesn't put any name in the config

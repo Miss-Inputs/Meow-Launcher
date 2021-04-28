@@ -213,6 +213,10 @@ class MacApp(pc.App):
 				return True
 		return does_exist(self.hfv_path, self.path)
 
+	@property
+	def base_folder(self):
+		return None
+
 	def get_fallback_name(self):
 		if have_machfs:
 			if self._carbon_path:
