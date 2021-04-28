@@ -20,6 +20,10 @@ class App:
 		self.info = info
 		self.path = info['path']
 		self.name = info.get('name', fix_name(self.get_fallback_name()))
+		if 'cd_path' in info:
+			cd_paths = info['cd_path'] if isinstance(info['cd_path'], list) else [info['cd_path']]
+			self.cd_path = cd_paths[0]
+			self.other_cd_paths = cd_paths[1:]
 
 	def get_fallback_name(self):
 		#Might want to override in subclass, maybe not - return something that should be used as the name if the user doesn't put any name in the config
