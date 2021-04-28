@@ -20,6 +20,8 @@ class App:
 		self.info = info
 		self.path = info['path']
 		self.name = info.get('name', fix_name(self.get_fallback_name()))
+		self.cd_path = None
+		self.other_cd_paths = []
 		if 'cd_path' in info:
 			cd_paths = info['cd_path'] if isinstance(info['cd_path'], list) else [info['cd_path']]
 			if self.base_folder:

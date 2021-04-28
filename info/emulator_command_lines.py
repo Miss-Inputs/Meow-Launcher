@@ -1427,6 +1427,11 @@ def _macemu_args(app, autoboot_txt_path, emulator_config):
 		width, height = app.info['max_resolution']
 		args += ['--screen', 'dga/{0}/{1}'.format(width, height)]
 	
+	if app.cd_path:
+		args += ['--cdrom', app.cd_path]
+	for other_cd_path in app.other_cd_paths:
+		args += ['--cdrom', other_cd_path]
+
 	app_path = app.metadata.specific_info.get('Carbon-Path', app.path)
 	commands = [
 		LaunchParams('sh', ['-c', 'echo {0} > {1}'.format(shlex.quote(app_path), shlex.quote(autoboot_txt_path))]), #Hack because I can't be fucked refactoring MultiCommandLaunchParams to do pipey bois/redirecty bois
@@ -1519,7 +1524,14 @@ def dosbox(app, emulator_config, system_config):
 	game_conf = _make_dosbox_config(app, system_config)
 	if game_conf:
 		args += ['-conf', game_conf]
-
+	
+	if app.cd_path:
+		#I hope you don't put double quotes in the CD paths
+		imgmount_args = '"{0}"'.format(app.cd_path)
+		if app.other_cd_paths:
+			imgmount_args += ' '  + ' '.join('"{0}"'.format(cd_path) for cd_path in app.other_cd_paths)
+		args += ['-c', 'IMGMOUNT D -t cdrom {0}'.format(imgmount_args)]
+	
 	return LaunchParams(emulator_config.exe_path, args + [app.path])
 
 def dosbox_x(app, emulator_config, _):
