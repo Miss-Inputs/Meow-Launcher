@@ -245,16 +245,48 @@ def add_ines_metadata(rom, metadata, header):
 	mapper_lower_nibble = (flags & 0b1111_0000) >> 4
 
 	more_flags = header[7]
-	if more_flags & 1:
+	if (more_flags & 3) == 1:
 		metadata.specific_info['Arcade-System'] = 'VS Unisystem'
-	elif more_flags & 2:
+	elif (more_flags & 3) == 2:
 		metadata.specific_info['Arcade-System'] = 'PlayChoice-10'
 
 	mapper_upper_nibble = more_flags & 0b1111_0000
 	is_nes_2_0 = ((more_flags & 0b_00_00_11_00) >> 2) == 2
 	if is_nes_2_0:
 		metadata.specific_info['Header-Format'] = 'NES 2.0'
-		#Heck
+		mapper_upper_upper_nibble = header[8] & 0b1111
+		mapper = mapper_lower_nibble | mapper_upper_nibble | (mapper_upper_upper_nibble << 8)
+		metadata.specific_info['Mapper-Number'] = mapper
+		if mapper in ines_mappers:
+			metadata.specific_info['Mapper'] = ines_mappers[mapper]
+		else:
+			metadata.specific_info['Mapper'] = 'NES 2.0 Mapper %d' % mapper
+
+		metadata.specific_info['Submapper'] = (header[8] & 0b1111_0000) >> 4
+		
+		metadata.specific_info['PRG-Size'] = ((header[9] & 0b1111) << 4) | prg_size
+		metadata.specific_info['CHR-Size'] = (header[9] & 0b1111_0000) | chr_size
+
+		#9/10: PRG/CHR RAM and NVRAM size
+
+		cpu_ppu_timing = header[12] & 0b11
+		if cpu_ppu_timing == 0:
+			metadata.specific_info['TV-Type'] = TVSystem.NTSC
+		elif cpu_ppu_timing == 1:
+			metadata.specific_info['TV-Type'] = TVSystem.PAL
+		elif cpu_ppu_timing == 2:
+			metadata.specific_info['TV-Type'] = TVSystem.Agnostic
+		elif cpu_ppu_timing == 3:
+			metadata.specific_info['Is-Dendy'] = True
+
+		if (header[7] & 3) == 3:
+			metadata.specific_info['Extended-Console-Type'] = header[13] #TODO: Actually use this
+		if header[15]:
+			default_expansion_device = header[15] #TODO: Actually use this
+			metadata.specific_info['Default-Expansion-Device'] = default_expansion_device
+			if default_expansion_device == 1:
+				metadata.specific_info['Peripheral'] = NESPeripheral.NormalController
+			#42 = multicart also exists I guess but it doesn't mean much to us
 	else:
 		metadata.specific_info['Header-Format'] = 'iNES'
 		mapper = mapper_lower_nibble | mapper_upper_nibble

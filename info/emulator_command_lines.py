@@ -592,8 +592,9 @@ def mame_nes(game, _, emulator_config):
 
 	has_keyboard = False
 
-	#There doesn't seem to be a way to know if we should use dendy, so I hope we don't actually need to
-	if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
+	if game.metadata.specific_info.get('Is-Dendy', False):
+		system = 'dendy'
+	elif game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		system = 'nespal'
 	else:
 		#There's both a "famicom" driver and also a "nes" driver which does include the Famicom (as well as NTSC NES), this seems to only matter for what peripherals can be connected
