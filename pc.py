@@ -22,11 +22,11 @@ class App:
 		self.name = info.get('name', fix_name(self.get_fallback_name()))
 
 	def get_fallback_name(self):
-		#Might want to override in subclass, maybe not
+		#Might want to override in subclass, maybe not - return something that should be used as the name if the user doesn't put any name in the config
 		return os.path.basename(self.path)
 	
 	def get_launcher_id(self):
-		#Might want to override in subclass, maybe not
+		#For overriding in subclass (but maybe this will do as a default), for Unique-ID in [X-Meow Launcher ID] section of launcher
 		return self.path
 
 	def add_metadata(self):
