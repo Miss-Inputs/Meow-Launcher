@@ -368,7 +368,8 @@ class MacApp(pc.App):
 						#Bit 10: Local and remote high level events
 						#Bit 11: Stationery aware
 						#Bit 12: Use text edit services ("inline services"?)
-						if size[0] and size[1]: #If all flags are 0 then this is probably lies
+						print(self.path, size[0], size[1])
+						if size[0] or size[1]: #If all flags are 0 then this is probably lies
 							if size[1] & (1 << 7) == 0: #I guess the bits go that way around I dunno
 								self.metadata.specific_info['Not-32-Bit-Clean'] = True
 						self.metadata.specific_info['Minimum-RAM'] = format_byte_size(int.from_bytes(size[6:10], 'big'))
