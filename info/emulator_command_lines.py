@@ -1150,7 +1150,7 @@ def flycast(_, __, emulator_config):
 	if emulator_config.options.get('force_opengl_version', False):
 		#Looks like this still needs to be here
 		env_vars['MESA_GL_VERSION_OVERRIDE'] = '4.3'
-	args = ['-config', 'x11:fullscreen=1']
+	args = ['-config', 'window:fullscreen=yes']
 	args.append('$<path>')
 	return LaunchParams(emulator_config.exe_path, args, env_vars)
 
