@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 import time
+import traceback
 
 import launchers
 from common_paths import config_dir
@@ -13,6 +14,7 @@ from info.emulator_info import pc_emulators
 from info.system_info import pc_systems
 from metadata import Date, Metadata
 from pc_common_metadata import fix_name
+
 
 class App:
 	def __init__(self, info):
@@ -105,7 +107,7 @@ def process_app(app_info, app_class, system_config):
 		app.add_metadata()
 		app.make_launcher(system_config)
 	except Exception as ex: #pylint: disable=broad-except
-		print('Ah bugger', app.path, app.name, ex, type(ex))
+		print('Ah bugger', app.path, app.name, ex, type(ex), traceback.extract_tb(ex.__traceback__)[1:])
 
 def make_launchers(platform, app_class, system_config):
 	time_started = time.perf_counter()
