@@ -460,7 +460,7 @@ def make_mac_launchers():
 	if mac_config:
 		if not mac_config.chosen_emulators:
 			return
-	pc.make_launchers('Mac', MacApp, mac_config)
+		pc.make_launchers('Mac', MacApp, mac_config)
 
 # def scan_app(hfv_path, app, game_list, unknown_games, found_games, ambiguous_games):
 # 	overall_path = hfv_path + ':' + app['path']
