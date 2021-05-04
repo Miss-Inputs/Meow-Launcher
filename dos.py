@@ -9,17 +9,25 @@ from pc_common_metadata import look_for_icon_next_to_file
 dos_config = system_configs.get('DOS')
 
 class DOSApp(pc.App):
+	def __init__(self, info):
+		super().__init__(info)
+		if self.is_on_cd:
+			self.path = self.path.replace('/', '\\')
+
 	@property
 	def is_valid(self):
+		if self.is_on_cd:
+			return os.path.isfile(self.cd_path) #TODO: Use pycdlib to see if it exists on the CD
 		return os.path.isfile(self.path)
 
 	def additional_metadata(self):
-		_, extension = os.path.splitext(self.path)
-		self.metadata.specific_info['Executable-Name'] = os.path.basename(self.path)
-		self.metadata.extension = extension[1:].lower()
-		icon = look_for_icon_next_to_file(self.path)
-		if icon:
-			self.metadata.images['Icon'] = icon
+		basename = self.path.split('\\')[-1] if self.is_on_cd else os.path.basename(self.path)
+		self.metadata.specific_info['Executable-Name'] = basename
+		self.metadata.extension = basename.split('.', 1)[-1].lower()
+		if not self.is_on_cd:
+			icon = look_for_icon_next_to_file(self.path)
+			if icon:
+				self.metadata.images['Icon'] = icon
 
 def make_dos_launchers():
 	if dos_config:

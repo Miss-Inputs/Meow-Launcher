@@ -1422,7 +1422,9 @@ def prboom_plus(game, system_config, emulator_config):
 
 #DOS/Mac stuff
 def _macemu_args(app, autoboot_txt_path, emulator_config):
-	args = ['--disk', app.hfv_path]
+	args = []
+	if not app.is_on_cd:
+		args += ['--disk', app.hfv_path]
 	if 'max_resolution' in app.info:
 		width, height = app.info['max_resolution']
 		args += ['--screen', 'dga/{0}/{1}'.format(width, height)]
@@ -1525,17 +1527,27 @@ def dosbox(app, emulator_config, system_config):
 	if game_conf:
 		args += ['-conf', game_conf]
 	
+	drive_letter = 'D'
 	if app.cd_path:
 		#I hope you don't put double quotes in the CD paths
 		imgmount_args = '"{0}"'.format(app.cd_path)
 		if app.other_cd_paths:
 			imgmount_args += ' '  + ' '.join('"{0}"'.format(cd_path) for cd_path in app.other_cd_paths)
-		args += ['-c', 'IMGMOUNT D -t cdrom {0}'.format(imgmount_args)]
+		args += ['-c', 'IMGMOUNT {0} -t cdrom {1}'.format(drive_letter, imgmount_args)]
 	
-	return LaunchParams(emulator_config.exe_path, args + [app.path])
+	if app.is_on_cd:
+		args += ['-c', drive_letter + ':', '-c', app.path, '-c', 'exit']
+	else:
+		args.append(app.path)
+
+	return LaunchParams(emulator_config.exe_path, args)
 
 def dosbox_x(app, emulator_config, _):
 	confs = {}
+
+	if app.is_on_cd:
+		raise EmulationNotSupportedException('This might not work from CD I think unless it does')
+	#TODO: Does this even support -c? I can't remember
 
 	if 'required_hardware' in app.info:
 		if 'for_xt' in app.info['required_hardware']:

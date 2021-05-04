@@ -170,10 +170,10 @@ def does_exist(hfv_path, path):
 
 class MacApp(pc.App):
 	def __init__(self, info):
-		self.hfv_path = info['hfv_path']
-		self._file = None #Lazy load it
 		super().__init__(info)
-
+		self.hfv_path = self.cd_path if self.is_on_cd else info['hfv_path']
+		self._file = None #Lazy load it
+		
 	@property
 	def _carbon_path(self):
 		if not self.path.endswith('.app'):
@@ -219,7 +219,7 @@ class MacApp(pc.App):
 
 	def get_fallback_name(self):
 		if have_machfs:
-			if self._carbon_path:
+			if self.path.endswith('.app'):
 				return self.path.split(':')[-1][:-4]
 		return self.path.split(':')[-1]
 

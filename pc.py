@@ -20,6 +20,7 @@ class App:
 	def __init__(self, info):
 		self.metadata = Metadata()
 		self.info = info
+		self.is_on_cd = info.get('is_on_cd', False)
 		self.path = info['path']
 		self.name = info.get('name', fix_name(self.get_fallback_name()))
 		self.cd_path = None
@@ -30,6 +31,8 @@ class App:
 				cd_paths = [os.path.join(self.base_folder, cd_path) for cd_path in cd_paths]
 			self.cd_path = cd_paths[0]
 			self.other_cd_paths = cd_paths[1:]
+		elif self.is_on_cd:
+			raise KeyError('cd_path is mandatory if is_on_cd is true')
 
 	@property
 	def base_folder(self):
@@ -66,7 +69,7 @@ class App:
 	@property
 	def is_valid(self):
 		#To be overriden by subclass - return true if this config is pointing to something that actually exists
-		return True
+		return os.path.isfile(self.path)
 
 	def additional_metadata(self):
 		#To be overriden by subclass - optional, put any other platform-specific metadata you want in here
@@ -119,8 +122,8 @@ def make_launchers(platform, app_class, system_config):
 			for app in app_list:
 				try:
 					process_app(app, app_class, system_config)
-				except KeyError:
-					print(app_list_path, 'has unknown entry that is missing needed path key')
+				except KeyError as ke:
+					print(app_list_path, app.get('name', 'unknown entry'), ': Missing needed key', ke)
 	except json.JSONDecodeError as json_fuckin_bloody_error:
 		print(app_list_path, 'is borked, skipping', platform, json_fuckin_bloody_error)
 	except FileNotFoundError:
