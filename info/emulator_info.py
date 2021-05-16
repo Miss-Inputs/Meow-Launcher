@@ -1,13 +1,16 @@
 from enum import Enum, auto
-from launchers import MultiCommandLaunchParams, get_wine_launch_params, LaunchParams
+
+from common_types import ConfigValueType
+from launchers import MultiCommandLaunchParams, get_wine_launch_params
 
 import info.emulator_command_lines as command_lines
-from info.emulator_command_line_helpers import mame_driver_callable, mednafen_module_callable #It would be infeasible to create a function in emulator_command_lines for everything, I guess
-from common_types import ConfigValueType, EmulationNotSupportedException
+from info.emulator_command_line_helpers import (  # It would be infeasible to create a function in emulator_command_lines for everything, I guess
+    mame_driver_callable, mednafen_module_callable)
 
 from .format_info import (atari_2600_cartridge_extensions,
                           generic_cart_extensions, mame_cdrom_formats,
                           mame_floppy_formats)
+
 
 class EmulatorConfigValue():
 	#This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno
