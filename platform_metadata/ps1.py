@@ -39,7 +39,7 @@ def add_duckstation_compat_info(metadata):
 				metadata.specific_info['DuckStation-Compatibility'] = DuckStationCompatibility(compatibility)
 		except ValueError:
 			pass
-
+	
 def add_duckstation_db_info(metadata):
 	gamedb_path = duckstation_config.options.get('gamedb_path')
 	if not gamedb_path:

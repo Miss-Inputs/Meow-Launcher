@@ -1142,7 +1142,7 @@ def duckstation(game, _, emulator_config):
 		game_compat = game.metadata.specific_info.get('DuckStation-Compatibility')
 		if game_compat:
 			if game_compat.value < threshold:
-				raise EmulationNotSupportedException('Game is only {1} status'.format(game_compat.name))
+				raise EmulationNotSupportedException('Game is only {0} status'.format(game_compat.name))
 
 	return LaunchParams(emulator_config.exe_path, ['-batch', '-fullscreen', '$<path>'])
 
