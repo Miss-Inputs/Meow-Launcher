@@ -1,32 +1,81 @@
-# from xml.etree import ElementTree
+from xml.etree import ElementTree
+import json
 
-# from config.main_config import main_config
-# from config.emulator_config import emulator_configs
-#TODO: Resolve stupid annoying circular import so we can make this work
+from info.region_info import get_language_by_english_name
+from config.main_config import main_config
+from config.emulator_config import emulator_configs
 
 from .minor_systems import add_generic_info
 
-# duckstation_config = emulator_configs.get('DuckStation')
+duckstation_config = emulator_configs.get('DuckStation')
 
-# def add_duckstation_compat_info(metadata):
-# 	compat_xml_path = duckstation_config.options.get('compatibility_xml_path')
-# 	if not compat_xml_path:
-# 		return
+def add_duckstation_compat_info(metadata):
+	compat_xml_path = duckstation_config.options.get('compatibility_xml_path')
+	if not compat_xml_path:
+		return
 
-# 	try:
-# 		compat_xml = ElementTree.parse(compat_xml_path)
-# 		entry = compat_xml.find('entry[@code="{0}"]'.format(metadata.product_code))
-# 		if entry is not None:
-# 			compatibility = entry.attrib.get('compatibility')
-# 			if compatibility:
-# 				metadata.specific_config['DuckStation-Compatibility'] = compatibility
+	if not hasattr(add_duckstation_compat_info, 'compat_xml'):
+		try:
+			add_duckstation_compat_info.compat_xml = ElementTree.parse(compat_xml_path)
+		except OSError as oserr:
+			if main_config.debug:
+				print('Oh dear we have an OSError trying to load compat_xml', oserr)
+			return
 
-# 	except OSError as oserr:
-# 		if main_config.debug:
-# 			print('Oh dear we have an OSError trying to load compat_xml', oserr)
-# 		return
+	entry = add_duckstation_compat_info.compat_xml.find('entry[@code="{0}"]'.format(metadata.product_code))
+	if entry is not None:
+		compatibility = entry.attrib.get('compatibility')
+		if compatibility:
+			metadata.specific_info['DuckStation-Compatibility'] = compatibility
+
+
+def add_duckstation_db_info(metadata):
+	gamedb_path = duckstation_config.options.get('gamedb_path')
+	if not gamedb_path:
+		return
+
+	if not hasattr(add_duckstation_db_info, 'gamedb'):
+		try:
+			with open(gamedb_path, 'rb') as f:
+				add_duckstation_db_info.gamedb = json.load(f)
+		except OSError as oserr:
+			if main_config.debug:
+				print('Oh dear we have an OSError trying to load gamedb', oserr)
+			return
+
+	game = None
+	for db_game in add_duckstation_db_info.gamedb:
+		if db_game.get('serial') == metadata.product_code:
+			game = db_game
+			break
+	if game:
+		metadata.add_alternate_name(game['name'], 'DuckStation-Database-Name')
+		languages = game.get('languages')
+		if languages:
+			metadata.languages = [get_language_by_english_name(lang) for lang in languages]
+		if game.get('publisher') and not metadata.publisher:
+			metadata.publisher = game.get('publisher')
+		if game.get('developer') and not metadata.developer:
+			metadata.publisher = game.get('developer')
+		if game.get('releaseDate'):
+			metadata.publisher = game.get('releaseDate')
+		#TODO: Genre, but should this take precedence over libretro database if that is used too
+		#TODO: minBlocks and maxBlocks might indicate save type? But why is it sometimes 0
+		#TODO: minPlayers and maxPlayers
+		if game.get('vibration'):
+			metadata.specific_info['Force-Feedback'] = True
+		if game.get('multitap'):
+			metadata.specific_info['Supports-Multitap'] = True
+		if game.get('linkCable'):
+			metadata.specific_info['Supports-Link-Cable'] = True
+		controllers = game.get('controllers')
+		if controllers:
+			metadata.specific_info['Compatible-Controllers'] = controllers
+			metadata.specific_info['Supports-Analog'] = 'AnalogController' in controllers
+
 
 def add_ps1_metadata(game):
 	add_generic_info(game)
-	# if game.metadata.product_code and duckstation_config:
-	# 	add_duckstation_compat_info(game.metadata)
+	if game.metadata.product_code and duckstation_config:
+		add_duckstation_compat_info(game.metadata)
+		add_duckstation_db_info(game.metadata)
