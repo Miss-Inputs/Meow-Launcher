@@ -1298,9 +1298,6 @@ def pcsx2(_, __, emulator_config):
 	return LaunchParams(emulator_config.exe_path, ['--nogui', '--fullscreen', '--fullboot', '$<path>'])
 
 def pokemini(_, __, emulator_config):
-	return LaunchParams(emulator_config.exe_path, ['-fullscreen', '$<path>'])
-
-def pokemini_wrapper(_, __, emulator_config):
 	return MultiCommandLaunchParams(
 		[LaunchParams('mkdir', ['-p', os.path.expanduser('~/.config/PokeMini')]), 
 		LaunchParams('cd', [os.path.expanduser('~/.config/PokeMini')])], 
@@ -1550,3 +1547,99 @@ def dosbox_x(app, _, emulator_config):
 		args.append('{0}={1}'.format(k, v))
 
 	return LaunchParams(emulator_config.exe_path, args + [app.path])
+
+#Hmm is there a better way to store these mappings
+mame_drivers = {
+	'32X': mame_32x,
+	'Amiga CD32': mame_amiga_cd32,
+	'Amstrad PCW': mame_amstrad_pcw,
+	'Apple II': mame_apple_ii,
+	'Atari 8-bit': mame_atari_8bit,
+	'Atari 2600': mame_atari_2600,
+	'Atari 7800': mame_atari_7800,
+	'Jaguar': mame_atari_jaguar,
+	'C64': mame_c64,
+	'Coleco Adam': mame_coleco_adam,
+	'ColecoVision': mame_colecovision,
+	'Dreamcast': mame_dreamcast,
+	'FM Towns': mame_fm_towns,
+	'FM Towns Marty': mame_fm_towns_marty,
+	'Game Boy': mame_game_boy,
+	'Game Gear': mame_game_gear,
+	'IBM PCjr': mame_ibm_pcjr,
+	'Intellivision': mame_intellivision,
+	'Lynx': mame_lynx,
+	'Master System': mame_master_system,
+	'Mega CD': mame_mega_cd,
+	'Mega Drive': mame_megadrive,
+	'Microbee': mame_microbee,
+	'MSX': mame_msx1,
+	'MSX2': mame_msx2,
+	'MSX2+': mame_msx2plus,
+	'N64': mame_n64,
+	'NES': mame_nes,
+	'Odyssey²': mame_odyssey2,
+	'PC Engine': mame_pc_engine,
+	'Sega Pico': mame_pico,
+	'Saturn': mame_saturn,
+	'SG-1000': mame_sg1000,
+	'X68000': mame_sharp_x68000,
+	'SNES': mame_snes,
+	'Sord M5': mame_sord_m5,
+	'Super Cassette Vision': mame_super_cassette_vision,
+	'VIC-20': mame_vic_20,
+	'ZX Spectrum': mame_zx_spectrum,
+}
+mednafen_modules = {
+	'Apple II': mednafen_apple_ii,
+	'Game Gear': mednafen_game_gear,
+	'Game Boy': mednafen_gb,
+	'GBA': mednafen_gba,
+	'Lynx': mednafen_lynx,
+	'Mega Drive': mednafen_megadrive,
+	'NES': mednafen_nes,
+	'SNES-Faust': mednafen_snes_faust,
+}
+vice_modules = {
+	'C64': vice_c64,
+	'C64 Fast': vice_c64, #Works the same way
+	'C128': vice_c128,
+	'Commodore PET': vice_pet,
+	'Plus/4': vice_plus4,
+	'VIC-20': vice_vic20,
+}
+standard_emulators = {
+	'A7800': a7800,
+	'bsnes': bsnes,
+	'Cemu': cemu,
+	'Citra': citra,
+	'cxNES': cxnes,
+	'Dolphin': dolphin,
+	'DuckStation': duckstation,
+	'Flycast': flycast,
+	'FS-UAE': fs_uae,
+	'Gambatte': gambatte,
+	'GBE+': gbe_plus,
+	'Kega Fusion': kega_fusion,
+	'Medusa': medusa,
+	'melonDS': melonds,
+	'mGBA': mgba,
+	'Mupen64Plus': mupen64plus,
+	'PCSX2': pcsx2,
+	'PokeMini': pokemini,
+	'PPSSPP': ppsspp,
+	'PrBoom+': prboom_plus,
+	'Reicast': reicast,
+	'RPCS3': rpcs3,
+	'SimCoupe': simcoupe,
+	'Snes9x': snes9x,
+	'Stella': stella,
+	'Xemu': xemu,
+	'Yuzu': yuzu,
+}
+pc_emulators = {
+	'BasiliskII': basilisk_ii,
+	'DOSBox': dosbox,
+	'DOSBox-X': dosbox_x,
+	'SheepShaver': sheepshaver,
+}
