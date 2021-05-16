@@ -1,38 +1,5 @@
-from enum import Enum, auto
-
+from platform_types import ZXExpansion, ZXJoystick, ZXMachine
 from software_list_info import get_software_list_entry
-
-class ZXJoystick(Enum):
-	Cursor = 0
-	Kempton = 1
-	SinclairLeft = 2 #For .z80 v3 this is user defined
-	SinclairRight = 3
-
-class ZXMachine(Enum):
-	ZX16k = auto()
-	ZX48k = auto()
-	ZX128k = auto()
-	SpectrumPlus2 = auto()
-	SpectrumPlus2A = auto()
-	SpectrumPlus3 = auto()
-	#Unofficial machines
-	Pentagon = auto() #128K
-	Scorpion = auto() #256K
-	DidaktikKompakt = auto()
-	TimexComputer2048 = auto()
-	TimexComputer2068 = auto()
-	TimexSinclair2068 = auto() #48K
-
-class ZXExpansion(Enum):
-	Interface1 = auto()
-	Interface2 = auto()
-	MGT = auto()
-	SamRam = auto()
-	Multiface = auto()
-	Kempton = auto()
-	Opus = auto()
-	Protek = auto()
-	TRBeta = auto()
 
 zx_hardware = {
 	#For .z80 header

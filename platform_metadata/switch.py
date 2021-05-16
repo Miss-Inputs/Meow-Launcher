@@ -16,6 +16,7 @@ from xml.etree import ElementTree
 from common_types import SaveType
 from config.main_config import main_config
 from info.region_info import get_language_by_english_name
+from platform_types import SwitchContentMetaType
 
 from .wii import parse_ratings
 
@@ -50,18 +51,6 @@ class GamecardFlags(Flag):
 	RepairTool = 4
 	DifferentRegionCupToTerraDevice = 8
 	DifferentRegionCupToGlobalDevice = 16
-
-class ContentMetaType(Enum):
-	Unknown = 0
-	SystemProgram = 1
-	SystemData = 2
-	SystemUpdate = 3
-	BootImagePackage = 4
-	BootImagePackageSafe = 5
-	Application = 0x80
-	Patch = 0x81
-	AddOnContent = 0x82
-	Delta = 0x83
 
 class ContentType(Enum):
 	Meta = 0
@@ -331,7 +320,7 @@ def list_cnmt_nca(data):
 	
 	title_id = bytes.hex(cnmt[0:8][::-1]) #Not sure why this is backwards but it be like that
 	version = int.from_bytes(cnmt[8:12], 'little')
-	content_meta_type = ContentMetaType(cnmt[12])
+	content_meta_type = SwitchContentMetaType(cnmt[12])
 	extended_header_size = int.from_bytes(cnmt[14:16], 'little')
 	content_count = int.from_bytes(cnmt[16:18], 'little')
 	
@@ -385,7 +374,7 @@ def choose_main_cnmt(cnmts):
 		return cnmts[0]
 	#elif len(cnmts) > 1:
 	#Sometimes you can have more than one if the cartridge includes an embedded patch
-	application_cnmts = [c for c in cnmts if c['type'] == ContentMetaType.Application]
+	application_cnmts = [c for c in cnmts if c['type'] == SwitchContentMetaType.Application]
 	if len(application_cnmts) == 1:
 		return application_cnmts[0]
 

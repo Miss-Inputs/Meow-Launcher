@@ -1,21 +1,11 @@
-from enum import Enum, auto
 
 from config.main_config import main_config
 from info.region_info import get_language_by_english_name
 from mame_helpers import consistentify_manufacturer
-from software_list_info import get_software_list_entry
 from metadata import Date
+from platform_types import AppleIIHardware
+from software_list_info import get_software_list_entry
 
-class AppleIIHardware(Enum):
-	AppleII = auto()
-	AppleIIPlus = auto()
-	AppleIIE = auto()
-	AppleIIC = auto()
-	AppleIIEEnhanced = auto()
-	AppleIIgs = auto()
-	AppleIICPlus = auto()
-	AppleIII = auto()
-	AppleIIIPlus = auto()
 
 def parse_woz_info_chunk(metadata, chunk_data):
 	info_version = chunk_data[0]

@@ -1,7 +1,6 @@
 import os
 import re
 from datetime import datetime
-from enum import Enum, auto
 
 import cd_read
 import input_metadata
@@ -10,6 +9,7 @@ from common_types import SaveType
 from mame_helpers import MAMENotInstalledException
 from mame_machine import does_machine_match_game, get_machines_from_source_file
 from metadata import Date
+from platform_types import MegadriveRegionCodes
 from software_list_info import get_software_list_entry
 
 from .atari_controllers import megadrive_pad as standard_gamepad
@@ -19,20 +19,6 @@ licensee_codes = load_dict(None, 'sega_licensee_codes')
 copyright_regex = re.compile(r'\(C\)(\S{4}.)(\d{4})\.(.{3})')
 t_with_zero = re.compile(r'^T-0')
 t_not_followed_by_dash = re.compile(r'^T(?!-)')
-
-class MegadriveRegionCodes(Enum):
-	Japan = auto() #J
-	USA = auto() #U
-	Europe = auto() #E
-
-	#These might _not_ actually be valid, but they show up in retail games sometimes:
-	World = auto() #F, I have seen some documentation say this is France but that doesn't seem to be how it's used
-	Japan1 = auto() #1.. not sure what's different than normal J but I've only seen it in 32X so far
-	BrazilUSA = auto() #4
-	EuropeA = auto() #A, not sure what makes this different from normal Europe? But it happens
-	JapanUSA = auto() #5, sometimes this is used in place of J and U together for some reason
-	Europe8 = auto() #8, not sure what's different than normal Europe?
-	USAEurope = auto() #C, not sure what's different than World?
 
 def parse_peripherals(metadata, peripherals):
 	metadata.input_info.buttons = 3

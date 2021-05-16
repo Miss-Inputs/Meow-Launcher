@@ -5,18 +5,12 @@ import shlex
 import io_utils
 from common_types import (EmulationNotSupportedException, MediaType,
                           NotARomException)
-from launchers import (LaunchParams, MultiCommandLaunchParams)
-from platform_metadata.apple_ii import AppleIIHardware
-from platform_metadata.atari_2600 import Atari2600Controller
-from platform_metadata.game_boy import GameBoyColourFlag
-from platform_metadata.master_system import SMSPeripheral
-from platform_metadata.megadrive import MegadriveRegionCodes
-from platform_metadata.nes import NESPeripheral
-from platform_metadata.saturn import SaturnRegionCodes
-from platform_metadata.snes import ExpansionChip
-from platform_metadata.switch import ContentMetaType
-from platform_metadata.wii import WiiTitleType
-from platform_metadata.zx_spectrum import ZXJoystick, ZXMachine
+from launchers import LaunchParams, MultiCommandLaunchParams
+from platform_types import (AppleIIHardware, Atari2600Controller,
+                            GameBoyColourFlag, MegadriveRegionCodes,
+                            NESPeripheral, SaturnRegionCodes, SMSPeripheral,
+                            SNESExpansionChip, SwitchContentMetaType,
+                            WiiTitleType, ZXJoystick, ZXMachine)
 
 from .emulator_command_line_helpers import (_is_software_available,
                                             _verify_supported_mappers,
@@ -759,7 +753,7 @@ def mame_snes(game, system_config, emulator_config):
 		return mame_driver(game, emulator_config, 'snes', 'cart2', {'cart': bios_path})
 
 	expansion_chip = game.metadata.specific_info.get('Expansion-Chip')
-	if expansion_chip == ExpansionChip.ST018:
+	if expansion_chip == SNESExpansionChip.ST018:
 		raise EmulationNotSupportedException('{0} not supported'.format(expansion_chip))
 
 	slot = game.metadata.specific_info.get('Slot')
@@ -924,7 +918,7 @@ def mednafen_snes_faust(game, _, emulator_config):
 	#Also does not support any other input except normal controller and multitap
 	expansion_chip = game.metadata.specific_info.get('Expansion-Chip')
 	if expansion_chip:
-		if expansion_chip not in (ExpansionChip.CX4, ExpansionChip.SA_1, ExpansionChip.DSP_1, ExpansionChip.SuperFX, ExpansionChip.SuperFX2, ExpansionChip.DSP_2, ExpansionChip.S_DD1):
+		if expansion_chip not in (SNESExpansionChip.CX4, SNESExpansionChip.SA_1, SNESExpansionChip.DSP_1, SNESExpansionChip.SuperFX, SNESExpansionChip.SuperFX2, SNESExpansionChip.DSP_2, SNESExpansionChip.S_DD1):
 			raise EmulationNotSupportedException('{0} not supported'.format(expansion_chip))
 	return mednafen_module('snes_faust', exe_path=emulator_config.exe_path)
 
@@ -1358,7 +1352,7 @@ def snes9x(game, _, emulator_config):
 			raise EmulationNotSupportedException('{0} mapper not supported'.format(slot))
 
 	expansion_chip = game.metadata.specific_info.get('Expansion-Chip')
-	if expansion_chip in (ExpansionChip.ST018, ExpansionChip.DSP_3):
+	if expansion_chip in (SNESExpansionChip.ST018, SNESExpansionChip.DSP_3):
 		#ST018 is implemented enough here to boot to menu, but hangs when starting a match
 		#DSP-3 looks like it's going to work and then when I played around a bit and the AI was starting its turn (I think?) the game hung to a glitchy mess so I guess not
 		raise EmulationNotSupportedException('{0} not supported'.format(expansion_chip))
@@ -1392,7 +1386,7 @@ def xemu(game, __, emulator_config):
 
 def yuzu(game, __, emulator_config):
 	title_type = game.metadata.specific_info.get('Title-Type')
-	if title_type in ('Patch', 'AddOnContent', ContentMetaType.Patch, ContentMetaType.AddOnContent):
+	if title_type in ('Patch', 'AddOnContent', SwitchContentMetaType.Patch, SwitchContentMetaType.AddOnContent):
 		#If we used the .cnmt.xml, it will just be a string
 		raise NotARomException('Cannot boot a {0}'.format(title_type))
 	return LaunchParams(emulator_config.exe_path, ['-f', '-g', '$<path>'])

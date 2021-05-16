@@ -1,5 +1,4 @@
 import calendar
-from enum import Enum, auto
 
 import input_metadata
 from common import NotAlphanumericException, convert_alphanumeric, load_dict
@@ -7,6 +6,7 @@ from common_types import SaveType
 from info.region_info import get_region_by_name
 from mame_helpers import MAMENotInstalledException
 from mame_machine import does_machine_match_game, get_machines_from_source_file
+from platform_types import SNESExpansionChip
 from software_list_info import get_software_list_entry
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
@@ -59,25 +59,6 @@ rom_layouts = {
 	0x3a: 'ExHiROM + FastROM + SPC7110',
 }
 
-class ExpansionChip(Enum):
-	DSP_1 = auto()
-	SuperFX = auto()
-	SuperFX2 = auto()
-	OBC_1 = auto()
-	SA_1 = auto()
-	S_DD1 = auto()
-	SuperGB = auto() #For Super GB BIOS carts
-	BSX = auto() #For Satellaview BIOS carts
-	CX4 = auto()
-	ST018 = auto()
-	ST010 = auto()
-	ST011 = auto()
-	SPC7110 = auto()
-	DSP_2 = auto()
-	DSP_3 = auto()
-	DSP_4 = auto()
-
-
 class ROMType():
 	def __init__(self, expansion_chip=None, has_ram=False, has_battery=False, has_rtc=False):
 		self.expansion_chip = expansion_chip
@@ -89,27 +70,27 @@ rom_types = {
 	0: ROMType(),
 	1: ROMType(has_ram=True),
 	2: ROMType(has_ram=True, has_battery=True),
-	3: ROMType(ExpansionChip.DSP_1),
-	4: ROMType(ExpansionChip.DSP_1, has_ram=True),
-	5: ROMType(ExpansionChip.DSP_1, has_ram=True, has_battery=True),
+	3: ROMType(SNESExpansionChip.DSP_1),
+	4: ROMType(SNESExpansionChip.DSP_1, has_ram=True),
+	5: ROMType(SNESExpansionChip.DSP_1, has_ram=True, has_battery=True),
 	18: ROMType(has_battery=True), #Might not be used...
-	19: ROMType(ExpansionChip.SuperFX),
-	20: ROMType(ExpansionChip.SuperFX2),
-	21: ROMType(ExpansionChip.SuperFX, has_battery=True),
-	26: ROMType(ExpansionChip.SuperFX2, has_battery=True),
-	37: ROMType(ExpansionChip.OBC_1),
-	50: ROMType(ExpansionChip.SA_1, has_battery=True), #Different from 53... somehow... probably?
-	52: ROMType(ExpansionChip.SA_1),
-	53: ROMType(ExpansionChip.SA_1, has_battery=True),
-	67: ROMType(ExpansionChip.S_DD1),
-	69: ROMType(ExpansionChip.S_DD1, has_ram=True, has_battery=True),
+	19: ROMType(SNESExpansionChip.SuperFX),
+	20: ROMType(SNESExpansionChip.SuperFX2),
+	21: ROMType(SNESExpansionChip.SuperFX, has_battery=True),
+	26: ROMType(SNESExpansionChip.SuperFX2, has_battery=True),
+	37: ROMType(SNESExpansionChip.OBC_1),
+	50: ROMType(SNESExpansionChip.SA_1, has_battery=True), #Different from 53... somehow... probably?
+	52: ROMType(SNESExpansionChip.SA_1),
+	53: ROMType(SNESExpansionChip.SA_1, has_battery=True),
+	67: ROMType(SNESExpansionChip.S_DD1),
+	69: ROMType(SNESExpansionChip.S_DD1, has_ram=True, has_battery=True),
 	85: ROMType(has_ram=True, has_battery=True, has_rtc=True),
-	227: ROMType(ExpansionChip.SuperGB, has_ram=True),
-	229: ROMType(ExpansionChip.BSX),
-	243: ROMType(ExpansionChip.CX4),
-	245: ROMType(ExpansionChip.ST018),
-	246: ROMType(ExpansionChip.ST010), #or ST011, but it doesn't distinguish there
-	249: ROMType(ExpansionChip.SPC7110),
+	227: ROMType(SNESExpansionChip.SuperGB, has_ram=True),
+	229: ROMType(SNESExpansionChip.BSX),
+	243: ROMType(SNESExpansionChip.CX4),
+	245: ROMType(SNESExpansionChip.ST018),
+	246: ROMType(SNESExpansionChip.ST010), #or ST011, but it doesn't distinguish there
+	249: ROMType(SNESExpansionChip.SPC7110),
 }
 
 countries = {
@@ -374,16 +355,16 @@ def add_snes_software_list_metadata(software, metadata):
 	expansion_chip = software.get_part_feature('enhancement')
 	#This stuff is detected as DSP_1 from the ROM header, so let's do that properly
 	if expansion_chip == 'DSP2':
-		metadata.specific_info['Expansion-Chip'] = ExpansionChip.DSP_2
+		metadata.specific_info['Expansion-Chip'] = SNESExpansionChip.DSP_2
 	elif expansion_chip == 'DSP3':
-		metadata.specific_info['Expansion-Chip'] = ExpansionChip.DSP_3
+		metadata.specific_info['Expansion-Chip'] = SNESExpansionChip.DSP_3
 	elif expansion_chip == 'DSP4':
-		metadata.specific_info['Expansion-Chip'] = ExpansionChip.DSP_4
+		metadata.specific_info['Expansion-Chip'] = SNESExpansionChip.DSP_4
 	#Distinguish between subtypes properly
 	elif expansion_chip == 'ST010':
-		metadata.specific_info['Expansion-Chip'] = ExpansionChip.ST010
+		metadata.specific_info['Expansion-Chip'] = SNESExpansionChip.ST010
 	elif expansion_chip == 'ST011':
-		metadata.specific_info['Expansion-Chip'] = ExpansionChip.ST011
+		metadata.specific_info['Expansion-Chip'] = SNESExpansionChip.ST011
 
 	#Meh...
 	if software.name in ('ffant2', 'ffant2a'):

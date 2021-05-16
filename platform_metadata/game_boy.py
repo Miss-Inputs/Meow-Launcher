@@ -1,5 +1,4 @@
 import re
-from enum import IntEnum
 from zlib import crc32
 
 import input_metadata
@@ -7,6 +6,7 @@ from common import NotAlphanumericException, convert_alphanumeric, load_dict
 from common_types import SaveType
 from config.main_config import main_config
 from config.system_config import system_configs
+from platform_types import GameBoyColourFlag
 from software_list_info import (find_in_software_lists,
                                 get_software_list_entry,
                                 matcher_args_for_bytes)
@@ -122,12 +122,6 @@ gbx_mappers = {
 	b'LIBA': 'Liebao Technology',
 	b'PKJD': 'Pokemon Jade/Diamond bootleg'
 }
-
-class GameBoyColourFlag(IntEnum):
-	No = 0
-	Yes = 0x80
-	Required = 0xc0
-	#Ah yes, the three boolean values
 
 def parse_slot(metadata, slot):
 	if slot in mame_rom_slots:

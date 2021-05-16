@@ -5,9 +5,9 @@ import cd_read
 from common import load_dict
 from common_types import SaveType
 from metadata import Date
+from platform_types import SaturnRegionCodes
 
 from .minor_systems import add_generic_info
-from .saturn import SaturnRegionCodes
 
 licensee_codes = load_dict(None, 'sega_licensee_codes')
 

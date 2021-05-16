@@ -8,6 +8,7 @@ from common import NotAlphanumericException, convert_alphanumeric, load_dict
 from config.main_config import main_config
 from config.system_config import system_configs
 from metadata import Date
+from platform_types import WiiTitleType
 
 from .gamecube_wii_common import (NintendoDiscRegion,
                                   add_gamecube_wii_disc_metadata,
@@ -23,15 +24,6 @@ except ModuleNotFoundError:
 	have_pycrypto = False
 
 wii_config = system_configs.get('Wii')
-
-class WiiTitleType(Enum):
-	System = 0x00000001
-	Game = 0x00010000 #Seems to be only used for disc games, WiiWare and VC games are still Channel
-	Channel = 0x00010001
-	SystemChannel = 0x00010002
-	GameWithChannel = 0x00010004 #Channels that come with games, e.g. Wii Fit Plus Channel or whatevs
-	DLC = 0x00010005
-	HiddenChannel = 0x00010008
 
 class WiiVirtualConsolePlatform(Enum):
 	Commodore64 = 'C'

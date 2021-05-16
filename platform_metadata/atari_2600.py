@@ -1,12 +1,13 @@
 import hashlib
 import subprocess
-from enum import Enum, auto
 
 import input_metadata
-import platform_metadata.atari_controllers as controllers
 from common_types import SaveType
 from info.region_info import TVSystem
+from platform_types import Atari2600Controller
 from software_list_info import find_in_software_lists, matcher_args_for_bytes
+
+import platform_metadata.atari_controllers as controllers
 
 from .atari_controllers import megadrive_pad
 
@@ -41,27 +42,6 @@ def get_stella_database():
 			games[md5] = game
 
 	return games
-
-class Atari2600Controller(Enum):
-	Nothing = auto()
-	Joystick = auto()
-	Paddle = auto() #2 players per port
-	Mouse = auto() #2 buttons, Stella lists an AMIGAMOUSE and ATARIMOUSE (ST mouse) and I dunno if those are functionally different
-	Trackball = auto() #Functionally 1 button, but has 2 physical buttons to be ambidextrous; see atari_8_bit.py
-	KeyboardController = auto() #This is... 2 keypads joined together (12 keys each)
-	Compumate = auto() #42-key keyboard (part of a whole entire computer)
-	MegadriveGamepad = auto() #See megadrive.py
-	Boostergrip = auto() #Effectively a 3-button joystick, passes through to the standard 2600 joystick and adds 2 buttons
-	DrivingController = auto() #Has 360 degree movement, so not quite like a paddle. MAME actually calls it a trackball
-	Mindlink = auto()
-	LightGun = auto() #Presumably this is the XEGS XG-1, which has 1 button (see atari_8_bit.py)
-	Other = auto()
-	#Light pen would also be possible
-
-	#Not controllers but plug into the controller port:
-	AtariVox = auto()
-	SaveKey = auto()
-	KidVid = auto()
 
 def _controller_from_stella_db_name(controller):
 	if not controller:

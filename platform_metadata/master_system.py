@@ -5,16 +5,10 @@ from common import load_dict
 from common_types import SaveType
 from info.region_info import TVSystem
 from metadata import Date
+from platform_types import SMSPeripheral
 from software_list_info import get_software_list_entry
 
 licensee_codes = load_dict(None, 'sega_licensee_codes')
-
-class SMSPeripheral(Enum):
-	StandardController = auto()
-	Lightgun = auto()
-	Paddle = auto()
-	Tablet = auto()
-	SportsPad = auto()
 
 def decode_bcd(i):
 	if not isinstance(i, int):

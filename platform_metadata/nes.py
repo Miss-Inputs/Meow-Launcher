@@ -1,5 +1,3 @@
-from enum import Enum, auto
-
 import input_metadata
 from common import load_dict
 from common_types import SaveType
@@ -8,6 +6,7 @@ from info.region_info import TVSystem
 from mame_helpers import MAMENotInstalledException
 from mame_machine import does_machine_match_game, get_machines_from_source_file
 from metadata import Date
+from platform_types import NESPeripheral
 from software_list_info import (find_in_software_lists_with_custom_matcher,
                                 get_crc32_for_software_list,
                                 get_software_list_entry)
@@ -182,17 +181,6 @@ ines_mappers = {
 	254: 'Pikachu Y2K',
 	255: '110-in-1 multicart',
 }
-
-class NESPeripheral(Enum):
-	NormalController = auto()
-	Zapper = auto()
-	ArkanoidPaddle = auto() #AKA Vaus
-	PowerPad = auto() #AKA Family Trainer in Japan, and Family Fun Fitness in Europe (and in early rare USA releases)
-	PowerGlove = auto() #Hell yeah, that's so bad
-	ROB = auto()
-	FamicomKeyboard = auto() #Used with the Famicom expansion port with Famicom BASIC
-	SuborKeyboard = auto() #Different from the Famicom keyboard, this requires sb486 driver (there are other Subor famiclones but that will do) although seemingly is a Famicom expansion port device
-	Piano = auto() #Miracle Piano Teaching System thingy
 
 def decode_bcd(i):
 	hi = (i & 0xf0) >> 4

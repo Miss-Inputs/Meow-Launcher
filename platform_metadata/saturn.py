@@ -7,6 +7,7 @@ from common import load_dict
 from common_types import SaveType
 from config.main_config import main_config
 from metadata import Date
+from platform_types import SaturnRegionCodes
 
 from .minor_systems import add_generic_info
 
@@ -19,11 +20,6 @@ class SaturnPeripheral(Enum):
 	Keyboard = auto()
 	Mouse = auto()
 	Wheel = auto()
-
-class SaturnRegionCodes(Enum):
-	Japan = auto() #J
-	USA = auto() #U
-	Europe = auto() #E
 
 def parse_peripherals(metadata, peripherals):
 	uses_standard_controller = False
