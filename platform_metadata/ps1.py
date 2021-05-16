@@ -1,3 +1,4 @@
+from enum import Enum
 from xml.etree import ElementTree
 import json
 
@@ -8,6 +9,14 @@ from config.emulator_config import emulator_configs
 from .minor_systems import add_generic_info
 
 duckstation_config = emulator_configs.get('DuckStation')
+
+class DuckStationCompatibility(Enum):
+	NoIssues = 5
+	GraphicalOrAudioIssues = 4
+	CrashesInGame = 3
+	CrashesInIntro = 2
+	DoesNotBoot = 1
+	Unknown = 0
 
 def add_duckstation_compat_info(metadata):
 	compat_xml_path = duckstation_config.options.get('compatibility_xml_path')
@@ -24,10 +33,12 @@ def add_duckstation_compat_info(metadata):
 
 	entry = add_duckstation_compat_info.compat_xml.find('entry[@code="{0}"]'.format(metadata.product_code))
 	if entry is not None:
-		compatibility = entry.attrib.get('compatibility')
-		if compatibility:
-			metadata.specific_info['DuckStation-Compatibility'] = compatibility
-
+		try:
+			compatibility = int(entry.attrib.get('compatibility'))
+			if compatibility:
+				metadata.specific_info['DuckStation-Compatibility'] = DuckStationCompatibility(compatibility)
+		except ValueError:
+			pass
 
 def add_duckstation_db_info(metadata):
 	gamedb_path = duckstation_config.options.get('gamedb_path')

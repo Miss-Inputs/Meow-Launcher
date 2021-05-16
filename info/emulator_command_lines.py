@@ -1134,8 +1134,16 @@ def dolphin(game, _, emulator_config):
 		path = '$<path>'
 	return LaunchParams(emulator_config.exe_path, ['-b', '-e', path])
 
-def duckstation(_, __, emulator_config):
-	#Nothing to see here for now
+def duckstation(game, _, emulator_config):
+	if emulator_config.options.get('consider_unknown_games_incompatible', False) and 'DuckStation-Compatibility' not in game.metadata.specific_info:
+		raise EmulationNotSupportedException('Not in compatibility DB')
+	threshold = emulator_config.options.get('compatibility_threshold')
+	if threshold:
+		game_compat = game.metadata.specific_info.get('DuckStation-Compatibility')
+		if game_compat:
+			if game_compat.value < threshold:
+				raise EmulationNotSupportedException('Game is only {1} status'.format(game_compat.name))
+
 	return LaunchParams(emulator_config.exe_path, ['-batch', '-fullscreen', '$<path>'])
 
 def flycast(_, __, emulator_config):
