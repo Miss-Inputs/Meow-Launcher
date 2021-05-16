@@ -5,8 +5,7 @@ import shlex
 import io_utils
 from common_types import (EmulationNotSupportedException, MediaType,
                           NotARomException)
-from launchers import (LaunchParams, MultiCommandLaunchParams,
-                       get_wine_launch_params)
+from launchers import (LaunchParams, MultiCommandLaunchParams)
 from platform_metadata.apple_ii import AppleIIHardware
 from platform_metadata.atari_2600 import Atari2600Controller
 from platform_metadata.game_boy import GameBoyColourFlag
@@ -1085,7 +1084,7 @@ def cemu(game, __, emulator_config):
 		path = game.rom.relevant_files['rpx']
 	else:
 		path = '$<path>'
-	return get_wine_launch_params(emulator_config.exe_path, ['-f', '-g', 'Z:{0}'.format(path)])
+	return LaunchParams(emulator_config.exe_path, ['-f', '-g', 'Z:{0}'.format(path)])
 
 def citra(game, _, emulator_config):
 	if game.rom.extension != '3dsx':
@@ -1146,13 +1145,9 @@ def duckstation(_, __, emulator_config):
 	return LaunchParams(emulator_config.exe_path, ['-batch', '-fullscreen', '$<path>'])
 
 def flycast(_, __, emulator_config):
-	env_vars = {}
-	if emulator_config.options.get('force_opengl_version', False):
-		#Looks like this still needs to be here
-		env_vars['MESA_GL_VERSION_OVERRIDE'] = '4.3'
 	args = ['-config', 'window:fullscreen=yes']
 	args.append('$<path>')
-	return LaunchParams(emulator_config.exe_path, args, env_vars)
+	return LaunchParams(emulator_config.exe_path, args)
 
 def fs_uae(game, system_config, emulator_config):
 	args = ['--fullscreen']
@@ -1312,11 +1307,12 @@ def pokemini(_, __, emulator_config):
 	return LaunchParams(emulator_config.exe_path, ['-fullscreen', '$<path>'])
 
 def pokemini_wrapper(_, __, emulator_config):
-	return MultiCommandLaunchParams([
-		LaunchParams('mkdir', ['-p', os.path.expanduser('~/.config/PokeMini')]), 
-		LaunchParams('cd', [os.path.expanduser('~/.config/PokeMini')]), 
-		LaunchParams(emulator_config.exe_path, ['-fullscreen', '$<path>'])
-	])
+	return MultiCommandLaunchParams(
+		[LaunchParams('mkdir', ['-p', os.path.expanduser('~/.config/PokeMini')]), 
+		LaunchParams('cd', [os.path.expanduser('~/.config/PokeMini')])], 
+		LaunchParams(emulator_config.exe_path, ['-fullscreen', '$<path>']),
+		[]
+	)
 
 def ppsspp(game, _, emulator_config):
 	if game.metadata.specific_info.get('PlayStation-Category') == 'UMD Video':
@@ -1326,10 +1322,6 @@ def ppsspp(game, _, emulator_config):
 def reicast(game, _, emulator_config):
 	if game.metadata.specific_info.get('Uses-Windows-CE', False):
 		raise EmulationNotSupportedException('Windows CE-based games not supported')
-	env_vars = {}
-	if emulator_config.options.get('force_opengl_version', False):
-		#This shouldn't be a thing, it's supposed to fall back to OpenGL 3.0 if 4.3 isn't supported (there was a commit that fixed an issue where it didn't), but then I guess that doesn't work for me so once again I have decided to do things the wrong way instead of what a normal sensible person would do, anyway somehow this... works just fine with this environment variable, although on a chipset only supporting 4.2 it by all logic shouldn't, and I don't really know why, because I'm not an OpenGL programmer or whatever, I'm just some Python-using dumbass
-		env_vars['MESA_GL_VERSION_OVERRIDE'] = '4.3'
 	args = ['-config', 'x11:fullscreen=1']
 	if not game.metadata.specific_info.get('Supports-VGA', True):
 		#Use RGB component instead (I think that should be compatible with everything, and would be better quality than composite, which should be 1)
@@ -1338,7 +1330,7 @@ def reicast(game, _, emulator_config):
 		#This shouldn't be needed, as -config is supposed to be temporary, but it isn't and writes the component cable setting back to the config file, so we'll set it back
 		args += ['-config', 'config:Dreamcast.Cable=0']
 	args.append('$<path>')
-	return LaunchParams(emulator_config.exe_path, args, env_vars)
+	return LaunchParams(emulator_config.exe_path, args)
 
 def rpcs3(game, _, emulator_config):
 	if game.metadata.specific_info.get('Should-Not-Be-Bootable', False):
@@ -1435,22 +1427,19 @@ def _macemu_args(app, autoboot_txt_path, emulator_config):
 		args += ['--cdrom', other_cd_path]
 
 	app_path = app.metadata.specific_info.get('Carbon-Path', app.path)
-	commands = [
+	pre_commands = [
 		LaunchParams('sh', ['-c', 'echo {0} > {1}'.format(shlex.quote(app_path), shlex.quote(autoboot_txt_path))]), #Hack because I can't be fucked refactoring MultiCommandLaunchParams to do pipey bois/redirecty bois
+		#TODO: Actually could we just have a WriteAFileLaunchParams or something
 	]
 	if 'max_bit_depth' in app.info:
 		#--displaycolordepth doesn't work or doesn't do what I think it does, so we are setting depth from inside the thing instead
 		#This requires some AppleScript extension known as GTQ Programming Suite until I one day figure out a better way to do this
-		commands += [
+		pre_commands += [
 			LaunchParams('sh', ['-c', 'echo {0} >> {1}'.format(app.info['max_bit_depth'], shlex.quote(autoboot_txt_path))])
 		]
-	commands += [
-		LaunchParams(emulator_config.exe_path, args),
-		LaunchParams('rm', [autoboot_txt_path])
-	]
-	return MultiCommandLaunchParams(commands)
+	return MultiCommandLaunchParams(pre_commands, LaunchParams(emulator_config.exe_path, args), [LaunchParams('rm', [autoboot_txt_path])])
 
-def basilisk_ii(app, emulator_config, _):
+def basilisk_ii(app, _, emulator_config):
 	if app.metadata.specific_info.get('Architecture') == 'PPC':
 		raise EmulationNotSupportedException('PPC not supported')
 	if app.info.get('ppc_enhanced', False) and emulator_config.options.get('skip_if_ppc_enhanced', False):
@@ -1473,7 +1462,7 @@ def basilisk_ii(app, emulator_config, _):
 	autoboot_txt_path = os.path.join(shared_folder, 'autoboot.txt')
 	return _macemu_args(app, autoboot_txt_path, emulator_config)
 
-def sheepshaver(app, emulator_config, _):
+def sheepshaver(app, _, emulator_config):
 	#This requires a script inside the Mac OS environment's startup items folder that reads "Unix:autoboot.txt" and launches whatever path is referred to by the contents of that file. That's ugly, but there's not really any other way to do it. Like, at all. Other than having separate bootable disk images. You don't want that. Okay, so I don't want that.
 	#Ideally, HFS manipulation would be powerful enough that we could just slip an alias into the Startup Items folder ourselves and delete it afterward. That doesn't fix the problem of automatically shutting down (still need a script for that), unless we don't create an alias at all and we create a script or something on the fly that launches that path and then shuts down, but yeah. Stuff and things.
 	shared_folder = None
@@ -1511,7 +1500,7 @@ def _make_dosbox_config(app, system_config):
 		return None
 
 	name = io_utils.sanitize_name(app.name) + '.ini'
-	folder = system_config.get('dosbox_configs_path')
+	folder = system_config.options.get('dosbox_configs_path')
 	path = os.path.join(folder, name)
 
 	os.makedirs(folder, exist_ok=True)
@@ -1520,7 +1509,7 @@ def _make_dosbox_config(app, system_config):
 
 	return path
 	
-def dosbox(app, emulator_config, system_config):
+def dosbox(app, system_config, emulator_config):
 	args = ['-fullscreen', '-exit', '-noautoexec', '-userconf']
 
 	game_conf = _make_dosbox_config(app, system_config)
@@ -1542,7 +1531,7 @@ def dosbox(app, emulator_config, system_config):
 
 	return LaunchParams(emulator_config.exe_path, args)
 
-def dosbox_x(app, emulator_config, _):
+def dosbox_x(app, _, emulator_config):
 	confs = {}
 
 	if app.is_on_cd:

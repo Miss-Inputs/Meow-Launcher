@@ -86,7 +86,7 @@ class App:
 				if 'compat' in self.info:
 					if not self.info['compat'].get(emulator, True):
 						raise EmulationNotSupportedException('Apparently not supported')
-				params = pc_emulators[emulator].get_launch_params(self, emulator_config, system_config.options)
+				params = pc_emulators[emulator].get_launch_params(self, system_config, emulator_config)
 				if params:
 					break
 			except (EmulationNotSupportedException, NotARomException) as ex:

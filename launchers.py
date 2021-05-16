@@ -72,16 +72,19 @@ class LaunchParams():
 			environment_vars = ' '.join([shlex.quote(k + '=' + v) for k, v in self.env_vars.items()])
 			return 'env {0} {1} {2}'.format(environment_vars, exe_name_quoted, exe_args_quoted)
 		if not self.exe_name: #Wait, when does this ever happen? Why is this here?
+			#if main_config.debug:
+			#	print('What the, no exe_name', exe_args_quoted)
 			return exe_args_quoted
 		return exe_name_quoted + ' ' + exe_args_quoted
 
-	def prepend_command(self, launch_params):
-		multi_command = MultiCommandLaunchParams([self])
-		return multi_command.prepend_command(launch_params)
+	def wrap(self, command):
+		return LaunchParams(command, [self.exe_name] + self.exe_args)
 
-	def append_command(self, launch_params):
-		multi_command = MultiCommandLaunchParams([self])
-		return multi_command.append_command(launch_params)
+	def prepend_command(self, prepended_commands):
+		return MultiCommandLaunchParams([prepended_commands], self, [])
+		
+	def append_command(self, appended_params):
+		return MultiCommandLaunchParams([], self, [appended_params])
 
 	def replace_path_argument(self, path):
 		return LaunchParams(self.exe_name, [arg.replace('$<path>', path) for arg in self.exe_args], self.env_vars)
@@ -100,27 +103,27 @@ def get_wine_launch_params(exe_path, exe_args, working_directory=None):
 
 class MultiCommandLaunchParams():
 	#I think this shouldn't inherit from LaunchParams because duck typing (but doesn't actually reuse anything from LaunchParams). I _think_ I know what I'm doing. Might not.
-	def __init__(self, commands, working_directory=None):
-		self.commands = commands
+	def __init__(self, pre_commands, main_command, post_commands, working_directory=None):
+		self.pre_commands = pre_commands
+		self.main_command = main_command
+		self.post_commands = post_commands
 		self.working_directory = working_directory
 
 	def make_linux_command_string(self):
 		#Purrhaps I should add an additional field for this object to use ; instead of &&
-		return 'sh -c ' + shlex.quote(' && '.join([command.make_linux_command_string() for command in self.commands]))
+		return 'sh -c ' + shlex.quote(' && '.join([command.make_linux_command_string() for command in self.pre_commands] + [self.main_command.make_linux_command_string()] + [command.make_linux_command_string() for command in self.post_commands]))
+
+	def wrap(self, command):
+		return MultiCommandLaunchParams(self.pre_commands, LaunchParams(command, [self.main_command.exe_name] + self.main_command.exe_args), self.post_commands)
 
 	def prepend_command(self, launch_params):
-		commands = self.commands
-		commands.insert(0, launch_params)
-		return MultiCommandLaunchParams(commands)
+		return MultiCommandLaunchParams([launch_params] + self.pre_commands, self.main_command, self.post_commands)
 
 	def append_command(self, launch_params):
-		commands = self.commands
-		commands.append(launch_params)
-		return MultiCommandLaunchParams(commands)
+		return MultiCommandLaunchParams(self.pre_commands, self.main_command, self.post_commands + [launch_params])
 
 	def replace_path_argument(self, path):
-		new_commands = [command.replace_path_argument(path) for command in self.commands]
-		return MultiCommandLaunchParams(new_commands)
+		return MultiCommandLaunchParams(self.pre_commands, self.main_command.replace_path_argument(path), self.post_commands)
 
 def pick_new_filename(folder, display_name, extension):
 	base_filename = make_filename(display_name)

@@ -1,8 +1,9 @@
 from enum import Enum, auto
+from launchers import MultiCommandLaunchParams, get_wine_launch_params, LaunchParams
 
 import info.emulator_command_lines as command_lines
 from info.emulator_command_line_helpers import mame_driver_callable, mednafen_module_callable #It would be infeasible to create a function in emulator_command_lines for everything, I guess
-from common_types import ConfigValueType
+from common_types import ConfigValueType, EmulationNotSupportedException
 
 from .format_info import (atari_2600_cartridge_extensions,
                           generic_cart_extensions, mame_cdrom_formats,
@@ -25,7 +26,6 @@ class EmulatorStatus(Enum):
 	Borked = 1
 
 class EmulatorPlatform():
-	#Actually I'm not using this right now because I return a specific LaunchParams anyway, but it seems like it'd be useful just to note that in the emulator object
 	Native = auto()
 	Windows = auto()
 	DotNet = auto()
@@ -34,9 +34,40 @@ class Emulator():
 	def __init__(self, status, default_exe_name, launch_params_func, configs=None, host_platform=EmulatorPlatform.Native):
 		self.status = status
 		self.default_exe_name = default_exe_name
-		self.get_launch_params = launch_params_func
-		self.configs = configs if configs else {}
+		self.launch_params_func = launch_params_func
 		self.host_platform = host_platform
+		self.configs = {
+			'gamemode': EmulatorConfigValue(ConfigValueType.Bool, False, 'Run with gamemoderun'),
+			'mangohud': EmulatorConfigValue(ConfigValueType.Bool, False, 'Run with MangoHUD'),
+			'force_opengl_version': EmulatorConfigValue(ConfigValueType.Bool, False, 'Hack to force Mesa OpenGL version to 4.3 by environment variable if you need it'),
+		}
+		if configs:
+			self.configs.update(configs)
+
+	def get_launch_params(self, game, system_config, emulator_config):
+		params = self.launch_params_func(game, system_config, emulator_config)
+		if self.host_platform == EmulatorPlatform.Windows:
+			if isinstance(params, MultiCommandLaunchParams):
+				params = MultiCommandLaunchParams(params.pre_commands, get_wine_launch_params(params.main_command.exe_name, params.main_command.exe_args), params.post_commands)
+			else:
+				params = get_wine_launch_params(params.exe_name, params.exe_args)
+		elif self.host_platform == EmulatorPlatform.DotNet:
+			params = params.wrap('mono')
+		
+		if emulator_config.options.get('mangohud', False):
+			params = params.wrap('mangohud')
+			if isinstance(params, MultiCommandLaunchParams):
+	 			params.main_command.env_vars['MANGOHUD_DLSYM'] = '1'
+			else:
+				params.env_vars['MANGOHUD_DLSYM'] = '1'
+		if emulator_config.options.get('gamemode', False):
+			params = params.wrap('gamemoderun')
+		if emulator_config.options.get('force_opengl_version', False):
+			if isinstance(params, MultiCommandLaunchParams):
+	 			params.main_command.env_vars['MESA_GL_VERSION_OVERRIDE'] = '4.3'
+			else:
+				params.env_vars['MESA_GL_VERSION_OVERRIDE'] = '4.3'
+		return params
 
 class StandardEmulator(Emulator):
 	def __init__(self, status, default_exe_name, launch_params_func, supported_extensions, supported_compression=None, configs=None, host_platform=EmulatorPlatform.Native):
@@ -85,9 +116,7 @@ emulators = {
 		'compatibility_threshold': EmulatorConfigValue(ConfigValueType.Integer, 2, "Don't try and launch any game with this compatibility rating or lower"),
 		'consider_unknown_games_incompatible': EmulatorConfigValue(ConfigValueType.Bool, False, "Consider games incompatible if they aren't in the compatibility database at all")
 	}),
-	'Flycast': StandardEmulator(EmulatorStatus.Good, 'flycast', command_lines.flycast, ['gdi', 'cdi', 'chd', 'cue'], {
-		'force_opengl_version': EmulatorConfigValue(ConfigValueType.Bool, False, 'Hack to force Mesa OpenGL version by environment variable if you need it')
-	}),
+	'Flycast': StandardEmulator(EmulatorStatus.Good, 'flycast', command_lines.flycast, ['gdi', 'cdi', 'chd', 'cue'], {}),
 	'FS-UAE': StandardEmulator(EmulatorStatus.Good, 'fs-uae', command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf']),
 	#Note that .ipf files need a separately downloadable plugin. We could detect the presence of that, I guess
 	'Gambatte': StandardEmulator(EmulatorStatus.Good, 'gambatte_qt', command_lines.gambatte, ['gb', 'gbc'], ['zip']),
