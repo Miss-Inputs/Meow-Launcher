@@ -104,9 +104,9 @@ def first_available_system(system_list):
 	return None
 
 #This is here to make things simpler, instead of putting a whole new function in emulator_command_lines we can return the appropriate function from here
-def simple_emulator(args):
+def simple_emulator(args=None):
 	def inner(_, __, emulator_config):
-		return LaunchParams(emulator_config.exe_path, args)
+		return LaunchParams(emulator_config.exe_path, args if args else ['$<path>'])
 	return inner
 
 def simple_gb_emulator(args, mappers, autodetected_mappers):

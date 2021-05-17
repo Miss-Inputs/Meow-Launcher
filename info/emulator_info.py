@@ -131,7 +131,7 @@ emulators = {
 	#I guess MBC1 Multicart only works if you tick the "Multicart compatibility" box
 	#MMM01 technically works but only boots the first game instead of the menu, so it doesn't really work work
 
-	'GBE+': StandardEmulator(EmulatorStatus.Good, 'gbe_plus_qt', command_lines.gbe_plus),
+	'GBE+': StandardEmulator(EmulatorStatus.Good, 'gbe_plus_qt', command_lines.gbe_plus, ['gb', 'gbc', 'gba']),
 	#In theory, only this should support Pocket Sonar (so far), but there's not really a way to detect that since it just claims to be MBC1 in the header...
 	#Also in theory recognizes any extension and assumes Game Boy if not .gba or .nds, but that would be screwy
 
@@ -151,6 +151,8 @@ emulators = {
 	'Reicast': StandardEmulator(EmulatorStatus.Good, 'reicast', command_lines.reicast, ['gdi', 'cdi', 'chd'], {
 		'force_opengl_version': EmulatorConfigValue(ConfigValueType.Bool, False, 'Hack to force Mesa OpenGL version by environment variable if you need it')
 	}),
+	'Ruffle': StandardEmulator(EmulatorStatus.Imperfect, 'ruffle', simple_emulator(), ['swf']),
+	#No way to start off in fullscreen…
 	'SimCoupe': StandardEmulator(EmulatorStatus.Good, 'simcoupe', simple_emulator(['-fullscreen', 'yes', '$<path>']), ['mgt', 'sad', 'dsk', 'sbt'], ['zip', 'gz']),
 	'Snes9x': StandardEmulator(EmulatorStatus.Good, 'snes9x-gtk', command_lines.snes9x, ['sfc', 'smc', 'swc'], ['zip', 'gz']),
 	#Can't set fullscreen mode from the command line so you have to set up that yourself (but it will do that automatically); GTK port can't do Sufami Turbo or Satellaview from command line due to lacking multi-cart support that Windows has (Unix non-GTK doesn't like being in fullscreen etc)

@@ -542,6 +542,7 @@ systems = {
 		{'save_dir': SystemConfigValue(ConfigValueType.FolderPath, None, 'Folder to put save files in')},
 		is_virtual=True, dat_names=['DOOM']
 	),
+	'Flash': SystemInfo([], [], ['Ruffle'], {MediaType.Digital: ['swf']}, is_virtual=True),
 }
 
 #For Machine.is_system_driver to work correctly
@@ -556,7 +557,7 @@ all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers] + ibmpc
 #TRS-80 Model 2 (trs80m2)
 #TRS-80 MC-10 (mc10)
 #Hitachi S1
-#Virtual systems: Flash, J2ME, TADS, Z-Machine, Adobe AIR, Pico-8 (not that I have found cool "emulators" for any of that)
+#Virtual systems: J2ME, TADS, Z-Machine, Adobe AIR, Pico-8 (not that I have found cool "emulators" for any of that)
 #Acorn System (acrnsys3, acrnsys5)
 #Amstrad PC1512 (pc1512, pc1640)
 #Indy (indy_4610, indigo2_4415)
