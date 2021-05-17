@@ -13,7 +13,7 @@ from platform_types import (AppleIIHardware, Atari2600Controller,
                             WiiTitleType, ZXJoystick, ZXMachine)
 
 from .emulator_command_line_helpers import (_is_software_available,
-                                            _verify_supported_mappers,
+                                            _verify_supported_gb_mappers,
                                             first_available_system,
                                             is_highscore_cart_available,
                                             mame_driver, mednafen_module,
@@ -303,7 +303,7 @@ def mame_game_boy(game, _, emulator_config):
 	supported_mappers = ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5']
 	detected_mappers = ['MMM01', 'MBC1 Multicart', 'Wisdom Tree', 'Li Cheng', 'Sintax']
 
-	_verify_supported_mappers(game, supported_mappers, detected_mappers)
+	_verify_supported_gb_mappers(game, supported_mappers, detected_mappers)
 
 	#Not much reason to use gameboy, other than a green tinted screen. I guess that's the only difference
 	system = 'gbcolor' if emulator_config.options.get('use_gbc_for_dmg') else 'gbpocket'
@@ -866,7 +866,7 @@ def mednafen_game_gear(game, _, emulator_config):
 	return mednafen_module('gg', exe_path=emulator_config.exe_path)
 
 def mednafen_gb(game, _, emulator_config):
-	_verify_supported_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC7', 'HuC1', 'HuC3'], [])
+	_verify_supported_gb_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC7', 'HuC1', 'HuC3'], [])
 	return mednafen_module('gb', exe_path=emulator_config.exe_path)
 
 def mednafen_gba(game, _, emulator_config):
@@ -1043,7 +1043,7 @@ def bsnes(game, system_config, emulator_config):
 			raise EmulationNotSupportedException('We do not want to play a non-SGB enhanced game with a Super Game Boy')
 
 		#Pocket Camera is also supported by the SameBoy core, but I'm leaving it out here because bsnes doesn't do the camera
-		_verify_supported_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3'], [])
+		_verify_supported_gb_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3'], [])
 
 		return LaunchParams(emulator_config.exe_path, ['--fullscreen', sgb_bios_path, '$<path>'])
 
@@ -1146,11 +1146,6 @@ def duckstation(game, _, emulator_config):
 
 	return LaunchParams(emulator_config.exe_path, ['-batch', '-fullscreen', '$<path>'])
 
-def flycast(_, __, emulator_config):
-	args = ['-config', 'window:fullscreen=yes']
-	args.append('$<path>')
-	return LaunchParams(emulator_config.exe_path, args)
-
 def fs_uae(game, system_config, emulator_config):
 	args = ['--fullscreen']
 	if game.system_name == 'Amiga CD32':
@@ -1206,27 +1201,14 @@ def fs_uae(game, system_config, emulator_config):
 		args.append('--ntsc_mode=1')
 	return LaunchParams(emulator_config.exe_path, args)
 
-def gambatte(game, _, emulator_config):
-	#I guess MBC1 Multicart only works if you tick the "Multicart compatibility" box
-	#MMM01 technically works but only boots the first game instead of the menu, so it doesn't really work work
-	_verify_supported_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5'], ['MBC1 Multicart'])
-
-	return LaunchParams(emulator_config.exe_path, ['--full-screen', '$<path>'])
-
 def gbe_plus(game, _, emulator_config):
-	#In theory, only this should support Pocket Sonar (so far), but there's not really a way to detect that since it just claims to be MBC1 in the header...
-	_verify_supported_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'HuC1'], ['MBC1 Multicart'])
+	if game.system_name == 'Game Boy':
+		#In theory, only this should support Pocket Sonar (so far), but there's not really a way to detect that since it just claims to be MBC1 in the header...
+		_verify_supported_gb_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'HuC1'], ['MBC1 Multicart'])
 	return LaunchParams(emulator_config.exe_path, ['$<path>'])
 
-def kega_fusion(game, _, emulator_config):
-	mapper = game.metadata.specific_info.get('Mapper')
-	#rom_kof99: Pocket Monsters does work (game-specific hack, probably?), which is why in platform_metadata/megadrive I've treated it specially and called it rom_kof99_pokemon
-	if mapper in ('aqlian', 'rom_sf002', 'rom_sf004', 'rom_smw64', 'rom_topf', 'rom_kof99', 'rom_cjmjclub', 'rom_pokestad', 'rom_soulb', 'rom_chinf3'):
-		raise EmulationNotSupportedException(mapper + ' not supported')
-	return LaunchParams(emulator_config.exe_path, ['-fullscreen', '$<path>'])
-
 def medusa(game, _, emulator_config):
-	if game.metadata.platform == 'DSi':
+	if game.system_name == 'DSi':
 		raise EmulationNotSupportedException('DSi exclusive games and DSiWare not supported')
 	if game.metadata.specific_info.get('Is-iQue', False):
 		raise EmulationNotSupportedException('iQue DS not supported')
@@ -1245,7 +1227,7 @@ def medusa(game, _, emulator_config):
 	return LaunchParams(emulator_config.exe_path, args)
 
 def melonds(game, _, emulator_config):
-	if game.metadata.platform == 'DSi':
+	if game.system_name == 'DSi':
 		raise EmulationNotSupportedException("DSi is too experimental so let's say for all intents and purposes it doesn't work")
 	if game.metadata.specific_info.get('Is-iQue', False):
 		#Maybe it is if you use an iQue firmware?
@@ -1302,9 +1284,6 @@ def mupen64plus(game, system_config, emulator_config):
 	args.append('$<path>')
 	return LaunchParams(emulator_config.exe_path, args)
 
-def pcsx2(_, __, emulator_config):
-	return LaunchParams(emulator_config.exe_path, ['--nogui', '--fullscreen', '--fullboot', '$<path>'])
-
 def pokemini(_, __, emulator_config):
 	return MultiCommandLaunchParams(
 		[LaunchParams('mkdir', ['-p', os.path.expanduser('~/.config/PokeMini')]), 
@@ -1346,9 +1325,6 @@ def rpcs3(game, _, emulator_config):
 	#It's clever enough to boot folders specified as a path
 	return LaunchParams(emulator_config.exe_path, ['--no-gui', '$<path>'])
 
-def simcoupe(_, __, emulator_config):
-	return LaunchParams(emulator_config.exe_path, ['-fullscreen', 'yes', '$<path>'])
-
 def snes9x(game, _, emulator_config):
 	slot = game.metadata.specific_info.get('Slot')
 	if slot:
@@ -1362,9 +1338,6 @@ def snes9x(game, _, emulator_config):
 		#DSP-3 looks like it's going to work and then when I played around a bit and the AI was starting its turn (I think?) the game hung to a glitchy mess so I guess not
 		raise EmulationNotSupportedException('{0} not supported'.format(expansion_chip))
 	return LaunchParams(emulator_config.exe_path, ['$<path>'])
-
-def stella(_, __, emulator_config):
-	return LaunchParams(emulator_config.exe_path, ['-fullscreen', '1', '$<path>'])
 
 def xemu(game, __, emulator_config):
 	#Values yoinked from extract-xiso, I hope they don't mind

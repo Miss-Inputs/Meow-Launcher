@@ -10,7 +10,7 @@ def _get_autoboot_script_by_name(name):
 	root_package = os.path.dirname(this_package)
 	return os.path.join(root_package, 'mame_autoboot', name + '.lua')
 
-def _verify_supported_mappers(game, supported_mappers, detected_mappers):
+def _verify_supported_gb_mappers(game, supported_mappers, detected_mappers):
 	mapper = game.metadata.specific_info.get('Mapper', None)
 
 	if not mapper:
@@ -29,7 +29,7 @@ def verify_mgba_mapper(game):
 	supported_mappers = ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5', 'HuC3', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5']
 	detected_mappers = ['MBC1 Multicart', 'MMM01', 'Wisdom Tree', 'Pokemon Jade/Diamond bootleg', 'BBD', 'Hitek']
 
-	_verify_supported_mappers(game, supported_mappers, detected_mappers)
+	_verify_supported_gb_mappers(game, supported_mappers, detected_mappers)
 
 def _is_software_available(software_list_name, software_name):
 	if not have_mame():
@@ -50,11 +50,6 @@ def is_highscore_cart_available():
 
 def mednafen_module(module, exe_path='mednafen'):
 	return LaunchParams(exe_path, ['-video.fs', '1', '-force_module', module, '$<path>'])
-
-def mednafen_module_callable(module):
-	def funcy_boi(_, __, emulator_config):
-		return mednafen_module(module, exe_path=emulator_config.exe_path)
-	return funcy_boi
 
 def mame_base(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None, software=None, bios=None):
 	args = ['-skip_gameinfo']
@@ -86,11 +81,6 @@ def mame_base(driver, slot=None, slot_options=None, has_keyboard=False, autoboot
 
 	return args
 
-def mame_driver_callable(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None):
-	def callback_thingy(game, _, emulator_config):
-		return mame_driver(game, emulator_config, driver, slot, slot_options, has_keyboard, autoboot_script)
-	return callback_thingy
-
 def mame_driver(game, emulator_config, driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None):
 	#Hmm I might need to refactor this and mame_system when I figure out what I'm doing
 	compat_threshold = emulator_config.options.get('software_compatibility_threshold', 1)
@@ -112,3 +102,34 @@ def first_available_system(system_list):
 		if verify_romset(system):
 			return system
 	return None
+
+#This is here to make things simpler, instead of putting a whole new function in emulator_command_lines we can return the appropriate function from here
+def simple_emulator(args):
+	def inner(_, __, emulator_config):
+		return LaunchParams(emulator_config.exe_path, args)
+	return inner
+
+def simple_gb_emulator(args, mappers, autodetected_mappers):
+	def inner(game, _, emulator_config):
+		_verify_supported_gb_mappers(game, mappers, autodetected_mappers)
+		return LaunchParams(emulator_config.exe_path, args)
+	return inner
+
+def simple_md_emulator(args, unsupported_mappers):
+	def inner(game, _, emulator_config):
+		mapper = game.metadata.specific_info.get('Mapper')
+		if mapper in unsupported_mappers:
+			raise EmulationNotSupportedException(mapper + ' not supported')
+		return LaunchParams(emulator_config.exe_path, args)
+	return inner
+
+def simple_mame_driver(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None):
+	def inner(game, _, emulator_config):
+		return mame_driver(game, emulator_config, driver, slot, slot_options, has_keyboard, autoboot_script)
+	return inner
+
+def simple_mednafen_module(module):
+	def inner(_, __, emulator_config):
+		return mednafen_module(module, exe_path=emulator_config.exe_path)
+	return inner
+
