@@ -1,12 +1,17 @@
+import os
 from enum import Enum, auto
 
-from common_types import ConfigValueType
+from common_types import (ConfigValueType, EmulationNotSupportedException,
+                          EmulationStatus)
+from config.main_config import main_config
 from launchers import MultiCommandLaunchParams, get_wine_launch_params
 
 import info.emulator_command_lines as command_lines
-from info.emulator_command_line_helpers import (simple_mame_driver,
-                                                simple_mednafen_module,
-                                                simple_emulator, simple_gb_emulator, simple_md_emulator)
+from info.emulator_command_line_helpers import (simple_emulator,
+                                                simple_gb_emulator,
+                                                simple_mame_driver,
+                                                simple_md_emulator,
+                                                simple_mednafen_module)
 
 from .format_info import (atari_2600_cartridge_extensions,
                           generic_cart_extensions, mame_cdrom_formats,
@@ -50,6 +55,7 @@ class Emulator():
 
 	def get_launch_params(self, game, system_config, emulator_config):
 		params = self.launch_params_func(game, system_config, emulator_config)
+
 		if self.host_platform == EmulatorPlatform.Windows:
 			if isinstance(params, MultiCommandLaunchParams):
 				params = MultiCommandLaunchParams(params.pre_commands, get_wine_launch_params(params.main_command.exe_name, params.main_command.exe_args), params.post_commands)
@@ -103,6 +109,18 @@ class ViceEmulator(StandardEmulator):
 		#WARNING! Will write back changes to your disk images unless they are compressed or actually write protected on the file system
 		#Does support compressed tapes/disks (gz/bz2/zip/tgz) but doesn't support compressed cartridges (seemingly). This would require changing all kinds of stuff with how compression is handled here. So for now we pretend it supports no compression so we end up getting 7z to put the thing in a temporarily folder regardless
 		StandardEmulator.__init__(self, status, default_exe_name, params, ['d64', 'g64', 'x64', 'p64', 'd71', 'd81', 'd80', 'd82', 'd1m', 'd2m'] + ['20', '40', '60', '70', '80', 'a0', 'b0', 'e0', 'crt', 'bin'] + ['p00', 'prg', 'tap', 't64'], [])
+
+class LibretroCore(Emulator):
+	def __init__(self, status, default_exe_name, launch_params_func, supported_extensions, configs=None):
+		self.supported_extensions = supported_extensions
+		if main_config.libretro_cores_directory:
+			default_path = os.path.join(main_config.libretro_cores_directory, default_exe_name + '_libretro.so')
+		else:
+			default_path = None
+		super().__init__(status, default_path, launch_params_func, configs=configs)
+	
+	def get_launch_params(self, _, __, ___):
+		raise EmulationNotSupportedException('Needs a frontend')
 
 emulators = {
 	'A7800': StandardEmulator(EmulatorStatus.Good, 'a7800', command_lines.a7800, ['bin', 'a78'], ['7z', 'zip']),
@@ -159,6 +177,8 @@ emulators = {
 	'Stella': StandardEmulator(EmulatorStatus.Good, 'stella', simple_emulator(['-fullscreen', '1', '$<path>']), ['a26', 'bin', 'rom'] + atari_2600_cartridge_extensions, ['gz', 'zip']),
 	'PrBoom+': StandardEmulator(EmulatorStatus.Imperfect, 'prboom-plus', command_lines.prboom_plus, ['wad']),
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
+
+	'PokeMini (libretro)': LibretroCore(EmulatorStatus.Good, 'pokemini', None, ['min']),
 
 	'VICE (C64)': ViceEmulator(EmulatorStatus.Good, 'x64sc', command_lines.vice_c64),
 	#x64 and x64sc have the same command line structure, just different exe names
@@ -508,6 +528,33 @@ pc_emulators = {
 	'DOSBox-X': PCEmulator(EmulatorStatus.Good, 'dosbox-x', command_lines.dosbox_x)
 }
 
+class LibretroFrontend(Emulator):
+	#While these are not really emulators on their own, we pretend they are because it's easier to code that way or whatever
+	def __init__(self, status, default_exe_name, launch_params_func, supported_compression=[], configs=None, host_platform=EmulatorPlatform.Native):
+		self.supported_compression = supported_compression
+		super().__init__(status, default_exe_name, launch_params_func, configs, host_platform)
+
+	def get_launch_params(self, _, __, ___):
+		raise EmulationNotSupportedException("You shouldn't be calling get_launch_params on a libretro frontend")
+
+class LibretroCoreWithFrontend(StandardEmulator):
+	def __init__(self, core, frontend, frontend_config):
+		self.core = core
+		self.frontend = frontend
+		self.frontend_config = frontend_config
+		def launch_params_func(game, system_config, emulator_config):
+			if core.launch_params_func:
+				core.launch_params_func(game, system_config, emulator_config)
+			return frontend.launch_params_func(game, system_config, emulator_config, frontend_config)
+
+		self.launch_params_func = launch_params_func
+		super().__init__(core.status, frontend_config.exe_path, launch_params_func, core.supported_extensions, frontend.supported_compression, None, frontend.host_platform)
+
+libretro_frontends = {
+	'RetroArch': LibretroFrontend(EmulationStatus.Good, 'retroarch', command_lines.retroarch, ['7z', 'zip']),
+}
+
 all_emulators = {}
 all_emulators.update(emulators)
 all_emulators.update(pc_emulators)
+all_emulators.update(libretro_frontends)

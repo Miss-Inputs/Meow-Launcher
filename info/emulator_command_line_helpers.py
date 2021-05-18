@@ -132,4 +132,3 @@ def simple_mednafen_module(module):
 	def inner(_, __, emulator_config):
 		return mednafen_module(module, exe_path=emulator_config.exe_path)
 	return inner
-

@@ -1528,3 +1528,10 @@ def dosbox_x(app, _, emulator_config):
 		args.append('{0}={1}'.format(k, v))
 
 	return LaunchParams(emulator_config.exe_path, args + [app.path])
+
+#Libretro frontends
+def retroarch(_, __, emulator_config, frontend_config):
+	if not emulator_config.exe_path:
+		raise EmulationNotSupportedException('libretro core path is not explicitly specified and libretro_cores_directory is not set')
+	return LaunchParams(frontend_config.exe_path, ['-f', '-L', emulator_config.exe_path, '$<path>'])
+ 

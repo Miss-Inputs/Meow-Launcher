@@ -62,6 +62,8 @@ _config_ini_values = {
 	'find_software_by_product_code': ConfigValue('Roms', ConfigValueType.StringList, [], 'Systems to find software by serial', 'For these platforms, use the product code/serial to match something in the software list'), #TODO This should be a global option for each system
 	'max_size_for_storing_in_memory': ConfigValue('Roms', ConfigValueType.Integer, 32 * 1024 * 1024, 'Max size for storing in memory', 'Size in bytes, any ROM smaller than this will have the whole thing stored in memory for speedup'),
 	'libretro_database_path': ConfigValue('Roms', ConfigValueType.FolderPath, None, 'libretro-database path', 'Path to libretro database for yoinking metadata from'),
+	'libretro_frontend': ConfigValue('Roms', ConfigValueType.String, 'RetroArch', 'libretro frontend', 'Name of libretro frontend to use'),
+	'libretro_cores_directory': ConfigValue('Roms', ConfigValueType.FolderPath, None, 'libretro cores directory', 'Path to search for libretro cores if not explicitly specified'),
 
 	'use_original_platform': ConfigValue('ScummVM', ConfigValueType.Bool, False, 'Use original platform', 'Set the platform in metadata to the original platform instead of leaving blank'),
 

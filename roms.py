@@ -195,6 +195,13 @@ def process_file(system_config, potential_emulators, rom_dir, root, rom):
 		try:
 			potential_emulator = emulator_info.emulators[potential_emulator_name]
 			potential_emulator_config = emulator_configs[potential_emulator_name]
+			if isinstance(potential_emulator, emulator_info.LibretroCore):
+				if not main_config.libretro_frontend:
+					raise EmulationNotSupportedException('Must choose a frontend to run libretro cores')
+				frontend_config = emulator_configs[main_config.libretro_frontend]
+				frontend = emulator_info.libretro_frontends[main_config.libretro_frontend]
+				potential_emulator = emulator_info.LibretroCoreWithFrontend(potential_emulator, frontend, frontend_config)
+				
 			params = potential_emulator.get_launch_params(game, system_config.options, potential_emulator_config)
 			if params:
 				emulator = potential_emulator
