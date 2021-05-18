@@ -1535,3 +1535,27 @@ def retroarch(_, __, emulator_config, frontend_config):
 		raise EmulationNotSupportedException('libretro core path is not explicitly specified and libretro_cores_directory is not set')
 	return LaunchParams(frontend_config.exe_path, ['-f', '-L', emulator_config.exe_path, '$<path>'])
  
+#Libretro cores
+def genesis_plus_gx(game, _, __):
+	if game.system_name == 'Mega CD':
+		if game.metadata.specific_info.get('32X-Only', False):
+			raise EmulationNotSupportedException('32X not supported')
+
+def mesen(game, _, __):
+	unsupported_mappers = [124, 237, 256, 257, 389, 547]
+	unsupported_mappers += [271, 295, 308, 315, 322, 327, 335, 337, 338, 339, 340, 341, 342, 344, 345, 350, 524, 525, 526, 527, 528] #if I am reading MapperFactory.cpp correctly these are explicitly unsupported?
+	#unsupported_mappers += [267, 269, 270, 272, 273] + list(range(275, 283)) + [291, 293, 294, 296, 297, 310, 311, 316, 318, 321, 330, 334, 343, 347] #If I am reading the source correctly these are just unknown?
+	#I guess 186 (StudyBox) might also count as unsupported but it's meant to be a BIOS
+	#UNL-OneBus = 256, UNL-PEC-586 = 257, KONAMI-QTAI = 547
+	#Also Mindkids 143-in-1 but I'm not sure what number that is/what the UNIF name is
+	unsupported_unif_mappers = ['KONAMI-QTAI', ' BMC-10-24-C-A1', 'BMC-13in1JY110', 'BMC-81-01-31-C', 
+		'UNL-KS7010', 'UNL-KS7030', 'UNL-OneBus', 'UNL-PEC-586', 'UNL-SB-2000', 'UNL-Transformer', 'WAIXING-FS005']
+	if game.metadata.specific_info.get('Header-Format', None) in ('iNES', 'NES 2.0'):
+		mapper = game.metadata.specific_info.get('Mapper-Number')
+		if mapper in unsupported_mappers:
+			raise EmulationNotSupportedException('Unsupported mapper: {0} {1}'.format(mapper, game.metadata.specific_info.get('Mapper')))
+	if game.metadata.specific_info.get('Header-Format', None) == 'UNIF':
+		mapper = game.metadata.specific_info.get('Mapper')
+		if mapper in unsupported_unif_mappers:
+			raise EmulationNotSupportedException('Unsupported mapper: {0}'.format(mapper))
+	

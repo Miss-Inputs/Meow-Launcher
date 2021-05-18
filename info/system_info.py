@@ -86,7 +86,7 @@ systems = {
 	),
 	'Game Boy': SystemInfo(
 		['gameboy', 'gbcolor'], ['gameboy', 'gbcolor'], 
-		['Gambatte', 'mGBA', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'Medusa', 'GBE+', 'bsnes'], {MediaType.Cartridge: ['gb', 'gbc', 'gbx', 'sgb']},
+		['SameBoy (libretro)', 'Gambatte', 'mGBA', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'Medusa', 'GBE+', 'bsnes'], {MediaType.Cartridge: ['gb', 'gbc', 'gbx', 'sgb']},
 		{
 			'super_game_boy_bios_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to Super Game Boy BIOS to use'),
 			'set_gbc_as_different_platform': SystemConfigValue(ConfigValueType.Bool, False, 'Set the platform of GBC games to Game Boy Color instead of leaving them as Game Boy'),
@@ -98,7 +98,7 @@ systems = {
 		#dat_names could be Nintendo - GameCube but that doesn't give us any more info that isn't in GameTDB and also is indexed by 6-character code so I'd have to fiddle around I think
 	),
 	'Game Gear': SystemInfo(
-		['gamegear'], ['gamegear'], ['Kega Fusion', 'Mednafen (Game Gear)', 'MAME (Game Gear)'], {MediaType.Cartridge: ['sms', 'gg', 'bin']}, dat_names=['Sega - Game Gear']
+		['gamegear'], ['gamegear'], ['Genesis Plus GX (libretro)', 'PicoDrive (libretro)', 'Kega Fusion', 'Mednafen (Game Gear)', 'MAME (Game Gear)'], {MediaType.Cartridge: ['sms', 'gg', 'bin']}, dat_names=['Sega - Game Gear']
 	),
 	'GBA': SystemInfo(
 		['gba'], ['gba'],
@@ -114,11 +114,11 @@ systems = {
 	),
 	'Master System': SystemInfo(
 		['sms'], ['sms'],
-		['Kega Fusion', 'Mednafen (Master System)', 'MAME (Master System)'], {MediaType.Cartridge: ['sms', 'gg', 'bin']}, dat_names=['Sega - Master System - Mark III'], autodetect_tv_type=True
+		['Genesis Plus GX (libretro)', 'PicoDrive (libretro)', 'Kega Fusion', 'Mednafen (Master System)', 'MAME (Master System)'], {MediaType.Cartridge: ['sms', 'gg', 'bin']}, dat_names=['Sega - Master System - Mark III'], autodetect_tv_type=True
 	),
 	'Mega Drive': SystemInfo(
 		['genesis', 'gen_nomd'], ['megadriv'],
-		['Kega Fusion', 'Mednafen (Mega Drive)', 'MAME (Mega Drive)'], {MediaType.Cartridge: ['bin', 'gen', 'md', 'smd', 'sgd']}, dat_names=['Sega - Mega Drive - Genesis'], autodetect_tv_type=True
+		['Genesis Plus GX (libretro)', 'PicoDrive (libretro)', 'Kega Fusion', 'Mednafen (Mega Drive)', 'MAME (Mega Drive)'], {MediaType.Cartridge: ['bin', 'gen', 'md', 'smd', 'sgd']}, dat_names=['Sega - Mega Drive - Genesis'], autodetect_tv_type=True
 	),
 	'N64': SystemInfo(
 		['n64'], ['n64'], ['Mupen64Plus', 'MAME (N64)'], {MediaType.Cartridge: ['z64', 'v64', 'n64', 'bin']}, 
@@ -136,7 +136,7 @@ systems = {
 	),
 	'NES': SystemInfo(
 		['nes', 'famicom', 'iq501', 'sb486'], ['nes', 'nes_ade', 'nes_datach', 'nes_kstudio', 'nes_ntbrom', 'famicom_cass', 'famicom_flop'], 
-		['Mednafen (NES)', 'MAME (NES)', 'cxNES'], {MediaType.Cartridge: ['nes', 'unf', 'unif'], MediaType.Floppy: ['fds', 'qd']}, 
+		['Mesen (libretro)', 'Mednafen (NES)', 'MAME (NES)', 'cxNES'], {MediaType.Cartridge: ['nes', 'unf', 'unif'], MediaType.Floppy: ['fds', 'qd']}, 
 		{'set_fds_as_different_platform': SystemConfigValue(ConfigValueType.Bool, False, 'Set the platform of FDS games to FDS instead of leaving them as NES')},
 		dat_names=['Nintendo - Nintendo Entertainment System', 'Nintendo - Family Computer Disk System'], autodetect_tv_type=True
 	),
@@ -212,7 +212,7 @@ systems = {
 	),
 	
 	#Less notable stuff goes here
-	'3DO': SystemInfo(['3do'], [], ['MAME (3DO)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True),
+	'3DO': SystemInfo(['3do'], [], ['Opera (libretro)', 'MAME (3DO)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True),
 	'Amiga CD32': SystemInfo(['cd32'], ['cd32'], ['FS-UAE', 'MAME (Amiga CD32)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True),
 	'Atari 5200': SystemInfo(
 		#Does it actually do tapes or is it just a side effect of it being a spicy Atari 8-bit computer?
@@ -225,12 +225,12 @@ systems = {
 	),
 	'Channel F': SystemInfo(
 		['channelf', 'channlf2'], ['channelf'],
-		['MAME (Channel F)'], {MediaType.Cartridge: ['chf'] + generic_cart_extensions}, dat_names=['Fairchild - Channel F'], autodetect_tv_type=True
+		['FreeChaF (libretro)', 'MAME (Channel F)'], {MediaType.Cartridge: ['chf'] + generic_cart_extensions}, dat_names=['Fairchild - Channel F'], autodetect_tv_type=True
 	),
 	'G7400': SystemInfo(['videopacp'], ['videopac'], ['MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}, autodetect_tv_type=True), #Uses same software list as Odyssey 2 currently, maybe should be considered part of that system?
 	'Game.com': SystemInfo(['gamecom'], ['gamecom'], ['MAME (Game.com)'], {MediaType.Cartridge: ['tgc', 'bin']}, dat_names=['Tiger - Game.com']),
 	'Jaguar': SystemInfo(
-		['jaguar'], ['jaguar'], ['MAME (Jaguar)'], 
+		['jaguar'], ['jaguar'], ['Virtual Jaguar (libretro)', 'MAME (Jaguar)'], 
 		{MediaType.Cartridge: ['j64'] + generic_cart_extensions, MediaType.Executable: ['abs', 'cof', 'jag', 'prg']}, dat_names=['Atari - Jaguar'], #j64
 		autodetect_tv_type=True
 	),
@@ -245,7 +245,7 @@ systems = {
 	),
 	'SG-1000': SystemInfo(
 		['sg1000', 'sc3000'], ['sg1000', 'sc3000_cart', 'sc3000_cass', 'sf7000'],
-		['Kega Fusion', 'MAME (SG-1000)'], {MediaType.Cartridge: ['sg', 'bin', 'sc'], MediaType.Tape: ['wav', 'bit'], MediaType.Floppy: mame_floppy_formats + ['sf', 'sf7']},
+		['Genesis Plus GX (libretro)', 'Kega Fusion', 'MAME (SG-1000)'], {MediaType.Cartridge: ['sg', 'bin', 'sc'], MediaType.Tape: ['wav', 'bit'], MediaType.Floppy: mame_floppy_formats + ['sf', 'sf7']},
 		dat_names=['Sega - SG-1000']
 	),
 	'Vectrex': SystemInfo(['vectrex'], ['vectrex'], ['MAME (Vectrex)'], {MediaType.Cartridge: ['vec', 'gam', 'bin']}),
@@ -316,7 +316,7 @@ systems = {
 	'MobiGo': SystemInfo(['mobigo', 'mobigo2'], ['mobigo_cart'], ['MAME (MobiGo)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'My First LeapPad': SystemInfo(['mfleappad'], ['leapfrog_mfleappad_cart'], ['MAME (My First LeapPad)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Sawatte Pico': SystemInfo(['sawatte'], ['sawatte'], [], {}),
-	'Sega Pico': SystemInfo(['pico'], ['pico'], ['Kega Fusion', 'MAME (Sega Pico)'], {MediaType.Cartridge: ['bin', 'md']}, dat_names=['Sega - PICO'], autodetect_tv_type=True),
+	'Sega Pico': SystemInfo(['pico'], ['pico'], ['Genesis Plus GX (libretro)', 'Kega Fusion', 'MAME (Sega Pico)'], {MediaType.Cartridge: ['bin', 'md']}, dat_names=['Sega - PICO'], autodetect_tv_type=True),
 	'SmarTV Adventures': SystemInfo(['smartvad'], ['smarttv_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
 	'Story Reader': SystemInfo(['pi_stry'], ['pi_storyreader_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
 	'Story Reader 2': SystemInfo(['pi_stry2'], ['pi_storyreader_v2_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
@@ -355,14 +355,14 @@ systems = {
 	'Pippin': SystemInfo(['pippin'], ['pippin', 'pippin_flop'], ['MAME (Pippin)'], {MediaType.OpticalDisc: cdrom_formats}),
 
 	#Addons for other systems that we're going to treat as separate things because it seems to make more sense that way, until it doesn't
-	'32X': SystemInfo(['32x'], ['32x'], ['Kega Fusion', 'MAME (32X)'], {MediaType.Cartridge: ['32x', 'bin']}, dat_names=['Sega - 32X'], autodetect_tv_type=True),
+	'32X': SystemInfo(['32x'], ['32x'], ['PicoDrive (libretro)', 'Kega Fusion', 'MAME (32X)'], {MediaType.Cartridge: ['32x', 'bin']}, dat_names=['Sega - 32X'], autodetect_tv_type=True),
 	'64DD': SystemInfo(['n64dd'], ['n64dd'], [], {MediaType.Floppy: ['ndd', 'ddd']}, dat_names=['Nintendo - Nintendo 64DD']),
 	'e-Reader': SystemInfo(['gba'], ['gba_ereader'], [], {MediaType.Barcode: ['bin', 'raw', 'bmp']}),
 	'Jaguar CD': SystemInfo(['jaguarcd'], [], ['MAME (Jaguar CD)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True),
 	'Mega CD': SystemInfo(
 		#LaserActive counts as this for now
 		['segacd', '32x_scd', 'cdx', 'segacd2', 'xeye', 'laseract'], ['megacd', 'megacdj', 'segacd'],
-		['Kega Fusion', 'MAME (Mega CD)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True
+		['Genesis Plus GX (libretro)', 'PicoDrive (libretro)', 'Kega Fusion', 'MAME (Mega CD)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True
 	),
 	'PC Engine CD': SystemInfo(
 		['pce'], ['pcecd'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)'], {MediaType.OpticalDisc: cdrom_formats}
@@ -451,7 +451,7 @@ systems = {
 	'VIC-20': SystemInfo(['vic1001'], ['vic1001_cart', 'vic1001_cass', 'vic1001_flop'], ['MAME (VIC-20)', 'VICE (VIC-20)'],
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['wav', 'tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}, autodetect_tv_type=True
 	),
-	'ZX81': SystemInfo(['zx81', 'zx80'], ['zx80_cass', 'zx81_cass'], [], {MediaType.Tape: ['wav', 'cas', 'p', '81', 'tzx']}, dat_names=['Sinclair - ZX 81']),
+	'ZX81': SystemInfo(['zx81', 'zx80'], ['zx80_cass', 'zx81_cass'], ['81 (libretro)'], {MediaType.Tape: ['wav', 'cas', 'p', '81', 'tzx', 't81']}, dat_names=['Sinclair - ZX 81']),
 	
 	#More obscure computers because otherwise the above section is long and hard to read
 	'Acorn Atom': SystemInfo(['atom'], ['atom_cass', 'atom_flop', 'atom_rom'], [], {MediaType.Floppy: ['40t', 'dsk'], MediaType.Tape: ['wav', 'tap', 'csw', 'uef'], MediaType.Executable: ['atm'], MediaType.Cartridge: ['bin', 'rom']}),

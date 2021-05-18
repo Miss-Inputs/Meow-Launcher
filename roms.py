@@ -201,7 +201,7 @@ def process_file(system_config, potential_emulators, rom_dir, root, rom):
 				frontend_config = emulator_configs[main_config.libretro_frontend]
 				frontend = emulator_info.libretro_frontends[main_config.libretro_frontend]
 				potential_emulator = emulator_info.LibretroCoreWithFrontend(potential_emulator, frontend, frontend_config)
-				
+
 			params = potential_emulator.get_launch_params(game, system_config.options, potential_emulator_config)
 			if params:
 				emulator = potential_emulator
@@ -255,7 +255,10 @@ def process_emulated_system(system_config):
 	potential_emulators = []
 	for emulator_name in system_config.chosen_emulators:
 		if emulator_name not in emulator_info.emulators:
-			print('Config warning:', emulator_name, 'is not a valid emulator')
+			if emulator_name + ' (libretro)' in emulator_info.emulators:
+				potential_emulators.append(emulator_name + ' (libretro)')
+			else:
+				print('Config warning:', emulator_name, 'is not a valid emulator')
 		elif emulator_name not in system_info.systems[system_config.name].emulators:
 			print('Config warning:', emulator_name, 'is not a valid emulator for', system_config.name)
 		else:

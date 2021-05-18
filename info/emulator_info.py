@@ -178,8 +178,16 @@ emulators = {
 	'PrBoom+': StandardEmulator(EmulatorStatus.Imperfect, 'prboom-plus', command_lines.prboom_plus, ['wad']),
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
 
+	'81 (libretro)': LibretroCore(EmulatorStatus.Good, '81', None, ['p', 'tzx', 't81']),
+	'FreeChaF (libretro)': LibretroCore(EmulatorStatus.Good, 'freechaf', None, ['bin', 'chf']),
+	'Genesis Plus GX (libretro)': LibretroCore(EmulatorStatus.Good, 'genesis_plus_gx', command_lines.genesis_plus_gx, ['mdx', 'md', 'smd', 'gen', 'bin', 'cue', 'iso', 'sms', 'bms', 'gg', 'sg', '68k', 'chd', 'm3u']),
+	'Mesen (libretro)': LibretroCore(EmulatorStatus.Good, 'mesen', command_lines.mesen, ['nes', 'fds', 'unf', 'unif']),
+	'Opera (libretro)': LibretroCore(EmulatorStatus.Good, 'opera', None, ['iso', 'chd', 'bin', 'cue']),
+	'PicoDrive (libretro)': LibretroCore(EmulatorStatus.Good, 'picodrive', simple_md_emulator([], ['rom_pokestad', 'rom_lion3']), ['bin', 'gen', 'smd', 'md', '32x', 'chd', 'cue', 'iso', 'sms', '68k', 'm3u']), #Lion King 3 is automatically detected but no other games using the same mapper work, so I guess we will pretend it's not a working mapper
 	'PokeMini (libretro)': LibretroCore(EmulatorStatus.Good, 'pokemini', None, ['min']),
-
+	'SameBoy (libretro)': LibretroCore(EmulatorStatus.Good, 'sameboy', simple_gb_emulator([], ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3', 'Pocket Camera'], ['MBC1 Multicart']), ['gb', 'gbc']),
+	'Virtual Jaguar (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'virtualjaguar', None, ['j64', 'jag', 'rom', 'abs', 'cof', 'bin', 'prg']),
+	
 	'VICE (C64)': ViceEmulator(EmulatorStatus.Good, 'x64sc', command_lines.vice_c64),
 	#x64 and x64sc have the same command line structure, just different exe names
 	'VICE (C64 Fast)': ViceEmulator(EmulatorStatus.Good, 'x64', command_lines.vice_c64),

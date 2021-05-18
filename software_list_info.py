@@ -589,6 +589,8 @@ def find_software_by_name(software_lists, name):
 		return True
 
 	fuzzy_name_matches = []
+	if not software_lists:
+		return
 	for software_list in software_lists:
 		results = software_list.find_all_software_with_custom_matcher(_does_name_fuzzy_match, [name])
 		fuzzy_name_matches += results
