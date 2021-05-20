@@ -7,11 +7,9 @@ from common import NotAlphanumericException, convert_alphanumeric, byteswap
 from common_types import SaveType
 from software_list_info import get_software_list_entry
 
-_mupen64plus_database = None
 def get_mupen64plus_database():
-	global _mupen64plus_database
-	if _mupen64plus_database:
-		return _mupen64plus_database
+	if hasattr(get_mupen64plus_database, '_mupen64plus_database'):
+		return get_mupen64plus_database._mupen64plus_database
 
 	locations = ['/usr/share/mupen64plus/mupen64plus.ini', '/usr/local/share/mupen64plus/mupen64plus.ini']
 	location = None
@@ -38,7 +36,7 @@ def get_mupen64plus_database():
 						continue
 					database[game][parent_key] = parent_value
 
-	_mupen64plus_database = database
+	get_mupen64plus_database._mupen64plus_database = database
 	return database
 
 def parse_n64_header(metadata, header):
