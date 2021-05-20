@@ -897,8 +897,7 @@ def mednafen_megadrive(game, _, emulator_config):
 	return mednafen_module('md', exe_path=emulator_config.exe_path)
 
 def mednafen_nes(game, _, emulator_config):
-	#Yeah okay, I need a cleaner way of doing this
-	#Mapper 30, 38 aren't in the documentation but they do exist in the source code, maybe some others (I'm not good at navigating all that)
+	#Mapper 30, 38 aren't in the documentation but they do exist in the source code
 	unsupported_ines_mappers = (14, 20, 27, 28, 29, 31, 35, 36, 39, 43, 50,
 		53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 81, 83, 84, 91, 98, 100,
 		102, 103, 104, 106, 108, 109, 110, 111, 116, 136, 137, 138, 139, 141,
@@ -909,10 +908,16 @@ def mednafen_nes(game, _, emulator_config):
 	unsupported_ines_mappers += tuple(range(145, 150))
 	unsupported_ines_mappers += tuple(range(161, 180))
 	unsupported_ines_mappers += tuple(range(194, 206))
+	supported_unif_mappers = ('BTR', 'PNROM', 'PEEOROM', 'TC-U01-1.5M', 'Sachen-8259B', 'Sachen-8259A', 'Sachen-74LS374N', 'SA-016-1M', 'SA-72007', 'SA-72008', 'SA-0036', 'SA-0037', 'H2288', '8237', 'MB-91', 'NINA-06', 'NINA-03', 'NINA-001', 'HKROM', 'EWROM', 'EKROM', 'ELROM', 'ETROM', 'SAROM', 'SBROM', 'SCROM', 'SEROM', 'SGROM', 'SKROM', 'SLROM', 'SL1ROM', 'SNROM', 'SOROM', 'TGROM', 'TR1ROM', 'TEROM', 'TFROM', 'TLROM', 'TKROM', 'TSROM', 'TLSROM', 'TKSROM', 'TQROM', 'TVROM', 'AOROM', 'CPROM', 'CNROM', 'GNROM', 'NROM', 'RROM', 'RROM-128', 'NROM-128', 'NROM-256', 'MHROM', 'UNROM', 'MARIO1-MALEE2', 'Supervision16in1', 'NovelDiamond9999999in1', 'Super24in1SC03', 'BioMiracleA', '603-5052')
 
-	if game.metadata.specific_info.get('Header-Format', None) == 'iNES':
+	if game.metadata.specific_info.get('Header-Format', None) in ('iNES', 'NES 2.0'):
 		mapper = game.metadata.specific_info['Mapper-Number']
-		if mapper in unsupported_ines_mappers:
+		if mapper in unsupported_ines_mappers or mapper >= 256:
+			#Does not actually seem to check for NES 2.0 header extensions at all, according to source
+			raise EmulationNotSupportedException('Unsupported mapper: %d (%s)' % (mapper, game.metadata.specific_info.get('Mapper')))
+	if game.metadata.specific_info.get('Header-Format', None) == 'UNIF':
+		mapper = game.metadata.specific_info.get('Mapper')
+		if mapper not in supported_unif_mappers:
 			raise EmulationNotSupportedException('Unsupported mapper: %d (%s)' % (mapper, game.metadata.specific_info.get('Mapper')))
 
 	return mednafen_module('nes', exe_path=emulator_config.exe_path)
