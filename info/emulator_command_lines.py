@@ -300,7 +300,7 @@ def mame_fm_towns_marty(game, _, emulator_config):
 def mame_game_boy(game, _, emulator_config):
 	#Do all of these actually work or are they just detected? (HuC1 and HuC3 are supposedly non-working, and are treated as MBC3?)
 	#gb_slot.cpp also mentions MBC4, which isn't real
-	supported_mappers = ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5']
+	supported_mappers = ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5']
 	detected_mappers = ['MMM01', 'MBC1 Multicart', 'Wisdom Tree', 'Li Cheng', 'Sintax']
 
 	_verify_supported_gb_mappers(game, supported_mappers, detected_mappers)
@@ -866,7 +866,7 @@ def mednafen_game_gear(game, _, emulator_config):
 	return mednafen_module('gg', exe_path=emulator_config.exe_path)
 
 def mednafen_gb(game, _, emulator_config):
-	_verify_supported_gb_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC7', 'HuC1', 'HuC3'], [])
+	_verify_supported_gb_mappers(game, ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC7', 'HuC1', 'HuC3'], [])
 	return mednafen_module('gb', exe_path=emulator_config.exe_path)
 
 def mednafen_gba(game, _, emulator_config):
@@ -1043,7 +1043,7 @@ def bsnes(game, system_config, emulator_config):
 			raise EmulationNotSupportedException('We do not want to play a non-SGB enhanced game with a Super Game Boy')
 
 		#Pocket Camera is also supported by the SameBoy core, but I'm leaving it out here because bsnes doesn't do the camera
-		_verify_supported_gb_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3'], [])
+		_verify_supported_gb_mappers(game, ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3'], [])
 
 		return LaunchParams(emulator_config.exe_path, ['--fullscreen', sgb_bios_path, '$<path>'])
 
@@ -1204,7 +1204,7 @@ def fs_uae(game, system_config, emulator_config):
 def gbe_plus(game, _, emulator_config):
 	if game.system_name == 'Game Boy':
 		#In theory, only this should support Pocket Sonar (so far), but there's not really a way to detect that since it just claims to be MBC1 in the header...
-		_verify_supported_gb_mappers(game, ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'HuC1'], ['MBC1 Multicart'])
+		_verify_supported_gb_mappers(game, ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'HuC1'], ['MBC1 Multicart'])
 	return LaunchParams(emulator_config.exe_path, ['$<path>'])
 
 def medusa(game, _, emulator_config):

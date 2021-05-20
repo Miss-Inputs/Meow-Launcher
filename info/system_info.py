@@ -86,7 +86,7 @@ systems = {
 	),
 	'Game Boy': SystemInfo(
 		['gameboy', 'gbcolor'], ['gameboy', 'gbcolor'], 
-		['SameBoy (libretro)', 'Gambatte', 'mGBA', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'Medusa', 'GBE+', 'bsnes'], {MediaType.Cartridge: ['gb', 'gbc', 'gbx', 'sgb']},
+		['SameBoy (libretro)', 'Gearboy (libretro)', 'Gambatte', 'mGBA', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'Medusa', 'GBE+', 'bsnes'], {MediaType.Cartridge: ['gb', 'gbc', 'gbx', 'sgb', 'cgb', 'dmg']},
 		{
 			'super_game_boy_bios_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to Super Game Boy BIOS to use'),
 			'set_gbc_as_different_platform': SystemConfigValue(ConfigValueType.Bool, False, 'Set the platform of GBC games to Game Boy Color instead of leaving them as Game Boy'),
@@ -270,7 +270,7 @@ systems = {
 		['crvision', 'lasr2001', 'manager'], ['crvision', 'laser2001_cart'],
 		['MAME (CreatiVision)'], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: generic_tape_extensions}, dat_names=['VTech - CreatiVision']
 	),
-	'Dreamcast VMU': SystemInfo(['svmu'], ['svmu'], ['MAME (Dreamcast VMU)'], {MediaType.Executable: ['bin'], MediaType.Digital: ['vms']}),
+	'Dreamcast VMU': SystemInfo(['svmu'], ['svmu'], ['VeMUlator (libretro)', 'MAME (Dreamcast VMU)'], {MediaType.Executable: ['bin'], MediaType.Digital: ['vms', 'dci']}),
 	'Entex Adventure Vision': SystemInfo(['advision'], ['advision'], ['MAME (Entex Adventure Vision)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['Entex - Adventure Vision']),
 	'Epoch Game Pocket Computer': SystemInfo(['gamepock'], ['gamepock'], ['MAME (Epoch Game Pocket Computer)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Gamate': SystemInfo(['gamate'], ['gamate'], ['MAME (Gamate)'], {MediaType.Cartridge: generic_cart_extensions}),
@@ -394,7 +394,7 @@ systems = {
 		['MAME (Atari 8-bit)'], {MediaType.Floppy: ['atr', 'dsk', 'xfd', 'dcm'], MediaType.Executable: ['xex', 'bas', 'com'], MediaType.Cartridge: ['bin', 'rom', 'car'], MediaType.Tape: generic_tape_extensions}, 
 		{'basic_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to BASIC ROM for floppy software which requires that, or use "basicc" to use software')
 		}, autodetect_tv_type=True),
-	'Atari ST': SystemInfo(['st', 'ste', 'tt030', 'falcon30'], ['st_flop', 'st_cart'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Floppy: mame_floppy_formats + ['st', 'stx', 'msa']}, autodetect_tv_type=True),
+	'Atari ST': SystemInfo(['st', 'ste', 'tt030', 'falcon30'], ['st_flop', 'st_cart'], ['Hatari (libretro)'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Floppy: mame_floppy_formats + ['st', 'stx', 'msa', 'dim']}, autodetect_tv_type=True, dat_names=['Atari - ST']),
 	'BBC Master': SystemInfo(['bbcm', 'bbcmc'], ['bbcm_cart', 'bbcm_cass', 'bbcmc_flop', 'bbcm_flop'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl', 'fds', 'ima', 'ufi', '360'] + mame_floppy_formats, MediaType.Cartridge: ['rom', 'bin']}, autodetect_tv_type=True),
 	'BBC Micro': SystemInfo(['bbcb', 'bbcbp'], ['bbca_cass', 'bbcb_cass', 'bbcb_cass_de', 'bbcb_flop', 'bbcb_flop_orig', 'bbc_flop_65c102', 'bbc_flop_6502', 'bbc_flop_32016', 'bbc_flop_68000', 'bbc_flop_80186', 'bbc_flop_arm', 'bbc_flop_torch', 'bbc_flop_z80'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl', 'fds', 'dsk', 'ima', 'ufi', '360'], MediaType.Cartridge: ['rom', 'bin']}, autodetect_tv_type=True),
 	'C64': SystemInfo(
@@ -404,18 +404,18 @@ systems = {
 	'FM Towns': SystemInfo(['fmtowns', 'fmtmarty'], ['fmtowns_cd', 'fmtowns_flop_cracked', 'fmtowns_flop_misc', 'fmtowns_flop_orig'], ['MAME (FM Towns)', 'MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats + ['bin'], MediaType.OpticalDisc: cdrom_formats}), #Floppy list was just fmtowns_flop prior to 0.230
 	'MSX': SystemInfo(
 		msx1_drivers, ['msx1_cart', 'msx1_cass', 'msx1_flop'],
-		['MAME (MSX)', 'MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
+		['fMSX (libretro)', 'MAME (MSX)', 'MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
 		dat_names=['Microsoft - MSX'], autodetect_tv_type=True
 	),
 	'MSX2': SystemInfo(
 		msx2_drivers, ['msx2_cart', 'msx2_cass', 'msx2_flop'],
-		['MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
+		['fMSX (libretro)', 'MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
 		dat_names=['Microsoft - MSX 2'], autodetect_tv_type=True
 	),
 	'MSX2+': SystemInfo(
 		#Should this be considered the same system as MSX2? Oh dear, I've gotten confused
 		msx2plus_drivers, ['msx2p_flop'],
-		['MAME (MSX2+)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
+		['fMSX (libretro)', 'MAME (MSX2+)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
 		dat_names=['Microsoft - MSX 2'], autodetect_tv_type=True
 	),
 	'MSX Turbo-R': SystemInfo(msxtr_drivers, ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
@@ -446,7 +446,7 @@ systems = {
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}, autodetect_tv_type=True
 	), 	#Also includes C16 and C116 (I admit I am not cool enough to know the difference)
 	'SAM Coupe': SystemInfo(['samcoupe'], ['samcoupe_cass', 'samcoupe_flop'], ['SimCoupe', 'MAME (SAM Coupe)'], {MediaType.Floppy: ['mgt', 'sad', 'dsk', 'sdf'], MediaType.Executable: ['sbt']}),
-	'Sharp X1': SystemInfo(['x1'], ['x1_cass', 'x1_flop'], ['MAME (Sharp X1)'], {MediaType.Floppy: ['2d'] + mame_floppy_formats, MediaType.Tape: ['wav', 'tap']}),
+	'Sharp X1': SystemInfo(['x1'], ['x1_cass', 'x1_flop'], ['X Millennium (libretro)', 'MAME (Sharp X1)'], {MediaType.Floppy: ['2d'] + mame_floppy_formats, MediaType.Tape: ['wav', 'tap']}),
 	'TI-99': SystemInfo(['ti99_4', 'ti99_4a', 'ti99_8'], ['ti99_cart'], [], {MediaType.Cartridge: ['bin', 'rpk', 'c', 'g'], MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats}, autodetect_tv_type=True),
 	'VIC-20': SystemInfo(['vic1001'], ['vic1001_cart', 'vic1001_cass', 'vic1001_flop'], ['MAME (VIC-20)', 'VICE (VIC-20)'],
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['wav', 'tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}, autodetect_tv_type=True
@@ -532,7 +532,8 @@ systems = {
 
 	#Hmm, not quite computers or any particular hardware so much as OSes which probably don't belong here anyway
 	'Android': SystemInfo([], [], [], {MediaType.Digital: ['apk']}),
-	
+	'PalmOS': SystemInfo([], [], ['Mu (libretro)'], {MediaType.Executable: ['prc', 'pqa']}),
+
 	#Interpreted virtual machine thingy…
 	'Chip-8': SystemInfo([], ['chip8_quik'], [], {MediaType.Executable: ['bin', 'c8', 'ch8']}), #Many interpreters available in MAME - Cosmac VIP, Dream 6800, ETI-660, etc; though I'm not sure if it makes sense to put them as the mame_driver for this, but when I get around to that I suppose they would be emulators for it
 
@@ -543,6 +544,8 @@ systems = {
 		is_virtual=True, dat_names=['DOOM']
 	),
 	'Flash': SystemInfo([], [], ['Ruffle'], {MediaType.Digital: ['swf']}, is_virtual=True),
+	'Dinothawr': SystemInfo([], [], ['Dinothawr (libretro)'], {MediaType.Executable: ['game']}, is_virtual=True, dat_names=['Dinothawr']),
+	'ChaiLove': SystemInfo([], [], ['ChaiLove (libretro)'], {MediaType.Executable: ['chai'], MediaType.Digital: ['chailove']}, is_virtual=True, dat_names=['ChaiLove']),
 }
 
 #For Machine.is_system_driver to work correctly
@@ -567,7 +570,6 @@ all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers] + ibmpc
 #Which of TI calculators are software compatible with which (and hence which ones would be considered individual systems)?
 	#TI-73, 81, 82, 83x, 84x, 85, 86 are Z80; 89, 92x are M68K
 #Bandai Super Note Club (snotec, snotecu, snotecex): Part of VTech Genius Leader (supports glccolor software list), or its own thing (has snotec software list)?
-#PalmOS: Not sure if there would be something which can just run .prc files or whatsitcalled
 #Amstrad PC20/Sinclair PC200: Is this just IBM PC compatible stuff? Have seen one demoscene prod which claims to be for it specifically
 #Epoch (not Super) Cassette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
 #DEC Rainbow: Uses DOS so maybe goes in pc_systems but maybe the CP/M part is its own thing

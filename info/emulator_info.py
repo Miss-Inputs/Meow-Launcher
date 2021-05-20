@@ -142,9 +142,8 @@ emulators = {
 	'Flycast': StandardEmulator(EmulatorStatus.Good, 'flycast', simple_emulator(['-config', 'window:fullscreen=yes', '$<path>']), ['gdi', 'cdi', 'chd', 'cue'], {}),
 	'FS-UAE': StandardEmulator(EmulatorStatus.Good, 'fs-uae', command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf']),
 	#Note that .ipf files need a separately downloadable plugin. We could detect the presence of that, I guess
-	#'Gambatte': StandardEmulator(EmulatorStatus.Good, 'gambatte_qt', command_lines.gambatte, ['gb', 'gbc'], ['zip']),
 	'Gambatte': StandardEmulator(EmulatorStatus.Good, 'gambatte_qt', 
-	simple_gb_emulator(['--full-screen', '$<path>'], ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5'], ['MBC1 Multicart']), ['gb', 'gbc'], ['zip']),
+	simple_gb_emulator(['--full-screen', '$<path>'], ['MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5'], ['MBC1 Multicart']), ['gb', 'gbc'], ['zip']),
 	#--gba-cgb-mode[=0] and --force-dmg-mode[=0] may be useful in obscure situations, but that would probably require a specific thing that notes some GBC games are incompatible with GBA mode (Pocket Music) or GB incompatible with GBC (R-Type, also Pocket Sonar but that wouldn't work anyway)
 	#I guess MBC1 Multicart only works if you tick the "Multicart compatibility" box
 	#MMM01 technically works but only boots the first game instead of the menu, so it doesn't really work work
@@ -179,14 +178,23 @@ emulators = {
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
 
 	'81 (libretro)': LibretroCore(EmulatorStatus.Good, '81', None, ['p', 'tzx', 't81']),
+	'ChaiLove (libretro)': LibretroCore(EmulatorStatus.Good, 'chailove', None, ['chai', 'chailove']),
+	'Dinothawr (libretro)': LibretroCore(EmulatorStatus.Good, 'dinothawr', None, ['game']),
+	'fMSX (libretro)': LibretroCore(EmulatorStatus.Good, 'fmsx', None, ['rom', 'mx1', 'mx2']), #Claims to do .dsk and cas but does not
 	'FreeChaF (libretro)': LibretroCore(EmulatorStatus.Good, 'freechaf', None, ['bin', 'chf']),
+	'FUSE (libretro)': LibretroCore(EmulatorStatus.Good, 'fuse', None, ['tzx', 'tap', 'z80', 'rzx', 'scl', 'trd', 'dsk']),
+	'Gearboy (libretro)': LibretroCore(EmulatorStatus.Good, 'gearboy', simple_gb_emulator([], ['MBC1', 'MBC2', 'MBC3', 'MBC5'], ['MBC1 Multicart']), ['gb', 'dmg', 'gbc', 'cgb', 'sgb']),
 	'Genesis Plus GX (libretro)': LibretroCore(EmulatorStatus.Good, 'genesis_plus_gx', command_lines.genesis_plus_gx, ['mdx', 'md', 'smd', 'gen', 'bin', 'cue', 'iso', 'sms', 'bms', 'gg', 'sg', '68k', 'chd', 'm3u']),
+	'Hatari (libretro)': LibretroCore(EmulatorStatus.Good, 'hatari', None, ['st', 'msa', 'stx', 'dim', 'm3u']), #Theoretically supports .ipf but that is not compiled in with the build from the core downloader
 	'Mesen (libretro)': LibretroCore(EmulatorStatus.Good, 'mesen', command_lines.mesen, ['nes', 'fds', 'unf', 'unif']),
+	'Mu (libretro)': LibretroCore(EmulatorStatus.Good, 'mu', None, ['prc', 'pqa', 'img']),
 	'Opera (libretro)': LibretroCore(EmulatorStatus.Good, 'opera', None, ['iso', 'chd', 'bin', 'cue']),
 	'PicoDrive (libretro)': LibretroCore(EmulatorStatus.Good, 'picodrive', simple_md_emulator([], ['rom_pokestad', 'rom_lion3']), ['bin', 'gen', 'smd', 'md', '32x', 'chd', 'cue', 'iso', 'sms', '68k', 'm3u']), #Lion King 3 is automatically detected but no other games using the same mapper work, so I guess we will pretend it's not a working mapper
 	'PokeMini (libretro)': LibretroCore(EmulatorStatus.Good, 'pokemini', None, ['min']),
-	'SameBoy (libretro)': LibretroCore(EmulatorStatus.Good, 'sameboy', simple_gb_emulator([], ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3', 'Pocket Camera'], ['MBC1 Multicart']), ['gb', 'gbc']),
+	'SameBoy (libretro)': LibretroCore(EmulatorStatus.Good, 'sameboy', simple_gb_emulator([], ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3', 'Pocket Camera'], ['MBC1 Multicart']), ['gb', 'gbc']),
+	'VeMUlator (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'vemulator', None, ['vms', 'dci', 'bin']), #Does a heckin bzzzz with a lot of things
 	'Virtual Jaguar (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'virtualjaguar', None, ['j64', 'jag', 'rom', 'abs', 'cof', 'bin', 'prg']),
+	'X Millennium (libretro)': LibretroCore(EmulatorStatus.Good, 'x1', None, ['dx1', '2d', '2hd', 'tfd', 'd88', '88d', 'hdm', 'xdf', 'dup', 'cmd']), #Claims to support tap but doesn't
 	
 	'VICE (C64)': ViceEmulator(EmulatorStatus.Good, 'x64sc', command_lines.vice_c64),
 	#x64 and x64sc have the same command line structure, just different exe names

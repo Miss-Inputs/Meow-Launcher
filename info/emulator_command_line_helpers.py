@@ -16,6 +16,10 @@ def _verify_supported_gb_mappers(game, supported_mappers, detected_mappers):
 	if not mapper:
 		#If there was a problem detecting the mapper, or it's something invalid, it probably won't run
 		raise EmulationNotSupportedException('Mapper is not detected at all')
+	
+	if mapper == 'ROM only':
+		#Literally everything will work with this
+		return
 
 	if game.metadata.specific_info.get('Override-Mapper', False) and mapper not in detected_mappers:
 		#If the mapper in the ROM header is different than what the mapper actually is, it won't work, since we can't override it from the command line or anything
@@ -26,7 +30,7 @@ def _verify_supported_gb_mappers(game, supported_mappers, detected_mappers):
 		raise EmulationNotSupportedException('Mapper ' + mapper + ' not supported')
 
 def verify_mgba_mapper(game):
-	supported_mappers = ['ROM only', 'MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5', 'HuC3', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5']
+	supported_mappers = ['MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5', 'HuC3', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5']
 	detected_mappers = ['MBC1 Multicart', 'MMM01', 'Wisdom Tree', 'Pokemon Jade/Diamond bootleg', 'BBD', 'Hitek']
 
 	_verify_supported_gb_mappers(game, supported_mappers, detected_mappers)
