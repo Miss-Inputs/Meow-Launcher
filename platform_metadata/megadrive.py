@@ -274,8 +274,17 @@ def add_megadrive_software_list_metadata(software, metadata):
 		#This is naughty, but this bootleg game doesn't run on some stuff so I want to be able to detect it
 		metadata.specific_info['Mapper'] = 'aqlian'
 	else:
-		if slot not in (None, 'rom_sram'):
-			metadata.specific_info['Mapper'] = slot
+		if slot not in (None, 'rom_sram', 'rom_fram'):
+			mapper = slot[4:] if slot.startswith('rom_') else slot
+			if mapper in ('eeprom', 'nbajam_alt', 'nbajamte', 'nflqb96', 'cslam', 'nhlpa', 'blara', 'eeprom_mode1'):
+				metadata.specific_info['Mapper'] = 'EEPROM'
+			elif mapper == 'jcart':
+				metadata.specific_info['Mapper'] = 'J-Cart'
+			elif mapper in ('codemast', 'mm96'):
+				metadata.specific_info['Mapper'] = 'J-Cart + EEPROM'
+			else:
+				#https://github.com/mamedev/mame/blob/master/src/devices/bus/megadrive/md_carts.cpp
+				metadata.specific_info['Mapper'] = mapper
 		if software.name == 'pokemon' and software.software_list_name == 'megadriv':
 			#This is also a bit naughty, but Pocket Monsters has different compatibility compared to other games with rom_kof99
 			metadata.specific_info['Mapper'] = slot + '_pokemon'

@@ -153,7 +153,7 @@ emulators = {
 	#Also in theory recognizes any extension and assumes Game Boy if not .gba or .nds, but that would be screwy
 
 	'Kega Fusion': StandardEmulator(EmulatorStatus.Good, 'kega-fusion', 
-	simple_md_emulator(['-fullscreen', '$<path>'], ['aqlian', 'rom_sf002', 'rom_sf004', 'rom_smw64', 'rom_topf', 'rom_kof99', 'rom_cjmjclub', 'rom_pokestad', 'rom_soulb', 'rom_chinf3']), 
+	simple_md_emulator(['-fullscreen', '$<path>'], ['aqlian', 'sf002', 'sf004', 'smw64', 'topf', 'kof99', 'cjmjclub', 'pokestad', 'soulb', 'chinf3']), 
 	['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', 'sc', '32x'], ['zip']),
 	#rom_kof99: Pocket Monsters does work (game-specific hack, probably?), which is why in platform_metadata/megadrive I've treated it specially and called it rom_kof99_pokemon
 	#May support other CD formats for Mega CD other than iso, cue? Because it's closed source, can't really have a look, but I'm just going to presume it's only those two
@@ -178,6 +178,7 @@ emulators = {
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
 
 	'81 (libretro)': LibretroCore(EmulatorStatus.Good, '81', None, ['p', 'tzx', 't81']),
+	'BlastEm (libretro)': LibretroCore(EmulatorStatus.Good, 'blastem', command_lines.blastem, ['md', 'bin', 'smd', 'gen', 'sms']), #Does not claim to support Master System in info file, but does
 	'Caprice32 (libretro)': LibretroCore(EmulatorStatus.Good, 'cap32', None, ['dsk', 'sna', 'tap', 'cdt', 'voc', 'cpr', 'm3u']), #cpr will need game override to 6128+, if setting that globally disks won't autoboot; m3u is there to specify load command and not multiple disks
 	'ChaiLove (libretro)': LibretroCore(EmulatorStatus.Good, 'chailove', None, ['chai', 'chailove']),
 	'Dinothawr (libretro)': LibretroCore(EmulatorStatus.Good, 'dinothawr', None, ['game']),
@@ -190,7 +191,7 @@ emulators = {
 	'Mesen (libretro)': LibretroCore(EmulatorStatus.Good, 'mesen', command_lines.mesen, ['nes', 'fds', 'unf', 'unif']),
 	'Mu (libretro)': LibretroCore(EmulatorStatus.Good, 'mu', None, ['prc', 'pqa', 'img']),
 	'Opera (libretro)': LibretroCore(EmulatorStatus.Good, 'opera', None, ['iso', 'chd', 'bin', 'cue']),
-	'PicoDrive (libretro)': LibretroCore(EmulatorStatus.Good, 'picodrive', simple_md_emulator([], ['rom_pokestad', 'rom_lion3']), ['bin', 'gen', 'smd', 'md', '32x', 'chd', 'cue', 'iso', 'sms', '68k', 'm3u']), #Lion King 3 is automatically detected but no other games using the same mapper work, so I guess we will pretend it's not a working mapper
+	'PicoDrive (libretro)': LibretroCore(EmulatorStatus.Good, 'picodrive', simple_md_emulator([], ['pokestad', 'lion3']), ['bin', 'gen', 'smd', 'md', '32x', 'chd', 'cue', 'iso', 'sms', '68k', 'm3u']), #Lion King 3 is automatically detected but no other games using the same mapper work, so I guess we will pretend it's not a working mapper
 	'PokeMini (libretro)': LibretroCore(EmulatorStatus.Good, 'pokemini', None, ['min']),
 	'SameBoy (libretro)': LibretroCore(EmulatorStatus.Good, 'sameboy', simple_gb_emulator([], ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3', 'Pocket Camera'], ['MBC1 Multicart']), ['gb', 'gbc']),
 	'VeMUlator (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'vemulator', None, ['vms', 'dci', 'bin']), #Does a heckin bzzzz with a lot of things

@@ -443,24 +443,24 @@ def mame_megadrive(game, _, emulator_config):
 	#4in1 and 12in1 won't boot anything either because they aren't detected from fullpath as being rom_mcpir (but Super 15 in 1 works)
 	#Overdrive 2 is supposed to use SSF2 bankswitching but isn't detected as rom_ssf2, actual Super Street Fighter 2 does work
 	mapper = game.metadata.specific_info.get('Mapper')
-	if mapper == 'rom_topf':
+	if mapper == 'topf':
 		#Doesn't seem to be detected via fullpath as being rom_topf, so it might work from software list
 		raise EmulationNotSupportedException('Top Fighter 2000 MK VII not supported')
-	if mapper == 'rom_yasech':
+	if mapper == 'yasech':
 		#Looks like it's same here... nothing about it being unsupported in SL entry
 		raise EmulationNotSupportedException('Ya Se Chuan Shuo not supported')
-	if mapper == 'rom_kof99_pokemon':
+	if mapper == 'kof99_pokemon':
 		#This isn't a real mapper, Pocket Monsters uses rom_kof99 but it doesn't work (but KOF99 bootleg does)
 		#Probably because it's detected as rom_99 when loaded from fullpath, so... it be like that sometimes
 		raise EmulationNotSupportedException('Pocket Monsters not supported from fullpath')
-	if mapper == 'rom_smw64':
+	if mapper == 'smw64':
 		raise EmulationNotSupportedException('Super Mario World 64 not supported')
-	if mapper == 'rom_cjmjclub':
+	if mapper == 'cjmjclub':
 		raise EmulationNotSupportedException('Chao Ji Mahjong Club not supported')
-	if mapper == 'rom_soulb':
+	if mapper == 'soulb':
 		#It looks like this should work, but loading it from fullpath results in an "Unknown slot option 'rom_soulblad' in slot 'mdslot'" error when it should be rom_soulb instead
 		raise EmulationNotSupportedException('Soul Blade not supported')
-	if mapper == 'rom_chinf3':
+	if mapper == 'chinf3':
 		raise EmulationNotSupportedException('Chinese Fighter 3 not supported')
 
 	#Hmm. Most Megadrive emulators that aren't MAME have some kind of region preference thing where it's selectable between U->E->J or J->U->E or U->J->E or whatever.. because of how this works I'll have to make a decision, unless I feel like making a config thing for that, and I don't think I really need to do that.
@@ -885,7 +885,7 @@ def mednafen_megadrive(game, _, emulator_config):
 		raise EmulationNotSupportedException('SVP chip not supported')
 
 	mapper = game.metadata.specific_info.get('Mapper')
-	unsupported_mappers = ('rom_mcpir', 'rom_sf002', 'rom_mjlov', 'rom_lion3', 'rom_kof99_pokemon', 'rom_squir', 'rom_sf004', 'rom_topf', 'rom_smw64', 'rom_lion2', 'rom_stm95', 'rom_cjmjclub', 'rom_pokestad', 'rom_soulb', 'rom_smb', 'rom_smb2', 'rom_chinf3')
+	unsupported_mappers = ('mcpir', 'sf002', 'mjlov', 'lion3', 'kof99_pokemon', 'squir', 'sf004', 'topf', 'smw64', 'lion2', 'stm95', 'cjmjclub', 'pokestad', 'soulb', 'smb', 'smb2', 'chinf3')
 	#Squirrel King does boot but you die instantly, that's interesting
 	#Soul Blade freezes soon after starting a match?
 	if mapper in unsupported_mappers:
@@ -1540,6 +1540,19 @@ def genesis_plus_gx(game, _, __):
 	if game.system_name == 'Mega CD':
 		if game.metadata.specific_info.get('32X-Only', False):
 			raise EmulationNotSupportedException('32X not supported')
+
+def blastem(game, _, __):
+	if game.system_name == 'Mega Drive':
+		if game.metadata.specific_info.get('Uses-SVP', False):
+			#This should work, but doesn't?
+			raise EmulationNotSupportedException('Seems SVP chip not supported?')
+		mapper = game.metadata.specific_info.get('Mapper')
+		if mapper:
+			#Some probably only work with rom.db being there, this assumes it is
+			#Some bootleg mappers don't seem to have any indication that they should work but seem to
+			if mapper not in ('EEPROM', 'J-Cart', 'J-Cart + EEPROM', 'ssf2', 'cslam', 'hardbl95', 'blara',
+			'mcpir', 'realtec', 'sbubl', 'squir', 'elfwor', 'kof99', 'smouse', 'sk'):
+				raise EmulationNotSupportedException(mapper)
 
 def mesen(game, _, __):
 	unsupported_mappers = [124, 237, 256, 257, 389, 547]
