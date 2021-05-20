@@ -182,6 +182,80 @@ ines_mappers = {
 	255: '110-in-1 multicart',
 }
 
+extended_console_types = {
+	0: 'Normal', #Not used in the header
+	1: 'VS System', #Not used in the header
+	2: 'PlayChoice-10', #Not used in the header
+	3: 'Famiclone with Decimal Mode',
+	4: 'VT01 Monochrome',
+	5: 'VT01',
+	6: 'VT02',
+	7: 'VT03',
+	8: 'VT09',
+	9: 'VT32',
+	10: 'VT369',
+	11: 'UMC UM6578',
+	#12-16: reserved
+}
+
+default_expansion_devices = {
+	#TODO: This should use NESPeripheral probably
+	0: 'Unspecified',
+	1: 'Standard',
+	2: 'Four Score',
+	3: 'Famicom Four Players Adapter',
+	4: 'VS. System',
+	5: 'VS. System with reversed inputs',
+	6: 'VS. Pinball',
+	7: 'VS. Zapper',
+	8: 'Zapper',
+	9: 'Two Zappers',
+	10: 'Bandai Hyper Shot',
+	11: 'Power Pad Side A',
+	12: 'Power Pad Side B',
+	13: 'Family Trainer Side A',
+	14: 'Family Trainer Side B',
+	15: 'Vaus (NES)',
+	16: 'Vaus (Famicom)',
+	17: 'Two Vaus + Famicom Data Recorder',
+	18: 'Konami Hyper Shot',
+	19: 'Coconuts Pachinko Controller',
+	20: 'Exciting Boxing Punching Bag',
+	21: 'Jissen Mahjong Controller',
+	22: 'Party Tap',
+	23: 'Oeka Kids Tablet',
+	24: 'Barcode Battler',
+	25: 'Miracle Piano Keyboard',
+	26: 'Whack-a-Mole Mat and Mallet', #Pokkun Moguraa
+	27: 'Inflatable Bike', #Top Rider
+	28: 'Double-Fisted', #Two controllers with one player
+	29: 'Famicom 3D System',
+	30: 'Doremikko Keyboard',
+	31: 'ROB + Gyro Set',
+	32: 'Famicom Data Recorder',
+	33: 'ASCII Turbo File',
+	34: 'IGS Storage Battle Box',
+	35: 'Family BASIC Keyboard + Famicom Data Recorder',
+	36: 'Dongda PEC-586',
+	37: 'Bit-79 Keyboard',
+	38: 'Subor Keyboard',
+	39: 'Subor Keyboard + Mouse',
+	40: 'Subor Keyboard + Mouse (24-bit)',
+	41: 'SNES Mouse',
+	42: 'Multicart', #Used when a multicart contains games that use expansion devices and some that don't
+	43: 'Two SNES Controllers',
+	44: 'RacerMate Bicycle',
+	45: 'U-Force',
+	46: 'ROB + Stack-Up',
+	47: 'City Patrolman Lightgun',
+	48: 'Sharp C1 Cassette Interface',
+	49: 'Swapped', #Standard controller with swapped inputs
+	50: 'Excalibor Sudoku Pad',
+	51: 'ABL Pinball',
+	52: 'Golden Nugget Casino',
+
+}
+
 def decode_bcd(i):
 	hi = (i & 0xf0) >> 4
 	lo = i & 0x0f
@@ -268,9 +342,10 @@ def add_ines_metadata(rom, metadata, header):
 			metadata.specific_info['Is-Dendy'] = True
 
 		if (header[7] & 3) == 3:
-			metadata.specific_info['Extended-Console-Type'] = header[13] #TODO: Actually use this
+			#If header[7] = 1, specifies VS System type
+			metadata.specific_info['Extended-Console-Type'] = extended_console_types.get(header[13], header[13])
 		if header[15]:
-			default_expansion_device = header[15] #TODO: Actually use this
+			default_expansion_device = default_expansion_devices.get(header[15], header[15])
 			metadata.specific_info['Default-Expansion-Device'] = default_expansion_device
 			if default_expansion_device == 1:
 				metadata.specific_info['Peripheral'] = NESPeripheral.NormalController
