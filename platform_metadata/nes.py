@@ -430,7 +430,7 @@ def parse_unif_chunk(metadata, chunk_type, chunk_data):
 		metadata.save_type = SaveType.Cart if chunk_data[0] else SaveType.Nothing
 	elif chunk_type == 'CTRL':
 		controller_info = chunk_data[0]
-		#This is a bitfield, so actually one could have multiple peripherals
+		#TODO: This is a bitfield, so actually one could have multiple peripherals
 		if controller_info & 16:
 			metadata.specific_info['Peripheral'] = NESPeripheral.PowerPad
 		if controller_info & 8:
@@ -443,7 +443,8 @@ def parse_unif_chunk(metadata, chunk_type, chunk_data):
 			metadata.specific_info['Peripheral'] = NESPeripheral.NormalController
 	elif chunk_type == 'READ':
 		metadata.notes = chunk_data.decode('utf-8', errors='ignore').rstrip('\0')
-	#NAME: Not needed, basically just something similar to the filename
+	elif chunk_type == 'NAME':
+		metadata.add_alternate_name(chunk_data.decode('utf-8', errors='ignore').rstrip('\0'), 'Header-Title')
 	#MIRR: Probably not needed
 	#PCK0, CCK0: CRC32 of PRG/CHR, would be nice except since this chunk isn't always there, we have to calculate it manually anyway
 	#WRTR/DINF: Dumping info, who cares
