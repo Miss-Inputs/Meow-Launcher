@@ -202,6 +202,11 @@ def process_file(system_config, potential_emulators, rom_dir, root, rom):
 				frontend = emulator_info.libretro_frontends[main_config.libretro_frontend]
 				potential_emulator = emulator_info.LibretroCoreWithFrontend(potential_emulator, frontend, frontend_config)
 
+			if rom.is_folder and not potential_emulator.supports_folders:
+				raise ExtensionNotSupportedException('{0} does not support folders'.format(potential_emulator))
+			if not rom.is_folder and rom.extension not in potential_emulator.supported_extensions:
+				raise ExtensionNotSupportedException('{0} does not support {1} extension'.format(potential_emulator, rom.extension))
+
 			params = potential_emulator.get_launch_params(game, system_config.options, potential_emulator_config)
 			if params:
 				emulator = potential_emulator
