@@ -572,16 +572,19 @@ def mame_nes(game, _, emulator_config):
 		#TODO: This isn't really right, should set controllers
 		return mame_driver(game, emulator_config, 'fds', 'flop')
 
-	#27 and 103 might be unsupported too?
-	unsupported_ines_mappers = (29, 30, 55, 59, 60, 81, 84, 98,
-	99, 100, 101, 102, 109, 110, 111, 122, 124, 125, 127, 128,
+	unsupported_ines_mappers = (27, 29, 30, 55, 59, 60, 81, 84, 98,
+	99, 100, 101, 102, 103, 109, 110, 111, 122, 124, 125, 127, 128,
 	129, 130, 131, 135, 151, 161, 169, 170, 174, 181, 219, 220,
 	236, 237, 239, 247, 248, 251, 253)
-	if game.metadata.specific_info.get('Header-Format', None) == 'iNES':
+	supported_unif_mappers = ('DREAMTECH01', 'NES-ANROM', 'NES-AOROM', 'NES-CNROM', 'NES-NROM', 'NES-NROM-128', 'NES-NROM-256', 'NES-NTBROM', 'NES-SLROM', 'NES-TBROM', 'NES-TFROM', 'NES-TKROM', 'NES-TLROM', 'NES-UOROM', 'UNL-22211', 'UNL-KOF97', 'UNL-SA-NROM', 'UNL-VRC7', 'UNL-T-230', 'UNL-CC-21', 'UNL-AX5705', 'UNL-SMB2J', 'UNL-8237', 'UNL-SL1632', 'UNL-SACHEN-74LS374N', 'UNL-TC-U01-1.5M', 'UNL-SACHEN-8259C', 'UNL-SA-016-1M', 'UNL-SACHEN-8259D', 'UNL-SA-72007', 'UNL-SA-72008', 'UNL-SA-0037', 'UNL-SA-0036', 'UNL-SA-9602B', 'UNL-SACHEN-8259A', 'UNL-SACHEN-8259B', 'BMC-190IN1', 'BMC-64IN1NOREPEAT', 'BMC-A65AS', 'BMC-GS-2004', 'BMC-GS-2013', 'BMC-NOVELDIAMOND9999999IN1', 'BMC-SUPER24IN1SC03', 'BMC-SUPERHIK8IN1', 'BMC-T-262', 'BMC-WS', 'BMC-N625092')
+	if game.metadata.specific_info.get('Header-Format', None) in ('iNES', 'NES 2.0'):
 		mapper = game.metadata.specific_info['Mapper-Number']
-		if mapper in unsupported_ines_mappers:
+		if mapper in unsupported_ines_mappers or mapper >= 256:
 			raise EmulationNotSupportedException('Unsupported mapper: %d (%s)' % (mapper, game.metadata.specific_info.get('Mapper')))
-	#TODO: Unsupported NES 2.0 and UNIF mappers, if any
+	if game.metadata.specific_info.get('Header-Format', None) == 'UNIF':
+		mapper = game.metadata.specific_info.get('Mapper')
+		if mapper not in supported_unif_mappers:
+			raise EmulationNotSupportedException('Unsupported mapper: %d (%s)' % (mapper, game.metadata.specific_info.get('Mapper')))
 
 	has_keyboard = False
 
