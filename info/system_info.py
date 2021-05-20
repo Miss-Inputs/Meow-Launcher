@@ -253,7 +253,6 @@ systems = {
 	
 	#Consoles likely uncared about (I'm being subjective woohoo) just to make the list less of a chungus
 	'3DO M2': SystemInfo([], ['3do_m2'], [], {MediaType.OpticalDisc: cdrom_formats}), #Was never actually released, but prototypes exist
-	'Amstrad GX4000': SystemInfo(['gx4000'], ['gx4000'], ['MAME (Amstrad GX4000)'], {MediaType.Cartridge: ['cpr'] + generic_cart_extensions}), #Should this just be part of Amstrad CPC+?
 	'APF-MP1000': SystemInfo(['apfm1000'], ['apfm1000'], ['MAME (APF-MP1000)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Arcadia 2001': SystemInfo(
 		['arcadia', 'intmpt03', 'orbituvi', 'ormatu', 'plldium'], ['arcadia'],
@@ -386,7 +385,7 @@ systems = {
 		{'default_chipset': SystemConfigValue(ConfigValueType.String, 'AGA', 'Default chipset to use if a game doesn\'t specify what chipset it should use (AGA, OCS, ECS)')}, 
 		autodetect_tv_type=True
 	),
-	'Amstrad CPC': SystemInfo(['cpc464'], ['cpc_cass', 'cpc_flop'], [], {MediaType.Snapshot: ['sna'], MediaType.Tape: ['wav', 'cdt'], MediaType.Floppy: mame_floppy_formats}),
+	'Amstrad CPC': SystemInfo(['cpc464', 'cpc6128p', 'gx4000'], ['cpc_cass', 'cpc_flop', 'gx4000'], ['Caprice32 (libretro)', 'MAME (Amstrad GX4000)'], {MediaType.Snapshot: ['sna'], MediaType.Tape: ['wav', 'cdt'], MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['cpr'] + generic_cart_extensions}, dat_names=['Amstrad - CPC']),
 	'Apple II': SystemInfo(['apple2', 'apple2c', 'apple2e', 'cece', 'cecg', 'ceci', 'cecm', 'cec2000'], ['apple2', 'apple2_cass', 'apple2_flop_orig', 'apple2_flop_clcracked', 'apple2_flop_misc'], ['MAME (Apple II)', 'Mednafen (Apple II)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib', 'woz', 'shk', 'bxy'], MediaType.Tape: generic_tape_extensions}),
 	'Apple IIgs': SystemInfo(['apple2gs'], ['apple2gs'], ['MAME (Apple IIgs)'], {MediaType.Floppy: mame_floppy_formats + ['2mg', '2img', 'dc', 'shk', 'bxy', 'woz']}),
 	'Atari 8-bit': SystemInfo(
