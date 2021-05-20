@@ -182,7 +182,7 @@ def clean_string(s):
 	return ''.join([c for c in s if c.isprintable()])
 
 def byteswap(b):
-	byte_array = bytearray(len(b))
+	byte_array = bytearray(len(b) if len(b) % 2 == 0 else len(b) + 1)
 	byte_array[0::2] = b[1::2]
 	byte_array[1::2] = b[0::2]
 	return bytes(byte_array)
