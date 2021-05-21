@@ -569,6 +569,16 @@ def add_pc_engine_info(game):
 		game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
 
 	add_generic_info(game)
+
+def add_pc_engine_cd_info(game):
+	software = get_software_list_entry(game)
+	if software:
+		software.add_standard_metadata(game.metadata)
+		game.metadata.specific_info['Requirement'] = software.get_shared_feature('requirement')
+		usage = software.get_info('usage')
+		if usage not in ('Game Express CD Card required', 'CD-Rom System Card required'):
+			#This is already specified by "requirement"
+			game.metadata.notes = usage
 	
 def add_amstrad_pcw_info(game):
 	software = get_software_list_entry(game)
@@ -591,6 +601,34 @@ def add_fm_towns_info(game):
 				if match.end() < len(usage):
 					game.metadata.notes = usage
 
+def add_sord_m5_info(game):
+	#Input info if I cared: 55 key keyboard + 0 button joystick
+	software = get_software_list_entry(game)
+	if software:
+		software.add_standard_metadata(game.metadata)
+		usage = software.get_info('usage')
+		if usage == 'Requires 36k RAM':
+			game.metadata.specific_info['Minimum-RAM'] = '36K'
+		else:
+			game.metadata.notes = usage
+	
+def add_msx_info(game):
+	software = get_software_list_entry(game)
+	if software:
+		software.add_standard_metadata(game.metadata)
+		usage = software.get_info('usage')
+		if usage == 'Requires a Japanese system':
+			game.metadata.specific_info['Japanese-Only'] = True
+		elif usage == 'Requires an Arabic MSX':
+			game.metadata.specific_info['Arabic-Only'] = True
+		else:
+			game.metadata.notes = usage
+		cart_part = software.get_part('cart')
+		if cart_part:
+			game.metadata.specific_info['Slot'] = cart_part.get_feature('slot')
+			game.metadata.specific_info['PCB'] = cart_part.get_feature('pcb')
+			game.metadata.specific_info['Mapper'] = cart_part.get_feature('mapper')
+
 def add_generic_info(game):
 	#For any system not otherwise specified
 	if game.rom.is_folder:
@@ -600,13 +638,15 @@ def add_generic_info(game):
 	if software:
 		software.add_standard_metadata(game.metadata)
 		game.metadata.notes = software.get_info('usage')
+		if 'pcb' in software.infos:
+			game.metadata.specific_info['PCB'] = software.get_info('pcb')
 		game.metadata.specific_info['Requirement'] = software.get_shared_feature('requirement')
 		try:
 			game.metadata.specific_info['TV-Type'] = TVSystem(software.get_info('video'))
 		except ValueError:
 			pass
 		for info_name, info_value in software.infos.items():
-			if info_name in ('usage', 'release', 'serial', 'developer', 'alt_title', 'alt_name', 'alt_disk', 'barcode', 'ring_code', 'version', 'video'):
+			if info_name in ('usage', 'release', 'serial', 'developer', 'alt_title', 'alt_name', 'alt_disk', 'barcode', 'ring_code', 'version', 'video', 'pcb'):
 				#We have already added this
 				continue
 			game.metadata.specific_info[info_name.replace('_', '-').replace(' ', '-').title()] = info_value
@@ -615,7 +655,6 @@ def add_generic_info(game):
 	#Apple III: Possible input info: Keyboard and joystick by default, mouse if mouse card exists
 	#Coleco Adam: Input info: Keyboard / Coleco numpad?
 	#MSX1/2: Input info: Keyboard or joystick; Other info you can get from carts here: PCB, slot (something like ascii8 or whatever), mapper
-	#Sord M5: Input info: Keyboard (55 keys), maybe joystick (0 buttons??)? Take note of info > usage = requiring 36K RAM
 	#Jaguar input info: There's the default ugly gamepad and also another ugly gamepad with more buttons which I dunno what's compatible with
 	#CD-i: That one controller but could also be the light gun thingo
 	#Memorex VIS: 4-button wireless not-quite-gamepad-but-effectively-one-thing (A, B, 1, 2), can have 2-button mouse? There are also 3 and 4 buttons and 2-1-Solo switch that aren't emulated yet

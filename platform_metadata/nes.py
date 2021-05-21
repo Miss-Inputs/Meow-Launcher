@@ -303,7 +303,8 @@ def add_ines_metadata(rom, metadata, header):
 	flags = header[6]
 	has_battery = (flags & 2) > 0
 	metadata.save_type = SaveType.Cart if has_battery else SaveType.Nothing
-	metadata.specific_info['Has-iNES-Trainer'] = (flags & 4) > 0
+	if (flags & 4) > 0:
+		metadata.specific_info['Has-iNES-Trainer'] = True
 	mapper_lower_nibble = (flags & 0b1111_0000) >> 4
 
 	more_flags = header[7]

@@ -160,7 +160,7 @@ def add_megadrive_info(metadata, header):
 		
 		if memo:
 			if memo == 'SV':
-				metadata.specific_info['Uses-SVP'] = True
+				metadata.specific_info['Expansion-Chip'] = 'SVP'
 			else:
 				#This only seems to really be used for homebrews bootlegs etc
 				metadata.descriptions['Memo'] = memo
@@ -260,7 +260,7 @@ def try_find_equivalent_arcade(rom, metadata):
 def add_megadrive_software_list_metadata(software, metadata):
 	software.add_standard_metadata(metadata)
 	if software.get_shared_feature('addon') == 'SVP':
-		metadata.specific_info['Uses-SVP'] = True
+		metadata.specific_info['Expansion-Chip'] = 'SVP'
 	if software.get_shared_feature('incompatibility') == 'TMSS':
 		metadata.specific_info['Bad-TMSS'] = True
 

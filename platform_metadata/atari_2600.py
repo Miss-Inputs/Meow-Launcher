@@ -254,7 +254,8 @@ def add_atari_2600_metadata(game):
 			#For consistency. There's no company literally called "Homebrew"
 			game.metadata.publisher = game.metadata.developer
 
-		game.metadata.specific_info['Uses-Supercharger'] = software.get_shared_feature('requirement') == 'scharger'
+		if software.get_shared_feature('requirement') == 'scharger':
+			game.metadata.specific_info['Uses-Supercharger'] = True
 		if 'cart' in software.parts:
 			#"cass" and "cass1" "cass2" "cass3" etc are also possible but a2600_cass doesn't have peripheral in it so it'll be fine
 			cart_part = software.get_part('cart')

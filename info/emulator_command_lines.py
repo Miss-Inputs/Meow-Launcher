@@ -156,7 +156,7 @@ def mame_atari_8bit(game, system_config, emulator_config):
 	slot_options = {}
 	if game.metadata.media_type == MediaType.Cartridge:
 		if game.metadata.specific_info.get('Headered', False):
-			cart_type = game.metadata.specific_info['Cart-Type']
+			cart_type = game.metadata.specific_info['Mapper']
 			if cart_type in (13, 14, 23, 24, 25) or (33 <= cart_type <= 38):
 				raise EmulationNotSupportedException('XEGS cart: %d' % cart_type)
 
@@ -884,7 +884,7 @@ def mednafen_lynx(game, _, emulator_config):
 	return mednafen_module('lynx', exe_path=emulator_config.exe_path)
 
 def mednafen_megadrive(game, _, emulator_config):
-	if game.metadata.specific_info.get('Uses-SVP', False):
+	if game.metadata.specific_info.get('Expansion-Chip', None) == 'SVP':
 		raise EmulationNotSupportedException('SVP chip not supported')
 
 	mapper = game.metadata.specific_info.get('Mapper')
@@ -1551,7 +1551,7 @@ def genesis_plus_gx(game, _, __):
 
 def blastem(game, _, __):
 	if game.system_name == 'Mega Drive':
-		if game.metadata.specific_info.get('Uses-SVP', False):
+		if game.metadata.specific_info.get('Expansion-Chip', None) == 'SVP':
 			#This should work, but doesn't?
 			raise EmulationNotSupportedException('Seems SVP chip not supported?')
 		mapper = game.metadata.specific_info.get('Mapper')
