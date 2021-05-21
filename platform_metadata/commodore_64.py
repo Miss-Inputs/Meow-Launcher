@@ -104,7 +104,7 @@ def add_commodore_64_metadata(game):
 	software = get_commodore_64_software(game, headered)
 	if software:
 		software.add_standard_metadata(game.metadata)
-		game.metadata.notes = software.get_info('usage')
+		game.metadata.add_notes(software.get_info('usage'))
 		#Enter 'SYS 32768' to run
 		#Commodore: Load "JINGLE",8,1 / Apple IIc and e: Self boots
 		game.metadata.specific_info['Requirement'] = software.get_shared_feature('requirement')

@@ -115,7 +115,7 @@ def parse_woz_meta_chunk(rom, metadata, chunk_data):
 				metadata.genre = value.capitalize() if value.islower() else value
 		elif key == 'notes':
 			#This isn't part of the specification, but I've seen it
-			metadata.notes = value
+			metadata.add_notes(value)
 		else:
 			if main_config.debug:
 				print('Unknown Woz META key', rom.path, key, value)
@@ -169,10 +169,7 @@ def add_apple_ii_metadata(game):
 			#Not setting up input_info just yet because I don't know if it uses joystick/keyboard as well. I guess I probably never will, but like... well.... dang
 			game.metadata.specific_info['Uses-Mouse'] = True
 		elif usage:
-			if game.metadata.notes:
-				game.metadata.notes += ';' + usage
-			else:
-				game.metadata.notes = usage
+			game.metadata.add_notes(usage)
 		
 		if software.software_list.name == 'apple2_flop_orig' and software.name == 'arkanoid':
 			game.metadata.specific_info['Uses-Mouse'] = True

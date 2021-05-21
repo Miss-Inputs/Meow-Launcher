@@ -63,7 +63,7 @@ class App:
 		if 'subgenre' in self.info:
 			self.metadata.subgenre = self.info['subgenre']
 		if 'notes' in self.info:
-			self.metadata.notes = self.info['notes']
+			self.metadata.add_notes(self.info['notes'])
 		self.additional_metadata()
 
 	@property

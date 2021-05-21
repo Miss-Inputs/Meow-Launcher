@@ -139,7 +139,7 @@ def add_info_from_software_list(metadata, software):
 	elif usage == 'Video only works correctly on drivers with SMS1 VDP, e.g. smsj':
 		metadata.specific_info['SMS1-Only'] = True
 	else:
-		metadata.notes = usage
+		metadata.add_notes(usage)
 	#Other usage strings:
 	#To play in 3-D on SMS1, hold buttons 1 and 2 while powering up the system.
 

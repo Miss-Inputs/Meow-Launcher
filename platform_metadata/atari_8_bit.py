@@ -54,7 +54,7 @@ def add_info_from_software_list(metadata, software):
 	elif usage == 'BASIC must be enabled.':
 		metadata.specific_info['Requires-BASIC'] = True
 	else:
-		metadata.notes = usage
+		metadata.add_notes(usage)
 	#To be used with Atari 1400 onboard modem.
 	#3 or 4 player gameplay available only on 400/800 systems
 	#Chalkboard Inc.'s Powerpad Tablet required

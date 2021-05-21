@@ -81,8 +81,7 @@ def add_speccy_software_list_metadata(software, metadata):
 		#Side B requires Locomotive CP/M+
 		#Requires manual for password protection
 		#Disk has no autorun menu, requires loading each game from Basic.
-		metadata.notes = usage
-
+		metadata.add_notes(usage)
 
 def add_speccy_metadata(game):
 	if game.rom.extension == 'z80':

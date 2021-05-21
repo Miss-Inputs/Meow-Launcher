@@ -12,7 +12,7 @@ def add_amiga_metadata_from_software_list(software, metadata):
 			chipset = 'AGA'
 		else:
 			#The remainder is something like "Requires <some other software> to work", because it's a level editor or save editor or something like that
-			metadata.notes = usage
+			metadata.add_notes(usage)
 
 		#info name="additional":
 		#Features Kid Gloves demo

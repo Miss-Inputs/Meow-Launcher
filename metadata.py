@@ -252,6 +252,12 @@ class Metadata():
 			return
 		self.names[field] = name
 
+	def add_notes(self, notes):
+		if not self.notes:
+			self.notes = notes
+		elif self.notes != notes:
+			self.notes += ';' + notes
+
 	def to_launcher_fields(self):
 		fields = {}
 

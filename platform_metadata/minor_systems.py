@@ -205,7 +205,7 @@ def add_vic20_info(game):
 		if notes == 'Game Paddles required':
 			game.metadata.specific_info['Peripheral'] = 'Paddle'
 		else:
-			game.metadata.notes = notes
+			game.metadata.add_notes(notes)
 		
 		#Enter 'SYS <some number>' to run
 		#Needs VICKIT 4 to run
@@ -244,7 +244,7 @@ def add_colecovision_info(game):
 			peripheral = ColecoController.DrivingController
 			peripheral_required = True
 		else:
-			game.metadata.notes = usage
+			game.metadata.add_notes(usage)
 
 	normal_controller_part = input_metadata.NormalController()
 	normal_controller_part.face_buttons = 2
@@ -546,7 +546,7 @@ def add_microtan_65_info(game):
 			keyboard.keys = 62
 			game.metadata.input_info.add_option(keyboard)
 		else:
-			game.metadata.notes = usage
+			game.metadata.add_notes(usage)
 
 def _get_uapce_games():
 	try:
@@ -578,7 +578,7 @@ def add_pc_engine_cd_info(game):
 		usage = software.get_info('usage')
 		if usage not in ('Game Express CD Card required', 'CD-Rom System Card required'):
 			#This is already specified by "requirement"
-			game.metadata.notes = usage
+			game.metadata.add_notes(usage)
 	
 def add_amstrad_pcw_info(game):
 	software = get_software_list_entry(game)
@@ -599,7 +599,7 @@ def add_fm_towns_info(game):
 			if match:
 				game.metadata.specific_info['Minimum-RAM'] = match[1]
 				if match.end() < len(usage):
-					game.metadata.notes = usage
+					game.metadata.add_notes(usage)
 
 def add_sord_m5_info(game):
 	#Input info if I cared: 55 key keyboard + 0 button joystick
@@ -610,7 +610,7 @@ def add_sord_m5_info(game):
 		if usage == 'Requires 36k RAM':
 			game.metadata.specific_info['Minimum-RAM'] = '36K'
 		else:
-			game.metadata.notes = usage
+			game.metadata.add_notes(usage)
 	
 def add_msx_info(game):
 	software = get_software_list_entry(game)
@@ -622,7 +622,7 @@ def add_msx_info(game):
 		elif usage in ('Requires an Arabic MSX', 'Requires an Arabic MSX2'):
 			game.metadata.specific_info['Arabic-Only'] = True
 		else:
-			game.metadata.notes = usage
+			game.metadata.add_notes(usage)
 		if 'cart' in software.parts:
 			cart_part = software.get_part('cart')
 			game.metadata.specific_info['Slot'] = cart_part.get_feature('slot')
@@ -637,7 +637,7 @@ def add_generic_info(game):
 
 	if software:
 		software.add_standard_metadata(game.metadata)
-		game.metadata.notes = software.get_info('usage')
+		game.metadata.add_notes(software.get_info('usage'))
 		if 'pcb' in software.infos:
 			game.metadata.specific_info['PCB'] = software.get_info('pcb')
 		game.metadata.specific_info['Requirement'] = software.get_shared_feature('requirement')

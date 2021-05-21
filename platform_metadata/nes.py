@@ -443,7 +443,7 @@ def parse_unif_chunk(metadata, chunk_type, chunk_data):
 		if controller_info & 1:
 			metadata.specific_info['Peripheral'] = NESPeripheral.NormalController
 	elif chunk_type == 'READ':
-		metadata.notes = chunk_data.decode('utf-8', errors='ignore').rstrip('\0')
+		metadata.add_notes(chunk_data.decode('utf-8', errors='ignore').rstrip('\0'))
 	elif chunk_type == 'NAME':
 		metadata.add_alternate_name(chunk_data.decode('utf-8', errors='ignore').rstrip('\0'), 'Header-Title')
 	#MIRR: Probably not needed
@@ -567,7 +567,7 @@ def add_nes_software_list_metadata(software, metadata):
 	#RacerMate Challenge 2: "racermate"
 	#Top Rider (Japan): "toprider"
 
-	metadata.notes = software.infos.get('usage')
+	metadata.add_notes(software.infos.get('usage'))
 	#This only works on a Famicom with Mahjong Controller attached
 	#This only is only supported by Famicom [sic?]
 
