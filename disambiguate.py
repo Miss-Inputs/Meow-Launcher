@@ -91,7 +91,7 @@ def resolve_duplicates_by_filename_tags(group):
 
 		rest_tags = [launchers.get_array(rest[1], 'Filename-Tags', launchers.junk_section_name) for rest in the_rest]
 		for tag in tags:
-			if all([tag in rest_tag for rest_tag in rest_tags]):
+			if all(tag in rest_tag for rest_tag in rest_tags):
 				continue
 			og_name = launchers.get_field(dup[1], 'Name', 'Desktop Entry')
 			if og_name:

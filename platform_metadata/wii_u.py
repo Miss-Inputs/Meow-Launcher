@@ -252,8 +252,6 @@ def add_rpx_metadata(rom, metadata):
 	if os.path.isfile(homebrew_banner_path):
 		metadata.images['Banner'] = homebrew_banner_path
 
-	return 
-
 def add_folder_metadata(rom, metadata):
 	content_dir = rom.get_subfolder('content')
 	meta_dir = rom.get_subfolder('meta')

@@ -243,10 +243,10 @@ def _get_existing_launchers():
 	return a
 
 def has_been_done(game_type, game_id):
-	if not hasattr(has_been_done, '_existing_launchers'):
-		has_been_done._existing_launchers = _get_existing_launchers()
+	if not hasattr(has_been_done, 'existing_launchers'):
+		has_been_done.existing_launchers = _get_existing_launchers()
 
-	for existing_type, existing_id in has_been_done._existing_launchers:
+	for existing_type, existing_id in has_been_done.existing_launchers:
 		if existing_type == game_type and existing_id == game_id:
 			return True
 

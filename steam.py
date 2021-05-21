@@ -1135,10 +1135,10 @@ def no_longer_exists(appid):
 		#I guess if you uninstalled Steam then you're not gonna play any Steam games, huh
 		return False
 
-	if not hasattr(no_longer_exists, '_appids'):
-		no_longer_exists._appids = [app_id for _, app_id, __ in iter_steam_installed_appids()]
+	if not hasattr(no_longer_exists, 'appids'):
+		no_longer_exists.appids = [app_id for _, app_id, __ in iter_steam_installed_appids()]
 
-	return appid not in no_longer_exists._appids
+	return appid not in no_longer_exists.appids
 
 def process_steam():
 	if not is_steam_available:

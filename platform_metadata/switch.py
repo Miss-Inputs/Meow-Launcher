@@ -392,11 +392,11 @@ def add_nsp_metadata(rom, metadata):
 			cnmt_nca = rom.read(amount=offsetsize[1], seek_to=offsetsize[0])
 			try:
 				cnmts.append(list_cnmt_nca(cnmt_nca))
-			except InvalidNCAException as ex:
+			except InvalidNCAException:
 				#if main_config.debug:
 				#	print(filename, 'is an invalid cnmt.nca in', rom.path, ex)
 				continue
-			except ExternalToolNotHappeningException as ex:
+			except ExternalToolNotHappeningException:
 				try_fallback_to_xml = True
 				break
 		if filename.endswith('.cnmt.xml'):
@@ -503,10 +503,10 @@ def add_xci_metadata(rom, metadata):
 					cnmts.append(list_cnmt_nca(cnmt))
 				#except ValueError as v:
 				#	print('Bugger bugger bugger', v)
-				except InvalidNCAException as ex:
+				except InvalidNCAException:
 					#print(k, 'is an invalid cnmt.nca', ex)
 					continue
-				except ExternalToolNotHappeningException as ex:
+				except ExternalToolNotHappeningException:
 					#print(ex)
 					return
 

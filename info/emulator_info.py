@@ -67,14 +67,14 @@ class Emulator():
 		if emulator_config.options.get('mangohud', False):
 			params = params.wrap('mangohud')
 			if isinstance(params, MultiCommandLaunchParams):
-	 			params.main_command.env_vars['MANGOHUD_DLSYM'] = '1'
+				params.main_command.env_vars['MANGOHUD_DLSYM'] = '1'
 			else:
 				params.env_vars['MANGOHUD_DLSYM'] = '1'
 		if emulator_config.options.get('gamemode', False):
 			params = params.wrap('gamemoderun')
 		if emulator_config.options.get('force_opengl_version', False):
 			if isinstance(params, MultiCommandLaunchParams):
-	 			params.main_command.env_vars['MESA_GL_VERSION_OVERRIDE'] = '4.3'
+				params.main_command.env_vars['MESA_GL_VERSION_OVERRIDE'] = '4.3'
 			else:
 				params.env_vars['MESA_GL_VERSION_OVERRIDE'] = '4.3'
 		return params
@@ -548,8 +548,8 @@ pc_emulators = {
 
 class LibretroFrontend(Emulator):
 	#While these are not really emulators on their own, we pretend they are because it's easier to code that way or whatever
-	def __init__(self, status, default_exe_name, launch_params_func, supported_compression=[], configs=None, host_platform=EmulatorPlatform.Native):
-		self.supported_compression = supported_compression
+	def __init__(self, status, default_exe_name, launch_params_func, supported_compression=None, configs=None, host_platform=EmulatorPlatform.Native):
+		self.supported_compression = supported_compression if supported_compression else []
 		super().__init__(status, default_exe_name, launch_params_func, configs, host_platform)
 
 	def get_launch_params(self, _, __, ___):

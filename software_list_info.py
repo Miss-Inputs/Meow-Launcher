@@ -85,7 +85,7 @@ class DataArea():
 	@property
 	def not_dumped(self):
 		#This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
-		return all([rom.status == 'nodump' for rom in self.roms]) if self.roms else False
+		return all(rom.status == 'nodump' for rom in self.roms) if self.roms else False
 
 	def matches(self, args):
 		if len(self.roms) == 1:
@@ -155,7 +155,7 @@ class DiskArea():
 	@property
 	def not_dumped(self):
 		#This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
-		return all([rom.status == 'nodump' for rom in self.disks]) if self.disks else False
+		return all(rom.status == 'nodump' for rom in self.disks) if self.disks else False
 
 class SoftwarePart():
 	def __init__(self, xml, software):
@@ -171,7 +171,7 @@ class SoftwarePart():
 	@property
 	def romless(self):
 		#(just presuming here that disks can't be romless, as this sort of thing is where you have a cart that has no ROM on it but is just a glorified jumper, etc)
-		return all([data_area.romless for data_area in self.data_areas.values()]) and self.data_areas and not self.disk_areas
+		return all(data_area.romless for data_area in self.data_areas.values()) and self.data_areas and not self.disk_areas
 
 	@property
 	def not_dumped(self):
@@ -179,11 +179,11 @@ class SoftwarePart():
 		
 		#Ugh, there's probably a better way to express this logic, but my brain doesn't work
 		if self.data_areas and self.disk_areas:
-			return all([data_area.not_dumped for data_area in self.data_areas.values()]) and all([disk_area.not_dumped for disk_area in self.disk_areas.values()])
+			return all(data_area.not_dumped for data_area in self.data_areas.values()) and all(disk_area.not_dumped for disk_area in self.disk_areas.values())
 		if self.data_areas:
-			return all([data_area.not_dumped for data_area in self.data_areas.values()])
+			return all(data_area.not_dumped for data_area in self.data_areas.values())
 		if self.disk_areas:
-			return all([disk_area.not_dumped for disk_area in self.disk_areas.values()])
+			return all(disk_area.not_dumped for disk_area in self.disk_areas.values())
 		return False
 
 	def get_feature(self, name):
@@ -284,13 +284,13 @@ class Software():
 	@property
 	def romless(self):
 		#Not actually sure what happens in this scenario with multiple parts, or somehow no parts
-		return all([part.romless for part in self.parts.values()])
+		return all(part.romless for part in self.parts.values())
 
 	@property
 	def not_dumped(self):
 		#This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
 		#Not actually sure what happens in this scenario with multiple parts, or somehow no parts
-		return all([part.not_dumped for part in self.parts.values()])
+		return all(part.not_dumped for part in self.parts.values())
 
 	def get_part(self, name=None):
 		if name:
@@ -516,11 +516,11 @@ def get_software_lists_by_names(names):
 	return [software_list for software_list in [get_software_list_by_name(name) for name in names] if software_list]
 
 def get_software_list_by_name(name):
-	if not hasattr(get_software_list_by_name, '_cache'):
-		get_software_list_by_name._cache = {}
+	if not hasattr(get_software_list_by_name, 'cache'):
+		get_software_list_by_name.cache = {}
 
-	if name in get_software_list_by_name._cache:
-		return get_software_list_by_name._cache[name]
+	if name in get_software_list_by_name.cache:
+		return get_software_list_by_name.cache[name]
 
 	try:
 		mame_config = get_mame_core_config()
@@ -529,7 +529,7 @@ def get_software_list_by_name(name):
 				list_path = os.path.join(hash_path, name + '.xml')
 				if os.path.isfile(list_path):
 					software_list = SoftwareList(list_path)
-					get_software_list_by_name._cache[name] = software_list
+					get_software_list_by_name.cache[name] = software_list
 					return software_list
 		#if main_config.debug:
 		#	print('Programmer (not user) error - called get_software_list_by_name with non-existent {0} softlist'.format(name))
@@ -590,7 +590,7 @@ def find_software_by_name(software_lists, name):
 
 	fuzzy_name_matches = []
 	if not software_lists:
-		return
+		return None
 	for software_list in software_lists:
 		results = software_list.find_all_software_with_custom_matcher(_does_name_fuzzy_match, [name])
 		fuzzy_name_matches += results

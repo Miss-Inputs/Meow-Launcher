@@ -187,7 +187,7 @@ class CombinedController(Controller):
 
 	@property
 	def is_standard(self):
-		return all([component.is_standard for component in self.components])
+		return all(component.is_standard for component in self.components)
 
 	def describe(self):
 		if not self.components:
@@ -204,7 +204,7 @@ class InputOption():
 	@property
 	def is_standard(self):
 		#Hmm could this be wrong... feel like there's a case I'm not thinking of right now where something could be standard inputs individually but not usable with standard controllers when all together
-		return all([input.is_standard for input in self.inputs])
+		return all(input.is_standard for input in self.inputs)
 
 	def describe(self):
 		if not self.inputs:
@@ -232,7 +232,7 @@ class InputInfo():
 
 	@property
 	def has_standard_inputs(self):
-		return any([option.is_standard for option in self.input_options]) or not self.input_options
+		return any(option.is_standard for option in self.input_options) or not self.input_options
 
 	def describe(self):
 		return [opt.describe().capitalize() for opt in self.input_options] if self.input_options else ['Nothing']

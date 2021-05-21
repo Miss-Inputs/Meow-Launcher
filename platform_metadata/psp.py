@@ -90,6 +90,7 @@ def get_image_from_iso(iso, path):
 		return Image.open(buf)
 	except PyCdlibInvalidInput:
 		pass
+	return None
 
 def add_psp_metadata(game):
 	add_psp_system_info(game.metadata)

@@ -159,7 +159,7 @@ def process_file(system_config, potential_emulators, rom_dir, root, rom):
 	if game.rom.extension == 'm3u':
 		lines = game.rom.read().decode('utf-8').splitlines()
 		filenames = [line if line.startswith('/') else os.path.join(game.folder, line) for line in lines if not line.startswith("#")]
-		if any([not os.path.isfile(filename) for filename in filenames]):
+		if any(not os.path.isfile(filename) for filename in filenames):
 			if main_config.debug:
 				print('M3U file', game.rom.path, 'has broken references!!!!', filenames)
 			return False
@@ -362,17 +362,6 @@ def process_systems():
 		print('All emulated/engined systems finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
 def main():
-	if len(sys.argv) >= 2 and '--rom' in sys.argv:
-		arg_index = sys.argv.index('--rom')
-		if len(sys.argv) < 4:
-			print("BZZZT that's not how you use that")
-			return
-
-		rom = sys.argv[arg_index + 1]
-		system = sys.argv[arg_index + 2]
-		process_file(system_configs[system], os.path.dirname(rom), os.path.dirname(rom), rom_file(rom))
-		return
-
 	if len(sys.argv) >= 2 and '--systems' in sys.argv:
 		arg_index = sys.argv.index('--systems')
 		if len(sys.argv) == 2:

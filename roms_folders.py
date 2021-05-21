@@ -99,4 +99,3 @@ folder_checks = {
 	'Wii': is_wii_homebrew_folder,
 	'Wii U': is_wii_u_folder,
 }
-

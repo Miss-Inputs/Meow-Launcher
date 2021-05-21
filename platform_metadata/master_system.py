@@ -1,5 +1,3 @@
-from enum import Enum, auto
-
 import input_metadata
 from common import load_dict
 from common_types import SaveType

@@ -132,9 +132,7 @@ def read_gcz(path, seek_to=0, amount=-1):
 	position = seek_to
 	for i in range(first_block, first_block + blocks_to_read):
 		position_in_block = position - (i * block_size)
-		bytes_to_read = block_size - position_in_block
-		if bytes_to_read > remaining:
-			bytes_to_read = remaining
+		bytes_to_read = min(block_size - position_in_block, remaining)
 
 		block = get_gcz_block(path, compressed_size, block_pointers, i, hashes)
 		data += block[position_in_block:position_in_block + bytes_to_read]

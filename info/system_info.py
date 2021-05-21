@@ -30,7 +30,7 @@ class SystemInfo():
 		self.autodetect_tv_type = autodetect_tv_type
 
 	def is_valid_file_type(self, extension):
-		return any([extension in extensions for extensions in self.file_types.values() if type(extension) == str])
+		return any(extension in extensions for extensions in self.file_types.values() if isinstance(extension, str))
 
 	def get_media_type(self, rom):
 		for media_type, extensions in self.file_types.items():

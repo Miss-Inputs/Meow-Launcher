@@ -141,18 +141,18 @@ def get_path(volume, path):
 
 def _machfs_read_file(path):
 	#Try to avoid having to slurp really big files for each app by keeping it in memory if it's the same disk image
-	if _machfs_read_file._current_file_path == path:
-		return _machfs_read_file._current_file
+	if _machfs_read_file.current_file_path == path:
+		return _machfs_read_file.current_file
 
 	with open(path, 'rb') as f:
 		#Hmm, this could be slurping very large (maybe gigabyte(s)) files all at once
 		v = machfs.Volume()
 		v.read(f.read())
-		_machfs_read_file._current_file = v
-		_machfs_read_file._current_file_path = path
+		_machfs_read_file.current_file = v
+		_machfs_read_file.current_file_path = path
 		return v
-_machfs_read_file._current_file = None
-_machfs_read_file._current_file_path = None
+_machfs_read_file.current_file = None
+_machfs_read_file.current_file_path = None
 
 def does_exist(hfv_path, path):
 	if not have_machfs:
@@ -185,7 +185,7 @@ class MacApp(pc.App):
 				contents = get_path(v, self.path)['Contents']
 				if 'MacOSClassic' in contents:
 					return self.path + ':Contents:MacOSClassic:' + basename
-				elif 'MacOS' in contents:
+				if 'MacOS' in contents:
 					return self.path + ':Contents:MacOS:' + basename
 		except (KeyError, FileNotFoundError):
 			pass
@@ -283,7 +283,6 @@ class MacApp(pc.App):
 			#I guess sometimes it's janky and not loadable by us, which is strange
 			if resource_id == -16455 and not has_custom_icn:
 				resource_id = not_custom_resource_id
-			pass
 
 		icn_resource = resources.get(b'ICN#', {}).get(resource_id)
 		if icn_resource:
@@ -322,9 +321,9 @@ class MacApp(pc.App):
 					icon_256.putalpha(mask)
 		if icon_256:
 			return icon_256
-		elif icon_16:
+		if icon_16:
 			return icon_16
-		elif icon_bw:
+		if icon_bw:
 			return icon_bw
 		return None
 
@@ -420,21 +419,21 @@ class MacApp(pc.App):
 								actual_short_version = short_version
 						if long_version_length:
 							long_version = vers[7+short_version_length + 1:7+short_version_length + 1 + long_version_length].decode('mac-roman')
-							copyright = None
+							copyright_string = None
 							if ', ©' in long_version:
-								actual_long_version, copyright = long_version.split(', ©')
+								actual_long_version, copyright_string = long_version.split(', ©')
 							elif ' ©' in long_version:
-								actual_long_version, copyright = long_version.split(' ©')
+								actual_long_version, copyright_string = long_version.split(' ©')
 							elif '©' in long_version:
-								actual_long_version, copyright = long_version.split('©')
+								actual_long_version, copyright_string = long_version.split('©')
 							else:
 								actual_long_version = long_version
-							if copyright:
-								if copyright[:4].isdigit() and (len(copyright) == 4 or copyright[5] in (',', ' ')):
-									copyright_year = Date(year=copyright[:4], is_guessed=True)
+							if copyright_string:
+								if copyright_string[:4].isdigit() and (len(copyright_string) == 4 or copyright_string[5] in (',', ' ')):
+									copyright_year = Date(year=copyright_string[:4], is_guessed=True)
 									if copyright_year.is_better_than(self.metadata.release_date):
 										self.metadata.release_date = copyright_year
-								self.metadata.specific_info['Copyright'] = '©' + copyright
+								self.metadata.specific_info['Copyright'] = '©' + copyright_string
 						if actual_short_version:
 							self.metadata.specific_info['Version'] = actual_short_version
 						if actual_long_version and actual_long_version != actual_short_version:
