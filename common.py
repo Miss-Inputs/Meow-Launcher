@@ -182,9 +182,16 @@ def clean_string(s):
 	return ''.join([c for c in s if c.isprintable()])
 
 def byteswap(b):
-	byte_array = bytearray(len(b) if len(b) % 2 == 0 else len(b) + 1)
-	byte_array[0::2] = b[1::2]
-	byte_array[1::2] = b[0::2]
+	if len(b) % 2 == 0:
+		bb = b
+	else:
+		bb = b[:-1]
+	last_byte = b[-1]
+	byte_array = bytearray(bb)
+	byte_array[0::2] = bb[1::2]
+	byte_array[1::2] = bb[0::2]
+	if len(b) % 2 != 0:
+		byte_array.append(last_byte)
 	return bytes(byte_array)
 
 dict_line_regex = re.compile(r'(?P<kquote>\'|\"|)(?P<key>.+?)(?P=kquote):\s*(?P<vquote>\'|\")(?P<value>.+?)(?P=vquote),?(?:\s*#.+)?$')
