@@ -580,11 +580,11 @@ def mame_nes(game, _, emulator_config):
 	if game.metadata.specific_info.get('Header-Format', None) in ('iNES', 'NES 2.0'):
 		mapper = game.metadata.specific_info['Mapper-Number']
 		if mapper in unsupported_ines_mappers or mapper >= 256:
-			raise EmulationNotSupportedException('Unsupported mapper: %d (%s)' % (mapper, game.metadata.specific_info.get('Mapper')))
+			raise EmulationNotSupportedException('Unsupported mapper: {0} ({1})'.format(mapper, game.metadata.specific_info.get('Mapper')))
 	if game.metadata.specific_info.get('Header-Format', None) == 'UNIF':
 		mapper = game.metadata.specific_info.get('Mapper')
 		if mapper not in supported_unif_mappers:
-			raise EmulationNotSupportedException('Unsupported mapper: %d (%s)' % (mapper, game.metadata.specific_info.get('Mapper')))
+			raise EmulationNotSupportedException('Unsupported mapper: {0} ({1})'.format(mapper, game.metadata.specific_info.get('Mapper')))
 
 	has_keyboard = False
 
