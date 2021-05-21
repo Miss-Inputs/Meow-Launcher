@@ -253,6 +253,8 @@ class Metadata():
 		self.names[field] = name
 
 	def add_notes(self, notes):
+		if not notes:
+			return
 		if not self.notes:
 			self.notes = notes
 		elif self.notes != notes:
