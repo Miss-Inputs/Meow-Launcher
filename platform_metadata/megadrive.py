@@ -287,7 +287,7 @@ def add_megadrive_software_list_metadata(software, metadata):
 				metadata.specific_info['Mapper'] = mapper
 		if software.name == 'pokemon' and software.software_list_name == 'megadriv':
 			#This is also a bit naughty, but Pocket Monsters has different compatibility compared to other games with rom_kof99
-			metadata.specific_info['Mapper'] = slot + '_pokemon'
+			metadata.specific_info['Mapper'] = slot[4:] + '_pokemon'
 
 
 def add_megadrive_metadata(game):
