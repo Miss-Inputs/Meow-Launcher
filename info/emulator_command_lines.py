@@ -663,17 +663,17 @@ def mame_pico(game, _, emulator_config):
 	return mame_driver(game, emulator_config, system, 'cart')
 
 def mame_saturn(game, _, emulator_config):
+	#Default to USA
+	system = 'saturn'
 	region_codes = game.metadata.specific_info.get('Region-Code')
-	#Clones here are hisaturn and vsaturn, not sure how useful those would be
-	if SaturnRegionCodes.USA in region_codes:
-		system = 'saturn'
-	elif SaturnRegionCodes.Japan in region_codes:
-		system = 'saturnjp'
-	elif SaturnRegionCodes.Europe in region_codes:
-		system = 'saturneu'
-	else:
-		#Default to USA
-		system = 'saturn'
+	if region_codes:
+		#Clones here are hisaturn and vsaturn, not sure how useful those would be
+		if SaturnRegionCodes.USA in region_codes:
+			system = 'saturn'
+		elif SaturnRegionCodes.Japan in region_codes:
+			system = 'saturnjp'
+		elif SaturnRegionCodes.Europe in region_codes:
+			system = 'saturneu'
 
 	#TODO: Use ctrl1 and ctrl2 to set controllers (analog, joy_md3, joy_md6, joypad, keyboard, mouse, racing, segatap (???), trackball)
 	#Dunno if the cart slot can be used for anything useful yet
