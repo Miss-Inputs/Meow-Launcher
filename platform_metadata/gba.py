@@ -64,10 +64,39 @@ def look_for_strings_in_cart(entire_cart, metadata):
 		metadata.specific_info['Uses-Wireless-Adapter'] = True
 	metadata.save_type = SaveType.Cart if has_save else SaveType.Nothing
 
-	if b'AUDIO ERROR, too many notes on channel 0.increase polyphony RAM' in entire_cart:
-		#Look for Rare sound driver because I can
-		metadata.developer = 'Rare'
+	#Look for sound drivers because I can
+	mp2k_selectsong = b'\x00\xb5\x00\x04\x07J\x08I@\x0b@\x18\x83\x88Y\x00\xc9\x18\x89\x00\x89\x18\nh\x01h\x10\x1c\x00\xf0'
+	mp2k_new_selectsong = b'\x00\xb5\x00\x04\x07K\x08I@\x0b@\x18\x82\x88Q\x00\x89\x18\x89\x00\xc9\x18\nh\x01h\x10\x1c\x00\xf0'
+	natsume_main = b'p\xb5I\nJ\x10\x1c\x08\x80\x00\xf0\x8d\xf8\x01\xf0\x97\xfc\x00\xf0K\xf8\x80!\xc9\x04`\n\x08\x80\x1bI\x01\n\x08`\x1aH\x00!\x01`\x1aH\x01`7\xf0\x81\xfa\x19H\x00\xf0\xce\xf8'
+	krawall_mixcenter = bytes((
+			#Converted from lib/mixer_func.s from Github source, I don't know what I'm doing but this seems to work
+			0xf0, 0x0f, 0x2d, 0xe9, #stmdb	sp! {r4-r11}
+			0x08, 0x50, 0x90, 0xe5, #ldr	r5, [r0, #8]
+			0x14, 0x60, 0x90, 0xe5, #ldr	r6, [r0, #20]
+			0xbc, 0x71, 0xd0, 0xe1, #ldrh	r7, [r0, #28]
+			0x1e, 0x30, 0xd0, 0xe5, #ldrb	r3, [r0, #30]
+			0x22, 0x21, 0xa0, 0xe1  #mov r2, r2, lsr #2
+	))
 
+	if mp2k_selectsong in entire_cart:
+		metadata.specific_info['Sound-Driver'] = 'MP2000'
+	elif mp2k_new_selectsong in entire_cart:
+		metadata.specific_info['Sound-Driver'] = 'MP2000 (newer)'
+	elif natsume_main in entire_cart:
+		metadata.specific_info['Sound-Driver'] = 'Natsume'
+		metadata.developer = 'Natsume'
+	elif krawall_mixcenter in entire_cart:
+		metadata.specific_info['Sound-Driver'] = 'Krawall'
+	elif b'GAX2_INIT' in entire_cart:
+		metadata.specific_info['Sound-Driver'] = 'GAX'
+	elif b'GBAModPlay (C) Logik State ' in entire_cart:
+		metadata.specific_info['Sound-Driver'] = 'GBAModPlay'
+	elif b'LS_Play (C) Logik State ' in entire_cart:
+		#Is this actually the same thing as GBAModPlay?
+		metadata.specific_info['Sound-Driver'] = 'LS_Play'
+	elif b'AUDIO ERROR, too many notes on channel 0.increase polyphony RAM' in entire_cart:
+		metadata.specific_info['Sound-Driver'] = 'Rare'
+		metadata.developer = 'Rare'
 
 def add_gba_metadata(game):
 	builtin_gamepad = input_metadata.NormalController()
