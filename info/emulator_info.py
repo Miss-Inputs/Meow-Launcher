@@ -178,7 +178,7 @@ emulators = {
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
 
 	'81 (libretro)': LibretroCore(EmulatorStatus.Good, '81', None, ['p', 'tzx', 't81']),
-	'BlastEm (libretro)': LibretroCore(EmulatorStatus.Good, 'blastem', command_lines.blastem, ['md', 'bin', 'smd', 'gen', 'sms']), #Does not claim to support Master System in info file, but does
+	'BlastEm (libretro)': LibretroCore(EmulatorStatus.Janky, 'blastem', command_lines.blastem, ['md', 'bin', 'smd', 'gen', 'sms']), #Does not claim to support Master System in info file, but does; unzips all the things into your rom folder? Rude
 	'Caprice32 (libretro)': LibretroCore(EmulatorStatus.Good, 'cap32', None, ['dsk', 'sna', 'tap', 'cdt', 'voc', 'cpr', 'm3u']), #cpr will need game override to 6128+, if setting that globally disks won't autoboot; m3u is there to specify load command and not multiple disks
 	'ChaiLove (libretro)': LibretroCore(EmulatorStatus.Good, 'chailove', None, ['chai', 'chailove']),
 	'Dinothawr (libretro)': LibretroCore(EmulatorStatus.Good, 'dinothawr', None, ['game']),
