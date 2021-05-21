@@ -1583,7 +1583,7 @@ def blastem(game, _, __):
 def mesen(game, _, __):
 	unsupported_mappers = [124, 237, 256, 257, 389, 547]
 	unsupported_mappers += [271, 295, 308, 315, 322, 327, 335, 337, 338, 339, 340, 341, 342, 344, 345, 350, 524, 525, 526, 527, 528] #if I am reading MapperFactory.cpp correctly these are explicitly unsupported?
-	#unsupported_mappers += [267, 269, 270, 272, 273] + list(range(275, 283)) + [291, 293, 294, 296, 297, 310, 311, 316, 318, 321, 330, 334, 343, 347] #If I am reading the source correctly these are just unknown?
+	unsupported_mappers += [267, 269, 270, 272, 273] + list(range(275, 283)) + [291, 293, 294, 296, 297, 310, 311, 316, 318, 321, 330, 334, 343, 347] + list(range(351, 366)) + list(range(367, 513)) + [514, 515, 516, 517, 520, 523]
 	#I guess 186 (StudyBox) might also count as unsupported but it's meant to be a BIOS
 	#UNL-OneBus = 256, UNL-PEC-586 = 257, KONAMI-QTAI = 547
 	#Also Mindkids 143-in-1 but I'm not sure what number that is/what the UNIF name is
@@ -1591,7 +1591,7 @@ def mesen(game, _, __):
 		'UNL-KS7010', 'UNL-KS7030', 'UNL-OneBus', 'UNL-PEC-586', 'UNL-SB-2000', 'UNL-Transformer', 'WAIXING-FS005']
 	if game.metadata.specific_info.get('Header-Format', None) in ('iNES', 'NES 2.0'):
 		mapper = game.metadata.specific_info.get('Mapper-Number')
-		if mapper in unsupported_mappers:
+		if mapper in unsupported_mappers or mapper > 530:
 			raise EmulationNotSupportedException('Unsupported mapper: {0} {1}'.format(mapper, game.metadata.specific_info.get('Mapper')))
 	if game.metadata.specific_info.get('Header-Format', None) == 'UNIF':
 		mapper = game.metadata.specific_info.get('Mapper')
