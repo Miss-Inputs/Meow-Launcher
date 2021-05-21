@@ -7,7 +7,7 @@ extension-pkg-whitelist=wx
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=CVS,gui_generated.py,steamfiles,.vscode
+ignore=CVS,gui_generated.py,.vscode
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
