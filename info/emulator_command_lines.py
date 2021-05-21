@@ -584,7 +584,7 @@ def mame_nes(game, _, emulator_config):
 	if game.metadata.specific_info.get('Header-Format', None) == 'UNIF':
 		mapper = game.metadata.specific_info.get('Mapper')
 		if mapper not in supported_unif_mappers:
-			raise EmulationNotSupportedException('Unsupported mapper: {0} ({1})'.format(mapper, game.metadata.specific_info.get('Mapper')))
+			raise EmulationNotSupportedException('Unsupported mapper: {0}'.format(mapper))
 
 	has_keyboard = False
 
@@ -914,11 +914,11 @@ def mednafen_nes(game, _, emulator_config):
 		mapper = game.metadata.specific_info['Mapper-Number']
 		if mapper in unsupported_ines_mappers or mapper >= 256:
 			#Does not actually seem to check for NES 2.0 header extensions at all, according to source
-			raise EmulationNotSupportedException('Unsupported mapper: %d (%s)' % (mapper, game.metadata.specific_info.get('Mapper')))
+			raise EmulationNotSupportedException('Unsupported mapper: {0} ({1})'.format(mapper, game.metadata.specific_info.get('Mapper')))
 	if game.metadata.specific_info.get('Header-Format', None) == 'UNIF':
 		mapper = game.metadata.specific_info.get('Mapper')
 		if mapper not in supported_unif_mappers:
-			raise EmulationNotSupportedException('Unsupported mapper: %d (%s)' % (mapper, game.metadata.specific_info.get('Mapper')))
+			raise EmulationNotSupportedException('Unsupported mapper: {0}'.format(mapper))
 
 	return mednafen_module('nes', exe_path=emulator_config.exe_path)
 
