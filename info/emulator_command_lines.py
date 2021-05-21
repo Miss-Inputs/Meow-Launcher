@@ -1598,3 +1598,7 @@ def mesen(game, _, __):
 		if mapper in unsupported_unif_mappers:
 			raise EmulationNotSupportedException('Unsupported mapper: {0}'.format(mapper))
 	
+def prosystem(game, _, __):
+	if not game.metadata.specific_info.get('Headered', False):
+		#Seems to support unheadered if and only if in the database?
+		raise EmulationNotSupportedException('No header')

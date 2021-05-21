@@ -184,16 +184,24 @@ emulators = {
 	'Dinothawr (libretro)': LibretroCore(EmulatorStatus.Good, 'dinothawr', None, ['game']),
 	'fMSX (libretro)': LibretroCore(EmulatorStatus.Good, 'fmsx', None, ['rom', 'mx1', 'mx2']), #Claims to do .dsk and cas but does not
 	'FreeChaF (libretro)': LibretroCore(EmulatorStatus.Good, 'freechaf', None, ['bin', 'chf']),
+	'FreeIntv (libretro)': LibretroCore(EmulatorStatus.Janky, 'freeintv', None, ['int', 'bin', 'rom']),
 	'FUSE (libretro)': LibretroCore(EmulatorStatus.Good, 'fuse', None, ['tzx', 'tap', 'z80', 'rzx', 'scl', 'trd', 'dsk']),
 	'Gearboy (libretro)': LibretroCore(EmulatorStatus.Good, 'gearboy', simple_gb_emulator([], ['MBC1', 'MBC2', 'MBC3', 'MBC5'], ['MBC1 Multicart']), ['gb', 'dmg', 'gbc', 'cgb', 'sgb']),
 	'Genesis Plus GX (libretro)': LibretroCore(EmulatorStatus.Good, 'genesis_plus_gx', command_lines.genesis_plus_gx, ['mdx', 'md', 'smd', 'gen', 'bin', 'cue', 'iso', 'sms', 'bms', 'gg', 'sg', '68k', 'chd', 'm3u']),
 	'Hatari (libretro)': LibretroCore(EmulatorStatus.Good, 'hatari', None, ['st', 'msa', 'stx', 'dim', 'm3u']), #Theoretically supports .ipf but that is not compiled in with the build from the core downloader
+	'LowRes NX (libretro)': LibretroCore(EmulatorStatus.Good, 'lowresnx', None, ['nx']),
 	'Mesen (libretro)': LibretroCore(EmulatorStatus.Good, 'mesen', command_lines.mesen, ['nes', 'fds', 'unf', 'unif']),
-	'Mu (libretro)': LibretroCore(EmulatorStatus.Good, 'mu', None, ['prc', 'pqa', 'img']),
-	'Opera (libretro)': LibretroCore(EmulatorStatus.Good, 'opera', None, ['iso', 'chd', 'bin', 'cue']),
+	'Mu (libretro)': LibretroCore(EmulatorStatus.Janky, 'mu', None, ['prc', 'pqa', 'img']), #Still need to select application manually from emulated menu
+	'NeoCD (libretro)': LibretroCore(EmulatorStatus.Good, 'neocd', None, ['cue', 'chd']),
+	'Opera (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'opera', None, ['iso', 'chd', 'bin', 'cue']),
 	'PicoDrive (libretro)': LibretroCore(EmulatorStatus.Good, 'picodrive', simple_md_emulator([], ['pokestad', 'lion3']), ['bin', 'gen', 'smd', 'md', '32x', 'chd', 'cue', 'iso', 'sms', '68k', 'm3u']), #Lion King 3 is automatically detected but no other games using the same mapper work, so I guess we will pretend it's not a working mapper
 	'PokeMini (libretro)': LibretroCore(EmulatorStatus.Good, 'pokemini', None, ['min']),
+	'Potator (libretro)': LibretroCore(EmulatorStatus.Good, 'potator', None, ['bin', 'sv']),
+	'ProSystem (libretro)': LibretroCore(EmulatorStatus.Good, 'prosystem', command_lines.prosystem, ['a78', 'bin']),
+	'PUAE (libretro)': LibretroCore(EmulatorStatus.Good, 'puae', None, ['adf', 'adz', 'dms', 'fdi', 'ipf', 'hdf', 'hdz', 'lha', 'slave', 'info', 'cue', 'ccd', 'nrg', 'mds', 'iso', 'chd', 'uae', 'm3u']), #Does require you to switch between RetroPad and CD32 pad accordingly…
+	'PX68k (libretro)': LibretroCore(EmulatorStatus.Good, 'px68k', None, ['dim', 'img', 'd88', '88d', 'hdm', 'dup', '2hd', 'xdf', 'hdf', 'cmd', 'm3u']),
 	'SameBoy (libretro)': LibretroCore(EmulatorStatus.Good, 'sameboy', simple_gb_emulator([], ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3', 'Pocket Camera'], ['MBC1 Multicart']), ['gb', 'gbc']),
+	'Vecx (libretro)': LibretroCore(EmulatorStatus.Good, 'vecx', None, ['vec', 'bin']),
 	'VeMUlator (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'vemulator', None, ['vms', 'dci', 'bin']), #Does a heckin bzzzz with a lot of things
 	'Virtual Jaguar (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'virtualjaguar', None, ['j64', 'jag', 'rom', 'abs', 'cof', 'bin', 'prg']),
 	'X Millennium (libretro)': LibretroCore(EmulatorStatus.Good, 'x1', None, ['dx1', '2d', '2hd', 'tfd', 'd88', '88d', 'hdm', 'xdf', 'dup', 'cmd']), #Claims to support tap but doesn't
