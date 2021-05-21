@@ -617,14 +617,14 @@ def add_msx_info(game):
 	if software:
 		software.add_standard_metadata(game.metadata)
 		usage = software.get_info('usage')
-		if usage == 'Requires a Japanese system':
+		if usage in ('Requires a Japanese system', 'Requires a Japanese system for the Japanese text'):
 			game.metadata.specific_info['Japanese-Only'] = True
-		elif usage == 'Requires an Arabic MSX':
+		elif usage in ('Requires an Arabic MSX', 'Requires an Arabic MSX2'):
 			game.metadata.specific_info['Arabic-Only'] = True
 		else:
 			game.metadata.notes = usage
-		cart_part = software.get_part('cart')
-		if cart_part:
+		if 'cart' in software.parts:
+			cart_part = software.get_part('cart')
 			game.metadata.specific_info['Slot'] = cart_part.get_feature('slot')
 			game.metadata.specific_info['PCB'] = cart_part.get_feature('pcb')
 			game.metadata.specific_info['Mapper'] = cart_part.get_feature('mapper')

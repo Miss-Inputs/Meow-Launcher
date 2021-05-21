@@ -19,7 +19,9 @@ from .emulator_command_line_helpers import (_is_software_available,
                                             mame_driver, mednafen_module,
                                             verify_mgba_mapper)
 from .region_info import TVSystem
-from .system_info import (working_msx1_drivers, working_msx2_drivers,
+from .system_info import (arabic_msx1_drivers, arabic_msx2_drivers,
+                          japanese_msx1_drivers, japanese_msx2_drivers,
+                          working_msx1_drivers, working_msx2_drivers,
                           working_msx2plus_drivers)
 
 
@@ -496,14 +498,26 @@ def mame_microbee(game, _, emulator_config):
 		raise EmulationNotSupportedException('Unknown media type', game.metadata.media_type)
 	return mame_driver(game, emulator_config, system, slot, has_keyboard=True)
 
-_msx1_system = None
 def mame_msx1(game, _, emulator_config):
 	#Possible slot options: centronics is there to attach printers and such; if using a floppy can put bm_012 (MIDI interface) or moonsound (OPL4 sound card, does anything use that?) in the cart port but I'm not sure that's needed; the slots are the same for MSX2
-	global _msx1_system
-	if _msx1_system is None:
-		_msx1_system = first_available_system(working_msx1_drivers)
-		if _msx1_system is None:
+	if game.metadata.specific_info.get('Japanese-Only', False):
+		if not hasattr(mame_msx1, '_japanese_msx1_system'):
+			mame_msx1._japanese_msx1_system = first_available_system(japanese_msx1_drivers + japanese_msx2_drivers + working_msx2plus_drivers)
+		if mame_msx1._japanese_msx1_system is None:
+			raise EmulationNotSupportedException('No Japanese MSX1 driver available')
+		system = mame_msx1._japanese_msx1_system
+	elif game.metadata.specific_info.get('Arabic-Only', False):
+		if not hasattr(mame_msx1, '_arabic_msx1_system'):
+			mame_msx1._arabic_msx1_system = first_available_system(arabic_msx1_drivers + arabic_msx2_drivers)
+		if mame_msx1._arabic_msx1_system is None:
+			raise EmulationNotSupportedException('No Arabic MSX1 driver available')
+		system = mame_msx1._arabic_msx1_system
+	else:
+		if not hasattr(mame_msx1, '_msx1_system'):
+			mame_msx1._msx1_system = first_available_system(working_msx1_drivers + working_msx2_drivers + working_msx2plus_drivers)
+		if mame_msx1._msx1_system is None:
 			raise EmulationNotSupportedException('No MSX1 driver available')
+		system = mame_msx1._msx1_system
 
 	slot_options = {}
 	if game.metadata.media_type == MediaType.Floppy:
@@ -516,15 +530,27 @@ def mame_msx1(game, _, emulator_config):
 		#Should not happen
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 
-	return mame_driver(game, emulator_config, _msx1_system, slot, slot_options, has_keyboard=True)
+	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True)
 
-_msx2_system = None
 def mame_msx2(game, _, emulator_config):
-	global _msx2_system
-	if _msx2_system is None:
-		_msx2_system = first_available_system(working_msx2_drivers)
-		if _msx2_system is None:
+	if game.metadata.specific_info.get('Japanese-Only', False):
+		if not hasattr(mame_msx2, '_japanese_msx2_system'):
+			mame_msx2._japanese_msx2_system = first_available_system(japanese_msx2_drivers + working_msx2plus_drivers)
+		if mame_msx2._japanese_msx2_system is None:
+			raise EmulationNotSupportedException('No Japanese MSX2 driver available')
+		system = mame_msx2._japanese_msx2_system
+	elif game.metadata.specific_info.get('Arabic-Only', False):
+		if not hasattr(mame_msx2, '_arabic_msx2_system'):
+			mame_msx2._arabic_msx2_system = first_available_system(arabic_msx2_drivers)
+		if mame_msx2._arabic_msx2_system is None:
+			raise EmulationNotSupportedException('No Arabic MSX2 driver available')
+		system = mame_msx2._arabic_msx2_system
+	else:
+		if not hasattr(mame_msx2, '_msx2_system'):
+			mame_msx2._msx2_system = first_available_system(working_msx2_drivers + working_msx2plus_drivers)
+		if mame_msx2._msx2_system is None:
 			raise EmulationNotSupportedException('No MSX2 driver available')
+		system = mame_msx2._msx2_system
 
 	slot_options = {}
 	if game.metadata.media_type == MediaType.Floppy:
@@ -537,15 +563,14 @@ def mame_msx2(game, _, emulator_config):
 		#Should not happen
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 
-	return mame_driver(game, emulator_config, _msx2_system, slot, slot_options, has_keyboard=True)
+	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True)
 
-_msx2plus_system = None
 def mame_msx2plus(game, _, emulator_config):
-	global _msx2plus_system
-	if _msx2plus_system is None:
-		_msx2plus_system = first_available_system(working_msx2plus_drivers)
-		if _msx2plus_system is None:
-			raise EmulationNotSupportedException('No MSX2+ driver available')
+	if not hasattr(mame_msx2plus, '_msx2plus_system'):
+		mame_msx2plus._msx2plus_system = first_available_system(working_msx2plus_drivers)
+	if mame_msx2plus._msx2plus_system is None:
+		raise EmulationNotSupportedException('No MSX2+ driver available')
+	system = mame_msx2plus._msx2plus_system
 
 	slot_options = {}
 	if game.metadata.media_type == MediaType.Floppy:
@@ -558,7 +583,7 @@ def mame_msx2plus(game, _, emulator_config):
 		#Should not happen
 		raise NotARomException('Media type ' + game.metadata.media_type + ' unsupported')
 
-	return mame_driver(game, emulator_config, _msx2plus_system, slot, slot_options, has_keyboard=True)
+	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True)
 
 def mame_n64(game, _, emulator_config):
 	if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:

@@ -38,13 +38,11 @@ class SystemInfo():
 				return media_type
 		return None
 
-arabic_msx1_drivers = ['ax150', 'ax170', 'svi738ar']
-japanese_msx1_drivers = ['fmx', 'mbh2', 'mbh25', 'mbh50', 'mlf110', 'mlf120', 'cf1200', 'cf2000', 'cf2700', 'cf3000', 'cf3300', 'fs1300', 'fs4000', 'mpc64', 'hb701fd', 'hc7', 'cx5f']
-korean_msx1_drivers = ['cpc88', 'dpc200', 'gsfc80u', 'cpc51', 'gfc1080', 'gfc1080a', 'mx64']
-other_msx1_drivers = ['svi728', 'svi738', 'canonv8', 'canonv20', 'mx10', 'pv7', 'pv16', 'dpc200e', 'dgnmsx', 'fdpc200', 'fpc500', 'fspc800', 'bruc100', 'gsfc200', 'jvchc7gb', 'mlf48', 'mlf80', 'mlfx1', 'phc2', 'phc28', 'cf2700g', 'perfect1', 'nms801', 'vg8010', 'vg802020', 'piopx7', 'spc800', 'mpc100', 'mpc200', 'phc28l', 'phc28s', 'mpc10', 'hb10p', 'hb101p', 'hb20p', 'hb201p', 'hb501p', 'hb55p', 'hb75p', 'hx10', 'hx20', 'cx5m128', 'yis303', 'yis503', 'yc64', 'expert13', 'expertdp', 'expertpl', 'hotbi13p'] #Anything that isn't one of those other three (which are apparently specifically different or needed in some cases)
-working_msx1_drivers = other_msx1_drivers + arabic_msx1_drivers + japanese_msx1_drivers + korean_msx1_drivers
-broken_msx1_drivers = ['hx21', 'hx22']
-msx1_drivers = working_msx1_drivers + broken_msx1_drivers
+msxtr_drivers = ['fsa1gt', 'fsa1st'] #Neither of these are working
+
+working_msx2plus_drivers = ['hbf1xv', 'fsa1fx', 'fsa1wxa', 'fsa1wsx', 'hbf1xdj', 'phc70fd2', 'phc35j', 'hbf9sp']
+broken_msx2plus_drivers = ['expert3i', 'expert3t', 'expertac', 'expertdx']
+msx2plus_drivers = working_msx2plus_drivers + broken_msx2plus_drivers
 
 arabic_msx2_drivers = ['ax350', 'ax370']
 korean_msx2_drivers = ['cpc300', 'cpc300e', 'cpc330k', 'cpc400', 'cpc400s', 'cpc61']
@@ -54,11 +52,13 @@ working_msx2_drivers = other_msx2_drivers + arabic_msx2_drivers + korean_msx2_dr
 broken_msx2_drivers = ['cpg120', 'y503iiir', 'y805256', 'mbh70', 'victhc95', 'hotbit20', 'mpc27', 'nms8260', 'mpc2300', 'mpc2500f', 'phc77', 'hbf1', 'hbf12']
 msx2_drivers = working_msx2_drivers + broken_msx2_drivers
 
-working_msx2plus_drivers = ['hbf1xv', 'fsa1fx', 'fsa1wxa', 'fsa1wsx', 'hbf1xdj', 'phc70fd2', 'phc35j', 'hbf9sp']
-broken_msx2plus_drivers = ['expert3i', 'expert3t', 'expertac', 'expertdx']
-msx2plus_drivers = working_msx2plus_drivers + broken_msx2plus_drivers
-
-msxtr_drivers = ['fsa1gt', 'fsa1st'] #Neither of these are working
+arabic_msx1_drivers = ['ax150', 'ax170', 'svi738ar']
+japanese_msx1_drivers = ['fmx', 'mbh2', 'mbh25', 'mbh50', 'mlf110', 'mlf120', 'cf1200', 'cf2000', 'cf2700', 'cf3000', 'cf3300', 'fs1300', 'fs4000', 'mpc64', 'hb701fd', 'hc7', 'cx5f']
+korean_msx1_drivers = ['cpc88', 'dpc200', 'gsfc80u', 'cpc51', 'gfc1080', 'gfc1080a', 'mx64']
+other_msx1_drivers = ['svi728', 'svi738', 'canonv8', 'canonv20', 'mx10', 'pv7', 'pv16', 'dpc200e', 'dgnmsx', 'fdpc200', 'fpc500', 'fspc800', 'bruc100', 'gsfc200', 'jvchc7gb', 'mlf48', 'mlf80', 'mlfx1', 'phc2', 'phc28', 'cf2700g', 'perfect1', 'nms801', 'vg8010', 'vg802020', 'piopx7', 'spc800', 'mpc100', 'mpc200', 'phc28l', 'phc28s', 'mpc10', 'hb10p', 'hb101p', 'hb20p', 'hb201p', 'hb501p', 'hb55p', 'hb75p', 'hx10', 'hx20', 'cx5m128', 'yis303', 'yis503', 'yc64', 'expert13', 'expertdp', 'expertpl', 'hotbi13p'] #Anything that isn't one of those other three (which are apparently specifically different or needed in some cases)
+working_msx1_drivers = other_msx1_drivers + arabic_msx1_drivers + japanese_msx1_drivers + korean_msx1_drivers
+broken_msx1_drivers = ['hx21', 'hx22']
+msx1_drivers = working_msx1_drivers + broken_msx1_drivers
 
 systems = {
 	#Put all the "most normal people would be interested in" consoles up here, which is completely subjective and not even the same as my own personal view of notable, not to mention completely meaningless because it's a dict and the order shouldn't matter, and even if it did, ROMs are scanned in the order they're listed in systems.ini anyway. I guess it makes this a bit easier to read than having a huge wall of text though
