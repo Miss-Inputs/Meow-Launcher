@@ -1599,5 +1599,28 @@ def mesen(game, _, __):
 	
 def prosystem(game, _, __):
 	if not game.metadata.specific_info.get('Headered', False):
-		#Seems to support unheadered if and only if in the database?
+		#Seems to support unheadered if and only if in the internal database? Assume it isn't otherwise that gets weird
 		raise EmulationNotSupportedException('No header')
+
+def bsnes_libretro(game, _, emulator_config):
+	if game.system_name == 'Game Boy':
+		colour_flag = game.metadata.specific_info.get('Is-Colour', GameBoyColourFlag.No)
+		if colour_flag == GameBoyColourFlag.Required:
+			raise EmulationNotSupportedException('Super Game Boy is not compatible with GBC-only games')
+		if colour_flag == GameBoyColourFlag.Yes and emulator_config.options.get('sgb_incompatible_with_gbc', True):
+			raise EmulationNotSupportedException('We do not want to play a colour game with a Super Game Boy')
+		if emulator_config.options.get('sgb_enhanced_only', False) and not game.metadata.specific_info.get('SGB-Enhanced', False):
+			raise EmulationNotSupportedException('We do not want to play a non-SGB enhanced game with a Super Game Boy')
+
+		#Pocket Camera is also supported by the SameBoy core, but I'm leaving it out here because bsnes doesn't do the camera
+		_verify_supported_gb_mappers(game, ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3'], [])
+		return
+
+	if game.rom.extension == 'st':
+		raise EmulationNotSupportedException('No Sufami Turbo for libretro core')
+		
+	slot = game.metadata.specific_info.get('Slot')
+	if slot:
+		#Presume this is the same as with standalone
+		if slot.endswith(('_bugs', '_pija', '_poke', '_sbld', '_tekken2', '_20col')):
+			raise EmulationNotSupportedException('{0} mapper not supported'.format(slot))

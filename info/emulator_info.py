@@ -122,14 +122,17 @@ class LibretroCore(Emulator):
 	def get_launch_params(self, _, __, ___):
 		raise EmulationNotSupportedException('Needs a frontend')
 
+bsnes_options = {
+	#All versions would use this
+	'sgb_incompatible_with_gbc': EmulatorConfigValue(ConfigValueType.Bool, True, 'Consider Super Game Boy as incompatible with carts with any GBC compatibility, even if they are DMG compatible'),
+	'sgb_enhanced_only': EmulatorConfigValue(ConfigValueType.Bool, False, 'Consider Super Game Boy to only support games that are specifically enhanced for it'),
+}
+
 emulators = {
 	'A7800': StandardEmulator(EmulatorStatus.Good, 'a7800', command_lines.a7800, ['bin', 'a78'], ['7z', 'zip']),
 	#Forked directly from MAME with alterations to a7800.cpp driver, so will more or less work the same way as that
 	#Executable name might be a7800.Linux-x86_64 depending on how it's installed... hmm
-	'bsnes': StandardEmulator(EmulatorStatus.Good, 'bsnes', command_lines.bsnes, ['sfc', 'smc', 'st', 'bs', 'gb', 'gbc'], ['zip', '7z'], {
-		'sgb_incompatible_with_gbc': EmulatorConfigValue(ConfigValueType.Bool, True, 'Consider Super Game Boy as incompatible with carts with any GBC compatibility, even if they are DMG compatible'),
-		'sgb_enhanced_only': EmulatorConfigValue(ConfigValueType.Bool, False, 'Consider Super Game Boy to only support games that are specifically enhanced for it'),
-	}),
+	'bsnes': StandardEmulator(EmulatorStatus.Good, 'bsnes', command_lines.bsnes, ['sfc', 'smc', 'st', 'bs', 'gb', 'gbc'], ['zip', '7z'], bsnes_options),
 	'cxNES': StandardEmulator(EmulatorStatus.Good, 'cxnes', command_lines.cxnes, ['nes', 'fds', 'unf', 'unif'], ['7z', 'zip']),
 	#Or is it good? Have not tried it in a fair bit
 	'Dolphin': StandardEmulator(EmulatorStatus.Good, 'dolphin-emu', command_lines.dolphin, ['iso', 'ciso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs', 'm3u', 'wia', 'rvz', '/'], []),
@@ -178,7 +181,11 @@ emulators = {
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
 
 	'81 (libretro)': LibretroCore(EmulatorStatus.Good, '81', None, ['p', 'tzx', 't81']),
+	'Beetle PCE (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_pce', None, ['pce', 'cue', 'ccd', 'iso', 'img', 'bin', 'chd']),
 	'BlastEm (libretro)': LibretroCore(EmulatorStatus.Janky, 'blastem', command_lines.blastem, ['md', 'bin', 'smd', 'gen', 'sms']), #Does not claim to support Master System in info file, but does; unzips all the things into your rom folder? Rude
+	'blueMSX (libretro)': LibretroCore(EmulatorStatus.Good, 'bluemsx', None, ['dsk', 'rom', 'ri', 'mx1', 'mx2', 'col', 'cas', 'sg', 'sc', 'm3u']), #Turbo-R does not work, also does not do any dual cartridge shenanigans, or battery saves
+	'bsnes (libretro)': LibretroCore(EmulatorStatus.Good, 'bsnes', command_lines.bsnes_libretro, ['sfc', 'smc', 'gb', 'gbc', 'bs'], bsnes_options),
+	'bsnes-hd beta (libretro)': LibretroCore(EmulatorStatus.Good, 'bsnes_hd_beta', command_lines.bsnes_libretro, ['sfc', 'smc', 'gb', 'gbc', 'bs'], bsnes_options), #Does not claim to support .bs, but does
 	'Caprice32 (libretro)': LibretroCore(EmulatorStatus.Good, 'cap32', None, ['dsk', 'sna', 'tap', 'cdt', 'voc', 'cpr', 'm3u']), #cpr will need game override to 6128+, if setting that globally disks won't autoboot; m3u is there to specify load command and not multiple disks
 	'ChaiLove (libretro)': LibretroCore(EmulatorStatus.Good, 'chailove', None, ['chai', 'chailove']),
 	'Dinothawr (libretro)': LibretroCore(EmulatorStatus.Good, 'dinothawr', None, ['game']),
@@ -191,8 +198,11 @@ emulators = {
 	'Hatari (libretro)': LibretroCore(EmulatorStatus.Good, 'hatari', None, ['st', 'msa', 'stx', 'dim', 'm3u']), #Theoretically supports .ipf but that is not compiled in with the build from the core downloader
 	'LowRes NX (libretro)': LibretroCore(EmulatorStatus.Good, 'lowresnx', None, ['nx']),
 	'Mesen (libretro)': LibretroCore(EmulatorStatus.Good, 'mesen', command_lines.mesen, ['nes', 'fds', 'unf', 'unif']),
+	'melonDS (libretro)': LibretroCore(EmulatorStatus.Good, 'melonds', command_lines.melonds, ['nds']), #Still no DSi or iQue, OpenGL renderer makes aspect ratio go weird unless using hybrid layout
+	'mGBA (libretro)': LibretroCore(EmulatorStatus.Good, 'mgba', command_lines.mgba, ['gb', 'gbc', 'gba']),
 	'Mu (libretro)': LibretroCore(EmulatorStatus.Janky, 'mu', None, ['prc', 'pqa', 'img']), #Still need to select application manually from emulated menu
 	'NeoCD (libretro)': LibretroCore(EmulatorStatus.Good, 'neocd', None, ['cue', 'chd']),
+	'O2EM (libretro)': LibretroCore(EmulatorStatus.Good, 'o2em', None, ['bin']),
 	'Opera (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'opera', None, ['iso', 'chd', 'bin', 'cue']),
 	'PicoDrive (libretro)': LibretroCore(EmulatorStatus.Good, 'picodrive', simple_md_emulator([], ['pokestad', 'lion3']), ['bin', 'gen', 'smd', 'md', '32x', 'chd', 'cue', 'iso', 'sms', '68k', 'm3u']), #Lion King 3 is automatically detected but no other games using the same mapper work, so I guess we will pretend it's not a working mapper
 	'PokeMini (libretro)': LibretroCore(EmulatorStatus.Good, 'pokemini', None, ['min']),
@@ -201,6 +211,7 @@ emulators = {
 	'PUAE (libretro)': LibretroCore(EmulatorStatus.Good, 'puae', None, ['adf', 'adz', 'dms', 'fdi', 'ipf', 'hdf', 'hdz', 'lha', 'slave', 'info', 'cue', 'ccd', 'nrg', 'mds', 'iso', 'chd', 'uae', 'm3u']), #Does require you to switch between RetroPad and CD32 pad accordingly…
 	'PX68k (libretro)': LibretroCore(EmulatorStatus.Good, 'px68k', None, ['dim', 'img', 'd88', '88d', 'hdm', 'dup', '2hd', 'xdf', 'hdf', 'cmd', 'm3u']),
 	'SameBoy (libretro)': LibretroCore(EmulatorStatus.Good, 'sameboy', simple_gb_emulator([], ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3', 'Pocket Camera'], ['MBC1 Multicart']), ['gb', 'gbc']),
+	'Uzem (libretro)': LibretroCore(EmulatorStatus.Good, 'uzem', None, ['uze']),
 	'Vecx (libretro)': LibretroCore(EmulatorStatus.Good, 'vecx', None, ['vec', 'bin']),
 	'VeMUlator (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'vemulator', None, ['vms', 'dci', 'bin']), #Does a heckin bzzzz with a lot of things
 	'Virtual Jaguar (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'virtualjaguar', None, ['j64', 'jag', 'rom', 'abs', 'cof', 'bin', 'prg']),
@@ -570,6 +581,7 @@ class LibretroCoreWithFrontend(StandardEmulator):
 		self.frontend_config = frontend_config
 		def launch_params_func(game, system_config, emulator_config):
 			if core.launch_params_func:
+				#We do actually want to ignore args here as then we can reuse the same launch params func for a libretro core and the standalone emulator and that should probably work in most cases, and if it doesn't, we can just do command_lines.blah_libretro
 				core.launch_params_func(game, system_config, emulator_config)
 			return frontend.launch_params_func(game, system_config, emulator_config, frontend_config)
 

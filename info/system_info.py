@@ -72,7 +72,7 @@ systems = {
 		['a2600'], ['a2600', 'a2600_cass'], ['Stella', 'MAME (Atari 2600)'], {MediaType.Cartridge: ['a26'] + atari_2600_cartridge_extensions + generic_cart_extensions}, autodetect_tv_type=True
 	),
 	'ColecoVision': SystemInfo(
-		['coleco', 'bit90', 'czz50'], ['coleco'], ['MAME (ColecoVision)'], {MediaType.Cartridge: ['col'] + generic_cart_extensions}, dat_names=['Coleco - ColecoVision']
+		['coleco', 'bit90', 'czz50'], ['coleco'], ['blueMSX (libretro)', 'MAME (ColecoVision)'], {MediaType.Cartridge: ['col'] + generic_cart_extensions}, dat_names=['Coleco - ColecoVision']
 	),
 	'Dreamcast': SystemInfo(
 		['dcjp', 'dcdev'], ['dc'], ['Reicast', 'Flycast', 'MAME (Dreamcast)'], {MediaType.OpticalDisc: cdrom_formats}, dat_names=['Sega - Dreamcast'], dat_uses_serial=True
@@ -86,7 +86,7 @@ systems = {
 	),
 	'Game Boy': SystemInfo(
 		['gameboy', 'gbcolor'], ['gameboy', 'gbcolor'], 
-		['SameBoy (libretro)', 'Gearboy (libretro)', 'Gambatte', 'mGBA', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'Medusa', 'GBE+', 'bsnes'], {MediaType.Cartridge: ['gb', 'gbc', 'gbx', 'sgb', 'cgb', 'dmg']},
+		['SameBoy (libretro)', 'Gearboy (libretro)', 'Gambatte', 'mGBA', 'mGBA (libretro)', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'Medusa', 'GBE+', 'bsnes', 'bsnes (libretro)', 'bsnes-hd beta (libretro)'], {MediaType.Cartridge: ['gb', 'gbc', 'gbx', 'sgb', 'cgb', 'dmg']},
 		{
 			'super_game_boy_bios_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to Super Game Boy BIOS to use'),
 			'set_gbc_as_different_platform': SystemConfigValue(ConfigValueType.Bool, False, 'Set the platform of GBC games to Game Boy Color instead of leaving them as Game Boy'),
@@ -102,7 +102,7 @@ systems = {
 	),
 	'GBA': SystemInfo(
 		['gba'], ['gba'],
-		['mGBA', 'Mednafen (GBA)', 'MAME (GBA)', 'Medusa', 'GBE+'], {MediaType.Cartridge: ['gba', 'bin', 'srl'], MediaType.Executable: ['elf', 'mb']},
+		['mGBA', 'mGBA (libretro)', 'Mednafen (GBA)', 'MAME (GBA)', 'Medusa', 'GBE+'], {MediaType.Cartridge: ['gba', 'bin', 'srl'], MediaType.Executable: ['elf', 'mb']},
 		dat_names=['Nintendo - Game Boy Advance']
 	),
 	'Intellivision': SystemInfo(
@@ -141,7 +141,7 @@ systems = {
 		dat_names=['Nintendo - Nintendo Entertainment System', 'Nintendo - Family Computer Disk System'], autodetect_tv_type=True
 	),
 	'PC Engine': SystemInfo(
-		['pce'], ['pce', 'sgx', 'tg16'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)', 'MAME (PC Engine)'], {MediaType.Cartridge: ['pce', 'sgx', 'bin']},
+		['pce'], ['pce', 'sgx', 'tg16'], ['Beetle PCE (libretro)', 'Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)', 'MAME (PC Engine)'], {MediaType.Cartridge: ['pce', 'sgx', 'bin']},
 		dat_names=['NEC - PC Engine - TurboGrafx 16']
 	),
 	'PlayStation': SystemInfo(
@@ -168,7 +168,7 @@ systems = {
 	),
 	'SNES': SystemInfo(
 		['snes'], ['snes', 'snes_bspack', 'snes_strom'],
-		['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)', 'bsnes'], {MediaType.Cartridge: ['sfc', 'swc', 'smc', 'bs', 'st', 'bin']}, 
+		['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)', 'bsnes', 'bsnes (libretro)', 'bsnes-hd beta (libretro)'], {MediaType.Cartridge: ['sfc', 'swc', 'smc', 'bs', 'st', 'bin']}, 
 		{
 			'sufami_turbo_bios_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to Sufami Turbo BIOS, required to run Sufami Turbo carts'),
 			'bsx_bios_path': SystemConfigValue(ConfigValueType.FilePath, None, 'Path to BS-X BIOS, required to run Satellaview games'),
@@ -215,7 +215,7 @@ systems = {
 	'3DO': SystemInfo(['3do'], [], ['Opera (libretro)', 'MAME (3DO)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True),
 	'Amiga CD32': SystemInfo(['cd32'], ['cd32'], ['PUAE (libretro)', 'FS-UAE', 'MAME (Amiga CD32)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True),
 	'Atari 5200': SystemInfo(
-		#Does it actually do tapes or is it just a side effect of it being a spicy Atari 8-bit computer?
+		#Does it actually have games on tapes or is MAME listing that as a type just a side effect of it being a spicy Atari 8-bit computer?
 		['a5200'], ['a5200'],
 		['MAME (Atari 5200)'], {MediaType.Cartridge: ['a52', 'car'] + generic_cart_extensions, MediaType.Tape: generic_tape_extensions}, dat_names=['Atari - 5200']
 	), 
@@ -227,7 +227,7 @@ systems = {
 		['channelf', 'channlf2'], ['channelf'],
 		['FreeChaF (libretro)', 'MAME (Channel F)'], {MediaType.Cartridge: ['chf'] + generic_cart_extensions}, dat_names=['Fairchild - Channel F'], autodetect_tv_type=True
 	),
-	'G7400': SystemInfo(['videopacp'], ['videopac'], ['MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}, autodetect_tv_type=True), #Uses same software list as Odyssey 2 currently, maybe should be considered part of that system?
+	'G7400': SystemInfo(['videopacp'], ['videopac'], ['O2EM (libretro)', 'MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}, autodetect_tv_type=True), #Uses same software list as Odyssey 2 currently, maybe should be considered part of that system?
 	'Game.com': SystemInfo(['gamecom'], ['gamecom'], ['MAME (Game.com)'], {MediaType.Cartridge: ['tgc', 'bin']}, dat_names=['Tiger - Game.com']),
 	'Jaguar': SystemInfo(
 		['jaguar'], ['jaguar'], ['Virtual Jaguar (libretro)', 'MAME (Jaguar)'], 
@@ -235,7 +235,7 @@ systems = {
 		autodetect_tv_type=True
 	),
 	'Magnavox Odyssey²': SystemInfo(
-		['videopac'], ['videopac'], ['MAME (Magnavox Odyssey²)', 'MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['Magnavox - Odyssey2'], autodetect_tv_type=True
+		['videopac'], ['videopac'], ['O2EM (libretro)', 'MAME (Magnavox Odyssey²)', 'MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['Magnavox - Odyssey2'], autodetect_tv_type=True
 	),
 	'Microvision': SystemInfo(['microvsn'], ['microvision'], ['MAME (Microvision)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Neo Geo CD': SystemInfo(['neocdz'], ['neocd'], ['NeoCD (libretro)', 'MAME (Neo Geo CD)'], {MediaType.OpticalDisc: cdrom_formats}),
@@ -245,7 +245,7 @@ systems = {
 	),
 	'SG-1000': SystemInfo(
 		['sg1000', 'sc3000'], ['sg1000', 'sc3000_cart', 'sc3000_cass', 'sf7000'],
-		['Genesis Plus GX (libretro)', 'Kega Fusion', 'MAME (SG-1000)'], {MediaType.Cartridge: ['sg', 'bin', 'sc'], MediaType.Tape: ['wav', 'bit'], MediaType.Floppy: mame_floppy_formats + ['sf', 'sf7']},
+		['Genesis Plus GX (libretro)', 'blueMSX (libretro)', 'Kega Fusion', 'MAME (SG-1000)'], {MediaType.Cartridge: ['sg', 'bin', 'sc'], MediaType.Tape: ['wav', 'bit'], MediaType.Floppy: mame_floppy_formats + ['sf', 'sf7']},
 		dat_names=['Sega - SG-1000']
 	),
 	'Vectrex': SystemInfo(['vectrex'], ['vectrex'], ['Vecx (libretro)', 'MAME (Vectrex)'], {MediaType.Cartridge: ['vec', 'gam', 'bin']}),
@@ -299,7 +299,7 @@ systems = {
 
 	#Homebrew projects or whatever
 	'Arduboy': SystemInfo([], [], [], {MediaType.Digital: ['arduboy'], MediaType.Executable: ['hex']}),
-	'Uzebox': SystemInfo(['uzebox'], ['uzebox'], ['MAME (Uzebox)'], {MediaType.Executable: ['bin', 'uze']}),
+	'Uzebox': SystemInfo(['uzebox'], ['uzebox'], ['Uzem (libretro)', 'MAME (Uzebox)'], {MediaType.Executable: ['bin', 'uze']}),
 
 	#Educational sort-of-game consoles
 	'Advanced Pico Beena': SystemInfo(['beena'], ['sega_beena_cart'], ['MAME (Advanced Pico Beena)'], {MediaType.Cartridge: generic_cart_extensions}),
@@ -364,7 +364,7 @@ systems = {
 		['Genesis Plus GX (libretro)', 'PicoDrive (libretro)', 'Kega Fusion', 'MAME (Mega CD)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True
 	),
 	'PC Engine CD': SystemInfo(
-		['pce'], ['pcecd'], ['Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)'], {MediaType.OpticalDisc: cdrom_formats}
+		['pce'], ['pcecd'], ['Beetle PCE (libretro)', 'Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)'], {MediaType.OpticalDisc: cdrom_formats}
 	),
 	'Play-Yan': SystemInfo(['gba'], [], [], {MediaType.Digital: ['asf']}),
 
@@ -403,18 +403,18 @@ systems = {
 	'FM Towns': SystemInfo(['fmtowns', 'fmtmarty'], ['fmtowns_cd', 'fmtowns_flop_cracked', 'fmtowns_flop_misc', 'fmtowns_flop_orig'], ['MAME (FM Towns)', 'MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats + ['bin'], MediaType.OpticalDisc: cdrom_formats}), #Floppy list was just fmtowns_flop prior to 0.230
 	'MSX': SystemInfo(
 		msx1_drivers, ['msx1_cart', 'msx1_cass', 'msx1_flop'],
-		['fMSX (libretro)', 'MAME (MSX)', 'MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
+		['blueMSX (libretro)', 'fMSX (libretro)', 'MAME (MSX)', 'MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
 		dat_names=['Microsoft - MSX'], autodetect_tv_type=True
 	),
 	'MSX2': SystemInfo(
 		msx2_drivers, ['msx2_cart', 'msx2_cass', 'msx2_flop'],
-		['fMSX (libretro)', 'MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
+		['blueMSX (libretro)', 'fMSX (libretro)', 'MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
 		dat_names=['Microsoft - MSX 2'], autodetect_tv_type=True
 	),
 	'MSX2+': SystemInfo(
 		#Should this be considered the same system as MSX2? Oh dear, I've gotten confused
 		msx2plus_drivers, ['msx2p_flop'],
-		['fMSX (libretro)', 'MAME (MSX2+)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
+		['blueMSX (libretro)', 'fMSX (libretro)', 'MAME (MSX2+)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
 		dat_names=['Microsoft - MSX 2'], autodetect_tv_type=True
 	),
 	'MSX Turbo-R': SystemInfo(msxtr_drivers, ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
