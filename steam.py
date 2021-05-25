@@ -624,6 +624,9 @@ def add_metadata_from_appinfo_common_section(game, common):
 	has_adult_content = common.get(b'has_adult_content') #Integer object with data = 0 or 1, as most bools here seem to be
 	if has_adult_content:
 		game.metadata.specific_info['Has-Adult-Content'] = bool(has_adult_content.data)
+	has_violence = common.get(b'has_adult_content_violence')
+	if has_violence:
+		game.metadata.specific_info['Has-Violent-Content'] = bool(has_violence.data)
 	has_sex = common.get(b'has_adult_content_sex') #uwu
 	if has_sex:
 		game.metadata.specific_info['Has-Sexual-Content'] = bool(has_sex.data)
