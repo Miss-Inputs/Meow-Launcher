@@ -124,7 +124,7 @@ def add_saturn_info(rom, metadata, header):
 		maker = header[16:32].decode('ascii').rstrip()
 		if maker.startswith('SEGA TP '):
 			#"Sega Third Party", I guess
-			maker_code = maker[len('SEGA TP '):]
+			maker_code = maker.removeprefix('SEGA TP ')
 			if maker_code.startswith('T '):
 				#You're not supposed to do that, stop that
 				maker_code = 'T-' + maker_code[2:]

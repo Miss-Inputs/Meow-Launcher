@@ -72,10 +72,9 @@ def get_category(basename):
 		is_mature = False
 		if subgenre.endswith('* Mature *'):
 			is_mature = True
-			subgenre = subgenre[:-10]
-		if genre.startswith('TTL * '):
-			genre = genre[len('TTL * '):]
-
+			subgenre = subgenre.removesuffix('* Mature *')
+		genre.removeprefix('TTL * ')
+		
 		return category, genre, subgenre, is_mature
 
 	genre, _, subgenre = cat.partition(' / ')

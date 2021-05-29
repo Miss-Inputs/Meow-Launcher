@@ -698,13 +698,10 @@ def add_metadata_from_appinfo_common_section(game, common):
 
 		if 'franchise' in associations_dict:
 			franchise_name = associations_dict['franchise'][0]
-			if franchise_name.lower().endswith(' franchise'):
-				franchise_name = franchise_name[:-len(' franchise')]
-			elif franchise_name.lower().endswith(' series'):
-				franchise_name = franchise_name[:-len(' series')]
-			if franchise_name.lower().startswith('the '):
-				franchise_name = franchise_name[len('the '):]
-
+			franchise_name.removesuffix(' Franchise')
+			franchise_name.removesuffix(' Series')
+			franchise_name.removeprefix('The ')
+			
 			franchise_name = normalize_name_case(franchise_name)
 			
 			not_actual_franchises = ('Playism', 'Hentai', 'Coming-of-Age', 'Wolf RPG Editor', 'Winter Wolves Games', 'Team17 Digital', '&quot;caves rd&quot;', 'Jackbox Games', 'Franchise', 'PopCap')
@@ -716,9 +713,9 @@ def add_metadata_from_appinfo_common_section(game, common):
 			for dev in associations_dict['developer']:
 				dev = normalize_developer(dev)
 				if dev.endswith(' (Mac)'):
-					game.metadata.specific_info['Mac-Developer'] = dev[:-6]
+					game.metadata.specific_info['Mac-Developer'] = dev.removesuffix(' (Mac)')
 				elif dev.endswith(' (Linux)'):
-					game.metadata.specific_info['Linux-Developer'] = dev[:-8]
+					game.metadata.specific_info['Linux-Developer'] = dev.removesuffix(' (Linux)')
 				elif dev not in devs:
 					devs.append(dev)
 
@@ -730,9 +727,9 @@ def add_metadata_from_appinfo_common_section(game, common):
 				if pub in ('none', 'Self Published') and game.metadata.developer:
 					pub = game.metadata.developer
 				if pub.endswith(' (Mac)'):
-					game.metadata.specific_info['Mac-Publisher'] = pub[:-6]
+					game.metadata.specific_info['Mac-Publisher'] = pub.removesuffix(' (Mac)')
 				elif pub.endswith(' (Linux)'):
-					game.metadata.specific_info['Linux-Publisher'] = pub[:-8]
+					game.metadata.specific_info['Linux-Publisher'] = pub.removesuffix(' (Linux)')
 				elif pub not in pubs:
 					pubs.append(pub)
 

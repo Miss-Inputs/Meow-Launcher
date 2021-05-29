@@ -39,8 +39,7 @@ def find_series_from_game_name(name):
 	series_match = series_matcher.fullmatch(name_chunk)
 	if series_match:
 		series_name = series_match['Series']
-		if series_name.lower().startswith('the '):
-			series_name = series_name[len('the '):]
+		series_name.removeprefix('The ')
 		series_name = remove_capital_article(series_name)
 		number = series_match['Number']
 		if number in probably_not_a_series_index:
@@ -64,13 +63,10 @@ def does_series_match(name_to_match, existing_series):
 	name_to_match = name_to_match.lower()
 	existing_series = existing_series.lower()
 
-	if name_to_match.startswith('the '):
-		name_to_match = name_to_match[len('the '):]
+	name_to_match.removeprefix('the ')
 
 	for suffix in suffixes_not_part_of_series:
-		if name_to_match.endswith(' ' + suffix):
-			name_to_match = name_to_match[:-len(' ' + suffix)]
-			break
+		name_to_match = name_to_match.removesuffix(' ' + suffix)
 
 	#Might also want to remove punctuation
 
@@ -151,7 +147,7 @@ def force_add_series_with_index(desktop, path, existing):
 		add_series(desktop, path, series)
 
 def get_series_from_whole_thing(series, whole_name):
-	rest = whole_name[len(series):].strip()
+	rest = whole_name.removeprefix(series).strip()
 	rest = chapter_matcher.sub('', rest).strip()
 
 	if rest:
@@ -179,8 +175,7 @@ def detect_series_index_for_things_with_series():
 			continue
 
 		name = get_usable_name(desktop)
-		if name.startswith('The '):
-			name = name[len('The '):]
+		name.removeprefix('The ')
 		name_chunks = get_name_chunks(name)
 		if len(name_chunks) > 1:
 			if name_chunks[0] == existing_series:

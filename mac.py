@@ -181,7 +181,7 @@ class MacApp(pc.App):
 		try:
 			v = _machfs_read_file(self.hfv_path)
 			if isinstance(get_path(v, self.path), machfs.Folder):
-				basename = self.path.split(':')[-1][:-4]
+				basename = self.path.split(':')[-1].removesuffix('.app')
 				contents = get_path(v, self.path)['Contents']
 				if 'MacOSClassic' in contents:
 					return self.path + ':Contents:MacOSClassic:' + basename
@@ -220,7 +220,7 @@ class MacApp(pc.App):
 	def get_fallback_name(self):
 		if have_machfs:
 			if self.path.endswith('.app'):
-				return self.path.split(':')[-1][:-4]
+				return self.path.split(':')[-1].removesuffix('.app')
 		return self.path.split(':')[-1]
 
 	def _get_resources(self):

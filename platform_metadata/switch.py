@@ -298,7 +298,7 @@ def list_cnmt(cnmt, rom, metadata, files, extra_offset=0):
 						#We would expect only one
 						nacp = control_nca_files[control_nca_filename]
 					elif have_pillow and control_nca_filename.startswith('icon_') and control_nca_filename.endswith('.dat'):
-						icons[control_nca_filename[5:][:-4]] = control_nca_files[control_nca_filename]
+						icons[control_nca_filename.removeprefix('icon_').removesuffix('.dat')] = control_nca_files[control_nca_filename]
 				if nacp:
 					add_nacp_metadata(metadata, nacp, icons)
 				elif main_config.debug:

@@ -765,12 +765,9 @@ class Machine():
 			series = serieses[0]
 			not_real_series = ('Hot', 'Aristocrat MK Hardware')
 
-			if series.endswith(' * Pinball'):
-				series = series[:-len(' * Pinball')]
-			elif series.endswith(' * Slot'):
-				series = series[:-len(' * Slot')]
-			if series.startswith('The '):
-				series = series[len('The '):]
+			series.removesuffix(' * Pinball')
+			series.removesuffix(' * Slot')
+			series.removeprefix('The ')
 			
 			if series not in not_real_series:
 				return remove_capital_article(series)
