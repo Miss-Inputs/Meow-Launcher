@@ -101,7 +101,6 @@ def add_n64_metadata(game):
 		is_byteswapped = True
 		game.metadata.specific_info['ROM-Format'] = 'V64'
 	else:
-		#TODO: Detect other formats (there are a few homebrews that start with 0x80 0x37 but not 0x12 0x40 after that, which may be launchable on some emulators but not on others)
 		game.metadata.specific_info['ROM-Format'] = 'Unknown'
 		return
 
