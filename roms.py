@@ -280,7 +280,7 @@ def process_emulated_system(system_config):
 				continue
 			subfolders = list(pathlib.Path(root).relative_to(rom_dir).parts)
 			if subfolders:
-				if subfolders[0] in main_config.skipped_subfolder_names:
+				if any(subfolder in main_config.skipped_subfolder_names for subfolder in subfolders):
 					continue
 
 			if system_config.name in folder_checks:
