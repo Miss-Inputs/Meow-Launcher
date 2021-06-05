@@ -121,7 +121,7 @@ systems = {
 		['BlastEm (libretro)', 'Genesis Plus GX (libretro)', 'PicoDrive (libretro)', 'Kega Fusion', 'Mednafen (Mega Drive)', 'MAME (Mega Drive)'], {MediaType.Cartridge: ['bin', 'gen', 'md', 'smd', 'sgd']}, dat_names=['Sega - Mega Drive - Genesis'], autodetect_tv_type=True
 	),
 	'N64': SystemInfo(
-		['n64'], ['n64'], ['Mupen64Plus', 'MAME (N64)'], {MediaType.Cartridge: ['z64', 'v64', 'n64', 'bin']}, 
+		['n64'], ['n64', 'ique'], ['Mupen64Plus', 'MAME (N64)'], {MediaType.Cartridge: ['z64', 'v64', 'n64', 'bin']}, 
 		{'prefer_controller_pak_over_rumble': SystemConfigValue(ConfigValueType.Bool, True, 'If a game can use both the Controller Pak and the Rumble Pak, use the Controller Pak')}, 
 		dat_names=['Nintendo - Nintendo 64'], databases_are_byteswapped=True, autodetect_tv_type=True
 	),
