@@ -4,22 +4,24 @@ import subprocess
 import zipfile
 import zlib
 
-compressed_exts = ['7z', 'zip', 'gz', 'bz2', 'tar', 'tgz', 'tbz']
-#7z supports more, but I don't expect to see them (in the case of things like .rar, I don't want them to be treated as
-#valid archive types because they're evil proprietary formats and I want to eradicate them, and the case of things
-#like .iso I'd rather they not be treated as archives)
+try:
+	import py7zr
+	have_py7zr = True
+except ImportError:
+	have_py7zr = False
+
+compressed_exts = ['7z', 'zip', 'gz', 'bz2', 'tar', 'tgz', 'tbz', 'rar', 'xz', 'txz']
+#7z supports more, but we shouldn't treat them as archives (e.g. iso) as that might be weird
+
+#-- Stuff to read archive files that have no native Python support via 7z command line (we still need this for some obscure types if we do have py7zr)
+
 class Bad7zException(Exception):
 	pass
-
-def zip_list(path):
-	with zipfile.ZipFile(path, 'r') as zip_file:
-		return zip_file.namelist()
 
 sevenzip_path_regex = re.compile(r'^Path\s+=\s+(.+)$')
 sevenzip_attr_regex = re.compile(r'^Attributes\s+=\s+(.+)$')
 sevenzip_crc_regex = re.compile(r'^CRC\s+=\s+([\dA-Fa-f]+)$')
-def sevenzip_list(path):
-	#This is rather slow…
+def subprocess_sevenzip_list(path):
 	proc = subprocess.run(['7z', 'l', '-slt', '--', path], stdout=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
 		raise Bad7zException('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
@@ -45,7 +47,7 @@ def sevenzip_list(path):
 
 	return files
 	
-def sevenzip_crc(path, filename):
+def subprocess_sevenzip_crc(path, filename):
 	#See also https://fastapi.metacpan.org/source/BJOERN/Compress-Deflate7-1.0/7zip/DOC/7zFormat.txt to do things the hard way
 	proc = subprocess.run(['7z', 'l', '-slt', '--', path, filename], stdout=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
@@ -65,21 +67,8 @@ def sevenzip_crc(path, filename):
 	
 	return FileNotFoundError(filename)
 	
-def compressed_list(path):
-	if zipfile.is_zipfile(path):
-		try:
-			return zip_list(path)
-		except zipfile.BadZipFile:
-			pass
-
-	return sevenzip_list(path)
-
-def zip_getsize(path, filename):
-	with zipfile.ZipFile(path, 'r') as zip_file:
-		return zip_file.getinfo(filename).file_size
-
 sevenzip_size_reg = re.compile(r'^Size\s+=\s+(\d+)$', flags=re.IGNORECASE)
-def sevenzip_getsize(path, filename):
+def subprocess_sevenzip_getsize(path, filename):
 	proc = subprocess.run(['7z', 'l', '-slt', '--', path, filename], stdout=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
 		raise Bad7zException('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
@@ -93,7 +82,29 @@ def sevenzip_getsize(path, filename):
 			return int(sevenzip_size_reg.fullmatch(line).group(1))
 
 	#Resort to ugly slow method if we have to, but this is of course not optimal, and would only really happen with .gz I think
-	return len(sevenzip_get(path, filename))
+	return len(subprocess_sevenzip_get(path, filename))
+
+def subprocess_sevenzip_get(path, filename):
+	with subprocess.Popen(['7z', 'e', '-so', '--', path, filename], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as proc:
+		return proc.stdout.read()
+
+#---
+def zip_list(path):
+	with zipfile.ZipFile(path, 'r') as zip_file:
+		return zip_file.namelist()
+
+def zip_getsize(path, filename):
+	with zipfile.ZipFile(path, 'r') as zip_file:
+		return zip_file.getinfo(filename).file_size
+
+def get_zip_crc32(path, filename):
+	with zipfile.ZipFile(path) as zip_file:
+		return zip_file.getinfo(filename).CRC & 0xffffffff
+
+def zip_get(path, filename):
+	with zipfile.ZipFile(path) as zip_file:
+		with zip_file.open(filename, 'r') as file:
+			return file.read()
 
 def gzip_getsize(path):
 	#Filename is ignored, there is only one in there
@@ -101,42 +112,25 @@ def gzip_getsize(path):
 		f.seek(0, 2)
 		return f.tell()
 
-def compressed_getsize(path, filename):
-	if zipfile.is_zipfile(path):
-		try:
-			return zip_getsize(path, filename)
-		except zipfile.BadZipFile:
-			pass
-	if path.endswith('.gz'):
-		return gzip_getsize(path)
-	return sevenzip_getsize(path, filename)
-
-def sevenzip_get(path, filename):
-	with subprocess.Popen(['7z', 'e', '-so', '--', path, filename], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as proc:
-		return proc.stdout.read()
-
-def zip_get(path, filename):
-	with zipfile.ZipFile(path) as zip_file:
-		with zip_file.open(filename, 'r') as file:
-			return file.read()
-
 def gzip_get(path):
 	with gzip.GzipFile(path) as gzip_file:
 		return gzip_file.read()
 
-def compressed_get(path, filename):
-	if zipfile.is_zipfile(path):
-		try:
-			return zip_get(path, filename)
-		except zipfile.BadZipFile:
-			pass
-	if path.endswith('.gz'):
-		return gzip_get(path)
-	return sevenzip_get(path, filename)
+def sevenzip_list(path):
+	with py7zr.SevenZipFile(path, mode='r') as sevenzip_file:
+		return sevenzip_file.getnames()
 
-def get_zip_crc32(path, filename):
-	with zipfile.ZipFile(path) as zip_file:
-		return zip_file.getinfo(filename).CRC & 0xffffffff
+def sevenzip_get(path, filename):
+	with py7zr.SevenZipFile(path, mode='r') as sevenzip_file:
+		return sevenzip_file.read([filename])[filename].read()
+
+def sevenzip_getsize(path, filename):
+	with py7zr.SevenZipFile(path, mode='r') as sevenzip_file:
+		return [i.uncompressed for i in sevenzip_file.list() if i.filename == filename][0]
+
+def sevenzip_get_crc32(path, filename):
+	with py7zr.SevenZipFile(path, mode='r') as sevenzip_file:
+		return [i.crc32 for i in sevenzip_file.list() if i.filename == filename][0]
 
 def get_crc32_of_archive(path, filename):
 	if zipfile.is_zipfile(path):
@@ -144,8 +138,43 @@ def get_crc32_of_archive(path, filename):
 			return get_zip_crc32(path, filename)
 		except zipfile.BadZipFile:
 			pass
+	if have_py7zr and path.endswith('.7z'):
+		return sevenzip_get_crc32(path, filename)
 	if path.endswith('.gz'):
 		#Do things the old fashioned way, since the crc32 isn't in there
 		return zlib.crc32(gzip_get(path)) & 0xffffffff
-	return sevenzip_crc(path, filename)
+	return subprocess_sevenzip_crc(path, filename)
 	
+def compressed_list(path):
+	if zipfile.is_zipfile(path):
+		try:
+			return zip_list(path)
+		except zipfile.BadZipFile:
+			pass
+	if have_py7zr and path.endswith('.7z'):
+		return sevenzip_list(path)
+	return subprocess_sevenzip_list(path)
+
+def compressed_getsize(path, filename):
+	if zipfile.is_zipfile(path):
+		try:
+			return zip_getsize(path, filename)
+		except zipfile.BadZipFile:
+			pass
+	if have_py7zr and path.endswith('.7z'):
+		return sevenzip_getsize(path, filename)
+	if path.endswith('.gz'):
+		return gzip_getsize(path)
+	return subprocess_sevenzip_getsize(path, filename)
+
+def compressed_get(path, filename):
+	if zipfile.is_zipfile(path):
+		try:
+			return zip_get(path, filename)
+		except zipfile.BadZipFile:
+			pass
+	if have_py7zr and path.endswith('.7z'):
+		return sevenzip_get(path, filename)
+	if path.endswith('.gz'):
+		return gzip_get(path)
+	return subprocess_sevenzip_get(path, filename)
