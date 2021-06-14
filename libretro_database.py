@@ -95,6 +95,9 @@ def parse_libretro_dat(path):
 			if rom_match:
 				roms.append(rom_match)
 				continue
+		if game:
+			game['roms'] = roms
+			games.append(game)
 	return header, games
 
 @functools.lru_cache(maxsize=None)
