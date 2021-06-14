@@ -75,6 +75,7 @@ def parse_libretro_dat(path):
 			if line == ')':
 				game['roms'] = roms
 				games.append(game)
+				game = {}
 				continue
 
 			#Assume we are in the middle
