@@ -6,7 +6,7 @@ import re
 
 from config.main_config import main_config
 
-rom_line = re.compile(r'(?<=\(|\s)(?P<attrib>\w+)\s+(?:"(?P<value>[^"]+)"|(?P<hexvalue>[0-9A-Fa-f]+))(?:\s+|\))')
+rom_line = re.compile(r'(?<=\(|\s)(?P<attrib>\w+)\s+(?:"(?P<value>[^"]+)"|(?P<rawvalue>\S+))(?:\s+|\))')
 def parse_rom_line(line):
 	start = line[:5]
 	if start != 'rom (':
@@ -16,23 +16,25 @@ def parse_rom_line(line):
 	for submatch in rom_line.finditer(line[4:]):
 		value = submatch['value']
 		if not value:
-			hexvalue = submatch['hexvalue']
-			if hexvalue is None:
+			rawvalue = submatch['rawvalue']
+			if rawvalue is None:
 				continue
-			value = hexvalue
+			value = rawvalue
 
 		rom[submatch['attrib']] = value
 
 	return rom
 
 attribute_line = re.compile(r'(?P<key>\w+)\s+(?:"(?P<value>[^"]*)"|(?P<intvalue>\d+))')
-def parse_dat(path):
+def parse_libretro_dat(path):
 	games = []
+	header = {}
 	with open(path, 'rt') as file:
 		lines = [line.strip() for line in file.readlines()]
 		game = {}
 		inside_header = False
 		rom_giant_line = None #Just concat everything in between rom ( ) on multiple lines so we can parse it that way
+		roms = []
 		for line in lines:
 			rom_match = None
 			if not line:
@@ -44,6 +46,15 @@ def parse_dat(path):
 			if inside_header:
 				if line == ')':
 					inside_header = False
+				else:
+					attrib_match = attribute_line.match(line)
+					if attrib_match:
+						value = attrib_match['value']
+						intvalue = attrib_match['intvalue']
+						if value:
+							header[attrib_match['key']] = value
+						elif intvalue is not None:
+							header[attrib_match['key']] = intvalue
 				
 				continue
 			if rom_giant_line:
@@ -59,8 +70,10 @@ def parse_dat(path):
 
 			if line == 'game (':
 				game = {}
+				roms = []
 				continue
 			if line == ')':
+				game['roms'] = roms
 				games.append(game)
 				continue
 
@@ -80,11 +93,9 @@ def parse_dat(path):
 			rom_match = parse_rom_line(line)
 
 			if rom_match:
-				game['rom'] = rom_match
-				#name, size, crc, serial, sha1, md5, image
+				roms.append(rom_match)
 				continue
-				
-	return games
+	return header, games
 
 @functools.lru_cache(maxsize=None)
 def parse_all_dats_for_system(name, use_serial):
@@ -116,28 +127,29 @@ def parse_all_dats_for_system(name, use_serial):
 	games = {}
 
 	for dat in relevant_dats:
-		parsed = parse_dat(dat)
-		for game in parsed:
-			rom = game.get('rom')
-			if not rom:
+		parsed = parse_libretro_dat(dat)
+		for game in parsed[1]:
+			roms = game.get('roms')
+			if not roms:
 				#Well that shouldn't happen surely
 				#print("Well that shouldn't happen surely", dat, game)
 				#Narrator: It does happen
 				continue
-			if use_serial:
-				key = rom.get('serial')
-			else:
-				key = int(rom.get('crc', '0'), 16)
-			if not key: #crc should never be 0 so it's okay to not just check for none
-				#print("Surely this also should not happen", dat, game)
-				#Ah… this happens with PS1 hacks which use the crc of the whole bin
-				continue
+			for rom in roms:
+				if use_serial:
+					key = rom.get('serial')
+				else:
+					key = int(rom.get('crc', '0'), 16)
+				if not key: #crc should never be 0 so it's okay to not just check for none
+					#print("Surely this also should not happen", dat, game)
+					#Ah… this happens with PS1 hacks which use the crc of the whole bin
+					continue
 
-			if key not in games:
-				games[key] = {}
-			this_game = games[key]
-			for k, v in game.items():
-				if k != 'rom':
-					this_game[k] = v
+				if key not in games:
+					games[key] = {}
+				this_game = games[key]
+				for k, v in game.items():
+					if k != 'rom':
+						this_game[k] = v
 
 	return games
