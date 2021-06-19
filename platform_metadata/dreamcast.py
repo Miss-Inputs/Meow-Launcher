@@ -18,24 +18,33 @@ gdi_regex = re.compile(r'^(?:\s+)?(?P<trackNumber>\d+)\s+(?P<unknown1>\S+)\s+(?P
 def add_peripherals_info(metadata, peripherals):
 	metadata.specific_info['Uses-Windows-CE'] = (peripherals & 1) > 0
 	metadata.specific_info['Supports-VGA'] = (peripherals & (1 << 4)) > 0
+	metadata.specific_info['Uses-Other-Expansions'] = (peripherals & (1 << 8)) > 0 #How very vague and mysterious…
 	metadata.specific_info['Force-Feedback'] = (peripherals & (1 << 9)) > 0
 	metadata.specific_info['Supports-Microphone'] = (peripherals & (1 << 10)) > 0
 	metadata.save_type = SaveType.MemoryCard if peripherals & (1 << 11) else SaveType.Nothing
 	#TODO: Set up metadata.input_info
-	metadata.specific_info['Uses-Start-A-B-Dpad'] = (peripherals & (1 << 12)) > 0
-	metadata.specific_info['Uses-C-Button'] = (peripherals & (1 << 13)) > 0 #Is this for Naomi, or something? That shouldn't exist
-	metadata.specific_info['Uses-D-Button'] = (peripherals & (1 << 14)) > 0
-	metadata.specific_info['Uses-X-Button'] = (peripherals & (1 << 15)) > 0
-	metadata.specific_info['Uses-Y-Button'] = (peripherals & (1 << 16)) > 0
-	metadata.specific_info['Uses-Z-Button'] = (peripherals & (1 << 17)) > 0
-	metadata.specific_info['Uses-Expanded-Dpad'] = (peripherals & (1 << 18)) > 0 #Second dpad?
-	metadata.specific_info['Uses-Analog-R'] = (peripherals & (1 << 19)) > 0
-	metadata.specific_info['Uses-Analog-L'] = (peripherals & (1 << 20)) > 0
-	metadata.specific_info['Uses-Analog-Horizontal'] = (peripherals & (1 << 21)) > 0
-	metadata.specific_info['Uses-Analog-Vertical'] = (peripherals & (1 << 22)) > 0
-	metadata.specific_info['Uses-Expanded-Analog-Horizontal'] = (peripherals & (1 << 23)) > 0
-	metadata.specific_info['Uses-Expanded-Analog-Vertical'] = (peripherals & (1 << 24)) > 0
-	metadata.specific_info['Uses-Keyboard'] = (peripherals & (1 << 25)) > 0
+
+	button_bits = {
+		'Start, A, B, D-pad': 12,
+		'C': 13, #Naomi?
+		'D': 14, #Naomi?
+		'X': 15,
+		'Y': 16,
+		'Z': 17,
+		'Exanded D-pad': 18, #Some kind of second dpad? 8-way? What does this mean
+		'Analog R': 19,
+		'Analog L': 20,
+		'Analog Horizontal': 21,
+		'Analog Vertical': 22,
+		'Expanded Analog Horizontal': 23, #What does this mean
+		'Expanded Analog Vertical': 24,
+	}
+	buttons = [k for k, v in button_bits.items() if peripherals & (1 << v)]
+	metadata.specific_info['Controls-Used'] = buttons
+	
+	metadata.specific_info['Uses-Gun'] = (peripherals & (1 << 25)) > 0
+	metadata.specific_info['Uses-Keyboard'] = (peripherals & (1 << 26)) > 0
+	metadata.specific_info['Uses-Mouse'] = (peripherals & (1 << 27)) > 0
 
 device_info_regex = re.compile(r'^(?P<checksum>[\dA-Fa-f]{4}) GD-ROM(?P<discNum>\d+)/(?P<totalDiscs>\d+) *$')
 #Might not be " GD-ROM" on some Naomi stuff or maybe some homebrews or protos, but anyway, whatevs
