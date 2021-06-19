@@ -66,11 +66,6 @@ def add_info_from_database_entry(metadata, database_entry):
 
 	#This is just here for debugging etc
 	metadata.add_alternate_name(database_entry.get('GoodName'), 'GoodName')
-	ref_md5 = database_entry.get('RefMD5')
-	if ref_md5:
-		database_entry = get_mupen64plus_database().get(ref_md5)
-		if not database_entry:
-			return
 
 	if 'Players' in database_entry:
 		metadata.specific_info['Number-of-Players'] = database_entry['Players']
