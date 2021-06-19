@@ -66,20 +66,27 @@ def add_info_from_database_entry(metadata, database_entry):
 
 	#This is just here for debugging etc
 	metadata.add_alternate_name(database_entry.get('GoodName'), 'GoodName')
+	ref_md5 = database_entry.get('RefMD5')
+	if ref_md5:
+		database_entry = get_mupen64plus_database().get(ref_md5)
+		if not database_entry:
+			return
 
 	if 'Players' in database_entry:
 		metadata.specific_info['Number-of-Players'] = database_entry['Players']
 
-	if database_entry.get('SaveType', 'None') != 'None':
-		metadata.save_type = SaveType.Cart
-	elif database_entry.get('Mempak', 'No') == 'Yes':
+	if database_entry.get('Mempak', 'No') == 'Yes':
 		#Apparently it is possible to have both cart and memory card saving, so that is strange
 		#I would think though that if the cartridge could save everything it needed to, it wouldn't bother with a memory card, so if it does use the controller pak then that's probably the main form of saving
 		metadata.specific_info['Uses-Controller-Pak'] = True
 		metadata.save_type = SaveType.MemoryCard
 	else:
+		save_type = database_entry.get('SaveType')
 		#TODO: iQue would be SaveType.Internal, could maybe detect that based on CIC but that might be silly (the saving wouldn't be emulated by anything at this point anyway)
-		metadata.save_type = SaveType.Nothing
+		if save_type == 'None':
+			metadata.save_type = SaveType.Nothing
+		elif save_type: #If specified but not "None"
+			metadata.save_type = SaveType.Cart
 
 	if database_entry.get('Rumble', 'No') == 'Yes':
 		metadata.specific_info['Force-Feedback'] = True
