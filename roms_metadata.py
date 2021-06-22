@@ -178,7 +178,10 @@ def add_metadata_from_libretro_database_entry(metadata, database, key):
 
 		if 'genre' in database_entry:
 			genre = database_entry['genre']
-			metadata.genre = 'Driving' if genre == 'Racing / Driving' else genre
+			if '/' in genre:
+				metadata.genre, metadata.subgenre = genre.split('/', 1)
+			else:
+				metadata.genre = genre
 		if 'franchise' in database_entry:
 			metadata.series = database_entry['franchise']
 		if 'version' in database_entry:
