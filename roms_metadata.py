@@ -212,7 +212,7 @@ def add_metadata_from_libretro_database_entry(metadata, database, key):
 		
 		if database_entry.get('analog', 0) == 1:
 			#This is PS1 specific
-			metadata.specific_info['Uses-DualShock'] = True
+			metadata.specific_info['Uses-Analog'] = True
 		if database_entry.get('rumble', 0) == 1:
 			metadata.specific_info['Force-Feedback'] = True
 
