@@ -195,6 +195,7 @@ emulators = {
 	'fMSX (libretro)': LibretroCore(EmulatorStatus.Good, 'fmsx', None, ['rom', 'mx1', 'mx2']), #Claims to do .dsk and cas but does not
 	'FreeChaF (libretro)': LibretroCore(EmulatorStatus.Good, 'freechaf', None, ['bin', 'chf']),
 	'FreeIntv (libretro)': LibretroCore(EmulatorStatus.Janky, 'freeintv', None, ['int', 'bin', 'rom']),
+	'FreeJ2ME (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'freej2me', None, ['jar']), #Seems to require a JDK
 	'FUSE (libretro)': LibretroCore(EmulatorStatus.Good, 'fuse', None, ['tzx', 'tap', 'z80', 'rzx', 'scl', 'trd', 'dsk']),
 	'Gearboy (libretro)': LibretroCore(EmulatorStatus.Good, 'gearboy', simple_gb_emulator([], ['MBC1', 'MBC2', 'MBC3', 'MBC5'], ['MBC1 Multicart']), ['gb', 'dmg', 'gbc', 'cgb', 'sgb']),
 	'Genesis Plus GX (libretro)': LibretroCore(EmulatorStatus.Good, 'genesis_plus_gx', command_lines.genesis_plus_gx, ['mdx', 'md', 'smd', 'gen', 'bin', 'cue', 'iso', 'sms', 'bms', 'gg', 'sg', '68k', 'chd', 'm3u']),

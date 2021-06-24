@@ -537,14 +537,15 @@ systems = {
 	'Chip-8': SystemInfo([], ['chip8_quik'], [], {MediaType.Executable: ['bin', 'c8', 'ch8']}), #Many interpreters available in MAME - Cosmac VIP, Dream 6800, ETI-660, etc; though I'm not sure if it makes sense to put them as the mame_driver for this, but when I get around to that I suppose they would be emulators for it
 
 	#Stuff that isn't actually hardware but we can pretend it is one
+	'ChaiLove': SystemInfo([], [], ['ChaiLove (libretro)'], {MediaType.Executable: ['chai'], MediaType.Digital: ['chailove']}, is_virtual=True, dat_names=['ChaiLove']),
+	'Dinothawr': SystemInfo([], [], ['Dinothawr (libretro)'], {MediaType.Executable: ['game']}, is_virtual=True, dat_names=['Dinothawr']),
 	'Doom': SystemInfo(
 		[], [], ['PrBoom+'], {MediaType.Digital: ['wad']}, 
 		{'save_dir': SystemConfigValue(ConfigValueType.FolderPath, None, 'Folder to put save files in')},
 		is_virtual=True, dat_names=['DOOM']
 	),
 	'Flash': SystemInfo([], [], ['Ruffle'], {MediaType.Digital: ['swf']}, is_virtual=True),
-	'Dinothawr': SystemInfo([], [], ['Dinothawr (libretro)'], {MediaType.Executable: ['game']}, is_virtual=True, dat_names=['Dinothawr']),
-	'ChaiLove': SystemInfo([], [], ['ChaiLove (libretro)'], {MediaType.Executable: ['chai'], MediaType.Digital: ['chailove']}, is_virtual=True, dat_names=['ChaiLove']),
+	'J2ME': SystemInfo([], [], ['FreeJ2ME (libretro)'], {MediaType.Executable: ['jar']}, is_virtual=True),
 	'LowRes NX': SystemInfo([], [], ['LowRes NX (libretro)'], {MediaType.Digital: ['nx']}, is_virtual=True, dat_names=['LowRes NX']),
 }
 
@@ -560,7 +561,7 @@ all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers] + ibmpc
 #TRS-80 Model 2 (trs80m2)
 #TRS-80 MC-10 (mc10)
 #Hitachi S1
-#Virtual systems: J2ME, TADS, Z-Machine, Adobe AIR, Pico-8 (not that I have found cool "emulators" for any of that)
+#Virtual systems: TADS, Z-Machine, Adobe AIR, Pico-8 (not that I have found cool "emulators" for any of that)
 #Acorn System (acrnsys3, acrnsys5)
 #Amstrad PC1512 (pc1512, pc1640)
 #Indy (indy_4610, indigo2_4415)
