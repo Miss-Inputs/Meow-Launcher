@@ -182,6 +182,9 @@ emulators = {
 
 	'81 (libretro)': LibretroCore(EmulatorStatus.Good, '81', None, ['p', 'tzx', 't81']),
 	'Beetle PCE (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_pce', None, ['pce', 'cue', 'ccd', 'iso', 'img', 'bin', 'chd']),
+	'Beetle PC-FX (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_pcfx', None, ['cue', 'ccd', 'toc', 'chd']),
+	'Beetle PSX HW (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_psx_hw', None, ['cue', 'chd', 'ccd', 'toc', 'm3u', 'exe', 'pbp']),
+	'Beetle Saturn (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_saturn', None, ['cue', 'chd', 'ccd', 'toc', 'm3u']),
 	'BlastEm (libretro)': LibretroCore(EmulatorStatus.Janky, 'blastem', command_lines.blastem, ['md', 'bin', 'smd', 'gen', 'sms']), #Does not claim to support Master System in info file, but does; unzips all the things into your rom folder? Rude
 	'blueMSX (libretro)': LibretroCore(EmulatorStatus.Good, 'bluemsx', None, ['dsk', 'rom', 'ri', 'mx1', 'mx2', 'col', 'cas', 'sg', 'sc', 'm3u']), #Turbo-R does not work, also does not do any dual cartridge shenanigans, or battery saves
 	'bsnes (libretro)': LibretroCore(EmulatorStatus.Good, 'bsnes', command_lines.bsnes_libretro, ['sfc', 'smc', 'gb', 'gbc', 'bs'], bsnes_options),
@@ -211,6 +214,7 @@ emulators = {
 	'PUAE (libretro)': LibretroCore(EmulatorStatus.Good, 'puae', None, ['adf', 'adz', 'dms', 'fdi', 'ipf', 'hdf', 'hdz', 'lha', 'slave', 'info', 'cue', 'ccd', 'nrg', 'mds', 'iso', 'chd', 'uae', 'm3u']), #Does require you to switch between RetroPad and CD32 pad accordingly…
 	'PX68k (libretro)': LibretroCore(EmulatorStatus.Good, 'px68k', None, ['dim', 'img', 'd88', '88d', 'hdm', 'dup', '2hd', 'xdf', 'hdf', 'cmd', 'm3u']),
 	'SameBoy (libretro)': LibretroCore(EmulatorStatus.Good, 'sameboy', simple_gb_emulator([], ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3', 'Pocket Camera'], ['MBC1 Multicart']), ['gb', 'gbc']),
+	'SameDuck (libretro)': LibretroCore(EmulatorStatus.Good, 'sameduck', None, ['bin']),
 	'Uzem (libretro)': LibretroCore(EmulatorStatus.Good, 'uzem', None, ['uze']),
 	'Vecx (libretro)': LibretroCore(EmulatorStatus.Good, 'vecx', None, ['vec', 'bin']),
 	'VeMUlator (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'vemulator', None, ['vms', 'dci', 'bin']), #Does a heckin bzzzz with a lot of things

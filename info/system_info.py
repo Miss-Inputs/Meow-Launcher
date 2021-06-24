@@ -146,7 +146,7 @@ systems = {
 	),
 	'PlayStation': SystemInfo(
 		['psj'], ['psx'],
-		['Mednafen (PlayStation)', 'DuckStation', 'PCSX2'], {MediaType.OpticalDisc: cdrom_formats, MediaType.Executable: ['exe', 'psx']},
+		['DuckStation', 'Beetle PSX HW (libretro)', 'Mednafen (PlayStation)', 'PCSX2'], {MediaType.OpticalDisc: cdrom_formats, MediaType.Executable: ['exe', 'psx']},
 		dat_names=['Sony - PlayStation'], dat_uses_serial=True
 	),
 	'PS2': SystemInfo(
@@ -164,7 +164,7 @@ systems = {
 		[], [], ['PPSSPP'], {MediaType.OpticalDisc: cdrom_formats + ['cso'], MediaType.Executable: ['pbp']}, dat_names=['Sony - PlayStation Portable'], dat_uses_serial=True
 	),
 	'Saturn': SystemInfo(
-		['saturn'], ['saturn', 'sat_cart', 'sat_vccart'], ['Mednafen (Saturn)', 'MAME (Saturn)'], {MediaType.OpticalDisc: cdrom_formats}
+		['saturn'], ['saturn', 'sat_cart', 'sat_vccart'], ['Beetle Saturn (libretro)', 'Mednafen (Saturn)', 'MAME (Saturn)'], {MediaType.OpticalDisc: cdrom_formats}
 	),
 	'SNES': SystemInfo(
 		['snes'], ['snes', 'snes_bspack', 'snes_strom'],
@@ -239,7 +239,7 @@ systems = {
 	),
 	'Microvision': SystemInfo(['microvsn'], ['microvision'], ['MAME (Microvision)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Neo Geo CD': SystemInfo(['neocdz'], ['neocd'], ['NeoCD (libretro)', 'MAME (Neo Geo CD)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'PC-FX': SystemInfo(['pcfx'], ['pcfx'], ['Mednafen (PC-FX)'], {MediaType.OpticalDisc: cdrom_formats}),
+	'PC-FX': SystemInfo(['pcfx'], ['pcfx'], ['Beetle PC-FX (libretro)', 'Mednafen (PC-FX)'], {MediaType.OpticalDisc: cdrom_formats}),
 	'Pokemon Mini': SystemInfo(
 		['pokemini'], ['pokemini'], ['PokeMini (libretro)', 'PokeMini', 'MAME (Pokemon Mini)'], {MediaType.Cartridge: ['min', 'bin']}, dat_names=['Nintendo - Pokemon Mini']
 	),
@@ -283,7 +283,7 @@ systems = {
 	),
 	'Hartung Game Master': SystemInfo(['gmaster'], ['gmaster'], ['MAME (Hartung Game Master)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Mattel HyperScan': SystemInfo(['hyprscan'], ['hyperscan'], ['MAME (Mattel HyperScan)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'Mega Duck': SystemInfo(['megaduck', 'mduckspa'], ['megaduck'], ['MAME (Mega Duck)'], {MediaType.Cartridge: generic_cart_extensions}),
+	'Mega Duck': SystemInfo(['megaduck', 'mduckspa'], ['megaduck'], ['SameDuck', 'MAME (Mega Duck)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Monon Color': SystemInfo(['mononcol'], ['monon_color'], ['MAME (Monon Color)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Nuon': SystemInfo([], ['nuon'], [], {MediaType.OpticalDisc: ['iso']}),
 	'PocketStation': SystemInfo(['pockstat'], [], [], {MediaType.Digital: ['gme']}),
