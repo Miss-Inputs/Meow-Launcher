@@ -283,7 +283,7 @@ systems = {
 	),
 	'Hartung Game Master': SystemInfo(['gmaster'], ['gmaster'], ['MAME (Hartung Game Master)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Mattel HyperScan': SystemInfo(['hyprscan'], ['hyperscan'], ['MAME (Mattel HyperScan)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'Mega Duck': SystemInfo(['megaduck', 'mduckspa'], ['megaduck'], ['SameDuck', 'MAME (Mega Duck)'], {MediaType.Cartridge: generic_cart_extensions}),
+	'Mega Duck': SystemInfo(['megaduck', 'mduckspa'], ['megaduck'], ['SameDuck (libretro)', 'MAME (Mega Duck)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Monon Color': SystemInfo(['mononcol'], ['monon_color'], ['MAME (Monon Color)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Nuon': SystemInfo([], ['nuon'], [], {MediaType.OpticalDisc: ['iso']}),
 	'PocketStation': SystemInfo(['pockstat'], [], [], {MediaType.Digital: ['gme']}),
