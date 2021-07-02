@@ -131,7 +131,7 @@ systems = {
 	), 
 	'Neo Geo Pocket': SystemInfo(
 		['ngp'], ['ngp', 'ngpc'],
-		['Mednafen (Neo Geo Pocket)', 'MAME (Neo Geo Pocket)'], {MediaType.Cartridge: ['ngp', 'npc', 'ngc', 'bin']},
+		['Beetle NeoPop (libretro)', 'Mednafen (Neo Geo Pocket)', 'MAME (Neo Geo Pocket)'], {MediaType.Cartridge: ['ngp', 'npc', 'ngc', 'bin']},
 		dat_names=['SNK - Neo Geo Pocket', 'SNK - Neo Geo Pocket Color']
 	),
 	'NES': SystemInfo(
@@ -141,8 +141,8 @@ systems = {
 		dat_names=['Nintendo - Nintendo Entertainment System', 'Nintendo - Family Computer Disk System'], autodetect_tv_type=True
 	),
 	'PC Engine': SystemInfo(
-		['pce'], ['pce', 'sgx', 'tg16'], ['Beetle PCE (libretro)', 'Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)', 'MAME (PC Engine)'], {MediaType.Cartridge: ['pce', 'sgx', 'bin']},
-		dat_names=['NEC - PC Engine - TurboGrafx 16']
+		['pce'], ['pce', 'sgx', 'tg16'], ['Beetle PCE (libretro)', 'Beetle PCE Fast (libretro)', 'Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)', 'MAME (PC Engine)'], {MediaType.Cartridge: ['pce', 'sgx', 'bin']},
+		dat_names=['NEC - PC Engine - TurboGrafx 16', 'NEC - PC Engine SuperGrafx']
 	),
 	'PlayStation': SystemInfo(
 		['psj'], ['psx'],
@@ -164,7 +164,8 @@ systems = {
 		[], [], ['PPSSPP'], {MediaType.OpticalDisc: cdrom_formats + ['cso'], MediaType.Executable: ['pbp']}, dat_names=['Sony - PlayStation Portable'], dat_uses_serial=True
 	),
 	'Saturn': SystemInfo(
-		['saturn'], ['saturn', 'sat_cart', 'sat_vccart'], ['Beetle Saturn (libretro)', 'Mednafen (Saturn)', 'MAME (Saturn)'], {MediaType.OpticalDisc: cdrom_formats}
+		['saturn'], ['saturn', 'sat_cart', 'sat_vccart'], ['Beetle Saturn (libretro)', 'Mednafen (Saturn)', 'MAME (Saturn)'], {MediaType.OpticalDisc: cdrom_formats},
+		dat_names=['Sega - Saturn'], dat_uses_serial=True
 	),
 	'SNES': SystemInfo(
 		['snes'], ['snes', 'snes_bspack', 'snes_strom'],
@@ -179,7 +180,7 @@ systems = {
 		[], [], ['Yuzu'], {MediaType.Cartridge: ['xci'], MediaType.Digital: ['nsp', 'nca'], MediaType.Executable: ['nro', 'nso', 'elf']}
 	),
 	'Virtual Boy': SystemInfo(
-		['vboy'], ['vboy'], ['Mednafen (Virtual Boy)', 'MAME (Virtual Boy)'], {MediaType.Cartridge: ['vb', 'vboy', 'bin']}, dat_names=['Nintendo - Virtual Boy']
+		['vboy'], ['vboy'], ['Beetle VB (libretro)', 'Mednafen (Virtual Boy)', 'MAME (Virtual Boy)'], {MediaType.Cartridge: ['vb', 'vboy', 'bin']}, dat_names=['Nintendo - Virtual Boy']
 	),
 	'Vita': SystemInfo(
 		[], [], [], {MediaType.Digital: ['vpk']}
@@ -197,6 +198,7 @@ systems = {
 			'common_key': SystemConfigValue(ConfigValueType.String, '', 'Wii common key used for decrypting Wii discs which some projects are brave enough to hardcode but I am not'),
 			'covers_path': SystemConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after product code, used by GameCube too'),
 		},
+		dat_names=['Nintendo - Wii'], dat_uses_serial=True #Although WiiWare (Nintendo - Wii (Digital)) uses crc… hm, not important for now since there is not really any metadata
 	),
 	'Wii U': SystemInfo(
 		#See roms_folders for how this mostly works
@@ -208,7 +210,7 @@ systems = {
 	),
 	'WonderSwan': SystemInfo(
 		['wswan'], ['wswan', 'wscolor'], 
-		['Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['ws', 'wsc', 'bin']}, dat_names=['Bandai - WonderSwan', 'Bandai - WonderSwan Color']
+		['Beetle Cygne (libretro)', 'Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['ws', 'wsc', 'bin']}, dat_names=['Bandai - WonderSwan', 'Bandai - WonderSwan Color']
 	),
 	
 	#Less notable stuff goes here
@@ -227,7 +229,7 @@ systems = {
 		['channelf', 'channlf2'], ['channelf'],
 		['FreeChaF (libretro)', 'MAME (Channel F)'], {MediaType.Cartridge: ['chf'] + generic_cart_extensions}, dat_names=['Fairchild - Channel F'], autodetect_tv_type=True
 	),
-	'G7400': SystemInfo(['videopacp'], ['videopac'], ['O2EM (libretro)', 'MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}, autodetect_tv_type=True), #Uses same software list as Odyssey 2 currently, maybe should be considered part of that system?
+	'G7400': SystemInfo(['videopacp'], ['videopac'], ['O2EM (libretro)', 'MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}, autodetect_tv_type=True, dat_names=['Philips - Videopac+']), #Uses same software list as Odyssey 2 currently, maybe should be considered part of that system?
 	'Game.com': SystemInfo(['gamecom'], ['gamecom'], ['MAME (Game.com)'], {MediaType.Cartridge: ['tgc', 'bin']}, dat_names=['Tiger - Game.com']),
 	'Jaguar': SystemInfo(
 		['jaguar'], ['jaguar'], ['Virtual Jaguar (libretro)', 'MAME (Jaguar)'], 
@@ -248,7 +250,7 @@ systems = {
 		['Genesis Plus GX (libretro)', 'blueMSX (libretro)', 'Kega Fusion', 'MAME (SG-1000)'], {MediaType.Cartridge: ['sg', 'bin', 'sc'], MediaType.Tape: ['wav', 'bit'], MediaType.Floppy: mame_floppy_formats + ['sf', 'sf7']},
 		dat_names=['Sega - SG-1000']
 	),
-	'Vectrex': SystemInfo(['vectrex'], ['vectrex'], ['Vecx (libretro)', 'MAME (Vectrex)'], {MediaType.Cartridge: ['vec', 'gam', 'bin']}),
+	'Vectrex': SystemInfo(['vectrex'], ['vectrex'], ['Vecx (libretro)', 'MAME (Vectrex)'], {MediaType.Cartridge: ['vec', 'gam', 'bin']}, dat_names=['GCE - Vectrex']),
 	'Watara Supervision': SystemInfo(['svision'], ['svision'], ['Potator (libretro)', 'MAME (Watara Supervision)'], {MediaType.Cartridge: ['ws', 'sv', 'bin']}, dat_names=['Watara - Supervision']),
 	
 	#Consoles likely uncared about (I'm being subjective woohoo) just to make the list less of a chungus
@@ -299,7 +301,7 @@ systems = {
 
 	#Homebrew projects or whatever
 	'Arduboy': SystemInfo([], [], [], {MediaType.Digital: ['arduboy'], MediaType.Executable: ['hex']}),
-	'Uzebox': SystemInfo(['uzebox'], ['uzebox'], ['Uzem (libretro)', 'MAME (Uzebox)'], {MediaType.Executable: ['bin', 'uze']}),
+	'Uzebox': SystemInfo(['uzebox'], ['uzebox'], ['Uzem (libretro)', 'MAME (Uzebox)'], {MediaType.Executable: ['bin', 'uze']}, dat_names=['Uzebox']),
 
 	#Educational sort-of-game consoles
 	'Advanced Pico Beena': SystemInfo(['beena'], ['sega_beena_cart'], ['MAME (Advanced Pico Beena)'], {MediaType.Cartridge: generic_cart_extensions}),
@@ -328,14 +330,14 @@ systems = {
 	'V.Reader': SystemInfo(['vreader'], ['vtech_storio_cart'], ['MAME (V.Reader)'], {MediaType.Cartridge: generic_cart_extensions}), 
 	#Skeleton driver, apparently also known as Storio, or something like that
 	'V.Smile Pro': SystemInfo(['vsmilpro'], ['vsmile_cd'], ['MAME (V.Smile Pro)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'V.Smile': SystemInfo(['vsmile'], ['vsmile_cart'], ['MAME (V.Smile)'], {MediaType.Cartridge: generic_cart_extensions}),
+	'V.Smile': SystemInfo(['vsmile'], ['vsmile_cart'], ['MAME (V.Smile)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['VTech - V.Smile']),
 	'V.Smile Baby': SystemInfo(['vsmileb'], ['vsmileb_cart'], ['MAME (V.Smile Baby)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'V.Smile Motion': SystemInfo(['vsmilem'], ['vsmilem_cart'], ['MAME (V.Smile Motion)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'V.Tech Socrates': SystemInfo(['socrates'], ['socrates'], ['MAME (V.Tech Socrates)'], {MediaType.Cartridge: generic_cart_extensions}),
 	
 	#Consoles that barely count as consoles because aren't for gaming or whatever (or games push the definition), but for the purposes of creating a launcher, might as well be consoles
 	'BBC Bridge Companion': SystemInfo(['bbcbc'], ['bbcbc'], ['MAME (BBC Bridge Companion)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Benesse Pocket Challenge V2': SystemInfo([], ['pockchalv2'], ['Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['pc2', 'bin']}), #Sort of WonderSwan with different controls
+	'Benesse Pocket Challenge V2': SystemInfo([], ['pockchalv2'], ['Beetle Cygne (libretro)', 'Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['pc2', 'bin']}), #Sort of WonderSwan with different controls
 	'Buzztime Home Trivia System':  SystemInfo(['buzztime'], ['buzztime_cart'], ['MAME (Buzztime Home Trivia System)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Casio Loopy': SystemInfo(['casloopy'], ['casloopy'], ['MAME (Casio Loopy)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['Casio - Loopy']),
 	'Design Master Denshi Mangajuku': SystemInfo(['bdesignm'], ['bdesignm_design_cart', 'bdesignm_game_cart'], [], {MediaType.Cartridge: generic_cart_extensions}), #This will be interesting because you're supposed to use combinations of different design carts and game carts at the same time
@@ -361,10 +363,10 @@ systems = {
 	'Mega CD': SystemInfo(
 		#LaserActive counts as this for now
 		['segacd', '32x_scd', 'cdx', 'segacd2', 'xeye', 'laseract'], ['megacd', 'megacdj', 'segacd'],
-		['Genesis Plus GX (libretro)', 'PicoDrive (libretro)', 'Kega Fusion', 'MAME (Mega CD)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True
+		['Genesis Plus GX (libretro)', 'PicoDrive (libretro)', 'Kega Fusion', 'MAME (Mega CD)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True, dat_names=['Sega - Mega-CD - Sega CD'], dat_uses_serial=True
 	),
 	'PC Engine CD': SystemInfo(
-		['pce'], ['pcecd'], ['Beetle PCE (libretro)', 'Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)'], {MediaType.OpticalDisc: cdrom_formats}
+		['pce'], ['pcecd'], ['Beetle PCE (libretro)', 'Beetle PCE Fast (libretro)', 'Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)'], {MediaType.OpticalDisc: cdrom_formats}
 	),
 	'Play-Yan': SystemInfo(['gba'], [], [], {MediaType.Digital: ['asf']}),
 
@@ -418,11 +420,11 @@ systems = {
 		dat_names=['Microsoft - MSX 2'], autodetect_tv_type=True
 	),
 	'MSX Turbo-R': SystemInfo(msxtr_drivers, ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
-	'PC-98': SystemInfo(['pc9801f', 'pc9801rs', 'pc9801ux', 'pc9821'], ['pc98', 'pc98_cd'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}),
-	'Sharp X68000': SystemInfo(['x68000'], ['x68k_flop'], ['PX68k (libretro)', 'MAME (Sharp X68000)'], {MediaType.Floppy: mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim'], MediaType.HardDisk: ['hdf']}),
+	'PC-98': SystemInfo(['pc9801f', 'pc9801rs', 'pc9801ux', 'pc9821'], ['pc98', 'pc98_cd'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}, dat_names=['NEC - PC-98'], dat_uses_serial=True),
+	'Sharp X68000': SystemInfo(['x68000'], ['x68k_flop'], ['PX68k (libretro)', 'MAME (Sharp X68000)'], {MediaType.Floppy: mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim'], MediaType.HardDisk: ['hdf']}, dat_names=['Sharp - X68000']),
 	'Tandy CoCo': SystemInfo(['coco'], ['coco_cart', 'coco_flop'], ['MAME (Tandy CoCo)'], {MediaType.Cartridge: ['ccc', 'rom', 'bin'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: mame_floppy_formats + ['dmk', 'jvc'], MediaType.HardDisk: ['vhd']}),
 	'TRS-80': SystemInfo(['trs80', 'trs80l2', 'trs80m3'], [], ['MAME (TRS-80)'], {MediaType.Executable: ['cmd'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: ['dmk'] + mame_floppy_formats}),
-	'ZX Spectrum': SystemInfo(['spectrum', 'spec128'], ['spectrum_cart', 'spectrum_cass', 'specpls3_flop', 'pentagon_cass', 'spectrum_flop_opus', 'spectrum_mgt_flop', 'spectrum_microdrive', 'spectrum_wafadrive', 'timex_dock', 'timex_cass'], ['MAME (ZX Spectrum)'], {MediaType.Snapshot: ['z80', 'sna'], MediaType.Tape: ['wav', 'cas', 'tap', 'tzx'], MediaType.Executable: ['raw', 'scr'], MediaType.Floppy: ['dsk', 'ipf', 'trd', 'td0', 'scl', 'fdi', 'opd', 'opu'], MediaType.Cartridge: ['bin', 'rom']}, dat_names=['Sinclair - ZX Spectrum']), #There's actually like a katrillion file formats so I won't bother with all of them until I see them in the wild tbh
+	'ZX Spectrum': SystemInfo(['spectrum', 'spec128'], ['spectrum_cart', 'spectrum_cass', 'specpls3_flop', 'pentagon_cass', 'spectrum_flop_opus', 'spectrum_mgt_flop', 'spectrum_microdrive', 'spectrum_wafadrive', 'timex_dock', 'timex_cass'], ['MAME (ZX Spectrum)'], {MediaType.Snapshot: ['z80', 'sna'], MediaType.Tape: ['wav', 'cas', 'tap', 'tzx'], MediaType.Executable: ['raw', 'scr'], MediaType.Floppy: ['dsk', 'ipf', 'trd', 'td0', 'scl', 'fdi', 'opd', 'opu'], MediaType.Cartridge: ['bin', 'rom']}, dat_names=['Sinclair - ZX Spectrum', 'Sinclair - ZX Spectrum +3']), #There's actually like a katrillion file formats so I won't bother with all of them until I see them in the wild tbh
 
 	#Other computers that aren't as exciting
 	'Acorn Archimedes': SystemInfo(['aa310', 'aa4000', 'aa5000'], ['archimedes'], [], {MediaType.Floppy: mame_floppy_formats + ['adf']}), 
@@ -439,7 +441,7 @@ systems = {
 	#Most software is going to go under DOS or PC Booter, but this would be the carts… hmm… does this make sense, actually
 	'PC Booter': SystemInfo(['ibm5150'], ['ibm5150'], ['MAME (IBM PCjr)', 'MAME (IBM PC)'], {MediaType.Floppy: mame_floppy_formats + ['img'], MediaType.Executable: ['exe', 'com', 'bat']}), #TODO: Reconsider this name; does it make more sense to be called "IBM PC"? Are PCjr carts not just PC booters that are carts instead of floppies (hot take)?
 	'PC-6001': SystemInfo(['pc6001'], [], ['MAME (PC-6001)'], {MediaType.Tape: ['cas', 'p6'], MediaType.Cartridge: generic_cart_extensions}),
-	'PC-88': SystemInfo(['pc8801', 'pc88va'], ['pc8801_cass', 'pc8801_flop', 'pc8201', 'pc88va'], ['MAME (PC-88)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav']}),
+	'PC-88': SystemInfo(['pc8801', 'pc88va'], ['pc8801_cass', 'pc8801_flop', 'pc8201', 'pc88va'], ['MAME (PC-88)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav']}, dat_names=['NEC - PC-8001 - 8801']),
 	'PDP-1': SystemInfo(['pdp1'], [], [], {MediaType.Tape: ['tap', 'rim']}),
 	'Plus/4': SystemInfo(['c264'], ['plus4_cart', 'plus4_cass', 'plus4_flop'], ['VICE (Plus/4)'],
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}, autodetect_tv_type=True

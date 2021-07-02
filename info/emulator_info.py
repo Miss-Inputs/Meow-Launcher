@@ -181,11 +181,15 @@ emulators = {
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
 
 	'81 (libretro)': LibretroCore(EmulatorStatus.Good, '81', None, ['p', 'tzx', 't81']),
-	'Beetle PCE (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_pce', None, ['pce', 'cue', 'ccd', 'iso', 'img', 'bin', 'chd']),
-	'Beetle PC-FX (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_pcfx', None, ['cue', 'ccd', 'toc', 'chd']),
+	'Beetle Cygne (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_cygne', None, ['ws', 'wsc', 'pc2']),
+	'Beetle NeoPop (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_ngp', None, ['ngp', 'ngc', 'ngpc', 'npc']),
+	'Beetle PCE Fast (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_pce_fast', None, ['pce', 'cue', 'ccd', 'toc', 'm3u', 'chd']),
+	'Beetle PCE (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_pce', None, ['pce', 'cue', 'ccd', 'sgx', 'toc', 'm3u', 'chd']),
+	'Beetle PC-FX (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_pcfx', None, ['cue', 'ccd', 'toc', 'chd', 'm3u']),
 	'Beetle PSX HW (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_psx_hw', None, ['cue', 'chd', 'ccd', 'toc', 'm3u', 'exe', 'pbp']),
 	'Beetle Saturn (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_saturn', None, ['cue', 'chd', 'ccd', 'toc', 'm3u']),
-	'BlastEm (libretro)': LibretroCore(EmulatorStatus.Janky, 'blastem', command_lines.blastem, ['md', 'bin', 'smd', 'gen', 'sms']), #Does not claim to support Master System in info file, but does; unzips all the things into your rom folder? Rude
+	'Beetle VB (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_vb', None, ['vb', 'vboy', 'bin']),
+	'BlastEm (libretro)': LibretroCore(EmulatorStatus.Good, 'blastem', command_lines.blastem, ['md', 'bin', 'smd', 'gen', 'sms']), #Does not claim to support Master System in info file, but does
 	'blueMSX (libretro)': LibretroCore(EmulatorStatus.Good, 'bluemsx', None, ['dsk', 'rom', 'ri', 'mx1', 'mx2', 'col', 'cas', 'sg', 'sc', 'm3u']), #Turbo-R does not work, also does not do any dual cartridge shenanigans, or battery saves
 	'bsnes (libretro)': LibretroCore(EmulatorStatus.Good, 'bsnes', command_lines.bsnes_libretro, ['sfc', 'smc', 'gb', 'gbc', 'bs'], bsnes_options),
 	'bsnes-hd beta (libretro)': LibretroCore(EmulatorStatus.Good, 'bsnes_hd_beta', command_lines.bsnes_libretro, ['sfc', 'smc', 'gb', 'gbc', 'bs'], bsnes_options), #Does not claim to support .bs, but does
@@ -208,14 +212,15 @@ emulators = {
 	'NeoCD (libretro)': LibretroCore(EmulatorStatus.Good, 'neocd', None, ['cue', 'chd']),
 	'O2EM (libretro)': LibretroCore(EmulatorStatus.Good, 'o2em', None, ['bin']),
 	'Opera (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'opera', None, ['iso', 'chd', 'bin', 'cue']),
-	'PicoDrive (libretro)': LibretroCore(EmulatorStatus.Good, 'picodrive', simple_md_emulator([], ['pokestad', 'lion3']), ['bin', 'gen', 'smd', 'md', '32x', 'chd', 'cue', 'iso', 'sms', '68k', 'm3u']), #Lion King 3 is automatically detected but no other games using the same mapper work, so I guess we will pretend it's not a working mapper
+	'PicoDrive (libretro)': LibretroCore(EmulatorStatus.Good, 'picodrive', simple_md_emulator([], ['pokestad', 'lion3']), ['bin', 'gen', 'smd', 'md', '32x', 'chd', 'cue', 'iso', 'sms', '68k', 'm3u', 'chd']), #Lion King 3 is automatically detected but no other games using the same mapper work, so I guess we will pretend it's not a working mapper
 	'PokeMini (libretro)': LibretroCore(EmulatorStatus.Good, 'pokemini', None, ['min']),
 	'Potator (libretro)': LibretroCore(EmulatorStatus.Good, 'potator', None, ['bin', 'sv']),
 	'ProSystem (libretro)': LibretroCore(EmulatorStatus.Good, 'prosystem', command_lines.prosystem, ['a78', 'bin']),
-	'PUAE (libretro)': LibretroCore(EmulatorStatus.Good, 'puae', None, ['adf', 'adz', 'dms', 'fdi', 'ipf', 'hdf', 'hdz', 'lha', 'slave', 'info', 'cue', 'ccd', 'nrg', 'mds', 'iso', 'chd', 'uae', 'm3u']), #Does require you to switch between RetroPad and CD32 pad accordingly…
+	'PUAE (libretro)': LibretroCore(EmulatorStatus.Good, 'puae', None, ['adf', 'adz', 'dms', 'fdi', 'ipf', 'hdf', 'hdz', 'lha', 'slave', 'info', 'cue', 'ccd', 'nrg', 'mds', 'iso', 'chd', 'uae', 'm3u', 'rp9']), #Does require you to switch between RetroPad and CD32 pad accordingly…
 	'PX68k (libretro)': LibretroCore(EmulatorStatus.Good, 'px68k', None, ['dim', 'img', 'd88', '88d', 'hdm', 'dup', '2hd', 'xdf', 'hdf', 'cmd', 'm3u']),
 	'SameBoy (libretro)': LibretroCore(EmulatorStatus.Good, 'sameboy', simple_gb_emulator([], ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3', 'Pocket Camera'], ['MBC1 Multicart']), ['gb', 'gbc']),
 	'SameDuck (libretro)': LibretroCore(EmulatorStatus.Good, 'sameduck', None, ['bin']),
+	'Stella (libretro)': LibretroCore(EmulatorStatus.Good, 'stella', None, 'a26', 'bin'),
 	'Uzem (libretro)': LibretroCore(EmulatorStatus.Good, 'uzem', None, ['uze']),
 	'Vecx (libretro)': LibretroCore(EmulatorStatus.Good, 'vecx', None, ['vec', 'bin']),
 	'VeMUlator (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'vemulator', None, ['vms', 'dci', 'bin']), #Does a heckin bzzzz with a lot of things
