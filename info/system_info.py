@@ -69,7 +69,7 @@ systems = {
 		}, #There is a Nintendo - Nintendo 3DS.dat that could go in datnames but it is indexed by 4-letter serial so I'd have to do some trickery and then the info is already in GameTDB anyway
 	),
 	'Atari 2600': SystemInfo(
-		['a2600'], ['a2600', 'a2600_cass'], ['Stella', 'MAME (Atari 2600)'], {MediaType.Cartridge: ['a26'] + atari_2600_cartridge_extensions + generic_cart_extensions}, autodetect_tv_type=True
+		['a2600'], ['a2600', 'a2600_cass'], ['Stella', 'Stella (libretro)', 'MAME (Atari 2600)'], {MediaType.Cartridge: ['a26'] + atari_2600_cartridge_extensions + generic_cart_extensions}, autodetect_tv_type=True
 	),
 	'ColecoVision': SystemInfo(
 		['coleco', 'bit90', 'czz50'], ['coleco'], ['blueMSX (libretro)', 'MAME (ColecoVision)'], {MediaType.Cartridge: ['col'] + generic_cart_extensions}, dat_names=['Coleco - ColecoVision']
