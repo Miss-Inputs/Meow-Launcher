@@ -221,7 +221,7 @@ emulators = {
 	'PX68k (libretro)': LibretroCore(EmulatorStatus.Good, 'px68k', None, ['dim', 'img', 'd88', '88d', 'hdm', 'dup', '2hd', 'xdf', 'hdf', 'cmd', 'm3u']), #needs_fullpath=true (tricky thing is that it might overwrite your uncompressed files if you leave them uncompressed? or something)
 	'SameBoy (libretro)': LibretroCore(EmulatorStatus.Good, 'sameboy', simple_gb_emulator([], ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3', 'Pocket Camera'], ['MBC1 Multicart']), ['gb', 'gbc']),
 	'SameDuck (libretro)': LibretroCore(EmulatorStatus.Good, 'sameduck', None, ['bin']),
-	'Stella (libretro)': LibretroCore(EmulatorStatus.Good, 'stella', None, 'a26', 'bin'),
+	'Stella (libretro)': LibretroCore(EmulatorStatus.Good, 'stella', None, ['a26', 'bin']),
 	'Uzem (libretro)': LibretroCore(EmulatorStatus.Good, 'uzem', None, ['uze']),
 	'Vecx (libretro)': LibretroCore(EmulatorStatus.Good, 'vecx', None, ['vec', 'bin']),
 	'VeMUlator (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'vemulator', None, ['vms', 'dci', 'bin']), #Does a heckin bzzzz with a lot of things
