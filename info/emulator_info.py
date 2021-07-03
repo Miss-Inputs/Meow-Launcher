@@ -209,6 +209,7 @@ emulators = {
 	'melonDS (libretro)': LibretroCore(EmulatorStatus.Good, 'melonds', command_lines.melonds, ['nds']), #Still no DSi or iQue, OpenGL renderer makes aspect ratio go weird unless using hybrid layout
 	'mGBA (libretro)': LibretroCore(EmulatorStatus.Good, 'mgba', command_lines.mgba, ['gb', 'gbc', 'gba']),
 	'Mu (libretro)': LibretroCore(EmulatorStatus.Janky, 'mu', None, ['prc', 'pqa', 'img']), #Still need to select application manually from emulated menu
+	'Mupen64Plus-Next (libretro)': LibretroCore(EmulatorStatus.Good, 'mupen64plus_next', None, ['n64', 'v64', 'z64', 'bin', 'u1']), #TODO: Command line function to reject roms with no detectable endianness
 	'NeoCD (libretro)': LibretroCore(EmulatorStatus.Good, 'neocd', None, ['cue', 'chd']),
 	'O2EM (libretro)': LibretroCore(EmulatorStatus.Good, 'o2em', None, ['bin']),
 	'Opera (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'opera', None, ['iso', 'chd', 'bin', 'cue']), #needs_fullpath=true
