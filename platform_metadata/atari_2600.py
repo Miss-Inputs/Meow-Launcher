@@ -3,6 +3,7 @@ import subprocess
 
 import input_metadata
 from common_types import SaveType
+from config.emulator_config import emulator_configs
 from info.region_info import TVSystem
 from platform_types import Atari2600Controller
 from software_list_info import find_in_software_lists, matcher_args_for_bytes
@@ -11,10 +12,11 @@ import platform_metadata.atari_controllers as controllers
 
 from .atari_controllers import megadrive_pad
 
+stella_configs = emulator_configs.get('Stella')
 
 #Not gonna use stella -rominfo on individual stuff as it takes too long and just detects TV type with no other useful info that isn't in the -listrominfo db
 def get_stella_database():
-	proc = subprocess.run(['stella', '-listrominfo'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
+	proc = subprocess.run([stella_configs.exe_path, '-listrominfo'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
 
 	lines = proc.stdout.splitlines()
 	first_line = lines[0]
