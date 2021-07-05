@@ -1,8 +1,6 @@
-import configparser
 import os
 import shlex
 
-import io_utils
 from common_types import (EmulationNotSupportedException, MediaType,
                           NotARomException)
 from launchers import LaunchParams, MultiCommandLaunchParams
@@ -1478,41 +1476,21 @@ def sheepshaver(app, _, emulator_config):
 	autoboot_txt_path = os.path.join(shared_folder, 'autoboot.txt')
 
 	return _macemu_args(app, autoboot_txt_path, emulator_config)
-
-def _make_dosbox_config(app, system_config):
-	configwriter = configparser.ConfigParser(allow_no_value=True)
-	configwriter.optionxform = str
+	
+def dosbox_staging(app, _, emulator_config):
+	args = ['-fullscreen', '-exit', '-noautoexec', '-userconf']
 
 	if 'required_hardware' in app.info:
 		if 'for_xt' in app.info['required_hardware']:
 			if app.info['required_hardware']['for_xt']:
-				configwriter['cpu'] = {}
-				configwriter['cpu']['cycles'] = 'fixed 315' #DOSBox wiki says this is somewhat equivalent to 8086 @ 4.77MHz
+				#machine=cga?
+				cycles_for_about_477 = 245
+				args += ['-c', 'config -set "cpu cycles {0}"'.format(cycles_for_about_477)]
 
 		if 'max_graphics' in app.info['required_hardware']:
-			configwriter['dosbox'] = {}
 			graphics = app.info['required_hardware']['max_graphics']
-			configwriter['dosbox']['machine'] = 'svga_s3' if graphics == 'svga' else graphics
-
-	if not configwriter.sections():
-		return None
-
-	name = io_utils.sanitize_name(app.name) + '.ini'
-	folder = system_config.options.get('dosbox_configs_path')
-	path = os.path.join(folder, name)
-
-	os.makedirs(folder, exist_ok=True)
-	with open(path, 'wt') as config_file:
-		configwriter.write(config_file)
-
-	return path
-	
-def dosbox(app, system_config, emulator_config):
-	args = ['-fullscreen', '-exit', '-noautoexec', '-userconf']
-
-	game_conf = _make_dosbox_config(app, system_config)
-	if game_conf:
-		args += ['-conf', game_conf]
+			machine = 'svga_s3' if graphics == 'svga' else graphics
+			args += ['-machine', machine]
 	
 	drive_letter = 'D'
 	if app.cd_path:

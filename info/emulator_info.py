@@ -572,7 +572,7 @@ pc_emulators = {
 		'skip_if_ppc_enhanced': EmulatorConfigValue(ConfigValueType.Bool, False, 'If the app has ppc_enhanced = true in its config ie. it performs better or has some extra functionality on PPC, do not use BasiliskII for it')
 	}),
 	'SheepShaver': PCEmulator(EmulatorStatus.Janky, 'SheepShaver', command_lines.sheepshaver),
-	'DOSBox': PCEmulator(EmulatorStatus.Good, 'dosbox', command_lines.dosbox),
+	'DOSBox Staging': PCEmulator(EmulatorStatus.Good, 'dosbox', command_lines.dosbox_staging),
 	'DOSBox-X': PCEmulator(EmulatorStatus.Good, 'dosbox-x', command_lines.dosbox_x)
 }
 
