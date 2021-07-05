@@ -1,6 +1,3 @@
-import os
-
-from common_paths import data_dir
 from common_types import ConfigValueType, MediaType
 
 from info.format_info import (atari_2600_cartridge_extensions, cdrom_formats,
@@ -584,7 +581,5 @@ class PCSystem():
 
 pc_systems = {
 	'Mac': PCSystem('mac'),
-	'DOS': PCSystem('dos', {
-		'dosbox_configs_path': SystemConfigValue(ConfigValueType.FolderPath, os.path.join(data_dir, 'dosbox_configs'), 'Folder to store DOSBox per-application configuration files'),
-	})
+	'DOS': PCSystem('dos'),
 }

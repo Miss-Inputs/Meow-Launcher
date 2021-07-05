@@ -1484,7 +1484,7 @@ def dosbox_staging(app, _, emulator_config):
 		if 'for_xt' in app.info['required_hardware']:
 			if app.info['required_hardware']['for_xt']:
 				#machine=cga?
-				cycles_for_about_477 = 245
+				cycles_for_about_477 = emulator_config.options['cycles_for_477_mhz']
 				args += ['-c', 'config -set "cpu cycles {0}"'.format(cycles_for_about_477)]
 
 		if 'max_graphics' in app.info['required_hardware']:
