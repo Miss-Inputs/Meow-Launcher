@@ -81,6 +81,10 @@ class App:
 		exception_reason = None
 		for emulator in system_config.chosen_emulators:
 			emulator_name = emulator
+			if emulator_name not in pc_systems[system_config.name].emulators:
+				if main_config.debug:
+					print(emulator_name, 'is not a valid emulator for', system_config.name)
+				continue
 			emulator_config = emulator_configs[emulator]
 			try:
 				if 'compat' in self.info:
