@@ -582,5 +582,7 @@ class PCSystem():
 
 pc_systems = {
 	'Mac': PCSystem('mac', ['BasiliskII', 'SheepShaver']),
-	'DOS': PCSystem('dos', ['DOSBox Staging', 'DOSBox-X']),
+	'DOS': PCSystem('dos', ['DOSBox Staging', 'DOSBox-X'], {
+		'use_directory_as_fallback_name': SystemConfigValue(ConfigValueType.Bool, False, 'Use base directory name for fallback name if you don\'t feel like providing a name in dos.json')
+	}),
 }

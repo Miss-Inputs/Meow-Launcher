@@ -22,7 +22,6 @@ class App:
 		self.info = info
 		self.is_on_cd = info.get('is_on_cd', False)
 		self.path = info['path']
-		self.name = info.get('name', fix_name(self.get_fallback_name()))
 		self.cd_path = None
 		self.other_cd_paths = []
 		if 'cd_path' in info:
@@ -33,6 +32,7 @@ class App:
 			self.other_cd_paths = cd_paths[1:]
 		elif self.is_on_cd:
 			raise KeyError('cd_path is mandatory if is_on_cd is true')
+		self.name = info.get('name', fix_name(self.get_fallback_name()))
 
 	@property
 	def base_folder(self):

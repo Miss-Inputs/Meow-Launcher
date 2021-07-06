@@ -20,6 +20,11 @@ class DOSApp(pc.App):
 			return os.path.isfile(self.cd_path) #TODO: Use pycdlib to see if it exists on the CD
 		return os.path.isfile(self.path)
 
+	def get_fallback_name(self):
+		if self.is_on_cd:
+			return os.path.splitext(os.path.basename(self.cd_path))[0]
+		return os.path.basename(os.path.dirname(self.path)) if dos_config.options['use_directory_as_fallback_name'] else super().get_fallback_name()
+
 	def additional_metadata(self):
 		basename = self.path.split('\\')[-1] if self.is_on_cd else os.path.basename(self.path)
 		self.metadata.specific_info['Executable-Name'] = basename
