@@ -1,4 +1,5 @@
 import os
+import re
 import shlex
 
 from common_types import (EmulationNotSupportedException, MediaType,
@@ -1477,8 +1478,35 @@ def sheepshaver(app, _, emulator_config):
 
 	return _macemu_args(app, autoboot_txt_path, emulator_config)
 	
+mount_line_regex = re.compile(r'^MOUNT ([A-Z]) ')
+def _last_unused_dosbox_drive(dosbox_config_path, used_letters=None):
+	automounted_letters = []
+	with open(dosbox_config_path, 'rt') as f:
+		found_autoexec = False
+		for line in f.readlines():
+			line = line.rstrip()
+			if line == '[autoexec]':
+				found_autoexec = True
+				continue
+			if found_autoexec:
+				mount_line_match = mount_line_regex.match(line)
+				if mount_line_match:
+					automounted_letters.append(mount_line_match[1])
+	
+	for letter in 'CDEFGHIJKLMNOPQRSTVWXY':
+		if used_letters:
+			if letter in used_letters:
+				continue
+		if letter not in automounted_letters:
+			return letter
+	raise EmulationNotSupportedException('Oh no you are automounting too many drives and we have no room for another one')
+
 def dosbox_staging(app, _, emulator_config):
-	args = ['-fullscreen', '-exit', '-noautoexec', '-userconf']
+	args = ['-fullscreen', '-exit']
+	noautoexec = emulator_config.options['noautoexec']
+	if noautoexec:
+		args.append('-noautoexec')
+	
 
 	if 'required_hardware' in app.info:
 		if 'for_xt' in app.info['required_hardware']:
@@ -1492,18 +1520,35 @@ def dosbox_staging(app, _, emulator_config):
 			machine = 'svga_s3' if graphics == 'svga' else graphics
 			args += ['-machine', machine]
 	
-	drive_letter = 'D'
+	drive_letter = 'C'
+	cd_drive_letter = 'D'
+	
+	if not noautoexec:
+		config_file_location = os.path.expanduser('~/.config/dosbox/dosbox-staging.conf')
+		print(config_file_location)
+		try:
+			drive_letter = _last_unused_dosbox_drive(config_file_location)
+			cd_drive_letter = _last_unused_dosbox_drive(config_file_location, [drive_letter])
+		except OSError:
+			pass
+		
 	if app.cd_path:
 		#I hope you don't put double quotes in the CD paths
 		imgmount_args = '"{0}"'.format(app.cd_path)
 		if app.other_cd_paths:
 			imgmount_args += ' '  + ' '.join('"{0}"'.format(cd_path) for cd_path in app.other_cd_paths)
-		args += ['-c', 'IMGMOUNT {0} -t cdrom {1}'.format(drive_letter, imgmount_args)]
+		args += ['-c', 'IMGMOUNT {0} -t cdrom {1}'.format(cd_drive_letter, imgmount_args)]
 	
 	if app.is_on_cd:
-		args += ['-c', drive_letter + ':', '-c', app.path, '-c', 'exit']
+		args += ['-c', cd_drive_letter + ':', '-c', app.path, '-c', 'exit']
 	else:
-		args.append(app.path)
+		if drive_letter == 'C':
+			args.append(app.path)
+		else:
+			#Gets tricky if autoexec already mounts a C drive because launching something from the command line normally that way just assumes C is a fine drive to use
+			#This also makes exit not work normally
+			host_folder, exe_name = os.path.split(app.path)
+			args += ['-c', 'MOUNT {0} "{1}"'.format(drive_letter, host_folder), '-c', drive_letter + ':', '-c', exe_name, '-c', 'exit']
 
 	return LaunchParams(emulator_config.exe_path, args)
 
