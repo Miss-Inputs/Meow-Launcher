@@ -263,7 +263,6 @@ systems = {
 	'C2 Color': SystemInfo(['c2color'], ['c2color_cart'], ['MAME (C2 Color)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Casio PV-1000': SystemInfo(['pv1000'], ['pv1000'], ['MAME (Casio PV-1000)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Champion 2711': SystemInfo(['unichamp'], ['unichamp'], ['MAME (Champion 2711)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Coleco Telstar Arcade': SystemInfo([], [], [], {}),
 	'CreatiVision': SystemInfo(
 		['crvision', 'lasr2001', 'manager'], ['crvision', 'laser2001_cart'],
 		['MAME (CreatiVision)'], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: generic_tape_extensions}, dat_names=['VTech - CreatiVision']
@@ -274,7 +273,6 @@ systems = {
 	'Gamate': SystemInfo(['gamate'], ['gamate'], ['MAME (Gamate)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'GameKing': SystemInfo(['gameking'], ['gameking'], ['MAME (GameKing)'], {MediaType.Cartridge: ['gk'] + generic_cart_extensions}),
 	'GameKing 3': SystemInfo(['gamekin3'], ['gameking3'], ['MAME (GameKing 3)'], {MediaType.Cartridge: ['gk3'] + generic_cart_extensions}),
-	'Gakken TV Boy': SystemInfo([], [], [], {}),
 	'GoGo TV Video Vision': SystemInfo(['tvgogo'], ['tvgogo'], ['MAME (GoGo TV Video Vision)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'GP2X': SystemInfo(['gp2x'], [], [], {}), #TODO: File formats and things
 	'GP32': SystemInfo(
@@ -344,7 +342,6 @@ systems = {
 	'Mattel Juice Box': SystemInfo(['juicebox'], ['juicebox'], ['MAME (Mattel Juice Box)'], {MediaType.Cartridge: ['smc']}),
 	'Nichibutsu My Vision': SystemInfo(['myvision'], ['myvision'], ['MAME (Nichibutsu My Vision)'], {MediaType.Cartridge: generic_cart_extensions}),
 	'Pocket Challenge W': SystemInfo(['pockchal'], ['pockchalw'], ['MAME (Pocket Challenge W)'], {MediaType.Cartridge: ['bin', 'pcw']}),
-	'Video Challenger': SystemInfo(['vidchal'], [], [], {}), #From hh_cop400.cpp comments: Needs screen, gun cursor, VHS player device, and software list for tapes; at the moment displays a score counter and has one button input (supposed to be the gun) which makes a "pew" sound
 	
 	#Multimedia consoles that also don't like to be classified as game consoles
 	'CD-i': SystemInfo(['cdimono1', 'cdimono2', 'cdi490a', 'cdi910'], ['cdi'], ['MAME (CD-i)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True),
