@@ -543,6 +543,7 @@ systems = {
 	'Flash': SystemInfo([], [], ['Ruffle'], {MediaType.Digital: ['swf']}, is_virtual=True),
 	'J2ME': SystemInfo([], [], ['FreeJ2ME (libretro)'], {MediaType.Executable: ['jar']}, is_virtual=True),
 	'LowRes NX': SystemInfo([], [], ['LowRes NX (libretro)'], {MediaType.Digital: ['nx']}, is_virtual=True, dat_names=['LowRes NX']),
+	'Pico-8': SystemInfo([], [], ['Pico-8'], {MediaType.Cartridge: ['p8.png'], MediaType.Executable: ['p8']}, is_virtual=True),
 }
 
 #For Machine.is_system_driver to work correctly
@@ -557,7 +558,7 @@ all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers] + ibmpc
 #TRS-80 Model 2 (trs80m2)
 #TRS-80 MC-10 (mc10)
 #Hitachi S1
-#Virtual systems: TADS, Z-Machine, Adobe AIR, Pico-8 (not that I have found cool "emulators" for any of that)
+#Virtual systems: TADS, Z-Machine, Adobe AIR
 #Acorn System (acrnsys3, acrnsys5)
 #Amstrad PC1512 (pc1512, pc1640)
 #Indy (indy_4610, indigo2_4415)

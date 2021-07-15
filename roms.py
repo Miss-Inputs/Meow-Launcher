@@ -54,6 +54,10 @@ class RomFile():
 			self.is_compressed = False
 			self.compressed_entry = None
 			self.name = name_without_extension
+
+		if self.extension == 'png' and self.name.endswith('.p8'):
+			self.name = self.name[:-3]
+			self.extension = 'p8.png'
 			
 		self.store_entire_file = False
 		self.entire_file = b''

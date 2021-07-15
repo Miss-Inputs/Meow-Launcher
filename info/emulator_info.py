@@ -150,11 +150,9 @@ emulators = {
 	#--gba-cgb-mode[=0] and --force-dmg-mode[=0] may be useful in obscure situations, but that would probably require a specific thing that notes some GBC games are incompatible with GBA mode (Pocket Music) or GB incompatible with GBC (R-Type, also Pocket Sonar but that wouldn't work anyway)
 	#I guess MBC1 Multicart only works if you tick the "Multicart compatibility" box
 	#MMM01 technically works but only boots the first game instead of the menu, so it doesn't really work work
-
 	'GBE+': StandardEmulator(EmulatorStatus.Good, 'gbe_plus_qt', command_lines.gbe_plus, ['gb', 'gbc', 'gba']),
 	#In theory, only this should support Pocket Sonar (so far), but there's not really a way to detect that since it just claims to be MBC1 in the header...
 	#Also in theory recognizes any extension and assumes Game Boy if not .gba or .nds, but that would be screwy
-
 	'Kega Fusion': StandardEmulator(EmulatorStatus.Good, 'kega-fusion', 
 	simple_md_emulator(['-fullscreen', '$<path>'], ['aqlian', 'sf002', 'sf004', 'smw64', 'topf', 'kof99', 'cjmjclub', 'pokestad', 'soulb', 'chinf3']), 
 	['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', 'sc', '32x'], ['zip']),
@@ -166,6 +164,7 @@ emulators = {
 	'Mupen64Plus': StandardEmulator(EmulatorStatus.Good, 'mupen64plus', command_lines.mupen64plus, ['z64', 'v64', 'n64'], []),
 	'PCSX2': StandardEmulator(EmulatorStatus.Good, 'PCSX2', simple_emulator(['--nogui', '--fullscreen', '--fullboot', '$<path>']), ['iso', 'cso', 'bin'], ['gz']),
 	#Takes some time to load the interface so at first it might look like it's not working; take out --fullboot if it forbids any homebrew stuff (but it should be fine, and certain games might need it).  ELF seems to not work, though it'd need a different command line anyway. Only reads the bin of bin/cues and not the cue
+	'Pico-8': StandardEmulator(EmulatorStatus.Good, 'pico8', simple_emulator(['-windowed', '0', '-run', '$<path>']), ['p8', 'p8.png'], []),
 	'PokeMini': StandardEmulator(EmulatorStatus.Good, 'PokeMini', command_lines.pokemini, ['min'], ['zip']), #Normally just puts the config files in the current directory, so this cd's to ~/.config/PokeMini first
 	'PPSSPP': StandardEmulator(EmulatorStatus.Good, 'ppsspp-qt', command_lines.ppsspp, ['iso', 'pbp', 'cso']),
 	'Reicast': StandardEmulator(EmulatorStatus.Good, 'reicast', command_lines.reicast, ['gdi', 'cdi', 'chd'], {
