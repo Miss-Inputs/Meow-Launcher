@@ -1526,8 +1526,8 @@ def dosbox_staging(app, _, emulator_config):
 	if not noautoexec:
 		config_file_location = os.path.expanduser('~/.config/dosbox/dosbox-staging.conf')
 		try:
-			drive_letter = _last_unused_dosbox_drive(config_file_location)
-			cd_drive_letter = _last_unused_dosbox_drive(config_file_location, [drive_letter])
+			cd_drive_letter = _last_unused_dosbox_drive(config_file_location)
+			drive_letter = _last_unused_dosbox_drive(config_file_location, [cd_drive_letter])
 		except OSError:
 			pass
 		
