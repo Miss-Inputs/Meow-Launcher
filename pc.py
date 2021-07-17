@@ -26,8 +26,7 @@ class App:
 		self.other_cd_paths = []
 		if 'cd_path' in info:
 			cd_paths = info['cd_path'] if isinstance(info['cd_path'], list) else [info['cd_path']]
-			if self.base_folder:
-				cd_paths = [os.path.join(self.base_folder, cd_path) for cd_path in cd_paths]
+			cd_paths = [os.path.join(self.base_folder, cd_path) if self.base_folder and not cd_path.startswith('/') else cd_path for cd_path in cd_paths]
 			self.cd_path = cd_paths[0]
 			self.other_cd_paths = cd_paths[1:]
 		elif self.is_on_cd:
