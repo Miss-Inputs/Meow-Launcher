@@ -574,6 +574,7 @@ pc_emulators = {
 	'DOSBox Staging': PCEmulator(EmulatorStatus.Good, 'dosbox', command_lines.dosbox_staging, {
 		'cycles_for_477_mhz': EmulatorConfigValue(ConfigValueType.Integer, 245, 'CPU cycles to use to get as close as possible to 4.77MHz'),
 		'noautoexec': EmulatorConfigValue(ConfigValueType.Bool, False, 'Do not load [autoexec] section in config file'),
+		'overlay_path': EmulatorConfigValue(ConfigValueType.FolderPath, None, 'If set to something, use a subfolder of this path as an overlay so save games etc are written there'),
 	}),
 	'DOSBox-X': PCEmulator(EmulatorStatus.Good, 'dosbox-x', command_lines.dosbox_x)
 }

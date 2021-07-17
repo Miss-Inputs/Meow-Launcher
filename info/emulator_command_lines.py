@@ -1505,8 +1505,7 @@ def dosbox_staging(app, _, emulator_config):
 	args = ['-fullscreen', '-exit']
 	noautoexec = emulator_config.options['noautoexec']
 	if noautoexec:
-		args.append('-noautoexec')
-	
+		args.append('-noautoexec')	
 
 	if 'required_hardware' in app.info:
 		if 'for_xt' in app.info['required_hardware']:
@@ -1527,10 +1526,12 @@ def dosbox_staging(app, _, emulator_config):
 		config_file_location = os.path.expanduser('~/.config/dosbox/dosbox-staging.conf')
 		try:
 			cd_drive_letter = _last_unused_dosbox_drive(config_file_location, ['C'])
-			drive_letter = _last_unused_dosbox_drive(config_file_location, [cd_drive_letter])
+			drive_letter = _last_unused_dosbox_drive(config_file_location, [cd_drive_letter] if app.cd_path else None)
 		except OSError:
 			pass
 		
+	overlay_path = emulator_config.options['overlay_path']
+
 	if app.cd_path:
 		#I hope you don't put double quotes in the CD paths
 		imgmount_args = '"{0}"'.format(app.cd_path)
@@ -1538,18 +1539,27 @@ def dosbox_staging(app, _, emulator_config):
 			imgmount_args += ' '  + ' '.join('"{0}"'.format(cd_path) for cd_path in app.other_cd_paths)
 		args += ['-c', 'IMGMOUNT {0} -t cdrom {1}'.format(cd_drive_letter, imgmount_args)]
 	
+	ensure_exist_command = None #Used to ensure overlay dir exists… hmm
 	if app.is_on_cd:
 		args += ['-c', cd_drive_letter + ':', '-c', app.path, '-c', 'exit']
 	else:
-		if drive_letter == 'C':
+		if drive_letter == 'C' and not overlay_path:
 			args.append(app.path)
 		else:
 			#Gets tricky if autoexec already mounts a C drive because launching something from the command line normally that way just assumes C is a fine drive to use
 			#This also makes exit not work normally
 			host_folder, exe_name = os.path.split(app.path)
-			args += ['-c', 'MOUNT {0} "{1}"'.format(drive_letter, host_folder), '-c', drive_letter + ':', '-c', exe_name, '-c', 'exit']
+			args += '-c', 'MOUNT {0} "{1}"'.format(drive_letter, host_folder)
+			if overlay_path:
+				overlay_subfolder = os.path.join(overlay_path, app.name)
+				ensure_exist_command = LaunchParams('mkdir', ['-p', overlay_subfolder])
+				args += ['-c', 'MOUNT -t overlay {0} "{1}"'.format(drive_letter, overlay_subfolder)]
+			args += ['-c', drive_letter + ':', '-c', exe_name, '-c', 'exit']
 
-	return LaunchParams(emulator_config.exe_path, args)
+	launch_command = LaunchParams(emulator_config.exe_path, args)
+	if ensure_exist_command:
+		return MultiCommandLaunchParams([ensure_exist_command], launch_command, [])
+	return launch_command
 
 def dosbox_x(app, _, emulator_config):
 	confs = {}
