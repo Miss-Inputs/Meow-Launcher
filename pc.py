@@ -22,6 +22,7 @@ class App:
 		self.info = info
 		self.is_on_cd = info.get('is_on_cd', False)
 		self.path = info['path']
+		self.args = info.get('args', [])
 		self.cd_path = None
 		self.other_cd_paths = []
 		if 'cd_path' in info:

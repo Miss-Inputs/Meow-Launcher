@@ -1541,7 +1541,10 @@ def dosbox_staging(app, _, emulator_config):
 	
 	ensure_exist_command = None #Used to ensure overlay dir exists… hmm
 	if app.is_on_cd:
-		args += ['-c', cd_drive_letter + ':', '-c', app.path, '-c', 'exit']
+		app_exec = app.path
+		if app.args:
+			app_exec += ' ' + ' '.join([shlex.quote(arg) for arg in app.args])
+		args += ['-c', cd_drive_letter + ':', '-c', app_exec, '-c', 'exit']
 	else:
 		if drive_letter == 'C' and not overlay_path:
 			args.append(app.path)
@@ -1554,7 +1557,12 @@ def dosbox_staging(app, _, emulator_config):
 				overlay_subfolder = os.path.join(overlay_path, app.name)
 				ensure_exist_command = LaunchParams('mkdir', ['-p', overlay_subfolder])
 				args += ['-c', 'MOUNT -t overlay {0} "{1}"'.format(drive_letter, overlay_subfolder)]
-			args += ['-c', drive_letter + ':', '-c', exe_name, '-c', 'exit']
+			args += ['-c', drive_letter + ':']
+			if app.args:
+				args += ['-c', exe_name + ' ' + ' '.join([shlex.quote(arg) for arg in app.args])]
+			else:
+				args += ['-c', exe_name]
+			args += ['-c', 'exit']
 
 	launch_command = LaunchParams(emulator_config.exe_path, args)
 	if ensure_exist_command:
