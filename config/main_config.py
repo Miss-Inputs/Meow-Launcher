@@ -66,6 +66,7 @@ _config_ini_values = {
 	'libretro_cores_directory': ConfigValue('Roms', ConfigValueType.FolderPath, None, 'libretro cores directory', 'Path to search for libretro cores if not explicitly specified'),
 
 	'use_original_platform': ConfigValue('ScummVM', ConfigValueType.Bool, False, 'Use original platform', 'Set the platform in metadata to the original platform instead of leaving blank'),
+	'scummvm_config_path': ConfigValue('ScummVM', ConfigValueType.FilePath, os.path.expanduser('~/.config/scummvm/scummvm.ini'), 'ScummVM config path', 'Path to scummvm.ini, if not the default'),
 
 	'gog_folders': ConfigValue('GOG', ConfigValueType.FolderPathList, [], 'GOG folders', 'Folders where GOG games are installed'),
 	'use_gog_as_platform': ConfigValue('GOG', ConfigValueType.Bool, False, 'Use GOG as platform', 'Set platform in metadata to GOG instead of underlying platform'),

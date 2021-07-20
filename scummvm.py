@@ -14,9 +14,6 @@ from info.region_info import get_language_by_short_code
 from metadata import Metadata
 from pc_common_metadata import look_for_icon_in_folder
 
-scumm_config_path = os.path.expanduser('~/.config/scummvm/scummvm.ini')
-residualvm_config_path = os.path.expanduser('~/.config/residualvm/residualvm.ini')
-
 def _get_vm_config(path):
 	parser = configparser.ConfigParser()
 	parser.optionxform = str
@@ -26,8 +23,7 @@ def _get_vm_config(path):
 class ScummVMConfig():
 	class __ScummVMConfig():
 		def __init__(self):
-			self.have_scummvm_config = os.path.isfile(scumm_config_path)
-			self.have_residualvm_config = os.path.isfile(residualvm_config_path)
+			self.have_scummvm_config = os.path.isfile(main_config.scummvm_config_path)
 
 			self.have_scummvm_exe = True
 			try:
@@ -35,14 +31,8 @@ class ScummVMConfig():
 			except FileNotFoundError:
 				self.have_scummvm_exe = False
 
-			self.have_residualvm_exe = True
-			try:
-				self.residualvm_engines = self.get_vm_engines('residualvm')
-			except FileNotFoundError:
-				self.have_residualvm_exe = False
-
-			self.scummvm_config = _get_vm_config(scumm_config_path)
-			self.residualvm_config = _get_vm_config(residualvm_config_path)
+			if self.have_scummvm_config:
+				self.scummvm_ini = _get_vm_config(main_config.scummvm_config_path)
 
 		@staticmethod
 		def get_vm_engines(exe_name):
@@ -65,10 +55,6 @@ class ScummVMConfig():
 		def have_scummvm(self):
 			return self.have_scummvm_config and self.have_scummvm_exe
 		
-		@property
-		def have_residualvm(self):
-			return self.have_residualvm_config and self.have_residualvm_exe
-
 	__instance = None
 
 	@staticmethod
@@ -77,10 +63,7 @@ class ScummVMConfig():
 			ScummVMConfig.__instance = ScummVMConfig.__ScummVMConfig()
 		return ScummVMConfig.__instance
 
-vmconfig = ScummVMConfig.getScummVMConfig()
-
-def have_something_vm():
-	return vmconfig.have_scummvm or vmconfig.have_residualvm
+scummvm_config = ScummVMConfig.getScummVMConfig()
 
 def format_platform(platform):
 	#https://github.com/scummvm/scummvm/blob/master/common/platform.cpp#L28
@@ -115,14 +98,15 @@ def format_platform(platform):
 		'ppc': 'PocketPC',
 		'megadrive': 'Mega Drive',
 		'saturn': 'Saturn',
+		'pippin': 'Pippin',
 	}.get(platform, platform)
 
 class ScummVMGame():
-	def __init__(self, name, vm_config):
+	def __init__(self, name):
 		#The [game-name] is also user-modifiable and shouldn't be relied on to mean anything, but it is used for scummvm to actually launch the game and can be trusted to be unique
 		self.name = name
 		self.options = {}
-		for k, v in vm_config.items(name):
+		for k, v in scummvm_config.scummvm_ini.items(name):
 			self.options[k] = v
 
 		self.metadata = Metadata()
@@ -130,10 +114,14 @@ class ScummVMGame():
 
 	@staticmethod
 	def _engine_list_to_use():
-		return vmconfig.scummvm_engines
+		return scummvm_config.scummvm_engines
 
 	def _get_launch_params(self):
-		return launchers.LaunchParams('scummvm', ['-f', self.name])
+		args = ['-f']
+		if main_config.scummvm_config_path != os.path.expanduser('~/.config/scummvm/scummvm.ini'):
+			args.append('--config={0}'.format(main_config.scummvm_config_path))
+		args.append(self.name)
+		return launchers.LaunchParams('scummvm', args)
 
 	@staticmethod
 	def _get_emulator_name():
@@ -196,63 +184,37 @@ class ScummVMGame():
 		name = self.options.get('description', self.name)
 		name = name.replace('/', ') (') #Names are usually something like Cool Game (CD/DOS/English); we convert it to Cool Game (CD) (DOS) (English) to make it work better with disambiguate etc
 
-		#Hmm, could use ResidualVM as the launcher type for ResidualVM games... but it's just a unique identifier type thing, so it should be fine
 		launchers.make_launcher(self._get_launch_params(), name, self.metadata, 'ScummVM', self.name)
 
-class ResidualVMGame(ScummVMGame):
-	@staticmethod
-	def _get_emulator_name():
-		return 'ResidualVM'
-
-	@staticmethod
-	def _engine_list_to_use():
-		return vmconfig.residualvm_engines
-
-	def _get_launch_params(self):
-		return launchers.LaunchParams('residualvm', ['-f', self.name])
-
 def no_longer_exists(game_id):
-	if vmconfig.have_scummvm:
-		exists_in_scummvm = game_id in vmconfig.scummvm_config.sections()
+	if scummvm_config.have_scummvm:
+		exists_in_scummvm = game_id in scummvm_config.scummvm_ini.sections()
 	else:
 		exists_in_scummvm = False
 
-	if vmconfig.have_residualvm:
-		exists_in_residualvm = game_id in vmconfig.residualvm_config.sections()
-	else:
-		exists_in_residualvm = False
-	return not (exists_in_scummvm or exists_in_residualvm)
-
-def add_vm_games(name, config_path, vm_config, game_class):
-	if not os.path.isfile(config_path):
-		return
-
-	time_started = time.perf_counter()
-
-	for section in vm_config.sections():
-		if section == name.lower():
-			#Skip the top section that just says [scummvm]/[residualvm]
-			continue
-		if section == 'cloud':
-			#This is not a game either
-			continue
-		if not main_config.full_rescan:
-			if launchers.has_been_done('ScummVM', section):
-				continue
-
-		game = game_class(section, vm_config)
-		game.make_launcher()
-
-	if main_config.print_times:
-		time_ended = time.perf_counter()
-		print(name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-
+	return not exists_in_scummvm
 
 def add_scummvm_games():
-	if vmconfig.have_scummvm_exe:
-		add_vm_games('ScummVM', scumm_config_path, vmconfig.scummvm_config, ScummVMGame)
-	if vmconfig.have_residualvm_exe:
-		add_vm_games('ResidualVM', residualvm_config_path, vmconfig.residualvm_config, ResidualVMGame)
+	if scummvm_config.have_scummvm:
+		time_started = time.perf_counter()
+
+		for section in scummvm_config.scummvm_ini.sections():
+			if section == 'scummvm':
+				#Skip the top section
+				continue
+			if section == 'cloud':
+				#This is not a game either
+				continue
+			if not main_config.full_rescan:
+				if launchers.has_been_done('ScummVM', section):
+					continue
+
+			game = ScummVMGame(section)
+			game.make_launcher()
+
+		if main_config.print_times:
+			time_ended = time.perf_counter()
+			print('ScummVM finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
 if __name__ == '__main__':
 	add_scummvm_games()
