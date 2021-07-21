@@ -167,9 +167,7 @@ emulators = {
 	'Pico-8': StandardEmulator(EmulatorStatus.Good, 'pico8', simple_emulator(['-windowed', '0', '-run', '$<path>']), ['p8', 'p8.png'], []),
 	'PokeMini': StandardEmulator(EmulatorStatus.Good, 'PokeMini', command_lines.pokemini, ['min'], ['zip']), #Normally just puts the config files in the current directory, so this cd's to ~/.config/PokeMini first
 	'PPSSPP': StandardEmulator(EmulatorStatus.Good, 'ppsspp-qt', command_lines.ppsspp, ['iso', 'pbp', 'cso']),
-	'Reicast': StandardEmulator(EmulatorStatus.Good, 'reicast', command_lines.reicast, ['gdi', 'cdi', 'chd'], {
-		'force_opengl_version': EmulatorConfigValue(ConfigValueType.Bool, False, 'Hack to force Mesa OpenGL version by environment variable if you need it')
-	}),
+	'Reicast': StandardEmulator(EmulatorStatus.Good, 'reicast', command_lines.reicast, ['gdi', 'cdi', 'chd']),
 	'Ruffle': StandardEmulator(EmulatorStatus.Imperfect, 'ruffle', simple_emulator(), ['swf']),
 	#No way to start off in fullscreen…
 	'SimCoupe': StandardEmulator(EmulatorStatus.Good, 'simcoupe', simple_emulator(['-fullscreen', 'yes', '$<path>']), ['mgt', 'sad', 'dsk', 'sbt'], ['zip', 'gz']),
