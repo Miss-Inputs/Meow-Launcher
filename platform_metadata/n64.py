@@ -11,12 +11,27 @@ def get_mupen64plus_database():
 	if hasattr(get_mupen64plus_database, 'mupen64plus_database'):
 		return get_mupen64plus_database.mupen64plus_database
 
-	locations = ['/usr/share/mupen64plus/mupen64plus.ini', '/usr/local/share/mupen64plus/mupen64plus.ini']
 	location = None
-	for possible_location in locations:
-		if os.path.isfile(possible_location):
-			location = possible_location
-			break
+	
+	config_location = os.path.expanduser('~/.config/mupen64plus/mupen64plus.cfg')
+	try:
+		with open(config_location, 'rt') as config_file:
+			for line in config_file.readlines():
+				if line.startswith('SharedDataPath = '):
+					data_folder = line.rstrip()[len('SharedDataPath = '):].strip('"')
+					possible_location = os.path.join(data_folder, 'mupen64plus.ini')
+					if os.path.isfile(possible_location):
+						location = possible_location
+	except OSError:
+		pass
+
+	if not location:
+		possible_locations = ['/usr/share/mupen64plus/mupen64plus.ini', '/usr/local/share/mupen64plus/mupen64plus.ini']
+		for possible_location in possible_locations:
+			if os.path.isfile(possible_location):
+				location = possible_location
+				break
+	#TODO: Add option to force the database to a certain location
 
 	if not location:
 		return None
