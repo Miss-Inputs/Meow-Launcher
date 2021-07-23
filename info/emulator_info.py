@@ -270,7 +270,6 @@ emulators = {
 	#Has issues with XEGS carts that it should be able to load (because they do run on the real system) but it says it doesn't because they should be run on XEGS instead, and then doesn't support a few cart types anyway; otherwise fine
 	'MAME (Bandai Super Vision 8000)': MameDriver(EmulatorStatus.Good, simple_mame_driver('sv8000', 'cart'), ['bin']),
 	'MAME (BBC Bridge Companion)': MameDriver(EmulatorStatus.Good, simple_mame_driver('bbcbc', 'cart'), ['bin']),
-	'MAME (C64)': MameDriver(EmulatorStatus.Good, command_lines.mame_c64, ['80', 'a0', 'e0', 'crt']),
 	'MAME (Casio PV-1000)': MameDriver(EmulatorStatus.Good, simple_mame_driver('pv1000', 'cart'), ['bin']),
 	'MAME (Champion 2711)': MameDriver(EmulatorStatus.Good, simple_mame_driver('unichamp', 'cart'), generic_cart_extensions),
 	'MAME (Channel F)': MameDriver(EmulatorStatus.Good, simple_mame_driver('channelf', 'cart'), ['bin', 'chf']),
@@ -485,6 +484,7 @@ emulators = {
 	'MAME (3DO)': MameDriver(EmulatorStatus.Borked, simple_mame_driver('3do', 'cdrom'), mame_cdrom_formats), #Should switch to 3do_pal when needed, but it doesn't really matter at this point
 	'MAME (Buzztime Home Trivia System)': MameDriver(EmulatorStatus.Borked, simple_mame_driver('buzztime', 'cart'), ['bin']),
 	#Inputs are not defined and it just spams random inputs (the game plays itself!!!1)
+	'MAME (C64)': MameDriver(EmulatorStatus.Borked, command_lines.mame_c64, ['80', 'a0', 'e0', 'crt']), #Doesn't load carts anymore
 	'MAME (Casio Loopy)': MameDriver(EmulatorStatus.Borked, simple_mame_driver('casloopy', 'cart'), ['bin']),
 	#Just shows corrupted graphics (and has no controls defined), basically just a skeleton even if it looks like it isn't
 	'MAME (Commodore CDTV)': MameDriver(EmulatorStatus.Borked, simple_mame_driver('cdtv', 'cdrom'), mame_cdrom_formats),
