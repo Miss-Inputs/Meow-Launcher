@@ -19,8 +19,7 @@ from .wii import parse_ratings
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
-#TODO: Detect PassMe carts, and reject the rest of the header if so (well, product code and publisher)
-#For DSiWare, we can get public.sav and private.sav filesize, and that tells us if SaveType = Internal or Nothing. But we won't worry about DSiWare for now due to lack of accessible emulation at the moment.
+#For DSiWare, we can get public.sav and private.sav filesize, and that tells us if SaveType = Internal or Nothing. But we won't worry about DSiWare for now
 
 def load_tdb():
 	if 'DS' not in system_configs:
@@ -155,26 +154,29 @@ def parse_banner(rom, metadata, header, is_dsi, banner_offset):
 				metadata.images['Icon'] = decode_icon(icon_bitmap, icon_palette)
 
 def parse_ds_header(rom, metadata, header):
-	internal_title = header[0:12].decode('ascii', errors='backslashreplace').rstrip('\0')
-	if internal_title:
-		metadata.specific_info['Internal-Title'] = internal_title
+	if header[0:4] == b'.\0\0\xea':
+		metadata.specific_info['PassMe'] = True
+	else:
+		internal_title = header[0:12].decode('ascii', errors='backslashreplace').rstrip('\0')
+		if internal_title:
+			metadata.specific_info['Internal-Title'] = internal_title
 
-	try:
-		product_code = convert_alphanumeric(header[12:16])
-		metadata.product_code = product_code
-		add_info_from_tdb(tdb, metadata, product_code)
-		add_cover(metadata, product_code)
-		
-	except NotAlphanumericException:
-		pass
+		try:
+			product_code = convert_alphanumeric(header[12:16])
+			metadata.product_code = product_code
+			add_info_from_tdb(tdb, metadata, product_code)
+			add_cover(metadata, product_code)
+			
+		except NotAlphanumericException:
+			pass
 
-	try:
-		if not metadata.publisher:
-			licensee_code = convert_alphanumeric(header[16:18])
-			if licensee_code in nintendo_licensee_codes:
-				metadata.publisher = nintendo_licensee_codes[licensee_code]
-	except NotAlphanumericException:
-		pass
+		try:
+			if not metadata.publisher:
+				licensee_code = convert_alphanumeric(header[16:18])
+				if licensee_code in nintendo_licensee_codes:
+					metadata.publisher = nintendo_licensee_codes[licensee_code]
+		except NotAlphanumericException:
+			pass
 
 	is_dsi = False
 	unit_code = header[18]
