@@ -1,4 +1,5 @@
 import gzip
+import lzma
 import re
 import subprocess
 import zipfile
@@ -15,7 +16,10 @@ compressed_exts = ['7z', 'zip', 'gz', 'bz2', 'tar', 'tgz', 'tbz', 'rar', 'xz', '
 
 #-- Stuff to read archive files that have no native Python support via 7z command line (we still need this for some obscure types if we do have py7zr)
 
-class Bad7zException(Exception):
+class BadSubprocessedArchiveError(Exception):
+	pass
+
+class BadArchiveError(Exception):
 	pass
 
 sevenzip_path_regex = re.compile(r'^Path\s+=\s+(.+)$')
@@ -24,7 +28,7 @@ sevenzip_crc_regex = re.compile(r'^CRC\s+=\s+([\dA-Fa-f]+)$')
 def subprocess_sevenzip_list(path):
 	proc = subprocess.run(['7z', 'l', '-slt', '--', path], stdout=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
-		raise Bad7zException('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
+		raise BadSubprocessedArchiveError('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
 
 	files = []
 	found_file_line = False
@@ -51,7 +55,7 @@ def subprocess_sevenzip_crc(path, filename):
 	#See also https://fastapi.metacpan.org/source/BJOERN/Compress-Deflate7-1.0/7zip/DOC/7zFormat.txt to do things the hard way
 	proc = subprocess.run(['7z', 'l', '-slt', '--', path, filename], stdout=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
-		raise Bad7zException('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
+		raise BadSubprocessedArchiveError('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
 
 	this_filename = None
 	for line in proc.stdout.splitlines():
@@ -71,7 +75,7 @@ sevenzip_size_reg = re.compile(r'^Size\s+=\s+(\d+)$', flags=re.IGNORECASE)
 def subprocess_sevenzip_getsize(path, filename):
 	proc = subprocess.run(['7z', 'l', '-slt', '--', path, filename], stdout=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
-		raise Bad7zException('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
+		raise BadSubprocessedArchiveError('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
 
 	found_file_line = False
 	for line in proc.stdout.splitlines():
@@ -86,6 +90,8 @@ def subprocess_sevenzip_getsize(path, filename):
 
 def subprocess_sevenzip_get(path, filename):
 	with subprocess.Popen(['7z', 'e', '-so', '--', path, filename], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as proc:
+		if proc.returncode != 0:
+			raise BadSubprocessedArchiveError('{0}: {1}'.format(path, proc.returncode))
 		return proc.stdout.read()
 
 #---
@@ -132,6 +138,7 @@ def sevenzip_get_crc32(path, filename):
 	with py7zr.SevenZipFile(path, mode='r') as sevenzip_file:
 		return [i.crc32 for i in sevenzip_file.list() if i.filename == filename][0]
 
+#----- Entry points to this little archive helper
 def get_crc32_of_archive(path, filename):
 	if zipfile.is_zipfile(path):
 		try:
@@ -139,42 +146,75 @@ def get_crc32_of_archive(path, filename):
 		except zipfile.BadZipFile:
 			pass
 	if have_py7zr and path.endswith('.7z'):
-		return sevenzip_get_crc32(path, filename)
+		try:
+			return sevenzip_get_crc32(path, filename)
+		except (py7zr.Bad7zFile, lzma.LZMAError) as ex:
+			raise BadArchiveError(path) from ex
 	if path.endswith('.gz'):
-		#Do things the old fashioned way, since the crc32 isn't in there
+		#Do things the old fashioned way, since we can't use the gzip module to read any CRC that might be in the gzip header
+		#This will raise an archive error if it's invalid so we don't need to raise another one
 		return zlib.crc32(gzip_get(path)) & 0xffffffff
-	return subprocess_sevenzip_crc(path, filename)
+	try:
+		return subprocess_sevenzip_crc(path, filename)
+	except BadSubprocessedArchiveError as ex:
+		raise BadArchiveError(path) from ex
 	
 def compressed_list(path):
 	if zipfile.is_zipfile(path):
 		try:
 			return zip_list(path)
-		except zipfile.BadZipFile:
-			pass
+		except zipfile.BadZipFile as badzipfile:
+			raise BadArchiveError(path) from badzipfile
 	if have_py7zr and path.endswith('.7z'):
-		return sevenzip_list(path)
-	return subprocess_sevenzip_list(path)
+		try:
+			return sevenzip_list(path)
+		except (py7zr.Bad7zFile, lzma.LZMAError) as ex:
+			raise BadArchiveError(path) from ex
+	#We can't get gzip inner filename from the gzip module, so we will have to let 7z do it, which kinda sucks
+	try:
+		return subprocess_sevenzip_list(path)
+	except BadSubprocessedArchiveError as ex:
+		raise BadArchiveError(path) from ex
+	
 
 def compressed_getsize(path, filename):
 	if zipfile.is_zipfile(path):
 		try:
 			return zip_getsize(path, filename)
-		except zipfile.BadZipFile:
-			pass
+		except zipfile.BadZipFile as badzipfile:
+			raise BadArchiveError(path) from badzipfile
 	if have_py7zr and path.endswith('.7z'):
-		return sevenzip_getsize(path, filename)
+		try:
+			return sevenzip_getsize(path, filename)
+		except (py7zr.Bad7zFile, lzma.LZMAError) as ex:
+			raise BadArchiveError(path) from ex
 	if path.endswith('.gz'):
-		return gzip_getsize(path)
-	return subprocess_sevenzip_getsize(path, filename)
+		try:
+			return gzip_getsize(path)
+		except gzip.BadGzipFile as badgzipfile:
+			raise BadArchiveError(path) from badgzipfile
+	try:
+		return subprocess_sevenzip_getsize(path, filename)
+	except BadSubprocessedArchiveError as ex:
+		raise BadArchiveError(path) from ex
 
 def compressed_get(path, filename):
 	if zipfile.is_zipfile(path):
 		try:
 			return zip_get(path, filename)
-		except zipfile.BadZipFile:
-			pass
+		except zipfile.BadZipFile as badzipfile:
+			raise BadArchiveError(path) from badzipfile
 	if have_py7zr and path.endswith('.7z'):
-		return sevenzip_get(path, filename)
+		try:
+			return sevenzip_get(path, filename)
+		except (py7zr.Bad7zFile, lzma.LZMAError) as ex:
+			raise BadArchiveError(path) from ex
 	if path.endswith('.gz'):
-		return gzip_get(path)
-	return subprocess_sevenzip_get(path, filename)
+		try:
+			return gzip_get(path)
+		except gzip.BadGzipFile as badgzipfile:
+			raise BadArchiveError(path) from badgzipfile
+	try:
+		return subprocess_sevenzip_get(path, filename)
+	except BadSubprocessedArchiveError as ex:
+		raise BadArchiveError(path) from ex
