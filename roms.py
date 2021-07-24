@@ -339,7 +339,7 @@ def process_emulated_system(system_config):
 				rom.maybe_read_whole_thing()
 			#pylint: disable=broad-except
 			except Exception as ex:
-				print('Bother!!! Reading the ROM produced an error', path, ex, type(ex), traceback.extract_tb(ex.__traceback__)[1:])
+				print('Bother!!! Reading the ROM produced an error', path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
 				continue
 
 			try:
@@ -347,7 +347,7 @@ def process_emulated_system(system_config):
 			#pylint: disable=broad-except
 			except Exception as ex:
 				#It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
-				print('FUCK!!!!', path, ex, type(ex), traceback.extract_tb(ex.__traceback__)[1:])
+				print('FUCK!!!!', path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
 		
 
 	if main_config.print_times:
