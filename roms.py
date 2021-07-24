@@ -340,7 +340,8 @@ def process_emulated_system(system_config):
 			#pylint: disable=broad-except
 			except Exception as ex:
 				print('Bother!!! Reading the ROM produced an error', path, ex, type(ex), traceback.extract_tb(ex.__traceback__)[1:])
-			
+				continue
+
 			try:
 				process_file(system_config, potential_emulators, rom, categories)
 			#pylint: disable=broad-except
