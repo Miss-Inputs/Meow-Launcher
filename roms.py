@@ -313,41 +313,41 @@ def process_emulated_system(system_config):
 				file_list.append((path, subfolders))
 
 
-		for path, categories in file_list:
-			try:
-				rom = rom_file(path)
-			except archives.BadArchiveError as badarchiveerror:
-				print('Uh oh fucky wucky!', path, 'is an archive file that we tried to open to list its contents, but it was invalid:', badarchiveerror)
+	for path, categories in file_list:
+		try:
+			rom = rom_file(path)
+		except archives.BadArchiveError as badarchiveerror:
+			print('Uh oh fucky wucky!', path, 'is an archive file that we tried to open to list its contents, but it was invalid:', badarchiveerror)
 
-			# if rom.extension == 'm3u':
-			# 	used_m3u_filenames.extend(parse_m3u(path))
-			# else:
-			# 	#Avoid adding part of a multi-disc game if we've already added the whole thing via m3u
-			# 	#This is why we have to make sure m3u files are added first, though...  not really a nice way around this, unless we scan the whole directory for files first and then rule out stuff?
-			# 	if name in used_m3u_filenames or path in used_m3u_filenames:
-			# 		continue
+		# if rom.extension == 'm3u':
+		# 	used_m3u_filenames.extend(parse_m3u(path))
+		# else:
+		# 	#Avoid adding part of a multi-disc game if we've already added the whole thing via m3u
+		# 	#This is why we have to make sure m3u files are added first, though...  not really a nice way around this, unless we scan the whole directory for files first and then rule out stuff?
+		# 	if name in used_m3u_filenames or path in used_m3u_filenames:
+		# 		continue
 
-			system = system_info.systems[system_config.name]
-			if not system.is_valid_file_type(rom.extension):
+		system = system_info.systems[system_config.name]
+		if not system.is_valid_file_type(rom.extension):
+			continue
+
+		if not main_config.full_rescan:
+			if launchers.has_been_done('ROM', path):
 				continue
+		
+		try:
+			rom.maybe_read_whole_thing()
+		#pylint: disable=broad-except
+		except Exception as ex:
+			print('Bother!!! Reading the ROM produced an error', path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
+			continue
 
-			if not main_config.full_rescan:
-				if launchers.has_been_done('ROM', path):
-					continue
-			
-			try:
-				rom.maybe_read_whole_thing()
-			#pylint: disable=broad-except
-			except Exception as ex:
-				print('Bother!!! Reading the ROM produced an error', path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
-				continue
-
-			try:
-				process_file(system_config, potential_emulators, rom, categories)
-			#pylint: disable=broad-except
-			except Exception as ex:
-				#It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
-				print('FUCK!!!!', path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
+		try:
+			process_file(system_config, potential_emulators, rom, categories)
+		#pylint: disable=broad-except
+		except Exception as ex:
+			#It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
+			print('FUCK!!!!', path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
 		
 
 	if main_config.print_times:
