@@ -44,7 +44,7 @@ class ScummVMConfig():
 				for line in lines:
 					#Engine ID shouldn't have spaces, I think
 					engine_id, name = line.rstrip().split(maxsplit=1)
-					name = name.removeprefix(' [all games]')
+					name = name.removesuffix(' [all games]')
 					engines[engine_id] = name
 				engines['agi'] = 'AGI' #Not this weird 'AGI v32qrrbvdsnuignedogsafgd' business
 				return engines
