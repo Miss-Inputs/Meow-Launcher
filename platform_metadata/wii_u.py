@@ -118,14 +118,23 @@ def add_meta_xml_metadata(metadata, meta_xml):
 			metadata.specific_info['Region-Code'] = '0x' + region
 
 	#Tempted to reuse wii.parse_ratings, but I might not because it's just a bit different
-	rating_values = [int(tag.text) for tag in meta_xml.iter() if tag.tag.startswith('pc_')]
-	ratings = [rating & 0b0001_1111 for rating in rating_values if (rating & 0b1000_0000) == 0 and (rating & 0b0100_0000) == 0]
+	rating_tags = {tag: int(tag.text) for tag in meta_xml.iter() if tag.tag.startswith('pc_')}
+	ratings = {tag.tag: rating & 0b0001_1111 for tag, rating in rating_tags.items() if (rating & 0b1000_0000) == 0 and (rating & 0b0100_0000) == 0}
 	if ratings:
 		try:
-			rating = statistics.mode(ratings)
+			rating = statistics.mode(ratings.values())
 		except statistics.StatisticsError:
-			rating = max(ratings)
+			rating = max(ratings.values())
 		metadata.specific_info['Age-Rating'] = rating
+		if 'pc_cero' in ratings:
+			metadata.specific_info['CERO-Rating'] = ratings['pc_cero']
+		if 'pc_esrb' in ratings:
+			metadata.specific_info['ESRB-Rating'] = ratings['pc_esrb']
+		if 'pc_usk' in ratings:
+			metadata.specific_info['USK-Rating'] = ratings['pc_usk']
+		if 'pc_pegi_gen' in ratings:
+			metadata.specific_info['PEGI-Rating'] = ratings['pc_pegi_gen']
+		#There are more but that will do
 
 	# #These may not be accurate at all?
 	# metadata.specific_info['Uses-Nunchuk'] = meta_xml.findtext('ext_dev_nunchaku') != '0'
