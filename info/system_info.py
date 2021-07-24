@@ -435,7 +435,7 @@ systems = {
 	#Most software is going to go under DOS or PC Booter, but this would be the carts… hmm… does this make sense, actually
 	'PC Booter': SystemInfo(['ibm5150'], ['ibm5150'], ['MAME (IBM PCjr)', 'MAME (IBM PC)'], {MediaType.Floppy: mame_floppy_formats + ['img'], MediaType.Executable: ['exe', 'com', 'bat']}), #TODO: Reconsider this name; does it make more sense to be called "IBM PC"? Are PCjr carts not just PC booters that are carts instead of floppies (hot take)?
 	'PC-6001': SystemInfo(['pc6001'], [], ['MAME (PC-6001)'], {MediaType.Tape: ['cas', 'p6'], MediaType.Cartridge: generic_cart_extensions}),
-	'PC-88': SystemInfo(['pc8801', 'pc88va'], ['pc8801_cass', 'pc8801_flop', 'pc8201', 'pc88va'], ['MAME (PC-88)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav']}, dat_names=['NEC - PC-8001 - 8801']),
+	'PC-88': SystemInfo(['pc8801', 'pc88va'], ['pc8801_cass', 'pc8801_flop', 'pc8201', 'pc88va'], ['MAME (PC-88)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav']}, dat_names=['NEC - PC-8001 - PC-8801']),
 	'PDP-1': SystemInfo(['pdp1'], [], [], {MediaType.Tape: ['tap', 'rim']}),
 	'Plus/4': SystemInfo(['c264'], ['plus4_cart', 'plus4_cass', 'plus4_flop'], ['VICE (Plus/4)'],
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}, autodetect_tv_type=True
