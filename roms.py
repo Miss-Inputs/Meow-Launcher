@@ -123,13 +123,12 @@ def rom_file(path):
 	return RomFile(path)
 
 class RomGame():
-	def __init__(self, rom, system_name, system, folder):
+	def __init__(self, rom, system_name, system):
 		self.rom = rom
 		self.metadata = metadata.Metadata()
 		self.system_name = self.metadata.platform = system_name
 		self.system = system
 		self.metadata.categories = []
-		self.folder = folder
 		self.filename_tags = []
 
 		self.emulator = None
@@ -157,12 +156,12 @@ class RomGame():
 			name = self.metadata.names.get('Name', list(self.metadata.names.values())[0])
 		launchers.make_launcher(params, name, self.metadata, 'ROM', self.rom.path)
 
-def process_file(system_config, potential_emulators, rom_dir, root, rom):
-	game = RomGame(rom, system_config.name, system_info.systems[system_config.name], root)
+def process_file(system_config, potential_emulators, rom, categories):
+	game = RomGame(rom, system_config.name, system_info.systems[system_config.name])
 
 	if game.rom.extension == 'm3u':
 		lines = game.rom.read().decode('utf-8').splitlines()
-		filenames = [line if line.startswith('/') else os.path.join(game.folder, line) for line in lines if not line.startswith("#")]
+		filenames = [line if line.startswith('/') else os.path.join(os.path.dirname(game.rom.path), line) for line in lines if not line.startswith("#")]
 		if any(not os.path.isfile(filename) for filename in filenames):
 			if main_config.debug:
 				print('M3U file', game.rom.path, 'has broken references!!!!', filenames)
@@ -183,7 +182,7 @@ def process_file(system_config, potential_emulators, rom_dir, root, rom):
 	if not have_emulator_that_supports_extension:
 		return False
 			
-	game.metadata.categories = [cat for cat in list(pathlib.Path(root).relative_to(rom_dir).parts) if cat != rom.name]
+	game.metadata.categories = categories
 	game.filename_tags = common.find_filename_tags_at_end(game.rom.name)
 	add_metadata(game)
 	if not game.metadata.categories:
@@ -273,12 +272,15 @@ def process_emulated_system(system_config):
 		else:
 			potential_emulators.append(emulator_name)
 
+	file_list = []
+
 	for rom_dir in system_config.paths:
 		rom_dir = os.path.expanduser(rom_dir)
-		used_m3u_filenames = []
 		if not os.path.isdir(rom_dir):
 			print('Oh no', system_config.name, 'has invalid ROM dir', rom_dir)
 			continue
+
+		#used_m3u_filenames = []
 		for root, dirs, files in os.walk(rom_dir):
 			if common.starts_with_any(root + os.sep, main_config.ignored_directories):
 				continue
@@ -288,7 +290,7 @@ def process_emulated_system(system_config):
 					continue
 
 			if system_config.name in folder_checks:
-				actual_subdirs = []
+				remaining_subdirs = [] #The subdirectories of rom_dir that aren't folder ROMs
 				for d in dirs:
 					folder_path = os.path.join(root, d)
 					folder_rom = FolderROM(folder_path)
@@ -297,43 +299,55 @@ def process_emulated_system(system_config):
 						folder_rom.media_type = media_type
 						#if process_file(system_config, rom_dir, root, folder_rom):
 						#Theoretically we might want to continue descending if we couldn't make a launcher for this folder, because maybe we also have another emulator which doesn't work with folders, but does support a file inside it. That results in weird stuff where we try to launch a file inside the folder using the same emulator we just failed to launch the folder with though, meaning we actually don't want it but now it just lacks metadata, so I'm gonna just do this for now
-						process_file(system_config, potential_emulators, rom_dir, root, folder_rom)
+						#I think I need to be more awake to re-read that comment
+						process_file(system_config, potential_emulators, folder_rom, subfolders)
 						continue
-					actual_subdirs.append(d)
-				dirs[:] = actual_subdirs
+					remaining_subdirs.append(d)
+				dirs[:] = remaining_subdirs
 			dirs.sort()
 
 			for name in sorted(files, key=sort_m3u_first()):
 				path = os.path.join(root, name)
 
-				try:
-					rom = rom_file(path)
-				except archives.Bad7zException:
-					print('Uh oh fucky wucky!', path, 'is an archive file that we just tried to open with 7z but it was invalid')
+				#categories = [cat for cat in list(pathlib.Path(os.path.).relative_to(rom_dir).parts) if cat != rom.name]
+				file_list.append((path, subfolders))
 
-				if rom.extension == 'm3u':
-					used_m3u_filenames.extend(parse_m3u(path))
-				else:
-					#Avoid adding part of a multi-disc game if we've already added the whole thing via m3u
-					#This is why we have to make sure m3u files are added first, though...  not really a nice way around this, unless we scan the whole directory for files first and then rule out stuff?
-					if name in used_m3u_filenames or path in used_m3u_filenames:
-						continue
 
-					system = system_info.systems[system_config.name]
-					if not system.is_valid_file_type(rom.extension):
-						continue
+		for path, categories in file_list:
+			try:
+				rom = rom_file(path)
+			except archives.Bad7zException:
+				print('Uh oh fucky wucky!', path, 'is an archive file that we just tried to open with 7z but it was invalid')
 
-				if not main_config.full_rescan:
-					if launchers.has_been_done('ROM', path):
-						continue
+			# if rom.extension == 'm3u':
+			# 	used_m3u_filenames.extend(parse_m3u(path))
+			# else:
+			# 	#Avoid adding part of a multi-disc game if we've already added the whole thing via m3u
+			# 	#This is why we have to make sure m3u files are added first, though...  not really a nice way around this, unless we scan the whole directory for files first and then rule out stuff?
+			# 	if name in used_m3u_filenames or path in used_m3u_filenames:
+			# 		continue
 
+			system = system_info.systems[system_config.name]
+			if not system.is_valid_file_type(rom.extension):
+				continue
+
+			if not main_config.full_rescan:
+				if launchers.has_been_done('ROM', path):
+					continue
+			
+			try:
 				rom.maybe_read_whole_thing()
-				try:
-					process_file(system_config, potential_emulators, rom_dir, root, rom)
-				#pylint: disable=broad-except
-				except Exception as ex:
-					#It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
-					print('FUCK!!!!', path, ex, type(ex), traceback.extract_tb(ex.__traceback__)[1:])
+			#pylint: disable=broad-except
+			except Exception as ex:
+				print('Bother!!! Reading the ROM produced an error', path, ex, type(ex), traceback.extract_tb(ex.__traceback__)[1:])
+			
+			try:
+				process_file(system_config, potential_emulators, rom, categories)
+			#pylint: disable=broad-except
+			except Exception as ex:
+				#It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
+				print('FUCK!!!!', path, ex, type(ex), traceback.extract_tb(ex.__traceback__)[1:])
+		
 
 	if main_config.print_times:
 		time_ended = time.perf_counter()
