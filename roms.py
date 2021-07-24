@@ -24,7 +24,7 @@ from info import emulator_info, system_info
 from roms_metadata import add_metadata
 from roms_folders import folder_checks, FolderROM
 
-class RomFile():
+class FileROM():
 	def __init__(self, path):
 		self.path = path
 		self.ignore_name = False
@@ -112,15 +112,15 @@ class RomFile():
 	def is_folder(self):
 		return False
 
-class GCZRomFile(RomFile):
+class GCZFileROM(FileROM):
 	def read(self, seek_to=0, amount=-1):
 		return cd_read.read_gcz(self.path, seek_to, amount)
 
 def rom_file(path):
 	ext = path.rsplit(os.extsep, 1)[-1]
 	if ext.lower() == 'gcz':
-		return GCZRomFile(path)
-	return RomFile(path)
+		return GCZFileROM(path)
+	return FileROM(path)
 
 class RomGame():
 	def __init__(self, rom, system_name, system):
