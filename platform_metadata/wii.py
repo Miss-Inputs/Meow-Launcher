@@ -241,7 +241,6 @@ def add_wii_homebrew_metadata(rom, metadata):
 def parse_ratings(metadata, ratings_bytes, invert_has_rating_bit=False, use_bit_6=True):
 	ratings = {}
 	for i, rating in enumerate(ratings_bytes):
-		#We could go into which ratings board each position in the ratings bytes means, or what the ratings are called for each age, but there's no need to do that for this purpose
 		has_rating = (rating & 0b1000_0000) == 0 #For 3DS and DSi, the meaning of this bit is inverted
 		if invert_has_rating_bit:
 			has_rating = not has_rating
@@ -253,7 +252,21 @@ def parse_ratings(metadata, ratings_bytes, invert_has_rating_bit=False, use_bit_
 		#The last 4 bits are the actual rating
 		if has_rating and not banned:
 			ratings[i] = rating & 0b0001_1111
-	
+
+	if 0 in ratings:
+		metadata.specific_info['CERO-Rating'] = ratings[0]
+	if 1 in ratings:
+		metadata.specific_info['ESRB-Rating'] = ratings[1]
+	if 3 in ratings:
+		metadata.specific_info['USK-Rating'] = ratings[3]
+	if 4 in ratings:
+		metadata.specific_info['PEGI-Rating'] = ratings[4]
+	if 8 in ratings:
+		metadata.specific_info['AGCB-Rating'] = ratings[8]
+	if 9 in ratings:
+		metadata.specific_info['GRB-Rating'] = ratings[9]
+	#There are others but that will do for now
+
 	ratings_list = list(ratings.values())
 	if not ratings_list:
 		return
