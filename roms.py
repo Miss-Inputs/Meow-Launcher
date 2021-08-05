@@ -156,7 +156,7 @@ class RomGame():
 			name = self.metadata.names.get('Name', list(self.metadata.names.values())[0])
 		launchers.make_launcher(params, name, self.metadata, 'ROM', self.rom.path)
 
-def process_file(system_config, potential_emulators, rom, categories):
+def process_file(system_config, potential_emulators, rom, subfolders):
 	game = RomGame(rom, system_config.name, system_info.systems[system_config.name])
 
 	if game.rom.extension == 'm3u':
@@ -182,9 +182,13 @@ def process_file(system_config, potential_emulators, rom, categories):
 	if not have_emulator_that_supports_extension:
 		return False
 			
-	game.metadata.categories = categories
 	game.filename_tags = common.find_filename_tags_at_end(game.rom.name)
 	add_metadata(game)
+	
+	if subfolders[-1] == game.rom.name:
+		game.metadata.categories = subfolders[:-1]
+	else:
+		game.metadata.categories = subfolders
 	if not game.metadata.categories:
 		game.metadata.categories = [game.metadata.platform]
 
