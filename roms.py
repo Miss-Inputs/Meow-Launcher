@@ -317,7 +317,8 @@ def process_emulated_system(system_config):
 		try:
 			rom = rom_file(path)
 		except archives.BadArchiveError as badarchiveerror:
-			print('Uh oh fucky wucky!', path, 'is an archive file that we tried to open to list its contents, but it was invalid:', badarchiveerror)
+			print('Uh oh fucky wucky!', path, 'is an archive file that we tried to open to list its contents, but it was invalid:', badarchiveerror.__cause__, traceback.extract_tb(badarchiveerror.__traceback__)[1:])
+			continue
 
 		# if rom.extension == 'm3u':
 		# 	used_m3u_filenames.extend(parse_m3u(path))
