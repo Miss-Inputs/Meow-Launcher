@@ -185,7 +185,7 @@ def process_file(system_config, potential_emulators, rom, subfolders):
 	game.filename_tags = common.find_filename_tags_at_end(game.rom.name)
 	add_metadata(game)
 	
-	if subfolders[-1] == game.rom.name:
+	if subfolders and subfolders[-1] == game.rom.name:
 		game.metadata.categories = subfolders[:-1]
 	else:
 		game.metadata.categories = subfolders
