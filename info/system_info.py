@@ -414,7 +414,7 @@ systems = {
 		dat_names=['Microsoft - MSX 2'], autodetect_tv_type=True
 	),
 	'MSX Turbo-R': SystemInfo(msxtr_drivers, ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
-	'PC-98': SystemInfo(['pc9801f', 'pc9801rs', 'pc9801ux', 'pc9821'], ['pc98', 'pc98_cd'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}, dat_names=['NEC - PC-98'], dat_uses_serial=True),
+	'PC-98': SystemInfo(['pc9801f', 'pc9801rs', 'pc9801ux', 'pc9821'], ['pc98', 'pc98_cd'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}, dat_names=['NEC - PC-98']),
 	'Sharp X68000': SystemInfo(['x68000'], ['x68k_flop'], ['PX68k (libretro)', 'MAME (Sharp X68000)'], {MediaType.Floppy: mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim'], MediaType.HardDisk: ['hdf']}, dat_names=['Sharp - X68000']),
 	'Tandy CoCo': SystemInfo(['coco'], ['coco_cart', 'coco_flop'], ['MAME (Tandy CoCo)'], {MediaType.Cartridge: ['ccc', 'rom', 'bin'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: mame_floppy_formats + ['dmk', 'jvc'], MediaType.HardDisk: ['vhd']}),
 	'TRS-80': SystemInfo(['trs80', 'trs80l2', 'trs80m3'], [], ['MAME (TRS-80)'], {MediaType.Executable: ['cmd'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: ['dmk'] + mame_floppy_formats}),
