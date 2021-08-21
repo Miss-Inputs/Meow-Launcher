@@ -1317,6 +1317,19 @@ def pokemini(_, __, emulator_config):
 		[]
 	)
 
+def pcsx2(game, _, emulator_config):
+	args = ['--nogui', '--fullscreen']
+	if game.rom.extension == 'elf':
+		args.append('--elf=$<path>')
+	elif game.rom.extension == 'irx':
+		#Presume this works? Never seen one in the wild
+		args.append('--irx=$<path>')
+	else:
+		args.append('$<path>')
+
+	#Put in --fullboot if certain games need it and can't be overriden otherwise
+	return LaunchParams(emulator_config.exe_path, args)
+
 def ppsspp(game, _, emulator_config):
 	if game.metadata.specific_info.get('PlayStation-Category') == 'UMD Video':
 		raise EmulationNotSupportedException('UMD video discs not supported')

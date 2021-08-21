@@ -147,7 +147,7 @@ systems = {
 		dat_names=['Sony - PlayStation'], dat_uses_serial=True
 	),
 	'PS2': SystemInfo(
-		['ps2'], [], ['PCSX2'], {MediaType.OpticalDisc: cdrom_formats + ['cso', 'bin'], MediaType.Executable: ['elf']},
+		['ps2'], [], ['PCSX2'], {MediaType.OpticalDisc: cdrom_formats + ['cso', 'bin'], MediaType.Executable: ['elf', 'irx']},
 		dat_names=['Sony - PlayStation 2'], dat_uses_serial=True
 	),
 	'PS3': SystemInfo(

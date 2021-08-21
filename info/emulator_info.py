@@ -162,8 +162,8 @@ emulators = {
 	#Doesn't really do GBX but it will ignore the footer
 	'melonDS': StandardEmulator(EmulatorStatus.Good, 'melonDS', command_lines.melonds, ['nds', 'srl'], []), #Supports .dsi too, but I'm acting as though it doesn't, because it's too screwy
 	'Mupen64Plus': StandardEmulator(EmulatorStatus.Good, 'mupen64plus', command_lines.mupen64plus, ['z64', 'v64', 'n64'], []),
-	'PCSX2': StandardEmulator(EmulatorStatus.Good, 'PCSX2', simple_emulator(['--nogui', '--fullscreen', '--fullboot', '$<path>']), ['iso', 'cso', 'bin'], ['gz']),
-	#Takes some time to load the interface so at first it might look like it's not working; take out --fullboot if it forbids any homebrew stuff (but it should be fine, and certain games might need it).  ELF seems to not work, though it'd need a different command line anyway. Only reads the bin of bin/cues and not the cue
+	'PCSX2': StandardEmulator(EmulatorStatus.Good, 'PCSX2', command_lines.pcsx2, ['iso', 'cso', 'bin', 'elf', 'irx', 'chd'], ['gz']),
+	#Only reads the bin of bin/cues and not the cue
 	'Pico-8': StandardEmulator(EmulatorStatus.Good, 'pico8', simple_emulator(['-windowed', '0', '-run', '$<path>']), ['p8', 'p8.png'], []),
 	'PokeMini': StandardEmulator(EmulatorStatus.Good, 'PokeMini', command_lines.pokemini, ['min'], ['zip']), #Normally just puts the config files in the current directory, so this cd's to ~/.config/PokeMini first
 	'PPSSPP': StandardEmulator(EmulatorStatus.Good, 'ppsspp-qt', command_lines.ppsspp, ['iso', 'pbp', 'cso']),
