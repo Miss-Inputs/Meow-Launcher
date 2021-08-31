@@ -1,9 +1,14 @@
 import gzip
-import lzma
+import lzma #Just for the exception class…
 import re
 import subprocess
 import zipfile
 import zlib
+
+#Use a number of different ways to crack open some archive formats and feast on the juicy file goo inside, depending on what the user has installed
+#Use inbuilt Python libraries for zip and gz
+#Prefer libarchive over py7zr, because it should theoretically be faster… would it be faster than Python's inbuilt zipfile as well? I'm not sure actually
+#As a worst case scenario, try running 7z in a subprocess, which is slow and clunky but it will open anything and I suspect it is often installed
 
 try:
 	import py7zr
@@ -24,8 +29,11 @@ try:
 except (subprocess.CalledProcessError, FileNotFoundError, OSError):
 	have_7z_command = False
 
-compressed_exts = ['7z', 'zip', 'gz', 'bz2', 'tar', 'tgz', 'tbz', 'rar', 'xz', 'txz']
-#7z supports more, but we shouldn't treat them as archives (e.g. iso) as that might be weird
+compressed_exts = ['7z', 'zip', 'gz', 'bz2', 'xz', 'tar', 'tgz', 'tbz', 'txz', 'rar']
+#7z command line tool supports even more like exe, iso that would be weird and a bad idea to treat as an archive even though you can if you want, or lha which by all means is an archive but for emulation purposes we pretend is an archive; or just some weird old stuff that we would never see and I don't really feel like listing every single one of them
+#rar might need that onen package and shouldn't exist but anyway
+#We still do need to detect by extension, because otherwise .jar and .solarus and .dosz and other things deliberately acting as not a zip would be a zip
+#For that reason this might not work as expected with ".tar.gz" instead of ".tgz" etc
 
 #-- Stuff to read archive files that have no native Python support via 7z command line (we still need this for some obscure types if we do have py7zr)
 
