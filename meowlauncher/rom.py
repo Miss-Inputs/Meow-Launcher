@@ -2,8 +2,8 @@ import os
 from typing import Optional
 from zlib import crc32
 
-from meowlauncher import archives, cd_read, io_utils
 from meowlauncher.config.main_config import main_config
+from meowlauncher.util import archives, cd_read, io_utils
 
 
 class FileROM():

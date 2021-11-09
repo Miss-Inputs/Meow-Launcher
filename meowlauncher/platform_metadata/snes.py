@@ -1,8 +1,6 @@
 import calendar
 
 from meowlauncher import input_metadata
-from meowlauncher.common import (NotAlphanumericException,
-                                 convert_alphanumeric, load_dict)
 from meowlauncher.common_types import SaveType
 from meowlauncher.info.region_info import get_region_by_name
 from meowlauncher.mame_helpers import MAMENotInstalledException
@@ -10,6 +8,8 @@ from meowlauncher.mame_machine import (does_machine_match_game,
                                        get_machines_from_source_file)
 from meowlauncher.platform_types import SNESExpansionChip
 from meowlauncher.software_list_info import get_software_list_entry
+from meowlauncher.util.utils import (NotAlphanumericException,
+                                     convert_alphanumeric, load_dict)
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 

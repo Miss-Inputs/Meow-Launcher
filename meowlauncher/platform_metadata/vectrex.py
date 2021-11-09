@@ -1,6 +1,7 @@
 from meowlauncher import input_metadata
-from meowlauncher.common import NotAlphanumericException, convert_alphanumeric
 from meowlauncher.metadata import Date
+from meowlauncher.util.utils import (NotAlphanumericException,
+                                     convert_alphanumeric)
 
 from .minor_systems import add_generic_info
 

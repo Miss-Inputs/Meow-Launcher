@@ -2,8 +2,7 @@ import os
 import re
 from datetime import datetime
 
-from meowlauncher import cd_read, input_metadata
-from meowlauncher.common import load_dict
+from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.mame_helpers import MAMENotInstalledException
 from meowlauncher.mame_machine import (does_machine_match_game,
@@ -11,6 +10,8 @@ from meowlauncher.mame_machine import (does_machine_match_game,
 from meowlauncher.metadata import Date
 from meowlauncher.platform_types import MegadriveRegionCodes
 from meowlauncher.software_list_info import get_software_list_entry
+from meowlauncher.util import cd_read
+from meowlauncher.util.utils import load_dict
 
 from .atari_controllers import megadrive_pad as standard_gamepad
 

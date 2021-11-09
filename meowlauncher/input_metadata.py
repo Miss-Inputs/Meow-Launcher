@@ -1,4 +1,4 @@
-from meowlauncher.common import pluralize
+from meowlauncher.util.utils import pluralize
 
 class Controller():
 	def describe(self):

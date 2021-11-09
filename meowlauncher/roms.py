@@ -10,16 +10,20 @@ import traceback
 from collections.abc import Iterable, Sequence
 from typing import Optional, Union
 
-from meowlauncher import archives, common, launchers, metadata
+from meowlauncher import launchers, metadata
 from meowlauncher.common_types import (EmulationNotSupportedException,
-                          ExtensionNotSupportedException, NotARomException)
+                                       ExtensionNotSupportedException,
+                                       NotARomException)
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.system_config import SystemConfig, system_configs
 from meowlauncher.info import emulator_info, system_info
+from meowlauncher.rom import FileROM, rom_file
 from meowlauncher.roms_folders import FolderROM, folder_checks
 from meowlauncher.roms_metadata import add_metadata
-from meowlauncher.rom import FileROM, rom_file
+from meowlauncher.util import archives
+from meowlauncher.util.utils import find_filename_tags_at_end, starts_with_any
+
 
 class RomGame():
 	def __init__(self, rom: Union[FileROM, FolderROM], system_name: str, system: system_info.SystemInfo):
@@ -81,7 +85,7 @@ def process_file(system_config: SystemConfig, potential_emulators: Iterable[str]
 	if not have_emulator_that_supports_extension:
 		return False
 			
-	game.filename_tags = common.find_filename_tags_at_end(game.rom.name)
+	game.filename_tags = find_filename_tags_at_end(game.rom.name)
 	if subfolders and subfolders[-1] == game.rom.name:
 		game.metadata.categories = subfolders[:-1]
 	else:
@@ -186,7 +190,7 @@ def process_emulated_system(system_config: SystemConfig):
 
 		#used_m3u_filenames = []
 		for root, dirs, files in os.walk(rom_dir):
-			if common.starts_with_any(root + os.sep, main_config.ignored_directories):
+			if starts_with_any(root + os.sep, main_config.ignored_directories):
 				continue
 			subfolders = list(pathlib.Path(root).relative_to(rom_dir).parts)
 			if subfolders:

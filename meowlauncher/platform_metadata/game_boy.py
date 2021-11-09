@@ -2,8 +2,6 @@ import re
 from zlib import crc32
 
 from meowlauncher import input_metadata
-from meowlauncher.common import (NotAlphanumericException,
-                                 convert_alphanumeric, load_dict)
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.system_config import system_configs
@@ -11,6 +9,8 @@ from meowlauncher.platform_types import GameBoyColourFlag
 from meowlauncher.software_list_info import (find_in_software_lists,
                                              get_software_list_entry,
                                              matcher_args_for_bytes)
+from meowlauncher.util.utils import (NotAlphanumericException,
+                                     convert_alphanumeric, load_dict)
 
 game_boy_config = system_configs.get('Game Boy')
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')

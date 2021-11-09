@@ -1,15 +1,16 @@
 import re
 
-from meowlauncher.common import (find_filename_tags_at_end, load_dict, normalize_name,
-                    remove_capital_article, remove_filename_tags)
 from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.main_config import main_config
 from meowlauncher.info.system_info import all_mame_drivers
-from meowlauncher.mame_helpers import (consistentify_manufacturer, get_mame_xml,
-                          list_by_source_file)
-from meowlauncher.mame_metadata import (add_metadata_from_catlist, get_machine_folder,
-                           mame_statuses)
+from meowlauncher.mame_helpers import (consistentify_manufacturer,
+                                       get_mame_xml, list_by_source_file)
+from meowlauncher.mame_metadata import (add_metadata_from_catlist,
+                                        get_machine_folder, mame_statuses)
 from meowlauncher.metadata import Date, Metadata
+from meowlauncher.util.utils import (find_filename_tags_at_end, load_dict,
+                                     normalize_name, remove_capital_article,
+                                     remove_filename_tags)
 
 subtitles = load_dict(None, 'subtitles')
 

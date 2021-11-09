@@ -1,5 +1,4 @@
 from meowlauncher import input_metadata
-from meowlauncher.common import load_dict
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.system_config import system_configs
 from meowlauncher.info.region_info import TVSystem
@@ -11,6 +10,7 @@ from meowlauncher.platform_types import NESPeripheral
 from meowlauncher.software_list_info import (
     find_in_software_lists_with_custom_matcher, get_crc32_for_software_list,
     get_software_list_entry)
+from meowlauncher.util.utils import load_dict
 
 nes_config = system_configs.get('NES')
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')

@@ -3,16 +3,17 @@ import re
 import xml.etree.ElementTree as ElementTree
 import zlib
 
-from meowlauncher import io_utils
-from meowlauncher.common import (byteswap, find_filename_tags_at_end, load_dict,
-                    normalize_name, remove_filename_tags)
 from meowlauncher.common_types import EmulationStatus, MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.info.system_info import systems
-from meowlauncher.mame_helpers import (add_history, consistentify_manufacturer, get_image,
-                          get_mame_core_config, image_config_keys,
-                          verify_software_list)
+from meowlauncher.mame_helpers import (add_history, consistentify_manufacturer,
+                                       get_image, get_mame_core_config,
+                                       image_config_keys, verify_software_list)
 from meowlauncher.metadata import Date
+from meowlauncher.util import io_utils
+from meowlauncher.util.utils import (byteswap, find_filename_tags_at_end,
+                                     load_dict, normalize_name,
+                                     remove_filename_tags)
 
 subtitles = load_dict(None, 'subtitles')
 

@@ -6,10 +6,10 @@ import os
 from enum import Enum
 
 from meowlauncher import pc
-from meowlauncher.common import format_byte_size
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.system_config import system_configs
 from meowlauncher.metadata import Date
+from meowlauncher.util.utils import format_byte_size
 
 try:
 	import machfs

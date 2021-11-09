@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 
+from configparser import ConfigParser
 import datetime
 import os
 import shutil
 import sys
 import time
 
-from meowlauncher.config.main_config import main_config
 from meowlauncher import launchers
-from meowlauncher.io_utils import sanitize_name
+from meowlauncher.config.main_config import main_config
+from meowlauncher.util.io_utils import sanitize_name
 
 #This is sort of considered separate from the main launcher generator.
 #Consider it to be its own kind of frontend, perhaps.
@@ -38,7 +39,7 @@ def delete_existing_output_dir():
 			rmdir_recursive(path)
 			#Only files here, no directories
 
-def move_into_extra_subfolder(path, desktop, subfolder, keys, missing_value=None):
+def move_into_extra_subfolder(path: str, desktop: ConfigParser, subfolder, keys, missing_value=None):
 	subsubfolder = []
 	is_array = '*' in keys
 	subsubfolders = []

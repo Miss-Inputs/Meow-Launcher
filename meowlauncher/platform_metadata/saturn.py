@@ -1,12 +1,13 @@
 import os
 from enum import Enum, auto
 
-from meowlauncher import cd_read, input_metadata
-from meowlauncher.common import load_dict
+from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.metadata import Date
 from meowlauncher.platform_types import SaturnRegionCodes
+from meowlauncher.util.cd_read import get_first_data_cue_track, read_mode_1_cd
+from meowlauncher.util.utils import load_dict
 
 from .minor_systems import add_generic_info
 
@@ -206,20 +207,20 @@ def add_saturn_info(rom, metadata, header):
 
 def add_saturn_metadata(game):
 	if game.rom.extension == 'cue':
-		first_track, sector_size = cd_read.get_first_data_cue_track(game.rom.path)
+		first_track, sector_size = get_first_data_cue_track(game.rom.path)
 
 		if not os.path.isfile(first_track):
 			print(game.rom.path, 'has invalid cuesheet')
 			return
 		try:
-			header = cd_read.read_mode_1_cd(first_track, sector_size, seek_to=0, amount=256)
+			header = read_mode_1_cd(first_track, sector_size, seek_to=0, amount=256)
 		except NotImplementedError:
 			return
 	elif game.rom.extension == 'ccd':
 		img_file = os.path.splitext(game.rom.path)[0] + '.img'
 		#I thiiiiiiiiink .ccd/.img always has 2352-byte sectors?
 		try:
-			header = cd_read.read_mode_1_cd(img_file, 2352, seek_to=0, amount=256)
+			header = read_mode_1_cd(img_file, 2352, seek_to=0, amount=256)
 		except NotImplementedError:
 			return
 	elif game.rom.extension == 'iso':

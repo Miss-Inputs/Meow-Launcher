@@ -1,11 +1,11 @@
 import os
 import re
 
-from meowlauncher import cd_read
-from meowlauncher.common import load_dict
 from meowlauncher.common_types import SaveType
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import SaturnRegionCodes
+from meowlauncher.util import cd_read
+from meowlauncher.util.utils import load_dict
 
 from .minor_systems import add_generic_info
 

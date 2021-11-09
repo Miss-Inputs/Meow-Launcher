@@ -5,7 +5,7 @@ from typing import Any
 
 from meowlauncher.common_paths import config_dir, data_dir
 from meowlauncher.common_types import ConfigValueType
-from meowlauncher.io_utils import ensure_exist
+from meowlauncher.util.io_utils import ensure_exist
 
 from ._config_utils import (ConfigValue, parse_path_list, parse_string_list,
                             parse_value)

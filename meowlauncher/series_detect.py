@@ -5,10 +5,12 @@ import re
 import time
 
 from meowlauncher import launchers
-from meowlauncher.common import (convert_roman_numeral, convert_roman_numerals_in_title,
-                    remove_capital_article)
 from meowlauncher.config.main_config import main_config
-from meowlauncher.data.series_detect.series_detect_overrides import series_overrides
+from meowlauncher.data.series_detect.series_detect_overrides import \
+    series_overrides
+from meowlauncher.util.utils import (convert_roman_numeral,
+                                     convert_roman_numerals_in_title,
+                                     remove_capital_article)
 
 probably_not_series_index_threshold = 20
 #Assume that a number over this is probably not referring to the nth or higher entry in the series, but is probably just any old number that means something else

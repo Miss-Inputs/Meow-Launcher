@@ -9,15 +9,15 @@ from enum import Enum, Flag
 from xml.etree import ElementTree
 
 from meowlauncher import input_metadata
-from meowlauncher.common import (NotAlphanumericException,
-                                 convert_alphanumeric, junk_suffixes,
-                                 load_dict)
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.system_config import system_configs
 from meowlauncher.data.name_cleanup._3ds_publisher_overrides import \
     consistentified_manufacturers
 from meowlauncher.metadata import Metadata
+from meowlauncher.util.utils import (NotAlphanumericException,
+                                     convert_alphanumeric, junk_suffixes,
+                                     load_dict)
 
 from .gametdb import TDB, add_info_from_tdb
 from .wii import parse_ratings

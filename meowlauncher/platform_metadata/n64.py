@@ -3,10 +3,10 @@ import hashlib
 import os
 
 from meowlauncher import input_metadata
-from meowlauncher.common import (NotAlphanumericException, byteswap,
-                                 convert_alphanumeric)
 from meowlauncher.common_types import SaveType
 from meowlauncher.software_list_info import get_software_list_entry
+from meowlauncher.util.utils import (NotAlphanumericException, byteswap,
+                                     convert_alphanumeric)
 
 
 def get_mupen64plus_database():

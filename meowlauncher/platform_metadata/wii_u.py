@@ -4,11 +4,11 @@ from datetime import datetime
 from enum import Enum
 from xml.etree import ElementTree
 
-from meowlauncher.common import load_dict
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.system_config import system_configs
 from meowlauncher.metadata import Date
 from meowlauncher.pc_common_metadata import try_and_detect_engine_from_folder
+from meowlauncher.util.utils import load_dict
 
 from ._3ds import \
     _3DSRegionCode  # I should move this to some common module, maybe

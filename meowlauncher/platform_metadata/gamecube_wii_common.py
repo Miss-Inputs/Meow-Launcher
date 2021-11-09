@@ -2,9 +2,10 @@ import os
 from enum import Enum
 from xml.etree import ElementTree
 
-from meowlauncher.common import NotAlphanumericException, convert_alphanumeric, load_dict
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.system_config import system_configs
+from meowlauncher.util.utils import (NotAlphanumericException,
+                                     convert_alphanumeric, load_dict)
 
 from .gametdb import TDB, add_info_from_tdb
 

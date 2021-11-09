@@ -2,7 +2,7 @@ import os
 import pathlib
 import zlib
 
-from meowlauncher import archives
+from .archives import compressed_get, compressed_getsize, get_crc32_of_archive
 
 crc_chunk_size = 128 * 1024 * 1024
 
@@ -14,7 +14,7 @@ def get_real_size(path: str, compressed_entry: str=None) -> int:
 	if compressed_entry is None:
 		return os.stat(path).st_size
 
-	return archives.compressed_getsize(path, compressed_entry)
+	return compressed_getsize(path, compressed_entry)
 
 def read_file(path: str, compressed_entry: str=None, seek_to: int=0, amount: int=-1) -> bytes:
 	if not compressed_entry:
@@ -25,7 +25,7 @@ def read_file(path: str, compressed_entry: str=None, seek_to: int=0, amount: int
 
 			return f.read(amount)
 
-	data = archives.compressed_get(path, compressed_entry)
+	data = compressed_get(path, compressed_entry)
 	if seek_to:
 		if amount > -1:
 			return data[seek_to: seek_to + amount]
@@ -44,7 +44,7 @@ def get_crc32(path: str, compressed_entry: str=None) -> int:
 				crc = zlib.crc32(chunk, crc)
 			return crc & 0xffffffff
 
-	return archives.get_crc32_of_archive(path, compressed_entry)
+	return get_crc32_of_archive(path, compressed_entry)
 
 def sanitize_name(s: str, supersafe: bool=False) -> str:
 	#These must never be filenames or folder names!  Badbadbad!

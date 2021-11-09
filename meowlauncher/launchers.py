@@ -6,9 +6,10 @@ import shlex
 from enum import Enum, Flag
 from typing import Optional, Sequence
 
-from meowlauncher.common import clean_string, find_filename_tags_at_end, remove_filename_tags
 from meowlauncher.config.main_config import main_config
-from meowlauncher.io_utils import ensure_exist
+from meowlauncher.util.io_utils import ensure_exist
+from meowlauncher.util.utils import (clean_string, find_filename_tags_at_end,
+                                     remove_filename_tags)
 
 try:
 	from PIL import Image

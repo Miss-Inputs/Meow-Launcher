@@ -4,12 +4,12 @@ import xml.etree.ElementTree as ElementTree
 from datetime import datetime
 from enum import Enum
 
-from meowlauncher.common import (NotAlphanumericException,
-                                 convert_alphanumeric, load_dict)
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.system_config import system_configs
 from meowlauncher.metadata import Date
 from meowlauncher.platform_types import WiiTitleType
+from meowlauncher.util.utils import (NotAlphanumericException,
+                                     convert_alphanumeric, load_dict)
 
 from .gamecube_wii_common import (NintendoDiscRegion,
                                   add_gamecube_wii_disc_metadata,

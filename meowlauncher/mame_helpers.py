@@ -6,11 +6,12 @@ import subprocess
 import xml.etree.ElementTree as ElementTree
 from pathlib import Path
 
-from meowlauncher.config.main_config import main_config
-from meowlauncher.common import junk_suffixes
 from meowlauncher.common_paths import cache_dir
+from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.mame_manufacturer_name_cleanup import (
     dont_remove_suffix, manufacturer_name_cleanup)
+from meowlauncher.util.utils import junk_suffixes
+
 
 def consistentify_manufacturer(manufacturer: str) -> str:
 	if not manufacturer:

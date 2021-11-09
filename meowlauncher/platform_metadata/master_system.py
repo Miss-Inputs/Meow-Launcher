@@ -1,10 +1,10 @@
 from meowlauncher import input_metadata
-from meowlauncher.common import load_dict
 from meowlauncher.common_types import SaveType
 from meowlauncher.info.region_info import TVSystem
 from meowlauncher.metadata import Date
 from meowlauncher.platform_types import SMSPeripheral
 from meowlauncher.software_list_info import get_software_list_entry
+from meowlauncher.util.utils import load_dict
 
 licensee_codes = load_dict(None, 'sega_licensee_codes')
 

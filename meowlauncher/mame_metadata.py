@@ -2,7 +2,6 @@ import functools
 import os
 
 from meowlauncher import detect_things_from_filename, input_metadata
-from meowlauncher.common import find_filename_tags_at_end, pluralize
 from meowlauncher.common_types import EmulationStatus, MediaType, SaveType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.info.region_info import (get_language_by_english_name,
@@ -10,6 +9,7 @@ from meowlauncher.info.region_info import (get_language_by_english_name,
 from meowlauncher.mame_helpers import (add_history, find_cpus, get_image,
                                        get_mame_ui_config, image_config_keys)
 from meowlauncher.metadata import CPU, ScreenInfo
+from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
 
 #Maybe I just want to put all this back into mame_machines... it's only used there
 

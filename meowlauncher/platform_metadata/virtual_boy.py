@@ -1,7 +1,8 @@
 from meowlauncher import input_metadata
-from meowlauncher.common import NotAlphanumericException, convert_alphanumeric, load_dict
 from meowlauncher.common_types import SaveType
 from meowlauncher.software_list_info import get_software_list_entry
+from meowlauncher.util.utils import (NotAlphanumericException,
+                                     convert_alphanumeric, load_dict)
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 

@@ -7,12 +7,12 @@ import re
 import struct
 import zipfile
 
-from meowlauncher.common import junk_suffixes, title_case
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.capitalized_words_in_names import \
     capitalized_words
 from meowlauncher.metadata import Date
 from meowlauncher.series_detect import chapter_matcher
+from meowlauncher.util.utils import junk_suffixes, title_case
 
 try:
 	import pefile

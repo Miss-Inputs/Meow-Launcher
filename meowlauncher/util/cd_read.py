@@ -5,7 +5,7 @@ import struct
 import zlib
 from collections.abc import Sequence
 
-from meowlauncher.io_utils import read_file
+from .io_utils import read_file
 
 #<type> is BINARY for little endian, MOTOROLA for big endian, or AIFF/WAV/MP3. Generally only BINARY will be used (even audio tracks are usually ripped as raw binary)
 cue_file_line_regex = re.compile(r'^\s*FILE\s+(?:"(?P<name>.+)"|(?P<name_unquoted>\S+))\s+(?P<type>.+)\s*$', flags=re.RegexFlag.IGNORECASE)

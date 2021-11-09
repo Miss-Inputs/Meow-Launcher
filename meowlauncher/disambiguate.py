@@ -8,7 +8,7 @@ import sys
 import time
 import datetime
 
-from meowlauncher.common import normalize_name
+from meowlauncher.util.utils import normalize_name
 from meowlauncher.config.main_config import main_config
 from meowlauncher import launchers
 

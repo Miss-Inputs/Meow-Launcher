@@ -11,8 +11,6 @@ import zipfile
 from enum import IntFlag
 
 from meowlauncher import launchers
-from meowlauncher.common import (junk_suffixes, load_dict,
-                                 remove_capital_article)
 from meowlauncher.common_types import MediaType, SaveType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.steam_developer_overrides import \
@@ -22,6 +20,8 @@ from meowlauncher.metadata import Date, Metadata
 from meowlauncher.pc_common_metadata import (
     add_metadata_for_raw_exe, check_for_interesting_things_in_folder,
     detect_engine_recursively, fix_name, normalize_name_case)
+from meowlauncher.util.utils import (junk_suffixes, load_dict,
+                                     remove_capital_article)
 
 try:
 	from PIL import IcoImagePlugin, Image

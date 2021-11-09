@@ -1,6 +1,4 @@
 from meowlauncher import detect_things_from_filename, platform_metadata
-from meowlauncher.common import (find_filename_tags_at_end, junk_suffixes,
-                                 load_list, remove_filename_tags)
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.libretro_database_company_name_cleanup import \
     company_name_overrides
@@ -12,6 +10,8 @@ from meowlauncher.mame_helpers import (MachineNotFoundException,
 from meowlauncher.mame_machine import Machine, does_machine_match_game
 from meowlauncher.metadata import Date
 from meowlauncher.software_list_info import get_software_lists_by_names
+from meowlauncher.util.utils import (find_filename_tags_at_end, junk_suffixes,
+                                     load_list, remove_filename_tags)
 
 not_necessarily_equivalent_arcade_names = load_list(None, 'not_necessarily_equivalent_arcade_names')
 

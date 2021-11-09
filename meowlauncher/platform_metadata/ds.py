@@ -9,11 +9,11 @@ import struct
 from xml.etree import ElementTree
 
 from meowlauncher import input_metadata
-from meowlauncher.common import (NotAlphanumericException,
-                                 convert_alphanumeric, load_dict)
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.system_config import system_configs
 from meowlauncher.info.region_info import get_region_by_name
+from meowlauncher.util.utils import (NotAlphanumericException,
+                                     convert_alphanumeric, load_dict)
 
 from .gametdb import TDB, add_info_from_tdb
 from .wii import parse_ratings

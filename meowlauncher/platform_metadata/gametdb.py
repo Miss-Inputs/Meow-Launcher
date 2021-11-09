@@ -1,8 +1,9 @@
-from meowlauncher.common import junk_suffixes
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.data.name_cleanup.gametdb_company_name_cleanup import company_name_cleanup
+from meowlauncher.data.name_cleanup.gametdb_company_name_cleanup import \
+    company_name_cleanup
 from meowlauncher.metadata import Date
+from meowlauncher.util.utils import junk_suffixes
 
 
 class TDB():
