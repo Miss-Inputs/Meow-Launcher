@@ -4,7 +4,7 @@ import datetime
 import os
 import time
 
-from meowlauncher import mac, mame_machines, scummvm, steam
+from meowlauncher.game_scanners import mac, mame_machines, scummvm, steam
 from meowlauncher.config.main_config import main_config
 from meowlauncher.launchers import get_desktop, get_field, id_section_name
 

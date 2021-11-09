@@ -1,12 +1,13 @@
 from typing import Optional
+
 from meowlauncher.common_types import ConfigValueType, MediaType
+from meowlauncher.games.roms.rom import FileROM
 
-from meowlauncher.info.format_info import (atari_2600_cartridge_extensions, cdrom_formats,
-                              commodore_cart_formats, commodore_disk_formats,
-                              generic_cart_extensions, generic_tape_extensions,
-                              mame_floppy_formats)
+from .format_info import (atari_2600_cartridge_extensions, cdrom_formats,
+                          commodore_cart_formats, commodore_disk_formats,
+                          generic_cart_extensions, generic_tape_extensions,
+                          mame_floppy_formats)
 
-from meowlauncher.rom import FileROM
 
 class SystemConfigValue():
 	#This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno

@@ -1,9 +1,12 @@
 import os
 
-from meowlauncher.common_types import EmulationNotSupportedException, EmulationStatus
+from meowlauncher.common_types import (EmulationNotSupportedException,
+                                       EmulationStatus)
+from meowlauncher.games.mame.mame_helpers import have_mame, verify_romset
+from meowlauncher.games.mame.software_list_info import \
+    get_software_list_by_name
 from meowlauncher.launchers import LaunchParams
-from meowlauncher.mame_helpers import have_mame, verify_romset
-from meowlauncher.software_list_info import get_software_list_by_name
+
 
 def _get_autoboot_script_by_name(name: str):
 	#Hmm I'm not sure I like this one but whaddya do otherwise… where's otherwise a good place to store shit
