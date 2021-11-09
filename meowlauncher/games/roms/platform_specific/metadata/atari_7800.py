@@ -4,7 +4,7 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.games.mame.software_list_info import get_software_list_entry
 from meowlauncher.info.region_info import TVSystem
 
-from .atari_controllers import xegs_gun
+from .common.atari_controllers import xegs_gun
 
 standard_gamepad = input_metadata.NormalController()
 standard_gamepad.dpads = 1

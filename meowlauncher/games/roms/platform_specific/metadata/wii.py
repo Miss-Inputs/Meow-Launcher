@@ -11,10 +11,11 @@ from meowlauncher.platform_types import WiiTitleType
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
-from .gamecube_wii_common import (NintendoDiscRegion,
-                                  add_gamecube_wii_disc_metadata,
-                                  just_read_the_wia_rvz_header_for_now, tdb)
-from .gametdb import add_info_from_tdb
+from .common.gamecube_wii_common import (NintendoDiscRegion,
+                                         add_gamecube_wii_disc_metadata,
+                                         just_read_the_wia_rvz_header_for_now,
+                                         tdb)
+from .common.gametdb import add_info_from_tdb
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 

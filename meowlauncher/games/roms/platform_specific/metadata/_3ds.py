@@ -19,7 +19,7 @@ from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, junk_suffixes,
                                      load_dict)
 
-from .gametdb import TDB, add_info_from_tdb
+from .common.gametdb import TDB, add_info_from_tdb
 from .wii import parse_ratings
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')

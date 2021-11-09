@@ -8,8 +8,8 @@ from meowlauncher.config.system_config import system_configs
 from meowlauncher.games.pc_common_metadata import \
     try_and_detect_engine_from_folder
 
-from .gametdb import TDB, add_info_from_tdb
-from .playstation_common import parse_param_sfo, parse_product_code
+from .common.gametdb import TDB, add_info_from_tdb
+from .common.playstation_common import parse_param_sfo, parse_product_code
 
 
 def load_tdb():

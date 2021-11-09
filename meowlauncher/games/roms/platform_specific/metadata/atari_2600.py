@@ -9,7 +9,7 @@ from meowlauncher.games.mame.software_list_info import (find_in_software_lists,
 from meowlauncher.info.region_info import TVSystem
 from meowlauncher.platform_types import Atari2600Controller
 
-from . import atari_controllers as controllers
+from .common import atari_controllers as controllers
 
 stella_configs = emulator_configs.get('Stella')
 

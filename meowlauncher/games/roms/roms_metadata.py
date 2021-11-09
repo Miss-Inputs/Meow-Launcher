@@ -16,7 +16,7 @@ from meowlauncher.metadata import Date
 from meowlauncher.util.utils import (find_filename_tags_at_end, junk_suffixes,
                                      load_list, remove_filename_tags)
 
-from .platform_specific import platform_metadata
+from .platform_specific import metadata
 
 not_necessarily_equivalent_arcade_names = load_list(None, 'not_necessarily_equivalent_arcade_names')
 
@@ -269,12 +269,12 @@ def add_metadata(game):
 	if software_list_names:
 		game.software_lists = get_software_lists_by_names(software_list_names)
 
-	if game.system_name in platform_metadata.helpers:
-		platform_metadata.helpers[game.system_name](game)
+	if game.system_name in metadata.helpers:
+		metadata.helpers[game.system_name](game)
 	else:
 		#For anything else, use this one to just get basic software list info.
 		#This would only work for optical discs if they are in .chd format though. Also see MAME GitHub issue #2517, which makes a lot of newly created CHDs invalid with older softlists
-		platform_metadata.generic_helper(game)
+		metadata.generic_helper(game)
 				
 	equivalent_arcade = game.metadata.specific_info.get('Equivalent-Arcade')
 	if not equivalent_arcade and main_config.find_equivalent_arcade_games:

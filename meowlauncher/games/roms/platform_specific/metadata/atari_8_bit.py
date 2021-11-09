@@ -3,7 +3,7 @@ from meowlauncher.common_types import MediaType
 from meowlauncher.games.mame.software_list_info import get_software_list_entry
 from meowlauncher.info.region_info import TVSystem
 
-from . import atari_controllers as controllers
+from .common import atari_controllers as controllers
 
 
 def add_info_from_software_list(metadata, software):

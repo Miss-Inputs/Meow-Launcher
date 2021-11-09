@@ -13,7 +13,7 @@ from meowlauncher.platform_types import MegadriveRegionCodes
 from meowlauncher.util import cd_read
 from meowlauncher.util.utils import load_dict
 
-from .atari_controllers import megadrive_pad as standard_gamepad
+from .common.atari_controllers import megadrive_pad as standard_gamepad
 
 licensee_codes = load_dict(None, 'sega_licensee_codes')
 

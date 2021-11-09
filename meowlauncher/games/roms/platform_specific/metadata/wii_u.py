@@ -13,7 +13,7 @@ from meowlauncher.util.utils import load_dict
 
 from ._3ds import \
     _3DSRegionCode  # I should move this to some common module, maybe
-from .gametdb import TDB, add_info_from_tdb
+from .common.gametdb import TDB, add_info_from_tdb
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 

@@ -5,7 +5,7 @@ from meowlauncher import input_metadata
 from meowlauncher.config.main_config import main_config
 from meowlauncher.metadata import Date
 
-from .playstation_common import parse_param_sfo, parse_product_code
+from .common.playstation_common import parse_param_sfo, parse_product_code
 
 try:
 	from PIL import Image

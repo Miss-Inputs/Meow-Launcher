@@ -3,7 +3,7 @@ from datetime import datetime
 from meowlauncher.config.main_config import main_config
 from meowlauncher.metadata import Date
 
-from .gamecube_wii_common import (NintendoDiscRegion,
+from .common.gamecube_wii_common import (NintendoDiscRegion,
                                   add_gamecube_wii_disc_metadata,
                                   just_read_the_wia_rvz_header_for_now)
 

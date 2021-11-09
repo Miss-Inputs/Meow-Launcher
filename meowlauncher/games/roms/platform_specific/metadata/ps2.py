@@ -5,7 +5,7 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.info.region_info import TVSystem
 from meowlauncher.metadata import Date
 
-from .playstation_common import parse_product_code
+from .common.playstation_common import parse_product_code
 
 try:
 	import struct  # To handle struct.error
