@@ -3,8 +3,8 @@ import tempfile
 from typing import Optional, cast
 
 from meowlauncher import launchers, metadata
-from meowlauncher.games.emulated_platform import EmulatedPlatform
-from meowlauncher.games.emulator import StandardEmulator
+from meowlauncher.emulated_platform import EmulatedPlatform
+from meowlauncher.emulator import StandardEmulator
 
 from .rom import ROM, CompressedROM
 

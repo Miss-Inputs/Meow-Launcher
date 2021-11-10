@@ -8,7 +8,7 @@ import time
 import traceback
 from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Union, cast
+from typing import cast
 
 from meowlauncher import launchers
 from meowlauncher.common_types import (EmulationNotSupportedException,
@@ -19,9 +19,8 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.config.system_config import PlatformConfig, system_configs
 from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.data.emulators import emulators, libretro_frontends
-from meowlauncher.games.emulator import (LibretroCore,
-                                         LibretroCoreWithFrontend, MameDriver,
-                                         MednafenModule, ViceEmulator)
+from meowlauncher.emulator import (LibretroCore, LibretroCoreWithFrontend,
+                                   MameDriver, MednafenModule, ViceEmulator)
 from meowlauncher.games.roms.platform_specific.roms_folders import \
     folder_checks
 from meowlauncher.games.roms.rom import ROM, FileROM, FolderROM, rom_file

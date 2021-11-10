@@ -1,6 +1,6 @@
 from meowlauncher.common_types import ConfigValueType, MediaType
-from meowlauncher.games.emulated_platform import (EmulatedPlatform, PCPlatform,
-                                                  PlatformConfigValue)
+from meowlauncher.emulated_platform import (EmulatedPlatform, PCPlatform,
+                                            PlatformConfigValue)
 
 from .format_info import (atari_2600_cartridge_extensions, cdrom_formats,
                           commodore_cart_formats, commodore_disk_formats,
