@@ -3,9 +3,13 @@
 import functools
 import os
 import re
-from typing import Optional
+from typing import Any, Optional, Sequence, Union
 
 from meowlauncher.config.main_config import main_config
+
+#TODO: Probs should be using dataclasses or whatever for this
+RomType = dict[str, str]
+GameType = dict[str, Union[int, str, Sequence[RomType]]]
 
 rom_line = re.compile(r'(?<=\(|\s)(?P<attrib>\w+)\s+(?:"(?P<value>[^"]+)"|(?P<rawvalue>\S+))(?:\s+|\))')
 def parse_rom_line(line: str) -> Optional[dict[str, str]]:
@@ -27,15 +31,15 @@ def parse_rom_line(line: str) -> Optional[dict[str, str]]:
 	return rom
 
 attribute_line = re.compile(r'(?P<key>\w+)\s+(?:"(?P<value>[^"]*)"|(?P<intvalue>\d+))')
-def parse_libretro_dat(path: str):
-	games = []
-	header = {}
+def parse_libretro_dat(path: str) -> tuple[dict[str, Union[int, str]], Sequence[GameType]]:
+	games: list[GameType] = []
+	header: dict[str, Union[int, str]] = {}
 	with open(path, 'rt') as file:
 		lines = [line.strip() for line in file.readlines()]
-		game = {}
+		game: GameType = {}
 		inside_header = False
 		rom_giant_line = None #Just concat everything in between rom ( ) on multiple lines so we can parse it that way
-		roms = []
+		roms: list[RomType] = []
 		for line in lines:
 			rom_match = None
 			if not line:
