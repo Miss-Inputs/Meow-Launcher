@@ -3,7 +3,7 @@
 import datetime
 import time
 
-from meowlauncher import launchers
+from meowlauncher.desktop_launchers import has_been_done
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.scummvm.scummvm_config import scummvm_config
 from meowlauncher.games.scummvm.scummvm_game import ScummVMGame
@@ -29,7 +29,7 @@ def add_scummvm_games() -> None:
 				#This is not a game either
 				continue
 			if not main_config.full_rescan:
-				if launchers.has_been_done('ScummVM', section):
+				if has_been_done('ScummVM', section):
 					continue
 
 			game = ScummVMGame(section)

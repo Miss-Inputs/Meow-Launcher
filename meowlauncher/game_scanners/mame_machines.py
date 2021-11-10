@@ -5,7 +5,7 @@ import sys
 import time
 from xml.etree import ElementTree
 
-from meowlauncher import launchers
+from meowlauncher import launcher, desktop_launchers
 from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.machines_with_inbuilt_games import (
@@ -54,9 +54,9 @@ def make_machine_launcher(machine: Machine):
 
 	slot_options = {}
 
-	params = launchers.LaunchParams('mame', emulator_command_line_helpers.mame_base(machine.basename, slot_options=slot_options))
+	params = launcher.LaunchCommand('mame', emulator_command_line_helpers.mame_base(machine.basename, slot_options=slot_options))
 	#TODO: Let's put this in games.emulator, even if only MAME exists as the singular arcade emulator for now; and clean this up some more
-	launchers.make_launcher(params, machine.name, machine.metadata, 'Arcade' if machine.metadata.platform == 'Arcade' else 'MAME', machine.basename)
+	desktop_launchers.make_launcher(params, machine.name, machine.metadata, 'Arcade' if machine.metadata.platform == 'Arcade' else 'MAME', machine.basename)
 
 def process_machine(machine: Machine):
 	if machine.is_skeleton_driver:
@@ -119,22 +119,22 @@ def process_inbuilt_game(machine_name: str, inbuilt_game, bios_name=None) -> Non
 	add_status(machine)
 
 	args = emulator_command_line_helpers.mame_base(machine_name, bios=bios_name)
-	launch_params = launchers.LaunchParams('mame', args) #I guess this should be refactored one day to allow for different MAME paths
+	launch_params = launcher.LaunchCommand('mame', args) #I guess this should be refactored one day to allow for different MAME paths
 	machine.metadata.emulator_name = 'MAME'
 
 	unique_id = machine_name
 	if bios_name:
 		unique_id += ':' + bios_name
-	launchers.make_launcher(launch_params, inbuilt_game[0], machine.metadata, 'Inbuilt game', unique_id)
+	desktop_launchers.make_launcher(launch_params, inbuilt_game[0], machine.metadata, 'Inbuilt game', unique_id)
 
 def process_arcade() -> None:
 	time_started = time.perf_counter()
 
 	for machine_name, machine_element in iter_mame_entire_xml():
 		if not main_config.full_rescan:
-			if launchers.has_been_done('Arcade', machine_name):
+			if desktop_launchers.has_been_done('Arcade', machine_name):
 				continue
-			if launchers.has_been_done('MAME', machine_name):
+			if desktop_launchers.has_been_done('MAME', machine_name):
 				continue
 
 		process_machine_element(machine_element)
@@ -147,12 +147,12 @@ def process_arcade() -> None:
 
 	for machine_name, inbuilt_game in machines_with_inbuilt_games.items():
 		if not main_config.full_rescan:
-			if launchers.has_been_done('Inbuilt game', machine_name):
+			if desktop_launchers.has_been_done('Inbuilt game', machine_name):
 				continue
 		process_inbuilt_game(machine_name, inbuilt_game)
 	for machine_and_bios_name, inbuilt_game in bioses_with_inbuilt_games.items():
 		if not main_config.full_rescan:
-			if launchers.has_been_done('Inbuilt game', machine_and_bios_name[0] + ':' + machine_and_bios_name[1]):
+			if desktop_launchers.has_been_done('Inbuilt game', machine_and_bios_name[0] + ':' + machine_and_bios_name[1]):
 				continue
 		process_inbuilt_game(machine_and_bios_name[0], inbuilt_game, machine_and_bios_name[1])
 

@@ -1,13 +1,16 @@
 import os
 
-from meowlauncher import input_metadata, launchers
+from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
+from meowlauncher.desktop_launchers import make_launcher
 from meowlauncher.games.pc_common_metadata import look_for_icon_in_folder
 from meowlauncher.info.region_info import get_language_by_short_code
+from meowlauncher.launcher import LaunchCommand
 from meowlauncher.metadata import Metadata
 
-from . import scummvm_config
+from .scummvm_config import scummvm_config
+
 
 def format_platform(platform: str) -> str:
 	#https://github.com/scummvm/scummvm/blob/master/common/platform.cpp#L28
@@ -60,12 +63,12 @@ class ScummVMGame():
 	def _engine_list_to_use():
 		return scummvm_config.scummvm_engines
 
-	def _get_launch_params(self) -> launchers.LaunchParams:
+	def _get_launch_params(self) -> LaunchCommand:
 		args = ['-f']
 		if main_config.scummvm_config_path != os.path.expanduser('~/.config/scummvm/scummvm.ini'):
 			args.append('--config={0}'.format(main_config.scummvm_config_path))
 		args.append(self.name)
-		return launchers.LaunchParams('scummvm', args)
+		return LaunchCommand('scummvm', args)
 
 	@staticmethod
 	def _get_emulator_name() -> str:
@@ -128,4 +131,4 @@ class ScummVMGame():
 		name = self.options.get('description', self.name)
 		name = name.replace('/', ') (') #Names are usually something like Cool Game (CD/DOS/English); we convert it to Cool Game (CD) (DOS) (English) to make it work better with disambiguate etc
 
-		launchers.make_launcher(self._get_launch_params(), name, self.metadata, 'ScummVM', self.name)
+		make_launcher(self._get_launch_params(), name, self.metadata, 'ScummVM', self.name)

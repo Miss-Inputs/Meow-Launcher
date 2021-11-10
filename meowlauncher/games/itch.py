@@ -5,7 +5,7 @@ import json
 import os
 import subprocess
 
-from meowlauncher import launchers
+from meowlauncher import desktop_launchers, launcher
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games import pc_common_metadata
 from meowlauncher.metadata import Date, Metadata
@@ -223,7 +223,7 @@ class ItchGame():
 		if params[1]:
 			metadata.emulator_name = params[1]
 
-		launchers.make_launcher(params[0], self.name, metadata, 'itch.io', self.path)
+		desktop_launchers.make_launcher(params[0], self.name, metadata, 'itch.io', self.path)
 
 	def make_launcher(self):
 		os_filter = None
@@ -252,22 +252,22 @@ class ItchGame():
 def get_launch_params(flavour, exe_path, windows_info):
 	if flavour in ('linux', 'script'):
 		#ez pez
-		return launchers.LaunchParams(exe_path, []), None
+		return launcher.LaunchCommand(exe_path, []), None
 	if flavour == 'html':
 		#hmm I guess this will do
-		return launchers.LaunchParams('xdg-open', [exe_path]), None
+		return launcher.LaunchCommand('xdg-open', [exe_path]), None
 	if flavour in ('windows', 'windows-script'):
 		if windows_info and windows_info.get('dotNet', False):
 			#Mono does not really count as an emulator but whateves (I mean neither does Wine by the name but for metadata purposes I will)
-			return launchers.LaunchParams('mono', [exe_path]), 'Mono'
+			return launcher.LaunchCommand('mono', [exe_path]), 'Mono'
 		#gui might also be useful if it is false
-		return launchers.get_wine_launch_params(exe_path, []), 'Wine'
+		return launcher.get_wine_launch_params(exe_path, []), 'Wine'
 	if flavour == 'jar':
 		#Guess we can just assume it's installed who cares
-		return launchers.LaunchParams('java', ['-jar', exe_path]), None
+		return launcher.LaunchCommand('java', ['-jar', exe_path]), None
 	if flavour == 'love':
 		#Guess we can also just assume this is installed who cares
-		return launchers.LaunchParams('love', [exe_path]), 'LOVE'
+		return launcher.LaunchCommand('love', [exe_path]), 'LOVE'
 
 	return None
 	

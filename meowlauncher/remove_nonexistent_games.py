@@ -4,9 +4,11 @@ import datetime
 import os
 import time
 
-from meowlauncher.game_scanners import mac, mame_machines, scummvm, steam
 from meowlauncher.config.main_config import main_config
-from meowlauncher.launchers import get_desktop, get_field, id_section_name
+from meowlauncher.desktop_launchers import (get_desktop, get_field,
+                                            id_section_name)
+from meowlauncher.game_scanners import mac, mame_machines, scummvm, steam
+
 
 def remove_nonexistent_games() -> None:
 	#If not doing a full rescan, we want to remove games that are no longer there
@@ -20,6 +22,10 @@ def remove_nonexistent_games() -> None:
 		launcher = get_desktop(path)
 		game_type = get_field(launcher, 'Type', id_section_name)
 		game_id = get_field(launcher, 'Unique-ID', id_section_name)
+		if not game_type or not game_id:
+			if main_config.debug:
+				print('Interesting', path, 'has no type or no ID')
+			continue
 
 		should_remove = False
 		if game_type in ('MAME', 'Arcade', 'Inbuilt game'):

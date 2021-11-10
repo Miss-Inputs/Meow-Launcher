@@ -11,7 +11,7 @@ from meowlauncher.data.emulated_platforms import (arabic_msx1_drivers,
                                                   working_msx1_drivers,
                                                   working_msx2_drivers,
                                                   working_msx2plus_drivers)
-from meowlauncher.launchers import LaunchParams, MultiCommandLaunchParams
+from meowlauncher.launcher import LaunchCommand, MultiLaunchCommands
 from meowlauncher.platform_types import (AppleIIHardware, Atari2600Controller,
                                          GameBoyColourFlag,
                                          MegadriveRegionCodes, NESPeripheral,
@@ -976,7 +976,7 @@ def vice_c64(game, _, emulator_config):
 		args += ['-model', 'pal']
 	args.append('$<path>')
 
-	return LaunchParams(emulator_config.exe_path, args)
+	return LaunchCommand(emulator_config.exe_path, args)
 
 def vice_c128(game, _, emulator_config):
 	args = ['-VDCfull']
@@ -985,7 +985,7 @@ def vice_c128(game, _, emulator_config):
 	elif game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		args += ['-model', 'pal']
 	args.append('$<path>')
-	return LaunchParams(emulator_config.exe_path, args)
+	return LaunchCommand(emulator_config.exe_path, args)
 
 def vice_pet(game, _, emulator_config):
 	args = ['-CRTCfull']
@@ -1004,7 +1004,7 @@ def vice_pet(game, _, emulator_config):
 		args += ['-ramsize', str(ram_size)]
 
 	args.append('$<path>')
-	return LaunchParams(emulator_config.exe_path, args)
+	return LaunchCommand(emulator_config.exe_path, args)
 
 def vice_plus4(game, _, emulator_config):
 	args = ['-TEDfull']
@@ -1013,7 +1013,7 @@ def vice_plus4(game, _, emulator_config):
 	elif game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
 		args += ['-model', 'plus4pal']
 	args.append('$<path>')
-	return LaunchParams(emulator_config.exe_path, args)
+	return LaunchCommand(emulator_config.exe_path, args)
 
 def vice_vic20(game, _, emulator_config):
 	args = ['-VICfull']
@@ -1033,7 +1033,7 @@ def vice_vic20(game, _, emulator_config):
 		args += ['-controlport1device', '2']
 
 	args.append('$<path>')
-	return LaunchParams(emulator_config.exe_path, args)
+	return LaunchCommand(emulator_config.exe_path, args)
 
 #Other emulators
 def a7800(game, _, emulator_config):
@@ -1057,7 +1057,7 @@ def a7800(game, _, emulator_config):
 	else:
 		args += ['-cart', '$<path>']
 
-	return LaunchParams(emulator_config.exe_path, args)
+	return LaunchCommand(emulator_config.exe_path, args)
 
 def bsnes(game, system_config, emulator_config):
 	if game.system_name == 'Game Boy':
@@ -1075,7 +1075,7 @@ def bsnes(game, system_config, emulator_config):
 		#Pocket Camera is also supported by the SameBoy core, but I'm leaving it out here because bsnes doesn't do the camera
 		_verify_supported_gb_mappers(game, ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3'], [])
 
-		return LaunchParams(emulator_config.exe_path, ['--fullscreen', sgb_bios_path, '$<path>'])
+		return LaunchCommand(emulator_config.exe_path, ['--fullscreen', sgb_bios_path, '$<path>'])
 
 	if game.rom.extension == 'st':
 		bios_path = system_config.get('sufami_turbo_bios_path', None)
@@ -1083,7 +1083,7 @@ def bsnes(game, system_config, emulator_config):
 			raise EmulationNotSupportedException('Sufami Turbo BIOS not set up, check systems.ini')
 		#We need two arguments (and the second argument has to exist), otherwise when you actually launch it you get asked for something to put in slot B and who says we ever wanted to put anything in slot B
 		#Can also use /dev/null but that's not portable and even if I don't care about that, it just gives me bad vibes
-		return LaunchParams(emulator_config.exe_path, ['--fullscreen', bios_path, '$<path>', '$<path>'])
+		return LaunchCommand(emulator_config.exe_path, ['--fullscreen', bios_path, '$<path>', '$<path>'])
 
 	#Oh it can just launch Satellaview without any fancy options huh
 
@@ -1093,7 +1093,7 @@ def bsnes(game, system_config, emulator_config):
 		if slot.endswith(('_bugs', '_pija', '_poke', '_sbld', '_tekken2', '_20col')):
 			raise EmulationNotSupportedException('{0} mapper not supported'.format(slot))
 	
-	return LaunchParams(emulator_config.exe_path, ['--fullscreen', '$<path>'])
+	return LaunchCommand(emulator_config.exe_path, ['--fullscreen', '$<path>'])
 
 def cemu(game, __, emulator_config):
 	title_id = game.metadata.specific_info.get('Title-ID')
@@ -1108,7 +1108,7 @@ def cemu(game, __, emulator_config):
 		path = str(game.rom.relevant_files['rpx'])
 	else:
 		path = '$<path>'
-	return LaunchParams(emulator_config.exe_path, ['-f', '-g', 'Z:{0}'.format(path)])
+	return LaunchCommand(emulator_config.exe_path, ['-f', '-g', 'Z:{0}'.format(path)])
 
 def citra(game, _, emulator_config):
 	if game.rom.extension != '3dsx':
@@ -1122,7 +1122,7 @@ def citra(game, _, emulator_config):
 			#Ignore update data, which either are pointless (because you install them in Citra and then when you run the main game ROM, it has all the updates applied) or do nothing
 			#I feel like there's probably a better way of doing this whoops
 			raise NotARomException('Update data, not actual game')
-	return LaunchParams(emulator_config.exe_path, ['$<path>'])
+	return LaunchCommand(emulator_config.exe_path, ['$<path>'])
 
 def cxnes(game, _, emulator_config):
 	allowed_mappers = [
@@ -1145,7 +1145,7 @@ def cxnes(game, _, emulator_config):
 			raise EmulationNotSupportedException('Unsupported mapper: %d (%s)' % (mapper, game.metadata.specific_info.get('Mapper')))
 
 	#Could possibly do something involving --no-romcfg if there's no config found, otherwise the emulator pops up a message about that unless you disable romcfg entirely
-	return LaunchParams(emulator_config.exe_path, ['-f', '$<path>'])
+	return LaunchCommand(emulator_config.exe_path, ['-f', '$<path>'])
 
 def dolphin(game, _, emulator_config):
 	if game.metadata.specific_info.get('No-Disc-Magic', False):
@@ -1162,7 +1162,7 @@ def dolphin(game, _, emulator_config):
 		path = str(game.rom.relevant_files['boot.dol'])
 	else:
 		path = '$<path>'
-	return LaunchParams(emulator_config.exe_path, ['-b', '-e', path])
+	return LaunchCommand(emulator_config.exe_path, ['-b', '-e', path])
 
 def duckstation(game, _, emulator_config):
 	if emulator_config.options.get('consider_unknown_games_incompatible', False) and 'DuckStation-Compatibility' not in game.metadata.specific_info:
@@ -1174,7 +1174,7 @@ def duckstation(game, _, emulator_config):
 			if game_compat.value < threshold:
 				raise EmulationNotSupportedException('Game is only {0} status'.format(game_compat.name))
 
-	return LaunchParams(emulator_config.exe_path, ['-batch', '-fullscreen', '$<path>'])
+	return LaunchCommand(emulator_config.exe_path, ['-batch', '-fullscreen', '$<path>'])
 
 def fs_uae(game, system_config, emulator_config):
 	args = ['--fullscreen']
@@ -1229,13 +1229,13 @@ def fs_uae(game, system_config, emulator_config):
 		args.append('--floppy_drive_0=$<path>')
 	if game.metadata.specific_info.get('TV-Type') == TVSystem.NTSC:
 		args.append('--ntsc_mode=1')
-	return LaunchParams(emulator_config.exe_path, args)
+	return LaunchCommand(emulator_config.exe_path, args)
 
 def gbe_plus(game, _, emulator_config):
 	if game.system_name == 'Game Boy':
 		#In theory, only this should support Pocket Sonar (so far), but there's not really a way to detect that since it just claims to be MBC1 in the header...
 		_verify_supported_gb_mappers(game, ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'HuC1'], ['MBC1 Multicart'])
-	return LaunchParams(emulator_config.exe_path, ['$<path>'])
+	return LaunchCommand(emulator_config.exe_path, ['$<path>'])
 
 def medusa(game, _, emulator_config):
 	if game.system_name == 'DSi':
@@ -1254,7 +1254,7 @@ def medusa(game, _, emulator_config):
 			args.append('useBios=0')
 
 	args.append('$<path>')
-	return LaunchParams(emulator_config.exe_path, args)
+	return LaunchCommand(emulator_config.exe_path, args)
 
 def melonds(game, _, emulator_config):
 	if game.system_name == 'DSi':
@@ -1266,7 +1266,7 @@ def melonds(game, _, emulator_config):
 	#No argument for fullscreen here yet
 	#It looks like you can pass a GBA cart via the second argument, so that might get interesting
 
-	return LaunchParams(emulator_config.exe_path, ['$<path>'])
+	return LaunchCommand(emulator_config.exe_path, ['$<path>'])
 
 def mgba(game, _, emulator_config):
 	if game.system_name == 'Game Boy':
@@ -1277,7 +1277,7 @@ def mgba(game, _, emulator_config):
 		args.append('-C')
 		args.append('useBios=0')
 	args.append('$<path>')
-	return LaunchParams(emulator_config.exe_path, args)
+	return LaunchCommand(emulator_config.exe_path, args)
 
 def mupen64plus(game, system_config, emulator_config):
 	if game.metadata.specific_info.get('ROM-Format', None) == 'Unknown':
@@ -1312,13 +1312,15 @@ def mupen64plus(game, system_config, emulator_config):
 	#TODO: If use_transfer_pak, put in a rom + save with --gb-rom-1 and --gb-ram-1 somehow... hmm... can't insert one at runtime with console UI (and I guess you're not supposed to hotplug carts with a real N64 + Transfer Pak) sooo, I'll have to have a think about the most user-friendly way for me to handle that as a frontend
 
 	args.append('$<path>')
-	return LaunchParams(emulator_config.exe_path, args)
+	return LaunchCommand(emulator_config.exe_path, args)
 
 def pokemini(_, __, emulator_config):
-	return MultiCommandLaunchParams(
-		[LaunchParams('mkdir', ['-p', os.path.expanduser('~/.config/PokeMini')]), 
-		LaunchParams('cd', [os.path.expanduser('~/.config/PokeMini')])], 
-		LaunchParams(emulator_config.exe_path, ['-fullscreen', '$<path>']),
+	return MultiLaunchCommands(
+		[
+			LaunchCommand('mkdir', ['-p', os.path.expanduser('~/.config/PokeMini')]), 
+			LaunchCommand('cd', [os.path.expanduser('~/.config/PokeMini')])
+		], 
+		LaunchCommand(emulator_config.exe_path, ['-fullscreen', '$<path>']),
 		[]
 	)
 
@@ -1333,12 +1335,12 @@ def pcsx2(game, _, emulator_config):
 		args.append('$<path>')
 
 	#Put in --fullboot if certain games need it and can't be overriden otherwise
-	return LaunchParams(emulator_config.exe_path, args)
+	return LaunchCommand(emulator_config.exe_path, args)
 
 def ppsspp(game, _, emulator_config):
 	if game.metadata.specific_info.get('PlayStation-Category') == 'UMD Video':
 		raise EmulationNotSupportedException('UMD video discs not supported')
-	return LaunchParams(emulator_config.exe_path, ['$<path>'])
+	return LaunchCommand(emulator_config.exe_path, ['$<path>'])
 
 def reicast(game, _, emulator_config):
 	if game.metadata.specific_info.get('Uses-Windows-CE', False):
@@ -1351,7 +1353,7 @@ def reicast(game, _, emulator_config):
 		#This shouldn't be needed, as -config is supposed to be temporary, but it isn't and writes the component cable setting back to the config file, so we'll set it back
 		args += ['-config', 'config:Dreamcast.Cable=0']
 	args.append('$<path>')
-	return LaunchParams(emulator_config.exe_path, args)
+	return LaunchCommand(emulator_config.exe_path, args)
 
 def rpcs3(game, _, emulator_config):
 	if game.metadata.specific_info.get('Should-Not-Be-Bootable', False):
@@ -1366,7 +1368,7 @@ def rpcs3(game, _, emulator_config):
 				raise EmulationNotSupportedException('Game ({0}) is only {1} status'.format(game.metadata.names.get('Banner-Title'), game_compat.name))
 
 	#It's clever enough to boot folders specified as a path
-	return LaunchParams(emulator_config.exe_path, ['--no-gui', '$<path>'])
+	return LaunchCommand(emulator_config.exe_path, ['--no-gui', '$<path>'])
 
 def snes9x(game, _, emulator_config):
 	slot = game.metadata.specific_info.get('Slot')
@@ -1380,7 +1382,7 @@ def snes9x(game, _, emulator_config):
 		#ST018 is implemented enough here to boot to menu, but hangs when starting a match
 		#DSP-3 looks like it's going to work and then when I played around a bit and the AI was starting its turn (I think?) the game hung to a glitchy mess so I guess not
 		raise EmulationNotSupportedException('{0} not supported'.format(expansion_chip))
-	return LaunchParams(emulator_config.exe_path, ['$<path>'])
+	return LaunchCommand(emulator_config.exe_path, ['$<path>'])
 
 def xemu(game, __, emulator_config):
 	#Values yoinked from extract-xiso, I hope they don't mind
@@ -1403,14 +1405,14 @@ def xemu(game, __, emulator_config):
 		raise EmulationNotSupportedException('Probably a Redump-style dump, you need to extract the game partition')
 	#This still doesn't guarantee it'll be seen as a valid disc…
 
-	return LaunchParams(emulator_config.exe_path, ['-full-screen', '-dvd_path', '$<path>'])
+	return LaunchCommand(emulator_config.exe_path, ['-full-screen', '-dvd_path', '$<path>'])
 
 def yuzu(game, __, emulator_config):
 	title_type = game.metadata.specific_info.get('Title-Type')
 	if title_type in ('Patch', 'AddOnContent', SwitchContentMetaType.Patch, SwitchContentMetaType.AddOnContent):
 		#If we used the .cnmt.xml, it will just be a string
 		raise NotARomException('Cannot boot a {0}'.format(title_type))
-	return LaunchParams(emulator_config.exe_path, ['-f', '-g', '$<path>'])
+	return LaunchCommand(emulator_config.exe_path, ['-f', '-g', '$<path>'])
 
 #Game engines
 def prboom_plus(game, system_config, emulator_config):
@@ -1425,7 +1427,7 @@ def prboom_plus(game, system_config, emulator_config):
 
 	args.append('-iwad')
 	args.append('$<path>')
-	return LaunchParams(emulator_config.exe_path, args)
+	return LaunchCommand(emulator_config.exe_path, args)
 
 #DOS/Mac stuff
 def _macemu_args(app, autoboot_txt_path, emulator_config):
@@ -1443,16 +1445,16 @@ def _macemu_args(app, autoboot_txt_path, emulator_config):
 
 	app_path = app.metadata.specific_info.get('Carbon-Path', app.path)
 	pre_commands = [
-		LaunchParams('sh', ['-c', 'echo {0} > {1}'.format(shlex.quote(app_path), shlex.quote(autoboot_txt_path))]), #Hack because I can't be fucked refactoring MultiCommandLaunchParams to do pipey bois/redirecty bois
-		#TODO: Actually could we just have a WriteAFileLaunchParams or something
+		LaunchCommand('sh', ['-c', 'echo {0} > {1}'.format(shlex.quote(app_path), shlex.quote(autoboot_txt_path))]), #Hack because I can't be fucked refactoring MultiCommandLaunchCommand to do pipey bois/redirecty bois
+		#TODO: Actually could we just have a WriteAFileLaunchCommand or something
 	]
 	if 'max_bit_depth' in app.info:
 		#--displaycolordepth doesn't work or doesn't do what I think it does, so we are setting depth from inside the thing instead
 		#This requires some AppleScript extension known as GTQ Programming Suite until I one day figure out a better way to do this
 		pre_commands += [
-			LaunchParams('sh', ['-c', 'echo {0} >> {1}'.format(app.info['max_bit_depth'], shlex.quote(autoboot_txt_path))])
+			LaunchCommand('sh', ['-c', 'echo {0} >> {1}'.format(app.info['max_bit_depth'], shlex.quote(autoboot_txt_path))])
 		]
-	return MultiCommandLaunchParams(pre_commands, LaunchParams(emulator_config.exe_path, args), [LaunchParams('rm', [autoboot_txt_path])])
+	return MultiLaunchCommands(pre_commands, LaunchCommand(emulator_config.exe_path, args), [LaunchCommand('rm', [autoboot_txt_path])])
 
 def basilisk_ii(app, _, emulator_config):
 	if app.metadata.specific_info.get('Architecture') == 'PPC':
@@ -1573,7 +1575,7 @@ def dosbox_staging(app, _, emulator_config):
 			args += '-c', 'MOUNT {0} "{1}"'.format(drive_letter, host_folder)
 			if overlay_path:
 				overlay_subfolder = os.path.join(overlay_path, app.name)
-				ensure_exist_command = LaunchParams('mkdir', ['-p', overlay_subfolder])
+				ensure_exist_command = LaunchCommand('mkdir', ['-p', overlay_subfolder])
 				args += ['-c', 'MOUNT -t overlay {0} "{1}"'.format(drive_letter, overlay_subfolder)]
 			args += ['-c', drive_letter + ':']
 			if app.args:
@@ -1582,9 +1584,9 @@ def dosbox_staging(app, _, emulator_config):
 				args += ['-c', exe_name]
 			args += ['-c', 'exit']
 
-	launch_command = LaunchParams(emulator_config.exe_path, args)
+	launch_command = LaunchCommand(emulator_config.exe_path, args)
 	if ensure_exist_command:
-		return MultiCommandLaunchParams([ensure_exist_command], launch_command, [])
+		return MultiLaunchCommands([ensure_exist_command], launch_command, [])
 	return launch_command
 
 def dosbox_x(app, _, emulator_config):
@@ -1611,13 +1613,13 @@ def dosbox_x(app, _, emulator_config):
 		args.append('-set')
 		args.append('{0}={1}'.format(k, v))
 
-	return LaunchParams(emulator_config.exe_path, args + [app.path])
+	return LaunchCommand(emulator_config.exe_path, args + [app.path])
 
 #Libretro frontends
 def retroarch(_, __, emulator_config, frontend_config):
 	if not emulator_config.exe_path:
 		raise EmulationNotSupportedException('libretro core path is not explicitly specified and libretro_cores_directory is not set')
-	return LaunchParams(frontend_config.exe_path, ['-f', '-L', emulator_config.exe_path, '$<path>'])
+	return LaunchCommand(frontend_config.exe_path, ['-f', '-L', emulator_config.exe_path, '$<path>'])
  
 #Libretro cores
 def genesis_plus_gx(game, _, __):

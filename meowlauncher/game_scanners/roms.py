@@ -10,7 +10,6 @@ from collections.abc import Iterable, Sequence
 from pathlib import Path
 from typing import cast
 
-from meowlauncher import launchers
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        ExtensionNotSupportedException,
                                        NotARomException)
@@ -19,6 +18,7 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.config.system_config import PlatformConfig, system_configs
 from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.data.emulators import emulators, libretro_frontends
+from meowlauncher.desktop_launchers import has_been_done
 from meowlauncher.emulator import (LibretroCore, LibretroCoreWithFrontend,
                                    MameDriver, MednafenModule, ViceEmulator)
 from meowlauncher.games.roms.platform_specific.roms_folders import \
@@ -213,7 +213,7 @@ def process_emulated_platform(system_config: PlatformConfig):
 			continue
 
 		if not main_config.full_rescan:
-			if launchers.has_been_done('ROM', path):
+			if has_been_done('ROM', path):
 				continue
 		
 		try:

@@ -3,11 +3,10 @@ from typing import Union
 import meowlauncher.info.emulator_command_lines as command_lines
 from meowlauncher.common_types import ConfigValueType
 from meowlauncher.config.emulator_config_type import EmulatorConfigValue
-from meowlauncher.games.emulator import (Emulator, EmulatorPlatform,
-                                         EmulatorStatus, LibretroCore,
-                                         LibretroFrontend, MameDriver,
-                                         MednafenModule, PCEmulator,
-                                         StandardEmulator, ViceEmulator)
+from meowlauncher.emulator import (Emulator, EmulatorPlatform, EmulatorStatus,
+                                   LibretroCore, LibretroFrontend, MameDriver,
+                                   MednafenModule, PCEmulator,
+                                   StandardEmulator, ViceEmulator)
 from meowlauncher.info.emulator_command_line_helpers import (
     simple_emulator, simple_gb_emulator, simple_mame_driver,
     simple_md_emulator)

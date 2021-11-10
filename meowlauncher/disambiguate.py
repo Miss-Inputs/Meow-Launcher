@@ -8,8 +8,10 @@ import os
 import sys
 import time
 
-from meowlauncher import launchers
 from meowlauncher.config.main_config import main_config
+from meowlauncher.desktop_launchers import (get_array, get_desktop, get_field,
+                                            id_section_name, junk_section_name,
+                                            metadata_section_name)
 from meowlauncher.util.utils import normalize_name
 
 super_debug = '--super-debug' in sys.argv
@@ -42,11 +44,11 @@ def update_name(desktop, disambiguator, disambiguation_method):
 	with open(desktop[0], 'wt') as f:
 		desktop[1].write(f)
 
-def resolve_duplicates_by_metadata(group, field, format_function=None, ignore_missing_values=False, field_section=launchers.metadata_section_name):
-	value_counter = collections.Counter(launchers.get_field(d[1], field, field_section) for d in group)
+def resolve_duplicates_by_metadata(group, field, format_function=None, ignore_missing_values=False, field_section=metadata_section_name):
+	value_counter = collections.Counter(get_field(d[1], field, field_section) for d in group)
 	for dup in group:
-		field_value = launchers.get_field(dup[1], field, field_section)
-		name = launchers.get_field(dup[1], 'Name', 'Desktop Entry')
+		field_value = get_field(dup[1], field, field_section)
+		name = get_field(dup[1], 'Name', 'Desktop Entry')
 
 		#See if this launcher is unique in this group (of launchers with the same
 		#name) for its field.  If it's the only launcher for this field, we can
@@ -77,7 +79,7 @@ def resolve_duplicates_by_metadata(group, field, format_function=None, ignore_mi
 				if len(rest_of_counter) == 1 and rest_of_counter[0] is None:
 					return
 
-			original_name = launchers.get_field(dup[1], 'Ambiguous-Name', disambiguity_section_name)
+			original_name = get_field(dup[1], 'Ambiguous-Name', disambiguity_section_name)
 			if original_name is None:
 				original_name = name
 			update_name(dup, format_function(field_value, original_name) if format_function else '({0})'.format(field_value), field)
@@ -85,15 +87,15 @@ def resolve_duplicates_by_metadata(group, field, format_function=None, ignore_mi
 def resolve_duplicates_by_filename_tags(group):
 	for dup in group:
 		the_rest = [d for d in group if d[0] != dup[0]]
-		tags = launchers.get_array(dup[1], 'Filename-Tags', launchers.junk_section_name)
+		tags = get_array(dup[1], 'Filename-Tags', junk_section_name)
 
 		differentiator_candidates = []
 
-		rest_tags = [launchers.get_array(rest[1], 'Filename-Tags', launchers.junk_section_name) for rest in the_rest]
+		rest_tags = [get_array(rest[1], 'Filename-Tags', junk_section_name) for rest in the_rest]
 		for tag in tags:
 			if all(tag in rest_tag for rest_tag in rest_tags):
 				continue
-			og_name = launchers.get_field(dup[1], 'Name', 'Desktop Entry')
+			og_name = get_field(dup[1], 'Name', 'Desktop Entry')
 			if og_name:
 				if tag.lower() in og_name.lower():
 					#Bit silly to add a tag that is already there from something else
@@ -105,7 +107,7 @@ def resolve_duplicates_by_filename_tags(group):
 
 def resolve_duplicates_by_dev_status(group):
 	for dup in group:
-		tags = launchers.get_array(dup[1], 'Filename-Tags', launchers.junk_section_name)
+		tags = get_array(dup[1], 'Filename-Tags', junk_section_name)
 
 		for tag in tags:
 			tag_matches = tag.lower().startswith(('(beta', '(sample)', '(proto', '(preview', '(pre-release', '(demo', '(multiboot demo)', '(shareware', '(taikenban'))
@@ -114,13 +116,13 @@ def resolve_duplicates_by_dev_status(group):
 				update_name(dup, '(' + tag[1:].title() if tag.islower() else tag, 'dev status')
 
 def resolve_duplicates_by_date(group):
-	year_counter = collections.Counter(launchers.get_field(d[1], 'Year') for d in group)
-	month_counter = collections.Counter(launchers.get_field(d[1], 'Month') for d in group)
-	day_counter = collections.Counter(launchers.get_field(d[1], 'Day') for d in group)
+	year_counter = collections.Counter(get_field(d[1], 'Year') for d in group)
+	month_counter = collections.Counter(get_field(d[1], 'Month') for d in group)
+	day_counter = collections.Counter(get_field(d[1], 'Day') for d in group)
 	for dup in group:
-		year = launchers.get_field(dup[1], 'Year')
-		month = launchers.get_field(dup[1], 'Month')
-		day = launchers.get_field(dup[1], 'Day')
+		year = get_field(dup[1], 'Year')
+		month = get_field(dup[1], 'Month')
+		day = get_field(dup[1], 'Day')
 		if year is None or (year is None and month is None and day is None):
 			continue
 
@@ -161,7 +163,7 @@ def resolve_duplicates_by_date(group):
 
 			update_name(dup, '(' + date_string + ')', 'date')
 
-def resolve_duplicates(group, method, format_function=None, ignore_missing_values=None, field_section=launchers.metadata_section_name):
+def resolve_duplicates(group, method, format_function=None, ignore_missing_values=None, field_section=metadata_section_name):
 	if method == 'tags':
 		resolve_duplicates_by_filename_tags(group)
 	elif method == 'dev-status':
@@ -171,17 +173,17 @@ def resolve_duplicates(group, method, format_function=None, ignore_missing_value
 	else:
 		resolve_duplicates_by_metadata(group, method, format_function, ignore_missing_values, field_section)
 
-def fix_duplicate_names(method, format_function=None, ignore_missing_values=None, field_section=launchers.metadata_section_name):
-	files = [(path, launchers.get_desktop(path)) for path in [f.path for f in os.scandir(main_config.output_folder)]]
+def fix_duplicate_names(method, format_function=None, ignore_missing_values=None, field_section=metadata_section_name):
+	files = [(path, get_desktop(path)) for path in [f.path for f in os.scandir(main_config.output_folder)]]
 	if method == 'dev-status':
 		resolve_duplicates_by_dev_status(files)
 		return
 
 	if method == 'check':
-		keyfunc = lambda f: launchers.get_field(f[1], 'Name', 'Desktop Entry').lower()
+		keyfunc = lambda f: get_field(f[1], 'Name', 'Desktop Entry').lower()
 	else:
 		#Why did I call the variable "f"? Oh well
-		keyfunc = lambda f: normalize_name(launchers.get_field(f[1], 'Name', 'Desktop Entry'), care_about_numerals=True)
+		keyfunc = lambda f: normalize_name(get_field(f[1], 'Name', 'Desktop Entry'), care_about_numerals=True)
 	files.sort(key=keyfunc)
 	duplicates = {}
 	for key, group in itertools.groupby(files, key=keyfunc):
@@ -191,7 +193,7 @@ def fix_duplicate_names(method, format_function=None, ignore_missing_values=None
 
 	for k, v in duplicates.items():
 		if method == 'check':
-			print('Duplicate name still remains: ', k, [(d[1][launchers.junk_section_name].get('Original-Name', '<no Original-Name>') if launchers.junk_section_name in d[1] else '<no junk section>') for d in v])
+			print('Duplicate name still remains: ', k, [(d[1][junk_section_name].get('Original-Name', '<no Original-Name>') if junk_section_name in d[1] else '<no junk section>') for d in v])
 		else:
 			resolve_duplicates(v, method, format_function, ignore_missing_values, field_section)
 
@@ -242,7 +244,7 @@ def disambiguate_names() -> None:
 		reambiguate()
 
 	fix_duplicate_names('Platform')
-	fix_duplicate_names('Type', field_section=launchers.id_section_name)
+	fix_duplicate_names('Type', field_section=id_section_name)
 	fix_duplicate_names('dev-status')
 	if not main_config.simple_disambiguate:
 		fix_duplicate_names('Arcade-System', arcade_system_disambiguate)

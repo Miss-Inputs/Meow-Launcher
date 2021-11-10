@@ -4,10 +4,11 @@ import os
 import re
 import time
 
-from meowlauncher import launchers
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.series_detect.series_detect_overrides import \
     series_overrides
+from meowlauncher.desktop_launchers import (get_desktop, get_field,
+                                            metadata_section_name)
 from meowlauncher.util.utils import (convert_roman_numeral,
                                      convert_roman_numerals_in_title,
                                      remove_capital_article)
@@ -101,20 +102,20 @@ def find_series_name_by_subtitle(name, existing_serieses, force=False):
 	return None, None
 
 def get_usable_name(desktop):
-	sort_name = launchers.get_field(desktop, 'Sort-Name')
+	sort_name = get_field(desktop, 'Sort-Name')
 	if sort_name:
 		return sort_name
 	#Note that this is before disambiguate.py, so we don't need to worry about using Ambiguous-Name from disambiguation section
 	#Name _must_ exist in a .desktop file... although this is platform-specific, come to think of it, maybe I should put stuff in launchers.py to abstract getting name/exec/icon/etc
-	return launchers.get_field(desktop, 'Name', 'Desktop Entry')
+	return get_field(desktop, 'Name', 'Desktop Entry')
 
 def add_series(desktop, path, series, series_index=None):
-	if launchers.metadata_section_name not in desktop:
-		desktop.add_section(launchers.metadata_section_name)
+	if metadata_section_name not in desktop:
+		desktop.add_section(metadata_section_name)
 	if series is not None:
-		desktop[launchers.metadata_section_name]['Series'] = series
+		desktop[metadata_section_name]['Series'] = series
 	if series_index is not None:
-		desktop[launchers.metadata_section_name]['Series-Index'] = str(series_index)
+		desktop[metadata_section_name]['Series-Index'] = str(series_index)
 	with open(path, 'wt') as f:
 		desktop.write(f)
 
@@ -128,9 +129,9 @@ def find_existing_serieses():
 	serieses = set()
 	for name in os.listdir(main_config.output_folder):
 		path = os.path.join(main_config.output_folder, name)
-		desktop = launchers.get_desktop(path)
+		desktop = get_desktop(path)
 
-		series = launchers.get_field(desktop, 'Series')
+		series = get_field(desktop, 'Series')
 		if series:
 			serieses.add(series)
 
@@ -167,13 +168,13 @@ def get_series_from_whole_thing(series, whole_name):
 def detect_series_index_for_things_with_series():
 	for filename in os.listdir(main_config.output_folder):
 		path = os.path.join(main_config.output_folder, filename)
-		desktop = launchers.get_desktop(path)
+		desktop = get_desktop(path)
 
-		existing_series = launchers.get_field(desktop, 'Series')
+		existing_series = get_field(desktop, 'Series')
 		if not existing_series:
 			continue
 
-		if launchers.get_field(desktop, 'Series-Index'):
+		if get_field(desktop, 'Series-Index'):
 			continue
 
 		name = get_usable_name(desktop)
@@ -207,9 +208,9 @@ def detect_series_index_for_things_with_series():
 def get_existing_seriesless_launchers():
 	for name in os.listdir(main_config.output_folder):
 		path = os.path.join(main_config.output_folder, name)
-		desktop = launchers.get_desktop(path)
+		desktop = get_desktop(path)
 
-		if launchers.get_field(desktop, 'Series'):
+		if get_field(desktop, 'Series'):
 			#Don't need to do this if it already exists
 			continue
 
@@ -225,7 +226,7 @@ def detect_series_for_all_desktops():
 		detect_series_by_subtitle(desktop, path, existing)
 
 	for desktop, path in get_existing_seriesless_launchers():
-		if launchers.get_field(desktop, 'Series-Index'):
+		if get_field(desktop, 'Series-Index'):
 			force_add_series_with_index(desktop, path, existing)
 
 	detect_series_index_for_things_with_series()

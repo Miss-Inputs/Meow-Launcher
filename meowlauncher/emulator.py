@@ -9,7 +9,7 @@ from meowlauncher.config.emulator_config_type import (EmulatorConfig,
 from meowlauncher.config.main_config import main_config
 from meowlauncher.info.emulator_command_line_helpers import \
     simple_mednafen_module
-from meowlauncher.launchers import (LaunchParams, MultiCommandLaunchParams,
+from meowlauncher.launcher import (LaunchCommand, MultiLaunchCommands,
                                     get_wine_launch_params)
 
 
@@ -28,7 +28,7 @@ class EmulatorPlatform():
 	DotNet = auto()
 
 class Emulator():
-	def __init__(self, status: EmulatorStatus, default_exe_name: str, launch_params_func: Callable[..., LaunchParams], configs: dict[str, EmulatorConfigValue]=None, host_platform=EmulatorPlatform.Native):
+	def __init__(self, status: EmulatorStatus, default_exe_name: str, launch_params_func: Callable[..., LaunchCommand], configs: dict[str, EmulatorConfigValue]=None, host_platform=EmulatorPlatform.Native):
 		self.status = status
 		self.default_exe_name = default_exe_name
 		self.launch_params_func = launch_params_func
@@ -45,8 +45,8 @@ class Emulator():
 		params = self.launch_params_func(game, system_config, emulator_config)
 
 		if self.host_platform == EmulatorPlatform.Windows:
-			if isinstance(params, MultiCommandLaunchParams):
-				params = MultiCommandLaunchParams(params.pre_commands, get_wine_launch_params(params.main_command.exe_name, params.main_command.exe_args), params.post_commands)
+			if isinstance(params, MultiLaunchCommands):
+				params = MultiLaunchCommands(params.pre_commands, get_wine_launch_params(params.main_command.exe_name, params.main_command.exe_args), params.post_commands)
 			else:
 				params = get_wine_launch_params(params.exe_name, params.exe_args)
 		elif self.host_platform == EmulatorPlatform.DotNet:
@@ -54,14 +54,14 @@ class Emulator():
 		
 		if emulator_config.options.get('mangohud', False):
 			params = params.wrap('mangohud')
-			if isinstance(params, MultiCommandLaunchParams):
+			if isinstance(params, MultiLaunchCommands):
 				params.main_command.env_vars['MANGOHUD_DLSYM'] = '1'
 			else:
 				params.env_vars['MANGOHUD_DLSYM'] = '1'
 		if emulator_config.options.get('gamemode', False):
 			params = params.wrap('gamemoderun')
 		if emulator_config.options.get('force_opengl_version', False):
-			if isinstance(params, MultiCommandLaunchParams):
+			if isinstance(params, MultiLaunchCommands):
 				params.main_command.env_vars['MESA_GL_VERSION_OVERRIDE'] = '4.3'
 			else:
 				params.env_vars['MESA_GL_VERSION_OVERRIDE'] = '4.3'

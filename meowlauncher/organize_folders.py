@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
-from configparser import ConfigParser
 import datetime
 import os
 import shutil
 import sys
 import time
+from configparser import ConfigParser
 from typing import Any, Callable
 
-from meowlauncher import launchers
 from meowlauncher.config.main_config import main_config
+from meowlauncher.desktop_launchers import get_array, get_desktop, get_field
 from meowlauncher.util.io_utils import sanitize_name
 
 #This is sort of considered separate from the main launcher generator.
@@ -60,10 +60,10 @@ def move_into_extra_subfolder(path: str, desktop: ConfigParser, subfolder, keys,
 
 		get_function: Callable[[ConfigParser, str, str], Any]
 		if is_key_array:
-			get_function = launchers.get_array
+			get_function = get_array
 			subsubfolders = []
 		else:
-			get_function = launchers.get_field
+			get_function = get_field
 
 		if '/' in key:
 			section, _, actual_key = key.partition('/')
@@ -137,11 +137,11 @@ def move_into_extra_subfolder(path: str, desktop: ConfigParser, subfolder, keys,
 				copy_to_folder(path, main_config.organized_output_folder, subfolder)
 
 def move_into_subfolders(path) -> None:
-	desktop = launchers.get_desktop(path)
-	platform = launchers.get_field(desktop, 'Platform')
-	categories = launchers.get_array(desktop, 'Categories')
-	languages = launchers.get_array(desktop, 'Languages')
-	year = launchers.get_field(desktop, 'Year')
+	desktop = get_desktop(path)
+	platform = get_field(desktop, 'Platform')
+	categories = get_array(desktop, 'Categories')
+	languages = get_array(desktop, 'Languages')
+	year = get_field(desktop, 'Year')
 
 	if categories:
 		category = categories[0]
@@ -219,7 +219,7 @@ def main() -> None:
 			for f in files:
 				if f.endswith('.desktop'):
 					path = os.path.join(root, f)
-					desktop = launchers.get_desktop(path)
+					desktop = get_desktop(path)
 					move_into_extra_subfolder(path, desktop, sanitize_name(name, supersafe=True), key, missing_value)
 		if main_config.print_times:
 			time_ended = time.perf_counter()

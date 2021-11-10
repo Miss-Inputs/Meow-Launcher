@@ -5,9 +5,10 @@ import os
 import time
 from typing import Optional
 
-from meowlauncher import launchers
 from meowlauncher.config.main_config import main_config
+from meowlauncher.desktop_launchers import has_been_done
 from meowlauncher.games.itch import ItchGame
+
 
 def scan_itch_dir(path) -> Optional[ItchGame]:
 	if not os.path.isdir(os.path.join(path, '.itch')):
@@ -27,7 +28,7 @@ def do_itch_io_games() -> None:
 	
 		for subfolder in os.scandir(itch_io_folder):
 			if not main_config.full_rescan:
-				if launchers.has_been_done('itch.io', subfolder.path):
+				if has_been_done('itch.io', subfolder.path):
 					continue
 			if not subfolder.is_dir():
 				continue
@@ -37,7 +38,7 @@ def do_itch_io_games() -> None:
 			if not game:
 				if main_config.debug:
 					print('itch.io subfolder does not have an itch.io game (detection may have failed)', subfolder.path)
-					continue
+				continue
 
 			#TODO: Somehow, we need to add all the documentation etc to other folders with matching game IDs (they won't be launchable themselves)
 

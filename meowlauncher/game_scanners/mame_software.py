@@ -3,7 +3,8 @@ import datetime
 import sys
 import time
 
-from meowlauncher import launchers
+from meowlauncher import desktop_launchers
+from meowlauncher.launcher import LaunchCommand
 from meowlauncher.common_types import EmulationNotSupportedException, MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.mame.software_list_info import \
@@ -85,9 +86,9 @@ class SoftwareLauncher():
 		#		raise EmulationNotSupportedException('Not supported')
 		#TODO Have option to skip if not working
 
-		launch_params = launchers.LaunchParams('mame', self.platform.get_launch_params(self))
+		launch_params = LaunchCommand('mame', self.platform.get_launch_params(self))
 
-		launchers.make_launcher(launch_params, self.software.description, self.metadata, 'MAME software', self.id)
+		desktop_launchers.make_launcher(launch_params, self.software.description, self.metadata, 'MAME software', self.id)
 
 def add_software_metadata(software):
 	software.metadata.emulator_name = 'MAME' #Will probably always be the case

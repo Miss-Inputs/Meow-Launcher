@@ -3,12 +3,14 @@ from typing import Optional
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import MediaType, SaveType
-from meowlauncher.input_metadata import InputInfo
-from meowlauncher.launchers import (description_section_name,
-                                    document_section_name, image_section_name,
-                                    junk_section_name, metadata_section_name,
-                                    name_section_name)
+from meowlauncher.desktop_launchers import (description_section_name,
+                                            document_section_name,
+                                            image_section_name,
+                                            junk_section_name,
+                                            metadata_section_name,
+                                            name_section_name)
 from meowlauncher.info.region_info import Language, Region
+from meowlauncher.input_metadata import InputInfo
 
 
 class CPU():

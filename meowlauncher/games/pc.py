@@ -5,7 +5,7 @@ import time
 import traceback
 from typing import Any, Mapping, Optional, Type
 
-from meowlauncher import launchers
+from meowlauncher.desktop_launchers import make_launcher
 from meowlauncher.common_paths import config_dir
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        MediaType, NotARomException)
@@ -105,7 +105,7 @@ class App:
 			return
 
 		self.metadata.emulator_name = emulator_name
-		launchers.make_launcher(params, self.name, self.metadata, system_config.name, self.get_launcher_id())
+		make_launcher(params, self.name, self.metadata, system_config.name, self.get_launcher_id())
 
 def process_app(app_info: Mapping[str, Any], app_class: Type[App], system_config: PlatformConfig) -> None:
 	app = app_class(app_info)

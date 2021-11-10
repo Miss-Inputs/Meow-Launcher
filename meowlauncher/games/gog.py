@@ -4,7 +4,7 @@ import os
 import shlex
 from pathlib import Path
 
-from meowlauncher import launchers
+from meowlauncher import desktop_launchers, launcher
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games import pc_common_metadata
@@ -162,8 +162,8 @@ class GOGGame():
 		return False
 
 	def make_launcher(self):
-		params = launchers.LaunchParams(self.start_script, [], working_directory=self.folder)
-		launchers.make_launcher(params, self.name, self.metadata, 'GOG', self.folder)
+		params = launcher.LaunchCommand(self.start_script, [], working_directory=self.folder)
+		desktop_launchers.make_launcher(params, self.name, self.metadata, 'GOG', self.folder)
 
 class NormalGOGGame(GOGGame):
 	def add_metadata(self):
@@ -286,7 +286,7 @@ class WindowsGOGGame():
 		args = [self.fix_subfolder_relative_folder(arg, 'dosbox') for arg in task.args]
 		dosbox_path = main_config.dosbox_path
 		dosbox_folder = find_subpath_case_insensitive(self.folder, 'dosbox') #Game's config files are expecting to be launched from here
-		return launchers.LaunchParams(dosbox_path, args, working_directory=dosbox_folder)
+		return desktop_launchers.LaunchCommand(dosbox_path, args, working_directory=dosbox_folder)
 
 	def get_wine_launch_params(self, task):
 		if not task.path:
@@ -304,7 +304,7 @@ class WindowsGOGGame():
 		if task.working_directory:
 			working_directory = find_subpath_case_insensitive(self.folder, task.working_directory)
 		
-		return launchers.get_wine_launch_params(exe_path, task.args, working_directory)
+		return launcher.get_wine_launch_params(exe_path, task.args, working_directory)
 
 	def get_launcher_params(self, task):
 		if main_config.use_system_dosbox and task.is_dosbox:
@@ -352,7 +352,7 @@ class WindowsGOGGame():
 			else:
 				name = pc_common_metadata.fix_name(task.name)
 
-		launchers.make_launcher(params, name, task_metadata, 'GOG', self.folder)
+		desktop_launchers.make_launcher(params, name, task_metadata, 'GOG', self.folder)
 
 	def make_launchers(self):
 		actual_tasks = []

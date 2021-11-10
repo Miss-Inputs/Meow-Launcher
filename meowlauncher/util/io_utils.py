@@ -1,5 +1,6 @@
 import os
 import pathlib
+import re
 import zlib
 
 from .archives import compressed_get, compressed_getsize, get_crc32_of_archive
@@ -89,3 +90,25 @@ def sanitize_path(path: str, supersafe: bool=False) -> str:
 	if has_slash:
 		sanitized_parts = ['/'] + sanitized_parts
 	return os.path.join(*sanitized_parts)
+
+remove_brackety_things_for_filename = re.compile(r'[]([)]')
+clean_for_filename = re.compile(r'[^A-Za-z0-9_]')
+def make_filename(name: str) -> str:
+	name = name.lower()
+	name = remove_brackety_things_for_filename.sub('', name)
+	name = clean_for_filename.sub('-', name)
+	while name.startswith('-'):
+		name = name[1:]
+	if not name:
+		name = 'blank'
+	return name
+
+def pick_new_filename(folder: str, display_name: str, extension: str) -> str:
+	base_filename = make_filename(display_name)
+	filename = base_filename + os.extsep + extension
+
+	i = 2
+	while os.path.isfile(os.path.join(folder, filename)):
+		filename = base_filename + str(i) + os.extsep + extension
+		i += 1
+	return filename

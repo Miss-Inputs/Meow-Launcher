@@ -7,19 +7,20 @@ import json
 import os
 import statistics
 import time
-from typing import Optional
 import zipfile
 from enum import IntFlag
+from typing import Optional
 
-from meowlauncher import launchers
 from meowlauncher.common_types import MediaType, SaveType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.steam_developer_overrides import \
     developer_overrides
+from meowlauncher.desktop_launchers import has_been_done, make_launcher
 from meowlauncher.games.pc_common_metadata import (
     add_metadata_for_raw_exe, check_for_interesting_things_in_folder,
     detect_engine_recursively, fix_name, normalize_name_case)
 from meowlauncher.info.region_info import get_language_by_english_name
+from meowlauncher.launcher import LaunchCommand
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.utils import (junk_suffixes, load_dict,
                                      remove_capital_article)
@@ -237,8 +238,8 @@ class SteamGame():
 		return None
 
 	def make_launcher(self):
-		params = launchers.LaunchParams('steam', ['steam://rungameid/{0}'.format(self.app_id)])
-		launchers.make_launcher(params, self.name, self.metadata, 'Steam', self.app_id)
+		params = LaunchCommand('steam', ['steam://rungameid/{0}'.format(self.app_id)])
+		make_launcher(params, self.name, self.metadata, 'Steam', self.app_id)
 
 class NotActuallyAGameYouDingusException(Exception):
 	pass
@@ -1150,7 +1151,7 @@ def process_steam() -> None:
 	compat_tool_appids = [str(compat_tool[0]) for compat_tool in get_steamplay_compat_tools().values()]
 	for folder, app_id, app_state in iter_steam_installed_appids():
 		if not main_config.full_rescan:
-			if launchers.has_been_done('Steam', app_id):
+			if has_been_done('Steam', app_id):
 				continue
 		if app_id in compat_tool_appids:
 			continue

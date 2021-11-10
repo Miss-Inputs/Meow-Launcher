@@ -5,7 +5,7 @@ from meowlauncher.common_types import (EmulationNotSupportedException,
 from meowlauncher.games.mame.mame_helpers import have_mame, verify_romset
 from meowlauncher.games.mame.software_list_info import \
     get_software_list_by_name
-from meowlauncher.launchers import LaunchParams
+from meowlauncher.launcher import LaunchCommand
 
 
 def _get_autoboot_script_by_name(name: str):
@@ -58,7 +58,7 @@ def is_highscore_cart_available():
 	#FIXME: This is potentially wrong for A7800, where the software directory could be different than MAME... I've just decided to assume it's set up that way
 
 def mednafen_module(module, exe_path='mednafen'):
-	return LaunchParams(exe_path, ['-video.fs', '1', '-force_module', module, '$<path>'])
+	return LaunchCommand(exe_path, ['-video.fs', '1', '-force_module', module, '$<path>'])
 
 def mame_base(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None, software=None, bios=None):
 	args = ['-skip_gameinfo']
@@ -104,7 +104,7 @@ def mame_driver(game, emulator_config, driver, slot=None, slot_options=None, has
 			raise EmulationNotSupportedException('Does not match anything in software list')
 
 	args = mame_base(driver, slot, slot_options, has_keyboard, autoboot_script)
-	return LaunchParams(emulator_config.exe_path, args)
+	return LaunchCommand(emulator_config.exe_path, args)
 
 def first_available_system(system_list):
 	for system in system_list:
@@ -115,13 +115,13 @@ def first_available_system(system_list):
 #This is here to make things simpler, instead of putting a whole new function in emulator_command_lines we can return the appropriate function from here
 def simple_emulator(args=None):
 	def inner(_, __, emulator_config):
-		return LaunchParams(emulator_config.exe_path, args if args else ['$<path>'])
+		return LaunchCommand(emulator_config.exe_path, args if args else ['$<path>'])
 	return inner
 
 def simple_gb_emulator(args, mappers, autodetected_mappers):
 	def inner(game, _, emulator_config):
 		_verify_supported_gb_mappers(game, mappers, autodetected_mappers)
-		return LaunchParams(emulator_config.exe_path, args)
+		return LaunchCommand(emulator_config.exe_path, args)
 	return inner
 
 def simple_md_emulator(args, unsupported_mappers):
@@ -129,7 +129,7 @@ def simple_md_emulator(args, unsupported_mappers):
 		mapper = game.metadata.specific_info.get('Mapper')
 		if mapper in unsupported_mappers:
 			raise EmulationNotSupportedException(mapper + ' not supported')
-		return LaunchParams(emulator_config.exe_path, args)
+		return LaunchCommand(emulator_config.exe_path, args)
 	return inner
 
 def simple_mame_driver(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None):

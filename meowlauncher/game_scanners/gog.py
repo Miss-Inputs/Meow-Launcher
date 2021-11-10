@@ -5,10 +5,11 @@ import os
 import time
 from typing import Optional
 
-from meowlauncher import launchers
+from meowlauncher import desktop_launchers
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games.gog import (DOSBoxGOGGame, GOGGame, GOGGameInfo, NormalGOGGame,
-                                    ScummVMGOGGame, WindowsGOGGame)
+from meowlauncher.games.gog import (DOSBoxGOGGame, GOGGame, GOGGameInfo,
+                                    NormalGOGGame, ScummVMGOGGame,
+                                    WindowsGOGGame)
 
 
 def look_in_linux_gog_folder(folder: str) -> Optional[GOGGame]:
@@ -59,7 +60,7 @@ def do_gog_games() -> None:
 
 		for subfolder in os.scandir(gog_folder):
 			if not main_config.full_rescan:
-				if launchers.has_been_done('GOG', subfolder.path):
+				if desktop_launchers.has_been_done('GOG', subfolder.path):
 					continue
 			if not subfolder.is_dir():
 				continue
@@ -67,6 +68,7 @@ def do_gog_games() -> None:
 			if not game:
 				if main_config.debug:
 					print('GOG subfolder does not have a GOG game (detection may have failed)', subfolder.path)
+				continue
 
 			game.add_metadata()
 			game.make_launcher()
@@ -80,7 +82,7 @@ def do_gog_games() -> None:
 
 			for subfolder in os.scandir(windows_gog_folder):
 				if not main_config.full_rescan:
-					if launchers.has_been_done('GOG', subfolder.path):
+					if desktop_launchers.has_been_done('GOG', subfolder.path):
 						continue
 				if not subfolder.is_dir():
 					continue
