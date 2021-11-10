@@ -16,6 +16,7 @@ from meowlauncher.common_types import (EmulationNotSupportedException,
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.system_config import SystemConfig, system_configs
+from meowlauncher.data.emulators import emulators, libretro_frontends
 from meowlauncher.games.roms.platform_specific.roms_folders import \
     folder_checks
 from meowlauncher.games.roms.rom import FileROM, FolderROM, rom_file
@@ -40,7 +41,7 @@ def process_file(system_config: SystemConfig, potential_emulators: Iterable[str]
 
 	have_emulator_that_supports_extension = False
 	for potential_emulator_name in potential_emulators:
-		potential_emulator = emulator_info.emulators[potential_emulator_name]
+		potential_emulator = emulators[potential_emulator_name]
 		potential_emulator_config = emulator_configs[potential_emulator_name]
 		if rom.is_folder:
 			if potential_emulator.supports_folders:
@@ -71,13 +72,13 @@ def process_file(system_config: SystemConfig, potential_emulators: Iterable[str]
 
 	for potential_emulator_name in potential_emulators:
 		try:
-			potential_emulator = emulator_info.emulators[potential_emulator_name]
+			potential_emulator = emulators[potential_emulator_name]
 			potential_emulator_config = emulator_configs[potential_emulator_name]
 			if isinstance(potential_emulator, emulator_info.LibretroCore):
 				if not main_config.libretro_frontend:
 					raise EmulationNotSupportedException('Must choose a frontend to run libretro cores')
 				frontend_config = emulator_configs[main_config.libretro_frontend]
-				frontend = emulator_info.libretro_frontends[main_config.libretro_frontend]
+				frontend = libretro_frontends[main_config.libretro_frontend]
 				potential_emulator = emulator_info.LibretroCoreWithFrontend(potential_emulator, frontend, frontend_config)
 
 			if rom.is_folder and not potential_emulator.supports_folders:
@@ -137,8 +138,8 @@ def process_emulated_system(system_config: SystemConfig):
 
 	potential_emulators = []
 	for emulator_name in system_config.chosen_emulators:
-		if emulator_name not in emulator_info.emulators:
-			if emulator_name + ' (libretro)' in emulator_info.emulators:
+		if emulator_name not in emulators:
+			if emulator_name + ' (libretro)' in emulators:
 				potential_emulators.append(emulator_name + ' (libretro)')
 			else:
 				print('Config warning:', emulator_name, 'is not a valid emulator')

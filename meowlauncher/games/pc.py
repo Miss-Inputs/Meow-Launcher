@@ -12,11 +12,12 @@ from meowlauncher.common_types import (EmulationNotSupportedException,
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.system_config import SystemConfig
-from meowlauncher.info.emulator_info import pc_emulators
+from meowlauncher.data.emulators import pc_emulators
 from meowlauncher.info.system_info import pc_systems
 from meowlauncher.metadata import Date, Metadata
 
 from .pc_common_metadata import fix_name
+
 
 class App:
 	def __init__(self, info: dict[str, Any]):

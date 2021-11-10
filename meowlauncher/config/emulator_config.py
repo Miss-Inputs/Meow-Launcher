@@ -3,7 +3,7 @@ import os
 
 from meowlauncher.common_paths import config_dir
 from meowlauncher.common_types import ConfigValueType
-from meowlauncher.info.emulator_info import all_emulators
+from meowlauncher.data.emulators import all_emulators
 from meowlauncher.util.io_utils import ensure_exist
 
 from ._config_utils import parse_value
