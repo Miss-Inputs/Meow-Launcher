@@ -6,6 +6,7 @@ import os
 import shutil
 import sys
 import time
+from typing import Any, Callable
 
 from meowlauncher import launchers
 from meowlauncher.config.main_config import main_config
@@ -20,8 +21,8 @@ def copy_to_folder(path: str, *dest_folder_components):
 	os.makedirs(dest_folder, exist_ok=True)
 	shutil.copy(path, dest_folder)
 
-def delete_existing_output_dir():
-	def rmdir_recursive(path):
+def delete_existing_output_dir() -> None:
+	def rmdir_recursive(path: str) -> None:
 		for f in os.listdir(path):
 			file_path = os.path.join(path, f)
 			if os.path.isdir(file_path):
@@ -57,6 +58,7 @@ def move_into_extra_subfolder(path: str, desktop: ConfigParser, subfolder, keys,
 			is_key_bool = True
 			key = key[:-1]
 
+		get_function: Callable[[ConfigParser, str, str], Any]
 		if is_key_array:
 			get_function = launchers.get_array
 			subsubfolders = []

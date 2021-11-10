@@ -1,5 +1,6 @@
 import configparser
 import os
+from typing import Any
 
 from meowlauncher.common_paths import config_dir
 from meowlauncher.info.system_info import pc_systems, systems
@@ -10,19 +11,19 @@ from ._config_utils import parse_path_list, parse_string_list, parse_value
 _system_config_path = os.path.join(config_dir, 'systems.ini')
 
 class SystemConfig():
-	def __init__(self, name: str):
+	def __init__(self, name: str) -> None:
 		self.name = name
-		self.paths = []
-		self.chosen_emulators = []
-		self.options = {}
+		self.paths: list[str] = []
+		self.chosen_emulators: list[str] = []
+		self.options: dict[str, Any] = {}
 
 	@property
-	def is_available(self):
+	def is_available(self) -> bool:
 		return bool(self.paths) and bool(self.chosen_emulators)
 
 class SystemConfigs():
 	class __SystemConfigs():
-		def __init__(self):
+		def __init__(self) -> None:
 			self.configs: dict[str, SystemConfig] = {}
 			self.read_configs_from_file()
 

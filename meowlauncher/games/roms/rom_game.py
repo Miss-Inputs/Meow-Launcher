@@ -14,7 +14,7 @@ class RomGame():
 		self.system_name = self.metadata.platform = system_name
 		self.system = system
 		self.metadata.categories = []
-		self.filename_tags = []
+		self.filename_tags: list[str] = []
 
 		self.emulator: Optional[emulator_info.Emulator] = None
 		self.launch_params: Optional[launchers.LaunchParams] = None

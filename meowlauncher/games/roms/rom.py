@@ -5,6 +5,7 @@ from zlib import crc32
 from meowlauncher.config.main_config import main_config
 from meowlauncher.util import archives, cd_read, io_utils
 
+#TODO Yeah nah I think FolderROM should be subclass of FileROM or otherwise both a subclass of something else
 
 class FileROM():
 	def __init__(self, path: str):

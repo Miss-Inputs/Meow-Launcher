@@ -3,6 +3,7 @@ import functools
 import os
 import re
 import subprocess
+from typing import Optional
 import xml.etree.ElementTree as ElementTree
 from pathlib import Path
 
@@ -13,7 +14,7 @@ from meowlauncher.data.name_cleanup.mame_manufacturer_name_cleanup import (
 from meowlauncher.util.utils import junk_suffixes
 
 
-def consistentify_manufacturer(manufacturer: str) -> str:
+def consistentify_manufacturer(manufacturer: str) -> Optional[str]:
 	if not manufacturer:
 		return None
 	if manufacturer not in dont_remove_suffix:
@@ -27,8 +28,8 @@ def consistentify_manufacturer(manufacturer: str) -> str:
 mame_config_comment = re.compile(r'#.+$')
 mame_config_line = re.compile(r'^(?P<key>\w+)\s+(?P<value>.+)$')
 semicolon_not_after_quotes = re.compile(r'(?!");')
-def parse_mame_config_file(path: str) -> dict[str, str]:
-	settings = {}
+def parse_mame_config_file(path: str) -> dict[str, list[str]]:
+	settings: dict[str, list[str]] = {}
 
 	with open(path, 'rt') as f:
 		for line in f.readlines():
@@ -61,13 +62,12 @@ class MameExecutable():
 	def __init__(self, path: str='mame'):
 		self.executable = path
 		self.version = self.get_version()
+		self.is_installed = False
+		self.xml_cache_path = None
 		if self.version:
 			#Do I really wanna be checking that this MAME exists inside the object that represents it? That doesn't entirely make sense to me
 			self.is_installed = True
 			self.xml_cache_path = os.path.join(cache_dir, self.version)
-		else:
-			self.is_installed = False
-			self.xml_cache_path = None
 
 		self._icons = None
 

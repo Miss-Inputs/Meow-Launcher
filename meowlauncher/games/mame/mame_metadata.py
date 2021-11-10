@@ -11,6 +11,7 @@ from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
 
 from .mame_helpers import (add_history, find_cpus, get_image,
                            get_mame_ui_config, image_config_keys)
+from .mame_machine import Machine
 
 mame_statuses = {
 	'good': EmulationStatus.Good,
@@ -28,7 +29,7 @@ def get_mame_folder(name: str):
 	if not category_folders:
 		return {}
 
-	d = {}
+	d: dict[str, list[str]] = {}
 	for folder in category_folders:
 		cat_path = os.path.join(folder, name + '.ini')
 		try:
@@ -51,13 +52,13 @@ def get_mame_folder(name: str):
 	return d
 
 @functools.lru_cache(maxsize=None)
-def get_machine_folder(basename, folder_name):
+def get_machine_folder(basename: str, folder_name: str):
 	folder = get_mame_folder(folder_name)
 	if not folder:
 		return None
 	return [section for section, names in folder.items() if basename in names]
 
-def get_category(basename):
+def get_category(basename: str):
 	cats = get_machine_folder(basename, 'catlist')
 	#It would theoretically be possible for a machine to appear twice, but catlist doesn't do that I think
 	if not cats:
@@ -78,7 +79,7 @@ def get_category(basename):
 	genre, _, subgenre = cat.partition(' / ')
 	return None, genre, subgenre, False
 
-def get_languages(basename):
+def get_languages(basename: str):
 	langs = get_machine_folder(basename, 'languages')
 	if not langs:
 		return None
@@ -130,7 +131,7 @@ def add_status(machine):
 	if unemulated_features:
 		machine.metadata.specific_info['MAME-Unemulated-Features'] = unemulated_features
 
-def add_metadata_from_catlist(machine):
+def add_metadata_from_catlist(machine: Machine):
 	category, genre, subgenre, is_mature = get_category(machine.basename)
 	if category == 'Unknown' and machine.has_parent:
 		category, genre, subgenre, is_mature = get_category(machine.parent_basename)

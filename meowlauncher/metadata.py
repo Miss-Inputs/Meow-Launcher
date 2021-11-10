@@ -1,11 +1,14 @@
 import collections
 from typing import Optional
+from xml.etree import ElementTree
 
 from meowlauncher.common_types import MediaType, SaveType
 from meowlauncher.input_metadata import InputInfo
-from meowlauncher.launchers import (description_section_name, document_section_name,
-                       image_section_name, junk_section_name,
-                       metadata_section_name, name_section_name)
+from meowlauncher.launchers import (description_section_name,
+                                    document_section_name, image_section_name,
+                                    junk_section_name, metadata_section_name,
+                                    name_section_name)
+from meowlauncher.info.region_info import Language, Region
 
 
 class CPU():
@@ -31,7 +34,7 @@ class CPU():
 			return CPU.format_clock_speed(self.clock_speed)
 		return None
 
-	def load_from_xml(self, xml):
+	def load_from_xml(self, xml: ElementTree.Element):
 		self.chip_name = xml.attrib.get('name')
 		self.tag = xml.attrib.get('tag')
 		if xml.attrib['name'] != 'Netlist CPU Device' and 'clock' in xml.attrib:
@@ -204,22 +207,22 @@ class Date():
 		return s
 
 class Metadata():
-	def __init__(self):
-		self.platform = None
-		self.categories = []
+	def __init__(self) -> None:
+		self.platform: Optional[str] = None
+		self.categories: list[str] = []
 		self.release_date = None
 		self.emulator_name = None
-		self.extension = None
+		self.extension: Optional[str] = None
 
-		self.genre = None
-		self.subgenre = None
-		self.languages = []
-		self.developer = None
-		self.publisher = None
+		self.genre: Optional[str] = None
+		self.subgenre: Optional[str] = None
+		self.languages: list[Language] = []
+		self.developer: Optional[str] = None
+		self.publisher: Optional[str] = None
 		self.save_type = SaveType.Unknown
-		self.product_code = None
-		self.regions = []
-		self.media_type = None
+		self.product_code: Optional[str] = None
+		self.regions: list[Region] = []
+		self.media_type: Optional[MediaType] = None
 		self.notes = None
 		self.disc_number = None
 		self.disc_total = None
