@@ -4,13 +4,13 @@ from typing import Optional, Union
 
 from meowlauncher import launchers, metadata
 from meowlauncher.games.emulator import Emulator
-from meowlauncher.games.emulated_platform import SystemInfo
+from meowlauncher.games.emulated_platform import EmulatedPlatform
 
 from .rom import FileROM, FolderROM
 
 
 class RomGame():
-	def __init__(self, rom: Union[FileROM, FolderROM], system_name: str, system: SystemInfo):
+	def __init__(self, rom: Union[FileROM, FolderROM], system_name: str, system: EmulatedPlatform):
 		self.rom = rom
 		self.metadata = metadata.Metadata()
 		self.system_name = self.metadata.platform = system_name

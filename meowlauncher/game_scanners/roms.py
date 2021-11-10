@@ -15,7 +15,7 @@ from meowlauncher.common_types import (EmulationNotSupportedException,
                                        NotARomException)
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config.system_config import SystemConfig, system_configs
+from meowlauncher.config.system_config import PlatformConfig, system_configs
 from meowlauncher.data.emulators import emulators, libretro_frontends
 from meowlauncher.games.emulator import (LibretroCore,
                                          LibretroCoreWithFrontend, MameDriver,
@@ -25,13 +25,13 @@ from meowlauncher.games.roms.platform_specific.roms_folders import \
 from meowlauncher.games.roms.rom import FileROM, FolderROM, rom_file
 from meowlauncher.games.roms.rom_game import RomGame
 from meowlauncher.games.roms.roms_metadata import add_metadata
-from meowlauncher.data.emulated_platforms import systems
+from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.util import archives
 from meowlauncher.util.utils import find_filename_tags_at_end, starts_with_any
 
 
-def process_file(system_config: SystemConfig, potential_emulators: Iterable[str], rom: Union[FileROM, FolderROM], subfolders: Sequence[str]):
-	game = RomGame(rom, system_config.name, systems[system_config.name])
+def process_file(system_config: PlatformConfig, potential_emulators: Iterable[str], rom: Union[FileROM, FolderROM], subfolders: Sequence[str]):
+	game = RomGame(rom, system_config.name, platforms[system_config.name])
 
 	if game.rom.extension == 'm3u':
 		lines = game.rom.read().decode('utf-8').splitlines()
@@ -136,7 +136,7 @@ def sort_m3u_first():
 
 	return Sorter
 
-def process_emulated_system(system_config: SystemConfig):
+def process_emulated_system(system_config: PlatformConfig):
 	time_started = time.perf_counter()
 
 	potential_emulators = []
@@ -146,7 +146,7 @@ def process_emulated_system(system_config: SystemConfig):
 				potential_emulators.append(emulator_name + ' (libretro)')
 			else:
 				print('Config warning:', emulator_name, 'is not a valid emulator')
-		elif emulator_name not in systems[system_config.name].emulators:
+		elif emulator_name not in platforms[system_config.name].emulators:
 			print('Config warning:', emulator_name, 'is not a valid emulator for', system_config.name)
 		else:
 			potential_emulators.append(emulator_name)
@@ -207,7 +207,7 @@ def process_emulated_system(system_config: SystemConfig):
 		# 	if name in used_m3u_filenames or path in used_m3u_filenames:
 		# 		continue
 
-		system = systems[system_config.name]
+		system = platforms[system_config.name]
 		if not system.is_valid_file_type(rom.extension):
 			continue
 
@@ -234,8 +234,8 @@ def process_emulated_system(system_config: SystemConfig):
 		time_ended = time.perf_counter()
 		print(system_config.name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
-def process_system(system_config: SystemConfig):
-	if system_config.name in systems:
+def process_system(system_config: PlatformConfig):
+	if system_config.name in platforms:
 		process_emulated_system(system_config)
 	else:
 		#Let DOS and Mac fall through, as those are in systems.ini but not handled here

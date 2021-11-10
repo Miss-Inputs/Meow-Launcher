@@ -11,8 +11,8 @@ from meowlauncher.common_types import (EmulationNotSupportedException,
                                        MediaType, NotARomException)
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config.system_config import SystemConfig
-from meowlauncher.data.emulated_platforms import pc_systems
+from meowlauncher.config.system_config import PlatformConfig
+from meowlauncher.data.emulated_platforms import pc_platforms
 from meowlauncher.data.emulators import pc_emulators
 from meowlauncher.metadata import Date, Metadata
 
@@ -78,13 +78,13 @@ class App:
 		#To be overriden by subclass - optional, put any other platform-specific metadata you want in here
 		pass
 
-	def make_launcher(self, system_config: SystemConfig):
+	def make_launcher(self, system_config: PlatformConfig):
 		emulator_name = None
 		params = None
 		exception_reason = None
 		for emulator in system_config.chosen_emulators:
 			emulator_name = emulator
-			if emulator_name not in pc_systems[system_config.name].emulators:
+			if emulator_name not in pc_platforms[system_config.name].emulators:
 				if main_config.debug:
 					print(emulator_name, 'is not a valid emulator for', system_config.name)
 				continue
@@ -107,7 +107,7 @@ class App:
 		self.metadata.emulator_name = emulator_name
 		launchers.make_launcher(params, self.name, self.metadata, system_config.name, self.get_launcher_id())
 
-def process_app(app_info: Mapping[str, Any], app_class: Type[App], system_config: SystemConfig) -> None:
+def process_app(app_info: Mapping[str, Any], app_class: Type[App], system_config: PlatformConfig) -> None:
 	app = app_class(app_info)
 	try:
 		if not app.is_valid:
@@ -119,10 +119,10 @@ def process_app(app_info: Mapping[str, Any], app_class: Type[App], system_config
 	except Exception as ex: #pylint: disable=broad-except
 		print('Ah bugger', app.path, app.name, ex, type(ex), traceback.extract_tb(ex.__traceback__)[1:])
 
-def make_launchers(platform: str, app_class: Type[App], system_config: SystemConfig) -> None:
+def make_launchers(platform: str, app_class: Type[App], system_config: PlatformConfig) -> None:
 	time_started = time.perf_counter()
 
-	app_list_path = os.path.join(config_dir, pc_systems[platform].json_name + '.json')
+	app_list_path = os.path.join(config_dir, pc_platforms[platform].json_name + '.json')
 	try:
 		with open(app_list_path, 'rt') as f:
 			app_list = json.load(f)

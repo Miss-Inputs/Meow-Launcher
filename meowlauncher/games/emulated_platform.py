@@ -1,19 +1,19 @@
-from typing import Optional, Sequence
+from typing import Any, Optional, Sequence
 
 from meowlauncher.common_types import ConfigValueType, MediaType
 from meowlauncher.games.roms.rom import FileROM
 
 #TODO: Decided I don't like the word system and I should say platform I guess, so I might change that at some point
 
-class SystemConfigValue():
+class PlatformConfigValue():
 	#This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno
-	def __init__(self, value_type: ConfigValueType, default_value: bool, description: str):
+	def __init__(self, value_type: ConfigValueType, default_value: Any, description: str):
 		self.type = value_type
 		self.default_value = default_value
 		self.description = description
 
-class SystemInfo():
-	def __init__(self, mame_drivers: list[str], mame_software_lists: list[str], emulators: list[str], file_types: dict[MediaType, list[str]]=None, options: dict[str, SystemConfigValue]=None, is_virtual: bool=False, dat_names: list[str]=None, dat_uses_serial: bool=False, databases_are_byteswapped: bool=False, autodetect_tv_type: bool=False):
+class EmulatedPlatform():
+	def __init__(self, mame_drivers: list[str], mame_software_lists: list[str], emulators: list[str], file_types: dict[MediaType, list[str]]=None, options: dict[str, PlatformConfigValue]=None, is_virtual: bool=False, dat_names: list[str]=None, dat_uses_serial: bool=False, databases_are_byteswapped: bool=False, autodetect_tv_type: bool=False):
 		self.mame_drivers = mame_drivers #Parent drivers that represent this system
 		self.mame_software_lists = mame_software_lists
 		self.emulators = emulators
@@ -34,8 +34,8 @@ class SystemInfo():
 				return media_type
 		return None
 
-class PCSystem():
-	def __init__(self, json_name: str, emulators: Sequence[str], options: dict[str, SystemConfigValue]=None):
+class PCPlatform():
+	def __init__(self, json_name: str, emulators: Sequence[str], options: dict[str, PlatformConfigValue]=None):
 		self.json_name = json_name
 		self.emulators = emulators
 		self.options = options if options else {}

@@ -5,7 +5,7 @@ import zlib
 
 from meowlauncher.common_types import EmulationStatus, MediaType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.data.emulated_platforms import systems
+from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.metadata import Date
 from meowlauncher.util import io_utils
 from meowlauncher.util.utils import (byteswap, find_filename_tags_at_end,
@@ -693,7 +693,7 @@ def get_software_list_entry(game, skip_header=0):
 	if game.software_lists:
 		software_lists = game.software_lists
 	else:
-		software_list_names = systems[game.system_name].mame_software_lists
+		software_list_names = platforms[game.system_name].mame_software_lists
 		software_lists = get_software_lists_by_names(software_list_names)
 
 	if game.metadata.media_type == MediaType.OpticalDisc:

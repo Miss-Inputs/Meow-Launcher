@@ -3,14 +3,14 @@ import os
 from typing import Any
 
 from meowlauncher.common_paths import config_dir
-from meowlauncher.data.emulated_platforms import pc_systems, systems
+from meowlauncher.data.emulated_platforms import pc_platforms, platforms
 from meowlauncher.util.io_utils import ensure_exist
 
 from ._config_utils import parse_path_list, parse_string_list, parse_value
 
 _system_config_path = os.path.join(config_dir, 'systems.ini')
 
-class SystemConfig():
+class PlatformConfig():
 	def __init__(self, name: str) -> None:
 		self.name = name
 		self.paths: list[str] = []
@@ -21,10 +21,10 @@ class SystemConfig():
 	def is_available(self) -> bool:
 		return bool(self.paths) and bool(self.chosen_emulators)
 
-class SystemConfigs():
-	class __SystemConfigs():
+class PlatformConfigs():
+	class __PlatformConfigs():
 		def __init__(self) -> None:
-			self.configs: dict[str, SystemConfig] = {}
+			self.configs: dict[str, PlatformConfig] = {}
 			self.read_configs_from_file()
 
 		def read_configs_from_file(self) -> None:
@@ -35,7 +35,7 @@ class SystemConfigs():
 			parser.read(_system_config_path)
 
 			for system_name in parser.sections():
-				self.configs[system_name] = SystemConfig(system_name)
+				self.configs[system_name] = PlatformConfig(system_name)
 
 				section = parser[system_name]
 				self.configs[system_name].paths = parse_path_list(section.get('paths', ''))
@@ -46,12 +46,12 @@ class SystemConfigs():
 						s = '{0} ({1})'.format(s, system_name)
 					chosen_emulators.append(s)
 				self.configs[system_name].chosen_emulators = chosen_emulators
-				if system_name in systems:
-					options = systems[system_name].options
+				if system_name in platforms:
+					options = platforms[system_name].options
 					for k, v in options.items():
 						self.configs[system_name].options[k] = parse_value(section, k, v.type, v.default_value)
-				elif system_name in pc_systems:
-					options = pc_systems[system_name].options
+				elif system_name in pc_platforms:
+					options = pc_platforms[system_name].options
 					for k, v in options.items():
 						self.configs[system_name].options[k] = parse_value(section, k, v.type, v.default_value)
 						
@@ -59,8 +59,8 @@ class SystemConfigs():
 
 	@staticmethod
 	def getConfigs():
-		if SystemConfigs.__instance is None:
-			SystemConfigs.__instance = SystemConfigs.__SystemConfigs()
-		return SystemConfigs.__instance
+		if PlatformConfigs.__instance is None:
+			PlatformConfigs.__instance = PlatformConfigs.__PlatformConfigs()
+		return PlatformConfigs.__instance
 
-system_configs = SystemConfigs.getConfigs().configs
+system_configs = PlatformConfigs.getConfigs().configs
