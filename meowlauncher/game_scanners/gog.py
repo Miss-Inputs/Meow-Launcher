@@ -3,14 +3,15 @@
 import datetime
 import os
 import time
+from typing import Optional
 
 from meowlauncher import launchers
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games.gog import (DOSBoxGOGGame, GOGGameInfo, NormalGOGGame,
+from meowlauncher.games.gog import (DOSBoxGOGGame, GOGGame, GOGGameInfo, NormalGOGGame,
                                     ScummVMGOGGame, WindowsGOGGame)
 
 
-def look_in_linux_gog_folder(folder):
+def look_in_linux_gog_folder(folder: str) -> Optional[GOGGame]:
 	gameinfo_path = os.path.join(folder, 'gameinfo')
 	if not os.path.isfile(gameinfo_path):
 		return None
@@ -34,7 +35,7 @@ def look_in_linux_gog_folder(folder):
 
 	return None
 
-def look_in_windows_gog_folder(folder):
+def look_in_windows_gog_folder(folder: str) -> Optional[WindowsGOGGame]:
 	info_file = None
 	game_id = None
 	for file in os.listdir(folder):
@@ -47,7 +48,7 @@ def look_in_windows_gog_folder(folder):
 		return None
 	return WindowsGOGGame(folder, info_file, game_id)
 
-def do_gog_games():
+def do_gog_games() -> None:
 	time_started = time.perf_counter()
 
 	for gog_folder in main_config.gog_folders:
@@ -83,19 +84,15 @@ def do_gog_games():
 						continue
 				if not subfolder.is_dir():
 					continue
-				game = look_in_windows_gog_folder(subfolder.path)
-				if not game:
+				windows_game = look_in_windows_gog_folder(subfolder.path)
+				if not windows_game:
 					if main_config.debug:
 						print('GOG subfolder does not have a GOG game (detection may have failed)', subfolder.path)
 					continue
 				
-				game.add_metadata()
-				game.make_launchers()
+				windows_game.add_metadata()
+				windows_game.make_launchers()
 
 	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('GOG finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-
-
-if __name__ == '__main__':
-	do_gog_games()

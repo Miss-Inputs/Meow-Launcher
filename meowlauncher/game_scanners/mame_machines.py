@@ -3,6 +3,7 @@
 import datetime
 import sys
 import time
+from xml.etree import ElementTree
 
 from meowlauncher import launchers
 from meowlauncher.common_types import EmulationStatus
@@ -18,7 +19,7 @@ from meowlauncher.games.mame.mame_metadata import add_metadata, add_status
 from meowlauncher.info import emulator_command_line_helpers
 
 
-def is_actually_machine(machine):
+def is_actually_machine(machine: Machine) -> bool:
 	if machine.xml.attrib.get('runnable', 'yes') == 'no':
 		return False
 
@@ -30,13 +31,13 @@ def is_actually_machine(machine):
 
 	return True
 
-def is_machine_launchable(machine):
+def is_machine_launchable(machine: Machine) -> bool:
 	if machine.has_mandatory_slots:
 		return False
 	
 	return True
 
-def does_user_want_machine(machine):
+def does_user_want_machine(machine: Machine) -> bool:
 	if main_config.exclude_non_arcade and machine.metadata.platform == 'Non-Arcade':
 		return False
 	if main_config.exclude_pinball and machine.metadata.platform == 'Pinball':
@@ -46,7 +47,7 @@ def does_user_want_machine(machine):
 
 	return True
 
-def make_machine_launcher(machine):
+def make_machine_launcher(machine: Machine):
 	#pylint: disable=protected-access #It's my code and I say I'm allowed to do that
 	if not machine._has_inited_metadata:
 		machine._add_metadata_fields()
@@ -57,7 +58,7 @@ def make_machine_launcher(machine):
 	#TODO: Let's put this in emulator_info, even if only MAME exists as the singular arcade emulator for now; and clean this up some more
 	launchers.make_launcher(params, machine.name, machine.metadata, 'Arcade' if machine.metadata.platform == 'Arcade' else 'MAME', machine.basename)
 
-def process_machine(machine):
+def process_machine(machine: Machine):
 	if machine.is_skeleton_driver:
 		#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
 		#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
@@ -71,11 +72,11 @@ def process_machine(machine):
 	
 	make_machine_launcher(machine)
 
-def no_longer_exists(game_id):
+def no_longer_exists(game_id: str):
 	#This is used to determine what launchers to delete if not doing a full rescan
 	return not verify_romset(game_id)
 
-def process_machine_element(machine_element):
+def process_machine_element(machine_element: ElementTree.Element) -> None:
 	machine = Machine(machine_element)
 	if machine.source_file in main_config.skipped_source_files:
 		return
@@ -101,7 +102,7 @@ def process_machine_element(machine_element):
 
 	process_machine(machine)
 
-def process_inbuilt_game(machine_name, inbuilt_game, bios_name=None):
+def process_inbuilt_game(machine_name: str, inbuilt_game, bios_name=None) -> None:
 	if not verify_romset(machine_name):
 		return
 
@@ -126,7 +127,7 @@ def process_inbuilt_game(machine_name, inbuilt_game, bios_name=None):
 		unique_id += ':' + bios_name
 	launchers.make_launcher(launch_params, inbuilt_game[0], machine.metadata, 'Inbuilt game', unique_id)
 
-def process_arcade():
+def process_arcade() -> None:
 	time_started = time.perf_counter()
 
 	for machine_name, machine_element in iter_mame_entire_xml():
@@ -159,7 +160,7 @@ def process_arcade():
 		time_ended = time.perf_counter()
 		print('Machines with inbuilt games finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
-def main():
+def main() -> None:
 	if '--drivers' in sys.argv:
 		arg_index = sys.argv.index('--drivers')
 		if len(sys.argv) == 2:
@@ -188,6 +189,3 @@ def main():
 		return
 
 	process_arcade()
-
-if __name__ == '__main__':
-	main()

@@ -233,6 +233,3 @@ def detect_series_for_all_desktops():
 	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Series detection finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-
-if __name__ == '__main__':
-	detect_series_for_all_desktops()

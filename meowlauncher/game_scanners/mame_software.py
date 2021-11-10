@@ -4,12 +4,13 @@ import sys
 import time
 
 import launchers
-from common_types import EmulationNotSupportedException, MediaType
-from config.main_config import main_config
-from info.emulator_command_line_helpers import mame_base
-from info.region_info import TVSystem
-from metadata import Metadata
-from software_list_info import get_software_list_by_name
+from meowlauncher.common_types import EmulationNotSupportedException, MediaType
+from meowlauncher.config.main_config import main_config
+from meowlauncher.games.mame.software_list_info import \
+    get_software_list_by_name
+from meowlauncher.info.emulator_command_line_helpers import mame_base
+from meowlauncher.info.region_info import TVSystem
+from meowlauncher.metadata import Metadata
 
 #TODO: Actually call this from main (once below todos are resolved)
 #TODO: Platform-specific metadata (e.g. specify Neo Geo = SaveType.MemoryCard); may want to refactor platform_metadata so it can work with this (for now though I only care about Neo Geo and such which isn't in there). Neo Geo in particular could get things like genre, icon from the arcade stuff, because it will always be equivalent to an arcade game, unless it isn't
@@ -127,7 +128,7 @@ def add_software_list_platform(platform):
 				software = SoftwareLauncher(software_item, platform, media_type)
 				add_software(software)
 
-def add_mame_software():
+def add_mame_software() -> None:
 	time_started = time.perf_counter()
 
 	if '--platform' in sys.argv:
@@ -145,6 +146,3 @@ def add_mame_software():
 	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('MAME software finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-
-if __name__ == '__main__':
-	add_mame_software()

@@ -3,19 +3,20 @@
 import datetime
 import os
 import time
+from typing import Optional
 
 from meowlauncher import launchers
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.itch import ItchGame
 
-def scan_itch_dir(path):
+def scan_itch_dir(path) -> Optional[ItchGame]:
 	if not os.path.isdir(os.path.join(path, '.itch')):
 		return None
 
 	game = ItchGame(path)
 	return game
 
-def do_itch_io_games():
+def do_itch_io_games() -> None:
 	time_started = time.perf_counter()
 
 	for itch_io_folder in main_config.itch_io_folders:
@@ -46,6 +47,3 @@ def do_itch_io_games():
 	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('itch.io finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-
-if __name__ == '__main__':
-	do_itch_io_games()

@@ -235,7 +235,7 @@ def reambiguate() -> None:
 		with open(file.path, 'wt') as f:
 			desktop.write(f)
 
-def disambiguate_names():
+def disambiguate_names() -> None:
 	time_started = time.perf_counter()
 
 	if not main_config.full_rescan:
@@ -266,6 +266,3 @@ def disambiguate_names():
 	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Name disambiguation finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-
-if __name__ == '__main__':
-	disambiguate_names()

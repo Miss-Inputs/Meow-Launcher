@@ -3,7 +3,7 @@ import json
 import os
 import time
 import traceback
-from typing import Any, Optional
+from typing import Any, Mapping, Optional, Type
 
 from meowlauncher import launchers
 from meowlauncher.common_paths import config_dir
@@ -17,7 +17,6 @@ from meowlauncher.info.system_info import pc_systems
 from meowlauncher.metadata import Date, Metadata
 
 from .pc_common_metadata import fix_name
-
 
 class App:
 	def __init__(self, info: dict[str, Any]):
@@ -51,7 +50,7 @@ class App:
 		#For overriding in subclass (but maybe this will do as a default), for Unique-ID in [X-Meow Launcher ID] section of launcher
 		return self.path
 
-	def add_metadata(self):
+	def add_metadata(self) -> None:
 		self.metadata.media_type = MediaType.Executable
 		if 'developer' in self.info:
 			self.metadata.developer = self.info['developer']
@@ -107,7 +106,7 @@ class App:
 		self.metadata.emulator_name = emulator_name
 		launchers.make_launcher(params, self.name, self.metadata, system_config.name, self.get_launcher_id())
 
-def process_app(app_info, app_class, system_config: SystemConfig):
+def process_app(app_info: Mapping[str, Any], app_class: Type[App], system_config: SystemConfig) -> None:
 	app = app_class(app_info)
 	try:
 		if not app.is_valid:
@@ -119,7 +118,7 @@ def process_app(app_info, app_class, system_config: SystemConfig):
 	except Exception as ex: #pylint: disable=broad-except
 		print('Ah bugger', app.path, app.name, ex, type(ex), traceback.extract_tb(ex.__traceback__)[1:])
 
-def make_launchers(platform: str, app_class, system_config: SystemConfig):
+def make_launchers(platform: str, app_class: Type[App], system_config: SystemConfig) -> None:
 	time_started = time.perf_counter()
 
 	app_list_path = os.path.join(config_dir, pc_systems[platform].json_name + '.json')

@@ -8,14 +8,14 @@ from meowlauncher.games.mac import MacApp, does_exist
 
 mac_config = system_configs.get('Mac')
 
-def no_longer_exists(game_id):
+def no_longer_exists(game_id: str) -> bool:
 	hfv_path, inner_path = game_id.split('/', 1)
 	if not os.path.isfile(hfv_path):
 		return True
 
 	return not does_exist(hfv_path, inner_path)
 
-def make_mac_launchers():
+def make_mac_launchers() -> None:
 	if mac_config:
 		if not mac_config.chosen_emulators:
 			return
@@ -46,10 +46,3 @@ def make_mac_launchers():
 
 # def scan_mac_volumes():
 # 	pc.scan_folders('Mac', mac_ini_path, scan_mac_volume)
-
-if __name__ == '__main__':
-	# if '--scan' in sys.argv:
-	# 	scan_mac_volumes()
-	# else:
-	# 	make_mac_launchers()
-	make_mac_launchers()

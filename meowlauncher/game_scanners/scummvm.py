@@ -17,7 +17,7 @@ def no_longer_exists(game_id: str):
 
 	return not exists_in_scummvm
 
-def add_scummvm_games():
+def add_scummvm_games() -> None:
 	if scummvm_config.have_scummvm:
 		time_started = time.perf_counter()
 
@@ -38,6 +38,3 @@ def add_scummvm_games():
 		if main_config.print_times:
 			time_ended = time.perf_counter()
 			print('ScummVM finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-
-if __name__ == '__main__':
-	add_scummvm_games()

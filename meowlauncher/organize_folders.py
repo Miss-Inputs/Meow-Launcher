@@ -136,7 +136,7 @@ def move_into_extra_subfolder(path: str, desktop: ConfigParser, subfolder, keys,
 			else:
 				copy_to_folder(path, main_config.organized_output_folder, subfolder)
 
-def move_into_subfolders(path):
+def move_into_subfolders(path) -> None:
 	desktop = launchers.get_desktop(path)
 	platform = launchers.get_field(desktop, 'Platform')
 	categories = launchers.get_array(desktop, 'Categories')
@@ -176,7 +176,7 @@ def move_into_subfolders(path):
 	if len(languages) == 1:
 		copy_to_folder(path, main_config.organized_output_folder, 'By language', sanitize_name(languages[0]) + ' only')
 
-def move_into_folders():
+def move_into_folders() -> None:
 	time_started = time.perf_counter()
 
 	delete_existing_output_dir()
@@ -197,7 +197,7 @@ def move_into_folders():
 		time_ended = time.perf_counter()
 		print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
-def main():
+def main() -> None:
 	if '--organize-folder' in sys.argv:
 		time_started = time.perf_counter()
 
@@ -227,6 +227,3 @@ def main():
 		
 	else:
 		move_into_folders()
-
-if __name__ == '__main__':
-	main()

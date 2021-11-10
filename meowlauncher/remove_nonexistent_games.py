@@ -8,7 +8,7 @@ from meowlauncher.game_scanners import mac, mame_machines, scummvm, steam
 from meowlauncher.config.main_config import main_config
 from meowlauncher.launchers import get_desktop, get_field, id_section_name
 
-def remove_nonexistent_games():
+def remove_nonexistent_games() -> None:
 	#If not doing a full rescan, we want to remove games that are no longer there
 
 	time_started = time.perf_counter()
@@ -48,7 +48,3 @@ def remove_nonexistent_games():
 	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Removal of non-existent items finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-
-
-if __name__ == '__main__':
-	remove_nonexistent_games()

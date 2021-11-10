@@ -7,6 +7,7 @@ import json
 import os
 import statistics
 import time
+from typing import Optional
 import zipfile
 from enum import IntFlag
 
@@ -30,12 +31,12 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 try:
-	#Have to import it like this, because the directory is inside another directory
-	#Anyway it _should_ be here since I made it a submodule anyway, but like... y'know, just to be safe
 	from steamfiles import acf, appinfo
 	have_steamfiles = True
 except ModuleNotFoundError:
 	have_steamfiles = False
+
+#TODO: Move SteamGame etc etc into meowlauncher/games/steam
 
 store_categories = load_dict(None, 'steam_store_categories')
 genre_ids = load_dict(None, 'steam_genre_ids')
@@ -143,7 +144,7 @@ else:
 	is_steam_available = steam_state.is_steam_installed
 	steam_installation = steam_state.steam_installation
 
-def get_steam_library_folders():
+def get_steam_library_folders() -> list[str]:
 	with open(steam_installation.steam_library_list_path, 'rt') as steam_library_list_file:
 		steam_library_list = acf.load(steam_library_list_file)
 		library_folders = steam_library_list.get('libraryfolders')
@@ -359,7 +360,7 @@ def _get_steamplay_appinfo_extended():
 		return None
 	return app_info_section.get(b'extended')
 
-def get_steamplay_compat_tools():
+def get_steamplay_compat_tools() -> dict[str, tuple[Optional[int], Optional[str], Optional[str], Optional[str]]]:
 	extended = _get_steamplay_appinfo_extended()
 	if not extended:
 		return {}
@@ -378,7 +379,7 @@ def get_steamplay_compat_tools():
 		tools[k.decode('utf-8', errors='ignore')] = (appid.data if appid else None, display_name.decode('utf-8', errors='ignore') if display_name else None, from_oslist.decode('utf-8', errors='ignore') if from_oslist else None, to_oslist.decode('utf-8', errors='ignore') if to_oslist else None)
 	return tools
 
-def get_steamplay_whitelist():
+def get_steamplay_whitelist() -> dict[str, str]:
 	extended = _get_steamplay_appinfo_extended()
 	if not extended:
 		return {}
@@ -398,7 +399,7 @@ def get_steamplay_whitelist():
 def format_genre(genre_id):
 	return genre_ids.get(genre_id, 'unknown {0}'.format(genre_id))
 
-def process_launchers(game, launch):
+def process_launchers(game: SteamGame, launch):
 	launch_items = {}
 	#user_config = game.app_state.get('UserConfig')
 	#installed_betakey = user_config.get('betakey') if user_config else None
@@ -498,7 +499,7 @@ def add_icon_from_common_section(game, common_section):
 		elif not potentially_has_icon:
 			print(game.name, game.app_id, 'does not even have an icon')
 
-def add_metadata_from_appinfo_common_section(game, common):
+def add_metadata_from_appinfo_common_section(game: SteamGame, common):
 	if 'Icon' not in game.metadata.images:
 		add_icon_from_common_section(game, common)
 
@@ -735,7 +736,7 @@ def add_metadata_from_appinfo_common_section(game, common):
 
 			game.metadata.publisher = ', '.join(pubs)
 	
-def add_metadata_from_appinfo_extended_section(game, extended):
+def add_metadata_from_appinfo_extended_section(game: SteamGame, extended):
 	if not game.metadata.developer:
 		developer = extended.get(b'developer')
 		if developer:
@@ -780,7 +781,7 @@ def add_metadata_from_appinfo_extended_section(game, extended):
 	#mustownapptopurchase: If present, appID of a game that you need to buy first (parent of DLC, or something like Source SDK Base for Garry's Mod, etc)
 	#dependantonapp: Probably same sort of thing, like Half-Life: Opposing Force is dependent on original Half-Life
 
-def process_appinfo_config_section(game, app_info_section):
+def process_appinfo_config_section(game: SteamGame, app_info_section):
 	config_section = app_info_section.get(b'config')
 	if config_section:
 		#contenttype = 3 in some games but not all of them? nani
@@ -798,7 +799,7 @@ def get_game_type(app_info_section):
 		return common.get(b'type', b'Unknown').decode('utf-8', errors='backslashreplace')
 	return None
 
-def add_metadata_from_appinfo(game, app_info_section):
+def add_metadata_from_appinfo(game: SteamGame, app_info_section):
 	#Alright let's get to the fun stuff
 	common = app_info_section.get(b'common')
 	if common:
@@ -820,7 +821,7 @@ def add_metadata_from_appinfo(game, app_info_section):
 		#I think it's a fair assumption that every game on Steam will have _some_ sort of save data (even if just settings and not progress) so until I'm proven wrong... whaddya gonna do
 		game.metadata.save_type = SaveType.Internal
 
-def process_launcher(game, launcher):
+def process_launcher(game: SteamGame, launcher):
 	if os.path.extsep in launcher['exe']:
 		extension = launcher['exe'].rsplit(os.path.extsep, 1)[-1].lower()
 		if extension:
@@ -852,7 +853,7 @@ def process_launcher(game, launcher):
 				#Why not
 				game.metadata.platform = 'Mac'
 
-def poke_around_in_install_dir(game):
+def poke_around_in_install_dir(game: SteamGame):
 	install_dir = game.app_state.get('installdir')
 	if not install_dir:
 		# if main_config.debug:
@@ -889,7 +890,7 @@ def find_image(appid, image_name):
 				return path
 	return None
 	
-def add_images(game):
+def add_images(game: SteamGame):
 	#Do I wanna call header a banner
 	#The cover is not always really box art but it's used in grid view, and I guess digital only games wouldn't have real box art anyway
 	#What the hell is a "hero" oh well it's there
@@ -898,7 +899,7 @@ def add_images(game):
 		if image_path:
 			game.metadata.images[name] = image_path
 
-def add_info_from_cache_json(game, json_path, is_single_user):
+def add_info_from_cache_json(game: SteamGame, json_path, is_single_user):
 	#This does not always exist, it's there if you've looked at it in the Steam client and it's loaded some metadata, but like why the heck not
 	with open(json_path, 'rt') as f:
 		j = json.load(f)
@@ -965,7 +966,7 @@ def add_info_from_cache_json(game, json_path, is_single_user):
 		
 				game.metadata.specific_info['Achievement-Completion'] = '{0:.0%}'.format(achieved / total_achievements)
 
-def add_info_from_user_cache(game):
+def add_info_from_user_cache(game: SteamGame):
 	user_list = steam_installation.get_users()
 	if not user_list:
 		#Also, that should never happen (maybe if you just installed Steam and haven't logged in yet, but then what would you get out of this anyway?)
@@ -978,7 +979,7 @@ def add_info_from_user_cache(game):
 		if os.path.isfile(path):
 			add_info_from_cache_json(game, path, single_user)
 
-def process_game(app_id, folder, app_state):
+def process_game(app_id, folder, app_state) -> None:
 	#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
 	try:
 		app_id = int(app_id)
@@ -1130,7 +1131,7 @@ def iter_steam_installed_appids():
 
 			yield library_folder, app_id, app_state
 
-def no_longer_exists(appid):
+def no_longer_exists(appid: str) -> bool:
 	if not is_steam_available:
 		#I guess if you uninstalled Steam then you're not gonna play any Steam games, huh
 		return False
@@ -1140,7 +1141,7 @@ def no_longer_exists(appid):
 
 	return appid not in no_longer_exists.appids
 
-def process_steam():
+def process_steam() -> None:
 	if not is_steam_available:
 		return
 
@@ -1166,7 +1167,3 @@ def process_steam():
 	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Steam finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-
-
-if __name__ == '__main__':
-	process_steam()

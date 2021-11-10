@@ -256,7 +256,7 @@ def process_systems() -> None:
 		time_ended = time.perf_counter()
 		print('All emulated/engined systems finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
-def main():
+def main() -> None:
 	if len(sys.argv) >= 2 and '--systems' in sys.argv:
 		arg_index = sys.argv.index('--systems')
 		if len(sys.argv) == 2:
@@ -270,6 +270,3 @@ def main():
 
 	process_systems()
 
-
-if __name__ == '__main__':
-	main()
