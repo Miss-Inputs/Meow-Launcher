@@ -103,8 +103,7 @@ def get_wine_launch_params(exe_path: str, exe_args: list[str], working_directory
 	args += exe_args
 	return LaunchParams(main_config.wine_path, args, env_vars)
 
-class MultiCommandLaunchParams():
-	#I think this shouldn't inherit from LaunchParams because duck typing (but doesn't actually reuse anything from LaunchParams). I _think_ I know what I'm doing. Might not.
+class MultiCommandLaunchParams(LaunchParams):
 	def __init__(self, pre_commands: Sequence[LaunchParams], main_command: LaunchParams, post_commands: Sequence[LaunchParams], working_directory: str=None):
 		self.pre_commands = pre_commands
 		self.main_command = main_command

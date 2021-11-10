@@ -9,7 +9,7 @@ from meowlauncher.config.emulator_config_type import (EmulatorConfig,
 from meowlauncher.config.main_config import main_config
 from meowlauncher.info.emulator_command_line_helpers import \
     simple_mednafen_module
-from meowlauncher.launchers import (MultiCommandLaunchParams,
+from meowlauncher.launchers import (LaunchParams, MultiCommandLaunchParams,
                                     get_wine_launch_params)
 
 
@@ -28,7 +28,7 @@ class EmulatorPlatform():
 	DotNet = auto()
 
 class Emulator():
-	def __init__(self, status: EmulatorStatus, default_exe_name: str, launch_params_func: Callable, configs: dict[str, EmulatorConfigValue]=None, host_platform=EmulatorPlatform.Native):
+	def __init__(self, status: EmulatorStatus, default_exe_name: str, launch_params_func: Callable[..., LaunchParams], configs: dict[str, EmulatorConfigValue]=None, host_platform=EmulatorPlatform.Native):
 		self.status = status
 		self.default_exe_name = default_exe_name
 		self.launch_params_func = launch_params_func
