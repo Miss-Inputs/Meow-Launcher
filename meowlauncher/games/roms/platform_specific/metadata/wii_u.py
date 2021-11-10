@@ -266,7 +266,7 @@ def add_folder_metadata(rom, metadata):
 	content_dir = rom.get_subfolder('content')
 	meta_dir = rom.get_subfolder('meta')
 	
-	metadata.specific_info['Executable-Name'] = os.path.basename(rom.relevant_files['rpx'])
+	metadata.specific_info['Executable-Name'] = rom.relevant_files['rpx'].name
 
 	#While we are here… using pc_common_metadata engine detect on the content folder almost seems like a good idea too, but it won't accomplish much so far
 	if os.path.isfile(os.path.join(rom.path, 'code', 'UnityEngine_dll.rpl')):

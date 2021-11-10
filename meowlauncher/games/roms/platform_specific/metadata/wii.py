@@ -181,13 +181,13 @@ def add_wii_homebrew_metadata(rom, metadata):
 	#icon_path = rom.relevant_files['icon.png']
 	icon_path = rom.get_file('icon.png', True)
 	if icon_path:
-		metadata.images['Banner'] = icon_path
+		metadata.images['Banner'] = str(icon_path)
 		#Unfortunately the aspect ratio means it's not really great as an icon
 
 	xml_path = rom.relevant_files['meta.xml']
-	if os.path.isfile(xml_path):
+	if xml_path.is_file():
 		try:
-			meta_xml = ElementTree.parse(xml_path)
+			meta_xml = ElementTree.parse(str(xml_path))
 			name = meta_xml.findtext('name')
 			if name:
 				metadata.add_alternate_name(name, 'Banner-Title')

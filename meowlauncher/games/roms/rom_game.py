@@ -1,16 +1,16 @@
 import os
 import tempfile
-from typing import Optional, Union
+from typing import Optional, cast
 
 from meowlauncher import launchers, metadata
-from meowlauncher.games.emulator import Emulator
 from meowlauncher.games.emulated_platform import EmulatedPlatform
+from meowlauncher.games.emulator import StandardEmulator
 
-from .rom import FileROM, FolderROM
+from .rom import ROM, CompressedROM
 
 
 class RomGame():
-	def __init__(self, rom: Union[FileROM, FolderROM], system_name: str, system: EmulatedPlatform):
+	def __init__(self, rom: ROM, system_name: str, system: EmulatedPlatform):
 		self.rom = rom
 		self.metadata = metadata.Metadata()
 		self.system_name = self.metadata.platform = system_name
@@ -18,7 +18,7 @@ class RomGame():
 		self.metadata.categories = []
 		self.filename_tags: list[str] = []
 
-		self.emulator: Optional[Emulator] = None
+		self.emulator: Optional[StandardEmulator] = None
 		self.launch_params: Optional[launchers.LaunchParams] = None
 
 		self.subroms = []
@@ -28,15 +28,17 @@ class RomGame():
 	def make_launcher(self) -> None:
 		params = self.launch_params
 
-		if self.rom.is_compressed and (self.rom.original_extension not in self.emulator.supported_compression):
-			temp_extraction_folder = os.path.join(tempfile.gettempdir(), 'meow-launcher-' + launchers.make_filename(self.rom.name))
+		if self.rom.is_compressed:
+			rom = cast(CompressedROM, self.rom)
+			if rom.extension not in self.emulator.supported_compression:
+				temp_extraction_folder = os.path.join(tempfile.gettempdir(), 'meow-launcher-' + launchers.make_filename(self.rom.name))
 
-			extracted_path = os.path.join(temp_extraction_folder, self.rom.compressed_entry)
-			params = params.replace_path_argument(extracted_path)
-			params = params.prepend_command(launchers.LaunchParams('7z', ['x', '-o' + temp_extraction_folder, self.rom.path]))
-			params = params.append_command(launchers.LaunchParams('rm', ['-rf', temp_extraction_folder]))
+				extracted_path = os.path.join(temp_extraction_folder, rom.inner_filename)
+				params = params.replace_path_argument(extracted_path)
+				params = params.prepend_command(launchers.LaunchParams('7z', ['x', '-o' + temp_extraction_folder, str(self.rom.path)]))
+				params = params.append_command(launchers.LaunchParams('rm', ['-rf', temp_extraction_folder]))
 		else:
-			params = params.replace_path_argument(self.rom.path)
+			params = params.replace_path_argument(str(self.rom.path))
 
 		name = self.rom.name
 		if self.rom.ignore_name and self.metadata.names:

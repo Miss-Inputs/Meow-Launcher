@@ -6,12 +6,12 @@ from meowlauncher.games.roms.rom import FolderROM
 def is_wii_homebrew_folder(folder: FolderROM) -> Optional[MediaType]:
 	have_boot_dol = False
 	have_meta_xml = False
-	for f in os.scandir(folder.path):
+	for f in folder.path.iterdir():
 		if f.is_file() and f.name.lower().endswith((os.path.extsep + 'dol', os.path.extsep + 'elf')):
-			folder.relevant_files['boot.dol'] = f.path
+			folder.relevant_files['boot.dol'] = f
 			have_boot_dol = True
 		if f.is_file() and f.name.lower() == 'meta.xml':
-			folder.relevant_files['meta.xml'] = f.path
+			folder.relevant_files['meta.xml'] = f
 			have_meta_xml = True
 	#I dunno if icon is _always_ needed but eh
 	return MediaType.Digital if (have_meta_xml and have_boot_dol) else None
@@ -19,10 +19,11 @@ def is_wii_homebrew_folder(folder: FolderROM) -> Optional[MediaType]:
 def is_wii_u_folder(folder: FolderROM) -> Optional[MediaType]:
 	#If we find a digital dump we stop there instead of descending into it
 	#Note: If there are two rpxes (I swear I've seen that once) you want the one referred to in cos.xml, is that file always there?
-	if folder.has_subfolder('code') and folder.has_subfolder('content') and folder.has_subfolder('meta'):
-		for f in os.scandir(folder.get_subfolder('code')):
+	code_subfolder = folder.get_subfolder('code')
+	if code_subfolder and folder.has_subfolder('content') and folder.has_subfolder('meta'):
+		for f in code_subfolder.iterdir():
 			if f.is_file() and f.name.endswith('.rpx'):
-				folder.relevant_files['rpx'] = f.path
+				folder.relevant_files['rpx'] = f
 				#Also applicable to extracted disc dumps, but that's just how my file type thing works, and I kinda wonder if I should have done that
 				return MediaType.Digital
 	return None

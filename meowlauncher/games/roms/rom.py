@@ -1,47 +1,41 @@
 import os
+from pathlib import Path
 from typing import Optional
 from zlib import crc32
 
+from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.util import archives, cd_read, io_utils
 
-#TODO Yeah nah I think FolderROM should be subclass of FileROM or otherwise both a subclass of something else
 
-class FileROM():
-	def __init__(self, path: str):
-		self.path = path
+class ROM():
+	def __init__(self, path: str) -> None:
+		self.path = Path(path)
 		self.ignore_name: bool = False
+		self._name = self.path.name
+		self._extension = '' #hmm what if it was None
+		if self.path.suffix:
+			self._extension = self.path.suffix.lower()[1:]
+	@property
+	def name(self) -> str:
+		return self.path.stem
 
-		original_name = os.path.basename(path)
-		self.original_extension = None
-		if os.extsep in original_name:
-			name_without_extension, self.original_extension = original_name.rsplit(os.extsep, 1)
-			self.original_extension = self.original_extension.lower()
-		else:
-			name_without_extension = original_name
+	@property
+	def is_folder(self) -> bool:
+		return False
 
-		self.extension = self.original_extension
+	@property
+	def is_compressed(self) -> bool:
+		return False
 
-		if self.original_extension in archives.compressed_exts:
-			self.is_compressed = True
+	@property
+	def extension(self) -> str:
+		return self._extension
 
-			for entry in archives.compressed_list(self.path):
+class FileROM(ROM):
+	def __init__(self, path: str):
+		super().__init__(path)	
 
-				if os.extsep in entry:
-					self.name, extension = entry.rsplit(os.extsep, 1)
-					self.extension = extension.lower()
-				else:
-					self.name = entry
-				self.compressed_entry = entry
-		else:
-			self.is_compressed = False
-			self.compressed_entry = None
-			self.name = name_without_extension
-
-		if self.extension == 'png' and self.name.endswith('.p8'):
-			self.name = self.name[:-3]
-			self.extension = 'p8.png'
-			
 		self.store_entire_file: bool = False
 		self.entire_file: bytes = b''
 		self.crc_for_database: Optional[int] = None
@@ -54,10 +48,10 @@ class FileROM():
 			self.store_entire_file = True
 			self.entire_file = self._read()
 		
-	def _read(self, seek_to=0, amount=-1) -> bytes:
-		return io_utils.read_file(self.path, self.compressed_entry, seek_to, amount)
+	def _read(self, seek_to: int=0, amount: int=-1) -> bytes:
+		return io_utils.read_file(str(self.path), None, seek_to, amount)
 
-	def read(self, seek_to=0, amount=-1) -> bytes:
+	def read(self, seek_to: int=0, amount: int=-1) -> bytes:
 		if self.store_entire_file:
 			if amount == -1:
 				return self.entire_file[seek_to:]
@@ -65,7 +59,7 @@ class FileROM():
 		return self._read(seek_to, amount)
 
 	def _get_size(self) -> int:
-		return io_utils.get_real_size(self.path, self.compressed_entry)
+		return io_utils.get_real_size(str(self.path))
 
 	def get_size(self) -> int:
 		if self.store_entire_file:
@@ -73,7 +67,7 @@ class FileROM():
 		return self._get_size()
 
 	def _get_crc32(self) -> int:
-		return io_utils.get_crc32(self.path, self.compressed_entry)
+		return io_utils.get_crc32(str(self.path))
 
 	def get_crc32(self) -> int:
 		if self.crc_for_database:
@@ -90,60 +84,100 @@ class FileROM():
 			crc = self._get_crc32()
 		self.crc_for_database = crc
 		return crc
-	
+
 	@property
-	def is_folder(self) -> bool:
-		return False
+	def name(self) -> str:
+		if self._extension == 'png' and self._name.endswith('.p8'):
+			return self._name[:-3]
+			
+		return super().name
+
+	@property
+	def extension(self) -> str:
+		#Hmm… potentially we can just check .suffixes instead of .suffix, but this is only needed for Pico-8 right now so why be confusing if we don't have to
+		if self._extension == 'png' and self._name.endswith('.p8'):
+			return 'p8.png'
+			
+		return self._extension
+	
+class CompressedROM(FileROM):
+	def __init__(self, path: str):
+		super().__init__(path)
+		
+		for entry in archives.compressed_list(str(self.path)):
+			if os.extsep in entry:
+				self.inner_name, extension = entry.rsplit(os.extsep, 1)
+				self.inner_extension = extension.lower()
+			else:
+				self.inner_name = entry
+			self.inner_filename = entry
+			#Only use the first file, if there is more, then you're weird
+			break
+
+	def extension(self) -> str:
+		return self.inner_extension
+
+	def name(self) -> str:
+		return self.inner_name
+		
+	def _read(self, seek_to: int=0, amount: int=-1) -> bytes:
+		return io_utils.read_file(str(self.path), self.inner_filename, seek_to, amount)
+
+	def _get_size(self) -> int:
+		return io_utils.get_real_size(str(self.path), self.inner_filename)
+
+	def _get_crc32(self) -> int:
+		return io_utils.get_crc32(str(self.path), self.inner_filename)
 
 class GCZFileROM(FileROM):
 	def read(self, seek_to=0, amount=-1):
 		return cd_read.read_gcz(self.path, seek_to, amount)
 
-def rom_file(path):
+def rom_file(path) -> FileROM:
 	ext = path.rsplit(os.extsep, 1)[-1]
 	if ext.lower() == 'gcz':
 		return GCZFileROM(path)
+	elif ext in archives.compressed_exts:
+		return CompressedROM(path)
 	return FileROM(path)
 
-
-class FolderROM():
-	def __init__(self, path):
-		self.path = path
-		self.relevant_files = {}
-		self.name = os.path.basename(path)
-		self.media_type = None
+class FolderROM(ROM):
+	def __init__(self, path) -> None:
+		super().__init__(path)
+		self.relevant_files: dict[str, Path] = {}
+		self.media_type: Optional[MediaType] = None
 		self.ignore_name = False
 	
-	def get_subfolder(self, subpath, ignore_case=False):
-		path = os.path.join(self.path, subpath)
-		if os.path.isdir(path):
+	def get_subfolder(self, subpath: str, ignore_case=False) -> Optional[Path]:
+		path = self.path.joinpath(subpath)
+		if path.is_dir():
 			return path
 		if ignore_case and subpath:
-			for f in os.scandir(self.path):
+			for f in self.path.iterdir():
 				if f.is_dir() and f.name.lower() == subpath.lower():
-					return f.path
+					return f
 		return None
 	
-	def get_file(self, subpath, ignore_case=False):
-		path = os.path.join(self.path, subpath)
-		if os.path.isfile(path):
+	def get_file(self, subpath: str, ignore_case=False) -> Optional[Path]:
+		path = self.path.joinpath(subpath)
+		if path.is_file():
 			return path
 		if ignore_case and subpath:
-			for f in os.scandir(self.path):
+			for f in self.path.iterdir():
 				if f.is_file() and f.name.lower() == subpath.lower():
-					return f.path
+					return f
 		return None
 
-	def has_subfolder(self, subpath):
-		return os.path.isdir(os.path.join(self.path, subpath))
+	def has_subfolder(self, subpath: str) -> bool:
+		return self.path.joinpath(subpath).is_dir()
 	
-	def has_file(self, subpath):
-		return os.path.isfile(os.path.join(self.path, subpath))
+	def has_file(self, subpath: str) -> bool:
+		return self.path.joinpath(subpath).is_file()
 
-	def has_any_file_with_extension(self, extension, ignore_case=False):
+	def has_any_file_with_extension(self, extension: str, ignore_case: bool=False) -> bool:
 		if ignore_case:
 			extension = extension.lower()
-		for f in os.scandir(self.path):
+		for f in self.path.iterdir():
 			name = f.name
 			if ignore_case:
 				name = name.lower()
@@ -151,17 +185,13 @@ class FolderROM():
 				return True
 		return False
 	
-	#The rest here will just be to make sure it works with RomFile
 	@property
 	def is_folder(self):
 		return True
 	
 	@property
-	def extension(self):
-		return None
-
-	@property
 	def is_compressed(self):
 		return False
+
 #Basically we are just putting this here for platform-specific stuff
 #I don't necessarily like hardcoding certain system's behaviour in here but I start overthinking otherwise and this is probably the only real way to do it

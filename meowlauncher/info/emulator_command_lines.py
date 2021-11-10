@@ -1105,7 +1105,7 @@ def cemu(game, __, emulator_config):
 			raise NotARomException('Cannot boot update')
 
 	if game.rom.is_folder:
-		path = game.rom.relevant_files['rpx']
+		path = str(game.rom.relevant_files['rpx'])
 	else:
 		path = '$<path>'
 	return LaunchParams(emulator_config.exe_path, ['-f', '-g', 'Z:{0}'.format(path)])
@@ -1159,7 +1159,7 @@ def dolphin(game, _, emulator_config):
 
 	if game.rom.is_folder:
 		#Homebrew
-		path = game.rom.relevant_files['boot.dol']
+		path = str(game.rom.relevant_files['boot.dol'])
 	else:
 		path = '$<path>'
 	return LaunchParams(emulator_config.exe_path, ['-b', '-e', path])

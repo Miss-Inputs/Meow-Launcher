@@ -27,7 +27,7 @@ def main(progress_function, mame_enabled=True, roms_enabled=True, dos_enabled=Tr
 		mame_machines.process_arcade()
 	if roms_enabled:
 		call_progress_function('Adding ROMs')
-		roms.process_systems()
+		roms.process_platforms()
 	if mac_enabled:
 		call_progress_function('Adding Mac software')
 		mac.make_mac_launchers()

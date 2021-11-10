@@ -7,7 +7,8 @@ import sys
 import time
 import traceback
 from collections.abc import Iterable, Sequence
-from typing import Union
+from pathlib import Path
+from typing import Union, cast
 
 from meowlauncher import launchers
 from meowlauncher.common_types import (EmulationNotSupportedException,
@@ -16,31 +17,32 @@ from meowlauncher.common_types import (EmulationNotSupportedException,
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.system_config import PlatformConfig, system_configs
+from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.data.emulators import emulators, libretro_frontends
 from meowlauncher.games.emulator import (LibretroCore,
                                          LibretroCoreWithFrontend, MameDriver,
                                          MednafenModule, ViceEmulator)
 from meowlauncher.games.roms.platform_specific.roms_folders import \
     folder_checks
-from meowlauncher.games.roms.rom import FileROM, FolderROM, rom_file
+from meowlauncher.games.roms.rom import ROM, FileROM, FolderROM, rom_file
 from meowlauncher.games.roms.rom_game import RomGame
 from meowlauncher.games.roms.roms_metadata import add_metadata
-from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.util import archives
 from meowlauncher.util.utils import find_filename_tags_at_end, starts_with_any
 
 
-def process_file(system_config: PlatformConfig, potential_emulators: Iterable[str], rom: Union[FileROM, FolderROM], subfolders: Sequence[str]):
+def process_file(system_config: PlatformConfig, potential_emulators: Iterable[str], rom: ROM, subfolders: Sequence[str]) -> bool:
 	game = RomGame(rom, system_config.name, platforms[system_config.name])
 
 	if game.rom.extension == 'm3u':
-		lines = game.rom.read().decode('utf-8').splitlines()
-		filenames = [line if line.startswith('/') else os.path.join(os.path.dirname(game.rom.path), line) for line in lines if not line.startswith("#")]
-		if any(not os.path.isfile(filename) for filename in filenames):
+		file_rom = cast(FileROM, game.rom)
+		lines = file_rom.read().decode('utf-8').splitlines()
+		filenames = [Path(line) if line.startswith('/') else game.rom.path.with_name(line) for line in lines if not line.startswith("#")]
+		if any(not filename.is_file() for filename in filenames):
 			if main_config.debug:
 				print('M3U file', game.rom.path, 'has broken references!!!!', filenames)
 			return False
-		game.subroms = [rom_file(referenced_file) for referenced_file in filenames]
+		game.subroms = [rom_file(str(referenced_file)) for referenced_file in filenames]
 
 	have_emulator_that_supports_extension = False
 	for potential_emulator_name in potential_emulators:
@@ -136,7 +138,7 @@ def sort_m3u_first():
 
 	return Sorter
 
-def process_emulated_system(system_config: PlatformConfig):
+def process_emulated_platform(system_config: PlatformConfig):
 	time_started = time.perf_counter()
 
 	potential_emulators = []
@@ -234,14 +236,14 @@ def process_emulated_system(system_config: PlatformConfig):
 		time_ended = time.perf_counter()
 		print(system_config.name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
-def process_system(system_config: PlatformConfig):
-	if system_config.name in platforms:
-		process_emulated_system(system_config)
+def process_platform(platform_config: PlatformConfig):
+	if platform_config.name in platforms:
+		process_emulated_platform(platform_config)
 	else:
 		#Let DOS and Mac fall through, as those are in systems.ini but not handled here
 		return
 
-def process_systems() -> None:
+def process_platforms() -> None:
 	time_started = time.perf_counter()
 
 	excluded_systems = []
@@ -254,7 +256,7 @@ def process_systems() -> None:
 			continue
 		if not system.is_available:
 			continue
-		process_system(system)
+		process_platform(system)
 
 	if main_config.print_times:
 		time_ended = time.perf_counter()
@@ -269,8 +271,8 @@ def main() -> None:
 
 		system_list = sys.argv[arg_index + 1].split(',')
 		for system_name in system_list:
-			process_system(system_configs[system_name])
+			process_platform(system_configs[system_name])
 		return
 
-	process_systems()
+	process_platforms()
 
