@@ -5,7 +5,7 @@ import zlib
 
 from meowlauncher.common_types import EmulationStatus, MediaType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.info.system_info import systems
+from meowlauncher.data.emulated_platforms import systems
 from meowlauncher.metadata import Date
 from meowlauncher.util import io_utils
 from meowlauncher.util.utils import (byteswap, find_filename_tags_at_end,
@@ -733,7 +733,7 @@ def get_software_list_entry(game, skip_header=0):
 def format_crc32_for_software_list(crc):
 	return '{:08x}'.format(crc)
 
-def get_crc32_for_software_list(data):
+def get_crc32_for_software_list(data: bytes) -> str:
 	return format_crc32_for_software_list(zlib.crc32(data) & 0xffffffff)
 
 is_release_date_with_thing_at_end = re.compile(r'\d{8}\s\(\w+\)')

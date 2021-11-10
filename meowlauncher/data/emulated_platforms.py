@@ -1,44 +1,11 @@
-from typing import Optional
-
 from meowlauncher.common_types import ConfigValueType, MediaType
-from meowlauncher.data.format_info import (atari_2600_cartridge_extensions,
-                                           cdrom_formats,
-                                           commodore_cart_formats,
-                                           commodore_disk_formats,
-                                           generic_cart_extensions,
-                                           generic_tape_extensions,
-                                           mame_floppy_formats)
-from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.games.emulated_platform import (PCSystem, SystemConfigValue,
+                                                  SystemInfo)
 
-
-class SystemConfigValue():
-	#This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno
-	def __init__(self, value_type, default_value, description):
-		self.type = value_type
-		self.default_value = default_value
-		self.description = description
-
-class SystemInfo():
-	def __init__(self, mame_drivers: list[str], mame_software_lists: list[str], emulators: list[str], file_types: dict[MediaType, list[str]]=None, options: dict[str, SystemConfigValue]=None, is_virtual: bool=False, dat_names: list[str]=None, dat_uses_serial: bool=False, databases_are_byteswapped: bool=False, autodetect_tv_type: bool=False):
-		self.mame_drivers = mame_drivers #Parent drivers that represent this system
-		self.mame_software_lists = mame_software_lists
-		self.emulators = emulators
-		self.file_types = file_types if file_types else {}
-		self.options = options if options else {}
-		self.is_virtual = is_virtual #Maybe needs better name
-		self.dat_names = dat_names if dat_names else [] #For libretro-database
-		self.dat_uses_serial = dat_uses_serial
-		self.databases_are_byteswapped = databases_are_byteswapped #Arguably I should create two separate parameters for both MAME SL and libretro-database, but so far this is only needed for N64 which has both swapped
-		self.autodetect_tv_type = autodetect_tv_type
-
-	def is_valid_file_type(self, extension: str) -> bool:
-		return any(extension in extensions for extensions in self.file_types.values() if isinstance(extension, str))
-
-	def get_media_type(self, rom: FileROM) -> Optional[MediaType]:
-		for media_type, extensions in self.file_types.items():
-			if rom.extension in extensions:
-				return media_type
-		return None
+from .format_info import (atari_2600_cartridge_extensions, cdrom_formats,
+                          commodore_cart_formats, commodore_disk_formats,
+                          generic_cart_extensions, generic_tape_extensions,
+                          mame_floppy_formats)
 
 msxtr_drivers = ['fsa1gt', 'fsa1st'] #Neither of these are working
 
@@ -576,12 +543,6 @@ all_mame_drivers = [d for s in systems.values() for d in s.mame_drivers] + ibmpc
 #Amstrad PC20/Sinclair PC200: Is this just IBM PC compatible stuff? Have seen one demoscene prod which claims to be for it specifically
 #Epoch (not Super) Cassette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
 #DEC Rainbow: Uses DOS so maybe goes in pc_systems but maybe the CP/M part is its own thing
-
-class PCSystem():
-	def __init__(self, json_name, emulators, options=None):
-		self.json_name = json_name
-		self.emulators = emulators
-		self.options = options if options else {}
 
 pc_systems = {
 	'Mac': PCSystem('mac', ['BasiliskII', 'SheepShaver']),

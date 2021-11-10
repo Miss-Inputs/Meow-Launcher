@@ -25,13 +25,13 @@ from meowlauncher.games.roms.platform_specific.roms_folders import \
 from meowlauncher.games.roms.rom import FileROM, FolderROM, rom_file
 from meowlauncher.games.roms.rom_game import RomGame
 from meowlauncher.games.roms.roms_metadata import add_metadata
-from meowlauncher.info import system_info
+from meowlauncher.data.emulated_platforms import systems
 from meowlauncher.util import archives
 from meowlauncher.util.utils import find_filename_tags_at_end, starts_with_any
 
 
 def process_file(system_config: SystemConfig, potential_emulators: Iterable[str], rom: Union[FileROM, FolderROM], subfolders: Sequence[str]):
-	game = RomGame(rom, system_config.name, system_info.systems[system_config.name])
+	game = RomGame(rom, system_config.name, systems[system_config.name])
 
 	if game.rom.extension == 'm3u':
 		lines = game.rom.read().decode('utf-8').splitlines()
@@ -146,7 +146,7 @@ def process_emulated_system(system_config: SystemConfig):
 				potential_emulators.append(emulator_name + ' (libretro)')
 			else:
 				print('Config warning:', emulator_name, 'is not a valid emulator')
-		elif emulator_name not in system_info.systems[system_config.name].emulators:
+		elif emulator_name not in systems[system_config.name].emulators:
 			print('Config warning:', emulator_name, 'is not a valid emulator for', system_config.name)
 		else:
 			potential_emulators.append(emulator_name)
@@ -207,7 +207,7 @@ def process_emulated_system(system_config: SystemConfig):
 		# 	if name in used_m3u_filenames or path in used_m3u_filenames:
 		# 		continue
 
-		system = system_info.systems[system_config.name]
+		system = systems[system_config.name]
 		if not system.is_valid_file_type(rom.extension):
 			continue
 
@@ -235,7 +235,7 @@ def process_emulated_system(system_config: SystemConfig):
 		print(system_config.name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
 def process_system(system_config: SystemConfig):
-	if system_config.name in system_info.systems:
+	if system_config.name in systems:
 		process_emulated_system(system_config)
 	else:
 		#Let DOS and Mac fall through, as those are in systems.ini but not handled here

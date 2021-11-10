@@ -4,6 +4,13 @@ import shlex
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        MediaType, NotARomException)
+from meowlauncher.data.emulated_platforms import (arabic_msx1_drivers,
+                                                  arabic_msx2_drivers,
+                                                  japanese_msx1_drivers,
+                                                  japanese_msx2_drivers,
+                                                  working_msx1_drivers,
+                                                  working_msx2_drivers,
+                                                  working_msx2plus_drivers)
 from meowlauncher.launchers import LaunchParams, MultiCommandLaunchParams
 from meowlauncher.platform_types import (AppleIIHardware, Atari2600Controller,
                                          GameBoyColourFlag,
@@ -20,10 +27,6 @@ from .emulator_command_line_helpers import (_is_software_available,
                                             mame_driver, mednafen_module,
                                             verify_mgba_mapper)
 from .region_info import TVSystem
-from .system_info import (arabic_msx1_drivers, arabic_msx2_drivers,
-                          japanese_msx1_drivers, japanese_msx2_drivers,
-                          working_msx1_drivers, working_msx2_drivers,
-                          working_msx2plus_drivers)
 
 
 #MAME drivers

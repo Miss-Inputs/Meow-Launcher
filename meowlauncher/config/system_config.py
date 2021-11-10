@@ -3,7 +3,7 @@ import os
 from typing import Any
 
 from meowlauncher.common_paths import config_dir
-from meowlauncher.info.system_info import pc_systems, systems
+from meowlauncher.data.emulated_platforms import pc_systems, systems
 from meowlauncher.util.io_utils import ensure_exist
 
 from ._config_utils import parse_path_list, parse_string_list, parse_value

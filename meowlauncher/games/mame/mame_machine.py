@@ -1,9 +1,10 @@
 import re
+from collections.abc import Iterable
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.main_config import main_config
-from meowlauncher.info.system_info import all_mame_drivers
+from meowlauncher.data.emulated_platforms import all_mame_drivers
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.utils import (find_filename_tags_at_end, load_dict,
                                      normalize_name, remove_capital_article,
@@ -400,7 +401,7 @@ licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
 hack_regex = re.compile(r'^hack \((.+)\)$')
 bootleg_with_publisher_regex = re.compile(r'^bootleg \((.+)\)$')
 class Machine():
-	def __init__(self, xml, init_metadata=False):
+	def __init__(self, xml: ElementTree.Element, init_metadata: bool=False):
 		self.xml = xml
 		#This can't be a property because we might need to override it later, so stop trying to do that
 		self.name = self.xml.findtext('description')
@@ -425,7 +426,7 @@ class Machine():
 		if init_metadata:
 			self._add_metadata_fields()
 	
-	def add_alternate_names(self):
+	def add_alternate_names(self) -> None:
 		if self.arcade_system in ('Space Invaders / Qix Silver Anniversary Edition Hardware', 'ISG Selection Master Type 2006', 'Cosmodog Hardware', 'Donkey Kong / Mario Bros Multigame Hardware') or self.basename == 'jak_hmhsm':
 			#These don't use the / as a delimiter for alternate names, they're like two things in one or whatever
 			return
@@ -458,7 +459,7 @@ class Machine():
 	def __str__(self):
 		return self.name
 
-	def _add_metadata_fields(self):
+	def _add_metadata_fields(self) -> None:
 		self._has_inited_metadata = True
 		self.metadata.specific_info['Source-File'] = self.source_file
 		self.metadata.specific_info['Family-Basename'] = self.family
@@ -777,7 +778,7 @@ class Machine():
 		return None
 		
 	@property
-	def is_system_driver(self):
+	def is_system_driver(self) -> bool:
 		return self.family in all_mame_drivers
 
 	@property
@@ -791,41 +792,41 @@ class Machine():
 	def version_added(self):
 		return get_machine_folder(self.basename, 'version')
 
-	def _get_driver_bool_attrib(self, name, default=False):
+	def _get_driver_bool_attrib(self, name: str, default: bool=False) -> bool:
 		if self.driver_element is None:
 			#Should this ever happen anyway? Oh well the other code does it
 			return False
 		return self.driver_element.attrib.get(name, 'yes' if default else 'no') == 'yes'
 
 	@property
-	def requires_artwork(self):
+	def requires_artwork(self) -> bool:
 		#Added in MAME 0.229, so we assume everything from previous versions doesn't require artwork
 		return self._get_driver_bool_attrib('requiresartwork')
 
 	@property
-	def unofficial(self):
+	def unofficial(self) -> bool:
 		#Added in MAME 0.229, so we assume everything from previous versions is official
 		return self._get_driver_bool_attrib('unofficial')
 
 	@property
-	def no_sound_hardware(self):
-		#Added in MAME 0.229, so we assume everything from previous versions is complete
+	def no_sound_hardware(self) -> bool:
+		#Added in MAME 0.229, so we assume everything from previous versions has sound hardware
 		return self._get_driver_bool_attrib('nosoundhardware')
 
 	@property
-	def incomplete(self):
+	def incomplete(self) -> bool:
 		#Added in MAME 0.229, so we assume everything from previous versions is complete
 		return self._get_driver_bool_attrib('incomplete')
 	
-def get_machine(driver):
+def get_machine(driver) -> Machine:
 	return Machine(get_mame_xml(driver))
 
-def get_machines_from_source_file(source_file):
+def get_machines_from_source_file(source_file) -> Iterable[Machine]:
 	for machine_name, source_file_with_ext in list_by_source_file():
 		if source_file_with_ext.rsplit('.', 1)[0] == source_file:
 			yield Machine(get_mame_xml(machine_name))
 
-def machine_name_matches(machine_name, game_name, match_vs_system=False):
+def machine_name_matches(machine_name, game_name, match_vs_system=False) -> bool:
 	#TODO Should also use name_consistency stuff once I refactor that (Turbo OutRun > Turbo Out Run)
 	
 	machine_name = remove_filename_tags(machine_name)
@@ -853,13 +854,13 @@ def machine_name_matches(machine_name, game_name, match_vs_system=False):
 			return True
 	return False
 
-def does_machine_match_name(name, machine, match_vs_system=False):
+def does_machine_match_name(name, machine: Machine, match_vs_system=False) -> bool:
 	for machine_name in list(machine.metadata.names.values()) + [machine.name]:
 		if machine_name_matches(machine_name, name, match_vs_system):
 			return True
 	return False
 
-def does_machine_match_game(game_rom_name, game_metadata, machine, match_vs_system=False):
+def does_machine_match_game(game_rom_name, game_metadata, machine: Machine, match_vs_system=False) -> bool:
 	for game_name in list(game_metadata.names.values()) + [game_rom_name]:
 		#Perhaps some keys in game names don't need to be looked at here
 		if does_machine_match_name(game_name, machine, match_vs_system):

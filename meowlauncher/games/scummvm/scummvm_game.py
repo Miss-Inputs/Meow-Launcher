@@ -12,7 +12,7 @@ from . import scummvm_config
 def format_platform(platform: str) -> str:
 	#https://github.com/scummvm/scummvm/blob/master/common/platform.cpp#L28
 	return {
-		#We'll use the same formatting as in system_info
+		#We'll use the same formatting as in emulated_platforms
 		'2gs': 'Apple IIgs',
 		'apple2': 'Apple II',
 		'3do': '3DO',

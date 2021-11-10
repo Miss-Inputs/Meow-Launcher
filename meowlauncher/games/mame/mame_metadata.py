@@ -155,7 +155,7 @@ def add_metadata_from_catlist(machine):
 	#Game & Watch: Handheld but we call it a different platform because it's what most people would expect
 	#Board games
 	#Pinball: Arcade but we call it a different platform I guess
-	#Other non-game systems that are just like computers or whatever that aren't in system_info
+	#Other non-game systems that are just like computers or whatever that aren't in emulated_platforms
 
 
 	machine.metadata.media_type = MediaType.Standalone

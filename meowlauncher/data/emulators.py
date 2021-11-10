@@ -407,7 +407,7 @@ emulators: dict[str, Union[StandardEmulator, LibretroCore]] = {
 	'MAME (V.Reader)': MameDriver(EmulatorStatus.Borked, simple_mame_driver('vreader', 'cart'), ['bin']),
 	'MAME (V.Smile Pro)': MameDriver(EmulatorStatus.Borked, simple_mame_driver('vsmilpro', 'cdrom'), mame_cdrom_formats),
 
-	#TODO: Comments from system_info that indicate I feel the need to create an autoboot for stuff (because I guess typing arcane shit just sucks too much, and yeah it does make me think that some tapes_are_okay or menus_are_okay option is needed)
+	#TODO: Comments from systems that indicate I feel the need to create an autoboot for stuff (because I guess typing arcane shit just sucks too much, and yeah it does make me think that some tapes_are_okay or menus_are_okay option is needed)
 	#z88: 	#Marked as not working due to missing expansion interface and serial port and other things, not sure how important that would be... anyway, I'd need to do an autoboot thing to press the key to start the thing, because otherwise it's annoying to navigate every time, and then... hmm, I guess I dunno what actually is a function of things not working yet
 	#mo6: #Floppies work (and cassettes and carts have same problem as MO5), but this time we need to press the F1 key and I don't waaaanna do that myself
 	#to7/to8: 	#Fuck I hate this. Carts need to press 1 on TO7 or press the button with the lightpen on TO8/9 and also they suck, floppies need BASIC cart inserted on TO7 (and then the same method to boot that cart) or press B on TO8/9, tapes are a shitload of fuck right now (same broken as MO5/MO6), not all of this seems to be cross compatible so might need to separate systems or work out what's going on there
