@@ -3,7 +3,7 @@ import datetime
 import sys
 import time
 
-import launchers
+from meowlauncher import launchers
 from meowlauncher.common_types import EmulationNotSupportedException, MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.mame.software_list_info import \
