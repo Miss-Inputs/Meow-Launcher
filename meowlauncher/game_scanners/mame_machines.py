@@ -55,7 +55,7 @@ def make_machine_launcher(machine: Machine):
 	slot_options = {}
 
 	params = launchers.LaunchParams('mame', emulator_command_line_helpers.mame_base(machine.basename, slot_options=slot_options))
-	#TODO: Let's put this in emulator_info, even if only MAME exists as the singular arcade emulator for now; and clean this up some more
+	#TODO: Let's put this in games.emulator, even if only MAME exists as the singular arcade emulator for now; and clean this up some more
 	launchers.make_launcher(params, machine.name, machine.metadata, 'Arcade' if machine.metadata.platform == 'Arcade' else 'MAME', machine.basename)
 
 def process_machine(machine: Machine):

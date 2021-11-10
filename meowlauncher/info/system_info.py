@@ -1,12 +1,14 @@
 from typing import Optional
 
 from meowlauncher.common_types import ConfigValueType, MediaType
+from meowlauncher.data.format_info import (atari_2600_cartridge_extensions,
+                                           cdrom_formats,
+                                           commodore_cart_formats,
+                                           commodore_disk_formats,
+                                           generic_cart_extensions,
+                                           generic_tape_extensions,
+                                           mame_floppy_formats)
 from meowlauncher.games.roms.rom import FileROM
-
-from .format_info import (atari_2600_cartridge_extensions, cdrom_formats,
-                          commodore_cart_formats, commodore_disk_formats,
-                          generic_cart_extensions, generic_tape_extensions,
-                          mame_floppy_formats)
 
 
 class SystemConfigValue():

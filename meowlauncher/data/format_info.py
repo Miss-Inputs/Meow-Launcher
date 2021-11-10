@@ -1,4 +1,4 @@
-#Basically just stuff shared between emulator_info and system_info tbh
+#Basically just stuff shared between emulators and systems tbh
 
 mame_cdrom_formats = ['iso', 'chd', 'cue', 'toc', 'nrg', 'cdr', 'gdi']
 #Some drivers have custom floppy formats, but these seem to be available for all

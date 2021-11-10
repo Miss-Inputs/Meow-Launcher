@@ -17,12 +17,15 @@ from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.system_config import SystemConfig, system_configs
 from meowlauncher.data.emulators import emulators, libretro_frontends
+from meowlauncher.games.emulator import (LibretroCore,
+                                         LibretroCoreWithFrontend, MameDriver,
+                                         MednafenModule, ViceEmulator)
 from meowlauncher.games.roms.platform_specific.roms_folders import \
     folder_checks
 from meowlauncher.games.roms.rom import FileROM, FolderROM, rom_file
 from meowlauncher.games.roms.rom_game import RomGame
 from meowlauncher.games.roms.roms_metadata import add_metadata
-from meowlauncher.info import emulator_info, system_info
+from meowlauncher.info import system_info
 from meowlauncher.util import archives
 from meowlauncher.util.utils import find_filename_tags_at_end, starts_with_any
 
@@ -74,12 +77,12 @@ def process_file(system_config: SystemConfig, potential_emulators: Iterable[str]
 		try:
 			potential_emulator = emulators[potential_emulator_name]
 			potential_emulator_config = emulator_configs[potential_emulator_name]
-			if isinstance(potential_emulator, emulator_info.LibretroCore):
+			if isinstance(potential_emulator, LibretroCore):
 				if not main_config.libretro_frontend:
 					raise EmulationNotSupportedException('Must choose a frontend to run libretro cores')
 				frontend_config = emulator_configs[main_config.libretro_frontend]
 				frontend = libretro_frontends[main_config.libretro_frontend]
-				potential_emulator = emulator_info.LibretroCoreWithFrontend(potential_emulator, frontend, frontend_config)
+				potential_emulator = LibretroCoreWithFrontend(potential_emulator, frontend, frontend_config)
 
 			if rom.is_folder and not potential_emulator.supports_folders:
 				raise ExtensionNotSupportedException('{0} does not support folders'.format(potential_emulator))
@@ -103,11 +106,11 @@ def process_file(system_config: SystemConfig, potential_emulators: Iterable[str]
 
 	game.emulator = emulator
 	game.launch_params = launch_params
-	if isinstance(game.emulator, emulator_info.MameDriver):
+	if isinstance(game.emulator, MameDriver):
 		game.metadata.emulator_name = 'MAME'
-	elif isinstance(game.emulator, emulator_info.MednafenModule):
+	elif isinstance(game.emulator, MednafenModule):
 		game.metadata.emulator_name = 'Mednafen'
-	elif isinstance(game.emulator, emulator_info.ViceEmulator):
+	elif isinstance(game.emulator, ViceEmulator):
 		game.metadata.emulator_name = 'VICE'
 	else:
 		game.metadata.emulator_name = emulator_name

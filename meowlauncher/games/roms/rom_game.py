@@ -3,8 +3,10 @@ import tempfile
 from typing import Optional, Union
 
 from meowlauncher import launchers, metadata
+from meowlauncher.games.emulator import Emulator
+from meowlauncher.info import system_info
+
 from .rom import FileROM, FolderROM
-from meowlauncher.info import emulator_info, system_info
 
 
 class RomGame():
@@ -16,7 +18,7 @@ class RomGame():
 		self.metadata.categories = []
 		self.filename_tags: list[str] = []
 
-		self.emulator: Optional[emulator_info.Emulator] = None
+		self.emulator: Optional[Emulator] = None
 		self.launch_params: Optional[launchers.LaunchParams] = None
 
 		self.subroms = []
