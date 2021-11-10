@@ -23,8 +23,7 @@ from meowlauncher.desktop_launchers import (has_been_done,
                                             make_linux_desktop_for_launcher)
 from meowlauncher.emulated_game import EmulatorLauncher
 from meowlauncher.emulator import (LibretroCore, LibretroCoreWithFrontend,
-                                   MameDriver, MednafenModule,
-                                   StandardEmulator, ViceEmulator)
+                                   StandardEmulator)
 from meowlauncher.games.roms.platform_specific.roms_folders import \
     folder_checks
 from meowlauncher.games.roms.rom import (ROM, CompressedROM, FileROM,
@@ -140,15 +139,8 @@ def process_file(platform_config: PlatformConfig, potential_emulator_names: Iter
 			if isinstance(exception_reason, EmulationNotSupportedException) and not isinstance(exception_reason, ExtensionNotSupportedException):
 				print(rom.path, 'could not be launched by', potential_emulator_names, 'because', exception_reason)
 		return False
-
-	if isinstance(launcher.runner, MameDriver):
-		game.metadata.emulator_name = 'MAME'
-	elif isinstance(launcher.runner, MednafenModule):
-		game.metadata.emulator_name = 'Mednafen'
-	elif isinstance(launcher.runner, ViceEmulator):
-		game.metadata.emulator_name = 'VICE'
-	else:
-		game.metadata.emulator_name = launcher.runner.name
+	
+	game.metadata.emulator_name = launcher.runner.name
 	make_linux_desktop_for_launcher(launcher) #TODO: This shouldn't be here - we should be returning Optional[ROMLauncher] I think
 	return True
 

@@ -21,102 +21,118 @@ bsnes_options = {
 	'sgb_enhanced_only': EmulatorConfigValue(ConfigValueType.Bool, False, 'Consider Super Game Boy to only support games that are specifically enhanced for it'),
 }
 
-emulators: dict[str, Union[StandardEmulator, LibretroCore]] = {
-	'A7800': StandardEmulator(EmulatorStatus.Good, 'a7800', command_lines.a7800, ['bin', 'a78'], ['7z', 'zip']),
+_standalone_emulators = [
+	StandardEmulator('A7800', EmulatorStatus.Good, 'a7800', command_lines.a7800, ['bin', 'a78'], ['7z', 'zip']),
 	#Forked directly from MAME with alterations to a7800.cpp driver, so will more or less work the same way as that
 	#Executable name might be a7800.Linux-x86_64 depending on how it's installed... hmm
-	'bsnes': StandardEmulator(EmulatorStatus.Good, 'bsnes', command_lines.bsnes, ['sfc', 'smc', 'st', 'bs', 'gb', 'gbc'], ['zip', '7z'], bsnes_options),
-	'cxNES': StandardEmulator(EmulatorStatus.Good, 'cxnes', command_lines.cxnes, ['nes', 'fds', 'unf', 'unif'], ['7z', 'zip']),
+	StandardEmulator('bsnes', EmulatorStatus.Good, 'bsnes', command_lines.bsnes, ['sfc', 'smc', 'st', 'bs', 'gb', 'gbc'], ['zip', '7z'], bsnes_options),
+	StandardEmulator('cxNES', EmulatorStatus.Good, 'cxnes', command_lines.cxnes, ['nes', 'fds', 'unf', 'unif'], ['7z', 'zip']),
 	#Or is it good? Have not tried it in a fair bit
-	'Dolphin': StandardEmulator(EmulatorStatus.Good, 'dolphin-emu', command_lines.dolphin, ['iso', 'ciso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs', 'm3u', 'wia', 'rvz', '/'], []),
-	'DuckStation': StandardEmulator(EmulatorStatus.Good, 'duckstation-qt', command_lines.duckstation, ['bin', 'img', 'cue', 'chd', 'exe', 'm3u', 'iso'], [], {
+	StandardEmulator('Dolphin', EmulatorStatus.Good, 'dolphin-emu', command_lines.dolphin, ['iso', 'ciso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs', 'm3u', 'wia', 'rvz', '/'], []),
+	StandardEmulator('DuckStation', EmulatorStatus.Good, 'duckstation-qt', command_lines.duckstation, ['bin', 'img', 'cue', 'chd', 'exe', 'm3u', 'iso'], [], {
 		'compatibility_xml_path': EmulatorConfigValue(ConfigValueType.FilePath, None, 'Path to where compatibility.xml is installed'), #Because DuckStation's not always installed in any particular location…
 		'gamedb_path': EmulatorConfigValue(ConfigValueType.FilePath, None, 'Path to where gamedb.json is installed'),
 		'compatibility_threshold': EmulatorConfigValue(ConfigValueType.Integer, 2, "Don't try and launch any game with this compatibility rating or lower"),
 		'consider_unknown_games_incompatible': EmulatorConfigValue(ConfigValueType.Bool, False, "Consider games incompatible if they aren't in the compatibility database at all")
 	}),
-	'Flycast': StandardEmulator(EmulatorStatus.Good, 'flycast', simple_emulator(['-config', 'window:fullscreen=yes', '$<path>']), ['gdi', 'cdi', 'chd', 'cue'], {}),
-	'FS-UAE': StandardEmulator(EmulatorStatus.Good, 'fs-uae', command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf']),
+	StandardEmulator('Flycast', EmulatorStatus.Good, 'flycast', simple_emulator(['-config', 'window:fullscreen=yes', '$<path>']), ['gdi', 'cdi', 'chd', 'cue'], {}),
+	StandardEmulator('FS-UAE', EmulatorStatus.Good, 'fs-uae', command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf']),
 	#Note that .ipf files need a separately downloadable plugin. We could detect the presence of that, I guess
-	'Gambatte': StandardEmulator(EmulatorStatus.Good, 'gambatte_qt', 
+	StandardEmulator('Gambatte', EmulatorStatus.Good, 'gambatte_qt', 
 	simple_gb_emulator(['--full-screen', '$<path>'], ['MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5'], ['MBC1 Multicart']), ['gb', 'gbc'], ['zip']),
 	#--gba-cgb-mode[=0] and --force-dmg-mode[=0] may be useful in obscure situations, but that would probably require a specific thing that notes some GBC games are incompatible with GBA mode (Pocket Music) or GB incompatible with GBC (R-Type, also Pocket Sonar but that wouldn't work anyway)
 	#I guess MBC1 Multicart only works if you tick the "Multicart compatibility" box
 	#MMM01 technically works but only boots the first game instead of the menu, so it doesn't really work work
-	'GBE+': StandardEmulator(EmulatorStatus.Good, 'gbe_plus_qt', command_lines.gbe_plus, ['gb', 'gbc', 'gba']),
+	StandardEmulator('GBE+', EmulatorStatus.Good, 'gbe_plus_qt', command_lines.gbe_plus, ['gb', 'gbc', 'gba']),
 	#In theory, only this should support Pocket Sonar (so far), but there's not really a way to detect that since it just claims to be MBC1 in the header...
 	#Also in theory recognizes any extension and assumes Game Boy if not .gba or .nds, but that would be screwy
-	'Kega Fusion': StandardEmulator(EmulatorStatus.Good, 'kega-fusion', 
+	StandardEmulator('Kega Fusion', EmulatorStatus.Good, 'kega-fusion', 
 	simple_md_emulator(['-fullscreen', '$<path>'], ['aqlian', 'sf002', 'sf004', 'smw64', 'topf', 'kof99', 'cjmjclub', 'pokestad', 'soulb', 'chinf3']), 
 	['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', 'sc', '32x'], ['zip']),
 	#rom_kof99: Pocket Monsters does work (game-specific hack, probably?), which is why in platform_metadata/megadrive I've treated it specially and called it rom_kof99_pokemon
 	#May support other CD formats for Mega CD other than iso, cue? Because it's closed source, can't really have a look, but I'm just going to presume it's only those two
-	'mGBA': StandardEmulator(EmulatorStatus.Good, 'mgba-qt', command_lines.mgba, ['gb', 'gbc', 'gba', 'srl', 'bin', 'mb', 'gbx'], ['7z', 'zip']),
+	StandardEmulator('mGBA', EmulatorStatus.Good, 'mgba-qt', command_lines.mgba, ['gb', 'gbc', 'gba', 'srl', 'bin', 'mb', 'gbx'], ['7z', 'zip']),
 	#Doesn't really do GBX but it will ignore the footer
-	'melonDS': StandardEmulator(EmulatorStatus.Good, 'melonDS', command_lines.melonds, ['nds', 'srl'], []), #Supports .dsi too, but I'm acting as though it doesn't, because it's too screwy
-	'Mupen64Plus': StandardEmulator(EmulatorStatus.Good, 'mupen64plus', command_lines.mupen64plus, ['z64', 'v64', 'n64'], []),
-	'PCSX2': StandardEmulator(EmulatorStatus.Good, 'PCSX2', command_lines.pcsx2, ['iso', 'cso', 'bin', 'elf', 'irx', 'chd'], ['gz']),
+	StandardEmulator('melonDS', EmulatorStatus.Good, 'melonDS', command_lines.melonds, ['nds', 'srl'], []), #Supports .dsi too, but I'm acting as though it doesn't, because it's too screwy
+	StandardEmulator('Mupen64Plus', EmulatorStatus.Good, 'mupen64plus', command_lines.mupen64plus, ['z64', 'v64', 'n64'], []),
+	StandardEmulator('PCSX2', EmulatorStatus.Good, 'PCSX2', command_lines.pcsx2, ['iso', 'cso', 'bin', 'elf', 'irx', 'chd'], ['gz']),
 	#Only reads the bin of bin/cues and not the cue
-	'Pico-8': StandardEmulator(EmulatorStatus.Good, 'pico8', simple_emulator(['-windowed', '0', '-run', '$<path>']), ['p8', 'p8.png'], []),
-	'PokeMini': StandardEmulator(EmulatorStatus.Good, 'PokeMini', command_lines.pokemini, ['min'], ['zip']), #Normally just puts the config files in the current directory, so this cd's to ~/.config/PokeMini first
-	'PPSSPP': StandardEmulator(EmulatorStatus.Good, 'ppsspp-qt', command_lines.ppsspp, ['iso', 'pbp', 'cso']),
-	'Reicast': StandardEmulator(EmulatorStatus.Good, 'reicast', command_lines.reicast, ['gdi', 'cdi', 'chd']),
-	'Ruffle': StandardEmulator(EmulatorStatus.Imperfect, 'ruffle', simple_emulator(), ['swf']),
+	StandardEmulator('Pico-8', EmulatorStatus.Good, 'pico8', simple_emulator(['-windowed', '0', '-run', '$<path>']), ['p8', 'p8.png'], []),
+	StandardEmulator('PokeMini', EmulatorStatus.Good, 'PokeMini', command_lines.pokemini, ['min'], ['zip']), #Normally just puts the config files in the current directory, so this cd's to ~/.config/PokeMini first
+	StandardEmulator('PPSSPP', EmulatorStatus.Good, 'ppsspp-qt', command_lines.ppsspp, ['iso', 'pbp', 'cso']),
+	StandardEmulator('Reicast', EmulatorStatus.Good, 'reicast', command_lines.reicast, ['gdi', 'cdi', 'chd']),
+	StandardEmulator('Ruffle', EmulatorStatus.Imperfect, 'ruffle', simple_emulator(), ['swf']),
 	#No way to start off in fullscreen…
-	'SimCoupe': StandardEmulator(EmulatorStatus.Good, 'simcoupe', simple_emulator(['-fullscreen', 'yes', '$<path>']), ['mgt', 'sad', 'dsk', 'sbt'], ['zip', 'gz']),
-	'Snes9x': StandardEmulator(EmulatorStatus.Good, 'snes9x-gtk', command_lines.snes9x, ['sfc', 'smc', 'swc'], ['zip', 'gz']),
+	StandardEmulator('SimCoupe', EmulatorStatus.Good, 'simcoupe', simple_emulator(['-fullscreen', 'yes', '$<path>']), ['mgt', 'sad', 'dsk', 'sbt'], ['zip', 'gz']),
+	StandardEmulator('Snes9x', EmulatorStatus.Good, 'snes9x-gtk', command_lines.snes9x, ['sfc', 'smc', 'swc'], ['zip', 'gz']),
 	#Can't set fullscreen mode from the command line so you have to set up that yourself (but it will do that automatically); GTK port can't do Sufami Turbo or Satellaview from command line due to lacking multi-cart support that Windows has (Unix non-GTK doesn't like being in fullscreen etc)
-	'Stella': StandardEmulator(EmulatorStatus.Good, 'stella', simple_emulator(['-fullscreen', '1', '$<path>']), ['a26', 'bin', 'rom'] + atari_2600_cartridge_extensions, ['gz', 'zip']),
-	'PrBoom+': StandardEmulator(EmulatorStatus.Imperfect, 'prboom-plus', command_lines.prboom_plus, ['wad']),
+	StandardEmulator('Stella', EmulatorStatus.Good, 'stella', simple_emulator(['-fullscreen', '1', '$<path>']), ['a26', 'bin', 'rom'] + atari_2600_cartridge_extensions, ['gz', 'zip']),
+	StandardEmulator('PrBoom+', EmulatorStatus.Imperfect, 'prboom-plus', command_lines.prboom_plus, ['wad']),
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
 
-	'81 (libretro)': LibretroCore(EmulatorStatus.Good, '81', None, ['p', 'tzx', 't81']),
-	'Beetle Cygne (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_cygne', None, ['ws', 'wsc', 'pc2']),
-	'Beetle NeoPop (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_ngp', None, ['ngp', 'ngc', 'ngpc', 'npc']),
-	'Beetle PCE Fast (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_pce_fast', None, ['pce', 'cue', 'ccd', 'toc', 'm3u', 'chd']),
-	'Beetle PCE (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_pce', None, ['pce', 'cue', 'ccd', 'sgx', 'toc', 'm3u', 'chd']),
-	'Beetle PC-FX (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_pcfx', None, ['cue', 'ccd', 'toc', 'chd', 'm3u']),
-	'Beetle PSX HW (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_psx_hw', None, ['cue', 'chd', 'ccd', 'toc', 'm3u', 'exe', 'pbp']), #needs_fullpath=true
-	'Beetle Saturn (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_saturn', None, ['cue', 'chd', 'ccd', 'toc', 'm3u']), #needs_fullpath=true
-	'Beetle VB (libretro)': LibretroCore(EmulatorStatus.Good, 'mednafen_vb', None, ['vb', 'vboy', 'bin']),
-	'BlastEm (libretro)': LibretroCore(EmulatorStatus.Good, 'blastem', command_lines.blastem, ['md', 'bin', 'smd', 'gen', 'sms']), #Does not claim to support Master System in info file, but does
-	'blueMSX (libretro)': LibretroCore(EmulatorStatus.Good, 'bluemsx', None, ['dsk', 'rom', 'ri', 'mx1', 'mx2', 'col', 'cas', 'sg', 'sc', 'm3u']), #Turbo-R does not work, also does not do any dual cartridge shenanigans, or battery saves; needs_fullpath=true
-	'bsnes (libretro)': LibretroCore(EmulatorStatus.Good, 'bsnes', command_lines.bsnes_libretro, ['sfc', 'smc', 'gb', 'gbc', 'bs'], bsnes_options),
-	'bsnes-hd beta (libretro)': LibretroCore(EmulatorStatus.Good, 'bsnes_hd_beta', command_lines.bsnes_libretro, ['sfc', 'smc', 'gb', 'gbc', 'bs'], bsnes_options), #Does not claim to support .bs, but does
-	'Caprice32 (libretro)': LibretroCore(EmulatorStatus.Good, 'cap32', None, ['dsk', 'sna', 'tap', 'cdt', 'voc', 'cpr', 'm3u']), #cpr will need game override to 6128+, if setting that globally disks won't autoboot; m3u is there to specify load command and not multiple disks; needs_fullpath=true
-	'ChaiLove (libretro)': LibretroCore(EmulatorStatus.Good, 'chailove', None, ['chai', 'chailove']), #needs_fullpath=true
-	'Dinothawr (libretro)': LibretroCore(EmulatorStatus.Good, 'dinothawr', None, ['game']),
-	'fMSX (libretro)': LibretroCore(EmulatorStatus.Good, 'fmsx', None, ['rom', 'mx1', 'mx2']), #Claims to do .dsk and cas but does not
-	'FreeChaF (libretro)': LibretroCore(EmulatorStatus.Good, 'freechaf', None, ['bin', 'chf']),
-	'FreeIntv (libretro)': LibretroCore(EmulatorStatus.Janky, 'freeintv', None, ['int', 'bin', 'rom']),
-	'FreeJ2ME (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'freej2me', None, ['jar']), #Seems to require a JDK
-	'FUSE (libretro)': LibretroCore(EmulatorStatus.Good, 'fuse', None, ['tzx', 'tap', 'z80', 'rzx', 'scl', 'trd', 'dsk']),
-	'Gearboy (libretro)': LibretroCore(EmulatorStatus.Good, 'gearboy', simple_gb_emulator([], ['MBC1', 'MBC2', 'MBC3', 'MBC5'], ['MBC1 Multicart']), ['gb', 'dmg', 'gbc', 'cgb', 'sgb']),
-	'Genesis Plus GX (libretro)': LibretroCore(EmulatorStatus.Good, 'genesis_plus_gx', command_lines.genesis_plus_gx, ['mdx', 'md', 'smd', 'gen', 'bin', 'cue', 'iso', 'sms', 'bms', 'gg', 'sg', '68k', 'chd', 'm3u']), #needs_fullpath=true (but is that just for CD)
-	'Hatari (libretro)': LibretroCore(EmulatorStatus.Good, 'hatari', None, ['st', 'msa', 'stx', 'dim', 'm3u']), #Theoretically supports .ipf but that is not compiled in with the build from the core downloader; needs_fullpath=true
-	'LowRes NX (libretro)': LibretroCore(EmulatorStatus.Good, 'lowresnx', None, ['nx']),
-	'Mesen (libretro)': LibretroCore(EmulatorStatus.Good, 'mesen', command_lines.mesen, ['nes', 'fds', 'unf', 'unif']),
-	'melonDS (libretro)': LibretroCore(EmulatorStatus.Good, 'melonds', command_lines.melonds, ['nds']), #Still no DSi or iQue, OpenGL renderer makes aspect ratio go weird unless using hybrid layout
-	'mGBA (libretro)': LibretroCore(EmulatorStatus.Good, 'mgba', command_lines.mgba, ['gb', 'gbc', 'gba']),
-	'Mu (libretro)': LibretroCore(EmulatorStatus.Janky, 'mu', None, ['prc', 'pqa', 'img']), #Still need to select application manually from emulated menu
-	'Mupen64Plus-Next (libretro)': LibretroCore(EmulatorStatus.Good, 'mupen64plus_next', None, ['n64', 'v64', 'z64', 'bin', 'u1']), #TODO: Command line function to reject roms with no detectable endianness
-	'NeoCD (libretro)': LibretroCore(EmulatorStatus.Good, 'neocd', None, ['cue', 'chd']),
-	'O2EM (libretro)': LibretroCore(EmulatorStatus.Good, 'o2em', None, ['bin']),
-	'Opera (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'opera', None, ['iso', 'chd', 'bin', 'cue']), #needs_fullpath=true
-	'PicoDrive (libretro)': LibretroCore(EmulatorStatus.Good, 'picodrive', simple_md_emulator([], ['pokestad', 'lion3']), ['bin', 'gen', 'smd', 'md', '32x', 'chd', 'cue', 'iso', 'sms', '68k', 'm3u', 'chd']), #Lion King 3 is automatically detected but no other games using the same mapper work, so I guess we will pretend it's not a working mapper; needs_fullpath=true (for CDs?)
-	'PokeMini (libretro)': LibretroCore(EmulatorStatus.Good, 'pokemini', None, ['min']),
-	'Potator (libretro)': LibretroCore(EmulatorStatus.Good, 'potator', None, ['bin', 'sv']),
-	'ProSystem (libretro)': LibretroCore(EmulatorStatus.Good, 'prosystem', command_lines.prosystem, ['a78', 'bin']),
-	'PUAE (libretro)': LibretroCore(EmulatorStatus.Good, 'puae', None, ['adf', 'adz', 'dms', 'fdi', 'ipf', 'hdf', 'hdz', 'lha', 'slave', 'info', 'cue', 'ccd', 'nrg', 'mds', 'iso', 'chd', 'uae', 'm3u', 'rp9']), #Does require you to switch between RetroPad and CD32 pad accordingly…; needs_fullpath=true
-	'PX68k (libretro)': LibretroCore(EmulatorStatus.Good, 'px68k', None, ['dim', 'img', 'd88', '88d', 'hdm', 'dup', '2hd', 'xdf', 'hdf', 'cmd', 'm3u']), #needs_fullpath=true (tricky thing is that it might overwrite your uncompressed files if you leave them uncompressed? or something)
-	'SameBoy (libretro)': LibretroCore(EmulatorStatus.Good, 'sameboy', simple_gb_emulator([], ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3', 'Pocket Camera'], ['MBC1 Multicart']), ['gb', 'gbc']),
-	'SameDuck (libretro)': LibretroCore(EmulatorStatus.Good, 'sameduck', None, ['bin']),
-	'Stella (libretro)': LibretroCore(EmulatorStatus.Good, 'stella', None, ['a26', 'bin']),
-	'Uzem (libretro)': LibretroCore(EmulatorStatus.Good, 'uzem', None, ['uze']),
-	'Vecx (libretro)': LibretroCore(EmulatorStatus.Good, 'vecx', None, ['vec', 'bin']),
-	'VeMUlator (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'vemulator', None, ['vms', 'dci', 'bin']), #Does a heckin bzzzz with a lot of things
-	'Virtual Jaguar (libretro)': LibretroCore(EmulatorStatus.Imperfect, 'virtualjaguar', None, ['j64', 'jag', 'rom', 'abs', 'cof', 'bin', 'prg']),
-	'X Millennium (libretro)': LibretroCore(EmulatorStatus.Good, 'x1', None, ['dx1', '2d', '2hd', 'tfd', 'd88', '88d', 'hdm', 'xdf', 'dup', 'cmd']), #Claims to support tap but doesn't
+	StandardEmulator('Cemu', EmulatorStatus.Experimental, 'Cemu.exe', command_lines.cemu, ['wud', 'wux', 'rpx', '/'], host_platform=EmulatorPlatform.Windows),
+	StandardEmulator('Citra', EmulatorStatus.ExperimentalButSeemsOkay, 'citra-qt', command_lines.citra, ['3ds', 'cxi', '3dsx']),
+	#No fullscreen from command line
+	StandardEmulator('Medusa', EmulatorStatus.ExperimentalButSeemsOkay, 'medusa-emu-qt', command_lines.medusa, ['nds', 'gb', 'gbc', 'gba'], ['7z', 'zip']),
+	StandardEmulator('RPCS3', EmulatorStatus.ExperimentalButSeemsOkay, 'rpcs3', command_lines.rpcs3, ['/', 'elf', 'self', 'bin'], configs={
+		'require_compat_entry': EmulatorConfigValue(ConfigValueType.Bool, False, 'Do not make launchers for games which are not in the compatibility database at all'),
+		'compat_threshold': EmulatorConfigValue(ConfigValueType.Integer, 0, 'Games that are under this level of compatibility will not get launchers made; 1 = Loadable 2 = Intro 3 = Ingame 4 = Playable (all the way through)'),
+	}),
+	StandardEmulator('Xemu', EmulatorStatus.Experimental, 'xemu', command_lines.xemu, ['iso'], []), #Requires the game partition to be separated out of the disc image
+	StandardEmulator('Yuzu', EmulatorStatus.ExperimentalButSeemsOkay, 'yuzu', command_lines.yuzu, ['xci', 'nsp', 'nro', 'nso', 'nca', 'elf', 'kip']),
+]
+
+_libretro_cores = [
+	LibretroCore('81', EmulatorStatus.Good, '81', None, ['p', 'tzx', 't81']),
+	LibretroCore('Beetle Cygne', EmulatorStatus.Good, 'mednafen_cygne', None, ['ws', 'wsc', 'pc2']),
+	LibretroCore('Beetle NeoPop', EmulatorStatus.Good, 'mednafen_ngp', None, ['ngp', 'ngc', 'ngpc', 'npc']),
+	LibretroCore('Beetle PCE Fast', EmulatorStatus.Good, 'mednafen_pce_fast', None, ['pce', 'cue', 'ccd', 'toc', 'm3u', 'chd']),
+	LibretroCore('Beetle PCE', EmulatorStatus.Good, 'mednafen_pce', None, ['pce', 'cue', 'ccd', 'sgx', 'toc', 'm3u', 'chd']),
+	LibretroCore('Beetle PC-FX', EmulatorStatus.Good, 'mednafen_pcfx', None, ['cue', 'ccd', 'toc', 'chd', 'm3u']),
+	LibretroCore('Beetle PSX HW', EmulatorStatus.Good, 'mednafen_psx_hw', None, ['cue', 'chd', 'ccd', 'toc', 'm3u', 'exe', 'pbp']), #needs_fullpath=true
+	LibretroCore('Beetle Saturn', EmulatorStatus.Good, 'mednafen_saturn', None, ['cue', 'chd', 'ccd', 'toc', 'm3u']), #needs_fullpath=true
+	LibretroCore('Beetle VB', EmulatorStatus.Good, 'mednafen_vb', None, ['vb', 'vboy', 'bin']),
+	LibretroCore('BlastEm', EmulatorStatus.Good, 'blastem', command_lines.blastem, ['md', 'bin', 'smd', 'gen', 'sms']), #Does not claim to support Master System in info file, but does
+	LibretroCore('blueMSX', EmulatorStatus.Good, 'bluemsx', None, ['dsk', 'rom', 'ri', 'mx1', 'mx2', 'col', 'cas', 'sg', 'sc', 'm3u']), #Turbo-R does not work, also does not do any dual cartridge shenanigans, or battery saves; needs_fullpath=true
+	LibretroCore('bsnes', EmulatorStatus.Good, 'bsnes', command_lines.bsnes_libretro, ['sfc', 'smc', 'gb', 'gbc', 'bs'], bsnes_options),
+	LibretroCore('bsnes-hd beta', EmulatorStatus.Good, 'bsnes_hd_beta', command_lines.bsnes_libretro, ['sfc', 'smc', 'gb', 'gbc', 'bs'], bsnes_options), #Does not claim to support .bs, but does
+	LibretroCore('Caprice32', EmulatorStatus.Good, 'cap32', None, ['dsk', 'sna', 'tap', 'cdt', 'voc', 'cpr', 'm3u']), #cpr will need game override to 6128+, if setting that globally disks won't autoboot; m3u is there to specify load command and not multiple disks; needs_fullpath=true
+	LibretroCore('ChaiLove', EmulatorStatus.Good, 'chailove', None, ['chai', 'chailove']), #needs_fullpath=true
+	LibretroCore('Dinothawr', EmulatorStatus.Good, 'dinothawr', None, ['game']),
+	LibretroCore('fMSX', EmulatorStatus.Good, 'fmsx', None, ['rom', 'mx1', 'mx2']), #Claims to do .dsk and cas but does not
+	LibretroCore('FreeChaF', EmulatorStatus.Good, 'freechaf', None, ['bin', 'chf']),
+	LibretroCore('FreeIntv', EmulatorStatus.Janky, 'freeintv', None, ['int', 'bin', 'rom']),
+	LibretroCore('FreeJ2ME', EmulatorStatus.Imperfect, 'freej2me', None, ['jar']), #Seems to require a JDK
+	LibretroCore('FUSE', EmulatorStatus.Good, 'fuse', None, ['tzx', 'tap', 'z80', 'rzx', 'scl', 'trd', 'dsk']),
+	LibretroCore('Gearboy', EmulatorStatus.Good, 'gearboy', simple_gb_emulator([], ['MBC1', 'MBC2', 'MBC3', 'MBC5'], ['MBC1 Multicart']), ['gb', 'dmg', 'gbc', 'cgb', 'sgb']),
+	LibretroCore('Genesis Plus GX', EmulatorStatus.Good, 'genesis_plus_gx', command_lines.genesis_plus_gx, ['mdx', 'md', 'smd', 'gen', 'bin', 'cue', 'iso', 'sms', 'bms', 'gg', 'sg', '68k', 'chd', 'm3u']), #needs_fullpath=true (but is that just for CD)
+	LibretroCore('Hatari', EmulatorStatus.Good, 'hatari', None, ['st', 'msa', 'stx', 'dim', 'm3u']), #Theoretically supports .ipf but that is not compiled in with the build from the core downloader; needs_fullpath=true
+	LibretroCore('LowRes NX', EmulatorStatus.Good, 'lowresnx', None, ['nx']),
+	LibretroCore('Mesen', EmulatorStatus.Good, 'mesen', command_lines.mesen, ['nes', 'fds', 'unf', 'unif']),
+	LibretroCore('melonDS', EmulatorStatus.Good, 'melonds', command_lines.melonds, ['nds']), #Still no DSi or iQue, OpenGL renderer makes aspect ratio go weird unless using hybrid layout
+	LibretroCore('mGBA', EmulatorStatus.Good, 'mgba', command_lines.mgba, ['gb', 'gbc', 'gba']),
+	LibretroCore('Mu', EmulatorStatus.Janky, 'mu', None, ['prc', 'pqa', 'img']), #Still need to select application manually from emulated menu
+	LibretroCore('Mupen64Plus-Next', EmulatorStatus.Good, 'mupen64plus_next', None, ['n64', 'v64', 'z64', 'bin', 'u1']), #TODO: Command line function to reject roms with no detectable endianness
+	LibretroCore('NeoCD', EmulatorStatus.Good, 'neocd', None, ['cue', 'chd']),
+	LibretroCore('O2EM', EmulatorStatus.Good, 'o2em', None, ['bin']),
+	LibretroCore('Opera', EmulatorStatus.Imperfect, 'opera', None, ['iso', 'chd', 'bin', 'cue']), #needs_fullpath=true
+	LibretroCore('PicoDrive', EmulatorStatus.Good, 'picodrive', simple_md_emulator([], ['pokestad', 'lion3']), ['bin', 'gen', 'smd', 'md', '32x', 'chd', 'cue', 'iso', 'sms', '68k', 'm3u', 'chd']), #Lion King 3 is automatically detected but no other games using the same mapper work, so I guess we will pretend it's not a working mapper; needs_fullpath=true (for CDs?)
+	LibretroCore('PokeMini', EmulatorStatus.Good, 'pokemini', None, ['min']),
+	LibretroCore('Potator', EmulatorStatus.Good, 'potator', None, ['bin', 'sv']),
+	LibretroCore('ProSystem', EmulatorStatus.Good, 'prosystem', command_lines.prosystem, ['a78', 'bin']),
+	LibretroCore('PUAE', EmulatorStatus.Good, 'puae', None, ['adf', 'adz', 'dms', 'fdi', 'ipf', 'hdf', 'hdz', 'lha', 'slave', 'info', 'cue', 'ccd', 'nrg', 'mds', 'iso', 'chd', 'uae', 'm3u', 'rp9']), #Does require you to switch between RetroPad and CD32 pad accordingly…; needs_fullpath=true
+	LibretroCore('PX68k', EmulatorStatus.Good, 'px68k', None, ['dim', 'img', 'd88', '88d', 'hdm', 'dup', '2hd', 'xdf', 'hdf', 'cmd', 'm3u']), #needs_fullpath=true (tricky thing is that it might overwrite your uncompressed files if you leave them uncompressed? or something)
+	LibretroCore('SameBoy', EmulatorStatus.Good, 'sameboy', simple_gb_emulator([], ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3', 'Pocket Camera'], ['MBC1 Multicart']), ['gb', 'gbc']),
+	LibretroCore('SameDuck', EmulatorStatus.Good, 'sameduck', None, ['bin']),
+	LibretroCore('Stella', EmulatorStatus.Good, 'stella', None, ['a26', 'bin']),
+	LibretroCore('Uzem', EmulatorStatus.Good, 'uzem', None, ['uze']),
+	LibretroCore('Vecx', EmulatorStatus.Good, 'vecx', None, ['vec', 'bin']),
+	LibretroCore('VeMUlator', EmulatorStatus.Imperfect, 'vemulator', None, ['vms', 'dci', 'bin']), #Does a heckin bzzzz with a lot of things
+	LibretroCore('Virtual Jaguar', EmulatorStatus.Imperfect, 'virtualjaguar', None, ['j64', 'jag', 'rom', 'abs', 'cof', 'bin', 'prg']),
+	LibretroCore('X Millennium', EmulatorStatus.Good, 'x1', None, ['dx1', '2d', '2hd', 'tfd', 'd88', '88d', 'hdm', 'xdf', 'dup', 'cmd']), #Claims to support tap but doesn't
+]
+
+emulators: dict[str, Union[StandardEmulator, LibretroCore]] = {
 	
 	'VICE (C64)': ViceEmulator(EmulatorStatus.Good, 'x64sc', command_lines.vice_c64),
 	#x64 and x64sc have the same command line structure, just different exe names
@@ -257,17 +273,6 @@ emulators: dict[str, Union[StandardEmulator, LibretroCore]] = {
 
 	#----- The experimental section. The emulators are still here, it's just so you, the fabulous and wonderful end user, can have more information on how to manage expectations. Or something like that.
 
-	#--These experimental emulators seem to work more often than they don't, but still describe themselves as experimental:
-	'Cemu': StandardEmulator(EmulatorStatus.Experimental, 'Cemu.exe', command_lines.cemu, ['wud', 'wux', 'rpx', '/'], host_platform=EmulatorPlatform.Windows),
-	'Citra': StandardEmulator(EmulatorStatus.ExperimentalButSeemsOkay, 'citra-qt', command_lines.citra, ['3ds', 'cxi', '3dsx']),
-	#No fullscreen from command line
-	'Medusa': StandardEmulator(EmulatorStatus.ExperimentalButSeemsOkay, 'medusa-emu-qt', command_lines.medusa, ['nds', 'gb', 'gbc', 'gba'], ['7z', 'zip']),
-	'RPCS3': StandardEmulator(EmulatorStatus.ExperimentalButSeemsOkay, 'rpcs3', command_lines.rpcs3, ['/', 'elf', 'self', 'bin'], configs={
-		'require_compat_entry': EmulatorConfigValue(ConfigValueType.Bool, False, 'Do not make launchers for games which are not in the compatibility database at all'),
-		'compat_threshold': EmulatorConfigValue(ConfigValueType.Integer, 0, 'Games that are under this level of compatibility will not get launchers made; 1 = Loadable 2 = Intro 3 = Ingame 4 = Playable (all the way through)'),
-	}),
-	'Yuzu': StandardEmulator(EmulatorStatus.ExperimentalButSeemsOkay, 'yuzu', command_lines.yuzu, ['xci', 'nsp', 'nro', 'nso', 'nca', 'elf', 'kip']),
-
 	'Mednafen (Game Boy)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'gb', ['gb', 'gbc'], command_lines.mednafen_gb),
 	#Based off an old version of VisualBoyAdvance
 	'Mednafen (Game Gear)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'gg', ['gg'], command_lines.mednafen_game_gear),
@@ -320,9 +325,6 @@ emulators: dict[str, Union[StandardEmulator, LibretroCore]] = {
 	'MAME (V.Tech Socrates)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, simple_mame_driver('socrates', 'cart'), ['bin']),
 	#Marked as not working + imperfect sound, possibly because of missing speech (also mouse is missing)
 	
-	#--Stuff that might not work with most things, or otherwise has known issues
-	'Xemu': StandardEmulator(EmulatorStatus.Experimental, 'xemu', command_lines.xemu, ['iso'], []), #Requires the game partition to be separated out of the disc image, also no controller rebinding for you
-
 	'MAME (Amiga CD32)': MameDriver(EmulatorStatus.Experimental, command_lines.mame_amiga_cd32, mame_cdrom_formats),
 	#Hmm boots only a few things I guess
 	'MAME (CreatiVision)': MameDriver(EmulatorStatus.Janky, simple_mame_driver('crvision', 'cart', has_keyboard=True), ['bin', 'rom']),
@@ -452,23 +454,29 @@ emulators: dict[str, Union[StandardEmulator, LibretroCore]] = {
 	#TODO PC-98 does somewhat work, but I probably want to filter out stuff that requires HDD install (only some stuff autoboots from floppy)
 	#TODO: Put Acorn Archimedes MAME driver in there anyway, even if I need to click the thing, I think that is not too unreasonable
 }
+for standalone_emulator in _standalone_emulators:
+	emulators[standalone_emulator.name] = standalone_emulator
+for libretro_core in _libretro_cores:
+	emulators[libretro_core.name + ' (libretro)'] = libretro_core
 
 pc_emulators = {
-	'BasiliskII': PCEmulator(EmulatorStatus.Janky, 'BasiliskII', command_lines.basilisk_ii, {
+	emu.name: emu for emu in [
+	PCEmulator('BasiliskII', EmulatorStatus.Janky, 'BasiliskII', command_lines.basilisk_ii, {
 		'skip_if_ppc_enhanced': EmulatorConfigValue(ConfigValueType.Bool, False, 'If the app has ppc_enhanced = true in its config ie. it performs better or has some extra functionality on PPC, do not use BasiliskII for it')
 	}),
-	'SheepShaver': PCEmulator(EmulatorStatus.Janky, 'SheepShaver', command_lines.sheepshaver),
-	'DOSBox Staging': PCEmulator(EmulatorStatus.Good, 'dosbox', command_lines.dosbox_staging, {
+	PCEmulator('SheepShaver', EmulatorStatus.Janky, 'SheepShaver', command_lines.sheepshaver),
+	PCEmulator('DOSBox Staging', EmulatorStatus.Good, 'dosbox', command_lines.dosbox_staging, {
 		'cycles_for_477_mhz': EmulatorConfigValue(ConfigValueType.Integer, 245, 'CPU cycles to use to get as close as possible to 4.77MHz'),
 		'noautoexec': EmulatorConfigValue(ConfigValueType.Bool, False, 'Do not load [autoexec] section in config file'),
 		'overlay_path': EmulatorConfigValue(ConfigValueType.FolderPath, None, 'If set to something, use a subfolder of this path as an overlay so save games etc are written there'),
 	}),
-	'DOSBox-X': PCEmulator(EmulatorStatus.Good, 'dosbox-x', command_lines.dosbox_x)
-}
+	PCEmulator('DOSBox-X', EmulatorStatus.Good, 'dosbox-x', command_lines.dosbox_x)
+]}
 
 libretro_frontends = {
-	'RetroArch': LibretroFrontend(EmulatorStatus.Good, 'retroarch', command_lines.retroarch, ['7z', 'zip']),
-}
+	frontend.name: frontend for frontend in [
+	LibretroFrontend('RetroArch', EmulatorStatus.Good, 'retroarch', command_lines.retroarch, ['7z', 'zip']),
+]}
 
 all_emulators: dict[str, Emulator] = {}
 all_emulators.update(emulators)
