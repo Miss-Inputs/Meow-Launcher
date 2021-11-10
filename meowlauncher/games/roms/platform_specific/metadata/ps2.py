@@ -17,7 +17,7 @@ except ModuleNotFoundError:
 	have_pycdlib = False
 
 boot_line_regex = re.compile(r'^BOOT2\s*=\s*cdrom0:\\(.+);1$')
-vmode_line_regex = re.compile(r'^VMODE\s*=\s*(.+)$')
+vmode_line_regex = re.compile(r'^VMODE\s*=\s*(\S+)$')
 boot_file_regex = re.compile(r'^(.{4})_(.{3})\.(.{2})$')
 def add_ps2_metadata(game):
 	#.bin/cue also has this system.cnf but I'd need to know how to get pycdlib to work with that
