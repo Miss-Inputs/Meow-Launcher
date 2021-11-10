@@ -11,7 +11,6 @@ from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
 
 from .mame_helpers import (add_history, find_cpus, get_image,
                            get_mame_ui_config, image_config_keys)
-from .mame_machine import Machine
 
 mame_statuses = {
 	'good': EmulationStatus.Good,
@@ -131,7 +130,7 @@ def add_status(machine):
 	if unemulated_features:
 		machine.metadata.specific_info['MAME-Unemulated-Features'] = unemulated_features
 
-def add_metadata_from_catlist(machine: Machine):
+def add_metadata_from_catlist(machine):
 	category, genre, subgenre, is_mature = get_category(machine.basename)
 	if category == 'Unknown' and machine.has_parent:
 		category, genre, subgenre, is_mature = get_category(machine.parent_basename)
