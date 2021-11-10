@@ -41,6 +41,10 @@ class Emulator():
 		if configs:
 			self.configs.update(configs)
 
+	@property
+	def name(self) -> str:
+		return 'TODO Make this more make sense, sorry'
+
 	def get_launch_params(self, game, system_config: dict[str, Any], emulator_config: EmulatorConfig):
 		params = self.launch_params_func(game, system_config, emulator_config)
 
@@ -81,6 +85,9 @@ class MednafenModule(StandardEmulator):
 			params_func = simple_mednafen_module(module)
 		StandardEmulator.__init__(self, status, 'mednafen', params_func, supported_extensions, ['zip', 'gz'], configs)
 
+	def name(self) -> str:
+		return 'Mednafen'
+
 class MameDriver(StandardEmulator):
 	def __init__(self, status: EmulatorStatus, launch_params, supported_extensions, configs=None):
 		if configs is None:
@@ -91,13 +98,20 @@ class MameDriver(StandardEmulator):
 		})
 		
 		StandardEmulator.__init__(self, status, 'mame', launch_params, supported_extensions, ['7z', 'zip'], configs)
+	
+	def name(self) -> str:
+		return 'MAME'
 
 class ViceEmulator(StandardEmulator):
 	def __init__(self, status: EmulatorStatus, default_exe_name, params):
 		#Also does z and zoo compression but I haven't done those in archives.py yet
+		#TODO: Maybe just put z and zoo in the ordinary file extensions if we don't want to do that just yet?
 		#WARNING! Will write back changes to your disk images unless they are compressed or actually write protected on the file system
 		#Does support compressed tapes/disks (gz/bz2/zip/tgz) but doesn't support compressed cartridges (seemingly). This would require changing all kinds of stuff with how compression is handled here. So for now we pretend it supports no compression so we end up getting 7z to put the thing in a temporarily folder regardless
 		StandardEmulator.__init__(self, status, default_exe_name, params, ['d64', 'g64', 'x64', 'p64', 'd71', 'd81', 'd80', 'd82', 'd1m', 'd2m'] + ['20', '40', '60', '70', '80', 'a0', 'b0', 'e0', 'crt', 'bin'] + ['p00', 'prg', 'tap', 't64'], [])
+	
+	def name(self) -> str:
+		return 'VICE'
 
 class LibretroCore(Emulator):
 	def __init__(self, status: EmulatorStatus, default_exe_name, launch_params_func, supported_extensions, configs=None):

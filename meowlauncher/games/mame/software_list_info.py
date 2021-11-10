@@ -716,16 +716,16 @@ def get_software_list_entry(game, skip_header=0):
 				data = game.rom.read(seek_to=skip_header)
 				software = find_in_software_lists(software_lists, matcher_args_for_bytes(data))
 			else:
-				if game.system.databases_are_byteswapped:
+				if game.platform.databases_are_byteswapped:
 					crc32 = format_crc32_for_software_list(zlib.crc32(byteswap(game.rom.read())) & 0xffffffff)
 				else:
 					crc32 = format_crc32_for_software_list(game.rom.get_crc32())
 				args = SoftwareMatcherArgs(crc32, None, game.rom.get_size() - game.rom.header_length_for_crc_calculation, lambda offset, amount: byteswap(game.rom.read(seek_to=offset, amount=amount)) if game.system.databases_are_byteswapped else game.rom.read(seek_to=offset, amount=amount))
 				software = find_in_software_lists(software_lists, args)
 
-	if not software and (game.system_name in main_config.find_software_by_name):
+	if not software and (game.platform_name in main_config.find_software_by_name):
 		software = find_software_by_name(game.software_lists, game.rom.name)
-	if not software and (game.system_name in main_config.find_software_by_product_code and game.metadata.product_code):
+	if not software and (game.platform_name in main_config.find_software_by_product_code and game.metadata.product_code):
 		software = find_in_software_lists_with_custom_matcher(game.software_lists, software_list_product_code_matcher, [game.metadata.product_code])
 
 	return software

@@ -1,4 +1,7 @@
+from abc import ABC, abstractproperty
 
-class Game():
-	def __init__(self, name: str) -> None:
-		self.name = name
+class Game(ABC):
+	
+	@abstractproperty
+	def name(self) -> str:
+		pass

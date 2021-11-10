@@ -1,7 +1,9 @@
 import shlex
-from typing import Optional, Sequence
+from abc import ABC, abstractmethod, abstractproperty
+from typing import Any, Optional, Sequence
 
 from meowlauncher.config.main_config import main_config
+
 
 class LaunchCommand():
 	def __init__(self, exe_name: str, exe_args: list[str], env_vars: Optional[dict[str, str]]=None, working_directory: Optional[str]=None):
@@ -34,7 +36,11 @@ class LaunchCommand():
 	def replace_path_argument(self, path: str) -> 'LaunchCommand':
 		return LaunchCommand(self.exe_name, [arg.replace('$<path>', path) for arg in self.exe_args], self.env_vars)
 
+	def set_env_var(self, k: str, v: str):
+		self.env_vars[k] = v
+
 def get_wine_launch_params(exe_path: str, exe_args: list[str], working_directory: Optional[str]=None):
+	#TODO: Migrate to default_runners
 	env_vars = None
 	if main_config.wineprefix:
 		env_vars = {'WINEPREFIX': main_config.wineprefix}
@@ -68,4 +74,32 @@ class MultiLaunchCommands(LaunchCommand):
 
 	def replace_path_argument(self, path: str) -> LaunchCommand:
 		return MultiLaunchCommands(self.pre_commands, self.main_command.replace_path_argument(path), self.post_commands)
+	
+	def set_env_var(self, k: str, v: str):
+		self.main_command.env_vars[k] = v
 
+class Launcher(ABC):
+	def __init__(self, game, runner) -> None:
+		#TODO: Game and runner should be typed accordingly once I set up the hierarchy properly
+		self.game = game
+		self.runner = runner
+
+	@property
+	def name(self) -> str:
+		return self.game.name
+
+	@abstractproperty
+	def game_type(self) -> str:
+		pass
+	
+	@abstractproperty
+	def game_id(self) -> str:
+		pass
+
+	@abstractproperty
+	def info_fields(self) -> dict[str, dict[str, Any]]:
+		pass
+
+	@abstractmethod
+	def get_launch_command(self) -> LaunchCommand:
+		pass

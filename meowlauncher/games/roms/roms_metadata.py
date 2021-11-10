@@ -228,12 +228,12 @@ def add_metadata_from_libretro_database_entry(metadata, database, key):
 	return False
 
 def add_metadata_from_libretro_database(game):
-	key = game.metadata.product_code if game.system.dat_uses_serial else game.rom.get_crc32()
+	key = game.metadata.product_code if game.platform.dat_uses_serial else game.rom.get_crc32()
 	if key:
-		for dat_name in game.system.dat_names:
-			database = parse_all_dats_for_system(dat_name, game.system.dat_uses_serial)
+		for dat_name in game.platform.dat_names:
+			database = parse_all_dats_for_system(dat_name, game.platform.dat_uses_serial)
 			if database:
-				if game.system.dat_uses_serial and ', ' in key:
+				if game.platform.dat_uses_serial and ', ' in key:
 					for product_code in key.split(', '):
 						if add_metadata_from_libretro_database_entry(game.metadata, database, product_code):
 							break
@@ -263,14 +263,14 @@ def add_metadata(game):
 	if game.rom.is_folder:
 		game.metadata.media_type = game.rom.media_type
 	else:
-		game.metadata.media_type = game.system.get_media_type(game.rom)
+		game.metadata.media_type = game.platform.get_media_type(game.rom)
 
-	software_list_names = game.system.mame_software_lists
+	software_list_names = game.platform.mame_software_lists
 	if software_list_names:
 		game.software_lists = get_software_lists_by_names(software_list_names)
 
-	if game.system_name in metadata.helpers:
-		metadata.helpers[game.system_name](game)
+	if game.platform_name in metadata.helpers:
+		metadata.helpers[game.platform_name](game)
 	else:
 		#For anything else, use this one to just get basic software list info.
 		#This would only work for optical discs if they are in .chd format though. Also see MAME GitHub issue #2517, which makes a lot of newly created CHDs invalid with older softlists
@@ -293,7 +293,7 @@ def add_metadata(game):
 	get_metadata_from_tags(game)
 	get_metadata_from_regions(game)
 
-	if game.system.dat_names:
+	if game.platform.dat_names:
 		add_metadata_from_libretro_database(game)
-	if game.system.autodetect_tv_type:
+	if game.platform.autodetect_tv_type:
 		autodetect_tv_type(game)

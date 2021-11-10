@@ -1,49 +1,26 @@
-import os
-import tempfile
-from typing import Optional, cast
-
 from meowlauncher import metadata
-from meowlauncher.desktop_launchers import make_launcher
 from meowlauncher.emulated_platform import EmulatedPlatform
-from meowlauncher.emulator import StandardEmulator
-from meowlauncher.launcher import LaunchCommand
-from meowlauncher.util.io_utils import make_filename
 
-from .rom import ROM, CompressedROM
+from .rom import ROM
 
 
 class RomGame():
-	def __init__(self, rom: ROM, system_name: str, system: EmulatedPlatform):
+	def __init__(self, rom: ROM, platform_name: str, platform: EmulatedPlatform):
 		self.rom = rom
 		self.metadata = metadata.Metadata()
-		self.system_name = self.metadata.platform = system_name
-		self.system = system
+		self.platform_name = self.metadata.platform = platform_name
+		self.platform = platform
 		self.metadata.categories = []
 		self.filename_tags: list[str] = []
-
-		self.emulator: Optional[StandardEmulator] = None
-		self.launch_params: Optional[LaunchCommand] = None
 
 		self.subroms = []
 		self.software_lists = None
 		self.exception_reason = None
-
-	def make_launcher(self) -> None:
-		params = self.launch_params
-
-		if self.rom.is_compressed:
-			rom = cast(CompressedROM, self.rom)
-			if rom.extension not in self.emulator.supported_compression:
-				temp_extraction_folder = os.path.join(tempfile.gettempdir(), 'meow-launcher-' + make_filename(self.rom.name))
-
-				extracted_path = os.path.join(temp_extraction_folder, rom.inner_filename)
-				params = params.replace_path_argument(extracted_path)
-				params = params.prepend_command(LaunchCommand('7z', ['x', '-o' + temp_extraction_folder, str(self.rom.path)]))
-				params = params.append_command(LaunchCommand('rm', ['-rf', temp_extraction_folder]))
-		else:
-			params = params.replace_path_argument(str(self.rom.path))
-
+	
+	@property
+	def name(self) -> str:
 		name = self.rom.name
 		if self.rom.ignore_name and self.metadata.names:
 			name = self.metadata.names.get('Name', list(self.metadata.names.values())[0])
-		make_launcher(params, name, self.metadata, 'ROM', self.rom.path)
+			
+		return name

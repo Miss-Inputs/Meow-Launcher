@@ -4,11 +4,12 @@ import datetime
 import os
 import pathlib
 import sys
+import tempfile
 import time
 import traceback
 from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import cast
+from typing import Any, cast
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        ExtensionNotSupportedException,
@@ -18,20 +19,59 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.config.system_config import PlatformConfig, system_configs
 from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.data.emulators import emulators, libretro_frontends
-from meowlauncher.desktop_launchers import has_been_done
+from meowlauncher.desktop_launchers import (has_been_done,
+                                            make_linux_desktop_for_launcher)
+from meowlauncher.emulated_game import EmulatorLauncher
 from meowlauncher.emulator import (LibretroCore, LibretroCoreWithFrontend,
-                                   MameDriver, MednafenModule, ViceEmulator)
+                                   MameDriver, MednafenModule,
+                                   StandardEmulator, ViceEmulator)
 from meowlauncher.games.roms.platform_specific.roms_folders import \
     folder_checks
-from meowlauncher.games.roms.rom import ROM, FileROM, FolderROM, rom_file
+from meowlauncher.games.roms.rom import (ROM, CompressedROM, FileROM,
+                                         FolderROM, rom_file)
 from meowlauncher.games.roms.rom_game import RomGame
 from meowlauncher.games.roms.roms_metadata import add_metadata
+from meowlauncher.launcher import LaunchCommand
 from meowlauncher.util import archives
+from meowlauncher.util.io_utils import make_filename
 from meowlauncher.util.utils import find_filename_tags_at_end, starts_with_any
 
 
-def process_file(system_config: PlatformConfig, potential_emulators: Iterable[str], rom: ROM, subfolders: Sequence[str]) -> bool:
-	game = RomGame(rom, system_config.name, platforms[system_config.name])
+class ROMLauncher(EmulatorLauncher):
+	def __init__(self, game: RomGame, emulator: StandardEmulator, platform_config, emulator_config) -> None:
+		super().__init__(game, emulator)
+		self.platform_config = platform_config
+		self.emulator_config = emulator_config
+
+	@property
+	def game_type(self) -> str:
+		return 'ROM'
+	
+	@property
+	def game_id(self) -> str:
+		return str(self.game.rom.path)
+
+	@property
+	def info_fields(self) -> dict[str, dict[str, Any]]:
+		return self.game.metadata.to_launcher_fields()
+
+	def get_launch_command(self) -> LaunchCommand:
+		params = self.runner.get_launch_params(self.game, self.platform_config, self.emulator_config)
+		if self.game.rom.is_compressed:
+			rom = cast(CompressedROM, self.game.rom)
+			if rom.extension not in self.runner.supported_compression:
+				temp_extraction_folder = os.path.join(tempfile.gettempdir(), 'meow-launcher-' + make_filename(self.game.name))
+
+				extracted_path = os.path.join(temp_extraction_folder, rom.inner_filename)
+				params = params.replace_path_argument(extracted_path)
+				params = params.prepend_command(LaunchCommand('7z', ['x', '-o' + temp_extraction_folder, str(self.game.rom.path)]))
+				params = params.append_command(LaunchCommand('rm', ['-rf', temp_extraction_folder]))
+		else:
+			params = params.replace_path_argument(str(self.game.rom.path))
+		return params
+
+def process_file(platform_config: PlatformConfig, potential_emulator_names: Iterable[str], rom: ROM, subfolders: Sequence[str]) -> bool:
+	game = RomGame(rom, platform_config.name, platforms[platform_config.name])
 
 	if game.rom.extension == 'm3u':
 		file_rom = cast(FileROM, game.rom)
@@ -44,7 +84,7 @@ def process_file(system_config: PlatformConfig, potential_emulators: Iterable[st
 		game.subroms = [rom_file(str(referenced_file)) for referenced_file in filenames]
 
 	have_emulator_that_supports_extension = False
-	for potential_emulator_name in potential_emulators:
+	for potential_emulator_name in potential_emulator_names:
 		potential_emulator = emulators[potential_emulator_name]
 		potential_emulator_config = emulator_configs[potential_emulator_name]
 		if rom.is_folder:
@@ -69,12 +109,9 @@ def process_file(system_config: PlatformConfig, potential_emulators: Iterable[st
 		game.metadata.categories = [game.metadata.platform]
 
 	exception_reason = None
+	launcher = None
 
-	emulator = None
-	emulator_name = None
-	launch_params = None
-
-	for potential_emulator_name in potential_emulators:
+	for potential_emulator_name in potential_emulator_names:
 		try:
 			potential_emulator = emulators[potential_emulator_name]
 			potential_emulator_config = emulator_configs[potential_emulator_name]
@@ -90,32 +127,29 @@ def process_file(system_config: PlatformConfig, potential_emulators: Iterable[st
 			if not rom.is_folder and rom.extension not in potential_emulator.supported_extensions:
 				raise ExtensionNotSupportedException('{0} does not support {1} extension'.format(potential_emulator, rom.extension))
 
-			params = potential_emulator.get_launch_params(game, system_config.options, potential_emulator_config)
+			potential_launcher = ROMLauncher(game, potential_emulator, platform_config, potential_emulator_config)
+			params = potential_launcher.get_launch_command() #We need to test each one for EmulationNotSupportedException… what's the maybe better way to do this, since we call get_launch_command again and that sucks
 			if params:
-				emulator = potential_emulator
-				emulator_name = potential_emulator_name
-				launch_params = params
+				launcher = potential_launcher
 				break
 		except (EmulationNotSupportedException, NotARomException) as ex:
 			exception_reason = ex
 
-	if not emulator:
+	if not launcher:
 		if main_config.debug:
 			if isinstance(exception_reason, EmulationNotSupportedException) and not isinstance(exception_reason, ExtensionNotSupportedException):
-				print(rom.path, 'could not be launched by', potential_emulators, 'because', exception_reason)
+				print(rom.path, 'could not be launched by', potential_emulator_names, 'because', exception_reason)
 		return False
 
-	game.emulator = emulator
-	game.launch_params = launch_params
-	if isinstance(game.emulator, MameDriver):
+	if isinstance(launcher.runner, MameDriver):
 		game.metadata.emulator_name = 'MAME'
-	elif isinstance(game.emulator, MednafenModule):
+	elif isinstance(launcher.runner, MednafenModule):
 		game.metadata.emulator_name = 'Mednafen'
-	elif isinstance(game.emulator, ViceEmulator):
+	elif isinstance(launcher.runner, ViceEmulator):
 		game.metadata.emulator_name = 'VICE'
 	else:
-		game.metadata.emulator_name = emulator_name
-	game.make_launcher()
+		game.metadata.emulator_name = launcher.runner.name
+	make_linux_desktop_for_launcher(launcher) #TODO: This shouldn't be here - we should be returning Optional[ROMLauncher] I think
 	return True
 
 def parse_m3u(path: str):

@@ -1,5 +1,5 @@
 import collections
-from typing import Optional
+from typing import Any, Optional
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import MediaType, SaveType
@@ -266,7 +266,7 @@ class Metadata():
 		elif self.notes != notes:
 			self.notes += ';' + notes
 
-	def to_launcher_fields(self):
+	def to_launcher_fields(self) -> dict[str, dict[str, Any]]:
 		fields = {}
 
 		metadata_fields = {

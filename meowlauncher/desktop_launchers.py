@@ -1,9 +1,9 @@
 import configparser
-from typing import Any, Optional
 import os
-from pathlib import Path
-from enum import Enum, Flag
 import re
+from enum import Enum, Flag
+from pathlib import Path
+from typing import Any, Optional, Union
 
 try:
 	from PIL import Image
@@ -12,10 +12,10 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.util.utils import (find_filename_tags_at_end,
-                                     remove_filename_tags, clean_string)
-from meowlauncher.util.io_utils import pick_new_filename, ensure_exist				
-from meowlauncher.launcher import LaunchCommand
+from meowlauncher.launcher import LaunchCommand, Launcher
+from meowlauncher.util.io_utils import ensure_exist, pick_new_filename
+from meowlauncher.util.utils import (clean_string, find_filename_tags_at_end,
+                                     remove_filename_tags)
 
 metadata_section_name = 'X-Meow Launcher Metadata'
 id_section_name = 'X-Meow Launcher ID'
@@ -48,7 +48,11 @@ def get_array(desktop: configparser.ConfigParser, name: str, section: str=metada
 
 	return field.split(';')
 
-def make_linux_desktop(launch_command: LaunchCommand, display_name: str, fields: dict[str, dict[str, Any]]=None):
+def make_linux_desktop_for_launcher(launcher: Launcher):
+	return make_linux_desktop(launcher.get_launch_command(), launcher.game.name, launcher.info_fields)
+
+def make_linux_desktop(launcher: LaunchCommand, display_name: str, fields: dict[str, dict[str, Any]]=None):
+	#TODO: Replace this with make_linux_desktop_for_launcher eventually
 	filename = pick_new_filename(main_config.output_folder, display_name, 'desktop')
 	
 	path = os.path.join(main_config.output_folder, filename)
@@ -64,9 +68,9 @@ def make_linux_desktop(launch_command: LaunchCommand, display_name: str, fields:
 	desktop_entry['Encoding'] = 'UTF-8'
 
 	desktop_entry['Name'] = clean_string(display_name)
-	desktop_entry['Exec'] = launch_command.make_linux_command_string()
-	if launch_command.working_directory:
-		desktop_entry['Path'] = launch_command.working_directory
+	desktop_entry['Exec'] = launcher.make_linux_command_string()
+	if launcher.working_directory:
+		desktop_entry['Path'] = launcher.working_directory
 
 	if fields:
 		for section_name, section in fields.items():
