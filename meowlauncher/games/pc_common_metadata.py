@@ -338,7 +338,7 @@ def try_detect_ue3(folder):
 					return True
 	return False
 
-def try_detect_gamemaker(folder, metadata=None):
+def try_detect_gamemaker(folder, metadata=None) -> bool:
 	if os.path.isfile(os.path.join(folder, 'audiogroup1.dat')) and os.path.isfile(os.path.join(folder, 'data.win')) and os.path.isfile(os.path.join(folder, 'options.ini')):
 		#Hmmmmmmmmmmmmm probably
 		#data.win generally has "FORM" magic? audiogroup1/2/3.dat and options.ini might not always be there but I wanna be more sure if I don't poke around in files
@@ -358,7 +358,7 @@ def try_detect_gamemaker(folder, metadata=None):
 			if os.path.isfile(icon_path):
 				metadata.images['Icon'] = icon_path
 			parser = configparser.ConfigParser(interpolation=None)
-			parser.optionxform = str
+			parser.optionxform = str #type: ignore
 			parser.read(options_ini_path)
 			if parser.has_section('Linux'):
 				#There is also an Icon and Splash that seem to refer to images that don't exist…

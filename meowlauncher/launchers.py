@@ -4,7 +4,7 @@ import pathlib
 import re
 import shlex
 from enum import Enum, Flag
-from typing import Optional, Sequence
+from typing import Any, Optional, Sequence
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.util.io_utils import ensure_exist
@@ -27,7 +27,7 @@ description_section_name = 'X-Meow Launcher Descriptions'
 
 def get_desktop(path: str) -> configparser.ConfigParser:
 	parser = configparser.ConfigParser(interpolation=None, delimiters=('='), comment_prefixes=('#'))
-	parser.optionxform = str
+	parser.optionxform = str #type: ignore
 	parser.read(path)
 	return parser
 
@@ -137,13 +137,13 @@ def pick_new_filename(folder: str, display_name: str, extension: str) -> str:
 		i += 1
 	return filename
 
-def make_linux_desktop(launch_params: LaunchParams, display_name: str, fields=None):
+def make_linux_desktop(launch_params: LaunchParams, display_name: str, fields: dict[str, dict[str, Any]]=None):
 	filename = pick_new_filename(main_config.output_folder, display_name, 'desktop')
 	
 	path = os.path.join(main_config.output_folder, filename)
 
 	configwriter = configparser.ConfigParser(interpolation=None)
-	configwriter.optionxform = str
+	configwriter.optionxform = str #type: ignore
 
 	configwriter.add_section('Desktop Entry')
 	desktop_entry = configwriter['Desktop Entry']

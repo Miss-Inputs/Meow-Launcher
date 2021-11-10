@@ -1,6 +1,7 @@
 import configparser
 import hashlib
 import os
+from typing import Optional
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -9,7 +10,7 @@ from meowlauncher.util.utils import (NotAlphanumericException, byteswap,
                                      convert_alphanumeric)
 
 
-def get_mupen64plus_database():
+def get_mupen64plus_database() -> Optional[dict[str, dict[str, str]]]:
 	if hasattr(get_mupen64plus_database, 'mupen64plus_database'):
 		return get_mupen64plus_database.mupen64plus_database
 
@@ -39,7 +40,7 @@ def get_mupen64plus_database():
 		return None
 
 	parser = configparser.ConfigParser(interpolation=None)
-	parser.optionxform = str
+	parser.optionxform = str #type: ignore
 	parser.read(location)
 
 	database = {section: dict(parser.items(section)) for section in parser.sections()}
@@ -56,7 +57,7 @@ def get_mupen64plus_database():
 	get_mupen64plus_database.mupen64plus_database = database
 	return database
 
-def parse_n64_header(metadata, header):
+def parse_n64_header(metadata, header: bytes):
 	#Clock rate, apparently? 0:4
 	#Program counter: 4-8
 	#Release address: 8-12

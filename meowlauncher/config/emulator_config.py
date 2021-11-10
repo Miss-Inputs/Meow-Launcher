@@ -13,13 +13,13 @@ _emulator_config_path = os.path.join(config_dir, 'emulators.ini')
 
 class EmulatorConfigs():
 	class __EmulatorConfigs():
-		def __init__(self):
+		def __init__(self) -> None:
 			self.configs: dict[str, EmulatorConfig] = {}
 			self.read_configs_from_file()
 
-		def read_configs_from_file(self):
+		def read_configs_from_file(self) -> None:
 			parser = configparser.ConfigParser(interpolation=None, delimiters=('='), allow_no_value=True)
-			parser.optionxform = str
+			parser.optionxform = str #type: ignore
 
 			ensure_exist(_emulator_config_path)
 			parser.read(_emulator_config_path)

@@ -1,17 +1,19 @@
 import configparser
 import os
 import subprocess
+
 from meowlauncher.config.main_config import main_config
+
 
 def _get_vm_config(path: str) -> configparser.ConfigParser:
 	parser = configparser.ConfigParser()
-	parser.optionxform = str
+	parser.optionxform = str #type: ignore
 	parser.read(path)
 	return parser
 
 class ScummVMConfig():
 	class __ScummVMConfig():
-		def __init__(self):
+		def __init__(self) -> None:
 			self.have_scummvm_config = os.path.isfile(main_config.scummvm_config_path)
 
 			self.have_scummvm_exe = True

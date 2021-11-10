@@ -163,9 +163,9 @@ def write_ignored_directories(ignored_dirs):
 def write_new_main_config(new_config):
 	write_new_config(new_config, _main_config_path)
 
-def write_new_config(new_config, config_file_path):
+def write_new_config(new_config, config_file_path: str) -> None:
 	parser = configparser.ConfigParser(interpolation=None)
-	parser.optionxform = str
+	parser.optionxform = str #type: ignore
 	ensure_exist(config_file_path)
 	parser.read(config_file_path)
 	for section, configs in new_config.items():
@@ -190,9 +190,9 @@ class Config():
 			self.runtime_overrides = get_command_line_arguments()
 			self.reread_config()
 
-		def reread_config(self):
+		def reread_config(self) -> None:
 			parser = configparser.ConfigParser(interpolation=None)
-			parser.optionxform = str
+			parser.optionxform = str #type: ignore
 			self.parser = parser
 			ensure_exist(_main_config_path)
 			self.parser.read(_main_config_path)

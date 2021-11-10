@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
-import configparser
-import os
-import itertools
 import collections
+import configparser
+import datetime
+import itertools
+import os
 import sys
 import time
-import datetime
 
-from meowlauncher.util.utils import normalize_name
-from meowlauncher.config.main_config import main_config
 from meowlauncher import launchers
+from meowlauncher.config.main_config import main_config
+from meowlauncher.util.utils import normalize_name
 
 super_debug = '--super-debug' in sys.argv
 disambiguity_section_name = 'X-Meow Launcher Disambiguity'
@@ -210,12 +210,12 @@ def arcade_system_disambiguate(arcade_system, name):
 		return None
 	return '({0})'.format(arcade_system)
 
-def reambiguate():
+def reambiguate() -> None:
 	#This seems counter-intuitive, but if we're not doing a full rescan, we want to do this before disambiguating again or else it gets weird
 	output_folder = main_config.output_folder
 	for file in os.scandir(output_folder):
 		desktop = configparser.ConfigParser(interpolation=None)
-		desktop.optionxform = str
+		desktop.optionxform = str #type: ignore
 		desktop.read(file.path)
 		desktop_entry = desktop['Desktop Entry']
 		if disambiguity_section_name not in desktop:
