@@ -13,7 +13,7 @@ class _Wine(Runner):
 		return True
 
 	#TODO: We should do something with this
-	def get_wine_launch_params(self, exe_path: str, exe_args: list[str], working_directory: Optional[str]=None):
+	def get_wine_launch_params(self, exe_path: str, exe_args: list[str], working_directory: Optional[str]=None) -> LaunchCommand:
 		env_vars = None
 		if main_config.wineprefix:
 			env_vars = {'WINEPREFIX': main_config.wineprefix}

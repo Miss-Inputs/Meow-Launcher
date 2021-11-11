@@ -3,6 +3,8 @@ from abc import ABC, abstractmethod, abstractproperty
 from typing import Any, Optional, Sequence
 
 from meowlauncher.config.main_config import main_config
+from meowlauncher.game import Game
+from meowlauncher.runner import Runner
 
 
 class LaunchCommand():
@@ -79,8 +81,7 @@ class MultiLaunchCommands(LaunchCommand):
 		self.main_command.env_vars[k] = v
 
 class Launcher(ABC):
-	def __init__(self, game, runner) -> None:
-		#TODO: Game and runner should be typed accordingly once I set up the hierarchy properly
+	def __init__(self, game: Game, runner: Runner) -> None:
 		self.game = game
 		self.runner = runner
 

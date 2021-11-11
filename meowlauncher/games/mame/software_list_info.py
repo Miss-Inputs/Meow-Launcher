@@ -7,7 +7,7 @@ from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import RomGame
+from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.util import io_utils
 from meowlauncher.util.utils import (byteswap, find_filename_tags_at_end,
                                      load_dict, normalize_name,
@@ -201,7 +201,7 @@ def matcher_args_for_bytes(data: bytes) -> SoftwareMatcherArgs:
 	#We _could_ use sha1 here, but there's not really a need to
 	return SoftwareMatcherArgs(get_crc32_for_software_list(data), None, len(data), lambda offset, amount: data[offset:offset+amount])
 
-def get_software_list_entry(game: RomGame, skip_header=0) -> Optional[Software]:
+def get_software_list_entry(game: ROMGame, skip_header=0) -> Optional[Software]:
 	if game.software_lists:
 		software_lists = game.software_lists
 	else:

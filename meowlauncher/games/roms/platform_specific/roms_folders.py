@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Callable, Optional
 from meowlauncher.common_types import MediaType
 from meowlauncher.games.roms.rom import FolderROM
 
@@ -37,7 +37,7 @@ def is_ps3_folder(folder: FolderROM) -> Optional[MediaType]:
 		return MediaType.Digital
 	return None
 
-folder_checks = {
+folder_checks: dict[str, Callable[[FolderROM], Optional[MediaType]]] = {
 	'PS3': is_ps3_folder,
 	'Wii': is_wii_homebrew_folder,
 	'Wii U': is_wii_u_folder,

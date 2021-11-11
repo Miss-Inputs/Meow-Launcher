@@ -1,5 +1,5 @@
 import os
-from typing import Any, Callable, Optional
+from typing import Any, Callable, NoReturn, Optional
 
 from meowlauncher.common_types import (ConfigValueType, EmulatorPlatform,
                                        EmulatorStatus)
@@ -13,7 +13,7 @@ from meowlauncher.runner import Runner
 LaunchParamsFunc = Callable[..., LaunchCommand]
 
 class Emulator(Runner):
-	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_params_func: LaunchParamsFunc, configs: dict[str, EmulatorConfigValue]=None, host_platform=EmulatorPlatform.Native):
+	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_params_func: LaunchParamsFunc, configs: Optional[dict[str, EmulatorConfigValue]]=None, host_platform=EmulatorPlatform.Native):
 		self._name = name
 		self.status = status
 		self.default_exe_name = default_exe_name
@@ -63,18 +63,18 @@ class Emulator(Runner):
 
 class StandardEmulator(Emulator):
 	#Not very well named, but I mean like "something that by itself you give a ROM as a path and it launches it" or something among those lines
-	def __init__(self, display_name: str, status: EmulatorStatus, default_exe_name: str, launch_params_func: LaunchParamsFunc, supported_extensions: list[str], supported_compression: Optional[list[str]]=None, configs=None, host_platform=EmulatorPlatform.Native):
+	def __init__(self, display_name: str, status: EmulatorStatus, default_exe_name: str, launch_params_func: LaunchParamsFunc, supported_extensions: list[str], supported_compression: Optional[list[str]]=None, configs: Optional[dict[str, EmulatorConfigValue]]=None, host_platform=EmulatorPlatform.Native):
 		super().__init__(display_name, status, default_exe_name, launch_params_func, configs, host_platform)
 		self.supported_extensions = supported_extensions
 		self.supported_compression = supported_compression if supported_compression else []
 		self.supports_folders = '/' in supported_extensions
 		
 class MednafenModule(StandardEmulator):
-	def __init__(self, status: EmulatorStatus, supported_extensions: list[str], params_func, configs=None):
+	def __init__(self, status: EmulatorStatus, supported_extensions: list[str], params_func: LaunchParamsFunc, configs: Optional[dict[str, EmulatorConfigValue]]=None):
 		StandardEmulator.__init__(self, 'Mednafen', status, 'mednafen', params_func, supported_extensions, ['zip', 'gz'], configs)
 
 class MameDriver(StandardEmulator):
-	def __init__(self, status: EmulatorStatus, launch_params, supported_extensions, configs=None):
+	def __init__(self, status: EmulatorStatus, launch_params: LaunchParamsFunc, supported_extensions: list[str], configs: Optional[dict[str, EmulatorConfigValue]]=None):
 		if configs is None:
 			configs = {}
 		configs.update({
@@ -85,7 +85,7 @@ class MameDriver(StandardEmulator):
 		StandardEmulator.__init__(self, 'MAME', status, 'mame', launch_params, supported_extensions, ['7z', 'zip'], configs)
 
 class ViceEmulator(StandardEmulator):
-	def __init__(self, status: EmulatorStatus, default_exe_name, params):
+	def __init__(self, status: EmulatorStatus, default_exe_name: str, params: LaunchParamsFunc):
 		#Also does z and zoo compression but I haven't done those in archives.py yet
 		#TODO: Maybe just put z and zoo in the ordinary file extensions if we don't want to do that just yet?
 		#WARNING! Will write back changes to your disk images unless they are compressed or actually write protected on the file system
@@ -93,7 +93,7 @@ class ViceEmulator(StandardEmulator):
 		StandardEmulator.__init__(self, 'VICE', status, default_exe_name, params, ['d64', 'g64', 'x64', 'p64', 'd71', 'd81', 'd80', 'd82', 'd1m', 'd2m'] + ['20', '40', '60', '70', '80', 'a0', 'b0', 'e0', 'crt', 'bin'] + ['p00', 'prg', 'tap', 't64'], [])
 
 class LibretroCore(Emulator):
-	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_params_func: Optional[LaunchParamsFunc], supported_extensions: list[str], configs=None):
+	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_params_func: Optional[LaunchParamsFunc], supported_extensions: list[str], configs: Optional[dict[str, EmulatorConfigValue]]=None):
 		self.supported_extensions = supported_extensions
 		if main_config.libretro_cores_directory:
 			default_path = os.path.join(main_config.libretro_cores_directory, default_exe_name + '_libretro.so')
@@ -102,7 +102,7 @@ class LibretroCore(Emulator):
 		#TODO: Should rework this later so that default_path and launch_params_func are fine for Emulator but don't have to be Optional, somehow
 		super().__init__(name, status, default_path, launch_params_func, configs=configs)
 	
-	def get_launch_params(self, _, __, ___):
+	def get_launch_params(self, _, __, ___) -> NoReturn:
 		raise NotImplementedError('Needs a frontend')
 
 class PCEmulator(Emulator):
@@ -111,15 +111,15 @@ class PCEmulator(Emulator):
 
 class LibretroFrontend(Emulator):
 	#While these are not really emulators on their own, we pretend they are because it's easier to code that way or whatever
-	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_params_func: LaunchParamsFunc, supported_compression: Optional[list[str]]=None, configs=None, host_platform=EmulatorPlatform.Native):
+	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_params_func: LaunchParamsFunc, supported_compression: Optional[list[str]]=None, configs: Optional[dict[str, EmulatorConfigValue]]=None, host_platform=EmulatorPlatform.Native):
 		self.supported_compression = supported_compression if supported_compression else []
 		super().__init__(name, status, default_exe_name, launch_params_func, configs, host_platform)
 
-	def get_launch_params(self, _, __, ___):
+	def get_launch_params(self, _, __, ___) -> NoReturn:
 		raise NotImplementedError("You shouldn't be calling get_launch_params on a libretro frontend")
 
 class LibretroCoreWithFrontend(StandardEmulator):
-	def __init__(self, core: LibretroCore, frontend: LibretroFrontend, frontend_config):
+	def __init__(self, core: LibretroCore, frontend: LibretroFrontend, frontend_config: EmulatorConfig):
 		self.core = core
 		self.frontend = frontend
 		self.frontend_config = frontend_config

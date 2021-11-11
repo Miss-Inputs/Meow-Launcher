@@ -130,8 +130,8 @@ class CompressedROM(FileROM):
 		return io_utils.get_crc32(str(self.path), self.inner_filename)
 
 class GCZFileROM(FileROM):
-	def read(self, seek_to=0, amount=-1):
-		return cd_read.read_gcz(self.path, seek_to, amount)
+	def read(self, seek_to: int=0, amount: int=-1) -> bytes:
+		return cd_read.read_gcz(str(self.path), seek_to, amount)
 
 def rom_file(path) -> FileROM:
 	ext = path.rsplit(os.extsep, 1)[-1]

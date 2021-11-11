@@ -3,7 +3,7 @@ import os
 import re
 from enum import Enum, Flag
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 try:
 	from PIL import Image
@@ -16,6 +16,7 @@ from meowlauncher.launcher import LaunchCommand, Launcher
 from meowlauncher.util.io_utils import ensure_exist, pick_new_filename
 from meowlauncher.util.utils import (clean_string, find_filename_tags_at_end,
                                      remove_filename_tags)
+from meowlauncher.metadata import Metadata
 
 metadata_section_name = 'X-Meow Launcher Metadata'
 id_section_name = 'X-Meow Launcher ID'
@@ -67,7 +68,7 @@ def make_linux_desktop_for_launcher(launcher: Launcher):
 	fields[id_section_name]['Type'] = launcher.game_type
 	fields[id_section_name]['Unique-ID'] = launcher.game_id
 
-	return make_linux_desktop(launcher.get_launch_command(), name, fields)
+	make_linux_desktop(launcher.get_launch_command(), name, fields)
 
 def make_linux_desktop(launcher: LaunchCommand, display_name: str, fields: dict[str, dict[str, Any]]=None):
 	#TODO: Replace this with make_linux_desktop_for_launcher eventually
@@ -145,7 +146,7 @@ def make_linux_desktop(launcher: LaunchCommand, display_name: str, fields: dict[
 
 
 #These might not belong here in the future, they deal with the output folder in particular rather than specifically .desktop files
-def _get_existing_launchers():
+def _get_existing_launchers() -> list[tuple[str, str]]:
 	a = []
 
 	output_folder = main_config.output_folder
@@ -157,15 +158,18 @@ def _get_existing_launchers():
 		existing_launcher = get_desktop(path)
 		existing_type = get_field(existing_launcher, 'Type', id_section_name)
 		existing_id = get_field(existing_launcher, 'Unique-ID', id_section_name)
+		if not existing_type or not existing_id:
+			#Not expected to happen but maybe there are desktops we don't expect in the output folder
+			continue
 		a.append((existing_type, existing_id))
 
 	return a
 
-def has_been_done(game_type, game_id):
+def has_been_done(game_type: str, game_id: str) -> bool:
 	if not hasattr(has_been_done, 'existing_launchers'):
-		has_been_done.existing_launchers = _get_existing_launchers()
+		has_been_done.existing_launchers = _get_existing_launchers() #type: ignore
 
-	for existing_type, existing_id in has_been_done.existing_launchers:
+	for existing_type, existing_id in has_been_done.existing_launchers: #type: ignore
 		if existing_type == game_type and existing_id == game_id:
 			return True
 
@@ -173,7 +177,7 @@ def has_been_done(game_type, game_id):
 
 
 split_brackets = re.compile(r' (?=\()')
-def make_launcher(launch_params, name, metadata, id_type, unique_id):
+def make_launcher(launch_params: LaunchCommand, name: str, metadata: Metadata, id_type: str, unique_id: str):
 	#TODO: Remove this
 	display_name = remove_filename_tags(name)
 	filename_tags = find_filename_tags_at_end(name)

@@ -3,15 +3,17 @@ from typing import Any, Optional
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import MediaType, SaveType
-from meowlauncher.desktop_launchers import (description_section_name,
-                                            document_section_name,
-                                            image_section_name,
-                                            junk_section_name,
-                                            metadata_section_name,
-                                            name_section_name)
 from meowlauncher.info.region_info import Language, Region
 from meowlauncher.input_metadata import InputInfo
 
+#FIXME! Section names should not be here - we need to rewrite to_info_fields to make more sense, it's just to make sure a circular import doesn't happen
+metadata_section_name = 'X-Meow Launcher Metadata'
+id_section_name = 'X-Meow Launcher ID'
+junk_section_name = 'X-Meow Launcher Junk'
+image_section_name = 'X-Meow Launcher Images'
+name_section_name = 'X-Meow Launcher Names'
+document_section_name = 'X-Meow Launcher Documents'
+description_section_name = 'X-Meow Launcher Descriptions'
 
 class CPU():
 	#TODO I only give a shit about this info for MAME machines, move it there
@@ -225,10 +227,10 @@ class Metadata():
 		self.product_code: Optional[str] = None
 		self.regions: list[Region] = []
 		self.media_type: Optional[MediaType] = None
-		self.notes = None
+		self.notes: Optional[str] = None
 		self.disc_number = None
 		self.disc_total = None
-		self.series = None
+		self.series: Optional[str] = None
 		self.series_index = None
 
 		#Set this up later with the respective objects
@@ -240,11 +242,11 @@ class Metadata():
 
 		self.images = {}
 		#TODO: The override name shenanigans in Wii/PSP: Check for name = None in launchers, and set name = None if overriding it to something else, and put the overriden name in here
-		self.names = {}
+		self.names: dict[str, str] = {}
 		self.documents = {}
-		self.descriptions = {}
+		self.descriptions: dict[str, str] = {}
 
-	def add_alternate_name(self, name, field='Alternate-Name'):
+	def add_alternate_name(self, name: str, field: str='Alternate-Name'):
 		if field in self.names:
 			self.names[field + '-1'] = self.names[field]
 			self.names[field + '-2'] = name
@@ -258,7 +260,7 @@ class Metadata():
 			return
 		self.names[field] = name
 
-	def add_notes(self, notes):
+	def add_notes(self, notes: Optional[str]):
 		if not notes:
 			return
 		if not self.notes:

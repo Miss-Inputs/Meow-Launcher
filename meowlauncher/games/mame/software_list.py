@@ -62,7 +62,7 @@ def parse_size_attribute(attrib: Optional[str]) -> Optional[int]:
 	return int(attrib, 16 if attrib.startswith('0x') else 10)
 
 class DataAreaROM():
-	def __init__(self, xml, data_area):
+	def __init__(self, xml: ElementTree.Element, data_area: 'DataArea'):
 		self.xml = xml
 		self.data_area = data_area
 	#Other properties as defined in DTD: length (what's the difference with size?), loadflag (probably not needed for our purposes)

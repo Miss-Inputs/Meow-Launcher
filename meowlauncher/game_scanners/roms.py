@@ -8,7 +8,7 @@ import time
 import traceback
 from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Optional, cast
+from typing import Optional, Type, cast
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        ExtensionNotSupportedException,
@@ -24,14 +24,14 @@ from meowlauncher.emulator import LibretroCore, LibretroCoreWithFrontend
 from meowlauncher.games.roms.platform_specific.roms_folders import \
     folder_checks
 from meowlauncher.games.roms.rom import ROM, FileROM, FolderROM, rom_file
-from meowlauncher.games.roms.rom_game import RomGame, ROMLauncher
+from meowlauncher.games.roms.rom_game import ROMGame, ROMLauncher
 from meowlauncher.games.roms.roms_metadata import add_metadata
 from meowlauncher.util import archives
 from meowlauncher.util.utils import find_filename_tags_at_end, starts_with_any
 
 
 def process_file(platform_config: PlatformConfig, potential_emulator_names: Iterable[str], rom: ROM, subfolders: Sequence[str]) -> Optional[ROMLauncher]:
-	game = RomGame(rom, platform_config.name, platforms[platform_config.name])
+	game = ROMGame(rom, platform_config.name, platforms[platform_config.name])
 
 	if game.rom.extension == 'm3u':
 		file_rom = cast(FileROM, game.rom)
@@ -107,7 +107,7 @@ def parse_m3u(path: str):
 	with open(path, 'rt') as f:
 		return [line.rstrip('\n') for line in f]
 
-def sort_m3u_first():
+def sort_m3u_first() -> Type:
 	class Sorter:
 		def __init__(self, obj, *_):
 			self.o = obj

@@ -1,5 +1,6 @@
 import re
 from collections.abc import Iterable
+from typing import Optional
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import EmulationStatus
@@ -404,16 +405,15 @@ class Machine():
 	def __init__(self, xml: ElementTree.Element, init_metadata: bool=False):
 		self.xml = xml
 		#This can't be a property because we might need to override it later, so stop trying to do that
-		self.name = self.xml.findtext('description')
+		self.name = self.xml.findtext('description', '') #Blank description should never happen
 
 		cloneof = self.xml.attrib.get('cloneof')
+		self.has_parent: bool = False
+		self.parent_basename: Optional[str] = None
 		if cloneof:
 			self.has_parent = True
 			self.parent_basename = cloneof
-		else:
-			self.has_parent = False
-			self.parent_basename = None
-		self._parent = None #We will add this later when it is needed
+		self._parent: Optional[Machine] = None #We will add this later when it is needed
 
 		self.metadata = Metadata()
 		self._has_inited_metadata = False
@@ -456,7 +456,7 @@ class Machine():
 		
 		self.name = primary_name
 
-	def __str__(self):
+	def __str__(self) -> str:
 		return self.name
 
 	def _add_metadata_fields(self) -> None:
@@ -506,12 +506,12 @@ class Machine():
 		self.metadata.specific_info['Is-Incomplete'] = self.incomplete
 
 	@property
-	def basename(self):
+	def basename(self) -> str:
 		return self.xml.attrib['name']
 
 	@property
-	def parent(self):
-		if not self.has_parent:
+	def parent(self) -> Optional['Machine']:
+		if not self.parent_basename:
 			return None
 			
 		if not self._parent:
@@ -519,42 +519,43 @@ class Machine():
 		return self._parent
 
 	@property
-	def family(self):
-		return self.parent_basename if self.has_parent else self.basename
+	def family(self) -> str:
+		#I wish I didn't have to type ignore globally but has_parent = True means parent_basename = not none
+		return self.parent_basename if self.has_parent else self.basename #type: ignore
 
 	@property
-	def family_name(self):
-		return self.parent.name if self.has_parent else self.name
+	def family_name(self) -> str:
+		return self.parent.name if self.has_parent else self.name #type: ignore
 	
 	@property
-	def source_file(self):
+	def source_file(self) -> str:
 		return self.xml.attrib['sourcefile'].rsplit('.', 1)[0]
 
 	@property
-	def is_mechanical(self):
+	def is_mechanical(self) -> bool:
 		return self.xml.attrib.get('ismechanical', 'no') == 'yes'
 
 	@property
-	def input_element(self):
+	def input_element(self) -> Optional[ElementTree.Element]:
 		return self.xml.find('input')
 
 	@property
-	def coin_slots(self):
-		return self.input_element.attrib.get('coins', 0) if self.input_element is not None else 0
+	def coin_slots(self) -> int:
+		return int(self.input_element.attrib.get('coins', 0)) if self.input_element is not None else 0
 
 	@property
-	def number_of_players(self):
+	def number_of_players(self) -> int:
 		if self.input_element is None:
 			#This would happen if we ended up loading a device or whatever, so let's not crash the whole dang program. Also, since you can't play a device, they have 0 players. But they won't have launchers anyway, this is just to stop the NoneType explosion.
 			return 0
 		return int(self.input_element.attrib.get('players', 0))
 
 	@property
-	def driver_element(self):
+	def driver_element(self) -> Optional[ElementTree.Element]:
 		return self.xml.find('driver')
 
 	@property
-	def overall_status(self):
+	def overall_status(self) -> EmulationStatus:
 		#Hmm, so how this works according to https://github.com/mamedev/mame/blob/master/src/frontend/mame/info.cpp: if any particular feature is preliminary, this is preliminary, if any feature is imperfect this is imperfect, unless protection = imperfect then this is preliminary
 		#It even says it's for the convenience of frontend developers, but since I'm an ungrateful piece of shit and I always feel the need to take matters into my own hands, I'm gonna get the other parts of the emulation too
 		if self.driver_element is None:
@@ -562,13 +563,13 @@ class Machine():
 		return mame_statuses.get(self.driver_element.attrib.get('status'), EmulationStatus.Unknown)
 
 	@property
-	def emulation_status(self):
+	def emulation_status(self) -> EmulationStatus:
 		if self.driver_element is None:
 			return EmulationStatus.Unknown
 		return mame_statuses.get(self.driver_element.attrib.get('emulation'), EmulationStatus.Unknown)
 
 	@property
-	def feature_statuses(self):
+	def feature_statuses(self) -> dict[str, str]:
 		features = {}
 		for feature in self.xml.findall('feature'):
 			feature_type = feature.attrib['type']
@@ -586,13 +587,13 @@ class Machine():
 		return features
 
 	@property
-	def is_skeleton_driver(self):
+	def is_skeleton_driver(self) -> bool:
 		#Actually, we're making an educated guess here, as MACHINE_IS_SKELETON doesn't appear directly in the XML...
 		#What I actually want to happen is to tell us if a machine will just display a blank screen and nothing else (because nobody wants those in a launcher). Right now that's not really possible without the false positives of games which don't have screens as such but they do display things via layouts (e.g. wackygtr) so the best we can do is say everything that doesn't have any kind of controls, which tends to be the case for a lot of these.
 		#MACHINE_IS_SKELETON is actually defined as MACHINE_NO_SOUND and MACHINE_NOT_WORKING, so we'll look for that too
 		return self.number_of_players == 0 and self.emulation_status in (EmulationStatus.Broken, EmulationStatus.Unknown) and self.feature_statuses.get('sound') == 'unemulated'
 
-	def uses_device(self, name):
+	def uses_device(self, name: str) -> bool:
 		for device_ref in self.xml.findall('device_ref'):
 			if device_ref.attrib['name'] == name:
 				return True
@@ -600,14 +601,14 @@ class Machine():
 		return False
 
 	@property
-	def requires_chds(self):
+	def requires_chds(self) -> bool:
 		#Hmm... should this include where all <disk> has status == "nodump"? e.g. Dragon's Lair has no CHD dump, would it be useful to say that it requires CHDs because it's supposed to have one but doesn't, or not, because you have a good romset without one
 		#I guess I should have a look at how the MAME inbuilt UI does this
 		#Who really uses this kind of thing, anyway?
 		return self.xml.find('disk') is not None
 
 	@property
-	def romless(self):
+	def romless(self) -> bool:
 		if self.requires_chds:
 			return False
 		if self.xml.find('rom') is None:
@@ -619,47 +620,47 @@ class Machine():
 		return True
 
 	@property
-	def bios_basename(self):
+	def bios_basename(self) -> Optional[str]:
 		romof = self.xml.attrib.get('romof')
 		if self.has_parent and romof == self.family:
-			return self.parent.bios_basename
+			return self.parent.bios_basename #type: ignore
 		if romof:
 			return romof
 		return None
 
 	@property
-	def bios(self):
+	def bios(self) -> Optional['Machine']:
 		bios_basename = self.bios_basename
 		if bios_basename:
 			return Machine(get_mame_xml(bios_basename), True)
 		return None
 		
 	@property
-	def samples_used(self):
+	def samples_used(self) -> Optional[str]:
 		return self.xml.attrib.get('sampleof')
 
 	@property
-	def media_slots(self):
+	def media_slots(self) -> list[MediaSlot]:
 		return [MediaSlot(device_xml) for device_xml in self.xml.findall('device')]
 
 	@property
-	def has_mandatory_slots(self):
+	def has_mandatory_slots(self) -> bool:
 		return any(slot.mandatory for slot in self.media_slots)
 
 	@property
-	def software_lists(self):
-		return [software_list.attrib.get('name') for software_list in self.xml.findall('softwarelist')]
+	def software_lists(self) -> list[str]:
+		return [software_list.attrib.get('name', '') for software_list in self.xml.findall('softwarelist')] #Blank name should not happen
 
 	@property
-	def manufacturer(self):
-		return self.xml.findtext('manufacturer')
+	def manufacturer(self) -> str:
+		return self.xml.findtext('manufacturer') or '' #Blank manufacturer should not happen
 
 	@property
-	def is_hack(self):
+	def is_hack(self) -> bool:
 		return bool(self.hacked_by)
 
 	@property
-	def licensed_from(self):
+	def licensed_from(self) -> Optional[str]:
 		manufacturer = self.manufacturer
 		if not manufacturer:
 			return None
@@ -669,7 +670,7 @@ class Machine():
 		return None
 
 	@property
-	def hacked_by(self):
+	def hacked_by(self) -> Optional[str]:
 		manufacturer = self.manufacturer
 		if not manufacturer:
 			return None
@@ -679,7 +680,9 @@ class Machine():
 		return None
 
 	@property
-	def developer_and_publisher(self):
+	def developer_and_publisher(self) -> tuple[Optional[str], Optional[str]]:
+		developer: Optional[str]
+		publisher: Optional[str]
 		if not self.manufacturer:
 			#Not sure if this ever happens, but still
 			return None, None
@@ -758,7 +761,7 @@ class Machine():
 		return developer, publisher
 
 	@property
-	def series(self):
+	def series(self) -> Optional[str]:
 		serieses = get_machine_folder(self.basename, 'series')
 		if not serieses and self.family:
 			serieses = get_machine_folder(self.family, 'series')
@@ -782,15 +785,18 @@ class Machine():
 		return self.family in all_mame_drivers
 
 	@property
-	def bestgames_opinion(self):
+	def bestgames_opinion(self) -> Optional[str]:
 		bestgames = get_machine_folder(self.basename, 'bestgames')
 		if not bestgames and self.family:
 			bestgames = get_machine_folder(self.family, 'bestgames')
-		return bestgames
+		if bestgames:
+			return bestgames[0]
+		return None
 
 	@property
-	def version_added(self):
-		return get_machine_folder(self.basename, 'version')
+	def version_added(self) -> Optional[str]:
+		version = get_machine_folder(self.basename, 'version')
+		return version[0] if version else None
 
 	def _get_driver_bool_attrib(self, name: str, default: bool=False) -> bool:
 		if self.driver_element is None:
@@ -818,15 +824,15 @@ class Machine():
 		#Added in MAME 0.229, so we assume everything from previous versions is complete
 		return self._get_driver_bool_attrib('incomplete')
 	
-def get_machine(driver) -> Machine:
+def get_machine(driver: str) -> Machine:
 	return Machine(get_mame_xml(driver))
 
-def get_machines_from_source_file(source_file) -> Iterable[Machine]:
+def get_machines_from_source_file(source_file: str) -> Iterable[Machine]:
 	for machine_name, source_file_with_ext in list_by_source_file():
 		if source_file_with_ext.rsplit('.', 1)[0] == source_file:
 			yield Machine(get_mame_xml(machine_name))
 
-def machine_name_matches(machine_name, game_name, match_vs_system=False) -> bool:
+def machine_name_matches(machine_name: str, game_name: str, match_vs_system: bool=False) -> bool:
 	#TODO Should also use name_consistency stuff once I refactor that (Turbo OutRun > Turbo Out Run)
 	
 	machine_name = remove_filename_tags(machine_name)
@@ -854,13 +860,13 @@ def machine_name_matches(machine_name, game_name, match_vs_system=False) -> bool
 			return True
 	return False
 
-def does_machine_match_name(name, machine: Machine, match_vs_system=False) -> bool:
+def does_machine_match_name(name: str, machine: Machine, match_vs_system: bool=False) -> bool:
 	for machine_name in list(machine.metadata.names.values()) + [machine.name]:
 		if machine_name_matches(machine_name, name, match_vs_system):
 			return True
 	return False
 
-def does_machine_match_game(game_rom_name, game_metadata, machine: Machine, match_vs_system=False) -> bool:
+def does_machine_match_game(game_rom_name: str, game_metadata: Metadata, machine: Machine, match_vs_system: bool=False) -> bool:
 	for game_name in list(game_metadata.names.values()) + [game_rom_name]:
 		#Perhaps some keys in game names don't need to be looked at here
 		if does_machine_match_name(game_name, machine, match_vs_system):

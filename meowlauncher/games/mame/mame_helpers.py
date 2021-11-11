@@ -5,13 +5,15 @@ import re
 import subprocess
 import xml.etree.ElementTree as ElementTree
 from pathlib import Path
-from typing import Optional, TypeVar
+from typing import Iterable, Optional
 
 from meowlauncher.common_paths import cache_dir
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.mame_manufacturer_name_cleanup import (
     dont_remove_suffix, manufacturer_name_cleanup)
+from meowlauncher.metadata import Metadata
 from meowlauncher.util.utils import junk_suffixes
+
 
 def consistentify_manufacturer(manufacturer: Optional[str]) -> Optional[str]:
 	if not manufacturer:
@@ -61,27 +63,18 @@ class MameExecutable():
 	def __init__(self, path: str='mame'):
 		self.executable = path
 		self.version = self.get_version()
-		self.is_installed = False
-		self.xml_cache_path = None
-		if self.version:
-			#Do I really wanna be checking that this MAME exists inside the object that represents it? That doesn't entirely make sense to me
-			self.is_installed = True
-			self.xml_cache_path = os.path.join(cache_dir, self.version)
-
+		#Do I really wanna be checking that this MAME exists inside the object that represents it? That doesn't entirely make sense to me
+		self.xml_cache_path = os.path.join(cache_dir, self.version)
 		self._icons = None
 
-	def get_version(self):
+	def get_version(self) -> str:
 		#Note that there is a -version option in (as of this time of writing, upcoming) MAME 0.211, but might as well just use this, because it works on older versions
-		try:
-			version_proc = subprocess.run([self.executable, '-help'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
-		except FileNotFoundError:
-			#Should happen if and only if MAME isn't installed
-			return None
-
+		version_proc = subprocess.run([self.executable, '-help'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
+		#Let it raise FileNotFoundError deliberately if it is not found
 		return version_proc.stdout.splitlines()[0]
 
 	
-	def _real_iter_mame_entire_xml(self):
+	def _real_iter_mame_entire_xml(self) -> Iterable[tuple[str, ElementTree.Element]]:
 		print('New MAME version found: ' + self.get_version() + '; creating XML; this may take a while the first time it is run')
 		os.makedirs(self.xml_cache_path, exist_ok=True)
 
@@ -104,7 +97,7 @@ class MameExecutable():
 		#Guard against the -listxml process being interrupted and screwing up everything
 		Path(self.xml_cache_path, 'is_done').touch()
 
-	def _cached_iter_mame_entire_xml(self):
+	def _cached_iter_mame_entire_xml(self) -> Iterable[tuple[str, ElementTree.Element]]:
 		for cached_file in os.listdir(self.xml_cache_path):
 			splitty = cached_file.rsplit('.', 1)
 			if len(splitty) != 2:
@@ -114,16 +107,13 @@ class MameExecutable():
 				continue
 			yield driver_name, ElementTree.parse(os.path.join(self.xml_cache_path, cached_file)).getroot()
 			
-	def iter_mame_entire_xml(self):
+	def iter_mame_entire_xml(self) -> Iterable[tuple[str, ElementTree.Element]]:
 		if os.path.isfile(os.path.join(self.xml_cache_path, 'is_done')):
 			yield from self._cached_iter_mame_entire_xml()
 		else:
 			yield from self._real_iter_mame_entire_xml()
 		
-	def get_mame_xml(self, driver: str):
-		if not self.is_installed:
-			raise MAMENotInstalledException('MAME not installed for get_mame_xml')
-
+	def get_mame_xml(self, driver: str) -> ElementTree.Element:
 		cache_file_path = os.path.join(self.xml_cache_path, driver + '.xml')
 		try:
 			with open(cache_file_path, 'rb') as cache_file:
@@ -136,18 +126,19 @@ class MameExecutable():
 		except subprocess.CalledProcessError:
 			raise MachineNotFoundException(driver)
 
-		return ElementTree.fromstring(proc.stdout).find('machine')
+		xml = ElementTree.fromstring(proc.stdout).find('machine')
+		if not xml:
+			raise MachineNotFoundException(driver) #This shouldn't happen if -listxml didn't return success but eh
+		return xml
 
-	def listsource(self):
-		if not self.is_installed:
-			raise MAMENotInstalledException('MAME not installed for listsource')
+	def listsource(self) -> Iterable[list[str]]:
 		proc = subprocess.run([self.executable, '-listsource'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, universal_newlines=True, check=True)
 		#Return code should always be 0 so if it's not I dunno what to do about that and let's just panic instead
 		for line in proc.stdout.splitlines():
 			#Machine names and source files both shouldn't contain spaces, so this should be fine
 			yield line.split()
 	
-	def verifysoftlist(self, software_list_name):
+	def verifysoftlist(self, software_list_name: str) -> list[str]:
 		#Unfortunately it seems we cannot verify an individual software, which would probably take less time
 		proc = subprocess.run([self.executable, '-verifysoftlist', software_list_name], universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=False)
 		#Don't check return code - it'll return 2 if one software in the list is bad
@@ -161,7 +152,7 @@ class MameExecutable():
 				available.append(line_match[1])
 		return available
 
-	def verifyroms(self, basename):
+	def verifyroms(self, basename: str) -> bool:
 		try:
 			#Note to self: Stop wasting time thinking you can make this faster
 			subprocess.run([self.executable, '-verifyroms', basename], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
@@ -177,7 +168,10 @@ class DefaultMameExecutable():
 	@staticmethod
 	def getDefaultMameExecutable():
 		if DefaultMameExecutable.__instance is None:
-			DefaultMameExecutable.__instance = MameExecutable()
+			try:
+				DefaultMameExecutable.__instance = MameExecutable()
+			except MAMENotInstalledException:
+				return None
 		return DefaultMameExecutable.__instance
 
 image_config_keys = {
@@ -246,7 +240,7 @@ class DefaultMameConfiguration():
 default_mame_executable = DefaultMameExecutable.getDefaultMameExecutable()
 default_mame_configuration = DefaultMameConfiguration.getDefaultMameConfiguration()
 
-def get_mame_core_config():
+def get_mame_core_config() -> dict[str, list[str]]:
 	conf = default_mame_configuration.core_config
 	if conf:
 		return conf
@@ -258,26 +252,26 @@ def get_mame_ui_config():
 		return conf
 	raise MAMENotInstalledException('MAME not installed for get_mame_ui_config')
 
-def have_mame():
-	return default_mame_executable.is_installed and default_mame_configuration.is_configured
+def have_mame() -> bool:
+	return bool(default_mame_executable) and default_mame_configuration.is_configured
 
-def iter_mame_entire_xml():
+def iter_mame_entire_xml() -> Iterable[tuple[str, ElementTree.Element]]:
 	yield from default_mame_executable.iter_mame_entire_xml()
 
-def get_mame_xml(driver):
+def get_mame_xml(driver: str) -> ElementTree.Element:
 	return default_mame_executable.get_mame_xml(driver)
 
-def list_by_source_file():
-	return default_mame_executable.listsource()
+def list_by_source_file() -> Iterable[list[str]]:
+	yield from default_mame_executable.listsource()
 
-def verify_software_list(software_list_name):
+def verify_software_list(software_list_name: str) -> list[str]:
 	return default_mame_executable.verifysoftlist(software_list_name)
 
 @functools.lru_cache(maxsize=None)
 def get_image(config_key, machine_or_list_name, software_name=None):
 	return default_mame_configuration.get_image(config_key, machine_or_list_name, software_name)
 
-def _tag_starts_with(tag, tag_list):
+def _tag_starts_with(tag, tag_list: Iterable[str]) -> bool:
 	if not tag:
 		return False
 	#Chips from devices are in the format device:thing
@@ -288,7 +282,7 @@ def _tag_starts_with(tag, tag_list):
 			return True
 	return False
 
-def find_cpus(machine_xml):
+def find_cpus(machine_xml: ElementTree.Element) -> list[ElementTree.Element]:
 	cpu_xmls = [chip for chip in machine_xml.findall('chip') if chip.attrib.get('type') == 'cpu']
 	if not cpu_xmls:
 		return []
@@ -305,10 +299,10 @@ def find_cpus(machine_xml):
 	
 	return cpu_xmls
 
-def verify_romset(basename):
+def verify_romset(basename: str) -> bool:
 	return default_mame_executable.verifyroms(basename)
 
-def get_history_xml():
+def get_history_xml() -> Optional[ElementTree.ElementTree]:
 	dat_paths = get_mame_ui_config().get('historypath')
 	if not dat_paths:
 		return None
@@ -321,11 +315,13 @@ def get_history_xml():
 			continue
 	return None
 
-def get_histories():
-	system_histories = {}
-	software_histories = {}
+def get_histories() -> tuple[dict[str, Optional[str]], dict[str, dict[str, Optional[str]]]]:
+	system_histories: dict[str, Optional[str]] = {}
+	software_histories: dict[str, dict[str, Optional[str]]] = {}
 
 	xml = get_history_xml()
+	if not xml:
+		return {}, {}
 	for entry in xml.findall('entry'):
 		text = entry.findtext('text')
 
@@ -341,7 +337,7 @@ def get_histories():
 				software_histories[item.attrib['list']][item.attrib['name']] = text
 	return system_histories, software_histories
 
-def add_history(metadata, machine_or_softlist, software_name=None):
+def add_history(metadata: Metadata, machine_or_softlist: str, software_name: Optional[str]=None) -> None:
 	if not hasattr(add_history, 'systems') or not hasattr(add_history, 'softwares'):
 		add_history.systems, add_history.softwares = get_histories()
 

@@ -1,19 +1,19 @@
 import os
 import tempfile
-from typing import Optional, cast, Any
+from typing import Any, Optional, cast
 
 from meowlauncher import metadata
 from meowlauncher.emulated_game import EmulatedGame, EmulatorLauncher
 from meowlauncher.emulated_platform import EmulatedPlatform
 from meowlauncher.emulator import StandardEmulator
+from meowlauncher.games.mame.software_list import SoftwareList
 from meowlauncher.launcher import LaunchCommand
 from meowlauncher.util.io_utils import make_filename
-from meowlauncher.games.mame.software_list import SoftwareList
 
 from .rom import ROM, CompressedROM
 
 
-class RomGame(EmulatedGame):
+class ROMGame(EmulatedGame):
 	def __init__(self, rom: ROM, platform_name: str, platform: EmulatedPlatform):
 		self.rom = rom
 		self.metadata = metadata.Metadata()
@@ -23,7 +23,7 @@ class RomGame(EmulatedGame):
 		self.filename_tags: list[str] = []
 
 		self.subroms: list[ROM] = []
-		self.software_lists: Optional[SoftwareList] = None
+		self.software_lists: Optional[list[SoftwareList]] = None
 		self.exception_reason: Optional[BaseException] = None
 	
 	@property
@@ -36,8 +36,9 @@ class RomGame(EmulatedGame):
 
 
 class ROMLauncher(EmulatorLauncher):
-	def __init__(self, game: RomGame, emulator: StandardEmulator, platform_config, emulator_config) -> None:
-		super().__init__(game, emulator)
+	def __init__(self, game: ROMGame, emulator: StandardEmulator, platform_config, emulator_config) -> None:
+		self.game: ROMGame = game
+		self.runner: StandardEmulator = emulator
 		self.platform_config = platform_config
 		self.emulator_config = emulator_config
 

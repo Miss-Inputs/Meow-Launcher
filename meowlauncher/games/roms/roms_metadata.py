@@ -1,3 +1,4 @@
+from typing import Optional
 from meowlauncher import detect_things_from_filename
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.libretro_database_company_name_cleanup import \
@@ -10,17 +11,19 @@ from meowlauncher.games.mame.mame_machine import (Machine,
                                                   does_machine_match_game)
 from meowlauncher.games.mame.software_list_info import \
     get_software_lists_by_names
+from meowlauncher.games.roms.rom import ROM
 from meowlauncher.info import region_info
 from meowlauncher.libretro_database import parse_all_dats_for_system
-from meowlauncher.metadata import Date
+from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.utils import (find_filename_tags_at_end, junk_suffixes,
                                      load_list, remove_filename_tags)
 
 from .platform_specific import metadata
+from .rom_game import ROMGame
 
 not_necessarily_equivalent_arcade_names = load_list(None, 'not_necessarily_equivalent_arcade_names')
 
-def get_metadata_from_tags(game):
+def add_metadata_from_tags(game: ROMGame):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = game.filename_tags
 
@@ -47,14 +50,14 @@ def get_metadata_from_tags(game):
 		if languages:
 			game.metadata.languages = languages			
 
-def get_metadata_from_regions(game):
-	if game.metadata.regions:
-		if not game.metadata.languages:
-			region_language = region_info.get_language_from_regions(game.metadata.regions)
+def add_metadata_from_regions(metadata: Metadata):
+	if metadata.regions:
+		if not metadata.languages:
+			region_language = region_info.get_language_from_regions(metadata.regions)
 			if region_language:
-				game.metadata.languages = [region_language]
+				metadata.languages = [region_language]
 
-def find_equivalent_arcade_game(game, basename):
+def find_equivalent_arcade_game(game: ROMGame, basename: str) -> Optional[Machine]:
 	#Just to be really strict: We will only get it if the name matches
 	if basename in not_necessarily_equivalent_arcade_names:
 		return None
@@ -79,7 +82,7 @@ def find_equivalent_arcade_game(game, basename):
 		return machine
 	return None
 
-def add_metadata_from_arcade(game, machine):
+def add_metadata_from_arcade(game: ROMGame, machine: Machine):
 	if 'Icon' not in game.metadata.images:
 		machine_icon = get_image(image_config_keys['Icon'], machine.basename)
 		if machine_icon:
@@ -101,7 +104,7 @@ def add_metadata_from_arcade(game, machine):
 		game.metadata.series = machine.metadata.series
 	#Well, I guess not much else can be inferred here. Still, though!
 		
-def add_alternate_names(rom, metadata):
+def add_alternate_names(rom: ROM, metadata: Metadata):
 	tags_at_end = find_filename_tags_at_end(rom.name)
 	name = remove_filename_tags(rom.name)
 
@@ -132,11 +135,11 @@ def add_alternate_names(rom, metadata):
 			#The name is something like "aaa (bbb) ~ ccc (ddd)" so the (ddd) here actually belongs to the ccc, not the whole thing (this wouldn't usually happen with any naming convention I know of, but I copypasta'd this code from mame_machine.py and I guess why not handle a possible thing happening while we're here)
 			alt_names[-1] += ' ' + ' '.join(tags_at_end)
 
-	rom.name = primary_name
+	rom.name = primary_name #FIXME: That's a read only property, we shouldn't be changing the ROM's name logically speaking anyway
 	for alt_name in alt_names:
 		metadata.add_alternate_name(alt_name)
 
-def add_metadata_from_libretro_database_entry(metadata, database, key):
+def add_metadata_from_libretro_database_entry(metadata: Metadata, database, key):
 	database_entry = database.get(key)
 	if database_entry:
 		name = database_entry.get('comment', database_entry.get('name'))
@@ -190,7 +193,7 @@ def add_metadata_from_libretro_database_entry(metadata, database, key):
 		if 'franchise' in database_entry:
 			metadata.series = database_entry['franchise']
 		if 'version' in database_entry:
-			metadata.version = database_entry['version']
+			metadata.specific_info['Version'] = database_entry['version']
 
 		if 'users' in database_entry:
 			metadata.specific_info['Number-of-Players'] = database_entry['users']
@@ -227,7 +230,7 @@ def add_metadata_from_libretro_database_entry(metadata, database, key):
 		return True
 	return False
 
-def add_metadata_from_libretro_database(game):
+def add_metadata_from_libretro_database(game: ROMGame):
 	key = game.metadata.product_code if game.platform.dat_uses_serial else game.rom.get_crc32()
 	if key:
 		for dat_name in game.platform.dat_names:
@@ -240,7 +243,7 @@ def add_metadata_from_libretro_database(game):
 				else:
 					add_metadata_from_libretro_database_entry(game.metadata, database, key)
 
-def autodetect_tv_type(game):
+def autodetect_tv_type(game: ROMGame):
 	if game.metadata.specific_info.get('TV-Type'):
 		return
 	
@@ -254,7 +257,7 @@ def autodetect_tv_type(game):
 		game.metadata.specific_info['TV-Type'] = from_region
 		return
 
-def add_metadata(game):
+def add_metadata(game: ROMGame):
 	add_alternate_names(game.rom, game.metadata)
 	#I guess if game.subroms was ever used you would loop through each one (I swear I will do the thing one day)
 
@@ -290,8 +293,8 @@ def add_metadata(game):
 	if equivalent_arcade:
 		add_metadata_from_arcade(game, equivalent_arcade)
 
-	get_metadata_from_tags(game)
-	get_metadata_from_regions(game)
+	add_metadata_from_tags(game)
+	add_metadata_from_regions(game.metadata)
 
 	if game.platform.dat_names:
 		add_metadata_from_libretro_database(game)
