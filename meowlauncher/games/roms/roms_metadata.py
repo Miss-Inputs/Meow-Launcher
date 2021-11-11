@@ -113,7 +113,7 @@ def add_metadata_from_arcade(game: ROMGame, machine: Machine):
 		game.metadata.genre = catlist.genre
 	if not game.metadata.subgenre:
 		game.metadata.subgenre = catlist.subgenre
-	if not game.metadata.categories and catlist.definite_category:
+	if not game.metadata.categories and catlist.category and catlist.definite_category:
 		game.metadata.categories = [catlist.category]
 	#Well, I guess not much else can be inferred here. Still, though!
 		

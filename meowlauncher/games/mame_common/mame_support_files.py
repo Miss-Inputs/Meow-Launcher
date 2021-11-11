@@ -2,7 +2,7 @@ import functools
 import os
 import xml.etree.ElementTree as ElementTree
 from dataclasses import dataclass
-from typing import NamedTuple, Optional
+from typing import Iterable, NamedTuple, Optional
 
 from meowlauncher.metadata import Metadata
 from meowlauncher.util.region_info import (Language,
@@ -192,13 +192,7 @@ def _parse_mame_cat_ini(path: str) -> dict[str, list[str]]:
 				d[current_section].append(line)
 		return d
 
-#TODO: This should be able to take category_folders: Optional[Iterable[str]]=None parameter but that's not hashable, see how much functools.cache matters
-def get_mame_folder(name: str) -> dict[str, list[str]]:
-	#if not category_folders:
-	category_folders = get_default_mame_categories_folders()
-	if not category_folders:
-		return {}
-
+def get_mame_cat(name: str, category_folders: Iterable[str]) -> dict[str, list[str]]:
 	for folder in category_folders:
 		cat_path = os.path.join(folder, name + '.ini')
 		try:
@@ -208,12 +202,22 @@ def get_mame_folder(name: str) -> dict[str, list[str]]:
 	return {}
 
 @functools.cache
-def get_machine_folder(basename: str, folder_name: str) -> Optional[list[str]]:
-	folder = get_mame_folder(folder_name)
+def get_mame_cat_from_default_mame_config(name: str) -> dict[str, list[str]]:
+	return get_mame_cat(name, get_default_mame_categories_folders())
+
+def get_machine_cat_from_category_folders(basename: str, folder_name: str, category_folders: Iterable[str]) -> Optional[list[str]]:
+	folder = get_mame_cat(folder_name, category_folders)
 	if not folder:
 		return None
 	return [section for section, names in folder.items() if basename in names]
 
+#@functools.cache
+def get_machine_cat(basename: str, folder_name: str) -> Optional[list[str]]:
+	folder = get_mame_cat_from_default_mame_config(folder_name)
+	if not folder:
+		return None
+	return [section for section, names in folder.items() if basename in names]
+	
 @dataclass
 class MachineCategory():
 	genre: str
@@ -270,7 +274,7 @@ class OrganizedCatlist():
 	definite_category: bool
 
 def get_category(basename: str) -> Optional[MachineCategory]:
-	cats = get_machine_folder(basename, 'catlist')
+	cats = get_machine_cat(basename, 'catlist')
 	#It would theoretically be possible for a machine to appear twice, but catlist doesn't do that I think, so we should just grab the first
 	if not cats:
 		return None
@@ -374,7 +378,7 @@ def organize_catlist(catlist: MachineCategory) -> OrganizedCatlist:
 	return OrganizedCatlist(platform, genre, subgenre, category, definite_platform, definite_category)
 
 def get_languages(basename: str) -> Optional[list[Language]]:
-	langs = get_machine_folder(basename, 'languages')
+	langs = get_machine_cat(basename, 'languages')
 	if not langs:
 		return None
 

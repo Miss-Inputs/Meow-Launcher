@@ -11,7 +11,7 @@ from meowlauncher.util.utils import (find_filename_tags_at_end, load_dict,
 
 from .mame_executable import MAMEExecutable
 from .mame_support_files import (MachineCategory, OrganizedCatlist,
-                                 get_category, get_machine_folder,
+                                 get_category, get_machine_cat,
                                  organize_catlist)
 from .mame_utils import consistentify_manufacturer
 
@@ -386,12 +386,12 @@ class Machine():
 		tags = find_filename_tags_at_end(self.name)
 		return any(tag.lower() in ('location test', 'prototype') for tag in tags)
 
-	#catlist stuff - this should be refactored once we allow for using paths from elsewhere in get_machine_folder!!
+	#catlist stuff - this should be refactored I guess to allow using some other categorypaths values
 	@property
 	def series(self) -> Optional[str]:
-		serieses = get_machine_folder(self.basename, 'series')
+		serieses = get_machine_cat(self.basename, 'series')
 		if not serieses and self.family:
-			serieses = get_machine_folder(self.family, 'series')
+			serieses = get_machine_cat(self.family, 'series')
 		if not serieses:
 			return None
 
@@ -414,16 +414,16 @@ class Machine():
 
 	@property
 	def bestgames_opinion(self) -> Optional[str]:
-		bestgames = get_machine_folder(self.basename, 'bestgames')
+		bestgames = get_machine_cat(self.basename, 'bestgames')
 		if not bestgames and self.family:
-			bestgames = get_machine_folder(self.family, 'bestgames')
+			bestgames = get_machine_cat(self.family, 'bestgames')
 		if bestgames:
 			return bestgames[0]
 		return None
 
 	@property
 	def version_added(self) -> Optional[str]:
-		version = get_machine_folder(self.basename, 'version')
+		version = get_machine_cat(self.basename, 'version')
 		return version[0] if version else None
 
 	@property
