@@ -167,24 +167,23 @@ class ScreenInfo():
 
 class Date():
 	#Class to hold a maybe-incorrect/maybe-guessed/maybe-incomplete date, but I thought MaybeIncompleteMaybeGuessedDate was a bit too much of a mouthful and I'm not clever enough to know what else to call it
-	def __init__(self, year=None, month=None, day=None, is_guessed=False):
+	def __init__(self, year=None, month=None, day=None, is_guessed: bool=False):
 		self.year = str(year) if year else None
 		self.month = str(month) if month else None
 		self.day = str(day) if day else None
 		self.is_guessed = is_guessed
 
 	@property
-	def is_partly_unknown(self):
+	def is_partly_unknown(self) -> bool:
 		if not self.month:
 			return True
 		if not self.day:
 			return True
 		if not self.year:
 			return True
-		#pylint: disable=unsupported-membership-test #I already checked for none you fucking knob
 		return 'x' in self.year or 'x' in self.month or 'x' in self.day or '?' in self.year or '?' in self.month or '?' in self.day
 	
-	def is_better_than(self, other_date: 'Date') -> bool:
+	def is_better_than(self, other_date: Optional['Date']) -> bool:
 		if not other_date:
 			return True
 		if other_date.is_guessed and not self.is_guessed:
@@ -292,7 +291,7 @@ class Metadata():
 			'Series': self.series,
 			'Series-Index': self.series_index,
 		}
-		if self.release_date:
+		if self.release_date and self.release_date.year:
 			metadata_fields['Year'] = self.release_date.year + '?' if self.release_date.is_guessed else self.release_date.year
 
 		if self.cpu_info.is_inited:

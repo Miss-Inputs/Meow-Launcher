@@ -1,7 +1,7 @@
 import os
 import re
 import zlib
-from typing import Dict, Iterable, Optional, Sequence, cast
+from typing import Any, Dict, Iterable, Optional, Sequence, cast
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
@@ -52,7 +52,7 @@ def get_software_list_by_name(name: str) -> Optional[SoftwareList]:
 	except FileNotFoundError:
 		return None
 
-def find_in_software_lists_with_custom_matcher(software_lists: Sequence[SoftwareList], matcher: SoftwareCustomMatcher, args) -> Optional[Software]:
+def find_in_software_lists_with_custom_matcher(software_lists: Sequence[SoftwareList], matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Optional[Software]:
 	for software_list in software_lists:
 		software = software_list.find_software_with_custom_matcher(matcher, args)
 		if software:

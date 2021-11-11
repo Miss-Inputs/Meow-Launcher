@@ -9,7 +9,7 @@ from meowlauncher.common_types import EmulationStatus
 
 from .mame_helpers import verify_software_list, consistentify_manufacturer, image_config_keys, get_image, add_history
 
-SoftwareCustomMatcher = Callable[['SoftwarePart', Any], bool]
+SoftwareCustomMatcher = Callable[..., bool] #Actually the first argument is SoftwarePart and then variable arguments after that, which I can't specify right now… maybe that's a sign I'm doing it wrong
 
 is_release_date_with_thing_at_end = re.compile(r'\d{8}\s\(\w+\)')
 def parse_release_date(release_info: str) -> Optional[Date]:
@@ -287,7 +287,7 @@ class Software():
 		return self.xml.findtext('description', '') #Blank description should not happen
 
 	@property
-	def software_list_name(self) -> Optional[str]:
+	def software_list_name(self) -> str:
 		return self.software_list.name
 
 	@property
@@ -463,8 +463,8 @@ class SoftwareList():
 		self.xml = ElementTree.parse(path)
 
 	@property
-	def name(self) -> Optional[str]:
-		return self.xml.getroot().attrib.get('name')
+	def name(self) -> str:
+		return self.xml.getroot().attrib['name']
 
 	@property
 	def description(self) -> Optional[str]:
