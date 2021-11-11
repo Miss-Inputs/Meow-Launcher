@@ -111,9 +111,9 @@ def sort_m3u_first():
 	class Sorter:
 		def __init__(self, obj, *_):
 			self.o = obj
-		def __lt__(self, other):
+		def __lt__(self, _):
 			return self.o.lower().endswith('.m3u')
-		def __le__(self, other):
+		def __le__(self, _):
 			return self.o.lower().endswith('.m3u')
 		def __gt__(self, other):
 			return other.lower().endswith('.m3u')
