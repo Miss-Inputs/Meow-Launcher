@@ -19,6 +19,7 @@ from meowlauncher.platform_types import (AppleIIHardware, Atari2600Controller,
                                          SNESExpansionChip,
                                          SwitchContentMetaType, WiiTitleType,
                                          ZXJoystick, ZXMachine)
+from meowlauncher.util.region_info import TVSystem
 
 from .emulator_command_line_helpers import (_is_software_available,
                                             _verify_supported_gb_mappers,
@@ -26,7 +27,6 @@ from .emulator_command_line_helpers import (_is_software_available,
                                             is_highscore_cart_available,
                                             mame_driver, mednafen_module,
                                             verify_mgba_mapper)
-from .region_info import TVSystem
 
 
 #MAME drivers
