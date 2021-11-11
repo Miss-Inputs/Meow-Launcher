@@ -1,6 +1,7 @@
 import datetime
 import io
 from enum import Enum
+from typing import Any, Optional
 
 try:
 	import machfs
@@ -26,7 +27,7 @@ from meowlauncher.util.utils import format_byte_size
 from .pc import App
 
 
-def does_exist(hfv_path, path):
+def does_exist(hfv_path: str, path: str) -> bool:
 	if not have_machfs:
 		#I guess it might just be safer to assume it's still there
 		return True
@@ -44,7 +45,7 @@ def get_path(volume, path):
 	#Skip the first part since that's the volume name and the tuple indexing for machfs.Volume doesn't work that way
 	return volume[tuple(path.split(':')[1:])]
 
-def _machfs_read_file(path):
+def _machfs_read_file(path: str):
 	#Try to avoid having to slurp really big files for each app by keeping it in memory if it's the same disk image
 	if _machfs_read_file.current_file_path == path:
 		return _machfs_read_file.current_file
@@ -59,10 +60,10 @@ def _machfs_read_file(path):
 _machfs_read_file.current_file = None
 _machfs_read_file.current_file_path = None
 
-def get_macos_256_palette():
+def get_macos_256_palette() -> list[int]:
 	#This is stored in the ROM as a clut resource otherwise
 	#Yoinked from http://belkadan.com/blog/2018/01/Color-Palette-8/ and converted to make sense for Python
-	pal = []
+	pal: list[int] = []
 	for i in range(0, 215):
 		#Primary colours
 		red = (5 - (i // 36)) * 51
@@ -170,7 +171,7 @@ class MacApp(App):
 		self._file = None #Lazy load it
 		
 	@property
-	def _carbon_path(self):
+	def _carbon_path(self) -> Optional[str]:
 		if not self.path.endswith('.app'):
 			return None
 		try:
@@ -202,7 +203,7 @@ class MacApp(App):
 		return self._file
 		
 	@property
-	def is_valid(self):
+	def is_valid(self) -> bool:
 		if have_machfs:
 			if self._get_file():
 				return True
@@ -212,14 +213,14 @@ class MacApp(App):
 	def base_folder(self):
 		return None
 
-	def get_fallback_name(self):
+	def get_fallback_name(self) -> str:
 		if have_machfs:
 			if self.path.endswith('.app'):
 				return self.path.split(':')[-1].removesuffix('.app')
 		return self.path.split(':')[-1]
 
-	def _get_resources(self):
-		res = {}
+	def _get_resources(self) -> dict[bytes, dict[bytes, Any]]:
+		res: dict[bytes, dict[bytes, Any]] = {} #Resource, but I don't want to blow up the whole thing if this module isn't available
 		f = self._get_file()
 		if not f:
 			return res
@@ -440,5 +441,5 @@ class MacApp(App):
 			#Allow manual override (sometimes apps are jerks and have 68K code just for the sole purpose of showing you a dialog box saying you can't run it on a 68K processor)
 			self.metadata.specific_info['Architecture'] = self.info['arch']
 				
-	def get_launcher_id(self):
+	def get_launcher_id(self) -> str:
 		return self.hfv_path + '/' + self.path

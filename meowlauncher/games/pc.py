@@ -1,11 +1,11 @@
+from abc import ABC, abstractmethod
 import datetime
 import json
 import os
 import time
 import traceback
-from typing import Any, Mapping, Optional, Type
+from typing import Any, Optional, Type, final
 
-from meowlauncher.desktop_launchers import make_launcher
 from meowlauncher.common_paths import config_dir
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        MediaType, NotARomException)
@@ -14,12 +14,13 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.config.system_config import PlatformConfig
 from meowlauncher.data.emulated_platforms import pc_platforms
 from meowlauncher.data.emulators import pc_emulators
+from meowlauncher.desktop_launchers import make_launcher
 from meowlauncher.metadata import Date, Metadata
 
 from .pc_common_metadata import fix_name
 
 
-class App:
+class App(ABC):
 	def __init__(self, info: dict[str, Any]):
 		self.metadata = Metadata()
 		self.info = info
@@ -51,6 +52,7 @@ class App:
 		#For overriding in subclass (but maybe this will do as a default), for Unique-ID in [X-Meow Launcher ID] section of launcher
 		return self.path
 
+	@final
 	def add_metadata(self) -> None:
 		self.metadata.media_type = MediaType.Executable
 		if 'developer' in self.info:
@@ -74,26 +76,27 @@ class App:
 		#To be overriden by subclass - return true if this config is pointing to something that actually exists
 		return os.path.isfile(self.path)
 
-	def additional_metadata(self):
+	@abstractmethod
+	def additional_metadata(self) -> None:
 		#To be overriden by subclass - optional, put any other platform-specific metadata you want in here
 		pass
 
-	def make_launcher(self, system_config: PlatformConfig):
+	def make_launcher(self, platform_config: PlatformConfig):
 		emulator_name = None
 		params = None
 		exception_reason = None
-		for emulator in system_config.chosen_emulators:
+		for emulator in platform_config.chosen_emulators:
 			emulator_name = emulator
-			if emulator_name not in pc_platforms[system_config.name].emulators:
+			if emulator_name not in pc_platforms[platform_config.name].emulators:
 				if main_config.debug:
-					print(emulator_name, 'is not a valid emulator for', system_config.name)
+					print(emulator_name, 'is not a valid emulator for', platform_config.name)
 				continue
 			emulator_config = emulator_configs[emulator]
 			try:
 				if 'compat' in self.info:
 					if not self.info['compat'].get(emulator, True):
 						raise EmulationNotSupportedException('Apparently not supported')
-				params = pc_emulators[emulator].get_launch_params(self, system_config, emulator_config)
+				params = pc_emulators[emulator].get_launch_params(self, platform_config.options, emulator_config)
 				if params:
 					break
 			except (EmulationNotSupportedException, NotARomException) as ex:
@@ -101,13 +104,13 @@ class App:
 
 		if not params:
 			if main_config.debug:
-				print(self.path, 'could not be launched by', system_config.chosen_emulators, 'because', exception_reason)
+				print(self.path, 'could not be launched by', platform_config.chosen_emulators, 'because', exception_reason)
 			return
 
 		self.metadata.emulator_name = emulator_name
-		make_launcher(params, self.name, self.metadata, system_config.name, self.get_launcher_id())
+		make_launcher(params, self.name, self.metadata, platform_config.name, self.get_launcher_id())
 
-def process_app(app_info: Mapping[str, Any], app_class: Type[App], system_config: PlatformConfig) -> None:
+def process_app(app_info: dict[str, Any], app_class: Type[App], system_config: PlatformConfig) -> None:
 	app = app_class(app_info)
 	try:
 		if not app.is_valid:
