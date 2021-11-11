@@ -1,6 +1,10 @@
+from typing import cast
+
 from meowlauncher.games.mame.software_list_info import (
     find_in_software_lists, get_software_list_entry, matcher_args_for_bytes)
-from meowlauncher.info.region_info import TVSystem
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
+from meowlauncher.util.region_info import TVSystem
 
 ccs64_cart_types = {
 	#From https://github.com/mamedev/mame/blob/master/src/lib/formats/cbm_crt.cpp
@@ -62,10 +66,10 @@ ccs64_cart_types = {
 	55: 'Silverrock',
 }
 
-def get_commodore_64_software(game, headered):
+def get_commodore_64_software(game: ROMGame, headered: bool):
 	if headered:
 		#Skip CRT header
-		data = game.rom.read(seek_to=64)
+		data = cast(FileROM, game.rom).read(seek_to=64)
 
 		total_data = b''
 		i = 0
@@ -80,8 +84,8 @@ def get_commodore_64_software(game, headered):
 
 	return get_software_list_entry(game)
 
-def add_commodore_64_metadata(game):
-	header = game.rom.read(amount=64)
+def add_commodore_64_metadata(game: ROMGame):
+	header = cast(FileROM, game.rom).read(amount=64)
 	magic = header[:16]
 	if magic == b'C64 CARTRIDGE   ':
 		headered = True

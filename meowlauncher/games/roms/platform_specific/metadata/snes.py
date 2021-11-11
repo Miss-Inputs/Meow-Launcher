@@ -1,13 +1,18 @@
 import calendar
+from typing import Any, Optional, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.mame.mame_helpers import MAMENotInstalledException
 from meowlauncher.games.mame.mame_machine import (
-    does_machine_match_game, get_machines_from_source_file)
+    Machine, does_machine_match_game, get_machines_from_source_file)
+from meowlauncher.games.mame.software_list import Software
 from meowlauncher.games.mame.software_list_info import get_software_list_entry
-from meowlauncher.info.region_info import get_region_by_name
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
+from meowlauncher.metadata import Metadata
 from meowlauncher.platform_types import SNESExpansionChip
+from meowlauncher.util.region_info import get_region_by_name
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
@@ -115,7 +120,7 @@ countries = {
 	17: get_region_by_name('Australia'), #Is this actually used? Australian-specific releases (e.g. TMNT) use Europe still
 }
 
-def parse_sufami_turbo_header(rom, metadata):
+def parse_sufami_turbo_header(rom: FileROM, metadata: Metadata):
 	metadata.platform = 'Sufami Turbo'
 
 	#Safe bet that every single ST game just uses a normal controller
@@ -134,10 +139,10 @@ def parse_sufami_turbo_header(rom, metadata):
 	#The SRAM is in the mini-cartridge, not the Sufami Turbo BIOS cart itself
 	metadata.save_type = SaveType.Cart if save_size > 0 else SaveType.Nothing
 
-def parse_snes_header(rom, base_offset):
+def parse_snes_header(rom: FileROM, base_offset: int) -> dict[str, Any]:
 	#In order to make things simpler, we'll just ignore any carts that are out of line. You wouldn't be able to get interesting results from homebrew or bootleg games anyway
 	#Hence why we won't add metadata to the game object straight away, we'll store it in a dict first and add it all later, so we add nothing at all from invalid headers
-	metadata = {}
+	metadata: dict[str, Any] = {}
 
 	#Note that amount goes up to 256 if you include exception vectors, but... nah
 	header = rom.read(seek_to=base_offset, amount=0xe0)
@@ -212,7 +217,7 @@ def parse_snes_header(rom, base_offset):
 
 	return metadata
 
-def add_normal_snes_header(rom, metadata):
+def add_normal_snes_header(rom: FileROM, metadata: Metadata):
 	#Note that while we're seeking to xx00 here, the header actually starts at xxc0 (or xxb0 in case of extended header), it's just easier this way
 	possible_offsets = [0x7f00, 0xff00, 0x40ff00]
 	rom_size = rom.get_size()
@@ -255,9 +260,9 @@ def add_normal_snes_header(rom, metadata):
 	#else:
 	#	print(game.rom.path, 'could not detect header because', ex)
 
-def parse_satellaview_header(rom, base_offset):
+def parse_satellaview_header(rom: FileROM, base_offset: int) -> dict[str, Any]:
 	header = rom.read(seek_to=base_offset, amount=0xe0)
-	metadata = {}
+	metadata: dict[str, Any] = {}
 
 	try:
 		publisher = convert_alphanumeric(header[0xb0:0xb2])
@@ -294,7 +299,7 @@ def parse_satellaview_header(rom, base_offset):
 	#0xdc-0xde: Checksum
 	#0xde-0xe0: Inverse checksum
 
-def add_satellaview_metadata(rom, metadata):
+def add_satellaview_metadata(rom: FileROM, metadata: Metadata):
 	metadata.platform = 'Satellaview'
 	#Safe bet that every single Satellaview game just uses a normal controller
 	metadata.input_info.add_option(get_snes_controller())
@@ -323,32 +328,32 @@ def add_satellaview_metadata(rom, metadata):
 		if publisher is not None:
 			if publisher in nintendo_licensee_codes:
 				metadata.publisher = nintendo_licensee_codes[publisher]
-		metadata.day = header_data.get('Day')
-		metadata.month = header_data.get('Month')
+		metadata.specific_info['Day'] = header_data.get('Day') #hmm… unfortunately it doesn't have a nice year for us to use
+		metadata.specific_info['Month'] = header_data.get('Month')
 
-def try_get_equivalent_arcade(rom, metadata):
+def try_get_equivalent_arcade(rom: FileROM, metadata: Metadata) -> Optional[Machine]:
 	if not hasattr(try_get_equivalent_arcade, 'nss_games'):
 		try:
-			try_get_equivalent_arcade.nss_games = list(get_machines_from_source_file('nss'))
+			try_get_equivalent_arcade.nss_games = list(get_machines_from_source_file('nss')) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
-			try_get_equivalent_arcade.nss_games = []
+			try_get_equivalent_arcade.nss_games = [] #type: ignore[attr-defined]
 	if not hasattr(try_get_equivalent_arcade, 'arcade_bootlegs'):
 		try:
-			try_get_equivalent_arcade.arcade_bootlegs = list(get_machines_from_source_file('snesb')) + list(get_machines_from_source_file('snesb51'))
+			try_get_equivalent_arcade.arcade_bootlegs = list(get_machines_from_source_file('snesb')) + list(get_machines_from_source_file('snesb51')) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
-			try_get_equivalent_arcade.arcade_bootlegs = []
+			try_get_equivalent_arcade.arcade_bootlegs = [] #type: ignore[attr-defined]
 
-	for bootleg_machine in try_get_equivalent_arcade.arcade_bootlegs:
+	for bootleg_machine in try_get_equivalent_arcade.arcade_bootlegs: #type: ignore[attr-defined]
 		if does_machine_match_game(rom.name, metadata, bootleg_machine):
 			return bootleg_machine
 
-	for nss_machine in try_get_equivalent_arcade.nss_games:
+	for nss_machine in try_get_equivalent_arcade.nss_games: #type: ignore[attr-defined]
 		if does_machine_match_game(rom.name, metadata, nss_machine):
 			return nss_machine
 	
 	return None
 
-def add_snes_software_list_metadata(software, metadata):
+def add_snes_software_list_metadata(software: Software, metadata: Metadata):
 	software.add_standard_metadata(metadata)
 	if metadata.save_type == SaveType.Unknown and metadata.platform != 'Satellaview':
 		metadata.save_type = SaveType.Cart if software.has_data_area('nvram') else SaveType.Nothing
@@ -377,15 +382,16 @@ def add_snes_software_list_metadata(software, metadata):
 		metadata.series_index = '6'
 		
 
-def add_snes_metadata(game):
+def add_snes_metadata(game: ROMGame):
+	rom = cast(FileROM, game.rom)
 	if game.rom.extension in ['sfc', 'smc', 'swc']:
-		add_normal_snes_header(game.rom, game.metadata)
+		add_normal_snes_header(rom, game.metadata)
 	elif game.rom.extension == 'bs':
-		add_satellaview_metadata(game.rom, game.metadata)
+		add_satellaview_metadata(rom, game.metadata)
 	elif game.rom.extension == 'st':
-		parse_sufami_turbo_header(game.rom, game.metadata)
+		parse_sufami_turbo_header(rom, game.metadata)
 
-	equivalent_arcade = try_get_equivalent_arcade(game.rom, game.metadata)
+	equivalent_arcade = try_get_equivalent_arcade(rom, game.metadata)
 	if equivalent_arcade:
 		game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
 

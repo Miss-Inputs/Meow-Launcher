@@ -1,8 +1,13 @@
+from typing import cast
+
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.mame.software_list_info import get_software_list_entry
-from meowlauncher.info.region_info import TVSystem
+from meowlauncher.games.roms.rom import ROM, FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
+from meowlauncher.metadata import Metadata
+from meowlauncher.util.region_info import TVSystem
 
 from .common.atari_controllers import xegs_gun
 
@@ -17,7 +22,7 @@ input_types = {
 	4: input_metadata.Trackball(), #Is this a valid value?
 }
 
-def _add_atari_7800_header_info(rom, metadata, header):
+def _add_atari_7800_header_info(rom: ROM, metadata: Metadata, header: bytes):
 	metadata.input_info.set_inited()
 
 	#Header version: 0
@@ -89,8 +94,8 @@ def _add_atari_7800_header_info(rom, metadata, header):
 	#Expansion module required: 64
 
 
-def add_atari_7800_metadata(game):
-	header = game.rom.read(amount=128)
+def add_atari_7800_metadata(game: ROMGame):
+	header = cast(FileROM, game.rom).read(amount=128)
 	if header[1:10] == b'ATARI7800':
 		headered = True
 		_add_atari_7800_header_info(game.rom, game.metadata, header)

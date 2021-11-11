@@ -5,7 +5,7 @@ from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.desktop_launchers import make_launcher
 from meowlauncher.games.pc_common_metadata import look_for_icon_in_folder
-from meowlauncher.info.region_info import get_language_by_short_code
+from meowlauncher.util.region_info import get_language_by_short_code
 from meowlauncher.launcher import LaunchCommand
 from meowlauncher.metadata import Metadata
 
@@ -74,7 +74,7 @@ class ScummVMGame():
 	def _get_emulator_name() -> str:
 		return 'ScummVM'
 
-	def add_metadata(self):
+	def add_metadata(self) -> None:
 		self.metadata.input_info.add_option([input_metadata.Mouse(), input_metadata.Keyboard()]) #Can use gamepad if you enable it, but I guess to add that as input_info I'd have to know exactly how many buttons and sticks etc it uses
 		self.metadata.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
 		self.metadata.emulator_name = self._get_emulator_name()
@@ -127,7 +127,7 @@ class ScummVMGame():
 				print('Wait what?', self.name, 'has no path')
 		#Everything else is gonna be an actual option
 
-	def make_launcher(self):
+	def make_launcher(self) -> None:
 		name = self.options.get('description', self.name)
 		name = name.replace('/', ') (') #Names are usually something like Cool Game (CD/DOS/English); we convert it to Cool Game (CD) (DOS) (English) to make it work better with disambiguate etc
 

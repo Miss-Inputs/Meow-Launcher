@@ -5,10 +5,10 @@ from typing import Optional, Sequence
 from meowlauncher import detect_things_from_filename, input_metadata
 from meowlauncher.common_types import EmulationStatus, MediaType, SaveType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.info.region_info import (Language,
+from meowlauncher.metadata import CPU, ScreenInfo
+from meowlauncher.util.region_info import (Language,
                                            get_language_by_english_name,
                                            get_language_from_regions)
-from meowlauncher.metadata import CPU, ScreenInfo
 from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
 
 from .mame_helpers import (add_history, find_cpus, get_image,

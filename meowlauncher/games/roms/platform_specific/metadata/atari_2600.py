@@ -1,20 +1,24 @@
 import hashlib
 import subprocess
+from typing import Mapping, Optional, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.games.mame.software_list_info import (find_in_software_lists,
                                                         matcher_args_for_bytes)
-from meowlauncher.info.region_info import TVSystem
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
+from meowlauncher.metadata import Metadata
 from meowlauncher.platform_types import Atari2600Controller
+from meowlauncher.util.region_info import TVSystem
 
 from .common import atari_controllers as controllers
 
 stella_configs = emulator_configs.get('Stella')
 
 #Not gonna use stella -rominfo on individual stuff as it takes too long and just detects TV type with no other useful info that isn't in the -listrominfo db
-def get_stella_database():
+def get_stella_database() -> dict[str, dict[str, str]]:
 	proc = subprocess.run([stella_configs.exe_path, '-listrominfo'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
 
 	lines = proc.stdout.splitlines()
@@ -44,10 +48,7 @@ def get_stella_database():
 
 	return games
 
-def _controller_from_stella_db_name(controller):
-	if not controller:
-		return None
-
+def _controller_from_stella_db_name(controller: str) -> Atari2600Controller:
 	if controller in ('JOYSTICK', 'AUTO'):
 		return Atari2600Controller.Joystick
 	if controller in ('PADDLES', 'PADDLES_IAXIS', 'PADDLES_IAXDR'):
@@ -78,7 +79,7 @@ def _controller_from_stella_db_name(controller):
 	#Track & Field controller is just a joystick with no up or down, so Stella doesn't count it as separate from joystick
 	return Atari2600Controller.Other
 
-def parse_stella_cart_note(metadata, note):
+def parse_stella_cart_note(metadata: Metadata, note: str):
 	#Adventures in the Park
 	#Featuring Panama Joe
 	#Hack of Adventure
@@ -143,11 +144,13 @@ def parse_stella_cart_note(metadata, note):
 	else:
 		metadata.add_notes(note)
 
-def parse_stella_db(metadata, game_info):
-	metadata.add_alternate_name(game_info.get('Cartridge_Name', game_info.get('Cart_Name')), 'Stella-Name')
-	note = game_info.get('Cartridge_Note', game_info.get('Cart_Note'))
+def parse_stella_db(metadata: Metadata, game_db_entry: Mapping[str, Optional[str]]):
+	stella_name = game_db_entry.get('Cartridge_Name', game_db_entry.get('Cart_Name'))
+	if stella_name:
+		metadata.add_alternate_name(stella_name, 'Stella-Name')
+	note = game_db_entry.get('Cartridge_Note', game_db_entry.get('Cart_Note'))
 	
-	manufacturer = game_info.get('Cartridge_Manufacturer', game_info.get('Cart_Manufacturer'))
+	manufacturer = game_db_entry.get('Cartridge_Manufacturer', game_db_entry.get('Cart_Manufacturer'))
 	if manufacturer:
 		if ', ' in manufacturer:
 			metadata.publisher, _, metadata.developer = manufacturer.partition(', ')
@@ -155,28 +158,30 @@ def parse_stella_db(metadata, game_info):
 			metadata.publisher = manufacturer
 			#TODO: Clean up manufacturer names (UA Limited > UA)
 	
-	metadata.product_code = game_info.get('Cartridge_ModelNo', game_info.get('Cart_ModelNo'))
-	metadata.specific_info['Rarity'] = game_info.get('Cartridge_Rarity', game_info.get('Cart_Rarity'))
-	if 'Display_Format' in game_info:
-		display_format = game_info['Display_Format']
+	metadata.product_code = game_db_entry.get('Cartridge_ModelNo', game_db_entry.get('Cart_ModelNo'))
+	metadata.specific_info['Rarity'] = game_db_entry.get('Cartridge_Rarity', game_db_entry.get('Cart_Rarity'))
+	if 'Display_Format' in game_db_entry:
+		display_format = game_db_entry['Display_Format']
 		if display_format in ('NTSC', 'PAL60', 'SECAM60'):
 			#Treat PAL60 etc as NTSC because meh
 			metadata.specific_info['TV-Type'] = TVSystem.NTSC
 		elif display_format in ('PAL', 'SECAM', 'NTSC50'):
 			metadata.specific_info['TV-Type'] = TVSystem.PAL
 
-	left_controller = game_info.get('Controller_Left')
-	right_controller = game_info.get('Controller_Right')
-	metadata.specific_info['Left-Peripheral'] = _controller_from_stella_db_name(left_controller)
-	metadata.specific_info['Right-Peripheral'] = _controller_from_stella_db_name(right_controller)
+	left_controller = game_db_entry.get('Controller_Left')
+	right_controller = game_db_entry.get('Controller_Right')
+	if left_controller:
+		metadata.specific_info['Left-Peripheral'] = _controller_from_stella_db_name(left_controller)
+	if right_controller:
+		metadata.specific_info['Right-Peripheral'] = _controller_from_stella_db_name(right_controller)
 
-	if game_info.get('Controller_SwapPorts', 'NO') == 'YES' or game_info.get('Controller_SwapPaddles', 'NO') == 'YES':
+	if game_db_entry.get('Controller_SwapPorts', 'NO') == 'YES' or game_db_entry.get('Controller_SwapPaddles', 'NO') == 'YES':
 		#Not exactly sure how this works
 		metadata.specific_info['Swap-Ports'] = True
 	if note:
 		parse_stella_cart_note(metadata, note)
 
-def add_input_info_from_peripheral(metadata, peripheral):
+def add_input_info_from_peripheral(metadata: Metadata, peripheral: Atari2600Controller):
 	if peripheral == Atari2600Controller.Nothing:
 		return
 		
@@ -205,7 +210,7 @@ def add_input_info_from_peripheral(metadata, peripheral):
 	elif peripheral == Atari2600Controller.Other:
 		metadata.input_info.add_option(input_metadata.Custom())
 
-def parse_peripherals(metadata):
+def parse_peripherals(metadata: Metadata):
 	left = metadata.specific_info.get('Left-Peripheral')
 	right = metadata.specific_info.get('Right-Peripheral')
 
@@ -233,10 +238,10 @@ class StellaDB():
 			StellaDB.__instance = StellaDB.__StellaDB()
 		return StellaDB.__instance.db
 
-def add_atari_2600_metadata(game):
+def add_atari_2600_metadata(game: ROMGame):
 	stella_db = StellaDB.get_stella_db()
 
-	whole_cart = game.rom.read()
+	whole_cart = cast(FileROM, game.rom).read()
 	if stella_db:
 		md5 = hashlib.md5(whole_cart).hexdigest().lower()
 		if md5 in stella_db:

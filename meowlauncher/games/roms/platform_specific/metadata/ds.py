@@ -14,8 +14,8 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.info.region_info import Region, get_region_by_name
 from meowlauncher.metadata import Metadata
+from meowlauncher.util.region_info import Region, get_region_by_name
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 

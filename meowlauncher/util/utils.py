@@ -239,3 +239,8 @@ def _format_unit(n: int, suffix: str, base_unit: int=1000, singular_suffix: str=
 
 def format_byte_size(b: int, metric: bool=True) -> str:
 	return _format_unit(b, 'B' if metric else 'iB', 1000 if metric else 1024, 'bytes')
+	
+def decode_bcd(i: int) -> int:
+	hi = (i & 0xf0) >> 4
+	lo = i & 0x0f
+	return (hi * 10) + lo

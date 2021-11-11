@@ -1,10 +1,10 @@
 import collections
-from typing import Any, Optional
+from typing import Any, Optional, Union
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import MediaType, SaveType
-from meowlauncher.info.region_info import Language, Region
 from meowlauncher.input_metadata import InputInfo
+from meowlauncher.util.region_info import Language, Region
 
 #FIXME! Section names should not be here - we need to rewrite to_info_fields to make more sense, it's just to make sure a circular import doesn't happen
 metadata_section_name = 'X-Meow Launcher Metadata'
@@ -231,7 +231,7 @@ class Metadata():
 		self.disc_number: Optional[int] = None
 		self.disc_total: Optional[int] = None
 		self.series: Optional[str] = None
-		self.series_index = None
+		self.series_index: Union[str, int, None] = None
 
 		#Set this up later with the respective objects
 		self.cpu_info = CPUInfo()

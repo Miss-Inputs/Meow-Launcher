@@ -9,14 +9,19 @@ import io
 import os
 import subprocess
 import tempfile
+from dataclasses import dataclass
 from enum import Enum, Flag
 from shutil import rmtree
+from typing import Mapping, MutableMapping, NamedTuple, Optional, Sequence, cast
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.info.region_info import get_language_by_english_name
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
+from meowlauncher.metadata import Metadata
 from meowlauncher.platform_types import SwitchContentMetaType
+from meowlauncher.util.region_info import get_language_by_english_name
 
 from .wii import parse_ratings
 
@@ -81,7 +86,13 @@ nacp_languages = {
 	#There's space for #15 here (BrazilianPortugese?) but that never seems to be used
 }
 
-def add_titles(metadata, titles, icons=None):
+class Cnmt(NamedTuple):
+	title_id: str
+	version: int
+	type: SwitchContentMetaType
+	contents: dict[bytes, tuple[int, ContentType]]
+
+def add_titles(metadata: Metadata, titles: Mapping[str, tuple[str, str]], icons: MutableMapping[str, bytes]=None):
 	if not titles:
 		return
 	found_first_lang = False
@@ -132,7 +143,7 @@ def add_titles(metadata, titles, icons=None):
 				#TODO: Cleanup publisher
 				metadata.publisher = publisher
 
-def add_nacp_metadata(metadata, nacp, icons=None):
+def add_nacp_metadata(metadata: Metadata, nacp: bytes, icons: MutableMapping[str, bytes]=None):
 	#There are a heckload of different flags here and most aren't even known seemingly, see also https://switchbrew.org/wiki/NACP_Format
 	
 	title_entries = nacp[:0x3000]
@@ -190,7 +201,7 @@ def add_nacp_metadata(metadata, nacp, icons=None):
 		metadata.product_code = application_error_code_category.decode('utf-8', errors='ignore')
 		#TODO: Use switchtdb.xml although it won't be as useful when it uses the product code which we can only have sometimes
 
-def add_cnmt_xml_metadata(xml, metadata):
+def add_cnmt_xml_metadata(xml: ElementTree.Element, metadata: Metadata):
 	metadata.specific_info['Title-Type'] = xml.findtext('Type')
 	title_id = xml.findtext('Id')
 	if title_id:
@@ -199,9 +210,9 @@ def add_cnmt_xml_metadata(xml, metadata):
 	#We also have RequiredDownloadSystemVersion, Digest, KeyGenerationMin, RequiredSystemVersion, PatchId if those are interesting/useful
 	#Content contains Size, KeyGeneration, Hash, Type
 
-def decrypt_control_nca_with_hactool(control_nca):
+def decrypt_control_nca_with_hactool(control_nca: bytes) -> dict[str, bytes]:
 	if hasattr(decrypt_control_nca_with_hactool, 'failed'):
-		raise ExternalToolNotHappeningException('No can do {0}'.format(decrypt_control_nca_with_hactool.failed))
+		raise ExternalToolNotHappeningException('No can do {0}'.format(decrypt_control_nca_with_hactool.failed)) #type: ignore[attr-defined]
 	temp_folder = None
 	try:
 		#Ugly code time
@@ -225,7 +236,7 @@ def decrypt_control_nca_with_hactool(control_nca):
 					#I guess that's the error message
 					raise InvalidNCAException('Header wrong')
 			except (subprocess.CalledProcessError, FileNotFoundError):
-				decrypt_control_nca_with_hactool.failed = cactus
+				decrypt_control_nca_with_hactool.failed = cactus #type: ignore[attr-defined]
 				raise ExternalToolNotHappeningException('No can do {0}'.format(cactus))
 
 		files = {}
@@ -238,10 +249,10 @@ def decrypt_control_nca_with_hactool(control_nca):
 		if temp_folder:
 			rmtree(temp_folder)
 
-def decrypt_cnmt_nca_with_hactool(cnmt_nca):
-	#Decrypting NCAs is hard, let's go shopping
+def decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
+	#Decrypting NCAs is hard, let's go shopping (and get an external tool to do it)
 	if hasattr(decrypt_cnmt_nca_with_hactool, 'failed'):
-		raise ExternalToolNotHappeningException('No can do {0}'.format(decrypt_cnmt_nca_with_hactool.failed))
+		raise ExternalToolNotHappeningException('No can do {0}'.format(decrypt_cnmt_nca_with_hactool.failed)) #type: ignore[attr-defined]
 	temp_folder = None
 	try:
 		#Ugly code time
@@ -266,24 +277,24 @@ def decrypt_cnmt_nca_with_hactool(cnmt_nca):
 					#I guess that's the error message
 					raise InvalidNCAException('Header wrong')
 			except (subprocess.CalledProcessError, FileNotFoundError):
-				decrypt_cnmt_nca_with_hactool.failed = cactus
+				decrypt_cnmt_nca_with_hactool.failed = cactus #type: ignore[attr-defined]
 				raise ExternalToolNotHappeningException('No can do {0}'.format(cactus))
 
 		for f in os.scandir(temp_folder):
 			if f.name.endswith('.cnmt') and f.is_file():
 				with open(f.path, 'rb') as ff:
 					return ff.read()
-		return None #This shouldn't happen
+		raise AssertionError('This should not happen')
 	finally:
 		if temp_folder:
 			rmtree(temp_folder)
 
-def list_cnmt(cnmt, rom, metadata, files, extra_offset=0):
-	metadata.specific_info['Title-ID'] = cnmt['id']
-	metadata.specific_info['Revision'] = cnmt['version']
-	metadata.specific_info['Title-Type'] = cnmt['type']
-	for k, v in cnmt['contents'].items():
-		if v['type'] == ContentType.Control:
+def list_cnmt(cnmt: Cnmt, rom: FileROM, metadata: Metadata, files: Mapping[str, tuple[int, int]], extra_offset: int=0):
+	metadata.specific_info['Title-ID'] = cnmt.title_id
+	metadata.specific_info['Revision'] = cnmt.version
+	metadata.specific_info['Title-Type'] = cnmt.type
+	for k, v in cnmt.contents.items():
+		if v[1] == ContentType.Control:
 			control_nca_filename = bytes.hex(k) + '.nca'
 			control_nca_offset, control_nca_size = files[control_nca_filename]
 			control_nca = rom.read(seek_to=control_nca_offset + extra_offset, amount=control_nca_size)
@@ -311,7 +322,7 @@ def list_cnmt(cnmt, rom, metadata, files, extra_offset=0):
 			break
 		#ContentMetaType.AddOnContent seems to generally not have control data, only a single ContentType.Data
 
-def list_cnmt_nca(data):
+def list_cnmt_nca(data: bytes) -> Cnmt:
 	# 0x12	0x2	Content Meta Count #Whazzat do
 	# 0x14	0x1	Content Meta Attributes (0=None, 1=IncludesExFatDriver, 2=Rebootless) #Dunno what that does either
 	# 0x18	0x4	Required Download System Version
@@ -333,10 +344,10 @@ def list_cnmt_nca(data):
 		content_id = content[32:48]
 		content_size = int.from_bytes(content[48:54], 'little')
 		content_type = ContentType(content[54])
-		contents[content_id] = {'size': content_size, 'type': content_type}
-	return {'id': title_id, 'version': version, 'type': content_meta_type, 'contents': contents}
+		contents[content_id] = (content_size, content_type)
+	return Cnmt(title_id, version, content_meta_type, contents)
 
-def list_psf0(rom):
+def list_psf0(rom: FileROM) -> dict[str, tuple[int, int]]:
 	header = rom.read(amount=16)
 	magic = header[:4]
 	if magic != b'PFS0':
@@ -367,21 +378,21 @@ def list_psf0(rom):
 		files[name.decode('utf-8', errors='backslashreplace')] = (offset + data_offset, size)
 	return files
 
-def choose_main_cnmt(cnmts):
+def choose_main_cnmt(cnmts: Sequence[Cnmt]) -> Optional[Cnmt]:
 	if not cnmts:
 		return None
 	if len(cnmts) == 1:
 		return cnmts[0]
 	#elif len(cnmts) > 1:
 	#Sometimes you can have more than one if the cartridge includes an embedded patch
-	application_cnmts = [c for c in cnmts if c['type'] == SwitchContentMetaType.Application]
+	application_cnmts = [c for c in cnmts if c.type == SwitchContentMetaType.Application]
 	if len(application_cnmts) == 1:
 		return application_cnmts[0]
 
 	#Uh oh that didn't help, oh no what do we do I guess let's just take the first one
 	return cnmts[0]
 
-def add_nsp_metadata(rom, metadata):
+def add_nsp_metadata(rom: FileROM, metadata: Metadata):
 	files = list_psf0(rom)
 	cnmts = []
 	cnmt_xml = None
@@ -418,12 +429,12 @@ def add_nsp_metadata(rom, metadata):
 	#	if main_config.debug:
 	#		print('Uh oh no cnmt.nca in', rom.path, '?')
 
-def read_hfs0(rom, offset, max_size=None):
+def read_hfs0(rom: FileROM, offset: int, max_size: int=None) -> dict[str, tuple[int, int]]:
 	header = rom.read(offset, 16)
 
 	magic = header[:4]
 	if magic != b'HFS0':
-		raise InvalidHFS0Exception('Invalid magic, expected HFS0 but got {0} at offset {1:x}'.format(magic, offset))
+		raise InvalidHFS0Exception('Invalid magic, expected HFS0 but got {0!r} at offset {1:x}'.format(magic, offset))
 
 	number_of_files = int.from_bytes(header[4:8], 'little')
 	string_table_size = int.from_bytes(header[8:12], 'little')
@@ -469,11 +480,11 @@ def read_hfs0(rom, offset, max_size=None):
 
 	return files
 
-def add_xci_metadata(rom, metadata):
+def add_xci_metadata(rom: FileROM, metadata: Metadata):
 	header = rom.read(amount=0x200)
 	magic = header[0x100:0x104]
 	if magic != b'HEAD':
-		raise InvalidXCIException('Not a XCI {0}'.format(magic))
+		raise InvalidXCIException('Not a XCI: {0!r}'.format(magic))
 
 	metadata.specific_info['Gamecard-Size'] = game_card_size.get(header[0x10d], 'unknown 0x{0:x}'.format(header[0x10d]))
 	flags = header[0x10f]
@@ -516,7 +527,7 @@ def add_xci_metadata(rom, metadata):
 		#else:
 		#	print('Uh oh no cnmt.nca?')
 
-def add_nro_metadata(rom, metadata):
+def add_nro_metadata(rom: FileROM, metadata: Metadata):
 	header = rom.read(amount=0x50, seek_to=16)
 	if header[:4] != b'NRO0':
 		#Invalid magic
@@ -543,22 +554,22 @@ def add_nro_metadata(rom, metadata):
 		nacp = rom.read(seek_to=nro_size + nacp_offset, amount=nacp_size)
 		add_nacp_metadata(metadata, nacp)
 
-def add_switch_metadata(game):
+def add_switch_metadata(game: ROMGame):
 	if game.rom.extension == 'nro':
-		add_nro_metadata(game.rom, game.metadata)
+		add_nro_metadata(cast(FileROM, game.rom), game.metadata)
 	if game.rom.extension == 'xci':
 		try:
-			add_xci_metadata(game.rom, game.metadata)
+			add_xci_metadata(cast(FileROM, game.rom), game.metadata)
 		except InvalidXCIException as ex:
 			if main_config.debug:
-				print(game.rom.path + ' was invalid XCI: {0}'.format(ex))
+				print(game.rom.path, 'was invalid XCI: {0}'.format(ex))
 		except InvalidHFS0Exception as ex:
 			if main_config.debug:
-				print(game.rom.path + ' had invalid HFS0: {0}'.format(ex))
+				print(game.rom.path, 'had invalid HFS0: {0}'.format(ex))
 
 	if game.rom.extension == 'nsp':
 		try:
-			add_nsp_metadata(game.rom, game.metadata)
+			add_nsp_metadata(cast(FileROM, game.rom), game.metadata)
 		except InvalidPFS0Exception as ex:
 			if main_config.debug:
-				print(game.rom.path + ' was invalid PFS0: {0}'.format(ex))
+				print(game.rom.path, 'was invalid PFS0: {0}'.format(ex))

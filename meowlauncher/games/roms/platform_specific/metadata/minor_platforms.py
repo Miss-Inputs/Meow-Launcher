@@ -10,7 +10,7 @@ from meowlauncher.games.mame.mame_machine import (
 from meowlauncher.games.mame.software_list_info import (
     find_in_software_lists_with_custom_matcher, get_crc32_for_software_list,
     get_software_list_entry)
-from meowlauncher.info.region_info import TVSystem
+from meowlauncher.util.region_info import TVSystem
 
 
 def add_entex_adventure_vision_info(game):

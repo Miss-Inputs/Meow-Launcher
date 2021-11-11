@@ -1,12 +1,18 @@
+from typing import cast
+
 from meowlauncher import input_metadata
 from meowlauncher.common_types import MediaType
+from meowlauncher.games.mame.software_list import Software
 from meowlauncher.games.mame.software_list_info import get_software_list_entry
-from meowlauncher.info.region_info import TVSystem
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
+from meowlauncher.metadata import Metadata
+from meowlauncher.util.region_info import TVSystem
 
 from .common import atari_controllers as controllers
 
 
-def add_info_from_software_list(metadata, software):
+def add_info_from_software_list(metadata: Metadata, software: Software):
 	software.add_standard_metadata(metadata)
 	compatibility = software.compatibility
 	if compatibility:
@@ -76,11 +82,11 @@ def add_info_from_software_list(metadata, software):
 	#Meaningless for our purposes:
 	#Keyboard overlay was supplied with cartridge
 
-def add_atari_8bit_metadata(game):
+def add_atari_8bit_metadata(game: ROMGame):
 	headered = False
 
 	if game.metadata.media_type == MediaType.Cartridge:
-		header = game.rom.read(amount=16)
+		header = cast(FileROM, game.rom).read(amount=16)
 		magic = header[:4]
 		if magic == b'CART':
 			headered = True

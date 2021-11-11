@@ -1,29 +1,28 @@
+from typing import Any, cast
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
+from meowlauncher.games.mame.software_list import Software
 from meowlauncher.games.mame.software_list_info import get_software_list_entry
-from meowlauncher.info.region_info import TVSystem
-from meowlauncher.metadata import Date
+from meowlauncher.games.roms.rom_game import ROMGame
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import SMSPeripheral
-from meowlauncher.util.utils import load_dict
+from meowlauncher.util.region_info import TVSystem
+from meowlauncher.util.utils import decode_bcd, load_dict
 
 licensee_codes = load_dict(None, 'sega_licensee_codes')
 
-def decode_bcd(i):
-	if not isinstance(i, int):
-		return (decode_bcd(i[1]) * 100) + decode_bcd(i[0])
+def decode_bcd_multi(i: bytes) -> int:
+	return (decode_bcd(i[1]) * 100) + decode_bcd(i[0])
 
-	hi = (i & 0xf0) >> 4
-	lo = i & 0x0f
-	return (hi * 10) + lo
-
-def parse_sdsc_header(rom, metadata, header):
+def parse_sdsc_header(rom: FileROM, metadata: Metadata, header: bytes):
 	major_version = decode_bcd(header[0])
 	minor_version = decode_bcd(header[1])
 	metadata.specific_info['Version'] = 'v{0}.{1}'.format(major_version, minor_version)
 
 	day = decode_bcd(header[2])
 	month = decode_bcd(header[3])
-	year = decode_bcd(header[4:6])
+	year = decode_bcd_multi(header[4:6])
 	metadata.release_date = Date(year, month, day)
 
 	author_offset = int.from_bytes(header[6:8], 'little')
@@ -59,8 +58,8 @@ regions = {
 	7: ('International', True),
 }
 
-def parse_standard_header(rom, base_offset):
-	header_data = {}
+def parse_standard_header(rom: FileROM, base_offset: int) -> dict[str, Any]:
+	header_data: dict[str, Any] = {}
 	header = rom.read(seek_to=base_offset, amount=16)
 
 	if header[:8] != b'TMR SEGA':
@@ -72,7 +71,7 @@ def parse_standard_header(rom, base_offset):
 	product_code_lo = (header[14] & 0xf0) >> 4
 	header_data['Revision'] = header[14] & 0x0f
 
-	product_code = '{0}{1:04}'.format('' if product_code_lo == 0 else product_code_lo, decode_bcd(product_code_hi))
+	product_code = '{0}{1:04}'.format('' if product_code_lo == 0 else product_code_lo, decode_bcd_multi(product_code_hi))
 	header_data['Product code'] = product_code
 
 	region_code = (header[15] & 0xf0) >> 4
@@ -93,7 +92,7 @@ def parse_standard_header(rom, base_offset):
 
 	return header_data
 
-def try_parse_standard_header(rom, metadata):
+def try_parse_standard_header(rom: FileROM, metadata: Metadata):
 	rom_size = rom.get_size()
 	possible_offsets = [0x1ff0, 0x3ff0, 0x7ff0]
 
@@ -124,7 +123,7 @@ def try_parse_standard_header(rom, metadata):
 		#All non-Japanese/Korean systems have a BIOS which checks the checksum, so if there's no header at all, they just won't boot it
 		metadata.specific_info['Japanese-Only'] = True
 
-def add_info_from_software_list(metadata, software):
+def add_info_from_software_list(metadata: Metadata, software: Software):
 	software.add_standard_metadata(metadata)
 
 	usage = software.infos.get('usage')
@@ -203,12 +202,13 @@ def add_info_from_software_list(metadata, software):
 
 		metadata.specific_info['Peripheral'] = peripheral
 
-def get_sms_metadata(game):
-	sdsc_header = game.rom.read(seek_to=0x7fe0, amount=16)
+def get_sms_metadata(game: ROMGame):
+	rom = cast(FileROM, game.rom)
+	sdsc_header = rom.read(seek_to=0x7fe0, amount=16)
 	if sdsc_header[:4] == b'SDSC':
-		parse_sdsc_header(game.rom, game.metadata, sdsc_header[4:])
+		parse_sdsc_header(rom, game.metadata, sdsc_header[4:])
 
-	try_parse_standard_header(game.rom, game.metadata)
+	try_parse_standard_header(rom, game.metadata)
 
 	if game.metadata.platform == 'Game Gear':
 		#Because there's no accessories to make things confusing, we can assume the Game Gear's input info, but not the Master System's

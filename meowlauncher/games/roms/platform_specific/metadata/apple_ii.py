@@ -1,13 +1,17 @@
 
+from typing import cast
+
 from meowlauncher.config.main_config import main_config
-from meowlauncher.info.region_info import get_language_by_english_name
 from meowlauncher.games.mame.mame_helpers import consistentify_manufacturer
-from meowlauncher.metadata import Date
-from meowlauncher.platform_types import AppleIIHardware
 from meowlauncher.games.mame.software_list_info import get_software_list_entry
+from meowlauncher.games.roms.rom import ROM, FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
+from meowlauncher.metadata import Date, Metadata
+from meowlauncher.platform_types import AppleIIHardware
+from meowlauncher.util.region_info import get_language_by_english_name
 
 
-def parse_woz_info_chunk(metadata, chunk_data):
+def parse_woz_info_chunk(metadata: Metadata, chunk_data: bytes):
 	info_version = chunk_data[0]
 	#1: Disk type = 5.25" if 1 else 3.25 if 2
 	#2: 1 if write protected
@@ -50,7 +54,7 @@ woz_meta_machines = {
 	'3+': AppleIIHardware.AppleIIIPlus,
 }
 
-def parse_woz_meta_chunk(rom, metadata, chunk_data):
+def parse_woz_meta_chunk(rom: ROM, metadata: Metadata, chunk_data: bytes):
 	rows = chunk_data.split(b'\x0a')
 	for row in rows:
 		try:
@@ -120,7 +124,7 @@ def parse_woz_meta_chunk(rom, metadata, chunk_data):
 			if main_config.debug:
 				print('Unknown Woz META key', rom.path, key, value)
 
-def parse_woz_chunk(rom, metadata, position):
+def parse_woz_chunk(rom: FileROM, metadata: Metadata, position: int) -> int:
 	chunk_header = rom.read(seek_to=position, amount=8)
 	chunk_id = chunk_header[0:4].decode('ascii', errors='ignore')
 	chunk_data_size = int.from_bytes(chunk_header[4:8], 'little')
@@ -134,7 +138,7 @@ def parse_woz_chunk(rom, metadata, position):
 
 	return position + chunk_data_size + 8
 
-def add_woz_metadata(rom, metadata):
+def add_woz_metadata(rom: FileROM, metadata: Metadata):
 	#https://applesaucefdc.com/woz/reference1/
 	#https://applesaucefdc.com/woz/reference2/
 	magic = rom.read(amount=8)
@@ -155,9 +159,9 @@ def add_woz_metadata(rom, metadata):
 	if 'Header-Title' in metadata.names and 'Subtitle' in metadata.specific_info:
 		metadata.add_alternate_name(metadata.names['Header-Title'] + ': ' + metadata.specific_info['Subtitle'], 'Header-Title-with-Subtitle')
 
-def add_apple_ii_metadata(game):
+def add_apple_ii_metadata(game: ROMGame):
 	if game.metadata.extension == 'woz':
-		add_woz_metadata(game.rom, game.metadata)
+		add_woz_metadata(cast(FileROM, game.rom), game.metadata)
 
 	#Possible input info: Keyboard and joystick by default, mouse if mouse card exists
 

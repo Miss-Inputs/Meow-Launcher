@@ -2,8 +2,9 @@ import io
 import re
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.info.region_info import TVSystem
+from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Date
+from meowlauncher.util.region_info import TVSystem
 
 from .common.playstation_common import parse_product_code
 
@@ -19,7 +20,7 @@ except ModuleNotFoundError:
 boot_line_regex = re.compile(r'^BOOT2\s*=\s*cdrom0:\\(.+);1$')
 vmode_line_regex = re.compile(r'^VMODE\s*=\s*(\S+)$')
 boot_file_regex = re.compile(r'^(.{4})_(.{3})\.(.{2})$')
-def add_ps2_metadata(game):
+def add_ps2_metadata(game: ROMGame):
 	#.bin/cue also has this system.cnf but I'd need to know how to get pycdlib to work with that
 	if game.rom.extension == 'iso' and have_pycdlib:
 		iso = PyCdlib()

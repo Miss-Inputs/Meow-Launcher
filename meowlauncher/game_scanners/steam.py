@@ -19,9 +19,9 @@ from meowlauncher.desktop_launchers import has_been_done, make_launcher
 from meowlauncher.games.pc_common_metadata import (
     add_metadata_for_raw_exe, check_for_interesting_things_in_folder,
     detect_engine_recursively, fix_name, normalize_name_case)
-from meowlauncher.info.region_info import get_language_by_english_name
 from meowlauncher.launcher import LaunchCommand
 from meowlauncher.metadata import Date, Metadata
+from meowlauncher.util.region_info import get_language_by_english_name
 from meowlauncher.util.utils import (junk_suffixes, load_dict,
                                      remove_capital_article)
 

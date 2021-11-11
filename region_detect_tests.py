@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 #I can't be stuffed figuring out if there's some fancy unit test thing that all the cool kids use so I'm just gonna do my own thing
 
-from info.region_info import TVSystem, Region, Language, get_language_from_regions, get_tv_system_from_regions
-from detect_things_from_filename import get_languages_from_filename_tags, get_regions_from_filename_tags, get_tv_system_from_filename_tags
-from common import find_filename_tags_at_end
+from meowlauncher.detect_things_from_filename import (
+    get_languages_from_filename_tags, get_regions_from_filename_tags,
+    get_tv_system_from_filename_tags)
+from meowlauncher.util.region_info import (Language, Region, TVSystem,
+                                           get_language_from_regions,
+                                           get_tv_system_from_regions)
+from meowlauncher.util.utils import find_filename_tags_at_end
+
 
 def are_regions_equal(region, other_region):
 	if region == other_region:

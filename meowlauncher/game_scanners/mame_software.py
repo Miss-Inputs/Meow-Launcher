@@ -4,14 +4,14 @@ import sys
 import time
 
 from meowlauncher import desktop_launchers
-from meowlauncher.launcher import LaunchCommand
 from meowlauncher.common_types import EmulationNotSupportedException, MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.mame.software_list_info import \
     get_software_list_by_name
 from meowlauncher.info.emulator_command_line_helpers import mame_base
-from meowlauncher.info.region_info import TVSystem
+from meowlauncher.launcher import LaunchCommand
 from meowlauncher.metadata import Metadata
+from meowlauncher.util.region_info import TVSystem
 
 #TODO: Actually call this from main (once below todos are resolved)
 #TODO: Platform-specific metadata (e.g. specify Neo Geo = SaveType.MemoryCard); may want to refactor platform_metadata so it can work with this (for now though I only care about Neo Geo and such which isn't in there). Neo Geo in particular could get things like genre, icon from the arcade stuff, because it will always be equivalent to an arcade game, unless it isn't

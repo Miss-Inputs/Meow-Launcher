@@ -12,10 +12,10 @@ from meowlauncher.games.mame.software_list_info import (
     get_software_list_entry)
 from meowlauncher.games.roms.rom import ROM, FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.info.region_info import TVSystem
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import NESPeripheral
-from meowlauncher.util.utils import load_dict
+from meowlauncher.util.region_info import TVSystem
+from meowlauncher.util.utils import decode_bcd, load_dict
 
 nes_config = platform_configs.get('NES')
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
@@ -282,11 +282,6 @@ default_expansion_devices = {
 
 }
 
-def decode_bcd(i: int) -> int:
-	hi = (i & 0xf0) >> 4
-	lo = i & 0x0f
-	return (hi * 10) + lo
-
 def add_fds_metadata(rom: FileROM, metadata: Metadata):
 	if nes_config and nes_config.options.get('set_fds_as_different_platform'):
 		metadata.platform = 'FDS'
@@ -432,8 +427,9 @@ def _get_headered_nes_rom_software_list_entry(game: ROMGame) -> Optional[Softwar
 		prg_offset = 16 + 512 if game.metadata.specific_info.get('Has-iNES-Trainer', False) else 16
 		chr_offset = prg_offset + prg_size
 
-		prg_rom = game.rom.read(seek_to=prg_offset, amount=prg_size)
-		chr_rom = game.rom.read(seek_to=chr_offset, amount=chr_size) if chr_size else None
+		rom = cast(FileROM, game.rom)
+		prg_rom = rom.read(seek_to=prg_offset, amount=prg_size)
+		chr_rom = rom.read(seek_to=chr_offset, amount=chr_size) if chr_size else None
 
 		prg_crc32 = get_crc32_for_software_list(prg_rom)
 		chr_crc32 = get_crc32_for_software_list(chr_rom) if chr_rom else None

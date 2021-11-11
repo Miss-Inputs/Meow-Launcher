@@ -6,8 +6,8 @@ from xml.etree import ElementTree
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.info.region_info import get_language_by_english_name
 from meowlauncher.metadata import Metadata
+from meowlauncher.util.region_info import get_language_by_english_name
 
 from .minor_platforms import add_generic_info
 
