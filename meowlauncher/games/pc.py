@@ -1,29 +1,21 @@
-from abc import ABC, abstractmethod
-import datetime
-import json
 import os
-import time
-import traceback
-from typing import Any, Optional, Type, final
+from abc import ABC, abstractmethod
+from typing import Any, Optional, final
 
-from meowlauncher.common_paths import config_dir
-from meowlauncher.common_types import (EmulationNotSupportedException,
-                                       MediaType, NotARomException)
-from meowlauncher.config.emulator_config import emulator_configs
-from meowlauncher.config.main_config import main_config
+from meowlauncher.common_types import MediaType
+from meowlauncher.config.emulator_config_type import EmulatorConfig
 from meowlauncher.config.system_config import PlatformConfig
-from meowlauncher.data.emulated_platforms import pc_platforms
-from meowlauncher.data.emulators import pc_emulators
-from meowlauncher.desktop_launchers import make_launcher
-from meowlauncher.metadata import Date, Metadata
-from meowlauncher.emulated_game import EmulatedGame
+from meowlauncher.emulated_game import EmulatedGame, EmulatorLauncher
+from meowlauncher.emulator import PCEmulator
+from meowlauncher.launcher import LaunchCommand
+from meowlauncher.metadata import Date
 
 from .pc_common_metadata import fix_name
 
 
 class App(EmulatedGame, ABC):
 	def __init__(self, info: dict[str, Any]):
-		self.metadata = Metadata()
+		super().__init__()
 		self.info = info
 		self.is_on_cd: bool = info.get('is_on_cd', False)
 		self.path = info['path']
@@ -86,64 +78,22 @@ class App(EmulatedGame, ABC):
 		#To be overriden by subclass - optional, put any other platform-specific metadata you want in here
 		pass
 
-	def make_launcher(self, platform_config: PlatformConfig):
-		emulator_name = None
-		params = None
-		exception_reason = None
-		for emulator in platform_config.chosen_emulators:
-			emulator_name = emulator
-			if emulator_name not in pc_platforms[platform_config.name].emulators:
-				if main_config.debug:
-					print(emulator_name, 'is not a valid emulator for', platform_config.name)
-				continue
-			emulator_config = emulator_configs[emulator]
-			try:
-				if 'compat' in self.info:
-					if not self.info['compat'].get(emulator, True):
-						raise EmulationNotSupportedException('Apparently not supported')
-				params = pc_emulators[emulator].get_launch_params(self, platform_config.options, emulator_config)
-				if params:
-					break
-			except (EmulationNotSupportedException, NotARomException) as ex:
-				exception_reason = ex
+class AppLauncher(EmulatorLauncher):
+	def __init__(self, app: App, emulator: PCEmulator, platform_config: PlatformConfig, emulator_config: EmulatorConfig) -> None:
+		self.game: App = app
+		self.runner: PCEmulator = emulator
+		self.platform_config = platform_config
+		self.emulator_config = emulator_config
 
-		if not params:
-			if main_config.debug:
-				print(self.path, 'could not be launched by', platform_config.chosen_emulators, 'because', exception_reason)
-			return
+	@property
+	#Could do as a default, or maybe you should override it
+	def game_id(self) -> str:
+		return self.game.path
 
-		self.metadata.emulator_name = emulator_name
-		make_launcher(params, self.name, self.metadata, platform_config.name, self.get_launcher_id())
+	@final
+	@property
+	def game_type(self) -> str:
+		return self.platform_config.name
 
-def process_app(app_info: dict[str, Any], app_class: Type[App], system_config: PlatformConfig) -> None:
-	app = app_class(app_info)
-	try:
-		if not app.is_valid:
-			print('Skipping', app.name, app.path, 'config is not valid')
-			return
-		app.metadata.platform = system_config.name
-		app.add_metadata()
-		app.make_launcher(system_config)
-	except Exception as ex: #pylint: disable=broad-except
-		print('Ah bugger', app.path, app.name, ex, type(ex), traceback.extract_tb(ex.__traceback__)[1:])
-
-def make_launchers(platform: str, app_class: Type[App], system_config: PlatformConfig) -> None:
-	time_started = time.perf_counter()
-
-	app_list_path = os.path.join(config_dir, pc_platforms[platform].json_name + '.json')
-	try:
-		with open(app_list_path, 'rt') as f:
-			app_list = json.load(f)
-			for app in app_list:
-				try:
-					process_app(app, app_class, system_config)
-				except KeyError as ke:
-					print(app_list_path, app.get('name', 'unknown entry'), ': Missing needed key', ke)
-	except json.JSONDecodeError as json_fuckin_bloody_error:
-		print(app_list_path, 'is borked, skipping', platform, json_fuckin_bloody_error)
-	except FileNotFoundError:
-		return
-
-	if main_config.print_times:
-		time_ended = time.perf_counter()
-		print(platform, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+	def get_launch_command(self) -> LaunchCommand:
+		return self.runner.get_launch_params(self.game, self.platform_config.options, self.emulator_config)

@@ -2,6 +2,9 @@ import datetime
 import io
 from enum import Enum
 from typing import Any, Optional
+from meowlauncher.config.emulator_config_type import EmulatorConfig
+from meowlauncher.config.system_config import PlatformConfig
+from meowlauncher.emulator import PCEmulator
 
 try:
 	import machfs
@@ -24,7 +27,7 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.metadata import Date
 from meowlauncher.util.utils import format_byte_size
 
-from .pc import App
+from .pc import App, AppLauncher
 
 
 def does_exist(hfv_path: str, path: str) -> bool:
@@ -41,24 +44,24 @@ def does_exist(hfv_path: str, path: str) -> bool:
 	except FileNotFoundError:
 		return False
 		
-def get_path(volume, path):
+def get_path(volume, path: str):
 	#Skip the first part since that's the volume name and the tuple indexing for machfs.Volume doesn't work that way
 	return volume[tuple(path.split(':')[1:])]
 
 def _machfs_read_file(path: str):
 	#Try to avoid having to slurp really big files for each app by keeping it in memory if it's the same disk image
-	if _machfs_read_file.current_file_path == path:
-		return _machfs_read_file.current_file
+	if _machfs_read_file.current_file_path == path: #type: ignore
+		return _machfs_read_file.current_file #type: ignore
 
 	with open(path, 'rb') as f:
 		#Hmm, this could be slurping very large (maybe gigabyte(s)) files all at once
 		v = machfs.Volume()
 		v.read(f.read())
-		_machfs_read_file.current_file = v
-		_machfs_read_file.current_file_path = path
+		_machfs_read_file.current_file = v #type: ignore
+		_machfs_read_file.current_file_path = path #type: ignore
 		return v
-_machfs_read_file.current_file = None
-_machfs_read_file.current_file_path = None
+_machfs_read_file.current_file = None #type: ignore
+_machfs_read_file.current_file_path = None #type: ignore
 
 def get_macos_256_palette() -> list[int]:
 	#This is stored in the ROM as a clut resource otherwise
@@ -441,5 +444,11 @@ class MacApp(App):
 			#Allow manual override (sometimes apps are jerks and have 68K code just for the sole purpose of showing you a dialog box saying you can't run it on a 68K processor)
 			self.metadata.specific_info['Architecture'] = self.info['arch']
 				
-	def get_launcher_id(self) -> str:
-		return self.hfv_path + '/' + self.path
+class MacLauncher(AppLauncher):
+	def __init__(self, app: MacApp, emulator: PCEmulator, platform_config: PlatformConfig, emulator_config: EmulatorConfig) -> None:
+		self.game: MacApp = app
+		super().__init__(app, emulator, platform_config, emulator_config)
+
+	@property
+	def game_id(self) -> str:
+		return self.game.hfv_path + '/' + self.game.path

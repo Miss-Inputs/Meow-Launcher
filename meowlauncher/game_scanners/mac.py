@@ -3,8 +3,10 @@
 import os
 
 from meowlauncher.config.system_config import system_configs
-from meowlauncher.games import pc
-from meowlauncher.games.mac import MacApp, does_exist
+from meowlauncher.games.mac import MacApp, MacLauncher, does_exist
+from meowlauncher.games.pc import App, AppLauncher
+
+from . import pc
 
 mac_config = system_configs.get('Mac')
 
@@ -19,7 +21,7 @@ def make_mac_launchers() -> None:
 	if mac_config:
 		if not mac_config.chosen_emulators:
 			return
-		pc.make_launchers('Mac', MacApp, mac_config)
+		pc.make_launchers('Mac', MacApp, MacLauncher, mac_config)
 
 # def scan_app(hfv_path, app, game_list, unknown_games, found_games, ambiguous_games):
 # 	overall_path = hfv_path + ':' + app['path']

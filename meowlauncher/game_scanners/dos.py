@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 from meowlauncher.config.system_config import system_configs
-from meowlauncher.games import pc
 from meowlauncher.games.dos import DOSApp
+from meowlauncher.games.pc import AppLauncher
+
+from . import pc
 
 dos_config = system_configs.get('DOS')
 
@@ -10,7 +12,7 @@ def make_dos_launchers() -> None:
 	if dos_config:
 		if not dos_config.chosen_emulators:
 			return
-		pc.make_launchers('DOS', DOSApp, dos_config)
+		pc.make_launchers('DOS', DOSApp, AppLauncher, dos_config)
 
 #TODO Actually re-implement this, this is just old code and is only just there to refer to what logic I was using
 # def scan_app(path, exe_name, game_list, unknown_games, found_games, ambiguous_games):

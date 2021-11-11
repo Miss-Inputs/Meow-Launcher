@@ -97,9 +97,9 @@ class Launcher(ABC):
 	def game_id(self) -> str:
 		pass
 
-	@abstractproperty
+	@property
 	def info_fields(self) -> dict[str, dict[str, Any]]:
-		pass
+		return self.game.metadata.to_launcher_fields()
 
 	@abstractmethod
 	def get_launch_command(self) -> LaunchCommand:

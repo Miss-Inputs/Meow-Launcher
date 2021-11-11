@@ -15,8 +15,8 @@ from .rom import ROM, CompressedROM
 
 class ROMGame(EmulatedGame):
 	def __init__(self, rom: ROM, platform_name: str, platform: EmulatedPlatform):
+		super().__init__()
 		self.rom = rom
-		self.metadata = metadata.Metadata()
 		self.platform_name = self.metadata.platform = platform_name
 		self.platform = platform
 		self.metadata.categories = []
@@ -34,7 +34,6 @@ class ROMGame(EmulatedGame):
 			
 		return name
 
-
 class ROMLauncher(EmulatorLauncher):
 	def __init__(self, game: ROMGame, emulator: StandardEmulator, platform_config, emulator_config) -> None:
 		self.game: ROMGame = game
@@ -49,10 +48,6 @@ class ROMLauncher(EmulatorLauncher):
 	@property
 	def game_id(self) -> str:
 		return str(self.game.rom.path)
-
-	@property
-	def info_fields(self) -> dict[str, dict[str, Any]]:
-		return self.game.metadata.to_launcher_fields()
 
 	def get_launch_command(self) -> LaunchCommand:
 		params = self.runner.get_launch_params(self.game, self.platform_config, self.emulator_config)
