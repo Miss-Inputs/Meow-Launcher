@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import re
+from typing import Optional, Sequence
 
 from meowlauncher.info import region_info
 from meowlauncher.metadata import Date
@@ -10,7 +11,7 @@ nointro_language_list_regex = re.compile(r'\(((?:[A-Z][a-z](?:-[A-Z][a-z]+)?,)*(
 maybeintro_translated_regex = re.compile(r'\[(?:tr |T-|T\+)([A-Z][a-z])(?: (?:by )?[^]]+)?\]')
 tosec_language_regex = re.compile(r'\(([a-z][a-z])(?:-([a-z][a-z]))?\)')
 
-def get_languages_from_tags_directly(tags):
+def get_languages_from_tags_directly(tags: Sequence[str]) -> list[region_info.Language]:
 	langs = []
 	for tag in tags:
 		for language in region_info.languages:
@@ -21,7 +22,7 @@ def get_languages_from_tags_directly(tags):
 
 	return langs
 
-def get_nointro_language_list_from_filename_tags(tags):
+def get_nointro_language_list_from_filename_tags(tags: Sequence[str]) -> Optional[list[region_info.Language]]:
 	for tag in tags:
 		language_list_match = nointro_language_list_regex.match(tag)
 		if language_list_match:
@@ -36,7 +37,7 @@ def get_nointro_language_list_from_filename_tags(tags):
 			return langs
 	return None
 
-def get_maybeintro_languages_from_filename_tags(tags):
+def get_maybeintro_languages_from_filename_tags(tags: Sequence[str]) -> Optional[list[region_info.Language]]:
 	for tag in tags:
 		translation_match = maybeintro_translated_regex.match(tag)
 		if translation_match:
@@ -44,7 +45,7 @@ def get_maybeintro_languages_from_filename_tags(tags):
 	return None
 
 tosec_date_tag_regex = re.compile(r'\((-|[x\d]{4}(?:-\d{2}(?:-\d{2})?)?)\)')
-def get_tosec_languages_from_filename_tags(tags):
+def get_tosec_languages_from_filename_tags(tags: Sequence[str]) -> Optional[list[region_info.Language]]:
 	found_year_tag = False
 	found_publisher_tag = False
 
@@ -72,7 +73,7 @@ def get_tosec_languages_from_filename_tags(tags):
 					return [first_language]
 	return None
 
-def get_languages_from_filename_tags(tags):
+def get_languages_from_filename_tags(tags: Sequence[str]) -> Optional[list[region_info.Language]]:
 	langs = get_maybeintro_languages_from_filename_tags(tags)
 	if langs:
 		return langs
@@ -91,7 +92,7 @@ def get_languages_from_filename_tags(tags):
 
 	return None
 
-def get_regions_from_filename_tags_strictly(tags):
+def get_regions_from_filename_tags_strictly(tags: Sequence[str]) -> Optional[list[region_info.Region]]:
 	#Only of the form (Region 1, Region 2) strictly
 	for tag in tags:
 		if not (tag.startswith('(') and tag.endswith(')')):
@@ -106,7 +107,7 @@ def get_regions_from_filename_tags_strictly(tags):
 		return regions
 	return None
 
-def get_regions_from_filename_tags_loosely(tags):
+def get_regions_from_filename_tags_loosely(tags: Sequence[str]) -> list[region_info.Region]:
 	regions = []
 	for tag in tags:
 		for region in region_info.regions:
@@ -118,7 +119,7 @@ def get_regions_from_filename_tags_loosely(tags):
 			regions.append(region_info.get_region_by_name('Europe'))
 	return regions
 
-def get_tosec_region_list_from_filename_tags(tags):
+def get_tosec_region_list_from_filename_tags(tags: Sequence[str]) -> Optional[list[region_info.Region]]:
 	#Only something like (JP-US)
 	found_year_tag = False
 	found_publisher_tag = False
@@ -147,7 +148,8 @@ def get_tosec_region_list_from_filename_tags(tags):
 		return regions
 	return None
 
-def get_regions_from_filename_tags(tags, loose=False):
+def get_regions_from_filename_tags(tags: Sequence[str], loose=False) -> Optional[list[region_info.Region]]:
+	regions: Optional[list[region_info.Region]]
 	if loose:
 		regions = get_regions_from_filename_tags_loosely(tags)
 		if regions:
@@ -163,7 +165,7 @@ def get_regions_from_filename_tags(tags, loose=False):
 
 	return None
 
-def get_tv_system_from_filename_tags(tags):
+def get_tv_system_from_filename_tags(tags: Sequence[str]) -> Optional[region_info.TVSystem]:
 	#You should look for regions instead if you can. This just looks at the presence of (NTSC) or (PAL) directly (both No-Intro and TOSEC style filenames sometimes do this).
 	for tag in tags:
 		tag = tag.upper()
@@ -177,7 +179,7 @@ def get_tv_system_from_filename_tags(tags):
 	return None
 
 date_regex = re.compile(r'\((?P<year>[x\d]{4})\)|\((?P<year2>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})\)|\((?P<day2>\d{2})\.(?P<month2>\d{2})\.(?P<year3>\d{4})\)')
-def get_date_from_filename_tags(tags):
+def get_date_from_filename_tags(tags: Sequence[str]) -> Optional[Date]:
 	for tag in tags:
 		date_match = date_regex.match(tag)
 		if date_match:
@@ -198,7 +200,7 @@ def get_date_from_filename_tags(tags):
 	return None
 
 revision_regex = re.compile(r'\([Rr]ev(?:ision)? ([A-Z\d]+?)\)')
-def get_revision_from_filename_tags(tags):
+def get_revision_from_filename_tags(tags: Sequence[str]) -> Optional[str]:
 	for tag in tags:
 		revision_match = revision_regex.match(tag)
 		if revision_match:
@@ -207,7 +209,7 @@ def get_revision_from_filename_tags(tags):
 
 version_regex = re.compile(r'\((vV[\w.]+)\)') #Very loose match, I know, but sometimes versions have stuff on the end like v1.2b or whatever and I don't wanna overcomplicate things
 version_number_regex = re.compile(r'\((?:version|ver|ver\.)\s+([\d.]+)[^)]*\)') #This one is a bit more specific and shows up in MAME machine names sometimes
-def get_version_from_filename_tags(tags):
+def get_version_from_filename_tags(tags: Sequence[str]) -> Optional[str]:
 	for tag in tags:
 		version_match = version_regex.match(tag)
 		if version_match:

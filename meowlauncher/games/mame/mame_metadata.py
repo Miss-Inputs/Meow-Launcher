@@ -1,10 +1,12 @@
 import functools
 import os
+from typing import Optional, Sequence
 
 from meowlauncher import detect_things_from_filename, input_metadata
 from meowlauncher.common_types import EmulationStatus, MediaType, SaveType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.info.region_info import (get_language_by_english_name,
+from meowlauncher.info.region_info import (Language,
+                                           get_language_by_english_name,
                                            get_language_from_regions)
 from meowlauncher.metadata import CPU, ScreenInfo
 from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
@@ -18,12 +20,12 @@ mame_statuses = {
 	'preliminary': EmulationStatus.Broken,
 }
 
-def get_mame_categories_folders():
+def get_mame_categories_folders() -> list[str]:
 	ui_config = get_mame_ui_config()
-	return ui_config.get('categorypath')
+	return ui_config.get('categorypath', [])
 
 @functools.lru_cache(maxsize=None)
-def get_mame_folder(name: str):
+def get_mame_folder(name: str) -> dict[str, list[str]]:
 	category_folders = get_mame_categories_folders()
 	if not category_folders:
 		return {}
@@ -51,13 +53,14 @@ def get_mame_folder(name: str):
 	return d
 
 @functools.lru_cache(maxsize=None)
-def get_machine_folder(basename: str, folder_name: str):
+def get_machine_folder(basename: str, folder_name: str) -> Optional[list[str]]:
 	folder = get_mame_folder(folder_name)
 	if not folder:
 		return None
 	return [section for section, names in folder.items() if basename in names]
 
-def get_category(basename: str):
+def get_category(basename: str) -> tuple[Optional[str], str, str, bool]:
+	#I don't really like this function, returning 4 values at once feels like I'm doing something wrong
 	cats = get_machine_folder(basename, 'catlist')
 	#It would theoretically be possible for a machine to appear twice, but catlist doesn't do that I think
 	if not cats:
@@ -78,7 +81,7 @@ def get_category(basename: str):
 	genre, _, subgenre = cat.partition(' / ')
 	return None, genre, subgenre, False
 
-def get_languages(basename: str):
+def get_languages(basename: str) -> Optional[list[Language]]:
 	langs = get_machine_folder(basename, 'languages')
 	if not langs:
 		return None
@@ -90,7 +93,8 @@ def get_languages(basename: str):
 #Also shocktro has a set 2 (shocktroa), and shocktr2 has a bootleg (lans2004), so I should look into if those clones don't save either. They probably don't, though, and it's probably best to expect that something doesn't save and just playing it like any other arcade game, rather than thinking it does and then finding out the hard way that it doesn't. I mean, you could always use savestates, I guess. If those are supported. Might not be. That's another story.
 not_actually_save_supported = ['diggerma', 'neobombe', 'pbobbl2n', 'popbounc', 'shocktro', 'shocktr2', 'irrmaze']
 
-def add_save_type(machine):
+#TODO: If we can't type annotate Machine here without a circular import, that means we're doing something wrong I think
+def add_save_type(machine) -> None:
 	if machine.metadata.platform == 'Arcade':
 		has_memory_card = False
 		for media_slot in machine.media_slots:
@@ -110,7 +114,7 @@ def add_save_type(machine):
 		#This may be wrong!!!!!!!!!!! but it seems to hold true for plug & play TV games and electronic handheld games so that'd be the main idea
 		machine.metadata.save_type = SaveType.Internal if has_nvram or has_i2cmem else SaveType.Nothing
 
-def add_status(machine):
+def add_status(machine) -> None:
 	driver = machine.driver_element
 	#See comments for overall_status property for what that actually means
 	machine.metadata.specific_info['MAME-Overall-Emulation-Status'] = machine.overall_status
@@ -130,7 +134,7 @@ def add_status(machine):
 	if unemulated_features:
 		machine.metadata.specific_info['MAME-Unemulated-Features'] = unemulated_features
 
-def add_metadata_from_catlist(machine):
+def add_metadata_from_catlist(machine) -> None:
 	category, genre, subgenre, is_mature = get_category(machine.basename)
 	if category == 'Unknown' and machine.has_parent:
 		category, genre, subgenre, is_mature = get_category(machine.parent_basename)
@@ -298,7 +302,7 @@ def add_metadata_from_catlist(machine):
 	#Misc has a lot of different things in it and I guess catlist just uses it as a catch-all for random things which don't really fit anywhere else and there's not enough to give them their own category, probably
 	#Anyway, the name 'Non-Arcade' sucks because it's just used as a "this isn't anything in particular" thing
 
-def add_languages(machine, name_tags):
+def add_languages(machine, name_tags: Sequence[str]):
 	languages = get_languages(machine.basename)
 	if languages:
 		machine.metadata.languages = languages
