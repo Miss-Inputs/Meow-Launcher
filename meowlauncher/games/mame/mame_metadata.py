@@ -1,18 +1,15 @@
-import functools
-import os
 from typing import Optional, Sequence
 
 from meowlauncher import detect_things_from_filename, input_metadata
 from meowlauncher.common_types import EmulationStatus, MediaType, SaveType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games.mame_common.mame_helpers import (add_history,
-                                                         find_cpus, get_image,
-                                                         get_mame_ui_config,
+from meowlauncher.games.mame_common.mame_helpers import (find_cpus, get_image,
                                                          image_config_keys)
+from meowlauncher.games.mame_common.mame_support_files import (add_history,
+                                                               get_category,
+                                                               get_languages)
 from meowlauncher.metadata import CPU, ScreenInfo
-from meowlauncher.util.region_info import (Language,
-                                           get_language_by_english_name,
-                                           get_language_from_regions)
+from meowlauncher.util.region_info import get_language_from_regions
 from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
 
 mame_statuses: dict[Optional[str], EmulationStatus] = {
@@ -21,74 +18,6 @@ mame_statuses: dict[Optional[str], EmulationStatus] = {
 	'imperfect': EmulationStatus.Imperfect,
 	'preliminary': EmulationStatus.Broken,
 }
-
-def get_mame_categories_folders() -> list[str]:
-	ui_config = get_mame_ui_config()
-	return ui_config.get('categorypath', [])
-
-@functools.lru_cache(maxsize=None)
-def get_mame_folder(name: str) -> dict[str, list[str]]:
-	category_folders = get_mame_categories_folders()
-	if not category_folders:
-		return {}
-
-	d: dict[str, list[str]] = {}
-	for folder in category_folders:
-		cat_path = os.path.join(folder, name + '.ini')
-		try:
-			with open(cat_path, 'rt') as f:
-				current_section = None
-				for line in f:
-					line = line.strip()
-					#Don't need to worry about FOLDER_SETTINGS or ROOT_FOLDER sections though I guess this code is gonna put them in there
-					if line.startswith(';'):
-						continue
-					if line.startswith('['):
-						current_section = line[1:-1]
-					elif current_section:
-						if current_section not in d:
-							d[current_section] = []
-						d[current_section].append(line)
-						
-		except FileNotFoundError:
-			pass
-	return d
-
-@functools.lru_cache(maxsize=None)
-def get_machine_folder(basename: str, folder_name: str) -> Optional[list[str]]:
-	folder = get_mame_folder(folder_name)
-	if not folder:
-		return None
-	return [section for section, names in folder.items() if basename in names]
-
-def get_category(basename: str) -> tuple[Optional[str], str, str, bool]:
-	#I don't really like this function, returning 4 values at once feels like I'm doing something wrong
-	cats = get_machine_folder(basename, 'catlist')
-	#It would theoretically be possible for a machine to appear twice, but catlist doesn't do that I think
-	if not cats:
-		return 'Unknown', 'Unknown', 'Unknown', False
-	cat = cats[0]
-
-	if ': ' in cat:
-		category, _, genres = cat.partition(': ')
-		genre, _, subgenre = genres.partition(' / ')
-		is_mature = False
-		if subgenre.endswith('* Mature *'):
-			is_mature = True
-			subgenre = subgenre.removesuffix('* Mature *')
-		genre.removeprefix('TTL * ')
-		
-		return category, genre, subgenre, is_mature
-
-	genre, _, subgenre = cat.partition(' / ')
-	return None, genre, subgenre, False
-
-def get_languages(basename: str) -> Optional[list[Language]]:
-	langs = get_machine_folder(basename, 'languages')
-	if not langs:
-		return None
-
-	return [get_language_by_english_name(lang) for lang in langs]
 
 #Some games have memory card slots, but they don't actually support saving, it's just t hat the arcade system board thing they use always has that memory card slot there. So let's not delude ourselves into thinking that games which don't save let you save, because that might result in emotional turmoil.
 #Fatal Fury 2, Fatal Fury Special, Fatal Fury 3, and The Last Blade apparently only save in Japanese or something? That might be something to be aware of
@@ -304,7 +233,7 @@ def add_metadata_from_catlist(machine) -> None:
 	#Misc has a lot of different things in it and I guess catlist just uses it as a catch-all for random things which don't really fit anywhere else and there's not enough to give them their own category, probably
 	#Anyway, the name 'Non-Arcade' sucks because it's just used as a "this isn't anything in particular" thing
 
-def add_languages(machine, name_tags: Sequence[str]):
+def add_languages(machine, name_tags: Sequence[str]) -> None:
 	languages = get_languages(machine.basename)
 	if languages:
 		machine.metadata.languages = languages
@@ -323,7 +252,7 @@ def add_languages(machine, name_tags: Sequence[str]):
 			if region_language:
 				machine.metadata.languages = [region_language]
 
-def add_images(machine):
+def add_images(machine) -> None:
 	for image_name, config_key in image_config_keys.items():
 		image = get_image(config_key, machine.basename)
 		if image:
@@ -339,8 +268,7 @@ def add_images(machine):
 			if image:
 				machine.metadata.images[image_name] = image
 		
-
-def add_metadata(machine):
+def add_metadata(machine) -> None:
 	add_images(machine)
 
 	machine.metadata.cpu_info.set_inited()
@@ -376,7 +304,7 @@ def add_metadata(machine):
 	add_status(machine)
 	add_history(machine.metadata, machine.basename)
 
-def add_input_info(machine):
+def add_input_info(machine) -> None:
 	machine.metadata.input_info.set_inited()
 	if machine.input_element is None:
 		#Seems like this doesn't actually happen
