@@ -3,10 +3,12 @@ from enum import Enum, auto
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import MediaType
-from meowlauncher.games.mame.mame_helpers import MAMENotInstalledException
 from meowlauncher.games.mame.mame_machine import (
     Machine, does_machine_match_game, get_machines_from_source_file)
-from meowlauncher.games.mame.software_list_info import get_software_list_entry
+from meowlauncher.games.mame_common.mame_executable import \
+    MAMENotInstalledException
+from meowlauncher.games.mame_common.software_list_info import \
+    get_software_list_entry
 from meowlauncher.games.roms.rom_game import ROMGame
 
 from .generic import add_generic_info
@@ -168,13 +170,13 @@ def add_pet_info(game: ROMGame):
 
 def _get_uapce_games() -> list[Machine]:
 	try:
-		return _get_uapce_games.result
+		return _get_uapce_games.result #type: ignore[attr-defined]
 	except AttributeError:
 		try:
-			_get_uapce_games.result = list(get_machines_from_source_file('uapce'))
+			_get_uapce_games.result = list(get_machines_from_source_file('uapce')) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
 			return []
-		return _get_uapce_games.result
+		return _get_uapce_games.result #type: ignore[attr-defined]
 
 def add_pc_engine_info(game: ROMGame):
 	#Not sure how to detect 2/6 buttons, or usage of TurboBooster-Plus, but I want to

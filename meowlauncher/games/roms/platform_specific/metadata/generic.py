@@ -1,6 +1,8 @@
-from meowlauncher.games.mame.software_list_info import get_software_list_entry
+from meowlauncher.games.mame_common.software_list_info import \
+    get_software_list_entry
 from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.util.region_info import TVSystem
+
 
 def add_generic_info(game: ROMGame):
 	#For any system not otherwise specified

@@ -5,8 +5,8 @@ from typing import Mapping, Optional, cast
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.emulator_config import emulator_configs
-from meowlauncher.games.mame.software_list_info import (find_in_software_lists,
-                                                        matcher_args_for_bytes)
+from meowlauncher.games.mame_common.software_list_info import (
+    find_in_software_lists, matcher_args_for_bytes)
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Metadata

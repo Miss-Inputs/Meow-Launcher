@@ -6,7 +6,7 @@ import time
 
 import meowlauncher.main
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games.mame.mame_helpers import have_mame
+from meowlauncher.games.mame_common.mame_helpers import have_mame
 
 overall_time_started = time.perf_counter()
 

@@ -1,24 +1,9 @@
 import configparser
-import datetime
 import io
 import json
 import os
-import re
-import struct
 import zipfile
-
-from meowlauncher.config.main_config import main_config
-from meowlauncher.data.name_cleanup.capitalized_words_in_names import \
-    capitalized_words
-from meowlauncher.metadata import Date
-from meowlauncher.series_detect import chapter_matcher
-from meowlauncher.util.utils import junk_suffixes, title_case
-
-try:
-	import pefile
-	have_pefile = True
-except ModuleNotFoundError:
-	have_pefile = False
+from typing import Optional
 
 try:
 	from PIL import Image
@@ -26,200 +11,19 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
+from meowlauncher.metadata import Metadata
+from meowlauncher.util.utils import junk_suffixes
 
-#Hmm, are other extensions going to work as icons in a file manager
-icon_extensions = ('png', 'ico', 'xpm', 'svg')
+from .pc_common_metadata import get_exe_properties
 
-def get_pe_file_info(pe):
-	if not hasattr(pe, 'FileInfo'):
-		return None
-	for file_info in pe.FileInfo:
-		for info in file_info:
-			if hasattr(info, 'StringTable'):
-				for string_table in info.StringTable:
-					d = {k.decode('ascii', errors='ignore'): v.rstrip(b'\0').decode('ascii', errors='ignore') for k, v in string_table.entries.items()}
-					if hasattr(pe, 'FILE_HEADER'):
-						d['TimeDateStamp'] = datetime.datetime.fromtimestamp(pe.FILE_HEADER.TimeDateStamp)
-					return d
-	return None
 
-def get_exe_properties(path):
-	if have_pefile:
-		try:
-			pe = pefile.PE(path, fast_load=True)
-			pe.parse_data_directories(pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_RESOURCE'])
-			try:
-				return get_pe_file_info(pe)
-			#pylint: disable=broad-except
-			except Exception as ex:
-				if main_config.debug:
-					print('Something weird happened in get_exe_properties', path, ex)
-				return None
-		except pefile.PEFormatError:
-			pass
-	return None
-
-def add_metadata_for_raw_exe(path, metadata):
-	props = get_exe_properties(path)
-	if not props:
-		return
-	
-	#Possible values to expect: https://docs.microsoft.com/en-us/windows/win32/api/winver/nf-winver-verqueryvaluea#remarks
-
-	# if props.get('InternalName'):
-	# 	if props.get('InternalName') != props.get('OriginalFilename'):
-	# 		print(path, props.get('InternalName'), props.get('OriginalFilename'))
-
-	if not metadata.publisher and not metadata.developer:
-		company_name = props.get('CompanyName')
-		if company_name:
-			while junk_suffixes.search(company_name):
-				company_name = junk_suffixes.sub('', company_name)
-			metadata.publisher = company_name
-
-	product_name = props.get('ProductName')
-	if product_name:
-		metadata.add_alternate_name(product_name, 'Name')
-	copyright_string = props.get('LegalCopyright')
-	if copyright_string:
-		metadata.specific_info['Copyright'] = copyright_string
-	description = props.get('FileDescription')
-	if description and description != product_name:
-		metadata.descriptions['File-Description'] = description
-	comments = props.get('Comments')
-	if comments and comments != product_name:
-		metadata.specific_info['File-Comment'] = comments
-	trademarks = props.get('LegalTrademarks')
-	if trademarks and trademarks != copyright_string:
-		metadata.specific_info['Trademarks'] = trademarks
-	
-	timedatestamp = props.get('TimeDateStamp')
-	if timedatestamp:
-		if not (timedatestamp > datetime.datetime.now() or timedatestamp.year < 1993):
-			#If the date has not even happened yet, or is before Windows NT 3.1 and hence the PE format was even invented, I think the fuck not
-
-			build_date = Date(timedatestamp.year, timedatestamp.month, timedatestamp.day)
-			metadata.specific_info['Build-Date'] = build_date
-			guessed_date = Date(build_date.year, build_date.month, build_date.day, True)
-			if guessed_date.is_better_than(metadata.release_date):
-				metadata.release_date = guessed_date
-
-def pe_directory_to_dict(directory):
-	d = {}
-	for entry in directory.entries:
-		if hasattr(entry, 'directory'):
-			v = pe_directory_to_dict(entry.directory)
-		else:
-			v = entry
-		d[entry.name if entry.name else entry.id] = v
-	return d
-
-def get_pe_resources(pe, resource_type):
-	if not hasattr(pe, 'DIRECTORY_ENTRY_RESOURCE'):
-		#weirdo has no resources
-		return None
-	for entry in pe.DIRECTORY_ENTRY_RESOURCE.entries:
-		if entry.id == resource_type:
-			return pe_directory_to_dict(entry.directory)
-	return None
-
-def get_first_pe_resource(resource_dict):
-	for k, v in resource_dict.items():
-		if isinstance(v, dict):
-			return get_first_pe_resource(v)
-		return k, v
-
-def parse_pe_group_icon_directory(data):
-	struct_format = '<BBBBHHIH'
-	_, _, count = struct.unpack('<HHH', data[:6]) #don't need type I think
-	return {entry_id: {'width': width, 'height': height, 'colour_count': colour_count, 'planes': planes, 'bit_count': bit_count, 'bytes_in_res': bytes_in_res}
-		for width, height, colour_count, _, planes, bit_count, bytes_in_res, entry_id in struct.iter_unpack(struct_format, data[6:6 + (struct.calcsize(struct_format) * count)])}
-
-def get_icon_from_pe(pe):
-	group_icons = get_pe_resources(pe, pefile.RESOURCE_TYPE['RT_GROUP_ICON'])
-	if not group_icons:
-		return None
-	_, first_group_icon = get_first_pe_resource(group_icons)
-	
-	first_group_icon_data = pe.get_data(first_group_icon.data.struct.OffsetToData, first_group_icon.data.struct.Size)
-	header = first_group_icon_data[:6]
-	group_icon_entries = parse_pe_group_icon_directory(first_group_icon_data)
-	icons_dir = get_pe_resources(pe, pefile.RESOURCE_TYPE['RT_ICON'])
-	ico_entry_format = '<BBBBHHII'
-	offset = 6 + (len(group_icon_entries) * struct.calcsize(ico_entry_format))
-	data = b''
-	for k, v in group_icon_entries.items():
-		icon_resource = icons_dir.get(k)
-		#if not icon_resource:
-		#	#Odd, this should not happen
-		#	continue
-		if isinstance(icon_resource, dict):
-			icon_resource = list(icon_resource.values())[0]
-		icon_resource_data = pe.get_data(icon_resource.data.struct.OffsetToData, icon_resource.data.struct.Size)
-		#This is the raw bytes so we need to make the .ico ourselves
-		ico_entry = struct.pack(ico_entry_format, v['width'], v['height'], v['colour_count'], 0, v['planes'], v['bit_count'], v['bytes_in_res'], offset)
-		offset += v['bytes_in_res']
-		header += ico_entry
-		data += icon_resource_data
-	ico = header + data
-	return Image.open(io.BytesIO(ico))
-
-def get_icon_inside_exe(path):
-	if have_pefile:
-		try:
-			pe = pefile.PE(path, fast_load=True)
-			pe.parse_data_directories(pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_RESOURCE'])
-			try:
-				icon = get_icon_from_pe(pe)
-			#pylint: disable=broad-except
-			except Exception as ex:
-				if main_config.debug:
-					print('Something weird happened in get_icon_from_pe', path, ex)
-				return None
-			if icon:
-				return icon
-		except pefile.PEFormatError:
-			pass
-	return None
-
-def look_for_icon_next_to_file(path):
-	exe_icon = get_icon_inside_exe(path)
-	if exe_icon:
-		return exe_icon
-
-	parent_folder = os.path.dirname(path)
-	for f in os.listdir(parent_folder):
-		for ext in icon_extensions:
-			if f.lower() == os.path.splitext(os.path.basename(path))[0].lower() + os.path.extsep + ext:
-				return os.path.join(parent_folder, f)
-
-	return look_for_icon_in_folder(parent_folder, False)
-
-def look_for_icon_in_folder(folder, look_for_any_ico=True):
-	for f in os.listdir(folder):
-		for ext in icon_extensions:
-			if f.lower() == 'icon' + os.path.extsep + ext:
-				return os.path.join(folder, f)
-			if f.startswith('goggame-') and f.endswith(icon_extensions):
-				return os.path.join(folder, f)
-			if f == 'gfw_high.ico':
-				#Some kind of older GOG icon? Except not in actual GOG games, just stuff that was distributed elsewhere I guess
-				return os.path.join(folder, f)
-
-	if look_for_any_ico:
-		#Just get the first ico if we didn't find anything specific
-		for f in os.listdir(folder):
-			if f.lower().endswith('.ico'):
-				return os.path.join(folder, f)
-	return None
-
-def try_detect_unity(folder, metadata=None):
+def try_detect_unity(folder: str, metadata: Optional[Metadata]=None) -> bool:
 	if os.path.isfile(os.path.join(folder, 'Build', 'UnityLoader.js')):
 		#Web version of Unity, there should be some .unityweb files here
 		if metadata:
-			for f in os.listdir(os.path.join(folder, 'Build')):
-				if f.endswith('.json'):
-					with open(os.path.join(folder, 'Build', f)) as json_file:
+			for file in os.listdir(os.path.join(folder, 'Build')):
+				if file.endswith('.json'):
+					with open(os.path.join(folder, 'Build', file)) as json_file:
 						info_json = json.load(json_file)
 						if not metadata.publisher and not metadata.developer:
 							company_name = info_json.get('companyName')
@@ -263,7 +67,7 @@ def try_detect_unity(folder, metadata=None):
 				return True
 	return False
 
-def try_detect_ue4(folder):
+def try_detect_ue4(folder: str) -> bool:
 	if os.path.isfile(os.path.basename(folder) + '.uproject'):
 		return True
 
@@ -287,8 +91,8 @@ def try_detect_ue4(folder):
 
 	#Hmm…
 	#Something like Blah/Binaries/Linux/Blah-Linux-Shipping
-	project_name = None
-	binaries_folder = None
+	project_name: str
+	binaries_folder: str
 	for subdir in os.scandir(folder):
 		if subdir.name == 'Engine':
 			continue
@@ -298,6 +102,7 @@ def try_detect_ue4(folder):
 		if os.path.isdir(maybe_binaries_path):
 			project_name = subdir.name
 			binaries_folder = maybe_binaries_path
+			break
 
 	if not binaries_folder:
 		#Gonna assume probably not then
@@ -314,7 +119,7 @@ def try_detect_ue4(folder):
 	
 	return False
 
-def try_detect_build(folder):
+def try_detect_build(folder: str) -> bool:
 	files = [f.name.lower() for f in os.scandir(folder) if f.is_file()]
 	if 'build.exe' in files and 'bsetup.exe' in files and 'editart.exe' in files:
 		return True
@@ -324,7 +129,7 @@ def try_detect_build(folder):
 				return True
 	return False
 
-def try_detect_ue3(folder):
+def try_detect_ue3(folder: str) -> bool:
 	for f in os.scandir(folder):
 		if (f.name != 'Game' and f.name.endswith('Game')) or f.name == 'P13' or (f.name.isupper() and f.name != 'GAME' and f.name.endswith('GAME')):
 			if f.is_dir():
@@ -338,7 +143,7 @@ def try_detect_ue3(folder):
 					return True
 	return False
 
-def try_detect_gamemaker(folder, metadata=None) -> bool:
+def try_detect_gamemaker(folder: str, metadata: Optional[Metadata]=None) -> bool:
 	if os.path.isfile(os.path.join(folder, 'audiogroup1.dat')) and os.path.isfile(os.path.join(folder, 'data.win')) and os.path.isfile(os.path.join(folder, 'options.ini')):
 		#Hmmmmmmmmmmmmm probably
 		#data.win generally has "FORM" magic? audiogroup1/2/3.dat and options.ini might not always be there but I wanna be more sure if I don't poke around in files
@@ -368,7 +173,7 @@ def try_detect_gamemaker(folder, metadata=None) -> bool:
 
 	return False
 
-def try_detect_source(folder):
+def try_detect_source(folder: str) -> bool:
 	have_bin = os.path.isdir(os.path.join(folder, 'bin'))
 	have_platform = os.path.isdir(os.path.join(folder, 'platform'))
 	if not (have_bin or have_platform):
@@ -389,7 +194,7 @@ def try_detect_source(folder):
 	
 	return False
 
-def try_detect_adobe_air(folder):
+def try_detect_adobe_air(folder: str) -> bool:
 	if os.path.isdir(os.path.join(folder, 'Adobe AIR')):
 		return True
 	if os.path.isdir(os.path.join(folder, 'runtimes', 'Adobe AIR')):
@@ -408,7 +213,7 @@ def try_detect_adobe_air(folder):
 
 	return False
 
-def add_metadata_from_nw_package_json(package_json, metadata):
+def add_metadata_from_nw_package_json(package_json: dict, metadata: Metadata):
 	#main might come in handy
 	metadata.descriptions['Package-Description'] = package_json.get('description')
 	metadata.add_alternate_name(package_json.get('name'), 'Name')
@@ -418,7 +223,7 @@ def add_metadata_from_nw_package_json(package_json, metadata):
 		metadata.specific_info['Icon-Relative-Path'] = window.get('icon')
 		metadata.add_alternate_name(window.get('title'), 'Window-Title')
 
-def try_detect_nw(folder, metadata=None):
+def try_detect_nw(folder: str, metadata: Optional[Metadata]=None) -> bool:
 	if not os.path.isfile(os.path.join(folder, 'nw.pak')) and not os.path.isfile(os.path.join(folder, 'nw_100_percent.pak')) and not os.path.isfile(os.path.join(folder, 'nw_200_percent.pak')):
 		return False
 	
@@ -461,7 +266,7 @@ def try_detect_nw(folder, metadata=None):
 
 	return True
 
-def try_detect_cryengine(folder):
+def try_detect_cryengine(folder: str) -> Optional[str]:
 	cryengine32_path = os.path.join(folder, 'Bin32', 'CrySystem.dll')
 	cryengine64_path = os.path.join(folder, 'Bin64', 'CrySystem.dll')
 	if os.path.isfile(cryengine64_path):
@@ -469,7 +274,7 @@ def try_detect_cryengine(folder):
 	elif os.path.isfile(cryengine32_path):
 		cryengine_dll = cryengine32_path
 	else:
-		return False
+		return None
 
 	engine_version = 'CryEngine'
 	#If we don't have pefile, this will safely return none and it's not so bad to just say "CryEngine" when it's specifically CryEngine 2
@@ -479,7 +284,7 @@ def try_detect_cryengine(folder):
 			engine_version = 'CryEngine 2'
 	return engine_version
 
-def try_and_detect_engine_from_folder(folder, metadata=None):
+def try_and_detect_engine_from_folder(folder: str, metadata: Metadata=None) -> Optional[str]:
 	dir_entries = list(os.scandir(folder))
 	files = [f.name.lower() for f in dir_entries if f.is_file()]
 	subdirs = [f.name.lower() for f in dir_entries if f.is_dir()]
@@ -556,7 +361,7 @@ def try_and_detect_engine_from_folder(folder, metadata=None):
 	
 	return None
 
-def detect_engine_recursively(folder, metadata=None):
+def detect_engine_recursively(folder: str, metadata: Optional[Metadata]=None) -> Optional[str]:
 	engine = try_and_detect_engine_from_folder(folder, metadata)
 	if engine:
 		return engine
@@ -568,83 +373,3 @@ def detect_engine_recursively(folder, metadata=None):
 				return engine
 
 	return None
-
-def check_for_interesting_things_in_folder(folder, metadata, find_wrappers=False):
-	#Let's check for things existing because we can (there's not really any other reason to do this, it's just fun)
-	#Not sure if any of these are in lowercase? Or they might be in a different directory
-	dir_entries = list(os.scandir(folder))
-	files = [f.name.lower() for f in dir_entries if f.is_file()]
-	subdirs = [f.name.lower() for f in dir_entries if f.is_dir()]
-	
-	if 'libdiscord-rpc.so' in files or 'discord-rpc.dll' in files:
-		metadata.specific_info['Discord-Rich-Presence'] = True
-
-	if find_wrappers:
-		#This is only really relevant for Steam etc
-		if 'dosbox' in subdirs or any(f.startswith('dosbox') for f in files):
-			metadata.specific_info['Wrapper'] = 'DOSBox'
-
-		if any(f.startswith('scummvm_') for f in subdirs) or any(f.startswith('scummvm') for f in files):
-			metadata.specific_info['Wrapper'] = 'ScummVM'
-
-		if os.path.isfile(os.path.join(folder, 'support', 'UplayInstaller.exe')):
-			metadata.specific_info['Launcher'] = 'uPlay'
-
-fluff_editions = ['GOTY', 'Game of the Year', 'Definitive', 'Enhanced', 'Special', 'Ultimate', 'Premium', 'Gold', 'Extended', 'Super Turbo Championship', 'Digital', 'Megaton', 'Deluxe', 'Masterpiece']
-demo_suffixes = ['Demo', 'Playable Teaser']
-name_suffixes = demo_suffixes + ['Beta', 'GOTY', "Director's Cut", 'Unstable', 'Complete', 'Complete Collection', "Developer's Cut"] + [e + ' Edition' for e in fluff_editions]
-name_suffix_matcher = re.compile(r'(?: | - |: )?(?:The )?(' + '|'.join(name_suffixes) + ')$', re.RegexFlag.IGNORECASE)
-def normalize_name_case(name, name_to_test_for_upper=None):
-	if not name_to_test_for_upper:
-		name_to_test_for_upper = name
-
-	if main_config.normalize_name_case == 1:
-		if name_to_test_for_upper.isupper():
-			return title_case(name, words_to_ignore_case=capitalized_words)
-		return name
-	if main_config.normalize_name_case == 2:
-		if name_to_test_for_upper.isupper():
-			return title_case(name, words_to_ignore_case=capitalized_words)
-
-		#Assume minimum word length of 4 to avoid acronyms, although those should be in capitalized_words I guess
-		return re.sub(r"[\w'-]{4,}", lambda match: title_case(match[0], words_to_ignore_case=capitalized_words) if match[0].isupper() else match[0], name)
-	if main_config.normalize_name_case == 3:
-		return title_case(name, words_to_ignore_case=capitalized_words)
-	
-	return name
-
-why = re.compile(r' -(?=\w)') #This bothers me
-def fix_name(name):
-	name = name.replace('™', '')
-	name = name.replace('®', '')
-	name = name.replace(' : ', ': ') #Oi mate what kinda punctuation is this
-	name = name.replace('[diary]', 'diary') #Stop that
-	name = name.replace('(VI)', 'VI') #Why is Tomb Raider: The Angel of Darkness like this
-	name = why.sub(' - ', name)
-
-	if name.startswith('ARCADE GAME SERIES: '):
-		#This is slightly subjective as to whether or not one should do this, but I believe it should
-		name = name.removeprefix('ARCADE GAME SERIES: ') + ' (ARCADE GAME SERIES)'
-
-	name_to_test_for_upper = chapter_matcher.sub('', name)
-	name_to_test_for_upper = name_suffix_matcher.sub('', name_to_test_for_upper)
-	name = normalize_name_case(name, name_to_test_for_upper)
-		
-	#Hmm... this is primarily so series_detect and disambiguate work well, it may be worthwhile putting them back afterwards (put them in some kind of field similar to Filename-Tags but disambiguate always adds them in); depending on how important it is to have "GOTY" or "Definitive Edition" etc in the name if not ambiguous
-	name = name_suffix_matcher.sub(r' (\1)', name)
-	return name
-
-tool_names = ('settings', 'setup', 'config', 'dedicated server', 'editor')
-def is_probably_related_tool(name):
-	lower = name.lower()
-	return any(tool_name in lower for tool_name in tool_names)
-
-mode_names = ('safe mode', 'play windowed', 'launch fullscreen', 'launch windowed')
-def is_probably_different_mode(name):
-	lower = name.lower()
-	return any(mode_name in lower for mode_name in mode_names)
-
-document_names = ('faq', 'manual', 'map of avernum', 'reference card')
-def is_probably_documentation(name):
-	lower = name.lower()
-	return any(document_name in lower for document_name in document_names)

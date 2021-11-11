@@ -2,7 +2,8 @@ from typing import cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-from meowlauncher.games.mame.software_list_info import get_software_list_entry
+from meowlauncher.games.mame_common.software_list_info import \
+    get_software_list_entry
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.util.utils import (NotAlphanumericException,

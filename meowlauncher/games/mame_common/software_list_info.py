@@ -1,7 +1,7 @@
 import os
 import re
 import zlib
-from typing import Any, Dict, Iterable, Optional, Sequence, cast
+from typing import Any, Iterable, Optional, Sequence, cast
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
@@ -20,9 +20,6 @@ from .software_list import (Software, SoftwareCustomMatcher, SoftwareList,
                             get_crc32_for_software_list)
 
 subtitles = load_dict(None, 'subtitles')
-
-#Ideally, every platform wants to be able to get software list info. If available, it will always be preferred over what we can extract from inside the ROMs, as it's more reliable, and avoids the problem of bootlegs/hacks with invalid/missing header data, or publisher/developers that merge and change names and whatnot.
-#We currently do this by putting a block of code inside each platform_metadata helper that does the same thing. I guess I should genericize that one day. Anyway, it's not always possible.
 
 def get_software_lists_by_names(names: Sequence[str]) -> list[SoftwareList]:
 	if not names:

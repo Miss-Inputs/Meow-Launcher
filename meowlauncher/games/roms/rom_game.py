@@ -7,7 +7,7 @@ from meowlauncher.config.platform_config import PlatformConfig
 from meowlauncher.emulated_game import EmulatedGame, EmulatorLauncher
 from meowlauncher.emulated_platform import EmulatedPlatform
 from meowlauncher.emulator import StandardEmulator
-from meowlauncher.games.mame.software_list import SoftwareList
+from meowlauncher.games.mame_common.software_list import SoftwareList
 from meowlauncher.launcher import LaunchCommand
 from meowlauncher.util.io_utils import make_filename
 

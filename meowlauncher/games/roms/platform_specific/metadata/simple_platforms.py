@@ -2,7 +2,8 @@ import re
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-from meowlauncher.games.mame.software_list_info import get_software_list_entry
+from meowlauncher.games.mame_common.software_list_info import \
+    get_software_list_entry
 from meowlauncher.games.roms.rom_game import ROMGame
 
 from .generic import add_generic_info

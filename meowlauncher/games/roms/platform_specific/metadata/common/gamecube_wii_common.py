@@ -5,12 +5,12 @@ from xml.etree import ElementTree
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
+from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.metadata import Metadata
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
 from .gametdb import TDB, add_info_from_tdb
-from meowlauncher.games.roms.rom import FileROM
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 class NintendoDiscRegion(Enum):

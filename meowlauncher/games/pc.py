@@ -7,10 +7,9 @@ from meowlauncher.config.emulator_config_type import EmulatorConfig
 from meowlauncher.config.platform_config import PlatformConfig
 from meowlauncher.emulated_game import EmulatedGame, EmulatorLauncher
 from meowlauncher.emulator import PCEmulator
+from meowlauncher.games.common.name_utils import fix_name
 from meowlauncher.launcher import LaunchCommand
 from meowlauncher.metadata import Date
-
-from .pc_common_metadata import fix_name
 
 
 class App(EmulatedGame, ABC):

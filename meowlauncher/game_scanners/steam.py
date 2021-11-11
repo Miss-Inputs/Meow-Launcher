@@ -16,9 +16,10 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.steam_developer_overrides import \
     developer_overrides
 from meowlauncher.desktop_launchers import has_been_done, make_launcher
-from meowlauncher.games.pc_common_metadata import (
-    add_metadata_for_raw_exe, check_for_interesting_things_in_folder,
-    detect_engine_recursively, fix_name, normalize_name_case)
+from meowlauncher.games.common.engine_detect import detect_engine_recursively
+from meowlauncher.games.common.name_utils import fix_name, normalize_name_case
+from meowlauncher.games.common.pc_common_metadata import (
+    add_metadata_for_raw_exe, check_for_interesting_things_in_folder)
 from meowlauncher.launcher import LaunchCommand
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.region_info import get_language_by_english_name
@@ -1138,9 +1139,9 @@ def no_longer_exists(appid: str) -> bool:
 		return False
 
 	if not hasattr(no_longer_exists, 'appids'):
-		no_longer_exists.appids = [app_id for _, app_id, __ in iter_steam_installed_appids()]
+		no_longer_exists.appids = [app_id for _, app_id, __ in iter_steam_installed_appids()] #type: ignore[attr-defined]
 
-	return appid not in no_longer_exists.appids
+	return appid not in no_longer_exists.appids #type: ignore[attr-defined]
 
 def process_steam() -> None:
 	if not is_steam_available:

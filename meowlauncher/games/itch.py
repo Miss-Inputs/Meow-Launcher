@@ -7,7 +7,10 @@ import subprocess
 
 from meowlauncher import desktop_launchers, launcher
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games import pc_common_metadata
+from meowlauncher.games.common.engine_detect import detect_engine_recursively
+from meowlauncher.games.common.name_utils import fix_name
+from meowlauncher.games.common.pc_common_metadata import (
+    add_metadata_for_raw_exe, look_for_icon_next_to_file)
 from meowlauncher.metadata import Date, Metadata
 
 #TODO: Rework this to be able to optionally just read json, launch all executables in the game dir or whatever, and avoid using butler if preferred
@@ -75,7 +78,7 @@ class ItchGame():
 		self.game_type = 'default'
 
 	def add_metadata_from_folder(self):
-		engine = pc_common_metadata.detect_engine_recursively(self.path, self.metadata)
+		engine = detect_engine_recursively(self.path, self.metadata)
 		if engine:
 			self.metadata.specific_info['Engine'] = engine
 
@@ -89,7 +92,7 @@ class ItchGame():
 
 		title = game.get('title')
 		if title:
-			self.name = pc_common_metadata.fix_name(title)
+			self.name = fix_name(title)
 		self.metadata.specific_info['Game-ID'] = game.get('id')
 		self.metadata.documents['Homepage'] = game.get('url')
 
@@ -209,9 +212,9 @@ class ItchGame():
 
 		if os.path.isfile(exe_path):
 			#Might be a folder if Mac, I guess
-			pc_common_metadata.add_metadata_for_raw_exe(exe_path, self.metadata)
+			add_metadata_for_raw_exe(exe_path, self.metadata)
 			if 'icon' not in metadata.images:
-				icon = pc_common_metadata.look_for_icon_next_to_file(exe_path)
+				icon = look_for_icon_next_to_file(exe_path)
 				if icon:
 					metadata.images['Icon'] = icon
 

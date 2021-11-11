@@ -5,17 +5,17 @@ import sys
 import time
 from xml.etree import ElementTree
 
-from meowlauncher import launcher, desktop_launchers
+from meowlauncher import desktop_launchers, launcher
 from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.machines_with_inbuilt_games import (
     bioses_with_inbuilt_games, machines_with_inbuilt_games)
-from meowlauncher.games.mame.mame_helpers import (get_mame_xml,
-                                                  iter_mame_entire_xml,
-                                                  verify_romset)
 from meowlauncher.games.mame.mame_machine import (
     Machine, get_machines_from_source_file)
 from meowlauncher.games.mame.mame_metadata import add_metadata, add_status
+from meowlauncher.games.mame_common.mame_helpers import (get_mame_xml,
+                                                         iter_mame_entire_xml,
+                                                         verify_romset)
 from meowlauncher.info import emulator_command_line_helpers
 
 
@@ -52,9 +52,7 @@ def make_machine_launcher(machine: Machine):
 	if not machine._has_inited_metadata:
 		machine._add_metadata_fields()
 
-	slot_options = {}
-
-	params = launcher.LaunchCommand('mame', emulator_command_line_helpers.mame_base(machine.basename, slot_options=slot_options))
+	params = launcher.LaunchCommand('mame', emulator_command_line_helpers.mame_base(machine.basename))
 	#TODO: Let's put this in games.emulator, even if only MAME exists as the singular arcade emulator for now; and clean this up some more
 	desktop_launchers.make_launcher(params, machine.name, machine.metadata, 'Arcade' if machine.metadata.platform == 'Arcade' else 'MAME', machine.basename)
 

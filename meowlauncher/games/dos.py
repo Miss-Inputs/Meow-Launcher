@@ -2,7 +2,8 @@ import os
 from typing import Any
 
 from meowlauncher.config.platform_config import platform_configs
-from meowlauncher.games.pc_common_metadata import look_for_icon_next_to_file
+from meowlauncher.games.common.pc_common_metadata import \
+    look_for_icon_next_to_file
 
 from .pc import App
 

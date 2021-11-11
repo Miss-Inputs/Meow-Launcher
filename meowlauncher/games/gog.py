@@ -8,9 +8,9 @@ from typing import Mapping
 from meowlauncher import desktop_launchers, launcher
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games import pc_common_metadata
-from meowlauncher.util import region_info
+from meowlauncher.games.common import name_utils, pc_common_metadata
 from meowlauncher.metadata import Metadata
+from meowlauncher.util import region_info
 
 
 class GOGGameInfo():
@@ -263,7 +263,7 @@ class WindowsGOGGame():
 
 	@property
 	def is_demo(self):
-		for demo_suffix in pc_common_metadata.demo_suffixes:
+		for demo_suffix in name_utils.demo_suffixes:
 			if '({0})'.format(demo_suffix.lower()) in self.name.lower():
 				return True
 		return False

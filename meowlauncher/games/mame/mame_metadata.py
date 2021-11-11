@@ -5,14 +5,15 @@ from typing import Optional, Sequence
 from meowlauncher import detect_things_from_filename, input_metadata
 from meowlauncher.common_types import EmulationStatus, MediaType, SaveType
 from meowlauncher.config.main_config import main_config
+from meowlauncher.games.mame_common.mame_helpers import (add_history,
+                                                         find_cpus, get_image,
+                                                         get_mame_ui_config,
+                                                         image_config_keys)
 from meowlauncher.metadata import CPU, ScreenInfo
 from meowlauncher.util.region_info import (Language,
                                            get_language_by_english_name,
                                            get_language_from_regions)
 from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
-
-from .mame_helpers import (add_history, find_cpus, get_image,
-                           get_mame_ui_config, image_config_keys)
 
 mame_statuses: dict[Optional[str], EmulationStatus] = {
 	#It is optional[str] so that we can .get None and have it return whatever default

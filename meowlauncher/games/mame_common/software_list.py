@@ -1,13 +1,14 @@
 import re
+import zlib
 from typing import Any, Callable, Optional, Sequence, cast
 from xml.etree import ElementTree
-import zlib
 
+from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.main_config import main_config
 from meowlauncher.metadata import Date, Metadata
-from meowlauncher.common_types import EmulationStatus
 
-from .mame_helpers import verify_software_list, consistentify_manufacturer, image_config_keys, get_image, add_history
+from .mame_helpers import (add_history, consistentify_manufacturer, get_image,
+                           image_config_keys, verify_software_list)
 
 SoftwareCustomMatcher = Callable[..., bool] #Actually the first argument is SoftwarePart and then variable arguments after that, which I can't specify right now… maybe that's a sign I'm doing it wrong
 

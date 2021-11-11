@@ -8,7 +8,7 @@ from xml.etree import ElementTree
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
-from meowlauncher.games.pc_common_metadata import \
+from meowlauncher.games.common.engine_detect import \
     try_and_detect_engine_from_folder
 from meowlauncher.games.roms.rom import ROM, FolderROM
 from meowlauncher.games.roms.rom_game import ROMGame

@@ -4,10 +4,11 @@ from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.desktop_launchers import make_launcher
-from meowlauncher.games.pc_common_metadata import look_for_icon_in_folder
-from meowlauncher.util.region_info import get_language_by_short_code
+from meowlauncher.games.common.pc_common_metadata import \
+    look_for_icon_in_folder
 from meowlauncher.launcher import LaunchCommand
 from meowlauncher.metadata import Metadata
+from meowlauncher.util.region_info import get_language_by_short_code
 
 from .scummvm_config import scummvm_config
 

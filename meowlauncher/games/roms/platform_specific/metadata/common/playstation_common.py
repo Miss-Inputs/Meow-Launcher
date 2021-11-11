@@ -1,9 +1,9 @@
 from enum import Flag
-from typing import Any, Optional, cast
+from typing import Any, Optional
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games.pc_common_metadata import fix_name
+from meowlauncher.games.common.name_utils import fix_name
 from meowlauncher.games.roms.rom import ROM
 from meowlauncher.metadata import Metadata
 

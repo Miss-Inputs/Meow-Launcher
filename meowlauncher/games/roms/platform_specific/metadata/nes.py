@@ -3,11 +3,12 @@ from typing import Optional, cast
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.platform_config import platform_configs
-from meowlauncher.games.mame.mame_helpers import MAMENotInstalledException
 from meowlauncher.games.mame.mame_machine import (
     Machine, does_machine_match_game, get_machines_from_source_file)
-from meowlauncher.games.mame.software_list import Software, SoftwarePart
-from meowlauncher.games.mame.software_list_info import (
+from meowlauncher.games.mame_common.mame_executable import \
+    MAMENotInstalledException
+from meowlauncher.games.mame_common.software_list import Software, SoftwarePart
+from meowlauncher.games.mame_common.software_list_info import (
     find_in_software_lists_with_custom_matcher, get_crc32_for_software_list,
     get_software_list_entry)
 from meowlauncher.games.roms.rom import ROM, FileROM

@@ -4,8 +4,9 @@ from typing import Iterable, Mapping, Optional
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        EmulationStatus, EmulatorStatus)
 from meowlauncher.emulator import LaunchParamsFunc, MednafenModule
-from meowlauncher.games.mame.mame_helpers import have_mame, verify_romset
-from meowlauncher.games.mame.software_list_info import \
+from meowlauncher.games.mame_common.mame_helpers import (have_mame,
+                                                         verify_romset)
+from meowlauncher.games.mame_common.software_list_info import \
     get_software_list_by_name
 from meowlauncher.launcher import LaunchCommand
 
