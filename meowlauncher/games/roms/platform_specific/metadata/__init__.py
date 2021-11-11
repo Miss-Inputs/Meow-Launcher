@@ -1,8 +1,7 @@
-#I don't know why I have to import things from myself. Why? That sucks.
-#Well, I guess if that's the only thing that sucks, it could be worse... but still, this _really_ sucks. This can't be right, can it? Surely there's some trick that nobody thought to put in documentation
 from typing import Callable
 
-from meowlauncher.game import Game
+from meowlauncher.games.roms.rom_game import ROMGame
+
 from ._3ds import add_3ds_metadata
 from .amiga import add_amiga_metadata
 from .apple_ii import add_apple_ii_metadata
@@ -18,10 +17,12 @@ from .game_boy import add_gameboy_metadata
 from .game_com import add_game_com_metadata
 from .gamecube import add_gamecube_metadata
 from .gba import add_gba_metadata
+from .generic import add_generic_info
+from .intellivision import add_intellivision_info
 from .lynx import add_lynx_metadata
 from .master_system import get_sms_metadata
 from .megadrive import add_megadrive_metadata
-from .minor_platforms import *
+from .misc_platforms import *
 from .n64 import add_n64_metadata
 from .neo_geo_pocket import add_ngp_metadata
 from .nes import add_nes_metadata
@@ -31,6 +32,7 @@ from .ps2 import add_ps2_metadata
 from .ps3 import add_ps3_metadata
 from .psp import add_psp_metadata
 from .saturn import add_saturn_metadata
+from .simple_platforms import *
 from .snes import add_snes_metadata
 from .switch import add_switch_metadata
 from .uzebox import add_uzebox_metadata
@@ -57,7 +59,7 @@ from .zx_spectrum import add_speccy_metadata
 #RCA Studio 2 (community-developed .st2 header): developer, product code
 #Xbox 360: Publisher, icon (for XBLA), number of players (for XBLA), genre (for XBLA)
 
-helpers: dict[str, Callable[[Game], None]] = {
+helpers: dict[str, Callable[[ROMGame], None]] = {
 	'3DS': add_3ds_metadata,
 	'Amiga': add_amiga_metadata,
 	'Apple II': add_apple_ii_metadata,

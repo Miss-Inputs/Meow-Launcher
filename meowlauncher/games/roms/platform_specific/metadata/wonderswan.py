@@ -1,10 +1,11 @@
 from typing import cast
+
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-
-from .minor_platforms import add_generic_info
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
+
+from .generic import add_generic_info
 
 publishers = {
 	1: 'Bandai',

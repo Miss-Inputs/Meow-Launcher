@@ -5,7 +5,7 @@ from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Metadata
 
-from .minor_platforms import add_generic_info
+from .generic import add_generic_info
 
 try:
 	from PIL import Image

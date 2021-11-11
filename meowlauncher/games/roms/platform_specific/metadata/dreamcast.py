@@ -8,7 +8,7 @@ from meowlauncher.platform_types import SaturnRegionCodes
 from meowlauncher.util import cd_read
 from meowlauncher.util.utils import load_dict
 
-from .minor_platforms import add_generic_info
+from .generic import add_generic_info
 
 licensee_codes = load_dict(None, 'sega_licensee_codes')
 

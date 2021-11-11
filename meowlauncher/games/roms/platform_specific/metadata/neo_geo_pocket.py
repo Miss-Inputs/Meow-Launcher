@@ -3,7 +3,7 @@ from meowlauncher import input_metadata
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
 
-from .minor_platforms import add_generic_info
+from .generic import add_generic_info
 
 
 def add_ngp_metadata(game: ROMGame):

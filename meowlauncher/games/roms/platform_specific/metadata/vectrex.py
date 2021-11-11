@@ -7,7 +7,7 @@ from meowlauncher.metadata import Date
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric)
 
-from .minor_platforms import add_generic_info
+from .generic import add_generic_info
 
 
 def add_vectrex_metadata(game: ROMGame):

@@ -9,7 +9,7 @@ from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Metadata
 from meowlauncher.util.region_info import get_language_by_english_name
 
-from .minor_platforms import add_generic_info
+from .generic import add_generic_info
 
 duckstation_config = emulator_configs.get('DuckStation')
 
