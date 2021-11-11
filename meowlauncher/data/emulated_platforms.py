@@ -198,7 +198,7 @@ platforms = {
 		['channelf', 'channlf2'], ['channelf'],
 		['FreeChaF (libretro)', 'MAME (Channel F)'], {MediaType.Cartridge: ['chf'] + generic_cart_extensions}, dat_names=['Fairchild - Channel F'], autodetect_tv_type=True
 	),
-	'G7400': EmulatedPlatform(['videopacp'], ['videopac'], ['O2EM (libretro)', 'MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}, autodetect_tv_type=True, dat_names=['Philips - Videopac+']), #Uses same software list as Odyssey 2 currently, maybe should be considered part of that system?
+	'G7400': EmulatedPlatform(['videopacp'], ['videopac'], ['O2EM (libretro)', 'MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}, autodetect_tv_type=True, dat_names=['Philips - Videopac+']), #Uses same software list as Odyssey 2 currently, maybe should be considered part of that platform?
 	'Game.com': EmulatedPlatform(['gamecom'], ['gamecom'], ['MAME (Game.com)'], {MediaType.Cartridge: ['tgc', 'bin']}, dat_names=['Tiger - Game.com']),
 	'Jaguar': EmulatedPlatform(
 		['jaguar'], ['jaguar'], ['Virtual Jaguar (libretro)', 'MAME (Jaguar)'], 
@@ -262,7 +262,7 @@ platforms = {
 	'Super Cassette Vision': EmulatedPlatform(
 		['scv'], ['scv'], ['MAME (Super Cassette Vision)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['Epoch - Super Cassette Vision']
 	),
-	'VC 4000': EmulatedPlatform(['vc4000', '1292apvs', 'database', 'elektor', 'h21', 'krvnjvtv', 'mpt05', 'rwtrntcs'], ['vc4000', 'database'], ['MAME (VC 4000)'], {MediaType.Cartridge: generic_cart_extensions}, autodetect_tv_type=True), #Which one is the "main" system, really, bit of a clusterfuck (well the software list is named vc4000 I guess)
+	'VC 4000': EmulatedPlatform(['vc4000', '1292apvs', 'database', 'elektor', 'h21', 'krvnjvtv', 'mpt05', 'rwtrntcs'], ['vc4000', 'database'], ['MAME (VC 4000)'], {MediaType.Cartridge: generic_cart_extensions}, autodetect_tv_type=True), #Which one is the "main" platform, really, bit of a clusterfuck (well the software list is named vc4000 I guess)
 	'ZAPit Game Wave': EmulatedPlatform([], [], [], {MediaType.OpticalDisc: ['iso']}),
 	'Zeebo': EmulatedPlatform(['zeebo'], [], [], {}), #Folders with "mif" and "mod"?
 

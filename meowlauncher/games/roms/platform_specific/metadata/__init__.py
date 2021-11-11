@@ -1,5 +1,8 @@
 #I don't know why I have to import things from myself. Why? That sucks.
 #Well, I guess if that's the only thing that sucks, it could be worse... but still, this _really_ sucks. This can't be right, can it? Surely there's some trick that nobody thought to put in documentation
+from typing import Callable
+
+from meowlauncher.game import Game
 from ._3ds import add_3ds_metadata
 from .amiga import add_amiga_metadata
 from .apple_ii import add_apple_ii_metadata
@@ -18,7 +21,7 @@ from .gba import add_gba_metadata
 from .lynx import add_lynx_metadata
 from .master_system import get_sms_metadata
 from .megadrive import add_megadrive_metadata
-from .minor_systems import *
+from .minor_platforms import *
 from .n64 import add_n64_metadata
 from .neo_geo_pocket import add_ngp_metadata
 from .nes import add_nes_metadata
@@ -54,7 +57,7 @@ from .zx_spectrum import add_speccy_metadata
 #RCA Studio 2 (community-developed .st2 header): developer, product code
 #Xbox 360: Publisher, icon (for XBLA), number of players (for XBLA), genre (for XBLA)
 
-helpers = {
+helpers: dict[str, Callable[[Game], None]] = {
 	'3DS': add_3ds_metadata,
 	'Amiga': add_amiga_metadata,
 	'Apple II': add_apple_ii_metadata,
@@ -98,7 +101,7 @@ helpers = {
 	'Mega CD': add_megadrive_metadata,
 	'Sega Pico': add_megadrive_metadata,
 
-	#Just get basic system info and software list stuff for now (see minor_systems.py). Not as fun as the others.
+	#Just get basic system info and software list stuff for now (see minor_platforms.py). Not as fun as the others.
 	'Amiga CD32': add_cd32_info,
 	'Amstrad PCW': add_amstrad_pcw_info,
 	'Arcadia 2001': add_arcadia_info,

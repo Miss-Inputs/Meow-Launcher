@@ -35,8 +35,8 @@ class Emulator(Runner):
 	def is_emulated(self) -> bool:
 		return True
 
-	def get_launch_params(self, game, system_config: dict[str, Any], emulator_config: EmulatorConfig):
-		params = self.launch_params_func(game, system_config, emulator_config)
+	def get_launch_params(self, game, platform_config_options: dict[str, Any], emulator_config: EmulatorConfig):
+		params = self.launch_params_func(game, platform_config_options, emulator_config)
 
 		if self.host_platform == EmulatorPlatform.Windows:
 			if isinstance(params, MultiLaunchCommands):
@@ -123,11 +123,11 @@ class LibretroCoreWithFrontend(StandardEmulator):
 		self.core = core
 		self.frontend = frontend
 		self.frontend_config = frontend_config
-		def launch_params_func(game, system_config, emulator_config):
+		def launch_params_func(game, platform_config, emulator_config):
 			if core.launch_params_func:
 				#We do actually want to ignore args here as then we can reuse the same launch params func for a libretro core and the standalone emulator and that should probably work in most cases, and if it doesn't, we can just do command_lines.blah_libretro
-				core.launch_params_func(game, system_config, emulator_config)
-			return frontend.launch_params_func(game, system_config, emulator_config, frontend_config)
+				core.launch_params_func(game, platform_config, emulator_config)
+			return frontend.launch_params_func(game, platform_config, emulator_config, frontend_config)
 
 		self.launch_params_func = launch_params_func
 		super().__init__('{0} ({1} core)'.format(self.frontend.name, self.core.name), core.status, frontend_config.exe_path, launch_params_func, core.supported_extensions, frontend.supported_compression, None, frontend.host_platform)

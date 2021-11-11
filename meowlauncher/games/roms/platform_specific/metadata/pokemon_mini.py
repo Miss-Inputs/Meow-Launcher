@@ -2,7 +2,7 @@ from meowlauncher import input_metadata
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric)
 
-from .minor_systems import add_generic_info
+from .minor_platforms import add_generic_info
 
 
 def add_pokemini_metadata(game):

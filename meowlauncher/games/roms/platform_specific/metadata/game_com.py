@@ -1,6 +1,6 @@
 from meowlauncher import input_metadata
 
-from .minor_systems import add_generic_info
+from .minor_platforms import add_generic_info
 
 try:
 	from PIL import Image

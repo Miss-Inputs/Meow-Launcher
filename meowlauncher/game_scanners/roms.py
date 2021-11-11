@@ -162,7 +162,7 @@ def process_emulated_platform(platform_config: PlatformConfig):
 					media_type = folder_checks[platform_config.name](folder_rom)
 					if media_type:
 						folder_rom.media_type = media_type
-						#if process_file(system_config, rom_dir, root, folder_rom):
+						#if process_file(platform_config, rom_dir, root, folder_rom):
 						#Theoretically we might want to continue descending if we couldn't make a launcher for this folder, because maybe we also have another emulator which doesn't work with folders, but does support a file inside it. That results in weird stuff where we try to launch a file inside the folder using the same emulator we just failed to launch the folder with though, meaning we actually don't want it but now it just lacks metadata, so I'm gonna just do this for now
 						#I think I need to be more awake to re-read that comment
 						launcher = process_file(platform_config, potential_emulators, folder_rom, subfolders)
@@ -234,32 +234,32 @@ def process_platform(platform_config: PlatformConfig):
 def process_platforms() -> None:
 	time_started = time.perf_counter()
 
-	excluded_systems = []
+	excluded_platforms = []
 	for arg in sys.argv:
 		if arg.startswith('--exclude='):
-			excluded_systems.append(arg.partition('=')[2])
+			excluded_platforms.append(arg.partition('=')[2])
 
-	for system_name, system in system_configs.items():
-		if system_name in excluded_systems:
+	for platform_name, platform in system_configs.items():
+		if platform_name in excluded_platforms:
 			continue
-		if not system.is_available:
+		if not platform.is_available:
 			continue
-		process_platform(system)
+		process_platform(platform)
 
 	if main_config.print_times:
 		time_ended = time.perf_counter()
-		print('All emulated/engined systems finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+		print('All standard emulated platforms finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
 def main() -> None:
-	if len(sys.argv) >= 2 and '--systems' in sys.argv:
-		arg_index = sys.argv.index('--systems')
+	if len(sys.argv) >= 2 and '--platforms' in sys.argv:
+		arg_index = sys.argv.index('--platforms')
 		if len(sys.argv) == 2:
-			print('--systems requires an argument')
+			print('--platforms requires an argument')
 			return
 
-		system_list = sys.argv[arg_index + 1].split(',')
-		for system_name in system_list:
-			process_platform(system_configs[system_name])
+		platform_list = sys.argv[arg_index + 1].split(',')
+		for platform_name in platform_list:
+			process_platform(system_configs[platform_name])
 		return
 
 	process_platforms()

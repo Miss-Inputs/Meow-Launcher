@@ -3,8 +3,6 @@ from typing import Any, Optional, Sequence
 from meowlauncher.common_types import ConfigValueType, MediaType
 from meowlauncher.games.roms.rom import FileROM
 
-#TODO: Decided I don't like the word system and I should say platform I guess, so I might change that at some point
-
 class PlatformConfigValue():
 	#This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno
 	def __init__(self, value_type: ConfigValueType, default_value: Any, description: str):

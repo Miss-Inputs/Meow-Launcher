@@ -1,7 +1,7 @@
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 
-from .minor_systems import add_generic_info
+from .minor_platforms import add_generic_info
 
 publishers = {
 	1: 'Bandai',
