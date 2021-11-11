@@ -3,7 +3,7 @@
 import re
 from typing import Optional, Sequence
 
-from meowlauncher.info import region_info
+from meowlauncher.util import region_info
 from meowlauncher.metadata import Date
 
 #TODO: I dunno if this should be done as a big ol' regex, maybe just see if a comma-separated list all matches languages

@@ -3,12 +3,13 @@ import json
 import os
 import shlex
 from pathlib import Path
+from typing import Mapping
 
 from meowlauncher import desktop_launchers, launcher
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games import pc_common_metadata
-from meowlauncher.info import region_info
+from meowlauncher.util import region_info
 from meowlauncher.metadata import Metadata
 
 
@@ -62,7 +63,7 @@ class GOGJSONGameInfo():
 		return None #Not sure what happens if more than one has isPrimary tbh, guess it doesn't matter
 
 class GOGTask():
-	def __init__(self, json_object):
+	def __init__(self, json_object: Mapping):
 		self.is_primary = json_object.get('isPrimary', False)
 		self.task_type = json_object.get('type') #Just FileTask or URLTask?
 		self.path = json_object.get('path') #I guess this is also only for FileTask
