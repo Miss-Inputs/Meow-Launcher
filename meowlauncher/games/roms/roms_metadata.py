@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, cast
 from meowlauncher import detect_things_from_filename
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.libretro_database_company_name_cleanup import \
@@ -11,8 +11,8 @@ from meowlauncher.games.mame.mame_machine import (Machine,
                                                   does_machine_match_game)
 from meowlauncher.games.mame.software_list_info import \
     get_software_lists_by_names
-from meowlauncher.games.roms.rom import ROM
-from meowlauncher.info import region_info
+from meowlauncher.games.roms.rom import ROM, FileROM, FolderROM
+from meowlauncher.util.region_info import get_language_from_regions, get_tv_system_from_regions
 from meowlauncher.libretro_database import parse_all_dats_for_system
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.utils import (find_filename_tags_at_end, junk_suffixes,
@@ -53,7 +53,7 @@ def add_metadata_from_tags(game: ROMGame):
 def add_metadata_from_regions(metadata: Metadata):
 	if metadata.regions:
 		if not metadata.languages:
-			region_language = region_info.get_language_from_regions(metadata.regions)
+			region_language = get_language_from_regions(metadata.regions)
 			if region_language:
 				metadata.languages = [region_language]
 
@@ -135,7 +135,7 @@ def add_alternate_names(rom: ROM, metadata: Metadata):
 			#The name is something like "aaa (bbb) ~ ccc (ddd)" so the (ddd) here actually belongs to the ccc, not the whole thing (this wouldn't usually happen with any naming convention I know of, but I copypasta'd this code from mame_machine.py and I guess why not handle a possible thing happening while we're here)
 			alt_names[-1] += ' ' + ' '.join(tags_at_end)
 
-	rom.name = primary_name #FIXME: That's a read only property, we shouldn't be changing the ROM's name logically speaking anyway
+	#rom.name = primary_name #FIXME: That's a read only property, we shouldn't be changing the ROM's name logically speaking anyway; there should be a display_name type thing for Game
 	for alt_name in alt_names:
 		metadata.add_alternate_name(alt_name)
 
@@ -231,13 +231,13 @@ def add_metadata_from_libretro_database_entry(metadata: Metadata, database, key)
 	return False
 
 def add_metadata_from_libretro_database(game: ROMGame):
-	key = game.metadata.product_code if game.platform.dat_uses_serial else game.rom.get_crc32()
+	key = game.metadata.product_code if game.platform.dat_uses_serial else cast(FileROM, game.rom).get_crc32()
 	if key:
 		for dat_name in game.platform.dat_names:
 			database = parse_all_dats_for_system(dat_name, game.platform.dat_uses_serial)
 			if database:
-				if game.platform.dat_uses_serial and ', ' in key:
-					for product_code in key.split(', '):
+				if game.platform.dat_uses_serial and ', ' in cast(str, key):
+					for product_code in cast(str, key).split(', '):
 						if add_metadata_from_libretro_database_entry(game.metadata, database, product_code):
 							break
 				else:
@@ -252,7 +252,7 @@ def autodetect_tv_type(game: ROMGame):
 		game.metadata.specific_info['TV-Type'] = from_tags
 		return
 	
-	from_region = region_info.get_tv_system_from_regions(game.metadata.regions)
+	from_region = get_tv_system_from_regions(game.metadata.regions)
 	if from_region:
 		game.metadata.specific_info['TV-Type'] = from_region
 		return
@@ -264,9 +264,9 @@ def add_metadata(game: ROMGame):
 	game.metadata.extension = game.rom.extension
 
 	if game.rom.is_folder:
-		game.metadata.media_type = game.rom.media_type
+		game.metadata.media_type = cast(FolderROM, game.rom).media_type
 	else:
-		game.metadata.media_type = game.platform.get_media_type(game.rom)
+		game.metadata.media_type = game.platform.get_media_type(cast(FileROM, game.rom))
 
 	software_list_names = game.platform.mame_software_lists
 	if software_list_names:
