@@ -5,9 +5,9 @@ from meowlauncher.common_types import EmulationStatus, MediaType, SaveType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.mame_common.mame_helpers import (find_cpus, get_image,
                                                          image_config_keys)
-from meowlauncher.games.mame_common.mame_support_files import (add_history,
-                                                               get_category,
-                                                               get_languages)
+from meowlauncher.games.mame_common.mame_support_files import (
+    ArcadeCategory, MachineCategory, add_history, get_category, get_languages,
+    organize_catlist)
 from meowlauncher.metadata import CPU, ScreenInfo
 from meowlauncher.util.region_info import get_language_from_regions
 from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
@@ -65,20 +65,31 @@ def add_status(machine) -> None:
 	if unemulated_features:
 		machine.metadata.specific_info['MAME-Unemulated-Features'] = unemulated_features
 
+def add_metadata_from_category(machine, category: Optional[MachineCategory]):
+	if not category:
+		#Not in catlist or user doesn't have catlist
+		#machine.metadata.genre = 'Unknown'
+		#machine.metadata.subgenre = 'Unknown'
+		return
+	if isinstance(category, ArcadeCategory):
+		machine.metadata.specific_info['Has-Adult-Content'] = category.is_mature
+	catlist = organize_catlist(category)
+	if catlist.platform:
+		if catlist.definite_platform or not machine.is_system_driver:
+			machine.metadata.platform = catlist.platform
+	if catlist.genre:
+		machine.metadata.genre = catlist.genre
+	if catlist.subgenre:
+		machine.metadata.subgenre = catlist.subgenre
+	if catlist.category and (catlist.definite_category or not machine.metadata.categories):
+		machine.metadata.categories = [catlist.category]
+
 def add_metadata_from_catlist(machine) -> None:
-	category, genre, subgenre, is_mature = get_category(machine.basename)
-	if category == 'Unknown' and machine.has_parent:
-		category, genre, subgenre, is_mature = get_category(machine.parent_basename)
+	category = get_category(machine.basename)
+	if not category and machine.has_parent:
+		category = get_category(machine.parent_basename)
 	
-	#Fix some errata present in the default catlist.ini, maybe one day I should tell them about it, but I'm shy or maybe they're meant to be like that
-	if subgenre == 'Laser Disk Simulator':
-		#Both of these spellings appear twice...
-		subgenre = 'Laserdisc Simulator'
-	if subgenre == 'Punched Car':
-		subgenre = 'Punched Card'
-	#ddrstraw is Rhythm / Dance but it's more accurately a plug & play game, although that is the genre, so it's not wrong
-	#kuzmich is just Platform / Run Jump, it's an arcade machine though (but it kinda doesn't have coins at this point in time, and I dunno if it's supposed to, or it just be like that)
-	#evio is Music / Instruments which is the genre, yes, but it is indeed plug & play. Hmm...
+	add_metadata_from_category(machine, category)
 	
 	#TODO: This function sucks, needs refactoring to make it easier to read
 	#I guess you have results here from catlist -
@@ -91,24 +102,7 @@ def add_metadata_from_catlist(machine) -> None:
 	#Board games
 	#Pinball: Arcade but we call it a different platform I guess
 	#Other non-game systems that are just like computers or whatever that aren't in emulated_platforms
-
-
 	machine.metadata.media_type = MediaType.Standalone
-
-	if category == 'Unknown':
-		#Not in catlist or user doesn't have catlist
-		machine.metadata.genre = 'Unknown'
-		machine.metadata.subgenre = 'Unknown'
-	elif category:
-		#'Arcade: ' or whatever else at the beginning
-		machine.metadata.platform = category
-		machine.metadata.genre = genre
-		machine.metadata.subgenre = subgenre
-		machine.metadata.specific_info['Has-Adult-Content'] = is_mature
-	else:
-		#Non-arcade thing
-		machine.metadata.genre = genre
-		machine.metadata.subgenre = subgenre
 
 	filename_tags = find_filename_tags_at_end(machine.name)
 	for tag in filename_tags:
@@ -140,11 +134,6 @@ def add_metadata_from_catlist(machine) -> None:
 		#Redemption games sometimes also have one, but then they will have their category set later by their subgenre being Redemption
 		machine.metadata.categories = ['Gambling']
 
-	if subgenre.startswith("Plug n' Play TV Game /"):
-		#Oh hey we can actually have a genre now
-		machine.metadata.genre = subgenre.split(' / ')[-1]
-		machine.metadata.subgenre = None
-
 	#Now we separate things into additional platforms where relevant
 
 	#Home systems that have the whole CPU etc inside the cartridge, and hence work as separate systems in MAME instead of being in roms.py
@@ -175,54 +164,6 @@ def add_metadata_from_catlist(machine) -> None:
 		if not machine.metadata.categories:
 			machine.metadata.categories = ['Games']
 		return
-
-	if genre == 'Game Console' and subgenre in ('Home Videogame', 'MultiGames'):
-		if not machine.is_system_driver:
-			machine.metadata.platform = 'Plug & Play'
-			if not machine.metadata.categories:
-				machine.metadata.categories = ['Games']
-	if genre == 'Utilities' and subgenre == 'Update':
-		machine.metadata.categories = ['Applications']
-	if genre == 'Misc.' and subgenre in ('Electronic Game', 'Electronic Board Game'):
-		#"Electronic Game" could also be considered Handheld
-		machine.metadata.platform = 'Board Game'
-		if not machine.metadata.categories:
-			machine.metadata.categories = ['Games']
-	if not category and ((genre == 'Handheld' and (subgenre.startswith("Plug n' Play TV Game") or subgenre == 'Console Cartridge')) or (genre == 'Rhythm' and subgenre == 'Dance') or (genre == 'MultiGame' and subgenre == 'Compilation') or (genre == 'Game Console' and subgenre == 'Fitness Game') or (genre == 'Music' and subgenre == 'Instruments')):
-		#MultiGame / Compilation is also used for some handheld systems (and also there is Arcade: MultiGame / Compilation)
-		machine.metadata.platform = 'Plug & Play'
-		if not machine.metadata.categories:
-			machine.metadata.categories = ['Games']
-	if genre == 'Electromechanical' and subgenre == 'Pinball':
-		#There are a few things under Arcade: Electromechanical / Utilities that are also pinball stuff, although perhaps not all of them. It only becomes apparent due to them using the "genpin" sample set
-		machine.metadata.platform = 'Pinball'
-	if genre == 'Handheld' and subgenre == 'Electronic Game':
-		#Note: "Handheld / Electronic Game" could also be a tabletop system which takes AC input and you would not be able to hold in your hands at all (see also: cpacman), but since catlist.ini doesn't take that into account, I don't really have a way of doing so either
-		machine.metadata.platform = 'Handheld'
-		if not machine.metadata.categories:
-			machine.metadata.categories = ['Games']
-	if genre == 'Handheld' and subgenre == 'Home Videogame Console':
-		#Home Videogame Console seems to be used for stuff that would be normally excluded due to having software lists and hence being a platform for other software (e.g. GBA), or stuff that ends up there because it has no software list yet (e.g. Gizmondo, Sony PocketStation), but also some stuff like kcontra (Contra handheld) that should definitely be called a handheld, or various "plug & play" (except without the plug) stuff like BittBoy 300 in 1 or VG Pocket
-		#Anyway that's why I put that there
-		#Other genres of handheld: Pocket Device - Pad - PDA; Child Computer (e.g. Speak & Spell) but those seem more suited to Standalone System particularly the former
-		if not machine.is_system_driver:
-			#Hmm
-			machine.metadata.platform = 'Handheld'
-	if genre == 'Misc.' and subgenre == 'Unknown':
-		machine.metadata.genre = 'Unknown'
-	
-	if (category == 'Arcade' and (genre == 'Misc.' and subgenre in ('Laserdisc Simulator', 'Print Club', 'Redemption'))) or (genre == 'Music' and subgenre in ('Jukebox', 'JukeBox')):
-		machine.metadata.categories = [subgenre]
-	elif genre == 'Utilities' and subgenre in ('Test ROM', 'Test'):
-		machine.metadata.categories = ['Tests']
-	elif genre == 'Electromechanical' or (category == 'Arcade' and genre in ('Medal Game', 'Utilities')):
-		machine.metadata.categories = [genre]
-		machine.metadata.genre = subgenre
-		machine.metadata.subgenre = None
-	elif (genre == 'Misc.' and subgenre == 'Coin Pusher') or (genre == 'Coin Pusher' and subgenre == 'Misc.'):
-		machine.metadata.categories = ['Coin Pusher']
-	elif category == 'Arcade' and ((genre == 'Casino') or (genre == 'Slot Machine') or (genre == 'Electromechanical' and subgenre == 'Reels') or (genre == 'Multiplay' and subgenre == 'Cards')):
-		machine.metadata.categories = ['Gambling']
 
 	if not machine.metadata.categories:
 		#If it has no coins then it doesn't meet the definition of "coin operated machine" I guess and it seems wrong to put it in the arcade category
