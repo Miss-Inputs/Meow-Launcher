@@ -109,7 +109,7 @@ def process_inbuilt_game(machine_name: str, inbuilt_game, bios_name=None) -> Non
 	metadata.genre = None #We don't actually know these and it's probably not accurate to call a game "Home Videogame Console" etc
 	metadata.subgenre = None #Could possibly add it ourselves to the inbuilt games list but that requires me knowing what I'm talking about when it comes to genres
 	metadata.developer = None #We also don't know this necessarily, but it does make sense that the publisher of a built-in game would be the publisher of the console it's built into
-	metadata.specific_info.pop('Number-of-Players') #This also doesn't necessarily match up, you can have a console that supports 2 players but the inbuilt game is for just one
+	#metadata.specific_info.pop('Number-of-Players') #This also doesn't necessarily match up, you can have a console that supports 2 players but the inbuilt game is for just one
 	add_status(machine, metadata)
 
 	args = emulator_command_line_helpers.mame_base(machine_name, bios=bios_name)
