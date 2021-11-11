@@ -192,6 +192,3 @@ class FolderROM(ROM):
 	@property
 	def is_compressed(self):
 		return False
-
-#Basically we are just putting this here for platform-specific stuff
-#I don't necessarily like hardcoding certain system's behaviour in here but I start overthinking otherwise and this is probably the only real way to do it

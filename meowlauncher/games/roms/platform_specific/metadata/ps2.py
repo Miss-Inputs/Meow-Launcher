@@ -76,4 +76,4 @@ def add_ps2_metadata(game: ROMGame):
 			print(game.rom.path, 'is invalid ISO and has some struct.error', ex)
 	#.elf is just a standard ordinary whole entire .elf
 	if game.metadata.product_code:
-		parse_product_code(game.metadata)
+		parse_product_code(game.metadata, game.metadata.product_code)

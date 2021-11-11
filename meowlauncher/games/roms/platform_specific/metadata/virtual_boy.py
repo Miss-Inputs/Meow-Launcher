@@ -1,6 +1,10 @@
+from typing import cast
+
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.mame.software_list_info import get_software_list_entry
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
@@ -25,10 +29,11 @@ unofficial_vb_publishers = {
 	'VE': 'Alberto Covarrubias', #aka Virtual-E
 }
 
-def add_virtual_boy_metadata(game):
-	rom_size = game.rom.get_size()
+def add_virtual_boy_metadata(game: ROMGame):
+	rom = cast(FileROM, game.rom)
+	rom_size = rom.get_size()
 	header_start_position = rom_size - 544 #Yeah I dunno
-	header = game.rom.read(seek_to=header_start_position, amount=32)
+	header = rom.read(seek_to=header_start_position, amount=32)
 
 	title = header[0:20].decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
 	if title:

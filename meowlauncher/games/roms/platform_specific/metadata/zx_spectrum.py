@@ -1,4 +1,10 @@
+from typing import cast
+
+from meowlauncher.games.mame.software_list import Software
 from meowlauncher.games.mame.software_list_info import get_software_list_entry
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
+from meowlauncher.metadata import Metadata
 from meowlauncher.platform_types import ZXExpansion, ZXJoystick, ZXMachine
 
 zx_hardware = {
@@ -21,7 +27,7 @@ zx_hardware = {
 	16: (ZXMachine.TimexSinclair2068, None),
 }
 
-def add_z80_metadata(rom, metadata):
+def add_z80_metadata(rom: FileROM, metadata: Metadata):
 	#https://www.worldofspectrum.org/faq/reference/z80format.htm
 	header = rom.read(amount=86)
 	flags = header[29]
@@ -69,7 +75,7 @@ def add_z80_metadata(rom, metadata):
 
 	metadata.specific_info['ROM-Format'] = 'Z80 v%d' % header_version
 
-def add_speccy_software_list_metadata(software, metadata):
+def add_speccy_software_list_metadata(software: Software, metadata: Metadata):
 	software.add_standard_metadata(metadata)
 	usage = software.infos.get('usage')
 	if usage == 'Requires Multiface':
@@ -83,9 +89,9 @@ def add_speccy_software_list_metadata(software, metadata):
 		#Disk has no autorun menu, requires loading each game from Basic.
 		metadata.add_notes(usage)
 
-def add_speccy_metadata(game):
+def add_speccy_metadata(game: ROMGame):
 	if game.rom.extension == 'z80':
-		add_z80_metadata(game.rom, game.metadata)
+		add_z80_metadata(cast(FileROM, game.rom), game.metadata)
 
 	if 'Machine' not in game.metadata.specific_info:
 		for tag in game.filename_tags:

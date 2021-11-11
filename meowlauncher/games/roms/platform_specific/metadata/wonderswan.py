@@ -1,7 +1,10 @@
+from typing import cast
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 
 from .minor_platforms import add_generic_info
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
 
 publishers = {
 	1: 'Bandai',
@@ -49,7 +52,7 @@ publishers = {
 	#47: E3 Staff or Gust
 }
 
-def add_wonderswan_metadata(game):
+def add_wonderswan_metadata(game: ROMGame):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	if game.metadata.platform == 'Benesse Pocket Challenge V2':
@@ -59,9 +62,10 @@ def add_wonderswan_metadata(game):
 		builtin_gamepad.face_buttons = 6
 	game.metadata.input_info.add_option(builtin_gamepad)
 
-	rom_size = game.rom.get_size()
+	rom = cast(FileROM, game.rom)
+	rom_size = rom.get_size()
 	header_start_position = rom_size - 10
-	header = game.rom.read(seek_to=header_start_position, amount=10)
+	header = rom.read(seek_to=header_start_position, amount=10)
 
 	publisher_code = header[0]
 	if publisher_code in publishers:

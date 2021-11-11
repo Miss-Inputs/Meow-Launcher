@@ -1,9 +1,12 @@
 import io
 import os
+from typing import Optional, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.config.main_config import main_config
-from meowlauncher.metadata import Date
+from meowlauncher.games.roms.rom import ROM, FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
+from meowlauncher.metadata import Date, Metadata
 
 from .common.playstation_common import parse_param_sfo, parse_product_code
 
@@ -22,17 +25,15 @@ try:
 except ModuleNotFoundError:
 	have_pycdlib = False
 
-def load_image_from_bytes(data):
+def load_image_from_bytes(data: bytes) -> Optional['Image.Image']:
 	bitmap_data_io = io.BytesIO(data)
 	try:
 		image = Image.open(bitmap_data_io)
 		return image
-	#except (OSError, SyntaxError):
 	except OSError:
-		#Why is it SyntaxError though? Agggggh
 		return None
 
-def add_info_from_pbp(rom, metadata, pbp_file):
+def add_info_from_pbp(rom: ROM, metadata: Metadata, pbp_file: bytes):
 	magic = pbp_file[:4]
 	if magic != b'\x00PBP':
 		#You have the occasional b'\x7ELF' here
@@ -69,7 +70,7 @@ def add_info_from_pbp(rom, metadata, pbp_file):
 			if pic1:
 				metadata.images['Background-Image'] = pic1
 
-def add_psp_system_info(metadata):
+def add_psp_system_info(metadata: Metadata):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.analog_sticks = 1
@@ -77,7 +78,7 @@ def add_psp_system_info(metadata):
 	builtin_gamepad.shoulder_buttons = 2
 	metadata.input_info.add_option(builtin_gamepad)
 
-def get_image_from_iso(iso, path):
+def get_image_from_iso(iso: 'PyCdlib', path: str) -> 'Image':
 	buf = io.BytesIO()
 	try:
 		iso.get_file_from_iso_fp(buf, iso_path=path)
@@ -92,12 +93,12 @@ def get_image_from_iso(iso, path):
 		pass
 	return None
 
-def add_psp_metadata(game):
+def add_psp_metadata(game: ROMGame):
 	add_psp_system_info(game.metadata)
 
 	if game.rom.extension == 'pbp':
 		game.metadata.categories = game.metadata.categories[:-1]
-		add_info_from_pbp(game.rom, game.metadata, game.rom.read())
+		add_info_from_pbp(game.rom, game.metadata, cast(FileROM, game.rom).read())
 		#These are basically always named EBOOT.PBP (due to how PSPs work I guess), so that's not a very good launcher name, and use the folder it's stored in instead
 		if game.rom.name.lower() == 'eboot':
 			game.metadata.add_alternate_name(os.path.basename(os.path.dirname(game.rom.path)), 'Folder-Name')
@@ -143,4 +144,4 @@ def add_psp_metadata(game):
 
 	#https://www.psdevwiki.com/ps3/Productcode#Physical
 	if game.metadata.product_code:
-		parse_product_code(game.metadata)
+		parse_product_code(game.metadata, game.metadata.product_code)

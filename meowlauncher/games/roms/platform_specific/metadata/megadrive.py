@@ -1,14 +1,18 @@
 import os
 import re
 from datetime import datetime
+from typing import Iterable, Union, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.mame.mame_helpers import MAMENotInstalledException
 from meowlauncher.games.mame.mame_machine import (
-    does_machine_match_game, get_machines_from_source_file)
+    Machine, does_machine_match_game, get_machines_from_source_file)
+from meowlauncher.games.mame.software_list import Software
 from meowlauncher.games.mame.software_list_info import get_software_list_entry
-from meowlauncher.metadata import Date
+from meowlauncher.games.roms.rom import ROM, FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
+from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import MegadriveRegionCodes
 from meowlauncher.util import cd_read
 from meowlauncher.util.utils import load_dict
@@ -21,8 +25,7 @@ copyright_regex = re.compile(r'\(C\)(\S{4}.)(\d{4})\.(.{3})')
 t_with_zero = re.compile(r'^T-0')
 t_not_followed_by_dash = re.compile(r'^T(?!-)')
 
-def parse_peripherals(metadata, peripherals):
-	metadata.input_info.buttons = 3
+def parse_peripherals(metadata: Metadata, peripherals: Iterable[str]):
 	for peripheral_char in peripherals:
 		if peripheral_char == 'M':
 			#3 buttons if I'm not mistaken
@@ -75,7 +78,7 @@ def parse_peripherals(metadata, peripherals):
 		#R: "RS232C Serial"
 		#T: "Tablet"
 
-def add_megadrive_info(metadata, header):
+def add_megadrive_info(metadata: Metadata, header: bytes):
 	try:
 		console_name = header[:16].decode('ascii')
 	except UnicodeDecodeError:
@@ -102,6 +105,7 @@ def add_megadrive_info(metadata, header):
 			if maker in licensee_codes:
 				metadata.publisher = licensee_codes[maker]
 			year = copyright_match[2]
+			month: Union[str, int]
 			try:
 				month = datetime.strptime(copyright_match[3], '%b').month
 			except ValueError:
@@ -197,7 +201,7 @@ def add_megadrive_info(metadata, header):
 		#Make a cheeky guess
 		metadata.specific_info['Region-Code'] = [MegadriveRegionCodes.USA]
 
-def get_smd_header(rom):
+def get_smd_header(rom: FileROM):
 	#Just get the first block which is all that's needed for the header, otherwise this would be a lot more complicated (just something to keep in mind if you ever need to convert a whole-ass .smd ROM)
 	block = rom.read(seek_to=512, amount=16384)
 
@@ -216,49 +220,49 @@ def get_smd_header(rom):
 
 	return bytes(buf[0x100:0x200])
 
-def _get_megaplay_games():
+def _get_megaplay_games() -> list[Machine]:
 	try:
-		return _get_megaplay_games.result
+		return _get_megaplay_games.result #type: ignore[attr-defined]
 	except AttributeError:
-		_get_megaplay_games.result = list(get_machines_from_source_file('megaplay'))
-		return _get_megaplay_games.result
+		_get_megaplay_games.result = list(get_machines_from_source_file('megaplay')) #type: ignore[attr-defined]
+		return _get_megaplay_games.result #type: ignore[attr-defined]
 
-def _get_megatech_games():
+def _get_megatech_games() -> list[Machine]:
 	try:
-		return _get_megatech_games.result
+		return _get_megatech_games.result #type: ignore[attr-defined]
 	except AttributeError:
-		_get_megatech_games.result = list(get_machines_from_source_file('megatech'))
-		return _get_megatech_games.result
+		_get_megatech_games.result = list(get_machines_from_source_file('megatech')) #type: ignore[attr-defined]
+		return _get_megatech_games.result #type: ignore[attr-defined]
 
-def try_find_equivalent_arcade(rom, metadata):
+def try_find_equivalent_arcade(rom: ROM, metadata: Metadata):
 	if not hasattr(try_find_equivalent_arcade, 'arcade_bootlegs'):
 		try:
-			try_find_equivalent_arcade.arcade_bootlegs = list(get_machines_from_source_file('megadriv_acbl'))
+			try_find_equivalent_arcade.arcade_bootlegs = list(get_machines_from_source_file('megadriv_acbl')) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
-			try_find_equivalent_arcade.arcade_bootlegs = []
+			try_find_equivalent_arcade.arcade_bootlegs = [] #type: ignore[attr-defined]
 	if not hasattr(try_find_equivalent_arcade, 'megaplay_games'):
 		try:
-			try_find_equivalent_arcade.megaplay_games = list(get_machines_from_source_file('megaplay'))
+			try_find_equivalent_arcade.megaplay_games = list(get_machines_from_source_file('megaplay')) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
-			try_find_equivalent_arcade.megaplay_games = []
+			try_find_equivalent_arcade.megaplay_games = [] #type: ignore[attr-defined]
 	if not hasattr(try_find_equivalent_arcade, 'megatech_games'):
 		try:
-			try_find_equivalent_arcade.megatech_games = list(get_machines_from_source_file('megatech'))
+			try_find_equivalent_arcade.megatech_games = list(get_machines_from_source_file('megatech')) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
-			try_find_equivalent_arcade.megatech_games = []
+			try_find_equivalent_arcade.megatech_games = [] #type: ignore[attr-defined]
 
-	for bootleg_machine in try_find_equivalent_arcade.arcade_bootlegs:
+	for bootleg_machine in try_find_equivalent_arcade.arcade_bootlegs: #type: ignore[attr-defined]
 		if does_machine_match_game(rom.name, metadata, bootleg_machine):
 			return bootleg_machine
-	for megaplay_machine in try_find_equivalent_arcade.megaplay_games:
+	for megaplay_machine in try_find_equivalent_arcade.megaplay_games: #type: ignore[attr-defined]
 		if does_machine_match_game(rom.name, metadata, megaplay_machine):
 			return megaplay_machine
-	for megatech_machine in try_find_equivalent_arcade.megatech_games:
+	for megatech_machine in try_find_equivalent_arcade.megatech_games: #type: ignore[attr-defined]
 		if does_machine_match_game(rom.name, metadata, megatech_machine):
 			return megatech_machine	
 	return None
 
-def add_megadrive_software_list_metadata(software, metadata):
+def add_megadrive_software_list_metadata(software: Software, metadata: Metadata):
 	software.add_standard_metadata(metadata)
 	if software.get_shared_feature('addon') == 'SVP':
 		metadata.specific_info['Expansion-Chip'] = 'SVP'
@@ -275,25 +279,26 @@ def add_megadrive_software_list_metadata(software, metadata):
 		#This is naughty, but this bootleg game doesn't run on some stuff so I want to be able to detect it
 		metadata.specific_info['Mapper'] = 'aqlian'
 	else:
-		if slot not in (None, 'rom_sram', 'rom_fram'):
-			mapper = slot[4:] if slot.startswith('rom_') else slot
-			if mapper in ('eeprom', 'nbajam_alt', 'nbajamte', 'nflqb96', 'cslam', 'nhlpa', 'blara', 'eeprom_mode1'):
-				metadata.specific_info['Mapper'] = 'EEPROM'
-			elif mapper == 'jcart':
-				metadata.specific_info['Mapper'] = 'J-Cart'
-			elif mapper in ('codemast', 'mm96'):
-				metadata.specific_info['Mapper'] = 'J-Cart + EEPROM'
-			else:
-				#https://github.com/mamedev/mame/blob/master/src/devices/bus/megadrive/md_carts.cpp
-				metadata.specific_info['Mapper'] = mapper
-		if software.name == 'pokemon' and software.software_list_name == 'megadriv':
-			#This is also a bit naughty, but Pocket Monsters has different compatibility compared to other games with rom_kof99
-			metadata.specific_info['Mapper'] = slot[4:] + '_pokemon'
+		if slot:
+			if slot not in ('rom_sram', 'rom_fram'):
+				mapper = slot[4:] if slot.startswith('rom_') else slot
+				if mapper in ('eeprom', 'nbajam_alt', 'nbajamte', 'nflqb96', 'cslam', 'nhlpa', 'blara', 'eeprom_mode1'):
+					metadata.specific_info['Mapper'] = 'EEPROM'
+				elif mapper == 'jcart':
+					metadata.specific_info['Mapper'] = 'J-Cart'
+				elif mapper in ('codemast', 'mm96'):
+					metadata.specific_info['Mapper'] = 'J-Cart + EEPROM'
+				else:
+					#https://github.com/mamedev/mame/blob/master/src/devices/bus/megadrive/md_carts.cpp
+					metadata.specific_info['Mapper'] = mapper
+			if software.name == 'pokemon' and software.software_list_name == 'megadriv':
+				#This is also a bit naughty, but Pocket Monsters has different compatibility compared to other games with rom_kof99
+				metadata.specific_info['Mapper'] = slot[4:] + '_pokemon'
 
 
-def add_megadrive_metadata(game):
+def add_megadrive_metadata(game: ROMGame):
 	if game.rom.extension == 'cue':
-		first_track, sector_size = cd_read.get_first_data_cue_track(game.rom.path)
+		first_track, sector_size = cd_read.get_first_data_cue_track(str(game.rom.path))
 		if not os.path.isfile(first_track):
 			print(game.rom.path, 'has invalid cuesheet')
 			return
@@ -302,9 +307,9 @@ def add_megadrive_metadata(game):
 		except NotImplementedError:
 			return
 	elif game.rom.extension == 'smd':
-		header = get_smd_header(game.rom)
+		header = get_smd_header(cast(FileROM, game.rom))
 	else:
-		header = game.rom.read(0x100, 0x100)
+		header = cast(FileROM, game.rom).read(0x100, 0x100)
 
 	add_megadrive_info(game.metadata, header)
 	if game.metadata.platform == 'Mega Drive':

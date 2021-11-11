@@ -131,7 +131,7 @@ def add_ps3_metadata(game: ROMGame):
 		add_game_folder_metadata(cast(FolderROM, game.rom), game.metadata)
 
 	if game.metadata.product_code:
-		parse_product_code(game.metadata)
+		parse_product_code(game.metadata, game.metadata.product_code)
 		compat = get_rpcs3_compat(game.metadata.product_code)
 		if compat:
 			game.metadata.specific_info['RPCS3-Compatibility'] = compat

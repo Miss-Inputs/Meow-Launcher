@@ -1,11 +1,14 @@
 from datetime import datetime
+from typing import Optional, cast
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.metadata import Date
+from meowlauncher.games.roms.rom import ROM, FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
+from meowlauncher.metadata import Date, Metadata
 
 from .common.gamecube_wii_common import (NintendoDiscRegion,
-                                  add_gamecube_wii_disc_metadata,
-                                  just_read_the_wia_rvz_header_for_now)
+                                         add_gamecube_wii_disc_metadata,
+                                         just_read_the_wia_rvz_header_for_now)
 
 try:
 	from PIL import Image
@@ -13,19 +16,19 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
-def convert3BitColor(c):
+def convert3BitColor(c: int) -> int:
 	n = c * (256 // 0b111)
 	return 255 if n > 255 else n
 
-def convert4BitColor(c):
+def convert4BitColor(c: int) -> int:
 	n = c * (256 // 0b1111)
 	return 255 if n > 255 else n
 
-def convert5BitColor(c):
+def convert5BitColor(c: int) -> int:
 	n = c * (256 // 0b11111)
 	return 255 if n > 255 else n
 
-def convert_rgb5a3(colour):
+def convert_rgb5a3(colour: int) -> tuple[int, int, int, int]:
 	if (colour & 32768) == 0:
 		alpha = convert3BitColor((colour & 0b0111_0000_0000_0000) >> 12)
 		red = convert4BitColor((colour & 0b0000_1111_0000_0000) >> 8)
@@ -38,7 +41,7 @@ def convert_rgb5a3(colour):
 		blue = convert5BitColor(colour & 0b0_00000_00000_11111)
 	return (red, green, blue, alpha)
 
-def parse_gamecube_banner_text(metadata, banner_bytes, encoding, lang=None):
+def parse_gamecube_banner_text(metadata: Metadata, banner_bytes: bytes, encoding: str, lang: Optional[str]=None):
 	short_title_line_1 = banner_bytes[0:0x20].decode(encoding, errors='backslashreplace').rstrip('\0 ')
 	short_title_line_2 = banner_bytes[0x20:0x40].decode(encoding, errors='backslashreplace').rstrip('\0 ')
 	title_line_1 = banner_bytes[0x40:0x80].decode(encoding, errors='backslashreplace').rstrip('\0 ')
@@ -54,7 +57,7 @@ def parse_gamecube_banner_text(metadata, banner_bytes, encoding, lang=None):
 	metadata.specific_info['{0}-Title-Line-2'.format(prefix)] = title_line_2
 	metadata.descriptions['{0}-Description'.format(prefix)] = description
 
-def add_banner_info(rom, metadata, banner):
+def add_banner_info(rom: ROM, metadata: Metadata, banner: bytes):
 	banner_magic = banner[:4]
 	if banner_magic in (b'BNR1', b'BNR2'):
 		#(BNR2 has 6 instances of all of these with English, German, French, Spanish, Italian, Dutch in that order)
@@ -106,7 +109,7 @@ def add_banner_info(rom, metadata, banner):
 		if main_config.debug:
 			print('Invalid banner magic', rom.path, banner_magic)
 
-def add_fst_info(rom, metadata, fst_offset, fst_size, offset=0):
+def add_fst_info(rom: FileROM, metadata: Metadata, fst_offset: int, fst_size: int, offset: int=0):
 	if fst_offset and fst_size and fst_size < (128 * 1024 * 1024):
 		fst = rom.read(fst_offset, fst_size)
 		number_of_fst_entries = int.from_bytes(fst[8:12], 'big')
@@ -128,7 +131,7 @@ def add_fst_info(rom, metadata, fst_offset, fst_size, offset=0):
 				banner = rom.read(file_offset, file_length)
 				add_banner_info(rom, metadata, banner)
 
-def add_gamecube_disc_metadata(rom, metadata, header, tgc_data=None):
+def add_gamecube_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes, tgc_data: Optional[dict[str, int]]=None):
 	metadata.platform = 'GameCube'
 
 	if rom.extension != 'tgc':
@@ -170,7 +173,7 @@ def add_gamecube_disc_metadata(rom, metadata, header, tgc_data=None):
 		if main_config.debug:
 			print(rom.path, 'encountered error when parsing FST', ex)
 
-def add_tgc_metadata(rom, metadata):
+def add_tgc_metadata(rom: FileROM, metadata: Metadata):
 	tgc_header = rom.read(0, 60) #Actually it is bigger than that
 	magic = tgc_header[0:4]
 	if magic != b'\xae\x0f8\xa2':
@@ -197,12 +200,13 @@ def add_tgc_metadata(rom, metadata):
 		'file offset': file_offset,
 	})
 
-def add_gamecube_metadata(game):
+def add_gamecube_metadata(game: ROMGame):
 	if game.rom.extension in ('gcz', 'iso', 'gcm'):
-		header = game.rom.read(0, 0x2450)
-		add_gamecube_wii_disc_metadata(game.rom, game.metadata, header)
-		add_gamecube_disc_metadata(game.rom, game.metadata, header)
+		rom = cast(FileROM, game.rom)
+		header = rom.read(0, 0x2450)
+		add_gamecube_wii_disc_metadata(rom, game.metadata, header)
+		add_gamecube_disc_metadata(rom, game.metadata, header)
 	elif game.rom.extension == 'tgc':
-		add_tgc_metadata(game.rom, game.metadata)
+		add_tgc_metadata(cast(FileROM, game.rom), game.metadata)
 	elif game.rom.extension in ('wia', 'rvz'):
-		just_read_the_wia_rvz_header_for_now(game.rom, game.metadata)
+		just_read_the_wia_rvz_header_for_now(cast(FileROM, game.rom), game.metadata)

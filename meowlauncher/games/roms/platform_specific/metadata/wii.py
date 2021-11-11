@@ -3,9 +3,12 @@ import statistics
 import xml.etree.ElementTree as ElementTree
 from datetime import datetime
 from enum import Enum
+from typing import cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
+from meowlauncher.games.roms.rom import FileROM, FolderROM
+from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import WiiTitleType
 from meowlauncher.util.utils import (NotAlphanumericException,
@@ -149,7 +152,7 @@ def parse_opening_bnr(metadata: Metadata, opening_bnr: bytes):
 		if title != local_title:
 			metadata.add_alternate_name(title, '{0}-Banner-Title'.format(lang.replace(' ', '-')))
 	
-def add_wad_metadata(rom, metadata: Metadata):
+def add_wad_metadata(rom: FileROM, metadata: Metadata):
 	header = rom.read(amount=0x40)
 	header_size = int.from_bytes(header[0:4], 'big')
 	#WAD type: 4-8
@@ -177,7 +180,7 @@ def add_wad_metadata(rom, metadata: Metadata):
 	footer = rom.read(seek_to=footer_offset, amount=round_up_to_multiple(footer_size, 64))
 	parse_opening_bnr(metadata, footer)
 
-def add_wii_homebrew_metadata(rom, metadata: Metadata):
+def add_wii_homebrew_metadata(rom: FolderROM, metadata: Metadata):
 	#icon_path = rom.relevant_files['icon.png']
 	icon_path = rom.get_file('icon.png', True)
 	if icon_path:
@@ -281,7 +284,7 @@ def parse_ratings(metadata: Metadata, ratings_bytes: bytes, invert_has_rating_bi
 
 	metadata.specific_info['Age-Rating'] = rating
 
-def add_wii_disc_metadata(rom, metadata: Metadata):
+def add_wii_disc_metadata(rom: FileROM, metadata: Metadata):
 	wii_header = rom.read(0x40_000, 0xf000)
 
 	game_partition_offset = None
@@ -294,9 +297,9 @@ def add_wii_disc_metadata(rom, metadata: Metadata):
 			partition_table_entry = rom.read(seek_to, 8)
 			partition_offset = int.from_bytes(partition_table_entry[0:4], 'big') << 2
 			partition_type = int.from_bytes(partition_table_entry[4:8], 'big')
-			if partition_type > 0xf:
-				#SSBB Masterpiece partitions use ASCII title IDs here; realistically other partition types should be 0 (game) 1 (update) or 2 (channel)
-				partition_type = partition_table_entry[4:8].decode('ascii', errors='backslashreplace')
+			#if partition_type > 0xf:
+			#	#SSBB Masterpiece partitions use ASCII title IDs here; realistically other partition types should be 0 (game) 1 (update) or 2 (channel)
+			#	partition_type = partition_table_entry[4:8].decode('ascii', errors='backslashreplace')
 
 			#Seemingly most games have an update partition at 0x50_000 and a game partition at 0xf_800_000. That's just an observation though and may not be 100% the case
 			#print(rom.path, 'has partition type', partition_type, 'at', hex(partition_offset))
@@ -348,24 +351,25 @@ def add_wii_disc_metadata(rom, metadata: Metadata):
 		pass
 	parse_ratings(metadata, wii_header[0xe010:0xe020])
 
-def add_wii_metadata(game):
+def add_wii_metadata(game: ROMGame):
 	if game.rom.extension in ('gcz', 'iso', 'wbfs', 'gcm'):
-		header = None
+		header: bytes
+		rom = cast(FileROM, game.rom)
 		if game.rom.extension in ('iso', 'gcm', 'gcz'):
 			#.gcz can be a format for Wii discs, though not recommended and uncommon
-			header = game.rom.read(0, 0x2450)
+			header = rom.read(0, 0x2450)
 		elif game.rom.extension == 'wbfs':
-			header = game.rom.read(amount=0x2450, seek_to=0x200)
-		add_gamecube_wii_disc_metadata(game.rom, game.metadata, header)
-		add_wii_disc_metadata(game.rom, game.metadata)
+			header = rom.read(amount=0x2450, seek_to=0x200)
+		add_gamecube_wii_disc_metadata(rom, game.metadata, header)
+		add_wii_disc_metadata(rom, game.metadata)
 	elif game.rom.extension == 'wad':
-		add_wad_metadata(game.rom, game.metadata)
+		add_wad_metadata(cast(FileROM, game.rom), game.metadata)
 	elif game.rom.is_folder:
-		add_wii_homebrew_metadata(game.rom, game.metadata)
+		add_wii_homebrew_metadata(cast(FolderROM, game.rom), game.metadata)
 	elif game.rom.extension in ('dol', 'elf'):
 		if game.rom.name.lower() == 'boot': #Shouldn't happen I guess if homebrew detection works correctly but sometimes it be like that
 			game.metadata.categories = game.metadata.categories[:-1]
 			game.metadata.add_alternate_name(os.path.basename(os.path.dirname(game.rom.path)), 'Folder-Name')
 			game.rom.ignore_name = True
 	elif game.rom.extension in ('wia', 'rvz'):
-		just_read_the_wia_rvz_header_for_now(game.rom, game.metadata)
+		just_read_the_wia_rvz_header_for_now(cast(FileROM, game.rom), game.metadata)

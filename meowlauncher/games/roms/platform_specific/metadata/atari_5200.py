@@ -1,7 +1,11 @@
+from typing import cast
+
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.mame.software_list_info import get_software_list_entry
-from meowlauncher.metadata import Date
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
+from meowlauncher.metadata import Date, Metadata
 
 atari_5200_charset = {
 	#Lowercase here is used to represent rainbow characters, because how else am I gonna represent them? No really, I dunno
@@ -91,7 +95,7 @@ atari_5200_charset = {
 	0xe1: ' ', #Not sure about this one, but it really does display as blank. Maybe all unknown characters just display as blank?
 }
 
-def add_crap_from_rom_header(rom, metadata):
+def add_crap_from_rom_header(rom: FileROM, metadata: Metadata):
 	footer = rom.read(seek_to=rom.get_size() - 24, amount=24)
 	year = footer[20:22] #Y2K incompliant whee
 	#Entry point: 22-23, lil' endian
@@ -109,8 +113,8 @@ def add_crap_from_rom_header(rom, metadata):
 		except (ValueError, KeyError):
 			pass
 		
-def add_atari_5200_metadata(game):
-	add_crap_from_rom_header(game.rom, game.metadata)
+def add_atari_5200_metadata(game: ROMGame):
+	add_crap_from_rom_header(cast(FileROM, game.rom), game.metadata)
 
 	uses_trackball = False
 	software = get_software_list_entry(game)

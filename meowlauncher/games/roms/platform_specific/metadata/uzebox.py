@@ -1,15 +1,19 @@
+from typing import cast
+
 from meowlauncher.games.mame.software_list_info import get_software_list_entry
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Date
 
 from .snes import get_snes_controller, get_snes_mouse
 
 
-def add_uzebox_metadata(game):
+def add_uzebox_metadata(game: ROMGame):
 	#Save type: ????
 
 	uses_mouse = False #Make an assumption that headerless ROMs don't use weird peripherals
 
-	header = game.rom.read(amount=512)
+	header = cast(FileROM, game.rom).read(amount=512)
 	magic = header[0:6]
 	if magic != b'UZEBOX':
 		has_header = False

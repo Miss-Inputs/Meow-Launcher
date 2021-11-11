@@ -92,7 +92,7 @@ class Cnmt(NamedTuple):
 	type: SwitchContentMetaType
 	contents: dict[bytes, tuple[int, ContentType]]
 
-def add_titles(metadata: Metadata, titles: Mapping[str, tuple[str, str]], icons: MutableMapping[str, bytes]=None):
+def add_titles(metadata: Metadata, titles: Mapping[str, tuple[str, str]], icons: Mapping[str, bytes]=None):
 	if not titles:
 		return
 	found_first_lang = False
@@ -143,7 +143,7 @@ def add_titles(metadata: Metadata, titles: Mapping[str, tuple[str, str]], icons:
 				#TODO: Cleanup publisher
 				metadata.publisher = publisher
 
-def add_nacp_metadata(metadata: Metadata, nacp: bytes, icons: MutableMapping[str, bytes]=None):
+def add_nacp_metadata(metadata: Metadata, nacp: bytes, icons: Mapping[str, bytes]=None):
 	#There are a heckload of different flags here and most aren't even known seemingly, see also https://switchbrew.org/wiki/NACP_Format
 	
 	title_entries = nacp[:0x3000]

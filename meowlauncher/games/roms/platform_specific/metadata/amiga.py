@@ -1,6 +1,10 @@
+from meowlauncher.games.mame.software_list import Software
 from meowlauncher.games.mame.software_list_info import get_software_list_entry
+from meowlauncher.games.roms.rom_game import ROMGame
+from meowlauncher.metadata import Metadata
 
-def add_amiga_metadata_from_software_list(software, metadata):
+
+def add_amiga_metadata_from_software_list(software: Software, metadata: Metadata):
 	chipset = None
 	if software:
 		software.add_standard_metadata(metadata)
@@ -24,7 +28,7 @@ def add_amiga_metadata_from_software_list(software, metadata):
 	metadata.specific_info['Chipset'] = chipset
 
 
-def add_amiga_metadata(game):
+def add_amiga_metadata(game: ROMGame):
 	software = get_software_list_entry(game)
 	if software:
 		add_amiga_metadata_from_software_list(software, game.metadata)

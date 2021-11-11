@@ -1,9 +1,12 @@
 import os
 from enum import Enum, auto
+from typing import cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
+from meowlauncher.games.roms.rom import ROM, FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import SaturnRegionCodes
 from meowlauncher.util.cd_read import get_first_data_cue_track, read_mode_1_cd
@@ -112,7 +115,7 @@ def parse_peripherals(metadata: Metadata, peripherals: str):
 	if uses_wheel:
 		metadata.input_info.add_option(input_metadata.SteeringWheel())
 
-def add_saturn_info(rom, metadata: Metadata, header: bytes):
+def add_saturn_info(rom: ROM, metadata: Metadata, header: bytes):
 	hardware_id = header[0:16].decode('ascii', errors='ignore')
 	if hardware_id != 'SEGA SEGASATURN ':
 		#Won't boot on a real Saturn, also if this is some emulator only thing then nothing in the header can be considered valid
@@ -204,9 +207,9 @@ def add_saturn_info(rom, metadata: Metadata, header: bytes):
 	if internal_name:
 		metadata.specific_info['Internal-Title'] = internal_name
 
-def add_saturn_metadata(game):
+def add_saturn_metadata(game: ROMGame):
 	if game.rom.extension == 'cue':
-		first_track, sector_size = get_first_data_cue_track(game.rom.path)
+		first_track, sector_size = get_first_data_cue_track(str(game.rom.path))
 
 		if not os.path.isfile(first_track):
 			print(game.rom.path, 'has invalid cuesheet')
@@ -216,14 +219,14 @@ def add_saturn_metadata(game):
 		except NotImplementedError:
 			return
 	elif game.rom.extension == 'ccd':
-		img_file = os.path.splitext(game.rom.path)[0] + '.img'
+		img_file = game.rom.path.with_suffix('.img')
 		#I thiiiiiiiiink .ccd/.img always has 2352-byte sectors?
 		try:
-			header = read_mode_1_cd(img_file, 2352, seek_to=0, amount=256)
+			header = read_mode_1_cd(str(img_file), 2352, seek_to=0, amount=256)
 		except NotImplementedError:
 			return
 	elif game.rom.extension == 'iso':
-		header = game.rom.read(seek_to=0, amount=256)
+		header = cast(FileROM, game.rom).read(seek_to=0, amount=256)
 	else:
 		return
 

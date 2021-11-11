@@ -1,4 +1,8 @@
+from typing import cast
+
 from meowlauncher import input_metadata
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Date
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric)
@@ -6,7 +10,7 @@ from meowlauncher.util.utils import (NotAlphanumericException,
 from .minor_platforms import add_generic_info
 
 
-def add_vectrex_metadata(game):
+def add_vectrex_metadata(game: ROMGame):
 	gamepad = input_metadata.NormalController()
 	gamepad.face_buttons = 4 #All arranged in a row, not rectangle
 	gamepad.analog_sticks = 1
@@ -17,7 +21,7 @@ def add_vectrex_metadata(game):
 
 	#Only do things the wrong way if we can't find year by software list
 	try:
-		year = convert_alphanumeric(game.rom.read(seek_to=6, amount=4))
+		year = convert_alphanumeric(cast(FileROM, game.rom).read(seek_to=6, amount=4))
 		try:
 			if int(year) > 1982:
 				year_date = Date(year, is_guessed=True)

@@ -184,7 +184,7 @@ class Date():
 		#pylint: disable=unsupported-membership-test #I already checked for none you fucking knob
 		return 'x' in self.year or 'x' in self.month or 'x' in self.day or '?' in self.year or '?' in self.month or '?' in self.day
 	
-	def is_better_than(self, other_date):
+	def is_better_than(self, other_date: 'Date') -> bool:
 		if not other_date:
 			return True
 		if other_date.is_guessed and not self.is_guessed:

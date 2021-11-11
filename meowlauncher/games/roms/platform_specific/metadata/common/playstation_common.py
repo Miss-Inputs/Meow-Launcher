@@ -1,10 +1,13 @@
 from enum import Flag
+from typing import Any, Optional, cast
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.pc_common_metadata import fix_name
+from meowlauncher.games.roms.rom import ROM
+from meowlauncher.metadata import Metadata
 
-categories = {
+categories: dict[str, tuple[str, Optional[str]]] = {
 	#Second item is what we want to set metadata.category to
 	'AP': ('Photo App', 'Applications'),
 	'AM': ('Music App', 'Applications'),
@@ -117,7 +120,7 @@ title_languages = {
 
 }
 
-def convert_sfo(sfo):
+def convert_sfo(sfo: bytes) -> dict[str, Any]:
 	d = {}
 	#This is some weird key value format thingy
 	key_table_start = int.from_bytes(sfo[8:12], 'little')
@@ -134,21 +137,22 @@ def convert_sfo(sfo):
 
 		key = sfo[key_offset:].split(b'\x00', 1)[0].decode('utf8', errors='ignore')
 
-		value = None
+		value: Any = None
 		if data_format == 4: #UTF8 not null terminated
-			value = sfo[data_offset:data_offset+data_used_length, 'little'].decode('utf8', errors='ignore')
+			value = sfo[data_offset:data_offset+data_used_length].decode('utf8', errors='ignore')
 		elif data_format == 0x204: #UTF8 null terminated
 			value = sfo[data_offset:].split(b'\x00', 1)[0].decode('utf8', errors='ignore')
 		elif data_format == 0x404: #int32
 			value = int.from_bytes(sfo[data_offset:data_offset+4], 'little')
 		else:
-			#Whoops unknown format
+			if main_config.debug:
+				print('Whoops unknown format in convert_sfo', hex(data_format))
 			continue
 
 		d[key] = value
 	return d
 
-def parse_param_sfo(rom, metadata, param_sfo):
+def parse_param_sfo(rom: ROM, metadata: Metadata, param_sfo: bytes):
 	magic = param_sfo[:4]
 	if magic != b'\x00PSF':
 		return
@@ -178,13 +182,14 @@ def parse_param_sfo(rom, metadata, param_sfo):
 			metadata.specific_info['Parental-Level'] = value
 		elif key == 'CATEGORY':
 			#This is a two letter code which generally means something like "Memory stick game" "Update" "PS1 Classics", see ROMniscience notes
-			cat = categories.get(value)
+			cat: Optional[tuple[str, Optional[str]]] = categories.get(value)
 			if cat:
-				if not cat[1]:
-					metadata.specific_info['Should-Not-Be-Bootable'] = True
 				metadata.specific_info['PlayStation-Category'] = cat[0]
-				if not metadata.categories or (len(metadata.categories) == 1 and metadata.categories[0] == metadata.platform):
-					metadata.categories = [cat[1]]
+				if cat[1] and cat[1] is not None:
+					if not metadata.categories or (len(metadata.categories) == 1 and metadata.categories[0] == metadata.platform):
+						metadata.categories = [cat[1]]
+				else:
+					metadata.specific_info['Should-Not-Be-Bootable'] = True
 			else:
 				if main_config.debug:
 					print(rom.path, 'has unknown category', value)
@@ -242,17 +247,17 @@ def parse_param_sfo(rom, metadata, param_sfo):
 			if main_config.debug:
 				print(rom.path, 'has unknown param.sfo value', key, value)
 
-def parse_product_code(metadata):
-	if len(metadata.product_code) == 9 and metadata.product_code[:4].isalpha() and metadata.product_code[-5:].isdigit():
-		if metadata.product_code.startswith(('B', 'P', 'S', 'X', 'U')):
+def parse_product_code(metadata: Metadata, product_code: str):
+	if len(product_code) == 9 and product_code[:4].isalpha() and product_code[-5:].isdigit():
+		if product_code.startswith(('B', 'P', 'S', 'X', 'U')):
 			metadata.media_type = MediaType.OpticalDisc
-			if metadata.product_code[1] == 'C':
+			if product_code[1] == 'C':
 				metadata.publisher = 'Sony'
-		if metadata.product_code.startswith('V'):
+		if product_code.startswith('V'):
 			metadata.media_type = MediaType.Cartridge
-			if metadata.product_code[1] == 'C':
+			if product_code[1] == 'C':
 				metadata.publisher = 'Sony'
-		if metadata.product_code.startswith('NP'):
+		if product_code.startswith('NP'):
 			metadata.media_type = MediaType.Digital
-			if metadata.product_code[3] in ('A', 'C', 'F', 'G', 'I', 'K', 'W', 'X'):
+			if product_code[3] in ('A', 'C', 'F', 'G', 'I', 'K', 'W', 'X'):
 				metadata.publisher = 'Sony'
