@@ -8,7 +8,7 @@ import time
 import traceback
 from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import cast
+from typing import Optional, cast
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        ExtensionNotSupportedException,
@@ -30,7 +30,7 @@ from meowlauncher.util import archives
 from meowlauncher.util.utils import find_filename_tags_at_end, starts_with_any
 
 
-def process_file(platform_config: PlatformConfig, potential_emulator_names: Iterable[str], rom: ROM, subfolders: Sequence[str]) -> bool:
+def process_file(platform_config: PlatformConfig, potential_emulator_names: Iterable[str], rom: ROM, subfolders: Sequence[str]) -> Optional[ROMLauncher]:
 	game = RomGame(rom, platform_config.name, platforms[platform_config.name])
 
 	if game.rom.extension == 'm3u':
@@ -40,7 +40,7 @@ def process_file(platform_config: PlatformConfig, potential_emulator_names: Iter
 		if any(not filename.is_file() for filename in filenames):
 			if main_config.debug:
 				print('M3U file', game.rom.path, 'has broken references!!!!', filenames)
-			return False
+			return None
 		game.subroms = [rom_file(str(referenced_file)) for referenced_file in filenames]
 
 	have_emulator_that_supports_extension = False
@@ -55,7 +55,7 @@ def process_file(platform_config: PlatformConfig, potential_emulator_names: Iter
 			if rom.extension in potential_emulator.supported_extensions:
 				have_emulator_that_supports_extension = True
 	if not have_emulator_that_supports_extension:
-		return False
+		return None
 			
 	game.filename_tags = find_filename_tags_at_end(game.rom.name)
 	if subfolders and subfolders[-1] == game.rom.name:
@@ -99,10 +99,9 @@ def process_file(platform_config: PlatformConfig, potential_emulator_names: Iter
 		if main_config.debug:
 			if isinstance(exception_reason, EmulationNotSupportedException) and not isinstance(exception_reason, ExtensionNotSupportedException):
 				print(rom.path, 'could not be launched by', potential_emulator_names, 'because', exception_reason)
-		return False
+		return None
 	
-	make_linux_desktop_for_launcher(launcher) #TODO: This shouldn't be here - we should be returning Optional[ROMLauncher] I think
-	return True
+	return launcher
 
 def parse_m3u(path: str):
 	with open(path, 'rt') as f:
@@ -166,7 +165,9 @@ def process_emulated_platform(system_config: PlatformConfig):
 						#if process_file(system_config, rom_dir, root, folder_rom):
 						#Theoretically we might want to continue descending if we couldn't make a launcher for this folder, because maybe we also have another emulator which doesn't work with folders, but does support a file inside it. That results in weird stuff where we try to launch a file inside the folder using the same emulator we just failed to launch the folder with though, meaning we actually don't want it but now it just lacks metadata, so I'm gonna just do this for now
 						#I think I need to be more awake to re-read that comment
-						process_file(system_config, potential_emulators, folder_rom, subfolders)
+						launcher = process_file(system_config, potential_emulators, folder_rom, subfolders)
+						if launcher:
+							make_linux_desktop_for_launcher(launcher)
 						continue
 					remaining_subdirs.append(d)
 				dirs[:] = remaining_subdirs
@@ -210,7 +211,9 @@ def process_emulated_platform(system_config: PlatformConfig):
 			continue
 
 		try:
-			process_file(system_config, potential_emulators, rom, categories)
+			launcher = process_file(system_config, potential_emulators, rom, categories)
+			if launcher:
+				make_linux_desktop_for_launcher(launcher)
 		#pylint: disable=broad-except
 		except Exception as ex:
 			#It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
