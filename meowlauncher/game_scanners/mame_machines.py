@@ -11,9 +11,9 @@ from meowlauncher.data.machines_with_inbuilt_games import (
     bioses_with_inbuilt_games, machines_with_inbuilt_games)
 from meowlauncher.games.mame.mame_game import MAMEGame
 from meowlauncher.games.mame.mame_metadata import add_metadata, add_status
-from meowlauncher.games.mame_common.machine import get_machine, get_machines_from_source_file, iter_machines, Machine
-from meowlauncher.games.mame_common.mame_helpers import (
-    default_mame_executable, verify_romset)
+from meowlauncher.games.mame_common.machine import (
+    Machine, get_machine, get_machines_from_source_file, iter_machines)
+from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.info import emulator_command_line_helpers
 from meowlauncher.metadata import Metadata
 
@@ -73,7 +73,7 @@ def process_machine(machine: Machine):
 	if not does_user_want_machine(game):
 		return
 
-	if not verify_romset(machine.basename):
+	if not default_mame_executable.verifyroms(machine.basename):
 		#We do this as late as we can after checks to see if we want to actually add this machine or not, because it takes a while (in a loop of tens of thousands of machines), and hence if we can get out of having to do it we should
 		#However this is a reminder to myself to stop trying to be clever (because I am not); we cannot assume -verifyroms would succeed if machine.romless is true because there might be a device which is not romless
 		return
@@ -82,7 +82,7 @@ def process_machine(machine: Machine):
 		#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
 		#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
 
-		#We'll do this check _after_ verify_romset so we don't spam debug print for a bunch of skeleton drivers we don't have
+		#We'll do this check _after_ verifyroms so we don't spam debug print for a bunch of skeleton drivers we don't have
 		if main_config.debug:
 			print('Skipping %s (%s, %s) as it is probably a skeleton driver' % (machine.name, machine.basename, machine.source_file))
 		return
@@ -93,14 +93,14 @@ def process_machine(machine: Machine):
 
 def no_longer_exists(game_id: str):
 	#This is used to determine what launchers to delete if not doing a full rescan
-	return not verify_romset(game_id)
+	return not default_mame_executable or not default_mame_executable.verifyroms(game_id)
 
 def process_inbuilt_game(machine_name: str, inbuilt_game, bios_name=None) -> None:
-	if not verify_romset(machine_name):
+	if not default_mame_executable.verifyroms(machine_name):
 		return
 
 	#TODO: This needs to be moved into a new subclass of EmulatedGame thank you
-	#MachineNotFoundException shouldn't happen because verify_romset already returned true? Probably
+	#MachineNotFoundException shouldn't happen because verifyroms already returned true? Probably
 	machine = get_machine(machine_name, default_mame_executable)
 	
 	metadata = Metadata()
@@ -181,7 +181,7 @@ def main() -> None:
 				continue
 			if not is_machine_launchable(machine):
 				continue
-			if not verify_romset(machine.basename):
+			if not default_mame_executable.verifyroms(machine.basename):
 				continue
 			process_machine(machine)
 		return

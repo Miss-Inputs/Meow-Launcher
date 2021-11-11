@@ -5,8 +5,8 @@ from xml.etree import ElementTree
 from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.emulated_platforms import all_mame_drivers
-from meowlauncher.util.utils import (find_filename_tags_at_end, load_dict, normalize_name,
-                                     remove_capital_article,
+from meowlauncher.util.utils import (find_filename_tags_at_end, load_dict,
+                                     normalize_name, remove_capital_article,
                                      remove_filename_tags)
 
 from .mame_executable import MAMEExecutable

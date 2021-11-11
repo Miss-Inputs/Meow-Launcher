@@ -7,11 +7,12 @@ from meowlauncher.data.name_cleanup.libretro_database_company_name_cleanup impor
 from meowlauncher.games.common.libretro_database import \
     parse_all_dats_for_system
 from meowlauncher.games.mame_common.machine import (Machine,
-                                                    does_machine_match_game, get_machine)
+                                                    does_machine_match_game,
+                                                    get_machine)
 from meowlauncher.games.mame_common.mame_executable import \
     MachineNotFoundException
 from meowlauncher.games.mame_common.mame_helpers import (
-    default_mame_executable, get_image, get_mame_xml)
+    default_mame_executable, get_image)
 from meowlauncher.games.mame_common.mame_utils import image_config_keys
 from meowlauncher.games.mame_common.software_list_info import \
     get_software_lists_by_names

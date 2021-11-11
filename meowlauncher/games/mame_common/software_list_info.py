@@ -13,7 +13,7 @@ from meowlauncher.util.utils import (byteswap, find_filename_tags_at_end,
                                      load_dict, normalize_name,
                                      remove_filename_tags)
 
-from .mame_helpers import get_mame_core_config
+from .mame_helpers import default_mame_configuration
 from .software_list import (Software, SoftwareCustomMatcher, SoftwareList,
                             SoftwareMatcherArgs, SoftwarePart,
                             format_crc32_for_software_list,
@@ -34,8 +34,9 @@ def get_software_list_by_name(name: str) -> Optional[SoftwareList]:
 		return get_software_list_by_name.cache[name] #type: ignore[attr-defined]
 
 	try:
-		mame_config = get_mame_core_config()
-		for hash_path in mame_config.get('hashpath', []):
+		if not default_mame_configuration:
+			return None
+		for hash_path in default_mame_configuration.core_config.get('hashpath', []):
 			if os.path.isdir(hash_path):
 				list_path = os.path.join(hash_path, name + '.xml')
 				if os.path.isfile(list_path):

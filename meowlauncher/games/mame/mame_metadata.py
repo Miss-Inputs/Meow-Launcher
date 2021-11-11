@@ -4,11 +4,12 @@ from meowlauncher import detect_things_from_filename, input_metadata
 from meowlauncher.common_types import EmulationStatus, MediaType, SaveType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.mame_common.machine import Machine, mame_statuses
-from meowlauncher.games.mame_common.mame_helpers import find_cpus, get_image
+from meowlauncher.games.mame_common.mame_helpers import get_image
 from meowlauncher.games.mame_common.mame_support_files import (
     ArcadeCategory, MachineCategory, add_history, get_category, get_languages,
     organize_catlist)
-from meowlauncher.games.mame_common.mame_utils import image_config_keys
+from meowlauncher.games.mame_common.mame_utils import (find_cpus,
+                                                       image_config_keys)
 from meowlauncher.metadata import CPU, Metadata, ScreenInfo
 from meowlauncher.util.region_info import get_language_from_regions
 from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
