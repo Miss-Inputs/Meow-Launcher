@@ -212,8 +212,8 @@ class Metadata():
 	def __init__(self) -> None:
 		self.platform: Optional[str] = None
 		self.categories: list[str] = []
-		self.release_date = None
-		self.emulator_name = None
+		self.release_date: Optional[Date] = None
+		self.emulator_name: Optional[str] = None #Hmm is this needed now?
 		self.extension: Optional[str] = None
 
 		self.genre: Optional[str] = None

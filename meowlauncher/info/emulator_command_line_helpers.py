@@ -1,14 +1,16 @@
 import os
+from typing import Iterable, Optional
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
-                                       EmulationStatus)
+                                       EmulationStatus, EmulatorStatus)
+from meowlauncher.emulator import LaunchParamsFunc, MednafenModule
 from meowlauncher.games.mame.mame_helpers import have_mame, verify_romset
 from meowlauncher.games.mame.software_list_info import \
     get_software_list_by_name
 from meowlauncher.launcher import LaunchCommand
 
 
-def _get_autoboot_script_by_name(name: str):
+def _get_autoboot_script_by_name(name: str) -> str:
 	#Hmm I'm not sure I like this one but whaddya do otherwise… where's otherwise a good place to store shit
 	this_package = os.path.dirname(__file__)
 	root_package = os.path.dirname(this_package)
@@ -34,13 +36,13 @@ def _verify_supported_gb_mappers(game, supported_mappers, detected_mappers) -> N
 	if mapper not in supported_mappers and mapper not in detected_mappers:
 		raise EmulationNotSupportedException('Mapper ' + mapper + ' not supported')
 
-def verify_mgba_mapper(game):
+def verify_mgba_mapper(game) -> None:
 	supported_mappers = ['MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5', 'HuC3', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5']
 	detected_mappers = ['MBC1 Multicart', 'MMM01', 'Wisdom Tree', 'Pokemon Jade/Diamond bootleg', 'BBD', 'Hitek']
 
 	_verify_supported_gb_mappers(game, supported_mappers, detected_mappers)
 
-def _is_software_available(software_list_name, software_name):
+def _is_software_available(software_list_name: str, software_name: str) -> bool:
 	if not have_mame():
 		return False
 
@@ -53,14 +55,14 @@ def _is_software_available(software_list_name, software_name):
 			return True
 	return False
 
-def is_highscore_cart_available():
+def is_highscore_cart_available() -> bool:
 	return _is_software_available('a7800', 'hiscore')
 	#FIXME: This is potentially wrong for A7800, where the software directory could be different than MAME... I've just decided to assume it's set up that way
 
-def mednafen_module(module, exe_path='mednafen'):
+def mednafen_module(module: str, exe_path: str='mednafen') -> LaunchCommand:
 	return LaunchCommand(exe_path, ['-video.fs', '1', '-force_module', module, '$<path>'])
 
-def mame_base(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None, software=None, bios=None):
+def mame_base(driver: str, slot: Optional[str]=None, slot_options: Optional[dict[str, str]]=None, has_keyboard: bool=False, autoboot_script: Optional[str]=None, software: Optional[str]=None, bios: Optional[str]=None) -> list[str]:
 	args = ['-skip_gameinfo']
 	if has_keyboard:
 		args.append('-ui_active')
@@ -90,7 +92,7 @@ def mame_base(driver, slot=None, slot_options=None, has_keyboard=False, autoboot
 
 	return args
 
-def mame_driver(game, emulator_config, driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None):
+def mame_driver(game, emulator_config, driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None) -> LaunchCommand:
 	#Hmm I might need to refactor this and mame_system when I figure out what I'm doing
 	compat_threshold = emulator_config.options.get('software_compatibility_threshold', 1)
 	if compat_threshold > -1:
@@ -106,25 +108,25 @@ def mame_driver(game, emulator_config, driver, slot=None, slot_options=None, has
 	args = mame_base(driver, slot, slot_options, has_keyboard, autoboot_script)
 	return LaunchCommand(emulator_config.exe_path, args)
 
-def first_available_system(system_list):
-	for system in system_list:
-		if verify_romset(system):
-			return system
+def first_available_romset(driver_list: Iterable[str]) -> Optional[str]:
+	for driver in driver_list:
+		if verify_romset(driver):
+			return driver
 	return None
 
 #This is here to make things simpler, instead of putting a whole new function in emulator_command_lines we can return the appropriate function from here
-def simple_emulator(args=None):
+def simple_emulator(args: Optional[list[str]]=None) -> LaunchParamsFunc:
 	def inner(_, __, emulator_config):
 		return LaunchCommand(emulator_config.exe_path, args if args else ['$<path>'])
 	return inner
 
-def simple_gb_emulator(args, mappers, autodetected_mappers):
+def simple_gb_emulator(args, mappers: list[str], autodetected_mappers: list[str]):
 	def inner(game, _, emulator_config):
 		_verify_supported_gb_mappers(game, mappers, autodetected_mappers)
 		return LaunchCommand(emulator_config.exe_path, args)
 	return inner
 
-def simple_md_emulator(args, unsupported_mappers):
+def simple_md_emulator(args: list[str], unsupported_mappers: list[str]) -> LaunchParamsFunc:
 	def inner(game, _, emulator_config):
 		mapper = game.metadata.specific_info.get('Mapper')
 		if mapper in unsupported_mappers:
@@ -132,12 +134,16 @@ def simple_md_emulator(args, unsupported_mappers):
 		return LaunchCommand(emulator_config.exe_path, args)
 	return inner
 
-def simple_mame_driver(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None):
+def simple_mame_driver(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None) -> LaunchParamsFunc:
 	def inner(game, _, emulator_config):
 		return mame_driver(game, emulator_config, driver, slot, slot_options, has_keyboard, autoboot_script)
 	return inner
 
-def simple_mednafen_module(module):
+def simple_mednafen_module_args(module: str) -> LaunchParamsFunc:
 	def inner(_, __, emulator_config):
 		return mednafen_module(module, exe_path=emulator_config.exe_path)
 	return inner
+
+class SimpleMednafenModule(MednafenModule):
+	def __init__(self, status: EmulatorStatus, module: str, supported_extensions: list[str], configs=None):
+		super().__init__(status, supported_extensions, params_func=simple_mednafen_module_args(module), configs=configs)

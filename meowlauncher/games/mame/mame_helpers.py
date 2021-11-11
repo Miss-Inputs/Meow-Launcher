@@ -3,9 +3,9 @@ import functools
 import os
 import re
 import subprocess
-from typing import Optional
 import xml.etree.ElementTree as ElementTree
 from pathlib import Path
+from typing import Optional, TypeVar
 
 from meowlauncher.common_paths import cache_dir
 from meowlauncher.config.main_config import main_config
@@ -13,8 +13,7 @@ from meowlauncher.data.name_cleanup.mame_manufacturer_name_cleanup import (
     dont_remove_suffix, manufacturer_name_cleanup)
 from meowlauncher.util.utils import junk_suffixes
 
-
-def consistentify_manufacturer(manufacturer: str) -> Optional[str]:
+def consistentify_manufacturer(manufacturer: Optional[str]) -> Optional[str]:
 	if not manufacturer:
 		return None
 	if manufacturer not in dont_remove_suffix:

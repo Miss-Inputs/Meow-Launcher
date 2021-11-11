@@ -8,7 +8,7 @@ from meowlauncher.emulator import (Emulator, EmulatorPlatform, EmulatorStatus,
                                    MednafenModule, PCEmulator,
                                    StandardEmulator, ViceEmulator)
 from meowlauncher.info.emulator_command_line_helpers import (
-    simple_emulator, simple_gb_emulator, simple_mame_driver,
+    SimpleMednafenModule, simple_emulator, simple_gb_emulator, simple_mame_driver,
     simple_md_emulator)
 
 from .format_info import (atari_2600_cartridge_extensions,
@@ -35,7 +35,7 @@ _standalone_emulators = [
 		'compatibility_threshold': EmulatorConfigValue(ConfigValueType.Integer, 2, "Don't try and launch any game with this compatibility rating or lower"),
 		'consider_unknown_games_incompatible': EmulatorConfigValue(ConfigValueType.Bool, False, "Consider games incompatible if they aren't in the compatibility database at all")
 	}),
-	StandardEmulator('Flycast', EmulatorStatus.Good, 'flycast', simple_emulator(['-config', 'window:fullscreen=yes', '$<path>']), ['gdi', 'cdi', 'chd', 'cue'], {}),
+	StandardEmulator('Flycast', EmulatorStatus.Good, 'flycast', simple_emulator(['-config', 'window:fullscreen=yes', '$<path>']), ['gdi', 'cdi', 'chd', 'cue'], []),
 	StandardEmulator('FS-UAE', EmulatorStatus.Good, 'fs-uae', command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf']),
 	#Note that .ipf files need a separately downloadable plugin. We could detect the presence of that, I guess
 	StandardEmulator('Gambatte', EmulatorStatus.Good, 'gambatte_qt', 
@@ -142,19 +142,19 @@ emulators: dict[str, Union[StandardEmulator, LibretroCore]] = {
 	'VICE (Plus/4)': ViceEmulator(EmulatorStatus.Good, 'xplus4', command_lines.vice_plus4),
 	'VICE (C128)': ViceEmulator(EmulatorStatus.Good, 'x128', command_lines.vice_c128),
 
-	'Mednafen (Apple II)': MednafenModule(EmulatorStatus.Good, 'apple2', ['woz', 'dsk', 'po', 'do', 'd13'], command_lines.mednafen_apple_ii),
+	'Mednafen (Apple II)': MednafenModule(EmulatorStatus.Good, ['woz', 'dsk', 'po', 'do', 'd13'], command_lines.mednafen_apple_ii),
 	#Seems fine but no Apple IIe/128K?
-	'Mednafen (Lynx)': MednafenModule(EmulatorStatus.Good, 'lynx', ['lnx', 'o'], command_lines.mednafen_lynx),
+	'Mednafen (Lynx)': MednafenModule(EmulatorStatus.Good, ['lnx', 'o'], command_lines.mednafen_lynx),
 	#Based on Handy, but that hasn't been updated in 14 years, so I guess this probably has some more updates
-	'Mednafen (Neo Geo Pocket)': MednafenModule(EmulatorStatus.Good, 'ngp', ['ngp', 'npc', 'ngc']),
+	'Mednafen (Neo Geo Pocket)': SimpleMednafenModule(EmulatorStatus.Good, 'ngp', ['ngp', 'npc', 'ngc']),
 	#Based off NeoPop, which hasn't been updated in 15 years, so presumably with improvements. Does say that this is unsuitable for homebrew development (due to lack of accuracy) and MAME is more suitable for that, so believe that if you want
-	'Mednafen (NES)': MednafenModule(EmulatorStatus.Good, 'nes', ['nes', 'fds', 'unf'], command_lines.mednafen_nes),
+	'Mednafen (NES)': MednafenModule(EmulatorStatus.Good, ['nes', 'fds', 'unf'], command_lines.mednafen_nes),
 	#Based off FCEU, so not quite cycle-accurate but it works
-	'Mednafen (PC Engine)': MednafenModule(EmulatorStatus.Good, 'pce', ['pce', 'sgx', 'iso', 'cue', 'ccd', 'toc', 'm3u']),
-	'Mednafen (PC-FX)': MednafenModule(EmulatorStatus.Good, 'pcfx', ['iso', 'cue', 'toc', 'ccd', 'm3u']), #Do NOT specify a FX-SCSI BIOS
-	'Mednafen (PlayStation)': MednafenModule(EmulatorStatus.Good, 'psx', ['iso', 'cue', 'exe', 'toc', 'ccd', 'm3u', 'psx']),
-	'Mednafen (Virtual Boy)': MednafenModule(EmulatorStatus.Good, 'vb', ['bin', 'vb', 'vboy']),
-	'Mednafen (WonderSwan)': MednafenModule(EmulatorStatus.Good, 'wswan', ['ws', 'wsc', 'bin', 'pc2']),
+	'Mednafen (PC Engine)': SimpleMednafenModule(EmulatorStatus.Good, 'pce', ['pce', 'sgx', 'iso', 'cue', 'ccd', 'toc', 'm3u']),
+	'Mednafen (PC-FX)': SimpleMednafenModule(EmulatorStatus.Good, 'pcfx', ['iso', 'cue', 'toc', 'ccd', 'm3u']), #Do NOT specify a FX-SCSI BIOS
+	'Mednafen (PlayStation)': SimpleMednafenModule(EmulatorStatus.Good, 'psx', ['iso', 'cue', 'exe', 'toc', 'ccd', 'm3u', 'psx']),
+	'Mednafen (Virtual Boy)': SimpleMednafenModule(EmulatorStatus.Good, 'vb', ['bin', 'vb', 'vboy']),
+	'Mednafen (WonderSwan)': SimpleMednafenModule(EmulatorStatus.Good, 'wswan', ['ws', 'wsc', 'bin', 'pc2']),
 	#Based on Cygne, definitely heavily modified by now
 
 	'MAME (Amstrad GX4000)': MameDriver(EmulatorStatus.Imperfect, simple_mame_driver('gx4000', 'cart'), ['bin', 'cpr']),
@@ -273,23 +273,23 @@ emulators: dict[str, Union[StandardEmulator, LibretroCore]] = {
 
 	#----- The experimental section. The emulators are still here, it's just so you, the fabulous and wonderful end user, can have more information on how to manage expectations. Or something like that.
 
-	'Mednafen (Game Boy)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'gb', ['gb', 'gbc'], command_lines.mednafen_gb),
+	'Mednafen (Game Boy)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, ['gb', 'gbc'], command_lines.mednafen_gb),
 	#Based off an old version of VisualBoyAdvance
-	'Mednafen (Game Gear)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'gg', ['gg'], command_lines.mednafen_game_gear),
+	'Mednafen (Game Gear)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, ['gg'], command_lines.mednafen_game_gear),
 	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes". This is based off SMS Plus
-	'Mednafen (GBA)': MednafenModule(EmulatorStatus.Imperfect, 'gba', ['gba'], command_lines.mednafen_gba),
+	'Mednafen (GBA)': MednafenModule(EmulatorStatus.Imperfect, ['gba'], command_lines.mednafen_gba),
 	#Based off an old version of VisualBoyAdvance
-	'Mednafen (Master System)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'sms', ['sms', 'bin']),
+	'Mednafen (Master System)': SimpleMednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'sms', ['sms', 'bin']),
 	#Apparently "a low-priority system in terms of proactive maintenance and bugfixes". Based off SMS Plus
-	'Mednafen (Mega Drive)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'md', ['md', 'bin', 'gen', 'smd', 'sgd'], command_lines.mednafen_megadrive),
+	'Mednafen (Mega Drive)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, ['md', 'bin', 'gen', 'smd', 'sgd'], command_lines.mednafen_megadrive),
 	#Based off Genesis Plus and an older GPL version of Genesis Plus GX, with all GPL-incompatible cores replaced with alternatives (sound chip emulation from Gens, Z80 from FUSE). Apparently "should still be considered experimental; there are still likely timing bugs in the 68K emulation code, the YM2612 emulation code is not particularly accurate, and the VDP code has timing-related issues."
-	'Mednafen (PC Engine Fast)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'pce_fast', ['pce', 'sgx', 'iso', 'cue', 'ccd', 'toc', 'm3u']),
+	'Mednafen (PC Engine Fast)': SimpleMednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'pce_fast', ['pce', 'sgx', 'iso', 'cue', 'ccd', 'toc', 'm3u']),
 	#Forked from 0.8.x pce with speed-accuracy tradeoffs
-	'Mednafen (Saturn)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'ss', ['cue', 'toc', 'ccd', 'm3u']),
+	'Mednafen (Saturn)': SimpleMednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'ss', ['cue', 'toc', 'ccd', 'm3u']),
 	#Doesn't do .iso for whatever strange reason, which is a bit unfortunate. Might do .bin executables? Probably not
-	'Mednafen (SNES)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'snes', ['sfc', 'smc', 'swc']),
+	'Mednafen (SNES)': SimpleMednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'snes', ['sfc', 'smc', 'swc']),
 	#Based on bsnes v0.059; appears it doesn't do Sufami Turbo or Satellaview
-	'Mednafen (SNES-Faust)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, 'snes_faust', ['sfc', 'smc', 'swc'], command_lines.mednafen_snes_faust),
+	'Mednafen (SNES-Faust)': MednafenModule(EmulatorStatus.ExperimentalButSeemsOkay, ['sfc', 'smc', 'swc'], command_lines.mednafen_snes_faust),
 
 	'MAME (32X)': MameDriver(EmulatorStatus.ExperimentalButSeemsOkay, command_lines.mame_32x, ['32x', 'bin']),
 	#Higher host CPU requirements than what you might expect

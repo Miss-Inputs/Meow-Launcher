@@ -1,528 +1,40 @@
 import os
 import re
-import xml.etree.ElementTree as ElementTree
 import zlib
+from typing import Dict, Optional, Sequence, cast
 
-from meowlauncher.common_types import EmulationStatus, MediaType
+from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.emulated_platforms import platforms
-from meowlauncher.metadata import Date
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.games.roms.rom_game import RomGame
 from meowlauncher.util import io_utils
 from meowlauncher.util.utils import (byteswap, find_filename_tags_at_end,
                                      load_dict, normalize_name,
                                      remove_filename_tags)
 
-from .mame_helpers import (add_history, consistentify_manufacturer, get_image,
-                           get_mame_core_config, image_config_keys,
-                           verify_software_list)
+from .mame_helpers import get_mame_core_config
+from .software_list import (Software, SoftwareCustomMatcher, SoftwareList,
+                            SoftwareMatcherArgs, SoftwarePart,
+                            format_crc32_for_software_list,
+                            get_crc32_for_software_list)
 
 subtitles = load_dict(None, 'subtitles')
 
 #Ideally, every platform wants to be able to get software list info. If available, it will always be preferred over what we can extract from inside the ROMs, as it's more reliable, and avoids the problem of bootlegs/hacks with invalid/missing header data, or publisher/developers that merge and change names and whatnot.
 #We currently do this by putting a block of code inside each platform_metadata helper that does the same thing. I guess I should genericize that one day. Anyway, it's not always possible.
 
-def parse_size_attribute(attrib):
-	if not attrib:
-		return None
-	return int(attrib, 16 if attrib.startswith('0x') else 10)
-
-class DataAreaROM():
-	def __init__(self, xml, data_area):
-		self.xml = xml
-		self.data_area = data_area
-	#Other properties as defined in DTD: length (what's the difference with size?), loadflag (probably not needed for our purposes)
-
-	@property
-	def name(self):
-		return self.xml.attrib.get('name')
-
-	@property
-	def size(self):
-		return parse_size_attribute(self.xml.attrib.get('size', '0'))
-
-	@property
-	def status(self):
-		return self.xml.attrib.get('status', 'good')
-
-	@property
-	def crc32(self):
-		return self.xml.attrib.get('crc')
-	
-	@property
-	def sha1(self):
-		return self.xml.attrib.get('sha1')
-
-	@property
-	def offset(self):
-		return parse_size_attribute(self.xml.attrib.get('offset', '0'))
-
-	def matches(self, crc32, sha1):
-		if not self.sha1 and not self.crc32:
-			#Dunno what to do with roms like these that just have a loadflag attribute and no content, maybe something fancy is supposed to happen
-			return False
-		if sha1:
-			if self.sha1 == sha1:
-				return True
-		if crc32:
-			if self.crc32 == crc32:
-				return True
-		return False
-
-class DataArea():
-	def __init__(self, xml, part):
-		self.xml = xml
-		self.part = part
-		self.name = xml.attrib.get('name')
-		self.roms = [DataAreaROM(rom_xml, self) for rom_xml in self.xml.findall('rom')]
-
-	@property
-	def size(self):
-		return parse_size_attribute(self.xml.attrib.get('size', '0'))
-
-	@property
-	def romless(self):
-		#name = nodata?
-		return not self.roms
-
-	@property
-	def not_dumped(self):
-		#This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
-		return all(rom.status == 'nodump' for rom in self.roms) if self.roms else False
-
-	def matches(self, args):
-		if len(self.roms) == 1:
-			# if not self.roms:
-			# 	#Ignore data areas such as "sram" that don't have any ROMs associated with them.
-			#Wait, what? But we just checked len(self.roms)
-			# 	return False
-			if self.roms[0].matches(args.crc32, args.sha1):
-				return True
-		elif args.reader:
-			if self.size != args.size:
-				return False
-
-			for rom_segment in self.roms:
-				if not rom_segment.name and not rom_segment.crc32:
-					continue
-
-				offset = rom_segment.offset
-				size = rom_segment.size
-
-				try:
-					chunk = args.reader(offset, size)
-				except IndexError:
-					return False
-				chunk_crc32 = get_crc32_for_software_list(chunk)
-				if rom_segment.crc32 != chunk_crc32:
-					return False
-
-			return True
-		return False
-
-class DiskAreaDisk():
-	def __init__(self, xml, disk_area):
-		self.xml = xml
-		self.disk_area = disk_area
-
-	@property
-	def name(self):
-		return self.xml.attrib.get('name')
-
-	@property
-	def sha1(self):
-		return self.xml.attrib.get('sha1')
-
-	@property
-	def writeable(self):
-		return self.xml.attrib.get('writeable', 'no') == 'yes'
-	
-	@property
-	def status(self):
-		return self.xml.attrib.get('status', 'good')
-
-class DiskArea():
-	def __init__(self, xml, part):
-		self.xml = xml
-		self.part = part
-		self.disks = []
-		
-		for disk_xml in self.xml.findall('disk'):
-			self.disks.append(DiskAreaDisk(disk_xml, self))
-
-	@property
-	def name(self):
-		return self.xml.attrib.get('name')
-	#No size attribute
-
-	@property
-	def not_dumped(self):
-		#This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
-		return all(rom.status == 'nodump' for rom in self.disks) if self.disks else False
-
-class SoftwarePart():
-	def __init__(self, xml, software):
-		self.xml = xml
-		self.software = software
-		self.data_areas = {data_area.name: data_area for data_area in [DataArea(data_area_xml, self) for data_area_xml in self.xml.findall('dataarea')]}
-		self.disk_areas = {disk_area.name: disk_area for disk_area in [DiskArea(disk_area_xml, self) for disk_area_xml in self.xml.findall('diskarea')]}
-
-	@property
-	def name(self):
-		return self.xml.attrib.get('name')
-
-	@property
-	def romless(self):
-		#(just presuming here that disks can't be romless, as this sort of thing is where you have a cart that has no ROM on it but is just a glorified jumper, etc)
-		return all(data_area.romless for data_area in self.data_areas.values()) and self.data_areas and not self.disk_areas
-
-	@property
-	def not_dumped(self):
-		#This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
-		
-		#Ugh, there's probably a better way to express this logic, but my brain doesn't work
-		if self.data_areas and self.disk_areas:
-			return all(data_area.not_dumped for data_area in self.data_areas.values()) and all(disk_area.not_dumped for disk_area in self.disk_areas.values())
-		if self.data_areas:
-			return all(data_area.not_dumped for data_area in self.data_areas.values())
-		if self.disk_areas:
-			return all(disk_area.not_dumped for disk_area in self.disk_areas.values())
-		return False
-
-	def get_feature(self, name):
-		for feature in self.xml.findall('feature'):
-			if feature.attrib.get('name') == name:
-				return feature.attrib.get('value')
-
-		return None
-
-	@property
-	def interface(self):
-		return self.xml.attrib.get('interface')
-	
-	def matches(self, args):
-		data_area = None
-		if len(self.data_areas) > 1:
-			rom_data_area = None
-			for data_area in self.data_areas.values():
-				#Note that data area's name attribute can be anything like "rom" or "flop" depending on the kind of media, but the element inside will always be called "rom"
-				#Seems that floppies don't get split up into multiple pieces like this, though
-				if data_area.name == 'rom' and data_area.roms:
-					rom_data_area = data_area
-					break
-			if not rom_data_area:
-				return False
-		elif len(self.data_areas) == 1:
-			data_area = next(iter(self.data_areas.values()))
-		else:
-			if args.sha1:
-				sha1_lower = args.sha1.lower()
-				for disk_area in self.disk_areas.values():
-					disks = disk_area.disks
-					if not disks:
-						#Hmm, this might not happen
-						continue
-					for disk in disks:
-						if not disk.sha1:
-							continue
-						if disk.sha1.lower() == sha1_lower:
-							return True
-			return False
-
-		return data_area.matches(args)
-
-	def has_data_area(self, name):
-		#Should probably use name in self.data_areas directly
-		return name in self.data_areas
-
-split_preserve_brackets = re.compile(r', (?![^(]*\))')
-ends_with_brackets = re.compile(r'([^()]+)\s\(([^()]+)\)$')
-def parse_alt_title(metadata, alt_title):
-	#Argh this is annoying because we don't want to split in the middle of brackets
-	for piece in split_preserve_brackets.split(alt_title):
-		ends_with_brackets_match = ends_with_brackets.match(piece)
-		if ends_with_brackets_match:
-			name_type = ends_with_brackets_match[2]
-			if name_type in ('Box', 'USA Box', 'US Box', 'French Box', 'Box?', 'Cart', 'cart', 'Label', 'label', 'Fra Box'):
-				#There must be a better way for me to do this…
-				metadata.add_alternate_name(ends_with_brackets_match[1], name_type.title().replace(' ', '-').replace('?', '') + '-Title')
-			elif name_type in ('Box, Cart', 'Box/Card'):
-				#Grr
-				metadata.add_alternate_name(ends_with_brackets_match[1], 'Box-Title')
-				metadata.add_alternate_name(ends_with_brackets_match[1], 'Cart-Title')
-			elif name_type == 'Japan':
-				metadata.add_alternate_name(ends_with_brackets_match[1], 'Japanese-Name')
-			elif name_type == 'China':
-				metadata.add_alternate_name(ends_with_brackets_match[1], 'Chinese-Name')
-			else:
-				#Sometimes the brackets are actually part of the name
-				metadata.add_alternate_name(piece, name_type)
-		else:
-			metadata.add_alternate_name(piece)
-
-class Software():
-	def __init__(self, xml, software_list):
-		self.xml = xml
-		self.software_list = software_list
-
-		self.parts = {part.name: part for part in [SoftwarePart(part_xml, self) for part_xml in self.xml.findall('part')]}
-		self.infos = {info.attrib.get('name'): info.attrib.get('value') for info in self.xml.findall('info')}
-
-	@property
-	def name(self):
-		return self.xml.attrib.get('name')
-	
-	@property
-	def description(self):
-		return self.xml.findtext('description')
-
-	@property
-	def software_list_name(self):
-		return self.software_list.name
-
-	@property
-	def has_multiple_parts(self):
-		return len(self.parts) > 1
-
-	@property
-	def romless(self):
-		#Not actually sure what happens in this scenario with multiple parts, or somehow no parts
-		return all(part.romless for part in self.parts.values())
-
-	@property
-	def not_dumped(self):
-		#This will come up as being "best available" with -verifysoftlist/-verifysoftware, but would be effectively useless (if you tried to actually load it as software it would go boom because file not found)
-		#Not actually sure what happens in this scenario with multiple parts, or somehow no parts
-		return all(part.not_dumped for part in self.parts.values())
-
-	def get_part(self, name=None):
-		if name:
-			return self.parts[name]
-		return SoftwarePart(self.xml.find('part'), self)
-
-	def get_info(self, name):
-		#Don't need this anymore, really
-		return self.infos.get(name)
-
-	def get_shared_feature(self, name):
-		for info in self.xml.findall('sharedfeat'):
-			if info.attrib.get('name') == name:
-				return info.attrib.get('value')
-
-		return None
-
-	def get_part_feature(self, name, part_name=None):
-		#Should probably use part.get_feature instead
-		if not part_name:
-			part = self.get_part()
-		else:
-			part = self.parts[part_name]
-		return part.get_feature(name)
-
-	def has_data_area(self, name, part_name=None):
-		#Should use part.has_data_area instead, or arguably name in part.data_areas
-		if part_name:
-			part = self.parts[part_name]
-		else:
-			part = self.get_part()
-
-		return part.has_data_area(name)
-
-	@property
-	def emulation_status(self):
-		supported = self.xml.attrib.get('supported', 'yes')
-		if supported == 'partial':
-			return EmulationStatus.Imperfect
-		if supported == 'no':
-			return EmulationStatus.Broken
-
-		#Supported = "yes"
-		return EmulationStatus.Good
-
-	@property
-	def compatibility(self):
-		compat = self.get_shared_feature('compatibility')
-		if not compat:
-			return compat
-		return compat.split(',')
-
-	@property
-	def parent_name(self):
-		return self.xml.attrib.get('cloneof')
-
-	def add_standard_metadata(self, metadata):
-		metadata.specific_info['MAME-Software-Name'] = self.name
-		metadata.specific_info['MAME-Software-Full-Name'] = self.description
-		#We'll need to use that as more than just a name, though, I think; and by that I mean I get dizzy if I think about whether I need to do that or not right now
-		metadata.add_alternate_name(self.description, 'Software-List-Name')
-
-		cloneof = self.xml.attrib.get('cloneof')
-		if cloneof:
-			metadata.specific_info['MAME-Software-Parent'] = cloneof
-
-		metadata.specific_info['MAME-Software-List-Name'] = self.software_list.name
-		metadata.specific_info['MAME-Software-List-Description'] = self.software_list.description
-
-		serial = self.infos.get('serial')
-		if serial:
-			metadata.product_code = serial
-		barcode = self.infos.get('barcode')
-		if barcode:
-			metadata.specific_info['Barcode'] = barcode
-		ring_code = self.infos.get('ring_code')
-		if ring_code:
-			metadata.specific_info['Ring-Code'] = ring_code
-		
-		version = self.infos.get('version')
-		if version:
-			if version[0].isdigit():
-				version = 'v' + version
-			metadata.specific_info['Version'] = version
-
-		alt_title = self.infos.get('alt_title', self.infos.get('alt_name', self.infos.get('alt_disk')))
-		if alt_title:
-			parse_alt_title(metadata, alt_title)
-
-		year_text = self.xml.findtext('year')
-		year_guessed = False
-		if len(year_text) == 5 and year_text[-1] == '?':
-			#Guess I've created a year 10000 problem, please fix this code in several millennia to be more smart
-			year_guessed = True
-			year_text = year_text[:-1]
-		year = Date(year_text, is_guessed=year_guessed)
-		if year.is_better_than(metadata.release_date):
-			metadata.release_date = year
-
-		release = self.infos.get('release')
-		if release:
-			release_date = parse_release_date(release)
-		else:
-			release_date = None
-
-		if release_date:
-			if release_date.is_better_than(metadata.release_date):
-				metadata.release_date = release_date
-
-		metadata.specific_info['MAME-Emulation-Status'] = self.emulation_status
-		developer = consistentify_manufacturer(self.infos.get('developer'))
-		if not developer:
-			developer = consistentify_manufacturer(self.infos.get('author'))
-		if not developer:
-			developer = consistentify_manufacturer(self.infos.get('programmer'))
-		if developer:
-			metadata.developer = developer
-
-		publisher = consistentify_manufacturer(self.xml.findtext('publisher'))
-		already_has_publisher = metadata.publisher and (not metadata.publisher.startswith('<unknown'))
-		if publisher in ('<doujin>', '<homebrew>', '<unlicensed>') and developer:
-			metadata.publisher = developer
-		elif not (already_has_publisher and (publisher == '<unknown>')):
-			if ' / ' in publisher:
-				publishers = [consistentify_manufacturer(p) for p in publisher.split(' / ')]
-				if main_config.sort_multiple_dev_names:
-					publishers.sort()
-				publisher = ', '.join(publishers)
-
-			metadata.publisher = publisher
-
-		for image_name, config_key in image_config_keys.items():
-			image = get_image(config_key, self.software_list_name, self.name)
-			if image:
-				metadata.images[image_name] = image
-				continue
-			if self.parent_name:
-				image = get_image(config_key, self.software_list_name, self.parent_name)
-				if image:
-					metadata.images[image_name] = image
-
-		add_history(metadata, self.software_list_name, self.name)
-
-class SoftwareMatcherArgs():
-	def __init__(self, crc32, sha1, size, reader):
-		self.crc32 = crc32
-		self.sha1 = sha1
-		self.size = size
-		self.reader = reader #(seek_to, amount) > bytes
-
-class SoftwareList():
-	def __init__(self, path):
-		self.xml = ElementTree.parse(path)
-
-	@property
-	def name(self):
-		return self.xml.getroot().attrib.get('name')
-
-	@property
-	def description(self):
-		return self.xml.getroot().attrib.get('description')
-
-	def get_software(self, name):
-		for software in self.xml.findall('software'):
-			if software.attrib.get('name') == name:
-				return Software(software, self)
-		return None
-
-	def find_all_software_with_custom_matcher(self, matcher, args):
-		results = []
-		for software_xml in self.xml.findall('software'):
-			software = Software(software_xml, self)
-			for part in software.parts.values():
-				#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
-				#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
-				if matcher(part, *args):
-					results.append(software)
-		return results
-
-	def find_software_with_custom_matcher(self, matcher, args):
-		for software_xml in self.xml.findall('software'):
-			software = Software(software_xml, self)
-			for part in software.parts.values():
-				#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
-				#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
-				if matcher(part, *args):
-					return software
-		return None
-
-	def find_software(self, args):
-		for software_xml in self.xml.findall('software'):
-			software = Software(software_xml, self)
-			for part in software.parts.values():
-				#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
-				#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
-				if part.matches(args):
-					return software
-		return None
-
-	_verifysoftlist_result = None
-	def get_available_software(self):
-		available = []
-
-		#Only call -verifysoftlist if we need to, i.e. don't if it's entirely a romless softlist
-		
-		for software_xml in self.xml.findall('software'):
-			software = Software(software_xml, self)
-			if software.romless:
-				available.append(software)
-			elif software.not_dumped:
-				continue
-			else:
-				if self._verifysoftlist_result is None:
-					self._verifysoftlist_result = verify_software_list(self.name)
-				if software.name in self._verifysoftlist_result:
-					available.append(software)
-		
-		return available
-
-def get_software_lists_by_names(names):
+def get_software_lists_by_names(names: Sequence[str]) -> list[SoftwareList]:
 	if not names:
 		return []
 	return [software_list for software_list in [get_software_list_by_name(name) for name in names] if software_list]
 
-def get_software_list_by_name(name):
+def get_software_list_by_name(name: str) -> Optional[SoftwareList]:
 	if not hasattr(get_software_list_by_name, 'cache'):
-		get_software_list_by_name.cache = {}
+		get_software_list_by_name.cache = {} #type: ignore
 
-	if name in get_software_list_by_name.cache:
-		return get_software_list_by_name.cache[name]
+	if name in get_software_list_by_name.cache: #type: ignore
+		return get_software_list_by_name.cache[name] #type: ignore
 
 	try:
 		mame_config = get_mame_core_config()
@@ -531,7 +43,7 @@ def get_software_list_by_name(name):
 				list_path = os.path.join(hash_path, name + '.xml')
 				if os.path.isfile(list_path):
 					software_list = SoftwareList(list_path)
-					get_software_list_by_name.cache[name] = software_list
+					get_software_list_by_name.cache[name] = software_list #type: ignore
 					return software_list
 		#if main_config.debug:
 		#	print('Programmer (not user) error - called get_software_list_by_name with non-existent {0} softlist'.format(name))
@@ -540,15 +52,15 @@ def get_software_list_by_name(name):
 	except FileNotFoundError:
 		return None
 
-def find_in_software_lists_with_custom_matcher(software_lists, matcher, args):
+def find_in_software_lists_with_custom_matcher(software_lists: Sequence[SoftwareList], matcher: SoftwareCustomMatcher, args) -> Optional[Software]:
 	for software_list in software_lists:
 		software = software_list.find_software_with_custom_matcher(matcher, args)
 		if software:
 			return software
 	return None
 
-def find_software_by_name(software_lists, name):
-	def _does_name_fuzzy_match(part, name):
+def find_software_by_name(software_lists: Sequence[SoftwareList], name: str) -> Optional[Software]:
+	def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
 		#TODO Handle annoying multiple discs
 		proto_tags = ['beta', 'proto', 'sample']
 
@@ -590,7 +102,7 @@ def find_software_by_name(software_lists, name):
 				return False
 		return True
 
-	fuzzy_name_matches = []
+	fuzzy_name_matches: list[Software] = []
 	if not software_lists:
 		return None
 	for software_list in software_lists:
@@ -600,7 +112,7 @@ def find_software_by_name(software_lists, name):
 		#TODO: Don't do this, we still need to check the region… but only if the region needs to be checked at all, see below comment
 		return fuzzy_name_matches[0]
 	if len(fuzzy_name_matches) > 1:
-		name_and_region_matches = []
+		name_and_region_matches: list[Software] = []
 		regions = {
 			'USA': 'USA',
 			'Euro': 'Europe',
@@ -654,14 +166,14 @@ def find_software_by_name(software_lists, name):
 		
 	return None
 
-def software_list_product_code_matcher(part, product_code):
+def software_list_product_code_matcher(part: SoftwarePart, product_code: str) -> bool:
 	part_code = part.software.infos.get('serial')
 	if not part_code:
 		return False
 
 	return product_code in part_code.split(', ')
 
-def find_in_software_lists(software_lists, args):
+def find_in_software_lists(software_lists: list[SoftwareList], args: SoftwareMatcherArgs) -> Optional[Software]:
 	#TODO: Handle hash collisions. Could happen, even if we're narrowing down to specific software lists
 	for software_list in software_lists:
 		software = software_list.find_software(args)
@@ -672,7 +184,7 @@ def find_in_software_lists(software_lists, args):
 class UnsupportedCHDError(Exception):
 	pass
 
-def get_sha1_from_chd(chd_path):
+def get_sha1_from_chd(chd_path) -> str:
 	header = io_utils.read_file(chd_path, amount=124)
 	if header[0:8] != b'MComprHD':
 		raise UnsupportedCHDError('Header magic %s unknown' % str(header[0:8]))
@@ -685,15 +197,15 @@ def get_sha1_from_chd(chd_path):
 		raise UnsupportedCHDError('Version %d unknown' % chd_version)
 	return bytes.hex(sha1)
 
-def matcher_args_for_bytes(data):
+def matcher_args_for_bytes(data: bytes) -> SoftwareMatcherArgs:
 	#We _could_ use sha1 here, but there's not really a need to
 	return SoftwareMatcherArgs(get_crc32_for_software_list(data), None, len(data), lambda offset, amount: data[offset:offset+amount])
 
-def get_software_list_entry(game, skip_header=0):
+def get_software_list_entry(game: RomGame, skip_header=0) -> Optional[Software]:
 	if game.software_lists:
 		software_lists = game.software_lists
 	else:
-		software_list_names = platforms[game.system_name].mame_software_lists
+		software_list_names = platforms[game.platform_name].mame_software_lists
 		software_lists = get_software_lists_by_names(software_list_names)
 
 	if game.metadata.media_type == MediaType.OpticalDisc:
@@ -711,16 +223,26 @@ def get_software_list_entry(game, skip_header=0):
 			data = game.subroms[0].read(seek_to=skip_header)
 			software = find_in_software_lists(software_lists, matcher_args_for_bytes(data))
 		else:
+			if game.rom.is_folder:
+				raise TypeError('This should not be happening, we are calling get_software_list_entry on a folder')
+			file_rom = cast(FileROM, game.rom)
 			if skip_header:
 				#Hmm might deprecate this in favour of header_length_for_crc_calculation
-				data = game.rom.read(seek_to=skip_header)
+				data = file_rom.read(seek_to=skip_header)
 				software = find_in_software_lists(software_lists, matcher_args_for_bytes(data))
 			else:
 				if game.platform.databases_are_byteswapped:
-					crc32 = format_crc32_for_software_list(zlib.crc32(byteswap(game.rom.read())) & 0xffffffff)
+					crc32 = format_crc32_for_software_list(zlib.crc32(byteswap(file_rom.read())) & 0xffffffff)
 				else:
-					crc32 = format_crc32_for_software_list(game.rom.get_crc32())
-				args = SoftwareMatcherArgs(crc32, None, game.rom.get_size() - game.rom.header_length_for_crc_calculation, lambda offset, amount: byteswap(game.rom.read(seek_to=offset, amount=amount)) if game.system.databases_are_byteswapped else game.rom.read(seek_to=offset, amount=amount))
+					crc32 = format_crc32_for_software_list(file_rom.get_crc32())
+					
+				def _file_rom_reader(offset, amount) -> bytes:
+					data = file_rom.read(seek_to=offset, amount=amount)
+					if game.platform.databases_are_byteswapped:
+						return byteswap(data)
+					return data
+					
+				args = SoftwareMatcherArgs(crc32, None, file_rom.get_size() - file_rom.header_length_for_crc_calculation, _file_rom_reader)
 				software = find_in_software_lists(software_lists, args)
 
 	if not software and (game.platform_name in main_config.find_software_by_name):
@@ -729,23 +251,3 @@ def get_software_list_entry(game, skip_header=0):
 		software = find_in_software_lists_with_custom_matcher(game.software_lists, software_list_product_code_matcher, [game.metadata.product_code])
 
 	return software
-
-def format_crc32_for_software_list(crc):
-	return '{:08x}'.format(crc)
-
-def get_crc32_for_software_list(data: bytes) -> str:
-	return format_crc32_for_software_list(zlib.crc32(data) & 0xffffffff)
-
-is_release_date_with_thing_at_end = re.compile(r'\d{8}\s\(\w+\)')
-def parse_release_date(release_info):
-	if is_release_date_with_thing_at_end.match(release_info):
-		release_info = release_info[:8]
-
-	if len(release_info) != 8:
-		return None
-
-	year = release_info[0:4]
-	month = release_info[4:6]
-	day = release_info[6:8]
-	
-	return Date(year=None if year == 'xxxx' else year, month=None if month == 'xx' else month, day=None if day == 'xx' else day, is_guessed='x' in release_info or '?' in release_info)

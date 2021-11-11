@@ -1,35 +1,19 @@
 import os
-from enum import Enum, auto
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 
-from meowlauncher.common_types import (ConfigValueType,
-                                       EmulationNotSupportedException)
+from meowlauncher.common_types import (ConfigValueType, EmulatorPlatform,
+                                       EmulatorStatus)
 from meowlauncher.config.emulator_config_type import (EmulatorConfig,
                                                       EmulatorConfigValue)
 from meowlauncher.config.main_config import main_config
-from meowlauncher.info.emulator_command_line_helpers import \
-    simple_mednafen_module
 from meowlauncher.launcher import (LaunchCommand, MultiLaunchCommands,
-                                    get_wine_launch_params)
+                                   get_wine_launch_params)
 from meowlauncher.runner import Runner
 
-
-class EmulatorStatus(Enum):
-	#I have not actually thought of concrete definitions for what these mean
-	Good = 6
-	Imperfect = 5
-	ExperimentalButSeemsOkay = 4
-	Experimental = 3
-	Janky = 2 #Weird to set up or launch normally
-	Borked = 1
-
-class EmulatorPlatform():
-	Native = auto()
-	Windows = auto()
-	DotNet = auto()
+LaunchParamsFunc = Callable[..., LaunchCommand]
 
 class Emulator(Runner):
-	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_params_func: Callable[..., LaunchCommand], configs: dict[str, EmulatorConfigValue]=None, host_platform=EmulatorPlatform.Native):
+	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_params_func: LaunchParamsFunc, configs: dict[str, EmulatorConfigValue]=None, host_platform=EmulatorPlatform.Native):
 		self._name = name
 		self.status = status
 		self.default_exe_name = default_exe_name
@@ -79,16 +63,14 @@ class Emulator(Runner):
 
 class StandardEmulator(Emulator):
 	#Not very well named, but I mean like "something that by itself you give a ROM as a path and it launches it" or something among those lines
-	def __init__(self, display_name: str, status: EmulatorStatus, default_exe_name, launch_params_func, supported_extensions, supported_compression=None, configs=None, host_platform=EmulatorPlatform.Native):
+	def __init__(self, display_name: str, status: EmulatorStatus, default_exe_name: str, launch_params_func: LaunchParamsFunc, supported_extensions: list[str], supported_compression: Optional[list[str]]=None, configs=None, host_platform=EmulatorPlatform.Native):
 		super().__init__(display_name, status, default_exe_name, launch_params_func, configs, host_platform)
 		self.supported_extensions = supported_extensions
 		self.supported_compression = supported_compression if supported_compression else []
 		self.supports_folders = '/' in supported_extensions
 		
 class MednafenModule(StandardEmulator):
-	def __init__(self, status: EmulatorStatus, module, supported_extensions, params_func=None, configs=None):
-		if not params_func:
-			params_func = simple_mednafen_module(module)
+	def __init__(self, status: EmulatorStatus, supported_extensions: list[str], params_func, configs=None):
 		StandardEmulator.__init__(self, 'Mednafen', status, 'mednafen', params_func, supported_extensions, ['zip', 'gz'], configs)
 
 class MameDriver(StandardEmulator):
@@ -111,12 +93,13 @@ class ViceEmulator(StandardEmulator):
 		StandardEmulator.__init__(self, 'VICE', status, default_exe_name, params, ['d64', 'g64', 'x64', 'p64', 'd71', 'd81', 'd80', 'd82', 'd1m', 'd2m'] + ['20', '40', '60', '70', '80', 'a0', 'b0', 'e0', 'crt', 'bin'] + ['p00', 'prg', 'tap', 't64'], [])
 
 class LibretroCore(Emulator):
-	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_params_func, supported_extensions, configs=None):
+	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_params_func: Optional[LaunchParamsFunc], supported_extensions: list[str], configs=None):
 		self.supported_extensions = supported_extensions
 		if main_config.libretro_cores_directory:
 			default_path = os.path.join(main_config.libretro_cores_directory, default_exe_name + '_libretro.so')
 		else:
 			default_path = None
+		#TODO: Should rework this later so that default_path and launch_params_func are fine for Emulator but don't have to be Optional, somehow
 		super().__init__(name, status, default_path, launch_params_func, configs=configs)
 	
 	def get_launch_params(self, _, __, ___):
@@ -128,7 +111,7 @@ class PCEmulator(Emulator):
 
 class LibretroFrontend(Emulator):
 	#While these are not really emulators on their own, we pretend they are because it's easier to code that way or whatever
-	def __init__(self, name: str, status: EmulatorStatus, default_exe_name, launch_params_func, supported_compression=None, configs=None, host_platform=EmulatorPlatform.Native):
+	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_params_func: LaunchParamsFunc, supported_compression: Optional[list[str]]=None, configs=None, host_platform=EmulatorPlatform.Native):
 		self.supported_compression = supported_compression if supported_compression else []
 		super().__init__(name, status, default_exe_name, launch_params_func, configs, host_platform)
 

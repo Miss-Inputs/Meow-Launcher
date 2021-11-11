@@ -122,27 +122,27 @@ def sort_m3u_first():
 
 	return Sorter
 
-def process_emulated_platform(system_config: PlatformConfig):
+def process_emulated_platform(platform_config: PlatformConfig):
 	time_started = time.perf_counter()
 
 	potential_emulators = []
-	for emulator_name in system_config.chosen_emulators:
+	for emulator_name in platform_config.chosen_emulators:
 		if emulator_name not in emulators:
 			if emulator_name + ' (libretro)' in emulators:
 				potential_emulators.append(emulator_name + ' (libretro)')
 			else:
 				print('Config warning:', emulator_name, 'is not a valid emulator')
-		elif emulator_name not in platforms[system_config.name].emulators:
-			print('Config warning:', emulator_name, 'is not a valid emulator for', system_config.name)
+		elif emulator_name not in platforms[platform_config.name].emulators:
+			print('Config warning:', emulator_name, 'is not a valid emulator for', platform_config.name)
 		else:
 			potential_emulators.append(emulator_name)
 
 	file_list = []
 
-	for rom_dir in system_config.paths:
+	for rom_dir in platform_config.paths:
 		rom_dir = os.path.expanduser(rom_dir)
 		if not os.path.isdir(rom_dir):
-			print('Oh no', system_config.name, 'has invalid ROM dir', rom_dir)
+			print('Oh no', platform_config.name, 'has invalid ROM dir', rom_dir)
 			continue
 
 		#used_m3u_filenames = []
@@ -154,18 +154,18 @@ def process_emulated_platform(system_config: PlatformConfig):
 				if any(subfolder in main_config.skipped_subfolder_names for subfolder in subfolders):
 					continue
 
-			if system_config.name in folder_checks:
+			if platform_config.name in folder_checks:
 				remaining_subdirs = [] #The subdirectories of rom_dir that aren't folder ROMs
 				for d in dirs:
 					folder_path = os.path.join(root, d)
 					folder_rom = FolderROM(folder_path)
-					media_type = folder_checks[system_config.name](folder_rom)
+					media_type = folder_checks[platform_config.name](folder_rom)
 					if media_type:
 						folder_rom.media_type = media_type
 						#if process_file(system_config, rom_dir, root, folder_rom):
 						#Theoretically we might want to continue descending if we couldn't make a launcher for this folder, because maybe we also have another emulator which doesn't work with folders, but does support a file inside it. That results in weird stuff where we try to launch a file inside the folder using the same emulator we just failed to launch the folder with though, meaning we actually don't want it but now it just lacks metadata, so I'm gonna just do this for now
 						#I think I need to be more awake to re-read that comment
-						launcher = process_file(system_config, potential_emulators, folder_rom, subfolders)
+						launcher = process_file(platform_config, potential_emulators, folder_rom, subfolders)
 						if launcher:
 							make_linux_desktop_for_launcher(launcher)
 						continue
@@ -195,8 +195,8 @@ def process_emulated_platform(system_config: PlatformConfig):
 		# 	if name in used_m3u_filenames or path in used_m3u_filenames:
 		# 		continue
 
-		system = platforms[system_config.name]
-		if not system.is_valid_file_type(rom.extension):
+		platform = platforms[platform_config.name]
+		if not platform.is_valid_file_type(rom.extension):
 			continue
 
 		if not main_config.full_rescan:
@@ -211,7 +211,7 @@ def process_emulated_platform(system_config: PlatformConfig):
 			continue
 
 		try:
-			launcher = process_file(system_config, potential_emulators, rom, categories)
+			launcher = process_file(platform_config, potential_emulators, rom, categories)
 			if launcher:
 				make_linux_desktop_for_launcher(launcher)
 		#pylint: disable=broad-except
@@ -222,7 +222,7 @@ def process_emulated_platform(system_config: PlatformConfig):
 
 	if main_config.print_times:
 		time_ended = time.perf_counter()
-		print(system_config.name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+		print(platform_config.name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
 
 def process_platform(platform_config: PlatformConfig):
 	if platform_config.name in platforms:

@@ -22,7 +22,7 @@ from meowlauncher.platform_types import (AppleIIHardware, Atari2600Controller,
 
 from .emulator_command_line_helpers import (_is_software_available,
                                             _verify_supported_gb_mappers,
-                                            first_available_system,
+                                            first_available_romset,
                                             is_highscore_cart_available,
                                             mame_driver, mednafen_module,
                                             verify_mgba_mapper)
@@ -504,19 +504,19 @@ def mame_msx1(game, _, emulator_config):
 	#Possible slot options: centronics is there to attach printers and such; if using a floppy can put bm_012 (MIDI interface) or moonsound (OPL4 sound card, does anything use that?) in the cart port but I'm not sure that's needed; the slots are the same for MSX2
 	if game.metadata.specific_info.get('Japanese-Only', False):
 		if not hasattr(mame_msx1, 'japanese_msx1_system'):
-			mame_msx1.japanese_msx1_system = first_available_system(japanese_msx1_drivers + japanese_msx2_drivers + working_msx2plus_drivers)
+			mame_msx1.japanese_msx1_system = first_available_romset(japanese_msx1_drivers + japanese_msx2_drivers + working_msx2plus_drivers)
 		if mame_msx1.japanese_msx1_system is None:
 			raise EmulationNotSupportedException('No Japanese MSX1 driver available')
 		system = mame_msx1.japanese_msx1_system
 	elif game.metadata.specific_info.get('Arabic-Only', False):
 		if not hasattr(mame_msx1, 'arabic_msx1_system'):
-			mame_msx1.arabic_msx1_system = first_available_system(arabic_msx1_drivers + arabic_msx2_drivers)
+			mame_msx1.arabic_msx1_system = first_available_romset(arabic_msx1_drivers + arabic_msx2_drivers)
 		if mame_msx1.arabic_msx1_system is None:
 			raise EmulationNotSupportedException('No Arabic MSX1 driver available')
 		system = mame_msx1.arabic_msx1_system
 	else:
 		if not hasattr(mame_msx1, 'msx1_system'):
-			mame_msx1.msx1_system = first_available_system(working_msx1_drivers + working_msx2_drivers + working_msx2plus_drivers)
+			mame_msx1.msx1_system = first_available_romset(working_msx1_drivers + working_msx2_drivers + working_msx2plus_drivers)
 		if mame_msx1.msx1_system is None:
 			raise EmulationNotSupportedException('No MSX1 driver available')
 		system = mame_msx1.msx1_system
@@ -537,19 +537,19 @@ def mame_msx1(game, _, emulator_config):
 def mame_msx2(game, _, emulator_config):
 	if game.metadata.specific_info.get('Japanese-Only', False):
 		if not hasattr(mame_msx2, 'japanese_msx2_system'):
-			mame_msx2.japanese_msx2_system = first_available_system(japanese_msx2_drivers + working_msx2plus_drivers)
+			mame_msx2.japanese_msx2_system = first_available_romset(japanese_msx2_drivers + working_msx2plus_drivers)
 		if mame_msx2.japanese_msx2_system is None:
 			raise EmulationNotSupportedException('No Japanese MSX2 driver available')
 		system = mame_msx2.japanese_msx2_system
 	elif game.metadata.specific_info.get('Arabic-Only', False):
 		if not hasattr(mame_msx2, 'arabic_msx2_system'):
-			mame_msx2.arabic_msx2_system = first_available_system(arabic_msx2_drivers)
+			mame_msx2.arabic_msx2_system = first_available_romset(arabic_msx2_drivers)
 		if mame_msx2.arabic_msx2_system is None:
 			raise EmulationNotSupportedException('No Arabic MSX2 driver available')
 		system = mame_msx2.arabic_msx2_system
 	else:
 		if not hasattr(mame_msx2, 'msx2_system'):
-			mame_msx2.msx2_system = first_available_system(working_msx2_drivers + working_msx2plus_drivers)
+			mame_msx2.msx2_system = first_available_romset(working_msx2_drivers + working_msx2plus_drivers)
 		if mame_msx2.msx2_system is None:
 			raise EmulationNotSupportedException('No MSX2 driver available')
 		system = mame_msx2.msx2_system
@@ -569,7 +569,7 @@ def mame_msx2(game, _, emulator_config):
 
 def mame_msx2plus(game, _, emulator_config):
 	if not hasattr(mame_msx2plus, 'msx2plus_system'):
-		mame_msx2plus.msx2plus_system = first_available_system(working_msx2plus_drivers)
+		mame_msx2plus.msx2plus_system = first_available_romset(working_msx2plus_drivers)
 	if mame_msx2plus.msx2plus_system is None:
 		raise EmulationNotSupportedException('No MSX2+ driver available')
 	system = mame_msx2plus.msx2plus_system
