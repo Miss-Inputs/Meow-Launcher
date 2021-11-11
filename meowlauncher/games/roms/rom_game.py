@@ -2,6 +2,8 @@ import os
 import tempfile
 from typing import Optional, cast
 
+from meowlauncher.config.emulator_config_type import EmulatorConfig
+from meowlauncher.config.platform_config import PlatformConfig
 from meowlauncher.emulated_game import EmulatedGame, EmulatorLauncher
 from meowlauncher.emulated_platform import EmulatedPlatform
 from meowlauncher.emulator import StandardEmulator
@@ -34,7 +36,7 @@ class ROMGame(EmulatedGame):
 		return name
 
 class ROMLauncher(EmulatorLauncher):
-	def __init__(self, game: ROMGame, emulator: StandardEmulator, platform_config, emulator_config) -> None:
+	def __init__(self, game: ROMGame, emulator: StandardEmulator, platform_config: PlatformConfig, emulator_config: EmulatorConfig) -> None:
 		self.game: ROMGame = game
 		self.runner: StandardEmulator = emulator
 		self.platform_config = platform_config
@@ -50,7 +52,7 @@ class ROMLauncher(EmulatorLauncher):
 
 	def get_launch_command(self) -> LaunchCommand:
 		#TODO: Ideally EmulatorLauncher would do something useful with self.runner and then we call super() but that also needs refactoring
-		params = self.runner.get_launch_params(self.game, self.platform_config, self.emulator_config)
+		params = self.runner.get_launch_params(self.game, self.platform_config.options, self.emulator_config)
 		if self.game.rom.is_compressed:
 			rom = cast(CompressedROM, self.game.rom)
 			if rom.extension not in self.runner.supported_compression:
