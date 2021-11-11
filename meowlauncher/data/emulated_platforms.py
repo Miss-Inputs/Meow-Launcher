@@ -30,7 +30,7 @@ broken_msx1_drivers = ['hx21', 'hx22']
 msx1_drivers = working_msx1_drivers + broken_msx1_drivers
 
 platforms = {
-	#Put all the "most normal people would be interested in" consoles up here, which is completely subjective and not even the same as my own personal view of notable, not to mention completely meaningless because it's a dict and the order shouldn't matter, and even if it did, ROMs are scanned in the order they're listed in systems.ini anyway. I guess it makes this a bit easier to read than having a huge wall of text though
+	#Put all the "most normal people would be interested in" consoles up here, which is completely subjective and not even the same as my own personal view of notable, not to mention completely meaningless because it's a dict and the order shouldn't matter, and even if it did, ROMs are scanned in the order they're listed in platforms.ini anyway. I guess it makes this a bit easier to read than having a huge wall of text though
 	'3DS': EmulatedPlatform(
 		[], [], ['Citra'], {MediaType.Cartridge: ['3ds'], MediaType.Digital: ['cxi'], MediaType.Executable: ['3dsx']}, {
 		'tdb_path': PlatformConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB 3dstdb.xml file (https://www.gametdb.com/3dstdb.zip)'),

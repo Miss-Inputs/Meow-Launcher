@@ -8,7 +8,7 @@ from meowlauncher.util.io_utils import ensure_exist
 
 from ._config_utils import parse_path_list, parse_string_list, parse_value
 
-_system_config_path = os.path.join(config_dir, 'systems.ini')
+_platform_config_path = os.path.join(config_dir, 'platforms.ini')
 
 class PlatformConfig():
 	def __init__(self, name: str) -> None:
@@ -31,8 +31,8 @@ class PlatformConfigs():
 			parser = configparser.ConfigParser(interpolation=None, delimiters=('='), allow_no_value=True)
 			parser.optionxform = str #type: ignore
 
-			ensure_exist(_system_config_path)
-			parser.read(_system_config_path)
+			ensure_exist(_platform_config_path)
+			parser.read(_platform_config_path)
 
 			for system_name in parser.sections():
 				self.configs[system_name] = PlatformConfig(system_name)
@@ -63,4 +63,4 @@ class PlatformConfigs():
 			PlatformConfigs.__instance = PlatformConfigs.__PlatformConfigs()
 		return PlatformConfigs.__instance
 
-system_configs = PlatformConfigs.getConfigs().configs
+platform_configs = PlatformConfigs.getConfigs().configs

@@ -15,7 +15,7 @@ from meowlauncher.common_types import (EmulationNotSupportedException,
                                        NotARomException)
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config.system_config import PlatformConfig, system_configs
+from meowlauncher.config.platform_config import PlatformConfig, platform_configs
 from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.data.emulators import emulators, libretro_frontends
 from meowlauncher.desktop_launchers import (has_been_done,
@@ -239,7 +239,7 @@ def process_platforms() -> None:
 		if arg.startswith('--exclude='):
 			excluded_platforms.append(arg.partition('=')[2])
 
-	for platform_name, platform in system_configs.items():
+	for platform_name, platform in platform_configs.items():
 		if platform_name in excluded_platforms:
 			continue
 		if not platform.is_available:
@@ -259,7 +259,7 @@ def main() -> None:
 
 		platform_list = sys.argv[arg_index + 1].split(',')
 		for platform_name in platform_list:
-			process_platform(system_configs[platform_name])
+			process_platform(platform_configs[platform_name])
 		return
 
 	process_platforms()

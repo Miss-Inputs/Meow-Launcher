@@ -5,8 +5,8 @@ from datetime import datetime
 from enum import Enum
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config.system_config import system_configs
-from meowlauncher.metadata import Date
+from meowlauncher.config.platform_config import platform_configs
+from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import WiiTitleType
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
@@ -25,7 +25,7 @@ try:
 except ModuleNotFoundError:
 	have_pycrypto = False
 
-wii_config = system_configs.get('Wii')
+wii_config = platform_configs.get('Wii')
 
 class WiiVirtualConsolePlatform(Enum):
 	Commodore64 = 'C'
@@ -39,10 +39,10 @@ class WiiVirtualConsolePlatform(Enum):
 	PCEngineCD = 'Q'
 	MSX = 'X' #Baaaaahhhh this is also used for WiiWare demos and how are we gonna differentiate that
 
-def round_up_to_multiple(num, factor):
+def round_up_to_multiple(num: int, factor: int) -> int:
 	return num + (factor - (num % factor)) % factor
 
-def parse_tmd(metadata, tmd):
+def parse_tmd(metadata: Metadata, tmd: bytes):
 	#Stuff that I dunno about: 0 - 388
 	if tmd[387]:
 		metadata.specific_info['Is-vWii'] = True
@@ -92,7 +92,7 @@ def parse_tmd(metadata, tmd):
 	#Access rights: 472-476
 	metadata.specific_info['Revision'] = int.from_bytes(tmd[476:478], 'big')
 
-def parse_opening_bnr(metadata, opening_bnr):
+def parse_opening_bnr(metadata: Metadata, opening_bnr: bytes):
 	#We will not try and bother parsing banner.bin or icon.bin, that would take a lot of effort
 	imet = opening_bnr[64:]
 	#I don't know why this is 64 bytes in, aaaa
@@ -149,7 +149,7 @@ def parse_opening_bnr(metadata, opening_bnr):
 		if title != local_title:
 			metadata.add_alternate_name(title, '{0}-Banner-Title'.format(lang.replace(' ', '-')))
 	
-def add_wad_metadata(rom, metadata):
+def add_wad_metadata(rom, metadata: Metadata):
 	header = rom.read(amount=0x40)
 	header_size = int.from_bytes(header[0:4], 'big')
 	#WAD type: 4-8
@@ -177,7 +177,7 @@ def add_wad_metadata(rom, metadata):
 	footer = rom.read(seek_to=footer_offset, amount=round_up_to_multiple(footer_size, 64))
 	parse_opening_bnr(metadata, footer)
 
-def add_wii_homebrew_metadata(rom, metadata):
+def add_wii_homebrew_metadata(rom, metadata: Metadata):
 	#icon_path = rom.relevant_files['icon.png']
 	icon_path = rom.get_file('icon.png', True)
 	if icon_path:
@@ -240,7 +240,7 @@ def add_wii_homebrew_metadata(rom, metadata):
 			if main_config.debug:
 				print('Ah bugger this Wii homebrew XML has problems', rom.path, etree_error)
 
-def parse_ratings(metadata, ratings_bytes, invert_has_rating_bit=False, use_bit_6=True):
+def parse_ratings(metadata: Metadata, ratings_bytes: bytes, invert_has_rating_bit=False, use_bit_6=True):
 	ratings = {}
 	for i, rating in enumerate(ratings_bytes):
 		has_rating = (rating & 0b1000_0000) == 0 #For 3DS and DSi, the meaning of this bit is inverted
@@ -281,7 +281,7 @@ def parse_ratings(metadata, ratings_bytes, invert_has_rating_bit=False, use_bit_
 
 	metadata.specific_info['Age-Rating'] = rating
 
-def add_wii_disc_metadata(rom, metadata):
+def add_wii_disc_metadata(rom, metadata: Metadata):
 	wii_header = rom.read(0x40_000, 0xf000)
 
 	game_partition_offset = None

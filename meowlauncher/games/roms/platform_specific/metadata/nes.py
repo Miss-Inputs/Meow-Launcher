@@ -1,18 +1,20 @@
+from typing import Optional
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-from meowlauncher.config.system_config import system_configs
+from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.mame.mame_helpers import MAMENotInstalledException
 from meowlauncher.games.mame.mame_machine import (
     does_machine_match_game, get_machines_from_source_file)
+from meowlauncher.games.mame.software_list import Software, SoftwarePart
 from meowlauncher.games.mame.software_list_info import (
     find_in_software_lists_with_custom_matcher, get_crc32_for_software_list,
     get_software_list_entry)
 from meowlauncher.info.region_info import TVSystem
-from meowlauncher.metadata import Date
+from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import NESPeripheral
 from meowlauncher.util.utils import load_dict
 
-nes_config = system_configs.get('NES')
+nes_config = platform_configs.get('NES')
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 ines_mappers = {
@@ -277,12 +279,12 @@ default_expansion_devices = {
 
 }
 
-def decode_bcd(i):
+def decode_bcd(i: int) -> int:
 	hi = (i & 0xf0) >> 4
 	lo = i & 0x0f
 	return (hi * 10) + lo
 
-def add_fds_metadata(rom, metadata):
+def add_fds_metadata(rom, metadata: Metadata):
 	if nes_config and nes_config.options.get('set_fds_as_different_platform'):
 		metadata.platform = 'FDS'
 
@@ -313,7 +315,7 @@ def add_fds_metadata(rom, metadata):
 		metadata.release_date = Date(year, month, day, True)
 	
 
-def add_ines_metadata(rom, metadata, header):
+def add_ines_metadata(rom, metadata: Metadata, header: bytes):
 	metadata.specific_info['Headered'] = True
 	#Some emulators are okay with not having a header if they have something like an internal database, others are not.
 	#Note that \x00 at the end instead of \x1a indicates this is actually Wii U VC, but it's still the same header format
@@ -387,7 +389,7 @@ def add_ines_metadata(rom, metadata, header):
 		metadata.specific_info['CHR-Size'] = chr_size * 8 * 1024
 		#TV type apparently isn't used much despite it being part of the iNES specification, and looking at a lot of headered ROMs it does seem that they are all NTSC other than a few that say PAL that shouldn't be, so yeah, I wouldn't rely on it. Might as well just use the filename.
 
-def _does_nes_rom_match(part, prg_crc, chr_crc):
+def _does_nes_rom_match(part: SoftwarePart, prg_crc: str, chr_crc: str) -> bool:
 	prg_area = part.data_areas.get('prg')
 	#These two data area names seem to be used for alternate types of carts (Aladdin Deck Enhancer/Datach/etc)
 	if not prg_area:
@@ -417,7 +419,7 @@ def _does_nes_rom_match(part, prg_crc, chr_crc):
 
 	return True
 
-def _get_headered_nes_rom_software_list_entry(game):
+def _get_headered_nes_rom_software_list_entry(game) -> Optional[Software]:
 	prg_crc32 = game.metadata.specific_info.get('PRG-CRC')
 	chr_crc32 = game.metadata.specific_info.get('CHR-CRC')
 	if not prg_crc32 and not chr_crc32:
@@ -435,7 +437,7 @@ def _get_headered_nes_rom_software_list_entry(game):
 
 	return find_in_software_lists_with_custom_matcher(game.software_lists, _does_nes_rom_match, [prg_crc32, chr_crc32])
 
-def parse_unif_chunk(metadata, chunk_type, chunk_data):
+def parse_unif_chunk(metadata: Metadata, chunk_type: str, chunk_data: bytes):
 	if chunk_type == 'PRG0':
 		metadata.specific_info['PRG-CRC'] = get_crc32_for_software_list(chunk_data)
 	elif chunk_type.startswith('CHR'):
@@ -474,7 +476,7 @@ def parse_unif_chunk(metadata, chunk_type, chunk_data):
 	#WRTR/DINF: Dumping info, who cares
 	#VROR: Something to do with considering CHR-ROM as RAM, don't need to worry about this
 
-def add_unif_metadata(rom, metadata):
+def add_unif_metadata(rom, metadata: Metadata):
 	metadata.specific_info['Headered'] = True
 	metadata.specific_info['Header-Format'] = 'UNIF'
 
@@ -490,23 +492,23 @@ def add_unif_metadata(rom, metadata):
 
 		pos += 8 + chunk_length
 
-def try_get_equivalent_arcade(rom, metadata):
+def try_get_equivalent_arcade(rom, metadata: Metadata):
 	if not hasattr(try_get_equivalent_arcade, 'playchoice10_games'):
 		try:
-			try_get_equivalent_arcade.playchoice10_games = list(get_machines_from_source_file('playch10'))
+			try_get_equivalent_arcade.playchoice10_games = list(get_machines_from_source_file('playch10')) #type: ignore
 		except MAMENotInstalledException:
-			try_get_equivalent_arcade.playchoice10_games = []
+			try_get_equivalent_arcade.playchoice10_games = [] #type: ignore
 	if not hasattr(try_get_equivalent_arcade, 'vsnes_games'):
 		try:
-			try_get_equivalent_arcade.vsnes_games = list(get_machines_from_source_file('vsnes'))
+			try_get_equivalent_arcade.vsnes_games = list(get_machines_from_source_file('vsnes')) #type: ignore
 		except MAMENotInstalledException:
-			try_get_equivalent_arcade.vsnes_games = []
+			try_get_equivalent_arcade.vsnes_games = [] #type: ignore
 
-	for vsnes_machine in try_get_equivalent_arcade.vsnes_games:
+	for vsnes_machine in try_get_equivalent_arcade.vsnes_games: #type: ignore
 		if does_machine_match_game(rom.name, metadata, vsnes_machine, match_vs_system=True):
 			return vsnes_machine
 
-	for playchoice10_machine in try_get_equivalent_arcade.playchoice10_games:
+	for playchoice10_machine in try_get_equivalent_arcade.playchoice10_games: #type: ignore
 		if does_machine_match_game(rom.name, metadata, playchoice10_machine):
 			return playchoice10_machine
 	
@@ -516,7 +518,7 @@ standard_controller = input_metadata.NormalController()
 standard_controller.dpads = 1
 standard_controller.face_buttons = 2 #A B
 
-def add_nes_software_list_metadata(software, metadata):
+def add_nes_software_list_metadata(software: Software, metadata: Metadata):
 	software.add_standard_metadata(metadata)
 
 	nes_peripheral = None

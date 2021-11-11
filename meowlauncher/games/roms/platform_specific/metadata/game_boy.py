@@ -4,14 +4,15 @@ from zlib import crc32
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config.system_config import system_configs
+from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.mame.software_list_info import (
     find_in_software_lists, get_software_list_entry, matcher_args_for_bytes)
+from meowlauncher.metadata import Metadata
 from meowlauncher.platform_types import GameBoyColourFlag
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
-game_boy_config = system_configs.get('Game Boy')
+game_boy_config = platform_configs.get('Game Boy')
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 class GameBoyMapper():
@@ -123,7 +124,7 @@ gbx_mappers = {
 	b'PKJD': 'Pokemon Jade/Diamond bootleg'
 }
 
-def parse_slot(metadata, slot):
+def parse_slot(metadata: Metadata, slot: str):
 	if slot in mame_rom_slots:
 		original_mapper = metadata.specific_info.get('Mapper', 'None')
 
@@ -136,7 +137,7 @@ def parse_slot(metadata, slot):
 			metadata.specific_info['Mapper'] = new_mapper
 
 nintendo_logo_crc32 = 0x46195417
-def parse_gameboy_header(metadata, header):
+def parse_gameboy_header(metadata: Metadata, header: bytes):
 	nintendo_logo = header[4:0x34]
 	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_logo_crc32
 	metadata.specific_info['Nintendo-Logo-Valid'] = nintendo_logo_valid
@@ -182,8 +183,8 @@ def parse_gameboy_header(metadata, header):
 
 	metadata.specific_info['Destination-Code'] = header[0x4a]
 	#0 means Japan and 1 means not Japan. Not sure how reliable that is.
-	licensee_code = header[0x4b]
-	if licensee_code == 0x33:
+	licensee_code_int = header[0x4b]
+	if licensee_code_int == 0x33:
 		try:
 			licensee_code = convert_alphanumeric(header[0x44:0x46])
 			if licensee_code in nintendo_licensee_codes:
@@ -191,12 +192,12 @@ def parse_gameboy_header(metadata, header):
 		except NotAlphanumericException:
 			pass
 	else:
-		licensee_code = '{:02X}'.format(licensee_code)
+		licensee_code = '{:02X}'.format(licensee_code_int)
 		if licensee_code in nintendo_licensee_codes:
 			metadata.publisher = nintendo_licensee_codes[licensee_code]
 	metadata.specific_info['Revision'] = header[0x4c]
 
-def parse_gbx_footer(rom, metadata):
+def parse_gbx_footer(rom, metadata: Metadata):
 	footer = rom.read(seek_to=rom.get_size() - 64, amount=64)
 	if footer[60:64] != b'GBX!':
 		if main_config.debug:

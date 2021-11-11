@@ -6,12 +6,14 @@ except ModuleNotFoundError:
 
 import os
 import struct
+from typing import Iterable, Optional
 from xml.etree import ElementTree
 
 from meowlauncher import input_metadata
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config.system_config import system_configs
-from meowlauncher.info.region_info import get_region_by_name
+from meowlauncher.config.platform_config import platform_configs
+from meowlauncher.info.region_info import Region, get_region_by_name
+from meowlauncher.metadata import Metadata
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
@@ -22,11 +24,11 @@ nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 #For DSiWare, we can get public.sav and private.sav filesize, and that tells us if SaveType = Internal or Nothing. But we won't worry about DSiWare for now
 
-def load_tdb():
-	if 'DS' not in system_configs:
+def load_tdb() -> Optional[TDB]:
+	if 'DS' not in platform_configs:
 		return None
 
-	tdb_path = system_configs['DS'].options.get('tdb_path')
+	tdb_path = platform_configs['DS'].options.get('tdb_path')
 	if not tdb_path:
 		return None
 
@@ -38,9 +40,9 @@ def load_tdb():
 		return None
 tdb = load_tdb()
 
-def add_cover(metadata, product_code):
+def add_cover(metadata: Metadata, product_code: str):
 	#Intended for the covers database from GameTDB
-	covers_path = system_configs['DS'].options.get('covers_path')
+	covers_path = platform_configs['DS'].options.get('covers_path')
 	if not covers_path:
 		return
 	cover_path = os.path.join(covers_path, product_code)
@@ -49,17 +51,17 @@ def add_cover(metadata, product_code):
 			metadata.images['Cover'] = cover_path + os.extsep + ext
 			break
 
-def convert_ds_colour_to_rgba(colour, is_transparent):
+def convert_ds_colour_to_rgba(colour: int, is_transparent: bool) -> tuple[int, int, int, int]:
 	red = (colour & 0b_00000_00000_11111) << 3
 	green = (colour & 0b_00000_11111_00000) >> 2
 	blue = (colour & 0b_11111_00000_00000) >> 7
 
 	return (red, green, blue, 0 if is_transparent else 0xff)
 
-def decode_icon(bitmap, palette):
+def decode_icon(bitmap: bytes, palette: Iterable[int]) -> 'Image':
 	icon = Image.new('RGBA', (32, 32))
 
-	rgb_palette = [None] * 16
+	rgb_palette = [(0, 0, 0, 0)] * 16
 	for i, colour in enumerate(palette):
 		rgb_palette[i] = convert_ds_colour_to_rgba(colour, i == 0)
 
@@ -75,7 +77,7 @@ def decode_icon(bitmap, palette):
 					pos += 1
 	return icon
 
-def parse_dsi_region_flags(region_flags):
+def parse_dsi_region_flags(region_flags: int) -> list[Region]:
 	regions = []
 	if region_flags & 1:
 		regions.append(get_region_by_name('Japan'))
@@ -91,7 +93,7 @@ def parse_dsi_region_flags(region_flags):
 		regions.append(get_region_by_name('Korea'))
 	return regions
 
-def add_banner_title_metadata(metadata, banner_title, language=None):
+def add_banner_title_metadata(metadata: Metadata, banner_title: str, language: Optional[str]=None):
 	lines = banner_title.splitlines()
 	metadata_name = 'Banner-Title'
 	if language:
@@ -111,7 +113,7 @@ def add_banner_title_metadata(metadata, banner_title, language=None):
 			#This is usually the publisher… but it has a decent chance of being something else so I'm not gonna set metadata.publisher from it
 			metadata.specific_info[metadata_name + '-Final-Line'] = lines[-1]
 
-def parse_banner(rom, metadata, header, is_dsi, banner_offset):
+def parse_banner(rom, metadata: Metadata, header: bytes, is_dsi: bool, banner_offset: int):
 	#The extended part of the banner if is_dsi contains animated icon frames, so we don't really need it
 	banner_size = int.from_bytes(header[0x208:0x20c], 'little') if is_dsi else 0xA00
 	banner = rom.read(seek_to=banner_offset, amount=banner_size)
@@ -154,7 +156,7 @@ def parse_banner(rom, metadata, header, is_dsi, banner_offset):
 				icon_palette = struct.unpack('H' * 16, banner[0x220:0x240])
 				metadata.images['Icon'] = decode_icon(icon_bitmap, icon_palette)
 
-def parse_ds_header(rom, metadata, header):
+def parse_ds_header(rom, metadata: Metadata, header: bytes):
 	if header[0:4] == b'.\0\0\xea':
 		metadata.specific_info['PassMe'] = True
 	else:
@@ -212,7 +214,7 @@ def parse_ds_header(rom, metadata, header):
 	if banner_offset:
 		parse_banner(rom, metadata, header, is_dsi, banner_offset)
 
-def add_ds_input_info(metadata):
+def add_ds_input_info(metadata: Metadata):
 	builtin_buttons = input_metadata.NormalController()
 	builtin_buttons.dpads = 1
 	builtin_buttons.face_buttons = 4 #I forgot why we're not counting Start and Select but I guess that's a thing

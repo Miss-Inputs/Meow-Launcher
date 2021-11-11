@@ -1,9 +1,11 @@
 import os
 from enum import Enum
+from typing import Optional
 from xml.etree import ElementTree
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config.system_config import system_configs
+from meowlauncher.config.platform_config import platform_configs
+from meowlauncher.metadata import Metadata
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
@@ -17,11 +19,11 @@ class NintendoDiscRegion(Enum):
 	RegionFree = 3  # Seemingly Wii only
 	NTSC_K = 4  # Seemingly Wii only
 
-def load_tdb():
-	if 'Wii' not in system_configs:
+def load_tdb() -> Optional[TDB]:
+	if 'Wii' not in platform_configs:
 		return None
 
-	tdb_path = system_configs['Wii'].options.get('tdb_path')
+	tdb_path = platform_configs['Wii'].options.get('tdb_path')
 	if not tdb_path:
 		return None
 
@@ -33,12 +35,12 @@ def load_tdb():
 		return None
 tdb = load_tdb()
 
-def add_cover(metadata, product_code, licensee_code):
+def add_cover(metadata: Metadata, product_code: str, licensee_code: str):
 	#Intended for the covers database from GameTDB
-	if 'Wii' not in system_configs:
+	if 'Wii' not in platform_configs:
 		return
 
-	covers_path = system_configs['Wii'].options.get('covers_path')
+	covers_path = platform_configs['Wii'].options.get('covers_path')
 	if not covers_path:
 		return
 	cover_path = os.path.join(covers_path, product_code + licensee_code)
@@ -47,7 +49,7 @@ def add_cover(metadata, product_code, licensee_code):
 			metadata.images['Cover'] = cover_path + os.extsep + ext
 			return
 
-def add_gamecube_wii_disc_metadata(rom, metadata, header):
+def add_gamecube_wii_disc_metadata(rom, metadata: Metadata, header: bytes):
 	internal_title = header[32:128]
 	metadata.specific_info['Internal-Title'] = internal_title.decode('ascii', errors='backslashreplace').rstrip('\0 ')
 	if internal_title[:28] == b'GAMECUBE HOMEBREW BOOTLOADER':
@@ -97,7 +99,7 @@ def add_gamecube_wii_disc_metadata(rom, metadata, header):
 		if metadata.platform == 'GameCube' and not is_gamecube:
 			print(rom.path, 'lacks GameCube disc magic')
 	
-def just_read_the_wia_rvz_header_for_now(rom, metadata):
+def just_read_the_wia_rvz_header_for_now(rom, metadata: Metadata):
 	#I'll get around to it I swear
 	wia_header = rom.read(amount=0x48)
 	wia_disc_struct_size = int.from_bytes(wia_header[12:16], 'big')

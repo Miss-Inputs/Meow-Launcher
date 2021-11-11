@@ -4,7 +4,7 @@ from typing import Any, Optional, final
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.emulator_config_type import EmulatorConfig
-from meowlauncher.config.system_config import PlatformConfig
+from meowlauncher.config.platform_config import PlatformConfig
 from meowlauncher.emulated_game import EmulatedGame, EmulatorLauncher
 from meowlauncher.emulator import PCEmulator
 from meowlauncher.launcher import LaunchCommand

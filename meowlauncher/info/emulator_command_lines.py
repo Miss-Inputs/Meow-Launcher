@@ -156,7 +156,7 @@ def mame_atari_7800(game, _, emulator_config):
 
 	return mame_driver(game, emulator_config, system, 'cart')
 
-def mame_atari_8bit(game, system_config, emulator_config):
+def mame_atari_8bit(game, platform_config, emulator_config):
 	slot_options = {}
 	if game.metadata.media_type == MediaType.Cartridge:
 		if game.metadata.specific_info.get('Headered', False):
@@ -180,7 +180,7 @@ def mame_atari_8bit(game, system_config, emulator_config):
 	else:
 		slot = 'flop1'
 		if game.metadata.specific_info.get('Requires-BASIC', False):
-			basic_path = system_config.get('basic_path')
+			basic_path = platform_config.get('basic_path')
 			if not basic_path:
 				raise EmulationNotSupportedException('This software needs BASIC ROM to function')
 			slot_options['cart1'] = basic_path
@@ -663,7 +663,7 @@ def mame_odyssey2(game, _, emulator_config):
 	return mame_driver(game, emulator_config, system, 'cart')
 
 def mame_pc_engine(game, _, emulator_config):
-	#TODO: Use system_config or software list to get PCE CD BIOS, then do that (same system, but -cdrom slot instead and -cart goes to System Card; TurboGrafx System Card only works with tg16 but other combinations are fine)
+	#TODO: Use platform_config or software list to get PCE CD BIOS, then do that (same system, but -cdrom slot instead and -cart goes to System Card; TurboGrafx System Card only works with tg16 but other combinations are fine)
 	system = 'tg16'
 	#USA system can run Japanese games, so maybe we don't need to switch to pce if Japan in regions; but USA games do need tg16 specifically
 	if game.rom.extension == 'sgx':
@@ -751,7 +751,7 @@ def mame_sharp_x68000(game, _, emulator_config):
 		return mame_driver(game, emulator_config, 'x68000', slot=None, slot_options=floppy_slots, has_keyboard=True)
 	return mame_driver(game, emulator_config, 'x68000', 'flop1', has_keyboard=True)
 
-def mame_snes(game, system_config, emulator_config):
+def mame_snes(game, platform_config, emulator_config):
 	if game.rom.extension == 'st':
 		if not hasattr(mame_snes, 'have_sufami_software'):
 			mame_snes.have_sufami_software = _is_software_available('snes', 'sufami')
@@ -759,9 +759,9 @@ def mame_snes(game, system_config, emulator_config):
 		if mame_snes.have_sufami_software:
 			return mame_driver(game, emulator_config, 'snes', 'cart2', {'cart': 'sufami'})
 
-		bios_path = system_config.get('sufami_turbo_bios_path', None)
+		bios_path = platform_config.get('sufami_turbo_bios_path', None)
 		if not bios_path:
-			raise EmulationNotSupportedException('Sufami Turbo BIOS not set up, check systems.ini')
+			raise EmulationNotSupportedException('Sufami Turbo BIOS not set up, check platforms.ini')
 
 		#We don't need to detect TV type because the Sufami Turbo (and also BS-X) was only released in Japan and so the Super Famicom can be used for everything
 		return mame_driver(game, emulator_config, 'snes', 'cart2', {'cart': bios_path})
@@ -773,9 +773,9 @@ def mame_snes(game, system_config, emulator_config):
 		if mame_snes.have_bsx_software:
 			return mame_driver(game, emulator_config, 'snes', 'cart2', {'cart': 'bsxsore'})
 
-		bios_path = system_config.get('bsx_bios_path', None)
+		bios_path = platform_config.get('bsx_bios_path', None)
 		if not bios_path:
-			raise EmulationNotSupportedException('BS-X/Satellaview BIOS not set up, check systems.ini')
+			raise EmulationNotSupportedException('BS-X/Satellaview BIOS not set up, check platforms.ini')
 		return mame_driver(game, emulator_config, 'snes', 'cart2', {'cart': bios_path})
 
 	expansion_chip = game.metadata.specific_info.get('Expansion-Chip')
@@ -1059,11 +1059,11 @@ def a7800(game, _, emulator_config):
 
 	return LaunchCommand(emulator_config.exe_path, args)
 
-def bsnes(game, system_config, emulator_config):
+def bsnes(game, platform_config, emulator_config):
 	if game.platform_name == 'Game Boy':
-		sgb_bios_path = system_config.get('super_game_boy_bios_path', None)
+		sgb_bios_path = platform_config.get('super_game_boy_bios_path', None)
 		if not sgb_bios_path:
-			raise EmulationNotSupportedException('Super Game Boy BIOS not set up, check systems.ini')
+			raise EmulationNotSupportedException('Super Game Boy BIOS not set up, check platforms.ini')
 		colour_flag = game.metadata.specific_info.get('Is-Colour', GameBoyColourFlag.No)
 		if colour_flag == GameBoyColourFlag.Required:
 			raise EmulationNotSupportedException('Super Game Boy is not compatible with GBC-only games')
@@ -1078,9 +1078,9 @@ def bsnes(game, system_config, emulator_config):
 		return LaunchCommand(emulator_config.exe_path, ['--fullscreen', sgb_bios_path, '$<path>'])
 
 	if game.rom.extension == 'st':
-		bios_path = system_config.get('sufami_turbo_bios_path', None)
+		bios_path = platform_config.get('sufami_turbo_bios_path', None)
 		if not bios_path:
-			raise EmulationNotSupportedException('Sufami Turbo BIOS not set up, check systems.ini')
+			raise EmulationNotSupportedException('Sufami Turbo BIOS not set up, check platforms.ini')
 		#We need two arguments (and the second argument has to exist), otherwise when you actually launch it you get asked for something to put in slot B and who says we ever wanted to put anything in slot B
 		#Can also use /dev/null but that's not portable and even if I don't care about that, it just gives me bad vibes
 		return LaunchCommand(emulator_config.exe_path, ['--fullscreen', bios_path, '$<path>', '$<path>'])
@@ -1176,7 +1176,7 @@ def duckstation(game, _, emulator_config):
 
 	return LaunchCommand(emulator_config.exe_path, ['-batch', '-fullscreen', '$<path>'])
 
-def fs_uae(game, system_config, emulator_config):
+def fs_uae(game, platform_config, emulator_config):
 	args = ['--fullscreen']
 	if game.platform_name == 'Amiga CD32':
 		args.extend(['--amiga_model=CD32', '--joystick_port_0_mode=cd32 gamepad', '--cdrom_drive_0=$<path>'])
@@ -1213,7 +1213,7 @@ def fs_uae(game, system_config, emulator_config):
 			#TODO: It would be better if this didn't force specific models, but could look at what ROMs the user has for FS-UAE and determines which models are available that support the given chipset, falling back to backwards compatibility for newer models or throwing EmulationNotSupportedException as necessary
 
 			#AGA is the default default if there's no default (use the most powerful machine available)
-			chipset = game.metadata.specific_info.get('Chipset', system_config.get('default_chipset', 'AGA'))
+			chipset = game.metadata.specific_info.get('Chipset', platform_config.get('default_chipset', 'AGA'))
 			model = chipset_models.get(chipset)
 
 		if model:
@@ -1279,7 +1279,7 @@ def mgba(game, _, emulator_config):
 	args.append('$<path>')
 	return LaunchCommand(emulator_config.exe_path, args)
 
-def mupen64plus(game, system_config, emulator_config):
+def mupen64plus(game, platform_config, emulator_config):
 	if game.metadata.specific_info.get('ROM-Format', None) == 'Unknown':
 		raise EmulationNotSupportedException('Undetectable ROM format')
 
@@ -1297,7 +1297,7 @@ def mupen64plus(game, system_config, emulator_config):
 	plugin = no_plugin
 
 	if use_controller_pak and use_rumble_pak:
-		plugin = controller_pak if system_config.get('prefer_controller_pak_over_rumble', False) else rumble_pak
+		plugin = controller_pak if platform_config.get('prefer_controller_pak_over_rumble', False) else rumble_pak
 	elif use_controller_pak:
 		plugin = controller_pak
 	elif use_rumble_pak:
@@ -1415,12 +1415,12 @@ def yuzu(game, __, emulator_config):
 	return LaunchCommand(emulator_config.exe_path, ['-f', '-g', '$<path>'])
 
 #Game engines
-def prboom_plus(game, system_config, emulator_config):
+def prboom_plus(game, platform_config, emulator_config):
 	if game.metadata.specific_info.get('Is-PWAD', False):
 		raise NotARomException('Is PWAD and not IWAD')
 
 	args = []
-	save_dir = system_config.get('save_dir')
+	save_dir = platform_config.get('save_dir')
 	if save_dir:
 		args.append('-save')
 		args.append(save_dir)

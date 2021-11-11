@@ -4,19 +4,20 @@ from enum import Enum
 from xml.etree import ElementTree
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config.system_config import system_configs
+from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.pc_common_metadata import \
     try_and_detect_engine_from_folder
+from meowlauncher.metadata import Metadata
 
 from .common.gametdb import TDB, add_info_from_tdb
 from .common.playstation_common import parse_param_sfo, parse_product_code
 
 
 def load_tdb():
-	if 'PS3' not in system_configs:
+	if 'PS3' not in platform_configs:
 		return None
 
-	tdb_path = system_configs['PS3'].options.get('tdb_path')
+	tdb_path = platform_configs['PS3'].options.get('tdb_path')
 	if not tdb_path:
 		return None
 
@@ -28,7 +29,7 @@ def load_tdb():
 		return None
 tdb = load_tdb()
 
-def add_game_folder_metadata(rom, metadata):
+def add_game_folder_metadata(rom, metadata: Metadata):
 	if rom.has_subfolder('PS3_GAME'):
 		param_sfo_path = os.path.join(rom.path, 'PS3_GAME', 'PARAM.SFO')
 		icon0_path = os.path.join(rom.path, 'PS3_GAME', 'ICON0.PNG')
@@ -83,7 +84,7 @@ class RPCS3Compatibility(Enum):
 	Ingame = 3
 	Playable = 4
 
-def check_rpcs3_compat(metadata):
+def check_rpcs3_compat(metadata: Metadata):
 	compat_db_path = os.path.expanduser('~/.config/rpcs3/GuiConfigs/compat_database.dat')
 	if hasattr(check_rpcs3_compat, 'db'):
 		db = check_rpcs3_compat.db
@@ -104,10 +105,10 @@ def check_rpcs3_compat(metadata):
 	except KeyError:
 		return
 
-def add_cover(metadata, product_code):
+def add_cover(metadata: Metadata, product_code: str):
 	#Intended for the covers database from GameTDB
 	try:
-		covers_path = system_configs['PS3'].options['covers_path']
+		covers_path = platform_configs['PS3'].options['covers_path']
 	except KeyError:
 		return
 	if not covers_path:

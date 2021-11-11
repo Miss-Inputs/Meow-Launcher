@@ -2,13 +2,12 @@
 
 import os
 
-from meowlauncher.config.system_config import system_configs
+from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.mac import MacApp, MacLauncher, does_exist
-from meowlauncher.games.pc import App, AppLauncher
 
 from . import pc
 
-mac_config = system_configs.get('Mac')
+mac_config = platform_configs.get('Mac')
 
 def no_longer_exists(game_id: str) -> bool:
 	hfv_path, inner_path = game_id.split('/', 1)

@@ -10,7 +10,7 @@ from meowlauncher.common_types import (EmulationNotSupportedException,
                                        NotARomException)
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config.system_config import PlatformConfig
+from meowlauncher.config.platform_config import PlatformConfig
 from meowlauncher.data.emulated_platforms import pc_platforms
 from meowlauncher.data.emulators import pc_emulators
 from meowlauncher.desktop_launchers import make_linux_desktop_for_launcher

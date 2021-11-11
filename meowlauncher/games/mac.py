@@ -2,8 +2,9 @@ import datetime
 import io
 from enum import Enum
 from typing import Any, Optional
+
 from meowlauncher.config.emulator_config_type import EmulatorConfig
-from meowlauncher.config.system_config import PlatformConfig
+from meowlauncher.config.platform_config import PlatformConfig
 from meowlauncher.emulator import PCEmulator
 
 try:

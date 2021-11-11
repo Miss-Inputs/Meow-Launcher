@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
-from meowlauncher.config.system_config import system_configs
+from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.dos import DOSApp
 from meowlauncher.games.pc import AppLauncher
 
 from . import pc
 
-dos_config = system_configs.get('DOS')
+dos_config = platform_configs.get('DOS')
 
 def make_dos_launchers() -> None:
 	if dos_config:

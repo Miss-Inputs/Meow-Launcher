@@ -2,13 +2,14 @@ import os
 import statistics
 from datetime import datetime
 from enum import Enum
+from typing import Optional
 from xml.etree import ElementTree
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config.system_config import system_configs
+from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.pc_common_metadata import \
     try_and_detect_engine_from_folder
-from meowlauncher.metadata import Date
+from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.utils import load_dict
 
 from ._3ds import \
@@ -31,10 +32,10 @@ class WiiUVirtualConsolePlatform(Enum):
 	GBA = 'GBA'
 	PCEngine = 'PCEngine'
 
-def load_tdb():
-	if not 'Wii U' in system_configs:
+def load_tdb() -> Optional[TDB]:
+	if not 'Wii U' in platform_configs:
 		return None
-	tdb_path = system_configs['Wii U'].options.get('tdb_path')
+	tdb_path = platform_configs['Wii U'].options.get('tdb_path')
 	if not tdb_path:
 		return None
 
@@ -46,9 +47,9 @@ def load_tdb():
 		return None
 tdb = load_tdb()
 
-def add_cover(metadata, product_code, licensee_code):
+def add_cover(metadata: Metadata, product_code: str, licensee_code: str):
 	#Intended for the covers database from GameTDB
-	covers_path = system_configs['Wii U'].options.get('covers_path')
+	covers_path = platform_configs['Wii U'].options.get('covers_path')
 	if not covers_path:
 		return
 	cover_path = os.path.join(covers_path, product_code)
@@ -61,7 +62,7 @@ def add_cover(metadata, product_code, licensee_code):
 			metadata.images['Cover'] = other_cover_path + os.extsep + ext
 			break
 
-def add_meta_xml_metadata(metadata, meta_xml):
+def add_meta_xml_metadata(metadata: Metadata, meta_xml: ElementTree.Element):
 	#version = 33 for digital stuff, sometimes 32 otherwise?, content_platform = WUP, ext_dev_urcc = some kiosk related thingo
 	#logo_type = 2 on third party stuff?, app_launch_type = 1 on parental controls/H&S/Wii U Chat and 0 on everything else?, invisible_flag = maybe just for keeping stuff out of the daily log?, no_managed_flag, no_event_log, no_icon_database, launching_flag, install_flag, closing_msg, group_id, boss_id, os_version, app_size, common_boss_size, account_boss_size, save_no_rollback, join_game_id, join_game_mode_mask, bg_daemon_enable, olv_accesskey, wood_tin, e_manual = I guess it's 1 if it has a manual, e_manual_version, eula_version, direct_boot, reserved_flag{0-7}, add_on_unique_id{0-31} = DLC probs?
 	product_code = meta_xml.findtext('product_code')
@@ -229,7 +230,7 @@ def add_meta_xml_metadata(metadata, meta_xml):
 		if publisher not in (metadata.publisher, local_publisher):
 			metadata.specific_info['{0}-Publisher'.format(lang.replace(' ', '-'))] = publisher
 
-def add_homebrew_meta_xml_metadata(rom, metadata, meta_xml):
+def add_homebrew_meta_xml_metadata(rom, metadata: Metadata, meta_xml: ElementTree.Element):
 	name = meta_xml.findtext('name')
 	if name:
 		rom.ignore_name = True
@@ -245,7 +246,7 @@ def add_homebrew_meta_xml_metadata(rom, metadata, meta_xml):
 	metadata.descriptions['Long-Description'] = meta_xml.findtext('long_description')
 	metadata.specific_info['Homebrew-Category'] = meta_xml.findtext('category') #Makes me wonder if it's feasible to include an option to get categories not from folders…
 
-def add_rpx_metadata(rom, metadata):
+def add_rpx_metadata(rom, metadata: Metadata):
 	#The .rpx itself is not interesting and basically just a spicy ELF
 	#This is going to assume we are looking at a homebrew folder
 
@@ -262,7 +263,7 @@ def add_rpx_metadata(rom, metadata):
 	if os.path.isfile(homebrew_banner_path):
 		metadata.images['Banner'] = homebrew_banner_path
 
-def add_folder_metadata(rom, metadata):
+def add_folder_metadata(rom, metadata: Metadata):
 	content_dir = rom.get_subfolder('content')
 	meta_dir = rom.get_subfolder('meta')
 	

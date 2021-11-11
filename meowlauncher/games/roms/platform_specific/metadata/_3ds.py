@@ -6,12 +6,13 @@ except ModuleNotFoundError:
 
 import os
 from enum import Enum, Flag
+from typing import Optional
 from xml.etree import ElementTree
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config.system_config import system_configs
+from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.data.name_cleanup._3ds_publisher_overrides import \
     consistentified_manufacturers
 from meowlauncher.metadata import Metadata
@@ -56,10 +57,10 @@ def add_3ds_system_info(metadata: Metadata):
 
 media_unit = 0x200
 
-def load_tdb():
-	if not '3DS' in system_configs:
+def load_tdb() -> Optional[TDB]:
+	if not '3DS' in platform_configs:
 		return None
-	tdb_path = system_configs['3DS'].options.get('tdb_path')
+	tdb_path = platform_configs['3DS'].options.get('tdb_path')
 	if not tdb_path:
 		return None
 
@@ -80,7 +81,7 @@ tdb = load_tdb()
 
 def add_cover(metadata: Metadata, product_code: str):
 	#Intended for the covers database from GameTDB
-	covers_path = system_configs['3DS'].options.get('covers_path')
+	covers_path = platform_configs['3DS'].options.get('covers_path')
 	if not covers_path:
 		return
 	cover_path = os.path.join(covers_path, product_code)
@@ -233,7 +234,7 @@ def parse_smdh(rom, metadata: Metadata, offset: int=0, length: int=-1):
 	smdh = rom.read(seek_to=offset, amount=length)
 	parse_smdh_data(metadata, smdh)
 
-def parse_smdh_data(metadata, smdh):
+def parse_smdh_data(metadata: Metadata, smdh: bytes):
 	magic = smdh[:4]
 	if magic != b'SMDH':
 		return
@@ -308,9 +309,9 @@ def parse_smdh_data(metadata, smdh):
 		15: 'Unknown language 3',
 	}
 
-	short_titles = {}
-	long_titles = {}
-	publishers = {}
+	short_titles: dict[str, str] = {}
+	long_titles: dict[str, str] = {}
+	publishers: dict[str, Optional[str]] = {}
 	for i, language in languages.items():
 		titles_offset = 8 + (512 * i)
 		long_title_offset = titles_offset + 128
@@ -339,7 +340,7 @@ def parse_smdh_data(metadata, smdh):
 	
 	local_short_title = None
 	local_long_title = None
-	local_publisher = None
+	local_publisher: Optional[str] = None
 	if _3DSRegionCode.RegionFree in region_codes or _3DSRegionCode.USA in region_codes or _3DSRegionCode.Europe in region_codes:
 		#We shouldn't assume that Europe is English-speaking but we're going to
 		local_short_title = short_titles.get('English')
@@ -397,12 +398,12 @@ tile_order = [
 	36, 37, 44, 45, 38, 39, 46, 47,
 	52, 53, 60, 61, 54, 55, 62, 63
 ]
-def decode_icon(icon_data: bytes, size: int):
+def decode_icon(icon_data: bytes, size: int) -> 'Image':
 	#Assumes RGB565, which everything so far uses. Supposedly there can be other encodings, but I'll believe that when I see it
 	icon = Image.new('RGB', (size, size))
 
 	i = 0
-	data = [0] * size * size
+	data = [(0, 0, 0)] * size * size
 	for tile_y in range(0, size, 8):
 		for tile_x in range(0, size, 8):
 			for tile in range(0, 8 * 8):
