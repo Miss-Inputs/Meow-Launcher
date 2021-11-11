@@ -11,6 +11,7 @@ from meowlauncher.info.emulator_command_line_helpers import \
     simple_mednafen_module
 from meowlauncher.launcher import (LaunchCommand, MultiLaunchCommands,
                                     get_wine_launch_params)
+from meowlauncher.runner import Runner
 
 
 class EmulatorStatus(Enum):
@@ -27,7 +28,7 @@ class EmulatorPlatform():
 	Windows = auto()
 	DotNet = auto()
 
-class Emulator():
+class Emulator(Runner):
 	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_params_func: Callable[..., LaunchCommand], configs: dict[str, EmulatorConfigValue]=None, host_platform=EmulatorPlatform.Native):
 		self._name = name
 		self.status = status
@@ -45,6 +46,10 @@ class Emulator():
 	@property
 	def name(self) -> str:
 		return self._name
+
+	@property
+	def is_emulated(self) -> bool:
+		return True
 
 	def get_launch_params(self, game, system_config: dict[str, Any], emulator_config: EmulatorConfig):
 		params = self.launch_params_func(game, system_config, emulator_config)

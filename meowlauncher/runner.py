@@ -9,3 +9,8 @@ class Runner(ABC):
 	@abstractproperty
 	def name(self) -> str:
 		pass
+
+	@property
+	def is_emulated(self) -> bool:
+		#Basically just decides if we should use the "Emulator" field or not
+		return False

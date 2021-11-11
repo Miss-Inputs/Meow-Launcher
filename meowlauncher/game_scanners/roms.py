@@ -4,12 +4,11 @@ import datetime
 import os
 import pathlib
 import sys
-import tempfile
 import time
 import traceback
 from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Any, cast
+from typing import cast
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        ExtensionNotSupportedException,
@@ -21,53 +20,15 @@ from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.data.emulators import emulators, libretro_frontends
 from meowlauncher.desktop_launchers import (has_been_done,
                                             make_linux_desktop_for_launcher)
-from meowlauncher.emulated_game import EmulatorLauncher
-from meowlauncher.emulator import (LibretroCore, LibretroCoreWithFrontend,
-                                   StandardEmulator)
+from meowlauncher.emulator import LibretroCore, LibretroCoreWithFrontend
 from meowlauncher.games.roms.platform_specific.roms_folders import \
     folder_checks
-from meowlauncher.games.roms.rom import (ROM, CompressedROM, FileROM,
-                                         FolderROM, rom_file)
-from meowlauncher.games.roms.rom_game import RomGame
+from meowlauncher.games.roms.rom import ROM, FileROM, FolderROM, rom_file
+from meowlauncher.games.roms.rom_game import RomGame, ROMLauncher
 from meowlauncher.games.roms.roms_metadata import add_metadata
-from meowlauncher.launcher import LaunchCommand
 from meowlauncher.util import archives
-from meowlauncher.util.io_utils import make_filename
 from meowlauncher.util.utils import find_filename_tags_at_end, starts_with_any
 
-
-class ROMLauncher(EmulatorLauncher):
-	def __init__(self, game: RomGame, emulator: StandardEmulator, platform_config, emulator_config) -> None:
-		super().__init__(game, emulator)
-		self.platform_config = platform_config
-		self.emulator_config = emulator_config
-
-	@property
-	def game_type(self) -> str:
-		return 'ROM'
-	
-	@property
-	def game_id(self) -> str:
-		return str(self.game.rom.path)
-
-	@property
-	def info_fields(self) -> dict[str, dict[str, Any]]:
-		return self.game.metadata.to_launcher_fields()
-
-	def get_launch_command(self) -> LaunchCommand:
-		params = self.runner.get_launch_params(self.game, self.platform_config, self.emulator_config)
-		if self.game.rom.is_compressed:
-			rom = cast(CompressedROM, self.game.rom)
-			if rom.extension not in self.runner.supported_compression:
-				temp_extraction_folder = os.path.join(tempfile.gettempdir(), 'meow-launcher-' + make_filename(self.game.name))
-
-				extracted_path = os.path.join(temp_extraction_folder, rom.inner_filename)
-				params = params.replace_path_argument(extracted_path)
-				params = params.prepend_command(LaunchCommand('7z', ['x', '-o' + temp_extraction_folder, str(self.game.rom.path)]))
-				params = params.append_command(LaunchCommand('rm', ['-rf', temp_extraction_folder]))
-		else:
-			params = params.replace_path_argument(str(self.game.rom.path))
-		return params
 
 def process_file(platform_config: PlatformConfig, potential_emulator_names: Iterable[str], rom: ROM, subfolders: Sequence[str]) -> bool:
 	game = RomGame(rom, platform_config.name, platforms[platform_config.name])
@@ -140,7 +101,6 @@ def process_file(platform_config: PlatformConfig, potential_emulator_names: Iter
 				print(rom.path, 'could not be launched by', potential_emulator_names, 'because', exception_reason)
 		return False
 	
-	game.metadata.emulator_name = launcher.runner.name
 	make_linux_desktop_for_launcher(launcher) #TODO: This shouldn't be here - we should be returning Optional[ROMLauncher] I think
 	return True
 

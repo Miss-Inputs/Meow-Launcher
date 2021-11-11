@@ -49,7 +49,25 @@ def get_array(desktop: configparser.ConfigParser, name: str, section: str=metada
 	return field.split(';')
 
 def make_linux_desktop_for_launcher(launcher: Launcher):
-	return make_linux_desktop(launcher.get_launch_command(), launcher.game.name, launcher.info_fields)
+	name = launcher.game.name
+
+	filename_tags = find_filename_tags_at_end(name)
+	name = remove_filename_tags(name)
+
+	fields = launcher.info_fields
+	
+	if launcher.runner.is_emulated:
+		fields[metadata_section_name]['Emulator'] = launcher.runner.name
+
+	if filename_tags:
+		fields[junk_section_name]['Filename-Tags'] = filename_tags
+	fields[junk_section_name]['Original-Name'] = name
+
+	fields[id_section_name] = {}
+	fields[id_section_name]['Type'] = launcher.game_type
+	fields[id_section_name]['Unique-ID'] = launcher.game_id
+
+	return make_linux_desktop(launcher.get_launch_command(), name, fields)
 
 def make_linux_desktop(launcher: LaunchCommand, display_name: str, fields: dict[str, dict[str, Any]]=None):
 	#TODO: Replace this with make_linux_desktop_for_launcher eventually
@@ -156,6 +174,7 @@ def has_been_done(game_type, game_id):
 
 split_brackets = re.compile(r' (?=\()')
 def make_launcher(launch_params, name, metadata, id_type, unique_id):
+	#TODO: Remove this
 	display_name = remove_filename_tags(name)
 	filename_tags = find_filename_tags_at_end(name)
 
