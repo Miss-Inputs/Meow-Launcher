@@ -6,7 +6,7 @@ except ModuleNotFoundError:
 
 import os
 from enum import Enum, Flag
-from typing import Optional
+from typing import Optional, cast
 from xml.etree import ElementTree
 
 from meowlauncher import input_metadata
@@ -15,6 +15,8 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.data.name_cleanup._3ds_publisher_overrides import \
     consistentified_manufacturers
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Metadata
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, junk_suffixes,
@@ -90,7 +92,7 @@ def add_cover(metadata: Metadata, product_code: str):
 			metadata.images['Cover'] = cover_path + os.extsep + ext
 			break
 
-def parse_ncch(rom, metadata: Metadata, offset: int):
+def parse_ncch(rom: FileROM, metadata: Metadata, offset: int):
 	#Skip over SHA-256 siggy and magic
 	header = rom.read(seek_to=offset + 0x104, amount=0x100)
 	#Content size: 0-4 (media unit)
@@ -184,7 +186,7 @@ def parse_ncch(rom, metadata: Metadata, offset: int):
 		#service_access_control = arm11_local_sys_capabilities[0x50:0x150]
 		#extended_service_access_control = arm11_local_sys_capabilities[0x150:0x160]
 
-def parse_plain_region(rom, metadata: Metadata, offset: int, length: int):
+def parse_plain_region(rom: FileROM, metadata: Metadata, offset: int, length: int):
 	#Plain region stores the libraries used, at least for official games
 	#See also: https://github.com/Zowayix/ROMniscience/wiki/3DS-libraries-used for research
 	#Hmm… since I sort of abandoned ROMniscience I should put that somewhere else
@@ -214,7 +216,7 @@ def parse_plain_region(rom, metadata: Metadata, offset: int, length: int):
 		elif library.startswith('[SDK+NINTENDO:CTRFaceLibrary-'):
 			metadata.specific_info['Uses-Miis'] = True
 
-def parse_exefs(rom, metadata: Metadata, offset: int):
+def parse_exefs(rom: FileROM, metadata: Metadata, offset: int):
 	header = rom.read(seek_to=offset, amount=0x200)
 	for i in range(0, 10):
 		try:
@@ -228,7 +230,7 @@ def parse_exefs(rom, metadata: Metadata, offset: int):
 		#Logo contains some stuff, banner contains 3D graphics and sounds for the home menu, .code contains actual executable
 
 
-def parse_smdh(rom, metadata: Metadata, offset: int=0, length: int=-1):
+def parse_smdh(rom: FileROM, metadata: Metadata, offset: int=0, length: int=-1):
 	metadata.specific_info['Has-SMDH'] = True
 	#At this point it's fine to just read in the whole thing
 	smdh = rom.read(seek_to=offset, amount=length)
@@ -312,6 +314,9 @@ def parse_smdh_data(metadata: Metadata, smdh: bytes):
 	short_titles: dict[str, str] = {}
 	long_titles: dict[str, str] = {}
 	publishers: dict[str, Optional[str]] = {}
+	short_title: str
+	long_title: str
+	publisher: Optional[str]
 	for i, language in languages.items():
 		titles_offset = 8 + (512 * i)
 		long_title_offset = titles_offset + 128
@@ -422,7 +427,7 @@ def decode_icon(icon_data: bytes, size: int) -> 'Image':
 	icon.putdata(data)
 	return icon
 
-def parse_ncsd(rom, metadata: Metadata):
+def parse_ncsd(rom: FileROM, metadata: Metadata):
 	#Assuming CCI (.3ds) here
 	#Skip over SHA-256 signature and magic
 	header = rom.read(seek_to=0x104, amount=0x100)
@@ -452,7 +457,7 @@ def parse_ncsd(rom, metadata: Metadata):
 	metadata.specific_info['Title-Version'] = int.from_bytes(card_info_header[0x210:0x212], 'little')
 	metadata.specific_info['Card-Version'] = int.from_bytes(card_info_header[0x212:0x214], 'little')
 
-def parse_3dsx(rom, metadata: Metadata):
+def parse_3dsx(rom: FileROM, metadata: Metadata):
 	header = rom.read(amount=0x20)
 	header_size = int.from_bytes(header[4:6], 'little')
 	has_extended_header = header_size > 32
@@ -473,13 +478,14 @@ def parse_3dsx(rom, metadata: Metadata):
 			with open(smdh_name, 'rb') as smdh_file:
 				parse_smdh_data(metadata, smdh_file.read())
 
-def add_3ds_metadata(game):
+def add_3ds_metadata(game: ROMGame):
 	add_3ds_system_info(game.metadata)
-	magic = game.rom.read(seek_to=0x100, amount=4)
+	rom = cast(FileROM, game.rom)
+	magic = rom.read(seek_to=0x100, amount=4)
 	#Hmm... do we really need this or should we just look at extension?
 	if magic == b'NCSD':
-		parse_ncsd(game.rom, game.metadata)
+		parse_ncsd(rom, game.metadata)
 	elif magic == b'NCCH':
-		parse_ncch(game.rom, game.metadata, 0)
+		parse_ncch(rom, game.metadata, 0)
 	elif game.rom.extension == '3dsx':
-		parse_3dsx(game.rom, game.metadata)
+		parse_3dsx(rom, game.metadata)

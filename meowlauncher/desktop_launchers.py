@@ -28,7 +28,7 @@ description_section_name = 'X-Meow Launcher Descriptions'
 
 def get_desktop(path: str) -> configparser.ConfigParser:
 	parser = configparser.ConfigParser(interpolation=None, delimiters=('='), comment_prefixes=('#'))
-	parser.optionxform = str #type: ignore
+	parser.optionxform = str #type: ignore[assignment]
 	parser.read(path)
 	return parser
 
@@ -77,7 +77,7 @@ def make_linux_desktop(launcher: LaunchCommand, display_name: str, fields: dict[
 	path = os.path.join(main_config.output_folder, filename)
 
 	configwriter = configparser.ConfigParser(interpolation=None)
-	configwriter.optionxform = str #type: ignore
+	configwriter.optionxform = str #type: ignore[assignment]
 
 	configwriter.add_section('Desktop Entry')
 	desktop_entry = configwriter['Desktop Entry']
@@ -167,9 +167,9 @@ def _get_existing_launchers() -> list[tuple[str, str]]:
 
 def has_been_done(game_type: str, game_id: str) -> bool:
 	if not hasattr(has_been_done, 'existing_launchers'):
-		has_been_done.existing_launchers = _get_existing_launchers() #type: ignore
+		has_been_done.existing_launchers = _get_existing_launchers() #type: ignore[attr-defined]
 
-	for existing_type, existing_id in has_been_done.existing_launchers: #type: ignore
+	for existing_type, existing_id in has_been_done.existing_launchers: #type: ignore[attr-defined]
 		if existing_type == game_type and existing_id == game_id:
 			return True
 
@@ -177,8 +177,8 @@ def has_been_done(game_type: str, game_id: str) -> bool:
 
 
 split_brackets = re.compile(r' (?=\()')
+@DeprecationWarning
 def make_launcher(launch_params: LaunchCommand, name: str, metadata: Metadata, id_type: str, unique_id: str):
-	#TODO: Remove this
 	display_name = remove_filename_tags(name)
 	filename_tags = find_filename_tags_at_end(name)
 

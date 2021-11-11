@@ -19,7 +19,7 @@ class EmulatorConfigs():
 
 		def read_configs_from_file(self) -> None:
 			parser = configparser.ConfigParser(interpolation=None, delimiters=('='), allow_no_value=True)
-			parser.optionxform = str #type: ignore
+			parser.optionxform = str #type: ignore[assignment]
 
 			ensure_exist(_emulator_config_path)
 			parser.read(_emulator_config_path)

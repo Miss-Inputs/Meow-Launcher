@@ -2,7 +2,7 @@ import importlib.resources
 import json
 import math
 import re
-from typing import Union
+from typing import Iterable, Optional, Sequence, Union
 
 find_brackets = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)')
 find_brackets_at_end = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)$')
@@ -33,7 +33,7 @@ def remove_filename_tags(name: str):
 
 words_regex = re.compile(r'[\w()]+')
 apostrophes_at_word_boundary_regex = re.compile(r"\B'|'\B")
-def normalize_name(name, care_about_spaces=True, normalize_words=True, care_about_numerals=False):
+def normalize_name(name: str, care_about_spaces=True, normalize_words=True, care_about_numerals=False) -> str:
 	if care_about_numerals:
 		name = convert_roman_numerals_in_title(name)
 	name = name.lower()
@@ -47,7 +47,7 @@ def normalize_name(name, care_about_spaces=True, normalize_words=True, care_abou
 		return ('-' if care_about_spaces else '').join(words_regex.findall(name))
 	return name
 	
-def starts_with_any(s, prefixes):
+def starts_with_any(s: str, prefixes: Iterable[str]) -> bool:
 	#Allows s.startswith() with any iterable, not just tuple
 	for prefix in prefixes:
 		if s.startswith(prefix):
@@ -68,7 +68,7 @@ def convert_alphanumeric(byte_array: bytes) -> str:
 
 junk_suffixes = re.compile(r'((?:(?:,)? (?:Inc|LLC|Kft)|(?:Co\.)?(?:,)? Ltd|Corp|GmbH)(?:\.)?|Co\.)$')
 
-def pluralize(n, singular, plural=None):
+def pluralize(n: int, singular: str, plural: str=None):
 	if not plural:
 		plural = singular + 's'
 	if n == 1:
@@ -112,14 +112,14 @@ def convert_roman_numeral(s: str) -> int:
 		i += 1
 	return value
 
-def is_roman_numeral(s):
+def is_roman_numeral(s: str) -> bool:
 	try:
 		convert_roman_numeral(s)
 		return True
 	except ValueError:
 		return False
 
-def convert_roman_numerals_in_title(s):
+def convert_roman_numerals_in_title(s: str) -> str:
 	words = s.split(' ')
 	converted_words = []
 	for word in words:
@@ -138,13 +138,13 @@ def convert_roman_numerals_in_title(s):
 			converted_words.append(word)
 	return ' '.join(converted_words)
 
-def title_word(s):
+def title_word(s: str) -> str:
 	#Like str.title or str.capitalize but actually bloody works how I expect for compound-words and contract'ns
 	actual_word_parts = re.split(r"([\w']+)", s)
 	return ''.join([part.capitalize() for part in actual_word_parts])
 
 dont_capitalize_these = ['the', 'a', 'an', 'and', 'or', 'at', 'with', 'to', 'of', 'is']
-def title_case_sentence_part(s, words_to_ignore_case=None):
+def title_case_sentence_part(s: str, words_to_ignore_case: Optional[Iterable[str]]=None) -> str:
 	words = re.split(' ', s)
 	if not words_to_ignore_case:
 		words_to_ignore_case = []
@@ -161,12 +161,12 @@ def title_case_sentence_part(s, words_to_ignore_case=None):
 			titled_words.append(title_word(word))
 	return ' '.join(titled_words)
 
-def title_case(s, words_to_ignore_case=None):
+def title_case(s: str, words_to_ignore_case: Optional[Iterable[str]]=None) -> str:
 	sentence_parts = re.split(r'(\s+-\s+|:\s+)', s)
 	titled_parts = [title_case_sentence_part(part, words_to_ignore_case) for part in sentence_parts]
 	return ''.join(titled_parts)
 
-def remove_capital_article(s):
+def remove_capital_article(s: Optional[str]) -> str:
 	if not s:
 		return ''
 
@@ -179,10 +179,10 @@ def remove_capital_article(s):
 			new_words.append(word)
 	return ' '.join(new_words)
 
-def clean_string(s):
+def clean_string(s: str) -> str:
 	return ''.join([c for c in s if c.isprintable()])
 
-def byteswap(b):
+def byteswap(b: bytes) -> bytes:
 	if len(b) % 2 == 0:
 		bb = b
 	else:
@@ -196,7 +196,7 @@ def byteswap(b):
 	return bytes(byte_array)
 
 dict_line_regex = re.compile(r'(?P<kquote>\'|\"|)(?P<key>.+?)(?P=kquote):\s*(?P<vquote>\'|\")(?P<value>.+?)(?P=vquote),?(?:\s*#.+)?$')
-def load_dict(subpackage, resource) -> dict[Union[int, str], str]:
+def load_dict(subpackage: Optional[str], resource: str) -> dict[Union[int, str], str]:
 	d: dict[Union[int, str], str] = {}
 	package = 'meowlauncher.data'
 	if subpackage:
@@ -212,30 +212,30 @@ def load_dict(subpackage, resource) -> dict[Union[int, str], str]:
 			d[key] = match['value']
 	return d
 
-def load_list(subpackage, resource) -> list[str]:
+def load_list(subpackage: Optional[str], resource: str) -> list[str]:
 	package = 'meowlauncher.data'
 	if subpackage:
 		package += '.' + subpackage
 	return [line for line in [line.split('#', 1)[0] for line in importlib.resources.read_text(package, resource + '.list').splitlines()] if line]
 
-def load_json(subpackage, resource):
+def load_json(subpackage: Optional[str], resource: str) -> dict:
 	package = 'meowlauncher.data'
 	if subpackage:
 		package += '.' + subpackage
 	with importlib.resources.open_binary(package, resource) as f: #It would be text, but I don't know if I wanna accidentally fuck around with encodings
 		return json.load(f)
 
-def _format_unit(n, suffix, base_unit=1000, singular_suffix=None):
+def _format_unit(n: int, suffix: str, base_unit: int=1000, singular_suffix: str=None) -> str:
 	try:
 		if n < base_unit:
 			return '{0} {1}'.format(n, singular_suffix if singular_suffix else suffix)
 	except TypeError:
-		return n
+		return str(n)
 	
 	exp = int(math.log(n, base_unit))
 	unit_suffix = 'KMGTPE'[exp - 1]
 	d = round(n / math.pow(base_unit, exp), 2)
 	return '{0} {1}{2}'.format(d, unit_suffix, suffix)
 
-def format_byte_size(b, metric=True):
+def format_byte_size(b: int, metric: bool=True) -> str:
 	return _format_unit(b, 'B' if metric else 'iB', 1000 if metric else 1024, 'bytes')

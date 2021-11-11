@@ -2,13 +2,16 @@ import os
 import statistics
 from datetime import datetime
 from enum import Enum
-from typing import Optional
+from pathlib import Path
+from typing import Optional, cast
 from xml.etree import ElementTree
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.pc_common_metadata import \
     try_and_detect_engine_from_folder
+from meowlauncher.games.roms.rom import ROM, FolderROM
+from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.utils import load_dict
 
@@ -62,26 +65,29 @@ def add_cover(metadata: Metadata, product_code: str, licensee_code: str):
 			metadata.images['Cover'] = other_cover_path + os.extsep + ext
 			break
 
-def add_meta_xml_metadata(metadata: Metadata, meta_xml: ElementTree.Element):
+def add_meta_xml_metadata(metadata: Metadata, meta_xml: ElementTree.ElementTree):
 	#version = 33 for digital stuff, sometimes 32 otherwise?, content_platform = WUP, ext_dev_urcc = some kiosk related thingo
 	#logo_type = 2 on third party stuff?, app_launch_type = 1 on parental controls/H&S/Wii U Chat and 0 on everything else?, invisible_flag = maybe just for keeping stuff out of the daily log?, no_managed_flag, no_event_log, no_icon_database, launching_flag, install_flag, closing_msg, group_id, boss_id, os_version, app_size, common_boss_size, account_boss_size, save_no_rollback, join_game_id, join_game_mode_mask, bg_daemon_enable, olv_accesskey, wood_tin, e_manual = I guess it's 1 if it has a manual, e_manual_version, eula_version, direct_boot, reserved_flag{0-7}, add_on_unique_id{0-31} = DLC probs?
 	product_code = meta_xml.findtext('product_code')
-	metadata.product_code = product_code
-	try:
-		metadata.specific_info['Virtual-Console-Platform'] = WiiUVirtualConsolePlatform(metadata.product_code[6])
-	except ValueError:
-		pass
-	gametdb_id = product_code[-4:]
-	add_info_from_tdb(tdb, metadata, gametdb_id)
+	if product_code:
+		metadata.product_code = product_code
+		try:
+			metadata.specific_info['Virtual-Console-Platform'] = WiiUVirtualConsolePlatform(metadata.product_code[6])
+		except ValueError:
+			pass
+		gametdb_id = product_code[-4:]
+		add_info_from_tdb(tdb, metadata, gametdb_id)
 
 	company_code = meta_xml.findtext('company_code')
-	if company_code in nintendo_licensee_codes:
-		metadata.publisher = nintendo_licensee_codes[company_code]
-	elif len(company_code) == 4 and company_code.startswith('00'):
-		if company_code[2:] in nintendo_licensee_codes:
-			metadata.publisher = nintendo_licensee_codes[company_code[2:]]
-		
-	add_cover(metadata, product_code[-4:], company_code[2:])
+	if company_code:
+		if company_code in nintendo_licensee_codes:
+			metadata.publisher = nintendo_licensee_codes[company_code]
+		elif len(company_code) == 4 and company_code.startswith('00'):
+			if company_code[2:] in nintendo_licensee_codes:
+				metadata.publisher = nintendo_licensee_codes[company_code[2:]]
+
+	if product_code and company_code:
+		add_cover(metadata, product_code[-4:], company_code[2:])
 
 	mastering_date_text = meta_xml.findtext('mastering_date')
 	#Usually blank? Sometimes exists though
@@ -97,8 +103,8 @@ def add_meta_xml_metadata(metadata: Metadata, meta_xml: ElementTree.Element):
 			#print(mastering_date_text)
 			pass
 	#Maybe we can use these to figure out if it creates a save file or not…
-	metadata.specific_info['Common-Save-Size'] = int(meta_xml.findtext('common_save_size'), 16)
-	metadata.specific_info['Account-Save-Size'] = int(meta_xml.findtext('account_save_size'), 16)
+	metadata.specific_info['Common-Save-Size'] = int(meta_xml.findtext('common_save_size') or '0', 16)
+	metadata.specific_info['Account-Save-Size'] = int(meta_xml.findtext('account_save_size') or '0', 16)
 
 	metadata.specific_info['Title-ID'] = meta_xml.findtext('title_id')
 	version = meta_xml.findtext('title_version')
@@ -110,17 +116,17 @@ def add_meta_xml_metadata(metadata: Metadata, meta_xml: ElementTree.Element):
 	if region:
 		try:
 			region_flags = int(region, 16)
-			for region in _3DSRegionCode:
-				if region in (_3DSRegionCode.RegionFree, _3DSRegionCode.WiiURegionFree):
+			for region_code in _3DSRegionCode:
+				if region_code in (_3DSRegionCode.RegionFree, _3DSRegionCode.WiiURegionFree):
 					continue
-				if region.value & region_flags:
-					region_codes.append(region)
+				if region_code.value & region_flags:
+					region_codes.append(region_code)
 			metadata.specific_info['Region-Code'] = region_codes
 		except ValueError:
 			metadata.specific_info['Region-Code'] = '0x' + region
 
 	#Tempted to reuse wii.parse_ratings, but I might not because it's just a bit different
-	rating_tags = {tag: int(tag.text) for tag in meta_xml.iter() if tag.tag.startswith('pc_')}
+	rating_tags = {tag: int(tag.text) for tag in meta_xml.iter() if tag.tag.startswith('pc_') and tag.text}
 	ratings = {tag.tag: rating & 0b0001_1111 for tag, rating in rating_tags.items() if (rating & 0b1000_0000) == 0 and (rating & 0b0100_0000) == 0}
 	if ratings:
 		try:
@@ -230,7 +236,7 @@ def add_meta_xml_metadata(metadata: Metadata, meta_xml: ElementTree.Element):
 		if publisher not in (metadata.publisher, local_publisher):
 			metadata.specific_info['{0}-Publisher'.format(lang.replace(' ', '-'))] = publisher
 
-def add_homebrew_meta_xml_metadata(rom, metadata: Metadata, meta_xml: ElementTree.Element):
+def add_homebrew_meta_xml_metadata(rom: ROM, metadata: Metadata, meta_xml: ElementTree.ElementTree):
 	name = meta_xml.findtext('name')
 	if name:
 		rom.ignore_name = True
@@ -242,11 +248,15 @@ def add_homebrew_meta_xml_metadata(rom, metadata: Metadata, meta_xml: ElementTre
 	if release_date_text:
 		metadata.release_date = Date(release_date_text[0:4], release_date_text[4:6], release_date_text[6:8])
 
-	metadata.descriptions['Short-Description'] = meta_xml.findtext('short_description')
-	metadata.descriptions['Long-Description'] = meta_xml.findtext('long_description')
-	metadata.specific_info['Homebrew-Category'] = meta_xml.findtext('category') #Makes me wonder if it's feasible to include an option to get categories not from folders…
+	short_description = meta_xml.findtext('short_description')
+	if short_description:
+		metadata.descriptions['Short-Description'] = short_description
+	long_description = meta_xml.findtext('long_description')
+	if long_description:
+		metadata.descriptions['Long-Description'] = long_description
+	metadata.specific_info['Homebrew-Category'] = meta_xml.findtext('category') or 'None' #Makes me wonder if it's feasible to include an option to get categories not from folders…
 
-def add_rpx_metadata(rom, metadata: Metadata):
+def add_rpx_metadata(rom: ROM, metadata: Metadata):
 	#The .rpx itself is not interesting and basically just a spicy ELF
 	#This is going to assume we are looking at a homebrew folder
 
@@ -263,17 +273,17 @@ def add_rpx_metadata(rom, metadata: Metadata):
 	if os.path.isfile(homebrew_banner_path):
 		metadata.images['Banner'] = homebrew_banner_path
 
-def add_folder_metadata(rom, metadata: Metadata):
-	content_dir = rom.get_subfolder('content')
-	meta_dir = rom.get_subfolder('meta')
+def add_folder_metadata(rom: FolderROM, metadata: Metadata):
+	content_dir = cast(Path, rom.get_subfolder('content')) #Impossible for these to be None
+	meta_dir = cast(Path, rom.get_subfolder('meta'))
 	
 	metadata.specific_info['Executable-Name'] = rom.relevant_files['rpx'].name
 
 	#While we are here… using pc_common_metadata engine detect on the content folder almost seems like a good idea too, but it won't accomplish much so far
-	if os.path.isfile(os.path.join(rom.path, 'code', 'UnityEngine_dll.rpl')):
+	if rom.path.joinpath('code', 'UnityEngine_dll.rpl').is_file():
 		#Unity games on Wii U just have a "Data" folder under content with no executable (because it's over here in code), so our usual detection won't work; not sure about other cross platform engines
 		metadata.specific_info['Engine'] = 'Unity'
-	if os.path.isdir(os.path.join(content_dir, 'assets')) and all(os.path.isfile(os.path.join(content_dir, 'app', file)) for file in ('appinfo.xml', 'config.xml', 'index.html')):
+	if content_dir.joinpath('assets').is_dir() and all(content_dir.joinpath('app', file).is_dir() for file in ('appinfo.xml', 'config.xml', 'index.html')):
 		metadata.specific_info['Engine'] = 'Nintendo Web Framework'
 	
 	engine = try_and_detect_engine_from_folder(content_dir, metadata)
@@ -305,9 +315,9 @@ def add_folder_metadata(rom, metadata: Metadata):
 	if metadata.specific_info.get('Virtual-Console-Platform') == WiiUVirtualConsolePlatform.GBAOrPCEngine:
 		metadata.specific_info['Virtual-Console-Platform'] = WiiUVirtualConsolePlatform.GBA if rom.name == 'm2engage' else WiiUVirtualConsolePlatform.PCEngine
 
-def add_wii_u_metadata(game):
+def add_wii_u_metadata(game: ROMGame):
 	if game.rom.is_folder:
-		add_folder_metadata(game.rom, game.metadata)
+		add_folder_metadata(cast(FolderROM, game.rom), game.metadata)
 	if game.rom.extension == 'rpx':
 		add_rpx_metadata(game.rom, game.metadata)
 	#We could leverage Cemu to get the meta.xml out of discs with -e <disc.wud> -p meta/meta.xml but that 1) sounds annoying to go back into emulator_config to get the path of Cemu and such and that might inevitably cause a recursive import 2) pops up a dialog box if the key for the wud isn't there or fails in some other way

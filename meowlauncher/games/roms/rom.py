@@ -1,3 +1,4 @@
+from abc import ABC
 import os
 from pathlib import Path
 from typing import Optional
@@ -7,8 +8,7 @@ from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.util import archives, cd_read, io_utils
 
-
-class ROM():
+class ROM(ABC):
 	def __init__(self, path: str) -> None:
 		self.path = Path(path)
 		self.ignore_name: bool = False
