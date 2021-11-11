@@ -2,7 +2,7 @@
 from typing import cast
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games.mame_common.mame_helpers import \
+from meowlauncher.games.mame_common.mame_utils import \
     consistentify_manufacturer
 from meowlauncher.games.mame_common.software_list_info import \
     get_software_list_entry

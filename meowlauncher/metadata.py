@@ -234,7 +234,7 @@ class Metadata():
 
 		#Set this up later with the respective objects
 		self.cpu_info = CPUInfo()
-		self.screen_info = None
+		self.screen_info: Optional[ScreenInfo] = None
 		self.input_info = InputInfo()
 
 		self.specific_info = {} #Stuff that's too specific to put as an attribute here

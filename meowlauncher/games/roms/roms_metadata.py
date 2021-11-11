@@ -6,15 +6,15 @@ from meowlauncher.data.name_cleanup.libretro_database_company_name_cleanup impor
     company_name_overrides
 from meowlauncher.games.common.libretro_database import \
     parse_all_dats_for_system
-from meowlauncher.games.mame.mame_machine import (Machine,
-                                                  does_machine_match_game)
+from meowlauncher.games.mame_common.machine import (Machine,
+                                                    does_machine_match_game, get_machine)
 from meowlauncher.games.mame_common.mame_executable import \
     MachineNotFoundException
 from meowlauncher.games.mame_common.mame_helpers import (
-    MAMENotInstalledException, get_image, get_mame_xml, image_config_keys)
+    default_mame_executable, get_image, get_mame_xml)
+from meowlauncher.games.mame_common.mame_utils import image_config_keys
 from meowlauncher.games.mame_common.software_list_info import \
     get_software_lists_by_names
-from meowlauncher.games.roms.rom import ROM, FileROM, FolderROM
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.region_info import (get_language_from_regions,
                                            get_tv_system_from_regions)
@@ -22,6 +22,7 @@ from meowlauncher.util.utils import (find_filename_tags_at_end, junk_suffixes,
                                      load_list, remove_filename_tags)
 
 from .platform_specific import metadata
+from .rom import ROM, FileROM, FolderROM
 from .rom_game import ROMGame
 
 not_necessarily_equivalent_arcade_names = load_list(None, 'not_necessarily_equivalent_arcade_names')
@@ -65,23 +66,27 @@ def find_equivalent_arcade_game(game: ROMGame, basename: str) -> Optional[Machin
 	if basename in not_necessarily_equivalent_arcade_names:
 		return None
 
-	try:
-		machine_xml = get_mame_xml(basename)
-	except (MachineNotFoundException, MAMENotInstalledException):
+	if not default_mame_executable:
 		return None
-	machine = Machine(machine_xml, init_metadata=True)
+	try:
+		machine = get_machine(basename, default_mame_executable)
+	except (MachineNotFoundException):
+		return None
 
 	if machine.family in not_necessarily_equivalent_arcade_names:
 		return None
 
-	if machine.metadata.platform != 'Arcade' or machine.is_mechanical or machine.metadata.genre == 'Slot Machine':
-		#I think not, only video games can be video games
-		#That comment made sense but y'know what I mean right
-		return None
+	catlist = machine.catlist
+	if catlist:
+		if not catlist.is_arcade:
+			#I think not, only video games can be video games
+			#That comment made sense but y'know what I mean right
+			#Do we really need to exclude mechanical/slot machines? This function used to, I dunno
+			return None
 	if '(bootleg of' in machine.name or '(bootleg?)' in machine.name:
 		#This doesn't count
 		return None
-	if does_machine_match_game(game.rom.name, game.metadata, machine):
+	if does_machine_match_game(game.rom.name, game.metadata.names.values(), machine):
 		return machine
 	return None
 
@@ -97,14 +102,18 @@ def add_metadata_from_arcade(game: ROMGame, machine: Machine):
 		game.metadata.subgenre = 'Board'
 		return
 
-	if not game.metadata.genre:
-		game.metadata.genre = machine.metadata.genre
-	if not game.metadata.subgenre:
-		game.metadata.subgenre = machine.metadata.subgenre
-	if not game.metadata.categories and 'Arcade' not in machine.metadata.categories:
-		game.metadata.categories = machine.metadata.categories
 	if not game.metadata.series:
-		game.metadata.series = machine.metadata.series
+		game.metadata.series = machine.series
+	
+	catlist = machine.organized_catlist
+	if not catlist:
+		return
+	if not game.metadata.genre:
+		game.metadata.genre = catlist.genre
+	if not game.metadata.subgenre:
+		game.metadata.subgenre = catlist.subgenre
+	if not game.metadata.categories and catlist.definite_category:
+		game.metadata.categories = [catlist.category]
 	#Well, I guess not much else can be inferred here. Still, though!
 		
 def add_alternate_names(rom: ROM, metadata: Metadata):

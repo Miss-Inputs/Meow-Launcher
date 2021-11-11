@@ -1,12 +1,13 @@
 import calendar
-from typing import Any, Optional, cast
+from typing import Any, Iterable, Optional, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-from meowlauncher.games.mame.mame_machine import (
+from meowlauncher.games.mame_common.machine import (
     Machine, does_machine_match_game, get_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
+from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.mame_common.software_list import Software
 from meowlauncher.games.mame_common.software_list_info import \
     get_software_list_entry
@@ -333,24 +334,27 @@ def add_satellaview_metadata(rom: FileROM, metadata: Metadata):
 		metadata.specific_info['Day'] = header_data.get('Day') #hmm… unfortunately it doesn't have a nice year for us to use
 		metadata.specific_info['Month'] = header_data.get('Month')
 
-def try_get_equivalent_arcade(rom: FileROM, metadata: Metadata) -> Optional[Machine]:
+def try_get_equivalent_arcade(rom: FileROM, names: Iterable[str]) -> Optional[Machine]:
+	if not default_mame_executable:
+		#CBF tbhkthbai
+		return None
 	if not hasattr(try_get_equivalent_arcade, 'nss_games'):
 		try:
-			try_get_equivalent_arcade.nss_games = list(get_machines_from_source_file('nss')) #type: ignore[attr-defined]
+			try_get_equivalent_arcade.nss_games = list(get_machines_from_source_file('nss', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
 			try_get_equivalent_arcade.nss_games = [] #type: ignore[attr-defined]
 	if not hasattr(try_get_equivalent_arcade, 'arcade_bootlegs'):
 		try:
-			try_get_equivalent_arcade.arcade_bootlegs = list(get_machines_from_source_file('snesb')) + list(get_machines_from_source_file('snesb51')) #type: ignore[attr-defined]
+			try_get_equivalent_arcade.arcade_bootlegs = list(get_machines_from_source_file('snesb', default_mame_executable)) + list(get_machines_from_source_file('snesb51', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
 			try_get_equivalent_arcade.arcade_bootlegs = [] #type: ignore[attr-defined]
 
 	for bootleg_machine in try_get_equivalent_arcade.arcade_bootlegs: #type: ignore[attr-defined]
-		if does_machine_match_game(rom.name, metadata, bootleg_machine):
+		if does_machine_match_game(rom.name, names, bootleg_machine):
 			return bootleg_machine
 
 	for nss_machine in try_get_equivalent_arcade.nss_games: #type: ignore[attr-defined]
-		if does_machine_match_game(rom.name, metadata, nss_machine):
+		if does_machine_match_game(rom.name, names, nss_machine):
 			return nss_machine
 	
 	return None
@@ -393,7 +397,7 @@ def add_snes_metadata(game: ROMGame):
 	elif game.rom.extension == 'st':
 		parse_sufami_turbo_header(rom, game.metadata)
 
-	equivalent_arcade = try_get_equivalent_arcade(rom, game.metadata)
+	equivalent_arcade = try_get_equivalent_arcade(rom, game.metadata.names.values())
 	if equivalent_arcade:
 		game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
 

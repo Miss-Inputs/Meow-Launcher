@@ -193,7 +193,6 @@ def _parse_mame_cat_ini(path: str) -> dict[str, list[str]]:
 		return d
 
 #TODO: This should be able to take category_folders: Optional[Iterable[str]]=None parameter but that's not hashable, see how much functools.cache matters
-@functools.cache
 def get_mame_folder(name: str) -> dict[str, list[str]]:
 	#if not category_folders:
 	category_folders = get_default_mame_categories_folders()

@@ -1,12 +1,13 @@
-from typing import Optional, cast
+from typing import Iterable, Optional, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.platform_config import platform_configs
-from meowlauncher.games.mame.mame_machine import (
+from meowlauncher.games.mame_common.machine import (
     Machine, does_machine_match_game, get_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
+from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.mame_common.software_list import Software, SoftwarePart
 from meowlauncher.games.mame_common.software_list_info import (
     find_in_software_lists_with_custom_matcher, get_crc32_for_software_list,
@@ -492,24 +493,27 @@ def add_unif_metadata(rom: FileROM, metadata: Metadata):
 
 		pos += 8 + chunk_length
 
-def try_get_equivalent_arcade(rom: ROM, metadata: Metadata) -> Optional[Machine]:
+def try_get_equivalent_arcade(rom: ROM, names: Iterable[str]) -> Optional[Machine]:
+	if not default_mame_executable:
+		#CBF tbhkthbai
+		return None
 	if not hasattr(try_get_equivalent_arcade, 'playchoice10_games'):
 		try:
-			try_get_equivalent_arcade.playchoice10_games = list(get_machines_from_source_file('playch10')) #type: ignore[attr-defined]
+			try_get_equivalent_arcade.playchoice10_games = list(get_machines_from_source_file('playch10', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
 			try_get_equivalent_arcade.playchoice10_games = [] #type: ignore[attr-defined]
 	if not hasattr(try_get_equivalent_arcade, 'vsnes_games'):
 		try:
-			try_get_equivalent_arcade.vsnes_games = list(get_machines_from_source_file('vsnes')) #type: ignore[attr-defined]
+			try_get_equivalent_arcade.vsnes_games = list(get_machines_from_source_file('vsnes', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
 			try_get_equivalent_arcade.vsnes_games = [] #type: ignore[attr-defined]
 
 	for vsnes_machine in try_get_equivalent_arcade.vsnes_games: #type: ignore[attr-defined]
-		if does_machine_match_game(rom.name, metadata, vsnes_machine, match_vs_system=True):
+		if does_machine_match_game(rom.name, names, vsnes_machine, match_vs_system=True):
 			return vsnes_machine
 
 	for playchoice10_machine in try_get_equivalent_arcade.playchoice10_games: #type: ignore[attr-defined]
-		if does_machine_match_game(rom.name, metadata, playchoice10_machine):
+		if does_machine_match_game(rom.name, names, playchoice10_machine):
 			return playchoice10_machine
 	
 	return None
@@ -600,7 +604,7 @@ def add_nes_software_list_metadata(software: Software, metadata: Metadata):
 		metadata.specific_info['Peripheral'] = nes_peripheral
 
 def add_nes_metadata(game: ROMGame):
-	equivalent_arcade = try_get_equivalent_arcade(game.rom, game.metadata)
+	equivalent_arcade = try_get_equivalent_arcade(game.rom, game.metadata.names.values())
 	if equivalent_arcade:
 		game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
 

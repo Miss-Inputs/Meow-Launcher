@@ -5,10 +5,11 @@ from typing import Iterable, Union, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-from meowlauncher.games.mame.mame_machine import (
+from meowlauncher.games.mame_common.machine import (
     Machine, does_machine_match_game, get_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
+from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.mame_common.software_list import Software
 from meowlauncher.games.mame_common.software_list_info import \
     get_software_list_entry
@@ -226,41 +227,40 @@ def _get_megaplay_games() -> list[Machine]:
 	try:
 		return _get_megaplay_games.result #type: ignore[attr-defined]
 	except AttributeError:
-		_get_megaplay_games.result = list(get_machines_from_source_file('megaplay')) #type: ignore[attr-defined]
+		if not default_mame_executable:
+			#CBF tbhkthbai
+			return []
+		_get_megaplay_games.result = list(get_machines_from_source_file('megaplay', default_mame_executable)) #type: ignore[attr-defined]
 		return _get_megaplay_games.result #type: ignore[attr-defined]
 
 def _get_megatech_games() -> list[Machine]:
 	try:
 		return _get_megatech_games.result #type: ignore[attr-defined]
 	except AttributeError:
-		_get_megatech_games.result = list(get_machines_from_source_file('megatech')) #type: ignore[attr-defined]
+		if not default_mame_executable:
+			#CBF tbhkthbai
+			return []
+		_get_megatech_games.result = list(get_machines_from_source_file('megatech', default_mame_executable)) #type: ignore[attr-defined]
 		return _get_megatech_games.result #type: ignore[attr-defined]
 
 def try_find_equivalent_arcade(rom: ROM, metadata: Metadata):
 	if not hasattr(try_find_equivalent_arcade, 'arcade_bootlegs'):
 		try:
-			try_find_equivalent_arcade.arcade_bootlegs = list(get_machines_from_source_file('megadriv_acbl')) #type: ignore[attr-defined]
+			if not default_mame_executable:
+				#CBF tbhkthbai
+				return []
+			try_find_equivalent_arcade.arcade_bootlegs = list(get_machines_from_source_file('megadriv_acbl', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
 			try_find_equivalent_arcade.arcade_bootlegs = [] #type: ignore[attr-defined]
-	if not hasattr(try_find_equivalent_arcade, 'megaplay_games'):
-		try:
-			try_find_equivalent_arcade.megaplay_games = list(get_machines_from_source_file('megaplay')) #type: ignore[attr-defined]
-		except MAMENotInstalledException:
-			try_find_equivalent_arcade.megaplay_games = [] #type: ignore[attr-defined]
-	if not hasattr(try_find_equivalent_arcade, 'megatech_games'):
-		try:
-			try_find_equivalent_arcade.megatech_games = list(get_machines_from_source_file('megatech')) #type: ignore[attr-defined]
-		except MAMENotInstalledException:
-			try_find_equivalent_arcade.megatech_games = [] #type: ignore[attr-defined]
 
 	for bootleg_machine in try_find_equivalent_arcade.arcade_bootlegs: #type: ignore[attr-defined]
-		if does_machine_match_game(rom.name, metadata, bootleg_machine):
+		if does_machine_match_game(rom.name, metadata.names.values(), bootleg_machine):
 			return bootleg_machine
-	for megaplay_machine in try_find_equivalent_arcade.megaplay_games: #type: ignore[attr-defined]
-		if does_machine_match_game(rom.name, metadata, megaplay_machine):
+	for megaplay_machine in _get_megaplay_games(): #type: ignore[attr-defined]
+		if does_machine_match_game(rom.name, metadata.names.values(), megaplay_machine):
 			return megaplay_machine
-	for megatech_machine in try_find_equivalent_arcade.megatech_games: #type: ignore[attr-defined]
-		if does_machine_match_game(rom.name, metadata, megatech_machine):
+	for megatech_machine in _get_megatech_games(): #type: ignore[attr-defined]
+		if does_machine_match_game(rom.name, metadata.names.values(), megatech_machine):
 			return megatech_machine	
 	return None
 

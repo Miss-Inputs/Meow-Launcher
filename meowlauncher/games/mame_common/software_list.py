@@ -7,9 +7,9 @@ from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.main_config import main_config
 from meowlauncher.metadata import Date, Metadata
 
-from .mame_helpers import (consistentify_manufacturer, get_image,
-                           image_config_keys, verify_software_list)
+from .mame_helpers import get_image, verify_software_list
 from .mame_support_files import add_history
+from .mame_utils import consistentify_manufacturer, image_config_keys
 
 SoftwareCustomMatcher = Callable[..., bool] #Actually the first argument is SoftwarePart and then variable arguments after that, which I can't specify right now… maybe that's a sign I'm doing it wrong
 

@@ -3,10 +3,11 @@ from enum import Enum, auto
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import MediaType
-from meowlauncher.games.mame.mame_machine import (
+from meowlauncher.games.mame_common.machine import (
     Machine, does_machine_match_game, get_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
+from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.mame_common.software_list_info import \
     get_software_list_entry
 from meowlauncher.games.roms.rom_game import ROMGame
@@ -173,7 +174,10 @@ def _get_uapce_games() -> list[Machine]:
 		return _get_uapce_games.result #type: ignore[attr-defined]
 	except AttributeError:
 		try:
-			_get_uapce_games.result = list(get_machines_from_source_file('uapce')) #type: ignore[attr-defined]
+			if not default_mame_executable:
+				#CBF tbhkthbai
+				return []	
+			_get_uapce_games.result = list(get_machines_from_source_file('uapce', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
 			return []
 		return _get_uapce_games.result #type: ignore[attr-defined]
@@ -182,7 +186,7 @@ def add_pc_engine_info(game: ROMGame):
 	#Not sure how to detect 2/6 buttons, or usage of TurboBooster-Plus, but I want to
 	equivalent_arcade = None
 	for uapce_machine in _get_uapce_games():
-		if does_machine_match_game(game.rom.name, game.metadata, uapce_machine):
+		if does_machine_match_game(game.rom.name, game.metadata.names.values(), uapce_machine):
 			equivalent_arcade = uapce_machine
 			break
 	if equivalent_arcade:
