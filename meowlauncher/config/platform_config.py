@@ -43,7 +43,7 @@ class PlatformConfigs():
 				for s in parse_string_list(section.get('emulators', '')):
 					if s in ('MAME', 'Mednafen', 'VICE'):
 					#Allow for convenient shortcut
-						s = '{0} ({1})'.format(s, system_name)
+						s = f'{s} ({system_name})'
 					chosen_emulators.append(s)
 				self.configs[system_name].chosen_emulators = chosen_emulators
 				if system_name in platforms:

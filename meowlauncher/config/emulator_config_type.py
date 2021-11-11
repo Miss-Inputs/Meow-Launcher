@@ -1,5 +1,7 @@
 from typing import Any, Optional
+
 from meowlauncher.common_types import ConfigValueType
+
 
 class EmulatorConfig():
 	def __init__(self, name: str):

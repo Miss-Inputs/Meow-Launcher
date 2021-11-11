@@ -2,9 +2,9 @@ from meowlauncher.games.mame_common.machine import Machine
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.emulated_game import EmulatedGame
 
-#TODO: Inherit from EmulatedGame, but I don't wanna mess with that just yet as it'll probably be effort
 class MAMEGame(EmulatedGame):
 	def __init__(self, machine: Machine):
+		super().__init__()
 		self.machine = machine
 		self.metadata = Metadata()
 

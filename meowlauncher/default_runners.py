@@ -1,4 +1,5 @@
-from typing import Iterable, Optional
+from typing import Optional
+from collections.abc import Iterable
 from meowlauncher.config.main_config import main_config
 from meowlauncher.launcher import LaunchCommand
 from meowlauncher.runner import Runner

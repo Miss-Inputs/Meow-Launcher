@@ -5,8 +5,9 @@ import os
 import shutil
 import sys
 import time
+from collections.abc import Callable, Iterable
 from configparser import ConfigParser
-from typing import Any, Callable
+from typing import Any, cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.desktop_launchers import get_array, get_desktop, get_field
@@ -16,7 +17,7 @@ from meowlauncher.util.io_utils import sanitize_name
 #Consider it to be its own kind of frontend, perhaps.
 #This code sucks titty balls
 
-def copy_to_folder(path: str, *dest_folder_components):
+def copy_to_folder(path: str, *dest_folder_components: str):
 	dest_folder = os.path.join(*dest_folder_components)
 	os.makedirs(dest_folder, exist_ok=True)
 	shutil.copy(path, dest_folder)
@@ -40,7 +41,7 @@ def delete_existing_output_dir() -> None:
 			rmdir_recursive(path)
 			#Only files here, no directories
 
-def move_into_extra_subfolder(path: str, desktop: ConfigParser, subfolder, keys, missing_value=None):
+def move_into_extra_subfolder(path: str, desktop: ConfigParser, subfolder: str, keys, missing_value=None):
 	subsubfolder = []
 	is_array = '*' in keys
 	subsubfolders = []
@@ -80,12 +81,12 @@ def move_into_extra_subfolder(path: str, desktop: ConfigParser, subfolder, keys,
 		if is_key_bool:
 			if value != 'False':
 				subsubfolder.append('')
+		elif is_key_array:
+			for element in cast(Iterable[str], value):
+				element_subsubfolders.append(sanitize_name(element))
 		else:
-			if is_key_array:
-				for element in value:
-					element_subsubfolders.append(sanitize_name(element))
-			else:
-				subsubfolder.append(sanitize_name(value))
+			subsubfolder.append(sanitize_name(value))
+
 		if is_array:
 			#I confused myself while writing this code, I hope it continues to just work and I don't have to touch it again
 			#Okay, let's just note what I expect it to do, and then I can take a look at it later when I'm feeling more mentally sharp
@@ -109,13 +110,12 @@ def move_into_extra_subfolder(path: str, desktop: ConfigParser, subfolder, keys,
 					for element_subsubfolder in element_subsubfolders:
 						subsubfolders.append([element_subsubfolder])
 					temp = subsubfolders[:]
+			elif subsubfolders:
+				for s in subsubfolders:
+					s.append(' - '.join(subsubfolder))
+				temp = subsubfolders[:]
 			else:
-				if subsubfolders:
-					for s in subsubfolders:
-						s.append(' - '.join(subsubfolder))
-					temp = subsubfolders[:]
-				else:
-					temp.append(subsubfolder)
+				temp.append(subsubfolder)
 
 	if is_array:
 		for subsubfolder_name in subsubfolders:
@@ -126,15 +126,14 @@ def move_into_extra_subfolder(path: str, desktop: ConfigParser, subfolder, keys,
 				copy_to_folder(path, main_config.organized_output_folder, subfolder, sanitize_name(folder_name))
 			else:
 				copy_to_folder(path, main_config.organized_output_folder, subfolder)
-	else:
-		if subsubfolder:
-			folder_name = ' - '.join(subsubfolder)
-			if len(folder_name) > 200:
-				folder_name = folder_name[:199] + '…'
-			if folder_name:
-				copy_to_folder(path, main_config.organized_output_folder, subfolder, sanitize_name(folder_name))
-			else:
-				copy_to_folder(path, main_config.organized_output_folder, subfolder)
+	elif subsubfolder:
+		folder_name = ' - '.join(subsubfolder)
+		if len(folder_name) > 200:
+			folder_name = folder_name[:199] + '…'
+		if folder_name:
+			copy_to_folder(path, main_config.organized_output_folder, subfolder, sanitize_name(folder_name))
+		else:
+			copy_to_folder(path, main_config.organized_output_folder, subfolder)
 
 def move_into_subfolders(path) -> None:
 	desktop = get_desktop(path)
@@ -143,10 +142,7 @@ def move_into_subfolders(path) -> None:
 	languages = get_array(desktop, 'Languages')
 	year = get_field(desktop, 'Year')
 
-	if categories:
-		category = categories[0]
-	else:
-		category = 'Uncategorized'
+	category = categories[0] if categories else 'Uncategorized'
 
 	copy_to_folder(path, main_config.organized_output_folder, 'By platform', sanitize_name(platform))
 	copy_to_folder(path, main_config.organized_output_folder, 'By category', sanitize_name(category))

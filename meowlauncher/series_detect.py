@@ -116,7 +116,7 @@ def add_series(desktop, path, series, series_index=None):
 		desktop[metadata_section_name]['Series'] = series
 	if series_index is not None:
 		desktop[metadata_section_name]['Series-Index'] = str(series_index)
-	with open(path, 'wt') as f:
+	with open(path, 'wt', encoding='utf-8') as f:
 		desktop.write(f)
 
 def detect_series(desktop, path):

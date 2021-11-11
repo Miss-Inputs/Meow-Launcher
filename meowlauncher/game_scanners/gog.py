@@ -64,8 +64,7 @@ def do_gog_games() -> None:
 					continue
 			if not subfolder.is_dir():
 				continue
-			game = look_in_linux_gog_folder(subfolder.path)
-			if not game:
+			if not (game := look_in_linux_gog_folder(subfolder.path)):
 				if main_config.debug:
 					print('GOG subfolder does not have a GOG game (detection may have failed)', subfolder.path)
 				continue
@@ -86,8 +85,7 @@ def do_gog_games() -> None:
 						continue
 				if not subfolder.is_dir():
 					continue
-				windows_game = look_in_windows_gog_folder(subfolder.path)
-				if not windows_game:
+				if not (windows_game := look_in_windows_gog_folder(subfolder.path)):
 					if main_config.debug:
 						print('GOG subfolder does not have a GOG game (detection may have failed)', subfolder.path)
 					continue

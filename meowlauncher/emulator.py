@@ -1,5 +1,6 @@
 import os
-from typing import Any, Callable, NoReturn, Optional
+from typing import Any, NoReturn, Optional
+from collections.abc import Callable
 
 from meowlauncher.common_types import (ConfigValueType, EmulatorPlatform,
                                        EmulatorStatus)
@@ -95,10 +96,7 @@ class ViceEmulator(StandardEmulator):
 class LibretroCore(Emulator):
 	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_params_func: Optional[LaunchParamsFunc], supported_extensions: list[str], configs: Optional[dict[str, EmulatorConfigValue]]=None):
 		self.supported_extensions = supported_extensions
-		if main_config.libretro_cores_directory:
-			default_path = os.path.join(main_config.libretro_cores_directory, default_exe_name + '_libretro.so')
-		else:
-			default_path = None
+		default_path = os.path.join(main_config.libretro_cores_directory, default_exe_name + '_libretro.so') if main_config.libretro_cores_directory else None
 		#TODO: Should rework this later so that default_path and launch_params_func are fine for Emulator but don't have to be Optional, somehow
 		super().__init__(name, status, default_path, launch_params_func, configs=configs)
 	
@@ -130,4 +128,4 @@ class LibretroCoreWithFrontend(StandardEmulator):
 			return frontend.launch_params_func(game, platform_config, emulator_config, frontend_config)
 
 		self.launch_params_func = launch_params_func
-		super().__init__('{0} ({1} core)'.format(self.frontend.name, self.core.name), core.status, frontend_config.exe_path, launch_params_func, core.supported_extensions, frontend.supported_compression, None, frontend.host_platform)
+		super().__init__(f'{self.frontend.name} ({self.core.name} core)', core.status, frontend_config.exe_path, launch_params_func, core.supported_extensions, frontend.supported_compression, None, frontend.host_platform)

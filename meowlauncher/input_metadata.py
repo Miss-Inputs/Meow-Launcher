@@ -69,7 +69,7 @@ class Dial(Controller):
 
 	def describe(self):
 		if self.buttons > 0:
-			return '{0}-button dial'.format(self.buttons)
+			return f'{self.buttons}-button dial'
 		return 'Dial'
 
 class Gambling(Controller):
@@ -78,7 +78,7 @@ class Gambling(Controller):
 
 	def describe(self):
 		if self.buttons > 0:
-			return '{0}-button gambling controls'.format(self.buttons)
+			return f'{self.buttons}-button gambling controls'
 		return 'Gambling Controls'
 
 class Hanafuda(Controller):
@@ -87,7 +87,7 @@ class Hanafuda(Controller):
 
 	def describe(self):
 		if self.buttons > 0:
-			return '{0}-button hanafuda controller'.format(self.buttons)
+			return f'{self.buttons}-button hanafuda controller'
 		return 'Hanafuda Controller'
 
 class Keyboard(Controller):
@@ -96,7 +96,7 @@ class Keyboard(Controller):
 
 	def describe(self):
 		if self.keys > 0:
-			return '{0}-key keyboard'.format(self.keys)
+			return f'{self.keys}-key keyboard'
 		return 'Keyboard'
 
 class Keypad(Controller):
@@ -105,7 +105,7 @@ class Keypad(Controller):
 
 	def describe(self):
 		if self.keys > 0:
-			return '{0}-key keypad'.format(self.keys)
+			return f'{self.keys}-key keypad'
 		return 'Keypad'
 
 class LightGun(Controller):
@@ -114,7 +114,7 @@ class LightGun(Controller):
 
 	def describe(self):
 		if self.buttons > 0:
-			return '{0}-button light gun'.format(self.buttons)
+			return f'{self.buttons}-button light gun'
 		return 'Light Gun'
 
 class Mahjong(Controller):
@@ -123,7 +123,7 @@ class Mahjong(Controller):
 
 	def describe(self):
 		if self.buttons > 0:
-			return '{0}-button mahjong controller'.format(self.buttons)
+			return f'{self.buttons}-button mahjong controller'
 		return 'Mahjong Controller'
 
 class MotionControls(Controller):
@@ -136,7 +136,7 @@ class Mouse(Controller):
 
 	def describe(self):
 		if self.buttons > 0:
-			return '{0}-button mouse'.format(self.buttons)
+			return f'{self.buttons}-button mouse'
 		return 'Mouse'
 
 class Paddle(Controller):
@@ -145,7 +145,7 @@ class Paddle(Controller):
 
 	def describe(self):
 		if self.buttons > 0:
-			return '{0}-button paddle'.format(self.buttons)
+			return f'{self.buttons}-button paddle'
 		return 'Paddle'
 
 class Pedal(Controller):
@@ -168,7 +168,7 @@ class Trackball(Controller):
 
 	def describe(self):
 		if self.buttons > 0:
-			return '{0}-button trackball'.format(self.buttons)
+			return f'{self.buttons}-button trackball'
 		return 'Trackball'
 
 class Custom(Controller):

@@ -84,7 +84,7 @@ def process_machine(machine: Machine):
 
 		#We'll do this check _after_ verifyroms so we don't spam debug print for a bunch of skeleton drivers we don't have
 		if main_config.debug:
-			print('Skipping %s (%s, %s) as it is probably a skeleton driver' % (machine.name, machine.basename, machine.source_file))
+			print(f'Skipping {machine.name} ({machine.basename}, {machine.source_file}) as it is probably a skeleton driver')
 		return
 
 	add_metadata(game)

@@ -1,8 +1,9 @@
 import functools
 import os
-import xml.etree.ElementTree as ElementTree
+from xml.etree import ElementTree
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable, NamedTuple, Optional
+from typing import NamedTuple, Optional
 
 from meowlauncher.metadata import Metadata
 from meowlauncher.util.region_info import (Language,
@@ -161,13 +162,13 @@ def add_history(metadata: Metadata, machine_or_softlist: str, software_name: Opt
 			metadata.descriptions['Description'] = history.description
 
 	if history.technical_info:
-	 	metadata.descriptions['Technical'] = history.technical_info
+		metadata.descriptions['Technical'] = history.technical_info
 	if history.trivia:
-	 	metadata.descriptions['Trivia'] = history.trivia
+		metadata.descriptions['Trivia'] = history.trivia
 	if history.tips_and_tricks:
-	 	metadata.descriptions['Tips-And-Tricks'] = history.tips_and_tricks
+		metadata.descriptions['Tips-And-Tricks'] = history.tips_and_tricks
 	if history.updates:
-	 	metadata.descriptions['Updates'] = history.updates
+		metadata.descriptions['Updates'] = history.updates
 
 def get_default_mame_categories_folders() -> list[str]:
 	if not default_mame_configuration:
@@ -176,7 +177,8 @@ def get_default_mame_categories_folders() -> list[str]:
 	return ui_config.get('categorypath', [])
 
 def _parse_mame_cat_ini(path: str) -> dict[str, list[str]]:
-	with open(path, 'rt') as f:
+	#utf-8 is actually a bad idea if series.ini breaks again, maybe
+	with open(path, 'rt', encoding='ascii') as f:
 		d: dict[str, list[str]] = {}
 		current_section = None
 		for line in f:
@@ -211,7 +213,6 @@ def get_machine_cat_from_category_folders(basename: str, folder_name: str, categ
 		return None
 	return [section for section, names in folder.items() if basename in names]
 
-#@functools.cache
 def get_machine_cat(basename: str, folder_name: str) -> Optional[list[str]]:
 	folder = get_mame_cat_from_default_mame_config(folder_name)
 	if not folder:

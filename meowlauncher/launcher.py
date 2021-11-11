@@ -1,6 +1,7 @@
 import shlex
-from abc import ABC, abstractmethod, abstractproperty
-from typing import Any, Iterable, MutableMapping, Optional, Sequence
+from abc import ABC, abstractmethod
+from collections.abc import Iterable, MutableMapping, Sequence
+from typing import Any, Optional
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.game import Game
@@ -19,7 +20,7 @@ class LaunchCommand():
 		exe_name_quoted = shlex.quote(self.exe_name)
 		if self.env_vars:
 			environment_vars = ' '.join([shlex.quote(k + '=' + v) for k, v in self.env_vars.items()])
-			return 'env {0} {1} {2}'.format(environment_vars, exe_name_quoted, exe_args_quoted)
+			return f'env {environment_vars} {exe_name_quoted} {exe_args_quoted}'
 		if not self.exe_name: #Wait, when does this ever happen? Why is this here?
 			#if main_config.debug:
 			#	print('What the, no exe_name', exe_args_quoted)
@@ -68,11 +69,11 @@ class MultiLaunchCommands(LaunchCommand):
 	def wrap(self, command: str) -> 'LaunchCommand':
 		return MultiLaunchCommands(self.pre_commands, LaunchCommand(command, [self.main_command.exe_name] + self.main_command.exe_args), self.post_commands)
 
-	def prepend_command(self, launch_params: LaunchCommand) -> LaunchCommand:
-		return MultiLaunchCommands([launch_params] + self.pre_commands, self.main_command, self.post_commands)
+	def prepend_command(self, prepended_command: LaunchCommand) -> LaunchCommand:
+		return MultiLaunchCommands([prepended_command] + self.pre_commands, self.main_command, self.post_commands)
 
-	def append_command(self, launch_params: LaunchCommand) -> LaunchCommand:
-		return MultiLaunchCommands(self.pre_commands, self.main_command, self.post_commands + [launch_params])
+	def append_command(self, appended_params: LaunchCommand) -> LaunchCommand:
+		return MultiLaunchCommands(self.pre_commands, self.main_command, self.post_commands + [appended_params])
 
 	def replace_path_argument(self, path: str) -> LaunchCommand:
 		return MultiLaunchCommands(self.pre_commands, self.main_command.replace_path_argument(path), self.post_commands)
@@ -89,11 +90,13 @@ class Launcher(ABC):
 	def name(self) -> str:
 		return self.game.name
 
-	@abstractproperty
+	@property
+	@abstractmethod
 	def game_type(self) -> str:
 		pass
 	
-	@abstractproperty
+	@property
+	@abstractmethod
 	def game_id(self) -> str:
 		pass
 

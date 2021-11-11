@@ -2,6 +2,7 @@ import os
 
 from meowlauncher.common_types import ConfigValueType
 
+
 def parse_string_list(value: str):
 	if not value:
 		return []

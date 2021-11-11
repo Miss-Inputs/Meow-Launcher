@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 import re
-from typing import Optional, Sequence
+from typing import Optional
+from collections.abc import Sequence
 
 from meowlauncher.util import region_info
 from meowlauncher.metadata import Date
@@ -24,14 +25,12 @@ def get_languages_from_tags_directly(tags: Sequence[str]) -> list[region_info.La
 
 def get_nointro_language_list_from_filename_tags(tags: Sequence[str]) -> Optional[list[region_info.Language]]:
 	for tag in tags:
-		language_list_match = nointro_language_list_regex.match(tag)
-		if language_list_match:
+		if (language_list_match := nointro_language_list_regex.match(tag)):
 			langs = []
 
 			language_list = language_list_match[1].split(',')
 			for language_code in language_list:
-				language = region_info.get_language_by_short_code(language_code)
-				if language:
+				if language := region_info.get_language_by_short_code(language_code):
 					langs.append(language)
 
 			return langs
@@ -39,8 +38,7 @@ def get_nointro_language_list_from_filename_tags(tags: Sequence[str]) -> Optiona
 
 def get_maybeintro_languages_from_filename_tags(tags: Sequence[str]) -> Optional[list[region_info.Language]]:
 	for tag in tags:
-		translation_match = maybeintro_translated_regex.match(tag)
-		if translation_match:
+		if translation_match := maybeintro_translated_regex.match(tag):
 			return [region_info.get_language_by_short_code(translation_match.group(1))]
 	return None
 
@@ -173,7 +171,7 @@ def get_tv_system_from_filename_tags(tags: Sequence[str]) -> Optional[region_inf
 			return region_info.TVSystem.NTSC
 		if tag == '(PAL)':
 			return region_info.TVSystem.PAL
-		if tag in ('(NTSC-PAL)', '(PAL-NTSC)'):
+		if tag in {'(NTSC-PAL)', '(PAL-NTSC)'}:
 			return region_info.TVSystem.Agnostic
 
 	return None
@@ -181,8 +179,7 @@ def get_tv_system_from_filename_tags(tags: Sequence[str]) -> Optional[region_inf
 date_regex = re.compile(r'\((?P<year>[x\d]{4})\)|\((?P<year2>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})\)|\((?P<day2>\d{2})\.(?P<month2>\d{2})\.(?P<year3>\d{4})\)')
 def get_date_from_filename_tags(tags: Sequence[str]) -> Optional[Date]:
 	for tag in tags:
-		date_match = date_regex.match(tag)
-		if date_match:
+		if (date_match := date_regex.match(tag)):
 			groupdict = date_match.groupdict()
 			#I _hate_ this. There's no way I can find to make this code not suck titty balls
 			_year = groupdict.get('year')

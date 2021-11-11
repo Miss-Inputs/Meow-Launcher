@@ -1,4 +1,5 @@
 import collections
+from collections.abc import Iterable
 from typing import Any, Optional, Union
 from xml.etree import ElementTree
 
@@ -47,12 +48,12 @@ class CPU():
 			except ValueError:
 				pass
 
-def _format_count(list_of_something):
+def _format_count(list_of_something: Iterable):
 	counter = collections.Counter(list_of_something)
 	if len(counter) == 1:
 		if list(counter.keys())[0] is None:
 			return None
-	return ' + '.join([value if count == 1 else '{0} * {1}'.format(value, count) for value, count in counter.items() if value])
+	return ' + '.join([value if count == 1 else f'{value} * {count}' for value, count in counter.items() if value])
 
 class CPUInfo():
 	def __init__(self):
@@ -100,7 +101,7 @@ class Screen():
 		self.refresh_rate = None
 
 	def get_screen_resolution(self):
-		if self.type == 'raster' or self.type == 'lcd':
+		if self.type in {'raster', 'lcd'}:
 			return '{0:.0f}x{1:.0f}'.format(self.width, self.height)
 		#Other types are vector (Asteroids, etc) or svg (Game & Watch games, etc)
 		return self.type.capitalize() if self.type else None
@@ -108,7 +109,7 @@ class Screen():
 	def load_from_xml(self, xml):
 		self.type = xml.attrib['type']
 		self.tag = xml.attrib['tag']
-		if self.type == 'raster' or self.type == 'lcd':
+		if self.type in {'raster', 'lcd'}:
 			self.width = float(xml.attrib['width'])
 			self.height = float(xml.attrib['height'])
 
@@ -181,6 +182,7 @@ class Date():
 			return True
 		if not self.year:
 			return True
+		#pylint: disable=unsupported-membership-test #Seems to be unaware that I have already tested them to not be None, so actually they do… just leave this one to the type checkers, buddy
 		return 'x' in self.year or 'x' in self.month or 'x' in self.day or '?' in self.year or '?' in self.month or '?' in self.day
 	
 	def is_better_than(self, other_date: Optional['Date']) -> bool:
@@ -253,9 +255,9 @@ class Metadata():
 			return
 		if field + '-1' in self.names:
 			i = 2
-			while '{0}-{1}'.format(field, i) in self.names:
+			while f'{field}-{i}' in self.names:
 				i += 1
-			self.names['{0}-{1}'.format(field, i)] = name
+			self.names[f'{field}-{i}'] = name
 			return
 		self.names[field] = name
 

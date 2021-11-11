@@ -34,8 +34,7 @@ def do_itch_io_games() -> None:
 				continue
 			if subfolder.name == 'downloads':
 				continue
-			game = scan_itch_dir(subfolder.path)
-			if not game:
+			if not (game := scan_itch_dir(subfolder.path)):
 				if main_config.debug:
 					print('itch.io subfolder does not have an itch.io game (detection may have failed)', subfolder.path)
 				continue

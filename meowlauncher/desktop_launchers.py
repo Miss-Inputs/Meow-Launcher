@@ -3,7 +3,8 @@ import os
 import re
 from enum import Enum, Flag
 from pathlib import Path
-from typing import Any, Mapping, Optional
+from typing import Any, Optional
+from collections.abc import Mapping
 
 try:
 	from PIL import Image
@@ -138,7 +139,7 @@ def make_linux_desktop(launcher: LaunchCommand, display_name: str, fields: Mappi
 				break
 
 	ensure_exist(path)
-	with open(path, 'wt') as f:
+	with open(path, 'wt', encoding='utf-8') as f:
 		configwriter.write(f)
 
 	#Set executable, but also set everything else because whatever

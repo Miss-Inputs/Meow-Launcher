@@ -60,4 +60,3 @@ class EmulatorPlatform():
 	Native = auto()
 	Windows = auto()
 	DotNet = auto()
-

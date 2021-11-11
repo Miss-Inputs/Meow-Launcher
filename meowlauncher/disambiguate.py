@@ -7,19 +7,21 @@ import itertools
 import os
 import sys
 import time
-from typing import Callable, Collection, Optional, Sequence, cast
+from collections.abc import Callable, Collection
+from typing import Optional, cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.desktop_launchers import (get_array, get_desktop, get_field,
                                             id_section_name, junk_section_name,
                                             metadata_section_name)
 from meowlauncher.util.utils import normalize_name
+
 FormatFunction = Callable[[str, str], Optional[str]]
 
 super_debug = '--super-debug' in sys.argv
 disambiguity_section_name = 'X-Meow Launcher Disambiguity'
 
-def update_name(desktop, disambiguator: Optional[str], disambiguation_method: str):
+def update_name(desktop: tuple[str, configparser.ConfigParser], disambiguator: Optional[str], disambiguation_method: str):
 	if not disambiguator:
 		return
 	desktop_entry = desktop[1]['Desktop Entry']
@@ -43,7 +45,7 @@ def update_name(desktop, disambiguator: Optional[str], disambiguation_method: st
 
 	desktop_entry['Name'] += ' ' + disambiguator
 
-	with open(desktop[0], 'wt') as f:
+	with open(desktop[0], 'wt', encoding='utf-8') as f:
 		desktop[1].write(f)
 
 def resolve_duplicates_by_metadata(group: Collection[tuple[str, configparser.ConfigParser]], field: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name):
@@ -61,17 +63,15 @@ def resolve_duplicates_by_metadata(group: Collection[tuple[str, configparser.Con
 				#Avoid "Doom (Doom)" and "Blah (None)" and such; in those cases, just leave it as "Doom" or "Blah"
 				#That's not an example that happens anymore but uhh you think of a better one
 				should_update = True
-		else:
-			if value_counter[field_value] == len(group):
-				#Field is the same across the whole group.  Need to disambiguate some
-				#other way
-				pass
-			else:
-				#Field is different, but still requires disambiguation.  That is to say,
-				#there is something else with the same field in this group, but we still
-				#need to append the field to disambiguate it from other stuff
-				if field_value != name and field_value is not None:
-					should_update = True
+		elif value_counter[field_value] == len(group):
+			#Field is the same across the whole group.  Need to disambiguate some
+			#other way
+			pass
+		elif field_value != name and field_value is not None:
+			#Field is different, but still requires disambiguation.  That is to say,
+			#there is something else with the same field in this group, but we still
+			#need to append the field to disambiguate it from other stuff
+			should_update = True
 
 		if should_update and field_value:
 			if ignore_missing_values:
@@ -82,7 +82,7 @@ def resolve_duplicates_by_metadata(group: Collection[tuple[str, configparser.Con
 					return
 
 			original_name = get_field(dup[1], 'Ambiguous-Name', disambiguity_section_name)
-			update_name(dup, format_function(field_value, original_name if original_name else name) if format_function else '({0})'.format(field_value), field)
+			update_name(dup, format_function(field_value, original_name if original_name else name) if format_function else f'({field_value})', field)
 
 def resolve_duplicates_by_filename_tags(group: Collection[tuple[str, configparser.ConfigParser]]):
 	for dup in group:
@@ -95,8 +95,7 @@ def resolve_duplicates_by_filename_tags(group: Collection[tuple[str, configparse
 		for tag in tags:
 			if all(tag in rest_tag for rest_tag in rest_tags):
 				continue
-			og_name = get_field(dup[1], 'Name', 'Desktop Entry')
-			if og_name:
+			if og_name := get_field(dup[1], 'Name', 'Desktop Entry'):
 				if tag.lower() in og_name.lower():
 					#Bit silly to add a tag that is already there from something else
 					continue
@@ -111,8 +110,7 @@ def resolve_duplicates_by_dev_status(group: Collection[tuple[str, configparser.C
 
 		for tag in tags:
 			tag_matches = tag.lower().startswith(('(beta', '(sample)', '(proto', '(preview', '(pre-release', '(demo', '(multiboot demo)', '(shareware', '(taikenban'))
-			tag_matches = tag_matches or (tag.lower().startswith('(alpha') and tag[6] == ' ' and tag[7:-1].isdigit())
-			if tag_matches:
+			if tag_matches:= tag_matches or (tag.lower().startswith('(alpha') and tag[6] == ' ' and tag[7:-1].isdigit()):
 				update_name(dup, '(' + tag[1:].title() if tag.islower() else tag, 'dev status')
 
 def resolve_duplicates_by_date(group: Collection[tuple[str, configparser.ConfigParser]]):
@@ -156,7 +154,7 @@ def resolve_duplicates_by_date(group: Collection[tuple[str, configparser.ConfigP
 			day_disambig = disambiguator['Day'] if disambiguator['Day'] is not None else day
 			date_string: str
 			if disambiguator['Month'] or disambiguator['Day']:
-				date_string = '{0} {1} {2}'.format(day_disambig, month_disambig, year_disambig)
+				date_string = f'{day_disambig} {month_disambig} {year_disambig}'
 			else:
 				if disambiguator['Year'] is None:
 					continue
@@ -181,11 +179,10 @@ def fix_duplicate_names(method: str, format_function: Optional[FormatFunction]=N
 		return
 
 	#TODO: Handle this null check properly, it _should_ be impossible for Desktop Entry to not exist in a .desktop file, but that doesn't stop some joker putting them in there
-	if method == 'check':
-		keyfunc = lambda f: cast(str, get_field(f[1], 'Name', 'Desktop Entry')).lower()
-	else:
-		#Why did I call the variable "f"? Oh well
-		keyfunc = lambda f: normalize_name(cast(str, get_field(f[1], 'Name', 'Desktop Entry')), care_about_numerals=True)
+	#Why did I call the variable "f"? Oh well
+	keyfunc = lambda f: cast(str, get_field(f[1], 'Name', 'Desktop Entry')).lower() \
+		if method == 'check' \
+		else lambda f: normalize_name(cast(str, get_field(f[1], 'Name', 'Desktop Entry')), care_about_numerals=True)
 	files.sort(key=keyfunc)
 	duplicates: dict[str, list[tuple[str, configparser.ConfigParser]]] = {}
 	for key, group in itertools.groupby(files, key=keyfunc):
@@ -206,13 +203,13 @@ def revision_disambiguate(rev: str, _) -> Optional[str]:
 	if rev.isdigit() and len(rev) == 1:
 		return '(Rev ' + 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[int(rev) - 1] + ')'
 
-	return '(Rev {0})'.format(rev)
+	return f'(Rev {rev})'
 
 def arcade_system_disambiguate(arcade_system: Optional[str], name: str) -> Optional[str]:
 	if arcade_system == name + ' Hardware':
 		#Avoid "Cool Game (Cool Game Hardware)" where there exists a "Cool Game (Interesting Alternate Hardware)"
 		return None
-	return '({0})'.format(arcade_system)
+	return f'({arcade_system})'
 
 def reambiguate() -> None:
 	#This seems counter-intuitive, but if we're not doing a full rescan, we want to do this before disambiguating again or else it gets weird
@@ -236,7 +233,7 @@ def reambiguate() -> None:
 			del disambiguity_section['Ambiguous-Name']
 		del desktop[disambiguity_section_name]
 
-		with open(file.path, 'wt') as f:
+		with open(file.path, 'wt', encoding='utf-8') as f:
 			desktop.write(f)
 
 def disambiguate_names() -> None:
@@ -251,18 +248,18 @@ def disambiguate_names() -> None:
 	if not main_config.simple_disambiguate:
 		fix_duplicate_names('Arcade-System', arcade_system_disambiguate)
 		fix_duplicate_names('Media-Type', ignore_missing_values=True)
-		fix_duplicate_names('Is-Colour', lambda is_colour, _: None if is_colour in (False, 'No') else '(Colour)')
-		fix_duplicate_names('Regions', lambda regions, _: '({0})'.format(regions.replace(';', ', ') if regions else None), ignore_missing_values=True)
+		fix_duplicate_names('Is-Colour', lambda is_colour, _: None if is_colour in {False, 'No'} else '(Colour)')
+		fix_duplicate_names('Regions', lambda regions, _: f"({regions.replace(';', ', ') if regions else None})", ignore_missing_values=True)
 		fix_duplicate_names('Region-Code')
 		fix_duplicate_names('TV-Type', ignore_missing_values=True)
 		fix_duplicate_names('Version')
 		fix_duplicate_names('Revision', revision_disambiguate)
-		fix_duplicate_names('Languages', lambda languages, _: '({0})'.format(languages.replace(';', ', ')), ignore_missing_values=True)
+		fix_duplicate_names('Languages', lambda languages, _: f"({languages.replace(';', ', ')})", ignore_missing_values=True)
 		#fix_duplicate_names('date', ignore_missing_values=True)
 		fix_duplicate_names('Publisher', ignore_missing_values=True)
 		fix_duplicate_names('Developer', ignore_missing_values=True)
 	fix_duplicate_names('tags')
-	fix_duplicate_names('Extension', '(.{0})'.format, ignore_missing_values=True)
+	fix_duplicate_names('Extension', '(.{0})'.format, ignore_missing_values=True) #pylint: disable=consider-using-f-string #I want the bound method actually
 	fix_duplicate_names('Executable-Name', ignore_missing_values=True)
 	if main_config.debug:
 		fix_duplicate_names('check')

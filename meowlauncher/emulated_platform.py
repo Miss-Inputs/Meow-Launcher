@@ -1,4 +1,5 @@
-from typing import Any, Optional, Sequence
+from typing import Any, Optional
+from collections.abc import Sequence
 
 from meowlauncher.common_types import ConfigValueType, MediaType
 from meowlauncher.games.roms.rom import FileROM

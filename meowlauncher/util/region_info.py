@@ -9,15 +9,15 @@ class TVSystem(Enum):
 	Agnostic = auto()
 
 class Language():
-	def __init__(self, english_name, native_name, short_code):
+	def __init__(self, english_name: str, native_name: str, short_code: str):
 		self.english_name = english_name
 		self.native_name = native_name
 		self.short_code = short_code
 
-	def __str__(self):
+	def __str__(self) -> str:
 		return '{0} ({1}) ({2})'.format(self.native_name, self.english_name, self.short_code)
 
-	def __repr__(self):
+	def __repr__(self) -> str:
 		return 'Language({1!r}, {0!r}, {2!r})'.format(self.native_name, self.english_name, self.short_code)
 
 
@@ -313,9 +313,8 @@ def get_language_from_regions(region_list):
 	for region in region_list:
 		if not common_language:
 			common_language = get_language_by_english_name(region.language)
-		else:
-			if region.language != common_language.english_name:
-				return None
+		elif region.language != common_language.english_name:
+			return None
 
 	return common_language
 

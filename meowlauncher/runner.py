@@ -1,4 +1,4 @@
-from abc import ABC, abstractproperty
+from abc import ABC, abstractmethod
 
 class Runner(ABC):
 	@property
@@ -6,7 +6,8 @@ class Runner(ABC):
 	def is_available(self) -> bool:
 		return True
 
-	@abstractproperty
+	@abstractmethod
+	@property
 	def name(self) -> str:
 		pass
 

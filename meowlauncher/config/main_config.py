@@ -135,7 +135,7 @@ def load_ignored_directories():
 	ignored_directories = []
 
 	try:
-		with open(_ignored_dirs_path, 'rt') as ignored_txt:
+		with open(_ignored_dirs_path, 'rt', encoding='utf-8') as ignored_txt:
 			ignored_directories += ignored_txt.read().splitlines()
 	except FileNotFoundError:
 		pass
@@ -153,7 +153,7 @@ def load_ignored_directories():
 
 def write_ignored_directories(ignored_dirs):
 	try:
-		with open(_ignored_dirs_path, 'wt') as ignored_txt:
+		with open(_ignored_dirs_path, 'wt', encoding='utf-8') as ignored_txt:
 			for ignored_dir in ignored_dirs:
 				ignored_txt.write(ignored_dir)
 				ignored_txt.write('\n')
@@ -175,7 +175,7 @@ def write_new_config(new_config, config_file_path: str) -> None:
 			parser[section][name] = convert_value_for_ini(value)
 
 	try:
-		with open(config_file_path, 'wt') as ini_file:
+		with open(config_file_path, 'wt', encoding='utf-8') as ini_file:
 			parser.write(ini_file)
 	except OSError as ex:
 		print('Oh no!!! Failed to write', config_file_path, '!!!!11!!eleven!!', ex)
@@ -200,7 +200,7 @@ class Config():
 			self.ignored_directories = load_ignored_directories()
 
 		def rewrite_config(self) -> None:
-			with open(_main_config_path, 'wt') as f:
+			with open(_main_config_path, 'wt', encoding='utf-8') as f:
 				self.parser.write(f)
 
 		def __getattr__(self, name: str):
