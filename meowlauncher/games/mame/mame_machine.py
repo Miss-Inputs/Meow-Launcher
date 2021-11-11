@@ -6,16 +6,16 @@ from xml.etree import ElementTree
 from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.emulated_platforms import all_mame_drivers
-from meowlauncher.games.mame_common.mame_helpers import (consistentify_manufacturer,
-                                                    get_mame_xml,
-                                                    list_by_source_file)
+from meowlauncher.games.mame_common.mame_helpers import (
+    consistentify_manufacturer, get_mame_xml, list_by_source_file)
+from meowlauncher.games.mame_common.mame_support_files import \
+    get_machine_folder
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.utils import (find_filename_tags_at_end, load_dict,
                                      normalize_name, remove_capital_article,
                                      remove_filename_tags)
 
-from .mame_metadata import (add_metadata_from_catlist, get_machine_folder,
-                            mame_statuses)
+from .mame_metadata import add_metadata_from_catlist, mame_statuses
 
 subtitles = load_dict(None, 'subtitles')
 
