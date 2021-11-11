@@ -9,6 +9,7 @@ from meowlauncher.data.name_cleanup.mame_manufacturer_name_cleanup import (
 from meowlauncher.metadata import Metadata
 from meowlauncher.util.utils import junk_suffixes
 
+from .mame_configuration import MAMEConfiguration
 from .mame_executable import MAMEExecutable, MAMENotInstalledException
 
 
@@ -23,104 +24,52 @@ def consistentify_manufacturer(manufacturer: Optional[str]) -> Optional[str]:
 		return manufacturer_name_cleanup.get(manufacturer[:-1], manufacturer[:-1]) + '?'
 	return manufacturer_name_cleanup.get(manufacturer, manufacturer)
 
-mame_config_comment = re.compile(r'#.+$')
-mame_config_line = re.compile(r'^(?P<key>\w+)\s+(?P<value>.+)$')
-semicolon_not_after_quotes = re.compile(r'(?!");')
-def parse_mame_config_file(path: str) -> dict[str, list[str]]:
-	settings: dict[str, list[str]] = {}
-
-	with open(path, 'rt') as f:
-		for line in f.readlines():
-			line = mame_config_comment.sub('', line)
-			line = line.strip()
-
-			if not line:
-				continue
-
-			match = mame_config_line.match(line)
-			if match:
-				key = match['key']
-				values = semicolon_not_after_quotes.split(match['value'])
-				settings[key] = []
-				for value in values:
-					if value[0] == '"' and value[-1] == '"':
-						value = value[1:-1]
-					settings[key].append(value)
-	return settings
-
-class DefaultMameExecutable():
-	__instance = None
-
-	@staticmethod
-	def getDefaultMameExecutable():
-		if DefaultMameExecutable.__instance is None:
-			try:
-				DefaultMameExecutable.__instance = MAMEExecutable()
-			except MAMENotInstalledException:
-				return None
-		return DefaultMameExecutable.__instance
-
 image_config_keys = {
 	'Cabinet': 'cabinets_directory',
-	'Control-Panel': 'cpanels_directory',
+	'Control Panel': 'cpanels_directory',
 	'PCB': 'pcbs_directory',
 	'Flyer': 'flyers_directory',
-	'Title-Screen': 'titles_directory',
-	'End-Screen': 'ends_directory',
+	'Title Screen': 'titles_directory',
+	'End Screen': 'ends_directory',
 	'Marquee': 'marquees_directory',
-	'Artwork-Preview': 'artwork_preview_directory',
-	'Boss-Screen': 'bosses_directory',
-	'Logo-Screen': 'logos_directory',
-	'Score-Screen': 'scores_directory',
-	'Versus-Screen': 'versus_directory',
-	'Game-Over-Screen': 'gameover_directory',
-	'How-To-Screen': 'howto_directory',
-	'Select-Screen': 'select_directory',
+	'Artwork Preview': 'artwork_preview_directory',
+	'Boss Screen': 'bosses_directory',
+	'Logo Screen': 'logos_directory',
+	'Score Screen': 'scores_directory',
+	'Versus Screen': 'versus_directory',
+	'Game Over Screen': 'gameover_directory',
+	'How To Screen': 'howto_directory',
+	'Select Screen': 'select_directory',
 	'Icon': 'icons_directory',
 	'Cover': 'covers_directory', #Software only
 }
-image_types = ('ico', 'png', 'jpg', 'bmp')
 
-class MameConfiguration():
-	def __init__(self, core_config_path=None, ui_config_path=None):
-		self.is_configured = True
+class DefaultMameExecutable():
+	__instance = None
+	__missing = False
 
-		if not core_config_path:
-			core_config_path = os.path.expanduser('~/.mame/mame.ini')
-		try:
-			self.core_config = parse_mame_config_file(core_config_path)
-		except FileNotFoundError:
-			self.is_configured = False
-			self.core_config = None
-
-		if not ui_config_path:
-			ui_config_path = os.path.expanduser('~/.mame/ui.ini')
-		try:
-			self.ui_config = parse_mame_config_file(ui_config_path)
-		except FileNotFoundError:
-			self.is_configured = False
-			self.ui_config = None
-
-		self._icons = None
-
-	def get_image(self, config_key, machine_or_list_name, software_name=None):
-		for directory in self.ui_config.get(config_key, []):
-			basename = os.path.join(directory, machine_or_list_name)
-			if software_name:
-				basename = os.path.join(basename, software_name)
-			for ext in image_types:
-				path = basename + os.path.extsep + ext
-				if os.path.isfile(path):
-					return path
-		return None
+	@staticmethod
+	def getDefaultMameExecutable():
+		if DefaultMameExecutable.__instance is None and not DefaultMameExecutable.__missing:
+			try:
+				DefaultMameExecutable.__instance = MAMEExecutable()
+			except MAMENotInstalledException:
+				DefaultMameExecutable.__missing = True
+				return None
+		return DefaultMameExecutable.__instance
 
 class DefaultMameConfiguration():
 	__instance = None
+	__missing = False
 
 	@staticmethod
 	def getDefaultMameConfiguration():
-		if DefaultMameConfiguration.__instance is None:
-			DefaultMameConfiguration.__instance = MameConfiguration(None)
+		if DefaultMameConfiguration.__instance is None and not DefaultMameConfiguration.__missing:
+			try:
+				DefaultMameConfiguration.__instance = MAMEConfiguration()
+			except FileNotFoundError:
+				DefaultMameConfiguration.__missing = True
+				return None
 		return DefaultMameConfiguration.__instance	
 
 default_mame_executable = DefaultMameExecutable.getDefaultMameExecutable()
@@ -132,14 +81,14 @@ def get_mame_core_config() -> dict[str, list[str]]:
 		return conf
 	raise MAMENotInstalledException('MAME not installed for get_mame_core_config')
 
-def get_mame_ui_config():
+def get_mame_ui_config() -> dict[str, list[str]]:
 	conf = default_mame_configuration.ui_config
 	if conf:
 		return conf
 	raise MAMENotInstalledException('MAME not installed for get_mame_ui_config')
 
 def have_mame() -> bool:
-	return bool(default_mame_executable) and default_mame_configuration.is_configured
+	return bool(default_mame_executable) and default_mame_configuration.exists
 
 def iter_mame_entire_xml() -> Iterable[tuple[str, ElementTree.Element]]:
 	yield from default_mame_executable.iter_mame_entire_xml()
