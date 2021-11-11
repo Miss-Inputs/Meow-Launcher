@@ -37,7 +37,7 @@ def add_game_folder_metadata(rom: FolderROM, metadata: Metadata):
 	ps3game_subfolder = rom.get_subfolder('PS3_GAME')
 	param_sfo_path: Optional[Path]
 	if ps3game_subfolder:
-		param_sfo_path = rom.path.joinpath('PS3_GAME, PARAM.SFO')
+		param_sfo_path = rom.path.joinpath('PS3_GAME', 'PARAM.SFO')
 		icon0_path = rom.path.joinpath('PS3_GAME', 'ICON0.PNG')
 		if os.path.isfile(icon0_path):
 			metadata.images['Banner'] = icon0_path
