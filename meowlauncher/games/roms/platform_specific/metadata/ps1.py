@@ -5,6 +5,7 @@ from xml.etree import ElementTree
 
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
+from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.info.region_info import get_language_by_english_name
 from meowlauncher.metadata import Metadata
 
@@ -27,13 +28,13 @@ def find_duckstation_compat_info(product_code: str) -> Optional[DuckStationCompa
 
 	if not hasattr(find_duckstation_compat_info, 'compat_xml'):
 		try:
-			find_duckstation_compat_info.compat_xml = ElementTree.parse(compat_xml_path) #type: ignore
+			find_duckstation_compat_info.compat_xml = ElementTree.parse(compat_xml_path) #type: ignore[attr-defined]
 		except OSError as oserr:
 			if main_config.debug:
 				print('Oh dear we have an OSError trying to load compat_xml', oserr)
 			return None
 
-	entry = find_duckstation_compat_info.compat_xml.find('entry[@code="{0}"]'.format(product_code)) #type: ignore
+	entry = find_duckstation_compat_info.compat_xml.find('entry[@code="{0}"]'.format(product_code)) #type: ignore[attr-defined]
 	if entry is not None:
 		try:
 			compatibility = int(entry.attrib.get('compatibility'))
@@ -51,13 +52,13 @@ def get_duckstation_db_info(product_code: str) -> Optional[dict]:
 	if not hasattr(get_duckstation_db_info, 'gamedb'):
 		try:
 			with open(gamedb_path, 'rb') as f:
-				get_duckstation_db_info.gamedb = json.load(f) #type: ignore
+				get_duckstation_db_info.gamedb = json.load(f) #type: ignore[attr-defined]
 		except OSError as oserr:
 			if main_config.debug:
 				print('Oh dear we have an OSError trying to load gamedb', oserr)
 			return None
 
-	for db_game in get_duckstation_db_info.gamedb: #type: ignore
+	for db_game in get_duckstation_db_info.gamedb: #type: ignore[attr-defined]
 		if db_game.get('serial') == product_code:
 			return db_game
 	return None
@@ -91,8 +92,7 @@ def add_duckstation_db_info(metadata: Metadata):
 			metadata.specific_info['Compatible-Controllers'] = controllers
 			metadata.specific_info['Supports-Analog'] = 'AnalogController' in controllers
 
-
-def add_ps1_metadata(game):
+def add_ps1_metadata(game: ROMGame):
 	add_generic_info(game)
 	if game.metadata.product_code and duckstation_config:
 		compat = find_duckstation_compat_info(game.metadata.product_code)

@@ -1,15 +1,19 @@
+from typing import cast
 from zlib import crc32
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.mame.software_list_info import get_software_list_entry
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
+from meowlauncher.metadata import Metadata
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 nintendo_gba_logo_crc32 = 0xD0BEB55E
-def parse_gba_header(metadata, header):
+def parse_gba_header(metadata: Metadata, header: bytes):
 	#Entry point: 0-4
 	nintendo_logo = header[4:0xa0]
 	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_gba_logo_crc32
@@ -52,7 +56,7 @@ def parse_gba_header(metadata, header):
 	#Checksum (see ROMniscience for how to calculate it, because I don't feel like describing it all in a single line of comment): 0xbd
 	#Reserved: 0xbe - 0xc0
 
-def look_for_strings_in_cart(entire_cart, metadata):
+def look_for_strings_in_cart(entire_cart: bytes, metadata: Metadata):
 	has_save = False
 	save_strings = [b'EEPROM_V', b'SRAM_V', b'SRAM_F_V', b'FLASH_V', b'FLASH512_V', b'FLASH1M_V']
 	for string in save_strings:
@@ -86,14 +90,14 @@ def look_for_strings_in_cart(entire_cart, metadata):
 		metadata.specific_info['Sound-Driver'] = 'Rare'
 		metadata.developer = 'Rare'
 
-def add_gba_metadata(game):
+def add_gba_metadata(game: ROMGame):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2 #A B
 	builtin_gamepad.shoulder_buttons = 2 #L R
 	game.metadata.input_info.add_option(builtin_gamepad)
 
-	entire_cart = game.rom.read()
+	entire_cart = cast(FileROM, game.rom).read()
 	if len(entire_cart) >= 0xc0:
 		header = entire_cart[0:0xc0]
 		parse_gba_header(game.metadata, header)

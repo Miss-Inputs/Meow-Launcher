@@ -1,6 +1,6 @@
 import re
 from collections.abc import Iterable
-from typing import Optional
+from typing import Optional, cast
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import EmulationStatus
@@ -520,12 +520,11 @@ class Machine():
 
 	@property
 	def family(self) -> str:
-		#I wish I didn't have to type ignore globally but has_parent = True means parent_basename = not none
-		return self.parent_basename if self.has_parent else self.basename #type: ignore
+		return cast(str, self.parent_basename) if self.has_parent else self.basename
 
 	@property
 	def family_name(self) -> str:
-		return self.parent.name if self.has_parent else self.name #type: ignore
+		return cast(Machine, self.parent).name if self.has_parent else self.name
 	
 	@property
 	def source_file(self) -> str:
@@ -623,7 +622,7 @@ class Machine():
 	def bios_basename(self) -> Optional[str]:
 		romof = self.xml.attrib.get('romof')
 		if self.has_parent and romof == self.family:
-			return self.parent.bios_basename #type: ignore
+			return cast(Machine, self.parent).bios_basename
 		if romof:
 			return romof
 		return None
@@ -703,22 +702,22 @@ class Machine():
 		bootleg_match = bootleg_with_publisher_regex.fullmatch(manufacturer)
 		if manufacturer in ('bootleg', 'hack') or self.is_hack:
 			if self.has_parent:
-				developer = self.parent.metadata.developer
-				publisher = self.parent.metadata.publisher
+				developer = cast(Machine, self.parent).metadata.developer
+				publisher = cast(Machine, self.parent).metadata.publisher
 			else:
 				developer = None #It'd be the original not-bootleg/hack game's developer but we can't get that programmatically without a parent etc
 				publisher = None
 		elif bootleg_match:
 			developer = None
 			if self.has_parent:
-				developer = self.parent.metadata.developer
-				publisher = self.parent.metadata.publisher
+				developer = cast(Machine, self.parent).metadata.developer
+				publisher = cast(Machine, self.parent).metadata.publisher
 			
 			publisher = consistentify_manufacturer(bootleg_match[1])
 		else:
 			if ' / ' in manufacturer:
 				#Let's try and clean up things a bit when this happens
-				manufacturers = [consistentify_manufacturer(m) for m in manufacturer.split(' / ')]
+				manufacturers = [cast(str, consistentify_manufacturer(m)) for m in manufacturer.split(' / ')]
 				if main_config.sort_multiple_dev_names:
 					manufacturers.sort()
 

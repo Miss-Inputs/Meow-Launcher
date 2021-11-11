@@ -358,7 +358,7 @@ def try_detect_gamemaker(folder, metadata=None) -> bool:
 			if os.path.isfile(icon_path):
 				metadata.images['Icon'] = icon_path
 			parser = configparser.ConfigParser(interpolation=None)
-			parser.optionxform = str #type: ignore
+			parser.optionxform = str #type: ignore[assignment]
 			parser.read(options_ini_path)
 			if parser.has_section('Linux'):
 				#There is also an Icon and Splash that seem to refer to images that don't exist…

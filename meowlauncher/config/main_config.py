@@ -97,7 +97,7 @@ def get_config_ini_options() -> dict[str, dict[str, ConfigValue]]:
 		opts[v.section][k] = v
 	return opts
 
-def get_runtime_options():
+def get_runtime_options() -> dict[str, ConfigValue]:
 	return {name: opt for name, opt in _config_ini_values.items() if opt.section == runtime_option_section}
 
 def get_command_line_arguments() -> dict[str, Any]:
@@ -165,7 +165,7 @@ def write_new_main_config(new_config):
 
 def write_new_config(new_config, config_file_path: str) -> None:
 	parser = configparser.ConfigParser(interpolation=None)
-	parser.optionxform = str #type: ignore
+	parser.optionxform = str #type: ignore[assignment]
 	ensure_exist(config_file_path)
 	parser.read(config_file_path)
 	for section, configs in new_config.items():
@@ -182,7 +182,7 @@ def write_new_config(new_config, config_file_path: str) -> None:
 
 class Config():
 	class __Config():
-		def __init__(self):
+		def __init__(self) -> None:
 			self.values = {}
 			for name, config in _config_ini_values.items():
 				self.values[name] = config.default_value
@@ -192,18 +192,18 @@ class Config():
 
 		def reread_config(self) -> None:
 			parser = configparser.ConfigParser(interpolation=None)
-			parser.optionxform = str #type: ignore
+			parser.optionxform = str #type: ignore[assignment]
 			self.parser = parser
 			ensure_exist(_main_config_path)
 			self.parser.read(_main_config_path)
 
 			self.ignored_directories = load_ignored_directories()
 
-		def rewrite_config(self):
+		def rewrite_config(self) -> None:
 			with open(_main_config_path, 'wt') as f:
 				self.parser.write(f)
 
-		def __getattr__(self, name):
+		def __getattr__(self, name: str):
 			if name in self.values:
 				if name in self.runtime_overrides:
 					return self.runtime_overrides[name]

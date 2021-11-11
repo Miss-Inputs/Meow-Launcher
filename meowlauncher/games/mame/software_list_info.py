@@ -1,7 +1,7 @@
 import os
 import re
 import zlib
-from typing import Dict, Optional, Sequence, cast
+from typing import Dict, Iterable, Optional, Sequence, cast
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
@@ -31,10 +31,10 @@ def get_software_lists_by_names(names: Sequence[str]) -> list[SoftwareList]:
 
 def get_software_list_by_name(name: str) -> Optional[SoftwareList]:
 	if not hasattr(get_software_list_by_name, 'cache'):
-		get_software_list_by_name.cache = {} #type: ignore
+		get_software_list_by_name.cache = {} #type: ignore[attr-defined]
 
-	if name in get_software_list_by_name.cache: #type: ignore
-		return get_software_list_by_name.cache[name] #type: ignore
+	if name in get_software_list_by_name.cache: #type: ignore[attr-defined]
+		return get_software_list_by_name.cache[name] #type: ignore[attr-defined]
 
 	try:
 		mame_config = get_mame_core_config()
@@ -43,7 +43,7 @@ def get_software_list_by_name(name: str) -> Optional[SoftwareList]:
 				list_path = os.path.join(hash_path, name + '.xml')
 				if os.path.isfile(list_path):
 					software_list = SoftwareList(list_path)
-					get_software_list_by_name.cache[name] = software_list #type: ignore
+					get_software_list_by_name.cache[name] = software_list #type: ignore[attr-defined]
 					return software_list
 		#if main_config.debug:
 		#	print('Programmer (not user) error - called get_software_list_by_name with non-existent {0} softlist'.format(name))
@@ -173,8 +173,10 @@ def software_list_product_code_matcher(part: SoftwarePart, product_code: str) ->
 
 	return product_code in part_code.split(', ')
 
-def find_in_software_lists(software_lists: list[SoftwareList], args: SoftwareMatcherArgs) -> Optional[Software]:
+def find_in_software_lists(software_lists: Iterable[SoftwareList], args: SoftwareMatcherArgs) -> Optional[Software]:
 	#TODO: Handle hash collisions. Could happen, even if we're narrowing down to specific software lists
+	if not software_lists:
+		return None
 	for software_list in software_lists:
 		software = software_list.find_software(args)
 		if software:

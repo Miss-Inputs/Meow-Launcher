@@ -14,7 +14,8 @@ from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
 from .mame_helpers import (add_history, find_cpus, get_image,
                            get_mame_ui_config, image_config_keys)
 
-mame_statuses = {
+mame_statuses: dict[Optional[str], EmulationStatus] = {
+	#It is optional[str] so that we can .get None and have it return whatever default
 	'good': EmulationStatus.Good,
 	'imperfect': EmulationStatus.Imperfect,
 	'preliminary': EmulationStatus.Broken,

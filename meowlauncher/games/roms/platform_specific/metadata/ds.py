@@ -6,12 +6,14 @@ except ModuleNotFoundError:
 
 import os
 import struct
-from typing import Iterable, Optional
+from typing import Iterable, Optional, cast
 from xml.etree import ElementTree
 
 from meowlauncher import input_metadata
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.info.region_info import Region, get_region_by_name
 from meowlauncher.metadata import Metadata
 from meowlauncher.util.utils import (NotAlphanumericException,
@@ -113,7 +115,7 @@ def add_banner_title_metadata(metadata: Metadata, banner_title: str, language: O
 			#This is usually the publisher… but it has a decent chance of being something else so I'm not gonna set metadata.publisher from it
 			metadata.specific_info[metadata_name + '-Final-Line'] = lines[-1]
 
-def parse_banner(rom, metadata: Metadata, header: bytes, is_dsi: bool, banner_offset: int):
+def parse_banner(rom: FileROM, metadata: Metadata, header: bytes, is_dsi: bool, banner_offset: int):
 	#The extended part of the banner if is_dsi contains animated icon frames, so we don't really need it
 	banner_size = int.from_bytes(header[0x208:0x20c], 'little') if is_dsi else 0xA00
 	banner = rom.read(seek_to=banner_offset, amount=banner_size)
@@ -156,7 +158,7 @@ def parse_banner(rom, metadata: Metadata, header: bytes, is_dsi: bool, banner_of
 				icon_palette = struct.unpack('H' * 16, banner[0x220:0x240])
 				metadata.images['Icon'] = decode_icon(icon_bitmap, icon_palette)
 
-def parse_ds_header(rom, metadata: Metadata, header: bytes):
+def parse_ds_header(rom: FileROM, metadata: Metadata, header: bytes):
 	if header[0:4] == b'.\0\0\xea':
 		metadata.specific_info['PassMe'] = True
 	else:
@@ -250,8 +252,8 @@ def add_ds_input_info(metadata: Metadata):
 	#But for now let's just do the standard controls, and hence cause code duplication
 	metadata.input_info.add_option(builtin_gamepad)
 
-
-def add_ds_metadata(game):
-	header = game.rom.read(amount=0x300)
-	parse_ds_header(game.rom, game.metadata, header)
+def add_ds_metadata(game: ROMGame):
+	rom = cast(FileROM, game.rom)
+	header = rom.read(amount=0x300)
+	parse_ds_header(rom, game.metadata, header)
 	add_ds_input_info(game.metadata)

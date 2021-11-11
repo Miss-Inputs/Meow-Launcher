@@ -1,4 +1,5 @@
 import re
+from typing import cast
 from zlib import crc32
 
 from meowlauncher import input_metadata
@@ -7,6 +8,8 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.mame.software_list_info import (
     find_in_software_lists, get_software_list_entry, matcher_args_for_bytes)
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Metadata
 from meowlauncher.platform_types import GameBoyColourFlag
 from meowlauncher.util.utils import (NotAlphanumericException,
@@ -197,7 +200,7 @@ def parse_gameboy_header(metadata: Metadata, header: bytes):
 			metadata.publisher = nintendo_licensee_codes[licensee_code]
 	metadata.specific_info['Revision'] = header[0x4c]
 
-def parse_gbx_footer(rom, metadata: Metadata):
+def parse_gbx_footer(rom: FileROM, metadata: Metadata):
 	footer = rom.read(seek_to=rom.get_size() - 64, amount=64)
 	if footer[60:64] != b'GBX!':
 		if main_config.debug:
@@ -225,13 +228,14 @@ def parse_gbx_footer(rom, metadata: Metadata):
 	#4 = has battery, #5 = has rumble, #6 = has RTC
 	#RAM size: 12:16
 
-def add_gameboy_metadata(game):
+def add_gameboy_metadata(game: ROMGame):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2 #A B
 	game.metadata.input_info.add_option(builtin_gamepad)
 
-	header = game.rom.read(seek_to=0x100, amount=0x50)
+	rom = cast(FileROM, game.rom)
+	header = rom.read(seek_to=0x100, amount=0x50)
 	parse_gameboy_header(game.metadata, header)
 
 	if game_boy_config and game_boy_config.options.get('set_gbc_as_different_platform'):
@@ -239,7 +243,7 @@ def add_gameboy_metadata(game):
 			game.metadata.platform = 'Game Boy Color'
 
 	if game.rom.extension == 'gbx':
-		software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(game.rom.read(amount=game.rom.get_size() - 64)))
+		software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(rom.read(amount=rom.get_size() - 64)))
 	else:
 		software = get_software_list_entry(game)
 	if software:
@@ -248,7 +252,8 @@ def add_gameboy_metadata(game):
 		game.metadata.save_type = SaveType.Cart if software.has_data_area('nvram') else SaveType.Nothing
 
 		slot = software.get_part_feature('slot')
-		parse_slot(game.metadata, slot)
+		if slot:
+			parse_slot(game.metadata, slot)
 
 	if game.rom.extension == 'gbx':
-		parse_gbx_footer(game.rom, game.metadata)
+		parse_gbx_footer(rom, game.metadata)

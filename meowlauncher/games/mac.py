@@ -1,7 +1,8 @@
 import datetime
 import io
 from enum import Enum
-from typing import Any, Optional
+import os
+from typing import Any, Optional, cast
 
 from meowlauncher.config.emulator_config_type import EmulatorConfig
 from meowlauncher.config.platform_config import PlatformConfig
@@ -34,7 +35,7 @@ from .pc import App, AppLauncher
 def does_exist(hfv_path: str, path: str) -> bool:
 	if not have_machfs:
 		#I guess it might just be safer to assume it's still there
-		return True
+		return os.path.isfile(hfv_path)
 	try:
 		try:
 			v = _machfs_read_file(hfv_path)
@@ -45,24 +46,24 @@ def does_exist(hfv_path: str, path: str) -> bool:
 	except FileNotFoundError:
 		return False
 		
-def get_path(volume, path: str):
+def get_path(volume: 'machfs.Volume', path: str):
 	#Skip the first part since that's the volume name and the tuple indexing for machfs.Volume doesn't work that way
 	return volume[tuple(path.split(':')[1:])]
 
-def _machfs_read_file(path: str):
+def _machfs_read_file(path: str) -> 'machfs.Volume':
 	#Try to avoid having to slurp really big files for each app by keeping it in memory if it's the same disk image
-	if _machfs_read_file.current_file_path == path: #type: ignore
-		return _machfs_read_file.current_file #type: ignore
+	if _machfs_read_file.current_file_path == path: #type: ignore[attr-defined]
+		return _machfs_read_file.current_file #type: ignore[attr-defined]
 
 	with open(path, 'rb') as f:
 		#Hmm, this could be slurping very large (maybe gigabyte(s)) files all at once
 		v = machfs.Volume()
 		v.read(f.read())
-		_machfs_read_file.current_file = v #type: ignore
-		_machfs_read_file.current_file_path = path #type: ignore
+		_machfs_read_file.current_file = v #type: ignore[attr-defined]
+		_machfs_read_file.current_file_path = path #type: ignore[attr-defined]
 		return v
-_machfs_read_file.current_file = None #type: ignore
-_machfs_read_file.current_file_path = None #type: ignore
+_machfs_read_file.current_file = None #type: ignore[attr-defined]
+_machfs_read_file.current_file_path = None #type: ignore[attr-defined]
 
 def get_macos_256_palette() -> list[int]:
 	#This is stored in the ROM as a clut resource otherwise
@@ -169,10 +170,10 @@ mac_epoch = datetime.datetime(1904, 1, 1)
 
 
 class MacApp(App):
-	def __init__(self, info):
+	def __init__(self, info) -> None:
 		super().__init__(info)
-		self.hfv_path = self.cd_path if self.is_on_cd else info['hfv_path']
-		self._file = None #Lazy load it
+		self.hfv_path = cast(str, self.cd_path) if self.is_on_cd else info['hfv_path']
+		self._file: Optional['machfs.Volume'] = None #Lazy load the file associated with this
 		
 	@property
 	def _carbon_path(self) -> Optional[str]:
@@ -191,7 +192,7 @@ class MacApp(App):
 			pass
 		return None
 
-	def _real_get_file(self):
+	def _real_get_file(self) -> Optional['machfs.Volume']:
 		try:
 			v = _machfs_read_file(self.hfv_path)
 			carbon_path = self._carbon_path
@@ -201,7 +202,7 @@ class MacApp(App):
 		except (KeyError, FileNotFoundError):
 			return None
 
-	def _get_file(self):
+	def _get_file(self) -> Optional['machfs.Volume']:
 		if not self._file:
 			self._file = self._real_get_file()
 		return self._file
@@ -223,8 +224,8 @@ class MacApp(App):
 				return self.path.split(':')[-1].removesuffix('.app')
 		return self.path.split(':')[-1]
 
-	def _get_resources(self) -> dict[bytes, dict[bytes, Any]]:
-		res: dict[bytes, dict[bytes, Any]] = {} #Resource, but I don't want to blow up the whole thing if this module isn't available
+	def _get_resources(self) -> dict[bytes, dict[int, 'macresources.Resource']]:
+		res: dict[bytes, dict[int, 'macresources.Resource']] = {}
 		f = self._get_file()
 		if not f:
 			return res
@@ -234,8 +235,11 @@ class MacApp(App):
 			res[resource.type][resource.id] = resource
 		return res
 
-	def _get_icon(self):
+	def _get_icon(self) -> Optional['Image.Image']:
 		resources = self._get_resources()
+		file = self._get_file()
+		if not file:
+			raise ValueError('Somehow, _get_icon was called without a valid file')
 
 		mask = None
 		icon_bw = None
@@ -245,7 +249,7 @@ class MacApp(App):
 		has_custom_icn = -16455 in resources.get(b'ICN#', {})
 		has_custom_icns = -16455 in resources.get(b'icns', {})
 		not_custom_resource_id = 128
-		if (self._get_file().flags & 1024 > 0) and (has_custom_icn or has_custom_icns):
+		if (file.flags & 1024 > 0) and (has_custom_icn or has_custom_icns):
 			#"Use custom icon" flag in HFS, but sometimes it lies
 			resource_id = -16455
 		else:
@@ -255,12 +259,12 @@ class MacApp(App):
 			if bndls:
 				try:
 					#Supposed to be BNDL 128, but not always
-					bndl = [b for b in bndls.values() if b[0:4] == self._get_file().creator][0]
+					bndl = [b for b in bndls.values() if b[0:4] == file.creator][0]
 				except IndexError:
 					bndl = list(bndls.values())[0]
 
 				for fref in resources.get(b'FREF', {}).values():
-					if fref[0:4] == self._get_file().type:
+					if fref[0:4] == file.type:
 						icon_local_id = int.from_bytes(fref[4:6], 'big')
 						bndl_type_count = int.from_bytes(bndl[6:8], 'big') + 1 #Why does it minus 1??? wtf
 						type_offset = 8
@@ -327,24 +331,28 @@ class MacApp(App):
 			return icon_bw
 		return None
 
-	def additional_metadata(self):
+	def additional_metadata(self) -> None:
 		self.metadata.specific_info['Executable-Name'] = self.path.split(':')[-1]
 		if have_machfs:
+			file = self._get_file()
+			if not file:
+				raise ValueError('Somehow MacApp.additional_metadata was called with invalid file')
+
 			carbon_path = self._carbon_path
 			if carbon_path:
 				self.metadata.specific_info['Is-Carbon'] = True
 				self.metadata.specific_info['Carbon-Path'] = carbon_path
 				self.metadata.specific_info['Architecture'] = 'PPC' #This has to be manually specified because some pretend to be fat binaries?
-			creator = self._get_file().creator.decode('mac-roman', errors='backslashreplace')
+			creator = file.creator.decode('mac-roman', errors='backslashreplace')
 			self.metadata.specific_info['Creator-Code'] = creator
 
 			#Can also get mddate if wanted
-			creation_datetime = mac_epoch + datetime.timedelta(seconds=self._get_file().crdate)
+			creation_datetime = mac_epoch + datetime.timedelta(seconds=file.crdate)
 			creation_date = Date(creation_datetime.year, creation_datetime.month, creation_datetime.day, True)
 			if creation_date.is_better_than(self.metadata.release_date):
 				self.metadata.release_date = creation_date
 
-			#self.metadata.specific_info['File-Flags'] = self._get_file().flags
+			#self.metadata.specific_info['File-Flags'] = file.flags
 			if have_macresources:
 				#If you have machfs you do have macresources too, but still
 				if have_pillow:
@@ -372,7 +380,7 @@ class MacApp(App):
 								self.metadata.specific_info['Not-32-Bit-Clean'] = True
 						self.metadata.specific_info['Minimum-RAM'] = format_byte_size(int.from_bytes(size[6:10], 'big'))
 
-				if self._get_file().type == b'APPL' and 'Architecture' not in self.metadata.specific_info:
+				if file.type == b'APPL' and 'Architecture' not in self.metadata.specific_info:
 					#According to https://support.apple.com/kb/TA21606?locale=en_AU this should work
 					has_ppc = b'cfrg' in self._get_resources() #Code fragment, ID always 0
 					has_68k = b'CODE' in self._get_resources()

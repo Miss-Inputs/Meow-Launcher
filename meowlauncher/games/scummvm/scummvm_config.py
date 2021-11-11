@@ -7,7 +7,7 @@ from meowlauncher.config.main_config import main_config
 
 def _get_vm_config(path: str) -> configparser.ConfigParser:
 	parser = configparser.ConfigParser()
-	parser.optionxform = str #type: ignore
+	parser.optionxform = str #type: ignore[assignment]
 	parser.read(path)
 	return parser
 
@@ -43,7 +43,7 @@ class ScummVMConfig():
 				return {}
 
 		@property
-		def have_scummvm(self):
+		def have_scummvm(self) -> bool:
 			return self.have_scummvm_config and self.have_scummvm_exe
 		
 	__instance = None

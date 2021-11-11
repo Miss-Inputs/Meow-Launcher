@@ -71,7 +71,7 @@ def make_linux_desktop_for_launcher(launcher: Launcher):
 	make_linux_desktop(launcher.get_launch_command(), name, fields)
 
 def make_linux_desktop(launcher: LaunchCommand, display_name: str, fields: dict[str, dict[str, Any]]=None):
-	#TODO: Replace this with make_linux_desktop_for_launcher eventually
+	#TODO: Remove this version, replace with above
 	filename = pick_new_filename(main_config.output_folder, display_name, 'desktop')
 	
 	path = os.path.join(main_config.output_folder, filename)
@@ -177,8 +177,8 @@ def has_been_done(game_type: str, game_id: str) -> bool:
 
 
 split_brackets = re.compile(r' (?=\()')
-@DeprecationWarning
 def make_launcher(launch_params: LaunchCommand, name: str, metadata: Metadata, id_type: str, unique_id: str):
+	#TODO: Remove this
 	display_name = remove_filename_tags(name)
 	filename_tags = find_filename_tags_at_end(name)
 
