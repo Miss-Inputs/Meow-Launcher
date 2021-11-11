@@ -3,7 +3,7 @@ import os
 import re
 from enum import Enum, Flag
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Mapping, Optional
 
 try:
 	from PIL import Image
@@ -70,7 +70,7 @@ def make_linux_desktop_for_launcher(launcher: Launcher):
 
 	make_linux_desktop(launcher.get_launch_command(), name, fields)
 
-def make_linux_desktop(launcher: LaunchCommand, display_name: str, fields: dict[str, dict[str, Any]]=None):
+def make_linux_desktop(launcher: LaunchCommand, display_name: str, fields: Mapping[str, Mapping[str, Any]]=None):
 	#TODO: Remove this version, replace with above
 	filename = pick_new_filename(main_config.output_folder, display_name, 'desktop')
 	

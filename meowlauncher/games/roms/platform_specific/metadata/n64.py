@@ -1,7 +1,7 @@
 import configparser
 import hashlib
 import os
-from typing import Optional, cast
+from typing import Mapping, Optional, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -78,7 +78,7 @@ def parse_n64_header(metadata: Metadata, header: bytes):
 		pass
 	metadata.specific_info['Revision'] = header[63]
 
-def add_info_from_database_entry(metadata: Metadata, database_entry: dict[str, str]):
+def add_info_from_database_entry(metadata: Metadata, database_entry: Mapping[str, str]):
 	#Keys: {'SaveType', 'Biopak', 'GoodName', 'SiDmaDuration', 'Players', 'DisableExtraMem', 'Mempak', 'Cheat0', 'Transferpak', 'CRC', 'Status', 'Rumble', 'CountPerOp'}
 	#CRC is just the N64 checksum from the ROM header so I dunno if that's any use
 	#Stuff like SiDmaDuration and CountPerOp and DisableExtraMem should be applied automatically by Mupen64Plus I would think (and be irrelevant for other emulators)

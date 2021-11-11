@@ -1,5 +1,5 @@
 import os
-from typing import Iterable, Optional
+from typing import Iterable, Mapping, Optional
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        EmulationStatus, EmulatorStatus)
@@ -17,7 +17,7 @@ def _get_autoboot_script_by_name(name: str) -> str:
 	root_dir = os.path.dirname(root_package)
 	return os.path.join(root_dir, 'mame_autoboot', name + '.lua')
 
-def _verify_supported_gb_mappers(game, supported_mappers, detected_mappers) -> None:
+def _verify_supported_gb_mappers(game, supported_mappers: Iterable[str], detected_mappers: Iterable[str]) -> None:
 	mapper = game.metadata.specific_info.get('Mapper', None)
 
 	if not mapper:
@@ -62,7 +62,7 @@ def is_highscore_cart_available() -> bool:
 def mednafen_module(module: str, exe_path: str='mednafen') -> LaunchCommand:
 	return LaunchCommand(exe_path, ['-video.fs', '1', '-force_module', module, '$<path>'])
 
-def mame_base(driver: str, slot: Optional[str]=None, slot_options: Optional[dict[str, str]]=None, has_keyboard: bool=False, autoboot_script: Optional[str]=None, software: Optional[str]=None, bios: Optional[str]=None) -> list[str]:
+def mame_base(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard: bool=False, autoboot_script: Optional[str]=None, software: Optional[str]=None, bios: Optional[str]=None) -> list[str]:
 	args = ['-skip_gameinfo']
 	if has_keyboard:
 		args.append('-ui_active')
@@ -92,7 +92,7 @@ def mame_base(driver: str, slot: Optional[str]=None, slot_options: Optional[dict
 
 	return args
 
-def mame_driver(game, emulator_config, driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None) -> LaunchCommand:
+def mame_driver(game, emulator_config, driver: str, slot=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard=False, autoboot_script=None) -> LaunchCommand:
 	#Hmm I might need to refactor this and mame_system when I figure out what I'm doing
 	compat_threshold = emulator_config.options.get('software_compatibility_threshold', 1)
 	if compat_threshold > -1:
@@ -120,13 +120,13 @@ def simple_emulator(args: Optional[list[str]]=None) -> LaunchParamsFunc:
 		return LaunchCommand(emulator_config.exe_path, args if args else ['$<path>'])
 	return inner
 
-def simple_gb_emulator(args, mappers: list[str], autodetected_mappers: list[str]):
+def simple_gb_emulator(args, mappers: Iterable[str], autodetected_mappers: Iterable[str]):
 	def inner(game, _, emulator_config):
 		_verify_supported_gb_mappers(game, mappers, autodetected_mappers)
 		return LaunchCommand(emulator_config.exe_path, args)
 	return inner
 
-def simple_md_emulator(args: list[str], unsupported_mappers: list[str]) -> LaunchParamsFunc:
+def simple_md_emulator(args: list[str], unsupported_mappers: Iterable[str]) -> LaunchParamsFunc:
 	def inner(game, _, emulator_config):
 		mapper = game.metadata.specific_info.get('Mapper')
 		if mapper in unsupported_mappers:
@@ -134,7 +134,7 @@ def simple_md_emulator(args: list[str], unsupported_mappers: list[str]) -> Launc
 		return LaunchCommand(emulator_config.exe_path, args)
 	return inner
 
-def simple_mame_driver(driver, slot=None, slot_options=None, has_keyboard=False, autoboot_script=None) -> LaunchParamsFunc:
+def simple_mame_driver(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard=False, autoboot_script=None) -> LaunchParamsFunc:
 	def inner(game, _, emulator_config):
 		return mame_driver(game, emulator_config, driver, slot, slot_options, has_keyboard, autoboot_script)
 	return inner

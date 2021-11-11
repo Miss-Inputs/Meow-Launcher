@@ -1,6 +1,6 @@
 import shlex
 from abc import ABC, abstractmethod, abstractproperty
-from typing import Any, Optional, Sequence
+from typing import Any, Iterable, MutableMapping, Optional, Sequence
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.game import Game
@@ -8,7 +8,7 @@ from meowlauncher.runner import Runner
 
 
 class LaunchCommand():
-	def __init__(self, exe_name: str, exe_args: list[str], env_vars: Optional[dict[str, str]]=None, working_directory: Optional[str]=None):
+	def __init__(self, exe_name: str, exe_args: list[str], env_vars: Optional[MutableMapping[str, str]]=None, working_directory: Optional[str]=None):
 		self.exe_name = exe_name
 		self.exe_args = exe_args
 		self.env_vars = {} if env_vars is None else env_vars
@@ -41,7 +41,7 @@ class LaunchCommand():
 	def set_env_var(self, k: str, v: str):
 		self.env_vars[k] = v
 
-def get_wine_launch_params(exe_path: str, exe_args: list[str], working_directory: Optional[str]=None):
+def get_wine_launch_params(exe_path: str, exe_args: Iterable[str], working_directory: Optional[str]=None):
 	#TODO: Migrate to default_runners
 	env_vars = None
 	if main_config.wineprefix:
