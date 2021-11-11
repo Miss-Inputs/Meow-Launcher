@@ -16,11 +16,12 @@ from meowlauncher.data.emulated_platforms import pc_platforms
 from meowlauncher.data.emulators import pc_emulators
 from meowlauncher.desktop_launchers import make_launcher
 from meowlauncher.metadata import Date, Metadata
+from meowlauncher.emulated_game import EmulatedGame
 
 from .pc_common_metadata import fix_name
 
 
-class App(ABC):
+class App(EmulatedGame, ABC):
 	def __init__(self, info: dict[str, Any]):
 		self.metadata = Metadata()
 		self.info = info
@@ -36,7 +37,11 @@ class App(ABC):
 			self.other_cd_paths = cd_paths[1:]
 		elif self.is_on_cd:
 			raise KeyError('cd_path is mandatory if is_on_cd is true')
-		self.name = info.get('name', fix_name(self.get_fallback_name()))
+		self._name = info.get('name', fix_name(self.get_fallback_name()))
+
+	@property
+	def name(self) -> str:
+		return self._name
 
 	@property
 	def base_folder(self) -> str:
