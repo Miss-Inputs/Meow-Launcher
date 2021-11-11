@@ -1,10 +1,12 @@
 import json
 from enum import Enum
+from typing import Optional
 from xml.etree import ElementTree
 
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
 from meowlauncher.info.region_info import get_language_by_english_name
+from meowlauncher.metadata import Metadata
 
 from .minor_platforms import add_generic_info
 
@@ -18,47 +20,52 @@ class DuckStationCompatibility(Enum):
 	DoesNotBoot = 1
 	Unknown = 0
 
-def add_duckstation_compat_info(metadata):
+def find_duckstation_compat_info(product_code: str) -> Optional[DuckStationCompatibility]:
 	compat_xml_path = duckstation_config.options.get('compatibility_xml_path')
 	if not compat_xml_path:
-		return
+		return None
 
-	if not hasattr(add_duckstation_compat_info, 'compat_xml'):
+	if not hasattr(find_duckstation_compat_info, 'compat_xml'):
 		try:
-			add_duckstation_compat_info.compat_xml = ElementTree.parse(compat_xml_path)
+			find_duckstation_compat_info.compat_xml = ElementTree.parse(compat_xml_path) #type: ignore
 		except OSError as oserr:
 			if main_config.debug:
 				print('Oh dear we have an OSError trying to load compat_xml', oserr)
-			return
+			return None
 
-	entry = add_duckstation_compat_info.compat_xml.find('entry[@code="{0}"]'.format(metadata.product_code))
+	entry = find_duckstation_compat_info.compat_xml.find('entry[@code="{0}"]'.format(product_code)) #type: ignore
 	if entry is not None:
 		try:
 			compatibility = int(entry.attrib.get('compatibility'))
 			if compatibility:
-				metadata.specific_info['DuckStation-Compatibility'] = DuckStationCompatibility(compatibility)
+				return DuckStationCompatibility(compatibility)
 		except ValueError:
 			pass
-	
-def add_duckstation_db_info(metadata):
+	return None
+
+def get_duckstation_db_info(product_code: str) -> Optional[dict]:
 	gamedb_path = duckstation_config.options.get('gamedb_path')
 	if not gamedb_path:
-		return
+		return None
 
-	if not hasattr(add_duckstation_db_info, 'gamedb'):
+	if not hasattr(get_duckstation_db_info, 'gamedb'):
 		try:
 			with open(gamedb_path, 'rb') as f:
-				add_duckstation_db_info.gamedb = json.load(f)
+				get_duckstation_db_info.gamedb = json.load(f) #type: ignore
 		except OSError as oserr:
 			if main_config.debug:
 				print('Oh dear we have an OSError trying to load gamedb', oserr)
-			return
+			return None
 
-	game = None
-	for db_game in add_duckstation_db_info.gamedb:
-		if db_game.get('serial') == metadata.product_code:
-			game = db_game
-			break
+	for db_game in get_duckstation_db_info.gamedb: #type: ignore
+		if db_game.get('serial') == product_code:
+			return db_game
+	return None
+
+def add_duckstation_db_info(metadata: Metadata):
+	if not metadata.product_code:
+		return
+	game = get_duckstation_db_info(metadata.product_code)
 	if game:
 		metadata.add_alternate_name(game['name'], 'DuckStation-Database-Name')
 		languages = game.get('languages')
@@ -88,5 +95,7 @@ def add_duckstation_db_info(metadata):
 def add_ps1_metadata(game):
 	add_generic_info(game)
 	if game.metadata.product_code and duckstation_config:
-		add_duckstation_compat_info(game.metadata)
+		compat = find_duckstation_compat_info(game.metadata.product_code)
+		if compat:
+			game.metadata.specific_info['DuckStation-Compatibility'] = compat
 		add_duckstation_db_info(game.metadata)

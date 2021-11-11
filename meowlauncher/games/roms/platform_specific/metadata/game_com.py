@@ -1,4 +1,6 @@
 from meowlauncher import input_metadata
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.metadata import Metadata
 
 from .minor_platforms import add_generic_info
 
@@ -24,7 +26,7 @@ except ModuleNotFoundError:
 #     uint8_t  pad[3];
 # } romHeader;
 
-def parse_icon(rom, metadata, icon_bank, icon_offset_x, icon_offset_y):
+def parse_icon(rom: FileROM, icon_bank: int, icon_offset_x: int, icon_offset_y: int) -> 'Image':
 	bank_size = (256 * 256) // 4
 	bank_address = bank_size * icon_bank
 	if bank_address > rom.get_size():
@@ -56,10 +58,9 @@ def parse_icon(rom, metadata, icon_bank, icon_offset_x, icon_offset_y):
 			y = (pixel % 256)
 			whole_bank.putpixel((x, y), colours[j])
 
-	icon = whole_bank.crop((icon_offset_x, icon_offset_y, icon_offset_x + 64, icon_offset_y + 64))
-	metadata.images['Icon'] = icon
+	return whole_bank.crop((icon_offset_x, icon_offset_y, icon_offset_x + 64, icon_offset_y + 64))
 
-def parse_rom_header(rom, metadata, header):
+def parse_rom_header(rom, metadata: Metadata, header: bytes):
 	#Shoutouts to https://github.com/Tpot-SSL/GameComHDK and https://github.com/simontime/gcfix/blob/master/gcfix.c and https://github.com/GerbilSoft/rom-properties/blob/master/src/libromdata/Handheld/gcom_structs.h because there is no other documentation that I know of
 	metadata.specific_info['Internal-Title'] = header[17:26].decode('ascii', errors='ignore').rstrip()
 	#26:28: Game ID, but does that have any relation to product code?
@@ -69,7 +70,7 @@ def parse_rom_header(rom, metadata, header):
 		icon_offset_x = header[15]
 		icon_offset_y = header[16]
 		
-		parse_icon(rom, metadata, icon_bank, icon_offset_x, icon_offset_y)
+		metadata.images['Icon'] = parse_icon(rom, icon_bank, icon_offset_x, icon_offset_y)
 
 def add_game_com_metadata(game):
 	builtin_gamepad = input_metadata.NormalController()

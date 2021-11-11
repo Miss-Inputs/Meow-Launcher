@@ -4,7 +4,7 @@ from enum import Enum, auto
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.metadata import Date
+from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import SaturnRegionCodes
 from meowlauncher.util.cd_read import get_first_data_cue_track, read_mode_1_cd
 from meowlauncher.util.utils import load_dict
@@ -21,7 +21,7 @@ class SaturnPeripheral(Enum):
 	Mouse = auto()
 	Wheel = auto()
 
-def parse_peripherals(metadata, peripherals):
+def parse_peripherals(metadata: Metadata, peripherals: str):
 	uses_standard_controller = False
 	uses_analog_controller = False
 	uses_mission_stick = False
@@ -112,7 +112,7 @@ def parse_peripherals(metadata, peripherals):
 	if uses_wheel:
 		metadata.input_info.add_option(input_metadata.SteeringWheel())
 
-def add_saturn_info(rom, metadata, header):
+def add_saturn_info(rom, metadata: Metadata, header: bytes):
 	hardware_id = header[0:16].decode('ascii', errors='ignore')
 	if hardware_id != 'SEGA SEGASATURN ':
 		#Won't boot on a real Saturn, also if this is some emulator only thing then nothing in the header can be considered valid
@@ -203,7 +203,6 @@ def add_saturn_info(rom, metadata, header):
 	#Sometimes / : - are used as delimiters, and there can also be J:JapaneseNameU:USAName
 	if internal_name:
 		metadata.specific_info['Internal-Title'] = internal_name
-
 
 def add_saturn_metadata(game):
 	if game.rom.extension == 'cue':

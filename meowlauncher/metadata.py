@@ -228,8 +228,8 @@ class Metadata():
 		self.regions: list[Region] = []
 		self.media_type: Optional[MediaType] = None
 		self.notes: Optional[str] = None
-		self.disc_number = None
-		self.disc_total = None
+		self.disc_number: Optional[int] = None
+		self.disc_total: Optional[int] = None
 		self.series: Optional[str] = None
 		self.series_index = None
 

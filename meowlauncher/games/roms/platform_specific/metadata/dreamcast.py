@@ -2,6 +2,7 @@ import os
 import re
 
 from meowlauncher.common_types import SaveType
+from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import SaturnRegionCodes
 from meowlauncher.util import cd_read
@@ -48,7 +49,7 @@ def add_peripherals_info(metadata: Metadata, peripherals):
 
 device_info_regex = re.compile(r'^(?P<checksum>[\dA-Fa-f]{4}) GD-ROM(?P<discNum>\d+)/(?P<totalDiscs>\d+) *$')
 #Might not be " GD-ROM" on some Naomi stuff or maybe some homebrews or protos, but anyway, whatevs
-def add_info_from_main_track(metadata: Metadata, track_path, sector_size):
+def add_info_from_main_track(metadata: Metadata, track_path, sector_size: int):
 	try:
 		header = cd_read.read_mode_1_cd(track_path, sector_size, amount=256)
 	except NotImplementedError:
@@ -129,8 +130,7 @@ def add_info_from_main_track(metadata: Metadata, track_path, sector_size):
 		
 	metadata.specific_info['Internal-Title'] = header[128:256].decode('ascii', errors='backslashreplace').rstrip('\0 ')
 
-
-def add_info_from_gdi(rom, metadata: Metadata):
+def add_info_from_gdi(rom: FileROM, metadata: Metadata):
 	data = rom.read().decode('utf8', errors='backslashreplace')
 	for line in data.splitlines():
 		match = gdi_regex.match(line)
