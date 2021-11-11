@@ -1,15 +1,13 @@
 import functools
 import os
 import xml.etree.ElementTree as ElementTree
-from typing import NamedTuple, Optional
+from typing import Iterable, NamedTuple, Optional
 
 from meowlauncher.metadata import Metadata
 from meowlauncher.util.region_info import (Language,
                                            get_language_by_english_name)
 
-from .mame_helpers import get_mame_ui_config, default_mame_configuration
-
-#TODO: Ideally this shouldn't require a MAMEConfiguration, and you should be able to manually specify the paths to things (in case you have some other arcade emulator or sources of arcade things but not MAME)
+from .mame_helpers import default_mame_configuration
 
 class HistoryXML():
 	def __init__(self, path: str) -> None:
@@ -169,37 +167,44 @@ def add_history(metadata: Metadata, machine_or_softlist: str, software_name: Opt
 	if history.updates:
 	 	metadata.descriptions['Updates'] = history.updates
 
-def get_mame_categories_folders() -> list[str]:
-	ui_config = get_mame_ui_config()
+def get_default_mame_categories_folders() -> list[str]:
+	if not default_mame_configuration:
+		return []
+	ui_config = default_mame_configuration.ui_config
 	return ui_config.get('categorypath', [])
 
+def _parse_mame_cat_ini(path: str) -> dict[str, list[str]]:
+	with open(path, 'rt') as f:
+		d: dict[str, list[str]] = {}
+		current_section = None
+		for line in f:
+			line = line.strip()
+			#Don't need to worry about FOLDER_SETTINGS or ROOT_FOLDER sections though I guess this code is gonna put them in there
+			if line.startswith(';'):
+				continue
+			if line.startswith('['):
+				current_section = line[1:-1]
+			elif current_section:
+				if current_section not in d:
+					d[current_section] = []
+				d[current_section].append(line)
+		return d
+
+#TODO: This should be able to take category_folders: Optional[Iterable[str]]=None parameter but that's not hashable, see how much functools.cache matters
 @functools.cache
 def get_mame_folder(name: str) -> dict[str, list[str]]:
-	category_folders = get_mame_categories_folders()
+	#if not category_folders:
+	category_folders = get_default_mame_categories_folders()
 	if not category_folders:
 		return {}
 
-	d: dict[str, list[str]] = {}
 	for folder in category_folders:
 		cat_path = os.path.join(folder, name + '.ini')
 		try:
-			with open(cat_path, 'rt') as f:
-				current_section = None
-				for line in f:
-					line = line.strip()
-					#Don't need to worry about FOLDER_SETTINGS or ROOT_FOLDER sections though I guess this code is gonna put them in there
-					if line.startswith(';'):
-						continue
-					if line.startswith('['):
-						current_section = line[1:-1]
-					elif current_section:
-						if current_section not in d:
-							d[current_section] = []
-						d[current_section].append(line)
-						
+			return _parse_mame_cat_ini(cat_path)						
 		except FileNotFoundError:
-			pass
-	return d
+			continue
+	return {}
 
 @functools.cache
 def get_machine_folder(basename: str, folder_name: str) -> Optional[list[str]]:
