@@ -1,6 +1,6 @@
 # Meow Launcher
 
-<img alt="Meow Launcher's logo" src="gui/icon.png?raw=true" width="300" />
+<img alt="Meow Launcher's logo" src="meowlauncher/gui/icon.png?raw=true" width="300" />
 
 This is just a general warning that overrides anything else I say in this readme, for the time being. Right now this project is in a state where it only really makes sense for me to use it, it's just not ready for general purpose use yet. Not configurable enough. It did just evolve from a little script I made one day and I took things too far, after all; anyway it is here in the hope that one day it will be useful to others, and I guess you could look at it if there's something there useful to you, but like probably not because you could probably just use any one of the other "automatically generate the right command lines to launch an emulator" tools out there, and I didn't because I didn't like them and so I made one for my own weird purposes.
 
