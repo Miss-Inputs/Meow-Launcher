@@ -110,7 +110,7 @@ class CompressedROM(FileROM):
 				self.inner_extension = ''
 			self.inner_filename = entry
 			#Only use the first file, if there is more, then you're weird
-			break
+			return
 		raise IOError(f'Nothing in {path}')
 
 	@property
