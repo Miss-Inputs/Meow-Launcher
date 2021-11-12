@@ -107,9 +107,11 @@ class CompressedROM(FileROM):
 				self.inner_extension = extension.lower()
 			else:
 				self.inner_name = entry
+				self.inner_extension = ''
 			self.inner_filename = entry
 			#Only use the first file, if there is more, then you're weird
 			break
+		raise IOError(f'Nothing in {path}')
 
 	@property
 	def extension(self) -> str:

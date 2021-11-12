@@ -59,9 +59,9 @@ def process_file(platform_config: PlatformConfig, potential_emulator_names: Iter
 			
 	game.filename_tags = find_filename_tags_at_end(game.rom.name)
 	if subfolders and subfolders[-1] == game.rom.name:
-		game.metadata.categories = subfolders[:-1]
+		game.metadata.categories = list(subfolders[:-1])
 	else:
-		game.metadata.categories = subfolders
+		game.metadata.categories = list(subfolders)
 		
 	add_metadata(game)
 
@@ -185,6 +185,9 @@ def process_emulated_platform(platform_config: PlatformConfig):
 			rom = rom_file(path)
 		except archives.BadArchiveError as badarchiveerror:
 			print('Uh oh fucky wucky!', path, 'is an archive file that we tried to open to list its contents, but it was invalid:', badarchiveerror.__cause__, traceback.extract_tb(badarchiveerror.__traceback__)[1:])
+			continue
+		except IOError as ioerror:
+			print('Uh oh fucky wucky!', path, 'is an archive file that has nothing in it or something else weird:', ioerror.__cause__, traceback.extract_tb(ioerror.__traceback__)[1:])
 			continue
 
 		# if rom.extension == 'm3u':
