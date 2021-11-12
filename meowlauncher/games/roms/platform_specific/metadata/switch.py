@@ -23,7 +23,7 @@ from meowlauncher.metadata import Metadata
 from meowlauncher.platform_types import SwitchContentMetaType
 from meowlauncher.util.region_info import get_language_by_english_name
 
-from .wii import parse_ratings
+from .common.nintendo_common import parse_ratings
 
 
 class InvalidHFS0Exception(Exception):
