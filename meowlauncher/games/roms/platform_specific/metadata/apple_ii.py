@@ -64,7 +64,7 @@ def parse_woz_meta_chunk(rom: ROM, metadata: Metadata, chunk_data: bytes):
 		except ValueError: #Oh I guess this includes UnicodeDecodeError
 			continue
 
-		if key in ('side', 'side_name', 'contributor', 'image_date', 'collection', 'requires_platform'):
+		if key in {'side', 'side_name', 'contributor', 'image_date', 'collection', 'requires_platform'}:
 			#No use for these
 			#"collection" is not part of the spec but it shows up and it just says where the image came from
 			#requires_platform is not either, it just seems to be "apple2" so far and I don't get it

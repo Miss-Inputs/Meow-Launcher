@@ -1,5 +1,6 @@
 import os
-from typing import Iterable, Mapping, Optional
+from typing import Optional
+from collections.abc import Iterable, Mapping
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        EmulationStatus, EmulatorStatus)

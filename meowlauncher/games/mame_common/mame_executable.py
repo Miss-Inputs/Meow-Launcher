@@ -2,9 +2,9 @@ import copy
 import os
 import re
 import subprocess
-import xml.etree.ElementTree as ElementTree
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
+from xml.etree import ElementTree
 
 from meowlauncher.common_paths import cache_dir
 from meowlauncher.config.main_config import main_config

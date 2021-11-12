@@ -78,10 +78,7 @@ class FileROM(ROM):
 			self.crc_for_database = crc
 			return crc
 
-		if self.store_entire_file:
-			crc = crc32(self.entire_file) & 0xffffffff
-		else:
-			crc = self._get_crc32()
+		crc = crc32(self.entire_file) & 0xffffffff if self.store_entire_file else self._get_crc32()
 		self.crc_for_database = crc
 		return crc
 
@@ -114,9 +111,11 @@ class CompressedROM(FileROM):
 			#Only use the first file, if there is more, then you're weird
 			break
 
+	@property
 	def extension(self) -> str:
 		return self.inner_extension
 
+	@property
 	def name(self) -> str:
 		return self.inner_name
 		
@@ -137,7 +136,7 @@ def rom_file(path) -> FileROM:
 	ext = path.rsplit(os.extsep, 1)[-1]
 	if ext.lower() == 'gcz':
 		return GCZFileROM(path)
-	elif ext in archives.compressed_exts:
+	if ext in archives.compressed_exts:
 		return CompressedROM(path)
 	return FileROM(path)
 

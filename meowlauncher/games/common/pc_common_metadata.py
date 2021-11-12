@@ -100,11 +100,7 @@ def add_metadata_for_raw_exe(path: str, metadata: Metadata):
 def pe_directory_to_dict(directory) -> dict:
 	d = {}
 	for entry in directory.entries:
-		if hasattr(entry, 'directory'):
-			v = pe_directory_to_dict(entry.directory)
-		else:
-			v = entry
-		d[entry.name if entry.name else entry.id] = v
+		d[entry.name if entry.name else entry.id] = pe_directory_to_dict(entry.directory) if hasattr(entry, 'directory') else entry
 	return d
 
 def get_pe_resources(pe: 'pefile.PE', resource_type) -> Optional[dict]:

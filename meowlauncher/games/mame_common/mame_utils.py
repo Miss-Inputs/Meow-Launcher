@@ -1,6 +1,7 @@
 import re
-import xml.etree.ElementTree as ElementTree
-from typing import Iterable, Optional
+from collections.abc import Iterable
+from typing import Optional
+from xml.etree import ElementTree
 
 from meowlauncher.data.name_cleanup.mame_manufacturer_name_cleanup import (
     dont_remove_suffix, manufacturer_name_cleanup)

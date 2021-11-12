@@ -59,7 +59,7 @@ def parse_gamecube_banner_text(metadata: Metadata, banner_bytes: bytes, encoding
 
 def add_banner_info(rom: ROM, metadata: Metadata, banner: bytes):
 	banner_magic = banner[:4]
-	if banner_magic in (b'BNR1', b'BNR2'):
+	if banner_magic in {b'BNR1', b'BNR2'}:
 		#(BNR2 has 6 instances of all of these with English, German, French, Spanish, Italian, Dutch in that order)
 		#Dolphin uses line 2 as Publisher field but that's not always accurate (e.g. Paper Mario: The Thousand Year Door puts subtitle of the game's name on line 2) so it won't be used here
 		#Very often, short title and not-short title are exactly the same, but not always. I guess it just be like that
@@ -201,12 +201,12 @@ def add_tgc_metadata(rom: FileROM, metadata: Metadata):
 	})
 
 def add_gamecube_metadata(game: ROMGame):
-	if game.rom.extension in ('gcz', 'iso', 'gcm'):
+	if game.rom.extension in {'gcz', 'iso', 'gcm'}:
 		rom = cast(FileROM, game.rom)
 		header = rom.read(0, 0x2450)
 		add_gamecube_wii_disc_metadata(rom, game.metadata, header)
 		add_gamecube_disc_metadata(rom, game.metadata, header)
 	elif game.rom.extension == 'tgc':
 		add_tgc_metadata(cast(FileROM, game.rom), game.metadata)
-	elif game.rom.extension in ('wia', 'rvz'):
+	elif game.rom.extension in {'wia', 'rvz'}:
 		just_read_the_wia_rvz_header_for_now(cast(FileROM, game.rom), game.metadata)

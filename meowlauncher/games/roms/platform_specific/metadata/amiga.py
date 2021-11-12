@@ -11,7 +11,7 @@ def add_amiga_metadata_from_software_list(software: Software, metadata: Metadata
 		software.add_standard_metadata(metadata)
 		chipset = 'OCS'
 		usage = software.get_info('usage')
-		if usage in ('Requires ECS', 'Requires ECS, includes Amiga Text'):
+		if usage in {'Requires ECS', 'Requires ECS, includes Amiga Text'}:
 			chipset = 'ECS'
 		elif usage == 'Requires AGA':
 			chipset = 'AGA'
@@ -70,10 +70,10 @@ def add_amiga_metadata(game: ROMGame):
 	if 'Chipset' not in game.metadata.specific_info:
 		chipset = None
 		for tag in game.filename_tags:
-			if tag in ('(AGA)', '(OCS-AGA)', '(ECS-AGA)', '(AGA-CD32)'):
+			if tag in {'(AGA)', '(OCS-AGA)', '(ECS-AGA)', '(AGA-CD32)'}:
 				chipset = 'AGA'
 				break
-			if tag in ('(ECS)', '(ECS-OCS)'):
+			if tag in {'(ECS)', '(ECS-OCS)'}:
 				chipset = 'ECS'
 				break
 			if tag == '(OCS)':

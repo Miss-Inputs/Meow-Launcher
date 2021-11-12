@@ -3,6 +3,7 @@
 #For my own reference: Refer to http://www.bubblevision.com/PAL-NTSC.htm https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 to add new regions/languages that might end up needing to be here
 
 from enum import Enum, auto
+from typing import Optional
 class TVSystem(Enum):
 	NTSC = auto()
 	PAL = auto()
@@ -22,7 +23,7 @@ class Language():
 
 
 class Region():
-	def __init__(self, name, short_code, tv_system, language):
+	def __init__(self, name: str, short_code: Optional[str], tv_system: Optional[TVSystem], language: Optional[str]):
 		self.name = name
 		self.short_code = short_code
 		self.tv_system = tv_system

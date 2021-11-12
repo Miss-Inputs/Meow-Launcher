@@ -6,7 +6,8 @@ except ModuleNotFoundError:
 
 import os
 import struct
-from typing import Iterable, Optional, cast
+from collections.abc import Iterable
+from typing import Optional, cast
 from xml.etree import ElementTree
 
 from meowlauncher import input_metadata
@@ -123,7 +124,7 @@ def parse_banner(rom: FileROM, metadata: Metadata, header: bytes, is_dsi: bool, 
 	metadata.specific_info['Banner-Version'] = version
 	#2 = has Chinese, 3 = has Korean, 0x103, has DSi stuff
 
-	if version in (1, 2, 3, 0x103):
+	if version in {1, 2, 3, 0x103}:
 		banner_titles = {}
 		banner_languages = {
 			0: 'Japanese',

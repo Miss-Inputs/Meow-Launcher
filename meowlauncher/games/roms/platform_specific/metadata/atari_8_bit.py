@@ -94,7 +94,7 @@ def add_atari_8bit_metadata(game: ROMGame):
 			cart_type = int.from_bytes(header[4:8], 'big')
 			#TODO: Have nice table of cart types like with Game Boy mappers
 			game.metadata.specific_info['Mapper'] = cart_type
-			game.metadata.specific_info['Slot'] = 'Right' if cart_type in [21, 59] else 'Left'
+			game.metadata.specific_info['Slot'] = 'Right' if cart_type in {21, 59} else 'Left'
 
 	game.metadata.specific_info['Headered'] = headered
 
@@ -105,10 +105,10 @@ def add_atari_8bit_metadata(game: ROMGame):
 	if 'Machine' not in game.metadata.specific_info:
 		for tag in game.filename_tags:
 			#Use filename tags for now since there's not a great reliable method of detecting XL/XE requirement for floppies I have at the moment
-			if tag in ('(XL)', '[XL]', '(XL-XE)', '[XL-XE]'):
+			if tag in {'(XL)', '[XL]', '(XL-XE)', '[XL-XE]'}:
 				game.metadata.specific_info['Machine'] = 'XL'
 				break
-			if tag in ('(XE)', '[XE]'):
+			if tag in {'(XE)', '[XE]'}:
 				game.metadata.specific_info['Machine'] = 'XE'
 				break
 	if '[BASIC]' in game.filename_tags:

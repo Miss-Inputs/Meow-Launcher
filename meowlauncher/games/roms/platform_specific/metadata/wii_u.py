@@ -286,7 +286,7 @@ def add_folder_metadata(rom: FolderROM, metadata: Metadata):
 	if content_dir.joinpath('assets').is_dir() and all(content_dir.joinpath('app', file).is_dir() for file in ('appinfo.xml', 'config.xml', 'index.html')):
 		metadata.specific_info['Engine'] = 'Nintendo Web Framework'
 	
-	engine = try_and_detect_engine_from_folder(content_dir, metadata)
+	engine = try_and_detect_engine_from_folder(str(content_dir), metadata)
 	if engine:
 		metadata.specific_info['Engine'] = engine
 

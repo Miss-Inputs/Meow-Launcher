@@ -1,9 +1,9 @@
 import os
 import statistics
-import xml.etree.ElementTree as ElementTree
 from datetime import datetime
 from enum import Enum
 from typing import cast
+from xml.etree import ElementTree
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
@@ -352,10 +352,10 @@ def add_wii_disc_metadata(rom: FileROM, metadata: Metadata):
 	parse_ratings(metadata, wii_header[0xe010:0xe020])
 
 def add_wii_metadata(game: ROMGame):
-	if game.rom.extension in ('gcz', 'iso', 'wbfs', 'gcm'):
+	if game.rom.extension in {'gcz', 'iso', 'wbfs', 'gcm'}:
 		header: bytes
 		rom = cast(FileROM, game.rom)
-		if game.rom.extension in ('iso', 'gcm', 'gcz'):
+		if game.rom.extension in {'iso', 'gcm', 'gcz'}:
 			#.gcz can be a format for Wii discs, though not recommended and uncommon
 			header = rom.read(0, 0x2450)
 		elif game.rom.extension == 'wbfs':
@@ -366,10 +366,10 @@ def add_wii_metadata(game: ROMGame):
 		add_wad_metadata(cast(FileROM, game.rom), game.metadata)
 	elif game.rom.is_folder:
 		add_wii_homebrew_metadata(cast(FolderROM, game.rom), game.metadata)
-	elif game.rom.extension in ('dol', 'elf'):
+	elif game.rom.extension in {'dol', 'elf'}:
 		if game.rom.name.lower() == 'boot': #Shouldn't happen I guess if homebrew detection works correctly but sometimes it be like that
 			game.metadata.categories = game.metadata.categories[:-1]
 			game.metadata.add_alternate_name(os.path.basename(os.path.dirname(game.rom.path)), 'Folder-Name')
 			game.rom.ignore_name = True
-	elif game.rom.extension in ('wia', 'rvz'):
+	elif game.rom.extension in {'wia', 'rvz'}:
 		just_read_the_wia_rvz_header_for_now(cast(FileROM, game.rom), game.metadata)

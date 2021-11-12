@@ -3,12 +3,14 @@ import json
 import os
 import shlex
 from pathlib import Path
-from typing import Mapping
+from collections.abc import Mapping
+from typing import Optional
 
 from meowlauncher import desktop_launchers, launcher
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.common import name_utils, pc_common_metadata
+from meowlauncher.games.common.engine_detect import try_and_detect_engine_from_folder
 from meowlauncher.metadata import Metadata
 from meowlauncher.util import region_info
 
@@ -23,7 +25,7 @@ class GOGGameInfo():
 		self.language = None
 		self.gameid = None
 		#GameID is duplicated, and then there's some other ID?
-		with open(path, 'rt') as f:
+		with open(path, 'rt', encoding='utf-8') as f:
 			lines = f.read().splitlines()
 			try:
 				self.name = lines[0]
@@ -37,8 +39,8 @@ class GOGGameInfo():
 
 class GOGJSONGameInfo():
 	#File named "gog-<gameid>.info" for Windows games (and sometimes distributed in game folder of Linux games)
-	def __init__(self, path):
-		with open(path, 'rt') as f:
+	def __init__(self, path: str):
+		with open(path, 'rt', encoding='utf-8') as f:
 			j = json.load(f)
 			self.game_id = j.get('gameId')
 			self.build_id = j.get('buildId')
@@ -56,7 +58,7 @@ class GOGJSONGameInfo():
 			#overlaySupported: Probably GOG Galaxy related
 
 	@property
-	def primary_play_task(self):
+	def primary_play_task(self) -> Optional['GOGTask']:
 		primary_tasks = [task for task in self.play_tasks if task.is_primary]
 		if len(primary_tasks) == 1:
 			return primary_tasks[0]
@@ -91,44 +93,44 @@ class GOGTask():
 		#icon: More specific icon I guess, but this can be an exe or DLL to annoy me
 
 	@property
-	def is_probably_subtask(self):
+	def is_probably_subtask(self) -> bool:
 		if self.is_primary:
 			return False
 
-		if self.category == 'tool' or pc_common_metadata.is_probably_related_tool(self.name) or pc_common_metadata.is_probably_related_tool(self.path) or pc_common_metadata.is_probably_different_mode(self.name) or pc_common_metadata.is_probably_different_mode(self.path):
+		if self.category == 'tool' or name_utils.is_probably_related_tool(self.name) or name_utils.is_probably_related_tool(self.path) or name_utils.is_probably_different_mode(self.name) or name_utils.is_probably_different_mode(self.path):
 			return True
 
 		return False
 
 	@property
-	def is_dosbox(self):
+	def is_dosbox(self) -> bool:
 		if not self.path or not self.working_directory:
 			return False
-		return os.path.basename(self.path.lower()) == 'dosbox.exe' and self.working_directory.lower().rstrip('/') in ('dosbox', 'dosbox_windows') and self.task_type == 'FileTask'
+		return os.path.basename(self.path.lower()) == 'dosbox.exe' and self.working_directory.lower().rstrip('/') in {'dosbox', 'dosbox_windows'} and self.task_type == 'FileTask'
 
 	@property
-	def is_scummvm(self):
+	def is_scummvm(self) -> bool:
 		if not self.path or not self.working_directory:
 			return False
 		return self.path.lower() == 'scummvm/scummvm.exe' and self.working_directory.lower() == 'scummvm' and self.task_type == 'FileTask'
 
 	@property
-	def is_residualvm(self):
+	def is_residualvm(self) -> bool:
 		if not self.path or not self.working_directory:
 			return False
 		return self.path.lower() == 'residualvm/residualvm.exe' and self.working_directory.lower() == 'residualvm' and self.task_type == 'FileTask'
 
 class GOGGame():
-	def __init__(self, game_folder, info, start_script, support_folder):
+	def __init__(self, game_folder, info: GOGGameInfo, start_script, support_folder):
 		self.folder = game_folder
 		self.info = info
 		self.start_script = start_script
 		self.support_folder = support_folder #Is this necessary to pass as an argument? I guess not but I've already found it in look_in_linux_gog_folder
 		
-		self.name = pc_common_metadata.fix_name(self.info.name)
+		self.name = name_utils.fix_name(self.info.name)
 		self.metadata = Metadata()
 
-	def add_metadata(self):
+	def add_metadata(self) -> None:
 		icon = self.icon
 		if icon:
 			self.metadata.images['Icon'] = icon
@@ -143,7 +145,7 @@ class GOGGame():
 		#Dang… everything else would require the API, I guess
 
 	@property
-	def icon(self):
+	def icon(self) -> Optional[str]:
 		for icon_ext in pc_common_metadata.icon_extensions:
 			icon_path = os.path.join(self.support_folder, 'icon' + os.extsep + icon_ext)
 			if os.path.isfile(icon_path):
@@ -151,26 +153,26 @@ class GOGGame():
 		return None
 
 	@property
-	def is_demo(self):
+	def is_demo(self) -> bool:
 		#The API doesn't even say this for a given product ID, we'll just have to figure it out ourselves
 		if self.info.version and 'demo' in self.info.version.lower():
 			return True
 		if self.info.dev_version and 'demo' in self.info.dev_version.lower():
 			return True
-		for demo_suffix in pc_common_metadata.demo_suffixes:
+		for demo_suffix in name_utils.demo_suffixes:
 			if '({0})'.format(demo_suffix.lower()) in self.name.lower():
 				return True
 		return False
 
-	def make_launcher(self):
+	def make_launcher(self) -> None:
 		params = launcher.LaunchCommand(self.start_script, [], working_directory=self.folder)
 		desktop_launchers.make_launcher(params, self.name, self.metadata, 'GOG', self.folder)
 
 class NormalGOGGame(GOGGame):
-	def add_metadata(self):
+	def add_metadata(self) -> None:
 		super().add_metadata()
 		game_data_folder = os.path.join(self.folder, 'game')
-		engine = pc_common_metadata.try_and_detect_engine_from_folder(game_data_folder, self.metadata)
+		engine = try_and_detect_engine_from_folder(game_data_folder, self.metadata)
 		if engine:
 			self.metadata.specific_info['Engine'] = engine
 		for filename in os.listdir(game_data_folder):
@@ -190,19 +192,19 @@ class NormalGOGGame(GOGGame):
 
 class DOSBoxGOGGame(GOGGame):
 	#TODO: Let user use native DOSBox
-	def add_metadata(self):
+	def add_metadata(self) -> None:
 		super().add_metadata()
 		self.metadata.specific_info['Wrapper'] = 'DOSBox'
 
 class ScummVMGOGGame(GOGGame):
 	#TODO: Let user use native ScummVM
-	def add_metadata(self):
+	def add_metadata(self) -> None:
 		super().add_metadata()
 		self.metadata.specific_info['Wrapper'] = 'ScummVM'
 
 #I think there can be Wine bundled with a game sometimes too?
 
-def find_subpath_case_insensitive(path, subpath):
+def find_subpath_case_insensitive(path: str, subpath: str) -> Optional[str]:
 	#We will need this because Windows (or rather NTFS) does not respect case sensitivity, and so sometimes a file will be referred to that has unexpected capitalisation (e.g. playTask referring to blah.EXE when on disk it is .exe)
 	#Assumes path is fine and normal
 	alleged_path = os.path.join(path, subpath)
@@ -221,7 +223,7 @@ def find_subpath_case_insensitive(path, subpath):
 	return None
 
 class WindowsGOGGame():
-	def __init__(self, folder, info_file, game_id):
+	def __init__(self, folder, info_file, game_id: str) -> None:
 		self.info = GOGJSONGameInfo(info_file)
 		self.id_file = None
 		id_path = info_file.rsplit(os.path.extsep, 1)[0] + os.path.extsep + 'id'
@@ -235,10 +237,10 @@ class WindowsGOGGame():
 		self.folder = folder
 
 		self.original_name = self.info.name
-		self.name = pc_common_metadata.fix_name(self.original_name)
+		self.name = name_utils.fix_name(self.original_name)
 		self.metadata = Metadata()
 
-	def add_metadata(self):
+	def add_metadata(self) -> None:
 		icon = self.icon
 		if icon:
 			self.metadata.images['Icon'] = icon
@@ -249,7 +251,7 @@ class WindowsGOGGame():
 			lang = region_info.get_language_by_english_name(lang_name)
 			self.metadata.languages.append(lang)
 
-		engine = pc_common_metadata.try_and_detect_engine_from_folder(self.folder, self.metadata)
+		engine = try_and_detect_engine_from_folder(self.folder, self.metadata)
 		if engine:
 			self.metadata.specific_info['Engine'] = engine
 
@@ -262,34 +264,34 @@ class WindowsGOGGame():
 			self.metadata.specific_info['Build-ID'] = self.id_file.get('buildId')
 
 	@property
-	def is_demo(self):
+	def is_demo(self) -> bool:
 		for demo_suffix in name_utils.demo_suffixes:
 			if '({0})'.format(demo_suffix.lower()) in self.name.lower():
 				return True
 		return False
 
 	@property
-	def icon(self):
+	def icon(self) -> Optional[str]:
 		for icon_ext in pc_common_metadata.icon_extensions:
 			icon_path = os.path.join(self.folder, 'goggame-' + self.game_id + os.extsep + icon_ext)
 			if os.path.isfile(icon_path):
 				return icon_path
 		return None
 
-	def fix_subfolder_relative_folder(self, folder, subfolder):
+	def fix_subfolder_relative_folder(self, folder: str, subfolder: str):
 		if folder.startswith('..\\'):
 			return find_subpath_case_insensitive(self.folder, folder.replace('..\\', ''))
 		if folder.startswith('.\\'):
 			return find_subpath_case_insensitive(self.folder, folder.replace('.\\', subfolder + os.path.sep))
 		return folder
 
-	def get_dosbox_launch_params(self, task):
+	def get_dosbox_launch_params(self, task) -> launcher.LaunchCommand:
 		args = [self.fix_subfolder_relative_folder(arg, 'dosbox') for arg in task.args]
 		dosbox_path = main_config.dosbox_path
 		dosbox_folder = find_subpath_case_insensitive(self.folder, 'dosbox') #Game's config files are expecting to be launched from here
 		return desktop_launchers.LaunchCommand(dosbox_path, args, working_directory=dosbox_folder)
 
-	def get_wine_launch_params(self, task):
+	def get_wine_launch_params(self, task) -> Optional[launcher.LaunchCommand]:
 		if not task.path:
 			if main_config.debug:
 				print('Oh dear - we cannot deal with tasks that have no path', self.name, task.name, task.args, task.task_type, task.category)
@@ -307,7 +309,7 @@ class WindowsGOGGame():
 		
 		return launcher.get_wine_launch_params(exe_path, task.args, working_directory)
 
-	def get_launcher_params(self, task):
+	def get_launcher_params(self, task) -> tuple[str, Optional[launcher.LaunchCommand]]:
 		if main_config.use_system_dosbox and task.is_dosbox:
 			return 'DOSBox', self.get_dosbox_launch_params(task)
 
@@ -315,7 +317,7 @@ class WindowsGOGGame():
 		
 		return 'Wine', self.get_wine_launch_params(task)
 		
-	def make_launcher(self, task):
+	def make_launcher(self, task: GOGTask):
 		emulator_name, params = self.get_launcher_params(task)
 		if not params:
 			return
@@ -351,17 +353,17 @@ class WindowsGOGGame():
 				else:
 					name += ' ({0})'.format(task.name)
 			else:
-				name = pc_common_metadata.fix_name(task.name)
+				name = name_utils.fix_name(task.name)
 
 		desktop_launchers.make_launcher(params, name, task_metadata, 'GOG', self.folder)
 
-	def make_launchers(self):
+	def make_launchers(self) -> None:
 		actual_tasks = []
 		documents = []
 		for task in self.info.play_tasks:
 			if task.category == 'document':
 				documents.append(task)
-			elif task.name and pc_common_metadata.is_probably_documentation(task.name):
+			elif task.name and name_utils.is_probably_documentation(task.name):
 				documents.append(task)
 			elif task.task_type == 'URLTask':
 				documents.append(task)

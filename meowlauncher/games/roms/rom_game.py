@@ -39,6 +39,7 @@ class ROMLauncher(EmulatorLauncher):
 	def __init__(self, game: ROMGame, emulator: StandardEmulator, platform_config: PlatformConfig, emulator_config: EmulatorConfig) -> None:
 		self.game: ROMGame = game
 		self.runner: StandardEmulator = emulator
+		super().__init__(game, emulator)
 		self.platform_config = platform_config
 		self.emulator_config = emulator_config
 

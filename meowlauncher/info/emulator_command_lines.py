@@ -121,11 +121,8 @@ def mame_atari_2600(game, _, emulator_config):
 	elif right == Atari2600Controller.DrivingController:
 		options['joyport2'] = 'wheel'
 
-	if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL:
-		system = 'a2600p'
-	else:
-		system = 'a2600'
-
+	system = 'a2600p' if game.metadata.specific_info.get('TV-Type') == TVSystem.PAL else 'a2600'
+	
 	return mame_driver(game, emulator_config, system, 'cart', slot_options=options)
 
 def mame_atari_jaguar(game, _, emulator_config):
@@ -161,14 +158,14 @@ def mame_atari_8bit(game, platform_config, emulator_config):
 	if game.metadata.media_type == MediaType.Cartridge:
 		if game.metadata.specific_info.get('Headered', False):
 			cart_type = game.metadata.specific_info['Mapper']
-			if cart_type in (13, 14, 23, 24, 25) or (33 <= cart_type <= 38):
+			if cart_type in {13, 14, 23, 24, 25} or (33 <= cart_type <= 38):
 				raise EmulationNotSupportedException('XEGS cart: %d' % cart_type)
 
 			#You probably think this is a bad way to do this...  I guess it is, but hopefully I can take some out as they become supported
-			if cart_type in (5, 17, 22, 41, 42, 43, 45, 46, 47, 48, 49, 53, 57, 58, 59, 60, 61) or (26 <= cart_type <= 32) or (54 <= cart_type <= 56):
+			if cart_type in {5, 17, 22, 41, 42, 43, 45, 46, 47, 48, 49, 53, 57, 58, 59, 60, 61} or (26 <= cart_type <= 32) or (54 <= cart_type <= 56):
 				raise EmulationNotSupportedException('Unsupported cart type: %d' % cart_type)
 
-			if cart_type in (4, 6, 7, 16, 19, 20):
+			if cart_type in {4, 6, 7, 16, 19, 20}:
 				raise EmulationNotSupportedException('Atari 5200 cart (will probably work if put in the right place): %d' % cart_type)
 		else:
 			size = game.rom.get_size()
@@ -371,7 +368,7 @@ def mame_lynx(game, _, emulator_config):
 	return mame_driver(game, emulator_config, 'lynx', slot)
 
 def mame_master_system(game, _, emulator_config):
-	tv_type = TVSystem.PAL #Seems a more sensible default at this point (there are also certain homebrews with less-than-detectable TV types that demand PAL)
+	tv_type: TVSystem = TVSystem.PAL #Seems a more sensible default at this point (there are also certain homebrews with less-than-detectable TV types that demand PAL)
 
 	if game.metadata.specific_info.get('TV-Type') in (TVSystem.NTSC, TVSystem.Agnostic):
 		tv_type = TVSystem.NTSC
@@ -604,7 +601,7 @@ def mame_nes(game, _, emulator_config):
 	129, 130, 131, 135, 151, 161, 169, 170, 174, 181, 219, 220,
 	236, 237, 239, 247, 248, 251, 253)
 	supported_unif_mappers = ('DREAMTECH01', 'NES-ANROM', 'NES-AOROM', 'NES-CNROM', 'NES-NROM', 'NES-NROM-128', 'NES-NROM-256', 'NES-NTBROM', 'NES-SLROM', 'NES-TBROM', 'NES-TFROM', 'NES-TKROM', 'NES-TLROM', 'NES-UOROM', 'UNL-22211', 'UNL-KOF97', 'UNL-SA-NROM', 'UNL-VRC7', 'UNL-T-230', 'UNL-CC-21', 'UNL-AX5705', 'UNL-SMB2J', 'UNL-8237', 'UNL-SL1632', 'UNL-SACHEN-74LS374N', 'UNL-TC-U01-1.5M', 'UNL-SACHEN-8259C', 'UNL-SA-016-1M', 'UNL-SACHEN-8259D', 'UNL-SA-72007', 'UNL-SA-72008', 'UNL-SA-0037', 'UNL-SA-0036', 'UNL-SA-9602B', 'UNL-SACHEN-8259A', 'UNL-SACHEN-8259B', 'BMC-190IN1', 'BMC-64IN1NOREPEAT', 'BMC-A65AS', 'BMC-GS-2004', 'BMC-GS-2013', 'BMC-NOVELDIAMOND9999999IN1', 'BMC-SUPER24IN1SC03', 'BMC-SUPERHIK8IN1', 'BMC-T-262', 'BMC-WS', 'BMC-N625092')
-	if game.metadata.specific_info.get('Header-Format', None) in ('iNES', 'NES 2.0'):
+	if game.metadata.specific_info.get('Header-Format', None) in {'iNES', 'NES 2.0'}:
 		mapper = game.metadata.specific_info['Mapper-Number']
 		if mapper in unsupported_ines_mappers or mapper >= 256:
 			raise EmulationNotSupportedException('Unsupported mapper: {0} ({1})'.format(mapper, game.metadata.specific_info.get('Mapper')))
@@ -730,7 +727,7 @@ def mame_sg1000(game, _, emulator_config):
 		system = 'sc3000'
 		slot = 'cart'
 		has_keyboard = True
-	elif ext in ('bin', 'sg'):
+	elif ext in {'bin', 'sg'}:
 		#Use original system here. Mark II seems to have no expansion and it should just run Othello Multivision stuff?
 		system = 'sg1000'
 		slot = 'cart'
@@ -887,7 +884,7 @@ def mednafen_apple_ii(game, _, emulator_config):
 
 def mednafen_game_gear(game, _, emulator_config):
 	mapper = game.metadata.specific_info.get('Mapper')
-	if mapper in ('Codemasters', 'EEPROM'):
+	if mapper in {'Codemasters', 'EEPROM'}:
 		raise EmulationNotSupportedException('{0} mapper not supported'.format(mapper))
 	return mednafen_module('gg', exe_path=emulator_config.exe_path)
 
@@ -933,7 +930,7 @@ def mednafen_nes(game, _, emulator_config):
 	unsupported_ines_mappers += tuple(range(194, 206))
 	supported_unif_mappers = ('BTR', 'PNROM', 'PEEOROM', 'TC-U01-1.5M', 'Sachen-8259B', 'Sachen-8259A', 'Sachen-74LS374N', 'SA-016-1M', 'SA-72007', 'SA-72008', 'SA-0036', 'SA-0037', 'H2288', '8237', 'MB-91', 'NINA-06', 'NINA-03', 'NINA-001', 'HKROM', 'EWROM', 'EKROM', 'ELROM', 'ETROM', 'SAROM', 'SBROM', 'SCROM', 'SEROM', 'SGROM', 'SKROM', 'SLROM', 'SL1ROM', 'SNROM', 'SOROM', 'TGROM', 'TR1ROM', 'TEROM', 'TFROM', 'TLROM', 'TKROM', 'TSROM', 'TLSROM', 'TKSROM', 'TQROM', 'TVROM', 'AOROM', 'CPROM', 'CNROM', 'GNROM', 'NROM', 'RROM', 'RROM-128', 'NROM-128', 'NROM-256', 'MHROM', 'UNROM', 'MARIO1-MALEE2', 'Supervision16in1', 'NovelDiamond9999999in1', 'Super24in1SC03', 'BioMiracleA', '603-5052')
 
-	if game.metadata.specific_info.get('Header-Format', None) in ('iNES', 'NES 2.0'):
+	if game.metadata.specific_info.get('Header-Format', None) in {'iNES', 'NES 2.0'}:
 		mapper = game.metadata.specific_info['Mapper-Number']
 		if mapper in unsupported_ines_mappers or mapper >= 256:
 			#Does not actually seem to check for NES 2.0 header extensions at all, according to source
@@ -1466,7 +1463,7 @@ def basilisk_ii(app, _, emulator_config):
 	#Ideally, HFS manipulation would be powerful enough that we could just slip an alias into the Startup Items folder ourselves and delete it afterward. That doesn't fix the problem of automatically shutting down (still need a script for that), unless we don't create an alias at all and we create a script or something on the fly that launches that path and then shuts down, but yeah. Stuff and things.
 	shared_folder = None
 	try:
-		with open(os.path.expanduser('~/.basilisk_ii_prefs'), 'rt') as f:
+		with open(os.path.expanduser('~/.basilisk_ii_prefs'), 'rt', encoding='utf-8') as f:
 			for line in f.readlines():
 				if line.startswith('extfs '):
 					shared_folder = line[6:-1]
@@ -1484,7 +1481,7 @@ def sheepshaver(app, _, emulator_config):
 	#Ideally, HFS manipulation would be powerful enough that we could just slip an alias into the Startup Items folder ourselves and delete it afterward. That doesn't fix the problem of automatically shutting down (still need a script for that), unless we don't create an alias at all and we create a script or something on the fly that launches that path and then shuts down, but yeah. Stuff and things.
 	shared_folder = None
 	try:
-		with open(os.path.expanduser('~/.sheepshaver_prefs'), 'rt') as f:
+		with open(os.path.expanduser('~/.sheepshaver_prefs'), 'rt', encoding='utf-8') as f:
 			for line in f.readlines():
 				if line.startswith('extfs '):
 					shared_folder = line[6:-1]
@@ -1501,7 +1498,7 @@ def sheepshaver(app, _, emulator_config):
 mount_line_regex = re.compile(r'^MOUNT ([A-Z]) ')
 def _last_unused_dosbox_drive(dosbox_config_path, used_letters=None):
 	automounted_letters = []
-	with open(dosbox_config_path, 'rt') as f:
+	with open(dosbox_config_path, 'rt', encoding='utf-8') as f:
 		found_autoexec = False
 		for line in f.readlines():
 			line = line.rstrip()
@@ -1648,7 +1645,7 @@ def mesen(game, _, __):
 	#Also Mindkids 143-in-1 but I'm not sure what number that is/what the UNIF name is
 	unsupported_unif_mappers = ['KONAMI-QTAI', ' BMC-10-24-C-A1', 'BMC-13in1JY110', 'BMC-81-01-31-C', 
 		'UNL-KS7010', 'UNL-KS7030', 'UNL-OneBus', 'UNL-PEC-586', 'UNL-SB-2000', 'UNL-Transformer', 'WAIXING-FS005']
-	if game.metadata.specific_info.get('Header-Format', None) in ('iNES', 'NES 2.0'):
+	if game.metadata.specific_info.get('Header-Format', None) in {'iNES', 'NES 2.0'}:
 		mapper = game.metadata.specific_info.get('Mapper-Number')
 		if mapper in unsupported_mappers or mapper > 530:
 			raise EmulationNotSupportedException('Unsupported mapper: {0} {1}'.format(mapper, game.metadata.specific_info.get('Mapper')))

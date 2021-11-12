@@ -2,6 +2,7 @@ import os
 import pathlib
 import re
 import zlib
+from typing import Optional
 
 from .archives import compressed_get, compressed_getsize, get_crc32_of_archive
 
@@ -47,7 +48,7 @@ def get_crc32(path: str, compressed_entry: str=None) -> int:
 
 	return get_crc32_of_archive(path, compressed_entry)
 
-def sanitize_name(s: str, supersafe: bool=False) -> str:
+def sanitize_name(s: Optional[str], supersafe: bool=False) -> str:
 	#These must never be filenames or folder names!  Badbadbad!
 	if not s:
 		return 'Nothing'

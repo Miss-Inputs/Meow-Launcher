@@ -1,11 +1,11 @@
-from typing import Optional, cast
+from typing import Any, Optional, Union, cast
 
 from meowlauncher import detect_things_from_filename
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.libretro_database_company_name_cleanup import \
     company_name_overrides
 from meowlauncher.games.common.libretro_database import \
-    parse_all_dats_for_system
+    LibretroDatabaseType, parse_all_dats_for_system
 from meowlauncher.games.mame_common.machine import (Machine,
                                                     does_machine_match_game,
                                                     get_machine)
@@ -97,7 +97,7 @@ def add_metadata_from_arcade(game: ROMGame, machine: Machine):
 		if machine_icon:
 			game.metadata.images['Icon'] = machine_icon
 
-	if machine.family in ('monopoly', 'scrabble'):
+	if machine.family in {'monopoly', 'scrabble'}:
 		#The arcade games Monopoly and Scrabble are some weird quiz games that have the licensed board games as a theme, whereas every Monopoly and Scrabble in the software list is not going to be that at all, and just a normal conversion of the board game like you expect, so all metadata except the icon isn't necessarily going to be accurate. I choose to hardcode these cases because they annoy me
 		game.metadata.genre = 'Tabletop'
 		game.metadata.subgenre = 'Board'
@@ -152,8 +152,8 @@ def add_alternate_names(rom: ROM, metadata: Metadata):
 	for alt_name in alt_names:
 		metadata.add_alternate_name(alt_name)
 
-def add_metadata_from_libretro_database_entry(metadata: Metadata, database, key):
-	database_entry = database.get(key)
+def add_metadata_from_libretro_database_entry(metadata: Metadata, database: LibretroDatabaseType, key: Union[str, int]):
+	database_entry = cast(Optional[dict[str, Any]], database.get(key))
 	if database_entry:
 		name = database_entry.get('comment', database_entry.get('name'))
 		if name:

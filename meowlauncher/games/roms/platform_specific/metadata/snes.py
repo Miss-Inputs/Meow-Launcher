@@ -1,5 +1,6 @@
 import calendar
-from typing import Any, Iterable, Optional, cast
+from collections.abc import Iterable
+from typing import Any, Optional, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -50,7 +51,7 @@ def get_sunsoft_pachinko_controller():
 class BadSNESHeaderException(Exception):
 	pass
 
-def make_ram_rom_sizes():
+def make_ram_rom_sizes() -> dict[int, int]:
 	sizes = {}
 	for i in range(0, 256):
 		sizes[i] = (1 << i) * 1024
@@ -153,8 +154,8 @@ def parse_snes_header(rom: FileROM, base_offset: int) -> dict[str, Any]:
 	try:
 		title = header[0xc0:0xd5].decode('shift_jis')
 		metadata['Title'] = title
-	except UnicodeDecodeError:
-		raise BadSNESHeaderException('Title not ASCII or Shift-JIS: %s' % header[0xc0:0xd5].decode('shift_jis', errors='backslashreplace'))
+	except UnicodeDecodeError as ude:
+		raise BadSNESHeaderException('Title not ASCII or Shift-JIS: %s' % header[0xc0:0xd5].decode('shift_jis', errors='backslashreplace')) from ude
 
 	
 	rom_layout = header[0xd5]
@@ -200,21 +201,21 @@ def parse_snes_header(rom: FileROM, base_offset: int) -> dict[str, Any]:
 		try:
 			maker_code = convert_alphanumeric(header[0xb0:0xb2])
 			metadata['Licensee'] = maker_code
-		except NotAlphanumericException:
-			raise BadSNESHeaderException('Licensee code in extended header not alphanumeric: %s' % header[0xb0:0xb2].decode('ascii', errors='backslashreplace'))
+		except NotAlphanumericException as nae:
+			raise BadSNESHeaderException('Licensee code in extended header not alphanumeric: %s' % header[0xb0:0xb2].decode('ascii', errors='backslashreplace')) from nae
 
 		try:
 			product_code = convert_alphanumeric(header[0xb2:0xb6])
 			metadata['Product code'] = product_code
-		except NotAlphanumericException:
+		except NotAlphanumericException as nae:
 			if header[0xb4:0xb6] == b'  ':
 				try:
 					product_code = convert_alphanumeric(header[0xb2:0xb4])
 					metadata['Product code'] = product_code
-				except NotAlphanumericException:
-					raise BadSNESHeaderException('2 char product code not alphanumeric: %s' % header[0xb2:0xb4].decode('ascii', errors='backslashreplace'))
+				except NotAlphanumericException as naenae: #get naenaed
+					raise BadSNESHeaderException('2 char product code not alphanumeric: %s' % header[0xb2:0xb4].decode('ascii', errors='backslashreplace')) from naenae
 			else:
-				raise BadSNESHeaderException('4 char product code not alphanumeric: %s' % header[0xb2:0xb6].decode('ascii', errors='backslashreplace'))
+				raise BadSNESHeaderException('4 char product code not alphanumeric: %s' % header[0xb2:0xb6].decode('ascii', errors='backslashreplace')) from nae
 	else:
 		metadata['Licensee'] = '{:02X}'.format(licensee)
 
@@ -270,14 +271,14 @@ def parse_satellaview_header(rom: FileROM, base_offset: int) -> dict[str, Any]:
 	try:
 		publisher = convert_alphanumeric(header[0xb0:0xb2])
 		metadata['Publisher'] = publisher
-	except NotAlphanumericException:
-		raise BadSNESHeaderException("Publisher not alphanumeric")
+	except NotAlphanumericException as nae:
+		raise BadSNESHeaderException("Publisher not alphanumeric") from nae
 
 	try:
 		title = header[0xc0:0xd0].decode('shift_jis')
 		metadata['Title'] = title
-	except UnicodeDecodeError:
-		raise BadSNESHeaderException('Title not ASCII or Shift-JIS: %s' % header[0xc0:0xd0].decode('shift_jis', errors='backslashreplace'))
+	except UnicodeDecodeError as ude:
+		raise BadSNESHeaderException('Title not ASCII or Shift-JIS: %s' % header[0xc0:0xd0].decode('shift_jis', errors='backslashreplace')) from ude
 
 	month = (header[0xd6] & 0b_1111_0000) >> 4
 	day = (header[0xd7] & 0b_1111_1000) >> 3
@@ -380,17 +381,17 @@ def add_snes_software_list_metadata(software: Software, metadata: Metadata):
 		metadata.specific_info['Expansion-Chip'] = SNESExpansionChip.ST011
 
 	#Meh...
-	if software.name in ('ffant2', 'ffant2a'):
+	if software.name in {'ffant2', 'ffant2a'}:
 		metadata.series = 'Final Fantasy'
 		metadata.series_index = '4'
-	elif software.name in ('ffant3', 'ffant3a', 'ffant3p'):
+	elif software.name in {'ffant3', 'ffant3a', 'ffant3p'}:
 		metadata.series = 'Final Fantasy'
 		metadata.series_index = '6'
 		
 
 def add_snes_metadata(game: ROMGame):
 	rom = cast(FileROM, game.rom)
-	if game.rom.extension in ['sfc', 'smc', 'swc']:
+	if game.rom.extension in {'sfc', 'smc', 'swc'}:
 		add_normal_snes_header(rom, game.metadata)
 	elif game.rom.extension == 'bs':
 		add_satellaview_metadata(rom, game.metadata)

@@ -52,7 +52,7 @@ class ColecoController(Enum):
 def add_colecovision_info(game: ROMGame):
 	#Can get year, publisher unreliably from the title screen info in the ROM; please do not do that
 
-	peripheral = ColecoController.Normal
+	peripheral: ColecoController = ColecoController.Normal
 	peripheral_required = False
 
 	software = get_software_list_entry(game)
@@ -160,7 +160,7 @@ def add_pet_info(game: ROMGame):
 			if tag in (model, 'CBM %s' % model, 'CBM%s' % model, 'PET %s' % model, 'PET%s' % model):
 				game.metadata.specific_info['Machine'] = model
 				continue
-		if tag in ('PET 2001', 'PET2001', 'CBM 2001', 'CBM2001'):
+		if tag in {'PET 2001', 'PET2001', 'CBM 2001', 'CBM2001'}:
 			#We don't search for just "(2001)" in case that's used to denote the year
 			game.metadata.specific_info['Machine'] = '2001'
 			continue

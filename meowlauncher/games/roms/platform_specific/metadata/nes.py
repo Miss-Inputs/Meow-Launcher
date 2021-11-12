@@ -1,4 +1,5 @@
-from typing import Iterable, Optional, cast
+from collections.abc import Iterable
+from typing import Optional, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -543,7 +544,7 @@ def add_nes_software_list_metadata(software: Software, metadata: Metadata):
 		metadata.input_info.add_option(vaus)
 		#Can still use standard controller
 		metadata.input_info.add_option(standard_controller)
-	elif peripheral in ('powerpad', 'ftrainer', 'fffitness'):
+	elif peripheral in {'powerpad', 'ftrainer', 'fffitness'}:
 		nes_peripheral = NESPeripheral.PowerPad
 
 		power_pad = input_metadata.NormalController()
@@ -614,7 +615,7 @@ def add_nes_metadata(game: ROMGame):
 	else:
 		header = rom.read(amount=16)
 		magic = header[:4]
-		if magic in (b'NES\x00', b'NES\x1a'):
+		if magic in {b'NES\x00', b'NES\x1a'}:
 			add_ines_metadata(rom, game.metadata, header)
 		elif magic == b'UNIF':
 			add_unif_metadata(rom, game.metadata)
@@ -624,7 +625,7 @@ def add_nes_metadata(game: ROMGame):
 	software = None
 	if not game.metadata.specific_info.get('Headered', False) or game.metadata.specific_info.get('Header-Format') == 'fwNES':
 		software = get_software_list_entry(game)
-	elif game.metadata.specific_info.get('Header-Format') in ('iNES', 'NES 2.0', 'UNIF'):
+	elif game.metadata.specific_info.get('Header-Format') in {'iNES', 'NES 2.0', 'UNIF'}:
 		software = _get_headered_nes_rom_software_list_entry(game)
 
 	game.metadata.specific_info['Peripheral'] = NESPeripheral.NormalController

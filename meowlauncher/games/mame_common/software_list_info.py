@@ -1,7 +1,7 @@
 import os
-import re
 import zlib
-from typing import Any, Iterable, Optional, Sequence, cast
+from collections.abc import Iterable, Sequence
+from typing import Any, Optional, cast
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
@@ -151,7 +151,7 @@ def find_software_by_name(software_lists: Sequence[SoftwareList], name: str) -> 
 			if 'v1.0' in match_brackets:
 				orig_version = True
 				for b in name_brackets:
-					if (b not in ('rev 0', 'v1.0') and b.startswith(('rev', 'v1.'))) or b in ('reprint', 'rerelease'):
+					if (b not in ('rev 0', 'v1.0') and b.startswith(('rev', 'v1.'))) or b in {'reprint', 'rerelease'}:
 						orig_version = False
 						break
 				if orig_version:

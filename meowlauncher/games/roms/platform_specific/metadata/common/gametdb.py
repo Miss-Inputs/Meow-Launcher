@@ -40,7 +40,7 @@ class TDB():
 				for main_genre, subgenres in self.genres.items():
 					for subgenre in subgenres:
 						if genre == subgenre:
-							if main_genre in ('general', 'theme', 'traditional', 'others'):
+							if main_genre in {'general', 'theme', 'traditional', 'others'}:
 								if subgenre not in main_genres:
 									main_genres[subgenre] = set()
 							else:

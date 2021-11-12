@@ -1,6 +1,7 @@
 import re
 import zlib
-from typing import Any, Callable, Optional, Sequence, cast
+from collections.abc import Callable, Sequence
+from typing import Any, Optional, cast
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import EmulationStatus
@@ -41,10 +42,10 @@ def add_alt_titles(metadata: Metadata, alt_title: str):
 		ends_with_brackets_match = ends_with_brackets.match(piece)
 		if ends_with_brackets_match:
 			name_type = ends_with_brackets_match[2]
-			if name_type in ('Box', 'USA Box', 'US Box', 'French Box', 'Box?', 'Cart', 'cart', 'Label', 'label', 'Fra Box'):
+			if name_type in {'Box', 'USA Box', 'US Box', 'French Box', 'Box?', 'Cart', 'cart', 'Label', 'label', 'Fra Box'}:
 				#There must be a better way for me to do this…
 				metadata.add_alternate_name(ends_with_brackets_match[1], name_type.title().replace(' ', '-').replace('?', '') + '-Title')
-			elif name_type in ('Box, Cart', 'Box/Card'):
+			elif name_type in {'Box, Cart', 'Box/Card'}:
 				#Grr
 				metadata.add_alternate_name(ends_with_brackets_match[1], 'Box-Title')
 				metadata.add_alternate_name(ends_with_brackets_match[1], 'Cart-Title')
@@ -430,7 +431,7 @@ class Software():
 		publisher = consistentify_manufacturer(self.xml.findtext('publisher'))
 		if publisher:
 			already_has_publisher = metadata.publisher and (not metadata.publisher.startswith('<unknown'))
-			if publisher in ('<doujin>', '<homebrew>', '<unlicensed>') and developer:
+			if publisher in {'<doujin>', '<homebrew>', '<unlicensed>'} and developer:
 				metadata.publisher = developer
 			elif not (already_has_publisher and (publisher == '<unknown>')):
 				if ' / ' in publisher:

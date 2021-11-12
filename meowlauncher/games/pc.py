@@ -81,6 +81,7 @@ class AppLauncher(EmulatorLauncher):
 	def __init__(self, app: App, emulator: PCEmulator, platform_config: PlatformConfig, emulator_config: EmulatorConfig) -> None:
 		self.game: App = app
 		self.runner: PCEmulator = emulator
+		super().__init__(app, emulator)
 		self.platform_config = platform_config
 		self.emulator_config = emulator_config
 

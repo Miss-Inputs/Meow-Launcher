@@ -9,10 +9,10 @@ import io
 import os
 import subprocess
 import tempfile
-from dataclasses import dataclass
+from collections.abc import Mapping, Sequence
 from enum import Enum, Flag
 from shutil import rmtree
-from typing import Mapping, MutableMapping, NamedTuple, Optional, Sequence, cast
+from typing import NamedTuple, Optional, cast
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import SaveType
@@ -166,7 +166,7 @@ def add_nacp_metadata(metadata: Metadata, nacp: bytes, icons: Mapping[str, bytes
 	supported_languages = set()
 	for k, v in nacp_languages.items():
 		if supported_language_flag & (1 << k):
-			if v in ('AmericanEnglish', 'BritishEnglish'):
+			if v in {'AmericanEnglish', 'BritishEnglish'}:
 				#I want to avoid saying one language is the True English but at the same time it makes things a lot more complicated if I don't have a language in the list that just says English
 				supported_languages.add(get_language_by_english_name('English'))
 			elif v == 'LatinAmericanSpanish':
@@ -237,7 +237,7 @@ def decrypt_control_nca_with_hactool(control_nca: bytes) -> dict[str, bytes]:
 					raise InvalidNCAException('Header wrong')
 			except (subprocess.CalledProcessError, FileNotFoundError):
 				decrypt_control_nca_with_hactool.failed = cactus #type: ignore[attr-defined]
-				raise ExternalToolNotHappeningException('No can do {0}'.format(cactus))
+				raise ExternalToolNotHappeningException('No can do') from cactus
 
 		files = {}
 		for f in os.scandir(temp_folder):
@@ -278,7 +278,7 @@ def decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
 					raise InvalidNCAException('Header wrong')
 			except (subprocess.CalledProcessError, FileNotFoundError):
 				decrypt_cnmt_nca_with_hactool.failed = cactus #type: ignore[attr-defined]
-				raise ExternalToolNotHappeningException('No can do {0}'.format(cactus))
+				raise ExternalToolNotHappeningException('No can do') from cactus
 
 		for f in os.scandir(temp_folder):
 			if f.name.endswith('.cnmt') and f.is_file():
@@ -304,12 +304,12 @@ def list_cnmt(cnmt: Cnmt, rom: FileROM, metadata: Metadata, files: Mapping[str, 
 				#The icons match up with the titles that exist in the titles section, not SupportedLanguageFlag
 				icons = {}
 				nacp = None
-				for control_nca_filename in control_nca_files:
+				for control_nca_filename, control_nca_file in control_nca_files.items():
 					if not nacp and control_nca_filename == 'control.nacp':
 						#We would expect only one
-						nacp = control_nca_files[control_nca_filename]
+						nacp = control_nca_file
 					elif have_pillow and control_nca_filename.startswith('icon_') and control_nca_filename.endswith('.dat'):
-						icons[control_nca_filename.removeprefix('icon_').removesuffix('.dat')] = control_nca_files[control_nca_filename]
+						icons[control_nca_filename.removeprefix('icon_').removesuffix('.dat')] = control_nca_file
 				if nacp:
 					add_nacp_metadata(metadata, nacp, icons)
 				elif main_config.debug:

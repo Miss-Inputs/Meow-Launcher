@@ -1,7 +1,8 @@
 import os
 import re
 from datetime import datetime
-from typing import Iterable, Union, cast
+from typing import Union, cast
+from collections.abc import Iterable
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -68,7 +69,7 @@ def parse_peripherals(metadata: Metadata, peripherals: Iterable[str]):
 		elif peripheral_char == 'L':
 			#Activator
 			metadata.input_info.add_option(input_metadata.MotionControls())
-		elif peripheral_char in ('4', 'O'):
+		elif peripheral_char in {'4', 'O'}:
 			#Team Play and J-Cart respectively
 			#num_players = 4
 			pass
@@ -284,11 +285,11 @@ def add_megadrive_software_list_metadata(software: Software, metadata: Metadata)
 		if slot:
 			if slot not in ('rom_sram', 'rom_fram'):
 				mapper = slot[4:] if slot.startswith('rom_') else slot
-				if mapper in ('eeprom', 'nbajam_alt', 'nbajamte', 'nflqb96', 'cslam', 'nhlpa', 'blara', 'eeprom_mode1'):
+				if mapper in {'eeprom', 'nbajam_alt', 'nbajamte', 'nflqb96', 'cslam', 'nhlpa', 'blara', 'eeprom_mode1'}:
 					metadata.specific_info['Mapper'] = 'EEPROM'
 				elif mapper == 'jcart':
 					metadata.specific_info['Mapper'] = 'J-Cart'
-				elif mapper in ('codemast', 'mm96'):
+				elif mapper in {'codemast', 'mm96'}:
 					metadata.specific_info['Mapper'] = 'J-Cart + EEPROM'
 				else:
 					#https://github.com/mamedev/mame/blob/master/src/devices/bus/megadrive/md_carts.cpp

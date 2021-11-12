@@ -2,7 +2,8 @@ import importlib.resources
 import json
 import math
 import re
-from typing import Iterable, Optional, Sequence, Union
+from collections.abc import Iterable
+from typing import Optional, Union
 
 find_brackets = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)')
 find_brackets_at_end = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)$')
@@ -173,7 +174,7 @@ def remove_capital_article(s: Optional[str]) -> str:
 	words = s.split(' ')
 	new_words = [words[0]]
 	for word in words[1:]:
-		if word.lower() in ('the', 'a'):
+		if word.lower() in {'the', 'a'}:
 			new_words.append(word.lower())
 		else:
 			new_words.append(word)
@@ -183,10 +184,7 @@ def clean_string(s: str) -> str:
 	return ''.join([c for c in s if c.isprintable()])
 
 def byteswap(b: bytes) -> bytes:
-	if len(b) % 2 == 0:
-		bb = b
-	else:
-		bb = b[:-1]
+	bb = b if len(b) % 2 == 0 else b[:-1]
 	last_byte = b[-1]
 	byte_array = bytearray(bb)
 	byte_array[0::2] = bb[1::2]

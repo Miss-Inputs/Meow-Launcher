@@ -50,7 +50,7 @@ def parse_sdsc_header(rom: FileROM, metadata: Metadata, header: bytes):
 class BadSMSHeaderException(Exception):
 	pass
 
-regions = {
+regions: dict[int, tuple[str, bool]] = {
 	#Second tuple thing: True if Game Gear, False if SMS
 	#Not sure of the difference between export GG and international GG
 	3: ('Japanese', False),
@@ -131,7 +131,7 @@ def add_info_from_software_list(metadata: Metadata, software: Software):
 	usage = software.infos.get('usage')
 	if usage == 'Only runs with PAL/50Hz drivers, e.g. smspal':
 		metadata.specific_info['TV-Type'] = TVSystem.PAL
-	elif usage in ('Input works only with drivers of Japanese region, e.g. sms1kr,smsj', 'Only runs with certain drivers, e.g. smsj - others show SOFTWARE ERROR'):
+	elif usage in {'Input works only with drivers of Japanese region, e.g. sms1kr,smsj', 'Only runs with certain drivers, e.g. smsj - others show SOFTWARE ERROR'}:
 		metadata.specific_info['Japanese-Only'] = True
 	elif usage == 'Video mode is correct only on SMS 2 drivers, e.g. smspal':
 		metadata.specific_info['SMS2-Only'] = True
@@ -165,10 +165,7 @@ def add_info_from_software_list(metadata: Metadata, software: Software):
 	elif slot == 'seojin':
 		metadata.specific_info['Mapper'] = 'Seo Jin'
 
-	if software.get_part_feature('battery') == 'yes':
-		metadata.save_type = SaveType.Cart
-	else:
-		metadata.save_type = SaveType.Nothing
+	metadata.save_type = SaveType.Cart if software.get_part_feature('battery') == 'yes' else SaveType.Nothing
 
 	if metadata.platform == 'Master System':
 		builtin_gamepad = input_metadata.NormalController()

@@ -30,12 +30,11 @@ def parse_cue_sheet(cue_path: str) -> list[tuple[str, int]]:
 				current_mode = None
 
 			current_file = file_match['name'] if file_match['name'] else file_match['name_unquoted']
-		else:
+		elif not current_mode:
 			#Hhhhhhhhh what am I even doing here? This is like... assuming 1 mode for each file? That can't be right
-			if not current_mode:
-				track_match = cue_track_line_regex.match(line)
-				if track_match:
-					current_mode = track_match['mode']
+			track_match = cue_track_line_regex.match(line)
+			if track_match:
+				current_mode = track_match['mode']
 
 	files.append((current_file, sector_size_from_cue_mode(current_mode)))
 

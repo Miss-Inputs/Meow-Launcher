@@ -8,14 +8,15 @@ import time
 import traceback
 from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Optional, Type, cast
+from typing import Optional, cast
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        ExtensionNotSupportedException,
                                        NotARomException)
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config.platform_config import PlatformConfig, platform_configs
+from meowlauncher.config.platform_config import (PlatformConfig,
+                                                 platform_configs)
 from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.data.emulators import emulators, libretro_frontends
 from meowlauncher.desktop_launchers import (has_been_done,
@@ -51,9 +52,8 @@ def process_file(platform_config: PlatformConfig, potential_emulator_names: Iter
 			if potential_emulator.supports_folders:
 				have_emulator_that_supports_extension = True
 				break
-		else:
-			if rom.extension in potential_emulator.supported_extensions:
-				have_emulator_that_supports_extension = True
+		elif rom.extension in potential_emulator.supported_extensions:
+			have_emulator_that_supports_extension = True
 	if not have_emulator_that_supports_extension:
 		return None
 			
@@ -104,10 +104,10 @@ def process_file(platform_config: PlatformConfig, potential_emulator_names: Iter
 	return launcher
 
 def parse_m3u(path: str):
-	with open(path, 'rt') as f:
+	with open(path, 'rt', encoding='utf-8') as f:
 		return [line.rstrip('\n') for line in f]
 
-def sort_m3u_first() -> Type:
+def sort_m3u_first() -> type:
 	class Sorter:
 		def __init__(self, obj, *_):
 			self.o = obj
@@ -263,4 +263,3 @@ def main() -> None:
 		return
 
 	process_platforms()
-

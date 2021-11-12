@@ -1,12 +1,8 @@
 import datetime
 import io
-from enum import Enum
 import os
-from typing import Any, Optional, cast
-
-from meowlauncher.config.emulator_config_type import EmulatorConfig
-from meowlauncher.config.platform_config import PlatformConfig
-from meowlauncher.emulator import PCEmulator
+from enum import Enum
+from typing import Optional, cast
 
 try:
 	import machfs
@@ -24,6 +20,10 @@ try:
 	have_pillow = True
 except ImportError:
 	have_pillow = False
+
+from meowlauncher.config.emulator_config_type import EmulatorConfig
+from meowlauncher.config.platform_config import PlatformConfig
+from meowlauncher.emulator import PCEmulator
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.metadata import Date
@@ -437,7 +437,7 @@ class MacApp(App):
 							else:
 								actual_long_version = long_version
 							if copyright_string:
-								if copyright_string[:4].isdigit() and (len(copyright_string) == 4 or copyright_string[5] in (',', ' ')):
+								if copyright_string[:4].isdigit() and (len(copyright_string) == 4 or copyright_string[5] in {',', ' '}):
 									copyright_year = Date(year=copyright_string[:4], is_guessed=True)
 									if copyright_year.is_better_than(self.metadata.release_date):
 										self.metadata.release_date = copyright_year

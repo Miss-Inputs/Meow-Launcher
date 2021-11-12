@@ -331,7 +331,7 @@ def add_microtan_65_info(game: ROMGame):
 			hex_keypad = input_metadata.Keypad()
 			hex_keypad.keys = 20
 			game.metadata.input_info.add_option(hex_keypad)
-		elif usage in ('Requires ASCII Keyboard', 'Requires ASCII Keyboard: A=Up, Z=Down, <=Left, >=Right'):
+		elif usage in {'Requires ASCII Keyboard', 'Requires ASCII Keyboard: A=Up, Z=Down, <=Left, >=Right'}:
 			keyboard = input_metadata.Keyboard()
 			keyboard.keys = 62
 			game.metadata.input_info.add_option(keyboard)
@@ -385,9 +385,9 @@ def add_msx_info(game: ROMGame):
 	if software:
 		software.add_standard_metadata(game.metadata)
 		usage = software.get_info('usage')
-		if usage in ('Requires a Japanese system', 'Requires a Japanese system for the Japanese text'):
+		if usage in {'Requires a Japanese system', 'Requires a Japanese system for the Japanese text'}:
 			game.metadata.specific_info['Japanese-Only'] = True
-		elif usage in ('Requires an Arabic MSX', 'Requires an Arabic MSX2'):
+		elif usage in {'Requires an Arabic MSX', 'Requires an Arabic MSX2'}:
 			game.metadata.specific_info['Arabic-Only'] = True
 		else:
 			game.metadata.add_notes(usage)

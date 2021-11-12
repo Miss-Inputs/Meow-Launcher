@@ -78,7 +78,7 @@ def parse_history(history: str) -> History:
 	ports_start = None
 	end_line = len(lines) - 1
 	for i, line in enumerate(lines):
-		if line in ('- CAST OF CHARACTERS -', '- CAST OF ELEMENTS -'):
+		if line in {'- CAST OF CHARACTERS -', '- CAST OF ELEMENTS -'}:
 			#I think they are the same thing but only one will appear
 			cast_start = i
 		elif line == '- TECHNICAL -':
@@ -244,7 +244,7 @@ class MachineCategory():
 
 	@property
 	def is_plug_and_play(self) -> bool:
-		return (self.genre == 'Game Console' and self.subgenre in ('Home Videogame', 'MultiGames')) or \
+		return (self.genre == 'Game Console' and self.subgenre in {'Home Videogame', 'MultiGames'}) or \
 			(self.subgenre == 'Handheld' and (self.subgenre.startswith("Plug n' Play TV Game") or self.subgenre == 'Console Cartridge'))
 
 	@property
@@ -330,7 +330,7 @@ def organize_catlist(catlist: MachineCategory) -> OrganizedCatlist:
 		#Other category.genres of handheld: Pocket Device - Pad - PDA; Child Computer (e.g. Speak & Spell) but those seem more suited to Standalone System particularly the former
 		platform = 'Handheld'
 		definite_platform = False
-	if catlist.genre == 'Misc.' and catlist.subgenre in ('Electronic Game', 'Electronic Board Game'):
+	if catlist.genre == 'Misc.' and catlist.subgenre in {'Electronic Game', 'Electronic Board Game'}:
 		#"Electronic Game" could also be considered Handheld
 		platform = 'Board Game'
 		category = 'Games'
@@ -349,15 +349,15 @@ def organize_catlist(catlist: MachineCategory) -> OrganizedCatlist:
 			platform = 'Plug & Play'
 			category = 'Games'
 
-	if (catlist.is_arcade and (catlist.genre == 'Misc.' and catlist.subgenre in ('Laserdisc Simulator', 'Print Club', 'Redemption'))) or (catlist.genre == 'Music' and catlist.subgenre in ('Jukebox', 'JukeBox')):
+	if (catlist.is_arcade and (catlist.genre == 'Misc.' and catlist.subgenre in {'Laserdisc Simulator', 'Print Club', 'Redemption'})) or (catlist.genre == 'Music' and catlist.subgenre in {'Jukebox', 'JukeBox'}):
 		definite_category = True
 		category = catlist.subgenre
 
-	if catlist.genre == 'Utilities' and catlist.subgenre in ('Test ROM', 'Test'):
+	if catlist.genre == 'Utilities' and catlist.subgenre in {'Test ROM', 'Test'}:
 		definite_category = True
 		category = 'Tests'
 
-	if catlist.genre == 'Electromechanical' or (catlist.is_arcade and catlist.genre in ('Medal Game', 'Utilities')):
+	if catlist.genre == 'Electromechanical' or (catlist.is_arcade and catlist.genre in {'Medal Game', 'Utilities'}):
 		definite_category = True
 		category = catlist.genre
 		genre = catlist.subgenre

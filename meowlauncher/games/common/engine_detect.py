@@ -23,7 +23,7 @@ def try_detect_unity(folder: str, metadata: Optional[Metadata]=None) -> bool:
 		if metadata:
 			for file in os.listdir(os.path.join(folder, 'Build')):
 				if file.endswith('.json'):
-					with open(os.path.join(folder, 'Build', file)) as json_file:
+					with open(os.path.join(folder, 'Build', file), encoding='utf-8') as json_file:
 						info_json = json.load(json_file)
 						if not metadata.publisher and not metadata.developer:
 							company_name = info_json.get('companyName')
@@ -51,7 +51,7 @@ def try_detect_unity(folder: str, metadata: Optional[Metadata]=None) -> bool:
 						metadata.images['Banner'] = screen_selector_path #kinda?
 					appinfo_path = os.path.join(f.path, 'app.info')
 					try:
-						with open(appinfo_path, 'rt') as appinfo:
+						with open(appinfo_path, 'rt', encoding='utf-8') as appinfo:
 							appinfo_lines = appinfo.readlines()
 							if not metadata.publisher and not metadata.developer:
 								company_name = appinfo_lines[0]

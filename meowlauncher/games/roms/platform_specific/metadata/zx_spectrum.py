@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Optional, cast
 
 from meowlauncher.games.mame_common.software_list import Software
 from meowlauncher.games.mame_common.software_list_info import \
@@ -8,7 +8,7 @@ from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Metadata
 from meowlauncher.platform_types import ZXExpansion, ZXJoystick, ZXMachine
 
-zx_hardware = {
+zx_hardware: dict[int, tuple[ZXMachine, Optional[ZXExpansion]]] = {
 	#For .z80 header
 	0: (ZXMachine.ZX48k, None),
 	1: (ZXMachine.ZX48k, ZXExpansion.Interface1),
@@ -37,7 +37,7 @@ def add_z80_metadata(rom: FileROM, metadata: Metadata):
 	#Does joystick_flag == 1 imply expansion == Kempston?
 
 	program_counter = int.from_bytes(header[6:8], 'little')
-	machine = ZXMachine.ZX48k
+	machine: ZXMachine = ZXMachine.ZX48k
 	expansion = None
 	if program_counter != 0:
 		header_version = 1
@@ -102,7 +102,7 @@ def add_speccy_metadata(game: ROMGame):
 			if tag == '(48K)':
 				game.metadata.specific_info['Machine'] = ZXMachine.ZX48k
 				break
-			if tag in ('(48K-128K)', '(128K)'):
+			if tag in {'(48K-128K)', '(128K)'}:
 				game.metadata.specific_info['Machine'] = ZXMachine.ZX128k
 				break
 

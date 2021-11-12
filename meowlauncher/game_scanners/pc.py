@@ -3,7 +3,7 @@ import json
 import os
 import time
 import traceback
-from typing import Any, Optional, Type
+from typing import Any, Optional
 
 from meowlauncher.common_paths import config_dir
 from meowlauncher.common_types import (EmulationNotSupportedException,
@@ -17,7 +17,7 @@ from meowlauncher.desktop_launchers import make_linux_desktop_for_launcher
 from meowlauncher.games.pc import App, AppLauncher
 
 
-def get_launcher(app: App, launcher_type: Type[AppLauncher], platform_config: PlatformConfig) -> Optional[AppLauncher]:
+def get_launcher(app: App, launcher_type: type[AppLauncher], platform_config: PlatformConfig) -> Optional[AppLauncher]:
 	emulator = None
 	exception_reason = None
 	for potential_emulator_name in platform_config.chosen_emulators:
@@ -45,7 +45,7 @@ def get_launcher(app: App, launcher_type: Type[AppLauncher], platform_config: Pl
 
 	return launcher_type(app, emulator, platform_config, emulator_config)
 
-def process_app(app_info: dict[str, Any], app_class: Type[App], launcher_class: Type[AppLauncher], platform_config: PlatformConfig) -> None:
+def process_app(app_info: dict[str, Any], app_class: type[App], launcher_class: type[AppLauncher], platform_config: PlatformConfig) -> None:
 	app = app_class(app_info)
 	try:
 		if not app.is_valid:
@@ -61,12 +61,12 @@ def process_app(app_info: dict[str, Any], app_class: Type[App], launcher_class: 
 	except Exception as ex: #pylint: disable=broad-except
 		print('Ah bugger', app.path, app.name, ex, type(ex), traceback.extract_tb(ex.__traceback__)[1:])
 
-def make_launchers(platform: str, app_class: Type[App], launcher_class: Type[AppLauncher], platform_config: PlatformConfig) -> None:
+def make_launchers(platform: str, app_class: type[App], launcher_class: type[AppLauncher], platform_config: PlatformConfig) -> None:
 	time_started = time.perf_counter()
 
 	app_list_path = os.path.join(config_dir, pc_platforms[platform].json_name + '.json')
 	try:
-		with open(app_list_path, 'rt') as f:
+		with open(app_list_path, 'rt', encoding='utf-8') as f:
 			app_list = json.load(f)
 			for app in app_list:
 				try:

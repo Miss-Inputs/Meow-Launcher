@@ -1,4 +1,5 @@
-from typing import Optional, Sequence, cast
+from typing import Optional, cast
+from collections.abc import Sequence
 
 from meowlauncher import detect_things_from_filename, input_metadata
 from meowlauncher.common_types import EmulationStatus, MediaType, SaveType
@@ -156,7 +157,7 @@ def add_metadata_from_catlist(game: MAMEGame) -> None:
 		#Select-a-Game does not work this way since 0.221 but might as well keep that there for older versions
 		platform, _, game.machine.name = game.machine.name.partition(': ')
 		game.metadata.platform = platform
-		game.metadata.media_type = MediaType.Cartridge if platform in ('Select-A-Game', 'R-Zone') else MediaType.Standalone
+		game.metadata.media_type = MediaType.Cartridge if platform in {'Select-A-Game', 'R-Zone'} else MediaType.Standalone
 		if not game.metadata.categories:
 			game.metadata.categories = ['Games']
 		return

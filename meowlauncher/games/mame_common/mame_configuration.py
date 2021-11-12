@@ -31,7 +31,7 @@ semicolon_not_after_quotes = re.compile(r'(?!");')
 def parse_mame_config_file(path: str) -> dict[str, list[str]]:
 	settings: dict[str, list[str]] = {}
 
-	with open(path, 'rt') as f:
+	with open(path, 'rt', encoding='utf-8') as f:
 		for line in f.readlines():
 			line = mame_config_comment.sub('', line)
 			line = line.strip()

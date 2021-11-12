@@ -70,7 +70,7 @@ class Machine():
 		return self.name
 
 	def add_alternate_names(self) -> None:
-		if self.arcade_system in ('Space Invaders / Qix Silver Anniversary Edition Hardware', 'ISG Selection Master Type 2006', 'Cosmodog Hardware', 'Donkey Kong / Mario Bros Multigame Hardware') or self.basename == 'jak_hmhsm':
+		if self.arcade_system in {'Space Invaders / Qix Silver Anniversary Edition Hardware', 'ISG Selection Master Type 2006', 'Cosmodog Hardware', 'Donkey Kong / Mario Bros Multigame Hardware'} or self.basename == 'jak_hmhsm':
 		 	#These don't use the / as a delimiter for alternate names, they're like two things in one or whatever
 			return
 
@@ -322,7 +322,7 @@ class Machine():
 			manufacturer = licensed_from_match[1]
 		
 		bootleg_match = bootleg_with_publisher_regex.fullmatch(manufacturer)
-		if manufacturer in ('bootleg', 'hack') or self.is_hack:
+		if manufacturer in {'bootleg', 'hack'} or self.is_hack:
 			if self.has_parent:
 				developer, publisher = cast(Machine, self.parent).developer_and_publisher
 			else:
@@ -384,7 +384,7 @@ class Machine():
 	def is_proto(self) -> bool:
 		#Use the original name here, if we end up refactoring the name stuff…
 		tags = find_filename_tags_at_end(self.name)
-		return any(tag.lower() in ('location test', 'prototype') for tag in tags)
+		return any(tag.lower() in {'location test', 'prototype'} for tag in tags)
 
 	#catlist stuff - this should be refactored I guess to allow using some other categorypaths values
 	@property

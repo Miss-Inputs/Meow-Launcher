@@ -193,7 +193,7 @@ def parse_param_sfo(rom: ROM, metadata: Metadata, param_sfo: bytes):
 			else:
 				if main_config.debug:
 					print(rom.path, 'has unknown category', value)
-		elif key in ('DISC_VERSION', 'APP_VER'):
+		elif key in {'DISC_VERSION', 'APP_VER'}:
 			if value[0] != 'v':
 				value = 'v' + value
 			metadata.specific_info['Version'] = value
@@ -209,7 +209,7 @@ def parse_param_sfo(rom: ROM, metadata: Metadata, param_sfo: bytes):
 			metadata.specific_info['Content-ID'] = value
 		elif key == 'USE_USB':
 			metadata.specific_info['Uses-USB'] = value != 0
-		elif key in ('PSP_SYSTEM_VER', 'PS3_SYSTEM_VER'):
+		elif key in {'PSP_SYSTEM_VER', 'PS3_SYSTEM_VER'}:
 			metadata.specific_info['Required-Firmware'] = value
 		elif key == 'ATTRIBUTE':
 			if value:
@@ -235,7 +235,7 @@ def parse_param_sfo(rom: ROM, metadata: Metadata, param_sfo: bytes):
 			except ValueError:
 				if main_config.debug:
 					print(rom.path, 'has funny sound format flag', hex(value))
-		elif key in ('MEMSIZE', 'REGION', 'HRKGMP_VER', 'NP_COMMUNICATION_ID'):
+		elif key in {'MEMSIZE', 'REGION', 'HRKGMP_VER', 'NP_COMMUNICATION_ID'}:
 			#These are known, but not necessarily useful to us or we just don't feel like putting it in the metadata or otherwise doing anything with it at this point
 			#MEMSIZE: PSP, 1 if game uses extra RAM?
 			#REGION: Seems to always be 32768 (is anything region locked?) and also only on PSP??
@@ -253,11 +253,11 @@ def parse_product_code(metadata: Metadata, product_code: str):
 			metadata.media_type = MediaType.OpticalDisc
 			if product_code[1] == 'C':
 				metadata.publisher = 'Sony'
-		if product_code.startswith('V'):
+		elif product_code.startswith('V'):
 			metadata.media_type = MediaType.Cartridge
 			if product_code[1] == 'C':
 				metadata.publisher = 'Sony'
-		if product_code.startswith('NP'):
+		elif product_code.startswith('NP'):
 			metadata.media_type = MediaType.Digital
-			if product_code[3] in ('A', 'C', 'F', 'G', 'I', 'K', 'W', 'X'):
+			if product_code[3] in {'A', 'C', 'F', 'G', 'I', 'K', 'W', 'X'}:
 				metadata.publisher = 'Sony'
