@@ -50,7 +50,7 @@ def add_info_from_pbp(rom: ROM, metadata: Metadata, pbp_file: bytes):
 	#These embedded files are supposedly always in this order, so you get the size by getting the difference between that file's offset and the next one (or the end of the file if it's the last one)
 	if param_sfo_offset > 0x24:
 		param_sfo = pbp_file[param_sfo_offset:icon0_offset]
-		parse_param_sfo(rom, metadata, param_sfo)
+		parse_param_sfo(str(rom.path), metadata, param_sfo)
 	if have_pillow:
 		if icon0_offset > param_sfo_offset:
 			banner = load_image_from_bytes(pbp_file[icon0_offset:icon1_offset])
@@ -120,7 +120,7 @@ def add_psp_metadata(game: ROMGame):
 				guessed = Date(year, month, day, True)
 				if guessed.is_better_than(game.metadata.release_date):
 					game.metadata.release_date = guessed
-				parse_param_sfo(game.rom, game.metadata, param_sfo_buf.getvalue())
+				parse_param_sfo(str(game.rom.path), game.metadata, param_sfo_buf.getvalue())
 			except PyCdlibInvalidInput:
 				try:
 					iso.get_record(iso_path='/UMD_VIDEO/PARAM.SFO')

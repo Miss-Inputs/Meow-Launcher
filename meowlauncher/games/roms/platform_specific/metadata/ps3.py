@@ -78,7 +78,7 @@ def add_game_folder_metadata(rom: FolderROM, metadata: Metadata):
 	
 	if param_sfo_path:
 		with open(param_sfo_path, 'rb') as f:
-			parse_param_sfo(rom, metadata, f.read())
+			parse_param_sfo(str(rom.path), metadata, f.read())
 
 	#Messy hack time
 	if is_installed_to_rpcs3_hdd and metadata.names:
