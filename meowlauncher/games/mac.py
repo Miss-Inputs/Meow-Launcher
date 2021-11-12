@@ -168,6 +168,49 @@ class CountryCode(Enum):
 
 mac_epoch = datetime.datetime(1904, 1, 1)
 
+def _get_icon(resources: dict[bytes, dict[int, 'macresources.Resource']], resource_id: int, path: str=None) -> Optional['Image.Image']:
+	#path is just there for warning
+	icn_resource = resources.get(b'ICN#', {}).get(resource_id)
+	if icn_resource:
+		if len(icn_resource) != 256:
+			if main_config.debug:
+				print('Baaa', path, 'has a bad ICN## with size', len(icn_resource), 'should be 256')
+		else:
+			#The icon has backwards colours? I don't know
+			icon_bw = Image.frombytes('1', (32, 32), bytes(256 + ~b for b in icn_resource[:128])).convert('RGBA')
+			mask = Image.frombytes('1', (32, 32), bytes(icn_resource[128:]))
+			icon_bw.putalpha(mask)
+
+	icl8 = resources.get(b'icl8', {}).get(resource_id)
+	if icl8:
+		if len(icl8) != 1024:
+			if main_config.debug:
+				print('Baaa', path, 'has a bad icl8 with size', len(icl8), 'should be 1024')
+		else:
+			icon_256 = Image.frombytes('P', (32, 32), bytes(icl8))
+			icon_256.putpalette(get_macos_256_palette(), 'RGB')
+			if mask:
+				icon_256 = icon_256.convert('RGBA')
+				icon_256.putalpha(mask)
+			return icon_256
+
+	icl4 = resources.get(b'icl4', {}).get(resource_id)
+	if icl4:
+		if len(icl4) != 512:
+			if main_config.debug:
+				print('Baaa', path, 'has a bad icl4 with size', len(icl4), 'should be 512')
+		else:
+			#Since this is 4-bit colour we need to unpack 0b1111_1111 to 0b0000_1111 0b0000_1111
+			
+			image_bytes = bytes(b for bb in [(bbb >> 4, bbb & 16) for bbb in icl4] for b in bb)
+			icon_16 = Image.frombytes('P', (32, 32), image_bytes)
+			icon_16.putpalette(mac_os_16_palette, 'RGB')
+			if mask:
+				icon_16 = icon_16.convert('RGBA')
+				icon_16.putalpha(mask)
+			return icon_16
+
+	return icon_bw
 
 class MacApp(App):
 	def __init__(self, info) -> None:
@@ -241,11 +284,6 @@ class MacApp(App):
 		if not file:
 			raise ValueError('Somehow, _get_icon was called without a valid file')
 
-		mask = None
-		icon_bw = None
-		icon_16 = None
-		icon_256 = None
-		
 		has_custom_icn = -16455 in resources.get(b'ICN#', {})
 		has_custom_icns = -16455 in resources.get(b'icns', {})
 		not_custom_resource_id = 128
@@ -288,48 +326,62 @@ class MacApp(App):
 			if resource_id == -16455 and not has_custom_icn:
 				resource_id = not_custom_resource_id
 
-		icn_resource = resources.get(b'ICN#', {}).get(resource_id)
-		if icn_resource:
-			if len(icn_resource) != 256:
-				if main_config.debug:
-					print('Baaa', self.path, 'has a bad ICN## with size', len(icn_resource), 'should be 256')
-			else:
-				#The icon has backwards colours? I don't know
-				icon_bw = Image.frombytes('1', (32, 32), bytes(256 + ~b for b in icn_resource[:128])).convert('RGBA')
-				mask = Image.frombytes('1', (32, 32), bytes(icn_resource[128:]))
-				icon_bw.putalpha(mask)
-		icl4 = resources.get(b'icl4', {}).get(resource_id)
-		if icl4:
-			if len(icl4) != 512:
-				if main_config.debug:
-					print('Baaa', self.path, 'has a bad icl4 with size', len(icl4), 'should be 512')
-			else:
-				#Since this is 4-bit colour we need to unpack 0b1111_1111 to 0b0000_1111 0b0000_1111
-				
-				image_bytes = bytes(b for bb in [(bbb >> 4, bbb & 16) for bbb in icl4] for b in bb)
-				icon_16 = Image.frombytes('P', (32, 32), image_bytes)
-				icon_16.putpalette(mac_os_16_palette, 'RGB')
-				if mask:
-					icon_16 = icon_16.convert('RGBA')
-					icon_16.putalpha(mask)
-		icl8 = resources.get(b'icl8', {}).get(resource_id)
-		if icl8:
-			if len(icl8) != 1024:
-				if main_config.debug:
-					print('Baaa', self.path, 'has a bad icl8 with size', len(icl8), 'should be 1024')
-			else:
-				icon_256 = Image.frombytes('P', (32, 32), bytes(icl8))
-				icon_256.putpalette(get_macos_256_palette(), 'RGB')
-				if mask:
-					icon_256 = icon_256.convert('RGBA')
-					icon_256.putalpha(mask)
-		if icon_256:
-			return icon_256
-		if icon_16:
-			return icon_16
-		if icon_bw:
-			return icon_bw
-		return None
+		return _get_icon(resources, resource_id, self.path)
+
+	def _add_version_resource_info(self, vers: 'macresources.Resource') -> None:
+		version, revision = vers[0:2]
+		self.metadata.specific_info['Version'] = str(version) + '.' + '.'.join('{0:x}'.format(revision))
+		if vers[2] != 0x80:
+			try:
+				self.metadata.specific_info['Build-Stage'] = BuildStage(vers[2])
+			except ValueError:
+				pass
+			if not self.metadata.categories:
+				self.metadata.categories = ['Betas']
+		if vers[3]: #"Non-release" / build number
+			self.metadata.specific_info['Revision'] = vers[3]
+
+		language_code = int.from_bytes(vers[4:6], 'big') #Or is it a country? I don't know
+		try:
+			#TODO: Fill out region/language fields using this
+			self.metadata.specific_info['Language-Code'] = CountryCode(language_code)
+		except ValueError:
+			self.metadata.specific_info['Language-Code'] = language_code
+			
+		try:
+			short_version_length = vers[6] #Pascal style strings
+			long_version_length = vers[7+short_version_length]
+			actual_short_version = None
+			actual_long_version = None
+			if short_version_length:
+				short_version = vers[7:7+short_version_length].decode('mac-roman')
+				if short_version.startswith('©'):
+					self.metadata.specific_info['Short-Copyright'] = short_version
+				else:
+					actual_short_version = short_version
+			if long_version_length:
+				long_version = vers[7+short_version_length + 1:7+short_version_length + 1 + long_version_length].decode('mac-roman')
+				copyright_string = None
+				if ', ©' in long_version:
+					actual_long_version, copyright_string = long_version.split(', ©')
+				elif ' ©' in long_version:
+					actual_long_version, copyright_string = long_version.split(' ©')
+				elif '©' in long_version:
+					actual_long_version, copyright_string = long_version.split('©')
+				else:
+					actual_long_version = long_version
+				if copyright_string:
+					if copyright_string[:4].isdigit() and (len(copyright_string) == 4 or copyright_string[5] in {',', ' '}):
+						copyright_year = Date(year=copyright_string[:4], is_guessed=True)
+						if copyright_year.is_better_than(self.metadata.release_date):
+							self.metadata.release_date = copyright_year
+					self.metadata.specific_info['Copyright'] = '©' + copyright_string
+			if actual_short_version:
+				self.metadata.specific_info['Version'] = actual_short_version
+			if actual_long_version and actual_long_version != actual_short_version:
+				self.metadata.specific_info['Long-Version'] = actual_long_version
+		except UnicodeDecodeError:
+			pass
 
 	def additional_metadata(self) -> None:
 		self.metadata.specific_info['Executable-Name'] = self.path.split(':')[-1]
@@ -397,58 +449,8 @@ class MacApp(App):
 				verses = self._get_resources().get(b'vers', {})
 				vers = verses.get(1, verses.get(128)) #There are other vers resources too but 1 is the main one (I think?), 128 is used in older apps? maybe?
 				if vers:
-					version, revision = vers[0:2]
-					self.metadata.specific_info['Version'] = str(version) + '.' + '.'.join('{0:x}'.format(revision))
-					if vers[2] != 0x80:
-						try:
-							self.metadata.specific_info['Build-Stage'] = BuildStage(vers[2])
-						except ValueError:
-							pass
-						if not self.metadata.categories:
-							self.metadata.categories = ['Betas']
-					if vers[3]: #"Non-release" / build number
-						self.metadata.specific_info['Revision'] = vers[3]
-					language_code = int.from_bytes(vers[4:6], 'big') #Or is it a country? I don't know
-					try:
-						#TODO: Fill out region/language fields using this
-						self.metadata.specific_info['Language-Code'] = CountryCode(language_code)
-					except ValueError:
-						self.metadata.specific_info['Language-Code'] = language_code
-					try:
-						short_version_length = vers[6] #Pascal style strings
-						long_version_length = vers[7+short_version_length]
-						actual_short_version = None
-						actual_long_version = None
-						if short_version_length:
-							short_version = vers[7:7+short_version_length].decode('mac-roman')
-							if short_version.startswith('©'):
-								self.metadata.specific_info['Short-Copyright'] = short_version
-							else:
-								actual_short_version = short_version
-						if long_version_length:
-							long_version = vers[7+short_version_length + 1:7+short_version_length + 1 + long_version_length].decode('mac-roman')
-							copyright_string = None
-							if ', ©' in long_version:
-								actual_long_version, copyright_string = long_version.split(', ©')
-							elif ' ©' in long_version:
-								actual_long_version, copyright_string = long_version.split(' ©')
-							elif '©' in long_version:
-								actual_long_version, copyright_string = long_version.split('©')
-							else:
-								actual_long_version = long_version
-							if copyright_string:
-								if copyright_string[:4].isdigit() and (len(copyright_string) == 4 or copyright_string[5] in {',', ' '}):
-									copyright_year = Date(year=copyright_string[:4], is_guessed=True)
-									if copyright_year.is_better_than(self.metadata.release_date):
-										self.metadata.release_date = copyright_year
-								self.metadata.specific_info['Copyright'] = '©' + copyright_string
-						if actual_short_version:
-							self.metadata.specific_info['Version'] = actual_short_version
-						if actual_long_version and actual_long_version != actual_short_version:
-							self.metadata.specific_info['Long-Version'] = actual_long_version
-					except UnicodeDecodeError:
-						pass
-		
+					self._add_version_resource_info(vers)
+
 		if 'arch' in self.info:
 			#Allow manual override (sometimes apps are jerks and have 68K code just for the sole purpose of showing you a dialog box saying you can't run it on a 68K processor)
 			self.metadata.specific_info['Architecture'] = self.info['arch']

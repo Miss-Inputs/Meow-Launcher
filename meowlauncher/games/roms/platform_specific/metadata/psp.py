@@ -93,6 +93,45 @@ def get_image_from_iso(iso: 'PyCdlib', path: str) -> 'Image':
 		pass
 	return None
 
+def add_psp_iso_info(path: str, metadata: Metadata):
+	iso = PyCdlib()
+	try:
+		iso.open(path)
+		param_sfo_buf = io.BytesIO()				
+
+		try:
+			iso.get_file_from_iso_fp(param_sfo_buf, iso_path='/PSP_GAME/PARAM.SFO')
+			date = iso.get_record(iso_path='/PSP_GAME/PARAM.SFO').date
+			#This would be more like a build date (seems to be the same across all files) rather than the release date
+			year = date.years_since_1900 + 1900
+			month = date.month
+			day = date.day_of_month
+			metadata.specific_info['Build-Date'] = Date(year, month, day)
+			guessed = Date(year, month, day, True)
+			if guessed.is_better_than(metadata.release_date):
+				metadata.release_date = guessed
+			parse_param_sfo(path, metadata, param_sfo_buf.getvalue())
+		except PyCdlibInvalidInput:
+			try:
+				iso.get_record(iso_path='/UMD_VIDEO/PARAM.SFO')
+				#We could parse this PARAM.SFO but there's not much point given we aren't going to make a launcher for UMD videos at this stage
+				#TODO There is also potentially /UMD_AUDIO/ I think too so I should rewrite this one day
+				metadata.specific_info['PlayStation-Category'] = 'UMD Video'
+				return
+			except PyCdlibInvalidInput:
+				if main_config.debug:
+					print(path, 'has no PARAM.SFO inside')
+		if have_pillow:
+			metadata.images['Banner'] = get_image_from_iso(iso, '/PSP_GAME/ICON0.PNG')
+			metadata.images['Icon-1'] = get_image_from_iso(iso, '/PSP_GAME/ICON1.PNG')
+			metadata.images['Picture-0'] = get_image_from_iso(iso, '/PSP_GAME/PIC0.PNG')
+			metadata.images['Background-Image'] = get_image_from_iso(iso, '/PSP_GAME/PIC1.PNG')
+	except PyCdlibInvalidISO as ex:
+		if main_config.debug:
+			print(path, 'is invalid ISO', ex)
+	except struct.error as ex:
+		print(path, 'is invalid ISO and has some struct.error', ex)
+
 def add_psp_metadata(game: ROMGame):
 	add_psp_system_info(game.metadata)
 
@@ -104,43 +143,7 @@ def add_psp_metadata(game: ROMGame):
 			game.metadata.add_alternate_name(os.path.basename(os.path.dirname(game.rom.path)), 'Folder-Name')
 			game.rom.ignore_name = True
 	elif game.rom.extension == 'iso' and have_pycdlib:
-		iso = PyCdlib()
-		try:
-			iso.open(game.rom.path)
-			param_sfo_buf = io.BytesIO()				
-
-			try:
-				iso.get_file_from_iso_fp(param_sfo_buf, iso_path='/PSP_GAME/PARAM.SFO')
-				date = iso.get_record(iso_path='/PSP_GAME/PARAM.SFO').date
-				#This would be more like a build date (seems to be the same across all files) rather than the release date
-				year = date.years_since_1900 + 1900
-				month = date.month
-				day = date.day_of_month
-				game.metadata.specific_info['Build-Date'] = Date(year, month, day)
-				guessed = Date(year, month, day, True)
-				if guessed.is_better_than(game.metadata.release_date):
-					game.metadata.release_date = guessed
-				parse_param_sfo(str(game.rom.path), game.metadata, param_sfo_buf.getvalue())
-			except PyCdlibInvalidInput:
-				try:
-					iso.get_record(iso_path='/UMD_VIDEO/PARAM.SFO')
-					#We could parse this PARAM.SFO but there's not much point given we aren't going to make a launcher for UMD videos at this stage
-					#TODO There is also potentially /UMD_AUDIO/ I think too so I should rewrite this one day
-					game.metadata.specific_info['PlayStation-Category'] = 'UMD Video'
-					return
-				except PyCdlibInvalidInput:
-					if main_config.debug:
-						print(game.rom.path, 'has no PARAM.SFO inside')
-			if have_pillow:
-				game.metadata.images['Banner'] = get_image_from_iso(iso, '/PSP_GAME/ICON0.PNG')
-				game.metadata.images['Icon-1'] = get_image_from_iso(iso, '/PSP_GAME/ICON1.PNG')
-				game.metadata.images['Picture-0'] = get_image_from_iso(iso, '/PSP_GAME/PIC0.PNG')
-				game.metadata.images['Background-Image'] = get_image_from_iso(iso, '/PSP_GAME/PIC1.PNG')
-		except PyCdlibInvalidISO as ex:
-			if main_config.debug:
-				print(game.rom.path, 'is invalid ISO', ex)
-		except struct.error as ex:
-			print(game.rom.path, 'is invalid ISO and has some struct.error', ex)
+		add_psp_iso_info(str(game.rom.path), game.metadata)
 
 	#https://www.psdevwiki.com/ps3/Productcode#Physical
 	if game.metadata.product_code:
