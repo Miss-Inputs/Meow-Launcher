@@ -3,11 +3,24 @@ from typing import cast
 from meowlauncher import input_metadata
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
+from meowlauncher.metadata import Metadata
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric)
 
 from .generic import add_generic_info
 
+
+def add_info_from_header(header: bytes, metadata: Metadata):
+	#https://github.com/pokemon-mini/pm-dev-docs/wiki/PM_Cartridge - we are only bothering to read a small part of the thing for the time being
+	product_code_bytes = header[0:4]
+	try:
+		product_code = convert_alphanumeric(product_code_bytes)
+		metadata.product_code = product_code
+	except NotAlphanumericException:
+		pass
+	title = header[4:16].decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
+	if title:
+		metadata.specific_info['Internal-Title'] = title
 
 def add_pokemini_metadata(game: ROMGame):
 	builtin_gamepad = input_metadata.NormalController()
@@ -19,14 +32,7 @@ def add_pokemini_metadata(game: ROMGame):
 	#Technically you could say Motion Controls because of the shake detection, but not all games use it, and you can't really tell which do and which don't programmatically
 
 	rom = cast(FileROM, game.rom)
-	product_code_bytes = rom.read(seek_to=0x21ac, amount=4)
-	try:
-		product_code = convert_alphanumeric(product_code_bytes)
-		game.metadata.product_code = product_code
-	except NotAlphanumericException:
-		pass
-	title = rom.read(seek_to=0x21b0, amount=12).decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
-	if title:
-		game.metadata.specific_info['Internal-Title'] = title
-
+	header = rom.read(seek_to=0x21ac, amount=16)
+	add_info_from_header(header, game.metadata)
+	
 	add_generic_info(game)

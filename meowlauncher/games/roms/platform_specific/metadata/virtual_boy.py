@@ -6,6 +6,7 @@ from meowlauncher.games.mame_common.software_list_info import \
     get_software_list_entry
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
+from meowlauncher.metadata import Metadata
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
@@ -30,33 +31,35 @@ unofficial_vb_publishers = {
 	'VE': 'Alberto Covarrubias', #aka Virtual-E
 }
 
+def add_info_from_vb_header(header: bytes, metadata: Metadata):
+	title = header[0:20].decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
+	if title:
+		metadata.specific_info['Internal-Title'] = title
+	
+	try:
+		licensee_code = convert_alphanumeric(header[25:27])
+		if licensee_code in nintendo_licensee_codes:
+			metadata.publisher = nintendo_licensee_codes[licensee_code]
+		elif licensee_code in unofficial_vb_publishers:
+			metadata.publisher = unofficial_vb_publishers[licensee_code]
+	except NotAlphanumericException:
+		pass
+
+	try:
+		metadata.product_code = convert_alphanumeric(header[27:31])
+	except NotAlphanumericException:
+		pass
+	#Can get country from product_code[3] if needed
+
+	metadata.specific_info['Revision'] = header[31]
+
 def add_virtual_boy_metadata(game: ROMGame):
 	rom = cast(FileROM, game.rom)
 	rom_size = rom.get_size()
 	header_start_position = rom_size - 544 #Yeah I dunno
 	header = rom.read(seek_to=header_start_position, amount=32)
-
-	title = header[0:20].decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
-	if title:
-		game.metadata.specific_info['Internal-Title'] = title
+	add_info_from_vb_header(header, game.metadata)
 	
-	try:
-		licensee_code = convert_alphanumeric(header[25:27])
-		if licensee_code in nintendo_licensee_codes:
-			game.metadata.publisher = nintendo_licensee_codes[licensee_code]
-		elif licensee_code in unofficial_vb_publishers:
-			game.metadata.publisher = unofficial_vb_publishers[licensee_code]
-	except NotAlphanumericException:
-		pass
-
-	try:
-		game.metadata.product_code = convert_alphanumeric(header[27:31])
-	except NotAlphanumericException:
-		pass
-	#Can get country from product_code[3] if needed
-
-	game.metadata.specific_info['Revision'] = header[31]
-
 	gamepad = input_metadata.NormalController()
 	gamepad.face_buttons = 2
 	gamepad.shoulder_buttons = 2

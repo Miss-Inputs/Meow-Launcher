@@ -135,25 +135,28 @@ def add_fst_info(rom: FileROM, metadata: Metadata, fst_offset: int, fst_size: in
 				banner = rom.read(file_offset, file_length)
 				add_banner_info(rom, metadata, banner)
 
+def add_apploader_date(header: bytes, metadata: Metadata):
+	try:
+		apploader_date = header[0x2440:0x2450].decode('ascii').rstrip('\0')
+		try:
+			actual_date = datetime.strptime(apploader_date, '%Y/%m/%d')
+			year = actual_date.year
+			month = actual_date.month
+			day = actual_date.day
+			metadata.specific_info['Build-Date'] = Date(year, month, day)
+			if not metadata.release_date or metadata.release_date.is_guessed:
+				metadata.release_date = Date(year, month, day, True)
+		except ValueError:
+			pass
+	except UnicodeDecodeError:
+		pass
+
 def add_gamecube_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes, tgc_data: Optional[dict[str, int]]=None):
 	metadata.platform = 'GameCube'
 
 	if rom.extension != 'tgc':
 		#Not gonna bother working out what's going on with apploader offsets in tgc
-		try:
-			apploader_date = header[0x2440:0x2450].decode('ascii').rstrip('\0')
-			try:
-				actual_date = datetime.strptime(apploader_date, '%Y/%m/%d')
-				year = actual_date.year
-				month = actual_date.month
-				day = actual_date.day
-				metadata.specific_info['Build-Date'] = Date(year, month, day)
-				if not metadata.release_date or metadata.release_date.is_guessed:
-					metadata.release_date = Date(year, month, day, True)
-			except ValueError:
-				pass
-		except UnicodeDecodeError:
-			pass
+		add_apploader_date(header, metadata)
 
 	region_code = int.from_bytes(header[0x458:0x45c], 'big')
 	try:

@@ -2,7 +2,6 @@ import calendar
 from collections.abc import Iterable
 from typing import Any, Optional, cast
 
-from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.mame_common.machine import (
     Machine, does_machine_match_game, get_machines_from_source_file)
@@ -20,34 +19,10 @@ from meowlauncher.util.region_info import get_region_by_name
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
+from .common import snes_controllers as controllers
+
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
-#List of available controllers, which we will put up here for code reuse (since Uzebox also needs it)
-def get_snes_controller():
-	controller = input_metadata.NormalController()
-	controller.dpads = 1
-	controller.face_buttons = 4 #also Select + Start
-	controller.shoulder_buttons = 2
-	return controller
-
-def get_snes_mouse():
-	mouse = input_metadata.Mouse()
-	mouse.buttons = 2
-	return mouse
-
-def get_super_scope():
-	gun = input_metadata.LightGun() #pew pew
-	gun.buttons = 2 #Also pause and turbo
-	return gun
-
-def get_sunsoft_pachinko_controller():
-	pachinko = input_metadata.Paddle()
-	pachinko.buttons = 1
-	return pachinko
-
-#Other controllers: Miracle Piano (same as NES?)
-#Stuff not available as MAME slot device: That horse racing numpad thingo
-#Barcode Battler goes in the controller slot but from what I can tell it's not really a controller?
 class BadSNESHeaderException(Exception):
 	pass
 
@@ -128,7 +103,8 @@ def parse_sufami_turbo_header(rom: FileROM, metadata: Metadata):
 	metadata.platform = 'Sufami Turbo'
 
 	#Safe bet that every single ST game just uses a normal controller
-	metadata.input_info.add_option(get_snes_controller())
+	#…Is it?
+	metadata.input_info.add_option(controllers.controller)
 
 	header = rom.read(amount=56)
 	#Magic: 0:14 Should be "BANDAI SFC-ADX"
@@ -306,7 +282,7 @@ def parse_satellaview_header(rom: FileROM, base_offset: int) -> dict[str, Any]:
 def add_satellaview_metadata(rom: FileROM, metadata: Metadata):
 	metadata.platform = 'Satellaview'
 	#Safe bet that every single Satellaview game just uses a normal controller
-	metadata.input_info.add_option(get_snes_controller())
+	metadata.input_info.add_option(controllers.controller)
 	possible_offsets = [0x7f00, 0xff00, 0x40ff00]
 	rom_size = rom.get_size()
 

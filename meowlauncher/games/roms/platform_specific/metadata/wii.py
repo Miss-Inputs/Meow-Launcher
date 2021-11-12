@@ -1,5 +1,4 @@
 import os
-import statistics
 from datetime import datetime
 from enum import Enum
 from typing import cast
@@ -19,6 +18,7 @@ from .common.gamecube_wii_common import (NintendoDiscRegion,
                                          just_read_the_wia_rvz_header_for_now,
                                          tdb)
 from .common.gametdb import add_info_from_tdb
+from .common.nintendo_common import parse_ratings
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
@@ -242,47 +242,6 @@ def add_wii_homebrew_metadata(rom: FolderROM, metadata: Metadata):
 		except ElementTree.ParseError as etree_error:
 			if main_config.debug:
 				print('Ah bugger this Wii homebrew XML has problems', rom.path, etree_error)
-
-def parse_ratings(metadata: Metadata, ratings_bytes: bytes, invert_has_rating_bit=False, use_bit_6=True):
-	ratings = {}
-	for i, rating in enumerate(ratings_bytes):
-		has_rating = (rating & 0b1000_0000) == 0 #For 3DS and DSi, the meaning of this bit is inverted
-		if invert_has_rating_bit:
-			has_rating = not has_rating
-		if use_bit_6:
-			banned = rating & 0b0100_0000 #Seems to only mean this for Wii (MadWorld (Europe) has this bit set for Germany rating); on Wii U it seems to be "this rating is unused" and 3DS and DSi I dunno but it probably doesn't work that way
-		else:
-			banned = False
-		#Bit 5 I'm not even sure about (on Wii it seems to be "includes online interactivity"), but we can ignore it
-		#The last 4 bits are the actual rating
-		if has_rating and not banned:
-			ratings[i] = rating & 0b0001_1111
-
-	if 0 in ratings:
-		metadata.specific_info['CERO-Rating'] = ratings[0]
-	if 1 in ratings:
-		metadata.specific_info['ESRB-Rating'] = ratings[1]
-	if 3 in ratings:
-		metadata.specific_info['USK-Rating'] = ratings[3]
-	if 4 in ratings:
-		metadata.specific_info['PEGI-Rating'] = ratings[4]
-	if 8 in ratings:
-		metadata.specific_info['AGCB-Rating'] = ratings[8]
-	if 9 in ratings:
-		metadata.specific_info['GRB-Rating'] = ratings[9]
-	#There are others but that will do for now
-
-	ratings_list = list(ratings.values())
-	if not ratings_list:
-		return
-
-	#If there is only one rating or they are all the same, this covers that; otherwise if ratings boards disagree this is probably the best way to interpret that situation
-	try:
-		rating = statistics.mode(ratings_list)
-	except statistics.StatisticsError:
-		rating = max(ratings_list)
-
-	metadata.specific_info['Age-Rating'] = rating
 
 def add_wii_disc_metadata(rom: FileROM, metadata: Metadata):
 	wii_header = rom.read(0x40_000, 0xf000)

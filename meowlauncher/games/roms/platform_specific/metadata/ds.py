@@ -161,7 +161,7 @@ def parse_banner(rom: FileROM, metadata: Metadata, header: bytes, is_dsi: bool, 
 				icon_palette = struct.unpack('H' * 16, banner[0x220:0x240])
 				metadata.images['Icon'] = decode_icon(icon_bitmap, icon_palette)
 
-def parse_ds_header(rom: FileROM, metadata: Metadata, header: bytes):
+def add_info_from_ds_header(rom: FileROM, metadata: Metadata, header: bytes):
 	if header[0:4] == b'.\0\0\xea':
 		metadata.specific_info['PassMe'] = True
 	else:
@@ -258,5 +258,5 @@ def add_ds_input_info(metadata: Metadata):
 def add_ds_metadata(game: ROMGame):
 	rom = cast(FileROM, game.rom)
 	header = rom.read(amount=0x300)
-	parse_ds_header(rom, game.metadata, header)
+	add_info_from_ds_header(rom, game.metadata, header)
 	add_ds_input_info(game.metadata)

@@ -3,7 +3,7 @@ import re
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Date
+from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.region_info import TVSystem
 
 from .common.playstation_common import parse_product_code
@@ -20,6 +20,25 @@ except ModuleNotFoundError:
 boot_line_regex = re.compile(r'^BOOT2\s*=\s*cdrom0:\\(.+);1$')
 vmode_line_regex = re.compile(r'^VMODE\s*=\s*(\S+)$')
 boot_file_regex = re.compile(r'^(.{4})_(.{3})\.(.{2})$')
+
+def add_info_from_system_cnf(metadata: Metadata, system_cnf: str):
+	for line in system_cnf.splitlines():
+		boot_line_match = boot_line_regex.match(line)
+		if boot_line_match:
+			filename = boot_line_match[1]
+			boot_file_match = boot_file_regex.match(filename)
+			if boot_file_match:
+				metadata.product_code = boot_file_match[1] + '-' + boot_file_match[2] + boot_file_match[3]
+				#Can look this up in /usr/local/share/games/PCSX2/GameIndex.dbf to get PCSX2 compatibility I guess
+		#Other lines: VER (disc revision e.g. 1.00)
+		else:
+			vmode_line_match = vmode_line_regex.match(line)
+			if vmode_line_match:
+				try:
+					metadata.specific_info['TV-Type'] = TVSystem[vmode_line_match[1]]
+				except ValueError:
+					pass
+
 def add_ps2_metadata(game: ROMGame):
 	#.bin/cue also has this system.cnf but I'd need to know how to get pycdlib to work with that
 	if game.rom.extension == 'iso' and have_pycdlib:
@@ -42,22 +61,7 @@ def add_ps2_metadata(game: ROMGame):
 					game.metadata.release_date = guessed_date
 
 				system_cnf = system_cnf_buf.getvalue().decode('utf-8', errors='backslashreplace')
-				for line in system_cnf.splitlines():
-					boot_line_match = boot_line_regex.match(line)
-					if boot_line_match:
-						filename = boot_line_match[1]
-						boot_file_match = boot_file_regex.match(filename)
-						if boot_file_match:
-							game.metadata.product_code = boot_file_match[1] + '-' + boot_file_match[2] + boot_file_match[3]
-							#Can look this up in /usr/local/share/games/PCSX2/GameIndex.dbf to get PCSX2 compatibility I guess
-					#Other lines: VER (disc revision e.g. 1.00)
-					else:
-						vmode_line_match = vmode_line_regex.match(line)
-						if vmode_line_match:
-							try:
-								game.metadata.specific_info['TV-Type'] = TVSystem[vmode_line_match[1]]
-							except ValueError:
-								pass
+				add_info_from_system_cnf(game.metadata, system_cnf)
 			except PyCdlibInvalidInput:
 				if main_config.debug:
 					print(game.rom.path, 'has no SYSTEM.CNF inside')

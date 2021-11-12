@@ -279,7 +279,7 @@ class Software():
 		self.software_list = software_list
 
 		self.parts = {part.name: part for part in [SoftwarePart(part_xml, self) for part_xml in self.xml.findall('part')]}
-		self.infos = {info.attrib.get('name'): info.attrib.get('value') for info in self.xml.findall('info')}
+		self.infos = {info.attrib.get('name', ''): info.attrib.get('value') for info in self.xml.findall('info')} #Blank info name should not happen
 
 	@property
 	def name(self) -> Optional[str]:
@@ -327,22 +327,14 @@ class Software():
 
 		return None
 
-	def get_part_feature(self, name: str, part_name: Optional[str]=None) -> Optional[str]:
-		#Should probably use part.get_feature instead
-		if not part_name:
-			part = self.get_part()
-		else:
-			part = self.parts[part_name]
-		return part.get_feature(name)
+	def get_part_feature(self, name: str) -> Optional[str]:
+		#Hmm
+		return self.get_part().get_feature(name)
 
-	def has_data_area(self, name: str, part_name: Optional[str]=None) -> bool:
-		#Should use part.has_data_area instead, or arguably name in part.data_areas
-		if part_name:
-			part = self.parts[part_name]
-		else:
-			part = self.get_part()
-
-		return part.has_data_area(name)
+	def has_data_area(self, name: str) -> bool:
+		#Hmm is this function really useful to have around
+		#Is part.has_data_area really that useful?
+		return self.get_part().has_data_area(name)
 
 	@property
 	def emulation_status(self) -> EmulationStatus:
@@ -366,6 +358,10 @@ class Software():
 	def parent_name(self) -> Optional[str]:
 		return self.xml.attrib.get('cloneof')
 
+	@property
+	def serial(self) -> Optional[str]:
+		return self.infos.get('serial')
+
 	def add_standard_metadata(self, metadata: Metadata):
 		metadata.specific_info['MAME-Software-Name'] = self.name
 		metadata.specific_info['MAME-Software-Full-Name'] = self.description
@@ -379,7 +375,7 @@ class Software():
 		metadata.specific_info['MAME-Software-List-Name'] = self.software_list.name
 		metadata.specific_info['MAME-Software-List-Description'] = self.software_list.description
 
-		serial = self.infos.get('serial')
+		serial = self.serial
 		if serial:
 			metadata.product_code = serial
 		barcode = self.infos.get('barcode')
@@ -442,6 +438,11 @@ class Software():
 
 				metadata.publisher = publisher
 
+		self.add_related_images(metadata)
+
+		add_history(metadata, self.software_list_name, self.name)
+
+	def add_related_images(self, metadata: Metadata):
 		for image_name, config_key in image_config_keys.items():
 			image = get_image(config_key, self.software_list_name, self.name)
 			if image:
@@ -452,7 +453,6 @@ class Software():
 				if image:
 					metadata.images[image_name] = image
 
-		add_history(metadata, self.software_list_name, self.name)
 
 class SoftwareMatcherArgs():
 	def __init__(self, crc32: Optional[str], sha1: Optional[str], size: Optional[int], reader: Optional[Callable[[int, int], bytes]]):

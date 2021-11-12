@@ -21,7 +21,7 @@ def add_generic_info(game: ROMGame):
 		except ValueError:
 			pass
 		for info_name, info_value in software.infos.items():
-			if info_name in ('usage', 'release', 'serial', 'developer', 'alt_title', 'alt_name', 'alt_disk', 'barcode', 'ring_code', 'version', 'video', 'pcb'):
+			if info_name in {'usage', 'release', 'serial', 'developer', 'alt_title', 'alt_name', 'alt_disk', 'barcode', 'ring_code', 'version', 'video', 'pcb'}:
 				#We have already added this
 				continue
 			game.metadata.specific_info[info_name.replace('_', '-').replace(' ', '-').title()] = info_value

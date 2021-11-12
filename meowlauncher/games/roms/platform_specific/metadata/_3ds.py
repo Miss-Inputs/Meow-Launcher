@@ -5,7 +5,7 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 import os
-from enum import Enum, Flag
+from enum import Enum
 from typing import Optional, cast
 from xml.etree import ElementTree
 
@@ -23,20 +23,11 @@ from meowlauncher.util.utils import (NotAlphanumericException,
                                      load_dict)
 
 from .common.gametdb import TDB, add_info_from_tdb
-from .wii import parse_ratings
+from .common.nintendo_common import (WiiU3DSRegionCode,
+                                     add_info_from_local_titles, parse_ratings)
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
-class _3DSRegionCode(Flag):
-	Japan = 1
-	USA = 2
-	Europe = 4
-	Australia = 8 #Not used, Europe is used in its place
-	China = 16
-	Korea = 32
-	Taiwan = 64
-	RegionFree = 0x7fffffff
-	WiiURegionFree = 0xffffffff
 
 class _3DSVirtualConsolePlatform(Enum):
 	GameBoy = 'R'
@@ -45,6 +36,27 @@ class _3DSVirtualConsolePlatform(Enum):
 	NES = 'T'
 	SNES = 'U'
 	GBA = 'P'
+
+languages = {
+	0: 'Japanese',
+	1: 'English',
+	2: 'French',
+	3: 'German',
+	4: 'Italian',
+	5: 'Spanish',
+	6: 'Simplified Chinese',
+	7: 'Korean',
+	8: 'Dutch',
+	9: 'Portugese',
+	10: 'Russian',
+	11: 'Traditional Chinese',
+	12: 'Japanese', #Wait how's that work
+	#Theoretically there could be 3 more languages here, but there are probably not
+	13: 'Unknown language 1',
+	14: 'Unknown language 2',
+	15: 'Unknown language 3',
+}
+media_unit = 0x200
 
 def add_3ds_system_info(metadata: Metadata):
 	#Although we can't know for sure if the game uses the touchscreen, it's safe to assume that it probably does
@@ -57,9 +69,7 @@ def add_3ds_system_info(metadata: Metadata):
 	controller = input_metadata.CombinedController([builtin_gamepad, input_metadata.Touchscreen()])
 	metadata.input_info.add_option(controller)
 
-media_unit = 0x200
-
-def load_tdb() -> Optional[TDB]:
+def _load_tdb() -> Optional[TDB]:
 	if not '3DS' in platform_configs:
 		return None
 	tdb_path = platform_configs['3DS'].options.get('tdb_path')
@@ -79,7 +89,7 @@ def load_tdb() -> Optional[TDB]:
 		if main_config.debug:
 			print('Oh no failed to load 3DS TDB because', blorp)
 		return None
-tdb = load_tdb()
+tdb = _load_tdb()
 
 def add_cover(metadata: Metadata, product_code: str):
 	#Intended for the covers database from GameTDB
@@ -236,6 +246,37 @@ def parse_smdh(rom: FileROM, metadata: Metadata, offset: int=0, length: int=-1):
 	smdh = rom.read(seek_to=offset, amount=length)
 	parse_smdh_data(metadata, smdh)
 
+def get_smdh_titles(smdh: bytes) -> tuple[dict[str, str], dict[str, str], dict[str, Optional[str]]]:
+	short_titles: dict[str, str] = {}
+	long_titles: dict[str, str] = {}
+	publishers: dict[str, Optional[str]] = {}
+	for i, language in languages.items():
+		titles_offset = 8 + (512 * i)
+		long_title_offset = titles_offset + 128
+		publisher_offset = long_title_offset + 256
+
+		try:
+			short_title = smdh[titles_offset: long_title_offset].decode('utf16').rstrip('\0')
+			if short_title:
+				short_titles[language] = short_title
+		except UnicodeDecodeError:
+			pass
+		try:
+			long_title = smdh[long_title_offset: publisher_offset].decode('utf16').rstrip('\0')
+			if long_title:
+				long_titles[language] = long_title
+		except UnicodeDecodeError:
+			pass
+		try:
+			publisher = smdh[publisher_offset: publisher_offset + 0x80].decode('utf16').rstrip('\0')
+			if publisher:
+				while junk_suffixes.search(publisher):
+					publisher = junk_suffixes.sub('', publisher)
+				publishers[language] = consistentified_manufacturers.get(publisher, publisher)
+		except UnicodeDecodeError:
+			pass
+	return short_titles, long_titles, publishers
+	
 def parse_smdh_data(metadata: Metadata, smdh: bytes):
 	magic = smdh[:4]
 	if magic != b'SMDH':
@@ -246,12 +287,12 @@ def parse_smdh_data(metadata: Metadata, smdh: bytes):
 	parse_ratings(metadata, smdh[0x2008:0x2018], True, False)
 
 	region_code_flag = int.from_bytes(smdh[0x2018:0x201c], 'little')
-	if region_code_flag in (_3DSRegionCode.RegionFree, 0xffffffff):
-		region_codes = [_3DSRegionCode.RegionFree]
+	if region_code_flag in (WiiU3DSRegionCode.RegionFree, 0xffffffff):
+		region_codes = [WiiU3DSRegionCode.RegionFree]
 	else:
 		region_codes = []
-		for region in _3DSRegionCode:
-			if region in (_3DSRegionCode.RegionFree, _3DSRegionCode.WiiURegionFree):
+		for region in WiiU3DSRegionCode:
+			if region in (WiiU3DSRegionCode.RegionFree, WiiU3DSRegionCode.WiiURegionFree):
 				continue
 			#I want a list here so this looks weird
 			if region.value & region_code_flag:
@@ -291,106 +332,7 @@ def parse_smdh_data(metadata: Metadata, smdh: bytes):
 		large_icon = smdh[0x24c0:0x36c0]
 		metadata.images['Icon'] = decode_icon(large_icon, 48)
 
-	languages = {
-		0: 'Japanese',
-		1: 'English',
-		2: 'French',
-		3: 'German',
-		4: 'Italian',
-		5: 'Spanish',
-		6: 'Simplified Chinese',
-		7: 'Korean',
-		8: 'Dutch',
-		9: 'Portugese',
-		10: 'Russian',
-		11: 'Traditional Chinese',
-		12: 'Japanese', #Wait how's that work
-		#Theoretically there could be 3 more languages here, but there are probably not
-		13: 'Unknown language 1',
-		14: 'Unknown language 2',
-		15: 'Unknown language 3',
-	}
-
-	short_titles: dict[str, str] = {}
-	long_titles: dict[str, str] = {}
-	publishers: dict[str, Optional[str]] = {}
-	short_title: str
-	long_title: str
-	publisher: Optional[str]
-	for i, language in languages.items():
-		titles_offset = 8 + (512 * i)
-		long_title_offset = titles_offset + 128
-		publisher_offset = long_title_offset + 256
-
-		try:
-			short_title = smdh[titles_offset: long_title_offset].decode('utf16').rstrip('\0')
-			if short_title:
-				short_titles[language] = short_title
-		except UnicodeDecodeError:
-			pass
-		try:
-			long_title = smdh[long_title_offset: publisher_offset].decode('utf16').rstrip('\0')
-			if long_title:
-				long_titles[language] = long_title
-		except UnicodeDecodeError:
-			pass
-		try:
-			publisher = smdh[publisher_offset: publisher_offset + 0x80].decode('utf16').rstrip('\0')
-			if publisher:
-				while junk_suffixes.search(publisher):
-					publisher = junk_suffixes.sub('', publisher)
-				publishers[language] = consistentified_manufacturers.get(publisher, publisher)
-		except UnicodeDecodeError:
-			pass
-	
-	local_short_title = None
-	local_long_title = None
-	local_publisher: Optional[str] = None
-	if _3DSRegionCode.RegionFree in region_codes or _3DSRegionCode.USA in region_codes or _3DSRegionCode.Europe in region_codes:
-		#We shouldn't assume that Europe is English-speaking but we're going to
-		local_short_title = short_titles.get('English')
-		local_long_title = long_titles.get('English')
-		local_publisher = publishers.get('English')
-	elif _3DSRegionCode.Japan in region_codes:
-		local_short_title = short_titles.get('Japanese')
-		local_long_title = long_titles.get('Japanese')
-		local_publisher = publishers.get('Japanese')
-	elif _3DSRegionCode.China in region_codes:
-		local_short_title = short_titles.get('Simplified Chinese')
-		local_long_title = long_titles.get('Simplified Chinese')
-		local_publisher = publishers.get('Simplified Chinese')
-	elif _3DSRegionCode.Korea in region_codes:
-		local_short_title = short_titles.get('Korean')
-		local_long_title = long_titles.get('Korean')
-		local_publisher = publishers.get('Korean')
-	elif _3DSRegionCode.Taiwan in region_codes:
-		local_short_title = short_titles.get('Traditional Chinese')
-		local_long_title = long_titles.get('Traditional Chinese')
-		local_publisher = publishers.get('Traditional Chinese')
-	else: #If none of that is in the region code? Unlikely but I dunno maybe
-		if short_titles:
-			local_short_title = list(short_titles.values())[0]
-		if long_titles:
-			local_long_title = list(long_titles.values())[0]
-		if publishers:
-			local_publisher = list(publishers.values())[0]
-
-	if local_short_title:
-		metadata.add_alternate_name(local_short_title, 'Banner-Short-Title')
-	if local_long_title:
-		metadata.add_alternate_name(local_long_title, 'Banner-Title')
-	if local_publisher and not metadata.publisher:
-		metadata.publisher = local_publisher
-
-	for lang, short_title in short_titles.items():
-		if short_title != local_short_title:
-			metadata.add_alternate_name(short_title, '{0}-Banner-Short-Title'.format(lang.replace(' ', '-')))
-	for lang, long_title in long_titles.items():
-		if long_title != local_long_title:
-			metadata.add_alternate_name(long_title, '{0}-Banner-Title'.format(lang.replace(' ', '-')))
-	for lang, publisher in publishers.items():
-		if publisher not in (metadata.publisher, local_publisher):
-			metadata.specific_info['{0}-Publisher'.format(lang.replace(' ', '-'))] = publisher
+	add_info_from_local_titles(metadata, *get_smdh_titles(smdh), region_codes)
 
 tile_order = [
 	#What the actual balls?

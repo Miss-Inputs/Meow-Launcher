@@ -33,31 +33,34 @@ def load_tdb() -> Optional[TDB]:
 		return None
 tdb = load_tdb()
 
+def add_ps3game_subfolder_info(subfolder: Path, metadata: Metadata):
+	icon0_path = subfolder.joinpath('ICON0.PNG')
+	if os.path.isfile(icon0_path):
+		metadata.images['Banner'] = icon0_path
+	icon1_path = subfolder.joinpath('ICON1.PNG')
+	if os.path.isfile(icon1_path):
+		metadata.images['Icon-1'] = icon1_path
+	pic0_path = subfolder.joinpath('PIC0.PNG')
+	if os.path.isfile(pic0_path):
+		metadata.images['Overlay-Image'] = pic0_path
+	pic1_path = subfolder.joinpath('PIC1.PNG')
+	if os.path.isfile(pic1_path):
+		metadata.images['Background-Image'] = pic1_path
+	#PIC2.PNG is for 4:3 instead of 16:9 go away nerds
+	if subfolder.joinpath('TROPDIR').is_dir():
+		metadata.specific_info['Supports-Trophies'] = True
+	usrdir = subfolder.joinpath('USRDIR')
+	if usrdir.is_dir(): #Should always be there but who knows
+		engine = try_and_detect_engine_from_folder(str(usrdir), metadata)
+		if engine:
+			metadata.specific_info['Engine'] = engine
+
 def add_game_folder_metadata(rom: FolderROM, metadata: Metadata):
 	ps3game_subfolder = rom.get_subfolder('PS3_GAME')
 	param_sfo_path: Optional[Path]
 	if ps3game_subfolder:
-		param_sfo_path = rom.path.joinpath('PS3_GAME', 'PARAM.SFO')
-		icon0_path = rom.path.joinpath('PS3_GAME', 'ICON0.PNG')
-		if os.path.isfile(icon0_path):
-			metadata.images['Banner'] = icon0_path
-		icon1_path = rom.path.joinpath('PS3_GAME', 'ICON1.PNG')
-		if os.path.isfile(icon1_path):
-			metadata.images['Icon-1'] = icon1_path
-		pic0_path = rom.path.joinpath('PS3_GAME', 'PIC0.PNG')
-		if os.path.isfile(pic0_path):
-			metadata.images['Overlay-Image'] = pic0_path
-		pic1_path = rom.path.joinpath('PS3_GAME', 'PIC1.PNG')
-		if os.path.isfile(pic1_path):
-			metadata.images['Background-Image'] = pic1_path
-		#PIC2.PNG is for 4:3 instead of 16:9 go away nerds
-		if rom.path.joinpath('PS3_GAME', 'TROPDIR').is_dir():
-			metadata.specific_info['Supports-Trophies'] = True
-		usrdir = ps3game_subfolder.joinpath('USRDIR')
-		if usrdir.is_dir(): #Should always be there but who knows
-			engine = try_and_detect_engine_from_folder(str(usrdir), metadata)
-			if engine:
-				metadata.specific_info['Engine'] = engine
+		add_ps3game_subfolder_info(ps3game_subfolder, metadata)
+		param_sfo_path = ps3game_subfolder.joinpath('PARAM.SFO')
 	else:
 		param_sfo_path = rom.get_file('PARAM.SFO')
 		metadata.images['Banner'] = rom.get_file('ICON0.PNG', True)
@@ -66,7 +69,8 @@ def add_game_folder_metadata(rom: FolderROM, metadata: Metadata):
 		metadata.images['Background-Image'] = rom.get_file('PIC1.PNG', True)
 		if rom.has_subfolder('TROPDIR'):
 			metadata.specific_info['Supports-Trophies'] = True
-		engine = try_and_detect_engine_from_folder(rom.get_subfolder('USRDIR'), metadata)
+		usrdir = rom.get_subfolder('USRDIR')
+		engine = try_and_detect_engine_from_folder(str(usrdir), metadata)
 		if engine:
 			metadata.specific_info['Engine'] = engine
 

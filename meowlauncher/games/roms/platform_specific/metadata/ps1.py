@@ -66,28 +66,28 @@ def get_duckstation_db_info(product_code: str) -> Optional[dict]:
 def add_duckstation_db_info(metadata: Metadata):
 	if not metadata.product_code:
 		return
-	game = get_duckstation_db_info(metadata.product_code)
-	if game:
-		metadata.add_alternate_name(game['name'], 'DuckStation-Database-Name')
-		languages = game.get('languages')
+	db_entry = get_duckstation_db_info(metadata.product_code)
+	if db_entry:
+		metadata.add_alternate_name(db_entry['name'], 'DuckStation-Database-Name')
+		languages = db_entry.get('languages')
 		if languages:
 			metadata.languages = [get_language_by_english_name(lang) for lang in languages]
-		if game.get('publisher') and not metadata.publisher:
-			metadata.publisher = game.get('publisher')
-		if game.get('developer') and not metadata.developer:
-			metadata.publisher = game.get('developer')
-		if game.get('releaseDate'):
-			metadata.publisher = game.get('releaseDate')
+		if db_entry.get('publisher') and not metadata.publisher:
+			metadata.publisher = db_entry.get('publisher')
+		if db_entry.get('developer') and not metadata.developer:
+			metadata.publisher = db_entry.get('developer')
+		if db_entry.get('releaseDate'):
+			metadata.publisher = db_entry.get('releaseDate')
 		#TODO: Genre, but should this take precedence over libretro database if that is used too
 		#TODO: minBlocks and maxBlocks might indicate save type? But why is it sometimes 0
 		#TODO: minPlayers and maxPlayers
-		if game.get('vibration'):
+		if db_entry.get('vibration'):
 			metadata.specific_info['Force-Feedback'] = True
-		if game.get('multitap'):
+		if db_entry.get('multitap'):
 			metadata.specific_info['Supports-Multitap'] = True
-		if game.get('linkCable'):
+		if db_entry.get('linkCable'):
 			metadata.specific_info['Supports-Link-Cable'] = True
-		controllers = game.get('controllers')
+		controllers = db_entry.get('controllers')
 		if controllers:
 			metadata.specific_info['Compatible-Controllers'] = controllers
 			metadata.specific_info['Supports-Analog'] = 'AnalogController' in controllers

@@ -82,6 +82,52 @@ def parse_peripherals(metadata: Metadata, peripherals: Iterable[str]):
 		#R: "RS232C Serial"
 		#T: "Tablet"
 
+def add_info_from_copyright_string(metadata: Metadata, copyright_string: str):
+	metadata.specific_info['Copyright'] = copyright_string
+	copyright_match = copyright_regex.match(copyright_string)
+	if copyright_match:
+		maker = copyright_match[1].strip().rstrip(',')
+		maker = t_with_zero.sub('T-', maker)
+		maker = t_not_followed_by_dash.sub('T-', maker)
+		if maker in licensee_codes:
+			metadata.publisher = licensee_codes[maker]
+		year = copyright_match[2]
+		month: Union[str, int]
+		try:
+			month = datetime.strptime(copyright_match[3], '%b').month
+		except ValueError:
+			#There are other spellings such as JUR, JLY out there, but oh well
+			month = '??'
+		metadata.specific_info['Copyright-Date'] = Date(year, month)
+		if not metadata.release_date:
+			metadata.release_date = Date(year, month, is_guessed=True)
+
+def parse_region_codes(regions: bytes) -> list[MegadriveRegionCodes]:
+	region_codes = []
+	if b'J' in regions:
+		region_codes.append(MegadriveRegionCodes.Japan)
+	if b'U' in regions:
+		region_codes.append(MegadriveRegionCodes.USA)
+	if b'E' in regions:
+		region_codes.append(MegadriveRegionCodes.Europe)
+	if b'F' in regions:
+		region_codes.append(MegadriveRegionCodes.World)
+	if b'1' in regions:
+		region_codes.append(MegadriveRegionCodes.Japan1)
+	if b'4' in regions:
+		region_codes.append(MegadriveRegionCodes.BrazilUSA)
+	if b'5' in regions:
+		region_codes.append(MegadriveRegionCodes.JapanUSA)
+	if b'A' in regions:
+		region_codes.append(MegadriveRegionCodes.EuropeA)
+	if b'8' in regions:
+		region_codes.append(MegadriveRegionCodes.Europe8) #Apparently...
+	if b'C' in regions:
+		region_codes.append(MegadriveRegionCodes.USAEurope) #Apparently...
+	#Seen in some betas and might just be invalid:
+	#D - Brazil?
+	return region_codes
+
 def add_megadrive_info(metadata: Metadata, header: bytes):
 	try:
 		console_name = header[:16].decode('ascii')
@@ -100,24 +146,7 @@ def add_megadrive_info(metadata: Metadata, header: bytes):
 
 	try:
 		copyright_string = header[16:32].decode('ascii')
-		metadata.specific_info['Copyright'] = copyright_string
-		copyright_match = copyright_regex.match(copyright_string)
-		if copyright_match:
-			maker = copyright_match[1].strip().rstrip(',')
-			maker = t_with_zero.sub('T-', maker)
-			maker = t_not_followed_by_dash.sub('T-', maker)
-			if maker in licensee_codes:
-				metadata.publisher = licensee_codes[maker]
-			year = copyright_match[2]
-			month: Union[str, int]
-			try:
-				month = datetime.strptime(copyright_match[3], '%b').month
-			except ValueError:
-				#There are other spellings such as JUR, JLY out there, but oh well
-				month = '??'
-			metadata.specific_info['Copyright-Date'] = Date(year, month)
-			if not metadata.release_date:
-				metadata.release_date = Date(year, month, is_guessed=True)
+		add_info_from_copyright_string(metadata, copyright_string)
 	except UnicodeDecodeError:
 		pass
 	
@@ -177,32 +206,10 @@ def add_megadrive_info(metadata: Metadata, header: bytes):
 		pass
 
 	regions = header[0xf0:0xf3]
-	region_codes = []
-	if b'J' in regions:
-		region_codes.append(MegadriveRegionCodes.Japan)
-	if b'U' in regions:
-		region_codes.append(MegadriveRegionCodes.USA)
-	if b'E' in regions:
-		region_codes.append(MegadriveRegionCodes.Europe)
-	if b'F' in regions:
-		region_codes.append(MegadriveRegionCodes.World)
-	if b'1' in regions:
-		region_codes.append(MegadriveRegionCodes.Japan1)
-	if b'4' in regions:
-		region_codes.append(MegadriveRegionCodes.BrazilUSA)
-	if b'5' in regions:
-		region_codes.append(MegadriveRegionCodes.JapanUSA)
-	if b'A' in regions:
-		region_codes.append(MegadriveRegionCodes.EuropeA)
-	if b'8' in regions:
-		region_codes.append(MegadriveRegionCodes.Europe8) #Apparently...
-	if b'C' in regions:
-		region_codes.append(MegadriveRegionCodes.USAEurope) #Apparently...
-	#Seen in some betas and might just be invalid:
-	#D - Brazil?
+	region_codes = parse_region_codes(regions)
 	metadata.specific_info['Region-Code'] = region_codes
 	if console_name[:12] == 'SEGA GENESIS' and not region_codes:
-		#Make a cheeky guess
+		#Make a cheeky guess (if it wasn't USA it would be SEGA MEGADRIVE etc presumably)
 		metadata.specific_info['Region-Code'] = [MegadriveRegionCodes.USA]
 
 def get_smd_header(rom: FileROM):

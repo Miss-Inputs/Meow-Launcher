@@ -6,7 +6,7 @@ from meowlauncher.games.mame_common.mame_utils import \
     consistentify_manufacturer
 from meowlauncher.games.mame_common.software_list_info import \
     get_software_list_entry
-from meowlauncher.games.roms.rom import ROM, FileROM
+from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import AppleIIHardware
@@ -56,7 +56,68 @@ woz_meta_machines = {
 	'3+': AppleIIHardware.AppleIIIPlus,
 }
 
-def parse_woz_meta_chunk(rom: ROM, metadata: Metadata, chunk_data: bytes):
+def parse_woz_kv(rompath: str, metadata: Metadata, key: str, value: str):
+	#rompath is just here for making warnings look better which is a bit silly I think… hm
+	if key in {'side', 'side_name', 'contributor', 'image_date', 'collection', 'requires_platform'}:
+		#No use for these
+		#"collection" is not part of the spec but it shows up and it just says where the image came from
+		#requires_platform is not either, it just seems to be "apple2" so far and I don't get it
+		return
+
+	if key == 'version':
+		#Note that this is free text
+		if not value.startswith('v'):
+			value = 'v' + value
+		metadata.specific_info['Version'] = value
+	elif key == 'title':
+		metadata.add_alternate_name(value, 'Header-Title')
+	elif key == 'subtitle':
+		metadata.specific_info['Subtitle'] = value
+	elif key == 'requires_machine':
+		if metadata.specific_info.get('Machine'):
+			#Trust the info from the INFO chunk more if it exists
+			return
+		machines = []
+		for machine in value.split('|'):
+			if machine in woz_meta_machines:
+				machines.append(woz_meta_machines[machine])
+			else:
+				print('Unknown compatible machine in Woz META chunk', rompath, machine)
+		metadata.specific_info['Machine'] = machines
+	elif key == 'requires_ram':
+		#Should be in INFO chunk, but sometimes isn't
+		if value[-1].lower() == 'k':
+			value = value[:-1]
+		try:
+			metadata.specific_info['Minimum-RAM'] = int(value)
+		except ValueError:
+			pass
+	elif key == 'publisher':
+		metadata.publisher = consistentify_manufacturer(value)
+	elif key == 'developer':
+		metadata.developer = consistentify_manufacturer(value)
+	elif key == 'copyright':
+		metadata.specific_info['Copyright'] = value
+		try:
+			metadata.release_date = Date(value)
+		except ValueError:
+			pass
+	elif key == 'language':
+		metadata.languages = [lang for lang in [get_language_by_english_name(lang_name) for lang_name in value.split('|')] if lang]
+	elif key == 'genre':
+		#This isn't part of the specification, but I've seen it
+		if value == 'rpg':
+			metadata.genre = 'RPG'
+		else:
+			metadata.genre = value.capitalize() if value.islower() else value
+	elif key == 'notes':
+		#This isn't part of the specification, but I've seen it
+		metadata.add_notes(value)
+	else:
+		if main_config.debug:
+			print('Unknown Woz META key', rompath, key, value)
+
+def parse_woz_meta_chunk(rompath: str, metadata: Metadata, chunk_data: bytes):
 	rows = chunk_data.split(b'\x0a')
 	for row in rows:
 		try:
@@ -64,67 +125,7 @@ def parse_woz_meta_chunk(rom: ROM, metadata: Metadata, chunk_data: bytes):
 		except ValueError: #Oh I guess this includes UnicodeDecodeError
 			continue
 
-		if key in {'side', 'side_name', 'contributor', 'image_date', 'collection', 'requires_platform'}:
-			#No use for these
-			#"collection" is not part of the spec but it shows up and it just says where the image came from
-			#requires_platform is not either, it just seems to be "apple2" so far and I don't get it
-			pass
-		elif key == 'version':
-			#Note that this is free text
-			if not value.startswith('v'):
-				value = 'v' + value
-			metadata.specific_info['Version'] = value
-		elif key == 'title':
-			metadata.add_alternate_name(value, 'Header-Title')
-		elif key == 'subtitle':
-			metadata.specific_info['Subtitle'] = value
-		elif key == 'requires_machine':
-			if metadata.specific_info.get('Machine'):
-				#Trust the info from the INFO chunk more if it exists
-				continue
-			machines = []
-			for machine in value.split('|'):
-				if machine in woz_meta_machines:
-					machines.append(woz_meta_machines[machine])
-				else:
-					print('Unknown compatible machine in Woz META chunk', rom.path, machine)
-			metadata.specific_info['Machine'] = machines
-		elif key == 'requires_ram':
-			#Should be in INFO chunk, but sometimes isn't
-			if value[-1].lower() == 'k':
-				value = value[:-1]
-			try:
-				metadata.specific_info['Minimum-RAM'] = int(value)
-			except ValueError:
-				pass
-		elif key == 'publisher':
-			metadata.publisher = consistentify_manufacturer(value)
-		elif key == 'developer':
-			metadata.developer = consistentify_manufacturer(value)
-		elif key == 'copyright':
-			metadata.specific_info['Copyright'] = value
-			try:
-				metadata.release_date = Date(value)
-			except ValueError:
-				pass
-		elif key == 'language':
-			metadata.languages = []
-			for lang in value.split('|'):
-				language = get_language_by_english_name(lang)
-				if language:
-					metadata.languages.append(language)
-		elif key == 'genre':
-			#This isn't part of the specification, but I've seen it
-			if value == 'rpg':
-				metadata.genre = 'RPG'
-			else:
-				metadata.genre = value.capitalize() if value.islower() else value
-		elif key == 'notes':
-			#This isn't part of the specification, but I've seen it
-			metadata.add_notes(value)
-		else:
-			if main_config.debug:
-				print('Unknown Woz META key', rom.path, key, value)
+		parse_woz_kv(rompath, metadata, key, value)
 
 def parse_woz_chunk(rom: FileROM, metadata: Metadata, position: int) -> int:
 	chunk_header = rom.read(seek_to=position, amount=8)
@@ -136,7 +137,7 @@ def parse_woz_chunk(rom: FileROM, metadata: Metadata, position: int) -> int:
 		parse_woz_info_chunk(metadata, chunk_data)
 	elif chunk_id == 'META':
 		chunk_data = rom.read(seek_to=position+8, amount=chunk_data_size)
-		parse_woz_meta_chunk(rom, metadata, chunk_data)
+		parse_woz_meta_chunk(str(rom.path), metadata, chunk_data)
 
 	return position + chunk_data_size + 8
 

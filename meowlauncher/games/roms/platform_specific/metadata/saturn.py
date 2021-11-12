@@ -24,36 +24,54 @@ class SaturnPeripheral(Enum):
 	Mouse = auto()
 	Wheel = auto()
 
-def parse_peripherals(metadata: Metadata, peripherals: str):
-	uses_standard_controller = False
-	uses_analog_controller = False
-	uses_mission_stick = False
-	uses_gun = False
-	uses_keyboard = False
-	uses_mouse = False
-	uses_wheel = False
+standard_controller = input_metadata.NormalController()
+standard_controller.face_buttons = 6 # A B C X Y Z #yeah I had to count them because I have 0 brain cells sorry
+standard_controller.shoulder_buttons = 2 #L R
+standard_controller.dpads = 1
 
+analog_controller = input_metadata.NormalController()
+analog_controller.face_buttons = 6 # A B C X Y Z
+analog_controller.analog_triggers = 2
+analog_controller.analog_sticks = 1
+analog_controller.dpads = 1
+
+mission_stick_main_part = input_metadata.NormalController()
+mission_stick_main_part.analog_sticks = 1
+mission_stick_main_part.face_buttons = 10 #The usual + L and R are located there instead of what would be considered a shoulder button, plus 2 extra on the stick
+throttle_wheel = input_metadata.Dial()
+mission_stick = input_metadata.CombinedController([mission_stick_main_part, throttle_wheel])
+
+virtua_gun = input_metadata.LightGun()
+virtua_gun.buttons = 1 #Also start and I dunno if offscreen shot would count as a button
+
+keyboard = input_metadata.Keyboard()
+keyboard.keys = 101
+#Japan keyboard has 89 keys... bleh, it doesn't seem to say which keyboard it refers to
+
+mouse = input_metadata.Mouse()
+mouse.buttons = 3
+
+def parse_peripherals(metadata: Metadata, peripherals: str):
 	for peripheral in peripherals:
 		if peripheral == 'J':
-			uses_standard_controller = True
+			metadata.input_info.add_option(standard_controller)
 		elif peripheral == 'E':
-			uses_analog_controller = True
+			metadata.input_info.add_option(analog_controller)
 			metadata.specific_info['Uses-3D-Control-Pad'] = True
 		elif peripheral == 'A':
-			uses_mission_stick = True
+			metadata.input_info.add_option(mission_stick)
 			metadata.specific_info['Uses-Mission-Stick'] = True
 		elif peripheral == 'G':
-			uses_gun = True
+			metadata.input_info.add_option(virtua_gun)
 			metadata.specific_info['Uses-Gun'] = True
 		elif peripheral == 'K':
-			uses_keyboard = True
+			metadata.input_info.add_option(keyboard)
 			metadata.specific_info['Uses-Keyboard'] = True
 		elif peripheral == 'M':
-			uses_mouse = True
+			metadata.input_info.add_option(mouse)
 			metadata.specific_info['Uses-Mouse'] = True
 		elif peripheral == 'S':
-			#Steering wheel
-			uses_wheel = True
+			metadata.input_info.add_option(input_metadata.SteeringWheel())
 			metadata.specific_info['Uses-Steering-Wheel'] = True
 		elif peripheral == 'T':
 			metadata.specific_info['Supports-Multitap'] = True
@@ -78,42 +96,6 @@ def parse_peripherals(metadata: Metadata, peripherals: str):
 		#X = Duke Nukem 3D, Daytona CCE Net Link Edition, Puyo Puyo Sun for SegaNet (something to do with NetLink, but what is the difference with D?)
 		#U = Sonic Z-Treme?
 		#Z = Game Basic for SegaSaturn (PC connectivity?)
-
-	if uses_standard_controller:
-		standard_controller = input_metadata.NormalController()
-		standard_controller.face_buttons = 6 # A B C X Y Z
-		standard_controller.shoulder_buttons = 2 #L R
-		standard_controller.dpads = 1
-		metadata.input_info.add_option(standard_controller)
-	if uses_analog_controller:
-		analog_controller = input_metadata.NormalController()
-		analog_controller.face_buttons = 6 # A B C X Y Z
-		analog_controller.analog_triggers = 2
-		analog_controller.analog_sticks = 1
-		analog_controller.dpads = 1
-		metadata.input_info.add_option(analog_controller)
-	if uses_mission_stick:
-		mission_stick_main_part = input_metadata.NormalController()
-		mission_stick_main_part.analog_sticks = 1
-		mission_stick_main_part.face_buttons = 10 #The usual + L and R are located there instead of what would be considered a shoulder button, plus 2 extra on the stick
-		throttle_wheel = input_metadata.Dial()
-		mission_stick = input_metadata.CombinedController([mission_stick_main_part, throttle_wheel])
-		metadata.input_info.add_option(mission_stick)
-	if uses_gun:
-		virtua_gun = input_metadata.LightGun()
-		virtua_gun.buttons = 1 #Also start and I dunno if offscreen shot would count as a button
-		metadata.input_info.add_option(virtua_gun)
-	if uses_keyboard:
-		keyboard = input_metadata.Keyboard()
-		keyboard.keys = 101
-		#Japan keyboard has 89 keys... bleh, it doesn't seem to say which keyboard it refers to
-		metadata.input_info.add_option(keyboard)
-	if uses_mouse:
-		mouse = input_metadata.Mouse()
-		mouse.buttons = 3
-		metadata.input_info.add_option(mouse)
-	if uses_wheel:
-		metadata.input_info.add_option(input_metadata.SteeringWheel())
 
 def add_saturn_info(rom: ROM, metadata: Metadata, header: bytes):
 	hardware_id = header[0:16].decode('ascii', errors='ignore')

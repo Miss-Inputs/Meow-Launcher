@@ -15,11 +15,26 @@ from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.utils import load_dict
 
-from ._3ds import \
-    _3DSRegionCode  # I should move this to some common module, maybe
 from .common.gametdb import TDB, add_info_from_tdb
+from .common.nintendo_common import (WiiU3DSRegionCode,
+                                     add_info_from_local_titles)
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
+
+languages = {
+	'ja': 'Japanese',
+	'en': 'English',
+	'fr': 'French',
+	'de': 'German',
+	'it': 'Italian',
+	'es': 'Spanish',
+	'zhs': 'Simplified Chinese',
+	'ko': 'Korean',
+	'nl': 'Dutch',
+	'pt': 'Portugese',
+	'ru': 'Russian',
+	'zht': 'Traditional Chinese',
+}
 
 class WiiUVirtualConsolePlatform(Enum):
 	DS = 'D'
@@ -116,8 +131,8 @@ def add_meta_xml_metadata(metadata: Metadata, meta_xml: ElementTree.ElementTree)
 	if region:
 		try:
 			region_flags = int(region, 16)
-			for region_code in _3DSRegionCode:
-				if region_code in (_3DSRegionCode.RegionFree, _3DSRegionCode.WiiURegionFree):
+			for region_code in WiiU3DSRegionCode:
+				if region_code in (WiiU3DSRegionCode.RegionFree, WiiU3DSRegionCode.WiiURegionFree):
 					continue
 				if region_code.value & region_flags:
 					region_codes.append(region_code)
@@ -156,21 +171,6 @@ def add_meta_xml_metadata(metadata: Metadata, meta_xml: ElementTree.ElementTree)
 	#drc = meta_xml.findtext('drc_use') != '0'
 	#network = meta_xml.findtext('network_use') != '0'
 	#online_account = meta_xml.findtext('online_account_use') != '0'
-
-	languages = {
-		'ja': 'Japanese',
-		'en': 'English',
-		'fr': 'French',
-		'de': 'German',
-		'it': 'Italian',
-		'es': 'Spanish',
-		'zhs': 'Simplified Chinese',
-		'ko': 'Korean',
-		'nl': 'Dutch',
-		'pt': 'Portugese',
-		'ru': 'Russian',
-		'zht': 'Traditional Chinese',
-	}
 	
 	short_names = {}
 	long_names = {}
@@ -186,55 +186,7 @@ def add_meta_xml_metadata(metadata: Metadata, meta_xml: ElementTree.ElementTree)
 		if publisher:
 			publishers[lang_name] = publisher
 
-	#Just straight up copypaste from _3ds.py fuck it
-	local_short_title = None
-	local_long_title = None
-	local_publisher = None
-	if _3DSRegionCode.RegionFree in region_codes or _3DSRegionCode.USA in region_codes or _3DSRegionCode.Europe in region_codes:
-		#We shouldn't assume that Europe is English-speaking but we're going to
-		local_short_title = short_names.get('English')
-		local_long_title = long_names.get('English')
-		local_publisher = publishers.get('English')
-	elif _3DSRegionCode.Japan in region_codes:
-		local_short_title = short_names.get('Japanese')
-		local_long_title = long_names.get('Japanese')
-		local_publisher = publishers.get('Japanese')
-	elif _3DSRegionCode.China in region_codes:
-		local_short_title = short_names.get('Simplified Chinese')
-		local_long_title = long_names.get('Simplified Chinese')
-		local_publisher = publishers.get('Simplified Chinese')
-	elif _3DSRegionCode.Korea in region_codes:
-		local_short_title = short_names.get('Korean')
-		local_long_title = long_names.get('Korean')
-		local_publisher = publishers.get('Korean')
-	elif _3DSRegionCode.Taiwan in region_codes:
-		local_short_title = short_names.get('Traditional Chinese')
-		local_long_title = long_names.get('Traditional Chinese')
-		local_publisher = publishers.get('Traditional Chinese')
-	else: #If none of that is in the region code? Unlikely but I dunno maybe
-		if short_names:
-			local_short_title = list(short_names.values())[0]
-		if long_names:
-			local_long_title = list(long_names.values())[0]
-		if publishers:
-			local_publisher = list(publishers.values())[0]
-
-	if local_short_title:
-		metadata.add_alternate_name(local_short_title, 'Short-Title')
-	if local_long_title:
-		metadata.add_alternate_name(local_long_title, 'Title')
-	if local_publisher and not metadata.publisher:
-		metadata.publisher = local_publisher
-
-	for lang, short_title in short_names.items():
-		if short_title != local_short_title:
-			metadata.add_alternate_name(short_title, '{0}-Short-Title'.format(lang.replace(' ', '-')))
-	for lang, long_title in long_names.items():
-		if long_title != local_long_title:
-			metadata.add_alternate_name(long_title, '{0}-Title'.format(lang.replace(' ', '-')))
-	for lang, publisher in publishers.items():
-		if publisher not in (metadata.publisher, local_publisher):
-			metadata.specific_info['{0}-Publisher'.format(lang.replace(' ', '-'))] = publisher
+	add_info_from_local_titles(metadata, short_names, long_names, publishers, region_codes)
 
 def add_homebrew_meta_xml_metadata(rom: ROM, metadata: Metadata, meta_xml: ElementTree.ElementTree):
 	name = meta_xml.findtext('name')

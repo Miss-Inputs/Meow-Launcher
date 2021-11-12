@@ -1,10 +1,9 @@
 from enum import Flag
-from typing import Any, Optional
+from typing import Optional, Union, cast
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.common.name_utils import fix_name
-from meowlauncher.games.roms.rom import ROM
 from meowlauncher.metadata import Metadata
 
 categories: dict[str, tuple[str, Optional[str]]] = {
@@ -120,7 +119,9 @@ title_languages = {
 
 }
 
-def convert_sfo(sfo: bytes) -> dict[str, Any]:
+SFOValueType = Union[str, int] #Not sure if there is more than that…
+
+def convert_sfo(sfo: bytes) -> dict[str, SFOValueType]:
 	d = {}
 	#This is some weird key value format thingy
 	key_table_start = int.from_bytes(sfo[8:12], 'little')
@@ -137,7 +138,7 @@ def convert_sfo(sfo: bytes) -> dict[str, Any]:
 
 		key = sfo[key_offset:].split(b'\x00', 1)[0].decode('utf8', errors='ignore')
 
-		value: Any = None
+		value: SFOValueType
 		if data_format == 4: #UTF8 not null terminated
 			value = sfo[data_offset:data_offset+data_used_length].decode('utf8', errors='ignore')
 		elif data_format == 0x204: #UTF8 null terminated
@@ -152,100 +153,104 @@ def convert_sfo(sfo: bytes) -> dict[str, Any]:
 		d[key] = value
 	return d
 
-def parse_param_sfo(rom: ROM, metadata: Metadata, param_sfo: bytes):
+def parse_param_sfo_kv(rompath: str, metadata: Metadata, key: str, value: SFOValueType):
+	#rompath is just there for warning messages
+	if key == 'DISC_ID':
+		if value != 'UCJS10041':
+			#That one's used by all the PSP homebrews
+			metadata.product_code = cast(str, value)
+	elif key == 'TITLE_ID':
+		#PS3 uses this instead I guess
+		metadata.product_code = cast(str, value)
+	elif key == 'DISC_NUMBER':
+		metadata.disc_number = cast(int, value)
+	elif key == 'DISC_TOTAL':
+		metadata.disc_total = cast(int, value)
+	elif key == 'TITLE':
+		metadata.add_alternate_name(fix_name(cast(str, value)), 'Banner-Title')
+	elif len(key) == 8 and key[:5] == 'TITLE' and key[-2:].isdigit():
+		lang_id = int(key[-2:])
+		prefix = title_languages.get(lang_id)
+		name_name = 'Banner-Title'
+		if prefix:
+			name_name = prefix.replace(' ', '-') + '-' + name_name
+		metadata.add_alternate_name(fix_name(cast(str, value)), name_name)
+	elif key == 'PARENTAL_LEVEL':
+		#Seems this doesn't actually mean anything by itself, and is Sony's own rating system, so don't try and think about it too much
+		metadata.specific_info['Parental-Level'] = value
+	elif key == 'CATEGORY':
+		#This is a two letter code which generally means something like "Memory stick game" "Update" "PS1 Classics", see ROMniscience notes
+		cat: Optional[tuple[str, Optional[str]]] = categories.get(cast(str, value))
+		if cat:
+			metadata.specific_info['PlayStation-Category'] = cat[0]
+			if cat[1] and cat[1] is not None:
+				if not metadata.categories or (len(metadata.categories) == 1 and metadata.categories[0] == metadata.platform):
+					metadata.categories = [cat[1]]
+			else:
+				metadata.specific_info['Should-Not-Be-Bootable'] = True
+		else:
+			if main_config.debug:
+				print(rompath, 'has unknown category', value)
+	elif key in {'DISC_VERSION', 'APP_VER'}:
+		if cast(str, value)[0] != 'v':
+			value = 'v' + cast(str, value)
+		metadata.specific_info['Version'] = value
+	elif key == 'VERSION':
+		metadata.specific_info['Revision'] = value
+	elif key == 'LICENSE':
+		metadata.descriptions['License'] = cast(str, value)
+	elif key == 'BOOTABLE':
+		if value == 0:
+			metadata.specific_info['Bootable'] = False
+			#Does not seem to ever be set to anything??
+	elif key == 'CONTENT_ID':
+		metadata.specific_info['Content-ID'] = value
+	elif key == 'USE_USB':
+		metadata.specific_info['Uses-USB'] = value != 0
+	elif key in {'PSP_SYSTEM_VER', 'PS3_SYSTEM_VER'}:
+		metadata.specific_info['Required-Firmware'] = value
+	elif key == 'ATTRIBUTE':
+		if value:
+			try:
+				flags = AttributeFlags(value)
+				if flags & AttributeFlags.MoveControllerEnabled:
+					metadata.specific_info['Uses-Move-Controller'] = True
+				#metadata.specific_info['Attribute-Flags'] = flags
+
+			except ValueError:
+				#metadata.specific_info['Attribute-Flags'] = hex(value)
+				if main_config.debug:
+					print(rompath, 'has funny attributes flag', hex(cast(int, value)))
+	elif key == 'RESOLUTION':
+		try:
+			metadata.specific_info['Supported-Resolutions'] = [res[1:] for res in str(Resolutions(value))[12:].split('|')]
+		except ValueError:
+			if main_config.debug:
+				print(rompath, 'has funny resolution flag', hex(cast(int, value)))
+	elif key == 'SOUND_FORMAT':
+		try:
+			metadata.specific_info['Supported-Sound-Formats'] = [res.lstrip('_').replace('_', '.') for res in str(SoundFormats(value))[13:].split('|')]
+		except ValueError:
+			if main_config.debug:
+				print(rompath, 'has funny sound format flag', hex(cast(int, value)))
+	elif key in {'MEMSIZE', 'REGION', 'HRKGMP_VER', 'NP_COMMUNICATION_ID'}:
+		#These are known, but not necessarily useful to us or we just don't feel like putting it in the metadata or otherwise doing anything with it at this point
+		#MEMSIZE: PSP, 1 if game uses extra RAM?
+		#REGION: Seems to always be 32768 (is anything region locked?) and also only on PSP??
+		#HRKGMP_VER = ??? (19)
+		#NP_COMMUNICATION_ID = PS3, ID used for online features I guess, also the subdirectory of TROPDIR containing TROPHY.TRP
+		#print('ooo', rom.path, key, value)
+		pass
+	else:
+		if main_config.debug:
+			print(rompath, 'has unknown param.sfo value', key, value)
+
+def parse_param_sfo(rompath: str, metadata: Metadata, param_sfo: bytes):
 	magic = param_sfo[:4]
 	if magic != b'\x00PSF':
 		return
 	for key, value in convert_sfo(param_sfo).items():
-		if key == 'DISC_ID':
-			if value != 'UCJS10041':
-				#That one's used by all the PSP homebrews
-				metadata.product_code = value
-		elif key == 'TITLE_ID':
-			#PS3 uses this instead I guess
-			metadata.product_code = value
-		elif key == 'DISC_NUMBER':
-			metadata.disc_number = value
-		elif key == 'DISC_TOTAL':
-			metadata.disc_total = value
-		elif key == 'TITLE':
-			metadata.add_alternate_name(fix_name(value), 'Banner-Title')
-		elif len(key) == 8 and key[:5] == 'TITLE' and key[-2:].isdigit():
-			lang_id = int(key[-2:])
-			prefix = title_languages.get(lang_id)
-			name_name = 'Banner-Title'
-			if prefix:
-				name_name = prefix.replace(' ', '-') + '-' + name_name
-			metadata.add_alternate_name(fix_name(value), name_name)
-		elif key == 'PARENTAL_LEVEL':
-			#Seems this doesn't actually mean anything by itself, and is Sony's own rating system, so don't try and think about it too much
-			metadata.specific_info['Parental-Level'] = value
-		elif key == 'CATEGORY':
-			#This is a two letter code which generally means something like "Memory stick game" "Update" "PS1 Classics", see ROMniscience notes
-			cat: Optional[tuple[str, Optional[str]]] = categories.get(value)
-			if cat:
-				metadata.specific_info['PlayStation-Category'] = cat[0]
-				if cat[1] and cat[1] is not None:
-					if not metadata.categories or (len(metadata.categories) == 1 and metadata.categories[0] == metadata.platform):
-						metadata.categories = [cat[1]]
-				else:
-					metadata.specific_info['Should-Not-Be-Bootable'] = True
-			else:
-				if main_config.debug:
-					print(rom.path, 'has unknown category', value)
-		elif key in {'DISC_VERSION', 'APP_VER'}:
-			if value[0] != 'v':
-				value = 'v' + value
-			metadata.specific_info['Version'] = value
-		elif key == 'VERSION':
-			metadata.specific_info['Revision'] = value
-		elif key == 'LICENSE':
-			metadata.descriptions['License'] = value
-		elif key == 'BOOTABLE':
-			if value == 0:
-				metadata.specific_info['Bootable'] = False
-				#Does not seem to ever be set to anything??
-		elif key == 'CONTENT_ID':
-			metadata.specific_info['Content-ID'] = value
-		elif key == 'USE_USB':
-			metadata.specific_info['Uses-USB'] = value != 0
-		elif key in {'PSP_SYSTEM_VER', 'PS3_SYSTEM_VER'}:
-			metadata.specific_info['Required-Firmware'] = value
-		elif key == 'ATTRIBUTE':
-			if value:
-				try:
-					flags = AttributeFlags(value)
-					if flags & AttributeFlags.MoveControllerEnabled:
-						metadata.specific_info['Uses-Move-Controller'] = True
-					#metadata.specific_info['Attribute-Flags'] = flags
-
-				except ValueError:
-					#metadata.specific_info['Attribute-Flags'] = hex(value)
-					if main_config.debug:
-						print(rom.path, 'has funny attributes flag', hex(value))
-		elif key == 'RESOLUTION':
-			try:
-				metadata.specific_info['Supported-Resolutions'] = [res[1:] for res in str(Resolutions(value))[12:].split('|')]
-			except ValueError:
-				if main_config.debug:
-					print(rom.path, 'has funny resolution flag', hex(value))
-		elif key == 'SOUND_FORMAT':
-			try:
-				metadata.specific_info['Supported-Sound-Formats'] = [res.lstrip('_').replace('_', '.') for res in str(SoundFormats(value))[13:].split('|')]
-			except ValueError:
-				if main_config.debug:
-					print(rom.path, 'has funny sound format flag', hex(value))
-		elif key in {'MEMSIZE', 'REGION', 'HRKGMP_VER', 'NP_COMMUNICATION_ID'}:
-			#These are known, but not necessarily useful to us or we just don't feel like putting it in the metadata or otherwise doing anything with it at this point
-			#MEMSIZE: PSP, 1 if game uses extra RAM?
-			#REGION: Seems to always be 32768 (is anything region locked?) and also only on PSP??
-			#HRKGMP_VER = ??? (19)
-			#NP_COMMUNICATION_ID = PS3, ID used for online features I guess, also the subdirectory of TROPDIR containing TROPHY.TRP
-			#print('ooo', rom.path, key, value)
-			pass
-		else:
-			if main_config.debug:
-				print(rom.path, 'has unknown param.sfo value', key, value)
+		parse_param_sfo_kv(rompath, metadata, key, value)
 
 def parse_product_code(metadata: Metadata, product_code: str):
 	if len(product_code) == 9 and product_code[:4].isalpha() and product_code[-5:].isdigit():

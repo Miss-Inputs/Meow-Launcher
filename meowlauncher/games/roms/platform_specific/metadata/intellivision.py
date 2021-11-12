@@ -16,6 +16,8 @@ def _does_intellivision_part_match(part: SoftwarePart, data: bytes) -> bool:
 		#'name' attribute here is actually where in the Intellivision memory map it gets loaded to, not the offset in the file like I keep thinking
 
 		size = data_area.size
+		if not size:
+			continue
 
 		if not data_area.roms:
 			continue

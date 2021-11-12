@@ -210,6 +210,14 @@ def add_cnmt_xml_metadata(xml: ElementTree.Element, metadata: Metadata):
 	#We also have RequiredDownloadSystemVersion, Digest, KeyGenerationMin, RequiredSystemVersion, PatchId if those are interesting/useful
 	#Content contains Size, KeyGeneration, Hash, Type
 
+def _call_nstool_for_decrypt(temp_folder: str, temp_filename: str):
+	#Plan B, there is no reason why this can't be plan A I guess
+	nstool = subprocess.run(['nstool', '-t', 'nca', '--part0', temp_folder, temp_filename], stdout=subprocess.PIPE, check=True, stderr=subprocess.DEVNULL)
+	stdout = nstool.stdout.strip() #It prints error messages to stdout…
+	if stdout.decode('utf-8', errors='ignore') == '[NcaProcess ERROR] NCA FS Header [':
+		#I guess that's the error message
+		raise InvalidNCAException('Header wrong')
+	
 def decrypt_control_nca_with_hactool(control_nca: bytes) -> dict[str, bytes]:
 	if hasattr(decrypt_control_nca_with_hactool, 'failed'):
 		raise ExternalToolNotHappeningException('No can do {0}'.format(decrypt_control_nca_with_hactool.failed)) #type: ignore[attr-defined]
@@ -229,18 +237,14 @@ def decrypt_control_nca_with_hactool(control_nca: bytes) -> dict[str, bytes]:
 				raise InvalidNCAException('Header wrong')
 		except (subprocess.CalledProcessError, FileNotFoundError) as cactus:
 			try:
-				#Plan B, there is no reason why this can't be plan A I guess
-				nstool = subprocess.run(['nstool', '-t', 'nca', '--part0', temp_folder, temp_filename], stdout=subprocess.PIPE, check=True, stderr=subprocess.DEVNULL)
-				stdout = nstool.stdout.strip() #It prints error messages to stdout…
-				if stdout.decode('utf-8', errors='ignore') == '[NcaProcess ERROR] NCA FS Header [':
-					#I guess that's the error message
-					raise InvalidNCAException('Header wrong')
+				_call_nstool_for_decrypt(temp_folder, temp_filename)
 			except (subprocess.CalledProcessError, FileNotFoundError):
 				decrypt_control_nca_with_hactool.failed = cactus #type: ignore[attr-defined]
 				raise ExternalToolNotHappeningException('No can do') from cactus
 
 		files = {}
 		for f in os.scandir(temp_folder):
+			#Because I can't predict what filenames it will write… I guess
 			if f.is_file() and f.path != temp_filename:
 				with open(f.path, 'rb') as ff:
 					files[f.name] = ff.read()
@@ -271,11 +275,7 @@ def decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
 		except (subprocess.CalledProcessError, FileNotFoundError) as cactus:
 			try:
 				#Plan B
-				nstool = subprocess.run(['nstool', '-t', 'nca', '--part0', temp_folder, temp_filename], stdout=subprocess.PIPE, check=True, stderr=subprocess.DEVNULL)
-				stdout = nstool.stdout.strip() #It prints error messages to stdout…
-				if stdout.decode('utf-8', errors='ignore') == '[NcaProcess ERROR] NCA FS Header [':
-					#I guess that's the error message
-					raise InvalidNCAException('Header wrong')
+				_call_nstool_for_decrypt(temp_folder, temp_filename)
 			except (subprocess.CalledProcessError, FileNotFoundError):
 				decrypt_cnmt_nca_with_hactool.failed = cactus #type: ignore[attr-defined]
 				raise ExternalToolNotHappeningException('No can do') from cactus

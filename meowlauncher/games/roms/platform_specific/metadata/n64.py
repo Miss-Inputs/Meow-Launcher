@@ -1,7 +1,8 @@
 import configparser
 import hashlib
 import os
-from typing import Mapping, Optional, cast
+from collections.abc import Mapping
+from typing import Optional, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -22,7 +23,7 @@ def get_mupen64plus_database() -> Optional[dict[str, dict[str, str]]]:
 	
 	config_location = os.path.expanduser('~/.config/mupen64plus/mupen64plus.cfg')
 	try:
-		with open(config_location, 'rt') as config_file:
+		with open(config_location, 'rt', encoding='utf-8') as config_file:
 			for line in config_file.readlines():
 				if line.startswith('SharedDataPath = '):
 					data_folder = line.rstrip()[len('SharedDataPath = '):].strip('"')

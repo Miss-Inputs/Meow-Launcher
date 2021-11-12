@@ -1,7 +1,10 @@
 import os
-from typing import Callable, Optional
+from collections.abc import Callable
+from typing import Optional
+
 from meowlauncher.common_types import MediaType
 from meowlauncher.games.roms.rom import FolderROM
+
 
 def is_wii_homebrew_folder(folder: FolderROM) -> Optional[MediaType]:
 	have_boot_dol = False

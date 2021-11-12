@@ -57,49 +57,49 @@ def find_in_software_lists_with_custom_matcher(software_lists: Sequence[Software
 			return software
 	return None
 
-def find_software_by_name(software_lists: Sequence[SoftwareList], name: str) -> Optional[Software]:
-	def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
-		#TODO Handle annoying multiple discs
-		proto_tags = ['beta', 'proto', 'sample']
+def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
+	#TODO Handle annoying multiple discs
+	proto_tags = ['beta', 'proto', 'sample']
 
-		software_name_without_brackety_bois = remove_filename_tags(part.software.description)
-		name_without_brackety_bois = remove_filename_tags(name)
-		software_normalized_name = normalize_name(software_name_without_brackety_bois)
-		normalized_name = normalize_name(name_without_brackety_bois)
-		name_tags = [t.lower()[1:-1] for t in find_filename_tags_at_end(name)]
-		#Sometimes (often) these will appear as (Region, Special Version) and not (Region) (Special Version) etc, so let's dismantle them
-		software_tags = ', '.join([t.lower()[1:-1] for t in find_filename_tags_at_end(part.software.description)]).split(', ')
-		
-		if software_normalized_name != normalized_name:
-			if name_without_brackety_bois in subtitles:
-				if normalize_name(name_without_brackety_bois + ': ' + subtitles[name_without_brackety_bois]) != software_normalized_name:
-					return False
-			elif software_name_without_brackety_bois in subtitles:
-				if normalize_name(software_name_without_brackety_bois + ': ' + subtitles[software_name_without_brackety_bois]) != normalized_name:
-					return False
-			else:
+	software_name_without_brackety_bois = remove_filename_tags(part.software.description)
+	name_without_brackety_bois = remove_filename_tags(name)
+	software_normalized_name = normalize_name(software_name_without_brackety_bois)
+	normalized_name = normalize_name(name_without_brackety_bois)
+	name_tags = [t.lower()[1:-1] for t in find_filename_tags_at_end(name)]
+	#Sometimes (often) these will appear as (Region, Special Version) and not (Region) (Special Version) etc, so let's dismantle them
+	software_tags = ', '.join([t.lower()[1:-1] for t in find_filename_tags_at_end(part.software.description)]).split(', ')
+	
+	if software_normalized_name != normalized_name:
+		if name_without_brackety_bois in subtitles:
+			if normalize_name(name_without_brackety_bois + ': ' + subtitles[name_without_brackety_bois]) != software_normalized_name:
 				return False
-		if 'demo' in software_tags and 'demo' not in (', ').join(name_tags):
+		elif software_name_without_brackety_bois in subtitles:
+			if normalize_name(software_name_without_brackety_bois + ': ' + subtitles[software_name_without_brackety_bois]) != normalized_name:
+				return False
+		else:
 			return False
-		if 'demo' in name_tags and 'demo' not in software_tags:
+	if 'demo' in software_tags and 'demo' not in (', ').join(name_tags):
+		return False
+	if 'demo' in name_tags and 'demo' not in software_tags:
+		return False
+
+	software_is_prototype = any(t.startswith('prototype') for t in software_tags)
+
+	for t in proto_tags:
+		if t in name_tags and not (t in software_tags or software_is_prototype):
 			return False
-
-		software_is_prototype = any(t.startswith('prototype') for t in software_tags)
-
+		if t in software_tags and not t in name_tags:
+			return False
+	if software_is_prototype:
+		matches_proto = False
 		for t in proto_tags:
-			if t in name_tags and not (t in software_tags or software_is_prototype):
-				return False
-			if t in software_tags and not t in name_tags:
-				return False
-		if software_is_prototype:
-			matches_proto = False
-			for t in proto_tags:
-				if t in name_tags:
-					matches_proto = True
-			if not matches_proto:
-				return False
-		return True
+			if t in name_tags:
+				matches_proto = True
+		if not matches_proto:
+			return False
+	return True
 
+def find_software_by_name(software_lists: Sequence[SoftwareList], name: str) -> Optional[Software]:
 	fuzzy_name_matches: list[Software] = []
 	if not software_lists:
 		return None
@@ -165,7 +165,7 @@ def find_software_by_name(software_lists: Sequence[SoftwareList], name: str) -> 
 	return None
 
 def software_list_product_code_matcher(part: SoftwarePart, product_code: str) -> bool:
-	part_code = part.software.infos.get('serial')
+	part_code = part.software.serial
 	if not part_code:
 		return False
 
