@@ -8,7 +8,7 @@ import os
 import sys
 import time
 from collections.abc import Callable, Collection
-from typing import Optional, cast
+from typing import Any, Optional, cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.desktop_launchers import (get_array, get_desktop, get_field,
@@ -180,9 +180,9 @@ def fix_duplicate_names(method: str, format_function: Optional[FormatFunction]=N
 
 	#TODO: Handle this null check properly, it _should_ be impossible for Desktop Entry to not exist in a .desktop file, but that doesn't stop some joker putting them in there
 	#Why did I call the variable "f"? Oh well
-	keyfunc = lambda f: cast(str, get_field(f[1], 'Name', 'Desktop Entry')).lower() \
+	keyfunc: Callable[[tuple[Any, configparser.ConfigParser]], str] = (lambda f: cast(str, get_field(f[1], 'Name', 'Desktop Entry')).lower()) \
 		if method == 'check' \
-		else lambda f: normalize_name(cast(str, get_field(f[1], 'Name', 'Desktop Entry')), care_about_numerals=True)
+		else (lambda f: normalize_name(cast(str, get_field(f[1], 'Name', 'Desktop Entry')), care_about_numerals=True))
 	files.sort(key=keyfunc)
 	duplicates: dict[str, list[tuple[str, configparser.ConfigParser]]] = {}
 	for key, group in itertools.groupby(files, key=keyfunc):
