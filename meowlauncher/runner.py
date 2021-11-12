@@ -6,8 +6,8 @@ class Runner(ABC):
 	def is_available(self) -> bool:
 		return True
 
-	@abstractmethod
 	@property
+	@abstractmethod
 	def name(self) -> str:
 		pass
 
