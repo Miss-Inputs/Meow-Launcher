@@ -3,7 +3,7 @@ import io
 import json
 import os
 import zipfile
-from typing import Optional
+from typing import Optional, cast
 
 try:
 	from PIL import Image
@@ -92,7 +92,7 @@ def try_detect_ue4(folder: str) -> bool:
 	#Hmm…
 	#Something like Blah/Binaries/Linux/Blah-Linux-Shipping
 	project_name: str
-	binaries_folder: str
+	binaries_folder = None
 	for subdir in os.scandir(folder):
 		if subdir.name == 'Engine':
 			continue
@@ -131,7 +131,10 @@ def try_detect_build(folder: str) -> bool:
 
 def try_detect_ue3(folder: str) -> bool:
 	for f in os.scandir(folder):
-		if (f.name != 'Game' and f.name.endswith('Game')) or f.name == 'P13' or (f.name.isupper() and f.name != 'GAME' and f.name.endswith('GAME')):
+		if f.name in {'Game', 'GAME'}:
+			continue
+		if f.name.endswith('Game') or f.name == 'P13' or (f.name.isupper() and f.name.endswith('GAME')):
+			#What the heck is P13 about? Oh well
 			if f.is_dir():
 				if os.path.isfile(os.path.join(f.path, 'CookedPC', 'Engine.u')):
 					return True
@@ -215,8 +218,8 @@ def try_detect_adobe_air(folder: str) -> bool:
 
 def add_metadata_from_nw_package_json(package_json: dict, metadata: Metadata):
 	#main might come in handy
-	metadata.descriptions['Package-Description'] = package_json.get('description')
-	metadata.add_alternate_name(package_json.get('name'), 'Name')
+	metadata.descriptions['Package-Description'] = cast(str, package_json.get('description'))
+	metadata.add_alternate_name(cast(str, package_json.get('name')), 'Name')
 	window = package_json.get('window')
 	if window:
 		#I need a better way of doing that…
@@ -308,7 +311,7 @@ def try_and_detect_engine_from_folder(folder: str, metadata: Metadata=None) -> O
 	if 'rpg_rt.exe' in files:
 		#TODO: Get title from RPG_RT.ini section RPG_RT line GameTitle= (this is not always there though…)
 		return 'RPG Maker 2000/2003'
-	if 'logdir' in files and 'object' in files and 'picdir' in files and 'viewdir' in files and 'snddir' in files and 'vol.0' in files and 'words.tok' in files:
+	if all(f in files for f in ('logdir', 'object', 'picdir', 'viewdir', 'snddir', 'vol.0', 'words.tok')):
 		#Apparently there can be .wag files?
 		return 'AGI' #v2
 	if ('visplayer' in files and any(f.endswith('.vis') for f in files)) or ('data.vis' in files): #.vis magic is "VIS3"?
