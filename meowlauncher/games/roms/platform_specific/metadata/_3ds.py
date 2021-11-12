@@ -421,7 +421,6 @@ def decode_icon(icon_data: bytes, size: int) -> 'Image':
 				green = ((pixel >> 5) & 0b0011_1111) << 2
 				red = ((pixel >> 11) & 0b0001_1111) << 3
 
-				#icon.putpixel((x, y), (red, green, blue))
 				data[y * size + x] = (red, green, blue)
 				i += 2
 	icon.putdata(data)

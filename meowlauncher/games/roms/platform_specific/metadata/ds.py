@@ -69,15 +69,17 @@ def decode_icon(bitmap: bytes, palette: Iterable[int]) -> 'Image':
 		rgb_palette[i] = convert_ds_colour_to_rgba(colour, i == 0)
 
 	pos = 0
+	data = [(0, 0, 0, 0)] * 32 * 32
 	for tile_y in range(0, 4):
 		for tile_x in range(0, 4):
 			for y in range(0, 8):
 				for x in range(0, 4):
 					pixel_x = (x * 2) + (8 * tile_x)
 					pixel_y = y + (8 * tile_y)
-					icon.putpixel((pixel_x, pixel_y), rgb_palette[bitmap[pos] & 0x0f])
-					icon.putpixel((pixel_x + 1, pixel_y), rgb_palette[(bitmap[pos] & 0xf0) >> 4])
+					data[pixel_y * 32 + pixel_x] = rgb_palette[bitmap[pos] & 0x0f]
+					data[pixel_y * 32 + pixel_x + 1] = rgb_palette[(bitmap[pos] & 0xf0) >> 4]
 					pos += 1
+	icon.putdata(data)
 	return icon
 
 def parse_dsi_region_flags(region_flags: int) -> list[Region]:

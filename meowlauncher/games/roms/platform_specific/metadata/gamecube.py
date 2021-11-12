@@ -57,6 +57,34 @@ def parse_gamecube_banner_text(metadata: Metadata, banner_bytes: bytes, encoding
 	metadata.specific_info['{0}-Title-Line-2'.format(prefix)] = title_line_2
 	metadata.descriptions['{0}-Description'.format(prefix)] = description
 
+def decode_icon(banner: bytes) -> 'Image':
+	width = 96
+	height = 32
+
+	image = Image.new('RGBA', (width, height))
+	data = [(0, 0, 0, 0)] * width * height
+
+	offset = 32 #Part of the banner where image data starts
+	#Divvied into 4x4 tiles (8 tiles high, 24 tiles wide)
+
+	tile_height = height // 4
+	tile_width = width // 4
+	for y in range(tile_height):
+		for x in range(tile_width):
+
+			for tile_y in range(4):
+				for tile_x in range(4):
+					colour = int.from_bytes(banner[offset: offset + 2], 'big')
+
+					converted_colour = convert_rgb5a3(colour)
+
+					image_x = (x * 4) + tile_x
+					image_y = (y * 4) + tile_y
+					data[image_y * width + image_x] = converted_colour
+					offset += 2
+	image.putdata(data)
+	return image
+
 def add_banner_info(rom: ROM, metadata: Metadata, banner: bytes):
 	banner_magic = banner[:4]
 	if banner_magic in {b'BNR1', b'BNR2'}:
@@ -80,31 +108,7 @@ def add_banner_info(rom: ROM, metadata: Metadata, banner: bytes):
 				parse_gamecube_banner_text(metadata, banner[offset: offset + 0x140], encoding, lang_name)
 
 		if have_pillow:
-			banner_width = 96
-			banner_height = 32
-
-			banner_image = Image.new('RGBA', (banner_width, banner_height))
-
-			offset = 32 #Part of the banner where image data starts
-			#Divvied into 4x4 tiles (8 tiles high, 24 tiles wide)
-
-			tile_height = banner_height // 4
-			tile_width = banner_width // 4
-			for y in range(tile_height):
-				for x in range(tile_width):
-
-					for tile_y in range(4):
-						for tile_x in range(4):
-							colour = int.from_bytes(banner[offset: offset + 2], 'big')
-
-							converted_colour = convert_rgb5a3(colour)
-
-							image_x = (x * 4) + tile_x
-							image_y = (y * 4) + tile_y
-							banner_image.putpixel((image_x, image_y), converted_colour)
-							offset += 2
-
-			metadata.images['Banner'] = banner_image
+			metadata.images['Banner'] = decode_icon(banner)
 	else:
 		if main_config.debug:
 			print('Invalid banner magic', rom.path, banner_magic)

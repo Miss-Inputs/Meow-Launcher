@@ -42,10 +42,11 @@ def parse_icon(rom: FileROM, icon_bank: int, icon_offset_x: int, icon_offset_y: 
 	white = (255, 255, 255)
 	light = (192, 192, 192)
 	dark = (96, 96, 96)
-	black = (0, 0, 0, 0)
+	black = (0, 0, 0)
 	palette = (white, light, dark, black)
 
 	whole_bank = Image.new('RGB', (256, 256))
+	data = [(0, 0, 0)] * 256 * 256
 	for i in range(bank_size):
 		four_pixel_group = bank_data[i]
 		#Do 4 pixels at a time because it's 2bpp
@@ -59,7 +60,8 @@ def parse_icon(rom: FileROM, icon_bank: int, icon_offset_x: int, icon_offset_y: 
 			pixel = (i * 4) + j
 			x = pixel // 256
 			y = (pixel % 256)
-			whole_bank.putpixel((x, y), colours[j])
+			data[y * 256 + x] = colours[j]
+	whole_bank.putdata(data)
 
 	return whole_bank.crop((icon_offset_x, icon_offset_y, icon_offset_x + 64, icon_offset_y + 64))
 
