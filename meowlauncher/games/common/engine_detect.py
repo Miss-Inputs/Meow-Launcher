@@ -4,6 +4,7 @@ import json
 import os
 import zipfile
 from typing import Optional, cast
+from collections.abc import Iterable
 
 try:
 	from PIL import Image
@@ -294,14 +295,7 @@ def try_detect_cryengine(folder: str) -> Optional[str]:
 			engine_version = 'CryEngine 2'
 	return engine_version
 
-def try_and_detect_engine_from_folder(folder: str, metadata: Metadata=None) -> Optional[str]:
-	dir_entries = list(os.scandir(folder))
-	files = [f.name.lower() for f in dir_entries if f.is_file()]
-	subdirs = [f.name.lower() for f in dir_entries if f.is_dir()]
-
-	#Godot = .pck with "GDPC" magic, but that requires poking inside files and I don't wanna do that just yet
-	#XNA: Might have a "common redistributables" folder with an installer in it?
-
+def try_detect_engines_from_filenames(folder: str, files: Iterable[str], subdirs: Iterable[str]) -> Optional[str]:
 	#These are simple enough to detect with just one line…	
 	if 'fna.dll' in files:
 		return 'FNA'
@@ -332,12 +326,6 @@ def try_and_detect_engine_from_folder(folder: str, metadata: Metadata=None) -> O
 	if any(f.endswith('.cf') for f in files):
 		if 'data.xp3' in files and 'plugin' in subdirs:
 			return 'KiriKiri'
-	if os.path.isfile(os.path.join(folder, 'Build', 'Final', 'DefUnrealEd.ini')):
-		return 'Unreal Engine 2' #Possibly 2.5 specifically
-	if os.path.isfile(os.path.join(folder, 'Builds', 'Binaries', 'DefUnrealEd.ini')):
-		return 'Unreal Engine 2' #Possibly 2.5 specifically
-	if os.path.isfile(os.path.join(folder, 'System', 'Engine.u')):
-		return 'Unreal Engine 1'
 	if 'data.wolf' in files and 'config.exe' in files:
 		#TODO: Also might have a Data folder with .wolf files inside it
 		#Is GuruguruSMF4.dll always there? Doesn't seem to be part of the thing
@@ -346,8 +334,26 @@ def try_and_detect_engine_from_folder(folder: str, metadata: Metadata=None) -> O
 		return 'Defold'
 	if 'libogremain.so' in files or 'ogremain.dll' in files:
 		return 'OGRE'
+
+	if os.path.isfile(os.path.join(folder, 'Build', 'Final', 'DefUnrealEd.ini')):
+		return 'Unreal Engine 2' #Possibly 2.5 specifically
+	if os.path.isfile(os.path.join(folder, 'Builds', 'Binaries', 'DefUnrealEd.ini')):
+		return 'Unreal Engine 2' #Possibly 2.5 specifically
+	if os.path.isfile(os.path.join(folder, 'System', 'Engine.u')):
+		return 'Unreal Engine 1'
 	if os.path.isfile(os.path.join(folder, 'bin', 'libUnigine_x64.so')) or os.path.isfile(os.path.join(folder, 'bin', 'libUnigine_x86.so')) or os.path.isfile(os.path.join(folder, 'bin', 'Unigine_x86.dll')) or os.path.isfile(os.path.join(folder, 'bin', 'Unigine_x64.dll')):
 		return 'Unigine'
+	
+	return None
+
+def try_and_detect_engine_from_folder(folder: str, metadata: Metadata=None) -> Optional[str]:
+	dir_entries = list(os.scandir(folder))
+	files = [f.name.lower() for f in dir_entries if f.is_file()]
+	subdirs = [f.name.lower() for f in dir_entries if f.is_dir()]
+
+	#Godot = .pck with "GDPC" magic, but that requires poking inside files and I don't wanna do that just yet
+	#XNA: Might have a "common redistributables" folder with an installer in it?
+	try_detect_engines_from_filenames(folder, files, subdirs)
 
 	if try_detect_gamemaker(folder, metadata):
 		return 'GameMaker'
