@@ -31,29 +31,30 @@ msx1_drivers = working_msx1_drivers + broken_msx1_drivers
 
 platforms = {
 	#Put all the "most normal people would be interested in" consoles up here, which is completely subjective and not even the same as my own personal view of notable, not to mention completely meaningless because it's a dict and the order shouldn't matter, and even if it did, ROMs are scanned in the order they're listed in platforms.ini anyway. I guess it makes this a bit easier to read than having a huge wall of text though
-	'3DS': EmulatedPlatform(
+	platform.name: platform for platform in (
+	EmulatedPlatform('3DS',
 		[], [], ['Citra'], {MediaType.Cartridge: ['3ds'], MediaType.Digital: ['cxi'], MediaType.Executable: ['3dsx']}, {
 		'tdb_path': PlatformConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB 3dstdb.xml file (https://www.gametdb.com/3dstdb.zip)'),
 		'covers_path': PlatformConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after 4-letter product code'),
 		}, #There is a Nintendo - Nintendo 3DS.dat that could go in datnames but it is indexed by 4-letter serial so I'd have to do some trickery and then the info is already in GameTDB anyway
 	),
-	'Atari 2600': EmulatedPlatform(
+	EmulatedPlatform('Atari 2600',
 		['a2600'], ['a2600', 'a2600_cass'], ['Stella', 'Stella (libretro)', 'MAME (Atari 2600)'], {MediaType.Cartridge: ['a26'] + atari_2600_cartridge_extensions + generic_cart_extensions}, autodetect_tv_type=True
 	),
-	'ColecoVision': EmulatedPlatform(
+	EmulatedPlatform('ColecoVision',
 		['coleco', 'bit90', 'czz50'], ['coleco'], ['blueMSX (libretro)', 'MAME (ColecoVision)'], {MediaType.Cartridge: ['col'] + generic_cart_extensions}, dat_names=['Coleco - ColecoVision']
 	),
-	'Dreamcast': EmulatedPlatform(
+	EmulatedPlatform('Dreamcast',
 		['dcjp', 'dcdev'], ['dc'], ['Reicast', 'Flycast', 'MAME (Dreamcast)'], {MediaType.OpticalDisc: cdrom_formats}, dat_names=['Sega - Dreamcast'], dat_uses_serial=True
 	),
-	'DS': EmulatedPlatform(
+	EmulatedPlatform('DS',
 		['nds'], [], ['melonDS', 'Medusa'], {MediaType.Cartridge: ['nds', 'dsi', 'ids', 'srl']}, {
 		'tdb_path': PlatformConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB dstdb.xml file (https://www.gametdb.com/dstdb.zip)'),
 		'covers_path': PlatformConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after 4-letter product code'),
 		},
 		dat_names=['Nintendo - Nintendo DS']
 	),
-	'Game Boy': EmulatedPlatform(
+	EmulatedPlatform('Game Boy',
 		['gameboy', 'gbcolor'], ['gameboy', 'gbcolor'], 
 		['SameBoy (libretro)', 'Gearboy (libretro)', 'Gambatte', 'mGBA', 'mGBA (libretro)', 'Mednafen (Game Boy)', 'MAME (Game Boy)', 'Medusa', 'GBE+', 'bsnes', 'bsnes (libretro)', 'bsnes-hd beta (libretro)'], {MediaType.Cartridge: ['gb', 'gbc', 'gbx', 'sgb', 'cgb', 'dmg']},
 		{
@@ -62,81 +63,81 @@ platforms = {
 		},
 		dat_names=['Nintendo - Game Boy', 'Nintendo - Game Boy Color']
 	),
-	'GameCube': EmulatedPlatform(
+	EmulatedPlatform('GameCube',
 		['gcjp'], [], ['Dolphin'], {MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz', 'ciso', 'rvz'], MediaType.Executable: ['dol', 'elf']}
 		#dat_names could be Nintendo - GameCube but that doesn't give us any more info that isn't in GameTDB and also is indexed by 6-character code so I'd have to fiddle around I think
 	),
-	'Game Gear': EmulatedPlatform(
+	EmulatedPlatform('Game Gear',
 		['gamegear'], ['gamegear'], ['Genesis Plus GX (libretro)', 'PicoDrive (libretro)', 'Kega Fusion', 'Mednafen (Game Gear)', 'MAME (Game Gear)'], {MediaType.Cartridge: ['sms', 'gg', 'bin']}, dat_names=['Sega - Game Gear']
 	),
-	'GBA': EmulatedPlatform(
+	EmulatedPlatform('GBA',
 		['gba'], ['gba'],
 		['mGBA', 'mGBA (libretro)', 'Mednafen (GBA)', 'MAME (GBA)', 'Medusa', 'GBE+'], {MediaType.Cartridge: ['gba', 'bin', 'srl'], MediaType.Executable: ['elf', 'mb']},
 		dat_names=['Nintendo - Game Boy Advance']
 	),
-	'Intellivision': EmulatedPlatform(
+	EmulatedPlatform('Intellivision',
 		['intv'], ['intv', 'intvecs'], ['MAME (Intellivision)', 'FreeIntv (libretro)'], {MediaType.Cartridge: ['bin', 'int', 'rom', 'itv']}, dat_names=['Mattel - Intellivision'], autodetect_tv_type=True
 	),
-	'Lynx': EmulatedPlatform(
+	EmulatedPlatform('Lynx',
 		['lynx'], ['lynx'],
 		['Mednafen (Lynx)', 'MAME (Lynx)'], {MediaType.Cartridge: ['lnx', 'lyx'], MediaType.Executable: ['o']}, dat_names=['Atari - Lynx'] #This will need header removed
 	),
-	'Master System': EmulatedPlatform(
+	EmulatedPlatform('Master System',
 		['sms'], ['sms'],
 		['Genesis Plus GX (libretro)', 'BlastEm (libretro)', 'PicoDrive (libretro)', 'Kega Fusion', 'Mednafen (Master System)', 'MAME (Master System)'], {MediaType.Cartridge: ['sms', 'gg', 'bin']}, dat_names=['Sega - Master System - Mark III'], autodetect_tv_type=True
 	),
-	'Mega Drive': EmulatedPlatform(
+	EmulatedPlatform('Mega Drive',
 		['genesis', 'gen_nomd'], ['megadriv'],
 		['BlastEm (libretro)', 'Genesis Plus GX (libretro)', 'PicoDrive (libretro)', 'Kega Fusion', 'Mednafen (Mega Drive)', 'MAME (Mega Drive)'], {MediaType.Cartridge: ['bin', 'gen', 'md', 'smd', 'sgd']}, dat_names=['Sega - Mega Drive - Genesis'], autodetect_tv_type=True
 	),
-	'N64': EmulatedPlatform(
+	EmulatedPlatform('N64',
 		['n64'], ['n64', 'ique'], ['Mupen64Plus', 'Mupen64Plus-Next (libretro)', 'MAME (N64)'], {MediaType.Cartridge: ['z64', 'v64', 'n64', 'bin']}, 
 		{'prefer_controller_pak_over_rumble': PlatformConfigValue(ConfigValueType.Bool, True, 'If a game can use both the Controller Pak and the Rumble Pak, use the Controller Pak')}, 
 		dat_names=['Nintendo - Nintendo 64'], databases_are_byteswapped=True, autodetect_tv_type=True
 	),
-	'Neo Geo AES': EmulatedPlatform(
+	EmulatedPlatform('Neo Geo AES',
 		#For software list usage
 		['aes'], ['neogoeo'], [], {MediaType.Cartridge: ['bin']}
 	), 
-	'Neo Geo Pocket': EmulatedPlatform(
+	EmulatedPlatform('Neo Geo Pocket',
 		['ngp'], ['ngp', 'ngpc'],
 		['Beetle NeoPop (libretro)', 'Mednafen (Neo Geo Pocket)', 'MAME (Neo Geo Pocket)'], {MediaType.Cartridge: ['ngp', 'npc', 'ngc', 'bin']},
 		dat_names=['SNK - Neo Geo Pocket', 'SNK - Neo Geo Pocket Color']
 	),
-	'NES': EmulatedPlatform(
+	EmulatedPlatform('NES',
 		['nes', 'famicom', 'iq501', 'sb486'], ['nes', 'nes_ade', 'nes_datach', 'nes_kstudio', 'nes_ntbrom', 'famicom_cass', 'famicom_flop'], 
 		['Mesen (libretro)', 'Mednafen (NES)', 'MAME (NES)', 'cxNES'], {MediaType.Cartridge: ['nes', 'unf', 'unif'], MediaType.Floppy: ['fds', 'qd']}, 
 		{'set_fds_as_different_platform': PlatformConfigValue(ConfigValueType.Bool, False, 'Set the platform of FDS games to FDS instead of leaving them as NES')},
 		dat_names=['Nintendo - Nintendo Entertainment System', 'Nintendo - Family Computer Disk System'], autodetect_tv_type=True
 	),
-	'PC Engine': EmulatedPlatform(
+	EmulatedPlatform('PC Engine',
 		['pce'], ['pce', 'sgx', 'tg16'], ['Beetle PCE (libretro)', 'Beetle PCE Fast (libretro)', 'Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)', 'MAME (PC Engine)'], {MediaType.Cartridge: ['pce', 'sgx', 'bin']},
 		dat_names=['NEC - PC Engine - TurboGrafx 16', 'NEC - PC Engine SuperGrafx']
 	),
-	'PlayStation': EmulatedPlatform(
+	EmulatedPlatform('PlayStation',
 		['psj'], ['psx'],
 		['DuckStation', 'Beetle PSX HW (libretro)', 'Mednafen (PlayStation)', 'PCSX2'], {MediaType.OpticalDisc: cdrom_formats, MediaType.Executable: ['exe', 'psx']},
 		dat_names=['Sony - PlayStation'], dat_uses_serial=True
 	),
-	'PS2': EmulatedPlatform(
+	EmulatedPlatform('PS2',
 		['ps2'], [], ['PCSX2'], {MediaType.OpticalDisc: cdrom_formats + ['cso', 'bin'], MediaType.Executable: ['elf', 'irx']},
 		dat_names=['Sony - PlayStation 2'], dat_uses_serial=True
 	),
-	'PS3': EmulatedPlatform(
+	EmulatedPlatform('PS3',
 		#Tech tip: Add ~/.config/rpcs3/dev_hdd0/game to rom paths
 		[], [], ['RPCS3'], {MediaType.OpticalDisc: ['iso'], MediaType.Digital: ['pkg'], MediaType.Executable: ['self', 'elf', 'bin']}, dat_names=['Sony - PlayStation 3'], dat_uses_serial=True, options={
 			'covers_path': PlatformConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after product code'),
 			'tdb_path': PlatformConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB ps3tdb.xml file (https://www.gametdb.com/ps3tdb.zip)'),
 		}
 	),
-	'PSP': EmulatedPlatform(
+	EmulatedPlatform('PSP',
 		[], [], ['PPSSPP'], {MediaType.OpticalDisc: cdrom_formats + ['cso'], MediaType.Executable: ['pbp']}, dat_names=['Sony - PlayStation Portable'], dat_uses_serial=True
 	),
-	'Saturn': EmulatedPlatform(
+	EmulatedPlatform('Saturn',
 		['saturn'], ['saturn', 'sat_cart', 'sat_vccart'], ['Beetle Saturn (libretro)', 'Mednafen (Saturn)', 'MAME (Saturn)'], {MediaType.OpticalDisc: cdrom_formats},
 		dat_names=['Sega - Saturn'], dat_uses_serial=True
 	),
-	'SNES': EmulatedPlatform(
+	EmulatedPlatform('SNES',
 		['snes'], ['snes', 'snes_bspack', 'snes_strom'],
 		['Snes9x', 'Mednafen (SNES)', 'Mednafen (SNES-Faust)', 'MAME (SNES)', 'bsnes', 'bsnes (libretro)', 'bsnes-hd beta (libretro)'], {MediaType.Cartridge: ['sfc', 'swc', 'smc', 'bs', 'st', 'bin']}, 
 		{
@@ -145,22 +146,22 @@ platforms = {
 		},
 		dat_names=['Nintendo - Super Nintendo Entertainment System', 'Nintendo - Satellaview', 'Nintendo - Sufami Turbo'], autodetect_tv_type=True
 	),
-	'Switch': EmulatedPlatform(
+	EmulatedPlatform('Switch',
 		[], [], ['Yuzu'], {MediaType.Cartridge: ['xci'], MediaType.Digital: ['nsp', 'nca'], MediaType.Executable: ['nro', 'nso', 'elf']}
 	),
-	'Virtual Boy': EmulatedPlatform(
+	EmulatedPlatform('Virtual Boy',
 		['vboy'], ['vboy'], ['Beetle VB (libretro)', 'Mednafen (Virtual Boy)', 'MAME (Virtual Boy)'], {MediaType.Cartridge: ['vb', 'vboy', 'bin']}, dat_names=['Nintendo - Virtual Boy']
 	),
-	'Vita': EmulatedPlatform(
+	EmulatedPlatform('Vita',
 		[], [], [], {MediaType.Digital: ['vpk']}
 	),
-	'Xbox': EmulatedPlatform(
+	EmulatedPlatform('Xbox',
 		['xbox'], [], ['Xemu'], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xbe']}
 	),
-	'Xbox 360': EmulatedPlatform(
+	EmulatedPlatform('Xbox 360',
 		[], [], [], {MediaType.OpticalDisc: ['iso'], MediaType.Executable: ['xex']}
 	),
-	'Wii': EmulatedPlatform([], [], ['Dolphin'], 
+	EmulatedPlatform('Wii',[], [], ['Dolphin'], 
 		{MediaType.OpticalDisc: ['iso', 'gcm', 'tgc', 'gcz', 'wbfs', 'ciso', 'wia', 'rvz'], MediaType.Executable: ['dol', 'elf'], MediaType.Digital: ['wad']}, 
 		{
 			'tdb_path': PlatformConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB wiitdb.xml file (https://www.gametdb.com/wiitdb.zip), note that GameCube will use this too!'),
@@ -169,7 +170,7 @@ platforms = {
 		},
 		dat_names=['Nintendo - Wii'], dat_uses_serial=True #Although WiiWare (Nintendo - Wii (Digital)) uses crc… hm, not important for now since there is not really any metadata
 	),
-	'Wii U': EmulatedPlatform(
+	EmulatedPlatform('Wii U',
 		#See roms_folders for how this mostly works
 		[], [], ['Cemu'], {MediaType.OpticalDisc: ['iso', 'wud', 'wux'], MediaType.Executable: ['rpx', 'elf']},
 		{
@@ -177,346 +178,347 @@ platforms = {
 			'covers_path': PlatformConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after 4-letter product code (or sometimes 6 letters)'),
 		}
 	),
-	'WonderSwan': EmulatedPlatform(
+	EmulatedPlatform('WonderSwan',
 		['wswan'], ['wswan', 'wscolor'], 
 		['Beetle Cygne (libretro)', 'Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['ws', 'wsc', 'bin']}, dat_names=['Bandai - WonderSwan', 'Bandai - WonderSwan Color']
 	),
 	
 	#Less notable stuff goes here
-	'3DO': EmulatedPlatform(['3do'], [], ['Opera (libretro)', 'MAME (3DO)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True),
-	'Amiga CD32': EmulatedPlatform(['cd32'], ['cd32'], ['PUAE (libretro)', 'FS-UAE', 'MAME (Amiga CD32)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True),
-	'Atari 5200': EmulatedPlatform(
+	EmulatedPlatform('3DO',['3do'], [], ['Opera (libretro)', 'MAME (3DO)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True),
+	EmulatedPlatform('Amiga CD32',['cd32'], ['cd32'], ['PUAE (libretro)', 'FS-UAE', 'MAME (Amiga CD32)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True),
+	EmulatedPlatform('Atari 5200',
 		#Does it actually have games on tapes or is MAME listing that as a type just a side effect of it being a spicy Atari 8-bit computer?
 		['a5200'], ['a5200'],
 		['MAME (Atari 5200)'], {MediaType.Cartridge: ['a52', 'car'] + generic_cart_extensions, MediaType.Tape: generic_tape_extensions}, dat_names=['Atari - 5200']
 	), 
-	'Atari 7800': EmulatedPlatform(
+	EmulatedPlatform('Atari 7800',
 		['a7800'], ['a7800'], ['ProSystem (libretro)', 'A7800', 'MAME (Atari 7800)'], {MediaType.Cartridge: ['a78'] + generic_cart_extensions}, dat_names=['Atari - 7800'], #Actually headered
 		autodetect_tv_type=True
 	),
-	'Channel F': EmulatedPlatform(
+	EmulatedPlatform('Channel F',
 		['channelf', 'channlf2'], ['channelf'],
 		['FreeChaF (libretro)', 'MAME (Channel F)'], {MediaType.Cartridge: ['chf'] + generic_cart_extensions}, dat_names=['Fairchild - Channel F'], autodetect_tv_type=True
 	),
-	'G7400': EmulatedPlatform(['videopacp'], ['videopac'], ['O2EM (libretro)', 'MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}, autodetect_tv_type=True, dat_names=['Philips - Videopac+']), #Uses same software list as Odyssey 2 currently, maybe should be considered part of that platform?
-	'Game.com': EmulatedPlatform(['gamecom'], ['gamecom'], ['MAME (Game.com)'], {MediaType.Cartridge: ['tgc', 'bin']}, dat_names=['Tiger - Game.com']),
-	'Jaguar': EmulatedPlatform(
+	EmulatedPlatform('G7400',['videopacp'], ['videopac'], ['O2EM (libretro)', 'MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}, autodetect_tv_type=True, dat_names=['Philips - Videopac+']), #Uses same software list as Odyssey 2 currently, maybe should be considered part of that platform?
+	EmulatedPlatform('Game.com',['gamecom'], ['gamecom'], ['MAME (Game.com)'], {MediaType.Cartridge: ['tgc', 'bin']}, dat_names=['Tiger - Game.com']),
+	EmulatedPlatform('Jaguar',
 		['jaguar'], ['jaguar'], ['Virtual Jaguar (libretro)', 'MAME (Jaguar)'], 
 		{MediaType.Cartridge: ['j64'] + generic_cart_extensions, MediaType.Executable: ['abs', 'cof', 'jag', 'prg']}, dat_names=['Atari - Jaguar'], #j64
 		autodetect_tv_type=True
 	),
-	'Magnavox Odyssey²': EmulatedPlatform(
+	EmulatedPlatform('Magnavox Odyssey²',
 		['videopac'], ['videopac'], ['O2EM (libretro)', 'MAME (Magnavox Odyssey²)', 'MAME (G7400)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['Magnavox - Odyssey2'], autodetect_tv_type=True
 	),
-	'Microvision': EmulatedPlatform(['microvsn'], ['microvision'], ['MAME (Microvision)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Neo Geo CD': EmulatedPlatform(['neocdz'], ['neocd'], ['NeoCD (libretro)', 'MAME (Neo Geo CD)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'PC-FX': EmulatedPlatform(['pcfx'], ['pcfx'], ['Beetle PC-FX (libretro)', 'Mednafen (PC-FX)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'Pokemon Mini': EmulatedPlatform(
+	EmulatedPlatform('Microvision',['microvsn'], ['microvision'], ['MAME (Microvision)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Neo Geo CD',['neocdz'], ['neocd'], ['NeoCD (libretro)', 'MAME (Neo Geo CD)'], {MediaType.OpticalDisc: cdrom_formats}),
+	EmulatedPlatform('PC-FX',['pcfx'], ['pcfx'], ['Beetle PC-FX (libretro)', 'Mednafen (PC-FX)'], {MediaType.OpticalDisc: cdrom_formats}),
+	EmulatedPlatform('Pokemon Mini',
 		['pokemini'], ['pokemini'], ['PokeMini (libretro)', 'PokeMini', 'MAME (Pokemon Mini)'], {MediaType.Cartridge: ['min', 'bin']}, dat_names=['Nintendo - Pokemon Mini']
 	),
-	'SG-1000': EmulatedPlatform(
+	EmulatedPlatform('SG-1000',
 		['sg1000', 'sc3000'], ['sg1000', 'sc3000_cart', 'sc3000_cass', 'sf7000'],
 		['Genesis Plus GX (libretro)', 'blueMSX (libretro)', 'Kega Fusion', 'MAME (SG-1000)'], {MediaType.Cartridge: ['sg', 'bin', 'sc'], MediaType.Tape: ['wav', 'bit'], MediaType.Floppy: mame_floppy_formats + ['sf', 'sf7']},
 		dat_names=['Sega - SG-1000']
 	),
-	'Vectrex': EmulatedPlatform(['vectrex'], ['vectrex'], ['Vecx (libretro)', 'MAME (Vectrex)'], {MediaType.Cartridge: ['vec', 'gam', 'bin']}, dat_names=['GCE - Vectrex']),
-	'Watara Supervision': EmulatedPlatform(['svision'], ['svision'], ['Potator (libretro)', 'MAME (Watara Supervision)'], {MediaType.Cartridge: ['ws', 'sv', 'bin']}, dat_names=['Watara - Supervision']),
+	EmulatedPlatform('Vectrex',['vectrex'], ['vectrex'], ['Vecx (libretro)', 'MAME (Vectrex)'], {MediaType.Cartridge: ['vec', 'gam', 'bin']}, dat_names=['GCE - Vectrex']),
+	EmulatedPlatform('Watara Supervision',['svision'], ['svision'], ['Potator (libretro)', 'MAME (Watara Supervision)'], {MediaType.Cartridge: ['ws', 'sv', 'bin']}, dat_names=['Watara - Supervision']),
 	
 	#Consoles likely uncared about (I'm being subjective woohoo) just to make the list less of a chungus
-	'3DO M2': EmulatedPlatform([], ['3do_m2'], [], {MediaType.OpticalDisc: cdrom_formats}), #Was never actually released, but prototypes exist
-	'APF-MP1000': EmulatedPlatform(['apfm1000'], ['apfm1000'], ['MAME (APF-MP1000)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Arcadia 2001': EmulatedPlatform(
+	EmulatedPlatform('3DO M2',[], ['3do_m2'], [], {MediaType.OpticalDisc: cdrom_formats}), #Was never actually released, but prototypes exist
+	EmulatedPlatform('APF-MP1000',['apfm1000'], ['apfm1000'], ['MAME (APF-MP1000)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Arcadia 2001',
 		['arcadia', 'intmpt03', 'orbituvi', 'ormatu', 'plldium'], ['arcadia'],
 		['MAME (Arcadia 2001)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['Emerson - Arcadia 2001'], autodetect_tv_type=True
 		),
-	'Astrocade': EmulatedPlatform(['astrocde'], ['astrocde'], ['MAME (Astrocade)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Bandai Playdia': EmulatedPlatform([], [], [], {MediaType.OpticalDisc: cdrom_formats}),
-	'Bandai Super Vision 8000': EmulatedPlatform(['sv8000'], ['sv8000'], ['MAME (Bandai Super Vision 8000)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'C2 Color': EmulatedPlatform(['c2color'], ['c2color_cart'], ['MAME (C2 Color)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Casio PV-1000': EmulatedPlatform(['pv1000'], ['pv1000'], ['MAME (Casio PV-1000)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Champion 2711': EmulatedPlatform(['unichamp'], ['unichamp'], ['MAME (Champion 2711)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'CreatiVision': EmulatedPlatform(
+	EmulatedPlatform('Astrocade',['astrocde'], ['astrocde'], ['MAME (Astrocade)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Bandai Playdia',[], [], [], {MediaType.OpticalDisc: cdrom_formats}),
+	EmulatedPlatform('Bandai Super Vision 8000',['sv8000'], ['sv8000'], ['MAME (Bandai Super Vision 8000)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('C2 Color',['c2color'], ['c2color_cart'], ['MAME (C2 Color)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Casio PV-1000',['pv1000'], ['pv1000'], ['MAME (Casio PV-1000)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Champion 2711',['unichamp'], ['unichamp'], ['MAME (Champion 2711)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('CreatiVision',
 		['crvision', 'lasr2001', 'manager'], ['crvision', 'laser2001_cart'],
 		['MAME (CreatiVision)'], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: generic_tape_extensions}, dat_names=['VTech - CreatiVision']
 	),
-	'Dreamcast VMU': EmulatedPlatform(['svmu'], ['svmu'], ['VeMUlator (libretro)', 'MAME (Dreamcast VMU)'], {MediaType.Executable: ['bin'], MediaType.Digital: ['vms', 'dci']}),
-	'Entex Adventure Vision': EmulatedPlatform(['advision'], ['advision'], ['MAME (Entex Adventure Vision)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['Entex - Adventure Vision']),
-	'Epoch Game Pocket Computer': EmulatedPlatform(['gamepock'], ['gamepock'], ['MAME (Epoch Game Pocket Computer)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Gamate': EmulatedPlatform(['gamate'], ['gamate'], ['MAME (Gamate)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'GameKing': EmulatedPlatform(['gameking'], ['gameking'], ['MAME (GameKing)'], {MediaType.Cartridge: ['gk'] + generic_cart_extensions}),
-	'GameKing 3': EmulatedPlatform(['gamekin3'], ['gameking3'], ['MAME (GameKing 3)'], {MediaType.Cartridge: ['gk3'] + generic_cart_extensions}),
-	'GoGo TV Video Vision': EmulatedPlatform(['tvgogo'], ['tvgogo'], ['MAME (GoGo TV Video Vision)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'GP2X': EmulatedPlatform(['gp2x'], [], [], {}), #TODO: File formats and things
-	'GP32': EmulatedPlatform(
+	EmulatedPlatform('Dreamcast VMU',['svmu'], ['svmu'], ['VeMUlator (libretro)', 'MAME (Dreamcast VMU)'], {MediaType.Executable: ['bin'], MediaType.Digital: ['vms', 'dci']}),
+	EmulatedPlatform('Entex Adventure Vision',['advision'], ['advision'], ['MAME (Entex Adventure Vision)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['Entex - Adventure Vision']),
+	EmulatedPlatform('Epoch Game Pocket Computer',['gamepock'], ['gamepock'], ['MAME (Epoch Game Pocket Computer)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Gamate',['gamate'], ['gamate'], ['MAME (Gamate)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('GameKing',['gameking'], ['gameking'], ['MAME (GameKing)'], {MediaType.Cartridge: ['gk'] + generic_cart_extensions}),
+	EmulatedPlatform('GameKing 3',['gamekin3'], ['gameking3'], ['MAME (GameKing 3)'], {MediaType.Cartridge: ['gk3'] + generic_cart_extensions}),
+	EmulatedPlatform('GoGo TV Video Vision',['tvgogo'], ['tvgogo'], ['MAME (GoGo TV Video Vision)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('GP2X',['gp2x'], [], [], {}), #TODO: File formats and things
+	EmulatedPlatform('GP32',
 		['gp32'], ['gp32'], ['MAME (GP32)'], {MediaType.Cartridge: ['smc'], MediaType.Executable: ['gxb', 'sxf', 'bin', 'gxf', 'fxe']}, dat_names=['GamePark - GP32']
 	),
-	'Hartung Game Master': EmulatedPlatform(['gmaster'], ['gmaster'], ['MAME (Hartung Game Master)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Mattel HyperScan': EmulatedPlatform(['hyprscan'], ['hyperscan'], ['MAME (Mattel HyperScan)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'Mega Duck': EmulatedPlatform(['megaduck', 'mduckspa'], ['megaduck'], ['SameDuck (libretro)', 'MAME (Mega Duck)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Monon Color': EmulatedPlatform(['mononcol'], ['monon_color'], ['MAME (Monon Color)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Nuon': EmulatedPlatform([], ['nuon'], [], {MediaType.OpticalDisc: ['iso']}),
-	'PocketStation': EmulatedPlatform(['pockstat'], [], [], {MediaType.Digital: ['gme']}),
-	'RCA Studio 2': EmulatedPlatform(['studio2'], ['studio2'], [], {MediaType.Cartridge: ['st2'] + generic_cart_extensions}, dat_names=['RCA - Studio II'], autodetect_tv_type=True), #Headered
-	'Select-a-Game': EmulatedPlatform(['sag'], ['entex_sag'], ['MAME (Select-a-Game)'], {MediaType.Cartridge: generic_cart_extensions}),
-	"Super A'Can": EmulatedPlatform(['supracan'], ['supracan'], ["MAME (Super A'Can)"], {MediaType.Cartridge: generic_cart_extensions}),
-	'Super Cassette Vision': EmulatedPlatform(
+	EmulatedPlatform('Hartung Game Master',['gmaster'], ['gmaster'], ['MAME (Hartung Game Master)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Mattel HyperScan',['hyprscan'], ['hyperscan'], ['MAME (Mattel HyperScan)'], {MediaType.OpticalDisc: cdrom_formats}),
+	EmulatedPlatform('Mega Duck',['megaduck', 'mduckspa'], ['megaduck'], ['SameDuck (libretro)', 'MAME (Mega Duck)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Monon Color',['mononcol'], ['monon_color'], ['MAME (Monon Color)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Nuon',[], ['nuon'], [], {MediaType.OpticalDisc: ['iso']}),
+	EmulatedPlatform('PocketStation',['pockstat'], [], [], {MediaType.Digital: ['gme']}),
+	EmulatedPlatform('RCA Studio 2',['studio2'], ['studio2'], [], {MediaType.Cartridge: ['st2'] + generic_cart_extensions}, dat_names=['RCA - Studio II'], autodetect_tv_type=True), #Headered
+	EmulatedPlatform('Select-a-Game',['sag'], ['entex_sag'], ['MAME (Select-a-Game)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform("Super A'Can",['supracan'], ['supracan'], ["MAME (Super A'Can)"], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Super Cassette Vision',
 		['scv'], ['scv'], ['MAME (Super Cassette Vision)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['Epoch - Super Cassette Vision']
 	),
-	'VC 4000': EmulatedPlatform(['vc4000', '1292apvs', 'database', 'elektor', 'h21', 'krvnjvtv', 'mpt05', 'rwtrntcs'], ['vc4000', 'database'], ['MAME (VC 4000)'], {MediaType.Cartridge: generic_cart_extensions}, autodetect_tv_type=True), #Which one is the "main" platform, really, bit of a clusterfuck (well the software list is named vc4000 I guess)
-	'ZAPit Game Wave': EmulatedPlatform([], [], [], {MediaType.OpticalDisc: ['iso']}),
-	'Zeebo': EmulatedPlatform(['zeebo'], [], [], {}), #Folders with "mif" and "mod"?
+	EmulatedPlatform('VC 4000',['vc4000', '1292apvs', 'database', 'elektor', 'h21', 'krvnjvtv', 'mpt05', 'rwtrntcs'], ['vc4000', 'database'], ['MAME (VC 4000)'], {MediaType.Cartridge: generic_cart_extensions}, autodetect_tv_type=True), #Which one is the "main" platform, really, bit of a clusterfuck (well the software list is named vc4000 I guess)
+	EmulatedPlatform('ZAPit Game Wave',[], [], [], {MediaType.OpticalDisc: ['iso']}),
+	EmulatedPlatform('Zeebo',['zeebo'], [], [], {}), #Folders with "mif" and "mod"?
 
 	#Homebrew projects or whatever
-	'Arduboy': EmulatedPlatform([], [], [], {MediaType.Digital: ['arduboy'], MediaType.Executable: ['hex']}),
-	'Uzebox': EmulatedPlatform(['uzebox'], ['uzebox'], ['Uzem (libretro)', 'MAME (Uzebox)'], {MediaType.Executable: ['bin', 'uze']}, dat_names=['Uzebox']),
+	EmulatedPlatform('Arduboy',[], [], [], {MediaType.Digital: ['arduboy'], MediaType.Executable: ['hex']}),
+	EmulatedPlatform('Uzebox',['uzebox'], ['uzebox'], ['Uzem (libretro)', 'MAME (Uzebox)'], {MediaType.Executable: ['bin', 'uze']}, dat_names=['Uzebox']),
 
 	#Educational sort-of-game consoles
-	'Advanced Pico Beena': EmulatedPlatform(['beena'], ['sega_beena_cart'], ['MAME (Advanced Pico Beena)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'ClickStart': EmulatedPlatform(['clikstrt'], ['clickstart_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
-	'Copera': EmulatedPlatform(['copera'], ['copera'], ['MAME (Copera)'], {MediaType.Cartridge: ['bin', 'md']}), #Pico-related, but not quite the same (software will show warning message on Pico)
-	'Didj': EmulatedPlatform(['didj'], ['leapfrog_didj_cart'], ['MAME (Didj)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'InnoTab': EmulatedPlatform(['innotab2'], ['vtech_innotab_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
-	'InnoTV': EmulatedPlatform(['innotv'], ['vtech_innotv_innotabmax_cart'], [], {MediaType.Cartridge: generic_cart_extensions}), #The InnoTab MAX is another system that uses the same cartridges
-	'iQuest': EmulatedPlatform(['iquest'], ['leapfrog_iquest_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
-	'LeapPad': EmulatedPlatform(['leappad'], ['leapfrog_leappad_cart'], ['MAME (LeapPad)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Leapster': EmulatedPlatform(['leapster'], ['leapster'], ['MAME (Leapster)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Little Touch LeapPad': EmulatedPlatform(['ltleappad'], ['leapfrog_ltleappad_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
-	'MobiGo': EmulatedPlatform(['mobigo', 'mobigo2'], ['mobigo_cart'], ['MAME (MobiGo)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'My First LeapPad': EmulatedPlatform(['mfleappad'], ['leapfrog_mfleappad_cart'], ['MAME (My First LeapPad)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Sawatte Pico': EmulatedPlatform(['sawatte'], ['sawatte'], [], {}),
-	'Sega Pico': EmulatedPlatform(['pico'], ['pico'], ['Genesis Plus GX (libretro)', 'Kega Fusion', 'MAME (Sega Pico)'], {MediaType.Cartridge: ['bin', 'md']}, dat_names=['Sega - PICO'], autodetect_tv_type=True),
-	'SmarTV Adventures': EmulatedPlatform(['smartvad'], ['smarttv_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
-	'Story Reader': EmulatedPlatform(['pi_stry'], ['pi_storyreader_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
-	'Story Reader 2': EmulatedPlatform(['pi_stry2'], ['pi_storyreader_v2_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
-	'Telestory': EmulatedPlatform(['telestry'], ['telestory_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
-	'Tomy Prin-C': EmulatedPlatform(['princ'], ['princ'], ['MAME (Tomy Prin-C)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Turbo Extreme': EmulatedPlatform(['turboex'], ['leapfrog_turboextreme_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
-	'Turbo Twist Brain Quest': EmulatedPlatform(['ttwistbq'], ['leapfrog_turbotwistbrainquest_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
-	'Turbo Twist Math': EmulatedPlatform(['ttwistm'], ['leapfrog_turbotwistmath_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
-	'V.Baby': EmulatedPlatform(['vbaby'], ['vbaby_cart'], [], {MediaType.Cartridge: generic_cart_extensions}), #Not compatible at all with V.Smile Baby which is confusing
-	'V.Reader': EmulatedPlatform(['vreader'], ['vtech_storio_cart'], ['MAME (V.Reader)'], {MediaType.Cartridge: generic_cart_extensions}), 
+	EmulatedPlatform('Advanced Pico Beena',['beena'], ['sega_beena_cart'], ['MAME (Advanced Pico Beena)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('ClickStart',['clikstrt'], ['clickstart_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Copera',['copera'], ['copera'], ['MAME (Copera)'], {MediaType.Cartridge: ['bin', 'md']}), #Pico-related, but not quite the same (software will show warning message on Pico)
+	EmulatedPlatform('Didj',['didj'], ['leapfrog_didj_cart'], ['MAME (Didj)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('InnoTab',['innotab2'], ['vtech_innotab_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('InnoTV',['innotv'], ['vtech_innotv_innotabmax_cart'], [], {MediaType.Cartridge: generic_cart_extensions}), #The InnoTab MAX is another system that uses the same cartridges
+	EmulatedPlatform('iQuest',['iquest'], ['leapfrog_iquest_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('LeapPad',['leappad'], ['leapfrog_leappad_cart'], ['MAME (LeapPad)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Leapster',['leapster'], ['leapster'], ['MAME (Leapster)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Little Touch LeapPad',['ltleappad'], ['leapfrog_ltleappad_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('MobiGo',['mobigo', 'mobigo2'], ['mobigo_cart'], ['MAME (MobiGo)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('My First LeapPad',['mfleappad'], ['leapfrog_mfleappad_cart'], ['MAME (My First LeapPad)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Sawatte Pico',['sawatte'], ['sawatte'], [], {}),
+	EmulatedPlatform('Sega Pico',['pico'], ['pico'], ['Genesis Plus GX (libretro)', 'Kega Fusion', 'MAME (Sega Pico)'], {MediaType.Cartridge: ['bin', 'md']}, dat_names=['Sega - PICO'], autodetect_tv_type=True),
+	EmulatedPlatform('SmarTV Adventures',['smartvad'], ['smarttv_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Story Reader',['pi_stry'], ['pi_storyreader_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Story Reader 2',['pi_stry2'], ['pi_storyreader_v2_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Telestory',['telestry'], ['telestory_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Tomy Prin-C',['princ'], ['princ'], ['MAME (Tomy Prin-C)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Turbo Extreme',['turboex'], ['leapfrog_turboextreme_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Turbo Twist Brain Quest',['ttwistbq'], ['leapfrog_turbotwistbrainquest_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Turbo Twist Math',['ttwistm'], ['leapfrog_turbotwistmath_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('V.Baby',['vbaby'], ['vbaby_cart'], [], {MediaType.Cartridge: generic_cart_extensions}), #Not compatible at all with V.Smile Baby which is confusing
+	EmulatedPlatform('V.Reader',['vreader'], ['vtech_storio_cart'], ['MAME (V.Reader)'], {MediaType.Cartridge: generic_cart_extensions}), 
 	#Skeleton driver, apparently also known as Storio, or something like that
-	'V.Smile Pro': EmulatedPlatform(['vsmilpro'], ['vsmile_cd'], ['MAME (V.Smile Pro)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'V.Smile': EmulatedPlatform(['vsmile'], ['vsmile_cart'], ['MAME (V.Smile)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['VTech - V.Smile']),
-	'V.Smile Baby': EmulatedPlatform(['vsmileb'], ['vsmileb_cart'], ['MAME (V.Smile Baby)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'V.Smile Motion': EmulatedPlatform(['vsmilem'], ['vsmilem_cart'], ['MAME (V.Smile Motion)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'V.Tech Socrates': EmulatedPlatform(['socrates'], ['socrates'], ['MAME (V.Tech Socrates)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('V.Smile Pro',['vsmilpro'], ['vsmile_cd'], ['MAME (V.Smile Pro)'], {MediaType.OpticalDisc: cdrom_formats}),
+	EmulatedPlatform('V.Smile',['vsmile'], ['vsmile_cart'], ['MAME (V.Smile)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['VTech - V.Smile']),
+	EmulatedPlatform('V.Smile Baby',['vsmileb'], ['vsmileb_cart'], ['MAME (V.Smile Baby)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('V.Smile Motion',['vsmilem'], ['vsmilem_cart'], ['MAME (V.Smile Motion)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('V.Tech Socrates',['socrates'], ['socrates'], ['MAME (V.Tech Socrates)'], {MediaType.Cartridge: generic_cart_extensions}),
 	
 	#Consoles that barely count as consoles because aren't for gaming or whatever (or games push the definition), but for the purposes of creating a launcher, might as well be consoles
-	'BBC Bridge Companion': EmulatedPlatform(['bbcbc'], ['bbcbc'], ['MAME (BBC Bridge Companion)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Benesse Pocket Challenge V2': EmulatedPlatform([], ['pockchalv2'], ['Beetle Cygne (libretro)', 'Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['pc2', 'bin']}), #Sort of WonderSwan with different controls
-	'Buzztime Home Trivia System':  EmulatedPlatform(['buzztime'], ['buzztime_cart'], ['MAME (Buzztime Home Trivia System)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Casio Loopy': EmulatedPlatform(['casloopy'], ['casloopy'], ['MAME (Casio Loopy)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['Casio - Loopy']),
-	'Design Master Denshi Mangajuku': EmulatedPlatform(['bdesignm'], ['bdesignm_design_cart', 'bdesignm_game_cart'], [], {MediaType.Cartridge: generic_cart_extensions}), #This will be interesting because you're supposed to use combinations of different design carts and game carts at the same time
-	'Gachinko Contest! Slot Machine TV': EmulatedPlatform(['gcslottv'], ['gcslottv'], ['MAME (Gachinko Contest! Slot Machine TV)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Koei PasoGo': EmulatedPlatform(['pasogo'], ['pasogo'], ['MAME (Koei PasoGo)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Konami Picno': EmulatedPlatform(['picno', 'picno2'], ['picno'], ['MAME (Konami Picno)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Mattel Juice Box': EmulatedPlatform(['juicebox'], ['juicebox'], ['MAME (Mattel Juice Box)'], {MediaType.Cartridge: ['smc']}),
-	'Nichibutsu My Vision': EmulatedPlatform(['myvision'], ['myvision'], ['MAME (Nichibutsu My Vision)'], {MediaType.Cartridge: generic_cart_extensions}),
-	'Pocket Challenge W': EmulatedPlatform(['pockchal'], ['pockchalw'], ['MAME (Pocket Challenge W)'], {MediaType.Cartridge: ['bin', 'pcw']}),
+	EmulatedPlatform('BBC Bridge Companion',['bbcbc'], ['bbcbc'], ['MAME (BBC Bridge Companion)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Benesse Pocket Challenge V2',[], ['pockchalv2'], ['Beetle Cygne (libretro)', 'Mednafen (WonderSwan)', 'MAME (WonderSwan)'], {MediaType.Cartridge: ['pc2', 'bin']}), #Sort of WonderSwan with different controls
+	EmulatedPlatform('Buzztime Home Trivia System',['buzztime'], ['buzztime_cart'], ['MAME (Buzztime Home Trivia System)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Casio Loopy',['casloopy'], ['casloopy'], ['MAME (Casio Loopy)'], {MediaType.Cartridge: generic_cart_extensions}, dat_names=['Casio - Loopy']),
+	EmulatedPlatform('Design Master Denshi Mangajuku',['bdesignm'], ['bdesignm_design_cart', 'bdesignm_game_cart'], [], {MediaType.Cartridge: generic_cart_extensions}), #This will be interesting because you're supposed to use combinations of different design carts and game carts at the same time
+	EmulatedPlatform('Gachinko Contest! Slot Machine TV',['gcslottv'], ['gcslottv'], ['MAME (Gachinko Contest! Slot Machine TV)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Koei PasoGo',['pasogo'], ['pasogo'], ['MAME (Koei PasoGo)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Konami Picno',['picno', 'picno2'], ['picno'], ['MAME (Konami Picno)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Mattel Juice Box',['juicebox'], ['juicebox'], ['MAME (Mattel Juice Box)'], {MediaType.Cartridge: ['smc']}),
+	EmulatedPlatform('Nichibutsu My Vision',['myvision'], ['myvision'], ['MAME (Nichibutsu My Vision)'], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Pocket Challenge W',['pockchal'], ['pockchalw'], ['MAME (Pocket Challenge W)'], {MediaType.Cartridge: ['bin', 'pcw']}),
 	
 	#Multimedia consoles that also don't like to be classified as game consoles
-	'CD-i': EmulatedPlatform(['cdimono1', 'cdimono2', 'cdi490a', 'cdi910'], ['cdi'], ['MAME (CD-i)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True),
-	'Commodore CDTV': EmulatedPlatform(['cdtv'], ['cdtv'], ['PUAE (libretro)', 'FS-UAE', 'MAME (Commodore CDTV)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True),	
-	'Memorex VIS': EmulatedPlatform(['vis'], [], ['MAME (Memorex VIS)'], {MediaType.OpticalDisc: cdrom_formats}),
-	'Pippin': EmulatedPlatform(['pippin'], ['pippin', 'pippin_flop'], ['MAME (Pippin)'], {MediaType.OpticalDisc: cdrom_formats}),
+	EmulatedPlatform('CD-i',['cdimono1', 'cdimono2', 'cdi490a', 'cdi910'], ['cdi'], ['MAME (CD-i)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True),
+	EmulatedPlatform('Commodore CDTV',['cdtv'], ['cdtv'], ['PUAE (libretro)', 'FS-UAE', 'MAME (Commodore CDTV)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True),	
+	EmulatedPlatform('Memorex VIS',['vis'], [], ['MAME (Memorex VIS)'], {MediaType.OpticalDisc: cdrom_formats}),
+	EmulatedPlatform('Pippin',['pippin'], ['pippin', 'pippin_flop'], ['MAME (Pippin)'], {MediaType.OpticalDisc: cdrom_formats}),
 
 	#Addons for other systems that we're going to treat as separate things because it seems to make more sense that way, until it doesn't
-	'32X': EmulatedPlatform(['32x'], ['32x'], ['PicoDrive (libretro)', 'Kega Fusion', 'MAME (32X)'], {MediaType.Cartridge: ['32x', 'bin']}, dat_names=['Sega - 32X'], autodetect_tv_type=True),
-	'64DD': EmulatedPlatform(['n64dd'], ['n64dd'], [], {MediaType.Floppy: ['ndd', 'ddd']}, dat_names=['Nintendo - Nintendo 64DD']),
-	'e-Reader': EmulatedPlatform(['gba'], ['gba_ereader'], [], {MediaType.Barcode: ['bin', 'raw', 'bmp']}),
-	'Jaguar CD': EmulatedPlatform(['jaguarcd'], [], ['MAME (Jaguar CD)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True),
-	'Mega CD': EmulatedPlatform(
+	EmulatedPlatform('32X',['32x'], ['32x'], ['PicoDrive (libretro)', 'Kega Fusion', 'MAME (32X)'], {MediaType.Cartridge: ['32x', 'bin']}, dat_names=['Sega - 32X'], autodetect_tv_type=True),
+	EmulatedPlatform('64DD',['n64dd'], ['n64dd'], [], {MediaType.Floppy: ['ndd', 'ddd']}, dat_names=['Nintendo - Nintendo 64DD']),
+	EmulatedPlatform('e-Reader',['gba'], ['gba_ereader'], [], {MediaType.Barcode: ['bin', 'raw', 'bmp']}),
+	EmulatedPlatform('Jaguar CD',['jaguarcd'], [], ['MAME (Jaguar CD)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True),
+	EmulatedPlatform('Mega CD',
 		#LaserActive counts as this for now
 		['segacd', '32x_scd', 'cdx', 'segacd2', 'xeye', 'laseract'], ['megacd', 'megacdj', 'segacd'],
 		['Genesis Plus GX (libretro)', 'PicoDrive (libretro)', 'Kega Fusion', 'MAME (Mega CD)'], {MediaType.OpticalDisc: cdrom_formats}, autodetect_tv_type=True, dat_names=['Sega - Mega-CD - Sega CD'], dat_uses_serial=True
 	),
-	'PC Engine CD': EmulatedPlatform(
+	EmulatedPlatform('PC Engine CD',
 		['pce'], ['pcecd'], ['Beetle PCE (libretro)', 'Beetle PCE Fast (libretro)', 'Mednafen (PC Engine)', 'Mednafen (PC Engine Fast)'], {MediaType.OpticalDisc: cdrom_formats}
 	),
-	'Play-Yan': EmulatedPlatform(['gba'], [], [], {MediaType.Digital: ['asf']}),
+	EmulatedPlatform('Play-Yan',['gba'], [], [], {MediaType.Digital: ['asf']}),
 
 	#PDA type things that I don't really wanna put under computers
-	'Cybiko': EmulatedPlatform(['cybikov1'], [], [], {MediaType.Digital: ['app']}),
+	EmulatedPlatform('Cybiko',['cybikov1'], [], [], {MediaType.Digital: ['app']}),
 	#'Cybiko Xtreme': SystemInfo('cybikoxt', [], [], {MediaType.Digital: ['app']}), #Does this really qualify as a different thing?
-	'Gizmondo': EmulatedPlatform(['gizmondo'], [], [], {}), #Uses folders seemingly, so that may be weird with the file types
-	'N-Gage': EmulatedPlatform([], [], [], {MediaType.Digital: ['app']}),
-	'Sharp Wizard': EmulatedPlatform(['iq7000'], ['wizard_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
-	'Tapwave Zodiac': EmulatedPlatform([], [], [], {}), #File type is like, kinda .prc but kinda not (the device runs spicy PalmOS, would it be considered part of that if any of that was emulated?)
+	EmulatedPlatform('Gizmondo',['gizmondo'], [], [], {}), #Uses folders seemingly, so that may be weird with the file types
+	EmulatedPlatform('N-Gage',[], [], [], {MediaType.Digital: ['app']}),
+	EmulatedPlatform('Sharp Wizard',['iq7000'], ['wizard_cart'], [], {MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('Tapwave Zodiac',[], [], [], {}), #File type is like, kinda .prc but kinda not (the device runs spicy PalmOS, would it be considered part of that if any of that was emulated?)
 	
 	#Computers that most people are here for (wew I'm being subjective again)
-	'Acorn Electron': EmulatedPlatform(['electron'], ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl']}),
-	'Amiga': EmulatedPlatform(
+	EmulatedPlatform('Acorn Electron',['electron'], ['electron_cass', 'electron_cart', 'electron_flop', 'electron_rom'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl']}),
+	EmulatedPlatform('Amiga',
 		 #TODO: There should be CD images for this too, albeit I'm not sure how they work
 		['a1000', 'a1200', 'a2000', 'a3000', 'a4000', 'a4000t', 'a500', 'a500p', 'a600'], ['amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench'], 
 		['PUAE (libretro)', 'FS-UAE'], {MediaType.Floppy: ['adf', 'ipf', 'dms', 'adz', 'fdi'], MediaType.HardDisk: ['hdf', 'hdz'], MediaType.Digital: ['lha', 'slave', 'info']},
 		{'default_chipset': PlatformConfigValue(ConfigValueType.String, 'AGA', 'Default chipset to use if a game doesn\'t specify what chipset it should use (AGA, OCS, ECS)')}, 
 		autodetect_tv_type=True, dat_names=['Commodore - Amiga']
 	),
-	'Amstrad CPC': EmulatedPlatform(['cpc464', 'cpc6128p', 'gx4000'], ['cpc_cass', 'cpc_flop', 'gx4000'], ['Caprice32 (libretro)', 'MAME (Amstrad GX4000)'], {MediaType.Snapshot: ['sna'], MediaType.Tape: ['wav', 'cdt'], MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['cpr'] + generic_cart_extensions}, dat_names=['Amstrad - CPC']),
-	'Apple II': EmulatedPlatform(['apple2', 'apple2c', 'apple2e', 'cece', 'cecg', 'ceci', 'cecm', 'cec2000'], ['apple2', 'apple2_cass', 'apple2_flop_orig', 'apple2_flop_clcracked', 'apple2_flop_misc'], ['MAME (Apple II)', 'Mednafen (Apple II)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib', 'woz', 'shk', 'bxy'], MediaType.Tape: generic_tape_extensions}),
-	'Apple IIgs': EmulatedPlatform(['apple2gs'], ['apple2gs'], ['MAME (Apple IIgs)'], {MediaType.Floppy: mame_floppy_formats + ['2mg', '2img', 'dc', 'shk', 'bxy', 'woz']}),
-	'Atari 8-bit': EmulatedPlatform(
+	EmulatedPlatform('Amstrad CPC',['cpc464', 'cpc6128p', 'gx4000'], ['cpc_cass', 'cpc_flop', 'gx4000'], ['Caprice32 (libretro)', 'MAME (Amstrad GX4000)'], {MediaType.Snapshot: ['sna'], MediaType.Tape: ['wav', 'cdt'], MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['cpr'] + generic_cart_extensions}, dat_names=['Amstrad - CPC']),
+	EmulatedPlatform('Apple II',['apple2', 'apple2c', 'apple2e', 'cece', 'cecg', 'ceci', 'cecm', 'cec2000'], ['apple2', 'apple2_cass', 'apple2_flop_orig', 'apple2_flop_clcracked', 'apple2_flop_misc'], ['MAME (Apple II)', 'Mednafen (Apple II)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib', 'woz', 'shk', 'bxy'], MediaType.Tape: generic_tape_extensions}),
+	EmulatedPlatform('Apple IIgs',['apple2gs'], ['apple2gs'], ['MAME (Apple IIgs)'], {MediaType.Floppy: mame_floppy_formats + ['2mg', '2img', 'dc', 'shk', 'bxy', 'woz']}),
+	EmulatedPlatform('Atari 8-bit',
 		['a800', 'a400', 'a800xl', 'xegs'], ['a800', 'a800_flop', 'xegs'], 
 		['MAME (Atari 8-bit)'], {MediaType.Floppy: ['atr', 'dsk', 'xfd', 'dcm'], MediaType.Executable: ['xex', 'bas', 'com'], MediaType.Cartridge: ['bin', 'rom', 'car'], MediaType.Tape: generic_tape_extensions}, 
 		{'basic_path': PlatformConfigValue(ConfigValueType.FilePath, None, 'Path to BASIC ROM for floppy software which requires that, or use "basicc" to use software')
 		}, autodetect_tv_type=True),
-	'Atari ST': EmulatedPlatform(['st', 'ste', 'tt030', 'falcon30'], ['st_flop', 'st_cart'], ['Hatari (libretro)'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Floppy: mame_floppy_formats + ['st', 'stx', 'msa', 'dim']}, autodetect_tv_type=True, dat_names=['Atari - ST']),
-	'BBC Master': EmulatedPlatform(['bbcm', 'bbcmc'], ['bbcm_cart', 'bbcm_cass', 'bbcmc_flop', 'bbcm_flop'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl', 'fds', 'ima', 'ufi', '360'] + mame_floppy_formats, MediaType.Cartridge: ['rom', 'bin']}, autodetect_tv_type=True),
-	'BBC Micro': EmulatedPlatform(['bbcb', 'bbcbp'], ['bbca_cass', 'bbcb_cass', 'bbcb_cass_de', 'bbcb_flop', 'bbcb_flop_orig', 'bbc_flop_65c102', 'bbc_flop_6502', 'bbc_flop_32016', 'bbc_flop_68000', 'bbc_flop_80186', 'bbc_flop_arm', 'bbc_flop_torch', 'bbc_flop_z80'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl', 'fds', 'dsk', 'ima', 'ufi', '360'], MediaType.Cartridge: ['rom', 'bin']}, autodetect_tv_type=True),
-	'C64': EmulatedPlatform(
+	EmulatedPlatform('Atari ST',['st', 'ste', 'tt030', 'falcon30'], ['st_flop', 'st_cart'], ['Hatari (libretro)'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Floppy: mame_floppy_formats + ['st', 'stx', 'msa', 'dim']}, autodetect_tv_type=True, dat_names=['Atari - ST']),
+	EmulatedPlatform('BBC Master',['bbcm', 'bbcmc'], ['bbcm_cart', 'bbcm_cass', 'bbcmc_flop', 'bbcm_flop'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl', 'fds', 'ima', 'ufi', '360'] + mame_floppy_formats, MediaType.Cartridge: ['rom', 'bin']}, autodetect_tv_type=True),
+	EmulatedPlatform('BBC Micro',['bbcb', 'bbcbp'], ['bbca_cass', 'bbcb_cass', 'bbcb_cass_de', 'bbcb_flop', 'bbcb_flop_orig', 'bbc_flop_65c102', 'bbc_flop_6502', 'bbc_flop_32016', 'bbc_flop_68000', 'bbc_flop_80186', 'bbc_flop_arm', 'bbc_flop_torch', 'bbc_flop_z80'], [], {MediaType.Tape: ['wav', 'csw', 'uef'], MediaType.Floppy: ['ssd', 'bbc', 'img', 'dsd', 'adf', 'ads', 'adm', 'adl', 'fds', 'dsk', 'ima', 'ufi', '360'], MediaType.Cartridge: ['rom', 'bin']}, autodetect_tv_type=True),
+	EmulatedPlatform('C64',
 		['c64'], ['c64_cart', 'c64_cass', 'c64_flop', 'c64_flop_clcracked', 'c64_flop_orig', 'c64_flop_misc'], 
 		['MAME (C64)', 'VICE (C64)', 'VICE (C64 Fast)'], {MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}, autodetect_tv_type=True
 	),
-	'FM Towns': EmulatedPlatform(['fmtowns', 'fmtmarty'], ['fmtowns_cd', 'fmtowns_flop_cracked', 'fmtowns_flop_misc', 'fmtowns_flop_orig'], ['MAME (FM Towns)', 'MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats + ['bin'], MediaType.OpticalDisc: cdrom_formats}), #Floppy list was just fmtowns_flop prior to 0.230
-	'MSX': EmulatedPlatform(
+	EmulatedPlatform('FM Towns',['fmtowns', 'fmtmarty'], ['fmtowns_cd', 'fmtowns_flop_cracked', 'fmtowns_flop_misc', 'fmtowns_flop_orig'], ['MAME (FM Towns)', 'MAME (FM Towns Marty)'], {MediaType.Floppy: mame_floppy_formats + ['bin'], MediaType.OpticalDisc: cdrom_formats}), #Floppy list was just fmtowns_flop prior to 0.230
+	EmulatedPlatform('MSX',
 		msx1_drivers, ['msx1_cart', 'msx1_cass', 'msx1_flop'],
 		['blueMSX (libretro)', 'fMSX (libretro)', 'MAME (MSX)', 'MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
 		dat_names=['Microsoft - MSX'], autodetect_tv_type=True
 	),
-	'MSX2': EmulatedPlatform(
+	EmulatedPlatform('MSX2',
 		msx2_drivers, ['msx2_cart', 'msx2_cass', 'msx2_flop'],
 		['blueMSX (libretro)', 'fMSX (libretro)', 'MAME (MSX2)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
 		dat_names=['Microsoft - MSX 2'], autodetect_tv_type=True
 	),
-	'MSX2+': EmulatedPlatform(
+	EmulatedPlatform('MSX2+',
 		#Should this be considered the same system as MSX2? Oh dear, I've gotten confused
 		msx2plus_drivers, ['msx2p_flop'],
 		['blueMSX (libretro)', 'fMSX (libretro)', 'MAME (MSX2+)'], {MediaType.Floppy: mame_floppy_formats + ['dmk'], MediaType.Tape: ['wav', 'tap', 'cas'], MediaType.Cartridge: generic_cart_extensions},
 		dat_names=['Microsoft - MSX 2'], autodetect_tv_type=True
 	),
-	'MSX Turbo-R': EmulatedPlatform(msxtr_drivers, ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
-	'PC-98': EmulatedPlatform(['pc9801f', 'pc9801rs', 'pc9801ux', 'pc9821'], ['pc98', 'pc98_cd'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}, dat_names=['NEC - PC-98']),
-	'Sharp X68000': EmulatedPlatform(['x68000'], ['x68k_flop'], ['PX68k (libretro)', 'MAME (Sharp X68000)'], {MediaType.Floppy: mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim'], MediaType.HardDisk: ['hdf']}, dat_names=['Sharp - X68000']),
-	'Tandy CoCo': EmulatedPlatform(['coco'], ['coco_cart', 'coco_flop'], ['MAME (Tandy CoCo)'], {MediaType.Cartridge: ['ccc', 'rom', 'bin'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: mame_floppy_formats + ['dmk', 'jvc'], MediaType.HardDisk: ['vhd']}),
-	'TRS-80': EmulatedPlatform(['trs80', 'trs80l2', 'trs80m3'], [], ['MAME (TRS-80)'], {MediaType.Executable: ['cmd'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: ['dmk'] + mame_floppy_formats}),
-	'ZX Spectrum': EmulatedPlatform(['spectrum', 'spec128'], ['spectrum_cart', 'spectrum_cass', 'specpls3_flop', 'pentagon_cass', 'spectrum_flop_opus', 'spectrum_mgt_flop', 'spectrum_microdrive', 'spectrum_wafadrive', 'timex_dock', 'timex_cass'], ['MAME (ZX Spectrum)'], {MediaType.Snapshot: ['z80', 'sna'], MediaType.Tape: ['wav', 'cas', 'tap', 'tzx'], MediaType.Executable: ['raw', 'scr'], MediaType.Floppy: ['dsk', 'ipf', 'trd', 'td0', 'scl', 'fdi', 'opd', 'opu'], MediaType.Cartridge: ['bin', 'rom']}, dat_names=['Sinclair - ZX Spectrum', 'Sinclair - ZX Spectrum +3']), #There's actually like a katrillion file formats so I won't bother with all of them until I see them in the wild tbh
+	EmulatedPlatform('MSX Turbo-R',msxtr_drivers, ['msxr_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
+	EmulatedPlatform('PC-98',['pc9801f', 'pc9801rs', 'pc9801ux', 'pc9821'], ['pc98', 'pc98_cd'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}, dat_names=['NEC - PC-98']),
+	EmulatedPlatform('Sharp X68000',['x68000'], ['x68k_flop'], ['PX68k (libretro)', 'MAME (Sharp X68000)'], {MediaType.Floppy: mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim'], MediaType.HardDisk: ['hdf']}, dat_names=['Sharp - X68000']),
+	EmulatedPlatform('Tandy CoCo',['coco'], ['coco_cart', 'coco_flop'], ['MAME (Tandy CoCo)'], {MediaType.Cartridge: ['ccc', 'rom', 'bin'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: mame_floppy_formats + ['dmk', 'jvc'], MediaType.HardDisk: ['vhd']}),
+	EmulatedPlatform('TRS-80',['trs80', 'trs80l2', 'trs80m3'], [], ['MAME (TRS-80)'], {MediaType.Executable: ['cmd'], MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: ['dmk'] + mame_floppy_formats}),
+	EmulatedPlatform('ZX Spectrum',['spectrum', 'spec128'], ['spectrum_cart', 'spectrum_cass', 'specpls3_flop', 'pentagon_cass', 'spectrum_flop_opus', 'spectrum_mgt_flop', 'spectrum_microdrive', 'spectrum_wafadrive', 'timex_dock', 'timex_cass'], ['MAME (ZX Spectrum)'], {MediaType.Snapshot: ['z80', 'sna'], MediaType.Tape: ['wav', 'cas', 'tap', 'tzx'], MediaType.Executable: ['raw', 'scr'], MediaType.Floppy: ['dsk', 'ipf', 'trd', 'td0', 'scl', 'fdi', 'opd', 'opu'], MediaType.Cartridge: ['bin', 'rom']}, dat_names=['Sinclair - ZX Spectrum', 'Sinclair - ZX Spectrum +3']), #There's actually like a katrillion file formats so I won't bother with all of them until I see them in the wild tbh
 
 	#Other computers that aren't as exciting
-	'Acorn Archimedes': EmulatedPlatform(['aa310', 'aa4000', 'aa5000'], ['archimedes'], [], {MediaType.Floppy: mame_floppy_formats + ['adf']}), 
-	'Apple III': EmulatedPlatform(['apple3'], ['apple3'], ['MAME (Apple III)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib', 'woz']}),
-	'Apple Lisa': EmulatedPlatform(['lisa', 'lisa2'], ['lisa'], [], {MediaType.Floppy: mame_floppy_formats + ['dc', 'dc42']}),
-	'C128': EmulatedPlatform(['c128', 'c128p'], ['c128_cart', 'c128_flop', 'c128_rom'], ['VICE (C128)'],
+	EmulatedPlatform('Acorn Archimedes',['aa310', 'aa4000', 'aa5000'], ['archimedes'], [], {MediaType.Floppy: mame_floppy_formats + ['adf']}), 
+	EmulatedPlatform('Apple III',['apple3'], ['apple3'], ['MAME (Apple III)'], {MediaType.Floppy: ['do', 'dsk', 'po', 'nib', 'woz']}),
+	EmulatedPlatform('Apple Lisa',['lisa', 'lisa2'], ['lisa'], [], {MediaType.Floppy: mame_floppy_formats + ['dc', 'dc42']}),
+	EmulatedPlatform('C128',['c128', 'c128p'], ['c128_cart', 'c128_flop', 'c128_rom'], ['VICE (C128)'],
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}, autodetect_tv_type=True
 	),
-	'CBM-II': EmulatedPlatform(['b128hp', 'b500', 'p500'], ['cbm2_cart', 'cbm2_flop'], [], {MediaType.Floppy: ['d80', 'd88', 'd77'] + mame_floppy_formats, MediaType.Cartridge: ['20', '40', '60'], MediaType.Executable: ['p00', 'prg', 't64']}),
-	'Commodore PET': EmulatedPlatform(['pet2001', 'cbm8296', 'pet2001b', 'pet2001n', 'pet4016', 'pet4032b', 'pet8032'], ['pet_cass', 'pet_flop', 'pet_hdd', 'pet_quik', 'pet_rom'], ['VICE (Commodore PET)'], {MediaType.Floppy: commodore_disk_formats, MediaType.Cartridge: ['bin', 'rom'], MediaType.Executable: ['prg', 'p00'], MediaType.Tape: ['wav', 'tap']}),
-	'Dragon': EmulatedPlatform(['dragon32'], ['dragon_cart', 'dragon_cass', 'dragon_flex', 'dragon_flop', 'dragon_os9'], [], {MediaType.Floppy: ['dmk', 'jvc', 'vdk', 'sdf', 'os9'] + mame_floppy_formats, MediaType.Cartridge: ['ccc', 'rom'], MediaType.Tape: ['wav', 'cas']}),
-	'FM-7': EmulatedPlatform(['fm7', 'fm8', 'fm11', 'fm16beta'], ['fm7_cass', 'fm7_disk', 'fm77av'], ['MAME (FM-7)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav', 't77']}),
-	'IBM PCjr': EmulatedPlatform(['ibmpcjr', 'ibmpcjx'], ['ibmpcjr_cart'], ['MAME (IBM PCjr)'], {MediaType.Cartridge: ['bin', 'jrc'], MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['exe', 'com', 'bat']}),
+	EmulatedPlatform('CBM-II',['b128hp', 'b500', 'p500'], ['cbm2_cart', 'cbm2_flop'], [], {MediaType.Floppy: ['d80', 'd88', 'd77'] + mame_floppy_formats, MediaType.Cartridge: ['20', '40', '60'], MediaType.Executable: ['p00', 'prg', 't64']}),
+	EmulatedPlatform('Commodore PET',['pet2001', 'cbm8296', 'pet2001b', 'pet2001n', 'pet4016', 'pet4032b', 'pet8032'], ['pet_cass', 'pet_flop', 'pet_hdd', 'pet_quik', 'pet_rom'], ['VICE (Commodore PET)'], {MediaType.Floppy: commodore_disk_formats, MediaType.Cartridge: ['bin', 'rom'], MediaType.Executable: ['prg', 'p00'], MediaType.Tape: ['wav', 'tap']}),
+	EmulatedPlatform('Dragon',['dragon32'], ['dragon_cart', 'dragon_cass', 'dragon_flex', 'dragon_flop', 'dragon_os9'], [], {MediaType.Floppy: ['dmk', 'jvc', 'vdk', 'sdf', 'os9'] + mame_floppy_formats, MediaType.Cartridge: ['ccc', 'rom'], MediaType.Tape: ['wav', 'cas']}),
+	EmulatedPlatform('FM-7',['fm7', 'fm8', 'fm11', 'fm16beta'], ['fm7_cass', 'fm7_disk', 'fm77av'], ['MAME (FM-7)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav', 't77']}),
+	EmulatedPlatform('IBM PCjr',['ibmpcjr', 'ibmpcjx'], ['ibmpcjr_cart'], ['MAME (IBM PCjr)'], {MediaType.Cartridge: ['bin', 'jrc'], MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['exe', 'com', 'bat']}),
 	#Most software is going to go under DOS or PC Booter, but this would be the carts… hmm… does this make sense, actually
-	'PC Booter': EmulatedPlatform(['ibm5150'], ['ibm5150'], ['MAME (IBM PCjr)', 'MAME (IBM PC)'], {MediaType.Floppy: mame_floppy_formats + ['img'], MediaType.Executable: ['exe', 'com', 'bat']}), #TODO: Reconsider this name; does it make more sense to be called "IBM PC"? Are PCjr carts not just PC booters that are carts instead of floppies (hot take)?
-	'PC-6001': EmulatedPlatform(['pc6001'], [], ['MAME (PC-6001)'], {MediaType.Tape: ['cas', 'p6'], MediaType.Cartridge: generic_cart_extensions}),
-	'PC-88': EmulatedPlatform(['pc8801', 'pc88va'], ['pc8801_cass', 'pc8801_flop', 'pc8201', 'pc88va'], ['MAME (PC-88)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav']}, dat_names=['NEC - PC-8001 - PC-8801']),
-	'PDP-1': EmulatedPlatform(['pdp1'], [], [], {MediaType.Tape: ['tap', 'rim']}),
-	'Plus/4': EmulatedPlatform(['c264'], ['plus4_cart', 'plus4_cass', 'plus4_flop'], ['VICE (Plus/4)'],
+	EmulatedPlatform('PC Booter',['ibm5150'], ['ibm5150'], ['MAME (IBM PCjr)', 'MAME (IBM PC)'], {MediaType.Floppy: mame_floppy_formats + ['img'], MediaType.Executable: ['exe', 'com', 'bat']}), #TODO: Reconsider this name; does it make more sense to be called "IBM PC"? Are PCjr carts not just PC booters that are carts instead of floppies (hot take)?
+	EmulatedPlatform('PC-6001',['pc6001'], [], ['MAME (PC-6001)'], {MediaType.Tape: ['cas', 'p6'], MediaType.Cartridge: generic_cart_extensions}),
+	EmulatedPlatform('PC-88',['pc8801', 'pc88va'], ['pc8801_cass', 'pc8801_flop', 'pc8201', 'pc88va'], ['MAME (PC-88)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav']}, dat_names=['NEC - PC-8001 - PC-8801']),
+	EmulatedPlatform('PDP-1',['pdp1'], [], [], {MediaType.Tape: ['tap', 'rim']}),
+	EmulatedPlatform('Plus/4',['c264'], ['plus4_cart', 'plus4_cass', 'plus4_flop'], ['VICE (Plus/4)'],
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}, autodetect_tv_type=True
 	), 	#Also includes C16 and C116 (I admit I am not cool enough to know the difference)
-	'SAM Coupe': EmulatedPlatform(['samcoupe'], ['samcoupe_cass', 'samcoupe_flop'], ['SimCoupe', 'MAME (SAM Coupe)'], {MediaType.Floppy: ['mgt', 'sad', 'dsk', 'sdf'], MediaType.Executable: ['sbt']}),
-	'Sharp X1': EmulatedPlatform(['x1'], ['x1_cass', 'x1_flop'], ['X Millennium (libretro)', 'MAME (Sharp X1)'], {MediaType.Floppy: ['2d'] + mame_floppy_formats, MediaType.Tape: ['wav', 'tap']}),
-	'TI-99': EmulatedPlatform(['ti99_4', 'ti99_4a', 'ti99_8'], ['ti99_cart'], [], {MediaType.Cartridge: ['bin', 'rpk', 'c', 'g'], MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats}, autodetect_tv_type=True),
-	'VIC-20': EmulatedPlatform(['vic1001'], ['vic1001_cart', 'vic1001_cass', 'vic1001_flop'], ['MAME (VIC-20)', 'VICE (VIC-20)'],
+	EmulatedPlatform('SAM Coupe',['samcoupe'], ['samcoupe_cass', 'samcoupe_flop'], ['SimCoupe', 'MAME (SAM Coupe)'], {MediaType.Floppy: ['mgt', 'sad', 'dsk', 'sdf'], MediaType.Executable: ['sbt']}),
+	EmulatedPlatform('Sharp X1',['x1'], ['x1_cass', 'x1_flop'], ['X Millennium (libretro)', 'MAME (Sharp X1)'], {MediaType.Floppy: ['2d'] + mame_floppy_formats, MediaType.Tape: ['wav', 'tap']}),
+	EmulatedPlatform('TI-99',['ti99_4', 'ti99_4a', 'ti99_8'], ['ti99_cart'], [], {MediaType.Cartridge: ['bin', 'rpk', 'c', 'g'], MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats}, autodetect_tv_type=True),
+	EmulatedPlatform('VIC-20',['vic1001'], ['vic1001_cart', 'vic1001_cass', 'vic1001_flop'], ['MAME (VIC-20)', 'VICE (VIC-20)'],
 		{MediaType.Cartridge: commodore_cart_formats, MediaType.Tape: ['wav', 'tap', 't64'], MediaType.Executable: ['prg', 'p00'], MediaType.Floppy: commodore_disk_formats}, autodetect_tv_type=True
 	),
-	'ZX81': EmulatedPlatform(['zx81', 'zx80'], ['zx80_cass', 'zx81_cass'], ['81 (libretro)'], {MediaType.Tape: ['wav', 'cas', 'p', '81', 'tzx', 't81']}, dat_names=['Sinclair - ZX 81']),
+	EmulatedPlatform('ZX81',['zx81', 'zx80'], ['zx80_cass', 'zx81_cass'], ['81 (libretro)'], {MediaType.Tape: ['wav', 'cas', 'p', '81', 'tzx', 't81']}, dat_names=['Sinclair - ZX 81']),
 	
 	#More obscure computers because otherwise the above section is long and hard to read
-	'Acorn Atom': EmulatedPlatform(['atom'], ['atom_cass', 'atom_flop', 'atom_rom'], [], {MediaType.Floppy: ['40t', 'dsk'], MediaType.Tape: ['wav', 'tap', 'csw', 'uef'], MediaType.Executable: ['atm'], MediaType.Cartridge: ['bin', 'rom']}),
-	'Alice 32': EmulatedPlatform(['alice32'], ['alice32', 'alice90'], [], {MediaType.Tape: ['wav', 'cas', 'c10', 'k7']}),
-	'Amstrad PCW': EmulatedPlatform(['pcw8256'], ['pcw'], ['MAME (Amstrad PCW)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['com']}),
-	'Amstrad PCW16': EmulatedPlatform(['pcw16'], ['pcw16'], [], {MediaType.Floppy: mame_floppy_formats}),
-	'APF Imagination Machine': EmulatedPlatform(['apfimag'], ['apfimag_cass', 'apfm1000'], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas', 'cpf', 'apt'], MediaType.Floppy: mame_floppy_formats}), #Considered separate from APF-M1000 (same predicament as Coleco Adam) (or is it? (maybe?))
-	'Apple I': EmulatedPlatform(['apple1'], ['apple1'], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['snp']}), #Loading tapes would require parsing software list usage to figure out where to put load addresses and things to make an autoboot script, because otherwise it's just way too messy to warrant being in a frontend. Snapshots supposedly exist, but I haven't seen any whoops
-	'Apogey BK-01': EmulatedPlatform(['apogee'], ['apogee'], [], {MediaType.Tape: ['wav', 'rka']}), #Should this be rolled up into Radio 86?
-	'Atari Portfolio': EmulatedPlatform(['pofo'], ['pofo'], [], {MediaType.Cartridge: ['bin', 'rom']}),
-	'Bandai RX-78': EmulatedPlatform(['rx78'], ['rx78_cart', 'rx78_cass'], ['MAME (Bandai RX-78)'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav']}), #Software list was just rx78 prior to MAME 0.228
-	'Bullet': EmulatedPlatform(['wmbullet'], ['wmbullet'], [], {MediaType.Floppy: mame_floppy_formats}),
-	'C64DTV': EmulatedPlatform(['c64dtv'], [], [], {MediaType.Floppy: commodore_disk_formats, MediaType.Executable: ['prg']}),
-	'Cambridge Z88': EmulatedPlatform(['z88'], ['z88_cart'], [], {MediaType.Cartridge: ['epr', 'bin']}),
-	'Camputers Lynx': EmulatedPlatform(['lynx48k'], ['camplynx_cass', 'camplynx_flop'], [], {MediaType.Floppy: mame_floppy_formats + ['ldf'], MediaType.Tape: ['wav', 'tap']}),
+	EmulatedPlatform('Acorn Atom',['atom'], ['atom_cass', 'atom_flop', 'atom_rom'], [], {MediaType.Floppy: ['40t', 'dsk'], MediaType.Tape: ['wav', 'tap', 'csw', 'uef'], MediaType.Executable: ['atm'], MediaType.Cartridge: ['bin', 'rom']}),
+	EmulatedPlatform('Alice 32',['alice32'], ['alice32', 'alice90'], [], {MediaType.Tape: ['wav', 'cas', 'c10', 'k7']}),
+	EmulatedPlatform('Amstrad PCW',['pcw8256'], ['pcw'], ['MAME (Amstrad PCW)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['com']}),
+	EmulatedPlatform('Amstrad PCW16',['pcw16'], ['pcw16'], [], {MediaType.Floppy: mame_floppy_formats}),
+	EmulatedPlatform('APF Imagination Machine',['apfimag'], ['apfimag_cass', 'apfm1000'], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas', 'cpf', 'apt'], MediaType.Floppy: mame_floppy_formats}), #Considered separate from APF-M1000 (same predicament as Coleco Adam) (or is it? (maybe?))
+	EmulatedPlatform('Apple I',['apple1'], ['apple1'], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['snp']}), #Loading tapes would require parsing software list usage to figure out where to put load addresses and things to make an autoboot script, because otherwise it's just way too messy to warrant being in a frontend. Snapshots supposedly exist, but I haven't seen any whoops
+	EmulatedPlatform('Apogey BK-01',['apogee'], ['apogee'], [], {MediaType.Tape: ['wav', 'rka']}), #Should this be rolled up into Radio 86?
+	EmulatedPlatform('Atari Portfolio',['pofo'], ['pofo'], [], {MediaType.Cartridge: ['bin', 'rom']}),
+	EmulatedPlatform('Bandai RX-78',['rx78'], ['rx78_cart', 'rx78_cass'], ['MAME (Bandai RX-78)'], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav']}), #Software list was just rx78 prior to MAME 0.228
+	EmulatedPlatform('Bullet',['wmbullet'], ['wmbullet'], [], {MediaType.Floppy: mame_floppy_formats}),
+	EmulatedPlatform('C64DTV',['c64dtv'], [], [], {MediaType.Floppy: commodore_disk_formats, MediaType.Executable: ['prg']}),
+	EmulatedPlatform('Cambridge Z88',['z88'], ['z88_cart'], [], {MediaType.Cartridge: ['epr', 'bin']}),
+	EmulatedPlatform('Camputers Lynx',['lynx48k'], ['camplynx_cass', 'camplynx_flop'], [], {MediaType.Floppy: mame_floppy_formats + ['ldf'], MediaType.Tape: ['wav', 'tap']}),
 	#Convinced that whoever invented this system and the way it loads programs personally hates me, even though I wasn't born when it was made and so that's not really possible
-	'Canon X07': EmulatedPlatform(['x07'], ['x07_card', 'x07_cass'], [], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav', 'tap']}),
-	'Casio PV-2000': EmulatedPlatform(['pv2000'], ['pv2000'], ['MAME (Casio PV-2000)'], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav']}),
-	'Central Data 2650': EmulatedPlatform(['cd2650'], [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['pgm']}),
-	'Coleco Adam': EmulatedPlatform(['adam'], ['adam_cart', 'adam_cass', 'adam_flop'], ['MAME (Coleco Adam)'], {MediaType.Cartridge: ['col', 'bin'], MediaType.Tape: ['wav', 'ddp'], MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['lbr', 'com']}),
-	'Colour Genie': EmulatedPlatform(['cgenie'], ['cgenie_cass', 'cgenie_flop_rom'], [], {MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['rom']}),
-	'Commodore 65': EmulatedPlatform(['c65'], ['c65_flop'], [], {MediaType.Floppy: commodore_disk_formats}), #Never actually released, has software anyway; only good for software lists
-	'Compis': EmulatedPlatform(['compis'], ['compis'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav']}),
-	'Cosmac VIP': EmulatedPlatform(['vip'], ['vip'], [], {MediaType.Tape: ['wav']}), #Also a Chip-8 interpreter
-	'Dream 6800': EmulatedPlatform(['d6800'], [], [], {MediaType.Tape: ['wav']}), #Chip-8 interpreter
-	'Electronika BK': EmulatedPlatform(['bk0010'], ['bk0010'], [], {MediaType.Tape: ['wav', 'tap'], MediaType.Floppy: mame_floppy_formats, MediaType.HardDisk: ['hdi'], MediaType.Executable: ['bin']}),
-	'Elf II': EmulatedPlatform(['elf2'], [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['bin']}),
-	'Enterprise': EmulatedPlatform(['ep64'], ['ep64_cart', 'ep64_cass', 'ep64_flop'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav']}),
-	'ETI-660': EmulatedPlatform(['eti660'], ['eti660_quik'], [], {MediaType.Tape: ['wav']}), #A Chip-8 interpreting machine
-	'Exidy Sorcerer': EmulatedPlatform(['sorcerer'], ['sorcerer_cart', 'sorcerer_cass', 'sorcerer_flop'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav', 'tape'], MediaType.Snapshot: ['snp'], MediaType.Executable: ['bin']}),
-	'Galaksija': EmulatedPlatform(['galaxy', 'galaxyp'], ['galaxy'], [], {MediaType.Snapshot: ['gal'], MediaType.Tape: ['wav', 'gtp']}),
-	'Goldstar FC-100': EmulatedPlatform(['fc100'], [], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas']}), #Some kind of PC-6001 clone or something, apparently
-	'Pencil II': EmulatedPlatform(['pencil2'], ['pencil2'], [], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav']}),
-	'Instructor 50': EmulatedPlatform(['instruct'], [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['pgm']}),
-	'Interact': EmulatedPlatform(['interact', 'hec2hrp'], ['interact'], [], {MediaType.Tape: ['wav', 'k7', 'cin', 'for']}),
-	'Jupiter Ace': EmulatedPlatform(['jupace'], ['jupace_snap', 'jupace_cass'], ['MAME (Jupiter Ace)'], {MediaType.Tape: ['wav', 'tap', 'tzx'], MediaType.Snapshot: ['ace']}),
-	'KC-85': EmulatedPlatform(['kc85_2'], ['kc_cart', 'kc_cass', 'kc_flop'], ['MAME (KC-85)'], {MediaType.Executable: ['kcc'], MediaType.Tape: ['wav', 'kcb', 'tap', '853', '854', '855', 'tp2', 'kcm', 'sss'], MediaType.Cartridge: ['bin']}), #kcc might also be a tape format?? ehhhh???
-	'Luxor ABC80': EmulatedPlatform(['abc80'], ['abc80_cass', 'abc80_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Snapshot: ['bac']}), 'Mattel Aquarius': EmulatedPlatform(['aquarius'], ['aquarius_cart', 'aquarius_cass'], ['MAME (Mattel Aquarius)'], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav', 'caq']}), #Software list was just "aquarius" prior to 0.226
-	'Orao': EmulatedPlatform(['orao'], ['orao'], [], {MediaType.Tape: ['wav', 'tap']}),
-	'Memotech MTX': EmulatedPlatform(['mtx512'], ['mtx_cart', 'mtx_cass', 'mtx_rom'], [], {MediaType.Snapshot: ['mtx'], MediaType.Executable: ['run'], MediaType.Tape: ['wav'], MediaType.Cartridge: ['bin', 'rom']}),
-	'Microbee': EmulatedPlatform(['mbee'], [], ['MAME (Microbee)'], {MediaType.Tape: ['wav', 'tap'], MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['mwb', 'com', 'bee']}), #Also a second .bin quickload?
-	'Microtan 65': EmulatedPlatform(['mt65'], ['mt65_snap'], ['MAME (Microtan 65)'], {MediaType.Tape: ['wav'], MediaType.Executable: ['hex'], MediaType.Snapshot: ['dmp', 'm65']}), #MAME driver was "microtan" prior to 0.212
-	'MikroMikko 1': EmulatedPlatform(['mm1m6'], ['mm1_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
-	'Mikrosha': EmulatedPlatform(['mikrosha'], ['mikrosha_cart', 'mikrosha_cass'], [], {MediaType.Tape: ['wav', 'rkm'], MediaType.Cartridge: ['bin', 'rom']}), #Maybe should just be part of Radio 86?
-	'Nascom': EmulatedPlatform(['nascom1', 'nascom2'], ['nascom_flop', 'nascom_snap', 'nascom_socket'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Snapshot: ['nas', 'chr']}),
-	'Oric': EmulatedPlatform(['oric1'], [], [], {MediaType.Tape: ['wav', 'tap']}),
-	'Orion-128': EmulatedPlatform(['orion128'], ['orion_cart', 'orion_cass', 'orion_flop'], [], {MediaType.Tape: ['wav', 'rkp'], MediaType.Floppy: mame_floppy_formats + ['odi'], MediaType.Cartridge: ['bin']}),
-	'Panasonic JR-200': EmulatedPlatform(['jr200'], [], []),
-	'Pasopia 7': EmulatedPlatform(['pasopia7'], [], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats}),
-	'Pasopia 1600': EmulatedPlatform(['paso1600'], [], [], {}),
-	'Partner 01.01': EmulatedPlatform(['partner'], ['partner_cass', 'partner_flop'], [], {MediaType.Tape: ['wav', 'rkp'], MediaType.Floppy: mame_floppy_formats + ['odi']}), #Another Radio 86 clone?
-	'PipBug': EmulatedPlatform(['pipbug'], [], [], {MediaType.Executable: ['pgm']}),
-	'PMD 85': EmulatedPlatform(['pmd851'], ['pmd85_cass'], [], {MediaType.Tape: ['wav', 'pmd', 'tap', 'ptp']}),
-	'Radio 86-RK': EmulatedPlatform(['radio86'], ['radio86_cart', 'radio86_cass'], [], {MediaType.Tape: ['wav', 'rk', 'rkr', 'gam', 'g16', 'pki']}),
-	'Robotron Z1013': EmulatedPlatform(['z1013'], [], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['z80']}),
-	'Sharp MZ-700': EmulatedPlatform(['mz700'], ['mz700'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt']}),
-	'Sharp MZ-800': EmulatedPlatform(['mz800', 'mz1500'], ['mz800'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt']}),
-	'Sharp MZ-2000': EmulatedPlatform(['mz2000', 'mz80b'], ['mz2000_cass', 'mz2000_flop', 'mz2200_cass'], ['MAME (Sharp MZ-2000)'], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt'], MediaType.Floppy: ['2d'] + mame_floppy_formats}),
-	'Sinclair QL': EmulatedPlatform(['ql', 'tonto'], ['ql_cart', 'ql_cass', 'ql_flop'], [], {MediaType.Tape: ['mdv'], MediaType.Cartridge: ['bin', 'rom'], MediaType.Floppy: mame_floppy_formats}),
-	'Sony SMC-777': EmulatedPlatform(['smc777'], ['smc777'], ['MAME (Sony SMC-777)'], {MediaType.Floppy: mame_floppy_formats + ['1dd'], MediaType.Executable: ['com', 'cpm']}),
-	'Sord M5': EmulatedPlatform(['m5'], ['m5_cart', 'm5_cass', 'm5_flop'], ['MAME (Sord M5)'], {MediaType.Cartridge: ['bin'], MediaType.Floppy: mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim']}),
-	'Squale': EmulatedPlatform(['squale'], ['squale_cart'], ['MAME (Squale)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['bin']}),
-	'SVI-3x8': EmulatedPlatform(['svi318', 'svi328'], ['svi318_cart', 'svi318_cass', 'svi318_flop'], ['MAME (SVI-3x8)'], {MediaType.Tape: ['wav', 'cas'], MediaType.Cartridge: ['bin', 'rom']}),
-	'Tandy MC-10': EmulatedPlatform(['mc10'], ['mc10'], [], {MediaType.Tape: ['wav', 'cas', 'c10']}),
-	'Tatung Einstein': EmulatedPlatform(['einstein', 'einst256'], ['einstein'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav'], MediaType.Executable: ['com']}),
-	'Thomson MO5': EmulatedPlatform(['mo5', 'mo5nr'], ['mo5_cart', 'mo5_cass', 'mo5_flop', 'mo5_qd'], ['MAME (Thomson MO5)'], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}, dat_names=['Thomson - MOTO']),
-	'Thomson MO6': EmulatedPlatform(['mo6'], ['mo6_cass', 'mo6_flop'], [], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}, dat_names=['Thomson - MOTO']),
-	'Thomson TO': EmulatedPlatform(['to7', 'to770', 'to8', 'to9', 'to9p'], ['to7_cart', 'to7_cass', 'to7_qd', 'to8_cass', 'to8_qd', 'to770a_cart', 'to770_cart'], [], {MediaType.Tape: ['wav', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m7', 'bin', 'rom']}, dat_names=['Thomson - MOTO']),
-	'Tiki 100': EmulatedPlatform(['kontiki'], ['tiki100'], [], {MediaType.HardDisk: ['chd', 'hd', 'hdv', 'hdi'], MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav']}),
-	'Tomy Tutor': EmulatedPlatform(['tutor'], ['tutor'], ['MAME (Tomy Tutor)'], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav']}),
-	'Toshiba Pasopia': EmulatedPlatform(['pasopia'], ['pasopia_cass'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats}),	#Ow my freaking ears… every tape seems to take a long time to get anywhere
-	'Vector-06C': EmulatedPlatform(['vector06'], ['vector06_cart', 'vector06_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['bin', 'emr']}),
-	'VIC-10': EmulatedPlatform(['vic10'], ['vic10'], ['MAME (VIC-10)'], {MediaType.Cartridge: ['crt', 'bin', '80', 'e0'], MediaType.Tape: ['wav', 'tap', 't64']}),
-	'Videoton TVC': EmulatedPlatform(['tvc64'], ['tvc_cart', 'tvc_cass', 'tvc_flop'], ['MAME (Videoton TVC)'], {MediaType.Cartridge: ['bin', 'rom', 'crt'], MediaType.Tape: ['wav', 'cas']}), #.cas is also quickload? I donut understand
-	'VideoBrain': EmulatedPlatform(['vidbrain'], ['vidbrain'], ['MAME (VideoBrain)'], {MediaType.Cartridge: ['bin']}),
-	'VZ-200': EmulatedPlatform(['vz200', 'laser200', 'laser110', 'laser210', 'laser310'], ['vz_cass', 'vz_snap'], ['MAME (VZ-200)'], {MediaType.Snapshot: ['vz'], MediaType.Tape: ['wav', 'cas']}), #There are many different systems in this family, but I'll go with this one, because the software list is named after it
-	'Zorba': EmulatedPlatform(['zorba'], ['zorba'], [], {MediaType.Floppy: mame_floppy_formats}),
+	EmulatedPlatform('Canon X07',['x07'], ['x07_card', 'x07_cass'], [], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav', 'tap']}),
+	EmulatedPlatform('Casio PV-2000',['pv2000'], ['pv2000'], ['MAME (Casio PV-2000)'], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav']}),
+	EmulatedPlatform('Central Data 2650',['cd2650'], [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['pgm']}),
+	EmulatedPlatform('Coleco Adam',['adam'], ['adam_cart', 'adam_cass', 'adam_flop'], ['MAME (Coleco Adam)'], {MediaType.Cartridge: ['col', 'bin'], MediaType.Tape: ['wav', 'ddp'], MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['lbr', 'com']}),
+	EmulatedPlatform('Colour Genie',['cgenie'], ['cgenie_cass', 'cgenie_flop_rom'], [], {MediaType.Tape: ['wav', 'cas'], MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['rom']}),
+	EmulatedPlatform('Commodore 65',['c65'], ['c65_flop'], [], {MediaType.Floppy: commodore_disk_formats}), #Never actually released, has software anyway; only good for software lists
+	EmulatedPlatform('Compis',['compis'], ['compis'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav']}),
+	EmulatedPlatform('Cosmac VIP',['vip'], ['vip'], [], {MediaType.Tape: ['wav']}), #Also a Chip-8 interpreter
+	EmulatedPlatform('Dream 6800',['d6800'], [], [], {MediaType.Tape: ['wav']}), #Chip-8 interpreter
+	EmulatedPlatform('Electronika BK',['bk0010'], ['bk0010'], [], {MediaType.Tape: ['wav', 'tap'], MediaType.Floppy: mame_floppy_formats, MediaType.HardDisk: ['hdi'], MediaType.Executable: ['bin']}),
+	EmulatedPlatform('Elf II',['elf2'], [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['bin']}),
+	EmulatedPlatform('Enterprise',['ep64'], ['ep64_cart', 'ep64_cass', 'ep64_flop'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav']}),
+	EmulatedPlatform('ETI-660',['eti660'], ['eti660_quik'], [], {MediaType.Tape: ['wav']}), #A Chip-8 interpreting machine
+	EmulatedPlatform('Exidy Sorcerer',['sorcerer'], ['sorcerer_cart', 'sorcerer_cass', 'sorcerer_flop'], [], {MediaType.Cartridge: ['bin', 'rom'], MediaType.Tape: ['wav', 'tape'], MediaType.Snapshot: ['snp'], MediaType.Executable: ['bin']}),
+	EmulatedPlatform('Galaksija',['galaxy', 'galaxyp'], ['galaxy'], [], {MediaType.Snapshot: ['gal'], MediaType.Tape: ['wav', 'gtp']}),
+	EmulatedPlatform('Goldstar FC-100',['fc100'], [], [], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav', 'cas']}), #Some kind of PC-6001 clone or something, apparently
+	EmulatedPlatform('Pencil II',['pencil2'], ['pencil2'], [], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav']}),
+	EmulatedPlatform('Instructor 50',['instruct'], [], [], {MediaType.Tape: ['wav'], MediaType.Executable: ['pgm']}),
+	EmulatedPlatform('Interact',['interact', 'hec2hrp'], ['interact'], [], {MediaType.Tape: ['wav', 'k7', 'cin', 'for']}),
+	EmulatedPlatform('Jupiter Ace',['jupace'], ['jupace_snap', 'jupace_cass'], ['MAME (Jupiter Ace)'], {MediaType.Tape: ['wav', 'tap', 'tzx'], MediaType.Snapshot: ['ace']}),
+	EmulatedPlatform('KC-85',['kc85_2'], ['kc_cart', 'kc_cass', 'kc_flop'], ['MAME (KC-85)'], {MediaType.Executable: ['kcc'], MediaType.Tape: ['wav', 'kcb', 'tap', '853', '854', '855', 'tp2', 'kcm', 'sss'], MediaType.Cartridge: ['bin']}), #kcc might also be a tape format?? ehhhh???
+	EmulatedPlatform('Luxor ABC80',['abc80'], ['abc80_cass', 'abc80_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Snapshot: ['bac']}), 
+	EmulatedPlatform('Mattel Aquarius', ['aquarius'], ['aquarius_cart', 'aquarius_cass'], ['MAME (Mattel Aquarius)'], {MediaType.Cartridge: generic_cart_extensions, MediaType.Tape: ['wav', 'caq']}), #Software list was just "aquarius" prior to 0.226
+	EmulatedPlatform('Orao',['orao'], ['orao'], [], {MediaType.Tape: ['wav', 'tap']}),
+	EmulatedPlatform('Memotech MTX',['mtx512'], ['mtx_cart', 'mtx_cass', 'mtx_rom'], [], {MediaType.Snapshot: ['mtx'], MediaType.Executable: ['run'], MediaType.Tape: ['wav'], MediaType.Cartridge: ['bin', 'rom']}),
+	EmulatedPlatform('Microbee',['mbee'], [], ['MAME (Microbee)'], {MediaType.Tape: ['wav', 'tap'], MediaType.Floppy: mame_floppy_formats, MediaType.Executable: ['mwb', 'com', 'bee']}), #Also a second .bin quickload?
+	EmulatedPlatform('Microtan 65',['mt65'], ['mt65_snap'], ['MAME (Microtan 65)'], {MediaType.Tape: ['wav'], MediaType.Executable: ['hex'], MediaType.Snapshot: ['dmp', 'm65']}), #MAME driver was "microtan" prior to 0.212
+	EmulatedPlatform('MikroMikko 1',['mm1m6'], ['mm1_flop'], [], {MediaType.Floppy: mame_floppy_formats}),
+	EmulatedPlatform('Mikrosha',['mikrosha'], ['mikrosha_cart', 'mikrosha_cass'], [], {MediaType.Tape: ['wav', 'rkm'], MediaType.Cartridge: ['bin', 'rom']}), #Maybe should just be part of Radio 86?
+	EmulatedPlatform('Nascom',['nascom1', 'nascom2'], ['nascom_flop', 'nascom_snap', 'nascom_socket'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Snapshot: ['nas', 'chr']}),
+	EmulatedPlatform('Oric',['oric1'], [], [], {MediaType.Tape: ['wav', 'tap']}),
+	EmulatedPlatform('Orion-128',['orion128'], ['orion_cart', 'orion_cass', 'orion_flop'], [], {MediaType.Tape: ['wav', 'rkp'], MediaType.Floppy: mame_floppy_formats + ['odi'], MediaType.Cartridge: ['bin']}),
+	EmulatedPlatform('Panasonic JR-200',['jr200'], [], []),
+	EmulatedPlatform('Pasopia 7',['pasopia7'], [], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats}),
+	EmulatedPlatform('Pasopia 1600',['paso1600'], [], [], {}),
+	EmulatedPlatform('Partner 01.01',['partner'], ['partner_cass', 'partner_flop'], [], {MediaType.Tape: ['wav', 'rkp'], MediaType.Floppy: mame_floppy_formats + ['odi']}), #Another Radio 86 clone?
+	EmulatedPlatform('PipBug',['pipbug'], [], [], {MediaType.Executable: ['pgm']}),
+	EmulatedPlatform('PMD 85',['pmd851'], ['pmd85_cass'], [], {MediaType.Tape: ['wav', 'pmd', 'tap', 'ptp']}),
+	EmulatedPlatform('Radio 86-RK',['radio86'], ['radio86_cart', 'radio86_cass'], [], {MediaType.Tape: ['wav', 'rk', 'rkr', 'gam', 'g16', 'pki']}),
+	EmulatedPlatform('Robotron Z1013',['z1013'], [], [], {MediaType.Tape: ['wav'], MediaType.Snapshot: ['z80']}),
+	EmulatedPlatform('Sharp MZ-700',['mz700'], ['mz700'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt']}),
+	EmulatedPlatform('Sharp MZ-800',['mz800', 'mz1500'], ['mz800'], [], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt']}),
+	EmulatedPlatform('Sharp MZ-2000',['mz2000', 'mz80b'], ['mz2000_cass', 'mz2000_flop', 'mz2200_cass'], ['MAME (Sharp MZ-2000)'], {MediaType.Tape: ['wav', 'm12', 'mzf', 'mzt'], MediaType.Floppy: ['2d'] + mame_floppy_formats}),
+	EmulatedPlatform('Sinclair QL',['ql', 'tonto'], ['ql_cart', 'ql_cass', 'ql_flop'], [], {MediaType.Tape: ['mdv'], MediaType.Cartridge: ['bin', 'rom'], MediaType.Floppy: mame_floppy_formats}),
+	EmulatedPlatform('Sony SMC-777',['smc777'], ['smc777'], ['MAME (Sony SMC-777)'], {MediaType.Floppy: mame_floppy_formats + ['1dd'], MediaType.Executable: ['com', 'cpm']}),
+	EmulatedPlatform('Sord M5',['m5'], ['m5_cart', 'm5_cass', 'm5_flop'], ['MAME (Sord M5)'], {MediaType.Cartridge: ['bin'], MediaType.Floppy: mame_floppy_formats + ['xdf', 'hdm', '2hd', 'dim']}),
+	EmulatedPlatform('Squale',['squale'], ['squale_cart'], ['MAME (Squale)'], {MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['bin']}),
+	EmulatedPlatform('SVI-3x8',['svi318', 'svi328'], ['svi318_cart', 'svi318_cass', 'svi318_flop'], ['MAME (SVI-3x8)'], {MediaType.Tape: ['wav', 'cas'], MediaType.Cartridge: ['bin', 'rom']}),
+	EmulatedPlatform('Tandy MC-10',['mc10'], ['mc10'], [], {MediaType.Tape: ['wav', 'cas', 'c10']}),
+	EmulatedPlatform('Tatung Einstein',['einstein', 'einst256'], ['einstein'], [], {MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav'], MediaType.Executable: ['com']}),
+	EmulatedPlatform('Thomson MO5',['mo5', 'mo5nr'], ['mo5_cart', 'mo5_cass', 'mo5_flop', 'mo5_qd'], ['MAME (Thomson MO5)'], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}, dat_names=['Thomson - MOTO']),
+	EmulatedPlatform('Thomson MO6',['mo6'], ['mo6_cass', 'mo6_flop'], [], {MediaType.Tape: ['wav', 'k5', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m5', 'bin', 'rom']}, dat_names=['Thomson - MOTO']),
+	EmulatedPlatform('Thomson TO',['to7', 'to770', 'to8', 'to9', 'to9p'], ['to7_cart', 'to7_cass', 'to7_qd', 'to8_cass', 'to8_qd', 'to770a_cart', 'to770_cart'], [], {MediaType.Tape: ['wav', 'k7'], MediaType.Floppy: ['fd', 'sap', 'qd'] +  mame_floppy_formats, MediaType.Cartridge: ['m7', 'bin', 'rom']}, dat_names=['Thomson - MOTO']),
+	EmulatedPlatform('Tiki 100',['kontiki'], ['tiki100'], [], {MediaType.HardDisk: ['chd', 'hd', 'hdv', 'hdi'], MediaType.Floppy: mame_floppy_formats, MediaType.Tape: ['wav']}),
+	EmulatedPlatform('Tomy Tutor',['tutor'], ['tutor'], ['MAME (Tomy Tutor)'], {MediaType.Cartridge: ['bin'], MediaType.Tape: ['wav']}),
+	EmulatedPlatform('Toshiba Pasopia',['pasopia'], ['pasopia_cass'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats}),	#Ow my freaking ears… every tape seems to take a long time to get anywhere
+	EmulatedPlatform('Vector-06C',['vector06'], ['vector06_cart', 'vector06_flop'], [], {MediaType.Tape: ['wav'], MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: ['bin', 'emr']}),
+	EmulatedPlatform('VIC-10',['vic10'], ['vic10'], ['MAME (VIC-10)'], {MediaType.Cartridge: ['crt', 'bin', '80', 'e0'], MediaType.Tape: ['wav', 'tap', 't64']}),
+	EmulatedPlatform('Videoton TVC',['tvc64'], ['tvc_cart', 'tvc_cass', 'tvc_flop'], ['MAME (Videoton TVC)'], {MediaType.Cartridge: ['bin', 'rom', 'crt'], MediaType.Tape: ['wav', 'cas']}), #.cas is also quickload? I donut understand
+	EmulatedPlatform('VideoBrain',['vidbrain'], ['vidbrain'], ['MAME (VideoBrain)'], {MediaType.Cartridge: ['bin']}),
+	EmulatedPlatform('VZ-200',['vz200', 'laser200', 'laser110', 'laser210', 'laser310'], ['vz_cass', 'vz_snap'], ['MAME (VZ-200)'], {MediaType.Snapshot: ['vz'], MediaType.Tape: ['wav', 'cas']}), #There are many different systems in this family, but I'll go with this one, because the software list is named after it
+	EmulatedPlatform('Zorba',['zorba'], ['zorba'], [], {MediaType.Floppy: mame_floppy_formats}),
 
 	#Hmm, not quite computers or any particular hardware so much as OSes which probably don't belong here anyway
-	'Android': EmulatedPlatform([], [], [], {MediaType.Digital: ['apk']}),
-	'PalmOS': EmulatedPlatform([], [], ['Mu (libretro)'], {MediaType.Executable: ['prc', 'pqa']}),
+	EmulatedPlatform('Android',[], [], [], {MediaType.Digital: ['apk']}),
+	EmulatedPlatform('PalmOS',[], [], ['Mu (libretro)'], {MediaType.Executable: ['prc', 'pqa']}),
 
 	#Interpreted virtual machine thingy…
-	'Chip-8': EmulatedPlatform([], ['chip8_quik'], [], {MediaType.Executable: ['bin', 'c8', 'ch8']}), #Many interpreters available in MAME - Cosmac VIP, Dream 6800, ETI-660, etc; though I'm not sure if it makes sense to put them as the mame_driver for this, but when I get around to that I suppose they would be emulators for it
+	EmulatedPlatform('Chip-8',[], ['chip8_quik'], [], {MediaType.Executable: ['bin', 'c8', 'ch8']}), #Many interpreters available in MAME - Cosmac VIP, Dream 6800, ETI-660, etc; though I'm not sure if it makes sense to put them as the mame_driver for this, but when I get around to that I suppose they would be emulators for it
 
 	#Stuff that isn't actually hardware but we can pretend it is one
-	'ChaiLove': EmulatedPlatform([], [], ['ChaiLove (libretro)'], {MediaType.Executable: ['chai'], MediaType.Digital: ['chailove']}, is_virtual=True, dat_names=['ChaiLove']),
-	'Dinothawr': EmulatedPlatform([], [], ['Dinothawr (libretro)'], {MediaType.Executable: ['game']}, is_virtual=True, dat_names=['Dinothawr']),
-	'Doom': EmulatedPlatform(
+	EmulatedPlatform('ChaiLove',[], [], ['ChaiLove (libretro)'], {MediaType.Executable: ['chai'], MediaType.Digital: ['chailove']}, is_virtual=True, dat_names=['ChaiLove']),
+	EmulatedPlatform('Dinothawr',[], [], ['Dinothawr (libretro)'], {MediaType.Executable: ['game']}, is_virtual=True, dat_names=['Dinothawr']),
+	EmulatedPlatform('Doom',
 		[], [], ['PrBoom+'], {MediaType.Digital: ['wad']}, 
 		{'save_dir': PlatformConfigValue(ConfigValueType.FolderPath, None, 'Folder to put save files in')},
 		is_virtual=True, dat_names=['DOOM']
 	),
-	'Flash': EmulatedPlatform([], [], ['Ruffle'], {MediaType.Digital: ['swf']}, is_virtual=True),
-	'J2ME': EmulatedPlatform([], [], ['FreeJ2ME (libretro)'], {MediaType.Executable: ['jar']}, is_virtual=True),
-	'LowRes NX': EmulatedPlatform([], [], ['LowRes NX (libretro)'], {MediaType.Digital: ['nx']}, is_virtual=True, dat_names=['LowRes NX']),
-	'Pico-8': EmulatedPlatform([], [], ['Pico-8'], {MediaType.Cartridge: ['p8.png'], MediaType.Executable: ['p8']}, is_virtual=True),
-}
+	EmulatedPlatform('Flash',[], [], ['Ruffle'], {MediaType.Digital: ['swf']}, is_virtual=True),
+	EmulatedPlatform('J2ME',[], [], ['FreeJ2ME (libretro)'], {MediaType.Executable: ['jar']}, is_virtual=True),
+	EmulatedPlatform('LowRes NX',[], [], ['LowRes NX (libretro)'], {MediaType.Digital: ['nx']}, is_virtual=True, dat_names=['LowRes NX']),
+	EmulatedPlatform('Pico-8',[], [], ['Pico-8'], {MediaType.Cartridge: ['p8.png'], MediaType.Executable: ['p8']}, is_virtual=True),
+)}
 
 #For Machine.is_system_driver to work correctly
 ibmpc_drivers = ['ibm5150', 'ibm5170', 'pcipc', 'pcipctx', 'nforcepc']

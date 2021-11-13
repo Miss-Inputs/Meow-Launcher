@@ -12,7 +12,8 @@ class PlatformConfigValue():
 		self.description = description
 
 class EmulatedPlatform():
-	def __init__(self, mame_drivers: list[str], mame_software_lists: list[str], emulators: list[str], file_types: dict[MediaType, list[str]]=None, options: dict[str, PlatformConfigValue]=None, is_virtual: bool=False, dat_names: list[str]=None, dat_uses_serial: bool=False, databases_are_byteswapped: bool=False, autodetect_tv_type: bool=False):
+	def __init__(self, name: str, mame_drivers: list[str], mame_software_lists: list[str], emulators: list[str], file_types: dict[MediaType, list[str]]=None, options: dict[str, PlatformConfigValue]=None, is_virtual: bool=False, dat_names: list[str]=None, dat_uses_serial: bool=False, databases_are_byteswapped: bool=False, autodetect_tv_type: bool=False):
+		self.name = name
 		self.mame_drivers = mame_drivers #Parent drivers that represent this system
 		self.mame_software_lists = mame_software_lists
 		self.emulators = emulators
