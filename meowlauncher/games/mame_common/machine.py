@@ -14,7 +14,7 @@ from .mame_executable import MAMEExecutable
 from .mame_support_files import (MachineCategory, OrganizedCatlist,
                                  get_category, get_machine_cat,
                                  organize_catlist)
-from .mame_utils import consistentify_manufacturer
+from .mame_utils import consistentify_manufacturer, untangle_manufacturer
 
 subtitles = load_dict(None, 'subtitles')
 
@@ -338,6 +338,11 @@ class Machine():
 			publisher = consistentify_manufacturer(bootleg_match[1])
 		elif ' / ' in manufacturer:
 			#Let's try and clean up things a bit when this happens
+			if manufacturer == 'Rare / Electronic Arts':
+				#Well at least we know what's going on in this case
+				developer = 'Rare'
+				publisher = 'Electronic Arts'
+
 			manufacturers = [cast(str, consistentify_manufacturer(m)) for m in manufacturer.split(' / ')]
 			if main_config.sort_multiple_dev_names:
 				manufacturers.sort()
@@ -346,36 +351,7 @@ class Machine():
 			if len(manufacturers) == 2:
 				#Try and figure out who's publisher / who's developer, if possible
 				arcade_system = self.arcade_system
-				if manufacturers[0] == 'bootleg':
-					developer = publisher = manufacturers[1]
-				elif manufacturers[1] == 'bootleg':
-					developer = publisher = manufacturers[0]
-				elif 'JAKKS Pacific' in manufacturers:
-					#Needs to be a better way of what I'm saying, surely. I'm tired, so I can't boolean logic properly. It's just like… if the manufacturer is X / Y or Y / X, then the developer is X, and the publisher is Y
-					#Anyway, we at least know that JAKKS Pacific is always the publisher in this scenario, so that cleans up the plug & play games a bit
-					developer = manufacturers[0] if manufacturers[1] == 'JAKKS Pacific' else manufacturers[1]
-					publisher = manufacturers[1] if manufacturers[1] == 'JAKKS Pacific' else manufacturers[0]
-				elif 'Sega' in manufacturers and arcade_system and ('Sega' in arcade_system or 'Naomi' in arcade_system):
-					#It would also be safe to assume Sega is not going to get someone else to be the publisher on their own hardware, I think; so in this case (manufacturer: Blah / Sega) we can probably say Blah is the developer and Sega is the publisher
-					#I really really hope I'm not wrong about this assumption, but I want to make it
-					developer = manufacturers[0] if manufacturers[1] == 'Sega' else manufacturers[1]
-					publisher = manufacturers[1] if manufacturers[1] == 'Sega' else manufacturers[0]
-				elif 'Capcom' in manufacturers and arcade_system and ('Capcom' in arcade_system):
-					#Gonna make the same assumption here...
-					developer = manufacturers[0] if manufacturers[1] == 'Capcom' else manufacturers[1]
-					publisher = manufacturers[1] if manufacturers[1] == 'Capcom' else manufacturers[0]
-				elif 'Namco' in manufacturers and arcade_system and ('Namco' in arcade_system):
-					#And here, too
-					developer = manufacturers[0] if manufacturers[1] == 'Namco' else manufacturers[1]
-					publisher = manufacturers[1] if manufacturers[1] == 'Namco' else manufacturers[0]
-				elif 'Sammy' in manufacturers and arcade_system and arcade_system == 'Atomiswave':
-					developer = manufacturers[0] if manufacturers[1] == 'Sammy' else manufacturers[1]
-					publisher = manufacturers[1] if manufacturers[1] == 'Sammy' else manufacturers[0]
-				elif manufacturer == 'Rare / Electronic Arts':
-					#Well at least we know what's going on in this case
-					developer = 'Rare'
-					publisher = 'Electronic Arts'
-
+				developer, publisher = untangle_manufacturer(arcade_system, manufacturers)
 		else:
 			developer = publisher = consistentify_manufacturer(manufacturer)
 		return developer, publisher
@@ -455,7 +431,7 @@ def machine_name_matches(machine_name: str, game_name: str, match_vs_system: boo
 	machine_name = remove_filename_tags(machine_name)
 	game_name = remove_filename_tags(game_name)
 
-	#Until I do mess around with name_consistency.ini though, here's some common substitutions
+	#Until I do mess around with name_consistency.dict though, here's some common substitutions
 	machine_name = machine_name.replace('Bros.', 'Brothers')
 	game_name = game_name.replace('Bros.', 'Brothers')
 	machine_name = machine_name.replace('Jr.', 'Junior')
