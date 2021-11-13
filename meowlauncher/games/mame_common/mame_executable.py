@@ -32,7 +32,6 @@ class MAMEExecutable():
 		#Let it raise FileNotFoundError deliberately if it is not found
 		return version_proc.stdout.splitlines()[0]
 
-	
 	def _real_iter_mame_entire_xml(self) -> Iterable[tuple[str, ElementTree.Element]]:
 		print('New MAME version found: ' + self.get_version() + '; creating XML; this may take a while the first time it is run')
 		os.makedirs(self.xml_cache_path, exist_ok=True)
@@ -84,8 +83,8 @@ class MAMEExecutable():
 
 		try:
 			proc = subprocess.run([self.executable, '-listxml', driver], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)
-		except subprocess.CalledProcessError:
-			raise MachineNotFoundException(driver)
+		except subprocess.CalledProcessError as cpe:
+			raise MachineNotFoundException(driver) from cpe
 
 		xml = ElementTree.fromstring(proc.stdout).find('machine')
 		if not xml:
