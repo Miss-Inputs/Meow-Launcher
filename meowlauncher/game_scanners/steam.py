@@ -9,7 +9,7 @@ import statistics
 import time
 import zipfile
 from enum import IntFlag
-from typing import Any, Optional, Union
+from typing import Any, NamedTuple, Optional, Union
 from collections.abc import Mapping, Iterable
 
 from meowlauncher.common_types import MediaType, SaveType
@@ -21,7 +21,7 @@ from meowlauncher.games.common.engine_detect import detect_engine_recursively
 from meowlauncher.games.common.name_utils import fix_name, normalize_name_case
 from meowlauncher.games.common.pc_common_metadata import (
     add_metadata_for_raw_exe, check_for_interesting_things_in_folder)
-from meowlauncher.launcher import LaunchCommand
+from meowlauncher.launcher import LaunchCommand, Launcher
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.region_info import Language, get_language_by_english_name
 from meowlauncher.util.utils import (junk_suffixes, load_dict,
@@ -43,6 +43,13 @@ except ModuleNotFoundError:
 
 store_categories = load_dict(None, 'steam_store_categories')
 genre_ids = load_dict(None, 'steam_genre_ids')
+
+class LauncherInfo(NamedTuple):
+	exe: Optional[str]
+	args: Optional[str] #Not a list as it turns out?
+	description: Optional[str]
+	launcher_type: Optional[str]
+	platform: Optional[str]
 
 class SteamInstallation():
 	def __init__(self, path: str):
@@ -202,8 +209,8 @@ class SteamGame():
 		self.app_state = app_state
 		self.metadata = Metadata()
 
-		self.launchers = {}
-		self.extra_launchers = {}
+		self.launchers: dict[Optional[str], LauncherInfo] = {}
+		self.extra_launchers: dict[Optional[str], list[LauncherInfo]] = {}
 
 	@property
 	def name(self) -> str:
@@ -403,7 +410,7 @@ def format_genre(genre_id: str) -> str:
 	return genre_ids.get(genre_id, 'unknown {0}'.format(genre_id))
 
 def process_launchers(game: SteamGame, launch: Mapping[bytes, Mapping[bytes, Any]]):
-	launch_items = {}
+	launch_items: dict[Optional[str], list[LauncherInfo]] = {}
 	#user_config = game.app_state.get('UserConfig')
 	#installed_betakey = user_config.get('betakey') if user_config else None
 	for launch_item in launch.values():
@@ -411,29 +418,33 @@ def process_launchers(game: SteamGame, launch: Mapping[bytes, Mapping[bytes, Any
 		#If you wanted to do secret evil things: b'executable' = 'CoolGame.sh' b'arguments' (optional) = '--fullscreen --blah' b'description' = 'Cool Game'
 
 		#Actually, sometimes the key doesn't start at 0, which is weird, but anyway it still doesn't really mean much, it just means we can't get the first item by getting key 0
-		launcher = {'exe': None, 'args': None, 'description': None, 'type': None}
+
 		executable_name = launch_item.get(b'executable')
+		exe: Optional[str] = None
 		if executable_name:
 			exe_name = executable_name.decode('utf-8', errors='backslashreplace')
 			if exe_name.startswith('steam://open'):
 				#None of that
 				continue
-			launcher['exe'] = exe_name
+			exe = exe_name
 		
+		args: Optional[str] = None
 		executable_arguments = launch_item.get(b'arguments')
 		if executable_arguments:
 			if isinstance(executable_arguments, appinfo.Integer):
-				launcher['args'] = str(executable_arguments.data)
+				args = str(executable_arguments.data)
 			else:
-				launcher['args'] = executable_arguments.decode('utf-8', errors='backslashreplace')
+				args = executable_arguments.decode('utf-8', errors='backslashreplace')
 
 		description = launch_item.get(b'description')
+		launcher_description: Optional[str] = None
 		if description:
-			launcher['description'] = description.decode('utf-8', errors='backslashreplace')
+			launcher_description = description.decode('utf-8', errors='backslashreplace')
 
 		launch_type = launch_item.get(b'type')
+		launcher_type: Optional[str] = None
 		if launch_type:
-			launcher['type'] = launch_type.decode('utf-8', errors='backslashreplace')
+			launcher_type = launch_type.decode('utf-8', errors='backslashreplace')
 		
 		platform = None
 		launch_item_config = launch_item.get(b'config')
@@ -448,13 +459,13 @@ def process_launchers(game: SteamGame, launch: Mapping[bytes, Mapping[bytes, Any
 			#betakey = launch_item_config.get(b'betakey')
 			#if betakey and betakey != installed_betakey:
 			#	continue
-			launcher['platform'] = platform
 		if platform not in launch_items:
 			launch_items[platform] = []
+		launcher = LauncherInfo(exe, args, launcher_description, launcher_type, platform)
 		launch_items[platform].append(launcher)
 
 	for platform, platform_launchers in launch_items.items():
-		platform_launcher = None
+		platform_launcher: LauncherInfo
 		if len(platform_launchers) == 1:
 			platform_launcher = platform_launchers[0]
 		else:
@@ -824,14 +835,14 @@ def add_metadata_from_appinfo(game: SteamGame, app_info_section: Mapping[bytes, 
 		#I think it's a fair assumption that every game on Steam will have _some_ sort of save data (even if just settings and not progress) so until I'm proven wrong... whaddya gonna do
 		game.metadata.save_type = SaveType.Internal
 
-def process_launcher(game: SteamGame, launcher: Mapping):
-	if os.path.extsep in launcher['exe']:
-		extension = launcher['exe'].rsplit(os.path.extsep, 1)[-1].lower()
+def process_launcher(game: SteamGame, launcher: LauncherInfo):
+	if os.path.extsep in launcher.exe:
+		extension = launcher.exe.rsplit(os.path.extsep, 1)[-1].lower()
 		if extension:
 			game.metadata.extension = extension
 	#See what we can tell about the game exe. Everything that is a DOS game packaged with DOSBox will have DOSBox for all launchers (from what I know so far), except for Duke Nukem 3D, which has a "launch OpenGL" and a "launch DOS" thing, so.. hmm
 	#You can't detect that a game uses Origin that I can tell... dang
-	executable_basename = launcher['exe']
+	executable_basename = launcher.exe
 	if executable_basename:
 		if '/' in executable_basename:
 			executable_basename = executable_basename.split('/')[-1]
@@ -839,14 +850,14 @@ def process_launcher(game: SteamGame, launcher: Mapping):
 			executable_basename = executable_basename.split('\\')[-1]
 		game.metadata.specific_info['Executable-Name'] = executable_basename
 
-	launcher_full_path = os.path.join(game.library_folder, 'steamapps', 'common', game.app_state.get('installdir'), launcher['exe'])
+	launcher_full_path = os.path.join(game.library_folder, 'steamapps', 'common', game.app_state.get('installdir'), launcher.exe)
 	if os.path.isfile(launcher_full_path):
 		add_metadata_for_raw_exe(launcher_full_path, game.metadata)
 
-	if launcher['args'] and '-uplay_steam_mode' in launcher['args']:
+	if launcher.args and '-uplay_steam_mode' in launcher.args:
 		game.metadata.specific_info['Launcher'] = 'uPlay'
 	if not main_config.use_steam_as_platform:
-		launcher_platform = launcher.get('platform')
+		launcher_platform = launcher.platform
 		if launcher_platform:
 			if 'linux' in launcher_platform.lower():
 				game.metadata.platform = 'Linux'
