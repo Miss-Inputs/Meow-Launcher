@@ -226,6 +226,34 @@ def add_metadata_from_nw_package_json(package_json: dict, metadata: Metadata):
 		metadata.specific_info['Icon-Relative-Path'] = window.get('icon')
 		metadata.add_alternate_name(window.get('title'), 'Window-Title')
 
+def add_info_from_package_json_file(folder: str, package_json_path: str, metadata: Metadata):
+	with open(package_json_path, 'rb') as package_json:
+		add_metadata_from_nw_package_json(json.load(package_json), metadata)
+	if 'Icon-Relative-Path' in metadata.specific_info:
+		icon_path = os.path.join(folder, metadata.specific_info.pop('Icon-Relative-Path'))
+		if os.path.isfile(icon_path) and 'Icon' not in metadata.images:
+			metadata.images['Icon'] = icon_path
+
+def add_info_from_package_json_zip(package_nw_path: str, metadata: Metadata) -> bool:
+	try:
+		with zipfile.ZipFile(package_nw_path) as package_nw:
+			try:
+				with package_nw.open('package.json', 'r') as package_json:
+					add_metadata_from_nw_package_json(json.load(package_json), metadata)
+				if 'Icon-Relative-Path' in metadata.specific_info:
+					icon_path = metadata.specific_info.pop('Icon-Relative-Path')
+					if 'Icon' not in metadata.images:
+						try:
+							with package_nw.open(icon_path, 'r') as icon_data:
+								metadata.images['Icon'] = Image.open(io.BytesIO(icon_data.read()))
+						except KeyError:
+							pass
+			except KeyError:
+				return False #Maybe
+	except zipfile.BadZipFile:
+		return False
+	return True
+
 def try_detect_nw(folder: str, metadata: Optional[Metadata]=None) -> bool:
 	if not os.path.isfile(os.path.join(folder, 'nw.pak')) and not os.path.isfile(os.path.join(folder, 'nw_100_percent.pak')) and not os.path.isfile(os.path.join(folder, 'nw_200_percent.pak')):
 		return False
@@ -236,32 +264,11 @@ def try_detect_nw(folder: str, metadata: Optional[Metadata]=None) -> bool:
 	if os.path.isfile(package_json_path):
 		have_package = True
 		if metadata:
-			with open(package_json_path, 'rb') as package_json:
-				add_metadata_from_nw_package_json(json.load(package_json), metadata)
-			if 'Icon-Relative-Path' in metadata.specific_info:
-				icon_path = os.path.join(folder, metadata.specific_info.pop('Icon-Relative-Path'))
-				if os.path.isfile(icon_path) and 'Icon' not in metadata.images:
-					metadata.images['Icon'] = icon_path
+			add_info_from_package_json_file(folder, package_json_path, metadata)
 	elif os.path.isfile(package_nw_path):
 		have_package = True
 		if metadata:
-			try:
-				with zipfile.ZipFile(package_nw_path) as package_nw:
-					try:
-						with package_nw.open('package.json', 'r') as package_json:
-							add_metadata_from_nw_package_json(json.load(package_json), metadata)
-						if 'Icon-Relative-Path' in metadata.specific_info:
-							icon_path = metadata.specific_info.pop('Icon-Relative-Path')
-							if 'Icon' not in metadata.images:
-								try:
-									with package_nw.open(icon_path, 'r') as icon_data:
-										metadata.images['Icon'] = Image.open(io.BytesIO(icon_data.read()))
-								except KeyError:
-									pass
-
-					except KeyError:
-						return False #Maybe
-			except zipfile.BadZipFile:
+			if not add_info_from_package_json_zip(package_nw_path, metadata):
 				return False
 	
 	if not have_package:
