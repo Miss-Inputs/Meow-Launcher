@@ -9,7 +9,8 @@ import statistics
 import time
 import zipfile
 from enum import IntFlag
-from typing import Optional
+from typing import Any, Optional, Union
+from collections.abc import Mapping, Iterable
 
 from meowlauncher.common_types import MediaType, SaveType
 from meowlauncher.config.main_config import main_config
@@ -22,7 +23,7 @@ from meowlauncher.games.common.pc_common_metadata import (
     add_metadata_for_raw_exe, check_for_interesting_things_in_folder)
 from meowlauncher.launcher import LaunchCommand
 from meowlauncher.metadata import Date, Metadata
-from meowlauncher.util.region_info import get_language_by_english_name
+from meowlauncher.util.region_info import Language, get_language_by_english_name
 from meowlauncher.util.utils import (junk_suffixes, load_dict,
                                      remove_capital_article)
 
@@ -44,7 +45,7 @@ store_categories = load_dict(None, 'steam_store_categories')
 genre_ids = load_dict(None, 'steam_genre_ids')
 
 class SteamInstallation():
-	def __init__(self, path):
+	def __init__(self, path: str):
 		self.steamdir = path
 		try:
 			with open(self.app_info_path, 'rb') as app_info_file:
@@ -59,14 +60,14 @@ class SteamInstallation():
 			self.app_info = None
 			self.app_info_available = False
 		try:
-			with open(self.config_path) as config_file:
+			with open(self.config_path, 'rt', encoding='utf-8') as config_file:
 				self.config = acf.load(config_file)
 				self.config_available = True
 		except FileNotFoundError:
 			self.config = None
 			self.config_available = False
 		try:
-			with open(self.localization_path) as localization_file:
+			with open(self.localization_path, 'rt', encoding='utf8') as localization_file:
 				self.localization = acf.load(localization_file)
 				self.localization_available = True
 		except FileNotFoundError:
@@ -74,47 +75,47 @@ class SteamInstallation():
 			self.localization_available = False
 
 	@property
-	def app_info_path(self):
+	def app_info_path(self) -> str:
 		return os.path.join(self.steamdir, 'appcache', 'appinfo.vdf')
 
 	@property
-	def config_path(self):
+	def config_path(self) -> str:
 		return os.path.join(self.steamdir, 'config', 'config.vdf')
 
 	@property
-	def localization_path(self):
+	def localization_path(self) -> str:
 		return os.path.join(self.steamdir, 'appcache', 'localization.vdf')
 
 	@property
-	def icon_folder(self):
+	def icon_folder(self) -> str:
 		return os.path.join(self.steamdir, 'steam', 'games')
 
 	@property
-	def library_cache_folder(self):
+	def library_cache_folder(self) -> str:
 		return os.path.join(self.steamdir, 'appcache', 'librarycache')
 
 	@property
-	def steam_library_list_path(self):
+	def steam_library_list_path(self) -> str:
 		return os.path.join(self.steamdir, 'steamapps', 'libraryfolders.vdf')
 
 	@property
-	def userdata_folder(self):
+	def userdata_folder(self) -> str:
 		return os.path.join(self.steamdir, 'userdata')
 
-	def get_users(self):
+	def get_users(self) -> list[str]:
 		#Probably the most lazy way to do it, but if this is a bad idea, please don't send me to jail
 		return [user for user in os.listdir(self.userdata_folder) if user != 'ac']
 
-	def get_user_library_cache_folder(self, user_id):
+	def get_user_library_cache_folder(self, user_id: str) -> str:
 		return os.path.join(self.userdata_folder, user_id, 'config', 'librarycache')
 
 class SteamState():
 	class __SteamState():
 		#If you have Steam installed twice in different locations somehow then that is your own problem, but I don't think that's really a thing that people do
-		def __init__(self):
+		def __init__(self) -> None:
 			self.steam_installation = None
 			#Most likely the former will be present as a symlink to the latter, I don't know if weird distros install it any differently
-			possible_locations = ['~/.steam/steam', '~/.local/share/steam', '~/.local/share/Steam']
+			possible_locations = ('~/.steam/steam', '~/.local/share/steam', '~/.local/share/Steam')
 			steam_path = None
 			for location in possible_locations:
 				location = os.path.expanduser(location)
@@ -128,7 +129,7 @@ class SteamState():
 				self.steam_installation = SteamInstallation(steam_path)
 
 		@property
-		def is_steam_installed(self):
+		def is_steam_installed(self) -> bool:
 			return self.steam_installation is not None
 
 	__instance = None
@@ -147,7 +148,7 @@ else:
 	steam_installation = steam_state.steam_installation
 
 def get_steam_library_folders() -> list[str]:
-	with open(steam_installation.steam_library_list_path, 'rt') as steam_library_list_file:
+	with open(steam_installation.steam_library_list_path, 'rt', encoding='utf-8') as steam_library_list_file:
 		steam_library_list = acf.load(steam_library_list_file)
 		library_folders = steam_library_list.get('libraryfolders')
 		if not library_folders:
@@ -155,7 +156,7 @@ def get_steam_library_folders() -> list[str]:
 			return [steam_installation.steamdir]
 		return [v['path'] for k, v in library_folders.items() if k.isdigit()] + [steam_installation.steamdir]
 
-def get_steamplay_overrides():
+def get_steamplay_overrides() -> dict:
 	if not steam_installation.config_available:
 		return {}
 
@@ -195,7 +196,7 @@ class StateFlags(IntFlag):
 	UpdateStopping = 8388608
 
 class SteamGame():
-	def __init__(self, app_id, folder, app_state):
+	def __init__(self, app_id, folder, app_state) -> None:
 		self.app_id = app_id
 		self.library_folder = folder
 		self.app_state = app_state
@@ -205,15 +206,15 @@ class SteamGame():
 		self.extra_launchers = {}
 
 	@property
-	def name(self):
+	def name(self) -> str:
 		name = self.app_state.get('name')
 		if not name:
-			name = '<unknown game {0}>'.format(self.app_id)
+			name = f'<unknown game {self.app_id}>'
 		name = fix_name(name)
 		return name
 
 	@property
-	def appinfo(self):
+	def appinfo(self) -> Optional[Mapping[bytes, Any]]:
 		if steam_installation.app_info_available:
 			game_app_info = steam_installation.app_info.get(self.app_id)
 			if game_app_info is None:
@@ -238,7 +239,7 @@ class SteamGame():
 			return app_info_section
 		return None
 
-	def make_launcher(self):
+	def make_launcher(self) -> None:
 		params = LaunchCommand('steam', ['steam://rungameid/{0}'.format(self.app_id)])
 		make_launcher(params, self.name, self.metadata, 'Steam', self.app_id)
 
@@ -254,7 +255,7 @@ class IconError(Exception):
 class IconNotFoundError(Exception):
 	pass
 
-def look_for_icon(icon_hash):
+def look_for_icon(icon_hash: str) -> Optional[Union['Image.Image', str]]:
 	icon_hash = icon_hash.lower()
 	for icon_file in os.listdir(steam_installation.icon_folder):
 		icon_path = os.path.join(steam_installation.icon_folder, icon_file)
@@ -285,7 +286,7 @@ def look_for_icon(icon_hash):
 								if size[0] > biggest_size[0] and size[1] > biggest_size[1]:
 									biggest_size = size
 							if biggest_size == (0, 0):
-								raise IconError('.ico file {0} has no valid sizes'.format(icon_file))
+								raise IconError('.ico file {0} has no valid sizes'.format(icon_file)) from ex
 							return ico.getimage(biggest_size)
 						except SyntaxError as syntax_error:
 							#Of all the errors it throws, it throws this one? Well, okay fine whatever
@@ -315,11 +316,11 @@ def look_for_icon(icon_hash):
 
 	raise IconNotFoundError('{0} not found'.format(icon_hash))
 
-def translate_language_list(languages):
+def translate_language_list(languages: Mapping[bytes, Any]) -> list[Language]:
 	langs = []
-	for language_name, _ in languages.items():
+	for language_name_bytes, _ in languages.items():
 		#value is an Integer object but it's always 1, I dunno what the 0 means, because it's like, if the language isn't there, it just wouldn't be in the dang list anyway
-		language_name = language_name.decode('utf-8', errors='backslashreplace')
+		language_name = language_name_bytes.decode('utf-8', errors='backslashreplace')
 		if language_name == 'koreana': #I don't know what the a at the end is for, but Steam does that
 			langs.append(get_language_by_english_name('Korean'))
 		elif language_name == 'schinese': #Simplified Chinese
@@ -339,7 +340,7 @@ def translate_language_list(languages):
 
 	return langs
 
-def normalize_developer(dev):
+def normalize_developer(dev: str) -> str:
 	while junk_suffixes.search(dev):
 		dev = junk_suffixes.sub('', dev)
 	dev = dev.strip()
@@ -348,7 +349,7 @@ def normalize_developer(dev):
 		return developer_overrides[dev]
 	return dev
 
-def _get_steamplay_appinfo_extended():
+def _get_steamplay_appinfo_extended() -> Optional[Mapping[bytes, Any]]:
 	steamplay_manifest_appid = 891390
 
 	steamplay_appinfo = steam_installation.app_info.get(steamplay_manifest_appid)
@@ -398,10 +399,10 @@ def get_steamplay_whitelist() -> dict[str, str]:
 			apps[k.decode('utf-8', errors='ignore')] = tool.decode('utf-8', errors='ignore')
 	return apps
 
-def format_genre(genre_id):
+def format_genre(genre_id: str) -> str:
 	return genre_ids.get(genre_id, 'unknown {0}'.format(genre_id))
 
-def process_launchers(game: SteamGame, launch):
+def process_launchers(game: SteamGame, launch: Mapping[bytes, Mapping[bytes, Any]]):
 	launch_items = {}
 	#user_config = game.app_state.get('UserConfig')
 	#installed_betakey = user_config.get('betakey') if user_config else None
@@ -465,7 +466,7 @@ def process_launchers(game: SteamGame, launch):
 
 		game.launchers[platform] = platform_launcher
 				
-def add_icon_from_common_section(game, common_section):
+def add_icon_from_common_section(game: SteamGame, common_section: Mapping[bytes, Any]):
 	potential_icon_names = (b'linuxclienticon', b'clienticon', b'clienticns')
 	#icon and logo have similar hashes, but don't seem to actually exist. logo_small seems to just be logo with a _thumb on the end
 	#Damn I really thought clienttga was a thing too
@@ -501,7 +502,7 @@ def add_icon_from_common_section(game, common_section):
 		elif not potentially_has_icon:
 			print(game.name, game.app_id, 'does not even have an icon')
 
-def add_metadata_from_appinfo_common_section(game: SteamGame, common):
+def add_metadata_from_appinfo_common_section(game: SteamGame, common: Mapping[bytes, Any]):
 	if 'Icon' not in game.metadata.images:
 		add_icon_from_common_section(game, common)
 
@@ -727,7 +728,7 @@ def add_metadata_from_appinfo_common_section(game: SteamGame, common):
 			pubs = []
 			for pub in associations_dict['publisher']:
 				pub = normalize_developer(pub)
-				if pub in ('none', 'Self Published') and game.metadata.developer:
+				if pub in {'none', 'Self Published'} and game.metadata.developer:
 					pub = game.metadata.developer
 				if pub.endswith(' (Mac)'):
 					game.metadata.specific_info['Mac-Publisher'] = pub.removesuffix(' (Mac)')
@@ -738,7 +739,7 @@ def add_metadata_from_appinfo_common_section(game: SteamGame, common):
 
 			game.metadata.publisher = ', '.join(pubs)
 	
-def add_metadata_from_appinfo_extended_section(game: SteamGame, extended):
+def add_metadata_from_appinfo_extended_section(game: SteamGame, extended: Mapping[bytes, Any]):
 	if not game.metadata.developer:
 		developer = extended.get(b'developer')
 		if developer:
@@ -754,7 +755,7 @@ def add_metadata_from_appinfo_extended_section(game: SteamGame, extended):
 				game.metadata.publisher = str(publisher.data)
 			else:
 				publisher = normalize_developer(publisher.decode('utf-8', errors='backslashreplace'))
-				if publisher in ('none', 'Self Published'):
+				if publisher in {'none', 'Self Published'}:
 					game.metadata.publisher = game.metadata.developer
 				else:
 					game.metadata.publisher = publisher
@@ -783,7 +784,7 @@ def add_metadata_from_appinfo_extended_section(game: SteamGame, extended):
 	#mustownapptopurchase: If present, appID of a game that you need to buy first (parent of DLC, or something like Source SDK Base for Garry's Mod, etc)
 	#dependantonapp: Probably same sort of thing, like Half-Life: Opposing Force is dependent on original Half-Life
 
-def process_appinfo_config_section(game: SteamGame, app_info_section):
+def process_appinfo_config_section(game: SteamGame, app_info_section: Mapping[bytes, Any]):
 	config_section = app_info_section.get(b'config')
 	if config_section:
 		#contenttype = 3 in some games but not all of them? nani
@@ -795,13 +796,13 @@ def process_appinfo_config_section(game: SteamGame, app_info_section):
 		else:
 			raise NotLaunchableError('No launch entries in config section')
 
-def get_game_type(app_info_section):
+def get_game_type(app_info_section: Mapping[bytes, Any]):
 	common = app_info_section.get(b'common')
 	if common:
 		return common.get(b'type', b'Unknown').decode('utf-8', errors='backslashreplace')
 	return None
 
-def add_metadata_from_appinfo(game: SteamGame, app_info_section):
+def add_metadata_from_appinfo(game: SteamGame, app_info_section: Mapping[bytes, Any]):
 	#Alright let's get to the fun stuff
 	common = app_info_section.get(b'common')
 	if common:
@@ -823,7 +824,7 @@ def add_metadata_from_appinfo(game: SteamGame, app_info_section):
 		#I think it's a fair assumption that every game on Steam will have _some_ sort of save data (even if just settings and not progress) so until I'm proven wrong... whaddya gonna do
 		game.metadata.save_type = SaveType.Internal
 
-def process_launcher(game: SteamGame, launcher):
+def process_launcher(game: SteamGame, launcher: Mapping):
 	if os.path.extsep in launcher['exe']:
 		extension = launcher['exe'].rsplit(os.path.extsep, 1)[-1].lower()
 		if extension:
@@ -882,9 +883,9 @@ def poke_around_in_install_dir(game: SteamGame):
 		if f.is_dir():
 			check_for_interesting_things_in_folder(f.path, game.metadata, find_wrappers=True)
 	
-def find_image(appid, image_name):
+def find_image(appid, image_name: str):
 	if steam_installation.library_cache_folder:
-		basename = os.path.join(steam_installation.library_cache_folder, '{0}_{1}'.format(appid, image_name))
+		basename = os.path.join(steam_installation.library_cache_folder, f'{appid}_{image_name}')
 		#Can be either png or jpg, I guess… could also listdir or glob I guess but ehhh brain broke lately
 		for ext in ('png', 'jpg', 'jpeg'):
 			path = basename + '.' + ext
@@ -901,9 +902,9 @@ def add_images(game: SteamGame):
 		if image_path:
 			game.metadata.images[name] = image_path
 
-def add_info_from_cache_json(game: SteamGame, json_path, is_single_user):
+def add_info_from_cache_json(game: SteamGame, json_path: str, is_single_user: bool):
 	#This does not always exist, it's there if you've looked at it in the Steam client and it's loaded some metadata, but like why the heck not
-	with open(json_path, 'rt') as f:
+	with open(json_path, 'rb') as f:
 		j = json.load(f)
 		#Cool stuff in here:
 		#friends -> Has info on which of your friends played this game (I don't think we need to put that in here anywhere)
@@ -981,7 +982,7 @@ def add_info_from_user_cache(game: SteamGame):
 		if os.path.isfile(path):
 			add_info_from_cache_json(game, path, single_user)
 
-def process_game(app_id, folder, app_state) -> None:
+def process_game(app_id, folder: str, app_state: Mapping[str, Any]) -> None:
 	#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
 	try:
 		app_id = int(app_id)
@@ -1013,10 +1014,10 @@ def process_game(app_id, folder, app_state) -> None:
 	appinfo_entry = game.appinfo
 	if appinfo_entry:
 		app_type = get_game_type(appinfo_entry)
-		if app_type in ('game', 'Game'):
+		if app_type in {'game', 'Game'}:
 			#This makes the categories consistent with other stuff
 			game.metadata.categories = ['Games']
-		elif app_type in ('Tool', 'Application'):
+		elif app_type in {'Tool', 'Application'}:
 			#Tool is for SDK/level editor/dedicated server/etc stuff, Application is for general purchased software
 			game.metadata.categories = ['Applications']
 		elif app_type == 'Demo':
@@ -1091,12 +1092,12 @@ def process_game(app_id, folder, app_state) -> None:
 	
 	game.make_launcher()
 
-def iter_steam_installed_appids():
+def iter_steam_installed_appids() -> Iterable[tuple[str, Any, Mapping[str, Any]]]:
 	for library_folder in get_steam_library_folders():
 		acf_files = glob.glob(os.path.join(library_folder, 'steamapps', '*.acf'))
 		for acf_file_path in acf_files:
 			#Technically I could try and parse it without steamfiles, but that would be irresponsible, so I shouldn't do that
-			with open(acf_file_path, 'rt') as acf_file:
+			with open(acf_file_path, 'rt', encoding='utf-8') as acf_file:
 				app_manifest = acf.load(acf_file)
 			app_state = app_manifest.get('AppState')
 			if not app_state:
@@ -1159,7 +1160,7 @@ def process_steam() -> None:
 
 		try:
 			process_game(app_id, folder, app_state)
-		except NotActuallyAGameYouDingusException as ex:
+		except NotActuallyAGameYouDingusException:
 			continue
 		except NotLaunchableError as ex:
 			if main_config.debug:
