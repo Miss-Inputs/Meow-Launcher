@@ -398,13 +398,12 @@ class Machine():
 		real_serieses = []
 		for series in serieses:
 			#It is actually possible to have more than one series (e.g. invqix is both part of Space Invaders and Qix)
-			not_real_series = ('Hot', 'Aristocrat MK Hardware')
+			not_real_series = {'Hot', 'Aristocrat MK Hardware'}
 			if series in not_real_series:
 				continue
 
-			series.removesuffix(' * Pinball')
-			series.removesuffix(' * Slot')
-			series.removeprefix('The ')
+			series = series.removesuffix(' * Pinball').removesuffix(' * Slot')
+			series = series.removeprefix('The ')
 			
 			if series not in not_real_series:
 				real_serieses.append(remove_capital_article(series))
