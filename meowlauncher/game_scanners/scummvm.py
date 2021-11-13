@@ -3,10 +3,13 @@
 import datetime
 import time
 
+from meowlauncher import global_runners
 from meowlauncher.config.main_config import main_config
-from meowlauncher.desktop_launchers import has_been_done
+from meowlauncher.desktop_launchers import (has_been_done,
+                                            make_linux_desktop_for_launcher)
 from meowlauncher.games.scummvm.scummvm_config import scummvm_config
-from meowlauncher.games.scummvm.scummvm_game import ScummVMGame
+from meowlauncher.games.scummvm.scummvm_game import (ScummVMGame,
+                                                     ScummVMLauncher)
 
 
 def no_longer_exists(game_id: str):
@@ -28,7 +31,8 @@ def add_scummvm_games() -> None:
 					continue
 
 			game = ScummVMGame(section)
-			game.make_launcher()
+			launcher = ScummVMLauncher(game, global_runners.scummvm)
+			make_linux_desktop_for_launcher(launcher)
 
 		if main_config.print_times:
 			time_ended = time.perf_counter()

@@ -14,6 +14,8 @@ from meowlauncher.runner import Runner
 LaunchParamsFunc = Callable[..., LaunchCommand]
 
 class Emulator(Runner):
+	#I decided what actually defines an "emulator" vs. a Runner with is_emulated -> True is that this is more of a "chooseable emulator", but ChooseableEmulator sounds silly as a class name, so like I dunno
+	#This needs refactoring lol
 	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_params_func: LaunchParamsFunc, configs: Optional[dict[str, EmulatorConfigValue]]=None, host_platform=EmulatorPlatform.Native):
 		self._name = name
 		self.status = status

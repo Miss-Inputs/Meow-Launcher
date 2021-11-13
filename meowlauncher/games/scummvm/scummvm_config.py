@@ -12,13 +12,14 @@ def _get_vm_config(path: str) -> configparser.ConfigParser:
 	return parser
 
 class ScummVMConfig():
+	#TODO: Once I get around to inventing ConfiguredRunner this should be that
 	class __ScummVMConfig():
 		def __init__(self) -> None:
 			self.have_scummvm_config = os.path.isfile(main_config.scummvm_config_path)
 
 			self.have_scummvm_exe = True
 			try:
-				self.scummvm_engines = self.get_vm_engines('scummvm')
+				self.scummvm_engines = self.get_vm_engines(main_config.scummvm_exe_path)
 			except FileNotFoundError:
 				self.have_scummvm_exe = False
 

@@ -3,11 +3,11 @@ import os
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.desktop_launchers import make_launcher
+from meowlauncher.game import Game
 from meowlauncher.games.common.pc_common_metadata import \
     look_for_icon_in_folder
-from meowlauncher.launcher import LaunchCommand
-from meowlauncher.metadata import Metadata
+from meowlauncher.launcher import LaunchCommand, Launcher
+from meowlauncher.runner import Runner
 from meowlauncher.util.region_info import get_language_by_short_code
 
 from .scummvm_config import scummvm_config
@@ -49,36 +49,30 @@ def format_platform(platform: str) -> str:
 		'pippin': 'Pippin',
 	}.get(platform, platform)
 
-class ScummVMGame():
-	def __init__(self, name: str):
-		#The [game-name] is also user-modifiable and shouldn't be relied on to mean anything, but it is used for scummvm to actually launch the game and can be trusted to be unique
-		self.name = name
+class ScummVMGame(Game):
+	def __init__(self, game_id: str):
+		super().__init__()
+		#The [game_id] is also user-modifiable and shouldn't be relied on to mean anything, but it is used for scummvm to actually launch the game and can be trusted to be unique
+		self.game_id = game_id
 		self.options = {}
-		for k, v in scummvm_config.scummvm_ini.items(name):
+		for k, v in scummvm_config.scummvm_ini.items(game_id):
 			self.options[k] = v
 
-		self.metadata = Metadata()
 		self.add_metadata()
+
+	@property
+	def name(self) -> str:
+		name = self.options.get('description', self.game_id)
+		name = name.replace('/', ') (') #Names are usually something like Cool Game (CD/DOS/English); we convert it to Cool Game (CD) (DOS) (English) to make it work better with disambiguate etc		
+		return name
 
 	@staticmethod
 	def _engine_list_to_use():
 		return scummvm_config.scummvm_engines
 
-	def _get_launch_params(self) -> LaunchCommand:
-		args = ['-f']
-		if main_config.scummvm_config_path != os.path.expanduser('~/.config/scummvm/scummvm.ini'):
-			args.append('--config={0}'.format(main_config.scummvm_config_path))
-		args.append(self.name)
-		return LaunchCommand('scummvm', args)
-
-	@staticmethod
-	def _get_emulator_name() -> str:
-		return 'ScummVM'
-
 	def add_metadata(self) -> None:
 		self.metadata.input_info.add_option([input_metadata.Mouse(), input_metadata.Keyboard()]) #Can use gamepad if you enable it, but I guess to add that as input_info I'd have to know exactly how many buttons and sticks etc it uses
 		self.metadata.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
-		self.metadata.emulator_name = self._get_emulator_name()
 		self.metadata.categories = ['Games'] #Safe to assume this by default
 		if self.options.get('gameid') == 'agi-fanmade':
 			self.metadata.categories = ['Homebrew']
@@ -122,14 +116,28 @@ class ScummVMGame():
 					self.metadata.images['Icon'] = icon
 			else:
 				if main_config.debug:
-					print('Aaaa!', self.name, path, 'does not exist')
+					print('Aaaa!', self.name, self.game_id, path, 'does not exist')
 		else:
 			if main_config.debug:
-				print('Wait what?', self.name, 'has no path')
+				print('Wait what?', self.name, self.game_id, 'has no path')
 		#Everything else is gonna be an actual option
 
-	def make_launcher(self) -> None:
-		name = self.options.get('description', self.name)
-		name = name.replace('/', ') (') #Names are usually something like Cool Game (CD/DOS/English); we convert it to Cool Game (CD) (DOS) (English) to make it work better with disambiguate etc
+class ScummVMLauncher(Launcher):
+	def __init__(self, game: ScummVMGame, runner: Runner) -> None:
+		self.game: ScummVMGame = game
+		super().__init__(game, runner)
 
-		make_launcher(self._get_launch_params(), name, self.metadata, 'ScummVM', self.name)
+	@property
+	def game_id(self) -> str:
+		return self.game.game_id
+
+	@property
+	def game_type(self) -> str:
+		return 'ScummVM'
+
+	def get_launch_command(self) -> LaunchCommand:
+		args = ['-f']
+		if main_config.scummvm_config_path != os.path.expanduser('~/.config/scummvm/scummvm.ini'):
+			args.append(f'--config={main_config.scummvm_config_path}')
+		args.append(self.game.game_id)
+		return LaunchCommand('scummvm', args)

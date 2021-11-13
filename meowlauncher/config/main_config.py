@@ -16,9 +16,9 @@ _ignored_dirs_path = os.path.join(config_dir, 'ignored_directories.txt')
 def parse_command_line_bool(value: str) -> bool:
 	#I swear there was some inbuilt way to do this oh well
 	lower = value.lower()
-	if lower in ('yes', 'true', 'on', 't', 'y', 'yeah'):
+	if lower in {'yes', 'true', 'on', 't', 'y', 'yeah'}:
 		return True
-	if lower in ('no', 'false', 'off', 'f', 'n', 'nah', 'nope'):
+	if lower in {'no', 'false', 'off', 'f', 'n', 'nah', 'nope'}:
 		return False
 
 	raise TypeError(value)
@@ -68,6 +68,7 @@ _config_ini_values = {
 
 	'use_original_platform': ConfigValue('ScummVM', ConfigValueType.Bool, False, 'Use original platform', 'Set the platform in metadata to the original platform instead of leaving blank'),
 	'scummvm_config_path': ConfigValue('ScummVM', ConfigValueType.FilePath, os.path.expanduser('~/.config/scummvm/scummvm.ini'), 'ScummVM config path', 'Path to scummvm.ini, if not the default'),
+	'scummvm_exe_path': ConfigValue('ScummVM', ConfigValueType.FilePath, 'scummvm', 'ScummVM executable path', 'Path to scummvm executable, if not the default'),
 
 	'gog_folders': ConfigValue('GOG', ConfigValueType.FolderPathList, [], 'GOG folders', 'Folders where GOG games are installed'),
 	'use_gog_as_platform': ConfigValue('GOG', ConfigValueType.Bool, False, 'Use GOG as platform', 'Set platform in metadata to GOG instead of underlying platform'),

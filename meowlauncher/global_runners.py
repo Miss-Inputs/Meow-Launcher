@@ -26,4 +26,10 @@ class _Wine(Runner):
 		args += exe_args
 		return LaunchCommand(main_config.wine_path, args, env_vars)
 
+class _ScummVM(Runner):
+	@property
+	def name(self) -> str:
+		return 'ScummVM'
+
 wine = _Wine()
+scummvm = _ScummVM()
