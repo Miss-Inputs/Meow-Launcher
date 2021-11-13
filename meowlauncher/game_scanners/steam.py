@@ -8,9 +8,9 @@ import os
 import statistics
 import time
 import zipfile
+from collections.abc import Iterable, Mapping
 from enum import IntFlag
 from typing import Any, NamedTuple, Optional, Union
-from collections.abc import Mapping, Iterable
 
 from meowlauncher.common_types import MediaType, SaveType
 from meowlauncher.config.main_config import main_config
@@ -21,9 +21,10 @@ from meowlauncher.games.common.engine_detect import detect_engine_recursively
 from meowlauncher.games.common.name_utils import fix_name, normalize_name_case
 from meowlauncher.games.common.pc_common_metadata import (
     add_metadata_for_raw_exe, check_for_interesting_things_in_folder)
-from meowlauncher.launcher import LaunchCommand, Launcher
+from meowlauncher.launcher import LaunchCommand
 from meowlauncher.metadata import Date, Metadata
-from meowlauncher.util.region_info import Language, get_language_by_english_name
+from meowlauncher.util.region_info import (Language,
+                                           get_language_by_english_name)
 from meowlauncher.util.utils import (junk_suffixes, load_dict,
                                      remove_capital_article)
 

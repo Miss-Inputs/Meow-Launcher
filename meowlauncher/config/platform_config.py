@@ -41,7 +41,7 @@ class PlatformConfigs():
 				self.configs[system_name].paths = parse_path_list(section.get('paths', ''))
 				chosen_emulators = []
 				for s in parse_string_list(section.get('emulators', '')):
-					if s in ('MAME', 'Mednafen', 'VICE'):
+					if s in {'MAME', 'Mednafen', 'VICE'}:
 					#Allow for convenient shortcut
 						s = f'{s} ({system_name})'
 					chosen_emulators.append(s)

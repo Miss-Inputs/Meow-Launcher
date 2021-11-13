@@ -18,9 +18,10 @@ description_section_name = 'X-Meow Launcher Descriptions'
 
 class CPU():
 	#TODO I only give a shit about this info for MAME machines, move it there
+	#TODO These should also take a constructor with xml, not be created and then loaded, that's silly
 	def __init__(self):
 		self.chip_name: Optional[str] = None
-		self.clock_speed: int = None
+		self.clock_speed: Optional[int] = None
 		self.tag: Optional[str] = None
 
 	@staticmethod

@@ -215,7 +215,7 @@ def parse_plain_region(rom: FileROM, metadata: Metadata, offset: int, length: in
 			#ZL + ZR + right analog stick; New 3DS has these too but the extra controls there are internally represented as a Circle Pad Pro for compatibility so this all works out I think
 			metadata.input_info.input_options[0].inputs[0].components[0].analog_sticks += 1
 			metadata.input_info.input_options[0].inputs[0].components[0].shoulder_buttons += 2
-		elif library.startswith == '[SDK+NINTENDO:Gyroscope]':
+		elif library == '[SDK+NINTENDO:Gyroscope]':
 			metadata.specific_info['Uses-Gyroscope'] = True
 			metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls())
 		elif library == '[SDK+NINTENDO:IsRunOnSnake]':

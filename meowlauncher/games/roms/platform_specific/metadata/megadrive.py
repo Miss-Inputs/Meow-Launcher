@@ -264,10 +264,10 @@ def try_find_equivalent_arcade(rom: ROM, metadata: Metadata):
 	for bootleg_machine in try_find_equivalent_arcade.arcade_bootlegs: #type: ignore[attr-defined]
 		if does_machine_match_game(rom.name, metadata.names.values(), bootleg_machine):
 			return bootleg_machine
-	for megaplay_machine in _get_megaplay_games(): #type: ignore[attr-defined]
+	for megaplay_machine in _get_megaplay_games():
 		if does_machine_match_game(rom.name, metadata.names.values(), megaplay_machine):
 			return megaplay_machine
-	for megatech_machine in _get_megatech_games(): #type: ignore[attr-defined]
+	for megatech_machine in _get_megatech_games():
 		if does_machine_match_game(rom.name, metadata.names.values(), megatech_machine):
 			return megatech_machine	
 	return None

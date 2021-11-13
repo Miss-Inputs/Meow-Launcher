@@ -4,6 +4,8 @@
 
 from enum import Enum, auto
 from typing import Optional
+
+
 class TVSystem(Enum):
 	NTSC = auto()
 	PAL = auto()

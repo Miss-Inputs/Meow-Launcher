@@ -171,7 +171,7 @@ def sevenzip_get_crc32(path: str, filename: str) -> int:
 
 #----- python-libarchive
 
-def libarchive_list(path) -> list[str]:
+def libarchive_list(path: str) -> list[str]:
 	with libarchive.Archive(path, 'r') as a:
 		return list(a.iterpaths())
 

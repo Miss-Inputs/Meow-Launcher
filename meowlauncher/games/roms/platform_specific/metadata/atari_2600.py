@@ -228,7 +228,7 @@ class StellaDB():
 	class __StellaDB():
 		def __init__(self):
 			try:
-				self.db = get_stella_database()
+				self.db: Optional[dict[str, dict[str, str]]] = get_stella_database()
 			except (subprocess.CalledProcessError, FileNotFoundError):
 				self.db = None
 

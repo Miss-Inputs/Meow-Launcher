@@ -44,15 +44,15 @@ def find_series_from_game_name(name):
 		series_name = series_match['Series']
 		series_name.removeprefix('The ')
 		series_name = remove_capital_article(series_name)
-		number = series_match['Number']
-		if number in probably_not_a_series_index:
+		number_match = series_match['Number']
+		if number_match in probably_not_a_series_index:
 			return None, None
 
 		try:
-			number = int(number)
+			number = int(number_match)
 		except ValueError:
 			try:
-				number = convert_roman_numeral(number)
+				number = convert_roman_numeral(number_match)
 			except ValueError:
 				#Not actually a roman numeral, chief
 				return None, None

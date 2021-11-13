@@ -1,4 +1,4 @@
-from typing import Callable
+from collections.abc import Callable
 
 from meowlauncher.games.roms.rom_game import ROMGame
 

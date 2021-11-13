@@ -146,9 +146,9 @@ def mame_atari_7800(game, _, emulator_config):
 		system = 'a7800'
 
 	if not hasattr(mame_atari_7800, 'have_hiscore_software'):
-		mame_atari_7800.have_hiscore_software = is_highscore_cart_available()
+		mame_atari_7800.have_hiscore_software = is_highscore_cart_available() #type: ignore[attr-defined]
 
-	if mame_atari_7800.have_hiscore_software and game.metadata.specific_info.get('Uses-Hiscore-Cart', False):
+	if mame_atari_7800.have_hiscore_software and game.metadata.specific_info.get('Uses-Hiscore-Cart', False): #type: ignore[attr-defined]
 		return mame_driver(game, emulator_config, system, 'cart2', {'cart1': 'hiscore'})
 
 	return mame_driver(game, emulator_config, system, 'cart')
@@ -501,22 +501,22 @@ def mame_msx1(game, _, emulator_config):
 	#Possible slot options: centronics is there to attach printers and such; if using a floppy can put bm_012 (MIDI interface) or moonsound (OPL4 sound card, does anything use that?) in the cart port but I'm not sure that's needed; the slots are the same for MSX2
 	if game.metadata.specific_info.get('Japanese-Only', False):
 		if not hasattr(mame_msx1, 'japanese_msx1_system'):
-			mame_msx1.japanese_msx1_system = first_available_romset(japanese_msx1_drivers + japanese_msx2_drivers + working_msx2plus_drivers)
-		if mame_msx1.japanese_msx1_system is None:
+			mame_msx1.japanese_msx1_system = first_available_romset(japanese_msx1_drivers + japanese_msx2_drivers + working_msx2plus_drivers) #type: ignore[attr-defined]
+		if mame_msx1.japanese_msx1_system is None: #type: ignore[attr-defined]
 			raise EmulationNotSupportedException('No Japanese MSX1 driver available')
-		system = mame_msx1.japanese_msx1_system
+		system = mame_msx1.japanese_msx1_system #type: ignore[attr-defined]
 	elif game.metadata.specific_info.get('Arabic-Only', False):
 		if not hasattr(mame_msx1, 'arabic_msx1_system'):
-			mame_msx1.arabic_msx1_system = first_available_romset(arabic_msx1_drivers + arabic_msx2_drivers)
-		if mame_msx1.arabic_msx1_system is None:
+			mame_msx1.arabic_msx1_system = first_available_romset(arabic_msx1_drivers + arabic_msx2_drivers) #type: ignore[attr-defined]
+		if mame_msx1.arabic_msx1_system is None: #type: ignore[attr-defined]
 			raise EmulationNotSupportedException('No Arabic MSX1 driver available')
-		system = mame_msx1.arabic_msx1_system
+		system = mame_msx1.arabic_msx1_system #type: ignore[attr-defined]
 	else:
 		if not hasattr(mame_msx1, 'msx1_system'):
-			mame_msx1.msx1_system = first_available_romset(working_msx1_drivers + working_msx2_drivers + working_msx2plus_drivers)
-		if mame_msx1.msx1_system is None:
+			mame_msx1.msx1_system = first_available_romset(working_msx1_drivers + working_msx2_drivers + working_msx2plus_drivers) #type: ignore[attr-defined]
+		if mame_msx1.msx1_system is None: #type: ignore[attr-defined]
 			raise EmulationNotSupportedException('No MSX1 driver available')
-		system = mame_msx1.msx1_system
+		system = mame_msx1.msx1_system #type: ignore[attr-defined]
 
 	slot_options = {}
 	if game.metadata.media_type == MediaType.Floppy:
@@ -534,22 +534,22 @@ def mame_msx1(game, _, emulator_config):
 def mame_msx2(game, _, emulator_config):
 	if game.metadata.specific_info.get('Japanese-Only', False):
 		if not hasattr(mame_msx2, 'japanese_msx2_system'):
-			mame_msx2.japanese_msx2_system = first_available_romset(japanese_msx2_drivers + working_msx2plus_drivers)
-		if mame_msx2.japanese_msx2_system is None:
+			mame_msx2.japanese_msx2_system = first_available_romset(japanese_msx2_drivers + working_msx2plus_drivers) #type: ignore[attr-defined]
+		if mame_msx2.japanese_msx2_system is None: #type: ignore[attr-defined]
 			raise EmulationNotSupportedException('No Japanese MSX2 driver available')
-		system = mame_msx2.japanese_msx2_system
+		system = mame_msx2.japanese_msx2_system #type: ignore[attr-defined]
 	elif game.metadata.specific_info.get('Arabic-Only', False):
 		if not hasattr(mame_msx2, 'arabic_msx2_system'):
-			mame_msx2.arabic_msx2_system = first_available_romset(arabic_msx2_drivers)
-		if mame_msx2.arabic_msx2_system is None:
+			mame_msx2.arabic_msx2_system = first_available_romset(arabic_msx2_drivers) #type: ignore[attr-defined]
+		if mame_msx2.arabic_msx2_system is None: #type: ignore[attr-defined]
 			raise EmulationNotSupportedException('No Arabic MSX2 driver available')
-		system = mame_msx2.arabic_msx2_system
+		system = mame_msx2.arabic_msx2_system #type: ignore[attr-defined]
 	else:
 		if not hasattr(mame_msx2, 'msx2_system'):
-			mame_msx2.msx2_system = first_available_romset(working_msx2_drivers + working_msx2plus_drivers)
-		if mame_msx2.msx2_system is None:
+			mame_msx2.msx2_system = first_available_romset(working_msx2_drivers + working_msx2plus_drivers) #type: ignore[attr-defined]
+		if mame_msx2.msx2_system is None: #type: ignore[attr-defined]
 			raise EmulationNotSupportedException('No MSX2 driver available')
-		system = mame_msx2.msx2_system
+		system = mame_msx2.msx2_system #type: ignore[attr-defined]
 
 	slot_options = {}
 	if game.metadata.media_type == MediaType.Floppy:
@@ -566,10 +566,10 @@ def mame_msx2(game, _, emulator_config):
 
 def mame_msx2plus(game, _, emulator_config):
 	if not hasattr(mame_msx2plus, 'msx2plus_system'):
-		mame_msx2plus.msx2plus_system = first_available_romset(working_msx2plus_drivers)
-	if mame_msx2plus.msx2plus_system is None:
+		mame_msx2plus.msx2plus_system = first_available_romset(working_msx2plus_drivers) #type: ignore[attr-defined]
+	if mame_msx2plus.msx2plus_system is None: #type: ignore[attr-defined]
 		raise EmulationNotSupportedException('No MSX2+ driver available')
-	system = mame_msx2plus.msx2plus_system
+	system = mame_msx2plus.msx2plus_system #type: ignore[attr-defined]
 
 	slot_options = {}
 	if game.metadata.media_type == MediaType.Floppy:
@@ -751,9 +751,9 @@ def mame_sharp_x68000(game, _, emulator_config):
 def mame_snes(game, platform_config, emulator_config):
 	if game.rom.extension == 'st':
 		if not hasattr(mame_snes, 'have_sufami_software'):
-			mame_snes.have_sufami_software = _is_software_available('snes', 'sufami')
+			mame_snes.have_sufami_software = _is_software_available('snes', 'sufami') #type: ignore[attr-defined]
 
-		if mame_snes.have_sufami_software:
+		if mame_snes.have_sufami_software: #type: ignore[attr-defined]
 			return mame_driver(game, emulator_config, 'snes', 'cart2', {'cart': 'sufami'})
 
 		bios_path = platform_config.get('sufami_turbo_bios_path', None)
@@ -765,9 +765,9 @@ def mame_snes(game, platform_config, emulator_config):
 
 	if game.rom.extension == 'bs':
 		if not hasattr(mame_snes, 'have_bsx_software'):
-			mame_snes.have_bsx_software = _is_software_available('snes', 'bsxsore')
+			mame_snes.have_bsx_software = _is_software_available('snes', 'bsxsore') #type: ignore[attr-defined]
 
-		if mame_snes.have_bsx_software:
+		if mame_snes.have_bsx_software: #type: ignore[attr-defined]
 			return mame_driver(game, emulator_config, 'snes', 'cart2', {'cart': 'bsxsore'})
 
 		bios_path = platform_config.get('bsx_bios_path', None)
@@ -918,17 +918,17 @@ def mednafen_megadrive(game, _, emulator_config):
 
 def mednafen_nes(game, _, emulator_config):
 	#Mapper 30, 38 aren't in the documentation but they do exist in the source code
-	unsupported_ines_mappers = (14, 20, 27, 28, 29, 31, 35, 36, 39, 43, 50,
+	unsupported_ines_mappers = {14, 20, 27, 28, 29, 31, 35, 36, 39, 43, 50,
 		53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 81, 83, 84, 91, 98, 100,
 		102, 103, 104, 106, 108, 109, 110, 111, 116, 136, 137, 138, 139, 141,
 		142, 143, 181, 183, 186, 187, 188, 191, 192, 211, 212, 213, 214, 216,
 		218, 219, 220, 221, 223, 224, 225, 226, 227, 229, 230, 231, 233, 235,
-		236, 237, 238, 239, 243, 245)
-	unsupported_ines_mappers += tuple(range(120, 133))
-	unsupported_ines_mappers += tuple(range(145, 150))
-	unsupported_ines_mappers += tuple(range(161, 180))
-	unsupported_ines_mappers += tuple(range(194, 206))
-	supported_unif_mappers = ('BTR', 'PNROM', 'PEEOROM', 'TC-U01-1.5M', 'Sachen-8259B', 'Sachen-8259A', 'Sachen-74LS374N', 'SA-016-1M', 'SA-72007', 'SA-72008', 'SA-0036', 'SA-0037', 'H2288', '8237', 'MB-91', 'NINA-06', 'NINA-03', 'NINA-001', 'HKROM', 'EWROM', 'EKROM', 'ELROM', 'ETROM', 'SAROM', 'SBROM', 'SCROM', 'SEROM', 'SGROM', 'SKROM', 'SLROM', 'SL1ROM', 'SNROM', 'SOROM', 'TGROM', 'TR1ROM', 'TEROM', 'TFROM', 'TLROM', 'TKROM', 'TSROM', 'TLSROM', 'TKSROM', 'TQROM', 'TVROM', 'AOROM', 'CPROM', 'CNROM', 'GNROM', 'NROM', 'RROM', 'RROM-128', 'NROM-128', 'NROM-256', 'MHROM', 'UNROM', 'MARIO1-MALEE2', 'Supervision16in1', 'NovelDiamond9999999in1', 'Super24in1SC03', 'BioMiracleA', '603-5052')
+		236, 237, 238, 239, 243, 245}
+	unsupported_ines_mappers.update(range(120, 133))
+	unsupported_ines_mappers.update(range(145, 150))
+	unsupported_ines_mappers.update(range(161, 180))
+	unsupported_ines_mappers.update(range(194, 206))
+	supported_unif_mappers = {'BTR', 'PNROM', 'PEEOROM', 'TC-U01-1.5M', 'Sachen-8259B', 'Sachen-8259A', 'Sachen-74LS374N', 'SA-016-1M', 'SA-72007', 'SA-72008', 'SA-0036', 'SA-0037', 'H2288', '8237', 'MB-91', 'NINA-06', 'NINA-03', 'NINA-001', 'HKROM', 'EWROM', 'EKROM', 'ELROM', 'ETROM', 'SAROM', 'SBROM', 'SCROM', 'SEROM', 'SGROM', 'SKROM', 'SLROM', 'SL1ROM', 'SNROM', 'SOROM', 'TGROM', 'TR1ROM', 'TEROM', 'TFROM', 'TLROM', 'TKROM', 'TSROM', 'TLSROM', 'TKSROM', 'TQROM', 'TVROM', 'AOROM', 'CPROM', 'CNROM', 'GNROM', 'NROM', 'RROM', 'RROM-128', 'NROM-128', 'NROM-256', 'MHROM', 'UNROM', 'MARIO1-MALEE2', 'Supervision16in1', 'NovelDiamond9999999in1', 'Super24in1SC03', 'BioMiracleA', '603-5052'}
 
 	if game.metadata.specific_info.get('Header-Format', None) in {'iNES', 'NES 2.0'}:
 		mapper = game.metadata.specific_info['Mapper-Number']
@@ -1047,9 +1047,9 @@ def a7800(game, _, emulator_config):
 	#There are also a7800u1, a7800u2, a7800pu1, a7800pu2 to change the colour palettes. Maybe that could be an emulator_config option...
 
 	if not hasattr(a7800, 'have_hiscore_software'):
-		a7800.have_hiscore_software = is_highscore_cart_available()
+		a7800.have_hiscore_software = is_highscore_cart_available() #type: ignore[attr-defined]
 
-	if a7800.have_hiscore_software and game.metadata.specific_info.get('Uses-Hiscore-Cart', False):
+	if a7800.have_hiscore_software and game.metadata.specific_info.get('Uses-Hiscore-Cart', False): #type: ignore[attr-defined]
 		args += ['-cart1', 'hiscore', '-cart2', '$<path>']
 	else:
 		args += ['-cart', '$<path>']

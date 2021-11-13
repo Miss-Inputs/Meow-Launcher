@@ -85,7 +85,7 @@ def move_into_extra_subfolder(path: str, desktop: ConfigParser, subfolder: str, 
 			for element in cast(Iterable[str], value):
 				element_subsubfolders.append(sanitize_name(element))
 		else:
-			subsubfolder.append(sanitize_name(value))
+			subsubfolder.append(sanitize_name(cast(str, value)))
 
 		if is_array:
 			#I confused myself while writing this code, I hope it continues to just work and I don't have to touch it again

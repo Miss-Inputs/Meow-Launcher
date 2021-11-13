@@ -2,6 +2,7 @@ import math
 import os
 import re
 import struct
+from typing import Optional
 import zlib
 from collections.abc import Sequence
 
@@ -36,7 +37,8 @@ def parse_cue_sheet(cue_path: str) -> list[tuple[str, int]]:
 			if track_match:
 				current_mode = track_match['mode']
 
-	files.append((current_file, sector_size_from_cue_mode(current_mode)))
+	if current_file and current_mode:
+		files.append((current_file, sector_size_from_cue_mode(current_mode)))
 
 	return files
 
@@ -46,7 +48,7 @@ def sector_size_from_cue_mode(mode: str) -> int:
 	except ValueError:
 		return 0
 
-def get_first_data_cue_track(cue_path: str) -> tuple[str, int]:
+def get_first_data_cue_track(cue_path: str) -> Optional[tuple[str, int]]:
 	cue_files = [(f, sector_size) for f, sector_size in parse_cue_sheet(cue_path) if sector_size]
 	if not cue_files:
 		#The disc probably won't work, but I'll burn that bridge when it happens

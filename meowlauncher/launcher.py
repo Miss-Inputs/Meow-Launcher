@@ -39,10 +39,10 @@ class LaunchCommand():
 	def replace_path_argument(self, path: str) -> 'LaunchCommand':
 		return LaunchCommand(self.exe_name, [arg.replace('$<path>', path) for arg in self.exe_args], self.env_vars)
 
-	def set_env_var(self, k: str, v: str):
+	def set_env_var(self, k: str, v: str) -> None:
 		self.env_vars[k] = v
 
-def get_wine_launch_params(exe_path: str, exe_args: Iterable[str], working_directory: Optional[str]=None):
+def get_wine_launch_params(exe_path: str, exe_args: Iterable[str], working_directory: Optional[str]=None) -> LaunchCommand:
 	#TODO: Migrate to default_runners
 	env_vars = None
 	if main_config.wineprefix:
@@ -78,7 +78,7 @@ class MultiLaunchCommands(LaunchCommand):
 	def replace_path_argument(self, path: str) -> LaunchCommand:
 		return MultiLaunchCommands(self.pre_commands, self.main_command.replace_path_argument(path), self.post_commands)
 	
-	def set_env_var(self, k: str, v: str):
+	def set_env_var(self, k: str, v: str) -> None:
 		self.main_command.env_vars[k] = v
 
 class Launcher(ABC):

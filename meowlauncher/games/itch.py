@@ -22,7 +22,7 @@ def find_butler() -> Optional[str]:
 	butler_folder = os.path.expanduser('~/.config/itch/broth/butler')
 	chosen_version = os.path.join(butler_folder, '.chosen-version')
 	try:
-		with open(chosen_version, 'rt') as f:
+		with open(chosen_version, 'rt', encoding='utf-8') as f:
 			version = f.read()
 			return os.path.join(butler_folder, 'versions', version, 'butler')
 	except FileNotFoundError:
@@ -201,6 +201,9 @@ class ItchGame():
 		metadata.specific_info['Executable-Type'] = flavour
 		#This shouldn't really happen, but sometimes the platform field in upload in the receipt is inaccurate
 		#Pretend Mac doesn't exist
+		if not flavour:
+			print('dang this got no flavour', self.path) #I don't think this happens
+			return
 		if flavour in {'script', 'linux'}:
 			metadata.platform = 'Linux'
 		elif flavour.startswith('windows'):
