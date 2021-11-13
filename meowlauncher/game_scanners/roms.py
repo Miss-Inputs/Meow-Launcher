@@ -254,17 +254,3 @@ def process_platforms() -> None:
 	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('All standard emulated platforms finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-
-def main() -> None:
-	if len(sys.argv) >= 2 and '--platforms' in sys.argv:
-		arg_index = sys.argv.index('--platforms')
-		if len(sys.argv) == 2:
-			print('--platforms requires an argument')
-			return
-
-		platform_list = sys.argv[arg_index + 1].split(',')
-		for platform_name in platform_list:
-			process_platform(platform_configs[platform_name])
-		return
-
-	process_platforms()

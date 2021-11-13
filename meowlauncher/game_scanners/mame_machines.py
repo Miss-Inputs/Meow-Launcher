@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import datetime
-import sys
 import time
 
 from meowlauncher import desktop_launchers, launcher
@@ -11,8 +10,8 @@ from meowlauncher.data.machines_with_inbuilt_games import (
     bioses_with_inbuilt_games, machines_with_inbuilt_games)
 from meowlauncher.games.mame.mame_game import MAMEGame
 from meowlauncher.games.mame.mame_metadata import add_metadata, add_status
-from meowlauncher.games.mame_common.machine import (
-    Machine, get_machine, get_machines_from_source_file, iter_machines)
+from meowlauncher.games.mame_common.machine import (Machine, get_machine,
+                                                    iter_machines)
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.info import emulator_command_line_helpers
 from meowlauncher.metadata import Metadata
@@ -157,33 +156,3 @@ def process_arcade() -> None:
 	if main_config.print_times:
 		time_ended = time.perf_counter()
 		print('Machines with inbuilt games finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
-
-def main() -> None:
-	if '--drivers' in sys.argv:
-		arg_index = sys.argv.index('--drivers')
-		if len(sys.argv) == 2:
-			print('--drivers requires an argument')
-			return
-
-		driver_list = sys.argv[arg_index + 1].split(',')
-		for driver_name in driver_list:
-			process_machine(get_machine(driver_name, default_mame_executable))
-		return 
-	if '--source-file' in sys.argv:
-		arg_index = sys.argv.index('--source-file')
-		if len(sys.argv) == 2:
-			print('--source-file requires an argument')
-			return
-
-		source_file = sys.argv[arg_index + 1]
-		for machine in get_machines_from_source_file(source_file, default_mame_executable):
-			if not is_actually_machine(machine):
-				continue
-			if not is_machine_launchable(machine):
-				continue
-			if not default_mame_executable.verifyroms(machine.basename):
-				continue
-			process_machine(machine)
-		return
-
-	process_arcade()
