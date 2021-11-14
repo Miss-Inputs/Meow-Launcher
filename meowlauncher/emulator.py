@@ -1,12 +1,12 @@
 import os
-from typing import Any, NoReturn, Optional
 from collections.abc import Callable
+from typing import Any, NoReturn, Optional
 
 from meowlauncher.common_types import (ConfigValueType, EmulatorPlatform,
                                        EmulatorStatus)
-from meowlauncher.config.emulator_config_type import (EmulatorConfig,
-                                                      EmulatorConfigValue)
 from meowlauncher.config.main_config import main_config
+from meowlauncher.config.runner_config import (EmulatorConfig,
+                                               EmulatorConfigValue)
 from meowlauncher.launcher import (LaunchCommand, MultiLaunchCommands,
                                    get_wine_launch_params)
 from meowlauncher.runner import Runner

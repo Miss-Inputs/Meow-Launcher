@@ -11,7 +11,7 @@ class _Wine(Runner):
 
 	@property
 	def is_emulated(self) -> bool:
-		return True
+		return True #Yeah, I know… I just think it makes more sene to call it one
 
 	#TODO: We should do something with this
 	def get_wine_launch_params(self, exe_path: str, exe_args: Iterable[str], working_directory: Optional[str]=None) -> LaunchCommand:

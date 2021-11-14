@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 from typing import Any, Optional, final
 
 from meowlauncher.common_types import MediaType
-from meowlauncher.config.emulator_config_type import EmulatorConfig
 from meowlauncher.config.platform_config import PlatformConfig
+from meowlauncher.config.runner_config import EmulatorConfig
 from meowlauncher.emulated_game import EmulatedGame, EmulatorLauncher
 from meowlauncher.emulator import PCEmulator
 from meowlauncher.games.common.name_utils import fix_name

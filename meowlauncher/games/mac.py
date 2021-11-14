@@ -21,11 +21,10 @@ try:
 except ImportError:
 	have_pillow = False
 
-from meowlauncher.config.emulator_config_type import EmulatorConfig
-from meowlauncher.config.platform_config import PlatformConfig
-from meowlauncher.emulator import PCEmulator
-
 from meowlauncher.config.main_config import main_config
+from meowlauncher.config.platform_config import PlatformConfig
+from meowlauncher.config.runner_config import EmulatorConfig
+from meowlauncher.emulator import PCEmulator
 from meowlauncher.metadata import Date
 from meowlauncher.util.utils import format_byte_size
 

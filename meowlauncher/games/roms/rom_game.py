@@ -2,8 +2,8 @@ import os
 import tempfile
 from typing import Optional, cast
 
-from meowlauncher.config.emulator_config_type import EmulatorConfig
 from meowlauncher.config.platform_config import PlatformConfig
+from meowlauncher.config.runner_config import EmulatorConfig
 from meowlauncher.emulated_game import EmulatedGame, EmulatorLauncher
 from meowlauncher.emulated_platform import EmulatedPlatform
 from meowlauncher.emulator import StandardEmulator

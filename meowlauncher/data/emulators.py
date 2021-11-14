@@ -2,14 +2,15 @@ from typing import Union
 
 import meowlauncher.info.emulator_command_lines as command_lines
 from meowlauncher.common_types import ConfigValueType
-from meowlauncher.config.emulator_config_type import EmulatorConfigValue
+from meowlauncher.config.runner_config import EmulatorConfigValue
 from meowlauncher.emulator import (Emulator, EmulatorPlatform, EmulatorStatus,
                                    LibretroCore, LibretroFrontend, MameDriver,
                                    MednafenModule, PCEmulator,
                                    StandardEmulator, ViceEmulator)
 from meowlauncher.info.emulator_command_line_helpers import (
-    SimpleMednafenModule, simple_emulator, simple_gb_emulator, simple_mame_driver,
-    simple_md_emulator)
+    SimpleMednafenModule, simple_emulator, simple_gb_emulator,
+    simple_mame_driver, simple_md_emulator)
+from meowlauncher.launcher import rom_path_argument
 
 from .format_info import (atari_2600_cartridge_extensions,
                           generic_cart_extensions, mame_cdrom_formats,
@@ -35,11 +36,11 @@ _standalone_emulators = [
 		'compatibility_threshold': EmulatorConfigValue(ConfigValueType.Integer, 2, "Don't try and launch any game with this compatibility rating or lower"),
 		'consider_unknown_games_incompatible': EmulatorConfigValue(ConfigValueType.Bool, False, "Consider games incompatible if they aren't in the compatibility database at all")
 	}),
-	StandardEmulator('Flycast', EmulatorStatus.Good, 'flycast', simple_emulator(['-config', 'window:fullscreen=yes', '$<path>']), ['gdi', 'cdi', 'chd', 'cue'], []),
+	StandardEmulator('Flycast', EmulatorStatus.Good, 'flycast', simple_emulator(['-config', 'window:fullscreen=yes', rom_path_argument]), ['gdi', 'cdi', 'chd', 'cue'], []),
 	StandardEmulator('FS-UAE', EmulatorStatus.Good, 'fs-uae', command_lines.fs_uae, ['iso', 'cue', 'adf', 'ipf']),
 	#Note that .ipf files need a separately downloadable plugin. We could detect the presence of that, I guess
 	StandardEmulator('Gambatte', EmulatorStatus.Good, 'gambatte_qt', 
-	simple_gb_emulator(['--full-screen', '$<path>'], ['MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5'], ['MBC1 Multicart']), ['gb', 'gbc'], ['zip']),
+	simple_gb_emulator(['--full-screen', rom_path_argument], ['MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5'], ['MBC1 Multicart']), ['gb', 'gbc'], ['zip']),
 	#--gba-cgb-mode[=0] and --force-dmg-mode[=0] may be useful in obscure situations, but that would probably require a specific thing that notes some GBC games are incompatible with GBA mode (Pocket Music) or GB incompatible with GBC (R-Type, also Pocket Sonar but that wouldn't work anyway)
 	#I guess MBC1 Multicart only works if you tick the "Multicart compatibility" box
 	#MMM01 technically works but only boots the first game instead of the menu, so it doesn't really work work
@@ -47,7 +48,7 @@ _standalone_emulators = [
 	#In theory, only this should support Pocket Sonar (so far), but there's not really a way to detect that since it just claims to be MBC1 in the header...
 	#Also in theory recognizes any extension and assumes Game Boy if not .gba or .nds, but that would be screwy
 	StandardEmulator('Kega Fusion', EmulatorStatus.Good, 'kega-fusion', 
-	simple_md_emulator(['-fullscreen', '$<path>'], ['aqlian', 'sf002', 'sf004', 'smw64', 'topf', 'kof99', 'cjmjclub', 'pokestad', 'soulb', 'chinf3']), 
+	simple_md_emulator(['-fullscreen', rom_path_argument], ['aqlian', 'sf002', 'sf004', 'smw64', 'topf', 'kof99', 'cjmjclub', 'pokestad', 'soulb', 'chinf3']), 
 	['bin', 'gen', 'md', 'smd', 'sgd', 'gg', 'sms', 'iso', 'cue', 'sg', 'sc', '32x'], ['zip']),
 	#rom_kof99: Pocket Monsters does work (game-specific hack, probably?), which is why in platform_metadata/megadrive I've treated it specially and called it rom_kof99_pokemon
 	#May support other CD formats for Mega CD other than iso, cue? Because it's closed source, can't really have a look, but I'm just going to presume it's only those two
@@ -57,16 +58,16 @@ _standalone_emulators = [
 	StandardEmulator('Mupen64Plus', EmulatorStatus.Good, 'mupen64plus', command_lines.mupen64plus, ['z64', 'v64', 'n64'], []),
 	StandardEmulator('PCSX2', EmulatorStatus.Good, 'PCSX2', command_lines.pcsx2, ['iso', 'cso', 'bin', 'elf', 'irx', 'chd'], ['gz']),
 	#Only reads the bin of bin/cues and not the cue
-	StandardEmulator('Pico-8', EmulatorStatus.Good, 'pico8', simple_emulator(['-windowed', '0', '-run', '$<path>']), ['p8', 'p8.png'], []),
+	StandardEmulator('Pico-8', EmulatorStatus.Good, 'pico8', simple_emulator(['-windowed', '0', '-run', rom_path_argument]), ['p8', 'p8.png'], []),
 	StandardEmulator('PokeMini', EmulatorStatus.Good, 'PokeMini', command_lines.pokemini, ['min'], ['zip']), #Normally just puts the config files in the current directory, so this cd's to ~/.config/PokeMini first
 	StandardEmulator('PPSSPP', EmulatorStatus.Good, 'ppsspp-qt', command_lines.ppsspp, ['iso', 'pbp', 'cso']),
 	StandardEmulator('Reicast', EmulatorStatus.Good, 'reicast', command_lines.reicast, ['gdi', 'cdi', 'chd']),
 	StandardEmulator('Ruffle', EmulatorStatus.Imperfect, 'ruffle', simple_emulator(), ['swf']),
 	#No way to start off in fullscreen…
-	StandardEmulator('SimCoupe', EmulatorStatus.Good, 'simcoupe', simple_emulator(['-fullscreen', 'yes', '$<path>']), ['mgt', 'sad', 'dsk', 'sbt'], ['zip', 'gz']),
+	StandardEmulator('SimCoupe', EmulatorStatus.Good, 'simcoupe', simple_emulator(['-fullscreen', 'yes', rom_path_argument]), ['mgt', 'sad', 'dsk', 'sbt'], ['zip', 'gz']),
 	StandardEmulator('Snes9x', EmulatorStatus.Good, 'snes9x-gtk', command_lines.snes9x, ['sfc', 'smc', 'swc'], ['zip', 'gz']),
 	#Can't set fullscreen mode from the command line so you have to set up that yourself (but it will do that automatically); GTK port can't do Sufami Turbo or Satellaview from command line due to lacking multi-cart support that Windows has (Unix non-GTK doesn't like being in fullscreen etc)
-	StandardEmulator('Stella', EmulatorStatus.Good, 'stella', simple_emulator(['-fullscreen', '1', '$<path>']), ['a26', 'bin', 'rom'] + atari_2600_cartridge_extensions, ['gz', 'zip']),
+	StandardEmulator('Stella', EmulatorStatus.Good, 'stella', simple_emulator(['-fullscreen', '1', rom_path_argument]), ['a26', 'bin', 'rom'] + atari_2600_cartridge_extensions, ['gz', 'zip']),
 	StandardEmulator('PrBoom+', EmulatorStatus.Imperfect, 'prboom-plus', command_lines.prboom_plus, ['wad']),
 	#Joystick support not so great, otherwise it plays perfectly well with keyboard + mouse; except the other issue where it doesn't really like running in fullscreen when more than one monitor is around (to be precise, it stops that second monitor updating). Can I maybe utilize some kind of wrapper?  I guess it's okay because it's not like I don't have a mouse and keyboard though the multi-monitor thing really is not okay
 
@@ -460,7 +461,7 @@ for libretro_core in _libretro_cores:
 	emulators[libretro_core.name + ' (libretro)'] = libretro_core
 
 pc_emulators = {
-	emu.name: emu for emu in [
+	emu.name: emu for emu in (
 	PCEmulator('BasiliskII', EmulatorStatus.Janky, 'BasiliskII', command_lines.basilisk_ii, {
 		'skip_if_ppc_enhanced': EmulatorConfigValue(ConfigValueType.Bool, False, 'If the app has ppc_enhanced = true in its config ie. it performs better or has some extra functionality on PPC, do not use BasiliskII for it')
 	}),
@@ -471,12 +472,12 @@ pc_emulators = {
 		'overlay_path': EmulatorConfigValue(ConfigValueType.FolderPath, None, 'If set to something, use a subfolder of this path as an overlay so save games etc are written there'),
 	}),
 	PCEmulator('DOSBox-X', EmulatorStatus.Good, 'dosbox-x', command_lines.dosbox_x)
-]}
+)}
 
 libretro_frontends = {
-	frontend.name: frontend for frontend in [
+	frontend.name: frontend for frontend in (
 	LibretroFrontend('RetroArch', EmulatorStatus.Good, 'retroarch', command_lines.retroarch, ['7z', 'zip']),
-]}
+)}
 
 all_emulators: dict[str, Emulator] = {}
 all_emulators.update(emulators)

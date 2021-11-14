@@ -1,6 +1,6 @@
 import os
-from typing import Optional
 from collections.abc import Iterable, Mapping
+from typing import Optional
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        EmulationStatus, EmulatorStatus)
@@ -9,7 +9,7 @@ from meowlauncher.games.mame_common.mame_helpers import (have_mame,
                                                          verify_romset)
 from meowlauncher.games.mame_common.software_list_info import \
     get_software_list_by_name
-from meowlauncher.launcher import LaunchCommand
+from meowlauncher.launcher import LaunchCommand, rom_path_argument
 
 
 def _get_autoboot_script_by_name(name: str) -> str:
@@ -60,9 +60,11 @@ def _is_software_available(software_list_name: str, software_name: str) -> bool:
 def is_highscore_cart_available() -> bool:
 	return _is_software_available('a7800', 'hiscore')
 	#FIXME: This is potentially wrong for A7800, where the software directory could be different than MAME... I've just decided to assume it's set up that way
+	#I truck an idea that might work! If we rewrite all this to take a MAME executable, and everything related to MameDriver is like that… maybe we can make everything take an option to use default_mame_executable or something else, and that may all work out
+
 
 def mednafen_module(module: str, exe_path: str='mednafen') -> LaunchCommand:
-	return LaunchCommand(exe_path, ['-video.fs', '1', '-force_module', module, '$<path>'])
+	return LaunchCommand(exe_path, ['-video.fs', '1', '-force_module', module, rom_path_argument])
 
 def mame_base(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard: bool=False, autoboot_script: Optional[str]=None, software: Optional[str]=None, bios: Optional[str]=None) -> list[str]:
 	args = ['-skip_gameinfo']
@@ -86,7 +88,7 @@ def mame_base(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapp
 
 	if slot:
 		args.append('-' + slot)
-		args.append('$<path>')
+		args.append(rom_path_argument)
 
 	if autoboot_script:
 		args.append('-autoboot_script')
@@ -119,7 +121,7 @@ def first_available_romset(driver_list: Iterable[str]) -> Optional[str]:
 #This is here to make things simpler, instead of putting a whole new function in emulator_command_lines we can return the appropriate function from here
 def simple_emulator(args: Optional[list[str]]=None) -> LaunchParamsFunc:
 	def inner(_, __, emulator_config):
-		return LaunchCommand(emulator_config.exe_path, args if args else ['$<path>'])
+		return LaunchCommand(emulator_config.exe_path, args if args else [rom_path_argument])
 	return inner
 
 def simple_gb_emulator(args, mappers: Iterable[str], autodetected_mappers: Iterable[str]):

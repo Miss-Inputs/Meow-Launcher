@@ -7,7 +7,7 @@ from meowlauncher.data.emulators import all_emulators
 from meowlauncher.util.io_utils import ensure_exist
 
 from ._config_utils import parse_value
-from .emulator_config_type import EmulatorConfig
+from .runner_config import EmulatorConfig
 
 _emulator_config_path = os.path.join(config_dir, 'emulators.ini')
 
