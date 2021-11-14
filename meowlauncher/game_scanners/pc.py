@@ -15,6 +15,7 @@ from meowlauncher.data.emulated_platforms import pc_platforms
 from meowlauncher.data.emulators import pc_emulators
 from meowlauncher.desktop_launchers import make_linux_desktop_for_launcher
 from meowlauncher.games.pc import App, AppLauncher
+from meowlauncher.configured_emulator import ConfiguredEmulator
 
 
 def get_launcher(app: App, launcher_type: type[AppLauncher], platform_config: PlatformConfig) -> Optional[AppLauncher]:
@@ -31,9 +32,10 @@ def get_launcher(app: App, launcher_type: type[AppLauncher], platform_config: Pl
 			if 'compat' in app.info:
 				if not app.info['compat'].get(potential_emulator_name, True):
 					raise EmulationNotSupportedException('Apparently not supported')
-			params = pc_emulators[potential_emulator_name].get_launch_params(app, platform_config.options, emulator_config)
-			if params:
-				emulator = pc_emulators[potential_emulator_name]
+			potential_emulator = ConfiguredEmulator(pc_emulators[potential_emulator_name], emulator_config)
+			command = potential_emulator.get_launch_command_for_game(app, platform_config.options)
+			if command:
+				emulator = potential_emulator
 				break
 		except (EmulationNotSupportedException, NotARomException) as ex:
 			exception_reason = ex
@@ -43,7 +45,7 @@ def get_launcher(app: App, launcher_type: type[AppLauncher], platform_config: Pl
 			print(app.path, 'could not be launched by', platform_config.chosen_emulators, 'because', exception_reason)
 		return None
 
-	return launcher_type(app, emulator, platform_config, emulator_config)
+	return launcher_type(app, emulator, platform_config)
 
 def process_app(app_info: dict[str, Any], app_class: type[App], launcher_class: type[AppLauncher], platform_config: PlatformConfig) -> None:
 	app = app_class(app_info)
@@ -53,7 +55,6 @@ def process_app(app_info: dict[str, Any], app_class: type[App], launcher_class: 
 			return
 		app.metadata.platform = platform_config.name #TODO This logic shouldn't be here
 		app.add_metadata()
-		#app.make_launcher(platform_config)
 		launcher = get_launcher(app, launcher_class, platform_config)
 		if launcher:
 			make_linux_desktop_for_launcher(launcher)

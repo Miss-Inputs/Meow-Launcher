@@ -3,12 +3,12 @@ import tempfile
 from typing import Optional, cast
 
 from meowlauncher.config.platform_config import PlatformConfig
-from meowlauncher.config.runner_config import EmulatorConfig
-from meowlauncher.emulated_game import EmulatedGame, EmulatorLauncher
+from meowlauncher.configured_emulator import ConfiguredStandardEmulator
+from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulated_platform import EmulatedPlatform
-from meowlauncher.emulator import StandardEmulator
+from meowlauncher.emulator_launcher import EmulatorLauncher
 from meowlauncher.games.mame_common.software_list import SoftwareList
-from meowlauncher.launcher import LaunchCommand
+from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.util.io_utils import make_filename
 
 from .rom import ROM, CompressedROM, FileROM
@@ -36,12 +36,10 @@ class ROMGame(EmulatedGame):
 		return name
 
 class ROMLauncher(EmulatorLauncher):
-	def __init__(self, game: ROMGame, emulator: StandardEmulator, platform_config: PlatformConfig, emulator_config: EmulatorConfig) -> None:
+	def __init__(self, game: ROMGame, emulator: ConfiguredStandardEmulator, platform_config: PlatformConfig) -> None:
 		self.game: ROMGame = game
-		self.runner: StandardEmulator = emulator
-		super().__init__(game, emulator)
-		self.platform_config = platform_config
-		self.emulator_config = emulator_config
+		self.runner: ConfiguredStandardEmulator = emulator
+		super().__init__(game, emulator, platform_config.options)
 
 	@property
 	def game_type(self) -> str:
@@ -53,16 +51,16 @@ class ROMLauncher(EmulatorLauncher):
 
 	def get_launch_command(self) -> LaunchCommand:
 		#TODO: Ideally EmulatorLauncher would do something useful with self.runner and then we call super() but that also needs refactoring
-		params = self.runner.get_launch_params(self.game, self.platform_config.options, self.emulator_config)
+		command = super().get_launch_command()
 		if self.game.rom.is_compressed:
 			rom = cast(CompressedROM, self.game.rom)
-			if rom.extension not in self.runner.supported_compression:
+			if not self.runner.supports_compressed_extension(rom.extension):
 				temp_extraction_folder = os.path.join(tempfile.gettempdir(), 'meow-launcher-' + make_filename(self.game.name))
 
 				extracted_path = os.path.join(temp_extraction_folder, rom.inner_filename)
-				params = params.replace_path_argument(extracted_path)
-				params = params.prepend_command(LaunchCommand('7z', ['x', '-o' + temp_extraction_folder, str(self.game.rom.path)]))
-				params = params.append_command(LaunchCommand('rm', ['-rf', temp_extraction_folder]))
+				command = command.replace_path_argument(extracted_path)
+				command = command.prepend_command(LaunchCommand('7z', ['x', '-o' + temp_extraction_folder, str(self.game.rom.path)]))
+				command = command.append_command(LaunchCommand('rm', ['-rf', temp_extraction_folder]))
 		else:
-			params = params.replace_path_argument(str(self.game.rom.path))
-		return params
+			command = command.replace_path_argument(str(self.game.rom.path))
+		return command

@@ -1,13 +1,14 @@
 import configparser
 import os
+from typing import Optional
 
 from meowlauncher.common_paths import config_dir
 from meowlauncher.common_types import ConfigValueType
 from meowlauncher.data.emulators import all_emulators
+from meowlauncher.runner_config import EmulatorConfig
 from meowlauncher.util.io_utils import ensure_exist
 
 from ._config_utils import parse_value
-from .runner_config import EmulatorConfig
 
 _emulator_config_path = os.path.join(config_dir, 'emulators.ini')
 
@@ -26,16 +27,19 @@ class EmulatorConfigs():
 
 			for name, emulator in all_emulators.items():
 				#Every emulator will need its own entry in this dict
-				self.configs[name] = EmulatorConfig(name)
+				exe_path: Optional[str]
+				options = {}
+
 				if name in parser:
 					section = parser[name]
-					self.configs[name].exe_path = parse_value(section, 'path', ConfigValueType.String, emulator.default_exe_name)
+					exe_path = parse_value(section, 'path', ConfigValueType.String, emulator.default_exe_name)
 					for k, v in emulator.configs.items():
-						self.configs[name].options[k] = parse_value(section, k, v.type, v.default_value)
+						options[k] = parse_value(section, k, v.type, v.default_value)
 				else:
-					self.configs[name].exe_path = emulator.default_exe_name
+					exe_path = emulator.default_exe_name
 					for k, v in emulator.configs.items():
-						self.configs[name].options[k] = v.default_value
+						options[k] = v.default_value
+				self.configs[name] = EmulatorConfig(exe_path, options)
 
 	__instance = None
 

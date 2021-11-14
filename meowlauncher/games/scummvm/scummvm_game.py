@@ -6,7 +6,8 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.game import Game
 from meowlauncher.games.common.pc_common_metadata import \
     look_for_icon_in_folder
-from meowlauncher.launcher import LaunchCommand, Launcher
+from meowlauncher.launch_command import LaunchCommand
+from meowlauncher.launcher import Launcher
 from meowlauncher.runner import Runner
 from meowlauncher.util.region_info import get_language_by_short_code
 

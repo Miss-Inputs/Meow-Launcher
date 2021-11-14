@@ -23,8 +23,7 @@ except ImportError:
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import PlatformConfig
-from meowlauncher.config.runner_config import EmulatorConfig
-from meowlauncher.emulator import PCEmulator
+from meowlauncher.configured_emulator import ConfiguredEmulator
 from meowlauncher.metadata import Date
 from meowlauncher.util.utils import format_byte_size
 
@@ -455,9 +454,9 @@ class MacApp(App):
 			self.metadata.specific_info['Architecture'] = self.info['arch']
 				
 class MacLauncher(AppLauncher):
-	def __init__(self, app: MacApp, emulator: PCEmulator, platform_config: PlatformConfig, emulator_config: EmulatorConfig) -> None:
+	def __init__(self, app: MacApp, emulator: ConfiguredEmulator, platform_config: PlatformConfig) -> None:
 		self.game: MacApp = app
-		super().__init__(app, emulator, platform_config, emulator_config)
+		super().__init__(app, emulator, platform_config)
 
 	@property
 	def game_id(self) -> str:

@@ -4,12 +4,12 @@ from typing import Optional
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        EmulationStatus, EmulatorStatus)
-from meowlauncher.emulator import LaunchParamsFunc, MednafenModule
+from meowlauncher.emulator import LaunchCommandFunc, MednafenModule
 from meowlauncher.games.mame_common.mame_helpers import (have_mame,
                                                          verify_romset)
 from meowlauncher.games.mame_common.software_list_info import \
     get_software_list_by_name
-from meowlauncher.launcher import LaunchCommand, rom_path_argument
+from meowlauncher.launch_command import LaunchCommand, rom_path_argument
 
 
 def _get_autoboot_script_by_name(name: str) -> str:
@@ -119,7 +119,7 @@ def first_available_romset(driver_list: Iterable[str]) -> Optional[str]:
 	return None
 
 #This is here to make things simpler, instead of putting a whole new function in emulator_command_lines we can return the appropriate function from here
-def simple_emulator(args: Optional[list[str]]=None) -> LaunchParamsFunc:
+def simple_emulator(args: Optional[list[str]]=None) -> LaunchCommandFunc:
 	def inner(_, __, emulator_config):
 		return LaunchCommand(emulator_config.exe_path, args if args else [rom_path_argument])
 	return inner
@@ -130,7 +130,7 @@ def simple_gb_emulator(args, mappers: Iterable[str], autodetected_mappers: Itera
 		return LaunchCommand(emulator_config.exe_path, args)
 	return inner
 
-def simple_md_emulator(args: list[str], unsupported_mappers: Iterable[str]) -> LaunchParamsFunc:
+def simple_md_emulator(args: list[str], unsupported_mappers: Iterable[str]) -> LaunchCommandFunc:
 	def inner(game, _, emulator_config):
 		mapper = game.metadata.specific_info.get('Mapper')
 		if mapper in unsupported_mappers:
@@ -138,12 +138,12 @@ def simple_md_emulator(args: list[str], unsupported_mappers: Iterable[str]) -> L
 		return LaunchCommand(emulator_config.exe_path, args)
 	return inner
 
-def simple_mame_driver(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard=False, autoboot_script=None) -> LaunchParamsFunc:
+def simple_mame_driver(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard=False, autoboot_script=None) -> LaunchCommandFunc:
 	def inner(game, _, emulator_config):
 		return mame_driver(game, emulator_config, driver, slot, slot_options, has_keyboard, autoboot_script)
 	return inner
 
-def simple_mednafen_module_args(module: str) -> LaunchParamsFunc:
+def simple_mednafen_module_args(module: str) -> LaunchCommandFunc:
 	def inner(_, __, emulator_config):
 		return mednafen_module(module, exe_path=emulator_config.exe_path)
 	return inner

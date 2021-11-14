@@ -4,11 +4,10 @@ from typing import Any, Optional, final
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.platform_config import PlatformConfig
-from meowlauncher.config.runner_config import EmulatorConfig
-from meowlauncher.emulated_game import EmulatedGame, EmulatorLauncher
-from meowlauncher.emulator import PCEmulator
+from meowlauncher.configured_emulator import ConfiguredEmulator
+from meowlauncher.emulated_game import EmulatedGame
+from meowlauncher.emulator_launcher import EmulatorLauncher
 from meowlauncher.games.common.name_utils import fix_name
-from meowlauncher.launcher import LaunchCommand
 from meowlauncher.metadata import Date
 
 
@@ -78,13 +77,11 @@ class App(EmulatedGame, ABC):
 		pass
 
 class AppLauncher(EmulatorLauncher):
-	def __init__(self, app: App, emulator: PCEmulator, platform_config: PlatformConfig, emulator_config: EmulatorConfig) -> None:
+	def __init__(self, app: App, emulator: ConfiguredEmulator, platform_config: PlatformConfig) -> None:
 		self.game: App = app
-		self.runner: PCEmulator = emulator
-		super().__init__(app, emulator)
-		self.platform_config = platform_config
-		self.emulator_config = emulator_config
-
+		self.platform = platform_config.name
+		super().__init__(app, emulator, platform_config.options)
+		
 	@property
 	#Could do as a default, or maybe you should override it
 	def game_id(self) -> str:
@@ -93,7 +90,4 @@ class AppLauncher(EmulatorLauncher):
 	@final
 	@property
 	def game_type(self) -> str:
-		return self.platform_config.name
-
-	def get_launch_command(self) -> LaunchCommand:
-		return self.runner.get_launch_params(self.game, self.platform_config.options, self.emulator_config)
+		return self.platform

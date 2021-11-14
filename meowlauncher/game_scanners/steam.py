@@ -21,7 +21,7 @@ from meowlauncher.games.common.engine_detect import detect_engine_recursively
 from meowlauncher.games.common.name_utils import fix_name, normalize_name_case
 from meowlauncher.games.common.pc_common_metadata import (
     add_metadata_for_raw_exe, check_for_interesting_things_in_folder)
-from meowlauncher.launcher import LaunchCommand
+from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.region_info import (Language,
                                            get_language_by_english_name)

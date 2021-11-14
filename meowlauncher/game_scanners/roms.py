@@ -17,11 +17,13 @@ from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import (PlatformConfig,
                                                  platform_configs)
+from meowlauncher.configured_emulator import (ConfiguredStandardEmulator,
+                                              LibretroCoreWithFrontend)
 from meowlauncher.data.emulated_platforms import platforms
-from meowlauncher.data.emulators import emulators, libretro_frontends
+from meowlauncher.data.emulators import (emulators, libretro_cores,
+                                         libretro_frontends)
 from meowlauncher.desktop_launchers import (has_been_done,
                                             make_linux_desktop_for_launcher)
-from meowlauncher.emulator import LibretroCore, LibretroCoreWithFrontend
 from meowlauncher.games.roms.platform_specific.roms_folders import \
     folder_checks
 from meowlauncher.games.roms.rom import ROM, FileROM, FolderROM, rom_file
@@ -44,18 +46,7 @@ def process_file(platform_config: PlatformConfig, potential_emulator_names: Iter
 			return None
 		game.subroms = [rom_file(str(referenced_file)) for referenced_file in filenames]
 
-	have_emulator_that_supports_extension = False
-	for potential_emulator_name in potential_emulator_names:
-		potential_emulator = emulators[potential_emulator_name]
-		potential_emulator_config = emulator_configs[potential_emulator_name]
-		if rom.is_folder:
-			if potential_emulator.supports_folders:
-				have_emulator_that_supports_extension = True
-				break
-		elif rom.extension in potential_emulator.supported_extensions:
-			have_emulator_that_supports_extension = True
-	if not have_emulator_that_supports_extension:
-		return None
+	#TODO: We used to have a check here that we actually have anything in potential_emulator_names that supported the game before we added metadata, to save performance, but it got confusing in refactoring and had duplicated code… maybe we should do something like that again
 			
 	game.filename_tags = find_filename_tags_at_end(game.rom.name)
 	if subfolders and subfolders[-1] == game.rom.name:
@@ -65,7 +56,7 @@ def process_file(platform_config: PlatformConfig, potential_emulator_names: Iter
 		
 	add_metadata(game)
 
-	if not game.metadata.categories:
+	if not game.metadata.categories and game.metadata.platform:
 		game.metadata.categories = [game.metadata.platform]
 
 	exception_reason = None
@@ -73,21 +64,25 @@ def process_file(platform_config: PlatformConfig, potential_emulator_names: Iter
 
 	for potential_emulator_name in potential_emulator_names:
 		try:
-			potential_emulator = emulators[potential_emulator_name]
 			potential_emulator_config = emulator_configs[potential_emulator_name]
-			if isinstance(potential_emulator, LibretroCore):
+			potential_emulator: ConfiguredStandardEmulator
+			if potential_emulator_name in libretro_cores:
+				potential_core = libretro_cores[potential_emulator_name]
 				if not main_config.libretro_frontend:
 					raise EmulationNotSupportedException('Must choose a frontend to run libretro cores')
 				frontend_config = emulator_configs[main_config.libretro_frontend]
 				frontend = libretro_frontends[main_config.libretro_frontend]
-				potential_emulator = LibretroCoreWithFrontend(potential_emulator, frontend, frontend_config)
+				potential_emulator = LibretroCoreWithFrontend(potential_core, potential_emulator_config, frontend, frontend_config)
+			else:
+				potential_emulator_info = emulators[potential_emulator_name]
+				potential_emulator = ConfiguredStandardEmulator(potential_emulator_info, potential_emulator_config)
 
 			if rom.is_folder and not potential_emulator.supports_folders:
 				raise ExtensionNotSupportedException('{0} does not support folders'.format(potential_emulator))
-			if not rom.is_folder and rom.extension not in potential_emulator.supported_extensions:
+			if not rom.is_folder and not potential_emulator.supports_extension(rom.extension):
 				raise ExtensionNotSupportedException('{0} does not support {1} extension'.format(potential_emulator, rom.extension))
 
-			potential_launcher = ROMLauncher(game, potential_emulator, platform_config, potential_emulator_config)
+			potential_launcher = ROMLauncher(game, potential_emulator, platform_config)
 			params = potential_launcher.get_launch_command() #We need to test each one for EmulationNotSupportedException… what's the maybe better way to do this, since we call get_launch_command again and that sucks
 			if params:
 				launcher = potential_launcher
@@ -173,8 +168,10 @@ def process_emulated_platform(platform_config: PlatformConfig):
 	potential_emulators = []
 	for emulator_name in platform_config.chosen_emulators:
 		if emulator_name not in emulators:
-			if emulator_name + ' (libretro)' in emulators:
+			if emulator_name + ' (libretro)' in libretro_cores:
 				potential_emulators.append(emulator_name + ' (libretro)')
+			elif emulator_name in libretro_cores:
+				potential_emulators.append(emulator_name)
 			else:
 				print('Config warning:', emulator_name, 'is not a valid emulator')
 		elif emulator_name not in platforms[platform_config.name].emulators:

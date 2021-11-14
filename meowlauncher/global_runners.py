@@ -1,8 +1,9 @@
-from typing import Optional
-from collections.abc import Iterable
 from meowlauncher.config.main_config import main_config
-from meowlauncher.launcher import LaunchCommand
-from meowlauncher.runner import Runner
+
+from .configured_runner import ConfiguredRunner
+from .runner import Runner
+from .runner_config import RunnerConfig
+
 
 class _Wine(Runner):
 	@property
@@ -13,23 +14,20 @@ class _Wine(Runner):
 	def is_emulated(self) -> bool:
 		return True #Yeah, I know… I just think it makes more sene to call it one
 
-	#TODO: We should do something with this
-	def get_wine_launch_params(self, exe_path: str, exe_args: Iterable[str], working_directory: Optional[str]=None) -> LaunchCommand:
-		env_vars = None
-		if main_config.wineprefix:
-			env_vars = {'WINEPREFIX': main_config.wineprefix}
+	#TODO: We should do something with launch_with_wine
 
-		args = ['start']
-		if working_directory:
-			args += ['/d', working_directory]
-		args += ['/unix', exe_path]
-		args += exe_args
-		return LaunchCommand(main_config.wine_path, args, env_vars)
+class _WineConfig(RunnerConfig):
+	def __init__(self, exe_path: str):
+		super().__init__(exe_path)
+
+class Wine(ConfiguredRunner):
+	def __init__(self, config: RunnerConfig):
+		super().__init__(_Wine(), config)
 
 class _ScummVM(Runner):
 	@property
 	def name(self) -> str:
 		return 'ScummVM'
 
-wine = _Wine()
+wine = Wine(_WineConfig(main_config.wine_path))
 scummvm = _ScummVM()

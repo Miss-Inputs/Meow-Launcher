@@ -1,10 +1,10 @@
 import configparser
 import os
 import re
+from collections.abc import Mapping
 from enum import Enum, Flag
 from pathlib import Path
 from typing import Any, Optional
-from collections.abc import Mapping
 
 try:
 	from PIL import Image
@@ -13,11 +13,12 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.launcher import LaunchCommand, Launcher
+from meowlauncher.launch_command import LaunchCommand
+from meowlauncher.launcher import Launcher
+from meowlauncher.metadata import Metadata
 from meowlauncher.util.io_utils import ensure_exist, pick_new_filename
 from meowlauncher.util.utils import (clean_string, find_filename_tags_at_end,
                                      remove_filename_tags)
-from meowlauncher.metadata import Metadata
 
 metadata_section_name = 'X-Meow Launcher Metadata'
 id_section_name = 'X-Meow Launcher ID'

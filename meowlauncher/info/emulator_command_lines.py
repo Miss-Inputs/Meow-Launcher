@@ -11,8 +11,8 @@ from meowlauncher.data.emulated_platforms import (arabic_msx1_drivers,
                                                   working_msx1_drivers,
                                                   working_msx2_drivers,
                                                   working_msx2plus_drivers)
-from meowlauncher.launcher import (LaunchCommand, MultiLaunchCommands,
-                                   rom_path_argument)
+from meowlauncher.launch_command import (LaunchCommand, MultiLaunchCommands,
+                                         rom_path_argument)
 from meowlauncher.platform_types import (AppleIIHardware, Atari2600Controller,
                                          GameBoyColourFlag,
                                          MegadriveRegionCodes, NESPeripheral,
