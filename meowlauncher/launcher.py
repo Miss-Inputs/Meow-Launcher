@@ -91,7 +91,7 @@ class MultiLaunchCommands(LaunchCommand):
 	def get_whole_shell_command(self) -> LaunchCommand:
 		#Purrhaps I should add an additional field for this object to optionally use ; instead of &&
 		joined_commands = ' && '.join([command.make_linux_command_string() for command in self.pre_commands] + [self.main_command.make_linux_command_string()] + [command.make_linux_command_string() for command in self.post_commands])
-		return LaunchCommand('sh', ('-c', joined_commands), dict(**self.env_vars), self.working_directory)
+		return LaunchCommand('sh', ('-c', joined_commands))
 
 	def make_linux_command_string(self) -> str:
 		return self.get_whole_shell_command().make_linux_command_string()
