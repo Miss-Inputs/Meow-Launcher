@@ -2,6 +2,7 @@ import copy
 import json
 import os
 import shlex
+from abc import ABC
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Optional
@@ -9,17 +10,17 @@ from typing import Optional
 from meowlauncher import desktop_launchers, launch_command
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
+from meowlauncher.game import Game
 from meowlauncher.games.common import pc_common_metadata
 from meowlauncher.games.common.engine_detect import \
     try_and_detect_engine_from_folder
-from meowlauncher.metadata import Metadata
 from meowlauncher.util import name_utils, region_info
 
 
 class GOGGameInfo():
 	#File named "gameinfo" for Linux games
 	def __init__(self, path: str):
-		self.name = None
+		self.name = os.path.basename(path)
 		self.version = None
 		self.dev_version = None
 		#Sometimes games only have those 3
@@ -36,7 +37,6 @@ class GOGGameInfo():
 				self.gameid = lines[4]
 			except IndexError:
 				pass
-
 
 class GOGJSONGameInfo():
 	#File named "gog-<gameid>.info" for Windows games (and sometimes distributed in game folder of Linux games)
@@ -67,24 +67,25 @@ class GOGJSONGameInfo():
 
 class GOGTask():
 	def __init__(self, json_object: Mapping):
-		self.is_primary = json_object.get('isPrimary', False)
-		self.task_type = json_object.get('type') #Just FileTask or URLTask?
-		self.path = json_object.get('path') #I guess this is also only for FileTask
+		self.is_primary: bool = json_object.get('isPrimary', False)
+		self.task_type: Optional[str] = json_object.get('type') #Just FileTask or URLTask?
+		self.path: Optional[str] = json_object.get('path') #I guess this is also only for FileTask
 		if self.path:
 			self.path = self.path.replace('\\', os.path.sep)
-		self.working_directory = json_object.get('workingDir') #This would only matter for FileTask I guess
+		self.working_directory: Optional[str] = json_object.get('workingDir') #This would only matter for FileTask I guess
 		if self.working_directory:
 			self.working_directory = self.working_directory.replace('\\', os.path.sep)
-		self.category = json_object.get('category') #"game", "tool", "document"
-		args = json_object.get('arguments')
+		self.category: Optional[str] = json_object.get('category') #"game", "tool", "document"
+		args: Optional[str] = json_object.get('arguments')
 		if args:
 			self.args = shlex.split(args) #We don't need to convert backslashes here because the wine'd executable uses them
 		else:
 			self.args = []
 		#languages: Language codes (without dialect eg just "en"), but seems to be ['*'] most of the time
-		self.name = json_object.get('name') #Might not be provided if it is the primary task
-		self.is_hidden = json_object.get('isHidden', False)
+		self.name: Optional[str] = json_object.get('name') #Might not be provided if it is the primary task
+		self.is_hidden: bool = json_object.get('isHidden', False)
 		compatFlags = json_object.get('compatibilityFlags', '')
+		self.compatibility_flags: list[str]
 		if compatFlags:
 			self.compatibility_flags = compatFlags.split(' ') #These seem to be those from https://docs.microsoft.com/en-us/windows/deployment/planning/compatibility-fixes-for-windows-8-windows-7-and-windows-vista (but not always case sensitive?), probably important but I'm not sure what to do about them for now
 		else:
@@ -121,15 +122,17 @@ class GOGTask():
 			return False
 		return self.path.lower() == 'residualvm/residualvm.exe' and self.working_directory.lower() == 'residualvm' and self.task_type == 'FileTask'
 
-class GOGGame():
-	def __init__(self, game_folder, info: GOGGameInfo, start_script, support_folder):
+class GOGGame(Game, ABC):
+	def __init__(self, game_folder: str, info: GOGGameInfo, start_script: str, support_folder: str):
+		super().__init__()
 		self.folder = game_folder
 		self.info = info
 		self.start_script = start_script
 		self.support_folder = support_folder #Is this necessary to pass as an argument? I guess not but I've already found it in look_in_linux_gog_folder
-		
-		self.name = name_utils.fix_name(self.info.name)
-		self.metadata = Metadata()
+
+	@property
+	def name(self) -> str:
+		return name_utils.fix_name(self.info.name)
 
 	def add_metadata(self) -> None:
 		icon = self.icon
@@ -223,8 +226,9 @@ def find_subpath_case_insensitive(path: str, subpath: str) -> Optional[str]:
 
 	return None
 
-class WindowsGOGGame():
-	def __init__(self, folder, info_file, game_id: str) -> None:
+class WindowsGOGGame(Game):
+	def __init__(self, folder: str, info_file: str, game_id: str) -> None:
+		super().__init__()
 		self.info = GOGJSONGameInfo(info_file)
 		self.id_file = None
 		id_path = info_file.rsplit(os.path.extsep, 1)[0] + os.path.extsep + 'id'
@@ -238,8 +242,10 @@ class WindowsGOGGame():
 		self.folder = folder
 
 		self.original_name = self.info.name
-		self.name = name_utils.fix_name(self.original_name)
-		self.metadata = Metadata()
+
+	@property
+	def name(self) -> str:
+		return name_utils.fix_name(self.original_name)
 
 	def add_metadata(self) -> None:
 		icon = self.icon
@@ -286,13 +292,13 @@ class WindowsGOGGame():
 			return find_subpath_case_insensitive(self.folder, folder.replace('.\\', subfolder + os.path.sep))
 		return folder
 
-	def get_dosbox_launch_params(self, task) -> launch_command.LaunchCommand:
+	def get_dosbox_launch_params(self, task: GOGTask) -> launch_command.LaunchCommand:
 		args = [self.fix_subfolder_relative_folder(arg, 'dosbox') for arg in task.args]
 		dosbox_path = main_config.dosbox_path
 		dosbox_folder = find_subpath_case_insensitive(self.folder, 'dosbox') #Game's config files are expecting to be launched from here
 		return desktop_launchers.LaunchCommand(dosbox_path, args, working_directory=dosbox_folder)
 
-	def get_wine_launch_params(self, task) -> Optional[launch_command.LaunchCommand]:
+	def get_wine_launch_params(self, task: GOGTask) -> Optional[launch_command.LaunchCommand]:
 		if not task.path:
 			if main_config.debug:
 				print('Oh dear - we cannot deal with tasks that have no path', self.name, task.name, task.args, task.task_type, task.category)
@@ -310,7 +316,7 @@ class WindowsGOGGame():
 		
 		return launch_command.launch_with_wine(main_config.wine_path, main_config.wineprefix, exe_path, task.args, working_directory)
 
-	def get_launcher_params(self, task) -> tuple[str, Optional[launch_command.LaunchCommand]]:
+	def get_launcher_params(self, task: GOGTask) -> tuple[str, Optional[launch_command.LaunchCommand]]:
 		if main_config.use_system_dosbox and task.is_dosbox:
 			return 'DOSBox', self.get_dosbox_launch_params(task)
 
@@ -322,7 +328,9 @@ class WindowsGOGGame():
 		emulator_name, params = self.get_launcher_params(task)
 		if not params:
 			return
-
+		if not task.path: #It already won't be, just satisfying automated code checkers
+			return
+		
 		task_metadata = copy.deepcopy(self.metadata)
 		if task.category == 'tool':
 			task_metadata.categories = ['Applications']

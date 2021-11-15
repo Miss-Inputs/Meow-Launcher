@@ -37,7 +37,7 @@ def look_in_linux_gog_folder(folder: str) -> Optional[GOGGame]:
 	return None
 
 def look_in_windows_gog_folder(folder: str) -> Optional[WindowsGOGGame]:
-	info_file = None
+	info_file: Optional[str] = None
 	game_id: str
 	for file in os.listdir(folder):
 		if file.startswith('goggame-') and file.endswith('.info'):

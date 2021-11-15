@@ -55,17 +55,23 @@ def fix_name(name: str) -> str:
 	return name
 
 tool_names = ('settings', 'setup', 'config', 'dedicated server', 'editor')
-def is_probably_related_tool(name: str) -> bool:
+def is_probably_related_tool(name: Optional[str]) -> bool:
+	if not name:
+		return False
 	lower = name.lower()
 	return any(tool_name in lower for tool_name in tool_names)
 
 mode_names = ('safe mode', 'play windowed', 'launch fullscreen', 'launch windowed')
-def is_probably_different_mode(name: str) -> bool: 
+def is_probably_different_mode(name: Optional[str]) -> bool: 
+	if not name:
+		return False
 	lower = name.lower()
 	return any(mode_name in lower for mode_name in mode_names)
 
 document_names = ('faq', 'manual', 'map of avernum', 'reference card')
-def is_probably_documentation(name: str) -> bool:
+def is_probably_documentation(name: Optional[str]) -> bool:
+	if not name:
+		return False
 	lower = name.lower()
 	return any(document_name in lower for document_name in document_names)
 
