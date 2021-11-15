@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 
-#We will put stuff in here for now until one day we rewrite the whole CLI, to call only an individual game_scanner etc etc
-#I sure do like to say "we" when it is just me
+#TODO: Eventually this wouldn't be needed - you would just have a --game-sources argument in cli_main.py and you can have one or many
+#Until then this will duplicate code from there so I am sorry
 
+import datetime
 import sys
+import time
 
 from meowlauncher import organize_folders
 from meowlauncher.config.platform_config import platform_configs
+from meowlauncher.desktop_launchers import make_linux_desktop_for_launcher
 from meowlauncher.disambiguate import disambiguate_names
-from meowlauncher.game_scanners import (dos, gog, itch_io, mac, mame_machines,
-                                        mame_software, roms, scummvm, steam)
+from meowlauncher.game_sources import (game_sources, gog, itch_io,
+                                       mame_machines, mame_software, roms,
+                                       scummvm, steam)
 from meowlauncher.games.mame_common.machine import (
     get_machine, get_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
@@ -66,16 +70,12 @@ def main() -> None:
 		process_roms_args()
 	elif sys.argv[1] == 'mame':
 		process_mame_args()
-	elif sys.argv[1] == 'dos':
-		dos.make_dos_launchers()
 	elif sys.argv[1] == 'gog':
 		gog.do_gog_games()
 	elif sys.argv[1] == 'itchio':
 		itch_io.do_itch_io_games()
 	elif sys.argv[1] == 'scummvm':
 		scummvm.add_scummvm_games()
-	elif sys.argv[1] == 'mac':
-		mac.make_mac_launchers()
 	elif sys.argv[1] == 'mame_software':
 		mame_software.add_mame_software()
 	elif sys.argv[1] == 'steam':
@@ -90,7 +90,23 @@ def main() -> None:
 	elif sys.argv[1] == 'organize_folders':
 		#This one's a bit jank and I should clean it up I guess
 		organize_folders.main()
-	
+	else:
+		for game_source in game_sources:
+			if sys.argv[1] in {game_source.name, game_source.name.lower()}:
+				time_started = time.perf_counter()
+				count = 0
+				
+				print('Adding ' + game_source.description)
+				if not game_source.is_available:
+					continue
+				for launcher in game_source.get_launchers():
+					count += 1
+					make_linux_desktop_for_launcher(launcher)
+				time_ended = time.perf_counter()
+				print(f'Added {count} {game_source.description} in {str(datetime.timedelta(seconds=time_ended - time_started))}')
+				break
+		else:
+			print('Unknown game source', sys.argv[1])
 
 if __name__ == '__main__':
 	main()

@@ -7,7 +7,7 @@ import time
 from meowlauncher.config.main_config import main_config
 from meowlauncher.desktop_launchers import (get_desktop, get_field,
                                             id_section_name)
-from meowlauncher.game_scanners import mac, mame_machines, scummvm, steam
+from meowlauncher.game_sources import mame_machines, scummvm, steam, game_types
 
 
 def remove_nonexistent_games() -> None:
@@ -28,14 +28,13 @@ def remove_nonexistent_games() -> None:
 			continue
 
 		should_remove = False
-		if game_type in {'MAME', 'Arcade', 'Inbuilt game'}:
+		game_source = game_types.get(game_type)
+		if game_source:
+			should_remove = game_source.no_longer_exists(game_id)
+		elif game_type in {'MAME', 'Arcade', 'Inbuilt game'}:
 			should_remove = mame_machines.no_longer_exists(game_id)
 		elif game_type in 'ROM':
 			should_remove = not os.path.exists(game_id)
-		elif game_type == 'DOS':
-			should_remove = not os.path.exists(game_id)
-		elif game_type == 'Mac':
-			should_remove = mac.no_longer_exists(game_id)
 		elif game_type == 'ScummVM':
 			should_remove = scummvm.no_longer_exists(game_id)
 		elif game_type == 'Steam':

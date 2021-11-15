@@ -1,6 +1,7 @@
 import os
 from abc import ABC, abstractmethod
 from typing import Any, Optional, final
+from collections.abc import Mapping
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.platform_config import PlatformConfig
@@ -12,7 +13,7 @@ from meowlauncher.metadata import Date
 
 
 class App(EmulatedGame, ABC):
-	def __init__(self, info: dict[str, Any]):
+	def __init__(self, info: Mapping[str, Any]):
 		super().__init__()
 		self.info = info
 		self.is_on_cd: bool = info.get('is_on_cd', False)

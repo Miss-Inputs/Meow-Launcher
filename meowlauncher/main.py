@@ -1,15 +1,18 @@
+import datetime
 import os
+import time
 
 import meowlauncher.disambiguate
 import meowlauncher.organize_folders
 import meowlauncher.remove_nonexistent_games
 import meowlauncher.series_detect
 from meowlauncher.config.main_config import main_config
-from meowlauncher.game_scanners import (dos, gog, itch_io, mac, mame_machines,
-                                        roms, scummvm, steam)
+from meowlauncher.desktop_launchers import make_linux_desktop_for_launcher
+from meowlauncher.game_sources import (game_sources, gog, itch_io,
+                                       mame_machines, roms, scummvm, steam)
 
 
-def main(progress_function, mame_enabled=True, roms_enabled=True, dos_enabled=True, mac_enabled=True, scummvm_enabled=True, steam_enabled=True, gog_enabled=True, itch_io_enabled=True):
+def main(progress_function, mame_enabled=True, roms_enabled=True, scummvm_enabled=True, steam_enabled=True, gog_enabled=True, itch_io_enabled=True):
 	def call_progress_function(data, should_increment=True):
 		if progress_function:
 			progress_function(data, should_increment)
@@ -22,18 +25,27 @@ def main(progress_function, mame_enabled=True, roms_enabled=True, dos_enabled=Tr
 				os.unlink(os.path.join(main_config.output_folder, f))
 	os.makedirs(main_config.output_folder, exist_ok=True)
 
+	for game_source in game_sources:
+		#TODO: Should actually use blah_enabled in some way, or some equivalent basically
+		time_started = time.perf_counter()
+		count = 0
+		
+		call_progress_function('Adding ' + game_source.description)
+		if not game_source.is_available:
+			continue
+		for launcher in game_source.get_launchers():
+			count += 1
+			make_linux_desktop_for_launcher(launcher)
+		if main_config.print_times:
+			time_ended = time.perf_counter()
+			call_progress_function(f'{count} {game_source.description} finished in {str(datetime.timedelta(seconds=time_ended - time_started))}')
+
 	if mame_enabled:
 		call_progress_function('Adding MAME machines')
 		mame_machines.process_arcade()
 	if roms_enabled:
 		call_progress_function('Adding ROMs')
 		roms.process_platforms()
-	if mac_enabled:
-		call_progress_function('Adding Mac software')
-		mac.make_mac_launchers()
-	if dos_enabled:
-		call_progress_function('Adding DOS software')
-		dos.make_dos_launchers()
 	if scummvm_enabled:
 		call_progress_function('Adding ScummVM games')
 		scummvm.add_scummvm_games()

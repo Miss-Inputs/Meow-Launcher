@@ -9,18 +9,16 @@ from . import pc
 
 mac_config = platform_configs.get('Mac')
 
-def no_longer_exists(game_id: str) -> bool:
-	hfv_path, inner_path = game_id.split('/', 1)
-	if not os.path.isfile(hfv_path):
-		return True
+class MacGameSource(pc.PCGameSource):
+	def __init__(self) -> None:
+		super().__init__('Mac', MacApp, MacLauncher, mac_config)
 
-	return not does_exist(hfv_path, inner_path)
+	def no_longer_exists(self, game_id: str) -> bool:
+		hfv_path, inner_path = game_id.split('/', 1)
+		if not os.path.isfile(hfv_path):
+			return True
 
-def make_mac_launchers() -> None:
-	if mac_config:
-		if not mac_config.chosen_emulators:
-			return
-		pc.make_launchers('Mac', MacApp, MacLauncher, mac_config)
+		return not does_exist(hfv_path, inner_path)
 
 # def scan_app(hfv_path, app, game_list, unknown_games, found_games, ambiguous_games):
 # 	overall_path = hfv_path + ':' + app['path']
