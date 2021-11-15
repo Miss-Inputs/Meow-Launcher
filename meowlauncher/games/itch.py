@@ -4,33 +4,34 @@ import gzip
 import json
 import os
 import subprocess
-from collections.abc import Collection
+from collections.abc import Collection, Sequence
+from pathlib import Path
 from typing import Optional
 
 from meowlauncher import desktop_launchers
-from meowlauncher.launch_command import launch_with_wine, LaunchCommand
 from meowlauncher.config.main_config import main_config
+from meowlauncher.game import Game
 from meowlauncher.games.common.engine_detect import detect_engine_recursively
 from meowlauncher.games.common.pc_common_metadata import (
     add_metadata_for_raw_exe, look_for_icon_next_to_file)
+from meowlauncher.launch_command import LaunchCommand, launch_with_wine
 from meowlauncher.metadata import Date
 from meowlauncher.util.name_utils import fix_name
-from meowlauncher.game import Game
 
 #TODO: Rework this to be able to optionally just read json, launch all executables in the game dir or whatever, and avoid using butler if preferred
 
-def find_butler() -> Optional[str]:
+def find_butler() -> Optional[Path]:
 	#Sorry we do need this actually, it's a bit assumptiony and hacky to do this but I must
-	butler_folder = os.path.expanduser('~/.config/itch/broth/butler')
-	chosen_version = os.path.join(butler_folder, '.chosen-version')
+	butler_folder = Path('~/.config/itch/broth/butler').expanduser()
+	chosen_version = butler_folder.joinpath('.chosen-version')
 	try:
 		with open(chosen_version, 'rt', encoding='utf-8') as f:
 			version = f.read()
-			return os.path.join(butler_folder, 'versions', version, 'butler')
+			return butler_folder.joinpath('versions', version, 'butler')
 	except FileNotFoundError:
 		return None
 
-def butler_configure(folder: str, os_filter: Optional[str]=None, ignore_arch=False) -> Optional[dict]:
+def butler_configure(folder: Path, os_filter: Optional[str]=None, ignore_arch=False) -> Optional[dict]:
 	if not hasattr(butler_configure, 'butler_path'):
 		butler_configure.butler_path = find_butler() #type: ignore[attr-defined]
 	if not butler_configure.butler_path: #type: ignore[attr-defined]
@@ -43,18 +44,18 @@ def butler_configure(folder: str, os_filter: Optional[str]=None, ignore_arch=Fal
 				args += ['--arch-filter', '']
 		else:
 			args.append('--no-filter')
-		args.append(folder)
+		args.append(folder.as_posix())
 		butler_proc = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)
 		return json.loads(butler_proc.stdout.splitlines()[-1])
 	except (subprocess.CalledProcessError, FileNotFoundError):
 		return None
 
-def is_probably_unwanted_candidate(path: str, all_candidate_basenames: Collection[str]) -> bool:
-	name = os.path.basename(path)
+def is_probably_unwanted_candidate(path: Path, all_candidate_basenames: Collection[str]) -> bool:
+	name = path.name
 	if name in {'LinuxPlayer_s.debug', 'UnityPlayer_s.debug'}:
 		#Sorry we don't need debug mode go away (also are these just libraries anyway?)
 		return True
-	if path.endswith('.dso'):
+	if path.suffix == '.dso':
 		#This isn't even launchable?
 		return True
 	if name in {'nacl_helper', 'nacl_helper_bootstrap'}:
@@ -67,17 +68,17 @@ def is_probably_unwanted_candidate(path: str, all_candidate_basenames: Collectio
 	return False
 
 class ItchGame(Game):
-	def __init__(self, path: str) -> None:
+	def __init__(self, path: Path) -> None:
 		super().__init__()
 		self.path = path
 		try:
-			with gzip.open(os.path.join(path, '.itch', 'receipt.json.gz')) as receipt_file:
+			with gzip.open(path.joinpath('.itch', 'receipt.json.gz')) as receipt_file:
 				self.receipt = json.load(receipt_file)
 		except FileNotFoundError:
 			self.receipt = None
-		self._name = os.path.basename(path) #This will be replaced later
+		self._name = path.name #This will be replaced later; as the folder name is some kind of game-name formatted sort of thing
 		self.is_demo = False
-		self.platforms = []
+		self.platforms: Sequence[str] = []
 		self.category = 'game'
 		self.game_type = 'default'
 
@@ -86,7 +87,7 @@ class ItchGame(Game):
 		return self._name
 
 	def add_metadata_from_folder(self) -> None:
-		engine = detect_engine_recursively(self.path, self.metadata)
+		engine = detect_engine_recursively(str(self.path), self.metadata)
 		if engine:
 			self.metadata.specific_info['Engine'] = engine
 
@@ -184,7 +185,7 @@ class ItchGame(Game):
 		self.metadata.specific_info['Game-Type'] = self.game_type
 		self.metadata.platform = platform
 
-	def try_and_find_exe(self, os_filter: Optional[str]=None, no_arch_filter=False) -> list[tuple[Optional[str], str, Optional[dict]]]:
+	def try_and_find_exe(self, os_filter: Optional[str]=None, no_arch_filter=False) -> list[tuple[Optional[str], Path, Optional[dict]]]:
 		#This is the fun part. There is no info in the receipt that actually tells us what to run, the way the itch.io app does it is use heuristics to figure that out. So if we don't have butler, we'd have to re-implement dash ourselves, which would suck and let's not
 		#I still kinda want a fallback method that just grabs something ending with .x86 or .sh etc in the folder, though
 		output = butler_configure(self.path, os_filter, no_arch_filter)
@@ -196,11 +197,11 @@ class ItchGame(Game):
 			return []
 		#arch, size might also be useful
 		#scriptInfo only applies if flavor == script (and just contains interpreter which shouldn't matter), windowsInfo only applies if flavour == windows
-		return [(candidate['flavor'], os.path.join(output['value']['basePath'], candidate['path']), candidate.get('windowsInfo')) for candidate in candidates]
+		return [(candidate['flavor'], Path(output['value']['basePath'], candidate['path']), candidate.get('windowsInfo')) for candidate in candidates]
 
-	def make_exe_launcher(self, flavour: Optional[str], exe_path: str, windows_info: Optional[dict]):
+	def make_exe_launcher(self, flavour: Optional[str], exe_path: Path, windows_info: Optional[dict]):
 		metadata = copy.deepcopy(self.metadata)
-		executable_name = os.path.basename(exe_path)
+		executable_name = exe_path.name
 		metadata.specific_info['Executable-Name'] = executable_name
 		if os.path.extsep in executable_name:
 			metadata.extension = executable_name.rsplit(os.path.extsep, 1)[-1].lower()
@@ -221,11 +222,11 @@ class ItchGame(Game):
 		elif flavour == 'love':
 			metadata.platform = 'LOVE'
 
-		if os.path.isfile(exe_path):
+		if exe_path.is_file():
 			#Might be a folder if Mac, I guess
-			add_metadata_for_raw_exe(exe_path, self.metadata)
+			add_metadata_for_raw_exe(str(exe_path), self.metadata)
 			if 'icon' not in metadata.images:
-				icon = look_for_icon_next_to_file(exe_path)
+				icon = look_for_icon_next_to_file(str(exe_path))
 				if icon:
 					metadata.images['Icon'] = icon
 
@@ -237,7 +238,7 @@ class ItchGame(Game):
 		if params[1]:
 			metadata.emulator_name = params[1]
 
-		desktop_launchers.make_launcher(params[0], self.name, metadata, 'itch.io', self.path)
+		desktop_launchers.make_launcher(params[0], self.name, metadata, 'itch.io', str(self.path))
 
 	def make_launcher(self) -> None:
 		os_filter = None
@@ -255,32 +256,32 @@ class ItchGame(Game):
 				print('No launch candidates found for', self.path)
 			return
 
-		candidate_basenames = [os.path.basename(path) for _, path, _ in candidates]
+		candidate_basenames = [path.name for _, path, _ in candidates]
 
 		for flavour, path, windows_info in candidates:
 			if is_probably_unwanted_candidate(path, candidate_basenames):
 				continue
 			self.make_exe_launcher(flavour, path, windows_info)
 
-def get_launch_params(flavour: str, exe_path: str, windows_info: Optional[dict]) -> Optional[tuple[LaunchCommand, Optional[str]]]:
+def get_launch_params(flavour: str, exe_path: Path, windows_info: Optional[dict]) -> Optional[tuple[LaunchCommand, Optional[str]]]:
 	if flavour in {'linux', 'script'}:
 		#ez pez
-		return LaunchCommand(exe_path, []), None
+		return LaunchCommand(str(exe_path), []), None
 	if flavour == 'html':
 		#hmm I guess this will do
-		return LaunchCommand('xdg-open', [exe_path]), None
+		return LaunchCommand('xdg-open', [str(exe_path)]), None
 	if flavour in {'windows', 'windows-script'}:
 		if windows_info and windows_info.get('dotNet', False):
 			#Mono does not really count as an emulator but whateves (I mean neither does Wine by the name but for metadata purposes I will)
-			return LaunchCommand('mono', [exe_path]), 'Mono'
+			return LaunchCommand('mono', [str(exe_path)]), 'Mono'
 		#gui might also be useful if it is false
-		return launch_with_wine(main_config.wine_path, main_config.wineprefix, exe_path, []), 'Wine'
+		return launch_with_wine(main_config.wine_path, main_config.wineprefix, str(exe_path), []), 'Wine'
 	if flavour == 'jar':
 		#Guess we can just assume it's installed who cares
-		return LaunchCommand('java', ['-jar', exe_path]), None
+		return LaunchCommand('java', ['-jar', str(exe_path)]), None
 	if flavour == 'love':
 		#Guess we can also just assume this is installed who cares
-		return LaunchCommand('love', [exe_path]), 'LOVE'
+		return LaunchCommand('love', [str(exe_path)]), 'LOVE'
 
 	return None
 	
