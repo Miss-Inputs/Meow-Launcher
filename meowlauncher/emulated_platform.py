@@ -18,12 +18,18 @@ class EmulatedPlatform():
 		self.mame_software_lists = mame_software_lists
 		self.emulators = emulators
 		self.file_types = file_types if file_types else {}
-		self.options = options if options else {}
 		self.is_virtual = is_virtual #Maybe needs better name
 		self.dat_names = dat_names if dat_names else [] #For libretro-database
 		self.dat_uses_serial = dat_uses_serial
 		self.databases_are_byteswapped = databases_are_byteswapped #Arguably I should create two separate parameters for both MAME SL and libretro-database, but so far this is only needed for N64 which has both swapped
 		self.autodetect_tv_type = autodetect_tv_type
+
+		self.options = {}
+		if options:
+			self.options.update(options)
+		if mame_software_lists:
+			self.options['find_software_by_name'] = PlatformConfigValue(ConfigValueType.Bool, False, 'Use game name to search software list')
+			self.options['find_software_by_product_code'] = PlatformConfigValue(ConfigValueType.Bool, False, 'Use game product code to search software list')
 
 	def is_valid_file_type(self, extension: str) -> bool:
 		return any(extension in extensions for extensions in self.file_types.values() if isinstance(extension, str))

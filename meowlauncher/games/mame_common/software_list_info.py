@@ -4,7 +4,7 @@ from collections.abc import Iterable, Sequence
 from typing import Any, Optional, cast
 
 from meowlauncher.common_types import MediaType
-from meowlauncher.config.main_config import main_config
+from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
@@ -245,9 +245,9 @@ def get_software_list_entry(game: ROMGame, skip_header=0) -> Optional[Software]:
 				args = SoftwareMatcherArgs(crc32, None, file_rom.get_size() - file_rom.header_length_for_crc_calculation, _file_rom_reader)
 				software = find_in_software_lists(software_lists, args)
 
-	if not software and (game.platform_name in main_config.find_software_by_name):
+	if not software and (platform_configs.get(game.platform_name, {}).get('find_software_by_name', False)):
 		software = find_software_by_name(game.software_lists, game.rom.name)
-	if not software and (game.platform_name in main_config.find_software_by_product_code and game.metadata.product_code):
+	if not software and (platform_configs.get(game.platform_name, {}).get('find_software_by_product_code', False) and game.metadata.product_code):
 		software = find_in_software_lists_with_custom_matcher(game.software_lists, software_list_product_code_matcher, [game.metadata.product_code])
 
 	return software
