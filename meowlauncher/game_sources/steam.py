@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 
 import datetime
-import glob
 import io
 import json
 import os
-from pathlib import Path
 import statistics
 import time
 import zipfile
 from collections.abc import Iterable, Mapping
 from enum import IntFlag
-from typing import Any, NamedTuple, Optional, Union
+from pathlib import Path
+from typing import Any, Optional, Union
 
 try:
 	from PIL import IcoImagePlugin, Image
@@ -27,30 +26,22 @@ except ModuleNotFoundError:
 
 from meowlauncher.common_types import MediaType, SaveType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.desktop_launchers import has_been_done, make_launcher
+from meowlauncher.desktop_launchers import has_been_done
 from meowlauncher.games.common.engine_detect import detect_engine_recursively
 from meowlauncher.games.common.pc_common_metadata import (
     add_metadata_for_raw_exe, check_for_interesting_things_in_folder)
 from meowlauncher.games.steam.steam_installation import SteamInstallation
+from meowlauncher.games.steam.steam_game import SteamGame, LauncherInfo
 from meowlauncher.games.steam.steam_utils import (normalize_developer,
                                                   translate_language_list)
-from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.metadata import Date
-from meowlauncher.util.name_utils import fix_name, normalize_name_case
+from meowlauncher.util.name_utils import normalize_name_case
 from meowlauncher.util.utils import load_dict, remove_capital_article
-from meowlauncher.game import Game
 
 #TODO: Move SteamGame etc etc into meowlauncher/games/steam
 
 store_categories = load_dict(None, 'steam_store_categories')
 genre_ids = load_dict(None, 'steam_genre_ids')
-
-class LauncherInfo(NamedTuple):
-	exe: Optional[str]
-	args: Optional[str] #Not a list as it turns out?
-	description: Optional[str]
-	launcher_type: Optional[str]
-	platform: Optional[str]
 
 class SteamState():
 	class __SteamState():
@@ -115,54 +106,6 @@ class StateFlags(IntFlag):
 	Committing = 4194304
 	UpdateStopping = 8388608
 
-class SteamGame(Game):
-	def __init__(self, appid, folder, app_state) -> None:
-		super().__init__()
-		self.appid = appid
-		self.library_folder = folder
-		self.app_state = app_state
-		
-		self.launchers: dict[Optional[str], LauncherInfo] = {}
-		self.extra_launchers: dict[Optional[str], list[LauncherInfo]] = {}
-
-	@property
-	def name(self) -> str:
-		name = self.app_state.get('name')
-		if not name:
-			name = f'<unknown game {self.appid}>'
-		name = fix_name(name)
-		return name
-
-	@property
-	def appinfo(self) -> Optional[Mapping[bytes, Any]]:
-		if steam_installation.app_info_available:
-			game_app_info = steam_installation.app_info.get(self.appid)
-			if game_app_info is None:
-				#Probably shouldn't happen if all is well and that game is supposed to be there
-				if main_config.debug:
-					print(self.name, self.appid, 'does not have an entry in appinfo.vdf')
-				return None
-
-			#There are other keys here too but I dunno if they're terribly useful, just stuff about size and state and access token and bleh
-			#last_update is a Unix timestamp for the last time the user updated the game
-			sections = game_app_info.get('sections')
-			if sections is None:
-				if main_config.debug:
-					print(self.name, self.appid, 'does not have a sections key in appinfo.vdf')
-				return None
-			#This is the only key in sections, and from now on everything is a bytes instead of a str, seemingly
-			app_info_section = sections.get(b'appinfo')
-			if app_info_section is None:
-				if main_config.debug:
-					print(self.name, self.appid, 'does not have a appinfo section in appinfo.vdf sections')
-				return None
-			return app_info_section
-		return None
-
-	def make_launcher(self) -> None:
-		params = LaunchCommand('steam', ['steam://rungameid/{0}'.format(self.appid)])
-		make_launcher(params, self.name, self.metadata, 'Steam', self.appid)
-
 class NotActuallyAGameYouDingusException(Exception):
 	pass
 
@@ -177,10 +120,8 @@ class IconNotFoundError(Exception):
 
 def look_for_icon(icon_hash: str) -> Optional[Union['Image.Image', str]]:
 	icon_hash = icon_hash.lower()
-	for icon_file in os.listdir(steam_installation.icon_folder):
-		icon_path = os.path.join(steam_installation.icon_folder, icon_file)
-
-		if icon_file.lower() in (icon_hash + '.ico', icon_hash + '.png', icon_hash + '.zip'):
+	for icon_path in steam_installation.icon_folder.iterdir():
+		if icon_path.name.lower() in (icon_hash + '.ico', icon_hash + '.png', icon_hash + '.zip'):
 			is_zip = zipfile.is_zipfile(icon_path)
 			#Can't just rely on the extension because some zip files like to hide and pretend to be .ico files for some reason
 
@@ -189,7 +130,7 @@ def look_for_icon(icon_hash: str) -> Optional[Union['Image.Image', str]]:
 				if magic == b'Rar!':
 					raise IconError('icon {0} is secretly a RAR file and cannot be opened'.format(icon_hash))
 
-			if have_pillow and icon_file.endswith('.ico') and not is_zip:
+			if have_pillow and icon_path.endswith('.ico') and not is_zip:
 				#.ico files can be a bit flaky with Tumbler thumbnails and some other image-reading stuff, so if we can convert them, that might be a good idea just in case (well, there definitely are some icons that don't thumbnail properly so yeah)
 				try:
 					image = Image.open(icon_path)
@@ -206,14 +147,14 @@ def look_for_icon(icon_hash: str) -> Optional[Union['Image.Image', str]]:
 								if size[0] > biggest_size[0] and size[1] > biggest_size[1]:
 									biggest_size = size
 							if biggest_size == (0, 0):
-								raise IconError('.ico file {0} has no valid sizes'.format(icon_file)) from ex
+								raise IconError('.ico file {0} has no valid sizes'.format(icon_path)) from ex
 							return ico.getimage(biggest_size)
 						except SyntaxError as syntax_error:
 							#Of all the errors it throws, it throws this one? Well, okay fine whatever
-							raise IconError('.ico file {0} is not actually an .ico file at all'.format(icon_file)) from syntax_error
+							raise IconError('.ico file {0} is not actually an .ico file at all'.format(icon_path)) from syntax_error
 				except Exception as ex:
 					#Guess it's still broken
-					raise IconError('.ico file {0} has some annoying error: {1}'.format(icon_file, str(ex))) from ex
+					raise IconError('.ico file {0} has some annoying error: {1}'.format(icon_path, str(ex))) from ex
 
 			if not is_zip:
 				return icon_path
@@ -680,9 +621,9 @@ def process_launcher(game: SteamGame, launcher: LauncherInfo):
 			executable_basename = executable_basename.split('\\')[-1]
 		game.metadata.specific_info['Executable-Name'] = executable_basename
 
-	launcher_full_path = os.path.join(game.library_folder, 'steamapps', 'common', game.app_state.get('installdir'), launcher.exe)
-	if os.path.isfile(launcher_full_path):
-		add_metadata_for_raw_exe(launcher_full_path, game.metadata)
+	launcher_full_path = game.install_dir.joinpath(launcher.exe)
+	if launcher_full_path.is_file():
+		add_metadata_for_raw_exe(str(launcher_full_path), game.metadata)
 
 	if launcher.args and '-uplay_steam_mode' in launcher.args:
 		game.metadata.specific_info['Launcher'] = 'uPlay'
@@ -698,29 +639,19 @@ def process_launcher(game: SteamGame, launcher: LauncherInfo):
 				game.metadata.platform = 'Mac'
 
 def poke_around_in_install_dir(game: SteamGame):
-	install_dir = game.app_state.get('installdir')
-	if not install_dir:
-		# if main_config.debug:
-		# 	print('uh oh no installdir', game.name, game.app_id)
-		return
-	library_folder = os.path.join(game.library_folder, 'steamapps', 'common')
-	if not os.path.isdir(library_folder):
-		# if main_config.debug:
-		# 	print('uh oh no library_folder', game.name, game.app_id, library_folder)
-		return
-	folder = os.path.join(library_folder, install_dir)
-	if not os.path.isdir(folder):
+	install_dir = game.install_dir
+	if not install_dir.is_dir():
 		# if main_config.debug:
 		# 	print('uh oh installdir does not exist', game.name, game.app_id, folder)
 		#Hmm I would need to make this case insensitive for some cases
 		return
 
-	engine = detect_engine_recursively(folder, game.metadata)
+	engine = detect_engine_recursively(str(install_dir), game.metadata)
 	if engine:
 		game.metadata.specific_info['Engine'] = engine
 
-	check_for_interesting_things_in_folder(folder, game.metadata, find_wrappers=True)
-	for f in os.scandir(folder):
+	check_for_interesting_things_in_folder(str(install_dir), game.metadata, find_wrappers=True)
+	for f in os.scandir(install_dir):
 		if f.is_dir():
 			check_for_interesting_things_in_folder(f.path, game.metadata, find_wrappers=True)
 	
@@ -809,13 +740,13 @@ def add_info_from_user_cache(game: SteamGame):
 	#If there is more than one user here, then we don't want to look at user-specific info, because it might not be the one who's running Meow Launcher and so it might be wrong
 	for user in user_list:
 		user_cache_folder = steam_installation.get_user_library_cache_folder(user)
-		path = os.path.join(user_cache_folder, '{0}.json'.format(game.appid))
-		if os.path.isfile(path):
+		path = user_cache_folder.joinpath('{0}.json'.format(game.appid))
+		if path.is_file():
 			add_info_from_cache_json(game, path, single_user)
 
-def process_game(appid: int, folder: str, app_state: Mapping[str, Any]) -> None:
+def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> None:
 	#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
-	game = SteamGame(appid, folder, app_state)
+	game = SteamGame(appid, folder, app_state, steam_installation)
 	if main_config.use_steam_as_platform:
 		game.metadata.platform = 'Steam'
 	else:
@@ -916,10 +847,9 @@ def process_game(appid: int, folder: str, app_state: Mapping[str, Any]) -> None:
 	
 	game.make_launcher()
 
-def iter_steam_installed_appids() -> Iterable[tuple[str, Any, Mapping[str, Any]]]:
+def iter_steam_installed_appids() -> Iterable[tuple[Path, Any, Mapping[str, Any]]]:
 	for library_folder in steam_installation.steam_library_folders:
-		acf_files = glob.glob(os.path.join(library_folder, 'steamapps', '*.acf'))
-		for acf_file_path in acf_files:
+		for acf_file_path in library_folder.joinpath('steamapps').glob('*.acf'):
 			#Technically I could try and parse it without steamfiles, but that would be irresponsible, so I shouldn't do that
 			with open(acf_file_path, 'rt', encoding='utf-8') as acf_file:
 				app_manifest = acf.load(acf_file)
