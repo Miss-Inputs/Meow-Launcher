@@ -1,24 +1,28 @@
 #!/usr/bin/env python3
 
-import datetime
-import time
+from collections.abc import Iterable
 
 from meowlauncher import global_runners
 from meowlauncher.config.main_config import main_config
-from meowlauncher.desktop_launchers import (has_been_done,
-                                            make_linux_desktop_for_launcher)
+from meowlauncher.desktop_launchers import has_been_done
+from meowlauncher.game_source import GameSource
 from meowlauncher.games.scummvm.scummvm_config import scummvm_config
 from meowlauncher.games.scummvm.scummvm_game import (ScummVMGame,
                                                      ScummVMLauncher)
 
+class ScummVM(GameSource):
+	@property
+	def name(self) -> str:
+		return 'ScummVM'
 
-def no_longer_exists(game_id: str):
-	return game_id not in scummvm_config.scummvm_ini.sections() if scummvm_config.have_scummvm else True
+	@property
+	def is_available(self) -> bool:
+		return scummvm_config.have_scummvm
 
-def add_scummvm_games() -> None:
-	if scummvm_config.have_scummvm:
-		time_started = time.perf_counter()
+	def no_longer_exists(self, game_id: str) -> bool:
+		return game_id not in scummvm_config.scummvm_ini.sections() if scummvm_config.have_scummvm else True
 
+	def get_launchers(self) -> Iterable[ScummVMLauncher]:
 		for section in scummvm_config.scummvm_ini.sections():
 			if section == 'scummvm':
 				#Skip the top section
@@ -31,9 +35,4 @@ def add_scummvm_games() -> None:
 					continue
 
 			game = ScummVMGame(section)
-			launcher = ScummVMLauncher(game, global_runners.scummvm)
-			make_linux_desktop_for_launcher(launcher)
-
-		if main_config.print_times:
-			time_ended = time.perf_counter()
-			print('ScummVM finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+			yield ScummVMLauncher(game, global_runners.scummvm)

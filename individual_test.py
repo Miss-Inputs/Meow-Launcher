@@ -9,13 +9,13 @@ import time
 
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.desktop_launchers import make_linux_desktop_for_launcher
+from meowlauncher.frontend import organize_folders, series_detect
 from meowlauncher.frontend.disambiguate import disambiguate_names
 from meowlauncher.frontend.remove_nonexistent_games import \
     remove_nonexistent_games
-from meowlauncher.frontend import organize_folders, series_detect
 from meowlauncher.game_sources import (game_sources, gog, itch_io,
                                        mame_machines, mame_software, roms,
-                                       scummvm, steam)
+                                       steam)
 from meowlauncher.games.mame_common.machine import (
     get_machine, get_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
@@ -74,8 +74,6 @@ def main() -> None:
 		gog.do_gog_games()
 	elif sys.argv[1] == 'itchio':
 		itch_io.do_itch_io_games()
-	elif sys.argv[1] == 'scummvm':
-		scummvm.add_scummvm_games()
 	elif sys.argv[1] == 'mame_software':
 		mame_software.add_mame_software()
 	elif sys.argv[1] == 'steam':

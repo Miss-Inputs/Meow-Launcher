@@ -22,6 +22,8 @@ class GameSource(ABC):
 	def no_longer_exists(self, game_id: str) -> bool:
 		pass
 
+	#TODO: Should have has_been_done somewhere in here? Maybe
+
 	@abstractmethod
 	def get_launchers(self) -> Iterable[Launcher]:
 		pass

@@ -9,7 +9,7 @@ from . import pc
 
 mac_config = platform_configs.get('Mac')
 
-class MacGameSource(pc.PCGameSource):
+class Mac(pc.PCGameSource):
 	def __init__(self) -> None:
 		super().__init__('Mac', MacApp, MacLauncher, mac_config)
 

@@ -5,14 +5,14 @@ import time
 from meowlauncher.config.main_config import main_config
 from meowlauncher.desktop_launchers import make_linux_desktop_for_launcher
 from meowlauncher.game_sources import (game_sources, gog, itch_io,
-                                       mame_machines, roms, scummvm, steam)
+                                       mame_machines, roms, steam)
 
 from . import organize_folders, series_detect
 from .disambiguate import disambiguate_names
 from .remove_nonexistent_games import remove_nonexistent_games
 
 
-def main(progress_function, mame_enabled=True, roms_enabled=True, scummvm_enabled=True, steam_enabled=True, gog_enabled=True, itch_io_enabled=True):
+def main(progress_function, mame_enabled=True, roms_enabled=True, steam_enabled=True, gog_enabled=True, itch_io_enabled=True):
 	def call_progress_function(data, should_increment=True):
 		if progress_function:
 			progress_function(data, should_increment)
@@ -46,9 +46,6 @@ def main(progress_function, mame_enabled=True, roms_enabled=True, scummvm_enable
 	if roms_enabled:
 		call_progress_function('Adding ROMs')
 		roms.process_platforms()
-	if scummvm_enabled:
-		call_progress_function('Adding ScummVM games')
-		scummvm.add_scummvm_games()
 	if steam_enabled:
 		call_progress_function('Adding Steam games')
 		steam.process_steam()

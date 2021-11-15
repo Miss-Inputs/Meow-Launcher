@@ -10,7 +10,7 @@ from . import pc
 
 dos_config = platform_configs.get('DOS')
 
-class DOSGameSource(pc.PCGameSource):
+class DOS(pc.PCGameSource):
 	def __init__(self) -> None:
 		super().__init__('DOS', DOSApp, AppLauncher, dos_config)
 
