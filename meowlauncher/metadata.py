@@ -1,11 +1,15 @@
 import collections
 from collections.abc import Iterable
-from typing import Any, Optional, Union
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Optional, Union
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import MediaType, SaveType
 from meowlauncher.input_metadata import InputInfo
 from meowlauncher.util.region_info import Language, Region
+
+if TYPE_CHECKING:
+	from PIL.Image import Image
 
 #FIXME! Section names should not be here - we need to rewrite to_info_fields to make more sense, it's just to make sure a circular import doesn't happen
 metadata_section_name = 'X-Meow Launcher Metadata'
@@ -240,12 +244,12 @@ class Metadata():
 		self.screen_info: Optional[ScreenInfo] = None
 		self.input_info = InputInfo()
 
-		self.specific_info = {} #Stuff that's too specific to put as an attribute here
+		self.specific_info: dict[str, Any] = {} #Stuff that's too specific to put as an attribute here
 
-		self.images = {}
+		self.images: dict[str, Union[str, Path, 'Image']] = {}
 		#TODO: The override name shenanigans in Wii/PSP: Check for name = None in launchers, and set name = None if overriding it to something else, and put the overriden name in here
 		self.names: dict[str, str] = {}
-		self.documents = {}
+		self.documents: dict[str, Union[str, Path]] = {} #Paths of either variety, or URLs
 		self.descriptions: dict[str, str] = {}
 
 	def add_alternate_name(self, name: str, field: str='Alternate-Name'):

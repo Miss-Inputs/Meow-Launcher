@@ -30,8 +30,6 @@ from meowlauncher.metadata import Date
 from meowlauncher.util.name_utils import normalize_name_case
 from meowlauncher.util.utils import load_dict, remove_capital_article
 
-#TODO: Move SteamGame etc etc into meowlauncher/games/steam
-
 store_categories = load_dict(None, 'steam_store_categories')
 genre_ids = load_dict(None, 'steam_genre_ids')
 

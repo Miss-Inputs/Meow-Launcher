@@ -41,7 +41,7 @@ def have_mame() -> bool:
 	return bool(default_mame_executable) and bool(default_mame_configuration)
 
 def verify_software_list(software_list_name: str) -> list[str]:
-	#TODO: Only used by SoftwareList.get_available_software - think about where this could be
+	#TODO: Only used by SoftwareList.get_available_software - think about where this could be… that is called by mame_software of course, but also emulator_command_line_helpers, hmm
 	return default_mame_executable.verifysoftlist(software_list_name)
 
 @functools.cache

@@ -180,7 +180,7 @@ def has_been_done(game_type: str, game_id: str) -> bool:
 
 split_brackets = re.compile(r' (?=\()')
 def make_launcher(launch_params: LaunchCommand, name: str, metadata: Metadata, id_type: str, unique_id: str):
-	#TODO: Remove this
+	#TODO: Remove this, once it is no longer used
 	display_name = remove_filename_tags(name)
 	filename_tags = find_filename_tags_at_end(name)
 

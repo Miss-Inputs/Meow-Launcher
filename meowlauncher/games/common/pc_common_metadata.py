@@ -23,7 +23,7 @@ from meowlauncher.util.utils import junk_suffixes
 #Hmm, are other extensions going to work as icons in a file manager
 icon_extensions = ('png', 'ico', 'xpm', 'svg')
 
-def get_pe_file_info(pe: 'pefile.PE') -> Optional[dict[str, Any]]: #TODO refactor - Union[str, datetime.datetime] is a bit silly, maybe we should return something else
+def get_pe_file_info(pe: 'pefile.PE') -> Optional[dict[str, Any]]: #TODO refactor - Union[str, datetime.datetime] is a bit silly as it means you have to check for it every time if you have mypy, maybe we should return something else
 	if not hasattr(pe, 'FileInfo'):
 		return None
 	for file_info in pe.FileInfo:
@@ -134,6 +134,8 @@ def get_icon_from_pe(pe: 'pefile.PE') -> Optional[Image.Image]:
 	header = first_group_icon_data[:6]
 	group_icon_entries = parse_pe_group_icon_directory(first_group_icon_data)
 	icons_dir = get_pe_resources(pe, pefile.RESOURCE_TYPE['RT_ICON'])
+	if not icons_dir:
+		return None
 	ico_entry_format = '<BBBBHHII'
 	offset = 6 + (len(group_icon_entries) * struct.calcsize(ico_entry_format))
 	data = b''
