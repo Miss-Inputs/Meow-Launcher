@@ -4,15 +4,14 @@ import time
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.desktop_launchers import make_linux_desktop_for_launcher
-from meowlauncher.game_sources import (game_sources, gog, itch_io,
-                                       mame_machines, steam)
+from meowlauncher.game_sources import game_sources, gog, itch_io, steam
 
 from . import organize_folders, series_detect
 from .disambiguate import disambiguate_names
 from .remove_nonexistent_games import remove_nonexistent_games
 
 
-def main(progress_function, mame_enabled=True, steam_enabled=True, gog_enabled=True, itch_io_enabled=True):
+def main(progress_function, steam_enabled=True, gog_enabled=True, itch_io_enabled=True):
 	def call_progress_function(data, should_increment=True):
 		if progress_function:
 			progress_function(data, should_increment)
@@ -40,9 +39,6 @@ def main(progress_function, mame_enabled=True, steam_enabled=True, gog_enabled=T
 			time_ended = time.perf_counter()
 			call_progress_function(f'{count} {game_source.description} finished in {str(datetime.timedelta(seconds=time_ended - time_started))}')
 
-	if mame_enabled:
-		call_progress_function('Adding MAME machines')
-		mame_machines.process_arcade()
 	if steam_enabled:
 		call_progress_function('Adding Steam games')
 		steam.process_steam()

@@ -9,10 +9,10 @@ from .launcher import Launcher
 
 
 class EmulatorLauncher(Launcher, ABC):
-	def __init__(self, game: EmulatedGame, emulator: ConfiguredEmulator, platform_config: Mapping[str, Any]) -> None:
+	def __init__(self, game: EmulatedGame, emulator: ConfiguredEmulator, platform_config: Mapping[str, Any]=None) -> None:
 		self.game: EmulatedGame = game
 		self.runner: ConfiguredEmulator = emulator
-		self.platform_config = platform_config
+		self.platform_config = platform_config if platform_config else {}
 		super().__init__(game, emulator)
 
 	def get_launch_command(self) -> LaunchCommand:

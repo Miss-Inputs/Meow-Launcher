@@ -27,24 +27,31 @@
 # Vii, ekara could go in here if we need to make them systems to make their software list business work
 # Gachinko Contest! Slot Machine TV: I dunno the game because it's written in kanji
 
+from typing import NamedTuple
+
+class InbuiltGame(NamedTuple):
+	name: str
+	platform: str
+	caegory: str
+
 machines_with_inbuilt_games = {
-	'apfm1000': ('Rocket Patrol', 'APF-MP1000', 'Games'),
-	'astrocde': ('Gunfight + Checkmate + Calculator + Scribbling', 'Astrocade', 'Games'),
-	'unichamp': ('Blackjack + Baccarat', 'Champion 2711', 'Games'),
-	'channelf': ('Hockey + Tennis', 'Channel F', 'Games'),
-	'dina': ('Meteoric Shower', 'ColecoVision', 'Games'), #Or should platform be "Dina" specifically…
-	'gameking': ('Drifter + 2003 + Miner', 'GameKing', 'Games'),
-	'gamekin3': ('Galaxy Crisis', 'GameKing 3', 'Games'),
-	'vectrex': ('Mine Storm', 'Vectrex', 'Games'),
-	'xegs': ('Missile Command', 'Atari 8-bit', 'Games'),
-	'scv': ('Video Game Test Display', 'Super Cassette Vision', 'Tests'),
+	'apfm1000': InbuiltGame('Rocket Patrol', 'APF-MP1000', 'Games'),
+	'astrocde': InbuiltGame('Gunfight + Checkmate + Calculator + Scribbling', 'Astrocade', 'Games'),
+	'unichamp': InbuiltGame('Blackjack + Baccarat', 'Champion 2711', 'Games'),
+	'channelf': InbuiltGame('Hockey + Tennis', 'Channel F', 'Games'),
+	'dina': InbuiltGame('Meteoric Shower', 'ColecoVision', 'Games'), #Or should platform be "Dina" specifically…
+	'gameking': InbuiltGame('Drifter + 2003 + Miner', 'GameKing', 'Games'),
+	'gamekin3': InbuiltGame('Galaxy Crisis', 'GameKing 3', 'Games'),
+	'vectrex': InbuiltGame('Mine Storm', 'Vectrex', 'Games'),
+	'xegs': InbuiltGame('Missile Command', 'Atari 8-bit', 'Games'),
+	'scv': InbuiltGame('Video Game Test Display', 'Super Cassette Vision', 'Tests'),
 }
 
 bioses_with_inbuilt_games = {
-	('a7800', 'a7800pr'): ('Asteroids', 'Atari 7800', 'Games'),
-	('sms', 'alexkidd'): ('Alex Kidd in Miracle World', 'Master System', 'Games'), #US/Europe
-	('sms1', 'hangon'): ('Hang On', 'Master System', 'Games'),
-	('sms1', 'hangonsh'): ('Hang On + Safari Hunt', 'Master System', 'Games'), #smsbr works for this too
-	('sms1', 'missiled'): ('Missile Defense 3D', 'Master System', 'Games'), #US/Europe
-	('smspal', 'sonic'): ('Sonic the Hedgehog', 'Master System', 'Games'), #Europe/Brazil
+	('a7800', 'a7800pr'): InbuiltGame('Asteroids', 'Atari 7800', 'Games'),
+	('sms', 'alexkidd'): InbuiltGame('Alex Kidd in Miracle World', 'Master System', 'Games'), #US/Europe
+	('sms1', 'hangon'): InbuiltGame('Hang On', 'Master System', 'Games'),
+	('sms1', 'hangonsh'): InbuiltGame('Hang On + Safari Hunt', 'Master System', 'Games'), #smsbr works for this too
+	('sms1', 'missiled'): InbuiltGame('Missile Defense 3D', 'Master System', 'Games'), #US/Europe
+	('smspal', 'sonic'): InbuiltGame('Sonic the Hedgehog', 'Master System', 'Games'), #Europe/Brazil
 }

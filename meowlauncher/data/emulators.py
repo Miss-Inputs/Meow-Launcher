@@ -484,3 +484,5 @@ all_emulators.update(emulators)
 all_emulators.update(libretro_cores)
 all_emulators.update(pc_emulators)
 all_emulators.update(libretro_frontends)
+mame = Emulator('MAME', EmulatorStatus.Good, 'mame', command_lines.mame)
+all_emulators['MAME'] = mame

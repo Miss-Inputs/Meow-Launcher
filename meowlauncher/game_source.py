@@ -3,6 +3,7 @@ from collections.abc import Iterable, Sequence
 
 from meowlauncher.launcher import Launcher
 
+
 class GameSource(ABC):
 	@property
 	@abstractmethod

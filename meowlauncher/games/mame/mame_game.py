@@ -1,6 +1,10 @@
+from meowlauncher.emulated_game import EmulatedGame
+from meowlauncher.emulator_launcher import EmulatorLauncher
 from meowlauncher.games.mame_common.machine import Machine
 from meowlauncher.metadata import Date, Metadata
-from meowlauncher.emulated_game import EmulatedGame
+
+from .mame import ConfiguredMAME
+
 
 class MAMEGame(EmulatedGame):
 	def __init__(self, machine: Machine):
@@ -59,3 +63,16 @@ class MAMEGame(EmulatedGame):
 		self.metadata.specific_info['Is-Unofficial'] = self.machine.unofficial
 		self.metadata.specific_info['Has-No-Sound-Hardware'] = self.machine.no_sound_hardware
 		self.metadata.specific_info['Is-Incomplete'] = self.machine.incomplete
+
+class MAMELauncher(EmulatorLauncher):
+	def __init__(self, game: MAMEGame, emulator: ConfiguredMAME) -> None:
+		self.game: MAMEGame = game
+		super().__init__(game, emulator)
+
+	@property
+	def game_id(self) -> str:
+		return self.game.machine.basename
+
+	@property
+	def game_type(self) -> str:
+		return 'Arcade' if self.game.metadata.platform == 'Arcade' else 'MAME'

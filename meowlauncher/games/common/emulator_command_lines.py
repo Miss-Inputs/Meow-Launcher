@@ -20,13 +20,15 @@ from meowlauncher.platform_types import (AppleIIHardware, Atari2600Controller,
                                          SNESExpansionChip,
                                          SwitchContentMetaType, WiiTitleType,
                                          ZXJoystick, ZXMachine)
+from meowlauncher.runner_config import EmulatorConfig
 from meowlauncher.util.region_info import TVSystem
 
 from .emulator_command_line_helpers import (_is_software_available,
                                             _verify_supported_gb_mappers,
                                             first_available_romset,
                                             is_highscore_cart_available,
-                                            mame_driver, mednafen_module,
+                                            mame_base, mame_driver,
+                                            mednafen_module,
                                             verify_mgba_mapper)
 
 
@@ -1613,8 +1615,12 @@ def dosbox_x(app, _, emulator_config):
 
 	return LaunchCommand(emulator_config.exe_path, args + [app.path])
 
+#MAME itself
+def mame(game, _, emulator_config: EmulatorConfig):
+	return LaunchCommand(emulator_config.exe_path, mame_base(game.machine.basename))
+
 #Libretro frontends
-def retroarch(_, __, emulator_config, frontend_config):
+def retroarch(_, __, emulator_config: EmulatorConfig, frontend_config: EmulatorConfig):
 	if not emulator_config.exe_path:
 		raise EmulationNotSupportedException('libretro core path is not explicitly specified and libretro_cores_directory is not set')
 	return LaunchCommand(frontend_config.exe_path, ['-f', '-L', emulator_config.exe_path, rom_path_argument])

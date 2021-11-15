@@ -1,11 +1,13 @@
-from typing import Any
 from collections.abc import Mapping
+from typing import Any
 
 from .configured_runner import ConfiguredRunner
 from .emulated_game import EmulatedGame
-from .emulator import Emulator, LibretroCore, LibretroFrontend, StandardEmulator
+from .emulator import (Emulator, LibretroCore, LibretroFrontend,
+                       StandardEmulator)
 from .launch_command import LaunchCommand
 from .runner_config import EmulatorConfig
+
 
 class ConfiguredEmulator(ConfiguredRunner):
 	def __init__(self, emulator: Emulator, config: EmulatorConfig):

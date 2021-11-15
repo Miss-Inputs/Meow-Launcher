@@ -1,7 +1,7 @@
 import configparser
 import os
-from typing import Any
 from collections.abc import Iterable, Mapping
+from typing import Any
 
 from meowlauncher.common_paths import config_dir
 from meowlauncher.data.emulated_platforms import pc_platforms, platforms

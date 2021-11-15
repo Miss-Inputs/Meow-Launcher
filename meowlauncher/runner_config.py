@@ -3,9 +3,9 @@ from typing import Any
 from meowlauncher.common_types import ConfigValueType
 
 class RunnerConfig():
-	def __init__(self, exe_path: str=None, options=dict[str, 'RunnerConfigValue']):
+	def __init__(self, exe_path: str, options: dict[str, Any]=None):
 		self.exe_path = exe_path
-		self.options = options
+		self.options = options if options else {}
 
 #Hmm pointless class so far… what am I doing
 class EmulatorConfig(RunnerConfig):

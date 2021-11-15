@@ -14,41 +14,8 @@ from meowlauncher.frontend.remove_nonexistent_games import \
     remove_nonexistent_games
 from meowlauncher.game_source import CompoundGameSource, GameSource
 from meowlauncher.game_sources import (game_sources, gog, itch_io,
-                                       mame_machines, mame_software, steam)
-from meowlauncher.games.mame_common.machine import (
-    get_machine, get_machines_from_source_file)
-from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
+                                       mame_software, steam)
 
-
-def process_mame_args() -> None:
-	if '--drivers' in sys.argv:
-		arg_index = sys.argv.index('--drivers')
-		if len(sys.argv) == 2:
-			print('--drivers requires an argument')
-			return
-
-		driver_list = sys.argv[arg_index + 1].split(',')
-		for driver_name in driver_list:
-			mame_machines.process_machine(get_machine(driver_name, default_mame_executable))
-		return 
-	if '--source-file' in sys.argv:
-		arg_index = sys.argv.index('--source-file')
-		if len(sys.argv) == 2:
-			print('--source-file requires an argument')
-			return
-
-		source_file = sys.argv[arg_index + 1]
-		for machine in get_machines_from_source_file(source_file, default_mame_executable):
-			if not mame_machines.is_actually_machine(machine):
-				continue
-			if not mame_machines.is_machine_launchable(machine):
-				continue
-			if not default_mame_executable.verifyroms(machine.basename):
-				continue
-			mame_machines.process_machine(machine)
-		return
-
-	mame_machines.process_arcade()
 
 def add_games(source: GameSource) -> int:
 	time_started = time.perf_counter()
@@ -67,9 +34,9 @@ def add_games(source: GameSource) -> int:
 	return count
 
 def main() -> None:
-	if sys.argv[1] == 'mame':
-		process_mame_args()
-	elif sys.argv[1] == 'gog':
+	#if sys.argv[1] == 'mame':
+	#	process_mame_args()
+	if sys.argv[1] == 'gog':
 		gog.do_gog_games()
 	elif sys.argv[1] == 'itchio':
 		itch_io.do_itch_io_games()
