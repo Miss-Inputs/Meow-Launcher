@@ -1,6 +1,5 @@
 from typing import Any, Optional, Union, cast
 
-from meowlauncher import detect_things_from_filename
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.libretro_database_company_name_cleanup import \
     company_name_overrides
@@ -21,6 +20,7 @@ from meowlauncher.util.region_info import (get_language_from_regions,
                                            get_tv_system_from_regions)
 from meowlauncher.util.utils import (find_filename_tags_at_end, junk_suffixes,
                                      load_list, remove_filename_tags)
+from meowlauncher.util.detect_things_from_filename import get_date_from_filename_tags, get_languages_from_filename_tags, get_regions_from_filename_tags, get_revision_from_filename_tags, get_tv_system_from_filename_tags, get_version_from_filename_tags
 
 from .platform_specific.metadata import generic_helper, helpers
 from .rom import ROM, FileROM, FolderROM
@@ -32,26 +32,26 @@ def add_metadata_from_tags(game: ROMGame):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = game.filename_tags
 
-	filename_date = detect_things_from_filename.get_date_from_filename_tags(tags)
+	filename_date = get_date_from_filename_tags(tags)
 	if filename_date:
 		if filename_date.is_better_than(game.metadata.release_date):
 			game.metadata.release_date = filename_date
 	
-	revision = detect_things_from_filename.get_revision_from_filename_tags(tags)
+	revision = get_revision_from_filename_tags(tags)
 	if revision and 'Revision' not in game.metadata.specific_info:
 		game.metadata.specific_info['Revision'] = revision
 
-	version = detect_things_from_filename.get_version_from_filename_tags(tags)
+	version = get_version_from_filename_tags(tags)
 	if version and 'Version' not in game.metadata.specific_info:
 		game.metadata.specific_info['Version'] = version
 
 	if not game.metadata.regions:
-		regions = detect_things_from_filename.get_regions_from_filename_tags(tags)
+		regions = get_regions_from_filename_tags(tags)
 		if regions:
 			game.metadata.regions = regions
 
 	if not game.metadata.languages:
-		languages = detect_things_from_filename.get_languages_from_filename_tags(tags)
+		languages = get_languages_from_filename_tags(tags)
 		if languages:
 			game.metadata.languages = languages			
 
@@ -260,7 +260,7 @@ def autodetect_tv_type(game: ROMGame):
 	if game.metadata.specific_info.get('TV-Type'):
 		return
 	
-	from_tags = detect_things_from_filename.get_tv_system_from_filename_tags(game.filename_tags)
+	from_tags = get_tv_system_from_filename_tags(game.filename_tags)
 	if from_tags:
 		game.metadata.specific_info['TV-Type'] = from_tags
 		return

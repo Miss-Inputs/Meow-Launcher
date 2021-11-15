@@ -1,15 +1,15 @@
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Optional, final
 from collections.abc import Mapping
+from typing import Any, Optional, final
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.platform_config import PlatformConfig
 from meowlauncher.configured_emulator import ConfiguredEmulator
 from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher
-from meowlauncher.games.common.name_utils import fix_name
 from meowlauncher.metadata import Date
+from meowlauncher.util.name_utils import fix_name
 
 
 class App(EmulatedGame, ABC):

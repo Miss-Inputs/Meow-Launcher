@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #I can't be stuffed figuring out if there's some fancy unit test thing that all the cool kids use so I'm just gonna do my own thing
 
-from meowlauncher.detect_things_from_filename import (
+from meowlauncher.util.detect_things_from_filename import (
     get_languages_from_filename_tags, get_regions_from_filename_tags,
     get_tv_system_from_filename_tags)
 from meowlauncher.util.region_info import (Language, Region, TVSystem,

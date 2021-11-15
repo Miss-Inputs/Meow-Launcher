@@ -7,13 +7,14 @@ import subprocess
 from collections.abc import Collection
 from typing import Optional
 
-from meowlauncher import desktop_launchers, launcher
+from meowlauncher import desktop_launchers
+from meowlauncher.launch_command import launch_with_wine, LaunchCommand
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.common.engine_detect import detect_engine_recursively
-from meowlauncher.games.common.name_utils import fix_name
 from meowlauncher.games.common.pc_common_metadata import (
     add_metadata_for_raw_exe, look_for_icon_next_to_file)
 from meowlauncher.metadata import Date, Metadata
+from meowlauncher.util.name_utils import fix_name
 
 #TODO: Rework this to be able to optionally just read json, launch all executables in the game dir or whatever, and avoid using butler if preferred
 
@@ -257,25 +258,25 @@ class ItchGame():
 			self.make_exe_launcher(flavour, path, windows_info)
 	
 
-def get_launch_params(flavour: str, exe_path: str, windows_info: Optional[dict]) -> Optional[tuple[launcher.LaunchCommand, Optional[str]]]:
+def get_launch_params(flavour: str, exe_path: str, windows_info: Optional[dict]) -> Optional[tuple[LaunchCommand, Optional[str]]]:
 	if flavour in {'linux', 'script'}:
 		#ez pez
-		return launcher.LaunchCommand(exe_path, []), None
+		return LaunchCommand(exe_path, []), None
 	if flavour == 'html':
 		#hmm I guess this will do
-		return launcher.LaunchCommand('xdg-open', [exe_path]), None
+		return LaunchCommand('xdg-open', [exe_path]), None
 	if flavour in {'windows', 'windows-script'}:
 		if windows_info and windows_info.get('dotNet', False):
 			#Mono does not really count as an emulator but whateves (I mean neither does Wine by the name but for metadata purposes I will)
-			return launcher.LaunchCommand('mono', [exe_path]), 'Mono'
+			return LaunchCommand('mono', [exe_path]), 'Mono'
 		#gui might also be useful if it is false
-		return launcher.get_wine_launch_params(exe_path, []), 'Wine'
+		return launch_with_wine(main_config.wine_path, main_config.wineprefix, exe_path, []), 'Wine'
 	if flavour == 'jar':
 		#Guess we can just assume it's installed who cares
-		return launcher.LaunchCommand('java', ['-jar', exe_path]), None
+		return LaunchCommand('java', ['-jar', exe_path]), None
 	if flavour == 'love':
 		#Guess we can also just assume this is installed who cares
-		return launcher.LaunchCommand('love', [exe_path]), 'LOVE'
+		return LaunchCommand('love', [exe_path]), 'LOVE'
 
 	return None
 	

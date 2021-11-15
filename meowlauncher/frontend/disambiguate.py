@@ -14,7 +14,7 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.desktop_launchers import (get_array, get_desktop, get_field,
                                             id_section_name, junk_section_name,
                                             metadata_section_name)
-from meowlauncher.util.utils import normalize_name
+from meowlauncher.util.name_utils import normalize_name
 
 FormatFunction = Callable[[str, str], Optional[str]]
 

@@ -2,17 +2,18 @@ import copy
 import json
 import os
 import shlex
-from pathlib import Path
 from collections.abc import Mapping
+from pathlib import Path
 from typing import Optional
 
-from meowlauncher import desktop_launchers, launcher
+from meowlauncher import desktop_launchers, launch_command
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games.common import name_utils, pc_common_metadata
-from meowlauncher.games.common.engine_detect import try_and_detect_engine_from_folder
+from meowlauncher.games.common import pc_common_metadata
+from meowlauncher.games.common.engine_detect import \
+    try_and_detect_engine_from_folder
 from meowlauncher.metadata import Metadata
-from meowlauncher.util import region_info
+from meowlauncher.util import name_utils, region_info
 
 
 class GOGGameInfo():
@@ -165,7 +166,7 @@ class GOGGame():
 		return False
 
 	def make_launcher(self) -> None:
-		params = launcher.LaunchCommand(self.start_script, [], working_directory=self.folder)
+		params = launch_command.LaunchCommand(self.start_script, [], working_directory=self.folder)
 		desktop_launchers.make_launcher(params, self.name, self.metadata, 'GOG', self.folder)
 
 class NormalGOGGame(GOGGame):
@@ -285,13 +286,13 @@ class WindowsGOGGame():
 			return find_subpath_case_insensitive(self.folder, folder.replace('.\\', subfolder + os.path.sep))
 		return folder
 
-	def get_dosbox_launch_params(self, task) -> launcher.LaunchCommand:
+	def get_dosbox_launch_params(self, task) -> launch_command.LaunchCommand:
 		args = [self.fix_subfolder_relative_folder(arg, 'dosbox') for arg in task.args]
 		dosbox_path = main_config.dosbox_path
 		dosbox_folder = find_subpath_case_insensitive(self.folder, 'dosbox') #Game's config files are expecting to be launched from here
 		return desktop_launchers.LaunchCommand(dosbox_path, args, working_directory=dosbox_folder)
 
-	def get_wine_launch_params(self, task) -> Optional[launcher.LaunchCommand]:
+	def get_wine_launch_params(self, task) -> Optional[launch_command.LaunchCommand]:
 		if not task.path:
 			if main_config.debug:
 				print('Oh dear - we cannot deal with tasks that have no path', self.name, task.name, task.args, task.task_type, task.category)
@@ -307,9 +308,9 @@ class WindowsGOGGame():
 		if task.working_directory:
 			working_directory = find_subpath_case_insensitive(self.folder, task.working_directory)
 		
-		return launcher.get_wine_launch_params(exe_path, task.args, working_directory)
+		return launch_command.launch_with_wine(main_config.wine_path, main_config.wineprefix, exe_path, task.args, working_directory)
 
-	def get_launcher_params(self, task) -> tuple[str, Optional[launcher.LaunchCommand]]:
+	def get_launcher_params(self, task) -> tuple[str, Optional[launch_command.LaunchCommand]]:
 		if main_config.use_system_dosbox and task.is_dosbox:
 			return 'DOSBox', self.get_dosbox_launch_params(task)
 

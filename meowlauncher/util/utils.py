@@ -32,22 +32,6 @@ def find_filename_tags_at_end(name: str):
 def remove_filename_tags(name: str):
 	return _find_tags(name)[0]
 
-words_regex = re.compile(r'[\w()]+')
-apostrophes_at_word_boundary_regex = re.compile(r"\B'|'\B")
-def normalize_name(name: str, care_about_spaces=True, normalize_words=True, care_about_numerals=False) -> str:
-	if care_about_numerals:
-		name = convert_roman_numerals_in_title(name)
-	name = name.lower()
-	name = name.replace('3-d', '3d')
-	name = name.replace('&', 'and')
-	name = name.replace('é', 'e')
-	name = name.replace(': ', ' - ')
-	name = apostrophes_at_word_boundary_regex.sub('', name)
-
-	if normalize_words:
-		return ('-' if care_about_spaces else '').join(words_regex.findall(name))
-	return name
-	
 def starts_with_any(s: str, prefixes: Iterable[str]) -> bool:
 	#Allows s.startswith() with any iterable, not just tuple
 	for prefix in prefixes:
@@ -120,52 +104,10 @@ def is_roman_numeral(s: str) -> bool:
 	except ValueError:
 		return False
 
-def convert_roman_numerals_in_title(s: str) -> str:
-	words = s.split(' ')
-	converted_words = []
-	for word in words:
-		actual_word_match = re.match('[A-Za-z]+', word)
-		if not actual_word_match:
-			converted_words.append(word)
-			continue
-		span_start, span_end = actual_word_match.span()
-		prefix_punctuation = word[:span_start]
-		suffix_punctuation = word[span_end:]
-		actual_word = actual_word_match[0]
-
-		try:
-			converted_words.append(prefix_punctuation + str(convert_roman_numeral(actual_word)) + suffix_punctuation)
-		except ValueError:
-			converted_words.append(word)
-	return ' '.join(converted_words)
-
 def title_word(s: str) -> str:
 	#Like str.title or str.capitalize but actually bloody works how I expect for compound-words and contract'ns
 	actual_word_parts = re.split(r"([\w']+)", s)
 	return ''.join([part.capitalize() for part in actual_word_parts])
-
-dont_capitalize_these = ['the', 'a', 'an', 'and', 'or', 'at', 'with', 'to', 'of', 'is']
-def title_case_sentence_part(s: str, words_to_ignore_case: Optional[Iterable[str]]=None) -> str:
-	words = re.split(' ', s)
-	if not words_to_ignore_case:
-		words_to_ignore_case = []
-
-	titled_words = []
-	titled_words.append(words[0] if words[0] in words_to_ignore_case else title_word(words[0]))
-	words = words[1:]
-	for word in words:
-		if word in words_to_ignore_case or is_roman_numeral(word):
-			titled_words.append(word)
-		elif word.lower() in dont_capitalize_these:
-			titled_words.append(word.lower())
-		else:
-			titled_words.append(title_word(word))
-	return ' '.join(titled_words)
-
-def title_case(s: str, words_to_ignore_case: Optional[Iterable[str]]=None) -> str:
-	sentence_parts = re.split(r'(\s+-\s+|:\s+)', s)
-	titled_parts = [title_case_sentence_part(part, words_to_ignore_case) for part in sentence_parts]
-	return ''.join(titled_parts)
 
 def remove_capital_article(s: Optional[str]) -> str:
 	if not s:

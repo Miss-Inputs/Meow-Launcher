@@ -3,8 +3,8 @@ from typing import Optional, Union, cast
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games.common.name_utils import fix_name
 from meowlauncher.metadata import Metadata
+from meowlauncher.util.name_utils import fix_name
 
 categories: dict[str, tuple[str, Optional[str]]] = {
 	#Second item is what we want to set metadata.category to

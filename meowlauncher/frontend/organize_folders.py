@@ -7,7 +7,7 @@ import sys
 import time
 from collections.abc import Callable, Iterable
 from configparser import ConfigParser
-from typing import Any, cast
+from typing import Any, Optional, cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.desktop_launchers import get_array, get_desktop, get_field
@@ -205,6 +205,7 @@ def main() -> None:
 		else:
 			name = 'By ' + key
 
+		missing_value: Optional[str]
 		if '--missing-value' in sys.argv:
 			missing_value_arg_index = sys.argv.index('--missing-value')
 			missing_value = sys.argv[missing_value_arg_index + 1]

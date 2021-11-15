@@ -9,9 +9,9 @@ from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.util import io_utils
+from meowlauncher.util.name_utils import normalize_name
 from meowlauncher.util.utils import (byteswap, find_filename_tags_at_end,
-                                     load_dict, normalize_name,
-                                     remove_filename_tags)
+                                     load_dict, remove_filename_tags)
 
 from .mame_helpers import default_mame_configuration
 from .software_list import (Software, SoftwareCustomMatcher, SoftwareList,

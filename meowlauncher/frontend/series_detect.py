@@ -9,10 +9,10 @@ from meowlauncher.data.series_detect.series_detect_overrides import \
     series_overrides
 from meowlauncher.desktop_launchers import (get_desktop, get_field,
                                             metadata_section_name)
+from meowlauncher.util.name_utils import (chapter_matcher,
+                                          convert_roman_numerals_in_title)
 from meowlauncher.util.utils import (convert_roman_numeral,
-                                     convert_roman_numerals_in_title,
                                      remove_capital_article)
-from meowlauncher.games.common.name_utils import chapter_matcher									 
 
 probably_not_series_index_threshold = 20
 #Assume that a number over this is probably not referring to the nth or higher entry in the series, but is probably just any old number that means something else

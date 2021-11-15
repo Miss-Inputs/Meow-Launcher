@@ -1,10 +1,12 @@
 import re
+from collections.abc import Iterable
 from typing import Optional
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.capitalized_words_in_names import \
     capitalized_words
-from meowlauncher.util.utils import title_case
+
+from .utils import convert_roman_numeral, is_roman_numeral, title_word
 
 chapter_matcher = re.compile(r'\b(?:Chapter|Vol|Volume|Episode|Part|Version)\b(?:\.)?', flags=re.RegexFlag.IGNORECASE)
 
@@ -66,3 +68,61 @@ document_names = ('faq', 'manual', 'map of avernum', 'reference card')
 def is_probably_documentation(name: str) -> bool:
 	lower = name.lower()
 	return any(document_name in lower for document_name in document_names)
+
+def convert_roman_numerals_in_title(s: str) -> str:
+	words = s.split(' ')
+	converted_words = []
+	for word in words:
+		actual_word_match = re.match('[A-Za-z]+', word)
+		if not actual_word_match:
+			converted_words.append(word)
+			continue
+		span_start, span_end = actual_word_match.span()
+		prefix_punctuation = word[:span_start]
+		suffix_punctuation = word[span_end:]
+		actual_word = actual_word_match[0]
+
+		try:
+			converted_words.append(prefix_punctuation + str(convert_roman_numeral(actual_word)) + suffix_punctuation)
+		except ValueError:
+			converted_words.append(word)
+	return ' '.join(converted_words)
+
+words_regex = re.compile(r'[\w()]+')
+apostrophes_at_word_boundary_regex = re.compile(r"\B'|'\B")
+def normalize_name(name: str, care_about_spaces=True, normalize_words=True, care_about_numerals=False) -> str:
+	if care_about_numerals:
+		name = convert_roman_numerals_in_title(name)
+	name = name.lower()
+	name = name.replace('3-d', '3d')
+	name = name.replace('&', 'and')
+	name = name.replace('é', 'e')
+	name = name.replace(': ', ' - ')
+	name = apostrophes_at_word_boundary_regex.sub('', name)
+
+	if normalize_words:
+		return ('-' if care_about_spaces else '').join(words_regex.findall(name))
+	return name
+
+dont_capitalize_these = ['the', 'a', 'an', 'and', 'or', 'at', 'with', 'to', 'of', 'is']
+def _title_case_sentence_part(s: str, words_to_ignore_case: Optional[Iterable[str]]=None) -> str:
+	words = re.split(' ', s)
+	if not words_to_ignore_case:
+		words_to_ignore_case = []
+
+	titled_words = []
+	titled_words.append(words[0] if words[0] in words_to_ignore_case else title_word(words[0]))
+	words = words[1:]
+	for word in words:
+		if word in words_to_ignore_case or is_roman_numeral(word):
+			titled_words.append(word)
+		elif word.lower() in dont_capitalize_these:
+			titled_words.append(word.lower())
+		else:
+			titled_words.append(title_word(word))
+	return ' '.join(titled_words)
+
+def title_case(s: str, words_to_ignore_case: Optional[Iterable[str]]=None) -> str:
+	sentence_parts = re.split(r'(\s+-\s+|:\s+)', s)
+	titled_parts = [_title_case_sentence_part(part, words_to_ignore_case) for part in sentence_parts]
+	return ''.join(titled_parts)

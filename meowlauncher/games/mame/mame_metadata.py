@@ -1,7 +1,7 @@
-from typing import Optional, cast
 from collections.abc import Sequence
+from typing import Optional, cast
 
-from meowlauncher import detect_things_from_filename, input_metadata
+from meowlauncher import input_metadata
 from meowlauncher.common_types import EmulationStatus, MediaType, SaveType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.mame_common.machine import Machine, mame_statuses
@@ -12,6 +12,9 @@ from meowlauncher.games.mame_common.mame_support_files import (
 from meowlauncher.games.mame_common.mame_utils import (find_cpus,
                                                        image_config_keys)
 from meowlauncher.metadata import CPU, Metadata, ScreenInfo
+from meowlauncher.util.detect_things_from_filename import (
+    get_languages_from_tags_directly, get_regions_from_filename_tags,
+    get_revision_from_filename_tags, get_version_from_filename_tags)
 from meowlauncher.util.region_info import get_language_from_regions
 from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
 
@@ -182,7 +185,7 @@ def add_languages(game: MAMEGame, name_tags: Sequence[str]) -> None:
 				game.metadata.languages = languages
 				return
 
-		languages = detect_things_from_filename.get_languages_from_tags_directly(name_tags)
+		languages = get_languages_from_tags_directly(name_tags)
 		if languages:
 			game.metadata.languages = languages
 		elif game.metadata.regions:
@@ -226,16 +229,16 @@ def add_metadata(game: MAMEGame) -> None:
 	add_save_type(game)
 
 	name_tags = find_filename_tags_at_end(game.machine.name)
-	regions = detect_things_from_filename.get_regions_from_filename_tags(name_tags, loose=True)
+	regions = get_regions_from_filename_tags(name_tags, loose=True)
 	if regions:
 		game.metadata.regions = regions
 
 	add_languages(game, name_tags)
 
-	revision = detect_things_from_filename.get_revision_from_filename_tags(name_tags)
+	revision = get_revision_from_filename_tags(name_tags)
 	if revision:
 		game.metadata.specific_info['Revision'] = revision
-	version = detect_things_from_filename.get_version_from_filename_tags(name_tags)
+	version = get_version_from_filename_tags(name_tags)
 	if version:
 		game.metadata.specific_info['Version'] = version
 

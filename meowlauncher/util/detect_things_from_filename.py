@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
 import re
-from typing import Optional
 from collections.abc import Sequence
+from typing import Optional
 
-from meowlauncher.util import region_info
 from meowlauncher.metadata import Date
+
+from . import region_info
 
 #TODO: I dunno if this should be done as a big ol' regex, maybe just see if a comma-separated list all matches languages
 nointro_language_list_regex = re.compile(r'\(((?:[A-Z][a-z](?:-[A-Z][a-z]+)?,)*(?:[A-Z][a-z](?:-[A-Z][a-z]+)?))\)')
