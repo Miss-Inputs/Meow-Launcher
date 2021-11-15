@@ -593,7 +593,7 @@ def add_images(game: SteamGame):
 		if image_path:
 			game.metadata.images[name] = image_path
 
-def add_info_from_cache_json(game: SteamGame, json_path: str, is_single_user: bool):
+def add_info_from_cache_json(game: SteamGame, json_path: Path, is_single_user: bool):
 	#This does not always exist, it's there if you've looked at it in the Steam client and it's loaded some metadata, but like why the heck not
 	with open(json_path, 'rb') as f:
 		j = json.load(f)

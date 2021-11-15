@@ -1,5 +1,4 @@
 import io
-import os
 from typing import Optional, cast
 
 from meowlauncher import input_metadata
@@ -140,7 +139,7 @@ def add_psp_metadata(game: ROMGame):
 		add_info_from_pbp(game.rom, game.metadata, cast(FileROM, game.rom).read())
 		#These are basically always named EBOOT.PBP (due to how PSPs work I guess), so that's not a very good launcher name, and use the folder it's stored in instead
 		if game.rom.name.lower() == 'eboot':
-			game.metadata.add_alternate_name(os.path.basename(os.path.dirname(game.rom.path)), 'Folder-Name')
+			game.metadata.add_alternate_name(game.rom.path.parent.name, 'Folder-Name')
 			game.rom.ignore_name = True
 	elif game.rom.extension == 'iso' and have_pycdlib:
 		add_psp_iso_info(str(game.rom.path), game.metadata)

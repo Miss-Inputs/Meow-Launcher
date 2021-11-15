@@ -182,7 +182,7 @@ class FolderROM(ROM):
 			name = f.name
 			if ignore_case:
 				name = name.lower()
-			if f.is_file() and f.name.endswith(os.path.extsep + extension):
+			if f.is_file() and f.suffix == os.path.extsep + extension:
 				return True
 		return False
 	

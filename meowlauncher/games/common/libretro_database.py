@@ -4,6 +4,7 @@ import functools
 import os
 import re
 from collections.abc import Sequence
+from pathlib import Path
 from typing import  Optional, Union, cast
 
 from meowlauncher.config.main_config import main_config
@@ -34,7 +35,7 @@ def parse_rom_line(line: str) -> Optional[dict[str, str]]:
 	return rom
 
 attribute_line = re.compile(r'(?P<key>\w+)\s+(?:"(?P<value>[^"]*)"|(?P<intvalue>\d+))')
-def parse_libretro_dat(path: str) -> tuple[dict[str, Union[int, str]], Sequence[GameType]]:
+def parse_libretro_dat(path: Path) -> tuple[dict[str, Union[int, str]], Sequence[GameType]]:
 	games: list[GameType] = []
 	header: dict[str, Union[int, str]] = {}
 	with open(path, 'rt', encoding='utf-8') as file:
@@ -116,20 +117,21 @@ def parse_all_dats_for_system(name: str, use_serial: bool) -> Optional[LibretroD
 	libretro_database_path = main_config.libretro_database_path
 	if not libretro_database_path:
 		return None
-	dat_folder = os.path.join(main_config.libretro_database_path, 'dat')
-	metadat_folder = os.path.join(main_config.libretro_database_path, 'metadat')
+	dat_folder = Path(main_config.libretro_database_path, 'dat')
+	metadat_folder = Path(main_config.libretro_database_path, 'metadat')
 	
-	if os.path.isdir(dat_folder):
-		for file in os.listdir(dat_folder):
-			if file == name + '.dat':
-				path = os.path.join(dat_folder, file)
-				relevant_dats.append(path)
-	if os.path.isdir(metadat_folder):
+	try:
+		for file in dat_folder.iterdir():
+			if file.name == name + '.dat':
+				relevant_dats.append(file)
+	except OSError:
+		pass
+	if metadat_folder.is_dir():
 		for root, _, files in os.walk(metadat_folder):
-			for file in files:
-				if file == name + '.dat':
-					path = os.path.join(root, file)
-					if os.path.isfile(path):
+			for filename in files:
+				if filename == name + '.dat':
+					path = Path(root, filename)
+					if path.is_file():
 						relevant_dats.append(path)
 	
 	if not relevant_dats:

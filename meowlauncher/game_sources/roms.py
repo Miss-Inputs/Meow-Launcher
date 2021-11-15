@@ -95,7 +95,7 @@ def process_file(platform_config: PlatformConfig, potential_emulator_names: Iter
 	
 	return launcher
 
-def parse_m3u(path: str):
+def parse_m3u(path: Path):
 	with open(path, 'rt', encoding='utf-8') as f:
 		return [line.rstrip('\n') for line in f]
 
