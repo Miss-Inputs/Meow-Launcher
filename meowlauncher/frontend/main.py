@@ -2,14 +2,14 @@ import datetime
 import os
 import time
 
-import meowlauncher.disambiguate
-import meowlauncher.organize_folders
-import meowlauncher.remove_nonexistent_games
-import meowlauncher.series_detect
 from meowlauncher.config.main_config import main_config
 from meowlauncher.desktop_launchers import make_linux_desktop_for_launcher
 from meowlauncher.game_sources import (game_sources, gog, itch_io,
                                        mame_machines, roms, scummvm, steam)
+
+from . import organize_folders, series_detect
+from .disambiguate import disambiguate_names
+from .remove_nonexistent_games import remove_nonexistent_games
 
 
 def main(progress_function, mame_enabled=True, roms_enabled=True, scummvm_enabled=True, steam_enabled=True, gog_enabled=True, itch_io_enabled=True):
@@ -61,21 +61,21 @@ def main(progress_function, mame_enabled=True, roms_enabled=True, scummvm_enable
 
 	if not main_config.full_rescan:
 		call_progress_function('Removing games which no longer exist')
-		meowlauncher.remove_nonexistent_games.remove_nonexistent_games()
+		remove_nonexistent_games()
 	else:
 		call_progress_function(None)
 
 	if main_config.get_series_from_name:
 		call_progress_function('Detecting series')
-		meowlauncher.series_detect.detect_series_for_all_desktops()
+		series_detect.detect_series_for_all_desktops()
 	else:
 		call_progress_function(None)
 
 	call_progress_function('Disambiguating names')
-	meowlauncher.disambiguate.disambiguate_names()
+	disambiguate_names()
 
 	if main_config.organize_folders:
 		call_progress_function('Organizing into folders')
-		meowlauncher.organize_folders.move_into_folders()
+		organize_folders.move_into_folders()
 	else:
 		call_progress_function(None)

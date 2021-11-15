@@ -7,18 +7,18 @@ import datetime
 import sys
 import time
 
-from meowlauncher import organize_folders
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.desktop_launchers import make_linux_desktop_for_launcher
-from meowlauncher.disambiguate import disambiguate_names
+from meowlauncher.frontend.disambiguate import disambiguate_names
+from meowlauncher.frontend.remove_nonexistent_games import \
+    remove_nonexistent_games
+from meowlauncher.frontend import organize_folders, series_detect
 from meowlauncher.game_sources import (game_sources, gog, itch_io,
                                        mame_machines, mame_software, roms,
                                        scummvm, steam)
 from meowlauncher.games.mame_common.machine import (
     get_machine, get_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
-from meowlauncher.remove_nonexistent_games import remove_nonexistent_games
-from meowlauncher.series_detect import detect_series_for_all_desktops
 
 
 def process_roms_args() -> None:
@@ -82,7 +82,7 @@ def main() -> None:
 		steam.process_steam()
 	
 	elif sys.argv[1] == 'series_detect':
-		detect_series_for_all_desktops()
+		series_detect.detect_series_for_all_desktops()
 	elif sys.argv[1] == 'remove_nonexistent_games':
 		remove_nonexistent_games()
 	elif sys.argv[1] == 'disambiguate':

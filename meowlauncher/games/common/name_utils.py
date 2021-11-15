@@ -4,8 +4,9 @@ from typing import Optional
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.capitalized_words_in_names import \
     capitalized_words
-from meowlauncher.series_detect import chapter_matcher
 from meowlauncher.util.utils import title_case
+
+chapter_matcher = re.compile(r'\b(?:Chapter|Vol|Volume|Episode|Part|Version)\b(?:\.)?', flags=re.RegexFlag.IGNORECASE)
 
 fluff_editions = ['GOTY', 'Game of the Year', 'Definitive', 'Enhanced', 'Special', 'Ultimate', 'Premium', 'Gold', 'Extended', 'Super Turbo Championship', 'Digital', 'Megaton', 'Deluxe', 'Masterpiece']
 demo_suffixes = ['Demo', 'Playable Teaser']

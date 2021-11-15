@@ -12,6 +12,7 @@ from meowlauncher.desktop_launchers import (get_desktop, get_field,
 from meowlauncher.util.utils import (convert_roman_numeral,
                                      convert_roman_numerals_in_title,
                                      remove_capital_article)
+from meowlauncher.games.common.name_utils import chapter_matcher									 
 
 probably_not_series_index_threshold = 20
 #Assume that a number over this is probably not referring to the nth or higher entry in the series, but is probably just any old number that means something else
@@ -21,7 +22,6 @@ suffixes_not_part_of_series = ('64', 'Advance', '3D', 'DS')
 #If these are appended to a series it's just part of that same series and not a new one, if that makes sense, see series_match
 
 series_matcher = re.compile(r'(?P<Series>.+?)\b\s+#?(?P<Number>\d{1,3}|[IVXLCDM]+?)\b(?:\s|$)')
-chapter_matcher = re.compile(r'\b(?:Chapter|Vol|Volume|Episode|Part|Version)\b(?:\.)?', flags=re.RegexFlag.IGNORECASE)
 #"Phase", "Disk" might also be chapter marker things?
 subtitle_splitter = re.compile(r'\s*(?:\s+-\s+|:\s+|\s+\/\s+)')
 blah_in_1_matcher = re.compile(r'.+\s+in\s+1')
