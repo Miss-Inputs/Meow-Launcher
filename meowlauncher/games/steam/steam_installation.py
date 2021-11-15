@@ -1,9 +1,25 @@
+import io
 import os
+import zipfile
 from collections.abc import Mapping
-from typing import Optional, Any
 from pathlib import Path
+from typing import Any, Optional, Union
+
+try:
+	from PIL import IcoImagePlugin, Image
+	have_pillow = True
+except ModuleNotFoundError:
+	have_pillow = False
 
 from steamfiles import acf, appinfo
+
+from meowlauncher.config.main_config import main_config
+
+class IconError(Exception):
+	pass
+
+class IconNotFoundError(Exception):
+	pass
 
 class SteamInstallation():
 	def __init__(self, path: Path):
@@ -157,3 +173,64 @@ class SteamInstallation():
 				if os.path.isfile(path):
 					return path
 		return None
+
+	def look_for_icon(self, icon_hash: str) -> Optional[Union['Image.Image', str]]:
+		icon_hash = icon_hash.lower()
+		for icon_path in self.icon_folder.iterdir():
+			if icon_path.name.lower() in (icon_hash + '.ico', icon_hash + '.png', icon_hash + '.zip'):
+				is_zip = zipfile.is_zipfile(icon_path)
+				#Can't just rely on the extension because some zip files like to hide and pretend to be .ico files for some reason
+
+				with open(icon_path, 'rb') as test:
+					magic = test.read(4)
+					if magic == b'Rar!':
+						raise IconError('icon {0} is secretly a RAR file and cannot be opened'.format(icon_hash))
+
+				if icon_path.name.endswith('.ico') and not is_zip:
+					if have_pillow:
+						#.ico files can be a bit flaky with Tumbler thumbnails and some other image-reading stuff, so if we can convert them, that might be a good idea just in case (well, there definitely are some icons that don't thumbnail properly so yeah)
+						try:
+							image = Image.open(icon_path)
+							return image
+						except (ValueError, OSError) as ex:
+							#Try and handle the "This is not one of the allowed sizes of this image" error caused by .ico files having incorrect headers which I guess happens more often than I would have thought otherwise
+							#This is gonna get ugly
+							with open(icon_path, 'rb') as f:
+								try:
+									#Use BytesIO here to prevent "seeking a closed file" errors, which is probably a sign that I don't actually know what I'm doing
+									ico = IcoImagePlugin.IcoFile(io.BytesIO(f.read()))
+									biggest_size = (0, 0)
+									for size in ico.sizes():
+										if size[0] > biggest_size[0] and size[1] > biggest_size[1]:
+											biggest_size = size
+									if biggest_size == (0, 0):
+										raise IconError('.ico file {0} has no valid sizes'.format(icon_path)) from ex
+									return ico.getimage(biggest_size)
+								except SyntaxError as syntax_error:
+									#Of all the errors it throws, it throws this one? Well, okay fine whatever
+									raise IconError('.ico file {0} is not actually an .ico file at all'.format(icon_path)) from syntax_error
+						except Exception as ex:
+							#Guess it's still broken
+							raise IconError('.ico file {0} has some annoying error: {1}'.format(icon_path, str(ex))) from ex
+					return icon_path
+
+				if not is_zip:
+					return icon_path
+
+				with zipfile.ZipFile(icon_path, 'r') as zip_file:
+					icon_files = []
+					for zip_info in zip_file.infolist():
+						if zip_info.is_dir():
+							continue
+						if zip_info.filename.startswith('__MACOSX'):
+							#Yeah that happens with retail Linux games apparently
+							continue
+						if zip_info.filename.lower().endswith(('.ico', '.png')):
+							icon_files.append(zip_info)
+
+					#Get the biggest image file and assume that's the best icon we can have
+					extracted_icon_file = sorted(icon_files, key=lambda zip_info: zip_info.file_size, reverse=True)[0]
+					extracted_icon_folder = os.path.join(main_config.image_folder, 'Icon', 'extracted_from_zip', icon_hash)
+					return zip_file.extract(extracted_icon_file, path=extracted_icon_folder)
+
+		raise IconNotFoundError('{0} not found'.format(icon_hash))

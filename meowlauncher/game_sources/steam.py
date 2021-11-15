@@ -1,22 +1,14 @@
 #!/usr/bin/env python3
 
 import datetime
-import io
 import json
 import os
 import statistics
 import time
-import zipfile
 from collections.abc import Iterable, Mapping
 from enum import IntFlag
 from pathlib import Path
-from typing import Any, Optional, Union
-
-try:
-	from PIL import IcoImagePlugin, Image
-	have_pillow = True
-except ModuleNotFoundError:
-	have_pillow = False
+from typing import Any, Optional
 
 try:
 	from steamfiles import acf, appinfo
@@ -30,7 +22,7 @@ from meowlauncher.desktop_launchers import has_been_done
 from meowlauncher.games.common.engine_detect import detect_engine_recursively
 from meowlauncher.games.common.pc_common_metadata import (
     add_metadata_for_raw_exe, check_for_interesting_things_in_folder)
-from meowlauncher.games.steam.steam_installation import SteamInstallation
+from meowlauncher.games.steam.steam_installation import IconError, IconNotFoundError, SteamInstallation
 from meowlauncher.games.steam.steam_game import SteamGame, LauncherInfo
 from meowlauncher.games.steam.steam_utils import (normalize_developer,
                                                   translate_language_list)
@@ -111,71 +103,6 @@ class NotActuallyAGameYouDingusException(Exception):
 
 class NotLaunchableError(Exception):
 	pass
-
-class IconError(Exception):
-	pass
-
-class IconNotFoundError(Exception):
-	pass
-
-def look_for_icon(icon_hash: str) -> Optional[Union['Image.Image', str]]:
-	icon_hash = icon_hash.lower()
-	for icon_path in steam_installation.icon_folder.iterdir():
-		if icon_path.name.lower() in (icon_hash + '.ico', icon_hash + '.png', icon_hash + '.zip'):
-			is_zip = zipfile.is_zipfile(icon_path)
-			#Can't just rely on the extension because some zip files like to hide and pretend to be .ico files for some reason
-
-			with open(icon_path, 'rb') as test:
-				magic = test.read(4)
-				if magic == b'Rar!':
-					raise IconError('icon {0} is secretly a RAR file and cannot be opened'.format(icon_hash))
-
-			if have_pillow and icon_path.endswith('.ico') and not is_zip:
-				#.ico files can be a bit flaky with Tumbler thumbnails and some other image-reading stuff, so if we can convert them, that might be a good idea just in case (well, there definitely are some icons that don't thumbnail properly so yeah)
-				try:
-					image = Image.open(icon_path)
-					return image
-				except (ValueError, OSError) as ex:
-					#Try and handle the "This is not one of the allowed sizes of this image" error caused by .ico files having incorrect headers which I guess happens more often than I would have thought otherwise
-					#This is gonna get ugly
-					with open(icon_path, 'rb') as f:
-						try:
-							#Use BytesIO here to prevent "seeking a closed file" errors, which is probably a sign that I don't actually know what I'm doing
-							ico = IcoImagePlugin.IcoFile(io.BytesIO(f.read()))
-							biggest_size = (0, 0)
-							for size in ico.sizes():
-								if size[0] > biggest_size[0] and size[1] > biggest_size[1]:
-									biggest_size = size
-							if biggest_size == (0, 0):
-								raise IconError('.ico file {0} has no valid sizes'.format(icon_path)) from ex
-							return ico.getimage(biggest_size)
-						except SyntaxError as syntax_error:
-							#Of all the errors it throws, it throws this one? Well, okay fine whatever
-							raise IconError('.ico file {0} is not actually an .ico file at all'.format(icon_path)) from syntax_error
-				except Exception as ex:
-					#Guess it's still broken
-					raise IconError('.ico file {0} has some annoying error: {1}'.format(icon_path, str(ex))) from ex
-
-			if not is_zip:
-				return icon_path
-
-			with zipfile.ZipFile(icon_path, 'r') as zip_file:
-				icon_files = []
-				for zip_info in zip_file.infolist():
-					if zip_info.is_dir():
-						continue
-					if zip_info.filename.startswith('__MACOSX'):
-						#Yeah that happens with retail Linux games apparently
-						continue
-					if zip_info.filename.lower().endswith(('.ico', '.png')):
-						icon_files.append(zip_info)
-
-				#Get the biggest image file and assume that's the best icon we can have
-				extracted_icon_file = sorted(icon_files, key=lambda zip_info: zip_info.file_size, reverse=True)[0]
-				extracted_icon_folder = os.path.join(main_config.image_folder, 'Icon', 'extracted_from_zip', icon_hash)
-				return zip_file.extract(extracted_icon_file, path=extracted_icon_folder)
-
-	raise IconNotFoundError('{0} not found'.format(icon_hash))
 
 def format_genre(genre_id: str) -> str:
 	return genre_ids.get(genre_id, 'unknown {0}'.format(genre_id))
@@ -265,7 +192,7 @@ def add_icon_from_common_section(game: SteamGame, common_section: Mapping[bytes,
 		except UnicodeDecodeError:
 			continue
 		try:
-			icon = look_for_icon(icon_hash)
+			icon = steam_installation.look_for_icon(icon_hash)
 		except IconError as icon_error:
 			icon_exception = icon_error
 			continue
@@ -284,44 +211,7 @@ def add_icon_from_common_section(game: SteamGame, common_section: Mapping[bytes,
 		elif not potentially_has_icon:
 			print(game.name, game.appid, 'does not even have an icon')
 
-def add_metadata_from_appinfo_common_section(game: SteamGame, common: Mapping[bytes, Any]):
-	if 'Icon' not in game.metadata.images:
-		add_icon_from_common_section(game, common)
-
-	#eulas is a list, so it could be used to detect if game has third-party EULA
-	#small_capsule and header_image refer to image files that don't seem to be there so I dunno
-	#workshop_visible and community_hub_visible could also tell you stuff about if the game has a workshop and a... community hub
-	#releasestate: 'released' might be to do with early access?
-	#exfgls = exclude from game library sharing
-	#b'requireskbmouse' and b'kbmousegame' are also things, but don't seem to be 1:1 with games that have controllersupport = none
-
-	oslist = common.get(b'oslist')
-	if not main_config.use_steam_as_platform:
-		#It's comma separated, but we can assume platform if there's only one (and sometimes config section doesn't do the thing)
-		if oslist == b'windows':
-			game.metadata.platform = 'Windows'
-		if oslist == b'macos':
-			game.metadata.platform = 'Mac'
-		if oslist == b'linux':
-			game.metadata.platform = 'Linux'
-		
-	#osarch is something like b'32' or b'64', osextended is sometimes 'macos64' etc
-
-	app_retired_publisher_request = common.get(b'app_retired_publisher_request')
-	if app_retired_publisher_request:
-		game.metadata.specific_info['No-Longer-Purchasable'] = app_retired_publisher_request.data == 1
-	#You can't know if a game's delisted entirely unless you go to the store API to find if that returns success or not, because the appinfo stuff is a cache and holds on to data that no longer exists
-
-	language_list = common.get(b'languages')
-	if language_list:
-		game.metadata.languages = translate_language_list(language_list)
-	else:
-		supported_languages = common.get(b'supported_languages')
-		if supported_languages:
-			#Hmm… this one goes into more detail actually, you have not just "supported" but "full_audio" and "subtitles"
-			#But for now let's just look at what else exists
-			game.metadata.languages = translate_language_list(supported_languages)
-
+def add_genre(game: SteamGame, common: Mapping[bytes, Any]):
 	content_warning_ids = []
 	primary_genre_id = common.get(b'primary_genre')
 	#I think this has to do with the breadcrumb thing in the store at the top where it's like "All Games > Blah Games > Blah"
@@ -368,6 +258,47 @@ def add_metadata_from_appinfo_common_section(game: SteamGame, common: Mapping[by
 	if content_warning_ids:
 		game.metadata.specific_info['Content-Warnings'] = [format_genre(id) for id in content_warning_ids]
 	#"genre" doesn't look like a word anymore
+
+
+def add_metadata_from_appinfo_common_section(game: SteamGame, common: Mapping[bytes, Any]):
+	if 'Icon' not in game.metadata.images:
+		add_icon_from_common_section(game, common)
+
+	#eulas is a list, so it could be used to detect if game has third-party EULA
+	#small_capsule and header_image refer to image files that don't seem to be there so I dunno
+	#workshop_visible and community_hub_visible could also tell you stuff about if the game has a workshop and a... community hub
+	#releasestate: 'released' might be to do with early access?
+	#exfgls = exclude from game library sharing
+	#b'requireskbmouse' and b'kbmousegame' are also things, but don't seem to be 1:1 with games that have controllersupport = none
+
+	oslist = common.get(b'oslist')
+	if not main_config.use_steam_as_platform:
+		#It's comma separated, but we can assume platform if there's only one (and sometimes config section doesn't do the thing)
+		if oslist == b'windows':
+			game.metadata.platform = 'Windows'
+		if oslist == b'macos':
+			game.metadata.platform = 'Mac'
+		if oslist == b'linux':
+			game.metadata.platform = 'Linux'
+		
+	#osarch is something like b'32' or b'64', osextended is sometimes 'macos64' etc
+
+	app_retired_publisher_request = common.get(b'app_retired_publisher_request')
+	if app_retired_publisher_request:
+		game.metadata.specific_info['No-Longer-Purchasable'] = app_retired_publisher_request.data == 1
+	#You can't know if a game's delisted entirely unless you go to the store API to find if that returns success or not, because the appinfo stuff is a cache and holds on to data that no longer exists
+
+	language_list = common.get(b'languages')
+	if language_list:
+		game.metadata.languages = translate_language_list(language_list)
+	else:
+		supported_languages = common.get(b'supported_languages')
+		if supported_languages:
+			#Hmm… this one goes into more detail actually, you have not just "supported" but "full_audio" and "subtitles"
+			#But for now let's just look at what else exists
+			game.metadata.languages = translate_language_list(supported_languages)
+
+	add_genre(game, common)
 
 	steam_release_timestamp = common.get(b'steam_release_date')
 	#Seems that original_release_date is here sometimes, and original_release_date sometimes appears along with steam_release_date where a game was only put on Steam later than when it was actually released elsewhere
@@ -464,7 +395,7 @@ def add_metadata_from_appinfo_common_section(game: SteamGame, common: Mapping[by
 	associations = common.get(b'associations')
 
 	if associations:
-		associations_dict = {}
+		associations_dict: dict[str, list[str]] = {}
 		for association in associations.values():
 			association_type_value = association.get(b'type')
 			if isinstance(association_type_value, appinfo.Integer):
@@ -791,7 +722,7 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> None
 	if not game.launchers:
 		raise NotLaunchableError('Game cannot be launched')
 
-	launcher = list(game.launchers.values())[0] #Hmm
+	launcher: Optional[LauncherInfo] = list(game.launchers.values())[0] #Hmm
 	tools = steam_installation.steamplay_compat_tools
 	override = False
 	if appid_str in steamplay_overrides:
