@@ -13,8 +13,9 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.games.common.engine_detect import detect_engine_recursively
 from meowlauncher.games.common.pc_common_metadata import (
     add_metadata_for_raw_exe, look_for_icon_next_to_file)
-from meowlauncher.metadata import Date, Metadata
+from meowlauncher.metadata import Date
 from meowlauncher.util.name_utils import fix_name
+from meowlauncher.game import Game
 
 #TODO: Rework this to be able to optionally just read json, launch all executables in the game dir or whatever, and avoid using butler if preferred
 
@@ -65,20 +66,24 @@ def is_probably_unwanted_candidate(path: str, all_candidate_basenames: Collectio
 
 	return False
 
-class ItchGame():
-	def __init__(self, path) -> None:
+class ItchGame(Game):
+	def __init__(self, path: str) -> None:
+		super().__init__()
 		self.path = path
 		try:
 			with gzip.open(os.path.join(path, '.itch', 'receipt.json.gz')) as receipt_file:
 				self.receipt = json.load(receipt_file)
 		except FileNotFoundError:
 			self.receipt = None
-		self.metadata = Metadata()
-		self.name = os.path.basename(path) #This will be replaced later
+		self._name = os.path.basename(path) #This will be replaced later
 		self.is_demo = False
 		self.platforms = []
 		self.category = 'game'
 		self.game_type = 'default'
+
+	@property
+	def name(self) -> str:
+		return self._name
 
 	def add_metadata_from_folder(self) -> None:
 		engine = detect_engine_recursively(self.path, self.metadata)
@@ -95,7 +100,7 @@ class ItchGame():
 
 		title = game.get('title')
 		if title:
-			self.name = fix_name(title)
+			self._name = fix_name(title)
 		self.metadata.specific_info['Game-ID'] = game.get('id')
 		self.metadata.documents['Homepage'] = game.get('url')
 
@@ -135,7 +140,7 @@ class ItchGame():
 			self.metadata.specific_info['Build-Name'] = build_name
 			self.is_demo = upload.get('demo')
 			if self.is_demo and not 'demo' in self.name.lower():
-				self.name += ' (Demo)'
+				self._name += ' (Demo)'
 			self.metadata.specific_info['Upload-Type'] = upload.get('type', 'default') #default, flash, unity, java, html, soundtrack, book, video, documentation, mod, audio_assets, graphical_assets, sourcecode, other
 			self.platforms = list(upload.get('platforms', {}).keys()) #I think the values show if it's x86/x64 but eh
 			#Not sure what channelName or preorder does
@@ -256,7 +261,6 @@ class ItchGame():
 			if is_probably_unwanted_candidate(path, candidate_basenames):
 				continue
 			self.make_exe_launcher(flavour, path, windows_info)
-	
 
 def get_launch_params(flavour: str, exe_path: str, windows_info: Optional[dict]) -> Optional[tuple[LaunchCommand, Optional[str]]]:
 	if flavour in {'linux', 'script'}:
