@@ -8,12 +8,12 @@ from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.machines_with_inbuilt_games import (
     bioses_with_inbuilt_games, machines_with_inbuilt_games)
+from meowlauncher.games.common import emulator_command_line_helpers
 from meowlauncher.games.mame.mame_game import MAMEGame
 from meowlauncher.games.mame.mame_metadata import add_metadata, add_status
 from meowlauncher.games.mame_common.machine import (Machine, get_machine,
                                                     iter_machines)
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
-from meowlauncher.info import emulator_command_line_helpers
 from meowlauncher.metadata import Metadata
 
 

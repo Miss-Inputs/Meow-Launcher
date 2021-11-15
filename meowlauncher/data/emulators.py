@@ -1,11 +1,12 @@
 from typing import Union
-import meowlauncher.info.emulator_command_lines as command_lines
+
+import meowlauncher.games.common.emulator_command_lines as command_lines
 from meowlauncher.common_types import ConfigValueType
 from meowlauncher.emulator import (Emulator, EmulatorStatus, HostPlatform,
                                    LibretroCore, LibretroFrontend, MAMEDriver,
                                    MednafenModule, PCEmulator,
                                    StandardEmulator, ViceEmulator)
-from meowlauncher.info.emulator_command_line_helpers import (
+from meowlauncher.games.common.emulator_command_line_helpers import (
     SimpleMednafenModule, simple_emulator, simple_gb_emulator,
     simple_mame_driver, simple_md_emulator)
 from meowlauncher.launch_command import rom_path_argument

@@ -6,9 +6,9 @@ import time
 from meowlauncher import desktop_launchers
 from meowlauncher.common_types import EmulationNotSupportedException, MediaType
 from meowlauncher.config.main_config import main_config
+from meowlauncher.games.common.emulator_command_line_helpers import mame_base
 from meowlauncher.games.mame_common.software_list_info import \
     get_software_list_by_name
-from meowlauncher.info.emulator_command_line_helpers import mame_base
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.metadata import Metadata
 from meowlauncher.util.region_info import TVSystem
