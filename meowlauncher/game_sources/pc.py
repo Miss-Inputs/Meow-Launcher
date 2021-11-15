@@ -21,15 +21,18 @@ from meowlauncher.games.pc import App, AppLauncher
 class PCGameSource(GameSource, ABC):
 	#Leave no_longer_exists to the subclasses as they may like to have custom logic
 
-	def __init__(self, platform: str, app_type: type[App], launcher_type: type[AppLauncher], platform_config: PlatformConfig) -> None:
+	def __init__(self, platform: str, app_type: type[App], launcher_type: type[AppLauncher], platform_config: Optional[PlatformConfig]) -> None:
 		self.platform = platform
 		self.app_type = app_type
 		self.launcher_type = launcher_type
 		self.platform_config = platform_config
+		if not platform_config:
+			self._is_available = False
+			return
 
 		self._app_list_path = os.path.join(config_dir, pc_platforms[self.platform].json_name + '.json')
 		try:
-			self._is_available = bool(self.platform_config.chosen_emulators)
+			self._is_available = bool(platform_config.chosen_emulators)
 			with open(self._app_list_path, 'rt', encoding='utf-8') as f:
 				self._app_list = json.load(f)
 		except json.JSONDecodeError as json_fuckin_bloody_error:
@@ -47,6 +50,9 @@ class PCGameSource(GameSource, ABC):
 		return self._is_available
 
 	def _get_launcher(self, app: App) -> Optional[AppLauncher]:
+		if not self.platform_config:
+			raise AssertionError('Should have checked is_available already, platform_config is None')
+
 		emulator = None
 		exception_reason = None
 		for potential_emulator_name in self.platform_config.chosen_emulators:

@@ -1,6 +1,7 @@
 import configparser
 import os
 from typing import Any
+from collections.abc import Iterable, Mapping
 
 from meowlauncher.common_paths import config_dir
 from meowlauncher.data.emulated_platforms import pc_platforms, platforms
@@ -11,11 +12,11 @@ from ._config_utils import parse_path_list, parse_string_list, parse_value
 _platform_config_path = os.path.join(config_dir, 'platforms.ini')
 
 class PlatformConfig():
-	def __init__(self, name: str) -> None:
+	def __init__(self, name: str, paths: Iterable[str], chosen_emulators: Iterable[str], options: Mapping[str, Any]) -> None:
 		self.name = name
-		self.paths: list[str] = []
-		self.chosen_emulators: list[str] = []
-		self.options: dict[str, Any] = {}
+		self.paths = paths
+		self.chosen_emulators = chosen_emulators
+		self.options = options
 
 	@property
 	def is_available(self) -> bool:
@@ -35,25 +36,23 @@ class PlatformConfigs():
 			parser.read(_platform_config_path)
 
 			for system_name in parser.sections():
-				self.configs[system_name] = PlatformConfig(system_name)
-
 				section = parser[system_name]
-				self.configs[system_name].paths = parse_path_list(section.get('paths', ''))
+				paths = parse_path_list(section.get('paths', ''))
 				chosen_emulators = []
 				for s in parse_string_list(section.get('emulators', '')):
 					if s in {'MAME', 'Mednafen', 'VICE'}:
 					#Allow for convenient shortcut
 						s = f'{s} ({system_name})'
 					chosen_emulators.append(s)
-				self.configs[system_name].chosen_emulators = chosen_emulators
 				if system_name in platforms:
 					options = platforms[system_name].options
 					for k, v in options.items():
-						self.configs[system_name].options[k] = parse_value(section, k, v.type, v.default_value)
+						options[k] = parse_value(section, k, v.type, v.default_value)
 				elif system_name in pc_platforms:
 					options = pc_platforms[system_name].options
 					for k, v in options.items():
-						self.configs[system_name].options[k] = parse_value(section, k, v.type, v.default_value)
+						options[k] = parse_value(section, k, v.type, v.default_value)
+				self.configs[system_name] = PlatformConfig(system_name, paths, chosen_emulators, options)
 						
 	__instance = None
 
