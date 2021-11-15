@@ -7,33 +7,18 @@ import datetime
 import sys
 import time
 
-from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.desktop_launchers import make_linux_desktop_for_launcher
 from meowlauncher.frontend import organize_folders, series_detect
 from meowlauncher.frontend.disambiguate import disambiguate_names
 from meowlauncher.frontend.remove_nonexistent_games import \
     remove_nonexistent_games
+from meowlauncher.game_source import CompoundGameSource, GameSource
 from meowlauncher.game_sources import (game_sources, gog, itch_io,
-                                       mame_machines, mame_software, roms,
-                                       steam)
+                                       mame_machines, mame_software, steam)
 from meowlauncher.games.mame_common.machine import (
     get_machine, get_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 
-
-def process_roms_args() -> None:
-	if len(sys.argv) >= 2 and '--platforms' in sys.argv:
-		arg_index = sys.argv.index('--platforms')
-		if len(sys.argv) == 2:
-			print('--platforms requires an argument')
-			return
-
-		platform_list = sys.argv[arg_index + 1].split(',')
-		for platform_name in platform_list:
-			roms.process_platform(platform_configs[platform_name])
-		return
-
-	roms.process_platforms()
 
 def process_mame_args() -> None:
 	if '--drivers' in sys.argv:
@@ -65,10 +50,24 @@ def process_mame_args() -> None:
 
 	mame_machines.process_arcade()
 
+def add_games(source: GameSource) -> int:
+	time_started = time.perf_counter()
+	count = 0
+	
+	print('Adding ' + source.description)
+	if isinstance(source, CompoundGameSource):
+		for subsource in source.sources:
+			count += add_games(subsource)
+	else:
+		for launcher in source.get_launchers():
+			count += 1
+			make_linux_desktop_for_launcher(launcher)
+	time_ended = time.perf_counter()
+	print(f'Added {count} {source.description} in {str(datetime.timedelta(seconds=time_ended - time_started))}')
+	return count
+
 def main() -> None:
-	if sys.argv[1] == 'roms':
-		process_roms_args()
-	elif sys.argv[1] == 'mame':
+	if sys.argv[1] == 'mame':
 		process_mame_args()
 	elif sys.argv[1] == 'gog':
 		gog.do_gog_games()
@@ -89,22 +88,19 @@ def main() -> None:
 		#This one's a bit jank and I should clean it up I guess
 		organize_folders.main()
 	else:
+		source = None
 		for game_source in game_sources:
 			if sys.argv[1] in {game_source.name, game_source.name.lower()}:
-				time_started = time.perf_counter()
-				count = 0
-				
-				print('Adding ' + game_source.description)
-				if not game_source.is_available:
-					continue
-				for launcher in game_source.get_launchers():
-					count += 1
-					make_linux_desktop_for_launcher(launcher)
-				time_ended = time.perf_counter()
-				print(f'Added {count} {game_source.description} in {str(datetime.timedelta(seconds=time_ended - time_started))}')
+				source = game_source
 				break
-		else:
+
+		if not source:
 			print('Unknown game source', sys.argv[1])
+			return
+		if not source.is_available:
+			return
+			
+		add_games(source)
 
 if __name__ == '__main__':
 	main()

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 
 from meowlauncher.launcher import Launcher
 
@@ -27,3 +27,15 @@ class GameSource(ABC):
 	@abstractmethod
 	def get_launchers(self) -> Iterable[Launcher]:
 		pass
+
+class CompoundGameSource(GameSource, ABC):
+	def __init__(self, sources: Sequence[GameSource]) -> None:
+		self.sources = sources
+
+	def get_launchers(self) -> Iterable[Launcher]:
+		for source in self.sources:
+			yield from source.get_launchers()
+
+	@property
+	def is_available(self) -> bool:
+		return any(source.is_available for source in self.sources)

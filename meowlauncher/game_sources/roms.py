@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 
-import datetime
 import os
 import pathlib
-import sys
-import time
 import traceback
 from collections.abc import Iterable, Sequence
 from pathlib import Path
@@ -22,8 +19,8 @@ from meowlauncher.configured_emulator import (ConfiguredStandardEmulator,
 from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.data.emulators import (emulators, libretro_cores,
                                          libretro_frontends)
-from meowlauncher.desktop_launchers import (has_been_done,
-                                            make_linux_desktop_for_launcher)
+from meowlauncher.desktop_launchers import has_been_done
+from meowlauncher.game_source import CompoundGameSource, GameSource
 from meowlauncher.games.roms.platform_specific.roms_folders import \
     folder_checks
 from meowlauncher.games.roms.rom import ROM, FileROM, FolderROM, rom_file
@@ -117,7 +114,7 @@ def sort_m3u_first() -> type:
 
 	return Sorter
 
-def process_file_list(file_list: Iterable[tuple[str, Sequence[str]]], platform_config: PlatformConfig, potential_emulator_names: Iterable[str]) -> None:
+def process_file_list(file_list: Iterable[tuple[str, Sequence[str]]], platform_config: PlatformConfig, potential_emulator_names: Iterable[str]) -> Iterable[ROMLauncher]:
 	for path, categories in file_list:
 		try:
 			rom = rom_file(path)
@@ -154,17 +151,13 @@ def process_file_list(file_list: Iterable[tuple[str, Sequence[str]]], platform_c
 		try:
 			launcher = process_file(platform_config, potential_emulator_names, rom, categories)
 			if launcher:
-				make_linux_desktop_for_launcher(launcher)
+				yield launcher
 		#pylint: disable=broad-except
 		except Exception as ex:
 			#It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
 			print('FUCK!!!!', path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
-		
 
-
-def process_emulated_platform(platform_config: PlatformConfig):
-	time_started = time.perf_counter()
-
+def process_platform(platform_config: PlatformConfig) -> Iterable[ROMLauncher]:
 	potential_emulators = []
 	for emulator_name in platform_config.chosen_emulators:
 		if emulator_name not in emulators:
@@ -209,7 +202,7 @@ def process_emulated_platform(platform_config: PlatformConfig):
 						#I think I need to be more awake to re-read that comment
 						launcher = process_file(platform_config, potential_emulators, folder_rom, subfolders)
 						if launcher:
-							make_linux_desktop_for_launcher(launcher)
+							yield launcher
 						continue
 					remaining_subdirs.append(d)
 				dirs[:] = remaining_subdirs
@@ -220,34 +213,51 @@ def process_emulated_platform(platform_config: PlatformConfig):
 
 				#categories = [cat for cat in list(pathlib.Path(os.path.).relative_to(rom_dir).parts) if cat != rom.name]
 				file_list.append((path, subfolders))
-	process_file_list(file_list, platform_config, potential_emulators)
+	yield from process_file_list(file_list, platform_config, potential_emulators)
 
-	if main_config.print_times:
-		time_ended = time.perf_counter()
-		print(platform_config.name, 'finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+class ROMPlatform(GameSource):
+	def __init__(self, platform_config: PlatformConfig) -> None:
+		self.platform_config = platform_config
 
-def process_platform(platform_config: PlatformConfig):
-	if platform_config.name in platforms:
-		process_emulated_platform(platform_config)
-	else:
-		#Let DOS and Mac fall through, as those are in systems.ini but not handled here
-		return
+	@property
+	def name(self) -> str:
+		return self.platform_config.name
 
-def process_platforms() -> None:
-	time_started = time.perf_counter()
+	@property
+	def is_available(self) -> bool:
+		return self.platform_config.is_available
 
-	excluded_platforms = []
-	for arg in sys.argv:
-		if arg.startswith('--exclude='):
-			excluded_platforms.append(arg.partition('=')[2])
+	def get_launchers(self) -> Iterable[ROMLauncher]:
+		yield from process_platform(self.platform_config)
 
-	for platform_name, platform in platform_configs.items():
-		if platform_name in excluded_platforms:
-			continue
-		if not platform.is_available:
-			continue
-		process_platform(platform)
+	def no_longer_exists(self, game_id: str) -> bool:
+		return not os.path.exists(game_id)
 
-	if main_config.print_times:
-		time_ended = time.perf_counter()
-		print('All standard emulated platforms finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+class ROMs(CompoundGameSource):
+	def __init__(self, only_platforms: Sequence[str]=None, excluded_platforms: Iterable[str]=None) -> None:
+		if only_platforms:
+			super().__init__([ROMPlatform(platform_configs[only_platform]) for only_platform in only_platforms])
+		else:
+			platform_sources = []
+			for platform_name, platform_config in platform_configs.items():
+				if platform_name not in platforms:
+					#As DOS, Mac, etc would be in platform_configs too
+					continue
+				if excluded_platforms and platform_name in excluded_platforms:
+					continue
+				platform = ROMPlatform(platform_config)
+				if not platform.is_available:
+					continue
+				platform_sources.append(platform)
+			super().__init__(platform_sources)
+
+	@property
+	def name(self) -> str:
+		return 'ROMs'
+
+	@property
+	def description(self) -> str:
+		return 'ROMs'
+
+	def no_longer_exists(self, game_id: str) -> bool:
+		return not os.path.exists(game_id)

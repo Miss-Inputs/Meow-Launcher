@@ -7,7 +7,7 @@ import time
 from meowlauncher.config.main_config import main_config
 from meowlauncher.desktop_launchers import (get_desktop, get_field,
                                             id_section_name)
-from meowlauncher.game_sources import mame_machines, steam, game_types
+from meowlauncher.game_sources import game_types, mame_machines, steam
 
 
 def remove_nonexistent_games() -> None:
@@ -33,8 +33,6 @@ def remove_nonexistent_games() -> None:
 			should_remove = game_source.no_longer_exists(game_id)
 		elif game_type in {'MAME', 'Arcade', 'Inbuilt game'}:
 			should_remove = mame_machines.no_longer_exists(game_id)
-		elif game_type in 'ROM':
-			should_remove = not os.path.exists(game_id)
 		elif game_type == 'Steam':
 			should_remove = steam.no_longer_exists(game_id)
 		elif game_type == 'GOG':
