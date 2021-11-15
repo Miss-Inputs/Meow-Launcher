@@ -540,7 +540,7 @@ def add_metadata_from_appinfo(game: 'SteamGame', app_info_section: Mapping[bytes
 		#I think it's a fair assumption that every game on Steam will have _some_ sort of save data (even if just settings and not progress) so until I'm proven wrong... whaddya gonna do
 		game.metadata.save_type = SaveType.Internal
 
-def process_launcher(game: 'SteamGame', launcher: LauncherInfo):
+def process_launcher(game: 'SteamGame', launcher: 'LauncherInfo'):
 	if os.path.extsep in launcher.exe:
 		extension = launcher.exe.rsplit(os.path.extsep, 1)[-1].lower()
 		if extension:
