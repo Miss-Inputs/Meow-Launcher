@@ -9,8 +9,8 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.util import archives, cd_read, io_utils
 
 class ROM(ABC):
-	def __init__(self, path: str) -> None:
-		self.path = Path(path)
+	def __init__(self, path: Path) -> None:
+		self.path = path
 		self.ignore_name: bool = False
 		self._name = self.path.name
 		self._extension = '' #hmm what if it was None
@@ -33,7 +33,7 @@ class ROM(ABC):
 		return self._extension
 
 class FileROM(ROM):
-	def __init__(self, path: str):
+	def __init__(self, path: Path):
 		super().__init__(path)	
 
 		self.store_entire_file: bool = False
@@ -98,7 +98,7 @@ class FileROM(ROM):
 		return self._extension
 	
 class CompressedROM(FileROM):
-	def __init__(self, path: str):
+	def __init__(self, path: Path):
 		super().__init__(path)
 		
 		for entry in archives.compressed_list(str(self.path)):
@@ -143,7 +143,7 @@ def rom_file(path) -> FileROM:
 	return FileROM(path)
 
 class FolderROM(ROM):
-	def __init__(self, path) -> None:
+	def __init__(self, path: Path) -> None:
 		super().__init__(path)
 		self.relevant_files: dict[str, Path] = {}
 		self.media_type: Optional[MediaType] = None

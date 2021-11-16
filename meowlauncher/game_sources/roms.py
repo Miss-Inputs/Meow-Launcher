@@ -127,8 +127,8 @@ class ROMPlatform(GameSource):
 					raise ExtensionNotSupportedException('{0} does not support {1} extension'.format(potential_emulator, rom.extension))
 
 				potential_launcher = ROMLauncher(game, potential_emulator, self.platform_config)
-				params = potential_launcher.get_launch_command() #We need to test each one for EmulationNotSupportedException… what's the maybe better way to do this, since we call get_launch_command again and that sucks
-				if params:
+				command = potential_launcher.get_launch_command() #We need to test each one for EmulationNotSupportedException… what's the maybe better way to do this, since we call get_launch_command again and that sucks
+				if command:
 					launcher = potential_launcher
 					break
 			except (EmulationNotSupportedException, NotARomException) as ex:
@@ -142,7 +142,7 @@ class ROMPlatform(GameSource):
 		
 		return launcher
 
-	def _process_file_list(self, file_list: Iterable[tuple[str, Sequence[str]]]) -> Iterable[ROMLauncher]:
+	def _process_file_list(self, file_list: Iterable[tuple[Path, Sequence[str]]]) -> Iterable[ROMLauncher]:
 		for path, categories in file_list:
 			try:
 				rom = rom_file(path)
@@ -165,7 +165,7 @@ class ROMPlatform(GameSource):
 				continue
 
 			if not main_config.full_rescan:
-				if has_been_done('ROM', path):
+				if has_been_done('ROM', str(path)):
 					continue
 			
 			try:
@@ -202,10 +202,10 @@ class ROMPlatform(GameSource):
 					if any(subfolder in main_config.skipped_subfolder_names for subfolder in subfolders):
 						continue
 
-				if self.platform_config.name in folder_checks:
+				if self.platform.name in folder_checks:
 					remaining_subdirs = [] #The subdirectories of rom_dir that aren't folder ROMs
 					for d in dirs:
-						folder_path = os.path.join(root, d)
+						folder_path = Path(root, d)
 						folder_rom = FolderROM(folder_path)
 						media_type = folder_checks[self.platform_config.name](folder_rom)
 						if media_type:
@@ -223,7 +223,7 @@ class ROMPlatform(GameSource):
 				dirs.sort()
 
 				for name in sorted(files, key=sort_m3u_first()):
-					path = os.path.join(root, name)
+					path = Path(root, name)
 
 					#categories = [cat for cat in list(pathlib.Path(os.path.).relative_to(rom_dir).parts) if cat != rom.name]
 					file_list.append((path, subfolders))
