@@ -63,7 +63,7 @@ class ROMPlatform(GameSource):
 				elif emulator_name in libretro_cores:
 					self.chosen_emulators.append(libretro_cores[emulator_name])
 				else:
-					print('Config warning:', emulator_name, 'is not a valid emulator')
+					print('Config warning:', emulator_name, 'is not a valid emulator, specified in', self.name)
 			elif emulator_name not in self.platform.emulators:
 				print('Config warning:', emulator_name, 'is not a valid emulator for', self.name)
 			else:
@@ -109,15 +109,16 @@ class ROMPlatform(GameSource):
 
 		for chosen_emulator in self.chosen_emulators:
 			try:
-				potential_emulator_config = emulator_configs[chosen_emulator.name]
 				potential_emulator: ConfiguredStandardEmulator
 				if isinstance(chosen_emulator, LibretroCore):
+					potential_core_config = emulator_configs[chosen_emulator.name + ' (libretro)']
 					if not main_config.libretro_frontend: #TODO: This should be in the config of LibretroCore actually, see secret evil plan
 						raise EmulationNotSupportedException('Must choose a frontend to run libretro cores')
 					frontend_config = emulator_configs[main_config.libretro_frontend]
 					frontend = libretro_frontends[main_config.libretro_frontend]
-					potential_emulator = LibretroCoreWithFrontend(chosen_emulator, potential_emulator_config, frontend, frontend_config)
+					potential_emulator = LibretroCoreWithFrontend(chosen_emulator, potential_core_config, frontend, frontend_config)
 				else:
+					potential_emulator_config = emulator_configs[chosen_emulator.name]
 					potential_emulator = ConfiguredStandardEmulator(chosen_emulator, potential_emulator_config)
 
 				if rom.is_folder and not potential_emulator.supports_folders:
