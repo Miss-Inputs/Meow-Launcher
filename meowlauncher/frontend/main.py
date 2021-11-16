@@ -2,6 +2,7 @@ import datetime
 import os
 import time
 from collections.abc import Callable
+from typing import Optional
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.desktop_launchers import make_linux_desktop_for_launcher
@@ -13,7 +14,7 @@ from .disambiguate import disambiguate_names
 from .remove_nonexistent_games import remove_nonexistent_games
 
 
-def add_games(source: GameSource, progress_function: Callable=print) -> int:
+def add_games(source: GameSource, progress_function: Callable[..., None]=print) -> int:
 	time_started = time.perf_counter()
 	count = 0
 	
@@ -33,7 +34,7 @@ def add_games(source: GameSource, progress_function: Callable=print) -> int:
 		progress_function(f'Did not add any {source.description}')
 	return count
 
-def main(progress_function, steam_enabled=True, gog_enabled=True, itch_io_enabled=True):
+def main(progress_function: Optional[Callable[..., None]], steam_enabled=True, gog_enabled=True, itch_io_enabled=True):
 	def call_progress_function(data, should_increment=True):
 		if progress_function:
 			progress_function(data, should_increment)
@@ -47,7 +48,9 @@ def main(progress_function, steam_enabled=True, gog_enabled=True, itch_io_enable
 	os.makedirs(main_config.output_folder, exist_ok=True)
 
 	for game_source in game_sources:
-		add_games(game_source, progress_function)
+		if not game_source.is_available:
+			continue
+		add_games(game_source, call_progress_function)
 		#TODO: Should actually use blah_enabled in some way, or some equivalent basically
 		
 	if steam_enabled:
