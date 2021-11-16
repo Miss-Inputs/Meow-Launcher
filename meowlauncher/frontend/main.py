@@ -1,15 +1,37 @@
 import datetime
 import os
 import time
+from collections.abc import Callable
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.desktop_launchers import make_linux_desktop_for_launcher
+from meowlauncher.game_source import CompoundGameSource, GameSource
 from meowlauncher.game_sources import game_sources, gog, itch_io, steam
 
 from . import organize_folders, series_detect
 from .disambiguate import disambiguate_names
 from .remove_nonexistent_games import remove_nonexistent_games
 
+
+def add_games(source: GameSource, progress_function: Callable=print) -> int:
+	time_started = time.perf_counter()
+	count = 0
+	
+	print('Adding ' + source.description)
+	if isinstance(source, CompoundGameSource):
+		for subsource in source.sources:
+			count += add_games(subsource)
+	else:
+		for launcher in source.get_launchers():
+			count += 1
+			make_linux_desktop_for_launcher(launcher)
+	time_ended = time.perf_counter()
+	time_taken = datetime.timedelta(seconds=time_ended - time_started)
+	if count:
+		progress_function(f'Added {count} {source.description} in {str(time_taken)} ({time_taken.total_seconds() / count} secs per game)')
+	else:
+		progress_function(f'Did not add any {source.description}')
+	return count
 
 def main(progress_function, steam_enabled=True, gog_enabled=True, itch_io_enabled=True):
 	def call_progress_function(data, should_increment=True):
@@ -25,20 +47,9 @@ def main(progress_function, steam_enabled=True, gog_enabled=True, itch_io_enable
 	os.makedirs(main_config.output_folder, exist_ok=True)
 
 	for game_source in game_sources:
+		add_games(game_source, progress_function)
 		#TODO: Should actually use blah_enabled in some way, or some equivalent basically
-		time_started = time.perf_counter()
-		count = 0
 		
-		call_progress_function('Adding ' + game_source.description)
-		if not game_source.is_available:
-			continue
-		for launcher in game_source.get_launchers():
-			count += 1
-			make_linux_desktop_for_launcher(launcher)
-		if main_config.print_times:
-			time_ended = time.perf_counter()
-			call_progress_function(f'{count} {game_source.description} finished in {str(datetime.timedelta(seconds=time_ended - time_started))}')
-
 	if steam_enabled:
 		call_progress_function('Adding Steam games')
 		steam.process_steam()

@@ -3,35 +3,16 @@
 #TODO: Eventually this wouldn't be needed - you would just have a --game-sources argument in cli_main.py and you can have one or many
 #Until then this will duplicate code from there so I am sorry
 
-import datetime
 import sys
-import time
 
-from meowlauncher.desktop_launchers import make_linux_desktop_for_launcher
 from meowlauncher.frontend import organize_folders, series_detect
 from meowlauncher.frontend.disambiguate import disambiguate_names
+from meowlauncher.frontend.main import add_games
 from meowlauncher.frontend.remove_nonexistent_games import \
     remove_nonexistent_games
-from meowlauncher.game_source import CompoundGameSource, GameSource
 from meowlauncher.game_sources import (game_sources, gog, itch_io,
                                        mame_software, steam)
 
-
-def add_games(source: GameSource) -> int:
-	time_started = time.perf_counter()
-	count = 0
-	
-	print('Adding ' + source.description)
-	if isinstance(source, CompoundGameSource):
-		for subsource in source.sources:
-			count += add_games(subsource)
-	else:
-		for launcher in source.get_launchers():
-			count += 1
-			make_linux_desktop_for_launcher(launcher)
-	time_ended = time.perf_counter()
-	print(f'Added {count} {source.description} in {str(datetime.timedelta(seconds=time_ended - time_started))}')
-	return count
 
 def main() -> None:
 	#if sys.argv[1] == 'mame':
