@@ -17,8 +17,7 @@ LibretroFrontendLaunchCommandFunc = Callable[[EmulatedGame, Mapping[str, Any], E
 class Emulator(Runner):
 	#I decided what actually defines an "emulator" vs. a Runner with is_emulated -> True is that this is more of a "chooseable emulator", but ChooseableEmulator sounds silly as a class name, so like I dunno
 	#Pretend launch_command_func is not optional if instantiating this oneself, it's just for LibretroCore purposes
-	#default_exe_name should also kinda not be
-	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: Optional[str], launch_command_func: Optional[LaunchCommandFunc], configs: Mapping[str, RunnerConfigValue]=None, host_platform=HostPlatform.Native):
+	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: Optional[LaunchCommandFunc], configs: Mapping[str, RunnerConfigValue]=None, host_platform=HostPlatform.Native):
 		super().__init__(host_platform)
 		self._name = name
 		self.status = status

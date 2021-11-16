@@ -1,6 +1,5 @@
 import configparser
 import os
-from typing import Optional
 
 from meowlauncher.common_paths import config_dir
 from meowlauncher.common_types import ConfigValueType
@@ -27,7 +26,7 @@ class EmulatorConfigs():
 
 			for name, emulator in all_emulators.items():
 				#Every emulator will need its own entry in this dict
-				exe_path: Optional[str]
+				exe_path: str
 				options = {}
 
 				if name in parser:
