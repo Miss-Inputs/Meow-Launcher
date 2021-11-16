@@ -8,7 +8,7 @@ from meowlauncher.config.main_config import main_config
 
 overall_time_started = time.perf_counter()
 
-def print_callback(data, _):
+def print_callback(data, _=None):
 	if data:
 		print(data)
 
