@@ -15,8 +15,6 @@ from meowlauncher.game_sources import (game_sources, gog, itch_io,
 
 
 def main() -> None:
-	#if sys.argv[1] == 'mame':
-	#	process_mame_args()
 	if sys.argv[1] == 'gog':
 		gog.do_gog_games()
 	elif sys.argv[1] == 'itchio':

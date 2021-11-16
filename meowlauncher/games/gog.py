@@ -7,13 +7,16 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Optional
 
-from meowlauncher import desktop_launchers, launch_command
+from meowlauncher import desktop_launchers
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
+from meowlauncher.configured_runner import ConfiguredRunner
 from meowlauncher.game import Game
 from meowlauncher.games.common import pc_common_metadata
 from meowlauncher.games.common.engine_detect import \
     try_and_detect_engine_from_folder
+from meowlauncher.launch_command import LaunchCommand, launch_with_wine
+from meowlauncher.launcher import Launcher
 from meowlauncher.util import name_utils, region_info
 
 
@@ -169,7 +172,7 @@ class GOGGame(Game, ABC):
 		return False
 
 	def make_launcher(self) -> None:
-		params = launch_command.LaunchCommand(self.start_script, [], working_directory=self.folder)
+		params = LaunchCommand(self.start_script, [], working_directory=self.folder)
 		desktop_launchers.make_launcher(params, self.name, self.metadata, 'GOG', self.folder)
 
 class NormalGOGGame(GOGGame):
@@ -192,6 +195,7 @@ class NormalGOGGame(GOGGame):
 					self.metadata.languages.append(lang)
 				#We won't do anything special with playTasks, not sure it's completely accurate as it doesn't seem to include arguments to executables where that would be expected (albeit this is in the case of Pushover, which is a DOSBox game hiding as a normal game)
 				#Looking at 'category' for the task with 'isPrimary' = true though might be interesting
+				#TODO: But we totally should though, start_script also could be parsed maybe
 				break
 
 class DOSBoxGOGGame(GOGGame):
@@ -208,7 +212,23 @@ class ScummVMGOGGame(GOGGame):
 
 #I think there can be Wine bundled with a game sometimes too?
 
-def find_subpath_case_insensitive(path: str, subpath: str) -> Optional[str]:
+class LinuxGOGLauncher(Launcher):
+	def __init__(self, game: GOGGame, runner: ConfiguredRunner) -> None:
+		self.game: GOGGame = game
+		super().__init__(game, runner)
+
+	@property
+	def game_type(self) -> str:
+		return 'GOG'
+	
+	@property
+	def game_id(self) -> str:
+		return self.game.folder
+
+	def get_launch_command(self) -> LaunchCommand:
+		return LaunchCommand(self.game.start_script, [], working_directory=self.game.folder)
+
+def find_subpath_case_insensitive(path: str, subpath: str) -> str:
 	#We will need this because Windows (or rather NTFS) does not respect case sensitivity, and so sometimes a file will be referred to that has unexpected capitalisation (e.g. playTask referring to blah.EXE when on disk it is .exe)
 	#Assumes path is fine and normal
 	alleged_path = os.path.join(path, subpath)
@@ -224,7 +244,7 @@ def find_subpath_case_insensitive(path: str, subpath: str) -> Optional[str]:
 				return maybe_real_path
 			return find_subpath_case_insensitive(maybe_real_path, os.path.join(*parts[1:]))
 
-	return None
+	raise FileNotFoundError(alleged_path)
 
 class WindowsGOGGame(Game):
 	def __init__(self, folder: str, info_file: str, game_id: str) -> None:
@@ -292,13 +312,13 @@ class WindowsGOGGame(Game):
 			return find_subpath_case_insensitive(self.folder, folder.replace('.\\', subfolder + os.path.sep))
 		return folder
 
-	def get_dosbox_launch_params(self, task: GOGTask) -> launch_command.LaunchCommand:
+	def get_dosbox_launch_params(self, task: GOGTask) -> LaunchCommand:
 		args = [self.fix_subfolder_relative_folder(arg, 'dosbox') for arg in task.args]
 		dosbox_path = main_config.dosbox_path
 		dosbox_folder = find_subpath_case_insensitive(self.folder, 'dosbox') #Game's config files are expecting to be launched from here
 		return desktop_launchers.LaunchCommand(dosbox_path, args, working_directory=dosbox_folder)
 
-	def get_wine_launch_params(self, task: GOGTask) -> Optional[launch_command.LaunchCommand]:
+	def get_wine_launch_params(self, task: GOGTask) -> Optional[LaunchCommand]:
 		if not task.path:
 			if main_config.debug:
 				print('Oh dear - we cannot deal with tasks that have no path', self.name, task.name, task.args, task.task_type, task.category)
@@ -314,9 +334,9 @@ class WindowsGOGGame(Game):
 		if task.working_directory:
 			working_directory = find_subpath_case_insensitive(self.folder, task.working_directory)
 		
-		return launch_command.launch_with_wine(main_config.wine_path, main_config.wineprefix, exe_path, task.args, working_directory)
+		return launch_with_wine(main_config.wine_path, main_config.wineprefix, exe_path, task.args, working_directory)
 
-	def get_launcher_params(self, task: GOGTask) -> tuple[str, Optional[launch_command.LaunchCommand]]:
+	def get_launcher_params(self, task: GOGTask) -> tuple[str, Optional[LaunchCommand]]:
 		if main_config.use_system_dosbox and task.is_dosbox:
 			return 'DOSBox', self.get_dosbox_launch_params(task)
 
