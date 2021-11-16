@@ -149,5 +149,5 @@ def simple_mednafen_module_args(module: str) -> LaunchCommandFunc:
 	return inner
 
 class SimpleMednafenModule(MednafenModule):
-	def __init__(self, status: EmulatorStatus, module: str, supported_extensions: list[str], configs=None):
-		super().__init__(status, supported_extensions, params_func=simple_mednafen_module_args(module), configs=configs)
+	def __init__(self, name: str, status: EmulatorStatus, module: str, supported_extensions: list[str], configs=None):
+		super().__init__(name, status, supported_extensions, params_func=simple_mednafen_module_args(module), configs=configs)

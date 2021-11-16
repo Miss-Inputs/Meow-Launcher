@@ -21,13 +21,14 @@ from meowlauncher.data.emulators import (emulators, libretro_cores,
                                          libretro_frontends)
 from meowlauncher.desktop_launchers import has_been_done
 from meowlauncher.emulated_platform import EmulatedPlatform
-from meowlauncher.emulator import LibretroCore, StandardEmulator
+from meowlauncher.emulator import LibretroCore, MAMEDriver, MednafenModule, StandardEmulator, ViceEmulator
 from meowlauncher.game_source import CompoundGameSource, GameSource
 from meowlauncher.games.roms.platform_specific.roms_folders import \
     folder_checks
 from meowlauncher.games.roms.rom import ROM, FileROM, FolderROM, rom_file
 from meowlauncher.games.roms.rom_game import ROMGame, ROMLauncher
 from meowlauncher.games.roms.roms_metadata import add_metadata
+from meowlauncher.runner_config import EmulatorConfig
 from meowlauncher.util import archives
 from meowlauncher.util.utils import find_filename_tags_at_end, starts_with_any
 
@@ -50,6 +51,17 @@ def sort_m3u_first() -> type:
 
 	return Sorter
 
+def _get_emulator_config(emulator: Union[StandardEmulator, LibretroCore]):
+	#Eventually, once we have per-game overrides, we should give this a ROMGame parameter too, and that should work out
+	if isinstance(emulator, (MednafenModule, ViceEmulator, MAMEDriver)):
+		specific = emulator_configs[emulator.config_name]
+		global_config = emulator_configs[emulator.name]
+		combined = {}
+		combined.update(global_config)
+		combined.update(specific)
+		return EmulatorConfig(specific.exe_path, combined)
+	return emulator_configs[emulator.config_name]
+
 class ROMPlatform(GameSource):
 	def __init__(self, platform_config: PlatformConfig, platform: EmulatedPlatform) -> None:
 		self.platform_config = platform_config
@@ -58,10 +70,10 @@ class ROMPlatform(GameSource):
 
 		for emulator_name in self.platform_config.chosen_emulators:
 			if emulator_name not in emulators:
-				if emulator_name + ' (libretro)' in libretro_cores:
-					self.chosen_emulators.append(libretro_cores[emulator_name + ' (libretro)'])
-				elif emulator_name in libretro_cores:
+				if emulator_name in libretro_cores:
 					self.chosen_emulators.append(libretro_cores[emulator_name])
+				elif emulator_name.removesuffix(' (libretro)') in libretro_cores:
+					self.chosen_emulators.append(libretro_cores[emulator_name.removesuffix(' (libretro)')])
 				else:
 					print('Config warning:', emulator_name, 'is not a valid emulator, specified in', self.name)
 			elif emulator_name not in self.platform.emulators:
@@ -76,7 +88,6 @@ class ROMPlatform(GameSource):
 	@property
 	def is_available(self) -> bool:
 		return self.platform_config.is_available
-
 
 	def _process_file(self, rom: ROM, subfolders: Sequence[str]) -> Optional[ROMLauncher]:
 		game = ROMGame(rom, self.platform, self.platform_config)
@@ -109,16 +120,17 @@ class ROMPlatform(GameSource):
 
 		for chosen_emulator in self.chosen_emulators:
 			try:
+				potential_emulator_config = _get_emulator_config(chosen_emulator)
 				potential_emulator: ConfiguredStandardEmulator
 				if isinstance(chosen_emulator, LibretroCore):
-					potential_core_config = emulator_configs[chosen_emulator.name + ' (libretro)']
+					#potential_core_config = emulator_configs[chosen_emulator.name + ' (libretro)']
 					if not main_config.libretro_frontend: #TODO: This should be in the config of LibretroCore actually, see secret evil plan
 						raise EmulationNotSupportedException('Must choose a frontend to run libretro cores')
 					frontend_config = emulator_configs[main_config.libretro_frontend]
 					frontend = libretro_frontends[main_config.libretro_frontend]
-					potential_emulator = LibretroCoreWithFrontend(chosen_emulator, potential_core_config, frontend, frontend_config)
+					potential_emulator = LibretroCoreWithFrontend(chosen_emulator, potential_emulator_config, frontend, frontend_config)
 				else:
-					potential_emulator_config = emulator_configs[chosen_emulator.name]
+					#potential_emulator_config = emulator_configs[chosen_emulator.name]
 					potential_emulator = ConfiguredStandardEmulator(chosen_emulator, potential_emulator_config)
 
 				if rom.is_folder and not potential_emulator.supports_folders:

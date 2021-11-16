@@ -24,10 +24,11 @@ class EmulatorConfigs():
 			ensure_exist(_emulator_config_path)
 			parser.read(_emulator_config_path)
 
-			for name, emulator in all_emulators.items():
+			for emulator in all_emulators.values():
 				#Every emulator will need its own entry in this dict
 				exe_path: str
 				options = {}
+				name = emulator.config_name
 
 				if name in parser:
 					section = parser[name]
