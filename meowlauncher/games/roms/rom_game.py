@@ -15,10 +15,10 @@ from .rom import ROM, CompressedROM, FileROM
 
 
 class ROMGame(EmulatedGame):
-	def __init__(self, rom: ROM, platform_name: str, platform: EmulatedPlatform, platform_config: PlatformConfig):
+	def __init__(self, rom: ROM, platform: EmulatedPlatform, platform_config: PlatformConfig):
 		super().__init__(platform_config)
 		self.rom = rom
-		self.platform_name = self.metadata.platform = platform_name
+		self.metadata.platform = platform.name
 		self.platform = platform
 		self.metadata.categories = []
 		self.filename_tags: list[str] = []

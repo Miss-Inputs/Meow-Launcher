@@ -285,8 +285,8 @@ def add_metadata(game: ROMGame):
 	if software_list_names:
 		game.software_lists = get_software_lists_by_names(software_list_names)
 
-	if game.platform_name in helpers:
-		helpers[game.platform_name](game)
+	if game.platform.name in helpers:
+		helpers[game.platform.name](game)
 	else:
 		#For anything else, use this one to just get basic software list info.
 		#This would only work for optical discs if they are in .chd format though. Also see MAME GitHub issue #2517, which makes a lot of newly created CHDs invalid with older softlists

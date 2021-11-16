@@ -1060,7 +1060,7 @@ def a7800(game, _, emulator_config):
 	return LaunchCommand(emulator_config.exe_path, args)
 
 def bsnes(game, platform_config, emulator_config):
-	if game.platform_name == 'Game Boy':
+	if game.platform.name == 'Game Boy':
 		sgb_bios_path = platform_config.get('super_game_boy_bios_path', None)
 		if not sgb_bios_path:
 			raise EmulationNotSupportedException('Super Game Boy BIOS not set up, check platforms.ini')
@@ -1178,9 +1178,9 @@ def duckstation(game, _, emulator_config):
 
 def fs_uae(game, platform_config, emulator_config):
 	args = ['--fullscreen']
-	if game.platform_name == 'Amiga CD32':
+	if game.platform.name == 'Amiga CD32':
 		args.extend(['--amiga_model=CD32', '--joystick_port_0_mode=cd32 gamepad', '--cdrom_drive_0=' + rom_path_argument])
-	elif game.platform_name == 'Commodore CDTV':
+	elif game.platform.name == 'Commodore CDTV':
 		args.extend(['--amiga_model=CDTV', '--cdrom_drive_0=' + rom_path_argument])
 	else:
 		model = None
@@ -1232,22 +1232,22 @@ def fs_uae(game, platform_config, emulator_config):
 	return LaunchCommand(emulator_config.exe_path, args)
 
 def gbe_plus(game, _, emulator_config):
-	if game.platform_name == 'Game Boy':
+	if game.platform.name == 'Game Boy':
 		#In theory, only this should support Pocket Sonar (so far), but there's not really a way to detect that since it just claims to be MBC1 in the header...
 		_verify_supported_gb_mappers(game, ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'HuC1'], ['MBC1 Multicart'])
 	return LaunchCommand(emulator_config.exe_path, [rom_path_argument])
 
 def medusa(game, _, emulator_config):
-	if game.platform_name == 'DSi':
+	if game.platform.name == 'DSi':
 		raise EmulationNotSupportedException('DSi exclusive games and DSiWare not supported')
 	if game.metadata.specific_info.get('Is-iQue', False):
 		raise EmulationNotSupportedException('iQue DS not supported')
 
-	if game.platform_name == 'Game Boy':
+	if game.platform.name == 'Game Boy':
 		verify_mgba_mapper(game)
 
 	args = ['-f']
-	if game.platform_name != 'DS':
+	if game.platform.name != 'DS':
 		#(for GB/GBA stuff only, otherwise BIOS is mandatory whether you like it or not)
 		if not game.metadata.specific_info.get('Nintendo-Logo-Valid', True):
 			args.append('-C')
@@ -1257,7 +1257,7 @@ def medusa(game, _, emulator_config):
 	return LaunchCommand(emulator_config.exe_path, args)
 
 def melonds(game, _, emulator_config):
-	if game.platform_name == 'DSi':
+	if game.platform.name == 'DSi':
 		raise EmulationNotSupportedException("DSi is too experimental so let's say for all intents and purposes it doesn't work")
 	if game.metadata.specific_info.get('Is-iQue', False):
 		#Maybe it is if you use an iQue firmware?
@@ -1269,7 +1269,7 @@ def melonds(game, _, emulator_config):
 	return LaunchCommand(emulator_config.exe_path, [rom_path_argument])
 
 def mgba(game, _, emulator_config):
-	if game.platform_name == 'Game Boy':
+	if game.platform.name == 'Game Boy':
 		verify_mgba_mapper(game)
 
 	args = ['-f']
@@ -1627,12 +1627,12 @@ def retroarch(_, __, emulator_config: EmulatorConfig, frontend_config: EmulatorC
  
 #Libretro cores
 def genesis_plus_gx(game, _, __):
-	if game.platform_name == 'Mega CD':
+	if game.platform.name == 'Mega CD':
 		if game.metadata.specific_info.get('32X-Only', False):
 			raise EmulationNotSupportedException('32X not supported')
 
 def blastem(game, _, __):
-	if game.platform_name == 'Mega Drive':
+	if game.platform.name == 'Mega Drive':
 		if game.metadata.specific_info.get('Expansion-Chip', None) == 'SVP':
 			#This should work, but doesn't?
 			raise EmulationNotSupportedException('Seems SVP chip not supported?')
@@ -1667,7 +1667,7 @@ def prosystem(game, _, __):
 		raise EmulationNotSupportedException('No header')
 
 def bsnes_libretro(game, _, emulator_config):
-	if game.platform_name == 'Game Boy':
+	if game.platform.name == 'Game Boy':
 		colour_flag = game.metadata.specific_info.get('Is-Colour', GameBoyColourFlag.No)
 		if colour_flag == GameBoyColourFlag.Required:
 			raise EmulationNotSupportedException('Super Game Boy is not compatible with GBC-only games')

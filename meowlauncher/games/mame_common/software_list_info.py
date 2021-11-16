@@ -1,10 +1,10 @@
 import os
+from pathlib import Path
 import zlib
 from collections.abc import Iterable, Sequence
 from typing import Any, Optional, cast
 
 from meowlauncher.common_types import MediaType
-from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.util import io_utils
@@ -183,8 +183,8 @@ def find_in_software_lists(software_lists: Iterable[SoftwareList], args: Softwar
 class UnsupportedCHDError(Exception):
 	pass
 
-def get_sha1_from_chd(chd_path) -> str:
-	header = io_utils.read_file(chd_path, amount=124)
+def get_sha1_from_chd(chd_path: Path) -> str:
+	header = io_utils.read_file(str(chd_path), amount=124)
 	if header[0:8] != b'MComprHD':
 		raise UnsupportedCHDError('Header magic %s unknown' % str(header[0:8]))
 	chd_version = int.from_bytes(header[12:16], 'big')
@@ -200,11 +200,11 @@ def matcher_args_for_bytes(data: bytes) -> SoftwareMatcherArgs:
 	#We _could_ use sha1 here, but there's not really a need to
 	return SoftwareMatcherArgs(get_crc32_for_software_list(data), None, len(data), lambda offset, amount: data[offset:offset+amount])
 
-def get_software_list_entry(game: ROMGame, skip_header=0) -> Optional[Software]:
+def get_software_list_entry(game: ROMGame, skip_header: int=0) -> Optional[Software]:
 	if game.software_lists:
 		software_lists = game.software_lists
 	else:
-		software_list_names = platforms[game.platform_name].mame_software_lists
+		software_list_names = game.platform.mame_software_lists
 		software_lists = get_software_lists_by_names(software_list_names)
 
 	if game.metadata.media_type == MediaType.OpticalDisc:
