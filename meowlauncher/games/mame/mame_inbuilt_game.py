@@ -1,3 +1,4 @@
+from meowlauncher.config.platform_config import PlatformConfig
 from meowlauncher.data.machines_with_inbuilt_games import InbuiltGame
 from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher
@@ -8,8 +9,8 @@ from .mame import ConfiguredMAME
 
 
 class MAMEInbuiltGame(EmulatedGame):
-	def __init__(self, machine_name: str, inbuilt_game: InbuiltGame, bios_name=None) -> None:
-		super().__init__()
+	def __init__(self, machine_name: str, inbuilt_game: InbuiltGame, platform_config: PlatformConfig, bios_name=None) -> None:
+		super().__init__(platform_config)
 		self.machine_name = machine_name
 		self.inbuilt_game = inbuilt_game #Yeahhh this should be a dataclass/named tuple
 		self.bios_name = bios_name

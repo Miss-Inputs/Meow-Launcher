@@ -1,3 +1,4 @@
+from meowlauncher.config.platform_config import PlatformConfig
 from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher
 from meowlauncher.games.mame_common.machine import Machine
@@ -7,8 +8,8 @@ from .mame import ConfiguredMAME
 
 
 class MAMEGame(EmulatedGame):
-	def __init__(self, machine: Machine):
-		super().__init__()
+	def __init__(self, machine: Machine, platform_config: PlatformConfig):
+		super().__init__(platform_config)
 		self.machine = machine
 		self.metadata = Metadata()
 

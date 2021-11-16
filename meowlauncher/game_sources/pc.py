@@ -82,7 +82,9 @@ class PCGameSource(GameSource, ABC):
 		return self.launcher_type(app, emulator, self.platform_config)
 
 	def _process_app(self, app_info: Mapping[str, Any]) -> Optional[AppLauncher]:
-		app = self.app_type(app_info)
+		if not self.platform_config:
+			raise AssertionError('Should have checked is_available already, platform_config is None')
+		app = self.app_type(app_info, self.platform_config)
 		try:
 			if not app.is_valid:
 				print('Skipping', app.name, app.path, 'config is not valid')

@@ -7,6 +7,7 @@ from meowlauncher import desktop_launchers
 from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
+from meowlauncher.config.platform_config import PlatformConfig, platform_configs
 from meowlauncher.data.machines_with_inbuilt_games import (
     InbuiltGame, bioses_with_inbuilt_games, machines_with_inbuilt_games)
 from meowlauncher.game_source import GameSource
@@ -51,23 +52,13 @@ def does_user_want_machine(game: MAMEGame) -> bool:
 
 	return True
 
-def process_inbuilt_game(machine_name: str, inbuilt_game: InbuiltGame, bios_name=None) -> Optional[MAMEInbuiltLauncher]:
-	if not default_mame_executable.verifyroms(machine_name):
-		return None
-
-	#MachineNotFoundException shouldn't happen because verifyroms already returned true? Probably
-	machine = get_machine(machine_name, default_mame_executable)
-	
-	game = MAMEInbuiltGame(machine_name, inbuilt_game, bios_name)
-	add_status(machine, game.metadata)
-	return MAMEInbuiltLauncher(game, ConfiguredMAME(emulator_configs.get('MAME')))
-
 class MAME(GameSource):
 	def __init__(self, driver_list: Sequence[str]=None, source_file: str=None) -> None:
 		super().__init__()
 		self.driver_list = driver_list
 		self.source_file = source_file
 		self.emu = ConfiguredMAME(emulator_configs.get('MAME'))
+		self.platform_config = PlatformConfig('MAME', [], [], {}) #Not needed for now, it is just to satisfy EmulatedGame constructor… may be a good idea some day
 
 	@property
 	def name(self) -> str:
@@ -100,7 +91,7 @@ class MAME(GameSource):
 			#The code behind -listxml is of the opinion that protection = imperfect should result in a system being considered entirely broken, but I'm not so sure if that works out
 			return None
 
-		game = MAMEGame(machine)
+		game = MAMEGame(machine, self.platform_config)
 		if not does_user_want_machine(game):
 			return None
 
@@ -155,6 +146,10 @@ class MAME(GameSource):
 				yield launcher
 
 class MAMEInbuiltGames(GameSource):
+	def __init__(self) -> None:
+		super().__init__()
+		self.blank_platform_config = PlatformConfig('MAME', [], [], {})
+
 	@property
 	def name(self) -> str:
 		return 'MAME inbuilt games'
@@ -170,18 +165,32 @@ class MAMEInbuiltGames(GameSource):
 	def no_longer_exists(self, game_id: str) -> bool:
 		return not default_mame_executable or not default_mame_executable.verifyroms(game_id.split(':')[0])
 
+	def _process_inbuilt_game(self, machine_name: str, inbuilt_game: InbuiltGame, bios_name=None) -> Optional[MAMEInbuiltLauncher]:
+		if not default_mame_executable.verifyroms(machine_name):
+			return None
+
+		#Actually, this probably doesn't matter at all… but eh, just feels more correct than simply passing blank_platform_config to satisfy EmulatedGame constructor
+		platform_config = platform_configs.get(inbuilt_game.platform, self.blank_platform_config)
+			
+		#MachineNotFoundException shouldn't happen because verifyroms already returned true? Probably
+		machine = get_machine(machine_name, default_mame_executable)
+		
+		game = MAMEInbuiltGame(machine_name, inbuilt_game, platform_config, bios_name)
+		add_status(machine, game.metadata)
+		return MAMEInbuiltLauncher(game, ConfiguredMAME(emulator_configs.get('MAME')))
+
 	def get_launchers(self) -> Iterable[Launcher]:
 		for machine_name, inbuilt_game in machines_with_inbuilt_games.items():
 			if not main_config.full_rescan:
 				if desktop_launchers.has_been_done('Inbuilt game', machine_name):
 					continue
-			launcher = process_inbuilt_game(machine_name, inbuilt_game)
+			launcher = self._process_inbuilt_game(machine_name, inbuilt_game)
 			if launcher:
 				yield launcher
 		for machine_and_bios_name, inbuilt_game in bioses_with_inbuilt_games.items():
 			if not main_config.full_rescan:
 				if desktop_launchers.has_been_done('Inbuilt game', machine_and_bios_name[0] + ':' + machine_and_bios_name[1]):
 					continue
-			launcher = process_inbuilt_game(machine_and_bios_name[0], inbuilt_game, machine_and_bios_name[1])
+			launcher = self._process_inbuilt_game(machine_and_bios_name[0], inbuilt_game, machine_and_bios_name[1])
 			if launcher:
 				yield launcher	

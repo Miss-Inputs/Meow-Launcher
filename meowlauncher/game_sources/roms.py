@@ -31,7 +31,7 @@ from meowlauncher.util.utils import find_filename_tags_at_end, starts_with_any
 
 
 def process_file(platform_config: PlatformConfig, potential_emulator_names: Iterable[str], rom: ROM, subfolders: Sequence[str]) -> Optional[ROMLauncher]:
-	game = ROMGame(rom, platform_config.name, platforms[platform_config.name])
+	game = ROMGame(rom, platform_config.name, platforms[platform_config.name], platform_config)
 
 	if game.rom.extension == 'm3u':
 		file_rom = cast(FileROM, game.rom)

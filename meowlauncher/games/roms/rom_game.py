@@ -15,8 +15,8 @@ from .rom import ROM, CompressedROM, FileROM
 
 
 class ROMGame(EmulatedGame):
-	def __init__(self, rom: ROM, platform_name: str, platform: EmulatedPlatform):
-		super().__init__()
+	def __init__(self, rom: ROM, platform_name: str, platform: EmulatedPlatform, platform_config: PlatformConfig):
+		super().__init__(platform_config)
 		self.rom = rom
 		self.platform_name = self.metadata.platform = platform_name
 		self.platform = platform

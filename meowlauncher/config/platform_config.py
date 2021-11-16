@@ -35,24 +35,24 @@ class PlatformConfigs():
 			ensure_exist(_platform_config_path)
 			parser.read(_platform_config_path)
 
-			for system_name in parser.sections():
-				section = parser[system_name]
+			for platform_name in parser.sections():
+				section = parser[platform_name]
 				paths = parse_path_list(section.get('paths', ''))
 				chosen_emulators = []
 				for s in parse_string_list(section.get('emulators', '')):
 					if s in {'MAME', 'Mednafen', 'VICE'}:
 					#Allow for convenient shortcut
-						s = f'{s} ({system_name})'
+						s = f'{s} ({platform_name})'
 					chosen_emulators.append(s)
-				if system_name in platforms:
-					options = platforms[system_name].options
+				if platform_name in platforms:
+					options = platforms[platform_name].options
 					for k, v in options.items():
 						options[k] = parse_value(section, k, v.type, v.default_value)
-				elif system_name in pc_platforms:
-					options = pc_platforms[system_name].options
+				elif platform_name in pc_platforms:
+					options = pc_platforms[platform_name].options
 					for k, v in options.items():
 						options[k] = parse_value(section, k, v.type, v.default_value)
-				self.configs[system_name] = PlatformConfig(system_name, paths, chosen_emulators, options)
+				self.configs[platform_name] = PlatformConfig(platform_name, paths, chosen_emulators, options)
 						
 	__instance = None
 

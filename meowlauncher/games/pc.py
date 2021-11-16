@@ -13,8 +13,8 @@ from meowlauncher.util.name_utils import fix_name
 
 
 class App(EmulatedGame, ABC):
-	def __init__(self, info: Mapping[str, Any]):
-		super().__init__()
+	def __init__(self, info: Mapping[str, Any], platform_config: PlatformConfig):
+		super().__init__(platform_config)
 		self.info = info
 		self.is_on_cd: bool = info.get('is_on_cd', False)
 		self.path = info['path']
