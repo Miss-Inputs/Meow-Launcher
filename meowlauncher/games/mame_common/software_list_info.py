@@ -37,8 +37,8 @@ def get_software_list_by_name(name: str) -> Optional[SoftwareList]:
 			return None
 		for hash_path in default_mame_configuration.core_config.get('hashpath', []):
 			if os.path.isdir(hash_path):
-				list_path = os.path.join(hash_path, name + '.xml')
-				if os.path.isfile(list_path):
+				list_path = Path(hash_path, name + '.xml')
+				if list_path.is_file():
 					software_list = SoftwareList(list_path)
 					get_software_list_by_name.cache[name] = software_list #type: ignore[attr-defined]
 					return software_list

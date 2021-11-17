@@ -225,5 +225,5 @@ def check_for_interesting_things_in_folder(folder: Path, metadata: Metadata, fin
 		if any(f.startswith('scummvm_') for f in subdirs) or any(f.startswith('scummvm') for f in files):
 			metadata.specific_info['Wrapper'] = 'ScummVM'
 
-		if os.path.isfile(os.path.join(folder, 'support', 'UplayInstaller.exe')):
+		if folder.joinpath('support', 'UplayInstaller.exe').is_file():
 			metadata.specific_info['Launcher'] = 'uPlay'

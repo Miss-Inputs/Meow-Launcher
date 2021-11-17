@@ -2,7 +2,6 @@ import os
 import statistics
 from datetime import datetime
 from enum import Enum
-from pathlib import Path
 from typing import Optional, cast
 from xml.etree import ElementTree
 
@@ -70,14 +69,16 @@ def add_cover(metadata: Metadata, product_code: str, licensee_code: str):
 	covers_path = platform_configs['Wii U'].options.get('covers_path')
 	if not covers_path:
 		return
-	cover_path = os.path.join(covers_path, product_code)
-	other_cover_path = os.path.join(covers_path + licensee_code, product_code)
+	cover_base_path = covers_path.joinpath(product_code)
+	other_cover_base_path = covers_path.joinpath(licensee_code + product_code)
 	for ext in ('png', 'jpg'):
-		if os.path.isfile(cover_path + os.extsep + ext):
-			metadata.images['Cover'] = cover_path + os.extsep + ext
+		cover_path = cover_base_path.with_suffix(os.extsep, ext)
+		if cover_path.is_file():
+			metadata.images['Cover'] = cover_path
 			break
-		if os.path.isfile(other_cover_path + os.extsep + ext):
-			metadata.images['Cover'] = other_cover_path + os.extsep + ext
+		other_cover_path = other_cover_base_path.with_suffix(os.extsep + ext)
+		if other_cover_path.is_file():
+			metadata.images['Cover'] = other_cover_path
 			break
 
 def add_meta_xml_metadata(metadata: Metadata, meta_xml: ElementTree.ElementTree):
@@ -214,22 +215,22 @@ def add_rpx_metadata(rom: ROM, metadata: Metadata):
 	#The .rpx itself is not interesting and basically just a spicy ELF
 	#This is going to assume we are looking at a homebrew folder
 
-	parent_folder = os.path.dirname(rom.path)
-
 	try:
 		#info.json has the same info? But it's not always there
-		add_homebrew_meta_xml_metadata(rom, metadata, ElementTree.parse(os.path.join(parent_folder, 'meta.xml')))
-		if metadata.categories[-1] == os.path.basename(parent_folder):
+		add_homebrew_meta_xml_metadata(rom, metadata, ElementTree.parse(rom.path.with_name('meta.xml')))
+		if metadata.categories[-1] == rom.path.parent.name:
 			metadata.categories = metadata.categories[:-1]
 	except FileNotFoundError:
 		pass
-	homebrew_banner_path = os.path.join(parent_folder, 'icon.png')
-	if os.path.isfile(homebrew_banner_path):
+	homebrew_banner_path = rom.path.with_name('icon.png')
+	if homebrew_banner_path.is_file():
 		metadata.images['Banner'] = homebrew_banner_path
 
 def add_folder_metadata(rom: FolderROM, metadata: Metadata):
-	content_dir = cast(Path, rom.get_subfolder('content')) #Impossible for these to be None
-	meta_dir = cast(Path, rom.get_subfolder('meta'))
+	content_dir = rom.get_subfolder('content')
+	meta_dir = rom.get_subfolder('meta')
+	if not content_dir or not meta_dir:
+		raise AssertionError('It should not be possible at all for content_dir or meta_dir to be None')
 	
 	metadata.specific_info['Executable-Name'] = rom.relevant_files['rpx'].name
 
@@ -245,21 +246,21 @@ def add_folder_metadata(rom: FolderROM, metadata: Metadata):
 		metadata.specific_info['Engine'] = engine
 
 	#Seemingly this can actually sometimes be all lowercase? I should make this check case insensitive but I don't really care too much
-	icon_path = os.path.join(meta_dir, 'iconTex.tga')
-	if os.path.isfile(icon_path):
+	icon_path = meta_dir.joinpath('iconTex.tga')
+	if icon_path.is_file():
 		metadata.images['Icon'] = icon_path
-	boot_drc_path = os.path.join(meta_dir, 'bootDrcTex.tga') #Image displayed on the gamepad while loading
-	if boot_drc_path:
+	boot_drc_path = meta_dir.joinpath('bootDrcTex.tga') #Image displayed on the gamepad while loading
+	if boot_drc_path.is_file():
 		metadata.images['Gamepad-Boot-Image'] = boot_drc_path
-	boot_tv_path = os.path.join(meta_dir, 'bootTvTex.tga') #Generally just bootDrcTex but higher resolution (and for the TV)
-	if boot_tv_path:
+	boot_tv_path = meta_dir.joinpath('bootTvTex.tga') #Generally just bootDrcTex but higher resolution (and for the TV)
+	if boot_tv_path.is_file():
 		metadata.images['TV-Boot-Image'] = boot_tv_path
-	boot_logo_path = os.path.join(meta_dir, 'bootLogoTex.tga')
-	if boot_logo_path:
+	boot_logo_path = meta_dir.joinpath('bootLogoTex.tga')
+	if boot_logo_path.is_file():
 		metadata.images['Boot-Logo'] = boot_logo_path
 	#There is also a Manual.bfma in here, bootMovie.h264 and bootSound.btsnd, and some ratings images like "CERO_ja.jpg" and "PEGI_en.jpg" except they're 1 byte so I dunno
 
-	meta_xml_path = os.path.join(meta_dir, 'meta.xml')
+	meta_xml_path = meta_dir.joinpath('meta.xml')
 	try:
 		meta_xml = ElementTree.parse(meta_xml_path)
 		add_meta_xml_metadata(metadata, meta_xml)

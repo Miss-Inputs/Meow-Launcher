@@ -24,7 +24,7 @@ class App(EmulatedGame, ABC):
 		self.other_cd_paths: list[Path] = []
 		if 'cd_path' in info:
 			cd_paths = info['cd_path'] if isinstance(info['cd_path'], list) else [info['cd_path']]
-			cd_paths = [os.path.join(self.base_folder, cd_path) if self.base_folder and not cd_path.startswith('/') else cd_path for cd_path in cd_paths]
+			cd_paths = [self.base_folder.joinpath(cd_path) if self.base_folder and not cd_path.startswith('/') else cd_path for cd_path in cd_paths]
 			self.cd_path = Path(cd_paths[0])
 			self.other_cd_paths = cd_paths[1:]
 		elif self.is_on_cd:

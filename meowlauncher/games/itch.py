@@ -2,7 +2,6 @@ import copy
 import datetime
 import gzip
 import json
-import os
 import subprocess
 from collections.abc import Collection, Sequence
 from pathlib import Path
@@ -203,8 +202,9 @@ class ItchGame(Game):
 		metadata = copy.deepcopy(self.metadata)
 		executable_name = exe_path.name
 		metadata.specific_info['Executable-Name'] = executable_name
-		if os.path.extsep in executable_name:
-			metadata.extension = executable_name.rsplit(os.path.extsep, 1)[-1].lower()
+		extension = exe_path.suffix
+		if extension:
+			metadata.extension = extension[-1].lower()
 		metadata.specific_info['Executable-Type'] = flavour
 		#This shouldn't really happen, but sometimes the platform field in upload in the receipt is inaccurate
 		#Pretend Mac doesn't exist

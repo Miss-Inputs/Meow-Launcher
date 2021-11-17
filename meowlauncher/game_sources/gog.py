@@ -21,19 +21,19 @@ def look_in_linux_gog_folder(folder: Path) -> Optional[GOGGame]:
 	gameinfo = GOGGameInfo(gameinfo_path)
 
 	launch_script = folder.joinpath('start.sh')
-	if not os.path.isfile(launch_script):
+	if not launch_script.is_file():
 		return None
 
 	#.mojosetup, uninstall-*.sh, docs are also here
 	support_folder = folder.joinpath('support')
-	if not os.path.isdir(support_folder):
+	if not support_folder.is_dir():
 		return None
 
-	if os.path.isdir(folder.joinpath('dosbox')):
+	if folder.joinpath('dosbox').is_dir():
 		return DOSBoxGOGGame(folder, gameinfo, launch_script, support_folder)
-	if os.path.isdir(folder.joinpath('scummvm')):
+	if folder.joinpath('scummvm').is_dir():
 		return ScummVMGOGGame(folder, gameinfo, launch_script, support_folder)
-	if os.path.isdir(folder.joinpath('game')):
+	if folder.joinpath('game').is_dir():
 		return NormalGOGGame(folder, gameinfo, launch_script, support_folder)
 
 	return None
@@ -99,6 +99,7 @@ def do_windows_gog_games() -> None:
 def do_gog_games() -> None:
 	time_started = time.perf_counter()
 
+	#TODO: Should have is_wine_available helper function or whatever
 	if os.path.isfile(main_config.wine_path) or not main_config.wine_path.startswith('/'):
 		do_windows_gog_games()
 

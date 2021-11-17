@@ -170,7 +170,7 @@ class SteamInstallation():
 			#Can be either png or jpg, I guess… could also listdir or glob I guess but ehhh brain broke lately
 			for ext in ('png', 'jpg', 'jpeg'):
 				path = basename.with_suffix('.' + ext)
-				if os.path.isfile(path):
+				if path.is_file():
 					return path
 		return None
 

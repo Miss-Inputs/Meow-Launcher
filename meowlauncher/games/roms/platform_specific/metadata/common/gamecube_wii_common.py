@@ -44,10 +44,11 @@ def add_cover(metadata: Metadata, product_code: str, licensee_code: str):
 	covers_path = platform_configs['Wii'].options.get('covers_path')
 	if not covers_path:
 		return
-	cover_path = os.path.join(covers_path, product_code + licensee_code)
+	cover_path = covers_path.joinpath(product_code + licensee_code)
 	for ext in ('png', 'jpg'):
-		if os.path.isfile(cover_path + os.extsep + ext):
-			metadata.images['Cover'] = cover_path + os.extsep + ext
+		potential_cover_path = cover_path.with_suffix(os.extsep + ext)
+		if potential_cover_path.is_file():
+			metadata.images['Cover'] = potential_cover_path
 			return
 
 def add_gamecube_wii_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes):

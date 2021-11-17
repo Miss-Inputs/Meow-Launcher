@@ -96,10 +96,11 @@ def add_cover(metadata: Metadata, product_code: str):
 	covers_path = platform_configs['3DS'].options.get('covers_path')
 	if not covers_path:
 		return
-	cover_path = os.path.join(covers_path, product_code)
+	cover_path = covers_path.joinpath(product_code)
 	for ext in ('png', 'jpg'):
-		if os.path.isfile(cover_path + os.extsep + ext):
-			metadata.images['Cover'] = cover_path + os.extsep + ext
+		potential_cover_path = cover_path.with_suffix(os.extsep + ext)
+		if potential_cover_path.is_file():
+			metadata.images['Cover'] = potential_cover_path
 			break
 
 def parse_ncch(rom: FileROM, metadata: Metadata, offset: int):
@@ -414,10 +415,12 @@ def parse_3dsx(rom: FileROM, metadata: Metadata):
 			parse_smdh(rom, metadata, smdh_offset, smdh_size)
 
 	if look_for_smdh_file:
-		smdh_name = os.path.splitext(rom.path)[0] + '.smdh'
-		if os.path.isfile(smdh_name):
-			with open(smdh_name, 'rb') as smdh_file:
+		smdh_name = rom.path.with_suffix('.smdh')
+		try:
+			with smdh_name.open('rb') as smdh_file:
 				parse_smdh_data(metadata, smdh_file.read())
+		except FileNotFoundError:
+			pass
 
 def add_3ds_metadata(game: ROMGame):
 	add_3ds_system_info(game.metadata)

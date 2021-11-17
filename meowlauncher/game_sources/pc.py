@@ -1,8 +1,7 @@
 import json
-import os
 import traceback
 from abc import ABC
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from typing import Any, Optional
 
 from meowlauncher.common_paths import config_dir
@@ -33,10 +32,11 @@ class PCGameSource(ChooseableEmulatorGameSource[PCEmulator], ABC):
 			return
 		super().__init__(platform_config, self.platform, pc_emulators)
 
-		self._app_list_path = os.path.join(config_dir, self.platform.json_name + '.json')
+		self._app_list_path = config_dir.joinpath(self.platform.json_name + '.json')
+		self._app_list: Optional[Sequence[Mapping[str, Any]]] = None
 		try:
 			self._is_available = bool(platform_config.chosen_emulators)
-			with open(self._app_list_path, 'rt', encoding='utf-8') as f:
+			with self._app_list_path.open('rt', encoding='utf-8') as f:
 				self._app_list = json.load(f)
 		except json.JSONDecodeError as json_fuckin_bloody_error:
 			print(self._app_list_path, 'is borked, skipping', platform_name, json_fuckin_bloody_error)
@@ -97,6 +97,8 @@ class PCGameSource(ChooseableEmulatorGameSource[PCEmulator], ABC):
 
 	#Return value here could be a generic type value I suppose, if you were into that sort of thing
 	def get_launchers(self) -> Iterable[AppLauncher]:
+		if not self._app_list:
+			raise AssertionError('PCGameSource.get_launchers should not be called without checking .is_available()')
 		for app in self._app_list:
 			try:
 				launcher = self._process_app(app)

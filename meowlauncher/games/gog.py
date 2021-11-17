@@ -72,9 +72,8 @@ class GOGTask():
 	def __init__(self, json_object: Mapping):
 		self.is_primary: bool = json_object.get('isPrimary', False)
 		self.task_type: Optional[str] = json_object.get('type') #Just FileTask or URLTask?
-		self.path: Optional[str] = json_object.get('path') #I guess this is also only for FileTask
-		if self.path:
-			self.path = self.path.replace('\\', os.path.sep)
+		path: Optional[str] = json_object.get('path') #I guess this is also only for FileTask
+		self.path = path.replace('\\', os.path.sep) if path else None #TODO: Should use pathlib.Path, is this relative? Do we need to do something weird? I guess it could be URL if URLTask?
 		self.working_directory: Optional[str] = json_object.get('workingDir') #This would only matter for FileTask I guess
 		if self.working_directory:
 			self.working_directory = self.working_directory.replace('\\', os.path.sep)
@@ -152,10 +151,10 @@ class GOGGame(Game, ABC):
 		#Dang… everything else would require the API, I guess
 
 	@property
-	def icon(self) -> Optional[str]:
+	def icon(self) -> Optional[Path]:
 		for icon_ext in pc_common_metadata.icon_extensions:
-			icon_path = os.path.join(self.support_folder, 'icon' + os.extsep + icon_ext)
-			if os.path.isfile(icon_path):
+			icon_path = self.support_folder.joinpath('icon' + os.extsep + icon_ext)
+			if icon_path.is_file():
 				return icon_path
 		return None
 
@@ -193,7 +192,8 @@ class NormalGOGGame(GOGGame):
 				lang_name = json_info.language_name
 				if lang_name:
 					lang = region_info.get_language_by_english_name(lang_name)
-					self.metadata.languages.append(lang)
+					if lang:
+						self.metadata.languages.append(lang)
 				#We won't do anything special with playTasks, not sure it's completely accurate as it doesn't seem to include arguments to executables where that would be expected (albeit this is in the case of Pushover, which is a DOSBox game hiding as a normal game)
 				#Looking at 'category' for the task with 'isPrimary' = true though might be interesting
 				#TODO: But we totally should though, start_script also could be parsed maybe
@@ -278,7 +278,8 @@ class WindowsGOGGame(Game):
 		lang_name = self.info.language_name
 		if lang_name:
 			lang = region_info.get_language_by_english_name(lang_name)
-			self.metadata.languages.append(lang)
+			if lang:
+				self.metadata.languages.append(lang)
 
 		engine = try_and_detect_engine_from_folder(self.folder, self.metadata)
 		if engine:
@@ -300,14 +301,15 @@ class WindowsGOGGame(Game):
 		return False
 
 	@property
-	def icon(self) -> Optional[str]:
+	def icon(self) -> Optional[Path]:
 		for icon_ext in pc_common_metadata.icon_extensions:
-			icon_path = os.path.join(self.folder, 'goggame-' + self.game_id + os.extsep + icon_ext)
-			if os.path.isfile(icon_path):
+			icon_path = self.folder.joinpath('goggame-' + self.game_id + os.extsep + icon_ext)
+			if icon_path.is_file():
 				return icon_path
 		return None
 
 	def fix_subfolder_relative_folder(self, folder: str, subfolder: str) -> str:
+		#TODO: This should probs use pathlib.Path too?
 		if folder.startswith('..\\'):
 			return str(find_subpath_case_insensitive(self.folder, folder.replace('..\\', '')))
 		if folder.startswith('.\\'):

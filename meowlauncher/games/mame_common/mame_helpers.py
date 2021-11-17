@@ -1,5 +1,6 @@
 #Use this file for handy shortcuts with the default MAME config/executable
 import functools
+from pathlib import Path
 from typing import Optional
 
 from .mame_configuration import MAMEConfiguration
@@ -45,7 +46,7 @@ def verify_software_list(software_list_name: str) -> list[str]:
 	return default_mame_executable.verifysoftlist(software_list_name)
 
 @functools.cache
-def get_image(config_key: str, machine_or_list_name: str, software_name: Optional[str]=None) -> Optional[str]:
+def get_image(config_key: str, machine_or_list_name: str, software_name: Optional[str]=None) -> Optional[Path]:
 	return default_mame_configuration.get_image(config_key, machine_or_list_name, software_name)
 
 def verify_romset(basename: str) -> bool:

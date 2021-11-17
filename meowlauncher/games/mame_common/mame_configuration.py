@@ -15,14 +15,14 @@ class MAMEConfiguration():
 		self.ui_config = parse_mame_config_file(ui_config_path)
 		self._icons = None
 
-	def get_image(self, config_key: str, machine_or_list_name: str, software_name: Optional[str]=None) -> Optional[str]:
+	def get_image(self, config_key: str, machine_or_list_name: str, software_name: Optional[str]=None) -> Optional[Path]:
 		for directory in self.ui_config.get(config_key, []):
-			basename = os.path.join(directory, machine_or_list_name)
+			basename = Path(directory, machine_or_list_name)
 			if software_name:
-				basename = os.path.join(basename, software_name)
+				basename = basename.joinpath(software_name)
 			for ext in image_types:
-				path = basename + os.path.extsep + ext
-				if os.path.isfile(path):
+				path = basename.with_suffix(os.path.extsep + ext)
+				if path.is_file():
 					return path
 		return None
 

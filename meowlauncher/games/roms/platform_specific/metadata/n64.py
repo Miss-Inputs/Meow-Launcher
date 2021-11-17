@@ -1,7 +1,7 @@
 import configparser
 import hashlib
-import os
 from collections.abc import Mapping
+from pathlib import Path
 from typing import Optional, cast
 
 from meowlauncher import input_metadata
@@ -15,32 +15,33 @@ from meowlauncher.util.utils import (NotAlphanumericException, byteswap,
                                      convert_alphanumeric)
 
 
-def get_mupen64plus_database() -> Optional[dict[str, dict[str, str]]]:
-	if hasattr(get_mupen64plus_database, 'mupen64plus_database'):
-		return get_mupen64plus_database.mupen64plus_database #type: ignore[attr-defined]
-
-	location = None
-	
-	config_location = os.path.expanduser('~/.config/mupen64plus/mupen64plus.cfg')
+def _get_mupen64plus_database_location() -> Optional[Path]:
+	config_location = Path('~/.config/mupen64plus/mupen64plus.cfg').expanduser()
 	try:
-		with open(config_location, 'rt', encoding='utf-8') as config_file:
+		with config_location.open('rt', encoding='utf-8') as config_file:
 			for line in config_file.readlines():
 				if line.startswith('SharedDataPath = '):
 					data_folder = line.rstrip()[len('SharedDataPath = '):].strip('"')
-					possible_location = os.path.join(data_folder, 'mupen64plus.ini')
-					if os.path.isfile(possible_location):
-						location = possible_location
+					possible_location = Path(data_folder, 'mupen64plus.ini')
+					if possible_location.is_file():
+						return possible_location
 	except OSError:
 		pass
 
-	if not location:
-		possible_locations = ['/usr/share/mupen64plus/mupen64plus.ini', '/usr/local/share/mupen64plus/mupen64plus.ini']
-		for possible_location in possible_locations:
-			if os.path.isfile(possible_location):
-				location = possible_location
-				break
-	#TODO: Add option to force the database to a certain location
+	possible_locations = ['/usr/share/mupen64plus/mupen64plus.ini', '/usr/local/share/mupen64plus/mupen64plus.ini']
+	for possible_location_str in possible_locations:
+		possible_location = Path(possible_location_str)
+		if possible_location.is_file():
+			return possible_location
+	#TODO: Add option to force the database to a certain location, although I guess if it's anywhere weird it'd probably be set in SharedDataPath anyway
 
+	return None
+
+def _get_mupen64plus_database() -> Optional[dict[str, dict[str, str]]]:
+	if hasattr(_get_mupen64plus_database, 'mupen64plus_database'):
+		return _get_mupen64plus_database.mupen64plus_database #type: ignore[attr-defined]
+
+	location = _get_mupen64plus_database_location()
 	if not location:
 		return None
 
@@ -59,7 +60,7 @@ def get_mupen64plus_database() -> Optional[dict[str, dict[str, str]]]:
 						continue
 					database[game][parent_key] = parent_value
 
-	get_mupen64plus_database.mupen64plus_database = database #type: ignore[attr-defined]
+	_get_mupen64plus_database.mupen64plus_database = database #type: ignore[attr-defined]
 	return database
 
 def parse_n64_header(metadata: Metadata, header: bytes):
@@ -144,7 +145,7 @@ def add_n64_metadata(game: ROMGame):
 	normal_controller.dpads = 1
 	game.metadata.input_info.add_option(normal_controller)
 
-	database = get_mupen64plus_database()
+	database = _get_mupen64plus_database()
 	if database:
 		rom_md5 = hashlib.md5(entire_rom).hexdigest().upper()
 		database_entry = database.get(rom_md5)

@@ -1,6 +1,8 @@
 import os
 import re
 import shlex
+from pathlib import Path
+from typing import Optional
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        MediaType, NotARomException)
@@ -1550,7 +1552,7 @@ def dosbox_staging(app, _, emulator_config):
 		except OSError:
 			pass
 		
-	overlay_path = emulator_config.options['overlay_path']
+	overlay_path: Optional[Path] = emulator_config.options['overlay_path']
 
 	if app.cd_path:
 		#I hope you don't put double quotes in the CD paths
@@ -1574,9 +1576,9 @@ def dosbox_staging(app, _, emulator_config):
 			host_folder, exe_name = os.path.split(app.path)
 			args += '-c', 'MOUNT {0} "{1}"'.format(drive_letter, host_folder)
 			if overlay_path:
-				overlay_subfolder = os.path.join(overlay_path, app.name)
-				ensure_exist_command = LaunchCommand('mkdir', ['-p', overlay_subfolder])
-				args += ['-c', 'MOUNT -t overlay {0} "{1}"'.format(drive_letter, overlay_subfolder)]
+				overlay_subfolder = overlay_path.joinpath(app.name)
+				ensure_exist_command = LaunchCommand('mkdir', ['-p', overlay_subfolder.as_posix()])
+				args += ['-c', 'MOUNT -t overlay {0} "{1}"'.format(drive_letter, str(overlay_subfolder))]
 			args += ['-c', drive_letter + ':']
 			if app.args:
 				args += ['-c', exe_name + ' ' + ' '.join([shlex.quote(arg) for arg in app.args])]

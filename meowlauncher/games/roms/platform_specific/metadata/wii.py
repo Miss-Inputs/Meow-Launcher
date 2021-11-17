@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 from enum import Enum
 from typing import cast
@@ -328,7 +327,7 @@ def add_wii_metadata(game: ROMGame):
 	elif game.rom.extension in {'dol', 'elf'}:
 		if game.rom.name.lower() == 'boot': #Shouldn't happen I guess if homebrew detection works correctly but sometimes it be like that
 			game.metadata.categories = game.metadata.categories[:-1]
-			game.metadata.add_alternate_name(os.path.basename(os.path.dirname(game.rom.path)), 'Folder-Name')
+			game.metadata.add_alternate_name(game.rom.path.parent.name, 'Folder-Name')
 			game.rom.ignore_name = True
 	elif game.rom.extension in {'wia', 'rvz'}:
 		just_read_the_wia_rvz_header_for_now(cast(FileROM, game.rom), game.metadata)

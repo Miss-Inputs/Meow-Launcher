@@ -35,16 +35,16 @@ tdb = load_tdb()
 
 def add_ps3game_subfolder_info(subfolder: Path, metadata: Metadata):
 	icon0_path = subfolder.joinpath('ICON0.PNG')
-	if os.path.isfile(icon0_path):
+	if icon0_path.is_file():
 		metadata.images['Banner'] = icon0_path
 	icon1_path = subfolder.joinpath('ICON1.PNG')
-	if os.path.isfile(icon1_path):
+	if icon1_path.is_file():
 		metadata.images['Icon-1'] = icon1_path
 	pic0_path = subfolder.joinpath('PIC0.PNG')
-	if os.path.isfile(pic0_path):
+	if pic0_path.is_file():
 		metadata.images['Overlay-Image'] = pic0_path
 	pic1_path = subfolder.joinpath('PIC1.PNG')
-	if os.path.isfile(pic1_path):
+	if pic1_path.is_file():
 		metadata.images['Background-Image'] = pic1_path
 	#PIC2.PNG is for 4:3 instead of 16:9 go away nerds
 	if subfolder.joinpath('TROPDIR').is_dir():
@@ -75,7 +75,7 @@ def add_game_folder_metadata(rom: FolderROM, metadata: Metadata):
 			if engine:
 				metadata.specific_info['Engine'] = engine
 
-	is_installed_to_rpcs3_hdd = os.path.dirname(rom.path) == os.path.expanduser('~/.config/rpcs3/dev_hdd0/game')
+	is_installed_to_rpcs3_hdd = rom.path.parent == Path('~/.config/rpcs3/dev_hdd0/game').expanduser()
 	
 	if param_sfo_path:
 		with open(param_sfo_path, 'rb') as f:
@@ -87,7 +87,7 @@ def add_game_folder_metadata(rom: FolderROM, metadata: Metadata):
 	if metadata.product_code == rom.name:
 		rom.ignore_name = True
 		if not is_installed_to_rpcs3_hdd:
-			metadata.add_alternate_name(os.path.basename(os.path.dirname(rom.path)), 'Name')
+			metadata.add_alternate_name(rom.path.parent.name, 'Name')
 		
 class RPCS3Compatibility(Enum):
 	Loadable = 1
@@ -96,12 +96,12 @@ class RPCS3Compatibility(Enum):
 	Playable = 4
 
 def get_rpcs3_compat(product_code: str) -> Optional[RPCS3Compatibility]:
-	compat_db_path = os.path.expanduser('~/.config/rpcs3/GuiConfigs/compat_database.dat')
+	compat_db_path = Path('~/.config/rpcs3/GuiConfigs/compat_database.dat').expanduser()
 	if hasattr(get_rpcs3_compat, 'db'):
 		db = get_rpcs3_compat.db #type: ignore[attr-defined]
 	else:
 		try:
-			with open(compat_db_path, 'rb') as f:
+			with compat_db_path.open('rb') as f:
 				db = get_rpcs3_compat.db = json.load(f) #type: ignore[attr-defined]
 		except OSError:
 			return None
@@ -125,10 +125,11 @@ def add_cover(metadata: Metadata, product_code: str):
 		return
 	if not covers_path:
 		return
-	cover_path = os.path.join(covers_path, product_code)
+	cover_path = covers_path.joinpath(product_code)
 	for ext in ('png', 'jpg'):
-		if os.path.isfile(cover_path + os.extsep + ext):
-			metadata.images['Cover'] = cover_path + os.extsep + ext
+		potential_cover_path = cover_path.with_suffix(os.extsep + ext)
+		if potential_cover_path.is_file():
+			metadata.images['Cover'] = potential_cover_path
 			break
 
 def add_ps3_metadata(game: ROMGame):

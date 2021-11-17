@@ -1,6 +1,7 @@
 import re
 import zlib
 from collections.abc import Callable, Sequence
+from pathlib import Path
 from typing import Any, Optional, cast
 from xml.etree import ElementTree
 
@@ -462,7 +463,7 @@ class SoftwareMatcherArgs():
 		self.reader = reader
 
 class SoftwareList():
-	def __init__(self, path) -> None:
+	def __init__(self, path: Path) -> None:
 		self.xml = ElementTree.parse(path)
 
 	@property
