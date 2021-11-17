@@ -1433,15 +1433,15 @@ def prboom_plus(game, platform_config, emulator_config):
 def _macemu_args(app, autoboot_txt_path, emulator_config):
 	args = []
 	if not app.is_on_cd:
-		args += ['--disk', app.hfv_path]
+		args += ['--disk', app.hfv_path.as_posix()]
 	if 'max_resolution' in app.info:
 		width, height = app.info['max_resolution']
 		args += ['--screen', 'dga/{0}/{1}'.format(width, height)]
 	
 	if app.cd_path:
-		args += ['--cdrom', app.cd_path]
+		args += ['--cdrom', app.cd_path.as_posix()]
 	for other_cd_path in app.other_cd_paths:
-		args += ['--cdrom', other_cd_path]
+		args += ['--cdrom', other_cd_path.as_posix()]
 
 	app_path = app.metadata.specific_info.get('Carbon-Path', app.path)
 	pre_commands = [
@@ -1554,9 +1554,9 @@ def dosbox_staging(app, _, emulator_config):
 
 	if app.cd_path:
 		#I hope you don't put double quotes in the CD paths
-		imgmount_args = '"{0}"'.format(app.cd_path)
+		imgmount_args = '"{0}"'.format(str(app.cd_path))
 		if app.other_cd_paths:
-			imgmount_args += ' '  + ' '.join('"{0}"'.format(cd_path) for cd_path in app.other_cd_paths)
+			imgmount_args += ' '  + ' '.join('"{0}"'.format(str(cd_path)) for cd_path in app.other_cd_paths)
 		args += ['-c', 'IMGMOUNT {0} -t cdrom {1}'.format(cd_drive_letter, imgmount_args)]
 	
 	ensure_exist_command = None #Used to ensure overlay dir exists… hmm

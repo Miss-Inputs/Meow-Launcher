@@ -19,6 +19,7 @@ from meowlauncher.emulator import PCEmulator
 from meowlauncher.game_source import ChooseableEmulatorGameSource
 from meowlauncher.games.pc import App, AppLauncher
 
+
 class PCGameSource(ChooseableEmulatorGameSource[PCEmulator], ABC):
 	#Leave no_longer_exists to the subclasses as they may like to have custom logic
 

@@ -1,9 +1,9 @@
 import datetime
 import io
-import os
-from enum import Enum
-from typing import Any, Optional, cast
 from collections.abc import Mapping
+from enum import Enum
+from pathlib import Path
+from typing import Any, NewType, Optional, Union, cast
 
 try:
 	import machfs
@@ -30,11 +30,12 @@ from meowlauncher.util.utils import format_byte_size
 
 from .pc import App, AppLauncher
 
+PathInsideHFS = NewType('PathInsideHFS', str)
 
-def does_exist(hfv_path: str, path: str) -> bool:
+def does_exist(hfv_path: Path, path: PathInsideHFS) -> bool:
 	if not have_machfs:
-		#I guess it might just be safer to assume it's still there
-		return os.path.isfile(hfv_path)
+		#I guess it might just be safer to assume it's still there inside
+		return hfv_path.is_file()
 	try:
 		try:
 			v = _machfs_read_file(hfv_path)
@@ -45,16 +46,16 @@ def does_exist(hfv_path: str, path: str) -> bool:
 	except FileNotFoundError:
 		return False
 		
-def get_path(volume: 'machfs.Volume', path: str):
+def get_path(volume: 'machfs.Volume', path: PathInsideHFS) -> Union['machfs.File', 'machfs.Folder']:
 	#Skip the first part since that's the volume name and the tuple indexing for machfs.Volume doesn't work that way
 	return volume[tuple(path.split(':')[1:])]
 
-def _machfs_read_file(path: str) -> 'machfs.Volume':
+def _machfs_read_file(path: Path) -> 'machfs.Volume':
 	#Try to avoid having to slurp really big files for each app by keeping it in memory if it's the same disk image
 	if _machfs_read_file.current_file_path == path: #type: ignore[attr-defined]
 		return _machfs_read_file.current_file #type: ignore[attr-defined]
 
-	with open(path, 'rb') as f:
+	with path.open('rb') as f:
 		#Hmm, this could be slurping very large (maybe gigabyte(s)) files all at once
 		v = machfs.Volume()
 		v.read(f.read())
@@ -214,37 +215,38 @@ def _get_icon(resources: dict[bytes, dict[int, 'macresources.Resource']], resour
 class MacApp(App):
 	def __init__(self, info: Mapping[str, Any], platform_config: PlatformConfig) -> None:
 		super().__init__(info, platform_config)
-		self.hfv_path = cast(str, self.cd_path) if self.is_on_cd else info['hfv_path']
+		self.hfv_path = cast(Path, self.cd_path) if self.is_on_cd else Path(info['hfv_path'])
 		self._file: Optional['machfs.Volume'] = None #Lazy load the file associated with this
 		
 	@property
-	def _carbon_path(self) -> Optional[str]:
+	def _carbon_path(self) -> Optional[PathInsideHFS]:
 		if not self.path.endswith('.app'):
 			return None
 		try:
 			v = _machfs_read_file(self.hfv_path)
-			if isinstance(get_path(v, self.path), machfs.Folder):
+			this_path = get_path(v, PathInsideHFS(self.path))
+			if isinstance(this_path, machfs.Folder):
 				basename = self.path.split(':')[-1].removesuffix('.app')
-				contents = get_path(v, self.path)['Contents']
+				contents = this_path['Contents']
 				if 'MacOSClassic' in contents:
-					return self.path + ':Contents:MacOSClassic:' + basename
+					return PathInsideHFS(self.path + ':Contents:MacOSClassic:' + basename)
 				if 'MacOS' in contents:
-					return self.path + ':Contents:MacOS:' + basename
+					return PathInsideHFS(self.path + ':Contents:MacOS:' + basename)
 		except (KeyError, FileNotFoundError):
 			pass
 		return None
 
-	def _real_get_file(self) -> Optional['machfs.Volume']:
+	def _real_get_file(self) -> Optional[Union['machfs.Folder', 'machfs.File']]:
 		try:
 			v = _machfs_read_file(self.hfv_path)
 			carbon_path = self._carbon_path
 			if carbon_path:
 				return get_path(v, carbon_path)
-			return get_path(v, self.path)
+			return get_path(v, PathInsideHFS(self.path))
 		except (KeyError, FileNotFoundError):
 			return None
 
-	def _get_file(self) -> Optional['machfs.Volume']:
+	def _get_file(self) -> Optional[Union['machfs.Folder', 'machfs.File']]:
 		if not self._file:
 			self._file = self._real_get_file()
 		return self._file
@@ -254,7 +256,7 @@ class MacApp(App):
 		if have_machfs:
 			if self._get_file():
 				return True
-		return does_exist(self.hfv_path, self.path)
+		return does_exist(self.hfv_path, PathInsideHFS(self.path))
 
 	@property
 	def base_folder(self):
@@ -461,4 +463,4 @@ class MacLauncher(AppLauncher):
 
 	@property
 	def game_id(self) -> str:
-		return self.game.hfv_path + '/' + self.game.path
+		return str(self.game.hfv_path) + '/' + self.game.path

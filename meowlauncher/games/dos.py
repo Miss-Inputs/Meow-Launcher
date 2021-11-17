@@ -23,15 +23,15 @@ class DOSApp(App):
 		if self.is_on_cd:
 			if not self.cd_path:
 				return False
-			return os.path.isfile(self.cd_path) #TODO: Use pycdlib to see if it exists on the CD
+			return self.cd_path.is_file() #TODO: Use pycdlib to see if it exists on the CD
 		return os.path.isfile(self.path)
 
 	def get_fallback_name(self) -> str:
 		if self.is_on_cd:
 			if not self.cd_path:
 				raise KeyError('cd_path is mandatory if is_on_cd is true')
-			return os.path.splitext(os.path.basename(self.cd_path))[0]
-		return os.path.basename(os.path.dirname(self.path)) if dos_config.options['use_directory_as_fallback_name'] else super().get_fallback_name()
+			return self.cd_path.stem
+		return Path(self.path).parent.name if dos_config.options['use_directory_as_fallback_name'] else super().get_fallback_name()
 
 	def additional_metadata(self) -> None:
 		basename = self.path.split('\\')[-1] if self.is_on_cd else os.path.basename(self.path)
