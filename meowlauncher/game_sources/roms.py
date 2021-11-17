@@ -179,15 +179,16 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 				print('Bother!!! Reading the ROM produced an error', path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
 				continue
 
+			launcher = None
 			try:
 				launcher = self._process_file(rom, categories)
-				if launcher:
-					yield launcher
 			#pylint: disable=broad-except
 			except Exception as ex:
 				#It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
 				print('FUCK!!!!', path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
 
+			if launcher:
+				yield launcher
 	def get_launchers(self) -> Iterable[ROMLauncher]:
 		file_list = []
 
