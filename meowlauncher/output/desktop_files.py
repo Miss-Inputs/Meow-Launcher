@@ -3,6 +3,7 @@ import os
 import re
 from collections.abc import Iterable
 from enum import Enum, Flag
+from typing import TYPE_CHECKING
 
 try:
 	from PIL import Image
@@ -11,19 +12,21 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.launch_command import LaunchCommand
-from meowlauncher.launcher import Launcher
-from meowlauncher.metadata import Metadata
 from meowlauncher.util.io_utils import ensure_exist, pick_new_filename
 from meowlauncher.util.utils import (clean_string, find_filename_tags_at_end,
                                      remove_filename_tags)
+
+if TYPE_CHECKING:
+	from meowlauncher.launcher import Launcher
+	from meowlauncher.metadata import Metadata
+	from meowlauncher.launch_command import LaunchCommand
 
 metadata_section_name = 'Metadata'
 id_section_name = 'ID'
 junk_section_name = 'Junk'
 image_section_name = 'Images'
 
-def make_linux_desktop_for_launcher(launcher: Launcher):
+def make_linux_desktop_for_launcher(launcher: 'Launcher'):
 	name = launcher.game.name
 
 	filename_tags = find_filename_tags_at_end(name)
@@ -34,7 +37,7 @@ def make_linux_desktop_for_launcher(launcher: Launcher):
 
 	_make_linux_desktop(launcher.get_launch_command(), name, launcher.game.metadata, filename_tags, launcher.game_type, launcher.game_id)
 
-def _make_linux_desktop(launcher: LaunchCommand, display_name: str, metadata: Metadata, filename_tags: Iterable[str], game_type, game_id):
+def _make_linux_desktop(launcher: 'LaunchCommand', display_name: str, metadata: 'Metadata', filename_tags: Iterable[str], game_type, game_id):
 	#TODO: Merge with above once we get rid of make_launcher
 	filename = pick_new_filename(main_config.output_folder, display_name, 'desktop')
 	
@@ -118,7 +121,7 @@ def _make_linux_desktop(launcher: LaunchCommand, display_name: str, metadata: Me
 	os.chmod(path, 0o7777)
 
 split_brackets = re.compile(r' (?=\()')
-def make_launcher(launch_params: LaunchCommand, name: str, metadata: Metadata, id_type: str, unique_id: str):
+def make_launcher(launch_params: 'LaunchCommand', name: str, metadata: 'Metadata', id_type: str, unique_id: str):
 	#TODO: Remove this, once it is no longer used - game sources should be using GameSource and whatever main class can call make_linux_desktop_for_launcher (which will have a better name) instead
 	display_name = remove_filename_tags(name)
 	filename_tags = find_filename_tags_at_end(name)
