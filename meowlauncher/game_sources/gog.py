@@ -5,6 +5,7 @@ import os
 import time
 from pathlib import Path
 from typing import Optional
+from collections.abc import Iterable
 
 from meowlauncher import desktop_launchers
 from meowlauncher.config.main_config import main_config
@@ -52,42 +53,44 @@ def look_in_windows_gog_folder(folder: Path) -> Optional[WindowsGOGGame]:
 	return WindowsGOGGame(folder, info_file, game_id)
 
 def do_linux_gog_games() -> None:
-	for gog_folder in main_config.gog_folders:
-		if not os.path.isdir(gog_folder):
+	gog_folders: Iterable[Path] = main_config.gog_folders
+	for gog_folder in gog_folders:
+		if not gog_folder.is_dir():
 			if main_config.debug:
 				print(gog_folder, 'does not exist/is not a directory')
 			continue
 
-		for subfolder in os.scandir(gog_folder):
+		for subfolder in gog_folder.iterdir():
 			if not main_config.full_rescan:
-				if desktop_launchers.has_been_done('GOG', subfolder.path):
+				if desktop_launchers.has_been_done('GOG', str(subfolder)):
 					continue
 			if not subfolder.is_dir():
 				continue
-			if not (game := look_in_linux_gog_folder(subfolder.path)):
+			if not (game := look_in_linux_gog_folder(subfolder)):
 				if main_config.debug:
-					print('GOG subfolder does not have a GOG game (detection may have failed)', subfolder.path)
+					print('GOG subfolder does not have a GOG game (detection may have failed)', subfolder)
 				continue
 
 			game.add_metadata()
 			game.make_launcher()
 
 def do_windows_gog_games() -> None:
-	for windows_gog_folder in main_config.windows_gog_folders:
-		if not os.path.isdir(windows_gog_folder):
+	windows_gog_folders: Iterable[Path] = main_config.windows_gog_folders
+	for windows_gog_folder in windows_gog_folders:
+		if not windows_gog_folder.is_dir():
 			if main_config.debug:
 				print(windows_gog_folder, 'does not exist/is not a directory')
 			continue
 
-		for subfolder in os.scandir(windows_gog_folder):
+		for subfolder in windows_gog_folder.iterdir():
 			if not main_config.full_rescan:
-				if desktop_launchers.has_been_done('GOG', subfolder.path):
+				if desktop_launchers.has_been_done('GOG', str(subfolder)):
 					continue
 			if not subfolder.is_dir():
 				continue
-			if not (windows_game := look_in_windows_gog_folder(subfolder.path)):
+			if not (windows_game := look_in_windows_gog_folder(subfolder)):
 				if main_config.debug:
-					print('GOG subfolder does not have a GOG game (detection may have failed)', subfolder.path)
+					print('GOG subfolder does not have a GOG game (detection may have failed)', subfolder)
 				continue
 			
 			windows_game.add_metadata()
