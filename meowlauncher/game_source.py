@@ -1,6 +1,10 @@
 from abc import ABC, abstractmethod
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
+from typing import Generic, TypeVar, Union
 
+from meowlauncher.config.platform_config import PlatformConfig
+from meowlauncher.emulated_platform import ChooseableEmulatedPlatform
+from meowlauncher.emulator import Emulator, LibretroCore
 from meowlauncher.launcher import Launcher
 
 
@@ -40,3 +44,28 @@ class CompoundGameSource(GameSource, ABC):
 	@property
 	def is_available(self) -> bool:
 		return any(source.is_available for source in self.sources)
+
+EmulatorType = TypeVar('EmulatorType', bound=Emulator)
+class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType]):
+	def __init__(self, platform_config: PlatformConfig, platform: ChooseableEmulatedPlatform, emulators: Mapping[str, EmulatorType], libretro_cores: Mapping[str, LibretroCore]=None) -> None:
+		self.platform_config = platform_config
+		self.platform = platform
+		self.chosen_emulators: list[Union[EmulatorType, LibretroCore]] = []
+
+		for emulator_name in self.platform_config.chosen_emulators:
+			emulator = libretro_cores.get(emulator_name.removesuffix(' (libretro)')) if \
+				(libretro_cores and emulator_name.endswith(' (libretro)')) else \
+				emulators.get(emulator_name)
+
+			if not emulator:
+				if libretro_cores:
+					emulator = libretro_cores.get(emulator_name)
+			if not emulator:
+				print('Config warning:', emulator_name, 'is not a valid emulator, specified in', self.name)
+				continue
+
+			if emulator.config_name not in self.platform.valid_emulator_names:
+				print('Config warning:', emulator_name, 'is not a valid', 'libretro core' if isinstance(emulator, LibretroCore) else 'emulator', 'for', self.name)
+				continue
+			
+			self.chosen_emulators.append(emulator)

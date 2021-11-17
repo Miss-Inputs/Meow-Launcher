@@ -1,7 +1,9 @@
 import os
+from collections.abc import Mapping
 from typing import Any
 
-from meowlauncher.config.platform_config import platform_configs
+from meowlauncher.config.platform_config import (PlatformConfig,
+                                                 platform_configs)
 from meowlauncher.games.common.pc_common_metadata import \
     look_for_icon_next_to_file
 
@@ -10,8 +12,8 @@ from .pc import App
 dos_config = platform_configs.get('DOS')
 
 class DOSApp(App):
-	def __init__(self, info: dict[str, Any]):
-		super().__init__(info)
+	def __init__(self, info: Mapping[str, Any], platform_config: PlatformConfig):
+		super().__init__(info, platform_config)
 		if self.is_on_cd:
 			self.path = self.path.replace('/', '\\')
 

@@ -3,8 +3,8 @@ import io
 import json
 import os
 import zipfile
-from typing import Optional, cast
 from collections.abc import Iterable
+from typing import Optional, cast
 
 try:
 	from PIL import Image

@@ -1,5 +1,5 @@
-from abc import ABC
 import os
+from abc import ABC
 from pathlib import Path
 from typing import Optional
 from zlib import crc32
@@ -7,6 +7,7 @@ from zlib import crc32
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.util import archives, cd_read, io_utils
+
 
 class ROM(ABC):
 	def __init__(self, path: Path) -> None:
@@ -134,12 +135,13 @@ class GCZFileROM(FileROM):
 	def read(self, seek_to: int=0, amount: int=-1) -> bytes:
 		return cd_read.read_gcz(str(self.path), seek_to, amount)
 
-def rom_file(path) -> FileROM:
-	ext = path.rsplit(os.extsep, 1)[-1]
-	if ext.lower() == 'gcz':
-		return GCZFileROM(path)
-	if ext in archives.compressed_exts:
-		return CompressedROM(path)
+def rom_file(path: Path) -> FileROM:
+	ext = path.suffix 
+	if ext: #To be fair if it's '' it won't match any file ever… hmm
+		if ext[-1].lower() == '.gcz':
+			return GCZFileROM(path)
+		if ext[-1] in archives.compressed_exts:
+			return CompressedROM(path)
 	return FileROM(path)
 
 class FolderROM(ROM):

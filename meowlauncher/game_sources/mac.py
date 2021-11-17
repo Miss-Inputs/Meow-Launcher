@@ -2,16 +2,14 @@
 
 import os
 
-from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.mac import MacApp, MacLauncher, does_exist
 
 from . import pc
 
-mac_config = platform_configs.get('Mac')
 
 class Mac(pc.PCGameSource):
 	def __init__(self) -> None:
-		super().__init__('Mac', MacApp, MacLauncher, mac_config)
+		super().__init__('Mac', MacApp, MacLauncher)
 
 	def no_longer_exists(self, game_id: str) -> bool:
 		hfv_path, inner_path = game_id.split('/', 1)

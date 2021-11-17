@@ -1,3 +1,4 @@
+from collections.abc import Collection
 from typing import Union
 
 import meowlauncher.games.common.emulator_command_lines as command_lines
@@ -10,6 +11,7 @@ from meowlauncher.games.common.emulator_command_line_helpers import (
     SimpleMednafenModule, simple_emulator, simple_gb_emulator,
     simple_mame_driver, simple_md_emulator)
 from meowlauncher.launch_command import rom_path_argument
+from meowlauncher.runner import Runner
 from meowlauncher.runner_config import RunnerConfigValue
 
 from .format_info import (atari_2600_cartridge_extensions,
@@ -22,7 +24,7 @@ _bsnes_options = {
 	'sgb_enhanced_only': RunnerConfigValue(ConfigValueType.Bool, False, 'Consider Super Game Boy to only support games that are specifically enhanced for it'),
 }
 
-_standalone_emulators = [
+_standalone_emulators: Collection[StandardEmulator] = [
 	StandardEmulator('A7800', EmulatorStatus.Good, 'a7800', command_lines.a7800, ['bin', 'a78'], ['7z', 'zip']),
 	#Forked directly from MAME with alterations to a7800.cpp driver, so will more or less work the same way as that
 	#Executable name might be a7800.Linux-x86_64 depending on how it's installed... hmm
@@ -478,10 +480,22 @@ libretro_frontends = {frontend.name: frontend for frontend in _libretro_frontend
 
 #Basically this is here for the purpose of generating configs
 #all_emulators: MutableSequence[Union[Emulator, LibretroFrontend]] = _standalone_emulators
-all_emulators: list[Union[Emulator, LibretroFrontend]] = []
+all_emulators: list[Union[Emulator, LibretroFrontend, '_JustHereForConfigValues']] = []
 all_emulators += _standalone_emulators
 all_emulators += _libretro_cores
 all_emulators += _pc_emulators
 all_emulators += _libretro_frontends
 mame = Emulator('MAME', EmulatorStatus.Good, 'mame', command_lines.mame)
 all_emulators.append(mame)
+#Ensure one can have globally defined options for all ViceEmulators or MednafenModules etc
+class _JustHereForConfigValues(Runner):
+	def __init__(self, name: str, default_exe_name: str='') -> None:
+		super().__init__()
+		self.config_name = name
+		self.default_exe_name = default_exe_name
+
+	@property
+	def name(self) -> str:
+		return self.config_name
+all_emulators.append(_JustHereForConfigValues('Mednafen', 'mednafen'))
+all_emulators.append(_JustHereForConfigValues('VICE'))

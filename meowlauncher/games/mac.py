@@ -2,7 +2,8 @@ import datetime
 import io
 import os
 from enum import Enum
-from typing import Optional, cast
+from typing import Any, Optional, cast
+from collections.abc import Mapping
 
 try:
 	import machfs
@@ -211,8 +212,8 @@ def _get_icon(resources: dict[bytes, dict[int, 'macresources.Resource']], resour
 	return icon_bw
 
 class MacApp(App):
-	def __init__(self, info) -> None:
-		super().__init__(info)
+	def __init__(self, info: Mapping[str, Any], platform_config: PlatformConfig) -> None:
+		super().__init__(info, platform_config)
 		self.hfv_path = cast(str, self.cd_path) if self.is_on_cd else info['hfv_path']
 		self._file: Optional['machfs.Volume'] = None #Lazy load the file associated with this
 		

@@ -243,7 +243,7 @@ def add_metadata(game: MAMEGame) -> None:
 		game.metadata.specific_info['Version'] = version
 
 	#Might not be so hardcoded one day...
-	game.metadata.emulator_name = 'MAME'
+	#game.metadata.emulator_name = 'MAME'
 
 	add_status(game.machine, game.metadata)
 	add_history(game.metadata, game.machine.basename)

@@ -2,17 +2,14 @@
 
 import os
 
-from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.dos import DOSApp
 from meowlauncher.games.pc import AppLauncher
 
 from . import pc
 
-dos_config = platform_configs.get('DOS')
-
 class DOS(pc.PCGameSource):
 	def __init__(self) -> None:
-		super().__init__('DOS', DOSApp, AppLauncher, dos_config)
+		super().__init__('DOS', DOSApp, AppLauncher)
 
 	def no_longer_exists(self, game_id: str) -> bool:
 		return not os.path.isfile(game_id)

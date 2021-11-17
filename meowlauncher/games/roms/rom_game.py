@@ -5,7 +5,7 @@ from typing import Optional, cast
 from meowlauncher.config.platform_config import PlatformConfig
 from meowlauncher.configured_emulator import ConfiguredStandardEmulator
 from meowlauncher.emulated_game import EmulatedGame
-from meowlauncher.emulated_platform import EmulatedPlatform
+from meowlauncher.emulated_platform import StandardEmulatedPlatform
 from meowlauncher.emulator_launcher import EmulatorLauncher
 from meowlauncher.games.mame_common.software_list import SoftwareList
 from meowlauncher.launch_command import LaunchCommand
@@ -15,7 +15,7 @@ from .rom import ROM, CompressedROM, FileROM
 
 
 class ROMGame(EmulatedGame):
-	def __init__(self, rom: ROM, platform: EmulatedPlatform, platform_config: PlatformConfig):
+	def __init__(self, rom: ROM, platform: StandardEmulatedPlatform, platform_config: PlatformConfig):
 		super().__init__(platform_config)
 		self.rom = rom
 		self.metadata.platform = platform.name

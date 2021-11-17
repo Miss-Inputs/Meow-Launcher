@@ -20,9 +20,11 @@ from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.data.emulators import (emulators, libretro_cores,
                                          libretro_frontends)
 from meowlauncher.desktop_launchers import has_been_done
-from meowlauncher.emulated_platform import EmulatedPlatform
-from meowlauncher.emulator import LibretroCore, MAMEDriver, MednafenModule, StandardEmulator, ViceEmulator
-from meowlauncher.game_source import CompoundGameSource, GameSource
+from meowlauncher.emulated_platform import StandardEmulatedPlatform
+from meowlauncher.emulator import (LibretroCore, MAMEDriver, MednafenModule,
+                                   StandardEmulator, ViceEmulator)
+from meowlauncher.game_source import (ChooseableEmulatorGameSource,
+                                      CompoundGameSource)
 from meowlauncher.games.roms.platform_specific.roms_folders import \
     folder_checks
 from meowlauncher.games.roms.rom import ROM, FileROM, FolderROM, rom_file
@@ -31,6 +33,7 @@ from meowlauncher.games.roms.roms_metadata import add_metadata
 from meowlauncher.runner_config import EmulatorConfig
 from meowlauncher.util import archives
 from meowlauncher.util.utils import find_filename_tags_at_end, starts_with_any
+
 
 def parse_m3u(path: Path):
 	with open(path, 'rt', encoding='utf-8') as f:
@@ -57,29 +60,20 @@ def _get_emulator_config(emulator: Union[StandardEmulator, LibretroCore]):
 		specific = emulator_configs[emulator.config_name]
 		global_config = emulator_configs[emulator.name]
 		combined = {}
-		combined.update(global_config)
-		combined.update(specific)
-		return EmulatorConfig(specific.exe_path, combined)
+		combined.update(global_config.options)
+		combined.update(specific.options)
+		if isinstance(emulator, ViceEmulator):
+			exe_path = specific.exe_path #It does not make sense to specify path for VICE globally
+		else:
+			#By default, use global Mednafen/MAME path (if it is set), but if it is set to something specific, use that
+			exe_path = specific.exe_path if (specific.exe_path and specific.exe_path != emulator.default_exe_name) else global_config.exe_path
+		return EmulatorConfig(exe_path, combined)
 	return emulator_configs[emulator.config_name]
 
-class ROMPlatform(GameSource):
-	def __init__(self, platform_config: PlatformConfig, platform: EmulatedPlatform) -> None:
-		self.platform_config = platform_config
-		self.platform = platform
-		self.chosen_emulators: list[Union[StandardEmulator, LibretroCore]] = []
-
-		for emulator_name in self.platform_config.chosen_emulators:
-			if emulator_name not in emulators:
-				if emulator_name in libretro_cores:
-					self.chosen_emulators.append(libretro_cores[emulator_name])
-				elif emulator_name.removesuffix(' (libretro)') in libretro_cores:
-					self.chosen_emulators.append(libretro_cores[emulator_name.removesuffix(' (libretro)')])
-				else:
-					print('Config warning:', emulator_name, 'is not a valid emulator, specified in', self.name)
-			elif emulator_name not in self.platform.emulators:
-				print('Config warning:', emulator_name, 'is not a valid emulator for', self.name)
-			else:
-				self.chosen_emulators.append(emulators[emulator_name])
+class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
+	def __init__(self, platform_config: PlatformConfig, platform: StandardEmulatedPlatform) -> None:
+		self.platform: StandardEmulatedPlatform = platform
+		super().__init__(platform_config, platform, emulators, libretro_cores)
 
 	@property
 	def name(self) -> str:
@@ -100,7 +94,7 @@ class ROMPlatform(GameSource):
 				if main_config.debug:
 					print('M3U file', game.rom.path, 'has broken references!!!!', filenames)
 				return None
-			game.subroms = [rom_file(str(referenced_file)) for referenced_file in filenames]
+			game.subroms = [rom_file(referenced_file) for referenced_file in filenames]
 
 		#TODO: We used to have a check here that we actually have anything in potential_emulator_names that supported the game before we added metadata, to save performance, but it got confusing in refactoring and had duplicated code… maybe we should do something like that again
 				
