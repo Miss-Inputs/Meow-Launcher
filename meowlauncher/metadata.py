@@ -13,12 +13,12 @@ if TYPE_CHECKING:
 
 #FIXME! Section names should not be here - we need to rewrite to_info_fields to make more sense, it's just to make sure a circular import doesn't happen
 #to_info_fields should probably be in desktop_files
-metadata_section_name = 'Metadata'
-junk_section_name = 'Junk'
-image_section_name = 'Images'
-name_section_name = 'Names'
-document_section_name = 'Documents'
-description_section_name = 'Descriptions'
+_metadata_section_name = 'Metadata'
+_junk_section_name = 'Junk'
+_image_section_name = 'Images'
+_name_section_name = 'Names'
+_document_section_name = 'Documents'
+_description_section_name = 'Descriptions'
 
 class CPU():
 	#TODO I only give a shit about this info for MAME machines, move it there
@@ -221,7 +221,7 @@ class Metadata():
 		self.platform: Optional[str] = None
 		self.categories: list[str] = []
 		self.release_date: Optional[Date] = None
-		self.emulator_name: Optional[str] = None #Hmm is this needed now?
+		self.emulator_name: Optional[str] = None #TODO: Begone with this, if we are doing things correctly, or rather once we are, make_linux_desktop will set it automatically to whatever Runner object is used
 		self.extension: Optional[str] = None
 
 		self.genre: Optional[str] = None
@@ -240,6 +240,7 @@ class Metadata():
 		self.series_index: Union[str, int, None] = None
 
 		#Set this up later with the respective objects
+		#TODO: Move this nonsense to mame_metadata please and just add specific_info fields from there instead of polluting the Metadata object with objects
 		self.cpu_info = CPUInfo()
 		self.screen_info: Optional[ScreenInfo] = None
 		self.input_info = InputInfo()
@@ -326,27 +327,27 @@ class Metadata():
 
 		metadata_fields.update(self.specific_info)
 
-		fields[metadata_section_name] = metadata_fields
-		fields[junk_section_name] = {}
+		fields[_metadata_section_name] = metadata_fields
+		fields[_junk_section_name] = {}
 
 		if self.images:
-			fields[image_section_name] = {}
+			fields[_image_section_name] = {}
 			for k, image in self.images.items():
-				fields[image_section_name][k] = image
+				fields[_image_section_name][k] = image
 		
 		if self.names:
-			fields[name_section_name] = {}
+			fields[_name_section_name] = {}
 			for k, name in self.names.items():
-				fields[name_section_name][k] = name
+				fields[_name_section_name][k] = name
 			
 		if self.documents:
-			fields[document_section_name] = {}
+			fields[_document_section_name] = {}
 			for k, document in self.documents.items():
-				fields[document_section_name][k] = document
+				fields[_document_section_name][k] = document
 
 		if self.descriptions:
-			fields[description_section_name] = {}
+			fields[_description_section_name] = {}
 			for k, description in self.descriptions.items():
-				fields[description_section_name][k] = description
+				fields[_description_section_name][k] = description
 
 		return fields
