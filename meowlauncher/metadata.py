@@ -12,6 +12,7 @@ if TYPE_CHECKING:
 	from PIL.Image import Image
 
 #FIXME! Section names should not be here - we need to rewrite to_info_fields to make more sense, it's just to make sure a circular import doesn't happen
+#to_info_fields should probably be in desktop_files
 metadata_section_name = 'Metadata'
 junk_section_name = 'Junk'
 image_section_name = 'Images'

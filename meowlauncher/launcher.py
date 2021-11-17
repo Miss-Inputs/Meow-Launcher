@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
 	from .launch_command import LaunchCommand
@@ -24,10 +24,6 @@ class Launcher(ABC):
 	@abstractmethod
 	def game_id(self) -> str:
 		pass
-
-	@property
-	def info_fields(self) -> dict[str, dict[str, Any]]:
-		return self.game.metadata.to_launcher_fields()
 
 	@abstractmethod
 	def get_launch_command(self) -> 'LaunchCommand':
