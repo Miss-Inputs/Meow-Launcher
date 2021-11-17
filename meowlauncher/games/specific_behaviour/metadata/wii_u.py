@@ -72,7 +72,7 @@ def add_cover(metadata: Metadata, product_code: str, licensee_code: str):
 	cover_base_path = covers_path.joinpath(product_code)
 	other_cover_base_path = covers_path.joinpath(licensee_code + product_code)
 	for ext in ('png', 'jpg'):
-		cover_path = cover_base_path.with_suffix(os.extsep, ext)
+		cover_path = cover_base_path.with_suffix(os.extsep + ext)
 		if cover_path.is_file():
 			metadata.images['Cover'] = cover_path
 			break
