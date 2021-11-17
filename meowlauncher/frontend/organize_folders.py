@@ -19,8 +19,8 @@ from meowlauncher.util.io_utils import sanitize_name
 #This code sucks titty balls
 
 def copy_to_folder(path: Path, *dest_folder_components: str):
-	dest_folder = os.path.join(*dest_folder_components)
-	os.makedirs(dest_folder, exist_ok=True)
+	dest_folder = Path(*dest_folder_components)
+	dest_folder.mkdir(exist_ok=True)
 	shutil.copy(path, dest_folder)
 
 def delete_existing_output_dir() -> None:
@@ -35,8 +35,8 @@ def delete_existing_output_dir() -> None:
 		except FileNotFoundError:
 			pass
 
-	if os.path.isdir(main_config.organized_output_folder):
-		for f in Path(main_config.organized_output_folder).iterdir():
+	if main_config.organized_output_folder.is_dir():
+		for f in main_config.organized_output_folder.iterdir():
 			rmdir_recursive(f)
 			#Only files here, no directories
 
@@ -184,7 +184,7 @@ def move_into_folders() -> None:
 	for root, _, files in os.walk(main_config.output_folder):
 		for f in files:
 			if f.endswith('.desktop'):
-				path = os.path.join(root, f)
+				path = Path(root, f)
 
 				move_into_subfolders(path)
 

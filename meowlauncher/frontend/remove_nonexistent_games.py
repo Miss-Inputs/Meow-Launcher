@@ -2,6 +2,7 @@
 
 import datetime
 import os
+from pathlib import Path
 import time
 
 from meowlauncher.config.main_config import main_config
@@ -15,10 +16,8 @@ def remove_nonexistent_games() -> None:
 
 	time_started = time.perf_counter()
 
-	output_folder = main_config.output_folder
-	for name in os.listdir(output_folder):
-		path = os.path.join(output_folder, name)
-
+	output_folder: Path = main_config.output_folder
+	for path in output_folder.iterdir():
 		launcher = get_desktop(path)
 		game_type = get_field(launcher, 'Type', id_section_name)
 		game_id = get_field(launcher, 'Unique-ID', id_section_name)

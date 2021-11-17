@@ -109,11 +109,11 @@ def make_linux_desktop(launcher: LaunchCommand, display_name: str, fields: Mappi
 				if have_pillow:
 					if isinstance(v, Image.Image):
 						use_image_object = True
-						this_image_folder = os.path.join(main_config.image_folder, k)
-						Path(this_image_folder).mkdir(exist_ok=True, parents=True)
-						image_path = os.path.join(this_image_folder, filename + '.png')
+						this_image_folder = main_config.image_folder.joinpath(k)
+						this_image_folder.mkdir(exist_ok=True, parents=True)
+						image_path = this_image_folder.joinpath(filename + '.png')
 						v.save(image_path, 'png')
-						value_as_string = image_path
+						value_as_string = str(image_path)
 
 				if isinstance(v, list):
 					if not v:
@@ -151,12 +151,10 @@ def make_linux_desktop(launcher: LaunchCommand, display_name: str, fields: Mappi
 def _get_existing_launchers() -> list[tuple[str, str]]:
 	a = []
 
-	output_folder = main_config.output_folder
-	if not os.path.isdir(output_folder):
+	output_folder: Path = main_config.output_folder
+	if not output_folder.is_file():
 		return []
-	for name in os.listdir(output_folder):
-		path = os.path.join(output_folder, name)
-
+	for path in output_folder.iterdir():
 		existing_launcher = get_desktop(path)
 		existing_type = get_field(existing_launcher, 'Type', id_section_name)
 		existing_id = get_field(existing_launcher, 'Unique-ID', id_section_name)

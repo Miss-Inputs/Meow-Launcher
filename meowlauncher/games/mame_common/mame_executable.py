@@ -1,9 +1,7 @@
 import copy
-import os
 import re
 import subprocess
 from collections.abc import Iterable
-from pathlib import Path
 from xml.etree import ElementTree
 
 from meowlauncher.common_paths import cache_dir
@@ -23,7 +21,7 @@ class MAMEExecutable():
 		self.executable = path
 		self.version = self.get_version()
 		#Do I really wanna be checking that this MAME exists inside the object that represents it? That doesn't entirely make sense to me
-		self.xml_cache_path = os.path.join(cache_dir, self.version)
+		self._xml_cache_path = cache_dir.joinpath(self.version)
 		self._icons = None
 
 	def get_version(self) -> str:
@@ -34,7 +32,7 @@ class MAMEExecutable():
 
 	def _real_iter_mame_entire_xml(self) -> Iterable[tuple[str, ElementTree.Element]]:
 		print('New MAME version found: ' + self.get_version() + '; creating XML; this may take a while the first time it is run')
-		os.makedirs(self.xml_cache_path, exist_ok=True)
+		self._xml_cache_path.mkdir(exist_ok=True)
 
 		with subprocess.Popen([self.executable, '-listxml'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as proc:
 			#I'm doing what the documentation tells me to not do and effectively using proc.stdout.read
@@ -46,7 +44,7 @@ class MAMEExecutable():
 						my_copy = copy.copy(element)
 						machine_name = element.attrib['name']
 
-						with open(os.path.join(self.xml_cache_path, machine_name + '.xml'), 'wb') as cache_file:
+						with open(self._xml_cache_path.joinpath(machine_name + '.xml'), 'wb') as cache_file:
 							cache_file.write(ElementTree.tostring(element))
 						yield machine_name, my_copy
 						element.clear()
@@ -55,26 +53,23 @@ class MAMEExecutable():
 				if main_config.debug:
 					print('baaagh XML error in listxml', fuck)
 		#Guard against the -listxml process being interrupted and screwing up everything
-		Path(self.xml_cache_path, 'is_done').touch()
+		self._xml_cache_path.joinpath('is_done').touch()
 
 	def _cached_iter_mame_entire_xml(self) -> Iterable[tuple[str, ElementTree.Element]]:
-		for cached_file in os.listdir(self.xml_cache_path):
-			splitty = cached_file.rsplit('.', 1)
-			if len(splitty) != 2:
+		for cached_file in self._xml_cache_path.iterdir():
+			if cached_file.suffix != '.xml':
 				continue
-			driver_name, ext = splitty
-			if ext != 'xml':
-				continue
-			yield driver_name, ElementTree.parse(os.path.join(self.xml_cache_path, cached_file)).getroot()
+			driver_name = cached_file.stem
+			yield driver_name, ElementTree.parse(cached_file).getroot()
 			
 	def iter_mame_entire_xml(self) -> Iterable[tuple[str, ElementTree.Element]]:
-		if os.path.isfile(os.path.join(self.xml_cache_path, 'is_done')):
+		if self._xml_cache_path.joinpath('is_done').is_file():
 			yield from self._cached_iter_mame_entire_xml()
 		else:
 			yield from self._real_iter_mame_entire_xml()
 		
 	def get_mame_xml(self, driver: str) -> ElementTree.Element:
-		cache_file_path = os.path.join(self.xml_cache_path, driver + '.xml')
+		cache_file_path = self._xml_cache_path.joinpath(driver + '.xml')
 		try:
 			with open(cache_file_path, 'rb') as cache_file:
 				return ElementTree.parse(cache_file).getroot()

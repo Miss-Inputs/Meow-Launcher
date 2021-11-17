@@ -1,5 +1,4 @@
 import datetime
-import os
 import time
 from collections.abc import Callable
 from typing import Optional
@@ -42,10 +41,11 @@ def main(progress_function: Optional[Callable[..., None]], steam_enabled=True, g
 	call_progress_function('Creating output folder')
 
 	if main_config.full_rescan:
-		if os.path.isdir(main_config.output_folder):
-			for f in os.listdir(main_config.output_folder):
-				os.unlink(os.path.join(main_config.output_folder, f))
-	os.makedirs(main_config.output_folder, exist_ok=True)
+		if main_config.output_folder.is_dir():
+			for f in main_config.output_folder.iterdir():
+				#TODO: We should probably only do this if we know f is made by us, just in case someone wants to set output_folder to somewhere shared with other apps
+				f.unlink()
+	main_config.output_folder.mkdir(exist_ok=True)
 
 	for game_source in game_sources:
 		if not game_source.is_available:

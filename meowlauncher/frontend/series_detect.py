@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 import datetime
-import os
 import re
 import time
+from collections.abc import Collection, Iterable, Sequence
+from configparser import ConfigParser
+from pathlib import Path
+from typing import Optional, Union
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.series_detect.series_detect_overrides import \
@@ -13,6 +16,8 @@ from meowlauncher.util.name_utils import (chapter_matcher,
                                           convert_roman_numerals_in_title)
 from meowlauncher.util.utils import (convert_roman_numeral,
                                      remove_capital_article)
+
+SeriesWithSeriesIndex = tuple[Optional[str], Optional[Union[int, str]]]
 
 probably_not_series_index_threshold = 20
 #Assume that a number over this is probably not referring to the nth or higher entry in the series, but is probably just any old number that means something else
@@ -26,13 +31,13 @@ series_matcher = re.compile(r'(?P<Series>.+?)\b\s+#?(?P<Number>\d{1,3}|[IVXLCDM]
 subtitle_splitter = re.compile(r'\s*(?:\s+-\s+|:\s+|\s+\/\s+)')
 blah_in_1_matcher = re.compile(r'.+\s+in\s+1')
 
-def get_name_chunks(name):
+def get_name_chunks(name: str) -> Sequence[str]:
 	name_chunks = subtitle_splitter.split(name)
 	name_chunks = [blah_in_1_matcher.sub('', chunk) for chunk in name_chunks]
 	name_chunks = [chunk for chunk in name_chunks if chunk]
 	return name_chunks
 
-def find_series_from_game_name(name):
+def find_series_from_game_name(name: str) -> SeriesWithSeriesIndex:
 	if name in series_overrides:
 		return series_overrides[name]
 	name_chunks = get_name_chunks(name)
@@ -62,7 +67,7 @@ def find_series_from_game_name(name):
 		return chapter_matcher.sub('', series_name).rstrip(), number
 	return None, None
 
-def does_series_match(name_to_match, existing_series):
+def does_series_match(name_to_match: str, existing_series: str) -> bool:
 	name_to_match = name_to_match.lower()
 	existing_series = existing_series.lower()
 
@@ -75,7 +80,7 @@ def does_series_match(name_to_match, existing_series):
 
 	return name_to_match == existing_series
 
-def find_series_name_by_subtitle(name, existing_serieses, force=False):
+def find_series_name_by_subtitle(name: str, existing_serieses: Iterable[str], force=False) -> SeriesWithSeriesIndex:
 	name_chunks = get_name_chunks(name)
 	if not name_chunks:
 		return None, None
@@ -101,34 +106,36 @@ def find_series_name_by_subtitle(name, existing_serieses, force=False):
 		return series, index
 	return None, None
 
-def get_usable_name(desktop):
+def get_usable_name(desktop: ConfigParser) -> str:
 	sort_name = get_field(desktop, 'Sort-Name')
 	if sort_name:
 		return sort_name
 	#Note that this is before disambiguate.py, so we don't need to worry about using Ambiguous-Name from disambiguation section
 	#Name _must_ exist in a .desktop file... although this is platform-specific, come to think of it, maybe I should put stuff in launchers.py to abstract getting name/exec/icon/etc
-	return get_field(desktop, 'Name', 'Desktop Entry')
+	name = get_field(desktop, 'Name', 'Desktop Entry')
+	if not name:
+		raise AssertionError('What the heck get_usable_name encountered a desktop with no name')
+	return name
 
-def add_series(desktop, path, series, series_index=None):
+def add_series(desktop: ConfigParser, path: Path, series: Optional[str], series_index: Optional[Union[str, int]]=None):
 	if metadata_section_name not in desktop:
 		desktop.add_section(metadata_section_name)
 	if series is not None:
 		desktop[metadata_section_name]['Series'] = series
 	if series_index is not None:
 		desktop[metadata_section_name]['Series-Index'] = str(series_index)
-	with open(path, 'wt', encoding='utf-8') as f:
+	with path.open('wt', encoding='utf-8') as f:
 		desktop.write(f)
 
-def detect_series(desktop, path):
+def detect_series(desktop: ConfigParser, path: Path):
 	name = get_usable_name(desktop)
 	series, series_index = find_series_from_game_name(name)
 	if series:
 		add_series(desktop, path, series, series_index)
 
-def find_existing_serieses():
+def find_existing_serieses() -> Collection[str]:
 	serieses = set()
-	for name in os.listdir(main_config.output_folder):
-		path = os.path.join(main_config.output_folder, name)
+	for path in main_config.output_folder.iterdir():
 		desktop = get_desktop(path)
 
 		series = get_field(desktop, 'Series')
@@ -137,19 +144,19 @@ def find_existing_serieses():
 
 	return serieses
 
-def detect_series_by_subtitle(desktop, path, existing):
+def detect_series_by_subtitle(desktop: ConfigParser, path: Path, existing: Iterable[str]):
 	name = get_usable_name(desktop)
 	series, index = find_series_name_by_subtitle(name, existing)
 	if series:
 		add_series(desktop, path, series, index)
 
-def force_add_series_with_index(desktop, path, existing):
+def force_add_series_with_index(desktop: ConfigParser, path: Path, existing: Iterable[str]):
 	name = get_usable_name(desktop)
 	series, _ = find_series_name_by_subtitle(name, existing, force=True)
 	if series:
 		add_series(desktop, path, series)
 
-def get_series_from_whole_thing(series, whole_name):
+def get_series_from_whole_thing(series: str, whole_name: str) -> str:
 	rest = whole_name.removeprefix(series).strip()
 	rest = chapter_matcher.sub('', rest).strip()
 
@@ -166,8 +173,7 @@ def get_series_from_whole_thing(series, whole_name):
 	return '1'
 
 def detect_series_index_for_things_with_series():
-	for filename in os.listdir(main_config.output_folder):
-		path = os.path.join(main_config.output_folder, filename)
+	for path in main_config.output_folder.iterdir():
 		desktop = get_desktop(path)
 
 		existing_series = get_field(desktop, 'Series')
@@ -205,9 +211,8 @@ def detect_series_index_for_things_with_series():
 			if name_chunks[0].startswith(existing_series):
 				add_series(desktop, path, None, get_series_from_whole_thing(existing_series, name_chunks[0].strip()))
 
-def get_existing_seriesless_launchers():
-	for name in os.listdir(main_config.output_folder):
-		path = os.path.join(main_config.output_folder, name)
+def get_existing_seriesless_launchers() -> Iterable[tuple[ConfigParser, Path]]:
+	for path in main_config.output_folder.iterdir():
 		desktop = get_desktop(path)
 
 		if get_field(desktop, 'Series'):

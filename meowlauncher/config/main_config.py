@@ -35,9 +35,9 @@ def convert_value_for_ini(value: TypeOfConfigValue) -> str:
 runtime_option_section = '<runtime option section>'
 
 _config_ini_values = {
-	'output_folder': ConfigValue('Paths', ConfigValueType.FolderPath, os.path.join(data_dir, 'apps'), 'Output folder', 'Folder to put launchers'),
-	'organized_output_folder': ConfigValue('Paths', ConfigValueType.FolderPath, os.path.join(data_dir, 'organized_apps'), 'Organized output folder', 'Folder to put subfolders in for the organized folders frontend'),
-	'image_folder': ConfigValue('Paths', ConfigValueType.FolderPath, os.path.join(data_dir, 'images'), 'Image folder', 'Folder to store images extracted from games with embedded images'),
+	'output_folder': ConfigValue('Paths', ConfigValueType.FolderPath, data_dir.joinpath('apps'), 'Output folder', 'Folder to put launchers'),
+	'organized_output_folder': ConfigValue('Paths', ConfigValueType.FolderPath, data_dir.joinpath('organized_apps'), 'Organized output folder', 'Folder to put subfolders in for the organized folders frontend'),
+	'image_folder': ConfigValue('Paths', ConfigValueType.FolderPath, data_dir.joinpath('images'), 'Image folder', 'Folder to store images extracted from games with embedded images'),
 
 	'get_series_from_name': ConfigValue('General', ConfigValueType.Bool, False, 'Get series from name', 'Attempt to get series from parsing name'),
 	'use_other_images_as_icons': ConfigValue('General', ConfigValueType.StringList, [], 'Use other images as icons', 'If there is no icon, use these images as icons if they are there'),
@@ -66,7 +66,7 @@ _config_ini_values = {
 	'libretro_cores_directory': ConfigValue('Roms', ConfigValueType.FolderPath, None, 'libretro cores directory', 'Path to search for libretro cores if not explicitly specified'),
 
 	'use_original_platform': ConfigValue('ScummVM', ConfigValueType.Bool, False, 'Use original platform', 'Set the platform in metadata to the original platform instead of leaving blank'),
-	'scummvm_config_path': ConfigValue('ScummVM', ConfigValueType.FilePath, os.path.expanduser('~/.config/scummvm/scummvm.ini'), 'ScummVM config path', 'Path to scummvm.ini, if not the default'),
+	'scummvm_config_path': ConfigValue('ScummVM', ConfigValueType.FilePath, Path('~/.config/scummvm/scummvm.ini').expanduser(), 'ScummVM config path', 'Path to scummvm.ini, if not the default'),
 	'scummvm_exe_path': ConfigValue('ScummVM', ConfigValueType.FilePath, 'scummvm', 'ScummVM executable path', 'Path to scummvm executable, if not the default'),
 
 	'gog_folders': ConfigValue('GOG', ConfigValueType.FolderPathList, [], 'GOG folders', 'Folders where GOG games are installed'),
