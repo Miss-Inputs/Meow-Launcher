@@ -1,4 +1,3 @@
-import os
 import re
 from collections.abc import Iterable
 from datetime import datetime
