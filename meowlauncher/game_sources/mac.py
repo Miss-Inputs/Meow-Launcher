@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
-import os
+from pathlib import Path
 
-from meowlauncher.games.mac import MacApp, MacLauncher, does_exist
+from meowlauncher.games.mac import (MacApp, MacLauncher, PathInsideHFS,
+                                    does_exist)
 
 from . import pc
 
@@ -12,8 +13,10 @@ class Mac(pc.PCGameSource):
 		super().__init__('Mac', MacApp, MacLauncher)
 
 	def no_longer_exists(self, game_id: str) -> bool:
-		hfv_path, inner_path = game_id.split('/', 1)
-		if not os.path.isfile(hfv_path):
+		hfv_path_str, inner_path_str = game_id.rsplit('/', 1)
+		hfv_path = Path(hfv_path_str)
+		inner_path = PathInsideHFS(inner_path_str)
+		if not hfv_path.is_file():
 			return True
 
 		return not does_exist(hfv_path, inner_path)
