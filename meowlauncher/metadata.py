@@ -246,7 +246,7 @@ class Metadata():
 
 		self.specific_info: dict[str, Any] = {} #Stuff that's too specific to put as an attribute here
 
-		self.images: dict[str, Union[str, Path, 'Image']] = {}
+		self.images: dict[str, Union[Path, 'Image']] = {}
 		#TODO: The override name shenanigans in Wii/PSP: Check for name = None in launchers, and set name = None if overriding it to something else, and put the overriden name in here
 		self.names: dict[str, str] = {}
 		self.documents: dict[str, Union[str, Path]] = {} #Paths of either variety, or URLs
