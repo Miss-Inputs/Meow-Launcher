@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Optional
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.desktop_launchers import has_been_done
 from meowlauncher.games.itch import ItchGame
+from meowlauncher.util.desktop_files import has_been_done
 
 
 def scan_itch_dir(path: Path) -> Optional[ItchGame]:

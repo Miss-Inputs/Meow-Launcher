@@ -2,13 +2,13 @@
 
 import datetime
 import os
-from pathlib import Path
 import time
+from pathlib import Path
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.desktop_launchers import (get_desktop, get_field,
-                                            id_section_name)
 from meowlauncher.game_sources import game_types, steam
+from meowlauncher.output.desktop_files import id_section_name
+from meowlauncher.util.desktop_files import get_desktop, get_field
 
 
 def remove_nonexistent_games() -> None:

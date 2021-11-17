@@ -4,9 +4,9 @@ from collections.abc import Callable
 from typing import Optional
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.desktop_launchers import make_linux_desktop_for_launcher
 from meowlauncher.game_source import CompoundGameSource, GameSource
 from meowlauncher.game_sources import game_sources, gog, itch_io, steam
+from meowlauncher.output.desktop_files import make_linux_desktop_for_launcher
 
 from . import organize_folders, series_detect
 from .disambiguate import disambiguate_names

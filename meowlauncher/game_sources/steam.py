@@ -18,13 +18,13 @@ except ModuleNotFoundError:
 
 from meowlauncher.common_types import MediaType, SaveType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.desktop_launchers import has_been_done
 from meowlauncher.games.common.engine_detect import detect_engine_recursively
 from meowlauncher.games.common.pc_common_metadata import (
     add_metadata_for_raw_exe, check_for_interesting_things_in_folder)
 from meowlauncher.games.steam.steam_utils import (normalize_developer,
                                                   translate_language_list)
 from meowlauncher.metadata import Date
+from meowlauncher.util.desktop_files import has_been_done
 from meowlauncher.util.name_utils import normalize_name_case
 from meowlauncher.util.utils import load_dict, remove_capital_article
 

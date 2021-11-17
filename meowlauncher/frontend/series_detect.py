@@ -10,8 +10,8 @@ from typing import Optional, Union
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.series_detect.series_detect_overrides import \
     series_overrides
-from meowlauncher.desktop_launchers import (get_desktop, get_field,
-                                            metadata_section_name)
+from meowlauncher.output.desktop_files import metadata_section_name
+from meowlauncher.util.desktop_files import get_desktop, get_field
 from meowlauncher.util.name_utils import (chapter_matcher,
                                           convert_roman_numerals_in_title)
 from meowlauncher.util.utils import (convert_roman_numeral,

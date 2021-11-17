@@ -7,7 +7,6 @@ from collections.abc import Collection, Sequence
 from pathlib import Path
 from typing import Optional
 
-from meowlauncher import desktop_launchers
 from meowlauncher.config.main_config import main_config
 from meowlauncher.game import Game
 from meowlauncher.games.common.engine_detect import detect_engine_recursively
@@ -15,6 +14,7 @@ from meowlauncher.games.common.pc_common_metadata import (
     add_metadata_for_raw_exe, look_for_icon_next_to_file)
 from meowlauncher.launch_command import LaunchCommand, launch_with_wine
 from meowlauncher.metadata import Date
+from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util.name_utils import fix_name
 
 #TODO: Rework this to be able to optionally just read json, launch all executables in the game dir or whatever, and avoid using butler if preferred
@@ -238,7 +238,7 @@ class ItchGame(Game):
 		if params[1]:
 			metadata.emulator_name = params[1]
 
-		desktop_launchers.make_launcher(params[0], self.name, metadata, 'itch.io', str(self.path))
+		make_launcher(params[0], self.name, metadata, 'itch.io', str(self.path))
 
 	def make_launcher(self) -> None:
 		os_filter = None

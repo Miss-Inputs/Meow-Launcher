@@ -7,7 +7,6 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Optional
 
-from meowlauncher import desktop_launchers
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.configured_runner import ConfiguredRunner
@@ -17,6 +16,7 @@ from meowlauncher.games.common.engine_detect import \
     try_and_detect_engine_from_folder
 from meowlauncher.launch_command import LaunchCommand, launch_with_wine
 from meowlauncher.launcher import Launcher
+from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util import name_utils, region_info
 
 
@@ -172,7 +172,7 @@ class GOGGame(Game, ABC):
 
 	def make_launcher(self) -> None:
 		params = LaunchCommand(str(self.start_script), [], working_directory=str(self.folder))
-		desktop_launchers.make_launcher(params, self.name, self.metadata, 'GOG', str(self.folder))
+		make_launcher(params, self.name, self.metadata, 'GOG', str(self.folder))
 
 class NormalGOGGame(GOGGame):
 	def add_metadata(self) -> None:
@@ -320,7 +320,7 @@ class WindowsGOGGame(Game):
 		args = [self.fix_subfolder_relative_folder(arg, 'dosbox') for arg in task.args]
 		dosbox_path = main_config.dosbox_path
 		dosbox_folder = find_subpath_case_insensitive(self.folder, 'dosbox') #Game's config files are expecting to be launched from here
-		return desktop_launchers.LaunchCommand(dosbox_path, args, working_directory=str(dosbox_folder))
+		return LaunchCommand(dosbox_path, args, working_directory=str(dosbox_folder))
 
 	def get_wine_launch_params(self, task: GOGTask) -> Optional[LaunchCommand]:
 		if not task.path:
@@ -388,7 +388,7 @@ class WindowsGOGGame(Game):
 			else:
 				name = name_utils.fix_name(task.name)
 
-		desktop_launchers.make_launcher(params, name, task_metadata, 'GOG', str(self.folder))
+		make_launcher(params, name, task_metadata, 'GOG', str(self.folder))
 
 	def make_launchers(self) -> None:
 		actual_tasks = []

@@ -3,15 +3,15 @@
 import datetime
 import os
 import time
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Optional
-from collections.abc import Iterable
 
-from meowlauncher import desktop_launchers
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.gog import (DOSBoxGOGGame, GOGGame, GOGGameInfo,
                                     NormalGOGGame, ScummVMGOGGame,
                                     WindowsGOGGame)
+from meowlauncher.util.desktop_files import has_been_done
 
 
 def look_in_linux_gog_folder(folder: Path) -> Optional[GOGGame]:
@@ -62,7 +62,7 @@ def do_linux_gog_games() -> None:
 
 		for subfolder in gog_folder.iterdir():
 			if not main_config.full_rescan:
-				if desktop_launchers.has_been_done('GOG', str(subfolder)):
+				if has_been_done('GOG', str(subfolder)):
 					continue
 			if not subfolder.is_dir():
 				continue
@@ -84,7 +84,7 @@ def do_windows_gog_games() -> None:
 
 		for subfolder in windows_gog_folder.iterdir():
 			if not main_config.full_rescan:
-				if desktop_launchers.has_been_done('GOG', str(subfolder)):
+				if has_been_done('GOG', str(subfolder)):
 					continue
 			if not subfolder.is_dir():
 				continue

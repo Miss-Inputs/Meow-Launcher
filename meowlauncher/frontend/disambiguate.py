@@ -11,9 +11,10 @@ from pathlib import Path
 from typing import Optional, cast
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.desktop_launchers import (get_array, get_desktop, get_field,
-                                            id_section_name, junk_section_name,
-                                            metadata_section_name)
+from meowlauncher.output.desktop_files import (id_section_name,
+                                                   junk_section_name,
+                                                   metadata_section_name)
+from meowlauncher.util.desktop_files import get_array, get_desktop, get_field
 from meowlauncher.util.name_utils import normalize_name
 
 FormatFunction = Callable[[str, str], Optional[str]]

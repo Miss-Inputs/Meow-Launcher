@@ -3,7 +3,6 @@ import datetime
 import sys
 import time
 
-from meowlauncher import desktop_launchers
 from meowlauncher.common_types import EmulationNotSupportedException, MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.common.emulator_command_line_helpers import mame_base
@@ -11,6 +10,7 @@ from meowlauncher.games.mame_common.software_list_info import \
     get_software_list_by_name
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.metadata import Metadata
+from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util.region_info import TVSystem
 
 #TODO: Actually put this in game_sources, once we are more comfy this works nicely as per below todos etc, mainly the first two
@@ -88,7 +88,7 @@ class SoftwareLauncher():
 
 		launch_params = LaunchCommand('mame', self.platform.get_launch_params(self))
 
-		desktop_launchers.make_launcher(launch_params, self.software.description, self.metadata, 'MAME software', self.id)
+		make_launcher(launch_params, self.software.description, self.metadata, 'MAME software', self.id)
 
 def add_software_metadata(software):
 	software.metadata.emulator_name = 'MAME' #Will probably always be the case

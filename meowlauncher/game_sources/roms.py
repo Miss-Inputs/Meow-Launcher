@@ -11,13 +11,13 @@ from meowlauncher.common_types import (EmulationNotSupportedException,
                                        NotARomException)
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config.platform_config import PlatformConfig, platform_configs
+from meowlauncher.config.platform_config import (PlatformConfig,
+                                                 platform_configs)
 from meowlauncher.configured_emulator import (ConfiguredStandardEmulator,
                                               LibretroCoreWithFrontend)
 from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.data.emulators import (emulators, libretro_cores,
                                          libretro_frontends)
-from meowlauncher.desktop_launchers import has_been_done
 from meowlauncher.emulator import (LibretroCore, MAMEDriver, MednafenModule,
                                    StandardEmulator, ViceEmulator)
 from meowlauncher.game_source import (ChooseableEmulatorGameSource,
@@ -28,6 +28,7 @@ from meowlauncher.games.roms.roms_metadata import add_metadata
 from meowlauncher.games.specific_behaviour.roms_folders import folder_checks
 from meowlauncher.runner_config import EmulatorConfig
 from meowlauncher.util import archives
+from meowlauncher.util.desktop_files import has_been_done
 from meowlauncher.util.utils import starts_with_any
 
 if TYPE_CHECKING:

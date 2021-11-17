@@ -2,16 +2,16 @@
 
 import datetime
 import os
-from pathlib import Path
 import shutil
 import sys
 import time
 from collections.abc import Callable, Iterable
 from configparser import ConfigParser
+from pathlib import Path
 from typing import Any, Optional, cast
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.desktop_launchers import get_array, get_desktop, get_field
+from meowlauncher.util.desktop_files import get_array, get_desktop, get_field
 from meowlauncher.util.io_utils import sanitize_name
 
 #This is sort of considered separate from the main launcher generator.

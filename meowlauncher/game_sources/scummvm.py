@@ -4,11 +4,12 @@ from collections.abc import Iterable
 
 from meowlauncher import global_runners
 from meowlauncher.config.main_config import main_config
-from meowlauncher.desktop_launchers import has_been_done
 from meowlauncher.game_source import GameSource
 from meowlauncher.games.scummvm.scummvm_config import scummvm_config
 from meowlauncher.games.scummvm.scummvm_game import (ScummVMGame,
                                                      ScummVMLauncher)
+from meowlauncher.util.desktop_files import has_been_done
+
 
 class ScummVM(GameSource):
 	@property

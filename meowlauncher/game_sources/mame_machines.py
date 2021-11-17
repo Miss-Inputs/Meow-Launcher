@@ -3,11 +3,11 @@
 from collections.abc import Iterable, Sequence
 from typing import Optional
 
-from meowlauncher import desktop_launchers
 from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config.platform_config import PlatformConfig, platform_configs
+from meowlauncher.config.platform_config import (PlatformConfig,
+                                                 platform_configs)
 from meowlauncher.data.machines_with_inbuilt_games import (
     InbuiltGame, bioses_with_inbuilt_games, machines_with_inbuilt_games)
 from meowlauncher.game_source import GameSource
@@ -21,6 +21,7 @@ from meowlauncher.games.mame_common.machine import (
 from meowlauncher.games.mame_common.mame_helpers import (
     default_mame_executable, have_mame)
 from meowlauncher.launcher import Launcher
+from meowlauncher.util.desktop_files import has_been_done
 
 
 def is_actually_machine(machine: Machine) -> bool:
@@ -136,9 +137,9 @@ class MAME(GameSource):
 
 		for machine in iter_machines(self.emu.executable):
 			if not main_config.full_rescan:
-				if desktop_launchers.has_been_done('Arcade', machine.basename):
+				if has_been_done('Arcade', machine.basename):
 					continue
-				if desktop_launchers.has_been_done('MAME', machine.basename):
+				if has_been_done('MAME', machine.basename):
 					continue
 
 			launcher = self._process_machine(machine)
@@ -182,14 +183,14 @@ class MAMEInbuiltGames(GameSource):
 	def get_launchers(self) -> Iterable[Launcher]:
 		for machine_name, inbuilt_game in machines_with_inbuilt_games.items():
 			if not main_config.full_rescan:
-				if desktop_launchers.has_been_done('Inbuilt game', machine_name):
+				if has_been_done('Inbuilt game', machine_name):
 					continue
 			launcher = self._process_inbuilt_game(machine_name, inbuilt_game)
 			if launcher:
 				yield launcher
 		for machine_and_bios_name, inbuilt_game in bioses_with_inbuilt_games.items():
 			if not main_config.full_rescan:
-				if desktop_launchers.has_been_done('Inbuilt game', machine_and_bios_name[0] + ':' + machine_and_bios_name[1]):
+				if has_been_done('Inbuilt game', machine_and_bios_name[0] + ':' + machine_and_bios_name[1]):
 					continue
 			launcher = self._process_inbuilt_game(machine_and_bios_name[0], inbuilt_game, machine_and_bios_name[1])
 			if launcher:

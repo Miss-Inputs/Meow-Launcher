@@ -3,9 +3,9 @@ from pathlib import Path
 from typing import Any, NamedTuple, Optional
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.desktop_launchers import make_launcher
 from meowlauncher.game import Game
 from meowlauncher.launch_command import LaunchCommand
+from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util.name_utils import fix_name
 
 from .steam_installation import SteamInstallation
