@@ -293,13 +293,13 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 
 	language_list = common.get(b'languages')
 	if language_list:
-		game.metadata.languages = translate_language_list(language_list)
+		game.metadata.languages = list(translate_language_list(language_list))
 	else:
 		supported_languages = common.get(b'supported_languages')
 		if supported_languages:
 			#Hmm… this one goes into more detail actually, you have not just "supported" but "full_audio" and "subtitles"
 			#But for now let's just look at what else exists
-			game.metadata.languages = translate_language_list(supported_languages)
+			game.metadata.languages = list(translate_language_list(supported_languages))
 
 	add_genre(game, common)
 
@@ -580,14 +580,14 @@ def poke_around_in_install_dir(game: 'SteamGame'):
 		#Hmm I would need to make this case insensitive for some cases
 		return
 
-	engine = detect_engine_recursively(str(install_dir), game.metadata)
+	engine = detect_engine_recursively(install_dir, game.metadata)
 	if engine:
 		game.metadata.specific_info['Engine'] = engine
 
-	check_for_interesting_things_in_folder(str(install_dir), game.metadata, find_wrappers=True)
-	for f in os.scandir(install_dir):
+	check_for_interesting_things_in_folder(install_dir, game.metadata, find_wrappers=True)
+	for f in install_dir.iterdir():
 		if f.is_dir():
-			check_for_interesting_things_in_folder(f.path, game.metadata, find_wrappers=True)
+			check_for_interesting_things_in_folder(f, game.metadata, find_wrappers=True)
 	
 def add_images(game: 'SteamGame'):
 	#Do I wanna call header a banner
