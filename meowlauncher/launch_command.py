@@ -1,9 +1,12 @@
+from pathlib import Path
 import shlex
 from collections.abc import Iterable, Mapping, MutableMapping, Sequence
 from typing import Optional
 
 #This is basically just here in case the path of a ROM changes between when we generate the LaunchCommand for the game and when we generate the actual launcher… it can't be just a sentinel object as sometimes you might want to replace something like "--arg=$<path>", unless I think of a better way to handle that
 rom_path_argument = '$<path>'
+
+#I guess if one ever cared about Not Linux, you would need to split LaunchCommand into BaseLaunchCommand and subclasses, rename make_linux_command_string -> make_command_string, put in subclass
 
 class LaunchCommand():
 	def __init__(self, exe_name: str, exe_args: Sequence[str], env_vars: Optional[MutableMapping[str, str]]=None, working_directory: Optional[str]=None):
@@ -41,8 +44,8 @@ class LaunchCommand():
 	def append_command(self, appended_params: 'LaunchCommand') -> 'LaunchCommand':
 		return MultiLaunchCommands([], self, [appended_params])
 
-	def replace_path_argument(self, path: str) -> 'LaunchCommand':
-		return LaunchCommand(self.exe_name, [arg.replace(rom_path_argument, path) for arg in self.exe_args], self._env_vars)
+	def replace_path_argument(self, path: Path) -> 'LaunchCommand':
+		return LaunchCommand(self.exe_name, [arg.replace(rom_path_argument, str(path)) for arg in self.exe_args], self._env_vars)
 
 	def set_env_var(self, k: str, v: str) -> None:
 		self._env_vars[k] = v
@@ -87,7 +90,7 @@ class MultiLaunchCommands(LaunchCommand):
 	def append_command(self, appended_params: LaunchCommand) -> LaunchCommand:
 		return MultiLaunchCommands(self.pre_commands, self.main_command, self.post_commands + [appended_params])
 
-	def replace_path_argument(self, path: str) -> LaunchCommand:
+	def replace_path_argument(self, path: Path) -> LaunchCommand:
 		return MultiLaunchCommands(self.pre_commands, self.main_command.replace_path_argument(path), self.post_commands)
 	
 	def set_env_var(self, k: str, v: str) -> None:

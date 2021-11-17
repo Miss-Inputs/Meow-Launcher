@@ -1,5 +1,5 @@
-import os
 import tempfile
+from pathlib import Path
 from typing import Optional, cast
 
 from meowlauncher.config.platform_config import PlatformConfig
@@ -56,12 +56,11 @@ class ROMLauncher(EmulatorLauncher):
 		if self.game.rom.is_compressed:
 			rom = cast(CompressedROM, self.game.rom)
 			if not self.runner.supports_compressed_extension(rom.extension):
-				temp_extraction_folder = os.path.join(tempfile.gettempdir(), 'meow-launcher-' + make_filename(self.game.name))
-
-				extracted_path = os.path.join(temp_extraction_folder, rom.inner_filename)
+				temp_extraction_folder = Path(tempfile.gettempdir(), 'meow-launcher-' + make_filename(self.game.name))
+				extracted_path = temp_extraction_folder.joinpath(rom.inner_filename)
 				command = command.replace_path_argument(extracted_path)
-				command = command.prepend_command(LaunchCommand('7z', ['x', '-o' + temp_extraction_folder, str(self.game.rom.path)]))
-				command = command.append_command(LaunchCommand('rm', ['-rf', temp_extraction_folder]))
+				command = command.prepend_command(LaunchCommand('7z', ['x', '-o' + temp_extraction_folder.as_posix(), self.game.rom.path.as_posix()]))
+				command = command.append_command(LaunchCommand('rm', ['-rf', temp_extraction_folder.as_posix()]))
 		else:
-			command = command.replace_path_argument(str(self.game.rom.path))
+			command = command.replace_path_argument(self.game.rom.path)
 		return command
