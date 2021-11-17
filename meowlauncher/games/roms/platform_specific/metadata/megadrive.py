@@ -1,8 +1,8 @@
 import os
 import re
+from collections.abc import Iterable
 from datetime import datetime
 from typing import Union, cast
-from collections.abc import Iterable
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -308,12 +308,12 @@ def add_megadrive_software_list_metadata(software: Software, metadata: Metadata)
 
 def add_megadrive_metadata(game: ROMGame):
 	if game.rom.extension == 'cue':
-		first_track_and_sector_size = cd_read.get_first_data_cue_track(str(game.rom.path))
+		first_track_and_sector_size = cd_read.get_first_data_cue_track(game.rom.path)
 		if not first_track_and_sector_size:
 			print(game.rom.path, 'has invalid cuesheet')
 			return
 		first_track, sector_size = first_track_and_sector_size
-		if not os.path.isfile(first_track):
+		if not first_track.is_file():
 			print(game.rom.path, 'has invalid cuesheet')
 			return
 		try:

@@ -184,7 +184,7 @@ class UnsupportedCHDError(Exception):
 	pass
 
 def get_sha1_from_chd(chd_path: Path) -> str:
-	header = io_utils.read_file(str(chd_path), amount=124)
+	header = io_utils.read_file(chd_path, amount=124)
 	if header[0:8] != b'MComprHD':
 		raise UnsupportedCHDError('Header magic %s unknown' % str(header[0:8]))
 	chd_version = int.from_bytes(header[12:16], 'big')

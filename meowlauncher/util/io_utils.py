@@ -12,13 +12,13 @@ def ensure_exist(path: pathlib.Path):
 	path.parent.mkdir(exist_ok=True, parents=True)
 	path.touch()
 
-def get_real_size(path: str, compressed_entry: str=None) -> int:
+def get_real_size(path: pathlib.Path, compressed_entry: str=None) -> int:
 	if compressed_entry is None:
-		return os.stat(path).st_size
+		return path.stat().st_size
 
-	return compressed_getsize(path, compressed_entry)
+	return compressed_getsize(str(path), compressed_entry)
 
-def read_file(path: str, compressed_entry: str=None, seek_to: int=0, amount: int=-1) -> bytes:
+def read_file(path: pathlib.Path, compressed_entry: str=None, seek_to: int=0, amount: int=-1) -> bytes:
 	if not compressed_entry:
 		with open(path, 'rb') as f:
 			f.seek(seek_to)
@@ -27,7 +27,7 @@ def read_file(path: str, compressed_entry: str=None, seek_to: int=0, amount: int
 
 			return f.read(amount)
 
-	data = compressed_get(path, compressed_entry)
+	data = compressed_get(str(path), compressed_entry)
 	if seek_to:
 		if amount > -1:
 			return data[seek_to: seek_to + amount]
@@ -38,7 +38,7 @@ def read_file(path: str, compressed_entry: str=None, seek_to: int=0, amount: int
 
 	return data
 
-def get_crc32(path: str, compressed_entry: str=None) -> int:
+def get_crc32(path: pathlib.Path, compressed_entry: str=None) -> int:
 	if not compressed_entry:
 		with open(path, 'rb') as f:
 			crc = 0
@@ -46,7 +46,7 @@ def get_crc32(path: str, compressed_entry: str=None) -> int:
 				crc = zlib.crc32(chunk, crc)
 			return crc & 0xffffffff
 
-	return get_crc32_of_archive(path, compressed_entry)
+	return get_crc32_of_archive(str(path), compressed_entry)
 
 def sanitize_name(s: Optional[str], supersafe: bool=False) -> str:
 	#These must never be filenames or folder names!  Badbadbad!
@@ -80,8 +80,9 @@ def sanitize_name(s: Optional[str], supersafe: bool=False) -> str:
 		return 'dotdot'
 	return s
 
-def sanitize_path(path: str, supersafe: bool=False) -> str:
-	parts = pathlib.Path(path).parts
+def sanitize_path(path: pathlib.Path, supersafe: bool=False) -> pathlib.Path:
+	#This isn't even used anywhere right now?
+	parts = path.parts
 	has_slash = False
 	if parts[0] == '/':
 		has_slash = True
@@ -90,7 +91,7 @@ def sanitize_path(path: str, supersafe: bool=False) -> str:
 	sanitized_parts = [sanitize_name(path_part, supersafe) for path_part in parts]
 	if has_slash:
 		sanitized_parts = ['/'] + sanitized_parts
-	return os.path.join(*sanitized_parts)
+	return pathlib.Path(*sanitized_parts)
 
 remove_brackety_things_for_filename = re.compile(r'[]([)]')
 clean_for_filename = re.compile(r'[^A-Za-z0-9_]')
@@ -104,12 +105,12 @@ def make_filename(name: str) -> str:
 		name = 'blank'
 	return name
 
-def pick_new_filename(folder: str, display_name: str, extension: str) -> str:
+def pick_new_filename(folder: pathlib.Path, display_name: str, extension: str) -> str:
 	base_filename = make_filename(display_name)
 	filename = base_filename + os.extsep + extension
 
 	i = 2
-	while os.path.isfile(os.path.join(folder, filename)):
+	while folder.joinpath(filename).is_file():
 		filename = base_filename + str(i) + os.extsep + extension
 		i += 1
 	return filename

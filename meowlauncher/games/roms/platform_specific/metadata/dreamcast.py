@@ -1,5 +1,5 @@
-import os
 import re
+from pathlib import Path
 
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.roms.rom import FileROM
@@ -49,7 +49,7 @@ def add_peripherals_info(metadata: Metadata, peripherals):
 
 device_info_regex = re.compile(r'^(?P<checksum>[\dA-Fa-f]{4}) GD-ROM(?P<discNum>\d+)/(?P<totalDiscs>\d+) *$')
 #Might not be " GD-ROM" on some Naomi stuff or maybe some homebrews or protos, but anyway, whatevs
-def add_info_from_main_track(metadata: Metadata, track_path, sector_size: int):
+def add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size: int):
 	try:
 		header = cd_read.read_mode_1_cd(track_path, sector_size, amount=256)
 	except NotImplementedError:
@@ -141,9 +141,8 @@ def add_info_from_gdi(rom: FileROM, metadata: Metadata):
 			filename = match['name_unquoted'] if match['name_unquoted'] else match['name']
 			#print(game.rom.path, track_number, is_data, sector_size, filename)
 			if track_number == 3:
-				full_name = filename if filename.startswith('/') else os.path.join(os.path.dirname(rom.path), filename)
+				full_name = Path(filename) if filename.startswith('/') else rom.path.parent.joinpath(filename)
 				add_info_from_main_track(metadata, full_name, sector_size)
-
 
 def add_dreamcast_metadata(game):
 	if game.rom.extension == 'gdi':

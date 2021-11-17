@@ -50,7 +50,7 @@ class FileROM(ROM):
 			self.entire_file = self._read()
 		
 	def _read(self, seek_to: int=0, amount: int=-1) -> bytes:
-		return io_utils.read_file(str(self.path), None, seek_to, amount)
+		return io_utils.read_file(self.path, None, seek_to, amount)
 
 	def read(self, seek_to: int=0, amount: int=-1) -> bytes:
 		if self.store_entire_file:
@@ -60,7 +60,7 @@ class FileROM(ROM):
 		return self._read(seek_to, amount)
 
 	def _get_size(self) -> int:
-		return io_utils.get_real_size(str(self.path))
+		return io_utils.get_real_size(self.path)
 
 	def get_size(self) -> int:
 		if self.store_entire_file:
@@ -68,7 +68,7 @@ class FileROM(ROM):
 		return self._get_size()
 
 	def _get_crc32(self) -> int:
-		return io_utils.get_crc32(str(self.path))
+		return io_utils.get_crc32(self.path)
 
 	def get_crc32(self) -> int:
 		if self.crc_for_database:
@@ -123,17 +123,17 @@ class CompressedROM(FileROM):
 		return self.inner_name
 		
 	def _read(self, seek_to: int=0, amount: int=-1) -> bytes:
-		return io_utils.read_file(str(self.path), self.inner_filename, seek_to, amount)
+		return io_utils.read_file(self.path, self.inner_filename, seek_to, amount)
 
 	def _get_size(self) -> int:
-		return io_utils.get_real_size(str(self.path), self.inner_filename)
+		return io_utils.get_real_size(self.path, self.inner_filename)
 
 	def _get_crc32(self) -> int:
-		return io_utils.get_crc32(str(self.path), self.inner_filename)
+		return io_utils.get_crc32(self.path, self.inner_filename)
 
 class GCZFileROM(FileROM):
 	def read(self, seek_to: int=0, amount: int=-1) -> bytes:
-		return cd_read.read_gcz(str(self.path), seek_to, amount)
+		return cd_read.read_gcz(self.path, seek_to, amount)
 
 def rom_file(path: Path) -> FileROM:
 	ext = path.suffix 
