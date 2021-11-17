@@ -14,7 +14,7 @@ from .mame_helpers import default_mame_configuration
 
 
 class HistoryXML():
-	def __init__(self, path: str) -> None:
+	def __init__(self, path: Path) -> None:
 		self.xml = ElementTree.parse(path)
 		self.system_histories: dict[str, History] = {}
 		self.software_histories: dict[str, dict[str, History]] = {}
@@ -41,7 +41,7 @@ def get_default_history_xml() -> Optional[HistoryXML]:
 	if not dat_paths:
 		return None
 	for dat_path in dat_paths:
-		historypath = os.path.join(dat_path, 'history.xml')		
+		historypath = Path(dat_path, 'history.xml')		
 		try:
 			return HistoryXML(historypath)
 		except FileNotFoundError:

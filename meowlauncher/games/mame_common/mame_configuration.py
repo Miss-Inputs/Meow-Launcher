@@ -1,16 +1,17 @@
 import os
 import re
+from pathlib import Path
 from typing import Optional
 
 image_types = ('ico', 'png', 'jpg', 'bmp')
 
 class MAMEConfiguration():
-	def __init__(self, core_config_path=None, ui_config_path=None) -> None:
+	def __init__(self, core_config_path: Path=None, ui_config_path=None) -> None:
 		if not core_config_path:
-			core_config_path = os.path.expanduser('~/.mame/mame.ini')
+			core_config_path = Path('~/.mame/mame.ini').expanduser()
 		self.core_config = parse_mame_config_file(core_config_path)
 		if not ui_config_path:
-			ui_config_path = os.path.expanduser('~/.mame/ui.ini')
+			ui_config_path = Path('~/.mame/ui.ini').expanduser()
 		self.ui_config = parse_mame_config_file(ui_config_path)
 		self._icons = None
 
@@ -28,10 +29,10 @@ class MAMEConfiguration():
 mame_config_comment = re.compile(r'#.+$')
 mame_config_line = re.compile(r'^(?P<key>\w+)\s+(?P<value>.+)$')
 semicolon_not_after_quotes = re.compile(r'(?!");')
-def parse_mame_config_file(path: str) -> dict[str, list[str]]:
+def parse_mame_config_file(path: Path) -> dict[str, list[str]]:
 	settings: dict[str, list[str]] = {}
 
-	with open(path, 'rt', encoding='utf-8') as f:
+	with path.open('rt', encoding='utf-8') as f:
 		for line in f.readlines():
 			line = mame_config_comment.sub('', line)
 			line = line.strip()

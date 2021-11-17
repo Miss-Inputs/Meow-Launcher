@@ -1,4 +1,6 @@
 import os
+from pathlib import Path
+from typing import Optional
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -109,10 +111,10 @@ class ScummVMGame(Game):
 			if language:
 				self.metadata.languages = [language]
 
-		path = self.options.get('path')
+		path: Optional[str] = self.options.get('path')
 		if path:
 			if os.path.isdir(path):
-				icon = look_for_icon_in_folder(path)
+				icon = look_for_icon_in_folder(Path(path))
 				if icon:
 					self.metadata.images['Icon'] = icon
 			else:
@@ -138,7 +140,7 @@ class ScummVMLauncher(Launcher):
 
 	def get_launch_command(self) -> LaunchCommand:
 		args = ['-f']
-		if main_config.scummvm_config_path != os.path.expanduser('~/.config/scummvm/scummvm.ini'):
-			args.append(f'--config={main_config.scummvm_config_path}')
+		if main_config.scummvm_config_path != Path('~/.config/scummvm/scummvm.ini').expanduser():
+			args.append(f'--config={str(main_config.scummvm_config_path)}')
 		args.append(self.game.game_id)
 		return LaunchCommand(self.runner.config.exe_path, args)
