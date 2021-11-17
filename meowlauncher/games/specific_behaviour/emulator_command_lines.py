@@ -1660,7 +1660,7 @@ def mesen(game: 'ROMGame', _, __) -> None:
 		'UNL-KS7010', 'UNL-KS7030', 'UNL-OneBus', 'UNL-PEC-586', 'UNL-SB-2000', 'UNL-Transformer', 'WAIXING-FS005']
 	if game.metadata.specific_info.get('Header Format', None) in {'iNES', 'NES 2.0'}:
 		mapper = game.metadata.specific_info.get('Mapper Number')
-		if not mapper or not isinstance(mapper, int):
+		if mapper is None or not isinstance(mapper, int):
 			raise AssertionError('Somehow, Mapper Number was set to something other than an int, or None')
 		if mapper in unsupported_mappers or mapper > 530:
 			raise EmulationNotSupportedException('Unsupported mapper: {0} {1}'.format(mapper, game.metadata.specific_info.get('Mapper')))
