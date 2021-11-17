@@ -24,11 +24,10 @@ from meowlauncher.emulator import (LibretroCore, MAMEDriver, MednafenModule,
                                    StandardEmulator, ViceEmulator)
 from meowlauncher.game_source import (ChooseableEmulatorGameSource,
                                       CompoundGameSource)
-from meowlauncher.games.roms.platform_specific.roms_folders import \
-    folder_checks
 from meowlauncher.games.roms.rom import ROM, FileROM, FolderROM, rom_file
 from meowlauncher.games.roms.rom_game import ROMGame, ROMLauncher
 from meowlauncher.games.roms.roms_metadata import add_metadata
+from meowlauncher.games.specific_behaviour.roms_folders import folder_checks
 from meowlauncher.runner_config import EmulatorConfig
 from meowlauncher.util import archives
 from meowlauncher.util.utils import starts_with_any

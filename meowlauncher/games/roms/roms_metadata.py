@@ -15,6 +15,8 @@ from meowlauncher.games.mame_common.mame_helpers import (
 from meowlauncher.games.mame_common.mame_utils import image_config_keys
 from meowlauncher.games.mame_common.software_list_info import \
     get_software_lists_by_names
+from meowlauncher.games.specific_behaviour.metadata import (generic_helper,
+                                                            helpers)
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.detect_things_from_filename import (
     get_date_from_filename_tags, get_languages_from_filename_tags,
@@ -25,7 +27,6 @@ from meowlauncher.util.region_info import (get_language_from_regions,
 from meowlauncher.util.utils import (find_filename_tags_at_end, junk_suffixes,
                                      load_list, remove_filename_tags)
 
-from .platform_specific.metadata import generic_helper, helpers
 from .rom import ROM, FileROM, FolderROM
 from .rom_game import ROMGame
 

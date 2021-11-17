@@ -1,7 +1,7 @@
 from collections.abc import Collection
 from typing import Union
 
-import meowlauncher.games.common.emulator_command_lines as command_lines
+import meowlauncher.games.specific_behaviour.emulator_command_lines as command_lines
 from meowlauncher.common_types import ConfigValueType
 from meowlauncher.emulator import (Emulator, EmulatorStatus, HostPlatform,
                                    LibretroCore, LibretroFrontend, MAMEDriver,

@@ -13,6 +13,10 @@ from meowlauncher.data.emulated_platforms import (arabic_msx1_drivers,
                                                   working_msx1_drivers,
                                                   working_msx2_drivers,
                                                   working_msx2plus_drivers)
+from meowlauncher.games.common.emulator_command_line_helpers import (
+    _is_software_available, _verify_supported_gb_mappers,
+    first_available_romset, is_highscore_cart_available, mame_base,
+    mame_driver, mednafen_module, verify_mgba_mapper)
 from meowlauncher.launch_command import (LaunchCommand, MultiLaunchCommands,
                                          rom_path_argument)
 from meowlauncher.platform_types import (AppleIIHardware, Atari2600Controller,
@@ -24,14 +28,6 @@ from meowlauncher.platform_types import (AppleIIHardware, Atari2600Controller,
                                          ZXJoystick, ZXMachine)
 from meowlauncher.runner_config import EmulatorConfig
 from meowlauncher.util.region_info import TVSystem
-
-from .emulator_command_line_helpers import (_is_software_available,
-                                            _verify_supported_gb_mappers,
-                                            first_available_romset,
-                                            is_highscore_cart_available,
-                                            mame_base, mame_driver,
-                                            mednafen_module,
-                                            verify_mgba_mapper)
 
 
 #MAME drivers
