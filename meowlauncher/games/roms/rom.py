@@ -138,7 +138,7 @@ class GCZFileROM(FileROM):
 def rom_file(path: Path) -> FileROM:
 	ext = path.suffix 
 	if ext: #To be fair if it's '' it won't match any file ever… hmm
-		if ext[-1].lower() == '.gcz':
+		if ext[-1].lower() == 'gcz':
 			return GCZFileROM(path)
 		if ext[-1] in archives.compressed_exts:
 			return CompressedROM(path)
