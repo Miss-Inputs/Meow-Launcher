@@ -4,11 +4,11 @@ import collections
 import configparser
 import datetime
 import itertools
-import os
 import sys
 import time
 from collections.abc import Callable, Collection
-from typing import Any, Optional, cast
+from pathlib import Path
+from typing import Optional, cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.desktop_launchers import (get_array, get_desktop, get_field,
@@ -17,11 +17,12 @@ from meowlauncher.desktop_launchers import (get_array, get_desktop, get_field,
 from meowlauncher.util.name_utils import normalize_name
 
 FormatFunction = Callable[[str, str], Optional[str]]
+DesktopWithPath = tuple[Path, configparser.ConfigParser]
 
 super_debug = '--super-debug' in sys.argv
 disambiguity_section_name = 'X-Meow Launcher Disambiguity'
 
-def update_name(desktop: tuple[str, configparser.ConfigParser], disambiguator: Optional[str], disambiguation_method: str):
+def update_name(desktop: DesktopWithPath, disambiguator: Optional[str], disambiguation_method: str):
 	if not disambiguator:
 		return
 	desktop_entry = desktop[1]['Desktop Entry']
@@ -45,10 +46,10 @@ def update_name(desktop: tuple[str, configparser.ConfigParser], disambiguator: O
 
 	desktop_entry['Name'] += ' ' + disambiguator
 
-	with open(desktop[0], 'wt', encoding='utf-8') as f:
+	with desktop[0].open('wt', encoding='utf-8') as f:
 		desktop[1].write(f)
 
-def resolve_duplicates_by_metadata(group: Collection[tuple[str, configparser.ConfigParser]], field: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name):
+def resolve_duplicates_by_metadata(group: Collection[DesktopWithPath], field: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name):
 	value_counter = collections.Counter(get_field(d[1], field, field_section) for d in group)
 	for dup in group:
 		field_value = get_field(dup[1], field, field_section)
@@ -84,7 +85,7 @@ def resolve_duplicates_by_metadata(group: Collection[tuple[str, configparser.Con
 			original_name = get_field(dup[1], 'Ambiguous-Name', disambiguity_section_name)
 			update_name(dup, format_function(field_value, original_name if original_name else name) if format_function else f'({field_value})', field)
 
-def resolve_duplicates_by_filename_tags(group: Collection[tuple[str, configparser.ConfigParser]]):
+def resolve_duplicates_by_filename_tags(group: Collection[DesktopWithPath]):
 	for dup in group:
 		the_rest = [d for d in group if d[0] != dup[0]]
 		tags = get_array(dup[1], 'Filename-Tags', junk_section_name)
@@ -104,7 +105,7 @@ def resolve_duplicates_by_filename_tags(group: Collection[tuple[str, configparse
 		if differentiator_candidates:
 			update_name(dup, ' '.join(differentiator_candidates), 'tags')
 
-def resolve_duplicates_by_dev_status(group: Collection[tuple[str, configparser.ConfigParser]]):
+def resolve_duplicates_by_dev_status(group: Collection[DesktopWithPath]):
 	for dup in group:
 		tags = get_array(dup[1], 'Filename-Tags', junk_section_name)
 
@@ -113,7 +114,7 @@ def resolve_duplicates_by_dev_status(group: Collection[tuple[str, configparser.C
 			if tag_matches:= tag_matches or (tag.lower().startswith('(alpha') and tag[6] == ' ' and tag[7:-1].isdigit()):
 				update_name(dup, '(' + tag[1:].title() if tag.islower() else tag, 'dev status')
 
-def resolve_duplicates_by_date(group: Collection[tuple[str, configparser.ConfigParser]]):
+def resolve_duplicates_by_date(group: Collection[DesktopWithPath]):
 	year_counter = collections.Counter(get_field(d[1], 'Year') for d in group)
 	month_counter = collections.Counter(get_field(d[1], 'Month') for d in group)
 	day_counter = collections.Counter(get_field(d[1], 'Day') for d in group)
@@ -162,7 +163,7 @@ def resolve_duplicates_by_date(group: Collection[tuple[str, configparser.ConfigP
 
 			update_name(dup, '(' + date_string + ')', 'date')
 
-def resolve_duplicates(group: Collection[tuple[str, configparser.ConfigParser]], method: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name):
+def resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name):
 	if method == 'tags':
 		resolve_duplicates_by_filename_tags(group)
 	elif method == 'dev-status':
@@ -173,18 +174,18 @@ def resolve_duplicates(group: Collection[tuple[str, configparser.ConfigParser]],
 		resolve_duplicates_by_metadata(group, method, format_function, ignore_missing_values, field_section)
 
 def fix_duplicate_names(method: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name):
-	files = [(path, get_desktop(path)) for path in [f.path for f in os.scandir(main_config.output_folder)]]
+	files = [(path, get_desktop(path)) for path in main_config.output_folder.iterdir()]
 	if method == 'dev-status':
 		resolve_duplicates_by_dev_status(files)
 		return
 
 	#TODO: Handle this null check properly, it _should_ be impossible for Desktop Entry to not exist in a .desktop file, but that doesn't stop some joker putting them in there
 	#Why did I call the variable "f"? Oh well
-	keyfunc: Callable[[tuple[Any, configparser.ConfigParser]], str] = (lambda f: cast(str, get_field(f[1], 'Name', 'Desktop Entry')).lower()) \
+	keyfunc: Callable[[DesktopWithPath], str] = (lambda f: cast(str, get_field(f[1], 'Name', 'Desktop Entry')).lower()) \
 		if method == 'check' \
 		else (lambda f: normalize_name(cast(str, get_field(f[1], 'Name', 'Desktop Entry')), care_about_numerals=True))
 	files.sort(key=keyfunc)
-	duplicates: dict[str, list[tuple[str, configparser.ConfigParser]]] = {}
+	duplicates: dict[str, list[DesktopWithPath]] = {}
 	for key, group in itertools.groupby(files, key=keyfunc):
 		g = list(group)
 		if len(g) > 1:
@@ -214,10 +215,10 @@ def arcade_system_disambiguate(arcade_system: Optional[str], name: str) -> Optio
 def reambiguate() -> None:
 	#This seems counter-intuitive, but if we're not doing a full rescan, we want to do this before disambiguating again or else it gets weird
 	output_folder = main_config.output_folder
-	for file in os.scandir(output_folder):
+	for path in output_folder.iterdir():
 		desktop = configparser.ConfigParser(interpolation=None)
 		desktop.optionxform = str #type: ignore[assignment]
-		desktop.read(file.path)
+		desktop.read(path)
 		desktop_entry = desktop['Desktop Entry']
 		if disambiguity_section_name not in desktop:
 			#If name wasn't ambiguous to begin with, we don't need to worry about it
@@ -233,7 +234,7 @@ def reambiguate() -> None:
 			del disambiguity_section['Ambiguous-Name']
 		del desktop[disambiguity_section_name]
 
-		with open(file.path, 'wt', encoding='utf-8') as f:
+		with path.open('wt', encoding='utf-8') as f:
 			desktop.write(f)
 
 def disambiguate_names() -> None:
