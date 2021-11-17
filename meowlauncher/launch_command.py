@@ -45,7 +45,9 @@ class LaunchCommand():
 		return MultiLaunchCommands([], self, [appended_params])
 
 	def replace_path_argument(self, path: Path) -> 'LaunchCommand':
-		return LaunchCommand(self.exe_name, [arg.replace(rom_path_argument, str(path)) for arg in self.exe_args], self._env_vars)
+		path_arg = str(path.resolve())
+		replaced_args = [path_arg if arg == rom_path_argument else arg.replace(rom_path_argument, path_arg) for arg in self.exe_args]
+		return LaunchCommand(self.exe_name, replaced_args, self._env_vars)
 
 	def set_env_var(self, k: str, v: str) -> None:
 		self._env_vars[k] = v

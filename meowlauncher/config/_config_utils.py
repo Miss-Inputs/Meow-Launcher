@@ -1,3 +1,4 @@
+import configparser
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -14,8 +15,7 @@ def parse_path_list(value: str) -> Sequence[Path]:
 		return []
 	return [Path(p).expanduser() for p in parse_string_list(value)]
 
-#Section is configparser section? How do we typecheck that
-def parse_value(section, name: str, value_type: ConfigValueType, default_value: TypeOfConfigValue) -> TypeOfConfigValue:
+def parse_value(section: configparser.SectionProxy, name: str, value_type: ConfigValueType, default_value: TypeOfConfigValue) -> TypeOfConfigValue:
 	try:
 		if value_type == ConfigValueType.Bool:
 			return section.getboolean(name, default_value)

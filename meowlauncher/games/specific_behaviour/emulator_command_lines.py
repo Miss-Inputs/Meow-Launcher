@@ -1618,10 +1618,10 @@ def mame(game, _, emulator_config: EmulatorConfig):
 	return LaunchCommand(emulator_config.exe_path, mame_base(game.machine.basename))
 
 #Libretro frontends
-def retroarch(_, __, emulator_config: EmulatorConfig, frontend_config: EmulatorConfig):
-	if not emulator_config.exe_path:
+def retroarch(_, __, core_config: EmulatorConfig, frontend_config: EmulatorConfig):
+	if not core_config.exe_path:
 		raise EmulationNotSupportedException('libretro core path is not explicitly specified and libretro_cores_directory is not set')
-	return LaunchCommand(frontend_config.exe_path, ['-f', '-L', emulator_config.exe_path, rom_path_argument])
+	return LaunchCommand(frontend_config.exe_path, ['-f', '-L', core_config.exe_path, rom_path_argument])
  
 #Libretro cores
 def genesis_plus_gx(game, _, __):
