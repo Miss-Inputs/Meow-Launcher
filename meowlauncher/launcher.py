@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from .game import Game
-from .launch_command import LaunchCommand
-from .configured_runner import ConfiguredRunner
-
+if TYPE_CHECKING:
+	from .launch_command import LaunchCommand
+	from .game import Game
+	from .configured_runner import ConfiguredRunner
 
 class Launcher(ABC):
-	def __init__(self, game: Game, runner: ConfiguredRunner) -> None:
+	def __init__(self, game: 'Game', runner: 'ConfiguredRunner') -> None:
 		self.game = game
 		self.runner = runner
 
@@ -30,5 +30,5 @@ class Launcher(ABC):
 		return self.game.metadata.to_launcher_fields()
 
 	@abstractmethod
-	def get_launch_command(self) -> LaunchCommand:
+	def get_launch_command(self) -> 'LaunchCommand':
 		pass

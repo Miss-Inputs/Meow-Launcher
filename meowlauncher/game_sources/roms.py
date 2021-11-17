@@ -4,22 +4,20 @@ import os
 import traceback
 from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Optional, Union, cast
+from typing import TYPE_CHECKING, Optional, Union, cast
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        ExtensionNotSupportedException,
                                        NotARomException)
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config.platform_config import (PlatformConfig,
-                                                 platform_configs)
+from meowlauncher.config.platform_config import PlatformConfig, platform_configs
 from meowlauncher.configured_emulator import (ConfiguredStandardEmulator,
                                               LibretroCoreWithFrontend)
 from meowlauncher.data.emulated_platforms import platforms
 from meowlauncher.data.emulators import (emulators, libretro_cores,
                                          libretro_frontends)
 from meowlauncher.desktop_launchers import has_been_done
-from meowlauncher.emulated_platform import StandardEmulatedPlatform
 from meowlauncher.emulator import (LibretroCore, MAMEDriver, MednafenModule,
                                    StandardEmulator, ViceEmulator)
 from meowlauncher.game_source import (ChooseableEmulatorGameSource,
@@ -32,6 +30,8 @@ from meowlauncher.runner_config import EmulatorConfig
 from meowlauncher.util import archives
 from meowlauncher.util.utils import starts_with_any
 
+if TYPE_CHECKING:
+	from meowlauncher.emulated_platform import StandardEmulatedPlatform
 
 def parse_m3u(path: Path):
 	with open(path, 'rt', encoding='utf-8') as f:
@@ -69,8 +69,8 @@ def _get_emulator_config(emulator: Union[StandardEmulator, LibretroCore]):
 	return emulator_configs[emulator.config_name]
 
 class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
-	def __init__(self, platform_config: PlatformConfig, platform: StandardEmulatedPlatform) -> None:
-		self.platform: StandardEmulatedPlatform = platform
+	def __init__(self, platform_config: PlatformConfig, platform: 'StandardEmulatedPlatform') -> None:
+		self.platform: 'StandardEmulatedPlatform' = platform
 		super().__init__(platform_config, platform, emulators, libretro_cores)
 
 	@property

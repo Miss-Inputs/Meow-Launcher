@@ -6,7 +6,7 @@ from meowlauncher.common_types import (ConfigValueType, EmulatorStatus,
 from meowlauncher.config.main_config import main_config
 
 from .emulated_game import EmulatedGame
-from .launcher import LaunchCommand
+from .launch_command import LaunchCommand
 from .runner import Runner
 from .runner_config import EmulatorConfig, RunnerConfigValue
 

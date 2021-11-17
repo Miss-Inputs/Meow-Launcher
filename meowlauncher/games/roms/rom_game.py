@@ -1,22 +1,24 @@
 import tempfile
 from pathlib import Path
-from typing import Optional, cast
+from typing import TYPE_CHECKING, Optional, cast
 
-from meowlauncher.config.platform_config import PlatformConfig
-from meowlauncher.configured_emulator import ConfiguredStandardEmulator
 from meowlauncher.emulated_game import EmulatedGame
-from meowlauncher.emulated_platform import StandardEmulatedPlatform
 from meowlauncher.emulator_launcher import EmulatorLauncher
-from meowlauncher.games.mame_common.software_list import SoftwareList
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.util.io_utils import make_filename
 from meowlauncher.util.utils import find_filename_tags_at_end
 
 from .rom import ROM, CompressedROM, FileROM
 
+if TYPE_CHECKING:
+	from meowlauncher.emulated_platform import StandardEmulatedPlatform
+	from meowlauncher.config.platform_config import PlatformConfig
+	from meowlauncher.configured_emulator import ConfiguredStandardEmulator
+	from meowlauncher.games.mame_common.software_list import SoftwareList
+
 
 class ROMGame(EmulatedGame):
-	def __init__(self, rom: ROM, platform: StandardEmulatedPlatform, platform_config: PlatformConfig):
+	def __init__(self, rom: ROM, platform: 'StandardEmulatedPlatform', platform_config: 'PlatformConfig'):
 		super().__init__(platform_config)
 		self.rom = rom
 		self.metadata.platform = platform.name
@@ -25,7 +27,7 @@ class ROMGame(EmulatedGame):
 		self.filename_tags = find_filename_tags_at_end(rom.path.name)
 
 		self.subroms: list[FileROM] = []
-		self.software_lists: list[SoftwareList] = []
+		self.software_lists: list['SoftwareList'] = []
 		self.exception_reason: Optional[BaseException] = None
 	
 	@property
@@ -37,9 +39,9 @@ class ROMGame(EmulatedGame):
 		return name
 
 class ROMLauncher(EmulatorLauncher):
-	def __init__(self, game: ROMGame, emulator: ConfiguredStandardEmulator, platform_config: PlatformConfig) -> None:
+	def __init__(self, game: ROMGame, emulator: 'ConfiguredStandardEmulator', platform_config: 'PlatformConfig') -> None:
 		self.game: ROMGame = game
-		self.runner: ConfiguredStandardEmulator = emulator
+		self.runner: 'ConfiguredStandardEmulator' = emulator
 		super().__init__(game, emulator, platform_config.options)
 
 	@property

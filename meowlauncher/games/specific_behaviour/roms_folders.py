@@ -1,12 +1,13 @@
 import os
 from collections.abc import Callable
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from meowlauncher.common_types import MediaType
-from meowlauncher.games.roms.rom import FolderROM
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom import FolderROM
 
 
-def is_wii_homebrew_folder(folder: FolderROM) -> Optional[MediaType]:
+def is_wii_homebrew_folder(folder: 'FolderROM') -> Optional[MediaType]:
 	have_boot_dol = False
 	have_meta_xml = False
 	for f in folder.path.iterdir():
@@ -19,7 +20,7 @@ def is_wii_homebrew_folder(folder: FolderROM) -> Optional[MediaType]:
 	#I dunno if icon is _always_ needed but eh
 	return MediaType.Digital if (have_meta_xml and have_boot_dol) else None
 
-def is_wii_u_folder(folder: FolderROM) -> Optional[MediaType]:
+def is_wii_u_folder(folder: 'FolderROM') -> Optional[MediaType]:
 	#If we find a digital dump we stop there instead of descending into it
 	#Note: If there are two rpxes (I swear I've seen that once) you want the one referred to in cos.xml, is that file always there?
 	code_subfolder = folder.get_subfolder('code')
@@ -31,7 +32,7 @@ def is_wii_u_folder(folder: FolderROM) -> Optional[MediaType]:
 				return MediaType.Digital
 	return None
 
-def is_ps3_folder(folder: FolderROM) -> Optional[MediaType]:
+def is_ps3_folder(folder: 'FolderROM') -> Optional[MediaType]:
 	if folder.has_subfolder('PS3_GAME') and folder.has_file('PS3_DISC.SFB'):
 		#exe = PS3_GAME/USRDIR/EBOOT.BIN (PS3_GAME has PARAM.SFO and fun stuff)
 		return MediaType.OpticalDisc
@@ -40,7 +41,7 @@ def is_ps3_folder(folder: FolderROM) -> Optional[MediaType]:
 		return MediaType.Digital
 	return None
 
-folder_checks: dict[str, Callable[[FolderROM], Optional[MediaType]]] = {
+folder_checks: dict[str, Callable[['FolderROM'], Optional[MediaType]]] = {
 	'PS3': is_ps3_folder,
 	'Wii': is_wii_homebrew_folder,
 	'Wii U': is_wii_u_folder,

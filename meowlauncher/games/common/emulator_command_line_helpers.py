@@ -1,6 +1,6 @@
 import os
-from collections.abc import Iterable, Mapping
-from typing import Optional
+from collections.abc import Iterable, Mapping, Sequence
+from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        EmulationStatus, EmulatorStatus)
@@ -11,6 +11,9 @@ from meowlauncher.games.mame_common.software_list_info import \
     get_software_list_by_name
 from meowlauncher.launch_command import LaunchCommand, rom_path_argument
 
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.runner_config import EmulatorConfig
 
 def _get_autoboot_script_by_name(name: str) -> str:
 	#Hmm I'm not sure I like this one but whaddya do otherwise… where's otherwise a good place to store shit
@@ -19,7 +22,7 @@ def _get_autoboot_script_by_name(name: str) -> str:
 	root_dir = os.path.dirname(root_package)
 	return os.path.join(root_dir, 'mame_autoboot', name + '.lua')
 
-def _verify_supported_gb_mappers(game, supported_mappers: Iterable[str], detected_mappers: Iterable[str]) -> None:
+def _verify_supported_gb_mappers(game: 'ROMGame', supported_mappers: Iterable[str], detected_mappers: Iterable[str]) -> None:
 	mapper = game.metadata.specific_info.get('Mapper', None)
 
 	if not mapper:
@@ -38,7 +41,7 @@ def _verify_supported_gb_mappers(game, supported_mappers: Iterable[str], detecte
 	if mapper not in supported_mappers and mapper not in detected_mappers:
 		raise EmulationNotSupportedException('Mapper ' + mapper + ' not supported')
 
-def verify_mgba_mapper(game) -> None:
+def verify_mgba_mapper(game: 'ROMGame') -> None:
 	supported_mappers = ['MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5', 'HuC3', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5']
 	detected_mappers = ['MBC1 Multicart', 'MMM01', 'Wisdom Tree', 'Pokemon Jade/Diamond bootleg', 'BBD', 'Hitek']
 
@@ -96,9 +99,9 @@ def mame_base(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapp
 
 	return args
 
-def mame_driver(game, emulator_config, driver: str, slot=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard=False, autoboot_script=None) -> LaunchCommand:
+def mame_driver(game: 'ROMGame', emulator_config: 'EmulatorConfig', driver: str, slot=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard=False, autoboot_script=None) -> LaunchCommand:
 	#Hmm I might need to refactor this and mame_system when I figure out what I'm doing
-	compat_threshold = emulator_config.options.get('software_compatibility_threshold', 1)
+	compat_threshold = cast(int, emulator_config.options.get('software_compatibility_threshold', 1))
 	if compat_threshold > -1:
 		game_compatibility = game.metadata.specific_info.get('MAME-Emulation-Status', EmulationStatus.Good)
 		if game_compatibility < compat_threshold:
@@ -119,18 +122,18 @@ def first_available_romset(driver_list: Iterable[str]) -> Optional[str]:
 	return None
 
 #This is here to make things simpler, instead of putting a whole new function in emulator_command_lines we can return the appropriate function from here
-def simple_emulator(args: Optional[list[str]]=None) -> LaunchCommandFunc:
+def simple_emulator(args: Sequence[str]=None) -> LaunchCommandFunc:
 	def inner(_, __, emulator_config):
 		return LaunchCommand(emulator_config.exe_path, args if args else [rom_path_argument])
 	return inner
 
-def simple_gb_emulator(args, mappers: Iterable[str], autodetected_mappers: Iterable[str]):
+def simple_gb_emulator(args: Sequence[str], mappers: Iterable[str], autodetected_mappers: Iterable[str]):
 	def inner(game, _, emulator_config):
 		_verify_supported_gb_mappers(game, mappers, autodetected_mappers)
 		return LaunchCommand(emulator_config.exe_path, args)
 	return inner
 
-def simple_md_emulator(args: list[str], unsupported_mappers: Iterable[str]) -> LaunchCommandFunc:
+def simple_md_emulator(args: Sequence[str], unsupported_mappers: Iterable[str]) -> LaunchCommandFunc:
 	def inner(game, _, emulator_config):
 		mapper = game.metadata.specific_info.get('Mapper')
 		if mapper in unsupported_mappers:

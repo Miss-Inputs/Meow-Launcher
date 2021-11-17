@@ -1,11 +1,10 @@
 from abc import ABC
 from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-	from meowlauncher.config.platform_config import PlatformConfig
-
 from .game import Game
 
+if TYPE_CHECKING:
+	from meowlauncher.config.platform_config import PlatformConfig
 
 class EmulatedGame(Game, ABC):
 	def __init__(self, platform_config: 'PlatformConfig') -> None:
