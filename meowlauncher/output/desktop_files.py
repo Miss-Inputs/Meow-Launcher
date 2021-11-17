@@ -17,9 +17,9 @@ from meowlauncher.util.utils import (clean_string, find_filename_tags_at_end,
                                      remove_filename_tags)
 
 if TYPE_CHECKING:
+	from meowlauncher.launch_command import LaunchCommand
 	from meowlauncher.launcher import Launcher
 	from meowlauncher.metadata import Metadata
-	from meowlauncher.launch_command import LaunchCommand
 
 metadata_section_name = 'Metadata'
 id_section_name = 'ID'
@@ -103,8 +103,13 @@ def _make_linux_desktop(launcher: 'LaunchCommand', display_name: str, metadata: 
 			elif not use_image_object:
 				value_as_string = str(v)
 
-			value_as_string = clean_string(value_as_string)
-			section_writer[k.replace('_', '-').replace(' ', '-').replace('?', '').replace('/', '')] = value_as_string
+			key_name = k.replace('_', '-').replace(' ', '-').replace('?', '').replace('/', '')
+			value_as_string = clean_string(value_as_string.strip(), True)
+			if '\n' in value_as_string:
+				for i, line in enumerate(value_as_string.splitlines()):
+					section_writer[f'{key_name}-Line-{i}'] = line
+			else:
+				section_writer[key_name] = value_as_string
 
 	if 'X-Meow Launcher ' + image_section_name in configwriter:
 		keys_to_try = ['Icon'] + main_config.use_other_images_as_icons

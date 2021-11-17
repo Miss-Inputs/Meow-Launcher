@@ -122,8 +122,8 @@ def remove_capital_article(s: Optional[str]) -> str:
 			new_words.append(word)
 	return ' '.join(new_words)
 
-def clean_string(s: str) -> str:
-	return ''.join([c for c in s if c.isprintable()])
+def clean_string(s: str, preserve_newlines: bool=False) -> str:
+	return ''.join([c for c in s if c.isprintable() or (c == '\n' and preserve_newlines)])
 
 def byteswap(b: bytes) -> bytes:
 	bb = b if len(b) % 2 == 0 else b[:-1]
