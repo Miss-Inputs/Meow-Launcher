@@ -4,7 +4,7 @@ import json
 import zipfile
 from collections.abc import Iterable, Mapping
 from pathlib import Path
-from typing import Optional, cast
+from typing import Optional
 
 try:
 	from PIL import Image
