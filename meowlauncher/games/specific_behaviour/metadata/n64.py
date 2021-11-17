@@ -72,7 +72,7 @@ def parse_n64_header(metadata: Metadata, header: bytes):
 	#Zero filled: 20-28
 	internal_title = header[28:52].decode('shift_jis', errors='backslashreplace').rstrip('\0')
 	if internal_title:
-		metadata.specific_info['Internal-Title'] = internal_title
+		metadata.specific_info['Internal Title'] = internal_title
 	#Unknown: 52-59
 	try:
 		product_code = convert_alphanumeric(header[59:63])
@@ -94,12 +94,12 @@ def add_info_from_database_entry(metadata: Metadata, database_entry: Mapping[str
 		metadata.add_alternate_name(goodname, 'GoodName')
 
 	if 'Players' in database_entry:
-		metadata.specific_info['Number-of-Players'] = database_entry['Players']
+		metadata.specific_info['Number of Players'] = database_entry['Players']
 
 	if database_entry.get('Mempak', 'No') == 'Yes':
 		#Apparently it is possible to have both cart and memory card saving, so that is strange
 		#I would think though that if the cartridge could save everything it needed to, it wouldn't bother with a memory card, so if it does use the controller pak then that's probably the main form of saving
-		metadata.specific_info['Uses-Controller-Pak'] = True
+		metadata.specific_info['Uses Controller Pak?'] = True
 		metadata.save_type = SaveType.MemoryCard
 	else:
 		save_type = database_entry.get('SaveType')
@@ -110,11 +110,11 @@ def add_info_from_database_entry(metadata: Metadata, database_entry: Mapping[str
 			metadata.save_type = SaveType.Cart
 
 	if database_entry.get('Rumble', 'No') == 'Yes':
-		metadata.specific_info['Force-Feedback'] = True
+		metadata.specific_info['Force Feedback?'] = True
 	if database_entry.get('Biopak', 'No') == 'Yes':
 		metadata.input_info.input_options[0].inputs.append(input_metadata.Biological())
 	if database_entry.get('Transferpak', 'No') == 'Yes':
-		metadata.specific_info['Uses-Transfer-Pak'] = True
+		metadata.specific_info['Uses Transfer Pak?'] = True
 	#Unfortunately nothing in here which specifies to use VRU, or any other weird fancy controllers which may or may not exist
 
 def add_n64_metadata(game: ROMGame):
@@ -124,12 +124,12 @@ def add_n64_metadata(game: ROMGame):
 
 	is_byteswapped = False
 	if magic == b'\x80\x37\x12\x40':
-		game.metadata.specific_info['ROM-Format'] = 'Z64'
+		game.metadata.specific_info['ROM Format'] = 'Z64'
 	elif magic == b'\x37\x80\x40\x12':
 		is_byteswapped = True
-		game.metadata.specific_info['ROM-Format'] = 'V64'
+		game.metadata.specific_info['ROM Format'] = 'V64'
 	else:
-		game.metadata.specific_info['ROM-Format'] = 'Unknown'
+		game.metadata.specific_info['ROM Format'] = 'Unknown'
 		return
 
 	header = entire_rom[:64]

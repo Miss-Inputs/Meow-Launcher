@@ -35,7 +35,7 @@ def add_info_from_system_cnf(metadata: Metadata, system_cnf: str):
 			vmode_line_match = vmode_line_regex.match(line)
 			if vmode_line_match:
 				try:
-					metadata.specific_info['TV-Type'] = TVSystem[vmode_line_match[1]]
+					metadata.specific_info['TV Type'] = TVSystem[vmode_line_match[1]]
 				except ValueError:
 					pass
 
@@ -55,7 +55,7 @@ def add_ps2_metadata(game: ROMGame):
 				month = date_record.month
 				day = date_record.day_of_month
 				build_date = Date(year, month, day)
-				game.metadata.specific_info['Build-Date'] = build_date
+				game.metadata.specific_info['Build Date'] = build_date
 				guessed_date = Date(year, month, day, True)
 				if guessed_date.is_better_than(game.metadata.release_date):
 					game.metadata.release_date = guessed_date

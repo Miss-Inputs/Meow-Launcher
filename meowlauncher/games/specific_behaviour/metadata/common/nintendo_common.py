@@ -33,17 +33,17 @@ def parse_ratings(metadata: Metadata, ratings_bytes: bytes, invert_has_rating_bi
 			ratings[i] = rating & 0b0001_1111
 
 	if 0 in ratings:
-		metadata.specific_info['CERO-Rating'] = ratings[0]
+		metadata.specific_info['CERO Rating'] = ratings[0]
 	if 1 in ratings:
-		metadata.specific_info['ESRB-Rating'] = ratings[1]
+		metadata.specific_info['ESRB Rating'] = ratings[1]
 	if 3 in ratings:
-		metadata.specific_info['USK-Rating'] = ratings[3]
+		metadata.specific_info['USK Rating'] = ratings[3]
 	if 4 in ratings:
-		metadata.specific_info['PEGI-Rating'] = ratings[4]
+		metadata.specific_info['PEGI Rating'] = ratings[4]
 	if 8 in ratings:
-		metadata.specific_info['AGCB-Rating'] = ratings[8]
+		metadata.specific_info['AGCB Rating'] = ratings[8]
 	if 9 in ratings:
-		metadata.specific_info['GRB-Rating'] = ratings[9]
+		metadata.specific_info['GRB Rating'] = ratings[9]
 	#There are others but that will do for now
 
 	ratings_list = list(ratings.values())
@@ -56,7 +56,7 @@ def parse_ratings(metadata: Metadata, ratings_bytes: bytes, invert_has_rating_bi
 	except statistics.StatisticsError:
 		rating = max(ratings_list)
 
-	metadata.specific_info['Age-Rating'] = rating
+	metadata.specific_info['Age Rating'] = rating
 
 def add_info_from_local_titles(metadata: Metadata, short_titles: Mapping[str, str], long_titles: Mapping[str, str], publishers: Mapping[str, Optional[str]], region_codes: Iterable[WiiU3DSRegionCode]):
 	local_short_title = None
@@ -92,18 +92,18 @@ def add_info_from_local_titles(metadata: Metadata, short_titles: Mapping[str, st
 			local_publisher = list(publishers.values())[0]
 
 	if local_short_title:
-		metadata.add_alternate_name(local_short_title, 'Banner-Short-Title')
+		metadata.add_alternate_name(local_short_title, 'Banner Short Title')
 	if local_long_title:
-		metadata.add_alternate_name(local_long_title, 'Banner-Title')
+		metadata.add_alternate_name(local_long_title, 'Banner Title')
 	if local_publisher and not metadata.publisher:
 		metadata.publisher = local_publisher
 
 	for lang, localized_short_title in short_titles.items():
 		if localized_short_title != local_short_title:
-			metadata.add_alternate_name(localized_short_title, '{0}-Banner-Short-Title'.format(lang.replace(' ', '-')))
+			metadata.add_alternate_name(localized_short_title, '{0} Banner Short Title'.format(lang.replace(' ', '-')))
 	for lang, localized_long_title in long_titles.items():
 		if localized_long_title != local_long_title:
-			metadata.add_alternate_name(localized_long_title, '{0}-Banner-Title'.format(lang.replace(' ', '-')))
+			metadata.add_alternate_name(localized_long_title, '{0} Banner Title'.format(lang.replace(' ', '-')))
 	for lang, localized_publisher in publishers.items():
 		if localized_publisher not in (metadata.publisher, local_publisher):
-			metadata.specific_info[f"{lang.replace(' ', '-')}-Publisher"] = localized_publisher
+			metadata.specific_info[f"{lang} Publisher"] = localized_publisher

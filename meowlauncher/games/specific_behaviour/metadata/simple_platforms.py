@@ -272,7 +272,7 @@ def add_super_cassette_vision_info(game: ROMGame):
 	software = get_software_list_entry(game)
 	if software:
 		software.add_standard_metadata(game.metadata)
-		game.metadata.specific_info['Has-Extra-RAM'] = software.has_data_area('ram') #Or feature "slot" ends with "_ram"
+		game.metadata.specific_info['Has Extra RAM?'] = software.has_data_area('ram') #Or feature "slot" ends with "_ram"
 
 def add_super_acan_info(game: ROMGame):
 	add_generic_info(game)
@@ -289,7 +289,7 @@ def add_pc_booter_info(game: ROMGame):
 		usage = software.get_info('usage')
 		if usage == 'PC Booter':
 			usage = software.infos.get('user_notes')
-		game.metadata.specific_info['Hacked-By'] = software.infos.get('cracked')
+		game.metadata.specific_info['Hacked By'] = software.infos.get('cracked')
 		#Other info strings seen:
 		#OEM = Mercer
 		#Original Publisher = Nihon Falcom
@@ -354,7 +354,7 @@ def add_amstrad_pcw_info(game: ROMGame):
 		software.add_standard_metadata(game.metadata)
 		usage = software.get_info('usage')
 		if usage == 'Requires CP/M':
-			game.metadata.specific_info['Requires-CPM'] = True
+			game.metadata.specific_info['Requires CP/M?'] = True
 
 requires_ram_regex = re.compile(r'Requires (\d+) MB of RAM')
 def add_fm_towns_info(game: ROMGame):
@@ -365,7 +365,7 @@ def add_fm_towns_info(game: ROMGame):
 		if usage:
 			match = requires_ram_regex.match(usage)
 			if match:
-				game.metadata.specific_info['Minimum-RAM'] = match[1]
+				game.metadata.specific_info['Minimum RAM'] = match[1]
 				if match.end() < len(usage):
 					game.metadata.add_notes(usage)
 
@@ -376,7 +376,7 @@ def add_sord_m5_info(game: ROMGame):
 		software.add_standard_metadata(game.metadata)
 		usage = software.get_info('usage')
 		if usage == 'Requires 36k RAM':
-			game.metadata.specific_info['Minimum-RAM'] = '36K'
+			game.metadata.specific_info['Minimum RAM'] = '36K'
 		else:
 			game.metadata.add_notes(usage)
 	
@@ -386,9 +386,9 @@ def add_msx_info(game: ROMGame):
 		software.add_standard_metadata(game.metadata)
 		usage = software.get_info('usage')
 		if usage in {'Requires a Japanese system', 'Requires a Japanese system for the Japanese text'}:
-			game.metadata.specific_info['Japanese-Only'] = True
+			game.metadata.specific_info['Japanese Only?'] = True
 		elif usage in {'Requires an Arabic MSX', 'Requires an Arabic MSX2'}:
-			game.metadata.specific_info['Arabic-Only'] = True
+			game.metadata.specific_info['Arabic Only?'] = True
 		else:
 			game.metadata.add_notes(usage)
 		if 'cart' in software.parts:

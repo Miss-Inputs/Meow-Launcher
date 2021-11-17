@@ -48,12 +48,12 @@ def add_alt_titles(metadata: Metadata, alt_title: str):
 				metadata.add_alternate_name(ends_with_brackets_match[1], name_type.title().replace(' ', '-').replace('?', '') + '-Title')
 			elif name_type in {'Box, Cart', 'Box/Card'}:
 				#Grr
-				metadata.add_alternate_name(ends_with_brackets_match[1], 'Box-Title')
-				metadata.add_alternate_name(ends_with_brackets_match[1], 'Cart-Title')
+				metadata.add_alternate_name(ends_with_brackets_match[1], 'Box Title')
+				metadata.add_alternate_name(ends_with_brackets_match[1], 'Cart Title')
 			elif name_type == 'Japan':
-				metadata.add_alternate_name(ends_with_brackets_match[1], 'Japanese-Name')
+				metadata.add_alternate_name(ends_with_brackets_match[1], 'Japanese Name')
 			elif name_type == 'China':
-				metadata.add_alternate_name(ends_with_brackets_match[1], 'Chinese-Name')
+				metadata.add_alternate_name(ends_with_brackets_match[1], 'Chinese Name')
 			else:
 				#Sometimes the brackets are actually part of the name
 				metadata.add_alternate_name(piece, name_type)
@@ -364,17 +364,17 @@ class Software():
 		return self.infos.get('serial')
 
 	def add_standard_metadata(self, metadata: Metadata):
-		metadata.specific_info['MAME-Software-Name'] = self.name
-		metadata.specific_info['MAME-Software-Full-Name'] = self.description
+		metadata.specific_info['MAME Software Name'] = self.name
+		metadata.specific_info['MAME Software Full Name'] = self.description
 		#We'll need to use that as more than just a name, though, I think; and by that I mean I get dizzy if I think about whether I need to do that or not right now
-		metadata.add_alternate_name(self.description, 'Software-List-Name')
+		metadata.add_alternate_name(self.description, 'Software List Name')
 
 		cloneof = self.xml.attrib.get('cloneof')
 		if cloneof:
-			metadata.specific_info['MAME-Software-Parent'] = cloneof
+			metadata.specific_info['MAME Software Parent'] = cloneof
 
-		metadata.specific_info['MAME-Software-List-Name'] = self.software_list.name
-		metadata.specific_info['MAME-Software-List-Description'] = self.software_list.description
+		metadata.specific_info['MAME Software List Name'] = self.software_list.name
+		metadata.specific_info['MAME Software List Description'] = self.software_list.description
 
 		serial = self.serial
 		if serial:
@@ -384,7 +384,7 @@ class Software():
 			metadata.specific_info['Barcode'] = barcode
 		ring_code = self.infos.get('ring_code')
 		if ring_code:
-			metadata.specific_info['Ring-Code'] = ring_code
+			metadata.specific_info['Ring Code'] = ring_code
 		
 		version = self.infos.get('version')
 		if version:
@@ -416,7 +416,7 @@ class Software():
 			if release_date.is_better_than(metadata.release_date):
 				metadata.release_date = release_date
 
-		metadata.specific_info['MAME-Emulation-Status'] = self.emulation_status
+		metadata.specific_info['MAME Emulation Status'] = self.emulation_status
 		developer = consistentify_manufacturer(self.infos.get('developer'))
 		if not developer:
 			developer = consistentify_manufacturer(self.infos.get('author'))

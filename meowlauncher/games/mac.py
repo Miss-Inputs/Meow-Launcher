@@ -334,7 +334,7 @@ class MacApp(App):
 		self.metadata.specific_info['Version'] = str(version) + '.' + '.'.join('{0:x}'.format(revision))
 		if vers[2] != 0x80:
 			try:
-				self.metadata.specific_info['Build-Stage'] = BuildStage(vers[2])
+				self.metadata.specific_info['Build Stage'] = BuildStage(vers[2])
 			except ValueError:
 				pass
 			if not self.metadata.categories:
@@ -345,9 +345,9 @@ class MacApp(App):
 		language_code = int.from_bytes(vers[4:6], 'big') #Or is it a country? I don't know
 		try:
 			#TODO: Fill out region/language fields using this
-			self.metadata.specific_info['Language-Code'] = CountryCode(language_code)
+			self.metadata.specific_info['Language Code'] = CountryCode(language_code)
 		except ValueError:
-			self.metadata.specific_info['Language-Code'] = language_code
+			self.metadata.specific_info['Language Code'] = language_code
 			
 		try:
 			short_version_length = vers[6] #Pascal style strings
@@ -357,7 +357,7 @@ class MacApp(App):
 			if short_version_length:
 				short_version = vers[7:7+short_version_length].decode('mac-roman')
 				if short_version.startswith('©'):
-					self.metadata.specific_info['Short-Copyright'] = short_version
+					self.metadata.specific_info['Short Copyright'] = short_version
 				else:
 					actual_short_version = short_version
 			if long_version_length:
@@ -380,12 +380,12 @@ class MacApp(App):
 			if actual_short_version:
 				self.metadata.specific_info['Version'] = actual_short_version
 			if actual_long_version and actual_long_version != actual_short_version:
-				self.metadata.specific_info['Long-Version'] = actual_long_version
+				self.metadata.specific_info['Long Version'] = actual_long_version
 		except UnicodeDecodeError:
 			pass
 
 	def additional_metadata(self) -> None:
-		self.metadata.specific_info['Executable-Name'] = self.path.split(':')[-1]
+		self.metadata.specific_info['Executable Name'] = self.path.split(':')[-1]
 		if have_machfs:
 			file = self._get_file()
 			if not file:
@@ -393,11 +393,11 @@ class MacApp(App):
 
 			carbon_path = self._carbon_path
 			if carbon_path:
-				self.metadata.specific_info['Is-Carbon'] = True
-				self.metadata.specific_info['Carbon-Path'] = carbon_path
+				self.metadata.specific_info['Is Carbon?'] = True
+				self.metadata.specific_info['Carbon Path'] = carbon_path
 				self.metadata.specific_info['Architecture'] = 'PPC' #This has to be manually specified because some pretend to be fat binaries?
 			creator = file.creator.decode('mac-roman', errors='backslashreplace')
-			self.metadata.specific_info['Creator-Code'] = creator
+			self.metadata.specific_info['Creator Code'] = creator
 
 			#Can also get mddate if wanted
 			creation_datetime = mac_epoch + datetime.timedelta(seconds=file.crdate)
@@ -405,7 +405,7 @@ class MacApp(App):
 			if creation_date.is_better_than(self.metadata.release_date):
 				self.metadata.release_date = creation_date
 
-			#self.metadata.specific_info['File-Flags'] = file.flags
+			#self.metadata.specific_info['File Flags'] = file.flags
 			if have_macresources:
 				#If you have machfs you do have macresources too, but still
 				if have_pillow:
@@ -430,8 +430,8 @@ class MacApp(App):
 						#Bit 12: Use text edit services ("inline services"?)
 						if size[0] or size[1]: #If all flags are 0 then this is probably lies
 							if size[1] & (1 << 7) == 0: #I guess the bits go that way around I dunno
-								self.metadata.specific_info['Not-32-Bit-Clean'] = True
-						self.metadata.specific_info['Minimum-RAM'] = format_byte_size(int.from_bytes(size[6:10], 'big'))
+								self.metadata.specific_info['Not 32 Bit Clean?'] = True
+						self.metadata.specific_info['Minimum RAM'] = format_byte_size(int.from_bytes(size[6:10], 'big'))
 
 				if file.type == b'APPL' and 'Architecture' not in self.metadata.specific_info:
 					#According to https://support.apple.com/kb/TA21606?locale=en_AU this should work

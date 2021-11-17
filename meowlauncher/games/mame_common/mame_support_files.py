@@ -158,7 +158,7 @@ def add_history(metadata: Metadata, machine_or_softlist: str, software_name: Opt
 	
 	if history.description:
 		if 'Description' in metadata.descriptions:
-			metadata.descriptions['History-Description'] = history.description
+			metadata.descriptions['History Description'] = history.description
 		else:
 			metadata.descriptions['Description'] = history.description
 
@@ -167,7 +167,7 @@ def add_history(metadata: Metadata, machine_or_softlist: str, software_name: Opt
 	if history.trivia:
 		metadata.descriptions['Trivia'] = history.trivia
 	if history.tips_and_tricks:
-		metadata.descriptions['Tips-And-Tricks'] = history.tips_and_tricks
+		metadata.descriptions['Tips And Tricks'] = history.tips_and_tricks
 	if history.updates:
 		metadata.descriptions['Updates'] = history.updates
 

@@ -39,16 +39,16 @@ def add_ps3game_subfolder_info(subfolder: Path, metadata: Metadata):
 		metadata.images['Banner'] = icon0_path
 	icon1_path = subfolder.joinpath('ICON1.PNG')
 	if icon1_path.is_file():
-		metadata.images['Icon-1'] = icon1_path
+		metadata.images['Icon 1'] = icon1_path
 	pic0_path = subfolder.joinpath('PIC0.PNG')
 	if pic0_path.is_file():
-		metadata.images['Overlay-Image'] = pic0_path
+		metadata.images['Overlay Image'] = pic0_path
 	pic1_path = subfolder.joinpath('PIC1.PNG')
 	if pic1_path.is_file():
-		metadata.images['Background-Image'] = pic1_path
+		metadata.images['Background Image'] = pic1_path
 	#PIC2.PNG is for 4:3 instead of 16:9 go away nerds
 	if subfolder.joinpath('TROPDIR').is_dir():
-		metadata.specific_info['Supports-Trophies'] = True
+		metadata.specific_info['Supports Trophies?'] = True
 	usrdir = subfolder.joinpath('USRDIR')
 	if usrdir.is_dir(): #Should always be there but who knows
 		engine = try_and_detect_engine_from_folder(usrdir, metadata)
@@ -64,11 +64,11 @@ def add_game_folder_metadata(rom: FolderROM, metadata: Metadata):
 	else:
 		param_sfo_path = rom.get_file('PARAM.SFO')
 		metadata.images['Banner'] = rom.get_file('ICON0.PNG', True)
-		metadata.images['Icon-1'] = rom.get_file('ICON1.PNG', True)
-		metadata.images['Overlay-Image'] = rom.get_file('PIC0.PNG', True)
-		metadata.images['Background-Image'] = rom.get_file('PIC1.PNG', True)
+		metadata.images['Icon 1'] = rom.get_file('ICON1.PNG', True)
+		metadata.images['Overlay Image'] = rom.get_file('PIC0.PNG', True)
+		metadata.images['Background Image'] = rom.get_file('PIC1.PNG', True)
 		if rom.has_subfolder('TROPDIR'):
-			metadata.specific_info['Supports-Trophies'] = True
+			metadata.specific_info['Supports Trophies?'] = True
 		usrdir = rom.get_subfolder('USRDIR')
 		if usrdir:
 			engine = try_and_detect_engine_from_folder(usrdir, metadata)
@@ -140,7 +140,7 @@ def add_ps3_metadata(game: ROMGame):
 		parse_product_code(game.metadata, game.metadata.product_code)
 		compat = get_rpcs3_compat(game.metadata.product_code)
 		if compat:
-			game.metadata.specific_info['RPCS3-Compatibility'] = compat
+			game.metadata.specific_info['RPCS3 Compatibility'] = compat
 
 		add_info_from_tdb(tdb, game.metadata, game.metadata.product_code)
 		add_cover(game.metadata, game.metadata.product_code)

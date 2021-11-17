@@ -38,7 +38,7 @@ def parse_sdsc_header(rom: FileROM, metadata: Metadata, header: bytes):
 			pass
 	if 0 < name_offset < 0xffff:
 		try:
-			metadata.add_alternate_name(rom.read(seek_to=name_offset, amount=255).partition(b'\x00')[0].decode('ascii'), 'Header-Title')
+			metadata.add_alternate_name(rom.read(seek_to=name_offset, amount=255).partition(b'\x00')[0].decode('ascii'), 'Header Title')
 		except UnicodeDecodeError:
 			pass
 	if 0 < description_offset < 0xffff:
@@ -112,7 +112,7 @@ def try_parse_standard_header(rom: FileROM, metadata: Metadata):
 	if header_data:
 		metadata.specific_info['Revision'] = header_data['Revision']
 		metadata.product_code = header_data['Product code']
-		metadata.specific_info['Region-Code'] = header_data['Region'] #Too lazy to make an enum for both SMS and GG regions
+		metadata.specific_info['Region Code'] = header_data['Region'] #Too lazy to make an enum for both SMS and GG regions
 
 		if header_data['Is Game Gear']:
 			metadata.platform = 'Game Gear'
@@ -123,20 +123,20 @@ def try_parse_standard_header(rom: FileROM, metadata: Metadata):
 			metadata.publisher = header_data['Publisher']
 	else:
 		#All non-Japanese/Korean systems have a BIOS which checks the checksum, so if there's no header at all, they just won't boot it
-		metadata.specific_info['Japanese-Only'] = True
+		metadata.specific_info['Japanese Only?'] = True
 
 def add_info_from_software_list(metadata: Metadata, software: Software):
 	software.add_standard_metadata(metadata)
 
 	usage = software.infos.get('usage')
 	if usage == 'Only runs with PAL/50Hz drivers, e.g. smspal':
-		metadata.specific_info['TV-Type'] = TVSystem.PAL
+		metadata.specific_info['TV Type'] = TVSystem.PAL
 	elif usage in {'Input works only with drivers of Japanese region, e.g. sms1kr,smsj', 'Only runs with certain drivers, e.g. smsj - others show SOFTWARE ERROR'}:
-		metadata.specific_info['Japanese-Only'] = True
+		metadata.specific_info['Japanese Only?'] = True
 	elif usage == 'Video mode is correct only on SMS 2 drivers, e.g. smspal':
-		metadata.specific_info['SMS2-Only'] = True
+		metadata.specific_info['SMS2 Only?'] = True
 	elif usage == 'Video only works correctly on drivers with SMS1 VDP, e.g. smsj':
-		metadata.specific_info['SMS1-Only'] = True
+		metadata.specific_info['SMS1 Only?'] = True
 	else:
 		metadata.add_notes(usage)
 	#Other usage strings:

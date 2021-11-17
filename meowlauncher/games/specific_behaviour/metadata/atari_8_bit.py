@@ -22,7 +22,7 @@ def add_info_from_software_list(metadata: Metadata, software: Software):
 		elif 'XE' in compatibility:
 			metadata.specific_info['Machine'] = 'XE'
 		if 'OSb' in compatibility:
-			metadata.specific_info['Requires-OS-B'] = True
+			metadata.specific_info['Requires OS B?'] = True
 
 	peripheral = software.get_part_feature('peripheral')
 
@@ -54,14 +54,14 @@ def add_info_from_software_list(metadata: Metadata, software: Software):
 
 	requirement = software.get_shared_feature('requirement')
 	if requirement == 'a800:basicb':
-		metadata.specific_info['Requires-BASIC'] = True
+		metadata.specific_info['Requires BASIC?'] = True
 		#Also: a800:msbasic2, a800:basxe41, a800:writerd, a800:spectra2 (none of those are games, the first two are just language extensions, the latter is noted as not being supported anyway, therefore meh)
 
 	usage = software.get_info('usage')
 	if usage == 'Plays music only in PAL':
-		metadata.specific_info['TV-Type'] = TVSystem.PAL
+		metadata.specific_info['TV Type'] = TVSystem.PAL
 	elif usage == 'BASIC must be enabled.':
-		metadata.specific_info['Requires-BASIC'] = True
+		metadata.specific_info['Requires BASIC?'] = True
 	else:
 		metadata.add_notes(usage)
 	#To be used with Atari 1400 onboard modem.
@@ -96,7 +96,7 @@ def add_atari_8bit_metadata(game: ROMGame):
 			game.metadata.specific_info['Mapper'] = cart_type
 			game.metadata.specific_info['Slot'] = 'Right' if cart_type in {21, 59} else 'Left'
 
-	game.metadata.specific_info['Headered'] = headered
+	game.metadata.specific_info['Headered?'] = headered
 
 	software = get_software_list_entry(game, skip_header=16 if headered else 0)
 	if software:
@@ -112,5 +112,5 @@ def add_atari_8bit_metadata(game: ROMGame):
 				game.metadata.specific_info['Machine'] = 'XE'
 				break
 	if '[BASIC]' in game.filename_tags:
-		game.metadata.specific_info['Requires-BASIC'] = True
+		game.metadata.specific_info['Requires BASIC?'] = True
 		

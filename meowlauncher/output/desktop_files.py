@@ -19,14 +19,10 @@ from meowlauncher.util.io_utils import ensure_exist, pick_new_filename
 from meowlauncher.util.utils import (clean_string, find_filename_tags_at_end,
                                      remove_filename_tags)
 
-metadata_section_name = 'X-Meow Launcher Metadata'
-id_section_name = 'X-Meow Launcher ID'
-junk_section_name = 'X-Meow Launcher Junk'
-image_section_name = 'X-Meow Launcher Images'
-name_section_name = 'X-Meow Launcher Names'
-document_section_name = 'X-Meow Launcher Documents'
-description_section_name = 'X-Meow Launcher Descriptions'
-
+metadata_section_name = 'Metadata'
+id_section_name = 'ID'
+junk_section_name = 'Junk'
+image_section_name = 'Images'
 
 def make_linux_desktop_for_launcher(launcher: Launcher):
 	name = launcher.game.name
@@ -40,16 +36,16 @@ def make_linux_desktop_for_launcher(launcher: Launcher):
 		fields[metadata_section_name]['Emulator'] = launcher.runner.name
 
 	if filename_tags:
-		fields[junk_section_name]['Filename-Tags'] = filename_tags
-	fields[junk_section_name]['Original-Name'] = name
+		fields[junk_section_name]['Filename Tags'] = filename_tags
+	fields[junk_section_name]['Original Name'] = name
 
 	fields[id_section_name] = {}
 	fields[id_section_name]['Type'] = launcher.game_type
-	fields[id_section_name]['Unique-ID'] = launcher.game_id
+	fields[id_section_name]['Unique ID'] = launcher.game_id
 
-	make_linux_desktop(launcher.get_launch_command(), name, fields)
+	_make_linux_desktop(launcher.get_launch_command(), name, fields)
 
-def make_linux_desktop(launcher: LaunchCommand, display_name: str, fields: Mapping[str, Mapping[str, Any]]=None):
+def _make_linux_desktop(launcher: LaunchCommand, display_name: str, fields: Mapping[str, Mapping[str, Any]]):
 	#TODO: Remove this version, replace with above
 	filename = pick_new_filename(main_config.output_folder, display_name, 'desktop')
 	
@@ -74,8 +70,8 @@ def make_linux_desktop(launcher: LaunchCommand, display_name: str, fields: Mappi
 		for section_name, section in fields.items():
 			if not section:
 				continue
-			configwriter.add_section(section_name)
-			section_writer = configwriter[section_name]
+			configwriter.add_section('X-Meow Launcher ' + section_name)
+			section_writer = configwriter['X-Meow Launcher ' + section_name]
 
 			for k, v in section.items():
 				if v is None:
@@ -107,13 +103,13 @@ def make_linux_desktop(launcher: LaunchCommand, display_name: str, fields: Mappi
 					value_as_string = str(v)
 
 				value_as_string = clean_string(value_as_string)
-				section_writer[k.replace('_', '-')] = value_as_string
+				section_writer[k.replace('_', '-').replace(' ', '-').replace('?', '').replace('/', '')] = value_as_string
 
-	if image_section_name in configwriter:
+	if 'X-Meow Launcher ' + image_section_name in configwriter:
 		keys_to_try = ['Icon'] + main_config.use_other_images_as_icons
 		for k in keys_to_try:
-			if k in configwriter[image_section_name]:
-				desktop_entry['Icon'] = configwriter[image_section_name][k]
+			if k in configwriter['X-Meow Launcher ' + image_section_name]:
+				desktop_entry['Icon'] = configwriter['X-Meow Launcher ' + image_section_name][k]
 				break
 
 	ensure_exist(path)
@@ -132,12 +128,12 @@ def make_launcher(launch_params: LaunchCommand, name: str, metadata: Metadata, i
 	fields = metadata.to_launcher_fields()
 
 	if filename_tags:
-		fields[junk_section_name]['Filename-Tags'] = filename_tags
-	fields[junk_section_name]['Original-Name'] = name
+		fields[junk_section_name]['Filename Tags'] = filename_tags
+	fields[junk_section_name]['Original Name'] = name
 
 	fields[id_section_name] = {}
 	fields[id_section_name]['Type'] = id_type
-	fields[id_section_name]['Unique-ID'] = unique_id
+	fields[id_section_name]['Unique ID'] = unique_id
 
 	#For very future use, this is where the underlying host platform is abstracted away. Right now we only run on Linux though so zzzzz
-	make_linux_desktop(launch_params, display_name, fields)
+	_make_linux_desktop(launch_params, display_name, fields)

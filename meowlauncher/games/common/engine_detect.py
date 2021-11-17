@@ -32,7 +32,7 @@ def try_detect_unity(folder: Path, metadata: Optional[Metadata]=None) -> bool:
 								while junk_suffixes.search(company_name):
 									company_name = junk_suffixes.sub('', company_name)
 								metadata.developer = metadata.publisher = company_name
-						metadata.add_alternate_name(info_json.get('productName'), 'Unity-Name')
+						metadata.add_alternate_name(info_json.get('productName'), 'Unity Name')
 		return True
 
 	for f in folder.iterdir():
@@ -61,7 +61,7 @@ def try_detect_unity(folder: Path, metadata: Optional[Metadata]=None) -> bool:
 										company_name = junk_suffixes.sub('', company_name)
 									metadata.developer = metadata.publisher = company_name
 							if len(appinfo_lines) > 1:
-								metadata.add_alternate_name(appinfo_lines[1], 'Unity-Name')
+								metadata.add_alternate_name(appinfo_lines[1], 'Unity Name')
 					except FileNotFoundError:
 						pass
 
@@ -175,7 +175,7 @@ def try_detect_gamemaker(folder: Path, metadata: Optional[Metadata]=None) -> boo
 			if parser.has_section('Linux'):
 				#There is also an Icon and Splash that seem to refer to images that don't exist…
 				#What could AppId be for?
-				metadata.add_alternate_name(parser['Linux']['DisplayName'], 'Display-Name')
+				metadata.add_alternate_name(parser['Linux']['DisplayName'], 'Display Name')
 		return True
 
 	return False
@@ -226,21 +226,21 @@ def add_metadata_from_nw_package_json(package_json: Mapping, metadata: Metadata)
 	#main might come in handy
 	package_description = package_json.get('description')
 	if package_description:
-		metadata.descriptions['Package-Description'] = package_description
+		metadata.descriptions['Package Description'] = package_description
 	package_name = package_json.get('name')
 	if package_name:
 		metadata.add_alternate_name(package_name, 'Name')
 	window = package_json.get('window')
 	if window:
 		#I need a better way of doing that…
-		metadata.specific_info['Icon-Relative-Path'] = window.get('icon')
-		metadata.add_alternate_name(window.get('title'), 'Window-Title')
+		metadata.specific_info['Icon Relative Path'] = window.get('icon')
+		metadata.add_alternate_name(window.get('title'), 'Window Title')
 
 def add_info_from_package_json_file(folder: Path, package_json_path: Path, metadata: Metadata):
 	with package_json_path.open('rb') as package_json:
 		add_metadata_from_nw_package_json(json.load(package_json), metadata)
 	if 'Icon-Relative-Path' in metadata.specific_info:
-		icon_path = folder.joinpath(metadata.specific_info.pop('Icon-Relative-Path'))
+		icon_path = folder.joinpath(metadata.specific_info.pop('Icon Relative Path'))
 		if icon_path.is_file() and 'Icon' not in metadata.images:
 			metadata.images['Icon'] = icon_path
 
@@ -251,7 +251,7 @@ def add_info_from_package_json_zip(package_nw_path: Path, metadata: Metadata) ->
 				with package_nw.open('package.json', 'r') as package_json:
 					add_metadata_from_nw_package_json(json.load(package_json), metadata)
 				if 'Icon-Relative-Path' in metadata.specific_info:
-					icon_path = metadata.specific_info.pop('Icon-Relative-Path')
+					icon_path = metadata.specific_info.pop('Icon Relative Path')
 					if 'Icon' not in metadata.images:
 						try:
 							with package_nw.open(icon_path, 'r') as icon_data:

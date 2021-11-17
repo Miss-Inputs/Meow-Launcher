@@ -131,30 +131,30 @@ def parse_slot(metadata: Metadata, slot: str):
 	if slot in mame_rom_slots:
 		original_mapper = metadata.specific_info.get('Mapper', 'None')
 
-		metadata.specific_info['Stated-Mapper'] = original_mapper
+		metadata.specific_info['Stated Mapper'] = original_mapper
 
 		new_mapper = mame_rom_slots[slot]
 
 		if new_mapper != original_mapper:
-			metadata.specific_info['Override-Mapper'] = True
+			metadata.specific_info['Override Mapper?'] = True
 			metadata.specific_info['Mapper'] = new_mapper
 
 nintendo_logo_crc32 = 0x46195417
 def parse_gameboy_header(metadata: Metadata, header: bytes):
 	nintendo_logo = header[4:0x34]
 	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_logo_crc32
-	metadata.specific_info['Nintendo-Logo-Valid'] = nintendo_logo_valid
+	metadata.specific_info['Nintendo Logo Valid'] = nintendo_logo_valid
 	
 	title = header[0x34:0x44]
 	cgb_flag = title[15]
 	title_length = 16
 	try:
-		metadata.specific_info['Is-Colour'] = GameBoyColourFlag(cgb_flag)
+		metadata.specific_info['Is Colour?'] = GameBoyColourFlag(cgb_flag)
 		title_length = 15
 	except ValueError:
 		#On older carts, this would just be the last character of the title, so it would be some random value
 		#Anyway, that would logically mean it is not in colour
-		metadata.specific_info['Is-Colour'] = GameBoyColourFlag.No
+		metadata.specific_info['Is Colour?'] = GameBoyColourFlag.No
 	#On newer games, product code is at title[11:15], the tricky part is what exactly is a newer game and what isn't, because if the product code isn't there then those characters are just the last 4 characters of the title. It seems that it's always there on GBC exclusives, and _maybe_ there on GBC-enhanced games. And that's only for officially licensed stuff of course.
 	#Well, might as well try that. If it's junk, we're looking up the software list later for the proper serial anyway.
 	if cgb_flag == 0xc0:
@@ -172,19 +172,19 @@ def parse_gameboy_header(metadata: Metadata, header: bytes):
 				metadata.product_code = maybe_title_and_serial[1].decode('ascii').rstrip('\0')
 
 	#Might as well add that to the info. I thiiink it's just ASCII and not Shift-JIS
-	metadata.specific_info['Internal-Title'] = title[:title_length].decode('ascii', errors='backslashreplace').rstrip('\0')
+	metadata.specific_info['Internal Title'] = title[:title_length].decode('ascii', errors='backslashreplace').rstrip('\0')
 	
-	metadata.specific_info['SGB-Enhanced'] = header[0x46] == 3
+	metadata.specific_info['SGB Enhanced?'] = header[0x46] == 3
 	if header[0x47] in game_boy_mappers:
 		mapper = game_boy_mappers[header[0x47]]
 		metadata.specific_info['Mapper'] = mapper.name
 		metadata.save_type = SaveType.Cart if mapper.has_battery else SaveType.Nothing
-		metadata.specific_info['Force-Feedback'] = mapper.has_rumble
-		metadata.specific_info['Has-RTC'] = mapper.has_rtc
+		metadata.specific_info['Force Feedback?'] = mapper.has_rumble
+		metadata.specific_info['Has RTC?'] = mapper.has_rtc
 		if mapper.has_accelerometer:
 			metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls())
 
-	metadata.specific_info['Destination-Code'] = header[0x4a]
+	metadata.specific_info['Destination Code'] = header[0x4a]
 	#0 means Japan and 1 means not Japan. Not sure how reliable that is.
 	licensee_code_int = header[0x4b]
 	if licensee_code_int == 0x33:
@@ -213,7 +213,7 @@ def parse_gbx_footer(rom: FileROM, metadata: Metadata):
 	#56:60 is minor version, which we expect to be 0, but it'd be okay if not
 
 	original_mapper = metadata.specific_info.get('Mapper', 'None')
-	metadata.specific_info['Stated-Mapper'] = original_mapper
+	metadata.specific_info['Stated Mapper'] = original_mapper
 	new_mapper = gbx_mappers.get(footer[0:4])
 	if not new_mapper:
 		if main_config.debug:
@@ -222,7 +222,7 @@ def parse_gbx_footer(rom: FileROM, metadata: Metadata):
 
 	if new_mapper != original_mapper:
 		#For now we're going to assume other emus don't actually do .gbx properly
-		metadata.specific_info['Override-Mapper'] = True
+		metadata.specific_info['Override Mapper?'] = True
 		metadata.specific_info['Mapper'] = new_mapper
 
 	#4 = has battery, #5 = has rumble, #6 = has RTC
@@ -239,7 +239,7 @@ def add_gameboy_metadata(game: ROMGame):
 	parse_gameboy_header(game.metadata, header)
 
 	if game_boy_config and game_boy_config.options.get('set_gbc_as_different_platform'):
-		if game.rom.extension == 'gbc' or game.metadata.specific_info.get('Is-Colour') == GameBoyColourFlag.Required:
+		if game.rom.extension == 'gbc' or game.metadata.specific_info.get('Is Colour?') == GameBoyColourFlag.Required:
 			game.metadata.platform = 'Game Boy Color'
 
 	if game.rom.extension == 'gbx':
@@ -248,7 +248,7 @@ def add_gameboy_metadata(game: ROMGame):
 		software = get_software_list_entry(game)
 	if software:
 		software.add_standard_metadata(game.metadata)
-		game.metadata.specific_info['Has-RTC'] = software.get_part_feature('rtc') == 'yes'
+		game.metadata.specific_info['Has RTC?'] = software.get_part_feature('rtc') == 'yes'
 		game.metadata.save_type = SaveType.Cart if software.has_data_area('nvram') else SaveType.Nothing
 
 		slot = software.get_part_feature('slot')

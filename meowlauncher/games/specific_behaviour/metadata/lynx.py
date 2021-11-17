@@ -22,11 +22,11 @@ def add_info_from_lynx_header(header: bytes, metadata: Metadata):
 		pass
 	rotation = header[0x3a]
 	if rotation == 0:
-		metadata.specific_info['Screen-Rotation'] = 'None'
+		metadata.specific_info['Screen Rotation'] = 'None'
 	elif rotation == 1:
-		metadata.specific_info['Screen-Rotation'] = 'Left'
+		metadata.specific_info['Screen Rotation'] = 'Left'
 	elif rotation == 2:
-		metadata.specific_info['Screen-Rotation'] = 'Right'
+		metadata.specific_info['Screen Rotation'] = 'Right'
 
 def add_lynx_metadata(game: ROMGame):
 	builtin_gamepad = input_metadata.NormalController()
@@ -37,7 +37,7 @@ def add_lynx_metadata(game: ROMGame):
 	rom = cast(FileROM, game.rom)
 	magic = rom.read(amount=4)
 	is_headered = magic == b'LYNX'
-	game.metadata.specific_info['Headered'] = is_headered
+	game.metadata.specific_info['Headered?'] = is_headered
 	if is_headered:
 		header = rom.read(amount=64)
 		add_info_from_lynx_header(header, game.metadata)

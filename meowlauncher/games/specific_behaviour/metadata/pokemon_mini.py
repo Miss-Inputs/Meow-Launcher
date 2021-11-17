@@ -20,7 +20,7 @@ def add_info_from_header(header: bytes, metadata: Metadata):
 		pass
 	title = header[4:16].decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
 	if title:
-		metadata.specific_info['Internal-Title'] = title
+		metadata.specific_info['Internal Title'] = title
 
 def add_pokemini_metadata(game: ROMGame):
 	builtin_gamepad = input_metadata.NormalController()

@@ -22,9 +22,9 @@ def add_ngp_metadata(game: ROMGame):
 	#There's really not much here, so I didn't even bother reading the whole header
 	game.metadata.product_code = str(int.from_bytes(header[32:34], 'little'))
 	game.metadata.specific_info['Revision'] = header[34]
-	game.metadata.specific_info['Is-Colour'] = header[35] == 0x10
+	game.metadata.specific_info['Is Colour?'] = header[35] == 0x10
 	internal_title = header[36:48].decode('ascii', errors='backslashreplace').strip('\0')
 	if internal_title:
-		game.metadata.specific_info['Internal-Title'] = internal_title
+		game.metadata.specific_info['Internal Title'] = internal_title
 
 	add_generic_info(game)

@@ -167,27 +167,27 @@ def parse_param_sfo_kv(rompath: str, metadata: Metadata, key: str, value: SFOVal
 	elif key == 'DISC_TOTAL':
 		metadata.disc_total = cast(int, value)
 	elif key == 'TITLE':
-		metadata.add_alternate_name(fix_name(cast(str, value)), 'Banner-Title')
+		metadata.add_alternate_name(fix_name(cast(str, value)), 'Banner Title')
 	elif len(key) == 8 and key[:5] == 'TITLE' and key[-2:].isdigit():
 		lang_id = int(key[-2:])
 		prefix = title_languages.get(lang_id)
-		name_name = 'Banner-Title'
+		name_name = 'Banner Title'
 		if prefix:
 			name_name = prefix.replace(' ', '-') + '-' + name_name
 		metadata.add_alternate_name(fix_name(cast(str, value)), name_name)
 	elif key == 'PARENTAL_LEVEL':
 		#Seems this doesn't actually mean anything by itself, and is Sony's own rating system, so don't try and think about it too much
-		metadata.specific_info['Parental-Level'] = value
+		metadata.specific_info['Parental Level'] = value
 	elif key == 'CATEGORY':
 		#This is a two letter code which generally means something like "Memory stick game" "Update" "PS1 Classics", see ROMniscience notes
 		cat: Optional[tuple[str, Optional[str]]] = categories.get(cast(str, value))
 		if cat:
-			metadata.specific_info['PlayStation-Category'] = cat[0]
+			metadata.specific_info['PlayStation Category'] = cat[0]
 			if cat[1] and cat[1] is not None:
 				if not metadata.categories or (len(metadata.categories) == 1 and metadata.categories[0] == metadata.platform):
 					metadata.categories = [cat[1]]
 			else:
-				metadata.specific_info['Should-Not-Be-Bootable'] = True
+				metadata.specific_info['Bootable?'] = False
 		else:
 			if main_config.debug:
 				print(rompath, 'has unknown category', value)
@@ -201,35 +201,35 @@ def parse_param_sfo_kv(rompath: str, metadata: Metadata, key: str, value: SFOVal
 		metadata.descriptions['License'] = cast(str, value)
 	elif key == 'BOOTABLE':
 		if value == 0:
-			metadata.specific_info['Bootable'] = False
+			metadata.specific_info['Bootable?'] = False
 			#Does not seem to ever be set to anything??
 	elif key == 'CONTENT_ID':
-		metadata.specific_info['Content-ID'] = value
+		metadata.specific_info['Content ID'] = value
 	elif key == 'USE_USB':
-		metadata.specific_info['Uses-USB'] = value != 0
+		metadata.specific_info['Uses USB?'] = value != 0
 	elif key in {'PSP_SYSTEM_VER', 'PS3_SYSTEM_VER'}:
-		metadata.specific_info['Required-Firmware'] = value
+		metadata.specific_info['Required Firmware'] = value
 	elif key == 'ATTRIBUTE':
 		if value:
 			try:
 				flags = AttributeFlags(value)
 				if flags & AttributeFlags.MoveControllerEnabled:
-					metadata.specific_info['Uses-Move-Controller'] = True
-				#metadata.specific_info['Attribute-Flags'] = flags
+					metadata.specific_info['Uses Move Controller?'] = True
+				#metadata.specific_info['Attribute Flags'] = flags
 
 			except ValueError:
-				#metadata.specific_info['Attribute-Flags'] = hex(value)
+				#metadata.specific_info['Attribute Flags'] = hex(value)
 				if main_config.debug:
 					print(rompath, 'has funny attributes flag', hex(cast(int, value)))
 	elif key == 'RESOLUTION':
 		try:
-			metadata.specific_info['Supported-Resolutions'] = [res[1:] for res in str(Resolutions(value))[12:].split('|')]
+			metadata.specific_info['Supported Resolutions'] = [res[1:] for res in str(Resolutions(value))[12:].split('|')]
 		except ValueError:
 			if main_config.debug:
 				print(rompath, 'has funny resolution flag', hex(cast(int, value)))
 	elif key == 'SOUND_FORMAT':
 		try:
-			metadata.specific_info['Supported-Sound-Formats'] = [res.lstrip('_').replace('_', '.') for res in str(SoundFormats(value))[13:].split('|')]
+			metadata.specific_info['Supported Sound Formats'] = [res.lstrip('_').replace('_', '.') for res in str(SoundFormats(value))[13:].split('|')]
 		except ValueError:
 			if main_config.debug:
 				print(rompath, 'has funny sound format flag', hex(cast(int, value)))

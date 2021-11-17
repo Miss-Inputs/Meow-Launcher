@@ -291,12 +291,12 @@ def add_fds_metadata(rom: FileROM, metadata: Metadata):
 
 	header = rom.read(amount=56)
 	if header[:4] == b'FDS\x1a':
-		metadata.specific_info['Headered'] = True
-		metadata.specific_info['Header-Format'] = 'fwNES'
+		metadata.specific_info['Headered?'] = True
+		metadata.specific_info['Header Format'] = 'fwNES'
 		rom.header_length_for_crc_calculation = 16
 		header = rom.read(seek_to=16, amount=56)
 	else:
-		metadata.specific_info['Headered'] = False
+		metadata.specific_info['Headered?'] = False
 
 	licensee_code = '{:02X}'.format(header[15])
 	if licensee_code in nintendo_licensee_codes:
@@ -317,7 +317,7 @@ def add_fds_metadata(rom: FileROM, metadata: Metadata):
 	
 
 def add_ines_metadata(rom: FileROM, metadata: Metadata, header: bytes):
-	metadata.specific_info['Headered'] = True
+	metadata.specific_info['Headered?'] = True
 	#Some emulators are okay with not having a header if they have something like an internal database, others are not.
 	#Note that \x00 at the end instead of \x1a indicates this is actually Wii U VC, but it's still the same header format
 	rom.header_length_for_crc_calculation = 16 #We use a custom software list matcher anyway, but we need to just chop the header off to find it in libretro-database
@@ -328,22 +328,22 @@ def add_ines_metadata(rom: FileROM, metadata: Metadata, header: bytes):
 	has_battery = (flags & 2) > 0
 	metadata.save_type = SaveType.Cart if has_battery else SaveType.Nothing
 	if (flags & 4) > 0:
-		metadata.specific_info['Has-iNES-Trainer'] = True
+		metadata.specific_info['Has iNES Trainer?'] = True
 	mapper_lower_nibble = (flags & 0b1111_0000) >> 4
 
 	more_flags = header[7]
 	if (more_flags & 3) == 1:
-		metadata.specific_info['Arcade-System'] = 'VS Unisystem'
+		metadata.specific_info['Arcade System'] = 'VS Unisystem'
 	elif (more_flags & 3) == 2:
-		metadata.specific_info['Arcade-System'] = 'PlayChoice-10'
+		metadata.specific_info['Arcade System'] = 'PlayChoice-10'
 
 	mapper_upper_nibble = more_flags & 0b1111_0000
 	is_nes_2_0 = ((more_flags & 0b_00_00_11_00) >> 2) == 2
 	if is_nes_2_0:
-		metadata.specific_info['Header-Format'] = 'NES 2.0'
+		metadata.specific_info['Header Format'] = 'NES 2.0'
 		mapper_upper_upper_nibble = header[8] & 0b1111
 		mapper = mapper_lower_nibble | mapper_upper_nibble | (mapper_upper_upper_nibble << 8)
-		metadata.specific_info['Mapper-Number'] = mapper
+		metadata.specific_info['Mapper Number'] = mapper
 		if mapper in ines_mappers:
 			metadata.specific_info['Mapper'] = ines_mappers[mapper]
 		else:
@@ -352,42 +352,42 @@ def add_ines_metadata(rom: FileROM, metadata: Metadata, header: bytes):
 		metadata.specific_info['Submapper'] = (header[8] & 0b1111_0000) >> 4
 		
 		prg_size_msb = ((header[9] & 0b1111) << 4)
-		metadata.specific_info['PRG-Size'] = (prg_size_msb | prg_size) * 16 * 1024 if prg_size_msb != 15 else (2 ** ((prg_size & 0b1111_1100) >> 2)) * (((prg_size & 0b11) * 2) + 1)
+		metadata.specific_info['PRG Size'] = (prg_size_msb | prg_size) * 16 * 1024 if prg_size_msb != 15 else (2 ** ((prg_size & 0b1111_1100) >> 2)) * (((prg_size & 0b11) * 2) + 1)
 		chr_size_msb = (header[9] & 0b1111_0000)
-		metadata.specific_info['CHR-Size'] = (chr_size_msb | chr_size) * 8 * 1024 if chr_size_msb != 15 else (2 ** ((chr_size & 0b1111_1100) >> 2)) * (((chr_size & 0b11) * 2) + 1)
+		metadata.specific_info['CHR Size'] = (chr_size_msb | chr_size) * 8 * 1024 if chr_size_msb != 15 else (2 ** ((chr_size & 0b1111_1100) >> 2)) * (((chr_size & 0b11) * 2) + 1)
 
 		#9/10: PRG/CHR RAM and NVRAM size
 
 		cpu_ppu_timing = header[12] & 0b11
 		if cpu_ppu_timing == 0:
-			metadata.specific_info['TV-Type'] = TVSystem.NTSC
+			metadata.specific_info['TV Type'] = TVSystem.NTSC
 		elif cpu_ppu_timing == 1:
-			metadata.specific_info['TV-Type'] = TVSystem.PAL
+			metadata.specific_info['TV Type'] = TVSystem.PAL
 		elif cpu_ppu_timing == 2:
-			metadata.specific_info['TV-Type'] = TVSystem.Agnostic
+			metadata.specific_info['TV Type'] = TVSystem.Agnostic
 		elif cpu_ppu_timing == 3:
-			metadata.specific_info['Is-Dendy'] = True
+			metadata.specific_info['Is Dendy?'] = True
 
 		if (header[7] & 3) == 3:
 			#If header[7] = 1, specifies VS System type
-			metadata.specific_info['Extended-Console-Type'] = extended_console_types.get(header[13], header[13])
+			metadata.specific_info['Extended Console Type'] = extended_console_types.get(header[13], header[13])
 		if header[15]:
 			default_expansion_device = default_expansion_devices.get(header[15], header[15])
-			metadata.specific_info['Default-Expansion-Device'] = default_expansion_device
+			metadata.specific_info['Default Expansion Device'] = default_expansion_device
 			if default_expansion_device == 1:
 				metadata.specific_info['Peripheral'] = NESPeripheral.NormalController
 			#42 = multicart also exists I guess but it doesn't mean much to us
 	else:
-		metadata.specific_info['Header-Format'] = 'iNES'
+		metadata.specific_info['Header Format'] = 'iNES'
 		mapper = mapper_lower_nibble | mapper_upper_nibble
-		metadata.specific_info['Mapper-Number'] = mapper
+		metadata.specific_info['Mapper Number'] = mapper
 		if mapper in ines_mappers:
 			metadata.specific_info['Mapper'] = ines_mappers[mapper]
 		else:
 			metadata.specific_info['Mapper'] = 'iNES Mapper %d' % mapper
 
-		metadata.specific_info['PRG-Size'] = prg_size * 16 * 1024
-		metadata.specific_info['CHR-Size'] = chr_size * 8 * 1024
+		metadata.specific_info['PRG Size'] = prg_size * 16 * 1024
+		metadata.specific_info['CHR Size'] = chr_size * 8 * 1024
 		#TV type apparently isn't used much despite it being part of the iNES specification, and looking at a lot of headered ROMs it does seem that they are all NTSC other than a few that say PAL that shouldn't be, so yeah, I wouldn't rely on it. Might as well just use the filename.
 
 def _does_nes_rom_match(part: SoftwarePart, prg_crc: str, chr_crc: str) -> bool:
@@ -421,13 +421,13 @@ def _does_nes_rom_match(part: SoftwarePart, prg_crc: str, chr_crc: str) -> bool:
 	return True
 
 def _get_headered_nes_rom_software_list_entry(game: ROMGame) -> Optional[Software]:
-	prg_crc32 = game.metadata.specific_info.get('PRG-CRC')
-	chr_crc32 = game.metadata.specific_info.get('CHR-CRC')
+	prg_crc32 = game.metadata.specific_info.get('PRG CRC')
+	chr_crc32 = game.metadata.specific_info.get('CHR CRC')
 	if not prg_crc32 and not chr_crc32:
-		prg_size = game.metadata.specific_info.get('PRG-Size', 0)
-		chr_size = game.metadata.specific_info.get('CHR-Size', 0)
+		prg_size = game.metadata.specific_info.get('PRG Size', 0)
+		chr_size = game.metadata.specific_info.get('CHR Size', 0)
 		#Is it even possible for prg_size to be 0 on a valid ROM?
-		prg_offset = 16 + 512 if game.metadata.specific_info.get('Has-iNES-Trainer', False) else 16
+		prg_offset = 16 + 512 if game.metadata.specific_info.get('Has iNES Trainer?', False) else 16
 		chr_offset = prg_offset + prg_size
 
 		rom = cast(FileROM, game.rom)
@@ -441,19 +441,19 @@ def _get_headered_nes_rom_software_list_entry(game: ROMGame) -> Optional[Softwar
 
 def parse_unif_chunk(metadata: Metadata, chunk_type: str, chunk_data: bytes):
 	if chunk_type == 'PRG0':
-		metadata.specific_info['PRG-CRC'] = get_crc32_for_software_list(chunk_data)
+		metadata.specific_info['PRG CRC'] = get_crc32_for_software_list(chunk_data)
 	elif chunk_type.startswith('CHR'):
-		metadata.specific_info['CHR-CRC'] = get_crc32_for_software_list(chunk_data)
+		metadata.specific_info['CHR CRC'] = get_crc32_for_software_list(chunk_data)
 	elif chunk_type == 'MAPR':
 		metadata.specific_info['Mapper'] = chunk_data.decode('utf-8', errors='ignore').rstrip('\0')
 	elif chunk_type == 'TVCI':
 		tv_type = chunk_data[0]
 		if tv_type == 0:
-			metadata.specific_info['TV-Type'] = TVSystem.NTSC
+			metadata.specific_info['TV Type'] = TVSystem.NTSC
 		elif tv_type == 1:
-			metadata.specific_info['TV-Type'] = TVSystem.PAL
+			metadata.specific_info['TV Type'] = TVSystem.PAL
 		elif tv_type == 2:
-			metadata.specific_info['TV-Type'] = TVSystem.Agnostic
+			metadata.specific_info['TV Type'] = TVSystem.Agnostic
 	elif chunk_type == 'BATR':
 		metadata.save_type = SaveType.Cart if chunk_data[0] else SaveType.Nothing
 	elif chunk_type == 'CTRL':
@@ -472,15 +472,15 @@ def parse_unif_chunk(metadata: Metadata, chunk_type: str, chunk_data: bytes):
 	elif chunk_type == 'READ':
 		metadata.add_notes(chunk_data.decode('utf-8', errors='ignore').rstrip('\0'))
 	elif chunk_type == 'NAME':
-		metadata.add_alternate_name(chunk_data.decode('utf-8', errors='ignore').rstrip('\0'), 'Header-Title')
+		metadata.add_alternate_name(chunk_data.decode('utf-8', errors='ignore').rstrip('\0'), 'Header Title')
 	#MIRR: Probably not needed
 	#PCK0, CCK0: CRC32 of PRG/CHR, would be nice except since this chunk isn't always there, we have to calculate it manually anyway
 	#WRTR/DINF: Dumping info, who cares
 	#VROR: Something to do with considering CHR-ROM as RAM, don't need to worry about this
 
 def add_unif_metadata(rom: FileROM, metadata: Metadata):
-	metadata.specific_info['Headered'] = True
-	metadata.specific_info['Header-Format'] = 'UNIF'
+	metadata.specific_info['Headered?'] = True
+	metadata.specific_info['Header Format'] = 'UNIF'
 
 	pos = 32
 	size = rom.get_size()
@@ -584,7 +584,7 @@ def add_nes_software_list_metadata(software: Software, metadata: Metadata):
 		metadata.input_info.add_option(standard_controller)
 
 	#Well, it wouldn't be a controller... not sure how this one works exactly
-	metadata.specific_info['Uses-3D-Glasses'] = peripheral == '3dglasses'
+	metadata.specific_info['Uses 3D Glasses?'] = peripheral == '3dglasses'
 	if peripheral == 'turbofile':
 		#Thing that goes into Famicom controller expansion port and saves stuff
 		metadata.save_type = SaveType.MemoryCard
@@ -607,7 +607,7 @@ def add_nes_software_list_metadata(software: Software, metadata: Metadata):
 def add_nes_metadata(game: ROMGame):
 	equivalent_arcade = try_get_equivalent_arcade(game.rom, game.metadata.names.values())
 	if equivalent_arcade:
-		game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
+		game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
 
 	rom = cast(FileROM, game.rom)
 	if game.rom.extension == 'fds':
@@ -620,12 +620,12 @@ def add_nes_metadata(game: ROMGame):
 		elif magic == b'UNIF':
 			add_unif_metadata(rom, game.metadata)
 		else:
-			game.metadata.specific_info['Headered'] = False
+			game.metadata.specific_info['Headered?'] = False
 
 	software = None
-	if not game.metadata.specific_info.get('Headered', False) or game.metadata.specific_info.get('Header-Format') == 'fwNES':
+	if not game.metadata.specific_info.get('Headered?', False) or game.metadata.specific_info.get('Header Format') == 'fwNES':
 		software = get_software_list_entry(game)
-	elif game.metadata.specific_info.get('Header-Format') in {'iNES', 'NES 2.0', 'UNIF'}:
+	elif game.metadata.specific_info.get('Header Format') in {'iNES', 'NES 2.0', 'UNIF'}:
 		software = _get_headered_nes_rom_software_list_entry(game)
 
 	game.metadata.specific_info['Peripheral'] = NESPeripheral.NormalController

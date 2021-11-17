@@ -34,7 +34,7 @@ unofficial_vb_publishers = {
 def add_info_from_vb_header(header: bytes, metadata: Metadata):
 	title = header[0:20].decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
 	if title:
-		metadata.specific_info['Internal-Title'] = title
+		metadata.specific_info['Internal Title'] = title
 	
 	try:
 		licensee_code = convert_alphanumeric(header[25:27])

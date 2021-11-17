@@ -33,7 +33,7 @@ def _verify_supported_gb_mappers(game: 'ROMGame', supported_mappers: Iterable[st
 		#Literally everything will work with this
 		return
 
-	if game.metadata.specific_info.get('Override-Mapper', False) and mapper not in detected_mappers:
+	if game.metadata.specific_info.get('Override Mapper?', False) and mapper not in detected_mappers:
 		#If the mapper in the ROM header is different than what the mapper actually is, it won't work, since we can't override it from the command line or anything
 		#But it'll be okay if the mapper is something that gets autodetected outside of the header anyway
 		raise EmulationNotSupportedException('Overriding the mapper to {0} is not supported'.format(mapper))
@@ -103,13 +103,13 @@ def mame_driver(game: 'ROMGame', emulator_config: 'EmulatorConfig', driver: str,
 	#Hmm I might need to refactor this and mame_system when I figure out what I'm doing
 	compat_threshold = cast(int, emulator_config.options.get('software_compatibility_threshold', 1))
 	if compat_threshold > -1:
-		game_compatibility = game.metadata.specific_info.get('MAME-Emulation-Status', EmulationStatus.Good)
+		game_compatibility = game.metadata.specific_info.get('MAME Emulation Status', EmulationStatus.Good)
 		if game_compatibility < compat_threshold:
-			raise EmulationNotSupportedException('{0} is {1}'.format(game.metadata.specific_info.get('MAME-Software-Name'), game_compatibility.name))
+			raise EmulationNotSupportedException('{0} is {1}'.format(game.metadata.specific_info.get('MAME Software Name'), game_compatibility.name))
 
 	skip_unknown = emulator_config.options.get('skip_unknown_stuff', False)
 	if skip_unknown:
-		if not game.metadata.specific_info.get('MAME-Software-Name'):
+		if not game.metadata.specific_info.get('MAME Software Name'):
 			raise EmulationNotSupportedException('Does not match anything in software list')
 
 	args = mame_base(driver, slot, slot_options, has_keyboard, autoboot_script)

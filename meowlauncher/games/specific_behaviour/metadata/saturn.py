@@ -56,38 +56,38 @@ def parse_peripherals(metadata: Metadata, peripherals: str):
 			metadata.input_info.add_option(standard_controller)
 		elif peripheral == 'E':
 			metadata.input_info.add_option(analog_controller)
-			metadata.specific_info['Uses-3D-Control-Pad'] = True
+			metadata.specific_info['Uses 3D Control Pad?'] = True
 		elif peripheral == 'A':
 			metadata.input_info.add_option(mission_stick)
-			metadata.specific_info['Uses-Mission-Stick'] = True
+			metadata.specific_info['Uses Mission Stick?'] = True
 		elif peripheral == 'G':
 			metadata.input_info.add_option(virtua_gun)
-			metadata.specific_info['Uses-Gun'] = True
+			metadata.specific_info['Uses Gun?'] = True
 		elif peripheral == 'K':
 			metadata.input_info.add_option(keyboard)
-			metadata.specific_info['Uses-Keyboard'] = True
+			metadata.specific_info['Uses Keyboard?'] = True
 		elif peripheral == 'M':
 			metadata.input_info.add_option(mouse)
-			metadata.specific_info['Uses-Mouse'] = True
+			metadata.specific_info['Uses Mouse?'] = True
 		elif peripheral == 'S':
 			metadata.input_info.add_option(input_metadata.SteeringWheel())
-			metadata.specific_info['Uses-Steering-Wheel'] = True
+			metadata.specific_info['Uses Steering Wheel?'] = True
 		elif peripheral == 'T':
-			metadata.specific_info['Supports-Multitap'] = True
+			metadata.specific_info['Supports Multitap?'] = True
 		elif peripheral == 'F':
 			#Hmm... it might be possible that a game saves to both floppy and backup RAM etc
 			metadata.save_type = SaveType.Floppy
 		elif peripheral == 'W':
 			#Doesn't specify if it needs 1MB or 4MB... some games (e.g. KOF 96) supposedly only do 1MB
-			metadata.specific_info['Needs-RAM-Cartridge'] = True
+			metadata.specific_info['Requires RAM Cartridge?'] = True
 		elif peripheral == 'Y':
-			metadata.specific_info['Uses-MIDI'] = True
+			metadata.specific_info['Uses MIDI?'] = True
 			#TODO Input info for the MIDI keyboard
 		elif peripheral == 'Q':
-			metadata.specific_info['Uses-Pachinko-Controller'] = True
+			metadata.specific_info['Uses Pachinko Controller?'] = True
 			#TODO Input info (known as Sankyo FF, but I can't find anything about what it actually does other than it exists)
 		elif peripheral == 'R':
-			metadata.specific_info['Uses-ROM-Cartridge'] = True
+			metadata.specific_info['Uses ROM Cartridge?'] = True
 			#KoF 95 and Ultraman: Hikari no Kyojin Densetsu, although they aren't interchangable, they both use the same peripheral code here
 		#else:
 		#	print('Unknown Saturn peripheral', game.rom.path, peripheral)
@@ -100,8 +100,8 @@ def add_saturn_info(rom: ROM, metadata: Metadata, header: bytes):
 	hardware_id = header[0:16].decode('ascii', errors='ignore')
 	if hardware_id != 'SEGA SEGASATURN ':
 		#Won't boot on a real Saturn, also if this is some emulator only thing then nothing in the header can be considered valid
-		metadata.specific_info['Hardware-ID'] = hardware_id
-		metadata.specific_info['Invalid-Hardware-ID'] = True
+		metadata.specific_info['Hardware ID'] = hardware_id
+		metadata.specific_info['Invalid Hardware ID?'] = True
 		return
 
 	try:
@@ -142,7 +142,7 @@ def add_saturn_info(rom: ROM, metadata: Metadata, header: bytes):
 			year = release_date[0:4]
 			month = release_date[4:6]
 			day = release_date[6:8]
-			metadata.specific_info['Header-Date'] = Date(year, month, day)
+			metadata.specific_info['Header Date'] = Date(year, month, day)
 			guessed = Date(year, month, day, True)
 			if guessed.is_better_than(metadata.release_date):
 				metadata.release_date = guessed
@@ -178,7 +178,7 @@ def add_saturn_info(rom: ROM, metadata: Metadata, header: bytes):
 	#B = Brazil?
 	#A and L seen on some homebrews and devkits?
 
-	metadata.specific_info['Region-Code'] = region_codes
+	metadata.specific_info['Region Code'] = region_codes
 
 	peripherals = header[80:96].decode('ascii', errors='backslashreplace').rstrip()
 	parse_peripherals(metadata, peripherals)
@@ -186,7 +186,7 @@ def add_saturn_info(rom: ROM, metadata: Metadata, header: bytes):
 	internal_name = header[96:208].decode('ascii', errors='backslashreplace').rstrip()
 	#Sometimes / : - are used as delimiters, and there can also be J:JapaneseNameU:USAName
 	if internal_name:
-		metadata.specific_info['Internal-Title'] = internal_name
+		metadata.specific_info['Internal Title'] = internal_name
 
 def add_saturn_metadata(game: ROMGame):
 	if game.rom.extension == 'cue':

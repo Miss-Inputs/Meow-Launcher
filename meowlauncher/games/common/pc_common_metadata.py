@@ -79,10 +79,10 @@ def add_metadata_for_raw_exe(path: str, metadata: Metadata):
 		metadata.specific_info['Copyright'] = copyright_string
 	description = props.get('FileDescription')
 	if description and description != product_name:
-		metadata.descriptions['File-Description'] = description
+		metadata.descriptions['File Description'] = description
 	comments = props.get('Comments')
 	if comments and comments != product_name:
-		metadata.specific_info['File-Comment'] = comments
+		metadata.specific_info['File Comment'] = comments
 	trademarks = props.get('LegalTrademarks')
 	if trademarks and trademarks != copyright_string:
 		metadata.specific_info['Trademarks'] = trademarks
@@ -93,7 +93,7 @@ def add_metadata_for_raw_exe(path: str, metadata: Metadata):
 			#If the date has not even happened yet, or is before Windows NT 3.1 and hence the PE format was even invented, I think the fuck not
 
 			build_date = Date(timedatestamp.year, timedatestamp.month, timedatestamp.day)
-			metadata.specific_info['Build-Date'] = build_date
+			metadata.specific_info['Build Date'] = build_date
 			guessed_date = Date(build_date.year, build_date.month, build_date.day, True)
 			if guessed_date.is_better_than(metadata.release_date):
 				metadata.release_date = guessed_date
@@ -215,7 +215,7 @@ def check_for_interesting_things_in_folder(folder: Path, metadata: Metadata, fin
 	subdirs = [f.name.lower() for f in dir_entries if f.is_dir()]
 	
 	if 'libdiscord-rpc.so' in files or 'discord-rpc.dll' in files:
-		metadata.specific_info['Discord-Rich-Presence'] = True
+		metadata.specific_info['Discord Rich Presence?'] = True
 
 	if find_wrappers:
 		#This is only really relevant for Steam etc

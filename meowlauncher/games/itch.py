@@ -101,7 +101,7 @@ class ItchGame(Game):
 		title = game.get('title')
 		if title:
 			self._name = fix_name(title)
-		self.metadata.specific_info['Game-ID'] = game.get('id')
+		self.metadata.specific_info['Game ID'] = game.get('id')
 		self.metadata.documents['Homepage'] = game.get('url')
 
 		description = game.get('shortText')
@@ -114,7 +114,7 @@ class ItchGame(Game):
 		published_at = game.get('publishedAt')
 		if created_at:
 			creation_date = datetime.date.fromisoformat(created_at[:10])
-			self.metadata.specific_info['Creation-Date'] = Date(creation_date.year, creation_date.month, creation_date.day)
+			self.metadata.specific_info['Creation Date'] = Date(creation_date.year, creation_date.month, creation_date.day)
 		if published_at:
 			release_date = datetime.date.fromisoformat(published_at[:10])
 			self.metadata.release_date = Date(release_date.year, release_date.month, release_date.day)
@@ -131,27 +131,27 @@ class ItchGame(Game):
 			if user_name:
 				self.metadata.developer = self.metadata.publisher = user_name
 			#developer and pressUser here just indicate if this user (who has uploaded the game) has ticked a box saying they are a developer or press, which doesn't seem to matter
-			self.metadata.documents['Developer-Homepage'] = user.get('url')
+			self.metadata.documents['Developer Homepage'] = user.get('url')
 
 		if upload:
 			build_name = upload.get('displayName')
 			if not build_name:
 				build_name = upload.get('filename')
-			self.metadata.specific_info['Build-Name'] = build_name
+			self.metadata.specific_info['Build Name'] = build_name
 			self.is_demo = upload.get('demo')
 			if self.is_demo and not 'demo' in self.name.lower():
 				self._name += ' (Demo)'
-			self.metadata.specific_info['Upload-Type'] = upload.get('type', 'default') #default, flash, unity, java, html, soundtrack, book, video, documentation, mod, audio_assets, graphical_assets, sourcecode, other
+			self.metadata.specific_info['Upload Type'] = upload.get('type', 'default') #default, flash, unity, java, html, soundtrack, book, video, documentation, mod, audio_assets, graphical_assets, sourcecode, other
 			self.platforms = list(upload.get('platforms', {}).keys()) #I think the values show if it's x86/x64 but eh
 			#Not sure what channelName or preorder does
 			upload_created_at = upload.get('createdAt')
 			upload_updated_at = upload.get('updatedAt')
 			if upload_created_at:
 				upload_creation_date = datetime.date.fromisoformat(upload_created_at[:10])
-				self.metadata.specific_info['Upload-Creation-Date'] = Date(upload_creation_date.year, upload_creation_date.month, upload_creation_date.day)
+				self.metadata.specific_info['Upload Creation Date'] = Date(upload_creation_date.year, upload_creation_date.month, upload_creation_date.day)
 			if upload_updated_at:
 				upload_date = datetime.date.fromisoformat(upload_updated_at[:10])
-				self.metadata.specific_info['Upload-Date'] = Date(upload_date.year, upload_date.month, upload_date.day)
+				self.metadata.specific_info['Upload Date'] = Date(upload_date.year, upload_date.month, upload_date.day)
 
 		#build often is not there, but it has its own user field? The rest is not useful sadly
 
@@ -181,7 +181,7 @@ class ItchGame(Game):
 				platform = 'HTML'
 			else:
 				platform = '/'.join(['Mac' if plat == 'osx' else plat.title() for plat in self.platforms])
-		self.metadata.specific_info['Game-Type'] = self.game_type
+		self.metadata.specific_info['Game Type'] = self.game_type
 		self.metadata.platform = platform
 
 	def try_and_find_exe(self, os_filter: Optional[str]=None, no_arch_filter=False) -> list[tuple[Optional[str], Path, Optional[dict]]]:
@@ -201,11 +201,11 @@ class ItchGame(Game):
 	def make_exe_launcher(self, flavour: Optional[str], exe_path: Path, windows_info: Optional[dict]):
 		metadata = copy.deepcopy(self.metadata)
 		executable_name = exe_path.name
-		metadata.specific_info['Executable-Name'] = executable_name
+		metadata.specific_info['Executable Name'] = executable_name
 		extension = exe_path.suffix
 		if extension:
 			metadata.extension = extension[-1].lower()
-		metadata.specific_info['Executable-Type'] = flavour
+		metadata.specific_info['Executable Type'] = flavour
 		#This shouldn't really happen, but sometimes the platform field in upload in the receipt is inaccurate
 		#Pretend Mac doesn't exist
 		if not flavour:

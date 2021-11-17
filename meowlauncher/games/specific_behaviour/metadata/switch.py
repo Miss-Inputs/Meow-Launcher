@@ -111,27 +111,27 @@ def add_titles(metadata: Metadata, titles: Mapping[str, tuple[str, str]], icons:
 				#Do some shenanigans to make things look nice
 				prefix = lang_name
 				if i == 0:
-					prefix = 'American-English' if 'BritishEnglish' in titles else 'English'
+					prefix = 'American English' if 'BritishEnglish' in titles else 'English'
 				if i == 1:
-					prefix = 'British-English' if 'AmericanEnglish' in titles else 'English'
+					prefix = 'British English' if 'AmericanEnglish' in titles else 'English'
 				#I really should just do a regex to convert camel case I guess…
 				if i == 5:
-					prefix = 'Latin-American-Spanish'
+					prefix = 'Latin American Spanish'
 				if i == 9:
-					prefix = 'Canadian-French'
+					prefix = 'Canadian French'
 				if i == 13:
-					prefix = 'Traditional-Chinese'
+					prefix = 'Traditional Chinese'
 				if i == 14:
 					prefix = 'Chinese'
 
 				if icons and lang_name in icons:
 					local_icon = icons[lang_name]
 					if local_icon != first_icon:
-						metadata.images[prefix + '-Icon'] = Image.open(io.BytesIO(local_icon))
+						metadata.images[prefix + ' Icon'] = Image.open(io.BytesIO(local_icon))
 				if name != first_name:
-					metadata.add_alternate_name(name, prefix + '-Banner-Title')
+					metadata.add_alternate_name(name, prefix + ' Banner Title')
 				if publisher != first_publisher:
-					metadata.specific_info[prefix + '-Publisher'] = publisher
+					metadata.specific_info[prefix + ' Publisher'] = publisher
 			else:
 				first_name = name
 				first_publisher = publisher
@@ -139,7 +139,7 @@ def add_titles(metadata: Metadata, titles: Mapping[str, tuple[str, str]], icons:
 				if icons and lang_name in icons:
 					first_icon = icons[lang_name]
 					metadata.images['Icon'] = Image.open(io.BytesIO(first_icon))
-				metadata.add_alternate_name(name, 'Banner-Title')
+				metadata.add_alternate_name(name, 'Banner Title')
 				#TODO: Cleanup publisher
 				metadata.publisher = publisher
 
@@ -184,7 +184,7 @@ def add_nacp_metadata(metadata: Metadata, nacp: bytes, icons: Mapping[str, bytes
 	metadata.languages = list(supported_languages)
 
 	#Screenshot = nacp[0x3034] sounds interesting?
-	metadata.specific_info['Video-Capture-Allowed'] = nacp[0x3035] != 0 #2 (instead of 1) indicates memory is allocated automatically who cares
+	metadata.specific_info['Video Capture Allowed?'] = nacp[0x3035] != 0 #2 (instead of 1) indicates memory is allocated automatically who cares
 
 	rating_age = nacp[0x3040:0x3060]
 	parse_ratings(metadata, rating_age)
@@ -202,10 +202,10 @@ def add_nacp_metadata(metadata: Metadata, nacp: bytes, icons: Mapping[str, bytes
 		#TODO: Use switchtdb.xml although it won't be as useful when it uses the product code which we can only have sometimes
 
 def add_cnmt_xml_metadata(xml: ElementTree.Element, metadata: Metadata):
-	metadata.specific_info['Title-Type'] = xml.findtext('Type')
+	metadata.specific_info['Title Type'] = xml.findtext('Type')
 	title_id = xml.findtext('Id')
 	if title_id:
-		metadata.specific_info['Title-ID'] = title_id[2:]
+		metadata.specific_info['Title ID'] = title_id[2:]
 	metadata.specific_info['Revision'] = xml.findtext('Version')
 	#We also have RequiredDownloadSystemVersion, Digest, KeyGenerationMin, RequiredSystemVersion, PatchId if those are interesting/useful
 	#Content contains Size, KeyGeneration, Hash, Type
@@ -290,9 +290,9 @@ def decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
 			rmtree(temp_folder)
 
 def list_cnmt(cnmt: Cnmt, rom: FileROM, metadata: Metadata, files: Mapping[str, tuple[int, int]], extra_offset: int=0):
-	metadata.specific_info['Title-ID'] = cnmt.title_id
+	metadata.specific_info['Title ID'] = cnmt.title_id
 	metadata.specific_info['Revision'] = cnmt.version
-	metadata.specific_info['Title-Type'] = cnmt.type
+	metadata.specific_info['Title Type'] = cnmt.type
 	for k, v in cnmt.contents.items():
 		if v[1] == ContentType.Control:
 			control_nca_filename = bytes.hex(k) + '.nca'
@@ -486,10 +486,10 @@ def add_xci_metadata(rom: FileROM, metadata: Metadata):
 	if magic != b'HEAD':
 		raise InvalidXCIException('Not a XCI: {0!r}'.format(magic))
 
-	metadata.specific_info['Gamecard-Size'] = game_card_size.get(header[0x10d], 'unknown 0x{0:x}'.format(header[0x10d]))
+	metadata.specific_info['Gamecard Size'] = game_card_size.get(header[0x10d], 'unknown 0x{0:x}'.format(header[0x10d]))
 	flags = header[0x10f]
 	if flags != 0:
-		metadata.specific_info['Gamecard-Flags'] = GamecardFlags(flags)
+		metadata.specific_info['Gamecard Flags'] = GamecardFlags(flags)
 	root_partition_offset = int.from_bytes(header[0x130:0x138], 'little') #Always 0xf000 innit? But just to be sure
 	root_partition_header_size = int.from_bytes(header[0x138:0x140], 'little') #But that will always be 512
 	root_partition_header_expected_hash = header[0x140:0x160]

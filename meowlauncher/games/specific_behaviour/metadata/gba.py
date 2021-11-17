@@ -18,10 +18,10 @@ def parse_gba_header(metadata: Metadata, header: bytes):
 	#Entry point: 0-4
 	nintendo_logo = header[4:0xa0]
 	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_gba_logo_crc32
-	metadata.specific_info['Nintendo-Logo-Valid'] = nintendo_logo_valid
+	metadata.specific_info['Nintendo Logo Valid?'] = nintendo_logo_valid
 	
 	internal_title = header[0xa0:0xac].decode('ascii', errors='backslashreplace').rstrip('\0')
-	metadata.specific_info['Internal-Title'] = internal_title
+	metadata.specific_info['Internal Title'] = internal_title
 	if internal_title == 'mb2gba':
 		return
 	
@@ -32,7 +32,7 @@ def parse_gba_header(metadata: Metadata, header: bytes):
 			game_type = product_code[0]
 			if game_type in {'K', 'R'}:
 				metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls())
-			metadata.specific_info['Force-Feedback'] = game_type in {'R', 'V'}
+			metadata.specific_info['Force Feedback?'] = game_type in {'R', 'V'}
 
 			metadata.product_code = product_code
 	except NotAlphanumericException:
@@ -88,14 +88,14 @@ def look_for_strings_in_cart(entire_cart: bytes, metadata: Metadata):
 			has_save = True
 			break
 	if b'SIIRTC_V' in entire_cart:
-		metadata.specific_info['Has-RTC'] = True
+		metadata.specific_info['Has RTC?'] = True
 	if b'RFU_V10' in entire_cart:
-		metadata.specific_info['Uses-Wireless-Adapter'] = True
+		metadata.specific_info['Uses Wireless Adapter?'] = True
 	metadata.save_type = SaveType.Cart if has_save else SaveType.Nothing
 
 	sound_driver = look_for_sound_drivers_in_cart(entire_cart)
 	if sound_driver:
-		metadata.specific_info['Sound-Driver'] = sound_driver
+		metadata.specific_info['Sound Driver'] = sound_driver
 	if sound_driver == 'Rare':
 		metadata.developer = 'Rare' #probably
 	

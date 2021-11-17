@@ -53,7 +53,7 @@ def add_cover(metadata: Metadata, product_code: str, licensee_code: str):
 
 def add_gamecube_wii_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes):
 	internal_title = header[32:128]
-	metadata.specific_info['Internal-Title'] = internal_title.decode('ascii', errors='backslashreplace').rstrip('\0 ')
+	metadata.specific_info['Internal Title'] = internal_title.decode('ascii', errors='backslashreplace').rstrip('\0 ')
 	if internal_title[:28] == b'GAMECUBE HOMEBREW BOOTLOADER':
 		return
 
@@ -94,7 +94,7 @@ def add_gamecube_wii_disc_metadata(rom: FileROM, metadata: Metadata, header: byt
 	# Is this ever set to both? In theory no, but... hmm
 
 	if not is_wii and not is_gamecube:
-		metadata.specific_info['No-Disc-Magic'] = True
+		metadata.specific_info['No Disc Magic?'] = True
 	elif main_config.debug:
 		if metadata.platform == 'Wii' and not is_wii:
 			print(rom.path, 'lacks Wii disc magic')

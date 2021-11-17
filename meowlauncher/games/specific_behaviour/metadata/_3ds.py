@@ -115,7 +115,7 @@ def parse_ncch(rom: FileROM, metadata: Metadata, offset: int):
 	except NotAlphanumericException:
 		pass
 	#NCCH version: 14-16 (always 2?)
-	metadata.specific_info['NCCH-Version'] = int.from_bytes(header[14:16], 'little')
+	metadata.specific_info['NCCH Version'] = int.from_bytes(header[14:16], 'little')
 	#Something about a hash: 16-20
 	#Program ID: 20-28
 	#Reserved: 28-44
@@ -126,7 +126,7 @@ def parse_ncch(rom: FileROM, metadata: Metadata, offset: int):
 		#As usual, can get country and type from here, but it has more letters and as such you can also get category as well, or like... type 2 electric boogaloo. This also means we can't use convert_alphanumeric because it contains dashes, so I guess I need to fiddle with that method if I want to use it like that
 		#(To be precise: P = retail/cart, N = digital only, M = DLC, T = demos, U = patches)
 		try:
-			metadata.specific_info['Virtual-Console-Platform'] = _3DSVirtualConsolePlatform(product_code[6])
+			metadata.specific_info['Virtual Console Platform'] = _3DSVirtualConsolePlatform(product_code[6])
 		except ValueError:
 			pass
 		if len(product_code) == 10 and '\0' not in product_code:
@@ -142,7 +142,7 @@ def parse_ncch(rom: FileROM, metadata: Metadata, offset: int):
 	is_data = (flags[5] & 1) > 0
 	is_executable = (flags[5] & 2) > 0
 	is_not_cxi = is_data and not is_executable
-	metadata.specific_info['Is-CXI'] = not is_not_cxi
+	metadata.specific_info['Is CXI?'] = not is_not_cxi
 	#Is system update = flags[5] & 4
 	#Is electronic manual = flags[5] & 8
 	#Is trial = flags[5] & 16
@@ -174,7 +174,7 @@ def parse_ncch(rom: FileROM, metadata: Metadata, offset: int):
 		#RSA-2048 public key: 0x500:0x600
 		#Access control info 2: 0x600:0x800
 		
-		metadata.specific_info['Internal-Title'] = system_control_info[0:8].decode('ascii', errors='ignore').rstrip('\0')
+		metadata.specific_info['Internal Title'] = system_control_info[0:8].decode('ascii', errors='ignore').rstrip('\0')
 		#Reserved: 0x8:0xd
 		#Flags (bit 0 = CompressExefsCode, bit 1 = SDApplication): 0xd
 		#Remaster version: 0xe:0x10
@@ -208,24 +208,24 @@ def parse_plain_region(rom: FileROM, metadata: Metadata, offset: int, length: in
 	#Unless like... I search ~/.local/share/citra-emu/sdmc/Nintendo 3DS for what update CIAs are installed and... aaaaaaaaaaaaaaaa
 	for library in libraries:
 		if library.startswith('[SDK+ISP:QRDec'):
-			metadata.specific_info['Reads-QR-Codes'] = True
+			metadata.specific_info['Reads QR Codes?'] = True
 		elif library.startswith('[SDK+ISP:QREnc'):
-			metadata.specific_info['Makes-QR-Codes'] = True
+			metadata.specific_info['Makes QR Codes?'] = True
 		elif library == '[SDK+NINTENDO:ExtraPad]':
-			metadata.specific_info['Uses-Circle-Pad-Pro'] = True
+			metadata.specific_info['Uses Circle Pad Pro?'] = True
 			#ZL + ZR + right analog stick; New 3DS has these too but the extra controls there are internally represented as a Circle Pad Pro for compatibility so this all works out I think
 			metadata.input_info.input_options[0].inputs[0].components[0].analog_sticks += 1
 			metadata.input_info.input_options[0].inputs[0].components[0].shoulder_buttons += 2
 		elif library == '[SDK+NINTENDO:Gyroscope]':
-			metadata.specific_info['Uses-Gyroscope'] = True
+			metadata.specific_info['Uses Gyroscope?'] = True
 			metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls())
 		elif library == '[SDK+NINTENDO:IsRunOnSnake]':
 			#There's also an IsRunOnSnakeForApplet found in some not-completely-sure-what-they-are builtin apps and amiibo Settings. Not sure if it does what I think it does
-			metadata.specific_info['New-3DS-Enhanced'] = True
+			metadata.specific_info['New 3DS Enhanced?'] = True
 		elif library == '[SDK+NINTENDO:NFP]':
-			metadata.specific_info['Uses-Amiibo'] = True
+			metadata.specific_info['Uses Amiibo?'] = True
 		elif library.startswith('[SDK+NINTENDO:CTRFaceLibrary-'):
-			metadata.specific_info['Uses-Miis'] = True
+			metadata.specific_info['Uses Miis?'] = True
 
 def parse_exefs(rom: FileROM, metadata: Metadata, offset: int):
 	header = rom.read(seek_to=offset, amount=0x200)
@@ -242,7 +242,7 @@ def parse_exefs(rom: FileROM, metadata: Metadata, offset: int):
 
 
 def parse_smdh(rom: FileROM, metadata: Metadata, offset: int=0, length: int=-1):
-	metadata.specific_info['Has-SMDH'] = True
+	metadata.specific_info['Has SMDH?'] = True
 	#At this point it's fine to just read in the whole thing
 	smdh = rom.read(seek_to=offset, amount=length)
 	parse_smdh_data(metadata, smdh)
@@ -299,7 +299,7 @@ def parse_smdh_data(metadata: Metadata, smdh: bytes):
 			if region.value & region_code_flag:
 				region_codes.append(region)
 	if region_codes:
-		metadata.specific_info['Region-Code'] = region_codes
+		metadata.specific_info['Region Code'] = region_codes
 	#Match maker IDs for online play = 0x201c-0x2028
 	flags = int.from_bytes(smdh[0x2028:0x202c], 'little')
 	#Visible on home menu: flags & 1
@@ -323,12 +323,12 @@ def parse_smdh_data(metadata: Metadata, smdh: bytes):
 	#Reserved 2 = 0x202e-0x2030
 	#Optimal animation default frame = 0x2030-0x2034
 	cec_id = smdh[0x2034:0x2038]
-	metadata.specific_info['Uses-StreetPass'] = cec_id != b'\x00\x00\x00\x00'
+	metadata.specific_info['Uses StreetPass?'] = cec_id != b'\x00\x00\x00\x00'
 	#Reserved: 0x2038-0x2040
 	
 	if have_pillow:
 		smol_icon = smdh[0x2040:0x24c0]
-		metadata.images['Small-Icon'] = decode_icon(smol_icon, 24)
+		metadata.images['Small Icon'] = decode_icon(smol_icon, 24)
 
 		large_icon = smdh[0x24c0:0x36c0]
 		metadata.images['Icon'] = decode_icon(large_icon, 48)
@@ -396,8 +396,8 @@ def parse_ncsd(rom: FileROM, metadata: Metadata):
 	card2_writeable_address = int.from_bytes(card_info_header[:4], 'little')
 	if card2_writeable_address != 0xffffffff:
 		metadata.save_type = SaveType.Cart
-	metadata.specific_info['Title-Version'] = int.from_bytes(card_info_header[0x210:0x212], 'little')
-	metadata.specific_info['Card-Version'] = int.from_bytes(card_info_header[0x212:0x214], 'little')
+	metadata.specific_info['Title Version'] = int.from_bytes(card_info_header[0x210:0x212], 'little')
+	metadata.specific_info['Card Version'] = int.from_bytes(card_info_header[0x212:0x214], 'little')
 
 def parse_3dsx(rom: FileROM, metadata: Metadata):
 	header = rom.read(amount=0x20)

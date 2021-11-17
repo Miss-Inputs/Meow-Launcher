@@ -141,9 +141,9 @@ class GOGGame(Game, ABC):
 		if icon:
 			self.metadata.images['Icon'] = icon
 		self.metadata.specific_info['Version'] = self.info.version
-		self.metadata.specific_info['Dev-Version'] = self.info.dev_version
-		self.metadata.specific_info['Language-Code'] = self.info.language
-		self.metadata.specific_info['GOG-Product-ID'] = self.info.gameid
+		self.metadata.specific_info['Dev Version'] = self.info.dev_version
+		self.metadata.specific_info['Language Code'] = self.info.language
+		self.metadata.specific_info['GOG Product ID'] = self.info.gameid
 
 		self.metadata.platform = 'GOG' if main_config.use_gog_as_platform else 'Linux'
 		self.metadata.media_type = MediaType.Digital
@@ -186,9 +186,9 @@ class NormalGOGGame(GOGGame):
 			if file.name.startswith('goggame-') and file.suffix == '.info':
 				json_info = GOGJSONGameInfo(file)
 				#This isn't always here, usually this is used for Windows games, but might as well poke at it if it's here
-				self.metadata.specific_info['Build-ID'] = json_info.build_id
-				self.metadata.specific_info['Client-ID'] = json_info.client_id
-				self.metadata.specific_info['GOG-Product-ID'] = json_info.game_id
+				self.metadata.specific_info['Build ID'] = json_info.build_id
+				self.metadata.specific_info['Client ID'] = json_info.client_id
+				self.metadata.specific_info['GOG Product ID'] = json_info.game_id
 				lang_name = json_info.language_name
 				if lang_name:
 					lang = region_info.get_language_by_english_name(lang_name)
@@ -274,7 +274,7 @@ class WindowsGOGGame(Game):
 		if icon:
 			self.metadata.images['Icon'] = icon
 
-		self.metadata.specific_info['GOG-Product-ID'] = self.info.game_id
+		self.metadata.specific_info['GOG Product ID'] = self.info.game_id
 		lang_name = self.info.language_name
 		if lang_name:
 			lang = region_info.get_language_by_english_name(lang_name)
@@ -290,8 +290,8 @@ class WindowsGOGGame(Game):
 		self.metadata.categories = ['Trials'] if self.is_demo else ['Games'] #There are movies on GOG but I'm not sure how they work, no software I think
 		#Dang… everything else would require the API, I guess
 
-		if self.id_file and not self.metadata.specific_info.get('Build-ID'):
-			self.metadata.specific_info['Build-ID'] = self.id_file.get('buildId')
+		if self.id_file and not self.metadata.specific_info.get('Build ID'):
+			self.metadata.specific_info['Build ID'] = self.id_file.get('buildId')
 
 	@property
 	def is_demo(self) -> bool:
@@ -359,7 +359,7 @@ class WindowsGOGGame(Game):
 		if task.category == 'tool':
 			task_metadata.categories = ['Applications']
 		task_metadata.emulator_name = emulator_name
-		task_metadata.specific_info['Compatibility-Flags'] = task.compatibility_flags
+		task_metadata.specific_info['Compatibility Flags'] = task.compatibility_flags
 		if task.is_dosbox and emulator_name != 'DOSBox':
 			task_metadata.specific_info['Wrapper'] = 'DOSBox'
 		if task.is_scummvm and emulator_name != 'ScummVM':
@@ -367,7 +367,7 @@ class WindowsGOGGame(Game):
 		if task.is_residualvm and emulator_name != 'ScummVM':
 			task_metadata.specific_info['Wrapper'] = 'ResidualVM'
 		executable_name = os.path.basename(task.path)
-		task_metadata.specific_info['Executable-Name'] = executable_name
+		task_metadata.specific_info['Executable Name'] = executable_name
 		if os.path.extsep in executable_name:
 			task_metadata.extension = executable_name.rsplit(os.path.extsep, 1)[-1].lower()
 

@@ -50,12 +50,12 @@ def parse_gamecube_banner_text(metadata: Metadata, banner_bytes: bytes, encoding
 
 	prefix = 'Banner'
 	if lang:
-		prefix = '{0}-{1}'.format(lang, prefix)
-	metadata.add_alternate_name(short_title_line_1, '{0}-Short-Title'.format(prefix))
-	metadata.specific_info['{0}-Short-Title-Line-2'.format(prefix)] = short_title_line_2
-	metadata.add_alternate_name(title_line_1, '{0}-Title'.format(prefix))
-	metadata.specific_info['{0}-Title-Line-2'.format(prefix)] = title_line_2
-	metadata.descriptions['{0}-Description'.format(prefix)] = description
+		prefix = '{0} {1}'.format(lang, prefix)
+	metadata.add_alternate_name(short_title_line_1, '{0} Short Title'.format(prefix))
+	metadata.specific_info['{0} Short Title Line 2'.format(prefix)] = short_title_line_2
+	metadata.add_alternate_name(title_line_1, '{0} Title'.format(prefix))
+	metadata.specific_info['{0} Title Line 2'.format(prefix)] = title_line_2
+	metadata.descriptions['{0} Description'.format(prefix)] = description
 
 def decode_icon(banner: bytes) -> 'Image':
 	width = 96
@@ -91,7 +91,7 @@ def add_banner_info(rom: ROM, metadata: Metadata, banner: bytes):
 		#(BNR2 has 6 instances of all of these with English, German, French, Spanish, Italian, Dutch in that order)
 		#Dolphin uses line 2 as Publisher field but that's not always accurate (e.g. Paper Mario: The Thousand Year Door puts subtitle of the game's name on line 2) so it won't be used here
 		#Very often, short title and not-short title are exactly the same, but not always. I guess it just be like that
-		encoding = 'shift_jis' if metadata.specific_info['Region-Code'] == NintendoDiscRegion.NTSC_J else 'latin-1'
+		encoding = 'shift_jis' if metadata.specific_info['Region Code'] == NintendoDiscRegion.NTSC_J else 'latin-1'
 		parse_gamecube_banner_text(metadata, banner[0x1820:0x1960], encoding)
 
 		if banner_magic == b'BNR2':
@@ -143,7 +143,7 @@ def add_apploader_date(header: bytes, metadata: Metadata):
 			year = actual_date.year
 			month = actual_date.month
 			day = actual_date.day
-			metadata.specific_info['Build-Date'] = Date(year, month, day)
+			metadata.specific_info['Build Date'] = Date(year, month, day)
 			if not metadata.release_date or metadata.release_date.is_guessed:
 				metadata.release_date = Date(year, month, day, True)
 		except ValueError:
@@ -160,7 +160,7 @@ def add_gamecube_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes, 
 
 	region_code = int.from_bytes(header[0x458:0x45c], 'big')
 	try:
-		metadata.specific_info['Region-Code'] = NintendoDiscRegion(region_code)
+		metadata.specific_info['Region Code'] = NintendoDiscRegion(region_code)
 	except ValueError:
 		pass
 

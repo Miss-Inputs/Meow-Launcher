@@ -47,12 +47,12 @@ def round_up_to_multiple(num: int, factor: int) -> int:
 def parse_tmd(metadata: Metadata, tmd: bytes):
 	#Stuff that I dunno about: 0 - 388
 	if tmd[387]:
-		metadata.specific_info['Is-vWii'] = True
+		metadata.specific_info['Is vWii?'] = True
 	#IOS version: 388-396
 	#Title ID is just title type + hex product code, so don't worry about that
 
 	try:
-		metadata.specific_info['Title-Type'] = WiiTitleType(int.from_bytes(tmd[396:400], 'big'))
+		metadata.specific_info['Title Type'] = WiiTitleType(int.from_bytes(tmd[396:400], 'big'))
 	except ValueError:
 		pass
 
@@ -63,7 +63,7 @@ def parse_tmd(metadata: Metadata, tmd: bytes):
 
 		if product_code:
 			try:
-				metadata.specific_info['Virtual-Console-Platform'] = WiiVirtualConsolePlatform(product_code[0])
+				metadata.specific_info['Virtual Console Platform'] = WiiVirtualConsolePlatform(product_code[0])
 			except ValueError:
 				pass
 	except UnicodeDecodeError:
@@ -84,7 +84,7 @@ def parse_tmd(metadata: Metadata, tmd: bytes):
 	#Unused: 410-412
 	region_code = int.from_bytes(tmd[412:414], 'big')
 	try:
-		metadata.specific_info['Region-Code'] = NintendoDiscRegion(region_code)
+		metadata.specific_info['Region Code'] = NintendoDiscRegion(region_code)
 	except ValueError:
 		pass
 	parse_ratings(metadata, tmd[414:430])
@@ -133,7 +133,7 @@ def parse_opening_bnr(metadata: Metadata, opening_bnr: bytes):
 		#It seems \x00 is sometimes in the middle as some type of line/subtitle separator?
 		#We will probably not really want to try and infer supported languages by what is not zeroed out here, I don't think that's how it works
 
-	region_code = metadata.specific_info.get('Region-Code')
+	region_code = metadata.specific_info.get('Region Code')
 	local_title = None
 	if region_code == NintendoDiscRegion.NTSC_J:
 		local_title = names.get('Japanese')
@@ -146,10 +146,10 @@ def parse_opening_bnr(metadata: Metadata, opening_bnr: bytes):
 		local_title = list(names.values())[0]
 
 	if local_title:
-		metadata.add_alternate_name(local_title, 'Banner-Title')
+		metadata.add_alternate_name(local_title, 'Banner Title')
 	for lang, title in names.items():
 		if title != local_title:
-			metadata.add_alternate_name(title, '{0}-Banner-Title'.format(lang.replace(' ', '-')))
+			metadata.add_alternate_name(title, f'{lang} Banner Title')
 	
 def add_wad_metadata(rom: FileROM, metadata: Metadata):
 	header = rom.read(amount=0x40)
@@ -192,7 +192,7 @@ def add_wii_homebrew_metadata(rom: FolderROM, metadata: Metadata):
 			meta_xml = ElementTree.parse(str(xml_path))
 			name = meta_xml.findtext('name')
 			if name:
-				metadata.add_alternate_name(name, 'Banner-Title')
+				metadata.add_alternate_name(name, 'Banner Title')
 				rom.ignore_name = True
 
 			coder = meta_xml.findtext('coder')
@@ -236,7 +236,7 @@ def add_wii_homebrew_metadata(rom: FolderROM, metadata: Metadata):
 				metadata.descriptions['Description'] = short_description
 			long_description = meta_xml.findtext('long_description')
 			if long_description:
-				metadata.descriptions['Long-Description'] = long_description
+				metadata.descriptions['Long Description'] = long_description
 
 		except ElementTree.ParseError as etree_error:
 			if main_config.debug:
@@ -262,7 +262,7 @@ def add_wii_disc_metadata(rom: FileROM, metadata: Metadata):
 			#Seemingly most games have an update partition at 0x50_000 and a game partition at 0xf_800_000. That's just an observation though and may not be 100% the case
 			#print(rom.path, 'has partition type', partition_type, 'at', hex(partition_offset))
 			if partition_type == 1:
-				metadata.specific_info['Has-Update-Partition'] = True
+				metadata.specific_info['Has Update Partition?'] = True
 			elif partition_type == 0 and game_partition_offset is None:
 				game_partition_offset = partition_offset
 
@@ -292,7 +292,7 @@ def add_wii_disc_metadata(rom: FileROM, metadata: Metadata):
 				apploader_date = decrypted_chunk[0x2440:0x2450].decode('ascii').rstrip('\0')
 				try:
 					d = datetime.strptime(apploader_date, '%Y/%m/%d')
-					metadata.specific_info['Build-Date'] = Date(d.year, d.month, d.day)
+					metadata.specific_info['Build Date'] = Date(d.year, d.month, d.day)
 					guessed = Date(d.year, d.month, d.day, True)
 					if guessed.is_better_than(metadata.release_date):
 						metadata.release_date = guessed
@@ -304,7 +304,7 @@ def add_wii_disc_metadata(rom: FileROM, metadata: Metadata):
 	#Unused (presumably would be region-related stuff): 0xe004:0xe010
 	region_code = int.from_bytes(wii_header[0xe000:0xe004], 'big')
 	try:
-		metadata.specific_info['Region-Code'] = NintendoDiscRegion(region_code)
+		metadata.specific_info['Region Code'] = NintendoDiscRegion(region_code)
 	except ValueError:
 		pass
 	parse_ratings(metadata, wii_header[0xe010:0xe020])
@@ -327,7 +327,7 @@ def add_wii_metadata(game: ROMGame):
 	elif game.rom.extension in {'dol', 'elf'}:
 		if game.rom.name.lower() == 'boot': #Shouldn't happen I guess if homebrew detection works correctly but sometimes it be like that
 			game.metadata.categories = game.metadata.categories[:-1]
-			game.metadata.add_alternate_name(game.rom.path.parent.name, 'Folder-Name')
+			game.metadata.add_alternate_name(game.rom.path.parent.name, 'Folder Name')
 			game.rom.ignore_name = True
 	elif game.rom.extension in {'wia', 'rvz'}:
 		just_read_the_wia_rvz_header_for_now(cast(FileROM, game.rom), game.metadata)

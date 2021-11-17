@@ -33,7 +33,7 @@ def add_z80_metadata(rom: FileROM, metadata: Metadata):
 	header = rom.read(amount=86)
 	flags = header[29]
 	joystick_flag = (flags & 0b_1100_0000) >> 6
-	metadata.specific_info['Joystick-Type'] = ZXJoystick(joystick_flag)
+	metadata.specific_info['Joystick Type'] = ZXJoystick(joystick_flag)
 	#Does joystick_flag == 1 imply expansion == Kempston?
 
 	program_counter = int.from_bytes(header[6:8], 'little')
@@ -74,7 +74,7 @@ def add_z80_metadata(rom: FileROM, metadata: Metadata):
 	if expansion:
 		metadata.specific_info['Expansion'] = expansion
 
-	metadata.specific_info['ROM-Format'] = 'Z80 v%d' % header_version
+	metadata.specific_info['ROM Format'] = 'Z80 v%d' % header_version
 
 def add_speccy_software_list_metadata(software: Software, metadata: Metadata):
 	software.add_standard_metadata(metadata)
@@ -83,7 +83,7 @@ def add_speccy_software_list_metadata(software: Software, metadata: Metadata):
 		metadata.specific_info['Expansion'] = ZXExpansion.Multiface
 	elif usage == 'Requires Gun Stick light gun':
 		#This could either go into the Sinclair Interface 2 or Kempton expansions, so.. hmm
-		metadata.specific_info['Uses-Gun'] = True
+		metadata.specific_info['Uses Gun?'] = True
 	else:
 		#Side B requires Locomotive CP/M+
 		#Requires manual for password protection

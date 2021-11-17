@@ -41,7 +41,7 @@ def _neo_geo(software):
 	return _launch_with_software('aes', software)
 
 def _super_cassette_vision(software):
-	machine = 'scv_pal' if software.metadata.specific_info.get('TV-Type') == TVSystem.PAL else 'scv'
+	machine = 'scv_pal' if software.metadata.specific_info.get('TV Type') == TVSystem.PAL else 'scv'
 	return _launch_with_software(machine, software)
 
 software_list_platforms = [
@@ -82,7 +82,7 @@ class SoftwareLauncher():
 
 	def make_launcher(self):
 		#if main_config.skip_mame_non_working_software:
-		#	if self.metadata.specific_info.get('MAME-Emulation-Status', EmulationStatus.Unknown) == EmulationStatus.Broken:
+		#	if self.metadata.specific_info.get('MAME Emulation Status', EmulationStatus.Unknown) == EmulationStatus.Broken:
 		#		raise EmulationNotSupportedException('Not supported')
 		#TODO Have option to skip if not working
 

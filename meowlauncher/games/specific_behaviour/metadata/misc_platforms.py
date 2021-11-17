@@ -22,7 +22,7 @@ def add_vic10_info(game: ROMGame):
 
 	rom = cast(FileROM, game.rom)
 	has_header = game.metadata.media_type == MediaType.Cartridge and (rom.get_size() % 256) == 2
-	game.metadata.specific_info['Headered'] = has_header
+	game.metadata.specific_info['Headered?'] = has_header
 	software = get_software_list_entry(game, skip_header=2 if has_header else 0)
 	if software:
 		software.add_standard_metadata(game.metadata)
@@ -33,7 +33,7 @@ def add_vic20_info(game: ROMGame):
 
 	rom = cast(FileROM, game.rom)
 	has_header = game.metadata.media_type == MediaType.Cartridge and (rom.get_size() % 256) == 2
-	game.metadata.specific_info['Headered'] = has_header
+	game.metadata.specific_info['Headered?'] = has_header
 	software = get_software_list_entry(game, skip_header=2 if has_header else 0)
 	if software:
 		software.add_standard_metadata(game.metadata)
@@ -125,14 +125,14 @@ def add_ibm_pcjr_info(game: ROMGame):
 	header_length = 0
 
 	if magic[:25] == b'PCjr Cartridge image file':
-		game.metadata.specific_info['Headered'] = True
+		game.metadata.specific_info['Headered?'] = True
 		#.jrc files just have a comment from 49:549 (null terminated ASCII I guess) for the most part so that might not be interesting to poke into
-		game.metadata.specific_info['Header-Format'] = 'JRipCart'
+		game.metadata.specific_info['Header Format'] = 'JRipCart'
 		header_length = 512
 	elif magic[:10] == b'Filename: ' and magic[0x14:0x1d] == b'Created: ':
 		#Fields here are more plain texty, but otherwise there's just like... a filename and creation date, which is meaningless, and a generic description field, and also a start address
-		game.metadata.specific_info['Headered'] = True
-		game.metadata.specific_info['Header-Format'] = 'PCJrCart'
+		game.metadata.specific_info['Headered?'] = True
+		game.metadata.specific_info['Header Format'] = 'PCJrCart'
 		header_length = 128
 
 	software = get_software_list_entry(game, header_length)
@@ -171,7 +171,7 @@ def add_pet_info(game: ROMGame):
 			continue
 		for ram in (8, 16, 32, 96, 128):
 			if tag.lower() in ('%dk ram' % ram, '%dkb ram' % ram):
-				game.metadata.specific_info['Minimum-RAM'] = ram
+				game.metadata.specific_info['Minimum RAM'] = ram
 				continue
 
 def _get_uapce_games() -> list[Machine]:
@@ -195,7 +195,7 @@ def add_pc_engine_info(game: ROMGame):
 			equivalent_arcade = uapce_machine
 			break
 	if equivalent_arcade:
-		game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
+		game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
 
 	add_generic_info(game)
 

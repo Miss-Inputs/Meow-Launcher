@@ -101,7 +101,7 @@ def parse_dsi_region_flags(region_flags: int) -> list[Region]:
 
 def add_banner_title_metadata(metadata: Metadata, banner_title: str, language: Optional[str]=None):
 	lines = banner_title.splitlines()
-	metadata_name = 'Banner-Title'
+	metadata_name = 'Banner Title'
 	if language:
 		metadata_name = '{0}-{1}'.format(language, metadata_name)
 	if lines:
@@ -117,14 +117,14 @@ def add_banner_title_metadata(metadata: Metadata, banner_title: str, language: O
 		else:
 			metadata.add_alternate_name(' '.join(lines[:-1]), metadata_name)
 			#This is usually the publisher… but it has a decent chance of being something else so I'm not gonna set metadata.publisher from it
-			metadata.specific_info[metadata_name + '-Final-Line'] = lines[-1]
+			metadata.specific_info[metadata_name + ' Final Line'] = lines[-1]
 
 def parse_banner(rom: FileROM, metadata: Metadata, header: bytes, is_dsi: bool, banner_offset: int):
 	#The extended part of the banner if is_dsi contains animated icon frames, so we don't really need it
 	banner_size = int.from_bytes(header[0x208:0x20c], 'little') if is_dsi else 0xA00
 	banner = rom.read(seek_to=banner_offset, amount=banner_size)
 	version = int.from_bytes(banner[0:2], 'little')
-	metadata.specific_info['Banner-Version'] = version
+	metadata.specific_info['Banner Version'] = version
 	#2 = has Chinese, 3 = has Korean, 0x103, has DSi stuff
 
 	if version in {1, 2, 3, 0x103}:
@@ -164,11 +164,11 @@ def parse_banner(rom: FileROM, metadata: Metadata, header: bytes, is_dsi: bool, 
 
 def add_info_from_ds_header(rom: FileROM, metadata: Metadata, header: bytes):
 	if header[0:4] == b'.\0\0\xea':
-		metadata.specific_info['PassMe'] = True
+		metadata.specific_info['PassMe?'] = True
 	else:
 		internal_title = header[0:12].decode('ascii', errors='backslashreplace').rstrip('\0')
 		if internal_title:
-			metadata.specific_info['Internal-Title'] = internal_title
+			metadata.specific_info['Internal Title'] = internal_title
 
 		try:
 			product_code = convert_alphanumeric(header[12:16])
@@ -190,10 +190,10 @@ def add_info_from_ds_header(rom: FileROM, metadata: Metadata, header: bytes):
 	is_dsi = False
 	unit_code = header[18]
 	if unit_code == 0:
-		metadata.specific_info['DSi-Enhanced'] = False
+		metadata.specific_info['DSi Enhanced?'] = False
 	elif unit_code == 2:
 		is_dsi = True
-		metadata.specific_info['DSi-Enhanced'] = True
+		metadata.specific_info['DSi Enhanced?'] = True
 	elif unit_code == 3:
 		is_dsi = True
 		metadata.platform = "DSi"
@@ -212,7 +212,7 @@ def add_info_from_ds_header(rom: FileROM, metadata: Metadata, header: bytes):
 			metadata.regions = [regions_by_name['Korea']]
 		elif region == 0x80:
 			metadata.regions = [regions_by_name['China']]
-			metadata.specific_info['Is-iQue'] = True
+			metadata.specific_info['Is iQue?'] = True
 		#If 0, could be anywhere else
 	metadata.specific_info['Revision'] = header[30]
 
@@ -233,7 +233,7 @@ def add_ds_input_info(metadata: Metadata):
 	if metadata.product_code:
 		if metadata.product_code.startswith('UZP'):
 			#For now, we'll detect stuff by product code... this is Learn with Pokemon Typing Adventure, and it's different because the Bluetooth adapter is in the cartridge itself
-			metadata.specific_info['Uses-Keyboard'] = True
+			metadata.specific_info['Uses Keyboard?'] = True
 			#Keyboard is technically optional, as I understand it, so I guess it's a separate option
 			metadata.input_info.add_option(bluetooth_keyboard)
 

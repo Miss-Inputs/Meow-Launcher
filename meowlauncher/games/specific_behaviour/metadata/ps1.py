@@ -68,7 +68,7 @@ def add_duckstation_db_info(metadata: Metadata):
 		return
 	db_entry = get_duckstation_db_info(metadata.product_code)
 	if db_entry:
-		metadata.add_alternate_name(db_entry['name'], 'DuckStation-Database-Name')
+		metadata.add_alternate_name(db_entry['name'], 'DuckStation Database Name')
 		languages = db_entry.get('languages')
 		if languages:
 			metadata.languages = [lang for lang in [get_language_by_english_name(lang_name) for lang_name in languages] if lang]
@@ -82,20 +82,20 @@ def add_duckstation_db_info(metadata: Metadata):
 		#TODO: minBlocks and maxBlocks might indicate save type? But why is it sometimes 0
 		#TODO: minPlayers and maxPlayers
 		if db_entry.get('vibration'):
-			metadata.specific_info['Force-Feedback'] = True
+			metadata.specific_info['Force Feedback?'] = True
 		if db_entry.get('multitap'):
-			metadata.specific_info['Supports-Multitap'] = True
+			metadata.specific_info['Supports Multitap?'] = True
 		if db_entry.get('linkCable'):
-			metadata.specific_info['Supports-Link-Cable'] = True
+			metadata.specific_info['Supports Link Cable?'] = True
 		controllers = db_entry.get('controllers')
 		if controllers:
-			metadata.specific_info['Compatible-Controllers'] = controllers
-			metadata.specific_info['Supports-Analog'] = 'AnalogController' in controllers
+			metadata.specific_info['Compatible Controllers'] = controllers
+			metadata.specific_info['Supports Analog?'] = 'AnalogController' in controllers
 
 def add_ps1_metadata(game: ROMGame):
 	add_generic_info(game)
 	if game.metadata.product_code and duckstation_config:
 		compat = find_duckstation_compat_info(game.metadata.product_code)
 		if compat:
-			game.metadata.specific_info['DuckStation-Compatibility'] = compat
+			game.metadata.specific_info['DuckStation Compatibility'] = compat
 		add_duckstation_db_info(game.metadata)

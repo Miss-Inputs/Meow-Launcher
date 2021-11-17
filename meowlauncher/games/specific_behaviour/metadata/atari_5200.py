@@ -104,7 +104,7 @@ def add_crap_from_rom_header(rom: FileROM, metadata: Metadata):
 		title_bytes = footer[:20].rstrip(b'\0')
 		if title_bytes:
 			title = ''.join([atari_5200_charset.get(b, '\0x{0:x}'.format(b)) for b in title_bytes])
-			metadata.add_alternate_name(title.strip(), 'Banner-Title')
+			metadata.add_alternate_name(title.strip(), 'Banner Title')
 		try:
 			year_first_digit = int(atari_5200_charset[year[0]])
 			year_second_digit = int(atari_5200_charset[year[1]])
@@ -126,7 +126,7 @@ def add_atari_5200_metadata(game: ROMGame):
 	game.metadata.save_type = SaveType.Nothing #Probably
 
 	#This doesn't really matter anyway, because MAME doesn't let you select controller type by slot device yet; and none of the other 5200 emulators are cool
-	game.metadata.specific_info['Uses-Trackball'] = uses_trackball
+	game.metadata.specific_info['Uses Trackball?'] = uses_trackball
 
 	if uses_trackball:
 		game.metadata.input_info.add_option(input_metadata.Trackball())

@@ -66,10 +66,10 @@ class TDB():
 			if subgenres:
 				metadata.subgenre = ', '.join([s.title() for s in subgenres])
 			if len(items) > 1:
-				metadata.specific_info['Additional-Genres'] = ', '.join([g[0].title() for g in items[1:]])
+				metadata.specific_info['Additional Genres'] = ', '.join([g[0].title() for g in items[1:]])
 				additional_subgenres = {s.title() for g in items[1:] for s in g[1]}
 				if additional_subgenres:
-					metadata.specific_info['Additional-Subgenres'] = ', '.join(additional_subgenres)
+					metadata.specific_info['Additional Subgenres'] = ', '.join(additional_subgenres)
 			
 
 def clean_up_company_name(company_name: str) -> str:
@@ -90,7 +90,7 @@ def clean_up_company_name(company_name: str) -> str:
 	return ', '.join(sorted(cleaned_names))
 
 def add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: Metadata):
-	metadata.add_alternate_name(db_entry.attrib['name'], 'GameTDB-Name')
+	metadata.add_alternate_name(db_entry.attrib['name'], 'GameTDB Name')
 	#(Pylint is on drugs if I don't add more text here) id: What we just found
 	#(it thinks I need an indented block) type: 3DS, 3DSWare, VC, etc (we probably don't need to worry about that)
 	#region: PAL, etc (we can see region code already)
@@ -133,11 +133,11 @@ def add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: M
 		#Rating board (attrib "type") is implied by region (db_entrys released in e.g. both Europe and Australia just tend to not have this here)
 		value = rating.attrib.get('value')
 		if value:
-			metadata.specific_info['Age-Rating'] = value
+			metadata.specific_info['Age Rating'] = value
 
 		descriptors = [e.text for e in rating.findall('descriptor')]
 		if descriptors:
-			metadata.specific_info['Content-Warnings'] = descriptors
+			metadata.specific_info['Content Warnings'] = descriptors
 
 	#This stuff will depend on platform…
 
@@ -156,7 +156,7 @@ def add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: M
 		wifi = db_entry.find('wi-fi')
 		if wifi:
 			features = [feature.text for feature in wifi.findall('feature')]
-			metadata.specific_info['Wifi-Features'] = features
+			metadata.specific_info['Wifi Features'] = features
 			#online, download, score, nintendods
 	
 	input_element = db_entry.find('input')
@@ -164,16 +164,15 @@ def add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: M
 		#TODO: DS has players-multi-cart and players-single-cart instead (which one do I want?)
 		number_of_players = input_element.attrib.get('players', None)
 		if number_of_players is not None: #Maybe 0 could be a valid amount? For like demos or something
-			metadata.specific_info['Number-of-Players'] = number_of_players
+			metadata.specific_info['Number of Players'] = number_of_players
 		
 		if metadata.platform != 'GameCube':
 			controls = input_element.findall('control')
 			#wiimote, nunchuk, motionplus, db_entrycube, nintendods, classiccontroller, wheel, zapper, balanceboard, wiispeak, microphone, guitar, drums, dancepad, keyboard, draw
 			if controls:
 				#cbf setting up input_info just yet
-				metadata.specific_info['Optional-Additional-Controls'] = [e.attrib.get('type') for e in controls if e.attrib.get('required', 'false') == 'false']
-				metadata.specific_info['Required-Additional-Controls'] = [e.attrib.get('type') for e in controls if e.attrib.get('required', 'false') == 'true']
-
+				metadata.specific_info['Optional Additional Controls'] = [e.attrib.get('type') for e in controls if e.attrib.get('required', 'false') == 'false']
+				metadata.specific_info['Required Additional Controls'] = [e.attrib.get('type') for e in controls if e.attrib.get('required', 'false') == 'true']
 
 def add_info_from_tdb(tdb: Optional[TDB], metadata: Metadata, search_key):
 	if not tdb:

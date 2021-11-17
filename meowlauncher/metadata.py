@@ -12,13 +12,12 @@ if TYPE_CHECKING:
 	from PIL.Image import Image
 
 #FIXME! Section names should not be here - we need to rewrite to_info_fields to make more sense, it's just to make sure a circular import doesn't happen
-metadata_section_name = 'X-Meow Launcher Metadata'
-id_section_name = 'X-Meow Launcher ID'
-junk_section_name = 'X-Meow Launcher Junk'
-image_section_name = 'X-Meow Launcher Images'
-name_section_name = 'X-Meow Launcher Names'
-document_section_name = 'X-Meow Launcher Documents'
-description_section_name = 'X-Meow Launcher Descriptions'
+metadata_section_name = 'Metadata'
+junk_section_name = 'Junk'
+image_section_name = 'Images'
+name_section_name = 'Names'
+document_section_name = 'Documents'
+description_section_name = 'Descriptions'
 
 class CPU():
 	#TODO I only give a shit about this info for MAME machines, move it there
@@ -252,17 +251,17 @@ class Metadata():
 		self.documents: dict[str, Union[str, Path]] = {} #Paths of either variety, or URLs
 		self.descriptions: dict[str, str] = {}
 
-	def add_alternate_name(self, name: str, field: str='Alternate-Name'):
+	def add_alternate_name(self, name: str, field: str='Alternate Name'):
 		if field in self.names:
-			self.names[field + '-1'] = self.names[field]
-			self.names[field + '-2'] = name
+			self.names[field + ' 1'] = self.names[field]
+			self.names[field + ' 2'] = name
 			self.names.pop(field)
 			return
-		if field + '-1' in self.names:
+		if field + ' 1' in self.names:
 			i = 2
-			while f'{field}-{i}' in self.names:
+			while f'{field} {i}' in self.names:
 				i += 1
-			self.names[f'{field}-{i}'] = name
+			self.names[f'{field} {i}'] = name
 			return
 		self.names[field] = name
 
@@ -281,48 +280,48 @@ class Metadata():
 			'Genre': self.genre,
 			'Subgenre': self.subgenre,
 			'Languages': [language.native_name for language in self.languages if language],
-			'Release-Date': self.release_date,
+			'Release Date': self.release_date,
 			'Emulator': self.emulator_name,
 			'Extension': self.extension,
 			'Categories': self.categories,
 			'Platform': self.platform,
-			'Save-Type': ('Memory Card' if self.save_type == SaveType.MemoryCard else self.save_type.name) if self.save_type else 'Nothing',
+			'Save Type': ('Memory Card' if self.save_type == SaveType.MemoryCard else self.save_type.name) if self.save_type else 'Nothing',
 			'Publisher': self.publisher,
 			'Developer': self.developer,
-			'Product-Code': self.product_code,
+			'Product Code': self.product_code,
 			'Regions': [region.name if region else 'None!' for region in self.regions] if self.regions else [],
-			'Media-Type': ('Optical Disc' if self.media_type == MediaType.OpticalDisc else self.media_type.name) if self.media_type else None,
+			'Media Type': ('Optical Disc' if self.media_type == MediaType.OpticalDisc else self.media_type.name) if self.media_type else None,
 			'Notes': self.notes,
-			'Disc-Number': self.disc_number,
-			'Disc-Total': self.disc_total,
+			'Disc Number': self.disc_number,
+			'Disc Total': self.disc_total,
 			'Series': self.series,
-			'Series-Index': self.series_index,
+			'Series Index': self.series_index,
 		}
 		if self.release_date and self.release_date.year:
 			metadata_fields['Year'] = self.release_date.year + '?' if self.release_date.is_guessed else self.release_date.year
 
 		if self.cpu_info.is_inited:
-			metadata_fields['Number-of-CPUs'] = self.cpu_info.number_of_cpus
+			metadata_fields['Number of CPUs'] = self.cpu_info.number_of_cpus
 			if self.cpu_info.number_of_cpus:
-				metadata_fields['Main-CPU'] = self.cpu_info.chip_names
-				metadata_fields['Clock-Speed'] = self.cpu_info.clock_speeds
-				metadata_fields['CPU-Tags'] = self.cpu_info.tags
+				metadata_fields['Main CPU'] = self.cpu_info.chip_names
+				metadata_fields['Clock Speed'] = self.cpu_info.clock_speeds
+				metadata_fields['CPU Tags'] = self.cpu_info.tags
 
 		if self.screen_info:
 			num_screens = self.screen_info.get_number_of_screens()
-			metadata_fields['Number-of-Screens'] = num_screens
+			metadata_fields['Number of Screens'] = num_screens
 
 			if num_screens:
-				metadata_fields['Screen-Resolution'] = self.screen_info.get_screen_resolutions()
-				metadata_fields['Refresh-Rate'] = self.screen_info.get_refresh_rates()
-				metadata_fields['Aspect-Ratio'] = self.screen_info.get_aspect_ratios()
+				metadata_fields['Screen Resolution'] = self.screen_info.get_screen_resolutions()
+				metadata_fields['Refresh Rate'] = self.screen_info.get_refresh_rates()
+				metadata_fields['Aspect Ratio'] = self.screen_info.get_aspect_ratios()
 
-				metadata_fields['Screen-Type'] = self.screen_info.get_display_types()
-				metadata_fields['Screen-Tag'] = self.screen_info.get_display_tags()
+				metadata_fields['Screen Type'] = self.screen_info.get_display_types()
+				metadata_fields['Screen Tag'] = self.screen_info.get_display_tags()
 
 		if self.input_info.is_inited:
-			metadata_fields['Standard-Input'] = self.input_info.has_standard_inputs
-			metadata_fields['Input-Methods'] = self.input_info.describe()
+			metadata_fields['Standard Input'] = self.input_info.has_standard_inputs
+			metadata_fields['Input Methods'] = self.input_info.describe()
 
 		metadata_fields.update(self.specific_info)
 

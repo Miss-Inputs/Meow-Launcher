@@ -49,11 +49,11 @@ def add_save_type(game: MAMEGame) -> None:
 
 def add_status(machine: Machine, metadata: Metadata) -> None:
 	#See comments for overall_status property for what that actually means
-	metadata.specific_info['MAME-Overall-Emulation-Status'] = machine.overall_status
-	metadata.specific_info['MAME-Emulation-Status'] = machine.emulation_status
+	metadata.specific_info['MAME Overall Emulation Status'] = machine.overall_status
+	metadata.specific_info['MAME Emulation Status'] = machine.emulation_status
 	driver = machine.driver_element
-	metadata.specific_info['Cocktail-Status'] = mame_statuses.get(driver.attrib.get('cocktail'), EmulationStatus.Good) if driver else EmulationStatus.Unknown
-	metadata.specific_info['Supports-Savestate'] = driver.attrib.get('savestate') == 'supported' if driver else EmulationStatus.Unknown
+	metadata.specific_info['Cocktail Status'] = mame_statuses.get(driver.attrib.get('cocktail'), EmulationStatus.Good) if driver else EmulationStatus.Unknown
+	metadata.specific_info['Supports Savestate?'] = driver.attrib.get('savestate') == 'supported' if driver else EmulationStatus.Unknown
 
 	unemulated_features = []
 	for feature_type, feature_status in machine.feature_statuses.items():
@@ -62,17 +62,17 @@ def add_status(machine: Machine, metadata: Metadata) -> None:
 		else:
 			#Known types according to DTD: protection, palette, graphics, sound, controls, keyboard, mouse, microphone, camera, disk, printer, lan, wan, timing
 			#Note: MAME 0.208 has added capture, media, tape, punch, drum, rom, comms; although I guess I don't need to write any more code here
-			metadata.specific_info['MAME-%s-Status' % feature_type.capitalize()] = mame_statuses.get(feature_status, EmulationStatus.Unknown)
+			metadata.specific_info['MAME %s Status' % feature_type.capitalize()] = mame_statuses.get(feature_status, EmulationStatus.Unknown)
 
 	if unemulated_features:
-		metadata.specific_info['MAME-Unemulated-Features'] = unemulated_features
+		metadata.specific_info['MAME Unemulated Features'] = unemulated_features
 
 def add_metadata_from_category(game: MAMEGame, category: Optional[MachineCategory]):
 	if not category:
 		#Not in catlist or user doesn't have catlist
 		return
 	if isinstance(category, ArcadeCategory):
-		game.metadata.specific_info['Has-Adult-Content'] = category.is_mature
+		game.metadata.specific_info['Has Adult Content?'] = category.is_mature
 	catlist = organize_catlist(category)
 	if catlist.platform:
 		if catlist.definite_platform or not game.machine.is_system_driver:

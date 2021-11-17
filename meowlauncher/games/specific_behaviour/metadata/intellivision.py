@@ -52,10 +52,10 @@ def add_intellivision_info(game: ROMGame):
 
 		usage = software.get_info('usage')
 		if usage == 'Uses Intellivoice':
-			game.metadata.specific_info['Uses-Intellivoice'] = True
+			game.metadata.specific_info['Uses Intellivoice?'] = True
 		elif usage in {'Requires ECS and Keyboard', 'Requires ECS and Intellivoice'}:
 			#Both of these are functionally the same for our intent and purpose, as MAME's intvecs driver always has a keyboard and Intellivoice module. I dunno if an Intellivision ECS without a keyboard is even a thing.
-			game.metadata.specific_info['Uses-ECS'] = True
+			game.metadata.specific_info['Uses ECS?'] = True
 
 		#Other usage notes:
 		#Will not run on Intellivision 2

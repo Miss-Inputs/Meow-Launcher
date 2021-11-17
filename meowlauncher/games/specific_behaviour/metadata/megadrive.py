@@ -59,7 +59,7 @@ def parse_peripherals(metadata: Metadata, peripherals: Iterable[str]):
 			six_button_gamepad.face_buttons = 6
 			six_button_gamepad.dpads = 1
 			metadata.input_info.add_option(six_button_gamepad)
-			metadata.specific_info['Uses-6-Button-Controller'] = True
+			metadata.specific_info['Uses 6-Button Controller?'] = True
 		elif peripheral_char == '0':
 			sms_gamepad = input_metadata.NormalController()
 			sms_gamepad.face_buttons = 2
@@ -73,7 +73,7 @@ def parse_peripherals(metadata: Metadata, peripherals: Iterable[str]):
 			#num_players = 4
 			pass
 		elif peripheral_char == 'C':
-			metadata.specific_info['Uses-CD'] = True
+			metadata.specific_info['Uses CD?'] = True
 		#Apparently these also exist with dubious/unclear definitions:
 		#P: "Printer"
 		#B: "Control Ball"
@@ -97,7 +97,7 @@ def add_info_from_copyright_string(metadata: Metadata, copyright_string: str):
 		except ValueError:
 			#There are other spellings such as JUR, JLY out there, but oh well
 			month = '??'
-		metadata.specific_info['Copyright-Date'] = Date(year, month)
+		metadata.specific_info['Copyright Date'] = Date(year, month)
 		if not metadata.release_date:
 			metadata.release_date = Date(year, month, is_guessed=True)
 
@@ -131,17 +131,17 @@ def add_megadrive_info(metadata: Metadata, header: bytes):
 	try:
 		console_name = header[:16].decode('ascii')
 	except UnicodeDecodeError:
-		metadata.specific_info['Bad-TMSS'] = True
+		metadata.specific_info['Bad TMSS?'] = True
 		return
 
 	if not console_name.startswith('SEGA') and not console_name.startswith(' SEGA') and console_name not in ('IMA IKUNOUJYUKU ', 'IMA IKUNOJYUKU  ', 'SAMSUNG PICO    '):
-		metadata.specific_info['Console-Name'] = console_name
-		metadata.specific_info['Bad-TMSS'] = True
+		metadata.specific_info['Console Name'] = console_name
+		metadata.specific_info['Bad TMSS?'] = True
 		return
 
 	if metadata.platform == 'Mega CD' and console_name.startswith('SEGA 32X'):
 		#Could also set platform to something like "Mega CD 32X" I guess
-		metadata.specific_info['32X-Only'] = True
+		metadata.specific_info['32X Only?'] = True
 
 	try:
 		copyright_string = header[16:32].decode('ascii')
@@ -152,10 +152,10 @@ def add_megadrive_info(metadata: Metadata, header: bytes):
 	domestic_title = header[32:80].decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
 	overseas_title = header[80:128].decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
 	if domestic_title:
-		metadata.specific_info['Internal-Title'] = domestic_title
+		metadata.specific_info['Internal Title'] = domestic_title
 	if overseas_title:
 		#Often the same as domestic title, but for games that get their names changed yet work on multiple regions, domestic is the title in Japan and and overseas is in USA (and maybe Europe). I don't know what happens if a game is originally in USA then gets its name changed when it goes to Japan, but it might just be "Japan is domestic and everwhere else is overseas"
-		metadata.specific_info['Internal-Overseas-Title'] = overseas_title
+		metadata.specific_info['Internal Overseas Title'] = overseas_title
 	#Product type: 128:130, it's usually GM for game but then some other values appear too (especially in Sega Pico)
 	#Space for padding: 130
 
@@ -183,9 +183,9 @@ def add_megadrive_info(metadata: Metadata, header: bytes):
 	memo_bytes = header[0xc8:0xf0]
 	modem_string = None
 	if modem_info[:2] == b'MO':
-		metadata.specific_info['Supports-Modem'] = True
+		metadata.specific_info['Supports Modem?'] = True
 	elif modem_info[:11] == b'No modem...':
-		metadata.specific_info['Supports-Modem'] = False
+		metadata.specific_info['Supports Modem?'] = False
 	else:
 		modem_string = modem_info.decode('ascii', errors='ignore').strip('\0 ')
 		
@@ -197,7 +197,7 @@ def add_megadrive_info(metadata: Metadata, header: bytes):
 		
 		if memo:
 			if memo == 'SV':
-				metadata.specific_info['Expansion-Chip'] = 'SVP'
+				metadata.specific_info['Expansion Chip'] = 'SVP'
 			else:
 				#This only seems to really be used for homebrews bootlegs etc
 				metadata.descriptions['Memo'] = memo
@@ -206,10 +206,10 @@ def add_megadrive_info(metadata: Metadata, header: bytes):
 
 	regions = header[0xf0:0xf3]
 	region_codes = parse_region_codes(regions)
-	metadata.specific_info['Region-Code'] = region_codes
+	metadata.specific_info['Region Code'] = region_codes
 	if console_name[:12] == 'SEGA GENESIS' and not region_codes:
 		#Make a cheeky guess (if it wasn't USA it would be SEGA MEGADRIVE etc presumably)
-		metadata.specific_info['Region-Code'] = [MegadriveRegionCodes.USA]
+		metadata.specific_info['Region Code'] = [MegadriveRegionCodes.USA]
 
 def get_smd_header(rom: FileROM):
 	#Just get the first block which is all that's needed for the header, otherwise this would be a lot more complicated (just something to keep in mind if you ever need to convert a whole-ass .smd ROM)
@@ -274,9 +274,9 @@ def try_find_equivalent_arcade(rom: ROM, metadata: Metadata):
 def add_megadrive_software_list_metadata(software: Software, metadata: Metadata):
 	software.add_standard_metadata(metadata)
 	if software.get_shared_feature('addon') == 'SVP':
-		metadata.specific_info['Expansion-Chip'] = 'SVP'
+		metadata.specific_info['Expansion Chip'] = 'SVP'
 	if software.get_shared_feature('incompatibility') == 'TMSS':
-		metadata.specific_info['Bad-TMSS'] = True
+		metadata.specific_info['Bad TMSS?'] = True
 
 	slot = software.get_part_feature('slot')
 	if slot == 'rom_eeprom' or software.has_data_area('sram'):
@@ -329,7 +329,7 @@ def add_megadrive_metadata(game: ROMGame):
 	if game.metadata.platform == 'Mega Drive':
 		equivalent_arcade = try_find_equivalent_arcade(game.rom, game.metadata)
 		if equivalent_arcade:
-			game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
+			game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
 
 	software = get_software_list_entry(game)
 	if software:

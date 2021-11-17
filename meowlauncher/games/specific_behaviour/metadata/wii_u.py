@@ -88,7 +88,7 @@ def add_meta_xml_metadata(metadata: Metadata, meta_xml: ElementTree.ElementTree)
 	if product_code:
 		metadata.product_code = product_code
 		try:
-			metadata.specific_info['Virtual-Console-Platform'] = WiiUVirtualConsolePlatform(metadata.product_code[6])
+			metadata.specific_info['Virtual Console Platform'] = WiiUVirtualConsolePlatform(metadata.product_code[6])
 		except ValueError:
 			pass
 		gametdb_id = product_code[-4:]
@@ -111,7 +111,7 @@ def add_meta_xml_metadata(metadata: Metadata, meta_xml: ElementTree.ElementTree)
 		try:
 			mastering_datetime = datetime.fromisoformat(mastering_date_text[:10])
 			mastering_date = Date(mastering_datetime.year, mastering_datetime.month, mastering_datetime.day)
-			metadata.specific_info['Mastering-Date'] = mastering_date
+			metadata.specific_info['Mastering Date'] = mastering_date
 			guessed_date = Date(mastering_date.year, mastering_date.month, mastering_date.day, True)
 			if guessed_date.is_better_than(metadata.release_date):
 				metadata.release_date = guessed_date
@@ -119,10 +119,10 @@ def add_meta_xml_metadata(metadata: Metadata, meta_xml: ElementTree.ElementTree)
 			#print(mastering_date_text)
 			pass
 	#Maybe we can use these to figure out if it creates a save file or not…
-	metadata.specific_info['Common-Save-Size'] = int(meta_xml.findtext('common_save_size') or '0', 16)
-	metadata.specific_info['Account-Save-Size'] = int(meta_xml.findtext('account_save_size') or '0', 16)
+	metadata.specific_info['Common Save Size'] = int(meta_xml.findtext('common_save_size') or '0', 16)
+	metadata.specific_info['Account Save Size'] = int(meta_xml.findtext('account_save_size') or '0', 16)
 
-	metadata.specific_info['Title-ID'] = meta_xml.findtext('title_id')
+	metadata.specific_info['Title ID'] = meta_xml.findtext('title_id')
 	version = meta_xml.findtext('title_version')
 	if version:
 		metadata.specific_info['Version'] = 'v' + version
@@ -137,9 +137,9 @@ def add_meta_xml_metadata(metadata: Metadata, meta_xml: ElementTree.ElementTree)
 					continue
 				if region_code.value & region_flags:
 					region_codes.append(region_code)
-			metadata.specific_info['Region-Code'] = region_codes
+			metadata.specific_info['Region Code'] = region_codes
 		except ValueError:
-			metadata.specific_info['Region-Code'] = '0x' + region
+			metadata.specific_info['Region Code'] = '0x' + region
 
 	#Tempted to reuse wii.parse_ratings, but I might not because it's just a bit different
 	rating_tags = {tag: int(tag.text) for tag in meta_xml.iter() if tag.tag.startswith('pc_') and tag.text}
@@ -149,15 +149,15 @@ def add_meta_xml_metadata(metadata: Metadata, meta_xml: ElementTree.ElementTree)
 			rating = statistics.mode(ratings.values())
 		except statistics.StatisticsError:
 			rating = max(ratings.values())
-		metadata.specific_info['Age-Rating'] = rating
+		metadata.specific_info['Age Rating'] = rating
 		if 'pc_cero' in ratings:
-			metadata.specific_info['CERO-Rating'] = ratings['pc_cero']
+			metadata.specific_info['CERO Rating'] = ratings['pc_cero']
 		if 'pc_esrb' in ratings:
-			metadata.specific_info['ESRB-Rating'] = ratings['pc_esrb']
+			metadata.specific_info['ESRB Rating'] = ratings['pc_esrb']
 		if 'pc_usk' in ratings:
-			metadata.specific_info['USK-Rating'] = ratings['pc_usk']
+			metadata.specific_info['USK Rating'] = ratings['pc_usk']
 		if 'pc_pegi_gen' in ratings:
-			metadata.specific_info['PEGI-Rating'] = ratings['pc_pegi_gen']
+			metadata.specific_info['PEGI Rating'] = ratings['pc_pegi_gen']
 		#There are more but that will do
 
 	# #These may not be accurate at all?
@@ -193,7 +193,7 @@ def add_homebrew_meta_xml_metadata(rom: ROM, metadata: Metadata, meta_xml: Eleme
 	name = meta_xml.findtext('name')
 	if name:
 		rom.ignore_name = True
-		metadata.add_alternate_name(name, 'Banner-Title')
+		metadata.add_alternate_name(name, 'Banner Title')
 	metadata.developer = metadata.publisher = meta_xml.findtext('coder')
 	metadata.specific_info['Version'] = meta_xml.findtext('version')
 	url = meta_xml.findtext('url')
@@ -205,11 +205,11 @@ def add_homebrew_meta_xml_metadata(rom: ROM, metadata: Metadata, meta_xml: Eleme
 
 	short_description = meta_xml.findtext('short_description')
 	if short_description:
-		metadata.descriptions['Short-Description'] = short_description
+		metadata.descriptions['Short Description'] = short_description
 	long_description = meta_xml.findtext('long_description')
 	if long_description:
-		metadata.descriptions['Long-Description'] = long_description
-	metadata.specific_info['Homebrew-Category'] = meta_xml.findtext('category') or 'None' #Makes me wonder if it's feasible to include an option to get categories not from folders…
+		metadata.descriptions['Long Description'] = long_description
+	metadata.specific_info['Homebrew Category'] = meta_xml.findtext('category') or 'None' #Makes me wonder if it's feasible to include an option to get categories not from folders…
 
 def add_rpx_metadata(rom: ROM, metadata: Metadata):
 	#The .rpx itself is not interesting and basically just a spicy ELF
@@ -232,7 +232,7 @@ def add_folder_metadata(rom: FolderROM, metadata: Metadata):
 	if not content_dir or not meta_dir:
 		raise AssertionError('It should not be possible at all for content_dir or meta_dir to be None')
 	
-	metadata.specific_info['Executable-Name'] = rom.relevant_files['rpx'].name
+	metadata.specific_info['Executable Name'] = rom.relevant_files['rpx'].name
 
 	#While we are here… using pc_common_metadata engine detect on the content folder almost seems like a good idea too, but it won't accomplish much so far
 	if rom.path.joinpath('code', 'UnityEngine_dll.rpl').is_file():
@@ -251,13 +251,13 @@ def add_folder_metadata(rom: FolderROM, metadata: Metadata):
 		metadata.images['Icon'] = icon_path
 	boot_drc_path = meta_dir.joinpath('bootDrcTex.tga') #Image displayed on the gamepad while loading
 	if boot_drc_path.is_file():
-		metadata.images['Gamepad-Boot-Image'] = boot_drc_path
+		metadata.images['Gamepad Boot Image'] = boot_drc_path
 	boot_tv_path = meta_dir.joinpath('bootTvTex.tga') #Generally just bootDrcTex but higher resolution (and for the TV)
 	if boot_tv_path.is_file():
-		metadata.images['TV-Boot-Image'] = boot_tv_path
+		metadata.images['TV Boot Image'] = boot_tv_path
 	boot_logo_path = meta_dir.joinpath('bootLogoTex.tga')
 	if boot_logo_path.is_file():
-		metadata.images['Boot-Logo'] = boot_logo_path
+		metadata.images['Boot Logo'] = boot_logo_path
 	#There is also a Manual.bfma in here, bootMovie.h264 and bootSound.btsnd, and some ratings images like "CERO_ja.jpg" and "PEGI_en.jpg" except they're 1 byte so I dunno
 
 	meta_xml_path = meta_dir.joinpath('meta.xml')
@@ -267,8 +267,8 @@ def add_folder_metadata(rom: FolderROM, metadata: Metadata):
 	except FileNotFoundError:
 		pass
 
-	if metadata.specific_info.get('Virtual-Console-Platform') == WiiUVirtualConsolePlatform.GBAOrPCEngine:
-		metadata.specific_info['Virtual-Console-Platform'] = WiiUVirtualConsolePlatform.GBA if rom.name == 'm2engage' else WiiUVirtualConsolePlatform.PCEngine
+	if metadata.specific_info.get('Virtual Console Platform') == WiiUVirtualConsolePlatform.GBAOrPCEngine:
+		metadata.specific_info['Virtual Console Platform'] = WiiUVirtualConsolePlatform.GBA if rom.name == 'm2engage' else WiiUVirtualConsolePlatform.PCEngine
 
 def add_wii_u_metadata(game: ROMGame):
 	if game.rom.is_folder:

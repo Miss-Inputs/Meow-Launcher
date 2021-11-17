@@ -71,7 +71,7 @@ def add_wonderswan_metadata(game: ROMGame):
 	publisher_code = header[0]
 	if publisher_code in publishers:
 		game.metadata.publisher = publishers[publisher_code]
-	game.metadata.specific_info['Is-Colour'] = header[1] == 1
+	game.metadata.specific_info['Is Colour?'] = header[1] == 1
 
 	game.metadata.product_code = str(header[2])
 
@@ -81,9 +81,9 @@ def add_wonderswan_metadata(game: ROMGame):
 	#If >= 10, contains EEPROM, if >0 and < 10, contains SRAM; number determines size by arbitrary lookup table but that's not that important for our purposes I guess
 	game.metadata.save_type = SaveType.Cart if save_info > 0 else SaveType.Nothing
 
-	game.metadata.specific_info['Has-RTC'] = header[7] == 1
+	game.metadata.specific_info['Has RTC?'] = header[7] == 1
 	flags = header[6]
-	game.metadata.specific_info['Screen-Orientation'] = 'Vertical' if flags & 1 else 'Horizontal'
+	game.metadata.specific_info['Screen Orientation'] = 'Vertical' if flags & 1 else 'Horizontal'
 	#Checksum schmecksum
 
 	add_generic_info(game)

@@ -42,7 +42,7 @@ def parse_woz_info_chunk(metadata: Metadata, chunk_data: bytes):
 			metadata.specific_info['Machine'] = machines
 		minimum_ram = int.from_bytes(chunk_data[42:44], 'little')
 		if minimum_ram:
-			metadata.specific_info['Minimum-RAM'] = minimum_ram
+			metadata.specific_info['Minimum RAM'] = minimum_ram
 
 woz_meta_machines = {
 	'2': AppleIIHardware.AppleII,
@@ -70,7 +70,7 @@ def parse_woz_kv(rompath: str, metadata: Metadata, key: str, value: str):
 			value = 'v' + value
 		metadata.specific_info['Version'] = value
 	elif key == 'title':
-		metadata.add_alternate_name(value, 'Header-Title')
+		metadata.add_alternate_name(value, 'Header Title')
 	elif key == 'subtitle':
 		metadata.specific_info['Subtitle'] = value
 	elif key == 'requires_machine':
@@ -89,7 +89,7 @@ def parse_woz_kv(rompath: str, metadata: Metadata, key: str, value: str):
 		if value[-1].lower() == 'k':
 			value = value[:-1]
 		try:
-			metadata.specific_info['Minimum-RAM'] = int(value)
+			metadata.specific_info['Minimum RAM'] = int(value)
 		except ValueError:
 			pass
 	elif key == 'publisher':
@@ -146,9 +146,9 @@ def add_woz_metadata(rom: FileROM, metadata: Metadata):
 	#https://applesaucefdc.com/woz/reference2/
 	magic = rom.read(amount=8)
 	if magic == b'WOZ1\xff\n\r\n':
-		metadata.specific_info['ROM-Format'] = 'WOZ v1'
+		metadata.specific_info['ROM Format'] = 'WOZ v1'
 	elif magic == b'WOZ2\xff\n\r\n':
-		metadata.specific_info['ROM-Format'] = 'WOZ v2'
+		metadata.specific_info['ROM Format'] = 'WOZ v2'
 	else:
 		print('Weird .woz magic', rom.path, magic)
 		return
@@ -160,7 +160,7 @@ def add_woz_metadata(rom: FileROM, metadata: Metadata):
 		if position >= size:
 			break
 	if 'Header-Title' in metadata.names and 'Subtitle' in metadata.specific_info:
-		metadata.add_alternate_name(metadata.names['Header-Title'] + ': ' + metadata.specific_info['Subtitle'], 'Header-Title-with-Subtitle')
+		metadata.add_alternate_name(metadata.names['Header Title'] + ': ' + metadata.specific_info['Subtitle'], 'Header Title with Subtitle')
 
 def add_apple_ii_metadata(game: ROMGame):
 	if game.metadata.extension == 'woz':
@@ -174,12 +174,12 @@ def add_apple_ii_metadata(game: ROMGame):
 		usage = software.get_info('usage')
 		if usage == 'Works with Apple II Mouse Card in slot 4: -sl4 mouse':
 			#Not setting up input_info just yet because I don't know if it uses joystick/keyboard as well. I guess I probably never will, but like... well.... dang
-			game.metadata.specific_info['Uses-Mouse'] = True
+			game.metadata.specific_info['Uses Mouse?'] = True
 		elif usage:
 			game.metadata.add_notes(usage)
 		
 		if software.software_list.name == 'apple2_flop_orig' and software.name == 'arkanoid':
-			game.metadata.specific_info['Uses-Mouse'] = True
+			game.metadata.specific_info['Uses Mouse?'] = True
 
 		if not game.metadata.specific_info.get('Machine'):
 			compat = software.compatibility

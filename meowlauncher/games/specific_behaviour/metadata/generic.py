@@ -12,7 +12,7 @@ def add_generic_software_info(software: Software, metadata: Metadata):
 		metadata.specific_info['PCB'] = software.get_info('pcb')
 	metadata.specific_info['Requirement'] = software.get_shared_feature('requirement')
 	try:
-		metadata.specific_info['TV-Type'] = TVSystem(software.get_info('video'))
+		metadata.specific_info['TV Type'] = TVSystem(software.get_info('video'))
 	except ValueError:
 		pass
 	for info_name, info_value in software.infos.items():

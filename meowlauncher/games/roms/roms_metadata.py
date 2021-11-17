@@ -161,14 +161,14 @@ def add_metadata_from_libretro_database_entry(metadata: Metadata, database: Libr
 	if database_entry:
 		name = database_entry.get('comment', database_entry.get('name'))
 		if name:
-			metadata.add_alternate_name(name, 'Libretro-Database-Name')
+			metadata.add_alternate_name(name, 'Libretro Database Name')
 		if 'serial' in database_entry and not metadata.product_code:
 			metadata.product_code = database_entry['serial']
 		#seems name = description = comment = usually just the name of the file from No-Intro/Redump, region we already know, enhancement_hw we already know (just SNES and Mega Drive)
 		if 'description' in database_entry:
 			description = database_entry['description']
 			if description not in (database_entry.get('comment'), database_entry.get('name')):
-				metadata.descriptions['Libretro-Description'] = description
+				metadata.descriptions['Libretro Description'] = description
 
 
 		date = Date()
@@ -213,33 +213,33 @@ def add_metadata_from_libretro_database_entry(metadata: Metadata, database: Libr
 			metadata.specific_info['Version'] = database_entry['version']
 
 		if 'users' in database_entry:
-			metadata.specific_info['Number-of-Players'] = database_entry['users']
+			metadata.specific_info['Number of Players'] = database_entry['users']
 		if 'homepage' in database_entry:
 			metadata.documents['Homepage'] = database_entry['homepage']
 		if 'patch' in database_entry:
-			metadata.documents['Patch-Homepage'] = database_entry['patch']
+			metadata.documents['Patch Homepage'] = database_entry['patch']
 		if 'esrb_rating' in database_entry:
-			metadata.specific_info['ESRB-Rating'] = database_entry['esrb_rating']
+			metadata.specific_info['ESRB Rating'] = database_entry['esrb_rating']
 		if 'bbfc_rating' in database_entry:
-			metadata.specific_info['BBFC-Rating'] = database_entry['bbfc_rating']
+			metadata.specific_info['BBFC Rating'] = database_entry['bbfc_rating']
 		if 'elspa_rating' in database_entry:
-			metadata.specific_info['ELSPA-Rating'] = database_entry['elspa_rating']
+			metadata.specific_info['ELSPA Rating'] = database_entry['elspa_rating']
 		if 'origin' in database_entry:
-			metadata.specific_info['Development-Origin'] = database_entry['origin']
+			metadata.specific_info['Development Origin'] = database_entry['origin']
 		if 'edge_review' in database_entry:
-			metadata.descriptions['EDGE-Review'] = database_entry['edge_review']
+			metadata.descriptions['EDGE Review'] = database_entry['edge_review']
 		if 'edge_rating' in database_entry:
-			metadata.specific_info['EDGE-Rating'] = database_entry['edge_rating']
+			metadata.specific_info['EDGE Rating'] = database_entry['edge_rating']
 		if 'edge_issue' in database_entry:
-			metadata.specific_info['EDGE-Issue'] = database_entry['edge_issue']
+			metadata.specific_info['EDGE Issue'] = database_entry['edge_issue']
 		if 'famitsu_rating' in database_entry:
-			metadata.specific_info['Famitsu-Rating'] = database_entry['famitsu_rating']
+			metadata.specific_info['Famitsu Rating'] = database_entry['famitsu_rating']
 		
 		if database_entry.get('analog', 0) == 1:
 			#This is PS1 specific
-			metadata.specific_info['Uses-Analog'] = True
+			metadata.specific_info['Uses Analog?'] = True
 		if database_entry.get('rumble', 0) == 1:
-			metadata.specific_info['Force-Feedback'] = True
+			metadata.specific_info['Force Feedback?'] = True
 
 		# for k, v in database_entry.items():
 		# 	if k not in ('name', 'description', 'region', 'releaseyear', 'releasemonth', 'releaseday', 'genre', 'developer', 'serial', 'comment', 'franchise', 'version', 'homepage', 'patch', 'publisher', 'users', 'esrb_rating', 'origin', 'enhancement_hw', 'edge_review', 'edge_rating', 'edge_issue', 'famitsu_rating', 'analog', 'rumble'):
@@ -261,17 +261,17 @@ def add_metadata_from_libretro_database(game: ROMGame):
 					add_metadata_from_libretro_database_entry(game.metadata, database, key)
 
 def autodetect_tv_type(game: ROMGame):
-	if game.metadata.specific_info.get('TV-Type'):
+	if game.metadata.specific_info.get('TV Type'):
 		return
 	
 	from_tags = get_tv_system_from_filename_tags(game.filename_tags)
 	if from_tags:
-		game.metadata.specific_info['TV-Type'] = from_tags
+		game.metadata.specific_info['TV Type'] = from_tags
 		return
 	
 	from_region = get_tv_system_from_regions(game.metadata.regions)
 	if from_region:
-		game.metadata.specific_info['TV-Type'] = from_region
+		game.metadata.specific_info['TV Type'] = from_region
 		return
 
 def add_metadata(game: ROMGame):
@@ -296,16 +296,16 @@ def add_metadata(game: ROMGame):
 		#This would only work for optical discs if they are in .chd format though. Also see MAME GitHub issue #2517, which makes a lot of newly created CHDs invalid with older softlists
 		generic_helper(game)
 				
-	equivalent_arcade = game.metadata.specific_info.get('Equivalent-Arcade')
+	equivalent_arcade = game.metadata.specific_info.get('Equivalent Arcade')
 	if not equivalent_arcade and main_config.find_equivalent_arcade_games:
-		software_name = game.metadata.specific_info.get('MAME-Software-Name')
-		parent_name = game.metadata.specific_info.get('MAME-Software-Parent')
+		software_name = game.metadata.specific_info.get('MAME Software Name')
+		parent_name = game.metadata.specific_info.get('MAME Software Parent')
 		if software_name:
 			equivalent_arcade = find_equivalent_arcade_game(game, software_name)
 			if not equivalent_arcade and parent_name:
 				equivalent_arcade = find_equivalent_arcade_game(game, parent_name)
 			if equivalent_arcade:
-				game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
+				game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
 	
 	if equivalent_arcade:
 		add_metadata_from_arcade(game, equivalent_arcade)

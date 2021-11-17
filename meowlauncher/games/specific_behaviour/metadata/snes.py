@@ -108,7 +108,7 @@ def parse_sufami_turbo_header(rom: FileROM, metadata: Metadata):
 
 	header = rom.read(amount=56)
 	#Magic: 0:14 Should be "BANDAI SFC-ADX"
-	metadata.specific_info['Internal-Title'] = header[16:30].decode('shift-jis', errors='ignore')
+	metadata.specific_info['Internal Title'] = header[16:30].decode('shift-jis', errors='ignore')
 	#Game ID: 48:51 Could this be considered product code?
 	metadata.series_index = header[51]
 	#ROM speed: 52
@@ -204,7 +204,7 @@ def add_normal_snes_header(rom: FileROM, metadata: Metadata):
 	if rom_size % 1024 == 512:
 		#512-byte copier header at beginning
 		rom.header_length_for_crc_calculation = 512
-		metadata.specific_info['Has-Copier-Header'] = True
+		metadata.specific_info['Has Copier Header?'] = True
 		possible_offsets = [offset + 512 for offset in possible_offsets]
 		#While the copier header specifies LoROM/HiROM/etc, they are sometimes wrong, so I will ignore them
 
@@ -222,13 +222,13 @@ def add_normal_snes_header(rom: FileROM, metadata: Metadata):
 			continue
 
 	if header_data:
-		metadata.specific_info['Internal-Title'] = header_data['Title']
+		metadata.specific_info['Internal Title'] = header_data['Title']
 		metadata.specific_info['Mapper'] = header_data.get('ROM layout')
 		rom_type = header_data.get('ROM type')
 		if rom_type:
-			metadata.specific_info['Expansion-Chip'] = rom_type.expansion_chip
+			metadata.specific_info['Expansion Chip'] = rom_type.expansion_chip
 			metadata.save_type = SaveType.Cart if rom_type.has_battery else SaveType.Nothing
-			metadata.specific_info['Has-RTC'] = rom_type.has_rtc
+			metadata.specific_info['Has RTC?'] = rom_type.has_rtc
 		licensee = header_data.get('Licensee')
 		if licensee is not None:
 			if licensee in nintendo_licensee_codes:
@@ -302,7 +302,7 @@ def add_satellaview_metadata(rom: FileROM, metadata: Metadata):
 			continue
 
 	if header_data:
-		metadata.specific_info['Internal-Title'] = header_data['Title']
+		metadata.specific_info['Internal Title'] = header_data['Title']
 		metadata.specific_info['Mapper'] = header_data.get('ROM layout')
 		publisher = header_data.get('Publisher')
 		if publisher is not None:
@@ -345,16 +345,16 @@ def add_snes_software_list_metadata(software: Software, metadata: Metadata):
 	expansion_chip = software.get_part_feature('enhancement')
 	#This stuff is detected as DSP_1 from the ROM header, so let's do that properly
 	if expansion_chip == 'DSP2':
-		metadata.specific_info['Expansion-Chip'] = SNESExpansionChip.DSP_2
+		metadata.specific_info['Expansion Chip'] = SNESExpansionChip.DSP_2
 	elif expansion_chip == 'DSP3':
-		metadata.specific_info['Expansion-Chip'] = SNESExpansionChip.DSP_3
+		metadata.specific_info['Expansion Chip'] = SNESExpansionChip.DSP_3
 	elif expansion_chip == 'DSP4':
-		metadata.specific_info['Expansion-Chip'] = SNESExpansionChip.DSP_4
+		metadata.specific_info['Expansion Chip'] = SNESExpansionChip.DSP_4
 	#Distinguish between subtypes properly
 	elif expansion_chip == 'ST010':
-		metadata.specific_info['Expansion-Chip'] = SNESExpansionChip.ST010
+		metadata.specific_info['Expansion Chip'] = SNESExpansionChip.ST010
 	elif expansion_chip == 'ST011':
-		metadata.specific_info['Expansion-Chip'] = SNESExpansionChip.ST011
+		metadata.specific_info['Expansion Chip'] = SNESExpansionChip.ST011
 
 	#Meh...
 	if software.name in {'ffant2', 'ffant2a'}:
@@ -376,7 +376,7 @@ def add_snes_metadata(game: ROMGame):
 
 	equivalent_arcade = try_get_equivalent_arcade(rom, game.metadata.names.values())
 	if equivalent_arcade:
-		game.metadata.specific_info['Equivalent-Arcade'] = equivalent_arcade
+		game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
 
 	software = get_software_list_entry(game)
 	if software:

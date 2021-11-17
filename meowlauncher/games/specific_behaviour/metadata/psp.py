@@ -59,15 +59,15 @@ def add_info_from_pbp(rom: ROM, metadata: Metadata, pbp_file: bytes):
 			#Dunno what these 3 other images do exactly, so they have crap names for now
 			icon1 = load_image_from_bytes(pbp_file[icon1_offset:pic0_offset])
 			if icon1:
-				metadata.images['Icon-1'] = icon1
+				metadata.images['Icon 1'] = icon1
 		if pic0_offset > icon1_offset:
 			pic0 = load_image_from_bytes(pbp_file[pic0_offset:pic1_offset])
 			if pic0:
-				metadata.images['Picture-0'] = pic0
+				metadata.images['Picture 0'] = pic0
 		if pic1_offset > pic0_offset:
 			pic1 = load_image_from_bytes(pbp_file[pic1_offset:snd0_offset])
 			if pic1:
-				metadata.images['Background-Image'] = pic1
+				metadata.images['Background Image'] = pic1
 
 def add_psp_system_info(metadata: Metadata):
 	builtin_gamepad = input_metadata.NormalController()
@@ -105,7 +105,7 @@ def add_psp_iso_info(path: str, metadata: Metadata):
 			year = date.years_since_1900 + 1900
 			month = date.month
 			day = date.day_of_month
-			metadata.specific_info['Build-Date'] = Date(year, month, day)
+			metadata.specific_info['Build Date'] = Date(year, month, day)
 			guessed = Date(year, month, day, True)
 			if guessed.is_better_than(metadata.release_date):
 				metadata.release_date = guessed
@@ -115,16 +115,16 @@ def add_psp_iso_info(path: str, metadata: Metadata):
 				iso.get_record(iso_path='/UMD_VIDEO/PARAM.SFO')
 				#We could parse this PARAM.SFO but there's not much point given we aren't going to make a launcher for UMD videos at this stage
 				#TODO There is also potentially /UMD_AUDIO/ I think too so I should rewrite this one day
-				metadata.specific_info['PlayStation-Category'] = 'UMD Video'
+				metadata.specific_info['PlayStation Category'] = 'UMD Video'
 				return
 			except PyCdlibInvalidInput:
 				if main_config.debug:
 					print(path, 'has no PARAM.SFO inside')
 		if have_pillow:
 			metadata.images['Banner'] = get_image_from_iso(iso, '/PSP_GAME/ICON0.PNG')
-			metadata.images['Icon-1'] = get_image_from_iso(iso, '/PSP_GAME/ICON1.PNG')
-			metadata.images['Picture-0'] = get_image_from_iso(iso, '/PSP_GAME/PIC0.PNG')
-			metadata.images['Background-Image'] = get_image_from_iso(iso, '/PSP_GAME/PIC1.PNG')
+			metadata.images['Icon 1'] = get_image_from_iso(iso, '/PSP_GAME/ICON1.PNG')
+			metadata.images['Picture 0'] = get_image_from_iso(iso, '/PSP_GAME/PIC0.PNG')
+			metadata.images['Background Image'] = get_image_from_iso(iso, '/PSP_GAME/PIC1.PNG')
 	except PyCdlibInvalidISO as ex:
 		if main_config.debug:
 			print(path, 'is invalid ISO', ex)
@@ -139,7 +139,7 @@ def add_psp_metadata(game: ROMGame):
 		add_info_from_pbp(game.rom, game.metadata, cast(FileROM, game.rom).read())
 		#These are basically always named EBOOT.PBP (due to how PSPs work I guess), so that's not a very good launcher name, and use the folder it's stored in instead
 		if game.rom.name.lower() == 'eboot':
-			game.metadata.add_alternate_name(game.rom.path.parent.name, 'Folder-Name')
+			game.metadata.add_alternate_name(game.rom.path.parent.name, 'Folder Name')
 			game.rom.ignore_name = True
 	elif game.rom.extension == 'iso' and have_pycdlib:
 		add_psp_iso_info(str(game.rom.path), game.metadata)

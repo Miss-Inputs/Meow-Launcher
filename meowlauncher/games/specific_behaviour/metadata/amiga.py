@@ -33,10 +33,10 @@ def add_amiga_metadata_from_software_list(software: Software, metadata: Metadata
 def add_info_from_filename_tags(tags: Iterable[str], metadata: Metadata):
 	for tag in tags:
 		if tag == '[HD]':
-			metadata.specific_info['Requires-Hard-Disk'] = True
+			metadata.specific_info['Requires Hard Disk?'] = True
 			continue
 		if tag == '[WB]':
-			metadata.specific_info['Requires-Workbench'] = True
+			metadata.specific_info['Requires Workbench?'] = True
 			continue
 		
 		models = {'A1000', 'A1200', 'A4000', 'A2000', 'A3000', 'A3000UX', 'A2024', 'A2500', 'A4000T', 'A500', 'A500+', 'A570', 'A600', 'A600HD'}
