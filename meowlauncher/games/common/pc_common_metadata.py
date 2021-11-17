@@ -119,7 +119,7 @@ def get_first_pe_resource(resource_dict):
 			return get_first_pe_resource(v)
 		return k, v
 
-def parse_pe_group_icon_directory(data: bytes) -> dict[Any, dict[str, Any]]:
+def parse_pe_group_icon_directory(data: bytes) -> dict[int, dict[str, int]]:
 	struct_format = '<BBBBHHIH'
 	_, _, count = struct.unpack('<HHH', data[:6]) #don't need type I think
 	return {entry_id: {'width': width, 'height': height, 'colour_count': colour_count, 'planes': planes, 'bit_count': bit_count, 'bytes_in_res': bytes_in_res}

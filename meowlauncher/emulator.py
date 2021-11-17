@@ -1,8 +1,8 @@
 from collections.abc import Callable, Mapping, MutableMapping, Sequence
-from typing import Any, Optional
+from typing import Optional
 
 from meowlauncher.common_types import (ConfigValueType, EmulatorStatus,
-                                       HostPlatform)
+                                       HostPlatform, TypeOfConfigValue)
 from meowlauncher.config.main_config import main_config
 
 from .emulated_game import EmulatedGame
@@ -10,8 +10,8 @@ from .launcher import LaunchCommand
 from .runner import Runner
 from .runner_config import EmulatorConfig, RunnerConfigValue
 
-LaunchCommandFunc = Callable[[EmulatedGame, Mapping[str, Any], EmulatorConfig], LaunchCommand] #for now
-LibretroFrontendLaunchCommandFunc = Callable[[EmulatedGame, Mapping[str, Any], EmulatorConfig, EmulatorConfig], LaunchCommand]
+LaunchCommandFunc = Callable[[EmulatedGame, Mapping[str, TypeOfConfigValue], EmulatorConfig], LaunchCommand] #for now
+LibretroFrontendLaunchCommandFunc = Callable[[EmulatedGame, Mapping[str, TypeOfConfigValue], EmulatorConfig, EmulatorConfig], LaunchCommand]
 
 class Emulator(Runner):
 	#I decided what actually defines an "emulator" vs. a Runner with is_emulated -> True is that this is more of a "chooseable emulator", but ChooseableEmulator sounds silly as a class name, so like I dunno

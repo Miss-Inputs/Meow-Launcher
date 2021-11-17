@@ -1,6 +1,7 @@
 from abc import ABC
 from collections.abc import Mapping
-from typing import Any
+
+from meowlauncher.common_types import TypeOfConfigValue
 
 from .configured_emulator import ConfiguredEmulator
 from .emulated_game import EmulatedGame
@@ -9,7 +10,7 @@ from .launcher import Launcher
 
 
 class EmulatorLauncher(Launcher, ABC):
-	def __init__(self, game: EmulatedGame, emulator: ConfiguredEmulator, platform_config: Mapping[str, Any]=None) -> None:
+	def __init__(self, game: EmulatedGame, emulator: ConfiguredEmulator, platform_config: Mapping[str, TypeOfConfigValue]=None) -> None:
 		self.game: EmulatedGame = game
 		self.runner: ConfiguredEmulator = emulator
 		self.platform_config = platform_config if platform_config else {}

@@ -1,14 +1,15 @@
 from abc import ABC
 from collections.abc import Collection
-from typing import Any, Optional
+from typing import Optional
 
-from meowlauncher.common_types import ConfigValueType, MediaType
+from meowlauncher.common_types import (ConfigValueType, MediaType,
+                                       TypeOfConfigValue)
 from meowlauncher.games.roms.rom import FileROM
 
 
 class PlatformConfigValue():
 	#This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno
-	def __init__(self, value_type: ConfigValueType, default_value: Any, description: str):
+	def __init__(self, value_type: ConfigValueType, default_value: TypeOfConfigValue, description: str):
 		self.type = value_type
 		self.default_value = default_value
 		self.description = description
