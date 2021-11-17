@@ -1,5 +1,4 @@
 import configparser
-import os
 import sys
 from collections.abc import Collection, Mapping
 from pathlib import Path
