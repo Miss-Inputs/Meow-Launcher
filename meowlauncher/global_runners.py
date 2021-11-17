@@ -37,5 +37,10 @@ class _ScummVM(Runner):
 	def name(self) -> str:
 		return 'ScummVM'
 
+class ScummVM(ConfiguredRunner):
+	def __init__(self):
+		config = RunnerConfig(main_config.scummvm_exe_path)
+		super().__init__(_ScummVM(), config)
+
 wine = Wine(_WineConfig(main_config.wine_path, main_config.wineprefix))
-scummvm = _ScummVM()
+scummvm = ScummVM()

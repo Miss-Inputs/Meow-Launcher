@@ -51,12 +51,12 @@ def add_metadata_from_tags(game: ROMGame):
 	if not game.metadata.regions:
 		regions = get_regions_from_filename_tags(tags)
 		if regions:
-			game.metadata.regions = regions
+			game.metadata.regions = list(regions)
 
 	if not game.metadata.languages:
 		languages = get_languages_from_filename_tags(tags)
 		if languages:
-			game.metadata.languages = languages			
+			game.metadata.languages = list(languages)
 
 def add_metadata_from_regions(metadata: Metadata):
 	if metadata.regions:

@@ -13,7 +13,7 @@ nointro_language_list_regex = re.compile(r'\(((?:[A-Z][a-z](?:-[A-Z][a-z]+)?,)*(
 maybeintro_translated_regex = re.compile(r'\[(?:tr |T-|T\+)([A-Z][a-z])(?: (?:by )?[^]]+)?\]')
 tosec_language_regex = re.compile(r'\(([a-z][a-z])(?:-([a-z][a-z]))?\)')
 
-def get_languages_from_tags_directly(tags: Sequence[str]) -> list[region_info.Language]:
+def get_languages_from_tags_directly(tags: Sequence[str]) -> Sequence[region_info.Language]:
 	langs = []
 	for tag in tags:
 		for language in region_info.languages:
@@ -24,7 +24,7 @@ def get_languages_from_tags_directly(tags: Sequence[str]) -> list[region_info.La
 
 	return langs
 
-def get_nointro_language_list_from_filename_tags(tags: Sequence[str]) -> Optional[list[region_info.Language]]:
+def get_nointro_language_list_from_filename_tags(tags: Sequence[str]) -> Optional[Sequence[region_info.Language]]:
 	for tag in tags:
 		if (language_list_match := nointro_language_list_regex.match(tag)):
 			langs = []
@@ -37,14 +37,16 @@ def get_nointro_language_list_from_filename_tags(tags: Sequence[str]) -> Optiona
 			return langs
 	return None
 
-def get_maybeintro_languages_from_filename_tags(tags: Sequence[str]) -> Optional[list[region_info.Language]]:
+def get_maybeintro_languages_from_filename_tags(tags: Sequence[str]) -> Optional[region_info.Language]:
 	for tag in tags:
 		if translation_match := maybeintro_translated_regex.match(tag):
-			return [region_info.get_language_by_short_code(translation_match.group(1))]
+			lang = region_info.get_language_by_short_code(translation_match.group(1))
+			if lang:
+				return lang
 	return None
 
 tosec_date_tag_regex = re.compile(r'\((-|[x\d]{4}(?:-\d{2}(?:-\d{2})?)?)\)')
-def get_tosec_languages_from_filename_tags(tags: Sequence[str]) -> Optional[list[region_info.Language]]:
+def get_tosec_languages_from_filename_tags(tags: Sequence[str]) -> Optional[Sequence[region_info.Language]]:
 	found_year_tag = False
 	found_publisher_tag = False
 
@@ -72,10 +74,10 @@ def get_tosec_languages_from_filename_tags(tags: Sequence[str]) -> Optional[list
 					return [first_language]
 	return None
 
-def get_languages_from_filename_tags(tags: Sequence[str]) -> Optional[list[region_info.Language]]:
-	langs = get_maybeintro_languages_from_filename_tags(tags)
-	if langs:
-		return langs
+def get_languages_from_filename_tags(tags: Sequence[str]) -> Optional[Sequence[region_info.Language]]:
+	lang = get_maybeintro_languages_from_filename_tags(tags)
+	if lang:
+		return [lang]
 
 	langs = get_nointro_language_list_from_filename_tags(tags)
 	if langs:
@@ -91,7 +93,7 @@ def get_languages_from_filename_tags(tags: Sequence[str]) -> Optional[list[regio
 
 	return None
 
-def get_regions_from_filename_tags_strictly(tags: Sequence[str]) -> Optional[list[region_info.Region]]:
+def get_regions_from_filename_tags_strictly(tags: Sequence[str]) -> Optional[Sequence[region_info.Region]]:
 	#Only of the form (Region 1, Region 2) strictly
 	for tag in tags:
 		if not (tag.startswith('(') and tag.endswith(')')):
@@ -102,23 +104,22 @@ def get_regions_from_filename_tags_strictly(tags: Sequence[str]) -> Optional[lis
 		if any(r is None for r in regions):
 			#This wasn't the tag we wanted
 			continue
-
 		return regions
 	return None
 
-def get_regions_from_filename_tags_loosely(tags: Sequence[str]) -> list[region_info.Region]:
+def get_regions_from_filename_tags_loosely(tags: Sequence[str]) -> Sequence[region_info.Region]:
 	regions = []
 	for tag in tags:
 		for region in region_info.regions:
 			if region.name in tag:
 				regions.append(region)
 		if re.search(r'\bUS(?:\b|,|/)', tag):
-			regions.append(region_info.get_region_by_name('USA'))
+			regions.append(region_info.regions_by_name['USA'])
 		if re.search(r'\bEuro(?:\b|,|/)', tag):
-			regions.append(region_info.get_region_by_name('Europe'))
+			regions.append(region_info.regions_by_name['Europe'])
 	return regions
 
-def get_tosec_region_list_from_filename_tags(tags: Sequence[str]) -> Optional[list[region_info.Region]]:
+def get_tosec_region_list_from_filename_tags(tags: Sequence[str]) -> Optional[Sequence[region_info.Region]]:
 	#Only something like (JP-US)
 	found_year_tag = False
 	found_publisher_tag = False
@@ -147,8 +148,8 @@ def get_tosec_region_list_from_filename_tags(tags: Sequence[str]) -> Optional[li
 		return regions
 	return None
 
-def get_regions_from_filename_tags(tags: Sequence[str], loose=False) -> Optional[list[region_info.Region]]:
-	regions: Optional[list[region_info.Region]]
+def get_regions_from_filename_tags(tags: Sequence[str], loose=False) -> Optional[Sequence[region_info.Region]]:
+	regions: Optional[Sequence[region_info.Region]]
 	if loose:
 		regions = get_regions_from_filename_tags_loosely(tags)
 		if regions:

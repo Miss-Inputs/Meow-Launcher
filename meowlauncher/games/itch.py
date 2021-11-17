@@ -87,7 +87,7 @@ class ItchGame(Game):
 		return self._name
 
 	def add_metadata_from_folder(self) -> None:
-		engine = detect_engine_recursively(str(self.path), self.metadata)
+		engine = detect_engine_recursively(self.path, self.metadata)
 		if engine:
 			self.metadata.specific_info['Engine'] = engine
 
@@ -226,7 +226,7 @@ class ItchGame(Game):
 			#Might be a folder if Mac, I guess
 			add_metadata_for_raw_exe(str(exe_path), self.metadata)
 			if 'icon' not in metadata.images:
-				icon = look_for_icon_next_to_file(str(exe_path))
+				icon = look_for_icon_next_to_file(exe_path)
 				if icon:
 					metadata.images['Icon'] = icon
 

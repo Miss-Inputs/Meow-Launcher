@@ -3,12 +3,12 @@ import os
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
+from meowlauncher.configured_runner import ConfiguredRunner
 from meowlauncher.game import Game
 from meowlauncher.games.common.pc_common_metadata import \
     look_for_icon_in_folder
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.launcher import Launcher
-from meowlauncher.runner import Runner
 from meowlauncher.util.region_info import get_language_by_short_code
 
 from .scummvm_config import scummvm_config
@@ -124,7 +124,7 @@ class ScummVMGame(Game):
 		#Everything else is gonna be an actual option
 
 class ScummVMLauncher(Launcher):
-	def __init__(self, game: ScummVMGame, runner: Runner) -> None:
+	def __init__(self, game: ScummVMGame, runner: ConfiguredRunner) -> None:
 		self.game: ScummVMGame = game
 		super().__init__(game, runner)
 
@@ -141,4 +141,4 @@ class ScummVMLauncher(Launcher):
 		if main_config.scummvm_config_path != os.path.expanduser('~/.config/scummvm/scummvm.ini'):
 			args.append(f'--config={main_config.scummvm_config_path}')
 		args.append(self.game.game_id)
-		return LaunchCommand('scummvm', args)
+		return LaunchCommand(self.runner.config.exe_path, args)

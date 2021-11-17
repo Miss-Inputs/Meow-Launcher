@@ -2,6 +2,7 @@
 
 import datetime
 import os
+from pathlib import Path
 import shutil
 import sys
 import time
@@ -17,31 +18,29 @@ from meowlauncher.util.io_utils import sanitize_name
 #Consider it to be its own kind of frontend, perhaps.
 #This code sucks titty balls
 
-def copy_to_folder(path: str, *dest_folder_components: str):
+def copy_to_folder(path: Path, *dest_folder_components: str):
 	dest_folder = os.path.join(*dest_folder_components)
 	os.makedirs(dest_folder, exist_ok=True)
 	shutil.copy(path, dest_folder)
 
 def delete_existing_output_dir() -> None:
-	def rmdir_recursive(path: str) -> None:
-		for f in os.listdir(path):
-			file_path = os.path.join(path, f)
-			if os.path.isdir(file_path):
-				rmdir_recursive(file_path)
+	def rmdir_recursive(path: Path) -> None:
+		for f in path.iterdir():
+			if f.is_dir():
+				rmdir_recursive(f)
 			else:
-				os.unlink(file_path)
+				f.unlink()
 		try:
-			os.rmdir(path)
+			path.rmdir()
 		except FileNotFoundError:
 			pass
 
 	if os.path.isdir(main_config.organized_output_folder):
-		for f in os.listdir(main_config.organized_output_folder):
-			path = os.path.join(main_config.organized_output_folder, f)
-			rmdir_recursive(path)
+		for f in Path(main_config.organized_output_folder).iterdir():
+			rmdir_recursive(f)
 			#Only files here, no directories
 
-def move_into_extra_subfolder(path: str, desktop: ConfigParser, subfolder: str, keys, missing_value=None):
+def move_into_extra_subfolder(path: Path, desktop: ConfigParser, subfolder: str, keys, missing_value=None):
 	subsubfolder = []
 	is_array = '*' in keys
 	subsubfolders = []
@@ -135,7 +134,7 @@ def move_into_extra_subfolder(path: str, desktop: ConfigParser, subfolder: str, 
 		else:
 			copy_to_folder(path, main_config.organized_output_folder, subfolder)
 
-def move_into_subfolders(path) -> None:
+def move_into_subfolders(path: Path) -> None:
 	desktop = get_desktop(path)
 	platform = get_field(desktop, 'Platform')
 	categories = get_array(desktop, 'Categories')
@@ -215,7 +214,7 @@ def main() -> None:
 		for root, _, files in os.walk(main_config.output_folder):
 			for f in files:
 				if f.endswith('.desktop'):
-					path = os.path.join(root, f)
+					path = Path(root, f)
 					desktop = get_desktop(path)
 					move_into_extra_subfolder(path, desktop, sanitize_name(name, supersafe=True), key, missing_value)
 		if main_config.print_times:

@@ -1,17 +1,18 @@
 import configparser
 import os
 import sys
-from typing import Any
+from collections.abc import Collection, Mapping
+from pathlib import Path
 
 from meowlauncher.common_paths import config_dir, data_dir
-from meowlauncher.common_types import ConfigValueType
+from meowlauncher.common_types import ConfigValueType, TypeOfConfigValue
 from meowlauncher.util.io_utils import ensure_exist
 
 from ._config_utils import (ConfigValue, parse_path_list, parse_string_list,
                             parse_value)
 
-_main_config_path = os.path.join(config_dir, 'config.ini')
-_ignored_dirs_path = os.path.join(config_dir, 'ignored_directories.txt')
+_main_config_path = config_dir.joinpath('config.ini')
+_ignored_dirs_path = config_dir.joinpath('ignored_directories.txt')
 
 def parse_command_line_bool(value: str) -> bool:
 	#I swear there was some inbuilt way to do this oh well
@@ -23,7 +24,7 @@ def parse_command_line_bool(value: str) -> bool:
 
 	raise TypeError(value)
 
-def convert_value_for_ini(value: Any) -> str:
+def convert_value_for_ini(value: TypeOfConfigValue) -> str:
 	if value is None:
 		return ''
 	if isinstance(value, list):
@@ -99,8 +100,8 @@ def get_config_ini_options() -> dict[str, dict[str, ConfigValue]]:
 def get_runtime_options() -> dict[str, ConfigValue]:
 	return {name: opt for name, opt in _config_ini_values.items() if opt.section == runtime_option_section}
 
-def get_command_line_arguments() -> dict[str, Any]:
-	d: dict[str, Any] = {}
+def get_command_line_arguments() -> dict[str, TypeOfConfigValue]:
+	d: dict[str, TypeOfConfigValue] = {}
 	for i, arg in enumerate(sys.argv):
 		if not arg.startswith('--'):
 			continue
@@ -121,7 +122,7 @@ def get_command_line_arguments() -> dict[str, Any]:
 				#if option.type == ConfigValueType.Bool: #or do I wanna do that
 				#	d[name] = parse_command_line_bool(value)
 				if option.type in (ConfigValueType.FilePath, ConfigValueType.FolderPath):
-					d[name] = os.path.expanduser(value)
+					d[name] = Path(value).expanduser()
 				elif option.type in (ConfigValueType.FilePathList, ConfigValueType.FolderPathList):
 					d[name] = parse_path_list(value)
 				elif option.type == ConfigValueType.StringList:
@@ -130,12 +131,12 @@ def get_command_line_arguments() -> dict[str, Any]:
 					d[name] = value
 	return d
 
-def load_ignored_directories():
+def load_ignored_directories() -> Collection[Path]:
 	ignored_directories = []
 
 	try:
 		with open(_ignored_dirs_path, 'rt', encoding='utf-8') as ignored_txt:
-			ignored_directories += ignored_txt.read().splitlines()
+			ignored_directories += [Path(line) for line in ignored_txt.read().splitlines()]
 	except FileNotFoundError:
 		pass
 
@@ -146,23 +147,23 @@ def load_ignored_directories():
 		for ignored_dir in parse_path_list(arg):
 			ignored_directories.append(ignored_dir)
 
-	ignored_directories = [dir if dir.endswith(os.sep) else dir + os.sep for dir in ignored_directories if dir.strip()]
+	#ignored_directories = [dir if dir.endswith(os.sep) else dir + os.sep for dir in ignored_directories if dir.strip()]
 
 	return ignored_directories
 
-def write_ignored_directories(ignored_dirs):
+def write_ignored_directories(ignored_dirs: Collection[Path]):
 	try:
-		with open(_ignored_dirs_path, 'wt', encoding='utf-8') as ignored_txt:
+		with _ignored_dirs_path.open('wt', encoding='utf-8') as ignored_txt:
 			for ignored_dir in ignored_dirs:
-				ignored_txt.write(ignored_dir)
+				ignored_txt.write(str(ignored_dir))
 				ignored_txt.write('\n')
 	except OSError as oe:
 		print('AAaaaa!!! Failed to write ignored directories file!!', oe)
 
-def write_new_main_config(new_config):
+def write_new_main_config(new_config: Mapping[str, Mapping[str, TypeOfConfigValue]]):
 	write_new_config(new_config, _main_config_path)
 
-def write_new_config(new_config, config_file_path: str) -> None:
+def write_new_config(new_config: Mapping[str, Mapping[str, TypeOfConfigValue]], config_file_path: Path) -> None:
 	parser = configparser.ConfigParser(interpolation=None)
 	parser.optionxform = str #type: ignore[assignment]
 	ensure_exist(config_file_path)
@@ -202,7 +203,7 @@ class Config():
 			with open(_main_config_path, 'wt', encoding='utf-8') as f:
 				self.parser.write(f)
 
-		def __getattr__(self, name: str):
+		def __getattr__(self, name: str) -> TypeOfConfigValue:
 			if name in self.values:
 				if name in self.runtime_overrides:
 					return self.runtime_overrides[name]

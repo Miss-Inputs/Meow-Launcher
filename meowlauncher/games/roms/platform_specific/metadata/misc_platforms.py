@@ -1,5 +1,6 @@
 #Not worth putting these in their own source file I think
 from enum import Enum, auto
+from typing import cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import MediaType
@@ -10,6 +11,7 @@ from meowlauncher.games.mame_common.mame_executable import \
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.mame_common.software_list_info import \
     get_software_list_entry
+from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
 
 from .generic import add_generic_info
@@ -18,7 +20,8 @@ from .generic import add_generic_info
 def add_vic10_info(game: ROMGame):
 	#Input info: Keyboard or joystick
 
-	has_header = game.metadata.media_type == MediaType.Cartridge and (game.rom.get_size() % 256) == 2
+	rom = cast(FileROM, game.rom)
+	has_header = game.metadata.media_type == MediaType.Cartridge and (rom.get_size() % 256) == 2
 	game.metadata.specific_info['Headered'] = has_header
 	software = get_software_list_entry(game, skip_header=2 if has_header else 0)
 	if software:
@@ -28,7 +31,8 @@ def add_vic10_info(game: ROMGame):
 def add_vic20_info(game: ROMGame):
 	#Input info: Keyboard and/or joystick
 
-	has_header = game.metadata.media_type == MediaType.Cartridge and (game.rom.get_size() % 256) == 2
+	rom = cast(FileROM, game.rom)
+	has_header = game.metadata.media_type == MediaType.Cartridge and (rom.get_size() % 256) == 2
 	game.metadata.specific_info['Headered'] = has_header
 	software = get_software_list_entry(game, skip_header=2 if has_header else 0)
 	if software:
@@ -115,7 +119,8 @@ def add_colecovision_info(game: ROMGame):
 def add_ibm_pcjr_info(game: ROMGame):
 	#Input info: Keyboard or joystick
 
-	magic = game.rom.read(amount=32)
+	rom = cast(FileROM, game.rom)
+	magic = rom.read(amount=32)
 
 	header_length = 0
 

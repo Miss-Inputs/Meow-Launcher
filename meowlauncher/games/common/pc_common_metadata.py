@@ -1,6 +1,7 @@
 import datetime
 import io
 import os
+from pathlib import Path
 import struct
 from typing import Any, Optional, Union
 
@@ -173,41 +174,43 @@ def get_icon_inside_exe(path: str) -> Optional['Image.Image']:
 			pass
 	return None
 
-def look_for_icon_next_to_file(path: str) -> Union[str, 'Image.Image', None]:
-	exe_icon = get_icon_inside_exe(path)
+def look_for_icon_next_to_file(path: Path) -> Optional[Union[Path, 'Image.Image']]:
+	exe_icon = get_icon_inside_exe(str(path))
 	if exe_icon:
 		return exe_icon
 
-	parent_folder = os.path.dirname(path)
-	for f in os.listdir(parent_folder):
+	parent_folder = path.parent
+	for f in parent_folder.iterdir():
 		for ext in icon_extensions:
-			if f.lower() == os.path.splitext(os.path.basename(path))[0].lower() + os.path.extsep + ext:
-				return os.path.join(parent_folder, f)
+			if f.name.lower() == path.with_suffix(os.path.extsep + ext).name.lower():
+				return f
 
 	return look_for_icon_in_folder(parent_folder, False)
 
-def look_for_icon_in_folder(folder: str, look_for_any_ico: bool=True) -> Optional[str]:
-	for f in os.listdir(folder):
-		for ext in icon_extensions:
-			if f.lower() == 'icon' + os.path.extsep + ext:
-				return os.path.join(folder, f)
-			if f.startswith('goggame-') and f.endswith(icon_extensions):
-				return os.path.join(folder, f)
-			if f == 'gfw_high.ico':
-				#Some kind of older GOG icon? Except not in actual GOG games, just stuff that was distributed elsewhere I guess
-				return os.path.join(folder, f)
+def look_for_icon_in_folder(folder: Path, look_for_any_ico: bool=True) -> Optional[Path]:
+	for f in folder.iterdir():
+		if f.name == 'gfw_high.ico':
+			#Some kind of older GOG icon? Except not in actual GOG games, just stuff that was distributed elsewhere I guess
+			return f
 
+		for ext in icon_extensions:
+			if f.suffix == os.path.extsep + ext:
+				if f.name.lower() == 'icon':
+					return f
+				if f.name.startswith('goggame-'):
+					return f
+			
 	if look_for_any_ico:
 		#Just get the first ico if we didn't find anything specific
-		for f in os.listdir(folder):
-			if f.lower().endswith('.ico'):
-				return os.path.join(folder, f)
+		for f in folder.iterdir():
+			if f.name.lower().endswith('.ico'):
+				return f
 	return None
 
-def check_for_interesting_things_in_folder(folder: str, metadata: Metadata, find_wrappers: bool=False):
+def check_for_interesting_things_in_folder(folder: Path, metadata: Metadata, find_wrappers: bool=False):
 	#Let's check for things existing because we can (there's not really any other reason to do this, it's just fun)
 	#Not sure if any of these are in lowercase? Or they might be in a different directory
-	dir_entries = list(os.scandir(folder))
+	dir_entries = list(folder.iterdir())
 	files = [f.name.lower() for f in dir_entries if f.is_file()]
 	subdirs = [f.name.lower() for f in dir_entries if f.is_dir()]
 	

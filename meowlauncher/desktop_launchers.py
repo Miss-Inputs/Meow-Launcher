@@ -28,7 +28,7 @@ name_section_name = 'X-Meow Launcher Names'
 document_section_name = 'X-Meow Launcher Documents'
 description_section_name = 'X-Meow Launcher Descriptions'
 
-def get_desktop(path: str) -> configparser.ConfigParser:
+def get_desktop(path: Path) -> configparser.ConfigParser:
 	parser = configparser.ConfigParser(interpolation=None, delimiters=('='), comment_prefixes=('#'))
 	parser.optionxform = str #type: ignore[assignment]
 	parser.read(path)
@@ -76,7 +76,7 @@ def make_linux_desktop(launcher: LaunchCommand, display_name: str, fields: Mappi
 	#TODO: Remove this version, replace with above
 	filename = pick_new_filename(main_config.output_folder, display_name, 'desktop')
 	
-	path = os.path.join(main_config.output_folder, filename)
+	path = main_config.output_folder.joinpath(filename)
 
 	configwriter = configparser.ConfigParser(interpolation=None)
 	configwriter.optionxform = str #type: ignore[assignment]

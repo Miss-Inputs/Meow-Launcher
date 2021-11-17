@@ -331,22 +331,22 @@ class Metadata():
 
 		if self.images:
 			fields[image_section_name] = {}
-			for k, v in self.images.items():
-				fields[image_section_name][k] = v
+			for k, image in self.images.items():
+				fields[image_section_name][k] = image
 		
 		if self.names:
 			fields[name_section_name] = {}
-			for k, v in self.names.items():
-				fields[name_section_name][k] = v
-
+			for k, name in self.names.items():
+				fields[name_section_name][k] = name
+			
 		if self.documents:
 			fields[document_section_name] = {}
-			for k, v in self.documents.items():
-				fields[document_section_name][k] = v
+			for k, document in self.documents.items():
+				fields[document_section_name][k] = document
 
 		if self.descriptions:
 			fields[description_section_name] = {}
-			for k, v in self.descriptions.items():
-				fields[description_section_name][k] = v
+			for k, description in self.descriptions.items():
+				fields[description_section_name][k] = description
 
 		return fields

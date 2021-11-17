@@ -2,8 +2,9 @@
 #It's okay for a region to have None for its language if you can't make a reasonable assumption about the language
 #For my own reference: Refer to http://www.bubblevision.com/PAL-NTSC.htm https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 to add new regions/languages that might end up needing to be here
 
+from collections.abc import Iterable
 from enum import Enum, auto
-from typing import Optional
+from typing import NamedTuple, Optional
 
 
 class TVSystem(Enum):
@@ -11,31 +12,28 @@ class TVSystem(Enum):
 	PAL = auto()
 	Agnostic = auto()
 
-class Language():
-	def __init__(self, english_name: str, native_name: str, short_code: str):
-		self.english_name = english_name
-		self.native_name = native_name
-		self.short_code = short_code
+class Language(NamedTuple):
+	english_name: str
+	native_name: str
+	short_code: str
 
-	def __str__(self) -> str:
-		return '{0} ({1}) ({2})'.format(self.native_name, self.english_name, self.short_code)
+	#def __str__(self) -> str:
+	#	return '{0} ({1}) ({2})'.format(self.native_name, self.english_name, self.short_code)
 
-	def __repr__(self) -> str:
-		return 'Language({1!r}, {0!r}, {2!r})'.format(self.native_name, self.english_name, self.short_code)
+	#def __repr__(self) -> str:
+	#	return 'Language({1!r}, {0!r}, {2!r})'.format(self.native_name, self.english_name, self.short_code)
 
+class Region(NamedTuple):
+	name: str
+	short_code: Optional[str]
+	tv_system: Optional[TVSystem]
+	language: Optional[str] #This is just a singular language that can be inferred from software being released in this region, if zero or more than one language can be inferred it is left as none
+	
+	# def __str__(self):
+	# 	return '{0} ({1}) ({2}) ({3})'.format(self.name, self.short_code, self.tv_system, self.language)
 
-class Region():
-	def __init__(self, name: str, short_code: Optional[str], tv_system: Optional[TVSystem], language: Optional[str]):
-		self.name = name
-		self.short_code = short_code
-		self.tv_system = tv_system
-		self.language = language #This is just a singular language that can be inferred from software being released in this region, if zero or more than one language can be inferred it is left as none
-
-	def __str__(self):
-		return '{0} ({1}) ({2}) ({3})'.format(self.name, self.short_code, self.tv_system, self.language)
-
-	def __repr__(self):
-		return 'Region({0!r}, {1!r}, {2!r}, {3!r})'.format(self.name, self.short_code, self.tv_system, self.language)
+	# def __repr__(self):
+	# 	return 'Region({0!r}, {1!r}, {2!r}, {3!r})'.format(self.name, self.short_code, self.tv_system, self.language)
 
 languages = [
 	#These languages are specified in the No-Intro convention as being in this order, in case that ends up mattering:
@@ -272,8 +270,10 @@ regions = [
 	Region('World', None, TVSystem.Agnostic, None),
 	#Though it's probably in English; No-Intro uses this as shorthand for (Japan, USA, Europe) because nobody told them that's not the only three regions in the world. It is safe to say that anything released in those three regions would indeed need to be TV-agnostic though
 ]
+languages_by_english_name = {language.english_name: language for language in languages}
+regions_by_name = {region.name: region for region in regions}
 
-def get_language_by_short_code(code, case_insensitive=False):
+def get_language_by_short_code(code: str, case_insensitive=False) -> Optional[Language]:
 	if case_insensitive:
 		code = code.lower()
 	for language in languages:
@@ -284,7 +284,7 @@ def get_language_by_short_code(code, case_insensitive=False):
 
 	return None
 
-def get_language_by_english_name(name, case_insensitive=False):
+def get_language_by_english_name(name: str, case_insensitive=False) -> Optional[Language]:
 	if case_insensitive:
 		name = name.lower()
 	for language in languages:
@@ -293,27 +293,31 @@ def get_language_by_english_name(name, case_insensitive=False):
 
 	return None
 
-def get_region_by_name(name):
+def get_region_by_name(name: str) -> Optional[Region]:
 	for region in regions:
 		if region.name == name:
 			return region
 
 	return None
 
-def get_region_by_short_code(short_code, case_insensitive=False):
+def get_region_by_short_code(short_code: str, case_insensitive=False) -> Optional[Region]:
 	if case_insensitive:
 		short_code = short_code.lower()
 	for region in regions:
+		if not region.short_code:
+			continue
 		if (region.short_code.lower() if case_insensitive else region.short_code) == short_code:
 			return region
 
 	return None
 
-def get_language_from_regions(region_list):
+def get_language_from_regions(region_list: Iterable[Region]) -> Optional[Language]:
 	common_language = None
 	#If all the regions here have the same language, we can infer the language of the game. Otherwise, we sorta can't
 	#e.g. We know (USA, Australia) is English, but (Japan, USA) could be Japanese or English
 	for region in region_list:
+		if not region.language:
+			return None #Whomst knows then
 		if not common_language:
 			common_language = get_language_by_english_name(region.language)
 		elif region.language != common_language.english_name:
@@ -321,7 +325,7 @@ def get_language_from_regions(region_list):
 
 	return common_language
 
-def get_tv_system_from_regions(region_list):
+def get_tv_system_from_regions(region_list: Iterable[Region]) -> Optional[TVSystem]:
 	tv_systems = {region.tv_system for region in region_list if region.tv_system is not None}
 	if not tv_systems:
 		return None

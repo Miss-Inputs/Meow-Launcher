@@ -10,6 +10,7 @@ from meowlauncher.emulator_launcher import EmulatorLauncher
 from meowlauncher.games.mame_common.software_list import SoftwareList
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.util.io_utils import make_filename
+from meowlauncher.util.utils import find_filename_tags_at_end
 
 from .rom import ROM, CompressedROM, FileROM
 
@@ -21,7 +22,7 @@ class ROMGame(EmulatedGame):
 		self.metadata.platform = platform.name
 		self.platform = platform
 		self.metadata.categories = []
-		self.filename_tags: list[str] = []
+		self.filename_tags = find_filename_tags_at_end(rom.path.name)
 
 		self.subroms: list[FileROM] = []
 		self.software_lists: list[SoftwareList] = []

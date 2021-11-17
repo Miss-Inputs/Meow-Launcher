@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-import pathlib
 import traceback
 from collections.abc import Iterable, Sequence
 from pathlib import Path
@@ -32,7 +31,7 @@ from meowlauncher.games.roms.rom_game import ROMGame, ROMLauncher
 from meowlauncher.games.roms.roms_metadata import add_metadata
 from meowlauncher.runner_config import EmulatorConfig
 from meowlauncher.util import archives
-from meowlauncher.util.utils import find_filename_tags_at_end, starts_with_any
+from meowlauncher.util.utils import starts_with_any
 
 
 def parse_m3u(path: Path):
@@ -98,7 +97,6 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 
 		#TODO: We used to have a check here that we actually have anything in potential_emulator_names that supported the game before we added metadata, to save performance, but it got confusing in refactoring and had duplicated code… maybe we should do something like that again
 				
-		game.filename_tags = find_filename_tags_at_end(game.rom.name)
 		if subfolders and subfolders[-1] == game.rom.name:
 			game.metadata.categories = list(subfolders[:-1])
 		else:
@@ -194,16 +192,17 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 		file_list = []
 
 		for rom_dir in self.platform_config.paths:
-			rom_dir = os.path.expanduser(rom_dir)
-			if not os.path.isdir(rom_dir):
+			if not rom_dir.is_dir():
 				print('Oh no', self.name, 'has invalid ROM dir', rom_dir)
 				continue
 
 			#used_m3u_filenames = []
 			for root, dirs, files in os.walk(rom_dir):
-				if starts_with_any(root + os.sep, main_config.ignored_directories):
+				root_path = Path(root)
+				#TODO: What is this really trying to do?
+				if starts_with_any(str(root_path), [str(ignored_directory) for ignored_directory in main_config.ignored_directories]):
 					continue
-				subfolders = list(pathlib.Path(root).relative_to(rom_dir).parts)
+				subfolders = list(root_path.relative_to(rom_dir).parts)
 				if subfolders:
 					if any(subfolder in main_config.skipped_subfolder_names for subfolder in subfolders):
 						continue

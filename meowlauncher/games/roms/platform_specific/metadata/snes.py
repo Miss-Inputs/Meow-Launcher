@@ -15,7 +15,7 @@ from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Metadata
 from meowlauncher.platform_types import SNESExpansionChip
-from meowlauncher.util.region_info import get_region_by_name
+from meowlauncher.util.region_info import regions_by_name
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
@@ -80,23 +80,23 @@ rom_types = {
 }
 
 countries = {
-	0: get_region_by_name('Japan'),
-	1: get_region_by_name('USA'),
-	2: get_region_by_name('Europe'), #Includes Oceania and Asia too... I guess I have some refactoring to do. Like maybe PAL should be a region
-	3: get_region_by_name('Sweden'), #Includes Scandanavia
-	4: get_region_by_name('Finland'),
-	5: get_region_by_name('Denmark'),
-	6: get_region_by_name('France'),
-	7: get_region_by_name('Netherlands'),
-	8: get_region_by_name('Spain'),
-	9: get_region_by_name('Germany'), #Also includes Austria and Switzerland, apparently
-	10: get_region_by_name('Italy'),
-	11: get_region_by_name('Hong Kong'), #Also includes China... apparently? Were SNES games officially sold there?
-	12: get_region_by_name('Indonesia'),
-	13: get_region_by_name('Korea'),
-	15: get_region_by_name('Canada'),
-	16: get_region_by_name('Brazil'),
-	17: get_region_by_name('Australia'), #Is this actually used? Australian-specific releases (e.g. TMNT) use Europe still
+	0: regions_by_name['Japan'],
+	1: regions_by_name['USA'],
+	2: regions_by_name['Europe'], #Includes Oceania and Asia too... I guess I have some refactoring to do. Like maybe PAL should be a region
+	3: regions_by_name['Sweden'], #Includes Scandanavia
+	4: regions_by_name['Finland'],
+	5: regions_by_name['Denmark'],
+	6: regions_by_name['France'],
+	7: regions_by_name['Netherlands'],
+	8: regions_by_name['Spain'],
+	9: regions_by_name['Germany'], #Also includes Austria and Switzerland, apparently
+	10: regions_by_name['Italy'],
+	11: regions_by_name['Hong Kong'], #Also includes China... apparently? Were SNES games officially sold there?
+	12: regions_by_name['Indonesia'],
+	13: regions_by_name['Korea'],
+	15: regions_by_name['Canada'],
+	16: regions_by_name['Brazil'],
+	17: regions_by_name['Australia'], #Is this actually used? Australian-specific releases (e.g. TMNT) use Europe still
 }
 
 def parse_sufami_turbo_header(rom: FileROM, metadata: Metadata):

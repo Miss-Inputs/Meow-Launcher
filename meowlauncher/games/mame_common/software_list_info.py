@@ -1,7 +1,7 @@
 import os
-from pathlib import Path
 import zlib
-from collections.abc import Iterable, Sequence
+from collections.abc import Collection, Iterable, Sequence
+from pathlib import Path
 from typing import Any, Optional, cast
 
 from meowlauncher.common_types import MediaType
@@ -20,7 +20,7 @@ from .software_list import (Software, SoftwareCustomMatcher, SoftwareList,
 
 subtitles = load_dict(None, 'subtitles')
 
-def get_software_lists_by_names(names: Sequence[str]) -> list[SoftwareList]:
+def get_software_lists_by_names(names: Collection[str]) -> list[SoftwareList]:
 	if not names:
 		return []
 	return [software_list for software_list in [get_software_list_by_name(name) for name in names] if software_list]

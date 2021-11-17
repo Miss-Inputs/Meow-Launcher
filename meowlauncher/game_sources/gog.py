@@ -3,6 +3,7 @@
 import datetime
 import os
 import time
+from pathlib import Path
 from typing import Optional
 
 from meowlauncher import desktop_launchers
@@ -12,37 +13,37 @@ from meowlauncher.games.gog import (DOSBoxGOGGame, GOGGame, GOGGameInfo,
                                     WindowsGOGGame)
 
 
-def look_in_linux_gog_folder(folder: str) -> Optional[GOGGame]:
-	gameinfo_path = os.path.join(folder, 'gameinfo')
-	if not os.path.isfile(gameinfo_path):
+def look_in_linux_gog_folder(folder: Path) -> Optional[GOGGame]:
+	gameinfo_path = folder.joinpath('gameinfo')
+	if not gameinfo_path.is_file():
 		return None
 	gameinfo = GOGGameInfo(gameinfo_path)
 
-	launch_script = os.path.join(folder, 'start.sh')
+	launch_script = folder.joinpath('start.sh')
 	if not os.path.isfile(launch_script):
 		return None
 
 	#.mojosetup, uninstall-*.sh, docs are also here
-	support_folder = os.path.join(folder, 'support')
+	support_folder = folder.joinpath('support')
 	if not os.path.isdir(support_folder):
 		return None
 
-	if os.path.isdir(os.path.join(folder, 'dosbox')):
+	if os.path.isdir(folder.joinpath('dosbox')):
 		return DOSBoxGOGGame(folder, gameinfo, launch_script, support_folder)
-	if os.path.isdir(os.path.join(folder, 'scummvm')):
+	if os.path.isdir(folder.joinpath('scummvm')):
 		return ScummVMGOGGame(folder, gameinfo, launch_script, support_folder)
-	if os.path.isdir(os.path.join(folder, 'game')):
+	if os.path.isdir(folder.joinpath('game')):
 		return NormalGOGGame(folder, gameinfo, launch_script, support_folder)
 
 	return None
 
-def look_in_windows_gog_folder(folder: str) -> Optional[WindowsGOGGame]:
-	info_file: Optional[str] = None
+def look_in_windows_gog_folder(folder: Path) -> Optional[WindowsGOGGame]:
+	info_file: Optional[Path] = None
 	game_id: str
-	for file in os.listdir(folder):
-		if file.startswith('goggame-') and file.endswith('.info'):
-			info_file = os.path.join(folder, file)
-			game_id = file[8:-5]
+	for file in folder.iterdir():
+		if file.name.startswith('goggame-') and file.suffix == '.info':
+			info_file = file
+			game_id = file.name[8:-5]
 			break
 		#Other files that may exist: goggame-<gameid>.dll, goggame-<gameid>.hashdb (Galaxy related?), goggame-<gameid>.ico, goglog.ini, goggame-galaxyFileList.ini, goggame.sdb, unins000.exe, unins000.dat, unins000.msg
 	if not info_file:

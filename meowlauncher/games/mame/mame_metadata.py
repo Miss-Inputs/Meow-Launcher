@@ -15,7 +15,7 @@ from meowlauncher.metadata import CPU, Metadata, ScreenInfo
 from meowlauncher.util.detect_things_from_filename import (
     get_languages_from_tags_directly, get_regions_from_filename_tags,
     get_revision_from_filename_tags, get_version_from_filename_tags)
-from meowlauncher.util.region_info import get_language_from_regions
+from meowlauncher.util.region_info import Language, get_language_from_regions
 from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
 
 from .mame_game import MAMEGame
@@ -175,19 +175,19 @@ def add_metadata_from_catlist(game: MAMEGame) -> None:
 	#Anyway, the name 'Non-Arcade' sucks because it's just used as a "this isn't anything in particular" thing
 
 def add_languages(game: MAMEGame, name_tags: Sequence[str]) -> None:
-	languages = get_languages(game.machine.basename)
+	languages: Optional[Sequence[Language]] = get_languages(game.machine.basename)
 	if languages:
-		game.metadata.languages = languages
+		game.metadata.languages = list(languages)
 	else:
 		if game.machine.has_parent:
 			languages = get_languages(cast(str, game.machine.parent_basename))
 			if languages:
-				game.metadata.languages = languages
+				game.metadata.languages = list(languages)
 				return
 
 		languages = get_languages_from_tags_directly(name_tags)
 		if languages:
-			game.metadata.languages = languages
+			game.metadata.languages = list(languages)
 		elif game.metadata.regions:
 			region_language = get_language_from_regions(game.metadata.regions)
 			if region_language:
@@ -231,7 +231,7 @@ def add_metadata(game: MAMEGame) -> None:
 	name_tags = find_filename_tags_at_end(game.machine.name)
 	regions = get_regions_from_filename_tags(name_tags, loose=True)
 	if regions:
-		game.metadata.regions = regions
+		game.metadata.regions = list(regions)
 
 	add_languages(game, name_tags)
 

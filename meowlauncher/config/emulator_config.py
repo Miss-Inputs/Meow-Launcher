@@ -1,6 +1,6 @@
 import configparser
-import os
 from collections.abc import Mapping
+from typing import cast
 
 from meowlauncher.common_paths import config_dir
 from meowlauncher.common_types import ConfigValueType
@@ -10,7 +10,7 @@ from meowlauncher.util.io_utils import ensure_exist
 
 from ._config_utils import parse_value
 
-_emulator_config_path = os.path.join(config_dir, 'emulators.ini')
+_emulator_config_path = config_dir.joinpath('emulators.ini')
 
 class EmulatorConfigs():
 	class __EmulatorConfigs():
@@ -31,7 +31,7 @@ class EmulatorConfigs():
 				
 			if config_name in parser:
 				section = parser[config_name]
-				exe_path = parse_value(section, 'path', ConfigValueType.String, default_exe_name)
+				exe_path = cast(str, parse_value(section, 'path', ConfigValueType.String, default_exe_name))
 				for k, v in configs.items():
 					options[k] = parse_value(section, k, v.type, v.default_value)
 			else:

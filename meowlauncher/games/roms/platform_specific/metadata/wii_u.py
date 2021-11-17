@@ -195,7 +195,9 @@ def add_homebrew_meta_xml_metadata(rom: ROM, metadata: Metadata, meta_xml: Eleme
 		metadata.add_alternate_name(name, 'Banner-Title')
 	metadata.developer = metadata.publisher = meta_xml.findtext('coder')
 	metadata.specific_info['Version'] = meta_xml.findtext('version')
-	metadata.documents['Homepage'] = meta_xml.findtext('url')
+	url = meta_xml.findtext('url')
+	if url:
+		metadata.documents['Homepage'] = url
 	release_date_text = meta_xml.findtext('release_date')
 	if release_date_text:
 		metadata.release_date = Date(release_date_text[0:4], release_date_text[4:6], release_date_text[6:8])
@@ -238,7 +240,7 @@ def add_folder_metadata(rom: FolderROM, metadata: Metadata):
 	if content_dir.joinpath('assets').is_dir() and all(content_dir.joinpath('app', file).is_dir() for file in ('appinfo.xml', 'config.xml', 'index.html')):
 		metadata.specific_info['Engine'] = 'Nintendo Web Framework'
 	
-	engine = try_and_detect_engine_from_folder(str(content_dir), metadata)
+	engine = try_and_detect_engine_from_folder(content_dir, metadata)
 	if engine:
 		metadata.specific_info['Engine'] = engine
 

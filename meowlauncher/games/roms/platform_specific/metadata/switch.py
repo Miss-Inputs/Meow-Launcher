@@ -21,7 +21,7 @@ from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Metadata
 from meowlauncher.platform_types import SwitchContentMetaType
-from meowlauncher.util.region_info import get_language_by_english_name
+from meowlauncher.util.region_info import get_language_by_english_name, languages_by_english_name
 
 from .common.nintendo_common import parse_ratings
 
@@ -168,18 +168,18 @@ def add_nacp_metadata(metadata: Metadata, nacp: bytes, icons: Mapping[str, bytes
 		if supported_language_flag & (1 << k):
 			if v in {'AmericanEnglish', 'BritishEnglish'}:
 				#I want to avoid saying one language is the True English but at the same time it makes things a lot more complicated if I don't have a language in the list that just says English
-				supported_languages.add(get_language_by_english_name('English'))
+				supported_languages.add(languages_by_english_name['English'])
 			elif v == 'LatinAmericanSpanish':
-				supported_languages.add(get_language_by_english_name('Latin American Spanish'))
+				supported_languages.add(languages_by_english_name['Latin American Spanish'])
 			elif v == 'CanadianFrench':
-				supported_languages.add(get_language_by_english_name('Canadian French'))
+				supported_languages.add(languages_by_english_name['Canadian French'])
 			elif v == 'TraditionalChinese':
-				supported_languages.add(get_language_by_english_name('Traditional Chinese'))
+				supported_languages.add(languages_by_english_name['Traditional Chinese'])
 			elif v == 'SimplifiedChinese':
-				supported_languages.add(get_language_by_english_name('Chinese'))
+				supported_languages.add(languages_by_english_name['Chinese'])
 			else:
 				supported_language = get_language_by_english_name(v)
-				if v:
+				if supported_language:
 					supported_languages.add(supported_language)
 	metadata.languages = list(supported_languages)
 

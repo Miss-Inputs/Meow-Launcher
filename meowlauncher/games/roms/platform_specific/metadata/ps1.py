@@ -71,7 +71,7 @@ def add_duckstation_db_info(metadata: Metadata):
 		metadata.add_alternate_name(db_entry['name'], 'DuckStation-Database-Name')
 		languages = db_entry.get('languages')
 		if languages:
-			metadata.languages = [get_language_by_english_name(lang) for lang in languages]
+			metadata.languages = [lang for lang in [get_language_by_english_name(lang_name) for lang_name in languages] if lang]
 		if db_entry.get('publisher') and not metadata.publisher:
 			metadata.publisher = db_entry.get('publisher')
 		if db_entry.get('developer') and not metadata.developer:

@@ -8,9 +8,9 @@ from .archives import compressed_get, compressed_getsize, get_crc32_of_archive
 
 crc_chunk_size = 128 * 1024 * 1024
 
-def ensure_exist(path: str):
-	pathlib.Path(os.path.dirname(path)).mkdir(exist_ok=True, parents=True)
-	pathlib.Path(path).touch()
+def ensure_exist(path: pathlib.Path):
+	path.parent.mkdir(exist_ok=True, parents=True)
+	path.touch()
 
 def get_real_size(path: str, compressed_entry: str=None) -> int:
 	if compressed_entry is None:

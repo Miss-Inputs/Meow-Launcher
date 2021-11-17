@@ -2,13 +2,13 @@ import importlib.resources
 import json
 import math
 import re
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from typing import Optional, Union
 
 find_brackets = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)')
 find_brackets_at_end = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)$')
 
-def _find_tags(name: str) -> tuple[str, list[str]]:
+def _find_tags(name: str) -> tuple[str, Sequence[str]]:
 	#Where did I come up with the word "tags" anyway
 	result = name
 	tags = []
@@ -26,10 +26,10 @@ def _find_tags(name: str) -> tuple[str, list[str]]:
 			result = result[:-1]
 	return result, tags[::-1]
 
-def find_filename_tags_at_end(name: str):
+def find_filename_tags_at_end(name: str) -> Sequence[str]:
 	return _find_tags(name)[1]
 
-def remove_filename_tags(name: str):
+def remove_filename_tags(name: str) -> str:
 	return _find_tags(name)[0]
 
 def starts_with_any(s: str, prefixes: Iterable[str]) -> bool:
@@ -53,7 +53,7 @@ def convert_alphanumeric(byte_array: bytes) -> str:
 
 junk_suffixes = re.compile(r'((?:(?:,)? (?:Inc|LLC|Kft)|(?:Co\.)?(?:,)? Ltd|Corp|GmbH)(?:\.)?|Co\.)$')
 
-def pluralize(n: int, singular: str, plural: str=None):
+def pluralize(n: int, singular: str, plural: str=None) -> str:
 	if not plural:
 		plural = singular + 's'
 	if n == 1:
@@ -152,7 +152,7 @@ def load_dict(subpackage: Optional[str], resource: str) -> dict[Union[int, str],
 			d[key] = match['value']
 	return d
 
-def load_list(subpackage: Optional[str], resource: str) -> list[str]:
+def load_list(subpackage: Optional[str], resource: str) -> Sequence[str]:
 	package = 'meowlauncher.data'
 	if subpackage:
 		package += '.' + subpackage

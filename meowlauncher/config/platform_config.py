@@ -1,18 +1,18 @@
 import configparser
-import os
 from collections.abc import Iterable, Mapping
-from typing import Any
+from pathlib import Path
 
 from meowlauncher.common_paths import config_dir
+from meowlauncher.common_types import TypeOfConfigValue
 from meowlauncher.data.emulated_platforms import pc_platforms, platforms
 from meowlauncher.util.io_utils import ensure_exist
 
 from ._config_utils import parse_path_list, parse_string_list, parse_value
 
-_platform_config_path = os.path.join(config_dir, 'platforms.ini')
+_platform_config_path = config_dir.joinpath('platforms.ini')
 
 class PlatformConfig():
-	def __init__(self, name: str, paths: Iterable[str], chosen_emulators: Iterable[str], options: Mapping[str, Any]) -> None:
+	def __init__(self, name: str, paths: Iterable[Path], chosen_emulators: Iterable[str], options: Mapping[str, TypeOfConfigValue]) -> None:
 		self.name = name
 		self.paths = paths
 		self.chosen_emulators = chosen_emulators
@@ -44,13 +44,14 @@ class PlatformConfigs():
 					#Allow for convenient shortcut
 						s = f'{s} ({platform_name})'
 					chosen_emulators.append(s)
+				options = {}
 				if platform_name in platforms:
-					options = platforms[platform_name].options
-					for k, v in options.items():
+					option_definitions = platforms[platform_name].options
+					for k, v in option_definitions.items():
 						options[k] = parse_value(section, k, v.type, v.default_value)
 				elif platform_name in pc_platforms:
-					options = pc_platforms[platform_name].options
-					for k, v in options.items():
+					option_definitions = pc_platforms[platform_name].options
+					for k, v in option_definitions.items():
 						options[k] = parse_value(section, k, v.type, v.default_value)
 				self.configs[platform_name] = PlatformConfig(platform_name, paths, chosen_emulators, options)
 						

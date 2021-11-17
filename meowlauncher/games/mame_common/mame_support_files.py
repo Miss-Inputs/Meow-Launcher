@@ -1,9 +1,10 @@
 import functools
 import os
-from xml.etree import ElementTree
 from collections.abc import Iterable
 from dataclasses import dataclass
+from pathlib import Path
 from typing import NamedTuple, Optional
+from xml.etree import ElementTree
 
 from meowlauncher.metadata import Metadata
 from meowlauncher.util.region_info import (Language,
@@ -170,13 +171,13 @@ def add_history(metadata: Metadata, machine_or_softlist: str, software_name: Opt
 	if history.updates:
 		metadata.descriptions['Updates'] = history.updates
 
-def get_default_mame_categories_folders() -> list[str]:
+def get_default_mame_categories_folders() -> list[Path]:
 	if not default_mame_configuration:
 		return []
 	ui_config = default_mame_configuration.ui_config
-	return ui_config.get('categorypath', [])
+	return [Path(os.path.expandvars(path)) for path in ui_config.get('categorypath', [])]
 
-def _parse_mame_cat_ini(path: str) -> dict[str, list[str]]:
+def _parse_mame_cat_ini(path: Path) -> dict[str, list[str]]:
 	#utf-8 is actually a bad idea if series.ini breaks again, maybe
 	with open(path, 'rt', encoding='ascii') as f:
 		d: dict[str, list[str]] = {}
@@ -194,11 +195,11 @@ def _parse_mame_cat_ini(path: str) -> dict[str, list[str]]:
 				d[current_section].append(line)
 		return d
 
-def get_mame_cat(name: str, category_folders: Iterable[str]) -> dict[str, list[str]]:
+def get_mame_cat(name: str, category_folders: Iterable[Path]) -> dict[str, list[str]]:
 	for folder in category_folders:
-		cat_path = os.path.join(folder, name + '.ini')
+		cat_path = folder.joinpath(name + '.ini')
 		try:
-			return _parse_mame_cat_ini(cat_path)						
+			return _parse_mame_cat_ini(cat_path)		
 		except FileNotFoundError:
 			continue
 	return {}
@@ -207,7 +208,7 @@ def get_mame_cat(name: str, category_folders: Iterable[str]) -> dict[str, list[s
 def get_mame_cat_from_default_mame_config(name: str) -> dict[str, list[str]]:
 	return get_mame_cat(name, get_default_mame_categories_folders())
 
-def get_machine_cat_from_category_folders(basename: str, folder_name: str, category_folders: Iterable[str]) -> Optional[list[str]]:
+def get_machine_cat_from_category_folders(basename: str, folder_name: str, category_folders: Iterable[Path]) -> Optional[list[str]]:
 	folder = get_mame_cat(folder_name, category_folders)
 	if not folder:
 		return None
@@ -383,4 +384,4 @@ def get_languages(basename: str) -> Optional[list[Language]]:
 	if not langs:
 		return None
 
-	return [get_language_by_english_name(lang) for lang in langs]
+	return [lang for lang in [get_language_by_english_name(lang_name) for lang_name in langs] if lang]

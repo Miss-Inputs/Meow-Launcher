@@ -16,7 +16,7 @@ from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Metadata
-from meowlauncher.util.region_info import Region, get_region_by_name
+from meowlauncher.util.region_info import Region, regions_by_name
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
@@ -85,17 +85,17 @@ def decode_icon(bitmap: bytes, palette: Iterable[int]) -> 'Image':
 def parse_dsi_region_flags(region_flags: int) -> list[Region]:
 	regions = []
 	if region_flags & 1:
-		regions.append(get_region_by_name('Japan'))
+		regions.append(regions_by_name['Japan'])
 	if region_flags & 2:
-		regions.append(get_region_by_name('USA'))
+		regions.append(regions_by_name['USA'])
 	if region_flags & 4:
-		regions.append(get_region_by_name('Europe'))
+		regions.append(regions_by_name['Europe'])
 	if region_flags & 8:
-		regions.append(get_region_by_name('Australia'))
+		regions.append(regions_by_name['Australia'])
 	if region_flags & 16:
-		regions.append(get_region_by_name('China'))
+		regions.append(regions_by_name['China'])
 	if region_flags & 32:
-		regions.append(get_region_by_name('Korea'))
+		regions.append(regions_by_name['Korea'])
 	return regions
 
 def add_banner_title_metadata(metadata: Metadata, banner_title: str, language: Optional[str]=None):
@@ -208,9 +208,9 @@ def add_info_from_ds_header(rom: FileROM, metadata: Metadata, header: bytes):
 	else:
 		region = header[29]
 		if region == 0x40:
-			metadata.regions = [get_region_by_name('Korea')]
+			metadata.regions = [regions_by_name['Korea']]
 		elif region == 0x80:
-			metadata.regions = [get_region_by_name('China')]
+			metadata.regions = [regions_by_name['China']]
 			metadata.specific_info['Is-iQue'] = True
 		#If 0, could be anywhere else
 	metadata.specific_info['Revision'] = header[30]

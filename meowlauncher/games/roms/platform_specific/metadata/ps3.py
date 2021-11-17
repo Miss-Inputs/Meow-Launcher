@@ -51,7 +51,7 @@ def add_ps3game_subfolder_info(subfolder: Path, metadata: Metadata):
 		metadata.specific_info['Supports-Trophies'] = True
 	usrdir = subfolder.joinpath('USRDIR')
 	if usrdir.is_dir(): #Should always be there but who knows
-		engine = try_and_detect_engine_from_folder(str(usrdir), metadata)
+		engine = try_and_detect_engine_from_folder(usrdir, metadata)
 		if engine:
 			metadata.specific_info['Engine'] = engine
 
@@ -70,9 +70,10 @@ def add_game_folder_metadata(rom: FolderROM, metadata: Metadata):
 		if rom.has_subfolder('TROPDIR'):
 			metadata.specific_info['Supports-Trophies'] = True
 		usrdir = rom.get_subfolder('USRDIR')
-		engine = try_and_detect_engine_from_folder(str(usrdir), metadata)
-		if engine:
-			metadata.specific_info['Engine'] = engine
+		if usrdir:
+			engine = try_and_detect_engine_from_folder(usrdir, metadata)
+			if engine:
+				metadata.specific_info['Engine'] = engine
 
 	is_installed_to_rpcs3_hdd = os.path.dirname(rom.path) == os.path.expanduser('~/.config/rpcs3/dev_hdd0/game')
 	

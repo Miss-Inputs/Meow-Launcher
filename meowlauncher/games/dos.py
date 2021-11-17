@@ -1,5 +1,6 @@
 import os
 from collections.abc import Mapping
+from pathlib import Path
 from typing import Any
 
 from meowlauncher.config.platform_config import (PlatformConfig,
@@ -37,6 +38,6 @@ class DOSApp(App):
 		self.metadata.specific_info['Executable-Name'] = basename
 		self.metadata.extension = basename.split('.', 1)[-1].lower()
 		if not self.is_on_cd:
-			icon = look_for_icon_next_to_file(self.path)
+			icon = look_for_icon_next_to_file(Path(self.path))
 			if icon:
 				self.metadata.images['Icon'] = icon

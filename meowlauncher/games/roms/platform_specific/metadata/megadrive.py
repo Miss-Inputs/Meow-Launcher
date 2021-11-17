@@ -308,13 +308,18 @@ def add_megadrive_software_list_metadata(software: Software, metadata: Metadata)
 
 def add_megadrive_metadata(game: ROMGame):
 	if game.rom.extension == 'cue':
-		first_track, sector_size = cd_read.get_first_data_cue_track(str(game.rom.path))
+		first_track_and_sector_size = cd_read.get_first_data_cue_track(str(game.rom.path))
+		if not first_track_and_sector_size:
+			print(game.rom.path, 'has invalid cuesheet')
+			return
+		first_track, sector_size = first_track_and_sector_size
 		if not os.path.isfile(first_track):
 			print(game.rom.path, 'has invalid cuesheet')
 			return
 		try:
 			header = cd_read.read_mode_1_cd(first_track, sector_size, 0x100, 0x100)
 		except NotImplementedError:
+			print(game.rom.path, 'has weird sector size', sector_size)
 			return
 	elif game.rom.extension == 'smd':
 		header = get_smd_header(cast(FileROM, game.rom))
