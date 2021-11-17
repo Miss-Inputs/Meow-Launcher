@@ -157,7 +157,7 @@ def add_alternate_names(rom: ROM, metadata: Metadata):
 		metadata.add_alternate_name(alt_name)
 
 def add_metadata_from_libretro_database_entry(metadata: Metadata, database: LibretroDatabaseType, key: Union[str, int]):
-	database_entry = cast(Optional[dict[str, Any]], database.get(key))
+	database_entry = cast(Optional[dict[str, Any]], database.get(key)) #TODO: Hmm what's the best way to do this - we don't want mypy complaining about all the different things GameValueType could be
 	if database_entry:
 		name = database_entry.get('comment', database_entry.get('name'))
 		if name:

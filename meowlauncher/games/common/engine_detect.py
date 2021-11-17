@@ -227,7 +227,9 @@ def add_metadata_from_nw_package_json(package_json: Mapping, metadata: Metadata)
 	package_description = package_json.get('description')
 	if package_description:
 		metadata.descriptions['Package-Description'] = package_description
-	metadata.add_alternate_name(cast(str, package_json.get('name')), 'Name')
+	package_name = package_json.get('name')
+	if package_name:
+		metadata.add_alternate_name(package_name, 'Name')
 	window = package_json.get('window')
 	if window:
 		#I need a better way of doing that…
