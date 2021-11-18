@@ -34,10 +34,6 @@ from meowlauncher.util.utils import starts_with_any
 if TYPE_CHECKING:
 	from meowlauncher.emulated_platform import StandardEmulatedPlatform
 
-def parse_m3u(path: Path):
-	with open(path, 'rt', encoding='utf-8') as f:
-		return [line.rstrip('\n') for line in f]
-
 def sort_m3u_first() -> type:
 	class Sorter:
 		def __init__(self, obj, *_):
@@ -148,15 +144,6 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 
 	def _process_rom_list(self, rom_list: Iterable[tuple[ROM, Sequence[str]]]) -> Iterable[ROMLauncher]:
 		for rom, subfolders in rom_list:
-			#TODO: Actually handle m3us
-			# if rom.extension == 'm3u':
-			# 	used_m3u_filenames.extend(parse_m3u(path))
-			# else:
-			# 	#Avoid adding part of a multi-disc game if we've already added the whole thing via m3u
-			# 	#This is why we have to make sure m3u files are added first, though...  not really a nice way around this, unless we scan the whole directory for files first and then rule out stuff?
-			# 	if name in used_m3u_filenames or path in used_m3u_filenames:
-			# 		continue
-
 			if not rom.is_folder and not self.platform.is_valid_file_type(rom.extension):
 				#TODO: Probs want a warn_about_invalid_extension main_config (or platform_config)
 				print('Invalid extension', rom.path, rom.extension, type(rom), rom.path.suffix)
@@ -183,14 +170,6 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 
 	def _process_file_list(self, file_list: Iterable[tuple[Path, Sequence[str]]]) -> Iterable[ROMLauncher]:
 		for path, subfolders in file_list:
-			#TODO: Actually handle m3us
-			# if rom.extension == 'm3u':
-			# 	used_m3u_filenames.extend(parse_m3u(path))
-			# else:
-			# 	#Avoid adding part of a multi-disc game if we've already added the whole thing via m3u
-			# 	#This is why we have to make sure m3u files are added first, though...  not really a nice way around this, unless we scan the whole directory for files first and then rule out stuff?
-			# 	if name in used_m3u_filenames or path in used_m3u_filenames:
-			# 		continue
 			try:
 				rom = get_rom(path)
 			except archives.BadArchiveError as badarchiveerror:
