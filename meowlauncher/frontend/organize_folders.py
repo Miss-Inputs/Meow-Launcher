@@ -20,7 +20,7 @@ from meowlauncher.util.io_utils import sanitize_name
 
 def copy_to_folder(path: Path, *dest_folder_components: str):
 	dest_folder = Path(*dest_folder_components)
-	dest_folder.mkdir(exist_ok=True)
+	dest_folder.mkdir(exist_ok=True, parents=True)
 	shutil.copy(path, dest_folder)
 
 def delete_existing_output_dir() -> None:
