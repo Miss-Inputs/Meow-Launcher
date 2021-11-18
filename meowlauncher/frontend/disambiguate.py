@@ -12,8 +12,9 @@ from typing import Optional, cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.output.desktop_files import (id_section_name,
-                                                   junk_section_name,
-                                                   metadata_section_name)
+                                               junk_section_name,
+                                               metadata_section_name,
+                                               section_prefix)
 from meowlauncher.util.desktop_files import get_array, get_desktop, get_field
 from meowlauncher.util.name_utils import normalize_name
 
@@ -21,9 +22,10 @@ FormatFunction = Callable[[str, str], Optional[str]]
 DesktopWithPath = tuple[Path, configparser.ConfigParser]
 
 super_debug = '--super-debug' in sys.argv
-disambiguity_section_name = 'X-Meow Launcher Disambiguity'
+disambiguity_section_name = section_prefix + 'Disambiguity'
 
 def update_name(desktop: DesktopWithPath, disambiguator: Optional[str], disambiguation_method: str):
+	#TODO: Encapsulate accessing .desktop files better, this module shouldn't know about them
 	if not disambiguator:
 		return
 	desktop_entry = desktop[1]['Desktop Entry']
@@ -194,7 +196,7 @@ def fix_duplicate_names(method: str, format_function: Optional[FormatFunction]=N
 
 	for k, v in duplicates.items():
 		if method == 'check':
-			print('Duplicate name still remains: ', k, [(d[1][junk_section_name].get('Original-Name', '<no Original-Name>') if junk_section_name in d[1] else '<no junk section>') for d in v])
+			print('Duplicate name still remains: ', k, [get_field(d[1], 'Original-Name', junk_section_name) for d in v])
 		else:
 			resolve_duplicates(v, method, format_function, ignore_missing_values, field_section)
 

@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 	from meowlauncher.launcher import Launcher
 	from meowlauncher.metadata import Metadata
 
+section_prefix = 'X-Meow Launcher '
 metadata_section_name = 'Metadata'
 id_section_name = 'ID'
 junk_section_name = 'Junk'
@@ -71,8 +72,8 @@ def _make_linux_desktop(launcher: 'LaunchCommand', display_name: str, metadata: 
 	for section_name, section in fields.items():
 		if not section:
 			continue
-		configwriter.add_section('X-Meow Launcher ' + section_name)
-		section_writer = configwriter['X-Meow Launcher ' + section_name]
+		configwriter.add_section(section_prefix + section_name)
+		section_writer = configwriter[section_prefix + section_name]
 
 		for k, v in section.items():
 			if v is None:
@@ -111,11 +112,11 @@ def _make_linux_desktop(launcher: 'LaunchCommand', display_name: str, metadata: 
 			else:
 				section_writer[key_name] = value_as_string
 
-	if 'X-Meow Launcher ' + image_section_name in configwriter:
+	if section_prefix + image_section_name in configwriter:
 		keys_to_try = ['Icon'] + main_config.use_other_images_as_icons
 		for k in keys_to_try:
-			if k in configwriter['X-Meow Launcher ' + image_section_name]:
-				desktop_entry['Icon'] = configwriter['X-Meow Launcher ' + image_section_name][k]
+			if k in configwriter[section_prefix + image_section_name]:
+				desktop_entry['Icon'] = configwriter[section_prefix + image_section_name][k]
 				break
 
 	ensure_exist(path)

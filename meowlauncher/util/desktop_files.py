@@ -4,16 +4,24 @@ from typing import Optional
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.output.desktop_files import (id_section_name,
-                                               metadata_section_name)
+                                               metadata_section_name, section_prefix)
 
-
+standard_sections = {'Desktop Entry'}
 def get_desktop(path: Path) -> ConfigParser:
 	parser = ConfigParser(interpolation=None, delimiters=('='), comment_prefixes=('#'))
 	parser.optionxform = str #type: ignore[assignment]
 	parser.read(path)
 	return parser
 
+def destkop_contains(desktop: ConfigParser, section: str=metadata_section_name) -> bool:
+	if section not in standard_sections:
+		section = section_prefix + section
+	return section in desktop
+
 def get_field(desktop: ConfigParser, name: str, section: str=metadata_section_name) -> Optional[str]:
+	if section not in standard_sections:
+		section = section_prefix + section
+
 	if section not in desktop:
 		return None
 

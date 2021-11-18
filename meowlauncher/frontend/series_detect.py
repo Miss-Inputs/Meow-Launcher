@@ -10,7 +10,7 @@ from typing import Optional, Union
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.series_detect.series_detect_overrides import \
     series_overrides
-from meowlauncher.output.desktop_files import metadata_section_name
+from meowlauncher.output.desktop_files import metadata_section_name, section_prefix
 from meowlauncher.util.desktop_files import get_desktop, get_field
 from meowlauncher.util.name_utils import (chapter_matcher,
                                           convert_roman_numerals_in_title)
@@ -118,12 +118,14 @@ def get_usable_name(desktop: ConfigParser) -> str:
 	return name
 
 def add_series(desktop: ConfigParser, path: Path, series: Optional[str], series_index: Optional[Union[str, int]]=None):
-	if metadata_section_name not in desktop:
-		desktop.add_section(metadata_section_name)
+	#TODO: Encapsulate this better
+	metadata_section_with_prefix = section_prefix + metadata_section_name
+	if metadata_section_with_prefix not in desktop:
+		desktop.add_section(metadata_section_with_prefix)
 	if series is not None:
-		desktop[metadata_section_name]['Series'] = series
+		desktop[metadata_section_with_prefix]['Series'] = series
 	if series_index is not None:
-		desktop[metadata_section_name]['Series-Index'] = str(series_index)
+		desktop[metadata_section_with_prefix]['Series-Index'] = str(series_index)
 	with path.open('wt', encoding='utf-8') as f:
 		desktop.write(f)
 
