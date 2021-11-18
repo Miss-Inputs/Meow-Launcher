@@ -1,10 +1,12 @@
 from abc import ABC
 from collections.abc import Collection
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from meowlauncher.common_types import (ConfigValueType, MediaType,
                                        TypeOfConfigValue)
-from meowlauncher.games.roms.rom import FileROM
+
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom import FileROM
 
 
 class PlatformConfigValue():
@@ -41,7 +43,7 @@ class StandardEmulatedPlatform(ChooseableEmulatedPlatform):
 	def is_valid_file_type(self, extension: str) -> bool:
 		return any(extension in extensions for extensions in self.file_types.values() if isinstance(extension, str))
 
-	def get_media_type(self, rom: FileROM) -> Optional[MediaType]:
+	def get_media_type(self, rom: 'FileROM') -> Optional[MediaType]:
 		for media_type, extensions in self.file_types.items():
 			if rom.extension in extensions:
 				return media_type

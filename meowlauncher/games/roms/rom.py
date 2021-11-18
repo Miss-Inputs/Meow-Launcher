@@ -17,6 +17,14 @@ class ROM(ABC):
 		self._extension = '' #hmm what if it was None
 		if self.path.suffix:
 			self._extension = self.path.suffix.lower()[1:]
+
+	@property
+	def should_read_whole_thing(self) -> bool:
+		return False
+
+	def read_whole_thing(self) -> None:
+		raise NotImplementedError(f'Do not read_whole_thing on {type(self)}, check should_read_whole_thing first')
+
 	@property
 	def name(self) -> str:
 		return self.path.stem
@@ -42,12 +50,15 @@ class FileROM(ROM):
 		self.crc_for_database: Optional[int] = None
 		self.header_length_for_crc_calculation: int = 0
 
-	def maybe_read_whole_thing(self) -> None:
+	@property
+	def should_read_whole_thing(self) -> bool:
+		return self._get_size() < main_config.max_size_for_storing_in_memory
+
+	def read_whole_thing(self) -> None:
 		#Please call this before doing anything, it's just so you can check if the extension is something even relevant before reading a whole entire file in there
 		#I guess you don't have to if you think there's a good chance it's like a CD image or whatever, this whole thing is just an optimization
-		if self._get_size() < main_config.max_size_for_storing_in_memory:
-			self.store_entire_file = True
-			self.entire_file = self._read()
+		self.store_entire_file = True
+		self.entire_file = self._read()
 		
 	def _read(self, seek_to: int=0, amount: int=-1) -> bytes:
 		return io_utils.read_file(self.path, None, seek_to, amount)
@@ -132,15 +143,19 @@ class CompressedROM(FileROM):
 		return io_utils.get_crc32(self.path, self.inner_filename)
 
 class GCZFileROM(FileROM):
+	@property
+	def should_read_whole_thing(self) -> bool:
+		return False
+
 	def read(self, seek_to: int=0, amount: int=-1) -> bytes:
 		return cd_read.read_gcz(self.path, seek_to, amount)
 
 def rom_file(path: Path) -> FileROM:
 	ext = path.suffix 
 	if ext: #To be fair if it's '' it won't match any file ever… hmm
-		if ext[-1].lower() == 'gcz':
+		if ext[1:].lower() == 'gcz':
 			return GCZFileROM(path)
-		if ext[-1] in archives.compressed_exts:
+		if ext[1:].lower() in archives.compressed_exts:
 			return CompressedROM(path)
 	return FileROM(path)
 

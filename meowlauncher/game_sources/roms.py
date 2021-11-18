@@ -115,20 +115,17 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 				potential_emulator_config = _get_emulator_config(chosen_emulator)
 				potential_emulator: ConfiguredStandardEmulator
 				if isinstance(chosen_emulator, LibretroCore):
-					#potential_core_config = emulator_configs[chosen_emulator.name + ' (libretro)']
 					if not main_config.libretro_frontend: #TODO: This should be in the config of LibretroCore actually, see secret evil plan
 						raise EmulationNotSupportedException('Must choose a frontend to run libretro cores')
 					frontend_config = emulator_configs[main_config.libretro_frontend]
 					frontend = libretro_frontends[main_config.libretro_frontend]
 					potential_emulator = LibretroCoreWithFrontend(chosen_emulator, potential_emulator_config, frontend, frontend_config)
 				else:
-					#potential_emulator_config = emulator_configs[chosen_emulator.name]
 					potential_emulator = ConfiguredStandardEmulator(chosen_emulator, potential_emulator_config)
 
-				if rom.is_folder and not potential_emulator.supports_folders:
-					raise ExtensionNotSupportedException('{0} does not support folders'.format(potential_emulator))
-				if not rom.is_folder and not potential_emulator.supports_extension(rom.extension):
-					raise ExtensionNotSupportedException('{0} does not support {1} extension'.format(potential_emulator, rom.extension))
+				if not potential_emulator.supports_rom(rom):
+					message = 'folders' if rom.is_folder else f'{rom.extension} extension'
+					raise ExtensionNotSupportedException(f'{potential_emulator} does not support {message}')
 
 				potential_launcher = ROMLauncher(game, potential_emulator, self.platform_config)
 				command = potential_launcher.get_launch_command() #We need to test each one for EmulationNotSupportedException… what's the maybe better way to do this, since we call get_launch_command again and that sucks
@@ -140,23 +137,17 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 
 		if not launcher:
 			if main_config.debug:
-				if isinstance(exception_reason, EmulationNotSupportedException) and not isinstance(exception_reason, ExtensionNotSupportedException):
+				#TODO: We also need a warn_about_unemulated_extensions type thing
+				if isinstance(exception_reason, EmulationNotSupportedException):
+				#if isinstance(exception_reason, EmulationNotSupportedException) and not isinstance(exception_reason, ExtensionNotSupportedException):
 					print(rom.path, 'could not be launched by', [emu.name for emu in self.chosen_emulators], 'because', exception_reason)
 			return None
 		
 		return launcher
 
-	def _process_file_list(self, file_list: Iterable[tuple[Path, Sequence[str]]]) -> Iterable[ROMLauncher]:
-		for path, categories in file_list:
-			try:
-				rom = rom_file(path)
-			except archives.BadArchiveError as badarchiveerror:
-				print('Uh oh fucky wucky!', path, 'is an archive file that we tried to open to list its contents, but it was invalid:', badarchiveerror.__cause__, traceback.extract_tb(badarchiveerror.__traceback__)[1:])
-				continue
-			except IOError as ioerror:
-				print('Uh oh fucky wucky!', path, 'is an archive file that has nothing in it or something else weird:', ioerror.__cause__, traceback.extract_tb(ioerror.__traceback__)[1:])
-				continue
-
+	def _process_rom_list(self, rom_list: Iterable[tuple[ROM, Sequence[str]]]) -> Iterable[ROMLauncher]:
+		for rom, subfolders in rom_list:
+			#TODO: Actually handle m3us
 			# if rom.extension == 'm3u':
 			# 	used_m3u_filenames.extend(parse_m3u(path))
 			# else:
@@ -165,65 +156,64 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 			# 	if name in used_m3u_filenames or path in used_m3u_filenames:
 			# 		continue
 
-			if not self.platform.is_valid_file_type(rom.extension):
+			if not rom.is_folder and not self.platform.is_valid_file_type(rom.extension):
+				#TODO: Probs want a warn_about_invalid_extension main_config (or platform_config)
+				print('Invalid extension', rom.path, rom.extension, type(rom), rom.path.suffix)
 				continue
 
-			if not main_config.full_rescan:
-				if has_been_done('ROM', str(path)):
-					continue
-			
 			try:
-				rom.maybe_read_whole_thing()
+				if rom.should_read_whole_thing:
+					rom.read_whole_thing()
 			#pylint: disable=broad-except
 			except Exception as ex:
-				print('Bother!!! Reading the ROM produced an error', path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
+				print('Bother!!! Reading the ROM produced an error', rom.path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
 				continue
 
 			launcher = None
 			try:
-				launcher = self._process_rom(rom, categories)
+				launcher = self._process_rom(rom, subfolders)
 			#pylint: disable=broad-except
 			except Exception as ex:
 				#It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
-				print('FUCK!!!!', path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
+				print('FUCK!!!!', rom.path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
 
 			if launcher:
 				yield launcher
 
 	def get_launchers(self) -> Iterable[ROMLauncher]:
-		file_list = []
-
+		#file_list = []
+		rom_list: list[tuple[ROM, Sequence[str]]] = []
 		for rom_dir in self.platform_config.paths:
 			if not rom_dir.is_dir():
 				print('Oh no', self.name, 'has invalid ROM dir', rom_dir)
 				continue
-
 			#used_m3u_filenames = []
 			for root, dirs, files in os.walk(rom_dir):
 				root_path = Path(root)
-				#TODO: What is this really trying to do?
+			
+				#TODO: What is this really trying to do? It seems like it is trying to use ignored_directories in some way but like what's going on mate, should be able to just use a method of Path to do that surely
 				if starts_with_any(str(root_path), [str(ignored_directory) for ignored_directory in main_config.ignored_directories]):
 					continue
+
 				subfolders = list(root_path.relative_to(rom_dir).parts)
 				if subfolders:
 					if any(subfolder in main_config.skipped_subfolder_names for subfolder in subfolders):
 						continue
 
-				if self.platform.name in folder_checks:
+				folder_check = folder_checks.get(self.platform_config.name)
+				if folder_check:
 					remaining_subdirs = [] #The subdirectories of rom_dir that aren't folder ROMs
 					for d in dirs:
 						folder_path = Path(root, d)
+						if not main_config.full_rescan:
+							if has_been_done('ROM', str(folder_path)):
+								continue
+
 						folder_rom = FolderROM(folder_path)
-						media_type = folder_checks[self.platform_config.name](folder_rom)
+						media_type = folder_check(folder_rom)
 						if media_type:
 							folder_rom.media_type = media_type
-							#if process_file(platform_config, rom_dir, root, folder_rom):
-							#Theoretically we might want to continue descending if we couldn't make a launcher for this folder, because maybe we also have another emulator which doesn't work with folders, but does support a file inside it. That results in weird stuff where we try to launch a file inside the folder using the same emulator we just failed to launch the folder with though, meaning we actually don't want it but now it just lacks metadata, so I'm gonna just do this for now
-							#I think I need to be more awake to re-read that comment
-							#TODO: Yeah nah - process_file_list should contain files and folders, and if it encounters a folder where emulator 1 doesn't support folders but supports a file inside it, descends into it first, and then if that doesn't work, go to emulator 2 which does, etc
-							launcher = self._process_rom(folder_rom, subfolders)
-							if launcher:
-								yield launcher
+							rom_list.append((folder_rom, subfolders))
 							continue
 						remaining_subdirs.append(d)
 					dirs[:] = remaining_subdirs
@@ -231,10 +221,22 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 
 				for name in sorted(files, key=sort_m3u_first()):
 					path = Path(root, name)
+					if not main_config.full_rescan:
+						if has_been_done('ROM', str(path)):
+							continue
 
 					#categories = [cat for cat in list(pathlib.Path(os.path.).relative_to(rom_dir).parts) if cat != rom.name]
-					file_list.append((path, subfolders))
-		yield from self._process_file_list(file_list)
+					try:
+						rom = rom_file(path)
+					except archives.BadArchiveError as badarchiveerror:
+						print('Uh oh fucky wucky!', path, 'is an archive file that we tried to open to list its contents, but it was invalid:', badarchiveerror.__cause__, traceback.extract_tb(badarchiveerror.__traceback__)[1:])
+						continue
+					except IOError as ioerror:
+						print('Uh oh fucky wucky!', path, 'is an archive file that has nothing in it or something else weird:', ioerror.__cause__, traceback.extract_tb(ioerror.__traceback__)[1:])
+						continue
+
+					rom_list.append((rom, subfolders))
+		yield from self._process_rom_list(rom_list)
 
 	def no_longer_exists(self, game_id: str) -> bool:
 		return not os.path.exists(game_id)
