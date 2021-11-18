@@ -128,18 +128,15 @@ class FileROM(ROM):
 			data = self.read(seek_to=skip_header)
 			return find_in_software_lists(software_lists, matcher_args_for_bytes(data))
 
-		if needs_byteswap:
-			crc32 = format_crc32_for_software_list(zlib.crc32(byteswap(self.read())) & 0xffffffff)
-		else:
-			crc32 = format_crc32_for_software_list(self.get_crc32())
-			
+		crc32 = zlib.crc32(byteswap(self.read())) & 0xffffffff if needs_byteswap else self.get_crc32()
+		
 		def _file_rom_reader(offset, amount) -> bytes:
 			data = self.read(seek_to=offset, amount=amount)
 			if needs_byteswap:
 				return byteswap(data)
 			return data
 			
-		args = SoftwareMatcherArgs(crc32, None, self.get_size() - self.header_length_for_crc_calculation, _file_rom_reader)
+		args = SoftwareMatcherArgs(format_crc32_for_software_list(crc32), None, self.get_size() - self.header_length_for_crc_calculation, _file_rom_reader)
 		return find_in_software_lists(software_lists, args)
 
 class CompressedROM(FileROM):
@@ -189,11 +186,47 @@ class GCZFileROM(FileROM):
 	def get_software_list_entry(self, _: Collection['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:
 		raise NotImplementedError('Trying to get software of a .gcz file is silly and should not be done')
 
+class UnsupportedCHDError(Exception):
+	pass
+
+class CHDFileROM(FileROM):
+	@property
+	def should_read_whole_thing(self) -> bool:
+		return False
+
+	def read(self, _: int=0, __: int=-1) -> bytes:
+		raise NotImplementedError('Cannot read CHDs sorry')
+
+	def get_crc32(self) -> int:
+		raise NotImplementedError('Trying to hash a CHD file is silly and should not be done')
+
+	def _get_sha1(self) -> str:
+		header = self._read(amount=124)
+		if header[0:8] != b'MComprHD':
+			raise UnsupportedCHDError('Header magic %s unknown' % str(header[0:8]))
+		chd_version = int.from_bytes(header[12:16], 'big')
+		if chd_version == 4:
+			sha1 = header[48:68]
+		elif chd_version == 5:
+			sha1 = header[84:104]
+		else:
+			raise UnsupportedCHDError('Version %d unknown' % chd_version)
+		return bytes.hex(sha1)
+
+	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:
+		try:
+			args = SoftwareMatcherArgs(None, self._get_sha1(), None, None)
+			return find_in_software_lists(software_lists, args)
+		except UnsupportedCHDError:
+			return None
+
 def rom_file(path: Path) -> FileROM:
 	ext = path.suffix 
 	if ext: #To be fair if it's '' it won't match any file ever… hmm
 		if ext[1:].lower() == 'gcz':
 			return GCZFileROM(path)
+		if ext[1:].lower() == 'chd':
+			return CHDFileROM(path)
 		if ext[1:].lower() in archives.compressed_exts:
 			return CompressedROM(path)
 	return FileROM(path)

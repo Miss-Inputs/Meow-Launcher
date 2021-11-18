@@ -2,16 +2,13 @@ import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, cast
 
-from meowlauncher.common_types import MediaType
 from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher
-from meowlauncher.games.mame_common.software_list import SoftwareMatcherArgs
 from meowlauncher.games.mame_common.software_list_info import (
-    UnsupportedCHDError, find_in_software_lists,
-    find_in_software_lists_with_custom_matcher, find_software_by_name,
-    get_software_list_by_name, matcher_args_for_bytes)
+    find_in_software_lists, find_in_software_lists_with_custom_matcher,
+    find_software_by_name, get_software_list_by_name, matcher_args_for_bytes)
 from meowlauncher.launch_command import LaunchCommand
-from meowlauncher.util.io_utils import make_filename, read_file
+from meowlauncher.util.io_utils import make_filename
 from meowlauncher.util.utils import find_filename_tags_at_end
 
 from .rom import ROM, CompressedROM, FileROM
@@ -22,21 +19,6 @@ if TYPE_CHECKING:
 	from meowlauncher.emulated_platform import StandardEmulatedPlatform
 	from meowlauncher.games.mame_common.software_list import (Software,
 	                                                          SoftwarePart)
-
-
-def _get_sha1_from_chd(chd_path: Path) -> str:
-	header = read_file(chd_path, amount=124)
-	if header[0:8] != b'MComprHD':
-		raise UnsupportedCHDError('Header magic %s unknown' % str(header[0:8]))
-	chd_version = int.from_bytes(header[12:16], 'big')
-	if chd_version == 4:
-		sha1 = header[48:68]
-	elif chd_version == 5:
-		sha1 = header[84:104]
-	else:
-		raise UnsupportedCHDError('Version %d unknown' % chd_version)
-	return bytes.hex(sha1)
-
 
 def _software_list_product_code_matcher(part: 'SoftwarePart', product_code: str) -> bool:
 	part_code = part.software.serial
@@ -74,26 +56,12 @@ class ROMGame(EmulatedGame):
 		if not self.software_lists:
 			return None
 
-		if self.metadata.media_type == MediaType.OpticalDisc:
-			software = None
-			if self.rom.extension == 'chd':
-				try:
-					sha1 = _get_sha1_from_chd(self.rom.path)
-					args = SoftwareMatcherArgs(None, sha1, None, None)
-					software = find_in_software_lists(self.software_lists, args)
-				except UnsupportedCHDError:
-					pass
-			#Don't return yet as maybe we want to look for name/product code
-		else:
-			if self.subroms:
-				#TODO: Get first floppy for now, because right now we don't differentiate with parts or anything; this part of the code sucks
-				data = self.subroms[0].read(seek_to=skip_header)
-				software = find_in_software_lists(self.software_lists, matcher_args_for_bytes(data))
-			else:
-				try:
-					software = self.rom.get_software_list_entry(self.software_lists, self.platform.databases_are_byteswapped, skip_header)
-				except NotImplementedError:
-					pass
+		#TODO: This shouldn't be a thing and there should be some kind ROM subclass representing some multi-disk whatever game that handles it
+		rom = self.subroms[0] if self.subroms else self.rom
+		try:
+			software = rom.get_software_list_entry(self.software_lists, self.platform.databases_are_byteswapped, skip_header)
+		except NotImplementedError:
+			pass
 
 		if not software and self.platform_config.options.get('find_software_by_name', False):
 			software = find_software_by_name(self.software_lists, self.rom.name)

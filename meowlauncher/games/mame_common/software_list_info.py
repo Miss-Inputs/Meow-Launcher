@@ -160,9 +160,6 @@ def find_in_software_lists(software_lists: Iterable[SoftwareList], args: Softwar
 			return software
 	return None
 
-class UnsupportedCHDError(Exception):
-	pass
-
 def matcher_args_for_bytes(data: bytes) -> SoftwareMatcherArgs:
 	#We _could_ use sha1 here, but there's not really a need to
 	return SoftwareMatcherArgs(get_crc32_for_software_list(data), None, len(data), lambda offset, amount: data[offset:offset+amount])
