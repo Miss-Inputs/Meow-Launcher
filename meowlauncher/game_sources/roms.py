@@ -125,7 +125,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 
 				if not potential_emulator.supports_rom(rom):
 					message = 'folders' if rom.is_folder else f'{rom.extension} extension'
-					raise ExtensionNotSupportedException(f'{potential_emulator} does not support {message}')
+					raise ExtensionNotSupportedException(f'{potential_emulator.name} does not support {message}')
 
 				potential_launcher = ROMLauncher(game, potential_emulator, self.platform_config)
 				command = potential_launcher.get_launch_command() #We need to test each one for EmulationNotSupportedException… what's the maybe better way to do this, since we call get_launch_command again and that sucks

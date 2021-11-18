@@ -45,8 +45,8 @@ class FileROM(ROM):
 	def __init__(self, path: Path):
 		super().__init__(path)	
 
-		self.store_entire_file: bool = False
-		self.entire_file: bytes = b''
+		self._store_entire_file: bool = False
+		self._entire_file: bytes = b''
 		self.crc_for_database: Optional[int] = None
 		self.header_length_for_crc_calculation: int = 0
 
@@ -55,27 +55,27 @@ class FileROM(ROM):
 		return self._get_size() < main_config.max_size_for_storing_in_memory
 
 	def read_whole_thing(self) -> None:
-		#Please call this before doing anything, it's just so you can check if the extension is something even relevant before reading a whole entire file in there
+		#Call this before doing any potential reading, it's just so you can check if the extension is something even relevant before reading a whole entire file in there
 		#I guess you don't have to if you think there's a good chance it's like a CD image or whatever, this whole thing is just an optimization
-		self.store_entire_file = True
-		self.entire_file = self._read()
+		self._store_entire_file = True
+		self._entire_file = self._read()
 		
 	def _read(self, seek_to: int=0, amount: int=-1) -> bytes:
 		return io_utils.read_file(self.path, None, seek_to, amount)
 
 	def read(self, seek_to: int=0, amount: int=-1) -> bytes:
-		if self.store_entire_file:
+		if self._store_entire_file:
 			if amount == -1:
-				return self.entire_file[seek_to:]
-			return self.entire_file[seek_to: seek_to + amount]
+				return self._entire_file[seek_to:]
+			return self._entire_file[seek_to: seek_to + amount]
 		return self._read(seek_to, amount)
 
 	def _get_size(self) -> int:
 		return io_utils.get_real_size(self.path)
 
 	def get_size(self) -> int:
-		if self.store_entire_file:
-			return len(self.entire_file)
+		if self._store_entire_file:
+			return len(self._entire_file)
 		return self._get_size()
 
 	def _get_crc32(self) -> int:
@@ -90,7 +90,7 @@ class FileROM(ROM):
 			self.crc_for_database = crc
 			return crc
 
-		crc = crc32(self.entire_file) & 0xffffffff if self.store_entire_file else self._get_crc32()
+		crc = crc32(self._entire_file) & 0xffffffff if self._store_entire_file else self._get_crc32()
 		self.crc_for_database = crc
 		return crc
 
