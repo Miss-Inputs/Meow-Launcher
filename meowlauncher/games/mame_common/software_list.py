@@ -131,10 +131,6 @@ class DataArea():
 
 	def matches(self, args: 'SoftwareMatcherArgs') -> bool:
 		if len(self.roms) == 1:
-			# if not self.roms:
-			# 	#Ignore data areas such as "sram" that don't have any ROMs associated with them.
-			#Wait, what? But we just checked len(self.roms)
-			# 	return False
 			if self.roms[0].matches(args.crc32, args.sha1):
 				return True
 		elif args.reader:

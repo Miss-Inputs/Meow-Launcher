@@ -1,13 +1,22 @@
 import os
-from abc import ABC
+import zlib
+from abc import ABC, abstractmethod
+from collections.abc import Collection
 from pathlib import Path
-from typing import Optional
-from zlib import crc32
+from typing import TYPE_CHECKING, Optional
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
+from meowlauncher.games.mame_common.software_list import (
+    SoftwareMatcherArgs, format_crc32_for_software_list)
+from meowlauncher.games.mame_common.software_list_info import (
+    find_in_software_lists, matcher_args_for_bytes)
 from meowlauncher.util import archives, cd_read, io_utils
+from meowlauncher.util.utils import byteswap
 
+if TYPE_CHECKING:
+	from meowlauncher.games.mame_common.software_list import (Software,
+	                                                          SoftwareList)
 
 class ROM(ABC):
 	def __init__(self, path: Path) -> None:
@@ -40,6 +49,10 @@ class ROM(ABC):
 	@property
 	def extension(self) -> str:
 		return self._extension
+
+	@abstractmethod
+	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool=False, skip_header: int=0) -> Optional['Software']:
+		pass
 
 class FileROM(ROM):
 	def __init__(self, path: Path):
@@ -86,13 +99,13 @@ class FileROM(ROM):
 			return self.crc_for_database
 		
 		if self.header_length_for_crc_calculation > 0:
-			crc = crc32(self.read(seek_to=self.header_length_for_crc_calculation)) & 0xffffffff
-			self.crc_for_database = crc
-			return crc
+			crc32 = zlib.crc32(self.read(seek_to=self.header_length_for_crc_calculation)) & 0xffffffff
+			self.crc_for_database = crc32
+			return crc32
 
-		crc = crc32(self._entire_file) & 0xffffffff if self._store_entire_file else self._get_crc32()
-		self.crc_for_database = crc
-		return crc
+		crc32 = zlib.crc32(self._entire_file) & 0xffffffff if self._store_entire_file else self._get_crc32()
+		self.crc_for_database = crc32
+		return crc32
 
 	@property
 	def name(self) -> str:
@@ -109,6 +122,26 @@ class FileROM(ROM):
 			
 		return self._extension
 	
+	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool=False, skip_header: int=0) -> Optional['Software']:
+		if skip_header:
+			#Hmm might deprecate this in favour of header_length_for_crc_calculation
+			data = self.read(seek_to=skip_header)
+			return find_in_software_lists(software_lists, matcher_args_for_bytes(data))
+
+		if needs_byteswap:
+			crc32 = format_crc32_for_software_list(zlib.crc32(byteswap(self.read())) & 0xffffffff)
+		else:
+			crc32 = format_crc32_for_software_list(self.get_crc32())
+			
+		def _file_rom_reader(offset, amount) -> bytes:
+			data = self.read(seek_to=offset, amount=amount)
+			if needs_byteswap:
+				return byteswap(data)
+			return data
+			
+		args = SoftwareMatcherArgs(crc32, None, self.get_size() - self.header_length_for_crc_calculation, _file_rom_reader)
+		return find_in_software_lists(software_lists, args)
+
 class CompressedROM(FileROM):
 	def __init__(self, path: Path):
 		super().__init__(path)
@@ -152,6 +185,9 @@ class GCZFileROM(FileROM):
 
 	def get_crc32(self) -> int:
 		raise NotImplementedError('Trying to hash a .gcz file is silly and should not be done')
+
+	def get_software_list_entry(self, _: Collection['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:
+		raise NotImplementedError('Trying to get software of a .gcz file is silly and should not be done')
 
 def rom_file(path: Path) -> FileROM:
 	ext = path.suffix 
@@ -213,3 +249,6 @@ class FolderROM(ROM):
 	@property
 	def is_compressed(self):
 		return False
+
+	def get_software_list_entry(self, _: Collection['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:
+		raise NotImplementedError('Trying to get software of a folder is silly and should not be done')

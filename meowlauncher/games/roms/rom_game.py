@@ -1,20 +1,18 @@
 import tempfile
-import zlib
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher
-from meowlauncher.games.mame_common.software_list import (
-    SoftwareMatcherArgs, format_crc32_for_software_list)
+from meowlauncher.games.mame_common.software_list import SoftwareMatcherArgs
 from meowlauncher.games.mame_common.software_list_info import (
     UnsupportedCHDError, find_in_software_lists,
     find_in_software_lists_with_custom_matcher, find_software_by_name,
     get_software_list_by_name, matcher_args_for_bytes)
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.util.io_utils import make_filename, read_file
-from meowlauncher.util.utils import byteswap, find_filename_tags_at_end
+from meowlauncher.util.utils import find_filename_tags_at_end
 
 from .rom import ROM, CompressedROM, FileROM
 
@@ -73,7 +71,6 @@ class ROMGame(EmulatedGame):
 		return name
 
 	def get_software_list_entry(self, skip_header: int=0) -> Optional['Software']:
-		#TODO: Could this be methods inside ROM?
 		if not self.software_lists:
 			return None
 
@@ -86,33 +83,17 @@ class ROMGame(EmulatedGame):
 					software = find_in_software_lists(self.software_lists, args)
 				except UnsupportedCHDError:
 					pass
+			#Don't return yet as maybe we want to look for name/product code
 		else:
 			if self.subroms:
 				#TODO: Get first floppy for now, because right now we don't differentiate with parts or anything; this part of the code sucks
 				data = self.subroms[0].read(seek_to=skip_header)
 				software = find_in_software_lists(self.software_lists, matcher_args_for_bytes(data))
 			else:
-				if self.rom.is_folder:
-					raise TypeError('This should not be happening, we are calling get_software_list_entry on a folder')
-				file_rom = cast(FileROM, self.rom)
-				if skip_header:
-					#Hmm might deprecate this in favour of header_length_for_crc_calculation
-					data = file_rom.read(seek_to=skip_header)
-					software = find_in_software_lists(self.software_lists, matcher_args_for_bytes(data))
-				else:
-					if self.platform.databases_are_byteswapped:
-						crc32 = format_crc32_for_software_list(zlib.crc32(byteswap(file_rom.read())) & 0xffffffff)
-					else:
-						crc32 = format_crc32_for_software_list(file_rom.get_crc32())
-						
-					def _file_rom_reader(offset, amount) -> bytes:
-						data = file_rom.read(seek_to=offset, amount=amount)
-						if self.platform.databases_are_byteswapped:
-							return byteswap(data)
-						return data
-						
-					args = SoftwareMatcherArgs(crc32, None, file_rom.get_size() - file_rom.header_length_for_crc_calculation, _file_rom_reader)
-					software = find_in_software_lists(self.software_lists, args)
+				try:
+					software = self.rom.get_software_list_entry(self.software_lists, self.platform.databases_are_byteswapped, skip_header)
+				except NotImplementedError:
+					pass
 
 		if not software and self.platform_config.options.get('find_software_by_name', False):
 			software = find_software_by_name(self.software_lists, self.rom.name)

@@ -153,9 +153,7 @@ def find_software_by_name(software_lists: Sequence[SoftwareList], name: str) -> 
 	return None
 
 def find_in_software_lists(software_lists: Iterable[SoftwareList], args: SoftwareMatcherArgs) -> Optional[Software]:
-	#TODO: Handle hash collisions. Could happen, even if we're narrowing down to specific software lists
-	if not software_lists:
-		return None
+	#Does not handle hash collisions… should be fine in real life, though
 	for software_list in software_lists:
 		software = software_list.find_software(args)
 		if software:
