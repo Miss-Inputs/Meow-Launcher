@@ -1,14 +1,18 @@
-from meowlauncher.config.platform_config import PlatformConfig
+from typing import TYPE_CHECKING
+
+from meowlauncher.config.main_config import main_config
 from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher
-from meowlauncher.games.mame_common.machine import Machine
 from meowlauncher.metadata import Date, Metadata
 
-from .mame import ConfiguredMAME
+if TYPE_CHECKING:
+	from meowlauncher.config.platform_config import PlatformConfig
+	from meowlauncher.games.mame_common.machine import Machine
 
+	from .mame import ConfiguredMAME
 
 class MAMEGame(EmulatedGame):
-	def __init__(self, machine: Machine, platform_config: PlatformConfig):
+	def __init__(self, machine: 'Machine', platform_config: 'PlatformConfig'):
 		super().__init__(platform_config)
 		self.machine = machine
 		self.metadata = Metadata()
@@ -65,8 +69,18 @@ class MAMEGame(EmulatedGame):
 		self.metadata.specific_info['Has No Sound Hardware?'] = self.machine.no_sound_hardware
 		self.metadata.specific_info['Is Incomplete?'] = self.machine.incomplete
 
+	@property
+	def is_wanted(self) -> bool:
+		if main_config.exclude_pinball and self.machine.is_pinball:
+			return False
+		if main_config.exclude_non_arcade and self.metadata.platform == 'Non-Arcade':
+			return False
+
+		return True
+
+
 class MAMELauncher(EmulatorLauncher):
-	def __init__(self, game: MAMEGame, emulator: ConfiguredMAME) -> None:
+	def __init__(self, game: MAMEGame, emulator: 'ConfiguredMAME') -> None:
 		self.game: MAMEGame = game
 		super().__init__(game, emulator)
 

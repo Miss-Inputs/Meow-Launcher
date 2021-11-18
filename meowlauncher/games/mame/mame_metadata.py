@@ -25,7 +25,7 @@ from .mame_game import MAMEGame
 #Some games have memory card slots, but they don't actually support saving, it's just t hat the arcade system board thing they use always has that memory card slot there. So let's not delude ourselves into thinking that games which don't save let you save, because that might result in emotional turmoil.
 #Fatal Fury 2, Fatal Fury Special, Fatal Fury 3, and The Last Blade apparently only save in Japanese or something? That might be something to be aware of
 #Also shocktro has a set 2 (shocktroa), and shocktr2 has a bootleg (lans2004), so I should look into if those clones don't save either. They probably don't, though, and it's probably best to expect that something doesn't save and just playing it like any other arcade game, rather than thinking it does and then finding out the hard way that it doesn't. I mean, you could always use savestates, I guess. If those are supported. Might not be. That's another story.
-not_actually_save_supported = ['diggerma', 'neobombe', 'pbobbl2n', 'popbounc', 'shocktro', 'shocktr2', 'irrmaze']
+_not_actually_save_supported = {'diggerma', 'neobombe', 'pbobbl2n', 'popbounc', 'shocktro', 'shocktr2', 'irrmaze'}
 
 def add_save_type(game: MAMEGame) -> None:
 	if game.metadata.platform == 'Arcade':
@@ -36,7 +36,7 @@ def add_save_type(game: MAMEGame) -> None:
 			if media_slot.type == 'memcard':
 				has_memory_card = True
 
-		has_memory_card = has_memory_card and (game.machine.family not in not_actually_save_supported)
+		has_memory_card = has_memory_card and (game.machine.family not in _not_actually_save_supported)
 
 		game.metadata.save_type = SaveType.MemoryCard if has_memory_card else SaveType.Nothing
 	else:

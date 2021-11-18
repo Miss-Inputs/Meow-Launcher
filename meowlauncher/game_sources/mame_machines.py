@@ -20,35 +20,14 @@ from meowlauncher.games.mame_common.machine import (
     Machine, get_machine, get_machines_from_source_file, iter_machines)
 from meowlauncher.games.mame_common.mame_helpers import (
     default_mame_executable, have_mame)
-from meowlauncher.launcher import Launcher
 from meowlauncher.util.desktop_files import has_been_done
 
 
-def is_actually_machine(machine: Machine) -> bool:
+def _is_actually_machine(machine: Machine) -> bool:
 	if machine.xml.attrib.get('isbios', 'no') == 'yes': #Hmm, technically there's nothing stopping you launching these
 		return False
 
 	if main_config.exclude_system_drivers and machine.is_system_driver:
-		return False
-
-	return True
-
-def is_machine_launchable(machine: Machine) -> bool:
-	if machine.xml.attrib.get('isdevice', 'no') == 'yes':
-		return False
-
-	if machine.xml.attrib.get('runnable', 'yes') == 'no':
-		return False
-
-	if machine.has_mandatory_slots:
-		return False
-	
-	return True
-
-def does_user_want_machine(game: MAMEGame) -> bool:
-	if main_config.exclude_non_arcade and game.metadata.platform == 'Non-Arcade':
-		return False
-	if main_config.exclude_pinball and game.metadata.platform == 'Pinball':
 		return False
 
 	return True
@@ -81,10 +60,10 @@ class MAME(GameSource):
 		if machine.source_file in main_config.skipped_source_files:
 			return None
 
-		if not is_actually_machine(machine):
+		if not _is_actually_machine(machine):
 			return None
 
-		if not is_machine_launchable(machine):
+		if not machine.launchable:
 			return None
 
 		if main_config.exclude_non_working and machine.emulation_status == EmulationStatus.Broken and machine.basename not in main_config.non_working_whitelist:
@@ -92,22 +71,18 @@ class MAME(GameSource):
 			#The code behind -listxml is of the opinion that protection = imperfect should result in a system being considered entirely broken, but I'm not so sure if that works out
 			return None
 
+		if machine.is_probably_skeleton_driver:
+			#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
+			#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
+			return None
+
 		game = MAMEGame(machine, self.platform_config)
-		if not does_user_want_machine(game):
+		if not game.is_wanted:
 			return None
 
 		if not self.emu.executable.verifyroms(machine.basename):
 			#We do this as late as we can after checks to see if we want to actually add this machine or not, because it takes a while (in a loop of tens of thousands of machines), and hence if we can get out of having to do it we should
 			#However this is a reminder to myself to stop trying to be clever (because I am not); we cannot assume -verifyroms would succeed if machine.romless is true because there might be a device which is not romless
-			return None
-
-		if machine.is_probably_skeleton_driver:
-			#Well, we can't exactly play it if there's no controls to play it with (and these will have zero controls at all);
-			#this basically happens with super-skeleton drivers that wouldn't do anything even if there was controls wired up
-
-			#We'll do this check _after_ verifyroms so we don't spam debug print for a bunch of skeleton drivers we don't have
-			if main_config.debug:
-				print(f'Skipping {machine.name} ({machine.basename}, {machine.source_file}) as it is probably a skeleton driver')
 			return None
 
 		add_metadata(game)
@@ -124,9 +99,9 @@ class MAME(GameSource):
 
 		if self.source_file:		
 			for machine in get_machines_from_source_file(self.source_file, self.emu.executable):
-				if not is_actually_machine(machine):
+				if not _is_actually_machine(machine):
 					continue
-				if not is_machine_launchable(machine):
+				if not machine.launchable:
 					continue
 				if not self.emu.executable.verifyroms(machine.basename):
 					continue
@@ -180,7 +155,7 @@ class MAMEInbuiltGames(GameSource):
 		add_status(machine, game.metadata)
 		return MAMEInbuiltLauncher(game, ConfiguredMAME(emulator_configs.get('MAME')))
 
-	def get_launchers(self) -> Iterable[Launcher]:
+	def get_launchers(self) -> Iterable[MAMEInbuiltLauncher]:
 		for machine_name, inbuilt_game in machines_with_inbuilt_games.items():
 			if not main_config.full_rescan:
 				if has_been_done('Inbuilt game', machine_name):

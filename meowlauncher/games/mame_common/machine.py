@@ -1,6 +1,6 @@
 import re
 from collections.abc import Iterable
-from typing import Optional, cast
+from typing import TYPE_CHECKING, Optional, cast
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import EmulationStatus
@@ -11,11 +11,13 @@ from meowlauncher.util.utils import (find_filename_tags_at_end, load_dict,
                                      remove_capital_article,
                                      remove_filename_tags)
 
-from .mame_executable import MAMEExecutable
 from .mame_support_files import (MachineCategory, OrganizedCatlist,
                                  get_category, get_machine_cat,
                                  organize_catlist)
 from .mame_utils import consistentify_manufacturer, untangle_manufacturer
+
+if TYPE_CHECKING:
+	from .mame_executable import MAMEExecutable
 
 subtitles = load_dict(None, 'subtitles')
 
@@ -44,7 +46,7 @@ licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
 hack_regex = re.compile(r'^hack \((.+)\)$')
 bootleg_with_publisher_regex = re.compile(r'^bootleg \((.+)\)$')
 class Machine():
-	def __init__(self, xml: ElementTree.Element, exe: MAMEExecutable):
+	def __init__(self, xml: ElementTree.Element, exe: 'MAMEExecutable'):
 		self.xml = xml
 		self._exe = exe
 		#This can't be a property because we might need to override it later, so stop trying to do that
@@ -363,6 +365,19 @@ class Machine():
 		tags = find_filename_tags_at_end(self.name)
 		return any(tag.lower() in {'location test', 'prototype'} for tag in tags)
 
+	@property
+	def launchable(self) -> bool:
+		if self.xml.attrib.get('isdevice', 'no') == 'yes':
+			return False
+
+		if self.xml.attrib.get('runnable', 'yes') == 'no':
+			return False
+
+		if self.has_mandatory_slots:
+			return False
+		
+		return True
+
 	#catlist stuff - this should be refactored I guess to allow using some other categorypaths values
 	@property
 	def series(self) -> Optional[str]:
@@ -412,15 +427,22 @@ class Machine():
 		if not catlist:
 			return None
 		return organize_catlist(catlist)
+	
+	@property
+	def is_pinball(self) -> bool:
+		catlist = self.catlist
+		if not catlist:
+			return self.samples_used == 'genpin'
+		return catlist.is_pinball
 
-def iter_machines(exe: MAMEExecutable) -> Iterable[Machine]:
+def iter_machines(exe: 'MAMEExecutable') -> Iterable[Machine]:
 	for _, xml in exe.iter_mame_entire_xml():
 		yield Machine(xml, exe)
 	
-def get_machine(driver: str, exe: MAMEExecutable) -> Machine:
+def get_machine(driver: str, exe: 'MAMEExecutable') -> Machine:
 	return Machine(exe.get_mame_xml(driver), exe)
 
-def get_machines_from_source_file(source_file: str, exe: MAMEExecutable) -> Iterable[Machine]:
+def get_machines_from_source_file(source_file: str, exe: 'MAMEExecutable') -> Iterable[Machine]:
 	for machine_name, source_file_with_ext in exe.listsource():
 		if source_file_with_ext.rsplit('.', 1)[0] == source_file:
 			yield get_machine(machine_name, exe)
