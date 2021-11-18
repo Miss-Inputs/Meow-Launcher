@@ -13,8 +13,6 @@ from meowlauncher.games.mame_common.mame_executable import \
 from meowlauncher.games.mame_common.mame_helpers import (
     default_mame_executable, get_image)
 from meowlauncher.games.mame_common.mame_utils import image_config_keys
-from meowlauncher.games.mame_common.software_list_info import \
-    get_software_lists_by_names
 from meowlauncher.games.specific_behaviour.metadata import (generic_helper,
                                                             helpers)
 from meowlauncher.metadata import Date, Metadata
@@ -284,10 +282,6 @@ def add_metadata(game: ROMGame):
 		game.metadata.media_type = cast(FolderROM, game.rom).media_type
 	else:
 		game.metadata.media_type = game.platform.get_media_type(cast(FileROM, game.rom))
-
-	software_list_names = game.platform.mame_software_lists
-	if software_list_names:
-		game.software_lists = get_software_lists_by_names(software_list_names)
 
 	if game.platform.name in helpers:
 		helpers[game.platform.name](game)

@@ -11,7 +11,7 @@ from meowlauncher.games.mame_common.software_list import (
 from meowlauncher.games.mame_common.software_list_info import (
     UnsupportedCHDError, find_in_software_lists,
     find_in_software_lists_with_custom_matcher, find_software_by_name,
-    matcher_args_for_bytes)
+    get_software_list_by_name, matcher_args_for_bytes)
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.util.io_utils import make_filename, read_file
 from meowlauncher.util.utils import byteswap, find_filename_tags_at_end
@@ -23,7 +23,6 @@ if TYPE_CHECKING:
 	from meowlauncher.configured_emulator import ConfiguredStandardEmulator
 	from meowlauncher.emulated_platform import StandardEmulatedPlatform
 	from meowlauncher.games.mame_common.software_list import (Software,
-	                                                          SoftwareList,
 	                                                          SoftwarePart)
 
 
@@ -58,8 +57,12 @@ class ROMGame(EmulatedGame):
 		self.filename_tags = find_filename_tags_at_end(rom.path.name)
 
 		self.subroms: list[FileROM] = []
-		self.software_lists: list['SoftwareList'] = []
+		self.software_lists = []
 		self.exception_reason: Optional[BaseException] = None
+
+		software_list_names = platform.mame_software_lists
+		if software_list_names:
+			self.software_lists = [software_list for software_list in [get_software_list_by_name(name) for name in software_list_names] if software_list]
 	
 	@property
 	def name(self) -> str:

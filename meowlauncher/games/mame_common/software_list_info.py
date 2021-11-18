@@ -1,11 +1,11 @@
 import os
-from collections.abc import Collection, Iterable, Sequence
+from collections.abc import Iterable, Sequence
 from pathlib import Path
 from typing import Any, Optional
 
 from meowlauncher.util.name_utils import normalize_name
-from meowlauncher.util.utils import (find_filename_tags_at_end,
-                                     load_dict, remove_filename_tags)
+from meowlauncher.util.utils import (find_filename_tags_at_end, load_dict,
+                                     remove_filename_tags)
 
 from .mame_helpers import default_mame_configuration
 from .software_list import (Software, SoftwareCustomMatcher, SoftwareList,
@@ -13,12 +13,6 @@ from .software_list import (Software, SoftwareCustomMatcher, SoftwareList,
                             get_crc32_for_software_list)
 
 subtitles = load_dict(None, 'subtitles')
-
-def get_software_lists_by_names(names: Collection[str]) -> list[SoftwareList]:
-	#TODO: Could this belong in roms_metadata or ROMGame?
-	if not names:
-		return []
-	return [software_list for software_list in [get_software_list_by_name(name) for name in names] if software_list]
 
 def get_software_list_by_name(name: str) -> Optional[SoftwareList]:
 	if not hasattr(get_software_list_by_name, 'cache'):
