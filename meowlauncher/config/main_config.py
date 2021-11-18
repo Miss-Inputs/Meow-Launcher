@@ -41,7 +41,7 @@ _config_ini_values = {
 	'get_series_from_name': ConfigValue('General', ConfigValueType.Bool, False, 'Get series from name', 'Attempt to get series from parsing name'),
 	'use_other_images_as_icons': ConfigValue('General', ConfigValueType.StringList, [], 'Use other images as icons', 'If there is no icon, use these images as icons if they are there'),
 	'sort_multiple_dev_names': ConfigValue('General', ConfigValueType.Bool, False, 'Sort multiple developer/publisher names', 'For games with multiple entities in developer/publisher field, sort alphabetically'),
-	'wine_path': ConfigValue('General', ConfigValueType.FilePath, 'wine', 'Wine path', 'Path to Wine executable for Windows games/emulators'),
+	'wine_path': ConfigValue('General', ConfigValueType.String, 'wine', 'Wine path', 'Path to Wine executable for Windows games/emulators'),
 	'wineprefix': ConfigValue('General', ConfigValueType.FolderPath, None, 'Wine prefix', 'Optional Wine prefix to use for Wine'),
 	'simple_disambiguate': ConfigValue('General', ConfigValueType.Bool, True, 'Simple disambiguation', 'Use a simpler method of disambiguating games with same names'),
 	'normalize_name_case': ConfigValue('General', ConfigValueType.Integer, 0, 'Normalize name case', 'Apply title case to uppercase things (1: only if whole title is uppercase, 2: capitalize individual uppercase words, 3: title case the whole thing regardless)'),
