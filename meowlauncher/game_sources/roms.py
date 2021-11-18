@@ -82,7 +82,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 	def is_available(self) -> bool:
 		return self.platform_config.is_available
 
-	def _process_file(self, rom: ROM, subfolders: Sequence[str]) -> Optional[ROMLauncher]:
+	def _process_rom(self, rom: ROM, subfolders: Sequence[str]) -> Optional[ROMLauncher]:
 		game = ROMGame(rom, self.platform, self.platform_config)
 
 		if game.rom.extension == 'm3u':
@@ -181,7 +181,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 
 			launcher = None
 			try:
-				launcher = self._process_file(rom, categories)
+				launcher = self._process_rom(rom, categories)
 			#pylint: disable=broad-except
 			except Exception as ex:
 				#It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
@@ -189,6 +189,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 
 			if launcher:
 				yield launcher
+
 	def get_launchers(self) -> Iterable[ROMLauncher]:
 		file_list = []
 
@@ -220,7 +221,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 							#Theoretically we might want to continue descending if we couldn't make a launcher for this folder, because maybe we also have another emulator which doesn't work with folders, but does support a file inside it. That results in weird stuff where we try to launch a file inside the folder using the same emulator we just failed to launch the folder with though, meaning we actually don't want it but now it just lacks metadata, so I'm gonna just do this for now
 							#I think I need to be more awake to re-read that comment
 							#TODO: Yeah nah - process_file_list should contain files and folders, and if it encounters a folder where emulator 1 doesn't support folders but supports a file inside it, descends into it first, and then if that doesn't work, go to emulator 2 which does, etc
-							launcher = self._process_file(folder_rom, subfolders)
+							launcher = self._process_rom(folder_rom, subfolders)
 							if launcher:
 								yield launcher
 							continue
