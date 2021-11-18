@@ -86,6 +86,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 		game = ROMGame(rom, self.platform, self.platform_config)
 
 		if game.rom.extension == 'm3u':
+			#TODO: Get rid of this nonsense
 			file_rom = cast(FileROM, game.rom)
 			lines = file_rom.read().decode('utf-8').splitlines()
 			filenames = [Path(line) if line.startswith('/') else game.rom.path.with_name(line) for line in lines if not line.startswith("#")]

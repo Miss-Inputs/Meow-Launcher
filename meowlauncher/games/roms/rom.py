@@ -230,19 +230,6 @@ class CHDFileROM(FileROM):
 		except UnsupportedCHDError:
 			return None
 
-def get_rom(path: Path) -> ROM:
-	if path.is_dir():
-		return FolderROM(path)
-	ext = path.suffix
-	if ext: #To be fair if it's '' it won't match any file ever… hmm
-		if ext[1:].lower() == 'gcz':
-			return GCZFileROM(path)
-		if ext[1:].lower() == 'chd':
-			return CHDFileROM(path)
-		if ext[1:].lower() in archives.compressed_exts:
-			return CompressedROM(path)
-	return FileROM(path)
-
 class FolderROM(ROM):
 	def __init__(self, path: Path) -> None:
 		super().__init__(path)
@@ -305,3 +292,52 @@ class FolderROM(ROM):
 
 	def get_software_list_entry(self, _: Collection['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:
 		raise NotImplementedError('Trying to get software of a folder is silly and should not be done')
+
+class M3URom(FileROM):
+	def __init__(self, path: Path):
+		super().__init__(path)
+		self.subroms = []
+		for line in path.open('rt', encoding='utf-8').readlines():
+			if line.startswith("#"):
+				continue
+			referenced_file = Path(line) if line.startswith('/') else path.with_name(line)
+			if not referenced_file.is_file():
+				if main_config.debug:
+					print('M3U file', path, 'has a broken reference!!!!', referenced_file)
+				continue
+
+			self.subroms.append(get_rom(referenced_file))
+
+	@property
+	def contains_other_files(self) -> bool:
+		return bool(self.subroms)
+
+	@property
+	def contained_files(self) -> Collection[Path]:
+		return {subrom.path for subrom in self.subroms}
+
+	@property
+	def should_read_whole_thing(self) -> bool:
+		return False
+
+	def get_crc32(self) -> int:
+		raise NotImplementedError('It would not quite make sense to call get_crc32 on an m3u, because which file do you want?')
+	
+	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool = False, skip_header: int = 0) -> Optional['Software']:
+		if not self.subroms:
+			raise AssertionError('This should not happen, m3u has no referenced files (but maybe it could happen? Maybe not something I should assert)')
+		#TODO: Maybe this isnt' even correct - we want to find which SoftwarePart matches what, in theory
+		return self.subroms[0].get_software_list_entry(software_lists, needs_byteswap, skip_header)
+
+def get_rom(path: Path) -> ROM:
+	if path.is_dir():
+		return FolderROM(path)
+	ext = path.suffix
+	if ext: #To be fair if it's '' it won't match any file ever… hmm
+		if ext[1:].lower() == 'gcz':
+			return GCZFileROM(path)
+		if ext[1:].lower() == 'chd':
+			return CHDFileROM(path)
+		if ext[1:].lower() in archives.compressed_exts:
+			return CompressedROM(path)
+	return FileROM(path)
