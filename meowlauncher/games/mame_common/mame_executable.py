@@ -32,7 +32,7 @@ class MAMEExecutable():
 
 	def _real_iter_mame_entire_xml(self) -> Iterable[tuple[str, ElementTree.Element]]:
 		print('New MAME version found: ' + self.get_version() + '; creating XML; this may take a while the first time it is run')
-		self._xml_cache_path.mkdir(exist_ok=True)
+		self._xml_cache_path.mkdir(exist_ok=True, parents=True)
 
 		with subprocess.Popen([self.executable, '-listxml'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as proc:
 			#I'm doing what the documentation tells me to not do and effectively using proc.stdout.read

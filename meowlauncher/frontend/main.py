@@ -45,7 +45,7 @@ def main(progress_function: Optional[Callable[..., None]], steam_enabled=True, g
 			for f in main_config.output_folder.iterdir():
 				#TODO: We should probably only do this if we know f is made by us, just in case someone wants to set output_folder to somewhere shared with other apps
 				f.unlink()
-	main_config.output_folder.mkdir(exist_ok=True)
+	main_config.output_folder.mkdir(exist_ok=True, parents=True)
 
 	for game_source in game_sources:
 		if not game_source.is_available:
