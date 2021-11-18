@@ -27,6 +27,16 @@ class ROM(ABC):
 		if self.path.suffix:
 			self._extension = self.path.suffix.lower()[1:]
 
+	#To be more accurate: Is expected to return other files
+	@property
+	def contains_other_files(self) -> bool:
+		return False
+
+	@property
+	def contained_files(self) -> Collection[Path]:
+		#Does this make sense, or should it return an empty list? Hrm…
+		raise NotImplementedError('Does not have any')
+
 	@property
 	def should_read_whole_thing(self) -> bool:
 		return False
@@ -239,7 +249,15 @@ class FolderROM(ROM):
 		self.relevant_files: dict[str, Path] = {}
 		self.media_type: Optional[MediaType] = None
 		self.ignore_name = False
-	
+
+	@property
+	def contains_other_files(self) -> bool:
+		return True
+
+	@property
+	def contained_files(self) -> Collection[Path]:
+		return set(self.path.rglob('*'))
+
 	def get_subfolder(self, subpath: str, ignore_case=False) -> Optional[Path]:
 		path = self.path.joinpath(subpath)
 		if path.is_dir():
