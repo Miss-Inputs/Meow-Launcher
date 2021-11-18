@@ -31,7 +31,9 @@ class EmulatorConfigs():
 				
 			if config_name in parser:
 				section = parser[config_name]
-				exe_path = cast(str, parse_value(section, 'path', ConfigValueType.String, default_exe_name))
+				exe_path = parse_value(section, 'path', ConfigValueType.String, default_exe_name)
+				if not isinstance(exe_path, str): #It should be a str because it could just be default_exe_name, but then maybe that's not good
+					raise AssertionError(f'exe_path is not a string!! It is {type(exe_path)} {repr(exe_path)}')
 				for k, v in configs.items():
 					options[k] = parse_value(section, k, v.type, v.default_value)
 			else:
