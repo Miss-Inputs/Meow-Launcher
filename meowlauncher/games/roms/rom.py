@@ -22,7 +22,7 @@ class ROM(ABC):
 	def __init__(self, path: Path) -> None:
 		self.path = path
 		self.ignore_name: bool = False
-		self._name = self.path.name
+		self._name = self.path.stem
 		self._extension = '' #hmm what if it was None
 		if self.path.suffix:
 			self._extension = self.path.suffix.lower()[1:]
@@ -46,7 +46,7 @@ class ROM(ABC):
 
 	@property
 	def name(self) -> str:
-		return self.path.stem
+		return self._name
 
 	@property
 	def is_folder(self) -> bool:
