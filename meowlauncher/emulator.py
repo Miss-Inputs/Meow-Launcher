@@ -66,7 +66,7 @@ class ViceEmulator(StandardEmulator):
 		StandardEmulator.__init__(self, 'VICE', status, default_exe_name, params, ['d64', 'g64', 'x64', 'p64', 'd71', 'd81', 'd80', 'd82', 'd1m', 'd2m'] + ['20', '40', '60', '70', '80', 'a0', 'b0', 'e0', 'crt', 'bin'] + ['p00', 'prg', 'tap', 't64'], [], config_name=f'VICE ({name})')
 
 class LibretroCore(Emulator):
-	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: Optional[LaunchCommandFunc], supported_extensions: Sequence[str], configs: Optional[dict[str, RunnerConfigValue]]=None):
+	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: Optional['LaunchCommandFunc'], supported_extensions: Sequence[str], configs: Optional[dict[str, RunnerConfigValue]]=None):
 		self.supported_extensions = supported_extensions
 		default_path = str(main_config.libretro_cores_directory.joinpath(default_exe_name + '_libretro.so').resolve()) if main_config.libretro_cores_directory else ''
 		super().__init__(name, status, default_path, launch_command_func, configs=configs, config_name=name + ' (libretro)')
