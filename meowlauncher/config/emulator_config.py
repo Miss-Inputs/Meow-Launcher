@@ -1,6 +1,5 @@
 import configparser
 from collections.abc import Mapping
-from typing import cast
 
 from meowlauncher.common_paths import config_dir
 from meowlauncher.common_types import ConfigValueType

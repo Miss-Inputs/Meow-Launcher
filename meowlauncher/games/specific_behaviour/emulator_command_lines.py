@@ -1112,7 +1112,7 @@ def cemu(game: 'ROMGame', _, emulator_config: 'EmulatorConfig') -> LaunchCommand
 		if category == '000E':
 			raise NotARomException('Cannot boot update')
 
-	path = str(cast(FolderROM, game.rom).relevant_files['rpx']) if game.rom.is_folder else rom_path_argument
+	path = str(game.rom.relevant_files['rpx']) if isinstance(game.rom, FolderROM) else rom_path_argument
 	return LaunchCommand(emulator_config.exe_path, ['-f', '-g', 'Z:{0}'.format(path)])
 
 def citra(game: 'ROMGame', _, emulator_config: 'EmulatorConfig') -> LaunchCommand:
