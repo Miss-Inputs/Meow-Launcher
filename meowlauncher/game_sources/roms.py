@@ -181,9 +181,53 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 			if launcher:
 				yield launcher
 
+	def _process_file_list(self, file_list: Iterable[tuple[Path, Sequence[str]]]) -> Iterable[ROMLauncher]:
+		for path, subfolders in file_list:
+			#TODO: Actually handle m3us
+			# if rom.extension == 'm3u':
+			# 	used_m3u_filenames.extend(parse_m3u(path))
+			# else:
+			# 	#Avoid adding part of a multi-disc game if we've already added the whole thing via m3u
+			# 	#This is why we have to make sure m3u files are added first, though...  not really a nice way around this, unless we scan the whole directory for files first and then rule out stuff?
+			# 	if name in used_m3u_filenames or path in used_m3u_filenames:
+			# 		continue
+			try:
+				rom = get_rom(path)
+			except archives.BadArchiveError as badarchiveerror:
+				print('Uh oh fucky wucky!', path, 'is an archive file that we tried to open to list its contents, but it was invalid:', badarchiveerror.__cause__, traceback.extract_tb(badarchiveerror.__traceback__)[1:])
+				continue
+			except IOError as ioerror:
+				print('Uh oh fucky wucky!', path, 'is an archive file that has nothing in it or something else weird:', ioerror.__cause__, traceback.extract_tb(ioerror.__traceback__)[1:])
+				continue
+
+					
+			if not rom.is_folder and not self.platform.is_valid_file_type(rom.extension):
+				#TODO: Probs want a warn_about_invalid_extension main_config (or platform_config)
+				print('Invalid extension', rom.path, rom.extension, type(rom), rom.path.suffix)
+				continue
+
+			try:
+				if rom.should_read_whole_thing:
+					rom.read_whole_thing()
+			#pylint: disable=broad-except
+			except Exception as ex:
+				print('Bother!!! Reading the ROM produced an error', rom.path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
+				continue
+
+			launcher = None
+			try:
+				launcher = self._process_rom(rom, subfolders)
+			#pylint: disable=broad-except
+			except Exception as ex:
+				#It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
+				print('FUCK!!!!', rom.path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
+
+			if launcher:
+				yield launcher
+
 	def get_launchers(self) -> Iterable[ROMLauncher]:
-		#file_list = []
-		rom_list: list[tuple[ROM, Sequence[str]]] = []
+		file_list = []
+		#rom_list: list[tuple[ROM, Sequence[str]]] = []
 		for rom_dir in self.platform_config.paths:
 			if not rom_dir.is_dir():
 				print('Oh no', self.name, 'has invalid ROM dir', rom_dir)
@@ -210,11 +254,13 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 							if has_been_done('ROM', str(folder_path)):
 								continue
 
+						#TODO: Does it make sense to init the FolderROM here?
 						folder_rom = FolderROM(folder_path)
 						media_type = folder_check(folder_rom)
 						if media_type:
 							folder_rom.media_type = media_type
-							rom_list.append((folder_rom, subfolders))
+							#rom_list.append((folder_rom, subfolders))
+							file_list.append((folder_path, subfolders))
 							continue
 						remaining_subdirs.append(d)
 					dirs[:] = remaining_subdirs
@@ -227,17 +273,19 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 							continue
 
 					#categories = [cat for cat in list(pathlib.Path(os.path.).relative_to(rom_dir).parts) if cat != rom.name]
-					try:
-						rom = get_rom(path)
-					except archives.BadArchiveError as badarchiveerror:
-						print('Uh oh fucky wucky!', path, 'is an archive file that we tried to open to list its contents, but it was invalid:', badarchiveerror.__cause__, traceback.extract_tb(badarchiveerror.__traceback__)[1:])
-						continue
-					except IOError as ioerror:
-						print('Uh oh fucky wucky!', path, 'is an archive file that has nothing in it or something else weird:', ioerror.__cause__, traceback.extract_tb(ioerror.__traceback__)[1:])
-						continue
+					# try:
+					# 	rom = get_rom(path)
+					# except archives.BadArchiveError as badarchiveerror:
+					# 	print('Uh oh fucky wucky!', path, 'is an archive file that we tried to open to list its contents, but it was invalid:', badarchiveerror.__cause__, traceback.extract_tb(badarchiveerror.__traceback__)[1:])
+					# 	continue
+					# except IOError as ioerror:
+					# 	print('Uh oh fucky wucky!', path, 'is an archive file that has nothing in it or something else weird:', ioerror.__cause__, traceback.extract_tb(ioerror.__traceback__)[1:])
+					# 	continue
 
-					rom_list.append((rom, subfolders))
-		yield from self._process_rom_list(rom_list)
+					file_list.append((path, subfolders))
+					#rom_list.append((rom, subfolders))
+		#yield from self._process_rom_list(rom_list)
+		yield from self._process_file_list(file_list)
 
 	def no_longer_exists(self, game_id: str) -> bool:
 		return not os.path.exists(game_id)
