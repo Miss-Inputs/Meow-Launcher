@@ -220,8 +220,10 @@ class CHDFileROM(FileROM):
 		except UnsupportedCHDError:
 			return None
 
-def rom_file(path: Path) -> FileROM:
-	ext = path.suffix 
+def get_rom(path: Path) -> ROM:
+	if path.is_dir():
+		return FolderROM(path)
+	ext = path.suffix
 	if ext: #To be fair if it's '' it won't match any file ever… hmm
 		if ext[1:].lower() == 'gcz':
 			return GCZFileROM(path)

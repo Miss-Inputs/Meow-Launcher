@@ -5,13 +5,13 @@ from typing import TYPE_CHECKING, Optional, cast
 from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher
 from meowlauncher.games.mame_common.software_list_info import (
-    find_in_software_lists, find_in_software_lists_with_custom_matcher,
-    find_software_by_name, get_software_list_by_name, matcher_args_for_bytes)
+    find_in_software_lists_with_custom_matcher, find_software_by_name,
+    get_software_list_by_name)
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.util.io_utils import make_filename
 from meowlauncher.util.utils import find_filename_tags_at_end
 
-from .rom import ROM, CompressedROM, FileROM
+from .rom import ROM, CompressedROM
 
 if TYPE_CHECKING:
 	from meowlauncher.config.platform_config import PlatformConfig
@@ -36,7 +36,7 @@ class ROMGame(EmulatedGame):
 		self.metadata.categories = []
 		self.filename_tags = find_filename_tags_at_end(rom.path.name)
 
-		self.subroms: list[FileROM] = []
+		self.subroms: list[ROM] = []
 		self.software_lists = []
 		self.exception_reason: Optional[BaseException] = None
 

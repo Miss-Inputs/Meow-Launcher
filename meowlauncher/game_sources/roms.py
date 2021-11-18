@@ -22,7 +22,7 @@ from meowlauncher.emulator import (LibretroCore, MAMEDriver, MednafenModule,
                                    StandardEmulator, ViceEmulator)
 from meowlauncher.game_source import (ChooseableEmulatorGameSource,
                                       CompoundGameSource)
-from meowlauncher.games.roms.rom import ROM, FileROM, FolderROM, rom_file
+from meowlauncher.games.roms.rom import ROM, FileROM, FolderROM, get_rom
 from meowlauncher.games.roms.rom_game import ROMGame, ROMLauncher
 from meowlauncher.games.roms.roms_metadata import add_metadata
 from meowlauncher.games.specific_behaviour.roms_folders import folder_checks
@@ -93,7 +93,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 				if main_config.debug:
 					print('M3U file', game.rom.path, 'has broken references!!!!', filenames)
 				return None
-			game.subroms = [rom_file(referenced_file) for referenced_file in filenames]
+			game.subroms = [get_rom(referenced_file) for referenced_file in filenames]
 
 		#TODO: We used to have a check here that we actually have anything in potential_emulator_names that supported the game before we added metadata, to save performance, but it got confusing in refactoring and had duplicated code… maybe we should do something like that again
 				
@@ -227,7 +227,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 
 					#categories = [cat for cat in list(pathlib.Path(os.path.).relative_to(rom_dir).parts) if cat != rom.name]
 					try:
-						rom = rom_file(path)
+						rom = get_rom(path)
 					except archives.BadArchiveError as badarchiveerror:
 						print('Uh oh fucky wucky!', path, 'is an archive file that we tried to open to list its contents, but it was invalid:', badarchiveerror.__cause__, traceback.extract_tb(badarchiveerror.__traceback__)[1:])
 						continue
