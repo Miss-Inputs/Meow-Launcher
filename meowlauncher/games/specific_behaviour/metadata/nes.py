@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from typing import Optional, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -9,16 +9,18 @@ from meowlauncher.games.mame_common.machine import (
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
-from meowlauncher.games.mame_common.software_list import Software, SoftwarePart
 from meowlauncher.games.mame_common.software_list_info import (
-    find_in_software_lists_with_custom_matcher, get_crc32_for_software_list,
-    get_software_list_entry)
+    find_in_software_lists_with_custom_matcher, get_crc32_for_software_list)
 from meowlauncher.games.roms.rom import ROM, FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import NESPeripheral
 from meowlauncher.util.region_info import TVSystem
 from meowlauncher.util.utils import decode_bcd, load_dict
+
+if TYPE_CHECKING:
+	from meowlauncher.games.mame_common.software_list import (Software,
+	                                                          SoftwarePart)
+	from meowlauncher.games.roms.rom_game import ROMGame
 
 nes_config = platform_configs.get('NES')
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
@@ -390,7 +392,7 @@ def add_ines_metadata(rom: FileROM, metadata: Metadata, header: bytes):
 		metadata.specific_info['CHR Size'] = chr_size * 8 * 1024
 		#TV type apparently isn't used much despite it being part of the iNES specification, and looking at a lot of headered ROMs it does seem that they are all NTSC other than a few that say PAL that shouldn't be, so yeah, I wouldn't rely on it. Might as well just use the filename.
 
-def _does_nes_rom_match(part: SoftwarePart, prg_crc: str, chr_crc: str) -> bool:
+def _does_nes_rom_match(part: 'SoftwarePart', prg_crc: str, chr_crc: str) -> bool:
 	prg_area = part.data_areas.get('prg')
 	#These two data area names seem to be used for alternate types of carts (Aladdin Deck Enhancer/Datach/etc)
 	if not prg_area:
@@ -420,7 +422,7 @@ def _does_nes_rom_match(part: SoftwarePart, prg_crc: str, chr_crc: str) -> bool:
 
 	return True
 
-def _get_headered_nes_rom_software_list_entry(game: ROMGame) -> Optional[Software]:
+def _get_headered_nes_rom_software_list_entry(game: 'ROMGame') -> Optional['Software']:
 	prg_crc32 = game.metadata.specific_info.get('PRG CRC')
 	chr_crc32 = game.metadata.specific_info.get('CHR CRC')
 	if not prg_crc32 and not chr_crc32:
@@ -523,7 +525,7 @@ standard_controller = input_metadata.NormalController()
 standard_controller.dpads = 1
 standard_controller.face_buttons = 2 #A B
 
-def add_nes_software_list_metadata(software: Software, metadata: Metadata):
+def add_nes_software_list_metadata(software: 'Software', metadata: Metadata):
 	software.add_standard_metadata(metadata)
 
 	nes_peripheral = None
@@ -604,7 +606,7 @@ def add_nes_software_list_metadata(software: Software, metadata: Metadata):
 	if nes_peripheral:
 		metadata.specific_info['Peripheral'] = nes_peripheral
 
-def add_nes_metadata(game: ROMGame):
+def add_nes_metadata(game: 'ROMGame'):
 	equivalent_arcade = try_get_equivalent_arcade(game.rom, game.metadata.names.values())
 	if equivalent_arcade:
 		game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
@@ -624,7 +626,7 @@ def add_nes_metadata(game: ROMGame):
 
 	software = None
 	if not game.metadata.specific_info.get('Headered?', False) or game.metadata.specific_info.get('Header Format') == 'fwNES':
-		software = get_software_list_entry(game)
+		software = game.get_software_list_entry()
 	elif game.metadata.specific_info.get('Header Format') in {'iNES', 'NES 2.0', 'UNIF'}:
 		software = _get_headered_nes_rom_software_list_entry(game)
 

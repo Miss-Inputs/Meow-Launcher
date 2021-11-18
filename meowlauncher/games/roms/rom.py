@@ -150,6 +150,9 @@ class GCZFileROM(FileROM):
 	def read(self, seek_to: int=0, amount: int=-1) -> bytes:
 		return cd_read.read_gcz(self.path, seek_to, amount)
 
+	def get_crc32(self) -> int:
+		raise NotImplementedError('Trying to hash a .gcz file is silly and should not be done')
+
 def rom_file(path: Path) -> FileROM:
 	ext = path.suffix 
 	if ext: #To be fair if it's '' it won't match any file ever… hmm

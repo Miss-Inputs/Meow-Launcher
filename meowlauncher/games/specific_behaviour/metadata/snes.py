@@ -1,6 +1,6 @@
 import calendar
 from collections.abc import Iterable
-from typing import Any, Optional, cast
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.mame_common.machine import (
@@ -9,17 +9,17 @@ from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.mame_common.software_list import Software
-from meowlauncher.games.mame_common.software_list_info import \
-    get_software_list_entry
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Metadata
 from meowlauncher.platform_types import SNESExpansionChip
 from meowlauncher.util.region_info import regions_by_name
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
 from .common import snes_controllers as controllers
+
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
@@ -99,7 +99,7 @@ countries = {
 	17: regions_by_name['Australia'], #Is this actually used? Australian-specific releases (e.g. TMNT) use Europe still
 }
 
-def parse_sufami_turbo_header(rom: FileROM, metadata: Metadata):
+def parse_sufami_turbo_header(rom: FileROM, metadata: 'Metadata'):
 	metadata.platform = 'Sufami Turbo'
 
 	#Safe bet that every single ST game just uses a normal controller
@@ -197,7 +197,7 @@ def parse_snes_header(rom: FileROM, base_offset: int) -> dict[str, Any]:
 
 	return metadata
 
-def add_normal_snes_header(rom: FileROM, metadata: Metadata):
+def add_normal_snes_header(rom: FileROM, metadata: 'Metadata'):
 	#Note that while we're seeking to xx00 here, the header actually starts at xxc0 (or xxb0 in case of extended header), it's just easier this way
 	possible_offsets = [0x7f00, 0xff00, 0x40ff00]
 	rom_size = rom.get_size()
@@ -279,7 +279,7 @@ def parse_satellaview_header(rom: FileROM, base_offset: int) -> dict[str, Any]:
 	#0xdc-0xde: Checksum
 	#0xde-0xe0: Inverse checksum
 
-def add_satellaview_metadata(rom: FileROM, metadata: Metadata):
+def add_satellaview_metadata(rom: FileROM, metadata: 'Metadata'):
 	metadata.platform = 'Satellaview'
 	#Safe bet that every single Satellaview game just uses a normal controller
 	metadata.input_info.add_option(controllers.controller)
@@ -336,7 +336,7 @@ def try_get_equivalent_arcade(rom: FileROM, names: Iterable[str]) -> Optional[Ma
 	
 	return None
 
-def add_snes_software_list_metadata(software: Software, metadata: Metadata):
+def add_snes_software_list_metadata(software: Software, metadata: 'Metadata'):
 	software.add_standard_metadata(metadata)
 	if metadata.save_type == SaveType.Unknown and metadata.platform != 'Satellaview':
 		metadata.save_type = SaveType.Cart if software.has_data_area('nvram') else SaveType.Nothing
@@ -365,7 +365,7 @@ def add_snes_software_list_metadata(software: Software, metadata: Metadata):
 		metadata.series_index = '6'
 		
 
-def add_snes_metadata(game: ROMGame):
+def add_snes_metadata(game: 'ROMGame'):
 	rom = cast(FileROM, game.rom)
 	if game.rom.extension in {'sfc', 'smc', 'swc'}:
 		add_normal_snes_header(rom, game.metadata)
@@ -378,7 +378,7 @@ def add_snes_metadata(game: ROMGame):
 	if equivalent_arcade:
 		game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
 
-	software = get_software_list_entry(game)
+	software = game.get_software_list_entry()
 	if software:
 		add_snes_software_list_metadata(software, game.metadata)
 	#Can't get input_info at this point as there's nothing to distinguish stuff that uses mouse/gun/etc

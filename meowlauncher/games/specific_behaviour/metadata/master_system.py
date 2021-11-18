@@ -1,16 +1,16 @@
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-from meowlauncher.games.mame_common.software_list import Software
-from meowlauncher.games.mame_common.software_list_info import \
-    get_software_list_entry
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import SMSPeripheral
 from meowlauncher.util.region_info import TVSystem
 from meowlauncher.util.utils import decode_bcd, load_dict
+
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.games.mame_common.software_list import Software
 
 licensee_codes = load_dict(None, 'sega_licensee_codes')
 
@@ -125,7 +125,7 @@ def try_parse_standard_header(rom: FileROM, metadata: Metadata):
 		#All non-Japanese/Korean systems have a BIOS which checks the checksum, so if there's no header at all, they just won't boot it
 		metadata.specific_info['Japanese Only?'] = True
 
-def add_info_from_software_list(metadata: Metadata, software: Software):
+def add_info_from_software_list(metadata: Metadata, software: 'Software'):
 	software.add_standard_metadata(metadata)
 
 	usage = software.infos.get('usage')
@@ -201,7 +201,7 @@ def add_info_from_software_list(metadata: Metadata, software: Software):
 
 		metadata.specific_info['Peripheral'] = peripheral
 
-def get_sms_metadata(game: ROMGame):
+def get_sms_metadata(game: 'ROMGame'):
 	rom = cast(FileROM, game.rom)
 	sdsc_header = rom.read(seek_to=0x7fe0, amount=16)
 	if sdsc_header[:4] == b'SDSC':
@@ -216,6 +216,6 @@ def get_sms_metadata(game: ROMGame):
 		builtin_gamepad.face_buttons = 2 #'1' on left, '2' on right
 		game.metadata.input_info.add_option(builtin_gamepad)
 
-	software = get_software_list_entry(game)
+	software = game.get_software_list_entry()
 	if software:
 		add_info_from_software_list(game.metadata, software)

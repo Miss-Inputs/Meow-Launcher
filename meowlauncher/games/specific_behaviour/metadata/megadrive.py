@@ -1,7 +1,7 @@
 import re
 from collections.abc import Iterable
 from datetime import datetime
-from typing import Union, cast
+from typing import TYPE_CHECKING, Union, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -10,17 +10,17 @@ from meowlauncher.games.mame_common.machine import (
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
-from meowlauncher.games.mame_common.software_list import Software
-from meowlauncher.games.mame_common.software_list_info import \
-    get_software_list_entry
 from meowlauncher.games.roms.rom import ROM, FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import MegadriveRegionCodes
 from meowlauncher.util import cd_read
 from meowlauncher.util.utils import load_dict
 
 from .common.atari_controllers import megadrive_pad as standard_gamepad
+
+if TYPE_CHECKING:
+	from meowlauncher.games.mame_common.software_list import Software
+	from meowlauncher.games.roms.rom_game import ROMGame
 
 licensee_codes = load_dict(None, 'sega_licensee_codes')
 
@@ -271,7 +271,7 @@ def try_find_equivalent_arcade(rom: ROM, metadata: Metadata):
 			return megatech_machine	
 	return None
 
-def add_megadrive_software_list_metadata(software: Software, metadata: Metadata):
+def add_megadrive_software_list_metadata(software: 'Software', metadata: Metadata):
 	software.add_standard_metadata(metadata)
 	if software.get_shared_feature('addon') == 'SVP':
 		metadata.specific_info['Expansion Chip'] = 'SVP'
@@ -305,7 +305,7 @@ def add_megadrive_software_list_metadata(software: Software, metadata: Metadata)
 				metadata.specific_info['Mapper'] = slot[4:] + '_pokemon'
 
 
-def add_megadrive_metadata(game: ROMGame):
+def add_megadrive_metadata(game: 'ROMGame'):
 	if game.rom.extension == 'cue':
 		first_track_and_sector_size = cd_read.get_first_data_cue_track(game.rom.path)
 		if not first_track_and_sector_size:
@@ -331,6 +331,6 @@ def add_megadrive_metadata(game: ROMGame):
 		if equivalent_arcade:
 			game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
 
-	software = get_software_list_entry(game)
+	software = game.get_software_list_entry()
 	if software:
 		add_megadrive_software_list_metadata(software, game.metadata)

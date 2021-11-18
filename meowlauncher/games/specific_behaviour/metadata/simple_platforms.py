@@ -1,16 +1,18 @@
 import re
+from typing import TYPE_CHECKING
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-from meowlauncher.games.mame_common.software_list_info import \
-    get_software_list_entry
-from meowlauncher.games.roms.rom_game import ROMGame
 
 from .generic import add_generic_info
 
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+
+
 #Straightforward stuff that doesn't require a FileROM and has nothing to look into
 
-def add_entex_adventure_vision_info(game: ROMGame):
+def add_entex_adventure_vision_info(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4 #Physically, they're on both sides of the system, but those are duplicates (for ambidextrousity)
@@ -21,7 +23,7 @@ def add_entex_adventure_vision_info(game: ROMGame):
 
 	add_generic_info(game)
 
-def add_game_pocket_computer_info(game: ROMGame):
+def add_game_pocket_computer_info(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4
@@ -32,7 +34,7 @@ def add_game_pocket_computer_info(game: ROMGame):
 
 	add_generic_info(game)
 
-def add_gamate_info(game: ROMGame):
+def add_gamate_info(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
@@ -43,7 +45,7 @@ def add_gamate_info(game: ROMGame):
 
 	add_generic_info(game)
 
-def add_casio_pv1000_info(game: ROMGame):
+def add_casio_pv1000_info(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
@@ -55,7 +57,7 @@ def add_casio_pv1000_info(game: ROMGame):
 
 	add_generic_info(game)
 
-def add_mega_duck_info(game: ROMGame):
+def add_mega_duck_info(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
@@ -65,7 +67,7 @@ def add_mega_duck_info(game: ROMGame):
 
 	add_generic_info(game)
 
-def add_watara_supervision_info(game: ROMGame):
+def add_watara_supervision_info(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
@@ -76,7 +78,7 @@ def add_watara_supervision_info(game: ROMGame):
 
 	add_generic_info(game)
 
-def add_arcadia_info(game: ROMGame):
+def add_arcadia_info(game: 'ROMGame'):
 	keypad = input_metadata.Keypad() #2 controllers hardwired into the system. If MAME is any indication, the buttons on the side don't do anything or are equivalent to keypad 2?
 	keypad.keys = 12 #MAME mentions 16 here... maybe some variant systems have more
 	stick = input_metadata.NormalController()
@@ -91,7 +93,7 @@ def add_arcadia_info(game: ROMGame):
 	add_generic_info(game)
 	#Nothing really here other than alt titles (for other languages). I guess this proves that the Bandai Arcadia really isn't different.
 
-def add_astrocade_info(game: ROMGame):
+def add_astrocade_info(game: 'ROMGame'):
 	joystick = input_metadata.NormalController()
 	joystick.dpads = 1
 	joystick.face_buttons = 1 #Sort of a trigger button, as it's a gun-shaped grip
@@ -108,7 +110,7 @@ def add_astrocade_info(game: ROMGame):
 
 	add_generic_info(game)
 
-def add_pc88_info(game: ROMGame):
+def add_pc88_info(game: 'ROMGame'):
 	#Input info: Keyboard or joystick
 
 	add_generic_info(game)
@@ -120,12 +122,12 @@ def add_pc88_info(game: ROMGame):
 	#Needs CD-ROM support
 	#Needs N-BASIC
 
-def add_sg1000_info(game: ROMGame):
+def add_sg1000_info(game: 'ROMGame'):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
 	uses_tablet = False
-	software = get_software_list_entry(game)
+	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)
 		uses_tablet = software.get_part_feature('peripheral') == 'tablet'
@@ -141,7 +143,7 @@ def add_sg1000_info(game: ROMGame):
 		normal_controller.dpads = 1
 		game.metadata.input_info.add_option(normal_controller)
 
-def add_sharp_x1_info(game: ROMGame):
+def add_sharp_x1_info(game: 'ROMGame'):
 	#Input info: Keyboard and/or joystick
 
 	add_generic_info(game)
@@ -151,7 +153,7 @@ def add_sharp_x1_info(game: ROMGame):
 	#Once booted in S-OS, type "L DALK" to load, and "J 9600" to run
 	#In BASIC, type FILES to list the disk content
 
-def add_sharp_x68k_info(game: ROMGame):
+def add_sharp_x68k_info(game: 'ROMGame'):
 	#Input info: Keyboard and/or joystick
 
 	#Many games are known to have SaveType.Floppy, but can't tell programmatically...
@@ -165,7 +167,7 @@ def add_sharp_x68k_info(game: ROMGame):
 	#Type BPHXTST in Human68k OS
 	#Type S_MARIO.X in Human68k OS
 
-def add_vc4000_info(game: ROMGame):
+def add_vc4000_info(game: 'ROMGame'):
 	normal_controller = input_metadata.NormalController()
 	normal_controller.analog_sticks = 1
 	normal_controller.face_buttons = 2
@@ -181,7 +183,7 @@ def add_vc4000_info(game: ROMGame):
 
 	add_generic_info(game)
 
-def add_hartung_game_master_info(game: ROMGame):
+def add_hartung_game_master_info(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2
@@ -189,7 +191,7 @@ def add_hartung_game_master_info(game: ROMGame):
 
 	add_generic_info(game)
 
-def add_bandai_sv8000_info(game: ROMGame):
+def add_bandai_sv8000_info(game: 'ROMGame'):
 	keypad = input_metadata.Keypad() #2 of these
 	keypad.keys = 12 #Digits + # *
 	joystick = input_metadata.NormalController()
@@ -202,7 +204,7 @@ def add_bandai_sv8000_info(game: ROMGame):
 
 	add_generic_info(game)
 
-def add_nichibutsu_my_vision_info(game: ROMGame):
+def add_nichibutsu_my_vision_info(game: 'ROMGame'):
 	buttons = input_metadata.NormalController() #Not normal, but closest there is
 	#It's like a keyboard except not; MAME defines it as 14-button "mahjong" + 8-way joystick with 1 button and hmm
 	buttons.face_buttons = 19 #Numbered 1 to 14 in a row, then A B C D arranged in directions above that, and an E button next to that
@@ -210,7 +212,7 @@ def add_nichibutsu_my_vision_info(game: ROMGame):
 
 	add_generic_info(game)
 
-def add_bbc_bridge_companion_info(game: ROMGame):
+def add_bbc_bridge_companion_info(game: 'ROMGame'):
 	buttons = input_metadata.NormalController()
 	buttons.face_buttons = 10 #According to the MAME driver, I'm too lazy to look at pictures of the thing
 	game.metadata.input_info.add_option(buttons)
@@ -219,7 +221,7 @@ def add_bbc_bridge_companion_info(game: ROMGame):
 
 	add_generic_info(game)
 
-def add_cd32_info(game: ROMGame):
+def add_cd32_info(game: 'ROMGame'):
 	add_generic_info(game)
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
@@ -227,7 +229,7 @@ def add_cd32_info(game: ROMGame):
 	builtin_gamepad.shoulder_buttons = 2
 	game.metadata.input_info.add_option(builtin_gamepad)
 
-def add_neogeo_cd_info(game: ROMGame):
+def add_neogeo_cd_info(game: 'ROMGame'):
 	#Apparently there is a mahjong controller too, but... meh
 	add_generic_info(game)
 	builtin_gamepad = input_metadata.NormalController()
@@ -235,7 +237,7 @@ def add_neogeo_cd_info(game: ROMGame):
 	builtin_gamepad.face_buttons = 4
 	game.metadata.input_info.add_option(builtin_gamepad)
 
-def add_juicebox_info(game: ROMGame):
+def add_juicebox_info(game: 'ROMGame'):
 	#Hmm... apparently there's 0x220 bytes at the beginning which need to be copied from retail carts to get homebrew test ROMs to boot
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.face_buttons = 5 #Rewind/forward/stop/play/function
@@ -245,7 +247,7 @@ def add_juicebox_info(game: ROMGame):
 
 	add_generic_info(game)
 
-def add_fm7_info(game: ROMGame):
+def add_fm7_info(game: 'ROMGame'):
 	#Possible input info: Keyboard and joystick but barely anything uses said joystick
 
 	#info usage strings to make use of:
@@ -260,7 +262,7 @@ def add_fm7_info(game: ROMGame):
 	#"Type LOADM&quot;&quot;,R to load" is on a few tapes
 	add_generic_info(game)
 
-def add_super_cassette_vision_info(game: ROMGame):
+def add_super_cassette_vision_info(game: 'ROMGame'):
 	keypad = input_metadata.Keypad() #Part of main body of console
 	keypad.keys = 12 #Digits + CL EN
 
@@ -269,12 +271,12 @@ def add_super_cassette_vision_info(game: ROMGame):
 
 	game.metadata.input_info.add_option([keypad, joystick])
 
-	software = get_software_list_entry(game)
+	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)
 		game.metadata.specific_info['Has Extra RAM?'] = software.has_data_area('ram') #Or feature "slot" ends with "_ram"
 
-def add_super_acan_info(game: ROMGame):
+def add_super_acan_info(game: 'ROMGame'):
 	add_generic_info(game)
 	controller = input_metadata.NormalController()
 	controller.shoulder_buttons = 2
@@ -282,8 +284,8 @@ def add_super_acan_info(game: ROMGame):
 	controller.face_buttons = 4 #Also Select + Start
 	game.metadata.input_info.add_option(controller)
 
-def add_pc_booter_info(game: ROMGame):
-	software = get_software_list_entry(game)
+def add_pc_booter_info(game: 'ROMGame'):
+	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)
 		usage = software.get_info('usage')
@@ -295,7 +297,7 @@ def add_pc_booter_info(game: ROMGame):
 		#Original Publisher = Nihon Falcom
 		game.metadata.specific_info['Version'] = software.infos.get('version')
 
-def add_vsmile_info(game: ROMGame):
+def add_vsmile_info(game: 'ROMGame'):
 	add_generic_info(game)
 	controller = input_metadata.NormalController()
 	controller.analog_sticks = 1 #Hmm MAME has it as a digital joystick with 8 buttons but Wikipedia says analog, whomst is correct? I dunno
@@ -303,22 +305,22 @@ def add_vsmile_info(game: ROMGame):
 
 	game.metadata.input_info.add_option(controller)
 
-def add_vsmile_babby_info(game: ROMGame):
+def add_vsmile_babby_info(game: 'ROMGame'):
 	add_generic_info(game)
 	controller = input_metadata.NormalController()
 	controller.face_buttons = 6 #5 shapes + "fun button" (aka cloud) + apparently the ball is actually just a button; also exit
 
 	game.metadata.input_info.add_option(controller)
 
-def add_vz200_info(game: ROMGame):
+def add_vz200_info(game: 'ROMGame'):
 	add_generic_info(game)
 	keyboard = input_metadata.Keyboard()
 	keyboard.keys = 45
 	#There are in theory joysticks, but they don't seem to ever be a thing
 	game.metadata.input_info.add_option(keyboard)
 
-def add_microtan_65_info(game: ROMGame):
-	software = get_software_list_entry(game)
+def add_microtan_65_info(game: 'ROMGame'):
+	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)
 		usage = software.get_info('usage')
@@ -338,8 +340,8 @@ def add_microtan_65_info(game: ROMGame):
 		else:
 			game.metadata.add_notes(usage)
 
-def add_pc_engine_cd_info(game: ROMGame):
-	software = get_software_list_entry(game)
+def add_pc_engine_cd_info(game: 'ROMGame'):
+	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)
 		game.metadata.specific_info['Requirement'] = software.get_shared_feature('requirement')
@@ -348,8 +350,8 @@ def add_pc_engine_cd_info(game: ROMGame):
 			#This is already specified by "requirement"
 			game.metadata.add_notes(usage)
 	
-def add_amstrad_pcw_info(game: ROMGame):
-	software = get_software_list_entry(game)
+def add_amstrad_pcw_info(game: 'ROMGame'):
+	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)
 		usage = software.get_info('usage')
@@ -357,8 +359,8 @@ def add_amstrad_pcw_info(game: ROMGame):
 			game.metadata.specific_info['Requires CP/M?'] = True
 
 requires_ram_regex = re.compile(r'Requires (\d+) MB of RAM')
-def add_fm_towns_info(game: ROMGame):
-	software = get_software_list_entry(game)
+def add_fm_towns_info(game: 'ROMGame'):
+	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)
 		usage = software.get_info('usage')
@@ -369,9 +371,9 @@ def add_fm_towns_info(game: ROMGame):
 				if match.end() < len(usage):
 					game.metadata.add_notes(usage)
 
-def add_sord_m5_info(game: ROMGame):
+def add_sord_m5_info(game: 'ROMGame'):
 	#Input info if I cared: 55 key keyboard + 0 button joystick
-	software = get_software_list_entry(game)
+	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)
 		usage = software.get_info('usage')
@@ -380,8 +382,8 @@ def add_sord_m5_info(game: ROMGame):
 		else:
 			game.metadata.add_notes(usage)
 	
-def add_msx_info(game: ROMGame):
-	software = get_software_list_entry(game)
+def add_msx_info(game: 'ROMGame'):
+	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)
 		usage = software.get_info('usage')

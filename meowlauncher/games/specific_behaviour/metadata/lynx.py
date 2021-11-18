@@ -1,13 +1,13 @@
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from meowlauncher import input_metadata
-from meowlauncher.games.mame_common.software_list_info import \
-    get_software_list_entry
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Metadata
 
-def add_info_from_lynx_header(header: bytes, metadata: Metadata):
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
+
+def add_info_from_lynx_header(header: bytes, metadata: 'Metadata'):
 	#UBYTE   magic[4];
 	#UWORD   page_size_bank0;
 	#UWORD   page_size_bank1;
@@ -28,7 +28,7 @@ def add_info_from_lynx_header(header: bytes, metadata: Metadata):
 	elif rotation == 2:
 		metadata.specific_info['Screen Rotation'] = 'Right'
 
-def add_lynx_metadata(game: ROMGame):
+def add_lynx_metadata(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4 #Option 1, Option 2, A, B; these are flipped so you might think there's 8
@@ -43,6 +43,6 @@ def add_lynx_metadata(game: ROMGame):
 		add_info_from_lynx_header(header, game.metadata)
 		rom.header_length_for_crc_calculation = 64	
 
-	software = get_software_list_entry(game)
+	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)

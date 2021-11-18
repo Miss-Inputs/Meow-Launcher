@@ -1,20 +1,20 @@
-from typing import Optional, cast
+from typing import TYPE_CHECKING, Optional, cast
 from zlib import crc32
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-from meowlauncher.games.mame_common.software_list_info import \
-    get_software_list_entry
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Metadata
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
+
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 nintendo_gba_logo_crc32 = 0xD0BEB55E
-def parse_gba_header(metadata: Metadata, header: bytes):
+def parse_gba_header(metadata: 'Metadata', header: bytes):
 	#Entry point: 0-4
 	nintendo_logo = header[4:0xa0]
 	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_gba_logo_crc32
@@ -80,7 +80,7 @@ def look_for_sound_drivers_in_cart(entire_cart: bytes) -> Optional[str]:
 
 	return None
 
-def look_for_strings_in_cart(entire_cart: bytes, metadata: Metadata):
+def look_for_strings_in_cart(entire_cart: bytes, metadata: 'Metadata'):
 	has_save = False
 	save_strings = (b'EEPROM_V', b'SRAM_V', b'SRAM_F_V', b'FLASH_V', b'FLASH512_V', b'FLASH1M_V')
 	for string in save_strings:
@@ -99,7 +99,7 @@ def look_for_strings_in_cart(entire_cart: bytes, metadata: Metadata):
 	if sound_driver == 'Rare':
 		metadata.developer = 'Rare' #probably
 	
-def add_gba_metadata(game: ROMGame):
+def add_gba_metadata(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2 #A B
@@ -113,6 +113,6 @@ def add_gba_metadata(game: ROMGame):
 
 	look_for_strings_in_cart(entire_cart, game.metadata)
 
-	software = get_software_list_entry(game)
+	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)

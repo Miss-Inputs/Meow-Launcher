@@ -1,6 +1,6 @@
 #Not worth putting these in their own source file I think
 from enum import Enum, auto
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import MediaType
@@ -9,32 +9,37 @@ from meowlauncher.games.mame_common.machine import (
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
-from meowlauncher.games.mame_common.software_list_info import \
-    get_software_list_entry
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
 
 from .generic import add_generic_info
 
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
 
-def add_vic10_info(game: ROMGame):
+def add_vic10_info(game: 'ROMGame'):
 	#Input info: Keyboard or joystick
 
 	rom = cast(FileROM, game.rom)
-	has_header = game.metadata.media_type == MediaType.Cartridge and (rom.get_size() % 256) == 2
+	has_header = False
+	if game.metadata.media_type == MediaType.Cartridge and (rom.get_size() % 256) == 2:
+		has_header = True
+		rom.header_length_for_crc_calculation = 2
 	game.metadata.specific_info['Headered?'] = has_header
-	software = get_software_list_entry(game, skip_header=2 if has_header else 0)
+	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)
 		#What the heck is an "assy"?
 
-def add_vic20_info(game: ROMGame):
+def add_vic20_info(game: 'ROMGame'):
 	#Input info: Keyboard and/or joystick
 
 	rom = cast(FileROM, game.rom)
-	has_header = game.metadata.media_type == MediaType.Cartridge and (rom.get_size() % 256) == 2
+	has_header = False
+	if game.metadata.media_type == MediaType.Cartridge and (rom.get_size() % 256) == 2:
+		has_header = True
+		rom.header_length_for_crc_calculation = 2
 	game.metadata.specific_info['Headered?'] = has_header
-	software = get_software_list_entry(game, skip_header=2 if has_header else 0)
+	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)
 		notes = software.get_info('usage')
@@ -53,13 +58,13 @@ class ColecoController(Enum):
 	RollerController = auto()
 	DrivingController = auto()
 
-def add_colecovision_info(game: ROMGame):
+def add_colecovision_info(game: 'ROMGame'):
 	#Can get year, publisher unreliably from the title screen info in the ROM; please do not do that
 
 	peripheral: ColecoController = ColecoController.Normal
 	peripheral_required = False
 
-	software = get_software_list_entry(game)
+	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)
 
@@ -116,7 +121,7 @@ def add_colecovision_info(game: ROMGame):
 			game.metadata.input_info.add_option(normal_controller)
 	#Doesn't look like you can set controller via command line at the moment, oh well
 
-def add_ibm_pcjr_info(game: ROMGame):
+def add_ibm_pcjr_info(game: 'ROMGame'):
 	#Input info: Keyboard or joystick
 
 	rom = cast(FileROM, game.rom)
@@ -135,7 +140,7 @@ def add_ibm_pcjr_info(game: ROMGame):
 		game.metadata.specific_info['Header Format'] = 'PCJrCart'
 		header_length = 128
 
-	software = get_software_list_entry(game, header_length)
+	software = game.get_software_list_entry(header_length)
 	if software:
 		software.add_standard_metadata(game.metadata)
 		#TODO: If sharedfeat requirement = ibmpcjr_flop:pcdos21, do something about that
@@ -146,7 +151,7 @@ def add_ibm_pcjr_info(game: ROMGame):
 		#Mount both carts and a DOS floppy and type 'TUTOR'
 		#Boot from a DOS floppy and type 'G'
 
-def add_pet_info(game: ROMGame):
+def add_pet_info(game: 'ROMGame'):
 	add_generic_info(game)
 	#Usage strings in pet_rom:
 	#Requires BASIC 2 (works on pet2001n).  Enter 'SYS 37000' to run
@@ -187,7 +192,7 @@ def _get_uapce_games() -> list[Machine]:
 			return []
 		return _get_uapce_games.result #type: ignore[attr-defined]
 
-def add_pc_engine_info(game: ROMGame):
+def add_pc_engine_info(game: 'ROMGame'):
 	#Not sure how to detect 2/6 buttons, or usage of TurboBooster-Plus, but I want to
 	equivalent_arcade = None
 	for uapce_machine in _get_uapce_games():

@@ -1,14 +1,14 @@
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-from meowlauncher.games.mame_common.software_list_info import \
-    get_software_list_entry
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Metadata
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
+
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
@@ -31,7 +31,7 @@ unofficial_vb_publishers = {
 	'VE': 'Alberto Covarrubias', #aka Virtual-E
 }
 
-def add_info_from_vb_header(header: bytes, metadata: Metadata):
+def add_info_from_vb_header(header: bytes, metadata: 'Metadata'):
 	title = header[0:20].decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
 	if title:
 		metadata.specific_info['Internal Title'] = title
@@ -53,7 +53,7 @@ def add_info_from_vb_header(header: bytes, metadata: Metadata):
 
 	metadata.specific_info['Revision'] = header[31]
 
-def add_virtual_boy_metadata(game: ROMGame):
+def add_virtual_boy_metadata(game: 'ROMGame'):
 	rom = cast(FileROM, game.rom)
 	rom_size = rom.get_size()
 	header_start_position = rom_size - 544 #Yeah I dunno
@@ -66,7 +66,7 @@ def add_virtual_boy_metadata(game: ROMGame):
 	gamepad.dpads = 2
 	game.metadata.input_info.add_option(gamepad)
 
-	software = get_software_list_entry(game)
+	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)
 		#We won't need to get serial here I guess

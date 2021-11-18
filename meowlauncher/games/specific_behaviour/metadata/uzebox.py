@@ -1,13 +1,12 @@
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
-from meowlauncher.games.mame_common.software_list_info import \
-    get_software_list_entry
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Date, Metadata
 
 from .common import snes_controllers
 
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
 
 def add_info_from_uze_header(header: bytes, metadata: Metadata):
 	#Header version: 6
@@ -28,7 +27,7 @@ def add_info_from_uze_header(header: bytes, metadata: Metadata):
 		#Official documentation claims this is unused, but it seems that it is used after all (although often identical to title)
 		metadata.descriptions['Banner Description'] = description
 
-def add_uzebox_metadata(game: ROMGame):
+def add_uzebox_metadata(game: 'ROMGame'):
 	#Save type: ????
 
 	header = cast(FileROM, game.rom).read(amount=512)
@@ -42,7 +41,7 @@ def add_uzebox_metadata(game: ROMGame):
 	game.metadata.specific_info['Headered?'] = has_header
 
 
-	software = get_software_list_entry(game, 512 if has_header else 0)
+	software = game.get_software_list_entry(512 if has_header else 0)
 	if software:
 		software.add_standard_metadata(game.metadata)
 		if game.metadata.publisher == 'Belogic':

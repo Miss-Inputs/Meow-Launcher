@@ -2,18 +2,17 @@ import configparser
 import hashlib
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Optional, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-from meowlauncher.games.mame_common.software_list_info import \
-    get_software_list_entry
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Metadata
 from meowlauncher.util.utils import (NotAlphanumericException, byteswap,
                                      convert_alphanumeric)
 
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
 
 def _get_mupen64plus_database_location() -> Optional[Path]:
 	config_location = Path('~/.config/mupen64plus/mupen64plus.cfg').expanduser()
@@ -63,7 +62,7 @@ def _get_mupen64plus_database() -> Optional[dict[str, dict[str, str]]]:
 	_get_mupen64plus_database.mupen64plus_database = database #type: ignore[attr-defined]
 	return database
 
-def parse_n64_header(metadata: Metadata, header: bytes):
+def parse_n64_header(metadata: 'Metadata', header: bytes):
 	#Clock rate, apparently? 0:4
 	#Program counter: 4-8
 	#Release address: 8-12
@@ -81,7 +80,7 @@ def parse_n64_header(metadata: Metadata, header: bytes):
 		pass
 	metadata.specific_info['Revision'] = header[63]
 
-def add_info_from_database_entry(metadata: Metadata, database_entry: Mapping[str, str]):
+def add_info_from_database_entry(metadata: 'Metadata', database_entry: Mapping[str, str]):
 	#Keys: {'SaveType', 'Biopak', 'GoodName', 'SiDmaDuration', 'Players', 'DisableExtraMem', 'Mempak', 'Cheat0', 'Transferpak', 'CRC', 'Status', 'Rumble', 'CountPerOp'}
 	#CRC is just the N64 checksum from the ROM header so I dunno if that's any use
 	#Stuff like SiDmaDuration and CountPerOp and DisableExtraMem should be applied automatically by Mupen64Plus I would think (and be irrelevant for other emulators)
@@ -117,7 +116,7 @@ def add_info_from_database_entry(metadata: Metadata, database_entry: Mapping[str
 		metadata.specific_info['Uses Transfer Pak?'] = True
 	#Unfortunately nothing in here which specifies to use VRU, or any other weird fancy controllers which may or may not exist
 
-def add_n64_metadata(game: ROMGame):
+def add_n64_metadata(game: 'ROMGame'):
 	entire_rom = cast(FileROM, game.rom).read()
 
 	magic = entire_rom[:4]
@@ -152,6 +151,6 @@ def add_n64_metadata(game: ROMGame):
 		if database_entry:
 			add_info_from_database_entry(game.metadata, database_entry)
 
-	software = get_software_list_entry(game)
+	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)

@@ -1,13 +1,12 @@
 from collections.abc import Iterable
+from typing import TYPE_CHECKING
 
-from meowlauncher.games.mame_common.software_list import Software
-from meowlauncher.games.mame_common.software_list_info import \
-    get_software_list_entry
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Metadata
+if TYPE_CHECKING:
+	from meowlauncher.games.mame_common.software_list import Software
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
 
-
-def add_amiga_metadata_from_software_list(software: Software, metadata: Metadata):
+def add_amiga_metadata_from_software_list(software: 'Software', metadata: 'Metadata'):
 	chipset = None
 	if software:
 		software.add_standard_metadata(metadata)
@@ -30,7 +29,7 @@ def add_amiga_metadata_from_software_list(software: Software, metadata: Metadata
 		#info name="magazine": What magazine it came from?
 	metadata.specific_info['Chipset'] = chipset
 
-def add_info_from_filename_tags(tags: Iterable[str], metadata: Metadata):
+def add_info_from_filename_tags(tags: Iterable[str], metadata: 'Metadata'):
 	for tag in tags:
 		if tag == '[HD]':
 			metadata.specific_info['Requires Hard Disk?'] = True
@@ -79,8 +78,8 @@ def add_info_from_filename_tags(tags: Iterable[str], metadata: Metadata):
 		if chipset:
 			metadata.specific_info['Chipset'] = chipset
 
-def add_amiga_metadata(game: ROMGame):
-	software = get_software_list_entry(game)
+def add_amiga_metadata(game: 'ROMGame'):
+	software = game.get_software_list_entry()
 	if software:
 		add_amiga_metadata_from_software_list(software, game.metadata)
 		

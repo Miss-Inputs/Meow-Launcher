@@ -1,12 +1,12 @@
-from typing import Optional, cast
+from typing import TYPE_CHECKING, Optional, cast
 
-from meowlauncher.games.mame_common.software_list import Software
-from meowlauncher.games.mame_common.software_list_info import \
-    get_software_list_entry
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Metadata
 from meowlauncher.platform_types import ZXExpansion, ZXJoystick, ZXMachine
+
+if TYPE_CHECKING:
+	from meowlauncher.games.mame_common.software_list import Software
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
 
 zx_hardware: dict[int, tuple[ZXMachine, Optional[ZXExpansion]]] = {
 	#For .z80 header
@@ -28,7 +28,7 @@ zx_hardware: dict[int, tuple[ZXMachine, Optional[ZXExpansion]]] = {
 	16: (ZXMachine.TimexSinclair2068, None),
 }
 
-def add_z80_metadata(rom: FileROM, metadata: Metadata):
+def add_z80_metadata(rom: FileROM, metadata: 'Metadata'):
 	#https://www.worldofspectrum.org/faq/reference/z80format.htm
 	header = rom.read(amount=86)
 	flags = header[29]
@@ -76,7 +76,7 @@ def add_z80_metadata(rom: FileROM, metadata: Metadata):
 
 	metadata.specific_info['ROM Format'] = 'Z80 v%d' % header_version
 
-def add_speccy_software_list_metadata(software: Software, metadata: Metadata):
+def add_speccy_software_list_metadata(software: 'Software', metadata: 'Metadata'):
 	software.add_standard_metadata(metadata)
 	usage = software.infos.get('usage')
 	if usage == 'Requires Multiface':
@@ -90,7 +90,7 @@ def add_speccy_software_list_metadata(software: Software, metadata: Metadata):
 		#Disk has no autorun menu, requires loading each game from Basic.
 		metadata.add_notes(usage)
 
-def add_speccy_metadata(game: ROMGame):
+def add_speccy_metadata(game: 'ROMGame'):
 	if game.rom.extension == 'z80':
 		add_z80_metadata(cast(FileROM, game.rom), game.metadata)
 
@@ -106,6 +106,6 @@ def add_speccy_metadata(game: ROMGame):
 				game.metadata.specific_info['Machine'] = ZXMachine.ZX128k
 				break
 
-	software = get_software_list_entry(game)
+	software = game.get_software_list_entry()
 	if software:
 		add_speccy_software_list_metadata(software, game.metadata)

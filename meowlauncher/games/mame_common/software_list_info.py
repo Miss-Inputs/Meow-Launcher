@@ -1,26 +1,21 @@
 import os
-import zlib
 from collections.abc import Collection, Iterable, Sequence
 from pathlib import Path
-from typing import Any, Optional, cast
+from typing import Any, Optional
 
-from meowlauncher.common_types import MediaType
-from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.util import io_utils
 from meowlauncher.util.name_utils import normalize_name
-from meowlauncher.util.utils import (byteswap, find_filename_tags_at_end,
+from meowlauncher.util.utils import (find_filename_tags_at_end,
                                      load_dict, remove_filename_tags)
 
 from .mame_helpers import default_mame_configuration
 from .software_list import (Software, SoftwareCustomMatcher, SoftwareList,
                             SoftwareMatcherArgs, SoftwarePart,
-                            format_crc32_for_software_list,
                             get_crc32_for_software_list)
 
 subtitles = load_dict(None, 'subtitles')
 
 def get_software_lists_by_names(names: Collection[str]) -> list[SoftwareList]:
+	#TODO: Could this belong in roms_metadata or ROMGame?
 	if not names:
 		return []
 	return [software_list for software_list in [get_software_list_by_name(name) for name in names] if software_list]
@@ -163,13 +158,6 @@ def find_software_by_name(software_lists: Sequence[SoftwareList], name: str) -> 
 		
 	return None
 
-def software_list_product_code_matcher(part: SoftwarePart, product_code: str) -> bool:
-	part_code = part.software.serial
-	if not part_code:
-		return False
-
-	return product_code in part_code.split(', ')
-
 def find_in_software_lists(software_lists: Iterable[SoftwareList], args: SoftwareMatcherArgs) -> Optional[Software]:
 	#TODO: Handle hash collisions. Could happen, even if we're narrowing down to specific software lists
 	if not software_lists:
@@ -183,70 +171,6 @@ def find_in_software_lists(software_lists: Iterable[SoftwareList], args: Softwar
 class UnsupportedCHDError(Exception):
 	pass
 
-def get_sha1_from_chd(chd_path: Path) -> str:
-	header = io_utils.read_file(chd_path, amount=124)
-	if header[0:8] != b'MComprHD':
-		raise UnsupportedCHDError('Header magic %s unknown' % str(header[0:8]))
-	chd_version = int.from_bytes(header[12:16], 'big')
-	if chd_version == 4:
-		sha1 = header[48:68]
-	elif chd_version == 5:
-		sha1 = header[84:104]
-	else:
-		raise UnsupportedCHDError('Version %d unknown' % chd_version)
-	return bytes.hex(sha1)
-
 def matcher_args_for_bytes(data: bytes) -> SoftwareMatcherArgs:
 	#We _could_ use sha1 here, but there's not really a need to
 	return SoftwareMatcherArgs(get_crc32_for_software_list(data), None, len(data), lambda offset, amount: data[offset:offset+amount])
-
-def get_software_list_entry(game: ROMGame, skip_header: int=0) -> Optional[Software]:
-	if game.software_lists:
-		software_lists = game.software_lists
-	else:
-		software_list_names = game.platform.mame_software_lists
-		software_lists = get_software_lists_by_names(software_list_names)
-
-	if game.metadata.media_type == MediaType.OpticalDisc:
-		software = None
-		if game.rom.extension == 'chd':
-			try:
-				sha1 = get_sha1_from_chd(game.rom.path)
-				args = SoftwareMatcherArgs(None, sha1, None, None)
-				software = find_in_software_lists(software_lists, args)
-			except UnsupportedCHDError:
-				pass
-	else:
-		if game.subroms:
-			#TODO: Get first floppy for now, because right now we don't differentiate with parts or anything; this part of the code sucks
-			data = game.subroms[0].read(seek_to=skip_header)
-			software = find_in_software_lists(software_lists, matcher_args_for_bytes(data))
-		else:
-			if game.rom.is_folder:
-				raise TypeError('This should not be happening, we are calling get_software_list_entry on a folder')
-			file_rom = cast(FileROM, game.rom)
-			if skip_header:
-				#Hmm might deprecate this in favour of header_length_for_crc_calculation
-				data = file_rom.read(seek_to=skip_header)
-				software = find_in_software_lists(software_lists, matcher_args_for_bytes(data))
-			else:
-				if game.platform.databases_are_byteswapped:
-					crc32 = format_crc32_for_software_list(zlib.crc32(byteswap(file_rom.read())) & 0xffffffff)
-				else:
-					crc32 = format_crc32_for_software_list(file_rom.get_crc32())
-					
-				def _file_rom_reader(offset, amount) -> bytes:
-					data = file_rom.read(seek_to=offset, amount=amount)
-					if game.platform.databases_are_byteswapped:
-						return byteswap(data)
-					return data
-					
-				args = SoftwareMatcherArgs(crc32, None, file_rom.get_size() - file_rom.header_length_for_crc_calculation, _file_rom_reader)
-				software = find_in_software_lists(software_lists, args)
-
-	if not software and game.platform_config.options.get('find_software_by_name', False):
-		software = find_software_by_name(game.software_lists, game.rom.name)
-	if not software and (game.platform_config.options.get('find_software_by_product_code', False) and game.metadata.product_code):
-		software = find_in_software_lists_with_custom_matcher(game.software_lists, software_list_product_code_matcher, [game.metadata.product_code])
-
-	return software

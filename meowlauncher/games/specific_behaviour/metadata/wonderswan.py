@@ -1,11 +1,13 @@
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
 
 from .generic import add_generic_info
+
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
 
 publishers = {
 	1: 'Bandai',
@@ -53,7 +55,7 @@ publishers = {
 	#47: E3 Staff or Gust
 }
 
-def add_wonderswan_metadata(game: ROMGame):
+def add_wonderswan_metadata(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	if game.metadata.platform == 'Benesse Pocket Challenge V2':
@@ -87,8 +89,5 @@ def add_wonderswan_metadata(game: ROMGame):
 	#Checksum schmecksum
 
 	add_generic_info(game)
-	#software = get_software_list_entry(game)
-	#if software:
-	#	software.add_standard_metadata(game.metadata)
-		#We could get save type from software.has_data_area('sram' or 'eeprom') but I think we can trust the header flags for now, even with BPCv2 carts
-		#By the same token we can get screen orientation = vertical if feature rotated = 'yes'
+	#We could get save type from software.has_data_area('sram' or 'eeprom') but I think we can trust the header flags for now, even with BPCv2 carts
+	#By the same token we can get screen orientation = vertical if feature rotated = 'yes'

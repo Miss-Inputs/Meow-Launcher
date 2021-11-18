@@ -1,17 +1,16 @@
 
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.mame_common.mame_utils import \
     consistentify_manufacturer
-from meowlauncher.games.mame_common.software_list_info import \
-    get_software_list_entry
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import AppleIIHardware
 from meowlauncher.util.region_info import get_language_by_english_name
 
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
 
 def parse_woz_info_chunk(metadata: Metadata, chunk_data: bytes):
 	info_version = chunk_data[0]
@@ -162,13 +161,13 @@ def add_woz_metadata(rom: FileROM, metadata: Metadata):
 	if 'Header-Title' in metadata.names and 'Subtitle' in metadata.specific_info:
 		metadata.add_alternate_name(metadata.names['Header Title'] + ': ' + metadata.specific_info['Subtitle'], 'Header Title with Subtitle')
 
-def add_apple_ii_metadata(game: ROMGame):
+def add_apple_ii_metadata(game: 'ROMGame'):
 	if game.metadata.extension == 'woz':
 		add_woz_metadata(cast(FileROM, game.rom), game.metadata)
 
 	#Possible input info: Keyboard and joystick by default, mouse if mouse card exists
 
-	software = get_software_list_entry(game)
+	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)
 		usage = software.get_info('usage')

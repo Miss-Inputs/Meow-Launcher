@@ -1,5 +1,5 @@
 import re
-from typing import cast
+from typing import TYPE_CHECKING, cast
 from zlib import crc32
 
 from meowlauncher import input_metadata
@@ -7,13 +7,15 @@ from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.mame_common.software_list_info import (
-    find_in_software_lists, get_software_list_entry, matcher_args_for_bytes)
+    find_in_software_lists, matcher_args_for_bytes)
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Metadata
 from meowlauncher.platform_types import GameBoyColourFlag
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
+
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
 
 game_boy_config = platform_configs.get('Game Boy')
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
@@ -127,7 +129,7 @@ gbx_mappers = {
 	b'PKJD': 'Pokemon Jade/Diamond bootleg'
 }
 
-def parse_slot(metadata: Metadata, slot: str):
+def parse_slot(metadata: 'Metadata', slot: str):
 	if slot in mame_rom_slots:
 		original_mapper = metadata.specific_info.get('Mapper', 'None')
 
@@ -140,7 +142,7 @@ def parse_slot(metadata: Metadata, slot: str):
 			metadata.specific_info['Mapper'] = new_mapper
 
 nintendo_logo_crc32 = 0x46195417
-def parse_gameboy_header(metadata: Metadata, header: bytes):
+def parse_gameboy_header(metadata: 'Metadata', header: bytes):
 	nintendo_logo = header[4:0x34]
 	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_logo_crc32
 	metadata.specific_info['Nintendo Logo Valid'] = nintendo_logo_valid
@@ -200,7 +202,7 @@ def parse_gameboy_header(metadata: Metadata, header: bytes):
 			metadata.publisher = nintendo_licensee_codes[licensee_code]
 	metadata.specific_info['Revision'] = header[0x4c]
 
-def parse_gbx_footer(rom: FileROM, metadata: Metadata):
+def parse_gbx_footer(rom: FileROM, metadata: 'Metadata'):
 	footer = rom.read(seek_to=rom.get_size() - 64, amount=64)
 	if footer[60:64] != b'GBX!':
 		if main_config.debug:
@@ -228,7 +230,7 @@ def parse_gbx_footer(rom: FileROM, metadata: Metadata):
 	#4 = has battery, #5 = has rumble, #6 = has RTC
 	#RAM size: 12:16
 
-def add_gameboy_metadata(game: ROMGame):
+def add_gameboy_metadata(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2 #A B
@@ -245,7 +247,7 @@ def add_gameboy_metadata(game: ROMGame):
 	if game.rom.extension == 'gbx':
 		software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(rom.read(amount=rom.get_size() - 64)))
 	else:
-		software = get_software_list_entry(game)
+		software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)
 		game.metadata.specific_info['Has RTC?'] = software.get_part_feature('rtc') == 'yes'
