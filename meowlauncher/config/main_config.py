@@ -1,7 +1,7 @@
 import configparser
 import sys
 from collections.abc import Collection, Mapping, MutableMapping
-from pathlib import Path
+from pathlib import Path, PurePath
 
 from meowlauncher.common_paths import config_dir, data_dir
 from meowlauncher.common_types import ConfigValueType, TypeOfConfigValue
@@ -130,12 +130,12 @@ def get_command_line_arguments() -> Mapping[str, TypeOfConfigValue]:
 					d[name] = value
 	return d
 
-def load_ignored_directories() -> Collection[Path]:
-	ignored_directories: set[Path] = set()
+def load_ignored_directories() -> Collection[PurePath]:
+	ignored_directories: set[PurePath] = set()
 
 	try:
 		with open(_ignored_dirs_path, 'rt', encoding='utf-8') as ignored_txt:
-			ignored_directories.update(Path(line) for line in ignored_txt)
+			ignored_directories.update(PurePath(line.strip()) for line in ignored_txt)
 	except FileNotFoundError:
 		pass
 
@@ -147,7 +147,7 @@ def load_ignored_directories() -> Collection[Path]:
 
 	return ignored_directories
 
-def write_ignored_directories(ignored_dirs: Collection[Path]):
+def write_ignored_directories(ignored_dirs: Collection[PurePath]):
 	try:
 		with _ignored_dirs_path.open('wt', encoding='utf-8') as ignored_txt:
 			for ignored_dir in ignored_dirs:
@@ -171,7 +171,7 @@ def write_new_config(new_config: Mapping[str, Mapping[str, TypeOfConfigValue]], 
 			parser[section][name] = convert_value_for_ini(value)
 
 	try:
-		with open(config_file_path, 'wt', encoding='utf-8') as ini_file:
+		with config_file_path.open('wt', encoding='utf-8') as ini_file:
 			parser.write(ini_file)
 	except OSError as ex:
 		print('Oh no!!! Failed to write', config_file_path, '!!!!11!!eleven!!', ex)
