@@ -25,7 +25,6 @@ from meowlauncher.game_source import (ChooseableEmulatorGameSource,
 from meowlauncher.games.roms.rom import ROM, FileROM, FolderROM, get_rom
 from meowlauncher.games.roms.rom_game import ROMGame, ROMLauncher
 from meowlauncher.games.roms.roms_metadata import add_metadata
-from meowlauncher.games.specific_behaviour.roms_folders import folder_checks
 from meowlauncher.runner_config import EmulatorConfig
 from meowlauncher.util import archives
 from meowlauncher.util.desktop_files import has_been_done
@@ -224,7 +223,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 					if any(subfolder in main_config.skipped_subfolder_names for subfolder in subfolders):
 						continue
 
-				folder_check = folder_checks.get(self.platform_config.name)
+				folder_check = self.platform.folder_check
 				if folder_check:
 					remaining_subdirs = [] #The subdirectories of rom_dir that aren't folder ROMs
 					for d in dirs:

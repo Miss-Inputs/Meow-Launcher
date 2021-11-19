@@ -1,6 +1,7 @@
 from meowlauncher.common_types import ConfigValueType, MediaType
-from meowlauncher.emulated_platform import (StandardEmulatedPlatform, PCPlatform,
-                                            PlatformConfigValue)
+from meowlauncher.emulated_platform import (PCPlatform, PlatformConfigValue,
+                                            StandardEmulatedPlatform)
+from meowlauncher.games.specific_behaviour import folder_checks
 
 from .format_info import (atari_2600_cartridge_extensions, cdrom_formats,
                           commodore_cart_formats, commodore_disk_formats,
@@ -128,10 +129,11 @@ platforms = {
 		[], [], ['RPCS3'], {MediaType.OpticalDisc: ['iso'], MediaType.Digital: ['pkg'], MediaType.Executable: ['self', 'elf', 'bin']}, dat_names=['Sony - PlayStation 3'], dat_uses_serial=True, options={
 			'covers_path': PlatformConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after product code'),
 			'tdb_path': PlatformConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB ps3tdb.xml file (https://www.gametdb.com/ps3tdb.zip)'),
-		}
+		}, folder_check=folder_checks.is_ps3_folder
 	),
 	StandardEmulatedPlatform('PSP',
-		[], [], ['PPSSPP'], {MediaType.OpticalDisc: cdrom_formats + ['cso'], MediaType.Executable: ['pbp']}, dat_names=['Sony - PlayStation Portable'], dat_uses_serial=True
+		[], [], ['PPSSPP'], {MediaType.OpticalDisc: cdrom_formats + ['cso'], MediaType.Executable: ['pbp']}, 
+		dat_names=['Sony - PlayStation Portable'], dat_uses_serial=True, folder_check=folder_checks.is_psp_homebrew_folder
 	),
 	StandardEmulatedPlatform('Saturn',
 		['saturn'], ['saturn', 'sat_cart', 'sat_vccart'], ['Beetle Saturn (libretro)', 'Mednafen (Saturn)', 'MAME (Saturn)'], {MediaType.OpticalDisc: cdrom_formats},
@@ -168,7 +170,8 @@ platforms = {
 			'common_key': PlatformConfigValue(ConfigValueType.String, '', 'Wii common key used for decrypting Wii discs which some projects are brave enough to hardcode but I am not'),
 			'covers_path': PlatformConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after product code, used by GameCube too'),
 		},
-		dat_names=['Nintendo - Wii'], dat_uses_serial=True #Although WiiWare (Nintendo - Wii (Digital)) uses crc… hm, not important for now since there is not really any metadata
+		dat_names=['Nintendo - Wii'], dat_uses_serial=True, #Although WiiWare (Nintendo - Wii (Digital)) uses crc… hm, not important for now since there is not really any metadata
+		folder_check=folder_checks.is_wii_homebrew_folder
 	),
 	StandardEmulatedPlatform('Wii U',
 		#See roms_folders for how this mostly works
@@ -177,6 +180,7 @@ platforms = {
 			'tdb_path': PlatformConfigValue(ConfigValueType.FilePath, None, 'Path to GameTDB wiiutdb.xml file (https://www.gametdb.com/wiiutdb.zip)'),
 			'covers_path': PlatformConfigValue(ConfigValueType.FolderPath, None, 'Path to folder containing covers named after 4-letter product code (or sometimes 6 letters)'),
 		}
+		, folder_check=folder_checks.is_wii_u_folder
 	),
 	StandardEmulatedPlatform('WonderSwan',
 		['wswan'], ['wswan', 'wscolor'], 

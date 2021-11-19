@@ -1,12 +1,12 @@
 from abc import ABC
-from collections.abc import Collection
+from collections.abc import Collection, Callable
 from typing import TYPE_CHECKING, Optional
 
 from meowlauncher.common_types import (ConfigValueType, MediaType,
                                        TypeOfConfigValue)
 
 if TYPE_CHECKING:
-	from meowlauncher.games.roms.rom import FileROM
+	from meowlauncher.games.roms.rom import FileROM, FolderROM
 
 
 class PlatformConfigValue():
@@ -22,7 +22,7 @@ class ChooseableEmulatedPlatform(ABC):
 		self.name = name
 
 class StandardEmulatedPlatform(ChooseableEmulatedPlatform):
-	def __init__(self, name: str, mame_drivers: Collection[str], mame_software_lists: Collection[str], emulators: Collection[str], file_types: dict[MediaType, list[str]]=None, options: dict[str, PlatformConfigValue]=None, is_virtual: bool=False, dat_names: Collection[str]=None, dat_uses_serial: bool=False, databases_are_byteswapped: bool=False, autodetect_tv_type: bool=False):
+	def __init__(self, name: str, mame_drivers: Collection[str], mame_software_lists: Collection[str], emulators: Collection[str], file_types: dict[MediaType, list[str]]=None, options: dict[str, PlatformConfigValue]=None, is_virtual: bool=False, dat_names: Collection[str]=None, dat_uses_serial: bool=False, databases_are_byteswapped: bool=False, autodetect_tv_type: bool=False, folder_check: Callable[['FolderROM'], Optional[MediaType]]=None):
 		super().__init__(emulators, name)
 		self.mame_drivers = mame_drivers #Parent drivers that represent this system
 		self.mame_software_lists = mame_software_lists
@@ -32,6 +32,7 @@ class StandardEmulatedPlatform(ChooseableEmulatedPlatform):
 		self.dat_uses_serial = dat_uses_serial
 		self.databases_are_byteswapped = databases_are_byteswapped #Arguably I should create two separate parameters for both MAME SL and libretro-database, but so far this is only needed for N64 which has both swapped
 		self.autodetect_tv_type = autodetect_tv_type
+		self.folder_check = folder_check
 
 		self.options = {}
 		if options:

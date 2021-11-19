@@ -1,5 +1,4 @@
 import os
-from collections.abc import Callable
 from typing import TYPE_CHECKING, Optional
 
 from meowlauncher.common_types import MediaType
@@ -47,10 +46,3 @@ def is_psp_homebrew_folder(folder: 'FolderROM') -> Optional[MediaType]:
 		folder.relevant_files['pbp'] = pbp
 		return MediaType.Digital
 	return None
-
-folder_checks: dict[str, Callable[['FolderROM'], Optional[MediaType]]] = {
-	'PS3': is_ps3_folder,
-	'PSP': is_psp_homebrew_folder,
-	'Wii U': is_wii_u_folder,
-	'Wii': is_wii_homebrew_folder,
-}
