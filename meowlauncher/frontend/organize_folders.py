@@ -118,7 +118,7 @@ def move_into_extra_subfolder(path: Path, desktop: ConfigParser, subfolder: str,
 
 	if is_array:
 		for subsubfolder_name in subsubfolders:
-			folder_name = ' - '.join([subsubfolder_name_component for subsubfolder_name_component in subsubfolder_name if subsubfolder_name_component])
+			folder_name = ' - '.join(subsubfolder_name_component for subsubfolder_name_component in subsubfolder_name if subsubfolder_name_component)
 			if len(folder_name) > 200:
 				folder_name = folder_name[:199] + '…'
 			if folder_name:

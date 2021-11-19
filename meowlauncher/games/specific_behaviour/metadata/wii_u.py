@@ -128,7 +128,7 @@ def add_meta_xml_metadata(metadata: Metadata, meta_xml: ElementTree.ElementTree)
 		metadata.specific_info['Version'] = 'v' + version
 
 	region = meta_xml.findtext('region')
-	region_codes = []
+	region_codes = set()
 	if region:
 		try:
 			region_flags = int(region, 16)
@@ -136,7 +136,7 @@ def add_meta_xml_metadata(metadata: Metadata, meta_xml: ElementTree.ElementTree)
 				if region_code in (WiiU3DSRegionCode.RegionFree, WiiU3DSRegionCode.WiiURegionFree):
 					continue
 				if region_code.value & region_flags:
-					region_codes.append(region_code)
+					region_codes.add(region_code)
 			metadata.specific_info['Region Code'] = region_codes
 		except ValueError:
 			metadata.specific_info['Region Code'] = '0x' + region

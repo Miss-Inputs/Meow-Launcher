@@ -50,12 +50,12 @@ def add_metadata_from_tags(game: ROMGame):
 	if not game.metadata.regions:
 		regions = get_regions_from_filename_tags(tags)
 		if regions:
-			game.metadata.regions = list(regions)
+			game.metadata.regions = regions
 
 	if not game.metadata.languages:
 		languages = get_languages_from_filename_tags(tags)
 		if languages:
-			game.metadata.languages = list(languages)
+			game.metadata.languages = languages
 
 def add_metadata_from_regions(metadata: Metadata):
 	if metadata.regions:
@@ -132,7 +132,7 @@ def add_alternate_names(rom: ROM, metadata: Metadata):
 	alt_names = splits[1:]
 
 	#This is which way around they are in No-Intro etc, but… no
-	not_allowed_to_be_primary_name = ["Tony Hawk's Skateboarding", 'Senjou no Ookami II', 'G-Sonic', 'Chaotix', 'After Burner Complete']
+	not_allowed_to_be_primary_name = {"Tony Hawk's Skateboarding", 'Senjou no Ookami II', 'G-Sonic', 'Chaotix', 'After Burner Complete'}
 	if primary_name in not_allowed_to_be_primary_name:
 		alt_names.append(primary_name)
 		primary_name = alt_names.pop(0)

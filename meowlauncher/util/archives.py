@@ -4,11 +4,11 @@ import lzma
 import os
 import re
 import subprocess
-from typing import Optional
 import zipfile
 import zlib
 from collections.abc import Iterable
 from pathlib import Path
+from typing import Optional
 
 #Use a number of different ways to crack open some archive formats and feast on the juicy file goo inside, depending on what the user has installed
 #Use inbuilt Python libraries for zip and gz
@@ -29,7 +29,7 @@ except ImportError:
 
 try:
 	#I'm not aware of any other 7z command that avoids doing anything, so this will have to do, but it feels weird
-	subprocess.check_call(['7z', '--help'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+	subprocess.check_call(('7z', '--help'), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 	have_7z_command = True
 except (subprocess.CalledProcessError, OSError):
 	have_7z_command = False
@@ -197,11 +197,18 @@ def sevenzip_get(path: Path, filename: str) -> bytes:
 
 def sevenzip_getsize(path: Path, filename: str) -> int:
 	with py7zr.SevenZipFile(path, mode='r') as sevenzip_file:
-		return [i.uncompressed for i in sevenzip_file.list() if i.filename == filename][0]
+		for each in sevenzip_file.list():
+			if each.filename == filename:
+				return each.uncompressed
+		raise FileNotFoundError(f'{filename} is not in {path}')
 
 def sevenzip_get_crc32(path: Path, filename: str) -> int:
 	with py7zr.SevenZipFile(path, mode='r') as sevenzip_file:
-		return [i.crc32 for i in sevenzip_file.list() if i.filename == filename][0]
+		for each in sevenzip_file.list():
+			if each.filename == filename:
+				return each.crc32
+		
+		raise FileNotFoundError(f'{filename} is not in {path}')
 
 #----- python-libarchive
 

@@ -18,7 +18,7 @@ def _get_mupen64plus_database_location() -> Optional[Path]:
 	config_location = Path('~/.config/mupen64plus/mupen64plus.cfg').expanduser()
 	try:
 		with config_location.open('rt', encoding='utf-8') as config_file:
-			for line in config_file.readlines():
+			for line in config_file:
 				if line.startswith('SharedDataPath = '):
 					data_folder = line.rstrip()[len('SharedDataPath = '):].strip('"')
 					possible_location = Path(data_folder, 'mupen64plus.ini')
@@ -27,7 +27,7 @@ def _get_mupen64plus_database_location() -> Optional[Path]:
 	except OSError:
 		pass
 
-	possible_locations = ['/usr/share/mupen64plus/mupen64plus.ini', '/usr/local/share/mupen64plus/mupen64plus.ini']
+	possible_locations = ('/usr/share/mupen64plus/mupen64plus.ini', '/usr/local/share/mupen64plus/mupen64plus.ini')
 	for possible_location_str in possible_locations:
 		possible_location = Path(possible_location_str)
 		if possible_location.is_file():
@@ -36,7 +36,7 @@ def _get_mupen64plus_database_location() -> Optional[Path]:
 
 	return None
 
-def _get_mupen64plus_database() -> Optional[dict[str, dict[str, str]]]:
+def _get_mupen64plus_database() -> Optional[Mapping[str, Mapping[str, str]]]:
 	if hasattr(_get_mupen64plus_database, 'mupen64plus_database'):
 		return _get_mupen64plus_database.mupen64plus_database #type: ignore[attr-defined]
 

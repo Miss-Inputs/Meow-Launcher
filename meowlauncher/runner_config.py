@@ -1,7 +1,10 @@
+from collections.abc import Mapping
+
 from meowlauncher.common_types import ConfigValueType, TypeOfConfigValue
 
+
 class RunnerConfig():
-	def __init__(self, exe_path: str, options: dict[str, TypeOfConfigValue]=None):
+	def __init__(self, exe_path: str, options: Mapping[str, TypeOfConfigValue]=None):
 		self.exe_path = exe_path
 		self.options = options if options else {}
 

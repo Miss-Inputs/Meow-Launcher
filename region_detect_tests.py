@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 #I can't be stuffed figuring out if there's some fancy unit test thing that all the cool kids use so I'm just gonna do my own thing
+#TODO: Spice up this class a bit, haven't bothered touching it in a while
+
+from collections.abc import Collection
+from typing import Optional
 
 from meowlauncher.util.detect_things_from_filename import (
     get_languages_from_filename_tags, get_regions_from_filename_tags,
@@ -10,7 +14,8 @@ from meowlauncher.util.region_info import (Language, Region, TVSystem,
 from meowlauncher.util.utils import find_filename_tags_at_end
 
 
-def are_regions_equal(region, other_region):
+def are_regions_equal(region, other_region) -> bool:
+	#TODO: Is this even right? Why are we testing for isinstance == Region?
 	if region == other_region:
 		return True
 
@@ -22,7 +27,7 @@ def are_regions_equal(region, other_region):
 
 	return False
 
-def region_array_equal(regions, other_regions):
+def region_array_equal(regions: Optional[Collection[Region]], other_regions: Optional[Collection[Region]]) -> bool:
 	if regions == other_regions:
 		return True
 
@@ -54,7 +59,7 @@ def languages_equal(language, other_language):
 
 	return False
 
-def language_array_equal(languages, other_languages):
+def language_array_equal(languages: Optional[Collection[Language]], other_languages: Optional[Collection[Language]]):
 	if languages == other_languages:
 		return True
 
@@ -76,14 +81,14 @@ def language_array_equal(languages, other_languages):
 
 
 class Test():
-	def __init__(self, name, filename, expected_regions, expected_languages, expected_tv_type):
+	def __init__(self, name: str, filename: str, expected_regions: Optional[Collection[str]], expected_languages: Optional[Collection[str]], expected_tv_type: Optional[TVSystem]):
 		self.name = name
 		self.filename = filename
 		self.expected_regions = expected_regions
 		self.expected_languages = expected_languages
 		self.expected_tv_type = expected_tv_type
 
-	def run(self):
+	def run(self) -> None:
 		try:
 			tags = find_filename_tags_at_end(self.filename)
 
@@ -91,11 +96,11 @@ class Test():
 			if not region_array_equal(regions, self.expected_regions):
 				print('Oh no! {0} failed: Regions = {1}, expected = {2}'.format(self.name, regions, self.expected_regions))
 
-			languages = get_languages_from_filename_tags(tags)
+			languages: Collection[Language] = get_languages_from_filename_tags(tags)
 			if regions and not languages:
 				region_language = get_language_from_regions(regions)
 				if region_language:
-					languages = [region_language]
+					languages = {region_language}
 			if not language_array_equal(languages, self.expected_languages):
 				print('Oh no! {0} failed: Languages = {1}, expected = {2}'.format(self.name, languages, self.expected_languages))
 
@@ -109,24 +114,24 @@ class Test():
 			print('Oh no! {0} failed: exception = {1}'.format(self.name, ex))
 
 tests = [
-	Test("No-Intro filename with region", "Cool Game (Spain)", ['Spain'], ['Spanish'], TVSystem.PAL),
-	Test("No-Intro filename with two regions", "Cool Game (Europe, Australia)", ['Europe', 'Australia'], ['English'], TVSystem.PAL),
-	Test("No-Intro filename with two regions with different languages", "Cool Game (Japan, USA)", ['Japan', 'USA'], None, TVSystem.NTSC),
-	Test("No-Intro filename with region but also unrelated tag", "Cool Game (Japan) (Unl)", ['Japan'], ['Japanese'], TVSystem.NTSC),
-	Test("No-Intro filename with explicit languages", "Cool Game (France) (En,Fr)", ['France'], ['English', 'French'], TVSystem.PAL),
-	Test("No-Intro filename with only one explicit language", "Cool Game (Japan) (En)", ['Japan'], ['English'], TVSystem.NTSC),
+	Test("No-Intro filename with region", "Cool Game (Spain)", {'Spain'}, {'Spanish'}, TVSystem.PAL),
+	Test("No-Intro filename with two regions", "Cool Game (Europe, Australia)", {'Europe', 'Australia'}, {'English'}, TVSystem.PAL),
+	Test("No-Intro filename with two regions with different languages", "Cool Game (Japan, USA)", {'Japan', 'USA'}, None, TVSystem.NTSC),
+	Test("No-Intro filename with region but also unrelated tag", "Cool Game (Japan) (Unl)", {'Japan'}, {'Japanese'}, TVSystem.NTSC),
+	Test("No-Intro filename with explicit languages", "Cool Game (France) (En,Fr)", {'France'}, {'English', 'French'}, TVSystem.PAL),
+	Test("No-Intro filename with only one explicit language", "Cool Game (Japan) (En)", {'Japan'}, {'English'}, TVSystem.NTSC),
 	Test("Non-standard filename with explicit TV type", "Cool Game (NTSC)", None, None, TVSystem.NTSC),
 	Test("TOSEC filename with nothing", "Cool Game (1992)(CoolSoft)", None, None, None),
 	Test("TOSEC filename with explicit TV type", "Cool Game (1992)(CoolSoft)(NTSC)", None, None, TVSystem.NTSC),
-	Test("TOSEC filename with region", "Cool Game (1992)(CoolSoft)(JP)", ['Japan'], ['Japanese'], TVSystem.NTSC),
-	Test("TOSEC filename with two regions", "Cool Game (1992)(CoolSoft)(JP-US)", ['Japan', 'USA'], None, TVSystem.NTSC),
-	Test("TOSEC filename with two regions with same language", "Cool Game (1992)(CoolSoft)(EU-AU)", ['Europe', 'Australia'], ['English'], TVSystem.PAL),
-	Test("TOSEC filename with language but no region", "Cool Game (1992)(CoolSoft)(pt)", None, ['Portuguese'], None),
-	Test("TOSEC filename with two languages but no region", "Cool Game (1992)(CoolSoft)(en-fr)", None, ['English', 'French'], None),
-	Test("TOSEC filename with region and language", "Cool Game (1992)(CoolSoft)(JP)(en)", ['Japan'], ['English'], TVSystem.NTSC),
-	Test("TOSEC filename with region and two languages", "Cool Game (1992)(CoolSoft)(JP)(en-fr)", ['Japan'], ['English', 'French'], TVSystem.NTSC),
-	Test("TOSEC filename with two regions and two languages", "Cool Game (1992)(CoolSoft)(JP-US)(en-ja)", ['Japan', 'USA'], ['English', 'Japanese'], TVSystem.NTSC),
-	Test("Name of a region in name but not tags", "Cool Adventures in Japan (USA)", ['USA'], ['English'], TVSystem.NTSC),
+	Test("TOSEC filename with region", "Cool Game (1992)(CoolSoft)(JP)", {'Japan'}, {'Japanese'}, TVSystem.NTSC),
+	Test("TOSEC filename with two regions", "Cool Game (1992)(CoolSoft)(JP-US)", {'Japan', 'USA'}, None, TVSystem.NTSC),
+	Test("TOSEC filename with two regions with same language", "Cool Game (1992)(CoolSoft)(EU-AU)", {'Europe', 'Australia'}, {'English'}, TVSystem.PAL),
+	Test("TOSEC filename with language but no region", "Cool Game (1992)(CoolSoft)(pt)", None, {'Portuguese'}, None),
+	Test("TOSEC filename with two languages but no region", "Cool Game (1992)(CoolSoft)(en-fr)", None, {'English', 'French'}, None),
+	Test("TOSEC filename with region and language", "Cool Game (1992)(CoolSoft)(JP)(en)", {'Japan'}, {'English'}, TVSystem.NTSC),
+	Test("TOSEC filename with region and two languages", "Cool Game (1992)(CoolSoft)(JP)(en-fr)", {'Japan'}, {'English', 'French'}, TVSystem.NTSC),
+	Test("TOSEC filename with two regions and two languages", "Cool Game (1992)(CoolSoft)(JP-US)(en-ja)", {'Japan', 'USA'}, {'English', 'Japanese'}, TVSystem.NTSC),
+	Test("Name of a region in name but not tags", "Cool Adventures in Japan (USA)", {'USA'}, {'English'}, TVSystem.NTSC),
 ]
 
 for test in tests:

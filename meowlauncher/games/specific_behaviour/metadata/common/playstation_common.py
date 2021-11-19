@@ -1,10 +1,13 @@
 from enum import Flag
-from typing import Optional, Union, cast
+from typing import TYPE_CHECKING, Optional, Union, cast
+from collections.abc import Mapping
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.metadata import Metadata
 from meowlauncher.util.name_utils import fix_name
+
+if TYPE_CHECKING:
+	from meowlauncher.metadata import Metadata
 
 categories: dict[str, tuple[str, Optional[str]]] = {
 	#Second item is what we want to set metadata.category to
@@ -121,7 +124,7 @@ title_languages = {
 
 SFOValueType = Union[str, int] #Not sure if there is more than that…
 
-def convert_sfo(sfo: bytes) -> dict[str, SFOValueType]:
+def _convert_sfo(sfo: bytes) -> Mapping[str, SFOValueType]:
 	d = {}
 	#This is some weird key value format thingy
 	key_table_start = int.from_bytes(sfo[8:12], 'little')
@@ -153,7 +156,7 @@ def convert_sfo(sfo: bytes) -> dict[str, SFOValueType]:
 		d[key] = value
 	return d
 
-def parse_param_sfo_kv(rompath: str, metadata: Metadata, key: str, value: SFOValueType):
+def parse_param_sfo_kv(rompath: str, metadata: 'Metadata', key: str, value: SFOValueType):
 	#rompath is just there for warning messages
 	if key == 'DISC_ID':
 		if value != 'UCJS10041':
@@ -229,7 +232,7 @@ def parse_param_sfo_kv(rompath: str, metadata: Metadata, key: str, value: SFOVal
 				print(rompath, 'has funny resolution flag', hex(cast(int, value)))
 	elif key == 'SOUND_FORMAT':
 		try:
-			metadata.specific_info['Supported Sound Formats'] = [res.lstrip('_').replace('_', '.') for res in str(SoundFormats(value))[13:].split('|')]
+			metadata.specific_info['Supported Sound Formats'] = {res.lstrip('_').replace('_', '.') for res in str(SoundFormats(value))[13:].split('|')}
 		except ValueError:
 			if main_config.debug:
 				print(rompath, 'has funny sound format flag', hex(cast(int, value)))
@@ -245,14 +248,14 @@ def parse_param_sfo_kv(rompath: str, metadata: Metadata, key: str, value: SFOVal
 		if main_config.debug:
 			print(rompath, 'has unknown param.sfo value', key, value)
 
-def parse_param_sfo(rompath: str, metadata: Metadata, param_sfo: bytes):
+def parse_param_sfo(rompath: str, metadata: 'Metadata', param_sfo: bytes):
 	magic = param_sfo[:4]
 	if magic != b'\x00PSF':
 		return
-	for key, value in convert_sfo(param_sfo).items():
+	for key, value in _convert_sfo(param_sfo).items():
 		parse_param_sfo_kv(rompath, metadata, key, value)
 
-def parse_product_code(metadata: Metadata, product_code: str):
+def parse_product_code(metadata: 'Metadata', product_code: str):
 	if len(product_code) == 9 and product_code[:4].isalpha() and product_code[-5:].isdigit():
 		if product_code.startswith(('B', 'P', 'S', 'X', 'U')):
 			metadata.media_type = MediaType.OpticalDisc

@@ -7,13 +7,13 @@ from meowlauncher.common_types import ConfigValueType, TypeOfConfigValue
 
 def parse_string_list(value: str) -> Sequence[str]:
 	if not value:
-		return []
-	return [item for item in value.split(';') if item]
+		return ()
+	return tuple(item for item in value.split(';') if item)
 
 def parse_path_list(value: str) -> Sequence[Path]:
 	if not value:
-		return []
-	return [Path(p).expanduser() for p in parse_string_list(value)]
+		return ()
+	return tuple(Path(p).expanduser() for p in parse_string_list(value))
 
 def parse_value(section: configparser.SectionProxy, name: str, value_type: ConfigValueType, default_value: TypeOfConfigValue) -> TypeOfConfigValue:
 	try:

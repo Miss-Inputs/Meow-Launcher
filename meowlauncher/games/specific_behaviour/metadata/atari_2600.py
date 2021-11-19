@@ -6,7 +6,7 @@ from typing import Optional, cast
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.emulator_config import emulator_configs
-from meowlauncher.games.mame_common.software_list_info import (
+from meowlauncher.games.mame_common.software_list_find_utils import (
     find_in_software_lists, matcher_args_for_bytes)
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
@@ -19,7 +19,7 @@ from .common import atari_controllers as controllers
 stella_configs = emulator_configs.get('Stella')
 
 #Not gonna use stella -rominfo on individual stuff as it takes too long and just detects TV type with no other useful info that isn't in the -listrominfo db
-def get_stella_database() -> dict[str, dict[str, str]]:
+def get_stella_database() -> Mapping[str, Mapping[str, str]]:
 	proc = subprocess.run([stella_configs.exe_path, '-listrominfo'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
 
 	lines = proc.stdout.splitlines()
@@ -80,7 +80,7 @@ def _controller_from_stella_db_name(controller: str) -> Atari2600Controller:
 	#Track & Field controller is just a joystick with no up or down, so Stella doesn't count it as separate from joystick
 	return Atari2600Controller.Other
 
-def parse_stella_cart_note(metadata: Metadata, note: str):
+def _parse_stella_cart_note(metadata: Metadata, note: str):
 	#Adventures in the Park
 	#Featuring Panama Joe
 	#Hack of Adventure
@@ -145,7 +145,7 @@ def parse_stella_cart_note(metadata: Metadata, note: str):
 	else:
 		metadata.add_notes(note)
 
-def parse_stella_db(metadata: Metadata, game_db_entry: Mapping[str, Optional[str]]):
+def _parse_stella_db(metadata: Metadata, game_db_entry: Mapping[str, Optional[str]]):
 	stella_name = game_db_entry.get('Cartridge_Name', game_db_entry.get('Cart_Name'))
 	if stella_name:
 		metadata.add_alternate_name(stella_name, 'Stella Name')
@@ -180,9 +180,9 @@ def parse_stella_db(metadata: Metadata, game_db_entry: Mapping[str, Optional[str
 		#Not exactly sure how this works
 		metadata.specific_info['Swap Ports?'] = True
 	if note:
-		parse_stella_cart_note(metadata, note)
+		_parse_stella_cart_note(metadata, note)
 
-def add_input_info_from_peripheral(metadata: Metadata, peripheral: Atari2600Controller):
+def _add_input_info_from_peripheral(metadata: Metadata, peripheral: Atari2600Controller):
 	if peripheral == Atari2600Controller.Nothing:
 		return
 		
@@ -211,7 +211,7 @@ def add_input_info_from_peripheral(metadata: Metadata, peripheral: Atari2600Cont
 	elif peripheral == Atari2600Controller.Other:
 		metadata.input_info.add_option(input_metadata.Custom())
 
-def parse_peripherals(metadata: Metadata):
+def _parse_peripherals(metadata: Metadata):
 	left = metadata.specific_info.get('Left Peripheral')
 	right = metadata.specific_info.get('Right Peripheral')
 
@@ -220,17 +220,18 @@ def parse_peripherals(metadata: Metadata):
 		metadata.specific_info['Uses Kid Vid?'] = True
 
 	if left:
-		add_input_info_from_peripheral(metadata, left)
+		_add_input_info_from_peripheral(metadata, left)
 	if right is not None and right != left:
-		add_input_info_from_peripheral(metadata, right)
+		_add_input_info_from_peripheral(metadata, right)
 
 class StellaDB():
 	class __StellaDB():
 		def __init__(self):
+			self.db = None
 			try:
-				self.db: Optional[dict[str, dict[str, str]]] = get_stella_database()
+				self.db = get_stella_database()
 			except (subprocess.CalledProcessError, FileNotFoundError):
-				self.db = None
+				pass
 
 	__instance = None
 	@staticmethod
@@ -247,7 +248,7 @@ def add_atari_2600_metadata(game: ROMGame):
 		md5 = hashlib.md5(whole_cart).hexdigest().lower()
 		if md5 in stella_db:
 			game_info = stella_db[md5]
-			parse_stella_db(game.metadata, game_info)
+			_parse_stella_db(game.metadata, game_info)
 
 	software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(whole_cart))
 	if software:
@@ -275,4 +276,4 @@ def add_atari_2600_metadata(game: ROMGame):
 				game.metadata.specific_info['Left Peripheral'] = Atari2600Controller.KeyboardController
 				game.metadata.specific_info['Right Peripheral'] = Atari2600Controller.KeyboardController
 
-	parse_peripherals(game.metadata)
+	_parse_peripherals(game.metadata)

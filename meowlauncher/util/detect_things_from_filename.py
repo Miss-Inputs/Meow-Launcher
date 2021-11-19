@@ -100,7 +100,7 @@ def get_regions_from_filename_tags_strictly(tags: Sequence[str]) -> Optional[Seq
 			continue
 		tag = tag[1:-1]
 		components = tag.split(', ')
-		regions = [region_info.get_region_by_name(component) for component in components]
+		regions = tuple(region_info.get_region_by_name(component) for component in components)
 		if any(r is None for r in regions):
 			#This wasn't the tag we wanted
 			continue
@@ -140,7 +140,7 @@ def get_tosec_region_list_from_filename_tags(tags: Sequence[str]) -> Optional[Se
 			continue
 		tag = tag[1:-1]
 		components = tag.split('-')
-		regions = [region_info.get_region_by_short_code(component) for component in components]
+		regions = tuple(region_info.get_region_by_short_code(component) for component in components)
 		if any(r is None for r in regions):
 			#This wasn't the tag we wanted
 			continue

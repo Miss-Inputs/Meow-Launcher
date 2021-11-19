@@ -19,25 +19,25 @@ def parse_woz_info_chunk(metadata: Metadata, chunk_data: bytes):
 	if info_version == 2:
 		compatible_hardware = int.from_bytes(chunk_data[40:42], 'little')
 		if compatible_hardware:
-			machines = []
+			machines = set()
 			if compatible_hardware & 1:
-				machines.append(AppleIIHardware.AppleII)
+				machines.add(AppleIIHardware.AppleII)
 			if compatible_hardware & 2:
-				machines.append(AppleIIHardware.AppleIIPlus)
+				machines.add(AppleIIHardware.AppleIIPlus)
 			if compatible_hardware & 4:
-				machines.append(AppleIIHardware.AppleIIE)
+				machines.add(AppleIIHardware.AppleIIE)
 			if compatible_hardware & 8:
-				machines.append(AppleIIHardware.AppleIIC)
+				machines.add(AppleIIHardware.AppleIIC)
 			if compatible_hardware & 16:
-				machines.append(AppleIIHardware.AppleIIEEnhanced)
+				machines.add(AppleIIHardware.AppleIIEEnhanced)
 			if compatible_hardware & 32:
-				machines.append(AppleIIHardware.AppleIIgs)
+				machines.add(AppleIIHardware.AppleIIgs)
 			if compatible_hardware & 64:
-				machines.append(AppleIIHardware.AppleIICPlus)
+				machines.add(AppleIIHardware.AppleIICPlus)
 			if compatible_hardware & 128:
-				machines.append(AppleIIHardware.AppleIII)
+				machines.add(AppleIIHardware.AppleIII)
 			if compatible_hardware & 256:
-				machines.append(AppleIIHardware.AppleIIIPlus)
+				machines.add(AppleIIHardware.AppleIIIPlus)
 			metadata.specific_info['Machine'] = machines
 		minimum_ram = int.from_bytes(chunk_data[42:44], 'little')
 		if minimum_ram:
@@ -76,10 +76,10 @@ def parse_woz_kv(rompath: str, metadata: Metadata, key: str, value: str):
 		if metadata.specific_info.get('Machine'):
 			#Trust the info from the INFO chunk more if it exists
 			return
-		machines = []
+		machines = set()
 		for machine in value.split('|'):
 			if machine in woz_meta_machines:
-				machines.append(woz_meta_machines[machine])
+				machines.add(woz_meta_machines[machine])
 			else:
 				print('Unknown compatible machine in Woz META chunk', rompath, machine)
 		metadata.specific_info['Machine'] = machines
@@ -102,7 +102,8 @@ def parse_woz_kv(rompath: str, metadata: Metadata, key: str, value: str):
 		except ValueError:
 			pass
 	elif key == 'language':
-		metadata.languages = [lang for lang in [get_language_by_english_name(lang_name) for lang_name in value.split('|')] if lang]
+		#TODO: Proper nested comprehension…
+		metadata.languages = {lang for lang in {get_language_by_english_name(lang_name) for lang_name in value.split('|')} if lang}
 	elif key == 'genre':
 		#This isn't part of the specification, but I've seen it
 		if value == 'rpg':
@@ -183,19 +184,19 @@ def add_apple_ii_metadata(game: 'ROMGame'):
 		if not game.metadata.specific_info.get('Machine'):
 			compat = software.compatibility
 			if compat:
-				machines = []
+				machines = set()
 				for machine in compat:
 					if machine == 'A2':
-						machines.append(AppleIIHardware.AppleII)
+						machines.add(AppleIIHardware.AppleII)
 					if machine == 'A2P':
-						machines.append(AppleIIHardware.AppleIIPlus)
+						machines.add(AppleIIHardware.AppleIIPlus)
 					if machine == 'A2E':
-						machines.append(AppleIIHardware.AppleIIE)
+						machines.add(AppleIIHardware.AppleIIE)
 					if machine == 'A2EE':
-						machines.append(AppleIIHardware.AppleIIEEnhanced)
+						machines.add(AppleIIHardware.AppleIIEEnhanced)
 					if machine == 'A2C':
-						machines.append(AppleIIHardware.AppleIIC)
+						machines.add(AppleIIHardware.AppleIIC)
 					if machine == 'A2GS':
-						machines.append(AppleIIHardware.AppleIIgs)
+						machines.add(AppleIIHardware.AppleIIgs)
 					#Apple IIc+ doesn't show up in this list so far
 				game.metadata.specific_info['Machine'] = machines

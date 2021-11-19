@@ -1,6 +1,6 @@
 import functools
 import os
-from collections.abc import Iterable
+from collections.abc import Collection, Iterable, Mapping, MutableMapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import NamedTuple, Optional
@@ -16,23 +16,26 @@ from .mame_helpers import default_mame_configuration
 class HistoryXML():
 	def __init__(self, path: Path) -> None:
 		self.xml = ElementTree.parse(path)
-		self.system_histories: dict[str, History] = {}
-		self.software_histories: dict[str, dict[str, History]] = {}
-		for entry in self.xml.findall('entry'):
+		
+		system_histories = {}
+		software_histories: MutableMapping[str, dict[str, History]] = {}
+		for entry in self.xml.iterfind('entry'):
 			text = entry.findtext('text')
 			if not text:
 				continue
 
 			systems = entry.find('systems')
 			if systems is not None:
-				for system in systems.findall('system'):
-					self.system_histories[system.attrib['name']] = parse_history(text)
+				for system in systems.iterfind('system'):
+					system_histories[system.attrib['name']] = parse_history(text)
 			softwares = entry.find('software')
 			if softwares is not None:
-				for item in softwares.findall('item'):
-					if item.attrib['list'] not in self.software_histories:
-						self.software_histories[item.attrib['list']] = {}
-					self.software_histories[item.attrib['list']][item.attrib['name']] = parse_history(text)
+				for item in softwares.iterfind('item'):
+					if item.attrib['list'] not in software_histories:
+						software_histories[item.attrib['list']] = {}
+					software_histories[item.attrib['list']][item.attrib['name']] = parse_history(text)
+		self.system_histories = system_histories
+		self.software_histories = software_histories
 	
 def get_default_history_xml() -> Optional[HistoryXML]:
 	if not default_mame_configuration:
@@ -61,7 +64,7 @@ class History(NamedTuple):
 	ports: Optional[str]
 
 def parse_history(history: str) -> History:
-	lines = [line.strip() for line in history.strip().splitlines()]
+	lines = tuple(line.strip() for line in history.strip().splitlines())
 	description_start = 0
 	if '(c)' in lines[0]:
 		description_start = 2
@@ -103,7 +106,6 @@ def parse_history(history: str) -> History:
 		#elif len(line) > 4 and line.startswith('-') and line.endswith('-') and line[2:-2].isupper():
 		#	print('Hmm', machine_or_softlist, software_name, 'has a new section', line)
 	
-	#sections = [description_start, cast_start, technical_start, trivia_start, updates_start, scoring_start, tips_and_tricks_start, series_start, staff_start, ports_start, end_line]
 	section_starts = (
 		('description', description_start),
 		('cast', cast_start),
@@ -118,8 +120,9 @@ def parse_history(history: str) -> History:
 		('<end>', end_line),
 	)
 
-	#description_end = next(section for section in sections[1:] if section)
-	description_end = next(section[1] for section in section_starts[1:] if section[1]) or end_line
+	description_end = next((section[1] for section in section_starts[1:] if section[1]), None)
+	if description_end is None: #Yes Future Megan, we do know how to use the second argument for next(), the issue is if cast_start is None etc etc
+		description_end = end_line
 
 	sections: dict[str, Optional[str]] = {}
 	for i, name_and_start in enumerate(section_starts):
@@ -171,16 +174,19 @@ def add_history(metadata: Metadata, machine_or_softlist: str, software_name: Opt
 	if history.updates:
 		metadata.descriptions['Updates'] = history.updates
 
-def get_default_mame_categories_folders() -> list[Path]:
+def get_default_mame_categories_folders() -> Iterable[Path]:
 	if not default_mame_configuration:
-		return []
+		return
 	ui_config = default_mame_configuration.ui_config
-	return [Path(os.path.expandvars(path)) for path in ui_config.get('categorypath', [])]
-
-def _parse_mame_cat_ini(path: Path) -> dict[str, list[str]]:
+	categorypaths = ui_config.get('categorypath', ())
+	for path in categorypaths:
+		yield Path(os.path.expandvars(path))
+	
+def _parse_mame_cat_ini(path: Path) -> Mapping[str, Collection[str]]:
 	#utf-8 is actually a bad idea if series.ini breaks again, maybe
 	with open(path, 'rt', encoding='ascii') as f:
-		d: dict[str, list[str]] = {}
+		d: MutableMapping[str, set[str]] = {}
+		#d = {}
 		current_section = None
 		for line in f:
 			line = line.strip()
@@ -191,11 +197,11 @@ def _parse_mame_cat_ini(path: Path) -> dict[str, list[str]]:
 				current_section = line[1:-1]
 			elif current_section:
 				if current_section not in d:
-					d[current_section] = []
-				d[current_section].append(line)
+					d[current_section] = set()
+				d[current_section].add(line)
 		return d
 
-def get_mame_cat(name: str, category_folders: Iterable[Path]) -> dict[str, list[str]]:
+def get_mame_cat(name: str, category_folders: Iterable[Path]) -> Mapping[str, Collection[str]]:
 	for folder in category_folders:
 		cat_path = folder.joinpath(name + '.ini')
 		try:
@@ -205,20 +211,20 @@ def get_mame_cat(name: str, category_folders: Iterable[Path]) -> dict[str, list[
 	return {}
 
 @functools.cache
-def get_mame_cat_from_default_mame_config(name: str) -> dict[str, list[str]]:
+def get_mame_cat_from_default_mame_config(name: str) -> Mapping[str, Collection[str]]:
 	return get_mame_cat(name, get_default_mame_categories_folders())
 
-def get_machine_cat_from_category_folders(basename: str, folder_name: str, category_folders: Iterable[Path]) -> Optional[list[str]]:
+def get_machine_cat_from_category_folders(basename: str, folder_name: str, category_folders: Iterable[Path]) -> Optional[Collection[str]]:
 	folder = get_mame_cat(folder_name, category_folders)
 	if not folder:
 		return None
-	return [section for section, names in folder.items() if basename in names]
+	return {section for section, names in folder.items() if basename in names}
 
-def get_machine_cat(basename: str, folder_name: str) -> Optional[list[str]]:
+def get_machine_cat(basename: str, folder_name: str) -> Optional[Collection[str]]:
 	folder = get_mame_cat_from_default_mame_config(folder_name)
 	if not folder:
 		return None
-	return [section for section, names in folder.items() if basename in names]
+	return {section for section, names in folder.items() if basename in names}
 	
 @dataclass
 class MachineCategory():
@@ -280,10 +286,15 @@ def get_category(basename: str) -> Optional[MachineCategory]:
 	#It would theoretically be possible for a machine to appear twice, but catlist doesn't do that I think, so we should just grab the first
 	if not cats:
 		return None
-	cat = cats[0]
-
-	if ': ' in cat:
-		category, _, genres = cat.partition(': ')
+	main_cat = None
+	for cat in cats:
+		main_cat = cat
+		break
+	if not main_cat:
+		return None
+	
+	if ': ' in main_cat:
+		category, _, genres = main_cat.partition(': ')
 		genre, _, subgenre = genres.partition(' / ')
 		is_mature = False
 		if subgenre.endswith('* Mature *'):
@@ -293,7 +304,7 @@ def get_category(basename: str) -> Optional[MachineCategory]:
 		
 		return ArcadeCategory(category, genre, subgenre, is_mature)
 
-	genre, _, subgenre = cat.partition(' / ')
+	genre, _, subgenre = main_cat.partition(' / ')
 	return MachineCategory(genre, subgenre)
 
 def organize_catlist(catlist: MachineCategory) -> OrganizedCatlist:
@@ -379,9 +390,14 @@ def organize_catlist(catlist: MachineCategory) -> OrganizedCatlist:
 
 	return OrganizedCatlist(platform, genre, subgenre, category, definite_platform, definite_category)
 
-def get_languages(basename: str) -> Optional[list[Language]]:
-	langs = get_machine_cat(basename, 'languages')
-	if not langs:
+def get_languages(basename: str) -> Optional[Collection[Language]]:
+	lang_names = get_machine_cat(basename, 'languages')
+	if not lang_names:
 		return None
 
-	return [lang for lang in [get_language_by_english_name(lang_name) for lang_name in langs] if lang]
+	langs = set()
+	for lang_name in lang_names:
+		lang = get_language_by_english_name(lang_name)
+		if lang:
+			langs.add(lang)
+	return langs

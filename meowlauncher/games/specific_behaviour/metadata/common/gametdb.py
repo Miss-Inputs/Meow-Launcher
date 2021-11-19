@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Collection, Iterable, Mapping
 from typing import Optional
 from xml.etree import ElementTree
 
@@ -18,16 +18,12 @@ class TDB():
 		if genre_element is None:
 			return
 		#Can assume all genres not in maingenres are subgenres
-		self.genres = {main_genre.attrib['name']: [subgenre.attrib['name'] for subgenre in main_genre.findall('subgenre')] for main_genre in genre_element.findall('maingenre')}
+		self.genres = {main_genre.attrib['name']: [subgenre.attrib['name'] for subgenre in main_genre.iterfind('subgenre')] for main_genre in genre_element.iterfind('maingenre')}
 
 	def find_game(self, search_key) -> Optional[ElementTree.Element]:
-		#return self.xml.find('game[id="{0}"]'.format(search_key))
-		try:
-			return next(game for game in self.xml.findall('game') if game.findtext('id') == search_key)
-		except StopIteration:
-			return None
-
-	def _organize_genres(self, genres: Iterable[str]) -> dict[str, set[str]]:
+		return next((game for game in self.xml.iterfind('game') if game.findtext('id') == search_key), None)
+		
+	def _organize_genres(self, genres: Iterable[str]) -> Mapping[str, Collection[str]]:
 		main_genres: dict[str, set[str]] = {}
 		for genre in genres:
 			if genre in self.genres.keys():
@@ -59,12 +55,12 @@ class TDB():
 		if not genres:
 			return
 		
-		items = list(self._organize_genres(genres).items())
+		items = tuple(self._organize_genres(genres).items())
 		if items:
 			metadata.genre = items[0][0].title()
 			subgenres = items[0][1]
 			if subgenres:
-				metadata.subgenre = ', '.join([s.title() for s in subgenres])
+				metadata.subgenre = ', '.join(s.title() for s in subgenres)
 			if len(items) > 1:
 				metadata.specific_info['Additional Genres'] = ', '.join([g[0].title() for g in items[1:]])
 				additional_subgenres = {s.title() for g in items[1:] for s in g[1]}
@@ -79,13 +75,13 @@ def clean_up_company_name(company_name: str) -> str:
 	}
 
 	names = whaa.get(company_name, company_name).split(' / ')
-	cleaned_names = []
+	cleaned_names = set()
 	for name in names:
 		name = name.rstrip()
 		while junk_suffixes.search(name):
 			name = junk_suffixes.sub('', name).rstrip()
 		name = company_name_cleanup.get(name, name)
-		cleaned_names.append(name)
+		cleaned_names.add(name)
 
 	return ', '.join(sorted(cleaned_names))
 
@@ -121,8 +117,7 @@ def add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: M
 	if genre:
 		tdb.parse_genre(metadata, genre)
 
-	locales = db_entry.findall('locale')
-	for locale in locales:
+	for locale in db_entry.iterfind('locale'):
 		synopsis = locale.findtext('synopsis')
 		if synopsis:
 			key_name = f"Synopsis-{locale.attrib.get('lang')}" if 'lang' in locale.attrib else 'Synopsis'
@@ -135,7 +130,7 @@ def add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: M
 		if value:
 			metadata.specific_info['Age Rating'] = value
 
-		descriptors = [e.text for e in rating.findall('descriptor')]
+		descriptors = {e.text for e in rating.iterfind('descriptor')}
 		if descriptors:
 			metadata.specific_info['Content Warnings'] = descriptors
 
@@ -155,7 +150,7 @@ def add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: M
 	if metadata.platform != 'GameCube':
 		wifi = db_entry.find('wi-fi')
 		if wifi:
-			features = [feature.text for feature in wifi.findall('feature')]
+			features = {feature.text for feature in wifi.iterfind('feature')}
 			metadata.specific_info['Wifi Features'] = features
 			#online, download, score, nintendods
 	
@@ -167,12 +162,19 @@ def add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: M
 			metadata.specific_info['Number of Players'] = number_of_players
 		
 		if metadata.platform != 'GameCube':
-			controls = input_element.findall('control')
 			#wiimote, nunchuk, motionplus, db_entrycube, nintendods, classiccontroller, wheel, zapper, balanceboard, wiispeak, microphone, guitar, drums, dancepad, keyboard, draw
-			if controls:
+			optional_controls = set()
+			required_controls = set()
+			for control in input_element.iterfind('control'):
+				control_type = control.attrib.get('type')
+				if control.attrib.get('required', 'false') == 'true':
+					required_controls.add(control_type)
+				else:
+					optional_controls.add(control_type)
+				
 				#cbf setting up input_info just yet
-				metadata.specific_info['Optional Additional Controls'] = [e.attrib.get('type') for e in controls if e.attrib.get('required', 'false') == 'false']
-				metadata.specific_info['Required Additional Controls'] = [e.attrib.get('type') for e in controls if e.attrib.get('required', 'false') == 'true']
+				metadata.specific_info['Optional Additional Controls'] = optional_controls
+				metadata.specific_info['Required Additional Controls'] = required_controls
 
 def add_info_from_tdb(tdb: Optional[TDB], metadata: Metadata, search_key):
 	if not tdb:

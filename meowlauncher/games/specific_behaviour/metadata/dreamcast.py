@@ -40,7 +40,7 @@ def add_peripherals_info(metadata: Metadata, peripherals):
 		'Expanded Analog Horizontal': 23, #What does this mean
 		'Expanded Analog Vertical': 24,
 	}
-	buttons = [k for k, v in button_bits.items() if peripherals & (1 << v)]
+	buttons = {k for k, v in button_bits.items() if peripherals & (1 << v)}
 	metadata.specific_info['Controls Used'] = buttons
 	
 	metadata.specific_info['Uses Gun?'] = (peripherals & (1 << 25)) > 0
@@ -78,13 +78,13 @@ def add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size: 
 			pass
 
 	region_info = header[48:56].rstrip()
-	region_codes = []
+	region_codes = set()
 	if b'J' in region_info:
-		region_codes.append(SaturnRegionCodes.Japan)
+		region_codes.add(SaturnRegionCodes.Japan)
 	if b'U' in region_info:
-		region_codes.append(SaturnRegionCodes.USA)
+		region_codes.add(SaturnRegionCodes.USA)
 	if b'E' in region_info:
-		region_codes.append(SaturnRegionCodes.Europe)
+		region_codes.add(SaturnRegionCodes.Europe)
 	#Some other region codes appear sometimes but they might not be entirely valid
 	metadata.specific_info['Region Code'] = region_codes
 

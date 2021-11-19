@@ -38,7 +38,7 @@ class MAMEGame(EmulatedGame):
 		self.metadata.specific_info['Coin Slots'] = self.machine.coin_slots
 		self.metadata.specific_info['Requires CHD?'] = self.machine.requires_chds
 		self.metadata.specific_info['Romless'] = self.machine.romless
-		self.metadata.specific_info['Slot Names'] = [slot.instances[0][0] for slot in self.machine.media_slots if slot.instances]
+		self.metadata.specific_info['Slot Names'] = {slot.instances[0][0] for slot in self.machine.media_slots if slot.instances}
 		self.metadata.specific_info['Software Lists'] = self.machine.software_list_names
 		self.metadata.series = self.machine.series
 		bios = self.machine.bios

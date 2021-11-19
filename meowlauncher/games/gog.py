@@ -3,8 +3,9 @@ import json
 import os
 import shlex
 from abc import ABC
-from collections.abc import Mapping
-from pathlib import Path
+from collections.abc import Mapping, Sequence
+from itertools import chain
+from pathlib import Path, PureWindowsPath
 from typing import Optional
 
 from meowlauncher.common_types import MediaType
@@ -31,7 +32,7 @@ class GOGGameInfo():
 		self.gameid = None
 		#GameID is duplicated, and then there's some other ID?
 		with path.open('rt', encoding='utf-8') as f:
-			lines = f.read().splitlines()
+			lines = f.readlines(5)
 			try:
 				self.name = lines[0]
 				self.version = lines[1]
@@ -55,15 +56,15 @@ class GOGJSONGameInfo():
 			self.language_name = j.get('language') #English name of the language (I guess the default language?)
 			#languages: Array of language codes (e.g. en-US)
 			self.name = j.get('name')
-			self.play_tasks = [GOGTask(task_json) for task_json in j.get('playTasks', [])]
-			self.support_tasks = [GOGTask(task_json) for task_json in j.get('supportTasks', [])]
+			self.play_tasks = tuple(GOGTask(task_json) for task_json in j.get('playTasks', []))
+			self.support_tasks = {GOGTask(task_json) for task_json in j.get('supportTasks', [])}
 			#version: Always 1 if there?
 			#osBitness: Array containing '64' as a string rather than just a number like a normal person? I guess we don't need it (unless we care about 32-bit Wine users)
 			#overlaySupported: Probably GOG Galaxy related
 
 	@property
 	def primary_play_task(self) -> Optional['GOGTask']:
-		primary_tasks = [task for task in self.play_tasks if task.is_primary]
+		primary_tasks = tuple(task for task in self.play_tasks if task.is_primary)
 		if len(primary_tasks) == 1:
 			return primary_tasks[0]
 		return None #Not sure what happens if more than one has isPrimary tbh, guess it doesn't matter
@@ -78,20 +79,19 @@ class GOGTask():
 		if self.working_directory:
 			self.working_directory = self.working_directory.replace('\\', os.path.sep)
 		self.category: Optional[str] = json_object.get('category') #"game", "tool", "document"
+
+		self.args: Sequence[str] = ()
 		args: Optional[str] = json_object.get('arguments')
 		if args:
 			self.args = shlex.split(args) #We don't need to convert backslashes here because the wine'd executable uses them
-		else:
-			self.args = []
-		#languages: Language codes (without dialect eg just "en"), but seems to be ['*'] most of the time
+
+		#languages: Language codes (without dialect eg just "en"), but seems to be ('*', ) most of the time
 		self.name: Optional[str] = json_object.get('name') #Might not be provided if it is the primary task
 		self.is_hidden: bool = json_object.get('isHidden', False)
 		compatFlags = json_object.get('compatibilityFlags', '')
-		self.compatibility_flags: list[str]
+		self.compatibility_flags = None
 		if compatFlags:
 			self.compatibility_flags = compatFlags.split(' ') #These seem to be those from https://docs.microsoft.com/en-us/windows/deployment/planning/compatibility-fixes-for-windows-8-windows-7-and-windows-vista (but not always case sensitive?), probably important but I'm not sure what to do about them for now
-		else:
-			self.compatibility_flags = []
 		#osBitness: As in GOGJSONGameInfo
 		self.link = json_object.get('link') #For URLTask
 		#icon: More specific icon I guess, but this can be an exe or DLL to annoy me
@@ -147,7 +147,7 @@ class GOGGame(Game, ABC):
 
 		self.metadata.platform = 'GOG' if main_config.use_gog_as_platform else 'Linux'
 		self.metadata.media_type = MediaType.Digital
-		self.metadata.categories = ['Trials'] if self.is_demo else ['Games'] #There are movies on GOG but I'm not sure how they work, no software I think
+		self.metadata.categories = ('Trials', ) if self.is_demo else ('Games', ) #There are movies on GOG but I'm not sure how they work, no software I think
 		#Dang… everything else would require the API, I guess
 
 	@property
@@ -193,7 +193,7 @@ class NormalGOGGame(GOGGame):
 				if lang_name:
 					lang = region_info.get_language_by_english_name(lang_name)
 					if lang:
-						self.metadata.languages.append(lang)
+						self.metadata.languages = {lang}
 				#We won't do anything special with playTasks, not sure it's completely accurate as it doesn't seem to include arguments to executables where that would be expected (albeit this is in the case of Pushover, which is a DOSBox game hiding as a normal game)
 				#Looking at 'category' for the task with 'isPrimary' = true though might be interesting
 				#TODO: But we totally should though, start_script also could be parsed maybe
@@ -230,7 +230,7 @@ class LinuxGOGLauncher(Launcher):
 	def get_launch_command(self) -> LaunchCommand:
 		return LaunchCommand(str(self.game.start_script), [], working_directory=str(self.game.folder))
 
-def find_subpath_case_insensitive(path: Path, subpath: str) -> Path:
+def _find_subpath_case_insensitive(path: Path, subpath: str) -> Path:
 	#We will need this because Windows (or rather NTFS) does not respect case sensitivity, and so sometimes a file will be referred to that has unexpected capitalisation (e.g. playTask referring to blah.EXE when on disk it is .exe)
 	#Assumes path is fine and normal
 	alleged_path = path.joinpath(subpath)
@@ -238,13 +238,14 @@ def find_subpath_case_insensitive(path: Path, subpath: str) -> Path:
 		return alleged_path
 	
 	#TODO: Can I rewrite this to not use str? I'm confused right now
-	parts = Path(subpath).parts
+	#TODO: Can subpath just be a pure Windows (relative) path?
+	parts = PureWindowsPath(subpath).parts
 	first_part_lower = parts[0].lower()
 	for sub in path.iterdir():
 		if sub.name.lower() == first_part_lower:
 			if len(parts) == 1:
 				return sub
-			return find_subpath_case_insensitive(sub, os.path.join(*parts[1:]))
+			return _find_subpath_case_insensitive(sub, str(PureWindowsPath(*parts[1:])))
 
 	raise FileNotFoundError(alleged_path)
 
@@ -279,7 +280,7 @@ class WindowsGOGGame(Game):
 		if lang_name:
 			lang = region_info.get_language_by_english_name(lang_name)
 			if lang:
-				self.metadata.languages.append(lang)
+				self.metadata.languages = {lang}
 
 		engine = try_and_detect_engine_from_folder(self.folder, self.metadata)
 		if engine:
@@ -287,7 +288,7 @@ class WindowsGOGGame(Game):
 
 		self.metadata.platform = 'GOG' if main_config.use_gog_as_platform else 'Windows'
 		self.metadata.media_type = MediaType.Digital
-		self.metadata.categories = ['Trials'] if self.is_demo else ['Games'] #There are movies on GOG but I'm not sure how they work, no software I think
+		self.metadata.categories = ('Trials', ) if self.is_demo else ('Games', ) #There are movies on GOG but I'm not sure how they work, no software I think
 		#Dang… everything else would require the API, I guess
 
 		if self.id_file and not self.metadata.specific_info.get('Build ID'):
@@ -311,15 +312,15 @@ class WindowsGOGGame(Game):
 	def fix_subfolder_relative_folder(self, folder: str, subfolder: str) -> str:
 		#TODO: This should probs use pathlib.Path too?
 		if folder.startswith('..\\'):
-			return str(find_subpath_case_insensitive(self.folder, folder.replace('..\\', '')))
+			return str(_find_subpath_case_insensitive(self.folder, folder.replace('..\\', '')))
 		if folder.startswith('.\\'):
-			return str(find_subpath_case_insensitive(self.folder, folder.replace('.\\', subfolder + os.path.sep)))
+			return str(_find_subpath_case_insensitive(self.folder, folder.replace('.\\', subfolder + os.path.sep)))
 		return folder
 
 	def get_dosbox_launch_params(self, task: GOGTask) -> LaunchCommand:
-		args = [self.fix_subfolder_relative_folder(arg, 'dosbox') for arg in task.args]
+		args = tuple(self.fix_subfolder_relative_folder(arg, 'dosbox') for arg in task.args)
 		dosbox_path = main_config.dosbox_path
-		dosbox_folder = find_subpath_case_insensitive(self.folder, 'dosbox') #Game's config files are expecting to be launched from here
+		dosbox_folder = _find_subpath_case_insensitive(self.folder, 'dosbox') #Game's config files are expecting to be launched from here
 		return LaunchCommand(dosbox_path, args, working_directory=str(dosbox_folder))
 
 	def get_wine_launch_params(self, task: GOGTask) -> Optional[LaunchCommand]:
@@ -333,10 +334,10 @@ class WindowsGOGGame(Game):
 				print(self.name, 'cannot be launched - we cannot deal with shortcuts right now (we should parse them but I cannot be arsed right now)', self.name, task.name, task.args, task.task_type, task.category)
 			return None
 
-		exe_path = find_subpath_case_insensitive(self.folder, task.path)
+		exe_path = _find_subpath_case_insensitive(self.folder, task.path)
 		working_directory = None
 		if task.working_directory:
-			working_directory = find_subpath_case_insensitive(self.folder, task.working_directory)
+			working_directory = _find_subpath_case_insensitive(self.folder, task.working_directory)
 		
 		return launch_with_wine(main_config.wine_path, main_config.wineprefix, str(exe_path), task.args, str(working_directory))
 
@@ -357,9 +358,10 @@ class WindowsGOGGame(Game):
 		
 		task_metadata = copy.deepcopy(self.metadata)
 		if task.category == 'tool':
-			task_metadata.categories = ['Applications']
+			task_metadata.categories = ('Applications', )
 		task_metadata.emulator_name = emulator_name
-		task_metadata.specific_info['Compatibility Flags'] = task.compatibility_flags
+		if task.compatibility_flags:
+			task_metadata.specific_info['Compatibility Flags'] = task.compatibility_flags
 		if task.is_dosbox and emulator_name != 'DOSBox':
 			task_metadata.specific_info['Wrapper'] = 'DOSBox'
 		if task.is_scummvm and emulator_name != 'ScummVM':
@@ -372,7 +374,7 @@ class WindowsGOGGame(Game):
 			task_metadata.specific_info['Extension'] = executable_name.rsplit(os.path.extsep, 1)[-1].lower()
 
 		if not (task.is_dosbox or task.is_scummvm or task.is_residualvm):
-			exe_path = find_subpath_case_insensitive(self.folder, task.path)
+			exe_path = _find_subpath_case_insensitive(self.folder, task.path)
 			exe_icon = pc_common_metadata.get_icon_inside_exe(str(exe_path))
 			if exe_icon:
 				task_metadata.images['Icon'] = exe_icon
@@ -391,20 +393,20 @@ class WindowsGOGGame(Game):
 		make_launcher(params, name, task_metadata, 'GOG', str(self.folder))
 
 	def make_launchers(self) -> None:
-		actual_tasks = []
-		documents = []
+		actual_tasks = set()
+		documents = set()
 		for task in self.info.play_tasks:
 			if task.category == 'document':
-				documents.append(task)
+				documents.add(task)
 			elif task.name and name_utils.is_probably_documentation(task.name):
-				documents.append(task)
+				documents.add(task)
 			elif task.task_type == 'URLTask':
-				documents.append(task)
+				documents.add(task)
 			elif task.is_hidden:
 				continue
 			else:
-				actual_tasks.append(task)
-		for task in self.info.support_tasks + documents:
-			self.metadata.documents[task.name] = task.link if task.task_type == 'URLTask' else find_subpath_case_insensitive(self.folder, task.path)
+				actual_tasks.add(task)
+		for task in chain(self.info.support_tasks, documents):
+			self.metadata.documents[task.name] = task.link if task.task_type == 'URLTask' else _find_subpath_case_insensitive(self.folder, task.path)
 		for task in actual_tasks:
 			self.make_launcher(task)

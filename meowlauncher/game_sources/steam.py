@@ -5,7 +5,7 @@ import json
 import os
 import statistics
 import time
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, MutableMapping
 from enum import IntFlag
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional
@@ -111,7 +111,7 @@ def format_genre(genre_id: str) -> str:
 	return genre_ids.get(genre_id, 'unknown {0}'.format(genre_id))
 
 def process_launchers(game: 'SteamGame', launch: Mapping[bytes, Mapping[bytes, Any]]):
-	launch_items: dict[Optional[str], list[LauncherInfo]] = {}
+	launch_items: MutableMapping[Optional[str], list[LauncherInfo]] = {}
 	#user_config = game.app_state.get('UserConfig')
 	#installed_betakey = user_config.get('betakey') if user_config else None
 	for launch_item in launch.values():
@@ -257,9 +257,9 @@ def add_genre(game: 'SteamGame', common: Mapping[bytes, Any]):
 		game.metadata.genre = format_genre(primary_genre_id)
 	#TODO: Combine additional genres where appropriate (e.g. Action + Adventure, Massively Multiplayer + RPG)
 	if additional_genre_ids:
-		game.metadata.specific_info['Additional Genres'] = [format_genre(id) for id in additional_genre_ids]
+		game.metadata.specific_info['Additional Genres'] = tuple(format_genre(id) for id in additional_genre_ids)
 	if content_warning_ids:
-		game.metadata.specific_info['Content Warnings'] = [format_genre(id) for id in content_warning_ids]
+		game.metadata.specific_info['Content Warnings'] = tuple(format_genre(id) for id in content_warning_ids)
 	#"genre" doesn't look like a word anymore
 
 
@@ -293,13 +293,13 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 
 	language_list = common.get(b'languages')
 	if language_list:
-		game.metadata.languages = list(translate_language_list(language_list))
+		game.metadata.languages = translate_language_list(language_list)
 	else:
 		supported_languages = common.get(b'supported_languages')
 		if supported_languages:
 			#Hmm… this one goes into more detail actually, you have not just "supported" but "full_audio" and "subtitles"
 			#But for now let's just look at what else exists
-			game.metadata.languages = list(translate_language_list(supported_languages))
+			game.metadata.languages = translate_language_list(supported_languages)
 
 	add_genre(game, common)
 
@@ -329,7 +329,8 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 	if store_categories_list:
 		#keys are category_X where X is some arbitrary ID, values are always Integer = 1
 		#This is the thing where you go to the store sidebar and it's like "Single-player" "Multi-player" "Steam Achievements" etc"
-		cats = [store_categories.get(key, key) for key in [key.decode('utf-8', errors='backslashreplace') for key in store_categories_list.keys()]]
+		#TODO: Rewrite this one as a nested comprehension (my head asplode again)
+		cats = {store_categories.get(key, key) for key in {key.decode('utf-8', errors='backslashreplace') for key in store_categories_list.keys()}}
 		game.metadata.specific_info['Store Categories'] = cats #meow
 		game.metadata.specific_info['Has Achievements?'] = 'Steam Achievements' in cats
 		game.metadata.specific_info['Has Trading Cards?'] = 'Steam Trading Cards' in cats
@@ -391,14 +392,15 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 		store_tag_names = steam_installation.localization['localization']['english']['store_tags']
 		store_tag_ids_list = common.get(b'store_tags')
 		if store_tag_ids_list:
-			store_tags = [store_tag_names.get(id, id) for id in [str(value.data) for value in store_tag_ids_list.values()]]
+			#TODO: This one should be nested comprehension too
+			store_tags = {store_tag_names.get(id, id) for id in {str(value.data) for value in store_tag_ids_list.values()}}
 			game.metadata.specific_info['Store Tags'] = store_tags
 
 	franchise_name = None
 	associations = common.get(b'associations')
 
 	if associations:
-		associations_dict: dict[str, list[str]] = {}
+		associations_dict: MutableMapping[str, list[str]] = {}
 		for association in associations.values():
 			association_type_value = association.get(b'type')
 			if isinstance(association_type_value, appinfo.Integer):
@@ -645,8 +647,8 @@ def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user:
 			achieved = achievements.get('nAchieved', 0)
 
 			if total_achievements:
-				unachieved_list = {cheevo['strID']: cheevo for cheevo in achievements.get('vecUnachieved', [])}
-				achieved_list = {cheevo['strID']: cheevo for cheevo in achievements.get('vecAchievedHidden', []) + achievements.get('vecHighlight', [])}
+				unachieved_list = {cheevo['strID']: cheevo for cheevo in achievements.get('vecUnachieved', ())}
+				achieved_list = {cheevo['strID']: cheevo for cheevo in achievements.get('vecAchievedHidden', ()) + achievements.get('vecHighlight', ())}
 				if achievement_map:
 					for achievement_id, achievement_data in achievement_map:
 						if achievement_data.get('bAchieved'):
@@ -655,11 +657,11 @@ def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user:
 							unachieved_list[achievement_id] = dict(unachieved_list.get(achievement_id, {}), **achievement_data)
 				
 				if unachieved_list:
-					unachieved_stats = [cheevo.get('flAchieved', 0) / 100 for cheevo in unachieved_list.values()]
+					unachieved_stats = (cheevo.get('flAchieved', 0) / 100 for cheevo in unachieved_list.values())
 					unachieved_percent = statistics.median(unachieved_stats)
 					game.metadata.specific_info['Average Global Unachieved Completion'] = '{0:.0%}'.format(unachieved_percent)
 				if achieved_list:
-					achievement_stats = [cheevo.get('flAchieved', 0) / 100 for cheevo in achieved_list.values()]
+					achievement_stats = (cheevo.get('flAchieved', 0) / 100 for cheevo in achieved_list.values())
 					achieved_percent = statistics.median(achievement_stats)
 					game.metadata.specific_info['Average Global Achieved Completion'] = '{0:.0%}'.format(achieved_percent)
 		
@@ -705,12 +707,12 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> None
 		app_type = get_game_type(appinfo_entry)
 		if app_type in {'game', 'Game'}:
 			#This makes the categories consistent with other stuff
-			game.metadata.categories = ['Games']
+			game.metadata.categories = ('Games', )
 		elif app_type in {'Tool', 'Application'}:
 			#Tool is for SDK/level editor/dedicated server/etc stuff, Application is for general purchased software
-			game.metadata.categories = ['Applications']
+			game.metadata.categories = ('Applications', )
 		elif app_type == 'Demo':
-			game.metadata.categories = ['Trials']
+			game.metadata.categories = ('Trials', )
 		elif app_type == 'Music': 
 			raise NotActuallyAGameYouDingusException()
 		else:
@@ -725,7 +727,7 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> None
 	if not game.launchers:
 		raise NotLaunchableError('Game cannot be launched')
 
-	launcher: Optional[LauncherInfo] = list(game.launchers.values())[0] #Hmm
+	launcher: Optional[LauncherInfo] = next(iter(game.launchers.values())) #Hmm
 	tools = steam_installation.steamplay_compat_tools
 	override = False
 	if appid_str in steamplay_overrides:
@@ -782,7 +784,7 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> None
 	game.make_launcher()
 
 def iter_steam_installed_appids() -> Iterable[tuple[Path, Any, Mapping[str, Any]]]:
-	for library_folder in steam_installation.steam_library_folders:
+	for library_folder in steam_installation.iter_steam_library_folders():
 		for acf_file_path in library_folder.joinpath('steamapps').glob('*.acf'):
 			#Technically I could try and parse it without steamfiles, but that would be irresponsible, so I shouldn't do that
 			with open(acf_file_path, 'rt', encoding='utf-8') as acf_file:
@@ -839,7 +841,7 @@ def no_longer_exists(appid: str) -> bool:
 		return False
 
 	if not hasattr(no_longer_exists, 'appids'):
-		no_longer_exists.appids = [app_id for _, app_id, __ in iter_steam_installed_appids()] #type: ignore[attr-defined]
+		no_longer_exists.appids = {app_id for _, app_id, __ in iter_steam_installed_appids()} #type: ignore[attr-defined]
 
 	return appid not in no_longer_exists.appids #type: ignore[attr-defined]
 
@@ -849,7 +851,7 @@ def process_steam() -> None:
 
 	time_started = time.perf_counter()
 
-	compat_tool_appids = [str(compat_tool[0]) for compat_tool in steam_installation.steamplay_compat_tools().values()]
+	compat_tool_appids = {str(compat_tool[0]) for compat_tool in steam_installation.steamplay_compat_tools().values()}
 	for folder, app_id, app_state in iter_steam_installed_appids():
 		if not main_config.full_rescan:
 			if has_been_done('Steam', app_id):

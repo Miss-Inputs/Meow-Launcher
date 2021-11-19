@@ -1,7 +1,7 @@
 from typing import cast
 
 from meowlauncher.games.mame_common.software_list import SoftwarePart
-from meowlauncher.games.mame_common.software_list_info import (
+from meowlauncher.games.mame_common.software_list_find_utils import (
     find_in_software_lists_with_custom_matcher, get_crc32_for_software_list)
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame

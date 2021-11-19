@@ -1,5 +1,5 @@
 import calendar
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
 from typing import TYPE_CHECKING, Any, Optional, cast
 
 from meowlauncher.common_types import SaveType
@@ -26,12 +26,12 @@ nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 class BadSNESHeaderException(Exception):
 	pass
 
-def make_ram_rom_sizes() -> dict[int, int]:
+def _make_ram_rom_sizes() -> Mapping[int, int]:
 	sizes = {}
 	for i in range(0, 256):
 		sizes[i] = (1 << i) * 1024
 	return sizes
-ram_rom_sizes = make_ram_rom_sizes()
+ram_rom_sizes = _make_ram_rom_sizes()
 
 rom_layouts = {
 	0x20: "LoROM",
@@ -119,7 +119,8 @@ def parse_sufami_turbo_header(rom: FileROM, metadata: 'Metadata'):
 	#The SRAM is in the mini-cartridge, not the Sufami Turbo BIOS cart itself
 	metadata.save_type = SaveType.Cart if save_size > 0 else SaveType.Nothing
 
-def parse_snes_header(rom: FileROM, base_offset: int) -> dict[str, Any]:
+def _parse_snes_header(rom: FileROM, base_offset: int) -> Mapping[str, Any]:
+	#TODO: Use namedtuple/dataclass
 	#In order to make things simpler, we'll just ignore any carts that are out of line. You wouldn't be able to get interesting results from homebrew or bootleg games anyway
 	#Hence why we won't add metadata to the game object straight away, we'll store it in a dict first and add it all later, so we add nothing at all from invalid headers
 	metadata: dict[str, Any] = {}
@@ -199,13 +200,13 @@ def parse_snes_header(rom: FileROM, base_offset: int) -> dict[str, Any]:
 
 def add_normal_snes_header(rom: FileROM, metadata: 'Metadata'):
 	#Note that while we're seeking to xx00 here, the header actually starts at xxc0 (or xxb0 in case of extended header), it's just easier this way
-	possible_offsets = [0x7f00, 0xff00, 0x40ff00]
+	possible_offsets = {0x7f00, 0xff00, 0x40ff00}
 	rom_size = rom.get_size()
 	if rom_size % 1024 == 512:
 		#512-byte copier header at beginning
 		rom.header_length_for_crc_calculation = 512
 		metadata.specific_info['Has Copier Header?'] = True
-		possible_offsets = [offset + 512 for offset in possible_offsets]
+		possible_offsets = {offset + 512 for offset in possible_offsets}
 		#While the copier header specifies LoROM/HiROM/etc, they are sometimes wrong, so I will ignore them
 
 	header_data = None
@@ -215,7 +216,7 @@ def add_normal_snes_header(rom: FileROM, metadata: 'Metadata'):
 			continue
 
 		try:
-			header_data = parse_snes_header(rom, possible_offset)
+			header_data = _parse_snes_header(rom, possible_offset)
 			break
 		except BadSNESHeaderException:
 			#ex = bad_snes_ex
@@ -240,7 +241,8 @@ def add_normal_snes_header(rom: FileROM, metadata: 'Metadata'):
 	#else:
 	#	print(game.rom.path, 'could not detect header because', ex)
 
-def parse_satellaview_header(rom: FileROM, base_offset: int) -> dict[str, Any]:
+def parse_satellaview_header(rom: FileROM, base_offset: int) -> Mapping[str, Any]:
+	#TODO Use namedtuple/dataclass
 	header = rom.read(seek_to=base_offset, amount=0xe0)
 	metadata: dict[str, Any] = {}
 
@@ -317,14 +319,14 @@ def try_get_equivalent_arcade(rom: FileROM, names: Iterable[str]) -> Optional[Ma
 		return None
 	if not hasattr(try_get_equivalent_arcade, 'nss_games'):
 		try:
-			try_get_equivalent_arcade.nss_games = list(get_machines_from_source_file('nss', default_mame_executable)) #type: ignore[attr-defined]
+			try_get_equivalent_arcade.nss_games = tuple(get_machines_from_source_file('nss', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
-			try_get_equivalent_arcade.nss_games = [] #type: ignore[attr-defined]
+			try_get_equivalent_arcade.nss_games = () #type: ignore[attr-defined]
 	if not hasattr(try_get_equivalent_arcade, 'arcade_bootlegs'):
 		try:
-			try_get_equivalent_arcade.arcade_bootlegs = list(get_machines_from_source_file('snesb', default_mame_executable)) + list(get_machines_from_source_file('snesb51', default_mame_executable)) #type: ignore[attr-defined]
+			try_get_equivalent_arcade.arcade_bootlegs = tuple(get_machines_from_source_file('snesb', default_mame_executable)) + tuple(get_machines_from_source_file('snesb51', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
-			try_get_equivalent_arcade.arcade_bootlegs = [] #type: ignore[attr-defined]
+			try_get_equivalent_arcade.arcade_bootlegs = () #type: ignore[attr-defined]
 
 	for bootleg_machine in try_get_equivalent_arcade.arcade_bootlegs: #type: ignore[attr-defined]
 		if does_machine_match_game(rom.name, names, bootleg_machine):

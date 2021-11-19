@@ -6,7 +6,7 @@ import datetime
 import itertools
 import sys
 import time
-from collections.abc import Callable, Collection
+from collections.abc import Callable, Collection, MutableMapping
 from pathlib import Path
 from typing import Optional, cast
 
@@ -81,7 +81,7 @@ def resolve_duplicates_by_metadata(group: Collection[DesktopWithPath], field: st
 			if ignore_missing_values:
 				#In this case, check if the other values we're disambiguating against are all None
 				#Because it looks weird that way in some cases to have just Cool Game and Cool Game (Thing)
-				rest_of_counter = list({k for k in value_counter.keys() if k != field_value})
+				rest_of_counter = tuple({k for k in value_counter.keys() if k != field_value})
 				if len(rest_of_counter) == 1 and rest_of_counter[0] is None:
 					return
 
@@ -90,12 +90,12 @@ def resolve_duplicates_by_metadata(group: Collection[DesktopWithPath], field: st
 
 def resolve_duplicates_by_filename_tags(group: Collection[DesktopWithPath]):
 	for dup in group:
-		the_rest = [d for d in group if d[0] != dup[0]]
+		the_rest = tuple(d for d in group if d[0] != dup[0])
 		tags = get_array(dup[1], 'Filename-Tags', junk_section_name)
 
 		differentiator_candidates = []
 
-		rest_tags = [get_array(rest[1], 'Filename-Tags', junk_section_name) for rest in the_rest]
+		rest_tags = tuple(get_array(rest[1], 'Filename-Tags', junk_section_name) for rest in the_rest)
 		for tag in tags:
 			if all(tag in rest_tag for rest_tag in rest_tags):
 				continue
@@ -128,7 +128,8 @@ def resolve_duplicates_by_date(group: Collection[DesktopWithPath]):
 		if year is None or (year is None and month is None and day is None):
 			continue
 
-		disambiguator: dict[str, Optional[str]] = {'Day': None, 'Month': None, 'Year': None}
+		disambiguator: MutableMapping[str, Optional[str]] = {'Day': None, 'Month': None, 'Year': None}
+		#TODO: Use a dataclass there
 		disambiguated = False
 		if year_counter[year] != len(group):
 			disambiguated = True
@@ -177,7 +178,7 @@ def resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_f
 		resolve_duplicates_by_metadata(group, method, format_function, ignore_missing_values, field_section)
 
 def fix_duplicate_names(method: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name):
-	files = [(path, get_desktop(path)) for path in main_config.output_folder.iterdir()]
+	files = tuple((path, get_desktop(path)) for path in main_config.output_folder.iterdir())
 	if method == 'dev-status':
 		resolve_duplicates_by_dev_status(files)
 		return
@@ -187,16 +188,16 @@ def fix_duplicate_names(method: str, format_function: Optional[FormatFunction]=N
 	keyfunc: Callable[[DesktopWithPath], str] = (lambda f: cast(str, get_field(f[1], 'Name', 'Desktop Entry')).lower()) \
 		if method == 'check' \
 		else (lambda f: normalize_name(cast(str, get_field(f[1], 'Name', 'Desktop Entry')), care_about_numerals=True))
-	files.sort(key=keyfunc)
-	duplicates: dict[str, list[DesktopWithPath]] = {}
-	for key, group in itertools.groupby(files, key=keyfunc):
-		g = list(group)
+	duplicates: MutableMapping[str, tuple[DesktopWithPath]] = {}
+	#TODO: Is using keyfunc twice there really needed? Is that how that works?
+	for key, group in itertools.groupby(sorted(files, key=keyfunc), key=keyfunc):
+		g = tuple(group)
 		if len(g) > 1:
 			duplicates[key] = g
 
 	for k, v in duplicates.items():
 		if method == 'check':
-			print('Duplicate name still remains: ', k, [get_field(d[1], 'Original-Name', junk_section_name) for d in v])
+			print('Duplicate name still remains: ', k, tuple(get_field(d[1], 'Original-Name', junk_section_name) for d in v))
 		else:
 			resolve_duplicates(v, method, format_function, ignore_missing_values, field_section)
 

@@ -46,7 +46,7 @@ def parse_ratings(metadata: Metadata, ratings_bytes: bytes, invert_has_rating_bi
 		metadata.specific_info['GRB Rating'] = ratings[9]
 	#There are others but that will do for now
 
-	ratings_list = list(ratings.values())
+	ratings_list = set(ratings.values())
 	if not ratings_list:
 		return
 
@@ -85,11 +85,11 @@ def add_info_from_local_titles(metadata: Metadata, short_titles: Mapping[str, st
 		local_publisher = publishers.get('Traditional Chinese')
 	else: #If none of that is in the region code? Unlikely but I dunno maybe
 		if short_titles:
-			local_short_title = list(short_titles.values())[0]
+			local_short_title = next(iter(short_titles.values()))
 		if long_titles:
-			local_long_title = list(long_titles.values())[0]
+			local_long_title = next(iter(long_titles.values()))
 		if publishers:
-			local_publisher = list(publishers.values())[0]
+			local_publisher = next(iter(publishers.values()))
 
 	if local_short_title:
 		metadata.add_alternate_name(local_short_title, 'Banner Short Title')

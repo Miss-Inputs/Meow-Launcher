@@ -2,7 +2,7 @@ import importlib.resources
 import json
 import math
 import re
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Sequence, Mapping
 from typing import Optional, Union
 
 find_brackets = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)')
@@ -21,7 +21,7 @@ def _find_tags(name: str) -> tuple[str, Sequence[str]]:
 		result = result[:start]
 		if not result:
 			#Handle the whole name being (all in parentheses)
-			return name, []
+			return name, ()
 		if result[-1] == ' ':
 			result = result[:-1]
 	return result, tags[::-1]
@@ -34,10 +34,7 @@ def remove_filename_tags(name: str) -> str:
 
 def starts_with_any(s: str, prefixes: Iterable[str]) -> bool:
 	#Allows s.startswith() with any iterable, not just tuple
-	for prefix in prefixes:
-		if s.startswith(prefix):
-			return True
-	return False
+	return any(s.startswith(prefix) for prefix in prefixes)
 
 class NotAlphanumericException(Exception):
 	pass
@@ -107,7 +104,7 @@ def is_roman_numeral(s: str) -> bool:
 def title_word(s: str) -> str:
 	#Like str.title or str.capitalize but actually bloody works how I expect for compound-words and contract'ns
 	actual_word_parts = re.split(r"([\w']+)", s)
-	return ''.join([part.capitalize() for part in actual_word_parts])
+	return ''.join(part.capitalize() for part in actual_word_parts)
 
 def remove_capital_article(s: Optional[str]) -> str:
 	if not s:
@@ -116,14 +113,12 @@ def remove_capital_article(s: Optional[str]) -> str:
 	words = s.split(' ')
 	new_words = [words[0]]
 	for word in words[1:]:
-		if word.lower() in {'the', 'a'}:
-			new_words.append(word.lower())
-		else:
-			new_words.append(word)
+		lower = word.lower()
+		new_words.append(lower if lower in {'the', 'a'} else word)
 	return ' '.join(new_words)
 
 def clean_string(s: str, preserve_newlines: bool=False) -> str:
-	return ''.join([c for c in s if c.isprintable() or (c == '\n' and preserve_newlines)])
+	return ''.join(c for c in s if c.isprintable() or (c == '\n' and preserve_newlines))
 
 def byteswap(b: bytes) -> bytes:
 	bb = b if len(b) % 2 == 0 else b[:-1]
@@ -136,8 +131,8 @@ def byteswap(b: bytes) -> bytes:
 	return bytes(byte_array)
 
 dict_line_regex = re.compile(r'(?P<kquote>\'|\"|)(?P<key>.+?)(?P=kquote):\s*(?P<vquote>\'|\")(?P<value>.+?)(?P=vquote),?(?:\s*#.+)?$')
-def load_dict(subpackage: Optional[str], resource: str) -> dict[Union[int, str], str]:
-	d: dict[Union[int, str], str] = {}
+def load_dict(subpackage: Optional[str], resource: str) -> Mapping[Union[int, str], str]:
+	d = {}
 	package = 'meowlauncher.data'
 	if subpackage:
 		package += '.' + subpackage
@@ -156,9 +151,10 @@ def load_list(subpackage: Optional[str], resource: str) -> Sequence[str]:
 	package = 'meowlauncher.data'
 	if subpackage:
 		package += '.' + subpackage
-	return [line for line in [line.split('#', 1)[0] for line in importlib.resources.read_text(package, resource + '.list').splitlines()] if line]
+	#TODO: Proper nested comprehension
+	return tuple(line for line in tuple(line.split('#', 1)[0] for line in importlib.resources.read_text(package, resource + '.list').splitlines()) if line)
 
-def load_json(subpackage: Optional[str], resource: str) -> dict:
+def load_json(subpackage: Optional[str], resource: str) -> Mapping:
 	package = 'meowlauncher.data'
 	if subpackage:
 		package += '.' + subpackage

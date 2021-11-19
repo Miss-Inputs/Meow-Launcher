@@ -69,9 +69,9 @@ def sanitize_path(path: pathlib.Path, supersafe: bool=False) -> pathlib.Path:
 		has_slash = True
 		parts = parts[1:]
 
-	sanitized_parts = [sanitize_name(path_part, supersafe) for path_part in parts]
+	sanitized_parts = tuple(sanitize_name(path_part, supersafe) for path_part in parts)
 	if has_slash:
-		sanitized_parts = ['/'] + sanitized_parts
+		sanitized_parts = ('/', ) + sanitized_parts
 	return pathlib.Path(*sanitized_parts)
 
 remove_brackety_things_for_filename = re.compile(r'[]([)]')

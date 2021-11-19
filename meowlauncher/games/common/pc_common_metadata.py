@@ -1,8 +1,9 @@
 import datetime
 import io
 import os
-from pathlib import Path
 import struct
+from collections.abc import Mapping
+from pathlib import Path
 from typing import Any, Optional, Union
 
 try:
@@ -24,7 +25,7 @@ from meowlauncher.util.utils import junk_suffixes
 #Hmm, are other extensions going to work as icons in a file manager
 icon_extensions = ('png', 'ico', 'xpm', 'svg')
 
-def get_pe_file_info(pe: 'pefile.PE') -> Optional[dict[str, Any]]: #TODO refactor - Union[str, datetime.datetime] is a bit silly as it means you have to check for it every time if you have mypy, maybe we should return something else
+def _get_pe_file_info(pe: 'pefile.PE') -> Optional[Mapping[str, Any]]: #TODO refactor - Union[str, datetime.datetime] is a bit silly as it means you have to check for it every time if you have mypy, maybe we should return something else
 	if not hasattr(pe, 'FileInfo'):
 		return None
 	for file_info in pe.FileInfo:
@@ -37,13 +38,13 @@ def get_pe_file_info(pe: 'pefile.PE') -> Optional[dict[str, Any]]: #TODO refacto
 					return d
 	return None
 
-def get_exe_properties(path: str) -> Optional[dict[str, Any]]:
+def get_exe_properties(path: str) -> Optional[Mapping[str, Any]]:
 	if have_pefile:
 		try:
 			pe = pefile.PE(path, fast_load=True)
 			pe.parse_data_directories(pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_RESOURCE'])
 			try:
-				return get_pe_file_info(pe)
+				return _get_pe_file_info(pe)
 			#pylint: disable=broad-except
 			except Exception as ex:
 				if main_config.debug:
@@ -98,43 +99,44 @@ def add_metadata_for_raw_exe(path: str, metadata: Metadata):
 			if guessed_date.is_better_than(metadata.release_date):
 				metadata.release_date = guessed_date
 
-def pe_directory_to_dict(directory) -> dict:
+def _pe_directory_to_dict(directory) -> Mapping: #str > some PE entry type?
 	d = {}
 	for entry in directory.entries:
-		d[entry.name if entry.name else entry.id] = pe_directory_to_dict(entry.directory) if hasattr(entry, 'directory') else entry
+		d[entry.name if entry.name else entry.id] = _pe_directory_to_dict(entry.directory) if hasattr(entry, 'directory') else entry
 	return d
 
-def get_pe_resources(pe: 'pefile.PE', resource_type) -> Optional[dict]:
+def _get_pe_resources(pe: 'pefile.PE', resource_type) -> Optional[Mapping]:
 	if not hasattr(pe, 'DIRECTORY_ENTRY_RESOURCE'):
 		#weirdo has no resources
 		return None
 	for entry in pe.DIRECTORY_ENTRY_RESOURCE.entries:
 		if entry.id == resource_type:
-			return pe_directory_to_dict(entry.directory)
+			return _pe_directory_to_dict(entry.directory)
 	return None
 
-def get_first_pe_resource(resource_dict):
+def _get_first_pe_resource(resource_dict: Mapping):
 	for k, v in resource_dict.items():
-		if isinstance(v, dict):
-			return get_first_pe_resource(v)
+		if isinstance(v, Mapping):
+			return _get_first_pe_resource(v)
 		return k, v
 
-def parse_pe_group_icon_directory(data: bytes) -> dict[int, dict[str, int]]:
+def _parse_pe_group_icon_directory(data: bytes) -> Mapping[int, Mapping[str, int]]:
+	#TODO: Use dataclass
 	struct_format = '<BBBBHHIH'
 	_, _, count = struct.unpack('<HHH', data[:6]) #don't need type I think
 	return {entry_id: {'width': width, 'height': height, 'colour_count': colour_count, 'planes': planes, 'bit_count': bit_count, 'bytes_in_res': bytes_in_res}
 		for width, height, colour_count, _, planes, bit_count, bytes_in_res, entry_id in struct.iter_unpack(struct_format, data[6:6 + (struct.calcsize(struct_format) * count)])}
 
 def get_icon_from_pe(pe: 'pefile.PE') -> Optional[Image.Image]:
-	group_icons = get_pe_resources(pe, pefile.RESOURCE_TYPE['RT_GROUP_ICON'])
+	group_icons = _get_pe_resources(pe, pefile.RESOURCE_TYPE['RT_GROUP_ICON'])
 	if not group_icons:
 		return None
-	_, first_group_icon = get_first_pe_resource(group_icons)
+	_, first_group_icon = _get_first_pe_resource(group_icons)
 	
 	first_group_icon_data = pe.get_data(first_group_icon.data.struct.OffsetToData, first_group_icon.data.struct.Size)
 	header = first_group_icon_data[:6]
-	group_icon_entries = parse_pe_group_icon_directory(first_group_icon_data)
-	icons_dir = get_pe_resources(pe, pefile.RESOURCE_TYPE['RT_ICON'])
+	group_icon_entries = _parse_pe_group_icon_directory(first_group_icon_data)
+	icons_dir = _get_pe_resources(pe, pefile.RESOURCE_TYPE['RT_ICON'])
 	if not icons_dir:
 		return None
 	ico_entry_format = '<BBBBHHII'
@@ -146,7 +148,7 @@ def get_icon_from_pe(pe: 'pefile.PE') -> Optional[Image.Image]:
 		#	#Odd, this should not happen
 		#	continue
 		if isinstance(icon_resource, dict):
-			icon_resource = list(icon_resource.values())[0]
+			icon_resource = next(iter(icon_resource.values()))
 		icon_resource_data = pe.get_data(icon_resource.data.struct.OffsetToData, icon_resource.data.struct.Size)
 		#This is the raw bytes so we need to make the .ico ourselves
 		ico_entry = struct.pack(ico_entry_format, v['width'], v['height'], v['colour_count'], 0, v['planes'], v['bit_count'], v['bytes_in_res'], offset)
@@ -210,9 +212,9 @@ def look_for_icon_in_folder(folder: Path, look_for_any_ico: bool=True) -> Option
 def check_for_interesting_things_in_folder(folder: Path, metadata: Metadata, find_wrappers: bool=False):
 	#Let's check for things existing because we can (there's not really any other reason to do this, it's just fun)
 	#Not sure if any of these are in lowercase? Or they might be in a different directory
-	dir_entries = list(folder.iterdir())
-	files = [f.name.lower() for f in dir_entries if f.is_file()]
-	subdirs = [f.name.lower() for f in dir_entries if f.is_dir()]
+	dir_entries = tuple(folder.iterdir())
+	files = {f.name.lower() for f in dir_entries if f.is_file()}
+	subdirs = {f.name.lower() for f in dir_entries if f.is_dir()}
 	
 	if 'libdiscord-rpc.so' in files or 'discord-rpc.dll' in files:
 		metadata.specific_info['Discord Rich Presence?'] = True

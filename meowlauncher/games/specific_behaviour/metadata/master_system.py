@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, cast
 
 from meowlauncher import input_metadata
@@ -9,12 +10,12 @@ from meowlauncher.util.region_info import TVSystem
 from meowlauncher.util.utils import decode_bcd, load_dict
 
 if TYPE_CHECKING:
-	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.games.mame_common.software_list import Software
+	from meowlauncher.games.roms.rom_game import ROMGame
 
 licensee_codes = load_dict(None, 'sega_licensee_codes')
 
-def decode_bcd_multi(i: bytes) -> int:
+def _decode_bcd_multi(i: bytes) -> int:
 	return (decode_bcd(i[1]) * 100) + decode_bcd(i[0])
 
 def parse_sdsc_header(rom: FileROM, metadata: Metadata, header: bytes):
@@ -24,7 +25,7 @@ def parse_sdsc_header(rom: FileROM, metadata: Metadata, header: bytes):
 
 	day = decode_bcd(header[2])
 	month = decode_bcd(header[3])
-	year = decode_bcd_multi(header[4:6])
+	year = _decode_bcd_multi(header[4:6])
 	metadata.release_date = Date(year, month, day)
 
 	author_offset = int.from_bytes(header[6:8], 'little')
@@ -60,7 +61,8 @@ regions: dict[int, tuple[str, bool]] = {
 	7: ('International', True),
 }
 
-def parse_standard_header(rom: FileROM, base_offset: int) -> dict[str, Any]:
+def _parse_standard_header(rom: FileROM, base_offset: int) -> Mapping[str, Any]:
+	#TODO: Use namedtuple/dataclass instead
 	header_data: dict[str, Any] = {}
 	header = rom.read(seek_to=base_offset, amount=16)
 
@@ -73,7 +75,7 @@ def parse_standard_header(rom: FileROM, base_offset: int) -> dict[str, Any]:
 	product_code_lo = (header[14] & 0xf0) >> 4
 	header_data['Revision'] = header[14] & 0x0f
 
-	product_code = '{0}{1:04}'.format('' if product_code_lo == 0 else product_code_lo, decode_bcd_multi(product_code_hi))
+	product_code = '{0}{1:04}'.format('' if product_code_lo == 0 else product_code_lo, _decode_bcd_multi(product_code_hi))
 	header_data['Product code'] = product_code
 
 	region_code = (header[15] & 0xf0) >> 4
@@ -94,7 +96,7 @@ def parse_standard_header(rom: FileROM, base_offset: int) -> dict[str, Any]:
 
 	return header_data
 
-def try_parse_standard_header(rom: FileROM, metadata: Metadata):
+def add_info_from_standard_header(rom: FileROM, metadata: Metadata):
 	rom_size = rom.get_size()
 	possible_offsets = [0x1ff0, 0x3ff0, 0x7ff0]
 
@@ -104,7 +106,7 @@ def try_parse_standard_header(rom: FileROM, metadata: Metadata):
 			continue
 
 		try:
-			header_data = parse_standard_header(rom, possible_offset)
+			header_data = _parse_standard_header(rom, possible_offset)
 			break
 		except BadSMSHeaderException:
 			continue
@@ -207,7 +209,7 @@ def get_sms_metadata(game: 'ROMGame'):
 	if sdsc_header[:4] == b'SDSC':
 		parse_sdsc_header(rom, game.metadata, sdsc_header[4:])
 
-	try_parse_standard_header(rom, game.metadata)
+	add_info_from_standard_header(rom, game.metadata)
 
 	if game.metadata.platform == 'Game Gear':
 		#Because there's no accessories to make things confusing, we can assume the Game Gear's input info, but not the Master System's

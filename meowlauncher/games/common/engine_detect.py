@@ -53,7 +53,7 @@ def try_detect_unity(folder: Path, metadata: Optional[Metadata]=None) -> bool:
 					appinfo_path = f.joinpath('app.info')
 					try:
 						with appinfo_path.open('rt', encoding='utf-8') as appinfo:
-							appinfo_lines = appinfo.readlines()
+							appinfo_lines = appinfo.readlines(2)
 							if not metadata.publisher and not metadata.developer:
 								company_name = appinfo_lines[0]
 								if company_name:
@@ -123,7 +123,7 @@ def try_detect_ue4(folder: Path) -> bool:
 	return False
 
 def try_detect_build(folder: Path) -> bool:
-	files = [f.name.lower() for f in folder.iterdir() if f.is_file()]
+	files = {f.name.lower() for f in folder.iterdir() if f.is_file()}
 	if 'build.exe' in files and 'bsetup.exe' in files and 'editart.exe' in files:
 		return True
 	for f in folder.iterdir():
@@ -356,9 +356,9 @@ def try_detect_engines_from_filenames(folder: Path, files: Iterable[str], subdir
 	return None
 
 def try_and_detect_engine_from_folder(folder: Path, metadata: Metadata=None) -> Optional[str]:
-	dir_entries = list(folder.iterdir())
-	files = [f.name.lower() for f in dir_entries if f.is_file()]
-	subdirs = [f.name.lower() for f in dir_entries if f.is_dir()]
+	dir_entries = set(folder.iterdir())
+	files = {f.name.lower() for f in dir_entries if f.is_file()}
+	subdirs = {f.name.lower() for f in dir_entries if f.is_dir()}
 
 	#Godot = .pck with "GDPC" magic, but that requires poking inside files and I don't wanna do that just yet
 	#XNA: Might have a "common redistributables" folder with an installer in it?

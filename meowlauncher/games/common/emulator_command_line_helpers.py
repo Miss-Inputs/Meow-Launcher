@@ -1,5 +1,5 @@
 import os
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence, Collection
 from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
@@ -7,14 +7,14 @@ from meowlauncher.common_types import (EmulationNotSupportedException,
 from meowlauncher.emulator import MednafenModule
 from meowlauncher.games.mame_common.mame_helpers import (have_mame,
                                                          verify_romset)
-from meowlauncher.games.mame_common.software_list_info import \
+from meowlauncher.games.mame_common.software_list_find_utils import \
     get_software_list_by_name
 from meowlauncher.launch_command import LaunchCommand, rom_path_argument
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.runner_config import EmulatorConfig
-	from meowlauncher.emulator import LaunchCommandFunc
+	from meowlauncher.emulator import GenericLaunchCommandFunc
 
 def _get_autoboot_script_by_name(name: str) -> str:
 	#Hmm I'm not sure I like this one but whaddya do otherwise… where's otherwise a good place to store shit
@@ -43,8 +43,8 @@ def _verify_supported_gb_mappers(game: 'ROMGame', supported_mappers: Iterable[st
 		raise EmulationNotSupportedException('Mapper ' + mapper + ' not supported')
 
 def verify_mgba_mapper(game: 'ROMGame') -> None:
-	supported_mappers = ['MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5', 'HuC3', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5']
-	detected_mappers = ['MBC1 Multicart', 'MMM01', 'Wisdom Tree', 'Pokemon Jade/Diamond bootleg', 'BBD', 'Hitek']
+	supported_mappers = {'MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5', 'HuC3', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5'}
+	detected_mappers = {'MBC1 Multicart', 'MMM01', 'Wisdom Tree', 'Pokemon Jade/Diamond bootleg', 'BBD', 'Hitek'}
 
 	_verify_supported_gb_mappers(game, supported_mappers, detected_mappers)
 
@@ -70,7 +70,7 @@ def is_highscore_cart_available() -> bool:
 def mednafen_module(module: str, exe_path: str='mednafen') -> LaunchCommand:
 	return LaunchCommand(exe_path, ['-video.fs', '1', '-force_module', module, rom_path_argument])
 
-def mame_base(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard: bool=False, autoboot_script: Optional[str]=None, software: Optional[str]=None, bios: Optional[str]=None) -> list[str]:
+def mame_base(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard: bool=False, autoboot_script: Optional[str]=None, software: Optional[str]=None, bios: Optional[str]=None) -> Sequence[str]:
 	args = ['-skip_gameinfo']
 	if has_keyboard:
 		args.append('-ui_active')
@@ -123,35 +123,35 @@ def first_available_romset(driver_list: Iterable[str]) -> Optional[str]:
 	return None
 
 #This is here to make things simpler, instead of putting a whole new function in emulator_command_lines we can return the appropriate function from here
-def simple_emulator(args: Sequence[str]=None) -> 'LaunchCommandFunc':
-	def inner(_, __, emulator_config):
+def simple_emulator(args: Sequence[str]=None) -> 'GenericLaunchCommandFunc[ROMGame]':
+	def inner(_, __, emulator_config: 'EmulatorConfig'):
 		return LaunchCommand(emulator_config.exe_path, args if args else [rom_path_argument])
 	return inner
 
-def simple_gb_emulator(args: Sequence[str], mappers: Iterable[str], autodetected_mappers: Iterable[str]):
-	def inner(game, _, emulator_config):
+def simple_gb_emulator(args: Sequence[str], mappers: Iterable[str], autodetected_mappers: Iterable[str]) -> 'GenericLaunchCommandFunc[ROMGame]':
+	def inner(game: 'ROMGame', _, emulator_config: 'EmulatorConfig'):
 		_verify_supported_gb_mappers(game, mappers, autodetected_mappers)
 		return LaunchCommand(emulator_config.exe_path, args)
 	return inner
 
-def simple_md_emulator(args: Sequence[str], unsupported_mappers: Iterable[str]) -> 'LaunchCommandFunc':
-	def inner(game, _, emulator_config):
+def simple_md_emulator(args: Sequence[str], unsupported_mappers: Iterable[str]) -> 'GenericLaunchCommandFunc[ROMGame]':
+	def inner(game: 'ROMGame', _, emulator_config: 'EmulatorConfig'):
 		mapper = game.metadata.specific_info.get('Mapper')
-		if mapper in unsupported_mappers:
+		if mapper and mapper in unsupported_mappers:
 			raise EmulationNotSupportedException(mapper + ' not supported')
 		return LaunchCommand(emulator_config.exe_path, args)
 	return inner
 
-def simple_mame_driver(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard=False, autoboot_script=None) -> 'LaunchCommandFunc':
-	def inner(game, _, emulator_config):
+def simple_mame_driver(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard=False, autoboot_script=None) -> 'GenericLaunchCommandFunc[ROMGame]':
+	def inner(game: 'ROMGame', _, emulator_config: 'EmulatorConfig'):
 		return mame_driver(game, emulator_config, driver, slot, slot_options, has_keyboard, autoboot_script)
 	return inner
 
-def simple_mednafen_module_args(module: str) -> 'LaunchCommandFunc':
-	def inner(_, __, emulator_config):
+def simple_mednafen_module_args(module: str) -> 'GenericLaunchCommandFunc[ROMGame]':
+	def inner(_: 'ROMGame', __, emulator_config: 'EmulatorConfig'):
 		return mednafen_module(module, exe_path=emulator_config.exe_path)
 	return inner
 
 class SimpleMednafenModule(MednafenModule):
-	def __init__(self, name: str, status: EmulatorStatus, module: str, supported_extensions: list[str], configs=None):
+	def __init__(self, name: str, status: EmulatorStatus, module: str, supported_extensions: Collection[str], configs=None):
 		super().__init__(name, status, supported_extensions, params_func=simple_mednafen_module_args(module), configs=configs)

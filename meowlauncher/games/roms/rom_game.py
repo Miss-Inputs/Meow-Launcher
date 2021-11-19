@@ -1,10 +1,12 @@
+import os
 import tempfile
+from collections.abc import Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher
-from meowlauncher.games.mame_common.software_list_info import (
+from meowlauncher.games.mame_common.software_list_find_utils import (
     find_in_software_lists_with_custom_matcher, find_software_by_name,
     get_software_list_by_name)
 from meowlauncher.launch_command import LaunchCommand
@@ -33,22 +35,20 @@ class ROMGame(EmulatedGame):
 		self.rom = rom
 		self.metadata.platform = platform.name
 		self.platform = platform
-		self.metadata.categories = []
 		self.filename_tags = find_filename_tags_at_end(rom.path.name)
 
-		self.subroms: list[ROM] = []
-		self.software_lists = []
+		self.subroms: Sequence[ROM] = []
 		self.exception_reason: Optional[BaseException] = None
 
-		software_list_names = platform.mame_software_lists
-		if software_list_names:
-			self.software_lists = [software_list for software_list in [get_software_list_by_name(name) for name in software_list_names] if software_list]
+		#TODO: Proper nested comprehension
+		self.software_lists = {software_list for software_list in {get_software_list_by_name(name) for name in platform.mame_software_lists} if software_list}
 	
 	@property
 	def name(self) -> str:
+		#TODO: This should be better…
 		name = self.rom.name
 		if self.rom.ignore_name and self.metadata.names:
-			name = self.metadata.names.get('Name', list(self.metadata.names.values())[0])
+			name = self.metadata.names.get('Name', next(iter(self.metadata.names.values())))
 			
 		return name
 
@@ -93,8 +93,8 @@ class ROMLauncher(EmulatorLauncher):
 				temp_extraction_folder = Path(tempfile.gettempdir(), 'meow-launcher-' + make_filename(self.game.name))
 				extracted_path = temp_extraction_folder.joinpath(rom.inner_filename)
 				command = command.replace_path_argument(extracted_path)
-				command = command.prepend_command(LaunchCommand('7z', ['x', '-o' + temp_extraction_folder.as_posix(), self.game.rom.path.as_posix()]))
-				command = command.append_command(LaunchCommand('rm', ['-rf', temp_extraction_folder.as_posix()]))
+				command = command.prepend_command(LaunchCommand('7z', ['x', '-o' + os.fspath(temp_extraction_folder.resolve()), os.fspath(self.game.rom.path.resolve())]))
+				command = command.append_command(LaunchCommand('rm', ['-rf', os.fspath(temp_extraction_folder.resolve())]))
 		else:
 			command = command.replace_path_argument(self.game.rom.path)
 		return command

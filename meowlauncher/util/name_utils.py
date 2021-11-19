@@ -10,9 +10,9 @@ from .utils import convert_roman_numeral, is_roman_numeral, title_word
 
 chapter_matcher = re.compile(r'\b(?:Chapter|Vol|Volume|Episode|Part|Version)\b(?:\.)?', flags=re.RegexFlag.IGNORECASE)
 
-fluff_editions = ['GOTY', 'Game of the Year', 'Definitive', 'Enhanced', 'Special', 'Ultimate', 'Premium', 'Gold', 'Extended', 'Super Turbo Championship', 'Digital', 'Megaton', 'Deluxe', 'Masterpiece']
-demo_suffixes = ['Demo', 'Playable Teaser']
-name_suffixes = demo_suffixes + ['Beta', 'GOTY', "Director's Cut", 'Unstable', 'Complete', 'Complete Collection', "Developer's Cut"] + [e + ' Edition' for e in fluff_editions]
+fluff_editions = {'GOTY', 'Game of the Year', 'Definitive', 'Enhanced', 'Special', 'Ultimate', 'Premium', 'Gold', 'Extended', 'Super Turbo Championship', 'Digital', 'Megaton', 'Deluxe', 'Masterpiece'}
+demo_suffixes = {'Demo', 'Playable Teaser'}
+name_suffixes = demo_suffixes.union({'Beta', 'GOTY', "Director's Cut", 'Unstable', 'Complete', 'Complete Collection', "Developer's Cut"}).union({e + ' Edition' for e in fluff_editions})
 name_suffix_matcher = re.compile(r'(?: | - |: )?(?:The )?(' + '|'.join(name_suffixes) + ')$', re.RegexFlag.IGNORECASE)
 def normalize_name_case(name: str, name_to_test_for_upper: Optional[str]=None) -> str:
 	if not name_to_test_for_upper:
@@ -110,11 +110,11 @@ def normalize_name(name: str, care_about_spaces=True, normalize_words=True, care
 		return ('-' if care_about_spaces else '').join(words_regex.findall(name))
 	return name
 
-dont_capitalize_these = ['the', 'a', 'an', 'and', 'or', 'at', 'with', 'to', 'of', 'is']
+dont_capitalize_these = {'the', 'a', 'an', 'and', 'or', 'at', 'with', 'to', 'of', 'is'}
 def _title_case_sentence_part(s: str, words_to_ignore_case: Optional[Iterable[str]]=None) -> str:
 	words = re.split(' ', s)
 	if not words_to_ignore_case:
-		words_to_ignore_case = []
+		words_to_ignore_case = set()
 
 	titled_words = []
 	titled_words.append(words[0] if words[0] in words_to_ignore_case else title_word(words[0]))
@@ -130,5 +130,4 @@ def _title_case_sentence_part(s: str, words_to_ignore_case: Optional[Iterable[st
 
 def title_case(s: str, words_to_ignore_case: Optional[Iterable[str]]=None) -> str:
 	sentence_parts = re.split(r'(\s+-\s+|:\s+)', s)
-	titled_parts = [_title_case_sentence_part(part, words_to_ignore_case) for part in sentence_parts]
-	return ''.join(titled_parts)
+	return ''.join(_title_case_sentence_part(part, words_to_ignore_case) for part in sentence_parts)

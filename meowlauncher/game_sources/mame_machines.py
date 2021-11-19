@@ -38,7 +38,7 @@ class MAME(GameSource):
 		self.driver_list = driver_list
 		self.source_file = source_file
 		self.emu = ConfiguredMAME(emulator_configs.get('MAME'))
-		self.platform_config = PlatformConfig('MAME', [], [], {}) #Not needed for now, it is just to satisfy EmulatedGame constructor… may be a good idea some day
+		self.platform_config = PlatformConfig('MAME', set(), (), {}) #Not needed for now, it is just to satisfy EmulatedGame constructor… may be a good idea some day
 
 	@property
 	def name(self) -> str:
@@ -124,7 +124,7 @@ class MAME(GameSource):
 class MAMEInbuiltGames(GameSource):
 	def __init__(self) -> None:
 		super().__init__()
-		self.blank_platform_config = PlatformConfig('MAME', [], [], {})
+		self.blank_platform_config = PlatformConfig('MAME', set(), (), {})
 
 	@property
 	def name(self) -> str:

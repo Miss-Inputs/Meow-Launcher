@@ -1,7 +1,8 @@
 import copy
 import re
 import subprocess
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
+from typing import cast
 from xml.etree import ElementTree
 
 from meowlauncher.common_paths import cache_dir
@@ -86,26 +87,27 @@ class MAMEExecutable():
 			raise MachineNotFoundException(driver) #This shouldn't happen if -listxml didn't return success but eh
 		return xml
 
-	def listsource(self) -> Iterable[list[str]]:
+	def listsource(self) -> Iterable[tuple[str, str]]:
 		proc = subprocess.run([self.executable, '-listsource'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, universal_newlines=True, check=True)
 		#Return code should always be 0 so if it's not I dunno what to do about that and let's just panic instead
 		for line in proc.stdout.splitlines():
 			#Machine names and source files both shouldn't contain spaces, so this should be fine
-			yield line.split()
+			line_split = line.split(maxsplit=2)
+			if len(line_split) != 2:
+				raise AssertionError('This should not happen, panic')
+			yield cast(tuple[str, str], tuple(line_split))
 	
-	def verifysoftlist(self, software_list_name: str) -> list[str]:
+	def verifysoftlist(self, software_list_name: str) -> Iterable[str]:
 		#Unfortunately it seems we cannot verify an individual software, which would probably take less time
 		proc = subprocess.run([self.executable, '-verifysoftlist', software_list_name], universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=False)
 		#Don't check return code - it'll return 2 if one software in the list is bad
 
-		available = []
 		for line in proc.stdout.splitlines():
 			#Bleh
 			software_verify_matcher = re.compile(r'romset {0}:(.+) is (?:good|best available)$'.format(software_list_name))
 			line_match = software_verify_matcher.match(line)
 			if line_match:
-				available.append(line_match[1])
-		return available
+				yield line_match[1]
 
 	def verifyroms(self, basename: str) -> bool:
 		try:

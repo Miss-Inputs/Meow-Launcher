@@ -1,14 +1,14 @@
+import os
+import struct
+from collections.abc import Collection, Iterable
+from typing import Optional, cast
+from xml.etree import ElementTree
+
 try:
 	from PIL import Image
 	have_pillow = True
 except ModuleNotFoundError:
 	have_pillow = False
-
-import os
-import struct
-from collections.abc import Iterable
-from typing import Optional, cast
-from xml.etree import ElementTree
 
 from meowlauncher import input_metadata
 from meowlauncher.config.main_config import main_config
@@ -21,7 +21,7 @@ from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
 from .common.gametdb import TDB, add_info_from_tdb
-from .wii import parse_ratings
+from .common.nintendo_common import parse_ratings
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
@@ -83,23 +83,23 @@ def decode_icon(bitmap: bytes, palette: Iterable[int]) -> 'Image':
 	icon.putdata(data)
 	return icon
 
-def parse_dsi_region_flags(region_flags: int) -> list[Region]:
-	regions = []
+def _parse_dsi_region_flags(region_flags: int) -> Collection[Region]:
+	regions = set()
 	if region_flags & 1:
-		regions.append(regions_by_name['Japan'])
+		regions.add(regions_by_name['Japan'])
 	if region_flags & 2:
-		regions.append(regions_by_name['USA'])
+		regions.add(regions_by_name['USA'])
 	if region_flags & 4:
-		regions.append(regions_by_name['Europe'])
+		regions.add(regions_by_name['Europe'])
 	if region_flags & 8:
-		regions.append(regions_by_name['Australia'])
+		regions.add(regions_by_name['Australia'])
 	if region_flags & 16:
-		regions.append(regions_by_name['China'])
+		regions.add(regions_by_name['China'])
 	if region_flags & 32:
-		regions.append(regions_by_name['Korea'])
+		regions.add(regions_by_name['Korea'])
 	return regions
 
-def add_banner_title_metadata(metadata: Metadata, banner_title: str, language: Optional[str]=None):
+def _add_banner_title_metadata(metadata: Metadata, banner_title: str, language: Optional[str]=None):
 	lines = banner_title.splitlines()
 	metadata_name = 'Banner Title'
 	if language:
@@ -119,7 +119,7 @@ def add_banner_title_metadata(metadata: Metadata, banner_title: str, language: O
 			#This is usually the publisher… but it has a decent chance of being something else so I'm not gonna set metadata.publisher from it
 			metadata.specific_info[metadata_name + ' Final Line'] = lines[-1]
 
-def parse_banner(rom: FileROM, metadata: Metadata, header: bytes, is_dsi: bool, banner_offset: int):
+def _parse_banner(rom: FileROM, metadata: Metadata, header: bytes, is_dsi: bool, banner_offset: int):
 	#The extended part of the banner if is_dsi contains animated icon frames, so we don't really need it
 	banner_size = int.from_bytes(header[0x208:0x20c], 'little') if is_dsi else 0xA00
 	banner = rom.read(seek_to=banner_offset, amount=banner_size)
@@ -150,11 +150,11 @@ def parse_banner(rom: FileROM, metadata: Metadata, header: bytes, is_dsi: bool, 
 				continue
 		
 		for lang, title in banner_titles.items():
-			add_banner_title_metadata(metadata, title, lang)
+			_add_banner_title_metadata(metadata, title, lang)
 
 		if banner_titles:
-			banner_title = banner_titles.get('English', list(banner_titles.values())[0])
-			add_banner_title_metadata(metadata, banner_title)
+			banner_title = banner_titles.get('English', next(iter(banner_titles.values())))
+			_add_banner_title_metadata(metadata, banner_title)
 
 		if len(banner) >= 0x240:
 			if have_pillow:
@@ -204,7 +204,7 @@ def add_info_from_ds_header(rom: FileROM, metadata: Metadata, header: bytes):
 			#If they're set any higher than this, it's region free
 			#GBATEK says region free is 0xffffffff specifically but Pokemon gen 5 is 0xffffffef so who knows
 			#Although either way, it doesn't imply regions is world, it just means it'll work worldwide, so like... ehh... regions is a weird metadata field tbh
-			metadata.regions = parse_dsi_region_flags(region_flags)
+			metadata.regions = _parse_dsi_region_flags(region_flags)
 		parse_ratings(metadata, header[0x2f0:0x300], True, False)
 	else:
 		region = header[29]
@@ -218,7 +218,7 @@ def add_info_from_ds_header(rom: FileROM, metadata: Metadata, header: bytes):
 
 	banner_offset = int.from_bytes(header[0x68:0x6C], 'little')
 	if banner_offset:
-		parse_banner(rom, metadata, header, is_dsi, banner_offset)
+		_parse_banner(rom, metadata, header, is_dsi, banner_offset)
 
 def add_ds_input_info(metadata: Metadata):
 	builtin_buttons = input_metadata.NormalController()

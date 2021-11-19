@@ -151,10 +151,7 @@ def mame_atari_7800(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 
 		#This would only be supported via software list
 		raise EmulationNotSupportedException('No header')
 
-	if game.metadata.specific_info.get('TV Type') == TVSystem.PAL:
-		system = 'a7800p'
-	else:
-		system = 'a7800'
+	system = 'a7800p' if game.metadata.specific_info.get('TV Type') == TVSystem.PAL else 'a7800'
 
 	if not hasattr(mame_atari_7800, 'have_hiscore_software'):
 		mame_atari_7800.have_hiscore_software = is_highscore_cart_available() #type: ignore[attr-defined]
@@ -313,8 +310,8 @@ def mame_fm_towns_marty(game: 'ROMGame', _: PlatformConfigOptions, emulator_conf
 def mame_game_boy(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	#Do all of these actually work or are they just detected? (HuC1 and HuC3 are supposedly non-working, and are treated as MBC3?)
 	#gb_slot.cpp also mentions MBC4, which isn't real
-	supported_mappers = ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5']
-	detected_mappers = ['MMM01', 'MBC1 Multicart', 'Wisdom Tree', 'Li Cheng', 'Sintax']
+	supported_mappers = {'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5'}
+	detected_mappers = {'MMM01', 'MBC1 Multicart', 'Wisdom Tree', 'Li Cheng', 'Sintax'}
 
 	_verify_supported_gb_mappers(game, supported_mappers, detected_mappers)
 
@@ -513,19 +510,19 @@ def mame_msx1(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'Emula
 	#Possible slot options: centronics is there to attach printers and such; if using a floppy can put bm_012 (MIDI interface) or moonsound (OPL4 sound card, does anything use that?) in the cart port but I'm not sure that's needed; the slots are the same for MSX2
 	if game.metadata.specific_info.get('Japanese Only?', False):
 		if not hasattr(mame_msx1, 'japanese_msx1_system'):
-			mame_msx1.japanese_msx1_system = first_available_romset(japanese_msx1_drivers + japanese_msx2_drivers + working_msx2plus_drivers) #type: ignore[attr-defined]
+			mame_msx1.japanese_msx1_system = first_available_romset(japanese_msx1_drivers.union(japanese_msx2_drivers).union(working_msx2plus_drivers)) #type: ignore[attr-defined]
 		if mame_msx1.japanese_msx1_system is None: #type: ignore[attr-defined]
 			raise EmulationNotSupportedException('No Japanese MSX1 driver available')
 		system = mame_msx1.japanese_msx1_system #type: ignore[attr-defined]
 	elif game.metadata.specific_info.get('Arabic Only?', False):
 		if not hasattr(mame_msx1, 'arabic_msx1_system'):
-			mame_msx1.arabic_msx1_system = first_available_romset(arabic_msx1_drivers + arabic_msx2_drivers) #type: ignore[attr-defined]
+			mame_msx1.arabic_msx1_system = first_available_romset(arabic_msx1_drivers.union(arabic_msx2_drivers)) #type: ignore[attr-defined]
 		if mame_msx1.arabic_msx1_system is None: #type: ignore[attr-defined]
 			raise EmulationNotSupportedException('No Arabic MSX1 driver available')
 		system = mame_msx1.arabic_msx1_system #type: ignore[attr-defined]
 	else:
 		if not hasattr(mame_msx1, 'msx1_system'):
-			mame_msx1.msx1_system = first_available_romset(working_msx1_drivers + working_msx2_drivers + working_msx2plus_drivers) #type: ignore[attr-defined]
+			mame_msx1.msx1_system = first_available_romset(working_msx1_drivers.union(working_msx2_drivers).union(working_msx2plus_drivers)) #type: ignore[attr-defined]
 		if mame_msx1.msx1_system is None: #type: ignore[attr-defined]
 			raise EmulationNotSupportedException('No MSX1 driver available')
 		system = mame_msx1.msx1_system #type: ignore[attr-defined]
@@ -546,7 +543,7 @@ def mame_msx1(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'Emula
 def mame_msx2(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	if game.metadata.specific_info.get('Japanese Only?', False):
 		if not hasattr(mame_msx2, 'japanese_msx2_system'):
-			mame_msx2.japanese_msx2_system = first_available_romset(japanese_msx2_drivers + working_msx2plus_drivers) #type: ignore[attr-defined]
+			mame_msx2.japanese_msx2_system = first_available_romset(japanese_msx2_drivers.union(working_msx2plus_drivers)) #type: ignore[attr-defined]
 		if mame_msx2.japanese_msx2_system is None: #type: ignore[attr-defined]
 			raise EmulationNotSupportedException('No Japanese MSX2 driver available')
 		system = mame_msx2.japanese_msx2_system #type: ignore[attr-defined]
@@ -558,7 +555,7 @@ def mame_msx2(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'Emula
 		system = mame_msx2.arabic_msx2_system #type: ignore[attr-defined]
 	else:
 		if not hasattr(mame_msx2, 'msx2_system'):
-			mame_msx2.msx2_system = first_available_romset(working_msx2_drivers + working_msx2plus_drivers) #type: ignore[attr-defined]
+			mame_msx2.msx2_system = first_available_romset(working_msx2_drivers.union(working_msx2plus_drivers)) #type: ignore[attr-defined]
 		if mame_msx2.msx2_system is None: #type: ignore[attr-defined]
 			raise EmulationNotSupportedException('No MSX2 driver available')
 		system = mame_msx2.msx2_system #type: ignore[attr-defined]
@@ -797,11 +794,8 @@ def mame_snes(game: 'ROMGame', platform_config: PlatformConfigOptions, emulator_
 		if slot.endswith(('_poke', '_sbld', '_tekken2', '_20col')):
 			raise EmulationNotSupportedException('{0} mapper not supported'.format(slot))
 
-	if game.metadata.specific_info.get('TV Type') == TVSystem.PAL:
-		system = 'snespal'
-	else:
-		#American SNES and Super Famicom are considered to be the same system, so that works out nicely
-		system = 'snes'
+	#American SNES and Super Famicom are considered to be the same system, so that works out nicely
+	system = 'snespal' if game.metadata.specific_info.get('TV Type') == TVSystem.PAL else 'snes'
 
 	#TODO Set ctrl1/ctrl2: barcode_battler, joypad, miracle_piano, mouse, pachinko, sscope (also multitap, twintap which we don't need or maybe we do)
 
@@ -823,10 +817,7 @@ def mame_vic_20(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'Emu
 		#It too damn big (only likes 8KB with 2 byte header at most)
 		raise EmulationNotSupportedException('Single-part >8K cart not supported: %d' % size)
 
-	if game.metadata.specific_info.get('TV Type') == TVSystem.PAL:
-		system = 'vic20p'
-	else:
-		system = 'vic20'
+	system = 'vic20p' if game.metadata.specific_info.get('TV Type') == TVSystem.PAL else 'vic20'
 
 	return mame_driver(game, emulator_config, system, 'cart', {'iec8': ''}, has_keyboard=True)
 
@@ -901,7 +892,7 @@ def mednafen_game_gear(game: 'ROMGame', _: PlatformConfigOptions, emulator_confi
 	return mednafen_module('gg', exe_path=emulator_config.exe_path)
 
 def mednafen_gb(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'EmulatorConfig') -> LaunchCommand:
-	_verify_supported_gb_mappers(game, ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC7', 'HuC1', 'HuC3'], [])
+	_verify_supported_gb_mappers(game, {'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC7', 'HuC1', 'HuC3'}, set())
 	return mednafen_module('gb', exe_path=emulator_config.exe_path)
 
 def mednafen_gba(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'EmulatorConfig') -> LaunchCommand:
@@ -920,7 +911,7 @@ def mednafen_megadrive(game: 'ROMGame', _: PlatformConfigOptions, emulator_confi
 		raise EmulationNotSupportedException('SVP chip not supported')
 
 	mapper = game.metadata.specific_info.get('Mapper')
-	unsupported_mappers = ('mcpir', 'sf002', 'mjlov', 'lion3', 'kof99_pokemon', 'squir', 'sf004', 'topf', 'smw64', 'lion2', 'stm95', 'cjmjclub', 'pokestad', 'soulb', 'smb', 'smb2', 'chinf3')
+	unsupported_mappers = {'mcpir', 'sf002', 'mjlov', 'lion3', 'kof99_pokemon', 'squir', 'sf004', 'topf', 'smw64', 'lion2', 'stm95', 'cjmjclub', 'pokestad', 'soulb', 'smb', 'smb2', 'chinf3'}
 	#Squirrel King does boot but you die instantly, that's interesting
 	#Soul Blade freezes soon after starting a match?
 	if mapper in unsupported_mappers:
@@ -1051,11 +1042,7 @@ def a7800(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'EmulatorC
 		#This would only be supported via software list (although A7800 seems to have removed that anyway)
 		raise EmulationNotSupportedException('No header')
 
-	args = []
-	if game.metadata.specific_info.get('TV Type') == TVSystem.PAL:
-		args.append('a7800p')
-	else:
-		args.append('a7800')
+	args = ['a7800p' if game.metadata.specific_info.get('TV Type') == TVSystem.PAL else 'a7800']
 	#There are also a7800u1, a7800u2, a7800pu1, a7800pu2 to change the colour palettes. Maybe that could be an emulator_config option...
 
 	if not hasattr(a7800, 'have_hiscore_software'):
@@ -1082,7 +1069,7 @@ def bsnes(game: 'ROMGame', platform_config: PlatformConfigOptions, emulator_conf
 			raise EmulationNotSupportedException('We do not want to play a non-SGB enhanced game with a Super Game Boy')
 
 		#Pocket Camera is also supported by the SameBoy core, but I'm leaving it out here because bsnes doesn't do the camera
-		_verify_supported_gb_mappers(game, ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3'], [])
+		_verify_supported_gb_mappers(game, {'MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3'}, set())
 
 		return LaunchCommand(emulator_config.exe_path, ['--fullscreen', str(sgb_bios_path), rom_path_argument])
 
@@ -1235,7 +1222,7 @@ def fs_uae(game: 'ROMGame', platform_config: PlatformConfigOptions, emulator_con
 def gbe_plus(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	if game.platform.name == 'Game Boy':
 		#In theory, only this should support Pocket Sonar (so far), but there's not really a way to detect that since it just claims to be MBC1 in the header...
-		_verify_supported_gb_mappers(game, ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'HuC1'], ['MBC1 Multicart'])
+		_verify_supported_gb_mappers(game, {'MBC1', 'MBC2', 'MBC3', 'MBC5', 'MBC6', 'MBC7', 'Pocket Camera', 'HuC1'}, {'MBC1 Multicart'})
 	return LaunchCommand(emulator_config.exe_path, [rom_path_argument])
 
 def medusa(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'EmulatorConfig') -> LaunchCommand:
@@ -1426,7 +1413,7 @@ def prboom_plus(game: 'ROMGame', platform_config: PlatformConfigOptions, emulato
 	save_dir = cast(Optional[Path], platform_config.get('save_dir'))
 	if save_dir:
 		args.append('-save')
-		args.append(save_dir.resolve().as_posix())
+		args.append(os.fspath(save_dir))
 
 	args.append('-iwad')
 	args.append(rom_path_argument)
@@ -1436,15 +1423,15 @@ def prboom_plus(game: 'ROMGame', platform_config: PlatformConfigOptions, emulato
 def _macemu_args(app: 'MacApp', autoboot_txt_path: str, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	args = []
 	if not app.is_on_cd:
-		args += ['--disk', app.hfv_path.as_posix()]
+		args += ['--disk', os.fspath(app.hfv_path)]
 	if 'max_resolution' in app.info:
 		width, height = app.info['max_resolution']
 		args += ['--screen', 'dga/{0}/{1}'.format(width, height)]
 	
 	if app.cd_path:
-		args += ['--cdrom', app.cd_path.as_posix()]
+		args += ['--cdrom', os.fspath(app.cd_path)]
 	for other_cd_path in app.other_cd_paths:
-		args += ['--cdrom', other_cd_path.as_posix()]
+		args += ['--cdrom', os.fspath(other_cd_path)]
 
 	app_path = app.metadata.specific_info.get('Carbon Path', app.path)
 	pre_commands = [
@@ -1470,7 +1457,7 @@ def basilisk_ii(app: 'MacApp', _, emulator_config: 'EmulatorConfig') -> LaunchCo
 	shared_folder = None
 	try:
 		with open(os.path.expanduser('~/.basilisk_ii_prefs'), 'rt', encoding='utf-8') as f:
-			for line in f.readlines():
+			for line in f:
 				if line.startswith('extfs '):
 					shared_folder = line[6:-1]
 					break
@@ -1488,7 +1475,7 @@ def sheepshaver(app: 'MacApp', _, emulator_config: 'EmulatorConfig') -> LaunchCo
 	shared_folder = None
 	try:
 		with open(os.path.expanduser('~/.sheepshaver_prefs'), 'rt', encoding='utf-8') as f:
-			for line in f.readlines():
+			for line in f:
 				if line.startswith('extfs '):
 					shared_folder = line[6:-1]
 					break
@@ -1506,7 +1493,7 @@ def _last_unused_dosbox_drive(dosbox_config_path: Path, used_letters: Iterable[s
 	automounted_letters = []
 	with dosbox_config_path.open('rt', encoding='utf-8') as f:
 		found_autoexec = False
-		for line in f.readlines():
+		for line in f:
 			line = line.rstrip()
 			if line == '[autoexec]':
 				found_autoexec = True
@@ -1566,7 +1553,7 @@ def dosbox_staging(app: 'DOSApp', _, emulator_config: 'EmulatorConfig') -> Launc
 	if app.is_on_cd:
 		app_exec = app.path
 		if app.args:
-			app_exec += ' ' + ' '.join([shlex.quote(arg) for arg in app.args])
+			app_exec += ' ' + ' '.join(shlex.quote(arg) for arg in app.args)
 		args += ['-c', cd_drive_letter + ':', '-c', app_exec, '-c', 'exit']
 	else:
 		if drive_letter == 'C' and not overlay_path:
@@ -1578,11 +1565,11 @@ def dosbox_staging(app: 'DOSApp', _, emulator_config: 'EmulatorConfig') -> Launc
 			args += '-c', 'MOUNT {0} "{1}"'.format(drive_letter, host_folder)
 			if overlay_path:
 				overlay_subfolder = overlay_path.joinpath(app.name)
-				ensure_exist_command = LaunchCommand('mkdir', ['-p', overlay_subfolder.as_posix()])
-				args += ['-c', 'MOUNT -t overlay {0} "{1}"'.format(drive_letter, str(overlay_subfolder))]
+				ensure_exist_command = LaunchCommand('mkdir', ['-p', os.fspath(overlay_subfolder.resolve())])
+				args += ['-c', 'MOUNT -t overlay {0} "{1}"'.format(drive_letter, os.fspath(overlay_subfolder.resolve()))]
 			args += ['-c', drive_letter + ':']
 			if app.args:
-				args += ['-c', exe_name + ' ' + ' '.join([shlex.quote(arg) for arg in app.args])]
+				args += ['-c', exe_name + ' ' + ' '.join(shlex.quote(arg) for arg in app.args)]
 			else:
 				args += ['-c', exe_name]
 			args += ['-c', 'exit']
@@ -1648,9 +1635,14 @@ def blastem(game: 'ROMGame', _, __) -> None:
 				raise EmulationNotSupportedException(mapper)
 
 def mesen(game: 'ROMGame', _, __) -> None:
-	unsupported_mappers = [124, 237, 256, 257, 389]
-	unsupported_mappers += [271, 295, 308, 315, 322, 327, 335, 337, 338, 339, 340, 341, 342, 344, 345, 350, 524, 525, 526, 527, 528] #if I am reading MapperFactory.cpp correctly these are explicitly unsupported?
-	unsupported_mappers += [267, 269, 270, 272, 273] + list(range(275, 283)) + [291, 293, 294, 296, 297, 310, 311, 316, 318, 321, 330, 334, 343, 347] + list(range(351, 366)) + list(range(367, 513)) + [514, 515, 516, 517, 520, 523]
+	unsupported_mappers = {124, 237, 256, 257, 389}
+	unsupported_mappers.update({271, 295, 308, 315, 322, 327, 335, 337, 338, 339, 340, 341, 342, 344, 345, 350, 524, 525, 526, 527, 528}) #if I am reading MapperFactory.cpp correctly these are explicitly unsupported?
+	unsupported_mappers.update({267, 269, 270, 272, 273})
+	unsupported_mappers.update(range(275, 283))
+	unsupported_mappers.update({291, 293, 294, 296, 297, 310, 311, 316, 318, 321, 330, 334, 343, 347})
+	unsupported_mappers.update(range(351, 366))
+	unsupported_mappers.update(range(367, 513))
+	unsupported_mappers.update({514, 515, 516, 517, 520, 523})
 	#I guess 186 (StudyBox) might also count as unsupported but it's meant to be a BIOS
 	#Also Mindkids 143-in-1 but I'm not sure what number that is/what the UNIF name is
 	unsupported_unif_mappers = ['KONAMI-QTAI', ' BMC-10-24-C-A1', 'BMC-13in1JY110', 'BMC-81-01-31-C', 
@@ -1682,7 +1674,7 @@ def bsnes_libretro(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: '
 			raise EmulationNotSupportedException('We do not want to play a non-SGB enhanced game with a Super Game Boy')
 
 		#Pocket Camera is also supported by the SameBoy core, but I'm leaving it out here because bsnes doesn't do the camera
-		_verify_supported_gb_mappers(game, ['MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3'], [])
+		_verify_supported_gb_mappers(game, {'MBC1', 'MBC2', 'MBC3', 'MBC5', 'HuC1', 'HuC3'}, set())
 		return
 
 	if game.rom.extension == 'st':

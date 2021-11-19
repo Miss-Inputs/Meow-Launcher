@@ -1,6 +1,6 @@
 import configparser
 import sys
-from collections.abc import Collection, Mapping
+from collections.abc import Collection, Mapping, MutableMapping
 from pathlib import Path
 
 from meowlauncher.common_paths import config_dir, data_dir
@@ -39,25 +39,25 @@ _config_ini_values = {
 	'image_folder': ConfigValue('Paths', ConfigValueType.FolderPath, data_dir.joinpath('images'), 'Image folder', 'Folder to store images extracted from games with embedded images'),
 
 	'get_series_from_name': ConfigValue('General', ConfigValueType.Bool, False, 'Get series from name', 'Attempt to get series from parsing name'),
-	'use_other_images_as_icons': ConfigValue('General', ConfigValueType.StringList, [], 'Use other images as icons', 'If there is no icon, use these images as icons if they are there'),
+	'use_other_images_as_icons': ConfigValue('General', ConfigValueType.StringList, (), 'Use other images as icons', 'If there is no icon, use these images as icons if they are there'),
 	'sort_multiple_dev_names': ConfigValue('General', ConfigValueType.Bool, False, 'Sort multiple developer/publisher names', 'For games with multiple entities in developer/publisher field, sort alphabetically'),
 	'wine_path': ConfigValue('General', ConfigValueType.String, 'wine', 'Wine path', 'Path to Wine executable for Windows games/emulators'),
 	'wineprefix': ConfigValue('General', ConfigValueType.FolderPath, None, 'Wine prefix', 'Optional Wine prefix to use for Wine'),
 	'simple_disambiguate': ConfigValue('General', ConfigValueType.Bool, True, 'Simple disambiguation', 'Use a simpler method of disambiguating games with same names'),
 	'normalize_name_case': ConfigValue('General', ConfigValueType.Integer, 0, 'Normalize name case', 'Apply title case to uppercase things (1: only if whole title is uppercase, 2: capitalize individual uppercase words, 3: title case the whole thing regardless)'),
 	
-	'skipped_source_files': ConfigValue('Arcade', ConfigValueType.StringList, [], 'Skipped source files', 'List of MAME source files to skip (not including extension)'),
+	'skipped_source_files': ConfigValue('Arcade', ConfigValueType.StringList, (), 'Skipped source files', 'List of MAME source files to skip (not including extension)'),
 	'exclude_non_arcade': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude non-arcade', 'Skip machines not categorized as arcade games or as any other particular category (various devices and gadgets, etc)'),
 	'exclude_pinball': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude pinball', 'Whether or not to skip pinball games (physical pinball, not video pinball)'),
 	'exclude_system_drivers': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude system drivers', 'Skip machines used to launch other software (computers, consoles, etc)'),
 	'exclude_non_working': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude non-working', 'Skip any driver marked as not working'),
-	'non_working_whitelist': ConfigValue('Arcade', ConfigValueType.StringList, [], 'Non-working whitelist', 'If exclude_non_working is True, allow these machines anyway even if they are marked as not working'),
+	'non_working_whitelist': ConfigValue('Arcade', ConfigValueType.StringList, (), 'Non-working whitelist', 'If exclude_non_working is True, allow these machines anyway even if they are marked as not working'),
 
 	'force_create_launchers': ConfigValue('Steam', ConfigValueType.Bool, False, 'Force create launchers', 'Create launchers even for games which are\'nt launchable'),
 	'warn_about_missing_icons': ConfigValue('Steam', ConfigValueType.Bool, False, 'Warn about missing icons', 'Spam console with debug messages about icons not existing or being missing'),
 	'use_steam_as_platform': ConfigValue('Steam', ConfigValueType.Bool, True, 'Use Steam as platform', 'Set platform in metadata to Steam instead of underlying platform'),
 
-	'skipped_subfolder_names': ConfigValue('Roms', ConfigValueType.StringList, [], 'Skipped subfolder names', 'Always skip these subfolders in every ROM dir'),
+	'skipped_subfolder_names': ConfigValue('Roms', ConfigValueType.StringList, (), 'Skipped subfolder names', 'Always skip these subfolders in every ROM dir'),
 	'find_equivalent_arcade_games': ConfigValue('Roms', ConfigValueType.Bool, False, 'Find equivalent arcade games by name', 'Get metadata from MAME machines of the same name'),
 	'max_size_for_storing_in_memory': ConfigValue('Roms', ConfigValueType.Integer, 32 * 1024 * 1024, 'Max size for storing in memory', 'Size in bytes, any ROM smaller than this will have the whole thing stored in memory for speedup'),
 	'libretro_database_path': ConfigValue('Roms', ConfigValueType.FolderPath, None, 'libretro-database path', 'Path to libretro database for yoinking metadata from'),
@@ -68,13 +68,13 @@ _config_ini_values = {
 	'scummvm_config_path': ConfigValue('ScummVM', ConfigValueType.FilePath, Path('~/.config/scummvm/scummvm.ini').expanduser(), 'ScummVM config path', 'Path to scummvm.ini, if not the default'),
 	'scummvm_exe_path': ConfigValue('ScummVM', ConfigValueType.FilePath, 'scummvm', 'ScummVM executable path', 'Path to scummvm executable, if not the default'),
 
-	'gog_folders': ConfigValue('GOG', ConfigValueType.FolderPathList, [], 'GOG folders', 'Folders where GOG games are installed'),
+	'gog_folders': ConfigValue('GOG', ConfigValueType.FolderPathList, (), 'GOG folders', 'Folders where GOG games are installed'),
 	'use_gog_as_platform': ConfigValue('GOG', ConfigValueType.Bool, False, 'Use GOG as platform', 'Set platform in metadata to GOG instead of underlying platform'),
-	'windows_gog_folders': ConfigValue('GOG', ConfigValueType.FolderPathList, [], 'Windows GOG folders', 'Folders where Windows GOG games are installed'),
+	'windows_gog_folders': ConfigValue('GOG', ConfigValueType.FolderPathList, (), 'Windows GOG folders', 'Folders where Windows GOG games are installed'),
 	'use_system_dosbox': ConfigValue('GOG', ConfigValueType.Bool, True, 'Use system DOSBox', 'Use the version of DOSBox on this system instead of running Windows DOSBox through Wine'),
 	'dosbox_path': ConfigValue('GOG', ConfigValueType.FilePath, "dosbox", 'DOSBox path', 'If using system DOSBox, executable name/path or just "dosbox" if left blank'),
 
-	'itch_io_folders': ConfigValue('itch.io', ConfigValueType.FolderPathList, [], 'itch.io folders', 'Folders where itch.io games are installed'),
+	'itch_io_folders': ConfigValue('itch.io', ConfigValueType.FolderPathList, (), 'itch.io folders', 'Folders where itch.io games are installed'),
 	'use_itch_io_as_platform': ConfigValue('itch.io', ConfigValueType.Bool, False, 'Use itch.io as platform', 'Set platform in metadata to itch.io instead of underlying platform'),
 
 	#These shouldn't end up in config.ini as they're intended to be set per-run
@@ -86,8 +86,8 @@ _config_ini_values = {
 #Hmm... debug could be called 'verbose' and combined with --super_debug used in disambiguate to become verbosity_level or just verbose for short, which could have an integer argument, and it _could_ be in config.ini I guess... ehh whatevs
 
 
-def get_config_ini_options() -> dict[str, dict[str, ConfigValue]]:
-	opts: dict[str, dict[str, ConfigValue]] = {}
+def get_config_ini_options() -> Mapping[str, Mapping[str, ConfigValue]]:
+	opts: MutableMapping[str, MutableMapping[str, ConfigValue]] = {}
 	for k, v in _config_ini_values.items():
 		if v.section == runtime_option_section:
 			continue
@@ -96,11 +96,11 @@ def get_config_ini_options() -> dict[str, dict[str, ConfigValue]]:
 		opts[v.section][k] = v
 	return opts
 
-def get_runtime_options() -> dict[str, ConfigValue]:
+def get_runtime_options() -> Mapping[str, ConfigValue]:
 	return {name: opt for name, opt in _config_ini_values.items() if opt.section == runtime_option_section}
 
-def get_command_line_arguments() -> dict[str, TypeOfConfigValue]:
-	d: dict[str, TypeOfConfigValue] = {}
+def get_command_line_arguments() -> Mapping[str, TypeOfConfigValue]:
+	d: MutableMapping[str, TypeOfConfigValue] = {}
 	for i, arg in enumerate(sys.argv):
 		if not arg.startswith('--'):
 			continue
@@ -131,11 +131,11 @@ def get_command_line_arguments() -> dict[str, TypeOfConfigValue]:
 	return d
 
 def load_ignored_directories() -> Collection[Path]:
-	ignored_directories = []
+	ignored_directories: set[Path] = set()
 
 	try:
 		with open(_ignored_dirs_path, 'rt', encoding='utf-8') as ignored_txt:
-			ignored_directories += [Path(line) for line in ignored_txt.read().splitlines()]
+			ignored_directories.update(Path(line) for line in ignored_txt)
 	except FileNotFoundError:
 		pass
 
@@ -143,10 +143,7 @@ def load_ignored_directories() -> Collection[Path]:
 		#TODO Move to get_command_line_arguments or otherwise somewhere else
 		index = sys.argv.index('--ignored-directories')
 		arg = sys.argv[index + 1]
-		for ignored_dir in parse_path_list(arg):
-			ignored_directories.append(ignored_dir)
-
-	#ignored_directories = [dir if dir.endswith(os.sep) else dir + os.sep for dir in ignored_directories if dir.strip()]
+		ignored_directories.update(parse_path_list(arg))
 
 	return ignored_directories
 

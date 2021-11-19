@@ -9,22 +9,24 @@ import io
 import os
 import subprocess
 import tempfile
-from collections.abc import Mapping, Sequence
+from collections.abc import Collection, Mapping
 from enum import Enum, Flag
 from shutil import rmtree
-from typing import NamedTuple, Optional, cast
+from typing import TYPE_CHECKING, NamedTuple, Optional, cast
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Metadata
 from meowlauncher.platform_types import SwitchContentMetaType
-from meowlauncher.util.region_info import get_language_by_english_name, languages_by_english_name
+from meowlauncher.util.region_info import (get_language_by_english_name,
+                                           languages_by_english_name)
 
 from .common.nintendo_common import parse_ratings
 
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
 
 class InvalidHFS0Exception(Exception):
 	pass
@@ -92,7 +94,7 @@ class Cnmt(NamedTuple):
 	type: SwitchContentMetaType
 	contents: dict[bytes, tuple[int, ContentType]]
 
-def add_titles(metadata: Metadata, titles: Mapping[str, tuple[str, str]], icons: Mapping[str, bytes]=None):
+def add_titles(metadata: 'Metadata', titles: Mapping[str, tuple[str, str]], icons: Mapping[str, bytes]=None):
 	if not titles:
 		return
 	found_first_lang = False
@@ -143,7 +145,7 @@ def add_titles(metadata: Metadata, titles: Mapping[str, tuple[str, str]], icons:
 				#TODO: Cleanup publisher
 				metadata.publisher = publisher
 
-def add_nacp_metadata(metadata: Metadata, nacp: bytes, icons: Mapping[str, bytes]=None):
+def add_nacp_metadata(metadata: 'Metadata', nacp: bytes, icons: Mapping[str, bytes]=None):
 	#There are a heckload of different flags here and most aren't even known seemingly, see also https://switchbrew.org/wiki/NACP_Format
 	
 	title_entries = nacp[:0x3000]
@@ -181,7 +183,7 @@ def add_nacp_metadata(metadata: Metadata, nacp: bytes, icons: Mapping[str, bytes
 				supported_language = get_language_by_english_name(v)
 				if supported_language:
 					supported_languages.add(supported_language)
-	metadata.languages = list(supported_languages)
+	metadata.languages = supported_languages
 
 	#Screenshot = nacp[0x3034] sounds interesting?
 	metadata.specific_info['Video Capture Allowed?'] = nacp[0x3035] != 0 #2 (instead of 1) indicates memory is allocated automatically who cares
@@ -201,7 +203,7 @@ def add_nacp_metadata(metadata: Metadata, nacp: bytes, icons: Mapping[str, bytes
 		metadata.product_code = application_error_code_category.decode('utf-8', errors='ignore')
 		#TODO: Use switchtdb.xml although it won't be as useful when it uses the product code which we can only have sometimes
 
-def add_cnmt_xml_metadata(xml: ElementTree.Element, metadata: Metadata):
+def add_cnmt_xml_metadata(xml: ElementTree.Element, metadata: 'Metadata'):
 	metadata.specific_info['Title Type'] = xml.findtext('Type')
 	title_id = xml.findtext('Id')
 	if title_id:
@@ -218,7 +220,7 @@ def _call_nstool_for_decrypt(temp_folder: str, temp_filename: str):
 		#I guess that's the error message
 		raise InvalidNCAException('Header wrong')
 	
-def decrypt_control_nca_with_hactool(control_nca: bytes) -> dict[str, bytes]:
+def decrypt_control_nca_with_hactool(control_nca: bytes) -> Mapping[str, bytes]:
 	if hasattr(decrypt_control_nca_with_hactool, 'failed'):
 		raise ExternalToolNotHappeningException('No can do {0}'.format(decrypt_control_nca_with_hactool.failed)) #type: ignore[attr-defined]
 	temp_folder = None
@@ -289,7 +291,7 @@ def decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
 		if temp_folder:
 			rmtree(temp_folder)
 
-def list_cnmt(cnmt: Cnmt, rom: FileROM, metadata: Metadata, files: Mapping[str, tuple[int, int]], extra_offset: int=0):
+def list_cnmt(cnmt: Cnmt, rom: FileROM, metadata: 'Metadata', files: Mapping[str, tuple[int, int]], extra_offset: int=0):
 	metadata.specific_info['Title ID'] = cnmt.title_id
 	metadata.specific_info['Revision'] = cnmt.version
 	metadata.specific_info['Title Type'] = cnmt.type
@@ -347,7 +349,7 @@ def list_cnmt_nca(data: bytes) -> Cnmt:
 		contents[content_id] = (content_size, content_type)
 	return Cnmt(title_id, version, content_meta_type, contents)
 
-def list_psf0(rom: FileROM) -> dict[str, tuple[int, int]]:
+def list_psf0(rom: FileROM) -> Mapping[str, tuple[int, int]]:
 	header = rom.read(amount=16)
 	magic = header[:4]
 	if magic != b'PFS0':
@@ -378,23 +380,23 @@ def list_psf0(rom: FileROM) -> dict[str, tuple[int, int]]:
 		files[name.decode('utf-8', errors='backslashreplace')] = (offset + data_offset, size)
 	return files
 
-def choose_main_cnmt(cnmts: Sequence[Cnmt]) -> Optional[Cnmt]:
+def choose_main_cnmt(cnmts: Collection[Cnmt]) -> Optional[Cnmt]:
 	if not cnmts:
 		return None
 	if len(cnmts) == 1:
-		return cnmts[0]
+		return next(cnmt for cnmt in cnmts)
 	#elif len(cnmts) > 1:
 	#Sometimes you can have more than one if the cartridge includes an embedded patch
-	application_cnmts = [c for c in cnmts if c.type == SwitchContentMetaType.Application]
+	application_cnmts = {c for c in cnmts if c.type == SwitchContentMetaType.Application}
 	if len(application_cnmts) == 1:
-		return application_cnmts[0]
+		return next(app_cnmt for app_cnmt in application_cnmts)
 
 	#Uh oh that didn't help, oh no what do we do I guess let's just take the first one
-	return cnmts[0]
+	return next(cnmt for cnmt in cnmts)
 
-def add_nsp_metadata(rom: FileROM, metadata: Metadata):
+def add_nsp_metadata(rom: FileROM, metadata: 'Metadata'):
 	files = list_psf0(rom)
-	cnmts = []
+	cnmts = set()
 	cnmt_xml = None
 	try_fallback_to_xml = False
 
@@ -402,7 +404,7 @@ def add_nsp_metadata(rom: FileROM, metadata: Metadata):
 		if filename.endswith('.cnmt.nca'):
 			cnmt_nca = rom.read(amount=offsetsize[1], seek_to=offsetsize[0])
 			try:
-				cnmts.append(list_cnmt_nca(cnmt_nca))
+				cnmts.add(list_cnmt_nca(cnmt_nca))
 			except InvalidNCAException:
 				#if main_config.debug:
 				#	print(filename, 'is an invalid cnmt.nca in', rom.path, ex)
@@ -429,7 +431,7 @@ def add_nsp_metadata(rom: FileROM, metadata: Metadata):
 	#	if main_config.debug:
 	#		print('Uh oh no cnmt.nca in', rom.path, '?')
 
-def read_hfs0(rom: FileROM, offset: int, max_size: int=None) -> dict[str, tuple[int, int]]:
+def read_hfs0(rom: FileROM, offset: int, max_size: int=None) -> Mapping[str, tuple[int, int]]:
 	header = rom.read(offset, 16)
 
 	magic = header[:4]
@@ -480,7 +482,7 @@ def read_hfs0(rom: FileROM, offset: int, max_size: int=None) -> dict[str, tuple[
 
 	return files
 
-def add_xci_metadata(rom: FileROM, metadata: Metadata):
+def add_xci_metadata(rom: FileROM, metadata: 'Metadata'):
 	header = rom.read(amount=0x200)
 	magic = header[0x100:0x104]
 	if magic != b'HEAD':
@@ -527,7 +529,7 @@ def add_xci_metadata(rom: FileROM, metadata: Metadata):
 		#else:
 		#	print('Uh oh no cnmt.nca?')
 
-def add_nro_metadata(rom: FileROM, metadata: Metadata):
+def add_nro_metadata(rom: FileROM, metadata: 'Metadata'):
 	header = rom.read(amount=0x50, seek_to=16)
 	if header[:4] != b'NRO0':
 		#Invalid magic
@@ -554,7 +556,7 @@ def add_nro_metadata(rom: FileROM, metadata: Metadata):
 		nacp = rom.read(seek_to=nro_size + nacp_offset, amount=nacp_size)
 		add_nacp_metadata(metadata, nacp)
 
-def add_switch_metadata(game: ROMGame):
+def add_switch_metadata(game: 'ROMGame'):
 	if game.rom.extension == 'nro':
 		add_nro_metadata(cast(FileROM, game.rom), game.metadata)
 	if game.rom.extension == 'xci':

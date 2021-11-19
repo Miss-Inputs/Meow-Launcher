@@ -1,5 +1,7 @@
-from collections.abc import Sequence
-from typing import Optional, cast
+from collections import Counter
+from collections.abc import Iterable, Sequence
+from typing import TYPE_CHECKING, Optional, cast
+from xml.etree import ElementTree
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import EmulationStatus, MediaType, SaveType
@@ -11,14 +13,16 @@ from meowlauncher.games.mame_common.mame_support_files import (
     organize_catlist)
 from meowlauncher.games.mame_common.mame_utils import (find_cpus,
                                                        image_config_keys)
-from meowlauncher.metadata import CPU, Metadata, ScreenInfo
 from meowlauncher.util.detect_things_from_filename import (
     get_languages_from_tags_directly, get_regions_from_filename_tags,
     get_revision_from_filename_tags, get_version_from_filename_tags)
-from meowlauncher.util.region_info import Language, get_language_from_regions
+from meowlauncher.util.region_info import get_language_from_regions
 from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
 
-from .mame_game import MAMEGame
+if TYPE_CHECKING:
+	from meowlauncher.metadata import Metadata
+
+	from .mame_game import MAMEGame
 
 #I still want to dismantle this class with the fury of a thousand suns
 
@@ -27,7 +31,126 @@ from .mame_game import MAMEGame
 #Also shocktro has a set 2 (shocktroa), and shocktr2 has a bootleg (lans2004), so I should look into if those clones don't save either. They probably don't, though, and it's probably best to expect that something doesn't save and just playing it like any other arcade game, rather than thinking it does and then finding out the hard way that it doesn't. I mean, you could always use savestates, I guess. If those are supported. Might not be. That's another story.
 _not_actually_save_supported = {'diggerma', 'neobombe', 'pbobbl2n', 'popbounc', 'shocktro', 'shocktr2', 'irrmaze'}
 
-def add_save_type(game: MAMEGame) -> None:
+
+def _format_count(list_of_something: Iterable) -> Optional[str]:
+	counter = Counter(list_of_something)
+	if len(counter) == 1:
+		if next(iter(counter.keys()), None) is None:
+			return None
+	return ' + '.join(value if count == 1 else f'{value} * {count}' for value, count in counter.items() if value)
+
+class CPU():
+	def __init__(self, xml: ElementTree.Element):
+		self.chip_name = xml.attrib.get('name')
+		self.tag = xml.attrib.get('tag')
+		if xml.attrib['name'] != 'Netlist CPU Device' and 'clock' in xml.attrib:
+			try:
+				self.clock_speed = int(xml.attrib['clock'])
+			except ValueError:
+				pass
+		
+	@staticmethod
+	def format_clock_speed(hertz: float, precision: int=4) -> str:
+		if hertz >= 1_000_000_000:
+			return ('{0:.' + str(precision) + 'g} GHz').format(hertz / 1_000_000_000)
+		if hertz >= 1_000_000:
+			return ('{0:.' + str(precision) + 'g} MHz').format(hertz / 1_000_000)
+		if hertz >= 1_000:
+			return ('{0:.' + str(precision) + 'g} KHz').format(hertz / 1_000)
+
+		return ('{0:.' + str(precision) + 'g} Hz').format(hertz)
+
+	def get_formatted_clock_speed(self) -> Optional[str]:
+		if self.clock_speed:
+			return CPU.format_clock_speed(self.clock_speed)
+		return None
+
+class CPUInfo():
+	def __init__(self, cpus: Iterable[CPU]) -> None:
+		self.cpus = set(cpus)
+
+	@property
+	def number_of_cpus(self) -> int:
+		return len(self.cpus)
+
+	@property
+	def chip_names(self) -> Optional[str]:
+		return _format_count(cpu.chip_name for cpu in self.cpus)
+
+	@property
+	def clock_speeds(self) -> Optional[str]:
+		return _format_count(cpu.get_formatted_clock_speed() for cpu in self.cpus)
+
+	@property
+	def tags(self) -> Optional[str]:
+		return _format_count(cpu.tag for cpu in self.cpus)
+
+class Screen():
+	def __init__(self, xml: ElementTree.Element):
+		self.type = xml.attrib['type']
+		self.tag = xml.attrib['tag']
+		self.width = None
+		self.height = None
+		if self.type in {'raster', 'lcd'}:
+			self.width = int(xml.attrib['width'])
+			self.height = int(xml.attrib['height'])
+
+		self.refresh_rate = None
+		if 'refresh' in xml.attrib:
+			try:
+				self.refresh_rate = float(xml.attrib['refresh'])
+			except ValueError:
+				pass
+
+	def get_screen_resolution(self) -> str:
+		if self.width and self.height:
+			return '{0:.0f}x{1:.0f}'.format(self.width, self.height)
+		#Other types are vector (Asteroids, etc) or svg (Game & Watch games, etc)
+		return self.type.capitalize()
+
+	def get_formatted_refresh_rate(self) -> Optional[str]:
+		if self.refresh_rate:
+			return CPU.format_clock_speed(self.refresh_rate)
+		return None
+
+	def get_aspect_ratio(self) -> Optional[str]:
+		if self.width and self.height:
+			return Screen.find_aspect_ratio(self.width, self.height)
+		return None
+
+	@staticmethod
+	def find_aspect_ratio(width: int, height: int) -> Optional[str]:
+		for i in reversed(range(1, max(int(width), int(height)) + 1)):
+			if (width % i) == 0 and (height % i) == 0:
+				return '{0:.0f}:{1:.0f}'.format(width // i, height // i)
+
+		#This wouldn't happen unless one of the arguments is 0 or something silly like that
+		return None
+
+class ScreenInfo():
+	def __init__(self, display_xmls: Iterable[ElementTree.Element]):
+		self.screens = {Screen(display_xml) for display_xml in display_xmls}
+
+	def get_number_of_screens(self) -> int:
+		return len(self.screens)
+
+	def get_screen_resolutions(self) -> Optional[str]:
+		return _format_count(screen.get_screen_resolution() for screen in self.screens if screen.get_screen_resolution())
+
+	def get_refresh_rates(self) -> Optional[str]:
+		return _format_count(screen.get_formatted_refresh_rate() for screen in self.screens if screen.get_formatted_refresh_rate())
+
+	def get_aspect_ratios(self) -> Optional[str]:
+		return _format_count(screen.get_aspect_ratio() for screen in self.screens if screen.get_aspect_ratio())
+
+	def get_display_types(self) -> Optional[str]:
+		return _format_count(screen.type for screen in self.screens if screen.type)
+
+	def get_display_tags(self) -> Optional[str] :
+		return _format_count(screen.tag for screen in self.screens if screen.tag)
+
+
+def add_save_type(game: 'MAMEGame') -> None:
 	if game.metadata.platform == 'Arcade':
 		has_memory_card = False
 		for media_slot in game.machine.media_slots:
@@ -47,7 +170,7 @@ def add_save_type(game: MAMEGame) -> None:
 		#This may be wrong!!!!!!!!!!! but it seems to hold true for plug & play TV games and electronic handheld games so that'd be the main idea
 		game.metadata.save_type = SaveType.Internal if has_nvram or has_i2cmem else SaveType.Nothing
 
-def add_status(machine: Machine, metadata: Metadata) -> None:
+def add_status(machine: Machine, metadata: 'Metadata') -> None:
 	#See comments for overall_status property for what that actually means
 	metadata.specific_info['MAME Overall Emulation Status'] = machine.overall_status
 	metadata.specific_info['MAME Emulation Status'] = machine.emulation_status
@@ -55,10 +178,10 @@ def add_status(machine: Machine, metadata: Metadata) -> None:
 	metadata.specific_info['Cocktail Status'] = mame_statuses.get(driver.attrib.get('cocktail'), EmulationStatus.Good) if driver else EmulationStatus.Unknown
 	metadata.specific_info['Supports Savestate?'] = driver.attrib.get('savestate') == 'supported' if driver else EmulationStatus.Unknown
 
-	unemulated_features = []
+	unemulated_features = set()
 	for feature_type, feature_status in machine.feature_statuses.items():
 		if feature_status == 'unemulated':
-			unemulated_features.append(feature_type)
+			unemulated_features.add(feature_type)
 		else:
 			#Known types according to DTD: protection, palette, graphics, sound, controls, keyboard, mouse, microphone, camera, disk, printer, lan, wan, timing
 			#Note: MAME 0.208 has added capture, media, tape, punch, drum, rom, comms; although I guess I don't need to write any more code here
@@ -67,7 +190,7 @@ def add_status(machine: Machine, metadata: Metadata) -> None:
 	if unemulated_features:
 		metadata.specific_info['MAME Unemulated Features'] = unemulated_features
 
-def add_metadata_from_category(game: MAMEGame, category: Optional[MachineCategory]):
+def add_metadata_from_category(game: 'MAMEGame', category: Optional[MachineCategory]):
 	if not category:
 		#Not in catlist or user doesn't have catlist
 		return
@@ -84,7 +207,7 @@ def add_metadata_from_category(game: MAMEGame, category: Optional[MachineCategor
 	if catlist.category and (catlist.definite_category or not game.metadata.categories):
 		game.metadata.categories = [catlist.category]
 
-def add_metadata_from_catlist(game: MAMEGame) -> None:
+def add_metadata_from_catlist(game: 'MAMEGame') -> None:
 	category = get_category(game.machine.basename)
 	if not category and game.machine.has_parent:
 		category = get_category(cast(str, game.machine.parent_basename))
@@ -109,30 +232,30 @@ def add_metadata_from_catlist(game: MAMEGame) -> None:
 		if 'prototype' in tag.lower() or 'location test' in tag.lower():
 			if game.machine.has_parent:
 				if cast(Machine, game.machine.parent).is_proto:
-					game.metadata.categories = ['Unreleased']
+					game.metadata.categories = ('Unreleased', )
 				else:
-					game.metadata.categories = ['Betas']
+					game.metadata.categories = ('Betas', )
 			else:
-				game.metadata.categories = ['Unreleased']
+				game.metadata.categories = ('Unreleased', )
 			break
 		if 'bootleg' in tag.lower():
 			if game.machine.has_parent:
 				if cast(Machine, game.machine.parent).is_proto: #Ehh? I guess?
-					game.metadata.categories = ['Bootleg']
+					game.metadata.categories = ('Bootleg', )
 				else:
-					game.metadata.categories = ['Hacks']
+					game.metadata.categories = ('Hacks', )
 			else:
-				game.metadata.categories = ['Bootleg']
+				game.metadata.categories = ('Bootleg', )
 			break
 		if 'hack' in tag.lower():
-			game.metadata.categories = ['Hacks']
+			game.metadata.categories = ('Hacks', )
 	if game.machine.is_mechanical:
-		game.metadata.categories = ['Electromechanical']
+		game.metadata.categories = ('Electromechanical', )
 	if game.machine.is_hack:
-		game.metadata.categories = ['Hacks']
+		game.metadata.categories = ('Hacks', )
 	if game.machine.uses_device('coin_hopper'):
 		#Redemption games sometimes also have one, but then they will have their category set later by their subgenre being Redemption
-		game.metadata.categories = ['Gambling']
+		game.metadata.categories = ('Gambling', )
 
 	#Now we separate things into additional platforms where relevant
 
@@ -142,19 +265,19 @@ def add_metadata_from_catlist(game: MAMEGame) -> None:
 		game.metadata.platform = 'CPS Changer'
 		game.metadata.media_type = MediaType.Cartridge
 		if not game.metadata.categories:
-			game.metadata.categories = ['Games']
+			game.metadata.categories = ('Games', )
 		return 
 	if game.machine.name.endswith('(XaviXPORT)'):
 		game.metadata.platform = 'XaviXPORT'
 		game.metadata.media_type = MediaType.Cartridge
 		if not game.metadata.categories:
-			game.metadata.categories = ['Games']
+			game.metadata.categories = ('Games', )
 		return
 	if game.machine.name.endswith('(Domyos Interactive System)'):
 		game.metadata.platform = 'Domyos Interactive System'
 		game.metadata.media_type = MediaType.Cartridge
 		if not game.metadata.categories:
-			game.metadata.categories = ['Games']
+			game.metadata.categories = ('Games', )
 		return
 	if game.machine.name.startswith(('Game & Watch: ', 'Select-A-Game: ', 'R-Zone: ')):
 		#Select-a-Game does not work this way since 0.221 but might as well keep that there for older versions
@@ -162,38 +285,38 @@ def add_metadata_from_catlist(game: MAMEGame) -> None:
 		game.metadata.platform = platform
 		game.metadata.media_type = MediaType.Cartridge if platform in {'Select-A-Game', 'R-Zone'} else MediaType.Standalone
 		if not game.metadata.categories:
-			game.metadata.categories = ['Games']
+			game.metadata.categories = ('Games', )
 		return
 
 	if not game.metadata.categories:
 		#If it has no coins then it doesn't meet the definition of "coin operated machine" I guess and it seems wrong to put it in the arcade category
-		game.metadata.categories = ['Non-Arcade'] if game.machine.coin_slots == 0 else ['Arcade']
+		game.metadata.categories = ('Non-Arcade', ) if game.machine.coin_slots == 0 else ('Arcade', )
 	if not game.metadata.platform:
 		#Ditto here, although I hesitate to actually name this lack of platform "Non-Arcade" but I don't want to overthink things
 		game.metadata.platform = 'Non-Arcade' if game.machine.coin_slots == 0 else 'Arcade'
 	#Misc has a lot of different things in it and I guess catlist just uses it as a catch-all for random things which don't really fit anywhere else and there's not enough to give them their own category, probably
 	#Anyway, the name 'Non-Arcade' sucks because it's just used as a "this isn't anything in particular" thing
 
-def add_languages(game: MAMEGame, name_tags: Sequence[str]) -> None:
-	languages: Optional[Sequence[Language]] = get_languages(game.machine.basename)
+def add_languages(game: 'MAMEGame', name_tags: Sequence[str]) -> None:
+	languages = get_languages(game.machine.basename)
 	if languages:
-		game.metadata.languages = list(languages)
+		game.metadata.languages = languages
 	else:
 		if game.machine.has_parent:
 			languages = get_languages(cast(str, game.machine.parent_basename))
 			if languages:
-				game.metadata.languages = list(languages)
+				game.metadata.languages = languages
 				return
 
 		languages = get_languages_from_tags_directly(name_tags)
 		if languages:
-			game.metadata.languages = list(languages)
+			game.metadata.languages = languages
 		elif game.metadata.regions:
 			region_language = get_language_from_regions(game.metadata.regions)
 			if region_language:
-				game.metadata.languages = [region_language]
+				game.metadata.languages = (region_language, )
 
-def add_images(game: MAMEGame) -> None:
+def add_images(game: 'MAMEGame') -> None:
 	for image_name, config_key in image_config_keys.items():
 		image = get_image(config_key, game.machine.basename)
 		if image:
@@ -209,21 +332,9 @@ def add_images(game: MAMEGame) -> None:
 			if image:
 				game.metadata.images[image_name] = image
 		
-def add_metadata(game: MAMEGame) -> None:
+def add_metadata(game: 'MAMEGame') -> None:
 	add_images(game)
 	add_metadata_from_catlist(game)
-
-	game.metadata.cpu_info.set_inited()
-	cpus = find_cpus(game.machine.xml)
-	if cpus:
-		for cpu_xml in cpus:
-			cpu = CPU()
-			cpu.load_from_xml(cpu_xml)
-			game.metadata.cpu_info.add_cpu(cpu)
-
-	game.metadata.screen_info = ScreenInfo()
-	displays = game.machine.xml.findall('display')
-	game.metadata.screen_info.load_from_xml_list(displays)
 
 	add_input_info(game)
 	add_save_type(game)
@@ -231,7 +342,7 @@ def add_metadata(game: MAMEGame) -> None:
 	name_tags = find_filename_tags_at_end(game.machine.name)
 	regions = get_regions_from_filename_tags(name_tags, loose=True)
 	if regions:
-		game.metadata.regions = list(regions)
+		game.metadata.regions = regions
 
 	add_languages(game, name_tags)
 
@@ -245,7 +356,27 @@ def add_metadata(game: MAMEGame) -> None:
 	add_status(game.machine, game.metadata)
 	add_history(game.metadata, game.machine.basename)
 
-def add_input_info(game: MAMEGame) -> None:
+	cpu_info = CPUInfo(CPU(cpu_xml) for cpu_xml in find_cpus(game.machine.xml))	
+	screen_info = ScreenInfo(game.machine.xml.iterfind('display'))
+	
+	game.metadata.specific_info['Number of CPUs'] = cpu_info.number_of_cpus
+	if cpu_info.number_of_cpus:
+		game.metadata.specific_info['Main CPU'] = cpu_info.chip_names
+		game.metadata.specific_info['Clock Speed'] = cpu_info.clock_speeds
+		game.metadata.specific_info['CPU Tags'] = cpu_info.tags
+
+	num_screens = screen_info.get_number_of_screens()
+	game.metadata.specific_info['Number of Screens'] = num_screens
+
+	if num_screens:
+		game.metadata.specific_info['Screen Resolution'] = screen_info.get_screen_resolutions()
+		game.metadata.specific_info['Refresh Rate'] = screen_info.get_refresh_rates()
+		game.metadata.specific_info['Aspect Ratio'] = screen_info.get_aspect_ratios()
+
+		game.metadata.specific_info['Screen Type'] = screen_info.get_display_types()
+		game.metadata.specific_info['Screen Tag'] = screen_info.get_display_tags()
+
+def add_input_info(game: 'MAMEGame') -> None:
 	game.metadata.input_info.set_inited()
 	if game.machine.input_element is None:
 		#Seems like this doesn't actually happen
@@ -372,4 +503,4 @@ def add_input_info(game: MAMEGame) -> None:
 	if has_normal_input:
 		controller.components.append(normal_input)
 
-	game.metadata.input_info.input_options = [controller]
+	game.metadata.input_info.add_option(controller)

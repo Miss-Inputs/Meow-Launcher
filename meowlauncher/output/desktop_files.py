@@ -90,10 +90,10 @@ def _make_linux_desktop(launcher: 'LaunchCommand', display_name: str, metadata: 
 					v.save(image_path, 'png')
 					value_as_string = str(image_path)
 
-			if isinstance(v, list):
+			if isinstance(v, Iterable) and not isinstance(v, str):
 				if not v:
 					continue
-				value_as_string = ';'.join(['None' if item is None else item.name if isinstance(item, Enum) else str(item) for item in v])
+				value_as_string = ';'.join('None' if item is None else item.name if isinstance(item, Enum) else str(item) for item in v)
 			elif isinstance(v, Enum):
 				if v.name:
 					value_as_string = v.name
@@ -113,7 +113,7 @@ def _make_linux_desktop(launcher: 'LaunchCommand', display_name: str, metadata: 
 				section_writer[key_name] = value_as_string
 
 	if section_prefix + image_section_name in configwriter:
-		keys_to_try = ['Icon'] + main_config.use_other_images_as_icons
+		keys_to_try = ('Icon', ) + main_config.use_other_images_as_icons
 		for k in keys_to_try:
 			if k in configwriter[section_prefix + image_section_name]:
 				desktop_entry['Icon'] = configwriter[section_prefix + image_section_name][k]

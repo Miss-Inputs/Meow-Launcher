@@ -304,8 +304,8 @@ manufacturer_name_cleanup = {
 	'unknown': '<unknown>', #This shows up in sv8000 software list, so it might actually just be Bandai, but when you presume you make a pres out of u and me, so we'll just lump it in with the other unknowns
 }
 
-dont_remove_suffix = [
+dont_remove_suffix = {
 	#Normally we run junk_suffixes on stuff to remove "Corp" "Co." at the end but sometimes we shouldn't
 	'Bit Corp', #We will then fix that up later
 	'Zonov and Co.',
-]
+}

@@ -1,5 +1,6 @@
+import itertools
 import os
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, MutableSet, Sequence
 from pathlib import Path
 from typing import Any, Optional
 
@@ -24,7 +25,7 @@ def get_software_list_by_name(name: str) -> Optional[SoftwareList]:
 	try:
 		if not default_mame_configuration:
 			return None
-		for hash_path in default_mame_configuration.core_config.get('hashpath', []):
+		for hash_path in default_mame_configuration.core_config.get('hashpath', ()):
 			if os.path.isdir(hash_path):
 				list_path = Path(hash_path, name + '.xml')
 				if list_path.is_file():
@@ -38,7 +39,7 @@ def get_software_list_by_name(name: str) -> Optional[SoftwareList]:
 	except FileNotFoundError:
 		return None
 
-def find_in_software_lists_with_custom_matcher(software_lists: Sequence[SoftwareList], matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Optional[Software]:
+def find_in_software_lists_with_custom_matcher(software_lists: Iterable[SoftwareList], matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Optional[Software]:
 	for software_list in software_lists:
 		software = software_list.find_software_with_custom_matcher(matcher, args)
 		if software:
@@ -47,15 +48,15 @@ def find_in_software_lists_with_custom_matcher(software_lists: Sequence[Software
 
 def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
 	#TODO Handle annoying multiple discs
-	proto_tags = ['beta', 'proto', 'sample']
+	proto_tags = {'beta', 'proto', 'sample'}
 
 	software_name_without_brackety_bois = remove_filename_tags(part.software.description)
 	name_without_brackety_bois = remove_filename_tags(name)
 	software_normalized_name = normalize_name(software_name_without_brackety_bois)
 	normalized_name = normalize_name(name_without_brackety_bois)
-	name_tags = [t.lower()[1:-1] for t in find_filename_tags_at_end(name)]
+	name_tags = {t.lower()[1:-1] for t in find_filename_tags_at_end(name)}
 	#Sometimes (often) these will appear as (Region, Special Version) and not (Region) (Special Version) etc, so let's dismantle them
-	software_tags = ', '.join([t.lower()[1:-1] for t in find_filename_tags_at_end(part.software.description)]).split(', ')
+	software_tags = ', '.join(t.lower()[1:-1] for t in find_filename_tags_at_end(part.software.description)).split(', ')
 	
 	if software_normalized_name != normalized_name:
 		if name_without_brackety_bois in subtitles:
@@ -87,18 +88,16 @@ def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
 			return False
 	return True
 
-def find_software_by_name(software_lists: Sequence[SoftwareList], name: str) -> Optional[Software]:
-	fuzzy_name_matches: list[Software] = []
-	if not software_lists:
-		return None
-	for software_list in software_lists:
-		results = software_list.find_all_software_with_custom_matcher(_does_name_fuzzy_match, [name])
-		fuzzy_name_matches += results
+def find_software_by_name(software_lists: Iterable[SoftwareList], name: str) -> Optional[Software]:
+	fuzzy_name_matches = set(itertools.chain.from_iterable(software_list.find_all_software_with_custom_matcher(_does_name_fuzzy_match, [name]) for software_list in software_lists))
+
 	if len(fuzzy_name_matches) == 1:
 		#TODO: Don't do this, we still need to check the region… but only if the region needs to be checked at all, see below comment
-		return fuzzy_name_matches[0]
+		#Bold of you to assume I understand this code, past Megan
+		for first_fuzzy_match in fuzzy_name_matches:
+			return first_fuzzy_match
 	if len(fuzzy_name_matches) > 1:
-		name_and_region_matches: list[Software] = []
+		name_and_region_matches: MutableSet[Software] = set()
 		regions = {
 			'USA': 'USA',
 			'Euro': 'Europe',
@@ -112,25 +111,26 @@ def find_software_by_name(software_lists: Sequence[SoftwareList], name: str) -> 
 			'Ned': 'Netherlands',
 			'Bra': 'Brazil',
 		}
-		name_brackets = [t.lower()[1:-1] for t in find_filename_tags_at_end(name)]
+		name_brackets = {t.lower()[1:-1] for t in find_filename_tags_at_end(name)}
 		for match in fuzzy_name_matches:
 			#Narrow down by region
 			#Sometimes (often) these will appear as (Region, Special Version) and not (Region) (Special Version) etc, so let's dismantle them
 			#TODO: Don't narrow down by region if we don't have to, e.g. a region is in the name but nowhere in the software name
-			match_brackets = ', '.join([t.lower()[1:-1] for t in find_filename_tags_at_end(match.description)]).split(', ')
+			match_brackets = ', '.join(t.lower()[1:-1] for t in find_filename_tags_at_end(match.description)).split(', ')
 			for abbrev_region, region in regions.items():				
 				if (abbrev_region.lower() in match_brackets or region.lower() in match_brackets) and region.lower() in name_brackets:
-					name_and_region_matches.append(match)
+					name_and_region_matches.add(match)
 
 		if len(name_and_region_matches) == 1:
-			return name_and_region_matches[0]
+			for first in name_and_region_matches:
+				return first
 
-		name_and_region_and_version_matches = []
+		name_and_region_and_version_matches = set()
 		for match in name_and_region_matches:
-			match_brackets = ', '.join([t.lower()[1:-1] for t in find_filename_tags_at_end(match.description)]).split(', ')
+			match_brackets = ', '.join(t.lower()[1:-1] for t in find_filename_tags_at_end(match.description)).split(', ')
 			if 'v1.1' in match_brackets:
 				if 'v1.1' in name_brackets or 'reprint' in name_brackets or 'rerelease' in name_brackets or 'rev 1' in name_brackets:
-					name_and_region_and_version_matches.append(match)
+					name_and_region_and_version_matches.add(match)
 					break
 			#TODO Should look at the rest of name_brackets or match_brackets for anything else looking like rev X or v1.X
 			#TODO Consider special versions
@@ -139,14 +139,14 @@ def find_software_by_name(software_lists: Sequence[SoftwareList], name: str) -> 
 			if 'v1.0' in match_brackets:
 				orig_version = True
 				for b in name_brackets:
-					if (b not in ('rev 0', 'v1.0') and b.startswith(('rev', 'v1.'))) or b in {'reprint', 'rerelease'}:
+					if (b not in {'rev 0', 'v1.0'} and b.startswith(('rev', 'v1.'))) or b in {'reprint', 'rerelease'}:
 						orig_version = False
 						break
 				if orig_version:
-					name_and_region_and_version_matches.append(match)
+					name_and_region_and_version_matches.add(match)
 		
 		if len(name_and_region_and_version_matches) == 1:
-			return name_and_region_and_version_matches[0]
+			return next(iter(name_and_region_and_version_matches))
 
 		#print(name, 'matched too many', [m.description for m in name_and_region_matches])
 		

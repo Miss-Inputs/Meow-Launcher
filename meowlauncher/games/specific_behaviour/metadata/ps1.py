@@ -2,6 +2,7 @@ import json
 from enum import Enum
 from typing import Optional
 from xml.etree import ElementTree
+from collections.abc import Mapping
 
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
@@ -44,7 +45,7 @@ def find_duckstation_compat_info(product_code: str) -> Optional[DuckStationCompa
 			pass
 	return None
 
-def get_duckstation_db_info(product_code: str) -> Optional[dict]:
+def get_duckstation_db_info(product_code: str) -> Optional[Mapping]:
 	gamedb_path = duckstation_config.options.get('gamedb_path')
 	if not gamedb_path:
 		return None
@@ -71,7 +72,8 @@ def add_duckstation_db_info(metadata: Metadata):
 		metadata.add_alternate_name(db_entry['name'], 'DuckStation Database Name')
 		languages = db_entry.get('languages')
 		if languages:
-			metadata.languages = [lang for lang in [get_language_by_english_name(lang_name) for lang_name in languages] if lang]
+			#TODO: Proper nested comprehension
+			metadata.languages = {lang for lang in {get_language_by_english_name(lang_name) for lang_name in languages} if lang}
 		if db_entry.get('publisher') and not metadata.publisher:
 			metadata.publisher = db_entry.get('publisher')
 		if db_entry.get('developer') and not metadata.developer:

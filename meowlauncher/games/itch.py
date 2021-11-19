@@ -2,8 +2,9 @@ import copy
 import datetime
 import gzip
 import json
+import os
 import subprocess
-from collections.abc import Collection, Sequence
+from collections.abc import Collection, Iterable, Mapping, Sequence
 from pathlib import Path
 from typing import Optional
 
@@ -19,7 +20,7 @@ from meowlauncher.util.name_utils import fix_name
 
 #TODO: Rework this to be able to optionally just read json, launch all executables in the game dir or whatever, and avoid using butler if preferred
 
-def find_butler() -> Optional[Path]:
+def _find_butler() -> Optional[Path]:
 	#Sorry we do need this actually, it's a bit assumptiony and hacky to do this but I must
 	butler_folder = Path('~/.config/itch/broth/butler').expanduser()
 	chosen_version = butler_folder.joinpath('.chosen-version')
@@ -30,26 +31,26 @@ def find_butler() -> Optional[Path]:
 	except FileNotFoundError:
 		return None
 
-def butler_configure(folder: Path, os_filter: Optional[str]=None, ignore_arch=False) -> Optional[dict]:
-	if not hasattr(butler_configure, 'butler_path'):
-		butler_configure.butler_path = find_butler() #type: ignore[attr-defined]
-	if not butler_configure.butler_path: #type: ignore[attr-defined]
+def _butler_configure(folder: Path, os_filter: Optional[str]=None, ignore_arch=False) -> Optional[Mapping]:
+	if not hasattr(_butler_configure, 'butler_path'):
+		_butler_configure.butler_path = _find_butler() #type: ignore[attr-defined]
+	if not _butler_configure.butler_path: #type: ignore[attr-defined]
 		return None
 	try:
-		args = [butler_configure.butler_path, '-j', 'configure'] #type: ignore[attr-defined]
+		args = [_butler_configure.butler_path, '-j', 'configure'] #type: ignore[attr-defined]
 		if os_filter:
 			args += ['--os-filter', os_filter]
 			if ignore_arch:
 				args += ['--arch-filter', '']
 		else:
 			args.append('--no-filter')
-		args.append(folder.as_posix())
+		args.append(os.fspath(folder))
 		butler_proc = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)
 		return json.loads(butler_proc.stdout.splitlines()[-1])
 	except (subprocess.CalledProcessError, FileNotFoundError):
 		return None
 
-def is_probably_unwanted_candidate(path: Path, all_candidate_basenames: Collection[str]) -> bool:
+def _is_probably_unwanted_candidate(path: Path, all_candidate_basenames: Collection[str]) -> bool:
 	name = path.name
 	if name in {'LinuxPlayer_s.debug', 'UnityPlayer_s.debug'}:
 		#Sorry we don't need debug mode go away (also are these just libraries anyway?)
@@ -85,12 +86,12 @@ class ItchGame(Game):
 	def name(self) -> str:
 		return self._name
 
-	def add_metadata_from_folder(self) -> None:
+	def _add_metadata_from_folder(self) -> None:
 		engine = detect_engine_recursively(self.path, self.metadata)
 		if engine:
 			self.metadata.specific_info['Engine'] = engine
 
-	def add_metadata_from_receipt(self) -> None:
+	def _add_metadata_from_receipt(self) -> None:
 		if not self.receipt:
 			return
 
@@ -142,7 +143,7 @@ class ItchGame(Game):
 			if self.is_demo and not 'demo' in self.name.lower():
 				self._name += ' (Demo)'
 			self.metadata.specific_info['Upload Type'] = upload.get('type', 'default') #default, flash, unity, java, html, soundtrack, book, video, documentation, mod, audio_assets, graphical_assets, sourcecode, other
-			self.platforms = list(upload.get('platforms', {}).keys()) #I think the values show if it's x86/x64 but eh
+			self.platforms = tuple(upload.get('platforms', {}).keys()) #I think the values show if it's x86/x64 but eh
 			#Not sure what channelName or preorder does
 			upload_created_at = upload.get('createdAt')
 			upload_updated_at = upload.get('updatedAt')
@@ -156,8 +157,8 @@ class ItchGame(Game):
 		#build often is not there, but it has its own user field? The rest is not useful sadly
 
 	def add_metadata(self) -> None:
-		self.add_metadata_from_folder()
-		self.add_metadata_from_receipt()
+		self._add_metadata_from_folder()
+		self._add_metadata_from_receipt()
 		
 		category = 'Games'
 		if self.is_demo:
@@ -180,25 +181,27 @@ class ItchGame(Game):
 			elif self.game_type == 'html':
 				platform = 'HTML'
 			else:
-				platform = '/'.join(['Mac' if plat == 'osx' else plat.title() for plat in self.platforms])
+				platform = '/'.join('Mac' if plat == 'osx' else plat.title() for plat in self.platforms)
 		self.metadata.specific_info['Game Type'] = self.game_type
 		self.metadata.platform = platform
 
-	def try_and_find_exe(self, os_filter: Optional[str]=None, no_arch_filter=False) -> list[tuple[Optional[str], Path, Optional[dict]]]:
+	def _try_and_find_exe(self, os_filter: Optional[str]=None, no_arch_filter=False) -> Optional[Iterable[tuple[Optional[str], Path, Optional[Mapping]]]]:
 		#This is the fun part. There is no info in the receipt that actually tells us what to run, the way the itch.io app does it is use heuristics to figure that out. So if we don't have butler, we'd have to re-implement dash ourselves, which would suck and let's not
 		#I still kinda want a fallback method that just grabs something ending with .x86 or .sh etc in the folder, though
-		output = butler_configure(self.path, os_filter, no_arch_filter)
+		output = _butler_configure(self.path, os_filter, no_arch_filter)
 		if not output:
 			#Bugger
-			return []
+			return None
 		candidates = output['value']['candidates']
 		if not candidates:
-			return []
+			return None
 		#arch, size might also be useful
 		#scriptInfo only applies if flavor == script (and just contains interpreter which shouldn't matter), windowsInfo only applies if flavour == windows
-		return [(candidate['flavor'], Path(output['value']['basePath'], candidate['path']), candidate.get('windowsInfo')) for candidate in candidates]
+		for candidate in candidates:
+			yield candidate['flavor'], Path(output['value']['basePath'], candidate['path']), candidate.get('windowsInfo')
+		return None
 
-	def make_exe_launcher(self, flavour: Optional[str], exe_path: Path, windows_info: Optional[dict]):
+	def _make_exe_launcher(self, flavour: Optional[str], exe_path: Path, windows_info: Optional[Mapping]):
 		metadata = copy.deepcopy(self.metadata)
 		executable_name = exe_path.name
 		metadata.specific_info['Executable Name'] = executable_name
@@ -247,23 +250,23 @@ class ItchGame(Game):
 		elif 'windows' in self.platforms:
 			os_filter = 'windows'
 
-		candidates = self.try_and_find_exe(os_filter)
+		candidates = self._try_and_find_exe(os_filter)
 		if not candidates:
-			candidates = self.try_and_find_exe()
+			candidates = self._try_and_find_exe()
 
 		if not candidates:
 			if main_config.debug:
 				print('No launch candidates found for', self.path)
 			return
 
-		candidate_basenames = [path.name for _, path, _ in candidates]
+		candidate_basenames = {path.name for _, path, _ in candidates}
 
 		for flavour, path, windows_info in candidates:
-			if is_probably_unwanted_candidate(path, candidate_basenames):
+			if _is_probably_unwanted_candidate(path, candidate_basenames):
 				continue
-			self.make_exe_launcher(flavour, path, windows_info)
+			self._make_exe_launcher(flavour, path, windows_info)
 
-def get_launch_params(flavour: str, exe_path: Path, windows_info: Optional[dict]) -> Optional[tuple[LaunchCommand, Optional[str]]]:
+def get_launch_params(flavour: str, exe_path: Path, windows_info: Optional[Mapping]) -> Optional[tuple[LaunchCommand, Optional[str]]]:
 	if flavour in {'linux', 'script'}:
 		#ez pez
 		return LaunchCommand(str(exe_path), []), None

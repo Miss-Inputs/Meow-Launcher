@@ -1,7 +1,7 @@
 import re
-from collections.abc import Iterable
+from collections.abc import Iterable, Collection
 from datetime import datetime
-from typing import TYPE_CHECKING, Union, cast
+from typing import TYPE_CHECKING, Optional, Union, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -28,7 +28,7 @@ copyright_regex = re.compile(r'\(C\)(\S{4}.)(\d{4})\.(.{3})')
 t_with_zero = re.compile(r'^T-0')
 t_not_followed_by_dash = re.compile(r'^T(?!-)')
 
-def parse_peripherals(metadata: Metadata, peripherals: Iterable[str]):
+def _parse_peripherals(metadata: Metadata, peripherals: Iterable[str]):
 	for peripheral_char in peripherals:
 		if peripheral_char == 'M':
 			#3 buttons if I'm not mistaken
@@ -81,7 +81,7 @@ def parse_peripherals(metadata: Metadata, peripherals: Iterable[str]):
 		#R: "RS232C Serial"
 		#T: "Tablet"
 
-def add_info_from_copyright_string(metadata: Metadata, copyright_string: str):
+def _add_info_from_copyright_string(metadata: Metadata, copyright_string: str):
 	metadata.specific_info['Copyright'] = copyright_string
 	copyright_match = copyright_regex.match(copyright_string)
 	if copyright_match:
@@ -101,28 +101,28 @@ def add_info_from_copyright_string(metadata: Metadata, copyright_string: str):
 		if not metadata.release_date:
 			metadata.release_date = Date(year, month, is_guessed=True)
 
-def parse_region_codes(regions: bytes) -> list[MegadriveRegionCodes]:
-	region_codes = []
+def _parse_region_codes(regions: bytes) -> Collection[MegadriveRegionCodes]:
+	region_codes = set()
 	if b'J' in regions:
-		region_codes.append(MegadriveRegionCodes.Japan)
+		region_codes.add(MegadriveRegionCodes.Japan)
 	if b'U' in regions:
-		region_codes.append(MegadriveRegionCodes.USA)
+		region_codes.add(MegadriveRegionCodes.USA)
 	if b'E' in regions:
-		region_codes.append(MegadriveRegionCodes.Europe)
+		region_codes.add(MegadriveRegionCodes.Europe)
 	if b'F' in regions:
-		region_codes.append(MegadriveRegionCodes.World)
+		region_codes.add(MegadriveRegionCodes.World)
 	if b'1' in regions:
-		region_codes.append(MegadriveRegionCodes.Japan1)
+		region_codes.add(MegadriveRegionCodes.Japan1)
 	if b'4' in regions:
-		region_codes.append(MegadriveRegionCodes.BrazilUSA)
+		region_codes.add(MegadriveRegionCodes.BrazilUSA)
 	if b'5' in regions:
-		region_codes.append(MegadriveRegionCodes.JapanUSA)
+		region_codes.add(MegadriveRegionCodes.JapanUSA)
 	if b'A' in regions:
-		region_codes.append(MegadriveRegionCodes.EuropeA)
+		region_codes.add(MegadriveRegionCodes.EuropeA)
 	if b'8' in regions:
-		region_codes.append(MegadriveRegionCodes.Europe8) #Apparently...
+		region_codes.add(MegadriveRegionCodes.Europe8) #Apparently...
 	if b'C' in regions:
-		region_codes.append(MegadriveRegionCodes.USAEurope) #Apparently...
+		region_codes.add(MegadriveRegionCodes.USAEurope) #Apparently...
 	#Seen in some betas and might just be invalid:
 	#D - Brazil?
 	return region_codes
@@ -145,7 +145,7 @@ def add_megadrive_info(metadata: Metadata, header: bytes):
 
 	try:
 		copyright_string = header[16:32].decode('ascii')
-		add_info_from_copyright_string(metadata, copyright_string)
+		_add_info_from_copyright_string(metadata, copyright_string)
 	except UnicodeDecodeError:
 		pass
 	
@@ -170,8 +170,8 @@ def add_megadrive_info(metadata: Metadata, header: bytes):
 		pass
 	#Checksum: header[142:144]
 
-	peripherals = [c for c in header[144:160].decode('ascii', errors='ignore') if c not in ('\x00', ' ')]
-	parse_peripherals(metadata, peripherals)
+	peripherals = {c for c in header[144:160].decode('ascii', errors='ignore') if c not in ('\x00', ' ')}
+	_parse_peripherals(metadata, peripherals)
 
 	if metadata.platform == 'Mega Drive':
 		save_id = header[0xb0:0xb4]
@@ -205,13 +205,13 @@ def add_megadrive_info(metadata: Metadata, header: bytes):
 		pass
 
 	regions = header[0xf0:0xf3]
-	region_codes = parse_region_codes(regions)
+	region_codes = _parse_region_codes(regions)
 	metadata.specific_info['Region Code'] = region_codes
 	if console_name[:12] == 'SEGA GENESIS' and not region_codes:
 		#Make a cheeky guess (if it wasn't USA it would be SEGA MEGADRIVE etc presumably)
 		metadata.specific_info['Region Code'] = [MegadriveRegionCodes.USA]
 
-def get_smd_header(rom: FileROM):
+def _get_smd_header(rom: FileROM):
 	#Just get the first block which is all that's needed for the header, otherwise this would be a lot more complicated (just something to keep in mind if you ever need to convert a whole-ass .smd ROM)
 	block = rom.read(seek_to=512, amount=16384)
 
@@ -230,35 +230,34 @@ def get_smd_header(rom: FileROM):
 
 	return bytes(buf[0x100:0x200])
 
-def _get_megaplay_games() -> list[Machine]:
+def _get_megaplay_games() -> Iterable[Machine]:
 	try:
-		return _get_megaplay_games.result #type: ignore[attr-defined]
+		yield from _get_megaplay_games.result #type: ignore[attr-defined]
 	except AttributeError:
 		if not default_mame_executable:
-			#CBF tbhkthbai
-			return []
-		_get_megaplay_games.result = list(get_machines_from_source_file('megaplay', default_mame_executable)) #type: ignore[attr-defined]
-		return _get_megaplay_games.result #type: ignore[attr-defined]
+			#I don't think there's a use case for this being changed
+			return
+		_get_megaplay_games.result = tuple(get_machines_from_source_file('megaplay', default_mame_executable)) #type: ignore[attr-defined]
+		yield from _get_megaplay_games.result #type: ignore[attr-defined]
 
-def _get_megatech_games() -> list[Machine]:
+def _get_megatech_games() -> Iterable[Machine]:
 	try:
-		return _get_megatech_games.result #type: ignore[attr-defined]
+		yield from _get_megatech_games.result #type: ignore[attr-defined]
 	except AttributeError:
 		if not default_mame_executable:
-			#CBF tbhkthbai
-			return []
-		_get_megatech_games.result = list(get_machines_from_source_file('megatech', default_mame_executable)) #type: ignore[attr-defined]
-		return _get_megatech_games.result #type: ignore[attr-defined]
+			return
+		_get_megatech_games.result = tuple(get_machines_from_source_file('megatech', default_mame_executable)) #type: ignore[attr-defined]
+		yield from _get_megatech_games.result #type: ignore[attr-defined]
 
-def try_find_equivalent_arcade(rom: ROM, metadata: Metadata):
+def try_find_equivalent_arcade(rom: ROM, metadata: Metadata) -> Optional[Machine]:
 	if not hasattr(try_find_equivalent_arcade, 'arcade_bootlegs'):
 		try:
 			if not default_mame_executable:
 				#CBF tbhkthbai
-				return []
-			try_find_equivalent_arcade.arcade_bootlegs = list(get_machines_from_source_file('megadriv_acbl', default_mame_executable)) #type: ignore[attr-defined]
+				return None
+			try_find_equivalent_arcade.arcade_bootlegs = tuple(get_machines_from_source_file('megadriv_acbl', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
-			try_find_equivalent_arcade.arcade_bootlegs = [] #type: ignore[attr-defined]
+			try_find_equivalent_arcade.arcade_bootlegs = () #type: ignore[attr-defined]
 
 	for bootleg_machine in try_find_equivalent_arcade.arcade_bootlegs: #type: ignore[attr-defined]
 		if does_machine_match_game(rom.name, metadata.names.values(), bootleg_machine):
@@ -321,7 +320,7 @@ def add_megadrive_metadata(game: 'ROMGame'):
 			print(game.rom.path, 'has weird sector size', sector_size)
 			return
 	elif game.rom.extension == 'smd':
-		header = get_smd_header(cast(FileROM, game.rom))
+		header = _get_smd_header(cast(FileROM, game.rom))
 	else:
 		header = cast(FileROM, game.rom).read(0x100, 0x100)
 

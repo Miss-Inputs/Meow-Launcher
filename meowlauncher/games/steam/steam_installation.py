@@ -1,7 +1,7 @@
 import io
 import os
 import zipfile
-from collections.abc import Mapping
+from collections.abc import Collection, Mapping, Iterable
 from pathlib import Path
 from typing import Any, Optional, Union
 
@@ -79,25 +79,26 @@ class SteamInstallation():
 	def userdata_folder(self) -> Path:
 		return self.steamdir.joinpath('userdata')
 
-	def get_users(self) -> list[str]:
+	def get_users(self) -> Collection[str]:
 		#Probably the most lazy way to do it, but if this is a bad idea, please don't send me to jail
-		return [user.name for user in self.userdata_folder.iterdir() if user.name != 'ac']
+		return {user.name for user in self.userdata_folder.iterdir() if user.name != 'ac'}
 
 	def get_user_library_cache_folder(self, user_id: str) -> Path:
 		return self.userdata_folder.joinpath(user_id, 'config', 'librarycache')
 
-	@property
-	def steam_library_folders(self) -> list[Path]:
+	def iter_steam_library_folders(self) -> Iterable[Path]:
 		with open(self.steam_library_list_path, 'rt', encoding='utf-8') as steam_library_list_file:
 			steam_library_list = acf.load(steam_library_list_file)
 			library_folders = steam_library_list.get('libraryfolders')
-			if not library_folders:
-				#Shouldn't happen unless the format of this file changes
-				return [self.steamdir]
-			return [Path(v['path']) for k, v in library_folders.items() if k.isdigit()] + [self.steamdir]
+			if library_folders:
+				#Should always happen unless the format of this file changes
+				for k, v in library_folders.items():
+					if k.isnumeric():
+						yield Path(v['path'])
+		yield self.steamdir
 
 	@property
-	def steamplay_overrides(self) -> dict:
+	def steamplay_overrides(self) -> Mapping:
 		if not self.config_available:
 			return {}
 
@@ -127,7 +128,7 @@ class SteamInstallation():
 		return app_info_section.get(b'extended')
 
 	@property
-	def steamplay_compat_tools(self) -> dict[str, tuple[Optional[int], Optional[str], Optional[str], Optional[str]]]:
+	def steamplay_compat_tools(self) -> Mapping[str, tuple[Optional[int], Optional[str], Optional[str], Optional[str]]]:
 		extended = self._steamplay_appinfo_extended
 		if not extended:
 			return {}
@@ -147,7 +148,7 @@ class SteamInstallation():
 		return tools
 
 	@property
-	def steamplay_whitelist(self) -> dict[str, str]:
+	def steamplay_whitelist(self) -> Mapping[str, str]:
 		extended = self._steamplay_appinfo_extended
 		if not extended:
 			return {}
@@ -218,7 +219,8 @@ class SteamInstallation():
 					return icon_path
 
 				with zipfile.ZipFile(icon_path, 'r') as zip_file:
-					icon_files = []
+					#TODO: Should just make this a comprehension I think, and for that matter could just be a generator since we are only passing it to max
+					icon_files: set[zipfile.ZipInfo] = set()
 					for zip_info in zip_file.infolist():
 						if zip_info.is_dir():
 							continue
@@ -226,10 +228,11 @@ class SteamInstallation():
 							#Yeah that happens with retail Linux games apparently
 							continue
 						if zip_info.filename.lower().endswith(('.ico', '.png')):
-							icon_files.append(zip_info)
+							icon_files.add(zip_info)
 
 					#Get the biggest image file and assume that's the best icon we can have
-					extracted_icon_file = sorted(icon_files, key=lambda zip_info: zip_info.file_size, reverse=True)[0]
+					#extracted_icon_file = sorted(icon_files, key=lambda zip_info: zip_info.file_size, reverse=True)[0]
+					extracted_icon_file = max(icon_files, key=lambda zip_info: zip_info.file_size)
 					extracted_icon_folder = os.path.join(main_config.image_folder, 'Icon', 'extracted_from_zip', icon_hash)
 					return zip_file.extract(extracted_icon_file, path=extracted_icon_folder)
 

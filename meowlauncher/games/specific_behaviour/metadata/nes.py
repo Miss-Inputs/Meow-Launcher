@@ -9,7 +9,7 @@ from meowlauncher.games.mame_common.machine import (
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
-from meowlauncher.games.mame_common.software_list_info import (
+from meowlauncher.games.mame_common.software_list_find_utils import (
     find_in_software_lists_with_custom_matcher, get_crc32_for_software_list)
 from meowlauncher.games.roms.rom import ROM, FileROM
 from meowlauncher.metadata import Date, Metadata
@@ -502,14 +502,14 @@ def try_get_equivalent_arcade(rom: ROM, names: Iterable[str]) -> Optional[Machin
 		return None
 	if not hasattr(try_get_equivalent_arcade, 'playchoice10_games'):
 		try:
-			try_get_equivalent_arcade.playchoice10_games = list(get_machines_from_source_file('playch10', default_mame_executable)) #type: ignore[attr-defined]
+			try_get_equivalent_arcade.playchoice10_games = tuple(get_machines_from_source_file('playch10', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
-			try_get_equivalent_arcade.playchoice10_games = [] #type: ignore[attr-defined]
+			try_get_equivalent_arcade.playchoice10_games = () #type: ignore[attr-defined]
 	if not hasattr(try_get_equivalent_arcade, 'vsnes_games'):
 		try:
-			try_get_equivalent_arcade.vsnes_games = list(get_machines_from_source_file('vsnes', default_mame_executable)) #type: ignore[attr-defined]
+			try_get_equivalent_arcade.vsnes_games = tuple(get_machines_from_source_file('vsnes', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
-			try_get_equivalent_arcade.vsnes_games = [] #type: ignore[attr-defined]
+			try_get_equivalent_arcade.vsnes_games = () #type: ignore[attr-defined]
 
 	for vsnes_machine in try_get_equivalent_arcade.vsnes_games: #type: ignore[attr-defined]
 		if does_machine_match_game(rom.name, names, vsnes_machine, match_vs_system=True):

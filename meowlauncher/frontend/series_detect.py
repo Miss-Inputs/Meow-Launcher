@@ -31,16 +31,16 @@ series_matcher = re.compile(r'(?P<Series>.+?)\b\s+#?(?P<Number>\d{1,3}|[IVXLCDM]
 subtitle_splitter = re.compile(r'\s*(?:\s+-\s+|:\s+|\s+\/\s+)')
 blah_in_1_matcher = re.compile(r'.+\s+in\s+1')
 
-def get_name_chunks(name: str) -> Sequence[str]:
-	name_chunks = subtitle_splitter.split(name)
-	name_chunks = [blah_in_1_matcher.sub('', chunk) for chunk in name_chunks]
-	name_chunks = [chunk for chunk in name_chunks if chunk]
+def _get_name_chunks(name: str) -> Sequence[str]:
+	#TODO: Rewrite this to use a nested comprehension, my head asplode
+	name_chunks = tuple(blah_in_1_matcher.sub('', chunk) for chunk in subtitle_splitter.split(name))
+	name_chunks = tuple(chunk for chunk in name_chunks if chunk)
 	return name_chunks
 
 def find_series_from_game_name(name: str) -> SeriesWithSeriesIndex:
 	if name in series_overrides:
 		return series_overrides[name]
-	name_chunks = get_name_chunks(name)
+	name_chunks = _get_name_chunks(name)
 	if not name_chunks:
 		return None, None
 	name_chunk = name_chunks[0]
@@ -81,7 +81,7 @@ def does_series_match(name_to_match: str, existing_series: str) -> bool:
 	return name_to_match == existing_series
 
 def find_series_name_by_subtitle(name: str, existing_serieses: Iterable[str], force=False) -> SeriesWithSeriesIndex:
-	name_chunks = get_name_chunks(name)
+	name_chunks = _get_name_chunks(name)
 	if not name_chunks:
 		return None, None
 	name_chunk = name_chunks[0]
@@ -187,7 +187,7 @@ def detect_series_index_for_things_with_series():
 
 		name = get_usable_name(desktop)
 		name.removeprefix('The ')
-		name_chunks = get_name_chunks(name)
+		name_chunks = _get_name_chunks(name)
 		if len(name_chunks) > 1:
 			if name_chunks[0] == existing_series:
 				series_index = name_chunks[1]

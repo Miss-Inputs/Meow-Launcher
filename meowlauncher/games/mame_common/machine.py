@@ -1,5 +1,6 @@
+from pathlib import Path, PurePath
 import re
-from collections.abc import Iterable
+from collections.abc import Collection, Iterable, Mapping, Sequence
 from typing import TYPE_CHECKING, Optional, cast
 from xml.etree import ElementTree
 
@@ -38,8 +39,8 @@ class MediaSlot():
 		self.interface = xml.attrib.get('interface')
 		
 		#This is the actual thing you see in -listmedia and use to insert media
-		self.instances = [(instance_xml.attrib.get('name'), instance_xml.get('briefname')) for instance_xml in xml.findall('instance')]
-		self.extensions = {extension_xml.attrib.get('name') for extension_xml in xml.findall('extension')}
+		self.instances = {(instance_xml.attrib.get('name'), instance_xml.get('briefname')) for instance_xml in xml.iterfind('instance')}
+		self.extensions = {extension_xml.attrib.get('name') for extension_xml in xml.iterfind('extension')}
 
 licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
 licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
@@ -64,7 +65,7 @@ class Machine():
 			self.parent_basename = cloneof
 		self._parent: Optional[Machine] = None #We will add this later when it is needed
 
-		self.alt_names: list[str] = []
+		self.alt_names: set[str] = set() #TODO: Only this class mutates this, meaning add_alternate_names should maybe be in the constructor instead, or return something, etc
 		self.arcade_system = arcade_system_names.get(self.source_file)
 		if not self.arcade_system:
 			self.arcade_system = arcade_system_bios_names.get((self.source_file, self.bios_basename))
@@ -97,7 +98,7 @@ class Machine():
 				#The name is something like "aaa (bbb) / ccc (ddd)" so the (ddd) here actually belongs to the ccc, not the whole thing
 				alt_names[-1] += ' ' + ' '.join(tags_at_end)
 
-		self.alt_names += alt_names
+		self.alt_names.update(alt_names)
 		self.name = primary_name
 
 	@property
@@ -123,7 +124,7 @@ class Machine():
 	
 	@property
 	def source_file(self) -> str:
-		return self.xml.attrib['sourcefile'].rsplit('.', 1)[0]
+		return PurePath(self.xml.attrib['sourcefile']).stem
 
 	@property
 	def is_mechanical(self) -> bool:
@@ -163,9 +164,9 @@ class Machine():
 		return mame_statuses.get(self.driver_element.attrib.get('emulation'), EmulationStatus.Unknown)
 
 	@property
-	def feature_statuses(self) -> dict[str, str]:
+	def feature_statuses(self) -> Mapping[str, str]:
 		features = {}
-		for feature in self.xml.findall('feature'):
+		for feature in self.xml.iterfind('feature'):
 			feature_type = feature.attrib['type']
 			if 'status' in feature.attrib:
 				feature_status = feature.attrib['status']
@@ -188,12 +189,8 @@ class Machine():
 		return self.number_of_players == 0 and self.emulation_status in (EmulationStatus.Broken, EmulationStatus.Unknown) and self.feature_statuses.get('sound') == 'unemulated'
 
 	def uses_device(self, name: str) -> bool:
-		for device_ref in self.xml.findall('device_ref'):
-			if device_ref.attrib['name'] == name:
-				return True
-
-		return False
-
+		return any(device_ref.attrib['name'] == name for device_ref in self.xml.iterfind('device_ref'))
+		
 	@property
 	def requires_chds(self) -> bool:
 		#Hmm... should this include where all <disk> has status == "nodump"? e.g. Dragon's Lair has no CHD dump, would it be useful to say that it requires CHDs because it's supposed to have one but doesn't, or not, because you have a good romset without one
@@ -208,10 +205,7 @@ class Machine():
 		if self.xml.find('rom') is None:
 			return True
 
-		for rom in self.xml.findall('rom'):
-			if rom.attrib.get('status', 'good') != 'nodump':
-				return False
-		return True
+		return not any(rom.attrib.get('status', 'good') != 'nodump' for rom in self.xml.iterfind('rom'))
 
 	@property
 	def bios_basename(self) -> Optional[str]:
@@ -234,16 +228,17 @@ class Machine():
 		return self.xml.attrib.get('sampleof')
 
 	@property
-	def media_slots(self) -> list[MediaSlot]:
-		return [MediaSlot(device_xml) for device_xml in self.xml.findall('device')]
+	def media_slots(self) -> Iterable[MediaSlot]:
+		for device_xml in self.xml.iterfind('device'):
+			yield MediaSlot(device_xml)
 
 	@property
 	def has_mandatory_slots(self) -> bool:
 		return any(slot.mandatory for slot in self.media_slots)
 
 	@property
-	def software_list_names(self) -> list[str]:
-		return [software_list.attrib.get('name', '') for software_list in self.xml.findall('softwarelist')] #Blank name should not happen
+	def software_list_names(self) -> Collection[str]:
+		return {software_list.attrib.get('name', '') for software_list in self.xml.iterfind('softwarelist')} #Blank name should not happen
 
 	@property
 	def manufacturer(self) -> str:
@@ -346,9 +341,10 @@ class Machine():
 				developer = 'Rare'
 				publisher = 'Electronic Arts'
 
-			manufacturers = [cast(str, consistentify_manufacturer(m)) for m in manufacturer.split(' / ')]
+			manufacturers: Sequence[str] = tuple(cast(str, consistentify_manufacturer(m)) for m in manufacturer.split(' / '))
 			if main_config.sort_multiple_dev_names:
-				manufacturers.sort()
+				#TODO: Should this be used in tandem with untangle_manufacturer?
+				manufacturers = sorted(manufacturers)
 
 			developer = publisher = ', '.join(manufacturers)
 			if len(manufacturers) == 2:
@@ -387,7 +383,7 @@ class Machine():
 		if not serieses:
 			return None
 
-		real_serieses = []
+		real_serieses = set()
 		for series in serieses:
 			#It is actually possible to have more than one series (e.g. invqix is both part of Space Invaders and Qix)
 			not_real_series = {'Hot', 'Aristocrat MK Hardware'}
@@ -398,7 +394,7 @@ class Machine():
 			series = series.removeprefix('The ')
 			
 			if series not in not_real_series:
-				real_serieses.append(remove_capital_article(series))
+				real_serieses.add(remove_capital_article(series))
 		if real_serieses:
 			return ', '.join(real_serieses)
 		return None
@@ -408,14 +404,20 @@ class Machine():
 		bestgames = get_machine_cat(self.basename, 'bestgames')
 		if not bestgames and self.family:
 			bestgames = get_machine_cat(self.family, 'bestgames')
-		if bestgames:
-			return bestgames[0]
+		if not bestgames:
+			return None
+		for bestgame in bestgames: #We expect only one
+			return bestgame
 		return None
 
 	@property
 	def version_added(self) -> Optional[str]:
 		version = get_machine_cat(self.basename, 'version')
-		return version[0] if version else None
+		if not version:
+			return None
+		for version_ in version: #We expect only one
+			return version_
+		return None
 
 	@property
 	def catlist(self) -> Optional[MachineCategory]:
@@ -444,7 +446,7 @@ def get_machine(driver: str, exe: 'MAMEExecutable') -> Machine:
 
 def get_machines_from_source_file(source_file: str, exe: 'MAMEExecutable') -> Iterable[Machine]:
 	for machine_name, source_file_with_ext in exe.listsource():
-		if source_file_with_ext.rsplit('.', 1)[0] == source_file:
+		if PurePath(source_file_with_ext).stem == source_file:
 			yield get_machine(machine_name, exe)
 
 #Feel like this should belong somewhere else…
@@ -477,13 +479,17 @@ def machine_name_matches(machine_name: str, game_name: str, match_vs_system: boo
 	return False
 
 def does_machine_match_name(name: str, machine: Machine, match_vs_system: bool=False) -> bool:
-	for machine_name in list(machine.alt_names) + [machine.name]:
-		if machine_name_matches(machine_name, name, match_vs_system):
+	if machine_name_matches(machine.name, name, match_vs_system):
+		return True
+	for alt_name in machine.alt_names:
+		if machine_name_matches(alt_name, name, match_vs_system):
 			return True
 	return False
 
 def does_machine_match_game(game_rom_name: str, game_names: Iterable[str], machine: Machine, match_vs_system: bool=False) -> bool:
-	for game_name in list(game_names) + [game_rom_name]:
+	if does_machine_match_name(game_rom_name, machine, match_vs_system):
+		return True
+	for game_name in game_names:
 		#Perhaps some keys in game names don't need to be looked at here
 		if does_machine_match_name(game_name, machine, match_vs_system):
 			return True

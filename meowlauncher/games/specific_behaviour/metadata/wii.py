@@ -143,7 +143,7 @@ def parse_opening_bnr(metadata: Metadata, opening_bnr: bytes):
 		#This is still a bit anglocentric of me to ignore European languages, but eh
 		local_title = names.get('English')
 	elif names: #and region_code is None, which I would think shouldn't happen too often
-		local_title = list(names.values())[0]
+		local_title = next(iter(names.values()))
 
 	if local_title:
 		metadata.add_alternate_name(local_title, 'Banner Title')

@@ -1,6 +1,6 @@
 import os
 from collections.abc import Mapping
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import Any
 
 from meowlauncher.config.platform_config import (PlatformConfig,
@@ -31,7 +31,7 @@ class DOSApp(App):
 			if not self.cd_path:
 				raise KeyError('cd_path is mandatory if is_on_cd is true')
 			return self.cd_path.stem
-		return Path(self.path).parent.name if dos_config.options['use_directory_as_fallback_name'] else super().get_fallback_name()
+		return PurePath(self.path).parent.name if dos_config.options['use_directory_as_fallback_name'] else super().get_fallback_name()
 
 	def additional_metadata(self) -> None:
 		basename = self.path.split('\\')[-1] if self.is_on_cd else os.path.basename(self.path)

@@ -1,7 +1,7 @@
 import os
 from abc import ABC, abstractmethod
-from collections.abc import Mapping
-from pathlib import Path
+from collections.abc import Collection, Mapping
+from pathlib import Path, PurePath
 from typing import Any, Optional, final
 
 from meowlauncher.common_types import MediaType
@@ -21,10 +21,10 @@ class App(EmulatedGame, ABC):
 		self.path: str = info['path'] #Could be a host path (e.g. DOS) or could be some special path particular to that platform (e.g. Mac using PathInsideHFS, DOS using paths inside CDs when is_on_cd)
 		self.args = info.get('args', [])
 		self.cd_path: Optional[Path] = None
-		self.other_cd_paths: list[Path] = []
+		self.other_cd_paths: Collection[Path] = set() #Could be None I guess, if cd_path not in info
 		if 'cd_path' in info:
-			cd_paths = info['cd_path'] if isinstance(info['cd_path'], list) else [info['cd_path']]
-			cd_paths = [self.base_folder.joinpath(cd_path) if self.base_folder and not cd_path.startswith('/') else cd_path for cd_path in cd_paths]
+			_cd_paths = info['cd_path'] if isinstance(info['cd_path'], list) else [info['cd_path']]
+			cd_paths = tuple(self.base_folder.joinpath(cd_path) if self.base_folder and not cd_path.startswith('/') else cd_path for cd_path in _cd_paths)
 			self.cd_path = Path(cd_paths[0])
 			self.other_cd_paths = cd_paths[1:]
 		elif self.is_on_cd:
@@ -39,15 +39,15 @@ class App(EmulatedGame, ABC):
 	def base_folder(self) -> Path:
 		#Might want to override this in subclass, returns a folder on the host that might have other files related to the game (CD images, etc)
 		#Return none if this is not relevant
-		return Path(self.path).parent
+		return PurePath(self.path).parent
 
 	def get_fallback_name(self) -> str:
 		#Might want to override in subclass, maybe not - return something that should be used as the name if the user doesn't put any name in the config
-		return Path(self.path).name
+		return PurePath(self.path).name
 	
 	def get_launcher_id(self) -> str:
 		#For overriding in subclass (but maybe this will do as a default), for Unique-ID in [X-Meow Launcher ID] section of launcher
-		return str(self.path)
+		return self.path
 
 	@final
 	def add_metadata(self) -> None:

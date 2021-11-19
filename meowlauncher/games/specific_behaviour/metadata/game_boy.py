@@ -6,7 +6,7 @@ from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
-from meowlauncher.games.mame_common.software_list_info import (
+from meowlauncher.games.mame_common.software_list_find_utils import (
     find_in_software_lists, matcher_args_for_bytes)
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.platform_types import GameBoyColourFlag

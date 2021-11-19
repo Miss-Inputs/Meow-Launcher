@@ -1,6 +1,7 @@
 #Not worth putting these in their own source file I think
 from enum import Enum, auto
 from typing import TYPE_CHECKING, cast
+from collections.abc import Iterable
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import MediaType
@@ -179,18 +180,18 @@ def add_pet_info(game: 'ROMGame'):
 				game.metadata.specific_info['Minimum RAM'] = ram
 				continue
 
-def _get_uapce_games() -> list[Machine]:
+def _get_uapce_games() -> Iterable[Machine]:
 	try:
-		return _get_uapce_games.result #type: ignore[attr-defined]
+		yield from _get_uapce_games.result #type: ignore[attr-defined]
 	except AttributeError:
 		try:
 			if not default_mame_executable:
 				#CBF tbhkthbai
-				return []	
-			_get_uapce_games.result = list(get_machines_from_source_file('uapce', default_mame_executable)) #type: ignore[attr-defined]
+				return	
+			_get_uapce_games.result = tuple(get_machines_from_source_file('uapce', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
-			return []
-		return _get_uapce_games.result #type: ignore[attr-defined]
+			return
+		yield from _get_uapce_games.result #type: ignore[attr-defined]
 
 def add_pc_engine_info(game: 'ROMGame'):
 	#Not sure how to detect 2/6 buttons, or usage of TurboBooster-Plus, but I want to

@@ -3,20 +3,22 @@
 import functools
 import os
 import re
-from collections.abc import Sequence
+from collections.abc import Mapping, MutableMapping, MutableSequence, Sequence
 from pathlib import Path
-from typing import  Optional, Union, cast
+from typing import Optional, Union, cast
 
 from meowlauncher.config.main_config import main_config
 
 #TODO: Probs should be using dataclasses or whatever for this
-RomType = dict[str, str]
+RomType = Mapping[str, str]
 GameValueType = Union[int, str, Sequence[RomType]]
-GameType = dict[str, GameValueType]
-LibretroDatabaseType = dict[Union[int, str], GameType]
+GameType = Mapping[str, GameValueType]
+_MutableGameType = MutableMapping[str, GameValueType]
+LibretroDatabaseType = Mapping[Union[int, str], GameType]
+_MutableLibretroDatabaseType = MutableMapping[Union[int, str], _MutableGameType]
 
 rom_line = re.compile(r'(?<=\(|\s)(?P<attrib>\w+)\s+(?:"(?P<value>[^"]+)"|(?P<rawvalue>\S+))(?:\s+|\))')
-def parse_rom_line(line: str) -> Optional[dict[str, str]]:
+def _parse_rom_line(line: str) -> Optional[RomType]:
 	start = line[:5]
 	if start != 'rom (':
 		return None
@@ -35,16 +37,17 @@ def parse_rom_line(line: str) -> Optional[dict[str, str]]:
 	return rom
 
 attribute_line = re.compile(r'(?P<key>\w+)\s+(?:"(?P<value>[^"]*)"|(?P<intvalue>\d+))')
-def parse_libretro_dat(path: Path) -> tuple[dict[str, Union[int, str]], Sequence[GameType]]:
-	games: list[GameType] = []
-	header: dict[str, Union[int, str]] = {}
+def parse_libretro_dat(path: Path) -> tuple[Mapping[str, Union[int, str]], Sequence[GameType]]:
+	#TODO: Probably split this up in two methods, one to parse the header and one to parse the rest of it, once we have that much lines
+	games: MutableSequence[GameType] = []
+	header: MutableMapping[str, Union[int, str]] = {}
 	with open(path, 'rt', encoding='utf-8') as file:
-		lines = [line.strip() for line in file.readlines()]
-		game: GameType = {}
+		game: _MutableGameType = {}
 		inside_header = False
 		rom_giant_line = None #Just concat everything in between rom ( ) on multiple lines so we can parse it that way
-		roms: list[RomType] = []
-		for line in lines:
+		roms: MutableSequence[RomType] = []
+		for line in file:
+			line = line.strip()
 			rom_match = None
 			if not line:
 				continue
@@ -100,7 +103,7 @@ def parse_libretro_dat(path: Path) -> tuple[dict[str, Union[int, str]], Sequence
 					game[attrib_match['key']] = intvalue
 				continue
 
-			rom_match = parse_rom_line(line)
+			rom_match = _parse_rom_line(line)
 
 			if rom_match:
 				roms.append(rom_match)
@@ -138,7 +141,7 @@ def parse_all_dats_for_system(name: str, use_serial: bool) -> Optional[LibretroD
 		print('Megan is a dork error:', name)
 		return None
 
-	games: LibretroDatabaseType = {}
+	games: _MutableLibretroDatabaseType = {}
 
 	for dat in relevant_dats:
 		parsed = parse_libretro_dat(dat)

@@ -1,9 +1,10 @@
 import os
 import re
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Optional
 
-image_types = ('ico', 'png', 'jpg', 'bmp')
+image_types = {'ico', 'png', 'jpg', 'bmp'}
 
 class MAMEConfiguration():
 	def __init__(self, core_config_path: Path=None, ui_config_path=None) -> None:
@@ -16,7 +17,7 @@ class MAMEConfiguration():
 		self._icons = None
 
 	def get_image(self, config_key: str, machine_or_list_name: str, software_name: Optional[str]=None) -> Optional[Path]:
-		for directory in self.ui_config.get(config_key, []):
+		for directory in self.ui_config.get(config_key, ()):
 			basename = Path(directory, machine_or_list_name)
 			if software_name:
 				basename = basename.joinpath(software_name)
@@ -29,11 +30,11 @@ class MAMEConfiguration():
 mame_config_comment = re.compile(r'#.+$')
 mame_config_line = re.compile(r'^(?P<key>\w+)\s+(?P<value>.+)$')
 semicolon_not_after_quotes = re.compile(r'(?!");')
-def parse_mame_config_file(path: Path) -> dict[str, list[str]]:
-	settings: dict[str, list[str]] = {}
+def parse_mame_config_file(path: Path) -> Mapping[str, Sequence[str]]:
+	settings = {}
 
 	with path.open('rt', encoding='utf-8') as f:
-		for line in f.readlines():
+		for line in f:
 			line = mame_config_comment.sub('', line)
 			line = line.strip()
 
@@ -44,9 +45,10 @@ def parse_mame_config_file(path: Path) -> dict[str, list[str]]:
 			if match:
 				key = match['key']
 				values = semicolon_not_after_quotes.split(match['value'])
-				settings[key] = []
+				setting = []
 				for value in values:
 					if value[0] == '"' and value[-1] == '"':
 						value = value[1:-1]
-					settings[key].append(value)
+					setting.append(value)
+				settings[key] = setting
 	return settings

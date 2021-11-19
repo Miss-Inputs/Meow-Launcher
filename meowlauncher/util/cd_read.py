@@ -2,7 +2,7 @@ import math
 import re
 import struct
 import zlib
-from collections.abc import Sequence
+from collections.abc import Sequence, Iterable
 from pathlib import Path
 from typing import Optional
 
@@ -13,9 +13,7 @@ cue_file_line_regex = re.compile(r'^\s*FILE\s+(?:"(?P<name>.+)"|(?P<name_unquote
 #<mode> is defined here: https://www.gnu.org/software/ccd2cue/manual/html_node/MODE-_0028Compact-Disc-fields_0029.html#MODE-_0028Compact-Disc-fields_0029 but generally only AUDIO, MODE1/<size>, and MODE2/<size> are used
 cue_track_line_regex = re.compile(r'^\s*TRACK\s+(?P<number>\d+)\s+(?P<mode>.+)\s*$', flags=re.RegexFlag.IGNORECASE)
 
-def parse_cue_sheet(cue_path: Path) -> list[tuple[str, int]]:
-	files = []
-
+def parse_cue_sheet(cue_path: Path) -> Iterable[tuple[str, int]]:
 	data = read_file(cue_path).decode('utf8', errors='backslashreplace')
 
 	current_file = None
@@ -26,7 +24,7 @@ def parse_cue_sheet(cue_path: Path) -> list[tuple[str, int]]:
 		file_match = cue_file_line_regex.match(line)
 		if file_match:
 			if current_file and current_mode:
-				files.append((current_file, sector_size_from_cue_mode(current_mode)))
+				yield current_file, sector_size_from_cue_mode(current_mode)
 				current_file = None
 				current_mode = None
 
@@ -38,9 +36,7 @@ def parse_cue_sheet(cue_path: Path) -> list[tuple[str, int]]:
 				current_mode = track_match['mode']
 
 	if current_file and current_mode:
-		files.append((current_file, sector_size_from_cue_mode(current_mode)))
-
-	return files
+		yield current_file, sector_size_from_cue_mode(current_mode)
 
 def sector_size_from_cue_mode(mode: str) -> int:
 	try:
@@ -49,15 +45,12 @@ def sector_size_from_cue_mode(mode: str) -> int:
 		return 0
 
 def get_first_data_cue_track(cue_path: Path) -> Optional[tuple[Path, int]]:
-	cue_files = [(f, sector_size) for f, sector_size in parse_cue_sheet(cue_path) if sector_size]
+	cue_files = tuple((f, sector_size) for f, sector_size in parse_cue_sheet(cue_path) if sector_size)
 	if not cue_files:
 		#The disc probably won't work, but I'll burn that bridge when it happens
 		return None
 	first_track_path, sector_size = cue_files[0]
-	if first_track_path.startswith('/'):
-		first_track = Path(first_track_path)
-	else:
-		first_track = cue_path.parent.joinpath(first_track_path)
+	first_track = Path(first_track_path) if first_track_path.startswith('/') else cue_path.parent.joinpath(first_track_path)
 		
 	return first_track, sector_size
 

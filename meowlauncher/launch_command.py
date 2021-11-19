@@ -31,22 +31,24 @@ class LaunchCommand():
 		exe_args_quoted = ' '.join(shlex.quote(arg) for arg in self.exe_args)
 		exe_name_quoted = shlex.quote(self.exe_name)
 		if self.env_vars:
-			environment_vars = ' '.join([shlex.quote(k + '=' + v) for k, v in self.env_vars.items()])
+			environment_vars = ' '.join(shlex.quote(k + '=' + v) for k, v in self.env_vars.items())
 			return f'env {environment_vars} {exe_name_quoted} {exe_args_quoted}'
 		return exe_name_quoted + ' ' + exe_args_quoted
 
 	def wrap(self, command: str) -> 'LaunchCommand':
-		return LaunchCommand(command, [self.exe_name] + list(self._exe_args))
+		new_args = [self.exe_name]
+		new_args.extend(self._exe_args)
+		return LaunchCommand(command, new_args)
 
 	def prepend_command(self, prepended_command: 'LaunchCommand') -> 'LaunchCommand':
-		return MultiLaunchCommands([prepended_command], self, [])
+		return MultiLaunchCommands((prepended_command, ), self, ())
 		
 	def append_command(self, appended_params: 'LaunchCommand') -> 'LaunchCommand':
-		return MultiLaunchCommands([], self, [appended_params])
+		return MultiLaunchCommands((), self, (appended_params, ))
 
 	def replace_path_argument(self, path: Path) -> 'LaunchCommand':
 		path_arg = str(path.resolve())
-		replaced_args = [path_arg if arg == rom_path_argument else arg.replace(rom_path_argument, path_arg) for arg in self.exe_args]
+		replaced_args = tuple(path_arg if arg == rom_path_argument else arg.replace(rom_path_argument, path_arg) for arg in self.exe_args)
 		return LaunchCommand(self.exe_name, replaced_args, self._env_vars)
 
 	def set_env_var(self, k: str, v: str) -> None:
@@ -54,9 +56,9 @@ class LaunchCommand():
 
 class MultiLaunchCommands(LaunchCommand):
 	def __init__(self, pre_commands: Sequence[LaunchCommand], main_command: LaunchCommand, post_commands: Sequence[LaunchCommand], working_directory: str=None):
-		self.pre_commands = list(pre_commands)
+		self.pre_commands = pre_commands
 		self.main_command = main_command
-		self.post_commands = list(post_commands)
+		self.post_commands = post_commands
 		#self.working_directory = working_directory
 		super().__init__('', '', {}, working_directory)
 
@@ -77,7 +79,10 @@ class MultiLaunchCommands(LaunchCommand):
 
 	def get_whole_shell_command(self) -> LaunchCommand:
 		#Purrhaps I should add an additional field for this object to optionally use ; instead of &&
-		joined_commands = ' && '.join([command.make_linux_command_string() for command in self.pre_commands] + [self.main_command.make_linux_command_string()] + [command.make_linux_command_string() for command in self.post_commands])
+		inner_commands = tuple(command.make_linux_command_string() for command in self.pre_commands) + \
+			(self.main_command.make_linux_command_string(), ) + \
+			tuple(command.make_linux_command_string() for command in self.post_commands)
+		joined_commands = ' && '.join(inner_commands)
 		return LaunchCommand('sh', ('-c', joined_commands))
 
 	def make_linux_command_string(self) -> str:
@@ -87,10 +92,14 @@ class MultiLaunchCommands(LaunchCommand):
 		return MultiLaunchCommands(self.pre_commands, self.main_command.wrap(command), self.post_commands)
 
 	def prepend_command(self, prepended_command: LaunchCommand) -> LaunchCommand:
-		return MultiLaunchCommands([prepended_command] + self.pre_commands, self.main_command, self.post_commands)
+		new_precommands = [prepended_command]
+		new_precommands.extend(self.pre_commands)
+		return MultiLaunchCommands(new_precommands, self.main_command, self.post_commands)
 
 	def append_command(self, appended_params: LaunchCommand) -> LaunchCommand:
-		return MultiLaunchCommands(self.pre_commands, self.main_command, self.post_commands + [appended_params])
+		new_postcommands = list(self.post_commands)
+		new_postcommands.append(appended_params)
+		return MultiLaunchCommands(self.pre_commands, self.main_command, new_postcommands)
 
 	def replace_path_argument(self, path: Path) -> LaunchCommand:
 		return MultiLaunchCommands(self.pre_commands, self.main_command.replace_path_argument(path), self.post_commands)
@@ -106,6 +115,6 @@ def launch_with_wine(wine_path: str, wineprefix: Optional[str], exe_path: str, e
 	args = ['start']
 	if working_directory:
 		args += ['/d', working_directory]
-	args += ['/unix', exe_path]
+	args += ('/unix', exe_path)
 	args += exe_args
 	return LaunchCommand(wine_path, args, env_vars)

@@ -164,13 +164,13 @@ def add_saturn_info(rom: ROM, metadata: Metadata, header: bytes):
 
 	region_info = header[64:80].rstrip()
 	#Only 10 characters are used
-	region_codes = []
+	region_codes = set()
 	if b'J' in region_info:
-		region_codes.append(SaturnRegionCodes.Japan)
+		region_codes.add(SaturnRegionCodes.Japan)
 	if b'U' in region_info:
-		region_codes.append(SaturnRegionCodes.USA)
+		region_codes.add(SaturnRegionCodes.USA)
 	if b'E' in region_info:
-		region_codes.append(SaturnRegionCodes.Europe)
+		region_codes.add(SaturnRegionCodes.Europe)
 
 	#Some other region codes appear sometimes, but I haven't been able to verify _exactly_ what they are, and I don't really wanna make guesses
 	#T = Taiwan?

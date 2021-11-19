@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, cast
 
-from meowlauncher.games.mame_common.software_list_info import (
+from meowlauncher.games.mame_common.software_list_find_utils import (
     find_in_software_lists, matcher_args_for_bytes)
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.util.region_info import TVSystem

@@ -28,12 +28,11 @@ from meowlauncher.games.roms.roms_metadata import add_metadata
 from meowlauncher.runner_config import EmulatorConfig
 from meowlauncher.util import archives
 from meowlauncher.util.desktop_files import has_been_done
-from meowlauncher.util.utils import starts_with_any
 
 if TYPE_CHECKING:
 	from meowlauncher.emulated_platform import StandardEmulatedPlatform
 
-def sort_m3u_first() -> type:
+def _sort_m3u_first() -> type:
 	class Sorter:
 		def __init__(self, obj, *_):
 			self.o = obj
@@ -81,32 +80,30 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 		game = ROMGame(rom, self.platform, self.platform_config)
 
 		if game.rom.extension == 'm3u':
-			#TODO: Get rid of this nonsense
+			#TODO: Get rid of this nonsense and use M3UROM instead
 			file_rom = cast(FileROM, game.rom)
 			lines = file_rom.read().decode('utf-8').splitlines()
-			filenames = [Path(line) if line.startswith('/') else game.rom.path.with_name(line) for line in lines if not line.startswith("#")]
+			filenames = tuple(Path(line) if line.startswith('/') else game.rom.path.with_name(line) for line in lines if not line.startswith("#"))
 			if any(not filename.is_file() for filename in filenames):
 				if main_config.debug:
 					print('M3U file', game.rom.path, 'has broken references!!!!', filenames)
 				return None
-			game.subroms = [get_rom(referenced_file) for referenced_file in filenames]
-
-		#TODO: We used to have a check here that we actually have anything in potential_emulator_names that supported the game before we added metadata, to save performance, but it got confusing in refactoring and had duplicated code… maybe we should do something like that again
+			game.subroms = tuple(get_rom(referenced_file) for referenced_file in filenames)
 				
-		if subfolders and subfolders[-1] == game.rom.name:
-			game.metadata.categories = list(subfolders[:-1])
-		else:
-			game.metadata.categories = list(subfolders)
+		categories = subfolders[:-1] if subfolders and subfolders[-1] == game.rom.name else subfolders
+		game.metadata.categories = categories
 			
 		add_metadata(game)
 
 		if not game.metadata.categories and game.metadata.platform:
-			game.metadata.categories = [game.metadata.platform]
+			game.metadata.categories = (game.metadata.platform, )
 
 		exception_reason = None
 		launcher = None
 
-		for chosen_emulator in self.chosen_emulators:
+		chosen_emulator_names = [] #For warning message
+		for chosen_emulator in self.get_chosen_emulators():
+			chosen_emulator_names.append(chosen_emulator.name)
 			try:
 				potential_emulator_config = _get_emulator_config(chosen_emulator)
 				potential_emulator: ConfiguredStandardEmulator
@@ -136,36 +133,36 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 				#TODO: We also need a warn_about_unemulated_extensions type thing
 				if isinstance(exception_reason, EmulationNotSupportedException):
 				#if isinstance(exception_reason, EmulationNotSupportedException) and not isinstance(exception_reason, ExtensionNotSupportedException):
-					print(rom.path, 'could not be launched by', [emu.name for emu in self.chosen_emulators], 'because', exception_reason)
+					print(rom.path, 'could not be launched by', chosen_emulator_names, 'because', exception_reason)
 			return None
 		
 		return launcher
 
-	def _process_rom_list(self, rom_list: Iterable[tuple[ROM, Sequence[str]]]) -> Iterable[ROMLauncher]:
-		for rom, subfolders in rom_list:
-			if not rom.is_folder and not self.platform.is_valid_file_type(rom.extension):
-				#TODO: Probs want a warn_about_invalid_extension main_config (or platform_config)
-				print('Invalid extension', rom.path, rom.extension, type(rom), rom.path.suffix)
-				continue
+	# def _process_rom_list(self, rom_list: Iterable[tuple[ROM, Sequence[str]]]) -> Iterable[ROMLauncher]:
+	# 	for rom, subfolders in rom_list:
+	# 		if not rom.is_folder and not self.platform.is_valid_file_type(rom.extension):
+	# 			#TODO: Probs want a warn_about_invalid_extension main_config (or platform_config)
+	# 			print('Invalid extension', rom.path, rom.extension, type(rom), rom.path.suffix)
+	# 			continue
 
-			try:
-				if rom.should_read_whole_thing:
-					rom.read_whole_thing()
-			#pylint: disable=broad-except
-			except Exception as ex:
-				print('Bother!!! Reading the ROM produced an error', rom.path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
-				continue
+	# 		try:
+	# 			if rom.should_read_whole_thing:
+	# 				rom.read_whole_thing()
+	# 		#pylint: disable=broad-except
+	# 		except Exception as ex:
+	# 			print('Bother!!! Reading the ROM produced an error', rom.path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
+	# 			continue
 
-			launcher = None
-			try:
-				launcher = self._process_rom(rom, subfolders)
-			#pylint: disable=broad-except
-			except Exception as ex:
-				#It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
-				print('FUCK!!!!', rom.path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
+	# 		launcher = None
+	# 		try:
+	# 			launcher = self._process_rom(rom, subfolders)
+	# 		#pylint: disable=broad-except
+	# 		except Exception as ex:
+	# 			#It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
+	# 			print('FUCK!!!!', rom.path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
 
-			if launcher:
-				yield launcher
+	# 		if launcher:
+	# 			yield launcher
 
 	def _process_file_list(self, file_list: Iterable[tuple[Path, Sequence[str]]]) -> Iterable[ROMLauncher]:
 		for path, subfolders in file_list:
@@ -214,11 +211,10 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 			for root, dirs, files in os.walk(rom_dir):
 				root_path = Path(root)
 			
-				#TODO: What is this really trying to do? It seems like it is trying to use ignored_directories in some way but like what's going on mate, should be able to just use a method of Path to do that surely
-				if starts_with_any(str(root_path), [str(ignored_directory) for ignored_directory in main_config.ignored_directories]):
+				if any(root_path.is_relative_to(ignored_directory) for ignored_directory in main_config.ignored_directories):
 					continue
 
-				subfolders = list(root_path.relative_to(rom_dir).parts)
+				subfolders = root_path.relative_to(rom_dir).parts
 				if subfolders:
 					if any(subfolder in main_config.skipped_subfolder_names for subfolder in subfolders):
 						continue
@@ -246,7 +242,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 					dirs[:] = remaining_subdirs
 				dirs.sort()
 
-				for name in sorted(files, key=sort_m3u_first()):
+				for name in sorted(files, key=_sort_m3u_first()):
 					path = Path(root, name)
 					if not main_config.full_rescan:
 						if has_been_done('ROM', str(path)):
@@ -270,24 +266,25 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 	def no_longer_exists(self, game_id: str) -> bool:
 		return not os.path.exists(game_id)
 
+def _iter_platform_sources(excluded_platforms: Iterable[str]=None) -> Iterable[ROMPlatform]:
+	for platform_name, platform_config in platform_configs.items():
+		platform = platforms.get(platform_name)
+		if not platform:
+			#As DOS, Mac, etc would be in platform_configs too
+			continue
+		if excluded_platforms and platform_name in excluded_platforms:
+			continue
+		platform_source = ROMPlatform(platform_config, platform)
+		if not platform_source.is_available:
+			continue
+		yield platform_source
+
 class ROMs(CompoundGameSource):
 	def __init__(self, only_platforms: Sequence[str]=None, excluded_platforms: Iterable[str]=None) -> None:
 		if only_platforms:
-			super().__init__([ROMPlatform(platform_configs[only_platform], platforms[only_platform]) for only_platform in only_platforms])
+			super().__init__(tuple(ROMPlatform(platform_configs[only_platform], platforms[only_platform]) for only_platform in only_platforms))
 		else:
-			platform_sources = []
-			for platform_name, platform_config in platform_configs.items():
-				platform = platforms.get(platform_name)
-				if not platform:
-					#As DOS, Mac, etc would be in platform_configs too
-					continue
-				if excluded_platforms and platform_name in excluded_platforms:
-					continue
-				platform_source = ROMPlatform(platform_config, platform)
-				if not platform_source.is_available:
-					continue
-				platform_sources.append(platform_source)
-			super().__init__(platform_sources)
+			super().__init__(tuple(_iter_platform_sources(excluded_platforms)))
 
 	@property
 	def name(self) -> str:

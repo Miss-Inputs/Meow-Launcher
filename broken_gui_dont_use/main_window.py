@@ -205,7 +205,7 @@ class MainWindow(MeowLauncherGui):
 	def okButtonOnButtonClick(self, event):
 		self.loadRuntimeOptions()
 		enabled_state = (self.mameMachineCheckBox.IsChecked(), self.romsCheckBox.IsChecked(), self.dosCheckBox.IsChecked(), self.macCheckBox.IsChecked(), self.scummvmCheckBox.IsChecked(), self.steamCheckBox.IsChecked())
-		self.running_game_types = len([state for state in enabled_state if state])
+		self.running_game_types = len({state for state in enabled_state if state})
 		self.workerThread = WorkerThread(self, enabled_state)
 		self.workerThread.start()
 

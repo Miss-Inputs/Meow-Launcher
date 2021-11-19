@@ -16,7 +16,10 @@ def is_wii_homebrew_folder(folder: 'FolderROM') -> Optional[MediaType]:
 		if f.is_file() and f.name.lower() == 'meta.xml':
 			folder.relevant_files['meta.xml'] = f
 			have_meta_xml = True
-	#I dunno if icon is _always_ needed but eh
+			
+		if have_boot_dol and have_meta_xml:
+			return MediaType.Digital
+	#I dunno if icon is always there, so we will leave that alone
 	return MediaType.Digital if (have_meta_xml and have_boot_dol) else None
 
 def is_wii_u_folder(folder: 'FolderROM') -> Optional[MediaType]:

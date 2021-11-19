@@ -1,6 +1,6 @@
-from collections.abc import Mapping
+from collections.abc import Mapping, MutableMapping
 from pathlib import Path
-from typing import Any, NamedTuple, Optional
+from typing import TYPE_CHECKING, Any, NamedTuple, Optional
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.game import Game
@@ -8,8 +8,8 @@ from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util.name_utils import fix_name
 
-from .steam_installation import SteamInstallation
-
+if TYPE_CHECKING:
+	from .steam_installation import SteamInstallation
 
 class LauncherInfo(NamedTuple):
 	exe: Optional[str]
@@ -19,15 +19,16 @@ class LauncherInfo(NamedTuple):
 	platform: Optional[str]
 
 class SteamGame(Game):
-	def __init__(self, appid: int, folder: Path, app_state: Mapping, steam_installation: SteamInstallation) -> None:
+	def __init__(self, appid: int, folder: Path, app_state: Mapping, steam_installation: 'SteamInstallation') -> None:
 		super().__init__()
 		self.appid = appid
 		self.library_folder = folder
 		self.app_state = app_state
 		self.steam_installation = steam_installation
 		
-		self.launchers: dict[Optional[str], LauncherInfo] = {}
-		self.extra_launchers: dict[Optional[str], list[LauncherInfo]] = {}
+		#TODO: These should probably be returned from some method instead
+		self.launchers: MutableMapping[Optional[str], LauncherInfo] = {}
+		self.extra_launchers: MutableMapping[Optional[str], list[LauncherInfo]] = {}
 
 	@property
 	def name(self) -> str:
@@ -42,7 +43,7 @@ class SteamGame(Game):
 		install_dir_name = self.app_state.get('installdir')
 		if not install_dir_name:
 			#TODO: Does this ever happen?
-			return None
+			raise AssertionError('Hey it turns out this actually does happen, blank installdir', self.appid, self.name)
 		return self.library_folder.joinpath('steamapps', 'common', install_dir_name)
 
 	@property

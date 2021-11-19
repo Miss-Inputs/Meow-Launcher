@@ -1,20 +1,23 @@
+from collections.abc import Mapping
 from datetime import datetime
-from typing import Optional, cast
-
-from meowlauncher.config.main_config import main_config
-from meowlauncher.games.roms.rom import ROM, FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Date, Metadata
-
-from .common.gamecube_wii_common import (NintendoDiscRegion,
-                                         add_gamecube_wii_disc_metadata,
-                                         just_read_the_wia_rvz_header_for_now)
+from typing import TYPE_CHECKING, Optional, cast
 
 try:
 	from PIL import Image
 	have_pillow = True
 except ModuleNotFoundError:
 	have_pillow = False
+
+from meowlauncher.config.main_config import main_config
+from meowlauncher.games.roms.rom import ROM, FileROM
+from meowlauncher.metadata import Date, Metadata
+
+from .common.gamecube_wii_common import (NintendoDiscRegion,
+                                         add_gamecube_wii_disc_metadata,
+                                         just_read_the_wia_rvz_header_for_now)
+
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
 
 def convert3BitColor(c: int) -> int:
 	n = c * (256 // 0b111)
@@ -151,7 +154,8 @@ def add_apploader_date(header: bytes, metadata: Metadata):
 	except UnicodeDecodeError:
 		pass
 
-def add_gamecube_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes, tgc_data: Optional[dict[str, int]]=None):
+def _add_gamecube_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes, tgc_data: Optional[Mapping[str, int]]=None):
+	#TODO: Use namedtuple/dataclass for tgc_data
 	metadata.platform = 'GameCube'
 
 	if rom.extension != 'tgc':
@@ -199,7 +203,7 @@ def add_tgc_metadata(rom: FileROM, metadata: Metadata):
 
 	header = rom.read(tgc_header_size, 0x460)
 
-	add_gamecube_disc_metadata(rom, metadata, header, {
+	_add_gamecube_disc_metadata(rom, metadata, header, {
 		#'apploader offset': apploader_real_offset,
 		#'apploader size': apploader_real_size,
 		'fst offset': fst_real_offset,
@@ -207,12 +211,12 @@ def add_tgc_metadata(rom: FileROM, metadata: Metadata):
 		'file offset': file_offset,
 	})
 
-def add_gamecube_metadata(game: ROMGame):
+def add_gamecube_metadata(game: 'ROMGame'):
 	if game.rom.extension in {'gcz', 'iso', 'gcm'}:
 		rom = cast(FileROM, game.rom)
 		header = rom.read(0, 0x2450)
 		add_gamecube_wii_disc_metadata(rom, game.metadata, header)
-		add_gamecube_disc_metadata(rom, game.metadata, header)
+		_add_gamecube_disc_metadata(rom, game.metadata, header)
 	elif game.rom.extension == 'tgc':
 		add_tgc_metadata(cast(FileROM, game.rom), game.metadata)
 	elif game.rom.extension in {'wia', 'rvz'}:

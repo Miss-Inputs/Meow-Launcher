@@ -6,7 +6,7 @@ import time
 from meowlauncher.common_types import EmulationNotSupportedException, MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.common.emulator_command_line_helpers import mame_base
-from meowlauncher.games.mame_common.software_list_info import \
+from meowlauncher.games.mame_common.software_list_find_utils import \
     get_software_list_by_name
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.metadata import Metadata
@@ -44,12 +44,12 @@ def _super_cassette_vision(software):
 	machine = 'scv_pal' if software.metadata.specific_info.get('TV Type') == TVSystem.PAL else 'scv'
 	return _launch_with_software(machine, software)
 
-software_list_platforms = [
+software_list_platforms = {
 	#For simplicity we're just going to only use certain lists at the moment, I'm very sorry
 	#TODO: Will also need required_romset, and do -verifyroms on that to see that it's launchable; e.g. no point doing Neo Geo if -verifyroms aes fails, maybe like a main_driver so we get our CPU/screen/etc info from there, and we can skip it if broken and if main_config.exclude_non_working and machine.emulation_status == EmulationStatus.Broken and machine.basename not in main_config.non_working_whitelist: skip
-	SoftwareListPlatform('Coleco Quiz Wiz', {MediaType.Cartridge: ['quizwiz']}, _quizwiz),
-	SoftwareListPlatform('Neo Geo', {MediaType.Cartridge: ['neogeo']}, _neo_geo),
-	SoftwareListPlatform('Super Cassette Vision', {MediaType.Cartridge: ['scv']}, _super_cassette_vision),
+	SoftwareListPlatform('Coleco Quiz Wiz', {MediaType.Cartridge: {'quizwiz'}}, _quizwiz),
+	SoftwareListPlatform('Neo Geo', {MediaType.Cartridge: {'neogeo'}}, _neo_geo),
+	SoftwareListPlatform('Super Cassette Vision', {MediaType.Cartridge: {'scv'}}, _super_cassette_vision),
 	#jakks stuff (set these up all as platform = Plug & Play)
 	#vii (maybe this should be platform = Plug & Play? Or just "Vii")
 	#nes
@@ -66,7 +66,7 @@ software_list_platforms = [
 	#tvgogo
 	#c65
 	#n64dd
-]
+}
 
 class SoftwareLauncher():
 	def __init__(self, software, platform, media_type):

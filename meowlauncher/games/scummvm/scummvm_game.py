@@ -76,9 +76,9 @@ class ScummVMGame(Game):
 	def add_metadata(self) -> None:
 		self.metadata.input_info.add_option([input_metadata.Mouse(), input_metadata.Keyboard()]) #Can use gamepad if you enable it, but I guess to add that as input_info I'd have to know exactly how many buttons and sticks etc it uses
 		self.metadata.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
-		self.metadata.categories = ['Games'] #Safe to assume this by default
+		self.metadata.categories = ('Games', ) #Safe to assume this by default
 		if self.options.get('gameid') == 'agi-fanmade':
-			self.metadata.categories = ['Homebrew']
+			self.metadata.categories = ('Homebrew', )
 		#genre/subgenre is _probably_ always point and click adventure, but maybe not? (Plumbers is arguably a visual novel (don't @ me), and there's something about some casino card games in the list of supported games)
 		#Would be nice to set things like developer/publisher/year but can't really do that unfortunately
 		#Let series and series_index be detected by series_detect
@@ -90,7 +90,7 @@ class ScummVMGame(Game):
 			self.metadata.specific_info['Version'] = extra #Hmm, I guess that'd be how we should use this properly…
 			if 'demo' in extra.lower():
 				#Keeping the category names consistent with everything else here, though people might like to call it "Demos" or whatever instead and technically there's no reason why we can't do that and this should be an option and I will put this ramble here to remind myself to make it an option eventually
-				self.metadata.categories = ['Trials']
+				self.metadata.categories = ('Trials', )
 		
 		if main_config.use_original_platform:
 			platform = self.options.get('platform')

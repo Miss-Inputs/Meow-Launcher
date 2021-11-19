@@ -1,6 +1,6 @@
 import datetime
 import io
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence, MutableSequence
 from enum import Enum
 from pathlib import Path
 from typing import Any, NewType, Optional, Union, cast
@@ -65,36 +65,38 @@ def _machfs_read_file(path: Path) -> 'machfs.Volume':
 _machfs_read_file.current_file = None #type: ignore[attr-defined]
 _machfs_read_file.current_file_path = None #type: ignore[attr-defined]
 
-def get_macos_256_palette() -> list[int]:
+def _get_macos_256_palette() -> Sequence[int]:
 	#This is stored in the ROM as a clut resource otherwise
+	#TODO: I'd like this to be a tuple, but do you want to specify the type hint for 256 * 3 ints? I don't
 	#Yoinked from http://belkadan.com/blog/2018/01/Color-Palette-8/ and converted to make sense for Python
-	pal: list[int] = []
+	pal: MutableSequence[int] = []
 	for i in range(0, 215):
 		#Primary colours
 		red = (5 - (i // 36)) * 51
 		green = (5 - (i // 6 % 6)) * 51
 		blue = (5 - (i % 6)) * 51
-		pal += [red, green, blue]
+		pal += (red, green, blue)
 	for i in range(215, 255):
 		#Shades of red, green, blue, then grayscale
-		shades = [s * 17 for s in range(15, -1, -1) if s % 3 != 0]
+		shades = tuple(s * 17 for s in range(15, -1, -1) if s % 3 != 0)
 		shade = int((i - 215) % 10)
 		shade_of = int((i - 215) / 10)
 		if shade_of == 0:
-			colours = [shades[shade], 0, 0]
+			colours = (shades[shade], 0, 0)
 		elif shade_of == 1:
-			colours = [0, shades[shade], 0]
+			colours = (0, shades[shade], 0)
 		elif shade_of == 2:
-			colours = [0, 0, shades[shade]]
+			colours = (0, 0, shades[shade])
 		elif shade_of == 3:
-			colours = [shades[shade], shades[shade], shades[shade]]
+			colours = (shades[shade], shades[shade], shades[shade])
 		pal += colours
 		
 	#Black is always last
 	pal += [0, 0, 0]
 	return pal
+mac_os_256_palette = _get_macos_256_palette()
 
-mac_os_16_palette = [
+mac_os_16_palette = (
 	#White, yellow, orange, red, magenta, purple, blue, cyan, green, dark green, brown, tan, light gray, medium gray, dark gray, black
 	#TODO: Make the colours actually accurate
 	255, 255, 255,
@@ -113,7 +115,7 @@ mac_os_16_palette = [
 	128, 128, 128,
 	64, 64, 64,
 	0, 0, 0,
-]
+)
 class BuildStage(Enum):
 	Final = 0x80
 	Beta = 0x60
@@ -168,13 +170,12 @@ class CountryCode(Enum):
 
 mac_epoch = datetime.datetime(1904, 1, 1)
 
-def _get_icon(resources: dict[bytes, dict[int, 'macresources.Resource']], resource_id: int, path: str=None) -> Optional['Image.Image']:
-	#path is just there for warning
+def _get_icon(resources: Mapping[bytes, Mapping[int, 'macresources.Resource']], resource_id: int, path_for_warning: str=None) -> Optional['Image.Image']:
 	icn_resource = resources.get(b'ICN#', {}).get(resource_id)
 	if icn_resource:
 		if len(icn_resource) != 256:
 			if main_config.debug:
-				print('Baaa', path, 'has a bad ICN## with size', len(icn_resource), 'should be 256')
+				print('Baaa', path_for_warning, 'has a bad ICN## with size', len(icn_resource), 'should be 256')
 		else:
 			#The icon has backwards colours? I don't know
 			icon_bw = Image.frombytes('1', (32, 32), bytes(256 + ~b for b in icn_resource[:128])).convert('RGBA')
@@ -185,10 +186,10 @@ def _get_icon(resources: dict[bytes, dict[int, 'macresources.Resource']], resour
 	if icl8:
 		if len(icl8) != 1024:
 			if main_config.debug:
-				print('Baaa', path, 'has a bad icl8 with size', len(icl8), 'should be 1024')
+				print('Baaa', path_for_warning, 'has a bad icl8 with size', len(icl8), 'should be 1024')
 		else:
 			icon_256 = Image.frombytes('P', (32, 32), bytes(icl8))
-			icon_256.putpalette(get_macos_256_palette(), 'RGB')
+			icon_256.putpalette(mac_os_256_palette, 'RGB')
 			if mask:
 				icon_256 = icon_256.convert('RGBA')
 				icon_256.putalpha(mask)
@@ -198,11 +199,12 @@ def _get_icon(resources: dict[bytes, dict[int, 'macresources.Resource']], resour
 	if icl4:
 		if len(icl4) != 512:
 			if main_config.debug:
-				print('Baaa', path, 'has a bad icl4 with size', len(icl4), 'should be 512')
+				print('Baaa', path_for_warning, 'has a bad icl4 with size', len(icl4), 'should be 512')
 		else:
 			#Since this is 4-bit colour we need to unpack 0b1111_1111 to 0b0000_1111 0b0000_1111
 			
-			image_bytes = bytes(b for bb in [(bbb >> 4, bbb & 16) for bbb in icl4] for b in bb)
+			#TODO: Yeah I think we need another nested comprehension over here
+			image_bytes = bytes(b for bb in tuple((bbb >> 4, bbb & 16) for bbb in icl4) for b in bb)
 			icon_16 = Image.frombytes('P', (32, 32), image_bytes)
 			icon_16.putpalette(mac_os_16_palette, 'RGB')
 			if mask:
@@ -268,7 +270,7 @@ class MacApp(App):
 				return self.path.split(':')[-1].removesuffix('.app')
 		return self.path.split(':')[-1]
 
-	def _get_resources(self) -> dict[bytes, dict[int, 'macresources.Resource']]:
+	def _get_resources(self) -> Mapping[bytes, Mapping[int, 'macresources.Resource']]:
 		res: dict[bytes, dict[int, 'macresources.Resource']] = {}
 		f = self._get_file()
 		if not f:
@@ -296,11 +298,8 @@ class MacApp(App):
 			#I think this is controlled by the "Has bundle" HFS flag but I don't know what that is or if it's real and this seems a lot easier and sensibler
 			bndls = resources.get(b'BNDL', {})
 			if bndls:
-				try:
-					#Supposed to be BNDL 128, but not always
-					bndl = [b for b in bndls.values() if b[0:4] == file.creator][0]
-				except IndexError:
-					bndl = list(bndls.values())[0]
+				#Supposed to be BNDL 128, but not always
+				bndl = next((b for b in bndls.values() if b[0:4] == file.creator), next(iter(bndls.values())))
 
 				for fref in resources.get(b'FREF', {}).values():
 					if fref[0:4] == file.type:
@@ -338,7 +337,7 @@ class MacApp(App):
 			except ValueError:
 				pass
 			if not self.metadata.categories:
-				self.metadata.categories = ['Betas']
+				self.metadata.categories = ('Betas', )
 		if vers[3]: #"Non-release" / build number
 			self.metadata.specific_info['Revision'] = vers[3]
 

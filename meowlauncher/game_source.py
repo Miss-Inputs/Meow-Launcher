@@ -39,7 +39,8 @@ class CompoundGameSource(GameSource, ABC):
 
 	def get_launchers(self) -> Iterable[Launcher]:
 		for source in self.sources:
-			yield from source.get_launchers()
+			if source.is_available:
+				yield from source.get_launchers()
 
 	@property
 	def is_available(self) -> bool:
@@ -50,16 +51,18 @@ class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType]):
 	def __init__(self, platform_config: PlatformConfig, platform: ChooseableEmulatedPlatform, emulators: Mapping[str, EmulatorType], libretro_cores: Mapping[str, LibretroCore]=None) -> None:
 		self.platform_config = platform_config
 		self.platform = platform
-		self.chosen_emulators: list[Union[EmulatorType, LibretroCore]] = []
-
+		self.emulators = emulators
+		self.libretro_cores = libretro_cores
+	
+	def get_chosen_emulators(self) -> Iterable[Union[EmulatorType, LibretroCore]]:
 		for emulator_name in self.platform_config.chosen_emulators:
-			emulator = libretro_cores.get(emulator_name.removesuffix(' (libretro)')) if \
-				(libretro_cores and emulator_name.endswith(' (libretro)')) else \
-				emulators.get(emulator_name)
+			emulator = self.libretro_cores.get(emulator_name.removesuffix(' (libretro)')) if \
+				(self.libretro_cores and emulator_name.endswith(' (libretro)')) else \
+				self.emulators.get(emulator_name)
 
 			if not emulator:
-				if libretro_cores:
-					emulator = libretro_cores.get(emulator_name)
+				if self.libretro_cores:
+					emulator = self.libretro_cores.get(emulator_name)
 			if not emulator:
 				print('Config warning:', emulator_name, 'is not a valid emulator, specified in', self.name)
 				continue
@@ -68,4 +71,4 @@ class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType]):
 				print('Config warning:', emulator_name, 'is not a valid', 'libretro core' if isinstance(emulator, LibretroCore) else 'emulator', 'for', self.name)
 				continue
 			
-			self.chosen_emulators.append(emulator)
+			yield emulator

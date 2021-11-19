@@ -58,7 +58,7 @@ class PCGameSource(ChooseableEmulatorGameSource[PCEmulator], ABC):
 
 		emulator: Optional[ConfiguredEmulator] = None
 		exception_reason = None
-		for chosen_emulator in self.chosen_emulators:
+		for chosen_emulator in self.get_chosen_emulators():
 			emulator_config = emulator_configs[chosen_emulator.config_name]
 			try:
 				if 'compat' in app.info:

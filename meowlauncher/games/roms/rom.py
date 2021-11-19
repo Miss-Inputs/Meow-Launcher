@@ -1,7 +1,7 @@
 import os
 import zlib
 from abc import ABC, abstractmethod
-from collections.abc import Collection
+from collections.abc import Collection, MutableMapping, Iterable
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
@@ -9,7 +9,7 @@ from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.mame_common.software_list import (
     SoftwareMatcherArgs, format_crc32_for_software_list)
-from meowlauncher.games.mame_common.software_list_info import (
+from meowlauncher.games.mame_common.software_list_find_utils import (
     find_in_software_lists, matcher_args_for_bytes)
 from meowlauncher.util import archives, cd_read, io_utils
 from meowlauncher.util.utils import byteswap
@@ -63,7 +63,7 @@ class ROM(ABC):
 		return self._extension
 
 	@abstractmethod
-	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool=False, skip_header: int=0) -> Optional['Software']:
+	def get_software_list_entry(self, software_lists: Iterable['SoftwareList'], needs_byteswap: bool=False, skip_header: int=0) -> Optional['Software']:
 		pass
 
 class FileROM(ROM):
@@ -104,7 +104,7 @@ class FileROM(ROM):
 		return self._get_size()
 
 	def _get_crc32(self) -> int:
-		with open(self.path, 'rb') as f:
+		with self.path.open('rb') as f:
 			crc = 0
 			for chunk in iter(lambda: f.read(crc_chunk_size), b''):
 				crc = zlib.crc32(chunk, crc)
@@ -138,7 +138,7 @@ class FileROM(ROM):
 			
 		return self._extension
 	
-	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool=False, skip_header: int=0) -> Optional['Software']:
+	def get_software_list_entry(self, software_lists: Iterable['SoftwareList'], needs_byteswap: bool=False, skip_header: int=0) -> Optional['Software']:
 		if skip_header:
 			#Hmm might deprecate this in favour of header_length_for_crc_calculation
 			data = self.read(seek_to=skip_header)
@@ -207,7 +207,7 @@ class GCZFileROM(FileROM):
 	def get_crc32(self) -> int:
 		raise NotImplementedError('Trying to hash a .gcz file is silly and should not be done')
 
-	def get_software_list_entry(self, _: Collection['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:
+	def get_software_list_entry(self, _: Iterable['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:
 		raise NotImplementedError('Trying to get software of a .gcz file is silly and should not be done')
 
 class UnsupportedCHDError(Exception):
@@ -237,7 +237,7 @@ class CHDFileROM(FileROM):
 			raise UnsupportedCHDError('Version %d unknown' % chd_version)
 		return bytes.hex(sha1)
 
-	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:
+	def get_software_list_entry(self, software_lists: Iterable['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:
 		try:
 			args = SoftwareMatcherArgs(None, self._get_sha1(), None, None)
 			return find_in_software_lists(software_lists, args)
@@ -247,7 +247,7 @@ class CHDFileROM(FileROM):
 class FolderROM(ROM):
 	def __init__(self, path: Path) -> None:
 		super().__init__(path)
-		self.relevant_files: dict[str, Path] = {}
+		self.relevant_files: MutableMapping[str, Path] = {}
 		self.media_type: Optional[MediaType] = None
 		self.ignore_name = False
 
@@ -304,14 +304,15 @@ class FolderROM(ROM):
 	def is_compressed(self):
 		return False
 
-	def get_software_list_entry(self, _: Collection['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:
+	def get_software_list_entry(self, _: Iterable['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:
 		raise NotImplementedError('Trying to get software of a folder is silly and should not be done')
 
 class M3URom(FileROM):
 	def __init__(self, path: Path):
 		super().__init__(path)
-		self.subroms = []
-		for line in path.open('rt', encoding='utf-8').readlines():
+		self.subroms: list[ROM] = []
+		for line in path.open('rt', encoding='utf-8'):
+			#TODO: Put this in a method returning Sequence[ROM]
 			if line.startswith("#"):
 				continue
 			referenced_file = Path(line) if line.startswith('/') else path.with_name(line)
@@ -337,7 +338,7 @@ class M3URom(FileROM):
 	def get_crc32(self) -> int:
 		raise NotImplementedError('It would not quite make sense to call get_crc32 on an m3u, because which file do you want?')
 	
-	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool = False, skip_header: int = 0) -> Optional['Software']:
+	def get_software_list_entry(self, software_lists: Iterable['SoftwareList'], needs_byteswap: bool = False, skip_header: int = 0) -> Optional['Software']:
 		if not self.subroms:
 			raise AssertionError('This should not happen, m3u has no referenced files (but maybe it could happen? Maybe not something I should assert)')
 		#TODO: Maybe this isnt' even correct - we want to find which SoftwarePart matches what, in theory

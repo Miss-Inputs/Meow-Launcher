@@ -5,6 +5,7 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 import os
+from collections.abc import Mapping
 from enum import Enum
 from typing import Optional, cast
 from xml.etree import ElementTree
@@ -80,7 +81,7 @@ def _load_tdb() -> Optional[TDB]:
 		tdb_parser = ElementTree.XMLParser()
 		with open(tdb_path, 'rb') as tdb_file:
 			#We have to do this the hard way because there is an invalid element in there
-			for line in tdb_file.readlines():
+			for line in tdb_file:
 				if line.lstrip().startswith(b'<3DSTDB'):
 					continue
 				tdb_parser.feed(line)
@@ -160,10 +161,10 @@ def parse_ncch(rom: FileROM, metadata: Metadata, offset: int):
 	#romfs_length = (int.from_bytes(header[176:180], 'little') * media_unit)
 
 	if plain_region_length:
-		parse_plain_region(rom, metadata, plain_region_offset, plain_region_length)
+		_parse_plain_region(rom, metadata, plain_region_offset, plain_region_length)
 	#Logo region: Stuff and things
 	if exefs_length:
-		parse_exefs(rom, metadata, exefs_offset)
+		_parse_exefs(rom, metadata, exefs_offset)
 	#RomFS: Filesystem really
 
 	if (not is_not_cxi) and is_decrypted:
@@ -197,12 +198,12 @@ def parse_ncch(rom: FileROM, metadata: Metadata, offset: int):
 		#service_access_control = arm11_local_sys_capabilities[0x50:0x150]
 		#extended_service_access_control = arm11_local_sys_capabilities[0x150:0x160]
 
-def parse_plain_region(rom: FileROM, metadata: Metadata, offset: int, length: int):
+def _parse_plain_region(rom: FileROM, metadata: Metadata, offset: int, length: int):
 	#Plain region stores the libraries used, at least for official games
 	#See also: https://github.com/Zowayix/ROMniscience/wiki/3DS-libraries-used for research
 	#Hmm… since I sort of abandoned ROMniscience I should put that somewhere else
 	plain_region = rom.read(seek_to=offset, amount=length)
-	libraries = [lib.decode('ascii', errors='backslashreplace') for lib in plain_region.split(b'\x00') if lib]
+	libraries = (lib.decode('ascii', errors='backslashreplace') for lib in plain_region.split(b'\x00') if lib)
 
 	#TODO: If a game has an update which adds functionality identified by one of these library names, then that'll be a separate file, so it's like... how do we know that Super Smash Bros the .3ds file has amiibo support when Super Smash Bros 1.1.7 update data the .cxi is where it says that, because with and only with the update data it would support amiibos, etc; if that all makes sense
 	#Unless like... I search ~/.local/share/citra-emu/sdmc/Nintendo 3DS for what update CIAs are installed and... aaaaaaaaaaaaaaaa
@@ -214,8 +215,9 @@ def parse_plain_region(rom: FileROM, metadata: Metadata, offset: int, length: in
 		elif library == '[SDK+NINTENDO:ExtraPad]':
 			metadata.specific_info['Uses Circle Pad Pro?'] = True
 			#ZL + ZR + right analog stick; New 3DS has these too but the extra controls there are internally represented as a Circle Pad Pro for compatibility so this all works out I think
-			metadata.input_info.input_options[0].inputs[0].components[0].analog_sticks += 1
-			metadata.input_info.input_options[0].inputs[0].components[0].shoulder_buttons += 2
+			inbuilt_controller = cast(input_metadata.NormalController, cast(input_metadata.CombinedController, metadata.input_info.input_options[0].inputs[0]).components[0])
+			inbuilt_controller.analog_sticks += 1
+			inbuilt_controller.shoulder_buttons += 2
 		elif library == '[SDK+NINTENDO:Gyroscope]':
 			metadata.specific_info['Uses Gyroscope?'] = True
 			metadata.input_info.input_options[0].inputs.append(input_metadata.MotionControls())
@@ -227,7 +229,7 @@ def parse_plain_region(rom: FileROM, metadata: Metadata, offset: int, length: in
 		elif library.startswith('[SDK+NINTENDO:CTRFaceLibrary-'):
 			metadata.specific_info['Uses Miis?'] = True
 
-def parse_exefs(rom: FileROM, metadata: Metadata, offset: int):
+def _parse_exefs(rom: FileROM, metadata: Metadata, offset: int):
 	header = rom.read(seek_to=offset, amount=0x200)
 	for i in range(0, 10):
 		try:
@@ -237,17 +239,17 @@ def parse_exefs(rom: FileROM, metadata: Metadata, offset: int):
 		file_offset = int.from_bytes(header[(i * 16) + 8: (i * 16) + 8 + 4], 'little') + 0x200 + offset
 		file_length = int.from_bytes(header[(i * 16) + 12: (i * 16) + 12 + 4], 'little')
 		if filename == 'icon':
-			parse_smdh(rom, metadata, file_offset, file_length)
+			_parse_smdh(rom, metadata, file_offset, file_length)
 		#Logo contains some stuff, banner contains 3D graphics and sounds for the home menu, .code contains actual executable
 
 
-def parse_smdh(rom: FileROM, metadata: Metadata, offset: int=0, length: int=-1):
+def _parse_smdh(rom: FileROM, metadata: Metadata, offset: int=0, length: int=-1):
 	metadata.specific_info['Has SMDH?'] = True
 	#At this point it's fine to just read in the whole thing
 	smdh = rom.read(seek_to=offset, amount=length)
-	parse_smdh_data(metadata, smdh)
+	_parse_smdh_data(metadata, smdh)
 
-def get_smdh_titles(smdh: bytes) -> tuple[dict[str, str], dict[str, str], dict[str, Optional[str]]]:
+def _get_smdh_titles(smdh: bytes) -> tuple[Mapping[str, str], Mapping[str, str], Mapping[str, Optional[str]]]:
 	short_titles: dict[str, str] = {}
 	long_titles: dict[str, str] = {}
 	publishers: dict[str, Optional[str]] = {}
@@ -278,7 +280,7 @@ def get_smdh_titles(smdh: bytes) -> tuple[dict[str, str], dict[str, str], dict[s
 			pass
 	return short_titles, long_titles, publishers
 	
-def parse_smdh_data(metadata: Metadata, smdh: bytes):
+def _parse_smdh_data(metadata: Metadata, smdh: bytes):
 	magic = smdh[:4]
 	if magic != b'SMDH':
 		return
@@ -289,15 +291,15 @@ def parse_smdh_data(metadata: Metadata, smdh: bytes):
 
 	region_code_flag = int.from_bytes(smdh[0x2018:0x201c], 'little')
 	if region_code_flag in (WiiU3DSRegionCode.RegionFree, 0xffffffff):
-		region_codes = [WiiU3DSRegionCode.RegionFree]
+		region_codes = {WiiU3DSRegionCode.RegionFree}
 	else:
-		region_codes = []
+		region_codes = set()
 		for region in WiiU3DSRegionCode:
 			if region in (WiiU3DSRegionCode.RegionFree, WiiU3DSRegionCode.WiiURegionFree):
 				continue
-			#I want a list here so this looks weird
+			#I want a set here so this looks weird
 			if region.value & region_code_flag:
-				region_codes.append(region)
+				region_codes.add(region)
 	if region_codes:
 		metadata.specific_info['Region Code'] = region_codes
 	#Match maker IDs for online play = 0x201c-0x2028
@@ -328,12 +330,12 @@ def parse_smdh_data(metadata: Metadata, smdh: bytes):
 	
 	if have_pillow:
 		smol_icon = smdh[0x2040:0x24c0]
-		metadata.images['Small Icon'] = decode_icon(smol_icon, 24)
+		metadata.images['Small Icon'] = _decode_icon(smol_icon, 24)
 
 		large_icon = smdh[0x24c0:0x36c0]
-		metadata.images['Icon'] = decode_icon(large_icon, 48)
+		metadata.images['Icon'] = _decode_icon(large_icon, 48)
 
-	add_info_from_local_titles(metadata, *get_smdh_titles(smdh), region_codes)
+	add_info_from_local_titles(metadata, *_get_smdh_titles(smdh), region_codes)
 
 tile_order = [
 	#What the actual balls?
@@ -346,7 +348,7 @@ tile_order = [
 	36, 37, 44, 45, 38, 39, 46, 47,
 	52, 53, 60, 61, 54, 55, 62, 63
 ]
-def decode_icon(icon_data: bytes, size: int) -> 'Image':
+def _decode_icon(icon_data: bytes, size: int) -> 'Image':
 	#Assumes RGB565, which everything so far uses. Supposedly there can be other encodings, but I'll believe that when I see it
 	icon = Image.new('RGB', (size, size))
 
@@ -412,13 +414,13 @@ def parse_3dsx(rom: FileROM, metadata: Metadata):
 
 		if smdh_size:
 			look_for_smdh_file = False
-			parse_smdh(rom, metadata, smdh_offset, smdh_size)
+			_parse_smdh(rom, metadata, smdh_offset, smdh_size)
 
 	if look_for_smdh_file:
 		smdh_name = rom.path.with_suffix('.smdh')
 		try:
 			with smdh_name.open('rb') as smdh_file:
-				parse_smdh_data(metadata, smdh_file.read())
+				_parse_smdh_data(metadata, smdh_file.read())
 		except FileNotFoundError:
 			pass
 

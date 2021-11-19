@@ -1,6 +1,6 @@
 import re
 import zlib
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
 from typing import Any, Optional, cast
 from xml.etree import ElementTree
@@ -113,7 +113,7 @@ class DataArea():
 		self.xml = xml
 		self.part = part
 		self.name = xml.attrib.get('name')
-		self.roms = [DataAreaROM(rom_xml, self) for rom_xml in self.xml.findall('rom')]
+		self.roms = {DataAreaROM(rom_xml, self) for rom_xml in self.xml.iterfind('rom')}
 
 	@property
 	def size(self) -> Optional[int]:
@@ -131,8 +131,9 @@ class DataArea():
 
 	def matches(self, args: 'SoftwareMatcherArgs') -> bool:
 		if len(self.roms) == 1:
-			if self.roms[0].matches(args.crc32, args.sha1):
-				return True
+			for first_rom in self.roms:
+				if first_rom.matches(args.crc32, args.sha1):
+					return True
 		elif args.reader:
 			if self.size != args.size:
 				return False
@@ -180,10 +181,7 @@ class DiskArea():
 	def __init__(self, xml: ElementTree.Element, part: 'SoftwarePart'):
 		self.xml = xml
 		self.part = part
-		self.disks: list[DiskAreaDisk] = []
-		
-		for disk_xml in self.xml.findall('disk'):
-			self.disks.append(DiskAreaDisk(disk_xml, self))
+		self.disks = {DiskAreaDisk(disk_xml, self) for disk_xml in self.xml.iterfind('disk')}
 
 	@property
 	def name(self) -> Optional[str]:
@@ -199,8 +197,9 @@ class SoftwarePart():
 	def __init__(self, xml: ElementTree.Element, software: 'Software'):
 		self.xml = xml
 		self.software = software
-		self.data_areas = {data_area.name: data_area for data_area in [DataArea(data_area_xml, self) for data_area_xml in self.xml.findall('dataarea')]}
-		self.disk_areas = {disk_area.name: disk_area for disk_area in [DiskArea(disk_area_xml, self) for disk_area_xml in self.xml.findall('diskarea')]}
+		#TODO: Proper nested comprehension
+		self.data_areas = {data_area.name: data_area for data_area in tuple(DataArea(data_area_xml, self) for data_area_xml in self.xml.iterfind('dataarea'))}
+		self.disk_areas = {disk_area.name: disk_area for disk_area in tuple(DiskArea(disk_area_xml, self) for disk_area_xml in self.xml.iterfind('diskarea'))}
 
 	@property
 	def name(self) -> Optional[str]:
@@ -225,7 +224,7 @@ class SoftwarePart():
 		return False
 
 	def get_feature(self, name) -> Optional[str]:
-		for feature in self.xml.findall('feature'):
+		for feature in self.xml.iterfind('feature'):
 			if feature.attrib.get('name') == name:
 				return feature.attrib.get('value')
 
@@ -253,11 +252,7 @@ class SoftwarePart():
 			if args.sha1:
 				sha1_lower = args.sha1.lower()
 				for disk_area in self.disk_areas.values():
-					disks = disk_area.disks
-					if not disks:
-						#Hmm, this might not happen
-						continue
-					for disk in disks:
+					for disk in disk_area.disks:
 						if not disk.sha1:
 							continue
 						if disk.sha1.lower() == sha1_lower:
@@ -275,8 +270,9 @@ class Software():
 		self.xml = xml
 		self.software_list = software_list
 
-		self.parts = {part.name: part for part in [SoftwarePart(part_xml, self) for part_xml in self.xml.findall('part')]}
-		self.infos = {info.attrib.get('name', ''): info.attrib.get('value') for info in self.xml.findall('info')} #Blank info name should not happen
+		#TODO: Proper nested comprehension
+		self.parts = {part.name: part for part in tuple(SoftwarePart(part_xml, self) for part_xml in self.xml.iterfind('part'))}
+		self.infos = {info.attrib.get('name', ''): info.attrib.get('value') for info in self.xml.iterfind('info')} #Blank info name should not happen
 
 	@property
 	def name(self) -> Optional[str]:
@@ -318,7 +314,7 @@ class Software():
 		return self.infos.get(name)
 
 	def get_shared_feature(self, name: str) -> Optional[str]:
-		for info in self.xml.findall('sharedfeat'):
+		for info in self.xml.iterfind('sharedfeat'):
 			if info.attrib.get('name') == name:
 				return info.attrib.get('value')
 
@@ -345,7 +341,7 @@ class Software():
 		return EmulationStatus.Good
 
 	@property
-	def compatibility(self) -> Optional[list[str]]:
+	def compatibility(self) -> Optional[Sequence[str]]:
 		compat = self.get_shared_feature('compatibility')
 		if not compat:
 			return None
@@ -428,9 +424,9 @@ class Software():
 				metadata.publisher = developer
 			elif not (already_has_publisher and (publisher == '<unknown>')):
 				if ' / ' in publisher:
-					publishers = cast(list[str], [consistentify_manufacturer(p) for p in publisher.split(' / ')])
+					publishers: Iterable[str] = (cast(str, consistentify_manufacturer(p)) for p in publisher.split(' / '))
 					if main_config.sort_multiple_dev_names:
-						publishers.sort()
+						publishers = sorted(publishers)
 					publisher = ', '.join(publishers)
 
 				metadata.publisher = publisher
@@ -471,24 +467,22 @@ class SoftwareList():
 		return self.xml.getroot().attrib.get('description')
 
 	def get_software(self, name: str) -> Optional[Software]:
-		for software in self.xml.findall('software'):
+		for software in self.xml.iterfind('software'):
 			if software.attrib.get('name') == name:
 				return Software(software, self)
 		return None
 
-	def find_all_software_with_custom_matcher(self, matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> list[Software]:
-		results = []
-		for software_xml in self.xml.findall('software'):
+	def find_all_software_with_custom_matcher(self, matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Iterable[Software]:
+		for software_xml in self.xml.iterfind('software'):
 			software = Software(software_xml, self)
 			for part in software.parts.values():
 				#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
 				#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
 				if matcher(part, *args):
-					results.append(software)
-		return results
+					yield software
 
 	def find_software_with_custom_matcher(self, matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Optional[Software]:
-		for software_xml in self.xml.findall('software'):
+		for software_xml in self.xml.iterfind('software'):
 			software = Software(software_xml, self)
 			for part in software.parts.values():
 				#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
@@ -497,8 +491,8 @@ class SoftwareList():
 					return software
 		return None
 
-	def find_software(self, args: SoftwareMatcherArgs):
-		for software_xml in self.xml.findall('software'):
+	def find_software(self, args: SoftwareMatcherArgs) -> Optional[Software]:
+		for software_xml in self.xml.iterfind('software'):
 			software = Software(software_xml, self)
 			for part in software.parts.values():
 				#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
@@ -508,21 +502,17 @@ class SoftwareList():
 		return None
 
 	_verifysoftlist_result = None
-	def get_available_software(self) -> list[Software]:
-		available = []
-
+	def get_available_software(self) -> Iterable[Software]:
 		#Only call -verifysoftlist if we need to, i.e. don't if it's entirely a romless softlist
 		
-		for software_xml in self.xml.findall('software'):
+		for software_xml in self.xml.iterfind('software'):
 			software = Software(software_xml, self)
 			if software.romless:
-				available.append(software)
+				yield software
 			elif software.not_dumped:
 				continue
 			else:
 				if self._verifysoftlist_result is None:
 					self._verifysoftlist_result = verify_software_list(self.name)
 				if software.name in self._verifysoftlist_result:
-					available.append(software)
-		
-		return available
+					yield software
