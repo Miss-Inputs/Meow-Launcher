@@ -1,11 +1,14 @@
 import gzip
+import io
 import lzma
 import os
-from pathlib import Path
 import re
 import subprocess
+from typing import Optional
 import zipfile
 import zlib
+from collections.abc import Iterable
+from pathlib import Path
 
 #Use a number of different ways to crack open some archive formats and feast on the juicy file goo inside, depending on what the user has installed
 #Use inbuilt Python libraries for zip and gz
@@ -31,6 +34,9 @@ try:
 except (subprocess.CalledProcessError, OSError):
 	have_7z_command = False
 
+#compressed_list is only used in CompressedROM, so we can be useful and get the size and CRC so we don't have to read the archive twice, if possible
+FilenameWithMaybeSizeAndCRC = tuple[str, Optional[int], Optional[int]]
+
 compressed_exts = {'7z', 'zip', 'gz', 'bz2', 'xz', 'tar', 'tgz', 'tbz', 'txz', 'rar'}
 #7z command line tool supports even more like exe, iso that would be weird and a bad idea to treat as an archive even though you can if you want, or lha which by all means is an archive but for emulation purposes we pretend is an archive; or just some weird old stuff that we would never see and I don't really feel like listing every single one of them
 #rar might need that onen package and shouldn't exist but anyway
@@ -48,32 +54,57 @@ class BadArchiveError(Exception):
 sevenzip_path_regex = re.compile(r'^Path\s+=\s+(.+)$')
 sevenzip_attr_regex = re.compile(r'^Attributes\s+=\s+(.+)$')
 sevenzip_crc_regex = re.compile(r'^CRC\s+=\s+([\dA-Fa-f]+)$')
-def subprocess_sevenzip_list(path: str) -> list[str]:
+sevenzip_size_reg = re.compile(r'^Size\s+=\s+(\d+)$', flags=re.IGNORECASE)
+#Looks like this:
+#"scanning the drives, listing archive, blah blah"
+#--
+#Path = archive.7z
+#blah blah blah
+#
+#---------- (maybe not that exact amount of dashes, but more than the first part)
+#Path = inner.file
+#size attributes = blah
+#
+#Path = another.one
+#size attributes = blah
+def subprocess_sevenzip_list(path: str) -> Iterable[FilenameWithMaybeSizeAndCRC]:
 	proc = subprocess.run(['7z', 'l', '-slt', '--', path], stdout=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
 		raise BadSubprocessedArchiveError('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
 
-	files = []
-	found_file_line = False
+	found_inner_files = False
 	inner_filename = None
+	size = None
+	crc = None
 	is_directory = False
 	for line in proc.stdout.splitlines():
 		if line.startswith('------'):
-			found_file_line = True
+			found_inner_files = True
 			continue
-		sevenzip_path_match = sevenzip_path_regex.fullmatch(line)
-		if found_file_line and sevenzip_path_match:
-			if inner_filename is not None:
-				files.append(inner_filename + '/' if is_directory else inner_filename)
-			inner_filename = sevenzip_path_match.group(1)
+		if not found_inner_files:
 			continue
-		sevenzip_attr_match = sevenzip_attr_regex.fullmatch(line)
-		if found_file_line and sevenzip_attr_match:
-			is_directory = sevenzip_attr_match.group(1)[:2] == 'D_'
-	if inner_filename:
-		files.append(inner_filename + '/' if is_directory else inner_filename)
 
-	return files
+		sevenzip_path_match = sevenzip_path_regex.fullmatch(line)
+		if sevenzip_path_match:
+			if inner_filename is not None:
+				#Found next file, move along
+				yield inner_filename + '/' if is_directory else inner_filename, size, crc
+				inner_filename = None
+			inner_filename = sevenzip_path_match[1]
+			#This is the first one
+			continue
+		sevenzip_size_reg_match = sevenzip_size_reg.fullmatch(line)
+		if sevenzip_size_reg_match:
+			size = int(sevenzip_size_reg_match[1])
+		sevenzip_attr_match = sevenzip_attr_regex.fullmatch(line)
+		if sevenzip_attr_match:
+			is_directory = sevenzip_attr_match[1][:2] == 'D_'
+		crc_match = sevenzip_crc_regex.fullmatch(line)
+		if crc_match:
+			crc = int(crc_match[1], 16)
+
+	if inner_filename:
+		yield inner_filename + '/' if is_directory else inner_filename, size, crc
 	
 def subprocess_sevenzip_get(path: str, filename: str) -> bytes:
 	with subprocess.Popen(['7z', 'e', '-so', '--', path, filename], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as proc:
@@ -83,7 +114,6 @@ def subprocess_sevenzip_get(path: str, filename: str) -> bytes:
 			return b''
 		return proc.stdout.read()
 
-sevenzip_size_reg = re.compile(r'^Size\s+=\s+(\d+)$', flags=re.IGNORECASE)
 def subprocess_sevenzip_getsize(path: str, filename: str) -> int:
 	proc = subprocess.run(['7z', 'l', '-slt', '--', path, filename], stdout=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
@@ -126,9 +156,10 @@ def subprocess_sevenzip_crc(path: str, filename: str) -> int:
 	raise FileNotFoundError(filename)
 	
 #--- Inbuilt Python stuff
-def zip_list(path: Path) -> list[str]:
+def zip_list(path: Path) -> Iterable[FilenameWithMaybeSizeAndCRC]:
 	with zipfile.ZipFile(path, 'r') as zip_file:
-		return zip_file.namelist()
+		for info in zip_file.infolist():
+			yield info.filename, info.file_size, info.CRC & 0xffffffff
 
 def zip_get(path: Path, filename: str) -> bytes:
 	with zipfile.ZipFile(path) as zip_file:
@@ -150,14 +181,15 @@ def gzip_get(path: Path) -> bytes:
 def gzip_getsize(path: Path) -> int:
 	#Filename is ignored, there is only one in there
 	with gzip.GzipFile(path, 'rb') as f:
-		f.seek(0, 2)
+		f.seek(0, io.SEEK_END)
 		return f.tell()
 
 #---- py7zr
 
-def sevenzip_list(path: Path) -> list[str]:
+def sevenzip_list(path: Path) -> Iterable[FilenameWithMaybeSizeAndCRC]:
 	with py7zr.SevenZipFile(path, mode='r') as sevenzip_file:
-		return sevenzip_file.getnames()
+		for file in sevenzip_file.list():
+			yield file.filename, file.uncompressed, file.crc32
 
 def sevenzip_get(path: Path, filename: str) -> bytes:
 	with py7zr.SevenZipFile(path, mode='r') as sevenzip_file:
@@ -173,9 +205,10 @@ def sevenzip_get_crc32(path: Path, filename: str) -> int:
 
 #----- python-libarchive
 
-def libarchive_list(path: str) -> list[str]:
+def libarchive_list(path: str) -> Iterable[FilenameWithMaybeSizeAndCRC]:
 	with libarchive.Archive(path, 'r') as a:
-		return list(a.iterpaths())
+		for item in a:
+			yield item.pathname, item.size, None
 
 def libarchive_get(path: str, filename: str) -> bytes:
 	with libarchive.Archive(path, 'r') as a:
@@ -194,28 +227,28 @@ def libarchive_getsize(path: str, filename: str) -> int:
 #There is no crc32
 
 #----- Entry points to this little archive helper
-def compressed_list(path: Path) -> list[str]:
+def compressed_list(path: Path) -> Iterable[FilenameWithMaybeSizeAndCRC]:
 	if zipfile.is_zipfile(path):
 		try:
-			return zip_list(path)
+			yield from zip_list(path)
 		except zipfile.BadZipFile as badzipfile:
 			raise BadArchiveError(path) from badzipfile
 	#We can't get gzip inner filename from the gzip module, so we will have to do it generically, which kinda sucks
 	if have_py7zr and not have_python_libarchive and path.suffix == '.7z':
 		try:
-			return sevenzip_list(path)
+			yield from sevenzip_list(path)
 		except (py7zr.Bad7zFile, lzma.LZMAError) as ex:
 			raise BadArchiveError(path) from ex
 	if have_python_libarchive:
 		try:
-			return libarchive_list(os.fspath(path))
+			yield from libarchive_list(os.fspath(path))
 		#pylint: disable=broad-except
 		except Exception as ex:
 			#Can't blame me for this one - python-libarchive only ever raises generic exceptions, so it's all I can catch
 			raise BadArchiveError(path) from ex
 	if have_7z_command:
 		try:
-			return subprocess_sevenzip_list(os.fspath(path))
+			yield from subprocess_sevenzip_list(os.fspath(path))
 		except BadSubprocessedArchiveError as ex:
 			raise BadArchiveError(path) from ex
 	raise NotImplementedError('You have nothing to read', path, 'with, try installing 7z or py7zr or python-libarchive')

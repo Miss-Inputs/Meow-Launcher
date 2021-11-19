@@ -111,7 +111,7 @@ class FileROM(ROM):
 			return crc & 0xffffffff
 
 	def get_crc32(self) -> int:
-		if self.crc_for_database:
+		if self.crc_for_database is not None:
 			return self.crc_for_database
 		
 		if self.header_length_for_crc_calculation > 0:
@@ -158,15 +158,18 @@ class FileROM(ROM):
 class CompressedROM(FileROM):
 	def __init__(self, path: Path):
 		super().__init__(path)
+		self._size = None
 		
-		for entry in archives.compressed_list(self.path):
-			if os.extsep in entry:
-				self.inner_name, extension = entry.rsplit(os.extsep, 1)
+		for name, size, crc32 in archives.compressed_list(self.path):
+			self._size = size
+			self.crc_for_database = crc32
+			if os.extsep in name:
+				self.inner_name, extension = name.rsplit(os.extsep, 1)
 				self.inner_extension = extension.lower()
 			else:
-				self.inner_name = entry
+				self.inner_name = name
 				self.inner_extension = ''
-			self.inner_filename = entry
+			self.inner_filename = name
 			#Only use the first file, if there is more, then you're weird
 			return
 		raise IOError(f'Nothing in {path}')
@@ -184,6 +187,11 @@ class CompressedROM(FileROM):
 
 	def _get_size(self) -> int:
 		return archives.compressed_getsize(self.path, self.inner_filename)
+
+	def get_size(self) -> int:
+		if self._size is not None:
+			return self._size
+		return super().get_size()
 
 	def _get_crc32(self) -> int:
 		return archives.get_crc32_of_archive(self.path, self.inner_filename)
