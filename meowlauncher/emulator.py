@@ -5,21 +5,21 @@ from meowlauncher.common_types import (ConfigValueType, EmulatorStatus,
                                        HostPlatform, TypeOfConfigValue)
 from meowlauncher.config.main_config import main_config
 
+from .emulated_game import EmulatedGame
 from .runner import Runner
 from .runner_config import EmulatorConfig, RunnerConfigValue
 
+EmulatorGameType = TypeVar('EmulatorGameType', bound=EmulatedGame)
 if TYPE_CHECKING:
-	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.games.pc import App
+	from meowlauncher.games.roms.rom_game import ROMGame
 
-	from .emulated_game import EmulatedGame
 	from .launch_command import LaunchCommand
 	LibretroFrontendLaunchCommandFunc = Callable[[EmulatedGame, Mapping[str, TypeOfConfigValue], EmulatorConfig, EmulatorConfig], LaunchCommand]
 
-	EmulatorGameType = TypeVar('EmulatorGameType', bound=EmulatedGame)
 	GenericLaunchCommandFunc = Callable[[EmulatorGameType, Mapping[str, TypeOfConfigValue], EmulatorConfig], LaunchCommand]
 
-class Emulator(Runner, Generic['EmulatorGameType']):
+class Emulator(Runner, Generic[EmulatorGameType]):
 	#I decided what actually defines an "emulator" vs. a Runner with is_emulated -> True is that this is more of a "chooseable emulator", but ChooseableEmulator sounds silly as a class name, so like I dunno
 	#Pretend launch_command_func is not optional if instantiating this oneself, it's just for LibretroCore purposes
 	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: Optional['GenericLaunchCommandFunc'], configs: Mapping[str, RunnerConfigValue]=None, host_platform=HostPlatform.Native, config_name: str=None):
