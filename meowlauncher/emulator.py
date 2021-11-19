@@ -1,5 +1,5 @@
 from collections.abc import Callable, Mapping, MutableMapping, Sequence
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Generic, Optional, TypeVar
 
 from meowlauncher.common_types import (ConfigValueType, EmulatorStatus,
                                        HostPlatform, TypeOfConfigValue)
@@ -9,15 +9,20 @@ from .runner import Runner
 from .runner_config import EmulatorConfig, RunnerConfigValue
 
 if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.games.pc import App
+
 	from .emulated_game import EmulatedGame
 	from .launch_command import LaunchCommand
-	LaunchCommandFunc = Callable[[EmulatedGame, Mapping[str, TypeOfConfigValue], EmulatorConfig], LaunchCommand] #for now
 	LibretroFrontendLaunchCommandFunc = Callable[[EmulatedGame, Mapping[str, TypeOfConfigValue], EmulatorConfig, EmulatorConfig], LaunchCommand]
 
-class Emulator(Runner):
+	EmulatorGameType = TypeVar('EmulatorGameType', bound=EmulatedGame)
+	GenericLaunchCommandFunc = Callable[[EmulatorGameType, Mapping[str, TypeOfConfigValue], EmulatorConfig], LaunchCommand]
+
+class Emulator(Runner, Generic['EmulatorGameType']):
 	#I decided what actually defines an "emulator" vs. a Runner with is_emulated -> True is that this is more of a "chooseable emulator", but ChooseableEmulator sounds silly as a class name, so like I dunno
 	#Pretend launch_command_func is not optional if instantiating this oneself, it's just for LibretroCore purposes
-	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: Optional['LaunchCommandFunc'], configs: Mapping[str, RunnerConfigValue]=None, host_platform=HostPlatform.Native, config_name: str=None):
+	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: Optional['GenericLaunchCommandFunc'], configs: Mapping[str, RunnerConfigValue]=None, host_platform=HostPlatform.Native, config_name: str=None):
 		super().__init__(host_platform)
 		self._name = name
 		self.config_name = config_name if config_name else name
@@ -35,19 +40,19 @@ class Emulator(Runner):
 	def is_emulated(self) -> bool:
 		return True
 
-class StandardEmulator(Emulator):
+class StandardEmulator(Emulator['ROMGame']):
 	#Not very well named, but I mean like "something that by itself you give a ROM as a path and it launches it" or something among those lines
-	def __init__(self, display_name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: Optional['LaunchCommandFunc'], supported_extensions: Sequence[str], supported_compression: Sequence[str]=None, configs: Mapping[str, RunnerConfigValue]=None, host_platform=HostPlatform.Native, config_name: str=None):
+	def __init__(self, display_name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: Optional['GenericLaunchCommandFunc'], supported_extensions: Sequence[str], supported_compression: Sequence[str]=None, configs: Mapping[str, RunnerConfigValue]=None, host_platform=HostPlatform.Native, config_name: str=None):
 		super().__init__(display_name, status, default_exe_name, launch_command_func, configs, host_platform, config_name)
 		self.supported_extensions = supported_extensions
 		self.supported_compression = supported_compression if supported_compression else []
 		
 class MednafenModule(StandardEmulator):
-	def __init__(self, name: str, status: EmulatorStatus, supported_extensions: Sequence[str], params_func: 'LaunchCommandFunc', configs: Mapping[str, RunnerConfigValue]=None):
+	def __init__(self, name: str, status: EmulatorStatus, supported_extensions: Sequence[str], params_func: 'GenericLaunchCommandFunc', configs: Mapping[str, RunnerConfigValue]=None):
 		StandardEmulator.__init__(self, 'Mednafen', status, 'mednafen', params_func, supported_extensions, ['zip', 'gz'], configs, config_name=f'Mednafen ({name})')
 
 class MAMEDriver(StandardEmulator):
-	def __init__(self, name: str, status: EmulatorStatus, launch_params: 'LaunchCommandFunc', supported_extensions: list[str], configs: Optional[MutableMapping[str, RunnerConfigValue]]=None):
+	def __init__(self, name: str, status: EmulatorStatus, launch_params: 'GenericLaunchCommandFunc', supported_extensions: list[str], configs: Optional[MutableMapping[str, RunnerConfigValue]]=None):
 		if configs is None:
 			configs = {}
 		configs.update({
@@ -58,7 +63,7 @@ class MAMEDriver(StandardEmulator):
 		StandardEmulator.__init__(self, 'MAME', status, 'mame', launch_params, supported_extensions, ['7z', 'zip'], configs, config_name=f'MAME ({name})')
 
 class ViceEmulator(StandardEmulator):
-	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, params: 'LaunchCommandFunc'):
+	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, params: 'GenericLaunchCommandFunc'):
 		#Also does z and zoo compression but I haven't done those in archives.py yet
 		#TODO: Maybe just put z and zoo in the ordinary file extensions if we don't want to do that just yet?
 		#WARNING! Will write back changes to your disk images unless they are compressed or actually write protected on the file system
@@ -66,12 +71,12 @@ class ViceEmulator(StandardEmulator):
 		StandardEmulator.__init__(self, 'VICE', status, default_exe_name, params, ['d64', 'g64', 'x64', 'p64', 'd71', 'd81', 'd80', 'd82', 'd1m', 'd2m'] + ['20', '40', '60', '70', '80', 'a0', 'b0', 'e0', 'crt', 'bin'] + ['p00', 'prg', 'tap', 't64'], [], config_name=f'VICE ({name})')
 
 class LibretroCore(Emulator):
-	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: Optional['LaunchCommandFunc'], supported_extensions: Sequence[str], configs: Optional[dict[str, RunnerConfigValue]]=None):
+	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: Optional['GenericLaunchCommandFunc'], supported_extensions: Sequence[str], configs: Optional[dict[str, RunnerConfigValue]]=None):
 		self.supported_extensions = supported_extensions
 		default_path = str(main_config.libretro_cores_directory.joinpath(default_exe_name + '_libretro.so').resolve()) if main_config.libretro_cores_directory else ''
 		super().__init__(name, status, default_path, launch_command_func, configs=configs, config_name=name + ' (libretro)')
 	
-class PCEmulator(Emulator):
+class PCEmulator(Emulator['App']):
 	#Nothing to define here for now, actually
 	pass
 

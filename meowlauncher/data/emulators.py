@@ -1,5 +1,5 @@
 from collections.abc import Collection
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
 import meowlauncher.games.specific_behaviour.emulator_command_lines as command_lines
 from meowlauncher.common_types import ConfigValueType
@@ -17,6 +17,8 @@ from meowlauncher.runner_config import RunnerConfigValue
 from .format_info import (atari_2600_cartridge_extensions,
                           generic_cart_extensions, mame_cdrom_formats,
                           mame_floppy_formats)
+if TYPE_CHECKING:
+	from meowlauncher.games.mame.mame_game import MAMEGame
 
 _bsnes_options = {
 	#All versions would use this
@@ -485,7 +487,7 @@ all_emulators += _standalone_emulators
 all_emulators += _libretro_cores
 all_emulators += _pc_emulators
 all_emulators += _libretro_frontends
-mame = Emulator('MAME', EmulatorStatus.Good, 'mame', command_lines.mame)
+mame: Emulator['MAMEGame'] = Emulator('MAME', EmulatorStatus.Good, 'mame', command_lines.mame)
 all_emulators.append(mame)
 #Ensure one can have globally defined options for all ViceEmulators or MednafenModules etc
 class _JustHereForConfigValues(Runner):
