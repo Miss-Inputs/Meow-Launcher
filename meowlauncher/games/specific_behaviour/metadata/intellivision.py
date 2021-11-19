@@ -22,7 +22,7 @@ def _does_intellivision_part_match(part: SoftwarePart, data: bytes) -> bool:
 		if not data_area.roms:
 			continue
 
-		rom = data_area.roms[0]
+		rom = next(iter(data_area.roms))
 		number_of_roms += 1
 		total_size += size
 
