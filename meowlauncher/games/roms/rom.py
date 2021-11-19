@@ -153,7 +153,7 @@ class CompressedROM(FileROM):
 	def __init__(self, path: Path):
 		super().__init__(path)
 		
-		for entry in archives.compressed_list(str(self.path)):
+		for entry in archives.compressed_list(self.path):
 			if os.extsep in entry:
 				self.inner_name, extension = entry.rsplit(os.extsep, 1)
 				self.inner_extension = extension.lower()

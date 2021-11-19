@@ -16,7 +16,7 @@ def get_real_size(path: pathlib.Path, compressed_entry: str=None) -> int:
 	if compressed_entry is None:
 		return path.stat().st_size
 
-	return compressed_getsize(str(path), compressed_entry)
+	return compressed_getsize(path, compressed_entry)
 
 def read_file(path: pathlib.Path, compressed_entry: str=None, seek_to: int=0, amount: int=-1) -> bytes:
 	if not compressed_entry:
@@ -27,7 +27,7 @@ def read_file(path: pathlib.Path, compressed_entry: str=None, seek_to: int=0, am
 
 			return f.read(amount)
 
-	data = compressed_get(str(path), compressed_entry)
+	data = compressed_get(path, compressed_entry)
 	if seek_to:
 		if amount > -1:
 			return data[seek_to: seek_to + amount]
@@ -46,7 +46,7 @@ def get_crc32(path: pathlib.Path, compressed_entry: str=None) -> int:
 				crc = zlib.crc32(chunk, crc)
 			return crc & 0xffffffff
 
-	return get_crc32_of_archive(str(path), compressed_entry)
+	return get_crc32_of_archive(path, compressed_entry)
 
 def sanitize_name(s: Optional[str], supersafe: bool=False) -> str:
 	#These must never be filenames or folder names!  Badbadbad!

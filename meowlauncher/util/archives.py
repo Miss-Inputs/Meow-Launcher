@@ -1,5 +1,7 @@
 import gzip
 import lzma
+import os
+from pathlib import Path
 import re
 import subprocess
 import zipfile
@@ -120,32 +122,32 @@ def subprocess_sevenzip_crc(path: str, filename: str) -> int:
 	
 	if filename_found:
 		#return NotImplementedError(path, 'is an archive with no CRC')
-		return zlib.crc32(sevenzip_get(path, filename)) & 0xffffffff
+		return zlib.crc32(subprocess_sevenzip_get(path, filename)) & 0xffffffff
 	raise FileNotFoundError(filename)
 	
 #--- Inbuilt Python stuff
-def zip_list(path: str) -> list[str]:
+def zip_list(path: Path) -> list[str]:
 	with zipfile.ZipFile(path, 'r') as zip_file:
 		return zip_file.namelist()
 
-def zip_get(path: str, filename: str) -> bytes:
+def zip_get(path: Path, filename: str) -> bytes:
 	with zipfile.ZipFile(path) as zip_file:
 		with zip_file.open(filename, 'r') as file:
 			return file.read()
 
-def zip_getsize(path: str, filename: str) -> int:
+def zip_getsize(path: Path, filename: str) -> int:
 	with zipfile.ZipFile(path, 'r') as zip_file:
 		return zip_file.getinfo(filename).file_size
 
-def get_zip_crc32(path: str, filename: str) -> int:
+def get_zip_crc32(path: Path, filename: str) -> int:
 	with zipfile.ZipFile(path) as zip_file:
 		return zip_file.getinfo(filename).CRC & 0xffffffff
 
-def gzip_get(path: str) -> bytes:
+def gzip_get(path: Path) -> bytes:
 	with gzip.GzipFile(path) as gzip_file:
 		return gzip_file.read()
 
-def gzip_getsize(path: str) -> int:
+def gzip_getsize(path: Path) -> int:
 	#Filename is ignored, there is only one in there
 	with gzip.GzipFile(path, 'rb') as f:
 		f.seek(0, 2)
@@ -153,19 +155,19 @@ def gzip_getsize(path: str) -> int:
 
 #---- py7zr
 
-def sevenzip_list(path: str) -> list[str]:
+def sevenzip_list(path: Path) -> list[str]:
 	with py7zr.SevenZipFile(path, mode='r') as sevenzip_file:
 		return sevenzip_file.getnames()
 
-def sevenzip_get(path: str, filename: str) -> bytes:
+def sevenzip_get(path: Path, filename: str) -> bytes:
 	with py7zr.SevenZipFile(path, mode='r') as sevenzip_file:
 		return sevenzip_file.read([filename])[filename].read()
 
-def sevenzip_getsize(path: str, filename: str) -> int:
+def sevenzip_getsize(path: Path, filename: str) -> int:
 	with py7zr.SevenZipFile(path, mode='r') as sevenzip_file:
 		return [i.uncompressed for i in sevenzip_file.list() if i.filename == filename][0]
 
-def sevenzip_get_crc32(path: str, filename: str) -> int:
+def sevenzip_get_crc32(path: Path, filename: str) -> int:
 	with py7zr.SevenZipFile(path, mode='r') as sevenzip_file:
 		return [i.crc32 for i in sevenzip_file.list() if i.filename == filename][0]
 
@@ -192,118 +194,118 @@ def libarchive_getsize(path: str, filename: str) -> int:
 #There is no crc32
 
 #----- Entry points to this little archive helper
-def compressed_list(path: str) -> list[str]:
+def compressed_list(path: Path) -> list[str]:
 	if zipfile.is_zipfile(path):
 		try:
 			return zip_list(path)
 		except zipfile.BadZipFile as badzipfile:
 			raise BadArchiveError(path) from badzipfile
 	#We can't get gzip inner filename from the gzip module, so we will have to do it generically, which kinda sucks
-	if have_py7zr and not have_python_libarchive and path.endswith('.7z'):
+	if have_py7zr and not have_python_libarchive and path.suffix == '.7z':
 		try:
 			return sevenzip_list(path)
 		except (py7zr.Bad7zFile, lzma.LZMAError) as ex:
 			raise BadArchiveError(path) from ex
 	if have_python_libarchive:
 		try:
-			return libarchive_list(path)
+			return libarchive_list(os.fspath(path))
 		#pylint: disable=broad-except
 		except Exception as ex:
 			#Can't blame me for this one - python-libarchive only ever raises generic exceptions, so it's all I can catch
 			raise BadArchiveError(path) from ex
 	if have_7z_command:
 		try:
-			return subprocess_sevenzip_list(path)
+			return subprocess_sevenzip_list(os.fspath(path))
 		except BadSubprocessedArchiveError as ex:
 			raise BadArchiveError(path) from ex
 	raise NotImplementedError('You have nothing to read', path, 'with, try installing 7z or py7zr or python-libarchive')
 
-def compressed_get(path: str, filename: str) -> bytes:
+def compressed_get(path: Path, filename: str) -> bytes:
 	if zipfile.is_zipfile(path):
 		try:
 			return zip_get(path, filename)
 		except zipfile.BadZipFile as badzipfile:
-			raise BadArchiveError(path + '/' + filename) from badzipfile
-	if have_py7zr and not have_python_libarchive and path.endswith('.7z'):
+			raise BadArchiveError(os.fspath(path) + '/' + filename) from badzipfile
+	if have_py7zr and not have_python_libarchive and path.suffix == '.7z':
 		try:
 			return sevenzip_get(path, filename)
 		except (py7zr.Bad7zFile, lzma.LZMAError) as ex:
-			raise BadArchiveError(path + '/' + filename) from ex
-	if path.endswith('.gz'):
+			raise BadArchiveError(os.fspath(path) + '/' + filename) from ex
+	if path.suffix == '.gz':
 		try:
 			return gzip_get(path)
 		except gzip.BadGzipFile as badgzipfile:
-			raise BadArchiveError(path + '/' + filename) from badgzipfile
+			raise BadArchiveError(os.fspath(path) + '/' + filename) from badgzipfile
 	if have_python_libarchive:
 		try:
-			return libarchive_get(path, filename)
+			return libarchive_get(os.fspath(path), filename)
 		#pylint: disable=broad-except
 		except Exception as ex:
 			#Can't blame me for this one - python-libarchive only ever raises generic exceptions, so it's all I can catch
-			raise BadArchiveError(path + '/' + filename) from ex
+			raise BadArchiveError(os.fspath(path) + '/' + filename) from ex
 	if have_7z_command:
 		try:
-			return subprocess_sevenzip_get(path, filename)
+			return subprocess_sevenzip_get(os.fspath(path), filename)
 		except BadSubprocessedArchiveError as ex:
-			raise BadArchiveError(path + '/' + filename) from ex
+			raise BadArchiveError(os.fspath(path) + '/' + filename) from ex
 	raise NotImplementedError('You have nothing to read', path, 'with, try installing 7z or py7zr or python-libarchive')
 	
-def compressed_getsize(path: str, filename: str) -> int:
+def compressed_getsize(path: Path, filename: str) -> int:
 	if zipfile.is_zipfile(path):
 		try:
 			return zip_getsize(path, filename)
 		except zipfile.BadZipFile as badzipfile:
-			raise BadArchiveError(path + '/' + filename) from badzipfile
-	if have_py7zr and not have_python_libarchive and path.endswith('.7z'):
+			raise BadArchiveError(os.fspath(path) + '/' + filename) from badzipfile
+	if have_py7zr and not have_python_libarchive and path.suffix == '.7z':
 		try:
 			return sevenzip_getsize(path, filename)
 		except (py7zr.Bad7zFile, lzma.LZMAError) as ex:
-			raise BadArchiveError(path + '/' + filename) from ex
-	if path.endswith('.gz'):
+			raise BadArchiveError(os.fspath(path) + '/' + filename) from ex
+	if path.suffix == '.gz':
 		try:
 			return gzip_getsize(path)
 		except gzip.BadGzipFile as badgzipfile:
-			raise BadArchiveError(path + '/' + filename) from badgzipfile
+			raise BadArchiveError(os.fspath(path) + '/' + filename) from badgzipfile
 	if have_python_libarchive:
 		try:
-			return libarchive_getsize(path, filename)
+			return libarchive_getsize(os.fspath(path), filename)
 		#pylint: disable=broad-except
 		except Exception as ex:
 			#Can't blame me for this one - python-libarchive only ever raises generic exceptions, so it's all I can catch
-			raise BadArchiveError(path + '/' + filename) from ex
+			raise BadArchiveError(os.fspath(path) + '/' + filename) from ex
 	if have_7z_command:
 		try:
-			return subprocess_sevenzip_getsize(path, filename)
+			return subprocess_sevenzip_getsize(os.fspath(path), filename)
 		except BadSubprocessedArchiveError as ex:
-			raise BadArchiveError(path + '/' + filename) from ex
+			raise BadArchiveError(os.fspath(path) + '/' + filename) from ex
 	raise NotImplementedError('You have nothing to read', path, 'with, try installing 7z or py7zr or python-libarchive')
 
-def get_crc32_of_archive(path: str, filename: str) -> int:
+def get_crc32_of_archive(path: Path, filename: str) -> int:
 	if zipfile.is_zipfile(path):
 		try:
 			return get_zip_crc32(path, filename)
 		except zipfile.BadZipFile:
 			pass
-	if have_py7zr and path.endswith('.7z'):
+	if have_py7zr and path.suffix == '.7z':
 		try:
 			return sevenzip_get_crc32(path, filename)
 		except (py7zr.Bad7zFile, lzma.LZMAError) as ex:
-			raise BadArchiveError(path + '/' + filename) from ex
-	if path.endswith('.gz'):
+			raise BadArchiveError(os.fspath(path) + '/' + filename) from ex
+	if path.suffix == '.gz':
 		#Do things the old fashioned way, since we can't use the gzip module to read any CRC that might be in the gzip header
 		#This will raise an archive error if it's invalid so we don't need to raise another one
 		return zlib.crc32(gzip_get(path)) & 0xffffffff
 	if have_7z_command:
 		try:
-			return subprocess_sevenzip_crc(path, filename)
+			return subprocess_sevenzip_crc(os.fspath(path), filename)
 		except BadSubprocessedArchiveError as ex:
-			raise BadArchiveError(path + '/' + filename) from ex
+			raise BadArchiveError(os.fspath(path) + '/' + filename) from ex
 	if have_python_libarchive:
 		#Presumably this is slower for 7z archives etc than even subprocessing 7z to get it
 		try:
-			return zlib.crc32(libarchive_get(path, filename)) & 0xffffffff
+			return zlib.crc32(libarchive_get(os.fspath(path), filename)) & 0xffffffff
 		#pylint: disable=broad-except
 		except Exception as ex:
-			raise BadArchiveError(path + '/' + filename) from ex
+			raise BadArchiveError(os.fspath(path) + '/' + filename) from ex
 	raise NotImplementedError('You have nothing to read', path, 'with, try installing 7z or py7zr or python-libarchive')
 	
