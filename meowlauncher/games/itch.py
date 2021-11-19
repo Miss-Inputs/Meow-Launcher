@@ -204,7 +204,7 @@ class ItchGame(Game):
 		metadata.specific_info['Executable Name'] = executable_name
 		extension = exe_path.suffix
 		if extension:
-			metadata.extension = extension[-1].lower()
+			metadata.specific_info['Extension'] = extension[1:].lower()
 		metadata.specific_info['Executable Type'] = flavour
 		#This shouldn't really happen, but sometimes the platform field in upload in the receipt is inaccurate
 		#Pretend Mac doesn't exist

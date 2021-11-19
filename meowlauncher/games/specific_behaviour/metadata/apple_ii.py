@@ -162,7 +162,7 @@ def add_woz_metadata(rom: FileROM, metadata: Metadata):
 		metadata.add_alternate_name(metadata.names['Header Title'] + ': ' + metadata.specific_info['Subtitle'], 'Header Title with Subtitle')
 
 def add_apple_ii_metadata(game: 'ROMGame'):
-	if game.metadata.extension == 'woz':
+	if game.rom.extension == 'woz':
 		add_woz_metadata(cast(FileROM, game.rom), game.metadata)
 
 	#Possible input info: Keyboard and joystick by default, mouse if mouse card exists

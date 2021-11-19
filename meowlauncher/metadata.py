@@ -222,7 +222,6 @@ class Metadata():
 		self.categories: list[str] = []
 		self.release_date: Optional[Date] = None
 		self.emulator_name: Optional[str] = None #TODO: Begone with this, if we are doing things correctly, or rather once we are, make_linux_desktop will set it automatically to whatever Runner object is used
-		self.extension: Optional[str] = None
 
 		self.genre: Optional[str] = None
 		self.subgenre: Optional[str] = None
@@ -284,7 +283,6 @@ class Metadata():
 			'Languages': [language.native_name for language in self.languages if language],
 			'Release Date': self.release_date,
 			'Emulator': self.emulator_name,
-			'Extension': self.extension,
 			'Categories': self.categories,
 			'Platform': self.platform,
 			'Save Type': ('Memory Card' if self.save_type == SaveType.MemoryCard else self.save_type.name) if self.save_type else 'Nothing',

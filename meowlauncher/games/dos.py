@@ -36,7 +36,7 @@ class DOSApp(App):
 	def additional_metadata(self) -> None:
 		basename = self.path.split('\\')[-1] if self.is_on_cd else os.path.basename(self.path)
 		self.metadata.specific_info['Executable Name'] = basename
-		self.metadata.extension = basename.split('.', 1)[-1].lower()
+		self.metadata.specific_info['Extension'] = basename.split('.', 1)[-1].lower()
 		if not self.is_on_cd:
 			icon = look_for_icon_next_to_file(Path(self.path))
 			if icon:

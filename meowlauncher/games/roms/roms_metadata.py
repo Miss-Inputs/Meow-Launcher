@@ -276,11 +276,10 @@ def add_metadata(game: ROMGame):
 	add_alternate_names(game.rom, game.metadata)
 	#I guess if game.subroms was ever used you would loop through each one (I swear I will do the thing one day)
 
-	game.metadata.extension = game.rom.extension
-
 	if game.rom.is_folder:
 		game.metadata.media_type = cast(FolderROM, game.rom).media_type
 	else:
+		game.metadata.specific_info['Extension'] = game.rom.extension
 		game.metadata.media_type = game.platform.get_media_type(cast(FileROM, game.rom))
 
 	if game.platform.name in helpers:
