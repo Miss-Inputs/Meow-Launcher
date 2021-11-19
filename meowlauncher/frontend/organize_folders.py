@@ -183,9 +183,8 @@ def move_into_folders() -> None:
 
 	for root, _, files in os.walk(main_config.output_folder):
 		for f in files:
-			if f.endswith('.desktop'):
-				path = Path(root, f)
-
+			path = Path(root, f)
+			if path.suffix == '.desktop':
 				move_into_subfolders(path)
 
 	if main_config.print_times:
@@ -213,8 +212,8 @@ def main() -> None:
 
 		for root, _, files in os.walk(main_config.output_folder):
 			for f in files:
-				if f.endswith('.desktop'):
-					path = Path(root, f)
+				path = Path(root, f)
+				if path.suffix == '.desktop':
 					desktop = get_desktop(path)
 					move_into_extra_subfolder(path, desktop, sanitize_name(name, supersafe=True), key, missing_value)
 		if main_config.print_times:

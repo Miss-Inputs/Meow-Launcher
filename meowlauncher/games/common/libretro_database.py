@@ -132,8 +132,8 @@ def parse_all_dats_for_system(name: str, use_serial: bool) -> Optional[LibretroD
 	if metadat_folder.is_dir():
 		for root, _, files in os.walk(metadat_folder):
 			for filename in files:
-				if filename == name + '.dat':
-					path = Path(root, filename)
+				path = Path(root, filename)
+				if path.stem == name and path.suffix == '.dat':
 					if path.is_file():
 						relevant_dats.append(path)
 	
