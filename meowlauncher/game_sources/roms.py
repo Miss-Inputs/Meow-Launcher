@@ -233,14 +233,16 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 							if has_been_done('ROM', str(folder_path)):
 								continue
 
-						#TODO: Does it make sense to init the FolderROM here?
 						folder_rom = FolderROM(folder_path)
 						media_type = folder_check(folder_rom)
 						if media_type:
 							folder_rom.media_type = media_type
 							#rom_list.append((folder_rom, subfolders))
-							file_list.append((folder_path, subfolders))
-							continue
+							launcher = self._process_rom(folder_rom, subfolders)
+							if launcher:
+								yield launcher
+								#file_list.append((folder_path, subfolders))
+								continue
 						remaining_subdirs.append(d)
 					dirs[:] = remaining_subdirs
 				dirs.sort()
