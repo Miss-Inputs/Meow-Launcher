@@ -1163,12 +1163,7 @@ def dolphin(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'Emulato
 			#Technically Wii Menu versions are WiiTitleType.System but can be booted, but eh
 			raise NotARomException('Cannot boot a {0}'.format(title_type.name))
 
-	if game.rom.is_folder:
-		#Homebrew
-		path = str(cast(FolderROM, game.rom).relevant_files['boot.dol'])
-	else:
-		path = rom_path_argument
-	return LaunchCommand(emulator_config.exe_path, ['-b', '-e', path])
+	return LaunchCommand(emulator_config.exe_path, ['-b', '-e', os.fspath(cast(FolderROM, game.rom).relevant_files['boot.dol']) if game.rom.is_folder else rom_path_argument])
 
 def duckstation(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	if emulator_config.options.get('consider_unknown_games_incompatible', False) and 'DuckStation Compatibility' not in game.metadata.specific_info:
@@ -1346,7 +1341,8 @@ def pcsx2(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'EmulatorC
 def ppsspp(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	if game.metadata.specific_info.get('PlayStation Category') == 'UMD Video':
 		raise EmulationNotSupportedException('UMD video discs not supported')
-	return LaunchCommand(emulator_config.exe_path, [rom_path_argument])
+	
+	return LaunchCommand(emulator_config.exe_path, [os.fspath(cast(FolderROM, game.rom).relevant_files['pbp']) if game.rom.is_folder else rom_path_argument])
 
 def reicast(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	if game.metadata.specific_info.get('Uses Windows CE?', False):

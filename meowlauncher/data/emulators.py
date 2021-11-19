@@ -62,7 +62,7 @@ _standalone_emulators: Collection[StandardEmulator] = [
 	#Only reads the bin of bin/cues and not the cue
 	StandardEmulator('Pico-8', EmulatorStatus.Good, 'pico8', simple_emulator(['-windowed', '0', '-run', rom_path_argument]), ['p8', 'p8.png'], []),
 	StandardEmulator('PokeMini', EmulatorStatus.Good, 'PokeMini', command_lines.pokemini, ['min'], ['zip']), #Normally just puts the config files in the current directory, so this cd's to ~/.config/PokeMini first
-	StandardEmulator('PPSSPP', EmulatorStatus.Good, 'ppsspp-qt', command_lines.ppsspp, ['iso', 'pbp', 'cso']),
+	StandardEmulator('PPSSPP', EmulatorStatus.Good, 'ppsspp-qt', command_lines.ppsspp, ['iso', 'pbp', 'cso', '/']),
 	StandardEmulator('Reicast', EmulatorStatus.Good, 'reicast', command_lines.reicast, ['gdi', 'cdi', 'chd']),
 	StandardEmulator('Ruffle', EmulatorStatus.Imperfect, 'ruffle', simple_emulator(), ['swf']),
 	#No way to start off in fullscreen…

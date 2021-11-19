@@ -3,7 +3,7 @@ from typing import Optional, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games.roms.rom import ROM, FileROM
+from meowlauncher.games.roms.rom import FileROM, FolderROM
 from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Date, Metadata
 
@@ -32,7 +32,7 @@ def load_image_from_bytes(data: bytes) -> Optional['Image.Image']:
 	except OSError:
 		return None
 
-def add_info_from_pbp(rom: ROM, metadata: Metadata, pbp_file: bytes):
+def add_info_from_pbp(rompath_just_for_warning: str, metadata: Metadata, pbp_file: bytes):
 	magic = pbp_file[:4]
 	if magic != b'\x00PBP':
 		#You have the occasional b'\x7ELF' here
@@ -49,7 +49,7 @@ def add_info_from_pbp(rom: ROM, metadata: Metadata, pbp_file: bytes):
 	#These embedded files are supposedly always in this order, so you get the size by getting the difference between that file's offset and the next one (or the end of the file if it's the last one)
 	if param_sfo_offset > 0x24:
 		param_sfo = pbp_file[param_sfo_offset:icon0_offset]
-		parse_param_sfo(str(rom.path), metadata, param_sfo)
+		parse_param_sfo(rompath_just_for_warning, metadata, param_sfo)
 	if have_pillow:
 		if icon0_offset > param_sfo_offset:
 			banner = load_image_from_bytes(pbp_file[icon0_offset:icon1_offset])
@@ -134,9 +134,12 @@ def add_psp_iso_info(path: str, metadata: Metadata):
 def add_psp_metadata(game: ROMGame):
 	add_psp_system_info(game.metadata)
 
-	if game.rom.extension == 'pbp':
+	if game.rom.is_folder:
+		pbp = cast(FolderROM, game.rom).relevant_files['pbp']
+		add_info_from_pbp(str(game.rom.path), game.metadata, pbp.read_bytes())
+	elif game.rom.extension == 'pbp':
 		game.metadata.categories = game.metadata.categories[:-1]
-		add_info_from_pbp(game.rom, game.metadata, cast(FileROM, game.rom).read())
+		add_info_from_pbp(str(game.rom.path), game.metadata, cast(FileROM, game.rom).read())
 		#These are basically always named EBOOT.PBP (due to how PSPs work I guess), so that's not a very good launcher name, and use the folder it's stored in instead
 		if game.rom.name.lower() == 'eboot':
 			game.metadata.add_alternate_name(game.rom.path.parent.name, 'Folder Name')

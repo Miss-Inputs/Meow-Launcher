@@ -41,8 +41,16 @@ def is_ps3_folder(folder: 'FolderROM') -> Optional[MediaType]:
 		return MediaType.Digital
 	return None
 
+def is_psp_homebrew_folder(folder: 'FolderROM') -> Optional[MediaType]:
+	pbp = folder.get_file('EBOOT.PBP')
+	if pbp:
+		folder.relevant_files['pbp'] = pbp
+		return MediaType.Digital
+	return None
+
 folder_checks: dict[str, Callable[['FolderROM'], Optional[MediaType]]] = {
 	'PS3': is_ps3_folder,
-	'Wii': is_wii_homebrew_folder,
+	'PSP': is_psp_homebrew_folder,
 	'Wii U': is_wii_u_folder,
+	'Wii': is_wii_homebrew_folder,
 }
