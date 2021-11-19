@@ -18,6 +18,8 @@ if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import (Software,
 	                                                          SoftwareList)
 
+crc_chunk_size = 128 * 1024 * 1024
+
 class ROM(ABC):
 	def __init__(self, path: Path) -> None:
 		self.path = path
@@ -94,7 +96,7 @@ class FileROM(ROM):
 		return self._read(seek_to, amount)
 
 	def _get_size(self) -> int:
-		return io_utils.get_real_size(self.path)
+		return self.path.stat().st_size
 
 	def get_size(self) -> int:
 		if self._store_entire_file:
@@ -102,7 +104,11 @@ class FileROM(ROM):
 		return self._get_size()
 
 	def _get_crc32(self) -> int:
-		return io_utils.get_crc32(self.path)
+		with open(self.path, 'rb') as f:
+			crc = 0
+			for chunk in iter(lambda: f.read(crc_chunk_size), b''):
+				crc = zlib.crc32(chunk, crc)
+			return crc & 0xffffffff
 
 	def get_crc32(self) -> int:
 		if self.crc_for_database:
@@ -177,10 +183,10 @@ class CompressedROM(FileROM):
 		return io_utils.read_file(self.path, self.inner_filename, seek_to, amount)
 
 	def _get_size(self) -> int:
-		return io_utils.get_real_size(self.path, self.inner_filename)
+		return archives.compressed_getsize(self.path, self.inner_filename)
 
 	def _get_crc32(self) -> int:
-		return io_utils.get_crc32(self.path, self.inner_filename)
+		return archives.get_crc32_of_archive(self.path, self.inner_filename)
 
 class GCZFileROM(FileROM):
 	@property
