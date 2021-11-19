@@ -402,9 +402,13 @@ def _does_nes_rom_match(part: 'SoftwarePart', prg_crc: str, chr_crc: str) -> boo
 
 	if prg_area:
 		#(There is only one ROM, or at least I hope so, otherwise I'd look silly)
-		prg_matches = prg_area.roms[0].matches(prg_crc, None)
+		try:
+			prg_matches = next(iter(prg_area.roms)).matches(prg_crc, None)
+		except StopIteration:
+			return False
 	else:
 		prg_matches = False #prg_crc is None?
+	
 	if not prg_matches:
 		return False
 
@@ -414,7 +418,10 @@ def _does_nes_rom_match(part: 'SoftwarePart', prg_crc: str, chr_crc: str) -> boo
 		chr_area = part.data_areas.get('rom')
 	
 	if chr_area:
-		chr_matches = chr_area.roms[0].matches(chr_crc, None)
+		try:
+			chr_matches = next(iter(chr_area.roms)).matches(chr_crc, None)
+		except StopIteration:
+			chr_matches = False
 	else:
 		chr_matches = chr_crc is None
 	if not chr_matches:
