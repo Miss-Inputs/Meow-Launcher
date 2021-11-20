@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Mapping, Sequence
-from typing import Generic, TypeVar, Union
+from typing import TYPE_CHECKING, Generic, TypeVar, Union
 
-from meowlauncher.config.platform_config import PlatformConfig
 from meowlauncher.emulated_platform import ChooseableEmulatedPlatform
 from meowlauncher.emulator import Emulator, LibretroCore
 from meowlauncher.launcher import Launcher
 
+if TYPE_CHECKING:
+	from meowlauncher.config.platform_config import PlatformConfig
 
 class GameSource(ABC):
 	@property
@@ -48,7 +49,7 @@ class CompoundGameSource(GameSource, ABC):
 
 EmulatorType = TypeVar('EmulatorType', bound=Emulator)
 class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType]):
-	def __init__(self, platform_config: PlatformConfig, platform: ChooseableEmulatedPlatform, emulators: Mapping[str, EmulatorType], libretro_cores: Mapping[str, LibretroCore]=None) -> None:
+	def __init__(self, platform_config: 'PlatformConfig', platform: ChooseableEmulatedPlatform, emulators: Mapping[str, EmulatorType], libretro_cores: Mapping[str, LibretroCore]=None) -> None:
 		self.platform_config = platform_config
 		self.platform = platform
 		self.emulators = emulators
