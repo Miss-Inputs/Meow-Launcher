@@ -151,7 +151,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 					
 			if not rom.is_folder and not self.platform.is_valid_file_type(rom.extension):
 				#TODO: Probs want a warn_about_invalid_extension main_config (or platform_config)
-				print('Invalid extension', rom.path, rom.extension, type(rom), rom.path.suffix)
+				print(f'Invalid extension for this platform in {type(rom).__name__} {rom.path}: {rom.extension}')
 				continue
 
 			try:
