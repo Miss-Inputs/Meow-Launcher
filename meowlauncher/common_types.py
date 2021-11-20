@@ -36,13 +36,3 @@ class EmulationStatus(IntEnum):
 	Imperfect = 1
 	Broken = 0
 	Unknown = -1
-
-class EmulatorStatus(Enum):
-	#I have not actually thought of concrete definitions for what these mean
-	Good = 6
-	Imperfect = 5
-	ExperimentalButSeemsOkay = 4
-	Experimental = 3
-	Janky = 2 #Weird to set up or launch normally
-	Borked = 1
-	

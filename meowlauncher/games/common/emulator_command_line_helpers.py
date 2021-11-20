@@ -3,8 +3,8 @@ from collections.abc import Collection, Iterable, Mapping, Sequence
 from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
-                                       EmulationStatus, EmulatorStatus)
-from meowlauncher.emulator import MednafenModule
+                                       EmulationStatus)
+from meowlauncher.emulator import EmulatorStatus, MednafenModule
 from meowlauncher.games.mame_common.mame_helpers import (have_mame,
                                                          verify_romset)
 from meowlauncher.games.mame_common.software_list_find_utils import \

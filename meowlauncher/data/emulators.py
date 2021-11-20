@@ -2,10 +2,10 @@ from collections.abc import Collection, MutableSequence
 from typing import TYPE_CHECKING, Union
 
 import meowlauncher.games.specific_behaviour.emulator_command_lines as command_lines
-from meowlauncher.common_types import EmulatorStatus
 from meowlauncher.config_types import ConfigValueType, RunnerConfigValue
-from meowlauncher.emulator import (Emulator, LibretroCore, LibretroFrontend,
-                                   MAMEDriver, MednafenModule, PCEmulator,
+from meowlauncher.emulator import (Emulator, EmulatorStatus, LibretroCore,
+                                   LibretroFrontend, MAMEDriver,
+                                   MednafenModule, PCEmulator,
                                    StandardEmulator, ViceEmulator)
 from meowlauncher.games.common.emulator_command_line_helpers import (
     SimpleMednafenModule, simple_emulator, simple_gb_emulator,

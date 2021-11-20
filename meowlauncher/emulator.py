@@ -1,13 +1,23 @@
 from collections.abc import Callable, Collection, Mapping, MutableMapping
+from enum import Enum
 from typing import TYPE_CHECKING, Generic, Optional, TypeVar
 
-from meowlauncher.common_types import EmulatorStatus
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config_types import (ConfigValueType, EmulatorConfig,
                                        RunnerConfigValue, TypeOfConfigValue)
 
 from .emulated_game import EmulatedGame
 from .runner import HostPlatform, Runner
+
+
+class EmulatorStatus(Enum):
+	#I have not actually thought of concrete definitions for what these mean
+	Good = 6
+	Imperfect = 5
+	ExperimentalButSeemsOkay = 4
+	Experimental = 3
+	Janky = 2 #Weird to set up or launch normally… hmm this would indicate there is a "compatibility status" as well as a "usability status", in an ideal world where I'm not just putting all this here for either source code as reference, or future use for frontends
+	Borked = 1
 
 EmulatorGameType = TypeVar('EmulatorGameType', bound=EmulatedGame)
 if TYPE_CHECKING:
