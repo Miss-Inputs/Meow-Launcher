@@ -6,7 +6,7 @@ from meowlauncher.common_types import MediaType
 from meowlauncher.config_types import ConfigValueType, TypeOfConfigValue
 
 if TYPE_CHECKING:
-	from meowlauncher.games.roms.rom import FileROM, FolderROM
+	from meowlauncher.games.roms.rom import ROM, FolderROM
 
 
 class PlatformConfigValue():
@@ -47,11 +47,8 @@ class StandardEmulatedPlatform(ChooseableEmulatedPlatform):
 	def is_valid_file_type(self, extension: str) -> bool:
 		return any(extension in extensions for extensions in self.file_types.values() if isinstance(extension, str))
 
-	def get_media_type(self, rom: 'FileROM') -> Optional[MediaType]:
-		for media_type, extensions in self.file_types.items():
-			if rom.extension in extensions:
-				return media_type
-		return None
+	def get_media_type(self, rom: 'ROM') -> Optional[MediaType]:
+		return next((media_type for media_type, extensions in self.file_types.items() if rom.extension in extensions), None)
 
 class PCPlatform(ChooseableEmulatedPlatform):
 	def __init__(self, name: str, json_name: str, emulators: Collection[str], options: Mapping[str, PlatformConfigValue]=None):

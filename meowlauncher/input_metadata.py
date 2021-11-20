@@ -203,6 +203,7 @@ class CombinedController(Controller):
 
 class InputOption():
 	def __init__(self) -> None:
+		#TODO: Some things like to mutate this by appending or replacing something, so I should either use MutableSequence or mutable set or add methods to replace it with a new object
 		self.inputs: Collection[Controller] = []
 
 	@property

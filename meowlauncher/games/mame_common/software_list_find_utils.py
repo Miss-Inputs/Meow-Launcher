@@ -94,8 +94,8 @@ def find_software_by_name(software_lists: Collection[SoftwareList], name: str) -
 	if len(fuzzy_name_matches) == 1:
 		#TODO: Don't do this, we still need to check the region… but only if the region needs to be checked at all, see below comment
 		#Bold of you to assume I understand this code, past Megan
-		for first_fuzzy_match in fuzzy_name_matches:
-			return first_fuzzy_match
+		#TODO: Okay I think I see what Past Megan was trying to do here… we want to first get the matches from _does_name_fuzzy_match, then we want to filter down by region _unless_ we don't have to (because regions aren't involved), and then version if needed, so this really all happens in three parts, and yeah I guess that does mean we need to collect everything in a set so we can test length == 1
+		return next(iter(fuzzy_name_matches))
 	if len(fuzzy_name_matches) > 1:
 		name_and_region_matches: MutableSet[Software] = set()
 		regions = {
@@ -122,8 +122,7 @@ def find_software_by_name(software_lists: Collection[SoftwareList], name: str) -
 					name_and_region_matches.add(match)
 
 		if len(name_and_region_matches) == 1:
-			for first in name_and_region_matches:
-				return first
+			return next(iter(name_and_region_matches))
 
 		name_and_region_and_version_matches = set()
 		for match in name_and_region_matches:
