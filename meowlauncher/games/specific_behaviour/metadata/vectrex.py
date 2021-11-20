@@ -1,23 +1,29 @@
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Date
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric)
 
-from .generic import add_generic_info
+from .generic import add_generic_software_info
 
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
 
-def add_vectrex_metadata(game: ROMGame):
+def add_vectrex_metadata(game: 'ROMGame'):
 	gamepad = input_metadata.NormalController()
 	gamepad.face_buttons = 4 #All arranged in a row, not rectangle
 	gamepad.analog_sticks = 1
 	game.metadata.input_info.add_option(gamepad)
 	#There's also a light pen but I dunno stuff about it or how to detect it so there's not a lot that can be done about it
 
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
 
 	#Only do things the wrong way if we can't find year by software list
 	try:

@@ -1,16 +1,18 @@
 import json
 from enum import Enum
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 from xml.etree import ElementTree
 from collections.abc import Mapping
 
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Metadata
 from meowlauncher.util.region_info import get_language_by_english_name
 
-from .generic import add_generic_info
+from .generic import add_generic_software_info
+
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
 
 duckstation_config = emulator_configs.get('DuckStation')
 
@@ -64,7 +66,7 @@ def get_duckstation_db_info(product_code: str) -> Optional[Mapping]:
 			return db_game
 	return None
 
-def add_duckstation_db_info(metadata: Metadata):
+def add_duckstation_db_info(metadata: 'Metadata'):
 	if not metadata.product_code:
 		return
 	db_entry = get_duckstation_db_info(metadata.product_code)
@@ -94,8 +96,14 @@ def add_duckstation_db_info(metadata: Metadata):
 			metadata.specific_info['Compatible Controllers'] = controllers
 			metadata.specific_info['Supports Analog?'] = 'AnalogController' in controllers
 
-def add_ps1_metadata(game: ROMGame):
-	add_generic_info(game)
+def add_ps1_metadata(game: 'ROMGame'):
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
+
 	if game.metadata.product_code and duckstation_config:
 		compat = find_duckstation_compat_info(game.metadata.product_code)
 		if compat:

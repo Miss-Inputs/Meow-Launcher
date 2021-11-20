@@ -12,7 +12,7 @@ from meowlauncher.games.mame_common.mame_executable import \
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.roms.rom import FileROM
 
-from .generic import add_generic_info
+from .generic import add_generic_software_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
@@ -153,7 +153,10 @@ def add_ibm_pcjr_info(game: 'ROMGame'):
 		#Boot from a DOS floppy and type 'G'
 
 def add_pet_info(game: 'ROMGame'):
-	add_generic_info(game)
+	software = game.get_software_list_entry()
+	if software:
+		add_generic_software_info(software, game.metadata)
+
 	#Usage strings in pet_rom:
 	#Requires BASIC 2 (works on pet2001n).  Enter 'SYS 37000' to run
 	#SYS38000
@@ -203,7 +206,9 @@ def add_pc_engine_info(game: 'ROMGame'):
 	if equivalent_arcade:
 		game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
 
-	add_generic_info(game)
+	software = game.get_software_list_entry()
+	if software:
+		add_generic_software_info(software, game.metadata)
 
 	#Apple III: Possible input info: Keyboard and joystick by default, mouse if mouse card exists
 	#Coleco Adam: Input info: Keyboard / Coleco numpad?

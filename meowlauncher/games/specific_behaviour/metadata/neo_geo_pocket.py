@@ -1,12 +1,14 @@
-from typing import cast
+from typing import TYPE_CHECKING, cast
+
 from meowlauncher import input_metadata
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
 
-from .generic import add_generic_info
+from .generic import add_generic_software_info
 
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
 
-def add_ngp_metadata(game: ROMGame):
+def add_ngp_metadata(game: 'ROMGame'):
 
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
@@ -27,4 +29,6 @@ def add_ngp_metadata(game: ROMGame):
 	if internal_title:
 		game.metadata.specific_info['Internal Title'] = internal_title
 
-	add_generic_info(game)
+	software = game.get_software_list_entry()
+	if software:
+		add_generic_software_info(software, game.metadata)

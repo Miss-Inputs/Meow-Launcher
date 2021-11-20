@@ -4,14 +4,14 @@ from typing import cast
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games.roms.rom import ROM, FileROM
+from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.games.roms.rom_game import ROMGame
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import SaturnRegionCodes
 from meowlauncher.util.cd_read import get_first_data_cue_track, read_mode_1_cd
 from meowlauncher.util.utils import load_dict
 
-from .generic import add_generic_info
+from .generic import add_generic_software_info
 
 licensee_codes = load_dict(None, 'sega_licensee_codes')
 
@@ -96,7 +96,7 @@ def parse_peripherals(metadata: Metadata, peripherals: str):
 		#U = Sonic Z-Treme?
 		#Z = Game Basic for SegaSaturn (PC connectivity?)
 
-def add_saturn_info(rom: ROM, metadata: Metadata, header: bytes):
+def add_saturn_info(rom_path_for_warning: str, metadata: Metadata, header: bytes):
 	hardware_id = header[0:16].decode('ascii', errors='ignore')
 	if hardware_id != 'SEGA SEGASATURN ':
 		#Won't boot on a real Saturn, also if this is some emulator only thing then nothing in the header can be considered valid
@@ -148,7 +148,7 @@ def add_saturn_info(rom: ROM, metadata: Metadata, header: bytes):
 				metadata.release_date = guessed
 		except IndexError:
 			if main_config.debug:
-				print(rom.path, 'has invalid date in header:', release_date)
+				print(rom_path_for_warning, 'has invalid date in header:', release_date)
 		except ValueError:
 			pass
 
@@ -215,6 +215,11 @@ def add_saturn_metadata(game: ROMGame):
 	else:
 		return
 
-	add_saturn_info(game.rom, game.metadata, header)
+	add_saturn_info(str(game.rom.path), game.metadata, header)
 
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass

@@ -22,13 +22,3 @@ def add_generic_software_info(software: 'Software', metadata: 'Metadata'):
 			#We have already added this
 			continue
 		metadata.specific_info[info_name.replace('_', '-').replace(' ', '-').title()] = info_value
-
-def add_generic_info(game: 'ROMGame'):
-	#For any system not otherwise specified
-	if game.rom.is_folder:
-		return
-	software = game.get_software_list_entry()
-
-	if software:
-		add_generic_software_info(software, game.metadata)
-		

@@ -4,7 +4,7 @@ from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.roms.rom import FileROM
 
-from .generic import add_generic_info
+from .generic import add_generic_software_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
@@ -92,6 +92,8 @@ def add_wonderswan_metadata(game: 'ROMGame'):
 	if isinstance(game.rom, FileROM):
 		add_wonderswan_header_info(game.rom, game.metadata)
 	
-	add_generic_info(game)
+	software = game.get_software_list_entry()
+	if software:
+		add_generic_software_info(software, game.metadata)
 	#We could get save type from software.has_data_area('sram' or 'eeprom') but I think we can trust the header flags for now, even with BPCv2 carts
 	#By the same token we can get screen orientation = vertical if feature rotated = 'yes'

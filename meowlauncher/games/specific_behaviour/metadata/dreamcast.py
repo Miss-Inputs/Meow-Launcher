@@ -1,5 +1,6 @@
 import re
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.roms.rom import FileROM
@@ -8,7 +9,10 @@ from meowlauncher.platform_types import SaturnRegionCodes
 from meowlauncher.util import cd_read
 from meowlauncher.util.utils import load_dict
 
-from .generic import add_generic_info
+from .generic import add_generic_software_info
+
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
 
 licensee_codes = load_dict(None, 'sega_licensee_codes')
 
@@ -144,8 +148,13 @@ def add_info_from_gdi(rom: FileROM, metadata: Metadata):
 				full_name = Path(filename) if filename.startswith('/') else rom.path.parent.joinpath(filename)
 				add_info_from_main_track(metadata, full_name, sector_size)
 
-def add_dreamcast_metadata(game):
+def add_dreamcast_metadata(game: 'ROMGame'):
 	if game.rom.extension == 'gdi':
 		add_info_from_gdi(game.rom, game.metadata)
 
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass

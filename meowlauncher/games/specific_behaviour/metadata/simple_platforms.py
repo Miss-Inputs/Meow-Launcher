@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 
-from .generic import add_generic_info
+from .generic import add_generic_software_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
@@ -21,7 +21,12 @@ def add_entex_adventure_vision_info(game: 'ROMGame'):
 	#I don't think so mate
 	game.metadata.save_type = SaveType.Nothing
 
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
 
 def add_game_pocket_computer_info(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
@@ -32,7 +37,12 @@ def add_game_pocket_computer_info(game: 'ROMGame'):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
 
 def add_gamate_info(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
@@ -43,7 +53,12 @@ def add_gamate_info(game: 'ROMGame'):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
 
 def add_casio_pv1000_info(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
@@ -55,7 +70,12 @@ def add_casio_pv1000_info(game: 'ROMGame'):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
 
 def add_mega_duck_info(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
@@ -65,7 +85,12 @@ def add_mega_duck_info(game: 'ROMGame'):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
 
 def add_watara_supervision_info(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
@@ -76,7 +101,12 @@ def add_watara_supervision_info(game: 'ROMGame'):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
 
 def add_arcadia_info(game: 'ROMGame'):
 	keypad = input_metadata.Keypad() #2 controllers hardwired into the system. If MAME is any indication, the buttons on the side don't do anything or are equivalent to keypad 2?
@@ -90,7 +120,12 @@ def add_arcadia_info(game: 'ROMGame'):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
 	#Nothing really here other than alt titles (for other languages). I guess this proves that the Bandai Arcadia really isn't different.
 
 def add_astrocade_info(game: 'ROMGame'):
@@ -108,12 +143,21 @@ def add_astrocade_info(game: 'ROMGame'):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
 
 def add_pc88_info(game: 'ROMGame'):
 	#Input info: Keyboard or joystick
-
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
 	#Needs BASIC V1 or older
 	#Mount both disk A and B to start
 	#Needs BASIC V1
@@ -146,7 +190,13 @@ def add_sg1000_info(game: 'ROMGame'):
 def add_sharp_x1_info(game: 'ROMGame'):
 	#Input info: Keyboard and/or joystick
 
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
+
 	#Type FILES then move the cursor to the line of the game and type LOAD (to load) and type RUN when loaded
 	#Runs in HuBASIC
 	#Load SIRIUS 1 from Extra Hyper
@@ -157,7 +207,12 @@ def add_sharp_x68k_info(game: 'ROMGame'):
 	#Input info: Keyboard and/or joystick
 
 	#Many games are known to have SaveType.Floppy, but can't tell programmatically...
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
 	#Requires Disk 1 and Disk 3 mounted to boot
 	#Use mouse at select screen
 	#Requires "Harukanaru Augusta" to work
@@ -181,7 +236,12 @@ def add_vc4000_info(game: 'ROMGame'):
 	#Until proven otherwise
 	game.metadata.save_type = SaveType.Nothing
 
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
 
 def add_hartung_game_master_info(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
@@ -189,7 +249,12 @@ def add_hartung_game_master_info(game: 'ROMGame'):
 	builtin_gamepad.face_buttons = 2
 	game.metadata.input_info.add_option(builtin_gamepad)
 
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
 
 def add_bandai_sv8000_info(game: 'ROMGame'):
 	keypad = input_metadata.Keypad() #2 of these
@@ -202,7 +267,12 @@ def add_bandai_sv8000_info(game: 'ROMGame'):
 	controller = input_metadata.CombinedController([keypad, joystick])
 	game.metadata.input_info.add_option(controller)
 
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
 
 def add_nichibutsu_my_vision_info(game: 'ROMGame'):
 	buttons = input_metadata.NormalController() #Not normal, but closest there is
@@ -210,7 +280,12 @@ def add_nichibutsu_my_vision_info(game: 'ROMGame'):
 	buttons.face_buttons = 19 #Numbered 1 to 14 in a row, then A B C D arranged in directions above that, and an E button next to that
 	game.metadata.input_info.add_option(buttons)
 
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
 
 def add_bbc_bridge_companion_info(game: 'ROMGame'):
 	buttons = input_metadata.NormalController()
@@ -219,10 +294,21 @@ def add_bbc_bridge_companion_info(game: 'ROMGame'):
 
 	game.metadata.save_type = SaveType.Nothing #Yeah nah
 
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
 
 def add_cd32_info(game: 'ROMGame'):
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
+
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4
@@ -231,7 +317,13 @@ def add_cd32_info(game: 'ROMGame'):
 
 def add_neogeo_cd_info(game: 'ROMGame'):
 	#Apparently there is a mahjong controller too, but... meh
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
+
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4
@@ -245,7 +337,12 @@ def add_juicebox_info(game: 'ROMGame'):
 
 	game.metadata.save_type = SaveType.Nothing #Nope!
 
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
 
 def add_fm7_info(game: 'ROMGame'):
 	#Possible input info: Keyboard and joystick but barely anything uses said joystick
@@ -260,7 +357,12 @@ def add_fm7_info(game: 'ROMGame'):
 	#"Type RUN&quot;XXX&quot; with XXX=MAGUS, LIZARD, BLUE.FOX or ナイザー in F-BASIC"
 	#Sounds like there's a few disks which don't autoboot...
 	#"Type LOADM&quot;&quot;,R to load" is on a few tapes
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
 
 def add_super_cassette_vision_info(game: 'ROMGame'):
 	keypad = input_metadata.Keypad() #Part of main body of console
@@ -277,7 +379,13 @@ def add_super_cassette_vision_info(game: 'ROMGame'):
 		game.metadata.specific_info['Has Extra RAM?'] = software.has_data_area('ram') #Or feature "slot" ends with "_ram"
 
 def add_super_acan_info(game: 'ROMGame'):
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
+
 	controller = input_metadata.NormalController()
 	controller.shoulder_buttons = 2
 	controller.dpads = 1
@@ -298,7 +406,13 @@ def add_pc_booter_info(game: 'ROMGame'):
 		game.metadata.specific_info['Version'] = software.infos.get('version')
 
 def add_vsmile_info(game: 'ROMGame'):
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
+
 	controller = input_metadata.NormalController()
 	controller.analog_sticks = 1 #Hmm MAME has it as a digital joystick with 8 buttons but Wikipedia says analog, whomst is correct? I dunno
 	controller.face_buttons = 4 #Also enter + Learning Zone + exit + help
@@ -306,14 +420,26 @@ def add_vsmile_info(game: 'ROMGame'):
 	game.metadata.input_info.add_option(controller)
 
 def add_vsmile_babby_info(game: 'ROMGame'):
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
+
 	controller = input_metadata.NormalController()
 	controller.face_buttons = 6 #5 shapes + "fun button" (aka cloud) + apparently the ball is actually just a button; also exit
 
 	game.metadata.input_info.add_option(controller)
 
 def add_vz200_info(game: 'ROMGame'):
-	add_generic_info(game)
+	try:
+		software = game.get_software_list_entry()
+		if software:
+			add_generic_software_info(software, game.metadata)
+	except NotImplementedError:
+		pass
+
 	keyboard = input_metadata.Keyboard()
 	keyboard.keys = 45
 	#There are in theory joysticks, but they don't seem to ever be a thing

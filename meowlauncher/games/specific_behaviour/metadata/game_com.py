@@ -1,11 +1,13 @@
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Metadata
 
-from .generic import add_generic_info
+from .generic import add_generic_software_info
+
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
 
 try:
 	from PIL import Image
@@ -65,7 +67,7 @@ def parse_icon(rom: FileROM, icon_bank: int, icon_offset_x: int, icon_offset_y: 
 
 	return whole_bank.crop((icon_offset_x, icon_offset_y, icon_offset_x + 64, icon_offset_y + 64))
 
-def parse_rom_header(rom: FileROM, metadata: Metadata, header: bytes):
+def parse_rom_header(rom: FileROM, metadata: 'Metadata', header: bytes):
 	#Shoutouts to https://github.com/Tpot-SSL/GameComHDK and https://github.com/simontime/gcfix/blob/master/gcfix.c and https://github.com/GerbilSoft/rom-properties/blob/master/src/libromdata/Handheld/gcom_structs.h because there is no other documentation that I know of
 	metadata.specific_info['Internal Title'] = header[17:26].decode('ascii', errors='ignore').rstrip()
 	#26:28: Game ID, but does that have any relation to product code?
@@ -77,7 +79,7 @@ def parse_rom_header(rom: FileROM, metadata: Metadata, header: bytes):
 		
 		metadata.images['Icon'] = parse_icon(rom, icon_bank, icon_offset_x, icon_offset_y)
 
-def add_game_com_metadata(game: ROMGame):
+def add_game_com_metadata(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4 #A B C D
@@ -91,5 +93,6 @@ def add_game_com_metadata(game: ROMGame):
 		#If it still isn't there, never mind
 		parse_rom_header(rom, game.metadata, rom_header)
 
-	#Might have saving, actually. I'm just not sure about how it works.
-	add_generic_info(game)
+	software = game.get_software_list_entry()
+	if software:
+		add_generic_software_info(software, game.metadata)
