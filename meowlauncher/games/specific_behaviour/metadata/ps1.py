@@ -8,7 +8,7 @@ from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
 from meowlauncher.util.region_info import get_language_by_english_name
 
-from .generic import add_generic_software_info
+from meowlauncher.games.common.generic_info import add_generic_software_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame

@@ -4,9 +4,8 @@ from meowlauncher.util.region_info import TVSystem
 
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
-	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
-
+	
 def add_generic_software_info(software: 'Software', metadata: 'Metadata'):
 	software.add_standard_metadata(metadata)
 	metadata.add_notes(software.get_info('usage'))

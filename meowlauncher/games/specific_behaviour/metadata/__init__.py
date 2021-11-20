@@ -17,7 +17,7 @@ from .game_boy import add_gameboy_metadata
 from .game_com import add_game_com_metadata
 from .gamecube import add_gamecube_metadata
 from .gba import add_gba_metadata
-from .generic import add_generic_software_info
+from meowlauncher.games.common.generic_info import add_generic_software_info
 from .intellivision import add_intellivision_info
 from .lynx import add_lynx_metadata
 from .master_system import get_sms_metadata
@@ -147,5 +147,3 @@ helpers: dict[str, Callable[[ROMGame], None]] = {
 	'VIC-20': add_vic20_info,
 	'Watara Supervision': add_watara_supervision_info,
 }
-
-generic_software_helper = add_generic_software_info

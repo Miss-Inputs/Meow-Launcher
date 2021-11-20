@@ -3,6 +3,7 @@ from typing import Any, Optional, Union, cast
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.libretro_database_company_name_cleanup import \
     company_name_overrides
+from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.common.libretro_database import (
     LibretroDatabaseType, parse_all_dats_for_system)
 from meowlauncher.games.mame_common.machine import (Machine,
@@ -13,8 +14,7 @@ from meowlauncher.games.mame_common.mame_executable import \
 from meowlauncher.games.mame_common.mame_helpers import (
     default_mame_executable, get_image)
 from meowlauncher.games.mame_common.mame_utils import image_config_keys
-from meowlauncher.games.specific_behaviour.metadata import (
-    generic_software_helper, helpers)
+from meowlauncher.games.specific_behaviour.metadata import helpers
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.detect_things_from_filename import (
     get_date_from_filename_tags, get_languages_from_filename_tags,
@@ -298,7 +298,7 @@ def add_metadata(game: ROMGame):
 		try:
 			software = game.get_software_list_entry()
 			if software:
-				generic_software_helper(software, game.metadata)
+				add_generic_software_info(software, game.metadata)
 		except NotImplementedError:
 			pass
 

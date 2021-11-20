@@ -6,7 +6,7 @@ from meowlauncher.metadata import Date
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric)
 
-from .generic import add_generic_software_info
+from meowlauncher.games.common.generic_info import add_generic_software_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame

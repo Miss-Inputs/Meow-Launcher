@@ -9,7 +9,7 @@ from meowlauncher.platform_types import SaturnRegionCodes
 from meowlauncher.util import cd_read
 from meowlauncher.util.utils import load_dict
 
-from .generic import add_generic_software_info
+from meowlauncher.games.common.generic_info import add_generic_software_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame

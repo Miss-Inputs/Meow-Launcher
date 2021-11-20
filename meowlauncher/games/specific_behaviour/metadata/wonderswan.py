@@ -4,7 +4,7 @@ from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.roms.rom import FileROM
 
-from .generic import add_generic_software_info
+from meowlauncher.games.common.generic_info import add_generic_software_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
