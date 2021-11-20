@@ -12,8 +12,9 @@ import tempfile
 from collections.abc import Collection, Mapping
 from enum import Enum, Flag
 from shutil import rmtree
-from typing import TYPE_CHECKING, NamedTuple, Optional, cast
+from typing import TYPE_CHECKING, Optional, cast
 from xml.etree import ElementTree
+from dataclasses import dataclass, field
 
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
@@ -88,13 +89,14 @@ nacp_languages = {
 	#There's space for #15 here (BrazilianPortugese?) but that never seems to be used
 }
 
-class Cnmt(NamedTuple):
+@dataclass(frozen=True)
+class Cnmt():
 	title_id: str
 	version: int
 	type: SwitchContentMetaType
-	contents: dict[bytes, tuple[int, ContentType]]
+	contents: dict[bytes, tuple[int, ContentType]] = field(compare=False)
 
-def add_titles(metadata: 'Metadata', titles: Mapping[str, tuple[str, str]], icons: Mapping[str, bytes]=None):
+def _add_titles(metadata: 'Metadata', titles: Mapping[str, tuple[str, str]], icons: Mapping[str, bytes]=None):
 	if not titles:
 		return
 	found_first_lang = False
@@ -145,7 +147,7 @@ def add_titles(metadata: 'Metadata', titles: Mapping[str, tuple[str, str]], icon
 				#TODO: Cleanup publisher
 				metadata.publisher = publisher
 
-def add_nacp_metadata(metadata: 'Metadata', nacp: bytes, icons: Mapping[str, bytes]=None):
+def _add_nacp_metadata(metadata: 'Metadata', nacp: bytes, icons: Mapping[str, bytes]=None):
 	#There are a heckload of different flags here and most aren't even known seemingly, see also https://switchbrew.org/wiki/NACP_Format
 	
 	title_entries = nacp[:0x3000]
@@ -157,7 +159,7 @@ def add_nacp_metadata(metadata: 'Metadata', nacp: bytes, icons: Mapping[str, byt
 		name = entry[:0x200].decode('utf-8', errors='ignore').rstrip('\0')
 		publisher = entry[0x200:].decode('utf-8', errors='ignore').rstrip('\0')
 		titles[lang_name] = name, publisher
-	add_titles(metadata, titles, icons)
+	_add_titles(metadata, titles, icons)
 
 	isbn = nacp[0x3000:0x3025]
 	if any(isbn):
@@ -203,7 +205,7 @@ def add_nacp_metadata(metadata: 'Metadata', nacp: bytes, icons: Mapping[str, byt
 		metadata.product_code = application_error_code_category.decode('utf-8', errors='ignore')
 		#TODO: Use switchtdb.xml although it won't be as useful when it uses the product code which we can only have sometimes
 
-def add_cnmt_xml_metadata(xml: ElementTree.Element, metadata: 'Metadata'):
+def _add_cnmt_xml_metadata(xml: ElementTree.Element, metadata: 'Metadata'):
 	metadata.specific_info['Title Type'] = xml.findtext('Type')
 	title_id = xml.findtext('Id')
 	if title_id:
@@ -220,9 +222,9 @@ def _call_nstool_for_decrypt(temp_folder: str, temp_filename: str):
 		#I guess that's the error message
 		raise InvalidNCAException('Header wrong')
 	
-def decrypt_control_nca_with_hactool(control_nca: bytes) -> Mapping[str, bytes]:
-	if hasattr(decrypt_control_nca_with_hactool, 'failed'):
-		raise ExternalToolNotHappeningException('No can do {0}'.format(decrypt_control_nca_with_hactool.failed)) #type: ignore[attr-defined]
+def _decrypt_control_nca_with_hactool(control_nca: bytes) -> Mapping[str, bytes]:
+	if hasattr(_decrypt_control_nca_with_hactool, 'failed'):
+		raise ExternalToolNotHappeningException('No can do {0}'.format(_decrypt_control_nca_with_hactool.failed)) #type: ignore[attr-defined]
 	temp_folder = None
 	try:
 		#Ugly code time
@@ -241,7 +243,7 @@ def decrypt_control_nca_with_hactool(control_nca: bytes) -> Mapping[str, bytes]:
 			try:
 				_call_nstool_for_decrypt(temp_folder, temp_filename)
 			except (subprocess.CalledProcessError, FileNotFoundError):
-				decrypt_control_nca_with_hactool.failed = cactus #type: ignore[attr-defined]
+				_decrypt_control_nca_with_hactool.failed = cactus #type: ignore[attr-defined]
 				raise ExternalToolNotHappeningException('No can do') from cactus
 
 		files = {}
@@ -255,10 +257,10 @@ def decrypt_control_nca_with_hactool(control_nca: bytes) -> Mapping[str, bytes]:
 		if temp_folder:
 			rmtree(temp_folder)
 
-def decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
+def _decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
 	#Decrypting NCAs is hard, let's go shopping (and get an external tool to do it)
-	if hasattr(decrypt_cnmt_nca_with_hactool, 'failed'):
-		raise ExternalToolNotHappeningException('No can do {0}'.format(decrypt_cnmt_nca_with_hactool.failed)) #type: ignore[attr-defined]
+	if hasattr(_decrypt_cnmt_nca_with_hactool, 'failed'):
+		raise ExternalToolNotHappeningException('No can do {0}'.format(_decrypt_cnmt_nca_with_hactool.failed)) #type: ignore[attr-defined]
 	temp_folder = None
 	try:
 		#Ugly code time
@@ -279,7 +281,7 @@ def decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
 				#Plan B
 				_call_nstool_for_decrypt(temp_folder, temp_filename)
 			except (subprocess.CalledProcessError, FileNotFoundError):
-				decrypt_cnmt_nca_with_hactool.failed = cactus #type: ignore[attr-defined]
+				_decrypt_cnmt_nca_with_hactool.failed = cactus #type: ignore[attr-defined]
 				raise ExternalToolNotHappeningException('No can do') from cactus
 
 		for f in os.scandir(temp_folder):
@@ -291,7 +293,7 @@ def decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
 		if temp_folder:
 			rmtree(temp_folder)
 
-def list_cnmt(cnmt: Cnmt, rom: FileROM, metadata: 'Metadata', files: Mapping[str, tuple[int, int]], extra_offset: int=0):
+def _list_cnmt(cnmt: Cnmt, rom: FileROM, metadata: 'Metadata', files: Mapping[str, tuple[int, int]], extra_offset: int=0):
 	metadata.specific_info['Title ID'] = cnmt.title_id
 	metadata.specific_info['Revision'] = cnmt.version
 	metadata.specific_info['Title Type'] = cnmt.type
@@ -301,7 +303,7 @@ def list_cnmt(cnmt: Cnmt, rom: FileROM, metadata: 'Metadata', files: Mapping[str
 			control_nca_offset, control_nca_size = files[control_nca_filename]
 			control_nca = rom.read(seek_to=control_nca_offset + extra_offset, amount=control_nca_size)
 			try:
-				control_nca_files = decrypt_control_nca_with_hactool(control_nca)
+				control_nca_files = _decrypt_control_nca_with_hactool(control_nca)
 				#We have icons and a NACP! WOOOOO
 				#The icons match up with the titles that exist in the titles section, not SupportedLanguageFlag
 				icons = {}
@@ -313,7 +315,7 @@ def list_cnmt(cnmt: Cnmt, rom: FileROM, metadata: 'Metadata', files: Mapping[str
 					elif have_pillow and control_nca_filename.startswith('icon_') and control_nca_filename.endswith('.dat'):
 						icons[control_nca_filename.removeprefix('icon_').removesuffix('.dat')] = control_nca_file
 				if nacp:
-					add_nacp_metadata(metadata, nacp, icons)
+					_add_nacp_metadata(metadata, nacp, icons)
 				elif main_config.debug:
 					print('Hmm no control.nacp in', rom.path)
 			except InvalidNCAException:
@@ -324,12 +326,12 @@ def list_cnmt(cnmt: Cnmt, rom: FileROM, metadata: 'Metadata', files: Mapping[str
 			break
 		#ContentMetaType.AddOnContent seems to generally not have control data, only a single ContentType.Data
 
-def list_cnmt_nca(data: bytes) -> Cnmt:
+def _list_cnmt_nca(data: bytes) -> Cnmt:
 	# 0x12	0x2	Content Meta Count #Whazzat do
 	# 0x14	0x1	Content Meta Attributes (0=None, 1=IncludesExFatDriver, 2=Rebootless) #Dunno what that does either
 	# 0x18	0x4	Required Download System Version
 
-	cnmt = decrypt_cnmt_nca_with_hactool(data)
+	cnmt = _decrypt_cnmt_nca_with_hactool(data)
 	
 	title_id = bytes.hex(cnmt[0:8][::-1]) #Not sure why this is backwards but it be like that
 	version = int.from_bytes(cnmt[8:12], 'little')
@@ -349,7 +351,7 @@ def list_cnmt_nca(data: bytes) -> Cnmt:
 		contents[content_id] = (content_size, content_type)
 	return Cnmt(title_id, version, content_meta_type, contents)
 
-def list_psf0(rom: FileROM) -> Mapping[str, tuple[int, int]]:
+def _list_psf0(rom: FileROM) -> Mapping[str, tuple[int, int]]:
 	header = rom.read(amount=16)
 	magic = header[:4]
 	if magic != b'PFS0':
@@ -380,7 +382,7 @@ def list_psf0(rom: FileROM) -> Mapping[str, tuple[int, int]]:
 		files[name.decode('utf-8', errors='backslashreplace')] = (offset + data_offset, size)
 	return files
 
-def choose_main_cnmt(cnmts: Collection[Cnmt]) -> Optional[Cnmt]:
+def _choose_main_cnmt(cnmts: Collection[Cnmt]) -> Optional[Cnmt]:
 	if not cnmts:
 		return None
 	if len(cnmts) == 1:
@@ -395,7 +397,7 @@ def choose_main_cnmt(cnmts: Collection[Cnmt]) -> Optional[Cnmt]:
 	return next(cnmt for cnmt in cnmts)
 
 def add_nsp_metadata(rom: FileROM, metadata: 'Metadata'):
-	files = list_psf0(rom)
+	files = _list_psf0(rom)
 	cnmts = set()
 	cnmt_xml = None
 	try_fallback_to_xml = False
@@ -404,7 +406,7 @@ def add_nsp_metadata(rom: FileROM, metadata: 'Metadata'):
 		if filename.endswith('.cnmt.nca'):
 			cnmt_nca = rom.read(amount=offsetsize[1], seek_to=offsetsize[0])
 			try:
-				cnmts.add(list_cnmt_nca(cnmt_nca))
+				cnmts.add(_list_cnmt_nca(cnmt_nca))
 			except InvalidNCAException:
 				#if main_config.debug:
 				#	print(filename, 'is an invalid cnmt.nca in', rom.path, ex)
@@ -422,16 +424,16 @@ def add_nsp_metadata(rom: FileROM, metadata: 'Metadata'):
 
 	if try_fallback_to_xml and cnmt_xml is not None:
 		#We could look at the list of contents in there, but there's not much point seeing as how we'd need to decrypt the content NCA anyway
-		add_cnmt_xml_metadata(cnmt_xml, metadata)
+		_add_cnmt_xml_metadata(cnmt_xml, metadata)
 
-	main_cnmt = choose_main_cnmt(cnmts)
+	main_cnmt = _choose_main_cnmt(cnmts)
 	if main_cnmt:
-		list_cnmt(main_cnmt, rom, metadata, files)
+		_list_cnmt(main_cnmt, rom, metadata, files)
 	#else:
 	#	if main_config.debug:
 	#		print('Uh oh no cnmt.nca in', rom.path, '?')
 
-def read_hfs0(rom: FileROM, offset: int, max_size: int=None) -> Mapping[str, tuple[int, int]]:
+def _read_hfs0(rom: FileROM, offset: int, max_size: int=None) -> Mapping[str, tuple[int, int]]:
 	header = rom.read(offset, 16)
 
 	magic = header[:4]
@@ -499,21 +501,21 @@ def add_xci_metadata(rom: FileROM, metadata: 'Metadata'):
 	if hashlib.sha256(root_partition_header).digest() != root_partition_header_expected_hash:
 		raise InvalidXCIException('HFS0 hash in XCI header did not match')
 
-	root_partition = read_hfs0(rom, root_partition_offset)
+	root_partition = _read_hfs0(rom, root_partition_offset)
 	if 'secure' in root_partition:
 		#This one is always here and not sometimes empty like normal is, and also the cnmt is encrypted anyway, so whaddya do
 		secure_offset, secure_size = root_partition['secure']
 		#I've been nae naed
 		real_secure_offset = int.from_bytes(header[0x104:0x108], 'little') * 0x200
 		secure_offset_diff = secure_offset - real_secure_offset
-		secure_files = read_hfs0(rom, real_secure_offset, secure_size)
+		secure_files = _read_hfs0(rom, real_secure_offset, secure_size)
 
 		cnmts = []
 		for k, v in secure_files.items():
 			if k.endswith('.cnmt.nca'):
 				cnmt = rom.read(v[0] + secure_offset_diff, v[1]) #I've been double nae naed
 				try:
-					cnmts.append(list_cnmt_nca(cnmt))
+					cnmts.append(_list_cnmt_nca(cnmt))
 				#except ValueError as v:
 				#	print('Bugger bugger bugger', v)
 				except InvalidNCAException:
@@ -523,9 +525,9 @@ def add_xci_metadata(rom: FileROM, metadata: 'Metadata'):
 					#print(ex)
 					return
 
-		main_cnmt = choose_main_cnmt(cnmts)
+		main_cnmt = _choose_main_cnmt(cnmts)
 		if main_cnmt:
-			list_cnmt(main_cnmt, rom, metadata, secure_files, secure_offset_diff)
+			_list_cnmt(main_cnmt, rom, metadata, secure_files, secure_offset_diff)
 		#else:
 		#	print('Uh oh no cnmt.nca?')
 
@@ -554,7 +556,7 @@ def add_nro_metadata(rom: FileROM, metadata: 'Metadata'):
 		metadata.images['Icon'] = Image.open(icon_io)
 	if nacp_size > 0:
 		nacp = rom.read(seek_to=nro_size + nacp_offset, amount=nacp_size)
-		add_nacp_metadata(metadata, nacp)
+		_add_nacp_metadata(metadata, nacp)
 
 def add_switch_metadata(game: 'ROMGame'):
 	if game.rom.extension == 'nro':
