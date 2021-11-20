@@ -6,7 +6,7 @@ import datetime
 import itertools
 import sys
 import time
-from collections.abc import Callable, Collection, MutableMapping
+from collections.abc import Callable, Collection, MutableMapping, Iterable
 from pathlib import Path
 from typing import Optional, cast
 
@@ -108,7 +108,7 @@ def resolve_duplicates_by_filename_tags(group: Collection[DesktopWithPath]):
 		if differentiator_candidates:
 			update_name(dup, ' '.join(differentiator_candidates), 'tags')
 
-def resolve_duplicates_by_dev_status(group: Collection[DesktopWithPath]):
+def resolve_duplicates_by_dev_status(group: Iterable[DesktopWithPath]):
 	for dup in group:
 		tags = get_array(dup[1], 'Filename-Tags', junk_section_name)
 
@@ -178,7 +178,8 @@ def resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_f
 		resolve_duplicates_by_metadata(group, method, format_function, ignore_missing_values, field_section)
 
 def fix_duplicate_names(method: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name):
-	files = tuple((path, get_desktop(path)) for path in main_config.output_folder.iterdir())
+	#TODO: output_folder needs to be unambigulously Path, that's the issue here
+	files = ((cast(Path, path), get_desktop(path)) for path in main_config.output_folder.iterdir())
 	if method == 'dev-status':
 		resolve_duplicates_by_dev_status(files)
 		return
@@ -188,10 +189,10 @@ def fix_duplicate_names(method: str, format_function: Optional[FormatFunction]=N
 	keyfunc: Callable[[DesktopWithPath], str] = (lambda f: cast(str, get_field(f[1], 'Name', 'Desktop Entry')).lower()) \
 		if method == 'check' \
 		else (lambda f: normalize_name(cast(str, get_field(f[1], 'Name', 'Desktop Entry')), care_about_numerals=True))
-	duplicates: MutableMapping[str, tuple[DesktopWithPath]] = {}
+	duplicates: MutableMapping[str, set[DesktopWithPath]] = {}
 	#TODO: Is using keyfunc twice there really needed? Is that how that works?
 	for key, group in itertools.groupby(sorted(files, key=keyfunc), key=keyfunc):
-		g = tuple(group)
+		g = set(group)
 		if len(g) > 1:
 			duplicates[key] = g
 

@@ -395,22 +395,15 @@ def add_input_info(game: 'MAMEGame') -> None:
 			print('Oi m8', game.machine.basename, '/', game.machine.name, 'has no input')
 		return
 
-	control_elements = game.machine.input_element.findall('control')
-	if not control_elements:
-		#Sometimes you get some games with 1 or more players, but no control type defined.  This usually happens with
-		#pinball games and weird stuff like a clock, but also some genuine games like Crazy Fight that are more or less
-		#playable just fine, so we'll leave them in
-		if game.machine.number_of_players > 0:
-			game.metadata.input_info.add_option(input_metadata.Custom('Unknown input device'))
-		return
-
 	controller = input_metadata.CombinedController()
 
 	has_normal_input = False
 	has_added_vii_motion_controls = False
 	normal_input = input_metadata.NormalController()
 
-	for control in control_elements:
+	has_control_elements = False
+
+	for control in game.machine.input_element.iterfind('control'):
 		buttons = int(control.attrib.get('buttons', 0))
 
 		if control.attrib.get('player', '1') != '1':
@@ -513,5 +506,13 @@ def add_input_info(game: 'MAMEGame') -> None:
 
 	if has_normal_input:
 		controller.components.append(normal_input)
+
+	if not has_control_elements:
+		#Sometimes you get some games with 1 or more players, but no control type defined.  This usually happens with
+		#pinball games and weird stuff like a clock, but also some genuine games like Crazy Fight that are more or less
+		#playable just fine, so we'll leave them in
+		if game.machine.number_of_players > 0:
+			game.metadata.input_info.add_option(input_metadata.Custom('Unknown input device'))
+		return
 
 	game.metadata.input_info.add_option(controller)

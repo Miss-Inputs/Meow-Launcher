@@ -107,7 +107,7 @@ def normalize_name(name: str, care_about_spaces=True, normalize_words=True, care
 	name = apostrophes_at_word_boundary_regex.sub('', name)
 
 	if normalize_words:
-		return ('-' if care_about_spaces else '').join(words_regex.findall(name))
+		return ('-' if care_about_spaces else '').join(match[0] for match in words_regex.finditer(name))
 	return name
 
 dont_capitalize_these = {'the', 'a', 'an', 'and', 'or', 'at', 'with', 'to', 'of', 'is'}
