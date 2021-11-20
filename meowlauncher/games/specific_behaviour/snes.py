@@ -1,7 +1,8 @@
 import calendar
 from collections.abc import Mapping
+from dataclasses import dataclass
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Any, Optional
 
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.mame_common.machine import (
@@ -9,7 +10,6 @@ from meowlauncher.games.mame_common.machine import (
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
-from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.platform_types import SNESExpansionChip
 from meowlauncher.util.region_info import regions_by_name
 from meowlauncher.util.utils import (NotAlphanumericException,
@@ -19,7 +19,7 @@ from .common import snes_controllers as controllers
 
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
-	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.games.roms.rom import FileROM
 	from meowlauncher.metadata import Metadata
 
 _nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
@@ -32,7 +32,7 @@ def _make_ram_rom_sizes() -> Mapping[int, int]:
 	for i in range(0, 256):
 		sizes[i] = (1 << i) * 1024
 	return sizes
-ram_rom_sizes = _make_ram_rom_sizes()
+_ram_rom_sizes = _make_ram_rom_sizes()
 
 _rom_layouts = {
 	0x20: "LoROM",
@@ -46,12 +46,12 @@ _rom_layouts = {
 	0x3a: 'ExHiROM + FastROM + SPC7110',
 }
 
+@dataclass
 class ROMType():
-	def __init__(self, expansion_chip=None, has_ram=False, has_battery=False, has_rtc=False):
-		self.expansion_chip = expansion_chip
-		self.has_ram = has_ram
-		self.has_battery = has_battery
-		self.has_rtc = has_rtc
+	expansion_chip: Optional[SNESExpansionChip] = None
+	has_ram: bool = False
+	has_battery: bool = False
+	has_rtc: bool = False		
 
 _rom_types = {
 	0: ROMType(),
@@ -100,7 +100,7 @@ _countries = {
 	17: regions_by_name['Australia'], #Is this actually used? Australian-specific releases (e.g. TMNT) use Europe still
 }
 
-def _parse_sufami_turbo_header(rom: FileROM, metadata: 'Metadata'):
+def _parse_sufami_turbo_header(rom: 'FileROM', metadata: 'Metadata'):
 	metadata.platform = 'Sufami Turbo'
 
 	#Safe bet that every single ST game just uses a normal controller
@@ -120,7 +120,7 @@ def _parse_sufami_turbo_header(rom: FileROM, metadata: 'Metadata'):
 	#The SRAM is in the mini-cartridge, not the Sufami Turbo BIOS cart itself
 	metadata.save_type = SaveType.Cart if save_size > 0 else SaveType.Nothing
 
-def _parse_snes_header(rom: FileROM, base_offset: int) -> Mapping[str, Any]:
+def _parse_snes_header(rom: 'FileROM', base_offset: int) -> Mapping[str, Any]:
 	#TODO: Use namedtuple/dataclass
 	#In order to make things simpler, we'll just ignore any carts that are out of line. You wouldn't be able to get interesting results from homebrew or bootleg games anyway
 	#Hence why we won't add metadata to the game object straight away, we'll store it in a dict first and add it all later, so we add nothing at all from invalid headers
@@ -153,11 +153,11 @@ def _parse_snes_header(rom: FileROM, base_offset: int) -> Mapping[str, Any]:
 		raise BadSNESHeaderException('ROM type is weird: %d' % rom_type)
 
 	rom_size = header[0xd7]
-	if rom_size not in ram_rom_sizes:
+	if rom_size not in _ram_rom_sizes:
 		raise BadSNESHeaderException('ROM size is weird: %d' % rom_size)
 	ram_size = header[0xd8]
 	#We'll just use ROM type to detect presence of save data rather than this
-	if ram_size not in ram_rom_sizes:
+	if ram_size not in _ram_rom_sizes:
 		raise BadSNESHeaderException('RAM size is weird: %d' % ram_size)
 	country = header[0xd9]
 	#Dunno if I want to validate against countries, honestly. Might go wrong
@@ -199,7 +199,7 @@ def _parse_snes_header(rom: FileROM, base_offset: int) -> Mapping[str, Any]:
 
 	return metadata
 
-def _add_normal_snes_header(rom: FileROM, metadata: 'Metadata'):
+def _add_normal_snes_header(rom: 'FileROM', metadata: 'Metadata'):
 	#Note that while we're seeking to xx00 here, the header actually starts at xxc0 (or xxb0 in case of extended header), it's just easier this way
 	possible_offsets = {0x7f00, 0xff00, 0x40ff00}
 	rom_size = rom.size
@@ -240,9 +240,9 @@ def _add_normal_snes_header(rom: FileROM, metadata: 'Metadata'):
 		if product_code:
 			metadata.product_code = product_code
 	#else:
-	#	print(game.rom.path, 'could not detect header because', ex)
+	#	print(rom.path, 'could not detect header because', ex)
 
-def _parse_satellaview_header(rom: FileROM, base_offset: int) -> Mapping[str, Any]:
+def _parse_satellaview_header(rom: 'FileROM', base_offset: int) -> Mapping[str, Any]:
 	#TODO Use namedtuple/dataclass
 	header = rom.read(seek_to=base_offset, amount=0xe0)
 	metadata: dict[str, Any] = {}
@@ -282,7 +282,7 @@ def _parse_satellaview_header(rom: FileROM, base_offset: int) -> Mapping[str, An
 	#0xdc-0xde: Checksum
 	#0xde-0xe0: Inverse checksum
 
-def _add_satellaview_metadata(rom: FileROM, metadata: 'Metadata'):
+def _add_satellaview_metadata(rom: 'FileROM', metadata: 'Metadata'):
 	metadata.platform = 'Satellaview'
 	#Safe bet that every single Satellaview game just uses a normal controller
 	metadata.input_info.add_option(controllers.controller)
@@ -335,6 +335,14 @@ def find_equivalent_snes_arcade(name: str) -> Optional[Machine]:
 
 	return None
 
+def add_snes_rom_header_info(rom: 'FileROM', metadata: 'Metadata'):
+	if rom.extension in {'sfc', 'smc', 'swc'}:
+		_add_normal_snes_header(rom, metadata)
+	elif rom.extension == 'bs':
+		_add_satellaview_metadata(rom, metadata)
+	elif rom.extension == 'st':
+		_parse_sufami_turbo_header(rom, metadata)
+
 def add_snes_software_list_metadata(software: 'Software', metadata: 'Metadata'):
 	software.add_standard_metadata(metadata)
 	if metadata.save_type == SaveType.Unknown and metadata.platform != 'Satellaview':
@@ -362,18 +370,3 @@ def add_snes_software_list_metadata(software: 'Software', metadata: 'Metadata'):
 	elif software.name in {'ffant3', 'ffant3a', 'ffant3p'}:
 		metadata.series = 'Final Fantasy'
 		metadata.series_index = '6'
-		
-
-def add_snes_custom_info(game: 'ROMGame'):
-	rom = cast(FileROM, game.rom)
-	if game.rom.extension in {'sfc', 'smc', 'swc'}:
-		_add_normal_snes_header(rom, game.metadata)
-	elif game.rom.extension == 'bs':
-		_add_satellaview_metadata(rom, game.metadata)
-	elif game.rom.extension == 'st':
-		_parse_sufami_turbo_header(rom, game.metadata)
-
-	software = game.get_software_list_entry()
-	if software:
-		add_snes_software_list_metadata(software, game.metadata)
-	#Can't get input_info at this point as there's nothing to distinguish stuff that uses mouse/gun/etc

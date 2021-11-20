@@ -36,7 +36,8 @@ from .psp import add_psp_custom_info
 from .saturn import add_saturn_custom_info
 from .simple_rom_info import *
 from .simple_software_info import *
-from .snes import add_snes_custom_info, find_equivalent_snes_arcade
+from .snes import (add_snes_rom_header_info, add_snes_software_list_metadata,
+                   find_equivalent_snes_arcade)
 from .static_platform_info import *
 from .switch import add_switch_rom_file_info
 from .uzebox import add_uzebox_custom_info
@@ -99,12 +100,6 @@ custom_info_funcs: Mapping[str, Callable[['ROMGame'], None]] = {
 	'PlayStation': add_ps1_custom_info, #Generic software, custom database (DuckStation) by product code (needs emulator_configs DuckStation)
 	
 	#TODO: I think we can also make getting equivalent arcade work, it just needs some refactoring, but I shouldn't have to make too many decisions about where I want to go
-	'Mega Drive': add_megadrive_custom_info, #Internal header (for CDs too; needs refactoring I guess), software, equivalent arcade (just using ROM name, and metadata alt names)
-	'SNES': add_snes_custom_info, #Internal hardware, equivalent arcade, software
-
-	'32X': add_megadrive_custom_info,
-	'Mega CD': add_megadrive_custom_info,
-	'Sega Pico': add_megadrive_custom_info,
 
 	#TODO: Hmm… how will we solve header shenanigans, and might we need a might_have_header hint in EmulatedStandardPlatform or something
 	'VIC-10': add_vic10_custom_info, #Annoying 2-byte header, otherwise generic software
@@ -119,8 +114,13 @@ custom_info_funcs: Mapping[str, Callable[['ROMGame'], None]] = {
 	'Uzebox': add_uzebox_custom_info, #Header, almost generic software
 	
 	#TODO: Hmm CD stuff needs a rewrite I think
+	'Mega CD': add_megadrive_custom_info,
 	'Dreamcast': add_dreamcast_custom_info, #Internal header, generic software, we also need to refactor the GDI stuff outta there, but also the cue sheet stuff
 	'Saturn': add_saturn_custom_info, #Internal header, generic software, but with disc shenanigans
+
+	'Mega Drive': add_megadrive_custom_info, #Internal header (for CDs too; needs refactoring I guess), software, equivalent arcade (just using ROM name, and metadata alt names)
+	'32X': add_megadrive_custom_info,
+	'Sega Pico': add_megadrive_custom_info,
 }
 
 static_info_funcs: Mapping[str, Callable[['Metadata'], None]] = {
@@ -171,6 +171,7 @@ rom_file_info_funcs: Mapping[str, Callable[['FileROM', 'Metadata'], None]] = {
 	'Master System': add_sms_gg_rom_file_info,
 	'Neo Geo Pocket': add_ngp_header_info,
 	'Pokemon Mini': add_pokemini_rom_file_info,
+	'SNES': add_snes_rom_header_info,
 	'Switch': add_switch_rom_file_info,
 	'Vectrex': add_vectrex_header_info,
 	'Virtual Boy': add_virtual_boy_rom_info,
@@ -192,6 +193,7 @@ software_info_funcs: Mapping[str, Callable[['Software', 'Metadata'], None]] = {
 	'PC Booter': add_pc_booter_software_info,
 	'PC Engine CD': add_pc_engine_cd_software_info,
 	'SG-1000': add_sg1000_software_info,
+	'SNES': add_snes_software_list_metadata,
 	'Sord M5': add_sord_m5_software_info,
 	'Super Cassette Vision': add_super_cassette_vision_software_info,
 	'Virtual Boy': add_virtual_boy_software_info,
