@@ -313,7 +313,7 @@ class FolderROM(ROM):
 
 def _parse_m3u(path: Path) -> Iterable[ROM]:
 	for line in path.open('rt', encoding='utf-8'):
-		#TODO: Put this in a method returning Sequence[ROM]
+		line = line.strip()
 		if line.startswith("#"):
 			continue
 		referenced_file = Path(line) if line.startswith('/') else path.with_name(line)
@@ -322,7 +322,6 @@ def _parse_m3u(path: Path) -> Iterable[ROM]:
 				print('M3U file', path, 'has a broken reference!!!!', referenced_file)
 			continue
 		yield get_rom(referenced_file)
-
 
 class M3UPlaylist(ROM):
 	def __init__(self, path: Path):
