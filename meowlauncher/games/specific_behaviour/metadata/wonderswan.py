@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -8,6 +8,7 @@ from .generic import add_generic_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
 
 publishers = {
 	1: 'Bandai',
@@ -55,6 +56,29 @@ publishers = {
 	#47: E3 Staff or Gust
 }
 
+def add_wonderswan_header_info(rom: 'FileROM', metadata: 'Metadata'):
+	rom_size = rom.get_size()
+	header_start_position = rom_size - 10
+	header = rom.read(seek_to=header_start_position, amount=10)
+
+	publisher_code = header[0]
+	if publisher_code in publishers:
+		metadata.publisher = publishers[publisher_code]
+	metadata.specific_info['Is Colour?'] = header[1] == 1
+
+	metadata.product_code = str(header[2])
+
+	metadata.specific_info['Revision'] = header[3]
+
+	save_info = header[5]
+	#If >= 10, contains EEPROM, if >0 and < 10, contains SRAM; number determines size by arbitrary lookup table but that's not that important for our purposes I guess
+	metadata.save_type = SaveType.Cart if save_info > 0 else SaveType.Nothing
+
+	metadata.specific_info['Has RTC?'] = header[7] == 1
+	flags = header[6]
+	metadata.specific_info['Screen Orientation'] = 'Vertical' if flags & 1 else 'Horizontal'
+	#Checksum schmecksum
+
 def add_wonderswan_metadata(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
@@ -65,29 +89,9 @@ def add_wonderswan_metadata(game: 'ROMGame'):
 		builtin_gamepad.face_buttons = 6
 	game.metadata.input_info.add_option(builtin_gamepad)
 
-	rom = cast(FileROM, game.rom)
-	rom_size = rom.get_size()
-	header_start_position = rom_size - 10
-	header = rom.read(seek_to=header_start_position, amount=10)
-
-	publisher_code = header[0]
-	if publisher_code in publishers:
-		game.metadata.publisher = publishers[publisher_code]
-	game.metadata.specific_info['Is Colour?'] = header[1] == 1
-
-	game.metadata.product_code = str(header[2])
-
-	game.metadata.specific_info['Revision'] = header[3]
-
-	save_info = header[5]
-	#If >= 10, contains EEPROM, if >0 and < 10, contains SRAM; number determines size by arbitrary lookup table but that's not that important for our purposes I guess
-	game.metadata.save_type = SaveType.Cart if save_info > 0 else SaveType.Nothing
-
-	game.metadata.specific_info['Has RTC?'] = header[7] == 1
-	flags = header[6]
-	game.metadata.specific_info['Screen Orientation'] = 'Vertical' if flags & 1 else 'Horizontal'
-	#Checksum schmecksum
-
+	if isinstance(game.rom, FileROM):
+		add_wonderswan_header_info(game.rom, game.metadata)
+	
 	add_generic_info(game)
 	#We could get save type from software.has_data_area('sram' or 'eeprom') but I think we can trust the header flags for now, even with BPCv2 carts
 	#By the same token we can get screen orientation = vertical if feature rotated = 'yes'

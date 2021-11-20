@@ -426,12 +426,12 @@ def parse_3dsx(rom: FileROM, metadata: Metadata):
 
 def add_3ds_metadata(game: ROMGame):
 	add_3ds_system_info(game.metadata)
-	rom = cast(FileROM, game.rom)
-	magic = rom.read(seek_to=0x100, amount=4)
-	#Hmm... do we really need this or should we just look at extension?
-	if magic == b'NCSD':
-		parse_ncsd(rom, game.metadata)
-	elif magic == b'NCCH':
-		parse_ncch(rom, game.metadata, 0)
-	elif game.rom.extension == '3dsx':
-		parse_3dsx(rom, game.metadata)
+	if isinstance(game.rom, FileROM):
+		magic = game.rom.read(seek_to=0x100, amount=4)
+		#Hmm... do we really need this or should we just look at extension?
+		if magic == b'NCSD':
+			parse_ncsd(game.rom, game.metadata)
+		elif magic == b'NCCH':
+			parse_ncch(game.rom, game.metadata, 0)
+		elif game.rom.extension == '3dsx':
+			parse_3dsx(game.rom, game.metadata)

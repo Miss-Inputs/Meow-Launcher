@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -31,7 +31,10 @@ unofficial_vb_publishers = {
 	'VE': 'Alberto Covarrubias', #aka Virtual-E
 }
 
-def add_info_from_vb_header(header: bytes, metadata: 'Metadata'):
+def add_virtual_boy_rom_info(rom: FileROM, metadata: 'Metadata'):
+	rom_size = rom.get_size()
+	header_start_position = rom_size - 544 #Wait wouldn't that make it a footer sorta
+	header = rom.read(seek_to=header_start_position, amount=32)
 	title = header[0:20].decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
 	if title:
 		metadata.specific_info['Internal Title'] = title
@@ -53,12 +56,10 @@ def add_info_from_vb_header(header: bytes, metadata: 'Metadata'):
 
 	metadata.specific_info['Revision'] = header[31]
 
+
 def add_virtual_boy_metadata(game: 'ROMGame'):
-	rom = cast(FileROM, game.rom)
-	rom_size = rom.get_size()
-	header_start_position = rom_size - 544 #Yeah I dunno
-	header = rom.read(seek_to=header_start_position, amount=32)
-	add_info_from_vb_header(header, game.metadata)
+	if isinstance(game.rom, FileROM):
+		add_virtual_boy_rom_info(game.rom, game.metadata)
 	
 	gamepad = input_metadata.NormalController()
 	gamepad.face_buttons = 2

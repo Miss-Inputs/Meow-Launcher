@@ -201,6 +201,9 @@ class GCZFileROM(FileROM):
 	def should_read_whole_thing(self) -> bool:
 		return False
 
+	def get_size(self) -> int:
+		return int.from_bytes(self._read(seek_to=16, amount=8), 'little')
+
 	def read(self, seek_to: int=0, amount: int=-1) -> bytes:
 		return cd_read.read_gcz(self.path, seek_to, amount)
 
@@ -214,6 +217,7 @@ class UnsupportedCHDError(Exception):
 	pass
 
 class CHDFileROM(ROM):
+	#There is an argument to be made that this _could_ be a FileROM that raises NotImplementedError on read() I guess… maybe if/once we can read from it and then don't need to throw that exception, otherwise it's a good way to avoid accidentally thinking we can
 	@property
 	def should_read_whole_thing(self) -> bool:
 		return False
