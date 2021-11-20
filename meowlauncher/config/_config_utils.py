@@ -1,5 +1,6 @@
 import configparser
 from collections.abc import Sequence
+from dataclasses import dataclass
 from pathlib import Path
 
 from meowlauncher.config_types import ConfigValueType, TypeOfConfigValue
@@ -41,10 +42,11 @@ def parse_value(section: configparser.SectionProxy, name: str, value_type: Confi
 	except KeyError:
 		return default_value
 
+@dataclass(frozen=True)
 class ConfigValue():
-	def __init__(self, section: str, value_type: ConfigValueType, default_value: TypeOfConfigValue, name: str, description: str):
-		self.section = section
-		self.type = value_type
-		self.default_value = default_value
-		self.name = name #This is for humans to read!
-		self.description = description
+	section: str
+	type: ConfigValueType
+	default_value: TypeOfConfigValue
+	name: str #This is for humans to read! I guess I could have called it display_name
+	description: str
+	

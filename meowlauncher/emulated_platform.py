@@ -1,5 +1,6 @@
 from abc import ABC
 from collections.abc import Callable, Collection, Mapping, MutableMapping
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
 from meowlauncher.common_types import MediaType
@@ -8,13 +9,12 @@ from meowlauncher.config_types import ConfigValueType, TypeOfConfigValue
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom import ROM, FolderROM
 
-
+@dataclass(frozen=True)
 class PlatformConfigValue():
 	#This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno
-	def __init__(self, value_type: ConfigValueType, default_value: TypeOfConfigValue, description: str):
-		self.type = value_type
-		self.default_value = default_value
-		self.description = description
+	type: ConfigValueType
+	default_value: TypeOfConfigValue
+	description: str
 
 class ChooseableEmulatedPlatform(ABC):
 	def __init__(self, valid_emulator_names: Collection[str], name: str, options: Optional[Mapping[str, PlatformConfigValue]]) -> None:

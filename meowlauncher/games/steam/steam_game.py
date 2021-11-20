@@ -1,6 +1,7 @@
 from collections.abc import Mapping, MutableMapping
+from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, NamedTuple, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.game import Game
@@ -11,7 +12,8 @@ from meowlauncher.util.name_utils import fix_name
 if TYPE_CHECKING:
 	from .steam_installation import SteamInstallation
 
-class LauncherInfo(NamedTuple):
+@dataclass(frozen=True)
+class LauncherInfo():
 	exe: Optional[str]
 	args: Optional[str] #Not a list as it turns out?
 	description: Optional[str]

@@ -1,4 +1,5 @@
 from collections.abc import Collection, Mapping, Sequence
+from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
 from typing import Optional, Union
@@ -36,9 +37,10 @@ class RunnerConfig():
 class EmulatorConfig(RunnerConfig):
 	pass
 	
+@dataclass(frozen=True)
 class RunnerConfigValue():
 	#This is actually just config.ConfigValue without the section field. Maybe that should tell me something. I dunno
-	def __init__(self, value_type: ConfigValueType, default_value: TypeOfConfigValue, description: str):
-		self.type = value_type
-		self.default_value = default_value
-		self.description = description
+	type: ConfigValueType
+	default_value: TypeOfConfigValue
+	description: str
+	

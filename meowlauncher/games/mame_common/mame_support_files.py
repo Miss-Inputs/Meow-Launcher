@@ -3,7 +3,7 @@ import os
 from collections.abc import Collection, Iterator, Mapping, MutableMapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, NamedTuple, Optional
+from typing import TYPE_CHECKING, Optional
 from xml.etree import ElementTree
 
 from meowlauncher.util.region_info import (Language,
@@ -52,7 +52,8 @@ def get_default_history_xml() -> Optional[HistoryXML]:
 			continue
 	return None
 
-class History(NamedTuple):
+@dataclass(frozen=True)
+class History():
 	description: Optional[str]
 	cast: Optional[str]
 	technical_info: Optional[str]
@@ -227,7 +228,7 @@ def get_machine_cat(basename: str, folder_name: str) -> Optional[Collection[str]
 		return None
 	return {section for section, names in folder.items() if basename in names}
 	
-@dataclass
+@dataclass(frozen=True)
 class MachineCategory():
 	genre: str
 	subgenre: str
@@ -273,7 +274,7 @@ class ArcadeCategory(MachineCategory):
 	def is_plug_and_play(self) -> bool:
 		return False
 
-@dataclass
+@dataclass(frozen=True)
 class OrganizedCatlist():
 	platform: Optional[str]
 	genre: Optional[str]

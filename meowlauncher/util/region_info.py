@@ -4,36 +4,32 @@
 
 from collections.abc import Collection
 from enum import Enum, auto
-from typing import NamedTuple, Optional
-
+from typing import Optional
+from dataclasses import dataclass, field
 
 class TVSystem(Enum):
 	NTSC = auto()
 	PAL = auto()
 	Agnostic = auto()
 
-class Language(NamedTuple):
-	english_name: str
-	native_name: str
+@dataclass(frozen=True)
+class Language():
+	english_name: str = field(compare=False)
+	native_name: str = field(compare=False)
 	short_code: str
 
-	#def __str__(self) -> str:
-	#	return '{0} ({1}) ({2})'.format(self.native_name, self.english_name, self.short_code)
+	def __str__(self) -> str:
+		return self.native_name
 
-	#def __repr__(self) -> str:
-	#	return 'Language({1!r}, {0!r}, {2!r})'.format(self.native_name, self.english_name, self.short_code)
-
-class Region(NamedTuple):
+@dataclass(frozen=True)
+class Region():
 	name: str
-	short_code: Optional[str]
-	tv_system: Optional[TVSystem]
-	language: Optional[str] #This is just a singular language that can be inferred from software being released in this region, if zero or more than one language can be inferred it is left as none
-	
-	# def __str__(self):
-	# 	return '{0} ({1}) ({2}) ({3})'.format(self.name, self.short_code, self.tv_system, self.language)
+	short_code: Optional[str] = field(compare=False)
+	tv_system: Optional[TVSystem] = field(compare=False)
+	language: Optional[str] = field(compare=False) #This is just a singular language that can be inferred from software being released in this region, if zero or more than one language can be inferred it is left as none
 
-	# def __repr__(self):
-	# 	return 'Region({0!r}, {1!r}, {2!r}, {3!r})'.format(self.name, self.short_code, self.tv_system, self.language)
+	def __str__(self) -> str:
+		return self.name
 
 languages = [
 	#These languages are specified in the No-Intro convention as being in this order, in case that ends up mattering:

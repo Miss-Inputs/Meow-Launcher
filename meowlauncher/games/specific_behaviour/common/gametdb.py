@@ -68,7 +68,7 @@ class TDB():
 					metadata.specific_info['Additional Subgenres'] = ', '.join(additional_subgenres)
 			
 
-def clean_up_company_name(company_name: str) -> str:
+def _clean_up_company_name(company_name: str) -> str:
 	whaa = {
 		"Take2 / Den'Z / Global Star": 'Global Star Software', #Someone's trying to just read the licensee code according to the database and calling it a day…
 		'HAL/Sora/Harox': 'Sora / HAL Laboratory', #wat? What the heck is Harox? Where did that one even come from?
@@ -85,7 +85,7 @@ def clean_up_company_name(company_name: str) -> str:
 
 	return ', '.join(sorted(cleaned_names))
 
-def add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: Metadata):
+def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: Metadata):
 	metadata.add_alternate_name(db_entry.attrib['name'], 'GameTDB Name')
 	#(Pylint is on drugs if I don't add more text here) id: What we just found
 	#(it thinks I need an indented block) type: 3DS, 3DSWare, VC, etc (we probably don't need to worry about that)
@@ -101,10 +101,10 @@ def add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: M
 
 	developer = db_entry.findtext('developer')
 	if developer and developer != 'N/A':
-		metadata.developer = clean_up_company_name(developer)
+		metadata.developer = _clean_up_company_name(developer)
 	publisher = db_entry.findtext('publisher')
 	if publisher:
-		metadata.publisher =  clean_up_company_name(publisher)
+		metadata.publisher =  _clean_up_company_name(publisher)
 	date = db_entry.find('date')
 	if date is not None:
 		year = date.attrib.get('year')
@@ -182,4 +182,4 @@ def add_info_from_tdb(tdb: Optional[TDB], metadata: Metadata, search_key):
 
 	game = tdb.find_game(search_key)
 	if game is not None:
-		add_info_from_tdb_entry(tdb, game, metadata)
+		_add_info_from_tdb_entry(tdb, game, metadata)

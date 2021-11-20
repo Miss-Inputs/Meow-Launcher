@@ -23,11 +23,11 @@ if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom_game import ROMGame
 
-licensee_codes = load_dict(None, 'sega_licensee_codes')
+_licensee_codes = load_dict(None, 'sega_licensee_codes')
 
-copyright_regex = re.compile(r'\(C\)(\S{4}.)(\d{4})\.(.{3})')
-t_with_zero = re.compile(r'^T-0')
-t_not_followed_by_dash = re.compile(r'^T(?!-)')
+_copyright_regex = re.compile(r'\(C\)(\S{4}.)(\d{4})\.(.{3})')
+_t_with_zero = re.compile(r'^T-0')
+_t_not_followed_by_dash = re.compile(r'^T(?!-)')
 
 def _parse_peripherals(metadata: Metadata, peripherals: Collection[str]):
 	for peripheral_char in peripherals:
@@ -84,13 +84,13 @@ def _parse_peripherals(metadata: Metadata, peripherals: Collection[str]):
 
 def _add_info_from_copyright_string(metadata: Metadata, copyright_string: str):
 	metadata.specific_info['Copyright'] = copyright_string
-	copyright_match = copyright_regex.match(copyright_string)
+	copyright_match = _copyright_regex.match(copyright_string)
 	if copyright_match:
 		maker = copyright_match[1].strip().rstrip(',')
-		maker = t_with_zero.sub('T-', maker)
-		maker = t_not_followed_by_dash.sub('T-', maker)
-		if maker in licensee_codes:
-			metadata.publisher = licensee_codes[maker]
+		maker = _t_with_zero.sub('T-', maker)
+		maker = _t_not_followed_by_dash.sub('T-', maker)
+		if maker in _licensee_codes:
+			metadata.publisher = _licensee_codes[maker]
 		year = copyright_match[2]
 		month: Union[str, int]
 		try:

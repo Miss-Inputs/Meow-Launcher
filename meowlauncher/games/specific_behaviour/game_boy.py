@@ -1,4 +1,5 @@
 import re
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, cast
 from zlib import crc32
 
@@ -14,25 +15,22 @@ from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
 if TYPE_CHECKING:
+	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
-	from meowlauncher.games.mame_common.software_list import Software
 
-game_boy_config = platform_configs.get('Game Boy')
-nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
+_game_boy_config = platform_configs.get('Game Boy')
+_nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
+@dataclass(frozen=True)
 class GameBoyMapper():
-	def __init__(self, name, has_ram=False, has_battery=False, has_rtc=False, has_rumble=False, has_accelerometer=False):
-		self.name = name
-		self.has_ram = has_ram
-		self.has_battery = has_battery
-		self.has_rtc = has_rtc
-		self.has_rumble = has_rumble
-		self.has_accelerometer = has_accelerometer
-
-	def __str__(self):
-		return self.name
-
+	name: str
+	has_ram: bool = False
+	has_battery: bool = False
+	has_rtc: bool = False
+	has_rumble: bool = False
+	has_accelerometer: bool = False
+	
 game_boy_mappers = {
 	0: GameBoyMapper("ROM only"),
 	8: GameBoyMapper("ROM only", has_ram=True),
@@ -72,7 +70,7 @@ game_boy_mappers = {
 	255: GameBoyMapper('HuC1', has_ram=True, has_battery=True),
 }
 
-mame_rom_slots = {
+_mame_rom_slots = {
 	'rom_188in1': '188 in 1',
 	'rom_atvrac': 'ATV Racing',
 	'rom_camera': 'Pocket Camera',
@@ -102,7 +100,7 @@ mame_rom_slots = {
 	'rom_yong': 'Yong Yong',
 }
 
-gbx_mappers = {
+_gbx_mappers = {
 	#Official
 	b'ROM\0': 'ROM only',
 	b'MBC1': 'MBC1',
@@ -130,22 +128,22 @@ gbx_mappers = {
 	b'PKJD': 'Pokemon Jade/Diamond bootleg'
 }
 
-def parse_slot(metadata: 'Metadata', slot: str):
-	if slot in mame_rom_slots:
+def _parse_slot(metadata: 'Metadata', slot: str):
+	if slot in _mame_rom_slots:
 		original_mapper = metadata.specific_info.get('Mapper', 'None')
 
 		metadata.specific_info['Stated Mapper'] = original_mapper
 
-		new_mapper = mame_rom_slots[slot]
+		new_mapper = _mame_rom_slots[slot]
 
 		if new_mapper != original_mapper:
 			metadata.specific_info['Override Mapper?'] = True
 			metadata.specific_info['Mapper'] = new_mapper
 
-nintendo_logo_crc32 = 0x46195417
-def parse_gameboy_header(metadata: 'Metadata', header: bytes):
+_nintendo_logo_crc32 = 0x46195417
+def _parse_gameboy_header(metadata: 'Metadata', header: bytes):
 	nintendo_logo = header[4:0x34]
-	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_logo_crc32
+	nintendo_logo_valid = crc32(nintendo_logo) == _nintendo_logo_crc32
 	metadata.specific_info['Nintendo Logo Valid'] = nintendo_logo_valid
 	
 	title = header[0x34:0x44]
@@ -193,17 +191,17 @@ def parse_gameboy_header(metadata: 'Metadata', header: bytes):
 	if licensee_code_int == 0x33:
 		try:
 			licensee_code = convert_alphanumeric(header[0x44:0x46])
-			if licensee_code in nintendo_licensee_codes:
-				metadata.publisher = nintendo_licensee_codes[licensee_code]
+			if licensee_code in _nintendo_licensee_codes:
+				metadata.publisher = _nintendo_licensee_codes[licensee_code]
 		except NotAlphanumericException:
 			pass
 	else:
 		licensee_code = '{:02X}'.format(licensee_code_int)
-		if licensee_code in nintendo_licensee_codes:
-			metadata.publisher = nintendo_licensee_codes[licensee_code]
+		if licensee_code in _nintendo_licensee_codes:
+			metadata.publisher = _nintendo_licensee_codes[licensee_code]
 	metadata.specific_info['Revision'] = header[0x4c]
 
-def parse_gbx_footer(rom: FileROM, metadata: 'Metadata'):
+def _parse_gbx_footer(rom: FileROM, metadata: 'Metadata'):
 	footer = rom.read(seek_to=rom.size - 64, amount=64)
 	if footer[60:64] != b'GBX!':
 		if main_config.debug:
@@ -217,7 +215,7 @@ def parse_gbx_footer(rom: FileROM, metadata: 'Metadata'):
 
 	original_mapper = metadata.specific_info.get('Mapper', 'None')
 	metadata.specific_info['Stated Mapper'] = original_mapper
-	new_mapper = gbx_mappers.get(footer[0:4])
+	new_mapper = _gbx_mappers.get(footer[0:4])
 	if not new_mapper:
 		if main_config.debug:
 			print(rom.path, 'GBX has unknown spooky mapper:', footer[0:4])
@@ -231,7 +229,7 @@ def parse_gbx_footer(rom: FileROM, metadata: 'Metadata'):
 	#4 = has battery, #5 = has rumble, #6 = has RTC
 	#RAM size: 12:16
 
-def add_game_boy_software_info(software: 'Software', metadata: 'Metadata'):
+def _add_game_boy_software_info(software: 'Software', metadata: 'Metadata'):
 	#TODO: Make sure this doesn't make slot incorrect if we are reading .gbx
 	software.add_standard_metadata(metadata)
 	metadata.specific_info['Has RTC?'] = software.get_part_feature('rtc') == 'yes'
@@ -239,7 +237,7 @@ def add_game_boy_software_info(software: 'Software', metadata: 'Metadata'):
 
 	slot = software.get_part_feature('slot')
 	if slot:
-		parse_slot(metadata, slot)
+		_parse_slot(metadata, slot)
 
 def add_game_boy_custom_info(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
@@ -249,18 +247,18 @@ def add_game_boy_custom_info(game: 'ROMGame'):
 
 	rom = cast(FileROM, game.rom)
 	header = rom.read(seek_to=0x100, amount=0x50)
-	parse_gameboy_header(game.metadata, header)
+	_parse_gameboy_header(game.metadata, header)
 
-	if game_boy_config and game_boy_config.options.get('set_gbc_as_different_platform'):
+	if _game_boy_config and _game_boy_config.options.get('set_gbc_as_different_platform'):
 		if game.rom.extension == 'gbc' or game.metadata.specific_info.get('Is Colour?') == GameBoyColourFlag.Required:
 			game.metadata.platform = 'Game Boy Color'
 
 	if game.rom.extension == 'gbx':
-		parse_gbx_footer(rom, game.metadata)
+		_parse_gbx_footer(rom, game.metadata)
 
 	if game.rom.extension == 'gbx':
 		software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(rom.read(amount=rom.size - 64)))
 	else:
 		software = game.get_software_list_entry()
 	if software:
-		add_game_boy_software_info(software, game.metadata)
+		_add_game_boy_software_info(software, game.metadata)

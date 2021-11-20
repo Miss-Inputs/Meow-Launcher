@@ -27,9 +27,10 @@
 # Vii, ekara could go in here if we need to make them systems to make their software list business work
 # Gachinko Contest! Slot Machine TV: I dunno the game because it's written in kanji
 
-from typing import NamedTuple
+from dataclasses import dataclass
 
-class InbuiltGame(NamedTuple):
+@dataclass(frozen=True)
+class InbuiltGame():
 	name: str
 	platform: str
 	caegory: str

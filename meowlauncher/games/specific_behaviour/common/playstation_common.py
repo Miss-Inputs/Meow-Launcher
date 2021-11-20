@@ -1,6 +1,7 @@
+from collections.abc import Mapping
+from dataclasses import dataclass
 from enum import Flag
 from typing import TYPE_CHECKING, Optional, Union, cast
-from collections.abc import Mapping
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
@@ -9,38 +10,42 @@ from meowlauncher.util.name_utils import fix_name
 if TYPE_CHECKING:
 	from meowlauncher.metadata import Metadata
 
-categories: dict[str, tuple[str, Optional[str]]] = {
-	#Second item is what we want to set metadata.category to
-	'AP': ('Photo App', 'Applications'),
-	'AM': ('Music App', 'Applications'),
-	'AV': ('Video App', 'Applications'),
-	'BV': ('Broadcast Video App', 'Applications'),
-	'AT': ('TV App', 'Applications'),
-	'WT': ('Web TV App', 'Applications'),
-	'HG': ('HDD Game', 'Games'),
-	'CB': ('Network App', 'Applications'), #Folding@home, etc, RPCS3 says this is what CB means and I guess homebrew apps that are like web browsers etc use it
-	'AS': ('App Store', 'Tools'),
-	'HM': ('Home', 'Tools'),
-	'SF': ('Shopfront', 'Tools'),
-	'2G': ('PS2 Installed Disc', 'Games'),
-	'2P': ('PS2 Classics', 'Games'),
-	'1P': ('PS1 Classics', 'Games'), #PS3
-	'ME': ('PS1 Classics', 'Games'), #PSP
-	'MN': ('PSP Minis', 'Games'),
-	'PE': ('PSP Remasters', 'Games'),
-	'PP': ('Transferable PSP Game', 'Games'), #PS3, doesn't boot
-	'EG': ('External Game', 'Games'), #PSP
-	'GD': ('Game Data', None), #This shouldn't be bootable
-	'2D': ('PS2 Game Data', None), #This shouldn't be bootable
-	'SD': ('Save Data', None), #This shouldn't be bootable
-	'MG': ('Memory Stick Game', 'Games'),
-	'MS': ('Memory Stick Save', None),
-	'DG': ('Disc Game', 'Games'), #PS3
-	'UG': ('UMD Game', 'Games'),
-	'UV': ('UMD Video', 'Multimedia'),
+@dataclass
+class PlayStationCategory():
+	cat: str
+	metadata_category: Optional[str] #What we might like to set metadata.categories to
+
+categories = {
+	'AP': PlayStationCategory('Photo App', 'Applications'),
+	'AM': PlayStationCategory('Music App', 'Applications'),
+	'AV': PlayStationCategory('Video App', 'Applications'),
+	'BV': PlayStationCategory('Broadcast Video App', 'Applications'),
+	'AT': PlayStationCategory('TV App', 'Applications'),
+	'WT': PlayStationCategory('Web TV App', 'Applications'),
+	'HG': PlayStationCategory('HDD Game', 'Games'),
+	'CB': PlayStationCategory('Network App', 'Applications'), #Folding@home, etc, RPCS3 says this is what CB means and I guess homebrew apps that are like web browsers etc use it
+	'AS': PlayStationCategory('App Store', 'Tools'),
+	'HM': PlayStationCategory('Home', 'Tools'),
+	'SF': PlayStationCategory('Shopfront', 'Tools'),
+	'2G': PlayStationCategory('PS2 Installed Disc', 'Games'),
+	'2P': PlayStationCategory('PS2 Classics', 'Games'),
+	'1P': PlayStationCategory('PS1 Classics', 'Games'), #PS3
+	'ME': PlayStationCategory('PS1 Classics', 'Games'), #PSP
+	'MN': PlayStationCategory('PSP Minis', 'Games'),
+	'PE': PlayStationCategory('PSP Remasters', 'Games'),
+	'PP': PlayStationCategory('Transferable PSP Game', 'Games'), #PS3, doesn't boot
+	'EG': PlayStationCategory('External Game', 'Games'), #PSP
+	'GD': PlayStationCategory('Game Data', None), #This shouldn't be bootable
+	'2D': PlayStationCategory('PS2 Game Data', None), #This shouldn't be bootable
+	'SD': PlayStationCategory('Save Data', None), #This shouldn't be bootable
+	'MG': PlayStationCategory('Memory Stick Game', 'Games'),
+	'MS': PlayStationCategory('Memory Stick Save', None),
+	'DG': PlayStationCategory('Disc Game', 'Games'), #PS3
+	'UG': PlayStationCategory('UMD Game', 'Games'),
+	'UV': PlayStationCategory('UMD Video', 'Multimedia'),
 	#UMD Audio is in here, presumably
-	'PG': ('PSP Update', None),
-	'MA': ('Memory Stick App', 'Applications'),
+	'PG': PlayStationCategory('PSP Update', None),
+	'MA': PlayStationCategory('Memory Stick App', 'Applications'),
 }
 
 class AttributeFlags(Flag):
@@ -183,12 +188,12 @@ def parse_param_sfo_kv(rompath: str, metadata: 'Metadata', key: str, value: SFOV
 		metadata.specific_info['Parental Level'] = value
 	elif key == 'CATEGORY':
 		#This is a two letter code which generally means something like "Memory stick game" "Update" "PS1 Classics", see ROMniscience notes
-		cat: Optional[tuple[str, Optional[str]]] = categories.get(cast(str, value))
+		cat = categories.get(cast(str, value))
 		if cat:
-			metadata.specific_info['PlayStation Category'] = cat[0]
-			if cat[1] and cat[1] is not None:
+			metadata.specific_info['PlayStation Category'] = cat.cat
+			if cat.metadata_category is not None:
 				if not metadata.categories or (len(metadata.categories) == 1 and metadata.categories[0] == metadata.platform):
-					metadata.categories = [cat[1]]
+					metadata.categories = [cat.metadata_category]
 			else:
 				metadata.specific_info['Bootable?'] = False
 		else:

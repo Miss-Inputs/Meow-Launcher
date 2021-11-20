@@ -1,6 +1,5 @@
 from collections.abc import Collection
 from typing import TYPE_CHECKING, Optional
-
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.platform_types import ZXExpansion, ZXJoystick, ZXMachine
 
@@ -9,7 +8,7 @@ if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
 
-zx_hardware: dict[int, tuple[ZXMachine, Optional[ZXExpansion]]] = {
+_zx_hardware: dict[int, tuple[ZXMachine, Optional[ZXExpansion]]] = {
 	#For .z80 header
 	0: (ZXMachine.ZX48k, None),
 	1: (ZXMachine.ZX48k, ZXExpansion.Interface1),
@@ -61,8 +60,8 @@ def add_z80_metadata(rom: 'FileROM', metadata: 'Metadata'):
 		elif header_version == 2 and hardware_mode == 4:
 			machine = ZXMachine.ZX128k
 			expansion = ZXExpansion.Interface1
-		elif hardware_mode in zx_hardware:
-			machine, expansion = zx_hardware[hardware_mode]
+		elif hardware_mode in _zx_hardware:
+			machine, expansion = _zx_hardware[hardware_mode]
 
 		if hardware_modifier_flag and machine == ZXMachine.ZX48k:
 			machine = ZXMachine.ZX16k

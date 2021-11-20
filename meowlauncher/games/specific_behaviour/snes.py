@@ -46,7 +46,7 @@ _rom_layouts = {
 	0x3a: 'ExHiROM + FastROM + SPC7110',
 }
 
-@dataclass
+@dataclass(frozen=True)
 class ROMType():
 	expansion_chip: Optional[SNESExpansionChip] = None
 	has_ram: bool = False

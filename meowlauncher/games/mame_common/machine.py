@@ -42,10 +42,10 @@ class MediaSlot():
 		self.instances = {(instance_xml.attrib.get('name'), instance_xml.get('briefname')) for instance_xml in xml.iterfind('instance')}
 		self.extensions = {extension_xml.attrib.get('name') for extension_xml in xml.iterfind('extension')}
 
-licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
-licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
-hack_regex = re.compile(r'^hack \((.+)\)$')
-bootleg_with_publisher_regex = re.compile(r'^bootleg \((.+)\)$')
+_licensed_arcade_game_regex = re.compile(r'^(.+?) \((.+?) license\)$')
+_licensed_from_regex = re.compile(r'^(.+?) \(licensed from (.+?)\)$')
+_hack_regex = re.compile(r'^hack \((.+)\)$')
+_bootleg_with_publisher_regex = re.compile(r'^bootleg \((.+)\)$')
 class Machine():
 	def __init__(self, xml: ElementTree.Element, exe: 'MAMEExecutable'):
 		self.xml = xml
@@ -287,7 +287,7 @@ class Machine():
 		manufacturer = self.manufacturer
 		if not manufacturer:
 			return None
-		licensed_from_match = licensed_from_regex.fullmatch(manufacturer)
+		licensed_from_match = _licensed_from_regex.fullmatch(manufacturer)
 		if licensed_from_match:
 			return licensed_from_match[2]
 		return None
@@ -297,7 +297,7 @@ class Machine():
 		manufacturer = self.manufacturer
 		if not manufacturer:
 			return None
-		hack_match = hack_regex.fullmatch(manufacturer)
+		hack_match = _hack_regex.fullmatch(manufacturer)
 		if hack_match:
 			return hack_match[1]
 		return None
@@ -314,7 +314,7 @@ class Machine():
 			#Not sure if this ever happens, but still
 			return None, None
 
-		license_match = licensed_arcade_game_regex.fullmatch(self.manufacturer)
+		license_match = _licensed_arcade_game_regex.fullmatch(self.manufacturer)
 		if license_match:
 			developer = consistentify_manufacturer(license_match[1])
 			if developer:
@@ -323,11 +323,11 @@ class Machine():
 			return developer, publisher
 	
 		manufacturer = self.manufacturer
-		licensed_from_match = licensed_from_regex.fullmatch(manufacturer)
+		licensed_from_match = _licensed_from_regex.fullmatch(manufacturer)
 		if licensed_from_match:
 			manufacturer = licensed_from_match[1]
 		
-		bootleg_match = bootleg_with_publisher_regex.fullmatch(manufacturer)
+		bootleg_match = _bootleg_with_publisher_regex.fullmatch(manufacturer)
 		if manufacturer in {'bootleg', 'hack'} or self.is_hack:
 			if self.has_parent:
 				developer, publisher = cast(Machine, self.parent).developer_and_publisher
