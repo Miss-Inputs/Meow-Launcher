@@ -51,8 +51,9 @@ def add_peripherals_info(metadata: Metadata, peripherals):
 	metadata.specific_info['Uses Keyboard?'] = (peripherals & (1 << 26)) > 0
 	metadata.specific_info['Uses Mouse?'] = (peripherals & (1 << 27)) > 0
 
-device_info_regex = re.compile(r'^(?P<checksum>[\dA-Fa-f]{4}) GD-ROM(?P<discNum>\d+)/(?P<totalDiscs>\d+) *$')
+_device_info_regex = re.compile(r'^(?P<checksum>[\dA-Fa-f]{4}) GD-ROM(?P<discNum>\d+)/(?P<totalDiscs>\d+) *$')
 #Might not be " GD-ROM" on some Naomi stuff or maybe some homebrews or protos, but anyway, whatevs
+
 def add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size: int):
 	try:
 		header = cd_read.read_mode_1_cd(track_path, sector_size, amount=256)
@@ -73,7 +74,7 @@ def add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size: 
 	metadata.specific_info['Copyright'] = copyright_info
 
 	device_info = header[32:48].decode('ascii', errors='ignore').rstrip()
-	device_info_match = device_info_regex.match(device_info)
+	device_info_match = _device_info_regex.match(device_info)
 	if device_info_match:
 		try:
 			metadata.disc_number = int(device_info_match['discNum'])
@@ -134,23 +135,24 @@ def add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size: 
 		
 	metadata.specific_info['Internal Title'] = header[128:256].decode('ascii', errors='backslashreplace').rstrip('\0 ')
 
-def add_info_from_gdi(rom: FileROM, metadata: Metadata):
-	data = rom.read().decode('utf8', errors='backslashreplace')
-	for line in data.splitlines():
-		match = gdi_regex.match(line)
-		if match:
-			track_number = int(match['trackNumber'])
-			#is_data = match['type'] == '4'
-			sector_size = int(match['sectorSize'])
-			filename = match['name_unquoted'] if match['name_unquoted'] else match['name']
-			#print(game.rom.path, track_number, is_data, sector_size, filename)
-			if track_number == 3:
-				full_name = Path(filename) if filename.startswith('/') else rom.path.parent.joinpath(filename)
-				add_info_from_main_track(metadata, full_name, sector_size)
+def add_dreamcast_rom_info(rom: FileROM, metadata: Metadata):
+	if rom.extension == 'gdi':
+		data = rom.read().decode('utf8', errors='backslashreplace')
+		for line in data.splitlines():
+			match = gdi_regex.match(line)
+			if match:
+				track_number = int(match['trackNumber'])
+				#is_data = match['type'] == '4'
+				sector_size = int(match['sectorSize'])
+				filename = match['name_unquoted'] if match['name_unquoted'] else match['name']
+				#print(game.rom.path, track_number, is_data, sector_size, filename)
+				if track_number == 3:
+					full_name = Path(filename) if filename.startswith('/') else rom.path.parent.joinpath(filename)
+					add_info_from_main_track(metadata, full_name, sector_size)
 
-def add_dreamcast_metadata(game: 'ROMGame'):
-	if game.rom.extension == 'gdi':
-		add_info_from_gdi(game.rom, game.metadata)
+def add_dreamcast_custom_info(game: 'ROMGame'):
+	if game.rom.extension == 'gdi' and isinstance(game.rom, FileROM):
+		add_dreamcast_rom_info(game.rom, game.metadata)
 
 	try:
 		software = game.get_software_list_entry()

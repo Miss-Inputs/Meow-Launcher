@@ -86,7 +86,7 @@ def get_commodore_64_software(game: 'ROMGame', headered: bool):
 
 	return game.get_software_list_entry()
 
-def add_commodore_64_metadata(game: 'ROMGame'):
+def add_commodore_64_custom_info(game: 'ROMGame'):
 	header = cast(FileROM, game.rom).read(amount=64)
 	magic = header[:16]
 	if magic == b'C64 CARTRIDGE   ':

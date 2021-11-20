@@ -1,16 +1,15 @@
-
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.mame_common.mame_utils import \
     consistentify_manufacturer
-from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import AppleIIHardware
 from meowlauncher.util.region_info import get_language_by_english_name
 
 if TYPE_CHECKING:
-	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.games.mame_common.software_list import Software
+	from meowlauncher.games.roms.rom import FileROM
 
 def parse_woz_info_chunk(metadata: Metadata, chunk_data: bytes):
 	info_version = chunk_data[0]
@@ -127,7 +126,7 @@ def parse_woz_meta_chunk(rompath: str, metadata: Metadata, chunk_data: bytes):
 
 		parse_woz_kv(rompath, metadata, key, value)
 
-def parse_woz_chunk(rom: FileROM, metadata: Metadata, position: int) -> int:
+def parse_woz_chunk(rom: 'FileROM', metadata: Metadata, position: int) -> int:
 	chunk_header = rom.read(seek_to=position, amount=8)
 	chunk_id = chunk_header[0:4].decode('ascii', errors='ignore')
 	chunk_data_size = int.from_bytes(chunk_header[4:8], 'little')
@@ -141,7 +140,7 @@ def parse_woz_chunk(rom: FileROM, metadata: Metadata, position: int) -> int:
 
 	return position + chunk_data_size + 8
 
-def add_woz_metadata(rom: FileROM, metadata: Metadata):
+def add_woz_metadata(rom: 'FileROM', metadata: Metadata):
 	#https://applesaucefdc.com/woz/reference1/
 	#https://applesaucefdc.com/woz/reference2/
 	magic = rom.read(amount=8)
@@ -162,41 +161,38 @@ def add_woz_metadata(rom: FileROM, metadata: Metadata):
 	if 'Header-Title' in metadata.names and 'Subtitle' in metadata.specific_info:
 		metadata.add_alternate_name(metadata.names['Header Title'] + ': ' + metadata.specific_info['Subtitle'], 'Header Title with Subtitle')
 
-def add_apple_ii_metadata(game: 'ROMGame'):
-	if game.rom.extension == 'woz':
-		add_woz_metadata(cast(FileROM, game.rom), game.metadata)
+def add_apple_ii_software_info(software: 'Software', metadata: 'Metadata'):
+	software.add_standard_metadata(metadata)
+	usage = software.get_info('usage')
+	if usage == 'Works with Apple II Mouse Card in slot 4: -sl4 mouse':
+		#Not setting up input_info just yet because I don't know if it uses joystick/keyboard as well. I guess I probably never will, but like... well.... dang
+		metadata.specific_info['Uses Mouse?'] = True
+	elif usage:
+		metadata.add_notes(usage)
+	
+	if software.software_list.name == 'apple2_flop_orig' and software.name == 'arkanoid':
+		metadata.specific_info['Uses Mouse?'] = True
 
-	#Possible input info: Keyboard and joystick by default, mouse if mouse card exists
+	if not metadata.specific_info.get('Machine'):
+		compat = software.compatibility
+		if compat:
+			machines = set()
+			for machine in compat:
+				if machine == 'A2':
+					machines.add(AppleIIHardware.AppleII)
+				if machine == 'A2P':
+					machines.add(AppleIIHardware.AppleIIPlus)
+				if machine == 'A2E':
+					machines.add(AppleIIHardware.AppleIIE)
+				if machine == 'A2EE':
+					machines.add(AppleIIHardware.AppleIIEEnhanced)
+				if machine == 'A2C':
+					machines.add(AppleIIHardware.AppleIIC)
+				if machine == 'A2GS':
+					machines.add(AppleIIHardware.AppleIIgs)
+				#Apple IIc+ doesn't show up in this list so far
+			metadata.specific_info['Machine'] = machines
 
-	software = game.get_software_list_entry()
-	if software:
-		software.add_standard_metadata(game.metadata)
-		usage = software.get_info('usage')
-		if usage == 'Works with Apple II Mouse Card in slot 4: -sl4 mouse':
-			#Not setting up input_info just yet because I don't know if it uses joystick/keyboard as well. I guess I probably never will, but like... well.... dang
-			game.metadata.specific_info['Uses Mouse?'] = True
-		elif usage:
-			game.metadata.add_notes(usage)
-		
-		if software.software_list.name == 'apple2_flop_orig' and software.name == 'arkanoid':
-			game.metadata.specific_info['Uses Mouse?'] = True
-
-		if not game.metadata.specific_info.get('Machine'):
-			compat = software.compatibility
-			if compat:
-				machines = set()
-				for machine in compat:
-					if machine == 'A2':
-						machines.add(AppleIIHardware.AppleII)
-					if machine == 'A2P':
-						machines.add(AppleIIHardware.AppleIIPlus)
-					if machine == 'A2E':
-						machines.add(AppleIIHardware.AppleIIE)
-					if machine == 'A2EE':
-						machines.add(AppleIIHardware.AppleIIEEnhanced)
-					if machine == 'A2C':
-						machines.add(AppleIIHardware.AppleIIC)
-					if machine == 'A2GS':
-						machines.add(AppleIIHardware.AppleIIgs)
-					#Apple IIc+ doesn't show up in this list so far
-				game.metadata.specific_info['Machine'] = machines
+def add_apple_ii_rom_file_info(rom: 'FileROM', metadata: 'Metadata'):
+	if rom.extension == 'woz':
+		add_woz_metadata(rom, metadata)

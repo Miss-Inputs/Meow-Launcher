@@ -1,7 +1,7 @@
 import hashlib
 import subprocess
 from collections.abc import Mapping
-from typing import Optional, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -9,18 +9,20 @@ from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.games.mame_common.software_list_find_utils import (
     find_in_software_lists, matcher_args_for_bytes)
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Metadata
 from meowlauncher.platform_types import Atari2600Controller
 from meowlauncher.util.region_info import TVSystem
 
 from .common import atari_controllers as controllers
 
-stella_configs = emulator_configs.get('Stella')
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
+
+_stella_configs = emulator_configs.get('Stella')
 
 #Not gonna use stella -rominfo on individual stuff as it takes too long and just detects TV type with no other useful info that isn't in the -listrominfo db
 def get_stella_database() -> Mapping[str, Mapping[str, str]]:
-	proc = subprocess.run([stella_configs.exe_path, '-listrominfo'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
+	proc = subprocess.run([_stella_configs.exe_path, '-listrominfo'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
 
 	lines = proc.stdout.splitlines()
 	first_line = lines[0]
@@ -80,7 +82,7 @@ def _controller_from_stella_db_name(controller: str) -> Atari2600Controller:
 	#Track & Field controller is just a joystick with no up or down, so Stella doesn't count it as separate from joystick
 	return Atari2600Controller.Other
 
-def _parse_stella_cart_note(metadata: Metadata, note: str):
+def _parse_stella_cart_note(metadata: 'Metadata', note: str):
 	#Adventures in the Park
 	#Featuring Panama Joe
 	#Hack of Adventure
@@ -145,7 +147,7 @@ def _parse_stella_cart_note(metadata: Metadata, note: str):
 	else:
 		metadata.add_notes(note)
 
-def _parse_stella_db(metadata: Metadata, game_db_entry: Mapping[str, Optional[str]]):
+def _parse_stella_db(metadata: 'Metadata', game_db_entry: Mapping[str, Optional[str]]):
 	stella_name = game_db_entry.get('Cartridge_Name', game_db_entry.get('Cart_Name'))
 	if stella_name:
 		metadata.add_alternate_name(stella_name, 'Stella Name')
@@ -182,7 +184,7 @@ def _parse_stella_db(metadata: Metadata, game_db_entry: Mapping[str, Optional[st
 	if note:
 		_parse_stella_cart_note(metadata, note)
 
-def _add_input_info_from_peripheral(metadata: Metadata, peripheral: Atari2600Controller):
+def _add_input_info_from_peripheral(metadata: 'Metadata', peripheral: Atari2600Controller):
 	if peripheral == Atari2600Controller.Nothing:
 		return
 		
@@ -211,7 +213,7 @@ def _add_input_info_from_peripheral(metadata: Metadata, peripheral: Atari2600Con
 	elif peripheral == Atari2600Controller.Other:
 		metadata.input_info.add_option(input_metadata.Custom())
 
-def _parse_peripherals(metadata: Metadata):
+def _parse_peripherals(metadata: 'Metadata'):
 	left = metadata.specific_info.get('Left Peripheral')
 	right = metadata.specific_info.get('Right Peripheral')
 
@@ -240,7 +242,7 @@ class StellaDB():
 			StellaDB.__instance = StellaDB.__StellaDB()
 		return StellaDB.__instance.db
 
-def add_atari_2600_metadata(game: ROMGame):
+def add_atari_2600_custom_info(game: 'ROMGame'):
 	stella_db = StellaDB.get_stella_db()
 
 	whole_cart = cast(FileROM, game.rom).read()

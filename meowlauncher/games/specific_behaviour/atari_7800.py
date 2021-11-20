@@ -95,7 +95,7 @@ def _add_atari_7800_header_info(rom_path_for_warning: str, metadata: 'Metadata',
 	#Expansion module required: 64
 
 
-def add_atari_7800_metadata(game: 'ROMGame'):
+def add_atari_7800_custom_info(game: 'ROMGame'):
 	header = cast(FileROM, game.rom).read(amount=128)
 	if header[1:10] == b'ATARI7800':
 		headered = True

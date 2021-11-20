@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING, cast
 
-from meowlauncher import input_metadata
 from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.games.common.generic_info import add_generic_software_info
+from .static_platform_info import add_lynx_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
@@ -28,11 +29,8 @@ def add_info_from_lynx_header(header: bytes, metadata: 'Metadata'):
 	elif rotation == 2:
 		metadata.specific_info['Screen Rotation'] = 'Right'
 
-def add_lynx_metadata(game: 'ROMGame'):
-	builtin_gamepad = input_metadata.NormalController()
-	builtin_gamepad.dpads = 1
-	builtin_gamepad.face_buttons = 4 #Option 1, Option 2, A, B; these are flipped so you might think there's 8
-	game.metadata.input_info.add_option(builtin_gamepad)
+def add_lynx_custom_info(game: 'ROMGame'):
+	add_lynx_info(game.metadata)
 
 	rom = cast(FileROM, game.rom)
 	magic = rom.read(amount=4)
@@ -45,4 +43,4 @@ def add_lynx_metadata(game: 'ROMGame'):
 
 	software = game.get_software_list_entry()
 	if software:
-		software.add_standard_metadata(game.metadata)
+		add_generic_software_info(software, game.metadata)

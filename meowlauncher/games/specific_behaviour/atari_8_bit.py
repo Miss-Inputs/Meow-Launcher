@@ -83,7 +83,7 @@ def add_info_from_software_list(metadata: 'Metadata', software: 'Software'):
 	#Meaningless for our purposes:
 	#Keyboard overlay was supplied with cartridge
 
-def add_atari_8bit_metadata(game: 'ROMGame'):
+def add_atari_8bit_custom_info(game: 'ROMGame'):
 	headered = False
 
 	if game.metadata.media_type == MediaType.Cartridge:

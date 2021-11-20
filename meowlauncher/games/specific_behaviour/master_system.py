@@ -1,24 +1,24 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.metadata import Date, Metadata
+from meowlauncher.metadata import Date
 from meowlauncher.platform_types import SMSPeripheral
 from meowlauncher.util.region_info import TVSystem
 from meowlauncher.util.utils import decode_bcd, load_dict
 
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
-	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.games.roms.rom import FileROM
+	from meowlauncher.metadata import Metadata
 
 licensee_codes = load_dict(None, 'sega_licensee_codes')
 
 def _decode_bcd_multi(i: bytes) -> int:
 	return (decode_bcd(i[1]) * 100) + decode_bcd(i[0])
 
-def parse_sdsc_header(rom: FileROM, metadata: Metadata, header: bytes):
+def parse_sdsc_header(rom: 'FileROM', metadata: 'Metadata', header: bytes):
 	major_version = decode_bcd(header[0])
 	minor_version = decode_bcd(header[1])
 	metadata.specific_info['Version'] = 'v{0}.{1}'.format(major_version, minor_version)
@@ -61,7 +61,7 @@ regions: dict[int, tuple[str, bool]] = {
 	7: ('International', True),
 }
 
-def _parse_standard_header(rom: FileROM, base_offset: int) -> Mapping[str, Any]:
+def _parse_standard_header(rom: 'FileROM', base_offset: int) -> Mapping[str, Any]:
 	#TODO: Use namedtuple/dataclass instead
 	header_data: dict[str, Any] = {}
 	header = rom.read(seek_to=base_offset, amount=16)
@@ -96,7 +96,7 @@ def _parse_standard_header(rom: FileROM, base_offset: int) -> Mapping[str, Any]:
 
 	return header_data
 
-def add_info_from_standard_header(rom: FileROM, metadata: Metadata):
+def add_info_from_standard_header(rom: 'FileROM', metadata: 'Metadata'):
 	rom_size = rom.size
 	possible_offsets = [0x1ff0, 0x3ff0, 0x7ff0]
 
@@ -127,7 +127,7 @@ def add_info_from_standard_header(rom: FileROM, metadata: Metadata):
 		#All non-Japanese/Korean systems have a BIOS which checks the checksum, so if there's no header at all, they just won't boot it
 		metadata.specific_info['Japanese Only?'] = True
 
-def add_info_from_software_list(metadata: Metadata, software: 'Software'):
+def add_sms_gg_software_list_info(software: 'Software', metadata: 'Metadata'):
 	software.add_standard_metadata(metadata)
 
 	usage = software.infos.get('usage')
@@ -143,6 +143,8 @@ def add_info_from_software_list(metadata: Metadata, software: 'Software'):
 		metadata.add_notes(usage)
 	#Other usage strings:
 	#To play in 3-D on SMS1, hold buttons 1 and 2 while powering up the system.
+
+	metadata.save_type = SaveType.Cart if software.get_part_feature('battery') == 'yes' else SaveType.Nothing
 
 	slot = software.get_part_feature('slot')
 	if slot == 'codemasters':
@@ -167,7 +169,6 @@ def add_info_from_software_list(metadata: Metadata, software: 'Software'):
 	elif slot == 'seojin':
 		metadata.specific_info['Mapper'] = 'Seo Jin'
 
-	metadata.save_type = SaveType.Cart if software.get_part_feature('battery') == 'yes' else SaveType.Nothing
 
 	if metadata.platform == 'Master System':
 		builtin_gamepad = input_metadata.NormalController()
@@ -203,21 +204,9 @@ def add_info_from_software_list(metadata: Metadata, software: 'Software'):
 
 		metadata.specific_info['Peripheral'] = peripheral
 
-def get_sms_metadata(game: 'ROMGame'):
-	rom = cast(FileROM, game.rom)
+def add_sms_gg_rom_file_info(rom: 'FileROM', metadata: 'Metadata'):
 	sdsc_header = rom.read(seek_to=0x7fe0, amount=16)
 	if sdsc_header[:4] == b'SDSC':
-		parse_sdsc_header(rom, game.metadata, sdsc_header[4:])
+		parse_sdsc_header(rom, metadata, sdsc_header[4:])
 
-	add_info_from_standard_header(rom, game.metadata)
-
-	if game.metadata.platform == 'Game Gear':
-		#Because there's no accessories to make things confusing, we can assume the Game Gear's input info, but not the Master System's
-		builtin_gamepad = input_metadata.NormalController()
-		builtin_gamepad.dpads = 1
-		builtin_gamepad.face_buttons = 2 #'1' on left, '2' on right
-		game.metadata.input_info.add_option(builtin_gamepad)
-
-	software = game.get_software_list_entry()
-	if software:
-		add_info_from_software_list(game.metadata, software)
+	add_info_from_standard_header(rom, metadata)

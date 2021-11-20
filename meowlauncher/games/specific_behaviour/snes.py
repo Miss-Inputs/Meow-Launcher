@@ -33,7 +33,7 @@ def _make_ram_rom_sizes() -> Mapping[int, int]:
 	return sizes
 ram_rom_sizes = _make_ram_rom_sizes()
 
-rom_layouts = {
+_rom_layouts = {
 	0x20: "LoROM",
 	0x21: "HiROM",
 	0x22: "LoROM + S-DD1",
@@ -52,7 +52,7 @@ class ROMType():
 		self.has_battery = has_battery
 		self.has_rtc = has_rtc
 
-rom_types = {
+_rom_types = {
 	0: ROMType(),
 	1: ROMType(has_ram=True),
 	2: ROMType(has_ram=True, has_battery=True),
@@ -79,7 +79,7 @@ rom_types = {
 	249: ROMType(SNESExpansionChip.SPC7110),
 }
 
-countries = {
+_countries = {
 	0: regions_by_name['Japan'],
 	1: regions_by_name['USA'],
 	2: regions_by_name['Europe'], #Includes Oceania and Asia too... I guess I have some refactoring to do. Like maybe PAL should be a region
@@ -99,7 +99,7 @@ countries = {
 	17: regions_by_name['Australia'], #Is this actually used? Australian-specific releases (e.g. TMNT) use Europe still
 }
 
-def parse_sufami_turbo_header(rom: FileROM, metadata: 'Metadata'):
+def _parse_sufami_turbo_header(rom: FileROM, metadata: 'Metadata'):
 	metadata.platform = 'Sufami Turbo'
 
 	#Safe bet that every single ST game just uses a normal controller
@@ -136,18 +136,18 @@ def _parse_snes_header(rom: FileROM, base_offset: int) -> Mapping[str, Any]:
 
 	
 	rom_layout = header[0xd5]
-	if rom_layout in rom_layouts:
-		metadata['ROM layout'] = rom_layouts[rom_layout]
+	if rom_layout in _rom_layouts:
+		metadata['ROM layout'] = _rom_layouts[rom_layout]
 	elif title == "HAL'S HOLE IN ONE GOL":
 		#HAL's Hole in Golf has 70 here, because that's the letter F, and the title immediately preceding this is "HAL HOLE IN ONE GOL". Looks like they overwrote this part of the header with the letter F. Whoops.
 		#Anyway the internet says it's LoROM + SlowROM
-		metadata['ROM layout'] = rom_layouts[0x20]
+		metadata['ROM layout'] = _rom_layouts[0x20]
 	else:
 		raise BadSNESHeaderException('ROM layout is weird: %s' % hex(rom_layout))
 
 	rom_type = header[0xd6]
-	if rom_type in rom_types:
-		metadata['ROM type'] = rom_types[rom_type]
+	if rom_type in _rom_types:
+		metadata['ROM type'] = _rom_types[rom_type]
 	else:
 		raise BadSNESHeaderException('ROM type is weird: %d' % rom_type)
 
@@ -160,8 +160,8 @@ def _parse_snes_header(rom: FileROM, base_offset: int) -> Mapping[str, Any]:
 		raise BadSNESHeaderException('RAM size is weird: %d' % ram_size)
 	country = header[0xd9]
 	#Dunno if I want to validate against countries, honestly. Might go wrong
-	if country in countries:
-		metadata['Country'] = countries[country]
+	if country in _countries:
+		metadata['Country'] = _countries[country]
 
 	licensee = header[0xda]
 	#Hmm.. not sure if I should validate that, but... it shouldn't be 0x00 or 0xff, maybe?
@@ -198,7 +198,7 @@ def _parse_snes_header(rom: FileROM, base_offset: int) -> Mapping[str, Any]:
 
 	return metadata
 
-def add_normal_snes_header(rom: FileROM, metadata: 'Metadata'):
+def _add_normal_snes_header(rom: FileROM, metadata: 'Metadata'):
 	#Note that while we're seeking to xx00 here, the header actually starts at xxc0 (or xxb0 in case of extended header), it's just easier this way
 	possible_offsets = {0x7f00, 0xff00, 0x40ff00}
 	rom_size = rom.size
@@ -241,7 +241,7 @@ def add_normal_snes_header(rom: FileROM, metadata: 'Metadata'):
 	#else:
 	#	print(game.rom.path, 'could not detect header because', ex)
 
-def parse_satellaview_header(rom: FileROM, base_offset: int) -> Mapping[str, Any]:
+def _parse_satellaview_header(rom: FileROM, base_offset: int) -> Mapping[str, Any]:
 	#TODO Use namedtuple/dataclass
 	header = rom.read(seek_to=base_offset, amount=0xe0)
 	metadata: dict[str, Any] = {}
@@ -268,9 +268,9 @@ def parse_satellaview_header(rom: FileROM, base_offset: int) -> Mapping[str, Any
 	metadata['Day'] = day
 
 	rom_layout = header[0xd8]
-	if rom_layout not in rom_layouts:
+	if rom_layout not in _rom_layouts:
 		raise BadSNESHeaderException('ROM layout is weird: %d' % rom_layout)
-	metadata['ROM layout'] = rom_layouts[rom_layout]
+	metadata['ROM layout'] = _rom_layouts[rom_layout]
 
 	return metadata
 	#0xd0-0xd4: Block allocation flags
@@ -281,7 +281,7 @@ def parse_satellaview_header(rom: FileROM, base_offset: int) -> Mapping[str, Any
 	#0xdc-0xde: Checksum
 	#0xde-0xe0: Inverse checksum
 
-def add_satellaview_metadata(rom: FileROM, metadata: 'Metadata'):
+def _add_satellaview_metadata(rom: FileROM, metadata: 'Metadata'):
 	metadata.platform = 'Satellaview'
 	#Safe bet that every single Satellaview game just uses a normal controller
 	metadata.input_info.add_option(controllers.controller)
@@ -298,7 +298,7 @@ def add_satellaview_metadata(rom: FileROM, metadata: 'Metadata'):
 			continue
 
 		try:
-			header_data = parse_satellaview_header(rom, possible_offset)
+			header_data = _parse_satellaview_header(rom, possible_offset)
 			break
 		except BadSNESHeaderException:
 			continue
@@ -367,14 +367,14 @@ def add_snes_software_list_metadata(software: 'Software', metadata: 'Metadata'):
 		metadata.series_index = '6'
 		
 
-def add_snes_metadata(game: 'ROMGame'):
+def add_snes_custom_info(game: 'ROMGame'):
 	rom = cast(FileROM, game.rom)
 	if game.rom.extension in {'sfc', 'smc', 'swc'}:
-		add_normal_snes_header(rom, game.metadata)
+		_add_normal_snes_header(rom, game.metadata)
 	elif game.rom.extension == 'bs':
-		add_satellaview_metadata(rom, game.metadata)
+		_add_satellaview_metadata(rom, game.metadata)
 	elif game.rom.extension == 'st':
-		parse_sufami_turbo_header(rom, game.metadata)
+		_parse_sufami_turbo_header(rom, game.metadata)
 
 	equivalent_arcade = try_get_equivalent_arcade(rom, game.metadata.names.values())
 	if equivalent_arcade:

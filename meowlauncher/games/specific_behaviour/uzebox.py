@@ -28,7 +28,7 @@ def add_info_from_uze_header(header: bytes, metadata: Metadata):
 		#Official documentation claims this is unused, but it seems that it is used after all (although often identical to title)
 		metadata.descriptions['Banner Description'] = description
 
-def add_uzebox_metadata(game: 'ROMGame'):
+def add_uzebox_custom_info(game: 'ROMGame'):
 	#Save type: ????
 
 	header = cast(FileROM, game.rom).read(amount=512)
@@ -40,7 +40,6 @@ def add_uzebox_metadata(game: 'ROMGame'):
 		add_info_from_uze_header(header, game.metadata)
 		
 	game.metadata.specific_info['Headered?'] = has_header
-
 
 	software = game.get_software_list_entry(512 if has_header else 0)
 	if software:

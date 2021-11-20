@@ -98,13 +98,6 @@ def _look_for_strings_in_cart(entire_cart: bytes, metadata: 'Metadata'):
 	if sound_driver == 'Rare':
 		metadata.developer = 'Rare' #probably
 	
-def add_gba_info(metadata: 'Metadata'):
-	builtin_gamepad = input_metadata.NormalController()
-	builtin_gamepad.dpads = 1
-	builtin_gamepad.face_buttons = 2 #A B
-	builtin_gamepad.shoulder_buttons = 2 #L R
-	metadata.input_info.add_option(builtin_gamepad)
-
 def add_gba_rom_file_info(rom: 'FileROM', metadata: 'Metadata'):
 	entire_cart = rom.read()
 	if len(entire_cart) >= 0xc0:

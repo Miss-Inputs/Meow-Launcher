@@ -24,6 +24,7 @@ from meowlauncher.util.utils import (NotAlphanumericException,
 from .common.gametdb import TDB, add_info_from_tdb
 from .common.nintendo_common import (WiiU3DSRegionCode,
                                      add_info_from_local_titles, parse_ratings)
+from .static_platform_info import add_3ds_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
@@ -60,17 +61,6 @@ languages = {
 	15: 'Unknown language 3',
 }
 media_unit = 0x200
-
-def add_3ds_system_info(metadata: 'Metadata'):
-	#Although we can't know for sure if the game uses the touchscreen, it's safe to assume that it probably does
-	builtin_gamepad = input_metadata.NormalController()
-	builtin_gamepad.analog_sticks = 1
-	builtin_gamepad.dpads = 1
-	builtin_gamepad.face_buttons = 4
-	builtin_gamepad.shoulder_buttons = 2
-
-	controller = input_metadata.CombinedController([builtin_gamepad, input_metadata.Touchscreen()])
-	metadata.input_info.add_option(controller)
 
 def _load_tdb() -> Optional[TDB]:
 	tdb_path = platform_configs['3DS'].options.get('tdb_path')
@@ -423,8 +413,8 @@ def parse_3dsx(rom: FileROM, metadata: 'Metadata'):
 		except FileNotFoundError:
 			pass
 
-def add_3ds_metadata(game: 'ROMGame'):
-	add_3ds_system_info(game.metadata)
+def add_3ds_custom_info(game: 'ROMGame'):
+	add_3ds_info(game.metadata)
 	if isinstance(game.rom, FileROM):
 		magic = game.rom.read(seek_to=0x100, amount=4)
 		#Hmm... do we really need this or should we just look at extension?

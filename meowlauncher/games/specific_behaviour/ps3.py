@@ -2,7 +2,7 @@ import json
 import os
 from enum import Enum
 from pathlib import Path
-from typing import Optional, cast
+from typing import TYPE_CHECKING, Optional, cast
 from xml.etree import ElementTree
 
 from meowlauncher.config.main_config import main_config
@@ -10,12 +10,13 @@ from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.common.engine_detect import \
     try_and_detect_engine_from_folder
 from meowlauncher.games.roms.rom import FolderROM
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Metadata
 
 from .common.gametdb import TDB, add_info_from_tdb
 from .common.playstation_common import parse_param_sfo, parse_product_code
 
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
 
 def load_tdb() -> Optional[TDB]:
 	if 'PS3' not in platform_configs:
@@ -33,7 +34,7 @@ def load_tdb() -> Optional[TDB]:
 		return None
 tdb = load_tdb()
 
-def add_ps3game_subfolder_info(subfolder: Path, metadata: Metadata):
+def add_ps3game_subfolder_info(subfolder: Path, metadata: 'Metadata'):
 	icon0_path = subfolder.joinpath('ICON0.PNG')
 	if icon0_path.is_file():
 		metadata.images['Banner'] = icon0_path
@@ -55,7 +56,7 @@ def add_ps3game_subfolder_info(subfolder: Path, metadata: Metadata):
 		if engine:
 			metadata.specific_info['Engine'] = engine
 
-def add_game_folder_metadata(rom: FolderROM, metadata: Metadata):
+def add_game_folder_metadata(rom: FolderROM, metadata: 'Metadata'):
 	ps3game_subfolder = rom.get_subfolder('PS3_GAME')
 	param_sfo_path: Optional[Path]
 	if ps3game_subfolder:
@@ -117,7 +118,7 @@ def get_rpcs3_compat(product_code: str) -> Optional[RPCS3Compatibility]:
 		pass
 	return None
 	
-def add_cover(metadata: Metadata, product_code: str):
+def add_cover(metadata: 'Metadata', product_code: str):
 	#Intended for the covers database from GameTDB
 	try:
 		covers_path = platform_configs['PS3'].options['covers_path']
@@ -132,7 +133,7 @@ def add_cover(metadata: Metadata, product_code: str):
 			metadata.images['Cover'] = potential_cover_path
 			break
 
-def add_ps3_metadata(game: ROMGame):
+def add_ps3_custom_info(game: 'ROMGame'):
 	if game.rom.is_folder:
 		add_game_folder_metadata(cast(FolderROM, game.rom), game.metadata)
 

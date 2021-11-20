@@ -117,7 +117,7 @@ def add_info_from_database_entry(metadata: 'Metadata', database_entry: Mapping[s
 		metadata.specific_info['Uses Transfer Pak?'] = True
 	#Unfortunately nothing in here which specifies to use VRU, or any other weird fancy controllers which may or may not exist
 
-def add_n64_metadata(game: 'ROMGame'):
+def add_n64_custom_info(game: 'ROMGame'):
 	entire_rom = cast(FileROM, game.rom).read()
 
 	magic = entire_rom[:4]

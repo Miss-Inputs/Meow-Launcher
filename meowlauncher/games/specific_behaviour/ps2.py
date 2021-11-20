@@ -1,45 +1,47 @@
 import io
 import re
-
-from meowlauncher.config.main_config import main_config
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Date, Metadata
-from meowlauncher.util.region_info import TVSystem
-
-from .common.playstation_common import parse_product_code
+from typing import TYPE_CHECKING
+import struct  # To handle struct.error
 
 try:
-	import struct  # To handle struct.error
-
 	from pycdlib import PyCdlib
 	from pycdlib.pycdlibexception import PyCdlibInvalidInput, PyCdlibInvalidISO
 	have_pycdlib = True
 except ModuleNotFoundError:
 	have_pycdlib = False
 
-boot_line_regex = re.compile(r'^BOOT2\s*=\s*cdrom0:\\(.+);1$')
-vmode_line_regex = re.compile(r'^VMODE\s*=\s*(\S+)$')
-boot_file_regex = re.compile(r'^(.{4})_(.{3})\.(.{2})$')
+from meowlauncher.config.main_config import main_config
+from meowlauncher.metadata import Date, Metadata
+from meowlauncher.util.region_info import TVSystem
+
+from .common.playstation_common import parse_product_code
+
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+
+_boot_line_regex = re.compile(r'^BOOT2\s*=\s*cdrom0:\\(.+);1$')
+_vmode_line_regex = re.compile(r'^VMODE\s*=\s*(\S+)$')
+_boot_file_regex = re.compile(r'^(.{4})_(.{3})\.(.{2})$')
 
 def add_info_from_system_cnf(metadata: Metadata, system_cnf: str):
 	for line in system_cnf.splitlines():
-		boot_line_match = boot_line_regex.match(line)
+		boot_line_match = _boot_line_regex.match(line)
 		if boot_line_match:
 			filename = boot_line_match[1]
-			boot_file_match = boot_file_regex.match(filename)
+			boot_file_match = _boot_file_regex.match(filename)
 			if boot_file_match:
 				metadata.product_code = boot_file_match[1] + '-' + boot_file_match[2] + boot_file_match[3]
 				#Can look this up in /usr/local/share/games/PCSX2/GameIndex.dbf to get PCSX2 compatibility I guess
 		#Other lines: VER (disc revision e.g. 1.00)
 		else:
-			vmode_line_match = vmode_line_regex.match(line)
+			vmode_line_match = _vmode_line_regex.match(line)
 			if vmode_line_match:
 				try:
 					metadata.specific_info['TV Type'] = TVSystem[vmode_line_match[1]]
 				except ValueError:
 					pass
 
-def add_ps2_metadata(game: ROMGame):
+def add_ps2_custom_info(game: 'ROMGame'):
 	#.bin/cue also has this system.cnf but I'd need to know how to get pycdlib to work with that
 	if game.rom.extension == 'iso' and have_pycdlib:
 		iso = PyCdlib()

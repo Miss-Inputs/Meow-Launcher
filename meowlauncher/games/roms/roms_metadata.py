@@ -1,4 +1,4 @@
-from typing import Any, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Optional, Union, cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.libretro_database_company_name_cleanup import \
@@ -15,7 +15,7 @@ from meowlauncher.games.mame_common.mame_helpers import (
     default_mame_executable, get_image)
 from meowlauncher.games.mame_common.mame_utils import image_config_keys
 from meowlauncher.games.specific_behaviour.info_helpers import custom_info_funcs, static_info_funcs, software_info_funcs, rom_file_info_funcs
-from meowlauncher.metadata import Date, Metadata
+from meowlauncher.metadata import Date
 from meowlauncher.util.detect_things_from_filename import (
     get_date_from_filename_tags, get_languages_from_filename_tags,
     get_regions_from_filename_tags, get_revision_from_filename_tags,
@@ -26,11 +26,14 @@ from meowlauncher.util.utils import (find_filename_tags_at_end, junk_suffixes,
                                      load_list, remove_filename_tags)
 
 from .rom import ROM, FileROM, FolderROM
-from .rom_game import ROMGame
+
+if TYPE_CHECKING:
+	from .rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
 
 _not_necessarily_equivalent_arcade_names = load_list(None, 'not_necessarily_equivalent_arcade_names')
 
-def _add_metadata_from_tags(game: ROMGame):
+def _add_metadata_from_tags(game: 'ROMGame'):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = game.filename_tags
 
@@ -57,14 +60,14 @@ def _add_metadata_from_tags(game: ROMGame):
 		if languages:
 			game.metadata.languages = languages
 
-def _add_metadata_from_regions(metadata: Metadata):
+def _add_metadata_from_regions(metadata: 'Metadata'):
 	if metadata.regions:
 		if not metadata.languages:
 			region_language = get_language_from_regions(metadata.regions)
 			if region_language:
 				metadata.languages = [region_language]
 
-def _find_equivalent_arcade_game(game: ROMGame, basename: str) -> Optional[Machine]:
+def _find_equivalent_arcade_game(game: 'ROMGame', basename: str) -> Optional[Machine]:
 	#Just to be really strict: We will only get it if the name matches
 	if basename in _not_necessarily_equivalent_arcade_names:
 		return None
@@ -93,7 +96,7 @@ def _find_equivalent_arcade_game(game: ROMGame, basename: str) -> Optional[Machi
 		return machine
 	return None
 
-def _add_metadata_from_arcade(game: ROMGame, machine: Machine):
+def _add_metadata_from_arcade(game: 'ROMGame', machine: Machine):
 	if 'Icon' not in game.metadata.images:
 		machine_icon = get_image(image_config_keys['Icon'], machine.basename)
 		if machine_icon:
@@ -119,7 +122,7 @@ def _add_metadata_from_arcade(game: ROMGame, machine: Machine):
 		game.metadata.categories = [catlist.category]
 	#Well, I guess not much else can be inferred here. Still, though!
 		
-def _add_alternate_names(rom: ROM, metadata: Metadata):
+def _add_alternate_names(rom: ROM, metadata: 'Metadata'):
 	tags_at_end = find_filename_tags_at_end(rom.name)
 	name = remove_filename_tags(rom.name)
 
@@ -154,7 +157,7 @@ def _add_alternate_names(rom: ROM, metadata: Metadata):
 	for alt_name in alt_names:
 		metadata.add_alternate_name(alt_name)
 
-def _add_metadata_from_libretro_database_entry(metadata: Metadata, database: LibretroDatabaseType, key: Union[str, int]):
+def _add_metadata_from_libretro_database_entry(metadata: 'Metadata', database: LibretroDatabaseType, key: Union[str, int]):
 	database_entry = cast(Optional[dict[str, Any]], database.get(key)) #TODO: Hmm what's the best way to do this - we don't want mypy complaining about all the different things GameValueType could be
 	if database_entry:
 		name = database_entry.get('comment', database_entry.get('name'))
@@ -245,7 +248,7 @@ def _add_metadata_from_libretro_database_entry(metadata: Metadata, database: Lib
 		return True
 	return False
 
-def _add_metadata_from_libretro_database(game: ROMGame):
+def _add_metadata_from_libretro_database(game: 'ROMGame'):
 	key: Union[Optional[str], int]
 	if game.platform.dat_uses_serial:
 		key = game.metadata.product_code
@@ -265,7 +268,7 @@ def _add_metadata_from_libretro_database(game: ROMGame):
 				else:
 					_add_metadata_from_libretro_database_entry(game.metadata, database, key)
 
-def _autodetect_tv_type(game: ROMGame):
+def _autodetect_tv_type(game: 'ROMGame'):
 	if game.metadata.specific_info.get('TV Type'):
 		return
 	
@@ -279,7 +282,7 @@ def _autodetect_tv_type(game: ROMGame):
 		game.metadata.specific_info['TV Type'] = from_region
 		return
 
-def _add_platform_specific_metadata(game: ROMGame):
+def _add_platform_specific_metadata(game: 'ROMGame'):
 	custom_info_func = custom_info_funcs.get(game.platform.name)
 	if custom_info_func:
 		custom_info_func(game)
@@ -310,7 +313,7 @@ def _add_platform_specific_metadata(game: ROMGame):
 			else:
 				add_generic_software_info(software, game.metadata)
 
-def add_metadata(game: ROMGame):
+def add_metadata(game: 'ROMGame'):
 	_add_alternate_names(game.rom, game.metadata)
 	#I guess if game.subroms was ever used you would loop through each one (I swear I will do the thing one day)
 

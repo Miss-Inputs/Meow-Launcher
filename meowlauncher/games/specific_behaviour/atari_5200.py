@@ -1,12 +1,9 @@
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
-from meowlauncher import input_metadata
-from meowlauncher.common_types import SaveType
-from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.metadata import Date, Metadata
 
 if TYPE_CHECKING:
-	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.games.roms.rom import FileROM
 
 atari_5200_charset = {
 	#Lowercase here is used to represent rainbow characters, because how else am I gonna represent them? No really, I dunno
@@ -96,7 +93,7 @@ atari_5200_charset = {
 	0xe1: ' ', #Not sure about this one, but it really does display as blank. Maybe all unknown characters just display as blank?
 }
 
-def add_crap_from_rom_header(rom: FileROM, metadata: Metadata):
+def add_atari_5200_footer_garbage_info(rom: 'FileROM', metadata: Metadata):
 	footer = rom.read(seek_to=rom.size - 24, amount=24)
 	year = footer[20:22] #Y2K incompliant whee
 	#Entry point: 22-23, lil' endian
@@ -114,24 +111,3 @@ def add_crap_from_rom_header(rom: FileROM, metadata: Metadata):
 		except (ValueError, KeyError):
 			pass
 		
-def add_atari_5200_metadata(game: 'ROMGame'):
-	add_crap_from_rom_header(cast(FileROM, game.rom), game.metadata)
-
-	uses_trackball = False
-	software = game.get_software_list_entry()
-	if software:
-		software.add_standard_metadata(game.metadata)
-		uses_trackball = software.get_part_feature('peripheral') == 'trackball'
-
-	game.metadata.save_type = SaveType.Nothing #Probably
-
-	#This doesn't really matter anyway, because MAME doesn't let you select controller type by slot device yet; and none of the other 5200 emulators are cool
-	game.metadata.specific_info['Uses Trackball?'] = uses_trackball
-
-	if uses_trackball:
-		game.metadata.input_info.add_option(input_metadata.Trackball())
-	else:
-		normal_controller = input_metadata.NormalController()
-		normal_controller.face_buttons = 2 #1, 2, (Pause, Reset, Start) I think? I think it works the same way for trackballs
-		normal_controller.analog_sticks = 1
-		game.metadata.input_info.add_option(normal_controller)

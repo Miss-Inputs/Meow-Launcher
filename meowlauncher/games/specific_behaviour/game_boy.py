@@ -16,6 +16,7 @@ from meowlauncher.util.utils import (NotAlphanumericException,
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
+	from meowlauncher.games.mame_common.software_list import Software
 
 game_boy_config = platform_configs.get('Game Boy')
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
@@ -230,7 +231,17 @@ def parse_gbx_footer(rom: FileROM, metadata: 'Metadata'):
 	#4 = has battery, #5 = has rumble, #6 = has RTC
 	#RAM size: 12:16
 
-def add_gameboy_metadata(game: 'ROMGame'):
+def add_game_boy_software_info(software: 'Software', metadata: 'Metadata'):
+	#TODO: Make sure this doesn't make slot incorrect if we are reading .gbx
+	software.add_standard_metadata(metadata)
+	metadata.specific_info['Has RTC?'] = software.get_part_feature('rtc') == 'yes'
+	metadata.save_type = SaveType.Cart if software.has_data_area('nvram') else SaveType.Nothing
+
+	slot = software.get_part_feature('slot')
+	if slot:
+		parse_slot(metadata, slot)
+
+def add_game_boy_custom_info(game: 'ROMGame'):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2 #A B
@@ -245,17 +256,11 @@ def add_gameboy_metadata(game: 'ROMGame'):
 			game.metadata.platform = 'Game Boy Color'
 
 	if game.rom.extension == 'gbx':
+		parse_gbx_footer(rom, game.metadata)
+
+	if game.rom.extension == 'gbx':
 		software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(rom.read(amount=rom.size - 64)))
 	else:
 		software = game.get_software_list_entry()
 	if software:
-		software.add_standard_metadata(game.metadata)
-		game.metadata.specific_info['Has RTC?'] = software.get_part_feature('rtc') == 'yes'
-		game.metadata.save_type = SaveType.Cart if software.has_data_area('nvram') else SaveType.Nothing
-
-		slot = software.get_part_feature('slot')
-		if slot:
-			parse_slot(game.metadata, slot)
-
-	if game.rom.extension == 'gbx':
-		parse_gbx_footer(rom, game.metadata)
+		add_game_boy_software_info(software, game.metadata)

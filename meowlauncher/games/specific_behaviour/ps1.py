@@ -1,20 +1,19 @@
 import json
+from collections.abc import Mapping
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 from xml.etree import ElementTree
-from collections.abc import Mapping
 
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
-from meowlauncher.util.region_info import get_language_by_english_name
-
 from meowlauncher.games.common.generic_info import add_generic_software_info
+from meowlauncher.util.region_info import get_language_by_english_name
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
 
-duckstation_config = emulator_configs.get('DuckStation')
+_duckstation_config = emulator_configs.get('DuckStation')
 
 class DuckStationCompatibility(Enum):
 	NoIssues = 5
@@ -25,7 +24,7 @@ class DuckStationCompatibility(Enum):
 	Unknown = 0
 
 def find_duckstation_compat_info(product_code: str) -> Optional[DuckStationCompatibility]:
-	compat_xml_path = duckstation_config.options.get('compatibility_xml_path')
+	compat_xml_path = _duckstation_config.options.get('compatibility_xml_path')
 	if not compat_xml_path:
 		return None
 
@@ -48,7 +47,7 @@ def find_duckstation_compat_info(product_code: str) -> Optional[DuckStationCompa
 	return None
 
 def get_duckstation_db_info(product_code: str) -> Optional[Mapping]:
-	gamedb_path = duckstation_config.options.get('gamedb_path')
+	gamedb_path = _duckstation_config.options.get('gamedb_path')
 	if not gamedb_path:
 		return None
 
@@ -66,37 +65,42 @@ def get_duckstation_db_info(product_code: str) -> Optional[Mapping]:
 			return db_game
 	return None
 
-def add_duckstation_db_info(metadata: 'Metadata'):
-	if not metadata.product_code:
-		return
-	db_entry = get_duckstation_db_info(metadata.product_code)
-	if db_entry:
-		metadata.add_alternate_name(db_entry['name'], 'DuckStation Database Name')
-		languages = db_entry.get('languages')
-		if languages:
-			#TODO: Proper nested comprehension
-			metadata.languages = {lang for lang in {get_language_by_english_name(lang_name) for lang_name in languages} if lang}
-		if db_entry.get('publisher') and not metadata.publisher:
-			metadata.publisher = db_entry.get('publisher')
-		if db_entry.get('developer') and not metadata.developer:
-			metadata.publisher = db_entry.get('developer')
-		if db_entry.get('releaseDate'):
-			metadata.publisher = db_entry.get('releaseDate')
-		#TODO: Genre, but should this take precedence over libretro database if that is used too
-		#TODO: minBlocks and maxBlocks might indicate save type? But why is it sometimes 0
-		#TODO: minPlayers and maxPlayers
-		if db_entry.get('vibration'):
-			metadata.specific_info['Force Feedback?'] = True
-		if db_entry.get('multitap'):
-			metadata.specific_info['Supports Multitap?'] = True
-		if db_entry.get('linkCable'):
-			metadata.specific_info['Supports Link Cable?'] = True
-		controllers = db_entry.get('controllers')
-		if controllers:
-			metadata.specific_info['Compatible Controllers'] = controllers
-			metadata.specific_info['Supports Analog?'] = 'AnalogController' in controllers
+def _add_duckstation_db_info(db_entry: Mapping, metadata: 'Metadata'):
+	metadata.add_alternate_name(db_entry['name'], 'DuckStation Database Name')
+	languages = db_entry.get('languages')
+	if languages:
+		#TODO: Proper nested comprehension
+		metadata.languages = {lang for lang in {get_language_by_english_name(lang_name) for lang_name in languages} if lang}
+	if db_entry.get('publisher') and not metadata.publisher:
+		metadata.publisher = db_entry.get('publisher')
+	if db_entry.get('developer') and not metadata.developer:
+		metadata.publisher = db_entry.get('developer')
+	if db_entry.get('releaseDate'):
+		metadata.publisher = db_entry.get('releaseDate')
+	#TODO: Genre, but should this take precedence over libretro database if that is used too
+	#TODO: minBlocks and maxBlocks might indicate save type? But why is it sometimes 0
+	#TODO: minPlayers and maxPlayers
+	if db_entry.get('vibration'):
+		metadata.specific_info['Force Feedback?'] = True
+	if db_entry.get('multitap'):
+		metadata.specific_info['Supports Multitap?'] = True
+	if db_entry.get('linkCable'):
+		metadata.specific_info['Supports Link Cable?'] = True
+	controllers = db_entry.get('controllers')
+	if controllers:
+		metadata.specific_info['Compatible Controllers'] = controllers
+		metadata.specific_info['Supports Analog?'] = 'AnalogController' in controllers
 
-def add_ps1_metadata(game: 'ROMGame'):
+def add_info_from_product_code(product_code: str, metadata: 'Metadata'):
+	if _duckstation_config:
+		compat = find_duckstation_compat_info(product_code)
+		if compat:
+			metadata.specific_info['DuckStation Compatibility'] = compat
+		db_entry = get_duckstation_db_info(product_code)
+		if db_entry:
+			_add_duckstation_db_info(db_entry, metadata)
+
+def add_ps1_custom_info(game: 'ROMGame'):
 	try:
 		software = game.get_software_list_entry()
 		if software:
@@ -104,8 +108,5 @@ def add_ps1_metadata(game: 'ROMGame'):
 	except NotImplementedError:
 		pass
 
-	if game.metadata.product_code and duckstation_config:
-		compat = find_duckstation_compat_info(game.metadata.product_code)
-		if compat:
-			game.metadata.specific_info['DuckStation Compatibility'] = compat
-		add_duckstation_db_info(game.metadata)
+	if game.metadata.product_code:
+		add_info_from_product_code(game.metadata.product_code, game.metadata)

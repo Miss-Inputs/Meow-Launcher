@@ -1,19 +1,21 @@
 from enum import Enum, auto
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
+from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Date, Metadata
+from meowlauncher.metadata import Date
 from meowlauncher.platform_types import SaturnRegionCodes
 from meowlauncher.util.cd_read import get_first_data_cue_track, read_mode_1_cd
 from meowlauncher.util.utils import load_dict
 
-from meowlauncher.games.common.generic_info import add_generic_software_info
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
 
-licensee_codes = load_dict(None, 'sega_licensee_codes')
+_licensee_codes = load_dict(None, 'sega_licensee_codes')
 
 class SaturnPeripheral(Enum):
 	StandardController = auto()
@@ -23,51 +25,51 @@ class SaturnPeripheral(Enum):
 	Mouse = auto()
 	Wheel = auto()
 
-standard_controller = input_metadata.NormalController()
-standard_controller.face_buttons = 6 # A B C X Y Z #yeah I had to count them because I have 0 brain cells sorry
-standard_controller.shoulder_buttons = 2 #L R
-standard_controller.dpads = 1
+_standard_controller = input_metadata.NormalController()
+_standard_controller.face_buttons = 6 # A B C X Y Z #yeah I had to count them because I have 0 brain cells sorry
+_standard_controller.shoulder_buttons = 2 #L R
+_standard_controller.dpads = 1
 
-analog_controller = input_metadata.NormalController()
-analog_controller.face_buttons = 6 # A B C X Y Z
-analog_controller.analog_triggers = 2
-analog_controller.analog_sticks = 1
-analog_controller.dpads = 1
+_analog_controller = input_metadata.NormalController()
+_analog_controller.face_buttons = 6 # A B C X Y Z
+_analog_controller.analog_triggers = 2
+_analog_controller.analog_sticks = 1
+_analog_controller.dpads = 1
 
-mission_stick_main_part = input_metadata.NormalController()
-mission_stick_main_part.analog_sticks = 1
-mission_stick_main_part.face_buttons = 10 #The usual + L and R are located there instead of what would be considered a shoulder button, plus 2 extra on the stick
-throttle_wheel = input_metadata.Dial()
-mission_stick = input_metadata.CombinedController([mission_stick_main_part, throttle_wheel])
+_mission_stick_main_part = input_metadata.NormalController()
+_mission_stick_main_part.analog_sticks = 1
+_mission_stick_main_part.face_buttons = 10 #The usual + L and R are located there instead of what would be considered a shoulder button, plus 2 extra on the stick
+_throttle_wheel = input_metadata.Dial()
+_mission_stick = input_metadata.CombinedController([_mission_stick_main_part, _throttle_wheel])
 
-virtua_gun = input_metadata.LightGun()
-virtua_gun.buttons = 1 #Also start and I dunno if offscreen shot would count as a button
+_virtua_gun = input_metadata.LightGun()
+_virtua_gun.buttons = 1 #Also start and I dunno if offscreen shot would count as a button
 
-keyboard = input_metadata.Keyboard()
-keyboard.keys = 101
+_keyboard = input_metadata.Keyboard()
+_keyboard.keys = 101
 #Japan keyboard has 89 keys... bleh, it doesn't seem to say which keyboard it refers to
 
-mouse = input_metadata.Mouse()
-mouse.buttons = 3
+_mouse = input_metadata.Mouse()
+_mouse.buttons = 3
 
-def _parse_peripherals(metadata: Metadata, peripherals: str):
+def _parse_peripherals(metadata: 'Metadata', peripherals: str):
 	for peripheral in peripherals:
 		if peripheral == 'J':
-			metadata.input_info.add_option(standard_controller)
+			metadata.input_info.add_option(_standard_controller)
 		elif peripheral == 'E':
-			metadata.input_info.add_option(analog_controller)
+			metadata.input_info.add_option(_analog_controller)
 			metadata.specific_info['Uses 3D Control Pad?'] = True
 		elif peripheral == 'A':
-			metadata.input_info.add_option(mission_stick)
+			metadata.input_info.add_option(_mission_stick)
 			metadata.specific_info['Uses Mission Stick?'] = True
 		elif peripheral == 'G':
-			metadata.input_info.add_option(virtua_gun)
+			metadata.input_info.add_option(_virtua_gun)
 			metadata.specific_info['Uses Gun?'] = True
 		elif peripheral == 'K':
-			metadata.input_info.add_option(keyboard)
+			metadata.input_info.add_option(_keyboard)
 			metadata.specific_info['Uses Keyboard?'] = True
 		elif peripheral == 'M':
-			metadata.input_info.add_option(mouse)
+			metadata.input_info.add_option(_mouse)
 			metadata.specific_info['Uses Mouse?'] = True
 		elif peripheral == 'S':
 			metadata.input_info.add_option(input_metadata.SteeringWheel())
@@ -96,7 +98,7 @@ def _parse_peripherals(metadata: Metadata, peripherals: str):
 		#U = Sonic Z-Treme?
 		#Z = Game Basic for SegaSaturn (PC connectivity?)
 
-def add_saturn_info(rom_path_for_warning: str, metadata: Metadata, header: bytes):
+def add_saturn_info(rom_path_for_warning: str, metadata: 'Metadata', header: bytes):
 	hardware_id = header[0:16].decode('ascii', errors='ignore')
 	if hardware_id != 'SEGA SEGASATURN ':
 		#Won't boot on a real Saturn, also if this is some emulator only thing then nothing in the header can be considered valid
@@ -112,8 +114,8 @@ def add_saturn_info(rom_path_for_warning: str, metadata: Metadata, header: bytes
 			if maker_code.startswith('T '):
 				#You're not supposed to do that, stop that
 				maker_code = 'T-' + maker_code[2:]
-			if maker_code in licensee_codes:
-				metadata.publisher = licensee_codes[maker_code]
+			if maker_code in _licensee_codes:
+				metadata.publisher = _licensee_codes[maker_code]
 		elif maker == 'SEGA ENTERPRISES':
 			metadata.publisher = 'Sega'
 		else:
@@ -188,7 +190,7 @@ def add_saturn_info(rom_path_for_warning: str, metadata: Metadata, header: bytes
 	if internal_name:
 		metadata.specific_info['Internal Title'] = internal_name
 
-def add_saturn_metadata(game: ROMGame):
+def add_saturn_custom_info(game: 'ROMGame'):
 	if game.rom.extension == 'cue':
 		first_track_and_sector_size = get_first_data_cue_track(game.rom.path)
 		if not first_track_and_sector_size:

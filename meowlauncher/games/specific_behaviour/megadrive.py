@@ -304,7 +304,7 @@ def add_megadrive_software_list_metadata(software: 'Software', metadata: Metadat
 				metadata.specific_info['Mapper'] = slot[4:] + '_pokemon'
 
 
-def add_megadrive_metadata(game: 'ROMGame'):
+def add_megadrive_custom_info(game: 'ROMGame'):
 	header = None
 	if game.rom.extension == 'cue':
 		first_track_and_sector_size = cd_read.get_first_data_cue_track(game.rom.path)

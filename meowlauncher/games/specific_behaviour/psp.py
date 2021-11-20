@@ -1,13 +1,6 @@
 import io
-from typing import Optional, cast
-
-from meowlauncher import input_metadata
-from meowlauncher.config.main_config import main_config
-from meowlauncher.games.roms.rom import FileROM, FolderROM
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Date, Metadata
-
-from .common.playstation_common import parse_param_sfo, parse_product_code
+import struct  # To handle struct.error
+from typing import TYPE_CHECKING, Optional, cast
 
 try:
 	from PIL import Image
@@ -16,13 +9,23 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 try:
-	import struct  # To handle struct.error
 
 	from pycdlib import PyCdlib
 	from pycdlib.pycdlibexception import PyCdlibInvalidInput, PyCdlibInvalidISO
 	have_pycdlib = True
 except ModuleNotFoundError:
 	have_pycdlib = False
+
+from meowlauncher.config.main_config import main_config
+from meowlauncher.games.roms.rom import FileROM, FolderROM
+from meowlauncher.metadata import Date
+
+from .common.playstation_common import parse_param_sfo, parse_product_code
+from .static_platform_info import add_psp_info
+
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
 
 def load_image_from_bytes(data: bytes) -> Optional['Image.Image']:
 	bitmap_data_io = io.BytesIO(data)
@@ -32,7 +35,7 @@ def load_image_from_bytes(data: bytes) -> Optional['Image.Image']:
 	except OSError:
 		return None
 
-def add_info_from_pbp(rompath_just_for_warning: str, metadata: Metadata, pbp_file: bytes):
+def add_info_from_pbp(rompath_just_for_warning: str, metadata: 'Metadata', pbp_file: bytes):
 	magic = pbp_file[:4]
 	if magic != b'\x00PBP':
 		#You have the occasional b'\x7ELF' here
@@ -69,14 +72,6 @@ def add_info_from_pbp(rompath_just_for_warning: str, metadata: Metadata, pbp_fil
 			if pic1:
 				metadata.images['Background Image'] = pic1
 
-def add_psp_system_info(metadata: Metadata):
-	builtin_gamepad = input_metadata.NormalController()
-	builtin_gamepad.dpads = 1
-	builtin_gamepad.analog_sticks = 1
-	builtin_gamepad.face_buttons = 4 #also Start, Select
-	builtin_gamepad.shoulder_buttons = 2
-	metadata.input_info.add_option(builtin_gamepad)
-
 def get_image_from_iso(iso: 'PyCdlib', path: str) -> 'Image':
 	buf = io.BytesIO()
 	try:
@@ -92,7 +87,7 @@ def get_image_from_iso(iso: 'PyCdlib', path: str) -> 'Image':
 		pass
 	return None
 
-def add_psp_iso_info(path: str, metadata: Metadata):
+def add_psp_iso_info(path: str, metadata: 'Metadata'):
 	iso = PyCdlib()
 	try:
 		iso.open(path)
@@ -131,8 +126,8 @@ def add_psp_iso_info(path: str, metadata: Metadata):
 	except struct.error as ex:
 		print(path, 'is invalid ISO and has some struct.error', ex)
 
-def add_psp_metadata(game: ROMGame):
-	add_psp_system_info(game.metadata)
+def add_psp_custom_info(game: 'ROMGame'):
+	add_psp_info(game.metadata)
 
 	if game.rom.is_folder:
 		pbp = cast(FolderROM, game.rom).relevant_files['pbp']

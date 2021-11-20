@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Optional, cast
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Optional
 
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.platform_types import ZXExpansion, ZXJoystick, ZXMachine
@@ -28,7 +29,7 @@ zx_hardware: dict[int, tuple[ZXMachine, Optional[ZXExpansion]]] = {
 	16: (ZXMachine.TimexSinclair2068, None),
 }
 
-def add_z80_metadata(rom: FileROM, metadata: 'Metadata'):
+def add_z80_metadata(rom: 'FileROM', metadata: 'Metadata'):
 	#https://www.worldofspectrum.org/faq/reference/z80format.htm
 	header = rom.read(amount=86)
 	flags = header[29]
@@ -90,21 +91,27 @@ def add_speccy_software_list_metadata(software: 'Software', metadata: 'Metadata'
 		#Disk has no autorun menu, requires loading each game from Basic.
 		metadata.add_notes(usage)
 
-def add_speccy_metadata(game: 'ROMGame'):
-	if game.rom.extension == 'z80':
-		add_z80_metadata(cast(FileROM, game.rom), game.metadata)
+def add_speccy_filename_tags_info(tags: Iterable[str], metadata: 'Metadata'):
+	if 'Machine' in metadata.specific_info:
+		return
 
-	if 'Machine' not in game.metadata.specific_info:
-		for tag in game.filename_tags:
-			if tag == '(16K)':
-				game.metadata.specific_info['Machine'] = ZXMachine.ZX16k
-				break
-			if tag == '(48K)':
-				game.metadata.specific_info['Machine'] = ZXMachine.ZX48k
-				break
-			if tag in {'(48K-128K)', '(128K)'}:
-				game.metadata.specific_info['Machine'] = ZXMachine.ZX128k
-				break
+	for tag in tags:
+		if tag == '(16K)':
+			metadata.specific_info['Machine'] = ZXMachine.ZX16k
+			break
+		if tag == '(48K)':
+			metadata.specific_info['Machine'] = ZXMachine.ZX48k
+			break
+		if tag in {'(48K-128K)', '(128K)'}:
+			metadata.specific_info['Machine'] = ZXMachine.ZX128k
+			break
+
+def add_speccy_custom_info(game: 'ROMGame'):
+	if isinstance(game.rom, FileROM):
+		if game.rom.extension == 'z80':
+			add_z80_metadata(game.rom, game.metadata)
+
+	add_speccy_filename_tags_info(game.filename_tags, game.metadata)
 
 	software = game.get_software_list_entry()
 	if software:

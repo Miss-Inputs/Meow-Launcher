@@ -1,13 +1,10 @@
 from typing import TYPE_CHECKING
 
-from meowlauncher import input_metadata
-from meowlauncher.common_types import SaveType
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
 if TYPE_CHECKING:
-	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.metadata import Metadata
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
@@ -55,18 +52,3 @@ def add_virtual_boy_rom_info(rom: FileROM, metadata: 'Metadata'):
 	#Can get country from product_code[3] if needed
 
 	metadata.specific_info['Revision'] = header[31]
-
-def add_virtual_boy_info(metadata: 'Metadata'):	
-	gamepad = input_metadata.NormalController()
-	gamepad.face_buttons = 2
-	gamepad.shoulder_buttons = 2
-	gamepad.dpads = 2
-	metadata.input_info.add_option(gamepad)
-
-def add_virtual_boy_software_info(software: 'Software', metadata: 'Metadata'):
-	software.add_standard_metadata(metadata)
-	#We won't need to get serial here I guess
-	metadata.save_type = SaveType.Nothing
-	if software.has_data_area('eeprom') or software.has_data_area('sram') or software.get_part_feature('battery'):
-		#I am making assumptions about how saving works and I could be wrong
-		metadata.save_type = SaveType.Cart

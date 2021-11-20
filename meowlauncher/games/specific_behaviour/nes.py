@@ -613,7 +613,7 @@ def add_nes_software_list_metadata(software: 'Software', metadata: Metadata):
 	if nes_peripheral:
 		metadata.specific_info['Peripheral'] = nes_peripheral
 
-def add_nes_metadata(game: 'ROMGame'):
+def add_nes_custom_info(game: 'ROMGame'):
 	equivalent_arcade = try_get_equivalent_arcade(game.rom, game.metadata.names.values())
 	if equivalent_arcade:
 		game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade

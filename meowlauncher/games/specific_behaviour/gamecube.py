@@ -211,7 +211,7 @@ def add_tgc_metadata(rom: FileROM, metadata: Metadata):
 		'file offset': file_offset,
 	})
 
-def add_gamecube_metadata(game: 'ROMGame'):
+def add_gamecube_custom_info(game: 'ROMGame'):
 	if game.rom.extension in {'gcz', 'iso', 'gcm'}:
 		rom = cast(FileROM, game.rom)
 		header = rom.read(0, 0x2450)

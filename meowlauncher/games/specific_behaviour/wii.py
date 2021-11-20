@@ -1,13 +1,18 @@
 from datetime import datetime
 from enum import Enum
-from typing import cast
+from typing import TYPE_CHECKING, cast
 from xml.etree import ElementTree
+
+try:
+	from Crypto.Cipher import AES
+	have_pycrypto = True
+except ModuleNotFoundError:
+	have_pycrypto = False
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.roms.rom import FileROM, FolderROM
-from meowlauncher.games.roms.rom_game import ROMGame
-from meowlauncher.metadata import Date, Metadata
+from meowlauncher.metadata import Date
 from meowlauncher.platform_types import WiiTitleType
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
@@ -19,15 +24,13 @@ from .common.gamecube_wii_common import (NintendoDiscRegion,
 from .common.gametdb import add_info_from_tdb
 from .common.nintendo_common import parse_ratings
 
-nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
 
-try:
-	from Crypto.Cipher import AES
-	have_pycrypto = True
-except ModuleNotFoundError:
-	have_pycrypto = False
+_nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
-wii_config = platform_configs.get('Wii')
+_wii_config = platform_configs.get('Wii')
 
 class WiiVirtualConsolePlatform(Enum):
 	Commodore64 = 'C'
@@ -41,10 +44,10 @@ class WiiVirtualConsolePlatform(Enum):
 	PCEngineCD = 'Q'
 	MSX = 'X' #Baaaaahhhh this is also used for WiiWare demos and how are we gonna differentiate that
 
-def round_up_to_multiple(num: int, factor: int) -> int:
+def _round_up_to_multiple(num: int, factor: int) -> int:
 	return num + (factor - (num % factor)) % factor
 
-def parse_tmd(metadata: Metadata, tmd: bytes):
+def _parse_tmd(metadata: 'Metadata', tmd: bytes):
 	#Stuff that I dunno about: 0 - 388
 	if tmd[387]:
 		metadata.specific_info['Is vWii?'] = True
@@ -72,8 +75,8 @@ def parse_tmd(metadata: Metadata, tmd: bytes):
 	maker_code = None
 	try:
 		maker_code = convert_alphanumeric(tmd[408:410])
-		if maker_code in nintendo_licensee_codes:
-			metadata.publisher = nintendo_licensee_codes[maker_code]
+		if maker_code in _nintendo_licensee_codes:
+			metadata.publisher = _nintendo_licensee_codes[maker_code]
 	except NotAlphanumericException:
 		pass
 	
@@ -94,7 +97,7 @@ def parse_tmd(metadata: Metadata, tmd: bytes):
 	#Access rights: 472-476
 	metadata.specific_info['Revision'] = int.from_bytes(tmd[476:478], 'big')
 
-def parse_opening_bnr(metadata: Metadata, opening_bnr: bytes):
+def _parse_opening_bnr(metadata: 'Metadata', opening_bnr: bytes):
 	#We will not try and bother parsing banner.bin or icon.bin, that would take a lot of effort
 	imet = opening_bnr[64:]
 	#I don't know why this is 64 bytes in, aaaa
@@ -151,7 +154,7 @@ def parse_opening_bnr(metadata: Metadata, opening_bnr: bytes):
 		if title != local_title:
 			metadata.add_alternate_name(title, f'{lang} Banner Title')
 	
-def add_wad_metadata(rom: FileROM, metadata: Metadata):
+def _add_wad_metadata(rom: FileROM, metadata: 'Metadata'):
 	header = rom.read(amount=0x40)
 	header_size = int.from_bytes(header[0:4], 'big')
 	#WAD type: 4-8
@@ -164,22 +167,22 @@ def add_wad_metadata(rom: FileROM, metadata: Metadata):
 
 	#All blocks are stored in that order: header > cert chain > ticket > TMD > data; aligned to multiple of 64 bytes
 
-	cert_chain_offset = round_up_to_multiple(header_size, 64)
-	ticket_offset = cert_chain_offset + round_up_to_multiple(cert_chain_size, 64)
-	tmd_offset = ticket_offset + round_up_to_multiple(ticket_size, 64)
+	cert_chain_offset = _round_up_to_multiple(header_size, 64)
+	ticket_offset = cert_chain_offset + _round_up_to_multiple(cert_chain_size, 64)
+	tmd_offset = ticket_offset + _round_up_to_multiple(ticket_size, 64)
 
-	real_tmd_size = round_up_to_multiple(tmd_size, 64)
+	real_tmd_size = _round_up_to_multiple(tmd_size, 64)
 	if real_tmd_size >= 768:
 		tmd = rom.read(seek_to=tmd_offset, amount=real_tmd_size)
-		parse_tmd(metadata, tmd)
+		_parse_tmd(metadata, tmd)
 
-	data_offset = tmd_offset + round_up_to_multiple(tmd_size, 64)
-	footer_offset = data_offset + round_up_to_multiple(data_size, 64)
+	data_offset = tmd_offset + _round_up_to_multiple(tmd_size, 64)
+	footer_offset = data_offset + _round_up_to_multiple(data_size, 64)
 	#Dolphin suggests that this is opening.bnr actually
-	footer = rom.read(seek_to=footer_offset, amount=round_up_to_multiple(footer_size, 64))
-	parse_opening_bnr(metadata, footer)
+	footer = rom.read(seek_to=footer_offset, amount=_round_up_to_multiple(footer_size, 64))
+	_parse_opening_bnr(metadata, footer)
 
-def add_wii_homebrew_metadata(rom: FolderROM, metadata: Metadata):
+def add_wii_homebrew_metadata(rom: FolderROM, metadata: 'Metadata'):
 	#icon_path = rom.relevant_files['icon.png']
 	icon_path = rom.get_file('icon.png', True)
 	if icon_path:
@@ -242,7 +245,7 @@ def add_wii_homebrew_metadata(rom: FolderROM, metadata: Metadata):
 			if main_config.debug:
 				print('Ah bugger this Wii homebrew XML has problems', rom.path, etree_error)
 
-def add_wii_disc_metadata(rom: FileROM, metadata: Metadata):
+def _add_wii_disc_metadata(rom: FileROM, metadata: 'Metadata'):
 	wii_header = rom.read(0x40_000, 0xf000)
 
 	game_partition_offset = None
@@ -267,8 +270,8 @@ def add_wii_disc_metadata(rom: FileROM, metadata: Metadata):
 				game_partition_offset = partition_offset
 
 	common_key = None
-	if wii_config:
-		common_key = wii_config.options.get('common_key')
+	if _wii_config:
+		common_key = _wii_config.options.get('common_key')
 	if common_key:
 		if game_partition_offset and have_pycrypto:
 			game_partition_header = rom.read(game_partition_offset, 0x2c0)
@@ -309,7 +312,7 @@ def add_wii_disc_metadata(rom: FileROM, metadata: Metadata):
 		pass
 	parse_ratings(metadata, wii_header[0xe010:0xe020])
 
-def add_wii_metadata(game: ROMGame):
+def add_wii_custom_info(game: 'ROMGame'):
 	if game.rom.extension in {'gcz', 'iso', 'wbfs', 'gcm'}:
 		header: bytes
 		rom = cast(FileROM, game.rom)
@@ -319,9 +322,9 @@ def add_wii_metadata(game: ROMGame):
 		elif game.rom.extension == 'wbfs':
 			header = rom.read(amount=0x2450, seek_to=0x200)
 		add_gamecube_wii_disc_metadata(rom, game.metadata, header)
-		add_wii_disc_metadata(rom, game.metadata)
+		_add_wii_disc_metadata(rom, game.metadata)
 	elif game.rom.extension == 'wad':
-		add_wad_metadata(cast(FileROM, game.rom), game.metadata)
+		_add_wad_metadata(cast(FileROM, game.rom), game.metadata)
 	elif game.rom.is_folder:
 		add_wii_homebrew_metadata(cast(FolderROM, game.rom), game.metadata)
 	elif game.rom.extension in {'dol', 'elf'}:

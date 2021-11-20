@@ -1,13 +1,9 @@
 from typing import TYPE_CHECKING
 
-from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-from meowlauncher.games.roms.rom import FileROM
-
-from meowlauncher.games.common.generic_info import add_generic_software_info
 
 if TYPE_CHECKING:
-	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.games.roms.rom import FileROM
 	from meowlauncher.metadata import Metadata
 
 publishers = {
@@ -78,22 +74,4 @@ def add_wonderswan_header_info(rom: 'FileROM', metadata: 'Metadata'):
 	flags = header[6]
 	metadata.specific_info['Screen Orientation'] = 'Vertical' if flags & 1 else 'Horizontal'
 	#Checksum schmecksum
-
-def add_wonderswan_metadata(game: 'ROMGame'):
-	builtin_gamepad = input_metadata.NormalController()
-	builtin_gamepad.dpads = 1
-	if game.metadata.platform == 'Benesse Pocket Challenge V2':
-		builtin_gamepad.face_buttons = 3 #I don't know what they're called
-	else:
-		#Because of the rotation, it's hard to say which one of the sets of 4 buttons is the one used for directional control; but one of them will be
-		builtin_gamepad.face_buttons = 6
-	game.metadata.input_info.add_option(builtin_gamepad)
-
-	if isinstance(game.rom, FileROM):
-		add_wonderswan_header_info(game.rom, game.metadata)
 	
-	software = game.get_software_list_entry()
-	if software:
-		add_generic_software_info(software, game.metadata)
-	#We could get save type from software.has_data_area('sram' or 'eeprom') but I think we can trust the header flags for now, even with BPCv2 carts
-	#By the same token we can get screen orientation = vertical if feature rotated = 'yes'

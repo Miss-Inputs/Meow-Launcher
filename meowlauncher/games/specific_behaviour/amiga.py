@@ -78,7 +78,7 @@ def add_info_from_filename_tags(tags: Iterable[str], metadata: 'Metadata'):
 		if chipset:
 			metadata.specific_info['Chipset'] = chipset
 
-def add_amiga_metadata(game: 'ROMGame'):
+def add_amiga_custom_info(game: 'ROMGame'):
 	software = game.get_software_list_entry()
 	if software:
 		add_amiga_metadata_from_software_list(software, game.metadata)
