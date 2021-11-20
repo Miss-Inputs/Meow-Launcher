@@ -1,10 +1,10 @@
 import calendar
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Optional, cast
 
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.mame_common.machine import (
-    Machine, does_machine_match_game, iter_machines_from_source_file)
+    Machine, does_machine_match_name, iter_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
 
-nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
+_nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 class BadSNESHeaderException(Exception):
 	pass
@@ -232,8 +232,8 @@ def _add_normal_snes_header(rom: FileROM, metadata: 'Metadata'):
 			metadata.specific_info['Has RTC?'] = rom_type.has_rtc
 		licensee = header_data.get('Licensee')
 		if licensee is not None:
-			if licensee in nintendo_licensee_codes:
-				metadata.publisher = nintendo_licensee_codes[licensee]
+			if licensee in _nintendo_licensee_codes:
+				metadata.publisher = _nintendo_licensee_codes[licensee]
 		metadata.specific_info['Revision'] = header_data.get('Revision')
 		product_code = header_data.get('Product code')
 		if product_code:
@@ -308,12 +308,12 @@ def _add_satellaview_metadata(rom: FileROM, metadata: 'Metadata'):
 		metadata.specific_info['Mapper'] = header_data.get('ROM layout')
 		publisher = header_data.get('Publisher')
 		if publisher is not None:
-			if publisher in nintendo_licensee_codes:
-				metadata.publisher = nintendo_licensee_codes[publisher]
+			if publisher in _nintendo_licensee_codes:
+				metadata.publisher = _nintendo_licensee_codes[publisher]
 		metadata.specific_info['Day'] = header_data.get('Day') #hmm… unfortunately it doesn't have a nice year for us to use
 		metadata.specific_info['Month'] = header_data.get('Month')
 
-def try_get_equivalent_arcade(rom: FileROM, names: Iterable[str]) -> Optional[Machine]:
+def try_get_equivalent_arcade(name: str) -> Optional[Machine]:
 	if not default_mame_executable:
 		#CBF tbhkthbai
 		return None
@@ -329,11 +329,11 @@ def try_get_equivalent_arcade(rom: FileROM, names: Iterable[str]) -> Optional[Ma
 			try_get_equivalent_arcade.arcade_bootlegs = () #type: ignore[attr-defined]
 
 	for bootleg_machine in try_get_equivalent_arcade.arcade_bootlegs: #type: ignore[attr-defined]
-		if does_machine_match_game(rom.name, names, bootleg_machine):
+		if does_machine_match_name(name, bootleg_machine):
 			return bootleg_machine
 
 	for nss_machine in try_get_equivalent_arcade.nss_games: #type: ignore[attr-defined]
-		if does_machine_match_game(rom.name, names, nss_machine):
+		if does_machine_match_name(name, nss_machine):
 			return nss_machine
 	
 	return None
@@ -376,7 +376,7 @@ def add_snes_custom_info(game: 'ROMGame'):
 	elif game.rom.extension == 'st':
 		_parse_sufami_turbo_header(rom, game.metadata)
 
-	equivalent_arcade = try_get_equivalent_arcade(rom, game.metadata.names.values())
+	equivalent_arcade = try_get_equivalent_arcade(game.name)
 	if equivalent_arcade:
 		game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
 

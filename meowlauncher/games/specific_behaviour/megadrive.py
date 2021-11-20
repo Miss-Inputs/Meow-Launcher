@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Optional, Union
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.mame_common.machine import (
-    Machine, does_machine_match_game, iter_machines_from_source_file)
+    Machine, does_machine_match_name, iter_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
@@ -237,7 +237,7 @@ def _get_megaplay_games() -> Iterable[Machine]:
 		if not default_mame_executable:
 			#I don't think there's a use case for this being changed
 			return
-		_get_megaplay_games.result = tuple(iter_machines_from_source_file('megaplay', default_mame_executable)) #type: ignore[attr-defined]
+		_get_megaplay_games.result = set(iter_machines_from_source_file('megaplay', default_mame_executable)) #type: ignore[attr-defined]
 		yield from _get_megaplay_games.result #type: ignore[attr-defined]
 
 def _get_megatech_games() -> Iterable[Machine]:
@@ -246,27 +246,28 @@ def _get_megatech_games() -> Iterable[Machine]:
 	except AttributeError:
 		if not default_mame_executable:
 			return
-		_get_megatech_games.result = tuple(iter_machines_from_source_file('megatech', default_mame_executable)) #type: ignore[attr-defined]
+		_get_megatech_games.result = set(iter_machines_from_source_file('megatech', default_mame_executable)) #type: ignore[attr-defined]
 		yield from _get_megatech_games.result #type: ignore[attr-defined]
 
-def try_find_equivalent_arcade(rom: ROM, metadata: Metadata) -> Optional[Machine]:
+def try_find_equivalent_arcade(rom: ROM) -> Optional[Machine]:
 	if not hasattr(try_find_equivalent_arcade, 'arcade_bootlegs'):
 		try:
 			if not default_mame_executable:
 				#CBF tbhkthbai
 				return None
-			try_find_equivalent_arcade.arcade_bootlegs = tuple(iter_machines_from_source_file('megadriv_acbl', default_mame_executable)) #type: ignore[attr-defined]
+			try_find_equivalent_arcade.arcade_bootlegs = set(iter_machines_from_source_file('megadriv_acbl', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
-			try_find_equivalent_arcade.arcade_bootlegs = () #type: ignore[attr-defined]
+			try_find_equivalent_arcade.arcade_bootlegs = set() #type: ignore[attr-defined]
 
 	for bootleg_machine in try_find_equivalent_arcade.arcade_bootlegs: #type: ignore[attr-defined]
-		if does_machine_match_game(rom.name, metadata.names.values(), bootleg_machine):
+		#TODO: It would make more sense for this to take a Game object perhaps, and use the software list name
+		if does_machine_match_name(rom.name, bootleg_machine):
 			return bootleg_machine
 	for megaplay_machine in _get_megaplay_games():
-		if does_machine_match_game(rom.name, metadata.names.values(), megaplay_machine):
+		if does_machine_match_name(rom.name, megaplay_machine):
 			return megaplay_machine
 	for megatech_machine in _get_megatech_games():
-		if does_machine_match_game(rom.name, metadata.names.values(), megatech_machine):
+		if does_machine_match_name(rom.name, megatech_machine):
 			return megatech_machine	
 	return None
 
@@ -326,7 +327,7 @@ def add_megadrive_custom_info(game: 'ROMGame'):
 	if header:
 		add_megadrive_info(game.metadata, header)
 	if game.metadata.platform == 'Mega Drive':
-		equivalent_arcade = try_find_equivalent_arcade(game.rom, game.metadata)
+		equivalent_arcade = try_find_equivalent_arcade(game.rom)
 		if equivalent_arcade:
 			game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
 

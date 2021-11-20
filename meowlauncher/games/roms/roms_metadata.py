@@ -3,18 +3,15 @@ from typing import TYPE_CHECKING, Any, Optional, Union, cast
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.libretro_database_company_name_cleanup import \
     company_name_overrides
-from meowlauncher.games.common.generic_info import add_generic_software_info
+from meowlauncher.games.common.generic_info import (
+    add_generic_software_info, find_equivalent_arcade_game)
 from meowlauncher.games.common.libretro_database import (
     LibretroDatabaseType, parse_all_dats_for_system)
-from meowlauncher.games.mame_common.machine import (Machine,
-                                                    does_machine_match_game,
-                                                    get_machine)
-from meowlauncher.games.mame_common.mame_executable import \
-    MachineNotFoundException
-from meowlauncher.games.mame_common.mame_helpers import (
-    default_mame_executable, get_image)
+from meowlauncher.games.mame_common.mame_helpers import get_image
 from meowlauncher.games.mame_common.mame_utils import image_config_keys
-from meowlauncher.games.specific_behaviour.info_helpers import custom_info_funcs, static_info_funcs, software_info_funcs, rom_file_info_funcs
+from meowlauncher.games.specific_behaviour.info_helpers import (
+    custom_info_funcs, rom_file_info_funcs, software_info_funcs,
+    static_info_funcs)
 from meowlauncher.metadata import Date
 from meowlauncher.util.detect_things_from_filename import (
     get_date_from_filename_tags, get_languages_from_filename_tags,
@@ -23,15 +20,15 @@ from meowlauncher.util.detect_things_from_filename import (
 from meowlauncher.util.region_info import (get_language_from_regions,
                                            get_tv_system_from_regions)
 from meowlauncher.util.utils import (find_filename_tags_at_end, junk_suffixes,
-                                     load_list, remove_filename_tags)
+                                     remove_filename_tags)
 
 from .rom import ROM, FileROM, FolderROM
 
 if TYPE_CHECKING:
-	from .rom_game import ROMGame
+	from meowlauncher.games.mame_common.machine import Machine
 	from meowlauncher.metadata import Metadata
 
-_not_necessarily_equivalent_arcade_names = load_list(None, 'not_necessarily_equivalent_arcade_names')
+	from .rom_game import ROMGame
 
 def _add_metadata_from_tags(game: 'ROMGame'):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
@@ -67,36 +64,7 @@ def _add_metadata_from_regions(metadata: 'Metadata'):
 			if region_language:
 				metadata.languages = [region_language]
 
-def _find_equivalent_arcade_game(game: 'ROMGame', basename: str) -> Optional[Machine]:
-	#Just to be really strict: We will only get it if the name matches
-	if basename in _not_necessarily_equivalent_arcade_names:
-		return None
-
-	if not default_mame_executable:
-		return None
-	try:
-		machine = get_machine(basename, default_mame_executable)
-	except MachineNotFoundException:
-		return None
-
-	if machine.family in _not_necessarily_equivalent_arcade_names:
-		return None
-
-	catlist = machine.catlist
-	if catlist:
-		if not catlist.is_arcade:
-			#I think not, only video games can be video games
-			#That comment made sense but y'know what I mean right
-			#Do we really need to exclude mechanical/slot machines? This function used to, I dunno
-			return None
-	if '(bootleg of' in machine.name or '(bootleg?)' in machine.name:
-		#This doesn't count
-		return None
-	if does_machine_match_game(game.rom.name, game.metadata.names.values(), machine):
-		return machine
-	return None
-
-def _add_metadata_from_arcade(game: 'ROMGame', machine: Machine):
+def _add_metadata_from_arcade(game: 'ROMGame', machine: 'Machine'):
 	if 'Icon' not in game.metadata.images:
 		machine_icon = get_image(image_config_keys['Icon'], machine.basename)
 		if machine_icon:
@@ -327,12 +295,9 @@ def add_metadata(game: 'ROMGame'):
 				
 	equivalent_arcade = game.metadata.specific_info.get('Equivalent Arcade')
 	if not equivalent_arcade and main_config.find_equivalent_arcade_games:
-		software_name = game.metadata.specific_info.get('MAME Software Name')
-		parent_name = game.metadata.specific_info.get('MAME Software Parent')
-		if software_name:
-			equivalent_arcade = _find_equivalent_arcade_game(game, software_name)
-			if not equivalent_arcade and parent_name:
-				equivalent_arcade = _find_equivalent_arcade_game(game, parent_name)
+		software = game.metadata.specific_info.get('MAME Software')
+		if software:
+			equivalent_arcade = find_equivalent_arcade_game(game, software)
 			if equivalent_arcade:
 				game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
 	

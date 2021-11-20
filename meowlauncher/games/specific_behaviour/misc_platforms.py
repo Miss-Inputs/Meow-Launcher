@@ -7,7 +7,7 @@ from meowlauncher import input_metadata
 from meowlauncher.common_types import MediaType
 from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.mame_common.machine import (
-    Machine, does_machine_match_game, iter_machines_from_source_file)
+    Machine, does_machine_match_name, iter_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
@@ -199,7 +199,7 @@ def add_pc_engine_custom_info(game: 'ROMGame'):
 	#Not sure how to detect 2/6 buttons, or usage of TurboBooster-Plus, but I want to
 	equivalent_arcade = None
 	for uapce_machine in _get_uapce_games():
-		if does_machine_match_game(game.rom.name, game.metadata.names.values(), uapce_machine):
+		if does_machine_match_name(game.rom.name, uapce_machine):
 			equivalent_arcade = uapce_machine
 			break
 	if equivalent_arcade:

@@ -1,17 +1,16 @@
-from collections.abc import Iterable
 from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.mame_common.machine import (
-    Machine, does_machine_match_game, iter_machines_from_source_file)
+    Machine, does_machine_match_name, iter_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.mame_common.software_list_find_utils import (
     find_in_software_lists_with_custom_matcher, get_crc32_for_software_list)
-from meowlauncher.games.roms.rom import ROM, FileROM
+from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import NESPeripheral
 from meowlauncher.util.region_info import TVSystem
@@ -22,10 +21,11 @@ if TYPE_CHECKING:
 	                                                          SoftwarePart)
 	from meowlauncher.games.roms.rom_game import ROMGame
 
-nes_config = platform_configs.get('NES')
-nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
+_nes_config = platform_configs.get('NES')
+_nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
-ines_mappers = {
+_ines_mappers = {
+	#TODO: This should be a dataclass, instead of storing both Mapper (name) and Mapper Number in the game info
 	#6, 8, 17 are some kind of copier thing
 	#29 is for homebrew but doesn't really have a name
 	#31 is for homebrew musicdisks specifically
@@ -288,7 +288,7 @@ default_expansion_devices = {
 }
 
 def add_fds_metadata(rom: FileROM, metadata: Metadata):
-	if nes_config and nes_config.options.get('set_fds_as_different_platform'):
+	if _nes_config and _nes_config.options.get('set_fds_as_different_platform'):
 		metadata.platform = 'FDS'
 
 	header = rom.read(amount=56)
@@ -301,23 +301,19 @@ def add_fds_metadata(rom: FileROM, metadata: Metadata):
 		metadata.specific_info['Headered?'] = False
 
 	licensee_code = '{:02X}'.format(header[15])
-	if licensee_code in nintendo_licensee_codes:
-		metadata.publisher = nintendo_licensee_codes[licensee_code]
+	if licensee_code in _nintendo_licensee_codes:
+		metadata.publisher = _nintendo_licensee_codes[licensee_code]
 
 	metadata.specific_info['Revision'] = header[20]
 	#Uses Showa years (hence 1925), in theory... but then some disks (notably Zelda) seem to use 19xx years, as it has an actual value of 0x86 which results in it being Showa 86 = 2011, but it should be [Feb 21] 1986, so... hmm
 	year = decode_bcd(header[31])
-	if 61 <= year <= 99:
-		#Showa 61 = 1986 when the FDS was released. Year > 99 wouldn't be valid BCD, so... I'll check back in 2025 to see if anyone's written homebrew for the FDS in that year and then I'll figure out what I'm doing. But homebrew right now seems to leave the year as 00 anyway, though
-		year = 1925 + year
-	else:
-		year = 1900 + year
+	#Showa 61 = 1986 when the FDS was released. Year > 99 wouldn't be valid BCD, so... I'll check back in 2025 to see if anyone's written homebrew for the FDS in that year and then I'll figure out what I'm doing. But homebrew right now seems to leave the year as 00 anyway, though
+	year = 1925 + year if 61 <= year <= 99 else 1900 + year
 	month = decode_bcd(header[32])
 	day = decode_bcd(header[33])
 	if not metadata.release_date:
 		metadata.release_date = Date(year, month, day, True)
 	
-
 def add_ines_metadata(rom: FileROM, metadata: Metadata, header: bytes):
 	metadata.specific_info['Headered?'] = True
 	#Some emulators are okay with not having a header if they have something like an internal database, others are not.
@@ -346,8 +342,8 @@ def add_ines_metadata(rom: FileROM, metadata: Metadata, header: bytes):
 		mapper_upper_upper_nibble = header[8] & 0b1111
 		mapper = mapper_lower_nibble | mapper_upper_nibble | (mapper_upper_upper_nibble << 8)
 		metadata.specific_info['Mapper Number'] = mapper
-		if mapper in ines_mappers:
-			metadata.specific_info['Mapper'] = ines_mappers[mapper]
+		if mapper in _ines_mappers:
+			metadata.specific_info['Mapper'] = _ines_mappers[mapper]
 		else:
 			metadata.specific_info['Mapper'] = 'NES 2.0 Mapper %d' % mapper
 
@@ -383,8 +379,8 @@ def add_ines_metadata(rom: FileROM, metadata: Metadata, header: bytes):
 		metadata.specific_info['Header Format'] = 'iNES'
 		mapper = mapper_lower_nibble | mapper_upper_nibble
 		metadata.specific_info['Mapper Number'] = mapper
-		if mapper in ines_mappers:
-			metadata.specific_info['Mapper'] = ines_mappers[mapper]
+		if mapper in _ines_mappers:
+			metadata.specific_info['Mapper'] = _ines_mappers[mapper]
 		else:
 			metadata.specific_info['Mapper'] = 'iNES Mapper %d' % mapper
 
@@ -503,7 +499,7 @@ def add_unif_metadata(rom: FileROM, metadata: Metadata):
 
 		pos += 8 + chunk_length
 
-def try_get_equivalent_arcade(rom: ROM, names: Iterable[str]) -> Optional[Machine]:
+def try_get_equivalent_arcade(name: str) -> Optional[Machine]:
 	if not default_mame_executable:
 		#CBF tbhkthbai
 		return None
@@ -519,11 +515,11 @@ def try_get_equivalent_arcade(rom: ROM, names: Iterable[str]) -> Optional[Machin
 			try_get_equivalent_arcade.vsnes_games = () #type: ignore[attr-defined]
 
 	for vsnes_machine in try_get_equivalent_arcade.vsnes_games: #type: ignore[attr-defined]
-		if does_machine_match_game(rom.name, names, vsnes_machine, match_vs_system=True):
+		if does_machine_match_name(name, vsnes_machine, match_vs_system=True):
 			return vsnes_machine
 
 	for playchoice10_machine in try_get_equivalent_arcade.playchoice10_games: #type: ignore[attr-defined]
-		if does_machine_match_game(rom.name, names, playchoice10_machine):
+		if does_machine_match_name(name, playchoice10_machine):
 			return playchoice10_machine
 	
 	return None
@@ -614,7 +610,7 @@ def add_nes_software_list_metadata(software: 'Software', metadata: Metadata):
 		metadata.specific_info['Peripheral'] = nes_peripheral
 
 def add_nes_custom_info(game: 'ROMGame'):
-	equivalent_arcade = try_get_equivalent_arcade(game.rom, game.metadata.names.values())
+	equivalent_arcade = try_get_equivalent_arcade(game.name)
 	if equivalent_arcade:
 		game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
 

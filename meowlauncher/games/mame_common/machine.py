@@ -478,23 +478,6 @@ def machine_name_matches(machine_name: str, game_name: str, match_vs_system: boo
 			return True
 	return False
 
-def does_machine_match_name(name: str, machine: Machine, match_vs_system: bool=False) -> bool:
-	if machine_name_matches(machine.name, name, match_vs_system):
-		return True
-	for alt_name in machine.alt_names:
-		if machine_name_matches(alt_name, name, match_vs_system):
-			return True
-	return False
-
-def does_machine_match_game(game_rom_name: str, game_names: Iterable[str], machine: Machine, match_vs_system: bool=False) -> bool:
-	if does_machine_match_name(game_rom_name, machine, match_vs_system):
-		return True
-	for game_name in game_names:
-		#Perhaps some keys in game names don't need to be looked at here
-		if does_machine_match_name(game_name, machine, match_vs_system):
-			return True
-	return False
-
 #TODO: This infodumping probably deserves to go somewhere in data - there would be a difference between "name of an arcade board that I think is interesting" and "particular arcade system that might have some different emulators for it etc etc"
 arcade_system_names = {
 	#Normal stuff
@@ -862,3 +845,13 @@ arcade_system_bios_names = {
 	('3do', 'alg3do'): 'American Laser Games 3DO Hardware',
 
 }
+
+
+#TODO: Where does this really belong?
+def does_machine_match_name(name: str, machine: Machine, match_vs_system: bool=False) -> bool:
+	if machine_name_matches(machine.name, name, match_vs_system):
+		return True
+	for alt_name in machine.alt_names:
+		if machine_name_matches(alt_name, name, match_vs_system):
+			return True
+	return False

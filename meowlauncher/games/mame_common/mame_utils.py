@@ -7,7 +7,6 @@ from meowlauncher.data.name_cleanup.mame_manufacturer_name_cleanup import (
     dont_remove_suffix, manufacturer_name_cleanup)
 from meowlauncher.util.utils import junk_suffixes
 
-
 def consistentify_manufacturer(manufacturer: Optional[str]) -> Optional[str]:
 	if not manufacturer:
 		return None
@@ -96,3 +95,4 @@ def untangle_manufacturer(arcade_system: Optional[str], manufacturers: Sequence[
 		developer = manufacturers[0] if manufacturers[1] == 'Sammy' else manufacturers[1]
 		publisher = manufacturers[1] if manufacturers[1] == 'Sammy' else manufacturers[0]
 	return developer, publisher
+	

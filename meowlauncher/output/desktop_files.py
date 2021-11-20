@@ -15,6 +15,8 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.util.io_utils import ensure_exist, pick_new_filename
 from meowlauncher.util.utils import (clean_string, find_filename_tags_at_end,
                                      remove_filename_tags)
+from meowlauncher.games.mame_common.software_list import Software, SoftwareList
+from meowlauncher.games.mame_common.machine import Machine
 
 if TYPE_CHECKING:
 	from meowlauncher.launch_command import LaunchCommand
@@ -100,6 +102,12 @@ def _make_linux_desktop(launcher: 'LaunchCommand', display_name: str, metadata: 
 				elif isinstance(v, Flag):
 					value_as_string = str(v).replace('|', ';')
 					value_as_string = value_as_string[value_as_string.find('.') + 1:]
+			elif isinstance(v, Software):
+				value_as_string = f'{v.name} ({v.description})'
+			elif isinstance(v, SoftwareList):
+				value_as_string = f'{v.name} ({v.description})'
+			elif isinstance(v, Machine):
+				value_as_string = f'{v.basename} ({v.name})'
 
 			elif not use_image_object:
 				value_as_string = str(v)

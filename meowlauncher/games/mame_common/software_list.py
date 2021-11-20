@@ -275,8 +275,8 @@ class Software():
 		self.infos = {info.attrib.get('name', ''): info.attrib.get('value') for info in self.xml.iterfind('info')} #Blank info name should not happen
 
 	@property
-	def name(self) -> Optional[str]:
-		return self.xml.attrib.get('name')
+	def name(self) -> str:
+		return self.xml.attrib.get('name', '') #Blank name should not happen
 	
 	@property
 	def description(self) -> str:
@@ -356,17 +356,12 @@ class Software():
 		return self.infos.get('serial')
 
 	def add_standard_metadata(self, metadata: Metadata):
-		metadata.specific_info['MAME Software Name'] = self.name
-		metadata.specific_info['MAME Software Full Name'] = self.description
+		metadata.specific_info['MAME Software'] = self
 		#We'll need to use that as more than just a name, though, I think; and by that I mean I get dizzy if I think about whether I need to do that or not right now
+		#TODO: Whatever is checking metadata.names needs to just check for game.software etc manually rather than this being here, I think
 		metadata.add_alternate_name(self.description, 'Software List Name')
 
-		cloneof = self.xml.attrib.get('cloneof')
-		if cloneof:
-			metadata.specific_info['MAME Software Parent'] = cloneof
-
-		metadata.specific_info['MAME Software List Name'] = self.software_list.name
-		metadata.specific_info['MAME Software List Description'] = self.software_list.description
+		metadata.specific_info['MAME Software List Name'] = self.software_list
 
 		serial = self.serial
 		if serial:
@@ -408,7 +403,6 @@ class Software():
 			if release_date.is_better_than(metadata.release_date):
 				metadata.release_date = release_date
 
-		metadata.specific_info['MAME Emulation Status'] = self.emulation_status
 		developer = consistentify_manufacturer(self.infos.get('developer'))
 		if not developer:
 			developer = consistentify_manufacturer(self.infos.get('author'))

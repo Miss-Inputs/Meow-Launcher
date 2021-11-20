@@ -2,8 +2,7 @@ import os
 from collections.abc import Collection, Iterable, Mapping, Sequence
 from typing import TYPE_CHECKING, Optional, cast
 
-from meowlauncher.common_types import (EmulationNotSupportedException,
-                                       EmulationStatus)
+from meowlauncher.common_types import EmulationNotSupportedException
 from meowlauncher.emulator import EmulatorStatus, MednafenModule
 from meowlauncher.games.mame_common.mame_helpers import (have_mame,
                                                          verify_romset)
@@ -102,16 +101,17 @@ def mame_base(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapp
 def mame_driver(game: 'ROMGame', emulator_config: 'EmulatorConfig', driver: str, slot=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard=False, autoboot_script=None) -> LaunchCommand:
 	#Hmm I might need to refactor this and mame_system when I figure out what I'm doing
 	compat_threshold = cast(int, emulator_config.options.get('software_compatibility_threshold', 1))
-	if compat_threshold > -1:
-		game_compatibility = game.metadata.specific_info.get('MAME Emulation Status', EmulationStatus.Good)
+	software = game.metadata.specific_info.get('MAME Software')	
+	if software and compat_threshold > -1:
+		#We assume something without software Just Works, well unless skip_unknown_stuff is enabled down below
+		game_compatibility = software.compatibility
 		if game_compatibility < compat_threshold:
-			raise EmulationNotSupportedException('{0} is {1}'.format(game.metadata.specific_info.get('MAME Software Name'), game_compatibility.name))
+			raise EmulationNotSupportedException(f'{software.name} is {game_compatibility.name}')
 
 	skip_unknown = emulator_config.options.get('skip_unknown_stuff', False)
-	if skip_unknown:
-		if not game.metadata.specific_info.get('MAME Software Name'):
-			raise EmulationNotSupportedException('Does not match anything in software list')
-
+	if skip_unknown and not software:
+		raise EmulationNotSupportedException('Does not match anything in software list')
+	
 	args = mame_base(driver, slot, slot_options, has_keyboard, autoboot_script)
 	return LaunchCommand(emulator_config.exe_path, args)
 
