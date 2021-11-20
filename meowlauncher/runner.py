@@ -1,12 +1,16 @@
 from abc import ABC, abstractmethod
+from enum import Enum, auto
 
-from meowlauncher.common_types import HostPlatform
 from meowlauncher.config_types import ConfigValueType, RunnerConfigValue
 
+class HostPlatform(Enum):
+	Native = auto()
+	Windows = auto()
+	DotNet = auto()
 
 class Runner(ABC):
-	def __init__(self, host_platform: HostPlatform=HostPlatform.Native) -> None:
-		self.host_platform: HostPlatform = host_platform
+	def __init__(self, host_platform=HostPlatform.Native) -> None:
+		self.host_platform = host_platform
 		self.configs = {
 			'gamemode': RunnerConfigValue(ConfigValueType.Bool, False, 'Run with gamemoderun'),
 			'mangohud': RunnerConfigValue(ConfigValueType.Bool, False, 'Run with MangoHUD'),

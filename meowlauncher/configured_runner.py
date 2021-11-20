@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING
 
-from meowlauncher.common_types import HostPlatform
 from meowlauncher.config.main_config import main_config
 
 from .launch_command import (LaunchCommand, MultiLaunchCommands,
                              launch_with_wine)
+from .runner import HostPlatform
 
 if TYPE_CHECKING:
 	from meowlauncher.config_types import RunnerConfig

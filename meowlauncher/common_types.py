@@ -45,8 +45,4 @@ class EmulatorStatus(Enum):
 	Experimental = 3
 	Janky = 2 #Weird to set up or launch normally
 	Borked = 1
-
-class HostPlatform():
-	Native = auto()
-	Windows = auto()
-	DotNet = auto()
+	

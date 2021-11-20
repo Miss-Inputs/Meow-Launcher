@@ -1,13 +1,13 @@
 from collections.abc import Callable, Collection, Mapping, MutableMapping
 from typing import TYPE_CHECKING, Generic, Optional, TypeVar
 
-from meowlauncher.common_types import EmulatorStatus, HostPlatform
+from meowlauncher.common_types import EmulatorStatus
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config_types import (ConfigValueType, EmulatorConfig,
                                        RunnerConfigValue, TypeOfConfigValue)
 
 from .emulated_game import EmulatedGame
-from .runner import Runner
+from .runner import HostPlatform, Runner
 
 EmulatorGameType = TypeVar('EmulatorGameType', bound=EmulatedGame)
 if TYPE_CHECKING:
