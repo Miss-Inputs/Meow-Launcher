@@ -6,7 +6,7 @@ import re
 import subprocess
 import zipfile
 import zlib
-from collections.abc import Iterable
+from collections.abc import Iterator
 from pathlib import Path
 from typing import Optional
 
@@ -67,7 +67,7 @@ sevenzip_size_reg = re.compile(r'^Size\s+=\s+(\d+)$', flags=re.IGNORECASE)
 #
 #Path = another.one
 #size attributes = blah
-def subprocess_sevenzip_list(path: str) -> Iterable[FilenameWithMaybeSizeAndCRC]:
+def subprocess_sevenzip_list(path: str) -> Iterator[FilenameWithMaybeSizeAndCRC]:
 	proc = subprocess.run(['7z', 'l', '-slt', '--', path], stdout=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
 		raise BadSubprocessedArchiveError('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
@@ -156,7 +156,7 @@ def subprocess_sevenzip_crc(path: str, filename: str) -> int:
 	raise FileNotFoundError(filename)
 	
 #--- Inbuilt Python stuff
-def zip_list(path: Path) -> Iterable[FilenameWithMaybeSizeAndCRC]:
+def zip_list(path: Path) -> Iterator[FilenameWithMaybeSizeAndCRC]:
 	with zipfile.ZipFile(path, 'r') as zip_file:
 		for info in zip_file.infolist():
 			yield info.filename, info.file_size, info.CRC & 0xffffffff
@@ -186,7 +186,7 @@ def gzip_getsize(path: Path) -> int:
 
 #---- py7zr
 
-def sevenzip_list(path: Path) -> Iterable[FilenameWithMaybeSizeAndCRC]:
+def sevenzip_list(path: Path) -> Iterator[FilenameWithMaybeSizeAndCRC]:
 	with py7zr.SevenZipFile(path, mode='r') as sevenzip_file:
 		for file in sevenzip_file.list():
 			yield file.filename, file.uncompressed, file.crc32
@@ -212,7 +212,7 @@ def sevenzip_get_crc32(path: Path, filename: str) -> int:
 
 #----- python-libarchive
 
-def libarchive_list(path: str) -> Iterable[FilenameWithMaybeSizeAndCRC]:
+def libarchive_list(path: str) -> Iterator[FilenameWithMaybeSizeAndCRC]:
 	with libarchive.Archive(path, 'r') as a:
 		for item in a:
 			yield item.pathname, item.size, None
@@ -234,7 +234,7 @@ def libarchive_getsize(path: str, filename: str) -> int:
 #There is no crc32
 
 #----- Entry points to this little archive helper
-def compressed_list(path: Path) -> Iterable[FilenameWithMaybeSizeAndCRC]:
+def compressed_list(path: Path) -> Iterator[FilenameWithMaybeSizeAndCRC]:
 	if zipfile.is_zipfile(path):
 		try:
 			yield from zip_list(path)

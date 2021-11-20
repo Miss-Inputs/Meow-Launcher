@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Collection
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -29,7 +29,7 @@ def add_amiga_metadata_from_software_list(software: 'Software', metadata: 'Metad
 		#info name="magazine": What magazine it came from?
 	metadata.specific_info['Chipset'] = chipset
 
-def add_info_from_filename_tags(tags: Iterable[str], metadata: 'Metadata'):
+def add_info_from_filename_tags(tags: Collection[str], metadata: 'Metadata'):
 	for tag in tags:
 		if tag == '[HD]':
 			metadata.specific_info['Requires Hard Disk?'] = True

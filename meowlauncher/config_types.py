@@ -1,4 +1,4 @@
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Collection, Mapping, Sequence
 from enum import Enum, auto
 from pathlib import Path
 from typing import Optional, Union
@@ -17,7 +17,7 @@ class ConfigValueType(Enum):
 	FolderPathList = auto()
 
 class PlatformConfig():
-	def __init__(self, name: str, paths: Iterable[Path], chosen_emulators: Sequence[str], options: Mapping[str, TypeOfConfigValue]) -> None:
+	def __init__(self, name: str, paths: Collection[Path], chosen_emulators: Sequence[str], options: Mapping[str, TypeOfConfigValue]) -> None:
 		self.name = name
 		self.paths = paths
 		self.chosen_emulators = chosen_emulators

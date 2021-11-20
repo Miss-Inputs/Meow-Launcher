@@ -1,4 +1,4 @@
-from collections.abc import Collection, Iterable, Mapping
+from collections.abc import Collection, Mapping
 from typing import Optional
 from xml.etree import ElementTree
 
@@ -23,7 +23,7 @@ class TDB():
 	def find_game(self, search_key) -> Optional[ElementTree.Element]:
 		return next((game for game in self.xml.iterfind('game') if game.findtext('id') == search_key), None)
 		
-	def _organize_genres(self, genres: Iterable[str]) -> Mapping[str, Collection[str]]:
+	def _organize_genres(self, genres: Collection[str]) -> Mapping[str, Collection[str]]:
 		main_genres: dict[str, set[str]] = {}
 		for genre in genres:
 			if genre in self.genres.keys():

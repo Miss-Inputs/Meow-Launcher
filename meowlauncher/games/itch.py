@@ -4,7 +4,7 @@ import gzip
 import json
 import os
 import subprocess
-from collections.abc import Collection, Iterable, Mapping, Sequence
+from collections.abc import Collection, Mapping, Sequence, Iterator
 from pathlib import Path
 from typing import Optional
 
@@ -185,21 +185,21 @@ class ItchGame(Game):
 		self.metadata.specific_info['Game Type'] = self.game_type
 		self.metadata.platform = platform
 
-	def _try_and_find_exe(self, os_filter: Optional[str]=None, no_arch_filter=False) -> Optional[Iterable[tuple[Optional[str], Path, Optional[Mapping]]]]:
+	def _try_and_find_exe(self, os_filter: Optional[str]=None, no_arch_filter=False) -> Iterator[tuple[Optional[str], Path, Optional[Mapping]]]:
 		#This is the fun part. There is no info in the receipt that actually tells us what to run, the way the itch.io app does it is use heuristics to figure that out. So if we don't have butler, we'd have to re-implement dash ourselves, which would suck and let's not
 		#I still kinda want a fallback method that just grabs something ending with .x86 or .sh etc in the folder, though
 		output = _butler_configure(self.path, os_filter, no_arch_filter)
 		if not output:
 			#Bugger
-			return None
+			return
 		candidates = output['value']['candidates']
 		if not candidates:
-			return None
+			return
 		#arch, size might also be useful
 		#scriptInfo only applies if flavor == script (and just contains interpreter which shouldn't matter), windowsInfo only applies if flavour == windows
 		for candidate in candidates:
 			yield candidate['flavor'], Path(output['value']['basePath'], candidate['path']), candidate.get('windowsInfo')
-		return None
+		return
 
 	def _make_exe_launcher(self, flavour: Optional[str], exe_path: Path, windows_info: Optional[Mapping]):
 		metadata = copy.deepcopy(self.metadata)

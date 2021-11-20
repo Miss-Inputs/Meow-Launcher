@@ -1,7 +1,7 @@
 #Not worth putting these in their own source file I think
 #TODO: Yeah sure but they still belong somewhere else??
 
-from collections.abc import Iterable
+from collections.abc import Iterator
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Optional, cast
 
@@ -184,7 +184,7 @@ def add_pet_custom_info(game: 'ROMGame'):
 				game.metadata.specific_info['Minimum RAM'] = ram
 				continue
 
-def _get_uapce_games() -> Iterable[Machine]:
+def _get_uapce_games() -> Iterator[Machine]:
 	try:
 		yield from _get_uapce_games.result #type: ignore[attr-defined]
 	except AttributeError:

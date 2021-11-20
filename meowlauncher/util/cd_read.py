@@ -2,7 +2,7 @@ import math
 import re
 import struct
 import zlib
-from collections.abc import Sequence, Iterable
+from collections.abc import Sequence, Iterator
 from pathlib import Path
 from typing import Optional
 
@@ -13,7 +13,7 @@ cue_file_line_regex = re.compile(r'^\s*FILE\s+(?:"(?P<name>.+)"|(?P<name_unquote
 #<mode> is defined here: https://www.gnu.org/software/ccd2cue/manual/html_node/MODE-_0028Compact-Disc-fields_0029.html#MODE-_0028Compact-Disc-fields_0029 but generally only AUDIO, MODE1/<size>, and MODE2/<size> are used
 cue_track_line_regex = re.compile(r'^\s*TRACK\s+(?P<number>\d+)\s+(?P<mode>.+)\s*$', flags=re.RegexFlag.IGNORECASE)
 
-def iter_cue_sheet(cue_path: Path) -> Iterable[tuple[str, int]]:
+def iter_cue_sheet(cue_path: Path) -> Iterator[tuple[str, int]]:
 	data = read_file(cue_path).decode('utf8', errors='backslashreplace')
 
 	current_file = None

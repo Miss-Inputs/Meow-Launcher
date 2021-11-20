@@ -2,7 +2,7 @@
 
 import os
 import traceback
-from collections.abc import Iterable, Sequence
+from collections.abc import Collection, Iterator, Sequence
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Optional, Union
 
@@ -111,7 +111,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 		
 		return launcher
 
-	# def _process_rom_list(self, rom_list: Iterable[tuple[ROM, Sequence[str]]]) -> Iterable[ROMLauncher]:
+	# def _process_rom_list(self, rom_list: Collection[tuple[ROM, Sequence[str]]]) -> Iterable[ROMLauncher]:
 	# 	for rom, subfolders in rom_list:
 	# 		if not rom.is_folder and not self.platform.is_valid_file_type(rom.extension):
 	# 			#TODO: Probs want a warn_about_invalid_extension main_config (or platform_config)
@@ -137,7 +137,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 	# 		if launcher:
 	# 			yield launcher
 
-	def _process_file_list(self, file_list: Iterable[tuple[Path, Sequence[str]]]) -> Iterable[ROMLauncher]:
+	def _process_file_list(self, file_list: Collection[tuple[Path, Sequence[str]]]) -> Iterator[ROMLauncher]:
 		for path, subfolders in file_list:
 			try:
 				rom = get_rom(path)
@@ -173,7 +173,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 			if launcher:
 				yield launcher
 
-	def iter_launchers(self) -> Iterable[ROMLauncher]:
+	def iter_launchers(self) -> Iterator[ROMLauncher]:
 		file_list = []
 		#rom_list: list[tuple[ROM, Sequence[str]]] = []
 		for rom_dir in self.platform_config.paths:
@@ -227,7 +227,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 	def no_longer_exists(self, game_id: str) -> bool:
 		return not os.path.exists(game_id)
 
-def _iter_platform_sources(excluded_platforms: Iterable[str]=None) -> Iterable[ROMPlatform]:
+def _iter_platform_sources(excluded_platforms: Collection[str]=None) -> Iterator[ROMPlatform]:
 	for platform_name, platform_config in platform_configs.items():
 		platform = platforms.get(platform_name)
 		if not platform:
@@ -241,7 +241,7 @@ def _iter_platform_sources(excluded_platforms: Iterable[str]=None) -> Iterable[R
 		yield platform_source
 
 class ROMs(CompoundGameSource):
-	def __init__(self, only_platforms: Sequence[str]=None, excluded_platforms: Iterable[str]=None) -> None:
+	def __init__(self, only_platforms: Sequence[str]=None, excluded_platforms: Collection[str]=None) -> None:
 		if only_platforms:
 			super().__init__(tuple(ROMPlatform(platform_configs[only_platform], platforms[only_platform]) for only_platform in only_platforms))
 		else:

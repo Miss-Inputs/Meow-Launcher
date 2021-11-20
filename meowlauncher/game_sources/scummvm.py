@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from collections.abc import Iterable
+from collections.abc import Iterator
 
 from meowlauncher import global_runners
 from meowlauncher.config.main_config import main_config
@@ -23,7 +23,7 @@ class ScummVM(GameSource):
 	def no_longer_exists(self, game_id: str) -> bool:
 		return game_id not in scummvm_config.scummvm_ini.sections() if scummvm_config.have_scummvm else True
 
-	def iter_launchers(self) -> Iterable[ScummVMLauncher]:
+	def iter_launchers(self) -> Iterator[ScummVMLauncher]:
 		for section in scummvm_config.scummvm_ini.sections():
 			if section == 'scummvm':
 				#Skip the top section

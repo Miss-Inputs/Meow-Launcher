@@ -1,6 +1,6 @@
 import functools
 import os
-from collections.abc import Collection, Iterable, Mapping, MutableMapping
+from collections.abc import Collection, Iterator, Mapping, MutableMapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, NamedTuple, Optional
@@ -175,7 +175,7 @@ def add_history(metadata: 'Metadata', machine_or_softlist: str, software_name: O
 	if history.updates:
 		metadata.descriptions['Updates'] = history.updates
 
-def iter_default_mame_categories_folders() -> Iterable[Path]:
+def iter_default_mame_categories_folders() -> Iterator[Path]:
 	if not default_mame_configuration:
 		return
 	ui_config = default_mame_configuration.ui_config
@@ -202,7 +202,7 @@ def _parse_mame_cat_ini(path: Path) -> Mapping[str, Collection[str]]:
 				d[current_section].add(line)
 		return d
 
-def get_mame_cat(name: str, category_folders: Iterable[Path]) -> Mapping[str, Collection[str]]:
+def get_mame_cat(name: str, category_folders: Iterator[Path]) -> Mapping[str, Collection[str]]:
 	for folder in category_folders:
 		cat_path = folder.joinpath(name + '.ini')
 		try:
@@ -215,7 +215,7 @@ def get_mame_cat(name: str, category_folders: Iterable[Path]) -> Mapping[str, Co
 def get_mame_cat_from_default_mame_config(name: str) -> Mapping[str, Collection[str]]:
 	return get_mame_cat(name, iter_default_mame_categories_folders())
 
-def get_machine_cat_from_category_folders(basename: str, folder_name: str, category_folders: Iterable[Path]) -> Optional[Collection[str]]:
+def get_machine_cat_from_category_folders(basename: str, folder_name: str, category_folders: Iterator[Path]) -> Optional[Collection[str]]:
 	folder = get_mame_cat(folder_name, category_folders)
 	if not folder:
 		return None

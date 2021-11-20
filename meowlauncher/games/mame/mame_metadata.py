@@ -1,5 +1,5 @@
 from collections import Counter
-from collections.abc import Iterable, Sequence, Collection
+from collections.abc import Collection, Iterable, Sequence
 from typing import TYPE_CHECKING, Optional, cast
 from xml.etree import ElementTree
 
@@ -11,16 +11,17 @@ from meowlauncher.games.mame_common.mame_helpers import get_image
 from meowlauncher.games.mame_common.mame_support_files import (
     ArcadeCategory, MachineCategory, add_history, get_category, get_languages,
     organize_catlist)
-from meowlauncher.games.mame_common.mame_utils import (iter_cpus,
-                                                       image_config_keys)
+from meowlauncher.games.mame_common.mame_utils import (image_config_keys,
+                                                       iter_cpus)
 from meowlauncher.util.detect_things_from_filename import (
     get_languages_from_tags_directly, get_regions_from_filename_tags,
     get_revision_from_filename_tags, get_version_from_filename_tags)
-from meowlauncher.util.region_info import get_language_from_regions, Language
+from meowlauncher.util.region_info import Language, get_language_from_regions
 from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
 
 if TYPE_CHECKING:
 	from meowlauncher.metadata import Metadata
+
 	from .mame_game import MAMEGame
 
 #I still want to dismantle this class with the fury of a thousand suns

@@ -3,7 +3,7 @@
 import datetime
 import os
 import time
-from collections.abc import Iterable
+from collections.abc import Collection
 from pathlib import Path
 from typing import Optional
 
@@ -53,7 +53,7 @@ def look_in_windows_gog_folder(folder: Path) -> Optional[WindowsGOGGame]:
 	return WindowsGOGGame(folder, info_file, game_id)
 
 def do_linux_gog_games() -> None:
-	gog_folders: Iterable[Path] = main_config.gog_folders
+	gog_folders: Collection[Path] = main_config.gog_folders
 	for gog_folder in gog_folders:
 		if not gog_folder.is_dir():
 			if main_config.debug:
@@ -75,7 +75,7 @@ def do_linux_gog_games() -> None:
 			game.make_launcher()
 
 def do_windows_gog_games() -> None:
-	windows_gog_folders: Iterable[Path] = main_config.windows_gog_folders
+	windows_gog_folders: Collection[Path] = main_config.windows_gog_folders
 	for windows_gog_folder in windows_gog_folders:
 		if not windows_gog_folder.is_dir():
 			if main_config.debug:

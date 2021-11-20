@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from typing import TYPE_CHECKING, Generic, TypeVar, Union
 
 from meowlauncher.emulator import Emulator
@@ -32,7 +32,7 @@ class GameSource(ABC):
 	#TODO: Should have has_been_done somewhere in here? Maybe
 
 	@abstractmethod
-	def iter_launchers(self) -> Iterable['Launcher']:
+	def iter_launchers(self) -> Iterator['Launcher']:
 		pass
 
 	def __hash__(self) -> int:
@@ -42,7 +42,7 @@ class CompoundGameSource(GameSource, ABC):
 	def __init__(self, sources: Sequence[GameSource]) -> None:
 		self.sources = sources
 
-	def iter_launchers(self) -> Iterable['Launcher']:
+	def iter_launchers(self) -> Iterator['Launcher']:
 		for source in self.sources:
 			if source.is_available:
 				yield from source.iter_launchers()
@@ -59,7 +59,7 @@ class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType]):
 		self.emulators = emulators
 		self.libretro_cores = libretro_cores
 	
-	def iter_chosen_emulators(self) -> Iterable[Union[EmulatorType, 'LibretroCore']]:
+	def iter_chosen_emulators(self) -> Iterator[Union[EmulatorType, 'LibretroCore']]:
 		for emulator_name in self.platform_config.chosen_emulators:
 			emulator = self.libretro_cores.get(emulator_name.removesuffix(' (libretro)')) if \
 				(self.libretro_cores and emulator_name.endswith(' (libretro)')) else \

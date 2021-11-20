@@ -1,5 +1,5 @@
 import re
-from collections.abc import Collection, Iterable
+from collections.abc import Collection, Iterator
 from datetime import datetime
 from itertools import chain
 from typing import TYPE_CHECKING, Optional, Union
@@ -29,7 +29,7 @@ copyright_regex = re.compile(r'\(C\)(\S{4}.)(\d{4})\.(.{3})')
 t_with_zero = re.compile(r'^T-0')
 t_not_followed_by_dash = re.compile(r'^T(?!-)')
 
-def _parse_peripherals(metadata: Metadata, peripherals: Iterable[str]):
+def _parse_peripherals(metadata: Metadata, peripherals: Collection[str]):
 	for peripheral_char in peripherals:
 		if peripheral_char == 'M':
 			#3 buttons if I'm not mistaken
@@ -231,7 +231,7 @@ def _get_smd_header(rom: FileROM):
 
 	return bytes(buf[0x100:0x200])
 
-def _get_megaplay_games() -> Iterable[Machine]:
+def _get_megaplay_games() -> Iterator[Machine]:
 	try:
 		yield from _get_megaplay_games.result #type: ignore[attr-defined]
 	except AttributeError:
@@ -241,7 +241,7 @@ def _get_megaplay_games() -> Iterable[Machine]:
 		_get_megaplay_games.result = set(iter_machines_from_source_file('megaplay', default_mame_executable)) #type: ignore[attr-defined]
 		yield from _get_megaplay_games.result #type: ignore[attr-defined]
 
-def _get_megatech_games() -> Iterable[Machine]:
+def _get_megatech_games() -> Iterator[Machine]:
 	try:
 		yield from _get_megatech_games.result #type: ignore[attr-defined]
 	except AttributeError:

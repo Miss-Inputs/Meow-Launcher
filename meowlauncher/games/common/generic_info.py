@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Collection
 from typing import TYPE_CHECKING, Optional
 
 from meowlauncher.games.mame_common.machine import (Machine,
@@ -38,7 +38,7 @@ def _match_arcade(software_name: str) -> Optional[Machine]:
 	except MachineNotFoundException:
 		return None
 
-def find_equivalent_arcade_game(game_name: str, game_alt_names: Iterable[str], software: 'Software') -> Optional[Machine]:
+def find_equivalent_arcade_game(game_name: str, game_alt_names: Collection[str], software: 'Software') -> Optional[Machine]:
 	#Just to be really strict: We will only get it if the software name matches
 	if not default_mame_executable:
 		return None

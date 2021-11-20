@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterator, Sequence
 from typing import Optional
 
 from meowlauncher.common_types import EmulationStatus
@@ -89,7 +89,7 @@ class MAME(GameSource):
 		
 		return MAMELauncher(game, self.emu)
 
-	def iter_launchers(self) -> Iterable[MAMELauncher]:
+	def iter_launchers(self) -> Iterator[MAMELauncher]:
 		if self.driver_list:
 			for driver_name in self.driver_list:
 				launcher = self._process_machine(get_machine(driver_name, default_mame_executable))
@@ -155,7 +155,7 @@ class MAMEInbuiltGames(GameSource):
 		add_status(machine, game.metadata)
 		return MAMEInbuiltLauncher(game, ConfiguredMAME(emulator_configs.get('MAME')))
 
-	def iter_launchers(self) -> Iterable[MAMEInbuiltLauncher]:
+	def iter_launchers(self) -> Iterator[MAMEInbuiltLauncher]:
 		for machine_name, inbuilt_game in machines_with_inbuilt_games.items():
 			if not main_config.full_rescan:
 				if has_been_done('Inbuilt game', machine_name):

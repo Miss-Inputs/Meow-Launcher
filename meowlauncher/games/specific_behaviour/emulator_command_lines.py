@@ -1,7 +1,7 @@
 import os
 import re
 import shlex
-from collections.abc import Iterable, Mapping
+from collections.abc import Collection, Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, cast
 
@@ -1489,7 +1489,7 @@ def sheepshaver(app: 'MacApp', _, emulator_config: 'EmulatorConfig') -> LaunchCo
 	return _macemu_args(app, autoboot_txt_path, emulator_config)
 	
 mount_line_regex = re.compile(r'^MOUNT ([A-Z]) ')
-def _last_unused_dosbox_drive(dosbox_config_path: Path, used_letters: Iterable[str]=None) -> str:
+def _last_unused_dosbox_drive(dosbox_config_path: Path, used_letters: Collection[str]=None) -> str:
 	automounted_letters = []
 	with dosbox_config_path.open('rt', encoding='utf-8') as f:
 		found_autoexec = False

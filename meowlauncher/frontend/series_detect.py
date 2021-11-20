@@ -2,7 +2,7 @@
 import datetime
 import re
 import time
-from collections.abc import Collection, Iterable, Sequence
+from collections.abc import Collection, Iterator, Sequence
 from configparser import ConfigParser
 from pathlib import Path
 from typing import Optional, Union
@@ -10,7 +10,8 @@ from typing import Optional, Union
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.series_detect.series_detect_overrides import \
     series_overrides
-from meowlauncher.output.desktop_files import metadata_section_name, section_prefix
+from meowlauncher.output.desktop_files import (metadata_section_name,
+                                               section_prefix)
 from meowlauncher.util.desktop_files import get_desktop, get_field
 from meowlauncher.util.name_utils import (chapter_matcher,
                                           convert_roman_numerals_in_title)
@@ -82,7 +83,7 @@ def _does_series_match(name_to_match: str, existing_series: str) -> bool:
 
 	return name_to_match == existing_series
 
-def _find_series_name_by_subtitle(name: str, existing_serieses: Iterable[str], force=False) -> SeriesWithSeriesIndex:
+def _find_series_name_by_subtitle(name: str, existing_serieses: Collection[str], force=False) -> SeriesWithSeriesIndex:
 	name_chunks = _get_name_chunks(name)
 	if not name_chunks:
 		return None, None
@@ -148,13 +149,13 @@ def _find_existing_serieses() -> Collection[str]:
 
 	return serieses
 
-def _detect_series_by_subtitle(desktop: ConfigParser, path: Path, existing: Iterable[str]):
+def _detect_series_by_subtitle(desktop: ConfigParser, path: Path, existing: Collection[str]):
 	name = _get_usable_name(desktop)
 	series, index = _find_series_name_by_subtitle(name, existing)
 	if series:
 		_add_series(desktop, path, series, index)
 
-def _force_add_series_with_index(desktop: ConfigParser, path: Path, existing: Iterable[str]):
+def _force_add_series_with_index(desktop: ConfigParser, path: Path, existing: Collection[str]):
 	name = _get_usable_name(desktop)
 	series, _ = _find_series_name_by_subtitle(name, existing, force=True)
 	if series:
@@ -215,7 +216,7 @@ def _detect_series_index_for_things_with_series():
 			if name_chunks[0].startswith(existing_series):
 				_add_series(desktop, path, None, _get_series_from_whole_thing(existing_series, name_chunks[0].strip()))
 
-def _iter_existing_seriesless_launchers() -> Iterable[tuple[ConfigParser, Path]]:
+def _iter_existing_seriesless_launchers() -> Iterator[tuple[ConfigParser, Path]]:
 	for path in main_config.output_folder.iterdir():
 		desktop = get_desktop(path)
 

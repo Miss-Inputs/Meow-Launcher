@@ -1,7 +1,7 @@
 import io
 import os
 import zipfile
-from collections.abc import Collection, Mapping, Iterable
+from collections.abc import Collection, Mapping, Iterator
 from pathlib import Path
 from typing import Any, Optional, Union
 
@@ -87,7 +87,7 @@ class SteamInstallation():
 	def get_user_library_cache_folder(self, user_id: str) -> Path:
 		return self.userdata_folder.joinpath(user_id, 'config', 'librarycache')
 
-	def iter_steam_library_folders(self) -> Iterable[Path]:
+	def iter_steam_library_folders(self) -> Iterator[Path]:
 		with open(self.steam_library_list_path, 'rt', encoding='utf-8') as steam_library_list_file:
 			steam_library_list = acf.load(steam_library_list_file)
 			library_folders = steam_library_list.get('libraryfolders')

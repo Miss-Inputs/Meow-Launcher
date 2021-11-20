@@ -5,7 +5,7 @@ import os
 import shutil
 import sys
 import time
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Collection
 from configparser import ConfigParser
 from pathlib import Path
 from typing import Any, Optional, cast
@@ -81,7 +81,7 @@ def move_into_extra_subfolder(path: Path, desktop: ConfigParser, subfolder: str,
 			if value != 'False':
 				subsubfolder.append('')
 		elif is_key_array:
-			for element in cast(Iterable[str], value):
+			for element in cast(Collection[str], value):
 				element_subsubfolders.append(sanitize_name(element))
 		else:
 			subsubfolder.append(sanitize_name(cast(str, value)))

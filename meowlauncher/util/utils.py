@@ -2,7 +2,7 @@ import importlib.resources
 import json
 import math
 import re
-from collections.abc import Iterable, Sequence, Mapping
+from collections.abc import Collection, Sequence, Mapping
 from typing import Optional, Union
 
 find_brackets = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)')
@@ -32,7 +32,7 @@ def find_filename_tags_at_end(name: str) -> Sequence[str]:
 def remove_filename_tags(name: str) -> str:
 	return _find_tags(name)[0]
 
-def starts_with_any(s: str, prefixes: Iterable[str]) -> bool:
+def starts_with_any(s: str, prefixes: Collection[str]) -> bool:
 	#Allows s.startswith() with any iterable, not just tuple
 	return any(s.startswith(prefix) for prefix in prefixes)
 

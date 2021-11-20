@@ -2,7 +2,7 @@ import configparser
 import io
 import json
 import zipfile
-from collections.abc import Iterable, Mapping
+from collections.abc import Collection, Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
@@ -305,7 +305,7 @@ def try_detect_cryengine(folder: Path) -> Optional[str]:
 			engine_version = 'CryEngine 2'
 	return engine_version
 
-def try_detect_engines_from_filenames(folder: Path, files: Iterable[str], subdirs: Iterable[str]) -> Optional[str]:
+def try_detect_engines_from_filenames(folder: Path, files: Collection[str], subdirs: Collection[str]) -> Optional[str]:
 	#These are simple enough to detect with just one line…	
 	if 'fna.dll' in files:
 		return 'FNA'

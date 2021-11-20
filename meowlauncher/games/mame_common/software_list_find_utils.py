@@ -1,6 +1,6 @@
 import itertools
 import os
-from collections.abc import Iterable, MutableSet, Sequence
+from collections.abc import Collection, MutableSet, Sequence
 from pathlib import Path
 from typing import Any, Optional
 
@@ -39,7 +39,7 @@ def get_software_list_by_name(name: str) -> Optional[SoftwareList]:
 	except FileNotFoundError:
 		return None
 
-def find_in_software_lists_with_custom_matcher(software_lists: Iterable[SoftwareList], matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Optional[Software]:
+def find_in_software_lists_with_custom_matcher(software_lists: Collection[SoftwareList], matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Optional[Software]:
 	for software_list in software_lists:
 		software = software_list.find_software_with_custom_matcher(matcher, args)
 		if software:
@@ -88,7 +88,7 @@ def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
 			return False
 	return True
 
-def find_software_by_name(software_lists: Iterable[SoftwareList], name: str) -> Optional[Software]:
+def find_software_by_name(software_lists: Collection[SoftwareList], name: str) -> Optional[Software]:
 	fuzzy_name_matches = set(itertools.chain.from_iterable(software_list.iter_all_software_with_custom_matcher(_does_name_fuzzy_match, [name]) for software_list in software_lists))
 
 	if len(fuzzy_name_matches) == 1:
@@ -152,7 +152,7 @@ def find_software_by_name(software_lists: Iterable[SoftwareList], name: str) -> 
 		
 	return None
 
-def find_in_software_lists(software_lists: Iterable[SoftwareList], args: SoftwareMatcherArgs) -> Optional[Software]:
+def find_in_software_lists(software_lists: Collection[SoftwareList], args: SoftwareMatcherArgs) -> Optional[Software]:
 	#Does not handle hash collisions… should be fine in real life, though
 	for software_list in software_lists:
 		software = software_list.find_software(args)

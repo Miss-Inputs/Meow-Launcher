@@ -1,6 +1,6 @@
 import re
 import zlib
-from collections.abc import Callable, Iterable, Iterator, Sequence
+from collections.abc import Callable, Collection, Iterator, Sequence
 from pathlib import Path
 from typing import Any, Optional, cast
 from xml.etree import ElementTree
@@ -428,7 +428,7 @@ class Software():
 				metadata.publisher = developer
 			elif not (already_has_publisher and (publisher == '<unknown>')):
 				if ' / ' in publisher:
-					publishers: Iterable[str] = (cast(str, consistentify_manufacturer(p)) for p in publisher.split(' / '))
+					publishers: Collection[str] = set(cast(str, consistentify_manufacturer(p)) for p in publisher.split(' / '))
 					if main_config.sort_multiple_dev_names:
 						publishers = sorted(publishers)
 					publisher = ', '.join(publishers)

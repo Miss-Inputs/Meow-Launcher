@@ -1,6 +1,6 @@
 import os
 import struct
-from collections.abc import Collection, Iterable
+from collections.abc import Collection
 from typing import TYPE_CHECKING, Optional, cast
 from xml.etree import ElementTree
 
@@ -64,7 +64,7 @@ def _convert_ds_colour_to_rgba(colour: int, is_transparent: bool) -> tuple[int, 
 
 	return (red, green, blue, 0 if is_transparent else 0xff)
 
-def _decode_icon(bitmap: bytes, palette: Iterable[int]) -> 'Image':
+def _decode_icon(bitmap: bytes, palette: Collection[int]) -> 'Image':
 	icon = Image.new('RGBA', (32, 32))
 
 	rgb_palette = [(0, 0, 0, 0)] * 16

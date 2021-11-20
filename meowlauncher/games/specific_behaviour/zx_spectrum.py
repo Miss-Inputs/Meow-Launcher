@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections.abc import Collection
 from typing import TYPE_CHECKING, Optional
 
 from meowlauncher.games.roms.rom import FileROM
@@ -91,7 +91,7 @@ def add_speccy_software_list_metadata(software: 'Software', metadata: 'Metadata'
 		#Disk has no autorun menu, requires loading each game from Basic.
 		metadata.add_notes(usage)
 
-def add_speccy_filename_tags_info(tags: Iterable[str], metadata: 'Metadata'):
+def add_speccy_filename_tags_info(tags: Collection[str], metadata: 'Metadata'):
 	if 'Machine' in metadata.specific_info:
 		return
 

@@ -1,5 +1,5 @@
 import re
-from collections.abc import Collection, Iterable, Mapping, Sequence
+from collections.abc import Collection, Iterator, Mapping, Sequence
 from functools import cache
 from pathlib import PurePath
 from typing import TYPE_CHECKING, Optional, cast
@@ -236,7 +236,7 @@ class Machine():
 		return self.xml.attrib.get('sampleof')
 
 	@property
-	def media_slots(self) -> Iterable[MediaSlot]:
+	def media_slots(self) -> Iterator[MediaSlot]:
 		for device_xml in self.xml.iterfind('device'):
 			yield MediaSlot(device_xml)
 
@@ -445,14 +445,14 @@ class Machine():
 			return self.samples_used == 'genpin'
 		return catlist.is_pinball
 
-def iter_machines(exe: 'MAMEExecutable') -> Iterable[Machine]:
+def iter_machines(exe: 'MAMEExecutable') -> Iterator[Machine]:
 	for _, xml in exe.iter_mame_entire_xml():
 		yield Machine(xml, exe)
 	
 def get_machine(driver: str, exe: 'MAMEExecutable') -> Machine:
 	return Machine(exe.get_mame_xml(driver), exe)
 
-def iter_machines_from_source_file(source_file: str, exe: 'MAMEExecutable') -> Iterable[Machine]:
+def iter_machines_from_source_file(source_file: str, exe: 'MAMEExecutable') -> Iterator[Machine]:
 	for machine_name, source_file_with_ext in exe.listsource():
 		if PurePath(source_file_with_ext).stem == source_file:
 			yield get_machine(machine_name, exe)

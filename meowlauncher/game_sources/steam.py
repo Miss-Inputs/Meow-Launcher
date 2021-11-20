@@ -5,7 +5,7 @@ import json
 import os
 import statistics
 import time
-from collections.abc import Iterable, Mapping, MutableMapping
+from collections.abc import Iterator, Mapping, MutableMapping
 from enum import IntFlag
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional
@@ -783,7 +783,7 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> None
 	
 	game.make_launcher()
 
-def iter_steam_installed_appids() -> Iterable[tuple[Path, Any, Mapping[str, Any]]]:
+def iter_steam_installed_appids() -> Iterator[tuple[Path, Any, Mapping[str, Any]]]:
 	for library_folder in steam_installation.iter_steam_library_folders():
 		for acf_file_path in library_folder.joinpath('steamapps').glob('*.acf'):
 			#Technically I could try and parse it without steamfiles, but that would be irresponsible, so I shouldn't do that

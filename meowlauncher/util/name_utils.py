@@ -1,5 +1,5 @@
 import re
-from collections.abc import Iterable
+from collections.abc import Collection
 from typing import Optional
 
 from meowlauncher.config.main_config import main_config
@@ -111,7 +111,7 @@ def normalize_name(name: str, care_about_spaces=True, normalize_words=True, care
 	return name
 
 dont_capitalize_these = {'the', 'a', 'an', 'and', 'or', 'at', 'with', 'to', 'of', 'is'}
-def _title_case_sentence_part(s: str, words_to_ignore_case: Optional[Iterable[str]]=None) -> str:
+def _title_case_sentence_part(s: str, words_to_ignore_case: Optional[Collection[str]]=None) -> str:
 	words = re.split(' ', s)
 	if not words_to_ignore_case:
 		words_to_ignore_case = set()
@@ -128,6 +128,6 @@ def _title_case_sentence_part(s: str, words_to_ignore_case: Optional[Iterable[st
 			titled_words.append(title_word(word))
 	return ' '.join(titled_words)
 
-def title_case(s: str, words_to_ignore_case: Optional[Iterable[str]]=None) -> str:
+def title_case(s: str, words_to_ignore_case: Optional[Collection[str]]=None) -> str:
 	sentence_parts = re.split(r'(\s+-\s+|:\s+)', s)
 	return ''.join(_title_case_sentence_part(part, words_to_ignore_case) for part in sentence_parts)

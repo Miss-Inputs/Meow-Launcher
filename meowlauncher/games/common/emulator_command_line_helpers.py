@@ -1,5 +1,5 @@
 import os
-from collections.abc import Collection, Iterable, Mapping, Sequence
+from collections.abc import Collection, Mapping, Sequence
 from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher.common_types import EmulationNotSupportedException
@@ -22,7 +22,7 @@ def _get_autoboot_script_by_name(name: str) -> str:
 	root_dir = os.path.dirname(root_package)
 	return os.path.join(root_dir, 'mame_autoboot', name + '.lua')
 
-def _verify_supported_gb_mappers(game: 'ROMGame', supported_mappers: Iterable[str], detected_mappers: Iterable[str]) -> None:
+def _verify_supported_gb_mappers(game: 'ROMGame', supported_mappers: Collection[str], detected_mappers: Collection[str]) -> None:
 	mapper = game.metadata.specific_info.get('Mapper', None)
 
 	if not mapper:
@@ -115,7 +115,7 @@ def mame_driver(game: 'ROMGame', emulator_config: 'EmulatorConfig', driver: str,
 	args = mame_base(driver, slot, slot_options, has_keyboard, autoboot_script)
 	return LaunchCommand(emulator_config.exe_path, args)
 
-def first_available_romset(driver_list: Iterable[str]) -> Optional[str]:
+def first_available_romset(driver_list: Collection[str]) -> Optional[str]:
 	for driver in driver_list:
 		if verify_romset(driver):
 			return driver
@@ -127,13 +127,13 @@ def simple_emulator(args: Sequence[str]=None) -> 'GenericLaunchCommandFunc[ROMGa
 		return LaunchCommand(emulator_config.exe_path, args if args else [rom_path_argument])
 	return inner
 
-def simple_gb_emulator(args: Sequence[str], mappers: Iterable[str], autodetected_mappers: Iterable[str]) -> 'GenericLaunchCommandFunc[ROMGame]':
+def simple_gb_emulator(args: Sequence[str], mappers: Collection[str], autodetected_mappers: Collection[str]) -> 'GenericLaunchCommandFunc[ROMGame]':
 	def inner(game: 'ROMGame', _, emulator_config: 'EmulatorConfig'):
 		_verify_supported_gb_mappers(game, mappers, autodetected_mappers)
 		return LaunchCommand(emulator_config.exe_path, args)
 	return inner
 
-def simple_md_emulator(args: Sequence[str], unsupported_mappers: Iterable[str]) -> 'GenericLaunchCommandFunc[ROMGame]':
+def simple_md_emulator(args: Sequence[str], unsupported_mappers: Collection[str]) -> 'GenericLaunchCommandFunc[ROMGame]':
 	def inner(game: 'ROMGame', _, emulator_config: 'EmulatorConfig'):
 		mapper = game.metadata.specific_info.get('Mapper')
 		if mapper and mapper in unsupported_mappers:

@@ -1,4 +1,4 @@
-from collections.abc import Collection, Iterable, MutableSequence
+from collections.abc import Collection, MutableSequence
 from typing import Optional, Union
 
 from meowlauncher.util.utils import pluralize
@@ -183,8 +183,9 @@ class Custom(Controller):
 		return self.custom_description if self.custom_description else 'Custom'
 
 class CombinedController(Controller):
-	def __init__(self, components: Iterable[Controller]=None) -> None:
-		self.components = []
+	def __init__(self, components: MutableSequence[Controller]=None) -> None:
+		#TODO: Components probably shouldn't need to be a list since the order is unimportant but I'd need to readjust a few classes
+		self.components: MutableSequence = []
 		if components:
 			self.components.extend(components)
 
@@ -222,10 +223,10 @@ class InputInfo():
 		#Allows us to say that something explicitly has 0 inputs, admittedly not used opften
 		self._is_inited = False
 
-	def add_option(self, inputs: Union[Iterable[Controller], Controller]):
+	def add_option(self, inputs: Union[Collection[Controller], Controller]):
 		#TODO: Should inputs ever really be iterable? Or should I be using CombinedController in those instances (SCV, ScummVM, Atari 8 bit)
 		opt = InputOption()
-		opt.inputs = tuple(inputs) if isinstance(inputs, Iterable) else [inputs]
+		opt.inputs = tuple(inputs) if isinstance(inputs, Collection) else [inputs]
 		self.input_options.append(opt)
 
 	@property

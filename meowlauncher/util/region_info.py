@@ -2,7 +2,7 @@
 #It's okay for a region to have None for its language if you can't make a reasonable assumption about the language
 #For my own reference: Refer to http://www.bubblevision.com/PAL-NTSC.htm https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 to add new regions/languages that might end up needing to be here
 
-from collections.abc import Iterable
+from collections.abc import Collection
 from enum import Enum, auto
 from typing import NamedTuple, Optional
 
@@ -311,7 +311,7 @@ def get_region_by_short_code(short_code: str, case_insensitive=False) -> Optiona
 
 	return None
 
-def get_language_from_regions(region_list: Iterable[Region]) -> Optional[Language]:
+def get_language_from_regions(region_list: Collection[Region]) -> Optional[Language]:
 	common_language = None
 	#If all the regions here have the same language, we can infer the language of the game. Otherwise, we sorta can't
 	#e.g. We know (USA, Australia) is English, but (Japan, USA) could be Japanese or English
@@ -325,7 +325,7 @@ def get_language_from_regions(region_list: Iterable[Region]) -> Optional[Languag
 
 	return common_language
 
-def get_tv_system_from_regions(region_list: Iterable[Region]) -> Optional[TVSystem]:
+def get_tv_system_from_regions(region_list: Collection[Region]) -> Optional[TVSystem]:
 	tv_systems = {region.tv_system for region in region_list if region.tv_system is not None}
 	if not tv_systems:
 		return None

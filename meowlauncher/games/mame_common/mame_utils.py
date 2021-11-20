@@ -1,11 +1,12 @@
 import re
-from collections.abc import Iterable, Sequence
+from collections.abc import Collection, Sequence, Iterator
 from typing import Optional
 from xml.etree import ElementTree
 
 from meowlauncher.data.name_cleanup.mame_manufacturer_name_cleanup import (
     dont_remove_suffix, manufacturer_name_cleanup)
 from meowlauncher.util.utils import junk_suffixes
+
 
 def consistentify_manufacturer(manufacturer: Optional[str]) -> Optional[str]:
 	if not manufacturer:
@@ -38,7 +39,7 @@ image_config_keys = {
 	'Cover': 'covers_directory', #Software only
 }
 
-def _tag_starts_with(tag: Optional[str], tag_list: Iterable[str]) -> bool:
+def _tag_starts_with(tag: Optional[str], tag_list: Collection[str]) -> bool:
 	if not tag:
 		return False
 	#Chips from devices are in the format device:thing
@@ -49,7 +50,7 @@ def _tag_starts_with(tag: Optional[str], tag_list: Iterable[str]) -> bool:
 			return True
 	return False
 
-def iter_cpus(machine_xml: ElementTree.Element) -> Iterable[ElementTree.Element]:
+def iter_cpus(machine_xml: ElementTree.Element) -> Iterator[ElementTree.Element]:
 	for chip_xml in machine_xml.iterfind('chip'):
 		if chip_xml.attrib.get('type') != 'cpu':
 			continue

@@ -1,7 +1,7 @@
 import configparser
 import os
 import re
-from collections.abc import Iterable
+from collections.abc import Collection
 from enum import Enum, Flag
 from typing import TYPE_CHECKING
 
@@ -40,7 +40,7 @@ def make_linux_desktop_for_launcher(launcher: 'Launcher'):
 
 	_make_linux_desktop(launcher.command, name, launcher.game.metadata, filename_tags, launcher.game_type, launcher.game_id)
 
-def _make_linux_desktop(launcher: 'LaunchCommand', display_name: str, metadata: 'Metadata', filename_tags: Iterable[str], game_type, game_id):
+def _make_linux_desktop(launcher: 'LaunchCommand', display_name: str, metadata: 'Metadata', filename_tags: Collection[str], game_type, game_id):
 	#TODO: Merge with above once we get rid of make_launcher
 	filename = pick_new_filename(main_config.output_folder, display_name, 'desktop')
 	
@@ -92,7 +92,7 @@ def _make_linux_desktop(launcher: 'LaunchCommand', display_name: str, metadata: 
 					v.save(image_path, 'png')
 					value_as_string = str(image_path)
 
-			if isinstance(v, Iterable) and not isinstance(v, str):
+			if isinstance(v, Collection) and not isinstance(v, str):
 				if not v:
 					continue
 				value_as_string = ';'.join('None' if item is None else item.name if isinstance(item, Enum) else str(item) for item in v)

@@ -1,5 +1,5 @@
 import statistics
-from collections.abc import Iterable, Mapping
+from collections.abc import Collection, Mapping
 from enum import Flag
 from typing import TYPE_CHECKING, Optional
 
@@ -58,7 +58,7 @@ def parse_ratings(metadata: 'Metadata', ratings_bytes: bytes, invert_has_rating_
 
 	metadata.specific_info['Age Rating'] = rating
 
-def add_info_from_local_titles(metadata: 'Metadata', short_titles: Mapping[str, str], long_titles: Mapping[str, str], publishers: Mapping[str, Optional[str]], region_codes: Iterable[WiiU3DSRegionCode]):
+def add_info_from_local_titles(metadata: 'Metadata', short_titles: Mapping[str, str], long_titles: Mapping[str, str], publishers: Mapping[str, Optional[str]], region_codes: Collection[WiiU3DSRegionCode]):
 	local_short_title = None
 	local_long_title = None
 	local_publisher: Optional[str] = None

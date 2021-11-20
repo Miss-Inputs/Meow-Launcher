@@ -1,4 +1,4 @@
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterator, Sequence
 from configparser import ConfigParser
 from pathlib import Path
 from typing import Optional
@@ -41,7 +41,7 @@ def get_array(desktop: ConfigParser, name: str, section: str=metadata_section_na
 	return field.split(';')
 
 #These might not belong here in the future, they deal with the output folder in particular rather than specifically .desktop files
-def _iter_existing_launchers() -> Iterable[tuple[str, str]]:
+def _iter_existing_launchers() -> Iterator[tuple[str, str]]:
 	output_folder: Path = main_config.output_folder
 	if not output_folder.is_file():
 		return

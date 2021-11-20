@@ -1,7 +1,7 @@
 import json
 import traceback
 from abc import ABC
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from typing import Any, Optional
 
 from meowlauncher.common_paths import config_dir
@@ -96,7 +96,7 @@ class PCGameSource(ChooseableEmulatorGameSource[PCEmulator], ABC):
 			return None
 
 	#Return value here could be a generic type value I suppose, if you were into that sort of thing
-	def iter_launchers(self) -> Iterable[AppLauncher]:
+	def iter_launchers(self) -> Iterator[AppLauncher]:
 		if not self._app_list:
 			raise AssertionError('PCGameSource.get_launchers should not be called without checking .is_available()')
 		for app in self._app_list:

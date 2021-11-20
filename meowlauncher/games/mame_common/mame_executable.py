@@ -1,7 +1,7 @@
 import copy
 import re
 import subprocess
-from collections.abc import Iterable
+from collections.abc import Iterator
 from typing import cast
 from xml.etree import ElementTree
 
@@ -31,7 +31,7 @@ class MAMEExecutable():
 		#Let it raise FileNotFoundError deliberately if it is not found
 		return version_proc.stdout.splitlines()[0]
 
-	def _real_iter_mame_entire_xml(self) -> Iterable[tuple[str, ElementTree.Element]]:
+	def _real_iter_mame_entire_xml(self) -> Iterator[tuple[str, ElementTree.Element]]:
 		print('New MAME version found: ' + self.version + '; creating XML; this may take a while the first time it is run')
 		self._xml_cache_path.mkdir(exist_ok=True, parents=True)
 
@@ -56,14 +56,14 @@ class MAMEExecutable():
 		#Guard against the -listxml process being interrupted and screwing up everything
 		self._xml_cache_path.joinpath('is_done').touch()
 
-	def _cached_iter_mame_entire_xml(self) -> Iterable[tuple[str, ElementTree.Element]]:
+	def _cached_iter_mame_entire_xml(self) -> Iterator[tuple[str, ElementTree.Element]]:
 		for cached_file in self._xml_cache_path.iterdir():
 			if cached_file.suffix != '.xml':
 				continue
 			driver_name = cached_file.stem
 			yield driver_name, ElementTree.parse(cached_file).getroot()
 			
-	def iter_mame_entire_xml(self) -> Iterable[tuple[str, ElementTree.Element]]:
+	def iter_mame_entire_xml(self) -> Iterator[tuple[str, ElementTree.Element]]:
 		if self._xml_cache_path.joinpath('is_done').is_file():
 			yield from self._cached_iter_mame_entire_xml()
 		else:
@@ -87,7 +87,7 @@ class MAMEExecutable():
 			raise MachineNotFoundException(driver) #This shouldn't happen if -listxml didn't return success but eh
 		return xml
 
-	def listsource(self) -> Iterable[tuple[str, str]]:
+	def listsource(self) -> Iterator[tuple[str, str]]:
 		proc = subprocess.run([self.executable, '-listsource'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, universal_newlines=True, check=True)
 		#Return code should always be 0 so if it's not I dunno what to do about that and let's just panic instead
 		for line in proc.stdout.splitlines():
@@ -97,7 +97,7 @@ class MAMEExecutable():
 				raise AssertionError('This should not happen, panic')
 			yield cast(tuple[str, str], tuple(line_split))
 	
-	def verifysoftlist(self, software_list_name: str) -> Iterable[str]:
+	def verifysoftlist(self, software_list_name: str) -> Iterator[str]:
 		#Unfortunately it seems we cannot verify an individual software, which would probably take less time
 		proc = subprocess.run([self.executable, '-verifysoftlist', software_list_name], universal_newlines=True, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=False)
 		#Don't check return code - it'll return 2 if one software in the list is bad
