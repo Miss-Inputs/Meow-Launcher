@@ -43,7 +43,7 @@ def _load_tdb() -> Optional[TDB]:
 		if main_config.debug:
 			print('Oh no failed to load DS TDB because', blorp)
 		return None
-tdb = _load_tdb()
+_tdb = _load_tdb()
 
 def _add_cover(metadata: 'Metadata', product_code: str):
 	#Intended for the covers database from GameTDB
@@ -175,7 +175,7 @@ def _add_info_from_ds_header(rom: FileROM, metadata: 'Metadata', header: bytes):
 		try:
 			product_code = convert_alphanumeric(header[12:16])
 			metadata.product_code = product_code
-			add_info_from_tdb(tdb, metadata, product_code)
+			add_info_from_tdb(_tdb, metadata, product_code)
 			_add_cover(metadata, product_code)
 			
 		except NotAlphanumericException:

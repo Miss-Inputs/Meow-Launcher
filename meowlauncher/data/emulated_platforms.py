@@ -9,7 +9,7 @@ from .format_info import (atari_2600_cartridge_extensions, cdrom_formats,
                           generic_cart_extensions, generic_tape_extensions,
                           mame_floppy_formats)
 
-msxtr_drivers = {'fsa1gt', 'fsa1st'} #Neither of these are working
+msx_turbo_r_drivers = {'fsa1gt', 'fsa1st'} #Neither of these are working
 
 working_msx2plus_drivers = {'hbf1xv', 'fsa1fx', 'fsa1wxa', 'fsa1wsx', 'hbf1xdj', 'phc70fd2', 'phc35j', 'hbf9sp'}
 broken_msx2plus_drivers = {'expert3i', 'expert3t', 'expertac', 'expertdx'}
@@ -391,7 +391,7 @@ platforms = {
 		{'blueMSX (libretro)', 'fMSX (libretro)', 'MAME (MSX2+)'}, {MediaType.Floppy: mame_floppy_formats.union({'dmk'}), MediaType.Tape: {'wav', 'tap', 'cas'}, MediaType.Cartridge: generic_cart_extensions},
 		dat_names={'Microsoft - MSX 2'}, autodetect_tv_type=True
 	),
-	StandardEmulatedPlatform('MSX Turbo-R',msxtr_drivers, {'msxr_flop'}, set(), {MediaType.Floppy: mame_floppy_formats}),
+	StandardEmulatedPlatform('MSX Turbo-R',msx_turbo_r_drivers, {'msxr_flop'}, set(), {MediaType.Floppy: mame_floppy_formats}),
 	StandardEmulatedPlatform('PC-98',{'pc9801f', 'pc9801rs', 'pc9801ux', 'pc9821'}, {'pc98', 'pc98_cd'}, set(), {MediaType.Floppy: mame_floppy_formats, MediaType.OpticalDisc: cdrom_formats}, dat_names={'NEC - PC-98'}),
 	StandardEmulatedPlatform('Sharp X68000',{'x68000'}, {'x68k_flop'}, {'PX68k (libretro)', 'MAME (Sharp X68000)'}, {MediaType.Floppy: mame_floppy_formats.union({'xdf', 'hdm', '2hd', 'dim'}), MediaType.HardDisk: {'hdf'}}, dat_names={'Sharp - X68000'}),
 	StandardEmulatedPlatform('Tandy CoCo',{'coco'}, {'coco_cart', 'coco_flop'}, {'MAME (Tandy CoCo)'}, {MediaType.Cartridge: {'ccc', 'rom', 'bin'}, MediaType.Tape: {'wav', 'cas'}, MediaType.Floppy: mame_floppy_formats.union({'dmk', 'jvc'}), MediaType.HardDisk: {'vhd'}}),

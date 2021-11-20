@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
 
-def load_tdb() -> Optional[TDB]:
+def _load_tdb() -> Optional[TDB]:
 	if 'PS3' not in platform_configs:
 		return None
 
@@ -32,7 +32,7 @@ def load_tdb() -> Optional[TDB]:
 		if main_config.debug:
 			print('Oh no failed to load PS3 TDB because', blorp)
 		return None
-tdb = load_tdb()
+_tdb = _load_tdb()
 
 def add_ps3game_subfolder_info(subfolder: Path, metadata: 'Metadata'):
 	icon0_path = subfolder.joinpath('ICON0.PNG')
@@ -143,5 +143,5 @@ def add_ps3_custom_info(game: 'ROMGame'):
 		if compat:
 			game.metadata.specific_info['RPCS3 Compatibility'] = compat
 
-		add_info_from_tdb(tdb, game.metadata, game.metadata.product_code)
+		add_info_from_tdb(_tdb, game.metadata, game.metadata.product_code)
 		add_cover(game.metadata, game.metadata.product_code)

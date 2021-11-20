@@ -20,7 +20,7 @@ class NintendoDiscRegion(Enum):
 	RegionFree = 3  # Seemingly Wii only
 	NTSC_K = 4  # Seemingly Wii only
 
-def load_tdb() -> Optional[TDB]:
+def _load_tdb() -> Optional[TDB]:
 	if 'Wii' not in platform_configs:
 		return None
 
@@ -34,7 +34,7 @@ def load_tdb() -> Optional[TDB]:
 		if main_config.debug:
 			print('Oh no failed to load Wii TDB because', blorp)
 		return None
-tdb = load_tdb()
+_tdb = _load_tdb()
 
 def add_cover(metadata: Metadata, product_code: str, licensee_code: str):
 	#Intended for the covers database from GameTDB
@@ -76,7 +76,7 @@ def add_gamecube_wii_disc_metadata(rom: FileROM, metadata: Metadata, header: byt
 		metadata.product_code = product_code
 		metadata.publisher = publisher
 		if product_code and licensee_code:
-			add_info_from_tdb(tdb, metadata, product_code + licensee_code)
+			add_info_from_tdb(_tdb, metadata, product_code + licensee_code)
 			add_cover(metadata, product_code, licensee_code)
 
 	disc_number = header[6] + 1

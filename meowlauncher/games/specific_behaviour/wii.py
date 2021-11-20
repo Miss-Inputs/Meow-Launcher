@@ -20,7 +20,7 @@ from meowlauncher.util.utils import (NotAlphanumericException,
 from .common.gamecube_wii_common import (NintendoDiscRegion,
                                          add_gamecube_wii_disc_metadata,
                                          just_read_the_wia_rvz_header_for_now,
-                                         tdb)
+                                         _tdb)
 from .common.gametdb import add_info_from_tdb
 from .common.nintendo_common import parse_ratings
 
@@ -82,7 +82,7 @@ def _parse_tmd(metadata: 'Metadata', tmd: bytes):
 	
 	if product_code:
 		#Inconsistently enough WiiWare doesn't require appending the maker code, apparently
-		add_info_from_tdb(tdb, metadata, product_code)
+		add_info_from_tdb(_tdb, metadata, product_code)
 
 	#Unused: 410-412
 	region_code = int.from_bytes(tmd[412:414], 'big')

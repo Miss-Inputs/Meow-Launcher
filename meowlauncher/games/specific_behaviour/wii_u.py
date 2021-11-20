@@ -65,7 +65,7 @@ def _load_tdb() -> Optional[TDB]:
 		if main_config.debug:
 			print('Oh no failed to load Wii U TDB because', blorp)
 		return None
-tdb = _load_tdb()
+_tdb = _load_tdb()
 
 def _add_cover(metadata: 'Metadata', product_code: str, licensee_code: str):
 	#Intended for the covers database from GameTDB
@@ -95,7 +95,7 @@ def _add_meta_xml_metadata(metadata: 'Metadata', meta_xml: ElementTree.ElementTr
 		except ValueError:
 			pass
 		gametdb_id = product_code[-4:]
-		add_info_from_tdb(tdb, metadata, gametdb_id)
+		add_info_from_tdb(_tdb, metadata, gametdb_id)
 
 	company_code = meta_xml.findtext('company_code')
 	if company_code:

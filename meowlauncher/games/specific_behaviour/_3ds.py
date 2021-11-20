@@ -80,7 +80,7 @@ def _load_tdb() -> Optional[TDB]:
 		if main_config.debug:
 			print('Oh no failed to load 3DS TDB because', blorp)
 		return None
-tdb = _load_tdb()
+_tdb = _load_tdb()
 
 def add_cover(metadata: 'Metadata', product_code: str):
 	#Intended for the covers database from GameTDB
@@ -94,7 +94,7 @@ def add_cover(metadata: 'Metadata', product_code: str):
 			metadata.images['Cover'] = potential_cover_path
 			break
 
-def parse_ncch(rom: FileROM, metadata: 'Metadata', offset: int):
+def _parse_ncch(rom: FileROM, metadata: 'Metadata', offset: int):
 	#Skip over SHA-256 siggy and magic
 	header = rom.read(seek_to=offset + 0x104, amount=0x100)
 	#Content size: 0-4 (media unit)
@@ -122,7 +122,7 @@ def parse_ncch(rom: FileROM, metadata: 'Metadata', offset: int):
 			pass
 		if len(product_code) == 10 and '\0' not in product_code:
 			short_product_code = product_code[6:]
-			add_info_from_tdb(tdb, metadata, short_product_code)
+			add_info_from_tdb(_tdb, metadata, short_product_code)
 			add_cover(metadata, short_product_code)
 	except UnicodeDecodeError:
 		pass
@@ -378,7 +378,7 @@ def parse_ncsd(rom: FileROM, metadata: 'Metadata'):
 		partition_lengths.append(partition_length)
 	if partition_lengths[0]:
 		#Ignore lengths, we're not just gonna read the whole NCCH in one block because that would use a heckton of memory and whatnot
-		parse_ncch(rom, metadata, partition_offsets[0])
+		_parse_ncch(rom, metadata, partition_offsets[0])
 	#Partition 1: Electronic manual
 	#Partition 2: Download Play child
 	#Partition 6: New 3DS update data
@@ -421,6 +421,6 @@ def add_3ds_custom_info(game: 'ROMGame'):
 		if magic == b'NCSD':
 			parse_ncsd(game.rom, game.metadata)
 		elif magic == b'NCCH':
-			parse_ncch(game.rom, game.metadata, 0)
+			_parse_ncch(game.rom, game.metadata, 0)
 		elif game.rom.extension == '3dsx':
 			parse_3dsx(game.rom, game.metadata)
