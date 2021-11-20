@@ -8,7 +8,6 @@ from meowlauncher.games.mame_common.machine import (
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
-from meowlauncher.games.mame_common.software_list import Software
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.platform_types import SNESExpansionChip
 from meowlauncher.util.region_info import regions_by_name
@@ -18,6 +17,7 @@ from meowlauncher.util.utils import (NotAlphanumericException,
 from .common import snes_controllers as controllers
 
 if TYPE_CHECKING:
+	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
 
@@ -338,7 +338,7 @@ def try_get_equivalent_arcade(rom: FileROM, names: Iterable[str]) -> Optional[Ma
 	
 	return None
 
-def add_snes_software_list_metadata(software: Software, metadata: 'Metadata'):
+def add_snes_software_list_metadata(software: 'Software', metadata: 'Metadata'):
 	software.add_standard_metadata(metadata)
 	if metadata.save_type == SaveType.Unknown and metadata.platform != 'Satellaview':
 		metadata.save_type = SaveType.Cart if software.has_data_area('nvram') else SaveType.Nothing

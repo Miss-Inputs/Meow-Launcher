@@ -1,10 +1,11 @@
 #Not worth putting these in their own source file I think
+from collections.abc import Iterable
 from enum import Enum, auto
 from typing import TYPE_CHECKING, cast
-from collections.abc import Iterable
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import MediaType
+from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.mame_common.machine import (
     Machine, does_machine_match_game, iter_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_executable import \
@@ -12,10 +13,10 @@ from meowlauncher.games.mame_common.mame_executable import \
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.games.roms.rom import FileROM
 
-from meowlauncher.games.common.generic_info import add_generic_software_info
-
 if TYPE_CHECKING:
+	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.metadata import Metadata
 
 def add_vic10_info(game: 'ROMGame'):
 	#Input info: Keyboard or joystick
@@ -28,7 +29,7 @@ def add_vic10_info(game: 'ROMGame'):
 	game.metadata.specific_info['Headered?'] = has_header
 	software = game.get_software_list_entry()
 	if software:
-		software.add_standard_metadata(game.metadata)
+		add_generic_software_info(software, game.metadata)
 		#What the heck is an "assy"?
 
 def add_vic20_info(game: 'ROMGame'):
@@ -59,34 +60,32 @@ class ColecoController(Enum):
 	RollerController = auto()
 	DrivingController = auto()
 
-def add_colecovision_info(game: 'ROMGame'):
+def add_colecovision_software_info(software: 'Software', metadata: 'Metadata'):
 	#Can get year, publisher unreliably from the title screen info in the ROM; please do not do that
 
 	peripheral: ColecoController = ColecoController.Normal
 	peripheral_required = False
 
-	software = game.get_software_list_entry()
-	if software:
-		software.add_standard_metadata(game.metadata)
+	software.add_standard_metadata(metadata)
 
-		usage = software.get_info('usage')
-		if usage == 'Supports Super Action Controllers':
-			peripheral = ColecoController.SuperActionController
-		elif usage == 'Requires Super Action Controllers':
-			peripheral = ColecoController.SuperActionController
-			peripheral_required = True
-		elif usage == 'Supports roller controller':
-			peripheral = ColecoController.RollerController
-		elif usage == 'Requires roller controller':
-			peripheral = ColecoController.RollerController
-			peripheral_required = True
-		elif usage == 'Supports driving controller':
-			peripheral = ColecoController.DrivingController
-		elif usage == 'Requires driving controller':
-			peripheral = ColecoController.DrivingController
-			peripheral_required = True
-		else:
-			game.metadata.add_notes(usage)
+	usage = software.get_info('usage')
+	if usage == 'Supports Super Action Controllers':
+		peripheral = ColecoController.SuperActionController
+	elif usage == 'Requires Super Action Controllers':
+		peripheral = ColecoController.SuperActionController
+		peripheral_required = True
+	elif usage == 'Supports roller controller':
+		peripheral = ColecoController.RollerController
+	elif usage == 'Requires roller controller':
+		peripheral = ColecoController.RollerController
+		peripheral_required = True
+	elif usage == 'Supports driving controller':
+		peripheral = ColecoController.DrivingController
+	elif usage == 'Requires driving controller':
+		peripheral = ColecoController.DrivingController
+		peripheral_required = True
+	else:
+		metadata.add_notes(usage)
 
 	normal_controller_part = input_metadata.NormalController()
 	normal_controller_part.face_buttons = 2
@@ -108,18 +107,18 @@ def add_colecovision_info(game: 'ROMGame'):
 	driving_controller = input_metadata.SteeringWheel()
 	#Gas pedal is on + off so I guess it counts as one button
 
-	game.metadata.specific_info['Peripheral'] = peripheral
+	metadata.specific_info['Peripheral'] = peripheral
 	if peripheral == ColecoController.Normal:
-		game.metadata.input_info.add_option(normal_controller)
+		metadata.input_info.add_option(normal_controller)
 	else:
 		if peripheral == ColecoController.DrivingController:
-			game.metadata.input_info.add_option(driving_controller)
+			metadata.input_info.add_option(driving_controller)
 		elif peripheral == ColecoController.RollerController:
-			game.metadata.input_info.add_option(roller_controller)
+			metadata.input_info.add_option(roller_controller)
 		elif peripheral == ColecoController.SuperActionController:
-			game.metadata.input_info.add_option(super_action_controller)
+			metadata.input_info.add_option(super_action_controller)
 		if not peripheral_required:
-			game.metadata.input_info.add_option(normal_controller)
+			metadata.input_info.add_option(normal_controller)
 	#Doesn't look like you can set controller via command line at the moment, oh well
 
 def add_ibm_pcjr_info(game: 'ROMGame'):

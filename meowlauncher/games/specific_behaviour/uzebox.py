@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, cast
 
+from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.metadata import Date, Metadata
 
@@ -43,7 +44,7 @@ def add_uzebox_metadata(game: 'ROMGame'):
 
 	software = game.get_software_list_entry(512 if has_header else 0)
 	if software:
-		software.add_standard_metadata(game.metadata)
+		add_generic_software_info(software, game.metadata)
 		if game.metadata.publisher == 'Belogic':
 			#Belogic just make the console itself, but don't actually make games necessarily
 			game.metadata.publisher = game.metadata.developer

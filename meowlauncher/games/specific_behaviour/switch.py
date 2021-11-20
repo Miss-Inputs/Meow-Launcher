@@ -1,24 +1,23 @@
-try:
-	from PIL import Image
-	have_pillow = True
-except ModuleNotFoundError:
-	have_pillow = False
-
 import hashlib
 import io
 import os
 import subprocess
 import tempfile
 from collections.abc import Collection, Mapping
+from dataclasses import dataclass, field
 from enum import Enum, Flag
 from shutil import rmtree
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, Optional
 from xml.etree import ElementTree
-from dataclasses import dataclass, field
+
+try:
+	from PIL import Image
+	have_pillow = True
+except ModuleNotFoundError:
+	have_pillow = False
 
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.platform_types import SwitchContentMetaType
 from meowlauncher.util.region_info import (get_language_by_english_name,
                                            languages_by_english_name)
@@ -26,7 +25,7 @@ from meowlauncher.util.region_info import (get_language_by_english_name,
 from .common.nintendo_common import parse_ratings
 
 if TYPE_CHECKING:
-	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.games.roms.rom import FileROM
 	from meowlauncher.metadata import Metadata
 
 class InvalidHFS0Exception(Exception):
@@ -293,7 +292,7 @@ def _decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
 		if temp_folder:
 			rmtree(temp_folder)
 
-def _list_cnmt(cnmt: Cnmt, rom: FileROM, metadata: 'Metadata', files: Mapping[str, tuple[int, int]], extra_offset: int=0):
+def _list_cnmt(cnmt: Cnmt, rom: 'FileROM', metadata: 'Metadata', files: Mapping[str, tuple[int, int]], extra_offset: int=0):
 	metadata.specific_info['Title ID'] = cnmt.title_id
 	metadata.specific_info['Revision'] = cnmt.version
 	metadata.specific_info['Title Type'] = cnmt.type
@@ -351,7 +350,7 @@ def _list_cnmt_nca(data: bytes) -> Cnmt:
 		contents[content_id] = (content_size, content_type)
 	return Cnmt(title_id, version, content_meta_type, contents)
 
-def _list_psf0(rom: FileROM) -> Mapping[str, tuple[int, int]]:
+def _list_psf0(rom: 'FileROM') -> Mapping[str, tuple[int, int]]:
 	header = rom.read(amount=16)
 	magic = header[:4]
 	if magic != b'PFS0':
@@ -396,7 +395,7 @@ def _choose_main_cnmt(cnmts: Collection[Cnmt]) -> Optional[Cnmt]:
 	#Uh oh that didn't help, oh no what do we do I guess let's just take the first one
 	return next(cnmt for cnmt in cnmts)
 
-def add_nsp_metadata(rom: FileROM, metadata: 'Metadata'):
+def add_nsp_metadata(rom: 'FileROM', metadata: 'Metadata'):
 	files = _list_psf0(rom)
 	cnmts = set()
 	cnmt_xml = None
@@ -433,7 +432,7 @@ def add_nsp_metadata(rom: FileROM, metadata: 'Metadata'):
 	#	if main_config.debug:
 	#		print('Uh oh no cnmt.nca in', rom.path, '?')
 
-def _read_hfs0(rom: FileROM, offset: int, max_size: int=None) -> Mapping[str, tuple[int, int]]:
+def _read_hfs0(rom: 'FileROM', offset: int, max_size: int=None) -> Mapping[str, tuple[int, int]]:
 	header = rom.read(offset, 16)
 
 	magic = header[:4]
@@ -484,7 +483,7 @@ def _read_hfs0(rom: FileROM, offset: int, max_size: int=None) -> Mapping[str, tu
 
 	return files
 
-def add_xci_metadata(rom: FileROM, metadata: 'Metadata'):
+def add_xci_metadata(rom: 'FileROM', metadata: 'Metadata'):
 	header = rom.read(amount=0x200)
 	magic = header[0x100:0x104]
 	if magic != b'HEAD':
@@ -531,7 +530,7 @@ def add_xci_metadata(rom: FileROM, metadata: 'Metadata'):
 		#else:
 		#	print('Uh oh no cnmt.nca?')
 
-def add_nro_metadata(rom: FileROM, metadata: 'Metadata'):
+def add_nro_metadata(rom: 'FileROM', metadata: 'Metadata'):
 	header = rom.read(amount=0x50, seek_to=16)
 	if header[:4] != b'NRO0':
 		#Invalid magic
@@ -558,22 +557,22 @@ def add_nro_metadata(rom: FileROM, metadata: 'Metadata'):
 		nacp = rom.read(seek_to=nro_size + nacp_offset, amount=nacp_size)
 		_add_nacp_metadata(metadata, nacp)
 
-def add_switch_metadata(game: 'ROMGame'):
-	if game.rom.extension == 'nro':
-		add_nro_metadata(cast(FileROM, game.rom), game.metadata)
-	if game.rom.extension == 'xci':
+def add_switch_rom_file_info(rom: 'FileROM', metadata: 'Metadata'):
+	if rom.extension == 'nro':
+		add_nro_metadata(rom, metadata)
+	if rom.extension == 'xci':
 		try:
-			add_xci_metadata(cast(FileROM, game.rom), game.metadata)
+			add_xci_metadata(rom, metadata)
 		except InvalidXCIException as ex:
 			if main_config.debug:
-				print(game.rom.path, 'was invalid XCI: {0}'.format(ex))
+				print(rom.path, 'was invalid XCI: {0}'.format(ex))
 		except InvalidHFS0Exception as ex:
 			if main_config.debug:
-				print(game.rom.path, 'had invalid HFS0: {0}'.format(ex))
+				print(rom.path, 'had invalid HFS0: {0}'.format(ex))
 
-	if game.rom.extension == 'nsp':
+	if rom.extension == 'nsp':
 		try:
-			add_nsp_metadata(cast(FileROM, game.rom), game.metadata)
+			add_nsp_metadata(rom, metadata)
 		except InvalidPFS0Exception as ex:
 			if main_config.debug:
-				print(game.rom.path, 'was invalid PFS0: {0}'.format(ex))
+				print(rom.path, 'was invalid PFS0: {0}'.format(ex))

@@ -9,6 +9,7 @@ from meowlauncher.common_types import SaveType
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.util.utils import (NotAlphanumericException, byteswap,
                                      convert_alphanumeric)
+from meowlauncher.games.common.generic_info import add_generic_software_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
@@ -153,4 +154,4 @@ def add_n64_metadata(game: 'ROMGame'):
 
 	software = game.get_software_list_entry()
 	if software:
-		software.add_standard_metadata(game.metadata)
+		add_generic_software_info(software, game.metadata)

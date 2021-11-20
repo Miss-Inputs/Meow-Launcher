@@ -7,7 +7,7 @@ from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
 if TYPE_CHECKING:
-	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.metadata import Metadata
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
@@ -56,22 +56,17 @@ def add_virtual_boy_rom_info(rom: FileROM, metadata: 'Metadata'):
 
 	metadata.specific_info['Revision'] = header[31]
 
-
-def add_virtual_boy_metadata(game: 'ROMGame'):
-	if isinstance(game.rom, FileROM):
-		add_virtual_boy_rom_info(game.rom, game.metadata)
-	
+def add_virtual_boy_info(metadata: 'Metadata'):	
 	gamepad = input_metadata.NormalController()
 	gamepad.face_buttons = 2
 	gamepad.shoulder_buttons = 2
 	gamepad.dpads = 2
-	game.metadata.input_info.add_option(gamepad)
+	metadata.input_info.add_option(gamepad)
 
-	software = game.get_software_list_entry()
-	if software:
-		software.add_standard_metadata(game.metadata)
-		#We won't need to get serial here I guess
-		game.metadata.save_type = SaveType.Nothing
-		if software.has_data_area('eeprom') or software.has_data_area('sram') or software.get_part_feature('battery'):
-			#I am making assumptions about how saving works and I could be wrong
-			game.metadata.save_type = SaveType.Cart
+def add_virtual_boy_software_info(software: 'Software', metadata: 'Metadata'):
+	software.add_standard_metadata(metadata)
+	#We won't need to get serial here I guess
+	metadata.save_type = SaveType.Nothing
+	if software.has_data_area('eeprom') or software.has_data_area('sram') or software.get_part_feature('battery'):
+		#I am making assumptions about how saving works and I could be wrong
+		metadata.save_type = SaveType.Cart

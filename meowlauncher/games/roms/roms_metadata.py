@@ -14,7 +14,7 @@ from meowlauncher.games.mame_common.mame_executable import \
 from meowlauncher.games.mame_common.mame_helpers import (
     default_mame_executable, get_image)
 from meowlauncher.games.mame_common.mame_utils import image_config_keys
-from meowlauncher.games.specific_behaviour.info_helpers import platform_helpers
+from meowlauncher.games.specific_behaviour.info_helpers import custom_info_funcs, static_info_funcs, software_info_funcs, rom_file_info_funcs
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.detect_things_from_filename import (
     get_date_from_filename_tags, get_languages_from_filename_tags,
@@ -279,6 +279,37 @@ def autodetect_tv_type(game: ROMGame):
 		game.metadata.specific_info['TV Type'] = from_region
 		return
 
+def add_platform_specific_metadata(game: ROMGame):
+	custom_info_func = custom_info_funcs.get(game.platform.name)
+	if custom_info_func:
+		custom_info_func(game)
+	else:
+		#For anything else, use this one to just get basic software list info.
+		#This would only work for optical discs if they are in .chd format though. Also see MAME GitHub issue #2517, which makes a lot of newly created CHDs invalid with older softlists
+		static_info_func = static_info_funcs.get(game.platform.name)
+		if static_info_func:
+			static_info_func(game.metadata)
+
+		#We should always run rom_file_info_func before software_info_func if it's there, as that means we can get our product code/name and then use get_software_by_name and get_software_by_product_code
+		if isinstance(game.rom, FileROM):
+			#TODO: This is where we would call subroms if that's relevant
+			#TODO: Hmm, how would we do that, actually, with m3u and .cue and related
+			rom_file_info_func = rom_file_info_funcs.get(game.platform.name)
+			if rom_file_info_func:
+				rom_file_info_func(game.rom, game.metadata)
+
+		software = None
+		try:
+			software = game.get_software_list_entry()
+		except NotImplementedError:
+			pass
+		if software:
+			software_info_func = software_info_funcs.get(game.platform.name)
+			if software_info_func:
+				software_info_func(software, game.metadata)
+			else:
+				add_generic_software_info(software, game.metadata)
+
 def add_metadata(game: ROMGame):
 	add_alternate_names(game.rom, game.metadata)
 	#I guess if game.subroms was ever used you would loop through each one (I swear I will do the thing one day)
@@ -289,19 +320,7 @@ def add_metadata(game: ROMGame):
 		game.metadata.specific_info['Extension'] = game.rom.extension
 		game.metadata.media_type = game.platform.get_media_type(cast(FileROM, game.rom))
 
-	if game.platform.name in platform_helpers:
-		platform_helpers[game.platform.name](game)
-	else:
-		#For anything else, use this one to just get basic software list info.
-		#This would only work for optical discs if they are in .chd format though. Also see MAME GitHub issue #2517, which makes a lot of newly created CHDs invalid with older softlists
-		
-		try:
-			software = game.get_software_list_entry()
-			if software:
-				add_generic_software_info(software, game.metadata)
-		except NotImplementedError:
-			pass
-
+	add_platform_specific_metadata(game)
 				
 	equivalent_arcade = game.metadata.specific_info.get('Equivalent Arcade')
 	if not equivalent_arcade and main_config.find_equivalent_arcade_games:

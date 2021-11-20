@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, cast
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games.roms.rom import ROM, FileROM
+from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.util.region_info import TVSystem
 
 from .common.atari_controllers import xegs_gun
@@ -23,7 +23,7 @@ input_types = {
 	4: input_metadata.Trackball(), #Is this a valid value?
 }
 
-def _add_atari_7800_header_info(rom: ROM, metadata: 'Metadata', header: bytes):
+def _add_atari_7800_header_info(rom_path_for_warning: str, metadata: 'Metadata', header: bytes):
 	metadata.input_info.set_inited()
 
 	#Header version: 0
@@ -74,7 +74,7 @@ def _add_atari_7800_header_info(rom: ROM, metadata: 'Metadata', header: bytes):
 		metadata.specific_info['TV Type'] = TVSystem.NTSC
 	else:
 		if main_config.debug:
-			print('Something is wrong with', rom.path, ', has TV type byte of', tv_type)
+			print('Something is wrong with', rom_path_for_warning, ', has TV type byte of', tv_type)
 		metadata.specific_info['Invalid TV Type?'] = True
 
 	save_type = header[58]
@@ -89,7 +89,7 @@ def _add_atari_7800_header_info(rom: ROM, metadata: 'Metadata', header: bytes):
 		#AtariVox/SaveKey. Both are third party products which plug into the controller port, so what else can you call them except memory cards?
 		metadata.save_type = SaveType.MemoryCard
 	elif main_config.debug:
-		print(rom.path, 'has save type byte of ', save_type)
+		print(rom_path_for_warning, 'has save type byte of ', save_type)
 	
 	#Reserved: 59-63
 	#Expansion module required: 64
@@ -99,7 +99,7 @@ def add_atari_7800_metadata(game: 'ROMGame'):
 	header = cast(FileROM, game.rom).read(amount=128)
 	if header[1:10] == b'ATARI7800':
 		headered = True
-		_add_atari_7800_header_info(game.rom, game.metadata, header)
+		_add_atari_7800_header_info(str(game.rom), game.metadata, header)
 	else:
 		headered = False
 

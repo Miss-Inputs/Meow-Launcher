@@ -1,14 +1,15 @@
-from typing import cast
+from typing import TYPE_CHECKING
 
 from meowlauncher.common_types import SaveType
-from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.games.roms.rom_game import ROMGame
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom import FileROM
+	from meowlauncher.metadata import Metadata
 
 
-def add_doom_metadata(game: ROMGame):
-	magic = cast(FileROM, game.rom).read(amount=4)
+def add_doom_rom_file_info(rom: 'FileROM', metadata: 'Metadata'):
+	magic = rom.read(amount=4)
 	if magic == b'PWAD':
-		game.metadata.specific_info['Is PWAD?'] = True
+		metadata.specific_info['Is PWAD?'] = True
 	
-	game.metadata.save_type = SaveType.Internal
+	metadata.save_type = SaveType.Internal
 	

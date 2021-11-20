@@ -1,20 +1,19 @@
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, Optional
 from zlib import crc32
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
 if TYPE_CHECKING:
-	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.games.roms.rom import FileROM
 	from meowlauncher.metadata import Metadata
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 nintendo_gba_logo_crc32 = 0xD0BEB55E
-def parse_gba_header(metadata: 'Metadata', header: bytes):
+def _parse_gba_header(metadata: 'Metadata', header: bytes):
 	#Entry point: 0-4
 	nintendo_logo = header[4:0xa0]
 	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_gba_logo_crc32
@@ -57,7 +56,7 @@ def parse_gba_header(metadata: 'Metadata', header: bytes):
 	#Checksum (see ROMniscience for how to calculate it, because I don't feel like describing it all in a single line of comment): 0xbd
 	#Reserved: 0xbe - 0xc0
 
-def look_for_sound_drivers_in_cart(entire_cart: bytes) -> Optional[str]:
+def _look_for_sound_drivers_in_cart(entire_cart: bytes) -> Optional[str]:
 	#Because I can
 	mp2k_selectsong = b'\x00\xb5\x00\x04\x07J\x08I@\x0b@\x18\x83\x88Y\x00\xc9\x18\x89\x00\x89\x18\nh\x01h\x10\x1c\x00\xf0'
 	mp2k_new_selectsong = b'\x00\xb5\x00\x04\x07K\x08I@\x0b@\x18\x82\x88Q\x00\x89\x18\x89\x00\xc9\x18\nh\x01h\x10\x1c\x00\xf0'
@@ -80,7 +79,7 @@ def look_for_sound_drivers_in_cart(entire_cart: bytes) -> Optional[str]:
 
 	return None
 
-def look_for_strings_in_cart(entire_cart: bytes, metadata: 'Metadata'):
+def _look_for_strings_in_cart(entire_cart: bytes, metadata: 'Metadata'):
 	has_save = False
 	save_strings = (b'EEPROM_V', b'SRAM_V', b'SRAM_F_V', b'FLASH_V', b'FLASH512_V', b'FLASH1M_V')
 	for string in save_strings:
@@ -93,26 +92,23 @@ def look_for_strings_in_cart(entire_cart: bytes, metadata: 'Metadata'):
 		metadata.specific_info['Uses Wireless Adapter?'] = True
 	metadata.save_type = SaveType.Cart if has_save else SaveType.Nothing
 
-	sound_driver = look_for_sound_drivers_in_cart(entire_cart)
+	sound_driver = _look_for_sound_drivers_in_cart(entire_cart)
 	if sound_driver:
 		metadata.specific_info['Sound Driver'] = sound_driver
 	if sound_driver == 'Rare':
 		metadata.developer = 'Rare' #probably
 	
-def add_gba_metadata(game: 'ROMGame'):
+def add_gba_info(metadata: 'Metadata'):
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2 #A B
 	builtin_gamepad.shoulder_buttons = 2 #L R
-	game.metadata.input_info.add_option(builtin_gamepad)
+	metadata.input_info.add_option(builtin_gamepad)
 
-	entire_cart = cast(FileROM, game.rom).read()
+def add_gba_rom_file_info(rom: 'FileROM', metadata: 'Metadata'):
+	entire_cart = rom.read()
 	if len(entire_cart) >= 0xc0:
 		header = entire_cart[0:0xc0]
-		parse_gba_header(game.metadata, header)
+		_parse_gba_header(metadata, header)
 
-	look_for_strings_in_cart(entire_cart, game.metadata)
-
-	software = game.get_software_list_entry()
-	if software:
-		software.add_standard_metadata(game.metadata)
+	_look_for_strings_in_cart(entire_cart, metadata)

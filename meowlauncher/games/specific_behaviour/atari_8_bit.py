@@ -40,7 +40,7 @@ def add_info_from_software_list(metadata: 'Metadata', software: 'Software'):
 		metadata.input_info.add_option(input_metadata.LightGun())
 	elif peripheral == 'koala_pad,koala_pen':
 		#Combination tablet/light pen
-		metadata.input_info.add_option([input_metadata.LightGun(), input_metadata.Touchscreen])
+		metadata.input_info.add_option([input_metadata.LightGun(), input_metadata.Touchscreen()])
 	elif peripheral == 'trackball':
 		metadata.input_info.add_option(controllers.cx22_trackball)
 	elif peripheral == 'lightgun':
