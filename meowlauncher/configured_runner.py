@@ -44,3 +44,7 @@ class ConfiguredRunner():
 		if self.config.options.get('force_opengl_version', False):
 			command.set_env_var('MESA_GL_VERSION_OVERRIDE', '4.3')
 		return command	
+
+	def __hash__(self) -> int:
+		return self.runner.__hash__()
+		

@@ -7,8 +7,8 @@ from meowlauncher.emulator import Emulator
 if TYPE_CHECKING:
 	from meowlauncher.config_types import PlatformConfig
 	from meowlauncher.emulated_platform import ChooseableEmulatedPlatform
-	from meowlauncher.launcher import Launcher
 	from meowlauncher.emulator import LibretroCore
+	from meowlauncher.launcher import Launcher
 
 class GameSource(ABC):
 	@property
@@ -34,6 +34,9 @@ class GameSource(ABC):
 	@abstractmethod
 	def iter_launchers(self) -> Iterable['Launcher']:
 		pass
+
+	def __hash__(self) -> int:
+		return self.name.__hash__()
 
 class CompoundGameSource(GameSource, ABC):
 	def __init__(self, sources: Sequence[GameSource]) -> None:

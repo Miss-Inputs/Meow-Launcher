@@ -31,3 +31,7 @@ class Runner(ABC):
 	def is_emulated(self) -> bool:
 		#Basically just decides if we should use the "Emulator" field or not
 		return False
+
+	def __hash__(self) -> int:
+		return self.name.__hash__()
+		

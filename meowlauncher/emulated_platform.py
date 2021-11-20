@@ -24,6 +24,9 @@ class ChooseableEmulatedPlatform(ABC):
 		if options:
 			self.options.update(options)
 
+	def __hash__(self) -> int:
+		return self.name.__hash__()
+		
 class StandardEmulatedPlatform(ChooseableEmulatedPlatform):
 	def __init__(self, name: str, mame_drivers: Collection[str], mame_software_lists: Collection[str], emulators: Collection[str], file_types: Mapping[MediaType, Collection[str]]=None, options: Mapping[str, PlatformConfigValue]=None, is_virtual: bool=False, dat_names: Collection[str]=None, dat_uses_serial: bool=False, databases_are_byteswapped: bool=False, autodetect_tv_type: bool=False, folder_check: Callable[['FolderROM'], Optional[MediaType]]=None):
 		super().__init__(emulators, name, options)

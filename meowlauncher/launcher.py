@@ -29,3 +29,7 @@ class Launcher(ABC):
 	@abstractmethod
 	def command(self) -> 'LaunchCommand':
 		pass
+
+	def __hash__(self) -> int:
+		return hash((self.game_type, self.game_id))
+		
