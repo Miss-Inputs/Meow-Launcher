@@ -99,8 +99,6 @@ custom_info_funcs: Mapping[str, Callable[['ROMGame'], None]] = {
 	'PS2': add_ps2_custom_info, #Info from product code, internal info inside .iso (we want to get .cue discs too but it does not yet)
 	'PlayStation': add_ps1_custom_info, #Generic software, custom database (DuckStation) by product code (needs emulator_configs DuckStation)
 	
-	#TODO: I think we can also make getting equivalent arcade work, it just needs some refactoring, but I shouldn't have to make too many decisions about where I want to go
-
 	#TODO: Hmm… how will we solve header shenanigans, and might we need a might_have_header hint in EmulatedStandardPlatform or something
 	'VIC-10': add_vic10_custom_info, #Annoying 2-byte header, otherwise generic software
 	'VIC-20': add_vic20_custom_info, #Software, 2 byte header
