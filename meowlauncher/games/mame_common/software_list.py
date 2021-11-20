@@ -1,6 +1,6 @@
 import re
 import zlib
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable, Iterator, Sequence
 from pathlib import Path
 from typing import Any, Optional, cast
 from xml.etree import ElementTree
@@ -206,6 +206,10 @@ class SoftwarePart():
 		return self.xml.attrib.get('name')
 
 	@property
+	def is_multiple_parts(self) -> bool:
+		return self.software.has_multiple_parts
+
+	@property
 	def romless(self) -> bool:
 		#(just presuming here that disks can't be romless, as this sort of thing is where you have a cart that has no ROM on it but is just a glorified jumper, etc)
 		return all(data_area.romless for data_area in self.data_areas.values()) and bool(self.data_areas) and not self.disk_areas
@@ -302,6 +306,7 @@ class Software():
 		return all(part.not_dumped for part in self.parts.values())
 
 	def get_part(self, name: Optional[str]=None) -> SoftwarePart:
+		#TODO: Name should not be optional and we should get rid of get_part_feature and has_data_area from this
 		if name:
 			return self.parts[name]
 		first_part = self.xml.find('part')
@@ -321,12 +326,12 @@ class Software():
 		return None
 
 	def get_part_feature(self, name: str) -> Optional[str]:
-		#Hmm
+		#Hmm we should remove this, it doesn't make sense here
 		return self.get_part().get_feature(name)
 
 	def has_data_area(self, name: str) -> bool:
 		#Hmm is this function really useful to have around
-		#Is part.has_data_area really that useful?
+		#Is part.has_data_area really that useful either?
 		return self.get_part().has_data_area(name)
 
 	@property
@@ -369,9 +374,8 @@ class Software():
 
 		metadata.specific_info['MAME Software List'] = self.software_list
 
-		serial = self.serial
-		if serial:
-			metadata.product_code = serial
+		if not metadata.product_code:
+			metadata.product_code = self.serial
 		barcode = self.infos.get('barcode')
 		if barcode:
 			metadata.specific_info['Barcode'] = barcode
@@ -472,37 +476,39 @@ class SoftwareList():
 				return Software(software, self)
 		return None
 
-	def iter_all_software_with_custom_matcher(self, matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Iterable[Software]:
+	def iter_all_parts_with_custom_matcher(self, matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Iterator[SoftwarePart]:
 		for software_xml in self.xml.iterfind('software'):
 			software = Software(software_xml, self)
 			for part in software.parts.values():
-				#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
-				#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
 				if matcher(part, *args):
-					yield software
+					yield part
+
+	def iter_all_software_with_custom_matcher(self, matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Iterator[Software]:
+		for part in self.iter_all_parts_with_custom_matcher(matcher, args):
+			yield part.software
+
+	def find_software_part_with_custom_matcher(self, matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Optional[SoftwarePart]:
+		return next(self.iter_all_parts_with_custom_matcher(matcher, args), None)
 
 	def find_software_with_custom_matcher(self, matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Optional[Software]:
+		return next(self.iter_all_software_with_custom_matcher(matcher, args), None)
+		
+	def find_software_part(self, args: SoftwareMatcherArgs) -> Optional[SoftwarePart]:
 		for software_xml in self.xml.iterfind('software'):
 			software = Software(software_xml, self)
 			for part in software.parts.values():
-				#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
-				#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
-				if matcher(part, *args):
-					return software
+				if part.matches(args):
+					return part
 		return None
 
 	def find_software(self, args: SoftwareMatcherArgs) -> Optional[Software]:
-		for software_xml in self.xml.iterfind('software'):
-			software = Software(software_xml, self)
-			for part in software.parts.values():
-				#There will be multiple parts sometimes, like if there's multiple floppy disks for one game (will have name = flop1, flop2, etc)
-				#diskarea is used instead of dataarea seemingly for CDs or anything else that MAME would use a .chd for in its software list
-				if part.matches(args):
-					return software
+		part = self.find_software_part(args)
+		if part:
+			return part.software
 		return None
 
 	_verifysoftlist_result = None
-	def iter_available_software(self) -> Iterable[Software]:
+	def iter_available_software(self) -> Iterator[Software]:
 		#Only call -verifysoftlist if we need to, i.e. don't if it's entirely a romless softlist
 		
 		for software_xml in self.xml.iterfind('software'):
