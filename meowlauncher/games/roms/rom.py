@@ -1,7 +1,7 @@
 import os
 import zlib
 from abc import ABC, abstractmethod
-from collections.abc import Collection, MutableMapping, Iterable
+from collections.abc import Collection, Iterable, MutableMapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
@@ -311,21 +311,23 @@ class FolderROM(ROM):
 	def get_software_list_entry(self, _: Iterable['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:
 		raise NotImplementedError('Trying to get software of a folder is silly and should not be done')
 
+def _parse_m3u(path: Path) -> Iterable[ROM]:
+	for line in path.open('rt', encoding='utf-8'):
+		#TODO: Put this in a method returning Sequence[ROM]
+		if line.startswith("#"):
+			continue
+		referenced_file = Path(line) if line.startswith('/') else path.with_name(line)
+		if not referenced_file.is_file():
+			if main_config.debug:
+				print('M3U file', path, 'has a broken reference!!!!', referenced_file)
+			continue
+		yield get_rom(referenced_file)
+
+
 class M3UPlaylist(ROM):
 	def __init__(self, path: Path):
 		super().__init__(path)
-		self.subroms: list[ROM] = []
-		for line in path.open('rt', encoding='utf-8'):
-			#TODO: Put this in a method returning Sequence[ROM]
-			if line.startswith("#"):
-				continue
-			referenced_file = Path(line) if line.startswith('/') else path.with_name(line)
-			if not referenced_file.is_file():
-				if main_config.debug:
-					print('M3U file', path, 'has a broken reference!!!!', referenced_file)
-				continue
-
-			self.subroms.append(get_rom(referenced_file))
+		self.subroms = tuple(_parse_m3u(path))
 
 	@property
 	def contains_other_files(self) -> bool:

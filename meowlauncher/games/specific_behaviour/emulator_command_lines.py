@@ -18,7 +18,7 @@ from meowlauncher.games.common.emulator_command_line_helpers import (
     _is_software_available, _verify_supported_gb_mappers,
     first_available_romset, is_highscore_cart_available, mame_base,
     mame_driver, mednafen_module, verify_mgba_mapper)
-from meowlauncher.games.roms.rom import FileROM, FolderROM
+from meowlauncher.games.roms.rom import FileROM, FolderROM, M3UPlaylist
 from meowlauncher.launch_command import (LaunchCommand, MultiLaunchCommands,
                                          rom_path_argument)
 from meowlauncher.platform_types import (AppleIIHardware, Atari2600Controller,
@@ -748,11 +748,11 @@ def mame_sg1000(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'Emu
 	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard)
 
 def mame_sharp_x68000(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'EmulatorConfig') -> LaunchCommand:
-	if game.subroms:
+	if isinstance(game.rom, M3UPlaylist):
 		#This won't work if the referenced m3u files have weird compression formats supported by 7z but not by MAME; but maybe that's your own fault
 		floppy_slots = {}
-		for i, individual_floppy in enumerate(game.subroms):
-			floppy_slots['flop%d' % (i + 1)] = str(individual_floppy.path.resolve())
+		for i, individual_floppy in enumerate(game.rom.subroms):
+			floppy_slots['flop%d' % (i + 1)] = os.fspath(individual_floppy.path)
 
 		return mame_driver(game, emulator_config, 'x68000', slot=None, slot_options=floppy_slots, has_keyboard=True)
 	return mame_driver(game, emulator_config, 'x68000', 'flop1', has_keyboard=True)
@@ -1026,7 +1026,7 @@ def vice_vic20(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'Emul
 		size = cast(FileROM, game.rom).size
 		if size > ((8 * 1024) + 2):
 			#Frick
-			#TODO: Support multiple parts with -cart2 -cartA etc; this will probably require a lot of convoluted messing around to know if a given ROM is actually the second part of a multi-part cart (probably using software lists) and using game.subroms etc
+			#TODO: Support multiple parts with -cart2 -cartA etc; this will probably require a lot of convoluted messing around to know if a given ROM is actually the second part of a multi-part cart (probably using software lists) and using game.roms.subroms etc
 			raise EmulationNotSupportedException('Single-part >8K cart not supported: %d' % size)
 
 	if game.metadata.specific_info.get('Peripheral') == 'Paddle':

@@ -4,7 +4,7 @@ import os
 import traceback
 from collections.abc import Iterable, Sequence
 from pathlib import Path, PurePath
-from typing import TYPE_CHECKING, Optional, Union, cast
+from typing import TYPE_CHECKING, Optional, Union
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        ExtensionNotSupportedException,
@@ -22,7 +22,7 @@ from meowlauncher.emulator import (LibretroCore, MAMEDriver, MednafenModule,
                                    StandardEmulator, ViceEmulator)
 from meowlauncher.game_source import (ChooseableEmulatorGameSource,
                                       CompoundGameSource)
-from meowlauncher.games.roms.rom import ROM, FileROM, FolderROM, get_rom
+from meowlauncher.games.roms.rom import ROM, FolderROM, get_rom
 from meowlauncher.games.roms.rom_game import ROMGame, ROMLauncher
 from meowlauncher.games.roms.roms_metadata import add_metadata
 from meowlauncher.runner_config import EmulatorConfig
@@ -31,21 +31,6 @@ from meowlauncher.util.desktop_files import has_been_done
 
 if TYPE_CHECKING:
 	from meowlauncher.emulated_platform import StandardEmulatedPlatform
-
-def _sort_m3u_first() -> type:
-	class Sorter:
-		def __init__(self, obj, *_):
-			self.o = obj
-		def __lt__(self, _):
-			return self.o.lower().endswith('.m3u')
-		def __le__(self, _):
-			return self.o.lower().endswith('.m3u')
-		def __gt__(self, other):
-			return other.lower().endswith('.m3u')
-		def __ge__(self, other):
-			return other.lower().endswith('.m3u')
-
-	return Sorter
 
 def _get_emulator_config(emulator: Union[StandardEmulator, LibretroCore]):
 	#Eventually, once we have per-game overrides, we should give this a ROMGame parameter too, and that should work out
@@ -79,17 +64,6 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 	def _process_rom(self, rom: ROM, subfolders: Sequence[str]) -> Optional[ROMLauncher]:
 		game = ROMGame(rom, self.platform, self.platform_config)
 
-		if game.rom.extension == 'm3u':
-			#TODO: Get rid of this nonsense and use M3UROM instead
-			file_rom = cast(FileROM, game.rom)
-			lines = file_rom.read().decode('utf-8').splitlines()
-			filenames = tuple(Path(line) if line.startswith('/') else game.rom.path.with_name(line) for line in lines if not line.startswith("#"))
-			if any(not filename.is_file() for filename in filenames):
-				if main_config.debug:
-					print('M3U file', game.rom.path, 'has broken references!!!!', filenames)
-				return None
-			game.subroms = tuple(get_rom(referenced_file) for referenced_file in filenames)
-				
 		categories = subfolders[:-1] if subfolders and subfolders[-1] == game.rom.name else subfolders
 		game.metadata.categories = categories
 			
@@ -242,25 +216,13 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 					dirs[:] = remaining_subdirs
 				dirs.sort()
 
-				for name in sorted(files, key=_sort_m3u_first()):
+				for name in sorted(files):
 					path = Path(root, name)
 					if not main_config.full_rescan:
 						if has_been_done('ROM', str(path)):
 							continue
 
-					#categories = [cat for cat in list(pathlib.Path(os.path.).relative_to(rom_dir).parts) if cat != rom.name]
-					# try:
-					# 	rom = get_rom(path)
-					# except archives.BadArchiveError as badarchiveerror:
-					# 	print('Uh oh fucky wucky!', path, 'is an archive file that we tried to open to list its contents, but it was invalid:', badarchiveerror.__cause__, traceback.extract_tb(badarchiveerror.__traceback__)[1:])
-					# 	continue
-					# except IOError as ioerror:
-					# 	print('Uh oh fucky wucky!', path, 'is an archive file that has nothing in it or something else weird:', ioerror.__cause__, traceback.extract_tb(ioerror.__traceback__)[1:])
-					# 	continue
-
 					file_list.append((path, subfolders))
-					#rom_list.append((rom, subfolders))
-		#yield from self._process_rom_list(rom_list)
 		yield from self._process_file_list(file_list)
 
 	def no_longer_exists(self, game_id: str) -> bool:

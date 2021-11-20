@@ -1,6 +1,5 @@
 import os
 import tempfile
-from collections.abc import Sequence
 from pathlib import PurePath
 from typing import TYPE_CHECKING, Optional, cast
 
@@ -37,7 +36,6 @@ class ROMGame(EmulatedGame):
 		self.platform = platform
 		self.filename_tags = find_filename_tags_at_end(rom.path.name)
 
-		self.subroms: Sequence[ROM] = []
 		self.exception_reason: Optional[BaseException] = None
 
 		#TODO: Proper nested comprehension
@@ -56,10 +54,8 @@ class ROMGame(EmulatedGame):
 		if not self.software_lists:
 			return None
 
-		#TODO: This shouldn't be a thing and there should be some kind ROM subclass representing some multi-disk whatever game that handles it
-		rom = self.subroms[0] if self.subroms else self.rom
 		try:
-			software = rom.get_software_list_entry(self.software_lists, self.platform.databases_are_byteswapped, skip_header)
+			software = self.rom.get_software_list_entry(self.software_lists, self.platform.databases_are_byteswapped, skip_header)
 		except NotImplementedError:
 			pass
 
