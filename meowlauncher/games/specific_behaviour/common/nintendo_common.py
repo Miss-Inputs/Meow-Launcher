@@ -1,10 +1,10 @@
 import statistics
 from collections.abc import Iterable, Mapping
 from enum import Flag
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
-from meowlauncher.metadata import Metadata
-
+if TYPE_CHECKING:
+	from meowlauncher.metadata import Metadata
 
 class WiiU3DSRegionCode(Flag):
 	Japan = 1
@@ -17,7 +17,7 @@ class WiiU3DSRegionCode(Flag):
 	RegionFree = 0x7fffffff
 	WiiURegionFree = 0xffffffff
 
-def parse_ratings(metadata: Metadata, ratings_bytes: bytes, invert_has_rating_bit=False, use_bit_6=True):
+def parse_ratings(metadata: 'Metadata', ratings_bytes: bytes, invert_has_rating_bit=False, use_bit_6=True):
 	ratings = {}
 	for i, rating in enumerate(ratings_bytes):
 		has_rating = (rating & 0b1000_0000) == 0 #For 3DS and DSi, the meaning of this bit is inverted
@@ -58,7 +58,7 @@ def parse_ratings(metadata: Metadata, ratings_bytes: bytes, invert_has_rating_bi
 
 	metadata.specific_info['Age Rating'] = rating
 
-def add_info_from_local_titles(metadata: Metadata, short_titles: Mapping[str, str], long_titles: Mapping[str, str], publishers: Mapping[str, Optional[str]], region_codes: Iterable[WiiU3DSRegionCode]):
+def add_info_from_local_titles(metadata: 'Metadata', short_titles: Mapping[str, str], long_titles: Mapping[str, str], publishers: Mapping[str, Optional[str]], region_codes: Iterable[WiiU3DSRegionCode]):
 	local_short_title = None
 	local_long_title = None
 	local_publisher: Optional[str] = None

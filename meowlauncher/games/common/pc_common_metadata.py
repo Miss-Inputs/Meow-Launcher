@@ -4,7 +4,7 @@ import os
 import struct
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 try:
 	import pefile
@@ -19,11 +19,14 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.metadata import Date, Metadata
+from meowlauncher.metadata import Date
 from meowlauncher.util.utils import junk_suffixes
 
+if TYPE_CHECKING:
+	from meowlauncher.metadata import Metadata
+
 #Hmm, are other extensions going to work as icons in a file manager
-icon_extensions = ('png', 'ico', 'xpm', 'svg')
+icon_extensions = {'png', 'ico', 'xpm', 'svg'}
 
 def _get_pe_file_info(pe: 'pefile.PE') -> Optional[Mapping[str, Any]]: #TODO refactor - Union[str, datetime.datetime] is a bit silly as it means you have to check for it every time if you have mypy, maybe we should return something else
 	if not hasattr(pe, 'FileInfo'):
@@ -54,7 +57,7 @@ def get_exe_properties(path: str) -> Optional[Mapping[str, Any]]:
 			pass
 	return None
 
-def add_metadata_for_raw_exe(path: str, metadata: Metadata):
+def add_metadata_for_raw_exe(path: str, metadata: 'Metadata'):
 	props = get_exe_properties(path)
 	if not props:
 		return
@@ -209,7 +212,7 @@ def look_for_icon_in_folder(folder: Path, look_for_any_ico: bool=True) -> Option
 				return f
 	return None
 
-def check_for_interesting_things_in_folder(folder: Path, metadata: Metadata, find_wrappers: bool=False):
+def check_for_interesting_things_in_folder(folder: Path, metadata: 'Metadata', find_wrappers: bool=False):
 	#Let's check for things existing because we can (there's not really any other reason to do this, it's just fun)
 	#Not sure if any of these are in lowercase? Or they might be in a different directory
 	dir_entries = tuple(folder.iterdir())

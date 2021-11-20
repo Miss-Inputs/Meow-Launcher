@@ -4,7 +4,7 @@ import json
 import zipfile
 from collections.abc import Iterable, Mapping
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 try:
 	from PIL import Image
@@ -12,13 +12,14 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
-from meowlauncher.metadata import Metadata
 from meowlauncher.util.utils import junk_suffixes
 
 from .pc_common_metadata import get_exe_properties
 
+if TYPE_CHECKING:
+	from meowlauncher.metadata import Metadata
 
-def try_detect_unity(folder: Path, metadata: Optional[Metadata]=None) -> bool:
+def try_detect_unity(folder: Path, metadata: Optional['Metadata']=None) -> bool:
 	if folder.joinpath('Build', 'UnityLoader.js').is_file():
 		#Web version of Unity, there should be some .unityweb files here
 		if metadata:
@@ -149,7 +150,7 @@ def try_detect_ue3(folder: Path) -> bool:
 					return True
 	return False
 
-def try_detect_gamemaker(folder: Path, metadata: Optional[Metadata]=None) -> bool:
+def try_detect_gamemaker(folder: Path, metadata: Optional['Metadata']=None) -> bool:
 	if folder.joinpath('audiogroup1.dat').is_file() and folder.joinpath('data.win').is_file() and folder.joinpath('options.ini').is_file():
 		#Hmmmmmmmmmmmmm probably
 		#data.win generally has "FORM" magic? audiogroup1/2/3.dat and options.ini might not always be there but I wanna be more sure if I don't poke around in files
@@ -222,7 +223,7 @@ def try_detect_adobe_air(folder: Path) -> bool:
 
 	return False
 
-def add_metadata_from_nw_package_json(package_json: Mapping, metadata: Metadata):
+def add_metadata_from_nw_package_json(package_json: Mapping, metadata: 'Metadata'):
 	#main might come in handy
 	package_description = package_json.get('description')
 	if package_description:
@@ -236,7 +237,7 @@ def add_metadata_from_nw_package_json(package_json: Mapping, metadata: Metadata)
 		metadata.specific_info['Icon Relative Path'] = window.get('icon')
 		metadata.add_alternate_name(window.get('title'), 'Window Title')
 
-def add_info_from_package_json_file(folder: Path, package_json_path: Path, metadata: Metadata):
+def add_info_from_package_json_file(folder: Path, package_json_path: Path, metadata: 'Metadata'):
 	with package_json_path.open('rb') as package_json:
 		add_metadata_from_nw_package_json(json.load(package_json), metadata)
 	if 'Icon-Relative-Path' in metadata.specific_info:
@@ -244,7 +245,7 @@ def add_info_from_package_json_file(folder: Path, package_json_path: Path, metad
 		if icon_path.is_file() and 'Icon' not in metadata.images:
 			metadata.images['Icon'] = icon_path
 
-def add_info_from_package_json_zip(package_nw_path: Path, metadata: Metadata) -> bool:
+def add_info_from_package_json_zip(package_nw_path: Path, metadata: 'Metadata') -> bool:
 	try:
 		with zipfile.ZipFile(package_nw_path) as package_nw:
 			try:
@@ -264,7 +265,7 @@ def add_info_from_package_json_zip(package_nw_path: Path, metadata: Metadata) ->
 		return False
 	return True
 
-def try_detect_nw(folder: Path, metadata: Optional[Metadata]=None) -> bool:
+def try_detect_nw(folder: Path, metadata: Optional['Metadata']=None) -> bool:
 	if not folder.joinpath('nw.pak').is_file() and not folder.joinpath('nw_100_percent.pak').is_file() and not folder.joinpath('nw_200_percent.pak').is_file():
 		return False
 	
@@ -355,7 +356,7 @@ def try_detect_engines_from_filenames(folder: Path, files: Iterable[str], subdir
 	
 	return None
 
-def try_and_detect_engine_from_folder(folder: Path, metadata: Metadata=None) -> Optional[str]:
+def try_and_detect_engine_from_folder(folder: Path, metadata: 'Metadata'=None) -> Optional[str]:
 	dir_entries = set(folder.iterdir())
 	files = {f.name.lower() for f in dir_entries if f.is_file()}
 	subdirs = {f.name.lower() for f in dir_entries if f.is_dir()}
@@ -386,7 +387,7 @@ def try_and_detect_engine_from_folder(folder: Path, metadata: Metadata=None) -> 
 	
 	return None
 
-def detect_engine_recursively(folder: Path, metadata: Optional[Metadata]=None) -> Optional[str]:
+def detect_engine_recursively(folder: Path, metadata: Optional['Metadata']=None) -> Optional[str]:
 	engine = try_and_detect_engine_from_folder(folder, metadata)
 	if engine:
 		return engine

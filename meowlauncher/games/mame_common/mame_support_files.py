@@ -3,15 +3,16 @@ import os
 from collections.abc import Collection, Iterable, Mapping, MutableMapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import NamedTuple, Optional
+from typing import TYPE_CHECKING, NamedTuple, Optional
 from xml.etree import ElementTree
 
-from meowlauncher.metadata import Metadata
 from meowlauncher.util.region_info import (Language,
                                            get_language_by_english_name)
 
 from .mame_helpers import default_mame_configuration
 
+if TYPE_CHECKING:
+	from meowlauncher.metadata import Metadata
 
 class HistoryXML():
 	def __init__(self, path: Path) -> None:
@@ -140,7 +141,7 @@ def parse_history(history: str) -> History:
 				sections[name] = None
 	return History(**sections)
 
-def add_history(metadata: Metadata, machine_or_softlist: str, software_name: Optional[str]=None, history_xml: Optional[HistoryXML]=None) -> None:
+def add_history(metadata: 'Metadata', machine_or_softlist: str, software_name: Optional[str]=None, history_xml: Optional[HistoryXML]=None) -> None:
 	if not history_xml:
 		if not hasattr(add_history, 'default_history_xml'):
 			add_history.default_history_xml = get_default_history_xml() #type: ignore[attr-defined]
