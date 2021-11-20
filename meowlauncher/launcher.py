@@ -25,7 +25,7 @@ class Launcher(ABC):
 	def game_id(self) -> str:
 		pass
 
-	@abstractmethod
 	@property
+	@abstractmethod
 	def command(self) -> 'LaunchCommand':
 		pass
