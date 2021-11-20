@@ -5,7 +5,7 @@ from meowlauncher.config.main_config import main_config
 from . import organize_folders, series_detect
 from .disambiguate import disambiguate_names
 from .remove_nonexistent_games import remove_nonexistent_games
-
+from .add_games import add_games
 
 def main(progress_function: Callable[..., None]=print):
 	progress_function('Creating output folder')
@@ -16,6 +16,8 @@ def main(progress_function: Callable[..., None]=print):
 				#TODO: We should probably only do this if we know f is made by us, just in case someone wants to set output_folder to somewhere shared with other apps
 				f.unlink()
 	main_config.output_folder.mkdir(exist_ok=True, parents=True)
+
+	add_games(progress_function)
 
 	if not main_config.full_rescan:
 		progress_function('Removing games which no longer exist')
