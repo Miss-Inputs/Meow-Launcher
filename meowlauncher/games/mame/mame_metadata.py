@@ -42,6 +42,7 @@ class CPU():
 	def __init__(self, xml: ElementTree.Element):
 		self.chip_name = xml.attrib.get('name')
 		self.tag = xml.attrib.get('tag')
+		self.clock_speed = None
 		if xml.attrib['name'] != 'Netlist CPU Device' and 'clock' in xml.attrib:
 			try:
 				self.clock_speed = int(xml.attrib['clock'])
