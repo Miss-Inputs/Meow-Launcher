@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from typing import TYPE_CHECKING, Optional
 
 from meowlauncher.games.mame_common.machine import (Machine,
@@ -11,7 +12,6 @@ from meowlauncher.util.utils import load_list
 
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
-	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
 	
 _not_necessarily_equivalent_arcade_names = load_list(None, 'not_necessarily_equivalent_arcade_names')
@@ -38,7 +38,7 @@ def _match_arcade(software_name: str) -> Optional[Machine]:
 	except MachineNotFoundException:
 		return None
 
-def find_equivalent_arcade_game(game: 'ROMGame', software: 'Software') -> Optional[Machine]:
+def find_equivalent_arcade_game(game_name: str, game_alt_names: Iterable[str], software: 'Software') -> Optional[Machine]:
 	#Just to be really strict: We will only get it if the software name matches
 	if not default_mame_executable:
 		return None
@@ -54,20 +54,13 @@ def find_equivalent_arcade_game(game: 'ROMGame', software: 'Software') -> Option
 	if machine.family in _not_necessarily_equivalent_arcade_names:
 		return None
 
-	# catlist = machine.catlist
-	# if catlist and not catlist.is_arcade:
-	# 	#I think not, only video games can be video games
-	# 	#That comment made sense but y'know what I mean right
-	# 	#Do we really need to exclude mechanical/slot machines? This function used to, I dunno
-	# 	return None
-	#if '(bootleg of' in machine.name or '(bootleg?)' in machine.name:
-	#	#This doesn't count
-	#	#Why doesn't it?
-	#	return None
+	if machine.is_pinball:
+		#I think not
+		return None
 
-	if does_machine_match_name(game.name, machine):
+	if does_machine_match_name(game_name, machine):
 		return machine
-	for game_name in game.metadata.names.values():
-		if does_machine_match_name(game_name, machine):
+	for game_alt_name in game_alt_names:
+		if does_machine_match_name(game_alt_name, machine):
 			return machine
 	return None

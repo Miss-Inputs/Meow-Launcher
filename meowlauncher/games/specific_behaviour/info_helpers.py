@@ -1,6 +1,7 @@
 #TODO: I want this to be in root of specific_behaviour but that causes a circular import right now, no can do buddy
 
 from collections.abc import Callable, Mapping
+from typing import Optional
 
 from ._3ds import add_3ds_custom_info
 from .amiga import add_amiga_custom_info
@@ -20,13 +21,14 @@ from .intellivision import add_intellivision_custom_info
 from .lynx import add_lynx_custom_info
 from .master_system import (add_sms_gg_rom_file_info,
                             add_sms_gg_software_list_info)
-from .megadrive import add_megadrive_custom_info
+from .megadrive import (add_megadrive_custom_info,
+                        find_equivalent_mega_drive_arcade)
 from .misc_platforms import (add_colecovision_software_info,
-                             add_ibm_pcjr_custom_info,
-                             add_pc_engine_custom_info, add_pet_custom_info,
-                             add_vic10_custom_info, add_vic20_custom_info)
+                             add_ibm_pcjr_custom_info, add_pet_custom_info,
+                             add_vic10_custom_info, add_vic20_custom_info,
+                             find_equivalent_pc_engine_arcade)
 from .n64 import add_n64_custom_info
-from .nes import add_nes_custom_info
+from .nes import add_nes_custom_info, find_equivalent_nes_arcade
 from .ps1 import add_ps1_custom_info
 from .ps2 import add_ps2_custom_info
 from .ps3 import add_ps3_custom_info
@@ -34,7 +36,7 @@ from .psp import add_psp_custom_info
 from .saturn import add_saturn_custom_info
 from .simple_rom_info import *
 from .simple_software_info import *
-from .snes import add_snes_custom_info
+from .snes import add_snes_custom_info, find_equivalent_snes_arcade
 from .static_platform_info import *
 from .switch import add_switch_rom_file_info
 from .uzebox import add_uzebox_custom_info
@@ -45,6 +47,7 @@ from .wonderswan import add_wonderswan_header_info
 from .zx_spectrum import add_speccy_custom_info
 
 if TYPE_CHECKING:
+	from meowlauncher.games.mame_common.machine import Machine
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom import FileROM
 	from meowlauncher.games.roms.rom_game import ROMGame
@@ -97,7 +100,6 @@ custom_info_funcs: Mapping[str, Callable[['ROMGame'], None]] = {
 	
 	#TODO: I think we can also make getting equivalent arcade work, it just needs some refactoring, but I shouldn't have to make too many decisions about where I want to go
 	'Mega Drive': add_megadrive_custom_info, #Internal header (for CDs too; needs refactoring I guess), software, equivalent arcade (just using ROM name, and metadata alt names)
-	'PC Engine': add_pc_engine_custom_info, #Generic software, equivalent arcade
 	'SNES': add_snes_custom_info, #Internal hardware, equivalent arcade, software
 
 	'32X': add_megadrive_custom_info,
@@ -195,6 +197,13 @@ software_info_funcs: Mapping[str, Callable[['Software', 'Metadata'], None]] = {
 	'Virtual Boy': add_virtual_boy_software_info,
 }
 
+arcade_machine_finders: Mapping[str, Callable[[str], Optional['Machine']]] = {
+	'Mega Drive': find_equivalent_mega_drive_arcade,
+	'NES': find_equivalent_nes_arcade,
+	'PC Engine': find_equivalent_pc_engine_arcade,
+	'SNES': find_equivalent_snes_arcade,
+}
+
 #Possible software info beyond generic:
 	#FM-77
 		#Possible input info: Keyboard and joystick but barely anything uses said joystick
@@ -240,3 +249,11 @@ software_info_funcs: Mapping[str, Callable[['Software', 'Metadata'], None]] = {
 	#WonderSwan
 		#We could get save type from software.has_data_area('sram' or 'eeprom') but I think we can trust the header flags for now, even with BPCv2 carts
 		#By the same token we can get screen orientation = vertical if feature rotated = 'yes'
+
+	#Apple III: Possible input info: Keyboard and joystick by default, mouse if mouse card exists
+	#Coleco Adam: Input info: Keyboard / Coleco numpad?
+	#MSX1/2: Input info: Keyboard or joystick; Other info you can get from carts here: PCB, slot (something like ascii8 or whatever), mapper
+	#Jaguar input info: There's the default ugly gamepad and also another ugly gamepad with more buttons which I dunno what's compatible with
+	#CD-i: That one controller but could also be the light gun thingo
+	#Memorex VIS: 4-button wireless not-quite-gamepad-but-effectively-one-thing (A, B, 1, 2), can have 2-button mouse? There are also 3 and 4 buttons and 2-1-Solo switch that aren't emulated yet
+	#The rest are weird computers where we can't tell if they use any kind of optional joystick or not so it's like hhhh whaddya do

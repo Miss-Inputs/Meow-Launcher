@@ -1,6 +1,7 @@
-from pathlib import PurePath
 import re
 from collections.abc import Collection, Iterable, Mapping, Sequence
+from functools import cache
+from pathlib import PurePath
 from typing import TYPE_CHECKING, Optional, cast
 from xml.etree import ElementTree
 
@@ -20,8 +21,7 @@ from .mame_utils import consistentify_manufacturer, untangle_manufacturer
 if TYPE_CHECKING:
 	from .mame_executable import MAMEExecutable
 
-subtitles = load_dict(None, 'subtitles')
-
+_subtitles = load_dict(None, 'subtitles')
 
 mame_statuses: dict[Optional[str], EmulationStatus] = {
 	#It is optional[str] so that we can .get None and have it return whatever default
@@ -104,6 +104,14 @@ class Machine():
 	@property
 	def basename(self) -> str:
 		return self.xml.attrib['name']
+
+	def __eq__(self, __o: object) -> bool:
+		if not isinstance(__o, Machine):
+			return False
+		return __o.basename == __o.basename
+
+	def __hash__(self) -> int:
+		return hash(self.basename)
 
 	@property
 	def parent(self) -> Optional['Machine']:
@@ -448,36 +456,6 @@ def iter_machines_from_source_file(source_file: str, exe: 'MAMEExecutable') -> I
 	for machine_name, source_file_with_ext in exe.listsource():
 		if PurePath(source_file_with_ext).stem == source_file:
 			yield get_machine(machine_name, exe)
-
-#Feel like this should belong somewhere else…
-def machine_name_matches(machine_name: str, game_name: str, match_vs_system: bool=False) -> bool:
-	#TODO Should also use name_consistency stuff once I refactor that (Turbo OutRun > Turbo Out Run)
-	
-	machine_name = remove_filename_tags(machine_name)
-	game_name = remove_filename_tags(game_name)
-
-	#Until I do mess around with name_consistency.dict though, here's some common substitutions
-	machine_name = machine_name.replace('Bros.', 'Brothers')
-	game_name = game_name.replace('Bros.', 'Brothers')
-	machine_name = machine_name.replace('Jr.', 'Junior')
-	game_name = game_name.replace('Jr.', 'Junior')
-
-	if match_vs_system:
-		if not machine_name.upper().startswith('VS. '):
-			return False
-		machine_name = machine_name[4:]
-
-	if normalize_name(machine_name, False) == normalize_name(game_name, False):
-		return True
-
-	if machine_name in subtitles:
-		if normalize_name(machine_name + ': ' + subtitles[machine_name], False) == normalize_name(game_name, False):
-			return True
-	elif game_name in subtitles:
-		if normalize_name(game_name + ': ' + subtitles[game_name], False) == normalize_name(machine_name, False):
-			return True
-	return False
-
 #TODO: This infodumping probably deserves to go somewhere in data - there would be a difference between "name of an arcade board that I think is interesting" and "particular arcade system that might have some different emulators for it etc etc"
 arcade_system_names = {
 	#Normal stuff
@@ -847,7 +825,37 @@ arcade_system_bios_names = {
 }
 
 
+#Feel like this should belong somewhere else…
+def machine_name_matches(machine_name: str, game_name: str, match_vs_system: bool=False) -> bool:
+	#TODO Should also use name_consistency stuff once I refactor that (Turbo OutRun > Turbo Out Run)
+	
+	machine_name = remove_filename_tags(machine_name)
+	game_name = remove_filename_tags(game_name)
+
+	#Until I do mess around with name_consistency.dict though, here's some common substitutions
+	machine_name = machine_name.replace('Bros.', 'Brothers')
+	game_name = game_name.replace('Bros.', 'Brothers')
+	machine_name = machine_name.replace('Jr.', 'Junior')
+	game_name = game_name.replace('Jr.', 'Junior')
+
+	if match_vs_system:
+		if not machine_name.upper().startswith('VS. '):
+			return False
+		machine_name = machine_name[4:]
+
+	if normalize_name(machine_name, False) == normalize_name(game_name, False):
+		return True
+
+	if machine_name in _subtitles:
+		if normalize_name(machine_name + ': ' + _subtitles[machine_name], False) == normalize_name(game_name, False):
+			return True
+	elif game_name in _subtitles:
+		if normalize_name(game_name + ': ' + _subtitles[game_name], False) == normalize_name(machine_name, False):
+			return True
+	return False
+
 #TODO: Where does this really belong?
+@cache
 def does_machine_match_name(name: str, machine: Machine, match_vs_system: bool=False) -> bool:
 	if machine_name_matches(machine.name, name, match_vs_system):
 		return True

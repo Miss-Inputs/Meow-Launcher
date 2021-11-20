@@ -1,7 +1,9 @@
 #Not worth putting these in their own source file I think
+#TODO: Yeah sure but they still belong somewhere else??
+
 from collections.abc import Iterable
 from enum import Enum, auto
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import MediaType
@@ -190,29 +192,13 @@ def _get_uapce_games() -> Iterable[Machine]:
 			if not default_mame_executable:
 				#CBF tbhkthbai
 				return	
-			_get_uapce_games.result = tuple(iter_machines_from_source_file('uapce', default_mame_executable)) #type: ignore[attr-defined]
+			_get_uapce_games.result = set(iter_machines_from_source_file('uapce', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
 			return
 		yield from _get_uapce_games.result #type: ignore[attr-defined]
 
-def add_pc_engine_custom_info(game: 'ROMGame'):
-	#Not sure how to detect 2/6 buttons, or usage of TurboBooster-Plus, but I want to
-	equivalent_arcade = None
+def find_equivalent_pc_engine_arcade(game_name: str) -> Optional[Machine]:
 	for uapce_machine in _get_uapce_games():
-		if does_machine_match_name(game.rom.name, uapce_machine):
-			equivalent_arcade = uapce_machine
-			break
-	if equivalent_arcade:
-		game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
-
-	software = game.get_software_list_entry()
-	if software:
-		add_generic_software_info(software, game.metadata)
-
-	#Apple III: Possible input info: Keyboard and joystick by default, mouse if mouse card exists
-	#Coleco Adam: Input info: Keyboard / Coleco numpad?
-	#MSX1/2: Input info: Keyboard or joystick; Other info you can get from carts here: PCB, slot (something like ascii8 or whatever), mapper
-	#Jaguar input info: There's the default ugly gamepad and also another ugly gamepad with more buttons which I dunno what's compatible with
-	#CD-i: That one controller but could also be the light gun thingo
-	#Memorex VIS: 4-button wireless not-quite-gamepad-but-effectively-one-thing (A, B, 1, 2), can have 2-button mouse? There are also 3 and 4 buttons and 2-1-Solo switch that aren't emulated yet
-	#The rest are weird computers where we can't tell if they use any kind of optional joystick or not so it's like hhhh whaddya do
+		if does_machine_match_name(game_name, uapce_machine):
+			return uapce_machine
+	return None

@@ -1,6 +1,7 @@
 import re
 from collections.abc import Collection, Iterable
 from datetime import datetime
+from itertools import chain
 from typing import TYPE_CHECKING, Optional, Union
 
 from meowlauncher import input_metadata
@@ -10,7 +11,7 @@ from meowlauncher.games.mame_common.machine import (
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
-from meowlauncher.games.roms.rom import ROM, FileROM
+from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.platform_types import MegadriveRegionCodes
 from meowlauncher.util import cd_read
@@ -249,26 +250,21 @@ def _get_megatech_games() -> Iterable[Machine]:
 		_get_megatech_games.result = set(iter_machines_from_source_file('megatech', default_mame_executable)) #type: ignore[attr-defined]
 		yield from _get_megatech_games.result #type: ignore[attr-defined]
 
-def try_find_equivalent_arcade(rom: ROM) -> Optional[Machine]:
-	if not hasattr(try_find_equivalent_arcade, 'arcade_bootlegs'):
+def find_equivalent_mega_drive_arcade(game_name: str) -> Optional[Machine]:
+	#TODO: Maybe StandardEmulatedPlatform can just hold some field called "potentially_equivalent_machines" or is that stupid? Yeah maybe just have a function yielding them
+	if not hasattr(find_equivalent_mega_drive_arcade, 'arcade_bootlegs'):
 		try:
 			if not default_mame_executable:
 				#CBF tbhkthbai
 				return None
-			try_find_equivalent_arcade.arcade_bootlegs = set(iter_machines_from_source_file('megadriv_acbl', default_mame_executable)) #type: ignore[attr-defined]
+			find_equivalent_mega_drive_arcade.arcade_bootlegs = set(iter_machines_from_source_file('megadriv_acbl', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
-			try_find_equivalent_arcade.arcade_bootlegs = set() #type: ignore[attr-defined]
+			find_equivalent_mega_drive_arcade.arcade_bootlegs = set() #type: ignore[attr-defined]
 
-	for bootleg_machine in try_find_equivalent_arcade.arcade_bootlegs: #type: ignore[attr-defined]
-		#TODO: It would make more sense for this to take a Game object perhaps, and use the software list name
-		if does_machine_match_name(rom.name, bootleg_machine):
-			return bootleg_machine
-	for megaplay_machine in _get_megaplay_games():
-		if does_machine_match_name(rom.name, megaplay_machine):
-			return megaplay_machine
-	for megatech_machine in _get_megatech_games():
-		if does_machine_match_name(rom.name, megatech_machine):
-			return megatech_machine	
+	for machine in chain(_get_megatech_games(), _get_megaplay_games(), find_equivalent_mega_drive_arcade.arcade_bootlegs): #type: ignore[attr-defined]
+		if does_machine_match_name(game_name, machine):
+			return machine
+
 	return None
 
 def add_megadrive_software_list_metadata(software: 'Software', metadata: Metadata):
@@ -304,7 +300,6 @@ def add_megadrive_software_list_metadata(software: 'Software', metadata: Metadat
 				#This is also a bit naughty, but Pocket Monsters has different compatibility compared to other games with rom_kof99
 				metadata.specific_info['Mapper'] = slot[4:] + '_pokemon'
 
-
 def add_megadrive_custom_info(game: 'ROMGame'):
 	header = None
 	if game.rom.extension == 'cue':
@@ -326,10 +321,6 @@ def add_megadrive_custom_info(game: 'ROMGame'):
 
 	if header:
 		add_megadrive_info(game.metadata, header)
-	if game.metadata.platform == 'Mega Drive':
-		equivalent_arcade = try_find_equivalent_arcade(game.rom)
-		if equivalent_arcade:
-			game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
 
 	software = game.get_software_list_entry()
 	if software:

@@ -24,6 +24,10 @@ if TYPE_CHECKING:
 _nes_config = platform_configs.get('NES')
 _nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
+_standard_controller = input_metadata.NormalController()
+_standard_controller.dpads = 1
+_standard_controller.face_buttons = 2 #A B
+
 _ines_mappers = {
 	#TODO: This should be a dataclass, instead of storing both Mapper (name) and Mapper Number in the game info
 	#6, 8, 17 are some kind of copier thing
@@ -499,34 +503,30 @@ def add_unif_metadata(rom: FileROM, metadata: Metadata):
 
 		pos += 8 + chunk_length
 
-def try_get_equivalent_arcade(name: str) -> Optional[Machine]:
+def find_equivalent_nes_arcade(name: str) -> Optional[Machine]:
 	if not default_mame_executable:
 		#CBF tbhkthbai
 		return None
-	if not hasattr(try_get_equivalent_arcade, 'playchoice10_games'):
+	if not hasattr(find_equivalent_nes_arcade, 'playchoice10_games'):
 		try:
-			try_get_equivalent_arcade.playchoice10_games = tuple(iter_machines_from_source_file('playch10', default_mame_executable)) #type: ignore[attr-defined]
+			find_equivalent_nes_arcade.playchoice10_games = set(iter_machines_from_source_file('playch10', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
-			try_get_equivalent_arcade.playchoice10_games = () #type: ignore[attr-defined]
-	if not hasattr(try_get_equivalent_arcade, 'vsnes_games'):
+			find_equivalent_nes_arcade.playchoice10_games = set() #type: ignore[attr-defined]
+	if not hasattr(find_equivalent_nes_arcade, 'vsnes_games'):
 		try:
-			try_get_equivalent_arcade.vsnes_games = tuple(iter_machines_from_source_file('vsnes', default_mame_executable)) #type: ignore[attr-defined]
+			find_equivalent_nes_arcade.vsnes_games = set(iter_machines_from_source_file('vsnes', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
-			try_get_equivalent_arcade.vsnes_games = () #type: ignore[attr-defined]
+			find_equivalent_nes_arcade.vsnes_games = set() #type: ignore[attr-defined]
 
-	for vsnes_machine in try_get_equivalent_arcade.vsnes_games: #type: ignore[attr-defined]
-		if does_machine_match_name(name, vsnes_machine, match_vs_system=True):
-			return vsnes_machine
-
-	for playchoice10_machine in try_get_equivalent_arcade.playchoice10_games: #type: ignore[attr-defined]
+	for playchoice10_machine in find_equivalent_nes_arcade.playchoice10_games: #type: ignore[attr-defined]
 		if does_machine_match_name(name, playchoice10_machine):
 			return playchoice10_machine
+
+	for vsnes_machine in find_equivalent_nes_arcade.vsnes_games: #type: ignore[attr-defined]
+		if does_machine_match_name(name, vsnes_machine, match_vs_system=True):
+			return vsnes_machine
 	
 	return None
-
-standard_controller = input_metadata.NormalController()
-standard_controller.dpads = 1
-standard_controller.face_buttons = 2 #A B
 
 def add_nes_software_list_metadata(software: 'Software', metadata: Metadata):
 	software.add_standard_metadata(metadata)
@@ -548,7 +548,7 @@ def add_nes_software_list_metadata(software: 'Software', metadata: Metadata):
 		vaus.buttons = 1
 		metadata.input_info.add_option(vaus)
 		#Can still use standard controller
-		metadata.input_info.add_option(standard_controller)
+		metadata.input_info.add_option(_standard_controller)
 	elif peripheral in {'powerpad', 'ftrainer', 'fffitness'}:
 		nes_peripheral = NESPeripheral.PowerPad
 
@@ -565,7 +565,7 @@ def add_nes_software_list_metadata(software: 'Software', metadata: Metadata):
 	elif peripheral == 'rob':
 		nes_peripheral = NESPeripheral.ROB
 		#I'll leave input info alone, because I'm not sure how I would classify ROB
-		metadata.input_info.add_option(standard_controller)
+		metadata.input_info.add_option(_standard_controller)
 	elif peripheral == 'fc_keyboard':
 		nes_peripheral = NESPeripheral.FamicomKeyboard
 
@@ -586,7 +586,7 @@ def add_nes_software_list_metadata(software: 'Software', metadata: Metadata):
 		#game.metadata.input_info.buttons = 88
 		metadata.input_info.add_option(miracle_piano)
 	else:
-		metadata.input_info.add_option(standard_controller)
+		metadata.input_info.add_option(_standard_controller)
 
 	#Well, it wouldn't be a controller... not sure how this one works exactly
 	metadata.specific_info['Uses 3D Glasses?'] = peripheral == '3dglasses'
@@ -610,10 +610,6 @@ def add_nes_software_list_metadata(software: 'Software', metadata: Metadata):
 		metadata.specific_info['Peripheral'] = nes_peripheral
 
 def add_nes_custom_info(game: 'ROMGame'):
-	equivalent_arcade = try_get_equivalent_arcade(game.name)
-	if equivalent_arcade:
-		game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
-
 	rom = cast(FileROM, game.rom)
 	if game.rom.extension == 'fds':
 		add_fds_metadata(rom, game.metadata)

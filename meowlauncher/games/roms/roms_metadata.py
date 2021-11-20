@@ -10,8 +10,8 @@ from meowlauncher.games.common.libretro_database import (
 from meowlauncher.games.mame_common.mame_helpers import get_image
 from meowlauncher.games.mame_common.mame_utils import image_config_keys
 from meowlauncher.games.specific_behaviour.info_helpers import (
-    custom_info_funcs, rom_file_info_funcs, software_info_funcs,
-    static_info_funcs)
+    arcade_machine_finders, custom_info_funcs, rom_file_info_funcs,
+    software_info_funcs, static_info_funcs)
 from meowlauncher.metadata import Date
 from meowlauncher.util.detect_things_from_filename import (
     get_date_from_filename_tags, get_languages_from_filename_tags,
@@ -89,6 +89,7 @@ def _add_metadata_from_arcade(game: 'ROMGame', machine: 'Machine'):
 	if not game.metadata.categories and catlist.category and catlist.definite_category:
 		game.metadata.categories = [catlist.category]
 	#Well, I guess not much else can be inferred here. Still, though!
+	#TODO: Hell no there's not much else, get the history if it's not a bootleg, etc etc
 		
 def _add_alternate_names(rom: ROM, metadata: 'Metadata'):
 	tags_at_end = find_filename_tags_at_end(rom.name)
@@ -251,9 +252,12 @@ def _autodetect_tv_type(game: 'ROMGame'):
 		return
 
 def _add_platform_specific_metadata(game: 'ROMGame'):
+	software = None
+	
 	custom_info_func = custom_info_funcs.get(game.platform.name)
 	if custom_info_func:
 		custom_info_func(game)
+		software = game.metadata.specific_info.get('MAME Software') #This shouldn't be here
 	else:
 		#For anything else, use this one to just get basic software list info.
 		#This would only work for optical discs if they are in .chd format though. Also see MAME GitHub issue #2517, which makes a lot of newly created CHDs invalid with older softlists
@@ -261,7 +265,7 @@ def _add_platform_specific_metadata(game: 'ROMGame'):
 		if static_info_func:
 			static_info_func(game.metadata)
 
-		#We should always run rom_file_info_func before software_info_func if it's there, as that means we can get our product code/name and then use get_software_by_name and get_software_by_product_code
+		#We should always run rom_file_info_func before software_info_func if it's there, as that means we can get our product code/alt names and then use get_software_by_name and get_software_by_product_code
 		if isinstance(game.rom, FileROM):
 			#TODO: This is where we would call subroms if that's relevant
 			#TODO: Hmm, how would we do that, actually, with m3u and .cue and related
@@ -269,7 +273,6 @@ def _add_platform_specific_metadata(game: 'ROMGame'):
 			if rom_file_info_func:
 				rom_file_info_func(game.rom, game.metadata)
 
-		software = None
 		try:
 			software = game.get_software_list_entry()
 		except NotImplementedError:
@@ -281,6 +284,27 @@ def _add_platform_specific_metadata(game: 'ROMGame'):
 			else:
 				add_generic_software_info(software, game.metadata)
 
+	arcade_equivalent_finder = arcade_machine_finders.get(game.platform.name)
+	#TODO: This could just go in ROMGame, potentially, if that doesn't cause a circular import by importing arcade_machine_finders?
+	equivalent_arcade = None
+	if arcade_equivalent_finder:
+		if software:
+			equivalent_arcade = arcade_equivalent_finder(software.description)
+			if not equivalent_arcade and software.parent_name:
+				software_parent = software.parent
+				if not software_parent:
+					raise AssertionError('This is impossible, software.parent_name is set but software list has no parent')
+				equivalent_arcade = arcade_equivalent_finder(software_parent.description)
+		if not equivalent_arcade:
+			equivalent_arcade = arcade_equivalent_finder(game.name)
+	
+	if not equivalent_arcade and main_config.find_equivalent_arcade_games:
+		if software:
+			equivalent_arcade = find_equivalent_arcade_game(game.name, game.metadata.names.values(), software)
+			
+	if equivalent_arcade:
+		game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
+	
 def add_metadata(game: 'ROMGame'):
 	_add_alternate_names(game.rom, game.metadata)
 	#I guess if game.subroms was ever used you would loop through each one (I swear I will do the thing one day)
@@ -297,7 +321,7 @@ def add_metadata(game: 'ROMGame'):
 	if not equivalent_arcade and main_config.find_equivalent_arcade_games:
 		software = game.metadata.specific_info.get('MAME Software')
 		if software:
-			equivalent_arcade = find_equivalent_arcade_game(game, software)
+			equivalent_arcade = find_equivalent_arcade_game(game.name, game.metadata.names.values(), software)
 			if equivalent_arcade:
 				game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
 	

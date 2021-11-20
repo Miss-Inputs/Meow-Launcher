@@ -272,11 +272,11 @@ class Software():
 
 		#TODO: Proper nested comprehension
 		self.parts = {part.name: part for part in tuple(SoftwarePart(part_xml, self) for part_xml in self.xml.iterfind('part'))}
-		self.infos = {info.attrib.get('name', ''): info.attrib.get('value') for info in self.xml.iterfind('info')} #Blank info name should not happen
+		self.infos = {info.attrib['name']: info.attrib.get('value') for info in self.xml.iterfind('info')} #Blank info name should not happen
 
 	@property
 	def name(self) -> str:
-		return self.xml.attrib.get('name', '') #Blank name should not happen
+		return self.xml.attrib['name'] #Blank name should not happen
 	
 	@property
 	def description(self) -> str:
@@ -352,6 +352,12 @@ class Software():
 		return self.xml.attrib.get('cloneof')
 
 	@property
+	def parent(self) -> Optional['Software']:
+		if not self.parent_name:
+			return None
+		return self.software_list.get_software(self.parent_name)
+
+	@property
 	def serial(self) -> Optional[str]:
 		return self.infos.get('serial')
 
@@ -361,7 +367,7 @@ class Software():
 		#TODO: Whatever is checking metadata.names needs to just check for game.software etc manually rather than this being here, I think
 		metadata.add_alternate_name(self.description, 'Software List Name')
 
-		metadata.specific_info['MAME Software List Name'] = self.software_list
+		metadata.specific_info['MAME Software List'] = self.software_list
 
 		serial = self.serial
 		if serial:
