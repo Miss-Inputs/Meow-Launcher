@@ -184,7 +184,7 @@ def iter_default_mame_categories_folders() -> Iterable[Path]:
 	
 def _parse_mame_cat_ini(path: Path) -> Mapping[str, Collection[str]]:
 	#utf-8 is actually a bad idea if series.ini breaks again, maybe
-	with open(path, 'rt', encoding='ascii') as f:
+	with path.open('rt', encoding='ascii') as f:
 		d: MutableMapping[str, set[str]] = {}
 		#d = {}
 		current_section = None

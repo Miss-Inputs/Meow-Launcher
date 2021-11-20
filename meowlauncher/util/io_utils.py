@@ -61,19 +61,6 @@ def sanitize_name(s: Optional[str], supersafe: bool=False) -> str:
 		return 'dotdot'
 	return s
 
-def sanitize_path(path: pathlib.Path, supersafe: bool=False) -> pathlib.Path:
-	#This isn't even used anywhere right now?
-	parts = path.parts
-	has_slash = False
-	if parts[0] == '/':
-		has_slash = True
-		parts = parts[1:]
-
-	sanitized_parts = tuple(sanitize_name(path_part, supersafe) for path_part in parts)
-	if has_slash:
-		sanitized_parts = ('/', ) + sanitized_parts
-	return pathlib.Path(*sanitized_parts)
-
 remove_brackety_things_for_filename = re.compile(r'[]([)]')
 clean_for_filename = re.compile(r'[^A-Za-z0-9_]')
 def make_filename(name: str) -> str:

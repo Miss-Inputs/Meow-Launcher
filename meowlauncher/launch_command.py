@@ -1,4 +1,5 @@
-from pathlib import Path
+import os
+from pathlib import PurePath
 import shlex
 from collections.abc import Iterable, Mapping, MutableMapping, Sequence
 from typing import Optional
@@ -46,8 +47,8 @@ class LaunchCommand():
 	def append_command(self, appended_params: 'LaunchCommand') -> 'LaunchCommand':
 		return MultiLaunchCommands((), self, (appended_params, ))
 
-	def replace_path_argument(self, path: Path) -> 'LaunchCommand':
-		path_arg = str(path.resolve())
+	def replace_path_argument(self, path: PurePath) -> 'LaunchCommand':
+		path_arg = os.fspath(path)
 		replaced_args = tuple(path_arg if arg == rom_path_argument else arg.replace(rom_path_argument, path_arg) for arg in self.exe_args)
 		return LaunchCommand(self.exe_name, replaced_args, self._env_vars)
 
@@ -102,7 +103,7 @@ class MultiLaunchCommands(LaunchCommand):
 		new_postcommands.append(appended_params)
 		return MultiLaunchCommands(self.pre_commands, self.main_command, new_postcommands)
 
-	def replace_path_argument(self, path: Path) -> LaunchCommand:
+	def replace_path_argument(self, path: PurePath) -> LaunchCommand:
 		return MultiLaunchCommands(self.pre_commands, self.main_command.replace_path_argument(path), self.post_commands)
 	
 	def set_env_var(self, k: str, v: str) -> None:

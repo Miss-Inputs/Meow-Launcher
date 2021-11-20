@@ -21,7 +21,7 @@ class App(EmulatedGame, ABC):
 		self.path: str = info['path'] #Could be a host path (e.g. DOS) or could be some special path particular to that platform (e.g. Mac using PathInsideHFS, DOS using paths inside CDs when is_on_cd)
 		self.args = info.get('args', [])
 		self.cd_path: Optional[Path] = None
-		self.other_cd_paths: Collection[Path] = set() #Could be None I guess, if cd_path not in info
+		self.other_cd_paths: Collection[PurePath] = set() #Could be None I guess, if cd_path not in info
 		if 'cd_path' in info:
 			_cd_paths = info['cd_path'] if isinstance(info['cd_path'], list) else [info['cd_path']]
 			cd_paths = tuple(self.base_folder.joinpath(cd_path) if self.base_folder and not cd_path.startswith('/') else cd_path for cd_path in _cd_paths)

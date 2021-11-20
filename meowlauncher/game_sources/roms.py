@@ -3,7 +3,7 @@
 import os
 import traceback
 from collections.abc import Iterable, Sequence
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Optional, Union, cast
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
@@ -209,7 +209,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 				continue
 			#used_m3u_filenames = []
 			for root, dirs, files in os.walk(rom_dir):
-				root_path = Path(root)
+				root_path = PurePath(root)
 			
 				if any(root_path.is_relative_to(ignored_directory) for ignored_directory in main_config.ignored_directories):
 					continue
