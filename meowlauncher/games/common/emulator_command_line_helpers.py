@@ -105,7 +105,7 @@ def mame_driver(game: 'ROMGame', emulator_config: 'EmulatorConfig', driver: str,
 	if software and compat_threshold > -1:
 		#We assume something without software Just Works, well unless skip_unknown_stuff is enabled down below
 		game_compatibility = software.compatibility
-		if game_compatibility < compat_threshold:
+		if game_compatibility and game_compatibility < compat_threshold:
 			raise EmulationNotSupportedException(f'{software.name} is {game_compatibility.name}')
 
 	skip_unknown = emulator_config.options.get('skip_unknown_stuff', False)
