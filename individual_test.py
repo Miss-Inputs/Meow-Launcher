@@ -6,8 +6,8 @@
 import sys
 
 from meowlauncher.frontend import organize_folders, series_detect
+from meowlauncher.frontend.add_games import add_game_source
 from meowlauncher.frontend.disambiguate import disambiguate_names
-from meowlauncher.frontend.main import add_games
 from meowlauncher.frontend.remove_nonexistent_games import \
     remove_nonexistent_games
 from meowlauncher.game_sources import (game_sources, gog, itch_io,
@@ -46,7 +46,7 @@ def main() -> None:
 		if not source.is_available:
 			return
 			
-		add_games(source)
+		add_game_source(source, print)
 
 if __name__ == '__main__':
 	main()
