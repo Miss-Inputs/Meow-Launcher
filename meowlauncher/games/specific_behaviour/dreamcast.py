@@ -14,7 +14,7 @@ from meowlauncher.games.common.generic_info import add_generic_software_info
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 
-licensee_codes = load_dict(None, 'sega_licensee_codes')
+_licensee_codes = load_dict(None, 'sega_licensee_codes')
 
 #I'm just assuming Saturn and Dreamcast have the same way of doing region codes... well, it's just mostly JUE that need worrying about at this point anyway
 
@@ -125,8 +125,8 @@ def add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size: 
 			metadata.publisher = 'Sega'
 		elif maker.startswith(('SEGA LC-', 'SEGA-LC-')):
 			maker_code = maker[len('SEGA LC-'):]
-			if maker_code in licensee_codes:
-				metadata.publisher = licensee_codes[maker_code]
+			if maker_code in _licensee_codes:
+				metadata.publisher = _licensee_codes[maker_code]
 		elif maker:
 			metadata.publisher = maker
 	except UnicodeDecodeError:

@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import (Software,
 	                                                          SoftwareList)
 
-crc_chunk_size = 128 * 1024 * 1024
+_crc_chunk_size = 128 * 1024 * 1024
 
 class ROM(ABC):
 	def __init__(self, path: Path) -> None:
@@ -107,7 +107,7 @@ class FileROM(ROM):
 	def _get_crc32(self) -> int:
 		with self.path.open('rb') as f:
 			crc = 0
-			for chunk in iter(lambda: f.read(crc_chunk_size), b''):
+			for chunk in iter(lambda: f.read(_crc_chunk_size), b''):
 				crc = zlib.crc32(chunk, crc)
 			return crc & 0xffffffff
 

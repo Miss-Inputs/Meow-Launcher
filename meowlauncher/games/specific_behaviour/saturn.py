@@ -50,7 +50,7 @@ keyboard.keys = 101
 mouse = input_metadata.Mouse()
 mouse.buttons = 3
 
-def parse_peripherals(metadata: Metadata, peripherals: str):
+def _parse_peripherals(metadata: Metadata, peripherals: str):
 	for peripheral in peripherals:
 		if peripheral == 'J':
 			metadata.input_info.add_option(standard_controller)
@@ -181,7 +181,7 @@ def add_saturn_info(rom_path_for_warning: str, metadata: Metadata, header: bytes
 	metadata.specific_info['Region Code'] = region_codes
 
 	peripherals = header[80:96].decode('ascii', errors='backslashreplace').rstrip()
-	parse_peripherals(metadata, peripherals)
+	_parse_peripherals(metadata, peripherals)
 
 	internal_name = header[96:208].decode('ascii', errors='backslashreplace').rstrip()
 	#Sometimes / : - are used as delimiters, and there can also be J:JapaneseNameU:USAName

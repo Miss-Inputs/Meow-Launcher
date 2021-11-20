@@ -13,25 +13,14 @@ from ._config_utils import (ConfigValue, parse_path_list, parse_string_list,
 _main_config_path = config_dir.joinpath('config.ini')
 _ignored_dirs_path = config_dir.joinpath('ignored_directories.txt')
 
-def parse_command_line_bool(value: str) -> bool:
-	#I swear there was some inbuilt way to do this oh well
-	lower = value.lower()
-	if lower in {'yes', 'true', 'on', 't', 'y', 'yeah'}:
-		return True
-	if lower in {'no', 'false', 'off', 'f', 'n', 'nah', 'nope'}:
-		return False
-
-	raise TypeError(value)
-
-def convert_value_for_ini(value: TypeOfConfigValue) -> str:
+def _convert_value_for_ini(value: TypeOfConfigValue) -> str:
 	if value is None:
 		return ''
 	if isinstance(value, list):
 		return ';'.join(value)
 	return str(value)
 
-
-runtime_option_section = '<runtime option section>'
+_runtime_option_section = '<runtime option section>' #TODO: Can this be a sentinel-style object with ConfigValue section parameter having union str | that
 
 _config_ini_values = {
 	'output_folder': ConfigValue('Paths', ConfigValueType.FolderPath, data_dir.joinpath('apps'), 'Output folder', 'Folder to put launchers'),
@@ -78,10 +67,10 @@ _config_ini_values = {
 	'use_itch_io_as_platform': ConfigValue('itch.io', ConfigValueType.Bool, False, 'Use itch.io as platform', 'Set platform in metadata to itch.io instead of underlying platform'),
 
 	#These shouldn't end up in config.ini as they're intended to be set per-run
-	'debug': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Debug', 'Enable debug mode, which is really verbose mode, oh well'),
-	'print_times': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Print times', 'Print how long it takes to do things'),
-	'full_rescan': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Full rescan', 'Regenerate every launcher from scratch instead of just what\'s new and removing what\'s no longer there'),
-	'organize_folders': ConfigValue(runtime_option_section, ConfigValueType.Bool, False, 'Organize folders', 'Use the organized folders frontend'),
+	'debug': ConfigValue(_runtime_option_section, ConfigValueType.Bool, False, 'Debug', 'Enable debug mode, which is really verbose mode, oh well'),
+	'print_times': ConfigValue(_runtime_option_section, ConfigValueType.Bool, False, 'Print times', 'Print how long it takes to do things'),
+	'full_rescan': ConfigValue(_runtime_option_section, ConfigValueType.Bool, False, 'Full rescan', 'Regenerate every launcher from scratch instead of just what\'s new and removing what\'s no longer there'),
+	'organize_folders': ConfigValue(_runtime_option_section, ConfigValueType.Bool, False, 'Organize folders', 'Use the organized folders frontend'),
 }
 #Hmm... debug could be called 'verbose' and combined with --super_debug used in disambiguate to become verbosity_level or just verbose for short, which could have an integer argument, and it _could_ be in config.ini I guess... ehh whatevs
 
@@ -89,7 +78,7 @@ _config_ini_values = {
 def get_config_ini_options() -> Mapping[str, Mapping[str, ConfigValue]]:
 	opts: MutableMapping[str, MutableMapping[str, ConfigValue]] = {}
 	for k, v in _config_ini_values.items():
-		if v.section == runtime_option_section:
+		if v.section == _runtime_option_section:
 			continue
 		if v.section not in opts:
 			opts[v.section] = {}
@@ -97,9 +86,9 @@ def get_config_ini_options() -> Mapping[str, Mapping[str, ConfigValue]]:
 	return opts
 
 def get_runtime_options() -> Mapping[str, ConfigValue]:
-	return {name: opt for name, opt in _config_ini_values.items() if opt.section == runtime_option_section}
+	return {name: opt for name, opt in _config_ini_values.items() if opt.section == _runtime_option_section}
 
-def get_command_line_arguments() -> Mapping[str, TypeOfConfigValue]:
+def _get_command_line_arguments() -> Mapping[str, TypeOfConfigValue]:
 	d: MutableMapping[str, TypeOfConfigValue] = {}
 	for i, arg in enumerate(sys.argv):
 		if not arg.startswith('--'):
@@ -130,7 +119,7 @@ def get_command_line_arguments() -> Mapping[str, TypeOfConfigValue]:
 					d[name] = value
 	return d
 
-def load_ignored_directories() -> Collection[PurePath]:
+def _load_ignored_directories() -> Collection[PurePath]:
 	ignored_directories: set[PurePath] = set()
 
 	try:
@@ -148,6 +137,7 @@ def load_ignored_directories() -> Collection[PurePath]:
 	return ignored_directories
 
 def write_ignored_directories(ignored_dirs: Collection[PurePath]):
+	#TODO: Also only used by broken GUI and maybe I don't want it to be part of that
 	try:
 		with _ignored_dirs_path.open('wt', encoding='utf-8') as ignored_txt:
 			for ignored_dir in ignored_dirs:
@@ -157,9 +147,10 @@ def write_ignored_directories(ignored_dirs: Collection[PurePath]):
 		print('AAaaaa!!! Failed to write ignored directories file!!', oe)
 
 def write_new_main_config(new_config: Mapping[str, Mapping[str, TypeOfConfigValue]]):
-	write_new_config(new_config, _main_config_path)
+	#TODO: This is only used by the broken GUI right now and maybe we don't actually want to do things this way
+	_write_new_config(new_config, _main_config_path)
 
-def write_new_config(new_config: Mapping[str, Mapping[str, TypeOfConfigValue]], config_file_path: Path) -> None:
+def _write_new_config(new_config: Mapping[str, Mapping[str, TypeOfConfigValue]], config_file_path: Path) -> None:
 	parser = configparser.ConfigParser(interpolation=None)
 	parser.optionxform = str #type: ignore[assignment]
 	ensure_exist(config_file_path)
@@ -168,7 +159,7 @@ def write_new_config(new_config: Mapping[str, Mapping[str, TypeOfConfigValue]], 
 		if section not in parser:
 			parser.add_section(section)
 		for name, value in configs.items():
-			parser[section][name] = convert_value_for_ini(value)
+			parser[section][name] = _convert_value_for_ini(value)
 
 	try:
 		with config_file_path.open('wt', encoding='utf-8') as ini_file:
@@ -183,19 +174,20 @@ class Config():
 			for name, config in _config_ini_values.items():
 				self.values[name] = config.default_value
 
-			self.runtime_overrides = get_command_line_arguments()
+			self.runtime_overrides = _get_command_line_arguments()
 			self.reread_config()
 
 		def reread_config(self) -> None:
+			#TODO: Only the broken GUI calls this outside of init calling it once right up there, do I care enough for this to be a separate function
 			parser = configparser.ConfigParser(interpolation=None)
 			parser.optionxform = str #type: ignore[assignment]
 			self.parser = parser
 			ensure_exist(_main_config_path)
 			self.parser.read(_main_config_path)
 
-			self.ignored_directories = load_ignored_directories()
+			self.ignored_directories = _load_ignored_directories()
 
-		def rewrite_config(self) -> None:
+		def _rewrite_config(self) -> None:
 			with open(_main_config_path, 'wt', encoding='utf-8') as f:
 				self.parser.write(f)
 
@@ -205,17 +197,17 @@ class Config():
 					return self.runtime_overrides[name]
 				config = _config_ini_values[name]
 
-				if config.section == runtime_option_section:
+				if config.section == _runtime_option_section:
 					return config.default_value
 
 				if config.section not in self.parser:
 					self.parser.add_section(config.section)
-					self.rewrite_config()
+					self._rewrite_config()
 
 				section = self.parser[config.section]
 				if name not in section:
-					section[name] = convert_value_for_ini(config.default_value)
-					self.rewrite_config()
+					section[name] = _convert_value_for_ini(config.default_value)
+					self._rewrite_config()
 					return config.default_value
 
 				return parse_value(section, name, config.type, config.default_value)

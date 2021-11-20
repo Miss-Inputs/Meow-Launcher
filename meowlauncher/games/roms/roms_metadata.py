@@ -28,9 +28,9 @@ from meowlauncher.util.utils import (find_filename_tags_at_end, junk_suffixes,
 from .rom import ROM, FileROM, FolderROM
 from .rom_game import ROMGame
 
-not_necessarily_equivalent_arcade_names = load_list(None, 'not_necessarily_equivalent_arcade_names')
+_not_necessarily_equivalent_arcade_names = load_list(None, 'not_necessarily_equivalent_arcade_names')
 
-def add_metadata_from_tags(game: ROMGame):
+def _add_metadata_from_tags(game: ROMGame):
 	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
 	tags = game.filename_tags
 
@@ -57,16 +57,16 @@ def add_metadata_from_tags(game: ROMGame):
 		if languages:
 			game.metadata.languages = languages
 
-def add_metadata_from_regions(metadata: Metadata):
+def _add_metadata_from_regions(metadata: Metadata):
 	if metadata.regions:
 		if not metadata.languages:
 			region_language = get_language_from_regions(metadata.regions)
 			if region_language:
 				metadata.languages = [region_language]
 
-def find_equivalent_arcade_game(game: ROMGame, basename: str) -> Optional[Machine]:
+def _find_equivalent_arcade_game(game: ROMGame, basename: str) -> Optional[Machine]:
 	#Just to be really strict: We will only get it if the name matches
-	if basename in not_necessarily_equivalent_arcade_names:
+	if basename in _not_necessarily_equivalent_arcade_names:
 		return None
 
 	if not default_mame_executable:
@@ -76,7 +76,7 @@ def find_equivalent_arcade_game(game: ROMGame, basename: str) -> Optional[Machin
 	except MachineNotFoundException:
 		return None
 
-	if machine.family in not_necessarily_equivalent_arcade_names:
+	if machine.family in _not_necessarily_equivalent_arcade_names:
 		return None
 
 	catlist = machine.catlist
@@ -93,7 +93,7 @@ def find_equivalent_arcade_game(game: ROMGame, basename: str) -> Optional[Machin
 		return machine
 	return None
 
-def add_metadata_from_arcade(game: ROMGame, machine: Machine):
+def _add_metadata_from_arcade(game: ROMGame, machine: Machine):
 	if 'Icon' not in game.metadata.images:
 		machine_icon = get_image(image_config_keys['Icon'], machine.basename)
 		if machine_icon:
@@ -119,7 +119,7 @@ def add_metadata_from_arcade(game: ROMGame, machine: Machine):
 		game.metadata.categories = [catlist.category]
 	#Well, I guess not much else can be inferred here. Still, though!
 		
-def add_alternate_names(rom: ROM, metadata: Metadata):
+def _add_alternate_names(rom: ROM, metadata: Metadata):
 	tags_at_end = find_filename_tags_at_end(rom.name)
 	name = remove_filename_tags(rom.name)
 
@@ -154,7 +154,7 @@ def add_alternate_names(rom: ROM, metadata: Metadata):
 	for alt_name in alt_names:
 		metadata.add_alternate_name(alt_name)
 
-def add_metadata_from_libretro_database_entry(metadata: Metadata, database: LibretroDatabaseType, key: Union[str, int]):
+def _add_metadata_from_libretro_database_entry(metadata: Metadata, database: LibretroDatabaseType, key: Union[str, int]):
 	database_entry = cast(Optional[dict[str, Any]], database.get(key)) #TODO: Hmm what's the best way to do this - we don't want mypy complaining about all the different things GameValueType could be
 	if database_entry:
 		name = database_entry.get('comment', database_entry.get('name'))
@@ -245,7 +245,7 @@ def add_metadata_from_libretro_database_entry(metadata: Metadata, database: Libr
 		return True
 	return False
 
-def add_metadata_from_libretro_database(game: ROMGame):
+def _add_metadata_from_libretro_database(game: ROMGame):
 	key: Union[Optional[str], int]
 	if game.platform.dat_uses_serial:
 		key = game.metadata.product_code
@@ -260,12 +260,12 @@ def add_metadata_from_libretro_database(game: ROMGame):
 			if database:
 				if game.platform.dat_uses_serial and ', ' in cast(str, key):
 					for product_code in cast(str, key).split(', '):
-						if add_metadata_from_libretro_database_entry(game.metadata, database, product_code):
+						if _add_metadata_from_libretro_database_entry(game.metadata, database, product_code):
 							break
 				else:
-					add_metadata_from_libretro_database_entry(game.metadata, database, key)
+					_add_metadata_from_libretro_database_entry(game.metadata, database, key)
 
-def autodetect_tv_type(game: ROMGame):
+def _autodetect_tv_type(game: ROMGame):
 	if game.metadata.specific_info.get('TV Type'):
 		return
 	
@@ -279,7 +279,7 @@ def autodetect_tv_type(game: ROMGame):
 		game.metadata.specific_info['TV Type'] = from_region
 		return
 
-def add_platform_specific_metadata(game: ROMGame):
+def _add_platform_specific_metadata(game: ROMGame):
 	custom_info_func = custom_info_funcs.get(game.platform.name)
 	if custom_info_func:
 		custom_info_func(game)
@@ -311,7 +311,7 @@ def add_platform_specific_metadata(game: ROMGame):
 				add_generic_software_info(software, game.metadata)
 
 def add_metadata(game: ROMGame):
-	add_alternate_names(game.rom, game.metadata)
+	_add_alternate_names(game.rom, game.metadata)
 	#I guess if game.subroms was ever used you would loop through each one (I swear I will do the thing one day)
 
 	if game.rom.is_folder:
@@ -320,26 +320,26 @@ def add_metadata(game: ROMGame):
 		game.metadata.specific_info['Extension'] = game.rom.extension
 		game.metadata.media_type = game.platform.get_media_type(cast(FileROM, game.rom))
 
-	add_platform_specific_metadata(game)
+	_add_platform_specific_metadata(game)
 				
 	equivalent_arcade = game.metadata.specific_info.get('Equivalent Arcade')
 	if not equivalent_arcade and main_config.find_equivalent_arcade_games:
 		software_name = game.metadata.specific_info.get('MAME Software Name')
 		parent_name = game.metadata.specific_info.get('MAME Software Parent')
 		if software_name:
-			equivalent_arcade = find_equivalent_arcade_game(game, software_name)
+			equivalent_arcade = _find_equivalent_arcade_game(game, software_name)
 			if not equivalent_arcade and parent_name:
-				equivalent_arcade = find_equivalent_arcade_game(game, parent_name)
+				equivalent_arcade = _find_equivalent_arcade_game(game, parent_name)
 			if equivalent_arcade:
 				game.metadata.specific_info['Equivalent Arcade'] = equivalent_arcade
 	
 	if equivalent_arcade:
-		add_metadata_from_arcade(game, equivalent_arcade)
+		_add_metadata_from_arcade(game, equivalent_arcade)
 
-	add_metadata_from_tags(game)
-	add_metadata_from_regions(game.metadata)
+	_add_metadata_from_tags(game)
+	_add_metadata_from_regions(game.metadata)
 
 	if game.platform.dat_names:
-		add_metadata_from_libretro_database(game)
+		_add_metadata_from_libretro_database(game)
 	if game.platform.autodetect_tv_type:
-		autodetect_tv_type(game)
+		_autodetect_tv_type(game)
