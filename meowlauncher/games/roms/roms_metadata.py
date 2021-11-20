@@ -250,7 +250,7 @@ def add_metadata_from_libretro_database(game: ROMGame):
 	if game.platform.dat_uses_serial:
 		key = game.metadata.product_code
 	elif isinstance(game.rom, FileROM):
-		key = game.rom.get_crc32()
+		key = game.rom.crc32
 	else:
 		return
 

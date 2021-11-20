@@ -203,7 +203,7 @@ def parse_gameboy_header(metadata: 'Metadata', header: bytes):
 	metadata.specific_info['Revision'] = header[0x4c]
 
 def parse_gbx_footer(rom: FileROM, metadata: 'Metadata'):
-	footer = rom.read(seek_to=rom.get_size() - 64, amount=64)
+	footer = rom.read(seek_to=rom.size - 64, amount=64)
 	if footer[60:64] != b'GBX!':
 		if main_config.debug:
 			print(rom.path, 'GBX footer is invalid, siggy is', footer[60:64])
@@ -245,7 +245,7 @@ def add_gameboy_metadata(game: 'ROMGame'):
 			game.metadata.platform = 'Game Boy Color'
 
 	if game.rom.extension == 'gbx':
-		software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(rom.read(amount=rom.get_size() - 64)))
+		software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(rom.read(amount=rom.size - 64)))
 	else:
 		software = game.get_software_list_entry()
 	if software:

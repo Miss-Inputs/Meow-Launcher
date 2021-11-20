@@ -32,10 +32,10 @@ except ModuleNotFoundError:
 def parse_icon(rom: FileROM, icon_bank: int, icon_offset_x: int, icon_offset_y: int) -> 'Image':
 	bank_size = (256 * 256) // 4
 	bank_address = bank_size * icon_bank
-	if bank_address > rom.get_size():
+	if bank_address > rom.size:
 		#ROM is funny in some way, either underdumped or header is being annoying
 		#This... seems to work for some reason, except on Centipede
-		bank_address %= rom.get_size()
+		bank_address %= rom.size
 	bank_data = rom.read(seek_to=bank_address, amount=bank_size)
 
 	#Hm, these are meant to be 4-color (2bpp) images so maybe I could use P mode, or would that just cause more problems than it would solve

@@ -174,7 +174,7 @@ def add_history(metadata: Metadata, machine_or_softlist: str, software_name: Opt
 	if history.updates:
 		metadata.descriptions['Updates'] = history.updates
 
-def get_default_mame_categories_folders() -> Iterable[Path]:
+def iter_default_mame_categories_folders() -> Iterable[Path]:
 	if not default_mame_configuration:
 		return
 	ui_config = default_mame_configuration.ui_config
@@ -212,7 +212,7 @@ def get_mame_cat(name: str, category_folders: Iterable[Path]) -> Mapping[str, Co
 
 @functools.cache
 def get_mame_cat_from_default_mame_config(name: str) -> Mapping[str, Collection[str]]:
-	return get_mame_cat(name, get_default_mame_categories_folders())
+	return get_mame_cat(name, iter_default_mame_categories_folders())
 
 def get_machine_cat_from_category_folders(basename: str, folder_name: str, category_folders: Iterable[Path]) -> Optional[Collection[str]]:
 	folder = get_mame_cat(folder_name, category_folders)

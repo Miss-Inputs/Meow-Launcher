@@ -154,7 +154,7 @@ def add_woz_metadata(rom: FileROM, metadata: Metadata):
 		return
 
 	position = 12
-	size = rom.get_size()
+	size = rom.size
 	while position:
 		position = parse_woz_chunk(rom, metadata, position)
 		if position >= size:

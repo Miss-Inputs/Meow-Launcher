@@ -13,7 +13,7 @@ cue_file_line_regex = re.compile(r'^\s*FILE\s+(?:"(?P<name>.+)"|(?P<name_unquote
 #<mode> is defined here: https://www.gnu.org/software/ccd2cue/manual/html_node/MODE-_0028Compact-Disc-fields_0029.html#MODE-_0028Compact-Disc-fields_0029 but generally only AUDIO, MODE1/<size>, and MODE2/<size> are used
 cue_track_line_regex = re.compile(r'^\s*TRACK\s+(?P<number>\d+)\s+(?P<mode>.+)\s*$', flags=re.RegexFlag.IGNORECASE)
 
-def parse_cue_sheet(cue_path: Path) -> Iterable[tuple[str, int]]:
+def iter_cue_sheet(cue_path: Path) -> Iterable[tuple[str, int]]:
 	data = read_file(cue_path).decode('utf8', errors='backslashreplace')
 
 	current_file = None
@@ -45,7 +45,7 @@ def sector_size_from_cue_mode(mode: str) -> int:
 		return 0
 
 def get_first_data_cue_track(cue_path: Path) -> Optional[tuple[Path, int]]:
-	cue_files = tuple((f, sector_size) for f, sector_size in parse_cue_sheet(cue_path) if sector_size)
+	cue_files = tuple((f, sector_size) for f, sector_size in iter_cue_sheet(cue_path) if sector_size)
 	if not cue_files:
 		#The disc probably won't work, but I'll burn that bridge when it happens
 		return None

@@ -1,5 +1,5 @@
 from collections import Counter
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Sequence, Collection
 from typing import TYPE_CHECKING, Optional, cast
 from xml.etree import ElementTree
 
@@ -11,17 +11,16 @@ from meowlauncher.games.mame_common.mame_helpers import get_image
 from meowlauncher.games.mame_common.mame_support_files import (
     ArcadeCategory, MachineCategory, add_history, get_category, get_languages,
     organize_catlist)
-from meowlauncher.games.mame_common.mame_utils import (find_cpus,
+from meowlauncher.games.mame_common.mame_utils import (iter_cpus,
                                                        image_config_keys)
 from meowlauncher.util.detect_things_from_filename import (
     get_languages_from_tags_directly, get_regions_from_filename_tags,
     get_revision_from_filename_tags, get_version_from_filename_tags)
-from meowlauncher.util.region_info import get_language_from_regions
+from meowlauncher.util.region_info import get_language_from_regions, Language
 from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
 
 if TYPE_CHECKING:
 	from meowlauncher.metadata import Metadata
-
 	from .mame_game import MAMEGame
 
 #I still want to dismantle this class with the fury of a thousand suns
@@ -60,7 +59,8 @@ class CPU():
 
 		return ('{0:.' + str(precision) + 'g} Hz').format(hertz)
 
-	def get_formatted_clock_speed(self) -> Optional[str]:
+	@property
+	def formatted_clock_speed(self) -> Optional[str]:
 		if self.clock_speed:
 			return CPU.format_clock_speed(self.clock_speed)
 		return None
@@ -79,7 +79,7 @@ class CPUInfo():
 
 	@property
 	def clock_speeds(self) -> Optional[str]:
-		return _format_count(cpu.get_formatted_clock_speed() for cpu in self.cpus)
+		return _format_count(cpu.formatted_clock_speed for cpu in self.cpus)
 
 	@property
 	def tags(self) -> Optional[str]:
@@ -102,27 +102,30 @@ class Screen():
 			except ValueError:
 				pass
 
-	def get_screen_resolution(self) -> str:
+	@property
+	def screen_resolution(self) -> str:
 		if self.width and self.height:
 			return '{0:.0f}x{1:.0f}'.format(self.width, self.height)
 		#Other types are vector (Asteroids, etc) or svg (Game & Watch games, etc)
 		return self.type.capitalize()
 
-	def get_formatted_refresh_rate(self) -> Optional[str]:
+	@property
+	def formatted_refresh_rate(self) -> Optional[str]:
 		if self.refresh_rate:
 			return CPU.format_clock_speed(self.refresh_rate)
 		return None
 
-	def get_aspect_ratio(self) -> Optional[str]:
+	@property
+	def aspect_ratio(self) -> Optional[tuple[int, int]]:
 		if self.width and self.height:
 			return Screen.find_aspect_ratio(self.width, self.height)
 		return None
 
 	@staticmethod
-	def find_aspect_ratio(width: int, height: int) -> Optional[str]:
+	def find_aspect_ratio(width: int, height: int) -> Optional[tuple[int, int]]:
 		for i in reversed(range(1, max(int(width), int(height)) + 1)):
 			if (width % i) == 0 and (height % i) == 0:
-				return '{0:.0f}:{1:.0f}'.format(width // i, height // i)
+				return width // i, height // i
 
 		#This wouldn't happen unless one of the arguments is 0 or something silly like that
 		return None
@@ -131,22 +134,28 @@ class ScreenInfo():
 	def __init__(self, display_xmls: Iterable[ElementTree.Element]):
 		self.screens = {Screen(display_xml) for display_xml in display_xmls}
 
-	def get_number_of_screens(self) -> int:
+	@property
+	def number_of_screens(self) -> int:
 		return len(self.screens)
 
-	def get_screen_resolutions(self) -> Optional[str]:
-		return _format_count(screen.get_screen_resolution() for screen in self.screens if screen.get_screen_resolution())
+	@property
+	def screen_resolutions(self) -> Optional[str]:
+		return _format_count(screen.screen_resolution for screen in self.screens if screen.screen_resolution)
 
-	def get_refresh_rates(self) -> Optional[str]:
-		return _format_count(screen.get_formatted_refresh_rate() for screen in self.screens if screen.get_formatted_refresh_rate())
+	@property
+	def refresh_rates(self) -> Optional[str]:
+		return _format_count(screen.formatted_refresh_rate for screen in self.screens if screen.formatted_refresh_rate)
 
-	def get_aspect_ratios(self) -> Optional[str]:
-		return _format_count(screen.get_aspect_ratio() for screen in self.screens if screen.get_aspect_ratio())
+	@property
+	def aspect_ratios(self) -> Optional[str]:
+		return _format_count('{0:.0f}:{1:.0f}'.format(*screen.aspect_ratio) for screen in self.screens if screen.aspect_ratio)
 
-	def get_display_types(self) -> Optional[str]:
+	@property
+	def display_types(self) -> Optional[str]:
 		return _format_count(screen.type for screen in self.screens if screen.type)
 
-	def get_display_tags(self) -> Optional[str] :
+	@property
+	def display_tags(self) -> Optional[str] :
 		return _format_count(screen.tag for screen in self.screens if screen.tag)
 
 
@@ -298,7 +307,7 @@ def add_metadata_from_catlist(game: 'MAMEGame') -> None:
 	#Anyway, the name 'Non-Arcade' sucks because it's just used as a "this isn't anything in particular" thing
 
 def add_languages(game: 'MAMEGame', name_tags: Sequence[str]) -> None:
-	languages = get_languages(game.machine.basename)
+	languages: Optional[Collection[Language]] = get_languages(game.machine.basename)
 	if languages:
 		game.metadata.languages = languages
 	else:
@@ -356,7 +365,7 @@ def add_metadata(game: 'MAMEGame') -> None:
 	add_status(game.machine, game.metadata)
 	add_history(game.metadata, game.machine.basename)
 
-	cpu_info = CPUInfo(CPU(cpu_xml) for cpu_xml in find_cpus(game.machine.xml))	
+	cpu_info = CPUInfo(CPU(cpu_xml) for cpu_xml in iter_cpus(game.machine.xml))	
 	screen_info = ScreenInfo(game.machine.xml.iterfind('display'))
 	
 	game.metadata.specific_info['Number of CPUs'] = cpu_info.number_of_cpus
@@ -365,16 +374,16 @@ def add_metadata(game: 'MAMEGame') -> None:
 		game.metadata.specific_info['Clock Speed'] = cpu_info.clock_speeds
 		game.metadata.specific_info['CPU Tags'] = cpu_info.tags
 
-	num_screens = screen_info.get_number_of_screens()
+	num_screens = screen_info.number_of_screens
 	game.metadata.specific_info['Number of Screens'] = num_screens
 
 	if num_screens:
-		game.metadata.specific_info['Screen Resolution'] = screen_info.get_screen_resolutions()
-		game.metadata.specific_info['Refresh Rate'] = screen_info.get_refresh_rates()
-		game.metadata.specific_info['Aspect Ratio'] = screen_info.get_aspect_ratios()
+		game.metadata.specific_info['Screen Resolution'] = screen_info.screen_resolutions
+		game.metadata.specific_info['Refresh Rate'] = screen_info.refresh_rates
+		game.metadata.specific_info['Aspect Ratio'] = screen_info.aspect_ratios
 
-		game.metadata.specific_info['Screen Type'] = screen_info.get_display_types()
-		game.metadata.specific_info['Screen Tag'] = screen_info.get_display_tags()
+		game.metadata.specific_info['Screen Type'] = screen_info.display_types
+		game.metadata.specific_info['Screen Tag'] = screen_info.display_tags
 
 def add_input_info(game: 'MAMEGame') -> None:
 	game.metadata.input_info.set_inited()

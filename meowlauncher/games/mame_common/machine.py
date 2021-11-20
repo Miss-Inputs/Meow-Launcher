@@ -1,4 +1,4 @@
-from pathlib import Path, PurePath
+from pathlib import PurePath
 import re
 from collections.abc import Collection, Iterable, Mapping, Sequence
 from typing import TYPE_CHECKING, Optional, cast
@@ -444,7 +444,7 @@ def iter_machines(exe: 'MAMEExecutable') -> Iterable[Machine]:
 def get_machine(driver: str, exe: 'MAMEExecutable') -> Machine:
 	return Machine(exe.get_mame_xml(driver), exe)
 
-def get_machines_from_source_file(source_file: str, exe: 'MAMEExecutable') -> Iterable[Machine]:
+def iter_machines_from_source_file(source_file: str, exe: 'MAMEExecutable') -> Iterable[Machine]:
 	for machine_name, source_file_with_ext in exe.listsource():
 		if PurePath(source_file_with_ext).stem == source_file:
 			yield get_machine(machine_name, exe)

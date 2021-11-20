@@ -264,7 +264,8 @@ class MacApp(App):
 	def base_folder(self):
 		return None
 
-	def get_fallback_name(self) -> str:
+	@property
+	def fallback_name(self) -> str:
 		if have_machfs:
 			if self.path.endswith('.app'):
 				return self.path.split(':')[-1].removesuffix('.app')

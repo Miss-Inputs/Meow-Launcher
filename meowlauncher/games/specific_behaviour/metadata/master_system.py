@@ -97,7 +97,7 @@ def _parse_standard_header(rom: FileROM, base_offset: int) -> Mapping[str, Any]:
 	return header_data
 
 def add_info_from_standard_header(rom: FileROM, metadata: Metadata):
-	rom_size = rom.get_size()
+	rom_size = rom.size
 	possible_offsets = [0x1ff0, 0x3ff0, 0x7ff0]
 
 	header_data = None

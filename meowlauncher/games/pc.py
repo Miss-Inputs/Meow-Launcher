@@ -29,7 +29,7 @@ class App(EmulatedGame, ABC):
 			self.other_cd_paths = cd_paths[1:]
 		elif self.is_on_cd:
 			raise KeyError('cd_path is mandatory if is_on_cd is true')
-		self._name = info.get('name', fix_name(self.get_fallback_name()))
+		self._name = info.get('name', fix_name(self.fallback_name))
 
 	@property
 	def name(self) -> str:
@@ -39,16 +39,13 @@ class App(EmulatedGame, ABC):
 	def base_folder(self) -> Path:
 		#Might want to override this in subclass, returns a folder on the host that might have other files related to the game (CD images, etc)
 		#Return none if this is not relevant
-		return PurePath(self.path).parent
+		return Path(self.path).parent
 
-	def get_fallback_name(self) -> str:
+	@property
+	def fallback_name(self) -> str:
 		#Might want to override in subclass, maybe not - return something that should be used as the name if the user doesn't put any name in the config
 		return PurePath(self.path).name
 	
-	def get_launcher_id(self) -> str:
-		#For overriding in subclass (but maybe this will do as a default), for Unique-ID in [X-Meow Launcher ID] section of launcher
-		return self.path
-
 	@final
 	def add_metadata(self) -> None:
 		self.metadata.media_type = MediaType.Executable

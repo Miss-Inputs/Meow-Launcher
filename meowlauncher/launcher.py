@@ -26,5 +26,6 @@ class Launcher(ABC):
 		pass
 
 	@abstractmethod
-	def get_launch_command(self) -> 'LaunchCommand':
+	@property
+	def command(self) -> 'LaunchCommand':
 		pass

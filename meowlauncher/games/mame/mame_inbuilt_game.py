@@ -41,7 +41,8 @@ class MAMEInbuiltLauncher(EmulatorLauncher):
 	def game_type(self) -> str:
 		return 'Inbuilt game'
 
-	def get_launch_command(self) -> LaunchCommand:
+	@property
+	def command(self) -> LaunchCommand:
 		if not self.runner.config.exe_path:
 			raise AssertionError('I have no idea why exe_path would be null')
 		return LaunchCommand(self.runner.config.exe_path, mame_base(self.game.machine_name, bios=self.game.bios_name))

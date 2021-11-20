@@ -5,7 +5,7 @@ from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.mame_common.machine import (
-    Machine, does_machine_match_game, get_machines_from_source_file)
+    Machine, does_machine_match_game, iter_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
@@ -492,7 +492,7 @@ def add_unif_metadata(rom: FileROM, metadata: Metadata):
 	metadata.specific_info['Header Format'] = 'UNIF'
 
 	pos = 32
-	size = rom.get_size()
+	size = rom.size
 	while pos < size:
 		chunk = rom.read(amount=8, seek_to=pos)
 		chunk_type = chunk[0:4].decode('ascii', errors='ignore')
@@ -509,12 +509,12 @@ def try_get_equivalent_arcade(rom: ROM, names: Iterable[str]) -> Optional[Machin
 		return None
 	if not hasattr(try_get_equivalent_arcade, 'playchoice10_games'):
 		try:
-			try_get_equivalent_arcade.playchoice10_games = tuple(get_machines_from_source_file('playch10', default_mame_executable)) #type: ignore[attr-defined]
+			try_get_equivalent_arcade.playchoice10_games = tuple(iter_machines_from_source_file('playch10', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
 			try_get_equivalent_arcade.playchoice10_games = () #type: ignore[attr-defined]
 	if not hasattr(try_get_equivalent_arcade, 'vsnes_games'):
 		try:
-			try_get_equivalent_arcade.vsnes_games = tuple(get_machines_from_source_file('vsnes', default_mame_executable)) #type: ignore[attr-defined]
+			try_get_equivalent_arcade.vsnes_games = tuple(iter_machines_from_source_file('vsnes', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
 			try_get_equivalent_arcade.vsnes_games = () #type: ignore[attr-defined]
 

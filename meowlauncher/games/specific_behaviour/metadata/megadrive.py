@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Optional, Union
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.mame_common.machine import (
-    Machine, does_machine_match_game, get_machines_from_source_file)
+    Machine, does_machine_match_game, iter_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
@@ -237,7 +237,7 @@ def _get_megaplay_games() -> Iterable[Machine]:
 		if not default_mame_executable:
 			#I don't think there's a use case for this being changed
 			return
-		_get_megaplay_games.result = tuple(get_machines_from_source_file('megaplay', default_mame_executable)) #type: ignore[attr-defined]
+		_get_megaplay_games.result = tuple(iter_machines_from_source_file('megaplay', default_mame_executable)) #type: ignore[attr-defined]
 		yield from _get_megaplay_games.result #type: ignore[attr-defined]
 
 def _get_megatech_games() -> Iterable[Machine]:
@@ -246,7 +246,7 @@ def _get_megatech_games() -> Iterable[Machine]:
 	except AttributeError:
 		if not default_mame_executable:
 			return
-		_get_megatech_games.result = tuple(get_machines_from_source_file('megatech', default_mame_executable)) #type: ignore[attr-defined]
+		_get_megatech_games.result = tuple(iter_machines_from_source_file('megatech', default_mame_executable)) #type: ignore[attr-defined]
 		yield from _get_megatech_games.result #type: ignore[attr-defined]
 
 def try_find_equivalent_arcade(rom: ROM, metadata: Metadata) -> Optional[Machine]:
@@ -255,7 +255,7 @@ def try_find_equivalent_arcade(rom: ROM, metadata: Metadata) -> Optional[Machine
 			if not default_mame_executable:
 				#CBF tbhkthbai
 				return None
-			try_find_equivalent_arcade.arcade_bootlegs = tuple(get_machines_from_source_file('megadriv_acbl', default_mame_executable)) #type: ignore[attr-defined]
+			try_find_equivalent_arcade.arcade_bootlegs = tuple(iter_machines_from_source_file('megadriv_acbl', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
 			try_find_equivalent_arcade.arcade_bootlegs = () #type: ignore[attr-defined]
 

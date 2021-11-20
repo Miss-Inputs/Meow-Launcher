@@ -472,7 +472,7 @@ class SoftwareList():
 				return Software(software, self)
 		return None
 
-	def find_all_software_with_custom_matcher(self, matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Iterable[Software]:
+	def iter_all_software_with_custom_matcher(self, matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Iterable[Software]:
 		for software_xml in self.xml.iterfind('software'):
 			software = Software(software_xml, self)
 			for part in software.parts.values():
@@ -502,7 +502,7 @@ class SoftwareList():
 		return None
 
 	_verifysoftlist_result = None
-	def get_available_software(self) -> Iterable[Software]:
+	def iter_available_software(self) -> Iterable[Software]:
 		#Only call -verifysoftlist if we need to, i.e. don't if it's entirely a romless softlist
 		
 		for software_xml in self.xml.iterfind('software'):

@@ -77,7 +77,8 @@ class MultiLaunchCommands(LaunchCommand):
 	def env_vars(self) -> Mapping[str, str]:
 		return self.main_command.env_vars
 
-	def get_whole_shell_command(self) -> LaunchCommand:
+	@property
+	def whole_shell_command(self) -> LaunchCommand:
 		#Purrhaps I should add an additional field for this object to optionally use ; instead of &&
 		inner_commands = tuple(command.make_linux_command_string() for command in self.pre_commands) + \
 			(self.main_command.make_linux_command_string(), ) + \
@@ -86,7 +87,7 @@ class MultiLaunchCommands(LaunchCommand):
 		return LaunchCommand('sh', ('-c', joined_commands))
 
 	def make_linux_command_string(self) -> str:
-		return self.get_whole_shell_command().make_linux_command_string()
+		return self.whole_shell_command.make_linux_command_string()
 
 	def wrap(self, command: str) -> 'LaunchCommand':
 		return MultiLaunchCommands(self.pre_commands, self.main_command.wrap(command), self.post_commands)

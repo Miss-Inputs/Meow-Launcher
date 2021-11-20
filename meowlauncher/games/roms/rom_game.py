@@ -84,9 +84,10 @@ class ROMLauncher(EmulatorLauncher):
 	def game_id(self) -> str:
 		return str(self.game.rom.path)
 
-	def get_launch_command(self) -> LaunchCommand:
+	@property
+	def command(self) -> LaunchCommand:
 		#TODO: Ideally EmulatorLauncher would do something useful with self.runner and then we call super() but that also needs refactoring
-		command = super().get_launch_command()
+		command = super().command
 		if self.game.rom.is_compressed:
 			rom = cast(CompressedROM, self.game.rom)
 			if not self.runner.supports_compressed_extension(rom.extension):

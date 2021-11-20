@@ -23,7 +23,7 @@ class ScummVM(GameSource):
 	def no_longer_exists(self, game_id: str) -> bool:
 		return game_id not in scummvm_config.scummvm_ini.sections() if scummvm_config.have_scummvm else True
 
-	def get_launchers(self) -> Iterable[ScummVMLauncher]:
+	def iter_launchers(self) -> Iterable[ScummVMLauncher]:
 		for section in scummvm_config.scummvm_ini.sections():
 			if section == 'scummvm':
 				#Skip the top section

@@ -22,7 +22,7 @@ def add_games(source: GameSource, progress_function: Callable[..., None]=print) 
 		for subsource in source.sources:
 			count += add_games(subsource)
 	else:
-		for launcher in source.get_launchers():
+		for launcher in source.iter_launchers():
 			count += 1
 			make_linux_desktop_for_launcher(launcher)
 	time_ended = time.perf_counter()

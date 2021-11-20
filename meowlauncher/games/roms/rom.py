@@ -98,7 +98,8 @@ class FileROM(ROM):
 	def _get_size(self) -> int:
 		return self.path.stat().st_size
 
-	def get_size(self) -> int:
+	@property
+	def size(self) -> int:
 		if self._store_entire_file:
 			return len(self._entire_file)
 		return self._get_size()
@@ -110,7 +111,8 @@ class FileROM(ROM):
 				crc = zlib.crc32(chunk, crc)
 			return crc & 0xffffffff
 
-	def get_crc32(self) -> int:
+	@property
+	def crc32(self) -> int:
 		if self.crc_for_database is not None:
 			return self.crc_for_database
 		
@@ -144,7 +146,7 @@ class FileROM(ROM):
 			data = self.read(seek_to=skip_header)
 			return find_in_software_lists(software_lists, matcher_args_for_bytes(data))
 
-		crc32 = zlib.crc32(byteswap(self.read())) & 0xffffffff if needs_byteswap else self.get_crc32()
+		crc32 = zlib.crc32(byteswap(self.read())) & 0xffffffff if needs_byteswap else self.crc32
 		
 		def _file_rom_reader(offset, amount) -> bytes:
 			data = self.read(seek_to=offset, amount=amount)
@@ -152,7 +154,7 @@ class FileROM(ROM):
 				return byteswap(data)
 			return data
 			
-		args = SoftwareMatcherArgs(format_crc32_for_software_list(crc32), None, self.get_size() - self.header_length_for_crc_calculation, _file_rom_reader)
+		args = SoftwareMatcherArgs(format_crc32_for_software_list(crc32), None, self.size - self.header_length_for_crc_calculation, _file_rom_reader)
 		return find_in_software_lists(software_lists, args)
 
 class CompressedROM(FileROM):
@@ -188,10 +190,11 @@ class CompressedROM(FileROM):
 	def _get_size(self) -> int:
 		return archives.compressed_getsize(self.path, self.inner_filename)
 
-	def get_size(self) -> int:
+	@property
+	def size(self) -> int:
 		if self._size is not None:
 			return self._size
-		return super().get_size()
+		return super().size
 
 	def _get_crc32(self) -> int:
 		return archives.get_crc32_of_archive(self.path, self.inner_filename)
@@ -201,13 +204,15 @@ class GCZFileROM(FileROM):
 	def should_read_whole_thing(self) -> bool:
 		return False
 
-	def get_size(self) -> int:
+	@property
+	def size(self) -> int:
 		return int.from_bytes(self._read(seek_to=16, amount=8), 'little')
 
 	def read(self, seek_to: int=0, amount: int=-1) -> bytes:
 		return cd_read.read_gcz(self.path, seek_to, amount)
 
-	def get_crc32(self) -> int:
+	@property
+	def crc32(self) -> int:
 		raise NotImplementedError('Trying to hash a .gcz file is silly and should not be done')
 
 	def get_software_list_entry(self, _: Iterable['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:

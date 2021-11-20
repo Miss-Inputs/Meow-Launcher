@@ -30,17 +30,17 @@ class GameSource(ABC):
 	#TODO: Should have has_been_done somewhere in here? Maybe
 
 	@abstractmethod
-	def get_launchers(self) -> Iterable[Launcher]:
+	def iter_launchers(self) -> Iterable[Launcher]:
 		pass
 
 class CompoundGameSource(GameSource, ABC):
 	def __init__(self, sources: Sequence[GameSource]) -> None:
 		self.sources = sources
 
-	def get_launchers(self) -> Iterable[Launcher]:
+	def iter_launchers(self) -> Iterable[Launcher]:
 		for source in self.sources:
 			if source.is_available:
-				yield from source.get_launchers()
+				yield from source.iter_launchers()
 
 	@property
 	def is_available(self) -> bool:
@@ -54,7 +54,7 @@ class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType]):
 		self.emulators = emulators
 		self.libretro_cores = libretro_cores
 	
-	def get_chosen_emulators(self) -> Iterable[Union[EmulatorType, LibretroCore]]:
+	def iter_chosen_emulators(self) -> Iterable[Union[EmulatorType, LibretroCore]]:
 		for emulator_name in self.platform_config.chosen_emulators:
 			emulator = self.libretro_cores.get(emulator_name.removesuffix(' (libretro)')) if \
 				(self.libretro_cores and emulator_name.endswith(' (libretro)')) else \

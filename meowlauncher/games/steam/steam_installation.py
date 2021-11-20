@@ -79,7 +79,8 @@ class SteamInstallation():
 	def userdata_folder(self) -> Path:
 		return self.steamdir.joinpath('userdata')
 
-	def get_users(self) -> Collection[str]:
+	@property
+	def user_ids(self) -> Collection[str]:
 		#Probably the most lazy way to do it, but if this is a bad idea, please don't send me to jail
 		return {user.name for user in self.userdata_folder.iterdir() if user.name != 'ac'}
 

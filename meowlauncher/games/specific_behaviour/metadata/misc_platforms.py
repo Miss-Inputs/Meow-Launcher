@@ -6,7 +6,7 @@ from collections.abc import Iterable
 from meowlauncher import input_metadata
 from meowlauncher.common_types import MediaType
 from meowlauncher.games.mame_common.machine import (
-    Machine, does_machine_match_game, get_machines_from_source_file)
+    Machine, does_machine_match_game, iter_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
@@ -22,7 +22,7 @@ def add_vic10_info(game: 'ROMGame'):
 
 	rom = cast(FileROM, game.rom)
 	has_header = False
-	if game.metadata.media_type == MediaType.Cartridge and (rom.get_size() % 256) == 2:
+	if game.metadata.media_type == MediaType.Cartridge and (rom.size % 256) == 2:
 		has_header = True
 		rom.header_length_for_crc_calculation = 2
 	game.metadata.specific_info['Headered?'] = has_header
@@ -36,7 +36,7 @@ def add_vic20_info(game: 'ROMGame'):
 
 	rom = cast(FileROM, game.rom)
 	has_header = False
-	if game.metadata.media_type == MediaType.Cartridge and (rom.get_size() % 256) == 2:
+	if game.metadata.media_type == MediaType.Cartridge and (rom.size % 256) == 2:
 		has_header = True
 		rom.header_length_for_crc_calculation = 2
 	game.metadata.specific_info['Headered?'] = has_header
@@ -188,7 +188,7 @@ def _get_uapce_games() -> Iterable[Machine]:
 			if not default_mame_executable:
 				#CBF tbhkthbai
 				return	
-			_get_uapce_games.result = tuple(get_machines_from_source_file('uapce', default_mame_executable)) #type: ignore[attr-defined]
+			_get_uapce_games.result = tuple(iter_machines_from_source_file('uapce', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
 			return
 		yield from _get_uapce_games.result #type: ignore[attr-defined]

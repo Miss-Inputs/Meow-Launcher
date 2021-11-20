@@ -1,7 +1,7 @@
 import copy
 import re
 import subprocess
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 from typing import cast
 from xml.etree import ElementTree
 
@@ -20,19 +20,19 @@ class MAMENotInstalledException(Exception):
 class MAMEExecutable():
 	def __init__(self, path: str='mame'):
 		self.executable = path
-		self.version = self.get_version()
+		self.version = self._get_version()
 		#Do I really wanna be checking that this MAME exists inside the object that represents it? That doesn't entirely make sense to me
 		self._xml_cache_path = cache_dir.joinpath(self.version)
 		self._icons = None
 
-	def get_version(self) -> str:
+	def _get_version(self) -> str:
 		#Note that there is a -version option in (as of this time of writing, upcoming) MAME 0.211, but might as well just use this, because it works on older versions
 		version_proc = subprocess.run([self.executable, '-help'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
 		#Let it raise FileNotFoundError deliberately if it is not found
 		return version_proc.stdout.splitlines()[0]
 
 	def _real_iter_mame_entire_xml(self) -> Iterable[tuple[str, ElementTree.Element]]:
-		print('New MAME version found: ' + self.get_version() + '; creating XML; this may take a while the first time it is run')
+		print('New MAME version found: ' + self.version + '; creating XML; this may take a while the first time it is run')
 		self._xml_cache_path.mkdir(exist_ok=True, parents=True)
 
 		with subprocess.Popen([self.executable, '-listxml'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as proc:

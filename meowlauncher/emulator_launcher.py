@@ -17,5 +17,6 @@ class EmulatorLauncher(Launcher, ABC):
 		self.platform_config = platform_config if platform_config else {}
 		super().__init__(game, emulator)
 
-	def get_launch_command(self) -> 'LaunchCommand':
+	@property
+	def command(self) -> 'LaunchCommand':
 		return self.runner.get_launch_command_for_game(self.game, self.platform_config)

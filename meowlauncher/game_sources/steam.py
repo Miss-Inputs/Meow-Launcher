@@ -668,7 +668,7 @@ def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user:
 				game.metadata.specific_info['Achievement Completion'] = '{0:.0%}'.format(achieved / total_achievements)
 
 def add_info_from_user_cache(game: 'SteamGame'):
-	user_list = steam_installation.get_users()
+	user_list = steam_installation.user_ids
 	if not user_list:
 		#Also, that should never happen (maybe if you just installed Steam and haven't logged in yet, but then what would you get out of this anyway?)
 		return

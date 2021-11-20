@@ -89,7 +89,7 @@ def _does_name_fuzzy_match(part: SoftwarePart, name: str) -> bool:
 	return True
 
 def find_software_by_name(software_lists: Iterable[SoftwareList], name: str) -> Optional[Software]:
-	fuzzy_name_matches = set(itertools.chain.from_iterable(software_list.find_all_software_with_custom_matcher(_does_name_fuzzy_match, [name]) for software_list in software_lists))
+	fuzzy_name_matches = set(itertools.chain.from_iterable(software_list.iter_all_software_with_custom_matcher(_does_name_fuzzy_match, [name]) for software_list in software_lists))
 
 	if len(fuzzy_name_matches) == 1:
 		#TODO: Don't do this, we still need to check the region… but only if the region needs to be checked at all, see below comment

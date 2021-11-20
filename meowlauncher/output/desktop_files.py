@@ -36,7 +36,7 @@ def make_linux_desktop_for_launcher(launcher: 'Launcher'):
 	if launcher.runner.is_emulated:
 		launcher.game.metadata.emulator_name = launcher.runner.name
 
-	_make_linux_desktop(launcher.get_launch_command(), name, launcher.game.metadata, filename_tags, launcher.game_type, launcher.game_id)
+	_make_linux_desktop(launcher.command, name, launcher.game.metadata, filename_tags, launcher.game_type, launcher.game_id)
 
 def _make_linux_desktop(launcher: 'LaunchCommand', display_name: str, metadata: 'Metadata', filename_tags: Iterable[str], game_type, game_id):
 	#TODO: Merge with above once we get rid of make_launcher

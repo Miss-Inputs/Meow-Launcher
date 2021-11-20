@@ -97,7 +97,7 @@ def mame_apple_ii(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'E
 
 def mame_atari_2600(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	rom = cast(FileROM, game.rom)
-	size = rom.get_size()
+	size = rom.size
 	#https://github.com/mamedev/mame/blob/master/src/devices/bus/vcs/vcs_slot.cpp#L188
 	if size not in (0x800, 0x1000, 0x2000, 0x28ff, 0x2900, 0x3000, 0x4000, 0x8000, 0x10000, 0x80000):
 		raise EmulationNotSupportedException('ROM size not supported: {0}'.format(size))
@@ -177,7 +177,7 @@ def mame_atari_8bit(game: 'ROMGame', platform_config: PlatformConfigOptions, emu
 				raise EmulationNotSupportedException('Atari 5200 cart (will probably work if put in the right place): %d' % cart_type)
 		else:
 			rom = cast(FileROM, game.rom)
-			size = rom.get_size()
+			size = rom.size
 			#8KB files are treated as type 1, 16KB as type 2, everything else is unsupported for now
 			if size > ((16 * 1024) + 16):
 				raise EmulationNotSupportedException('No header and size = %d, cannot be recognized as a valid cart yet (treated as XL/XE)' % size)
@@ -812,7 +812,7 @@ def mame_super_cassette_vision(game: 'ROMGame', _: PlatformConfigOptions, emulat
 	return mame_driver(game, emulator_config, system, 'cart')
 
 def mame_vic_20(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'EmulatorConfig') -> LaunchCommand:
-	size = cast(FileROM, game.rom).get_size()
+	size = cast(FileROM, game.rom).size
 	if size > ((8 * 1024) + 2):
 		#It too damn big (only likes 8KB with 2 byte header at most)
 		raise EmulationNotSupportedException('Single-part >8K cart not supported: %d' % size)
@@ -860,7 +860,7 @@ def mame_zx_spectrum(game: 'ROMGame', _: PlatformConfigOptions, emulator_config:
 				options['exp'] = 'protek'
 	elif game.metadata.media_type == MediaType.Cartridge:
 		#This will automatically boot the game without going through any sort of menu, and since it's the Interface 2, they would all use the Interface 2 joystick. So that works nicely
-		if cast(FileROM, game.rom).get_size() != 0x4000:
+		if cast(FileROM, game.rom).size != 0x4000:
 			raise EmulationNotSupportedException('Whoops 16KB only thank you')
 		slot = 'cart'
 		options['exp'] = 'intf2'
@@ -896,7 +896,7 @@ def mednafen_gb(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'Emu
 	return mednafen_module('gb', exe_path=emulator_config.exe_path)
 
 def mednafen_gba(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'EmulatorConfig') -> LaunchCommand:
-	if cast(FileROM, game.rom).get_size() > (32 * 1024 * 1024):
+	if cast(FileROM, game.rom).size > (32 * 1024 * 1024):
 		raise EmulationNotSupportedException('64MB GBA Video carts not supported')
 	return mednafen_module('gba', exe_path=emulator_config.exe_path)
 
@@ -1023,7 +1023,7 @@ def vice_vic20(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'Emul
 		args += ['-model', 'vic20pal']
 	if game.metadata.media_type == MediaType.Cartridge:
 		args.append('-cartgeneric')
-		size = cast(FileROM, game.rom).get_size()
+		size = cast(FileROM, game.rom).size
 		if size > ((8 * 1024) + 2):
 			#Frick
 			#TODO: Support multiple parts with -cart2 -cartA etc; this will probably require a lot of convoluted messing around to know if a given ROM is actually the second part of a multi-part cart (probably using software lists) and using game.subroms etc
@@ -1382,7 +1382,7 @@ def xemu(game: 'ROMGame', _: PlatformConfigOptions, emulator_config: 'EmulatorCo
 
 	#Checking for this stuff inside the emulator-command-line-maker seems odd, but it doesn't make sense to make a metadata helper for it either
 	rom = cast(FileROM, game.rom)
-	size = rom.get_size()
+	size = rom.size
 	good = False
 	for possible_location in (xiso_header_offset, global_lseek_offset + xiso_header_offset, xgd3_lseek_offset + xiso_header_offset):
 		if size < possible_location:

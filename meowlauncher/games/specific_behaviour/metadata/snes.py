@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Optional, cast
 
 from meowlauncher.common_types import SaveType
 from meowlauncher.games.mame_common.machine import (
-    Machine, does_machine_match_game, get_machines_from_source_file)
+    Machine, does_machine_match_game, iter_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_executable import \
     MAMENotInstalledException
 from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
@@ -201,7 +201,7 @@ def _parse_snes_header(rom: FileROM, base_offset: int) -> Mapping[str, Any]:
 def add_normal_snes_header(rom: FileROM, metadata: 'Metadata'):
 	#Note that while we're seeking to xx00 here, the header actually starts at xxc0 (or xxb0 in case of extended header), it's just easier this way
 	possible_offsets = {0x7f00, 0xff00, 0x40ff00}
-	rom_size = rom.get_size()
+	rom_size = rom.size
 	if rom_size % 1024 == 512:
 		#512-byte copier header at beginning
 		rom.header_length_for_crc_calculation = 512
@@ -286,7 +286,7 @@ def add_satellaview_metadata(rom: FileROM, metadata: 'Metadata'):
 	#Safe bet that every single Satellaview game just uses a normal controller
 	metadata.input_info.add_option(controllers.controller)
 	possible_offsets = [0x7f00, 0xff00, 0x40ff00]
-	rom_size = rom.get_size()
+	rom_size = rom.size
 
 	if rom_size % 1024 == 512:
 		possible_offsets = [0x8100, 0x10100, 0x410100]
@@ -319,12 +319,12 @@ def try_get_equivalent_arcade(rom: FileROM, names: Iterable[str]) -> Optional[Ma
 		return None
 	if not hasattr(try_get_equivalent_arcade, 'nss_games'):
 		try:
-			try_get_equivalent_arcade.nss_games = tuple(get_machines_from_source_file('nss', default_mame_executable)) #type: ignore[attr-defined]
+			try_get_equivalent_arcade.nss_games = tuple(iter_machines_from_source_file('nss', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
 			try_get_equivalent_arcade.nss_games = () #type: ignore[attr-defined]
 	if not hasattr(try_get_equivalent_arcade, 'arcade_bootlegs'):
 		try:
-			try_get_equivalent_arcade.arcade_bootlegs = tuple(get_machines_from_source_file('snesb', default_mame_executable)) + tuple(get_machines_from_source_file('snesb51', default_mame_executable)) #type: ignore[attr-defined]
+			try_get_equivalent_arcade.arcade_bootlegs = tuple(iter_machines_from_source_file('snesb', default_mame_executable)) + tuple(iter_machines_from_source_file('snesb51', default_mame_executable)) #type: ignore[attr-defined]
 		except MAMENotInstalledException:
 			try_get_equivalent_arcade.arcade_bootlegs = () #type: ignore[attr-defined]
 

@@ -50,7 +50,7 @@ def _tag_starts_with(tag: Optional[str], tag_list: Iterable[str]) -> bool:
 			return True
 	return False
 
-def find_cpus(machine_xml: ElementTree.Element) -> Iterable[ElementTree.Element]:
+def iter_cpus(machine_xml: ElementTree.Element) -> Iterable[ElementTree.Element]:
 	for chip_xml in machine_xml.iterfind('chip'):
 		if chip_xml.attrib.get('type') != 'cpu':
 			continue

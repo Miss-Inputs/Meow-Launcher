@@ -97,7 +97,7 @@ atari_5200_charset = {
 }
 
 def add_crap_from_rom_header(rom: FileROM, metadata: Metadata):
-	footer = rom.read(seek_to=rom.get_size() - 24, amount=24)
+	footer = rom.read(seek_to=rom.size - 24, amount=24)
 	year = footer[20:22] #Y2K incompliant whee
 	#Entry point: 22-23, lil' endian
 	if year[1] != 255: #If set to this, the BIOS is skipped?

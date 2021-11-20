@@ -227,7 +227,8 @@ class LinuxGOGLauncher(Launcher):
 	def game_id(self) -> str:
 		return str(self.game.folder)
 
-	def get_launch_command(self) -> LaunchCommand:
+	@property
+	def command(self) -> LaunchCommand:
 		return LaunchCommand(str(self.game.start_script), [], working_directory=str(self.game.folder))
 
 def _find_subpath_case_insensitive(path: Path, subpath: str) -> Path:

@@ -55,8 +55,7 @@ def _is_software_available(software_list_name: str, software_name: str) -> bool:
 	software_list = get_software_list_by_name(software_list_name)
 	if not software_list:
 		return False
-	available_software = software_list.get_available_software()
-	for software in available_software:
+	for software in software_list.iter_available_software():
 		if software.name == software_name:
 			return True
 	return False

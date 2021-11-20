@@ -124,8 +124,7 @@ def add_software_list_platform(platform):
 			software_list = get_software_list_by_name(list_name)
 			if not software_list:
 				continue
-			available_software = software_list.get_available_software()
-			for software_item in available_software:
+			for software_item in software_list.iter_available_software():
 				software = SoftwareLauncher(software_item, platform, media_type)
 				add_software(software)
 

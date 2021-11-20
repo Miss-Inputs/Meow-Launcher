@@ -17,7 +17,7 @@ from meowlauncher.games.mame.mame_inbuilt_game import (MAMEInbuiltGame,
                                                        MAMEInbuiltLauncher)
 from meowlauncher.games.mame.mame_metadata import add_metadata, add_status
 from meowlauncher.games.mame_common.machine import (
-    Machine, get_machine, get_machines_from_source_file, iter_machines)
+    Machine, get_machine, iter_machines_from_source_file, iter_machines)
 from meowlauncher.games.mame_common.mame_helpers import (
     default_mame_executable, have_mame)
 from meowlauncher.util.desktop_files import has_been_done
@@ -89,7 +89,7 @@ class MAME(GameSource):
 		
 		return MAMELauncher(game, self.emu)
 
-	def get_launchers(self) -> Iterable[MAMELauncher]:
+	def iter_launchers(self) -> Iterable[MAMELauncher]:
 		if self.driver_list:
 			for driver_name in self.driver_list:
 				launcher = self._process_machine(get_machine(driver_name, default_mame_executable))
@@ -98,7 +98,7 @@ class MAME(GameSource):
 			return 
 
 		if self.source_file:		
-			for machine in get_machines_from_source_file(self.source_file, self.emu.executable):
+			for machine in iter_machines_from_source_file(self.source_file, self.emu.executable):
 				if not _is_actually_machine(machine):
 					continue
 				if not machine.launchable:
@@ -155,7 +155,7 @@ class MAMEInbuiltGames(GameSource):
 		add_status(machine, game.metadata)
 		return MAMEInbuiltLauncher(game, ConfiguredMAME(emulator_configs.get('MAME')))
 
-	def get_launchers(self) -> Iterable[MAMEInbuiltLauncher]:
+	def iter_launchers(self) -> Iterable[MAMEInbuiltLauncher]:
 		for machine_name, inbuilt_game in machines_with_inbuilt_games.items():
 			if not main_config.full_rescan:
 				if has_been_done('Inbuilt game', machine_name):

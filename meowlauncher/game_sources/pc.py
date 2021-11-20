@@ -58,7 +58,7 @@ class PCGameSource(ChooseableEmulatorGameSource[PCEmulator], ABC):
 
 		emulator: Optional[ConfiguredEmulator] = None
 		exception_reason = None
-		for chosen_emulator in self.get_chosen_emulators():
+		for chosen_emulator in self.iter_chosen_emulators():
 			emulator_config = emulator_configs[chosen_emulator.config_name]
 			try:
 				if 'compat' in app.info:
@@ -96,7 +96,7 @@ class PCGameSource(ChooseableEmulatorGameSource[PCEmulator], ABC):
 			return None
 
 	#Return value here could be a generic type value I suppose, if you were into that sort of thing
-	def get_launchers(self) -> Iterable[AppLauncher]:
+	def iter_launchers(self) -> Iterable[AppLauncher]:
 		if not self._app_list:
 			raise AssertionError('PCGameSource.get_launchers should not be called without checking .is_available()')
 		for app in self._app_list:

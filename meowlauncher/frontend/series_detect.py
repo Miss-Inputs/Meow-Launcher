@@ -17,6 +17,8 @@ from meowlauncher.util.name_utils import (chapter_matcher,
 from meowlauncher.util.utils import (convert_roman_numeral,
                                      remove_capital_article)
 
+#The reason why we don't simply find this at the time of the launcher is so that we can try using the serieses present in other launchers that have been already generated as a hint for what serieses exist and hence what we should try and detect, or something like that I guess
+
 SeriesWithSeriesIndex = tuple[Optional[str], Optional[Union[int, str]]]
 
 probably_not_series_index_threshold = 20
@@ -67,7 +69,7 @@ def find_series_from_game_name(name: str) -> SeriesWithSeriesIndex:
 		return chapter_matcher.sub('', series_name).rstrip(), number
 	return None, None
 
-def does_series_match(name_to_match: str, existing_series: str) -> bool:
+def _does_series_match(name_to_match: str, existing_series: str) -> bool:
 	name_to_match = name_to_match.lower()
 	existing_series = existing_series.lower()
 
@@ -80,7 +82,7 @@ def does_series_match(name_to_match: str, existing_series: str) -> bool:
 
 	return name_to_match == existing_series
 
-def find_series_name_by_subtitle(name: str, existing_serieses: Iterable[str], force=False) -> SeriesWithSeriesIndex:
+def _find_series_name_by_subtitle(name: str, existing_serieses: Iterable[str], force=False) -> SeriesWithSeriesIndex:
 	name_chunks = _get_name_chunks(name)
 	if not name_chunks:
 		return None, None
@@ -92,7 +94,7 @@ def find_series_name_by_subtitle(name: str, existing_serieses: Iterable[str], fo
 		match = name_chunk
 	else:
 		for existing_series in existing_serieses:
-			if does_series_match(name_chunk, existing_series):
+			if _does_series_match(name_chunk, existing_series):
 				match = existing_series
 				break
 
@@ -106,7 +108,7 @@ def find_series_name_by_subtitle(name: str, existing_serieses: Iterable[str], fo
 		return series, index
 	return None, None
 
-def get_usable_name(desktop: ConfigParser) -> str:
+def _get_usable_name(desktop: ConfigParser) -> str:
 	sort_name = get_field(desktop, 'Sort-Name')
 	if sort_name:
 		return sort_name
@@ -117,7 +119,7 @@ def get_usable_name(desktop: ConfigParser) -> str:
 		raise AssertionError('What the heck get_usable_name encountered a desktop with no name')
 	return name
 
-def add_series(desktop: ConfigParser, path: Path, series: Optional[str], series_index: Optional[Union[str, int]]=None):
+def _add_series(desktop: ConfigParser, path: Path, series: Optional[str], series_index: Optional[Union[str, int]]=None):
 	#TODO: Encapsulate this better
 	metadata_section_with_prefix = section_prefix + metadata_section_name
 	if metadata_section_with_prefix not in desktop:
@@ -129,13 +131,13 @@ def add_series(desktop: ConfigParser, path: Path, series: Optional[str], series_
 	with path.open('wt', encoding='utf-8') as f:
 		desktop.write(f)
 
-def detect_series(desktop: ConfigParser, path: Path):
-	name = get_usable_name(desktop)
+def _detect_series(desktop: ConfigParser, path: Path):
+	name = _get_usable_name(desktop)
 	series, series_index = find_series_from_game_name(name)
 	if series:
-		add_series(desktop, path, series, series_index)
+		_add_series(desktop, path, series, series_index)
 
-def find_existing_serieses() -> Collection[str]:
+def _find_existing_serieses() -> Collection[str]:
 	serieses = set()
 	for path in main_config.output_folder.iterdir():
 		desktop = get_desktop(path)
@@ -146,19 +148,19 @@ def find_existing_serieses() -> Collection[str]:
 
 	return serieses
 
-def detect_series_by_subtitle(desktop: ConfigParser, path: Path, existing: Iterable[str]):
-	name = get_usable_name(desktop)
-	series, index = find_series_name_by_subtitle(name, existing)
+def _detect_series_by_subtitle(desktop: ConfigParser, path: Path, existing: Iterable[str]):
+	name = _get_usable_name(desktop)
+	series, index = _find_series_name_by_subtitle(name, existing)
 	if series:
-		add_series(desktop, path, series, index)
+		_add_series(desktop, path, series, index)
 
-def force_add_series_with_index(desktop: ConfigParser, path: Path, existing: Iterable[str]):
-	name = get_usable_name(desktop)
-	series, _ = find_series_name_by_subtitle(name, existing, force=True)
+def _force_add_series_with_index(desktop: ConfigParser, path: Path, existing: Iterable[str]):
+	name = _get_usable_name(desktop)
+	series, _ = _find_series_name_by_subtitle(name, existing, force=True)
 	if series:
-		add_series(desktop, path, series)
+		_add_series(desktop, path, series)
 
-def get_series_from_whole_thing(series: str, whole_name: str) -> str:
+def _get_series_from_whole_thing(series: str, whole_name: str) -> str:
 	rest = whole_name.removeprefix(series).strip()
 	rest = chapter_matcher.sub('', rest).strip()
 
@@ -174,7 +176,7 @@ def get_series_from_whole_thing(series: str, whole_name: str) -> str:
 	
 	return '1'
 
-def detect_series_index_for_things_with_series():
+def _detect_series_index_for_things_with_series():
 	for path in main_config.output_folder.iterdir():
 		desktop = get_desktop(path)
 
@@ -185,7 +187,7 @@ def detect_series_index_for_things_with_series():
 		if get_field(desktop, 'Series-Index'):
 			continue
 
-		name = get_usable_name(desktop)
+		name = _get_usable_name(desktop)
 		name.removeprefix('The ')
 		name_chunks = _get_name_chunks(name)
 		if len(name_chunks) > 1:
@@ -193,10 +195,10 @@ def detect_series_index_for_things_with_series():
 				series_index = name_chunks[1]
 				series_index = chapter_matcher.sub('', series_index).strip()
 				series_index = convert_roman_numerals_in_title(series_index)
-				add_series(desktop, path, None, series_index)
+				_add_series(desktop, path, None, series_index)
 			elif name_chunks[0].startswith(existing_series):
-				series_index = get_series_from_whole_thing(existing_series, name_chunks[0].strip())
-				add_series(desktop, path, None, series_index)
+				series_index = _get_series_from_whole_thing(existing_series, name_chunks[0].strip())
+				_add_series(desktop, path, None, series_index)
 			else:
 				#This handles the case where it's like "Blah Bloo - Chapter Zabityzoo" but the series in Steam is listed as some abbreviation/alternate spelling of Blah Bloo so it doesn't get picked up otherwise
 				chapter_index = None
@@ -208,12 +210,12 @@ def detect_series_index_for_things_with_series():
 						chapter_index = chapter_matcherooni.end()
 				if chapter_index is not None:
 					#Could also do just a word match starting from chapter_index I guess
-					add_series(desktop, path, None, convert_roman_numerals_in_title(name[chapter_index:].strip()))
+					_add_series(desktop, path, None, convert_roman_numerals_in_title(name[chapter_index:].strip()))
 		elif len(name_chunks) == 1:
 			if name_chunks[0].startswith(existing_series):
-				add_series(desktop, path, None, get_series_from_whole_thing(existing_series, name_chunks[0].strip()))
+				_add_series(desktop, path, None, _get_series_from_whole_thing(existing_series, name_chunks[0].strip()))
 
-def get_existing_seriesless_launchers() -> Iterable[tuple[ConfigParser, Path]]:
+def _iter_existing_seriesless_launchers() -> Iterable[tuple[ConfigParser, Path]]:
 	for path in main_config.output_folder.iterdir():
 		desktop = get_desktop(path)
 
@@ -226,17 +228,17 @@ def get_existing_seriesless_launchers() -> Iterable[tuple[ConfigParser, Path]]:
 def detect_series_for_all_desktops():
 	time_started = time.perf_counter()
 
-	for desktop, path in get_existing_seriesless_launchers():
-		detect_series(desktop, path)
-	existing = find_existing_serieses()
-	for desktop, path in get_existing_seriesless_launchers():
-		detect_series_by_subtitle(desktop, path, existing)
+	for desktop, path in _iter_existing_seriesless_launchers():
+		_detect_series(desktop, path)
+	existing = _find_existing_serieses()
+	for desktop, path in _iter_existing_seriesless_launchers():
+		_detect_series_by_subtitle(desktop, path, existing)
 
-	for desktop, path in get_existing_seriesless_launchers():
+	for desktop, path in _iter_existing_seriesless_launchers():
 		if get_field(desktop, 'Series-Index'):
-			force_add_series_with_index(desktop, path, existing)
+			_force_add_series_with_index(desktop, path, existing)
 
-	detect_series_index_for_things_with_series()
+	_detect_series_index_for_things_with_series()
 
 	if main_config.print_times:
 		time_ended = time.perf_counter()

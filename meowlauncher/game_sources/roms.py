@@ -102,7 +102,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 		launcher = None
 
 		chosen_emulator_names = [] #For warning message
-		for chosen_emulator in self.get_chosen_emulators():
+		for chosen_emulator in self.iter_chosen_emulators():
 			chosen_emulator_names.append(chosen_emulator.name)
 			try:
 				potential_emulator_config = _get_emulator_config(chosen_emulator)
@@ -121,7 +121,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 					raise ExtensionNotSupportedException(f'{potential_emulator.name} does not support {message}')
 
 				potential_launcher = ROMLauncher(game, potential_emulator, self.platform_config)
-				command = potential_launcher.get_launch_command() #We need to test each one for EmulationNotSupportedException… what's the maybe better way to do this, since we call get_launch_command again and that sucks
+				command = potential_launcher.command #We need to test each one for EmulationNotSupportedException… what's the maybe better way to do this, since we call get_launch_command again and that sucks
 				if command:
 					launcher = potential_launcher
 					break
@@ -200,7 +200,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 			if launcher:
 				yield launcher
 
-	def get_launchers(self) -> Iterable[ROMLauncher]:
+	def iter_launchers(self) -> Iterable[ROMLauncher]:
 		file_list = []
 		#rom_list: list[tuple[ROM, Sequence[str]]] = []
 		for rom_dir in self.platform_config.paths:
