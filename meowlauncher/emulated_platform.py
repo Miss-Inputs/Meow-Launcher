@@ -1,9 +1,9 @@
 from abc import ABC
-from collections.abc import Collection, Callable, Mapping, MutableMapping
+from collections.abc import Callable, Collection, Mapping, MutableMapping
 from typing import TYPE_CHECKING, Optional
 
-from meowlauncher.common_types import (ConfigValueType, MediaType,
-                                       TypeOfConfigValue)
+from meowlauncher.common_types import MediaType
+from meowlauncher.config_types import ConfigValueType, TypeOfConfigValue
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom import FileROM, FolderROM

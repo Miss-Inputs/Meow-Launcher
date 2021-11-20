@@ -4,7 +4,7 @@ from collections.abc import Collection, Mapping, MutableMapping
 from pathlib import Path, PurePath
 
 from meowlauncher.common_paths import config_dir, data_dir
-from meowlauncher.common_types import ConfigValueType, TypeOfConfigValue
+from meowlauncher.config_types import ConfigValueType, TypeOfConfigValue
 from meowlauncher.util.io_utils import ensure_exist
 
 from ._config_utils import (ConfigValue, parse_path_list, parse_string_list,

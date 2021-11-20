@@ -1,6 +1,6 @@
-from collections.abc import Callable
+#TODO: I want this to be in root of specific_behaviour but that causes a circular import right now, no can do buddy
 
-from meowlauncher.games.roms.rom_game import ROMGame
+from collections.abc import Callable
 
 from ._3ds import add_3ds_metadata
 from .amiga import add_amiga_metadata
@@ -17,12 +17,13 @@ from .game_boy import add_gameboy_metadata
 from .game_com import add_game_com_metadata
 from .gamecube import add_gamecube_metadata
 from .gba import add_gba_metadata
-from meowlauncher.games.common.generic_info import add_generic_software_info
 from .intellivision import add_intellivision_info
 from .lynx import add_lynx_metadata
 from .master_system import get_sms_metadata
 from .megadrive import add_megadrive_metadata
-from .misc_platforms import *
+from .misc_platforms import (add_colecovision_info, add_ibm_pcjr_info,
+                             add_pc_engine_info, add_pet_info, add_vic10_info,
+                             add_vic20_info)
 from .n64 import add_n64_metadata
 from .neo_geo_pocket import add_ngp_metadata
 from .nes import add_nes_metadata
@@ -43,7 +44,9 @@ from .wii_u import add_wii_u_metadata
 from .wonderswan import add_wonderswan_metadata
 from .zx_spectrum import add_speccy_metadata
 
-#For roms.py, gets metadata in ways specific to certain platforms
+if TYPE_CHECKING:
+	from meowlauncher.games.roms.rom_game import ROMGame
+
 #I guess this is duplicating a lot of ROMniscience code, huh? Well, it's my project, and I'll use it for reference for my other project if I want. But I guess there is duplication there. I mean, it's C# and Python, so I can't really combine them directly, but it makes me think... it makes me overthink. That's the best kind of think.
 
 #Stuff that can be extracted from the ROM but we haven't done that because it's not worth doing:
@@ -59,7 +62,7 @@ from .zx_spectrum import add_speccy_metadata
 #RCA Studio 2 (community-developed .st2 header): developer, product code
 #Xbox 360: Publisher, icon (for XBLA), number of players (for XBLA), genre (for XBLA)
 
-helpers: dict[str, Callable[[ROMGame], None]] = {
+platform_helpers: dict[str, Callable[['ROMGame'], None]] = {
 	'3DS': add_3ds_metadata,
 	'Amiga': add_amiga_metadata,
 	'Apple II': add_apple_ii_metadata,
@@ -145,5 +148,6 @@ helpers: dict[str, Callable[[ROMGame], None]] = {
 	'VC 4000': add_vc4000_info,
 	'VIC-10': add_vic10_info,
 	'VIC-20': add_vic20_info,
+	'VZ-200': add_vz200_info,
 	'Watara Supervision': add_watara_supervision_info,
 }

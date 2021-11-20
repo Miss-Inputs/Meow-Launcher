@@ -1,4 +1,5 @@
-from meowlauncher.common_types import ConfigValueType, MediaType
+from meowlauncher.common_types import MediaType
+from meowlauncher.config_types import ConfigValueType
 from meowlauncher.emulated_platform import (PCPlatform, PlatformConfigValue,
                                             StandardEmulatedPlatform)
 from meowlauncher.games.specific_behaviour import folder_checks

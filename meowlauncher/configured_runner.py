@@ -1,14 +1,18 @@
+from typing import TYPE_CHECKING
+
 from meowlauncher.common_types import HostPlatform
 from meowlauncher.config.main_config import main_config
 
 from .launch_command import (LaunchCommand, MultiLaunchCommands,
                              launch_with_wine)
-from .runner import Runner
-from .runner_config import RunnerConfig
 
+if TYPE_CHECKING:
+	from meowlauncher.config_types import RunnerConfig
+
+	from .runner import Runner
 
 class ConfiguredRunner():
-	def __init__(self, runner: Runner, config: RunnerConfig):
+	def __init__(self, runner: 'Runner', config: 'RunnerConfig'):
 		self.runner = runner
 		self.config = config
 

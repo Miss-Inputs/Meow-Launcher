@@ -2,12 +2,13 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable, Mapping, Sequence
 from typing import TYPE_CHECKING, Generic, TypeVar, Union
 
-from meowlauncher.emulated_platform import ChooseableEmulatedPlatform
-from meowlauncher.emulator import Emulator, LibretroCore
-from meowlauncher.launcher import Launcher
+from meowlauncher.emulator import Emulator
 
 if TYPE_CHECKING:
-	from meowlauncher.config.platform_config import PlatformConfig
+	from meowlauncher.config_types import PlatformConfig
+	from meowlauncher.emulated_platform import ChooseableEmulatedPlatform
+	from meowlauncher.launcher import Launcher
+	from meowlauncher.emulator import LibretroCore
 
 class GameSource(ABC):
 	@property
@@ -31,14 +32,14 @@ class GameSource(ABC):
 	#TODO: Should have has_been_done somewhere in here? Maybe
 
 	@abstractmethod
-	def iter_launchers(self) -> Iterable[Launcher]:
+	def iter_launchers(self) -> Iterable['Launcher']:
 		pass
 
 class CompoundGameSource(GameSource, ABC):
 	def __init__(self, sources: Sequence[GameSource]) -> None:
 		self.sources = sources
 
-	def iter_launchers(self) -> Iterable[Launcher]:
+	def iter_launchers(self) -> Iterable['Launcher']:
 		for source in self.sources:
 			if source.is_available:
 				yield from source.iter_launchers()
@@ -49,13 +50,13 @@ class CompoundGameSource(GameSource, ABC):
 
 EmulatorType = TypeVar('EmulatorType', bound=Emulator)
 class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType]):
-	def __init__(self, platform_config: 'PlatformConfig', platform: ChooseableEmulatedPlatform, emulators: Mapping[str, EmulatorType], libretro_cores: Mapping[str, LibretroCore]=None) -> None:
+	def __init__(self, platform_config: 'PlatformConfig', platform: 'ChooseableEmulatedPlatform', emulators: Mapping[str, EmulatorType], libretro_cores: Mapping[str, 'LibretroCore']=None) -> None:
 		self.platform_config = platform_config
 		self.platform = platform
 		self.emulators = emulators
 		self.libretro_cores = libretro_cores
 	
-	def iter_chosen_emulators(self) -> Iterable[Union[EmulatorType, LibretroCore]]:
+	def iter_chosen_emulators(self) -> Iterable[Union[EmulatorType, 'LibretroCore']]:
 		for emulator_name in self.platform_config.chosen_emulators:
 			emulator = self.libretro_cores.get(emulator_name.removesuffix(' (libretro)')) if \
 				(self.libretro_cores and emulator_name.endswith(' (libretro)')) else \
@@ -69,7 +70,7 @@ class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType]):
 				continue
 
 			if emulator.config_name not in self.platform.valid_emulator_names:
-				print('Config warning:', emulator_name, 'is not a valid', 'libretro core' if isinstance(emulator, LibretroCore) else 'emulator', 'for', self.name)
+				print('Config warning:', emulator_name, 'is not a valid', emulator.friendly_type_name, 'for', self.name)
 				continue
 			
 			yield emulator

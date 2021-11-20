@@ -1,9 +1,9 @@
 import datetime
 import io
-from collections.abc import Mapping, Sequence, MutableSequence
+from collections.abc import Mapping, MutableSequence, Sequence
 from enum import Enum
 from pathlib import Path
-from typing import Any, NewType, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, NewType, Optional, Union, cast
 
 try:
 	import machfs
@@ -23,12 +23,14 @@ except ImportError:
 	have_pillow = False
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config.platform_config import PlatformConfig
-from meowlauncher.configured_emulator import ConfiguredEmulator
 from meowlauncher.metadata import Date
 from meowlauncher.util.utils import format_byte_size
 
 from .pc import App, AppLauncher
+
+if TYPE_CHECKING:
+	from meowlauncher.config_types import PlatformConfig
+	from meowlauncher.configured_emulator import ConfiguredEmulator
 
 PathInsideHFS = NewType('PathInsideHFS', str)
 
@@ -215,7 +217,7 @@ def _get_icon(resources: Mapping[bytes, Mapping[int, 'macresources.Resource']], 
 	return icon_bw
 
 class MacApp(App):
-	def __init__(self, info: Mapping[str, Any], platform_config: PlatformConfig) -> None:
+	def __init__(self, info: Mapping[str, Any], platform_config: 'PlatformConfig') -> None:
 		super().__init__(info, platform_config)
 		self.hfv_path = cast(Path, self.cd_path) if self.is_on_cd else Path(info['hfv_path'])
 		self._file: Optional['machfs.Volume'] = None #Lazy load the file associated with this
@@ -457,7 +459,7 @@ class MacApp(App):
 			self.metadata.specific_info['Architecture'] = self.info['arch']
 				
 class MacLauncher(AppLauncher):
-	def __init__(self, app: MacApp, emulator: ConfiguredEmulator, platform_config: PlatformConfig) -> None:
+	def __init__(self, app: MacApp, emulator: 'ConfiguredEmulator', platform_config: 'PlatformConfig') -> None:
 		self.game: MacApp = app
 		super().__init__(app, emulator, platform_config)
 

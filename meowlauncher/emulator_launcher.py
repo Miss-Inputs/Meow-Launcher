@@ -5,7 +5,8 @@ from typing import TYPE_CHECKING
 from .launcher import Launcher
 
 if TYPE_CHECKING:
-	from .common_types import TypeOfConfigValue
+	from meowlauncher.config_types import TypeOfConfigValue
+
 	from .configured_emulator import ConfiguredEmulator
 	from .emulated_game import EmulatedGame
 	from .launch_command import LaunchCommand

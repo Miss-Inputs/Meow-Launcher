@@ -1,5 +1,5 @@
 import os
-from collections.abc import Iterable, Mapping, Sequence, Collection
+from collections.abc import Collection, Iterable, Mapping, Sequence
 from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
@@ -12,9 +12,9 @@ from meowlauncher.games.mame_common.software_list_find_utils import \
 from meowlauncher.launch_command import LaunchCommand, rom_path_argument
 
 if TYPE_CHECKING:
-	from meowlauncher.games.roms.rom_game import ROMGame
-	from meowlauncher.runner_config import EmulatorConfig
+	from meowlauncher.config_types import EmulatorConfig
 	from meowlauncher.emulator import GenericLaunchCommandFunc
+	from meowlauncher.games.roms.rom_game import ROMGame
 
 def _get_autoboot_script_by_name(name: str) -> str:
 	#Hmm I'm not sure I like this one but whaddya do otherwise… where's otherwise a good place to store shit

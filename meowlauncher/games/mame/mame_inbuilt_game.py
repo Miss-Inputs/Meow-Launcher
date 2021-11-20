@@ -1,5 +1,5 @@
-from meowlauncher.config.platform_config import PlatformConfig
-from meowlauncher.data.machines_with_inbuilt_games import InbuiltGame
+from typing import TYPE_CHECKING
+
 from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher
 from meowlauncher.games.common.emulator_command_line_helpers import mame_base
@@ -7,9 +7,12 @@ from meowlauncher.launch_command import LaunchCommand
 
 from .mame import ConfiguredMAME
 
+if TYPE_CHECKING:
+	from meowlauncher.config_types import PlatformConfig
+	from meowlauncher.data.machines_with_inbuilt_games import InbuiltGame
 
 class MAMEInbuiltGame(EmulatedGame):
-	def __init__(self, machine_name: str, inbuilt_game: InbuiltGame, platform_config: PlatformConfig, bios_name=None) -> None:
+	def __init__(self, machine_name: str, inbuilt_game: 'InbuiltGame', platform_config: 'PlatformConfig', bios_name=None) -> None:
 		super().__init__(platform_config)
 		self.machine_name = machine_name
 		self.inbuilt_game = inbuilt_game #Yeahhh this should be a dataclass/named tuple

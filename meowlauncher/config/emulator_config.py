@@ -2,9 +2,8 @@ import configparser
 from collections.abc import Mapping
 
 from meowlauncher.common_paths import config_dir
-from meowlauncher.common_types import ConfigValueType
 from meowlauncher.data.emulators import all_emulators
-from meowlauncher.runner_config import EmulatorConfig, RunnerConfigValue
+from meowlauncher.config_types import EmulatorConfig, RunnerConfigValue, ConfigValueType
 from meowlauncher.util.io_utils import ensure_exist
 
 from ._config_utils import parse_value

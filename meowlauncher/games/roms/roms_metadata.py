@@ -14,7 +14,7 @@ from meowlauncher.games.mame_common.mame_executable import \
 from meowlauncher.games.mame_common.mame_helpers import (
     default_mame_executable, get_image)
 from meowlauncher.games.mame_common.mame_utils import image_config_keys
-from meowlauncher.games.specific_behaviour.metadata import helpers
+from meowlauncher.games.specific_behaviour.info_helpers import platform_helpers
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.detect_things_from_filename import (
     get_date_from_filename_tags, get_languages_from_filename_tags,
@@ -289,8 +289,8 @@ def add_metadata(game: ROMGame):
 		game.metadata.specific_info['Extension'] = game.rom.extension
 		game.metadata.media_type = game.platform.get_media_type(cast(FileROM, game.rom))
 
-	if game.platform.name in helpers:
-		helpers[game.platform.name](game)
+	if game.platform.name in platform_helpers:
+		platform_helpers[game.platform.name](game)
 	else:
 		#For anything else, use this one to just get basic software list info.
 		#This would only work for optical discs if they are in .chd format though. Also see MAME GitHub issue #2517, which makes a lot of newly created CHDs invalid with older softlists

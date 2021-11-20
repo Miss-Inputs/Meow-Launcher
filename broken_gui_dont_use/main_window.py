@@ -4,12 +4,12 @@ from threading import Thread
 import wx
 import wx.adv
 
-from common_types import ConfigValueType
-import config
-import mame_helpers
-import scummvm
-import steam
-import main
+from meowlauncher.config_types import ConfigValueType
+import meowlauncher.config
+import meowlauncher.mame_helpers
+import meowlauncher.scummvm
+import meowlauncher.steam
+import meowlauncher.main
 
 from .gui_generated import MeowLauncherGui
 

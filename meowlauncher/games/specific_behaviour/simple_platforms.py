@@ -484,14 +484,14 @@ def add_amstrad_pcw_info(game: 'ROMGame'):
 		if usage == 'Requires CP/M':
 			game.metadata.specific_info['Requires CP/M?'] = True
 
-requires_ram_regex = re.compile(r'Requires (\d+) MB of RAM')
+_requires_ram_regex = re.compile(r'Requires (\d+) MB of RAM')
 def add_fm_towns_info(game: 'ROMGame'):
 	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)
 		usage = software.get_info('usage')
 		if usage:
-			match = requires_ram_regex.match(usage)
+			match = _requires_ram_regex.match(usage)
 			if match:
 				game.metadata.specific_info['Minimum RAM'] = match[1]
 				if match.end() < len(usage):

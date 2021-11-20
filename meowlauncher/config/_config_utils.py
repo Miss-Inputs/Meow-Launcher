@@ -2,7 +2,7 @@ import configparser
 from collections.abc import Sequence
 from pathlib import Path
 
-from meowlauncher.common_types import ConfigValueType, TypeOfConfigValue
+from meowlauncher.config_types import ConfigValueType, TypeOfConfigValue
 
 
 def parse_string_list(value: str) -> Sequence[str]:

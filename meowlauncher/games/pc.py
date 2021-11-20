@@ -2,19 +2,20 @@ import os
 from abc import ABC, abstractmethod
 from collections.abc import Collection, Mapping
 from pathlib import Path, PurePath
-from typing import Any, Optional, final
+from typing import TYPE_CHECKING, Any, Optional, final
 
 from meowlauncher.common_types import MediaType
-from meowlauncher.config.platform_config import PlatformConfig
-from meowlauncher.configured_emulator import ConfiguredEmulator
 from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher
 from meowlauncher.metadata import Date
 from meowlauncher.util.name_utils import fix_name
 
+if TYPE_CHECKING:
+	from meowlauncher.config_types import PlatformConfig
+	from meowlauncher.configured_emulator import ConfiguredEmulator
 
 class App(EmulatedGame, ABC):
-	def __init__(self, info: Mapping[str, Any], platform_config: PlatformConfig):
+	def __init__(self, info: Mapping[str, Any], platform_config: 'PlatformConfig'):
 		super().__init__(platform_config)
 		self.info = info
 		self.is_on_cd: bool = info.get('is_on_cd', False)
@@ -76,7 +77,7 @@ class App(EmulatedGame, ABC):
 		pass
 
 class AppLauncher(EmulatorLauncher):
-	def __init__(self, app: App, emulator: ConfiguredEmulator, platform_config: PlatformConfig) -> None:
+	def __init__(self, app: App, emulator: 'ConfiguredEmulator', platform_config: 'PlatformConfig') -> None:
 		self.game: App = app
 		self.platform = platform_config.name
 		super().__init__(app, emulator, platform_config.options)

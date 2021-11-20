@@ -1,9 +1,9 @@
-from meowlauncher.common_types import ConfigValueType
 from meowlauncher.config.main_config import main_config
+from meowlauncher.config_types import (ConfigValueType, RunnerConfig,
+                                       RunnerConfigValue)
 
 from .configured_runner import ConfiguredRunner
 from .runner import Runner
-from .runner_config import RunnerConfig, RunnerConfigValue
 
 
 class _Wine(Runner):

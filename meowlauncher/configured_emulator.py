@@ -1,17 +1,17 @@
 from collections.abc import Mapping
 from typing import TYPE_CHECKING
 
-from meowlauncher.common_types import TypeOfConfigValue
+from meowlauncher.config_types import EmulatorConfig, TypeOfConfigValue
 
 from .configured_runner import ConfiguredRunner
 from .emulator import (Emulator, LibretroCore, LibretroFrontend,
                        StandardEmulator)
-from .runner_config import EmulatorConfig
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom import ROM
-	from .launch_command import LaunchCommand
+
 	from .emulated_game import EmulatedGame
+	from .launch_command import LaunchCommand
 
 class ConfiguredEmulator(ConfiguredRunner):
 	def __init__(self, emulator: Emulator, config: EmulatorConfig):

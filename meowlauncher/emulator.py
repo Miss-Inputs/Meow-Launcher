@@ -1,13 +1,13 @@
-from collections.abc import Callable, Mapping, MutableMapping, Collection
+from collections.abc import Callable, Collection, Mapping, MutableMapping
 from typing import TYPE_CHECKING, Generic, Optional, TypeVar
 
-from meowlauncher.common_types import (ConfigValueType, EmulatorStatus,
-                                       HostPlatform, TypeOfConfigValue)
+from meowlauncher.common_types import EmulatorStatus, HostPlatform
 from meowlauncher.config.main_config import main_config
+from meowlauncher.config_types import (ConfigValueType, EmulatorConfig,
+                                       RunnerConfigValue, TypeOfConfigValue)
 
 from .emulated_game import EmulatedGame
 from .runner import Runner
-from .runner_config import EmulatorConfig, RunnerConfigValue
 
 EmulatorGameType = TypeVar('EmulatorGameType', bound=EmulatedGame)
 if TYPE_CHECKING:
@@ -35,6 +35,10 @@ class Emulator(Runner, Generic[EmulatorGameType]):
 	@property
 	def name(self) -> str:
 		return self._name
+
+	@property
+	def friendly_type_name(self) -> str:
+		return type(self).__name__.lower()
 
 	@property
 	def is_emulated(self) -> bool:
@@ -76,6 +80,10 @@ class LibretroCore(Emulator):
 		self.supported_extensions = supported_extensions
 		default_path = str(main_config.libretro_cores_directory.joinpath(default_exe_name + '_libretro.so').resolve()) if main_config.libretro_cores_directory else ''
 		super().__init__(name, status, default_path, launch_command_func, configs=configs, config_name=name + ' (libretro)')
+
+	@property
+	def friendly_type_name(self) -> str:
+		return 'libretro core'
 	
 class PCEmulator(Emulator['App']):
 	#Nothing to define here for now, actually

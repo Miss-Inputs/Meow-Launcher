@@ -2,7 +2,7 @@ from collections.abc import Collection, MutableSequence
 from typing import TYPE_CHECKING, Union
 
 import meowlauncher.games.specific_behaviour.emulator_command_lines as command_lines
-from meowlauncher.common_types import ConfigValueType
+from meowlauncher.config_types import ConfigValueType, RunnerConfigValue
 from meowlauncher.emulator import (Emulator, EmulatorStatus, HostPlatform,
                                    LibretroCore, LibretroFrontend, MAMEDriver,
                                    MednafenModule, PCEmulator,
@@ -12,7 +12,6 @@ from meowlauncher.games.common.emulator_command_line_helpers import (
     simple_mame_driver, simple_md_emulator)
 from meowlauncher.launch_command import rom_path_argument
 from meowlauncher.runner import Runner
-from meowlauncher.runner_config import RunnerConfigValue
 
 from .format_info import (atari_2600_cartridge_extensions,
                           generic_cart_extensions, mame_cdrom_formats,
@@ -482,7 +481,7 @@ _libretro_frontends = {
 libretro_frontends = {frontend.name: frontend for frontend in _libretro_frontends}
 
 #Basically this is here for the purpose of generating configs
-#TODO: Return an iterator
+#TODO: Return an iterator and make a "has config" interface so we don't have to invent _JustHereForConfigValues
 #all_emulators: MutableSequence[Union[Emulator, LibretroFrontend]] = _standalone_emulators
 all_emulators: MutableSequence[Union[Emulator, LibretroFrontend, '_JustHereForConfigValues']] = []
 all_emulators += _standalone_emulators

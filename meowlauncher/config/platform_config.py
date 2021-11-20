@@ -1,26 +1,13 @@
 import configparser
-from collections.abc import Iterable, Mapping, Sequence
-from pathlib import Path
 
 from meowlauncher.common_paths import config_dir
-from meowlauncher.common_types import TypeOfConfigValue
+from meowlauncher.config_types import PlatformConfig
 from meowlauncher.data.emulated_platforms import pc_platforms, platforms
 from meowlauncher.util.io_utils import ensure_exist
 
 from ._config_utils import parse_path_list, parse_string_list, parse_value
 
 _platform_config_path = config_dir.joinpath('platforms.ini')
-
-class PlatformConfig():
-	def __init__(self, name: str, paths: Iterable[Path], chosen_emulators: Sequence[str], options: Mapping[str, TypeOfConfigValue]) -> None:
-		self.name = name
-		self.paths = paths
-		self.chosen_emulators = chosen_emulators
-		self.options = options
-
-	@property
-	def is_available(self) -> bool:
-		return bool(self.paths) and bool(self.chosen_emulators)
 
 def _get_config(section: configparser.SectionProxy, platform_name: str) -> PlatformConfig:
 	paths = parse_path_list(section.get('paths', ''))

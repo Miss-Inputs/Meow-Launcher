@@ -15,7 +15,7 @@ from meowlauncher.util.utils import find_filename_tags_at_end
 from .rom import ROM, CompressedROM
 
 if TYPE_CHECKING:
-	from meowlauncher.config.platform_config import PlatformConfig
+	from meowlauncher.config_types import PlatformConfig
 	from meowlauncher.configured_emulator import ConfiguredStandardEmulator
 	from meowlauncher.emulated_platform import StandardEmulatedPlatform
 	from meowlauncher.games.mame_common.software_list import (Software,

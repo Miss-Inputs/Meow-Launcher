@@ -6,8 +6,8 @@ from typing import Optional
 from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
-from meowlauncher.config.platform_config import (PlatformConfig,
-                                                 platform_configs)
+from meowlauncher.config.platform_config import platform_configs
+from meowlauncher.config_types import PlatformConfig
 from meowlauncher.data.machines_with_inbuilt_games import (
     InbuiltGame, bioses_with_inbuilt_games, machines_with_inbuilt_games)
 from meowlauncher.game_source import GameSource
@@ -17,7 +17,7 @@ from meowlauncher.games.mame.mame_inbuilt_game import (MAMEInbuiltGame,
                                                        MAMEInbuiltLauncher)
 from meowlauncher.games.mame.mame_metadata import add_metadata, add_status
 from meowlauncher.games.mame_common.machine import (
-    Machine, get_machine, iter_machines_from_source_file, iter_machines)
+    Machine, get_machine, iter_machines, iter_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_helpers import (
     default_mame_executable, have_mame)
 from meowlauncher.util.desktop_files import has_been_done

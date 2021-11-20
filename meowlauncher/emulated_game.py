@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from .game import Game
 
 if TYPE_CHECKING:
-	from meowlauncher.config.platform_config import PlatformConfig
+	from meowlauncher.config_types import PlatformConfig
 
 class EmulatedGame(Game, ABC):
 	def __init__(self, platform_config: 'PlatformConfig') -> None:

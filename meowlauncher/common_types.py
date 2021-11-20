@@ -1,20 +1,4 @@
 from enum import Enum, IntEnum, auto
-from pathlib import Path
-from typing import Optional, Union
-from collections.abc import Sequence
-
-#For type checking… hmm…
-TypeOfConfigValue = Optional[Union[bool, str, Path, int, str, Sequence[str], Sequence[Path]]]
-
-class ConfigValueType(Enum):
-	Bool = auto()
-	FilePath = auto()
-	FolderPath = auto()
-	Integer = auto()
-	String = auto()
-	StringList = auto()
-	FilePathList = auto()
-	FolderPathList = auto()
 
 class MediaType(Enum):
 	Cartridge = auto()

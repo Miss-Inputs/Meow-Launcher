@@ -6,7 +6,7 @@ from meowlauncher.emulator_launcher import EmulatorLauncher
 from meowlauncher.metadata import Date, Metadata
 
 if TYPE_CHECKING:
-	from meowlauncher.config.platform_config import PlatformConfig
+	from meowlauncher.config_types import PlatformConfig
 	from meowlauncher.games.mame_common.machine import Machine
 
 	from .mame import ConfiguredMAME

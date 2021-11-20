@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 
-from meowlauncher.common_types import ConfigValueType, HostPlatform
-
-from .runner_config import RunnerConfigValue
+from meowlauncher.common_types import HostPlatform
+from meowlauncher.config_types import ConfigValueType, RunnerConfigValue
 
 
 class Runner(ABC):
