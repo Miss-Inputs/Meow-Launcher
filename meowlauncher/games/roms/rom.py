@@ -316,12 +316,16 @@ def _parse_m3u(path: Path) -> Iterable[ROM]:
 		line = line.strip()
 		if line.startswith("#"):
 			continue
-		referenced_file = Path(line) if line.startswith('/') else path.with_name(line)
-		if not referenced_file.is_file():
-			if main_config.debug:
-				print('M3U file', path, 'has a broken reference!!!!', referenced_file)
-			continue
-		yield get_rom(referenced_file)
+	
+		try:
+			referenced_file = Path(line) if line.startswith('/') else path.parent / line
+			if not referenced_file.is_file():
+				if main_config.debug:
+					print('M3U file', path, 'has a broken reference!!!!', referenced_file)
+				continue
+			yield get_rom(referenced_file)
+		except ValueError:
+			print('M3U file', path, 'has a broken line!!!!', line)
 
 class M3UPlaylist(ROM):
 	def __init__(self, path: Path):
