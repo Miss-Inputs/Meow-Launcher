@@ -203,8 +203,8 @@ class CombinedController(Controller):
 
 class InputOption():
 	def __init__(self) -> None:
-		#TODO: Some things like to mutate this by appending or replacing something, so I should either use MutableSequence or mutable set or add methods to replace it with a new object
-		self.inputs: Collection[Controller] = []
+		#TODO: This should logically be a Collection as the order is not relevant, but some things in games.specific_behaviours like to mutate it, so that's not nice I guess
+		self.inputs: MutableSequence[Controller] = []
 
 	@property
 	def is_standard(self):
@@ -214,8 +214,6 @@ class InputOption():
 	def describe(self) -> str:
 		if not self.inputs:
 			return 'Nothing'
-		#if len(self.inputs) == 1:
-		#	return self.inputs[0].describe()
 		return ' + '.join(input.describe() for input in self.inputs)
 
 class InputInfo():
@@ -227,7 +225,7 @@ class InputInfo():
 	def add_option(self, inputs: Union[Collection[Controller], Controller]):
 		#TODO: Should inputs ever really be iterable? Or should I be using CombinedController in those instances (SCV, ScummVM, Atari 8 bit)
 		opt = InputOption()
-		opt.inputs = tuple(inputs) if isinstance(inputs, Collection) else [inputs]
+		opt.inputs = list(inputs) if isinstance(inputs, Collection) else [inputs]
 		self.input_options.append(opt)
 
 	@property
