@@ -24,7 +24,7 @@ DesktopWithPath = tuple[Path, configparser.ConfigParser]
 super_debug = '--super-debug' in sys.argv
 disambiguity_section_name = section_prefix + 'Disambiguity'
 
-def update_name(desktop: DesktopWithPath, disambiguator: Optional[str], disambiguation_method: str):
+def _update_name(desktop: DesktopWithPath, disambiguator: Optional[str], disambiguation_method: str):
 	#TODO: Encapsulate accessing .desktop files better, this module shouldn't know about them
 	if not disambiguator:
 		return
@@ -52,7 +52,7 @@ def update_name(desktop: DesktopWithPath, disambiguator: Optional[str], disambig
 	with desktop[0].open('wt', encoding='utf-8') as f:
 		desktop[1].write(f)
 
-def resolve_duplicates_by_metadata(group: Collection[DesktopWithPath], field: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name):
+def _resolve_duplicates_by_metadata(group: Collection[DesktopWithPath], field: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name):
 	value_counter = collections.Counter(get_field(d[1], field, field_section) for d in group)
 	for dup in group:
 		field_value = get_field(dup[1], field, field_section)
@@ -86,9 +86,9 @@ def resolve_duplicates_by_metadata(group: Collection[DesktopWithPath], field: st
 					return
 
 			original_name = get_field(dup[1], 'Ambiguous-Name', disambiguity_section_name)
-			update_name(dup, format_function(field_value, original_name if original_name else name) if format_function else f'({field_value})', field)
+			_update_name(dup, format_function(field_value, original_name if original_name else name) if format_function else f'({field_value})', field)
 
-def resolve_duplicates_by_filename_tags(group: Collection[DesktopWithPath]):
+def _resolve_duplicates_by_filename_tags(group: Collection[DesktopWithPath]):
 	for dup in group:
 		the_rest = tuple(d for d in group if d[0] != dup[0])
 		tags = get_array(dup[1], 'Filename-Tags', junk_section_name)
@@ -106,18 +106,18 @@ def resolve_duplicates_by_filename_tags(group: Collection[DesktopWithPath]):
 			differentiator_candidates.append(tag)
 
 		if differentiator_candidates:
-			update_name(dup, ' '.join(differentiator_candidates), 'tags')
+			_update_name(dup, ' '.join(differentiator_candidates), 'tags')
 
-def resolve_duplicates_by_dev_status(group: Iterable[DesktopWithPath]):
+def _resolve_duplicates_by_dev_status(group: Iterable[DesktopWithPath]):
 	for dup in group:
 		tags = get_array(dup[1], 'Filename-Tags', junk_section_name)
 
 		for tag in tags:
 			tag_matches = tag.lower().startswith(('(beta', '(sample)', '(proto', '(preview', '(pre-release', '(demo', '(multiboot demo)', '(shareware', '(taikenban'))
 			if tag_matches:= tag_matches or (tag.lower().startswith('(alpha') and tag[6] == ' ' and tag[7:-1].isdigit()):
-				update_name(dup, '(' + tag[1:].title() if tag.islower() else tag, 'dev status')
+				_update_name(dup, '(' + tag[1:].title() if tag.islower() else tag, 'dev status')
 
-def resolve_duplicates_by_date(group: Collection[DesktopWithPath]):
+def _resolve_duplicates_by_date(group: Collection[DesktopWithPath]):
 	year_counter = collections.Counter(get_field(d[1], 'Year') for d in group)
 	month_counter = collections.Counter(get_field(d[1], 'Month') for d in group)
 	day_counter = collections.Counter(get_field(d[1], 'Day') for d in group)
@@ -165,23 +165,23 @@ def resolve_duplicates_by_date(group: Collection[DesktopWithPath]):
 					continue
 				date_string = year_disambig
 
-			update_name(dup, '(' + date_string + ')', 'date')
+			_update_name(dup, '(' + date_string + ')', 'date')
 
-def resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name):
+def _resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name):
 	if method == 'tags':
-		resolve_duplicates_by_filename_tags(group)
+		_resolve_duplicates_by_filename_tags(group)
 	elif method == 'dev-status':
-		resolve_duplicates_by_dev_status(group)
+		_resolve_duplicates_by_dev_status(group)
 	elif method == 'date':
-		resolve_duplicates_by_date(group)
+		_resolve_duplicates_by_date(group)
 	else:
-		resolve_duplicates_by_metadata(group, method, format_function, ignore_missing_values, field_section)
+		_resolve_duplicates_by_metadata(group, method, format_function, ignore_missing_values, field_section)
 
-def fix_duplicate_names(method: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name):
+def _fix_duplicate_names(method: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name):
 	#TODO: output_folder needs to be unambigulously Path, that's the issue here
 	files = ((cast(Path, path), get_desktop(path)) for path in main_config.output_folder.iterdir())
 	if method == 'dev-status':
-		resolve_duplicates_by_dev_status(files)
+		_resolve_duplicates_by_dev_status(files)
 		return
 
 	#TODO: Handle this null check properly, it _should_ be impossible for Desktop Entry to not exist in a .desktop file, but that doesn't stop some joker putting them in there
@@ -189,10 +189,10 @@ def fix_duplicate_names(method: str, format_function: Optional[FormatFunction]=N
 	keyfunc: Callable[[DesktopWithPath], str] = (lambda f: cast(str, get_field(f[1], 'Name', 'Desktop Entry')).lower()) \
 		if method == 'check' \
 		else (lambda f: normalize_name(cast(str, get_field(f[1], 'Name', 'Desktop Entry')), care_about_numerals=True))
-	duplicates: MutableMapping[str, set[DesktopWithPath]] = {}
+	duplicates = {}
 	#TODO: Is using keyfunc twice there really needed? Is that how that works?
 	for key, group in itertools.groupby(sorted(files, key=keyfunc), key=keyfunc):
-		g = set(group)
+		g = tuple(group)
 		if len(g) > 1:
 			duplicates[key] = g
 
@@ -200,9 +200,9 @@ def fix_duplicate_names(method: str, format_function: Optional[FormatFunction]=N
 		if method == 'check':
 			print('Duplicate name still remains: ', k, tuple(get_field(d[1], 'Original-Name', junk_section_name) for d in v))
 		else:
-			resolve_duplicates(v, method, format_function, ignore_missing_values, field_section)
+			_resolve_duplicates(v, method, format_function, ignore_missing_values, field_section)
 
-def revision_disambiguate(rev: str, _) -> Optional[str]:
+def _revision_disambiguate(rev: str, _) -> Optional[str]:
 	if rev == '0':
 		return None
 
@@ -211,13 +211,13 @@ def revision_disambiguate(rev: str, _) -> Optional[str]:
 
 	return f'(Rev {rev})'
 
-def arcade_system_disambiguate(arcade_system: Optional[str], name: str) -> Optional[str]:
+def _arcade_system_disambiguate(arcade_system: Optional[str], name: str) -> Optional[str]:
 	if arcade_system == name + ' Hardware':
 		#Avoid "Cool Game (Cool Game Hardware)" where there exists a "Cool Game (Interesting Alternate Hardware)"
 		return None
 	return f'({arcade_system})'
 
-def reambiguate() -> None:
+def _reambiguate() -> None:
 	#This seems counter-intuitive, but if we're not doing a full rescan, we want to do this before disambiguating again or else it gets weird
 	output_folder = main_config.output_folder
 	for path in output_folder.iterdir():
@@ -246,29 +246,29 @@ def disambiguate_names() -> None:
 	time_started = time.perf_counter()
 
 	if not main_config.full_rescan:
-		reambiguate()
+		_reambiguate()
 
-	fix_duplicate_names('Platform')
-	fix_duplicate_names('Type', field_section=id_section_name)
-	fix_duplicate_names('dev-status')
+	_fix_duplicate_names('Platform')
+	_fix_duplicate_names('Type', field_section=id_section_name)
+	_fix_duplicate_names('dev-status')
 	if not main_config.simple_disambiguate:
-		fix_duplicate_names('Arcade-System', arcade_system_disambiguate)
-		fix_duplicate_names('Media-Type', ignore_missing_values=True)
-		fix_duplicate_names('Is-Colour', lambda is_colour, _: None if is_colour in {False, 'No'} else '(Colour)')
-		fix_duplicate_names('Regions', lambda regions, _: f"({regions.replace(';', ', ') if regions else None})", ignore_missing_values=True)
-		fix_duplicate_names('Region-Code')
-		fix_duplicate_names('TV-Type', ignore_missing_values=True)
-		fix_duplicate_names('Version')
-		fix_duplicate_names('Revision', revision_disambiguate)
-		fix_duplicate_names('Languages', lambda languages, _: f"({languages.replace(';', ', ')})", ignore_missing_values=True)
+		_fix_duplicate_names('Arcade-System', _arcade_system_disambiguate)
+		_fix_duplicate_names('Media-Type', ignore_missing_values=True)
+		_fix_duplicate_names('Is-Colour', lambda is_colour, _: None if is_colour in {False, 'No'} else '(Colour)')
+		_fix_duplicate_names('Regions', lambda regions, _: f"({regions.replace(';', ', ') if regions else None})", ignore_missing_values=True)
+		_fix_duplicate_names('Region-Code')
+		_fix_duplicate_names('TV-Type', ignore_missing_values=True)
+		_fix_duplicate_names('Version')
+		_fix_duplicate_names('Revision', _revision_disambiguate)
+		_fix_duplicate_names('Languages', lambda languages, _: f"({languages.replace(';', ', ')})", ignore_missing_values=True)
 		#fix_duplicate_names('date', ignore_missing_values=True)
-		fix_duplicate_names('Publisher', ignore_missing_values=True)
-		fix_duplicate_names('Developer', ignore_missing_values=True)
-	fix_duplicate_names('tags')
-	fix_duplicate_names('Extension', '(.{0})'.format, ignore_missing_values=True) #pylint: disable=consider-using-f-string #I want the bound method actually
-	fix_duplicate_names('Executable-Name', ignore_missing_values=True)
+		_fix_duplicate_names('Publisher', ignore_missing_values=True)
+		_fix_duplicate_names('Developer', ignore_missing_values=True)
+	_fix_duplicate_names('tags')
+	_fix_duplicate_names('Extension', '(.{0})'.format, ignore_missing_values=True) #pylint: disable=consider-using-f-string #I want the bound method actually
+	_fix_duplicate_names('Executable-Name', ignore_missing_values=True)
 	if main_config.debug:
-		fix_duplicate_names('check')
+		_fix_duplicate_names('check')
 
 	if main_config.print_times:
 		time_ended = time.perf_counter()
