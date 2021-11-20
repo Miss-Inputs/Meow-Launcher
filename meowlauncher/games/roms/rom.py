@@ -213,29 +213,24 @@ class GCZFileROM(FileROM):
 class UnsupportedCHDError(Exception):
 	pass
 
-class CHDFileROM(FileROM):
+class CHDFileROM(ROM):
 	@property
 	def should_read_whole_thing(self) -> bool:
 		return False
 
-	def read(self, _: int=0, __: int=-1) -> bytes:
-		raise NotImplementedError('Cannot read CHDs sorry')
-
-	def get_crc32(self) -> int:
-		raise NotImplementedError('Trying to hash a CHD file is silly and should not be done')
-
 	def _get_sha1(self) -> str:
-		header = self._read(amount=124)
-		if header[0:8] != b'MComprHD':
-			raise UnsupportedCHDError('Header magic %s unknown' % str(header[0:8]))
-		chd_version = int.from_bytes(header[12:16], 'big')
-		if chd_version == 4:
-			sha1 = header[48:68]
-		elif chd_version == 5:
-			sha1 = header[84:104]
-		else:
-			raise UnsupportedCHDError('Version %d unknown' % chd_version)
-		return bytes.hex(sha1)
+		with self.path.open('rb') as my_file:
+			header = my_file.read(124)
+			if header[0:8] != b'MComprHD':
+				raise UnsupportedCHDError('Header magic %s unknown' % str(header[0:8]))
+			chd_version = int.from_bytes(header[12:16], 'big')
+			if chd_version == 4:
+				sha1 = header[48:68]
+			elif chd_version == 5:
+				sha1 = header[84:104]
+			else:
+				raise UnsupportedCHDError('Version %d unknown' % chd_version)
+			return bytes.hex(sha1)
 
 	def get_software_list_entry(self, software_lists: Iterable['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:
 		try:
@@ -307,7 +302,7 @@ class FolderROM(ROM):
 	def get_software_list_entry(self, _: Iterable['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:
 		raise NotImplementedError('Trying to get software of a folder is silly and should not be done')
 
-class M3URom(FileROM):
+class M3UPlaylist(ROM):
 	def __init__(self, path: Path):
 		super().__init__(path)
 		self.subroms: list[ROM] = []
@@ -334,9 +329,6 @@ class M3URom(FileROM):
 	@property
 	def should_read_whole_thing(self) -> bool:
 		return False
-
-	def get_crc32(self) -> int:
-		raise NotImplementedError('It would not quite make sense to call get_crc32 on an m3u, because which file do you want?')
 	
 	def get_software_list_entry(self, software_lists: Iterable['SoftwareList'], needs_byteswap: bool = False, skip_header: int = 0) -> Optional['Software']:
 		if not self.subroms:
@@ -353,6 +345,8 @@ def get_rom(path: Path) -> ROM:
 			return GCZFileROM(path)
 		if ext[1:].lower() == 'chd':
 			return CHDFileROM(path)
+		if ext[1:].lower() == 'm3u':
+			return M3UPlaylist(path)
 		if ext[1:].lower() in archives.compressed_exts:
 			return CompressedROM(path)
 	return FileROM(path)

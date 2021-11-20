@@ -1,7 +1,7 @@
 import re
-from collections.abc import Iterable, Collection
+from collections.abc import Collection, Iterable
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional, Union, cast
+from typing import TYPE_CHECKING, Optional, Union
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -305,6 +305,7 @@ def add_megadrive_software_list_metadata(software: 'Software', metadata: Metadat
 
 
 def add_megadrive_metadata(game: 'ROMGame'):
+	header = None
 	if game.rom.extension == 'cue':
 		first_track_and_sector_size = cd_read.get_first_data_cue_track(game.rom.path)
 		if not first_track_and_sector_size:
@@ -319,12 +320,11 @@ def add_megadrive_metadata(game: 'ROMGame'):
 		except NotImplementedError:
 			print(game.rom.path, 'has weird sector size', sector_size)
 			return
-	elif game.rom.extension == 'smd':
-		header = _get_smd_header(cast(FileROM, game.rom))
-	else:
-		header = cast(FileROM, game.rom).read(0x100, 0x100)
+	elif isinstance(game.rom, FileROM):
+		header = _get_smd_header(game.rom) if game.rom.extension == 'smd' else game.rom.read(0x100, 0x100)
 
-	add_megadrive_info(game.metadata, header)
+	if header:
+		add_megadrive_info(game.metadata, header)
 	if game.metadata.platform == 'Mega Drive':
 		equivalent_arcade = try_find_equivalent_arcade(game.rom, game.metadata)
 		if equivalent_arcade:
