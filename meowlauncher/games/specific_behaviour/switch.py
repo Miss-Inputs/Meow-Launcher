@@ -102,6 +102,7 @@ def _add_titles(metadata: 'Metadata', titles: Mapping[str, tuple[str, str]], ico
 	first_name = None
 	first_publisher = None
 	first_icon = None
+	other_icons: dict[str, bytes] = {}
 	for i in range(15):
 		#Just because it's naughty to enumerate dictionaries and expect an order, and we want to find the first supported language in that order and call that the "main" one
 		#There's not really a region code to use otherwise
@@ -129,8 +130,8 @@ def _add_titles(metadata: 'Metadata', titles: Mapping[str, tuple[str, str]], ico
 
 				if icons and lang_name in icons:
 					local_icon = icons[lang_name]
-					if local_icon != first_icon:
-						metadata.images[prefix + ' Icon'] = Image.open(io.BytesIO(local_icon))
+					if local_icon != first_icon and local_icon not in other_icons.values():
+						other_icons[prefix] = local_icon
 				if name != first_name:
 					metadata.add_alternate_name(name, prefix + ' Banner Title')
 				if publisher != first_publisher:
@@ -145,6 +146,8 @@ def _add_titles(metadata: 'Metadata', titles: Mapping[str, tuple[str, str]], ico
 				metadata.add_alternate_name(name, 'Banner Title')
 				#TODO: Cleanup publisher
 				metadata.publisher = publisher
+	for prefix, icon in other_icons.items():
+		metadata.images[prefix + ' Icon'] = Image.open(io.BytesIO(icon))
 
 def _add_nacp_metadata(metadata: 'Metadata', nacp: bytes, icons: Mapping[str, bytes]=None):
 	#There are a heckload of different flags here and most aren't even known seemingly, see also https://switchbrew.org/wiki/NACP_Format
@@ -306,7 +309,7 @@ def _list_cnmt(cnmt: Cnmt, rom: 'FileROM', metadata: 'Metadata', files: Mapping[
 				#We have icons and a NACP! WOOOOO
 				#The icons match up with the titles that exist in the titles section, not SupportedLanguageFlag
 				icons = {}
-				nacp = None
+				nacp: Optional[bytes] = None
 				for control_nca_filename, control_nca_file in control_nca_files.items():
 					if not nacp and control_nca_filename == 'control.nacp':
 						#We would expect only one
