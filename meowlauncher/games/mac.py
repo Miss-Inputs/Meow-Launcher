@@ -205,8 +205,7 @@ def _get_icon(resources: Mapping[bytes, Mapping[int, 'macresources.Resource']], 
 		else:
 			#Since this is 4-bit colour we need to unpack 0b1111_1111 to 0b0000_1111 0b0000_1111
 			
-			#TODO: Yeah I think we need another nested comprehension over here
-			image_bytes = bytes(b for bb in tuple((bbb >> 4, bbb & 16) for bbb in icl4) for b in bb)
+			image_bytes = bytes(b for bb in ((bbb >> 4, bbb & 16) for bbb in icl4) for b in bb)
 			icon_16 = Image.frombytes('P', (32, 32), image_bytes)
 			icon_16.putpalette(mac_os_16_palette, 'RGB')
 			if mask:

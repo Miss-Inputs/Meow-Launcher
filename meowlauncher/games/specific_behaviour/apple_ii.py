@@ -101,8 +101,7 @@ def parse_woz_kv(rompath: str, metadata: Metadata, key: str, value: str):
 		except ValueError:
 			pass
 	elif key == 'language':
-		#TODO: Proper nested comprehension…
-		metadata.languages = {lang for lang in {get_language_by_english_name(lang_name) for lang_name in value.split('|')} if lang}
+		metadata.languages = {lang for lang in (get_language_by_english_name(lang_name) for lang_name in value.split('|')) if lang}
 	elif key == 'genre':
 		#This isn't part of the specification, but I've seen it
 		if value == 'rpg':

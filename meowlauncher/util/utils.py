@@ -151,8 +151,7 @@ def load_list(subpackage: Optional[str], resource: str) -> Sequence[str]:
 	package = 'meowlauncher.data'
 	if subpackage:
 		package += '.' + subpackage
-	#TODO: Proper nested comprehension
-	return tuple(line for line in tuple(line.split('#', 1)[0] for line in importlib.resources.read_text(package, resource + '.list').splitlines()) if line)
+	return tuple(line for line in (line.split('#', 1)[0] for line in importlib.resources.read_text(package, resource + '.list').splitlines()) if line)
 
 def load_json(subpackage: Optional[str], resource: str) -> Mapping:
 	package = 'meowlauncher.data'

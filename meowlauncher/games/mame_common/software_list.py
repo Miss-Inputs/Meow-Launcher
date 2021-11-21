@@ -197,9 +197,8 @@ class SoftwarePart():
 	def __init__(self, xml: ElementTree.Element, software: 'Software'):
 		self.xml = xml
 		self.software = software
-		#TODO: Proper nested comprehension
-		self.data_areas = {data_area.name: data_area for data_area in tuple(DataArea(data_area_xml, self) for data_area_xml in self.xml.iterfind('dataarea'))}
-		self.disk_areas = {disk_area.name: disk_area for disk_area in tuple(DiskArea(disk_area_xml, self) for disk_area_xml in self.xml.iterfind('diskarea'))}
+		self.data_areas = {data_area.name: data_area for data_area in (DataArea(data_area_xml, self) for data_area_xml in self.xml.iterfind('dataarea'))}
+		self.disk_areas = {disk_area.name: disk_area for disk_area in (DiskArea(disk_area_xml, self) for disk_area_xml in self.xml.iterfind('diskarea'))}
 
 	@property
 	def name(self) -> Optional[str]:
@@ -274,8 +273,7 @@ class Software():
 		self.xml = xml
 		self.software_list = software_list
 
-		#TODO: Proper nested comprehension
-		self.parts = {part.name: part for part in tuple(SoftwarePart(part_xml, self) for part_xml in self.xml.iterfind('part'))}
+		self.parts = {part.name: part for part in (SoftwarePart(part_xml, self) for part_xml in self.xml.iterfind('part'))}
 		self.infos = {info.attrib['name']: info.attrib.get('value') for info in self.xml.iterfind('info')} #Blank info name should not happen
 
 	@property

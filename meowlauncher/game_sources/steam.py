@@ -329,8 +329,7 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 	if store_categories_list:
 		#keys are category_X where X is some arbitrary ID, values are always Integer = 1
 		#This is the thing where you go to the store sidebar and it's like "Single-player" "Multi-player" "Steam Achievements" etc"
-		#TODO: Rewrite this one as a nested comprehension (my head asplode again)
-		cats = {store_categories.get(key, key) for key in {key.decode('utf-8', errors='backslashreplace') for key in store_categories_list.keys()}}
+		cats = {store_categories.get(key, key) for key in (key.decode('utf-8', errors='backslashreplace') for key in store_categories_list.keys())}
 		game.metadata.specific_info['Store Categories'] = cats #meow
 		game.metadata.specific_info['Has Achievements?'] = 'Steam Achievements' in cats
 		game.metadata.specific_info['Has Trading Cards?'] = 'Steam Trading Cards' in cats
@@ -392,8 +391,7 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 		store_tag_names = steam_installation.localization['localization']['english']['store_tags']
 		store_tag_ids_list = common.get(b'store_tags')
 		if store_tag_ids_list:
-			#TODO: This one should be nested comprehension too
-			store_tags = {store_tag_names.get(id, id) for id in {str(value.data) for value in store_tag_ids_list.values()}}
+			store_tags = {store_tag_names.get(id, id) for id in (str(value.data) for value in store_tag_ids_list.values())}
 			game.metadata.specific_info['Store Tags'] = store_tags
 
 	franchise_name = None
