@@ -7,7 +7,7 @@ from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher
 from meowlauncher.games.mame_common.software_list_find_utils import (
     find_in_software_lists_with_custom_matcher, find_software_by_name,
-    get_software_list_by_name)
+    iter_software_lists_by_name)
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.util.io_utils import make_filename
 from meowlauncher.util.utils import find_filename_tags_at_end
@@ -38,8 +38,7 @@ class ROMGame(EmulatedGame):
 
 		self.exception_reason: Optional[BaseException] = None
 
-		#TODO: Proper nested comprehension
-		self.software_lists = {software_list for software_list in {get_software_list_by_name(name) for name in platform.mame_software_lists} if software_list}
+		self.software_lists = {software_list for software_list in iter_software_lists_by_name(platform.mame_software_lists) if software_list}
 	
 	@property
 	def name(self) -> str:
