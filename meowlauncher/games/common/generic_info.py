@@ -51,7 +51,7 @@ def find_equivalent_arcade_game(game_name: str, game_alt_names: Collection[str],
 	if not machine:
 		return None
 
-	if machine.family in _not_necessarily_equivalent_arcade_names:
+	if machine.family_basename in _not_necessarily_equivalent_arcade_names:
 		return None
 
 	if machine.is_pinball:

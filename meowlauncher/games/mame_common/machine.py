@@ -123,13 +123,13 @@ class Machine():
 		return self._parent
 
 	@property
-	def family(self) -> str:
+	def family_basename(self) -> str:
 		return cast(str, self.parent_basename) if self.has_parent else self.basename
 
 	@property
-	def family_name(self) -> str:
-		return cast(Machine, self.parent).name if self.has_parent else self.name
-	
+	def family(self) -> 'Machine':
+		return cast(Machine, self.parent) if self.has_parent else self
+
 	@property
 	def source_file(self) -> str:
 		return PurePath(self.xml.attrib['sourcefile']).stem
@@ -218,7 +218,7 @@ class Machine():
 	@property
 	def bios_basename(self) -> Optional[str]:
 		romof = self.xml.attrib.get('romof')
-		if self.has_parent and romof == self.family:
+		if self.has_parent and romof == self.family_basename:
 			return cast(Machine, self.parent).bios_basename
 		if romof:
 			return romof
@@ -304,7 +304,7 @@ class Machine():
 		
 	@property
 	def is_system_driver(self) -> bool:
-		return self.family in all_mame_drivers
+		return self.family_basename in all_mame_drivers
 
 	@property
 	def developer_and_publisher(self) -> tuple[Optional[str], Optional[str]]:
@@ -386,8 +386,8 @@ class Machine():
 	@property
 	def series(self) -> Optional[str]:
 		serieses = get_machine_cat(self.basename, 'series')
-		if not serieses and self.family:
-			serieses = get_machine_cat(self.family, 'series')
+		if not serieses and self.family_basename:
+			serieses = get_machine_cat(self.family_basename, 'series')
 		if not serieses:
 			return None
 
@@ -410,8 +410,8 @@ class Machine():
 	@property
 	def bestgames_opinion(self) -> Optional[str]:
 		bestgames = get_machine_cat(self.basename, 'bestgames')
-		if not bestgames and self.family:
-			bestgames = get_machine_cat(self.family, 'bestgames')
+		if not bestgames and self.family_basename:
+			bestgames = get_machine_cat(self.family_basename, 'bestgames')
 		if not bestgames:
 			return None
 		for bestgame in bestgames: #We expect only one

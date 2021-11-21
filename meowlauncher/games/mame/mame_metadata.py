@@ -169,7 +169,7 @@ def add_save_type(game: 'MAMEGame') -> None:
 			if media_slot.type == 'memcard':
 				has_memory_card = True
 
-		has_memory_card = has_memory_card and (game.machine.family not in _not_actually_save_supported)
+		has_memory_card = has_memory_card and (game.machine.family_basename not in _not_actually_save_supported)
 
 		game.metadata.save_type = SaveType.MemoryCard if has_memory_card else SaveType.Nothing
 	else:
@@ -185,8 +185,20 @@ def add_status(machine: Machine, metadata: 'Metadata') -> None:
 	metadata.specific_info['MAME Overall Emulation Status'] = machine.overall_status
 	metadata.specific_info['MAME Emulation Status'] = machine.emulation_status
 	driver = machine.driver_element
-	metadata.specific_info['Cocktail Status'] = mame_statuses.get(driver.attrib.get('cocktail'), EmulationStatus.Good) if driver else EmulationStatus.Unknown
-	metadata.specific_info['Supports Savestate?'] = driver.attrib.get('savestate') == 'supported' if driver else EmulationStatus.Unknown
+	savestate_status = None
+	cocktail_status = EmulationStatus.Unknown
+	if driver:
+		cocktail_status = mame_statuses.get(driver.attrib.get('cocktail'), EmulationStatus.Good)
+		savestate_attrib = driver.attrib.get('savestate')
+		if savestate_attrib == 'supported': #TODO: Why did the code have this, did something change in a new version and I forgot? I guess I'll need to find out, otherwise this could just check for 'unsupported'
+			savestate_status = True
+		elif savestate_attrib == 'unsupported':
+			savestate_status = False
+		#Else I don't know
+
+	if savestate_status is not None:
+		metadata.specific_info['Supports Savestate?'] = savestate_status
+	metadata.specific_info['Cocktail Status'] = cocktail_status
 
 	unemulated_features = set()
 	for feature_type, feature_status in machine.feature_statuses.items():

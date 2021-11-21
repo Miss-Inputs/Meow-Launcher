@@ -26,25 +26,27 @@ class MAMEGame(EmulatedGame):
 	def _add_metadata_fields(self) -> None:
 		self._has_inited_metadata = True
 		self.metadata.specific_info['Source File'] = self.machine.source_file
-		self.metadata.specific_info['Family Basename'] = self.machine.family
-		self.metadata.specific_info['Family'] = self.machine.family_name
+		self.metadata.specific_info['Family'] = self.machine.family
 		self.metadata.specific_info['Has Parent?'] = self.machine.has_parent
 
 		self.metadata.release_date = Date(self.machine.xml.findtext('year'))
 
 		self.metadata.specific_info['Number of Players'] = self.machine.number_of_players
-		self.metadata.specific_info['Is Mechanical?'] = self.machine.is_mechanical
-		self.metadata.specific_info['Dispenses Tickets'] = self.machine.uses_device('ticket_dispenser')
+		if self.machine.is_mechanical:
+			self.metadata.specific_info['Is Mechanical?'] = True
+		if self.machine.uses_device('ticket_dispenser'):
+			self.metadata.specific_info['Dispenses Tickets?'] = True
 		self.metadata.specific_info['Coin Slots'] = self.machine.coin_slots
-		self.metadata.specific_info['Requires CHD?'] = self.machine.requires_chds
-		self.metadata.specific_info['Romless'] = self.machine.romless
+		if self.machine.requires_chds:
+			self.metadata.specific_info['Requires CHD?'] = True
+		if self.machine.romless:
+			self.metadata.specific_info['Romless'] = True
 		self.metadata.specific_info['Slot Names'] = {next(iter(slot.instances))[0] for slot in self.machine.media_slots if slot.instances} #I guess I only expect one?
 		self.metadata.specific_info['Software Lists'] = self.machine.software_list_names
 		self.metadata.series = self.machine.series
 		bios = self.machine.bios
 		if bios:
-			self.metadata.specific_info['BIOS Used'] = bios.basename
-			self.metadata.specific_info['BIOS Used Full Name'] = bios.name
+			self.metadata.specific_info['BIOS Used'] = bios
 		if self.machine.samples_used:
 			self.metadata.specific_info['Samples Used'] = self.machine.samples_used
 		arcade_system = self.machine.arcade_system
@@ -64,10 +66,14 @@ class MAMEGame(EmulatedGame):
 		self.metadata.specific_info['BestGames Rating'] = self.machine.bestgames_opinion
 		self.metadata.specific_info['Version Added'] = self.machine.version_added
 
-		self.metadata.specific_info['Requires Artwork?'] = self.machine.requires_artwork
-		self.metadata.specific_info['Is Unofficial?'] = self.machine.unofficial
-		self.metadata.specific_info['Has No Sound Hardware?'] = self.machine.no_sound_hardware
-		self.metadata.specific_info['Is Incomplete?'] = self.machine.incomplete
+		if self.machine.requires_artwork:
+			self.metadata.specific_info['Requires Artwork?'] = True
+		if self.machine.unofficial:
+			self.metadata.specific_info['Is Unofficial?'] = True
+		if self.machine.no_sound_hardware:
+			self.metadata.specific_info['Has No Sound Hardware?'] = True
+		if self.machine.incomplete:
+			self.metadata.specific_info['Is Incomplete?'] = True
 
 	@property
 	def is_wanted(self) -> bool:

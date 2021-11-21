@@ -70,7 +70,7 @@ def _add_metadata_from_arcade(game: 'ROMGame', machine: 'Machine'):
 		if machine_icon:
 			game.metadata.images['Icon'] = machine_icon
 
-	if machine.family in {'monopoly', 'scrabble'}:
+	if machine.family_basename in {'monopoly', 'scrabble'}:
 		#The arcade games Monopoly and Scrabble are some weird quiz games that have the licensed board games as a theme, whereas every Monopoly and Scrabble in the software list is not going to be that at all, and just a normal conversion of the board game like you expect, so all metadata except the icon isn't necessarily going to be accurate. I choose to hardcode these cases because they annoy me
 		game.metadata.genre = 'Tabletop'
 		game.metadata.subgenre = 'Board'
