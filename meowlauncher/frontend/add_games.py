@@ -1,9 +1,6 @@
 import datetime
 import time
 from collections.abc import Callable
-import itertools
-import operator
-import functools
 
 from meowlauncher.game_source import CompoundGameSource, GameSource
 from meowlauncher.game_sources import game_sources, gog, itch_io, steam
@@ -27,6 +24,7 @@ def add_game_source(source: GameSource, progress_function: Callable[..., None]) 
 		progress_function(f'Added {count} {source.description} in {str(time_taken)} ({time_taken.total_seconds() / count} secs per game)')
 	else:
 		progress_function(f'Did not add any {source.description}')
+	progress_function('-------')
 	return count
 
 def add_games(progress_function: Callable[..., None]=print):
