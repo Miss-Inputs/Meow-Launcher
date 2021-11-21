@@ -217,6 +217,9 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 
 				for name in sorted(files):
 					path = Path(root, name)
+					#TODO: We might actually want to do something with associated documents later, but for now, we know we aren't doing anything with them
+					if (not self.platform.is_valid_file_type(path.suffix[1:].lower())) and path.suffix[1:].lower() in {'txt', 'md', 'jpg', 'nfo', 'gif', 'bmp'}:
+						continue
 					if not main_config.full_rescan:
 						if has_been_done('ROM', str(path)):
 							continue
