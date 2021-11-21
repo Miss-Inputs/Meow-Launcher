@@ -1,6 +1,7 @@
 import re
 import zlib
 from collections.abc import Callable, Collection, Iterator, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional, cast
 from xml.etree import ElementTree
@@ -37,7 +38,7 @@ def get_crc32_for_software_list(data: bytes) -> str:
 
 _split_preserve_brackets = re.compile(r', (?![^(]*\))')
 _ends_with_brackets = re.compile(r'([^()]+)\s\(([^()]+)\)$')
-def add_alt_titles(metadata: Metadata, alt_title: str):
+def _add_alt_titles(metadata: Metadata, alt_title: str):
 	#Argh this is annoying because we don't want to split in the middle of brackets
 	for piece in _split_preserve_brackets.split(alt_title):
 		ends_with_brackets_match = _ends_with_brackets.match(piece)
@@ -390,7 +391,7 @@ class Software():
 
 		alt_title = self.infos.get('alt_title', self.infos.get('alt_name', self.infos.get('alt_disk')))
 		if alt_title:
-			add_alt_titles(metadata, alt_title)
+			_add_alt_titles(metadata, alt_title)
 
 		year_text = self.xml.findtext('year')
 		if year_text:
@@ -450,12 +451,12 @@ class Software():
 					metadata.images[image_name] = image
 
 
+@dataclass(frozen=True)
 class SoftwareMatcherArgs():
-	def __init__(self, crc32: Optional[str], sha1: Optional[str], size: Optional[int], reader: Optional[Callable[[int, int], bytes]]):
-		self.crc32 = crc32
-		self.sha1 = sha1
-		self.size = size
-		self.reader = reader
+	crc32: Optional[str]
+	sha1: Optional[str]
+	size: Optional[int]
+	reader: Optional[Callable[[int, int], bytes]]
 
 class SoftwareList():
 	def __init__(self, path: Path) -> None:

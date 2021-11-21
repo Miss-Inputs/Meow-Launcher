@@ -1,6 +1,6 @@
 import itertools
 import os
-from collections.abc import Collection, MutableSet, Sequence, Iterator
+from collections.abc import Collection, MutableSet, Sequence, Iterator, Iterable
 from pathlib import Path
 from typing import Any, Optional
 from functools import cache
@@ -22,14 +22,35 @@ def iter_all_software_lists() -> Iterator[tuple[Path, SoftwareList]]:
 	hashpaths = default_mame_configuration.core_config.get('hashpath')
 	if not hashpaths:
 		return
-	for hash_path in hashpaths:
-		if os.path.isdir(hash_path):
-			for hash_xml in Path(hash_path).iterdir():
-				yield hash_xml, SoftwareList(hash_xml)
+	generator = (Path(hash_path).iterdir() for hash_path in hashpaths)
+	try:
+		for hash_xml_path in itertools.chain.from_iterable(generator):
+			try:
+				yield hash_xml_path, SoftwareList(hash_xml_path)
+			except SyntaxError as ex: #I guess that is the error it throws?
+				print(f'{hash_xml_path} is fuckin borked for some reason: {ex}')
+				continue
+	except FileNotFoundError:
+		pass
+
+def iter_software_lists_by_name(names: Iterable) -> Iterator[SoftwareList]:
+	if not default_mame_configuration:
+		return
+	hashpaths = default_mame_configuration.core_config.get('hashpath')
+	if not hashpaths:
+		return
+	generator = (Path(hash_path) for hash_path in hashpaths)
+	try:
+		for hash_path in generator:
+			for name in names:
+				yield SoftwareList(hash_path.joinpath(name).with_suffix(os.extsep + 'xml'))
+	except FileNotFoundError:
+		pass
 
 @cache
 def get_software_list_by_name(name: str) -> Optional[SoftwareList]:
-	return next((software_list for path, software_list in iter_all_software_lists() if path.stem == name), None)
+	#return next((software_list for path, software_list in iter_all_software_lists() if path.stem == name), None)
+	return next(iter_software_lists_by_name((name, )), None)
 
 def find_in_software_lists_with_custom_matcher(software_lists: Collection[SoftwareList], matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Optional[Software]:
 	for software_list in software_lists:
