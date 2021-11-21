@@ -1,7 +1,6 @@
 import io
-import os
 import zipfile
-from collections.abc import Collection, Mapping, Iterator
+from collections.abc import Collection, Iterator, Mapping
 from pathlib import Path
 from typing import Any, Optional, Union
 
@@ -11,9 +10,9 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
+from meowlauncher.config.main_config import main_config
 from steamfiles import acf, appinfo
 
-from meowlauncher.config.main_config import main_config
 
 class IconError(Exception):
 	pass
@@ -234,7 +233,7 @@ class SteamInstallation():
 					#Get the biggest image file and assume that's the best icon we can have
 					#extracted_icon_file = sorted(icon_files, key=lambda zip_info: zip_info.file_size, reverse=True)[0]
 					extracted_icon_file = max(icon_files, key=lambda zip_info: zip_info.file_size)
-					extracted_icon_folder = os.path.join(main_config.image_folder, 'Icon', 'extracted_from_zip', icon_hash)
+					extracted_icon_folder = main_config.image_folder.joinpath('Icon', 'extracted_from_zip', icon_hash)
 					return zip_file.extract(extracted_icon_file, path=extracted_icon_folder)
 
 		raise IconNotFoundError('{0} not found'.format(icon_hash))

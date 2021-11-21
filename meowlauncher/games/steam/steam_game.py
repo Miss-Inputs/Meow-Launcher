@@ -1,6 +1,6 @@
 from collections.abc import Mapping, MutableMapping
 from dataclasses import dataclass
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any, Optional
 
 from meowlauncher.config.main_config import main_config
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class LauncherInfo():
-	exe: Optional[str]
+	exe: Optional[PurePath]
 	args: Optional[str] #Not a list as it turns out?
 	description: Optional[str]
 	launcher_type: Optional[str]

@@ -291,10 +291,10 @@ class FolderROM(ROM):
 		if ignore_case:
 			extension = extension.lower()
 		for f in self.path.iterdir():
-			name = f.name
+			suffix = f.suffix[1:]
 			if ignore_case:
-				name = name.lower()
-			if f.is_file() and f.suffix == os.path.extsep + extension:
+				suffix = suffix.lower()
+			if f.is_file() and suffix == extension:
 				return True
 		return False
 	

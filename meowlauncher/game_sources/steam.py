@@ -7,7 +7,7 @@ import statistics
 import time
 from collections.abc import Iterator, Mapping, MutableMapping
 from enum import IntFlag
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any, Optional
 
 try:
@@ -121,13 +121,13 @@ def process_launchers(game: 'SteamGame', launch: Mapping[bytes, Mapping[bytes, A
 		#Actually, sometimes the key doesn't start at 0, which is weird, but anyway it still doesn't really mean much, it just means we can't get the first item by getting key 0
 
 		executable_name = launch_item.get(b'executable')
-		exe: Optional[str] = None
+		exe: Optional[PurePath] = None
 		if executable_name:
 			exe_name = executable_name.decode('utf-8', errors='backslashreplace')
 			if exe_name.startswith('steam://open'):
 				#None of that
 				continue
-			exe = exe_name
+			exe = PurePath(exe_name)
 		
 		args: Optional[str] = None
 		executable_arguments = launch_item.get(b'arguments')
@@ -543,19 +543,20 @@ def add_metadata_from_appinfo(game: 'SteamGame', app_info_section: Mapping[bytes
 		game.metadata.save_type = SaveType.Internal
 
 def process_launcher(game: 'SteamGame', launcher: 'LauncherInfo'):
-	if os.path.extsep in launcher.exe:
-		extension = launcher.exe.rsplit(os.path.extsep, 1)[-1].lower()
-		if extension:
-			game.metadata.specific_info['Extension'] = extension
+	if not launcher.exe:
+		return #I guess
+	extension = launcher.exe.suffix[1:].lower()
+	if extension:
+		game.metadata.specific_info['Extension'] = extension
 	#See what we can tell about the game exe. Everything that is a DOS game packaged with DOSBox will have DOSBox for all launchers (from what I know so far), except for Duke Nukem 3D, which has a "launch OpenGL" and a "launch DOS" thing, so.. hmm
 	#You can't detect that a game uses Origin that I can tell... dang
-	executable_basename = launcher.exe
-	if executable_basename:
-		if '/' in executable_basename:
-			executable_basename = executable_basename.split('/')[-1]
-		elif '\\' in executable_basename:
-			executable_basename = executable_basename.split('\\')[-1]
-		game.metadata.specific_info['Executable Name'] = executable_basename
+	executable_basename = launcher.exe.name
+	# if executable_basename:
+	# 	if '/' in executable_basename:
+	# 		executable_basename = executable_basename.split('/')[-1]
+	# 	elif '\\' in executable_basename:
+	# 		executable_basename = executable_basename.split('\\')[-1]
+	game.metadata.specific_info['Executable Name'] = executable_basename
 
 	launcher_full_path = game.install_dir.joinpath(launcher.exe)
 	if launcher_full_path.is_file():
@@ -783,7 +784,7 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> None
 	
 	game.make_launcher()
 
-def iter_steam_installed_appids() -> Iterator[tuple[Path, Any, Mapping[str, Any]]]:
+def iter_steam_installed_appids() -> Iterator[tuple[Path, int, Mapping[str, Any]]]:
 	for library_folder in steam_installation.iter_steam_library_folders():
 		for acf_file_path in library_folder.joinpath('steamapps').glob('*.acf'):
 			#Technically I could try and parse it without steamfiles, but that would be irresponsible, so I shouldn't do that
@@ -851,10 +852,10 @@ def process_steam() -> None:
 
 	time_started = time.perf_counter()
 
-	compat_tool_appids = {str(compat_tool[0]) for compat_tool in steam_installation.steamplay_compat_tools().values()}
+	compat_tool_appids = {compat_tool[0] for compat_tool in steam_installation.steamplay_compat_tools().values()}
 	for folder, app_id, app_state in iter_steam_installed_appids():
 		if not main_config.full_rescan:
-			if has_been_done('Steam', app_id):
+			if has_been_done('Steam', str(app_id)):
 				continue
 		if app_id in compat_tool_appids:
 			continue
