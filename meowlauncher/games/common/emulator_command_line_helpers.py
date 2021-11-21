@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 	from meowlauncher.config_types import EmulatorConfig
 	from meowlauncher.emulator import GenericLaunchCommandFunc
 	from meowlauncher.games.roms.rom_game import ROMGame
+	from meowlauncher.games.mame_common.software_list import Software
 
 def _get_autoboot_script_by_name(name: str) -> str:
 	#Hmm I'm not sure I like this one but whaddya do otherwise… where's otherwise a good place to store shit
@@ -104,7 +105,7 @@ def mame_driver(game: 'ROMGame', emulator_config: 'EmulatorConfig', driver: str,
 	software = game.metadata.specific_info.get('MAME Software')	
 	if software and compat_threshold > -1:
 		#We assume something without software Just Works, well unless skip_unknown_stuff is enabled down below
-		game_compatibility = software.compatibility
+		game_compatibility = software.emulation_status
 		if game_compatibility and game_compatibility < compat_threshold:
 			raise EmulationNotSupportedException(f'{software.name} is {game_compatibility.name}')
 
