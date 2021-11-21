@@ -403,6 +403,7 @@ def add_input_info(game: 'MAMEGame') -> None:
 	has_control_elements = False
 
 	for control in game.machine.input_element.iterfind('control'):
+		has_control_elements = True
 		buttons = int(control.attrib.get('buttons', 0))
 
 		if control.attrib.get('player', '1') != '1':
