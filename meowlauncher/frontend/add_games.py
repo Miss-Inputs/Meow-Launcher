@@ -1,6 +1,9 @@
 import datetime
 import time
 from collections.abc import Callable
+import itertools
+import operator
+import functools
 
 from meowlauncher.game_source import CompoundGameSource, GameSource
 from meowlauncher.game_sources import game_sources, gog, itch_io, steam
@@ -13,8 +16,7 @@ def add_game_source(source: GameSource, progress_function: Callable[..., None]) 
 	
 	progress_function('Adding ' + source.description)
 	if isinstance(source, CompoundGameSource):
-		for subsource in source.sources:
-			count += add_game_source(subsource, progress_function)
+		count += sum(add_game_source(subsource, progress_function) for subsource in source.sources)
 	else:
 		for launcher in source.iter_launchers():
 			count += 1

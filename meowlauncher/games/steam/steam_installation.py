@@ -1,6 +1,7 @@
 import io
 import zipfile
 from collections.abc import Collection, Iterator, Mapping
+from operator import attrgetter
 from pathlib import Path
 from typing import Any, Optional, Union
 
@@ -232,7 +233,7 @@ class SteamInstallation():
 
 					#Get the biggest image file and assume that's the best icon we can have
 					#extracted_icon_file = sorted(icon_files, key=lambda zip_info: zip_info.file_size, reverse=True)[0]
-					extracted_icon_file = max(icon_files, key=lambda zip_info: zip_info.file_size)
+					extracted_icon_file = max(icon_files, key=attrgetter('file_size'))
 					extracted_icon_folder = main_config.image_folder.joinpath('Icon', 'extracted_from_zip', icon_hash)
 					return zip_file.extract(extracted_icon_file, path=extracted_icon_folder)
 

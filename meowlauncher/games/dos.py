@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any
 
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.common.pc_common_metadata import \
-    look_for_icon_next_to_file
+    look_for_icon_for_file
 
 from .pc import App
 
@@ -41,6 +41,6 @@ class DOSApp(App):
 		self.metadata.specific_info['Executable Name'] = basename
 		self.metadata.specific_info['Extension'] = basename.split('.', 1)[-1].lower()
 		if not self.is_on_cd:
-			icon = look_for_icon_next_to_file(Path(self.path))
+			icon = look_for_icon_for_file(Path(self.path))
 			if icon:
 				self.metadata.images['Icon'] = icon

@@ -1,6 +1,5 @@
 import configparser
 from collections.abc import Mapping
-from typing import TYPE_CHECKING
 
 from meowlauncher.common_paths import config_dir
 from meowlauncher.config_types import (ConfigValueType, EmulatorConfig,
@@ -9,7 +8,6 @@ from meowlauncher.data.emulators import all_emulators
 from meowlauncher.util.io_utils import ensure_exist
 
 from ._config_utils import parse_value
-
 
 _emulator_config_path = config_dir.joinpath('emulators.ini')
 

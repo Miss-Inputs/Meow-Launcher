@@ -1,6 +1,5 @@
 import datetime
 import io
-import os
 import struct
 from collections.abc import Mapping
 from pathlib import Path
@@ -102,11 +101,8 @@ def add_metadata_for_raw_exe(path: str, metadata: 'Metadata'):
 			if guessed_date.is_better_than(metadata.release_date):
 				metadata.release_date = guessed_date
 
-def _pe_directory_to_dict(directory) -> Mapping: #str > some PE entry type?
-	d = {}
-	for entry in directory.entries:
-		d[entry.name if entry.name else entry.id] = _pe_directory_to_dict(entry.directory) if hasattr(entry, 'directory') else entry
-	return d
+def _pe_directory_to_dict(directory) -> Mapping[str, Any]: #str > some PE entry type?
+	return {entry.name if entry.name else entry.id: _pe_directory_to_dict(entry.directory) if hasattr(entry, 'directory') else entry for entry in directory.entries}
 
 def _get_pe_resources(pe: 'pefile.PE', resource_type) -> Optional[Mapping]:
 	if not hasattr(pe, 'DIRECTORY_ENTRY_RESOURCE'):
@@ -179,18 +175,13 @@ def get_icon_inside_exe(path: str) -> Optional['Image.Image']:
 			pass
 	return None
 
-def look_for_icon_next_to_file(path: Path) -> Optional[Union[Path, 'Image.Image']]:
+def look_for_icon_for_file(path: Path) -> Optional[Union[Path, 'Image.Image']]:
 	exe_icon = get_icon_inside_exe(str(path))
 	if exe_icon:
 		return exe_icon
 
 	parent_folder = path.parent
-	for f in parent_folder.iterdir():
-		for ext in icon_extensions:
-			if f.name.lower() == path.with_suffix(os.path.extsep + ext).name.lower():
-				return f
-
-	return look_for_icon_in_folder(parent_folder, False)
+	return next((f for f in parent_folder.iterdir() if f.stem.lower() == path.stem.lower() and f.suffix[1:].lower() in icon_extensions), look_for_icon_in_folder(parent_folder, False))
 
 def look_for_icon_in_folder(folder: Path, look_for_any_ico: bool=True) -> Optional[Path]:
 	for f in folder.iterdir():
@@ -198,18 +189,15 @@ def look_for_icon_in_folder(folder: Path, look_for_any_ico: bool=True) -> Option
 			#Some kind of older GOG icon? Except not in actual GOG games, just stuff that was distributed elsewhere I guess
 			return f
 
-		for ext in icon_extensions:
-			if f.suffix == os.path.extsep + ext:
-				if f.name.lower() == 'icon':
-					return f
-				if f.name.startswith('goggame-'):
-					return f
+		if f.suffix[1:].lower() in icon_extensions:
+			if f.stem.lower() == 'icon':
+				return f
+			if f.name.startswith('goggame-'):
+				return f
 			
 	if look_for_any_ico:
 		#Just get the first ico if we didn't find anything specific
-		for f in folder.iterdir():
-			if f.name.lower().endswith('.ico'):
-				return f
+		return next((f for f in folder.iterdir() if f.suffix.lower() == '.ico'), None)
 	return None
 
 def check_for_interesting_things_in_folder(folder: Path, metadata: 'Metadata', find_wrappers: bool=False):

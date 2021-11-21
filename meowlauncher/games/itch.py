@@ -12,7 +12,7 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.game import Game
 from meowlauncher.games.common.engine_detect import detect_engine_recursively
 from meowlauncher.games.common.pc_common_metadata import (
-    add_metadata_for_raw_exe, look_for_icon_next_to_file)
+    add_metadata_for_raw_exe, look_for_icon_for_file)
 from meowlauncher.launch_command import LaunchCommand, launch_with_wine
 from meowlauncher.metadata import Date
 from meowlauncher.output.desktop_files import make_launcher
@@ -229,7 +229,7 @@ class ItchGame(Game):
 			#Might be a folder if Mac, I guess
 			add_metadata_for_raw_exe(str(exe_path), self.metadata)
 			if 'icon' not in metadata.images:
-				icon = look_for_icon_next_to_file(exe_path)
+				icon = look_for_icon_for_file(exe_path)
 				if icon:
 					metadata.images['Icon'] = icon
 
