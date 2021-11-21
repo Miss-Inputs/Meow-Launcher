@@ -25,9 +25,7 @@ class ROM(ABC):
 		self.path = path
 		self.ignore_name: bool = False
 		self._name = self.path.stem
-		self._extension = '' #hmm what if it was None
-		if self.path.suffix:
-			self._extension = self.path.suffix.lower()[1:]
+		self._extension = self.path.suffix[1:].lower()
 
 	#To be more accurate: Is expected to return other files
 	@property

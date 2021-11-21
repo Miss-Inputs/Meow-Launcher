@@ -1,4 +1,3 @@
-import os
 from typing import TYPE_CHECKING, Optional
 
 from meowlauncher.common_types import MediaType
@@ -10,7 +9,7 @@ def is_wii_homebrew_folder(folder: 'FolderROM') -> Optional[MediaType]:
 	have_boot_dol = False
 	have_meta_xml = False
 	for f in folder.path.iterdir():
-		if f.is_file() and f.suffix.lower() in (os.path.extsep + 'dol', os.path.extsep + 'elf'):
+		if f.is_file() and f.suffix[1:].lower() in {'dol', 'elf'}:
 			folder.relevant_files['boot.dol'] = f
 			have_boot_dol = True
 		if f.is_file() and f.name.lower() == 'meta.xml':
