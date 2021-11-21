@@ -27,12 +27,7 @@ _nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 class BadSNESHeaderException(Exception):
 	pass
 
-def _make_ram_rom_sizes() -> Mapping[int, int]:
-	sizes = {}
-	for i in range(0, 256):
-		sizes[i] = (1 << i) * 1024
-	return sizes
-_ram_rom_sizes = _make_ram_rom_sizes()
+_ram_rom_sizes = {i: (1 << i) * 1024 for i in range(0, 256)}
 
 _rom_layouts = {
 	0x20: "LoROM",

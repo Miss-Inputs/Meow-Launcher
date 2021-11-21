@@ -28,10 +28,7 @@ def get_stella_database() -> Mapping[str, Mapping[str, str]]:
 	first_line = lines[0]
 	lines = lines[1:]
 
-	columns = {}
-	column_names = first_line.split('|')
-	for i, column_name in enumerate(column_names):
-		columns[i] = column_name
+	columns = dict(enumerate(first_line.split('|')))
 
 	games = {}
 	for line in lines:

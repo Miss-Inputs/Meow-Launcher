@@ -750,10 +750,8 @@ def mame_sg1000(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'E
 def mame_sharp_x68000(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	if isinstance(game.rom, M3UPlaylist):
 		#This won't work if the referenced m3u files have weird compression formats supported by 7z but not by MAME; but maybe that's your own fault
-		floppy_slots = {}
-		for i, individual_floppy in enumerate(game.rom.subroms):
-			floppy_slots['flop%d' % (i + 1)] = os.fspath(individual_floppy.path)
-
+		floppy_slots = {f'flop{i+1}': os.fspath(individual_floppy.path) for i, individual_floppy in enumerate(game.rom.subroms)}
+		
 		return mame_driver(game, emulator_config, 'x68000', slot=None, slot_options=floppy_slots, has_keyboard=True)
 	return mame_driver(game, emulator_config, 'x68000', 'flop1', has_keyboard=True)
 

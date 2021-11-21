@@ -106,10 +106,7 @@ class SteamInstallation():
 		try:
 			mapping = self.config['InstallConfigStore']['Software']['Valve']['Steam']['CompatToolMapping']
 
-			overrides = {}
-			for k, v in mapping.items():
-				overrides[k] = v.get('name')
-			return overrides
+			return {k: v.get('name') for k, v in mapping.items()}
 		except KeyError:
 			return {}
 
