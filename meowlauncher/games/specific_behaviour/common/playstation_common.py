@@ -46,6 +46,10 @@ categories = {
 	#UMD Audio is in here, presumably
 	'PG': PlayStationCategory('PSP Update', None),
 	'MA': PlayStationCategory('Memory Stick App', 'Applications'),
+
+	#Seen in PARAM.SFX in subdirs of PS3_EXTRA:
+	#IP = main package for PSP remaster?
+	#VI = video file?
 }
 
 class AttributeFlags(Flag):

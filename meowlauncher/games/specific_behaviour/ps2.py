@@ -21,6 +21,7 @@ if TYPE_CHECKING:
 
 _boot_line_regex = re.compile(r'^BOOT2\s*=\s*cdrom0:\\(.+);1$')
 _vmode_line_regex = re.compile(r'^VMODE\s*=\s*(\S+)$')
+_other_systemcnf_line_regex = re.compile(r'^([^=\s]+?)\s*=\s*(\S+)$')
 _boot_file_regex = re.compile(r'^(.{4})_(.{3})\.(.{2})$')
 
 def add_info_from_system_cnf(metadata: Metadata, system_cnf: str):
@@ -28,18 +29,23 @@ def add_info_from_system_cnf(metadata: Metadata, system_cnf: str):
 		boot_line_match = _boot_line_regex.match(line)
 		if boot_line_match:
 			filename = boot_line_match[1]
+			metadata.specific_info['Executable Name'] = filename
 			boot_file_match = _boot_file_regex.match(filename)
 			if boot_file_match:
 				metadata.product_code = boot_file_match[1] + '-' + boot_file_match[2] + boot_file_match[3]
 				#Can look this up in /usr/local/share/games/PCSX2/GameIndex.dbf to get PCSX2 compatibility I guess
-		#Other lines: VER (disc revision e.g. 1.00)
 		else:
-			vmode_line_match = _vmode_line_regex.match(line)
-			if vmode_line_match:
-				try:
-					metadata.specific_info['TV Type'] = TVSystem[vmode_line_match[1]]
-				except ValueError:
-					pass
+			other_line_match = _other_systemcnf_line_regex.match(line)
+			if other_line_match:
+				key = other_line_match[1]
+				value = other_line_match[2]
+				if key == 'VER':
+					metadata.specific_info['Version'] = value
+				elif key == 'VMODE':
+					try:
+						metadata.specific_info['TV Type'] = TVSystem[value]
+					except ValueError:
+						pass
 
 def add_ps2_custom_info(game: 'ROMGame'):
 	#.bin/cue also has this system.cnf but I'd need to know how to get pycdlib to work with that
@@ -67,7 +73,8 @@ def add_ps2_custom_info(game: 'ROMGame'):
 			except PyCdlibInvalidInput:
 				if main_config.debug:
 					print(game.rom.path, 'has no SYSTEM.CNF inside')
-			#Sometimes there is a system.ini that looks like this:
+			#Modules are in IOP, MODULES or IRX but I don't know if we can get any interesting info from that
+			#TODO: Sometimes there is a system.ini that looks like this:
 			#[SYSTEM]
 			#NUMBER = SLUS-21448
 			#VERSION = 100

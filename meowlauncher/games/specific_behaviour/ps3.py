@@ -34,53 +34,43 @@ def _load_tdb() -> Optional[TDB]:
 		return None
 _tdb = _load_tdb()
 
-def add_ps3game_subfolder_info(subfolder: Path, metadata: 'Metadata'):
-	icon0_path = subfolder.joinpath('ICON0.PNG')
+def add_game_folder_metadata(rom: FolderROM, metadata: 'Metadata'):
+	param_sfo_path = rom.relevant_files['PARAM.SFO']
+	usrdir = rom.relevant_files['USRDIR']
+
+	subfolder = param_sfo_path.parent
+	icon0_path = subfolder / 'ICON0.PNG'
 	if icon0_path.is_file():
 		metadata.images['Banner'] = icon0_path
-	icon1_path = subfolder.joinpath('ICON1.PNG')
+	icon1_path = subfolder / 'ICON1.PNG'
 	if icon1_path.is_file():
 		metadata.images['Icon 1'] = icon1_path
-	pic0_path = subfolder.joinpath('PIC0.PNG')
+	pic0_path = subfolder / 'PIC0.PNG'
 	if pic0_path.is_file():
 		metadata.images['Overlay Image'] = pic0_path
-	pic1_path = subfolder.joinpath('PIC1.PNG')
+	pic1_path = subfolder / 'PIC1.PNG'
+	pic2_path = subfolder / 'PIC2.PNG'
 	if pic1_path.is_file():
 		metadata.images['Background Image'] = pic1_path
-	#PIC2.PNG is for 4:3 instead of 16:9 go away nerds
+	elif pic2_path.is_file():
+		#For 4:3 instead of 16:9?
+		metadata.images['Background Image'] = pic2_path
+	
 	if subfolder.joinpath('TROPDIR').is_dir():
 		metadata.specific_info['Supports Trophies?'] = True
-	usrdir = subfolder.joinpath('USRDIR')
-	if usrdir.is_dir(): #Should always be there but who knows
+
+	if usrdir.is_dir():
 		engine = try_and_detect_engine_from_folder(usrdir, metadata)
 		if engine:
 			metadata.specific_info['Engine'] = engine
-
-def add_game_folder_metadata(rom: FolderROM, metadata: 'Metadata'):
-	ps3game_subfolder = rom.get_subfolder('PS3_GAME')
-	param_sfo_path: Optional[Path]
-	if ps3game_subfolder:
-		add_ps3game_subfolder_info(ps3game_subfolder, metadata)
-		param_sfo_path = ps3game_subfolder.joinpath('PARAM.SFO')
-	else:
-		param_sfo_path = rom.get_file('PARAM.SFO')
-		metadata.images['Banner'] = rom.get_file('ICON0.PNG', True)
-		metadata.images['Icon 1'] = rom.get_file('ICON1.PNG', True)
-		metadata.images['Overlay Image'] = rom.get_file('PIC0.PNG', True)
-		metadata.images['Background Image'] = rom.get_file('PIC1.PNG', True)
-		if rom.has_subfolder('TROPDIR'):
-			metadata.specific_info['Supports Trophies?'] = True
-		usrdir = rom.get_subfolder('USRDIR')
-		if usrdir:
-			engine = try_and_detect_engine_from_folder(usrdir, metadata)
-			if engine:
-				metadata.specific_info['Engine'] = engine
+		#EXE name should be EBOOT.BIN in here?
+	elif main_config.debug:
+		print('How interesting!', rom.path, 'has no USRDIR')
 
 	is_installed_to_rpcs3_hdd = rom.path.parent == Path('~/.config/rpcs3/dev_hdd0/game').expanduser()
 	
-	if param_sfo_path:
-		with open(param_sfo_path, 'rb') as f:
-			parse_param_sfo(str(rom.path), metadata, f.read())
+	with open(param_sfo_path, 'rb') as f:
+		parse_param_sfo(str(rom.path), metadata, f.read())
 
 	#Messy hack time
 	if is_installed_to_rpcs3_hdd and metadata.names:
@@ -95,6 +85,7 @@ class RPCS3Compatibility(Enum):
 	Intro = 2
 	Ingame = 3
 	Playable = 4
+	#There is no perfect? Not yet comfy saying anything is I guess
 
 def get_rpcs3_compat(product_code: str) -> Optional[RPCS3Compatibility]:
 	compat_db_path = Path('~/.config/rpcs3/GuiConfigs/compat_database.dat').expanduser()

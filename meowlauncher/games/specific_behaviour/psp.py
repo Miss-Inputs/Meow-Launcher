@@ -131,8 +131,10 @@ def add_psp_custom_info(game: 'ROMGame'):
 
 	if game.rom.is_folder:
 		pbp = cast(FolderROM, game.rom).relevant_files['pbp']
+		game.metadata.specific_info['Executable Name'] = pbp.name #Probably just EBOOT.PBP but you never know eh
 		add_info_from_pbp(str(game.rom.path), game.metadata, pbp.read_bytes())
 	elif game.rom.extension == 'pbp':
+		#Unlikely to happen now that we have a folder check
 		game.metadata.categories = game.metadata.categories[:-1]
 		add_info_from_pbp(str(game.rom.path), game.metadata, cast(FileROM, game.rom).read())
 		#These are basically always named EBOOT.PBP (due to how PSPs work I guess), so that's not a very good launcher name, and use the folder it's stored in instead

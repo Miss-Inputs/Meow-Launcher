@@ -34,12 +34,25 @@ def is_wii_u_folder(folder: 'FolderROM') -> Optional[MediaType]:
 	return None
 
 def is_ps3_folder(folder: 'FolderROM') -> Optional[MediaType]:
-	if folder.has_subfolder('PS3_GAME') and folder.has_file('PS3_DISC.SFB'):
-		#exe = PS3_GAME/USRDIR/EBOOT.BIN (PS3_GAME has PARAM.SFO and fun stuff)
-		return MediaType.OpticalDisc
-	if folder.has_file('PARAM.SFO') and folder.has_subfolder('USRDIR'):
-		#Hmm this technically applies to the PS3_GAME subfolder of a disc game
+	usrdir_subfolder = folder.get_subfolder('USRDIR')
+	param_sfo = folder.get_file('PARAM.SFO')
+	if param_sfo and usrdir_subfolder:
+		folder.relevant_files['PARAM.SFO'] = param_sfo
+		folder.relevant_files['USRDIR'] = usrdir_subfolder
 		return MediaType.Digital
+	if folder.has_file('PS3_DISC.SFB'):
+		ps3_game_subfolder = folder.get_subfolder('PS3_GAME')
+		if ps3_game_subfolder:
+			ps3_extra_subfolder = folder.get_subfolder('PS3_EXTRA')
+			if ps3_extra_subfolder:
+				#Not sure if this is just for PSP remasters?
+				folder.relevant_files['PARAM.SFO'] = ps3_extra_subfolder / 'PARAM.SFO'
+				folder.relevant_files['USRDIR'] = ps3_extra_subfolder / 'USRDIR' #Might not exist?
+			else:
+				#I hope that these files exist or I will look like quite the fool I guess	
+				folder.relevant_files['PARAM.SFO'] = ps3_game_subfolder / 'PARAM.SFO'
+				folder.relevant_files['USRDIR'] = ps3_game_subfolder / 'USRDIR'
+		return MediaType.OpticalDisc
 	return None
 
 def is_psp_homebrew_folder(folder: 'FolderROM') -> Optional[MediaType]:

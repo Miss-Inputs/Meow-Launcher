@@ -105,8 +105,7 @@ def _parse_ncch(rom: FileROM, metadata: 'Metadata', offset: int):
 			metadata.publisher = nintendo_licensee_codes[maker]
 	except NotAlphanumericException:
 		pass
-	#NCCH version: 14-16 (always 2?)
-	metadata.specific_info['NCCH Version'] = int.from_bytes(header[14:16], 'little')
+	metadata.specific_info['NCCH Version'] = int.from_bytes(header[14:16], 'little') #Always 2?
 	#Something about a hash: 16-20
 	#Program ID: 20-28
 	#Reserved: 28-44
@@ -136,7 +135,7 @@ def _parse_ncch(rom: FileROM, metadata: 'Metadata', offset: int):
 	metadata.specific_info['Is CXI?'] = not is_not_cxi
 	#Is system update = flags[5] & 4
 	#Is electronic manual = flags[5] & 8
-	#Is trial = flags[5] & 16
+	metadata.specific_info['Is Trial?'] = (flags[5] & 16) > 0
 	#Is zero key encrypted = flags[7] & 1
 	is_decrypted = (flags[7] & 4) > 0
 	metadata.specific_info['Decrypted'] = is_decrypted
@@ -165,7 +164,7 @@ def _parse_ncch(rom: FileROM, metadata: 'Metadata', offset: int):
 		#RSA-2048 public key: 0x500:0x600
 		#Access control info 2: 0x600:0x800
 		
-		metadata.specific_info['Internal Title'] = system_control_info[0:8].decode('ascii', errors='ignore').rstrip('\0')
+		metadata.specific_info['Executable Name'] = system_control_info[0:8].decode('ascii', errors='ignore').rstrip('\0')
 		#Reserved: 0x8:0xd
 		#Flags (bit 0 = CompressExefsCode, bit 1 = SDApplication): 0xd
 		#Remaster version: 0xe:0x10

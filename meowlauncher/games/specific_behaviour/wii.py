@@ -183,7 +183,8 @@ def _add_wad_metadata(rom: FileROM, metadata: 'Metadata'):
 	_parse_opening_bnr(metadata, footer)
 
 def add_wii_homebrew_metadata(rom: FolderROM, metadata: 'Metadata'):
-	#icon_path = rom.relevant_files['icon.png']
+	metadata.specific_info['Executable Name'] = rom.relevant_files['boot.dol'].name
+
 	icon_path = rom.get_file('icon.png', True)
 	if icon_path:
 		metadata.images['Banner'] = str(icon_path)

@@ -18,6 +18,10 @@ def add_info_from_lynx_header(header: bytes, metadata: 'Metadata'):
 	#UBYTE   rotation;
 	#UBYTE   spare[5];
 	try:
+		metadata.add_alternate_name(header[0x0a:0x2a].decode('ascii', errors='backslashreplace').rstrip('\0 '), 'Header Title')
+	except UnicodeDecodeError:
+		pass	
+	try:
 		metadata.publisher = header[0x2a:0x3a].decode('ascii').strip('\0')
 	except UnicodeDecodeError:
 		pass
