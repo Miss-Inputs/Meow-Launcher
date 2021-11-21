@@ -29,13 +29,7 @@ image_section_name = 'Images'
 
 def _write_field(desktop: configparser.ConfigParser, section_name: str, key_name: str, value: Any, image_base_path: str):
 	value_as_string: str
-	if have_pillow and isinstance(value, Image.Image):
-		this_image_folder = main_config.image_folder.joinpath(key_name)
-		this_image_folder.mkdir(exist_ok=True, parents=True)
-		image_path = this_image_folder.joinpath(image_base_path + '.png')
-		value.save(image_path, 'png')
-		value_as_string = str(image_path)
-
+	
 	if isinstance(value, Collection) and not isinstance(value, str):
 		if not value:
 			return
@@ -59,7 +53,7 @@ def _write_field(desktop: configparser.ConfigParser, section_name: str, key_name
 	#value_as_string = clean_string(value_as_string.strip(), True)
 
 	section_writer = desktop[section_prefix + section_name]
-	if '\n' in value_as_string:
+	if '\n' in value_as_string or '\r' in value_as_string:
 		for i, line in enumerate(value_as_string.splitlines()):
 			section_writer[f'{cleaned_key_name}-Line-{i}'] = line
 	else:
@@ -115,6 +109,16 @@ def _make_linux_desktop(launcher: 'LaunchCommand', display_name: str, metadata: 
 		for k, v in section.items():
 			if v is None:
 				continue
+			if have_pillow:
+				if isinstance(v, Image.Image):
+					this_image_folder = main_config.image_folder.joinpath(k)
+					this_image_folder.mkdir(exist_ok=True, parents=True)
+					image_path = this_image_folder.joinpath(filename + '.png')
+					v.save(image_path, 'png')
+					#v = image_path
+					_write_field(configwriter, section_name, k, image_path, filename)
+					continue
+
 			_write_field(configwriter, section_name, k, v, filename)
 
 	if section_prefix + image_section_name in configwriter:
