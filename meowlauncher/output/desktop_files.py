@@ -27,7 +27,7 @@ id_section_name = 'ID'
 junk_section_name = 'Junk'
 image_section_name = 'Images'
 
-def _write_field(desktop: configparser.ConfigParser, section_name: str, key_name: str, value: Any, image_base_path: str):
+def _write_field(desktop: configparser.ConfigParser, section_name: str, key_name: str, value: Any):
 	value_as_string: str
 	
 	if isinstance(value, Collection) and not isinstance(value, str):
@@ -116,10 +116,10 @@ def _make_linux_desktop(launcher: 'LaunchCommand', display_name: str, metadata: 
 					image_path = this_image_folder.joinpath(filename + '.png')
 					v.save(image_path, 'png')
 					#v = image_path
-					_write_field(configwriter, section_name, k, image_path, filename)
+					_write_field(configwriter, section_name, k, image_path)
 					continue
 
-			_write_field(configwriter, section_name, k, v, filename)
+			_write_field(configwriter, section_name, k, v)
 
 	if section_prefix + image_section_name in configwriter:
 		keys_to_try = ('Icon', ) + main_config.use_other_images_as_icons

@@ -1,6 +1,6 @@
 import itertools
 import os
-from collections.abc import Collection, MutableSet, Sequence
+from collections.abc import Collection, MutableSet, Sequence, Iterator
 from pathlib import Path
 from typing import Any, Optional
 from functools import cache
@@ -16,23 +16,20 @@ from .software_list import (Software, SoftwareCustomMatcher, SoftwareList,
 
 subtitles = load_dict(None, 'subtitles')
 
+def iter_all_software_lists() -> Iterator[tuple[Path, SoftwareList]]:
+	if not default_mame_configuration:
+		return
+	hashpaths = default_mame_configuration.core_config.get('hashpath')
+	if not hashpaths:
+		return
+	for hash_path in hashpaths:
+		if os.path.isdir(hash_path):
+			for hash_xml in Path(hash_path).iterdir():
+				yield hash_xml, SoftwareList(hash_xml)
+
 @cache
 def get_software_list_by_name(name: str) -> Optional[SoftwareList]:
-	try:
-		if not default_mame_configuration:
-			return None
-		for hash_path in default_mame_configuration.core_config.get('hashpath', ()):
-			if os.path.isdir(hash_path):
-				list_path = Path(hash_path, name + '.xml')
-				if list_path.is_file():
-					software_list = SoftwareList(list_path)
-					return software_list
-		#if main_config.debug:
-		#	print('Programmer (not user) error - called get_software_list_by_name with non-existent {0} softlist'.format(name))
-		#We should print that warning but not like 900000 times
-		return None #In theory though, we shouldn't be asking for software lists that don't exist
-	except FileNotFoundError:
-		return None
+	return next((software_list for path, software_list in iter_all_software_lists() if path.stem == name), None)
 
 def find_in_software_lists_with_custom_matcher(software_lists: Collection[SoftwareList], matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Optional[Software]:
 	for software_list in software_lists:
