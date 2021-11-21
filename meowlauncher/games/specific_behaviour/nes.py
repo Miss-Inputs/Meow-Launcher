@@ -304,7 +304,7 @@ def add_fds_metadata(rom: FileROM, metadata: Metadata):
 	else:
 		metadata.specific_info['Headered?'] = False
 
-	licensee_code = '{:02X}'.format(header[15])
+	licensee_code = f'{header[15]:02X}'
 	if licensee_code in _nintendo_licensee_codes:
 		metadata.publisher = _nintendo_licensee_codes[licensee_code]
 

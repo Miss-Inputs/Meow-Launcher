@@ -1,5 +1,4 @@
 import configparser
-import re
 from collections.abc import Collection
 from enum import Enum, Flag
 from typing import TYPE_CHECKING, Any
@@ -78,9 +77,9 @@ def make_linux_desktop_for_launcher(launcher: 'Launcher'):
 	#TODO: Merge with make_linux_desktop once we get rid of make_launcher
 	_make_linux_desktop(launcher.command, name, launcher.game.metadata, filename_tags, launcher.game_type, launcher.game_id)
 
-def _make_linux_desktop(launcher: 'LaunchCommand', display_name: str, metadata: 'Metadata', filename_tags: Collection[str], game_type, game_id):
+def _make_linux_desktop(launcher: 'LaunchCommand', display_name: str, metadata: 'Metadata', filename_tags: Collection[str], game_type: str, game_id: str):
 	filename = pick_new_filename(main_config.output_folder, display_name, 'desktop')
-	
+
 	path = main_config.output_folder.joinpath(filename)
 
 	configwriter = configparser.ConfigParser(interpolation=None)
@@ -132,7 +131,6 @@ def _make_linux_desktop(launcher: 'LaunchCommand', display_name: str, metadata: 
 	#Set executable, but also set everything else because whatever, partially because I can't remember what I would need to do to get the original mode and | it with executable
 	path.chmod(0o7777)
 
-split_brackets = re.compile(r' (?=\()')
 def make_launcher(launch_params: 'LaunchCommand', name: str, metadata: 'Metadata', id_type: str, unique_id: str):
 	#TODO: Remove this, once it is no longer used - game sources should be using GameSource and whatever main class can call make_linux_desktop_for_launcher (which will have a better name) instead
 	display_name = remove_filename_tags(name)

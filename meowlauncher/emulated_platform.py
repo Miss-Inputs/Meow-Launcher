@@ -45,7 +45,7 @@ class StandardEmulatedPlatform(ChooseableEmulatedPlatform):
 			self.options['find_software_by_product_code'] = PlatformConfigValue(ConfigValueType.Bool, False, 'Use game product code to search software list')
 
 	def is_valid_file_type(self, extension: str) -> bool:
-		return any(extension in extensions for extensions in self.file_types.values() if isinstance(extension, str))
+		return any(extension in extensions for extensions in self.file_types.values())
 
 	def get_media_type(self, rom: 'ROM') -> Optional[MediaType]:
 		return next((media_type for media_type, extensions in self.file_types.items() if rom.extension in extensions), None)

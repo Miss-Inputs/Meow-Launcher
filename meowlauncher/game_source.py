@@ -6,6 +6,7 @@ from meowlauncher.emulator import Emulator
 
 if TYPE_CHECKING:
 	from meowlauncher.config_types import PlatformConfig
+	from meowlauncher.emulated_game import EmulatedGame
 	from meowlauncher.emulated_platform import ChooseableEmulatedPlatform
 	from meowlauncher.emulator import LibretroCore
 	from meowlauncher.launcher import Launcher
@@ -51,7 +52,7 @@ class CompoundGameSource(GameSource, ABC):
 	def is_available(self) -> bool:
 		return any(source.is_available for source in self.sources)
 
-EmulatorType = TypeVar('EmulatorType', bound=Emulator)
+EmulatorType = TypeVar('EmulatorType', bound=Emulator['EmulatedGame'], covariant=True)
 class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType]):
 	def __init__(self, platform_config: 'PlatformConfig', platform: 'ChooseableEmulatedPlatform', emulators: Mapping[str, EmulatorType], libretro_cores: Mapping[str, 'LibretroCore']=None) -> None:
 		self.platform_config = platform_config

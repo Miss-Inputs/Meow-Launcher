@@ -3,7 +3,8 @@ from typing import TYPE_CHECKING
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-from meowlauncher.games.common.generic_info import add_generic_software_info #We can then add more metadata on top of this, if we're fine with usage and such being unparsed and just added automatically
+#We can then add more metadata on top of this, if we're fine with usage and such being unparsed and just added automatically
+from meowlauncher.games.common.generic_info import add_generic_software_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software

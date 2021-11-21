@@ -15,9 +15,9 @@ from .mame_utils import consistentify_manufacturer, image_config_keys
 
 SoftwareCustomMatcher = Callable[..., bool] #Actually the first argument is SoftwarePart and then variable arguments after that, which I can't specify right now… maybe that's a sign I'm doing it wrong
 
-is_release_date_with_thing_at_end = re.compile(r'\d{8}\s\(\w+\)')
-def parse_release_date(release_info: str) -> Optional[Date]:
-	if is_release_date_with_thing_at_end.match(release_info):
+_is_release_date_with_thing_at_end = re.compile(r'\d{8}\s\(\w+\)')
+def _parse_release_date(release_info: str) -> Optional[Date]:
+	if _is_release_date_with_thing_at_end.match(release_info):
 		release_info = release_info[:8]
 
 	if len(release_info) != 8:
@@ -35,12 +35,12 @@ def format_crc32_for_software_list(crc: int) -> str:
 def get_crc32_for_software_list(data: bytes) -> str:
 	return format_crc32_for_software_list(zlib.crc32(data) & 0xffffffff)
 
-split_preserve_brackets = re.compile(r', (?![^(]*\))')
-ends_with_brackets = re.compile(r'([^()]+)\s\(([^()]+)\)$')
+_split_preserve_brackets = re.compile(r', (?![^(]*\))')
+_ends_with_brackets = re.compile(r'([^()]+)\s\(([^()]+)\)$')
 def add_alt_titles(metadata: Metadata, alt_title: str):
 	#Argh this is annoying because we don't want to split in the middle of brackets
-	for piece in split_preserve_brackets.split(alt_title):
-		ends_with_brackets_match = ends_with_brackets.match(piece)
+	for piece in _split_preserve_brackets.split(alt_title):
+		ends_with_brackets_match = _ends_with_brackets.match(piece)
 		if ends_with_brackets_match:
 			name_type = ends_with_brackets_match[2]
 			if name_type in {'Box', 'USA Box', 'US Box', 'French Box', 'Box?', 'Cart', 'cart', 'Label', 'label', 'Fra Box'}:
@@ -60,7 +60,7 @@ def add_alt_titles(metadata: Metadata, alt_title: str):
 		else:
 			metadata.add_alternate_name(piece)
 
-def parse_size_attribute(attrib: Optional[str]) -> Optional[int]:
+def _parse_size_attribute(attrib: Optional[str]) -> Optional[int]:
 	if not attrib:
 		return None
 	return int(attrib, 16 if attrib.startswith('0x') else 10)
@@ -77,7 +77,7 @@ class DataAreaROM():
 
 	@property
 	def size(self) -> int:
-		return parse_size_attribute(self.xml.attrib.get('size')) or 0
+		return _parse_size_attribute(self.xml.attrib.get('size')) or 0
 
 	@property
 	def status(self) -> str:
@@ -93,7 +93,7 @@ class DataAreaROM():
 
 	@property
 	def offset(self) -> int:
-		return parse_size_attribute(self.xml.attrib.get('offset')) or 0
+		return _parse_size_attribute(self.xml.attrib.get('offset')) or 0
 
 	def matches(self, crc32: Optional[str], sha1: Optional[str]) -> bool:
 		if not self.sha1 and not self.crc32:
@@ -107,7 +107,6 @@ class DataAreaROM():
 				return True
 		return False
 
-
 class DataArea():
 	def __init__(self, xml: ElementTree.Element, part: 'SoftwarePart'):
 		self.xml = xml
@@ -117,7 +116,7 @@ class DataArea():
 
 	@property
 	def size(self) -> Optional[int]:
-		return parse_size_attribute(self.xml.attrib.get('size', '0'))
+		return _parse_size_attribute(self.xml.attrib.get('size', '0'))
 
 	@property
 	def romless(self) -> bool:
@@ -407,7 +406,7 @@ class Software():
 		release = self.infos.get('release')
 		release_date: Optional[Date] = None
 		if release:
-			release_date = parse_release_date(release)
+			release_date = _parse_release_date(release)
 
 		if release_date:
 			if release_date.is_better_than(metadata.release_date):

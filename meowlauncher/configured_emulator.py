@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 	from .launch_command import LaunchCommand
 
 class ConfiguredEmulator(ConfiguredRunner):
-	def __init__(self, emulator: Emulator, config: EmulatorConfig):
-		self.runner: Emulator = emulator
+	def __init__(self, emulator: Emulator['EmulatedGame'], config: EmulatorConfig):
+		self.runner: Emulator['EmulatedGame'] = emulator
 		self.config: EmulatorConfig = config
 		super().__init__(emulator, config)
 

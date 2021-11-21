@@ -18,8 +18,8 @@ class MAMEInbuiltGame(EmulatedGame):
 		self.inbuilt_game = inbuilt_game #Yeahhh this should be a dataclass/named tuple
 		self.bios_name = bios_name
 
-		self.metadata.platform = inbuilt_game[1]
-		self.metadata.categories = [inbuilt_game[2]]
+		self.metadata.platform = inbuilt_game.platform
+		self.metadata.categories = [inbuilt_game.category]
 		self.metadata.genre = None #We don't actually know these and it's probably not accurate to call a game "Home Videogame Console" etc
 		self.metadata.subgenre = None #Could possibly add it ourselves to the inbuilt games list but that requires me knowing what I'm talking about when it comes to genres
 		self.metadata.developer = None #We also don't know this necessarily, and I guess we could add it to InbuiltGame

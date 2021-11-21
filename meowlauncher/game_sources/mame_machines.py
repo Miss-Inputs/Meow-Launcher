@@ -54,6 +54,8 @@ class MAME(GameSource):
 
 	def no_longer_exists(self, game_id: str) -> bool:
 		#TODO: Put is_available in ConfiguredEmulator and then you can check that as well
+		if not default_mame_executable:
+			return False
 		return default_mame_executable.verifyroms(game_id)
 
 	def _process_machine(self, machine: Machine) -> Optional[MAMELauncher]:

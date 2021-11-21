@@ -28,8 +28,6 @@ def _parse_rom_line(line: str) -> Optional[RomType]:
 		value = submatch['value']
 		if not value:
 			rawvalue = submatch['rawvalue']
-			if rawvalue is None:
-				continue
 			value = rawvalue
 
 		rom[submatch['attrib']] = value
@@ -44,7 +42,7 @@ def parse_libretro_dat(path: Path) -> tuple[Mapping[str, Union[int, str]], Seque
 	with open(path, 'rt', encoding='utf-8') as file:
 		game: _MutableGameType = {}
 		inside_header = False
-		rom_giant_line = None #Just concat everything in between rom ( ) on multiple lines so we can parse it that way
+		rom_giant_line: Optional[str] = None #Just concat everything in between rom ( ) on multiple lines so we can parse it that way
 		roms: MutableSequence[RomType] = []
 		for line in file:
 			line = line.strip()

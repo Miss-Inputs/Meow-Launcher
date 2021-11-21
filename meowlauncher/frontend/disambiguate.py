@@ -125,7 +125,7 @@ def _resolve_duplicates_by_date(group: Collection[DesktopWithPath]):
 		year = get_field(dup[1], 'Year')
 		month = get_field(dup[1], 'Month')
 		day = get_field(dup[1], 'Day')
-		if year is None or (year is None and month is None and day is None):
+		if year is None and month is None and day is None:
 			continue
 
 		disambiguator: MutableMapping[str, Optional[str]] = {'Day': None, 'Month': None, 'Year': None}
@@ -163,6 +163,8 @@ def _resolve_duplicates_by_date(group: Collection[DesktopWithPath]):
 			else:
 				if disambiguator['Year'] is None:
 					continue
+				if not year_disambig:
+					return
 				date_string = year_disambig
 
 			_update_name(dup, '(' + date_string + ')', 'date')

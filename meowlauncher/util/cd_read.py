@@ -2,7 +2,7 @@ import math
 import re
 import struct
 import zlib
-from collections.abc import Sequence, Iterator
+from collections.abc import Iterator, Sequence
 from pathlib import Path
 from typing import Optional
 
@@ -14,12 +14,10 @@ cue_file_line_regex = re.compile(r'^\s*FILE\s+(?:"(?P<name>.+)"|(?P<name_unquote
 cue_track_line_regex = re.compile(r'^\s*TRACK\s+(?P<number>\d+)\s+(?P<mode>.+)\s*$', flags=re.RegexFlag.IGNORECASE)
 
 def iter_cue_sheet(cue_path: Path) -> Iterator[tuple[str, int]]:
-	data = read_file(cue_path).decode('utf8', errors='backslashreplace')
+	current_file: Optional[str] = None
+	current_mode: Optional[str] = None
 
-	current_file = None
-	current_mode = None
-
-	for line in data.splitlines():
+	for line in cue_path.open('rt', encoding='utf-8'):
 
 		file_match = cue_file_line_regex.match(line)
 		if file_match:

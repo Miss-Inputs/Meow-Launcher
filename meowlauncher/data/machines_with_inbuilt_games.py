@@ -33,7 +33,7 @@ from dataclasses import dataclass
 class InbuiltGame():
 	name: str
 	platform: str
-	caegory: str
+	category: str
 
 machines_with_inbuilt_games = {
 	'apfm1000': InbuiltGame('Rocket Patrol', 'APF-MP1000', 'Games'),

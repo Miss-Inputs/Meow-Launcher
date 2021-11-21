@@ -231,7 +231,7 @@ def add_gamecom_info(metadata: 'Metadata'):
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 4 #A B C D
 	touchscreen = Touchscreen()
-	metadata.input_info.add_option(CombinedController((builtin_gamepad, touchscreen)))
+	metadata.input_info.add_option(CombinedController([builtin_gamepad, touchscreen]))
 
 def add_vectrex_info(metadata: 'Metadata'):
 	gamepad = NormalController()

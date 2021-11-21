@@ -3,6 +3,7 @@ import os
 from collections.abc import Collection, MutableSet, Sequence
 from pathlib import Path
 from typing import Any, Optional
+from functools import cache
 
 from meowlauncher.util.name_utils import normalize_name
 from meowlauncher.util.utils import (find_filename_tags_at_end, load_dict,
@@ -15,13 +16,8 @@ from .software_list import (Software, SoftwareCustomMatcher, SoftwareList,
 
 subtitles = load_dict(None, 'subtitles')
 
+@cache
 def get_software_list_by_name(name: str) -> Optional[SoftwareList]:
-	if not hasattr(get_software_list_by_name, 'cache'):
-		get_software_list_by_name.cache = {} #type: ignore[attr-defined]
-
-	if name in get_software_list_by_name.cache: #type: ignore[attr-defined]
-		return get_software_list_by_name.cache[name] #type: ignore[attr-defined]
-
 	try:
 		if not default_mame_configuration:
 			return None
@@ -30,7 +26,6 @@ def get_software_list_by_name(name: str) -> Optional[SoftwareList]:
 				list_path = Path(hash_path, name + '.xml')
 				if list_path.is_file():
 					software_list = SoftwareList(list_path)
-					get_software_list_by_name.cache[name] = software_list #type: ignore[attr-defined]
 					return software_list
 		#if main_config.debug:
 		#	print('Programmer (not user) error - called get_software_list_by_name with non-existent {0} softlist'.format(name))

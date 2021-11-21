@@ -26,7 +26,7 @@ class Region():
 	name: str
 	short_code: Optional[str] = field(compare=False)
 	tv_system: Optional[TVSystem] = field(compare=False)
-	language: Optional[str] = field(compare=False) #This is just a singular language that can be inferred from software being released in this region, if zero or more than one language can be inferred it is left as none
+	inferred_language: Optional[str] = field(compare=False) #This is just a singular language that can be inferred from software being released in this region, if zero or more than one language can be inferred it is left as none
 
 	def __str__(self) -> str:
 		return self.name
@@ -312,11 +312,13 @@ def get_language_from_regions(region_list: Collection[Region]) -> Optional[Langu
 	#If all the regions here have the same language, we can infer the language of the game. Otherwise, we sorta can't
 	#e.g. We know (USA, Australia) is English, but (Japan, USA) could be Japanese or English
 	for region in region_list:
-		if not region.language:
+		if not region.inferred_language:
 			return None #Whomst knows then
+
 		if not common_language:
-			common_language = get_language_by_english_name(region.language)
-		elif region.language != common_language.english_name:
+			common_language = get_language_by_english_name(region.inferred_language)
+		
+		if common_language and region.inferred_language != common_language.english_name:
 			return None
 
 	return common_language

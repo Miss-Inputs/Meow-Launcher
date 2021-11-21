@@ -73,7 +73,7 @@ def subprocess_sevenzip_list(path: str) -> Iterator[FilenameWithMaybeSizeAndCRC]
 		raise BadSubprocessedArchiveError('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
 
 	found_inner_files = False
-	inner_filename = None
+	inner_filename: Optional[str] = None
 	size = None
 	crc = None
 	is_directory = False

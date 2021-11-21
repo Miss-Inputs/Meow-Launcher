@@ -3,7 +3,7 @@ import zlib
 from abc import ABC, abstractmethod
 from collections.abc import Collection, Iterator, MutableMapping
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
@@ -77,7 +77,7 @@ class FileROM(ROM):
 
 	@property
 	def should_read_whole_thing(self) -> bool:
-		return self._get_size() < main_config.max_size_for_storing_in_memory
+		return self._get_size() < cast(int, main_config.max_size_for_storing_in_memory)
 
 	def read_whole_thing(self) -> None:
 		#Call this before doing any potential reading, it's just so you can check if the extension is something even relevant before reading a whole entire file in there
