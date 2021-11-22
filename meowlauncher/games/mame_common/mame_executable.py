@@ -106,7 +106,7 @@ class MAMEExecutable():
 
 		for line in proc.stdout.splitlines():
 			#Bleh
-			software_verify_matcher = re.compile(r'romset {0}:(.+) is (?:good|best available)$'.format(software_list_name))
+			software_verify_matcher = re.compile(fr'romset {software_list_name}:(.+) is (?:good|best available)$')
 			line_match = software_verify_matcher.match(line)
 			if line_match:
 				yield line_match[1]

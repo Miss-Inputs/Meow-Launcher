@@ -18,7 +18,7 @@ _licensee_codes = load_dict(None, 'sega_licensee_codes')
 
 #I'm just assuming Saturn and Dreamcast have the same way of doing region codes... well, it's just mostly JUE that need worrying about at this point anyway
 
-gdi_regex = re.compile(r'^(?:\s+)?(?P<trackNumber>\d+)\s+(?P<unknown1>\S+)\s+(?P<type>\d)\s+(?P<sectorSize>\d+)\s+(?:"(?P<name>.+)"|(?P<name_unquoted>\S+))\s+(?P<unknown2>.+)$')
+_gdi_regex = re.compile(r'^(?:\s+)?(?P<trackNumber>\d+)\s+(?P<unknown1>\S+)\s+(?P<type>\d)\s+(?P<sectorSize>\d+)\s+(?:"(?P<name>.+)"|(?P<name_unquoted>\S+))\s+(?P<unknown2>.+)$')
 
 def add_peripherals_info(metadata: Metadata, peripherals):
 	metadata.specific_info['Uses Windows CE?'] = (peripherals & 1) > 0
@@ -142,7 +142,7 @@ def add_dreamcast_rom_info(rom: FileROM, metadata: Metadata):
 	if rom.extension == 'gdi':
 		data = rom.read().decode('utf8', errors='backslashreplace')
 		for line in data.splitlines():
-			match = gdi_regex.match(line)
+			match = _gdi_regex.match(line)
 			if match:
 				track_number = int(match['trackNumber'])
 				#is_data = match['type'] == '4'

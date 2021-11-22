@@ -17,14 +17,14 @@ _MutableGameType = MutableMapping[str, GameValueType]
 LibretroDatabaseType = Mapping[Union[int, str], GameType]
 _MutableLibretroDatabaseType = MutableMapping[Union[int, str], _MutableGameType]
 
-rom_line = re.compile(r'(?<=\(|\s)(?P<attrib>\w+)\s+(?:"(?P<value>[^"]+)"|(?P<rawvalue>\S+))(?:\s+|\))')
+_rom_line = re.compile(r'(?<=\(|\s)(?P<attrib>\w+)\s+(?:"(?P<value>[^"]+)"|(?P<rawvalue>\S+))(?:\s+|\))')
 def _parse_rom_line(line: str) -> Optional[RomType]:
 	start = line[:5]
 	if start != 'rom (':
 		return None
 
 	rom = {}
-	for submatch in rom_line.finditer(line[4:]):
+	for submatch in _rom_line.finditer(line[4:]):
 		value = submatch['value']
 		if not value:
 			rawvalue = submatch['rawvalue']
@@ -34,7 +34,7 @@ def _parse_rom_line(line: str) -> Optional[RomType]:
 
 	return rom
 
-attribute_line = re.compile(r'(?P<key>\w+)\s+(?:"(?P<value>[^"]*)"|(?P<intvalue>\d+))')
+_attribute_line = re.compile(r'(?P<key>\w+)\s+(?:"(?P<value>[^"]*)"|(?P<intvalue>\d+))')
 def parse_libretro_dat(path: Path) -> tuple[Mapping[str, Union[int, str]], Sequence[GameType]]:
 	#TODO: Probably split this up in two methods, one to parse the header and one to parse the rest of it, once we have that much lines
 	games: MutableSequence[GameType] = []
@@ -57,7 +57,7 @@ def parse_libretro_dat(path: Path) -> tuple[Mapping[str, Union[int, str]], Seque
 				if line == ')':
 					inside_header = False
 				else:
-					attrib_match = attribute_line.match(line)
+					attrib_match = _attribute_line.match(line)
 					if attrib_match:
 						value = attrib_match['value']
 						intvalue = attrib_match['intvalue']
@@ -91,7 +91,7 @@ def parse_libretro_dat(path: Path) -> tuple[Mapping[str, Union[int, str]], Seque
 			#Assume we are in the middle
 			if not line:
 				continue
-			attrib_match = attribute_line.match(line)
+			attrib_match = _attribute_line.match(line)
 			if attrib_match:
 				value = attrib_match['value']
 				intvalue = attrib_match['intvalue']

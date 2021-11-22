@@ -29,14 +29,14 @@ probably_not_a_series_index = ('XXX', '007', 'DX', 'XL', 'V3') #V3 shouldn't be 
 suffixes_not_part_of_series = ('64', 'Advance', '3D', 'DS')
 #If these are appended to a series it's just part of that same series and not a new one, if that makes sense, see series_match
 
-series_matcher = re.compile(r'(?P<Series>.+?)\b\s+#?(?P<Number>\d{1,3}|[IVXLCDM]+?)\b(?:\s|$)')
+_series_matcher = re.compile(r'(?P<Series>.+?)\b\s+#?(?P<Number>\d{1,3}|[IVXLCDM]+?)\b(?:\s|$)')
 #"Phase", "Disk" might also be chapter marker things?
-subtitle_splitter = re.compile(r'\s*(?:\s+-\s+|:\s+|\s+\/\s+)')
-blah_in_1_matcher = re.compile(r'.+\s+in\s+1')
+_subtitle_splitter = re.compile(r'\s*(?:\s+-\s+|:\s+|\s+\/\s+)')
+_blah_in_1_matcher = re.compile(r'.+\s+in\s+1')
 
 def _get_name_chunks(name: str) -> Sequence[str]:
 	#TODO: Rewrite this to use a nested comprehension, my head asplode
-	name_chunks = tuple(blah_in_1_matcher.sub('', chunk) for chunk in subtitle_splitter.split(name))
+	name_chunks = tuple(_blah_in_1_matcher.sub('', chunk) for chunk in _subtitle_splitter.split(name))
 	name_chunks = tuple(chunk for chunk in name_chunks if chunk)
 	return name_chunks
 
@@ -47,7 +47,7 @@ def find_series_from_game_name(name: str) -> SeriesWithSeriesIndex:
 	if not name_chunks:
 		return None, None
 	name_chunk = name_chunks[0]
-	series_match = series_matcher.fullmatch(name_chunk)
+	series_match = _series_matcher.fullmatch(name_chunk)
 	if series_match:
 		series_name = series_match['Series']
 		series_name.removeprefix('The ')

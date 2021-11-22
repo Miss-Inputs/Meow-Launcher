@@ -47,12 +47,12 @@ def sanitize_name(s: Optional[str], supersafe: bool=False) -> str:
 		return 'dotdot'
 	return s
 
-remove_brackety_things_for_filename = re.compile(r'[]([)]')
-clean_for_filename = re.compile(r'[^A-Za-z0-9_]')
+_remove_brackety_things_for_filename = re.compile(r'[]([)]')
+_clean_for_filename = re.compile(r'[^A-Za-z0-9_]')
 def make_filename(name: str) -> str:
 	name = name.lower()
-	name = remove_brackety_things_for_filename.sub('', name)
-	name = clean_for_filename.sub('-', name)
+	name = _remove_brackety_things_for_filename.sub('', name)
+	name = _clean_for_filename.sub('-', name)
 	while name.startswith('-'):
 		name = name[1:]
 	if not name:

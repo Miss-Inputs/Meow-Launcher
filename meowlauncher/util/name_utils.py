@@ -13,7 +13,7 @@ chapter_matcher = re.compile(r'\b(?:Chapter|Vol|Volume|Episode|Part|Version)\b(?
 fluff_editions = {'GOTY', 'Game of the Year', 'Definitive', 'Enhanced', 'Special', 'Ultimate', 'Premium', 'Gold', 'Extended', 'Super Turbo Championship', 'Digital', 'Megaton', 'Deluxe', 'Masterpiece'}
 demo_suffixes = {'Demo', 'Playable Teaser'}
 name_suffixes = demo_suffixes.union({'Beta', 'GOTY', "Director's Cut", 'Unstable', 'Complete', 'Complete Collection', "Developer's Cut"}).union({e + ' Edition' for e in fluff_editions})
-name_suffix_matcher = re.compile(r'(?: | - |: )?(?:The )?(' + '|'.join(name_suffixes) + ')$', re.RegexFlag.IGNORECASE)
+_name_suffix_matcher = re.compile(r'(?: | - |: )?(?:The )?(' + '|'.join(name_suffixes) + ')$', re.RegexFlag.IGNORECASE)
 def normalize_name_case(name: str, name_to_test_for_upper: Optional[str]=None) -> str:
 	if not name_to_test_for_upper:
 		name_to_test_for_upper = name
@@ -33,25 +33,25 @@ def normalize_name_case(name: str, name_to_test_for_upper: Optional[str]=None) -
 	
 	return name
 
-why = re.compile(r' -(?=\w)') #This bothers me
+_why = re.compile(r' -(?=\w)') #This bothers me
 def fix_name(name: str) -> str:
 	name = name.replace('™', '')
 	name = name.replace('®', '')
 	name = name.replace(' : ', ': ') #Oi mate what kinda punctuation is this
 	name = name.replace('[diary]', 'diary') #Stop that
 	name = name.replace('(VI)', 'VI') #Why is Tomb Raider: The Angel of Darkness like this
-	name = why.sub(' - ', name)
+	name = _why.sub(' - ', name)
 
 	if name.startswith('ARCADE GAME SERIES: '):
 		#This is slightly subjective as to whether or not one should do this, but I believe it should
 		name = name.removeprefix('ARCADE GAME SERIES: ') + ' (ARCADE GAME SERIES)'
 
 	name_to_test_for_upper = chapter_matcher.sub('', name)
-	name_to_test_for_upper = name_suffix_matcher.sub('', name_to_test_for_upper)
+	name_to_test_for_upper = _name_suffix_matcher.sub('', name_to_test_for_upper)
 	name = normalize_name_case(name, name_to_test_for_upper)
 		
 	#Hmm... this is primarily so series_detect and disambiguate work well, it may be worthwhile putting them back afterwards (put them in some kind of field similar to Filename-Tags but disambiguate always adds them in); depending on how important it is to have "GOTY" or "Definitive Edition" etc in the name if not ambiguous
-	name = name_suffix_matcher.sub(r' (\1)', name)
+	name = _name_suffix_matcher.sub(r' (\1)', name)
 	return name
 
 tool_names = ('settings', 'setup', 'config', 'dedicated server', 'editor')
@@ -94,8 +94,8 @@ def convert_roman_numerals_in_title(s: str) -> str:
 			converted_words.append(word)
 	return ' '.join(converted_words)
 
-words_regex = re.compile(r'[\w()]+')
-apostrophes_at_word_boundary_regex = re.compile(r"\B'|'\B")
+_words_regex = re.compile(r'[\w()]+')
+_apostrophes_at_word_boundary_regex = re.compile(r"\B'|'\B")
 def normalize_name(name: str, care_about_spaces=True, normalize_words=True, care_about_numerals=False) -> str:
 	if care_about_numerals:
 		name = convert_roman_numerals_in_title(name)
@@ -104,10 +104,10 @@ def normalize_name(name: str, care_about_spaces=True, normalize_words=True, care
 	name = name.replace('&', 'and')
 	name = name.replace('é', 'e')
 	name = name.replace(': ', ' - ')
-	name = apostrophes_at_word_boundary_regex.sub('', name)
+	name = _apostrophes_at_word_boundary_regex.sub('', name)
 
 	if normalize_words:
-		return ('-' if care_about_spaces else '').join(match[0] for match in words_regex.finditer(name))
+		return ('-' if care_about_spaces else '').join(match[0] for match in _words_regex.finditer(name))
 	return name
 
 dont_capitalize_these = {'the', 'a', 'an', 'and', 'or', 'at', 'with', 'to', 'of', 'is'}

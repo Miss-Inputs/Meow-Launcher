@@ -1486,7 +1486,7 @@ def sheepshaver(app: 'MacApp', _, emulator_config: 'EmulatorConfig') -> LaunchCo
 
 	return _macemu_args(app, autoboot_txt_path, emulator_config)
 	
-mount_line_regex = re.compile(r'^MOUNT ([A-Z]) ')
+_mount_line_regex = re.compile(r'^MOUNT ([A-Z]) ')
 def _last_unused_dosbox_drive(dosbox_config_path: Path, used_letters: Collection[str]=None) -> str:
 	automounted_letters = []
 	with dosbox_config_path.open('rt', encoding='utf-8') as f:
@@ -1497,7 +1497,7 @@ def _last_unused_dosbox_drive(dosbox_config_path: Path, used_letters: Collection
 				found_autoexec = True
 				continue
 			if found_autoexec:
-				mount_line_match = mount_line_regex.match(line)
+				mount_line_match = _mount_line_regex.match(line)
 				if mount_line_match:
 					automounted_letters.append(mount_line_match[1])
 	

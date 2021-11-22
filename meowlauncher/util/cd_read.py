@@ -9,9 +9,9 @@ from typing import Optional
 from .io_utils import read_file
 
 #<type> is BINARY for little endian, MOTOROLA for big endian, or AIFF/WAV/MP3. Generally only BINARY will be used (even audio tracks are usually ripped as raw binary)
-cue_file_line_regex = re.compile(r'^\s*FILE\s+(?:"(?P<name>.+)"|(?P<name_unquoted>\S+))\s+(?P<type>.+)\s*$', flags=re.RegexFlag.IGNORECASE)
+_cue_file_line_regex = re.compile(r'^\s*FILE\s+(?:"(?P<name>.+)"|(?P<name_unquoted>\S+))\s+(?P<type>.+)\s*$', flags=re.RegexFlag.IGNORECASE)
 #<mode> is defined here: https://www.gnu.org/software/ccd2cue/manual/html_node/MODE-_0028Compact-Disc-fields_0029.html#MODE-_0028Compact-Disc-fields_0029 but generally only AUDIO, MODE1/<size>, and MODE2/<size> are used
-cue_track_line_regex = re.compile(r'^\s*TRACK\s+(?P<number>\d+)\s+(?P<mode>.+)\s*$', flags=re.RegexFlag.IGNORECASE)
+_cue_track_line_regex = re.compile(r'^\s*TRACK\s+(?P<number>\d+)\s+(?P<mode>.+)\s*$', flags=re.RegexFlag.IGNORECASE)
 
 def iter_cue_sheet(cue_path: Path) -> Iterator[tuple[str, int]]:
 	current_file: Optional[str] = None
@@ -20,7 +20,7 @@ def iter_cue_sheet(cue_path: Path) -> Iterator[tuple[str, int]]:
 	with cue_path.open('rt', encoding='utf-8') as cue_file:
 		for line in cue_file:
 
-			file_match = cue_file_line_regex.match(line)
+			file_match = _cue_file_line_regex.match(line)
 			if file_match:
 				if current_file and current_mode:
 					yield current_file, sector_size_from_cue_mode(current_mode)
@@ -30,7 +30,7 @@ def iter_cue_sheet(cue_path: Path) -> Iterator[tuple[str, int]]:
 				current_file = file_match['name'] if file_match['name'] else file_match['name_unquoted']
 			elif not current_mode:
 				#Hhhhhhhhh what am I even doing here? This is like... assuming 1 mode for each file? That can't be right
-				track_match = cue_track_line_regex.match(line)
+				track_match = _cue_track_line_regex.match(line)
 				if track_match:
 					current_mode = track_match['mode']
 

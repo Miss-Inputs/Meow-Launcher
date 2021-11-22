@@ -9,9 +9,9 @@ from meowlauncher.metadata import Date
 from . import region_info
 
 #TODO: I dunno if this should be done as a big ol' regex, maybe just see if a comma-separated list all matches languages
-nointro_language_list_regex = re.compile(r'\(((?:[A-Z][a-z](?:-[A-Z][a-z]+)?,)*(?:[A-Z][a-z](?:-[A-Z][a-z]+)?))\)')
-maybeintro_translated_regex = re.compile(r'\[(?:tr |T-|T\+)([A-Z][a-z])(?: (?:by )?[^]]+)?\]')
-tosec_language_regex = re.compile(r'\(([a-z][a-z])(?:-([a-z][a-z]))?\)')
+_nointro_language_list_regex = re.compile(r'\(((?:[A-Z][a-z](?:-[A-Z][a-z]+)?,)*(?:[A-Z][a-z](?:-[A-Z][a-z]+)?))\)')
+_maybeintro_translated_regex = re.compile(r'\[(?:tr |T-|T\+)([A-Z][a-z])(?: (?:by )?[^]]+)?\]')
+_tosec_language_regex = re.compile(r'\(([a-z][a-z])(?:-([a-z][a-z]))?\)')
 
 def get_languages_from_tags_directly(tags: Sequence[str]) -> Sequence[region_info.Language]:
 	langs = []
@@ -26,7 +26,7 @@ def get_languages_from_tags_directly(tags: Sequence[str]) -> Sequence[region_inf
 
 def get_nointro_language_list_from_filename_tags(tags: Sequence[str]) -> Optional[Sequence[region_info.Language]]:
 	for tag in tags:
-		if (language_list_match := nointro_language_list_regex.match(tag)):
+		if (language_list_match := _nointro_language_list_regex.match(tag)):
 			langs = []
 
 			language_list = language_list_match[1].split(',')
@@ -39,20 +39,20 @@ def get_nointro_language_list_from_filename_tags(tags: Sequence[str]) -> Optiona
 
 def get_maybeintro_languages_from_filename_tags(tags: Sequence[str]) -> Optional[region_info.Language]:
 	for tag in tags:
-		if translation_match := maybeintro_translated_regex.match(tag):
+		if translation_match := _maybeintro_translated_regex.match(tag):
 			lang = region_info.get_language_by_short_code(translation_match.group(1))
 			if lang:
 				return lang
 	return None
 
-tosec_date_tag_regex = re.compile(r'\((-|[x\d]{4}(?:-\d{2}(?:-\d{2})?)?)\)')
+_tosec_date_tag_regex = re.compile(r'\((-|[x\d]{4}(?:-\d{2}(?:-\d{2})?)?)\)')
 def get_tosec_languages_from_filename_tags(tags: Sequence[str]) -> Optional[Sequence[region_info.Language]]:
 	found_year_tag = False
 	found_publisher_tag = False
 
 	for tag in tags:
 		if not found_year_tag:
-			if tosec_date_tag_regex.match(tag):
+			if _tosec_date_tag_regex.match(tag):
 				found_year_tag = True
 				continue
 		if found_year_tag and not found_publisher_tag:
@@ -60,7 +60,7 @@ def get_tosec_languages_from_filename_tags(tags: Sequence[str]) -> Optional[Sequ
 				found_publisher_tag = True
 				continue
 
-		tosec_languages_match = tosec_language_regex.match(tag)
+		tosec_languages_match = _tosec_language_regex.match(tag)
 		if found_year_tag and found_publisher_tag and tosec_languages_match:
 			first_language_code = tosec_languages_match[1].capitalize()
 			first_language = region_info.get_language_by_short_code(first_language_code)
@@ -127,7 +127,7 @@ def get_tosec_region_list_from_filename_tags(tags: Sequence[str]) -> Optional[Se
 
 	for tag in tags:
 		if not found_year_tag:
-			if tosec_date_tag_regex.match(tag):
+			if _tosec_date_tag_regex.match(tag):
 				found_year_tag = True
 				continue
 		if found_year_tag and not found_publisher_tag:
@@ -179,10 +179,10 @@ def get_tv_system_from_filename_tags(tags: Sequence[str]) -> Optional[region_inf
 
 	return None
 
-date_regex = re.compile(r'\((?P<year>[x\d]{4})\)|\((?P<year2>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})\)|\((?P<day2>\d{2})\.(?P<month2>\d{2})\.(?P<year3>\d{4})\)')
+_date_regex = re.compile(r'\((?P<year>[x\d]{4})\)|\((?P<year2>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})\)|\((?P<day2>\d{2})\.(?P<month2>\d{2})\.(?P<year3>\d{4})\)')
 def get_date_from_filename_tags(tags: Sequence[str]) -> Optional[Date]:
 	for tag in tags:
-		if (date_match := date_regex.match(tag)):
+		if (date_match := _date_regex.match(tag)):
 			groupdict = date_match.groupdict()
 			#I _hate_ this. There's no way I can find to make this code not suck titty balls
 			_year = groupdict.get('year')
@@ -199,22 +199,22 @@ def get_date_from_filename_tags(tags: Sequence[str]) -> Optional[Date]:
 			return Date(year, month_match, day)
 	return None
 
-revision_regex = re.compile(r'\([Rr]ev(?:ision)? ([A-Z\d]+?)\)')
+_revision_regex = re.compile(r'\([Rr]ev(?:ision)? ([A-Z\d]+?)\)')
 def get_revision_from_filename_tags(tags: Sequence[str]) -> Optional[str]:
 	for tag in tags:
-		revision_match = revision_regex.match(tag)
+		revision_match = _revision_regex.match(tag)
 		if revision_match:
 			return revision_match[1]
 	return None
 
-version_regex = re.compile(r'\((vV[\w.]+)\)') #Very loose match, I know, but sometimes versions have stuff on the end like v1.2b or whatever and I don't wanna overcomplicate things
-version_number_regex = re.compile(r'\((?:version|ver|ver\.)\s+([\d.]+)[^)]*\)') #This one is a bit more specific and shows up in MAME machine names sometimes
+_version_regex = re.compile(r'\((vV[\w.]+)\)') #Very loose match, I know, but sometimes versions have stuff on the end like v1.2b or whatever and I don't wanna overcomplicate things
+_version_number_regex = re.compile(r'\((?:version|ver|ver\.)\s+([\d.]+)[^)]*\)') #This one is a bit more specific and shows up in MAME machine names sometimes
 def get_version_from_filename_tags(tags: Sequence[str]) -> Optional[str]:
 	for tag in tags:
-		version_match = version_regex.match(tag)
+		version_match = _version_regex.match(tag)
 		if version_match:
 			return version_match[1]
-		version_number_match = version_number_regex.match(tag)
+		version_number_match = _version_number_regex.match(tag)
 		if version_number_match:
 			return 'v' + version_number_match[1]
 	return None

@@ -5,15 +5,14 @@ import re
 from collections.abc import Collection, Sequence, Mapping
 from typing import Optional, Union
 
-find_brackets = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)')
-find_brackets_at_end = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)$')
+_find_brackets_at_end = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)$')
 
 def _find_tags(name: str) -> tuple[str, Sequence[str]]:
 	#Where did I come up with the word "tags" anyway
 	result = name
 	tags = []
 	while True:
-		search = find_brackets_at_end.search(result)
+		search = _find_brackets_at_end.search(result)
 		if not search:
 			break
 		tags.append(search[0])
@@ -130,7 +129,7 @@ def byteswap(b: bytes) -> bytes:
 		byte_array.append(last_byte)
 	return bytes(byte_array)
 
-dict_line_regex = re.compile(r'(?P<kquote>\'|\"|)(?P<key>.+?)(?P=kquote):\s*(?P<vquote>\'|\")(?P<value>.+?)(?P=vquote),?(?:\s*#.+)?$')
+_dict_line_regex = re.compile(r'(?P<kquote>\'|\"|)(?P<key>.+?)(?P=kquote):\s*(?P<vquote>\'|\")(?P<value>.+?)(?P=vquote),?(?:\s*#.+)?$')
 def load_dict(subpackage: Optional[str], resource: str) -> Mapping[Union[int, str], str]:
 	d = {}
 	package = 'meowlauncher.data'
@@ -139,7 +138,7 @@ def load_dict(subpackage: Optional[str], resource: str) -> Mapping[Union[int, st
 	for line in importlib.resources.read_text(package, resource + '.dict').splitlines():
 		if line.startswith('#'):
 			continue
-		match = dict_line_regex.match(line)
+		match = _dict_line_regex.match(line)
 		if match:
 			key: Union[int, str] = match['key']
 			if not match['kquote']:

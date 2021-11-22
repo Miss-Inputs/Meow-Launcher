@@ -51,10 +51,10 @@ class BadSubprocessedArchiveError(Exception):
 class BadArchiveError(Exception):
 	pass
 
-sevenzip_path_regex = re.compile(r'^Path\s+=\s+(.+)$')
-sevenzip_attr_regex = re.compile(r'^Attributes\s+=\s+(.+)$')
-sevenzip_crc_regex = re.compile(r'^CRC\s+=\s+([\dA-Fa-f]+)$')
-sevenzip_size_reg = re.compile(r'^Size\s+=\s+(\d+)$', flags=re.IGNORECASE)
+_sevenzip_path_regex = re.compile(r'^Path\s+=\s+(.+)$')
+_sevenzip_attr_regex = re.compile(r'^Attributes\s+=\s+(.+)$')
+_sevenzip_crc_regex = re.compile(r'^CRC\s+=\s+([\dA-Fa-f]+)$')
+_sevenzip_size_reg = re.compile(r'^Size\s+=\s+(\d+)$')
 #Looks like this:
 #"scanning the drives, listing archive, blah blah"
 #--
@@ -84,7 +84,7 @@ def subprocess_sevenzip_list(path: str) -> Iterator[FilenameWithMaybeSizeAndCRC]
 		if not found_inner_files:
 			continue
 
-		sevenzip_path_match = sevenzip_path_regex.fullmatch(line)
+		sevenzip_path_match = _sevenzip_path_regex.fullmatch(line)
 		if sevenzip_path_match:
 			if inner_filename is not None:
 				#Found next file, move along
@@ -93,13 +93,13 @@ def subprocess_sevenzip_list(path: str) -> Iterator[FilenameWithMaybeSizeAndCRC]
 			inner_filename = sevenzip_path_match[1]
 			#This is the first one
 			continue
-		sevenzip_size_reg_match = sevenzip_size_reg.fullmatch(line)
+		sevenzip_size_reg_match = _sevenzip_size_reg.fullmatch(line)
 		if sevenzip_size_reg_match:
 			size = int(sevenzip_size_reg_match[1])
-		sevenzip_attr_match = sevenzip_attr_regex.fullmatch(line)
+		sevenzip_attr_match = _sevenzip_attr_regex.fullmatch(line)
 		if sevenzip_attr_match:
 			is_directory = sevenzip_attr_match[1][:2] == 'D_'
-		crc_match = sevenzip_crc_regex.fullmatch(line)
+		crc_match = _sevenzip_crc_regex.fullmatch(line)
 		if crc_match:
 			crc = int(crc_match[1], 16)
 
@@ -131,7 +131,7 @@ def subprocess_sevenzip_getsize(path: str, filename: str) -> int:
 			found_file_line = True
 			continue
 		if found_file_line:
-			if fullmatch := sevenzip_size_reg.fullmatch(line):
+			if fullmatch := _sevenzip_size_reg.fullmatch(line):
 				return int(fullmatch.group(1))
 
 	#Resort to ugly slow method if we have to, but this is of course not optimal, and would only really happen with .gz I think
@@ -147,11 +147,11 @@ def subprocess_sevenzip_crc(path: str, filename: str) -> int:
 	for line in proc.stdout.splitlines():
 		if filename == this_filename:
 			filename_found = True
-			crc_match = sevenzip_crc_regex.fullmatch(line)
+			crc_match = _sevenzip_crc_regex.fullmatch(line)
 			if crc_match:
 				return int(crc_match[1], 16)
 
-		sevenzip_path_match = sevenzip_path_regex.fullmatch(line)
+		sevenzip_path_match = _sevenzip_path_regex.fullmatch(line)
 		if sevenzip_path_match:
 			this_filename = sevenzip_path_match[1]
 			continue
