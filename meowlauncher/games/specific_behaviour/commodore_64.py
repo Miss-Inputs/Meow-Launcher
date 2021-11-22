@@ -82,7 +82,7 @@ def get_commodore_64_software(game: 'ROMGame', headered: bool):
 			total_data += data[i+16:i+16+chip_size]
 			i += total_size
 
-		return find_in_software_lists(game.software_lists, matcher_args_for_bytes(total_data))
+		return find_in_software_lists(game.related_software_lists, matcher_args_for_bytes(total_data))
 
 	return game.get_software_list_entry()
 

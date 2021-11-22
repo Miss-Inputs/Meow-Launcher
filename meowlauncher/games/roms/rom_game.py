@@ -1,13 +1,14 @@
+from functools import cache
 import os
 import tempfile
 from pathlib import PurePath
 from typing import TYPE_CHECKING, Optional, cast
+from collections.abc import Collection
 
 from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator_launcher import EmulatorLauncher
 from meowlauncher.games.mame_common.software_list_find_utils import (
-    find_in_software_lists_with_custom_matcher, find_software_by_name,
-    iter_software_lists_by_name)
+    find_in_software_lists_with_custom_matcher, find_software_by_name, iter_software_lists_by_name)
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.util.io_utils import make_filename
 from meowlauncher.util.utils import find_filename_tags_at_end
@@ -19,7 +20,7 @@ if TYPE_CHECKING:
 	from meowlauncher.configured_emulator import ConfiguredStandardEmulator
 	from meowlauncher.emulated_platform import StandardEmulatedPlatform
 	from meowlauncher.games.mame_common.software_list import (Software,
-	                                                          SoftwarePart)
+	                                                          SoftwarePart, SoftwareList)
 
 def _software_list_product_code_matcher(part: 'SoftwarePart', product_code: str) -> bool:
 	part_code = part.software.serial
@@ -27,6 +28,11 @@ def _software_list_product_code_matcher(part: 'SoftwarePart', product_code: str)
 		return False
 
 	return product_code in part_code.split(', ')
+
+@cache
+def _software_lists_for_platform(platform: 'StandardEmulatedPlatform') -> Collection['SoftwareList']:
+	#I don't trust cached_property I guess
+	return {software_list for software_list in iter_software_lists_by_name(platform.software_list_names) if software_list}
 
 class ROMGame(EmulatedGame):
 	def __init__(self, rom: ROM, platform: 'StandardEmulatedPlatform', platform_config: 'PlatformConfig'):
@@ -37,8 +43,6 @@ class ROMGame(EmulatedGame):
 		self.filename_tags = find_filename_tags_at_end(rom.path.name)
 
 		self.exception_reason: Optional[BaseException] = None
-
-		self.software_lists = {software_list for software_list in iter_software_lists_by_name(platform.mame_software_lists) if software_list}
 	
 	@property
 	def name(self) -> str:
@@ -49,19 +53,25 @@ class ROMGame(EmulatedGame):
 			
 		return name
 
+	@property
+	def related_software_lists(self):
+		#TODO: I don't like this being here but 2600/C64/GB/Intellivision/NES needs it for now I guess
+		return _software_lists_for_platform(self.platform)
+
 	def get_software_list_entry(self, skip_header: int=0) -> Optional['Software']:
-		if not self.software_lists:
+		if not self.platform.software_list_names:
 			return None
 
+		software_lists = self.related_software_lists
 		try:
-			software = self.rom.get_software_list_entry(self.software_lists, self.platform.databases_are_byteswapped, skip_header)
+			software = self.rom.get_software_list_entry(software_lists, self.platform.databases_are_byteswapped, skip_header)
 		except NotImplementedError:
 			pass
 
 		if not software and self.platform_config.options.get('find_software_by_name', False):
-			software = find_software_by_name(self.software_lists, self.rom.name)
+			software = find_software_by_name(software_lists, self.rom.name)
 		if not software and (self.platform_config.options.get('find_software_by_product_code', False) and self.metadata.product_code):
-			software = find_in_software_lists_with_custom_matcher(self.software_lists, _software_list_product_code_matcher, [self.metadata.product_code])
+			software = find_in_software_lists_with_custom_matcher(software_lists, _software_list_product_code_matcher, [self.metadata.product_code])
 
 		return software
 

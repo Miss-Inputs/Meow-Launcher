@@ -446,7 +446,7 @@ def _get_headered_nes_rom_software_list_entry(game: 'ROMGame') -> Optional['Soft
 		prg_crc32 = get_crc32_for_software_list(prg_rom)
 		chr_crc32 = get_crc32_for_software_list(chr_rom) if chr_rom else None
 
-	return find_in_software_lists_with_custom_matcher(game.software_lists, _does_nes_rom_match, [prg_crc32, chr_crc32])
+	return find_in_software_lists_with_custom_matcher(game.related_software_lists, _does_nes_rom_match, [prg_crc32, chr_crc32])
 
 def parse_unif_chunk(metadata: Metadata, chunk_type: str, chunk_data: bytes):
 	if chunk_type == 'PRG0':

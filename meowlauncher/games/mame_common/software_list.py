@@ -460,6 +460,9 @@ class SoftwareList():
 	def __init__(self, path: Path) -> None:
 		self.xml = ElementTree.parse(path)
 
+	def __hash__(self) -> int:
+		return hash(self.name)
+
 	@property
 	def name(self) -> str:
 		return self.xml.getroot().attrib['name']

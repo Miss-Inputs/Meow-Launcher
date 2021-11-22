@@ -257,7 +257,7 @@ def add_game_boy_custom_info(game: 'ROMGame'):
 		_parse_gbx_footer(rom, game.metadata)
 
 	if game.rom.extension == 'gbx':
-		software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(rom.read(amount=rom.size - 64)))
+		software = find_in_software_lists(game.related_software_lists, matcher_args_for_bytes(rom.read(amount=rom.size - 64)))
 	else:
 		software = game.get_software_list_entry()
 	if software:

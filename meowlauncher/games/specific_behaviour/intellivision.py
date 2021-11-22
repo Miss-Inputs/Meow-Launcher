@@ -50,6 +50,6 @@ def add_intellivision_custom_info(game: 'ROMGame'):
 	#There's probably some way to get info from title screen in ROM, but I haven't explored that in ROMniscience yet
 	#Input info: Keyboard Module, ECS (49 keys), or 12-key keypad + 3 buttons + dpad (I don't think it's actually a paddle unless I'm proven otherwise), or Music Synthesizer (49 keys) (TODO add this I'm tired right now)
 	rom = cast(FileROM, game.rom)
-	software = find_in_software_lists_with_custom_matcher(game.software_lists, _does_intellivision_part_match, [rom.read()])
+	software = find_in_software_lists_with_custom_matcher(game.related_software_lists, _does_intellivision_part_match, [rom.read()])
 	if software:
 		add_intellivision_software_info(software, game.metadata)

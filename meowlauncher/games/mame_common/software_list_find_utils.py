@@ -49,7 +49,6 @@ def iter_software_lists_by_name(names: Iterable) -> Iterator[SoftwareList]:
 
 @cache
 def get_software_list_by_name(name: str) -> Optional[SoftwareList]:
-	#return next((software_list for path, software_list in iter_all_software_lists() if path.stem == name), None)
 	return next(iter_software_lists_by_name((name, )), None)
 
 def find_in_software_lists_with_custom_matcher(software_lists: Collection[SoftwareList], matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Optional[Software]:

@@ -249,7 +249,7 @@ def add_atari_2600_custom_info(game: 'ROMGame'):
 			game_info = stella_db[md5]
 			_parse_stella_db(game.metadata, game_info)
 
-	software = find_in_software_lists(game.software_lists, matcher_args_for_bytes(whole_cart))
+	software = find_in_software_lists(game.related_software_lists, matcher_args_for_bytes(whole_cart))
 	if software:
 		software.add_standard_metadata(game.metadata)
 		game.metadata.add_notes(software.get_info('usage'))

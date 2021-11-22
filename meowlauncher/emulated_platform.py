@@ -28,10 +28,10 @@ class ChooseableEmulatedPlatform(ABC):
 		return self.name.__hash__()
 		
 class StandardEmulatedPlatform(ChooseableEmulatedPlatform):
-	def __init__(self, name: str, mame_drivers: Collection[str], mame_software_lists: Collection[str], emulators: Collection[str], file_types: Mapping[MediaType, Collection[str]]=None, options: Mapping[str, PlatformConfigValue]=None, is_virtual: bool=False, dat_names: Collection[str]=None, dat_uses_serial: bool=False, databases_are_byteswapped: bool=False, autodetect_tv_type: bool=False, folder_check: Callable[['FolderROM'], Optional[MediaType]]=None):
+	def __init__(self, name: str, mame_drivers: Collection[str], software_list_names: Collection[str], emulators: Collection[str], file_types: Mapping[MediaType, Collection[str]]=None, options: Mapping[str, PlatformConfigValue]=None, is_virtual: bool=False, dat_names: Collection[str]=None, dat_uses_serial: bool=False, databases_are_byteswapped: bool=False, autodetect_tv_type: bool=False, folder_check: Callable[['FolderROM'], Optional[MediaType]]=None):
 		super().__init__(emulators, name, options)
 		self.mame_drivers = mame_drivers #Parent drivers that represent this system
-		self.mame_software_lists = mame_software_lists
+		self.software_list_names = software_list_names
 		self.file_types = file_types if file_types else {}
 		self.is_virtual = is_virtual #Maybe needs better name
 		self.dat_names = dat_names if dat_names else () #For libretro-database
@@ -40,7 +40,7 @@ class StandardEmulatedPlatform(ChooseableEmulatedPlatform):
 		self.autodetect_tv_type = autodetect_tv_type
 		self.folder_check = folder_check
 
-		if mame_software_lists:
+		if software_list_names:
 			self.options['find_software_by_name'] = PlatformConfigValue(ConfigValueType.Bool, False, 'Use game name to search software list')
 			self.options['find_software_by_product_code'] = PlatformConfigValue(ConfigValueType.Bool, False, 'Use game product code to search software list')
 
