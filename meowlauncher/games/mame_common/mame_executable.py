@@ -21,7 +21,6 @@ class MAMEExecutable():
 	def __init__(self, path: str='mame'):
 		self.executable = path
 		self.version = self._get_version()
-		#Do I really wanna be checking that this MAME exists inside the object that represents it? That doesn't entirely make sense to me
 		self._xml_cache_path = cache_dir.joinpath(self.version)
 		self._icons = None
 
@@ -32,8 +31,9 @@ class MAMEExecutable():
 		return version_proc.stdout.splitlines()[0]
 
 	def _real_iter_mame_entire_xml(self) -> Iterator[tuple[str, ElementTree.Element]]:
-		print('New MAME version found: ' + self.version + '; creating XML; this may take a while the first time it is run')
-		self._xml_cache_path.mkdir(exist_ok=True, parents=True)
+		if main_config.use_xml_disk_cache:
+			print('New MAME version found: ' + self.version + '; creating XML; this may take a while the first time it is run')
+			self._xml_cache_path.mkdir(exist_ok=True, parents=True)
 
 		with subprocess.Popen([self.executable, '-listxml'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as proc:
 			#I'm doing what the documentation tells me to not do and effectively using proc.stdout.read
@@ -45,16 +45,18 @@ class MAMEExecutable():
 						my_copy = copy.copy(element)
 						machine_name = element.attrib['name']
 
-						with open(self._xml_cache_path.joinpath(machine_name + '.xml'), 'wb') as cache_file:
-							cache_file.write(ElementTree.tostring(element))
+						if main_config.use_xml_disk_cache:
+							with open(self._xml_cache_path.joinpath(machine_name + '.xml'), 'wb') as cache_file:
+								cache_file.write(ElementTree.tostring(element))
 						yield machine_name, my_copy
 						element.clear()
 			except ElementTree.ParseError as fuck:
 				#Hmm, this doesn't show us where the error really is
 				if main_config.debug:
 					print('baaagh XML error in listxml', fuck)
-		#Guard against the -listxml process being interrupted and screwing up everything
-		self._xml_cache_path.joinpath('is_done').touch()
+		if main_config.use_xml_disk_cache:
+			#Guard against the -listxml process being interrupted and screwing up everything, by only manually specifying it is done when we say it is done… wait does this work if it's an iterator? I guess it must if this exists
+			self._xml_cache_path.joinpath('is_done').touch()
 
 	def _cached_iter_mame_entire_xml(self) -> Iterator[tuple[str, ElementTree.Element]]:
 		for cached_file in self._xml_cache_path.iterdir():
@@ -64,18 +66,19 @@ class MAMEExecutable():
 			yield driver_name, ElementTree.parse(cached_file).getroot()
 			
 	def iter_mame_entire_xml(self) -> Iterator[tuple[str, ElementTree.Element]]:
-		if self._xml_cache_path.joinpath('is_done').is_file():
+		if not main_config.use_xml_disk_cache or self._xml_cache_path.joinpath('is_done').is_file():
 			yield from self._cached_iter_mame_entire_xml()
 		else:
 			yield from self._real_iter_mame_entire_xml()
 		
 	def get_mame_xml(self, driver: str) -> ElementTree.Element:
-		cache_file_path = self._xml_cache_path.joinpath(driver + '.xml')
-		try:
-			with open(cache_file_path, 'rb') as cache_file:
-				return ElementTree.parse(cache_file).getroot()
-		except FileNotFoundError:
-			pass
+		if main_config.use_xml_disk_cache:
+			cache_file_path = self._xml_cache_path.joinpath(driver + '.xml')
+			try:
+				with open(cache_file_path, 'rb') as cache_file:
+					return ElementTree.parse(cache_file).getroot()
+			except FileNotFoundError:
+				pass
 
 		try:
 			proc = subprocess.run([self.executable, '-listxml', driver], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True)

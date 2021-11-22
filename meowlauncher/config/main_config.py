@@ -41,6 +41,7 @@ _config_ini_values = {
 	'exclude_system_drivers': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude system drivers', 'Skip machines used to launch other software (computers, consoles, etc)'),
 	'exclude_non_working': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude non-working', 'Skip any driver marked as not working'),
 	'non_working_whitelist': ConfigValue('Arcade', ConfigValueType.StringList, (), 'Non-working whitelist', 'If exclude_non_working is True, allow these machines anyway even if they are marked as not working'),
+	'use_xml_disk_cache': ConfigValue('Arcade', ConfigValueType.Bool, True, 'Use XML disk cache', 'Store machine XML files on disk, maybe there are some scenarios where you might get better performance with it off (slow home directory storage, or just particularly fast MAME -listxml)'),
 
 	'force_create_launchers': ConfigValue('Steam', ConfigValueType.Bool, False, 'Force create launchers', 'Create launchers even for games which are\'nt launchable'),
 	'warn_about_missing_icons': ConfigValue('Steam', ConfigValueType.Bool, False, 'Warn about missing icons', 'Spam console with debug messages about icons not existing or being missing'),
@@ -48,7 +49,7 @@ _config_ini_values = {
 
 	'skipped_subfolder_names': ConfigValue('Roms', ConfigValueType.StringList, (), 'Skipped subfolder names', 'Always skip these subfolders in every ROM dir'),
 	'find_equivalent_arcade_games': ConfigValue('Roms', ConfigValueType.Bool, False, 'Find equivalent arcade games by name', 'Get metadata from MAME machines of the same name'),
-	'max_size_for_storing_in_memory': ConfigValue('Roms', ConfigValueType.Integer, 32 * 1024 * 1024, 'Max size for storing in memory', 'Size in bytes, any ROM smaller than this will have the whole thing stored in memory for speedup'),
+	'max_size_for_storing_in_memory': ConfigValue('Roms', ConfigValueType.Integer, 1024 * 1024, 'Max size for storing in memory', 'Size in bytes, any ROM smaller than this will have the whole thing stored in memory for speedup (unless it doesn\'t actually speed things up)'),
 	'libretro_database_path': ConfigValue('Roms', ConfigValueType.FolderPath, None, 'libretro-database path', 'Path to libretro database for yoinking metadata from'),
 	'libretro_frontend': ConfigValue('Roms', ConfigValueType.String, 'RetroArch', 'libretro frontend', 'Name of libretro frontend to use'),
 	'libretro_cores_directory': ConfigValue('Roms', ConfigValueType.FolderPath, None, 'libretro cores directory', 'Path to search for libretro cores if not explicitly specified'),
