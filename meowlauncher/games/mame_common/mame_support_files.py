@@ -38,6 +38,7 @@ class HistoryXML():
 		self.system_histories = system_histories
 		self.software_histories = software_histories
 	
+@functools.lru_cache(1)
 def get_default_history_xml() -> Optional[HistoryXML]:
 	if not default_mame_configuration:
 		return None
@@ -144,9 +145,7 @@ def parse_history(history: str) -> History:
 
 def add_history(metadata: 'Metadata', machine_or_softlist: str, software_name: Optional[str]=None, history_xml: Optional[HistoryXML]=None) -> None:
 	if not history_xml:
-		if not hasattr(add_history, 'default_history_xml'):
-			add_history.default_history_xml = get_default_history_xml() #type: ignore[attr-defined]
-		history_xml = add_history.default_history_xml #type: ignore[attr-defined]
+		history_xml = get_default_history_xml()
 		if not history_xml:
 			raise ValueError('Need to specify history_xml if there is no ui.ini/historypath/history.xml')
 

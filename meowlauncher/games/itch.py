@@ -7,6 +7,7 @@ import subprocess
 from collections.abc import Collection, Mapping, Sequence, Iterator
 from pathlib import Path
 from typing import Optional
+from functools import lru_cache
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.game import Game
@@ -20,6 +21,7 @@ from meowlauncher.util.name_utils import fix_name
 
 #TODO: Rework this to be able to optionally just read json, launch all executables in the game dir or whatever, and avoid using butler if preferred
 
+@lru_cache(maxsize=1)
 def _find_butler() -> Optional[Path]:
 	#Sorry we do need this actually, it's a bit assumptiony and hacky to do this but I must
 	butler_folder = Path('~/.config/itch/broth/butler').expanduser()
@@ -32,12 +34,11 @@ def _find_butler() -> Optional[Path]:
 		return None
 
 def _butler_configure(folder: Path, os_filter: Optional[str]=None, ignore_arch=False) -> Optional[Mapping]:
-	if not hasattr(_butler_configure, 'butler_path'):
-		_butler_configure.butler_path = _find_butler() #type: ignore[attr-defined]
-	if not _butler_configure.butler_path: #type: ignore[attr-defined]
-		return None
 	try:
-		args = [_butler_configure.butler_path, '-j', 'configure'] #type: ignore[attr-defined]
+		butler = _find_butler()
+		if not butler:
+			return None
+		args = [os.fspath(butler), '-j', 'configure']
 		if os_filter:
 			args += ['--os-filter', os_filter]
 			if ignore_arch:
