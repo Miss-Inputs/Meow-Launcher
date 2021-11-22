@@ -18,4 +18,4 @@ generic_cart_extensions = {'bin', 'rom', 'u1', 'u3'}
 generic_tape_extensions = {'wav', 'tap', 'cas'}
 
 #All known possible CD-ROM formats, for use with file_types and MediaType.OpticalDisc; of course emulator support may vary
-cdrom_formats = mame_cdrom_formats.union({'cdi', 'ccd', 'm3u'})
+cdrom_formats = mame_cdrom_formats.union({'cdi', 'ccd', 'm3u', 'mds'})
