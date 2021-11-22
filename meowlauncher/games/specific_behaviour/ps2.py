@@ -87,6 +87,8 @@ def add_ps2_custom_info(game: 'ROMGame'):
 				print(game.rom.path, 'is invalid ISO', ex)
 		except struct.error as ex:
 			print(game.rom.path, 'is invalid ISO and has some struct.error', ex)
+		finally:
+			iso.close()	
 	#.elf is just a standard ordinary whole entire .elf
 	if game.metadata.product_code:
 		parse_product_code(game.metadata, game.metadata.product_code)

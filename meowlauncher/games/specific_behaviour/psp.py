@@ -125,7 +125,9 @@ def add_psp_iso_info(path: str, metadata: 'Metadata'):
 			print(path, 'is invalid ISO', ex)
 	except struct.error as ex:
 		print(path, 'is invalid ISO and has some struct.error', ex)
-
+	finally:
+		iso.close()	
+		
 def add_psp_custom_info(game: 'ROMGame'):
 	add_psp_info(game.metadata)
 
