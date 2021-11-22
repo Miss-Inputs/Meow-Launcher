@@ -307,7 +307,7 @@ def get_region_by_short_code(short_code: str, case_insensitive=False) -> Optiona
 
 	return None
 
-def get_language_from_regions(region_list: Collection[Region]) -> Optional[Language]:
+def get_common_language_from_regions(region_list: Collection[Region]) -> Optional[Language]:
 	common_language = None
 	#If all the regions here have the same language, we can infer the language of the game. Otherwise, we sorta can't
 	#e.g. We know (USA, Australia) is English, but (Japan, USA) could be Japanese or English
@@ -316,7 +316,7 @@ def get_language_from_regions(region_list: Collection[Region]) -> Optional[Langu
 			return None #Whomst knows then
 
 		if not common_language:
-			common_language = get_language_by_english_name(region.inferred_language)
+			common_language = languages_by_english_name[region.inferred_language]
 		
 		if common_language and region.inferred_language != common_language.english_name:
 			return None

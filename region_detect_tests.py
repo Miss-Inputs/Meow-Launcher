@@ -9,7 +9,7 @@ from meowlauncher.util.detect_things_from_filename import (
     get_languages_from_filename_tags, get_regions_from_filename_tags,
     get_tv_system_from_filename_tags)
 from meowlauncher.util.region_info import (Language, Region, TVSystem,
-                                           get_language_from_regions,
+                                           get_common_language_from_regions,
                                            get_tv_system_from_regions)
 from meowlauncher.util.utils import find_filename_tags_at_end
 
@@ -98,7 +98,7 @@ class Test():
 
 			languages: Collection[Language] = get_languages_from_filename_tags(tags)
 			if regions and not languages:
-				region_language = get_language_from_regions(regions)
+				region_language = get_common_language_from_regions(regions)
 				if region_language:
 					languages = {region_language}
 			if not language_array_equal(languages, self.expected_languages):

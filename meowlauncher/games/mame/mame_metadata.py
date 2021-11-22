@@ -16,7 +16,7 @@ from meowlauncher.games.mame_common.mame_utils import (image_config_keys,
 from meowlauncher.util.detect_things_from_filename import (
     get_languages_from_tags_directly, get_regions_from_filename_tags,
     get_revision_from_filename_tags, get_version_from_filename_tags)
-from meowlauncher.util.region_info import Language, get_language_from_regions
+from meowlauncher.util.region_info import Language, get_common_language_from_regions
 from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
 
 if TYPE_CHECKING:
@@ -332,7 +332,7 @@ def add_languages(game: 'MAMEGame', name_tags: Sequence[str]) -> None:
 		if languages:
 			game.metadata.languages = languages
 		elif game.metadata.regions:
-			region_language = get_language_from_regions(game.metadata.regions)
+			region_language = get_common_language_from_regions(game.metadata.regions)
 			if region_language:
 				game.metadata.languages = (region_language, )
 

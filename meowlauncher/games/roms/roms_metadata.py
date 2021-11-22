@@ -17,7 +17,7 @@ from meowlauncher.util.detect_things_from_filename import (
     get_date_from_filename_tags, get_languages_from_filename_tags,
     get_regions_from_filename_tags, get_revision_from_filename_tags,
     get_tv_system_from_filename_tags, get_version_from_filename_tags)
-from meowlauncher.util.region_info import (get_language_from_regions,
+from meowlauncher.util.region_info import (get_common_language_from_regions,
                                            get_tv_system_from_regions)
 from meowlauncher.util.utils import (find_filename_tags_at_end, junk_suffixes,
                                      remove_filename_tags)
@@ -60,7 +60,7 @@ def _add_metadata_from_tags(game: 'ROMGame'):
 def _add_metadata_from_regions(metadata: 'Metadata'):
 	if metadata.regions:
 		if not metadata.languages:
-			region_language = get_language_from_regions(metadata.regions)
+			region_language = get_common_language_from_regions(metadata.regions)
 			if region_language:
 				metadata.languages = [region_language]
 
