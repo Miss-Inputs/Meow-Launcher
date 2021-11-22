@@ -173,6 +173,10 @@ class CompressedROM(FileROM):
 		raise IOError(f'Nothing in {path}')
 
 	@property
+	def outer_extension(self) -> str:
+		return self._extension
+
+	@property
 	def extension(self) -> str:
 		return self.inner_extension
 
