@@ -50,7 +50,7 @@ def _write_field(desktop: configparser.ConfigParser, section_name: str, key_name
 		value_as_string = str(value)
 
 	cleaned_key_name = key_name.replace('_', '-').replace(' ', '-').replace('?', '').replace('/', '')
-	#value_as_string = clean_string(value_as_string.strip(), True)
+	value_as_string = clean_string(value_as_string.strip(), True)
 
 	section_writer = desktop[section_prefix + section_name]
 	if '\n' in value_as_string or '\r' in value_as_string:
@@ -71,7 +71,7 @@ def make_linux_desktop_for_launcher(launcher: 'Launcher'):
 	#TODO: Merge with make_linux_desktop once we get rid of make_launcher
 	_make_linux_desktop(launcher.command, name, launcher.game.metadata, filename_tags, launcher.game_type, launcher.game_id)
 
-def _make_linux_desktop(launcher: 'LaunchCommand', display_name: str, metadata: 'Metadata', filename_tags: Collection[str], game_type: str, game_id: str):
+def _make_linux_desktop(command: 'LaunchCommand', display_name: str, metadata: 'Metadata', filename_tags: Collection[str], game_type: str, game_id: str):
 	filename = pick_new_filename(main_config.output_folder, display_name, 'desktop')
 
 	path = main_config.output_folder.joinpath(filename)
@@ -87,15 +87,15 @@ def _make_linux_desktop(launcher: 'LaunchCommand', display_name: str, metadata: 
 	desktop_entry['Encoding'] = 'UTF-8'
 
 	desktop_entry['Name'] = clean_string(display_name)
-	desktop_entry['Exec'] = launcher.make_linux_command_string()
-	if launcher.working_directory:
-		desktop_entry['Path'] = launcher.working_directory
+	desktop_entry['Exec'] = command.make_linux_command_string()
+	if command.working_directory:
+		desktop_entry['Path'] = command.working_directory
 
 	fields = metadata.to_launcher_fields()
 
 	if filename_tags:
 		fields[junk_section_name]['Filename Tags'] = filename_tags
-	fields[junk_section_name]['Original Name'] = display_name
+	fields[junk_section_name]['Original Name'] = display_name #Will be most likely touched by disambiguate later
 
 	fields[id_section_name] = {}
 	fields[id_section_name]['Type'] = game_type
