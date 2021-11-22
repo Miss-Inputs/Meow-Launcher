@@ -17,24 +17,25 @@ def iter_cue_sheet(cue_path: Path) -> Iterator[tuple[str, int]]:
 	current_file: Optional[str] = None
 	current_mode: Optional[str] = None
 
-	for line in cue_path.open('rt', encoding='utf-8'):
+	with cue_path.open('rt', encoding='utf-8') as cue_file:
+		for line in cue_file:
 
-		file_match = cue_file_line_regex.match(line)
-		if file_match:
-			if current_file and current_mode:
-				yield current_file, sector_size_from_cue_mode(current_mode)
-				current_file = None
-				current_mode = None
+			file_match = cue_file_line_regex.match(line)
+			if file_match:
+				if current_file and current_mode:
+					yield current_file, sector_size_from_cue_mode(current_mode)
+					current_file = None
+					current_mode = None
 
-			current_file = file_match['name'] if file_match['name'] else file_match['name_unquoted']
-		elif not current_mode:
-			#Hhhhhhhhh what am I even doing here? This is like... assuming 1 mode for each file? That can't be right
-			track_match = cue_track_line_regex.match(line)
-			if track_match:
-				current_mode = track_match['mode']
+				current_file = file_match['name'] if file_match['name'] else file_match['name_unquoted']
+			elif not current_mode:
+				#Hhhhhhhhh what am I even doing here? This is like... assuming 1 mode for each file? That can't be right
+				track_match = cue_track_line_regex.match(line)
+				if track_match:
+					current_mode = track_match['mode']
 
-	if current_file and current_mode:
-		yield current_file, sector_size_from_cue_mode(current_mode)
+		if current_file and current_mode:
+			yield current_file, sector_size_from_cue_mode(current_mode)
 
 def sector_size_from_cue_mode(mode: str) -> int:
 	try:
