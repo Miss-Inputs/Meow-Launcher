@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #I can't be stuffed figuring out if there's some fancy unit test thing that all the cool kids use so I'm just gonna do my own thing
 #TODO: Spice up this class a bit, haven't bothered touching it in a while
+#TODO: Yeah I'm not sure this actually works properly
 
 from collections.abc import Collection
 from typing import Optional
