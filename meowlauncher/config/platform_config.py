@@ -2,7 +2,8 @@ import configparser
 
 from meowlauncher.common_paths import config_dir
 from meowlauncher.config_types import PlatformConfig
-from meowlauncher.data.emulated_platforms import manually_specified_platforms, platforms
+from meowlauncher.data.emulated_platforms import (manually_specified_platforms,
+                                                  platforms)
 from meowlauncher.util.io_utils import ensure_exist
 
 from ._config_utils import parse_path_list, parse_string_list, parse_value

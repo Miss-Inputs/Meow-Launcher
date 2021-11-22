@@ -50,6 +50,7 @@ class ManuallySpecifiedGame(EmulatedGame, ABC):
 	
 	@final
 	def add_metadata(self) -> None:
+		self.metadata.platform = self.platform_config.name #TODO Not necessarily a thing
 		self.metadata.media_type = MediaType.Executable
 		if 'developer' in self.info:
 			self.metadata.developer = self.info['developer']
@@ -80,7 +81,7 @@ class ManuallySpecifiedGame(EmulatedGame, ABC):
 class ManuallySpecifiedLauncher(EmulatorLauncher):
 	def __init__(self, app: ManuallySpecifiedGame, emulator: 'ConfiguredEmulator', platform_config: 'PlatformConfig') -> None:
 		self.game: ManuallySpecifiedGame = app
-		self.platform = platform_config.name
+		self.platform_name = platform_config.name
 		super().__init__(app, emulator, platform_config.options)
 		
 	@property
@@ -91,4 +92,4 @@ class ManuallySpecifiedLauncher(EmulatorLauncher):
 	@final
 	@property
 	def game_type(self) -> str:
-		return self.platform
+		return self.platform_name

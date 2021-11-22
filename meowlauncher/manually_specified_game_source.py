@@ -2,7 +2,7 @@ import json
 import traceback
 from abc import ABC
 from collections.abc import Iterator, Mapping, Sequence
-from typing import TYPE_CHECKING, Any, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, Optional, TypeVar
 
 from meowlauncher.common_paths import config_dir
 from meowlauncher.common_types import (EmulationNotSupportedException,
@@ -21,8 +21,7 @@ if TYPE_CHECKING:
 	from .emulator import Emulator
 
 ManuallySpecifiedGameType = TypeVar('ManuallySpecifiedGameType', bound=ManuallySpecifiedGame, covariant=True)
-
-class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource['Emulator[ManuallySpecifiedGameType]'], ABC):
+class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[ManuallySpecifiedGameType]):
 	#TODO: This shouldn't necessarily subclass ChooseableEmulatorGameSource
 	#Leave no_longer_exists to the subclasses as they may like to have custom logic
 
@@ -91,7 +90,6 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource['Emulator[Manuall
 			if not app.is_valid:
 				print('Skipping', app.name, app.path, 'config is not valid')
 				return None
-			app.metadata.platform = self.platform.name #TODO This logic shouldn't be here I think
 			app.add_metadata()
 			return self._get_launcher(app)
 			

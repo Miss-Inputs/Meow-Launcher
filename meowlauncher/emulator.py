@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 	LibretroFrontendLaunchCommandFunc = Callable[[EmulatedGame, Mapping[str, TypeOfConfigValue], EmulatorConfig, EmulatorConfig], LaunchCommand]
 
 	GenericLaunchCommandFunc = Callable[[EmulatorGameType, Mapping[str, TypeOfConfigValue], EmulatorConfig], LaunchCommand]
-	ROMGameLaunchFunc = GenericLaunchCommandFunc[ROMGame]
+	ROMGameLaunchFunc = GenericLaunchCommandFunc[ROMGame] #Was hoping that if I'm inside StandardEmulator, I wouldn't have to manually specify that because it should know already that I'm emulating a ROMGame, but it doesn't work that way
 
 class EmulatorStatus(Enum):
 	#I have not actually thought of concrete definitions for what these mean

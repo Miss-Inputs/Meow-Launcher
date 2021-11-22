@@ -373,6 +373,7 @@ class MacApp(ManuallySpecifiedGame):
 				else:
 					actual_long_version = long_version
 				if copyright_string:
+					copyright_string = copyright_string.rstrip('\0')
 					if copyright_string[:4].isdigit() and (len(copyright_string) == 4 or copyright_string[5] in {',', ' '}):
 						copyright_year = Date(year=copyright_string[:4], is_guessed=True)
 						if copyright_year.is_better_than(self.metadata.release_date):
@@ -432,9 +433,10 @@ class MacApp(ManuallySpecifiedGame):
 						#Bit 11: Stationery aware
 						#Bit 12: Use text edit services ("inline services"?)
 						if size[0] or size[1]: #If all flags are 0 then this is probably lies
-							if size[0] & (1 << (8 - 5)) != 0:
-								#Documented as "Only background"?
-								self.metadata.specific_info['Has User Interface?'] = False
+							#if size[0] & (1 << (8 - 5)) != 0:
+							#	#Documented as "Only background"? But also that
+							#TODO: I don't think this does what I think it does
+							#	self.metadata.specific_info['Has User Interface?'] = False
 							if size[1] & (1 << (15 - 8)) == 0: #Wait is that even correct, and if these size resources are just ints, should they be combined to make this easier
 								self.metadata.specific_info['Not 32 Bit Clean?'] = True
 						self.metadata.specific_info['Minimum RAM'] = format_byte_size(int.from_bytes(size[6:10], 'big'))
