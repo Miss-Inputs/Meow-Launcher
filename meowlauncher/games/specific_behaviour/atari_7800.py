@@ -89,7 +89,7 @@ def _add_atari_7800_header_info(rom_path_for_warning: str, metadata: 'Metadata',
 		#AtariVox/SaveKey. Both are third party products which plug into the controller port, so what else can you call them except memory cards?
 		metadata.save_type = SaveType.MemoryCard
 	elif main_config.debug:
-		print(rom_path_for_warning, 'has save type byte of ', save_type)
+		print(rom_path_for_warning, 'has save type byte of', save_type)
 	
 	#Reserved: 59-63
 	#Expansion module required: 64
@@ -99,7 +99,7 @@ def add_atari_7800_custom_info(game: 'ROMGame'):
 	header = cast(FileROM, game.rom).read(amount=128)
 	if header[1:10] == b'ATARI7800':
 		headered = True
-		_add_atari_7800_header_info(str(game.rom), game.metadata, header)
+		_add_atari_7800_header_info(str(game.rom.path), game.metadata, header)
 	else:
 		headered = False
 
