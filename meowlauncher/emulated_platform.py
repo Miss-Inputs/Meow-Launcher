@@ -50,7 +50,8 @@ class StandardEmulatedPlatform(ChooseableEmulatedPlatform):
 	def get_media_type(self, rom: 'ROM') -> Optional[MediaType]:
 		return next((media_type for media_type, extensions in self.file_types.items() if rom.extension in extensions), None)
 
-class PCPlatform(ChooseableEmulatedPlatform):
+class ManuallySpecifiedPlatform(ChooseableEmulatedPlatform):
+	#TODO: Not necessarily emulated! But it does need to be treated as a platform, so like I dunno, maybe we just pretend it is and that works out
 	def __init__(self, name: str, json_name: str, emulators: Collection[str], options: Mapping[str, PlatformConfigValue]=None):
 		super().__init__(emulators, name, options)
 		self.json_name = json_name

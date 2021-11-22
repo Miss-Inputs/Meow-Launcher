@@ -11,7 +11,6 @@ from .runner import HostPlatform, Runner
 
 EmulatorGameType = TypeVar('EmulatorGameType', bound=EmulatedGame, covariant=True)
 if TYPE_CHECKING:
-	from meowlauncher.games.pc import App
 	from meowlauncher.games.roms.rom_game import ROMGame
 
 	from .launch_command import LaunchCommand
@@ -19,7 +18,6 @@ if TYPE_CHECKING:
 
 	GenericLaunchCommandFunc = Callable[[EmulatorGameType, Mapping[str, TypeOfConfigValue], EmulatorConfig], LaunchCommand]
 	ROMGameLaunchFunc = GenericLaunchCommandFunc[ROMGame]
-	AppLaunchFunc = GenericLaunchCommandFunc[App]
 
 class EmulatorStatus(Enum):
 	#I have not actually thought of concrete definitions for what these mean
@@ -95,10 +93,6 @@ class LibretroCore(Emulator['EmulatedGame']):
 	@property
 	def friendly_type_name(self) -> str:
 		return 'libretro core'
-	
-class PCEmulator(Emulator['App']):
-	#Nothing to define here for now, actually
-	pass
 
 class LibretroFrontend(Runner):
 	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: 'LibretroFrontendLaunchCommandFunc', supported_compression: Optional[Collection[str]]=None, configs: Optional[Mapping[str, RunnerConfigValue]]=None, host_platform=HostPlatform.Native):

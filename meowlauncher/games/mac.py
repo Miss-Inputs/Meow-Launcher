@@ -23,10 +23,10 @@ except ImportError:
 	have_pillow = False
 
 from meowlauncher.config.main_config import main_config
+from meowlauncher.manually_specified_game import (ManuallySpecifiedGame,
+                                                  ManuallySpecifiedLauncher)
 from meowlauncher.metadata import Date
 from meowlauncher.util.utils import format_byte_size
-
-from .pc import App, AppLauncher
 
 if TYPE_CHECKING:
 	from meowlauncher.config_types import PlatformConfig
@@ -215,7 +215,7 @@ def _get_icon(resources: Mapping[bytes, Mapping[int, 'macresources.Resource']], 
 
 	return icon_bw
 
-class MacApp(App):
+class MacApp(ManuallySpecifiedGame):
 	def __init__(self, info: Mapping[str, Any], platform_config: 'PlatformConfig') -> None:
 		super().__init__(info, platform_config)
 		self.hfv_path = cast(Path, self.cd_path) if self.is_on_cd else Path(info['hfv_path'])
@@ -462,7 +462,7 @@ class MacApp(App):
 			#Allow manual override (sometimes apps are jerks and have 68K code just for the sole purpose of showing you a dialog box saying you can't run it on a 68K processor)
 			self.metadata.specific_info['Architecture'] = self.info['arch']
 				
-class MacLauncher(AppLauncher):
+class MacLauncher(ManuallySpecifiedLauncher):
 	def __init__(self, app: MacApp, emulator: 'ConfiguredEmulator', platform_config: 'PlatformConfig') -> None:
 		self.game: MacApp = app
 		super().__init__(app, emulator, platform_config)

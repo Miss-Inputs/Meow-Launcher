@@ -2,15 +2,16 @@
 
 from pathlib import Path
 
+from meowlauncher.data.emulators import mac_emulators
 from meowlauncher.games.mac import (MacApp, MacLauncher, PathInsideHFS,
                                     does_exist)
+from meowlauncher.manually_specified_game_source import \
+    ManuallySpecifiedGameSource
 
-from . import pc
 
-
-class Mac(pc.PCGameSource):
+class Mac(ManuallySpecifiedGameSource[MacApp]):
 	def __init__(self) -> None:
-		super().__init__('Mac', MacApp, MacLauncher)
+		super().__init__('Mac', MacApp, MacLauncher, mac_emulators)
 
 	def no_longer_exists(self, game_id: str) -> bool:
 		hfv_path_str, inner_path_str = game_id.rsplit('/', 1)

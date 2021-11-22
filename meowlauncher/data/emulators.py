@@ -5,8 +5,8 @@ import meowlauncher.games.specific_behaviour.emulator_command_lines as command_l
 from meowlauncher.config_types import ConfigValueType, RunnerConfigValue
 from meowlauncher.emulator import (Emulator, EmulatorStatus, LibretroCore,
                                    LibretroFrontend, MAMEDriver,
-                                   MednafenModule, PCEmulator,
-                                   StandardEmulator, ViceEmulator)
+                                   MednafenModule, StandardEmulator,
+                                   ViceEmulator)
 from meowlauncher.games.common.emulator_command_line_helpers import (
     SimpleMednafenModule, simple_emulator, simple_gb_emulator,
     simple_mame_driver, simple_md_emulator)
@@ -461,19 +461,23 @@ _libretro_cores = {
 emulators = {standalone_emulator.config_name: standalone_emulator for standalone_emulator in _standalone_emulators}
 libretro_cores = {core.name: core for core in _libretro_cores}
 
-_pc_emulators = {
-	PCEmulator('BasiliskII', EmulatorStatus.Janky, 'BasiliskII', command_lines.basilisk_ii, {
-		'skip_if_ppc_enhanced': RunnerConfigValue(ConfigValueType.Bool, False, 'If the app has ppc_enhanced = true in its config ie. it performs better or has some extra functionality on PPC, do not use BasiliskII for it')
-	}),
-	PCEmulator('SheepShaver', EmulatorStatus.Janky, 'SheepShaver', command_lines.sheepshaver),
-	PCEmulator('DOSBox Staging', EmulatorStatus.Good, 'dosbox', command_lines.dosbox_staging, {
+_dos_emulators = {
+	Emulator('DOSBox Staging', EmulatorStatus.Good, 'dosbox', command_lines.dosbox_staging, {
 		'cycles_for_477_mhz': RunnerConfigValue(ConfigValueType.Integer, 245, 'CPU cycles to use to get as close as possible to 4.77MHz'),
 		'noautoexec': RunnerConfigValue(ConfigValueType.Bool, False, 'Do not load [autoexec] section in config file'),
 		'overlay_path': RunnerConfigValue(ConfigValueType.FolderPath, None, 'If set to something, use a subfolder of this path as an overlay so save games etc are written there'),
 	}),
-	PCEmulator('DOSBox-X', EmulatorStatus.Good, 'dosbox-x', command_lines.dosbox_x),
+	Emulator('DOSBox-X', EmulatorStatus.Good, 'dosbox-x', command_lines.dosbox_x),
 }
-pc_emulators = {emu.name: emu for emu in _pc_emulators}
+_mac_emulators = {
+	Emulator('BasiliskII', EmulatorStatus.Janky, 'BasiliskII', command_lines.basilisk_ii, {
+		'skip_if_ppc_enhanced': RunnerConfigValue(ConfigValueType.Bool, False, 'If the app has ppc_enhanced = true in its config ie. it performs better or has some extra functionality on PPC, do not use BasiliskII for it')
+	}),
+	Emulator('SheepShaver', EmulatorStatus.Janky, 'SheepShaver', command_lines.sheepshaver),
+	
+}
+dos_emulators = {emu.name: emu for emu in _dos_emulators}
+mac_emulators = {emu.name: emu for emu in _mac_emulators}
 
 _libretro_frontends = {
 	LibretroFrontend('RetroArch', EmulatorStatus.Good, 'retroarch', command_lines.retroarch, {'7z', 'zip'}),
@@ -486,7 +490,8 @@ libretro_frontends = {frontend.name: frontend for frontend in _libretro_frontend
 all_emulators: MutableSequence[Union[Emulator, LibretroFrontend, '_JustHereForConfigValues']] = []
 all_emulators += _standalone_emulators
 all_emulators += _libretro_cores
-all_emulators += _pc_emulators
+all_emulators += _dos_emulators
+all_emulators += _mac_emulators
 all_emulators += _libretro_frontends
 mame: Emulator['MAMEGame'] = Emulator('MAME', EmulatorStatus.Good, 'mame', command_lines.mame)
 all_emulators.append(mame)

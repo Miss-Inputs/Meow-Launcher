@@ -4,17 +4,15 @@ from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any
 
 from meowlauncher.config.platform_config import platform_configs
-from meowlauncher.games.common.pc_common_metadata import \
-    look_for_icon_for_file
-
-from .pc import App
+from meowlauncher.games.common.pc_common_metadata import look_for_icon_for_file
+from meowlauncher.manually_specified_game import ManuallySpecifiedGame
 
 if TYPE_CHECKING:
 	from meowlauncher.config_types import PlatformConfig
 
 dos_config = platform_configs.get('DOS')
 
-class DOSApp(App):
+class DOSApp(ManuallySpecifiedGame):
 	def __init__(self, info: Mapping[str, Any], platform_config: 'PlatformConfig'):
 		super().__init__(info, platform_config)
 		if self.is_on_cd:

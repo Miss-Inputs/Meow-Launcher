@@ -14,7 +14,8 @@ if TYPE_CHECKING:
 	from meowlauncher.config_types import PlatformConfig
 	from meowlauncher.configured_emulator import ConfiguredEmulator
 
-class App(EmulatedGame, ABC):
+class ManuallySpecifiedGame(EmulatedGame, ABC):
+	#TODO: Should not necessarily be emulated
 	def __init__(self, info: Mapping[str, Any], platform_config: 'PlatformConfig'):
 		super().__init__(platform_config)
 		self.info = info
@@ -76,9 +77,9 @@ class App(EmulatedGame, ABC):
 		#To be overriden by subclass - optional, put any other platform-specific metadata you want in here
 		pass
 
-class AppLauncher(EmulatorLauncher):
-	def __init__(self, app: App, emulator: 'ConfiguredEmulator', platform_config: 'PlatformConfig') -> None:
-		self.game: App = app
+class ManuallySpecifiedLauncher(EmulatorLauncher):
+	def __init__(self, app: ManuallySpecifiedGame, emulator: 'ConfiguredEmulator', platform_config: 'PlatformConfig') -> None:
+		self.game: ManuallySpecifiedGame = app
 		self.platform = platform_config.name
 		super().__init__(app, emulator, platform_config.options)
 		

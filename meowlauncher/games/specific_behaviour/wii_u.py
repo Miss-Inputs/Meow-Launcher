@@ -237,7 +237,7 @@ def add_folder_metadata(rom: FolderROM, metadata: 'Metadata'):
 	
 	metadata.specific_info['Executable Name'] = rom.relevant_files['rpx'].name
 
-	#While we are here… using pc_common_metadata engine detect on the content folder almost seems like a good idea too, but it won't accomplish much so far
+	#TODO: Move this over to engine_detect
 	if rom.path.joinpath('code', 'UnityEngine_dll.rpl').is_file():
 		#Unity games on Wii U just have a "Data" folder under content with no executable (because it's over here in code), so our usual detection won't work; not sure about other cross platform engines
 		metadata.specific_info['Engine'] = 'Unity'

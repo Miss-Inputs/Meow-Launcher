@@ -1,6 +1,6 @@
 from meowlauncher.common_types import MediaType
 from meowlauncher.config_types import ConfigValueType
-from meowlauncher.emulated_platform import (PCPlatform, PlatformConfigValue,
+from meowlauncher.emulated_platform import (ManuallySpecifiedPlatform, PlatformConfigValue,
                                             StandardEmulatedPlatform)
 from meowlauncher.games.specific_behaviour import folder_checks
 
@@ -553,9 +553,9 @@ all_mame_drivers.update(mac_drivers)
 #Epoch (not Super) Cassette Vision isn't even in MAME, looks like all the circuitry is in the cartridges?
 #DEC Rainbow: Uses DOS so maybe goes in pc_systems but maybe the CP/M part is its own thing
 
-pc_platforms = {
-	'Mac': PCPlatform('Mac', 'mac', {'BasiliskII', 'SheepShaver'}),
-	'DOS': PCPlatform('DOS', 'dos', {'DOSBox Staging', 'DOSBox-X'}, {
+manually_specified_platforms = {
+	'Mac': ManuallySpecifiedPlatform('Mac', 'mac', {'BasiliskII', 'SheepShaver'}),
+	'DOS': ManuallySpecifiedPlatform('DOS', 'dos', {'DOSBox Staging', 'DOSBox-X'}, {
 		'use_directory_as_fallback_name': PlatformConfigValue(ConfigValueType.Bool, False, 'Use base directory name for fallback name if you don\'t feel like providing a name in dos.json')
 	}),
 }

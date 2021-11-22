@@ -2,14 +2,16 @@
 
 import os
 
+from meowlauncher.data.emulators import dos_emulators
 from meowlauncher.games.dos import DOSApp
-from meowlauncher.games.pc import AppLauncher
+from meowlauncher.manually_specified_game import ManuallySpecifiedLauncher
+from meowlauncher.manually_specified_game_source import \
+    ManuallySpecifiedGameSource
 
-from . import pc
 
-class DOS(pc.PCGameSource):
+class DOS(ManuallySpecifiedGameSource[DOSApp]):
 	def __init__(self) -> None:
-		super().__init__('DOS', DOSApp, AppLauncher)
+		super().__init__('DOS', DOSApp, ManuallySpecifiedLauncher, dos_emulators)
 
 	def no_longer_exists(self, game_id: str) -> bool:
 		return not os.path.isfile(game_id)
