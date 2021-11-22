@@ -18,23 +18,21 @@ class HistoryXML():
 	def __init__(self, path: Path) -> None:
 		self.xml = ElementTree.parse(path)
 		
-		system_histories = {}
-		software_histories: MutableMapping[str, dict[str, History]] = {}
+		system_histories: MutableMapping[str, History] = {}
+		software_histories: MutableMapping[str, MutableMapping[str, History]] = {}
 		for entry in self.xml.iterfind('entry'):
 			text = entry.findtext('text')
 			if not text:
 				continue
+			parsed = parse_history(text)
 
 			systems = entry.find('systems')
 			if systems is not None:
-				for system in systems.iterfind('system'):
-					system_histories[system.attrib['name']] = parse_history(text)
+				system_histories.update((system.attrib['name'], parsed) for system in systems.iterfind('system'))
 			softwares = entry.find('software')
 			if softwares is not None:
 				for item in softwares.iterfind('item'):
-					if item.attrib['list'] not in software_histories:
-						software_histories[item.attrib['list']] = {}
-					software_histories[item.attrib['list']][item.attrib['name']] = parse_history(text)
+					software_histories.setdefault(item.attrib['list'], {})[item.attrib['name']] = parsed
 		self.system_histories = system_histories
 		self.software_histories = software_histories
 	
