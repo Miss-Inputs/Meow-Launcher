@@ -3,31 +3,17 @@ import pathlib
 import re
 from typing import Optional
 
-from .archives import compressed_get
-
 def ensure_exist(path: pathlib.Path):
 	path.parent.mkdir(exist_ok=True, parents=True)
 	path.touch()
 
-def read_file(path: pathlib.Path, compressed_entry: str=None, seek_to: int=0, amount: int=-1) -> bytes:
-	if not compressed_entry:
-		with open(path, 'rb') as f:
-			f.seek(seek_to)
-			if amount < 0:
-				return f.read()
+def read_file(path: pathlib.Path, seek_to: int=0, amount: int=-1) -> bytes:
+	with path.open('rb') as f:
+		f.seek(seek_to)
+		if amount < 0:
+			return f.read()
 
-			return f.read(amount)
-
-	data = compressed_get(path, compressed_entry)
-	if seek_to:
-		if amount > -1:
-			return data[seek_to: seek_to + amount]
-		return data[seek_to:]
-
-	if amount > -1:
-		return data[:amount]
-
-	return data
+		return f.read(amount)
 
 def sanitize_name(s: Optional[str], supersafe: bool=False) -> str:
 	#These must never be filenames or folder names!  Badbadbad!

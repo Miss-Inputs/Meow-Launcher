@@ -3,7 +3,7 @@ import zlib
 from abc import ABC, abstractmethod
 from collections.abc import Collection, Iterator, MutableMapping
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, Optional
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
@@ -75,7 +75,10 @@ class FileROM(ROM):
 
 	@property
 	def should_read_whole_thing(self) -> bool:
-		return self._get_size() < cast(int, main_config.max_size_for_storing_in_memory)
+		max_size_for_storing_in_memory: int = main_config.max_size_for_storing_in_memory
+		if max_size_for_storing_in_memory < 0:
+			return False
+		return self._get_size() < max_size_for_storing_in_memory
 
 	def read_whole_thing(self) -> None:
 		#Call this before doing any potential reading, it's just so you can check if the extension is something even relevant before reading a whole entire file in there
@@ -84,7 +87,7 @@ class FileROM(ROM):
 		self._entire_file = self._read()
 		
 	def _read(self, seek_to: int=0, amount: int=-1) -> bytes:
-		return io_utils.read_file(self.path, None, seek_to, amount)
+		return io_utils.read_file(self.path, seek_to, amount)
 
 	def read(self, seek_to: int=0, amount: int=-1) -> bytes:
 		if self._store_entire_file:
@@ -140,7 +143,6 @@ class FileROM(ROM):
 	
 	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool=False, skip_header: int=0) -> Optional['Software']:
 		if skip_header:
-			#Hmm might deprecate this in favour of header_length_for_crc_calculation
 			data = self.read(seek_to=skip_header)
 			return find_in_software_lists(software_lists, matcher_args_for_bytes(data))
 
@@ -151,8 +153,10 @@ class FileROM(ROM):
 			if needs_byteswap:
 				return byteswap(data)
 			return data
-			
-		args = SoftwareMatcherArgs(format_crc32_for_software_list(crc32), None, self.size - self.header_length_for_crc_calculation, _file_rom_reader)
+		
+		#TODO Hmm does that make the most sense, why get the crc32 if the header has a length
+		size_arg = self.size - self.header_length_for_crc_calculation if self.header_length_for_crc_calculation else None
+		args = SoftwareMatcherArgs(format_crc32_for_software_list(crc32), None, size_arg, _file_rom_reader)
 		return find_in_software_lists(software_lists, args)
 
 class CompressedROM(FileROM):
@@ -183,7 +187,7 @@ class CompressedROM(FileROM):
 		return self.inner_name
 		
 	def _read(self, seek_to: int=0, amount: int=-1) -> bytes:
-		return io_utils.read_file(self.path, self.inner_filename, seek_to, amount)
+		return archives.compressed_get(self.path, self.inner_filename, seek_to, amount)
 
 	def _get_size(self) -> int:
 		return archives.compressed_getsize(self.path, self.inner_filename)
