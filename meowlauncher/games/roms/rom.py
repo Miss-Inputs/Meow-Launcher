@@ -70,7 +70,7 @@ class FileROM(ROM):
 
 		self._store_entire_file: bool = False
 		self._entire_file: bytes = b''
-		self.crc_for_database: Optional[int] = None
+		self._crc32: Optional[int] = None
 		self.header_length_for_crc_calculation: int = 0
 
 	@property
@@ -114,16 +114,16 @@ class FileROM(ROM):
 
 	@property
 	def crc32(self) -> int:
-		if self.crc_for_database is not None:
-			return self.crc_for_database
+		if self._crc32 is not None:
+			return self._crc32
 		
 		if self.header_length_for_crc_calculation > 0:
 			crc32 = zlib.crc32(self.read(seek_to=self.header_length_for_crc_calculation)) & 0xffffffff
-			self.crc_for_database = crc32
+			self._crc32 = crc32
 			return crc32
 
 		crc32 = zlib.crc32(self._entire_file) & 0xffffffff if self._store_entire_file else self._get_crc32()
-		self.crc_for_database = crc32
+		self._crc32 = crc32
 		return crc32
 
 	@property
@@ -166,7 +166,7 @@ class CompressedROM(FileROM):
 		
 		for name, size, crc32 in archives.compressed_list(self.path):
 			self._size = size
-			self.crc_for_database = crc32
+			self._crc32 = crc32
 			if os.extsep in name:
 				self.inner_name, extension = name.rsplit(os.extsep, 1)
 				self.inner_extension = extension.lower()
@@ -194,9 +194,9 @@ class CompressedROM(FileROM):
 
 	@property
 	def size(self) -> int:
-		if self._size is not None:
-			return self._size
-		return super().size
+		if self._size is None:
+			self._size = super().size
+		return self._size
 
 	def _get_crc32(self) -> int:
 		return archives.get_crc32_of_archive(self.path, self.inner_filename)
