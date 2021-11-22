@@ -290,7 +290,7 @@ def _decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
 			if f.name.endswith('.cnmt') and f.is_file():
 				with open(f.path, 'rb') as ff:
 					return ff.read()
-		raise AssertionError('This should not happen')
+		raise ExternalToolNotHappeningException('Uh oh, something got boned and the decrypted file was never written to the temp folder')
 	finally:
 		if temp_folder:
 			rmtree(temp_folder)

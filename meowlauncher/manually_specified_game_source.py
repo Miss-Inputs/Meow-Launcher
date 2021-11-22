@@ -12,7 +12,6 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.configured_emulator import ConfiguredEmulator
 from meowlauncher.data.emulated_platforms import manually_specified_platforms
-from meowlauncher.emulated_platform import ManuallySpecifiedPlatform
 from meowlauncher.game_source import ChooseableEmulatorGameSource
 from meowlauncher.manually_specified_game import (ManuallySpecifiedGame,
                                                   ManuallySpecifiedLauncher)
@@ -26,7 +25,7 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 	#Leave no_longer_exists to the subclasses as they may like to have custom logic
 
 	def __init__(self, platform_name: str, app_type: type[ManuallySpecifiedGameType], launcher_type: type[ManuallySpecifiedLauncher], emulators_dict: Mapping[str, 'Emulator[ManuallySpecifiedGameType]']) -> None:
-		self.platform: ManuallySpecifiedPlatform = manually_specified_platforms[platform_name] #TODO: Might not always be a thing
+		self.platform = manually_specified_platforms[platform_name] #TODO: Might not always be a thing
 		self._app_type = app_type
 		self._launcher_type = launcher_type
 		platform_config = platform_configs.get(platform_name)
@@ -56,9 +55,8 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 		return self._is_available
 
 	def _get_launcher(self, app: ManuallySpecifiedGame) -> Optional[ManuallySpecifiedLauncher]:
-		if not self.platform_config:
-			raise AssertionError('Should have checked is_available already, platform_config is None')
-
+		assert self.platform_config, 'Should have checked is_available before calling _process_app, platform_config is None'
+		
 		emulator: Optional[ConfiguredEmulator] = None
 		exception_reason = None
 		for chosen_emulator in self.iter_chosen_emulators():
@@ -83,8 +81,7 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 		return self._launcher_type(app, emulator, self.platform_config)
 
 	def _process_app(self, app_info: Mapping[str, Any]) -> Optional[ManuallySpecifiedLauncher]:
-		if not self.platform_config:
-			raise AssertionError('Should have checked is_available already, platform_config is None')
+		assert self.platform_config, 'Should have checked is_available before calling _process_app, platform_config is None'
 		app = self._app_type(app_info, self.platform_config)
 		try:
 			if not app.is_valid:
@@ -99,8 +96,7 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 
 	#Return value here could be a generic type value I suppose, if you were into that sort of thing
 	def iter_launchers(self) -> Iterator[ManuallySpecifiedLauncher]:
-		if not self._app_list:
-			raise AssertionError('ManuallySpecifiedGameSource.get_launchers should not be called without checking .is_available()')
+		assert self._app_list is not None, '_app_list is None, ManuallySpecifiedGameSource.get_launchers should not be called without checking .is_available()'
 		for app in self._app_list:
 			try:
 				launcher = self._process_app(app)

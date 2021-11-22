@@ -93,8 +93,7 @@ class MAMEExecutable():
 		for line in proc.stdout.splitlines():
 			#Machine names and source files both shouldn't contain spaces, so this should be fine
 			line_split = line.split(maxsplit=2)
-			if len(line_split) != 2:
-				raise AssertionError('This should not happen, panic')
+			assert len(line_split) == 2, '-listsource output only one column???!! what'
 			yield cast(tuple[str, str], tuple(line_split))
 	
 	def verifysoftlist(self, software_list_name: str) -> Iterator[str]:

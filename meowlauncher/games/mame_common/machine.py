@@ -51,9 +51,7 @@ class Machine():
 		self.xml = xml
 		self._exe = exe
 		#This can't be a property because we might need to override it later, so stop trying to do that
-		name = self.xml.findtext('description')
-		if not name: 
-			raise AssertionError('Blank name should never happen')
+		name = self.xml.findtext('description', '') #Blank name should not happen
 		#TODO: Name should be readonly
 		self.name = name
 

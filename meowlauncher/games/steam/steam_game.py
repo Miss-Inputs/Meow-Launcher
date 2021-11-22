@@ -42,11 +42,7 @@ class SteamGame(Game):
 
 	@property
 	def install_dir(self) -> Path:
-		install_dir_name = self.app_state.get('installdir')
-		if not install_dir_name:
-			#TODO: Does this ever happen?
-			raise AssertionError('Hey it turns out this actually does happen, blank installdir', self.appid, self.name)
-		return self.library_folder.joinpath('steamapps', 'common', install_dir_name)
+		return self.library_folder.joinpath('steamapps', 'common', self.app_state['installdir'])
 
 	@property
 	def appinfo(self) -> Optional[Mapping[bytes, Any]]:

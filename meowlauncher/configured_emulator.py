@@ -20,8 +20,7 @@ class ConfiguredEmulator(ConfiguredRunner):
 		super().__init__(emulator, config)
 
 	def get_launch_command_for_game(self, game: 'EmulatedGame', platform_config_options: Mapping[str, TypeOfConfigValue]) -> 'LaunchCommand':
-		if not self.runner.launch_command_func:
-			raise AssertionError('launch_command_func should never have been left as None')
+		assert self.runner.launch_command_func, 'launch_command_func should never have been left as None'
 		command = self.runner.launch_command_func(game, platform_config_options, self.config)
 		return self.set_wrapper_options(command)
 

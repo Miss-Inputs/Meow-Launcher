@@ -232,8 +232,7 @@ def _add_rpx_metadata(rom: ROM, metadata: 'Metadata'):
 def add_folder_metadata(rom: FolderROM, metadata: 'Metadata'):
 	content_dir = rom.get_subfolder('content')
 	meta_dir = rom.get_subfolder('meta')
-	if not content_dir or not meta_dir:
-		raise AssertionError('It should not be possible at all for content_dir or meta_dir to be None')
+	assert content_dir and meta_dir, 'It should be impossible for content_dir or meta_dir to be none, otherwise this would not have even been detected as a folder'
 	
 	metadata.specific_info['Executable Name'] = rom.relevant_files['rpx'].name
 

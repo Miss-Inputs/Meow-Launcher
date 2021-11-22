@@ -292,8 +292,7 @@ def _add_platform_specific_metadata(game: 'ROMGame'):
 			equivalent_arcade = arcade_equivalent_finder(software.description)
 			if not equivalent_arcade and software.parent_name:
 				software_parent = software.parent
-				if not software_parent:
-					raise AssertionError('This is impossible, software.parent_name is set but software list has no parent')
+				assert software_parent, 'This is impossible, software.parent_name is set but software list has no parent'
 				equivalent_arcade = arcade_equivalent_finder(software_parent.description)
 		if not equivalent_arcade:
 			equivalent_arcade = arcade_equivalent_finder(game.name)

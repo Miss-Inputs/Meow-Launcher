@@ -116,8 +116,7 @@ def _get_usable_name(desktop: ConfigParser) -> str:
 	#Note that this is before disambiguate.py, so we don't need to worry about using Ambiguous-Name from disambiguation section
 	#Name _must_ exist in a .desktop file... although this is platform-specific, come to think of it, maybe I should put stuff in launchers.py to abstract getting name/exec/icon/etc
 	name = get_field(desktop, 'Name', 'Desktop Entry')
-	if not name:
-		raise AssertionError('What the heck get_usable_name encountered a desktop with no name')
+	assert name, 'What the heck get_usable_name encountered a desktop with no name'
 	return name
 
 def _add_series(desktop: ConfigParser, path: Path, series: Optional[str], series_index: Optional[Union[str, int]]=None):

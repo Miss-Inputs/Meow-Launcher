@@ -344,7 +344,7 @@ class M3UPlaylist(ROM):
 	
 	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool = False, skip_header: int = 0) -> Optional['Software']:
 		if not self.subroms:
-			raise AssertionError('This should not happen, m3u has no referenced files (but maybe it could happen? Maybe not something I should assert)')
+			raise FileNotFoundError('m3u does not have any valid files in it, which is weird and should not happen')
 		#TODO: Maybe this isnt' even correct - we want to find which SoftwarePart matches what, in theory
 		return self.subroms[0].get_software_list_entry(software_lists, needs_byteswap, skip_header)
 
