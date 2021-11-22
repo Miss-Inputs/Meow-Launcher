@@ -90,11 +90,12 @@ class Display():
 	def __init__(self, xml: ElementTree.Element):
 		self.type = xml.attrib['type']
 		self.tag = xml.attrib['tag']
-		self.width = None
-		self.height = None
-		if self.type in {'raster', 'lcd'}:
-			self.width = int(xml.attrib['width'])
-			self.height = int(xml.attrib['height'])
+		try:
+			self.width: Optional[int] = int(xml.attrib['width'])
+			self.height: Optional[int] = int(xml.attrib['height'])
+		except KeyError:
+			self.width = None
+			self.height = None
 
 		self.refresh_rate = None
 		if 'refresh' in xml.attrib:
@@ -108,6 +109,7 @@ class Display():
 		if self.width and self.height:
 			return '{0:.0f}x{1:.0f}'.format(self.width, self.height)
 		#Other types are vector (Asteroids, etc) or svg (Game & Watch games, etc)
+		#They might actually have a height/width
 		return self.type.capitalize()
 
 	@property
