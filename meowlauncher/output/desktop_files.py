@@ -1,4 +1,5 @@
 import configparser
+import re
 from collections.abc import Collection
 from enum import Enum, Flag
 from typing import TYPE_CHECKING, Any
@@ -12,7 +13,7 @@ except ModuleNotFoundError:
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.mame_common.machine import Machine
 from meowlauncher.games.mame_common.software_list import Software, SoftwareList
-from meowlauncher.util.io_utils import ensure_exist, pick_new_filename
+from meowlauncher.util.io_utils import ensure_exist, pick_new_path
 from meowlauncher.util.utils import (clean_string, find_filename_tags_at_end,
                                      remove_filename_tags)
 
@@ -59,6 +60,18 @@ def _write_field(desktop: configparser.ConfigParser, section_name: str, key_name
 	else:
 		section_writer[cleaned_key_name] = value_as_string
 
+_remove_brackety_things_for_filename = re.compile(r'[]([)]')
+_clean_for_filename = re.compile(r'[^A-Za-z0-9_ ]')
+def _make_filename_from_display_name(name: str) -> str:
+	#Gets rid of ugly things that should not be filenames
+	name = _remove_brackety_things_for_filename.sub('', name)
+	name = _clean_for_filename.sub('-', name)
+	while name.startswith('-'):
+		name = name[1:]
+	if not name:
+		name = 'blank'
+	return name
+
 def make_linux_desktop_for_launcher(launcher: 'Launcher'):
 	name = launcher.game.name
 
@@ -72,9 +85,7 @@ def make_linux_desktop_for_launcher(launcher: 'Launcher'):
 	_make_linux_desktop(launcher.command, name, launcher.game.metadata, filename_tags, launcher.game_type, launcher.game_id)
 
 def _make_linux_desktop(command: 'LaunchCommand', display_name: str, metadata: 'Metadata', filename_tags: Collection[str], game_type: str, game_id: str):
-	filename = pick_new_filename(main_config.output_folder, display_name, 'desktop')
-
-	path = main_config.output_folder.joinpath(filename)
+	path = pick_new_path(main_config.output_folder, _make_filename_from_display_name(display_name), 'desktop')
 
 	configwriter = configparser.ConfigParser(interpolation=None)
 	configwriter.optionxform = str #type: ignore[assignment]
@@ -113,7 +124,7 @@ def _make_linux_desktop(command: 'LaunchCommand', display_name: str, metadata: '
 				if isinstance(v, Image.Image):
 					this_image_folder = main_config.image_folder.joinpath(k)
 					this_image_folder.mkdir(exist_ok=True, parents=True)
-					image_path = this_image_folder.joinpath(filename + '.png')
+					image_path = this_image_folder.joinpath(path.stem + '.png')
 					v.save(image_path, 'png')
 					#v = image_path
 					_write_field(configwriter, section_name, k, image_path)
