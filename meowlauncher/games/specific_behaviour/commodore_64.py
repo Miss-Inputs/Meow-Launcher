@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING, cast
 
+from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.mame_common.software_list_find_utils import (
     find_in_software_lists, matcher_args_for_bytes)
 from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.util.region_info import TVSystem
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
@@ -100,7 +100,7 @@ def add_commodore_64_custom_info(game: 'ROMGame'):
 		try:
 			cartridge_name = header[0x20:0x3f].decode('ascii').strip('\0')
 			if cartridge_name:
-				game.metadata.specific_info['Internal Title'] = cartridge_name
+				game.metadata.specific_info['Header Title'] = cartridge_name
 		except UnicodeDecodeError:
 			pass
 	else:
@@ -110,18 +110,13 @@ def add_commodore_64_custom_info(game: 'ROMGame'):
 
 	software = get_commodore_64_software(game, headered)
 	if software:
-		software.add_standard_metadata(game.metadata)
-		game.metadata.add_notes(software.get_info('usage'))
+		add_generic_software_info(software, game.metadata)
+		#Usages that may be interesting:
 		#Enter 'SYS 32768' to run
 		#Commodore: Load "JINGLE",8,1 / Apple IIc and e: Self boots
-		game.metadata.specific_info['Requirement'] = software.get_shared_feature('requirement')
-
+		
 		#Also see 'requirement' info field... may be useful at some point, contains a value among the lines of "c64_cart:blah" where blah is some addon cart for a floppy or tape software to work properly (cpm, fcc, magicvce, midipp, music64, ps64, sfxse, speakez, supercpu, goliath)
 		#There's dataarea nvram, but those are two carts which are more accurately described as device BIOSes, so I won't bother
 
 		#Also info = protection
-		try:
-			game.metadata.specific_info['TV Type'] = TVSystem(software.get_info('video'))
-		except ValueError:
-			pass
 		#TODO: software.compatibility should be used to determine TVSystem

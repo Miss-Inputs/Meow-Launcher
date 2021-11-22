@@ -27,7 +27,8 @@ class MAMEGame(EmulatedGame):
 		self._has_inited_metadata = True
 		self.metadata.specific_info['Source File'] = self.machine.source_file
 		self.metadata.specific_info['Family'] = self.machine.family
-		self.metadata.specific_info['Has Parent?'] = self.machine.has_parent
+		if self.machine.has_parent:
+			self.metadata.specific_info['Has Parent?'] = True
 
 		self.metadata.release_date = Date(self.machine.xml.findtext('year'))
 

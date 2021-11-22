@@ -26,11 +26,13 @@ def add_generic_software_info(software: 'Software', metadata: 'Metadata'):
 		metadata.specific_info['TV Type'] = TVSystem(software.get_info('video'))
 	except ValueError:
 		pass
+	#TODO: Could add "slot" specifically as Mapper?
+	#TODO: Is there a better way to handle usage? It would be useful for other specific_behaviours things to use the below stuff but without re-adding usage
 	for info_name, info_value in software.infos.items():
 		if info_name in {'usage', 'release', 'serial', 'developer', 'alt_title', 'alt_name', 'alt_disk', 'barcode', 'ring_code', 'version', 'video', 'pcb'}:
 			#We have already added this
 			continue
-		metadata.specific_info[info_name.replace('_', '-').replace(' ', '-').title()] = info_value
+		metadata.specific_info[info_name.title()] = info_value
 
 def _match_arcade(software_name: str) -> Optional[Machine]:
 	try:

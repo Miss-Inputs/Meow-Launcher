@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 def add_ngp_header_info(rom: 'FileROM', metadata: 'Metadata'):
 	header = rom.read(amount=64)
 	copyright_string = header[:28]
-	metadata.specific_info['Copyright'] = copyright_string.decode('ascii', errors='backslashreplace')
+	metadata.specific_info['Copyright'] = copyright_string.decode('ascii', errors='ignore')
 	if copyright_string == b'COPYRIGHT BY SNK CORPORATION':
 		metadata.publisher = 'SNK'
 	#Otherwise it'd say " LICENSED BY SNK CORPORATION" and that could be any dang third party which isn't terribly useful

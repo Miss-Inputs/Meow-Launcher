@@ -86,7 +86,7 @@ class CPUInfo():
 	def tags(self) -> Optional[str]:
 		return _format_count(cpu.tag for cpu in self.cpus)
 
-class Screen():
+class Display():
 	def __init__(self, xml: ElementTree.Element):
 		self.type = xml.attrib['type']
 		self.tag = xml.attrib['tag']
@@ -104,7 +104,7 @@ class Screen():
 				pass
 
 	@property
-	def screen_resolution(self) -> str:
+	def resolution(self) -> str:
 		if self.width and self.height:
 			return '{0:.0f}x{1:.0f}'.format(self.width, self.height)
 		#Other types are vector (Asteroids, etc) or svg (Game & Watch games, etc)
@@ -119,7 +119,7 @@ class Screen():
 	@property
 	def aspect_ratio(self) -> Optional[tuple[int, int]]:
 		if self.width and self.height:
-			return Screen.find_aspect_ratio(self.width, self.height)
+			return Display.find_aspect_ratio(self.width, self.height)
 		return None
 
 	@staticmethod
@@ -131,34 +131,32 @@ class Screen():
 		#This wouldn't happen unless one of the arguments is 0 or something silly like that
 		return None
 
-class ScreenInfo():
+class DisplayCollection():
 	def __init__(self, display_xmls: Iterable[ElementTree.Element]):
-		self.screens = {Screen(display_xml) for display_xml in display_xmls}
+		self.displays = {Display(display_xml) for display_xml in display_xmls}
+
+	def __len__(self) -> int:
+		return len(self.displays)
 
 	@property
-	def number_of_screens(self) -> int:
-		return len(self.screens)
-
-	@property
-	def screen_resolutions(self) -> Optional[str]:
-		return _format_count(screen.screen_resolution for screen in self.screens if screen.screen_resolution)
+	def resolutions(self) -> Optional[str]:
+		return _format_count(display.resolution for display in self.displays if display.resolution)
 
 	@property
 	def refresh_rates(self) -> Optional[str]:
-		return _format_count(screen.formatted_refresh_rate for screen in self.screens if screen.formatted_refresh_rate)
+		return _format_count(display.formatted_refresh_rate for display in self.displays if display.formatted_refresh_rate)
 
 	@property
 	def aspect_ratios(self) -> Optional[str]:
-		return _format_count('{0:.0f}:{1:.0f}'.format(*screen.aspect_ratio) for screen in self.screens if screen.aspect_ratio)
+		return _format_count('{0:.0f}:{1:.0f}'.format(*display.aspect_ratio) for display in self.displays if display.aspect_ratio)
 
 	@property
 	def display_types(self) -> Optional[str]:
-		return _format_count(screen.type for screen in self.screens if screen.type)
+		return _format_count(display.type for display in self.displays if display.type)
 
 	@property
 	def display_tags(self) -> Optional[str] :
-		return _format_count(screen.tag for screen in self.screens if screen.tag)
-
+		return _format_count(display.tag for display in self.displays if display.tag)
 
 def add_save_type(game: 'MAMEGame') -> None:
 	if game.metadata.platform == 'Arcade':
@@ -379,7 +377,7 @@ def add_metadata(game: 'MAMEGame') -> None:
 	add_history(game.metadata, game.machine.basename)
 
 	cpu_info = CPUInfo(CPU(cpu_xml) for cpu_xml in iter_cpus(game.machine.xml))	
-	screen_info = ScreenInfo(game.machine.xml.iterfind('display'))
+	displays = DisplayCollection(game.machine.xml.iterfind('display'))
 	
 	game.metadata.specific_info['Number of CPUs'] = cpu_info.number_of_cpus
 	if cpu_info.number_of_cpus:
@@ -387,16 +385,16 @@ def add_metadata(game: 'MAMEGame') -> None:
 		game.metadata.specific_info['Clock Speed'] = cpu_info.clock_speeds
 		game.metadata.specific_info['CPU Tags'] = cpu_info.tags
 
-	num_screens = screen_info.number_of_screens
-	game.metadata.specific_info['Number of Screens'] = num_screens
+	num_displays = len(displays)
+	game.metadata.specific_info['Number of Displays'] = num_displays
 
-	if num_screens:
-		game.metadata.specific_info['Screen Resolution'] = screen_info.screen_resolutions
-		game.metadata.specific_info['Refresh Rate'] = screen_info.refresh_rates
-		game.metadata.specific_info['Aspect Ratio'] = screen_info.aspect_ratios
+	if num_displays:
+		game.metadata.specific_info['Display Resolution'] = displays.resolutions
+		game.metadata.specific_info['Refresh Rate'] = displays.refresh_rates
+		game.metadata.specific_info['Aspect Ratio'] = displays.aspect_ratios
 
-		game.metadata.specific_info['Screen Type'] = screen_info.display_types
-		game.metadata.specific_info['Screen Tag'] = screen_info.display_tags
+		game.metadata.specific_info['Display Type'] = displays.display_types
+		game.metadata.specific_info['Display Tag'] = displays.display_tags
 
 def add_input_info(game: 'MAMEGame') -> None:
 	game.metadata.input_info.set_inited()

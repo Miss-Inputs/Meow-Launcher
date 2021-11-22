@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Optional, Union
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
+from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.mame_common.machine import (
     Machine, does_machine_match_name, iter_machines_from_source_file)
 from meowlauncher.games.mame_common.mame_executable import \
@@ -268,7 +269,7 @@ def find_equivalent_mega_drive_arcade(game_name: str) -> Optional[Machine]:
 	return None
 
 def add_megadrive_software_list_metadata(software: 'Software', metadata: Metadata):
-	software.add_standard_metadata(metadata)
+	add_generic_software_info(software, metadata)
 	if software.get_shared_feature('addon') == 'SVP':
 		metadata.specific_info['Expansion Chip'] = 'SVP'
 	if software.get_shared_feature('incompatibility') == 'TMSS':

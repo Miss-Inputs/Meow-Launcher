@@ -235,7 +235,7 @@ def parse_param_sfo_kv(rompath: str, metadata: 'Metadata', key: str, value: SFOV
 					print(rompath, 'has funny attributes flag', hex(cast(int, value)))
 	elif key == 'RESOLUTION':
 		try:
-			metadata.specific_info['Supported Resolutions'] = [res[1:] for res in str(Resolutions(value))[12:].split('|')]
+			metadata.specific_info['Display Resolution'] = {res[1:] for res in str(Resolutions(value))[12:].split('|')}
 		except ValueError:
 			if main_config.debug:
 				print(rompath, 'has funny resolution flag', hex(cast(int, value)))

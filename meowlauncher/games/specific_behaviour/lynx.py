@@ -27,11 +27,11 @@ def add_info_from_lynx_header(header: bytes, metadata: 'Metadata'):
 		pass
 	rotation = header[0x3a]
 	if rotation == 0:
-		metadata.specific_info['Screen Rotation'] = 'None'
+		metadata.specific_info['Display Rotation'] = 'None'
 	elif rotation == 1:
-		metadata.specific_info['Screen Rotation'] = 'Left'
+		metadata.specific_info['Display Rotation'] = 'Left'
 	elif rotation == 2:
-		metadata.specific_info['Screen Rotation'] = 'Right'
+		metadata.specific_info['Display Rotation'] = 'Right'
 
 def add_lynx_custom_info(game: 'ROMGame'):
 	add_lynx_info(game.metadata)

@@ -72,6 +72,6 @@ def add_wonderswan_header_info(rom: 'FileROM', metadata: 'Metadata'):
 
 	metadata.specific_info['Has RTC?'] = header[7] == 1
 	flags = header[6]
-	metadata.specific_info['Screen Orientation'] = 'Vertical' if flags & 1 else 'Horizontal'
+	metadata.specific_info['Display Orientation'] = 'Vertical' if flags & 1 else 'Horizontal'
 	#Checksum schmecksum
 	

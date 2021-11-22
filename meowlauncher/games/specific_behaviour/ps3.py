@@ -57,7 +57,7 @@ def add_game_folder_metadata(rom: FolderROM, metadata: 'Metadata'):
 		metadata.images['Background Image'] = pic2_path
 	
 	if subfolder.joinpath('TROPDIR').is_dir():
-		metadata.specific_info['Supports Trophies?'] = True
+		metadata.specific_info['Has Achievements?'] = True
 
 	if usrdir.is_dir():
 		engine = try_and_detect_engine_from_folder(usrdir, metadata)

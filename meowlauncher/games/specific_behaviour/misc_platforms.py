@@ -144,7 +144,7 @@ def add_ibm_pcjr_custom_info(game: 'ROMGame'):
 
 	software = game.get_software_list_entry(header_length)
 	if software:
-		software.add_standard_metadata(game.metadata)
+		add_generic_software_info(software, game.metadata)
 		#TODO: If sharedfeat requirement = ibmpcjr_flop:pcdos21, do something about that
 		#Probably get the MAME command line to get a PC DOS 2.1 floppy path from platform_config provided by the user, or else they don't get to use ColorPaint
 		#Lotus 123jr has a similar predicament, but it also needs .m3u I guess

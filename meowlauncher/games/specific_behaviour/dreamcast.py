@@ -60,8 +60,6 @@ def add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size: 
 	except NotImplementedError:
 		return
 
-	#96-112 Boot filename
-
 	hardware_id = header[0:16].decode('ascii', errors='ignore')
 	if hardware_id != 'SEGA SEGAKATANA ':
 		#Won't boot on a real Dreamcast. I should check how much emulators care...
@@ -118,6 +116,11 @@ def add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size: 
 		if guessed.is_better_than(metadata.release_date):
 			metadata.release_date = guessed
 	except ValueError:
+		pass
+	
+	try:
+		metadata.specific_info['Executable Name'] = header[96:112].decode('ascii').rstrip()
+	except UnicodeDecodeError:
 		pass
 
 	try:

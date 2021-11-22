@@ -397,8 +397,10 @@ class MacApp(App):
 				self.metadata.specific_info['Is Carbon?'] = True
 				self.metadata.specific_info['Carbon Path'] = carbon_path
 				self.metadata.specific_info['Architecture'] = 'PPC' #This has to be manually specified because some pretend to be fat binaries?
-			creator = file.creator.decode('mac-roman', errors='backslashreplace')
-			self.metadata.specific_info['Creator Code'] = creator
+			creator = file.creator
+			if creator in {b'PJ93', b'PJ97'}:
+				self.metadata.specific_info['Engine'] = 'Macromedia Director'
+			self.metadata.specific_info['Creator Code'] = creator.decode('mac-roman', errors='backslashreplace')
 
 			#Can also get mddate if wanted
 			creation_datetime = mac_epoch + datetime.timedelta(seconds=file.crdate)
@@ -417,12 +419,12 @@ class MacApp(App):
 					#Supposed to be -1, 0 and 1 are created when user manually changes preferred/minimum RAM?
 					size = sizes.get(-1, sizes.get(0, sizes.get(1)))
 					if size:
+						#Remember this is big endian so you will need to go backwards
 						#Bit 0: Save screen (obsolete)
 						#Bit 1: Accept suspend/resume events
 						#Bit 2: Disable option (obsolete)
 						#Bit 3: Can background
 						#Bit 4: Does activate on FG switch
-						#Bit 5: Only background (has no user interface)
 						#Bit 6: Get front clicks
 						#Bit 7: Accept app died events (debuggers) (the good book says "app launchers use this" and apparently applications use ignoreAppDiedEvents)
 						#Bit 9 (bit 1 of second byte): High level event aware
@@ -430,7 +432,10 @@ class MacApp(App):
 						#Bit 11: Stationery aware
 						#Bit 12: Use text edit services ("inline services"?)
 						if size[0] or size[1]: #If all flags are 0 then this is probably lies
-							if size[1] & (1 << 7) == 0: #I guess the bits go that way around I dunno
+							if size[0] & (1 << (8 - 5)) != 0:
+								#Documented as "Only background"?
+								self.metadata.specific_info['Has User Interface?'] = False
+							if size[1] & (1 << (15 - 8)) == 0: #Wait is that even correct, and if these size resources are just ints, should they be combined to make this easier
 								self.metadata.specific_info['Not 32 Bit Clean?'] = True
 						self.metadata.specific_info['Minimum RAM'] = format_byte_size(int.from_bytes(size[6:10], 'big'))
 
