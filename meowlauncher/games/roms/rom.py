@@ -17,9 +17,6 @@ from meowlauncher.util.utils import byteswap
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import (Software,
 	                                                          SoftwareList)
-
-_crc_chunk_size = 128 * 1024 * 1024
-
 class ROM(ABC):
 	def __init__(self, path: Path) -> None:
 		self.path = path
@@ -107,10 +104,7 @@ class FileROM(ROM):
 
 	def _get_crc32(self) -> int:
 		with self.path.open('rb') as f:
-			crc = 0
-			for chunk in iter(lambda: f.read(_crc_chunk_size), b''):
-				crc = zlib.crc32(chunk, crc)
-			return crc & 0xffffffff
+			return zlib.crc32(f.read()) & 0xffffffff
 
 	@property
 	def crc32(self) -> int:
