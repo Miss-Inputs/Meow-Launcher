@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-#TODO: Eventually this wouldn't be needed - you would just have a --game-sources argument in cli_main.py and you can have one or many
+#TODO: Eventually this wouldn't be needed - you would just have a --game-sources argument in meowlauncher/__main__.py and you can have one or many
 #Until then this will duplicate code from there so I am sorry
 
 import sys
