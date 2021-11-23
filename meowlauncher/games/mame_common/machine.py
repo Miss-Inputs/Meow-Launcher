@@ -363,7 +363,9 @@ class Machine():
 
 	@property
 	def is_proto(self) -> bool:
-		#Use the original name here, if we end up refactoring the name stuff…
+		if self.incomplete:
+			return True
+		#Use the original full name here, if we end up refactoring the name stuff…
 		tags = find_filename_tags_at_end(self.name)
 		return any(tag.lower() in {'location test', 'prototype'} for tag in tags)
 
