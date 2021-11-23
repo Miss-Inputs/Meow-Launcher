@@ -1,9 +1,11 @@
 This should go in the readme, but since I don't know where I'm going with anything right now, I'll just mention it here
 
-Gonna use stuff that's new to Python 3.7 so no trying to run this on an OS you haven't upgraded in 10 years or whatever
+This should _all_ be optional and merely enhance 
+
+Gonna use stuff that's new to Python 3.9 so no trying to run this on an OS you haven't upgraded in 10 years or whatever
 
 Stuff that is called by subprocess:
-7z (did I make this optional? I guess it can't be)
+7z (fallback for archive reading)
 butler (from itch.io desktop app, if using itch.io)
 mame (gotta make sure this is optional for those only using normal ROMs and not arcade stuff)
 scummvm (if using it)
@@ -11,7 +13,20 @@ stella (for Atari 2600, should be optional)
 hactool or nstool (for Switch, should be optional)
 
 Files that might be installed that we can use:
+#TODO: This is not up to date at all
 libretro-database (as an option)
-MAME history.dat, catlist.ini, series.ini, languages.ini, bestgames.ini, version.ini (the paths are taken from mame.ini/ui.ini, all should be optional though catlist is a good idea to have)
+MAME history.xml, catlist.ini, series.ini, languages.ini, bestgames.ini, version.ini (the paths are taken from mame.ini/ui.ini, all should be optional though catlist is a good idea to have)
 GameTDB (as an option)
 mupen64plus.ini (for N64, optional)
+DuckStation database
+
+Libraries that might be installed that we can use, and they aren't really requirements:
+#TODO: These expected versions are out of date, which might break stuff
+py7zr >= 0.16.1 (speeds up 7z reading by saving you from having to fallback to subprocess 7zr)
+python-libarchive >= 4.0.1.post1 (speeds up archive reading)
+Pillow >= 5.2.0 (allows extracting of icons from games)
+steamfiles >= 0.1.4 (needed for Steam)
+pycdlib >= 1.7.0 (gets more spicy info out of ROMs)
+pycrypto >= 2.6.1 (gets more spicy info out of ROMs)
+pefile >= 2019.4.18 (gets more spicy info out of DOS and Windows games)
+machfs >= 1.3 (needed for Mac)

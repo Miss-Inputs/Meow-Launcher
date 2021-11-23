@@ -77,6 +77,6 @@ TODO: Describe the command line arguments that are actually important, but for n
 - --print-times prints how long everything takes, which is also something you might not care about
 - --organize-folders sorts your games into more subfolders based on metadata
 
-See third-party-copyright-stuff.txt for third party stuff used, I can't figure out if I'm supposed to put that in the main LICENSE file or if that's supposed to be like that, I can't get GitHub to recognize the MIT license last time I tried anyway.
+See third-party-copyright-stuff.txt for third party stuff used, because I feel like that should go somewhere
 
 That's all for this readme, I hope it made any sense whatsoever. Keep on meowing, gamers.
