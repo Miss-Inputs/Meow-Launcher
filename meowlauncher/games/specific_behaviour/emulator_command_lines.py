@@ -1344,7 +1344,7 @@ def rpcs3(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emulato
 		game_compat = game.metadata.specific_info.get('RPCS3 Compatibility')
 		if game_compat:
 			if game_compat.value < threshold:
-				raise EmulationNotSupportedException('Game ({0}) is only {1} status'.format(game.metadata.names.get('Banner Title'), game_compat.name))
+				raise EmulationNotSupportedException(f'Game ({game.name}) is only {game_compat.name} status')
 
 	#It's clever enough to boot folders specified as a path
 	return LaunchCommand(emulator_config.exe_path, ['--no-gui', rom_path_argument])
@@ -1354,13 +1354,13 @@ def snes9x(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emulat
 	if slot:
 		#There are a few bootleg things that will not work
 		if slot.endswith(('_bugs', '_pija', '_poke', '_sbld', '_tekken2', '_20col')):
-			raise EmulationNotSupportedException('{0} mapper not supported'.format(slot))
+			raise EmulationNotSupportedException(f'{slot} mapper not supported')
 
 	expansion_chip = game.metadata.specific_info.get('Expansion Chip')
 	if expansion_chip in (SNESExpansionChip.ST018, SNESExpansionChip.DSP_3):
 		#ST018 is implemented enough here to boot to menu, but hangs when starting a match
 		#DSP-3 looks like it's going to work and then when I played around a bit and the AI was starting its turn (I think?) the game hung to a glitchy mess so I guess not
-		raise EmulationNotSupportedException('{0} not supported'.format(expansion_chip))
+		raise EmulationNotSupportedException(f'{expansion_chip} not supported')
 	return LaunchCommand(emulator_config.exe_path, [rom_path_argument])
 
 def xemu(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:

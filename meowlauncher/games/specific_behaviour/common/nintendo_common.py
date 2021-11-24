@@ -100,10 +100,10 @@ def add_info_from_local_titles(metadata: 'Metadata', short_titles: Mapping[str, 
 
 	for lang, localized_short_title in short_titles.items():
 		if localized_short_title != local_short_title:
-			metadata.add_alternate_name(localized_short_title, '{0} Banner Short Title'.format(lang.replace(' ', '-')))
+			metadata.add_alternate_name(localized_short_title, f'{lang} Banner Short Title')
 	for lang, localized_long_title in long_titles.items():
 		if localized_long_title != local_long_title:
-			metadata.add_alternate_name(localized_long_title, '{0} Banner Title'.format(lang.replace(' ', '-')))
+			metadata.add_alternate_name(localized_long_title, f'{lang} Banner Title')
 	for lang, localized_publisher in publishers.items():
 		if localized_publisher not in (metadata.publisher, local_publisher):
-			metadata.specific_info[f"{lang} Publisher"] = localized_publisher
+			metadata.specific_info[f'{lang} Publisher'] = localized_publisher

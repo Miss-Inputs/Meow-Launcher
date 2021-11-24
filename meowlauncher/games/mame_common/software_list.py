@@ -46,7 +46,7 @@ def _add_alt_titles(metadata: Metadata, alt_title: str):
 			name_type = ends_with_brackets_match[2]
 			if name_type in {'Box', 'USA Box', 'US Box', 'French Box', 'Box?', 'Cart', 'cart', 'Label', 'label', 'Fra Box'}:
 				#There must be a better way for me to do this…
-				metadata.add_alternate_name(ends_with_brackets_match[1], name_type.title().replace(' ', '-').replace('?', '') + '-Title')
+				metadata.add_alternate_name(ends_with_brackets_match[1], name_type.title() + ' Title')
 			elif name_type in {'Box, Cart', 'Box/Card'}:
 				#Grr
 				metadata.add_alternate_name(ends_with_brackets_match[1], 'Box Title')
