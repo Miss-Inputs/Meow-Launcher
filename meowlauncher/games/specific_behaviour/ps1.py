@@ -53,7 +53,7 @@ def get_duckstation_db_info(product_code: str) -> Optional[Mapping[Any, Any]]:
 
 	if not hasattr(get_duckstation_db_info, 'gamedb'):
 		try:
-			with open(gamedb_path, 'rb') as f:
+			with gamedb_path.open('rb') as f:
 				get_duckstation_db_info.gamedb = json.load(f) #type: ignore[attr-defined]
 		except OSError as oserr:
 			if main_config.debug:

@@ -46,7 +46,7 @@ class MAMEExecutable():
 						machine_name = element.attrib['name']
 
 						if main_config.use_xml_disk_cache:
-							with open(self._xml_cache_path.joinpath(machine_name + '.xml'), 'wb') as cache_file:
+							with self._xml_cache_path.joinpath(machine_name + '.xml').open('wb') as cache_file:
 								cache_file.write(ElementTree.tostring(element))
 						yield machine_name, my_copy
 						element.clear()
@@ -75,7 +75,7 @@ class MAMEExecutable():
 		if main_config.use_xml_disk_cache:
 			cache_file_path = self._xml_cache_path.joinpath(driver + '.xml')
 			try:
-				with open(cache_file_path, 'rb') as cache_file:
+				with cache_file_path.open('rb') as cache_file:
 					return ElementTree.parse(cache_file).getroot()
 			except FileNotFoundError:
 				pass

@@ -124,7 +124,7 @@ def _load_ignored_directories() -> Collection[PurePath]:
 	ignored_directories: set[PurePath] = set()
 
 	try:
-		with open(_ignored_dirs_path, 'rt', encoding='utf-8') as ignored_txt:
+		with _ignored_dirs_path.open('rt', encoding='utf-8') as ignored_txt:
 			ignored_directories.update(PurePath(line.strip()) for line in ignored_txt)
 	except FileNotFoundError:
 		pass
@@ -189,7 +189,8 @@ class Config():
 			self.ignored_directories = _load_ignored_directories()
 
 		def _rewrite_config(self) -> None:
-			with open(_main_config_path, 'wt', encoding='utf-8') as f:
+			#TODO: Do we even use this
+			with _main_config_path.open('wt', encoding='utf-8') as f:
 				self.parser.write(f)
 
 		def __getattr__(self, name: str) -> TypeOfConfigValue:

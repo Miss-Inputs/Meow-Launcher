@@ -39,7 +39,7 @@ def parse_libretro_dat(path: Path) -> tuple[Mapping[str, Union[int, str]], Seque
 	#TODO: Probably split this up in two methods, one to parse the header and one to parse the rest of it, once we have that much lines
 	games: MutableSequence[GameType] = []
 	header: MutableMapping[str, Union[int, str]] = {}
-	with open(path, 'rt', encoding='utf-8') as file:
+	with path.open('rt', encoding='utf-8') as file:
 		game: _MutableGameType = {}
 		inside_header = False
 		rom_giant_line: Optional[str] = None #Just concat everything in between rom ( ) on multiple lines so we can parse it that way

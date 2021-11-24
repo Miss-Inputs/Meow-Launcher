@@ -601,7 +601,7 @@ def add_images(game: 'SteamGame'):
 
 def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user: bool):
 	#This does not always exist, it's there if you've looked at it in the Steam client and it's loaded some metadata, but like why the heck not
-	with open(json_path, 'rb') as f:
+	with json_path.open('rb') as f:
 		j = json.load(f)
 		#Cool stuff in here:
 		#friends -> Has info on which of your friends played this game (I don't think we need to put that in here anywhere)
@@ -786,7 +786,7 @@ def iter_steam_installed_appids() -> Iterator[tuple[Path, int, Mapping[str, Any]
 	for library_folder in steam_installation.iter_steam_library_folders():
 		for acf_file_path in library_folder.joinpath('steamapps').glob('*.acf'):
 			#Technically I could try and parse it without steamfiles, but that would be irresponsible, so I shouldn't do that
-			with open(acf_file_path, 'rt', encoding='utf-8') as acf_file:
+			with acf_file_path.open('rt', encoding='utf-8') as acf_file:
 				app_manifest = acf.load(acf_file)
 			app_state = app_manifest.get('AppState')
 			if not app_state:

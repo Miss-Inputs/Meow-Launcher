@@ -27,7 +27,7 @@ def _find_butler() -> Optional[Path]:
 	butler_folder = Path('~/.config/itch/broth/butler').expanduser()
 	chosen_version = butler_folder.joinpath('.chosen-version')
 	try:
-		with open(chosen_version, 'rt', encoding='utf-8') as f:
+		with chosen_version.open('rt', encoding='utf-8') as f:
 			version = f.read()
 			return butler_folder.joinpath('versions', version, 'butler')
 	except FileNotFoundError:

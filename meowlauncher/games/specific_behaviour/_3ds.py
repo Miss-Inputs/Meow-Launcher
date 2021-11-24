@@ -69,7 +69,7 @@ def _load_tdb() -> Optional[TDB]:
 
 	try:
 		tdb_parser = ElementTree.XMLParser()
-		with open(tdb_path, 'rb') as tdb_file:
+		with tdb_path.open('rb') as tdb_file:
 			#We have to do this the hard way because there is an invalid element in there
 			for line in tdb_file:
 				if line.lstrip().startswith(b'<3DSTDB'):
