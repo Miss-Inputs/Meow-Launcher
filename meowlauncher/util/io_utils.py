@@ -22,6 +22,9 @@ def sanitize_name(s: Optional[str], safe_for_fat32: bool=False, no_janky_chars: 
 
 	s = s.replace('/', '-')
 	s = s.replace('\x00', ' ')
+	s = s.replace('\n', ' ')
+	s = s.replace('\t', ' ')
+	s = s.replace('\r', ' ')
 
 	if no_janky_chars:
 		#Get rid of chars that are potentially evil with various kinds of shell syntax or various kinds of filesystems, or other things that have special meanings
