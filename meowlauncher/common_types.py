@@ -27,8 +27,7 @@ class EmulationNotSupportedException(Exception):
 class ExtensionNotSupportedException(EmulationNotSupportedException):
 	pass
 
-class NotARomException(Exception):
-	#File type mismatch, etc
+class NotActuallyLaunchableGameException(Exception):
 	pass
 
 class EmulationStatus(IntEnum):

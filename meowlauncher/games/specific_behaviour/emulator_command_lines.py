@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
-                                       MediaType, NotARomException)
+                                       MediaType, NotActuallyLaunchableGameException)
 from meowlauncher.data.emulated_platforms import (arabic_msx1_drivers,
                                                   arabic_msx2_drivers,
                                                   japanese_msx1_drivers,
@@ -1086,9 +1086,9 @@ def cemu(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emulator
 	if title_id:
 		category = title_id[4:8]
 		if category == '000C':
-			raise NotARomException('Cannot boot DLC')
+			raise NotActuallyLaunchableGameException('Cannot boot DLC')
 		if category == '000E':
-			raise NotARomException('Cannot boot update')
+			raise NotActuallyLaunchableGameException('Cannot boot update')
 
 	path = str(game.rom.relevant_files['rpx']) if isinstance(game.rom, FolderROM) else rom_path_argument
 	return LaunchCommand(emulator_config.exe_path, ['-f', '-g', 'Z:{0}'.format(path)])
@@ -1104,7 +1104,7 @@ def citra(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emulato
 		if game.metadata.product_code and game.metadata.product_code[3:6] == '-U-':
 			#Ignore update data, which either are pointless (because you install them in Citra and then when you run the main game ROM, it has all the updates applied) or do nothing
 			#I feel like there's probably a better way of doing this whoops
-			raise NotARomException('Update data, not actual game')
+			raise NotActuallyLaunchableGameException('Update data, not actual game')
 	return LaunchCommand(emulator_config.exe_path, [rom_path_argument])
 
 def cxnes(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
@@ -1138,7 +1138,7 @@ def dolphin(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emula
 	if title_type:
 		if title_type not in (WiiTitleType.Channel, WiiTitleType.GameWithChannel, WiiTitleType.SystemChannel, WiiTitleType.HiddenChannel):
 			#Technically Wii Menu versions are WiiTitleType.System but can be booted, but eh
-			raise NotARomException('Cannot boot a {0}'.format(title_type.name))
+			raise NotActuallyLaunchableGameException('Cannot boot a {0}'.format(title_type.name))
 
 	return LaunchCommand(emulator_config.exe_path, ['-b', '-e', os.fspath(cast(FolderROM, game.rom).relevant_files['boot.dol']) if game.rom.is_folder else rom_path_argument])
 
@@ -1336,7 +1336,7 @@ def reicast(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emula
 
 def rpcs3(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	if not game.metadata.specific_info.get('Bootable?', True):
-		raise NotARomException('Cannot boot', game.metadata.specific_info.get('PlayStation Category', 'this'))
+		raise NotActuallyLaunchableGameException('Cannot boot', game.metadata.specific_info.get('PlayStation Category', 'this'))
 	if emulator_config.options.get('require_compat_entry', False) and 'RPCS3 Compatibility' not in game.metadata.specific_info:
 		raise EmulationNotSupportedException('Not in compatibility DB')
 	threshold = emulator_config.options.get('compat_threshold')
@@ -1391,13 +1391,13 @@ def yuzu(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emulator
 	title_type = game.metadata.specific_info.get('Title Type')
 	if title_type in ('Patch', 'AddOnContent', SwitchContentMetaType.Patch, SwitchContentMetaType.AddOnContent):
 		#If we used the .cnmt.xml, it will just be a string
-		raise NotARomException('Cannot boot a {0}'.format(title_type))
+		raise NotActuallyLaunchableGameException('Cannot boot a {0}'.format(title_type))
 	return LaunchCommand(emulator_config.exe_path, ['-f', '-g', rom_path_argument])
 
 #Game engines
 def prboom_plus(game: 'ROMGame', platform_config: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	if game.metadata.specific_info.get('Is PWAD?', False):
-		raise NotARomException('Is PWAD and not IWAD')
+		raise NotActuallyLaunchableGameException('Is PWAD and not IWAD')
 
 	args = []
 	save_dir = cast(Optional[Path], platform_config.get('save_dir'))

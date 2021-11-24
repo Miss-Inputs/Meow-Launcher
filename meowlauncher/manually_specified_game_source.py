@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, Generic, Optional, TypeVar
 
 from meowlauncher.common_paths import config_dir
 from meowlauncher.common_types import (EmulationNotSupportedException,
-                                       NotARomException)
+                                       NotActuallyLaunchableGameException)
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
@@ -70,7 +70,7 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 				if command:
 					emulator = potential_emulator
 					break
-			except (EmulationNotSupportedException, NotARomException) as ex:
+			except (EmulationNotSupportedException, NotActuallyLaunchableGameException) as ex:
 				exception_reason = ex
 
 		if not emulator:

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Optional, Union
 
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        ExtensionNotSupportedException,
-                                       NotARomException)
+                                       NotActuallyLaunchableGameException)
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
@@ -98,7 +98,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 				if command:
 					launcher = potential_launcher
 					break
-			except (EmulationNotSupportedException, NotARomException) as ex:
+			except (EmulationNotSupportedException, NotActuallyLaunchableGameException) as ex:
 				exception_reason = ex
 
 		if not launcher:
