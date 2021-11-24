@@ -210,7 +210,9 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 							if launcher:
 								yield launcher
 								#file_list.append((folder_path, subfolders))
-								continue
+							#Avoid descending further, even if we get a NotARomException
+							#This will not work well if we have multiple emulators for these folder-having systems and one supports folders and one doesn't, but eh, worry about that later I think
+							continue
 						remaining_subdirs.append(d)
 					dirs[:] = remaining_subdirs
 				dirs.sort()
