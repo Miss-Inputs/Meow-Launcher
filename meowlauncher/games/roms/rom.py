@@ -312,20 +312,21 @@ class FolderROM(ROM):
 		raise NotImplementedError('Trying to get software of a folder is silly and should not be done')
 
 def _parse_m3u(path: Path) -> Iterator[ROM]:
-	for line in path.open('rt', encoding='utf-8'):
-		line = line.strip()
-		if line.startswith("#"):
-			continue
-	
-		try:
-			referenced_file = Path(line) if line.startswith('/') else path.parent / line
-			if not referenced_file.is_file():
-				if main_config.debug:
-					print('M3U file', path, 'has a broken reference!!!!', referenced_file)
+	with path.open('rt', encoding='utf-8') as f:
+		for line in f:
+			line = line.strip()
+			if line.startswith("#"):
 				continue
-			yield get_rom(referenced_file)
-		except ValueError:
-			print('M3U file', path, 'has a broken line!!!!', line)
+		
+			try:
+				referenced_file = Path(line) if line.startswith('/') else path.parent / line
+				if not referenced_file.is_file():
+					if main_config.debug:
+						print('M3U file', path, 'has a broken reference!!!!', referenced_file)
+					continue
+				yield get_rom(referenced_file)
+			except ValueError:
+				print('M3U file', path, 'has a broken line!!!!', line)
 
 class M3UPlaylist(ROM):
 	def __init__(self, path: Path):
