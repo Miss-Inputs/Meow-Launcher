@@ -179,14 +179,14 @@ def parse_param_sfo_kv(rompath: str, metadata: 'Metadata', key: str, value: SFOV
 	elif key == 'DISC_TOTAL':
 		metadata.disc_total = cast(int, value)
 	elif key == 'TITLE':
-		metadata.add_alternate_name(fix_name(cast(str, value)), 'Banner Title')
+		metadata.add_alternate_name(fix_name(cast(str, value).replace('\n', ' - ')), 'Banner Title')
 	elif len(key) == 8 and key[:5] == 'TITLE' and key[-2:].isdigit():
 		lang_id = int(key[-2:])
 		prefix = title_languages.get(lang_id)
 		name_name = 'Banner Title'
 		if prefix:
-			name_name = prefix.replace(' ', '-') + '-' + name_name
-		metadata.add_alternate_name(fix_name(cast(str, value)), name_name)
+			name_name = prefix + name_name
+		metadata.add_alternate_name(fix_name(cast(str, value).replace('\n', ' - ')), name_name)
 	elif key == 'PARENTAL_LEVEL':
 		#Seems this doesn't actually mean anything by itself, and is Sony's own rating system, so don't try and think about it too much
 		metadata.specific_info['Parental Level'] = value

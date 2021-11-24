@@ -67,16 +67,17 @@ def add_game_folder_metadata(rom: FolderROM, metadata: 'Metadata'):
 	elif main_config.debug:
 		print('How interesting!', rom.path, 'has no USRDIR')
 
-	is_installed_to_rpcs3_hdd = rom.path.parent == Path('~/.config/rpcs3/dev_hdd0/game').expanduser()
-	
 	with open(param_sfo_path, 'rb') as f:
 		parse_param_sfo(str(rom.path), metadata, f.read())
 
+	is_installed_to_rpcs3_hdd = rom.path.parent == Path('~/.config/rpcs3/dev_hdd0/game').expanduser()
 	#Messy hack time
 	if is_installed_to_rpcs3_hdd and metadata.names:
+		#If we found a banner title, etc then use that instead
 		rom.ignore_name = True
 	if metadata.product_code == rom.name:
 		rom.ignore_name = True
+		#Internal to some game folder, but if it is on the RPCS3 hard drive then it is just in a folder called "game" under "dev_hdd0" which contains no useful information
 		if not is_installed_to_rpcs3_hdd:
 			metadata.add_alternate_name(rom.path.parent.name, 'Name')
 		
