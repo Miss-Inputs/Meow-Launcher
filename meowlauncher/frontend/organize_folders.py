@@ -215,7 +215,7 @@ def main() -> None:
 				path = Path(root, f)
 				if path.suffix == '.desktop':
 					desktop = get_desktop(path)
-					move_into_extra_subfolder(path, desktop, sanitize_name(name, supersafe=True), key, missing_value)
+					move_into_extra_subfolder(path, desktop, sanitize_name(name, safe_for_fat32=True), key, missing_value)
 		if main_config.print_times:
 			time_ended = time.perf_counter()
 			print('Folder organization finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
