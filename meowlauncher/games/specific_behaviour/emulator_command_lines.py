@@ -142,8 +142,7 @@ def mame_atari_jaguar(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_conf
 	elif game.metadata.media_type == MediaType.Executable:
 		slot = 'quik'
 	else:
-		#Should never happen
-		raise NotARomException(f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.metadata.media_type} unsupported')
 	return mame_driver(game, emulator_config, 'jaguar', slot)
 
 def mame_atari_7800(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
@@ -243,9 +242,10 @@ def mame_coleco_adam(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_confi
 		#Disable floppy drives if we aren't using them for a performance boost (332.27% without vs 240.35% with here, and you'll probably be turboing through the tape load, so yeah)
 		slot_options['net4'] = ''
 		slot_options['net5'] = ''
+	elif game.metadata.media_type == MediaType.Cartridge:
+		slot = 'cart1'
 	else:
-		#Should never happen (carts would just be ColecoVision, I think, but I could be wrong)
-		raise NotARomException(f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.metadata.media_type} unsupported')
 
 	return mame_driver(game, emulator_config, 'adam', slot, slot_options, has_keyboard=True)
 
@@ -284,8 +284,7 @@ def mame_fm_towns(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 
 	elif game.metadata.media_type == MediaType.OpticalDisc:
 		slot = 'cdrom'
 	else:
-		#Should never happen
-		raise NotARomException(f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.metadata.media_type} unsupported')
 	
 	#Give us 10 meganbytes of RAM because we can (some software requires 4MB ram for example)
 	#Hopefully nothing requires 2MB explicitly or less
@@ -299,8 +298,7 @@ def mame_fm_towns_marty(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_co
 	elif game.metadata.media_type == MediaType.OpticalDisc:
 		slot = 'cdrom'
 	else:
-		#Should never happen
-		raise NotARomException(f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.metadata.media_type} unsupported')
 	
 	#Give us 4 meganbytes of RAM just in case we need it (some do, see software list info=usage)
 	#Hopefully nothing requires 2MB explicitly or less
@@ -347,8 +345,7 @@ def mame_ibm_pcjr(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 
 		#Floppy is the only other kind of rom we accept at this time
 		slot = 'flop'
 	else:
-		#Should never happen
-		raise NotARomException(f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.metadata.media_type} unsupported')
 	return mame_driver(game, emulator_config, 'ibmpcjr', slot, has_keyboard=True)
 
 def mame_intellivision(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
@@ -535,8 +532,7 @@ def mame_msx1(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emu
 	elif game.metadata.media_type == MediaType.Cartridge:
 		slot = 'cart1'
 	else:
-		#Should not happen
-		raise NotARomException(f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.metadata.media_type} unsupported')
 
 	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True)
 
@@ -568,8 +564,7 @@ def mame_msx2(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emu
 	elif game.metadata.media_type == MediaType.Cartridge:
 		slot = 'cart1'
 	else:
-		#Should not happen
-		raise NotARomException(f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.metadata.media_type} unsupported')
 
 	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True)
 
@@ -588,8 +583,7 @@ def mame_msx2plus(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 
 	elif game.metadata.media_type == MediaType.Cartridge:
 		slot = 'cart1'
 	else:
-		#Should not happen
-		raise NotARomException(f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.metadata.media_type} unsupported')
 
 	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True)
 
@@ -742,8 +736,7 @@ def mame_sg1000(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'E
 		slot = 'cart'
 		slot_options['sgexp'] = 'fm' #Can also put sk1100 in here. Can't detect yet what uses which though
 	else:
-		#Should not happen
-		raise NotARomException(f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.metadata.media_type} unsupported')
 
 	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard)
 
@@ -865,8 +858,7 @@ def mame_zx_spectrum(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_confi
 	elif game.metadata.media_type == MediaType.Executable:
 		slot = 'quik'
 	else:
-		#Should not happen
-		raise NotARomException(f'Media type {game.metadata.media_type} unsupported')
+		assert True, (f'Media type {game.metadata.media_type} unsupported')
 
 	return mame_driver(game, emulator_config, system, slot, options, has_keyboard=True)
 
