@@ -123,7 +123,7 @@ def parse_all_dats_for_system(name: str, use_serial: bool) -> Optional[LibretroD
 	
 	try:
 		for file in dat_folder.iterdir():
-			if file.name == name + '.dat':
+			if file.stem == name and file.suffix == '.dat':
 				relevant_dats.append(file)
 	except OSError:
 		pass

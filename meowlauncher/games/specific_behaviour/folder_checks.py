@@ -27,7 +27,7 @@ def is_wii_u_folder(folder: 'FolderROM') -> Optional[MediaType]:
 	code_subfolder = folder.get_subfolder('code')
 	if code_subfolder and folder.has_subfolder('content') and folder.has_subfolder('meta'):
 		for f in code_subfolder.iterdir():
-			if f.is_file() and f.name.endswith('.rpx'):
+			if f.is_file() and f.suffix == '.rpx':
 				folder.relevant_files['rpx'] = f
 				#Also applicable to extracted disc dumps, but that's just how my file type thing works, and I kinda wonder if I should have done that
 				return MediaType.Digital
