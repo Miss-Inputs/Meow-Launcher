@@ -108,17 +108,14 @@ def subprocess_sevenzip_list(path: str) -> Iterator[FilenameWithMaybeSizeAndCRC]
 	
 def subprocess_sevenzip_get(path: str, filename: str, offset: int=0, amount: int=-1) -> bytes:
 	with subprocess.Popen(['7z', 'e', '-so', '--', path, filename], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as proc:
+		stdout, _ = proc.communicate()
 		if proc.returncode != 0:
 			raise BadSubprocessedArchiveError('{0}: {1}'.format(path, proc.returncode))
-		if not proc.stdout:
-			return b''
-		data = proc.stdout.read()
 		if amount < 0:
-			amount = len(data)
+			amount = len(stdout)
 		if offset or amount:
-			data = data[offset: offset+amount]
-		return data
-
+			stdout = stdout[offset: offset+amount]
+		return stdout
 
 def subprocess_sevenzip_getsize(path: str, filename: str) -> int:
 	proc = subprocess.run(['7z', 'l', '-slt', '--', path, filename], stdout=subprocess.PIPE, universal_newlines=True, check=False)
