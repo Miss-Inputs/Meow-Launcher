@@ -25,6 +25,8 @@ Basically it needs testing from other people. I use it daily when I feel like pl
 
 Anyway, don't be afraid to say "this is what I would like for Meow Launcher to be nice and useable for me", or something like that. Worst case scenario is that I will say "nah that's not what I wanna do" and then I don't do it, because it's a hobby project and I do what I want; but I do want to make something that helps people (that's why I'm here putting stuff on GitHub) and if I can make it work for you, then hey that's pretty cool.
 
+Currently, Meow Launcher assumes that all emulators/cores that it launches are the most up to date version known, when considering what things an emulator can launch and what command line argument it uses, etc. This isn't a guarantee that things are up to date, it's just a lack of guarantee that old versions of emulators will continue to work just fine. For now. Perhaps if there is enough reason for me to bother, I could have some kind of option for each emulator that uses old behaviours/arguments…
+
 Windows (as in running Meow Launcher on Windows, not necessarily emulating Windows) is kinda planned at some point in the distant future. I just don't have a Windows setup at the moment so it'd be a bit awkward to develop, but as long as there's still emulators that are on Windows and haven't been ported, or game launchers exclusive to Windows (looking at you uPlay because I have games on there), I'm gonna want to make a Windows version.
 
 #TODO: Incorporate stuff.txt, which should not be a separate file, but it needs rewriting
