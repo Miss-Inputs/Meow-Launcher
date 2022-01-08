@@ -24,7 +24,7 @@ Libraries that might be installed that we can use, and they aren't really requir
 #TODO: These expected versions are out of date, which might break stuff
 py7zr >= 0.16.1 (speeds up 7z reading by saving you from having to fallback to subprocess 7zr)
 python-libarchive >= 4.0.1.post1 (speeds up archive reading)
-Pillow >= 5.2.0 (allows extracting of icons from games)
+Pillow >= 7.0.0 (allows extracting of icons from games)
 steamfiles >= 0.1.4 (needed for Steam)
 pycdlib >= 1.7.0 (gets more spicy info out of ROMs)
 pycrypto >= 2.6.1 (gets more spicy info out of ROMs)
