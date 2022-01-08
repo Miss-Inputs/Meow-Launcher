@@ -60,7 +60,7 @@ _standalone_emulators: Collection[StandardEmulator] = {
 	#Doesn't really do GBX but it will ignore the footer
 	StandardEmulator('melonDS', EmulatorStatus.Good, 'melonDS', command_lines.melonds, {'nds', 'srl'}, []), #Supports .dsi too, but I'm acting as though it doesn't, because it's too screwy
 	StandardEmulator('Mupen64Plus', EmulatorStatus.Good, 'mupen64plus', command_lines.mupen64plus, {'z64', 'v64', 'n64'}, []),
-	StandardEmulator('PCSX2', EmulatorStatus.Good, 'PCSX2', command_lines.pcsx2, {'iso', 'cso', 'bin', 'elf', 'irx', 'chd'}, {'gz'}),
+	StandardEmulator('PCSX2', EmulatorStatus.Good, 'pcsx2', command_lines.pcsx2, {'iso', 'cso', 'bin', 'elf', 'irx', 'chd'}, {'gz'}),
 	#Only reads the bin of bin/cues and not the cue
 	StandardEmulator('Pico-8', EmulatorStatus.Good, 'pico8', simple_emulator(['-windowed', '0', '-run', rom_path_argument]), {'p8', 'p8.png'}, []),
 	StandardEmulator('PokeMini', EmulatorStatus.Good, 'PokeMini', command_lines.pokemini, {'min'}, {'zip'}), #Normally just puts the config files in the current directory, so this cd's to ~/.config/PokeMini first
