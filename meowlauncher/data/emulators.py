@@ -425,7 +425,7 @@ _libretro_cores = {
 	LibretroCore('Caprice32', EmulatorStatus.Good, 'cap32', None, {'dsk', 'sna', 'tap', 'cdt', 'voc', 'cpr', 'm3u'}), #cpr will need game override to 6128+, if setting that globally disks won't autoboot; m3u is there to specify load command and not multiple disks; needs_fullpath=true
 	LibretroCore('ChaiLove', EmulatorStatus.Good, 'chailove', None, {'chai', 'chailove'}), #needs_fullpath=true
 	LibretroCore('Dinothawr', EmulatorStatus.Good, 'dinothawr', None, {'game'}),
-	LibretroCore('fMSX', EmulatorStatus.Good, 'fmsx', None, {'rom', 'mx1', 'mx2'}), #Claims to do .dsk and cas but does not
+	LibretroCore('fMSX', EmulatorStatus.Good, 'fmsx', None, {'rom', 'mx1', 'mx2', 'dsk', 'm3u', 'cas', 'fdi'}),
 	LibretroCore('FreeChaF', EmulatorStatus.Good, 'freechaf', None, {'bin', 'chf'}),
 	LibretroCore('FreeIntv', EmulatorStatus.Janky, 'freeintv', None, {'int', 'bin', 'rom'}),
 	LibretroCore('FreeJ2ME', EmulatorStatus.Imperfect, 'freej2me', None, {'jar'}), #Seems to require a JDK
@@ -437,7 +437,7 @@ _libretro_cores = {
 	LibretroCore('Mesen', EmulatorStatus.Good, 'mesen', command_lines.mesen, {'nes', 'fds', 'unf', 'unif'}),
 	LibretroCore('melonDS', EmulatorStatus.Good, 'melonds', command_lines.melonds, {'nds'}), #Still no DSi or iQue, OpenGL renderer makes aspect ratio go weird unless using hybrid layout
 	LibretroCore('mGBA', EmulatorStatus.Good, 'mgba', command_lines.mgba, {'gb', 'gbc', 'gba'}),
-	LibretroCore('Mu', EmulatorStatus.Janky, 'mu', None, {'prc', 'pqa', 'img'}), #Still need to select application manually from emulated menu
+	LibretroCore('Mu', EmulatorStatus.Janky, 'mu', None, {'prc', 'pqa', 'img', 'pdb'}), #Still need to select application manually from emulated menu
 	LibretroCore('Mupen64Plus-Next', EmulatorStatus.Good, 'mupen64plus_next', None, {'n64', 'v64', 'z64', 'bin', 'u1'}), #TODO: Command line function to reject roms with no detectable endianness
 	LibretroCore('NeoCD', EmulatorStatus.Good, 'neocd', None, {'cue', 'chd'}),
 	LibretroCore('O2EM', EmulatorStatus.Good, 'o2em', None, {'bin'}),
