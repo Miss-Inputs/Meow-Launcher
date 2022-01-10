@@ -1,3 +1,5 @@
+import os
+import shutil
 from typing import TYPE_CHECKING
 
 from meowlauncher.config.main_config import main_config
@@ -23,6 +25,14 @@ class ConfiguredRunner():
 	@property
 	def is_emulated(self) -> bool:
 		return self.runner.is_emulated
+
+	@property
+	def is_path_valid(self) -> bool:
+		if os.path.isfile(self.config.exe_path):
+			return True
+		if shutil.which(self.config.exe_path):
+			return True
+		return False
 
 	def set_wrapper_options(self, command: LaunchCommand) -> LaunchCommand:
 		if self.runner.host_platform == HostPlatform.Windows:
