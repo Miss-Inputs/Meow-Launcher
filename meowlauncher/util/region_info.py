@@ -80,7 +80,7 @@ languages = [
 
 	Language('Traditional Chinese', '漢語', 'Zh-Hant'),
 	#Dialects of other languages, where there's something that specifies it's that dialect specifically (Steam games do this, for example)
-	Language('Brazilian Portguese', 'Português do Brasil', 'Pt-Br'),
+	Language('Brazilian Portugese', 'Português do Brasil', 'Pt-Br'),
 	Language('Latin American Spanish', 'Español-Latinoamérica', 'Es-La'), #Actually I have never seen "Es-La" be used ever, I'm just assuming it would be
 	Language('Canadian French', 'Français canadien', 'Fr-Ca'),
 ]
