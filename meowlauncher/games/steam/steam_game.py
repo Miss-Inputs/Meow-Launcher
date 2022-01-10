@@ -9,7 +9,6 @@ from meowlauncher.configured_runner import ConfiguredRunner
 from meowlauncher.game import Game
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.launcher import Launcher
-from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.runner import Runner
 from meowlauncher.util.name_utils import fix_name
 
@@ -73,10 +72,6 @@ class SteamGame(Game):
 				return None
 			return app_info_section
 		return None
-
-	def make_launcher(self) -> None:
-		params = LaunchCommand('steam', ['steam://rungameid/{0}'.format(self.appid)])
-		make_launcher(params, self.name, self.metadata, 'Steam', str(self.appid))
 
 class _SteamRunner(Runner):
 	@property
