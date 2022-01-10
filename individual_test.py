@@ -10,8 +10,7 @@ from meowlauncher.frontend.add_games import add_game_source
 from meowlauncher.frontend.disambiguate import disambiguate_names
 from meowlauncher.frontend.remove_nonexistent_games import \
     remove_nonexistent_games
-from meowlauncher.game_sources import (game_sources, gog, itch_io,
-                                       mame_software, steam)
+from meowlauncher.game_sources import game_sources, gog, itch_io, mame_software
 
 
 def main() -> None:
@@ -21,8 +20,6 @@ def main() -> None:
 		itch_io.do_itch_io_games()
 	elif sys.argv[1] == 'mame_software':
 		mame_software.add_mame_software()
-	elif sys.argv[1] == 'steam':
-		steam.process_steam()
 	
 	elif sys.argv[1] == 'series_detect':
 		series_detect.detect_series_for_all_desktops()

@@ -4,9 +4,13 @@ from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any, Optional
 
 from meowlauncher.config.main_config import main_config
+from meowlauncher.config_types import RunnerConfig
+from meowlauncher.configured_runner import ConfiguredRunner
 from meowlauncher.game import Game
 from meowlauncher.launch_command import LaunchCommand
+from meowlauncher.launcher import Launcher
 from meowlauncher.output.desktop_files import make_launcher
+from meowlauncher.runner import Runner
 from meowlauncher.util.name_utils import fix_name
 
 if TYPE_CHECKING:
@@ -73,3 +77,28 @@ class SteamGame(Game):
 	def make_launcher(self) -> None:
 		params = LaunchCommand('steam', ['steam://rungameid/{0}'.format(self.appid)])
 		make_launcher(params, self.name, self.metadata, 'Steam', str(self.appid))
+
+class _SteamRunner(Runner):
+	@property
+	def name(self) -> str:
+		return 'Steam'
+
+class SteamLauncher(Launcher):
+	def __init__(self, game: SteamGame) -> None:
+		self.game: SteamGame = game
+		runner = _SteamRunner()
+		configured_runner = ConfiguredRunner(runner, RunnerConfig('steam'))
+		super().__init__(game, configured_runner)
+
+	@property
+	def game_id(self) -> str:
+		return str(self.game.appid)
+
+	@property
+	def game_type(self) -> str:
+		return 'Steam'
+
+	@property
+	def command(self) -> LaunchCommand:
+		#-applaunch <appid>? steam://run/<id>? Does not seem as though it lets us have arguments
+		return LaunchCommand(self.runner.config.exe_path, [f'steam://rungameid/{self.game.appid}'])

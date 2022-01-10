@@ -7,6 +7,7 @@ from .mac import Mac
 from .mame_machines import MAME, MAMEInbuiltGames
 from .roms import ROMs
 from .scummvm import ScummVM
+from .steam import Steam
 
 if TYPE_CHECKING:
 	from meowlauncher.game_source import GameSource
@@ -14,6 +15,7 @@ if TYPE_CHECKING:
 _dos = DOS()
 _mac = Mac()
 _scummvm = ScummVM()
+_steam = Steam()
 
 _excluded_platforms = None
 for arg in sys.argv:
@@ -57,10 +59,12 @@ game_sources: Collection['GameSource'] = {
 	_mame_inbuilt,
 	_roms,
 	_scummvm,
+	_steam,
 }
 
 game_types: Mapping[str, 'GameSource'] = {
 	#For remove_existing_games basically
+	#TODO: Hmm can we just get this from some property of GameSource instead
 	'DOS': _dos,
 	'Mac': _mac,
 	'ScummVM': _scummvm,
@@ -68,4 +72,5 @@ game_types: Mapping[str, 'GameSource'] = {
 	'Arcade': _mame,
 	'MAME': _mame,
 	'Inbuilt game': _mame_inbuilt,
+	'Steam': _steam,
 }

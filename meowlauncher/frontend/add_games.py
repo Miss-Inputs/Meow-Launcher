@@ -3,7 +3,7 @@ import time
 from collections.abc import Callable
 
 from meowlauncher.game_source import CompoundGameSource, GameSource
-from meowlauncher.game_sources import game_sources, gog, itch_io, steam
+from meowlauncher.game_sources import game_sources, gog, itch_io
 from meowlauncher.output.desktop_files import make_linux_desktop_for_launcher
 
 
@@ -36,8 +36,6 @@ def add_games(progress_function: Callable[..., None]=print):
 		#TODO: Should actually use blah_enabled in some way, or some equivalent basically
 	print(f'Added total of {total} games') #Well other than those down below but sshhh pretend they aren't there
 		
-	progress_function('Adding Steam games')
-	steam.process_steam()
 	progress_function('Adding GOG games')
 	gog.do_gog_games()
 	progress_function('Adding itch.io games')

@@ -4,7 +4,6 @@ import datetime
 import json
 import os
 import statistics
-import time
 from collections.abc import Iterator, Mapping, MutableMapping
 from enum import IntFlag
 from pathlib import Path, PurePath
@@ -18,6 +17,7 @@ except ModuleNotFoundError:
 
 from meowlauncher.common_types import MediaType, SaveType
 from meowlauncher.config.main_config import main_config
+from meowlauncher.game_source import GameSource
 from meowlauncher.games.common.engine_detect import detect_engine_recursively
 from meowlauncher.games.common.pc_common_metadata import (
     add_metadata_for_raw_exe, check_for_interesting_things_in_folder)
@@ -29,10 +29,13 @@ from meowlauncher.util.name_utils import normalize_name_case
 from meowlauncher.util.utils import load_dict, remove_capital_article
 
 if have_steamfiles or TYPE_CHECKING:
-	from meowlauncher.games.steam.steam_game import LauncherInfo, SteamGame
+	from meowlauncher.games.steam.steam_game import (LauncherInfo, SteamGame,
+	                                                 SteamLauncher)
 	from meowlauncher.games.steam.steam_installation import (IconError,
 	                                                         IconNotFoundError,
 	                                                         SteamInstallation)
+if TYPE_CHECKING:
+	from meowlauncher.launcher import Launcher
 
 
 store_categories = load_dict(None, 'steam_store_categories')
@@ -679,7 +682,7 @@ def add_info_from_user_cache(game: 'SteamGame'):
 		if path.is_file():
 			add_info_from_cache_json(game, path, single_user)
 
-def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> None:
+def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> 'SteamLauncher':
 	#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
 	game = SteamGame(appid, folder, app_state, steam_installation)
 	if main_config.use_steam_as_platform:
@@ -780,7 +783,7 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> None
 	if appinfo_entry:
 		add_metadata_from_appinfo(game, appinfo_entry)
 	
-	game.make_launcher()
+	return SteamLauncher(game)
 
 def iter_steam_installed_appids() -> Iterator[tuple[Path, int, Mapping[str, Any]]]:
 	for library_folder in steam_installation.iter_steam_library_folders():
@@ -844,29 +847,32 @@ def no_longer_exists(appid: str) -> bool:
 
 	return appid not in no_longer_exists.appids #type: ignore[attr-defined]
 
-def process_steam() -> None:
-	if not is_steam_available:
-		return
-
-	time_started = time.perf_counter()
-
-	compat_tool_appids = {compat_tool[0] for compat_tool in steam_installation.steamplay_compat_tools().values()}
-	for folder, app_id, app_state in iter_steam_installed_appids():
-		if not main_config.full_rescan:
-			if has_been_done('Steam', str(app_id)):
+class Steam(GameSource):
+	@property
+	def name(self) -> str:
+		return 'Steam'
+	
+	@property
+	def is_available(self) -> bool:
+		return is_steam_available
+	
+	def no_longer_exists(self, game_id: str) -> bool:
+		return no_longer_exists(game_id)
+	
+	def iter_launchers(self) -> Iterator['Launcher']:
+		compat_tool_appids = {compat_tool[0] for compat_tool in steam_installation.steamplay_compat_tools.values()}
+		for folder, app_id, app_state in iter_steam_installed_appids():
+			if not main_config.full_rescan:
+				if has_been_done('Steam', str(app_id)):
+					continue
+			if app_id in compat_tool_appids:
 				continue
-		if app_id in compat_tool_appids:
-			continue
 
-		try:
-			process_game(app_id, folder, app_state)
-		except NotActuallyAGameYouDingusException:
-			continue
-		except NotLaunchableError as ex:
-			if main_config.debug:
-				print(app_state.get('name', app_id), app_id, 'is skipped because', ex)
-			continue
-		
-	if main_config.print_times:
-		time_ended = time.perf_counter()
-		print('Steam finished in', str(datetime.timedelta(seconds=time_ended - time_started)))
+			try:
+				yield process_game(app_id, folder, app_state)
+			except NotActuallyAGameYouDingusException:
+				continue
+			except NotLaunchableError as ex:
+				if main_config.debug:
+					print(app_state.get('name', app_id), app_id, 'is skipped because', ex)
+				continue

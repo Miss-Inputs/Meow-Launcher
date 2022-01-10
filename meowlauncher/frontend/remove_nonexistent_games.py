@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.game_sources import game_types, steam
+from meowlauncher.game_sources import game_types
 from meowlauncher.output.desktop_files import id_section_name
 from meowlauncher.util.desktop_files import get_desktop, get_field
 
@@ -30,8 +30,6 @@ def remove_nonexistent_games() -> None:
 		game_source = game_types.get(game_type)
 		if game_source:
 			should_remove = game_source.no_longer_exists(game_id)
-		elif game_type == 'Steam':
-			should_remove = steam.no_longer_exists(game_id)
 		elif game_type == 'GOG':
 			should_remove = not os.path.exists(game_id)
 		elif game_type == 'itch.io':
