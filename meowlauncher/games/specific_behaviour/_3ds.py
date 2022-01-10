@@ -63,7 +63,10 @@ languages = {
 media_unit = 0x200
 
 def _load_tdb() -> Optional[TDB]:
-	tdb_path = platform_configs['3DS'].options.get('tdb_path')
+	_3ds_config = platform_configs.get('3DS')
+	if not _3ds_config:
+		return None
+	tdb_path = _3ds_config.options.get('tdb_path')
 	if not tdb_path:
 		return None
 
@@ -84,7 +87,10 @@ _tdb = _load_tdb()
 
 def add_cover(metadata: 'Metadata', product_code: str):
 	#Intended for the covers database from GameTDB
-	covers_path = platform_configs['3DS'].options.get('covers_path')
+	_3ds_config = platform_configs.get('3DS')
+	if not _3ds_config:
+		return
+	covers_path = _3ds_config.options.get('covers_path')
 	if not covers_path:
 		return
 	cover_path = covers_path.joinpath(product_code)
