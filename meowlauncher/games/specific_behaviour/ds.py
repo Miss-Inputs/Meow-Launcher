@@ -105,7 +105,7 @@ def _add_banner_title_metadata(metadata: 'Metadata', banner_title: str, language
 	lines = banner_title.splitlines()
 	metadata_name = 'Banner Title'
 	if language:
-		metadata_name = '{0} {1}'.format(language, metadata_name)
+		metadata_name = f'{language} {metadata_name}'
 	if lines:
 		#The lines are generally either 2 lines like this
 		#Art Academy

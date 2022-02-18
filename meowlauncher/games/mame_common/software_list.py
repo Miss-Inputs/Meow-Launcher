@@ -31,7 +31,7 @@ def _parse_release_date(release_info: str) -> Optional[Date]:
 	return Date(year=None if year == 'xxxx' else year, month=None if month == 'xx' else month, day=None if day == 'xx' else day, is_guessed='x' in release_info or '?' in release_info)
 
 def format_crc32_for_software_list(crc: int) -> str:
-	return '{:08x}'.format(crc)
+	return f'{crc:08x}'
 
 def get_crc32_for_software_list(data: bytes) -> str:
 	return format_crc32_for_software_list(zlib.crc32(data) & 0xffffffff)

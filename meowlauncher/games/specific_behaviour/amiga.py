@@ -40,7 +40,7 @@ def add_info_from_filename_tags(tags: Collection[str], metadata: 'Metadata'):
 		
 		models = {'A1000', 'A1200', 'A4000', 'A2000', 'A3000', 'A3000UX', 'A2024', 'A2500', 'A4000T', 'A500', 'A500+', 'A570', 'A600', 'A600HD'}
 		for model in models:
-			if tag == ('(%s)' % model):
+			if tag == f'({model})':
 				metadata.specific_info['Machine'] = model
 
 		#This should set machine to an array or something-separated list, tbh

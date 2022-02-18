@@ -231,14 +231,14 @@ class CHDFileROM(ROM):
 		with self.path.open('rb') as my_file:
 			header = my_file.read(124)
 			if header[0:8] != b'MComprHD':
-				raise UnsupportedCHDError('Header magic %s unknown' % str(header[0:8]))
+				raise UnsupportedCHDError(f'Header magic {header[0:8]} unknown')
 			chd_version = int.from_bytes(header[12:16], 'big')
 			if chd_version == 4:
 				sha1 = header[48:68]
 			elif chd_version == 5:
 				sha1 = header[84:104]
 			else:
-				raise UnsupportedCHDError('Version %d unknown' % chd_version)
+				raise UnsupportedCHDError(f'Version {chd_version} unknown')
 			return bytes.hex(sha1)
 
 	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:

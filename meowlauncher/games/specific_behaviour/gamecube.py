@@ -53,12 +53,12 @@ def parse_gamecube_banner_text(metadata: Metadata, banner_bytes: bytes, encoding
 
 	prefix = 'Banner'
 	if lang:
-		prefix = '{0} {1}'.format(lang, prefix)
-	metadata.add_alternate_name(short_title_line_1, '{0} Short Title'.format(prefix))
-	metadata.specific_info['{0} Short Title Line 2'.format(prefix)] = short_title_line_2
-	metadata.add_alternate_name(title_line_1, '{0} Title'.format(prefix))
-	metadata.specific_info['{0} Title Line 2'.format(prefix)] = title_line_2
-	metadata.descriptions['{0} Description'.format(prefix)] = description
+		prefix = f'{lang} {prefix}'
+	metadata.add_alternate_name(short_title_line_1, f'{prefix} Short Title')
+	metadata.specific_info[f'{prefix} Short Title Line 2'] = short_title_line_2
+	metadata.add_alternate_name(title_line_1, f'{prefix} Title')
+	metadata.specific_info[f'{prefix} Title Line 2'] = title_line_2
+	metadata.descriptions[f'{prefix} Description'] = description
 
 def decode_icon(banner: bytes) -> 'Image':
 	width = 96

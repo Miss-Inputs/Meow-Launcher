@@ -33,8 +33,8 @@ _standalone_emulators: Collection[StandardEmulator] = {
 	StandardEmulator('bsnes', EmulatorStatus.Good, 'bsnes', command_lines.bsnes, {'sfc', 'smc', 'st', 'bs', 'gb', 'gbc'}, {'zip', '7z'}, _bsnes_options),
 	StandardEmulator('cxNES', EmulatorStatus.Good, 'cxnes', command_lines.cxnes, {'nes', 'fds', 'unf', 'unif'}, {'7z', 'zip'}),
 	#Or is it good? Have not tried it in a fair bit
-	StandardEmulator('Dolphin', EmulatorStatus.Good, 'dolphin-emu', command_lines.dolphin, {'iso', 'ciso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs', 'm3u', 'wia', 'rvz', '/'}, []),
-	StandardEmulator('DuckStation', EmulatorStatus.Good, 'duckstation-qt', command_lines.duckstation, {'bin', 'img', 'cue', 'chd', 'exe', 'm3u', 'iso'}, set(), {
+	StandardEmulator('Dolphin', EmulatorStatus.Good, 'dolphin-emu', command_lines.dolphin, {'iso', 'ciso', 'gcm', 'gcz', 'tgc', 'elf', 'dol', 'wad', 'wbfs', 'm3u', 'wia', 'rvz', '/'}),
+	StandardEmulator('DuckStation', EmulatorStatus.Good, 'duckstation-qt', command_lines.duckstation, {'bin', 'img', 'cue', 'chd', 'exe', 'm3u', 'iso'}, configs={
 		'compatibility_xml_path': RunnerConfigValue(ConfigValueType.FilePath, None, 'Path to where compatibility.xml is installed'), #Because DuckStation's not always installed in any particular location…
 		'gamedb_path': RunnerConfigValue(ConfigValueType.FilePath, None, 'Path to where gamedb.json is installed'),
 		'compatibility_threshold': RunnerConfigValue(ConfigValueType.Integer, 2, "Don't try and launch any game with this compatibility rating or lower"),
@@ -58,11 +58,11 @@ _standalone_emulators: Collection[StandardEmulator] = {
 	#May support other CD formats for Mega CD other than iso, cue? Because it's closed source, can't really have a look, but I'm just going to presume it's only those two
 	StandardEmulator('mGBA', EmulatorStatus.Good, 'mgba-qt', command_lines.mgba, {'gb', 'gbc', 'gba', 'srl', 'bin', 'mb', 'gbx'}, {'7z', 'zip'}),
 	#Doesn't really do GBX but it will ignore the footer
-	StandardEmulator('melonDS', EmulatorStatus.Good, 'melonDS', command_lines.melonds, {'nds', 'srl'}, []), #Supports .dsi too, but I'm acting as though it doesn't, because it's too screwy
-	StandardEmulator('Mupen64Plus', EmulatorStatus.Good, 'mupen64plus', command_lines.mupen64plus, {'z64', 'v64', 'n64'}, []),
+	StandardEmulator('melonDS', EmulatorStatus.Good, 'melonDS', command_lines.melonds, {'nds', 'srl'}), #Supports .dsi too, but I'm acting as though it doesn't, because it's too screwy
+	StandardEmulator('Mupen64Plus', EmulatorStatus.Good, 'mupen64plus', command_lines.mupen64plus, {'z64', 'v64', 'n64'}),
 	StandardEmulator('PCSX2', EmulatorStatus.Good, 'pcsx2', command_lines.pcsx2, {'iso', 'cso', 'bin', 'elf', 'irx', 'chd'}, {'gz'}),
 	#Only reads the bin of bin/cues and not the cue
-	StandardEmulator('Pico-8', EmulatorStatus.Good, 'pico8', simple_emulator(['-windowed', '0', '-run', rom_path_argument]), {'p8', 'p8.png'}, []),
+	StandardEmulator('Pico-8', EmulatorStatus.Good, 'pico8', simple_emulator(['-windowed', '0', '-run', rom_path_argument]), {'p8', 'p8.png'}),
 	StandardEmulator('PokeMini', EmulatorStatus.Good, 'PokeMini', command_lines.pokemini, {'min'}, {'zip'}), #Normally just puts the config files in the current directory, so this cd's to ~/.config/PokeMini first
 	StandardEmulator('PPSSPP', EmulatorStatus.Good, 'ppsspp-qt', command_lines.ppsspp, {'iso', 'pbp', 'cso', '/'}),
 	StandardEmulator('Reicast', EmulatorStatus.Good, 'reicast', command_lines.reicast, {'gdi', 'cdi', 'chd'}),
@@ -83,7 +83,7 @@ _standalone_emulators: Collection[StandardEmulator] = {
 		'require_compat_entry': RunnerConfigValue(ConfigValueType.Bool, False, 'Do not make launchers for games which are not in the compatibility database at all'),
 		'compat_threshold': RunnerConfigValue(ConfigValueType.Integer, 0, 'Games that are under this level of compatibility will not get launchers made; 1 = Loadable 2 = Intro 3 = Ingame 4 = Playable (all the way through)'),
 	}),
-	StandardEmulator('Xemu', EmulatorStatus.Experimental, 'xemu', command_lines.xemu, {'iso'}, []), #Requires the game partition to be separated out of the disc image
+	StandardEmulator('Xemu', EmulatorStatus.Experimental, 'xemu', command_lines.xemu, {'iso'}), #Requires the game partition to be separated out of the disc image
 	StandardEmulator('Yuzu', EmulatorStatus.ExperimentalButSeemsOkay, 'yuzu', command_lines.yuzu, {'xci', 'nsp', 'nro', 'nso', 'nca', 'elf', 'kip'}),
 
 

@@ -78,7 +78,7 @@ class SoftwareLauncher():
 
 	@property
 	def id(self):
-		return '{0}:{1}'.format(self.software.software_list.name, self.software.name)
+		return f'{self.software.software_list.name}:{self.software.name}'
 
 	def make_launcher(self):
 		#if main_config.skip_mame_non_working_software:
@@ -116,7 +116,7 @@ def add_software(software):
 		software.make_launcher()
 	except EmulationNotSupportedException as ex:
 		if main_config.debug:
-			print('Could not launch {0} because {1}'.format(software.id, ex))
+			print(f'Could not launch {software.id} because {ex}')
 
 def add_software_list_platform(platform):
 	for media_type, lists in platform.lists.items():

@@ -107,7 +107,7 @@ class Display():
 	@property
 	def resolution(self) -> str:
 		if self.width and self.height:
-			return '{0:.0f}x{1:.0f}'.format(self.width, self.height)
+			return f'{self.width:.0f}x{self.height:.0f}'
 		#Other types are vector (Asteroids, etc) or svg (Game & Watch games, etc)
 		#They might actually have a height/width
 		return self.type.capitalize()
@@ -150,7 +150,7 @@ class DisplayCollection():
 
 	@property
 	def aspect_ratios(self) -> Optional[str]:
-		return _format_count('{0:.0f}:{1:.0f}'.format(*display.aspect_ratio) for display in self.displays if display.aspect_ratio)
+		return _format_count(f'{display.aspect_ratio[0]:.0f}:{display.aspect_ratio[1]:.0f}' for display in self.displays if display.aspect_ratio)
 
 	@property
 	def display_types(self) -> Optional[str]:
@@ -207,7 +207,7 @@ def add_status(machine: Machine, metadata: 'Metadata') -> None:
 		else:
 			#Known types according to DTD: protection, palette, graphics, sound, controls, keyboard, mouse, microphone, camera, disk, printer, lan, wan, timing
 			#Note: MAME 0.208 has added capture, media, tape, punch, drum, rom, comms; although I guess I don't need to write any more code here
-			metadata.specific_info['MAME %s Status' % feature_type.capitalize()] = mame_statuses.get(feature_status, EmulationStatus.Unknown)
+			metadata.specific_info[f'MAME {feature_type.capitalize()} Status'] = mame_statuses.get(feature_status, EmulationStatus.Unknown)
 
 	if unemulated_features:
 		metadata.specific_info['MAME Unemulated Features'] = unemulated_features
@@ -511,7 +511,7 @@ def add_input_info(game: 'MAMEGame') -> None:
 			controller.components.append(gambling)
 		else:
 			if buttons:
-				description = 'Custom input device with {0}'.format(pluralize(buttons, 'button'))
+				description = f'Custom input device with {pluralize(buttons, "button")}'
 			else:
 				description = 'Custom input device'
 			controller.components.append(input_metadata.Custom(description))

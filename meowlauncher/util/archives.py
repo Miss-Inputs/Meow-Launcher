@@ -68,9 +68,9 @@ _sevenzip_size_reg = re.compile(r'^Size\s+=\s+(\d+)$')
 #Path = another.one
 #size attributes = blah
 def subprocess_sevenzip_list(path: str) -> Iterator[FilenameWithMaybeSizeAndCRC]:
-	proc = subprocess.run(['7z', 'l', '-slt', '--', path], stdout=subprocess.PIPE, universal_newlines=True, check=False)
+	proc = subprocess.run(['7z', 'l', '-slt', '--', path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
-		raise BadSubprocessedArchiveError('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
+		raise BadSubprocessedArchiveError(f'{path}: {proc.returncode} {proc.stdout} {proc.stderr}')
 
 	found_inner_files = False
 	inner_filename: Optional[str] = None
@@ -110,7 +110,7 @@ def subprocess_sevenzip_get(path: str, filename: str, offset: int=0, amount: int
 	with subprocess.Popen(['7z', 'e', '-so', '--', path, filename], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as proc:
 		stdout, _ = proc.communicate()
 		if proc.returncode != 0:
-			raise BadSubprocessedArchiveError('{0}: {1}'.format(path, proc.returncode))
+			raise BadSubprocessedArchiveError(f'{path}: {proc.returncode}')
 		if amount < 0:
 			amount = len(stdout)
 		if offset or amount:
@@ -118,9 +118,9 @@ def subprocess_sevenzip_get(path: str, filename: str, offset: int=0, amount: int
 		return stdout
 
 def subprocess_sevenzip_getsize(path: str, filename: str) -> int:
-	proc = subprocess.run(['7z', 'l', '-slt', '--', path, filename], stdout=subprocess.PIPE, universal_newlines=True, check=False)
+	proc = subprocess.run(['7z', 'l', '-slt', '--', path, filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
-		raise BadSubprocessedArchiveError('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
+		raise BadSubprocessedArchiveError(f'{path}: {proc.returncode} {proc.stdout} {proc.stderr}')
 
 	found_file_line = False
 	for line in proc.stdout.splitlines():
@@ -137,7 +137,7 @@ def subprocess_sevenzip_getsize(path: str, filename: str) -> int:
 def subprocess_sevenzip_crc(path: str, filename: str) -> int:
 	proc = subprocess.run(['7z', 'l', '-slt', '--', path, filename], stdout=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
-		raise BadSubprocessedArchiveError('{0}: {1} {2}'.format(path, proc.returncode, proc.stdout))
+		raise BadSubprocessedArchiveError(f'{path}: {proc.returncode} {proc.stdout}')
 
 	this_filename = None
 	filename_found = False

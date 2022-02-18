@@ -36,7 +36,7 @@ def find_duckstation_compat_info(product_code: str) -> Optional[DuckStationCompa
 				print('Oh dear we have an OSError trying to load compat_xml', oserr)
 			return None
 
-	entry = find_duckstation_compat_info.compat_xml.find('entry[@code="{0}"]'.format(product_code)) #type: ignore[attr-defined]
+	entry = find_duckstation_compat_info.compat_xml.find(f'entry[@code="{product_code}"]') #type: ignore[attr-defined]
 	if entry is not None:
 		try:
 			compatibility = int(entry.attrib.get('compatibility'))

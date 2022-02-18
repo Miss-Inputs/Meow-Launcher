@@ -349,7 +349,7 @@ def add_ines_metadata(rom: FileROM, metadata: Metadata, header: bytes):
 		if mapper in _ines_mappers:
 			metadata.specific_info['Mapper'] = _ines_mappers[mapper]
 		else:
-			metadata.specific_info['Mapper'] = 'NES 2.0 Mapper %d' % mapper
+			metadata.specific_info['Mapper'] = f'NES 2.0 Mapper {mapper}'
 
 		metadata.specific_info['Submapper'] = (header[8] & 0b1111_0000) >> 4
 		
@@ -386,7 +386,7 @@ def add_ines_metadata(rom: FileROM, metadata: Metadata, header: bytes):
 		if mapper in _ines_mappers:
 			metadata.specific_info['Mapper'] = _ines_mappers[mapper]
 		else:
-			metadata.specific_info['Mapper'] = 'iNES Mapper %d' % mapper
+			metadata.specific_info['Mapper'] = f'iNES Mapper {mapper}'
 
 		metadata.specific_info['PRG Size'] = prg_size * 16 * 1024
 		metadata.specific_info['CHR Size'] = chr_size * 8 * 1024

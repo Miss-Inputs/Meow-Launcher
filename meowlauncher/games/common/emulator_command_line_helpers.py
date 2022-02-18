@@ -37,10 +37,10 @@ def _verify_supported_gb_mappers(game: 'ROMGame', supported_mappers: Collection[
 	if game.metadata.specific_info.get('Override Mapper?', False) and mapper not in detected_mappers:
 		#If the mapper in the ROM header is different than what the mapper actually is, it won't work, since we can't override it from the command line or anything
 		#But it'll be okay if the mapper is something that gets autodetected outside of the header anyway
-		raise EmulationNotSupportedException('Overriding the mapper to {0} is not supported'.format(mapper))
+		raise EmulationNotSupportedException(f'Overriding the mapper to {mapper} is not supported')
 
 	if mapper not in supported_mappers and mapper not in detected_mappers:
-		raise EmulationNotSupportedException('Mapper ' + mapper + ' not supported')
+		raise EmulationNotSupportedException(f'Mapper {mapper} not supported')
 
 def verify_mgba_mapper(game: 'ROMGame') -> None:
 	supported_mappers = {'MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5', 'HuC3', 'MBC6', 'MBC7', 'Pocket Camera', 'Bandai TAMA5'}
@@ -55,10 +55,7 @@ def _is_software_available(software_list_name: str, software_name: str) -> bool:
 	software_list = get_software_list_by_name(software_list_name)
 	if not software_list:
 		return False
-	for software in software_list.iter_available_software():
-		if software.name == software_name:
-			return True
-	return False
+	return any(software.name == software_name for software in software_list.iter_available_software())
 
 def is_highscore_cart_available() -> bool:
 	return _is_software_available('a7800', 'hiscore')

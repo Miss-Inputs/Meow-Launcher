@@ -56,7 +56,7 @@ def _get_mupen64plus_database() -> Optional[Mapping[str, Mapping[str, str]]]:
 			if parent_md5 in database:
 				parent = database[parent_md5]
 				for parent_key, parent_value in parent.items():
-					if parent_key in database[game]:
+					if parent_key in keypairs:
 						continue
 					database[game][parent_key] = parent_value
 

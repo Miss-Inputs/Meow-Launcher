@@ -74,7 +74,7 @@ def add_z80_metadata(rom: 'FileROM', metadata: 'Metadata'):
 	if expansion:
 		metadata.specific_info['Expansion'] = expansion
 
-	metadata.specific_info['ROM Format'] = 'Z80 v%d' % header_version
+	metadata.specific_info['ROM Format'] = f'Z80 v{header_version}'
 
 def add_speccy_software_list_metadata(software: 'Software', metadata: 'Metadata'):
 	software.add_standard_metadata(metadata)

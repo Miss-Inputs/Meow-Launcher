@@ -226,7 +226,7 @@ def _call_nstool_for_decrypt(temp_folder: str, temp_filename: str):
 	
 def _decrypt_control_nca_with_hactool(control_nca: bytes) -> Mapping[str, bytes]:
 	if hasattr(_decrypt_control_nca_with_hactool, 'failed'):
-		raise ExternalToolNotHappeningException('No can do {0}'.format(_decrypt_control_nca_with_hactool.failed)) #type: ignore[attr-defined]
+		raise ExternalToolNotHappeningException(f'No can do {_decrypt_control_nca_with_hactool.failed}') #type: ignore[attr-defined]
 	temp_folder = None
 	try:
 		#Ugly code time
@@ -262,7 +262,7 @@ def _decrypt_control_nca_with_hactool(control_nca: bytes) -> Mapping[str, bytes]
 def _decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
 	#Decrypting NCAs is hard, let's go shopping (and get an external tool to do it)
 	if hasattr(_decrypt_cnmt_nca_with_hactool, 'failed'):
-		raise ExternalToolNotHappeningException('No can do {0}'.format(_decrypt_cnmt_nca_with_hactool.failed)) #type: ignore[attr-defined]
+		raise ExternalToolNotHappeningException(f'No can do {_decrypt_cnmt_nca_with_hactool.failed}') #type: ignore[attr-defined]
 	temp_folder = None
 	try:
 		#Ugly code time
@@ -440,7 +440,7 @@ def _read_hfs0(rom: 'FileROM', offset: int, max_size: int=None) -> Mapping[str, 
 
 	magic = header[:4]
 	if magic != b'HFS0':
-		raise InvalidHFS0Exception('Invalid magic, expected HFS0 but got {0!r} at offset {1:x}'.format(magic, offset))
+		raise InvalidHFS0Exception(f'Invalid magic, expected HFS0 but got {magic!r} at offset {offset:x}')
 
 	number_of_files = int.from_bytes(header[4:8], 'little')
 	string_table_size = int.from_bytes(header[8:12], 'little')
@@ -471,7 +471,7 @@ def _read_hfs0(rom: 'FileROM', offset: int, max_size: int=None) -> Mapping[str, 
 		size = int.from_bytes(entry[8:16], 'little')
 		total_size += size
 		if max_size and total_size > max_size:
-			raise InvalidHFS0Exception('Exceeded max_size! File sizes are too big and therefore wrong total_size = {0} max_size = {1}'.format(total_size, max_size))
+			raise InvalidHFS0Exception(f'Exceeded max_size! File sizes are too big and therefore wrong total_size = {total_size} max_size = {max_size}')
 		
 		offset_into_string_table = int.from_bytes(entry[16:20], 'little')
 		
@@ -490,9 +490,9 @@ def add_xci_metadata(rom: 'FileROM', metadata: 'Metadata'):
 	header = rom.read(amount=0x200)
 	magic = header[0x100:0x104]
 	if magic != b'HEAD':
-		raise InvalidXCIException('Not a XCI: {0!r}'.format(magic))
+		raise InvalidXCIException(f'Not a XCI: {magic!r}')
 
-	metadata.specific_info['Gamecard Size'] = game_card_size.get(header[0x10d], 'unknown 0x{0:x}'.format(header[0x10d]))
+	metadata.specific_info['Gamecard Size'] = game_card_size.get(header[0x10d], f'unknown 0x{header[0x10d]:x}')
 	flags = header[0x10f]
 	if flags != 0:
 		metadata.specific_info['Gamecard Flags'] = GamecardFlags(flags)
@@ -568,14 +568,14 @@ def add_switch_rom_file_info(rom: 'FileROM', metadata: 'Metadata'):
 			add_xci_metadata(rom, metadata)
 		except InvalidXCIException as ex:
 			if main_config.debug:
-				print(rom.path, 'was invalid XCI: {0}'.format(ex))
+				print(rom.path, f'was invalid XCI: {ex}')
 		except InvalidHFS0Exception as ex:
 			if main_config.debug:
-				print(rom.path, 'had invalid HFS0: {0}'.format(ex))
+				print(rom.path, f'had invalid HFS0: {ex}')
 
 	if rom.extension == 'nsp':
 		try:
 			add_nsp_metadata(rom, metadata)
 		except InvalidPFS0Exception as ex:
 			if main_config.debug:
-				print(rom.path, 'was invalid PFS0: {0}'.format(ex))
+				print(rom.path, f'was invalid PFS0: {ex}')

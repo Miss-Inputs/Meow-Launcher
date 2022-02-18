@@ -111,7 +111,7 @@ class NotLaunchableError(Exception):
 	pass
 
 def format_genre(genre_id: str) -> str:
-	return genre_ids.get(genre_id, 'unknown {0}'.format(genre_id))
+	return genre_ids.get(genre_id, f'unknown {genre_id}')
 
 def process_launchers(game: 'SteamGame', launch: Mapping[bytes, Mapping[bytes, Any]]):
 	launch_items: MutableMapping[Optional[str], list[LauncherInfo]] = {}
@@ -641,7 +641,7 @@ def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user:
 			}
 			for social_medium in social_media:
 				#strName is just the account's name on that platform I think?
-				key = social_media_types.get(social_medium.get('eType'), 'Unknown-Social-Media-{0}'.format(social_medium.get('eType')))
+				key = social_media_types.get(social_medium.get('eType'), f'Unknown Social Media {social_medium.get("eType")}')
 				game.metadata.documents[key] = social_medium.get('strURL')
 
 		if is_single_user and achievements:
@@ -661,13 +661,13 @@ def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user:
 				if unachieved_list:
 					unachieved_stats = (cheevo.get('flAchieved', 0) / 100 for cheevo in unachieved_list.values())
 					unachieved_percent = statistics.median(unachieved_stats)
-					game.metadata.specific_info['Average Global Unachieved Completion'] = '{0:.0%}'.format(unachieved_percent)
+					game.metadata.specific_info['Median Global Unachieved Completion'] = f'{unachieved_percent:.0%}'
 				if achieved_list:
 					achievement_stats = (cheevo.get('flAchieved', 0) / 100 for cheevo in achieved_list.values())
 					achieved_percent = statistics.median(achievement_stats)
-					game.metadata.specific_info['Average Global Achieved Completion'] = '{0:.0%}'.format(achieved_percent)
+					game.metadata.specific_info['Median Global Achieved Completion'] = f'{achieved_percent:.0%}'
 		
-				game.metadata.specific_info['Achievement Completion'] = '{0:.0%}'.format(achieved / total_achievements)
+				game.metadata.specific_info['Achievement Completion'] = f'{achieved / total_achievements:.0%}'
 
 def add_info_from_user_cache(game: 'SteamGame'):
 	user_list = steam_installation.user_ids
@@ -678,7 +678,7 @@ def add_info_from_user_cache(game: 'SteamGame'):
 	#If there is more than one user here, then we don't want to look at user-specific info, because it might not be the one who's running Meow Launcher and so it might be wrong
 	for user in user_list:
 		user_cache_folder = steam_installation.get_user_library_cache_folder(user)
-		path = user_cache_folder.joinpath('{0}.json'.format(game.appid))
+		path = user_cache_folder.joinpath(f'{game.appid}.json')
 		if path.is_file():
 			add_info_from_cache_json(game, path, single_user)
 

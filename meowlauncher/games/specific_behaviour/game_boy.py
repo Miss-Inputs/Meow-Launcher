@@ -196,7 +196,7 @@ def _parse_gameboy_header(metadata: 'Metadata', header: bytes):
 		except NotAlphanumericException:
 			pass
 	else:
-		licensee_code = '{:02X}'.format(licensee_code_int)
+		licensee_code = f'{licensee_code_int:02X}'
 		if licensee_code in _nintendo_licensee_codes:
 			metadata.publisher = _nintendo_licensee_codes[licensee_code]
 	metadata.specific_info['Revision'] = header[0x4c]

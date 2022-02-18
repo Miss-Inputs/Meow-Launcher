@@ -21,7 +21,7 @@ def _decode_bcd_multi(i: bytes) -> int:
 def parse_sdsc_header(rom: 'FileROM', metadata: 'Metadata', header: bytes):
 	major_version = decode_bcd(header[0])
 	minor_version = decode_bcd(header[1])
-	metadata.specific_info['Version'] = 'v{0}.{1}'.format(major_version, minor_version)
+	metadata.specific_info['Version'] = f'v{major_version}.{minor_version}'
 
 	day = decode_bcd(header[2])
 	month = decode_bcd(header[3])
@@ -75,7 +75,7 @@ def _parse_standard_header(rom: 'FileROM', base_offset: int) -> Mapping[str, Any
 	product_code_lo = (header[14] & 0xf0) >> 4
 	header_data['Revision'] = header[14] & 0x0f
 
-	product_code = '{0}{1:04}'.format('' if product_code_lo == 0 else product_code_lo, _decode_bcd_multi(product_code_hi))
+	product_code = f'{"" if product_code_lo == 0 else product_code_lo}{_decode_bcd_multi(product_code_hi):04}'
 	header_data['Product code'] = product_code
 
 	region_code = (header[15] & 0xf0) >> 4

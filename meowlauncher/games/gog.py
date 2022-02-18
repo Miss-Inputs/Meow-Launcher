@@ -165,11 +165,8 @@ class GOGGame(Game, ABC):
 			return True
 		if self.info.dev_version and 'demo' in self.info.dev_version.lower():
 			return True
-		for demo_suffix in name_utils.demo_suffixes:
-			if '({0})'.format(demo_suffix.lower()) in self.name.lower():
-				return True
-		return False
-
+		return any(f'({demo_suffix.lower()})' in self.name.lower() for demo_suffix in name_utils.demo_suffixes)
+		
 	def make_launcher(self) -> None:
 		params = LaunchCommand(str(self.start_script), [], working_directory=str(self.folder))
 		make_launcher(params, self.name, self.metadata, 'GOG', str(self.folder))
@@ -297,10 +294,7 @@ class WindowsGOGGame(Game):
 
 	@property
 	def is_demo(self) -> bool:
-		for demo_suffix in name_utils.demo_suffixes:
-			if '({0})'.format(demo_suffix.lower()) in self.name.lower():
-				return True
-		return False
+		return any(f'({demo_suffix.lower()})' in self.name.lower() for demo_suffix in name_utils.demo_suffixes)
 
 	@property
 	def icon(self) -> Optional[Path]:
@@ -387,7 +381,7 @@ class WindowsGOGGame(Game):
 				if task.name.startswith(self.original_name):
 					name = task.name.replace(self.original_name, self.name)
 				else:
-					name += ' ({0})'.format(task.name)
+					name += f' ({task.name})'
 			else:
 				name = name_utils.fix_name(task.name)
 

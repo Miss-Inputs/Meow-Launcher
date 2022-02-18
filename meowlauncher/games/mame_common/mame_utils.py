@@ -45,11 +45,8 @@ def _tag_starts_with(tag: Optional[str], tag_list: Collection[str]) -> bool:
 	#Chips from devices are in the format device:thing
 	tag = tag.split(':')[-1]
 
-	for t in tag_list:
-		if re.fullmatch('^' + re.escape(t) + r'(?:(?:_|\.)?\d+)?$', tag):
-			return True
-	return False
-
+	return any(re.fullmatch('^' + re.escape(t) + r'(?:(?:_|\.)?\d+)?$', tag) for t in tag_list)
+	
 def iter_cpus(machine_xml: ElementTree.Element) -> Iterator[ElementTree.Element]:
 	for chip_xml in machine_xml.iterfind('chip'):
 		if chip_xml.attrib.get('type') != 'cpu':

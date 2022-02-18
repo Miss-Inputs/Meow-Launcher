@@ -54,7 +54,7 @@ def pluralize(n: int, singular: str, plural: str=None) -> str:
 		plural = singular + 's'
 	if n == 1:
 		return singular
-	return '%d %s' % (n, plural)
+	return f'{n} {plural}'
 
 def convert_roman_numeral(s: str) -> int:
 	s = s.upper()
@@ -162,14 +162,14 @@ def load_json(subpackage: Optional[str], resource: str) -> Mapping:
 def _format_unit(n: int, suffix: str, base_unit: int=1000, singular_suffix: str=None) -> str:
 	try:
 		if n < base_unit:
-			return '{0} {1}'.format(n, singular_suffix if singular_suffix else suffix)
+			return f'{n} {singular_suffix if singular_suffix else suffix}'
 	except TypeError:
 		return str(n)
 	
 	exp = int(math.log(n, base_unit))
 	unit_suffix = 'KMGTPE'[exp - 1]
 	d = round(n / math.pow(base_unit, exp), 2)
-	return '{0} {1}{2}'.format(d, unit_suffix, suffix)
+	return f'{d} {unit_suffix}{suffix}'
 
 def format_byte_size(b: int, metric: bool=True) -> str:
 	return _format_unit(b, 'B' if metric else 'iB', 1000 if metric else 1024, 'bytes')

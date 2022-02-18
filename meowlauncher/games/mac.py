@@ -332,7 +332,7 @@ class MacApp(ManuallySpecifiedGame):
 
 	def _add_version_resource_info(self, vers: 'macresources.Resource') -> None:
 		version, revision = vers[0:2]
-		self.metadata.specific_info['Version'] = str(version) + '.' + '.'.join('{0:x}'.format(revision))
+		self.metadata.specific_info['Version'] = str(version) + '.' + '.'.join(f'{revision:x}')
 		if vers[2] != 0x80:
 			try:
 				self.metadata.specific_info['Build Stage'] = BuildStage(vers[2])

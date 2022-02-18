@@ -95,7 +95,7 @@ def add_commodore_64_custom_info(game: 'ROMGame'):
 		cart_type = int.from_bytes(header[22:24], 'big')
 		#I'm just gonna call it a mapper for consistency, even though that could be argued to be the wrong terminology, but... eh
 		game.metadata.specific_info['Mapper Number'] = cart_type
-		game.metadata.specific_info['Mapper'] = ccs64_cart_types.get(cart_type, 'CCS64 type %d' % cart_type)
+		game.metadata.specific_info['Mapper'] = ccs64_cart_types.get(cart_type, f'CCS64 type {cart_type}')
 
 		try:
 			cartridge_name = header[0x20:0x3f].decode('ascii').strip('\0')

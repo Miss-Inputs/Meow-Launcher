@@ -859,7 +859,5 @@ def machine_name_matches(machine_name: str, game_name: str, match_vs_system: boo
 def does_machine_match_name(name: str, machine: Machine, match_vs_system: bool=False) -> bool:
 	if machine_name_matches(machine.name, name, match_vs_system):
 		return True
-	for alt_name in machine.alt_names:
-		if machine_name_matches(alt_name, name, match_vs_system):
-			return True
-	return False
+	return any(machine_name_matches(alt_name, name, match_vs_system) for alt_name in machine.alt_names)
+	

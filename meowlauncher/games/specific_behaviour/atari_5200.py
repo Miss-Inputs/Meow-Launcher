@@ -100,7 +100,7 @@ def add_atari_5200_footer_garbage_info(rom: 'FileROM', metadata: Metadata):
 	if year[1] != 255: #If set to this, the BIOS is skipped?
 		title_bytes = footer[:20].rstrip(b'\0')
 		if title_bytes:
-			title = ''.join(atari_5200_charset.get(b, '\0x{0:x}'.format(b)) for b in title_bytes)
+			title = ''.join(atari_5200_charset.get(b, f'0x{b:x}') for b in title_bytes)
 			metadata.add_alternate_name(title.strip(), 'Banner Title')
 		try:
 			year_first_digit = int(atari_5200_charset[year[0]])

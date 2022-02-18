@@ -58,8 +58,4 @@ def has_been_done(game_type: str, game_id: str) -> bool:
 	if not hasattr(has_been_done, 'existing_launchers'):
 		has_been_done.existing_launchers = tuple(_iter_existing_launchers()) #type: ignore[attr-defined]
 
-	for existing_type, existing_id in has_been_done.existing_launchers: #type: ignore[attr-defined]
-		if existing_type == game_type and existing_id == game_id:
-			return True
-
-	return False
+	return any(existing_type == game_type and existing_id == game_id for (existing_type, existing_id) in has_been_done.existing_launchers) #type: ignore[attr-defined]

@@ -43,14 +43,14 @@ def _add_atari_7800_header_info(rom_path_for_warning: str, metadata: 'Metadata',
 		if left_input_type in input_types:
 			left_controller_option.inputs.append(input_types[left_input_type])
 		else:
-			left_controller_option.inputs.append(input_metadata.Custom('Unknown {0}'.format(left_input_type)))
+			left_controller_option.inputs.append(input_metadata.Custom(f'Unknown {left_input_type}'))
 
 	if right_input_type != 0:
 		right_controller_option = input_metadata.InputOption()
 		if right_input_type in input_types:
 			right_controller_option.inputs.append(input_types[right_input_type])
 		else:
-			right_controller_option.inputs.append(input_metadata.Custom('Unknown {0}'.format(right_input_type)))
+			right_controller_option.inputs.append(input_metadata.Custom(f'Unknown {right_input_type}'))
 
 	if left_controller_option and right_controller_option:
 		number_of_players = 2 #I guess?
