@@ -104,8 +104,7 @@ class ROMLauncher(EmulatorLauncher):
 	def command(self) -> LaunchCommand:
 		#TODO: Ideally EmulatorLauncher would do something useful with self.runner and then we call super() but that also needs refactoring
 		command = super().command
-		if isinstance(self.game.rom, CompressedROM):
-			if not self.runner.supports_compressed_extension(self.game.rom.outer_extension):
+		if isinstance(self.game.rom, CompressedROM) and not self.runner.supports_compressed_extension(self.game.rom.outer_extension):
 				temp_extraction_folder = PurePath(tempfile.gettempdir(), 'meow-launcher-' + self._make_very_safe_temp_filename())
 				extracted_path = temp_extraction_folder.joinpath(self.game.rom.inner_filename)
 				command = command.replace_path_argument(extracted_path)
