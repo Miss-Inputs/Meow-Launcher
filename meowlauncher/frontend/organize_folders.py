@@ -152,7 +152,9 @@ def move_into_subfolders(path: Path) -> None:
 		copy_to_folder(path, main_config.organized_output_folder, 'By language', sanitize_name(language))
 
 	if year:
-		copy_to_folder(path, main_config.organized_output_folder, 'By year', sanitize_name(year.replace('x', '?')))
+		if len(year) > 4:
+			year = year.removeprefix('?')
+		copy_to_folder(path, main_config.organized_output_folder, 'By year', sanitize_name(year.replace('?', 'x')))
 
 	copy_to_folder(path, main_config.organized_output_folder, 'By platform and category', sanitize_name(platform) + ' - ' + sanitize_name(category))
 	copy_to_folder(path, main_config.organized_output_folder, 'By category and platform', sanitize_name(category) + ' - ' + sanitize_name(platform))
