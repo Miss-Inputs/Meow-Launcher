@@ -195,20 +195,19 @@ class SteamInstallation():
 						except (ValueError, OSError) as ex:
 							#Try and handle the "This is not one of the allowed sizes of this image" error caused by .ico files having incorrect headers which I guess happens more often than I would have thought otherwise
 							#This is gonna get ugly
-							with icon_path.open('rb') as f:
-								try:
-									#Use BytesIO here to prevent "seeking a closed file" errors, which is probably a sign that I don't actually know what I'm doing
-									ico = IcoImagePlugin.IcoFile(io.BytesIO(f.read()))
-									biggest_size = (0, 0)
-									for size in ico.sizes():
-										if size[0] > biggest_size[0] and size[1] > biggest_size[1]:
-											biggest_size = size
-									if biggest_size == (0, 0):
-										raise IconError('.ico file {0} has no valid sizes'.format(icon_path)) from ex
-									return ico.getimage(biggest_size)
-								except SyntaxError as syntax_error:
-									#Of all the errors it throws, it throws this one? Well, okay fine whatever
-									raise IconError('.ico file {0} is not actually an .ico file at all'.format(icon_path)) from syntax_error
+							try:
+								#Use BytesIO here to prevent "seeking a closed file" errors, which is probably a sign that I don't actually know what I'm doing
+								ico = IcoImagePlugin.IcoFile(io.BytesIO(icon_path.read_bytes()))
+								biggest_size = (0, 0)
+								for size in ico.sizes():
+									if size[0] > biggest_size[0] and size[1] > biggest_size[1]:
+										biggest_size = size
+								if biggest_size == (0, 0):
+									raise IconError('.ico file {0} has no valid sizes'.format(icon_path)) from ex
+								return ico.getimage(biggest_size)
+							except SyntaxError as syntax_error:
+								#Of all the errors it throws, it throws this one? Well, okay fine whatever
+								raise IconError('.ico file {0} is not actually an .ico file at all'.format(icon_path)) from syntax_error
 						except Exception as ex:
 							#Guess it's still broken
 							raise IconError('.ico file {0} has some annoying error: {1}'.format(icon_path, str(ex))) from ex

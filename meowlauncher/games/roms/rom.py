@@ -103,8 +103,7 @@ class FileROM(ROM):
 		return self._get_size()
 
 	def _get_crc32(self) -> int:
-		with self.path.open('rb') as f:
-			return zlib.crc32(f.read()) & 0xffffffff
+		return zlib.crc32(self.path.read_bytes()) & 0xffffffff
 
 	@property
 	def crc32(self) -> int:
@@ -231,7 +230,7 @@ class CHDFileROM(ROM):
 		with self.path.open('rb') as my_file:
 			header = my_file.read(124)
 			if header[0:8] != b'MComprHD':
-				raise UnsupportedCHDError(f'Header magic {header[0:8]} unknown')
+				raise UnsupportedCHDError(f'Header magic {header[0:8]!r} unknown')
 			chd_version = int.from_bytes(header[12:16], 'big')
 			if chd_version == 4:
 				sha1 = header[48:68]

@@ -413,8 +413,7 @@ def parse_3dsx(rom: FileROM, metadata: 'Metadata'):
 	if look_for_smdh_file:
 		smdh_name = rom.path.with_suffix('.smdh')
 		try:
-			with smdh_name.open('rb') as smdh_file:
-				_parse_smdh_data(metadata, smdh_file.read())
+			_parse_smdh_data(metadata, smdh_name.read_bytes())
 		except FileNotFoundError:
 			pass
 

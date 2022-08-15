@@ -67,8 +67,7 @@ def add_game_folder_metadata(rom: FolderROM, metadata: 'Metadata'):
 	elif main_config.debug:
 		print('How interesting!', rom.path, 'has no USRDIR')
 
-	with param_sfo_path.open('rb') as f:
-		parse_param_sfo(str(rom.path), metadata, f.read())
+	parse_param_sfo(str(rom.path), metadata, param_sfo_path.read_bytes())
 
 	is_installed_to_rpcs3_hdd = rom.path.parent == Path('~/.config/rpcs3/dev_hdd0/game').expanduser()
 	#Messy hack time

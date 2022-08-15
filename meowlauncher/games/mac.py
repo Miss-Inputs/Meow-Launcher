@@ -57,13 +57,12 @@ def _machfs_read_file(path: Path) -> 'machfs.Volume':
 	if _machfs_read_file.current_file_path == path: #type: ignore[attr-defined]
 		return _machfs_read_file.current_file #type: ignore[attr-defined]
 
-	with path.open('rb') as f:
-		#Hmm, this could be slurping very large (maybe gigabyte(s)) files all at once
-		v = machfs.Volume()
-		v.read(f.read())
-		_machfs_read_file.current_file = v #type: ignore[attr-defined]
-		_machfs_read_file.current_file_path = path #type: ignore[attr-defined]
-		return v
+	#Hmm, this could be slurping very large (maybe gigabyte(s)) files all at once
+	v = machfs.Volume()
+	v.read(path.read_bytes())
+	_machfs_read_file.current_file = v #type: ignore[attr-defined]
+	_machfs_read_file.current_file_path = path #type: ignore[attr-defined]
+	return v
 _machfs_read_file.current_file = None #type: ignore[attr-defined]
 _machfs_read_file.current_file_path = None #type: ignore[attr-defined]
 

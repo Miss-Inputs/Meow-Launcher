@@ -27,9 +27,8 @@ def _find_butler() -> Optional[Path]:
 	butler_folder = Path('~/.config/itch/broth/butler').expanduser()
 	chosen_version = butler_folder.joinpath('.chosen-version')
 	try:
-		with chosen_version.open('rt', encoding='utf-8') as f:
-			version = f.read()
-			return butler_folder.joinpath('versions', version, 'butler')
+		version = chosen_version.read_text(encoding='utf-8')
+		return butler_folder.joinpath('versions', version, 'butler')
 	except FileNotFoundError:
 		return None
 
@@ -174,15 +173,14 @@ class ItchGame(Game):
 		platform = None
 		if main_config.use_itch_io_as_platform:
 			platform = 'itch.io'
+		elif self.game_type == 'flash':
+			platform = 'Flash'
+		elif self.game_type == 'java':
+			platform = 'Java'
+		elif self.game_type == 'html':
+			platform = 'HTML'
 		else:
-			if self.game_type == 'flash':
-				platform = 'Flash'
-			elif self.game_type == 'java':
-				platform = 'Java'
-			elif self.game_type == 'html':
-				platform = 'HTML'
-			else:
-				platform = '/'.join('Mac' if plat == 'osx' else plat.title() for plat in self.platforms)
+			platform = '/'.join('Mac' if plat == 'osx' else plat.title() for plat in self.platforms)
 		self.metadata.specific_info['Game Type'] = self.game_type
 		self.metadata.platform = platform
 
