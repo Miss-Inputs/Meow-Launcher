@@ -184,7 +184,7 @@ class SteamInstallation():
 				with icon_path.open('rb') as test:
 					magic = test.read(4)
 					if magic == b'Rar!':
-						raise IconError('icon {0} is secretly a RAR file and cannot be opened'.format(icon_hash))
+						raise IconError(f'icon {icon_hash} is secretly a RAR file and cannot be opened')
 
 				if icon_path.suffix == '.ico' and not is_zip:
 					if have_pillow:
@@ -203,14 +203,14 @@ class SteamInstallation():
 									if size[0] > biggest_size[0] and size[1] > biggest_size[1]:
 										biggest_size = size
 								if biggest_size == (0, 0):
-									raise IconError('.ico file {0} has no valid sizes'.format(icon_path)) from ex
+									raise IconError(f'.ico file {icon_path} has no valid sizes') from ex
 								return ico.getimage(biggest_size)
 							except SyntaxError as syntax_error:
 								#Of all the errors it throws, it throws this one? Well, okay fine whatever
-								raise IconError('.ico file {0} is not actually an .ico file at all'.format(icon_path)) from syntax_error
+								raise IconError(f'.ico file {icon_path} is not actually an .ico file at all') from syntax_error
 						except Exception as ex:
 							#Guess it's still broken
-							raise IconError('.ico file {0} has some annoying error: {1}'.format(icon_path, str(ex))) from ex
+							raise IconError(f'.ico file {icon_path} has some annoying error: {ex}') from ex
 					return icon_path
 
 				if not is_zip:
@@ -234,4 +234,4 @@ class SteamInstallation():
 					extracted_icon_folder = main_config.image_folder.joinpath('Icon', 'extracted_from_zip', icon_hash)
 					return zip_file.extract(extracted_icon_file, path=extracted_icon_folder)
 
-		raise IconNotFoundError('{0} not found'.format(icon_hash))
+		raise IconNotFoundError(f'{icon_hash} not found')

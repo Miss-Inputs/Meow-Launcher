@@ -19,12 +19,12 @@ from meowlauncher.manually_specified_game import (ManuallySpecifiedGame,
 if TYPE_CHECKING:
 	from .emulator import Emulator
 
-ManuallySpecifiedGameType = TypeVar('ManuallySpecifiedGameType', bound=ManuallySpecifiedGame, covariant=True)
-class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[ManuallySpecifiedGameType]):
+ManuallySpecifiedGameType_co = TypeVar('ManuallySpecifiedGameType_co', bound=ManuallySpecifiedGame, covariant=True)
+class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[ManuallySpecifiedGameType_co]):
 	#TODO: This shouldn't necessarily subclass ChooseableEmulatorGameSource
 	#Leave no_longer_exists to the subclasses as they may like to have custom logic
 
-	def __init__(self, platform_name: str, app_type: type[ManuallySpecifiedGameType], launcher_type: type[ManuallySpecifiedLauncher], emulators_dict: Mapping[str, 'Emulator[ManuallySpecifiedGameType]']) -> None:
+	def __init__(self, platform_name: str, app_type: type[ManuallySpecifiedGameType_co], launcher_type: type[ManuallySpecifiedLauncher], emulators_dict: Mapping[str, 'Emulator[ManuallySpecifiedGameType_co]']) -> None:
 		self.platform = manually_specified_platforms[platform_name] #TODO: Might not always be a thing
 		self._app_type = app_type
 		self._launcher_type = launcher_type

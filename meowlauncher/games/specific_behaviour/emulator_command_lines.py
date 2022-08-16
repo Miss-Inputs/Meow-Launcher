@@ -67,7 +67,7 @@ def mame_amiga_cd32(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config
 def mame_amstrad_pcw(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	if game.metadata.specific_info.get('Requires CP/M?'):
 		#Nah too messy
-		raise EmulationNotSupportedException('Needs CP/M and apparently I don''t feel like fiddling around with that or something')
+		raise EmulationNotSupportedException('Needs CP/M and apparently I don\'t feel like fiddling around with that or something')
 	return mame_driver(game, emulator_config, 'pcw10', 'flop', has_keyboard=True)
 
 def mame_apple_ii(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
@@ -100,7 +100,7 @@ def mame_atari_2600(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config
 	size = rom.size
 	#https://github.com/mamedev/mame/blob/master/src/devices/bus/vcs/vcs_slot.cpp#L188
 	if size not in (0x800, 0x1000, 0x2000, 0x28ff, 0x2900, 0x3000, 0x4000, 0x8000, 0x10000, 0x80000):
-		raise EmulationNotSupportedException('ROM size not supported: {0}'.format(size))
+		raise EmulationNotSupportedException(f'ROM size not supported: {size}')
 
 	if game.metadata.specific_info.get('Uses Supercharger', False):
 		#MAME does support Supercharger tapes with scharger software list and -cass, but it requires playing the tape, so we pretend it doesn't in accordance with me not liking to press the play tape button; and this is making me think I want some kind of manual_tape_load_okay option that enables this and other MAME drivers but anyway that's another story
@@ -166,20 +166,20 @@ def mame_atari_8bit(game: 'ROMGame', platform_config: 'PlatformConfigOptions', e
 		if game.metadata.specific_info.get('Headered?', False):
 			cart_type = game.metadata.specific_info['Mapper']
 			if cart_type in {13, 14, 23, 24, 25} or (33 <= cart_type <= 38):
-				raise EmulationNotSupportedException('XEGS cart: %d' % cart_type)
+				raise EmulationNotSupportedException(f'XEGS cart: {cart_type}')
 
 			#You probably think this is a bad way to do this...  I guess it is, but hopefully I can take some out as they become supported
 			if cart_type in {5, 17, 22, 41, 42, 43, 45, 46, 47, 48, 49, 53, 57, 58, 59, 60, 61} or (26 <= cart_type <= 32) or (54 <= cart_type <= 56):
-				raise EmulationNotSupportedException('Unsupported cart type: %d' % cart_type)
+				raise EmulationNotSupportedException(f'Unsupported cart type: {cart_type}')
 
 			if cart_type in {4, 6, 7, 16, 19, 20}:
-				raise EmulationNotSupportedException('Atari 5200 cart (will probably work if put in the right place): %d' % cart_type)
+				raise EmulationNotSupportedException(f'Atari 5200 cart (will probably work if put in the right place): {cart_type}')
 		else:
 			rom = cast(FileROM, game.rom)
 			size = rom.size
 			#8KB files are treated as type 1, 16KB as type 2, everything else is unsupported for now
 			if size > ((16 * 1024) + 16):
-				raise EmulationNotSupportedException('No header and size = %d, cannot be recognized as a valid cart yet (treated as XL/XE)' % size)
+				raise EmulationNotSupportedException(f'No header and size = {size}, cannot be recognized as a valid cart yet (treated as XL/XE)')
 
 		slot = 'cart1' if game.metadata.specific_info.get('Slot', 'Left') == 'Left' else 'cart2'
 	else:
@@ -218,7 +218,7 @@ def mame_c64(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emul
 	cart_type_name = game.metadata.specific_info.get('Mapper', None)
 
 	if cart_type in unsupported_mappers:
-		raise EmulationNotSupportedException('%s cart not supported' % cart_type_name)
+		raise EmulationNotSupportedException(f'{cart_type} ({cart_type_name}) cart not supported')
 
 	system = 'c64'
 
@@ -500,7 +500,7 @@ def mame_microbee(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 
 		system = 'mbee128'#We need a system with a floppy drive, this is apparently not working but it seems fine (the other floppy ones do not seem fine)
 		slot = 'flop1'
 	else:
-		raise EmulationNotSupportedException('Unknown media type', game.metadata.media_type)
+		raise EmulationNotSupportedException(f'Unknown media type: {game.metadata.media_type}')
 	return mame_driver(game, emulator_config, system, slot, has_keyboard=True)
 
 def mame_msx1(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
@@ -607,11 +607,11 @@ def mame_nes(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emul
 	if game.metadata.specific_info.get('Header Format', None) in {'iNES', 'NES 2.0'}:
 		mapper = game.metadata.specific_info['Mapper Number']
 		if mapper in unsupported_ines_mappers or mapper >= 256:
-			raise EmulationNotSupportedException('Unsupported mapper: {0} ({1})'.format(mapper, game.metadata.specific_info.get('Mapper')))
+			raise EmulationNotSupportedException(f'Unsupported mapper: {mapper} ({game.metadata.specific_info.get("Mapper")})')
 	if game.metadata.specific_info.get('Header Format', None) == 'UNIF':
 		mapper = game.metadata.specific_info.get('Mapper')
 		if mapper not in supported_unif_mappers:
-			raise EmulationNotSupportedException('Unsupported mapper: {0}'.format(mapper))
+			raise EmulationNotSupportedException(f'Unsupported mapper: {mapper}')
 
 	has_keyboard = False
 
@@ -777,13 +777,13 @@ def mame_snes(game: 'ROMGame', platform_config: 'PlatformConfigOptions', emulato
 
 	expansion_chip = game.metadata.specific_info.get('Expansion Chip')
 	if expansion_chip == SNESExpansionChip.ST018:
-		raise EmulationNotSupportedException('{0} not supported'.format(expansion_chip))
+		raise EmulationNotSupportedException(f'{expansion_chip} not supported')
 
 	slot = game.metadata.specific_info.get('Slot')
 	if slot:
 		#These bootleg copy protection methods might work from software list, but from fullpath the carts aren't detected as using it, so they black screen
 		if slot.endswith(('_poke', '_sbld', '_tekken2', '_20col')):
-			raise EmulationNotSupportedException('{0} mapper not supported'.format(slot))
+			raise EmulationNotSupportedException(f'{slot} mapper not supported')
 
 	#American SNES and Super Famicom are considered to be the same system, so that works out nicely
 	system = 'snespal' if game.metadata.specific_info.get('TV Type') == TVSystem.PAL else 'snes'
@@ -806,7 +806,7 @@ def mame_vic_20(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'E
 	size = cast(FileROM, game.rom).size
 	if size > ((8 * 1024) + 2):
 		#It too damn big (only likes 8KB with 2 byte header at most)
-		raise EmulationNotSupportedException('Single-part >8K cart not supported: %d' % size)
+		raise EmulationNotSupportedException(f'Single-part >8K cart not supported: {size}')
 
 	system = 'vic20p' if game.metadata.specific_info.get('TV Type') == TVSystem.PAL else 'vic20'
 
@@ -867,18 +867,18 @@ def mednafen_apple_ii(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_conf
 	machines = game.metadata.specific_info.get('Machine')
 	if machines:
 		if AppleIIHardware.AppleII not in machines and AppleIIHardware.AppleIIPlus not in machines:
-			raise EmulationNotSupportedException('Only Apple II and II+ are supported, this needs ' + machines)
+			raise EmulationNotSupportedException(f'Only Apple II and II+ are supported, this needs {machines}')
 
 	required_ram = game.metadata.specific_info.get('Minimum RAM')
 	if required_ram and required_ram > 64:
-		raise EmulationNotSupportedException('Needs at least {0} KB RAM'.format(required_ram))
+		raise EmulationNotSupportedException(f'Needs at least {required_ram} KB RAM')
 
 	return mednafen_module('apple2', exe_path=emulator_config.exe_path)
 
 def mednafen_game_gear(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	mapper = game.metadata.specific_info.get('Mapper')
 	if mapper in {'Codemasters', 'EEPROM'}:
-		raise EmulationNotSupportedException('{0} mapper not supported'.format(mapper))
+		raise EmulationNotSupportedException(f'{mapper} mapper not supported')
 	return mednafen_module('gg', exe_path=emulator_config.exe_path)
 
 def mednafen_gb(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
@@ -927,11 +927,11 @@ def mednafen_nes(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: '
 		mapper = game.metadata.specific_info['Mapper Number']
 		if mapper in unsupported_ines_mappers or mapper >= 256:
 			#Does not actually seem to check for NES 2.0 header extensions at all, according to source
-			raise EmulationNotSupportedException('Unsupported mapper: {0} ({1})'.format(mapper, game.metadata.specific_info.get('Mapper')))
+			raise EmulationNotSupportedException(f'Unsupported mapper: {mapper} ({game.metadata.specific_info.get("Mapper")})')
 	if game.metadata.specific_info.get('Header Format', None) == 'UNIF':
 		mapper = game.metadata.specific_info.get('Mapper')
 		if mapper not in supported_unif_mappers:
-			raise EmulationNotSupportedException('Unsupported mapper: {0}'.format(mapper))
+			raise EmulationNotSupportedException(f'Unsupported mapper: {mapper}')
 
 	return mednafen_module('nes', exe_path=emulator_config.exe_path)
 
@@ -940,7 +940,7 @@ def mednafen_snes_faust(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_co
 	expansion_chip = game.metadata.specific_info.get('Expansion Chip')
 	if expansion_chip:
 		if expansion_chip not in (SNESExpansionChip.CX4, SNESExpansionChip.SA_1, SNESExpansionChip.DSP_1, SNESExpansionChip.SuperFX, SNESExpansionChip.SuperFX2, SNESExpansionChip.DSP_2, SNESExpansionChip.S_DD1):
-			raise EmulationNotSupportedException('{0} not supported'.format(expansion_chip))
+			raise EmulationNotSupportedException(f'{expansion_chip} not supported')
 	return mednafen_module('snes_faust', exe_path=emulator_config.exe_path)
 
 #VICE
@@ -957,7 +957,7 @@ def vice_c64(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emul
 		cart_type_name = game.metadata.specific_info.get('Mapper', None)
 		if cart_type:
 			if cart_type not in supported_cartridge_types:
-				raise EmulationNotSupportedException('Cart type %s not supported' % cart_type_name)
+				raise EmulationNotSupportedException(f'Cart type {cart_type} ({cart_type_name}) not supported')
 
 	args = ['-VICIIfull']
 	if game.metadata.specific_info.get('TV Type') == TVSystem.NTSC:
@@ -1017,7 +1017,7 @@ def vice_vic20(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Em
 		if size > ((8 * 1024) + 2):
 			#Frick
 			#TODO: Support multiple parts with -cart2 -cartA etc; this will probably require a lot of convoluted messing around to know if a given ROM is actually the second part of a multi-part cart (probably using software lists) and using game.roms.subroms etc
-			raise EmulationNotSupportedException('Single-part >8K cart not supported: %d' % size)
+			raise EmulationNotSupportedException(f'Single-part >8K cart not supported: {size}')
 
 	if game.metadata.specific_info.get('Peripheral') == 'Paddle':
 		args += ['-controlport1device', '2']
@@ -1077,7 +1077,7 @@ def bsnes(game: 'ROMGame', platform_config: 'PlatformConfigOptions', emulator_co
 	if slot:
 		#There are a few bootleg things that will not work
 		if slot.endswith(('_bugs', '_pija', '_poke', '_sbld', '_tekken2', '_20col')):
-			raise EmulationNotSupportedException('{0} mapper not supported'.format(slot))
+			raise EmulationNotSupportedException(f'{slot} mapper not supported')
 	
 	return LaunchCommand(emulator_config.exe_path, ['--fullscreen', rom_path_argument])
 
@@ -1091,7 +1091,7 @@ def cemu(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emulator
 			raise NotActuallyLaunchableGameException('Cannot boot update')
 
 	path = str(game.rom.relevant_files['rpx']) if isinstance(game.rom, FolderROM) else rom_path_argument
-	return LaunchCommand(emulator_config.exe_path, ['-f', '-g', 'Z:{0}'.format(path)])
+	return LaunchCommand(emulator_config.exe_path, ['-f', '-g', f'Z:{path}'])
 
 def citra(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	if game.rom.extension != '3dsx':
@@ -1125,7 +1125,7 @@ def cxnes(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emulato
 	if game.metadata.specific_info.get('Header Format', None) == 'iNES':
 		mapper = game.metadata.specific_info['Mapper Number']
 		if mapper not in allowed_mappers:
-			raise EmulationNotSupportedException('Unsupported mapper: %d (%s)' % (mapper, game.metadata.specific_info.get('Mapper')))
+			raise EmulationNotSupportedException(f'Unsupported mapper: {mapper} ({game.metadata.specific_info.get("Mapper")})')
 
 	#Could possibly do something involving --no-romcfg if there's no config found, otherwise the emulator pops up a message about that unless you disable romcfg entirely
 	return LaunchCommand(emulator_config.exe_path, ['-f', rom_path_argument])
@@ -1138,7 +1138,7 @@ def dolphin(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emula
 	if title_type:
 		if title_type not in (WiiTitleType.Channel, WiiTitleType.GameWithChannel, WiiTitleType.SystemChannel, WiiTitleType.HiddenChannel):
 			#Technically Wii Menu versions are WiiTitleType.System but can be booted, but eh
-			raise NotActuallyLaunchableGameException('Cannot boot a {0}'.format(title_type.name))
+			raise NotActuallyLaunchableGameException(f'Cannot boot a {title_type.name}')
 
 	return LaunchCommand(emulator_config.exe_path, ['-b', '-e', os.fspath(cast(FolderROM, game.rom).relevant_files['boot.dol']) if game.rom.is_folder else rom_path_argument])
 
@@ -1150,7 +1150,7 @@ def duckstation(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'E
 		game_compat = game.metadata.specific_info.get('DuckStation Compatibility')
 		if game_compat:
 			if game_compat.value < threshold:
-				raise EmulationNotSupportedException('Game is only {0} status'.format(game_compat.name))
+				raise EmulationNotSupportedException(f'Game is only {game_compat.name} status')
 
 	return LaunchCommand(emulator_config.exe_path, ['-batch', '-fullscreen', rom_path_argument])
 
@@ -1195,7 +1195,7 @@ def fs_uae(game: 'ROMGame', platform_config: 'PlatformConfigOptions', emulator_c
 			model = chipset_models.get(chipset)
 
 		if model:
-			args.append('--amiga_model=%s' % model)
+			args.append(f'--amiga_model={model}')
 
 		#I can't figure out how to get these sorts of things to autoboot, or maybe they don't
 		if game.metadata.specific_info.get('Requires Hard Disk?', False):
@@ -1285,7 +1285,7 @@ def mupen64plus(game: 'ROMGame', platform_config: 'PlatformConfigOptions', emula
 
 	if plugin != no_plugin:
 		#TODO: Only do this if using SDL plugin (i.e. not Raphnet raw plugin)
-		args.extend(['--set', 'Input-SDL-Control1[plugin]=%d' % plugin])
+		args.extend(['--set', f'Input-SDL-Control1[plugin]={plugin}'])
 
 	#TODO: If use_transfer_pak, put in a rom + save with --gb-rom-1 and --gb-ram-1 somehow... hmm... can't insert one at runtime with console UI (and I guess you're not supposed to hotplug carts with a real N64 + Transfer Pak) sooo, I'll have to have a think about the most user-friendly way for me to handle that as a frontend
 
@@ -1336,7 +1336,7 @@ def reicast(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emula
 
 def rpcs3(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	if not game.metadata.specific_info.get('Bootable?', True):
-		raise NotActuallyLaunchableGameException('Cannot boot', game.metadata.specific_info.get('PlayStation Category', 'this'))
+		raise NotActuallyLaunchableGameException(f'Cannot boot {game.metadata.specific_info.get("PlayStation Category", "this")}')
 	if emulator_config.options.get('require_compat_entry', False) and 'RPCS3 Compatibility' not in game.metadata.specific_info:
 		raise EmulationNotSupportedException('Not in compatibility DB')
 	threshold = emulator_config.options.get('compat_threshold')
@@ -1391,7 +1391,7 @@ def yuzu(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emulator
 	title_type = game.metadata.specific_info.get('Title Type')
 	if title_type in ('Patch', 'AddOnContent', SwitchContentMetaType.Patch, SwitchContentMetaType.AddOnContent):
 		#If we used the .cnmt.xml, it will just be a string
-		raise NotActuallyLaunchableGameException('Cannot boot a {0}'.format(title_type))
+		raise NotActuallyLaunchableGameException(f'Cannot boot a {title_type}')
 	return LaunchCommand(emulator_config.exe_path, ['-f', '-g', rom_path_argument])
 
 #Game engines
@@ -1416,7 +1416,7 @@ def _macemu_args(app: 'MacApp', autoboot_txt_path: str, emulator_config: 'Emulat
 		args += ['--disk', os.fspath(app.hfv_path)]
 	if 'max_resolution' in app.info:
 		width, height = app.info['max_resolution']
-		args += ['--screen', 'dga/{0}/{1}'.format(width, height)]
+		args += ['--screen', f'dga/{width}/{height}']
 	
 	if app.cd_path:
 		args += ['--cdrom', os.fspath(app.cd_path)]
@@ -1425,14 +1425,14 @@ def _macemu_args(app: 'MacApp', autoboot_txt_path: str, emulator_config: 'Emulat
 
 	app_path = app.metadata.specific_info.get('Carbon Path', app.path)
 	pre_commands = [
-		LaunchCommand('sh', ['-c', 'echo {0} > {1}'.format(shlex.quote(app_path), shlex.quote(autoboot_txt_path))]), #Hack because I can't be fucked refactoring MultiCommandLaunchCommand to do pipey bois/redirecty bois
+		LaunchCommand('sh', ['-c', f'echo {shlex.quote(app_path)} > {shlex.quote(autoboot_txt_path)}']), #Hack because I can't be fucked refactoring MultiCommandLaunchCommand to do pipey bois/redirecty bois
 		#TODO: Actually could we just have a WriteAFileLaunchCommand or something
 	]
 	if 'max_bit_depth' in app.info:
 		#--displaycolordepth doesn't work or doesn't do what I think it does, so we are setting depth from inside the thing instead
 		#This requires some AppleScript extension known as GTQ Programming Suite until I one day figure out a better way to do this
 		pre_commands += [
-			LaunchCommand('sh', ['-c', 'echo {0} >> {1}'.format(app.info['max_bit_depth'], shlex.quote(autoboot_txt_path))])
+			LaunchCommand('sh', ['-c', f'echo {app.info["max_bit_depth"]} >> {shlex.quote(autoboot_txt_path)}'])
 		]
 	return MultiLaunchCommands(pre_commands, LaunchCommand(emulator_config.exe_path, args), [LaunchCommand('rm', [autoboot_txt_path])])
 
@@ -1512,7 +1512,7 @@ def dosbox_staging(app: 'DOSApp', _, emulator_config: 'EmulatorConfig') -> Launc
 			if app.info['required_hardware']['for_xt']:
 				#machine=cga?
 				cycles_for_about_477 = emulator_config.options['cycles_for_477_mhz']
-				args += ['-c', 'config -set "cpu cycles {0}"'.format(cycles_for_about_477)]
+				args += ['-c', f'config -set "cpu cycles {cycles_for_about_477}"']
 
 		if 'max_graphics' in app.info['required_hardware']:
 			graphics = app.info['required_hardware']['max_graphics']
@@ -1533,11 +1533,11 @@ def dosbox_staging(app: 'DOSApp', _, emulator_config: 'EmulatorConfig') -> Launc
 	overlay_path = cast(Optional[Path], emulator_config.options['overlay_path'])
 
 	if app.cd_path:
-		#I hope you don't put double quotes in the CD paths
-		imgmount_args = '"{0}"'.format(str(app.cd_path))
+		#I hope you don't put double quotes in the CD paths (not sure what the proper way to do that would be anyway? 999 layers of escaping?)
+		imgmount_args = f'"{str(app.cd_path)}"'
 		if app.other_cd_paths:
-			imgmount_args += ' '  + ' '.join('"{0}"'.format(str(cd_path)) for cd_path in app.other_cd_paths)
-		args += ['-c', 'IMGMOUNT -ro {0} -t cdrom {1}'.format(cd_drive_letter, imgmount_args)]
+			imgmount_args += ' '  + ' '.join(f'"{str(cd_path)}"' for cd_path in app.other_cd_paths)
+		args += ['-c', f'IMGMOUNT -ro {cd_drive_letter} -t cdrom {imgmount_args}']
 	
 	ensure_exist_command = None #Used to ensure overlay dir exists… hmm
 	if app.is_on_cd:
@@ -1552,11 +1552,11 @@ def dosbox_staging(app: 'DOSApp', _, emulator_config: 'EmulatorConfig') -> Launc
 			#Gets tricky if autoexec already mounts a C drive because launching something from the command line normally that way just assumes C is a fine drive to use
 			#This also makes exit not work normally
 			host_folder, exe_name = os.path.split(app.path)
-			args += '-c', 'MOUNT {0} "{1}"'.format(drive_letter, host_folder)
+			args += '-c', f'MOUNT {drive_letter} "{host_folder}"'
 			if overlay_path:
 				overlay_subfolder = overlay_path.joinpath(app.name)
 				ensure_exist_command = LaunchCommand('mkdir', ['-p', os.fspath(overlay_subfolder.resolve())])
-				args += ['-c', 'MOUNT -t overlay {0} "{1}"'.format(drive_letter, os.fspath(overlay_subfolder.resolve()))]
+				args += ['-c', f'MOUNT -t overlay {drive_letter} "{os.fspath(overlay_subfolder.resolve())}"']
 			args += ['-c', drive_letter + ':']
 			if app.args:
 				args += ['-c', exe_name + ' ' + ' '.join(shlex.quote(arg) for arg in app.args)]
@@ -1591,7 +1591,7 @@ def dosbox_x(app: 'DOSApp', _, emulator_config: 'EmulatorConfig') -> LaunchComma
 	args = ['-exit', '-noautoexec', '-fullscreen', '-fastlaunch']
 	for k, v in confs.items():
 		args.append('-set')
-		args.append('{0}={1}'.format(k, v))
+		args.append(f'{k}={v}')
 
 	return LaunchCommand(emulator_config.exe_path, args + [app.path])
 
@@ -1641,11 +1641,11 @@ def mesen(game: 'ROMGame', _, __) -> None:
 		mapper = game.metadata.specific_info.get('Mapper Number')
 		assert isinstance(mapper, int), 'Somehow, Mapper Number was set to something other than an int, or None'
 		if mapper in unsupported_mappers or mapper > 530:
-			raise EmulationNotSupportedException('Unsupported mapper: {0} {1}'.format(mapper, game.metadata.specific_info.get('Mapper')))
+			raise EmulationNotSupportedException(f'Unsupported mapper: {mapper} ({game.metadata.specific_info.get("Mapper")})')
 	if game.metadata.specific_info.get('Header Format', None) == 'UNIF':
 		mapper = game.metadata.specific_info.get('Mapper')
 		if mapper in unsupported_unif_mappers:
-			raise EmulationNotSupportedException('Unsupported mapper: {0}'.format(mapper))
+			raise EmulationNotSupportedException(f'Unsupported mapper: {mapper}')
 	
 def prosystem(game: 'ROMGame', _, __) -> None:
 	if not game.metadata.specific_info.get('Headered?', False):
@@ -1673,4 +1673,4 @@ def bsnes_libretro(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config:
 	if slot:
 		#Presume this is the same as with standalone
 		if slot.endswith(('_bugs', '_pija', '_poke', '_sbld', '_tekken2', '_20col')):
-			raise EmulationNotSupportedException('{0} mapper not supported'.format(slot))
+			raise EmulationNotSupportedException(f'{slot} mapper not supported')

@@ -128,7 +128,7 @@ def _parse_snes_header(rom: 'FileROM', base_offset: int) -> Mapping[str, Any]:
 		title = header[0xc0:0xd5].decode('shift_jis')
 		metadata['Title'] = title
 	except UnicodeDecodeError as ude:
-		raise BadSNESHeaderException('Title not ASCII or Shift-JIS: %s' % header[0xc0:0xd5].decode('shift_jis', errors='backslashreplace')) from ude
+		raise BadSNESHeaderException(f'Title not ASCII or Shift-JIS: {header[0xc0:0xd5].decode("shift_jis", errors="backslashreplace")}') from ude
 
 	
 	rom_layout = header[0xd5]
@@ -139,21 +139,21 @@ def _parse_snes_header(rom: 'FileROM', base_offset: int) -> Mapping[str, Any]:
 		#Anyway the internet says it's LoROM + SlowROM
 		metadata['ROM layout'] = _rom_layouts[0x20]
 	else:
-		raise BadSNESHeaderException('ROM layout is weird: %s' % hex(rom_layout))
+		raise BadSNESHeaderException(f'ROM layout is weird: {hex(rom_layout)}')
 
 	rom_type = header[0xd6]
 	if rom_type in _rom_types:
 		metadata['ROM type'] = _rom_types[rom_type]
 	else:
-		raise BadSNESHeaderException('ROM type is weird: %d' % rom_type)
+		raise BadSNESHeaderException(f'ROM type is weird: {rom_type}')
 
 	rom_size = header[0xd7]
 	if rom_size not in _ram_rom_sizes:
-		raise BadSNESHeaderException('ROM size is weird: %d' % rom_size)
+		raise BadSNESHeaderException(f'ROM size is weird: {rom_size}')
 	ram_size = header[0xd8]
 	#We'll just use ROM type to detect presence of save data rather than this
 	if ram_size not in _ram_rom_sizes:
-		raise BadSNESHeaderException('RAM size is weird: %d' % ram_size)
+		raise BadSNESHeaderException(f'RAM size is weird: {ram_size}')
 	country = header[0xd9]
 	#Dunno if I want to validate against countries, honestly. Might go wrong
 	if country in _countries:
@@ -168,14 +168,14 @@ def _parse_snes_header(rom: 'FileROM', base_offset: int) -> Mapping[str, Any]:
 	checksum = int.from_bytes(header[0xde:0xe0], 'little')
 	#Can't be arsed calculating the checksum because it's complicated (especially with some weird ROM sizes), but we know they have to add up to 0xffff
 	if (checksum | inverse_checksum) != 0xffff:
-		raise BadSNESHeaderException("Checksum and inverse checksum don't add up: %s %s" % (hex(checksum), hex(inverse_checksum)))
+		raise BadSNESHeaderException(f"Checksum and inverse checksum don't add up: {checksum:02X} {inverse_checksum:02X}")
 
 	if licensee == 0x33:
 		try:
 			maker_code = convert_alphanumeric(header[0xb0:0xb2])
 			metadata['Licensee'] = maker_code
 		except NotAlphanumericException as nae:
-			raise BadSNESHeaderException('Licensee code in extended header not alphanumeric: %s' % header[0xb0:0xb2].decode('ascii', errors='backslashreplace')) from nae
+			raise BadSNESHeaderException(f'Licensee code in extended header not alphanumeric: {header[0xb0:0xb2].decode("ascii", errors="backslashreplace")}') from nae
 
 		try:
 			product_code = convert_alphanumeric(header[0xb2:0xb6])
@@ -186,11 +186,11 @@ def _parse_snes_header(rom: 'FileROM', base_offset: int) -> Mapping[str, Any]:
 					product_code = convert_alphanumeric(header[0xb2:0xb4])
 					metadata['Product code'] = product_code
 				except NotAlphanumericException as naenae: #get naenaed
-					raise BadSNESHeaderException('2 char product code not alphanumeric: %s' % header[0xb2:0xb4].decode('ascii', errors='backslashreplace')) from naenae
+					raise BadSNESHeaderException(f'2 char product code not alphanumeric: {header[0xb2:0xb4].decode("ascii", errors="backslashreplace")}') from naenae
 			else:
-				raise BadSNESHeaderException('4 char product code not alphanumeric: %s' % header[0xb2:0xb6].decode('ascii', errors='backslashreplace')) from nae
+				raise BadSNESHeaderException(f'4 char product code not alphanumeric: {header[0xb2:0xb6].decode("ascii", errors="backslashreplace")}') from nae
 	else:
-		metadata['Licensee'] = '{:02X}'.format(licensee)
+		metadata['Licensee'] = f'{licensee:02X}'
 
 	return metadata
 
@@ -252,20 +252,20 @@ def _parse_satellaview_header(rom: 'FileROM', base_offset: int) -> Mapping[str, 
 		title = header[0xc0:0xd0].decode('shift_jis')
 		metadata['Title'] = title
 	except UnicodeDecodeError as ude:
-		raise BadSNESHeaderException('Title not ASCII or Shift-JIS: %s' % header[0xc0:0xd0].decode('shift_jis', errors='backslashreplace')) from ude
+		raise BadSNESHeaderException(f'Title not ASCII or Shift-JIS: {header[0xc0:0xd0].decode("shift_jis", errors="backslashreplace")}') from ude
 
 	month = (header[0xd6] & 0b_1111_0000) >> 4
 	day = (header[0xd7] & 0b_1111_1000) >> 3
 	if month == 0 or month > 12:
-		raise BadSNESHeaderException('Month not valid: %d' % month)
+		raise BadSNESHeaderException(f'Month not valid: {month}')
 	if day > 31:
-		raise BadSNESHeaderException('Day not valid: %d' % day)
+		raise BadSNESHeaderException(f'Day not valid: {day}')
 	metadata['Month'] = calendar.month_name[month]
 	metadata['Day'] = day
 
 	rom_layout = header[0xd8]
 	if rom_layout not in _rom_layouts:
-		raise BadSNESHeaderException('ROM layout is weird: %d' % rom_layout)
+		raise BadSNESHeaderException(f'ROM layout is weird: {rom_layout}')
 	metadata['ROM layout'] = _rom_layouts[rom_layout]
 
 	return metadata

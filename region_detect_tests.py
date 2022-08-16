@@ -42,10 +42,9 @@ def region_array_equal(regions: Optional[Collection[Region]], other_regions: Opt
 	if len(other_regions) != length:
 		return False
 
-	for region, other_region in zip(regions, other_regions):
-		if not are_regions_equal(region, other_region):
-			return False
-
+	if not all(are_regions_equal(region, other_region) for region, other_region in zip(regions, other_regions)):
+		return False
+	
 	return True
 
 def languages_equal(language, other_language):
@@ -74,9 +73,8 @@ def language_array_equal(languages: Optional[Collection[Language]], other_langua
 	if len(other_languages) != length:
 		return False
 
-	for language, other_language in zip(languages, other_languages):
-		if not languages_equal(language, other_language):
-			return False
+	if not all(languages_equal(language, other_language) for language, other_language in zip(languages, other_languages)):
+		return False
 
 	return True
 
@@ -95,7 +93,7 @@ class Test():
 
 			regions = get_regions_from_filename_tags(tags)
 			if not region_array_equal(regions, self.expected_regions):
-				print('Oh no! {0} failed: Regions = {1}, expected = {2}'.format(self.name, regions, self.expected_regions))
+				print(f'Oh no! {self.name} failed: Regions = {regions}, expected = {self.expected_regions}')
 
 			languages: Collection[Language] = get_languages_from_filename_tags(tags)
 			if regions and not languages:
@@ -103,16 +101,16 @@ class Test():
 				if region_language:
 					languages = {region_language}
 			if not language_array_equal(languages, self.expected_languages):
-				print('Oh no! {0} failed: Languages = {1}, expected = {2}'.format(self.name, languages, self.expected_languages))
+				print(f'Oh no! {self.name} failed: Languages = {languages}, expected = {self.expected_languages}')
 
 			if regions:
 				tv_type = get_tv_system_from_regions(regions)
 			else:
 				tv_type = get_tv_system_from_filename_tags(tags)
 			if tv_type != self.expected_tv_type:
-				print('Oh no! {0} failed: TV type = {1}, expected = {2}'.format(self.name, tv_type, self.expected_tv_type))
+				print(f'Oh no! {self.name} failed: TV type = {tv_type}, expected = {self.expected_tv_type}')
 		except Exception as ex: #pylint: disable=broad-except
-			print('Oh no! {0} failed: exception = {1}'.format(self.name, ex))
+			print(f'Oh no! {self.name} failed: exception = {ex}')
 
 tests = [
 	Test("No-Intro filename with region", "Cool Game (Spain)", {'Spain'}, {'Spanish'}, TVSystem.PAL),

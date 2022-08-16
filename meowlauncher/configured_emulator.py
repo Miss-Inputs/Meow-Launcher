@@ -50,7 +50,7 @@ class LibretroCoreWithFrontend(ConfiguredStandardEmulator):
 		self.frontend = frontend
 		self.core_config = core_config
 		self.frontend_config = frontend_config
-		combined_options = {}
+		combined_options: dict[str, TypeOfConfigValue] = {}
 		combined_options.update(core_config.options)
 		combined_options.update(frontend_config.options)
 		combined_config = EmulatorConfig(frontend_config.exe_path, frontend_config.options)
