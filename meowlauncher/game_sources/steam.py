@@ -2,7 +2,6 @@
 
 import datetime
 import json
-import os
 import statistics
 from collections.abc import Iterator, Mapping, MutableMapping
 from enum import IntFlag
@@ -49,13 +48,17 @@ class SteamState():
 			#Most likely the former will be present as a symlink to the latter, I don't know if weird distros install it any differently
 			possible_locations = ('~/.steam/steam', '~/.local/share/steam', '~/.local/share/Steam')
 			steam_path = None
-			for location in possible_locations:
-				location = os.path.expanduser(location)
+			for str_location in possible_locations:
+				location = Path(str_location).expanduser()
 
-				if os.path.isdir(location):
+				if location.is_dir():
 					steam_path = location
-				if os.path.islink(location):
-					steam_path = os.path.realpath(location)
+					break
+				if location.is_symlink():
+					real_path = location.readlink()
+					if real_path.is_dir():
+						steam_path = real_path
+						break
 			
 			if steam_path:
 				self.steam_installation = SteamInstallation(Path(steam_path))
@@ -649,7 +652,7 @@ def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user:
 				unachieved_list = {cheevo['strID']: cheevo for cheevo in achievements.get('vecUnachieved', ())}
 				achieved_list = {cheevo['strID']: cheevo for cheevo in achievements.get('vecAchievedHidden', ()) + achievements.get('vecHighlight', ())}
 				if achievement_map:
-					for achievement_id, achievement_data in achievement_map:
+					for achievement_id, achievement_data in achievement_map[0][1]:
 						if achievement_data.get('bAchieved'):
 							achieved_list[achievement_id] = dict(achieved_list.get(achievement_id, {}), **achievement_data)
 						else:
