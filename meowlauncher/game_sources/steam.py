@@ -67,7 +67,7 @@ class SteamState():
 	__instance = None
 
 	@staticmethod
-	def getSteamState():
+	def getSteamState() -> __SteamState:
 		if SteamState.__instance is None:
 			SteamState.__instance = SteamState.__SteamState()
 		return SteamState.__instance
@@ -113,7 +113,9 @@ class NotLaunchableError(Exception):
 def format_genre(genre_id: str) -> str:
 	return genre_ids.get(genre_id, f'unknown {genre_id}')
 
-def process_launchers(game: 'SteamGame', launch: Mapping[bytes, Mapping[bytes, Any]]):
+#TODO: Move more of this to SteamGame
+
+def process_launchers(game: 'SteamGame', launch: Mapping[bytes, Mapping[bytes, Any]]) -> None:
 	launch_items: MutableMapping[Optional[str], list[LauncherInfo]] = {}
 	#user_config = game.app_state.get('UserConfig')
 	#installed_betakey = user_config.get('betakey') if user_config else None
@@ -178,7 +180,7 @@ def process_launchers(game: 'SteamGame', launch: Mapping[bytes, Mapping[bytes, A
 
 		game.launchers[platform] = platform_launcher
 				
-def add_icon_from_common_section(game: 'SteamGame', common_section: Mapping[bytes, Any]):
+def add_icon_from_common_section(game: 'SteamGame', common_section: Mapping[bytes, Any]) -> None:
 	potential_icon_names = (b'linuxclienticon', b'clienticon', b'clienticns')
 	#icon and logo have similar hashes, but don't seem to actually exist. logo_small seems to just be logo with a _thumb on the end
 	#Damn I really thought clienttga was a thing too
@@ -214,7 +216,7 @@ def add_icon_from_common_section(game: 'SteamGame', common_section: Mapping[byte
 		elif not potentially_has_icon:
 			print(game.name, game.appid, 'does not even have an icon')
 
-def add_genre(game: 'SteamGame', common: Mapping[bytes, Any]):
+def add_genre(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
 	content_warning_ids = []
 	primary_genre_id = common.get(b'primary_genre')
 	#I think this has to do with the breadcrumb thing in the store at the top where it's like "All Games > Blah Games > Blah"
@@ -263,7 +265,7 @@ def add_genre(game: 'SteamGame', common: Mapping[bytes, Any]):
 	#"genre" doesn't look like a word anymore
 
 
-def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[bytes, Any]):
+def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
 	if 'Icon' not in game.metadata.images:
 		add_icon_from_common_section(game, common)
 
@@ -453,7 +455,7 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 
 			game.metadata.publisher = ', '.join(pubs)
 	
-def add_metadata_from_appinfo_extended_section(game: 'SteamGame', extended: Mapping[bytes, Any]):
+def add_metadata_from_appinfo_extended_section(game: 'SteamGame', extended: Mapping[bytes, Any]) -> None:
 	if not game.metadata.developer:
 		developer = extended.get(b'developer')
 		if developer:
@@ -498,7 +500,7 @@ def add_metadata_from_appinfo_extended_section(game: 'SteamGame', extended: Mapp
 	#mustownapptopurchase: If present, appID of a game that you need to buy first (parent of DLC, or something like Source SDK Base for Garry's Mod, etc)
 	#dependantonapp: Probably same sort of thing, like Half-Life: Opposing Force is dependent on original Half-Life
 
-def process_appinfo_config_section(game: 'SteamGame', app_info_section: Mapping[bytes, Any]):
+def process_appinfo_config_section(game: 'SteamGame', app_info_section: Mapping[bytes, Any]) -> None:
 	config_section = app_info_section.get(b'config')
 	if config_section:
 		#contenttype = 3 in some games but not all of them? nani
@@ -510,13 +512,13 @@ def process_appinfo_config_section(game: 'SteamGame', app_info_section: Mapping[
 		else:
 			raise NotLaunchableError('No launch entries in config section')
 
-def get_game_type(app_info_section: Mapping[bytes, Any]):
+def get_game_type(app_info_section: Mapping[bytes, Any]) -> Optional[str]:
 	common = app_info_section.get(b'common')
 	if common:
 		return common.get(b'type', b'Unknown').decode('utf-8', errors='backslashreplace')
 	return None
 
-def add_metadata_from_appinfo(game: 'SteamGame', app_info_section: Mapping[bytes, Any]):
+def add_metadata_from_appinfo(game: 'SteamGame', app_info_section: Mapping[bytes, Any]) -> None:
 	#Alright let's get to the fun stuff
 	common = app_info_section.get(b'common')
 	if common:
@@ -538,7 +540,7 @@ def add_metadata_from_appinfo(game: 'SteamGame', app_info_section: Mapping[bytes
 		#I think it's a fair assumption that every game on Steam will have _some_ sort of save data (even if just settings and not progress) so until I'm proven wrong... whaddya gonna do
 		game.metadata.save_type = SaveType.Internal
 
-def process_launcher(game: 'SteamGame', launcher: 'LauncherInfo'):
+def process_launcher(game: 'SteamGame', launcher: 'LauncherInfo') -> None:
 	if not launcher.exe:
 		return #I guess
 	extension = launcher.exe.suffix[1:].lower()
@@ -571,7 +573,7 @@ def process_launcher(game: 'SteamGame', launcher: 'LauncherInfo'):
 				#Why not
 				game.metadata.platform = 'Mac'
 
-def poke_around_in_install_dir(game: 'SteamGame'):
+def poke_around_in_install_dir(game: 'SteamGame') -> None:
 	install_dir = game.install_dir
 	if not install_dir.is_dir():
 		# if main_config.debug:
@@ -588,7 +590,7 @@ def poke_around_in_install_dir(game: 'SteamGame'):
 		if f.is_dir():
 			check_for_interesting_things_in_folder(f, game.metadata, find_wrappers=True)
 	
-def add_images(game: 'SteamGame'):
+def add_images(game: 'SteamGame') -> None:
 	#Do I wanna call header a banner
 	#The cover is not always really box art but it's used in grid view, and I guess digital only games wouldn't have real box art anyway
 	#What the hell is a "hero" oh well it's there
@@ -597,7 +599,7 @@ def add_images(game: 'SteamGame'):
 		if image_path:
 			game.metadata.images[name] = image_path
 
-def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user: bool):
+def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user: bool) -> None:
 	#This does not always exist, it's there if you've looked at it in the Steam client and it's loaded some metadata, but like why the heck not
 	with json_path.open('rb') as f:
 		j = json.load(f)
@@ -664,7 +666,7 @@ def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user:
 		
 				game.metadata.specific_info['Achievement Completion'] = f'{achieved / total_achievements:.0%}'
 
-def add_info_from_user_cache(game: 'SteamGame'):
+def add_info_from_user_cache(game: 'SteamGame') -> None:
 	user_list = steam_installation.user_ids
 	if not user_list:
 		#Also, that should never happen (maybe if you just installed Steam and haven't logged in yet, but then what would you get out of this anyway?)
@@ -679,6 +681,7 @@ def add_info_from_user_cache(game: 'SteamGame'):
 
 def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> 'SteamLauncher':
 	#We could actually just leave it here and create a thing with xdg-open steam://rungame/app_id, but where's the fun in that? Much more metadata than that
+	assert steam_installation, 'process_game called without checking steam_state.is_steam_installed'
 	game = SteamGame(appid, folder, app_state, steam_installation)
 	if main_config.use_steam_as_platform:
 		game.metadata.platform = 'Steam'
@@ -712,7 +715,7 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> 'Ste
 			game.metadata.categories = ('Trials', )
 		elif app_type == 'Music': 
 			raise NotActuallyAGameYouDingusException()
-		else:
+		elif app_type:
 			game.metadata.categories = [app_type]
 
 		process_appinfo_config_section(game, appinfo_entry)

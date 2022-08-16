@@ -176,7 +176,7 @@ class Trackball(Controller):
 		return 'Trackball'
 
 class Custom(Controller):
-	def __init__(self, custom_description=None) -> None:
+	def __init__(self, custom_description: str=None) -> None:
 		self.custom_description = custom_description
 
 	def describe(self) -> str:
@@ -185,7 +185,7 @@ class Custom(Controller):
 class CombinedController(Controller):
 	def __init__(self, components: MutableSequence[Controller]=None) -> None:
 		#TODO: Components probably shouldn't need to be a list since the order is unimportant but I'd need to readjust a few classes
-		self.components: MutableSequence = []
+		self.components: MutableSequence[Controller] = []
 		if components:
 			self.components.extend(components)
 
@@ -207,7 +207,7 @@ class InputOption():
 		self.inputs: MutableSequence[Controller] = []
 
 	@property
-	def is_standard(self):
+	def is_standard(self) -> bool:
 		#Hmm could this be wrong... feel like there's a case I'm not thinking of right now where something could be standard inputs individually but not usable with standard controllers when all together
 		return all(input.is_standard for input in self.inputs)
 
@@ -222,7 +222,7 @@ class InputInfo():
 		#Allows us to say that something explicitly has 0 inputs, admittedly not used opften
 		self._is_inited = False
 
-	def add_option(self, inputs: Union[Collection[Controller], Controller]):
+	def add_option(self, inputs: Union[Collection[Controller], Controller]) -> None:
 		#TODO: Should inputs ever really be iterable? Or should I be using CombinedController in those instances (SCV, ScummVM, Atari 8 bit)
 		opt = InputOption()
 		opt.inputs = list(inputs) if isinstance(inputs, Collection) else [inputs]

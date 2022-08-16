@@ -35,7 +35,7 @@ def load_image_from_bytes(data: bytes) -> Optional['Image.Image']:
 	except OSError:
 		return None
 
-def add_info_from_pbp(rompath_just_for_warning: str, metadata: 'Metadata', pbp_file: bytes):
+def add_info_from_pbp(rompath_just_for_warning: str, metadata: 'Metadata', pbp_file: bytes) -> None:
 	magic = pbp_file[:4]
 	if magic != b'\x00PBP':
 		#You have the occasional b'\x7ELF' here
@@ -87,7 +87,7 @@ def get_image_from_iso(iso: 'PyCdlib', path: str) -> 'Image':
 		pass
 	return None
 
-def add_psp_iso_info(path: str, metadata: 'Metadata'):
+def add_psp_iso_info(path: str, metadata: 'Metadata') -> None:
 	iso = PyCdlib()
 	try:
 		iso.open(path)
@@ -128,7 +128,7 @@ def add_psp_iso_info(path: str, metadata: 'Metadata'):
 	finally:
 		iso.close()	
 		
-def add_psp_custom_info(game: 'ROMGame'):
+def add_psp_custom_info(game: 'ROMGame') -> None:
 	add_psp_info(game.metadata)
 
 	if game.rom.is_folder:

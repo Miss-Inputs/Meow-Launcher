@@ -141,7 +141,7 @@ class FileROM(ROM):
 
 		crc32 = zlib.crc32(byteswap(self.read())) & 0xffffffff if needs_byteswap else self.crc32
 		
-		def _file_rom_reader(offset, amount) -> bytes:
+		def _file_rom_reader(offset: int, amount: int) -> bytes:
 			data = self.read(seek_to=offset, amount=amount)
 			if needs_byteswap:
 				return byteswap(data)
@@ -262,7 +262,7 @@ class FolderROM(ROM):
 	def contained_files(self) -> Collection[Path]:
 		return set(self.path.rglob('*'))
 
-	def get_subfolder(self, subpath: str, ignore_case=False) -> Optional[Path]:
+	def get_subfolder(self, subpath: str, ignore_case: bool=False) -> Optional[Path]:
 		path = self.path.joinpath(subpath)
 		if path.is_dir():
 			return path
@@ -272,7 +272,7 @@ class FolderROM(ROM):
 					return f
 		return None
 	
-	def get_file(self, subpath: str, ignore_case=False) -> Optional[Path]:
+	def get_file(self, subpath: str, ignore_case: bool=False) -> Optional[Path]:
 		path = self.path.joinpath(subpath)
 		if path.is_file():
 			return path
@@ -300,11 +300,11 @@ class FolderROM(ROM):
 		return False
 	
 	@property
-	def is_folder(self):
+	def is_folder(self) -> bool:
 		return True
 	
 	@property
-	def is_compressed(self):
+	def is_compressed(self) -> bool:
 		return False
 
 	def get_software_list_entry(self, _: Collection['SoftwareList'], __: bool = False, ___: int = 0) -> Optional['Software']:

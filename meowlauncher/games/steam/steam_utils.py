@@ -12,7 +12,7 @@ from meowlauncher.util.utils import junk_suffixes
 
 def translate_language_list(languages: Mapping[bytes, Any]) -> Collection[Language]:
 	langs = set()
-	for language_name_bytes, _ in languages.items():
+	for language_name_bytes in languages.keys():
 		#value is an Integer object but it's always 1, I dunno what the 0 means, because it's like, if the language isn't there, it just wouldn't be in the dang list anyway
 		language_name = language_name_bytes.decode('utf-8', errors='backslashreplace')
 		if language_name == 'koreana': #I don't know what the a at the end is for, but Steam does that

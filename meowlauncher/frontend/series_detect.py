@@ -83,7 +83,7 @@ def _does_series_match(name_to_match: str, existing_series: str) -> bool:
 
 	return name_to_match == existing_series
 
-def _find_series_name_by_subtitle(name: str, existing_serieses: Collection[str], force=False) -> SeriesWithSeriesIndex:
+def _find_series_name_by_subtitle(name: str, existing_serieses: Collection[str], force: bool=False) -> SeriesWithSeriesIndex:
 	name_chunks = _get_name_chunks(name)
 	if not name_chunks:
 		return None, None
@@ -119,7 +119,7 @@ def _get_usable_name(desktop: ConfigParser) -> str:
 	assert name, 'What the heck get_usable_name encountered a desktop with no name'
 	return name
 
-def _add_series(desktop: ConfigParser, path: Path, series: Optional[str], series_index: Optional[Union[str, int]]=None):
+def _add_series(desktop: ConfigParser, path: Path, series: Optional[str], series_index: Optional[Union[str, int]]=None) -> None:
 	#TODO: Encapsulate this better
 	metadata_section_with_prefix = section_prefix + metadata_section_name
 	if metadata_section_with_prefix not in desktop:
@@ -131,7 +131,7 @@ def _add_series(desktop: ConfigParser, path: Path, series: Optional[str], series
 	with path.open('wt', encoding='utf-8') as f:
 		desktop.write(f)
 
-def _detect_series(desktop: ConfigParser, path: Path):
+def _detect_series(desktop: ConfigParser, path: Path) -> None:
 	name = _get_usable_name(desktop)
 	series, series_index = find_series_from_game_name(name)
 	if series:
@@ -148,13 +148,13 @@ def _find_existing_serieses() -> Collection[str]:
 
 	return serieses
 
-def _detect_series_by_subtitle(desktop: ConfigParser, path: Path, existing: Collection[str]):
+def _detect_series_by_subtitle(desktop: ConfigParser, path: Path, existing: Collection[str]) -> None:
 	name = _get_usable_name(desktop)
 	series, index = _find_series_name_by_subtitle(name, existing)
 	if series:
 		_add_series(desktop, path, series, index)
 
-def _force_add_series_with_index(desktop: ConfigParser, path: Path, existing: Collection[str]):
+def _force_add_series_with_index(desktop: ConfigParser, path: Path, existing: Collection[str]) -> None:
 	name = _get_usable_name(desktop)
 	series, _ = _find_series_name_by_subtitle(name, existing, force=True)
 	if series:
@@ -176,7 +176,7 @@ def _get_series_from_whole_thing(series: str, whole_name: str) -> str:
 	
 	return '1'
 
-def _detect_series_index_for_things_with_series():
+def _detect_series_index_for_things_with_series() -> None:
 	for path in main_config.output_folder.iterdir():
 		desktop = get_desktop(path)
 
@@ -225,7 +225,7 @@ def _iter_existing_seriesless_launchers() -> Iterator[tuple[ConfigParser, Path]]
 
 		yield desktop, path
 
-def detect_series_for_all_desktops():
+def detect_series_for_all_desktops() -> None:
 	time_started = time.perf_counter()
 
 	for desktop, path in _iter_existing_seriesless_launchers():

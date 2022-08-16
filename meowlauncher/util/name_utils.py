@@ -96,7 +96,7 @@ def convert_roman_numerals_in_title(s: str) -> str:
 
 _words_regex = re.compile(r'[\w()]+')
 _apostrophes_at_word_boundary_regex = re.compile(r"\B'|'\B")
-def normalize_name(name: str, care_about_spaces=True, normalize_words=True, care_about_numerals=False) -> str:
+def normalize_name(name: str, care_about_spaces: bool=True, normalize_words: bool=True, care_about_numerals: bool=False) -> str:
 	if care_about_numerals:
 		name = convert_roman_numerals_in_title(name)
 	name = name.lower()

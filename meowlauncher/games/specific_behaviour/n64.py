@@ -63,7 +63,7 @@ def _get_mupen64plus_database() -> Optional[Mapping[str, Mapping[str, str]]]:
 	_get_mupen64plus_database.mupen64plus_database = database #type: ignore[attr-defined]
 	return database
 
-def parse_n64_header(metadata: 'Metadata', header: bytes):
+def parse_n64_header(metadata: 'Metadata', header: bytes) -> None:
 	#Clock rate, apparently? 0:4
 	#Program counter: 4-8
 	#Release address: 8-12
@@ -81,7 +81,7 @@ def parse_n64_header(metadata: 'Metadata', header: bytes):
 		pass
 	metadata.specific_info['Revision'] = header[63]
 
-def add_info_from_database_entry(metadata: 'Metadata', database_entry: Mapping[str, str]):
+def add_info_from_database_entry(metadata: 'Metadata', database_entry: Mapping[str, str]) -> None:
 	#Keys: {'SaveType', 'Biopak', 'GoodName', 'SiDmaDuration', 'Players', 'DisableExtraMem', 'Mempak', 'Cheat0', 'Transferpak', 'CRC', 'Status', 'Rumble', 'CountPerOp'}
 	#CRC is just the N64 checksum from the ROM header so I dunno if that's any use
 	#Stuff like SiDmaDuration and CountPerOp and DisableExtraMem should be applied automatically by Mupen64Plus I would think (and be irrelevant for other emulators)
@@ -117,7 +117,7 @@ def add_info_from_database_entry(metadata: 'Metadata', database_entry: Mapping[s
 		metadata.specific_info['Uses Transfer Pak?'] = True
 	#Unfortunately nothing in here which specifies to use VRU, or any other weird fancy controllers which may or may not exist
 
-def add_n64_custom_info(game: 'ROMGame'):
+def add_n64_custom_info(game: 'ROMGame') -> None:
 	entire_rom = cast(FileROM, game.rom).read()
 
 	magic = entire_rom[:4]

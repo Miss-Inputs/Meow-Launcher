@@ -28,7 +28,7 @@ class ScummVMConfig():
 				self.scummvm_ini = _get_vm_config(main_config.scummvm_config_path)
 
 		@staticmethod
-		def _get_vm_engines(exe_name) -> Mapping[str, str]:
+		def _get_vm_engines(exe_name: str) -> Mapping[str, str]:
 			try:
 				proc = subprocess.run([exe_name, '--list-engines'], stdout=subprocess.PIPE, check=True, universal_newlines=True)
 				lines = proc.stdout.splitlines()[2:] #Ignore header and ----
@@ -51,7 +51,7 @@ class ScummVMConfig():
 	__instance = None
 
 	@staticmethod
-	def getScummVMConfig():
+	def getScummVMConfig() -> __ScummVMConfig:
 		if ScummVMConfig.__instance is None:
 			ScummVMConfig.__instance = ScummVMConfig.__ScummVMConfig()
 		return ScummVMConfig.__instance

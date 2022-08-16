@@ -1,6 +1,7 @@
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher.games.common.generic_info import add_generic_software_info
+from meowlauncher.games.mame_common.software_list import Software
 from meowlauncher.games.mame_common.software_list_find_utils import (
     find_in_software_lists, matcher_args_for_bytes)
 from meowlauncher.games.roms.rom import FileROM
@@ -68,7 +69,7 @@ ccs64_cart_types = {
 	55: 'Silverrock',
 }
 
-def get_commodore_64_software(game: 'ROMGame', headered: bool):
+def get_commodore_64_software(game: 'ROMGame', headered: bool) -> Optional[Software]:
 	if headered:
 		#Skip CRT header
 		data = cast(FileROM, game.rom).read(seek_to=64)
@@ -86,7 +87,7 @@ def get_commodore_64_software(game: 'ROMGame', headered: bool):
 
 	return game.get_software_list_entry()
 
-def add_commodore_64_custom_info(game: 'ROMGame'):
+def add_commodore_64_custom_info(game: 'ROMGame') -> None:
 	header = cast(FileROM, game.rom).read(amount=64)
 	magic = header[:16]
 	if magic == b'C64 CARTRIDGE   ':

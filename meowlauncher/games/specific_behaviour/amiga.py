@@ -6,30 +6,28 @@ if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
 
-def add_amiga_metadata_from_software_list(software: 'Software', metadata: 'Metadata'):
-	chipset = None
-	if software:
-		software.add_standard_metadata(metadata)
-		chipset = 'OCS'
-		usage = software.get_info('usage')
-		if usage in {'Requires ECS', 'Requires ECS, includes Amiga Text'}:
-			chipset = 'ECS'
-		elif usage == 'Requires AGA':
-			chipset = 'AGA'
-		else:
-			#The remainder is something like "Requires <some other software> to work", because it's a level editor or save editor or something like that
-			metadata.add_notes(usage)
+def add_amiga_metadata_from_software_list(software: 'Software', metadata: 'Metadata') -> None:
+	software.add_standard_metadata(metadata)
+	chipset = 'OCS'
+	usage = software.get_info('usage')
+	if usage in {'Requires ECS', 'Requires ECS, includes Amiga Text'}:
+		chipset = 'ECS'
+	elif usage == 'Requires AGA':
+		chipset = 'AGA'
+	else:
+		#The remainder is something like "Requires <some other software> to work", because it's a level editor or save editor or something like that
+		metadata.add_notes(usage)
 
-		#info name="additional":
-		#Features Kid Gloves demo
-		#Features StarRay demo
-		#Features XR35 and KGP demos
-		#Mastered with virus
-		#info name="alt_disk": Names of some disks?
-		#info name="magazine": What magazine it came from?
+	#info name="additional":
+	#Features Kid Gloves demo
+	#Features StarRay demo
+	#Features XR35 and KGP demos
+	#Mastered with virus
+	#info name="alt_disk": Names of some disks?
+	#info name="magazine": What magazine it came from?
 	metadata.specific_info['Chipset'] = chipset
 
-def add_info_from_filename_tags(tags: Collection[str], metadata: 'Metadata'):
+def add_info_from_filename_tags(tags: Collection[str], metadata: 'Metadata') -> None:
 	for tag in tags:
 		if tag == '[HD]':
 			metadata.specific_info['Requires Hard Disk?'] = True
@@ -78,7 +76,7 @@ def add_info_from_filename_tags(tags: Collection[str], metadata: 'Metadata'):
 		if chipset:
 			metadata.specific_info['Chipset'] = chipset
 
-def add_amiga_custom_info(game: 'ROMGame'):
+def add_amiga_custom_info(game: 'ROMGame') -> None:
 	software = game.get_software_list_entry()
 	if software:
 		add_amiga_metadata_from_software_list(software, game.metadata)

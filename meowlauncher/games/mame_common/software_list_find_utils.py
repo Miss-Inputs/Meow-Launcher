@@ -33,7 +33,7 @@ def iter_all_software_lists() -> Iterator[tuple[Path, SoftwareList]]:
 	except FileNotFoundError:
 		pass
 
-def iter_software_lists_by_name(names: Iterable) -> Iterator[SoftwareList]:
+def iter_software_lists_by_name(names: Iterable[str]) -> Iterator[SoftwareList]:
 	if not default_mame_configuration:
 		return
 	hashpaths = default_mame_configuration.core_config.get('hashpath')

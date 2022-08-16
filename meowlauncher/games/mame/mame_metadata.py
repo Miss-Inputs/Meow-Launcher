@@ -212,7 +212,7 @@ def add_status(machine: Machine, metadata: 'Metadata') -> None:
 	if unemulated_features:
 		metadata.specific_info['MAME Unemulated Features'] = unemulated_features
 
-def add_metadata_from_category(game: 'MAMEGame', category: Optional[MachineCategory]):
+def add_metadata_from_category(game: 'MAMEGame', category: Optional[MachineCategory]) -> None:
 	if not category:
 		#Not in catlist or user doesn't have catlist
 		return
@@ -336,7 +336,7 @@ def add_languages(game: 'MAMEGame', name_tags: Sequence[str]) -> None:
 		elif game.metadata.regions:
 			region_language = get_common_language_from_regions(game.metadata.regions)
 			if region_language:
-				game.metadata.languages = (region_language, )
+				game.metadata.languages = {region_language}
 
 def add_images(game: 'MAMEGame') -> None:
 	for image_name, config_key in image_config_keys.items():

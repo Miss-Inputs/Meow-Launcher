@@ -99,7 +99,7 @@ def _cooked_position_to_real(cooked_position: int, raw_header_size: int, raw_foo
 	total_footer_size = raw_footer_size * sector_count
 	return cooked_position + total_header_size + total_footer_size
 
-def read_gcz(path: Path, seek_to=0, amount=-1) -> bytes:
+def read_gcz(path: Path, seek_to: int=0, amount: int=-1) -> bytes:
 	gcz_header = read_file(path, amount=32)
 	#Magic: B10BB10B
 	#Sub-type: 4-8 (indicates GC or whatever else)

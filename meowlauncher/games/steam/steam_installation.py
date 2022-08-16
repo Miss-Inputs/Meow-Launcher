@@ -100,7 +100,7 @@ class SteamInstallation():
 		yield self.steamdir
 
 	@property
-	def steamplay_overrides(self) -> Mapping:
+	def steamplay_overrides(self) -> Mapping[str, str]:
 		if not self.config_available:
 			return {}
 
@@ -165,13 +165,12 @@ class SteamInstallation():
 		return apps
 
 	def find_image(self, appid: int, image_name: str) -> Optional[Path]:
-		if self.library_cache_folder:
-			basename = self.library_cache_folder.joinpath(f'{appid}_{image_name}')
-			#Can be either png or jpg, I guess… could also listdir or glob I guess but ehhh brain broke lately
-			for ext in ('png', 'jpg', 'jpeg'):
-				path = basename.with_suffix('.' + ext)
-				if path.is_file():
-					return path
+		basename = self.library_cache_folder.joinpath(f'{appid}_{image_name}')
+		#Can be either png or jpg, I guess… could also listdir or glob I guess but ehhh brain broke lately
+		for ext in ('png', 'jpg', 'jpeg'):
+			path = basename.with_suffix('.' + ext)
+			if path.is_file():
+				return path
 		return None
 
 	def look_for_icon(self, icon_hash: str) -> Optional[Union['Image.Image', str]]:

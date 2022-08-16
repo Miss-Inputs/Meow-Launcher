@@ -128,7 +128,7 @@ _gbx_mappers = {
 	b'PKJD': 'Pokemon Jade/Diamond bootleg'
 }
 
-def _parse_slot(metadata: 'Metadata', slot: str):
+def _parse_slot(metadata: 'Metadata', slot: str) -> None:
 	if slot in _mame_rom_slots:
 		original_mapper = metadata.specific_info.get('Mapper', 'None')
 
@@ -141,7 +141,7 @@ def _parse_slot(metadata: 'Metadata', slot: str):
 			metadata.specific_info['Mapper'] = new_mapper
 
 _nintendo_logo_crc32 = 0x46195417
-def _parse_gameboy_header(metadata: 'Metadata', header: bytes):
+def _parse_gameboy_header(metadata: 'Metadata', header: bytes) -> None:
 	nintendo_logo = header[4:0x34]
 	nintendo_logo_valid = crc32(nintendo_logo) == _nintendo_logo_crc32
 	metadata.specific_info['Nintendo Logo Valid'] = nintendo_logo_valid
@@ -201,7 +201,7 @@ def _parse_gameboy_header(metadata: 'Metadata', header: bytes):
 			metadata.publisher = _nintendo_licensee_codes[licensee_code]
 	metadata.specific_info['Revision'] = header[0x4c]
 
-def _parse_gbx_footer(rom: FileROM, metadata: 'Metadata'):
+def _parse_gbx_footer(rom: FileROM, metadata: 'Metadata') -> None:
 	footer = rom.read(seek_to=rom.size - 64, amount=64)
 	if footer[60:64] != b'GBX!':
 		if main_config.debug:
@@ -229,7 +229,7 @@ def _parse_gbx_footer(rom: FileROM, metadata: 'Metadata'):
 	#4 = has battery, #5 = has rumble, #6 = has RTC
 	#RAM size: 12:16
 
-def _add_game_boy_software_info(software: 'Software', metadata: 'Metadata'):
+def _add_game_boy_software_info(software: 'Software', metadata: 'Metadata') -> None:
 	#TODO: Make sure this doesn't make slot incorrect if we are reading .gbx
 	software.add_standard_metadata(metadata)
 	metadata.specific_info['Has RTC?'] = software.get_part_feature('rtc') == 'yes'
@@ -239,7 +239,7 @@ def _add_game_boy_software_info(software: 'Software', metadata: 'Metadata'):
 	if slot:
 		_parse_slot(metadata, slot)
 
-def add_game_boy_custom_info(game: 'ROMGame'):
+def add_game_boy_custom_info(game: 'ROMGame') -> None:
 	builtin_gamepad = input_metadata.NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2 #A B

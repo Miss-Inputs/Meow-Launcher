@@ -41,7 +41,7 @@ class EmulatorConfigs():
 	__instance = None
 
 	@staticmethod
-	def getConfigs():
+	def getConfigs() -> __EmulatorConfigs:
 		if EmulatorConfigs.__instance is None:
 			EmulatorConfigs.__instance = EmulatorConfigs.__EmulatorConfigs()
 		return EmulatorConfigs.__instance

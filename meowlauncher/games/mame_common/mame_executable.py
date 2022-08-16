@@ -46,8 +46,7 @@ class MAMEExecutable():
 						machine_name = element.attrib['name']
 
 						if main_config.use_xml_disk_cache:
-							with self._xml_cache_path.joinpath(machine_name + '.xml').open('wb') as cache_file:
-								cache_file.write(ElementTree.tostring(element))
+							self._xml_cache_path.joinpath(machine_name + '.xml').write_bytes(ElementTree.tostring(element))
 						yield machine_name, my_copy
 						element.clear()
 			except ElementTree.ParseError as fuck:

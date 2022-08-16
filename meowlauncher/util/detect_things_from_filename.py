@@ -149,7 +149,7 @@ def get_tosec_region_list_from_filename_tags(tags: Sequence[str]) -> Optional[Se
 		return regions
 	return None
 
-def get_regions_from_filename_tags(tags: Sequence[str], loose=False) -> Optional[Sequence[region_info.Region]]:
+def get_regions_from_filename_tags(tags: Sequence[str], loose: bool=False) -> Optional[Sequence[region_info.Region]]:
 	regions: Optional[Sequence[region_info.Region]]
 	if loose:
 		regions = get_regions_from_filename_tags_loosely(tags)

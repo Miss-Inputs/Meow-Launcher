@@ -28,7 +28,7 @@ unofficial_vb_publishers = {
 	'VE': 'Alberto Covarrubias', #aka Virtual-E
 }
 
-def add_virtual_boy_rom_info(rom: FileROM, metadata: 'Metadata'):
+def add_virtual_boy_rom_info(rom: FileROM, metadata: 'Metadata') -> None:
 	rom_size = rom.size
 	header_start_position = rom_size - 544 #Wait wouldn't that make it a footer sorta
 	header = rom.read(seek_to=header_start_position, amount=32)

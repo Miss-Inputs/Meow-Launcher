@@ -9,7 +9,7 @@ class HostPlatform(Enum):
 	DotNet = auto()
 
 class Runner(ABC):
-	def __init__(self, host_platform=HostPlatform.Native) -> None:
+	def __init__(self, host_platform: HostPlatform=HostPlatform.Native) -> None:
 		self.host_platform = host_platform
 		self.configs = {
 			'gamemode': RunnerConfigValue(ConfigValueType.Bool, False, 'Run with gamemoderun'),

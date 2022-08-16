@@ -3,7 +3,7 @@ import json
 import math
 import re
 from collections.abc import Collection, Sequence, Mapping
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 _find_brackets_at_end = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)$')
 
@@ -152,7 +152,7 @@ def load_list(subpackage: Optional[str], resource: str) -> Sequence[str]:
 		package += '.' + subpackage
 	return tuple(line for line in (line.split('#', 1)[0] for line in importlib.resources.read_text(package, resource + '.list').splitlines()) if line)
 
-def load_json(subpackage: Optional[str], resource: str) -> Mapping:
+def load_json(subpackage: Optional[str], resource: str) -> Mapping[Any, Any]:
 	package = 'meowlauncher.data'
 	if subpackage:
 		package += '.' + subpackage

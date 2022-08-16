@@ -23,7 +23,7 @@ input_types = {
 	4: input_metadata.Trackball(), #Is this a valid value?
 }
 
-def _add_atari_7800_header_info(rom_path_for_warning: str, metadata: 'Metadata', header: bytes):
+def _add_atari_7800_header_info(rom_path_for_warning: str, metadata: 'Metadata', header: bytes) -> None:
 	metadata.input_info.set_inited()
 
 	#Header version: 0
@@ -95,7 +95,7 @@ def _add_atari_7800_header_info(rom_path_for_warning: str, metadata: 'Metadata',
 	#Expansion module required: 64
 
 
-def add_atari_7800_custom_info(game: 'ROMGame'):
+def add_atari_7800_custom_info(game: 'ROMGame') -> None:
 	header = cast(FileROM, game.rom).read(amount=128)
 	if header[1:10] == b'ATARI7800':
 		headered = True

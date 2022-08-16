@@ -38,7 +38,7 @@ class _ScummVM(Runner):
 		return 'ScummVM'
 
 class ScummVM(ConfiguredRunner):
-	def __init__(self):
+	def __init__(self) -> None:
 		config = RunnerConfig(str(main_config.scummvm_exe_path))
 		super().__init__(_ScummVM(), config)
 

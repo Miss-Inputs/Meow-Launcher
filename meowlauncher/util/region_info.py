@@ -269,7 +269,7 @@ regions = [
 languages_by_english_name = {language.english_name: language for language in languages}
 regions_by_name = {region.name: region for region in regions}
 
-def get_language_by_short_code(code: str, case_insensitive=False) -> Optional[Language]:
+def get_language_by_short_code(code: str, case_insensitive: bool=False) -> Optional[Language]:
 	if case_insensitive:
 		code = code.lower()
 	for language in languages:
@@ -280,7 +280,7 @@ def get_language_by_short_code(code: str, case_insensitive=False) -> Optional[La
 
 	return None
 
-def get_language_by_english_name(name: str, case_insensitive=False) -> Optional[Language]:
+def get_language_by_english_name(name: str, case_insensitive: bool=False) -> Optional[Language]:
 	if case_insensitive:
 		name = name.lower()
 	for language in languages:
@@ -296,7 +296,7 @@ def get_region_by_name(name: str) -> Optional[Region]:
 
 	return None
 
-def get_region_by_short_code(short_code: str, case_insensitive=False) -> Optional[Region]:
+def get_region_by_short_code(short_code: str, case_insensitive: bool=False) -> Optional[Region]:
 	if case_insensitive:
 		short_code = short_code.lower()
 	for region in regions:
@@ -316,7 +316,7 @@ def get_common_language_from_regions(region_list: Collection[Region]) -> Optiona
 			return None #Whomst knows then
 
 		if not common_language:
-			common_language = languages_by_english_name[region.inferred_language]
+			common_language = languages_by_english_name.get(region.inferred_language)
 		
 		if common_language and region.inferred_language != common_language.english_name:
 			return None

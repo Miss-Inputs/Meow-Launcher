@@ -4,7 +4,7 @@ import json
 import zipfile
 from collections.abc import Collection, Mapping
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 try:
 	from PIL import Image
@@ -70,8 +70,6 @@ def try_detect_unity(folder: Path, metadata: Optional['Metadata']=None) -> bool:
 	return False
 
 def try_detect_ue4(folder: Path) -> bool:
-	#TODO: What's this one supposed to do, it was os.path.basename() before, did I get it mixed up with dirname? Since there is no point calling os.path.isfile() on something relative to the Meow Launcher working directory
-	#Search again where I saw this .uproject and see what logic I was trying to do here - this would have done nothing useful before I converted everything to Path, and this is kind of why I did, because string path manipulations can get confusing and evidently I got myself confused
 	if folder.joinpath(folder.name + '.uproject').is_file():
 		return True
 
@@ -223,7 +221,7 @@ def try_detect_adobe_air(folder: Path) -> bool:
 
 	return False
 
-def add_metadata_from_nw_package_json(package_json: Mapping, metadata: 'Metadata'):
+def add_metadata_from_nw_package_json(package_json: Mapping[str, Any], metadata: 'Metadata') -> None:
 	#main might come in handy
 	package_description = package_json.get('description')
 	if package_description:
@@ -237,7 +235,7 @@ def add_metadata_from_nw_package_json(package_json: Mapping, metadata: 'Metadata
 		metadata.specific_info['Icon Relative Path'] = window.get('icon')
 		metadata.add_alternate_name(window.get('title'), 'Window Title')
 
-def add_info_from_package_json_file(folder: Path, package_json_path: Path, metadata: 'Metadata'):
+def add_info_from_package_json_file(folder: Path, package_json_path: Path, metadata: 'Metadata') -> None:
 	with package_json_path.open('rb') as package_json:
 		add_metadata_from_nw_package_json(json.load(package_json), metadata)
 	if 'Icon-Relative-Path' in metadata.specific_info:

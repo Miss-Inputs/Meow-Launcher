@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 nintendo_gba_logo_crc32 = 0xD0BEB55E
-def _parse_gba_header(metadata: 'Metadata', header: bytes):
+def _parse_gba_header(metadata: 'Metadata', header: bytes) -> None:
 	#Entry point: 0-4
 	nintendo_logo = header[4:0xa0]
 	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_gba_logo_crc32
@@ -79,7 +79,7 @@ def _look_for_sound_drivers_in_cart(entire_cart: bytes) -> Optional[str]:
 
 	return None
 
-def _look_for_strings_in_cart(entire_cart: bytes, metadata: 'Metadata'):
+def _look_for_strings_in_cart(entire_cart: bytes, metadata: 'Metadata') -> None:
 	has_save = False
 	save_strings = (b'EEPROM_V', b'SRAM_V', b'SRAM_F_V', b'FLASH_V', b'FLASH512_V', b'FLASH1M_V')
 	for string in save_strings:
@@ -98,7 +98,7 @@ def _look_for_strings_in_cart(entire_cart: bytes, metadata: 'Metadata'):
 	if sound_driver == 'Rare':
 		metadata.developer = 'Rare' #probably
 	
-def add_gba_rom_file_info(rom: 'FileROM', metadata: 'Metadata'):
+def add_gba_rom_file_info(rom: 'FileROM', metadata: 'Metadata') -> None:
 	entire_cart = rom.read()
 	if len(entire_cart) >= 0xc0:
 		header = entire_cart[0:0xc0]

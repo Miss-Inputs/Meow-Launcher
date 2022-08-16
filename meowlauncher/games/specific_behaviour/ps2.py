@@ -23,7 +23,7 @@ _boot_line_regex = re.compile(r'^BOOT2\s*=\s*cdrom0:\\(.+);1$')
 _other_systemcnf_line_regex = re.compile(r'^([^=\s]+?)\s*=\s*(\S+)$')
 _boot_file_regex = re.compile(r'^(.{4})_(.{3})\.(.{2})$')
 
-def add_info_from_system_cnf(metadata: Metadata, system_cnf: str):
+def add_info_from_system_cnf(metadata: Metadata, system_cnf: str) -> None:
 	for line in system_cnf.splitlines():
 		boot_line_match = _boot_line_regex.match(line)
 		if boot_line_match:
@@ -46,7 +46,7 @@ def add_info_from_system_cnf(metadata: Metadata, system_cnf: str):
 					except ValueError:
 						pass
 
-def add_ps2_custom_info(game: 'ROMGame'):
+def add_ps2_custom_info(game: 'ROMGame') -> None:
 	#.bin/cue also has this system.cnf but I'd need to know how to get pycdlib to work with that
 	if game.rom.extension == 'iso' and have_pycdlib:
 		iso = PyCdlib()

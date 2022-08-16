@@ -20,7 +20,7 @@ _licensee_codes = load_dict(None, 'sega_licensee_codes')
 
 _gdi_regex = re.compile(r'^(?:\s+)?(?P<trackNumber>\d+)\s+(?P<unknown1>\S+)\s+(?P<type>\d)\s+(?P<sectorSize>\d+)\s+(?:"(?P<name>.+)"|(?P<name_unquoted>\S+))\s+(?P<unknown2>.+)$')
 
-def add_peripherals_info(metadata: Metadata, peripherals):
+def _add_peripherals_info(metadata: Metadata, peripherals: int) -> None:
 	metadata.specific_info['Uses Windows CE?'] = (peripherals & 1) > 0
 	metadata.specific_info['Supports VGA?'] = (peripherals & (1 << 4)) > 0
 	metadata.specific_info['Uses Other Expansions?'] = (peripherals & (1 << 8)) > 0 #How very vague and mysterious…
@@ -54,7 +54,7 @@ def add_peripherals_info(metadata: Metadata, peripherals):
 _device_info_regex = re.compile(r'^(?P<checksum>[\dA-Fa-f]{4}) GD-ROM(?P<discNum>\d+)/(?P<totalDiscs>\d+) *$')
 #Might not be " GD-ROM" on some Naomi stuff or maybe some homebrews or protos, but anyway, whatevs
 
-def add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size: int):
+def _add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size: int) -> None:
 	try:
 		header = cd_read.read_mode_1_cd(track_path, sector_size, amount=256)
 	except NotImplementedError:
@@ -93,7 +93,7 @@ def add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size: 
 
 	try:
 		peripherals = int(header[56:64], 16)
-		add_peripherals_info(metadata, peripherals)
+		_add_peripherals_info(metadata, peripherals)
 	except ValueError:
 		pass
 
@@ -138,7 +138,7 @@ def add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size: 
 		
 	metadata.specific_info['Internal Title'] = header[128:256].decode('ascii', errors='backslashreplace').rstrip('\0 ')
 
-def add_dreamcast_rom_info(rom: FileROM, metadata: Metadata):
+def add_dreamcast_rom_info(rom: FileROM, metadata: Metadata) -> None:
 	if rom.extension == 'gdi':
 		data = rom.read().decode('utf8', errors='backslashreplace')
 		for line in data.splitlines():
@@ -151,9 +151,9 @@ def add_dreamcast_rom_info(rom: FileROM, metadata: Metadata):
 				#print(game.rom.path, track_number, is_data, sector_size, filename)
 				if track_number == 3:
 					full_name = Path(filename) if filename.startswith('/') else rom.path.parent.joinpath(filename)
-					add_info_from_main_track(metadata, full_name, sector_size)
+					_add_info_from_main_track(metadata, full_name, sector_size)
 
-def add_dreamcast_custom_info(game: 'ROMGame'):
+def add_dreamcast_custom_info(game: 'ROMGame') -> None:
 	if game.rom.extension == 'gdi' and isinstance(game.rom, FileROM):
 		add_dreamcast_rom_info(game.rom, game.metadata)
 

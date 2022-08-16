@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
 
-def add_info_from_lynx_header(header: bytes, metadata: 'Metadata'):
+def add_info_from_lynx_header(header: bytes, metadata: 'Metadata') -> None:
 	#UBYTE   magic[4];
 	#UWORD   page_size_bank0;
 	#UWORD   page_size_bank1;
@@ -33,7 +33,7 @@ def add_info_from_lynx_header(header: bytes, metadata: 'Metadata'):
 	elif rotation == 2:
 		metadata.specific_info['Display Rotation'] = 'Right'
 
-def add_lynx_custom_info(game: 'ROMGame'):
+def add_lynx_custom_info(game: 'ROMGame') -> None:
 	add_lynx_info(game.metadata)
 
 	rom = cast(FileROM, game.rom)

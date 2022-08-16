@@ -36,7 +36,7 @@ def _load_tdb() -> Optional[TDB]:
 		return None
 _tdb = _load_tdb()
 
-def add_cover(metadata: Metadata, product_code: str, licensee_code: str):
+def add_cover(metadata: Metadata, product_code: str, licensee_code: str) -> None:
 	#Intended for the covers database from GameTDB
 	if 'Wii' not in platform_configs:
 		return
@@ -51,7 +51,7 @@ def add_cover(metadata: Metadata, product_code: str, licensee_code: str):
 			metadata.images['Cover'] = potential_cover_path
 			return
 
-def add_gamecube_wii_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes):
+def add_gamecube_wii_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes) -> None:
 	internal_title = header[32:128]
 	metadata.specific_info['Internal Title'] = internal_title.decode('ascii', errors='backslashreplace').rstrip('\0 ')
 	if internal_title[:28] == b'GAMECUBE HOMEBREW BOOTLOADER':
@@ -101,7 +101,7 @@ def add_gamecube_wii_disc_metadata(rom: FileROM, metadata: Metadata, header: byt
 		if metadata.platform == 'GameCube' and not is_gamecube:
 			print(rom.path, 'lacks GameCube disc magic')
 	
-def just_read_the_wia_rvz_header_for_now(rom: FileROM, metadata: Metadata):
+def just_read_the_wia_rvz_header_for_now(rom: FileROM, metadata: Metadata) -> None:
 	#I'll get around to it I swear
 	wia_header = rom.read(amount=0x48)
 	wia_disc_struct_size = int.from_bytes(wia_header[12:16], 'big')

@@ -2,10 +2,12 @@
 import datetime
 import sys
 import time
+from collections.abc import Collection, Mapping, Sequence
 
 from meowlauncher.common_types import EmulationNotSupportedException, MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.common.emulator_command_line_helpers import mame_base
+from meowlauncher.games.mame_common.software_list import Software
 from meowlauncher.games.mame_common.software_list_find_utils import \
     get_software_list_by_name
 from meowlauncher.launch_command import LaunchCommand
@@ -19,7 +21,7 @@ from meowlauncher.util.region_info import TVSystem
 #TODO: Platform-specific metadata (e.g. specify Neo Geo = SaveType.MemoryCard); may want to refactor platform_metadata so it can work with this (for now though I only care about Neo Geo and such, which isn't in there anyway). Neo Geo in particular could get things like genre, icon from the arcade stuff, because it will always be equivalent to an arcade game, unless it isn't
 
 class SoftwareListPlatform():
-	def __init__(self, name, lists, launch_params_function):
+	def __init__(self, name: str, lists: Mapping[MediaType, Collection['str']], launch_params_function) -> None:
 		self.name = name
 		self.lists = lists
 		self.launch_params_function = launch_params_function
@@ -27,20 +29,20 @@ class SoftwareListPlatform():
 	def get_launch_command(self, software):
 		return self.launch_params_function(software)
 
-def _launch_with_software(system_name, software):
+def _launch_with_software(system_name: str, software: 'SoftwareLauncher') -> Sequence[str]:
 	#Use fully qualified id with : here to avoid ambiguity
 	return mame_base(system_name, software=software.id)
 
-def _quizwiz(software):
+def _quizwiz(software: 'SoftwareLauncher'):
 	return _launch_with_software('quizwizc', software)
 
-def _neo_geo(software):
+def _neo_geo(software: 'SoftwareLauncher'):
 	compat = software.software.compatibility
 	if compat and 'AES' not in compat:
 		raise EmulationNotSupportedException('Not compatible with AES')
 	return _launch_with_software('aes', software)
 
-def _super_cassette_vision(software):
+def _super_cassette_vision(software: 'SoftwareLauncher'):
 	machine = 'scv_pal' if software.metadata.specific_info.get('TV Type') == TVSystem.PAL else 'scv'
 	return _launch_with_software(machine, software)
 
@@ -69,7 +71,7 @@ software_list_platforms = {
 }
 
 class SoftwareLauncher():
-	def __init__(self, software, platform, media_type):
+	def __init__(self, software: Software, platform: SoftwareListPlatform, media_type: MediaType):
 		self.software = software
 		self.platform = platform
 		self.media_type = media_type
@@ -80,17 +82,17 @@ class SoftwareLauncher():
 	def id(self):
 		return f'{self.software.software_list.name}:{self.software.name}'
 
-	def make_launcher(self):
+	def make_launcher(self) -> None:
 		#if main_config.skip_mame_non_working_software:
 		#	if self.metadata.specific_info.get('MAME Emulation Status', EmulationStatus.Unknown) == EmulationStatus.Broken:
 		#		raise EmulationNotSupportedException('Not supported')
 		#TODO Have option to skip if not working
 
-		launch_params = LaunchCommand('mame', self.platform.get_launch_params(self))
+		launch_params = LaunchCommand('mame', self.platform.get_launch_command(self))
 
 		make_launcher(launch_params, self.software.description, self.metadata, 'MAME software', self.id)
 
-def add_software_metadata(software):
+def add_software_metadata(software: SoftwareLauncher) -> None:
 	software.metadata.emulator_name = 'MAME' #Will probably always be the case
 	#TODO: Metadata:
 	#categories (but how?)
@@ -107,7 +109,7 @@ def add_software_metadata(software):
 	
 	software.software.add_standard_metadata(software.metadata)
 
-def add_software(software):
+def add_software(software: SoftwareLauncher) -> None:
 	add_software_metadata(software)
 
 	#TODO: main_config.use_mame_arcade_icons and such
@@ -118,7 +120,7 @@ def add_software(software):
 		if main_config.debug:
 			print(f'Could not launch {software.id} because {ex}')
 
-def add_software_list_platform(platform):
+def add_software_list_platform(platform: SoftwareListPlatform) -> None:
 	for media_type, lists in platform.lists.items():
 		for list_name in lists:
 			software_list = get_software_list_by_name(list_name)

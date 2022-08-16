@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 	from meowlauncher.metadata import Metadata
 
 
-def add_info_from_software_list(metadata: 'Metadata', software: 'Software'):
+def add_info_from_software_list(metadata: 'Metadata', software: 'Software') -> None:
 	software.add_standard_metadata(metadata)
 	compatibility = software.compatibility
 	if compatibility:
@@ -83,7 +83,7 @@ def add_info_from_software_list(metadata: 'Metadata', software: 'Software'):
 	#Meaningless for our purposes:
 	#Keyboard overlay was supplied with cartridge
 
-def add_atari_8bit_custom_info(game: 'ROMGame'):
+def add_atari_8bit_custom_info(game: 'ROMGame') -> None:
 	headered = False
 
 	if game.metadata.media_type == MediaType.Cartridge:

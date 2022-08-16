@@ -291,7 +291,7 @@ default_expansion_devices = {
 
 }
 
-def add_fds_metadata(rom: FileROM, metadata: Metadata):
+def add_fds_metadata(rom: FileROM, metadata: Metadata) -> None:
 	if _nes_config and _nes_config.options.get('set_fds_as_different_platform'):
 		metadata.platform = 'FDS'
 
@@ -318,7 +318,7 @@ def add_fds_metadata(rom: FileROM, metadata: Metadata):
 	if not metadata.release_date:
 		metadata.release_date = Date(year, month, day, True)
 	
-def add_ines_metadata(rom: FileROM, metadata: Metadata, header: bytes):
+def add_ines_metadata(rom: FileROM, metadata: Metadata, header: bytes) -> None:
 	metadata.specific_info['Headered?'] = True
 	#Some emulators are okay with not having a header if they have something like an internal database, others are not.
 	#Note that \x00 at the end instead of \x1a indicates this is actually Wii U VC, but it's still the same header format
@@ -448,7 +448,7 @@ def _get_headered_nes_rom_software_list_entry(game: 'ROMGame') -> Optional['Soft
 
 	return find_in_software_lists_with_custom_matcher(game.related_software_lists, _does_nes_rom_match, [prg_crc32, chr_crc32])
 
-def parse_unif_chunk(metadata: Metadata, chunk_type: str, chunk_data: bytes):
+def parse_unif_chunk(metadata: Metadata, chunk_type: str, chunk_data: bytes) -> None:
 	if chunk_type == 'PRG0':
 		metadata.specific_info['PRG CRC'] = get_crc32_for_software_list(chunk_data)
 	elif chunk_type.startswith('CHR'):
@@ -487,7 +487,7 @@ def parse_unif_chunk(metadata: Metadata, chunk_type: str, chunk_data: bytes):
 	#WRTR/DINF: Dumping info, who cares
 	#VROR: Something to do with considering CHR-ROM as RAM, don't need to worry about this
 
-def add_unif_metadata(rom: FileROM, metadata: Metadata):
+def add_unif_metadata(rom: FileROM, metadata: Metadata) -> None:
 	metadata.specific_info['Headered?'] = True
 	metadata.specific_info['Header Format'] = 'UNIF'
 
@@ -528,7 +528,7 @@ def find_equivalent_nes_arcade(name: str) -> Optional[Machine]:
 	
 	return None
 
-def add_nes_software_list_metadata(software: 'Software', metadata: Metadata):
+def add_nes_software_list_metadata(software: 'Software', metadata: Metadata) -> None:
 	software.add_standard_metadata(metadata)
 
 	nes_peripheral = None
@@ -609,7 +609,7 @@ def add_nes_software_list_metadata(software: 'Software', metadata: Metadata):
 	if nes_peripheral:
 		metadata.specific_info['Peripheral'] = nes_peripheral
 
-def add_nes_custom_info(game: 'ROMGame'):
+def add_nes_custom_info(game: 'ROMGame') -> None:
 	rom = cast(FileROM, game.rom)
 	if game.rom.extension == 'fds':
 		add_fds_metadata(rom, game.metadata)

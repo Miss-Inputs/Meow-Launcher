@@ -135,7 +135,7 @@ def _load_ignored_directories() -> Collection[PurePath]:
 
 	return ignored_directories
 
-def write_ignored_directories(ignored_dirs: Collection[PurePath]):
+def write_ignored_directories(ignored_dirs: Collection[PurePath]) -> None:
 	#TODO: Also only used by broken GUI and maybe I don't want it to be part of that
 	try:
 		with _ignored_dirs_path.open('wt', encoding='utf-8') as ignored_txt:
@@ -145,7 +145,7 @@ def write_ignored_directories(ignored_dirs: Collection[PurePath]):
 	except OSError as oe:
 		print('AAaaaa!!! Failed to write ignored directories file!!', oe)
 
-def write_new_main_config(new_config: Mapping[str, Mapping[str, TypeOfConfigValue]]):
+def write_new_main_config(new_config: Mapping[str, Mapping[str, TypeOfConfigValue]]) -> None:
 	#TODO: This is only used by the broken GUI right now and maybe we don't actually want to do things this way
 	_write_new_config(new_config, _main_config_path)
 
@@ -217,7 +217,7 @@ class Config():
 	__instance = None
 
 	@staticmethod
-	def getConfig():
+	def getConfig() -> __Config:
 		if Config.__instance is None:
 			Config.__instance = Config.__Config()
 		return Config.__instance

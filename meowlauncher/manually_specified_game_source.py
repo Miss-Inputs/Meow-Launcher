@@ -55,8 +55,6 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 		return self._is_available
 
 	def _get_launcher(self, app: ManuallySpecifiedGame) -> Optional[ManuallySpecifiedLauncher]:
-		assert self.platform_config, 'Should have checked is_available before calling _process_app, platform_config is None'
-		
 		emulator: Optional[ConfiguredEmulator] = None
 		exception_reason = None
 		for chosen_emulator in self.iter_chosen_emulators():
@@ -66,10 +64,10 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 					if not app.info['compat'].get(chosen_emulator.config_name, True):
 						raise EmulationNotSupportedException('Apparently not supported')
 				potential_emulator = ConfiguredEmulator(chosen_emulator, emulator_config)
-				command = potential_emulator.get_launch_command_for_game(app, self.platform_config.options)
-				if command:
-					emulator = potential_emulator
-					break
+				#TODO: This doesn't seem right… why are we just throwing away the result here
+				potential_emulator.get_launch_command_for_game(app, self.platform_config.options)
+				emulator = potential_emulator
+				break
 			except (EmulationNotSupportedException, NotActuallyLaunchableGameException) as ex:
 				exception_reason = ex
 
@@ -81,7 +79,6 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 		return self._launcher_type(app, emulator, self.platform_config)
 
 	def _process_app(self, app_info: Mapping[str, Any]) -> Optional[ManuallySpecifiedLauncher]:
-		assert self.platform_config, 'Should have checked is_available before calling _process_app, platform_config is None'
 		app = self._app_type(app_info, self.platform_config)
 		try:
 			if not app.is_valid:

@@ -27,7 +27,7 @@ id_section_name = 'ID'
 junk_section_name = 'Junk'
 image_section_name = 'Images'
 
-def _write_field(desktop: configparser.ConfigParser, section_name: str, key_name: str, value: Any):
+def _write_field(desktop: configparser.ConfigParser, section_name: str, key_name: str, value: Any) -> None:
 	value_as_string: str
 	
 	if isinstance(value, Collection) and not isinstance(value, str):
@@ -59,7 +59,7 @@ def _write_field(desktop: configparser.ConfigParser, section_name: str, key_name
 	else:
 		section_writer[cleaned_key_name] = value_as_string
 
-def make_linux_desktop_for_launcher(launcher: 'Launcher'):
+def make_linux_desktop_for_launcher(launcher: 'Launcher') -> None:
 	name = launcher.game.name
 
 	filename_tags = find_filename_tags_at_end(name)
@@ -71,7 +71,7 @@ def make_linux_desktop_for_launcher(launcher: 'Launcher'):
 	#TODO: Merge with make_linux_desktop once we get rid of make_launcher
 	_make_linux_desktop(launcher.command, name, launcher.game.metadata, filename_tags, launcher.game_type, launcher.game_id)
 
-def _make_linux_desktop(command: 'LaunchCommand', display_name: str, metadata: 'Metadata', filename_tags: Collection[str], game_type: str, game_id: str):
+def _make_linux_desktop(command: 'LaunchCommand', display_name: str, metadata: 'Metadata', filename_tags: Collection[str], game_type: str, game_id: str) -> None:
 	path = pick_new_path(main_config.output_folder, sanitize_name(display_name, no_janky_chars=True), 'desktop')
 
 	configwriter = configparser.ConfigParser(interpolation=None)
@@ -133,7 +133,7 @@ def _make_linux_desktop(command: 'LaunchCommand', display_name: str, metadata: '
 	#Set executable, but also set everything else because whatever, partially because I can't remember what I would need to do to get the original mode and | it with executable
 	path.chmod(0o7777)
 
-def make_launcher(launch_params: 'LaunchCommand', name: str, metadata: 'Metadata', id_type: str, unique_id: str):
+def make_launcher(launch_params: 'LaunchCommand', name: str, metadata: 'Metadata', id_type: str, unique_id: str) -> None:
 	#TODO: Remove this, once it is no longer used - game sources should be using GameSource and whatever main class can call make_linux_desktop_for_launcher (which will have a better name) instead
 	display_name = remove_filename_tags(name)
 	filename_tags = find_filename_tags_at_end(name)

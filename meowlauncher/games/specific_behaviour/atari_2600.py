@@ -79,7 +79,7 @@ def _controller_from_stella_db_name(controller: str) -> Atari2600Controller:
 	#Track & Field controller is just a joystick with no up or down, so Stella doesn't count it as separate from joystick
 	return Atari2600Controller.Other
 
-def _parse_stella_cart_note(metadata: 'Metadata', note: str):
+def _parse_stella_cart_note(metadata: 'Metadata', note: str) -> None:
 	#Adventures in the Park
 	#Featuring Panama Joe
 	#Hack of Adventure
@@ -144,7 +144,7 @@ def _parse_stella_cart_note(metadata: 'Metadata', note: str):
 	else:
 		metadata.add_notes(note)
 
-def _parse_stella_db(metadata: 'Metadata', game_db_entry: Mapping[str, Optional[str]]):
+def _parse_stella_db(metadata: 'Metadata', game_db_entry: Mapping[str, Optional[str]]) -> None:
 	stella_name = game_db_entry.get('Cartridge_Name', game_db_entry.get('Cart_Name'))
 	if stella_name:
 		metadata.add_alternate_name(stella_name, 'Stella Name')
@@ -181,7 +181,7 @@ def _parse_stella_db(metadata: 'Metadata', game_db_entry: Mapping[str, Optional[
 	if note:
 		_parse_stella_cart_note(metadata, note)
 
-def _add_input_info_from_peripheral(metadata: 'Metadata', peripheral: Atari2600Controller):
+def _add_input_info_from_peripheral(metadata: 'Metadata', peripheral: Atari2600Controller) -> None:
 	if peripheral == Atari2600Controller.Nothing:
 		return
 		
@@ -210,7 +210,7 @@ def _add_input_info_from_peripheral(metadata: 'Metadata', peripheral: Atari2600C
 	elif peripheral == Atari2600Controller.Other:
 		metadata.input_info.add_option(input_metadata.Custom())
 
-def _parse_peripherals(metadata: 'Metadata'):
+def _parse_peripherals(metadata: 'Metadata') -> None:
 	left = metadata.specific_info.get('Left Peripheral')
 	right = metadata.specific_info.get('Right Peripheral')
 
@@ -225,7 +225,7 @@ def _parse_peripherals(metadata: 'Metadata'):
 
 class StellaDB():
 	class __StellaDB():
-		def __init__(self):
+		def __init__(self) -> None:
 			self.db = None
 			try:
 				self.db = get_stella_database()
@@ -234,12 +234,12 @@ class StellaDB():
 
 	__instance = None
 	@staticmethod
-	def get_stella_db():
+	def get_stella_db() -> Optional[Mapping[str, Mapping[str, str]]]:
 		if StellaDB.__instance is None:
 			StellaDB.__instance = StellaDB.__StellaDB()
 		return StellaDB.__instance.db
 
-def add_atari_2600_custom_info(game: 'ROMGame'):
+def add_atari_2600_custom_info(game: 'ROMGame') -> None:
 	stella_db = StellaDB.get_stella_db()
 
 	whole_cart = cast(FileROM, game.rom).read()

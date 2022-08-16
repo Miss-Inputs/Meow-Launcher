@@ -65,7 +65,7 @@ def get_duckstation_db_info(product_code: str) -> Optional[Mapping[Any, Any]]:
 			return db_game
 	return None
 
-def _add_duckstation_db_info(db_entry: Mapping[Any, Any], metadata: 'Metadata'):
+def _add_duckstation_db_info(db_entry: Mapping[Any, Any], metadata: 'Metadata') -> None:
 	metadata.add_alternate_name(db_entry['name'], 'DuckStation Database Name')
 	languages = db_entry.get('languages')
 	if languages:
@@ -90,7 +90,7 @@ def _add_duckstation_db_info(db_entry: Mapping[Any, Any], metadata: 'Metadata'):
 		metadata.specific_info['Compatible Controllers'] = controllers
 		metadata.specific_info['Supports Analog?'] = 'AnalogController' in controllers
 
-def add_info_from_product_code(product_code: str, metadata: 'Metadata'):
+def add_info_from_product_code(product_code: str, metadata: 'Metadata') -> None:
 	if _duckstation_config:
 		compat = find_duckstation_compat_info(product_code)
 		if compat:
@@ -99,7 +99,7 @@ def add_info_from_product_code(product_code: str, metadata: 'Metadata'):
 		if db_entry:
 			_add_duckstation_db_info(db_entry, metadata)
 
-def add_ps1_custom_info(game: 'ROMGame'):
+def add_ps1_custom_info(game: 'ROMGame') -> None:
 	try:
 		software = game.get_software_list_entry()
 		if software:

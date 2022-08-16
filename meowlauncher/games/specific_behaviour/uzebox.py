@@ -9,7 +9,7 @@ from .common import snes_controllers
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 
-def add_info_from_uze_header(header: bytes, metadata: Metadata):
+def add_info_from_uze_header(header: bytes, metadata: Metadata) -> None:
 	#Header version: 6
 	#Target: 7 (0 = ATmega644, 1 = reserved for ATmega1284)
 	#Program size: 8-0xc (LE)
@@ -28,7 +28,7 @@ def add_info_from_uze_header(header: bytes, metadata: Metadata):
 		#Official documentation claims this is unused, but it seems that it is used after all (although often identical to title)
 		metadata.descriptions['Banner Description'] = description
 
-def add_uzebox_custom_info(game: 'ROMGame'):
+def add_uzebox_custom_info(game: 'ROMGame') -> None:
 	#Save type: ????
 
 	header = cast(FileROM, game.rom).read(amount=512)

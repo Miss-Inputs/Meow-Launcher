@@ -1534,9 +1534,9 @@ def dosbox_staging(app: 'DOSApp', _, emulator_config: 'EmulatorConfig') -> Launc
 
 	if app.cd_path:
 		#I hope you don't put double quotes in the CD paths (not sure what the proper way to do that would be anyway? 999 layers of escaping?)
-		imgmount_args = f'"{str(app.cd_path)}"'
+		imgmount_args = f'"{app.cd_path}"'
 		if app.other_cd_paths:
-			imgmount_args += ' '  + ' '.join(f'"{str(cd_path)}"' for cd_path in app.other_cd_paths)
+			imgmount_args += ' '  + ' '.join(f'"{cd_path}"' for cd_path in app.other_cd_paths)
 		args += ['-c', f'IMGMOUNT -ro {cd_drive_letter} -t cdrom {imgmount_args}']
 	
 	ensure_exist_command = None #Used to ensure overlay dir exists… hmm

@@ -6,7 +6,7 @@ import os
 import subprocess
 from collections.abc import Collection, Mapping, Sequence, Iterator
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 from functools import lru_cache
 
 from meowlauncher.config.main_config import main_config
@@ -32,7 +32,7 @@ def _find_butler() -> Optional[Path]:
 	except FileNotFoundError:
 		return None
 
-def _butler_configure(folder: Path, os_filter: Optional[str]=None, ignore_arch=False) -> Optional[Mapping]:
+def _butler_configure(folder: Path, os_filter: Optional[str]=None, ignore_arch: bool=False) -> Optional[Mapping[str, Any]]:
 	try:
 		butler = _find_butler()
 		if not butler:
@@ -186,7 +186,7 @@ class ItchGame(Game):
 		self.metadata.specific_info['Game Type'] = self.game_type
 		self.metadata.platform = platform
 
-	def _try_and_find_exe(self, os_filter: Optional[str]=None, no_arch_filter=False) -> Iterator[tuple[Optional[str], Path, Optional[Mapping]]]:
+	def _try_and_find_exe(self, os_filter: Optional[str]=None, no_arch_filter: bool=False) -> Iterator[tuple[Optional[str], Path, Optional[Mapping[str, bool]]]]:
 		#This is the fun part. There is no info in the receipt that actually tells us what to run, the way the itch.io app does it is use heuristics to figure that out. So if we don't have butler, we'd have to re-implement dash ourselves, which would suck and let's not
 		#I still kinda want a fallback method that just grabs something ending with .x86 or .sh etc in the folder, though
 		output = _butler_configure(self.path, os_filter, no_arch_filter)
@@ -202,7 +202,7 @@ class ItchGame(Game):
 			yield candidate['flavor'], Path(output['value']['basePath'], candidate['path']), candidate.get('windowsInfo')
 		return
 
-	def _make_exe_launcher(self, flavour: Optional[str], exe_path: Path, windows_info: Optional[Mapping]):
+	def _make_exe_launcher(self, flavour: Optional[str], exe_path: Path, windows_info: Optional[Mapping[str, bool]]) -> None:
 		metadata = copy.deepcopy(self.metadata)
 		executable_name = exe_path.name
 		metadata.specific_info['Executable Name'] = executable_name
@@ -251,9 +251,9 @@ class ItchGame(Game):
 		elif 'windows' in self.platforms:
 			os_filter = 'windows'
 
-		candidates = self._try_and_find_exe(os_filter)
+		candidates = set(self._try_and_find_exe(os_filter))
 		if not candidates:
-			candidates = self._try_and_find_exe()
+			candidates = set(self._try_and_find_exe())
 
 		if not candidates:
 			if main_config.debug:
@@ -267,7 +267,7 @@ class ItchGame(Game):
 				continue
 			self._make_exe_launcher(flavour, path, windows_info)
 
-def get_launch_params(flavour: str, exe_path: Path, windows_info: Optional[Mapping]) -> Optional[tuple[LaunchCommand, Optional[str]]]:
+def get_launch_params(flavour: str, exe_path: Path, windows_info: Optional[Mapping[str, bool]]) -> Optional[tuple[LaunchCommand, Optional[str]]]:
 	if flavour in {'linux', 'script'}:
 		#ez pez
 		return LaunchCommand(str(exe_path), []), None

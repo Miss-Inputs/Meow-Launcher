@@ -12,7 +12,8 @@ from meowlauncher.common_types import (EmulationNotSupportedException,
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
-from meowlauncher.config_types import EmulatorConfig, PlatformConfig
+from meowlauncher.config_types import (EmulatorConfig, PlatformConfig,
+                                       TypeOfConfigValue)
 from meowlauncher.configured_emulator import (ConfiguredStandardEmulator,
                                               LibretroCoreWithFrontend)
 from meowlauncher.data.emulated_platforms import platforms
@@ -31,12 +32,12 @@ from meowlauncher.util.desktop_files import has_been_done
 if TYPE_CHECKING:
 	from meowlauncher.emulated_platform import StandardEmulatedPlatform
 
-def _get_emulator_config(emulator: Union[StandardEmulator, LibretroCore]):
+def _get_emulator_config(emulator: Union[StandardEmulator, LibretroCore]) -> EmulatorConfig:
 	#Eventually, once we have per-game overrides, we should give this a ROMGame parameter too, and that should work out
 	if isinstance(emulator, (MednafenModule, ViceEmulator, MAMEDriver)):
 		specific = emulator_configs[emulator.config_name]
 		global_config = emulator_configs[emulator.name]
-		combined = {}
+		combined: dict[str, TypeOfConfigValue] = {}
 		combined.update(global_config.options)
 		combined.update(specific.options)
 		if isinstance(emulator, ViceEmulator):
@@ -94,10 +95,10 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 					raise ExtensionNotSupportedException(f'{potential_emulator.name} does not support {message}')
 
 				potential_launcher = ROMLauncher(game, potential_emulator, self.platform_config)
-				command = potential_launcher.command #We need to test each one for EmulationNotSupportedException… what's the maybe better way to do this, since we call get_launch_command again and that sucks
-				if command:
-					launcher = potential_launcher
-					break
+				potential_launcher.command #We need to test each one for EmulationNotSupportedException… what's the maybe better way to do this, since we call get_launch_command again and that sucks #pylint: disable=pointless-statement
+				#TODO But is that really right?
+				launcher = potential_launcher
+				break
 			except (EmulationNotSupportedException, NotActuallyLaunchableGameException) as ex:
 				exception_reason = ex
 
@@ -151,7 +152,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 					
 			if not rom.is_folder and not self.platform.is_valid_file_type(rom.extension):
 				#TODO: Probs want a warn_about_invalid_extension main_config (or platform_config)
-				print(f'Invalid extension for this platform in {type(rom).__name__} {rom.path}: {rom.extension}')
+				#print(f'Invalid extension for this platform in {type(rom).__name__} {rom.path}: {rom.extension}')
 				continue
 
 			try:
@@ -197,9 +198,8 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 					remaining_subdirs = [] #The subdirectories of rom_dir that aren't folder ROMs
 					for d in dirs:
 						folder_path = Path(root, d)
-						if not main_config.full_rescan:
-							if has_been_done('ROM', str(folder_path)):
-								continue
+						if not main_config.full_rescan and has_been_done('ROM', str(folder_path)):
+							continue
 
 						folder_rom = FolderROM(folder_path)
 						media_type = folder_check(folder_rom)

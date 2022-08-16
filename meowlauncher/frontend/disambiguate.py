@@ -24,7 +24,7 @@ DesktopWithPath = tuple[Path, configparser.ConfigParser]
 super_debug = '--super-debug' in sys.argv
 disambiguity_section_name = section_prefix + 'Disambiguity'
 
-def _update_name(desktop: DesktopWithPath, disambiguator: Optional[str], disambiguation_method: str):
+def _update_name(desktop: DesktopWithPath, disambiguator: Optional[str], disambiguation_method: str) -> None:
 	#TODO: Encapsulate accessing .desktop files better, this module shouldn't know about them
 	if not disambiguator:
 		return
@@ -52,7 +52,7 @@ def _update_name(desktop: DesktopWithPath, disambiguator: Optional[str], disambi
 	with desktop[0].open('wt', encoding='utf-8') as f:
 		desktop[1].write(f)
 
-def _resolve_duplicates_by_metadata(group: Collection[DesktopWithPath], field: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name):
+def _resolve_duplicates_by_metadata(group: Collection[DesktopWithPath], field: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name) -> None:
 	value_counter = collections.Counter(get_field(d[1], field, field_section) for d in group)
 	for dup in group:
 		field_value = get_field(dup[1], field, field_section)
@@ -88,7 +88,7 @@ def _resolve_duplicates_by_metadata(group: Collection[DesktopWithPath], field: s
 			original_name = get_field(dup[1], 'Ambiguous-Name', disambiguity_section_name)
 			_update_name(dup, format_function(field_value, original_name if original_name else name) if format_function else f'({field_value})', field)
 
-def _resolve_duplicates_by_filename_tags(group: Collection[DesktopWithPath]):
+def _resolve_duplicates_by_filename_tags(group: Collection[DesktopWithPath]) -> None:
 	for dup in group:
 		the_rest = tuple(d for d in group if d[0] != dup[0])
 		tags = get_array(dup[1], 'Filename-Tags', junk_section_name)
@@ -108,7 +108,7 @@ def _resolve_duplicates_by_filename_tags(group: Collection[DesktopWithPath]):
 		if differentiator_candidates:
 			_update_name(dup, ' '.join(differentiator_candidates), 'tags')
 
-def _resolve_duplicates_by_dev_status(group: Iterable[DesktopWithPath]):
+def _resolve_duplicates_by_dev_status(group: Iterable[DesktopWithPath]) -> None:
 	for dup in group:
 		tags = get_array(dup[1], 'Filename-Tags', junk_section_name)
 
@@ -117,7 +117,7 @@ def _resolve_duplicates_by_dev_status(group: Iterable[DesktopWithPath]):
 			if tag_matches:= tag_matches or (tag.lower().startswith('(alpha') and tag[6] == ' ' and tag[7:-1].isdigit()):
 				_update_name(dup, '(' + tag[1:].title() if tag.islower() else tag, 'dev status')
 
-def _resolve_duplicates_by_date(group: Collection[DesktopWithPath]):
+def _resolve_duplicates_by_date(group: Collection[DesktopWithPath]) -> None:
 	year_counter = collections.Counter(get_field(d[1], 'Year') for d in group)
 	month_counter = collections.Counter(get_field(d[1], 'Month') for d in group)
 	day_counter = collections.Counter(get_field(d[1], 'Day') for d in group)
@@ -169,7 +169,7 @@ def _resolve_duplicates_by_date(group: Collection[DesktopWithPath]):
 
 			_update_name(dup, '(' + date_string + ')', 'date')
 
-def _resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name):
+def _resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name) -> None:
 	if method == 'tags':
 		_resolve_duplicates_by_filename_tags(group)
 	elif method == 'dev-status':
@@ -179,7 +179,7 @@ def _resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_
 	else:
 		_resolve_duplicates_by_metadata(group, method, format_function, ignore_missing_values, field_section)
 
-def _fix_duplicate_names(method: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name):
+def _fix_duplicate_names(method: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name) -> None:
 	#TODO: output_folder needs to be unambigulously Path, that's the issue here
 	files = ((cast(Path, path), get_desktop(path)) for path in main_config.output_folder.iterdir())
 	if method == 'dev-status':

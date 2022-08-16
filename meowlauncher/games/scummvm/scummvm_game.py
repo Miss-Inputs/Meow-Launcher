@@ -1,4 +1,5 @@
 import os
+from collections.abc import Mapping
 from pathlib import Path
 from typing import Optional
 
@@ -70,7 +71,7 @@ class ScummVMGame(Game):
 		return name
 
 	@staticmethod
-	def _engine_list_to_use():
+	def _engine_list_to_use() -> Mapping[str, str]:
 		return scummvm_config.scummvm_engines
 
 	def add_metadata(self) -> None:
@@ -84,7 +85,8 @@ class ScummVMGame(Game):
 		#Let series and series_index be detected by series_detect
 		
 		engine_id = self.options.get('engineid')
-		self.metadata.specific_info['Engine'] = self._engine_list_to_use().get(engine_id)
+		if engine_id:
+			self.metadata.specific_info['Engine'] = self._engine_list_to_use().get(engine_id)
 		extra = self.options.get('extra')
 		if extra:
 			self.metadata.specific_info['Version'] = extra #Hmm, I guess that'd be how we should use this properly…
@@ -142,6 +144,6 @@ class ScummVMLauncher(Launcher):
 	def command(self) -> LaunchCommand:
 		args = ['-f']
 		if main_config.scummvm_config_path != Path('~/.config/scummvm/scummvm.ini').expanduser():
-			args.append(f'--config={str(main_config.scummvm_config_path)}')
+			args.append(f'--config={main_config.scummvm_config_path}')
 		args.append(self.game.game_id)
 		return LaunchCommand(self.runner.config.exe_path, args)

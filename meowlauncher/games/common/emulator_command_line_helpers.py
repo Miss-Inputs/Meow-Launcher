@@ -11,11 +11,10 @@ from meowlauncher.games.mame_common.software_list_find_utils import \
 from meowlauncher.launch_command import LaunchCommand, rom_path_argument
 
 if TYPE_CHECKING:
-	from meowlauncher.config_types import EmulatorConfig
+	from meowlauncher.config_types import EmulatorConfig, RunnerConfigValue
 	from meowlauncher.emulator import GenericLaunchCommandFunc
 	from meowlauncher.games.roms.rom_game import ROMGame
-	from meowlauncher.games.mame_common.software_list import Software
-
+	
 def _get_autoboot_script_by_name(name: str) -> str:
 	#Hmm I'm not sure I like this one but whaddya do otherwise… where's otherwise a good place to store shit
 	this_package = os.path.dirname(__file__)
@@ -96,7 +95,7 @@ def mame_base(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapp
 
 	return args
 
-def mame_driver(game: 'ROMGame', emulator_config: 'EmulatorConfig', driver: str, slot=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard=False, autoboot_script=None) -> LaunchCommand:
+def mame_driver(game: 'ROMGame', emulator_config: 'EmulatorConfig', driver: str, slot: str=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard: bool=False, autoboot_script: str=None) -> LaunchCommand:
 	#Hmm I might need to refactor this and mame_system when I figure out what I'm doing
 	compat_threshold = cast(int, emulator_config.options.get('software_compatibility_threshold', 1))
 	software = game.metadata.specific_info.get('MAME Software')	
@@ -114,6 +113,7 @@ def mame_driver(game: 'ROMGame', emulator_config: 'EmulatorConfig', driver: str,
 	return LaunchCommand(emulator_config.exe_path, args)
 
 def first_available_romset(driver_list: Collection[str]) -> Optional[str]:
+	#TODO: Calling verify_romset instead of a thing of a MAMEExecutable is bad
 	for driver in driver_list:
 		if verify_romset(driver):
 			return driver
@@ -121,34 +121,34 @@ def first_available_romset(driver_list: Collection[str]) -> Optional[str]:
 
 #This is here to make things simpler, instead of putting a whole new function in emulator_command_lines we can return the appropriate function from here
 def simple_emulator(args: Sequence[str]=None) -> 'GenericLaunchCommandFunc[ROMGame]':
-	def inner(_, __, emulator_config: 'EmulatorConfig'):
+	def inner(_, __, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 		return LaunchCommand(emulator_config.exe_path, args if args else [rom_path_argument])
 	return inner
 
 def simple_gb_emulator(args: Sequence[str], mappers: Collection[str], autodetected_mappers: Collection[str]) -> 'GenericLaunchCommandFunc[ROMGame]':
-	def inner(game: 'ROMGame', _, emulator_config: 'EmulatorConfig'):
+	def inner(game: 'ROMGame', _, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 		_verify_supported_gb_mappers(game, mappers, autodetected_mappers)
 		return LaunchCommand(emulator_config.exe_path, args)
 	return inner
 
 def simple_md_emulator(args: Sequence[str], unsupported_mappers: Collection[str]) -> 'GenericLaunchCommandFunc[ROMGame]':
-	def inner(game: 'ROMGame', _, emulator_config: 'EmulatorConfig'):
+	def inner(game: 'ROMGame', _, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 		mapper = game.metadata.specific_info.get('Mapper')
 		if mapper and mapper in unsupported_mappers:
 			raise EmulationNotSupportedException(mapper + ' not supported')
 		return LaunchCommand(emulator_config.exe_path, args)
 	return inner
 
-def simple_mame_driver(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard=False, autoboot_script=None) -> 'GenericLaunchCommandFunc[ROMGame]':
-	def inner(game: 'ROMGame', _, emulator_config: 'EmulatorConfig'):
+def simple_mame_driver(driver: str, slot: Optional[str]=None, slot_options: Optional[Mapping[str, str]]=None, has_keyboard: bool=False, autoboot_script: str=None) -> 'GenericLaunchCommandFunc[ROMGame]':
+	def inner(game: 'ROMGame', _, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 		return mame_driver(game, emulator_config, driver, slot, slot_options, has_keyboard, autoboot_script)
 	return inner
 
 def simple_mednafen_module_args(module: str) -> 'GenericLaunchCommandFunc[ROMGame]':
-	def inner(_: 'ROMGame', __, emulator_config: 'EmulatorConfig'):
+	def inner(_: 'ROMGame', __, emulator_config: 'EmulatorConfig') -> LaunchCommand:
 		return mednafen_module(module, exe_path=emulator_config.exe_path)
 	return inner
 
 class SimpleMednafenModule(MednafenModule):
-	def __init__(self, name: str, status: EmulatorStatus, module: str, supported_extensions: Collection[str], configs=None):
+	def __init__(self, name: str, status: EmulatorStatus, module: str, supported_extensions: Collection[str], configs: Mapping[str, 'RunnerConfigValue']=None):
 		super().__init__(name, status, supported_extensions, params_func=simple_mednafen_module_args(module), configs=configs)

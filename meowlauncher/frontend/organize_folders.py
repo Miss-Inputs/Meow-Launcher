@@ -18,7 +18,7 @@ from meowlauncher.util.io_utils import sanitize_name
 #Consider it to be its own kind of frontend, perhaps.
 #This code sucks titty balls
 
-def copy_to_folder(path: Path, *dest_folder_components: str):
+def copy_to_folder(path: Path, *dest_folder_components: str) -> None:
 	dest_folder = Path(*dest_folder_components)
 	dest_folder.mkdir(exist_ok=True, parents=True)
 	shutil.copy(path, dest_folder)
@@ -40,7 +40,7 @@ def delete_existing_output_dir() -> None:
 			rmdir_recursive(f)
 			#Only files here, no directories
 
-def move_into_extra_subfolder(path: Path, desktop: ConfigParser, subfolder: str, keys, missing_value=None):
+def move_into_extra_subfolder(path: Path, desktop: ConfigParser, subfolder: str, keys: str, missing_value: str=None) -> None:
 	subsubfolder = []
 	is_array = '*' in keys
 	subsubfolders: list[list[str]] = []

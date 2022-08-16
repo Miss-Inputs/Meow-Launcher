@@ -33,8 +33,7 @@ def _software_list_product_code_matcher(part: 'SoftwarePart', product_code: str)
 
 @cache
 def _software_lists_for_platform(platform: 'StandardEmulatedPlatform') -> Collection['SoftwareList']:
-	#I don't trust cached_property I guess
-	return {software_list for software_list in iter_software_lists_by_name(platform.software_list_names) if software_list}
+	return set(iter_software_lists_by_name(platform.software_list_names))
 
 class ROMGame(EmulatedGame):
 	def __init__(self, rom: ROM, platform: 'StandardEmulatedPlatform', platform_config: 'PlatformConfig'):
@@ -56,7 +55,7 @@ class ROMGame(EmulatedGame):
 		return name
 
 	@property
-	def related_software_lists(self):
+	def related_software_lists(self) -> Collection['SoftwareList']:
 		#TODO: I don't like this being here but 2600/C64/GB/Intellivision/NES needs it for now I guess
 		return _software_lists_for_platform(self.platform)
 

@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Union
 
 import meowlauncher.games.specific_behaviour.emulator_command_lines as command_lines
 from meowlauncher.config_types import ConfigValueType, RunnerConfigValue
+from meowlauncher.emulated_game import EmulatedGame
 from meowlauncher.emulator import (Emulator, EmulatorStatus, LibretroCore,
                                    LibretroFrontend, MAMEDriver,
                                    MednafenModule, StandardEmulator,
@@ -487,7 +488,7 @@ libretro_frontends = {frontend.name: frontend for frontend in _libretro_frontend
 #Basically this is here for the purpose of generating configs
 #TODO: Return an iterator and make a "has config" interface so we don't have to invent _JustHereForConfigValues
 #all_emulators: MutableSequence[Union[Emulator, LibretroFrontend]] = _standalone_emulators
-all_emulators: MutableSequence[Union[Emulator, LibretroFrontend, '_JustHereForConfigValues']] = []
+all_emulators: MutableSequence[Union[Emulator[EmulatedGame], LibretroFrontend, '_JustHereForConfigValues']] = []
 all_emulators += _standalone_emulators
 all_emulators += _libretro_cores
 all_emulators += _dos_emulators

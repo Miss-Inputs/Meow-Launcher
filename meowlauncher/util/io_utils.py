@@ -3,7 +3,7 @@ import pathlib
 from typing import Optional
 
 
-def ensure_exist(path: pathlib.Path):
+def ensure_exist(path: pathlib.Path) -> None:
 	path.parent.mkdir(exist_ok=True, parents=True)
 	path.touch()
 

@@ -93,7 +93,7 @@ atari_5200_charset = {
 	0xe1: ' ', #Not sure about this one, but it really does display as blank. Maybe all unknown characters just display as blank?
 }
 
-def add_atari_5200_footer_garbage_info(rom: 'FileROM', metadata: Metadata):
+def add_atari_5200_footer_garbage_info(rom: 'FileROM', metadata: Metadata) -> None:
 	footer = rom.read(seek_to=rom.size - 24, amount=24)
 	year = footer[20:22] #Y2K incompliant whee
 	#Entry point: 22-23, lil' endian

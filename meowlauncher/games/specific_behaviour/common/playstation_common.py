@@ -1,7 +1,6 @@
 from collections.abc import Mapping
-from dataclasses import dataclass
 from enum import Flag
-from typing import TYPE_CHECKING, Optional, Union, cast
+from typing import TYPE_CHECKING, NamedTuple, Optional, Union, cast
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
@@ -10,8 +9,7 @@ from meowlauncher.util.name_utils import fix_name
 if TYPE_CHECKING:
 	from meowlauncher.metadata import Metadata
 
-@dataclass
-class PlayStationCategory():
+class PlayStationCategory(NamedTuple):
 	cat: str
 	metadata_category: Optional[str] #What we might like to set metadata.categories to
 
@@ -165,7 +163,7 @@ def _convert_sfo(sfo: bytes) -> Mapping[str, SFOValueType]:
 		d[key] = value
 	return d
 
-def parse_param_sfo_kv(rompath: str, metadata: 'Metadata', key: str, value: SFOValueType):
+def parse_param_sfo_kv(rompath: str, metadata: 'Metadata', key: str, value: SFOValueType) -> None:
 	#rompath is just there for warning messages
 	if key == 'DISC_ID':
 		if value != 'UCJS10041':
@@ -257,14 +255,14 @@ def parse_param_sfo_kv(rompath: str, metadata: 'Metadata', key: str, value: SFOV
 		if main_config.debug:
 			print(rompath, 'has unknown param.sfo value', key, value)
 
-def parse_param_sfo(rompath: str, metadata: 'Metadata', param_sfo: bytes):
+def parse_param_sfo(rompath: str, metadata: 'Metadata', param_sfo: bytes) -> None:
 	magic = param_sfo[:4]
 	if magic != b'\x00PSF':
 		return
 	for key, value in _convert_sfo(param_sfo).items():
 		parse_param_sfo_kv(rompath, metadata, key, value)
 
-def parse_product_code(metadata: 'Metadata', product_code: str):
+def parse_product_code(metadata: 'Metadata', product_code: str) -> None:
 	if len(product_code) == 9 and product_code[:4].isalpha() and product_code[-5:].isdigit():
 		if product_code.startswith(('B', 'P', 'S', 'X', 'U')):
 			metadata.media_type = MediaType.OpticalDisc

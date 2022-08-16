@@ -52,7 +52,7 @@ publishers = {
 	#47: E3 Staff or Gust
 }
 
-def add_wonderswan_header_info(rom: 'FileROM', metadata: 'Metadata'):
+def add_wonderswan_header_info(rom: 'FileROM', metadata: 'Metadata') -> None:
 	rom_size = rom.size
 	header_start_position = rom_size - 10
 	header = rom.read(seek_to=header_start_position, amount=10)

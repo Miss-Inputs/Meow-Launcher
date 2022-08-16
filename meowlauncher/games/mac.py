@@ -261,7 +261,7 @@ class MacApp(ManuallySpecifiedGame):
 		return does_exist(self.hfv_path, PathInsideHFS(self.path))
 
 	@property
-	def base_folder(self):
+	def base_folder(self) -> Optional[Path]:
 		return None
 
 	@property

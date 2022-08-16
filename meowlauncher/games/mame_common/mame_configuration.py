@@ -7,7 +7,7 @@ from typing import Optional
 image_types = {'ico', 'png', 'jpg', 'bmp'}
 
 class MAMEConfiguration():
-	def __init__(self, core_config_path: Path=None, ui_config_path=None) -> None:
+	def __init__(self, core_config_path: Path=None, ui_config_path: Path=None) -> None:
 		if not core_config_path:
 			core_config_path = Path('~/.mame/mame.ini').expanduser()
 		self.core_config = parse_mame_config_file(core_config_path)

@@ -47,7 +47,7 @@ class WiiVirtualConsolePlatform(Enum):
 def _round_up_to_multiple(num: int, factor: int) -> int:
 	return num + (factor - (num % factor)) % factor
 
-def _parse_tmd(metadata: 'Metadata', tmd: bytes):
+def _parse_tmd(metadata: 'Metadata', tmd: bytes) -> None:
 	#Stuff that I dunno about: 0 - 388
 	if tmd[387]:
 		metadata.specific_info['Is vWii?'] = True
@@ -97,7 +97,7 @@ def _parse_tmd(metadata: 'Metadata', tmd: bytes):
 	#Access rights: 472-476
 	metadata.specific_info['Revision'] = int.from_bytes(tmd[476:478], 'big')
 
-def _parse_opening_bnr(metadata: 'Metadata', opening_bnr: bytes):
+def _parse_opening_bnr(metadata: 'Metadata', opening_bnr: bytes) -> None:
 	#We will not try and bother parsing banner.bin or icon.bin, that would take a lot of effort
 	imet = opening_bnr[64:]
 	#I don't know why this is 64 bytes in, aaaa
@@ -154,7 +154,7 @@ def _parse_opening_bnr(metadata: 'Metadata', opening_bnr: bytes):
 		if title != local_title:
 			metadata.add_alternate_name(title, f'{lang} Banner Title')
 	
-def _add_wad_metadata(rom: FileROM, metadata: 'Metadata'):
+def _add_wad_metadata(rom: FileROM, metadata: 'Metadata') -> None:
 	header = rom.read(amount=0x40)
 	header_size = int.from_bytes(header[0:4], 'big')
 	#WAD type: 4-8
@@ -182,7 +182,7 @@ def _add_wad_metadata(rom: FileROM, metadata: 'Metadata'):
 	footer = rom.read(seek_to=footer_offset, amount=_round_up_to_multiple(footer_size, 64))
 	_parse_opening_bnr(metadata, footer)
 
-def add_wii_homebrew_metadata(rom: FolderROM, metadata: 'Metadata'):
+def add_wii_homebrew_metadata(rom: FolderROM, metadata: 'Metadata') -> None:
 	metadata.specific_info['Executable Name'] = rom.relevant_files['boot.dol'].name
 
 	icon_path = rom.get_file('icon.png', True)
@@ -246,7 +246,7 @@ def add_wii_homebrew_metadata(rom: FolderROM, metadata: 'Metadata'):
 			if main_config.debug:
 				print('Ah bugger this Wii homebrew XML has problems', rom.path, etree_error)
 
-def _add_wii_disc_metadata(rom: FileROM, metadata: 'Metadata'):
+def _add_wii_disc_metadata(rom: FileROM, metadata: 'Metadata') -> None:
 	wii_header = rom.read(0x40_000, 0xf000)
 
 	game_partition_offset = None
@@ -313,7 +313,7 @@ def _add_wii_disc_metadata(rom: FileROM, metadata: 'Metadata'):
 		pass
 	parse_ratings(metadata, wii_header[0xe010:0xe020])
 
-def add_wii_custom_info(game: 'ROMGame'):
+def add_wii_custom_info(game: 'ROMGame') -> None:
 	if game.rom.extension in {'gcz', 'iso', 'wbfs', 'gcm'}:
 		header: bytes
 		rom = cast(FileROM, game.rom)

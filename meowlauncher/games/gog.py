@@ -6,7 +6,7 @@ from abc import ABC
 from collections.abc import Mapping, Sequence
 from itertools import chain
 from pathlib import Path, PureWindowsPath
-from typing import Optional
+from typing import Any, Optional
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
@@ -70,7 +70,7 @@ class GOGJSONGameInfo():
 		return None #Not sure what happens if more than one has isPrimary tbh, guess it doesn't matter
 
 class GOGTask():
-	def __init__(self, json_object: Mapping):
+	def __init__(self, json_object: Mapping[str, Any]):
 		self.is_primary: bool = json_object.get('isPrimary', False)
 		self.task_type: Optional[str] = json_object.get('type') #Just FileTask or URLTask?
 		path: Optional[str] = json_object.get('path') #I guess this is also only for FileTask
@@ -344,7 +344,7 @@ class WindowsGOGGame(Game):
 		
 		return 'Wine', self.get_wine_launch_params(task)
 		
-	def make_launcher(self, task: GOGTask):
+	def make_launcher(self, task: GOGTask) -> None:
 		emulator_name, params = self.get_launcher_params(task)
 		if not params:
 			return

@@ -20,7 +20,7 @@ class TDB():
 		#Can assume all genres not in maingenres are subgenres
 		self.genres = {main_genre.attrib['name']: [subgenre.attrib['name'] for subgenre in main_genre.iterfind('subgenre')] for main_genre in genre_element.iterfind('maingenre')}
 
-	def find_game(self, search_key) -> Optional[ElementTree.Element]:
+	def find_game(self, search_key: str) -> Optional[ElementTree.Element]:
 		return next((game for game in self.xml.iterfind('game') if game.findtext('id') == search_key), None)
 		
 	def _organize_genres(self, genres: Collection[str]) -> Mapping[str, Collection[str]]:
@@ -41,7 +41,7 @@ class TDB():
 								break
 		return main_genres
 
-	def parse_genre(self, metadata: Metadata, genre_list: str):
+	def parse_genre(self, metadata: Metadata, genre_list: str) -> None:
 		#genres = [g.title() for g in genre_list.split(',')]
 		genres = genre_list.split(',')
 		if 'software' in genres:
@@ -81,7 +81,7 @@ def _clean_up_company_name(company_name: str) -> str:
 
 	return ', '.join(sorted(cleaned_names))
 
-def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: Metadata):
+def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: Metadata) -> None:
 	metadata.add_alternate_name(db_entry.attrib['name'], 'GameTDB Name')
 	#(Pylint is on drugs if I don't add more text here) id: What we just found
 	#(it thinks I need an indented block) type: 3DS, 3DSWare, VC, etc (we probably don't need to worry about that)
@@ -172,7 +172,7 @@ def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: 
 				metadata.specific_info['Optional Additional Controls'] = optional_controls
 				metadata.specific_info['Required Additional Controls'] = required_controls
 
-def add_info_from_tdb(tdb: Optional[TDB], metadata: Metadata, search_key):
+def add_info_from_tdb(tdb: Optional[TDB], metadata: Metadata, search_key: str) -> None:
 	if not tdb:
 		return
 

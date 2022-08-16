@@ -30,7 +30,7 @@ _copyright_regex = re.compile(r'\(C\)(\S{4}.)(\d{4})\.(.{3})')
 _t_with_zero = re.compile(r'^T-0')
 _t_not_followed_by_dash = re.compile(r'^T(?!-)')
 
-def _parse_peripherals(metadata: Metadata, peripherals: Collection[str]):
+def _parse_peripherals(metadata: Metadata, peripherals: Collection[str]) -> None:
 	for peripheral_char in peripherals:
 		if peripheral_char == 'M':
 			#3 buttons if I'm not mistaken
@@ -83,7 +83,7 @@ def _parse_peripherals(metadata: Metadata, peripherals: Collection[str]):
 		#R: "RS232C Serial"
 		#T: "Tablet"
 
-def _add_info_from_copyright_string(metadata: Metadata, copyright_string: str):
+def _add_info_from_copyright_string(metadata: Metadata, copyright_string: str) -> None:
 	metadata.specific_info['Copyright'] = copyright_string
 	copyright_match = _copyright_regex.match(copyright_string)
 	if copyright_match:
@@ -129,7 +129,7 @@ def _parse_region_codes(regions: bytes) -> Collection[MegadriveRegionCodes]:
 	#D - Brazil?
 	return region_codes
 
-def add_megadrive_info(metadata: Metadata, header: bytes):
+def add_megadrive_info(metadata: Metadata, header: bytes) -> None:
 	try:
 		console_name = header[:16].decode('ascii')
 	except UnicodeDecodeError:
@@ -213,7 +213,7 @@ def add_megadrive_info(metadata: Metadata, header: bytes):
 		#Make a cheeky guess (if it wasn't USA it would be SEGA MEGADRIVE etc presumably)
 		metadata.specific_info['Region Code'] = [MegadriveRegionCodes.USA]
 
-def _get_smd_header(rom: FileROM):
+def _get_smd_header(rom: FileROM) -> bytes:
 	#Just get the first block which is all that's needed for the header, otherwise this would be a lot more complicated (just something to keep in mind if you ever need to convert a whole-ass .smd ROM)
 	block = rom.read(seek_to=512, amount=16384)
 
@@ -268,7 +268,7 @@ def find_equivalent_mega_drive_arcade(game_name: str) -> Optional[Machine]:
 
 	return None
 
-def add_megadrive_software_list_metadata(software: 'Software', metadata: Metadata):
+def add_megadrive_software_list_metadata(software: 'Software', metadata: Metadata) -> None:
 	add_generic_software_info(software, metadata)
 	if software.get_shared_feature('addon') == 'SVP':
 		metadata.specific_info['Expansion Chip'] = 'SVP'
@@ -301,7 +301,7 @@ def add_megadrive_software_list_metadata(software: 'Software', metadata: Metadat
 				#This is also a bit naughty, but Pocket Monsters has different compatibility compared to other games with rom_kof99
 				metadata.specific_info['Mapper'] = slot[4:] + '_pokemon'
 
-def add_megadrive_custom_info(game: 'ROMGame'):
+def add_megadrive_custom_info(game: 'ROMGame') -> None:
 	header = None
 	if game.rom.extension == 'cue':
 		first_track_and_sector_size = cd_read.get_first_data_cue_track(game.rom.path)

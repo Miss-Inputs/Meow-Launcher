@@ -20,7 +20,7 @@ _description_section_name = 'Descriptions'
 
 class Date():
 	#Class to hold a maybe-incorrect/maybe-guessed/maybe-incomplete date, but I thought MaybeIncompleteMaybeGuessedDate was a bit too much of a mouthful and I'm not clever enough to know what else to call it
-	def __init__(self, year=None, month=None, day=None, is_guessed: bool=False):
+	def __init__(self, year: Union[int, str, None]=None, month: Union[int, str, None]=None, day: Union[int, str, None]=None, is_guessed: bool=False) -> None:
 		self.year = str(year) if year else None
 		self.month = str(month) if month else None
 		self.day = str(day) if day else None
@@ -47,7 +47,7 @@ class Date():
 
 		return False
 
-	def __str__(self):
+	def __str__(self) -> str:
 		parts = [self.year if self.year else '????']
 		if self.month or self.day:
 			if self.month:
@@ -95,7 +95,7 @@ class Metadata():
 		self.documents: MutableMapping[str, Union[str, Path]] = {} #Paths of either variety, or URLs
 		self.descriptions: MutableMapping[str, str] = {}
 
-	def add_alternate_name(self, name: str, field: str='Alternate Name'):
+	def add_alternate_name(self, name: str, field: str='Alternate Name') -> None:
 		if field in self.names:
 			self.names[field + ' 1'] = self.names[field]
 			self.names[field + ' 2'] = name
@@ -109,7 +109,7 @@ class Metadata():
 			return
 		self.names[field] = name
 
-	def add_notes(self, notes: Optional[str]):
+	def add_notes(self, notes: Optional[str]) -> None:
 		if not notes:
 			return
 		if not self.notes:
@@ -123,16 +123,16 @@ class Metadata():
 		metadata_fields: MutableMapping[str, Any] = {
 			'Genre': self.genre,
 			'Subgenre': self.subgenre,
-			'Languages': tuple(language.native_name for language in self.languages if language),
+			'Languages': tuple(language.native_name for language in self.languages),
 			'Release Date': self.release_date,
 			'Emulator': self.emulator_name,
 			'Categories': self.categories,
 			'Platform': self.platform,
-			'Save Type': ('Memory Card' if self.save_type == SaveType.MemoryCard else self.save_type.name) if self.save_type else 'Nothing',
+			'Save Type': 'Memory Card' if self.save_type == SaveType.MemoryCard else self.save_type.name,
 			'Publisher': self.publisher,
 			'Developer': self.developer,
 			'Product Code': self.product_code,
-			'Regions': tuple(region.name if region else 'None!' for region in self.regions),
+			'Regions': tuple(region.name for region in self.regions),
 			'Media Type': ('Optical Disc' if self.media_type == MediaType.OpticalDisc else self.media_type.name) if self.media_type else None,
 			'Notes': self.notes,
 			'Disc Number': self.disc_number,

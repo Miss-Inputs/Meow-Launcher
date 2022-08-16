@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom import FileROM
 
-def parse_woz_info_chunk(metadata: Metadata, chunk_data: bytes):
+def parse_woz_info_chunk(metadata: Metadata, chunk_data: bytes) -> None:
 	info_version = chunk_data[0]
 	#1: Disk type = 5.25" if 1 else 3.25 if 2
 	#2: 1 if write protected
@@ -54,7 +54,7 @@ woz_meta_machines = {
 	'3+': AppleIIHardware.AppleIIIPlus,
 }
 
-def parse_woz_kv(rompath: str, metadata: Metadata, key: str, value: str):
+def parse_woz_kv(rompath: str, metadata: Metadata, key: str, value: str) -> None:
 	#rompath is just here for making warnings look better which is a bit silly I think… hm
 	if key in {'side', 'side_name', 'contributor', 'image_date', 'collection', 'requires_platform'}:
 		#No use for these
@@ -115,7 +115,7 @@ def parse_woz_kv(rompath: str, metadata: Metadata, key: str, value: str):
 		if main_config.debug:
 			print('Unknown Woz META key', rompath, key, value)
 
-def parse_woz_meta_chunk(rompath: str, metadata: Metadata, chunk_data: bytes):
+def parse_woz_meta_chunk(rompath: str, metadata: Metadata, chunk_data: bytes) -> None:
 	rows = chunk_data.split(b'\x0a')
 	for row in rows:
 		try:
@@ -139,7 +139,7 @@ def parse_woz_chunk(rom: 'FileROM', metadata: Metadata, position: int) -> int:
 
 	return position + chunk_data_size + 8
 
-def add_woz_metadata(rom: 'FileROM', metadata: Metadata):
+def add_woz_metadata(rom: 'FileROM', metadata: Metadata) -> None:
 	#https://applesaucefdc.com/woz/reference1/
 	#https://applesaucefdc.com/woz/reference2/
 	magic = rom.read(amount=8)
@@ -160,7 +160,7 @@ def add_woz_metadata(rom: 'FileROM', metadata: Metadata):
 	if 'Header-Title' in metadata.names and 'Subtitle' in metadata.specific_info:
 		metadata.add_alternate_name(metadata.names['Header Title'] + ': ' + metadata.specific_info['Subtitle'], 'Header Title with Subtitle')
 
-def add_apple_ii_software_info(software: 'Software', metadata: 'Metadata'):
+def add_apple_ii_software_info(software: 'Software', metadata: 'Metadata') -> None:
 	software.add_standard_metadata(metadata)
 	usage = software.get_info('usage')
 	if usage == 'Works with Apple II Mouse Card in slot 4: -sl4 mouse':
@@ -192,6 +192,6 @@ def add_apple_ii_software_info(software: 'Software', metadata: 'Metadata'):
 				#Apple IIc+ doesn't show up in this list so far
 			metadata.specific_info['Machine'] = machines
 
-def add_apple_ii_rom_file_info(rom: 'FileROM', metadata: 'Metadata'):
+def add_apple_ii_rom_file_info(rom: 'FileROM', metadata: 'Metadata') -> None:
 	if rom.extension == 'woz':
 		add_woz_metadata(rom, metadata)

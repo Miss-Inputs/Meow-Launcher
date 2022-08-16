@@ -18,7 +18,7 @@ licensee_codes = load_dict(None, 'sega_licensee_codes')
 def _decode_bcd_multi(i: bytes) -> int:
 	return (decode_bcd(i[1]) * 100) + decode_bcd(i[0])
 
-def parse_sdsc_header(rom: 'FileROM', metadata: 'Metadata', header: bytes):
+def parse_sdsc_header(rom: 'FileROM', metadata: 'Metadata', header: bytes) -> None:
 	major_version = decode_bcd(header[0])
 	minor_version = decode_bcd(header[1])
 	metadata.specific_info['Version'] = f'v{major_version}.{minor_version}'
@@ -99,7 +99,7 @@ def _parse_standard_header(rom: 'FileROM', base_offset: int) -> Mapping[str, Any
 
 	return header_data
 
-def add_info_from_standard_header(rom: 'FileROM', metadata: 'Metadata'):
+def add_info_from_standard_header(rom: 'FileROM', metadata: 'Metadata') -> None:
 	rom_size = rom.size
 	possible_offsets = [0x1ff0, 0x3ff0, 0x7ff0]
 
@@ -130,7 +130,7 @@ def add_info_from_standard_header(rom: 'FileROM', metadata: 'Metadata'):
 		#All non-Japanese/Korean systems have a BIOS which checks the checksum, so if there's no header at all, they just won't boot it
 		metadata.specific_info['Japanese Only?'] = True
 
-def add_sms_gg_software_list_info(software: 'Software', metadata: 'Metadata'):
+def add_sms_gg_software_list_info(software: 'Software', metadata: 'Metadata') -> None:
 	software.add_standard_metadata(metadata)
 
 	usage = software.infos.get('usage')
@@ -207,7 +207,7 @@ def add_sms_gg_software_list_info(software: 'Software', metadata: 'Metadata'):
 
 		metadata.specific_info['Peripheral'] = peripheral
 
-def add_sms_gg_rom_file_info(rom: 'FileROM', metadata: 'Metadata'):
+def add_sms_gg_rom_file_info(rom: 'FileROM', metadata: 'Metadata') -> None:
 	sdsc_header = rom.read(seek_to=0x7fe0, amount=16)
 	if sdsc_header[:4] == b'SDSC':
 		parse_sdsc_header(rom, metadata, sdsc_header[4:])

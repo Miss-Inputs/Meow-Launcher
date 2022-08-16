@@ -24,7 +24,7 @@ class LauncherInfo():
 	platform: Optional[str]
 
 class SteamGame(Game):
-	def __init__(self, appid: int, folder: Path, app_state: Mapping, steam_installation: 'SteamInstallation') -> None:
+	def __init__(self, appid: int, folder: Path, app_state: Mapping[str, Any], steam_installation: 'SteamInstallation') -> None:
 		super().__init__()
 		self.appid = appid
 		self.library_folder = folder

@@ -56,7 +56,7 @@ def get_exe_properties(path: str) -> Optional[Mapping[str, Any]]:
 			pass
 	return None
 
-def add_metadata_for_raw_exe(path: str, metadata: 'Metadata'):
+def add_metadata_for_raw_exe(path: str, metadata: 'Metadata') -> None:
 	props = get_exe_properties(path)
 	if not props:
 		return
@@ -101,10 +101,10 @@ def add_metadata_for_raw_exe(path: str, metadata: 'Metadata'):
 			if guessed_date.is_better_than(metadata.release_date):
 				metadata.release_date = guessed_date
 
-def _pe_directory_to_dict(directory) -> Mapping[str, Any]: #str > some PE entry type?
+def _pe_directory_to_dict(directory: 'pefile.ResourceDirData') -> Mapping[Union[str, int], 'pefile.ResourceDirEntryData']:
 	return {entry.name if entry.name else entry.id: _pe_directory_to_dict(entry.directory) if hasattr(entry, 'directory') else entry for entry in directory.entries}
 
-def _get_pe_resources(pe: 'pefile.PE', resource_type) -> Optional[Mapping]:
+def _get_pe_resources(pe: 'pefile.PE', resource_type: int) -> Optional[Mapping[Union[str, int], 'pefile.ResourceDirEntryData']]:
 	if not hasattr(pe, 'DIRECTORY_ENTRY_RESOURCE'):
 		#weirdo has no resources
 		return None
@@ -113,11 +113,12 @@ def _get_pe_resources(pe: 'pefile.PE', resource_type) -> Optional[Mapping]:
 			return _pe_directory_to_dict(entry.directory)
 	return None
 
-def _get_first_pe_resource(resource_dict: Mapping):
+def _get_first_pe_resource(resource_dict: Mapping[Union[str, int], 'pefile.ResourceDirEntryData']) -> tuple[Union[str, int, None], Optional['pefile.ResourceDirEntryData']]:
 	for k, v in resource_dict.items():
 		if isinstance(v, Mapping):
 			return _get_first_pe_resource(v)
 		return k, v
+	return None, None
 
 def _parse_pe_group_icon_directory(data: bytes) -> Mapping[int, Mapping[str, int]]:
 	#TODO: Use dataclass
@@ -131,6 +132,8 @@ def get_icon_from_pe(pe: 'pefile.PE') -> Optional[Image.Image]:
 	if not group_icons:
 		return None
 	_, first_group_icon = _get_first_pe_resource(group_icons)
+	if not first_group_icon:
+		return None
 	
 	first_group_icon_data = pe.get_data(first_group_icon.data.struct.OffsetToData, first_group_icon.data.struct.Size)
 	header = first_group_icon_data[:6]
@@ -200,7 +203,7 @@ def look_for_icon_in_folder(folder: Path, look_for_any_ico: bool=True) -> Option
 		return next((f for f in folder.iterdir() if f.suffix.lower() == '.ico'), None)
 	return None
 
-def check_for_interesting_things_in_folder(folder: Path, metadata: 'Metadata', find_wrappers: bool=False):
+def check_for_interesting_things_in_folder(folder: Path, metadata: 'Metadata', find_wrappers: bool=False) -> None:
 	#Let's check for things existing because we can (there's not really any other reason to do this, it's just fun)
 	#Not sure if any of these are in lowercase? Or they might be in a different directory
 	dir_entries = tuple(folder.iterdir())

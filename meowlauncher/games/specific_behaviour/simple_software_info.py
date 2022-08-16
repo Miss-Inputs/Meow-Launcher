@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 #Straightforward stuff that doesn't really warrant going into its own source file I think
 
-def add_pc_booter_software_info(software: 'Software', metadata: 'Metadata'):
+def add_pc_booter_software_info(software: 'Software', metadata: 'Metadata') -> None:
 	software.add_standard_metadata(metadata)
 	usage = software.get_info('usage')
 	if usage == 'PC Booter':
@@ -23,11 +23,11 @@ def add_pc_booter_software_info(software: 'Software', metadata: 'Metadata'):
 	#Original Publisher = Nihon Falcom
 	metadata.specific_info['Version'] = software.infos.get('version')
 
-def add_super_cassette_vision_software_info(software: 'Software', metadata: 'Metadata'):
+def add_super_cassette_vision_software_info(software: 'Software', metadata: 'Metadata') -> None:
 	add_generic_software_info(software, metadata)
 	metadata.specific_info['Has Extra RAM?'] = software.has_data_area('ram') #Or feature "slot" ends with "_ram"
 
-def add_microtan_65_software_info(software: 'Software', metadata: 'Metadata'):
+def add_microtan_65_software_info(software: 'Software', metadata: 'Metadata') -> None:
 	software.add_standard_metadata(metadata)
 	usage = software.get_info('usage')
 	if usage == 'Requires Joystick':
@@ -46,7 +46,7 @@ def add_microtan_65_software_info(software: 'Software', metadata: 'Metadata'):
 	else:
 		metadata.add_notes(usage)
 
-def add_pc_engine_cd_software_info(software: 'Software', metadata: 'Metadata'):
+def add_pc_engine_cd_software_info(software: 'Software', metadata: 'Metadata') -> None:
 	software.add_standard_metadata(metadata)
 	metadata.specific_info['Requirement'] = software.get_shared_feature('requirement')
 	usage = software.get_info('usage')
@@ -54,14 +54,14 @@ def add_pc_engine_cd_software_info(software: 'Software', metadata: 'Metadata'):
 		#This is already specified by "requirement"
 		metadata.add_notes(usage)
 	
-def add_amstrad_pcw_software_info(software: 'Software', metadata: 'Metadata'):
+def add_amstrad_pcw_software_info(software: 'Software', metadata: 'Metadata') -> None:
 	software.add_standard_metadata(metadata)
 	usage = software.get_info('usage')
 	if usage == 'Requires CP/M':
 		metadata.specific_info['Requires CP/M?'] = True
 
 _requires_ram_regex = re.compile(r'Requires (\d+) MB of RAM')
-def add_fm_towns_software_info(software: 'Software', metadata: 'Metadata'):
+def add_fm_towns_software_info(software: 'Software', metadata: 'Metadata') -> None:
 	software.add_standard_metadata(metadata)
 	usage = software.get_info('usage')
 	if usage:
@@ -71,7 +71,7 @@ def add_fm_towns_software_info(software: 'Software', metadata: 'Metadata'):
 			if match.end() < len(usage):
 				metadata.add_notes(usage)
 
-def add_sord_m5_software_info(software: 'Software', metadata: 'Metadata'):
+def add_sord_m5_software_info(software: 'Software', metadata: 'Metadata') -> None:
 	#Input info if I cared: 55 key keyboard + 0 button joystick
 	software.add_standard_metadata(metadata)
 	usage = software.get_info('usage')
@@ -80,7 +80,7 @@ def add_sord_m5_software_info(software: 'Software', metadata: 'Metadata'):
 	else:
 		metadata.add_notes(usage)
 	
-def add_msx_software_info(software: 'Software', metadata: 'Metadata'):
+def add_msx_software_info(software: 'Software', metadata: 'Metadata') -> None:
 	software.add_standard_metadata(metadata)
 	usage = software.get_info('usage')
 	if usage in {'Requires a Japanese system', 'Requires a Japanese system for the Japanese text'}:
@@ -95,7 +95,7 @@ def add_msx_software_info(software: 'Software', metadata: 'Metadata'):
 		metadata.specific_info['PCB'] = cart_part.get_feature('pcb')
 		metadata.specific_info['Mapper'] = cart_part.get_feature('mapper')
 
-def add_sg1000_software_info(software: 'Software', metadata: 'Metadata'):
+def add_sg1000_software_info(software: 'Software', metadata: 'Metadata') -> None:
 	metadata.save_type = SaveType.Nothing #Until proven otherwise
 
 	software.add_standard_metadata(metadata)
@@ -112,7 +112,7 @@ def add_sg1000_software_info(software: 'Software', metadata: 'Metadata'):
 		normal_controller.dpads = 1
 		metadata.input_info.add_option(normal_controller)
 	
-def add_virtual_boy_software_info(software: 'Software', metadata: 'Metadata'):
+def add_virtual_boy_software_info(software: 'Software', metadata: 'Metadata') -> None:
 	add_generic_software_info(software, metadata)
 	
 	#We won't need to get serial here I guess
@@ -120,7 +120,7 @@ def add_virtual_boy_software_info(software: 'Software', metadata: 'Metadata'):
 	#I am making assumptions about how saving works and I could be wrong
 	metadata.save_type = SaveType.Cart if has_save_hardware else SaveType.Nothing
 
-def add_atari_5200_software_info(software: 'Software', metadata: 'Metadata'):
+def add_atari_5200_software_info(software: 'Software', metadata: 'Metadata') -> None:
 	software.add_standard_metadata(metadata)
 	uses_trackball = software.get_part_feature('peripheral') == 'trackball'
 
@@ -137,7 +137,7 @@ def add_atari_5200_software_info(software: 'Software', metadata: 'Metadata'):
 		normal_controller.analog_sticks = 1
 		metadata.input_info.add_option(normal_controller)
 
-def add_intellivision_software_info(software: 'Software', metadata: 'Metadata'):
+def add_intellivision_software_info(software: 'Software', metadata: 'Metadata') -> None:
 	software.add_standard_metadata(metadata)
 
 	usage = software.get_info('usage')

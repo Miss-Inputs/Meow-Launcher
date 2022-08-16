@@ -95,7 +95,7 @@ class Cnmt():
 	type: SwitchContentMetaType
 	contents: dict[bytes, tuple[int, ContentType]] = field(compare=False)
 
-def _add_titles(metadata: 'Metadata', titles: Mapping[str, tuple[str, str]], icons: Mapping[str, bytes]=None):
+def _add_titles(metadata: 'Metadata', titles: Mapping[str, tuple[str, str]], icons: Mapping[str, bytes]=None) -> None:
 	if not titles:
 		return
 	found_first_lang = False
@@ -149,7 +149,7 @@ def _add_titles(metadata: 'Metadata', titles: Mapping[str, tuple[str, str]], ico
 	for prefix, icon in other_icons.items():
 		metadata.images[prefix + ' Icon'] = Image.open(io.BytesIO(icon))
 
-def _add_nacp_metadata(metadata: 'Metadata', nacp: bytes, icons: Mapping[str, bytes]=None):
+def _add_nacp_metadata(metadata: 'Metadata', nacp: bytes, icons: Mapping[str, bytes]=None) -> None:
 	#There are a heckload of different flags here and most aren't even known seemingly, see also https://switchbrew.org/wiki/NACP_Format
 	
 	title_entries = nacp[:0x3000]
@@ -207,7 +207,7 @@ def _add_nacp_metadata(metadata: 'Metadata', nacp: bytes, icons: Mapping[str, by
 		metadata.product_code = application_error_code_category.decode('utf-8', errors='ignore')
 		#TODO: Use switchtdb.xml although it won't be as useful when it uses the product code which we can only have sometimes
 
-def _add_cnmt_xml_metadata(xml: ElementTree.Element, metadata: 'Metadata'):
+def _add_cnmt_xml_metadata(xml: ElementTree.Element, metadata: 'Metadata') -> None:
 	metadata.specific_info['Title Type'] = xml.findtext('Type')
 	title_id = xml.findtext('Id')
 	if title_id:
@@ -216,7 +216,7 @@ def _add_cnmt_xml_metadata(xml: ElementTree.Element, metadata: 'Metadata'):
 	#We also have RequiredDownloadSystemVersion, Digest, KeyGenerationMin, RequiredSystemVersion, PatchId if those are interesting/useful
 	#Content contains Size, KeyGeneration, Hash, Type
 
-def _call_nstool_for_decrypt(temp_folder: str, temp_filename: str):
+def _call_nstool_for_decrypt(temp_folder: str, temp_filename: str) -> None:
 	#Plan B, there is no reason why this can't be plan A I guess
 	nstool = subprocess.run(['nstool', '-t', 'nca', '--part0', temp_folder, temp_filename], stdout=subprocess.PIPE, check=True, stderr=subprocess.DEVNULL)
 	stdout = nstool.stdout.strip() #It prints error messages to stdout…
@@ -295,7 +295,7 @@ def _decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
 		if temp_folder:
 			rmtree(temp_folder)
 
-def _list_cnmt(cnmt: Cnmt, rom: 'FileROM', metadata: 'Metadata', files: Mapping[str, tuple[int, int]], extra_offset: int=0):
+def _list_cnmt(cnmt: Cnmt, rom: 'FileROM', metadata: 'Metadata', files: Mapping[str, tuple[int, int]], extra_offset: int=0) -> None:
 	metadata.specific_info['Title ID'] = cnmt.title_id
 	metadata.specific_info['Revision'] = cnmt.version
 	metadata.specific_info['Title Type'] = cnmt.type
@@ -398,7 +398,7 @@ def _choose_main_cnmt(cnmts: Collection[Cnmt]) -> Optional[Cnmt]:
 	#Uh oh that didn't help, oh no what do we do I guess let's just take the first one
 	return next(cnmt for cnmt in cnmts)
 
-def add_nsp_metadata(rom: 'FileROM', metadata: 'Metadata'):
+def add_nsp_metadata(rom: 'FileROM', metadata: 'Metadata') -> None:
 	files = _list_psf0(rom)
 	cnmts = set()
 	cnmt_xml = None
@@ -486,7 +486,7 @@ def _read_hfs0(rom: 'FileROM', offset: int, max_size: int=None) -> Mapping[str, 
 
 	return files
 
-def add_xci_metadata(rom: 'FileROM', metadata: 'Metadata'):
+def add_xci_metadata(rom: 'FileROM', metadata: 'Metadata') -> None:
 	header = rom.read(amount=0x200)
 	magic = header[0x100:0x104]
 	if magic != b'HEAD':
@@ -533,7 +533,7 @@ def add_xci_metadata(rom: 'FileROM', metadata: 'Metadata'):
 		#else:
 		#	print('Uh oh no cnmt.nca?')
 
-def add_nro_metadata(rom: 'FileROM', metadata: 'Metadata'):
+def add_nro_metadata(rom: 'FileROM', metadata: 'Metadata') -> None:
 	header = rom.read(amount=0x50, seek_to=16)
 	if header[:4] != b'NRO0':
 		#Invalid magic
@@ -560,7 +560,7 @@ def add_nro_metadata(rom: 'FileROM', metadata: 'Metadata'):
 		nacp = rom.read(seek_to=nro_size + nacp_offset, amount=nacp_size)
 		_add_nacp_metadata(metadata, nacp)
 
-def add_switch_rom_file_info(rom: 'FileROM', metadata: 'Metadata'):
+def add_switch_rom_file_info(rom: 'FileROM', metadata: 'Metadata') -> None:
 	if rom.extension == 'nro':
 		add_nro_metadata(rom, metadata)
 	if rom.extension == 'xci':

@@ -21,13 +21,13 @@ def add_game_source(source: GameSource, progress_function: Callable[..., None]) 
 	time_ended = time.perf_counter()
 	time_taken = datetime.timedelta(seconds=time_ended - time_started)
 	if count:
-		progress_function(f'Added {count} {source.description} in {str(time_taken)} ({time_taken.total_seconds() / count} secs per game)')
+		progress_function(f'Added {count} {source.description} in {time_taken} ({time_taken.total_seconds() / count} secs per game)')
 	else:
 		progress_function(f'Did not add any {source.description}')
 	progress_function('-------')
 	return count
 
-def add_games(progress_function: Callable[..., None]=print):
+def add_games(progress_function: Callable[..., None]=print) -> None:
 	total = 0
 	for game_source in game_sources:
 		if not game_source.is_available:

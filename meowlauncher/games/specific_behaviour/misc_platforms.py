@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
 
-def add_vic10_custom_info(game: 'ROMGame'):
+def add_vic10_custom_info(game: 'ROMGame') -> None:
 	#Input info: Keyboard or joystick
 
 	rom = cast(FileROM, game.rom)
@@ -34,7 +34,7 @@ def add_vic10_custom_info(game: 'ROMGame'):
 		add_generic_software_info(software, game.metadata)
 		#What the heck is an "assy"?
 
-def add_vic20_custom_info(game: 'ROMGame'):
+def add_vic20_custom_info(game: 'ROMGame') -> None:
 	#Input info: Keyboard and/or joystick
 
 	rom = cast(FileROM, game.rom)
@@ -62,7 +62,7 @@ class ColecoController(Enum):
 	RollerController = auto()
 	DrivingController = auto()
 
-def add_colecovision_software_info(software: 'Software', metadata: 'Metadata'):
+def add_colecovision_software_info(software: 'Software', metadata: 'Metadata') -> None:
 	#Can get year, publisher unreliably from the title screen info in the ROM; please do not do that
 
 	peripheral: ColecoController = ColecoController.Normal
@@ -123,7 +123,7 @@ def add_colecovision_software_info(software: 'Software', metadata: 'Metadata'):
 			metadata.input_info.add_option(normal_controller)
 	#Doesn't look like you can set controller via command line at the moment, oh well
 
-def add_ibm_pcjr_custom_info(game: 'ROMGame'):
+def add_ibm_pcjr_custom_info(game: 'ROMGame') -> None:
 	#Input info: Keyboard or joystick
 
 	rom = cast(FileROM, game.rom)
@@ -153,7 +153,7 @@ def add_ibm_pcjr_custom_info(game: 'ROMGame'):
 		#Mount both carts and a DOS floppy and type 'TUTOR'
 		#Boot from a DOS floppy and type 'G'
 
-def add_pet_custom_info(game: 'ROMGame'):
+def add_pet_custom_info(game: 'ROMGame') -> None:
 	software = game.get_software_list_entry()
 	if software:
 		add_generic_software_info(software, game.metadata)

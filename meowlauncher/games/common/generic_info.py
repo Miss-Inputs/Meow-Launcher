@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 	
 _not_necessarily_equivalent_arcade_names = load_list(None, 'not_necessarily_equivalent_arcade_names')
 
-def add_generic_software_info(software: 'Software', metadata: 'Metadata'):
+def add_generic_software_info(software: 'Software', metadata: 'Metadata') -> None:
 	software.add_standard_metadata(metadata)
 	metadata.add_notes(software.get_info('usage'))
 	if 'pcb' in software.infos:
@@ -37,6 +37,7 @@ def add_generic_software_info(software: 'Software', metadata: 'Metadata'):
 
 @lru_cache(maxsize=5) #We don't want to hold onto Machine objects forever, the maxsize is how many times we expect software with the same basename to be called in a row, which is only a handful at most (I guess it would happen if you have a bunch of games in the same directory with the same software parent?)
 def _match_arcade(software_name: str) -> Optional[Machine]:
+	assert default_mame_executable, 'We are only calling this from a method that already checked…'
 	try:
 		return get_machine(software_name, default_mame_executable)
 	except MachineNotFoundException:

@@ -36,7 +36,7 @@ _tdb = _load_tdb()
 
 rpcs3_vfs_config_path = Path('~/.config/rpcs3/vfs.yml').expanduser()
 
-def add_game_folder_metadata(rom: FolderROM, metadata: 'Metadata'):
+def add_game_folder_metadata(rom: FolderROM, metadata: 'Metadata') -> None:
 	param_sfo_path = rom.relevant_files['PARAM.SFO']
 	usrdir = rom.relevant_files['USRDIR']
 
@@ -121,7 +121,7 @@ def get_rpcs3_compat(product_code: str) -> Optional[RPCS3Compatibility]:
 		pass
 	return None
 	
-def add_cover(metadata: 'Metadata', product_code: str):
+def add_cover(metadata: 'Metadata', product_code: str) -> None:
 	#Intended for the covers database from GameTDB
 	try:
 		covers_path = platform_configs['PS3'].options['covers_path']
@@ -136,7 +136,7 @@ def add_cover(metadata: 'Metadata', product_code: str):
 			metadata.images['Cover'] = potential_cover_path
 			break
 
-def add_ps3_custom_info(game: 'ROMGame'):
+def add_ps3_custom_info(game: 'ROMGame') -> None:
 	if game.rom.is_folder:
 		add_game_folder_metadata(cast(FolderROM, game.rom), game.metadata)
 

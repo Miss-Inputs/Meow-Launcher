@@ -38,7 +38,7 @@ class PlatformConfigs():
 	__instance = None
 
 	@staticmethod
-	def getConfigs():
+	def getConfigs() -> __PlatformConfigs:
 		if PlatformConfigs.__instance is None:
 			PlatformConfigs.__instance = PlatformConfigs.__PlatformConfigs()
 		return PlatformConfigs.__instance

@@ -38,7 +38,7 @@ def get_crc32_for_software_list(data: bytes) -> str:
 
 _split_preserve_brackets = re.compile(r', (?![^(]*\))')
 _ends_with_brackets = re.compile(r'([^()]+)\s\(([^()]+)\)$')
-def _add_alt_titles(metadata: Metadata, alt_title: str):
+def _add_alt_titles(metadata: Metadata, alt_title: str) -> None:
 	#Argh this is annoying because we don't want to split in the middle of brackets
 	for piece in _split_preserve_brackets.split(alt_title):
 		ends_with_brackets_match = _ends_with_brackets.match(piece)
@@ -226,7 +226,7 @@ class SoftwarePart():
 			return all(disk_area.not_dumped for disk_area in self.disk_areas.values())
 		return False
 
-	def get_feature(self, name) -> Optional[str]:
+	def get_feature(self, name: str) -> Optional[str]:
 		for feature in self.xml.iterfind('feature'):
 			if feature.attrib.get('name') == name:
 				return feature.attrib.get('value')
@@ -364,7 +364,7 @@ class Software():
 	def serial(self) -> Optional[str]:
 		return self.infos.get('serial')
 
-	def add_standard_metadata(self, metadata: Metadata):
+	def add_standard_metadata(self, metadata: Metadata) -> None:
 		metadata.specific_info['MAME Software'] = self
 		#We'll need to use that as more than just a name, though, I think; and by that I mean I get dizzy if I think about whether I need to do that or not right now
 		#TODO: Whatever is checking metadata.names needs to just check for game.software etc manually rather than this being here, I think
@@ -437,7 +437,7 @@ class Software():
 
 		add_history(metadata, self.software_list_name, self.name)
 
-	def add_related_images(self, metadata: Metadata):
+	def add_related_images(self, metadata: Metadata) -> None:
 		for image_name, config_key in image_config_keys.items():
 			image = get_image(config_key, self.software_list_name, self.name)
 			if image:

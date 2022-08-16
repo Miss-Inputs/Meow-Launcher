@@ -52,7 +52,7 @@ _keyboard.keys = 101
 _mouse = input_metadata.Mouse()
 _mouse.buttons = 3
 
-def _parse_peripherals(metadata: 'Metadata', peripherals: str):
+def _parse_peripherals(metadata: 'Metadata', peripherals: str) -> None:
 	for peripheral in peripherals:
 		if peripheral == 'J':
 			metadata.input_info.add_option(_standard_controller)
@@ -98,7 +98,7 @@ def _parse_peripherals(metadata: 'Metadata', peripherals: str):
 		#U = Sonic Z-Treme?
 		#Z = Game Basic for SegaSaturn (PC connectivity?)
 
-def add_saturn_info(rom_path_for_warning: str, metadata: 'Metadata', header: bytes):
+def add_saturn_info(rom_path_for_warning: str, metadata: 'Metadata', header: bytes) -> None:
 	hardware_id = header[0:16].decode('ascii', errors='ignore')
 	if hardware_id != 'SEGA SEGASATURN ':
 		#Won't boot on a real Saturn, also if this is some emulator only thing then nothing in the header can be considered valid
@@ -190,7 +190,7 @@ def add_saturn_info(rom_path_for_warning: str, metadata: 'Metadata', header: byt
 	if internal_name:
 		metadata.specific_info['Internal Title'] = internal_name
 
-def add_saturn_custom_info(game: 'ROMGame'):
+def add_saturn_custom_info(game: 'ROMGame') -> None:
 	if game.rom.extension == 'cue':
 		first_track_and_sector_size = get_first_data_cue_track(game.rom.path)
 		if not first_track_and_sector_size:

@@ -32,7 +32,7 @@ _zx_hardware: dict[int, ZXHardware] = {
 	16: ZXHardware(ZXMachine.TimexSinclair2068, None),
 }
 
-def add_z80_metadata(rom: 'FileROM', metadata: 'Metadata'):
+def add_z80_metadata(rom: 'FileROM', metadata: 'Metadata') -> None:
 	#https://www.worldofspectrum.org/faq/reference/z80format.htm
 	header = rom.read(amount=86)
 	flags = header[29]
@@ -80,7 +80,7 @@ def add_z80_metadata(rom: 'FileROM', metadata: 'Metadata'):
 
 	metadata.specific_info['ROM Format'] = f'Z80 v{header_version}'
 
-def add_speccy_software_list_metadata(software: 'Software', metadata: 'Metadata'):
+def add_speccy_software_list_metadata(software: 'Software', metadata: 'Metadata') -> None:
 	software.add_standard_metadata(metadata)
 	usage = software.infos.get('usage')
 	if usage == 'Requires Multiface':
@@ -94,7 +94,7 @@ def add_speccy_software_list_metadata(software: 'Software', metadata: 'Metadata'
 		#Disk has no autorun menu, requires loading each game from Basic.
 		metadata.add_notes(usage)
 
-def add_speccy_filename_tags_info(tags: Collection[str], metadata: 'Metadata'):
+def add_speccy_filename_tags_info(tags: Collection[str], metadata: 'Metadata') -> None:
 	if 'Machine' in metadata.specific_info:
 		return
 
@@ -109,7 +109,7 @@ def add_speccy_filename_tags_info(tags: Collection[str], metadata: 'Metadata'):
 			metadata.specific_info['Machine'] = ZXMachine.ZX128k
 			break
 
-def add_speccy_custom_info(game: 'ROMGame'):
+def add_speccy_custom_info(game: 'ROMGame') -> None:
 	if isinstance(game.rom, FileROM):
 		if game.rom.extension == 'z80':
 			add_z80_metadata(game.rom, game.metadata)
