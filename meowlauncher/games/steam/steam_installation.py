@@ -1,4 +1,5 @@
 import io
+import re
 import zipfile
 from collections.abc import Collection, Iterator, Mapping
 from operator import attrgetter
@@ -38,9 +39,11 @@ class SteamInstallation():
 			self.app_info = None
 			self.app_info_available = False
 		try:
-			with self.config_path.open('rt', encoding='utf-8') as config_file:
-				self.config = acf.load(config_file)
-				self.config_available = True
+			#That part manspreads over multiple lines and breaks steamfiles parsing which is annoying
+			config_file = re.sub(r'\n\s*"SDL_GamepadBind"\s+"(?:[^"]|[\r\n])+"', '', self.config_path.read_text(encoding='utf-8'))
+			print(config_file)
+			self.config = acf.loads(config_file)
+			self.config_available = True
 		except FileNotFoundError:
 			self.config = None
 			self.config_available = False
