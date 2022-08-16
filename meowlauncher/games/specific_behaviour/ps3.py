@@ -34,6 +34,8 @@ def _load_tdb() -> Optional[TDB]:
 		return None
 _tdb = _load_tdb()
 
+rpcs3_vfs_config_path = Path('~/.config/rpcs3/vfs.yml').expanduser()
+
 def add_game_folder_metadata(rom: FolderROM, metadata: 'Metadata'):
 	param_sfo_path = rom.relevant_files['PARAM.SFO']
 	usrdir = rom.relevant_files['USRDIR']
@@ -69,7 +71,17 @@ def add_game_folder_metadata(rom: FolderROM, metadata: 'Metadata'):
 
 	parse_param_sfo(str(rom.path), metadata, param_sfo_path.read_bytes())
 
-	is_installed_to_rpcs3_hdd = rom.path.parent == Path('~/.config/rpcs3/dev_hdd0/game').expanduser()
+	rpcs3_hdd_path = Path('~/.config/rpcs3/dev_hdd0/').expanduser()
+	try:
+		if rpcs3_vfs_config_path.is_file():
+			for line in rpcs3_vfs_config_path.read_text(encoding='utf-8').splitlines():
+				if line.startswith('/dev_hdd0/: '):
+					rpcs3_hdd_path = Path(line.rstrip().split(': ', 1)[1])
+					break
+	except OSError:
+		pass
+
+	is_installed_to_rpcs3_hdd = rom.path.parent == rpcs3_hdd_path.joinpath('game')
 	#Messy hack time
 	if is_installed_to_rpcs3_hdd and metadata.names:
 		#If we found a banner title, etc then use that instead
