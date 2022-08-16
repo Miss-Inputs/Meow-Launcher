@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, NamedTuple
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -51,14 +51,17 @@ def parse_sdsc_header(rom: 'FileROM', metadata: 'Metadata', header: bytes):
 class BadSMSHeaderException(Exception):
 	pass
 
-regions: dict[int, tuple[str, bool]] = {
-	#Second tuple thing: True if Game Gear, False if SMS
+class SMSRegion(NamedTuple):
+	region: str
+	is_game_gear: bool
+
+regions: dict[int, SMSRegion] = {
 	#Not sure of the difference between export GG and international GG
-	3: ('Japanese', False),
-	4: ('Export', False),
-	5: ('Japanese', True),
-	6: ('Export', True),
-	7: ('International', True),
+	3: SMSRegion('Japanese', False),
+	4: SMSRegion('Export', False),
+	5: SMSRegion('Japanese', True),
+	6: SMSRegion('Export', True),
+	7: SMSRegion('International', True),
 }
 
 def _parse_standard_header(rom: 'FileROM', base_offset: int) -> Mapping[str, Any]:

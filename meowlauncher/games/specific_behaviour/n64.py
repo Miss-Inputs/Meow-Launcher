@@ -50,7 +50,7 @@ def _get_mupen64plus_database() -> Optional[Mapping[str, Mapping[str, str]]]:
 	parser.read(location)
 
 	database = dict(parser) #I guess it doesn't work if we just hold onto it directly, well for starters the .items method is different
-	for game, keypairs in database.items():
+	for keypairs in database.values():
 		if 'RefMD5' in keypairs:
 			parent_md5 = keypairs['RefMD5']
 			if parent_md5 in database:
@@ -58,7 +58,7 @@ def _get_mupen64plus_database() -> Optional[Mapping[str, Mapping[str, str]]]:
 				for parent_key, parent_value in parent.items():
 					if parent_key in keypairs:
 						continue
-					database[game][parent_key] = parent_value
+					keypairs[parent_key] = parent_value
 
 	_get_mupen64plus_database.mupen64plus_database = database #type: ignore[attr-defined]
 	return database

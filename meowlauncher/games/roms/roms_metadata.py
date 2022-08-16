@@ -226,16 +226,18 @@ def _add_metadata_from_libretro_database(game: 'ROMGame'):
 	else:
 		return
 
-	if key:
-		for dat_name in game.platform.dat_names:
-			database = parse_all_dats_for_system(dat_name, game.platform.dat_uses_serial)
-			if database:
-				if game.platform.dat_uses_serial and ', ' in cast(str, key):
-					for product_code in cast(str, key).split(', '):
-						if _add_metadata_from_libretro_database_entry(game.metadata, database, product_code):
-							break
-				else:
-					_add_metadata_from_libretro_database_entry(game.metadata, database, key)
+	if not key:
+		return
+		
+	for dat_name in game.platform.dat_names:
+		database = parse_all_dats_for_system(dat_name, game.platform.dat_uses_serial)
+		if database:
+			if game.platform.dat_uses_serial and ', ' in cast(str, key):
+				for product_code in cast(str, key).split(', '):
+					if _add_metadata_from_libretro_database_entry(game.metadata, database, product_code):
+						break
+			else:
+				_add_metadata_from_libretro_database_entry(game.metadata, database, key)
 
 def _autodetect_tv_type(game: 'ROMGame'):
 	if game.metadata.specific_info.get('TV Type'):

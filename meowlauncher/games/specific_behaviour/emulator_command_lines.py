@@ -1545,24 +1545,23 @@ def dosbox_staging(app: 'DOSApp', _, emulator_config: 'EmulatorConfig') -> Launc
 		if app.args:
 			app_exec += ' ' + ' '.join(shlex.quote(arg) for arg in app.args)
 		args += ['-c', cd_drive_letter + ':', '-c', app_exec, '-c', 'exit']
-	else:
-		if drive_letter == 'C' and not overlay_path:
+	elif drive_letter == 'C' and not overlay_path:
 			args.append(app.path)
+	else:
+		#Gets tricky if autoexec already mounts a C drive because launching something from the command line normally that way just assumes C is a fine drive to use
+		#This also makes exit not work normally
+		host_folder, exe_name = os.path.split(app.path)
+		args += '-c', f'MOUNT {drive_letter} "{host_folder}"'
+		if overlay_path:
+			overlay_subfolder = overlay_path.joinpath(app.name)
+			ensure_exist_command = LaunchCommand('mkdir', ['-p', os.fspath(overlay_subfolder.resolve())])
+			args += ['-c', f'MOUNT -t overlay {drive_letter} "{os.fspath(overlay_subfolder.resolve())}"']
+		args += ['-c', drive_letter + ':']
+		if app.args:
+			args += ['-c', exe_name + ' ' + ' '.join(shlex.quote(arg) for arg in app.args)]
 		else:
-			#Gets tricky if autoexec already mounts a C drive because launching something from the command line normally that way just assumes C is a fine drive to use
-			#This also makes exit not work normally
-			host_folder, exe_name = os.path.split(app.path)
-			args += '-c', f'MOUNT {drive_letter} "{host_folder}"'
-			if overlay_path:
-				overlay_subfolder = overlay_path.joinpath(app.name)
-				ensure_exist_command = LaunchCommand('mkdir', ['-p', os.fspath(overlay_subfolder.resolve())])
-				args += ['-c', f'MOUNT -t overlay {drive_letter} "{os.fspath(overlay_subfolder.resolve())}"']
-			args += ['-c', drive_letter + ':']
-			if app.args:
-				args += ['-c', exe_name + ' ' + ' '.join(shlex.quote(arg) for arg in app.args)]
-			else:
-				args += ['-c', exe_name]
-			args += ['-c', 'exit']
+			args += ['-c', exe_name]
+		args += ['-c', 'exit']
 
 	launch_command = LaunchCommand(emulator_config.exe_path, args)
 	if ensure_exist_command:

@@ -23,10 +23,9 @@ def parse_ratings(metadata: 'Metadata', ratings_bytes: bytes, invert_has_rating_
 		has_rating = (rating & 0b1000_0000) == 0 #For 3DS and DSi, the meaning of this bit is inverted
 		if invert_has_rating_bit:
 			has_rating = not has_rating
-		if use_bit_6:
-			banned = rating & 0b0100_0000 #Seems to only mean this for Wii (MadWorld (Europe) has this bit set for Germany rating); on Wii U it seems to be "this rating is unused" and 3DS and DSi I dunno but it probably doesn't work that way
-		else:
-			banned = False
+
+		#Seems to only mean this for Wii (MadWorld (Europe) has this bit set for Germany rating); on Wii U it seems to be "this rating is unused" and 3DS and DSi I dunno but it probably doesn't work that way
+		banned = rating & 0b0100_0000 if use_bit_6 else False
 		#Bit 5 I'm not even sure about (on Wii it seems to be "includes online interactivity"), but we can ignore it
 		#The last 4 bits are the actual rating
 		if has_rating and not banned:

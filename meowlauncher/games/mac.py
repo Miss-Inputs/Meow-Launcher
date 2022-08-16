@@ -385,6 +385,56 @@ class MacApp(ManuallySpecifiedGame):
 		except UnicodeDecodeError:
 			pass
 
+	def _add_additional_metadata_from_resources(self, file: 'Union[machfs.Folder, machfs.File]') -> None:
+		if have_pillow:
+			self.metadata.images['Icon'] = self._get_icon()
+
+		sizes = self._get_resources().get(b'SIZE')
+		if sizes:
+			#Supposed to be -1, 0 and 1 are created when user manually changes preferred/minimum RAM?
+			size = sizes.get(-1, sizes.get(0, sizes.get(1)))
+			if size:
+				#Remember this is big endian so you will need to go backwards
+				#Bit 0: Save screen (obsolete)
+				#Bit 1: Accept suspend/resume events
+				#Bit 2: Disable option (obsolete)
+				#Bit 3: Can background
+				#Bit 4: Does activate on FG switch
+				#Bit 6: Get front clicks
+				#Bit 7: Accept app died events (debuggers) (the good book says "app launchers use this" and apparently applications use ignoreAppDiedEvents)
+				#Bit 9 (bit 1 of second byte): High level event aware
+				#Bit 10: Local and remote high level events
+				#Bit 11: Stationery aware
+				#Bit 12: Use text edit services ("inline services"?)
+				if size[0] or size[1]: #If all flags are 0 then this is probably lies
+					#if size[0] & (1 << (8 - 5)) != 0:
+					#	#Documented as "Only background"? But also that
+					#TODO: I don't think this does what I think it does
+					#	self.metadata.specific_info['Has User Interface?'] = False
+					if size[1] & (1 << (15 - 8)) == 0: #Wait is that even correct, and if these size resources are just ints, should they be combined to make this easier
+						self.metadata.specific_info['Not 32 Bit Clean?'] = True
+				self.metadata.specific_info['Minimum RAM'] = format_byte_size(int.from_bytes(size[6:10], 'big'))
+
+		if file.type == b'APPL' and 'Architecture' not in self.metadata.specific_info:
+			#According to https://support.apple.com/kb/TA21606?locale=en_AU this should work
+			has_ppc = b'cfrg' in self._get_resources() #Code fragment, ID always 0
+			has_68k = b'CODE' in self._get_resources()
+			if has_ppc:
+				if has_68k:
+					self.metadata.specific_info['Architecture'] = 'Fat'
+				else:
+					self.metadata.specific_info['Architecture'] = 'PPC'
+			elif has_68k:
+				self.metadata.specific_info['Architecture'] = '68k'
+			else:
+				self.metadata.specific_info['Architecture'] = 'Unknown' #Maybe this will happen for really old stuff
+	
+		verses = self._get_resources().get(b'vers', {})
+		vers = verses.get(1, verses.get(128)) #There are other vers resources too but 1 is the main one (I think?), 128 is used in older apps? maybe?
+		if vers:
+			self._add_version_resource_info(vers)
+	
+
 	def additional_metadata(self) -> None:
 		self.metadata.specific_info['Executable Name'] = self.path.split(':')[-1]
 		if have_machfs:
@@ -411,53 +461,7 @@ class MacApp(ManuallySpecifiedGame):
 			#self.metadata.specific_info['File Flags'] = file.flags
 			if have_macresources:
 				#If you have machfs you do have macresources too, but still
-				if have_pillow:
-					self.metadata.images['Icon'] = self._get_icon()
-
-				sizes = self._get_resources().get(b'SIZE')
-				if sizes:
-					#Supposed to be -1, 0 and 1 are created when user manually changes preferred/minimum RAM?
-					size = sizes.get(-1, sizes.get(0, sizes.get(1)))
-					if size:
-						#Remember this is big endian so you will need to go backwards
-						#Bit 0: Save screen (obsolete)
-						#Bit 1: Accept suspend/resume events
-						#Bit 2: Disable option (obsolete)
-						#Bit 3: Can background
-						#Bit 4: Does activate on FG switch
-						#Bit 6: Get front clicks
-						#Bit 7: Accept app died events (debuggers) (the good book says "app launchers use this" and apparently applications use ignoreAppDiedEvents)
-						#Bit 9 (bit 1 of second byte): High level event aware
-						#Bit 10: Local and remote high level events
-						#Bit 11: Stationery aware
-						#Bit 12: Use text edit services ("inline services"?)
-						if size[0] or size[1]: #If all flags are 0 then this is probably lies
-							#if size[0] & (1 << (8 - 5)) != 0:
-							#	#Documented as "Only background"? But also that
-							#TODO: I don't think this does what I think it does
-							#	self.metadata.specific_info['Has User Interface?'] = False
-							if size[1] & (1 << (15 - 8)) == 0: #Wait is that even correct, and if these size resources are just ints, should they be combined to make this easier
-								self.metadata.specific_info['Not 32 Bit Clean?'] = True
-						self.metadata.specific_info['Minimum RAM'] = format_byte_size(int.from_bytes(size[6:10], 'big'))
-
-				if file.type == b'APPL' and 'Architecture' not in self.metadata.specific_info:
-					#According to https://support.apple.com/kb/TA21606?locale=en_AU this should work
-					has_ppc = b'cfrg' in self._get_resources() #Code fragment, ID always 0
-					has_68k = b'CODE' in self._get_resources()
-					if has_ppc:
-						if has_68k:
-							self.metadata.specific_info['Architecture'] = 'Fat'
-						else:
-							self.metadata.specific_info['Architecture'] = 'PPC'
-					elif has_68k:
-						self.metadata.specific_info['Architecture'] = '68k'
-					else:
-						self.metadata.specific_info['Architecture'] = 'Unknown' #Maybe this will happen for really old stuff
-			
-				verses = self._get_resources().get(b'vers', {})
-				vers = verses.get(1, verses.get(128)) #There are other vers resources too but 1 is the main one (I think?), 128 is used in older apps? maybe?
-				if vers:
-					self._add_version_resource_info(vers)
+				self._add_additional_metadata_from_resources(file)
 
 		if 'arch' in self.info:
 			#Allow manual override (sometimes apps are jerks and have 68K code just for the sole purpose of showing you a dialog box saying you can't run it on a 68K processor)

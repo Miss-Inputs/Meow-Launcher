@@ -43,13 +43,13 @@ def delete_existing_output_dir() -> None:
 def move_into_extra_subfolder(path: Path, desktop: ConfigParser, subfolder: str, keys, missing_value=None):
 	subsubfolder = []
 	is_array = '*' in keys
-	subsubfolders = []
-	temp = []
+	subsubfolders: list[list[str]] = []
+	temp: list[list[str]] = []
 
 	for key in keys.split(','):
 		is_key_array = False
 		is_key_bool = False
-		element_subsubfolders = []
+		element_subsubfolders: list[str] = []
 		if key.endswith('*'):
 			is_key_array = True
 			is_array = True
@@ -81,8 +81,7 @@ def move_into_extra_subfolder(path: Path, desktop: ConfigParser, subfolder: str,
 			if value != 'False':
 				subsubfolder.append('')
 		elif is_key_array:
-			for element in cast(Collection[str], value):
-				element_subsubfolders.append(sanitize_name(element))
+			element_subsubfolders += (sanitize_name(element) for element in cast(Collection[str], value))
 		else:
 			subsubfolder.append(sanitize_name(cast(str, value)))
 

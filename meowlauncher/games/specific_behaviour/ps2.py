@@ -20,7 +20,6 @@ if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 
 _boot_line_regex = re.compile(r'^BOOT2\s*=\s*cdrom0:\\(.+);1$')
-_vmode_line_regex = re.compile(r'^VMODE\s*=\s*(\S+)$')
 _other_systemcnf_line_regex = re.compile(r'^([^=\s]+?)\s*=\s*(\S+)$')
 _boot_file_regex = re.compile(r'^(.{4})_(.{3})\.(.{2})$')
 
@@ -52,7 +51,7 @@ def add_ps2_custom_info(game: 'ROMGame'):
 	if game.rom.extension == 'iso' and have_pycdlib:
 		iso = PyCdlib()
 		try:
-			iso.open(game.rom.path)
+			iso.open(str(game.rom.path))
 			system_cnf_buf = io.BytesIO()
 			try:
 				#I dunno what the ;1 is for

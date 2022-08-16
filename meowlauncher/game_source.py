@@ -52,15 +52,15 @@ class CompoundGameSource(GameSource, ABC):
 	def is_available(self) -> bool:
 		return any(source.is_available for source in self.sources)
 
-EmulatorType = TypeVar('EmulatorType', bound=Emulator['EmulatedGame'], covariant=True)
-class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType]):
-	def __init__(self, platform_config: 'PlatformConfig', platform: 'ChooseableEmulatedPlatform', emulators: Mapping[str, EmulatorType], libretro_cores: Mapping[str, 'LibretroCore']=None) -> None:
+EmulatorType_co = TypeVar('EmulatorType_co', bound=Emulator['EmulatedGame'], covariant=True)
+class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType_co]):
+	def __init__(self, platform_config: 'PlatformConfig', platform: 'ChooseableEmulatedPlatform', emulators: Mapping[str, EmulatorType_co], libretro_cores: Mapping[str, 'LibretroCore']=None) -> None:
 		self.platform_config = platform_config
 		self.platform = platform
 		self.emulators = emulators
 		self.libretro_cores = libretro_cores
 	
-	def iter_chosen_emulators(self) -> Iterator[Union[EmulatorType, 'LibretroCore']]:
+	def iter_chosen_emulators(self) -> Iterator[Union[EmulatorType_co, 'LibretroCore']]:
 		for emulator_name in self.platform_config.chosen_emulators:
 			emulator = self.libretro_cores.get(emulator_name.removesuffix(' (libretro)')) if \
 				(self.libretro_cores and emulator_name.endswith(' (libretro)')) else \

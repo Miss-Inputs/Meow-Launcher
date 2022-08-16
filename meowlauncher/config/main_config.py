@@ -81,9 +81,7 @@ def get_config_ini_options() -> Mapping[str, Mapping[str, ConfigValue]]:
 	for k, v in _config_ini_values.items():
 		if v.section == _runtime_option_section:
 			continue
-		if v.section not in opts:
-			opts[v.section] = {}
-		opts[v.section][k] = v
+		opts.setdefault(v.section, {})[k] = v
 	return opts
 
 def get_runtime_options() -> Mapping[str, ConfigValue]:

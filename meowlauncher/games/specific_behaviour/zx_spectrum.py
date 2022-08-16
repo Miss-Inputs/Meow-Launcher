@@ -1,5 +1,5 @@
 from collections.abc import Collection
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, NamedTuple, Optional
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.platform_types import ZXExpansion, ZXJoystick, ZXMachine
 
@@ -8,24 +8,28 @@ if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
 
-_zx_hardware: dict[int, tuple[ZXMachine, Optional[ZXExpansion]]] = {
+class ZXHardware(NamedTuple):
+	machine: ZXMachine
+	expansion: Optional[ZXExpansion]
+
+_zx_hardware: dict[int, ZXHardware] = {
 	#For .z80 header
-	0: (ZXMachine.ZX48k, None),
-	1: (ZXMachine.ZX48k, ZXExpansion.Interface1),
-	2: (ZXMachine.ZX48k, ZXExpansion.SamRam),
-	3: (ZXMachine.ZX48k, ZXExpansion.MGT),
-	4: (ZXMachine.ZX128k, None),
-	5: (ZXMachine.ZX128k, ZXExpansion.Interface1),
-	6: (ZXMachine.ZX128k, ZXExpansion.MGT),
-	7: (ZXMachine.SpectrumPlus3, None),
-	9: (ZXMachine.Pentagon, None),
-	10: (ZXMachine.Scorpion, None),
-	11: (ZXMachine.DidaktikKompakt, None),
-	12: (ZXMachine.SpectrumPlus2, None),
-	13: (ZXMachine.SpectrumPlus2A, None),
-	14: (ZXMachine.TimexComputer2048, None),
-	15: (ZXMachine.TimexComputer2068, None),
-	16: (ZXMachine.TimexSinclair2068, None),
+	0: ZXHardware(ZXMachine.ZX48k, None),
+	1: ZXHardware(ZXMachine.ZX48k, ZXExpansion.Interface1),
+	2: ZXHardware(ZXMachine.ZX48k, ZXExpansion.SamRam),
+	3: ZXHardware(ZXMachine.ZX48k, ZXExpansion.MGT),
+	4: ZXHardware(ZXMachine.ZX128k, None),
+	5: ZXHardware(ZXMachine.ZX128k, ZXExpansion.Interface1),
+	6: ZXHardware(ZXMachine.ZX128k, ZXExpansion.MGT),
+	7: ZXHardware(ZXMachine.SpectrumPlus3, None),
+	9: ZXHardware(ZXMachine.Pentagon, None),
+	10: ZXHardware(ZXMachine.Scorpion, None),
+	11: ZXHardware(ZXMachine.DidaktikKompakt, None),
+	12: ZXHardware(ZXMachine.SpectrumPlus2, None),
+	13: ZXHardware(ZXMachine.SpectrumPlus2A, None),
+	14: ZXHardware(ZXMachine.TimexComputer2048, None),
+	15: ZXHardware(ZXMachine.TimexComputer2068, None),
+	16: ZXHardware(ZXMachine.TimexSinclair2068, None),
 }
 
 def add_z80_metadata(rom: 'FileROM', metadata: 'Metadata'):

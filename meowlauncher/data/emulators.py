@@ -442,7 +442,7 @@ _libretro_cores = {
 	LibretroCore('NeoCD', EmulatorStatus.Good, 'neocd', None, {'cue', 'chd'}),
 	LibretroCore('O2EM', EmulatorStatus.Good, 'o2em', None, {'bin'}),
 	LibretroCore('Opera', EmulatorStatus.Imperfect, 'opera', None, {'iso', 'chd', 'bin', 'cue'}), #needs_fullpath=true
-	LibretroCore('PicoDrive', EmulatorStatus.Good, 'picodrive', simple_md_emulator([], {'pokestad', 'lion3'}), {'bin', 'gen', 'smd', 'md', '32x', 'chd', 'cue', 'iso', 'sms', '68k', 'm3u', 'chd'}), #Lion King 3 is automatically detected but no other games using the same mapper work, so I guess we will pretend it's not a working mapper; needs_fullpath=true (for CDs?)
+	LibretroCore('PicoDrive', EmulatorStatus.Good, 'picodrive', simple_md_emulator([], {'pokestad', 'lion3'}), {'bin', 'gen', 'smd', 'md', '32x', 'chd', 'cue', 'iso', 'sms', '68k', 'm3u'}), #Lion King 3 is automatically detected but no other games using the same mapper work, so I guess we will pretend it's not a working mapper; needs_fullpath=true (for CDs?)
 	LibretroCore('PokeMini', EmulatorStatus.Good, 'pokemini', None, {'min'}),
 	LibretroCore('Potator', EmulatorStatus.Good, 'potator', None, {'bin', 'sv'}),
 	LibretroCore('ProSystem', EmulatorStatus.Good, 'prosystem', command_lines.prosystem, {'a78', 'bin'}),

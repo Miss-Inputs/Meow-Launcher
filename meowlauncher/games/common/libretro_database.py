@@ -111,7 +111,7 @@ def parse_libretro_dat(path: Path) -> tuple[Mapping[str, Union[int, str]], Seque
 			games.append(game)
 	return header, games
 
-@functools.lru_cache(maxsize=None)
+@functools.cache
 def parse_all_dats_for_system(name: str, use_serial: bool) -> Optional[LibretroDatabaseType]:
 	relevant_dats = []
 
@@ -157,9 +157,7 @@ def parse_all_dats_for_system(name: str, use_serial: bool) -> Optional[LibretroD
 					#Ah… this happens with PS1 hacks which use the crc of the whole bin
 					continue
 
-				if key not in games:
-					games[key] = {}
-				this_game = games[key]
+				this_game = games.setdefault(key, {})
 				for k, v in game.items():
 					if k != 'rom':
 						this_game[k] = v

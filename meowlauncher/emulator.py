@@ -9,14 +9,14 @@ from meowlauncher.config_types import (ConfigValueType, EmulatorConfig,
 from .emulated_game import EmulatedGame
 from .runner import HostPlatform, Runner
 
-EmulatorGameType = TypeVar('EmulatorGameType', bound=EmulatedGame, covariant=True)
+EmulatorGameType_co = TypeVar('EmulatorGameType_co', bound=EmulatedGame, covariant=True)
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 
 	from .launch_command import LaunchCommand
 	LibretroFrontendLaunchCommandFunc = Callable[[EmulatedGame, Mapping[str, TypeOfConfigValue], EmulatorConfig, EmulatorConfig], LaunchCommand]
 
-	GenericLaunchCommandFunc = Callable[[EmulatorGameType, Mapping[str, TypeOfConfigValue], EmulatorConfig], LaunchCommand]
+	GenericLaunchCommandFunc = Callable[[EmulatorGameType_co, Mapping[str, TypeOfConfigValue], EmulatorConfig], LaunchCommand]
 	ROMGameLaunchFunc = GenericLaunchCommandFunc[ROMGame] #Was hoping that if I'm inside StandardEmulator, I wouldn't have to manually specify that because it should know already that I'm emulating a ROMGame, but it doesn't work that way
 
 class EmulatorStatus(Enum):
@@ -28,10 +28,10 @@ class EmulatorStatus(Enum):
 	Janky = 2 #Weird to set up or launch normally… hmm this would indicate there is a "compatibility status" as well as a "usability status", in an ideal world where I'm not just putting all this here for either source code as reference, or future use for frontends
 	Borked = 1
 
-class Emulator(Runner, Generic[EmulatorGameType]):
+class Emulator(Runner, Generic[EmulatorGameType_co]):
 	#I decided what actually defines an "emulator" vs. a Runner with is_emulated -> True is that this is more of a "chooseable emulator", but ChooseableEmulator sounds silly as a class name, so like I dunno
 	#Pretend launch_command_func is not optional if instantiating this oneself, it's just for LibretroCore purposes
-	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: Optional['GenericLaunchCommandFunc[EmulatorGameType]'], configs: Mapping[str, RunnerConfigValue]=None, host_platform=HostPlatform.Native, config_name: str=None):
+	def __init__(self, name: str, status: EmulatorStatus, default_exe_name: str, launch_command_func: Optional['GenericLaunchCommandFunc[EmulatorGameType_co]'], configs: Mapping[str, RunnerConfigValue]=None, host_platform=HostPlatform.Native, config_name: str=None):
 		super().__init__(host_platform)
 		self._name = name
 		self.config_name = config_name if config_name else name

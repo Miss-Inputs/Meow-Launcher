@@ -195,9 +195,7 @@ def _parse_mame_cat_ini(path: Path) -> Mapping[str, Collection[str]]:
 			if line.startswith('['):
 				current_section = line[1:-1]
 			elif current_section:
-				if current_section not in d:
-					d[current_section] = set()
-				d[current_section].add(line)
+				d.setdefault(current_section, set()).add(line)
 		return d
 
 def get_mame_cat(name: str, category_folders: Iterator[Path]) -> Mapping[str, Collection[str]]:
@@ -251,7 +249,10 @@ class MachineCategory():
 	@property
 	def is_plug_and_play(self) -> bool:
 		return (self.genre == 'Game Console' and self.subgenre in {'Home Videogame', 'MultiGames'}) or \
-			(self.subgenre == 'Handheld' and (self.subgenre.startswith("Plug n' Play TV Game") or self.subgenre == 'Console Cartridge'))
+			(self.subgenre == 'Handheld' and (self.subgenre.startswith("Plug n' Play TV Game") or self.subgenre == 'Console Cartridge')) or \
+				(self.genre == 'Rhythm' and self.subgenre == 'Dance') or (self.genre == 'MultiGame' and self.subgenre == 'Compilation') or (self.genre == 'Game Console' and self.subgenre == 'Fitness Game') or (self.genre == 'Music' and self.subgenre == 'Instruments')
+		#MultiGame / Compilation is also used for some handheld systems (and also there is Arcade: MultiGame / Compilation)
+		
 
 	@property
 	def is_coin_pusher(self) -> bool:
@@ -353,12 +354,6 @@ def organize_catlist(catlist: MachineCategory) -> OrganizedCatlist:
 	if catlist.genre == 'Misc.' and catlist.subgenre == 'Unknown':
 		genre = None
 		subgenre = None
-
-	if not isinstance(catlist, ArcadeCategory):
-		if (catlist.genre == 'Rhythm' and catlist.subgenre == 'Dance') or (catlist.genre == 'MultiGame' and catlist.subgenre == 'Compilation') or (catlist.genre == 'Game Console' and catlist.subgenre == 'Fitness Game') or (catlist.genre == 'Music' and catlist.subgenre == 'Instruments'):
-		#MultiGame / Compilation is also used for some handheld systems (and also there is Arcade: MultiGame / Compilation)
-			platform = 'Plug & Play'
-			category = 'Games'
 
 	if (catlist.is_arcade and (catlist.genre == 'Misc.' and catlist.subgenre in {'Laserdisc Simulator', 'Print Club', 'Redemption'})) or (catlist.genre == 'Music' and catlist.subgenre in {'Jukebox', 'JukeBox'}):
 		definite_category = True

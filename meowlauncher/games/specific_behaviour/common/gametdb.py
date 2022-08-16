@@ -37,11 +37,7 @@ class TDB():
 								if subgenre not in main_genres:
 									main_genres[subgenre] = set()
 							else:
-								if main_genre not in main_genres:
-									main_genres[main_genre] = set()
-								if genre == 'racing':
-									genre = 'driving'
-								main_genres[main_genre].add(genre)
+								main_genres.setdefault(main_genre, set()).add('driving' if genre == 'racing' else genre)
 								break
 		return main_genres
 

@@ -60,7 +60,9 @@ def _is_probably_unwanted_candidate(path: Path, all_candidate_basenames: Collect
 		return True
 	if name in {'nacl_helper', 'nacl_helper_bootstrap'}:
 		return True
-	if (len(all_candidate_basenames) == 2 and name == 'nwjc') or (len(all_candidate_basenames) == 3 and ('nw' in all_candidate_basenames and 'nwjc' in all_candidate_basenames and name in {'nw', 'nwjc'})):
+	if len(all_candidate_basenames) == 2 and name == 'nwjc':
+		return True
+	if len(all_candidate_basenames) == 3 and ('nw' in all_candidate_basenames and 'nwjc' in all_candidate_basenames and name in {'nw', 'nwjc'}):
 		return True
 	if len(all_candidate_basenames) > 1 and name in {'notification_helper.exe', 'crashpad_handler', 'UnityCrashHandler64.exe', 'winsetup.exe'}:
 		return True

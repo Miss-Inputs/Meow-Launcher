@@ -93,7 +93,7 @@ class GOGTask():
 		if compatFlags:
 			self.compatibility_flags = compatFlags.split(' ') #These seem to be those from https://docs.microsoft.com/en-us/windows/deployment/planning/compatibility-fixes-for-windows-8-windows-7-and-windows-vista (but not always case sensitive?), probably important but I'm not sure what to do about them for now
 		#osBitness: As in GOGJSONGameInfo
-		self.link = json_object.get('link') #For URLTask
+		self.link: Optional[str] = json_object.get('link') #For URLTask
 		#icon: More specific icon I guess, but this can be an exe or DLL to annoy me
 
 	@property

@@ -163,18 +163,15 @@ def process_launchers(game: 'SteamGame', launch: Mapping[bytes, Mapping[bytes, A
 			#betakey = launch_item_config.get(b'betakey')
 			#if betakey and betakey != installed_betakey:
 			#	continue
-		if platform not in launch_items:
-			launch_items[platform] = []
 		launcher = LauncherInfo(exe, args, launcher_description, launcher_type, platform)
-		launch_items[platform].append(launcher)
+		launch_items.setdefault(platform, []).append(launcher)
 
 	for platform, platform_launchers in launch_items.items():
 		platform_launcher: LauncherInfo
 		if len(platform_launchers) == 1:
 			platform_launcher = platform_launchers[0]
 		else:
-			if platform not in game.extra_launchers:
-				game.extra_launchers[platform] = []
+			game.extra_launchers.setdefault(platform, [])
 			game.extra_launchers[platform] += platform_launchers[1:]
 			game.metadata.specific_info['Multiple Launchers?'] = True
 			platform_launcher = platform_launchers[0]
@@ -415,9 +412,7 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 			else:
 				association_name = association_name_value.decode('utf-8', errors='ignore')
 			
-			if association_type not in associations_dict:
-				associations_dict[association_type] = []
-			associations_dict[association_type].append(association_name)
+			associations_dict.setdefault(association_type, []).append(association_name)
 
 		if 'franchise' in associations_dict:
 			franchise_name = associations_dict['franchise'][0]
