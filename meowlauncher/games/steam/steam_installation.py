@@ -99,7 +99,7 @@ class SteamInstallation():
 				for k, v in library_folders.items():
 					if k.isnumeric():
 						yield Path(v['path'])
-		yield self.steamdir
+		#yield self.steamdir #No, it'll do that by itself now
 
 	@property
 	def steamplay_overrides(self) -> Mapping[str, str]:

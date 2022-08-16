@@ -51,14 +51,12 @@ class SteamState():
 			for str_location in possible_locations:
 				location = Path(str_location).expanduser()
 
+				if location.is_symlink():
+					location = location.readlink()
+
 				if location.is_dir():
 					steam_path = location
 					break
-				if location.is_symlink():
-					real_path = location.readlink()
-					if real_path.is_dir():
-						steam_path = real_path
-						break
 			
 			if steam_path:
 				self.steam_installation = SteamInstallation(Path(steam_path))
