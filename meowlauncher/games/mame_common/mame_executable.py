@@ -74,8 +74,7 @@ class MAMEExecutable():
 		if main_config.use_xml_disk_cache:
 			cache_file_path = self._xml_cache_path.joinpath(driver + '.xml')
 			try:
-				with cache_file_path.open('rb') as cache_file:
-					return ElementTree.parse(cache_file).getroot()
+				return ElementTree.parse(cache_file_path).getroot()
 			except FileNotFoundError:
 				pass
 

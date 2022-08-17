@@ -138,8 +138,7 @@ def add_metadata_from_nw_package_json(package_json: Mapping[str, Any], metadata:
 		metadata.add_alternate_name(window.get('title'), 'Window Title')
 
 def add_info_from_package_json_file(folder: Path, package_json_path: Path, metadata: 'Metadata') -> None:
-	with package_json_path.open('rb') as package_json:
-		add_metadata_from_nw_package_json(json.load(package_json), metadata)
+	add_metadata_from_nw_package_json(json.loads(package_json_path.read_bytes()), metadata)
 	if 'Icon-Relative-Path' in metadata.specific_info:
 		icon_path = folder.joinpath(metadata.specific_info.pop('Icon Relative Path'))
 		if icon_path.is_file() and 'Icon' not in metadata.images:

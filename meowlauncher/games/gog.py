@@ -253,8 +253,7 @@ class WindowsGOGGame(Game):
 		self.id_file = None
 		id_path = info_file.with_suffix('.id')
 		if id_path.is_file():
-			with id_path.open('rb') as id_file:
-				self.id_file = json.load(id_file)
+			self.id_file = json.loads(id_path.read_bytes())
 
 		self.game_id = game_id
 		if game_id != self.info.game_id:

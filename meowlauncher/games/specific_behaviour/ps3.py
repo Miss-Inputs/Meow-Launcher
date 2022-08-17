@@ -105,8 +105,7 @@ def get_rpcs3_compat(product_code: str) -> Optional[RPCS3Compatibility]:
 		db = get_rpcs3_compat.db #type: ignore[attr-defined]
 	else:
 		try:
-			with compat_db_path.open('rb') as f:
-				db = get_rpcs3_compat.db = json.load(f) #type: ignore[attr-defined]
+			db = get_rpcs3_compat.db = json.loads(compat_db_path.read_bytes()) #type: ignore[attr-defined]
 		except OSError:
 			return None
 	try:

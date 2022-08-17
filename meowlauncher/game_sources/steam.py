@@ -606,70 +606,69 @@ def add_images(game: 'SteamGame') -> None:
 
 def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user: bool) -> None:
 	#This does not always exist, it's there if you've looked at it in the Steam client and it's loaded some metadata, but like why the heck not
-	with json_path.open('rb') as f:
-		j = json.load(f)
-		#Cool stuff in here:
-		#friends -> Has info on which of your friends played this game (I don't think we need to put that in here anywhere)
-		#associations > Duplicated from appinfo so we don't need that
-		#workshop -> If you downloaded any workshop stuff
-		#badge -> If you're into the badge collecting that stuff is in here
-		#usernews and gameactivity sound cool, but they're blank? Hmm
-		achievements = None
-		achievement_map = None #What's this about…
-		descriptions = None
-		social_media = None
-		for key, values in j:
-			if key == 'achievements':
-				achievements = values.get('data')
-			elif key == 'achievementmap':
-				achievement_map = json.loads(values.get('data'))
-			elif key == 'descriptions':
-				descriptions = values.get('data')
-			elif key == 'socialmedia':
-				social_media = values.get('data')
+	j = json.loads(json_path.read_bytes())
+	#Cool stuff in here:
+	#friends -> Has info on which of your friends played this game (I don't think we need to put that in here anywhere)
+	#associations > Duplicated from appinfo so we don't need that
+	#workshop -> If you downloaded any workshop stuff
+	#badge -> If you're into the badge collecting that stuff is in here
+	#usernews and gameactivity sound cool, but they're blank? Hmm
+	achievements = None
+	achievement_map = None #What's this about…
+	descriptions = None
+	social_media = None
+	for key, values in j:
+		if key == 'achievements':
+			achievements = values.get('data')
+		elif key == 'achievementmap':
+			achievement_map = json.loads(values.get('data'))
+		elif key == 'descriptions':
+			descriptions = values.get('data')
+		elif key == 'socialmedia':
+			social_media = values.get('data')
 
-		if descriptions:
-			game.metadata.descriptions['Snippet'] = descriptions.get('strSnippet')
-			full_description = descriptions.get('strFullDescription')
-			if full_description and not full_description.startswith('#app_'):
-				game.metadata.descriptions['Full Description'] = full_description
+	if descriptions:
+		game.metadata.descriptions['Snippet'] = descriptions.get('strSnippet')
+		full_description = descriptions.get('strFullDescription')
+		if full_description and not full_description.startswith('#app_'):
+			game.metadata.descriptions['Full Description'] = full_description
 
-		if social_media:
-			social_media_types = {
-					4: 'Twitter',
-					5: 'Twitch',
-					6: 'YouTube',
-					7: 'Facebook',
-			}
-			for social_medium in social_media:
-				#strName is just the account's name on that platform I think?
-				key = social_media_types.get(social_medium.get('eType'), f'Unknown Social Media {social_medium.get("eType")}')
-				game.metadata.documents[key] = social_medium.get('strURL')
+	if social_media:
+		social_media_types = {
+				4: 'Twitter',
+				5: 'Twitch',
+				6: 'YouTube',
+				7: 'Facebook',
+		}
+		for social_medium in social_media:
+			#strName is just the account's name on that platform I think?
+			key = social_media_types.get(social_medium.get('eType'), f'Unknown Social Media {social_medium.get("eType")}')
+			game.metadata.documents[key] = social_medium.get('strURL')
 
-		if is_single_user and achievements:
-			total_achievements = achievements.get('nTotal', 0)
-			achieved = achievements.get('nAchieved', 0)
+	if is_single_user and achievements:
+		total_achievements = achievements.get('nTotal', 0)
+		achieved = achievements.get('nAchieved', 0)
 
-			if total_achievements:
-				unachieved_list = {cheevo['strID']: cheevo for cheevo in achievements.get('vecUnachieved', ())}
-				achieved_list = {cheevo['strID']: cheevo for cheevo in achievements.get('vecAchievedHidden', ()) + achievements.get('vecHighlight', ())}
-				if achievement_map:
-					for achievement_id, achievement_data in achievement_map[0][1]:
-						if achievement_data.get('bAchieved'):
-							achieved_list[achievement_id] = dict(achieved_list.get(achievement_id, {}), **achievement_data)
-						else:
-							unachieved_list[achievement_id] = dict(unachieved_list.get(achievement_id, {}), **achievement_data)
-				
-				if unachieved_list:
-					unachieved_stats = (cheevo.get('flAchieved', 0) / 100 for cheevo in unachieved_list.values())
-					unachieved_percent = statistics.median(unachieved_stats)
-					game.metadata.specific_info['Median Global Unachieved Completion'] = f'{unachieved_percent:.0%}'
-				if achieved_list:
-					achievement_stats = (cheevo.get('flAchieved', 0) / 100 for cheevo in achieved_list.values())
-					achieved_percent = statistics.median(achievement_stats)
-					game.metadata.specific_info['Median Global Achieved Completion'] = f'{achieved_percent:.0%}'
-		
-				game.metadata.specific_info['Achievement Completion'] = f'{achieved / total_achievements:.0%}'
+		if total_achievements:
+			unachieved_list = {cheevo['strID']: cheevo for cheevo in achievements.get('vecUnachieved', ())}
+			achieved_list = {cheevo['strID']: cheevo for cheevo in achievements.get('vecAchievedHidden', ()) + achievements.get('vecHighlight', ())}
+			if achievement_map:
+				for achievement_id, achievement_data in achievement_map[0][1]:
+					if achievement_data.get('bAchieved'):
+						achieved_list[achievement_id] = dict(achieved_list.get(achievement_id, {}), **achievement_data)
+					else:
+						unachieved_list[achievement_id] = dict(unachieved_list.get(achievement_id, {}), **achievement_data)
+			
+			if unachieved_list:
+				unachieved_stats = (cheevo.get('flAchieved', 0) / 100 for cheevo in unachieved_list.values())
+				unachieved_percent = statistics.median(unachieved_stats)
+				game.metadata.specific_info['Median Global Unachieved Completion'] = f'{unachieved_percent:.0%}'
+			if achieved_list:
+				achievement_stats = (cheevo.get('flAchieved', 0) / 100 for cheevo in achieved_list.values())
+				achieved_percent = statistics.median(achievement_stats)
+				game.metadata.specific_info['Median Global Achieved Completion'] = f'{achieved_percent:.0%}'
+	
+			game.metadata.specific_info['Achievement Completion'] = f'{achieved / total_achievements:.0%}'
 
 def add_info_from_user_cache(game: 'SteamGame') -> None:
 	user_list = steam_installation.user_ids

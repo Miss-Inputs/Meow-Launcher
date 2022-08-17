@@ -27,15 +27,10 @@ class SteamInstallation():
 	def __init__(self, path: Path):
 		self.steamdir = path
 		try:
-			with self.app_info_path.open('rb') as app_info_file:
-				try:
-					self.app_info = appinfo.load(app_info_file)
-					self.app_info_available = True
-				except ValueError:
-					#This will be thrown by steamfiles.appinfo if the appinfo.vdf structure is different than expected, which apparently has happened in earlier versions of it, so I should probably be prepared for that
-					self.app_info = None
-					self.app_info_available = False
-		except FileNotFoundError:
+			self.app_info = appinfo.loads(self.app_info_path.read_bytes())
+			self.app_info_available = True
+		except (FileNotFoundError, ValueError):
+			#ValueError will be thrown by steamfiles.appinfo if the appinfo.vdf structure is different than expected, which apparently has happened in earlier versions of it, so I should probably be prepared for that
 			self.app_info = None
 			self.app_info_available = False
 		try:

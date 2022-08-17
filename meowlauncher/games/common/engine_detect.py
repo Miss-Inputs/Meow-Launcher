@@ -348,10 +348,9 @@ def _try_detect_rpg_paper_maker(folder: Path) -> bool:
 	#TODO: Use this - just need to make sure, is that a different package.json from nw.js, or should I be merging the two functions
 	package_json_path = folder.joinpath('resources', 'app', 'package.json')
 	try:
-		with package_json_path.open('rb') as f:
-			j = json.load(f)
-			#This isn't a valid URL but it's what it is, I dunno
-			return j['homepage'] == 'https://github.com/RPG-Paper-Maker/Game#readme'
+		j = json.loads(package_json_path.read_bytes())
+		#This isn't a valid URL but it's what it is, I dunno
+		return j['homepage'] == 'https://github.com/RPG-Paper-Maker/Game#readme'
 	except FileNotFoundError:
 		return False
 
