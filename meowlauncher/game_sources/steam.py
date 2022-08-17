@@ -17,7 +17,7 @@ except ModuleNotFoundError:
 from meowlauncher.common_types import MediaType, SaveType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.game_source import GameSource
-from meowlauncher.games.common.engine_detect import detect_engine_recursively
+from meowlauncher.games.common.engine_detect import detect_engine_recursively, try_detect_engine_from_exe
 from meowlauncher.games.common.pc_common_metadata import (
     add_metadata_for_raw_exe, check_for_interesting_things_in_folder)
 from meowlauncher.games.steam.steam_utils import (normalize_developer,
@@ -129,11 +129,11 @@ def process_launchers(game: 'SteamGame', launch: Mapping[bytes, Mapping[bytes, A
 		executable_name = launch_item.get(b'executable')
 		exe: Optional[PurePath] = None
 		if executable_name:
-			exe_name = executable_name.decode('utf-8', errors='backslashreplace')
+			exe_name: str = executable_name.decode('utf-8', errors='backslashreplace')
 			if exe_name.startswith('steam://open'):
 				#None of that
 				continue
-			exe = PurePath(exe_name)
+			exe = PurePath(exe_name.replace('\\', '/'))
 		
 		args: Optional[str] = None
 		executable_arguments = launch_item.get(b'arguments')
@@ -556,10 +556,12 @@ def process_launcher(game: 'SteamGame', launcher: 'LauncherInfo') -> None:
 	# 	elif '\\' in executable_basename:
 	# 		executable_basename = executable_basename.split('\\')[-1]
 	game.metadata.specific_info['Executable Name'] = executable_basename
-
 	launcher_full_path = game.install_dir.joinpath(launcher.exe)
 	if launcher_full_path.is_file():
 		add_metadata_for_raw_exe(str(launcher_full_path), game.metadata)
+		engine = try_detect_engine_from_exe(launcher_full_path, game.metadata)
+		if engine:
+			game.metadata.specific_info['Engine'] = engine
 
 	if launcher.args and '-uplay_steam_mode' in launcher.args:
 		game.metadata.specific_info['Launcher'] = 'uPlay'
@@ -596,6 +598,8 @@ def add_images(game: 'SteamGame') -> None:
 	#The cover is not always really box art but it's used in grid view, and I guess digital only games wouldn't have real box art anyway
 	#What the hell is a "hero" oh well it's there
 	for image_filename, name in (('icon', 'Icon'), ('header', 'Header'), ('library_600x900', 'Cover'), ('library_hero', 'Hero'), ('logo', 'Logo')):
+		if name in game.metadata.images:
+			continue
 		image_path = steam_installation.find_image(game.appid, image_filename)
 		if image_path:
 			game.metadata.images[name] = image_path
@@ -696,13 +700,6 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> 'Ste
 	game.metadata.specific_info['Library Folder'] = folder
 	game.metadata.media_type = MediaType.Digital
 
-	try:
-		poke_around_in_install_dir(game)
-	except OSError:
-		pass
-	add_images(game)
-	add_info_from_user_cache(game)
-
 	appinfo_entry = game.appinfo
 	if appinfo_entry:
 		app_type = get_game_type(appinfo_entry)
@@ -724,6 +721,7 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> 'Ste
 	steamplay_overrides = steam_installation.steamplay_overrides
 	steamplay_whitelist = steam_installation.steamplay_whitelist
 	appid_str = str(game.appid)
+
 
 	if not game.launchers:
 		raise NotLaunchableError('Game cannot be launched')
@@ -776,6 +774,13 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> 'Ste
 		process_launcher(game, launcher)
 	#Potentially do something with game.extra_launchers... I dunno, really
 
+	try:
+		poke_around_in_install_dir(game)
+	except OSError:
+		pass
+	add_images(game)
+	add_info_from_user_cache(game)
+	
 	#userdata/<user ID>/config/localconfig.vdf has last time played stats, so that's a thing I guess
 	#userdata/<user ID>/7/remote/sharedconfig.vdf has tags/categories etc as well
 

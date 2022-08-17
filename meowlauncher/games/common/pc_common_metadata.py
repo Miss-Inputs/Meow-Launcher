@@ -76,7 +76,7 @@ def add_metadata_for_raw_exe(path: str, metadata: 'Metadata') -> None:
 
 	product_name = props.get('ProductName')
 	if product_name:
-		metadata.add_alternate_name(product_name, 'Name')
+		metadata.add_alternate_name(product_name, 'Product Name')
 	copyright_string = props.get('LegalCopyright')
 	if copyright_string:
 		metadata.specific_info['Copyright'] = copyright_string
