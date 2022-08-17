@@ -1,12 +1,17 @@
 from collections.abc import Mapping, MutableMapping
 from dataclasses import dataclass
+from functools import cached_property
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any, Optional
 
+from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config_types import RunnerConfig
 from meowlauncher.configured_runner import ConfiguredRunner
 from meowlauncher.game import Game
+from meowlauncher.games.common.engine_detect import detect_engine_recursively
+from meowlauncher.games.common.pc_common_metadata import \
+    check_for_interesting_things_in_folder
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.launcher import Launcher
 from meowlauncher.runner import Runner
@@ -30,7 +35,7 @@ class SteamGame(Game):
 		self.library_folder = folder
 		self.app_state = app_state
 		self.steam_installation = steam_installation
-		
+
 		#TODO: These should probably be returned from some method instead
 		self.launchers: MutableMapping[Optional[str], LauncherInfo] = {}
 		self.extra_launchers: MutableMapping[Optional[str], list[LauncherInfo]] = {}
@@ -47,7 +52,7 @@ class SteamGame(Game):
 	def install_dir(self) -> Path:
 		return self.library_folder.joinpath('steamapps', 'common', self.app_state['installdir'])
 
-	@property
+	@cached_property
 	def appinfo(self) -> Optional[Mapping[bytes, Any]]:
 		if self.steam_installation.app_info_available:
 			game_app_info = self.steam_installation.app_info.get(self.appid)
@@ -73,6 +78,63 @@ class SteamGame(Game):
 			return app_info_section
 		return None
 
+	@property
+	def _appinfo_common_section(self) -> Optional[Mapping[bytes, Any]]:
+		if not self.appinfo:
+			return None
+		return self.appinfo.get(b'common')
+
+	@property
+	def type(self) -> str:
+		if not self._appinfo_common_section:
+			return 'Game' #Assumed
+		return self._appinfo_common_section.get(b'type', b'Unknown').decode('utf-8', errors='backslashreplace')
+
+	def add_metadata(self) -> None:
+		#Hmmm… may make sense for this to go on individual SteamLauncher, if we add some metadata based on that
+		self.metadata.specific_info['Steam AppID'] = self.appid
+		self.metadata.specific_info['Library Folder'] = self.library_folder
+		self.metadata.media_type = MediaType.Digital
+		lowviolence = self.app_state.get('UserConfig', {}).get('lowviolence')
+		if lowviolence:
+			self.metadata.specific_info['Low Violence?'] = lowviolence == '1'
+
+		app_type = self.type
+		if app_type in {'game', 'Game'}:
+			#This makes the categories consistent with other stuff
+			self.metadata.categories = ('Games', )
+		elif app_type in {'Tool', 'Application'}:
+			#Tool is for SDK/level editor/dedicated server/etc stuff, Application is for general purchased software
+			self.metadata.categories = ('Applications', )
+		elif app_type == 'Demo':
+			self.metadata.categories = ('Trials', )
+		elif app_type:
+			self.metadata.categories = [app_type]
+
+		try:
+			self.poke_around_in_install_dir()
+		except OSError as oserror:
+			if main_config.debug:
+				print('oh dear', oserror)
+
+	def poke_around_in_install_dir(self) -> None:
+		install_dir = self.install_dir
+		if not install_dir.is_dir():
+			# if main_config.debug:
+			# 	print('uh oh installdir does not exist', game.name, game.app_id, folder)
+			#Hmm I would need to make this case insensitive for some cases
+			return
+
+		if not self.metadata.specific_info.get('Engine'):
+			engine = detect_engine_recursively(install_dir, self.metadata)
+			if engine:
+				self.metadata.specific_info['Engine'] = engine
+
+		check_for_interesting_things_in_folder(install_dir, self.metadata, find_wrappers=True)
+		for f in install_dir.iterdir():
+			if f.is_dir():
+				check_for_interesting_things_in_folder(f, self.metadata, find_wrappers=True)
+		
 class _SteamRunner(Runner):
 	@property
 	def name(self) -> str:
@@ -95,5 +157,5 @@ class SteamLauncher(Launcher):
 
 	@property
 	def command(self) -> LaunchCommand:
-		#-applaunch <appid>? steam://run/<id>? Does not seem as though it lets us have arguments
+		#-applaunch <appid>? steam://run/<id>? Does not seem as though it lets us have arguments no matter which way you do it, so you will only ever be able to run the "main" launcher
 		return LaunchCommand(self.runner.config.exe_path, [f'steam://rungameid/{self.game.appid}'])

@@ -4,7 +4,6 @@ import datetime
 import json
 import statistics
 from collections.abc import Iterator, Mapping, MutableMapping
-from enum import IntFlag
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any, Optional
 
@@ -14,31 +13,34 @@ try:
 except ModuleNotFoundError:
 	have_steamfiles = False
 
-from meowlauncher.common_types import MediaType, SaveType
+from meowlauncher.common_types import (GameNotSupportedException,
+                                       NotActuallyLaunchableGameException,
+                                       NotLaunchableException, SaveType)
 from meowlauncher.config.main_config import main_config
 from meowlauncher.game_source import GameSource
-from meowlauncher.games.common.engine_detect import detect_engine_recursively, try_detect_engine_from_exe
-from meowlauncher.games.common.pc_common_metadata import (
-    add_metadata_for_raw_exe, check_for_interesting_things_in_folder)
-from meowlauncher.games.steam.steam_utils import (normalize_developer,
+from meowlauncher.games.common.engine_detect import try_detect_engine_from_exe
+from meowlauncher.games.common.pc_common_metadata import \
+    add_metadata_for_raw_exe
+from meowlauncher.games.steam.steam_game import (LauncherInfo, SteamGame,
+                                                 SteamLauncher)
+from meowlauncher.games.steam.steam_utils import (format_genre,
+                                                  normalize_developer,
                                                   translate_language_list)
 from meowlauncher.metadata import Date
 from meowlauncher.util.desktop_files import has_been_done
 from meowlauncher.util.name_utils import normalize_name_case
-from meowlauncher.util.utils import load_dict, remove_capital_article
+from meowlauncher.util.utils import remove_capital_article
 
 if have_steamfiles or TYPE_CHECKING:
-	from meowlauncher.games.steam.steam_game import (LauncherInfo, SteamGame,
-	                                                 SteamLauncher)
+	#TODO: This isn't to avoid a circular import, it just assumes steamfiles can be imported because I can't be bothered doing "have_steamfiles" in there
+	#Maybe this should just require steamfiles anyway…
 	from meowlauncher.games.steam.steam_installation import (IconError,
 	                                                         IconNotFoundError,
+	                                                         StateFlags,
 	                                                         SteamInstallation)
 if TYPE_CHECKING:
 	from meowlauncher.launcher import Launcher
 
-
-store_categories = load_dict(None, 'steam_store_categories')
-genre_ids = load_dict(None, 'steam_genre_ids')
 
 class SteamState():
 	class __SteamState():
@@ -80,40 +82,6 @@ else:
 	is_steam_available = steam_state.is_steam_installed
 	steam_installation = steam_state.steam_installation
 	
-class StateFlags(IntFlag):
-	#https://github.com/lutris/lutris/blob/master/docs/steam.rst
-	Invalid = 0
-	Uninstalled = 1
-	UpdateRequired = 2
-	FullyInstalled = 4
-	Encrypted = 8
-	Locked = 16
-	FilesMissing = 32
-	AppRunning = 64
-	FilesCorrupt = 128
-	UpdateRunning = 256
-	UpdatePaused = 512
-	UpdateStarted = 1024
-	Uninstalling = 2048
-	BackupRunning = 4096
-	Reconfiguring = 65536
-	Validating = 131072
-	AddingFiles = 262144
-	Preallocating = 524288
-	Downloading = 1048576
-	Staging = 2097152
-	Committing = 4194304
-	UpdateStopping = 8388608
-
-class NotActuallyAGameYouDingusException(Exception):
-	pass
-
-class NotLaunchableError(Exception):
-	pass
-
-def format_genre(genre_id: str) -> str:
-	return genre_ids.get(genre_id, f'unknown {genre_id}')
-
 #TODO: Move more of this to SteamGame
 
 def process_launchers(game: 'SteamGame', launch: Mapping[bytes, Mapping[bytes, Any]]) -> None:
@@ -265,7 +233,6 @@ def add_genre(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
 		game.metadata.specific_info['Content Warnings'] = tuple(format_genre(id) for id in content_warning_ids)
 	#"genre" doesn't look like a word anymore
 
-
 def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
 	if 'Icon' not in game.metadata.images:
 		add_icon_from_common_section(game, common)
@@ -332,7 +299,7 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 	if store_categories_list:
 		#keys are category_X where X is some arbitrary ID, values are always Integer = 1
 		#This is the thing where you go to the store sidebar and it's like "Single-player" "Multi-player" "Steam Achievements" etc"
-		cats = {store_categories.get(key, key) for key in (key.decode('utf-8', errors='backslashreplace') for key in store_categories_list.keys())}
+		cats = {store_categories_list.get(key, key) for key in (key.decode('utf-8', errors='backslashreplace') for key in store_categories_list.keys())}
 		game.metadata.specific_info['Store Categories'] = cats #meow
 		game.metadata.specific_info['Has Achievements?'] = 'Steam Achievements' in cats
 		game.metadata.specific_info['Has Trading Cards?'] = 'Steam Trading Cards' in cats
@@ -511,13 +478,7 @@ def process_appinfo_config_section(game: 'SteamGame', app_info_section: Mapping[
 		if launch:
 			process_launchers(game, launch)
 		else:
-			raise NotLaunchableError('No launch entries in config section')
-
-def get_game_type(app_info_section: Mapping[bytes, Any]) -> Optional[str]:
-	common = app_info_section.get(b'common')
-	if common:
-		return common.get(b'type', b'Unknown').decode('utf-8', errors='backslashreplace')
-	return None
+			raise NotActuallyLaunchableGameException('No launch entries in config section')
 
 def add_metadata_from_appinfo(game: 'SteamGame', app_info_section: Mapping[bytes, Any]) -> None:
 	#Alright let's get to the fun stuff
@@ -559,6 +520,7 @@ def process_launcher(game: 'SteamGame', launcher: 'LauncherInfo') -> None:
 	launcher_full_path = game.install_dir.joinpath(launcher.exe)
 	if launcher_full_path.is_file():
 		add_metadata_for_raw_exe(str(launcher_full_path), game.metadata)
+		#look_for_icon_for_file(launcher_full_path) would also be an option
 		engine = try_detect_engine_from_exe(launcher_full_path, game.metadata)
 		if engine:
 			game.metadata.specific_info['Engine'] = engine
@@ -576,23 +538,6 @@ def process_launcher(game: 'SteamGame', launcher: 'LauncherInfo') -> None:
 				#Why not
 				game.metadata.platform = 'Mac'
 
-def poke_around_in_install_dir(game: 'SteamGame') -> None:
-	install_dir = game.install_dir
-	if not install_dir.is_dir():
-		# if main_config.debug:
-		# 	print('uh oh installdir does not exist', game.name, game.app_id, folder)
-		#Hmm I would need to make this case insensitive for some cases
-		return
-
-	engine = detect_engine_recursively(install_dir, game.metadata)
-	if engine:
-		game.metadata.specific_info['Engine'] = engine
-
-	check_for_interesting_things_in_folder(install_dir, game.metadata, find_wrappers=True)
-	for f in install_dir.iterdir():
-		if f.is_dir():
-			check_for_interesting_things_in_folder(f, game.metadata, find_wrappers=True)
-	
 def add_images(game: 'SteamGame') -> None:
 	#Do I wanna call header a banner
 	#The cover is not always really box art but it's used in grid view, and I guess digital only games wouldn't have real box art anyway
@@ -692,29 +637,9 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> 'Ste
 	else:
 		#I guess we might assume it's Windows if there's no other info specifying the platform, this seems to happen with older games
 		game.metadata.platform = 'Windows'
-	lowviolence = app_state.get('UserConfig', {}).get('lowviolence')
-	if lowviolence:
-		game.metadata.specific_info['Low Violence?'] = lowviolence == '1'
-	game.metadata.specific_info['Steam AppID'] = appid
-	game.metadata.specific_info['Library Folder'] = folder
-	game.metadata.media_type = MediaType.Digital
 
 	appinfo_entry = game.appinfo
 	if appinfo_entry:
-		app_type = get_game_type(appinfo_entry)
-		if app_type in {'game', 'Game'}:
-			#This makes the categories consistent with other stuff
-			game.metadata.categories = ('Games', )
-		elif app_type in {'Tool', 'Application'}:
-			#Tool is for SDK/level editor/dedicated server/etc stuff, Application is for general purchased software
-			game.metadata.categories = ('Applications', )
-		elif app_type == 'Demo':
-			game.metadata.categories = ('Trials', )
-		elif app_type == 'Music': 
-			raise NotActuallyAGameYouDingusException()
-		elif app_type:
-			game.metadata.categories = [app_type]
-
 		process_appinfo_config_section(game, appinfo_entry)
 
 	steamplay_overrides = steam_installation.steamplay_overrides
@@ -723,7 +648,7 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> 'Ste
 
 
 	if not game.launchers:
-		raise NotLaunchableError('Game cannot be launched')
+		raise NotActuallyLaunchableGameException('Game cannot be launched')
 
 	launcher: Optional[LauncherInfo] = next(iter(game.launchers.values())) #Hmm
 	tools = steam_installation.steamplay_compat_tools
@@ -767,16 +692,13 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> 'Ste
 			game.metadata.specific_info['No Valid Launchers?'] = True
 			launcher = None
 			if not main_config.force_create_launchers:
-				raise NotLaunchableError('Platform not supported and Steam Play not used')
+				raise GameNotSupportedException('Platform not supported and Steam Play not used')
 
 	if launcher:
 		process_launcher(game, launcher)
 	#Potentially do something with game.extra_launchers... I dunno, really
 
-	try:
-		poke_around_in_install_dir(game)
-	except OSError:
-		pass
+	game.add_metadata()
 	add_images(game)
 	add_info_from_user_cache(game)
 	
@@ -872,9 +794,7 @@ class Steam(GameSource):
 
 			try:
 				yield process_game(app_id, folder, app_state)
-			except NotActuallyAGameYouDingusException:
-				continue
-			except NotLaunchableError as ex:
+			except NotLaunchableException as ex:
 				if main_config.debug:
 					print(app_state.get('name', app_id), app_id, 'is skipped because', ex)
 				continue

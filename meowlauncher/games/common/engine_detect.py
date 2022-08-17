@@ -5,6 +5,7 @@ from collections.abc import Collection
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
+import zipfile
 
 from .engine_info import (add_gamemaker_metadata,
                           add_info_from_package_json_file,
@@ -12,7 +13,7 @@ from .engine_info import (add_gamemaker_metadata,
                           add_metadata_for_adobe_air,
                           add_metadata_from_pixel_game_maker_mv_info_json,
                           add_metadata_from_renpy_options, add_unity_metadata,
-                          add_unity_web_metadata)
+                          add_unity_web_metadata, add_piko_mednafen_info)
 from .pc_common_metadata import get_exe_properties
 
 if TYPE_CHECKING:
@@ -221,10 +222,20 @@ def _try_detect_nw(folder: Path, metadata: Optional['Metadata']) -> Optional[str
 		if metadata:
 			add_info_from_package_json_file(folder, package_json_path, metadata)
 	elif package_nw_path.is_file():
+		subengine = None
+		try:
+			with zipfile.ZipFile(package_nw_path) as package_nw:
+				if 'c2runtime.js' in package_nw.namelist():
+					subengine = 'Construct 2'
+		except zipfile.BadZipFile:
+			return None
+
 		have_package = True
 		if metadata:
 			if not add_info_from_package_json_zip(package_nw_path, metadata):
 				return None
+		if subengine: #If we detected something more specific in there
+			return subengine
 	
 	if not have_package:
 		return None
@@ -375,7 +386,7 @@ def _try_detect_rpg_maker_xp_vx(folder: Path, metadata: Optional['Metadata'], ex
 				game_stem = f.stem
 				engine = 'RPG Maker XP/VX/Ace'
 				#We know we have something… so don't break and potentially find something more specific
-			if ext == 'rvproj':
+			if ext in {'rvproj', 'rgss2a'}:
 				game_stem = f.stem
 				engine = 'RPG Maker VX'
 				break
@@ -398,8 +409,8 @@ def _try_detect_rpg_maker_xp_vx(folder: Path, metadata: Optional['Metadata'], ex
 		if game_ini_path.is_file(): #Should be?
 			game_ini = configparser.ConfigParser(interpolation=None)
 			game_ini.optionxform = str #type: ignore[assignment]
-			game_ini.read(game_ini_path)
 			try:
+				game_ini.read(game_ini_path)
 				game = game_ini['Game']
 				library = game['Library'].lower().removeprefix('system\\') #Might not always be in that folder
 				#Also note that the DLL doesn't actually have to exist (as is the case with mkxp)
@@ -414,7 +425,7 @@ def _try_detect_rpg_maker_xp_vx(folder: Path, metadata: Optional['Metadata'], ex
 						metadata.specific_info['Has Sound Effects?'] = game['Play_Sound_Effects'] == '1'
 					if 'Mouse' in game:
 						metadata.specific_info['Uses Mouse?'] = game['Mouse'] == '1'
-			except KeyError:
+			except (KeyError, UnicodeDecodeError):
 				pass
 			#Sometimes there is a Fullscreen++ section, not sure what it could tell me, whether the game starts in fullscreen or supports it differently or what
 		if mkxp_path.is_file():
@@ -482,6 +493,63 @@ def _try_detect_jackbox_games(folder: Path, metadata: Optional['Metadata']) -> b
 		return True
 	return False
 
+def _try_detect_piko_mednafen(folder: Path, metadata: Optional['Metadata']) -> Optional[str]:
+	#Piko's fork of Mednafen for emulated rereleases, probably has an actual name, but I don't know/care (also it is not really an engine)
+	data_path = folder / 'res' / 'data'
+	game_path = folder / 'res' / 'game'
+	game_cue_path = folder / 'res' / 'game.cue'
+	if data_path.is_file() and (game_path.is_file() or game_cue_path.is_file()):
+		#Hopefully this should be enough to ensure a lack of false positives
+		#Actually, sometimes that's all there is other than back
+		if metadata:
+			add_piko_mednafen_info(folder, data_path, metadata)
+		#Big brain time: Detect what kind of game is being emulated
+		if game_cue_path.is_file():
+			#Making an assumption here, but I don't think they're brave enough to re-release games for any other disc-based systems yet (other than DOS stuff using DOSBox)
+			#mcd1 and mcd2 being present probably is a strong indicator if there is doubt, or find the "Licensed By Sony" etc text in the disc
+			return "Piko's Mednafen fork (PlayStation)"
+		with game_path.open('rb') as game:
+			magic = game.read(25)
+			if magic[:4] == b'NES\x1a':
+				return "Piko's Mednafen fork (NES)"
+			if magic == b'\x78\x54\xA9\xFF\x53\x01\xAD\x00\x10\x29\x40\xF0\x0C\xA9\x90\x53\x04\x4C\x00\x40 NEC ':
+				#Not really file magic, but a secret trick to detect Turbografx-16… this is the region protection code, and would not be in the same place for everything and also not present on some carts, so this is a bad idea and shouldn't be relied on
+				return "Piko's Mednafen fork (Turbografx-16)"
+				
+			game.seek(0x100)
+			if game.read(4) == b'SEGA':
+				return "Piko's Mednafen fork (Mega Drive/Genesis)"
+			game.seek(0x7fdc)
+			checksum = int.from_bytes(game.read(2), 'little')
+			inverse_checksum = int.from_bytes(game.read(2), 'little')
+			if (checksum | inverse_checksum) == 0xffff:
+				#Hmm there's never a good way to do this
+				return "Piko's Mednafen fork (SNES)"
+			game.seek(0xffc0)
+			checksum = int.from_bytes(game.read(2), 'little')
+			inverse_checksum = int.from_bytes(game.read(2), 'little')
+			if (checksum | inverse_checksum) == 0xffff:
+				return "Piko's Mednafen fork (SNES)"
+			game.seek(0x134)
+			try:
+				#Hmm I guess this isn't the best way to do it
+				#file/magic reads the first 4 bytes of the Nintendo logo and compares it directly, but I'm too much of a wuss, but also can't be bothered comparing a checksum, and then that just doesn't seem right anyway
+				if game.read(15).decode('ascii').isascii():
+					return "Piko's Mednafen fork (Game Boy)"
+			except UnicodeDecodeError:
+				pass
+			game.seek(0xa0)
+			try:
+				if game.read(18).decode('ascii').isascii():
+					if game.read(1) == b'\x96':
+						return "Piko's Mednafen fork (GBA)"
+			except UnicodeDecodeError:
+				pass
+			#There's nothing really that can detect Jaguar, though there is only one game (Attack of the Mutant Penguins) released on Steam that I am aware of and it is DOSBox anyway, so if I move this function around to detect this as a wrapper and not an engine properly, it would detect DOSBox first anyway
+			
+		return "Piko's Mednafen fork"
+	return None
+
 def _try_detect_engines_from_filenames(folder: Path, files: Collection[str], subdirs: Collection[str]) -> Optional[str]:
 	#These are simple enough to detect with just one line…	
 	if 'acsetup.cfg' in files:
@@ -513,9 +581,12 @@ def _try_detect_engines_from_filenames(folder: Path, files: Collection[str], sub
 		#Is GuruguruSMF4.dll always there? Doesn't seem to be part of the thing
 		return 'Wolf RPG Editor'
 
+	if folder.joinpath('Pack', 'data').is_dir() and any(f.suffix.lower() == '.ttarch' for f in folder.joinpath('Pack', 'data').iterdir()):
+		return 'Telltale Tool'
 	if folder.joinpath('bin', 'libUnigine_x64.so').is_file() or folder.joinpath('bin', 'libUnigine_x86.so').is_file() or folder.joinpath('bin', 'Unigine_x86.dll').is_file() or folder.joinpath('bin', 'Unigine_x64.dll').is_file():
 		return 'Unigine'
 	if folder.joinpath('System', 'Engine.u').is_file():
+		#Also check Editor.u or Core.u if this gets false positives somehow
 		return 'Unreal Engine 1'
 	if folder.joinpath('Build', 'Final', 'DefUnrealEd.ini').is_file():
 		return 'Unreal Engine 2' #Possibly 2.5 specifically
@@ -601,6 +672,9 @@ def try_and_detect_engine_from_folder(folder: Path, metadata: 'Metadata'=None, e
 	cryengine_version = _try_detect_cryengine(folder)
 	if cryengine_version:
 		return cryengine_version
+	piko_mednafen = _try_detect_piko_mednafen(folder, metadata)
+	if piko_mednafen:
+		return piko_mednafen
 	rpg_maker_200x_version = _try_detect_rpg_maker_200x(folder, metadata, executable)
 	if rpg_maker_200x_version:
 		return rpg_maker_200x_version

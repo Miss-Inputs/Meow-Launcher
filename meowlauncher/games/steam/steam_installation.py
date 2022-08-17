@@ -2,6 +2,7 @@ import io
 import re
 import zipfile
 from collections.abc import Collection, Iterator, Mapping
+from enum import IntFlag
 from operator import attrgetter
 from pathlib import Path
 from typing import Any, Optional, Union
@@ -16,6 +17,31 @@ except ModuleNotFoundError:
 
 from meowlauncher.config.main_config import main_config
 
+
+class StateFlags(IntFlag):
+	#https://github.com/lutris/lutris/blob/master/docs/steam.rst
+	Invalid = 0
+	Uninstalled = 1
+	UpdateRequired = 2
+	FullyInstalled = 4
+	Encrypted = 8
+	Locked = 16
+	FilesMissing = 32
+	AppRunning = 64
+	FilesCorrupt = 128
+	UpdateRunning = 256
+	UpdatePaused = 512
+	UpdateStarted = 1024
+	Uninstalling = 2048
+	BackupRunning = 4096
+	Reconfiguring = 65536
+	Validating = 131072
+	AddingFiles = 262144
+	Preallocating = 524288
+	Downloading = 1048576
+	Staging = 2097152
+	Committing = 4194304
+	UpdateStopping = 8388608
 
 class IconError(Exception):
 	pass

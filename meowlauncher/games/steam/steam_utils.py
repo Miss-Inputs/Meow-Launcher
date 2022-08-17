@@ -7,8 +7,13 @@ from meowlauncher.data.name_cleanup.steam_developer_overrides import \
 from meowlauncher.util.region_info import (Language,
                                            get_language_by_english_name,
                                            languages_by_english_name)
-from meowlauncher.util.utils import junk_suffixes
+from meowlauncher.util.utils import junk_suffixes, load_dict
 
+store_categories = load_dict(None, 'steam_store_categories')
+genre_ids = load_dict(None, 'steam_genre_ids')
+
+def format_genre(genre_id: str) -> str:
+	return genre_ids.get(genre_id, f'unknown {genre_id}')
 
 def translate_language_list(languages: Mapping[bytes, Any]) -> Collection[Language]:
 	langs = set()
