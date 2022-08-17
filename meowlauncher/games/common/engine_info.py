@@ -1,5 +1,6 @@
 #For engine_detect to use to add metadata while it's detecting engines, but could also be useful if something is already known to be that engine
 
+import configparser
 import io
 import json
 import re
@@ -191,3 +192,22 @@ def add_metadata_from_renpy_options(game_folder: Path, options_path: Path, metad
 			icon_path = game_folder.joinpath(match['string'])
 			if icon_path.is_file():
 				metadata.images['Icon'] = icon_path
+				
+def add_gamemaker_metadata(folder: Path, metadata: 'Metadata') -> None:
+	options_ini_path = folder.joinpath('options.ini')
+	if not options_ini_path.is_file():
+		options_ini_path = folder.joinpath('assets', 'options.ini')
+	if options_ini_path.is_file():
+		parser = configparser.ConfigParser(interpolation=None)
+		parser.optionxform = str #type: ignore[assignment]
+		parser.read(options_ini_path)
+		if parser.has_section('Linux'):
+			#There is also an Icon and Splash that seem to refer to images that don't exist…
+			#What could AppId be for?
+			metadata.add_alternate_name(parser['Linux']['DisplayName'], 'Engine Name')
+				
+	icon_path = folder.joinpath('icon.png')
+	if not icon_path.is_file():
+		icon_path = folder.joinpath('assets', 'icon.png')
+	if icon_path.is_file():
+		metadata.images['Icon'] = icon_path

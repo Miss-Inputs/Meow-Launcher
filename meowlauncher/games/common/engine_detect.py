@@ -6,13 +6,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
-from .pc_common_metadata import get_exe_properties
-from .engine_info import (add_info_from_package_json_file,
+from .engine_info import (add_gamemaker_metadata,
+                          add_info_from_package_json_file,
                           add_info_from_package_json_zip,
                           add_metadata_for_adobe_air,
                           add_metadata_from_renpy_options, add_unity_metadata,
                           add_unity_web_metadata)
-
+from .pc_common_metadata import get_exe_properties
 
 if TYPE_CHECKING:
 	from meowlauncher.metadata import Metadata
@@ -145,26 +145,6 @@ def _try_detect_ue3(folder: Path) -> bool:
 					return True
 	return False
 
-def _add_gamemaker_metadata(folder: Path, metadata: 'Metadata') -> None:
-	#game.unx seems to also always have FORM magic
-	options_ini_path = folder.joinpath('options.ini')
-	if not options_ini_path.is_file():
-		options_ini_path = folder.joinpath('assets', 'options.ini')
-	if options_ini_path.is_file():
-		parser = configparser.ConfigParser(interpolation=None)
-		parser.optionxform = str #type: ignore[assignment]
-		parser.read(options_ini_path)
-		if parser.has_section('Linux'):
-			#There is also an Icon and Splash that seem to refer to images that don't exist…
-			#What could AppId be for?
-			metadata.add_alternate_name(parser['Linux']['DisplayName'], 'Engine Name')
-				
-	icon_path = folder.joinpath('icon.png')
-	if not icon_path.is_file():
-		icon_path = folder.joinpath('assets', 'icon.png')
-	if icon_path.is_file():
-		metadata.images['Icon'] = icon_path
-
 def _try_detect_gamemaker(folder: Path, metadata: Optional['Metadata']) -> bool:
 	possible_data_file_paths = [folder / 'data.win', folder / 'game.unx', folder.joinpath('assets', 'data.win'), folder.joinpath('assets', 'game.unx')]
 	for data_file_path in possible_data_file_paths:
@@ -172,7 +152,7 @@ def _try_detect_gamemaker(folder: Path, metadata: Optional['Metadata']) -> bool:
 			with open(data_file_path, 'rb') as f:
 				if f.read(4) == b'FORM':
 					if metadata:
-						_add_gamemaker_metadata(folder, metadata)
+						add_gamemaker_metadata(folder, metadata)
 					return True
 		except FileNotFoundError:
 			continue
