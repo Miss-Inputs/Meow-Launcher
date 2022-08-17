@@ -38,8 +38,7 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 		self._app_list: Optional[Sequence[Mapping[str, Any]]] = None
 		try:
 			self._is_available = bool(platform_config.chosen_emulators)
-			with self._app_list_path.open('rt', encoding='utf-8') as f:
-				self._app_list = json.load(f)
+			self._app_list = json.loads(self._app_list_path.read_bytes())
 		except json.JSONDecodeError as json_fuckin_bloody_error:
 			print(self._app_list_path, 'is borked, skipping', platform_name, json_fuckin_bloody_error)
 			self._is_available = False

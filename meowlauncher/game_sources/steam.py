@@ -793,8 +793,7 @@ def iter_steam_installed_appids() -> Iterator[tuple[Path, int, Mapping[str, Any]
 	for library_folder in steam_installation.iter_steam_library_folders():
 		for acf_file_path in library_folder.joinpath('steamapps').glob('*.acf'):
 			#Technically I could try and parse it without steamfiles, but that would be irresponsible, so I shouldn't do that
-			with acf_file_path.open('rt', encoding='utf-8') as acf_file:
-				app_manifest = acf.load(acf_file)
+			app_manifest = acf.loads(acf_file_path.read_text('utf-8'))
 			app_state = app_manifest.get('AppState')
 			if not app_state:
 				#Should only happen if .acf is junk (or format changes dramatically), there's no other keys than AppState

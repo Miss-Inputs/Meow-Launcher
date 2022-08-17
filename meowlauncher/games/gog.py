@@ -45,22 +45,21 @@ class GOGGameInfo():
 class GOGJSONGameInfo():
 	#File named "gog-<gameid>.info" for Windows games (and sometimes distributed in game folder of Linux games)
 	def __init__(self, path: Path):
-		with path.open('rt', encoding='utf-8') as f:
-			j = json.load(f)
-			self.game_id = j.get('gameId')
-			self.build_id = j.get('buildId')
-			self.client_id = j.get('clientId')
-			#rootGameId: This seems to always be the same as gameId, but maybe there's some cases where it's not? I can only imagine it's something to do with DLC
-			#standalone: Usually true or not provided?
-			#dependencyGameId: Usually blank?
-			self.language_name = j.get('language') #English name of the language (I guess the default language?)
-			#languages: Array of language codes (e.g. en-US)
-			self.name = j.get('name')
-			self.play_tasks = tuple(GOGTask(task_json) for task_json in j.get('playTasks', []))
-			self.support_tasks = {GOGTask(task_json) for task_json in j.get('supportTasks', [])}
-			#version: Always 1 if there?
-			#osBitness: Array containing '64' as a string rather than just a number like a normal person? I guess we don't need it (unless we care about 32-bit Wine users)
-			#overlaySupported: Probably GOG Galaxy related
+		j = json.loads(path.read_bytes())
+		self.game_id = j.get('gameId')
+		self.build_id = j.get('buildId')
+		self.client_id = j.get('clientId')
+		#rootGameId: This seems to always be the same as gameId, but maybe there's some cases where it's not? I can only imagine it's something to do with DLC
+		#standalone: Usually true or not provided?
+		#dependencyGameId: Usually blank?
+		self.language_name = j.get('language') #English name of the language (I guess the default language?)
+		#languages: Array of language codes (e.g. en-US)
+		self.name = j.get('name')
+		self.play_tasks = tuple(GOGTask(task_json) for task_json in j.get('playTasks', []))
+		self.support_tasks = {GOGTask(task_json) for task_json in j.get('supportTasks', [])}
+		#version: Always 1 if there?
+		#osBitness: Array containing '64' as a string rather than just a number like a normal person? I guess we don't need it (unless we care about 32-bit Wine users)
+		#overlaySupported: Probably GOG Galaxy related
 
 	@property
 	def primary_play_task(self) -> Optional['GOGTask']:

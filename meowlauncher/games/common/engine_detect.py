@@ -1,7 +1,7 @@
 import configparser
 import json
 import re
-from collections.abc import Collection, Mapping
+from collections.abc import Collection
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
@@ -10,6 +10,7 @@ from .engine_info import (add_gamemaker_metadata,
                           add_info_from_package_json_file,
                           add_info_from_package_json_zip,
                           add_metadata_for_adobe_air,
+                          add_metadata_from_pixel_game_maker_mv_info_json,
                           add_metadata_from_renpy_options, add_unity_metadata,
                           add_unity_web_metadata)
 from .pc_common_metadata import get_exe_properties
@@ -149,7 +150,7 @@ def _try_detect_gamemaker(folder: Path, metadata: Optional['Metadata']) -> bool:
 	possible_data_file_paths = [folder / 'data.win', folder / 'game.unx', folder.joinpath('assets', 'data.win'), folder.joinpath('assets', 'game.unx')]
 	for data_file_path in possible_data_file_paths:
 		try:
-			with open(data_file_path, 'rb') as f:
+			with data_file_path.open('rb') as f:
 				if f.read(4) == b'FORM':
 					if metadata:
 						add_gamemaker_metadata(folder, metadata)
@@ -229,7 +230,7 @@ def _try_detect_nw(folder: Path, metadata: Optional['Metadata']) -> Optional[str
 		return None
 
 	try:
-		with open(folder.joinpath('www', 'js', 'rpg_core.js'), 'rt', encoding='utf-8') as f:
+		with folder.joinpath('www', 'js', 'rpg_core.js').open('rt', encoding='utf-8') as f:
 			for line in f:
 				line = line.strip()
 				if line.startswith('Utils.RPGMAKER_NAME = '):
@@ -238,7 +239,7 @@ def _try_detect_nw(folder: Path, metadata: Optional['Metadata']) -> Optional[str
 	except FileNotFoundError:
 		pass
 	try:
-		with open(folder.joinpath('js', 'rmmz_core.js'), 'rt', encoding='utf-8') as f:
+		with folder.joinpath('js', 'rmmz_core.js').open('rt', encoding='utf-8') as f:
 			#Although I guess it's sort of implied to be RPG Maker MZ already by the filename being rmmz… but who knows
 			for line in f:
 				line = line.strip()
@@ -523,22 +524,6 @@ def _try_detect_engines_from_filenames(folder: Path, files: Collection[str], sub
 		return 'Unreal Engine 2' #Possibly 2.5 specifically
 	
 	return None
-
-def add_metadata_from_pixel_game_maker_mv_info_json(info_json_path: Path, metadata: 'Metadata') -> None:
-	info: Mapping[str, str] = json.loads(info_json_path.read_bytes())
-	title = info.get('title')
-	author = info.get('author')
-	genre = info.get('genre')
-	description = info.get('description')
-	#Dunno what key does
-	if title:
-		metadata.add_alternate_name(info['title'], 'Engine Name')
-	if author and not metadata.developer:
-		metadata.developer = author
-	if genre and not metadata.genre:
-		metadata.genre = genre
-	if description:
-		metadata.descriptions['Pixel Game Maker MV Description'] = description
 
 def try_detect_engine_from_exe_properties(exe_path: Path, metadata: Optional['Metadata']) -> Optional[str]:
 	if exe_path.suffix.lower() != '.exe':

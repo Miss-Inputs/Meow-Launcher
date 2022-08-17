@@ -47,9 +47,8 @@ class SteamInstallation():
 			self.config = None
 			self.config_available = False
 		try:
-			with self.localization_path.open('rt', encoding='utf8') as localization_file:
-				self.localization = acf.load(localization_file)
-				self.localization_available = True
+			self.localization = acf.loads(self.localization_path.read_text('utf-8'))
+			self.localization_available = True
 		except FileNotFoundError:
 			self.localization = None
 			self.localization_available = False
@@ -91,14 +90,13 @@ class SteamInstallation():
 		return self.userdata_folder.joinpath(user_id, 'config', 'librarycache')
 
 	def iter_steam_library_folders(self) -> Iterator[Path]:
-		with self.steam_library_list_path.open('rt', encoding='utf-8') as steam_library_list_file:
-			steam_library_list = acf.load(steam_library_list_file)
-			library_folders = steam_library_list.get('libraryfolders')
-			if library_folders:
-				#Should always happen unless the format of this file changes
-				for k, v in library_folders.items():
-					if k.isnumeric():
-						yield Path(v['path'])
+		steam_library_list = acf.loads(self.steam_library_list_path.read_text('utf-8'))
+		library_folders = steam_library_list.get('libraryfolders')
+		if library_folders:
+			#Should always happen unless the format of this file changes
+			for k, v in library_folders.items():
+				if k.isnumeric():
+					yield Path(v['path'])
 		#yield self.steamdir #No, it'll do that by itself now
 
 	@property

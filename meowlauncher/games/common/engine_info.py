@@ -211,3 +211,20 @@ def add_gamemaker_metadata(folder: Path, metadata: 'Metadata') -> None:
 		icon_path = folder.joinpath('assets', 'icon.png')
 	if icon_path.is_file():
 		metadata.images['Icon'] = icon_path
+
+def add_metadata_from_pixel_game_maker_mv_info_json(info_json_path: Path, metadata: 'Metadata') -> None:
+	info: Mapping[str, str] = json.loads(info_json_path.read_bytes())
+	title = info.get('title')
+	author = info.get('author')
+	genre = info.get('genre')
+	description = info.get('description')
+	#Dunno what key does
+	if title:
+		metadata.add_alternate_name(info['title'], 'Engine Name')
+	if author and not metadata.developer:
+		metadata.developer = author
+	if genre and not metadata.genre:
+		metadata.genre = genre
+	if description:
+		metadata.descriptions['Pixel Game Maker MV Description'] = description
+		
