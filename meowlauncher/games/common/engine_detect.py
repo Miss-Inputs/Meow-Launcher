@@ -1,5 +1,6 @@
 import configparser
 import json
+import os
 import re
 from collections.abc import Collection
 from datetime import datetime
@@ -555,9 +556,9 @@ def _try_detect_engines_from_filenames(folder: Path, files: Collection[str], sub
 	if 'acsetup.cfg' in files:
 		#TODO The better way to do this would be to look for 'Adventure Creator Game File' in dat or exe I guess (and then we can get game title from there), but also the effort way
 		return 'Adventure Game Studio'
-	if all(f in files for f in ('logdir', 'object', 'picdir', 'viewdir', 'snddir', 'vol.0', 'words.tok')):
+	if all(f in files for f in ('logdir', 'object', 'picdir', 'viewdir', 'snddir', 'words.tok')):
 		#Apparently there can be .wag files?
-		return 'AGI' #v2
+		return 'AGI' #v2/v3 (could determine version by whether vol files are named VOL.* (v2) or *VOL (v3)?)
 	if 'game.dmanifest' in files and 'game.arcd' in files and 'game.arci' in files:
 		return 'Defold'
 	if 'fna.dll' in files:
@@ -625,6 +626,21 @@ def try_detect_engine_from_exe(exe_path: Path, metadata: Optional['Metadata']) -
 	engine = try_and_detect_engine_from_folder(exe_path.parent, metadata, exe_path)
 	if engine:
 		return engine
+
+	if exe_path.suffix.lower() == '.exe':
+		with exe_path.open('rb') as f:
+			f.seek(-4, os.SEEK_END)
+			offset = int.from_bytes(f.read(4), 'little')
+			f.seek(offset)
+			magic = f.read(4)
+			if magic in {b'PJ93', b'39JP'}:
+				return 'Director (v4)'
+			if magic in {b'PJ95', b'59JP'}:
+				return 'Director (v5)'
+			if magic in {b'PJ97', b'79JP'}:
+				return 'Director (v6)'
+			if magic in {b'PJ00', b'00JP', b'PJ01', b'10JP'}:
+				return 'Director (v7)'
 
 	return None
 
