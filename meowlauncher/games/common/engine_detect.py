@@ -712,7 +712,7 @@ def detect_engine_recursively(folder: Path, metadata: Optional['Metadata']=None)
 		return engine
 
 	for subdir in folder.iterdir():
-		if subdir.is_dir():
+		if subdir.is_dir() and not subdir.is_symlink():
 			engine = detect_engine_recursively(subdir, metadata)
 			if engine:
 				return engine
