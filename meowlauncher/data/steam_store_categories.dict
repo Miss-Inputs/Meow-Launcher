@@ -1,5 +1,3 @@
-#category_31 (could be VR related?): Glitchspace, Ikea VR Experience, Transmissions: Element 120
-#category_33: Atari Vault, Clouds & Sheep 2, Danganronpa, Left 4 Dead 2, No Time to Explain Remastered, Nuclear Throne, TF2, Transmissions: Element 120, Horizon Chase Turbo Demo
 'category_1': 'Multi-player'
 'category_2': 'Single-player'
 'category_6': 'Mods (require HL2)' #Games which _are_ a mod, seemingly, not games that have mods; this one implies category_19 and also seems to refer to any game with category_16 and not necessarily Half-Life 2
@@ -25,7 +23,9 @@
 'category_28': 'Full controller support'
 'category_29': 'Steam Trading Cards'
 'category_30': 'Steam Workshop'
+'category_31': 'VR Support'
 'category_32': 'Steam Turn Notifications'
+'category_33': 'Native Steam Controller'
 'category_35': 'In-App Purchases'
 'category_36': 'Online PvP'
 'category_37': 'Local PvP'
