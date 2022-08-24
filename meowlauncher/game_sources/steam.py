@@ -753,7 +753,7 @@ def iter_steam_installed_appids() -> Iterator[tuple[Path, int, Mapping[str, Any]
 				
 			if state_flags & StateFlags.SharedOnly:
 				if main_config.debug:
-					print('Skipping', app_state.get('name'), appid, 'as it shared only (StateFlags =', state_flags, ')')
+					print('Skipping', app_state.get('name'), appid, 'as it is shared only (StateFlags =', state_flags, ')')
 				continue
 
 			yield library_folder, appid, app_state
