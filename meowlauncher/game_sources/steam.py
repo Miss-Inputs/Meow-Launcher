@@ -745,18 +745,15 @@ def iter_steam_installed_appids() -> Iterator[tuple[Path, int, Mapping[str, Any]
 					print('Skipping', app_state.get('name'), appid, 'as StateFlags are invalid', app_state.get('StateFlags'))
 				continue
 
-			#Is StageFlags.AppRunning actually not what it means? Seems that an app that is running doesn't have its StateFlags changed and 64 is instead used for full versions installed where demos are the only version owned, etc
-			#Anyway, we're going to check for it this way
-			last_owner = app_state.get('LastOwner')
-			if last_owner == '0':
-				if main_config.debug:
-					print('Skipping', app_state.get('name'), appid, 'as nobody actually owns it')
-				continue
-
 			#Only yield fully installed games
 			if (state_flags & StateFlags.FullyInstalled) == 0:
 				if main_config.debug:
 					print('Skipping', app_state.get('name'), appid, 'as it is not actually installed (StateFlags =', state_flags, ')')
+				continue
+				
+			if state_flags & StateFlags.SharedOnly:
+				if main_config.debug:
+					print('Skipping', app_state.get('name'), appid, 'as it shared only (StateFlags =', state_flags, ')')
 				continue
 
 			yield library_folder, appid, app_state

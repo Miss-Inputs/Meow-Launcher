@@ -19,29 +19,26 @@ from meowlauncher.config.main_config import main_config
 
 
 class StateFlags(IntFlag):
-	#https://github.com/lutris/lutris/blob/master/docs/steam.rst
+	#https://github.com/SteamDatabase/SteamTracking/blob/master/Structs/EAppState.h
 	Invalid = 0
 	Uninstalled = 1
 	UpdateRequired = 2
 	FullyInstalled = 4
-	Encrypted = 8
-	Locked = 16
+	UpdateQueued = 8
+	UpdateOptional = 16
 	FilesMissing = 32
-	AppRunning = 64
+	SharedOnly = 64
 	FilesCorrupt = 128
 	UpdateRunning = 256
 	UpdatePaused = 512
 	UpdateStarted = 1024
 	Uninstalling = 2048
 	BackupRunning = 4096
+	AppRunning = 8192
+	ComponentInUse = 16384
+	MovingFolder = 32768
 	Reconfiguring = 65536
-	Validating = 131072
-	AddingFiles = 262144
-	Preallocating = 524288
-	Downloading = 1048576
-	Staging = 2097152
-	Committing = 4194304
-	UpdateStopping = 8388608
+	PrefetchingInfo = 131072
 
 class IconError(Exception):
 	pass
