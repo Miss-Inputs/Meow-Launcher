@@ -426,7 +426,7 @@ def _try_detect_rpg_maker_xp_vx(folder: Path, metadata: Optional['Metadata'], ex
 						metadata.specific_info['Has Sound Effects?'] = game['Play_Sound_Effects'] == '1'
 					if 'Mouse' in game:
 						metadata.specific_info['Uses Mouse?'] = game['Mouse'] == '1'
-			except (KeyError, UnicodeDecodeError):
+			except (KeyError, UnicodeDecodeError, configparser.ParsingError):
 				pass
 			#Sometimes there is a Fullscreen++ section, not sure what it could tell me, whether the game starts in fullscreen or supports it differently or what
 		if mkxp_path.is_file():
