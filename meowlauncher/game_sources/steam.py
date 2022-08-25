@@ -131,6 +131,7 @@ def process_launchers(game: 'SteamGame', launch: Mapping[bytes, Mapping[bytes, A
 				osarch = launch_item_config.get(b'osarch')
 				if osarch:
 					platform += '_' + (str(osarch.data) if isinstance(osarch, appinfo.Integer) else osarch.decode('utf-8', errors='backslashreplace'))
+			#ownsdlc = integer, need this DLC for it to show up
 			#betakey = launch_item_config.get(b'betakey')
 			#if betakey and betakey != installed_betakey:
 			#	continue
@@ -580,10 +581,15 @@ def add_info_from_cache_json(game: 'SteamGame', json_path: Path, is_single_user:
 
 	if social_media:
 		social_media_types = {
-				4: 'Twitter',
-				5: 'Twitch',
-				6: 'YouTube',
-				7: 'Facebook',
+			#https://github.com/SteamDatabase/SteamTracking/blob/master/Structs/enums.steamd#L916 (EExternalAccountType)
+			0: 'None',
+			1: 'Steam',
+			2: 'Google',
+			3: 'Facebook',
+			4: 'Twitter',
+			5: 'Twitch',
+			6: 'YouTube',
+			7: 'Facebook Page',
 		}
 		for social_medium in social_media:
 			#strName is just the account's name on that platform I think?

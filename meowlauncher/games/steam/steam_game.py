@@ -100,12 +100,15 @@ class SteamGame(Game):
 			self.metadata.specific_info['Low Violence?'] = lowviolence == '1'
 
 		app_type = self.type
+		#https://github.com/fire64/opensteamworks/blob/master/EAppType.h (but it is in Title Case here… usually?)
 		if app_type in {'game', 'Game'}:
 			#This makes the categories consistent with other stuff
 			self.metadata.categories = ('Games', )
-		elif app_type in {'Tool', 'Application'}:
-			#Tool is for SDK/level editor/dedicated server/etc stuff, Application is for general purchased software
+		elif app_type in {'Application', 'software'}:
 			self.metadata.categories = ('Applications', )
+		elif app_type == 'Tool':
+			#Tool is for SDK/level editor/dedicated server/etc stuff, Application is for general purchased software
+			self.metadata.categories = ('Tools', )
 		elif app_type == 'Demo':
 			self.metadata.categories = ('Trials', )
 		elif app_type:
