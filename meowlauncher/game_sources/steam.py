@@ -523,7 +523,7 @@ def process_launcher(game: 'SteamGame', launcher: 'LauncherInfo') -> None:
 		add_metadata_for_raw_exe(str(launcher_full_path), game.metadata)
 		#look_for_icon_for_file(launcher_full_path) would also be an option
 		engine = try_detect_engine_from_exe(launcher_full_path, game.metadata)
-		if not engine and game.install_dir.is_dir():
+		if not engine and launcher.exe.parent != game.install_dir and game.install_dir.is_dir():
 			try_and_detect_engine_from_folder(game.install_dir, game.metadata)
 		if engine:
 			game.metadata.specific_info['Engine'] = engine
