@@ -65,6 +65,29 @@ def _try_detect_unity(folder: Path, metadata: Optional['Metadata'], executable: 
 				unity_version = props.get('UnityVersion', props.get('Unity Version'))
 				if unity_version:
 					return f'Unity ({unity_version})'
+				
+		#Well, that's all well and good on Windows, but on Linux one will probably need to look here
+		default_resources_path = unity_data_folder.joinpath('Resources', 'unity default resources')
+		if default_resources_path.is_file():
+			with default_resources_path.open('rb') as default_resources:
+				default_resources.seek(0x30)
+				try:
+					version_bytes = default_resources.read(10).rstrip(b'\0')
+					if not 0x30 > version_bytes[0] > 0x3a:
+						raise ValueError('Megan is too lazy to refactor this function with proper flow')
+					version = version_bytes.decode('utf-8', 'strict')					
+				except ValueError:
+					try:
+						#Hmm might be over here sometimes
+						default_resources.seek(0x14)
+						version_bytes = default_resources.read(8).rstrip(b'\0')
+						if not 0x30 > version_bytes[0] > 0x3a:
+							raise
+						version = version_bytes.decode('utf-8', 'strict')
+					except ValueError:
+						return 'Unity'
+
+				return f'Unity ({version})'
 		return 'Unity'
 
 	return None
@@ -593,6 +616,9 @@ def _try_detect_engines_from_filenames(folder: Path, files: Collection[str], sub
 		return 'Unreal Engine 2' #Possibly 2.5 specifically
 	if folder.joinpath('Builds', 'Binaries', 'DefUnrealEd.ini').is_file():
 		return 'Unreal Engine 2' #Possibly 2.5 specifically
+
+	if 'alldata.psb.m' in files or folder.joinpath('windata', 'alldata.psb.m').is_file():
+		return 'M2Engage'
 	
 	return None
 
