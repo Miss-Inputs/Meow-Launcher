@@ -37,6 +37,7 @@ _config_ini_values = {
 	'wineprefix': ConfigValue('General', ConfigValueType.FolderPath, None, 'Wine prefix', 'Optional Wine prefix to use for Wine'),
 	'simple_disambiguate': ConfigValue('General', ConfigValueType.Bool, True, 'Simple disambiguation', 'Use a simpler method of disambiguating games with same names'),
 	'normalize_name_case': ConfigValue('General', ConfigValueType.Integer, 0, 'Normalize name case', 'Apply title case to uppercase things (1: only if whole title is uppercase, 2: capitalize individual uppercase words, 3: title case the whole thing regardless)'),
+	'logging_level': ConfigValue('General', ConfigValueType.String, logging.getLevelName(logger.getEffectiveLevel()), 'Logging level', 'Logging level (e.g. INFO, DEBUG, WARNING, etc)'),
 	
 	'skipped_source_files': ConfigValue('Arcade', ConfigValueType.StringList, (), 'Skipped source files', 'List of MAME source files to skip (not including extension)'),
 	'exclude_non_arcade': ConfigValue('Arcade', ConfigValueType.Bool, False, 'Exclude non-arcade', 'Skip machines not categorized as arcade games or as any other particular category (various devices and gadgets, etc)'),
@@ -76,7 +77,6 @@ _config_ini_values = {
 	'organize_folders': ConfigValue(_runtime_option_section, ConfigValueType.Bool, False, 'Organize folders', 'Use the organized folders frontend'),
 }
 #Hmm... debug could be called 'verbose' and combined with --super_debug used in disambiguate to become verbosity_level or just verbose for short, which could have an integer argument, and it _could_ be in config.ini I guess... ehh whatevs
-
 
 def get_config_ini_options() -> Mapping[str, Mapping[str, ConfigValue]]:
 	opts: MutableMapping[str, MutableMapping[str, ConfigValue]] = {}
@@ -137,37 +137,6 @@ def _load_ignored_directories() -> Collection[PurePath]:
 
 	return ignored_directories
 
-def write_ignored_directories(ignored_dirs: Collection[PurePath]) -> None:
-	#TODO: Also only used by broken GUI and maybe I don't want it to be part of that
-	try:
-		with _ignored_dirs_path.open('wt', encoding='utf-8') as ignored_txt:
-			for ignored_dir in ignored_dirs:
-				ignored_txt.write(str(ignored_dir))
-				ignored_txt.write('\n')
-	except OSError:
-		logger.exception('AAaaaa!!! Failed to write ignored directories file!!')
-
-def write_new_main_config(new_config: Mapping[str, Mapping[str, TypeOfConfigValue]]) -> None:
-	#TODO: This is only used by the broken GUI right now and maybe we don't actually want to do things this way
-	_write_new_config(new_config, _main_config_path)
-
-def _write_new_config(new_config: Mapping[str, Mapping[str, TypeOfConfigValue]], config_file_path: Path) -> None:
-	parser = configparser.ConfigParser(interpolation=None)
-	parser.optionxform = str #type: ignore[assignment]
-	ensure_exist(config_file_path)
-	parser.read(config_file_path)
-	for section, configs in new_config.items():
-		if section not in parser:
-			parser.add_section(section)
-		for name, value in configs.items():
-			parser[section][name] = _convert_value_for_ini(value)
-
-	try:
-		with config_file_path.open('wt', encoding='utf-8') as ini_file:
-			parser.write(ini_file)
-	except OSError:
-		logger.exception('Oh no!!! Failed to write %s!!!!11!!eleven!!', config_file_path)
-
 class Config():
 	class __Config():
 		def __init__(self) -> None:
@@ -176,10 +145,6 @@ class Config():
 				self.values[name] = config.default_value
 
 			self.runtime_overrides = _get_command_line_arguments()
-			self.reread_config()
-
-		def reread_config(self) -> None:
-			#TODO: Only the broken GUI calls this outside of init calling it once right up there, do I care enough for this to be a separate function
 			parser = configparser.ConfigParser(interpolation=None)
 			parser.optionxform = str #type: ignore[assignment]
 			self.parser = parser
@@ -187,11 +152,6 @@ class Config():
 			self.parser.read(_main_config_path)
 
 			self.ignored_directories = _load_ignored_directories()
-
-		def _rewrite_config(self) -> None:
-			#TODO: Do we even use this
-			with _main_config_path.open('wt', encoding='utf-8') as f:
-				self.parser.write(f)
 
 		def __getattr__(self, name: str) -> TypeOfConfigValue:
 			if name in self.values:
@@ -202,14 +162,9 @@ class Config():
 				if config.section == _runtime_option_section:
 					return config.default_value
 
-				if config.section not in self.parser:
-					self.parser.add_section(config.section)
-					self._rewrite_config()
-
 				section = self.parser[config.section]
 				if name not in section:
 					section[name] = _convert_value_for_ini(config.default_value)
-					self._rewrite_config()
 					return config.default_value
 
 				return parse_value(section, name, config.type, config.default_value)
