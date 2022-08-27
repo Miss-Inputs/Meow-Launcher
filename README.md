@@ -4,7 +4,7 @@
 
 This project isn't in a state where it would really be useable by people who aren't me. I just haven't gotten around to any of that yet. Not configurable or flexible enough for my standards for me to say "yeah this is a release". It's just right now here just in case it is useful. Sort of on hiatus in the sense that you shouldn't expect this to be done at any point. I guess you just shouldn't anyway. But yeah it's just pre-pre-pre-pre-pre-release, you never know what might change, I might commit stuff which breaks everything, who knows. There is a 0.1 milestone on Github, which includes a lot of issues which are just me telling myself to go refactor something and so aren't really issues but that's just how I use the workflow I guess.
 
-<img alt="Meow Launcher's logo" src="meowlauncher/gui/icon.png?raw=true" width="300" />
+<img alt="Meow Launcher's logo" src="meowlauncher/icon.png?raw=true" width="300" />
 
 Meow Launcher aims to transform games from various local sources (emulated or otherwise) into a launcher which takes care of what is compatible, what command line options need to be used, etc., you just launch the game, so you have one less obstacle in the process of playing a game and enjoying it.
 
