@@ -73,7 +73,7 @@ def _try_detect_unity(folder: Path, metadata: Optional['Metadata'], executable: 
 				default_resources.seek(0x30)
 				try:
 					version_bytes = default_resources.read(10).rstrip(b'\0')
-					if not 0x30 > version_bytes[0] > 0x3a:
+					if not 0x30 < version_bytes[0] < 0x3a:
 						raise ValueError('Megan is too lazy to refactor this function with proper flow')
 					version = version_bytes.decode('utf-8', 'strict')					
 				except ValueError:
@@ -81,7 +81,7 @@ def _try_detect_unity(folder: Path, metadata: Optional['Metadata'], executable: 
 						#Hmm might be over here sometimes
 						default_resources.seek(0x14)
 						version_bytes = default_resources.read(8).rstrip(b'\0')
-						if not 0x30 > version_bytes[0] > 0x3a:
+						if not 0x30 < version_bytes[0] < 0x3a:
 							raise
 						version = version_bytes.decode('utf-8', 'strict')
 					except ValueError:
