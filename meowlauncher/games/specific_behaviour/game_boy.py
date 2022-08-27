@@ -1,3 +1,4 @@
+import logging
 import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, cast
@@ -5,7 +6,6 @@ from zlib import crc32
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.mame_common.software_list_find_utils import (
     find_in_software_lists, matcher_args_for_bytes)
@@ -18,6 +18,8 @@ if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
+
+logger = logging.getLogger(__name__)
 
 _game_boy_config = platform_configs.get('Game Boy')
 _nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
@@ -204,12 +206,15 @@ def _parse_gameboy_header(metadata: 'Metadata', header: bytes) -> None:
 def _parse_gbx_footer(rom: FileROM, metadata: 'Metadata') -> None:
 	footer = rom.read(seek_to=rom.size - 64, amount=64)
 	if footer[60:64] != b'GBX!':
-		if main_config.debug:
-			print(rom.path, 'GBX footer is invalid, siggy is', footer[60:64])
+		logger.info('GBX footer in %s is invalid, siggy is %s', rom.path, footer[60:64])
 		return
-	if int.from_bytes(footer[48:52], 'big') != 64 or int.from_bytes(footer[52:56], 'big') != 1:
-		if main_config.debug:
-			print(rom.path, 'GBX has unsupported major version:', int.from_bytes(footer[52:56], 'big'), 'or size:', int.from_bytes(footer[48:52], 'big'))
+	footer_size = int.from_bytes(footer[48:52], 'big')
+	major_version = int.from_bytes(footer[52:56], 'big')
+	if major_version != 1:
+		logger.info('GBX %s has unsupported major version %s', rom.path, major_version)
+		return
+	if footer_size != 64:
+		logger.info('GBX %s has unsupported size %s', rom.path, footer_size)
 		return
 	#56:60 is minor version, which we expect to be 0, but it'd be okay if not
 
@@ -217,8 +222,7 @@ def _parse_gbx_footer(rom: FileROM, metadata: 'Metadata') -> None:
 	metadata.specific_info['Stated Mapper'] = original_mapper
 	new_mapper = _gbx_mappers.get(footer[0:4])
 	if not new_mapper:
-		if main_config.debug:
-			print(rom.path, 'GBX has unknown spooky mapper:', footer[0:4])
+		logger.info('GBX %s has unknown spooky mapper: %s', rom.path, footer[0:4])
 		new_mapper = footer[0:4].decode()
 
 	if new_mapper != original_mapper:

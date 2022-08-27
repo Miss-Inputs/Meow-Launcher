@@ -1,3 +1,4 @@
+import logging
 import os
 import struct
 from collections.abc import Collection
@@ -11,7 +12,6 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 from meowlauncher import input_metadata
-from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.util.region_info import Region, regions_by_name
@@ -24,6 +24,8 @@ from .common.nintendo_common import parse_ratings
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
+
+logger = logging.getLogger(__name__)
 
 _nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
@@ -39,9 +41,8 @@ def _load_tdb() -> Optional[TDB]:
 
 	try:
 		return TDB(ElementTree.parse(tdb_path))
-	except (ElementTree.ParseError, OSError) as blorp:
-		if main_config.debug:
-			print('Oh no failed to load DS TDB because', blorp)
+	except (ElementTree.ParseError, OSError):
+		logger.exception('Oh no failed to load DS TDB')
 		return None
 _tdb = _load_tdb()
 

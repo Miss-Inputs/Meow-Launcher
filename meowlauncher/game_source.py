@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 from collections.abc import Iterator, Mapping, Sequence
 from typing import TYPE_CHECKING, Generic, TypeVar, Union
@@ -10,6 +11,8 @@ if TYPE_CHECKING:
 	from meowlauncher.emulated_platform import ChooseableEmulatedPlatform
 	from meowlauncher.emulator import LibretroCore
 	from meowlauncher.launcher import Launcher
+
+logger = logging.getLogger(__name__)
 
 class GameSource(ABC):
 	@property
@@ -70,11 +73,11 @@ class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType_co]):
 				if self.libretro_cores:
 					emulator = self.libretro_cores.get(emulator_name)
 			if not emulator:
-				print('Config warning:', emulator_name, 'is not a valid emulator, specified in', self.name)
+				logger.warning('Config warning: %s is not a known emulator, specified in %s', emulator_name, self.name)
 				continue
 
 			if emulator.config_name not in self.platform.valid_emulator_names:
-				print('Config warning:', emulator_name, 'is not a valid', emulator.friendly_type_name, 'for', self.name)
+				logger.warning('Config warning: %s is not a valid %s for %s', emulator_name, emulator.friendly_type_name, self.name)
 				continue
 			
 			yield emulator

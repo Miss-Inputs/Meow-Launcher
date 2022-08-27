@@ -1,13 +1,15 @@
+import logging
 from collections.abc import Collection, Mapping
 from typing import Any
 
-from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.steam_developer_overrides import \
     developer_overrides
 from meowlauncher.util.region_info import (Language,
                                            get_language_by_english_name,
                                            languages_by_english_name)
 from meowlauncher.util.utils import junk_suffixes, load_dict
+
+logger = logging.getLogger(__name__)
 
 store_categories = load_dict(None, 'steam_store_categories')
 genre_ids = load_dict(None, 'steam_genre_ids')
@@ -34,8 +36,8 @@ def translate_language_list(languages: Mapping[bytes, Any]) -> Collection[Langua
 			language = get_language_by_english_name(language_name, case_insensitive=True)
 			if language:
 				langs.add(language)
-			elif main_config.debug:
-				print('Unknown language:', language_name)
+			else:
+				logger.info('Unknown language: %s', language_name)
 
 	return langs
 

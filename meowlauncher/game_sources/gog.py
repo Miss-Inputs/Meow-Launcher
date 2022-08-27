@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
 import datetime
+import logging
 import os
 import time
 from collections.abc import Collection
 from pathlib import Path
-from typing import Optional
+from typing import Optional, cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.gog import (DOSBoxGOGGame, GOGGame, GOGGameInfo,
@@ -13,6 +14,7 @@ from meowlauncher.games.gog import (DOSBoxGOGGame, GOGGame, GOGGameInfo,
                                     WindowsGOGGame)
 from meowlauncher.util.desktop_files import has_been_done
 
+logger = logging.getLogger(__name__)
 
 def look_in_linux_gog_folder(folder: Path) -> Optional[GOGGame]:
 	gameinfo_path = folder.joinpath('gameinfo')
@@ -53,11 +55,10 @@ def look_in_windows_gog_folder(folder: Path) -> Optional[WindowsGOGGame]:
 	return WindowsGOGGame(folder, info_file, game_id)
 
 def do_linux_gog_games() -> None:
-	gog_folders: Collection[Path] = main_config.gog_folders
+	gog_folders = cast(Collection[Path], main_config.gog_folders)
 	for gog_folder in gog_folders:
 		if not gog_folder.is_dir():
-			if main_config.debug:
-				print(gog_folder, 'does not exist/is not a directory')
+			logger.warning('%s does not exist/is not a directory', gog_folder)
 			continue
 
 		for subfolder in gog_folder.iterdir():
@@ -67,19 +68,17 @@ def do_linux_gog_games() -> None:
 			if not subfolder.is_dir():
 				continue
 			if not (game := look_in_linux_gog_folder(subfolder)):
-				if main_config.debug:
-					print('GOG subfolder does not have a GOG game (detection may have failed)', subfolder)
+				logger.info('GOG subfolder does not have a GOG game (detection may have failed): %s', subfolder)
 				continue
 
 			game.add_metadata()
 			game.make_launcher()
 
 def do_windows_gog_games() -> None:
-	windows_gog_folders: Collection[Path] = main_config.windows_gog_folders
+	windows_gog_folders = cast(Collection[Path], main_config.windows_gog_folders)
 	for windows_gog_folder in windows_gog_folders:
 		if not windows_gog_folder.is_dir():
-			if main_config.debug:
-				print(windows_gog_folder, 'does not exist/is not a directory')
+			logger.warning('%s does not exist/is not a directory', windows_gog_folder)
 			continue
 
 		for subfolder in windows_gog_folder.iterdir():
@@ -89,8 +88,7 @@ def do_windows_gog_games() -> None:
 			if not subfolder.is_dir():
 				continue
 			if not (windows_game := look_in_windows_gog_folder(subfolder)):
-				if main_config.debug:
-					print('GOG subfolder does not have a GOG game (detection may have failed)', subfolder)
+				logger.info('GOG subfolder does not have a GOG game (detection may have failed): %s', subfolder)
 				continue
 			
 			windows_game.add_metadata()

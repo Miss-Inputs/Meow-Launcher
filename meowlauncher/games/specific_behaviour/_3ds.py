@@ -4,6 +4,7 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
+import logging
 import os
 from collections.abc import Mapping
 from enum import Enum
@@ -12,7 +13,6 @@ from xml.etree import ElementTree
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.data.name_cleanup._3ds_publisher_overrides import \
     consistentified_manufacturers
@@ -30,8 +30,9 @@ if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
 
-nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
+logger = logging.getLogger(__name__)
 
+nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 class _3DSVirtualConsolePlatform(Enum):
 	GameBoy = 'R'
@@ -79,9 +80,8 @@ def _load_tdb() -> Optional[TDB]:
 					continue
 				tdb_parser.feed(line)
 		return TDB(tdb_parser.close())
-	except (ElementTree.ParseError, OSError) as blorp:
-		if main_config.debug:
-			print('Oh no failed to load 3DS TDB because', blorp)
+	except (ElementTree.ParseError, OSError):
+		logger.exception('Oh no failed to load 3DS TDB')
 		return None
 _tdb = _load_tdb()
 

@@ -69,7 +69,7 @@ class Machine():
 			self.arcade_system = arcade_system_bios_names.get((self.source_file, self.bios_basename))
 		
 	def __str__(self) -> str:
-		return self.name
+		return f'{self.basename} ({self.name})'
 
 	def add_alternate_names(self) -> None:
 		if self.arcade_system in {'Space Invaders / Qix Silver Anniversary Edition Hardware', 'ISG Selection Master Type 2006', 'Cosmodog Hardware', 'Donkey Kong / Mario Bros Multigame Hardware'} or self.basename == 'jak_hmhsm':

@@ -1,14 +1,15 @@
+import logging
 from collections.abc import Collection, Mapping
 from typing import Optional
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import SaveType
-from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.gametdb_company_name_cleanup import \
     company_name_cleanup
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.utils import junk_suffixes
 
+logger = logging.getLogger(__name__)
 
 class TDB():
 	def __init__(self, xml: ElementTree.ElementTree):
@@ -90,10 +91,9 @@ def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: 
 	#rom: What they think the ROM should be named
 	#case: Has "color" and "versions" attribute? I don't know what versions does but I presume it all has to do with the db_entry box
 	
-	if main_config.debug:
-		for element in db_entry:
-			if element.tag not in ('developer', 'publisher', 'date', 'rating', 'id', 'type', 'region', 'languages', 'locale', 'genre', 'wi-fi', 'input', 'rom', 'case', 'save'):
-				print('uwu', db_entry.attrib['name'], 'has unknown', element, 'tag')
+	for element in db_entry:
+		if element.tag not in ('developer', 'publisher', 'date', 'rating', 'id', 'type', 'region', 'languages', 'locale', 'genre', 'wi-fi', 'input', 'rom', 'case', 'save'):
+			logger.debug('uwu %s has unknown %s tag', db_entry.attrib['name'], element)
 
 	developer = db_entry.findtext('developer')
 	if developer and developer != 'N/A':

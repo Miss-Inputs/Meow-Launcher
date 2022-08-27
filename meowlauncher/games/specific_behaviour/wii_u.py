@@ -1,3 +1,4 @@
+import logging
 import os
 import statistics
 from datetime import datetime
@@ -21,6 +22,7 @@ if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
 
+logger = logging.getLogger(__name__)
 _nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 _languages = {
@@ -61,9 +63,8 @@ def _load_tdb() -> Optional[TDB]:
 
 	try:
 		return TDB(ElementTree.parse(tdb_path))
-	except (ElementTree.ParseError, OSError) as blorp:
-		if main_config.debug:
-			print('Oh no failed to load Wii U TDB because', blorp)
+	except (ElementTree.ParseError, OSError):
+		logger.exception('Oh no failed to load Wii U TDB because')
 		return None
 _tdb = _load_tdb()
 
@@ -119,8 +120,7 @@ def _add_meta_xml_metadata(metadata: 'Metadata', meta_xml: ElementTree.ElementTr
 			if guessed_date.is_better_than(metadata.release_date):
 				metadata.release_date = guessed_date
 		except ValueError:
-			#print(mastering_date_text)
-			pass
+			logger.debug('%s mastering date is wack %s', product_code, mastering_date_text)
 	#Maybe we can use these to figure out if it creates a save file or not…
 	metadata.specific_info['Common Save Size'] = int(meta_xml.findtext('common_save_size') or '0', 16)
 	metadata.specific_info['Account Save Size'] = int(meta_xml.findtext('account_save_size') or '0', 16)

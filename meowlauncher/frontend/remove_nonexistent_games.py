@@ -1,29 +1,31 @@
 #!/usr/bin/env python
 
 import datetime
+import logging
 import os
 import time
 from pathlib import Path
+from typing import cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.game_sources import game_types
 from meowlauncher.output.desktop_files import id_section_name
 from meowlauncher.util.desktop_files import get_desktop, get_field
 
+logger = logging.getLogger(__name__)
 
 def remove_nonexistent_games() -> None:
 	#If not doing a full rescan, we want to remove games that are no longer there
 
 	time_started = time.perf_counter()
 
-	output_folder: Path = main_config.output_folder
+	output_folder = cast(Path, main_config.output_folder)
 	for path in output_folder.iterdir():
 		launcher = get_desktop(path)
 		game_type = get_field(launcher, 'Type', id_section_name)
 		game_id = get_field(launcher, 'Unique-ID', id_section_name)
 		if not game_type or not game_id:
-			if main_config.debug:
-				print('Interesting', path, 'has no type or no ID')
+			logger.debug('Interesting, %s has no type or no ID', path)
 			continue
 
 		should_remove = False
@@ -37,8 +39,7 @@ def remove_nonexistent_games() -> None:
 		#Hmm, not sure what I should do if game_type is unrecognized. I guess ignore it, it might be from somewhere else and therefore not my business
 
 		if should_remove:
-			if main_config.debug:
-				print(game_type, game_id, 'no longer exists, removing')
+			logger.debug('%s %s no longer exists, removing', game_type, game_id)
 			os.remove(path)
 
 	if main_config.print_times:

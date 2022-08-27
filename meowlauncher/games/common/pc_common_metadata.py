@@ -1,5 +1,6 @@
 import datetime
 import io
+import logging
 import struct
 from collections.abc import Mapping
 from pathlib import Path
@@ -17,12 +18,13 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
-from meowlauncher.config.main_config import main_config
 from meowlauncher.metadata import Date
 from meowlauncher.util.utils import junk_suffixes
 
 if TYPE_CHECKING:
 	from meowlauncher.metadata import Metadata
+
+logger = logging.getLogger(__name__)
 
 #Hmm, are other extensions going to work as icons in a file manager
 icon_extensions = {'png', 'ico', 'xpm', 'svg'}
@@ -47,10 +49,8 @@ def get_exe_properties(path: str) -> Optional[Mapping[str, Any]]:
 			pe.parse_data_directories(pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_RESOURCE'])
 			try:
 				return _get_pe_file_info(pe)
-			#pylint: disable=broad-except
-			except Exception as ex:
-				if main_config.debug:
-					print('Something weird happened in get_exe_properties', path, ex)
+			except Exception: #pylint: disable=broad-except
+				logger.exception('Something weird happened in get_exe_properties for %s', path)
 				return None
 		except pefile.PEFormatError:
 			pass
@@ -62,10 +62,6 @@ def add_metadata_for_raw_exe(path: str, metadata: 'Metadata') -> None:
 		return
 	
 	#Possible values to expect: https://docs.microsoft.com/en-us/windows/win32/api/winver/nf-winver-verqueryvaluea#remarks
-
-	# if props.get('InternalName'):
-	# 	if props.get('InternalName') != props.get('OriginalFilename'):
-	# 		print(path, props.get('InternalName'), props.get('OriginalFilename'))
 
 	if not metadata.publisher and not metadata.developer:
 		company_name = props.get('CompanyName')
@@ -167,10 +163,8 @@ def get_icon_inside_exe(path: str) -> Optional['Image.Image']:
 			pe.parse_data_directories(pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_RESOURCE'])
 			try:
 				icon = get_icon_from_pe(pe)
-			#pylint: disable=broad-except
-			except Exception as ex:
-				if main_config.debug:
-					print('Something weird happened in get_icon_from_pe', path, ex)
+			except Exception: #pylint: disable=broad-except
+				logger.exception('Something weird happened in get_icon_from_pe for %s', path)
 				return None
 			if icon:
 				return icon

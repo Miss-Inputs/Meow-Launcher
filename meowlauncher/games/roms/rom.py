@@ -1,9 +1,10 @@
+import logging
 import os
 import zlib
 from abc import ABC, abstractmethod
 from collections.abc import Collection, Iterator, MutableMapping
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
@@ -17,12 +18,18 @@ from meowlauncher.util.utils import byteswap
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import (Software,
 	                                                          SoftwareList)
+
+logger = logging.getLogger(__name__)
+
 class ROM(ABC):
 	def __init__(self, path: Path) -> None:
 		self.path = path
 		self.ignore_name: bool = False
 		self._name = self.path.stem
 		self._extension = self.path.suffix[1:].lower()
+
+	def __str__(self) -> str:
+		return str(self.path)
 
 	#To be more accurate: Is expected to return other files
 	@property
@@ -72,7 +79,7 @@ class FileROM(ROM):
 
 	@property
 	def should_read_whole_thing(self) -> bool:
-		max_size_for_storing_in_memory: int = main_config.max_size_for_storing_in_memory
+		max_size_for_storing_in_memory = cast(int, main_config.max_size_for_storing_in_memory)
 		if max_size_for_storing_in_memory < 0:
 			return False
 		return self._get_size() < max_size_for_storing_in_memory
@@ -320,12 +327,11 @@ def _parse_m3u(path: Path) -> Iterator[ROM]:
 			try:
 				referenced_file = Path(line) if line.startswith('/') else path.parent / line
 				if not referenced_file.is_file():
-					if main_config.debug:
-						print('M3U file', path, 'has a broken reference!!!!', referenced_file)
+					logger.info('M3U file %s has a broken reference: %s', path, referenced_file)
 					continue
 				yield get_rom(referenced_file)
 			except ValueError:
-				print('M3U file', path, 'has a broken line!!!!', line)
+				logger.info('M3U file %s has a broken line: %s', path, line)
 
 class M3UPlaylist(ROM):
 	def __init__(self, path: Path):

@@ -1,11 +1,11 @@
 import json
+import logging
 from collections.abc import Mapping
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Optional
 from xml.etree import ElementTree
 
 from meowlauncher.config.emulator_config import emulator_configs
-from meowlauncher.config.main_config import main_config
 from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.util.region_info import get_language_by_english_name
 
@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
 
+logger = logging.getLogger(__name__)
 _duckstation_config = emulator_configs.get('DuckStation')
 
 class DuckStationCompatibility(Enum):
@@ -31,9 +32,8 @@ def find_duckstation_compat_info(product_code: str) -> Optional[DuckStationCompa
 	if not hasattr(find_duckstation_compat_info, 'compat_xml'):
 		try:
 			find_duckstation_compat_info.compat_xml = ElementTree.parse(compat_xml_path) #type: ignore[attr-defined]
-		except OSError as oserr:
-			if main_config.debug:
-				print('Oh dear we have an OSError trying to load compat_xml', oserr)
+		except OSError:
+			logger.exception('Oh dear we have an OSError trying to load compat_xml')
 			return None
 
 	entry = find_duckstation_compat_info.compat_xml.find(f'entry[@code="{product_code}"]') #type: ignore[attr-defined]
@@ -54,9 +54,8 @@ def get_duckstation_db_info(product_code: str) -> Optional[Mapping[Any, Any]]:
 	if not hasattr(get_duckstation_db_info, 'gamedb'):
 		try:
 			get_duckstation_db_info.gamedb = json.loads(gamedb_path.read_bytes()) #type: ignore[attr-defined]
-		except OSError as oserr:
-			if main_config.debug:
-				print('Oh dear we have an OSError trying to load gamedb', oserr)
+		except OSError:
+			logger.exception('Oh dear we have an OSError trying to load gamedb')
 			return None
 
 	for db_game in get_duckstation_db_info.gamedb: #type: ignore[attr-defined]

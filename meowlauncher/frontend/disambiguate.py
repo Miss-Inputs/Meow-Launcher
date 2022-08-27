@@ -269,8 +269,7 @@ def disambiguate_names() -> None:
 	_fix_duplicate_names('tags')
 	_fix_duplicate_names('Extension', '(.{0})'.format, ignore_missing_values=True) #pylint: disable=consider-using-f-string #I want the bound method actually
 	_fix_duplicate_names('Executable-Name', ignore_missing_values=True)
-	if main_config.debug:
-		_fix_duplicate_names('check')
+	_fix_duplicate_names('check')
 
 	if main_config.print_times:
 		time_ended = time.perf_counter()

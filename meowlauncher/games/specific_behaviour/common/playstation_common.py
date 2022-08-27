@@ -1,13 +1,15 @@
+import logging
 from collections.abc import Mapping
 from enum import Flag
 from typing import TYPE_CHECKING, NamedTuple, Optional, Union, cast
 
 from meowlauncher.common_types import MediaType
-from meowlauncher.config.main_config import main_config
 from meowlauncher.util.name_utils import fix_name
 
 if TYPE_CHECKING:
 	from meowlauncher.metadata import Metadata
+
+logger = logging.getLogger(__name__)
 
 class PlayStationCategory(NamedTuple):
 	cat: str
@@ -131,7 +133,7 @@ title_languages = {
 
 SFOValueType = Union[str, int] #Not sure if there is more than that…
 
-def _convert_sfo(sfo: bytes) -> Mapping[str, SFOValueType]:
+def _convert_sfo(sfo: bytes, rom_path_for_warning: str=None) -> Mapping[str, SFOValueType]:
 	d = {}
 	#This is some weird key value format thingy
 	key_table_start = int.from_bytes(sfo[8:12], 'little')
@@ -156,8 +158,7 @@ def _convert_sfo(sfo: bytes) -> Mapping[str, SFOValueType]:
 		elif data_format == 0x404: #int32
 			value = int.from_bytes(sfo[data_offset:data_offset+4], 'little')
 		else:
-			if main_config.debug:
-				print('Whoops unknown format in convert_sfo', hex(data_format))
+			logger.info('Whoops unknown format %s in convert_sfo for %s', hex(data_format), rom_path_for_warning)
 			continue
 
 		d[key] = value
@@ -199,8 +200,7 @@ def parse_param_sfo_kv(rompath: str, metadata: 'Metadata', key: str, value: SFOV
 			else:
 				metadata.specific_info['Bootable?'] = False
 		else:
-			if main_config.debug:
-				print(rompath, 'has unknown category', value)
+			logger.info('%s has unknown category %s', rompath, value)
 	elif key in {'DISC_VERSION', 'APP_VER'}:
 		if cast(str, value)[0] != 'v':
 			value = 'v' + cast(str, value)
@@ -229,37 +229,32 @@ def parse_param_sfo_kv(rompath: str, metadata: 'Metadata', key: str, value: SFOV
 
 			except ValueError:
 				#metadata.specific_info['Attribute Flags'] = hex(value)
-				if main_config.debug:
-					print(rompath, 'has funny attributes flag', hex(cast(int, value)))
+				logger.info('%s has funny attributes flag %s', rompath, hex(cast(int, value)))
 	elif key == 'RESOLUTION':
 		try:
 			metadata.specific_info['Display Resolution'] = {res[1:] for res in str(Resolutions(value))[12:].split('|')}
 		except ValueError:
-			if main_config.debug:
-				print(rompath, 'has funny resolution flag', hex(cast(int, value)))
+			logger.info('%s has funny resolution flag %s', rompath, hex(cast(int, value)))
 	elif key == 'SOUND_FORMAT':
 		try:
 			metadata.specific_info['Supported Sound Formats'] = {res.lstrip('_').replace('_', '.') for res in str(SoundFormats(value))[13:].split('|')}
 		except ValueError:
-			if main_config.debug:
-				print(rompath, 'has funny sound format flag', hex(cast(int, value)))
+			logger.info('%s has funny sound format flag %s', rompath, hex(cast(int, value)))
 	elif key in {'MEMSIZE', 'REGION', 'HRKGMP_VER', 'NP_COMMUNICATION_ID'}:
 		#These are known, but not necessarily useful to us or we just don't feel like putting it in the metadata or otherwise doing anything with it at this point
 		#MEMSIZE: PSP, 1 if game uses extra RAM?
 		#REGION: Seems to always be 32768 (is anything region locked?) and also only on PSP??
 		#HRKGMP_VER = ??? (19)
 		#NP_COMMUNICATION_ID = PS3, ID used for online features I guess, also the subdirectory of TROPDIR containing TROPHY.TRP
-		#print('ooo', rom.path, key, value)
-		pass
+		logger.debug('Key that may be more interesting than I currently think: path = %s key = %s value = %s', rompath, key, value)
 	else:
-		if main_config.debug:
-			print(rompath, 'has unknown param.sfo value', key, value)
+		logger.info('%s has unknown param.sfo key %s with value %s', rompath, key, value)
 
 def parse_param_sfo(rompath: str, metadata: 'Metadata', param_sfo: bytes) -> None:
 	magic = param_sfo[:4]
 	if magic != b'\x00PSF':
 		return
-	for key, value in _convert_sfo(param_sfo).items():
+	for key, value in _convert_sfo(param_sfo, rompath).items():
 		parse_param_sfo_kv(rompath, metadata, key, value)
 
 def parse_product_code(metadata: 'Metadata', product_code: str) -> None:

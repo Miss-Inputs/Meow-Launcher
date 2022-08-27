@@ -1,4 +1,5 @@
 import configparser
+import logging
 import sys
 from collections.abc import Collection, Mapping, MutableMapping
 from pathlib import Path, PurePath
@@ -9,6 +10,8 @@ from meowlauncher.util.io_utils import ensure_exist
 
 from ._config_utils import (ConfigValue, parse_path_list, parse_string_list,
                             parse_value)
+
+logger = logging.getLogger(__name__)
 
 _main_config_path = config_dir.joinpath('config.ini')
 _ignored_dirs_path = config_dir.joinpath('ignored_directories.txt')
@@ -68,7 +71,6 @@ _config_ini_values = {
 	'use_itch_io_as_platform': ConfigValue('itch.io', ConfigValueType.Bool, False, 'Use itch.io as platform', 'Set platform in metadata to itch.io instead of underlying platform'),
 
 	#These shouldn't end up in config.ini as they're intended to be set per-run
-	'debug': ConfigValue(_runtime_option_section, ConfigValueType.Bool, False, 'Debug', 'Enable debug mode, which is really verbose mode, oh well'),
 	'print_times': ConfigValue(_runtime_option_section, ConfigValueType.Bool, False, 'Print times', 'Print how long it takes to do things'),
 	'full_rescan': ConfigValue(_runtime_option_section, ConfigValueType.Bool, False, 'Full rescan', 'Regenerate every launcher from scratch instead of just what\'s new and removing what\'s no longer there'),
 	'organize_folders': ConfigValue(_runtime_option_section, ConfigValueType.Bool, False, 'Organize folders', 'Use the organized folders frontend'),
@@ -142,8 +144,8 @@ def write_ignored_directories(ignored_dirs: Collection[PurePath]) -> None:
 			for ignored_dir in ignored_dirs:
 				ignored_txt.write(str(ignored_dir))
 				ignored_txt.write('\n')
-	except OSError as oe:
-		print('AAaaaa!!! Failed to write ignored directories file!!', oe)
+	except OSError:
+		logger.exception('AAaaaa!!! Failed to write ignored directories file!!')
 
 def write_new_main_config(new_config: Mapping[str, Mapping[str, TypeOfConfigValue]]) -> None:
 	#TODO: This is only used by the broken GUI right now and maybe we don't actually want to do things this way
@@ -163,8 +165,8 @@ def _write_new_config(new_config: Mapping[str, Mapping[str, TypeOfConfigValue]],
 	try:
 		with config_file_path.open('wt', encoding='utf-8') as ini_file:
 			parser.write(ini_file)
-	except OSError as ex:
-		print('Oh no!!! Failed to write', config_file_path, '!!!!11!!eleven!!', ex)
+	except OSError:
+		logger.exception('Oh no!!! Failed to write %s!!!!11!!eleven!!', config_file_path)
 
 class Config():
 	class __Config():

@@ -1,5 +1,5 @@
 import json
-import traceback
+import logging
 from abc import ABC
 from collections.abc import Iterator, Mapping, Sequence
 from typing import TYPE_CHECKING, Any, Generic, Optional, TypeVar
@@ -8,7 +8,6 @@ from meowlauncher.common_paths import config_dir
 from meowlauncher.common_types import (EmulationNotSupportedException,
                                        NotActuallyLaunchableGameException)
 from meowlauncher.config.emulator_config import emulator_configs
-from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.configured_emulator import ConfiguredEmulator
 from meowlauncher.data.emulated_platforms import manually_specified_platforms
@@ -18,6 +17,8 @@ from meowlauncher.manually_specified_game import (ManuallySpecifiedGame,
 
 if TYPE_CHECKING:
 	from .emulator import Emulator
+
+logger = logging.getLogger(__name__)
 
 ManuallySpecifiedGameType_co = TypeVar('ManuallySpecifiedGameType_co', bound=ManuallySpecifiedGame, covariant=True)
 class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[ManuallySpecifiedGameType_co]):
@@ -39,8 +40,8 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 		try:
 			self._is_available = bool(platform_config.chosen_emulators)
 			self._app_list = json.loads(self._app_list_path.read_bytes())
-		except json.JSONDecodeError as json_fuckin_bloody_error:
-			print(self._app_list_path, 'is borked, skipping', platform_name, json_fuckin_bloody_error)
+		except json.JSONDecodeError:
+			logger.exception('%s is borked, skipping %s', self._app_list_path, platform_name)
 			self._is_available = False
 		except FileNotFoundError:
 			self._is_available = False
@@ -71,8 +72,10 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 				exception_reason = ex
 
 		if not emulator:
-			if main_config.debug:
-				print(app.path, 'could not be launched by', self.platform_config.chosen_emulators, 'because', exception_reason)
+			if isinstance(exception_reason, EmulationNotSupportedException):
+				logger.warning('%s could not be launched by %s', app, self.platform_config.chosen_emulators, exc_info=exception_reason)
+			else:
+				logger.debug('%s could not be launched by %s', app, self.platform_config.chosen_emulators, exc_info=exception_reason)
 			return None
 
 		return self._launcher_type(app, emulator, self.platform_config)
@@ -81,13 +84,13 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 		app = self._app_type(app_info, self.platform_config)
 		try:
 			if not app.is_valid:
-				print('Skipping', app.name, app.path, 'config is not valid')
+				logger.warning('Skipping %s as config is not valid', app)
 				return None
 			app.add_metadata()
 			return self._get_launcher(app)
 			
-		except Exception as ex: #pylint: disable=broad-except
-			print('Ah bugger', app.path, app.name, ex, type(ex), traceback.extract_tb(ex.__traceback__)[1:])
+		except Exception: #pylint: disable=broad-except
+			logger.exception('Ah bugger %s had an error', app)
 			return None
 
 	#Return value here could be a generic type value I suppose, if you were into that sort of thing
@@ -99,5 +102,5 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 				if launcher:
 					yield launcher
 			except KeyError as ke:
-				print(self._app_list_path, app.get('name', 'unknown entry'), ': Missing needed key', ke)
+				logger.exception('%s is missing needed key %s in %s', self._app_list_path, ke.args, app.get('name', 'unknown entry'))
 				continue

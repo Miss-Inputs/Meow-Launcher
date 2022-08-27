@@ -2,6 +2,7 @@
 
 import datetime
 import json
+import logging
 import statistics
 from collections.abc import Iterator, Mapping, MutableMapping
 from pathlib import Path, PurePath
@@ -41,6 +42,7 @@ if have_steamfiles or TYPE_CHECKING:
 if TYPE_CHECKING:
 	from meowlauncher.launcher import Launcher
 
+logger = logging.getLogger(__name__)
 
 class SteamState():
 	class __SteamState():
@@ -180,11 +182,11 @@ def add_icon_from_common_section(game: 'SteamGame', common_section: Mapping[byte
 			break
 	if main_config.warn_about_missing_icons:
 		if icon_exception:
-			print(game.name, game.appid, icon_exception)
+			logger.error(game, exc_info=icon_exception)
 		elif potentially_has_icon and not found_an_icon:
-			print('Could not find icon for', game.name, game.appid)
+			logger.debug('Could not find icon for %s', game)
 		elif not potentially_has_icon:
-			print(game.name, game.appid, 'does not even have an icon')
+			logger.debug('%s does not even have an icon', game)
 
 def add_genre(game: 'SteamGame', common: Mapping[bytes, Any]) -> None:
 	content_warning_ids = []
@@ -726,22 +728,19 @@ def iter_steam_installed_appids() -> Iterator[tuple[Path, int, Mapping[str, Any]
 			app_state = app_manifest.get('AppState')
 			if not app_state:
 				#Should only happen if .acf is junk (or format changes dramatically), there's no other keys than AppState
-				if main_config.debug:
-					print('This should not happen', acf_file_path, 'is invalid or format is weird and new and spooky, has no AppState')
+				logger.error('This should not happen %s is invalid or format is weird and new and spooky, has no AppState', acf_file_path)
 				continue
 
 			appid_str = app_state.get('appid')
 			if appid_str is None:
 				#Yeah we need that
-				if main_config.debug:
-					print(acf_file_path, app_state.get('name'), 'has no appid which is weird')
+				logger.error('%s %s has no appid which is weird and this should not happen', acf_file_path, app_state.get('name'))
 				continue
 
 			try:
 				appid = int(appid_str)
 			except ValueError:
-				if main_config.debug:
-					print('Skipping', acf_file_path, app_state.get('name'), appid_str, 'as appid is not numeric which is weird')
+				logger.error('Skipping %s %s %s as appid is not numeric which is weird', acf_file_path, app_state.get('name'), appid_str)
 				continue
 
 			try:
@@ -749,19 +748,16 @@ def iter_steam_installed_appids() -> Iterator[tuple[Path, int, Mapping[str, Any]
 				if not state_flags:
 					continue
 			except ValueError:
-				if main_config.debug:
-					print('Skipping', app_state.get('name'), appid, 'as StateFlags are invalid', app_state.get('StateFlags'))
+				logger.info('Skipping %s %s as StateFlags are invalid: %s', app_state.get('name'), appid, app_state.get('StateFlags'))
 				continue
 
 			#Only yield fully installed games
 			if (state_flags & StateFlags.FullyInstalled) == 0:
-				if main_config.debug:
-					print('Skipping', app_state.get('name'), appid, 'as it is not actually installed (StateFlags =', state_flags, ')')
+				logger.info('Skipping %s %s as it is not actually installed (StateFlags = %s)', app_state.get('name'), appid, state_flags)
 				continue
 				
 			if state_flags & StateFlags.SharedOnly:
-				if main_config.debug:
-					print('Skipping', app_state.get('name'), appid, 'as it is shared only (StateFlags =', state_flags, ')')
+				logger.info('Skipping %s %s as it is shared only (StateFlags = %s)', app_state.get('name'), appid, state_flags)
 				continue
 
 			yield library_folder, appid, app_state
@@ -799,7 +795,6 @@ class Steam(GameSource):
 
 			try:
 				yield process_game(app_id, folder, app_state)
-			except NotLaunchableException as ex:
-				if main_config.debug:
-					print(app_state.get('name', app_id), app_id, 'is skipped because', ex)
+			except NotLaunchableException:
+				logger.warning('%s %s is skipped', app_state.get('name', app_id), app_id, exc_info=True)
 				continue

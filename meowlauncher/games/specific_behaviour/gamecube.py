@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Mapping
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional, cast
@@ -8,9 +9,9 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
-from meowlauncher.config.main_config import main_config
 from meowlauncher.games.roms.rom import ROM, FileROM
 from meowlauncher.metadata import Date, Metadata
+from meowlauncher.util.utils import format_byte_size
 
 from .common.gamecube_wii_common import (NintendoDiscRegion,
                                          add_gamecube_wii_disc_metadata,
@@ -18,6 +19,8 @@ from .common.gamecube_wii_common import (NintendoDiscRegion,
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
+
+logger = logging.getLogger(__name__)
 
 def convert3BitColor(c: int) -> int:
 	n = c * (256 // 0b111)
@@ -113,16 +116,14 @@ def add_banner_info(rom: ROM, metadata: Metadata, banner: bytes) -> None:
 		if have_pillow:
 			metadata.images['Banner'] = decode_icon(banner)
 	else:
-		if main_config.debug:
-			print('Invalid banner magic', rom.path, banner_magic)
+		logger.debug('Invalid banner magic %s in %s', banner_magic, rom)
 
 def add_fst_info(rom: FileROM, metadata: Metadata, fst_offset: int, fst_size: int, offset: int=0) -> None:
 	if fst_offset and fst_size and fst_size < (128 * 1024 * 1024):
 		fst = rom.read(fst_offset, fst_size)
 		number_of_fst_entries = int.from_bytes(fst[8:12], 'big')
 		if fst_size < (number_of_fst_entries * 12):
-			if main_config.debug:
-				print('Invalid FST in', rom.path, ':', fst_size, '<', number_of_fst_entries * 12)
+			logger.info('Invalid FST in %s: size is %s but expected to be at least %s', rom, format_byte_size(fst_size), format_byte_size(number_of_fst_entries * 12))
 			return
 		string_table = fst[number_of_fst_entries * 12:]
 		for i in range(1, number_of_fst_entries):
@@ -180,16 +181,14 @@ def _add_gamecube_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes,
 			add_fst_info(rom, metadata, fst_offset, fst_size, tgc_data['file offset'])
 		else:
 			add_fst_info(rom, metadata, fst_offset, fst_size)
-	except (IndexError, ValueError) as ex:
-		if main_config.debug:
-			print(rom.path, 'encountered error when parsing FST', ex)
+	except (IndexError, ValueError):
+		logger.exception('%s encountered error when parsing FST', rom.path)
 
 def add_tgc_metadata(rom: FileROM, metadata: Metadata) -> None:
 	tgc_header = rom.read(0, 60) #Actually it is bigger than that
 	magic = tgc_header[0:4]
 	if magic != b'\xae\x0f8\xa2':
-		if main_config.debug:
-			print('Hmm', rom.path, 'is .tgc but TGC magic is invalid', magic)
+		logger.info('Hmm %s is allegedly .tgc but TGC magic is invalid: %s', rom, magic)
 		return
 	tgc_header_size = int.from_bytes(tgc_header[8:12], 'big')
 	fst_real_offset = int.from_bytes(tgc_header[16:20], 'big')

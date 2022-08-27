@@ -1,4 +1,5 @@
 import copy
+import logging
 import re
 import subprocess
 from collections.abc import Iterator
@@ -8,6 +9,7 @@ from xml.etree import ElementTree
 from meowlauncher.common_paths import cache_dir
 from meowlauncher.config.main_config import main_config
 
+logger = logging.getLogger(__name__)
 
 class MachineNotFoundException(Exception):
 	#This shouldn't be thrown unless I'm an idiot, but that may well happen
@@ -32,7 +34,7 @@ class MAMEExecutable():
 
 	def _real_iter_mame_entire_xml(self) -> Iterator[tuple[str, ElementTree.Element]]:
 		if main_config.use_xml_disk_cache:
-			print('New MAME version found: ' + self.version + '; creating XML; this may take a while the first time it is run')
+			logger.info('New MAME version found: %s; creating XML; this may take a while the first time it is run', self.version)
 			self._xml_cache_path.mkdir(exist_ok=True, parents=True)
 
 		with subprocess.Popen([self.executable, '-listxml'], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as proc:
@@ -49,10 +51,9 @@ class MAMEExecutable():
 							self._xml_cache_path.joinpath(machine_name + '.xml').write_bytes(ElementTree.tostring(element))
 						yield machine_name, my_copy
 						element.clear()
-			except ElementTree.ParseError as fuck:
+			except ElementTree.ParseError:
 				#Hmm, this doesn't show us where the error really is
-				if main_config.debug:
-					print('baaagh XML error in listxml', fuck)
+				logger.exception('baaagh XML error in listxml')
 		if main_config.use_xml_disk_cache:
 			#Guard against the -listxml process being interrupted and screwing up everything, by only manually specifying it is done when we say it is done… wait does this work if it's an iterator? I guess it must if this exists
 			self._xml_cache_path.joinpath('is_done').touch()

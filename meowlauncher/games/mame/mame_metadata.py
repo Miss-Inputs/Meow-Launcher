@@ -1,3 +1,4 @@
+import logging
 from collections import Counter
 from collections.abc import Collection, Iterable, Sequence
 from typing import TYPE_CHECKING, Any, Optional, cast
@@ -5,7 +6,6 @@ from xml.etree import ElementTree
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import EmulationStatus, MediaType, SaveType
-from meowlauncher.config.main_config import main_config
 from meowlauncher.games.mame_common.machine import Machine, mame_statuses
 from meowlauncher.games.mame_common.mame_helpers import get_image
 from meowlauncher.games.mame_common.mame_support_files import (
@@ -16,13 +16,16 @@ from meowlauncher.games.mame_common.mame_utils import (image_config_keys,
 from meowlauncher.util.detect_things_from_filename import (
     get_languages_from_tags_directly, get_regions_from_filename_tags,
     get_revision_from_filename_tags, get_version_from_filename_tags)
-from meowlauncher.util.region_info import Language, get_common_language_from_regions
+from meowlauncher.util.region_info import (Language,
+                                           get_common_language_from_regions)
 from meowlauncher.util.utils import find_filename_tags_at_end, pluralize
 
 if TYPE_CHECKING:
 	from meowlauncher.metadata import Metadata
 
 	from .mame_game import MAMEGame
+
+logger = logging.getLogger(__name__)
 
 #I still want to dismantle this class with the fury of a thousand suns
 
@@ -402,8 +405,7 @@ def add_input_info(game: 'MAMEGame') -> None:
 	game.metadata.input_info.set_inited()
 	if game.machine.input_element is None:
 		#Seems like this doesn't actually happen
-		if main_config.debug:
-			print('Oi m8', game.machine.basename, '/', game.machine.name, 'has no input')
+		logger.info('Oi m8 %s has no input', game.machine)
 		return
 
 	controller = input_metadata.CombinedController()

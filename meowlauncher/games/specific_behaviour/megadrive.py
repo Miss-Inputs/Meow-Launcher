@@ -1,3 +1,4 @@
+import logging
 import re
 from collections.abc import Collection, Iterator
 from datetime import datetime
@@ -23,6 +24,8 @@ from .common.atari_controllers import megadrive_pad as standard_gamepad
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom_game import ROMGame
+	
+logger = logging.getLogger(__name__)
 
 _licensee_codes = load_dict(None, 'sega_licensee_codes')
 
@@ -306,16 +309,16 @@ def add_megadrive_custom_info(game: 'ROMGame') -> None:
 	if game.rom.extension == 'cue':
 		first_track_and_sector_size = cd_read.get_first_data_cue_track(game.rom.path)
 		if not first_track_and_sector_size:
-			print(game.rom.path, 'has invalid cuesheet')
+			logger.info('%s has invalid cuesheet', game.rom)
 			return
 		first_track, sector_size = first_track_and_sector_size
 		if not first_track.is_file():
-			print(game.rom.path, 'has invalid cuesheet')
+			logger.warning('%s has cuesheet with track %s not found', game.rom, first_track)
 			return
 		try:
 			header = cd_read.read_mode_1_cd(first_track, sector_size, 0x100, 0x100)
 		except NotImplementedError:
-			print(game.rom.path, 'has weird sector size', sector_size)
+			logger.info('%s has weird sector size %s', game.rom, sector_size)
 			return
 	elif isinstance(game.rom, FileROM):
 		header = _get_smd_header(game.rom) if game.rom.extension == 'smd' else game.rom.read(0x100, 0x100)

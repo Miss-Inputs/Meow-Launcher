@@ -1,5 +1,6 @@
 import hashlib
 import io
+import logging
 import os
 import subprocess
 import tempfile
@@ -17,7 +18,6 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 from meowlauncher.common_types import SaveType
-from meowlauncher.config.main_config import main_config
 from meowlauncher.platform_types import SwitchContentMetaType
 from meowlauncher.util.region_info import (get_language_by_english_name,
                                            languages_by_english_name)
@@ -27,6 +27,8 @@ from .common.nintendo_common import parse_ratings
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom import FileROM
 	from meowlauncher.metadata import Metadata
+
+logger = logging.getLogger(__name__)
 
 class InvalidHFS0Exception(Exception):
 	pass
@@ -318,11 +320,10 @@ def _list_cnmt(cnmt: Cnmt, rom: 'FileROM', metadata: 'Metadata', files: Mapping[
 						icons[control_nca_filename.removeprefix('icon_').removesuffix('.dat')] = control_nca_file
 				if nacp:
 					_add_nacp_metadata(metadata, nacp, icons)
-				elif main_config.debug:
-					print('Hmm no control.nacp in', rom.path)
+				else:
+					logger.debug('Hmm no control.nacp in %s', rom.path)
 			except InvalidNCAException:
-				if main_config.debug:
-					print('Unfortunate, invalid cnmt NCA in', rom.path)
+				logger.debug('Unfortunate, invalid cnmt NCA in %s', rom.path)
 			except ExternalToolNotHappeningException:
 				pass
 			break
@@ -410,8 +411,7 @@ def add_nsp_metadata(rom: 'FileROM', metadata: 'Metadata') -> None:
 			try:
 				cnmts.add(_list_cnmt_nca(cnmt_nca))
 			except InvalidNCAException:
-				#if main_config.debug:
-				#	print(filename, 'is an invalid cnmt.nca in', rom.path, ex)
+				logger.debug('%s is an invalid cnmt.nca in %s', filename, rom.path, exc_info=True)
 				continue
 			except ExternalToolNotHappeningException:
 				try_fallback_to_xml = True
@@ -431,10 +431,9 @@ def add_nsp_metadata(rom: 'FileROM', metadata: 'Metadata') -> None:
 	main_cnmt = _choose_main_cnmt(cnmts)
 	if main_cnmt:
 		_list_cnmt(main_cnmt, rom, metadata, files)
-	#else:
-	#	if main_config.debug:
-	#		print('Uh oh no cnmt.nca in', rom.path, '?')
-
+	else:
+		logger.debug('Uh oh no cnmt.nca in %s?', rom.path)
+	
 def _read_hfs0(rom: 'FileROM', offset: int, max_size: int=None) -> Mapping[str, tuple[int, int]]:
 	header = rom.read(offset, 16)
 
@@ -518,20 +517,18 @@ def add_xci_metadata(rom: 'FileROM', metadata: 'Metadata') -> None:
 				cnmt = rom.read(v[0] + secure_offset_diff, v[1]) #I've been double nae naed
 				try:
 					cnmts.append(_list_cnmt_nca(cnmt))
-				#except ValueError as v:
-				#	print('Bugger bugger bugger', v)
 				except InvalidNCAException:
-					#print(k, 'is an invalid cnmt.nca', ex)
+					logger.debug('%s is an invalid NCA', k, exc_info=True)
 					continue
 				except ExternalToolNotHappeningException:
-					#print(ex)
+					logger.debug('baaa trying to use external tool for inspecting XCI failed', exc_info=True)
 					return
 
 		main_cnmt = _choose_main_cnmt(cnmts)
 		if main_cnmt:
 			_list_cnmt(main_cnmt, rom, metadata, secure_files, secure_offset_diff)
-		#else:
-		#	print('Uh oh no cnmt.nca?')
+		else:
+			logger.debug('Uh oh no cnmt.nca?')
 
 def add_nro_metadata(rom: 'FileROM', metadata: 'Metadata') -> None:
 	header = rom.read(amount=0x50, seek_to=16)
@@ -566,16 +563,13 @@ def add_switch_rom_file_info(rom: 'FileROM', metadata: 'Metadata') -> None:
 	if rom.extension == 'xci':
 		try:
 			add_xci_metadata(rom, metadata)
-		except InvalidXCIException as ex:
-			if main_config.debug:
-				print(rom.path, f'was invalid XCI: {ex}')
-		except InvalidHFS0Exception as ex:
-			if main_config.debug:
-				print(rom.path, f'had invalid HFS0: {ex}')
-
+		except InvalidXCIException:
+			logger.info('%s was invalid XCI', rom.path, exc_info=True)
+		except InvalidHFS0Exception:
+			logger.info('%s had invalid HFS0', rom.path, exc_info=True)
+		
 	if rom.extension == 'nsp':
 		try:
 			add_nsp_metadata(rom, metadata)
-		except InvalidPFS0Exception as ex:
-			if main_config.debug:
-				print(rom.path, f'was invalid PFS0: {ex}')
+		except InvalidPFS0Exception:
+			logger.info('%s was invalid PFS0', rom.path, exc_info=True)

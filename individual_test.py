@@ -2,7 +2,9 @@
 
 #TODO: Eventually this wouldn't be needed - you would just have a --game-sources argument in meowlauncher/__main__.py and you can have one or many
 #Until then this will duplicate code from there so I am sorry
+#TODO: Just need to deal with itch.io/GOG/MAME software…
 
+import logging
 import sys
 
 from meowlauncher.frontend import organize_folders, series_detect
@@ -12,6 +14,7 @@ from meowlauncher.frontend.remove_nonexistent_games import \
     remove_nonexistent_games
 from meowlauncher.game_sources import game_sources, gog, itch_io, mame_software
 
+logger = logging.getLogger(__name__)
 
 def main() -> None:
 	if sys.argv[1] == 'gog':
@@ -38,7 +41,7 @@ def main() -> None:
 				break
 
 		if not source:
-			print('Unknown game source', sys.argv[1])
+			logger.error('Unknown game source: %s', sys.argv[1])
 			return
 		if not source.is_available:
 			return

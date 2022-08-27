@@ -1,12 +1,13 @@
 import copy
 import json
+import logging
 import os
 import shlex
 from abc import ABC
 from collections.abc import Mapping, Sequence
 from itertools import chain
 from pathlib import Path, PureWindowsPath
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
@@ -20,6 +21,7 @@ from meowlauncher.launcher import Launcher
 from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util import name_utils, region_info
 
+logger = logging.getLogger(__name__)
 
 class GOGGameInfo():
 	#File named "gameinfo" for Linux games
@@ -257,7 +259,7 @@ class WindowsGOGGame(Game):
 
 		self.game_id = game_id
 		if game_id != self.info.game_id:
-			print('Interesting, in', folder, 'game ID is ', game_id, 'but in the info file it is', self.info.game_id)
+			logger.debug('Interesting, in %s game ID is %s but in the info file it is %s', folder, game_id, self.info.game_id)
 		self.folder = folder
 
 		self.original_name = self.info.name
@@ -312,19 +314,17 @@ class WindowsGOGGame(Game):
 
 	def get_dosbox_launch_params(self, task: GOGTask) -> LaunchCommand:
 		args = tuple(self.fix_subfolder_relative_folder(arg, 'dosbox') for arg in task.args)
-		dosbox_path = main_config.dosbox_path
+		dosbox_path = cast(Path, main_config.dosbox_path)
 		dosbox_folder = _find_subpath_case_insensitive(self.folder, 'dosbox') #Game's config files are expecting to be launched from here
 		return LaunchCommand(dosbox_path, args, working_directory=str(dosbox_folder))
 
 	def get_wine_launch_params(self, task: GOGTask) -> Optional[LaunchCommand]:
 		if not task.path:
-			if main_config.debug:
-				print('Oh dear - we cannot deal with tasks that have no path', self.name, task.name, task.args, task.task_type, task.category)
+			logger.info('Oh dear - task %s (%s %s %s) in %s has no path and we can\'t deal with that right now', task.name, task.args, task.task_type, task.category, self.name)
 			return None
 
 		if task.path.lower().endswith('.lnk'):
-			if main_config.debug:
-				print(self.name, 'cannot be launched - we cannot deal with shortcuts right now (we should parse them but I cannot be arsed right now)', self.name, task.name, task.args, task.task_type, task.category)
+			logger.debug(self.name, 'task %s (%s %s %s) in %s cannot be launched - we cannot deal with shortcuts right now (we should parse them but I cannot be arsed right now)', task.name, task.args, task.task_type, task.category, self.name)
 			return None
 
 		exe_path = _find_subpath_case_insensitive(self.folder, task.path)

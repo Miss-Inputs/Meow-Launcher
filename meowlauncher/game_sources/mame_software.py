@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import datetime
+import logging
 import sys
 import time
 from collections.abc import Collection, Mapping, Sequence
@@ -14,6 +15,8 @@ from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.metadata import Metadata
 from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util.region_info import TVSystem
+
+logger = logging.getLogger(__name__)
 
 #TODO: Actually put this in game_sources, once we are more comfy this works nicely as per below todos etc, mainly the first two
 #TODO: Each platform should be an option; maybe something like there's a list config item for "use these software platforms" and then anything in there which is the name of something in software_list_platforms is used for anything specific, and anything else it just launches the software with machine name = software name, or tries to and skips if something fails
@@ -116,9 +119,8 @@ def add_software(software: SoftwareLauncher) -> None:
 
 	try:
 		software.make_launcher()
-	except EmulationNotSupportedException as ex:
-		if main_config.debug:
-			print(f'Could not launch {software.id} because {ex}')
+	except EmulationNotSupportedException:
+		logger.exception('Could not launch %s', software.id)
 
 def add_software_list_platform(platform: SoftwareListPlatform) -> None:
 	for media_type, lists in platform.lists.items():

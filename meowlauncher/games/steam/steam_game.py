@@ -1,3 +1,4 @@
+import logging
 from collections.abc import Mapping, MutableMapping
 from dataclasses import dataclass
 from functools import cached_property
@@ -5,7 +6,6 @@ from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any, Optional
 
 from meowlauncher.common_types import MediaType
-from meowlauncher.config.main_config import main_config
 from meowlauncher.config_types import RunnerConfig
 from meowlauncher.configured_runner import ConfiguredRunner
 from meowlauncher.game import Game
@@ -19,6 +19,8 @@ from meowlauncher.util.name_utils import fix_name
 
 if TYPE_CHECKING:
 	from .steam_installation import SteamInstallation
+	
+logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class LauncherInfo():
@@ -44,9 +46,12 @@ class SteamGame(Game):
 	def name(self) -> str:
 		name = self.app_state.get('name')
 		if not name:
-			name = f'<unknown game {self.appid}>'
+			return f'<unknown game {self.appid}>'
 		name = fix_name(name)
 		return name
+	
+	def __str__(self) -> str:
+		return f'{self.name} ({self.appid})'
 
 	@property
 	def install_dir(self) -> Path:
@@ -58,22 +63,20 @@ class SteamGame(Game):
 			game_app_info = self.steam_installation.app_info.get(self.appid)
 			if game_app_info is None:
 				#Probably shouldn't happen if all is well and that game is supposed to be there
-				if main_config.debug:
-					print(self.name, self.appid, 'does not have an entry in appinfo.vdf')
+				#I guess it could happen if you haven't ran Steam yet but have installed files there?
+				logger.info('%s does not have an entry in appinfo.vdf', self)
 				return None
 
 			#There are other keys here too but I dunno if they're terribly useful, just stuff about size and state and access token and bleh
 			#last_update is a Unix timestamp for the last time the user updated the game
 			sections = game_app_info.get('sections')
 			if sections is None:
-				if main_config.debug:
-					print(self.name, self.appid, 'does not have a sections key in appinfo.vdf')
+				logger.info('%s does not have a sections key in appinfo.vdf', self)
 				return None
 			#This is the only key in sections, and from now on everything is a bytes instead of a str, seemingly
 			app_info_section = sections.get(b'appinfo')
 			if app_info_section is None:
-				if main_config.debug:
-					print(self.name, self.appid, 'does not have a appinfo section in appinfo.vdf sections')
+				logger.info('%s does not have a appinfo section in appinfo.vdf sections', self)
 				return None
 			return app_info_section
 		return None
@@ -116,15 +119,13 @@ class SteamGame(Game):
 
 		try:
 			self.poke_around_in_install_dir()
-		except OSError as oserror:
-			if main_config.debug:
-				print('oh dear', oserror)
+		except OSError:
+			logger.exception('oh dear')
 
 	def poke_around_in_install_dir(self) -> None:
 		install_dir = self.install_dir
 		if not install_dir.is_dir():
-			# if main_config.debug:
-			# 	print('uh oh installdir does not exist', game.name, game.app_id, folder)
+			logger.info('uh oh installdir %s does not exist for %s', install_dir, self)
 			#Hmm I would need to make this case insensitive for some cases
 			return
 

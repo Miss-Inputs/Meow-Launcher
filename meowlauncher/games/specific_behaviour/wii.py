@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, cast
@@ -9,7 +10,6 @@ try:
 except ModuleNotFoundError:
 	have_pycrypto = False
 
-from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.roms.rom import FileROM, FolderROM
 from meowlauncher.metadata import Date
@@ -17,16 +17,17 @@ from meowlauncher.platform_types import WiiTitleType
 from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
-from .common.gamecube_wii_common import (NintendoDiscRegion,
+from .common.gamecube_wii_common import (NintendoDiscRegion, _tdb,
                                          add_gamecube_wii_disc_metadata,
-                                         just_read_the_wia_rvz_header_for_now,
-                                         _tdb)
+                                         just_read_the_wia_rvz_header_for_now)
 from .common.gametdb import add_info_from_tdb
 from .common.nintendo_common import parse_ratings
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
+
+logger = logging.getLogger(__name__)
 
 _nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
@@ -242,9 +243,8 @@ def add_wii_homebrew_metadata(rom: FolderROM, metadata: 'Metadata') -> None:
 			if long_description:
 				metadata.descriptions['Long Description'] = long_description
 
-		except ElementTree.ParseError as etree_error:
-			if main_config.debug:
-				print('Ah bugger this Wii homebrew XML has problems', rom.path, etree_error)
+		except ElementTree.ParseError:
+			logger.info('Ah bugger Wii homebrew XML in %s has problems', rom, exc_info=True)
 
 def _add_wii_disc_metadata(rom: FileROM, metadata: 'Metadata') -> None:
 	wii_header = rom.read(0x40_000, 0xf000)
@@ -264,7 +264,6 @@ def _add_wii_disc_metadata(rom: FileROM, metadata: 'Metadata') -> None:
 			#	partition_type = partition_table_entry[4:8].decode('ascii', errors='backslashreplace')
 
 			#Seemingly most games have an update partition at 0x50_000 and a game partition at 0xf_800_000. That's just an observation though and may not be 100% the case
-			#print(rom.path, 'has partition type', partition_type, 'at', hex(partition_offset))
 			if partition_type == 1:
 				metadata.specific_info['Has Update Partition?'] = True
 			elif partition_type == 0 and game_partition_offset is None:

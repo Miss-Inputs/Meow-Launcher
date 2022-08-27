@@ -1,7 +1,8 @@
 import io
+import logging
 import re
-from typing import TYPE_CHECKING
 import struct  # To handle struct.error
+from typing import TYPE_CHECKING
 
 try:
 	from pycdlib import PyCdlib
@@ -10,7 +11,6 @@ try:
 except ModuleNotFoundError:
 	have_pycdlib = False
 
-from meowlauncher.config.main_config import main_config
 from meowlauncher.metadata import Date, Metadata
 from meowlauncher.util.region_info import TVSystem
 
@@ -18,6 +18,8 @@ from .common.playstation_common import parse_product_code
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
+
+logger = logging.getLogger(__name__)
 
 _boot_line_regex = re.compile(r'^BOOT2\s*=\s*cdrom0:\\(.+);1$')
 _other_systemcnf_line_regex = re.compile(r'^([^=\s]+?)\s*=\s*(\S+)$')
@@ -70,8 +72,7 @@ def add_ps2_custom_info(game: 'ROMGame') -> None:
 				system_cnf = system_cnf_buf.getvalue().decode('utf-8', errors='backslashreplace')
 				add_info_from_system_cnf(game.metadata, system_cnf)
 			except PyCdlibInvalidInput:
-				if main_config.debug:
-					print(game.rom.path, 'has no SYSTEM.CNF inside')
+				logger.info('%s has no SYSTEM.CNF inside', game.rom.path)
 			#Modules are in IOP, MODULES or IRX but I don't know if we can get any interesting info from that
 			#TODO: Sometimes there is a system.ini that looks like this:
 			#[SYSTEM]
@@ -81,11 +82,10 @@ def add_ps2_custom_info(game: 'ROMGame') -> None:
 			#COUNTRY = AMERICA
 			#LANGUAGE = ENGLISH
 			#WARNING = NO
-		except PyCdlibInvalidISO as ex:
-			if main_config.debug:
-				print(game.rom.path, 'is invalid ISO', ex)
-		except struct.error as ex:
-			print(game.rom.path, 'is invalid ISO and has some struct.error', ex)
+		except PyCdlibInvalidISO:
+			logger.info('%s is invalid ISO', game.rom.path, exc_info=True)
+		except struct.error:
+			logger.info('%s is invalid ISO and has some struct.error', game.rom.path, exc_info=True)
 		finally:
 			iso.close()	
 	#.elf is just a standard ordinary whole entire .elf

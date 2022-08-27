@@ -1,6 +1,6 @@
+import logging
 from typing import TYPE_CHECKING
 
-from meowlauncher.config.main_config import main_config
 from meowlauncher.games.mame_common.mame_utils import \
     consistentify_manufacturer
 from meowlauncher.metadata import Date, Metadata
@@ -10,6 +10,8 @@ from meowlauncher.util.region_info import get_language_by_english_name
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
 	from meowlauncher.games.roms.rom import FileROM
+
+logger = logging.getLogger(__name__)
 
 def parse_woz_info_chunk(metadata: Metadata, chunk_data: bytes) -> None:
 	info_version = chunk_data[0]
@@ -80,7 +82,7 @@ def parse_woz_kv(rompath: str, metadata: Metadata, key: str, value: str) -> None
 			if machine in woz_meta_machines:
 				machines.add(woz_meta_machines[machine])
 			else:
-				print('Unknown compatible machine in Woz META chunk', rompath, machine)
+				logger.info('Unknown compatible machine %s in Woz META chunk in %s', machine, rompath)
 		metadata.specific_info['Machine'] = machines
 	elif key == 'requires_ram':
 		#Should be in INFO chunk, but sometimes isn't
@@ -112,8 +114,7 @@ def parse_woz_kv(rompath: str, metadata: Metadata, key: str, value: str) -> None
 		#This isn't part of the specification, but I've seen it
 		metadata.add_notes(value)
 	else:
-		if main_config.debug:
-			print('Unknown Woz META key', rompath, key, value)
+		logger.info('Unknown Woz META key %s with value %s in %s', key, value, rompath)
 
 def parse_woz_meta_chunk(rompath: str, metadata: Metadata, chunk_data: bytes) -> None:
 	rows = chunk_data.split(b'\x0a')
@@ -135,7 +136,7 @@ def parse_woz_chunk(rom: 'FileROM', metadata: Metadata, position: int) -> int:
 		parse_woz_info_chunk(metadata, chunk_data)
 	elif chunk_id == 'META':
 		chunk_data = rom.read(seek_to=position+8, amount=chunk_data_size)
-		parse_woz_meta_chunk(str(rom.path), metadata, chunk_data)
+		parse_woz_meta_chunk(str(rom), metadata, chunk_data)
 
 	return position + chunk_data_size + 8
 
@@ -148,7 +149,7 @@ def add_woz_metadata(rom: 'FileROM', metadata: Metadata) -> None:
 	elif magic == b'WOZ2\xff\n\r\n':
 		metadata.specific_info['ROM Format'] = 'WOZ v2'
 	else:
-		print('Weird .woz magic', rom.path, magic)
+		logger.info('Weird .woz magic %s in %s', magic, rom)
 		return
 
 	position = 12

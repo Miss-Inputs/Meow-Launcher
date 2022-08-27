@@ -37,6 +37,9 @@ class ManuallySpecifiedGame(EmulatedGame, ABC):
 	def name(self) -> str:
 		return self._name
 
+	def __str__(self) -> str:
+		return f'{self.path} ({self.name})'
+
 	@property
 	def base_folder(self) -> Optional[Path]:
 		#Might want to override this in subclass, returns a folder on the host that might have other files related to the game (CD images, etc)

@@ -1,9 +1,11 @@
 import itertools
+import logging
 import os
-from collections.abc import Collection, MutableSet, Sequence, Iterator, Iterable
+from collections.abc import (Collection, Iterable, Iterator, MutableSet,
+                             Sequence)
+from functools import cache
 from pathlib import Path
 from typing import Any, Optional
-from functools import cache
 
 from meowlauncher.util.name_utils import normalize_name
 from meowlauncher.util.utils import (find_filename_tags_at_end, load_dict,
@@ -13,6 +15,8 @@ from .mame_helpers import default_mame_configuration
 from .software_list import (Software, SoftwareCustomMatcher, SoftwareList,
                             SoftwareMatcherArgs, SoftwarePart,
                             get_crc32_for_software_list)
+
+logger = logging.getLogger(__name__)
 
 subtitles = load_dict(None, 'subtitles')
 
@@ -27,8 +31,8 @@ def iter_all_software_lists() -> Iterator[tuple[Path, SoftwareList]]:
 		for hash_xml_path in itertools.chain.from_iterable(generator):
 			try:
 				yield hash_xml_path, SoftwareList(hash_xml_path)
-			except SyntaxError as ex: #I guess that is the error it throws?
-				print(f'{hash_xml_path} is fuckin borked for some reason: {ex}')
+			except SyntaxError: #I guess that is the error it throws?
+				logger.info('%s is fuckin borked for some reason', hash_xml_path, exc_info=True)
 				continue
 	except FileNotFoundError:
 		pass

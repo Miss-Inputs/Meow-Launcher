@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
+import logging
 import os
-import traceback
 from collections.abc import Collection, Iterator, Sequence
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Optional, Union
@@ -31,6 +31,8 @@ from meowlauncher.util.desktop_files import has_been_done
 
 if TYPE_CHECKING:
 	from meowlauncher.emulated_platform import StandardEmulatedPlatform
+
+logger = logging.getLogger(__name__)
 
 def _get_emulator_config(emulator: Union[StandardEmulator, LibretroCore]) -> EmulatorConfig:
 	#Eventually, once we have per-game overrides, we should give this a ROMGame parameter too, and that should work out
@@ -103,73 +105,46 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 				exception_reason = ex
 
 		if not launcher:
-			if main_config.debug:
-				#TODO: We also need a warn_about_unemulated_extensions type thing
-				if isinstance(exception_reason, EmulationNotSupportedException):
-				#if isinstance(exception_reason, EmulationNotSupportedException) and not isinstance(exception_reason, ExtensionNotSupportedException):
-					print(rom.path, 'could not be launched by', chosen_emulator_names, 'because', exception_reason)
+			#TODO: We also need a warn_about_unemulated_extensions type thing
+			#Actually is it better to use some kind of custom level or logging field for that?
+			#if isinstance(exception_reason, EmulationNotSupportedException) and not isinstance(exception_reason, ExtensionNotSupportedException):
+			if isinstance(exception_reason, EmulationNotSupportedException):
+				logger.warning('%s could not be launched by %s', rom, chosen_emulator_names, exc_info=exception_reason)
+			else:
+				logger.debug('%s could not be launched by %s', rom, chosen_emulator_names, exc_info=exception_reason)
 			return None
 		
 		return launcher
-
-	# def _process_rom_list(self, rom_list: Collection[tuple[ROM, Sequence[str]]]) -> Iterable[ROMLauncher]:
-	# 	for rom, subfolders in rom_list:
-	# 		if not rom.is_folder and not self.platform.is_valid_file_type(rom.extension):
-	# 			#TODO: Probs want a warn_about_invalid_extension main_config (or platform_config)
-	# 			print('Invalid extension', rom.path, rom.extension, type(rom), rom.path.suffix)
-	# 			continue
-
-	# 		try:
-	# 			if rom.should_read_whole_thing:
-	# 				rom.read_whole_thing()
-	# 		#pylint: disable=broad-except
-	# 		except Exception as ex:
-	# 			print('Bother!!! Reading the ROM produced an error', rom.path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
-	# 			continue
-
-	# 		launcher = None
-	# 		try:
-	# 			launcher = self._process_rom(rom, subfolders)
-	# 		#pylint: disable=broad-except
-	# 		except Exception as ex:
-	# 			#It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
-	# 			print('FUCK!!!!', rom.path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
-
-	# 		if launcher:
-	# 			yield launcher
 
 	def _process_file_list(self, file_list: Collection[tuple[Path, Sequence[str]]]) -> Iterator[ROMLauncher]:
 		for path, subfolders in file_list:
 			try:
 				rom = get_rom(path)
-			except archives.BadArchiveError as badarchiveerror:
-				print('Uh oh fucky wucky!', path, 'is an archive file that we tried to open to list its contents, but it was invalid:', badarchiveerror.__cause__, traceback.extract_tb(badarchiveerror.__traceback__)[1:])
+			except archives.BadArchiveError:
+				logger.exception('Uh oh fucky wucky! %s is an archive file that we tried to open to list its contents, but it was invalid', path)
 				continue
-			except IOError as ioerror:
-				print('Uh oh fucky wucky!', path, 'is an archive file that has nothing in it or something else weird:', ioerror.__cause__, traceback.extract_tb(ioerror.__traceback__)[1:])
+			except OSError:
+				logger.exception('Uh oh fucky wucky! %s is an archive file that has nothing in it or something else weird', path)
 				continue
 
-					
 			if not rom.is_folder and not self.platform.is_valid_file_type(rom.extension):
 				#TODO: Probs want a warn_about_invalid_extension main_config (or platform_config)
-				#print(f'Invalid extension for this platform in {type(rom).__name__} {rom.path}: {rom.extension}')
+				logger.debug('Invalid extension for this platform in %s %s: %s', type(rom).__name__, rom, rom.extension)
 				continue
 
 			try:
 				if rom.should_read_whole_thing:
-					rom.read_whole_thing()
-			#pylint: disable=broad-except
-			except Exception as ex:
-				print('Bother!!! Reading the ROM produced an error', rom.path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
+					rom.read_whole_thing()			
+			except Exception: #pylint: disable=broad-except
+				logger.exception('Bother!!! Reading %s produced an error', rom)
 				continue
 
 			launcher = None
 			try:
 				launcher = self._process_rom(rom, subfolders)
-			#pylint: disable=broad-except
-			except Exception as ex:
+			except Exception: #pylint: disable=broad-except
 				#It would be annoying to have the whole program crash because there's an error with just one ROM… maybe. This isn't really expected to happen, but I guess there's always the possibility of "oh no the user's hard drive exploded" or some other error that doesn't really mean I need to fix something, either, but then I really do need the traceback for when this does happen
-				print('FUCK!!!!', rom.path, ex, type(ex), ex.__cause__, traceback.extract_tb(ex.__traceback__)[1:])
+				logger.exception('FUCK!!!! %s', rom)
 
 			if launcher:
 				yield launcher
@@ -179,7 +154,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 		#rom_list: list[tuple[ROM, Sequence[str]]] = []
 		for rom_dir in self.platform_config.paths:
 			if not rom_dir.is_dir():
-				print('Oh no', self.name, 'has invalid ROM dir', rom_dir)
+				logger.warning('Oh no %s has invalid ROM dir: %s', self.name, rom_dir)
 				continue
 			#used_m3u_filenames = []
 			for root, dirs, files in os.walk(rom_dir):

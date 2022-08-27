@@ -1,9 +1,9 @@
+import logging
 import os
 from enum import Enum
 from typing import Optional
 from xml.etree import ElementTree
 
-from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.metadata import Metadata
@@ -11,6 +11,8 @@ from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
 from .gametdb import TDB, add_info_from_tdb
+
+logger = logging.getLogger(__name__)
 
 nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 class NintendoDiscRegion(Enum):
@@ -30,9 +32,8 @@ def _load_tdb() -> Optional[TDB]:
 
 	try:
 		return TDB(ElementTree.parse(tdb_path))
-	except (ElementTree.ParseError, OSError) as blorp:
-		if main_config.debug:
-			print('Oh no failed to load Wii TDB because', blorp)
+	except (ElementTree.ParseError, OSError):
+		logger.exception('Oh no failed to load Wii TDB because')
 		return None
 _tdb = _load_tdb()
 
@@ -95,11 +96,10 @@ def add_gamecube_wii_disc_metadata(rom: FileROM, metadata: Metadata, header: byt
 
 	if not is_wii and not is_gamecube:
 		metadata.specific_info['No Disc Magic?'] = True
-	elif main_config.debug:
-		if metadata.platform == 'Wii' and not is_wii:
-			print(rom.path, 'lacks Wii disc magic')
-		if metadata.platform == 'GameCube' and not is_gamecube:
-			print(rom.path, 'lacks GameCube disc magic')
+	elif metadata.platform == 'Wii' and not is_wii:
+		logger.info('%s lacks Wii disc magic', rom)
+	elif metadata.platform == 'GameCube' and not is_gamecube:
+		logger.info('%s lacks GameCube disc magic', rom)
 	
 def just_read_the_wia_rvz_header_for_now(rom: FileROM, metadata: Metadata) -> None:
 	#I'll get around to it I swear

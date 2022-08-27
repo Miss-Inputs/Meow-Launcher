@@ -1,3 +1,4 @@
+import logging
 import os
 from collections.abc import Mapping
 from pathlib import Path
@@ -16,6 +17,7 @@ from meowlauncher.util.region_info import get_language_by_short_code
 
 from .scummvm_config import scummvm_config
 
+logger = logging.getLogger(__name__)
 
 def format_platform(platform: str) -> str:
 	#https://github.com/scummvm/scummvm/blob/master/common/platform.cpp#L28
@@ -70,6 +72,9 @@ class ScummVMGame(Game):
 		name = name.replace('/', ') (') #Names are usually something like Cool Game (CD/DOS/English); we convert it to Cool Game (CD) (DOS) (English) to make it work better with disambiguate etc		
 		return name
 
+	def __str__(self) -> str:
+		return f'{self.name} ({self.game_id})'
+
 	@staticmethod
 	def _engine_list_to_use() -> Mapping[str, str]:
 		return scummvm_config.scummvm_engines
@@ -120,11 +125,9 @@ class ScummVMGame(Game):
 				if icon:
 					self.metadata.images['Icon'] = icon
 			else:
-				if main_config.debug:
-					print('Aaaa!', self.name, self.game_id, path, 'does not exist')
+				logger.warning('Aaaa! %s has non-existent path: %s', self, path)
 		else:
-			if main_config.debug:
-				print('Wait what?', self.name, self.game_id, 'has no path')
+			logger.info('Wait what? %s has no path', self)
 		#Everything else is gonna be an actual option
 
 class ScummVMLauncher(Launcher):

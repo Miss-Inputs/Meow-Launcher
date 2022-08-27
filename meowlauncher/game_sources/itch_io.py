@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import datetime
+import logging
 import time
 from pathlib import Path
 from typing import Optional
@@ -9,6 +10,7 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.games.itch import ItchGame
 from meowlauncher.util.desktop_files import has_been_done
 
+logger = logging.getLogger(__name__)
 
 def scan_itch_dir(path: Path) -> Optional[ItchGame]:
 	if not path.joinpath('.itch').is_dir():
@@ -23,8 +25,7 @@ def do_itch_io_games() -> None:
 	for itch_io_folder_str in main_config.itch_io_folders:
 		itch_io_folder = Path(itch_io_folder_str)
 		if not itch_io_folder.is_dir():
-			if main_config.debug:
-				print(itch_io_folder, 'does not exist/is not a directory')
+			logger.warning('%s does not exist/is not a directory', itch_io_folder)
 			continue
 	
 		for subfolder in itch_io_folder.iterdir():
@@ -36,11 +37,11 @@ def do_itch_io_games() -> None:
 			if subfolder.name == 'downloads':
 				continue
 			if not (game := scan_itch_dir(subfolder)):
-				if main_config.debug:
-					print('itch.io subfolder does not have an itch.io game (detection may have failed)', subfolder)
+				logger.info('itch.io subfolder does not have an itch.io game (detection may have failed): %s', subfolder)
 				continue
 
 			#TODO: Somehow, we need to add all the documentation etc to other folders with matching game IDs (they won't be launchable themselves)
+			#Well I guess technically they would be, by launching the file with xdg-open, but we don't want to do it that way and also haven't set that up
 
 			game.add_metadata()
 			game.make_launcher()

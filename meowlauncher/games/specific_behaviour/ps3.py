@@ -1,11 +1,11 @@
 import json
+import logging
 import os
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, cast
 from xml.etree import ElementTree
 
-from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.common.engine_detect import \
     try_and_detect_engine_from_folder
@@ -18,19 +18,20 @@ if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
 
+logger = logging.getLogger(__name__)
+
 def _load_tdb() -> Optional[TDB]:
 	if 'PS3' not in platform_configs:
 		return None
 
-	tdb_path = platform_configs['PS3'].options.get('tdb_path')
+	tdb_path = cast(Optional[Path], platform_configs['PS3'].options.get('tdb_path'))
 	if not tdb_path:
 		return None
 
 	try:
 		return TDB(ElementTree.parse(tdb_path))
-	except (ElementTree.ParseError, OSError) as blorp:
-		if main_config.debug:
-			print('Oh no failed to load PS3 TDB because', blorp)
+	except (ElementTree.ParseError, OSError):
+		logger.exception('Oh no failed to load PS3 TDB')
 		return None
 _tdb = _load_tdb()
 
@@ -66,8 +67,8 @@ def add_game_folder_metadata(rom: FolderROM, metadata: 'Metadata') -> None:
 		if engine:
 			metadata.specific_info['Engine'] = engine
 		#EXE name should be EBOOT.BIN in here?
-	elif main_config.debug:
-		print('How interesting!', rom.path, 'has no USRDIR')
+	else:
+		logger.info('How interesting! %s has no USRDIR', rom)
 
 	parse_param_sfo(str(rom.path), metadata, param_sfo_path.read_bytes())
 

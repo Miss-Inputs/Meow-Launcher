@@ -2,6 +2,7 @@ import copy
 import datetime
 import gzip
 import json
+import logging
 import os
 import subprocess
 from collections.abc import Collection, Mapping, Sequence, Iterator
@@ -19,7 +20,12 @@ from meowlauncher.metadata import Date
 from meowlauncher.output.desktop_files import make_launcher
 from meowlauncher.util.name_utils import fix_name
 
+logger = logging.getLogger(__name__)
+
 #TODO: Rework this to be able to optionally just read json, launch all executables in the game dir or whatever, and avoid using butler if preferred
+#…But "find any executables in the game dir" is kind of what butler does, albeit with a bit more spicy
+#So given we have to filter out butler's detected executables anyway… might as well redo it
+#GOG would appreciate a "find likely executables in a folder" function too
 
 @lru_cache(maxsize=1)
 def _find_butler() -> Optional[Path]:
@@ -213,7 +219,7 @@ class ItchGame(Game):
 		#This shouldn't really happen, but sometimes the platform field in upload in the receipt is inaccurate
 		#Pretend Mac doesn't exist
 		if not flavour:
-			print('dang this got no flavour', self.path) #I don't think this happens
+			logger.info('dang %s is not in flavourtown') #I don't think this happens
 			return
 		if flavour in {'script', 'linux'}:
 			metadata.platform = 'Linux'
@@ -236,8 +242,8 @@ class ItchGame(Game):
 
 		params = get_launch_params(flavour, exe_path, windows_info)
 		if not params:
-			if main_config.debug and flavour not in ('app-macos', 'macos'):
-				print(self.path, 'Not dealing with', flavour, exe_path, self.platforms, self.metadata.platform, 'yet')
+			if flavour not in ('app-macos', 'macos'):
+				logger.debug('Not dealing with %s %s %s %s %s at this point in time', self.path, flavour, exe_path, self.platforms, self.metadata.platform)
 			return
 		if params[1]:
 			metadata.emulator_name = params[1]
@@ -256,8 +262,8 @@ class ItchGame(Game):
 			candidates = set(self._try_and_find_exe())
 
 		if not candidates:
-			if main_config.debug:
-				print('No launch candidates found for', self.path)
+			#Warning and not info, because it's effectively telling you the game cannot be launched
+			logger.warning('No launch candidates found for %s')
 			return
 
 		candidate_basenames = {path.name for _, path, _ in candidates}

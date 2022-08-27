@@ -1,5 +1,6 @@
 import datetime
 import io
+import logging
 from collections.abc import Mapping, MutableSequence, Sequence
 from enum import Enum
 from pathlib import Path
@@ -22,7 +23,6 @@ try:
 except ImportError:
 	have_pillow = False
 
-from meowlauncher.config.main_config import main_config
 from meowlauncher.manually_specified_game import (ManuallySpecifiedGame,
                                                   ManuallySpecifiedLauncher)
 from meowlauncher.metadata import Date
@@ -31,6 +31,8 @@ from meowlauncher.util.utils import format_byte_size
 if TYPE_CHECKING:
 	from meowlauncher.config_types import PlatformConfig
 	from meowlauncher.configured_emulator import ConfiguredEmulator
+
+logger = logging.getLogger(__name__)
 
 PathInsideHFS = NewType('PathInsideHFS', str)
 
@@ -175,8 +177,7 @@ def _get_icon(resources: Mapping[bytes, Mapping[int, 'macresources.Resource']], 
 	icn_resource = resources.get(b'ICN#', {}).get(resource_id)
 	if icn_resource:
 		if len(icn_resource) != 256:
-			if main_config.debug:
-				print('Baaa', path_for_warning, 'has a bad ICN## with size', len(icn_resource), 'should be 256')
+			logger.debug('Baaa %s has a bad ICN## with size %s, should be 256', path_for_warning, len(icn_resource))
 		else:
 			#The icon has backwards colours? I don't know
 			icon_bw = Image.frombytes('1', (32, 32), bytes(256 + ~b for b in icn_resource[:128])).convert('RGBA')
@@ -186,8 +187,7 @@ def _get_icon(resources: Mapping[bytes, Mapping[int, 'macresources.Resource']], 
 	icl8 = resources.get(b'icl8', {}).get(resource_id)
 	if icl8:
 		if len(icl8) != 1024:
-			if main_config.debug:
-				print('Baaa', path_for_warning, 'has a bad icl8 with size', len(icl8), 'should be 1024')
+			logger.debug('Baaa %s has a bad icl8 with size %s, should be 1024', path_for_warning, len(icl8))
 		else:
 			icon_256 = Image.frombytes('P', (32, 32), bytes(icl8))
 			icon_256.putpalette(mac_os_256_palette, 'RGB')
@@ -199,8 +199,7 @@ def _get_icon(resources: Mapping[bytes, Mapping[int, 'macresources.Resource']], 
 	icl4 = resources.get(b'icl4', {}).get(resource_id)
 	if icl4:
 		if len(icl4) != 512:
-			if main_config.debug:
-				print('Baaa', path_for_warning, 'has a bad icl4 with size', len(icl4), 'should be 512')
+			logger.debug('Baaa %s has a bad icl4 with size %s, should be 512', path_for_warning, len(icl4))
 		else:
 			#Since this is 4-bit colour we need to unpack 0b1111_1111 to 0b0000_1111 0b0000_1111
 			

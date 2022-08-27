@@ -1,4 +1,5 @@
 from enum import Enum, auto
+import logging
 from typing import TYPE_CHECKING, cast
 
 from meowlauncher import input_metadata
@@ -14,6 +15,8 @@ from meowlauncher.util.utils import load_dict
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
+
+logger = logging.getLogger(__name__)
 
 _licensee_codes = load_dict(None, 'sega_licensee_codes')
 
@@ -52,7 +55,7 @@ _keyboard.keys = 101
 _mouse = input_metadata.Mouse()
 _mouse.buttons = 3
 
-def _parse_peripherals(metadata: 'Metadata', peripherals: str) -> None:
+def _parse_peripherals(metadata: 'Metadata', peripherals: str, rom_path_for_warning: str=None) -> None:
 	for peripheral in peripherals:
 		if peripheral == 'J':
 			metadata.input_info.add_option(_standard_controller)
@@ -91,8 +94,8 @@ def _parse_peripherals(metadata: 'Metadata', peripherals: str) -> None:
 		elif peripheral == 'R':
 			metadata.specific_info['Uses ROM Cartridge?'] = True
 			#KoF 95 and Ultraman: Hikari no Kyojin Densetsu, although they aren't interchangable, they both use the same peripheral code here
-		#else:
-		#	print('Unknown Saturn peripheral', game.rom.path, peripheral)
+		else:
+			logger.debug('Unknown Saturn peripheral %s in %s', peripheral, rom_path_for_warning)
 		#D = Modem? (Anywhere X is but also SegaSaturn Internet)
 		#X = Duke Nukem 3D, Daytona CCE Net Link Edition, Puyo Puyo Sun for SegaNet (something to do with NetLink, but what is the difference with D?)
 		#U = Sonic Z-Treme?
@@ -149,8 +152,7 @@ def add_saturn_info(rom_path_for_warning: str, metadata: 'Metadata', header: byt
 			if guessed.is_better_than(metadata.release_date):
 				metadata.release_date = guessed
 		except IndexError:
-			if main_config.debug:
-				print(rom_path_for_warning, 'has invalid date in header:', release_date)
+			logger.info('%s has invalid date in header: %s', rom_path_for_warning, release_date)
 		except ValueError:
 			pass
 
@@ -183,7 +185,7 @@ def add_saturn_info(rom_path_for_warning: str, metadata: 'Metadata', header: byt
 	metadata.specific_info['Region Code'] = region_codes
 
 	peripherals = header[80:96].decode('ascii', errors='backslashreplace').rstrip()
-	_parse_peripherals(metadata, peripherals)
+	_parse_peripherals(metadata, peripherals, rom_path_for_warning)
 
 	internal_name = header[96:208].decode('ascii', errors='backslashreplace').rstrip()
 	#Sometimes / : - are used as delimiters, and there can also be J:JapaneseNameU:USAName
@@ -194,12 +196,12 @@ def add_saturn_custom_info(game: 'ROMGame') -> None:
 	if game.rom.extension == 'cue':
 		first_track_and_sector_size = get_first_data_cue_track(game.rom.path)
 		if not first_track_and_sector_size:
-			print(game.rom.path, 'has invalid cuesheet')
+			logger.info('%s has invalid cuesheet', game.rom)
 			return
 		first_track, sector_size = first_track_and_sector_size
 
 		if not first_track.is_file():
-			print(game.rom.path, 'has invalid cuesheet')
+			logger.warning('%s has cuesheet with track %s not found', game.rom, first_track)
 			return
 		try:
 			header = read_mode_1_cd(first_track, sector_size, seek_to=0, amount=256)
@@ -217,7 +219,7 @@ def add_saturn_custom_info(game: 'ROMGame') -> None:
 	else:
 		return
 
-	add_saturn_info(str(game.rom.path), game.metadata, header)
+	add_saturn_info(str(game.rom), game.metadata, header)
 
 	try:
 		software = game.get_software_list_entry()

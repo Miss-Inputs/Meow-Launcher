@@ -4,6 +4,7 @@
 #TODO: Yeah I'm not sure this actually works properly
 
 from collections.abc import Collection
+import logging
 from typing import Optional
 
 from meowlauncher.util.detect_things_from_filename import (
@@ -13,7 +14,6 @@ from meowlauncher.util.region_info import (Language, Region, TVSystem,
                                            get_common_language_from_regions,
                                            get_tv_system_from_regions)
 from meowlauncher.util.utils import find_filename_tags_at_end
-
 
 def are_regions_equal(region, other_region) -> bool:
 	#TODO: Is this even right? Why are we testing for isinstance == Region?

@@ -148,7 +148,6 @@ def add_dreamcast_rom_info(rom: FileROM, metadata: Metadata) -> None:
 				#is_data = match['type'] == '4'
 				sector_size = int(match['sectorSize'])
 				filename = match['name_unquoted'] if match['name_unquoted'] else match['name']
-				#print(game.rom.path, track_number, is_data, sector_size, filename)
 				if track_number == 3:
 					full_name = Path(filename) if filename.startswith('/') else rom.path.parent.joinpath(filename)
 					_add_info_from_main_track(metadata, full_name, sector_size)
