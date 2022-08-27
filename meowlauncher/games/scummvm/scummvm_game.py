@@ -1,5 +1,4 @@
 import logging
-import os
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Optional
@@ -13,7 +12,7 @@ from meowlauncher.games.common.pc_common_metadata import \
     look_for_icon_in_folder
 from meowlauncher.launch_command import LaunchCommand
 from meowlauncher.launcher import Launcher
-from meowlauncher.util.region_info import get_language_by_short_code
+from meowlauncher.util.region_info import Language, get_language_by_short_code
 
 from .scummvm_config import scummvm_config
 
@@ -34,6 +33,7 @@ def format_platform(platform: str) -> str:
 		'pc': 'DOS',
 		'pc98': 'PC-98',
 		'wii': 'Wii',
+		'coco': 'Tandy CoCo',
 		'coco3': 'Tandy CoCo',
 		'fmtowns': 'FM Towns',
 		'linux': 'Linux',
@@ -53,7 +53,11 @@ def format_platform(platform: str) -> str:
 		'megadrive': 'Mega Drive',
 		'saturn': 'Saturn',
 		'pippin': 'Pippin',
-	}.get(platform, platform)
+		'macintosh2': 'Mac',
+		'shockwave': 'Shockwave',
+		'zx': 'ZX Spectrum',
+		'ti994': 'TI-99',
+	}.get(platform, platform.title())
 
 class ScummVMGame(Game):
 	def __init__(self, game_id: str):
@@ -79,6 +83,44 @@ class ScummVMGame(Game):
 	def _engine_list_to_use() -> Mapping[str, str]:
 		return scummvm_config.scummvm_engines
 
+	@property
+	def engine(self) -> Optional[str]:
+		engine_id = self.options.get('engineid')
+		if engine_id:
+			return self._engine_list_to_use().get(engine_id, engine_id)
+		return None
+
+	@property
+	def path(self) -> Optional[Path]:
+		pathstr = self.options.get('path')
+		if not pathstr:
+			return None
+		path = Path(pathstr) #path
+		filename = self.options.get('filename') #Glk has this, as it is just one file; stops us looking for icons in a folder where we shouldn't etc
+		return path / filename if filename else path
+
+	@property
+	def language(self) -> Optional[Language]:
+		language_code = self.options.get('language')
+		if not language_code:
+			return None
+		if language_code == 'br':
+			return get_language_by_short_code('Pt-Br')
+		if language_code == 'se':
+			#…That's the region code for Sweden, not the language code for Swedish, so that's odd but that's how it ends up being
+			return get_language_by_short_code('Sv')
+		return get_language_by_short_code(language_code, case_insensitive=True)
+
+	@property
+	def original_platform(self) -> Optional[str]:
+		platform = self.options.get('platform')
+		if not platform:
+			return None
+		if platform == 'amiga' and self.options.get('extra') == 'CD32':
+			return 'Amiga CD32'
+		return format_platform(platform)
+		
+
 	def add_metadata(self) -> None:
 		self.metadata.input_info.add_option([input_metadata.Mouse(), input_metadata.Keyboard()]) #Can use gamepad if you enable it, but I guess to add that as input_info I'd have to know exactly how many buttons and sticks etc it uses
 		self.metadata.save_type = SaveType.Internal #Saves to your own dang computer so I guess that counts
@@ -89,42 +131,31 @@ class ScummVMGame(Game):
 		#Would be nice to set things like developer/publisher/year but can't really do that unfortunately
 		#Let series and series_index be detected by series_detect
 		
-		engine_id = self.options.get('engineid')
-		if engine_id:
-			self.metadata.specific_info['Engine'] = self._engine_list_to_use().get(engine_id)
+		engine = self.engine
+		if engine:
+			self.metadata.specific_info['Engine'] = engine
 		extra = self.options.get('extra')
 		if extra:
 			self.metadata.specific_info['Version'] = extra #Hmm, I guess that'd be how we should use this properly…
 			if 'demo' in extra.lower():
 				#Keeping the category names consistent with everything else here, though people might like to call it "Demos" or whatever instead and technically there's no reason why we can't do that and this should be an option and I will put this ramble here to remind myself to make it an option eventually
+				#TODO How about you put a TODO comment instead
 				self.metadata.categories = ('Trials', )
 		
 		if main_config.use_original_platform:
-			platform = self.options.get('platform')
-			if platform:
-				self.metadata.platform = format_platform(platform)
-			if platform == 'amiga' and extra == 'CD32':
-				self.metadata.platform = 'Amiga CD32'
-		
-		language_code = self.options.get('language')
-		if language_code:
-			if language_code == 'br':
-				language = get_language_by_short_code('Pt-Br')
-			elif language_code == 'se':
-				#…That's the region code for Sweden, not the language code for Swedish, so that's odd but that's how it ends up being
-				language = get_language_by_short_code('Sv')
-			else:
-				language = get_language_by_short_code(language_code, case_insensitive=True)
-			if language:
-				self.metadata.languages = [language]
+			self.metadata.platform = self.original_platform
 
-		path: Optional[str] = self.options.get('path')
+		language = self.language		
+		if language:
+			self.metadata.languages = [language]
+
+		path = self.path
 		if path:
-			if os.path.isdir(path):
+			if path.is_dir():
 				icon = look_for_icon_in_folder(Path(path))
 				if icon:
 					self.metadata.images['Icon'] = icon
-			else:
+			elif not path.exists():
 				logger.warning('Aaaa! %s has non-existent path: %s', self, path)
 		else:
 			logger.info('Wait what? %s has no path', self)
