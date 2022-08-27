@@ -1,9 +1,18 @@
 import importlib.resources
 import json
+import logging
 import math
 import re
 from collections.abc import Collection, Sequence, Mapping
 from typing import Any, Optional, Union
+
+from meowlauncher.common_types import NotLaunchableException
+
+try:
+	import termcolor
+	have_termcolor = True
+except ImportError:
+	have_termcolor = False
 
 _find_brackets_at_end = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)$')
 
@@ -178,3 +187,36 @@ def decode_bcd(i: int) -> int:
 	hi = (i & 0xf0) >> 4
 	lo = i & 0x0f
 	return (hi * 10) + lo
+	
+# class ColouredStreamHandler(logging.StreamHandler):
+# 	def emit(self, record: logging.LogRecord) -> None:
+# 		try:
+# 			msg = self.format(record)
+# 			if have_termcolor:
+# 				#TODO: This should be configurable lol
+# 				msg = termcolor.colored(msg, {logging.WARNING: 'yellow', logging.ERROR: 'red', logging.DEBUG: 'green'}.get(record.levelno))
+# 			print(msg, file=self.stream)
+# 			self.flush()
+# 		except RecursionError:
+# 			raise
+# 		except Exception:
+# 			self.handleError(record)
+
+class ColouredFormatter(logging.Formatter):
+	def format(self, record: logging.LogRecord) -> str:
+		message = super().format(record)
+		if have_termcolor:
+			#TODO: Make this configurable lol whoops
+			message = termcolor.colored(message, {logging.WARNING: 'yellow', logging.ERROR: 'red', logging.DEBUG: 'green'}.get(record.levelno))
+		return message
+		
+class NotLaunchableExceptionFormatter(ColouredFormatter):
+	#Puts NotLaunchableException on one line as to read more naturally
+	def format(self, record: logging.LogRecord) -> str:
+		if record.exc_info:
+			if isinstance(record.exc_info[1], NotLaunchableException):
+				#Avoid super().format putting it on a new line
+				record.msg += f' because {"".join(record.exc_info[1].args)}'
+				record.exc_text = None
+				record.exc_info = None
+		return super().format(record)

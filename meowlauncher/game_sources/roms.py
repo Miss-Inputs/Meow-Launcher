@@ -107,9 +107,11 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 		if not launcher:
 			#TODO: We also need a warn_about_unemulated_extensions type thing
 			#Actually is it better to use some kind of custom level or logging field for that?
-			#if isinstance(exception_reason, EmulationNotSupportedException) and not isinstance(exception_reason, ExtensionNotSupportedException):
 			if isinstance(exception_reason, EmulationNotSupportedException):
-				logger.warning('%s could not be launched by %s', rom, chosen_emulator_names, exc_info=exception_reason)
+				if isinstance(exception_reason, ExtensionNotSupportedException):
+					logger.info('%s could not be launched by %s', rom, chosen_emulator_names, exc_info=exception_reason)
+				else:
+					logger.warning('%s could not be launched by %s', rom, chosen_emulator_names, exc_info=exception_reason)
 			else:
 				logger.debug('%s could not be launched by %s', rom, chosen_emulator_names, exc_info=exception_reason)
 			return None
