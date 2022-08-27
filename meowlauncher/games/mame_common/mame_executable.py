@@ -28,8 +28,10 @@ class MAMEExecutable():
 
 	def _get_version(self) -> str:
 		#Note that there is a -version option in (as of this time of writing, upcoming) MAME 0.211, but might as well just use this, because it works on older versions
-		version_proc = subprocess.run([self.executable, '-help'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
-		#Let it raise FileNotFoundError deliberately if it is not found
+		try:
+			version_proc = subprocess.run([self.executable, '-help'], stdout=subprocess.PIPE, universal_newlines=True, check=True)
+		except FileNotFoundError as e:
+			raise MAMENotInstalledException from e
 		return version_proc.stdout.splitlines()[0]
 
 	def _real_iter_mame_entire_xml(self) -> Iterator[tuple[str, ElementTree.Element]]:

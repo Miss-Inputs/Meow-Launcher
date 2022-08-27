@@ -18,8 +18,9 @@ from meowlauncher.games.mame.mame_inbuilt_game import (MAMEInbuiltGame,
 from meowlauncher.games.mame.mame_metadata import add_metadata, add_status
 from meowlauncher.games.mame_common.machine import (
     Machine, get_machine, iter_machines, iter_machines_from_source_file)
-from meowlauncher.games.mame_common.mame_helpers import (
-    default_mame_executable, have_mame)
+from meowlauncher.games.mame_common.mame_executable import \
+    MAMENotInstalledException
+from meowlauncher.games.mame_common.mame_helpers import default_mame_executable
 from meowlauncher.util.desktop_files import has_been_done
 
 
@@ -37,7 +38,13 @@ class MAME(GameSource):
 		super().__init__()
 		self.driver_list = driver_list
 		self.source_file = source_file
-		self.emu = ConfiguredMAME(emulator_configs.get('MAME'))
+		self.emu: Optional[ConfiguredMAME] = None
+		try:
+			mame_config = emulator_configs.get('MAME')
+			if mame_config:
+				self.emu = ConfiguredMAME(mame_config)
+		except MAMENotInstalledException:
+			pass
 		self.platform_config = PlatformConfig('MAME', set(), (), {}) #Not needed for now, it is just to satisfy EmulatedGame constructor… may be a good idea some day
 
 	@property
@@ -50,7 +57,7 @@ class MAME(GameSource):
 
 	@property
 	def is_available(self) -> bool:
-		return have_mame()
+		return self.emu is not None
 
 	def no_longer_exists(self, game_id: str) -> bool:
 		#TODO: Put is_available in ConfiguredEmulator and then you can check that as well
@@ -59,6 +66,7 @@ class MAME(GameSource):
 		return default_mame_executable.verifyroms(game_id)
 
 	def _process_machine(self, machine: Machine) -> Optional[MAMELauncher]:
+		assert self.emu, 'MAME._process_machine should never be called without checking is_available! What the'
 		if machine.source_file in main_config.skipped_source_files:
 			return None
 
@@ -94,7 +102,7 @@ class MAME(GameSource):
 	def iter_launchers(self) -> Iterator[MAMELauncher]:
 		if self.driver_list:
 			for driver_name in self.driver_list:
-				launcher = self._process_machine(get_machine(driver_name, default_mame_executable))
+				launcher = self._process_machine(get_machine(driver_name, self.emu.executable))
 				if launcher:
 					yield launcher
 			return 
@@ -127,6 +135,13 @@ class MAMEInbuiltGames(GameSource):
 	def __init__(self) -> None:
 		super().__init__()
 		self.blank_platform_config = PlatformConfig('MAME', set(), (), {})
+		self.emu: Optional[ConfiguredMAME] = None
+		try:
+			mame_config = emulator_configs.get('MAME')
+			if mame_config:
+				self.emu = ConfiguredMAME(mame_config)
+		except MAMENotInstalledException:
+			pass
 
 	@property
 	def name(self) -> str:
@@ -138,12 +153,13 @@ class MAMEInbuiltGames(GameSource):
 
 	@property
 	def is_available(self) -> bool:
-		return have_mame()
+		return self.emu is not None
 
 	def no_longer_exists(self, game_id: str) -> bool:
 		return not default_mame_executable or not default_mame_executable.verifyroms(game_id.split(':')[0])
 
 	def _process_inbuilt_game(self, machine_name: str, inbuilt_game: InbuiltGame, bios_name: str=None) -> Optional[MAMEInbuiltLauncher]:
+		assert self.emu, 'MAMEInbuiltGames._process_inbuilt_game should never be called without checking is_available! What the'
 		if not default_mame_executable.verifyroms(machine_name):
 			return None
 
@@ -151,11 +167,11 @@ class MAMEInbuiltGames(GameSource):
 		platform_config = platform_configs.get(inbuilt_game.platform, self.blank_platform_config)
 			
 		#MachineNotFoundException shouldn't happen because verifyroms already returned true? Probably
-		machine = get_machine(machine_name, default_mame_executable)
+		machine = get_machine(machine_name, self.emu.executable)
 		
 		game = MAMEInbuiltGame(machine_name, inbuilt_game, platform_config, bios_name)
 		add_status(machine, game.metadata)
-		return MAMEInbuiltLauncher(game, ConfiguredMAME(emulator_configs.get('MAME')))
+		return MAMEInbuiltLauncher(game, self.emu)
 
 	def iter_launchers(self) -> Iterator[MAMEInbuiltLauncher]:
 		for machine_name, inbuilt_game in machines_with_inbuilt_games.items():

@@ -44,6 +44,7 @@ def main() -> None:
 			logger.error('Unknown game source: %s', sys.argv[1])
 			return
 		if not source.is_available:
+			logger.error('%s is not available', source)
 			return
 			
 		add_game_source(source, print)

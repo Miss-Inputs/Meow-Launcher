@@ -24,6 +24,9 @@ class GameSource(ABC):
 	def description(self) -> str:
 		return f'{self.name} games'
 
+	def __str__(self) -> str:
+		return f'{self.name} ({self.description})'
+
 	@property
 	@abstractmethod
 	def is_available(self) -> bool:
