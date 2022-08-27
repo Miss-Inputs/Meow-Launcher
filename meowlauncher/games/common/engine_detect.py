@@ -249,8 +249,10 @@ def _try_detect_nw(folder: Path, metadata: Optional['Metadata']) -> Optional[str
 		subengine = None
 		try:
 			with zipfile.ZipFile(package_nw_path) as package_nw:
-				if 'c2runtime.js' in package_nw.namelist():
+				if 'c2runtime.js' in package_nw.namelist() or 'scripts/c2runtime.js' in package_nw.namelist():
 					subengine = 'Construct 2'
+				elif 'c3runtime.js' in package_nw.namelist() or 'scripts/c3runtime.js' in package_nw.namelist():
+					subengine = 'Construct 3'
 		except zipfile.BadZipFile:
 			return None
 
