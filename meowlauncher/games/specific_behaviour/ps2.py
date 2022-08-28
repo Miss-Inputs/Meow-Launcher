@@ -55,10 +55,11 @@ def add_ps2_custom_info(game: 'ROMGame') -> None:
 		try:
 			try:
 				iso.open(str(game.rom.path))
-				system_cnf_buf = io.BytesIO()
 				try:
 					#I dunno what the ;1 is for
-					iso.get_file_from_iso_fp(system_cnf_buf, iso_path='/SYSTEM.CNF;1')
+					with iso.open_file_from_iso(iso_path='/SYSTEM.CNF;1') as system_cnf_file:
+						system_cnf = system_cnf_file.read().decode('utf-8', errors='backslashreplace')
+					add_info_from_system_cnf(game.metadata, system_cnf)
 					date_record = iso.get_record(iso_path='/SYSTEM.CNF;1').date
 					#This would be more like a build date (seems to be the same across all files) rather than the release date, but it seems to be close enough
 					year = date_record.years_since_1900 + 1900
@@ -69,9 +70,6 @@ def add_ps2_custom_info(game: 'ROMGame') -> None:
 					guessed_date = Date(year, month, day, True)
 					if guessed_date.is_better_than(game.metadata.release_date):
 						game.metadata.release_date = guessed_date
-
-					system_cnf = system_cnf_buf.getvalue().decode('utf-8', errors='backslashreplace')
-					add_info_from_system_cnf(game.metadata, system_cnf)
 				except PyCdlibInvalidInput:
 					logger.info('%s has no SYSTEM.CNF inside', game.rom)
 				#Modules are in IOP, MODULES or IRX but I don't know if we can get any interesting info from that
