@@ -19,13 +19,15 @@ from meowlauncher.common_types import (GameNotSupportedException,
                                        NotLaunchableException, SaveType)
 from meowlauncher.config.main_config import main_config
 from meowlauncher.game_source import GameSource
-from meowlauncher.games.common.engine_detect import try_and_detect_engine_from_folder, try_detect_engine_from_exe
+from meowlauncher.games.common.engine_detect import (
+    try_and_detect_engine_from_folder, try_detect_engine_from_exe)
 from meowlauncher.games.common.pc_common_metadata import \
     add_metadata_for_raw_exe
 from meowlauncher.games.steam.steam_game import (LauncherInfo, SteamGame,
                                                  SteamLauncher)
 from meowlauncher.games.steam.steam_utils import (format_genre,
                                                   normalize_developer,
+                                                  store_categories,
                                                   translate_language_list)
 from meowlauncher.metadata import Date
 from meowlauncher.util.desktop_files import has_been_done
@@ -302,7 +304,7 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 	if store_categories_list:
 		#keys are category_X where X is some arbitrary ID, values are always Integer = 1
 		#This is the thing where you go to the store sidebar and it's like "Single-player" "Multi-player" "Steam Achievements" etc"
-		cats = {store_categories_list.get(key, key) for key in (key.decode('utf-8', errors='backslashreplace') for key in store_categories_list.keys())}
+		cats = {store_categories.get(key, key) for key in (key.decode('utf-8', errors='backslashreplace') for key in store_categories_list.keys())}
 		game.metadata.specific_info['Store Categories'] = cats #meow
 		game.metadata.specific_info['Has Achievements?'] = 'Steam Achievements' in cats
 		game.metadata.specific_info['Has Trading Cards?'] = 'Steam Trading Cards' in cats
