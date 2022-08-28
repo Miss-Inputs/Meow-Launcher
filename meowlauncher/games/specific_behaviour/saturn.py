@@ -1,10 +1,9 @@
-from enum import Enum, auto
 import logging
+from enum import Enum, auto
 from typing import TYPE_CHECKING, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-from meowlauncher.config.main_config import main_config
 from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.metadata import Date

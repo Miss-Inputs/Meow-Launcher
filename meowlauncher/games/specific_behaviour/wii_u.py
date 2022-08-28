@@ -6,7 +6,6 @@ from enum import Enum
 from typing import TYPE_CHECKING, Optional, cast
 from xml.etree import ElementTree
 
-from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.common.engine_detect import \
     try_and_detect_engine_from_folder
@@ -223,6 +222,8 @@ def _add_rpx_metadata(rom: ROM, metadata: 'Metadata') -> None:
 		_add_homebrew_meta_xml_metadata(rom, metadata, ElementTree.parse(rom.path.with_name('meta.xml')))
 		if metadata.categories[-1] == rom.path.parent.name:
 			metadata.categories = metadata.categories[:-1]
+	except ElementTree.ParseError:
+		logging.warning('Some parse error happened for %s', rom, exc_info=True)
 	except FileNotFoundError:
 		pass
 	homebrew_banner_path = rom.path.with_name('icon.png')
