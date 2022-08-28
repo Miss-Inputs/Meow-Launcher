@@ -55,7 +55,9 @@ def get_duckstation_db_info(product_code: str) -> Optional[Mapping[Any, Any]]:
 		try:
 			get_duckstation_db_info.gamedb = json.loads(gamedb_path.read_bytes()) #type: ignore[attr-defined]
 		except OSError:
-			logger.exception('Oh dear we have an OSError trying to load gamedb')
+			if not getattr(get_duckstation_db_info, 'error', False):
+				logger.exception('Oh dear we have an OSError trying to load gamedb')
+				get_duckstation_db_info.error = True #type: ignore[attr-defined]
 			return None
 
 	for db_game in get_duckstation_db_info.gamedb: #type: ignore[attr-defined]
