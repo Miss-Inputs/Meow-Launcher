@@ -576,7 +576,10 @@ def _try_detect_piko_mednafen(folder: Path, metadata: Optional['Metadata']) -> O
 		return "Piko's Mednafen fork"
 	return None
 
-def _try_detect_engines_from_filenames(folder: Path, files: Collection[str], subdirs: Collection[str]) -> Optional[str]:
+def _try_detect_engines_from_filenames(folder: Path) -> Optional[str]:
+	dir_entries = set(folder.iterdir())
+	files = {f.name.lower() for f in dir_entries if f.is_file()}
+
 	#These are simple enough to detect with just one line…	
 	if 'acsetup.cfg' in files:
 		#TODO The better way to do this would be to look for 'Adventure Creator Game File' in dat or exe I guess (and then we can get game title from there), but also the effort way
@@ -588,7 +591,7 @@ def _try_detect_engines_from_filenames(folder: Path, files: Collection[str], sub
 		return 'Defold'
 	if 'fna.dll' in files:
 		return 'FNA'
-	if 'data.xp3' in files and 'plugin' in subdirs:
+	if 'data.xp3' in files and any(f.suffix.lower() == '.cf' for f in folder.iterdir()):
 		#TODO: Check exe to see if it is KiriKiri Z (ProductName = "TVP(KIRIKIRI) Z core / Scripting Platform for Win32")
 		return 'KiriKiri'
 	if 'monogame.framework.dll' in files or 'monogame.framework.lite.dll' in files:
@@ -673,10 +676,6 @@ def try_detect_engine_from_exe(exe_path: Path, metadata: Optional['Metadata']) -
 	return None
 
 def try_and_detect_engine_from_folder(folder: Path, metadata: 'Metadata'=None, executable: Optional[Path]=None) -> Optional[str]:
-	dir_entries = set(folder.iterdir())
-	files = {f.name.lower() for f in dir_entries if f.is_file()}
-	subdirs = {f.name.lower() for f in dir_entries if f.is_dir()}
-
 	#Get the most likely things out of the way first
 	unity_version = _try_detect_unity(folder, metadata, executable)
 	if unity_version:
@@ -698,7 +697,7 @@ def try_and_detect_engine_from_folder(folder: Path, metadata: 'Metadata'=None, e
 		return rpg_maker_xp_version
 
 	#XNA: Might have a "common redistributables" folder with an installer in it?
-	engine = _try_detect_engines_from_filenames(folder, files, subdirs)
+	engine = _try_detect_engines_from_filenames(folder)
 	if engine:
 		return engine
 
