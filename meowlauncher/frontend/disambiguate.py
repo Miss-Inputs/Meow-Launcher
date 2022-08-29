@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
 import collections
-import configparser
 import datetime
 import itertools
 import sys
 import time
 from collections.abc import Callable, Collection, MutableMapping, Iterable
 from pathlib import Path
-from typing import Optional, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.output.desktop_files import (id_section_name,
@@ -17,9 +16,13 @@ from meowlauncher.output.desktop_files import (id_section_name,
                                                section_prefix)
 from meowlauncher.util.desktop_files import get_array, get_desktop, get_field
 from meowlauncher.util.name_utils import normalize_name
+from meowlauncher.util.utils import NoNonsenseConfigParser
+
+if TYPE_CHECKING:
+	import configparser
 
 FormatFunction = Callable[[str, str], Optional[str]]
-DesktopWithPath = tuple[Path, configparser.ConfigParser]
+DesktopWithPath = tuple[Path, 'configparser.RawConfigParser']
 
 super_debug = '--super-debug' in sys.argv
 disambiguity_section_name = section_prefix + 'Disambiguity'
@@ -223,8 +226,7 @@ def _reambiguate() -> None:
 	#This seems counter-intuitive, but if we're not doing a full rescan, we want to do this before disambiguating again or else it gets weird
 	output_folder = main_config.output_folder
 	for path in output_folder.iterdir():
-		desktop = configparser.ConfigParser(interpolation=None)
-		desktop.optionxform = str #type: ignore[assignment]
+		desktop = NoNonsenseConfigParser()
 		desktop.read(path)
 		desktop_entry = desktop['Desktop Entry']
 		if disambiguity_section_name not in desktop:

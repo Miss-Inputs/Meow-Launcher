@@ -1,4 +1,3 @@
-import configparser
 import logging
 import sys
 from collections.abc import Collection, Mapping, MutableMapping
@@ -7,6 +6,7 @@ from pathlib import Path, PurePath
 from meowlauncher.common_paths import config_dir, data_dir
 from meowlauncher.config_types import ConfigValueType, TypeOfConfigValue
 from meowlauncher.util.io_utils import ensure_exist
+from meowlauncher.util.utils import NoNonsenseConfigParser
 
 from ._config_utils import (ConfigValue, parse_path_list, parse_string_list,
                             parse_value)
@@ -145,8 +145,7 @@ class Config():
 				self.values[name] = config.default_value
 
 			self.runtime_overrides = _get_command_line_arguments()
-			parser = configparser.ConfigParser(interpolation=None)
-			parser.optionxform = str #type: ignore[assignment]
+			parser = NoNonsenseConfigParser()
 			self.parser = parser
 			ensure_exist(_main_config_path)
 			self.parser.read(_main_config_path)

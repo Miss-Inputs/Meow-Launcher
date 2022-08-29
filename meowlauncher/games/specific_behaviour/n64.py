@@ -1,4 +1,3 @@
-import configparser
 import hashlib
 from collections.abc import Mapping
 from pathlib import Path
@@ -6,10 +5,11 @@ from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
-from meowlauncher.games.roms.rom import FileROM
-from meowlauncher.util.utils import (NotAlphanumericException, byteswap,
-                                     convert_alphanumeric)
 from meowlauncher.games.common.generic_info import add_generic_software_info
+from meowlauncher.games.roms.rom import FileROM
+from meowlauncher.util.utils import (NoNonsenseConfigParser,
+                                     NotAlphanumericException, byteswap,
+                                     convert_alphanumeric)
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
@@ -45,8 +45,7 @@ def _get_mupen64plus_database() -> Optional[Mapping[str, Mapping[str, str]]]:
 	if not location:
 		return None
 
-	parser = configparser.ConfigParser(interpolation=None)
-	parser.optionxform = str #type: ignore[assignment]
+	parser = NoNonsenseConfigParser()
 	parser.read(location)
 
 	database = dict(parser) #I guess it doesn't work if we just hold onto it directly, well for starters the .items method is different

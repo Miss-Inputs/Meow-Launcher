@@ -36,6 +36,7 @@ def sanitize_name(s: Optional[str], safe_for_fat32: bool=False, no_janky_chars: 
 	if safe_for_fat32 or no_janky_chars:
 		s = s.replace('"', '\'') #I guess no_quotes_at_all could be an option, but in many cases you do want that
 		s = s.replace('*', '_')
+		s = s.replace(': ', ' - ')
 		s = s.replace(':', '-')
 		s = s.replace('<', '_')
 		s = s.replace('>', '_')

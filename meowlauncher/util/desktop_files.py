@@ -1,26 +1,28 @@
 from collections.abc import Iterator, Sequence
-from configparser import ConfigParser
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.output.desktop_files import (id_section_name,
                                                metadata_section_name,
                                                section_prefix)
+from meowlauncher.util.utils import NoNonsenseConfigParser
+
+if TYPE_CHECKING:
+	from configparser import RawConfigParser
 
 standard_sections = {'Desktop Entry'}
-def get_desktop(path: Path) -> ConfigParser:
-	parser = ConfigParser(interpolation=None, delimiters='=', comment_prefixes='#')
-	parser.optionxform = str #type: ignore[assignment]
-	parser.read(path)
+def get_desktop(path: Path) -> 'RawConfigParser':
+	parser = NoNonsenseConfigParser()
+	parser.read(path, encoding='utf-8')
 	return parser
 
-def destkop_contains(desktop: ConfigParser, section: str=metadata_section_name) -> bool:
+def destkop_contains(desktop: 'RawConfigParser', section: str=metadata_section_name) -> bool:
 	if section not in standard_sections:
 		section = section_prefix + section
 	return section in desktop
 
-def get_field(desktop: ConfigParser, name: str, section: str=metadata_section_name) -> Optional[str]:
+def get_field(desktop: 'RawConfigParser', name: str, section: str=metadata_section_name) -> Optional[str]:
 	if section not in standard_sections:
 		section = section_prefix + section
 
@@ -33,7 +35,7 @@ def get_field(desktop: ConfigParser, name: str, section: str=metadata_section_na
 
 	return None
 
-def get_array(desktop: ConfigParser, name: str, section: str=metadata_section_name) -> Sequence[str]:
+def get_array(desktop: 'RawConfigParser', name: str, section: str=metadata_section_name) -> Sequence[str]:
 	field = get_field(desktop, name, section)
 	if field is None:
 		return ()
@@ -42,7 +44,7 @@ def get_array(desktop: ConfigParser, name: str, section: str=metadata_section_na
 
 #These might not belong here in the future, they deal with the output folder in particular rather than specifically .desktop files
 def _iter_existing_launchers() -> Iterator[tuple[str, str]]:
-	output_folder: Path = main_config.output_folder
+	output_folder = cast(Path, main_config.output_folder)
 	if not output_folder.is_file():
 		return
 	for path in output_folder.iterdir():

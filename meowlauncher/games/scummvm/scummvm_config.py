@@ -1,14 +1,13 @@
-import configparser
 import subprocess
 from collections.abc import Mapping
 from pathlib import Path
 
 from meowlauncher.config.main_config import main_config
+from meowlauncher.util.utils import NoNonsenseConfigParser
 
 
-def _get_vm_config(path: Path) -> configparser.ConfigParser:
-	parser = configparser.ConfigParser()
-	parser.optionxform = str #type: ignore[assignment]
+def _get_vm_config(path: Path) -> NoNonsenseConfigParser:
+	parser = NoNonsenseConfigParser()
 	parser.read(path)
 	return parser
 

@@ -1,16 +1,19 @@
-import configparser
-
+from typing import TYPE_CHECKING
 from meowlauncher.common_paths import config_dir
 from meowlauncher.config_types import PlatformConfig
 from meowlauncher.data.emulated_platforms import (manually_specified_platforms,
                                                   platforms)
 from meowlauncher.util.io_utils import ensure_exist
+from meowlauncher.util.utils import NoNonsenseConfigParser
 
 from ._config_utils import parse_path_list, parse_string_list, parse_value
 
+if TYPE_CHECKING:
+	import configparser
+
 _platform_config_path = config_dir.joinpath('platforms.ini')
 
-def _get_config(section: configparser.SectionProxy, platform_name: str) -> PlatformConfig:
+def _get_config(section: 'configparser.SectionProxy', platform_name: str) -> PlatformConfig:
 	paths = parse_path_list(section.get('paths', ''))
 	chosen_emulators = tuple(f'{chosen_emulator} ({platform_name})' if chosen_emulator in {'MAME', 'Mednafen', 'VICE'} else chosen_emulator for chosen_emulator in parse_string_list(section.get('emulators', '')))
 	options = {}
@@ -27,9 +30,7 @@ def _get_config(section: configparser.SectionProxy, platform_name: str) -> Platf
 class PlatformConfigs():
 	class __PlatformConfigs():
 		def __init__(self) -> None:
-			parser = configparser.ConfigParser(interpolation=None, delimiters='=', allow_no_value=True)
-			parser.optionxform = str #type: ignore[assignment]
-
+			parser = NoNonsenseConfigParser(allow_no_value=True)
 			ensure_exist(_platform_config_path)
 			parser.read(_platform_config_path)
 

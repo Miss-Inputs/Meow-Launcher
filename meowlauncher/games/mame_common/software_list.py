@@ -276,6 +276,9 @@ class Software():
 		self.parts = {part.name: part for part in (SoftwarePart(part_xml, self) for part_xml in self.xml.iterfind('part'))}
 		self.infos = {info.attrib['name']: info.attrib.get('value') for info in self.xml.iterfind('info')} #Blank info name should not happen
 
+	def __str__(self) -> str:
+		return f'{self.name} ({self.description})'
+
 	@property
 	def name(self) -> str:
 		return self.xml.attrib['name'] #Blank name should not happen
@@ -462,6 +465,9 @@ class SoftwareList():
 
 	def __hash__(self) -> int:
 		return hash(self.name)
+
+	def __str__(self) -> str:
+		return f'{self.name} ({self.description})'
 
 	@property
 	def name(self) -> str:

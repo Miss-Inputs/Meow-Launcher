@@ -1,3 +1,4 @@
+from configparser import RawConfigParser
 import importlib.resources
 import json
 import logging
@@ -220,3 +221,12 @@ class NotLaunchableExceptionFormatter(ColouredFormatter):
 				record.exc_text = None
 				record.exc_info = None
 		return super().format(record)
+
+class NoNonsenseConfigParser(RawConfigParser):
+	#No "interpolation", no using : as a delimiter, no lowercasing every option, that's all silly
+	def __init__(self, defaults=None, allow_no_value=False, strict=True, empty_lines_in_values=True):
+		#Less of these weird options please, just parse the ini
+		super().__init__(defaults=defaults, allow_no_value=allow_no_value, delimiters='=', comment_prefixes='#', strict=strict, empty_lines_in_values=empty_lines_in_values)
+
+	def optionxform(self, optionstr: str) -> str:
+		return optionstr

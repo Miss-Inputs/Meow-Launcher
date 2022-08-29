@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 import zipfile
 
+from meowlauncher.util.utils import NoNonsenseConfigParser
+
 from .engine_info import (add_gamemaker_metadata,
                           add_info_from_package_json_file,
                           add_info_from_package_json_zip,
@@ -293,8 +295,7 @@ def _try_detect_rpg_maker_200x(folder: Path, metadata: Optional['Metadata'], exe
 	if rpg_rt_ini_path.is_file():
 		if metadata:
 			try:
-				rpg_rt_ini = configparser.ConfigParser(interpolation=None)
-				rpg_rt_ini.optionxform = str #type: ignore[assignment]
+				rpg_rt_ini = NoNonsenseConfigParser()
 				rpg_rt_ini.read(rpg_rt_ini_path)
 				metadata.add_alternate_name(rpg_rt_ini['RPG_RT']['GameTitle'], 'Engine Name')
 				if 'FullPackageFlag' in rpg_rt_ini['RPG_RT']:
@@ -433,8 +434,7 @@ def _try_detect_rpg_maker_xp_vx(folder: Path, metadata: Optional['Metadata'], ex
 			game_stem = 'Game' #Make an assumption; mkxp seems to default to this at least
 		game_ini_path = folder / f'{game_stem}.ini'
 		if game_ini_path.is_file(): #Should be?
-			game_ini = configparser.ConfigParser(interpolation=None)
-			game_ini.optionxform = str #type: ignore[assignment]
+			game_ini = NoNonsenseConfigParser()
 			try:
 				game_ini.read(game_ini_path)
 				game = game_ini['Game']

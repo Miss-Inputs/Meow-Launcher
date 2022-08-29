@@ -1,9 +1,12 @@
-import configparser
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from meowlauncher.config_types import ConfigValueType, TypeOfConfigValue
+
+if TYPE_CHECKING:
+	import configparser
 
 
 def parse_string_list(value: str) -> Sequence[str]:
@@ -26,7 +29,7 @@ def parse_bool(value: str) -> bool:
 
 	raise TypeError(value)
 
-def parse_value(section: configparser.SectionProxy, name: str, value_type: ConfigValueType, default_value: TypeOfConfigValue) -> TypeOfConfigValue:
+def parse_value(section: 'configparser.SectionProxy', name: str, value_type: ConfigValueType, default_value: TypeOfConfigValue) -> TypeOfConfigValue:
 	try:
 		if value_type == ConfigValueType.Bool:
 			return parse_bool(section[name])

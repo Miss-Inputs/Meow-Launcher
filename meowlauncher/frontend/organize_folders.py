@@ -6,13 +6,15 @@ import shutil
 import sys
 import time
 from collections.abc import Callable, Collection
-from configparser import ConfigParser
 from pathlib import Path
-from typing import Any, Optional, cast
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.util.desktop_files import get_array, get_desktop, get_field
 from meowlauncher.util.io_utils import sanitize_name
+
+if TYPE_CHECKING:
+	from configparser import RawConfigParser
 
 #This is sort of considered separate from the main launcher generator.
 #Consider it to be its own kind of frontend, perhaps.
@@ -40,7 +42,7 @@ def delete_existing_output_dir() -> None:
 			rmdir_recursive(f)
 			#Only files here, no directories
 
-def move_into_extra_subfolder(path: Path, desktop: ConfigParser, subfolder: str, keys: str, missing_value: str=None) -> None:
+def move_into_extra_subfolder(path: Path, desktop: 'RawConfigParser', subfolder: str, keys: str, missing_value: str=None) -> None:
 	subsubfolder = []
 	is_array = '*' in keys
 	subsubfolders: list[list[str]] = []
@@ -58,7 +60,7 @@ def move_into_extra_subfolder(path: Path, desktop: ConfigParser, subfolder: str,
 			is_key_bool = True
 			key = key[:-1]
 
-		get_function: Callable[[ConfigParser, str, str], Any]
+		get_function: Callable[['RawConfigParser', str, str], Any]
 		if is_key_array:
 			get_function = get_array
 			subsubfolders = []

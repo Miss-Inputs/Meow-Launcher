@@ -3,9 +3,8 @@ import datetime
 import re
 import time
 from collections.abc import Collection, Iterator, Sequence
-from configparser import ConfigParser
 from pathlib import Path
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.series_detect.series_detect_overrides import \
@@ -17,6 +16,9 @@ from meowlauncher.util.name_utils import (chapter_matcher,
                                           convert_roman_numerals_in_title)
 from meowlauncher.util.utils import (convert_roman_numeral,
                                      remove_capital_article)
+
+if TYPE_CHECKING:
+	from configparser import RawConfigParser
 
 #The reason why we don't simply find this at the time of the launcher is so that we can try using the serieses present in other launchers that have been already generated as a hint for what serieses exist and hence what we should try and detect, or something like that I guess
 
@@ -109,7 +111,7 @@ def _find_series_name_by_subtitle(name: str, existing_serieses: Collection[str],
 		return series, index
 	return None, None
 
-def _get_usable_name(desktop: ConfigParser) -> str:
+def _get_usable_name(desktop: 'RawConfigParser') -> str:
 	sort_name = get_field(desktop, 'Sort-Name')
 	if sort_name:
 		return sort_name
@@ -119,7 +121,7 @@ def _get_usable_name(desktop: ConfigParser) -> str:
 	assert name, 'What the heck get_usable_name encountered a desktop with no name'
 	return name
 
-def _add_series(desktop: ConfigParser, path: Path, series: Optional[str], series_index: Optional[Union[str, int]]=None) -> None:
+def _add_series(desktop: 'RawConfigParser', path: Path, series: Optional[str], series_index: Optional[Union[str, int]]=None) -> None:
 	#TODO: Encapsulate this better
 	metadata_section_with_prefix = section_prefix + metadata_section_name
 	if metadata_section_with_prefix not in desktop:
@@ -131,7 +133,7 @@ def _add_series(desktop: ConfigParser, path: Path, series: Optional[str], series
 	with path.open('wt', encoding='utf-8') as f:
 		desktop.write(f)
 
-def _detect_series(desktop: ConfigParser, path: Path) -> None:
+def _detect_series(desktop: 'RawConfigParser', path: Path) -> None:
 	name = _get_usable_name(desktop)
 	series, series_index = find_series_from_game_name(name)
 	if series:
@@ -148,13 +150,13 @@ def _find_existing_serieses() -> Collection[str]:
 
 	return serieses
 
-def _detect_series_by_subtitle(desktop: ConfigParser, path: Path, existing: Collection[str]) -> None:
+def _detect_series_by_subtitle(desktop: 'RawConfigParser', path: Path, existing: Collection[str]) -> None:
 	name = _get_usable_name(desktop)
 	series, index = _find_series_name_by_subtitle(name, existing)
 	if series:
 		_add_series(desktop, path, series, index)
 
-def _force_add_series_with_index(desktop: ConfigParser, path: Path, existing: Collection[str]) -> None:
+def _force_add_series_with_index(desktop: 'RawConfigParser', path: Path, existing: Collection[str]) -> None:
 	name = _get_usable_name(desktop)
 	series, _ = _find_series_name_by_subtitle(name, existing, force=True)
 	if series:
@@ -215,7 +217,7 @@ def _detect_series_index_for_things_with_series() -> None:
 			if name_chunks[0].startswith(existing_series):
 				_add_series(desktop, path, None, _get_series_from_whole_thing(existing_series, name_chunks[0].strip()))
 
-def _iter_existing_seriesless_launchers() -> Iterator[tuple[ConfigParser, Path]]:
+def _iter_existing_seriesless_launchers() -> Iterator[tuple['RawConfigParser', Path]]:
 	for path in main_config.output_folder.iterdir():
 		desktop = get_desktop(path)
 

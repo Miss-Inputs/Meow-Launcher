@@ -1,6 +1,5 @@
 #For engine_detect to use to add metadata while it's detecting engines, but could also be useful if something is already known to be that engine
 
-import configparser
 import io
 import json
 import re
@@ -11,7 +10,7 @@ from typing import TYPE_CHECKING, Any, Optional
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import SaveType
-from meowlauncher.util.utils import junk_suffixes
+from meowlauncher.util.utils import NoNonsenseConfigParser, junk_suffixes
 
 try:
 	from PIL import Image
@@ -218,8 +217,7 @@ def add_gamemaker_metadata(folder: Path, metadata: 'Metadata') -> None:
 	if not options_ini_path.is_file():
 		options_ini_path = folder.joinpath('assets', 'options.ini')
 	if options_ini_path.is_file():
-		parser = configparser.ConfigParser(interpolation=None)
-		parser.optionxform = str #type: ignore[assignment]
+		parser = NoNonsenseConfigParser()
 		parser.read(options_ini_path)
 		if parser.has_section('Linux'):
 			#There is also an Icon and Splash that seem to refer to images that don't exist…

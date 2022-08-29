@@ -1,4 +1,3 @@
-import configparser
 from collections.abc import Collection
 from enum import Enum, Flag
 from typing import TYPE_CHECKING, Any
@@ -10,13 +9,15 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.games.mame_common.machine import Machine
-from meowlauncher.games.mame_common.software_list import Software, SoftwareList
-from meowlauncher.util.io_utils import ensure_exist, pick_new_path, sanitize_name
-from meowlauncher.util.utils import (clean_string, find_filename_tags_at_end,
+from meowlauncher.util.io_utils import (ensure_exist, pick_new_path,
+                                        sanitize_name)
+from meowlauncher.util.utils import (NoNonsenseConfigParser, clean_string,
+                                     find_filename_tags_at_end,
                                      remove_filename_tags)
 
 if TYPE_CHECKING:
+	import configparser
+
 	from meowlauncher.launch_command import LaunchCommand
 	from meowlauncher.launcher import Launcher
 	from meowlauncher.metadata import Metadata
@@ -27,7 +28,7 @@ id_section_name = 'ID'
 junk_section_name = 'Junk'
 image_section_name = 'Images'
 
-def _write_field(desktop: configparser.ConfigParser, section_name: str, key_name: str, value: Any) -> None:
+def _write_field(desktop: 'configparser.RawConfigParser', section_name: str, key_name: str, value: Any) -> None:
 	value_as_string: str
 	
 	if isinstance(value, Collection) and not isinstance(value, str):
@@ -40,12 +41,6 @@ def _write_field(desktop: configparser.ConfigParser, section_name: str, key_name
 		elif isinstance(value, Flag):
 			value_as_string = str(value).replace('|', ';')
 			value_as_string = value_as_string[value_as_string.find('.') + 1:]
-	elif isinstance(value, Software):
-		value_as_string = f'{value.name} ({value.description})'
-	elif isinstance(value, SoftwareList):
-		value_as_string = f'{value.name} ({value.description})'
-	elif isinstance(value, Machine):
-		value_as_string = f'{value.basename} ({value.name})'
 	else:
 		value_as_string = str(value)
 
@@ -74,8 +69,7 @@ def make_linux_desktop_for_launcher(launcher: 'Launcher') -> None:
 def _make_linux_desktop(command: 'LaunchCommand', display_name: str, metadata: 'Metadata', filename_tags: Collection[str], game_type: str, game_id: str) -> None:
 	path = pick_new_path(main_config.output_folder, sanitize_name(display_name, no_janky_chars=True), 'desktop')
 
-	configwriter = configparser.ConfigParser(interpolation=None)
-	configwriter.optionxform = str #type: ignore[assignment]
+	configwriter = NoNonsenseConfigParser()
 
 	configwriter.add_section('Desktop Entry')
 	desktop_entry = configwriter['Desktop Entry']
