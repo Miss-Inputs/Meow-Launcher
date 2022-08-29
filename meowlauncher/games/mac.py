@@ -3,6 +3,7 @@ import io
 import logging
 from collections.abc import Mapping, MutableSequence, Sequence
 from enum import Enum
+from functools import cached_property, lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, NewType, Optional, Union, cast
 
@@ -54,20 +55,12 @@ def get_path(volume: 'machfs.Volume', path: PathInsideHFS) -> Union['machfs.File
 	#Skip the first part since that's the volume name and the tuple indexing for machfs.Volume doesn't work that way
 	return volume[tuple(path.split(':')[1:])]
 
+@lru_cache(maxsize=1)
 def _machfs_read_file(path: Path) -> 'machfs.Volume':
-	#Try to avoid having to slurp really big files for each app by keeping it in memory if it's the same disk image
-	if _machfs_read_file.current_file_path == path: #type: ignore[attr-defined]
-		return _machfs_read_file.current_file #type: ignore[attr-defined]
-
-	#Hmm, this could be slurping very large (maybe gigabyte(s)) files all at once
 	v = machfs.Volume()
 	v.read(path.read_bytes())
-	_machfs_read_file.current_file = v #type: ignore[attr-defined]
-	_machfs_read_file.current_file_path = path #type: ignore[attr-defined]
 	return v
-_machfs_read_file.current_file = None #type: ignore[attr-defined]
-_machfs_read_file.current_file_path = None #type: ignore[attr-defined]
-
+	
 def _get_macos_256_palette() -> Sequence[int]:
 	#This is stored in the ROM as a clut resource otherwise
 	#TODO: I'd like this to be a tuple, but do you want to specify the type hint for 256 * 3 ints? I don't
@@ -217,7 +210,6 @@ class MacApp(ManuallySpecifiedGame):
 	def __init__(self, info: Mapping[str, Any], platform_config: 'PlatformConfig') -> None:
 		super().__init__(info, platform_config)
 		self.hfv_path = cast(Path, self.cd_path) if self.is_on_cd else Path(info['hfv_path'])
-		self._file: Optional['machfs.Volume'] = None #Lazy load the file associated with this
 		
 	@property
 	def _carbon_path(self) -> Optional[PathInsideHFS]:
@@ -237,7 +229,8 @@ class MacApp(ManuallySpecifiedGame):
 			pass
 		return None
 
-	def _real_get_file(self) -> Optional[Union['machfs.Folder', 'machfs.File']]:
+	@cached_property
+	def _file(self) -> Optional[Union['machfs.Folder', 'machfs.File']]:
 		try:
 			v = _machfs_read_file(self.hfv_path)
 			carbon_path = self._carbon_path
@@ -246,17 +239,11 @@ class MacApp(ManuallySpecifiedGame):
 			return get_path(v, PathInsideHFS(self.path))
 		except (KeyError, FileNotFoundError):
 			return None
-
-	def _get_file(self) -> Optional[Union['machfs.Folder', 'machfs.File']]:
-		if not self._file:
-			self._file = self._real_get_file()
-		return self._file
 		
 	@property
 	def is_valid(self) -> bool:
 		if have_machfs:
-			if self._get_file():
-				return True
+			return self._file is not None
 		return does_exist(self.hfv_path, PathInsideHFS(self.path))
 
 	@property
@@ -272,10 +259,9 @@ class MacApp(ManuallySpecifiedGame):
 
 	def _get_resources(self) -> Mapping[bytes, Mapping[int, 'macresources.Resource']]:
 		res: dict[bytes, dict[int, 'macresources.Resource']] = {}
-		f = self._get_file()
-		if not f:
+		if not self._file:
 			return res
-		for resource in macresources.parse_file(f.rsrc):
+		for resource in macresources.parse_file(self._file.rsrc):
 			if resource.type not in res: #bytes, should we decode to MacRoman?
 				res[resource.type] = {}
 			res[resource.type][resource.id] = resource
@@ -283,14 +269,13 @@ class MacApp(ManuallySpecifiedGame):
 
 	def _get_icon(self) -> Optional['Image.Image']:
 		resources = self._get_resources()
-		file = self._get_file()
-		if not file:
+		if not self._file:
 			raise ValueError('Somehow, _get_icon was called without a valid file')
 
 		has_custom_icn = -16455 in resources.get(b'ICN#', {})
 		has_custom_icns = -16455 in resources.get(b'icns', {})
 		not_custom_resource_id = 128
-		if (file.flags & 1024 > 0) and (has_custom_icn or has_custom_icns):
+		if (self._file.flags & 1024 > 0) and (has_custom_icn or has_custom_icns):
 			#"Use custom icon" flag in HFS, but sometimes it lies
 			resource_id = -16455
 		else:
@@ -299,10 +284,10 @@ class MacApp(ManuallySpecifiedGame):
 			bndls = resources.get(b'BNDL', {})
 			if bndls:
 				#Supposed to be BNDL 128, but not always
-				bndl = next((b for b in bndls.values() if b[0:4] == file.creator), next(iter(bndls.values())))
+				bndl = next((b for b in bndls.values() if b[0:4] == self._file.creator), next(iter(bndls.values())))
 
 				for fref in resources.get(b'FREF', {}).values():
-					if fref[0:4] == file.type:
+					if fref[0:4] == self._file.type:
 						icon_local_id = int.from_bytes(fref[4:6], 'big')
 						bndl_type_count = int.from_bytes(bndl[6:8], 'big') + 1 #Why does it minus 1??? wtf
 						type_offset = 8
@@ -437,8 +422,7 @@ class MacApp(ManuallySpecifiedGame):
 	def additional_metadata(self) -> None:
 		self.metadata.specific_info['Executable Name'] = self.path.split(':')[-1]
 		if have_machfs:
-			file = self._get_file()
-			if not file:
+			if not self._file:
 				raise ValueError('Somehow MacApp.additional_metadata was called with invalid file')
 
 			carbon_path = self._carbon_path
@@ -446,13 +430,13 @@ class MacApp(ManuallySpecifiedGame):
 				self.metadata.specific_info['Is Carbon?'] = True
 				self.metadata.specific_info['Carbon Path'] = carbon_path
 				self.metadata.specific_info['Architecture'] = 'PPC' #This has to be manually specified because some pretend to be fat binaries?
-			creator = file.creator
+			creator = self._file.creator
 			if creator in {b'PJ93', b'PJ97'}:
 				self.metadata.specific_info['Engine'] = 'Macromedia Director'
 			self.metadata.specific_info['Creator Code'] = creator.decode('mac-roman', errors='backslashreplace')
 
 			#Can also get mddate if wanted
-			creation_datetime = mac_epoch + datetime.timedelta(seconds=file.crdate)
+			creation_datetime = mac_epoch + datetime.timedelta(seconds=self._file.crdate)
 			creation_date = Date(creation_datetime.year, creation_datetime.month, creation_datetime.day, True)
 			if creation_date.is_better_than(self.metadata.release_date):
 				self.metadata.release_date = creation_date
@@ -460,7 +444,7 @@ class MacApp(ManuallySpecifiedGame):
 			#self.metadata.specific_info['File Flags'] = file.flags
 			if have_macresources:
 				#If you have machfs you do have macresources too, but still
-				self._add_additional_metadata_from_resources(file)
+				self._add_additional_metadata_from_resources(self._file)
 
 		if 'arch' in self.info:
 			#Allow manual override (sometimes apps are jerks and have 68K code just for the sole purpose of showing you a dialog box saying you can't run it on a 68K processor)
