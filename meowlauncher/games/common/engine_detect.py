@@ -2,11 +2,10 @@ import configparser
 import json
 import os
 import re
-from collections.abc import Collection
+import zipfile
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
-import zipfile
 
 from meowlauncher.util.utils import NoNonsenseConfigParser
 
@@ -15,8 +14,9 @@ from .engine_info import (add_gamemaker_metadata,
                           add_info_from_package_json_zip,
                           add_metadata_for_adobe_air,
                           add_metadata_from_pixel_game_maker_mv_info_json,
-                          add_metadata_from_renpy_options, add_unity_metadata,
-                          add_unity_web_metadata, add_piko_mednafen_info)
+                          add_metadata_from_renpy_options,
+                          add_piko_mednafen_info, add_unity_metadata,
+                          add_unity_web_metadata)
 from .pc_common_metadata import get_exe_properties
 
 if TYPE_CHECKING:
