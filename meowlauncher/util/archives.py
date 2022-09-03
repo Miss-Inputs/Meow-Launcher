@@ -10,6 +10,8 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Optional
 
+from meowlauncher.common_types import ByteAmount
+
 #Use a number of different ways to crack open some archive formats and feast on the juicy file goo inside, depending on what the user has installed
 #Use inbuilt Python libraries for zip and gz
 #Would libarchive be faster than inbuilt gzip/zipfile? Not even sure, don't feel like finding out that much
@@ -35,7 +37,7 @@ except (subprocess.CalledProcessError, OSError):
 	have_7z_command = False
 
 #compressed_list is only used in CompressedROM, so we can be useful and get the size and CRC so we don't have to read the archive twice, if possible
-FilenameWithMaybeSizeAndCRC = tuple[str, Optional[int], Optional[int]]
+FilenameWithMaybeSizeAndCRC = tuple[str, Optional[ByteAmount], Optional[int]]
 
 compressed_exts = {'7z', 'zip', 'gz', 'bz2', 'xz', 'tar', 'tgz', 'tbz', 'txz', 'rar'}
 #7z command line tool supports even more like exe, iso that would be weird and a bad idea to treat as an archive even though you can if you want, or lha which by all means is an archive but for emulation purposes we pretend is an archive; or just some weird old stuff that we would never see and I don't really feel like listing every single one of them
@@ -95,7 +97,7 @@ def subprocess_sevenzip_list(path: str) -> Iterator[FilenameWithMaybeSizeAndCRC]
 			continue
 		sevenzip_size_reg_match = _sevenzip_size_reg.fullmatch(line)
 		if sevenzip_size_reg_match:
-			size = int(sevenzip_size_reg_match[1])
+			size = ByteAmount(sevenzip_size_reg_match[1])
 		sevenzip_attr_match = _sevenzip_attr_regex.fullmatch(line)
 		if sevenzip_attr_match:
 			is_directory = sevenzip_attr_match[1][:2] == 'D_'
@@ -117,7 +119,7 @@ def subprocess_sevenzip_get(path: str, filename: str, offset: int=0, amount: int
 			stdout = stdout[offset: offset+amount]
 		return stdout
 
-def subprocess_sevenzip_getsize(path: str, filename: str) -> int:
+def subprocess_sevenzip_getsize(path: str, filename: str) -> ByteAmount:
 	proc = subprocess.run(['7z', 'l', '-slt', '--', path, filename], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, check=False)
 	if proc.returncode != 0:
 		raise BadSubprocessedArchiveError(f'{path}: {proc.returncode} {proc.stdout} {proc.stderr}')
@@ -129,10 +131,10 @@ def subprocess_sevenzip_getsize(path: str, filename: str) -> int:
 			continue
 		if found_file_line:
 			if fullmatch := _sevenzip_size_reg.fullmatch(line):
-				return int(fullmatch.group(1))
+				return ByteAmount(fullmatch.group(1))
 
 	#Resort to ugly slow method if we have to, but this is of course not optimal, and would only really happen with .gz I think
-	return len(subprocess_sevenzip_get(path, filename))
+	return ByteAmount(len(subprocess_sevenzip_get(path, filename)))
 
 def subprocess_sevenzip_crc(path: str, filename: str) -> int:
 	proc = subprocess.run(['7z', 'l', '-slt', '--', path, filename], stdout=subprocess.PIPE, universal_newlines=True, check=False)
@@ -162,7 +164,7 @@ def subprocess_sevenzip_crc(path: str, filename: str) -> int:
 def zip_list(path: Path) -> Iterator[FilenameWithMaybeSizeAndCRC]:
 	with zipfile.ZipFile(path, 'r') as zip_file:
 		for info in zip_file.infolist():
-			yield info.filename, info.file_size, info.CRC & 0xffffffff
+			yield info.filename, ByteAmount(info.file_size), info.CRC & 0xffffffff
 
 def zip_get(path: Path, filename: str, offset: int=0, amount: int=-1) -> bytes:
 	with zipfile.ZipFile(path, 'r') as zip_file:
@@ -171,9 +173,9 @@ def zip_get(path: Path, filename: str, offset: int=0, amount: int=-1) -> bytes:
 				file.seek(offset)
 			return file.read(amount)
 
-def zip_getsize(path: Path, filename: str) -> int:
+def zip_getsize(path: Path, filename: str) -> ByteAmount:
 	with zipfile.ZipFile(path, 'r') as zip_file:
-		return zip_file.getinfo(filename).file_size
+		return ByteAmount(zip_file.getinfo(filename).file_size)
 
 def get_zip_crc32(path: Path, filename: str) -> int:
 	with zipfile.ZipFile(path, 'r') as zip_file:
@@ -185,11 +187,11 @@ def gzip_get(path: Path, offset: int=0, amount: int=-1) -> bytes:
 			gzip_file.seek(offset)
 		return gzip_file.read(amount)
 
-def gzip_getsize(path: Path) -> int:
+def gzip_getsize(path: Path) -> ByteAmount:
 	#Filename is ignored, there is only one in there
 	with gzip.GzipFile(path, 'rb') as f:
 		f.seek(0, io.SEEK_END)
-		return f.tell()
+		return ByteAmount(f.tell())
 
 #---- py7zr
 
@@ -205,11 +207,11 @@ def sevenzip_get(path: Path, filename: str, offset: int=0, amount: int=-1) -> by
 			file.seek(offset)
 		return file.read(amount)
 
-def sevenzip_getsize(path: Path, filename: str) -> int:
+def sevenzip_getsize(path: Path, filename: str) -> ByteAmount:
 	with py7zr.SevenZipFile(path, mode='r') as sevenzip_file:
 		for each in sevenzip_file.list():
 			if each.filename == filename:
-				return each.uncompressed
+				return ByteAmount(each.uncompressed)
 		raise FileNotFoundError(f'{filename} is not in {path}')
 
 def sevenzip_get_crc32(path: Path, filename: str) -> int:
@@ -247,12 +249,12 @@ def libarchive_get(path: Path, filename: str, offset: int=0, amount: int=-1) -> 
 					return data[offset: offset + amount]
 	raise FileNotFoundError(filename)
 
-def libarchive_getsize(path: Path, filename: str) -> int:
+def libarchive_getsize(path: Path, filename: str) -> ByteAmount:
 	with path.open('rb') as f:
 		with libarchive.Archive(f, 'r') as a:
 			for item in a:
 				if item.pathname == filename:
-					return item.size
+					return ByteAmount(item.size)
 	raise FileNotFoundError(filename)
 
 #There is no crc32
@@ -315,7 +317,7 @@ def compressed_get(path: Path, filename: str, offset: int=0, amount: int=-1) -> 
 			raise BadArchiveError(os.fspath(path) + '/' + filename) from ex
 	raise NotImplementedError('You have nothing to read', path, 'with, try installing 7z or py7zr or python-libarchive')
 	
-def compressed_getsize(path: Path, filename: str) -> int:
+def compressed_getsize(path: Path, filename: str) -> ByteAmount:
 	if zipfile.is_zipfile(path):
 		try:
 			return zip_getsize(path, filename)

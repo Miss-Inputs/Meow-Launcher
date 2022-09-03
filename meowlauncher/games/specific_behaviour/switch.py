@@ -17,7 +17,7 @@ try:
 except ModuleNotFoundError:
 	have_pillow = False
 
-from meowlauncher.common_types import SaveType
+from meowlauncher.common_types import ByteAmount, SaveType
 from meowlauncher.platform_types import SwitchContentMetaType
 from meowlauncher.util.region_info import (get_language_by_english_name,
                                            languages_by_english_name)
@@ -46,12 +46,12 @@ class ExternalToolNotHappeningException(Exception):
 	pass
 
 game_card_size = {
-	0xfa: '1GB',
-	0xf8: '2GB',
-	0xf0: '4GB',
-	0xe0: '8GB',
-	0xe1: '16GB',
-	0xe2: '32GB',
+	0xfa: ByteAmount(1024 * 1024 * 1024),
+	0xf8: ByteAmount(2 * 1024 * 1024 * 1024),
+	0xf0: ByteAmount(4 * 1024 * 1024 * 1024),
+	0xe0: ByteAmount(8 * 1024 * 1024 * 1024),
+	0xe1: ByteAmount(16 * 1024 * 1024 * 1024),
+	0xe2: ByteAmount(32 * 1024 * 1024 * 1024),
 }
 
 class GamecardFlags(Flag):

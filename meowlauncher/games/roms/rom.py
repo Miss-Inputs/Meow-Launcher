@@ -1,3 +1,4 @@
+from functools import cached_property
 import logging
 import os
 import zlib
@@ -6,7 +7,7 @@ from collections.abc import Collection, Iterator, MutableMapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, cast
 
-from meowlauncher.common_types import MediaType
+from meowlauncher.common_types import ByteAmount, MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.mame_common.software_list import (
     SoftwareMatcherArgs, format_crc32_for_software_list)
@@ -31,15 +32,14 @@ class ROM(ABC):
 	def __str__(self) -> str:
 		return str(self.path)
 
-	#To be more accurate: Is expected to return other files
+	#To word a different way: Does this point to other files, or should anything else be considered part of this
 	@property
 	def contains_other_files(self) -> bool:
 		return False
 
 	@property
 	def contained_files(self) -> Collection[Path]:
-		#Does this make sense, or should it return an empty list? Hrm…
-		raise NotImplementedError('Does not have any')
+		return tuple()
 
 	@property
 	def should_read_whole_thing(self) -> bool:
@@ -67,6 +67,12 @@ class ROM(ABC):
 	@abstractmethod
 	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool=False, skip_header: int=0) -> Optional['Software']:
 		pass
+
+	@cached_property
+	def size(self) -> ByteAmount:
+		if self.contains_other_files:
+			return ByteAmount(sum(contained_file.stat().st_size for contained_file in self.contained_files))
+		return ByteAmount(self.path.stat().st_size)
 
 class FileROM(ROM):
 	def __init__(self, path: Path):
@@ -100,13 +106,13 @@ class FileROM(ROM):
 			return self._entire_file[seek_to: seek_to + amount]
 		return self._read(seek_to, amount)
 
-	def _get_size(self) -> int:
-		return self.path.stat().st_size
+	def _get_size(self) -> ByteAmount:
+		return super().size
 
 	@property
-	def size(self) -> int:
+	def size(self) -> ByteAmount:
 		if self._store_entire_file:
-			return len(self._entire_file)
+			return ByteAmount(len(self._entire_file))
 		return self._get_size()
 
 	def _get_crc32(self) -> int:
@@ -193,11 +199,15 @@ class CompressedROM(FileROM):
 	def _read(self, seek_to: int=0, amount: int=-1) -> bytes:
 		return archives.compressed_get(self.path, self.inner_filename, seek_to, amount)
 
-	def _get_size(self) -> int:
-		return archives.compressed_getsize(self.path, self.inner_filename)
+	def _get_size(self) -> ByteAmount:
+		return ByteAmount(archives.compressed_getsize(self.path, self.inner_filename))
+
+	@cached_property
+	def compressed_size(self) -> ByteAmount:
+		return ByteAmount(self.path.stat().st_size)
 
 	@property
-	def size(self) -> int:
+	def size(self) -> ByteAmount:
 		if self._size is None:
 			self._size = super().size
 		return self._size
@@ -211,8 +221,12 @@ class GCZFileROM(FileROM):
 		return False
 
 	@property
-	def size(self) -> int:
-		return int.from_bytes(self._read(seek_to=16, amount=8), 'little')
+	def size(self) -> ByteAmount:
+		return ByteAmount.from_bytes(self._read(seek_to=16, amount=8), 'little')
+
+	@property
+	def compressed_size(self) -> ByteAmount:
+		return super().size
 
 	def read(self, seek_to: int=0, amount: int=-1) -> bytes:
 		return cd_read.read_gcz(self.path, seek_to, amount)
@@ -251,7 +265,8 @@ class CHDFileROM(ROM):
 		try:
 			args = SoftwareMatcherArgs(None, self._get_sha1(), None, None)
 			return find_in_software_lists(software_lists, args)
-		except UnsupportedCHDError:
+		except UnsupportedCHDError as e:
+			logger.warning('UnsupportedCHDError %s in %s', e.args, self)
 			return None
 
 class FolderROM(ROM):

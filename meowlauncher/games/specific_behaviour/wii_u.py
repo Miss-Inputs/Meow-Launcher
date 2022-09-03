@@ -5,6 +5,7 @@ from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Optional, cast
 from xml.etree import ElementTree
+from meowlauncher.common_types import ByteAmount
 
 from meowlauncher.config.platform_config import platform_configs
 from meowlauncher.games.common.engine_detect import \
@@ -121,8 +122,8 @@ def _add_meta_xml_metadata(metadata: 'Metadata', meta_xml: ElementTree.ElementTr
 		except ValueError:
 			logger.debug('%s mastering date is wack %s', product_code, mastering_date_text)
 	#Maybe we can use these to figure out if it creates a save file or not…
-	metadata.specific_info['Common Save Size'] = int(meta_xml.findtext('common_save_size') or '0', 16)
-	metadata.specific_info['Account Save Size'] = int(meta_xml.findtext('account_save_size') or '0', 16)
+	metadata.specific_info['Common Save Size'] = ByteAmount(meta_xml.findtext('common_save_size') or '0', 16)
+	metadata.specific_info['Account Save Size'] = ByteAmount(meta_xml.findtext('account_save_size') or '0', 16)
 
 	metadata.specific_info['Title ID'] = meta_xml.findtext('title_id')
 	version = meta_xml.findtext('title_version')

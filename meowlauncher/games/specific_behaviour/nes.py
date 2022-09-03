@@ -433,8 +433,8 @@ def _get_headered_nes_rom_software_list_entry(game: 'ROMGame') -> Optional['Soft
 	prg_crc32 = game.metadata.specific_info.get('PRG CRC')
 	chr_crc32 = game.metadata.specific_info.get('CHR CRC')
 	if not prg_crc32 and not chr_crc32:
-		prg_size = game.metadata.specific_info.get('PRG Size', 0)
-		chr_size = game.metadata.specific_info.get('CHR Size', 0)
+		prg_size = game.metadata.specific_info.pop('PRG Size', 0)
+		chr_size = game.metadata.specific_info.pop('CHR Size', 0)
 		#Is it even possible for prg_size to be 0 on a valid ROM?
 		prg_offset = 16 + 512 if game.metadata.specific_info.get('Has iNES Trainer?', False) else 16
 		chr_offset = prg_offset + prg_size

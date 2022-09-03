@@ -21,7 +21,7 @@ from meowlauncher.util.region_info import (get_common_language_from_regions,
 from meowlauncher.util.utils import (find_filename_tags_at_end, junk_suffixes,
                                      remove_filename_tags)
 
-from .rom import ROM, FileROM, FolderROM
+from .rom import ROM, CompressedROM, FileROM, FolderROM, GCZFileROM
 
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.machine import Machine
@@ -286,6 +286,10 @@ def add_metadata(game: 'ROMGame') -> None:
 	else:
 		game.metadata.specific_info['Extension'] = game.rom.extension
 		game.metadata.media_type = game.platform.get_media_type(cast(FileROM, game.rom))
+
+	game.metadata.specific_info['Size'] = game.rom.size
+	if isinstance(game.rom, (CompressedROM, GCZFileROM)):
+		game.metadata.specific_info['Compressed Size'] = game.rom.compressed_size
 
 	_add_platform_specific_metadata(game)
 				
