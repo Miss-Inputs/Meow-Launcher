@@ -104,12 +104,17 @@ def add_atari_8bit_custom_info(game: 'ROMGame') -> None:
 
 	if 'Machine' not in game.metadata.specific_info:
 		for tag in game.filename_tags:
-			#Use filename tags for now since there's not a great reliable method of detecting XL/XE requirement for floppies I have at the moment
 			if tag in {'(XL)', '[XL]', '(XL-XE)', '[XL-XE]'}:
 				game.metadata.specific_info['Machine'] = 'XL'
 				break
+			if tag in {'(XL-XE)', '[XL-XE]'}:
+				game.metadata.specific_info['Machine'] = 'XL/XE'
+				break
 			if tag in {'(XE)', '[XE]'}:
 				game.metadata.specific_info['Machine'] = 'XE'
+				break
+			if tag == '(130XE)':
+				game.metadata.specific_info['Machine'] = '130XE'
 				break
 	if '[BASIC]' in game.filename_tags:
 		game.metadata.specific_info['Requires BASIC?'] = True

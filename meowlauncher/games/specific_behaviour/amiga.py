@@ -1,5 +1,5 @@
 from collections.abc import Collection
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
@@ -8,7 +8,15 @@ if TYPE_CHECKING:
 
 def add_amiga_metadata_from_software_list(software: 'Software', metadata: 'Metadata') -> None:
 	software.add_standard_metadata(metadata)
-	chipset = 'OCS'
+	chipset = None
+
+	if software.software_list_name == 'amigaaga_flop':
+		chipset = 'AGA'
+	elif software.software_list_name == 'amigaecs_flop':
+		chipset = 'ECS'
+	elif software.software_list_name == 'amigaocs_flop':
+		chipset = 'OCS'
+
 	usage = software.get_info('usage')
 	if usage in {'Requires ECS', 'Requires ECS, includes Amiga Text'}:
 		chipset = 'ECS'
@@ -25,7 +33,40 @@ def add_amiga_metadata_from_software_list(software: 'Software', metadata: 'Metad
 	#Mastered with virus
 	#info name="alt_disk": Names of some disks?
 	#info name="magazine": What magazine it came from?
-	metadata.specific_info['Chipset'] = chipset
+	if chipset:
+		metadata.specific_info['Chipset'] = chipset
+
+def _machine_from_tag(tag: str) -> Optional[str | Collection[str]]:
+	#As listed in TOSEC naming convention
+	tag = tag[1:-1]
+
+	models = {'A1000', 'A1200', 'A4000', 'A2000', 'A3000', 'A3000UX', 'A2024', 'A2500', 'A4000T', 'A500', 'A500+', 'A570', 'A600', 'A600HD', 'CD32'}
+	if tag in models:
+		return tag
+	
+	split_models = {'A1200-A4000', 'A2000-A3000', 'A2500-A3000UX', 'A500-A1000-A2000', 'A500-A1000-A2000-CDTV', 'A500-A1200', 'A500-A2000', 'A500-A600-A2000', 'A500-A1200-A2000-A4000'}
+	if tag in split_models:
+		return tag.split('-')
+	return None
+
+def _chipset_from_tag(tag: str) -> Optional[str | Collection[str]]:
+	if tag == 'AGA':
+		return 'AGA'
+	if tag == '(OCS-AGA)':
+		return ('OCS', 'AGA') #hmm, does this imply it's just not compatible with ECS?
+	if tag == '(ECS-AGA)':
+		return ('ECS', 'AGA')
+	if tag == '(AGA-CD32)':
+		#Hmm… CD32 is really more what I'd put under "machine" rather than "chipset", I guess…
+		#This probably won't matter too much though, when do you even see this combination?
+		return ('AGA', 'CD32')
+	if tag == '(ECS)':
+		return 'ECS'
+	if tag == '(ECS-OCS)':
+		return ('ECS', 'OCS')
+	if tag == '(OCS)':
+		return 'OCS'
+	return None
 
 def add_info_from_filename_tags(tags: Collection[str], metadata: 'Metadata') -> None:
 	for tag in tags:
@@ -36,45 +77,19 @@ def add_info_from_filename_tags(tags: Collection[str], metadata: 'Metadata') -> 
 			metadata.specific_info['Requires Workbench?'] = True
 			continue
 		
-		models = {'A1000', 'A1200', 'A4000', 'A2000', 'A3000', 'A3000UX', 'A2024', 'A2500', 'A4000T', 'A500', 'A500+', 'A570', 'A600', 'A600HD'}
-		for model in models:
-			if tag == f'({model})':
-				metadata.specific_info['Machine'] = model
-
-		#This should set machine to an array or something-separated list, tbh
-		if tag == '(A1200-A4000)':
-			metadata.specific_info['Machine'] = 'A4000'
-		elif tag == '(A2000-A3000)':
-			metadata.specific_info['Machine'] = 'A3000'
-		elif tag == '(A2500-A3000UX)':
-			metadata.specific_info['Machine'] = 'A3000UX'
-		elif tag == '(A500-A1000-A2000)':
-			metadata.specific_info['Machine'] = 'A2000'
-		elif tag == '(A500-A1000-A2000-CDTV)':
-			metadata.specific_info['Machine'] = 'A2000'
-		elif tag == '(A500-A1200)':
-			metadata.specific_info['Machine'] = 'A1200'
-		elif tag == '(A500-A2000)':
-			metadata.specific_info['Machine'] = 'A2000'
-		elif tag == '(A500-A600-A2000)':
-			metadata.specific_info['Machine'] = 'A2000'
-		elif tag == '(A500-A1200-A2000-A4000)':
-			metadata.specific_info['Machine'] = 'A4000'
+		if 'Machine' not in metadata.specific_info:
+			machine = _machine_from_tag(tag)
+			if machine:
+				metadata.specific_info['Machine'] = machine
 			
-	if 'Chipset' not in metadata.specific_info:
-		chipset = None
-		for tag in tags:
-			if tag in {'(AGA)', '(OCS-AGA)', '(ECS-AGA)', '(AGA-CD32)'}:
-				chipset = 'AGA'
-				break
-			if tag in {'(ECS)', '(ECS-OCS)'}:
-				chipset = 'ECS'
-				break
-			if tag == '(OCS)':
-				chipset = 'OCS'
-				break
-		if chipset:
-			metadata.specific_info['Chipset'] = chipset
+		if 'Chipset' not in metadata.specific_info:
+			chipset = _chipset_from_tag(tag)
+			if chipset:
+				metadata.specific_info['Chipset'] = chipset
+		
+		if tag == '(68060)':
+			#Not in TOSEC, but probably good to use something to indicate it requires funny CPUs
+			metadata.specific_info['Minimum CPU'] = '68080'
 
 def add_amiga_custom_info(game: 'ROMGame') -> None:
 	software = game.get_software_list_entry()

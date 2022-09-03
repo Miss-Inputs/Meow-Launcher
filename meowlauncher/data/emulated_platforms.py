@@ -356,7 +356,6 @@ platforms = {
 		{'a1000', 'a1200', 'a2000', 'a3000', 'a4000', 'a4000t', 'a500', 'a500p', 'a600'}, {'amiga_a1000', 'amiga_a3000', 'amigaaga_flop', 'amiga_flop', 'amiga_apps', 'amiga_hardware', 'amigaecs_flop', 'amigaocs_flop', 'amiga_workbench'}, 
 		{'PUAE (libretro)', 'FS-UAE'}, {MediaType.Floppy: {'adf', 'ipf', 'dms', 'adz', 'fdi', 'm3u'}, MediaType.HardDisk: {'hdf', 'hdz'}, MediaType.Digital: {'lha'}, MediaType.Executable: ['exe', 'bin'], MediaType.OpticalDisc: cdrom_formats},
 		#TODO: m3u would be both Floppy and OpticalDisc there, and logically that is actually true, and an example of why this isn't how we should manage file extensions
-		{'default_chipset': PlatformConfigValue(ConfigValueType.String, 'AGA', 'Default chipset to use if a game doesn\'t specify what chipset it should use (AGA, OCS, ECS)')}, 
 		autodetect_tv_type=True, dat_names={'Commodore - Amiga'}
 	),
 	StandardEmulatedPlatform('Amstrad CPC',{'cpc464', 'cpc6128p', 'gx4000'}, {'cpc_cass', 'cpc_flop', 'gx4000'}, {'Caprice32 (libretro)', 'MAME (Amstrad GX4000)'}, {MediaType.Snapshot: {'sna'}, MediaType.Tape: {'wav', 'cdt'}, MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: {'cpr'}.union(generic_cart_extensions)}, dat_names={'Amstrad - CPC', 'Amstrad - GX4000'}),

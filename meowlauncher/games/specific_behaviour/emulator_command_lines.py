@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import shlex
@@ -39,6 +40,8 @@ if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	
 	PlatformConfigOptions = Mapping[str, TypeOfConfigValue]
+
+logger = logging.getLogger(__name__)
 
 #MAME drivers
 def mame_32x(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
@@ -163,6 +166,7 @@ def mame_atari_7800(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config
 
 def mame_atari_8bit(game: 'ROMGame', platform_config: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	slot_options = {}
+	system = None
 	if game.metadata.media_type == MediaType.Cartridge:
 		if game.metadata.specific_info.get('Headered?', False):
 			cart_type = game.metadata.specific_info['Mapper']
@@ -174,7 +178,9 @@ def mame_atari_8bit(game: 'ROMGame', platform_config: 'PlatformConfigOptions', e
 				raise EmulationNotSupportedException(f'Unsupported cart type: {cart_type}')
 
 			if cart_type in {4, 6, 7, 16, 19, 20}:
-				raise EmulationNotSupportedException(f'Atari 5200 cart (will probably work if put in the right place): {cart_type}')
+				#raise EmulationNotSupportedException(f'Atari 5200 cart (will probably work if put in the right place): {cart_type}')
+				logger.debug('%s is using MAME Atari 8-bit, but using Atari 5200 cart type %d', game, cart_type)
+				system = 'a5200'
 		else:
 			rom = cast(FileROM, game.rom)
 			size = rom.size
@@ -192,11 +198,18 @@ def mame_atari_8bit(game: 'ROMGame', platform_config: 'PlatformConfigOptions', e
 			slot_options['cart1'] = str(basic_path.resolve())
 
 	machine = game.metadata.specific_info.get('Machine')
-	if machine == 'XL':
+	if machine in {'XL', 'XL/XE'}:
 		system = 'a800xlp' if game.metadata.specific_info.get('TV Type') == TVSystem.PAL else 'a800xl'
 	elif machine == 'XE':
-		system = 'a65xe' #No PAL XE machine in MAME?
-	else:
+		#No PAL XE machine in MAME? (a800xe is what 65XE was marketed as in Germany/Czechoslovakia)
+		#xegs is repackaged 65XE with removeable keyboard etc
+		system = 'a65xe'
+	elif machine == '130XE':
+		#Note: Not working, but seems to be okay
+		system = 'a130xe'
+
+	if not system:
+		#Sensible enough default, though XL/XE machines will still work to play ordinary non-XE carts
 		system = 'a800pal' if game.metadata.specific_info.get('TV Type') == TVSystem.PAL else 'a800'
 	
 	return mame_driver(game, emulator_config, system, slot, slot_options, has_keyboard=True)
@@ -1173,57 +1186,92 @@ def duckstation(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'E
 
 	return LaunchCommand(emulator_config.exe_path, ['-batch', '-fullscreen', rom_path_argument])
 
-def fs_uae(game: 'ROMGame', platform_config: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
+def fs_uae(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	args = ['--fullscreen']
+	model = None
+
 	if game.platform.name == 'Amiga CD32':
-		args.extend(['--amiga_model=CD32', '--joystick_port_0_mode=cd32 gamepad', '--cdrom_drive_0=' + rom_path_argument])
+		model = 'CD32'
 	elif game.platform.name == 'Commodore CDTV':
-		args.extend(['--amiga_model=CDTV', '--cdrom_drive_0=' + rom_path_argument])
+		model = 'CDTV'
 	else:
-		model = None
 		machine = game.metadata.specific_info.get('Machine')
 		if machine:
-			amiga_models = {
-				#All the models supported by FS-UAE --amiga_model argument
-				'A500',
-				'A500+',
-				'A600',
-				'A1000',
-				'A1200',
-				'A1200/20',
-				'A3000',
+			supported_models = [
+				#All the models supported by FS-UAE --amiga_model argument, although we will fiddle with the actual argument later
+				#Ordered by what I presume is best to not quite as good, or rather: What would we try first
+				'CD32',
+
 				'A4000/40',
-				#CDTV, CD32
-			}		
-			if machine in amiga_models:
-				model = machine
-			elif machine == 'A4000':
-				model = 'A4000/40'
-			else:
-				raise EmulationNotSupportedException('FS-UAE does not emulate a ' + machine)
+				'A4000',
+				'A1200/20',
+				'A1200',
+				
+				'A3000',
+				'A600',
+				'A500+',
+								
+				'CDTV',
+				'A1000',
+				'A500',
+			]
+			if isinstance(machine, str):
+				if machine in supported_models:
+					model = machine
+				else:
+					raise EmulationNotSupportedException(f'FS-UAE does not emulate a {machine}')
+			elif isinstance(machine, Collection):
+				for supported_model in supported_models:
+					if supported_model in machine:
+						model = supported_model
+						break
+				else:
+					raise EmulationNotSupportedException(f'FS-UAE does not emulate any of {machine}')
+			
 		else:
-			chipset_models = {
-				'OCS': 'A500', #Also A1000 (A2000 also has OCS but doesn't appear to be an option?)
-				'ECS': 'A600', #Also A500+ (A3000 should work, but doesn't seem to be possible)
-				'AGA': 'A4000/040', #Also 1200 (which only has 68EC020 CPU instead of 68040)
-			}
 			#TODO: It would be better if this didn't force specific models, but could look at what ROMs the user has for FS-UAE and determines which models are available that support the given chipset, falling back to backwards compatibility for newer models or throwing EmulationNotSupportedException as necessary
 
-			#AGA is the default default if there's no default (use the most powerful machine available)
-			chipset = game.metadata.specific_info.get('Chipset', platform_config.get('default_chipset', 'AGA'))
-			model = chipset_models.get(chipset)
+			#We don't need to specify a model if there's no reason to! Only use OCS if it's explicitly specified as such
+			chipset = game.metadata.specific_info.get('Chipset')
+			if chipset:
+				if 'AGA' in chipset:
+					model = 'A4000' #Or A1200, which only has 68EC020 instead of 68040, so it's not as cool
+				elif 'ECS' in chipset:
+					model = 'A600' #Or A500+
+				elif 'OCS' in chipset:
+					model = 'A1000' #Or A500
+	#I can't figure out how to get these sorts of things to autoboot, or maybe they don't
+	#Okay, so I haven't really looked into it sshhh
+	if game.metadata.specific_info.get('Requires Hard Disk?', False):
+		raise EmulationNotSupportedException('Requires a hard disk')
+	if game.metadata.specific_info.get('Requires Workbench?', False):
+		raise EmulationNotSupportedException('Requires Workbench')
 
-		if model:
-			args.append(f'--amiga_model={model}')
+	if model:
+		if model == 'A4000':
+			model = 'A4000/40' #A4000 by itself isn't a valid value, just to be annoying
+		args.append(f'--amiga_model={model}')
+		# if model == 'CD32': #Okay, turns out you shouldn't actually need that
+		# 	args.append('--joystick_port_0_mode=cd32 gamepad')
+			
+	if game.metadata.media_type == MediaType.Floppy:
+		args.append(f'--floppy_drive_0={rom_path_argument}')
+	elif game.metadata.media_type == MediaType.OpticalDisc:
+		args.append(f'--cdrom_drive_0={rom_path_argument}')
+	elif game.metadata.media_type in {MediaType.HardDisk, MediaType.Digital}:
+		#TODO: WHDLoad requires the "slave name" (big :/ moment) as an argument
+		args.append(f'--hard_drive_0={rom_path_argument}')
+	else:
+		raise EmulationNotSupportedException(f'Not sure how to launch {game.metadata.media_type} yet')
+	#TODO: Can also mount folders and zipped folders as hard drives, which will probably be useful for something
+	#TODO: Use multiple floppy images
 
-		#I can't figure out how to get these sorts of things to autoboot, or maybe they don't
-		if game.metadata.specific_info.get('Requires Hard Disk?', False):
-			raise EmulationNotSupportedException('Requires a hard disk')
-		if game.metadata.specific_info.get('Requires Workbench?', False):
-			raise EmulationNotSupportedException('Requires Workbench')
+	cpu_requirement = game.metadata.specific_info.get('Minimum CPU')
+	if cpu_requirement:
+		#TODO: Validate this is 68000, 68010, 68(EC)020/030/040/060, 68(LC)040/060, 68040-NOMMU, 68060-NOMMU
+		#TODO: --accelerator=bizzard-ppc or whichever one it is for PowerPC
+		args.append(f'--cpu={cpu_requirement}')
 
-		#Hmm... there is also --cpu=68060 which some demoscene productions use so maybe I should look into that...
-		args.append('--floppy_drive_0=' + rom_path_argument)
 	if game.metadata.specific_info.get('TV Type') == TVSystem.NTSC:
 		args.append('--ntsc_mode=1')
 	return LaunchCommand(emulator_config.exe_path, args)
