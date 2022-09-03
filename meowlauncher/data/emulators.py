@@ -42,7 +42,7 @@ _standalone_emulators: Collection[StandardEmulator] = {
 		'consider_unknown_games_incompatible': RunnerConfigValue(ConfigValueType.Bool, False, "Consider games incompatible if they aren't in the compatibility database at all")
 	}),
 	StandardEmulator('Flycast', EmulatorStatus.Good, 'flycast', simple_emulator(['-config', 'window:fullscreen=yes', rom_path_argument]), {'gdi', 'cdi', 'chd', 'cue'}, []),
-	StandardEmulator('FS-UAE', EmulatorStatus.Good, 'fs-uae', command_lines.fs_uae, {'iso', 'cue', 'adf', 'ipf'}),
+	StandardEmulator('FS-UAE', EmulatorStatus.Good, 'fs-uae', command_lines.fs_uae, {'iso', 'cue', 'adf', 'ipf', 'lha'}),
 	#Note that .ipf files need a separately downloadable plugin. We could detect the presence of that, I guess
 	StandardEmulator('Gambatte', EmulatorStatus.Good, 'gambatte_qt', 
 	simple_gb_emulator(['--full-screen', rom_path_argument], {'MBC1', 'MBC2', 'MBC3', 'HuC1', 'MBC5'}, {'MBC1 Multicart'}), {'gb', 'gbc'}, {'zip'}),
