@@ -4,7 +4,8 @@ from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.libretro_database_company_name_cleanup import \
     company_name_overrides
 from meowlauncher.games.common.generic_info import (
-    add_generic_software_info, find_equivalent_arcade_game)
+    add_generic_info_from_filename_tags, add_generic_software_info,
+    find_equivalent_arcade_game)
 from meowlauncher.games.common.libretro_database import (
     LibretroDatabaseType, parse_all_dats_for_system)
 from meowlauncher.games.mame_common.mame_helpers import get_image
@@ -13,10 +14,8 @@ from meowlauncher.games.specific_behaviour.info_helpers import (
     arcade_machine_finders, custom_info_funcs, rom_file_info_funcs,
     software_info_funcs, static_info_funcs)
 from meowlauncher.metadata import Date
-from meowlauncher.util.detect_things_from_filename import (
-    get_date_from_filename_tags, get_languages_from_filename_tags,
-    get_regions_from_filename_tags, get_revision_from_filename_tags,
-    get_tv_system_from_filename_tags, get_version_from_filename_tags)
+from meowlauncher.util.detect_things_from_filename import \
+    get_tv_system_from_filename_tags
 from meowlauncher.util.region_info import (get_common_language_from_regions,
                                            get_tv_system_from_regions)
 from meowlauncher.util.utils import (find_filename_tags_at_end, junk_suffixes,
@@ -29,34 +28,7 @@ if TYPE_CHECKING:
 	from meowlauncher.metadata import Metadata
 
 	from .rom_game import ROMGame
-
-def _add_metadata_from_tags(game: 'ROMGame') -> None:
-	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority.
-	tags = game.filename_tags
-
-	filename_date = get_date_from_filename_tags(tags)
-	if filename_date:
-		if filename_date.is_better_than(game.metadata.release_date):
-			game.metadata.release_date = filename_date
 	
-	revision = get_revision_from_filename_tags(tags)
-	if revision and 'Revision' not in game.metadata.specific_info:
-		game.metadata.specific_info['Revision'] = revision
-
-	version = get_version_from_filename_tags(tags)
-	if version and 'Version' not in game.metadata.specific_info:
-		game.metadata.specific_info['Version'] = version
-
-	if not game.metadata.regions:
-		regions = get_regions_from_filename_tags(tags)
-		if regions:
-			game.metadata.regions = regions
-
-	if not game.metadata.languages:
-		languages = get_languages_from_filename_tags(tags)
-		if languages:
-			game.metadata.languages = languages
-
 def _add_metadata_from_regions(metadata: 'Metadata') -> None:
 	if metadata.regions:
 		if not metadata.languages:
@@ -139,7 +111,6 @@ def _add_metadata_from_libretro_database_entry(metadata: 'Metadata', database: L
 			description = database_entry['description']
 			if description not in (database_entry.get('comment'), database_entry.get('name')):
 				metadata.descriptions['Libretro Description'] = description
-
 
 		date = Date()
 		if 'releaseyear' in database_entry:
@@ -329,7 +300,8 @@ def add_metadata(game: 'ROMGame') -> None:
 	if equivalent_arcade:
 		_add_metadata_from_arcade(game, equivalent_arcade)
 
-	_add_metadata_from_tags(game)
+	#Only fall back on filename-based detection of stuff if we weren't able to get it any other way. platform_metadata handlers take priority, but then regions come after this because we probably want to detect the regions from filename, and _then_ get other things from that
+	add_generic_info_from_filename_tags(game.filename_tags, game.metadata)
 	_add_metadata_from_regions(game.metadata)
 
 	if game.platform.dat_names:

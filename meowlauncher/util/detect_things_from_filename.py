@@ -168,16 +168,16 @@ def get_regions_from_filename_tags(tags: Sequence[str], loose: bool=False) -> Op
 	return None
 
 def get_tv_system_from_filename_tags(tags: Sequence[str]) -> Optional[region_info.TVSystem]:
-	#You should look for regions instead if you can. This just looks at the presence of (NTSC) or (PAL) directly (both No-Intro and TOSEC style filenames sometimes do this).
+	#You should look for regions instead if you can. This just looks at the presence of (NTSC) or (PAL) directly (both No-Intro and TOSEC style filenames sometimes do this), as well as some other things that might happen
 	for tag in tags:
 		tag = tag.upper()
-		if tag == '(NTSC)':
+		if tag in {'(NTSC)', '[F NTSC]'}:
 			return region_info.TVSystem.NTSC
-		if tag == '(PAL)':
+		if tag in {'(PAL)', '[F PAL]'}:
 			return region_info.TVSystem.PAL
 		if tag in {'(NTSC-PAL)', '(PAL-NTSC)'}:
 			return region_info.TVSystem.Agnostic
-
+		#(PAL-60) could also be a thing, but piss off
 	return None
 
 _date_regex = re.compile(r'\((?P<year>[x\d]{4})\)|\((?P<year2>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})\)|\((?P<day2>\d{2})\.(?P<month2>\d{2})\.(?P<year3>\d{4})\)')
@@ -208,14 +208,33 @@ def get_revision_from_filename_tags(tags: Sequence[str]) -> Optional[str]:
 			return revision_match[1]
 	return None
 
-_version_regex = re.compile(r'\(([vV]\d+(?:\.\w+)?\)') #Very loose match, I know, but sometimes versions have stuff on the end like v1.2b or whatever and I don't wanna overcomplicate things
+_version_regex = re.compile(r'\(([vV]\d+(?:\.\w+)?)\)') #Very loose match, I know, but sometimes versions have stuff on the end like v1.2b or whatever and I don't wanna overcomplicate things
 _version_number_regex = re.compile(r'\((?:version|ver|ver\.)\s+([\d.]+)[^)]*\)') #This one is a bit more specific and shows up in MAME machine names sometimes
 def get_version_from_filename_tags(tags: Sequence[str]) -> Optional[str]:
 	for tag in tags:
 		version_match = _version_regex.match(tag)
 		if version_match:
-			return version_match[1]
+			return version_match[1].lower()
 		version_number_match = _version_number_regex.match(tag)
 		if version_number_match:
 			return 'v' + version_number_match[1]
+	return None
+
+def get_license_from_filename_tags(tags: Sequence[str]) -> Optional[str]:
+	if '(CW)' in tags or '(CW-R)' in tags:
+		return 'Cardware'
+	if '(FW)' in tags:
+		return 'Freeware'
+	if '(GW)' in tags or '(GW-R)' in tags:
+		return 'Giftware'
+	if '(GPL)' in tags:
+		return 'GPL'
+	if '(LW)' in tags:
+		#The hell is licenseware, TOSEC?
+		return 'Licenseware'
+	if '(PD)' in tags:
+		return 'Public Domain'
+	if '(SW)' in tags or '(SW-R)' in tags or '(Shareware)' in tags:
+		return 'Shareware'
+	
 	return None

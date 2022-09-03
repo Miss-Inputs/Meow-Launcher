@@ -17,7 +17,7 @@ def add_pc_booter_software_info(software: 'Software', metadata: 'Metadata') -> N
 	usage = software.get_info('usage')
 	if usage == 'PC Booter':
 		usage = software.infos.get('user_notes')
-	metadata.specific_info['Hacked By'] = software.infos.get('cracked')
+	metadata.specific_info['Cracked By'] = software.infos.get('cracked')
 	#Other info strings seen:
 	#OEM = Mercer
 	#Original Publisher = Nihon Falcom

@@ -1,7 +1,9 @@
 #TODO: I want this to be in root of specific_behaviour but that causes a circular import right now, no can do buddy
 
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from typing import Optional
+
+from meowlauncher.games.specific_behaviour.simple_filename_info import add_atari_st_info
 
 from ._3ds import add_3ds_custom_info
 from .amiga import add_amiga_custom_info
@@ -195,6 +197,10 @@ software_info_funcs: Mapping[str, Callable[['Software', 'Metadata'], None]] = {
 	'Sord M5': add_sord_m5_software_info,
 	'Super Cassette Vision': add_super_cassette_vision_software_info,
 	'Virtual Boy': add_virtual_boy_software_info,
+}
+
+filename_tag_info_funcs: Mapping[str, Callable[[Sequence[str], 'Metadata'], None]] = {
+	'Atari ST': add_atari_st_info
 }
 
 arcade_machine_finders: Mapping[str, Callable[[str], Optional['Machine']]] = {
