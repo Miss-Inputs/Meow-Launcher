@@ -141,8 +141,9 @@ def get_tosec_region_list_from_filename_tags(tags: Sequence[str]) -> Optional[Se
 			continue
 		tag = tag[1:-1]
 		components = tag.split('-')
-		regions = tuple(region_info.get_region_by_short_code(component) for component in components)
-		if any(r is None for r in regions):
+		try:
+			regions = tuple(region_info.regions_by_short_code[component] for component in components)
+		except KeyError:
 			#This wasn't the tag we wanted
 			continue
 

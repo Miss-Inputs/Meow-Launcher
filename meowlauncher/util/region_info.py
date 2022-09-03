@@ -278,6 +278,7 @@ regions = [
 ]
 languages_by_english_name = {language.english_name: language for language in languages}
 regions_by_name = {region.name: region for region in regions}
+regions_by_short_code = {region.short_code: region for region in regions}
 
 def get_language_by_short_code(code: str, case_insensitive: bool=False) -> Optional[Language]:
 	if case_insensitive:
