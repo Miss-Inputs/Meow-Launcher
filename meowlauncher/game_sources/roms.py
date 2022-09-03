@@ -6,9 +6,6 @@ from collections.abc import Collection, Iterator, Sequence
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Optional, Union
 
-from meowlauncher.common_types import (EmulationNotSupportedException,
-                                       ExtensionNotSupportedException,
-                                       NotActuallyLaunchableGameException)
 from meowlauncher.config.emulator_config import emulator_configs
 from meowlauncher.config.main_config import main_config
 from meowlauncher.config.platform_config import platform_configs
@@ -21,6 +18,9 @@ from meowlauncher.data.emulators import (emulators, libretro_cores,
                                          libretro_frontends)
 from meowlauncher.emulator import (LibretroCore, MAMEDriver, MednafenModule,
                                    StandardEmulator, ViceEmulator)
+from meowlauncher.exceptions import (EmulationNotSupportedException,
+                                     ExtensionNotSupportedException,
+                                     NotActuallyLaunchableGameException)
 from meowlauncher.game_source import (ChooseableEmulatorGameSource,
                                       CompoundGameSource)
 from meowlauncher.games.roms.rom import ROM, FolderROM, get_rom

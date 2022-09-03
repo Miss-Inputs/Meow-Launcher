@@ -14,10 +14,11 @@ try:
 except ModuleNotFoundError:
 	have_steamfiles = False
 
-from meowlauncher.common_types import (GameNotSupportedException,
-                                       NotActuallyLaunchableGameException,
-                                       NotLaunchableException, SaveType)
+from meowlauncher.common_types import SaveType
 from meowlauncher.config.main_config import main_config
+from meowlauncher.exceptions import (GameNotSupportedException,
+                                     NotActuallyLaunchableGameException,
+                                     NotLaunchableException)
 from meowlauncher.game_source import GameSource
 from meowlauncher.games.common.engine_detect import (
     try_and_detect_engine_from_folder, try_detect_engine_from_exe)

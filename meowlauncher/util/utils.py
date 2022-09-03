@@ -7,7 +7,7 @@ import re
 from collections.abc import Collection, Sequence, Mapping
 from typing import Any, Optional, Union
 
-from meowlauncher.common_types import NotLaunchableException
+from meowlauncher.exceptions import NotLaunchableException
 
 try:
 	import termcolor

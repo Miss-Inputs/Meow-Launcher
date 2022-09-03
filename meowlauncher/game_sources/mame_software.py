@@ -5,8 +5,9 @@ import sys
 import time
 from collections.abc import Collection, Mapping, Sequence
 
-from meowlauncher.common_types import EmulationNotSupportedException, MediaType
+from meowlauncher.common_types import MediaType
 from meowlauncher.config.main_config import main_config
+from meowlauncher.exceptions import EmulationNotSupportedException
 from meowlauncher.games.common.emulator_command_line_helpers import mame_base
 from meowlauncher.games.mame_common.software_list import Software
 from meowlauncher.games.mame_common.software_list_find_utils import \

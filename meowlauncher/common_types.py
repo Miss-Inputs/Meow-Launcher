@@ -1,5 +1,13 @@
 from enum import Enum, IntEnum, auto
 
+from meowlauncher.util.utils import format_byte_size
+
+class ByteAmount(int):
+	#For specific_info etc purposes, for storing sizes etc, so it can be formatted nicely
+
+	def __str__(self) -> str:
+		return format_byte_size(self)
+
 class MediaType(Enum):
 	Cartridge = auto()
 	Digital = auto()
@@ -20,25 +28,6 @@ class SaveType(Enum):
 	Internal = auto()
 	Cloud = auto()
 	Unknown = auto()
-
-class NotLaunchableException(Exception):
-	pass
-
-class GameNotSupportedException(NotLaunchableException):
-	#Game is not playable for one reason or another, but actually is a game (or other software, for you nitpickers out there)
-	pass
-
-class EmulationNotSupportedException(GameNotSupportedException):
-	#When a particular emulator does not support this game
-	pass
-
-class ExtensionNotSupportedException(EmulationNotSupportedException):
-	#Particular emulator does not support this file extension (maybe should be "file type" instead of extension to be more generic)
-	pass
-
-class NotActuallyLaunchableGameException(NotLaunchableException):
-	#Game is not something that can be launched at all
-	pass
 
 class EmulationStatus(IntEnum):
 	Good = 2

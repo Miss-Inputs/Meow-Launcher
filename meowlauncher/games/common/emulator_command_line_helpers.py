@@ -2,7 +2,7 @@ import os
 from collections.abc import Collection, Mapping, Sequence
 from typing import TYPE_CHECKING, Optional, cast
 
-from meowlauncher.common_types import EmulationNotSupportedException
+from meowlauncher.exceptions import EmulationNotSupportedException
 from meowlauncher.emulator import EmulatorStatus, MednafenModule
 from meowlauncher.games.mame_common.mame_helpers import (have_mame,
                                                          verify_romset)
