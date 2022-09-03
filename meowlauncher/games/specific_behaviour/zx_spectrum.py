@@ -1,5 +1,6 @@
 from collections.abc import Collection
 from typing import TYPE_CHECKING, NamedTuple, Optional
+from meowlauncher.common_types import ByteAmount
 from meowlauncher.games.roms.rom import FileROM
 from meowlauncher.platform_types import ZXExpansion, ZXJoystick, ZXMachine
 
@@ -104,18 +105,18 @@ def _machine_from_tag(tag: str) -> Optional[ZXMachine]:
 
 	return None	
 
-def _ram_requirement_from_tag(tag: str)	-> Optional[tuple[int, int]]:
+def _ram_requirement_from_tag(tag: str)	-> Optional[tuple[ByteAmount, ByteAmount]]:
 	#Minimum, recommended
 	#TODO: Should this be a more generic function somewhere else?
 	if tag == '(16K)':
-		return 16 * 1024, 16 * 1024
+		return ByteAmount(16 * 1024), ByteAmount(16 * 1024)
 	if tag == '(48K)':
-		return 48 * 1024, 48 * 1024
+		return ByteAmount(48 * 1024), ByteAmount(48 * 1024)
 	if tag == '(48K-128K)':
 		#I _think_ that's what this means… or is it maximum?
-		return 48 * 1024, 128 * 1024
+		return ByteAmount(48 * 1024), ByteAmount(128 * 1024)
 	if tag == '(128K)':
-		return 128 * 1024, 128 * 1024
+		return ByteAmount(128 * 1024), ByteAmount(128 * 1024)
 	return None
 
 def add_speccy_filename_tags_info(tags: Collection[str], metadata: 'Metadata') -> None:

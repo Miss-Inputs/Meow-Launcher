@@ -5,8 +5,7 @@ from collections.abc import Collection, Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, cast
 
-from meowlauncher.common_types import (EmulationNotSupportedException,
-                                       MediaType, NotActuallyLaunchableGameException)
+from meowlauncher.common_types import ByteAmount, MediaType
 from meowlauncher.data.emulated_platforms import (arabic_msx1_drivers,
                                                   arabic_msx2_drivers,
                                                   japanese_msx1_drivers,
@@ -14,6 +13,8 @@ from meowlauncher.data.emulated_platforms import (arabic_msx1_drivers,
                                                   working_msx1_drivers,
                                                   working_msx2_drivers,
                                                   working_msx2plus_drivers)
+from meowlauncher.exceptions import (EmulationNotSupportedException,
+                                     NotActuallyLaunchableGameException)
 from meowlauncher.games.common.emulator_command_line_helpers import (
     _is_software_available, _verify_supported_gb_mappers,
     first_available_romset, is_highscore_cart_available, mame_base,
@@ -713,6 +714,8 @@ def mame_sord_m5(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: '
 		#Not sure what m5p_brno is about (two floppy drives?)
 
 	#ramsize can be set to 64K pre-0.227
+	#Dunno what the second cart slot is used for
+	#Also has flop slot (generic extensions) and cass slot (.wav/.cas)?
 	return mame_driver(game, emulator_config, system, 'cart1', has_keyboard=True)
 
 def mame_sg1000(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
@@ -834,7 +837,7 @@ def mame_zx_spectrum(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_confi
 		system = 'specpls3'
 	
 	if not system:
-		recommended_ram: Optional[int] = game.metadata.specific_info.get('Recommended RAM')
+		recommended_ram: Optional[ByteAmount] = game.metadata.specific_info.get('Recommended RAM')
 		if recommended_ram is not None:
 			#TODO: Fallback to minimum RAM if this machine is not found
 			#I don't think we need to set ramsize, unless it turns out this really means maximum
@@ -885,8 +888,8 @@ def mednafen_apple_ii(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_conf
 			raise EmulationNotSupportedException(f'Only Apple II and II+ are supported, this needs {machines}')
 
 	required_ram = game.metadata.specific_info.get('Minimum RAM')
-	if required_ram and required_ram > 64:
-		raise EmulationNotSupportedException(f'Needs at least {required_ram} KB RAM')
+	if required_ram and required_ram > (64 * 1024):
+		raise EmulationNotSupportedException(f'Needs at least {required_ram} RAM')
 
 	return mednafen_module('apple2', exe_path=emulator_config.exe_path)
 
@@ -1006,7 +1009,8 @@ def vice_pet(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emul
 
 	ram_size = game.metadata.specific_info.get('Minimum RAM')
 	if ram_size:
-		args += ['-ramsize', str(ram_size)]
+		#TODO: Ensure this is one of 4K (default) / 8K / 16K / 32K
+		args += ['-ramsize', f'{ram_size // 1024}K']
 
 	args.append(rom_path_argument)
 	return LaunchCommand(emulator_config.exe_path, args)

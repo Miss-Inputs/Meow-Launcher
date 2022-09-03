@@ -1,5 +1,6 @@
 import logging
 from typing import TYPE_CHECKING
+from meowlauncher.common_types import ByteAmount
 
 from meowlauncher.games.mame_common.mame_utils import \
     consistentify_manufacturer
@@ -42,7 +43,7 @@ def parse_woz_info_chunk(metadata: Metadata, chunk_data: bytes) -> None:
 			metadata.specific_info['Machine'] = machines
 		minimum_ram = int.from_bytes(chunk_data[42:44], 'little')
 		if minimum_ram:
-			metadata.specific_info['Minimum RAM'] = minimum_ram
+			metadata.specific_info['Minimum RAM'] = ByteAmount(minimum_ram * 1024)
 
 woz_meta_machines = {
 	'2': AppleIIHardware.AppleII,
@@ -89,7 +90,7 @@ def parse_woz_kv(rompath: str, metadata: Metadata, key: str, value: str) -> None
 		if value[-1].lower() == 'k':
 			value = value[:-1]
 		try:
-			metadata.specific_info['Minimum RAM'] = int(value)
+			metadata.specific_info['Minimum RAM'] = ByteAmount(int(value) * 1024)
 		except ValueError:
 			pass
 	elif key == 'publisher':

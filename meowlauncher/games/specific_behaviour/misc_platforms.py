@@ -6,7 +6,7 @@ from enum import Enum, auto
 from typing import TYPE_CHECKING, Optional, cast
 
 from meowlauncher import input_metadata
-from meowlauncher.common_types import MediaType
+from meowlauncher.common_types import ByteAmount, MediaType
 from meowlauncher.games.common.generic_info import add_generic_software_info
 from meowlauncher.games.mame_common.machine import (
     Machine, does_machine_match_name, iter_machines_from_source_file)
@@ -181,7 +181,7 @@ def add_pet_custom_info(game: 'ROMGame') -> None:
 			continue
 		for ram in (8, 16, 32, 96, 128):
 			if tag.lower() in (f'{ram}k ram', f'{ram}kb ram'):
-				game.metadata.specific_info['Minimum RAM'] = ram
+				game.metadata.specific_info['Minimum RAM'] = ByteAmount(ram * 1024)
 				continue
 
 def _get_uapce_games() -> Iterator[Machine]:

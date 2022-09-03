@@ -2,7 +2,6 @@ from configparser import RawConfigParser
 import importlib.resources
 import json
 import logging
-import math
 import re
 from collections.abc import Collection, Sequence, Mapping
 from typing import Any, Optional, Union
@@ -172,16 +171,20 @@ def load_json(subpackage: Optional[str], resource: str) -> Any:
 def _format_unit(n: int, suffix: str, base_unit: int=1000, singular_suffix: str=None) -> str:
 	try:
 		if n < base_unit:
-			return f'{n} {singular_suffix if singular_suffix else suffix}'
+			return f'{n:n} {singular_suffix if singular_suffix else suffix}'
 	except TypeError:
 		return str(n)
+	#unit_suffixes = 'KMGTPE'
+	unit_suffixes = 'KM'
+	for i, unit_suffix in enumerate(unit_suffixes, 1):
+		if n >= base_unit ** (i + 1):
+			continue
+		unit = base_unit ** i
+		#Would like to use :n here, but then it doesn't work for having only two decimal points
+		return f'{n / unit:.2f}'.rstrip('0') + f' {unit_suffix}{suffix}'
+	return f'{n / (base_unit ** len(unit_suffixes)):.2f}'.rstrip('0') + f' {unit_suffixes[-1]}{suffix}'
 	
-	exp = int(math.log(n, base_unit))
-	unit_suffix = 'KMGTPE'[exp - 1]
-	d = round(n / math.pow(base_unit, exp), 2)
-	return f'{d} {unit_suffix}{suffix}'
-
-def format_byte_size(b: int, metric: bool=True) -> str:
+def format_byte_size(b: int, metric: bool=False) -> str:
 	return _format_unit(b, 'B' if metric else 'iB', 1000 if metric else 1024, 'bytes')
 	
 def decode_bcd(i: int) -> int:

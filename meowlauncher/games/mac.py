@@ -24,10 +24,10 @@ try:
 except ImportError:
 	have_pillow = False
 
+from meowlauncher.common_types import ByteAmount
 from meowlauncher.manually_specified_game import (ManuallySpecifiedGame,
                                                   ManuallySpecifiedLauncher)
 from meowlauncher.metadata import Date
-from meowlauncher.util.utils import format_byte_size
 
 if TYPE_CHECKING:
 	from meowlauncher.config_types import PlatformConfig
@@ -397,7 +397,7 @@ class MacApp(ManuallySpecifiedGame):
 					#	self.metadata.specific_info['Has User Interface?'] = False
 					if size[1] & (1 << (15 - 8)) == 0: #Wait is that even correct, and if these size resources are just ints, should they be combined to make this easier
 						self.metadata.specific_info['Not 32 Bit Clean?'] = True
-				self.metadata.specific_info['Minimum RAM'] = format_byte_size(int.from_bytes(size[6:10], 'big'))
+				self.metadata.specific_info['Minimum RAM'] = ByteAmount(int.from_bytes(size[6:10], 'big'))
 
 		if file.type == b'APPL' and 'Architecture' not in self.metadata.specific_info:
 			#According to https://support.apple.com/kb/TA21606?locale=en_AU this should work

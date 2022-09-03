@@ -2,7 +2,7 @@ import re
 from typing import TYPE_CHECKING
 
 from meowlauncher import input_metadata
-from meowlauncher.common_types import SaveType
+from meowlauncher.common_types import ByteAmount, SaveType
 #We can then add more metadata on top of this, if we're fine with usage and such being unparsed and just added automatically
 from meowlauncher.games.common.generic_info import add_generic_software_info
 
@@ -67,7 +67,7 @@ def add_fm_towns_software_info(software: 'Software', metadata: 'Metadata') -> No
 	if usage:
 		match = _requires_ram_regex.match(usage)
 		if match:
-			metadata.specific_info['Minimum RAM'] = match[1]
+			metadata.specific_info['Minimum RAM'] = ByteAmount(int(match[1]) * 1024 * 1024)
 			if match.end() < len(usage):
 				metadata.add_notes(usage)
 
@@ -76,7 +76,7 @@ def add_sord_m5_software_info(software: 'Software', metadata: 'Metadata') -> Non
 	software.add_standard_metadata(metadata)
 	usage = software.get_info('usage')
 	if usage == 'Requires 36k RAM':
-		metadata.specific_info['Minimum RAM'] = '36K'
+		metadata.specific_info['Minimum RAM'] = 36 * 1024
 	else:
 		metadata.add_notes(usage)
 	
