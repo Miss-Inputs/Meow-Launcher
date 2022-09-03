@@ -41,7 +41,7 @@ class ROMGame(EmulatedGame):
 		self.rom = rom
 		self.metadata.platform = platform.name
 		self.platform = platform
-		self.filename_tags = find_filename_tags_at_end(rom.path.name)
+		self.filename_tags = find_filename_tags_at_end(rom.path.stem)
 
 		self.exception_reason: Optional[BaseException] = None
 	
