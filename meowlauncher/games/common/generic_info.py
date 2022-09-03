@@ -84,11 +84,11 @@ def add_dump_status_info_from_tags(tags: Sequence[str], metadata: 'Metadata') ->
 		if tag.startswith('[cr '):
 			metadata.specific_info['Cracked By'] = tag.removeprefix('[cr ')[:-1]
 			metadata.specific_info.setdefault('Bad Dump', set()).add('Cracked')
-		if tag == '[cr' and (tag[3] == ']' or tag[3].isdigit()):
+		if tag == '[cr' and (tag[2] == ']' or tag[2].isdigit()):
 			metadata.specific_info.setdefault('Bad Dump', set()).add('Cracked')
 		if tag.startswith('[b '):
 			metadata.specific_info.setdefault('Bad Dump', set()).add(tag.removeprefix('[b ')[:-1])
-		elif tag.startswith('[b') and (tag[3] == ']' or tag[3].isdigit()):
+		elif tag.startswith('[b') and (tag[2] == ']' or tag[2].isdigit()):
 			metadata.specific_info.setdefault('Bad Dump', set()).add('Bad Dump')
 		if tag.startswith('[f '):
 			#Well, this is a problem - you cannot parse any difference between what the fix is, and who the fix is by
@@ -98,7 +98,7 @@ def add_dump_status_info_from_tags(tags: Sequence[str], metadata: 'Metadata') ->
 				metadata.specific_info['Fixed By'] = fix_description
 			else:
 				metadata.specific_info['Fix'] = fix_description
-		elif tag.startswith('[f') and (tag[3] == ']' or tag[3].isdigit()):
+		elif tag.startswith('[f') and (tag[2] == ']' or tag[2].isdigit()):
 			#Actually, we won't consider this to be a "bad dump"
 			metadata.specific_info['Fix'] = True
 		#if tag.startswith('[f'):
@@ -111,12 +111,12 @@ def add_dump_status_info_from_tags(tags: Sequence[str], metadata: 'Metadata') ->
 			else:
 				metadata.specific_info['Hack'] = hack_description
 			metadata.specific_info.setdefault('Bad Dump', set()).add('Hacked')
-		if tag.startswith('[h') and (tag[3] == ']' or tag[3].isdigit()):
+		if tag.startswith('[h') and (tag[2] == ']' or tag[2].isdigit()):
 			metadata.specific_info.setdefault('Bad Dump', set()).add('Hacked')
 		if tag.startswith('[m '):
 			#TOSEC says this is called "modified", but then it means some disk image that is unclean (contains a save file etc), which others would call a bad dump
 			metadata.specific_info.setdefault('Bad Dump', set()).add(tag.removeprefix('[m ')[:-1])
-		elif tag.startswith('[m') and (tag[3] == ']' or tag[3].isdigit()):
+		elif tag.startswith('[m') and (tag[2] == ']' or tag[2].isdigit()):
 			metadata.specific_info.setdefault('Bad Dump', set()).add('Unclean')
 		if tag.startswith('[t '):
 			trainer_description = tag.removeprefix('[t ')[:-1]
@@ -130,16 +130,16 @@ def add_dump_status_info_from_tags(tags: Sequence[str], metadata: 'Metadata') ->
 			else:
 				metadata.specific_info['Trained By'] = trainer_description
 				metadata.specific_info.setdefault('Bad Dump', set()).add('Trainer')
-		elif tag.startswith('[t') and (tag[3] == ']' or tag[3].isdigit()):
+		elif tag.startswith('[t') and (tag[2] == ']' or tag[2].isdigit()):
 			metadata.specific_info.setdefault('Bad Dump', set()).add('Trainer')
-		if tag.startswith('[o') and (tag[3] == ']' or tag[3].isdigit()):
+		if tag.startswith('[o') and (tag[2] == ']' or tag[2].isdigit()):
 			metadata.specific_info.setdefault('Bad Dump', set()).add('Overdump')
-		if tag.startswith('[u') and (tag[3] == ']' or tag[3].isdigit()):
+		if tag.startswith('[u') and (tag[2] == ']' or tag[2].isdigit()):
 			metadata.specific_info.setdefault('Bad Dump', set()).add('Underdump')
 		if tag.startswith('[v '):
 			metadata.specific_info['Virus'] = tag.removeprefix('[v ')[:-1]
 			metadata.specific_info.setdefault('Bad Dump', set()).add('Virus')
-		if tag.startswith('[v') and (tag[3] == ']' or tag[3].isdigit()):
+		if tag.startswith('[v') and (tag[2] == ']' or tag[2].isdigit()):
 			metadata.specific_info.setdefault('Bad Dump', set()).add('Virus')
 		
 		#TODO: Find something to do with [p], [p (group/person], (Pirate), (Unl)
