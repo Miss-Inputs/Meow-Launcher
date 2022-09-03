@@ -76,6 +76,22 @@ def add_info_from_filename_tags(tags: Collection[str], metadata: 'Metadata') -> 
 		if tag == '[WB]':
 			metadata.specific_info['Requires Workbench?'] = True
 			continue
+		if tag == '[AMOS]':
+			metadata.specific_info['Uses AMOS?'] = True
+			continue
+		if tag == '[KS 1.2]':
+			metadata.specific_info['Kickstart Version'] = 'v1.2'
+			continue
+		if tag == '(68060)':
+			#Not in TOSEC, but probably good to use something to indicate it requires funny CPUs
+			metadata.specific_info['Minimum CPU'] = '68080'
+			continue
+		if tag == '(SEUCK)':
+			metadata.specific_info['Engine'] = 'Shoot-\'Em-Up Construction Kit'
+			continue
+		if tag == '(3DCK)':
+			metadata.specific_info['Engine'] = '3D Construction Kit'
+			continue
 		
 		if 'Machine' not in metadata.specific_info:
 			machine = _machine_from_tag(tag)
@@ -87,9 +103,6 @@ def add_info_from_filename_tags(tags: Collection[str], metadata: 'Metadata') -> 
 			if chipset:
 				metadata.specific_info['Chipset'] = chipset
 		
-		if tag == '(68060)':
-			#Not in TOSEC, but probably good to use something to indicate it requires funny CPUs
-			metadata.specific_info['Minimum CPU'] = '68080'
 
 def add_amiga_custom_info(game: 'ROMGame') -> None:
 	software = game.get_software_list_entry()
