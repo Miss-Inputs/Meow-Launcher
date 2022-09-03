@@ -31,12 +31,12 @@ _languages = {
 	'de': 'German',
 	'it': 'Italian',
 	'es': 'Spanish',
-	'zhs': 'Simplified Chinese',
+	'zhs': 'Chinese (Simplified)',
 	'ko': 'Korean',
 	'nl': 'Dutch',
-	'pt': 'Portugese',
+	'pt': 'Portuguese',
 	'ru': 'Russian',
-	'zht': 'Traditional Chinese',
+	'zht': 'Chinese (Traditional)',
 }
 
 class WiiUVirtualConsolePlatform(Enum):

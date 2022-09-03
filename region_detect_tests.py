@@ -4,7 +4,6 @@
 #TODO: Yeah I'm not sure this actually works properly
 
 from collections.abc import Collection
-import logging
 from typing import Optional
 
 from meowlauncher.util.detect_things_from_filename import (
@@ -21,10 +20,10 @@ def are_regions_equal(region, other_region) -> bool:
 		return True
 
 	if isinstance(region, Region) and not isinstance(other_region, Region):
-		return region.name == other_region
+		return region.name == str(other_region)
 
 	if isinstance(other_region, Region) and not isinstance(region, Region):
-		return region == other_region.name
+		return str(region) == other_region.name
 
 	return False
 

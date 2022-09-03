@@ -25,13 +25,13 @@ def translate_language_list(languages: Mapping[bytes, Any]) -> Collection[Langua
 		if language_name == 'koreana': #I don't know what the a at the end is for, but Steam does that
 			langs.add(languages_by_english_name['Korean'])
 		elif language_name == 'schinese': #Simplified Chinese
-			langs.add(languages_by_english_name['Chinese'])
+			langs.add(languages_by_english_name['Chinese (Simplified)'])
 		elif language_name == 'tchinese':
-			langs.add(languages_by_english_name['Traditional Chinese'])
+			langs.add(languages_by_english_name['Chinese (Traditional)'])
 		elif language_name == 'brazilian':
-			langs.add(languages_by_english_name['Brazilian Portugese'])
+			langs.add(languages_by_english_name['Portuguese (Brazilian)'])
 		elif language_name == 'latam':
-			langs.add(languages_by_english_name['Latin American Spanish'])
+			langs.add(languages_by_english_name['Spanish (Latin American)'])
 		else:
 			language = get_language_by_english_name(language_name, case_insensitive=True)
 			if language:

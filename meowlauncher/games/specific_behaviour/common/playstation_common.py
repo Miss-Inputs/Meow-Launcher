@@ -93,7 +93,7 @@ class SoundFormats(Flag):
 
 title_languages = {
 	0: 'Japanese',
-	1: 'American English',
+	1: 'English (American)',
 
 	#PS2/PSP/PS3/Vita/PS4 only:
 	2: 'French',
@@ -101,11 +101,11 @@ title_languages = {
 	4: 'German',
 	5: 'Italian',
 	6: 'Dutch',
-	7: 'Portugese',
+	7: 'Portuguese',
 	8: 'Russian',
 	9: 'Korean',
-	10: 'Traditional Chinese',
-	11: 'Simplified Chinese',
+	10: 'Chinese (Traditional)',
+	11: 'Chinese (Simplified)',
 
 	#PS3/Vita/PS4 only:
 	12: 'Finnish',
@@ -113,14 +113,14 @@ title_languages = {
 	14: 'Danish',
 	15: 'Norwegian',
 	16: 'Polish',
-	17: 'Brazilian Portugese',
-	18: 'British English',
+	17: 'Portuguese (Brazilian)',
+	18: 'English (British)',
 	19: 'Turkish',
 
 	#PS4 only:
-	20: 'Latin American Spanish',
+	20: 'Spanish (Latin American)',
 	21: 'Arabic',
-	22: 'Canadian French',
+	22: 'French (Canadian)',
 	23: 'Czech',
 	24: 'Hungarian',
 	25: 'Greek',

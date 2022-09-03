@@ -82,12 +82,12 @@ nacp_languages = {
 	7: 'Italian',
 	8: 'Dutch',
 	9: 'CanadianFrench',
-	10: 'Portugese',
+	10: 'Portuguese',
 	11: 'Russian',
 	12: 'Korean',
 	13: 'TraditionalChinese',
 	14: 'SimplifiedChinese',
-	#There's space for #15 here (BrazilianPortugese?) but that never seems to be used
+	#There's space for #15 here (BrazilianPortuguese?) but that never seems to be used
 }
 
 @dataclass(frozen=True)
@@ -117,18 +117,18 @@ def _add_titles(metadata: 'Metadata', titles: Mapping[str, tuple[str, str]], ico
 				#Do some shenanigans to make things look nice
 				prefix = lang_name
 				if i == 0:
-					prefix = 'American English' if 'BritishEnglish' in titles else 'English'
+					prefix = 'English (American)'
 				if i == 1:
-					prefix = 'British English' if 'AmericanEnglish' in titles else 'English'
+					prefix = 'English (British)'
 				#I really should just do a regex to convert camel case I guess…
 				if i == 5:
-					prefix = 'Latin American Spanish'
+					prefix = 'Spanish (Latin American)'
 				if i == 9:
-					prefix = 'Canadian French'
+					prefix = 'French (Canadian)'
 				if i == 13:
-					prefix = 'Traditional Chinese'
+					prefix = 'Chinese (Traditional)'
 				if i == 14:
-					prefix = 'Chinese'
+					prefix = 'Chinese (Simplified)'
 
 				if icons and lang_name in icons:
 					local_icon = icons[lang_name]
@@ -174,17 +174,18 @@ def _add_nacp_metadata(metadata: 'Metadata', nacp: bytes, icons: Mapping[str, by
 	supported_languages = set()
 	for k, v in nacp_languages.items():
 		if supported_language_flag & (1 << k):
-			if v in {'AmericanEnglish', 'BritishEnglish'}:
-				#I want to avoid saying one language is the True English but at the same time it makes things a lot more complicated if I don't have a language in the list that just says English
-				supported_languages.add(languages_by_english_name['English'])
+			if v == 'AmericanEnglish':
+				supported_languages.add(languages_by_english_name['English (American)'])
+			elif v == 'BritishEnglish':
+				supported_languages.add(languages_by_english_name['English (British)'])
 			elif v == 'LatinAmericanSpanish':
-				supported_languages.add(languages_by_english_name['Latin American Spanish'])
+				supported_languages.add(languages_by_english_name['Spanish (Latin American)'])
 			elif v == 'CanadianFrench':
-				supported_languages.add(languages_by_english_name['Canadian French'])
+				supported_languages.add(languages_by_english_name['French (Canadian)'])
 			elif v == 'TraditionalChinese':
-				supported_languages.add(languages_by_english_name['Traditional Chinese'])
+				supported_languages.add(languages_by_english_name['Chinese (Traditional)'])
 			elif v == 'SimplifiedChinese':
-				supported_languages.add(languages_by_english_name['Chinese'])
+				supported_languages.add(languages_by_english_name['Chinese (Simplified)'])
 			else:
 				supported_language = get_language_by_english_name(v)
 				if supported_language:

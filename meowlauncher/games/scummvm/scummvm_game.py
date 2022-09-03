@@ -107,10 +107,41 @@ class ScummVMGame(Game):
 			return None
 		if language_code == 'br':
 			return get_language_by_short_code('Pt-Br')
+		if language_code == 'cn':
+			return get_language_by_short_code('Zh-Hans')
+		if language_code == 'tw':
+			return get_language_by_short_code('Zh-Hant')
+		if language_code == 'gb':
+			return get_language_by_short_code('En-GB')
+		if language_code == 'us':
+			return get_language_by_short_code('En-US')
+		if language_code == 'be':
+			return get_language_by_short_code('Nl-BE')
+		if language_code == 'nb': #Bokmål
+			return get_language_by_short_code('No')
 		if language_code == 'se':
 			#…That's the region code for Sweden, not the language code for Swedish, so that's odd but that's how it ends up being
 			return get_language_by_short_code('Sv')
-		return get_language_by_short_code(language_code, case_insensitive=True)
+		#There is an array called "g_obsoleteLanguages" here
+		if language_code == 'cz':
+			return get_language_by_short_code('Cs')
+		if language_code == 'gr':
+			return get_language_by_short_code('El')
+		if language_code == 'hb':
+			return get_language_by_short_code('He')
+		if language_code == 'jp':
+			return get_language_by_short_code('Ja')
+		if language_code == 'kr':
+			return get_language_by_short_code('Ko')
+		if language_code == 'nz':
+			return get_language_by_short_code('Zh')
+		if language_code == 'zh-cn':
+			return get_language_by_short_code('Zh-Hans')
+
+		lang = get_language_by_short_code(language_code, case_insensitive=True)
+		if not lang:
+			logger.info('Unknonw language in ScummVM game, returning None: %s', language_code)
+		return lang
 
 	@property
 	def original_platform(self) -> Optional[str]:

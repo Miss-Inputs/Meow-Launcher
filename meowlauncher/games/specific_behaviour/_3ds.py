@@ -49,12 +49,12 @@ languages = {
 	3: 'German',
 	4: 'Italian',
 	5: 'Spanish',
-	6: 'Simplified Chinese',
+	6: 'Chinese (Simplified)',
 	7: 'Korean',
 	8: 'Dutch',
-	9: 'Portugese',
+	9: 'Portuguese',
 	10: 'Russian',
-	11: 'Traditional Chinese',
+	11: 'Chinese (Traditional)',
 	12: 'Japanese', #Wait how's that work
 	#Theoretically there could be 3 more languages here, but there are probably not
 	13: 'Unknown language 1',

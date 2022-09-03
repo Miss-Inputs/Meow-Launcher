@@ -4,7 +4,7 @@
 
 from collections.abc import Collection
 from enum import Enum, auto
-from typing import Optional
+from typing import Optional, cast
 from dataclasses import dataclass, field
 
 class TVSystem(Enum):
@@ -57,6 +57,7 @@ languages = [
 	Language('Catalan', 'Català', 'Ca'),
 	Language('Croatian', 'Hrvatski jezik', 'Hr'),
 	Language('Czech', 'Čeština', 'Cs'),
+	Language('Estonian', 'Eesti keel', 'Et'),
 	Language('Greek', 'ελληνικά', 'El'),
 	Language('Hebrew', 'עברית', 'He'),
 	Language('Hindi', 'हिन्दी', 'Hi'),
@@ -65,6 +66,7 @@ languages = [
 	Language('Indonesian', 'Bahasa Indonesia', 'In'),
 	Language('Khmer', 'ភាសាខ្មែរ', 'Km'),
 	Language('Lao', 'ພາສາລາວ', 'Lo'),
+	Language('Latvian', 'Latviešu', 'Lv'),
 	Language('Malay', 'Bahasa Melayu', 'Ms'),
 	Language('Mongolian', 'Монгол хэл', 'Mn'),
 	Language('Persian', 'فارسی', 'Fa'),
@@ -78,14 +80,21 @@ languages = [
 	Language('Ukrainian', 'Українська', 'Uk'),
 	Language('Vietnamese', 'Tiếng Việt', 'Vn'),
 
-	Language('Traditional Chinese', '漢語', 'Zh-Hant'),
-	#Dialects of other languages, where there's something that specifies it's that dialect specifically (Steam games do this, for example)
-	Language('Brazilian Portugese', 'Português do Brasil', 'Pt-Br'),
-	Language('Latin American Spanish', 'Español-Latinoamérica', 'Es-La'), #Actually I have never seen "Es-La" be used ever, I'm just assuming it would be
-	Language('Canadian French', 'Français canadien', 'Fr-Ca'),
+	#Dialects of other languages, where there's something that specifies it's that dialect specifically
+	Language('Chinese (Simplified)', '漢語', 'Zh-Hans'),
+	Language('Chinese (Traditional)', '漢語', 'Zh-Hant'),
+	Language('Dutch (Flemish)', 'Vlaams', 'Nl-BE'),
+	Language('English (British)', 'English (British)', 'En-GB'),
+	Language('English (American)', 'English (American)', 'En-US'),
+	Language('English (Australian)', 'English (Australian)', 'En-AU'),
+	Language('Portuguese (Brazilian)', 'Português do Brasil', 'Pt-Br'),
+	Language('Spanish (Latin American)', 'Español-Latinoamérica', 'Es-La'), #Actually I have never seen "Es-La" be used ever, I'm just assuming it would be
+	Language('French (Canadian)', 'Français canadien', 'Fr-Ca'),
 ]
 
 regions = [
+	#Note: A lot of this list is based on observations of how these are used in filename schemes for games, and what seems to be implied; don't go around thinking this is objectively correct/authorative
+	#The national language is indeed probably going to be wrong if you interpret it literally, it should be thought of as "if a game was released in this country, and you had no information specifically saying what language it is, what language would it probably be", and then I think for some of them it is just None because I haven't been bothered to put _every_ language in languages
 	Region('Afghanistan', 'AF', TVSystem.PAL, None),
 	Region('Albania', 'AL', TVSystem.PAL, 'Albanian'),
 	Region('Algeria', 'DZ', TVSystem.PAL, 'Arabic'),
@@ -94,7 +103,7 @@ regions = [
 	Region('Argentina', 'AR', TVSystem.PAL, 'Spanish'),
 	Region('Aruba', 'AW', TVSystem.NTSC, 'Dutch'),
 	Region('Asia', 'AS', None, None), #No-Intro filenames using this as a region seem to always mean East Asia specifically, although that's still a lot of countries so it doesn't mean much
-	Region('Australia', 'AU', TVSystem.PAL, 'English'),
+	Region('Australia', 'AU', TVSystem.PAL, 'English (Australian)'),
 	Region('Austria', 'AT', TVSystem.PAL, 'German'),
 	Region('Bahamas', 'BS', TVSystem.NTSC, 'English'),
 	Region('Bahrain', 'BH', TVSystem.PAL, 'Arabic'),
@@ -106,7 +115,7 @@ regions = [
 	Region('Bermuda', 'BM', TVSystem.NTSC, 'English'),
 	Region('Bolivia', 'BO', TVSystem.NTSC, 'Spanish'),
 	Region('Botswana', 'BW', TVSystem.PAL, None),
-	Region('Brazil', 'BR', TVSystem.NTSC, 'Brazilian Portguese'), #Uses PAL-M actually, but we'll call it NTSC because it's 60Hz
+	Region('Brazil', 'BR', TVSystem.NTSC, 'Portuguese (Brazilian)'), #Uses PAL-M actually, but we'll call it NTSC because it's 60Hz
 	Region('British Virgin Islands', 'VG', TVSystem.NTSC, 'English'),
 	Region('Brunei', 'BN', TVSystem.PAL, 'Malay'),
 	Region('Bulgaria', 'BG', TVSystem.PAL, 'Bulgarian'),
@@ -114,15 +123,15 @@ regions = [
 	Region('Burundi', 'BI', TVSystem.PAL, None),
 	Region('Cambodia', 'KH', TVSystem.NTSC, 'Khmer'),
 	Region('Cameroon', 'CM', TVSystem.PAL, None),
-	Region('Canada', 'CA', TVSystem.NTSC, 'French'), #Filenames tagged as (Canada) specifically indicate French, as (USA) is used to mean North America i.e. USA + Canada even though that seems a bit wrong
+	Region('Canada', 'CA', TVSystem.NTSC, 'French (Canadian)'), #Filenames tagged as (Canada) specifically indicate French, as (USA) is used to mean North America i.e. USA + Canada even though that seems a bit wrong
 	Region('Cayman Islands', 'KY', TVSystem.NTSC, 'English'),
 	Region('Chad', 'TD', TVSystem.PAL, None),
 	Region('Chile', 'CL', TVSystem.NTSC, 'Spanish'),
-	Region('China', 'CN', TVSystem.PAL, 'Chinese'),
-	Region('Colombia', 'CO', TVSystem.NTSC, 'Spanish'),
+	Region('China', 'CN', TVSystem.PAL, 'Chinese (Simplified)'),
+	Region('Colombia', 'CO', TVSystem.NTSC, 'Spanish (Latin American)'),
 	Region('Congo', 'CG', TVSystem.PAL, None),
-	Region('Costa Rica', 'CR', TVSystem.NTSC, 'Spanish'),
-	Region('Cuba', 'CU', TVSystem.NTSC, 'Spanish'),
+	Region('Costa Rica', 'CR', TVSystem.NTSC, 'Spanish (Latin American)'),
+	Region('Cuba', 'CU', TVSystem.NTSC, 'Spanish (Latin American)'),
 	Region('Curaçao', 'CW', TVSystem.NTSC, None),
 	Region('Cyprus', 'CY', TVSystem.PAL, None),
 	Region('Czech Republic', 'CZ', TVSystem.PAL, 'Czech'),
@@ -137,7 +146,7 @@ regions = [
 	Region('Eswatini', 'SZ', TVSystem.PAL, None),
 	Region('Ethiopia', 'ET', TVSystem.PAL, None),
 	Region('Europe', 'EU', TVSystem.PAL, 'English'), #Actually could be any number of languages, but in filenames (by No-Intro's convention anyway) it's assumed to be English unless otherwise specified
-	Region('Falkland Islands', 'FK', TVSystem.PAL, 'English'),
+	Region('Falkland Islands', 'FK', TVSystem.PAL, 'English (British)'),
 	Region('Faroe Islands', 'FO', TVSystem.PAL, None),
 	Region('Fiji', 'FJ', TVSystem.NTSC, None),
 	Region('Finland', 'FI', TVSystem.PAL, 'Finnish'),
@@ -156,7 +165,7 @@ regions = [
 	Region('Guyana', 'GY', TVSystem.NTSC, 'English'),
 	Region('Haiti', 'HT', TVSystem.PAL, 'French'),
 	Region('Honduras', 'HN', TVSystem.NTSC, 'Spanish'),
-	Region('Hong Kong', 'HK', TVSystem.PAL, 'Traditional Chinese'), #Seems to always be Chinese for video game purposes, although English is also a national language
+	Region('Hong Kong', 'HK', TVSystem.PAL, 'Chinese (Traditional)'), #Seems to always be Chinese for video game purposes, although English is also a national language
 	Region('Hungary', 'HU', TVSystem.PAL, 'Hungarian'),
 	Region('Iceland', 'IS', TVSystem.PAL, 'Icelandic'),
 	Region('India', 'IN', TVSystem.PAL, 'Hindi'),
@@ -191,19 +200,19 @@ regions = [
 	Region('Mauritania', 'MR', TVSystem.PAL, 'Arabic'),
 	Region('Mauritius', 'MU', TVSystem.PAL, None),
 	Region('Mayotte', 'YT', TVSystem.PAL, 'French'),
-	Region('Mexico', 'MX', TVSystem.NTSC, 'Latin American Spanish'),
+	Region('Mexico', 'MX', TVSystem.NTSC, 'Spanish (Latin American)'),
 	Region('Micronesia', 'FM', TVSystem.NTSC, 'English'),
 	Region('Monaco', 'MC', TVSystem.PAL, 'French'),
 	Region('Mongolia', 'MN', TVSystem.PAL, 'Mongolian'),
 	Region('Montenegro', 'ME', TVSystem.PAL, None),
 	Region('Montserrat', 'MS', TVSystem.NTSC, 'English'),
 	Region('Morocco', 'MA', TVSystem.PAL, None),
-	Region('Mozambique', 'MZ', TVSystem.PAL, 'Portugese'),
+	Region('Mozambique', 'MZ', TVSystem.PAL, 'Portuguese'),
 	Region('Myanmar', 'MM', TVSystem.NTSC, 'Burmese'),
 	Region('Nepal', 'NP', TVSystem.PAL, None),
 	Region('Netherlands', 'NL', TVSystem.PAL, 'Dutch'),
 	Region('New Caledonia', 'NC', TVSystem.PAL, 'French'),
-	Region('New Zealand', 'NZ', TVSystem.PAL, 'English'),
+	Region('New Zealand', 'NZ', TVSystem.PAL, 'English (Australian)'), #hehe
 	Region('Nicaragua', 'NI', TVSystem.NTSC, None),
 	Region('Nigeria', 'NG', TVSystem.PAL, 'English'),
 	Region('Niger', 'NE', TVSystem.PAL, 'French'),
@@ -217,14 +226,14 @@ regions = [
 	Region('Peru', 'PE', TVSystem.NTSC, 'Spanish'),
 	Region('Philippines', 'PH', TVSystem.NTSC, None),
 	Region('Poland', 'PL', TVSystem.PAL, 'Polish'),
-	Region('Portugal', 'PT', TVSystem.PAL, 'Portugese'),
+	Region('Portugal', 'PT', TVSystem.PAL, 'Portuguese'),
 	Region('Qatar', 'QA', TVSystem.PAL, 'Arabic'),
 	Region('Réunion', 'RE', TVSystem.PAL, 'French'),
 	Region('Romania', 'RO', TVSystem.PAL, 'Romanian'),
 	Region('Russia', 'RU', TVSystem.PAL, 'Russian'),
 	Region('Samoa', 'WS', TVSystem.NTSC, None),
 	Region('San Marino', 'SM', TVSystem.PAL, 'Italian'),
-	Region('São Tomé and Príncipe', 'ST', TVSystem.PAL, 'Portugese'),
+	Region('São Tomé and Príncipe', 'ST', TVSystem.PAL, 'Portuguese'),
 	Region('Saudi Arabia', 'SA', TVSystem.PAL, 'Arabic'),
 	Region('Scandinavia', None, TVSystem.PAL, None), #This just kinda shows up in filenames sometimes, and it is a region I guess
 	Region('Senegal', 'SN', TVSystem.PAL, 'French'),
@@ -242,7 +251,7 @@ regions = [
 	Region('Sweden', 'SE', TVSystem.PAL, 'Swedish'),
 	Region('Switzerland', 'CH', TVSystem.PAL, None),
 	Region('Syria', 'SY', TVSystem.PAL, 'Arabic'),
-	Region('Taiwan', 'TW', TVSystem.NTSC, 'Traditional Chinese'),
+	Region('Taiwan', 'TW', TVSystem.NTSC, 'Chinese (Traditional)'),
 	Region('Tanzania', 'TZ', TVSystem.PAL, 'Swahili'),
 	Region('Thailand', 'TH', TVSystem.PAL, 'Thai'),
 	Region('Togo', 'TG', TVSystem.PAL, 'French'),
@@ -250,14 +259,15 @@ regions = [
 	Region('Tunisia', 'TN', TVSystem.PAL, 'Arabic'),
 	Region('Turkey', 'TR', TVSystem.PAL, 'Turkish'),
 	Region('Uganda', 'UG', TVSystem.PAL, None),
-	Region('UK', 'GB', TVSystem.PAL, 'English'),
+	Region('UK', 'GB', TVSystem.PAL, 'English (British)'),
+	Region('United Kingdom', 'GB', TVSystem.PAL, 'English (British)'), #Seems both UK and United Kingdom are used at times… mostly the latter I think
 	Region('Ukraine', 'UA', TVSystem.PAL, 'Ukrainian'),
 	Region('United Arab Emirates', 'AE', TVSystem.PAL, 'Arabic'),
 	Region('Uruguay', 'UY', TVSystem.PAL, None),
-	Region('USA', 'US', TVSystem.NTSC, 'English'),
+	Region('USA', 'US', TVSystem.NTSC, 'English (American)'),
 	Region('US Virgin Islands', 'VI', TVSystem.NTSC, 'English'),
 	Region('Vatican City', 'VA', TVSystem.PAL, 'Italian'),
-	Region('Venezuela', 'VE', TVSystem.NTSC, 'Spanish'),
+	Region('Venezuela', 'VE', TVSystem.NTSC, 'Spanish (Latin American)'),
 	Region('Vietnam', 'VN', TVSystem.PAL, 'Vietnamese'),
 	Region('Yemen', 'YE', TVSystem.PAL, 'Arabic'),
 	Region('Zambia', 'ZM', TVSystem.PAL, 'English'),
@@ -308,20 +318,20 @@ def get_region_by_short_code(short_code: str, case_insensitive: bool=False) -> O
 	return None
 
 def get_common_language_from_regions(region_list: Collection[Region]) -> Optional[Language]:
-	common_language = None
 	#If all the regions here have the same language, we can infer the language of the game. Otherwise, we sorta can't
 	#e.g. We know (USA, Australia) is English, but (Japan, USA) could be Japanese or English
-	for region in region_list:
-		if not region.inferred_language:
-			return None #Whomst knows then
+	inferred_languages = {region.inferred_language for region in region_list} #Use set here to do the dirty work of finding a unique value
+	if None in inferred_languages:
+		#If any regions don't have an inferred language then whomst knows
+		return None
+	if len(inferred_languages) == 1:
+		return languages_by_english_name[cast(set[str], inferred_languages).pop()]
+	inferred_prefixes = {lang.split(' (', 1)[0] for lang in inferred_languages}
+	if len(inferred_prefixes) == 1:
+		#If all regions have the same language but different dialects, return the non-specific language
+		return languages_by_english_name[inferred_prefixes.pop()]
 
-		if not common_language:
-			common_language = languages_by_english_name.get(region.inferred_language)
-		
-		if common_language and region.inferred_language != common_language.english_name:
-			return None
-
-	return common_language
+	return None
 
 def get_tv_system_from_regions(region_list: Collection[Region]) -> Optional[TVSystem]:
 	tv_systems = {region.tv_system for region in region_list if region.tv_system is not None}

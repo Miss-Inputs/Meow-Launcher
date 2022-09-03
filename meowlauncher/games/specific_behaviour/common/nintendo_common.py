@@ -71,17 +71,17 @@ def add_info_from_local_titles(metadata: 'Metadata', short_titles: Mapping[str, 
 		local_long_title = long_titles.get('Japanese')
 		local_publisher = publishers.get('Japanese')
 	elif WiiU3DSRegionCode.China in region_codes:
-		local_short_title = short_titles.get('Simplified Chinese')
-		local_long_title = long_titles.get('Simplified Chinese')
-		local_publisher = publishers.get('Simplified Chinese')
+		local_short_title = short_titles.get('Chinese (Simplified)')
+		local_long_title = long_titles.get('Chinese (Simplified)')
+		local_publisher = publishers.get('Chinese (Simplified)')
 	elif WiiU3DSRegionCode.Korea in region_codes:
 		local_short_title = short_titles.get('Korean')
 		local_long_title = long_titles.get('Korean')
 		local_publisher = publishers.get('Korean')
 	elif WiiU3DSRegionCode.Taiwan in region_codes:
-		local_short_title = short_titles.get('Traditional Chinese')
-		local_long_title = long_titles.get('Traditional Chinese')
-		local_publisher = publishers.get('Traditional Chinese')
+		local_short_title = short_titles.get('Chinese (Traditional)')
+		local_long_title = long_titles.get('Chinese (Traditional)')
+		local_publisher = publishers.get('Chinese (Traditional)')
 	else: #If none of that is in the region code? Unlikely but I dunno maybe
 		if short_titles:
 			local_short_title = next(iter(short_titles.values()))
