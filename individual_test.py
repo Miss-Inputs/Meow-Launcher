@@ -4,6 +4,7 @@
 #Until then this will duplicate code from there so I am sorry
 #TODO: Just need to deal with itch.io/GOG/MAME software…
 
+import locale
 import logging
 import sys
 
@@ -16,6 +17,7 @@ from meowlauncher.frontend.remove_nonexistent_games import \
 from meowlauncher.game_sources import game_sources, gog, itch_io, mame_software
 from meowlauncher.util.utils import NotLaunchableExceptionFormatter
 
+locale.setlocale(locale.LC_ALL, '')
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(NotLaunchableExceptionFormatter(fmt='%(asctime)s:%(name)s:%(funcName)s:%(levelname)s:%(message)s'))
 stream_handler.setLevel(main_config.logging_level)
@@ -23,6 +25,11 @@ logging.basicConfig(handlers={stream_handler})
 logger = logging.getLogger(__name__)
 
 def main() -> None:
+	if main_config.full_rescan:
+		if main_config.output_folder.is_dir():
+			for f in main_config.output_folder.iterdir():
+				f.unlink()
+
 	if sys.argv[1] == 'gog':
 		gog.do_gog_games()
 	elif sys.argv[1] == 'itchio':

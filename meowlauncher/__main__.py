@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import datetime
+import locale
 import logging
 import time
 
@@ -10,6 +11,7 @@ from meowlauncher.util.utils import NotLaunchableExceptionFormatter
 from .config.main_config import main_config
 
 overall_time_started = time.perf_counter()
+locale.setlocale(locale.LC_ALL, '')
 
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(NotLaunchableExceptionFormatter(fmt='%(asctime)s:%(name)s:%(funcName)s:%(levelname)s:%(message)s'))
