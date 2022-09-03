@@ -162,7 +162,7 @@ def load_list(subpackage: Optional[str], resource: str) -> Sequence[str]:
 		package += '.' + subpackage
 	return tuple(line for line in (line.split('#', 1)[0] for line in importlib.resources.read_text(package, resource + '.list').splitlines()) if line)
 
-def load_json(subpackage: Optional[str], resource: str) -> Mapping[Any, Any]:
+def load_json(subpackage: Optional[str], resource: str) -> Any:
 	package = 'meowlauncher.data'
 	if subpackage:
 		package += '.' + subpackage
