@@ -86,11 +86,14 @@ def add_info_from_filename_tags(tags: Collection[str], metadata: 'Metadata') -> 
 			#Not in TOSEC, but probably good to use something to indicate it requires funny CPUs
 			metadata.specific_info['Minimum CPU'] = '68080'
 			continue
-		if tag == '(SEUCK)':
+		if tag == '[SEUCK]':
 			metadata.specific_info['Engine'] = 'Shoot-\'Em-Up Construction Kit'
 			continue
-		if tag == '(3DCK)':
+		if tag == '[3DCK]':
 			metadata.specific_info['Engine'] = '3D Construction Kit'
+			continue
+		if tag == '[TADS]':
+			metadata.specific_info['Engine'] = 'TADS'
 			continue
 		
 		if 'Machine' not in metadata.specific_info:
