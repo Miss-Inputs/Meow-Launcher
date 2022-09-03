@@ -96,7 +96,7 @@ _standalone_emulators: Collection[StandardEmulator] = {
 	ViceEmulator('Plus/4', EmulatorStatus.Good, 'xplus4', command_lines.vice_plus4),
 	ViceEmulator('C128', EmulatorStatus.Good, 'x128', command_lines.vice_c128),
 
-	MednafenModule('Apple II', EmulatorStatus.Good, {'woz', 'dsk', 'po', 'do', 'd13'}, command_lines.mednafen_apple_ii),
+	MednafenModule('Apple II', EmulatorStatus.Good, {'woz', 'dsk', 'po', 'do', 'd13', '2mg'}, command_lines.mednafen_apple_ii),
 	#Seems fine but no Apple IIe/128K?
 	MednafenModule('Lynx', EmulatorStatus.Good, {'lnx', 'o'}, command_lines.mednafen_lynx),
 	#Based on Handy, but that hasn't been updated in 14 years, so I guess this probably has some more updates
@@ -114,7 +114,7 @@ _standalone_emulators: Collection[StandardEmulator] = {
 	MAMEDriver('Amstrad GX4000', EmulatorStatus.Imperfect, simple_mame_driver('gx4000', 'cart'), {'bin', 'cpr'}),
 	#MT06201 (issue with emulated monochrome monitor), MT6509 lists various compatibility issues
 	MAMEDriver('APF-MP1000', EmulatorStatus.Good, simple_mame_driver('apfm1000', 'cart'), {'bin'}),
-	MAMEDriver('Apple II', EmulatorStatus.Good, command_lines.mame_apple_ii, mame_floppy_formats.union({'nib', 'do', 'po', 'woz'})), #nib support only >= 0.229
+	MAMEDriver('Apple II', EmulatorStatus.Good, command_lines.mame_apple_ii, mame_floppy_formats.union({'nib', 'do', 'po', 'woz', '2mg'})), #nib support only >= 0.229
 	MAMEDriver('Apple IIgs', EmulatorStatus.Good, simple_mame_driver('apple2gsr1', 'flop3', {'gameio': 'joy'}, has_keyboard=True), mame_floppy_formats.union({'2mg', '2img', 'dc', 'woz'})),
 	#Rev 1 is needed because some stuff doesn't work on rev 3 (happens in real life), flop1 and flop2 are for Apple II-not-GS software
 	#ramsize can go up to 8M if need be and there are a lot of slot options (4play might be useful for our 1337 pro gaming purposes? arcbd sounds cool?)

@@ -359,7 +359,7 @@ platforms = {
 		autodetect_tv_type=True, dat_names={'Commodore - Amiga'}
 	),
 	StandardEmulatedPlatform('Amstrad CPC',{'cpc464', 'cpc6128p', 'gx4000'}, {'cpc_cass', 'cpc_flop', 'gx4000'}, {'Caprice32 (libretro)', 'MAME (Amstrad GX4000)'}, {MediaType.Snapshot: {'sna'}, MediaType.Tape: {'wav', 'cdt'}, MediaType.Floppy: mame_floppy_formats, MediaType.Cartridge: {'cpr'}.union(generic_cart_extensions)}, dat_names={'Amstrad - CPC', 'Amstrad - GX4000'}),
-	StandardEmulatedPlatform('Apple II',{'apple2', 'apple2c', 'apple2e', 'cece', 'cecg', 'ceci', 'cecm', 'cec2000'}, {'apple2', 'apple2_cass', 'apple2_flop_orig', 'apple2_flop_clcracked', 'apple2_flop_misc'}, {'MAME (Apple II)', 'Mednafen (Apple II)'}, {MediaType.Floppy: {'do', 'dsk', 'po', 'nib', 'woz', 'shk', 'bxy'}, MediaType.Tape: generic_tape_extensions, MediaType.Executable: {'prg'}}),
+	StandardEmulatedPlatform('Apple II',{'apple2', 'apple2c', 'apple2e', 'cece', 'cecg', 'ceci', 'cecm', 'cec2000'}, {'apple2', 'apple2_cass', 'apple2_flop_orig', 'apple2_flop_clcracked', 'apple2_flop_misc'}, {'MAME (Apple II)', 'Mednafen (Apple II)'}, {MediaType.Floppy: {'do', 'dsk', 'po', 'nib', 'woz', 'shk', 'bxy', '2mg'}, MediaType.Tape: generic_tape_extensions, MediaType.Executable: {'prg'}}),
 	StandardEmulatedPlatform('Apple IIgs',{'apple2gs'}, {'apple2gs'}, {'MAME (Apple IIgs)'}, {MediaType.Floppy: mame_floppy_formats.union({'2mg', '2img', 'dc', 'shk', 'bxy', 'woz'})}),
 	StandardEmulatedPlatform('Atari 8-bit',
 		{'a800', 'a400', 'a800xl', 'xegs'}, {'a800', 'a800_flop', 'xegs'}, 
