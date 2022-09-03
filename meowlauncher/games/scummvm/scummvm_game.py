@@ -47,6 +47,7 @@ def format_platform(platform: str) -> str:
 		'xbox': 'Xbox',
 		'cdi': 'CD-i',
 		'ios': 'iOS',
+		'android': 'Android',
 		'os2': 'OS/2',
 		'beos': 'BeOS',
 		'ppc': 'PocketPC',
