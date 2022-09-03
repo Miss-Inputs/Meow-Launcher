@@ -815,7 +815,7 @@ def mame_vic_20(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'E
 def mame_zx_spectrum(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	options = {}
 
-	system = 'spec128' #Probably a good default
+	system = None
 	
 	machine = game.metadata.specific_info.get('Machine')
 	if machine == ZXMachine.ZX48k:
@@ -833,7 +833,8 @@ def mame_zx_spectrum(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_confi
 		system = 'specpls3'
 
 	if game.metadata.media_type == MediaType.Floppy:
-		system = 'specpls3'
+		if not system:
+			system = 'specpls3'
 		slot = 'flop1'
 		#If only one floppy is needed, you can add -upd765:1 "" to the commmand line and use just "flop" instead of "flop1".
 	elif game.metadata.media_type == MediaType.Snapshot:
@@ -859,6 +860,9 @@ def mame_zx_spectrum(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_confi
 		slot = 'quik'
 	else:
 		assert True, (f'Media type {game.metadata.media_type} unsupported')
+
+	if not system:
+		system = 'spec128' #Probably a good default
 
 	return mame_driver(game, emulator_config, system, slot, options, has_keyboard=True)
 
