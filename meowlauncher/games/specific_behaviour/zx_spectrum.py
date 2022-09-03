@@ -120,14 +120,12 @@ def _ram_requirement_from_tag(tag: str)	-> Optional[tuple[ByteAmount, ByteAmount
 	return None
 
 def add_speccy_filename_tags_info(tags: Collection[str], metadata: 'Metadata') -> None:
-	if 'Machine' in metadata.specific_info:
-		return
-
 	for tag in tags:
-		machine = _machine_from_tag(tag)
-		if machine:
-			metadata.specific_info['Machine'] = machine
-			break
+		if 'Machine' not in metadata.specific_info:
+			machine = _machine_from_tag(tag)
+			if machine:
+				metadata.specific_info['Machine'] = machine
+				break
 		ram_requirement = _ram_requirement_from_tag(tag)
 		if ram_requirement:
 			metadata.specific_info['Minimum RAM'], metadata.specific_info['Recommended RAM'] = ram_requirement
