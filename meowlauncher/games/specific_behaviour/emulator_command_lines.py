@@ -818,6 +818,7 @@ def mame_zx_spectrum(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_confi
 	system = None
 	
 	machine = game.metadata.specific_info.get('Machine')
+	#TODO: Make this something like "compatible_systems", so you can just use the closest one, instead of assuming user has all of them
 	if machine == ZXMachine.ZX48k:
 		system = 'spectrum'
 	elif machine == ZXMachine.ZX128k:
@@ -831,6 +832,16 @@ def mame_zx_spectrum(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_confi
 		system = 'specpl2a'
 	elif machine == ZXMachine.SpectrumPlus3:
 		system = 'specpls3'
+	
+	if not system:
+		recommended_ram: Optional[int] = game.metadata.specific_info.get('Recommended RAM')
+		if recommended_ram is not None:
+			#TODO: Fallback to minimum RAM if this machine is not found
+			#I don't think we need to set ramsize, unless it turns out this really means maximum
+			if recommended_ram <= (48 * 1024):
+				system = 'spectrum'
+			elif recommended_ram <= (128 * 1024):
+				system = 'spec128'
 
 	if game.metadata.media_type == MediaType.Floppy:
 		if not system:

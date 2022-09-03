@@ -94,19 +94,42 @@ def add_speccy_software_list_metadata(software: 'Software', metadata: 'Metadata'
 		#Disk has no autorun menu, requires loading each game from Basic.
 		metadata.add_notes(usage)
 
+def _machine_from_tag(tag: str) -> Optional[ZXMachine]:
+	if tag == '(+2)':
+		return ZXMachine.SpectrumPlus2
+	if tag == '(+2a)':
+		return ZXMachine.SpectrumPlus2A
+	if tag == '(+3)':
+		return ZXMachine.SpectrumPlus3
+
+	return None	
+
+def _ram_requirement_from_tag(tag: str)	-> Optional[tuple[int, int]]:
+	#Minimum, recommended
+	#TODO: Should this be a more generic function somewhere else?
+	if tag == '(16K)':
+		return 16 * 1024, 16 * 1024
+	if tag == '(48K)':
+		return 48 * 1024, 48 * 1024
+	if tag == '(48K-128K)':
+		#I _think_ that's what this means… or is it maximum?
+		return 48 * 1024, 128 * 1024
+	if tag == '(128K)':
+		return 128 * 1024, 128 * 1024
+	return None
+
 def add_speccy_filename_tags_info(tags: Collection[str], metadata: 'Metadata') -> None:
 	if 'Machine' in metadata.specific_info:
 		return
 
 	for tag in tags:
-		if tag == '(16K)':
-			metadata.specific_info['Machine'] = ZXMachine.ZX16k
+		machine = _machine_from_tag(tag)
+		if machine:
+			metadata.specific_info['Machine'] = machine
 			break
-		if tag == '(48K)':
-			metadata.specific_info['Machine'] = ZXMachine.ZX48k
-			break
-		if tag in {'(48K-128K)', '(128K)'}:
-			metadata.specific_info['Machine'] = ZXMachine.ZX128k
+		ram_requirement = _ram_requirement_from_tag(tag)
+		if ram_requirement:
+			metadata.specific_info['Minimum RAM'], metadata.specific_info['Recommended RAM'] = ram_requirement
 			break
 
 def add_speccy_custom_info(game: 'ROMGame') -> None:
