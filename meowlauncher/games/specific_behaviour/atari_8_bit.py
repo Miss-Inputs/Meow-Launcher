@@ -104,7 +104,7 @@ def add_atari_8bit_custom_info(game: 'ROMGame') -> None:
 
 	if 'Machine' not in game.metadata.specific_info:
 		for tag in game.filename_tags:
-			if tag in {'(XL)', '[XL]', '(XL-XE)', '[XL-XE]'}:
+			if tag in {'(XL)', '[XL]'}:
 				game.metadata.specific_info['Machine'] = 'XL'
 				break
 			if tag in {'(XL-XE)', '[XL-XE]'}:
