@@ -180,7 +180,10 @@ def _format_unit(n: int, suffix: str, base_unit: int=1000, singular_suffix: str=
 		if n >= base_unit ** (i + 1):
 			continue
 		unit = base_unit ** i
-		#Would like to use :n here, but then it doesn't work for having only two decimal points
+		div, mod = divmod(n, unit)
+		if not mod:
+			return f'{div:n} {unit_suffix}{suffix}'
+		#Would like to use :n here, but then it doesn't work for having only two decimal points (ideally I'd want one or two or none, but not precisely 2, and not removing decimals if there is one)
 		return f'{n / unit:.2f}'.rstrip('0') + f' {unit_suffix}{suffix}'
 	return f'{n / (base_unit ** len(unit_suffixes)):.2f}'.rstrip('0') + f' {unit_suffixes[-1]}{suffix}'
 	
