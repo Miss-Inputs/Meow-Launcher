@@ -1,5 +1,6 @@
 import io
 import logging
+from pathlib import Path
 import struct  # To handle struct.error
 from typing import TYPE_CHECKING, Optional, cast
 
@@ -86,36 +87,37 @@ def get_image_from_iso(iso: 'PyCdlib', path: str) -> 'Image':
 			return None
 		return Image.open(buf)
 	except PyCdlibInvalidInput:
+		#It is okay for a disc to be missing something
 		pass
 	return None
 
-def add_psp_iso_info(path: str, metadata: 'Metadata') -> None:
+def add_psp_iso_info(path: Path, metadata: 'Metadata') -> None:
 	iso = PyCdlib()
 	try:
+		iso.open(str(path))
 		try:
-			iso.open(path)
-			try:
-				with iso.open_file_from_iso(iso_path='/PSP_GAME/PARAM.SFO') as param_sfo:
-					parse_param_sfo(path, metadata, param_sfo.read())
+			with iso.open_file_from_iso(iso_path='/PSP_GAME/PARAM.SFO') as param_sfo:
+				parse_param_sfo(path, metadata, param_sfo.read())
 
-				date = iso.get_record(iso_path='/PSP_GAME/PARAM.SFO').date
-				#This would be more like a build date (seems to be the same across all files) rather than the release date
-				year = date.years_since_1900 + 1900
-				month = date.month
-				day = date.day_of_month
-				metadata.specific_info['Build Date'] = Date(year, month, day)
-				guessed = Date(year, month, day, True)
-				if guessed.is_better_than(metadata.release_date):
-					metadata.release_date = guessed
+			date = iso.get_record(iso_path='/PSP_GAME/PARAM.SFO').date
+			#This would be more like a build date (seems to be the same across all files) rather than the release date
+			year = date.years_since_1900 + 1900
+			month = date.month
+			day = date.day_of_month
+			metadata.specific_info['Build Date'] = Date(year, month, day)
+			guessed = Date(year, month, day, True)
+			if guessed.is_better_than(metadata.release_date):
+				metadata.release_date = guessed
+		except PyCdlibInvalidInput:
+			try:
+				iso.get_record(iso_path='/UMD_VIDEO/PARAM.SFO')
+				#We could parse this PARAM.SFO but there's not much point given we aren't going to make a launcher for UMD videos at this stage
+				#TODO There is also potentially /UMD_AUDIO/ I think too so I should rewrite this one day
+				metadata.specific_info['PlayStation Category'] = 'UMD Video'
+				return
 			except PyCdlibInvalidInput:
-				try:
-					iso.get_record(iso_path='/UMD_VIDEO/PARAM.SFO')
-					#We could parse this PARAM.SFO but there's not much point given we aren't going to make a launcher for UMD videos at this stage
-					#TODO There is also potentially /UMD_AUDIO/ I think too so I should rewrite this one day
-					metadata.specific_info['PlayStation Category'] = 'UMD Video'
-					return
-				except PyCdlibInvalidInput:
-					logger.info('%s has no PARAM.SFO inside', path)
+				logger.info('%s has no PARAM.SFO inside', path)
+		else:
 			if have_pillow:
 				metadata.images['Banner'] = get_image_from_iso(iso, '/PSP_GAME/ICON0.PNG')
 				metadata.images['Icon 1'] = get_image_from_iso(iso, '/PSP_GAME/ICON1.PNG')
@@ -144,7 +146,7 @@ def add_psp_custom_info(game: 'ROMGame') -> None:
 			game.metadata.add_alternate_name(game.rom.path.parent.name, 'Folder Name')
 			game.rom.ignore_name = True
 	elif game.rom.extension == 'iso' and have_pycdlib:
-		add_psp_iso_info(str(game.rom.path), game.metadata)
+		add_psp_iso_info(game.rom.path, game.metadata)
 
 	#https://www.psdevwiki.com/ps3/Productcode#Physical
 	if game.metadata.product_code:

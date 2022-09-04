@@ -1,7 +1,7 @@
 import logging
 from collections.abc import Mapping
 from enum import Flag
-from typing import TYPE_CHECKING, NamedTuple, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, NamedTuple, Optional, Union, cast
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.util.name_utils import fix_name
@@ -133,7 +133,7 @@ title_languages = {
 
 SFOValueType = Union[str, int] #Not sure if there is more than that…
 
-def _convert_sfo(sfo: bytes, rom_path_for_warning: str=None) -> Mapping[str, SFOValueType]:
+def _convert_sfo(sfo: bytes, rom_path_for_warning: Any=None) -> Mapping[str, SFOValueType]:
 	d = {}
 	#This is some weird key value format thingy
 	key_table_start = int.from_bytes(sfo[8:12], 'little')
@@ -164,8 +164,7 @@ def _convert_sfo(sfo: bytes, rom_path_for_warning: str=None) -> Mapping[str, SFO
 		d[key] = value
 	return d
 
-def parse_param_sfo_kv(rompath: str, metadata: 'Metadata', key: str, value: SFOValueType) -> None:
-	#rompath is just there for warning messages
+def parse_param_sfo_kv(object_for_warning: Any, metadata: 'Metadata', key: str, value: SFOValueType) -> None:
 	if key == 'DISC_ID':
 		if value != 'UCJS10041':
 			#That one's used by all the PSP homebrews
@@ -200,7 +199,7 @@ def parse_param_sfo_kv(rompath: str, metadata: 'Metadata', key: str, value: SFOV
 			else:
 				metadata.specific_info['Bootable?'] = False
 		else:
-			logger.info('%s has unknown category %s', rompath, value)
+			logger.info('%s has unknown category %s', object_for_warning, value)
 	elif key in {'DISC_VERSION', 'APP_VER'}:
 		if cast(str, value)[0] != 'v':
 			value = 'v' + cast(str, value)
@@ -229,33 +228,33 @@ def parse_param_sfo_kv(rompath: str, metadata: 'Metadata', key: str, value: SFOV
 
 			except ValueError:
 				#metadata.specific_info['Attribute Flags'] = hex(value)
-				logger.info('%s has funny attributes flag %s', rompath, hex(cast(int, value)))
+				logger.info('%s has funny attributes flag %s', object_for_warning, hex(cast(int, value)))
 	elif key == 'RESOLUTION':
 		try:
 			metadata.specific_info['Display Resolution'] = {res[1:] for res in str(Resolutions(value))[12:].split('|')}
 		except ValueError:
-			logger.info('%s has funny resolution flag %s', rompath, hex(cast(int, value)))
+			logger.info('%s has funny resolution flag %s', object_for_warning, hex(cast(int, value)))
 	elif key == 'SOUND_FORMAT':
 		try:
 			metadata.specific_info['Supported Sound Formats'] = {res.lstrip('_').replace('_', '.') for res in str(SoundFormats(value))[13:].split('|')}
 		except ValueError:
-			logger.info('%s has funny sound format flag %s', rompath, hex(cast(int, value)))
+			logger.info('%s has funny sound format flag %s', object_for_warning, hex(cast(int, value)))
 	elif key in {'MEMSIZE', 'REGION', 'HRKGMP_VER', 'NP_COMMUNICATION_ID'}:
 		#These are known, but not necessarily useful to us or we just don't feel like putting it in the metadata or otherwise doing anything with it at this point
 		#MEMSIZE: PSP, 1 if game uses extra RAM?
 		#REGION: Seems to always be 32768 (is anything region locked?) and also only on PSP??
 		#HRKGMP_VER = ??? (19)
 		#NP_COMMUNICATION_ID = PS3, ID used for online features I guess, also the subdirectory of TROPDIR containing TROPHY.TRP
-		logger.debug('Key that may be more interesting than I currently think: path = %s key = %s value = %s', rompath, key, value)
+		logger.debug('Key that may be more interesting than I currently think: path = %s key = %s value = %s', object_for_warning, key, value)
 	else:
-		logger.info('%s has unknown param.sfo key %s with value %s', rompath, key, value)
+		logger.info('%s has unknown param.sfo key %s with value %s', object_for_warning, key, value)
 
-def parse_param_sfo(rompath: str, metadata: 'Metadata', param_sfo: bytes) -> None:
+def parse_param_sfo(object_for_warning: Any, metadata: 'Metadata', param_sfo: bytes) -> None:
 	magic = param_sfo[:4]
 	if magic != b'\x00PSF':
 		return
-	for key, value in _convert_sfo(param_sfo, rompath).items():
-		parse_param_sfo_kv(rompath, metadata, key, value)
+	for key, value in _convert_sfo(param_sfo, object_for_warning).items():
+		parse_param_sfo_kv(object_for_warning, metadata, key, value)
 
 def parse_product_code(metadata: 'Metadata', product_code: str) -> None:
 	if len(product_code) == 9 and product_code[:4].isalpha() and product_code[-5:].isdigit():
