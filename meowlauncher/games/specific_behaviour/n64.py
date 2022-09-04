@@ -1,5 +1,8 @@
 import hashlib
+import logging
 from collections.abc import Mapping
+from configparser import ParsingError
+from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, cast
 
@@ -14,6 +17,8 @@ from meowlauncher.util.utils import (NoNonsenseConfigParser,
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
 	from meowlauncher.metadata import Metadata
+
+logger = logging.getLogger(__name__)
 
 def _get_mupen64plus_database_location() -> Optional[Path]:
 	config_location = Path('~/.config/mupen64plus/mupen64plus.cfg').expanduser()
@@ -37,16 +42,18 @@ def _get_mupen64plus_database_location() -> Optional[Path]:
 
 	return None
 
+@lru_cache(maxsize=1)
 def _get_mupen64plus_database() -> Optional[Mapping[str, Mapping[str, str]]]:
-	if hasattr(_get_mupen64plus_database, 'mupen64plus_database'):
-		return _get_mupen64plus_database.mupen64plus_database #type: ignore[attr-defined]
-
 	location = _get_mupen64plus_database_location()
 	if not location:
 		return None
 
-	parser = NoNonsenseConfigParser()
-	parser.read(location)
+	try:
+		parser = NoNonsenseConfigParser(comment_prefixes=';')
+		parser.read(location)
+	except ParsingError:
+		logger.exception('Uh oh could not read Mupen64Plus database from %s', location)
+		return None
 
 	database = dict(parser) #I guess it doesn't work if we just hold onto it directly, well for starters the .items method is different
 	for keypairs in database.values():
@@ -59,7 +66,6 @@ def _get_mupen64plus_database() -> Optional[Mapping[str, Mapping[str, str]]]:
 						continue
 					keypairs[parent_key] = parent_value
 
-	_get_mupen64plus_database.mupen64plus_database = database #type: ignore[attr-defined]
 	return database
 
 def parse_n64_header(metadata: 'Metadata', header: bytes) -> None:

@@ -230,9 +230,9 @@ class NotLaunchableExceptionFormatter(ColouredFormatter):
 
 class NoNonsenseConfigParser(RawConfigParser):
 	#No "interpolation", no using : as a delimiter, no lowercasing every option, that's all silly
-	def __init__(self, defaults=None, allow_no_value=False, strict=True, empty_lines_in_values=True):
+	def __init__(self, defaults=None, allow_no_value=False, strict=True, empty_lines_in_values=True, comment_prefixes='#'):
 		#Less of these weird options please, just parse the ini
-		super().__init__(defaults=defaults, allow_no_value=allow_no_value, delimiters='=', comment_prefixes='#', strict=strict, empty_lines_in_values=empty_lines_in_values)
+		super().__init__(defaults=defaults, allow_no_value=allow_no_value, delimiters='=', comment_prefixes=comment_prefixes, strict=strict, empty_lines_in_values=empty_lines_in_values)
 
 	def optionxform(self, optionstr: str) -> str:
 		return optionstr
