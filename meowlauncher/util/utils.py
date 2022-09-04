@@ -16,7 +16,7 @@ except ImportError:
 
 _find_brackets_at_end = re.compile(r'(?:\([^)]+?\)+|\[[^]]+?\]+)$')
 
-def _find_tags(name: str) -> tuple[str, Sequence[str]]:
+def find_tags(name: str) -> tuple[str, Sequence[str]]:
 	#Where did I come up with the word "tags" anyway
 	result = name
 	tags = []
@@ -35,10 +35,10 @@ def _find_tags(name: str) -> tuple[str, Sequence[str]]:
 	return result, tags[::-1]
 
 def find_filename_tags_at_end(name: str) -> Sequence[str]:
-	return _find_tags(name)[1]
+	return find_tags(name)[1]
 
 def remove_filename_tags(name: str) -> str:
-	return _find_tags(name)[0]
+	return find_tags(name)[0]
 
 def starts_with_any(s: str, prefixes: Collection[str]) -> bool:
 	#Allows s.startswith() with any iterable, not just tuple

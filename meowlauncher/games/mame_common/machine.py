@@ -1,6 +1,6 @@
 import re
 from collections.abc import Collection, Iterator, Mapping, Sequence
-from functools import cache
+from functools import cache, cached_property
 from pathlib import PurePath
 from typing import TYPE_CHECKING, Optional, cast
 from xml.etree import ElementTree
@@ -71,13 +71,17 @@ class Machine():
 	def __str__(self) -> str:
 		return f'{self.basename} ({self.name})'
 
+	@cached_property
+	def name_without_tags(self) -> str:
+		return remove_filename_tags(self.name)
+
 	def add_alternate_names(self) -> None:
 		if self.arcade_system in {'Space Invaders / Qix Silver Anniversary Edition Hardware', 'ISG Selection Master Type 2006', 'Cosmodog Hardware', 'Donkey Kong / Mario Bros Multigame Hardware'} or self.basename == 'jak_hmhsm':
 		 	#These don't use the / as a delimiter for alternate names, they're like two things in one or whatever
 			return
 
 		tags_at_end = find_filename_tags_at_end(self.name)
-		name = remove_filename_tags(self.name)
+		name = self.name_without_tags
 		if ' / ' not in name:
 			#We don't want to touch Blah (Fgsfds / Zzzz) (or bother trying to do something for a name that never had any / in it to begin with)
 			return
@@ -829,7 +833,6 @@ arcade_system_bios_names = {
 def machine_name_matches(machine_name: str, game_name: str, match_vs_system: bool=False) -> bool:
 	#TODO Should also use name_consistency stuff once I refactor that (Turbo OutRun > Turbo Out Run)
 	
-	machine_name = remove_filename_tags(machine_name)
 	game_name = remove_filename_tags(game_name)
 
 	#Until I do mess around with name_consistency.dict though, here's some common substitutions
@@ -857,7 +860,7 @@ def machine_name_matches(machine_name: str, game_name: str, match_vs_system: boo
 #TODO: Where does this really belong?
 @cache
 def does_machine_match_name(name: str, machine: Machine, match_vs_system: bool=False) -> bool:
-	if machine_name_matches(machine.name, name, match_vs_system):
+	if machine_name_matches(machine.name_without_tags, name, match_vs_system):
 		return True
-	return any(machine_name_matches(alt_name, name, match_vs_system) for alt_name in machine.alt_names)
+	return any(machine_name_matches(remove_filename_tags(alt_name), name, match_vs_system) for alt_name in machine.alt_names)
 	

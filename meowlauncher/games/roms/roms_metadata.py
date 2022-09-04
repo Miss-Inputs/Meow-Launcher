@@ -18,7 +18,7 @@ from meowlauncher.util.detect_things_from_filename import \
     get_tv_system_from_filename_tags
 from meowlauncher.util.region_info import (get_common_language_from_regions,
                                            get_tv_system_from_regions)
-from meowlauncher.util.utils import (find_filename_tags_at_end, junk_suffixes,
+from meowlauncher.util.utils import (find_filename_tags_at_end, find_tags, junk_suffixes,
                                      remove_filename_tags)
 
 from .rom import ROM, CompressedROM, FileROM, FolderROM, GCZFileROM
@@ -64,9 +64,8 @@ def _add_metadata_from_arcade(game: 'ROMGame', machine: 'Machine') -> None:
 	#TODO: Hell no there's not much else, get the history if it's not a bootleg, etc etc
 		
 def _add_alternate_names(rom: ROM, metadata: 'Metadata') -> None:
-	tags_at_end = find_filename_tags_at_end(rom.name)
-	name = remove_filename_tags(rom.name)
-
+	name, tags_at_end = find_tags(rom.name)
+	
 	#Unlikely that there would be an "aaa (bbb ~ ccc)" but still
 	if ' ~ ' not in rom.name:
 		return
