@@ -1,3 +1,4 @@
+from functools import cached_property
 import re
 import zlib
 from collections.abc import Callable, Collection, Iterator, Sequence
@@ -200,7 +201,7 @@ class SoftwarePart():
 		self.data_areas = {data_area.name: data_area for data_area in (DataArea(data_area_xml, self) for data_area_xml in self.xml.iterfind('dataarea'))}
 		self.disk_areas = {disk_area.name: disk_area for disk_area in (DiskArea(disk_area_xml, self) for disk_area_xml in self.xml.iterfind('diskarea'))}
 
-	@property
+	@cached_property
 	def name(self) -> Optional[str]:
 		return self.xml.attrib.get('name')
 
@@ -283,7 +284,7 @@ class Software():
 	def name(self) -> str:
 		return self.xml.attrib['name'] #Blank name should not happen
 	
-	@property
+	@cached_property
 	def description(self) -> str:
 		return self.xml.findtext('description', '') #Blank description should not happen
 
