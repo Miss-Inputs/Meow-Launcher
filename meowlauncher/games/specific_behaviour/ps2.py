@@ -1,7 +1,7 @@
 import logging
 import re
 import struct  # To handle struct.error
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 try:
 	from pycdlib import PyCdlib
@@ -47,39 +47,42 @@ def add_info_from_system_cnf(metadata: Metadata, system_cnf: str) -> None:
 					except ValueError:
 						pass
 
+def add_info_from_iso(iso: 'PyCdlib', metadata: 'Metadata', object_for_warning: Any) -> None:
+	try:
+		#I dunno what the ;1 is for
+		with iso.open_file_from_iso(iso_path='/SYSTEM.CNF;1') as system_cnf_file:
+			system_cnf = system_cnf_file.read().decode('utf-8', errors='backslashreplace')
+		add_info_from_system_cnf(metadata, system_cnf)
+		date_record = iso.get_record(iso_path='/SYSTEM.CNF;1').date
+		#This would be more like a build date (seems to be the same across all files) rather than the release date, but it seems to be close enough
+		year = date_record.years_since_1900 + 1900
+		month = date_record.month
+		day = date_record.day_of_month
+		build_date = Date(year, month, day)
+		metadata.specific_info['Build Date'] = build_date
+		guessed_date = Date(year, month, day, True)
+		if guessed_date.is_better_than(metadata.release_date):
+			metadata.release_date = guessed_date
+	except PyCdlibInvalidInput:
+		logger.info('%s has no SYSTEM.CNF inside', object_for_warning)
+	#Modules are in IOP, MODULES or IRX but I don't know if we can get any interesting info from that
+	#TODO: Sometimes there is a system.ini that looks like this:
+	#[SYSTEM]
+	#NUMBER = SLUS-21448
+	#VERSION = 100
+	#VMODE = NTSC
+	#COUNTRY = AMERICA
+	#LANGUAGE = ENGLISH
+	#WARNING = NO
+
 def add_ps2_custom_info(game: 'ROMGame') -> None:
 	#.bin/cue also has this system.cnf but I'd need to know how to get pycdlib to work with that
 	if game.rom.extension == 'iso' and have_pycdlib:
 		iso = PyCdlib()
 		try:
+			iso.open(str(game.rom.path))
 			try:
-				iso.open(str(game.rom.path))
-				try:
-					#I dunno what the ;1 is for
-					with iso.open_file_from_iso(iso_path='/SYSTEM.CNF;1') as system_cnf_file:
-						system_cnf = system_cnf_file.read().decode('utf-8', errors='backslashreplace')
-					add_info_from_system_cnf(game.metadata, system_cnf)
-					date_record = iso.get_record(iso_path='/SYSTEM.CNF;1').date
-					#This would be more like a build date (seems to be the same across all files) rather than the release date, but it seems to be close enough
-					year = date_record.years_since_1900 + 1900
-					month = date_record.month
-					day = date_record.day_of_month
-					build_date = Date(year, month, day)
-					game.metadata.specific_info['Build Date'] = build_date
-					guessed_date = Date(year, month, day, True)
-					if guessed_date.is_better_than(game.metadata.release_date):
-						game.metadata.release_date = guessed_date
-				except PyCdlibInvalidInput:
-					logger.info('%s has no SYSTEM.CNF inside', game.rom)
-				#Modules are in IOP, MODULES or IRX but I don't know if we can get any interesting info from that
-				#TODO: Sometimes there is a system.ini that looks like this:
-				#[SYSTEM]
-				#NUMBER = SLUS-21448
-				#VERSION = 100
-				#VMODE = NTSC
-				#COUNTRY = AMERICA
-				#LANGUAGE = ENGLISH
-				#WARNING = NO
+				add_info_from_iso(iso, game.metadata, game.rom)
 			finally:
 				iso.close()	
 		except PyCdlibInvalidISO:
