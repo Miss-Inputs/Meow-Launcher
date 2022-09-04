@@ -106,7 +106,7 @@ def add_dump_status_info_from_tags(tags: Sequence[str], metadata: 'Metadata') ->
 		if tag.startswith('[h '):
 			#Same shenanigans here…
 			hack_description = tag.removeprefix('[h ')[:-1]
-			if fix_description.istitle():
+			if hack_description.istitle():
 				metadata.specific_info['Hacked By'] = hack_description
 			else:
 				metadata.specific_info['Hack'] = hack_description
