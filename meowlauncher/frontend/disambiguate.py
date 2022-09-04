@@ -3,6 +3,7 @@
 import collections
 import datetime
 import itertools
+from shutil import copymode
 import sys
 import time
 from collections.abc import Callable, Collection, MutableMapping, Iterable
@@ -15,6 +16,7 @@ from meowlauncher.output.desktop_files import (id_section_name,
                                                metadata_section_name,
                                                section_prefix)
 from meowlauncher.util.desktop_files import get_array, get_desktop, get_field
+from meowlauncher.util.io_utils import ensure_unique_path, sanitize_name
 from meowlauncher.util.name_utils import normalize_name
 from meowlauncher.util.utils import NoNonsenseConfigParser
 
@@ -52,8 +54,12 @@ def _update_name(desktop: DesktopWithPath, disambiguator: Optional[str], disambi
 
 	desktop_entry['Name'] += ' ' + disambiguator
 
-	with desktop[0].open('wt', encoding='utf-8') as f:
+	new_path = ensure_unique_path(desktop[0].with_stem(sanitize_name(desktop_entry['Name'])))
+	with new_path.open('wt', encoding='utf-8') as f:
 		desktop[1].write(f)
+	if new_path != desktop[0]:
+		copymode(desktop[0], new_path)
+		desktop[0].unlink()
 
 def _resolve_duplicates_by_metadata(group: Collection[DesktopWithPath], field: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name) -> None:
 	value_counter = collections.Counter(get_field(d[1], field, field_section) for d in group)

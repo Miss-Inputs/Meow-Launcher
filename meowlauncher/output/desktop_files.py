@@ -1,5 +1,6 @@
 from collections.abc import Collection
 from enum import Enum, Flag
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 try:
@@ -9,7 +10,7 @@ except ModuleNotFoundError:
 	have_pillow = False
 
 from meowlauncher.config.main_config import main_config
-from meowlauncher.util.io_utils import (ensure_exist, pick_new_path,
+from meowlauncher.util.io_utils import (ensure_exist, ensure_unique_path,
                                         sanitize_name)
 from meowlauncher.util.utils import (NoNonsenseConfigParser, clean_string,
                                      find_filename_tags_at_end,
@@ -67,7 +68,7 @@ def make_linux_desktop_for_launcher(launcher: 'Launcher') -> None:
 	_make_linux_desktop(launcher.command, name, launcher.game.metadata, filename_tags, launcher.game_type, launcher.game_id)
 
 def _make_linux_desktop(command: 'LaunchCommand', display_name: str, metadata: 'Metadata', filename_tags: Collection[str], game_type: str, game_id: str) -> None:
-	path = pick_new_path(main_config.output_folder, sanitize_name(display_name, no_janky_chars=True), 'desktop')
+	path = ensure_unique_path(Path(main_config.output_folder, sanitize_name(display_name, no_janky_chars=True)).with_suffix('.desktop'))
 
 	configwriter = NoNonsenseConfigParser()
 

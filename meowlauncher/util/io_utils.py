@@ -70,11 +70,11 @@ def sanitize_name(s: Optional[str], safe_for_fat32: bool=False, no_janky_chars: 
 
 	return s
 
-def pick_new_path(folder: pathlib.Path, base_filename: str, extension: str) -> pathlib.Path:
-	new_path = folder.joinpath(base_filename + os.extsep + extension)
+def ensure_unique_path(path: pathlib.Path) -> pathlib.Path:
+	new_path = path
 
 	i = 2
 	while new_path.is_file():
-		new_path = new_path.with_stem(base_filename + str(i))
+		new_path = new_path.with_stem(new_path.stem + str(i))
 		i += 1
 	return new_path
