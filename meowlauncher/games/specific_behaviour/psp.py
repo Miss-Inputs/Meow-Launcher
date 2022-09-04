@@ -2,7 +2,7 @@ import io
 import logging
 from pathlib import Path
 import struct  # To handle struct.error
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 try:
 	from PIL import Image
@@ -75,17 +75,16 @@ def add_info_from_pbp(rompath_just_for_warning: str, metadata: 'Metadata', pbp_f
 			if pic1:
 				metadata.images['Background Image'] = pic1
 
-def get_image_from_iso(iso: 'PyCdlib', path: str) -> 'Image':
-	buf = io.BytesIO()
+def get_image_from_iso(iso: 'PyCdlib', path: str, object_for_warning: Any=None) -> 'Image':
 	try:
-		iso.get_file_from_iso_fp(buf, iso_path=path)
-		clone = io.BytesIO(buf.getvalue()) #Pillow insists on closing the stream to use .verify()
-		try:
-			image = Image.open(clone)
-			image.verify()
-		except (OSError, SyntaxError):
-			return None
-		return Image.open(buf)
+		with iso.open_file_from_iso(iso_path=path) as image_data:
+			try:
+				image = Image.open(image_data)
+				image.load() #Force Pillow to figure out if the image is valid or not, and also copy the image data
+				return image
+			except (OSError, SyntaxError):
+				logging.exception('Error getting image %s inside ISO %s', path, object_for_warning or iso)
+				return None
 	except PyCdlibInvalidInput:
 		#It is okay for a disc to be missing something
 		pass
@@ -119,10 +118,10 @@ def add_psp_iso_info(path: Path, metadata: 'Metadata') -> None:
 				logger.info('%s has no PARAM.SFO inside', path)
 		else:
 			if have_pillow:
-				metadata.images['Banner'] = get_image_from_iso(iso, '/PSP_GAME/ICON0.PNG')
-				metadata.images['Icon 1'] = get_image_from_iso(iso, '/PSP_GAME/ICON1.PNG')
-				metadata.images['Picture 0'] = get_image_from_iso(iso, '/PSP_GAME/PIC0.PNG')
-				metadata.images['Background Image'] = get_image_from_iso(iso, '/PSP_GAME/PIC1.PNG')
+				metadata.images['Banner'] = get_image_from_iso(iso, '/PSP_GAME/ICON0.PNG', path)
+				metadata.images['Icon 1'] = get_image_from_iso(iso, '/PSP_GAME/ICON1.PNG', path)
+				metadata.images['Picture 0'] = get_image_from_iso(iso, '/PSP_GAME/PIC0.PNG', path)
+				metadata.images['Background Image'] = get_image_from_iso(iso, '/PSP_GAME/PIC1.PNG', path)
 		finally:
 			iso.close()	
 	except PyCdlibInvalidISO:
