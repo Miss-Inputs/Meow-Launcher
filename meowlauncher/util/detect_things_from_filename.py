@@ -227,8 +227,6 @@ def get_license_from_filename_tags(tags: Sequence[str]) -> Optional[str]:
 		return 'Freeware'
 	if '(GW)' in tags or '(GW-R)' in tags:
 		return 'Giftware'
-	if '(GPL)' in tags:
-		return 'GPL'
 	if '(LW)' in tags:
 		#The hell is licenseware, TOSEC?
 		return 'Licenseware'
@@ -236,5 +234,10 @@ def get_license_from_filename_tags(tags: Sequence[str]) -> Optional[str]:
 		return 'Public Domain'
 	if '(SW)' in tags or '(SW-R)' in tags or '(Shareware)' in tags:
 		return 'Shareware'
+	for tag in tags:
+		if tag.startswith('(GPL'):
+			return tag[1:-1]
+		if tag.startswith('(CC BY-'):
+			return tag[1:-1]
 	
 	return None
