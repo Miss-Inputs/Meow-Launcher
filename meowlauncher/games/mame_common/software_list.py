@@ -463,6 +463,7 @@ class SoftwareMatcherArgs():
 class SoftwareList():
 	def __init__(self, path: Path) -> None:
 		self.xml = ElementTree.parse(path)
+		self.software = {software.name: software for software in {Software(s, self) for s in self.xml.iterfind('software')}}
 
 	def __hash__(self) -> int:
 		return hash(self.name)
@@ -479,14 +480,16 @@ class SoftwareList():
 		return self.xml.getroot().attrib.get('description')
 
 	def get_software(self, name: str) -> Optional[Software]:
-		for software in self.xml.iterfind('software'):
-			if software.attrib.get('name') == name:
-				return Software(software, self)
-		return None
+		#for software in self.xml.iterfind('software'):
+		#	if software.attrib.get('name') == name:
+		#		return Software(software, self)
+		#return None
+		return self.software.get(name)
 
 	def iter_all_parts_with_custom_matcher(self, matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Iterator[SoftwarePart]:
-		for software_xml in self.xml.iterfind('software'):
-			software = Software(software_xml, self)
+		# for software_xml in self.xml.iterfind('software'):
+		# 	software = Software(software_xml, self)
+		for software in self.software.values():
 			for part in software.parts.values():
 				if matcher(part, *args):
 					yield part
@@ -502,8 +505,9 @@ class SoftwareList():
 		return next(self.iter_all_software_with_custom_matcher(matcher, args), None)
 		
 	def find_software_part(self, args: SoftwareMatcherArgs) -> Optional[SoftwarePart]:
-		for software_xml in self.xml.iterfind('software'):
-			software = Software(software_xml, self)
+		# for software_xml in self.xml.iterfind('software'):
+		# 	software = Software(software_xml, self)
+		for software in self.software.values():
 			for part in software.parts.values():
 				if part.matches(args):
 					return part
