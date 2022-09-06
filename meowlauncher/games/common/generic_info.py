@@ -177,7 +177,6 @@ def add_generic_info_from_filename_tags(tags: Sequence[str], metadata: 'Metadata
 	for tag in tags:
 		if tag.startswith('[aka '):
 			metadata.add_alternate_name(tag.removeprefix('[aka ')[:-1])
-			return
 		if tag.lower().startswith('[req '):
 			requirement = tag[len('[req '):-1]
 			existing_requirement = metadata.specific_info.get('Requirement')
