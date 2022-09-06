@@ -173,11 +173,11 @@ def get_tv_system_from_filename_tags(tags: Sequence[str]) -> Optional[region_inf
 		tag = tag.upper()
 		if tag in {'(NTSC)', '[F NTSC]'}:
 			return region_info.TVSystem.NTSC
-		if tag in {'(PAL)', '[F PAL]'}:
+		if tag in {'(PAL)', '[F PAL]', '[PAL only]', '(PAL 50)', '(PAL50)'}:
 			return region_info.TVSystem.PAL
 		if tag in {'(NTSC-PAL)', '(PAL-NTSC)'}:
 			return region_info.TVSystem.Agnostic
-		#(PAL-60) could also be a thing, but piss off
+		#TODO: PAL60 should be noted too
 	return None
 
 _date_regex = re.compile(r'\((?P<year>[x\d]{4})\)|\((?P<year2>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})\)|\((?P<day2>\d{2})\.(?P<month2>\d{2})\.(?P<year3>\d{4})\)')
@@ -234,6 +234,10 @@ def get_license_from_filename_tags(tags: Sequence[str]) -> Optional[str]:
 		return 'Public Domain'
 	if '(SW)' in tags or '(SW-R)' in tags or '(Shareware)' in tags:
 		return 'Shareware'
+	
+	#TOSEC does put more at the end, but they haven't updated the naming standards document in a while I guess
+	if '(MIT)' in tags:
+		return 'MIT'
 	for tag in tags:
 		if tag.startswith('(GPL'):
 			return tag[1:-1]
