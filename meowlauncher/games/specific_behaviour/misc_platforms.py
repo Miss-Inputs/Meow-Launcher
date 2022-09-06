@@ -129,20 +129,18 @@ def add_ibm_pcjr_custom_info(game: 'ROMGame') -> None:
 	rom = cast(FileROM, game.rom)
 	magic = rom.read(amount=32)
 
-	header_length = 0
-
 	if magic[:25] == b'PCjr Cartridge image file':
 		game.metadata.specific_info['Headered?'] = True
 		#.jrc files just have a comment from 49:549 (null terminated ASCII I guess) for the most part so that might not be interesting to poke into
 		game.metadata.specific_info['Header Format'] = 'JRipCart'
-		header_length = 512
+		rom.header_length_for_crc_calculation = 512
 	elif magic[:10] == b'Filename: ' and magic[0x14:0x1d] == b'Created: ':
 		#Fields here are more plain texty, but otherwise there's just like... a filename and creation date, which is meaningless, and a generic description field, and also a start address
 		game.metadata.specific_info['Headered?'] = True
 		game.metadata.specific_info['Header Format'] = 'PCJrCart'
-		header_length = 128
+		rom.header_length_for_crc_calculation = 128
 
-	software = game.get_software_list_entry(header_length)
+	software = game.get_software_list_entry()
 	if software:
 		add_generic_software_info(software, game.metadata)
 		#TODO: If sharedfeat requirement = ibmpcjr_flop:pcdos21, do something about that

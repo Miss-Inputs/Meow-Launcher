@@ -59,13 +59,13 @@ class ROMGame(EmulatedGame):
 		#TODO: I don't like this being here but 2600/C64/GB/Intellivision/NES needs it for now I guess
 		return _software_lists_for_platform(self.platform)
 
-	def get_software_list_entry(self, skip_header: int=0) -> Optional['Software']:
+	def get_software_list_entry(self) -> Optional['Software']:
 		if not self.platform.software_list_names:
 			return None
 
 		software_lists = self.related_software_lists
 		try:
-			software = self.rom.get_software_list_entry(software_lists, self.platform.databases_are_byteswapped, skip_header)
+			software = self.rom.get_software_list_entry(software_lists, self.platform.databases_are_byteswapped)
 		except NotImplementedError:
 			pass
 

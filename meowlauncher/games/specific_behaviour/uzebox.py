@@ -37,11 +37,12 @@ def add_uzebox_custom_info(game: 'ROMGame') -> None:
 		has_header = False
 	else:
 		has_header = True
+		cast(FileROM, game.rom).header_length_for_crc_calculation = 512
 		add_info_from_uze_header(header, game.metadata)
 		
 	game.metadata.specific_info['Headered?'] = has_header
 
-	software = game.get_software_list_entry(512 if has_header else 0)
+	software = game.get_software_list_entry()
 	if software:
 		add_generic_software_info(software, game.metadata)
 		if game.metadata.publisher == 'Belogic':

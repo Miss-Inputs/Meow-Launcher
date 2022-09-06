@@ -100,13 +100,14 @@ def add_atari_7800_custom_info(game: 'ROMGame') -> None:
 	header = cast(FileROM, game.rom).read(amount=128)
 	if header[1:10] == b'ATARI7800':
 		headered = True
+		cast(FileROM, game.rom).header_length_for_crc_calculation = 128
 		_add_atari_7800_header_info(str(game.rom), game.metadata, header)
 	else:
 		headered = False
 
 	game.metadata.specific_info['Headered?'] = headered
 
-	software = game.get_software_list_entry(skip_header=128 if headered else 0)
+	software = game.get_software_list_entry()
 	if software:
 		software.add_standard_metadata(game.metadata)
 		game.metadata.add_notes(software.get_info('usage'))

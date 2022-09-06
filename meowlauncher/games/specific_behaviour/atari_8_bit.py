@@ -91,6 +91,7 @@ def add_atari_8bit_custom_info(game: 'ROMGame') -> None:
 		magic = header[:4]
 		if magic == b'CART':
 			headered = True
+			cast(FileROM, game.rom).header_length_for_crc_calculation = 16
 			cart_type = int.from_bytes(header[4:8], 'big')
 			#TODO: Have nice table of cart types like with Game Boy mappers
 			game.metadata.specific_info['Mapper'] = cart_type
@@ -98,7 +99,7 @@ def add_atari_8bit_custom_info(game: 'ROMGame') -> None:
 
 	game.metadata.specific_info['Headered?'] = headered
 
-	software = game.get_software_list_entry(skip_header=16 if headered else 0)
+	software = game.get_software_list_entry()
 	if software:
 		add_info_from_software_list(game.metadata, software)
 

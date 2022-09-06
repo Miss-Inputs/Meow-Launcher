@@ -1,9 +1,9 @@
-from functools import cached_property
 import logging
 import os
 import zlib
 from abc import ABC, abstractmethod
 from collections.abc import Collection, Iterator, MutableMapping
+from functools import cached_property
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional, cast
 
@@ -11,8 +11,8 @@ from meowlauncher.common_types import ByteAmount, MediaType
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.mame_common.software_list import (
     SoftwareMatcherArgs, format_crc32_for_software_list)
-from meowlauncher.games.mame_common.software_list_find_utils import (
-    find_in_software_lists, matcher_args_for_bytes)
+from meowlauncher.games.mame_common.software_list_find_utils import \
+    find_in_software_lists
 from meowlauncher.util import archives, cd_read, io_utils
 from meowlauncher.util.utils import byteswap
 
@@ -65,7 +65,7 @@ class ROM(ABC):
 		return self._extension
 
 	@abstractmethod
-	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool=False, skip_header: int=0) -> Optional['Software']:
+	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool=False) -> Optional['Software']:
 		pass
 
 	@cached_property
@@ -147,11 +147,7 @@ class FileROM(ROM):
 			
 		return self._extension
 	
-	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool=False, skip_header: int=0) -> Optional['Software']:
-		if skip_header:
-			data = self.read(seek_to=skip_header)
-			return find_in_software_lists(software_lists, matcher_args_for_bytes(data))
-
+	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool=False) -> Optional['Software']:
 		crc32 = zlib.crc32(byteswap(self.read())) & 0xffffffff if needs_byteswap else self.crc32
 		
 		def _file_rom_reader(offset: int, amount: int) -> bytes:
@@ -365,11 +361,11 @@ class M3UPlaylist(ROM):
 	def should_read_whole_thing(self) -> bool:
 		return False
 	
-	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool = False, skip_header: int = 0) -> Optional['Software']:
+	def get_software_list_entry(self, software_lists: Collection['SoftwareList'], needs_byteswap: bool = False) -> Optional['Software']:
 		if not self.subroms:
 			raise FileNotFoundError('m3u does not have any valid files in it, which is weird and should not happen')
 		#TODO: Maybe this isnt' even correct - we want to find which SoftwarePart matches what, in theory
-		return self.subroms[0].get_software_list_entry(software_lists, needs_byteswap, skip_header)
+		return self.subroms[0].get_software_list_entry(software_lists, needs_byteswap)
 
 def get_rom(path: Path) -> ROM:
 	if path.is_dir():
