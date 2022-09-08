@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 #     uint8_t  pad[3];
 # } romHeader;
 
-def parse_icon(rom: 'FileROM', icon_bank: int, icon_offset_x: int, icon_offset_y: int) -> 'Image':
+def parse_icon(rom: 'FileROM', icon_bank: int, icon_offset_x: int, icon_offset_y: int) -> 'Image.Image':
 	bank_size = (256 * 256) // 4
 	bank_address = bank_size * icon_bank
 	if bank_address > rom.size:

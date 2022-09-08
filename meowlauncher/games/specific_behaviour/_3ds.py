@@ -343,7 +343,7 @@ tile_order = [
 	36, 37, 44, 45, 38, 39, 46, 47,
 	52, 53, 60, 61, 54, 55, 62, 63
 ]
-def _decode_icon(icon_data: bytes, size: int) -> 'Image':
+def _decode_icon(icon_data: bytes, size: int) -> 'Image.Image':
 	#Assumes RGB565, which everything so far uses. Supposedly there can be other encodings, but I'll believe that when I see it
 	icon = Image.new('RGB', (size, size))
 

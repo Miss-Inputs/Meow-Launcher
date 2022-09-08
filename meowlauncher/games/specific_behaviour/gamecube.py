@@ -63,7 +63,7 @@ def parse_gamecube_banner_text(metadata: Metadata, banner_bytes: bytes, encoding
 	metadata.specific_info[f'{prefix} Title Line 2'] = title_line_2
 	metadata.descriptions[f'{prefix} Description'] = description
 
-def decode_icon(banner: bytes) -> 'Image':
+def decode_icon(banner: bytes) -> 'Image.Image':
 	width = 96
 	height = 32
 
