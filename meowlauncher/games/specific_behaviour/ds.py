@@ -19,7 +19,7 @@ from meowlauncher.util.utils import (NotAlphanumericException,
                                      convert_alphanumeric, load_dict)
 
 from .common.gametdb import TDB, add_info_from_tdb
-from .common.nintendo_common import parse_ratings
+from .common.nintendo_common import DSi3DSAgeRatings, add_ratings_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
@@ -65,7 +65,7 @@ def _convert_ds_colour_to_rgba(colour: int, is_transparent: bool) -> tuple[int, 
 
 	return (red, green, blue, 0 if is_transparent else 0xff)
 
-def _decode_icon(bitmap: bytes, palette: Sequence[int]) -> 'Image':
+def _decode_icon(bitmap: bytes, palette: Sequence[int]) -> 'Image.Image':
 	icon = Image.new('RGBA', (32, 32))
 
 	rgb_palette = [(0, 0, 0, 0)] * 16
@@ -208,7 +208,7 @@ def _add_info_from_ds_header(rom: FileROM, metadata: 'Metadata', header: bytes) 
 			#GBATEK says region free is 0xffffffff specifically but Pokemon gen 5 is 0xffffffef so who knows
 			#Although either way, it doesn't imply regions is world, it just means it'll work worldwide, so like... ehh... regions is a weird metadata field tbh
 			metadata.regions = _parse_dsi_region_flags(region_flags)
-		parse_ratings(metadata, header[0x2f0:0x300], True, False)
+		add_ratings_info(metadata, DSi3DSAgeRatings(header[0x2f0:0x300]))
 	else:
 		region = header[29]
 		if region == 0x40:

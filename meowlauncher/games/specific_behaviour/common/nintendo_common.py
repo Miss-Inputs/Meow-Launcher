@@ -1,12 +1,12 @@
 import statistics
-from collections.abc import Collection, Mapping
-from enum import Flag
-from typing import TYPE_CHECKING, Optional
+from collections.abc import Collection, Mapping, Sequence
+from enum import Enum, IntFlag, auto
+from typing import TYPE_CHECKING, NamedTuple, Optional
 
 if TYPE_CHECKING:
 	from meowlauncher.metadata import Metadata
 
-class WiiU3DSRegionCode(Flag):
+class WiiU3DSRegionCode(IntFlag):
 	Japan = 1
 	USA = 2
 	Europe = 4
@@ -17,45 +17,98 @@ class WiiU3DSRegionCode(Flag):
 	RegionFree = 0x7fffffff
 	WiiURegionFree = 0xffffffff
 
-def parse_ratings(metadata: 'Metadata', ratings_bytes: bytes, invert_has_rating_bit: bool=False, use_bit_6: bool=True) -> None:
-	ratings = {}
-	for i, rating in enumerate(ratings_bytes):
-		has_rating = (rating & 0b1000_0000) == 0 #For 3DS and DSi, the meaning of this bit is inverted
-		if invert_has_rating_bit:
-			has_rating = not has_rating
+class NintendoAgeRatingBytes(NamedTuple):
+	CERO: int
+	ESRB: int
+	ReservedRating3: int #The relative ordering in Wii U XMLs could indicate this is BBFC
+	USK: int
+	PEGI: int
+	PEGIFinland: int #In Wii games, this is possibly FBFC?
+	PEGIPortugal: int
+	PEGIUK: int
+	AGCB: int
+	GRB: int
+	CGSRR: int #3DS only?
+	ReservedRating12: int
+	ReservedRating13: int
+	ReservedRating14: int
+	ReservedRating15: int
 
-		#Seems to only mean this for Wii (MadWorld (Europe) has this bit set for Germany rating); on Wii U it seems to be "this rating is unused" and 3DS and DSi I dunno but it probably doesn't work that way
-		banned = rating & 0b0100_0000 if use_bit_6 else False
-		#Bit 5 I'm not even sure about (on Wii it seems to be "includes online interactivity"), but we can ignore it
-		#The last 4 bits are the actual rating
-		if has_rating and not banned:
-			ratings[i] = rating & 0b0001_1111
+class AgeRatingStatus(Enum):
+	Missing = auto()
+	Banned = auto()
+	RatingPending = auto()
+	Present = auto()
+	NoAgeRestriction = auto()
 
-	if 0 in ratings:
-		metadata.specific_info['CERO Rating'] = ratings[0]
-	if 1 in ratings:
-		metadata.specific_info['ESRB Rating'] = ratings[1]
-	if 3 in ratings:
-		metadata.specific_info['USK Rating'] = ratings[3]
-	if 4 in ratings:
-		metadata.specific_info['PEGI Rating'] = ratings[4]
-	if 8 in ratings:
-		metadata.specific_info['AGCB Rating'] = ratings[8]
-	if 9 in ratings:
-		metadata.specific_info['GRB Rating'] = ratings[9]
+class NintendoAgeRatings():
+	def __init__(self, ratings_bytes: Sequence[int]) -> None:
+		self.bytes = ratings_bytes
+	
+	@staticmethod
+	def _get_rating_status(byte: int) -> AgeRatingStatus:
+		if byte & 0b1000_0000:
+			return AgeRatingStatus.Missing
+		return AgeRatingStatus.Present
+
+	@staticmethod
+	def _get_rating_value(byte: int) -> int:
+		return byte & 0b0001_1111
+
+	def get_rating(self, index: int) -> Optional[int | AgeRatingStatus | None]:
+		byte = self.bytes[index]
+		status = self._get_rating_status(byte)
+		if status == AgeRatingStatus.Present:
+			return byte
+		if status == AgeRatingStatus.Missing:
+			return None
+		return status
+
+	@property
+	def all_present_ratings(self) -> Collection[int | AgeRatingStatus]:
+		return [b if status == AgeRatingStatus.Present else status for b, status in ((b, self._get_rating_status(b)) for b in self.bytes) if status != AgeRatingStatus.Missing]
+
+	@property
+	def common_rating(self) -> Optional[int | AgeRatingStatus]:
+		#If there is only one rating or they are all the same, this covers that; otherwise if ratings boards disagree this is probably the best way to interpret that situation
+		all_present_ratings = self.all_present_ratings
+		try:
+			return statistics.mode(all_present_ratings)
+		except statistics.StatisticsError:
+			try:
+				return max(b for b in all_present_ratings if isinstance(b, int))
+			except ValueError:
+				return None
+
+	def __getitem__(self, index: int)  -> Optional[int | AgeRatingStatus | None]:
+		byte = self.bytes[index]
+		status = self._get_rating_status(byte)
+		if status == AgeRatingStatus.Present:
+			return byte
+		if status == AgeRatingStatus.Missing:
+			return None
+		return status
+		
+class DSi3DSAgeRatings(NintendoAgeRatings):
+	@staticmethod
+	def _get_rating_status(byte: int) -> AgeRatingStatus:
+		#For some reason it is inverted
+		if byte & 0b1000_0000:
+			return AgeRatingStatus.Present
+		if byte & 0b0100_0000:
+			return AgeRatingStatus.RatingPending
+		return AgeRatingStatus.Missing
+
+def add_ratings_info(metadata: 'Metadata', ratings: NintendoAgeRatings) -> None:
+	metadata.specific_info['CERO Rating'] = ratings[0]
+	metadata.specific_info['ESRB Rating'] = ratings[1]
+	metadata.specific_info['USK Rating'] = ratings[3]
+	metadata.specific_info['PEGI Rating'] = ratings[4]
+	metadata.specific_info['AGCB Rating'] = ratings[8]
+	metadata.specific_info['GRB Rating'] = ratings[9]
 	#There are others but that will do for now
 
-	ratings_list = set(ratings.values())
-	if not ratings_list:
-		return
-
-	#If there is only one rating or they are all the same, this covers that; otherwise if ratings boards disagree this is probably the best way to interpret that situation
-	try:
-		rating = statistics.mode(ratings_list)
-	except statistics.StatisticsError:
-		rating = max(ratings_list)
-
-	metadata.specific_info['Age Rating'] = rating
+	metadata.specific_info['Age Rating'] = ratings.common_rating
 
 def add_info_from_local_titles(metadata: 'Metadata', short_titles: Mapping[str, str], long_titles: Mapping[str, str], publishers: Mapping[str, Optional[str]], region_codes: Collection[WiiU3DSRegionCode]) -> None:
 	local_short_title = None

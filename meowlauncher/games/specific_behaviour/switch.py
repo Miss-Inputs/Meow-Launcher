@@ -22,7 +22,7 @@ from meowlauncher.platform_types import SwitchContentMetaType
 from meowlauncher.util.region_info import (get_language_by_english_name,
                                            languages_by_english_name)
 
-from .common.nintendo_common import parse_ratings
+from .common.nintendo_common import NintendoAgeRatings, add_ratings_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom import FileROM
@@ -195,8 +195,8 @@ def _add_nacp_metadata(metadata: 'Metadata', nacp: bytes, icons: Mapping[str, by
 	#Screenshot = nacp[0x3034] sounds interesting?
 	metadata.specific_info['Video Capture Allowed?'] = nacp[0x3035] != 0 #2 (instead of 1) indicates memory is allocated automatically who cares
 
-	rating_age = nacp[0x3040:0x3060]
-	parse_ratings(metadata, rating_age)
+
+	add_ratings_info(metadata, NintendoAgeRatings(nacp[0x3040:0x3060]))
 	
 	metadata.specific_info['Version'] = nacp[0x3060:0x3070].rstrip(b'\0').decode('utf-8', errors='backslashreplace')
 

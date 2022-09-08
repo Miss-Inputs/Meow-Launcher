@@ -144,7 +144,7 @@ def _add_meta_xml_metadata(metadata: 'Metadata', meta_xml: ElementTree.ElementTr
 		except ValueError:
 			metadata.specific_info['Region Code'] = '0x' + region
 
-	#Tempted to reuse wii.parse_ratings, but I might not because it's just a bit different
+	#Tempted to reuse NintendoAgeRatings, but I might not because it's just a bit different
 	rating_tags = {tag: int(tag.text) for tag in meta_xml.iter() if tag.tag.startswith('pc_') and tag.text}
 	ratings = {tag.tag: rating & 0b0001_1111 for tag, rating in rating_tags.items() if (rating & 0b1000_0000) == 0 and (rating & 0b0100_0000) == 0}
 	if ratings:

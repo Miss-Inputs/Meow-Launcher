@@ -22,8 +22,9 @@ from meowlauncher.util.utils import (NotAlphanumericException,
                                      load_dict)
 
 from .common.gametdb import TDB, add_info_from_tdb
-from .common.nintendo_common import (WiiU3DSRegionCode,
-                                     add_info_from_local_titles, parse_ratings)
+from .common.nintendo_common import (DSi3DSAgeRatings, WiiU3DSRegionCode,
+                                     add_info_from_local_titles,
+                                     add_ratings_info)
 from .static_platform_info import add_3ds_info
 
 if TYPE_CHECKING:
@@ -281,7 +282,7 @@ def _parse_smdh_data(metadata: 'Metadata', smdh: bytes) -> None:
 	#Version = 4-6
 	#Reserved = 6-8
 
-	parse_ratings(metadata, smdh[0x2008:0x2018], True, False)
+	add_ratings_info(metadata, DSi3DSAgeRatings(smdh[0x2008:0x2018]))
 
 	region_code_flag = int.from_bytes(smdh[0x2018:0x201c], 'little')
 	if region_code_flag in (WiiU3DSRegionCode.RegionFree, 0xffffffff):

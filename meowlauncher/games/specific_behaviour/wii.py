@@ -21,7 +21,7 @@ from .common.gamecube_wii_common import (NintendoDiscRegion, _tdb,
                                          add_gamecube_wii_disc_metadata,
                                          just_read_the_wia_rvz_header_for_now)
 from .common.gametdb import add_info_from_tdb
-from .common.nintendo_common import parse_ratings
+from .common.nintendo_common import AgeRatingStatus, NintendoAgeRatings, add_ratings_info
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom_game import ROMGame
@@ -47,6 +47,14 @@ class WiiVirtualConsolePlatform(Enum):
 
 def _round_up_to_multiple(num: int, factor: int) -> int:
 	return num + (factor - (num % factor)) % factor
+
+class WiiRatings(NintendoAgeRatings):
+	@staticmethod
+	def _get_rating_status(byte: int) -> AgeRatingStatus:
+		#Maybe? (See MadWorld (Europe) Germany rating)		
+		if byte & 0b0100_0000:
+			return AgeRatingStatus.Banned
+		return NintendoAgeRatings._get_rating_status(byte)
 
 def _parse_tmd(metadata: 'Metadata', tmd: bytes) -> None:
 	#Stuff that I dunno about: 0 - 388
@@ -91,7 +99,7 @@ def _parse_tmd(metadata: 'Metadata', tmd: bytes) -> None:
 		metadata.specific_info['Region Code'] = NintendoDiscRegion(region_code)
 	except ValueError:
 		pass
-	parse_ratings(metadata, tmd[414:430])
+	add_ratings_info(metadata, WiiRatings(tmd[414:430]))
 	#Reserved: 430-442
 	#IPC mask: 442-454 (wat?)
 	#Reserved 2: 454-472
@@ -188,7 +196,7 @@ def add_wii_homebrew_metadata(rom: FolderROM, metadata: 'Metadata') -> None:
 
 	icon_path = rom.get_file('icon.png', True)
 	if icon_path:
-		metadata.images['Banner'] = str(icon_path)
+		metadata.images['Banner'] = icon_path
 		#Unfortunately the aspect ratio means it's not really great as an icon
 
 	xml_path = rom.relevant_files['meta.xml']
@@ -310,7 +318,7 @@ def _add_wii_disc_metadata(rom: FileROM, metadata: 'Metadata') -> None:
 		metadata.specific_info['Region Code'] = NintendoDiscRegion(region_code)
 	except ValueError:
 		pass
-	parse_ratings(metadata, wii_header[0xe010:0xe020])
+	add_ratings_info(metadata, WiiRatings(wii_header[0xe010:0xe020]))
 
 def add_wii_custom_info(game: 'ROMGame') -> None:
 	if game.rom.extension in {'gcz', 'iso', 'wbfs', 'gcm'}:
