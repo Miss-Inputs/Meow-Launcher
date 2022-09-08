@@ -99,7 +99,7 @@ def add_commodore_64_custom_info(game: 'ROMGame') -> None:
 		game.metadata.specific_info['Mapper'] = ccs64_cart_types.get(cart_type, f'CCS64 type {cart_type}')
 
 		try:
-			cartridge_name = header[0x20:0x3f].rstrip('\0').decode('ascii')
+			cartridge_name = header[0x20:0x3f].rstrip(b'\0').decode('ascii')
 			if cartridge_name:
 				game.metadata.specific_info['Header Title'] = cartridge_name
 		except UnicodeDecodeError:

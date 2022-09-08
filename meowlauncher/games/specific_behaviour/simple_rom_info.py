@@ -20,7 +20,7 @@ def add_ngp_header_info(rom: 'FileROM', metadata: 'Metadata') -> None:
 	metadata.product_code = str(int.from_bytes(header[32:34], 'little'))
 	metadata.specific_info['Revision'] = header[34]
 	metadata.specific_info['Is Colour?'] = header[35] == 0x10
-	internal_title = header[36:48].rstrip('\0').decode('ascii', 'backslashreplace')
+	internal_title = header[36:48].rstrip(b'\0').decode('ascii', 'backslashreplace')
 	if internal_title:
 		metadata.specific_info['Internal Title'] = internal_title
 
