@@ -129,15 +129,16 @@ def parse_woz_meta_chunk(rompath: str, metadata: Metadata, chunk_data: bytes) ->
 
 def parse_woz_chunk(rom: 'FileROM', metadata: Metadata, position: int) -> int:
 	chunk_header = rom.read(seek_to=position, amount=8)
-	chunk_id = chunk_header[0:4].decode('ascii', errors='ignore')
+	chunk_id = chunk_header[0:4]
 	chunk_data_size = int.from_bytes(chunk_header[4:8], 'little')
 
-	if chunk_id == 'INFO':
+	if chunk_id == b'INFO':
 		chunk_data = rom.read(seek_to=position+8, amount=chunk_data_size)
 		parse_woz_info_chunk(metadata, chunk_data)
-	elif chunk_id == 'META':
+	elif chunk_id == b'META':
 		chunk_data = rom.read(seek_to=position+8, amount=chunk_data_size)
 		parse_woz_meta_chunk(str(rom), metadata, chunk_data)
+	#TMAP, TRKS, FLUX, WRIT have nothing interesting for us
 
 	return position + chunk_data_size + 8
 

@@ -131,7 +131,19 @@ def add_ibm_pcjr_custom_info(game: 'ROMGame') -> None:
 
 	if magic[:25] == b'PCjr Cartridge image file':
 		game.metadata.specific_info['Headered?'] = True
-		#.jrc files just have a comment from 49:549 (null terminated ASCII I guess) for the most part so that might not be interesting to poke into
+		# +  0  signature DB "PCjr Cartridge image file",0Dh,0Ah ;file signature
+		# + 27  creator   DB 30 DUP (20h) ;creator signature
+		# 							;(for example: "ApH's JRIPCART version 1.0    ")
+		# + 57  CR        DB 0Dh,0Ah
+		# + 59  comment   DB 400 DUP (1Ah) ;comment (contained program)
+		# +459  EOF       DB 1Ah ;End Of File (for DOS "type" command)
+		# +460  version   DB 1,0 ;Image version number
+		# +462  address   DW ? ;segment address (little endian) at which the beginning
+		# 					;of the cartridge appears in the PCjr's memory map.
+		# +464  adrmask   DW ? ;a "1" at a given position means a "don't care" at the
+		# 					;same position in the address field (this address bit is
+		# 					;not decoded by the cartridge logic).
+		# +466  reserved  DB 46 DUP (0) ;reserved for future use
 		game.metadata.specific_info['Header Format'] = 'JRipCart'
 		rom.header_length_for_crc_calculation = 512
 	elif magic[:10] == b'Filename: ' and magic[0x14:0x1d] == b'Created: ':

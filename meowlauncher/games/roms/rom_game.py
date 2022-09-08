@@ -45,6 +45,9 @@ class ROMGame(EmulatedGame):
 
 		self.exception_reason: Optional[BaseException] = None
 	
+	def __str__(self) -> str:
+		return self.name
+
 	@property
 	def name(self) -> str:
 		#TODO: This should be better…

@@ -1,7 +1,7 @@
 import logging
 import os
 import struct
-from collections.abc import Collection
+from collections.abc import Collection, Sequence
 from typing import TYPE_CHECKING, Optional, cast
 from xml.etree import ElementTree
 
@@ -65,7 +65,7 @@ def _convert_ds_colour_to_rgba(colour: int, is_transparent: bool) -> tuple[int, 
 
 	return (red, green, blue, 0 if is_transparent else 0xff)
 
-def _decode_icon(bitmap: bytes, palette: Collection[int]) -> 'Image':
+def _decode_icon(bitmap: bytes, palette: Sequence[int]) -> 'Image':
 	icon = Image.new('RGBA', (32, 32))
 
 	rgb_palette = [(0, 0, 0, 0)] * 16
@@ -145,7 +145,7 @@ def _parse_banner(rom: FileROM, metadata: 'Metadata', header: bytes, is_dsi: boo
 
 		for i in range(7):
 			try:
-				banner_title = banner[0x240 + (i * 256): 0x240 + (i * 256) + 256].decode('utf-16le').rstrip('\0 \uffff')
+				banner_title = banner[0x240 + (i * 256): 0x240 + (i * 256) + 256].rstrip(b'\0 \xff') .decode('utf-16le')
 				#if banner_title and not all([c == '\uffff' for c in banner_title]):
 				if banner_title:
 					banner_titles[banner_languages[i]] = banner_title
@@ -169,7 +169,7 @@ def _add_info_from_ds_header(rom: FileROM, metadata: 'Metadata', header: bytes) 
 	if header[0:4] == b'.\0\0\xea':
 		metadata.specific_info['PassMe?'] = True
 	else:
-		internal_title = header[0:12].decode('ascii', errors='backslashreplace').rstrip('\0')
+		internal_title = header[0:12].rstrip(b'\0').decode('ascii', errors='backslashreplace')
 		if internal_title:
 			metadata.specific_info['Internal Title'] = internal_title
 

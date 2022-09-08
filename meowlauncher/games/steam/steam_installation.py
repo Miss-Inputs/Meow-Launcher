@@ -161,7 +161,7 @@ class SteamInstallation():
 			appid = v.get(b'appid')
 			from_oslist = v.get(b'from_oslist')
 			to_oslist = v.get(b'to_oslist')
-			tools[k.decode('utf-8', errors='ignore')] = (appid.data if appid else None, display_name.decode('utf-8', errors='ignore') if display_name else None, from_oslist.decode('utf-8', errors='ignore') if from_oslist else None, to_oslist.decode('utf-8', errors='ignore') if to_oslist else None)
+			tools[k.decode('utf-8', errors='backslashreplace')] = (appid.data if appid else None, display_name.decode('utf-8', errors='backslashreplace') if display_name else None, from_oslist.decode('utf-8', errors='backslashreplace') if from_oslist else None, to_oslist.decode('utf-8', errors='backslashreplace') if to_oslist else None)
 		return tools
 
 	@property
@@ -179,7 +179,7 @@ class SteamInstallation():
 			#Only other keys are "config" which is "none" except for Google Earth VR so whatevs, "comment" which is the game name but might have inconsistent formatting, and "platform" which is only Linux
 			tool = v.get(b'tool')
 			if tool:
-				apps[k.decode('utf-8', errors='ignore')] = tool.decode('utf-8', errors='ignore')
+				apps[k.decode('utf-8', 'backslashreplace')] = tool.decode('utf-8', 'backslashreplace')
 		return apps
 
 	def find_image(self, appid: int, image_name: str) -> Optional[Path]:

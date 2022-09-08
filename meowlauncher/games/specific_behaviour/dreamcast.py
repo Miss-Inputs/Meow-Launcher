@@ -60,18 +60,19 @@ def _add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size:
 	except NotImplementedError:
 		return
 
-	hardware_id = header[0:16].decode('ascii', errors='ignore')
-	if hardware_id != 'SEGA SEGAKATANA ':
+	hardware_id = header[0:16]
+	if hardware_id != b'SEGA SEGAKATANA ':
 		#Won't boot on a real Dreamcast. I should check how much emulators care...
-		metadata.specific_info['Hardware ID'] = hardware_id
+		#Well it does mean the rest of this header is bogus
+		metadata.specific_info['Hardware ID'] = hardware_id.decode('ascii', errors='backslashreplace')
 		metadata.specific_info['Invalid Hardware ID?'] = True
 		return
 
-	copyright_info = header[16:32].decode('ascii', errors='ignore')
+	copyright_info = header[16:32].decode('ascii', errors='backslashreplace')
 	#Seems to be always "SEGA ENTERPRISES"?
 	metadata.specific_info['Copyright'] = copyright_info
 
-	device_info = header[32:48].decode('ascii', errors='ignore').rstrip()
+	device_info = header[32:48].strip(b' ').decode('ascii', errors='backslashreplace')
 	device_info_match = _device_info_regex.match(device_info)
 	if device_info_match:
 		try:
@@ -80,7 +81,7 @@ def _add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size:
 		except ValueError:
 			pass
 
-	region_info = header[48:56].rstrip()
+	region_info = header[48:56]
 	region_codes = set()
 	if b'J' in region_info:
 		region_codes.add(SaturnRegionCodes.Japan)
@@ -97,15 +98,15 @@ def _add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size:
 	except ValueError:
 		pass
 
-	metadata.product_code = header[64:74].decode('ascii', errors='backslashreplace').rstrip()
+	metadata.product_code = header[64:74].rstrip(b' ').decode('ascii', errors='backslashreplace')
 	try:
-		version = header[74:80].decode('ascii').rstrip()
+		version = header[74:80].rstrip(b' ').decode('ascii')
 		if version[0] == 'V' and version[2] == '.':
 			metadata.specific_info['Version'] = 'v' + version[1:]
 	except UnicodeDecodeError:
 		pass	
 
-	release_date = header[80:96].decode('ascii', errors='backslashreplace').rstrip()
+	release_date = header[80:96].rstrip(b' ').decode('ascii', errors='backslashreplace')
 
 	try:
 		year = release_date[0:4]
@@ -119,12 +120,12 @@ def _add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size:
 		pass
 	
 	try:
-		metadata.specific_info['Executable Name'] = header[96:112].decode('ascii').rstrip()
+		metadata.specific_info['Executable Name'] = header[96:112].rstrip(b' ').decode('ascii')
 	except UnicodeDecodeError:
 		pass
 
 	try:
-		maker = header[112:128].decode('ascii').rstrip()
+		maker = header[112:128].rstrip(b' ').decode('ascii')
 		if maker == 'SEGA ENTERPRISES':
 			metadata.publisher = 'Sega'
 		elif maker.startswith(('SEGA LC-', 'SEGA-LC-')):
@@ -136,7 +137,7 @@ def _add_info_from_main_track(metadata: Metadata, track_path: Path, sector_size:
 	except UnicodeDecodeError:
 		pass
 		
-	metadata.specific_info['Internal Title'] = header[128:256].decode('ascii', errors='backslashreplace').rstrip('\0 ')
+	metadata.specific_info['Internal Title'] = header[128:256].rstrip(b'\0 ').decode('ascii', errors='backslashreplace')
 
 def add_dreamcast_rom_info(rom: FileROM, metadata: Metadata) -> None:
 	if rom.extension == 'gdi':

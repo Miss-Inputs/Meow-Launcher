@@ -54,7 +54,7 @@ def add_cover(metadata: Metadata, product_code: str, licensee_code: str) -> None
 
 def add_gamecube_wii_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes) -> None:
 	internal_title = header[32:128]
-	metadata.specific_info['Internal Title'] = internal_title.decode('ascii', errors='backslashreplace').rstrip('\0 ')
+	metadata.specific_info['Internal Title'] = internal_title.rstrip(b'\0 ').decode('ascii', errors='backslashreplace')
 	if internal_title[:28] == b'GAMECUBE HOMEBREW BOOTLOADER':
 		return
 

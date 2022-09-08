@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 def add_ngp_header_info(rom: 'FileROM', metadata: 'Metadata') -> None:
 	header = rom.read(amount=64)
 	copyright_string = header[:28]
-	metadata.specific_info['Copyright'] = copyright_string.decode('ascii', errors='ignore')
+	metadata.specific_info['Copyright'] = copyright_string.decode('ascii', 'backslashreplace')
 	if copyright_string == b'COPYRIGHT BY SNK CORPORATION':
 		metadata.publisher = 'SNK'
 	#Otherwise it'd say " LICENSED BY SNK CORPORATION" and that could be any dang third party which isn't terribly useful
@@ -20,7 +20,7 @@ def add_ngp_header_info(rom: 'FileROM', metadata: 'Metadata') -> None:
 	metadata.product_code = str(int.from_bytes(header[32:34], 'little'))
 	metadata.specific_info['Revision'] = header[34]
 	metadata.specific_info['Is Colour?'] = header[35] == 0x10
-	internal_title = header[36:48].decode('ascii', errors='backslashreplace').strip('\0')
+	internal_title = header[36:48].rstrip('\0').decode('ascii', 'backslashreplace')
 	if internal_title:
 		metadata.specific_info['Internal Title'] = internal_title
 
@@ -53,6 +53,6 @@ def add_pokemini_rom_file_info(rom: 'FileROM', metadata: 'Metadata') -> None:
 		metadata.product_code = product_code
 	except NotAlphanumericException:
 		pass
-	title = header[4:16].decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
+	title = header[4:16].rstrip(b'\0 ').decode('shift_jis', errors='backslashreplace')
 	if title:
 		metadata.specific_info['Internal Title'] = title

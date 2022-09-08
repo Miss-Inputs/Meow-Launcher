@@ -19,7 +19,7 @@ def _parse_gba_header(metadata: 'Metadata', header: bytes) -> None:
 	nintendo_logo_valid = crc32(nintendo_logo) == nintendo_gba_logo_crc32
 	metadata.specific_info['Nintendo Logo Valid?'] = nintendo_logo_valid
 	
-	internal_title = header[0xa0:0xac].decode('ascii', errors='backslashreplace').rstrip('\0')
+	internal_title = header[0xa0:0xac].rstrip(b'\0').decode('ascii', 'backslashreplace')
 	metadata.specific_info['Internal Title'] = internal_title
 	if internal_title == 'mb2gba':
 		return

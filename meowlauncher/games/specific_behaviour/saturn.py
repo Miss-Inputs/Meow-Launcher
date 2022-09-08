@@ -101,44 +101,36 @@ def _parse_peripherals(metadata: 'Metadata', peripherals: str, rom_path_for_warn
 		#Z = Game Basic for SegaSaturn (PC connectivity?)
 
 def add_saturn_info(rom_path_for_warning: str, metadata: 'Metadata', header: bytes) -> None:
-	hardware_id = header[0:16].decode('ascii', errors='ignore')
-	if hardware_id != 'SEGA SEGASATURN ':
+	hardware_id = header[0:16]
+	if hardware_id != b'SEGA SEGASATURN ':
 		#Won't boot on a real Saturn, also if this is some emulator only thing then nothing in the header can be considered valid
-		metadata.specific_info['Hardware ID'] = hardware_id
+		metadata.specific_info['Hardware ID'] = hardware_id.decode('ascii', 'backslashreplace')
 		metadata.specific_info['Invalid Hardware ID?'] = True
 		return
 
+	maker = header[16:32].rstrip(b' ').decode('ascii', 'backslashreplace')
+	if maker.startswith('SEGA TP '):
+		#"Sega Third Party", I guess
+		maker_code = maker.removeprefix('SEGA TP ')
+		if maker_code.startswith('T '):
+			#You're not supposed to do that, stop that
+			maker_code = 'T-' + maker_code[2:]
+		metadata.publisher = _licensee_codes.get(maker_code, maker)
+	elif maker == 'SEGA ENTERPRISES':
+		metadata.publisher = 'Sega'
+	else:
+		metadata.publisher = maker
+	
+	metadata.product_code = header[32:42].rstrip(b' ').decode('ascii', 'backslashreplace')
+	
 	try:
-		maker = header[16:32].decode('ascii').rstrip()
-		if maker.startswith('SEGA TP '):
-			#"Sega Third Party", I guess
-			maker_code = maker.removeprefix('SEGA TP ')
-			if maker_code.startswith('T '):
-				#You're not supposed to do that, stop that
-				maker_code = 'T-' + maker_code[2:]
-			if maker_code in _licensee_codes:
-				metadata.publisher = _licensee_codes[maker_code]
-		elif maker == 'SEGA ENTERPRISES':
-			metadata.publisher = 'Sega'
-		else:
-			metadata.publisher = maker
-	except UnicodeDecodeError:
-		pass
-
-	try:
-		metadata.product_code = header[32:42].decode('ascii').rstrip()
-	except UnicodeDecodeError:
-		pass
-
-	try:
-		version = header[42:48].decode('ascii').rstrip()
+		version = header[42:48].rstrip(b' ').decode('ascii')
 		if version[0] == 'V' and version[2] == '.':
 			metadata.specific_info['Version'] = 'v' + version[1:]
 	except UnicodeDecodeError:
 		pass
 
-	release_date = header[48:56].decode('ascii', errors='backslashreplace').rstrip()
-
+	release_date = header[48:56].rstrip(b' ').decode('ascii', 'backslashreplace')
 	if not release_date.startswith('0') and '-' not in release_date:
 		#If it starts with 0 the date format is WRONG stop it because I know the Saturn wasn't invented yet before 1000 AD
 		#Also sometimes it's formatted with dashes which means there are 2 bytes that shouldn't be there and are technically part of device info? Weird
@@ -155,15 +147,20 @@ def add_saturn_info(rom_path_for_warning: str, metadata: 'Metadata', header: byt
 		except ValueError:
 			pass
 
-	device_info = header[56:64].decode('ascii', errors='ignore').rstrip()
-	if device_info.startswith('CD-'):
-		#CART16M is seen here instead of "CD-1/1" on some protos?
-		disc_number, _, disc_total = device_info[3:].partition('/')
-		try:
-			metadata.disc_number = int(disc_number)
-			metadata.disc_total = int(disc_total)
-		except ValueError:
-			pass
+	
+	try:
+		device_info = header[56:64].rstrip(b' ').decode('ascii')
+	except UnicodeDecodeError:
+		pass
+	else:
+		if device_info.startswith('CD-'):
+			#CART16M is seen here instead of "CD-1/1" on some protos?
+			disc_number, _, disc_total = device_info[3:].partition('/')
+			try:
+				metadata.disc_number = int(disc_number)
+				metadata.disc_total = int(disc_total)
+			except ValueError:
+				pass
 
 	region_info = header[64:80].rstrip()
 	#Only 10 characters are used
@@ -183,10 +180,10 @@ def add_saturn_info(rom_path_for_warning: str, metadata: 'Metadata', header: byt
 
 	metadata.specific_info['Region Code'] = region_codes
 
-	peripherals = header[80:96].decode('ascii', errors='backslashreplace').rstrip()
+	peripherals = header[80:96].rstrip(b' ').decode('ascii', errors='backslashreplace')
 	_parse_peripherals(metadata, peripherals, rom_path_for_warning)
 
-	internal_name = header[96:208].decode('ascii', errors='backslashreplace').rstrip()
+	internal_name = header[96:208].rstrip(b' ').decode('ascii', errors='backslashreplace')
 	#Sometimes / : - are used as delimiters, and there can also be J:JapaneseNameU:USAName
 	if internal_name:
 		metadata.specific_info['Internal Title'] = internal_name

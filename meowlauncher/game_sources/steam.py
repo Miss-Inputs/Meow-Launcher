@@ -3,8 +3,10 @@
 import datetime
 import json
 import logging
+import operator
 import statistics
-from collections.abc import Iterator, Mapping, MutableMapping
+from collections.abc import Collection, Iterator, Mapping, MutableMapping
+from functools import lru_cache
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any, Optional
 
@@ -341,10 +343,10 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 		game.metadata.specific_info['Metacritic Score'] = metacritic_score.data
 	metacritic_url = common.get(b'metacritic_fullurl')
 	if metacritic_url:
-		game.metadata.documents['Metacritic Page'] = metacritic_url.decode('utf8', errors='ignore')
+		game.metadata.documents['Metacritic Page'] = metacritic_url.decode('utf8', 'backslashreplace')
 	metacritic_name = common.get(b'metacritic_name')
 	if metacritic_name:
-		game.metadata.add_alternate_name(metacritic_name.decode('utf8', errors='ignore'), 'Metacritic Name')
+		game.metadata.add_alternate_name(metacritic_name.decode('utf8', 'backslashreplace'), 'Metacritic Name')
 
 	review_score = common.get(b'review_score')
 	#This is Steam's own review section, I guess?
@@ -370,65 +372,46 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 			store_tags = {store_tag_names.get(id, id) for id in (str(value.data) for value in store_tag_ids_list.values())}
 			game.metadata.specific_info['Store Tags'] = store_tags
 
-	franchise_name = None
 	associations = common.get(b'associations')
-
 	if associations:
-		associations_dict: MutableMapping[str, list[str]] = {}
-		for association in associations.values():
-			association_type_value = association.get(b'type')
-			if isinstance(association_type_value, appinfo.Integer):
-				association_type = str(association_type_value.data)
-			else:
-				association_type = association_type_value.decode('utf-8', errors='ignore')
+		developers = []
+		publishers = []
+		franchises = []
+		for i, association in associations.items():
+			association_type = association.get(b'type')
+			association_name_bytes = association.get(b'name')
+			if not association_type or not association_name_bytes:
+				continue
+			association_name = str(association_name_bytes.data) if isinstance(association_name_bytes, appinfo.Integer) else association_name_bytes.decode('utf-8', 'backslashreplace')
+			if association_type ==  b'franchise':
+				not_actual_franchises = {'Playism', 'Hentai', 'Coming-of-Age', 'Wolf RPG Editor', 'Winter Wolves Games', 'Team17 Digital', '&quot;caves rd&quot;', 'Jackbox Games', 'Franchise', 'PopCap'}
+				if association_name in not_actual_franchises:
+					continue
+				association_name = association_name.removesuffix(' Franchise')
+				association_name = association_name.removesuffix(' Series')
+				association_name = remove_capital_article(association_name)
+				association_name = normalize_name_case(association_name)				
+				franchises.append((i, association_name))
+				
+			if association_type == b'developer':
+				developers.append((i, normalize_developer(association_name)))
+			if association_type == b'publisher' and association_name != 'none':
+				publishers.append((i, normalize_developer(association_name)))
+		franchises.sort(key=operator.itemgetter(0))
+		developers.sort(key=operator.itemgetter(0))
+		publishers.sort(key=operator.itemgetter(0))
+		franchises = tuple(zip(*franchises))[1]
+		developers = tuple(zip(*developers))[1]
+		publishers = tuple(zip(*publishers))[1]
 
-			association_name_value = association.get(b'name')
-			if isinstance(association_name_value, appinfo.Integer):
-				association_name = str(association_name_value.data)
-			else:
-				association_name = association_name_value.decode('utf-8', errors='ignore')
+		game.metadata.series = [franchise for franchise in franchises if franchise not in publishers]
+		game.metadata.specific_info['Mac Developer'] = [dev.removesuffix(' (Mac)') for dev in developers if dev.ensdwith(' (Mac)')]
+		game.metadata.specific_info['Linux Developer'] = [dev.removesuffix(' (Linux)') for dev in developers if dev.ensdwith(' (Linux)')]
+		game.metadata.developer = [dev for dev in developers if not dev.endswith((' (Mac)', ' (Linux)'))]
+		game.metadata.specific_info['Mac Publisher'] = [pub.removesuffix(' (Mac)') for pub in publishers if pub.ensdwith(' (Mac)')]
+		game.metadata.specific_info['Linux Publisher'] = [pub.removesuffix(' (Linux)') for pub in publishers if pub.ensdwith(' (Linux)')]
+		game.metadata.publisher = [game.metadata.developer[0] if pub == 'Self Published' and game.metadata.developer else pub for pub in publishers if not pub.endswith((' (Mac)', ' (Linux)'))]
 			
-			associations_dict.setdefault(association_type, []).append(association_name)
-
-		if 'franchise' in associations_dict:
-			franchise_name = associations_dict['franchise'][0]
-			franchise_name.removesuffix(' Franchise')
-			franchise_name.removesuffix(' Series')
-			franchise_name.removeprefix('The ')
-			
-			franchise_name = normalize_name_case(franchise_name)
-			
-			not_actual_franchises = ('Playism', 'Hentai', 'Coming-of-Age', 'Wolf RPG Editor', 'Winter Wolves Games', 'Team17 Digital', '&quot;caves rd&quot;', 'Jackbox Games', 'Franchise', 'PopCap')
-			if not any(franchise_name.lower() == assoc[0].lower() for assoc_type, assoc in associations_dict.items() if assoc_type != 'franchise') and franchise_name not in not_actual_franchises:
-				game.metadata.series = remove_capital_article(franchise_name)
-
-		if 'developer' in associations_dict:
-			devs = []
-			for dev in associations_dict['developer']:
-				dev = normalize_developer(dev)
-				if dev.endswith(' (Mac)'):
-					game.metadata.specific_info['Mac Developer'] = dev.removesuffix(' (Mac)')
-				elif dev.endswith(' (Linux)'):
-					game.metadata.specific_info['Linux Developer'] = dev.removesuffix(' (Linux)')
-				elif dev not in devs:
-					devs.append(dev)
-
-			game.metadata.developer = ', '.join(devs)
-		if 'publisher' in associations_dict:
-			pubs = []
-			for pub in associations_dict['publisher']:
-				pub = normalize_developer(pub)
-				if pub in {'none', 'Self Published'} and game.metadata.developer:
-					pub = game.metadata.developer
-				if pub.endswith(' (Mac)'):
-					game.metadata.specific_info['Mac Publisher'] = pub.removesuffix(' (Mac)')
-				elif pub.endswith(' (Linux)'):
-					game.metadata.specific_info['Linux Publisher'] = pub.removesuffix(' (Linux)')
-				elif pub not in pubs:
-					pubs.append(pub)
-
-			game.metadata.publisher = ', '.join(pubs)
-	
 def add_metadata_from_appinfo_extended_section(game: 'SteamGame', extended: Mapping[bytes, Any]) -> None:
 	if not game.metadata.developer:
 		developer = extended.get(b'developer')
@@ -765,15 +748,18 @@ def iter_steam_installed_appids() -> Iterator[tuple[Path, int, Mapping[str, Any]
 
 			yield library_folder, appid, app_state
 
+@lru_cache(maxsize=1)
+def _all_installed_appids() -> Collection[int]:
+	return {app_id for _, app_id, __ in iter_steam_installed_appids()}
+
 def no_longer_exists(appid: str) -> bool:
 	if not is_steam_available:
-		#I guess if you uninstalled Steam then you're not gonna play any Steam games, huh
+		#Then don't touchy, no evidence anything was uninstalled
+		return True
+	try:
+		return int(appid) not in _all_installed_appids()
+	except ValueError:
 		return False
-
-	if not hasattr(no_longer_exists, 'appids'):
-		no_longer_exists.appids = {app_id for _, app_id, __ in iter_steam_installed_appids()} #type: ignore[attr-defined]
-
-	return appid not in no_longer_exists.appids #type: ignore[attr-defined]
 
 class Steam(GameSource):
 	@property

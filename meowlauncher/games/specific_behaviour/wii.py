@@ -128,7 +128,7 @@ def _parse_opening_bnr(metadata: 'Metadata', opening_bnr: bytes) -> None:
 	names = {}
 	for i, language in languages.items():
 		try:
-			name = imet[92 + (i * 84): 92 + (i * 84) + 84].decode('utf-16be').rstrip('\0 ')
+			name = imet[92 + (i * 84): 92 + (i * 84) + 84].rstrip(b'\0 ').decode('utf-16be')
 			if name:
 				names[language] = name
 		except UnicodeDecodeError:
@@ -292,7 +292,7 @@ def _add_wii_disc_metadata(rom: FileROM, metadata: 'Metadata') -> None:
 			#TODO: Try and read filesystem to see if there is an opening.bnr in there (should be)
 
 			try:
-				apploader_date = decrypted_chunk[0x2440:0x2450].decode('ascii').rstrip('\0')
+				apploader_date = decrypted_chunk[0x2440:0x2450].rstrip(b'\0').decode('ascii')
 				try:
 					d = datetime.strptime(apploader_date, '%Y/%m/%d')
 					metadata.specific_info['Build Date'] = Date(d.year, d.month, d.day)

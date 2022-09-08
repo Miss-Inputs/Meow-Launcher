@@ -170,7 +170,7 @@ def _parse_ncch(rom: FileROM, metadata: 'Metadata', offset: int) -> None:
 		#RSA-2048 public key: 0x500:0x600
 		#Access control info 2: 0x600:0x800
 		
-		metadata.specific_info['Executable Name'] = system_control_info[0:8].decode('ascii', errors='ignore').rstrip('\0')
+		metadata.specific_info['Executable Name'] = system_control_info[0:8].rstrip(b'\0').decode('ascii', 'backslashreplace')
 		#Reserved: 0x8:0xd
 		#Flags (bit 0 = CompressExefsCode, bit 1 = SDApplication): 0xd
 		#Remaster version: 0xe:0x10
@@ -228,7 +228,7 @@ def _parse_exefs(rom: FileROM, metadata: 'Metadata', offset: int) -> None:
 	header = rom.read(seek_to=offset, amount=0x200)
 	for i in range(0, 10):
 		try:
-			filename = header[(i * 16): (i * 16) + 8].decode('ascii').rstrip('\x00')
+			filename = header[(i * 16): (i * 16) + 8].rstrip(b'\0').decode('ascii')
 		except UnicodeDecodeError:
 			continue
 		file_offset = int.from_bytes(header[(i * 16) + 8: (i * 16) + 8 + 4], 'little') + 0x200 + offset
@@ -253,25 +253,25 @@ def _get_smdh_titles(smdh: bytes) -> tuple[Mapping[str, str], Mapping[str, str],
 		publisher_offset = long_title_offset + 256
 
 		try:
-			short_title = smdh[titles_offset: long_title_offset].decode('utf16').rstrip('\0')
+			short_title = smdh[titles_offset: long_title_offset].rstrip(b'\0').decode('utf16')
 			if short_title:
 				short_titles[language] = short_title
 		except UnicodeDecodeError:
-			pass
+			logging.debug('Invalid short title', exc_info=True)
 		try:
-			long_title = smdh[long_title_offset: publisher_offset].decode('utf16').rstrip('\0')
+			long_title = smdh[long_title_offset: publisher_offset].rstrip(b'\0').decode('utf16')
 			if long_title:
 				long_titles[language] = long_title
 		except UnicodeDecodeError:
-			pass
+			logging.debug('Invalid long title', exc_info=True)
 		try:
-			publisher = smdh[publisher_offset: publisher_offset + 0x80].decode('utf16').rstrip('\0')
+			publisher = smdh[publisher_offset: publisher_offset + 0x80].rstrip(b'\0').decode('utf16')
 			if publisher:
 				while junk_suffixes.search(publisher):
 					publisher = junk_suffixes.sub('', publisher)
 				publishers[language] = consistentified_manufacturers.get(publisher, publisher)
 		except UnicodeDecodeError:
-			pass
+			logging.debug('Invalid publisher', exc_info=True)
 	return short_titles, long_titles, publishers
 	
 def _parse_smdh_data(metadata: 'Metadata', smdh: bytes) -> None:

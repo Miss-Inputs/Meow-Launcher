@@ -3,7 +3,7 @@ import re
 from collections.abc import Collection, Iterator
 from datetime import datetime
 from itertools import chain
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -33,8 +33,9 @@ _copyright_regex = re.compile(r'\(C\)(\S{4}.)(\d{4})\.(.{3})')
 _t_with_zero = re.compile(r'^T-0')
 _t_not_followed_by_dash = re.compile(r'^T(?!-)')
 
-def _parse_peripherals(metadata: Metadata, peripherals: Collection[str]) -> None:
-	for peripheral_char in peripherals:
+def _parse_peripherals(metadata: Metadata, peripherals: Collection[int], object_for_logging: Any=None) -> None:
+	for peripheral_char_code in peripherals:
+		peripheral_char = chr(peripheral_char_code)
 		if peripheral_char == 'M':
 			#3 buttons if I'm not mistaken
 			mouse = input_metadata.Mouse()
@@ -73,12 +74,14 @@ def _parse_peripherals(metadata: Metadata, peripherals: Collection[str]) -> None
 		elif peripheral_char == 'L':
 			#Activator
 			metadata.input_info.add_option(input_metadata.MotionControls())
-		elif peripheral_char in {'4', 'O'}:
+		elif peripheral_char in '4O':
 			#Team Play and J-Cart respectively
 			#num_players = 4
 			pass
 		elif peripheral_char == 'C':
 			metadata.specific_info['Uses CD?'] = True
+		elif peripheral_char_code not in {0, 32}:
+			logger.debug('%s has unknown peripheral: %s', object_for_logging, peripheral_char)
 		#Apparently these also exist with dubious/unclear definitions:
 		#P: "Printer"
 		#B: "Control Ball"
@@ -106,41 +109,39 @@ def _add_info_from_copyright_string(metadata: Metadata, copyright_string: str) -
 		if not metadata.release_date:
 			metadata.release_date = Date(year, month, is_guessed=True)
 
-def _parse_region_codes(regions: bytes) -> Collection[MegadriveRegionCodes]:
+def _parse_region_codes(regions: bytes, object_for_logging: Any=None) -> Collection[MegadriveRegionCodes]:
 	region_codes = set()
-	if b'J' in regions:
-		region_codes.add(MegadriveRegionCodes.Japan)
-	if b'U' in regions:
-		region_codes.add(MegadriveRegionCodes.USA)
-	if b'E' in regions:
-		region_codes.add(MegadriveRegionCodes.Europe)
-	if b'F' in regions:
-		region_codes.add(MegadriveRegionCodes.World)
-	if b'1' in regions:
-		region_codes.add(MegadriveRegionCodes.Japan1)
-	if b'4' in regions:
-		region_codes.add(MegadriveRegionCodes.BrazilUSA)
-	if b'5' in regions:
-		region_codes.add(MegadriveRegionCodes.JapanUSA)
-	if b'A' in regions:
-		region_codes.add(MegadriveRegionCodes.EuropeA)
-	if b'8' in regions:
-		region_codes.add(MegadriveRegionCodes.Europe8) #Apparently...
-	if b'C' in regions:
-		region_codes.add(MegadriveRegionCodes.USAEurope) #Apparently...
+	region_chars = {
+		'J': MegadriveRegionCodes.Japan,
+		'U': MegadriveRegionCodes.USA,
+		'E': MegadriveRegionCodes.Europe,
+		'F': MegadriveRegionCodes.World,
+		'1': MegadriveRegionCodes.Japan1,
+		'4': MegadriveRegionCodes.BrazilUSA,
+		'5': MegadriveRegionCodes.JapanUSA,
+		'A': MegadriveRegionCodes.EuropeA,
+		'8': MegadriveRegionCodes.Europe8, #Apparently…
+		'C': MegadriveRegionCodes.USAEurope, #Apparently…
+	}
+	for region in regions:
+		region_code = region_chars.get(chr(region))
+		if region_code:
+			region_codes.add(region_code)
+		elif region not in {0, 32}:
+			logger.debug('%s has unknown region code: %s', object_for_logging, chr(region))
 	#Seen in some betas and might just be invalid:
 	#D - Brazil?
 	return region_codes
 
-def add_megadrive_info(metadata: Metadata, header: bytes) -> None:
+def add_megadrive_info(metadata: Metadata, header: bytes, object_for_logging: Any=None) -> None:
 	try:
 		console_name = header[:16].decode('ascii')
 	except UnicodeDecodeError:
 		metadata.specific_info['Bad TMSS?'] = True
 		return
 
+	metadata.specific_info['Console Name'] = console_name
 	if not console_name.startswith('SEGA') and not console_name.startswith(' SEGA') and console_name not in ('IMA IKUNOUJYUKU ', 'IMA IKUNOJYUKU  ', 'SAMSUNG PICO    '):
-		metadata.specific_info['Console Name'] = console_name
 		metadata.specific_info['Bad TMSS?'] = True
 		return
 
@@ -154,8 +155,8 @@ def add_megadrive_info(metadata: Metadata, header: bytes) -> None:
 	except UnicodeDecodeError:
 		pass
 	
-	domestic_title = header[32:80].decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
-	overseas_title = header[80:128].decode('shift_jis', errors='backslashreplace').rstrip('\0 ')
+	domestic_title = header[32:80].rstrip(b'\0 ').decode('shift_jis', 'backslashreplace')
+	overseas_title = header[80:128].rstrip(b'\0 ').decode('shift_jis', 'backslashreplace')
 	if domestic_title:
 		metadata.specific_info['Internal Title'] = domestic_title
 	if overseas_title:
@@ -168,15 +169,14 @@ def add_megadrive_info(metadata: Metadata, header: bytes) -> None:
 		serial = header[131:142].decode('ascii')
 		metadata.product_code = serial[:8].rstrip('\0 ')
 		#- in between
-		version = serial[-2]
+		version = serial[9:10]
 		if version.isdigit():
 			metadata.specific_info['Revision'] = int(version)
-	except UnicodeDecodeError:
+	except ValueError:
 		pass
 	#Checksum: header[142:144]
 
-	peripherals = {c for c in header[144:160].decode('ascii', errors='ignore') if c not in ('\x00', ' ')}
-	_parse_peripherals(metadata, peripherals)
+	_parse_peripherals(metadata, set(header[144:160]), object_for_logging)
 
 	if metadata.platform == 'Mega Drive':
 		save_id = header[0xb0:0xb4]
@@ -192,10 +192,10 @@ def add_megadrive_info(metadata: Metadata, header: bytes) -> None:
 	elif modem_info[:11] == b'No modem...':
 		metadata.specific_info['Supports Modem?'] = False
 	else:
-		modem_string = modem_info.decode('ascii', errors='ignore').strip('\0 ')
+		modem_string = modem_info.rstrip(b'\0 ').decode('ascii', 'backslashreplace')
 		
 	try:
-		memo = memo_bytes.decode('ascii').strip('\0 ')
+		memo = memo_bytes.rstrip(b'\0 ').decode('ascii')
 		if modem_string:
 			#Not really correct, but a few homebrews use the modem part to put in a longer message (and sometimes, varying amounts of it - the first 2 or 4 bytes might be filled with garbage data…)
 			memo = modem_string + memo
@@ -210,7 +210,7 @@ def add_megadrive_info(metadata: Metadata, header: bytes) -> None:
 		pass
 
 	regions = header[0xf0:0xf3]
-	region_codes = _parse_region_codes(regions)
+	region_codes = _parse_region_codes(regions, object_for_logging)
 	metadata.specific_info['Region Code'] = region_codes
 	if console_name[:12] == 'SEGA GENESIS' and not region_codes:
 		#Make a cheeky guess (if it wasn't USA it would be SEGA MEGADRIVE etc presumably)
@@ -324,7 +324,7 @@ def add_megadrive_custom_info(game: 'ROMGame') -> None:
 		header = _get_smd_header(game.rom) if game.rom.extension == 'smd' else game.rom.read(0x100, 0x100)
 
 	if header:
-		add_megadrive_info(game.metadata, header)
+		add_megadrive_info(game.metadata, header, game.rom)
 
 	software = game.get_software_list_entry()
 	if software:

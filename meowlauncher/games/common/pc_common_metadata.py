@@ -4,7 +4,7 @@ import logging
 import struct
 from collections.abc import Mapping
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 try:
 	import pefile
@@ -29,68 +29,66 @@ logger = logging.getLogger(__name__)
 #Hmm, are other extensions going to work as icons in a file manager
 icon_extensions = {'png', 'ico', 'xpm', 'svg'}
 
-def _get_pe_file_info(pe: 'pefile.PE') -> Optional[Mapping[str, Any]]: #TODO refactor - Union[str, datetime.datetime] is a bit silly as it means you have to check for it every time if you have mypy, maybe we should return something else
-	if not hasattr(pe, 'FileInfo'):
-		return None
-	for file_info in pe.FileInfo:
-		for info in file_info:
-			if hasattr(info, 'StringTable'):
-				for string_table in info.StringTable:
-					d = {k.decode('ascii', errors='ignore'): v.rstrip(b'\0').decode('ascii', errors='ignore') for k, v in string_table.entries.items()}
-					if hasattr(pe, 'FILE_HEADER'):
-						d['TimeDateStamp'] = datetime.datetime.fromtimestamp(pe.FILE_HEADER.TimeDateStamp)
-					return d
+def _get_pe_string_table(pe: 'pefile.PE') -> Optional[Mapping[str, str]]:
+	try:
+		for file_info in pe.FileInfo:
+			for info in file_info:
+				if hasattr(info, 'StringTable'):
+					for string_table in info.StringTable:
+						d = {k.decode('ascii', 'backslashreplace'): v.rstrip(b'\0').decode('ascii', 'backslashreplace') for k, v in string_table.entries.items()}
+						return d
+	except AttributeError:
+		pass
 	return None
 
-def get_exe_properties(path: str) -> Optional[Mapping[str, Any]]:
+def get_exe_properties(path: str) -> tuple[Optional[Mapping[str, str]], Optional[datetime.datetime]]:
 	if have_pefile:
 		try:
 			pe = pefile.PE(path, fast_load=True)
 			pe.parse_data_directories(pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_RESOURCE'])
 			try:
-				return _get_pe_file_info(pe)
+				timestamp = datetime.datetime.fromtimestamp(pe.FILE_HEADER.TimeDateStamp)
+			except AttributeError:
+				timestamp = None
+			try:
+				return _get_pe_string_table(pe), timestamp
 			except Exception: #pylint: disable=broad-except
 				logger.exception('Something weird happened in get_exe_properties for %s', path)
-				return None
 		except pefile.PEFormatError:
 			pass
-	return None
+	return None, None
 
 def add_metadata_for_raw_exe(path: str, metadata: 'Metadata') -> None:
-	props = get_exe_properties(path)
-	if not props:
-		return
+	props, timedatestamp = get_exe_properties(path)
 	
-	#Possible values to expect: https://docs.microsoft.com/en-us/windows/win32/api/winver/nf-winver-verqueryvaluea#remarks
+	if props:
+		#Possible values to expect: https://docs.microsoft.com/en-us/windows/win32/api/winver/nf-winver-verqueryvaluea#remarks
+		if not metadata.publisher and not metadata.developer:
+			company_name = props.get('CompanyName')
+			if company_name:
+				while junk_suffixes.search(company_name):
+					company_name = junk_suffixes.sub('', company_name)
+				metadata.publisher = company_name
 
-	if not metadata.publisher and not metadata.developer:
-		company_name = props.get('CompanyName')
-		if company_name:
-			while junk_suffixes.search(company_name):
-				company_name = junk_suffixes.sub('', company_name)
-			metadata.publisher = company_name
-
-	product_name = props.get('ProductName')
-	if product_name:
-		metadata.add_alternate_name(product_name, 'Product Name')
-	copyright_string = props.get('LegalCopyright')
-	if copyright_string:
-		metadata.specific_info['Copyright'] = copyright_string
-	description = props.get('FileDescription')
-	if description and description != product_name:
-		metadata.descriptions['File Description'] = description
-	comments = props.get('Comments')
-	if comments and comments != product_name:
-		metadata.specific_info['File Comment'] = comments
-	trademarks = props.get('LegalTrademarks')
-	if trademarks and trademarks != copyright_string:
-		metadata.specific_info['Trademarks'] = trademarks
+		product_name = props.get('ProductName')
+		if product_name:
+			metadata.add_alternate_name(product_name, 'Product Name')
+		copyright_string = props.get('LegalCopyright')
+		if copyright_string:
+			metadata.specific_info['Copyright'] = copyright_string
+		description = props.get('FileDescription')
+		if description and description != product_name:
+			metadata.descriptions['File Description'] = description
+		comments = props.get('Comments')
+		if comments and comments != product_name:
+			metadata.specific_info['File Comment'] = comments
+		trademarks = props.get('LegalTrademarks')
+		if trademarks and trademarks != copyright_string:
+			metadata.specific_info['Trademarks'] = trademarks
 	
-	timedatestamp = props.get('TimeDateStamp')
 	if timedatestamp:
-		if not (timedatestamp > datetime.datetime.now() or timedatestamp.year < 1993):
+		if not (timedatestamp.year < 1993 or timedatestamp > datetime.datetime.now()):
 			#If the date has not even happened yet, or is before Windows NT 3.1 and hence the PE format was even invented, I think the fuck not
-
 			build_date = Date(timedatestamp.year, timedatestamp.month, timedatestamp.day)
 			metadata.specific_info['Build Date'] = build_date
 			guessed_date = Date(build_date.year, build_date.month, build_date.day, True)

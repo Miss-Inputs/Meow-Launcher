@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 	from meowlauncher.metadata import Metadata
 
 def add_info_from_lynx_header(header: bytes, metadata: 'Metadata') -> None:
+	#TODO: Where is this from?
 	#UBYTE   magic[4];
 	#UWORD   page_size_bank0;
 	#UWORD   page_size_bank1;
@@ -18,11 +19,11 @@ def add_info_from_lynx_header(header: bytes, metadata: 'Metadata') -> None:
 	#UBYTE   rotation;
 	#UBYTE   spare[5];
 	try:
-		metadata.add_alternate_name(header[0x0a:0x2a].decode('ascii', errors='backslashreplace').rstrip('\0 '), 'Header Title')
+		metadata.add_alternate_name(header[0x0a:0x2a].rstrip(b'\0 ').decode('ascii', 'backslashreplace'), 'Header Title')
 	except UnicodeDecodeError:
 		pass	
 	try:
-		metadata.publisher = header[0x2a:0x3a].decode('ascii').strip('\0')
+		metadata.publisher = header[0x2a:0x3a].strip(b'\0').decode('ascii')
 	except UnicodeDecodeError:
 		pass
 	rotation = header[0x3a]

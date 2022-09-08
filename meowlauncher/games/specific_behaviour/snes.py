@@ -104,7 +104,7 @@ def _parse_sufami_turbo_header(rom: 'FileROM', metadata: 'Metadata') -> None:
 
 	header = rom.read(amount=56)
 	#Magic: 0:14 Should be "BANDAI SFC-ADX"
-	metadata.specific_info['Internal Title'] = header[16:30].decode('shift-jis', errors='ignore')
+	metadata.specific_info['Internal Title'] = header[16:30].decode('shift-jis', 'backslashreplace')
 	#Game ID: 48:51 Could this be considered product code?
 	metadata.series_index = header[51]
 	#ROM speed: 52
@@ -256,7 +256,7 @@ def _parse_satellaview_header(rom: 'FileROM', base_offset: int) -> Mapping[str, 
 
 	month = (header[0xd6] & 0b_1111_0000) >> 4
 	day = (header[0xd7] & 0b_1111_1000) >> 3
-	if month == 0 or month > 12:
+	if not month or month > 12:
 		raise BadSNESHeaderException(f'Month not valid: {month}')
 	if day > 31:
 		raise BadSNESHeaderException(f'Day not valid: {day}')

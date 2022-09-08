@@ -448,14 +448,14 @@ def _get_headered_nes_rom_software_list_entry(game: 'ROMGame') -> Optional['Soft
 
 	return find_in_software_lists_with_custom_matcher(game.related_software_lists, _does_nes_rom_match, [prg_crc32, chr_crc32])
 
-def parse_unif_chunk(metadata: Metadata, chunk_type: str, chunk_data: bytes) -> None:
-	if chunk_type == 'PRG0':
+def parse_unif_chunk(metadata: Metadata, chunk_type: bytes, chunk_data: bytes) -> None:
+	if chunk_type == b'PRG0':
 		metadata.specific_info['PRG CRC'] = get_crc32_for_software_list(chunk_data)
-	elif chunk_type.startswith('CHR'):
+	elif chunk_type.startswith(b'CHR'):
 		metadata.specific_info['CHR CRC'] = get_crc32_for_software_list(chunk_data)
-	elif chunk_type == 'MAPR':
-		metadata.specific_info['Mapper'] = chunk_data.decode('utf-8', errors='ignore').rstrip('\0')
-	elif chunk_type == 'TVCI':
+	elif chunk_type == b'MAPR':
+		metadata.specific_info['Mapper'] = chunk_data.rstrip(b'\0').decode('utf-8', 'backslashreplace')
+	elif chunk_type == b'TVCI':
 		tv_type = chunk_data[0]
 		if tv_type == 0:
 			metadata.specific_info['TV Type'] = TVSystem.NTSC
@@ -463,9 +463,9 @@ def parse_unif_chunk(metadata: Metadata, chunk_type: str, chunk_data: bytes) -> 
 			metadata.specific_info['TV Type'] = TVSystem.PAL
 		elif tv_type == 2:
 			metadata.specific_info['TV Type'] = TVSystem.Agnostic
-	elif chunk_type == 'BATR':
+	elif chunk_type == b'BATR':
 		metadata.save_type = SaveType.Cart if chunk_data[0] else SaveType.Nothing
-	elif chunk_type == 'CTRL':
+	elif chunk_type == b'CTRL':
 		controller_info = chunk_data[0]
 		#TODO: This is a bitfield, so actually one could have multiple peripherals
 		if controller_info & 16:
@@ -478,10 +478,10 @@ def parse_unif_chunk(metadata: Metadata, chunk_type: str, chunk_data: bytes) -> 
 			metadata.specific_info['Peripheral'] = NESPeripheral.Zapper
 		if controller_info & 1:
 			metadata.specific_info['Peripheral'] = NESPeripheral.NormalController
-	elif chunk_type == 'READ':
-		metadata.add_notes(chunk_data.decode('utf-8', errors='ignore').rstrip('\0'))
-	elif chunk_type == 'NAME':
-		metadata.add_alternate_name(chunk_data.decode('utf-8', errors='ignore').rstrip('\0'), 'Header Title')
+	elif chunk_type == b'READ':
+		metadata.add_notes(chunk_data.rstrip(b'\0').decode('utf-8', 'backslashreplace'))
+	elif chunk_type == b'NAME':
+		metadata.add_alternate_name(chunk_data.rstrip(b'\0').decode('utf-8', 'backslashreplace'), 'Header Title')
 	#MIRR: Probably not needed
 	#PCK0, CCK0: CRC32 of PRG/CHR, would be nice except since this chunk isn't always there, we have to calculate it manually anyway
 	#WRTR/DINF: Dumping info, who cares
@@ -495,7 +495,7 @@ def add_unif_metadata(rom: FileROM, metadata: Metadata) -> None:
 	size = rom.size
 	while pos < size:
 		chunk = rom.read(amount=8, seek_to=pos)
-		chunk_type = chunk[0:4].decode('ascii', errors='ignore')
+		chunk_type = chunk[0:4]
 		chunk_length = int.from_bytes(chunk[4:8], 'little')	
 		
 		chunk_data = rom.read(amount=chunk_length, seek_to=pos+8)

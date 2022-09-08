@@ -133,7 +133,7 @@ title_languages = {
 
 SFOValueType = Union[str, int] #Not sure if there is more than that…
 
-def _convert_sfo(sfo: bytes, rom_path_for_warning: Any=None) -> Mapping[str, SFOValueType]:
+def _convert_sfo(sfo: bytes, rom_path_for_warning: Any=None) -> Mapping[bytes, SFOValueType]:
 	d = {}
 	#This is some weird key value format thingy
 	key_table_start = int.from_bytes(sfo[8:12], 'little')
@@ -148,47 +148,51 @@ def _convert_sfo(sfo: bytes, rom_path_for_warning: Any=None) -> Mapping[str, SFO
 		#data_total_length = int.from_bytes(kv[8:12], 'little') #Not sure what that would be used for
 		data_offset = data_table_start + int.from_bytes(kv[12:16], 'little')
 
-		key = sfo[key_offset:].split(b'\x00', 1)[0].decode('utf8', errors='ignore')
+		key = sfo[key_offset:].split(b'\x00', 1)[0]
 
 		value: SFOValueType
-		if data_format == 4: #UTF8 not null terminated
-			value = sfo[data_offset:data_offset+data_used_length].decode('utf8', errors='ignore')
-		elif data_format == 0x204: #UTF8 null terminated
-			value = sfo[data_offset:].split(b'\x00', 1)[0].decode('utf8', errors='ignore')
-		elif data_format == 0x404: #int32
-			value = int.from_bytes(sfo[data_offset:data_offset+4], 'little')
-		else:
-			logger.info('Whoops unknown format %s in convert_sfo for %s', hex(data_format), rom_path_for_warning)
+		try:
+			if data_format == 4: #UTF8 not null terminated
+				value = sfo[data_offset:data_offset+data_used_length].decode('utf8')
+			elif data_format == 0x204: #UTF8 null terminated
+				value = sfo[data_offset:].split(b'\x00', 1)[0].decode('utf8')
+			elif data_format == 0x404: #int32
+				value = int.from_bytes(sfo[data_offset:data_offset+4], 'little')
+			else:
+				logger.info('Whoops unknown format %s in convert_sfo for %s', hex(data_format), rom_path_for_warning)
+				continue
+		except UnicodeDecodeError:
+			logger.info('Incorrect sfo value in %s', rom_path_for_warning, exc_info=True)
 			continue
 
 		d[key] = value
 	return d
 
-def parse_param_sfo_kv(object_for_warning: Any, metadata: 'Metadata', key: str, value: SFOValueType) -> None:
-	if key == 'DISC_ID':
+def parse_param_sfo_kv(object_for_warning: Any, metadata: 'Metadata', key: bytes, value: SFOValueType) -> None:
+	if key == b'DISC_ID':
 		if value != 'UCJS10041':
 			#That one's used by all the PSP homebrews
 			metadata.product_code = cast(str, value)
-	elif key == 'TITLE_ID':
+	elif key == b'TITLE_ID':
 		#PS3 uses this instead I guess
 		metadata.product_code = cast(str, value)
-	elif key == 'DISC_NUMBER':
+	elif key == b'DISC_NUMBER':
 		metadata.disc_number = cast(int, value)
-	elif key == 'DISC_TOTAL':
+	elif key == b'DISC_TOTAL':
 		metadata.disc_total = cast(int, value)
-	elif key == 'TITLE':
+	elif key == b'TITLE':
 		metadata.add_alternate_name(fix_name(cast(str, value).replace('\n', ': ')), 'Banner Title')
-	elif len(key) == 8 and key[:5] == 'TITLE' and key[-2:].isdigit():
+	elif len(key) == 8 and key[:5] == b'TITLE' and key[-2:].isdigit():
 		lang_id = int(key[-2:])
 		prefix = title_languages.get(lang_id)
 		name_name = 'Banner Title'
 		if prefix:
 			name_name = prefix + name_name
 		metadata.add_alternate_name(fix_name(cast(str, value).replace('\n', ': ')), name_name)
-	elif key == 'PARENTAL_LEVEL':
+	elif key == b'PARENTAL_LEVEL':
 		#Seems this doesn't actually mean anything by itself, and is Sony's own rating system, so don't try and think about it too much
 		metadata.specific_info['Parental Level'] = value
-	elif key == 'CATEGORY':
+	elif key == b'CATEGORY':
 		#This is a two letter code which generally means something like "Memory stick game" "Update" "PS1 Classics", see ROMniscience notes
 		cat = categories.get(cast(str, value))
 		if cat:
@@ -200,25 +204,25 @@ def parse_param_sfo_kv(object_for_warning: Any, metadata: 'Metadata', key: str, 
 				metadata.specific_info['Bootable?'] = False
 		else:
 			logger.info('%s has unknown category %s', object_for_warning, value)
-	elif key in {'DISC_VERSION', 'APP_VER'}:
+	elif key in {b'DISC_VERSION', b'APP_VER'}:
 		if cast(str, value)[0] != 'v':
 			value = 'v' + cast(str, value)
 		metadata.specific_info['Version'] = value
-	elif key == 'VERSION':
+	elif key == b'VERSION':
 		metadata.specific_info['Revision'] = value
-	elif key == 'LICENSE':
+	elif key == b'LICENSE':
 		metadata.descriptions['License'] = cast(str, value)
-	elif key == 'BOOTABLE':
+	elif key == b'BOOTABLE':
 		if value == 0:
 			metadata.specific_info['Bootable?'] = False
 			#Does not seem to ever be set to anything??
-	elif key == 'CONTENT_ID':
+	elif key == b'CONTENT_ID':
 		metadata.specific_info['Content ID'] = value
-	elif key == 'USE_USB':
+	elif key == b'USE_USB':
 		metadata.specific_info['Uses USB?'] = value != 0
-	elif key in {'PSP_SYSTEM_VER', 'PS3_SYSTEM_VER'}:
+	elif key in {b'PSP_SYSTEM_VER', b'PS3_SYSTEM_VER'}:
 		metadata.specific_info['Required Firmware'] = value
-	elif key == 'ATTRIBUTE':
+	elif key == b'ATTRIBUTE':
 		if value:
 			try:
 				flags = AttributeFlags(value)
@@ -229,17 +233,17 @@ def parse_param_sfo_kv(object_for_warning: Any, metadata: 'Metadata', key: str, 
 			except ValueError:
 				#metadata.specific_info['Attribute Flags'] = hex(value)
 				logger.info('%s has funny attributes flag %s', object_for_warning, hex(cast(int, value)))
-	elif key == 'RESOLUTION':
+	elif key == b'RESOLUTION':
 		try:
 			metadata.specific_info['Display Resolution'] = {res[1:] for res in str(Resolutions(value))[12:].split('|')}
 		except ValueError:
 			logger.info('%s has funny resolution flag %s', object_for_warning, hex(cast(int, value)))
-	elif key == 'SOUND_FORMAT':
+	elif key == b'SOUND_FORMAT':
 		try:
 			metadata.specific_info['Supported Sound Formats'] = {res.lstrip('_').replace('_', '.') for res in str(SoundFormats(value))[13:].split('|')}
 		except ValueError:
 			logger.info('%s has funny sound format flag %s', object_for_warning, hex(cast(int, value)))
-	elif key in {'MEMSIZE', 'REGION', 'HRKGMP_VER', 'NP_COMMUNICATION_ID'}:
+	elif key in {b'MEMSIZE', b'REGION', b'HRKGMP_VER', b'NP_COMMUNICATION_ID'}:
 		#These are known, but not necessarily useful to us or we just don't feel like putting it in the metadata or otherwise doing anything with it at this point
 		#MEMSIZE: PSP, 1 if game uses extra RAM?
 		#REGION: Seems to always be 32768 (is anything region locked?) and also only on PSP??

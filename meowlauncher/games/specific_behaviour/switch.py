@@ -160,8 +160,8 @@ def _add_nacp_metadata(metadata: 'Metadata', nacp: bytes, icons: Mapping[str, by
 		entry = title_entries[i * 0x300: (i * 0x300) + 0x300]
 		if not any(entry):
 			continue
-		name = entry[:0x200].decode('utf-8', errors='ignore').rstrip('\0')
-		publisher = entry[0x200:].decode('utf-8', errors='ignore').rstrip('\0')
+		name = entry[:0x200].rstrip(b'\0').decode('utf-8', 'backslashreplace')
+		publisher = entry[0x200:].rstrip(b'\0').decode('utf-8', 'backslashreplace')
 		titles[lang_name] = name, publisher
 	_add_titles(metadata, titles, icons)
 
@@ -198,7 +198,7 @@ def _add_nacp_metadata(metadata: 'Metadata', nacp: bytes, icons: Mapping[str, by
 	rating_age = nacp[0x3040:0x3060]
 	parse_ratings(metadata, rating_age)
 	
-	metadata.specific_info['Version'] = nacp[0x3060:0x3070].decode('utf-8', errors='ignore').rstrip('\0')
+	metadata.specific_info['Version'] = nacp[0x3060:0x3070].rstrip(b'\0').decode('utf-8', errors='backslashreplace')
 
 	user_account_save_size = int.from_bytes(nacp[0x3080:0x3088], 'little')
 	device_save_size = int.from_bytes(nacp[0x3090:0x3098], 'little')
@@ -207,7 +207,7 @@ def _add_nacp_metadata(metadata: 'Metadata', nacp: bytes, icons: Mapping[str, by
 	application_error_code_category = nacp[0x30a8:0x30b0]
 	if any(application_error_code_category):
 		#For some reason this is sometimes here and the product code when it is (which doesn't seem to be anywhere else)
-		metadata.product_code = application_error_code_category.decode('utf-8', errors='ignore')
+		metadata.product_code = application_error_code_category.decode('utf-8', errors='backslashreplace')
 		#TODO: Use switchtdb.xml although it won't be as useful when it uses the product code which we can only have sometimes
 
 def _add_cnmt_xml_metadata(xml: ElementTree.Element, metadata: 'Metadata') -> None:
@@ -223,7 +223,7 @@ def _call_nstool_for_decrypt(temp_folder: str, temp_filename: str) -> None:
 	#Plan B, there is no reason why this can't be plan A I guess
 	nstool = subprocess.run(['nstool', '-t', 'nca', '--part0', temp_folder, temp_filename], stdout=subprocess.PIPE, check=True, stderr=subprocess.DEVNULL)
 	stdout = nstool.stdout.strip() #It prints error messages to stdout…
-	if stdout.decode('utf-8', errors='ignore') == '[NcaProcess ERROR] NCA FS Header [':
+	if stdout == b'[NcaProcess ERROR] NCA FS Header [':
 		#I guess that's the error message
 		raise InvalidNCAException('Header wrong')
 	
@@ -242,7 +242,7 @@ def _decrypt_control_nca_with_hactool(control_nca: bytes) -> Mapping[str, bytes]
 			hactool = subprocess.run(['hactool', '-x', temp_filename, '--disablekeywarns', '--romfsdir', temp_folder], stdout=subprocess.DEVNULL, check=True, stderr=subprocess.PIPE)
 			#If we could get the paths it outputs that'd be great, but it prints a bunch of junk to stdout
 			stderr = hactool.stderr.strip()
-			if stderr.decode('utf-8', errors='ignore') == 'Invalid NCA header! Are keys correct?':
+			if stderr == b'Invalid NCA header! Are keys correct?':
 				raise InvalidNCAException('Header wrong')
 		except (subprocess.CalledProcessError, FileNotFoundError) as cactus:
 			try:
@@ -279,7 +279,7 @@ def _decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
 			hactool = subprocess.run(['hactool', '-t', 'nca', '-x', temp_filename, '--disablekeywarns', '--section0dir', temp_folder], stdout=subprocess.DEVNULL, check=True, stderr=subprocess.PIPE)
 			#If we could get the paths it outputs that'd be great, but it prints a bunch of junk to stdout
 			stderr = hactool.stderr.strip()
-			if stderr.decode('utf-8', errors='ignore') == 'Invalid NCA header! Are keys correct?':
+			if stderr == b'Invalid NCA header! Are keys correct?':
 				raise InvalidNCAException('Header wrong')
 		except (subprocess.CalledProcessError, FileNotFoundError) as cactus:
 			try:
@@ -435,7 +435,7 @@ def add_nsp_metadata(rom: 'FileROM', metadata: 'Metadata') -> None:
 	else:
 		logger.debug('Uh oh no cnmt.nca in %s?', rom.path)
 	
-def _read_hfs0(rom: 'FileROM', offset: int, max_size: int=None) -> Mapping[str, tuple[int, int]]:
+def _read_hfs0(rom: 'FileROM', offset: int, max_size: ByteAmount=None) -> Mapping[str, tuple[int, ByteAmount]]:
 	header = rom.read(offset, 16)
 
 	magic = header[:4]
@@ -443,9 +443,9 @@ def _read_hfs0(rom: 'FileROM', offset: int, max_size: int=None) -> Mapping[str, 
 		raise InvalidHFS0Exception(f'Invalid magic, expected HFS0 but got {magic!r} at offset {offset:x}')
 
 	number_of_files = int.from_bytes(header[4:8], 'little')
-	string_table_size = int.from_bytes(header[8:12], 'little')
+	string_table_size = ByteAmount.from_bytes(header[8:12], 'little')
 	
-	file_entry_table_size = 64 * number_of_files
+	file_entry_table_size = ByteAmount(64 * number_of_files)
 	file_entry_table = rom.read(16 + offset, file_entry_table_size)
 	if len(file_entry_table) != file_entry_table_size:
 		raise InvalidHFS0Exception('Something went wrong with file entry table, too small')
@@ -468,7 +468,7 @@ def _read_hfs0(rom: 'FileROM', offset: int, max_size: int=None) -> Mapping[str, 
 			raise InvalidHFS0Exception('Exceeded max_size! File offset is further off and therefore wrong')
 		real_file_offset = file_offset + offset #Offset into the actual file, for seeking to
 
-		size = int.from_bytes(entry[8:16], 'little')
+		size = ByteAmount.from_bytes(entry[8:16], 'little')
 		total_size += size
 		if max_size and total_size > max_size:
 			raise InvalidHFS0Exception(f'Exceeded max_size! File sizes are too big and therefore wrong total_size = {total_size} max_size = {max_size}')
@@ -482,7 +482,10 @@ def _read_hfs0(rom: 'FileROM', offset: int, max_size: int=None) -> Mapping[str, 
 		hashed_region_size = int.from_bytes(entry[20:24], 'little')
 		real_file_offset += hashed_region_size
 
-		files[name.decode('utf-8', errors='ignore')] = (real_file_offset, size)
+		try:
+			files[name.decode('utf-8')] = (real_file_offset, size)
+		except UnicodeDecodeError:
+			logging.info('%s has invalid filename in string table: %s', rom, name, exc_info=True)
 
 	return files
 

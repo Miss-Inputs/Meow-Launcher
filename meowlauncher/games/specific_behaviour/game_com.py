@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 #     uint8_t  entryBank;
 #     uint16_t entryAddress;
 #     uint8_t  unk;
-#     char     system[9];
+#     char     system[9]; #This is the "TigerDMGC" we look at to see where the header is, so nothing exciting
 #     uint8_t  iconBank;
 #     uint8_t  iconX;
 #     uint8_t  iconY;
@@ -64,7 +64,7 @@ def parse_icon(rom: 'FileROM', icon_bank: int, icon_offset_x: int, icon_offset_y
 
 def parse_rom_header(rom: 'FileROM', metadata: 'Metadata', header: bytes) -> None:
 	#Shoutouts to https://github.com/Tpot-SSL/GameComHDK and https://github.com/simontime/gcfix/blob/master/gcfix.c and https://github.com/GerbilSoft/rom-properties/blob/master/src/libromdata/Handheld/gcom_structs.h because there is no other documentation that I know of
-	metadata.specific_info['Internal Title'] = header[17:26].decode('ascii', errors='ignore').rstrip()
+	metadata.specific_info['Internal Title'] = header[17:26].rstrip(b' ').decode('ascii', 'backslashreplace')
 	#26:28: Game ID, but does that have any relation to product code?
 
 	if have_pillow:

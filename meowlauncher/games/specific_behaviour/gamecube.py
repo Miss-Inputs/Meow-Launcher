@@ -48,11 +48,11 @@ def convert_rgb5a3(colour: int) -> tuple[int, int, int, int]:
 	return (red, green, blue, alpha)
 
 def parse_gamecube_banner_text(metadata: Metadata, banner_bytes: bytes, encoding: str, lang: Optional[str]=None) -> None:
-	short_title_line_1 = banner_bytes[0:0x20].decode(encoding, errors='backslashreplace').rstrip('\0 ')
-	short_title_line_2 = banner_bytes[0x20:0x40].decode(encoding, errors='backslashreplace').rstrip('\0 ')
-	title_line_1 = banner_bytes[0x40:0x80].decode(encoding, errors='backslashreplace').rstrip('\0 ')
-	title_line_2 = banner_bytes[0x80:0xc0].decode(encoding, errors='backslashreplace').rstrip('\0 ')
-	description = banner_bytes[0xc0:0x140].decode(encoding, errors='backslashreplace').rstrip('\0 ').replace('\n', ' ')
+	short_title_line_1 = banner_bytes[0:0x20].rstrip(b'\0 ').decode(encoding, 'backslashreplace')
+	short_title_line_2 = banner_bytes[0x20:0x40].rstrip(b'\0 ').decode(encoding, 'backslashreplace')
+	title_line_1 = banner_bytes[0x40:0x80].rstrip(b'\0 ').decode(encoding, 'backslashreplace')
+	title_line_2 = banner_bytes[0x80:0xc0].rstrip(b'\0 ').decode(encoding, 'backslashreplace')
+	description = banner_bytes[0xc0:0x140].rstrip(b'\0 ').decode(encoding, 'backslashreplace').replace('\n', ' ')
 
 	prefix = 'Banner'
 	if lang:
@@ -141,18 +141,16 @@ def add_fst_info(rom: FileROM, metadata: Metadata, fst_offset: int, fst_size: in
 
 def add_apploader_date(header: bytes, metadata: Metadata) -> None:
 	try:
-		apploader_date = header[0x2440:0x2450].decode('ascii').rstrip('\0')
-		try:
-			actual_date = datetime.strptime(apploader_date, '%Y/%m/%d')
-			year = actual_date.year
-			month = actual_date.month
-			day = actual_date.day
-			metadata.specific_info['Build Date'] = Date(year, month, day)
-			if not metadata.release_date or metadata.release_date.is_guessed:
-				metadata.release_date = Date(year, month, day, True)
-		except ValueError:
-			pass
-	except UnicodeDecodeError:
+		apploader_date = header[0x2440:0x2450].rstrip(b'\0').decode('ascii')
+		actual_date = datetime.strptime(apploader_date, '%Y/%m/%d')
+		year = actual_date.year
+		month = actual_date.month
+		day = actual_date.day
+		metadata.specific_info['Build Date'] = Date(year, month, day)
+		guessed_release_date =  Date(year, month, day, True)
+		if guessed_release_date.is_better_than(metadata.release_date):
+			metadata.release_date = guessed_release_date
+	except ValueError:
 		pass
 
 def _add_gamecube_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes, tgc_data: Optional[Mapping[str, int]]=None) -> None:

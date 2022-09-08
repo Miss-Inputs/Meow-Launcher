@@ -59,7 +59,7 @@ class TDB():
 			if subgenres:
 				metadata.subgenre = ', '.join(s.title() for s in subgenres)
 			if len(items) > 1:
-				metadata.specific_info['Additional Genres'] = ', '.join([g[0].title() for g in items[1:]])
+				metadata.specific_info['Additional Genres'] = ', '.join(g[0].title() for g in items[1:])
 				additional_subgenres = {s.title() for g in items[1:] for s in g[1]}
 				if additional_subgenres:
 					metadata.specific_info['Additional Subgenres'] = ', '.join(additional_subgenres)
