@@ -31,7 +31,7 @@ class ManuallySpecifiedGame(EmulatedGame, ABC):
 			self.other_cd_paths = cd_paths[1:]
 		elif self.is_on_cd:
 			raise KeyError('cd_path is mandatory if is_on_cd is true')
-		self._name = info.get('name', fix_name(self.fallback_name))
+		self._name: str = info.get('name', fix_name(self.fallback_name))
 
 	@property
 	def name(self) -> str:
@@ -42,14 +42,19 @@ class ManuallySpecifiedGame(EmulatedGame, ABC):
 
 	@property
 	def base_folder(self) -> Optional[Path]:
-		#Might want to override this in subclass, returns a folder on the host that might have other files related to the game (CD images, etc)
-		#Return none if this is not relevant
+		"""
+		Might want to override this in subclass, returns a folder on the host that might have other files related to the game (CD images, etc)
+		Return None if this is not relevant
+		"""
 		return Path(self.path).parent
 
 	@property
 	def fallback_name(self) -> str:
-		#Might want to override in subclass, maybe not - return something that should be used as the name if the user doesn't put any name in the config
-		return PurePath(self.path).name
+		"""
+		Might want to override in subclass, maybe not - return something that should be used as the name if the user doesn't put any name in the config
+		By default, path stem
+		"""
+		return PurePath(self.path).stem
 	
 	@final
 	def add_metadata(self) -> None:
@@ -73,13 +78,12 @@ class ManuallySpecifiedGame(EmulatedGame, ABC):
 
 	@property
 	def is_valid(self) -> bool:
-		#To be overriden by subclass - return true if this config is pointing to something that actually exists
+		'To be overriden by subclass - return true if this config is pointing to something that actually exists'
 		return os.path.isfile(self.path)
 
 	@abstractmethod
 	def additional_metadata(self) -> None:
-		#To be overriden by subclass - optional, put any other platform-specific metadata you want in here
-		pass
+		'To be overriden by subclass - optional, put any other platform-specific metadata you want in here'
 
 class ManuallySpecifiedLauncher(EmulatorLauncher):
 	def __init__(self, app: ManuallySpecifiedGame, emulator: 'ConfiguredEmulator', platform_config: 'PlatformConfig') -> None:

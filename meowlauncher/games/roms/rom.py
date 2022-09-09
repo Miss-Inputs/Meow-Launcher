@@ -91,8 +91,10 @@ class FileROM(ROM):
 		return self._get_size() < max_size_for_storing_in_memory
 
 	def read_whole_thing(self) -> None:
-		#Call this before doing any potential reading, it's just so you can check if the extension is something even relevant before reading a whole entire file in there
-		#I guess you don't have to if you think there's a good chance it's like a CD image or whatever, this whole thing is just an optimization
+		"""
+		Call this before doing any potential reading, it's just so you can check if the extension is something even relevant before reading a whole entire file in there
+		I guess you don't have to if you think there's a good chance it's like a CD image or whatever, this whole thing is just an optimization
+		"""
 		self._store_entire_file = True
 		self._entire_file = self._read()
 		

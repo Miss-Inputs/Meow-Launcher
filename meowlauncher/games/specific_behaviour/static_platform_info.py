@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 	from meowlauncher.metadata import Metadata
 
 def add_game_gear_info(metadata: 'Metadata') -> None:
-	#Because there's no accessories to make things confusing, we can assume the Game Gear's input info, but not the Master System's
+	"""Because there's no accessories to make things confusing, we can assume the Game Gear's input info, but not the Master System's"""
 	builtin_gamepad = NormalController()
 	builtin_gamepad.dpads = 1
 	builtin_gamepad.face_buttons = 2 #'1' on left, '2' on right

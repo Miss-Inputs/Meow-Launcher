@@ -520,7 +520,7 @@ def _try_detect_jackbox_games(folder: Path, metadata: Optional['Metadata']) -> b
 	return False
 
 def _try_detect_piko_mednafen(folder: Path, metadata: Optional['Metadata']) -> Optional[str]:
-	#Piko's fork of Mednafen for emulated rereleases, probably has an actual name, but I don't know/care (also it is not really an engine)
+	"""Piko's fork of Mednafen for emulated rereleases, probably has an actual name, but I don't know/care (also it is not really an engine)"""
 	data_path = folder / 'res' / 'data'
 	game_path = folder / 'res' / 'game'
 	game_cue_path = folder / 'res' / 'game.cue'

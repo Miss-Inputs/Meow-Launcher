@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from meowlauncher.common_types import ByteAmount
 
 from meowlauncher.games.mame_common.mame_utils import \
@@ -57,7 +57,8 @@ woz_meta_machines = {
 	'3+': AppleIIHardware.AppleIIIPlus,
 }
 
-def parse_woz_kv(rompath: str, metadata: Metadata, key: str, value: str) -> None:
+def _parse_woz_kv(metadata: Metadata, key: str, value: str, object_for_warning: Any=None) -> None:
+	""""Parses key/values from WOZ META chunk"""
 	#rompath is just here for making warnings look better which is a bit silly I think… hm
 	if key in {'side', 'side_name', 'contributor', 'image_date', 'collection', 'requires_platform'}:
 		#No use for these
@@ -83,7 +84,7 @@ def parse_woz_kv(rompath: str, metadata: Metadata, key: str, value: str) -> None
 			if machine in woz_meta_machines:
 				machines.add(woz_meta_machines[machine])
 			else:
-				logger.info('Unknown compatible machine %s in Woz META chunk in %s', machine, rompath)
+				logger.info('Unknown compatible machine %s in Woz META chunk in %s', machine, object_for_warning)
 		metadata.specific_info['Machine'] = machines
 	elif key == 'requires_ram':
 		#Should be in INFO chunk, but sometimes isn't
@@ -115,9 +116,9 @@ def parse_woz_kv(rompath: str, metadata: Metadata, key: str, value: str) -> None
 		#This isn't part of the specification, but I've seen it
 		metadata.add_notes(value)
 	else:
-		logger.info('Unknown Woz META key %s with value %s in %s', key, value, rompath)
+		logger.info('Unknown Woz META key %s with value %s in %s', key, value, object_for_warning)
 
-def parse_woz_meta_chunk(rompath: str, metadata: Metadata, chunk_data: bytes) -> None:
+def _parse_woz_meta_chunk(metadata: Metadata, chunk_data: bytes, object_for_warning: Any=None) -> None:
 	rows = chunk_data.split(b'\x0a')
 	for row in rows:
 		try:
@@ -125,9 +126,9 @@ def parse_woz_meta_chunk(rompath: str, metadata: Metadata, chunk_data: bytes) ->
 		except ValueError: #Oh I guess this includes UnicodeDecodeError
 			continue
 
-		parse_woz_kv(rompath, metadata, key, value)
+		_parse_woz_kv(metadata, key, value, object_for_warning)
 
-def parse_woz_chunk(rom: 'FileROM', metadata: Metadata, position: int) -> int:
+def _parse_woz_chunk(rom: 'FileROM', metadata: Metadata, position: int) -> int:
 	chunk_header = rom.read(seek_to=position, amount=8)
 	chunk_id = chunk_header[0:4]
 	chunk_data_size = int.from_bytes(chunk_header[4:8], 'little')
@@ -137,7 +138,7 @@ def parse_woz_chunk(rom: 'FileROM', metadata: Metadata, position: int) -> int:
 		parse_woz_info_chunk(metadata, chunk_data)
 	elif chunk_id == b'META':
 		chunk_data = rom.read(seek_to=position+8, amount=chunk_data_size)
-		parse_woz_meta_chunk(str(rom), metadata, chunk_data)
+		_parse_woz_meta_chunk(metadata, chunk_data, rom)
 	#TMAP, TRKS, FLUX, WRIT have nothing interesting for us
 
 	return position + chunk_data_size + 8
@@ -157,7 +158,7 @@ def add_woz_metadata(rom: 'FileROM', metadata: Metadata) -> None:
 	position = 12
 	size = rom.size
 	while position:
-		position = parse_woz_chunk(rom, metadata, position)
+		position = _parse_woz_chunk(rom, metadata, position)
 		if position >= size:
 			break
 	if 'Header-Title' in metadata.names and 'Subtitle' in metadata.specific_info:

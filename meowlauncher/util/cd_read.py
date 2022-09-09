@@ -62,8 +62,8 @@ def read_mode_1_cd(path: Path, sector_size: int, seek_to: int=0, amount: int=1) 
 	raise NotImplementedError('no')
 
 def _sectored_read(path: Path, raw_header_size: int, raw_footer_size: int, data_size: int, seek_to: int=0, amount: int=-1) -> bytes:
-	#Raw header size + raw footer size + data size = total sector size; e.g. 16 + data correction stuff + 2048 = 2532
-	#I stole this algorithm from myself, and I forgot how it works
+	"""Raw header size + raw footer size + data size = total sector size; e.g. 16 + data correction stuff + 2048 = 2532
+	I stole this code from myself, and I forgot how it works"""
 	end = seek_to + amount
 	start = _cooked_position_to_real(seek_to, raw_header_size, raw_footer_size, data_size)
 	raw_end = _cooked_position_to_real(end, raw_header_size, raw_footer_size, data_size)

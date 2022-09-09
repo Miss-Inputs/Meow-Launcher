@@ -18,8 +18,8 @@ class Runner(ABC):
 		}
 
 	@property
-	#Override this to show if something is not installed, etc
 	def is_available(self) -> bool:
+		'If this is installed, etc.'
 		return True
 
 	@property

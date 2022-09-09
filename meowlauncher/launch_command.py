@@ -65,9 +65,11 @@ class MultiLaunchCommands(LaunchCommand):
 
 	@property
 	def exe_name(self) -> str:
-		#This probably doesn't make too much sense to be used… you probably want something like 'sh' and then exe_args has -c and the rest, if you ever really needed to access the exe_name of an existing LaunchCommand anyway
-		#Or does it - the existing behaviour of MultiLaunchCommands.wrap is to just wrap the main command after all, maybe that is what we want to do too…
-		#Mufufufufu
+		"""
+		This probably doesn't make too much sense to be used… you probably want something like 'sh' and then exe_args has -c and the rest, if you ever really needed to access the exe_name of an existing LaunchCommand anyway
+		Or does it - the existing behaviour of MultiLaunchCommands.wrap is to just wrap the main command after all, maybe that is what we want to do too…
+		Mufufufufu
+		"""
 		return self.main_command.exe_name
 
 	@property

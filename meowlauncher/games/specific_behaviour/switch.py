@@ -263,7 +263,7 @@ def _decrypt_control_nca_with_hactool(control_nca: bytes) -> Mapping[str, bytes]
 			rmtree(temp_folder)
 
 def _decrypt_cnmt_nca_with_hactool(cnmt_nca: bytes) -> bytes:
-	#Decrypting NCAs is hard, let's go shopping (and get an external tool to do it)
+	"""Decrypting NCAs is hard, let's go shopping (and get an external tool to do it)"""
 	if hasattr(_decrypt_cnmt_nca_with_hactool, 'failed'):
 		raise ExternalToolNotHappeningException(f'No can do {_decrypt_cnmt_nca_with_hactool.failed}') #type: ignore[attr-defined]
 	temp_folder = None

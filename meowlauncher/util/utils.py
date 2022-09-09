@@ -41,7 +41,7 @@ def remove_filename_tags(name: str) -> str:
 	return find_tags(name)[0]
 
 def starts_with_any(s: str, prefixes: Collection[str]) -> bool:
-	#Allows s.startswith() with any iterable, not just tuple
+	'Allows s.startswith() with any iterable, not just tuple'
 	return any(s.startswith(prefix) for prefix in prefixes)
 
 class NotAlphanumericException(Exception):
@@ -110,7 +110,7 @@ def is_roman_numeral(s: str) -> bool:
 		return False
 
 def title_word(s: str) -> str:
-	#Like str.title or str.capitalize but actually bloody works how I expect for compound-words and contract'ns
+	"""Like str.title or str.capitalize but actually bloody works how I expect for compound-words and contract'ns"""
 	actual_word_parts = re.split(r"([\w']+)", s)
 	return ''.join(part.capitalize() for part in actual_word_parts)
 

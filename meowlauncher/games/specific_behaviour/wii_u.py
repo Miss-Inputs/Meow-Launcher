@@ -215,8 +215,8 @@ def _add_homebrew_meta_xml_metadata(rom: ROM, metadata: 'Metadata', meta_xml: El
 	metadata.specific_info['Homebrew Category'] = meta_xml.findtext('category') or 'None' #Makes me wonder if it's feasible to include an option to get categories not from folders…
 
 def _add_rpx_metadata(rom: ROM, metadata: 'Metadata') -> None:
-	#The .rpx itself is not interesting and basically just a spicy ELF
-	#This is going to assume we are looking at a homebrew folder
+	"""The .rpx itself is not interesting and basically just a spicy ELF
+	This is going to assume we are looking at a homebrew folder"""
 
 	try:
 		#info.json has the same info? But it's not always there

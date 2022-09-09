@@ -70,7 +70,7 @@ class NintendoAgeRatings():
 
 	@property
 	def common_rating(self) -> Optional[int | AgeRatingStatus]:
-		#If there is only one rating or they are all the same, this covers that; otherwise if ratings boards disagree this is probably the best way to interpret that situation
+		'If there is only one rating or they are all the same, this covers that; otherwise if ratings boards disagree this is probably the best way to interpret that situation'
 		all_present_ratings = self.all_present_ratings
 		try:
 			return statistics.mode(all_present_ratings)
@@ -88,7 +88,7 @@ class NintendoAgeRatings():
 		if status == AgeRatingStatus.Missing:
 			return None
 		return status
-		
+
 class DSi3DSAgeRatings(NintendoAgeRatings):
 	@staticmethod
 	def _get_rating_status(byte: int) -> AgeRatingStatus:

@@ -168,7 +168,7 @@ def get_regions_from_filename_tags(tags: Sequence[str], loose: bool=False) -> Op
 	return None
 
 def get_tv_system_from_filename_tags(tags: Sequence[str]) -> Optional[region_info.TVSystem]:
-	#You should look for regions instead if you can. This just looks at the presence of (NTSC) or (PAL) directly (both No-Intro and TOSEC style filenames sometimes do this), as well as some other things that might happen
+	"""You should look for regions instead if you can. This just looks at the presence of (NTSC) or (PAL) directly (both No-Intro and TOSEC style filenames sometimes do this), as well as some other things that might happen"""
 	for tag in tags:
 		tag = tag.upper()
 		if tag in {'(NTSC)', '[F NTSC]'}:

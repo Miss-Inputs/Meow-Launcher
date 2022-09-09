@@ -196,8 +196,8 @@ def look_for_icon_in_folder(folder: Path, look_for_any_ico: bool=True) -> Option
 	return None
 
 def check_for_interesting_things_in_folder(folder: Path, metadata: 'Metadata', find_wrappers: bool=False) -> None:
-	#Let's check for things existing because we can (there's not really any other reason to do this, it's just fun)
-	#Not sure if any of these are in lowercase? Or they might be in a different directory
+	"""Let's check for things existing because we can (there's not really any other reason to do this, it's just fun)
+	#Not sure if any of these are in lowercase? Or they might be in a different directory"""
 	dir_entries = tuple(folder.iterdir())
 	files = {f.name.lower() for f in dir_entries if f.is_file()}
 	subdirs = {f.name.lower() for f in dir_entries if f.is_dir()}
