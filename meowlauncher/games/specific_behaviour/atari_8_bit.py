@@ -119,4 +119,5 @@ def add_atari_8bit_custom_info(game: 'ROMGame') -> None:
 				break
 	if '[BASIC]' in game.filename_tags:
 		game.metadata.specific_info['Requires BASIC?'] = True
-		
+	if '[req OSb]' in game.filename_tags or '[OS-B]' in game.filename_tags:
+		game.metadata.specific_info['Requires OS B?'] = True

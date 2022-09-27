@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-def parse_woz_info_chunk(metadata: Metadata, chunk_data: bytes) -> None:
+def _parse_woz_info_chunk(metadata: Metadata, chunk_data: bytes) -> None:
 	info_version = chunk_data[0]
 	#1: Disk type = 5.25" if 1 else 3.25 if 2
 	#2: 1 if write protected
@@ -58,8 +58,9 @@ woz_meta_machines = {
 }
 
 def _parse_woz_kv(metadata: Metadata, key: str, value: str, object_for_warning: Any=None) -> None:
-	""""Parses key/values from WOZ META chunk"""
-	#rompath is just here for making warnings look better which is a bit silly I think… hm
+	""""Parses key/values from WOZ META chunk
+	@param object_for_warning: Just here to format any logging messages with, suggest you use a ROM object 
+	"""
 	if key in {'side', 'side_name', 'contributor', 'image_date', 'collection', 'requires_platform'}:
 		#No use for these
 		#"collection" is not part of the spec but it shows up and it just says where the image came from
@@ -135,7 +136,7 @@ def _parse_woz_chunk(rom: 'FileROM', metadata: Metadata, position: int) -> int:
 
 	if chunk_id == b'INFO':
 		chunk_data = rom.read(seek_to=position+8, amount=chunk_data_size)
-		parse_woz_info_chunk(metadata, chunk_data)
+		_parse_woz_info_chunk(metadata, chunk_data)
 	elif chunk_id == b'META':
 		chunk_data = rom.read(seek_to=position+8, amount=chunk_data_size)
 		_parse_woz_meta_chunk(metadata, chunk_data, rom)
