@@ -50,7 +50,7 @@ def _try_detect_unity(folder: Path, metadata: Optional['Metadata'], executable: 
 			add_unity_metadata(unity_data_folder, metadata)
 
 		try:
-			props = get_exe_properties(str(folder / 'UnityPlayer.dll'))
+			props = get_exe_properties(str(folder / 'UnityPlayer.dll'))[0]
 			if props:
 				unity_version = props.get('UnityVersion', props.get('Unity Version'))
 				if unity_version:
@@ -62,7 +62,7 @@ def _try_detect_unity(folder: Path, metadata: Optional['Metadata'], executable: 
 		else:
 			exe_path = folder.joinpath(unity_data_folder.name.removesuffix('_Name') + '.exe')
 		if exe_path.is_file():
-			props = get_exe_properties(str(exe_path))
+			props = get_exe_properties(str(exe_path))[0]
 			if props:
 				unity_version = props.get('UnityVersion', props.get('Unity Version'))
 				if unity_version:
