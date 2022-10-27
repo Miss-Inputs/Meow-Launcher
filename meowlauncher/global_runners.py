@@ -25,7 +25,7 @@ class _Wine(Runner):
 	#TODO: We should do something with launch_with_wine
 
 class _WineConfig(RunnerConfig):
-	def __init__(self, exe_path: str, wineprefix: str=None):
+	def __init__(self, exe_path: str, wineprefix: str|None=None):
 		super().__init__(exe_path, {'wineprefix': wineprefix})
 
 class Wine(ConfiguredRunner):

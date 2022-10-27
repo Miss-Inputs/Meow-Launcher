@@ -5,7 +5,7 @@ from collections.abc import Collection, Iterator, Mapping
 from enum import IntFlag
 from operator import attrgetter
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 from steamfiles import acf, appinfo
 
@@ -56,20 +56,18 @@ class SteamInstallation():
 			#ValueError will be thrown by steamfiles.appinfo if the appinfo.vdf structure is different than expected, which apparently has happened in earlier versions of it, so I should probably be prepared for that
 			self.app_info = None
 			self.app_info_available = False
+		self.config: dict[str, Any] | None
 		try:
 			#That part manspreads over multiple lines and breaks steamfiles parsing which is annoying
 			config_file = re.sub(r'\n\s*"SDL_GamepadBind"\s+"(?:[^"]|[\r\n])+"', '', self.config_path.read_text(encoding='utf-8'))
 			self.config = acf.loads(config_file)
-			self.config_available = True
 		except FileNotFoundError:
 			self.config = None
-			self.config_available = False
+		self.localization: dict[str, Any] | None
 		try:
 			self.localization = acf.loads(self.localization_path.read_text('utf-8'))
-			self.localization_available = True
 		except FileNotFoundError:
 			self.localization = None
-			self.localization_available = False
 
 	@property
 	def app_info_path(self) -> Path:
@@ -119,7 +117,7 @@ class SteamInstallation():
 
 	@property
 	def steamplay_overrides(self) -> Mapping[str, str]:
-		if not self.config_available:
+		if not self.config:
 			return {}
 
 		try:
@@ -191,7 +189,7 @@ class SteamInstallation():
 				return path
 		return None
 
-	def look_for_icon(self, icon_hash: str) -> Optional[Union['Image.Image', str]]:
+	def look_for_icon(self, icon_hash: str) -> 'Image.Image' | Path | None:
 		icon_hash = icon_hash.lower()
 		for icon_path in self.icon_folder.iterdir():
 			if icon_path.stem.lower() == icon_hash and icon_path.suffix in {'.ico', '.png', '.zip'}:
@@ -249,6 +247,6 @@ class SteamInstallation():
 					#extracted_icon_file = sorted(icon_files, key=lambda zip_info: zip_info.file_size, reverse=True)[0]
 					extracted_icon_file = max(icon_files, key=attrgetter('file_size'))
 					extracted_icon_folder = main_config.image_folder.joinpath('Icon', 'extracted_from_zip', icon_hash)
-					return zip_file.extract(extracted_icon_file, path=extracted_icon_folder)
+					return Path(zip_file.extract(extracted_icon_file, path=extracted_icon_folder))
 
 		raise IconNotFoundError(f'{icon_hash} not found')

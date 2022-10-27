@@ -29,7 +29,7 @@ class PlatformConfig():
 		return bool(self.paths) and bool(self.chosen_emulators)
 
 class RunnerConfig():
-	def __init__(self, exe_path: str, options: Mapping[str, TypeOfConfigValue]=None):
+	def __init__(self, exe_path: str, options: Mapping[str, TypeOfConfigValue]|None=None):
 		self.exe_path = exe_path
 		self.options = options if options else {}
 

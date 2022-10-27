@@ -58,7 +58,7 @@ def convert_alphanumeric(byte_array: bytes) -> str:
 
 junk_suffixes = re.compile(r'((?:(?:,)? (?:Inc|LLC|Kft)|(?:Co\.)?(?:,)? Ltd|Corp|GmbH)(?:\.)?|Co\.)$')
 
-def pluralize(n: int, singular: str, plural: str=None) -> str:
+def pluralize(n: int, singular: str, plural: str|None=None) -> str:
 	if not plural:
 		plural = singular + 's'
 	if n == 1:
@@ -168,7 +168,7 @@ def load_json(subpackage: Optional[str], resource: str) -> Any:
 	with importlib.resources.open_binary(package, resource) as f: #It would be text, but I don't know if I wanna accidentally fuck around with encodings
 		return json.load(f)
 
-def _format_unit(n: int, suffix: str, base_unit: int=1000, singular_suffix: str=None) -> str:
+def _format_unit(n: int, suffix: str, base_unit: int=1000, singular_suffix: str|None=None) -> str:
 	try:
 		if n < base_unit:
 			return f'{n:n} {singular_suffix if singular_suffix else suffix}'

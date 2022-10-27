@@ -176,14 +176,14 @@ class Trackball(Controller):
 		return 'Trackball'
 
 class Custom(Controller):
-	def __init__(self, custom_description: str=None) -> None:
+	def __init__(self, custom_description: str|None=None) -> None:
 		self.custom_description = custom_description
 
 	def describe(self) -> str:
 		return self.custom_description if self.custom_description else 'Custom'
 
 class CombinedController(Controller):
-	def __init__(self, components: MutableSequence[Controller]=None) -> None:
+	def __init__(self, components: MutableSequence[Controller]|None=None) -> None:
 		#TODO: Components probably shouldn't need to be a list since the order is unimportant but I'd need to readjust a few classes
 		self.components: MutableSequence[Controller] = []
 		if components:

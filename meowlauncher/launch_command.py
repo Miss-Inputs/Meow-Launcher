@@ -56,7 +56,7 @@ class LaunchCommand():
 		self._env_vars[k] = v
 
 class MultiLaunchCommands(LaunchCommand):
-	def __init__(self, pre_commands: Sequence[LaunchCommand], main_command: LaunchCommand, post_commands: Sequence[LaunchCommand], working_directory: str=None):
+	def __init__(self, pre_commands: Sequence[LaunchCommand], main_command: LaunchCommand, post_commands: Sequence[LaunchCommand], working_directory: str|None=None):
 		self.pre_commands = pre_commands
 		self.main_command = main_command
 		self.post_commands = post_commands

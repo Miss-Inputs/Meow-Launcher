@@ -365,7 +365,7 @@ def add_metadata_from_appinfo_common_section(game: 'SteamGame', common: Mapping[
 
 	game.metadata.specific_info['Controlller Support'] = common.get(b'controller_support', b'none').decode('utf-8', errors='backslashreplace')
 
-	if steam_installation.localization_available:
+	if steam_installation.localization:
 		store_tag_names = steam_installation.localization['localization']['english']['store_tags']
 		store_tag_ids_list = common.get(b'store_tags')
 		if store_tag_ids_list:
