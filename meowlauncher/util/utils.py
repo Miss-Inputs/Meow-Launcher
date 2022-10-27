@@ -210,6 +210,7 @@ def decode_bcd(i: int) -> int:
 # 			self.handleError(record)
 
 class ColouredFormatter(logging.Formatter):
+	"""Formats stuff as different colours with termcolor (if it can) depending on log level"""
 	def format(self, record: logging.LogRecord) -> str:
 		message = super().format(record)
 		if have_termcolor:
@@ -218,7 +219,7 @@ class ColouredFormatter(logging.Formatter):
 		return message
 		
 class NotLaunchableExceptionFormatter(ColouredFormatter):
-	#Puts NotLaunchableException on one line as to read more naturally
+	"""Puts NotLaunchableException on one line as to read more naturally"""
 	def format(self, record: logging.LogRecord) -> str:
 		if record.exc_info:
 			if isinstance(record.exc_info[1], NotLaunchableException):
@@ -229,7 +230,7 @@ class NotLaunchableExceptionFormatter(ColouredFormatter):
 		return super().format(record)
 
 class NoNonsenseConfigParser(RawConfigParser):
-	#No "interpolation", no using : as a delimiter, no lowercasing every option, that's all silly
+	"""No "interpolation", no using : as a delimiter, no lowercasing every option, that's all silly"""
 	def __init__(self, defaults=None, allow_no_value=False, strict=True, empty_lines_in_values=True, comment_prefixes='#'):
 		#Less of these weird options please, just parse the ini
 		super().__init__(defaults=defaults, allow_no_value=allow_no_value, delimiters='=', comment_prefixes=comment_prefixes, strict=strict, empty_lines_in_values=empty_lines_in_values)
