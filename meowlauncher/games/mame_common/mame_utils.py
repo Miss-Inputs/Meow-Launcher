@@ -1,6 +1,5 @@
 import re
-from collections.abc import Collection, Sequence, Iterator
-from typing import Optional
+from collections.abc import Collection, Iterator, Sequence
 from xml.etree import ElementTree
 
 from meowlauncher.data.name_cleanup.mame_manufacturer_name_cleanup import (
@@ -8,7 +7,7 @@ from meowlauncher.data.name_cleanup.mame_manufacturer_name_cleanup import (
 from meowlauncher.util.utils import junk_suffixes
 
 
-def consistentify_manufacturer(manufacturer: Optional[str]) -> Optional[str]:
+def consistentify_manufacturer(manufacturer: str | None) -> str | None:
 	if not manufacturer:
 		return None
 	if manufacturer not in dont_remove_suffix:
@@ -39,7 +38,7 @@ image_config_keys = {
 	'Cover': 'covers_directory', #Software only
 }
 
-def _tag_starts_with(tag: Optional[str], tag_list: Collection[str]) -> bool:
+def _tag_starts_with(tag: str | None, tag_list: Collection[str]) -> bool:
 	if not tag:
 		return False
 	#Chips from devices are in the format device:thing
@@ -64,7 +63,7 @@ def iter_cpus(machine_xml: ElementTree.Element) -> Iterator[ElementTree.Element]
 			continue
 		yield chip_xml
 
-def untangle_manufacturer(arcade_system: Optional[str], manufacturers: Sequence[str]) -> tuple[str, str]:
+def untangle_manufacturer(arcade_system: str | None, manufacturers: Sequence[str]) -> tuple[str, str]:
 	developer = manufacturers[0]
 	publisher = manufacturers[1]
 	if manufacturers[0] == 'bootleg':

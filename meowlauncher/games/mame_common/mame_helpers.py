@@ -2,18 +2,17 @@
 import functools
 from collections.abc import Collection
 from pathlib import Path
-from typing import Optional
 
 from .mame_configuration import MAMEConfiguration
 from .mame_executable import MAMEExecutable, MAMENotInstalledException
 
 
 class DefaultMameExecutable():
-	__instance: Optional[MAMEExecutable] = None
+	__instance: MAMEExecutable | None = None
 	__missing = False
 
 	@staticmethod
-	def getDefaultMameExecutable() -> Optional[MAMEExecutable]:
+	def getDefaultMameExecutable() -> MAMEExecutable | None:
 		if DefaultMameExecutable.__instance is None and not DefaultMameExecutable.__missing:
 			try:
 				DefaultMameExecutable.__instance = MAMEExecutable()
@@ -23,11 +22,11 @@ class DefaultMameExecutable():
 		return DefaultMameExecutable.__instance
 
 class DefaultMameConfiguration():
-	__instance: Optional[MAMEConfiguration] = None
+	__instance: MAMEConfiguration | None = None
 	__missing = False
 
 	@staticmethod
-	def getDefaultMameConfiguration() -> Optional[MAMEConfiguration]:
+	def getDefaultMameConfiguration() -> MAMEConfiguration | None:
 		if DefaultMameConfiguration.__instance is None and not DefaultMameConfiguration.__missing:
 			try:
 				DefaultMameConfiguration.__instance = MAMEConfiguration()
@@ -49,7 +48,7 @@ def verify_software_list(software_list_name: str) -> Collection[str]:
 	return set(default_mame_executable.verifysoftlist(software_list_name))
 
 @functools.cache
-def get_image(config_key: str, machine_or_list_name: str, software_name: Optional[str]=None) -> Optional[Path]:
+def get_image(config_key: str, machine_or_list_name: str, software_name: str | None=None) -> Path | None:
 	if not default_mame_configuration:
 		return None
 	return default_mame_configuration.get_image(config_key, machine_or_list_name, software_name)

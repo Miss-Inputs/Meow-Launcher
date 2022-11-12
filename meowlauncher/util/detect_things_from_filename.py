@@ -2,7 +2,6 @@
 
 import re
 from collections.abc import Sequence
-from typing import Optional
 
 from meowlauncher.metadata import Date
 
@@ -24,7 +23,7 @@ def get_languages_from_tags_directly(tags: Sequence[str]) -> Sequence[region_inf
 
 	return langs
 
-def get_nointro_language_list_from_filename_tags(tags: Sequence[str]) -> Optional[Sequence[region_info.Language]]:
+def get_nointro_language_list_from_filename_tags(tags: Sequence[str]) -> Sequence[region_info.Language] | None:
 	for tag in tags:
 		if (language_list_match := _nointro_language_list_regex.match(tag)):
 			langs = []
@@ -37,7 +36,7 @@ def get_nointro_language_list_from_filename_tags(tags: Sequence[str]) -> Optiona
 			return langs
 	return None
 
-def get_maybeintro_languages_from_filename_tags(tags: Sequence[str]) -> Optional[region_info.Language]:
+def get_maybeintro_languages_from_filename_tags(tags: Sequence[str]) -> region_info.Language | None:
 	for tag in tags:
 		if translation_match := _maybeintro_translated_regex.match(tag):
 			lang = region_info.get_language_by_short_code(translation_match.group(1))
@@ -46,7 +45,7 @@ def get_maybeintro_languages_from_filename_tags(tags: Sequence[str]) -> Optional
 	return None
 
 _tosec_date_tag_regex = re.compile(r'\((-|[x\d]{4}(?:-\d{2}(?:-\d{2})?)?)\)')
-def get_tosec_languages_from_filename_tags(tags: Sequence[str]) -> Optional[Sequence[region_info.Language]]:
+def get_tosec_languages_from_filename_tags(tags: Sequence[str]) -> Sequence[region_info.Language] | None:
 	found_year_tag = False
 	found_publisher_tag = False
 
@@ -74,7 +73,7 @@ def get_tosec_languages_from_filename_tags(tags: Sequence[str]) -> Optional[Sequ
 					return [first_language]
 	return None
 
-def get_languages_from_filename_tags(tags: Sequence[str]) -> Optional[Sequence[region_info.Language]]:
+def get_languages_from_filename_tags(tags: Sequence[str]) -> Sequence[region_info.Language] | None:
 	lang = get_maybeintro_languages_from_filename_tags(tags)
 	if lang:
 		return [lang]
@@ -93,7 +92,7 @@ def get_languages_from_filename_tags(tags: Sequence[str]) -> Optional[Sequence[r
 
 	return None
 
-def get_regions_from_filename_tags_strictly(tags: Sequence[str]) -> Optional[Sequence[region_info.Region]]:
+def get_regions_from_filename_tags_strictly(tags: Sequence[str]) -> Sequence[region_info.Region] | None:
 	"""Only of the form (Region 1, Region 2) strictly (e.g. as with No-Intro naming convention)"""
 	for tag in tags:
 		if not (tag.startswith('(') and tag.endswith(')')):
@@ -120,7 +119,7 @@ def get_regions_from_filename_tags_loosely(tags: Sequence[str]) -> Sequence[regi
 			regions.append(region_info.regions_by_name['Europe'])
 	return regions
 
-def get_tosec_region_list_from_filename_tags(tags: Sequence[str]) -> Optional[Sequence[region_info.Region]]:
+def get_tosec_region_list_from_filename_tags(tags: Sequence[str]) -> Sequence[region_info.Region] | None:
 	"""Only something like (JP-US), as specified in TOSEC naming convention"""
 	found_year_tag = False
 	found_publisher_tag = False
@@ -150,8 +149,8 @@ def get_tosec_region_list_from_filename_tags(tags: Sequence[str]) -> Optional[Se
 		return regions
 	return None
 
-def get_regions_from_filename_tags(tags: Sequence[str], loose: bool=False) -> Optional[Sequence[region_info.Region]]:
-	regions: Optional[Sequence[region_info.Region]]
+def get_regions_from_filename_tags(tags: Sequence[str], loose: bool=False) -> Sequence[region_info.Region] | None:
+	regions: Sequence[region_info.Region] | None
 	if loose:
 		regions = get_regions_from_filename_tags_loosely(tags)
 		if regions:
@@ -167,7 +166,7 @@ def get_regions_from_filename_tags(tags: Sequence[str], loose: bool=False) -> Op
 
 	return None
 
-def get_tv_system_from_filename_tags(tags: Sequence[str]) -> Optional[region_info.TVSystem]:
+def get_tv_system_from_filename_tags(tags: Sequence[str]) -> region_info.TVSystem | None:
 	"""You should look for regions instead if you can. This just looks at the presence of (NTSC) or (PAL) directly (both No-Intro and TOSEC style filenames sometimes do this), as well as some other things that might happen"""
 	for tag in tags:
 		tag = tag.upper()
@@ -181,7 +180,7 @@ def get_tv_system_from_filename_tags(tags: Sequence[str]) -> Optional[region_inf
 	return None
 
 _date_regex = re.compile(r'\((?P<year>[x\d]{4})\)|\((?P<year2>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})\)|\((?P<day2>\d{2})\.(?P<month2>\d{2})\.(?P<year3>\d{4})\)')
-def get_date_from_filename_tags(tags: Sequence[str]) -> Optional[Date]:
+def get_date_from_filename_tags(tags: Sequence[str]) -> Date | None:
 	for tag in tags:
 		if (date_match := _date_regex.match(tag)):
 			groupdict = date_match.groupdict()
@@ -201,7 +200,7 @@ def get_date_from_filename_tags(tags: Sequence[str]) -> Optional[Date]:
 	return None
 
 _revision_regex = re.compile(r'\([Rr]ev(?:ision)? ([A-Z\d]+?)\)')
-def get_revision_from_filename_tags(tags: Sequence[str]) -> Optional[str]:
+def get_revision_from_filename_tags(tags: Sequence[str]) -> str | None:
 	for tag in tags:
 		revision_match = _revision_regex.match(tag)
 		if revision_match:
@@ -210,7 +209,7 @@ def get_revision_from_filename_tags(tags: Sequence[str]) -> Optional[str]:
 
 _version_regex = re.compile(r'\(([vV]\d+(?:\.\w+)?)\)') #Very loose match, I know, but sometimes versions have stuff on the end like v1.2b or whatever and I don't wanna overcomplicate things
 _version_number_regex = re.compile(r'\((?:version|ver|ver\.)\s+([\d.]+)[^)]*\)') #This one is a bit more specific and shows up in MAME machine names sometimes
-def get_version_from_filename_tags(tags: Sequence[str]) -> Optional[str]:
+def get_version_from_filename_tags(tags: Sequence[str]) -> str | None:
 	for tag in tags:
 		version_match = _version_regex.match(tag)
 		if version_match:
@@ -220,7 +219,7 @@ def get_version_from_filename_tags(tags: Sequence[str]) -> Optional[str]:
 			return 'v' + version_number_match[1]
 	return None
 
-def get_license_from_filename_tags(tags: Sequence[str]) -> Optional[str]:
+def get_license_from_filename_tags(tags: Sequence[str]) -> str | None:
 	if '(CW)' in tags or '(CW-R)' in tags:
 		return 'Cardware'
 	if '(FW)' in tags:

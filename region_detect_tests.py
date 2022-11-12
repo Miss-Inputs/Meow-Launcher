@@ -4,7 +4,6 @@
 There is probably some better unit test framework that all the cool Python devs use that would suit my purposes just fine but I haven't looked for any so this was just here for when it was needed"""
 
 from collections.abc import Collection
-from typing import Optional
 
 from meowlauncher.util.detect_things_from_filename import (
     get_languages_from_filename_tags, get_regions_from_filename_tags,
@@ -27,7 +26,7 @@ def are_regions_equal(region, other_region) -> bool:
 
 	return False
 
-def region_array_equal(regions: Optional[Collection[Region]], other_regions: Optional[Collection[Region]]) -> bool:
+def region_array_equal(regions: Collection[Region] | None, other_regions: Collection[Region] | None) -> bool:
 	if regions == other_regions:
 		return True
 
@@ -58,7 +57,7 @@ def languages_equal(language, other_language):
 
 	return False
 
-def language_array_equal(languages: Optional[Collection[Language]], other_languages: Optional[Collection[Language]]):
+def language_array_equal(languages: Collection[Language] | None, other_languages: Collection[Language] | None):
 	if languages == other_languages:
 		return True
 
@@ -79,7 +78,7 @@ def language_array_equal(languages: Optional[Collection[Language]], other_langua
 
 
 class Test():
-	def __init__(self, name: str, filename: str, expected_regions: Optional[Collection[str]], expected_languages: Optional[Collection[str]], expected_tv_type: Optional[TVSystem]):
+	def __init__(self, name: str, filename: str, expected_regions: Collection[str] | None, expected_languages: Collection[str] | None, expected_tv_type: TVSystem | None):
 		self.name = name
 		self.filename = filename
 		self.expected_regions = expected_regions

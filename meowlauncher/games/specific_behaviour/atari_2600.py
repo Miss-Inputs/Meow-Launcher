@@ -144,7 +144,7 @@ def _parse_stella_cart_note(metadata: 'Metadata', note: str) -> None:
 	else:
 		metadata.add_notes(note)
 
-def _parse_stella_db(metadata: 'Metadata', game_db_entry: Mapping[str, Optional[str]]) -> None:
+def _parse_stella_db(metadata: 'Metadata', game_db_entry: Mapping[str, str | None]) -> None:
 	stella_name = game_db_entry.get('Cartridge_Name', game_db_entry.get('Cart_Name'))
 	if stella_name:
 		metadata.add_alternate_name(stella_name, 'Stella Name')

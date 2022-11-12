@@ -64,7 +64,7 @@ languages = {
 }
 media_unit = 0x200
 
-def _load_tdb() -> Optional[TDB]:
+def _load_tdb() -> TDB | None:
 	_3ds_config = platform_configs.get('3DS')
 	if not _3ds_config:
 		return None
@@ -244,10 +244,10 @@ def _parse_smdh(rom: FileROM, metadata: 'Metadata', offset: int=0, length: int=-
 	smdh = rom.read(seek_to=offset, amount=length)
 	_parse_smdh_data(metadata, smdh)
 
-def _get_smdh_titles(smdh: bytes) -> tuple[Mapping[str, str], Mapping[str, str], Mapping[str, Optional[str]]]:
+def _get_smdh_titles(smdh: bytes) -> tuple[Mapping[str, str], Mapping[str, str], Mapping[str, str | None]]:
 	short_titles: dict[str, str] = {}
 	long_titles: dict[str, str] = {}
-	publishers: dict[str, Optional[str]] = {}
+	publishers: dict[str, str | None] = {}
 	for i, language in languages.items():
 		titles_offset = 8 + (512 * i)
 		long_title_offset = titles_offset + 128

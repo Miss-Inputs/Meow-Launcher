@@ -6,7 +6,7 @@ if TYPE_CHECKING:
 
 __doc__ = """Where we just want to detect stuff from filename tags, nothing fancy"""
 
-def _atari_st_machine_from_tags(tags: Sequence[str]) -> Optional[str]:
+def _atari_st_machine_from_tags(tags: Sequence[str]) -> str | None:
 	if '(Mega ST)' in tags:
 		return 'Mega ST'
 	if '(Mega-STE)' in tags:

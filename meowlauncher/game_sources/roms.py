@@ -63,7 +63,7 @@ class ROMPlatform(ChooseableEmulatorGameSource[StandardEmulator]):
 	def is_available(self) -> bool:
 		return self.platform_config.is_available
 
-	def _process_rom(self, rom: ROM, subfolders: Sequence[str]) -> Optional[ROMLauncher]:
+	def _process_rom(self, rom: ROM, subfolders: Sequence[str]) -> ROMLauncher | None:
 		game = ROMGame(rom, self.platform, self.platform_config)
 
 		categories = subfolders[:-1] if subfolders and subfolders[-1] == game.rom.name else subfolders

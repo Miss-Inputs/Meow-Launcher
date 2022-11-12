@@ -4,7 +4,6 @@ import struct
 import zlib
 from collections.abc import Iterator, Sequence
 from pathlib import Path
-from typing import Optional
 
 from .io_utils import read_file
 
@@ -14,8 +13,8 @@ _cue_file_line_regex = re.compile(r'^\s*FILE\s+(?:"(?P<name>.+)"|(?P<name_unquot
 _cue_track_line_regex = re.compile(r'^\s*TRACK\s+(?P<number>\d+)\s+(?P<mode>.+)\s*$', flags=re.RegexFlag.IGNORECASE)
 
 def iter_cue_sheet(cue_path: Path) -> Iterator[tuple[str, int]]:
-	current_file: Optional[str] = None
-	current_mode: Optional[str] = None
+	current_file: str | None = None
+	current_mode: str | None = None
 
 	with cue_path.open('rt', encoding='utf-8') as cue_file:
 		for line in cue_file:
@@ -43,7 +42,7 @@ def sector_size_from_cue_mode(mode: str) -> int:
 	except ValueError:
 		return 0
 
-def get_first_data_cue_track(cue_path: Path) -> Optional[tuple[Path, int]]:
+def get_first_data_cue_track(cue_path: Path) -> tuple[Path, int] | None:
 	cue_files = tuple((f, sector_size) for f, sector_size in iter_cue_sheet(cue_path) if sector_size)
 	if not cue_files:
 		#The disc probably won't work, but I'll burn that bridge when it happens

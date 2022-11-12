@@ -2,7 +2,6 @@ import os
 import re
 from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Optional
 
 image_types = {'ico', 'png', 'jpg', 'bmp'}
 
@@ -16,7 +15,7 @@ class MAMEConfiguration():
 		self.ui_config = parse_mame_config_file(ui_config_path)
 		self._icons = None
 
-	def get_image(self, config_key: str, machine_or_list_name: str, software_name: Optional[str]=None) -> Optional[Path]:
+	def get_image(self, config_key: str, machine_or_list_name: str, software_name: str | None=None) -> Path | None:
 		for directory in self.ui_config.get(config_key, ()):
 			basename = Path(directory, machine_or_list_name)
 			if software_name:

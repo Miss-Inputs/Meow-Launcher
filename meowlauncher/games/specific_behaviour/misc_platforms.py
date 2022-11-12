@@ -207,7 +207,7 @@ def _get_uapce_games() -> Iterator[Machine]:
 			return
 		yield from _get_uapce_games.result #type: ignore[attr-defined]
 
-def find_equivalent_pc_engine_arcade(game_name: str) -> Optional[Machine]:
+def find_equivalent_pc_engine_arcade(game_name: str) -> Machine | None:
 	for uapce_machine in _get_uapce_games():
 		if does_machine_match_name(game_name, uapce_machine):
 			return uapce_machine

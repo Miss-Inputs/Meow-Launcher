@@ -503,7 +503,7 @@ def add_unif_metadata(rom: FileROM, metadata: Metadata) -> None:
 
 		pos += 8 + chunk_length
 
-def find_equivalent_nes_arcade(name: str) -> Optional[Machine]:
+def find_equivalent_nes_arcade(name: str) -> Machine | None:
 	if not default_mame_executable:
 		#CBF tbhkthbai
 		return None

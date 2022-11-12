@@ -192,7 +192,7 @@ def mame_atari_8bit(game: 'ROMGame', platform_config: 'PlatformConfigOptions', e
 	else:
 		slot = 'flop1'
 		if game.metadata.specific_info.get('Requires BASIC?', False):
-			basic_path = cast(Optional[Path], platform_config.get('basic_path'))
+			basic_path = cast(Path | None, platform_config.get('basic_path'))
 			if not basic_path:
 				raise EmulationNotSupportedException('This software needs BASIC ROM to function')
 			slot_options['cart1'] = str(basic_path.resolve())
@@ -773,7 +773,7 @@ def mame_snes(game: 'ROMGame', platform_config: 'PlatformConfigOptions', emulato
 		if mame_snes.have_sufami_software: #type: ignore[attr-defined]
 			return mame_driver(game, emulator_config, 'snes', 'cart2', {'cart': 'sufami'})
 
-		bios_path = cast(Optional[Path], platform_config.get('sufami_turbo_bios_path', None))
+		bios_path = cast(Path | None, platform_config.get('sufami_turbo_bios_path', None))
 		if not bios_path:
 			raise EmulationNotSupportedException('Sufami Turbo BIOS not set up, check platforms.ini')
 
@@ -787,7 +787,7 @@ def mame_snes(game: 'ROMGame', platform_config: 'PlatformConfigOptions', emulato
 		if mame_snes.have_bsx_software: #type: ignore[attr-defined]
 			return mame_driver(game, emulator_config, 'snes', 'cart2', {'cart': 'bsxsore'})
 
-		bios_path = cast(Optional[Path], platform_config.get('bsx_bios_path', None))
+		bios_path = cast(Path | None, platform_config.get('bsx_bios_path', None))
 		if not bios_path:
 			raise EmulationNotSupportedException('BS-X/Satellaview BIOS not set up, check platforms.ini')
 		return mame_driver(game, emulator_config, 'snes', 'cart2', {'cart': str(bios_path)})
@@ -851,7 +851,7 @@ def mame_zx_spectrum(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_confi
 		system = 'specpls3'
 	
 	if not system:
-		recommended_ram: Optional[ByteAmount] = game.metadata.specific_info.get('Recommended RAM')
+		recommended_ram: ByteAmount | None = game.metadata.specific_info.get('Recommended RAM')
 		if recommended_ram is not None:
 			#TODO: Fallback to minimum RAM if this machine is not found
 			#I don't think we need to set ramsize, unless it turns out this really means maximum
@@ -1080,7 +1080,7 @@ def a7800(game: 'ROMGame', _: 'PlatformConfigOptions', emulator_config: 'Emulato
 
 def bsnes(game: 'ROMGame', platform_config: 'PlatformConfigOptions', emulator_config: 'EmulatorConfig') -> LaunchCommand:
 	if game.platform.name == 'Game Boy':
-		sgb_bios_path = cast(Optional[Path], platform_config.get('super_game_boy_bios_path', None))
+		sgb_bios_path = cast(Path | None, platform_config.get('super_game_boy_bios_path', None))
 		if not sgb_bios_path:
 			raise EmulationNotSupportedException('Super Game Boy BIOS not set up, check platforms.ini')
 		colour_flag = game.metadata.specific_info.get('Is Colour?', GameBoyColourFlag.No)
@@ -1097,7 +1097,7 @@ def bsnes(game: 'ROMGame', platform_config: 'PlatformConfigOptions', emulator_co
 		return LaunchCommand(emulator_config.exe_path, ['--fullscreen', str(sgb_bios_path), rom_path_argument])
 
 	if game.rom.extension == 'st':
-		bios_path = cast(Optional[Path], platform_config.get('sufami_turbo_bios_path', None))
+		bios_path = cast(Path | None, platform_config.get('sufami_turbo_bios_path', None))
 		if not bios_path:
 			raise EmulationNotSupportedException('Sufami Turbo BIOS not set up, check platforms.ini')
 		#We need two arguments (and the second argument has to exist), otherwise when you actually launch it you get asked for something to put in slot B and who says we ever wanted to put anything in slot B
@@ -1468,7 +1468,7 @@ def prboom_plus(game: 'ROMGame', platform_config: 'PlatformConfigOptions', emula
 		raise NotActuallyLaunchableGameException('Is PWAD and not IWAD')
 
 	args = []
-	save_dir = cast(Optional[Path], platform_config.get('save_dir'))
+	save_dir = cast(Path | None, platform_config.get('save_dir'))
 	if save_dir:
 		args.append('-save')
 		args.append(os.fspath(save_dir))
@@ -1598,7 +1598,7 @@ def dosbox_staging(app: 'DOSApp', _, emulator_config: 'EmulatorConfig') -> Launc
 		except OSError:
 			pass
 		
-	overlay_path = cast(Optional[Path], emulator_config.options['overlay_path'])
+	overlay_path = cast(Path | None, emulator_config.options['overlay_path'])
 
 	if app.cd_path:
 		#I hope you don't put double quotes in the CD paths (not sure what the proper way to do that would be anyway? 999 layers of escaping?)

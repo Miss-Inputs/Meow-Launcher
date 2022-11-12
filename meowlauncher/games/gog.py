@@ -73,28 +73,28 @@ class GOGJSONGameInfo():
 class GOGTask():
 	def __init__(self, json_object: Mapping[str, Any]):
 		self.is_primary: bool = json_object.get('isPrimary', False)
-		self.task_type: Optional[str] = json_object.get('type') #Just FileTask or URLTask?
-		path: Optional[str] = json_object.get('path') #I guess this is also only for FileTask
+		self.task_type: str | None = json_object.get('type') #Just FileTask or URLTask?
+		path: str | None = json_object.get('path') #I guess this is also only for FileTask
 		self.path = path.replace('\\', os.path.sep) if path else None #TODO: Should use pathlib.Path, is this relative? Do we need to do something weird? I guess it could be URL if URLTask?
-		self.working_directory: Optional[str] = json_object.get('workingDir') #This would only matter for FileTask I guess
+		self.working_directory: str | None = json_object.get('workingDir') #This would only matter for FileTask I guess
 		if self.working_directory:
 			self.working_directory = self.working_directory.replace('\\', os.path.sep)
-		self.category: Optional[str] = json_object.get('category') #"game", "tool", "document"
+		self.category: str | None = json_object.get('category') #"game", "tool", "document"
 
 		self.args: Sequence[str] = ()
-		args: Optional[str] = json_object.get('arguments')
+		args: str | None = json_object.get('arguments')
 		if args:
 			self.args = shlex.split(args) #We don't need to convert backslashes here because the wine'd executable uses them
 
 		#languages: Language codes (without dialect eg just "en"), but seems to be ('*', ) most of the time
-		self.name: Optional[str] = json_object.get('name') #Might not be provided if it is the primary task
+		self.name: str | None = json_object.get('name') #Might not be provided if it is the primary task
 		self.is_hidden: bool = json_object.get('isHidden', False)
 		compatFlags = json_object.get('compatibilityFlags', '')
 		self.compatibility_flags = None
 		if compatFlags:
 			self.compatibility_flags = compatFlags.split(' ') #These seem to be those from https://docs.microsoft.com/en-us/windows/deployment/planning/compatibility-fixes-for-windows-8-windows-7-and-windows-vista (but not always case sensitive?), probably important but I'm not sure what to do about them for now
 		#osBitness: As in GOGJSONGameInfo
-		self.link: Optional[str] = json_object.get('link') #For URLTask
+		self.link: str | None = json_object.get('link') #For URLTask
 		#icon: More specific icon I guess, but this can be an exe or DLL to annoy me
 
 	@property
@@ -152,7 +152,7 @@ class GOGGame(Game, ABC):
 		#Dang… everything else would require the API, I guess
 
 	@property
-	def icon(self) -> Optional[Path]:
+	def icon(self) -> Path | None:
 		for icon_ext in pc_common_metadata.icon_extensions:
 			icon_path = self.support_folder.joinpath('icon' + os.extsep + icon_ext)
 			if icon_path.is_file():
@@ -297,7 +297,7 @@ class WindowsGOGGame(Game):
 		return any(f'({demo_suffix.lower()})' in self.name.lower() for demo_suffix in name_utils.demo_suffixes)
 
 	@property
-	def icon(self) -> Optional[Path]:
+	def icon(self) -> Path | None:
 		for icon_ext in pc_common_metadata.icon_extensions:
 			icon_path = self.folder.joinpath('goggame-' + self.game_id + os.extsep + icon_ext)
 			if icon_path.is_file():
@@ -318,7 +318,7 @@ class WindowsGOGGame(Game):
 		dosbox_folder = _find_subpath_case_insensitive(self.folder, 'dosbox') #Game's config files are expecting to be launched from here
 		return LaunchCommand(dosbox_path, args, working_directory=str(dosbox_folder))
 
-	def get_wine_launch_params(self, task: GOGTask) -> Optional[LaunchCommand]:
+	def get_wine_launch_params(self, task: GOGTask) -> LaunchCommand | None:
 		if not task.path:
 			logger.info('Oh dear - task %s (%s %s %s) in %s has no path and we can\'t deal with that right now', task.name, task.args, task.task_type, task.category, self.name)
 			return None
@@ -334,7 +334,7 @@ class WindowsGOGGame(Game):
 		
 		return launch_with_wine(main_config.wine_path, main_config.wineprefix, str(exe_path), task.args, str(working_directory))
 
-	def get_launcher_params(self, task: GOGTask) -> tuple[str, Optional[LaunchCommand]]:
+	def get_launcher_params(self, task: GOGTask) -> tuple[str, LaunchCommand | None]:
 		if main_config.use_system_dosbox and task.is_dosbox:
 			return 'DOSBox', self.get_dosbox_launch_params(task)
 

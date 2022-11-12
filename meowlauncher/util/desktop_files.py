@@ -22,7 +22,7 @@ def destkop_contains(desktop: 'RawConfigParser', section: str=metadata_section_n
 		section = section_prefix + section
 	return section in desktop
 
-def get_field(desktop: 'RawConfigParser', name: str, section: str=metadata_section_name) -> Optional[str]:
+def get_field(desktop: 'RawConfigParser', name: str, section: str=metadata_section_name) -> str | None:
 	if section not in standard_sections:
 		section = section_prefix + section
 

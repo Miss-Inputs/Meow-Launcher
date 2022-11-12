@@ -24,11 +24,11 @@ logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class LauncherInfo():
-	exe: Optional[PurePath]
-	args: Optional[str] #Not a list as it turns out?
-	description: Optional[str]
-	launcher_type: Optional[str]
-	platform: Optional[str]
+	exe: PurePath | None
+	args: str | None #Not a list as it turns out?
+	description: str | None
+	launcher_type: str | None
+	platform: str | None
 
 class SteamGame(Game):
 	def __init__(self, appid: int, folder: Path, app_state: Mapping[str, Any], steam_installation: 'SteamInstallation') -> None:
@@ -39,8 +39,8 @@ class SteamGame(Game):
 		self.steam_installation = steam_installation
 
 		#TODO: These should probably be returned from some method instead
-		self.launchers: MutableMapping[Optional[str], LauncherInfo] = {}
-		self.extra_launchers: MutableMapping[Optional[str], list[LauncherInfo]] = {}
+		self.launchers: MutableMapping[str | None, LauncherInfo] = {}
+		self.extra_launchers: MutableMapping[str | None, list[LauncherInfo]] = {}
 
 	@property
 	def name(self) -> str:

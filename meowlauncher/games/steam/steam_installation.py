@@ -144,7 +144,7 @@ class SteamInstallation():
 		return app_info_section.get(b'extended')
 
 	@property
-	def steamplay_compat_tools(self) -> Mapping[str, tuple[Optional[int], Optional[str], Optional[str], Optional[str]]]:
+	def steamplay_compat_tools(self) -> Mapping[str, tuple[int | None, str | None, str | None, str | None]]:
 		extended = self._steamplay_appinfo_extended
 		if not extended:
 			return {}
@@ -181,7 +181,7 @@ class SteamInstallation():
 				apps[k.decode('utf-8', 'backslashreplace')] = tool.decode('utf-8', 'backslashreplace')
 		return apps
 
-	def find_image(self, appid: int, image_name: str) -> Optional[Path]:
+	def find_image(self, appid: int, image_name: str) -> Path | None:
 		basename = self.library_cache_folder.joinpath(f'{appid}_{image_name}')
 		#Can be either png or jpg, I guess… could also listdir or glob I guess but ehhh brain broke lately
 		for ext in ('png', 'jpg', 'jpeg'):

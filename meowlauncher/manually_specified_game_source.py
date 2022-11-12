@@ -54,8 +54,8 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 	def is_available(self) -> bool:
 		return self._is_available
 
-	def _get_launcher(self, app: ManuallySpecifiedGame) -> Optional[ManuallySpecifiedLauncher]:
-		emulator: Optional[ConfiguredEmulator] = None
+	def _get_launcher(self, app: ManuallySpecifiedGame) -> ManuallySpecifiedLauncher | None:
+		emulator: ConfiguredEmulator | None = None
 		exception_reason = None
 		for chosen_emulator in self.iter_chosen_emulators():
 			emulator_config = emulator_configs[chosen_emulator.config_name]
@@ -80,7 +80,7 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 
 		return self._launcher_type(app, emulator, self.platform_config)
 
-	def _process_app(self, app_info: Mapping[str, Any]) -> Optional[ManuallySpecifiedLauncher]:
+	def _process_app(self, app_info: Mapping[str, Any]) -> ManuallySpecifiedLauncher | None:
 		app = self._app_type(app_info, self.platform_config)
 		try:
 			if not app.is_valid:

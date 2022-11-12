@@ -254,7 +254,7 @@ def _get_megatech_games() -> Iterator[Machine]:
 		_get_megatech_games.result = set(iter_machines_from_source_file('megatech', default_mame_executable)) #type: ignore[attr-defined]
 		yield from _get_megatech_games.result #type: ignore[attr-defined]
 
-def find_equivalent_mega_drive_arcade(game_name: str) -> Optional[Machine]:
+def find_equivalent_mega_drive_arcade(game_name: str) -> Machine | None:
 	#TODO: Maybe StandardEmulatedPlatform can just hold some field called "potentially_equivalent_machines" or is that stupid? Yeah maybe just have a function yielding them
 	if not hasattr(find_equivalent_mega_drive_arcade, 'arcade_bootlegs'):
 		try:

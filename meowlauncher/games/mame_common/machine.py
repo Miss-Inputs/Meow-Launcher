@@ -23,8 +23,8 @@ if TYPE_CHECKING:
 
 _subtitles = load_dict(None, 'subtitles')
 
-mame_statuses: dict[Optional[str], EmulationStatus] = {
-	#It is optional[str] so that we can .get None and have it return whatever default
+mame_statuses: dict[str | None, EmulationStatus] = {
+	#It is str | None so that we can .get None and have it return whatever default
 	'good': EmulationStatus.Good,
 	'imperfect': EmulationStatus.Imperfect,
 	'preliminary': EmulationStatus.Broken,
@@ -57,11 +57,11 @@ class Machine():
 
 		cloneof = self.xml.attrib.get('cloneof')
 		self.has_parent: bool = False
-		self.parent_basename: Optional[str] = None
+		self.parent_basename: str | None = None
 		if cloneof:
 			self.has_parent = True
 			self.parent_basename = cloneof
-		self._parent: Optional[Machine] = None #We will add this later when it is needed
+		self._parent: Machine | None = None #We will add this later when it is needed
 
 		self.alt_names: set[str] = set() #TODO: Only this class mutates this, meaning add_alternate_names should maybe be in the constructor instead, or return something, etc
 		self.arcade_system = arcade_system_names.get(self.source_file)
@@ -218,7 +218,7 @@ class Machine():
 		return not any(rom.attrib.get('status', 'good') != 'nodump' for rom in self.xml.iterfind('rom'))
 
 	@property
-	def bios_basename(self) -> Optional[str]:
+	def bios_basename(self) -> str | None:
 		romof = self.xml.attrib.get('romof')
 		if self.has_parent and romof == self.family_basename:
 			return cast(Machine, self.parent).bios_basename
@@ -234,7 +234,7 @@ class Machine():
 		return None
 		
 	@property
-	def samples_used(self) -> Optional[str]:
+	def samples_used(self) -> str | None:
 		return self.xml.attrib.get('sampleof')
 
 	@property
@@ -285,7 +285,7 @@ class Machine():
 		return self._get_driver_bool_attrib('incomplete')
 	
 	@property
-	def licensed_from(self) -> Optional[str]:
+	def licensed_from(self) -> str | None:
 		manufacturer = self.manufacturer
 		if not manufacturer:
 			return None
@@ -295,7 +295,7 @@ class Machine():
 		return None
 
 	@property
-	def hacked_by(self) -> Optional[str]:
+	def hacked_by(self) -> str | None:
 		manufacturer = self.manufacturer
 		if not manufacturer:
 			return None
@@ -309,9 +309,9 @@ class Machine():
 		return self.family_basename in all_mame_drivers
 
 	@property
-	def developer_and_publisher(self) -> tuple[Optional[str], Optional[str]]:
-		developer: Optional[str]
-		publisher: Optional[str]
+	def developer_and_publisher(self) -> tuple[str | None, str | None]:
+		developer: str | None
+		publisher: str | None
 		if not self.manufacturer:
 			#Not sure if this ever happens, but still
 			return None, None
@@ -388,7 +388,7 @@ class Machine():
 
 	#catlist stuff - this should be refactored I guess to allow using some other categorypaths values
 	@property
-	def series(self) -> Optional[str]:
+	def series(self) -> str | None:
 		serieses = get_machine_cat(self.basename, 'series')
 		if not serieses and self.family_basename:
 			serieses = get_machine_cat(self.family_basename, 'series')
@@ -412,7 +412,7 @@ class Machine():
 		return None
 
 	@property
-	def bestgames_opinion(self) -> Optional[str]:
+	def bestgames_opinion(self) -> str | None:
 		bestgames = get_machine_cat(self.basename, 'bestgames')
 		if not bestgames and self.family_basename:
 			bestgames = get_machine_cat(self.family_basename, 'bestgames')
@@ -423,7 +423,7 @@ class Machine():
 		return None
 
 	@property
-	def version_added(self) -> Optional[str]:
+	def version_added(self) -> str | None:
 		version = get_machine_cat(self.basename, 'version')
 		if not version:
 			return None
@@ -432,11 +432,11 @@ class Machine():
 		return None
 
 	@property
-	def catlist(self) -> Optional[MachineCategory]:
+	def catlist(self) -> MachineCategory | None:
 		return get_category(self.basename)
 
 	@property
-	def organized_catlist(self) -> Optional[OrganizedCatlist]:
+	def organized_catlist(self) -> OrganizedCatlist | None:
 		catlist = self.catlist
 		if not catlist:
 			return None

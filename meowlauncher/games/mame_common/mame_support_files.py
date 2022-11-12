@@ -37,7 +37,7 @@ class HistoryXML():
 		self.software_histories = software_histories
 	
 @functools.lru_cache(1)
-def get_default_history_xml() -> Optional[HistoryXML]:
+def get_default_history_xml() -> HistoryXML | None:
 	if not default_mame_configuration:
 		return None
 	dat_paths = default_mame_configuration.ui_config.get('historypath')
@@ -53,16 +53,16 @@ def get_default_history_xml() -> Optional[HistoryXML]:
 
 @dataclass(frozen=True)
 class History():
-	description: Optional[str]
-	cast: Optional[str]
-	technical_info: Optional[str]
-	trivia: Optional[str]
-	tips_and_tricks: Optional[str]
-	updates: Optional[str]
-	scoring: Optional[str]
-	series: Optional[str]
-	staff: Optional[str]
-	ports: Optional[str]
+	description: str | None
+	cast: str | None
+	technical_info: str | None
+	trivia: str | None
+	tips_and_tricks: str | None
+	updates: str | None
+	scoring: str | None
+	series: str | None
+	staff: str | None
+	ports: str | None
 
 def parse_history(history: str) -> History:
 	lines = tuple(line.strip() for line in history.strip().splitlines())
@@ -125,7 +125,7 @@ def parse_history(history: str) -> History:
 	if description_end is None: #Yes Future Megan, we do know how to use the second argument for next(), the issue is if cast_start is None etc etc
 		description_end = end_line
 
-	sections: dict[str, Optional[str]] = {}
+	sections: dict[str, str | None] = {}
 	for i, name_and_start in enumerate(section_starts):
 		name, start = name_and_start
 		if i == 0:
@@ -141,7 +141,7 @@ def parse_history(history: str) -> History:
 				sections[name] = None
 	return History(**sections)
 
-def add_history(metadata: 'Metadata', machine_or_softlist: str, software_name: Optional[str]=None, history_xml: Optional[HistoryXML]=None) -> None:
+def add_history(metadata: 'Metadata', machine_or_softlist: str, software_name: str | None=None, history_xml: HistoryXML | None=None) -> None:
 	if not history_xml:
 		history_xml = get_default_history_xml()
 		if not history_xml:
@@ -274,14 +274,14 @@ class ArcadeCategory(MachineCategory):
 
 @dataclass(frozen=True)
 class OrganizedCatlist():
-	platform: Optional[str]
-	genre: Optional[str]
-	subgenre: Optional[str]
-	category: Optional[str]
+	platform: str | None
+	genre: str | None
+	subgenre: str | None
+	category: str | None
 	definite_platform: bool
 	definite_category: bool
 
-def get_category(basename: str) -> Optional[MachineCategory]:
+def get_category(basename: str) -> MachineCategory | None:
 	cats = get_machine_cat(basename, 'catlist')
 	#It would theoretically be possible for a machine to appear twice, but catlist doesn't do that I think, so we should just grab the first
 	if not cats:
@@ -311,8 +311,8 @@ def organize_catlist(catlist: MachineCategory) -> OrganizedCatlist:
 	platform = None
 	if isinstance(catlist, ArcadeCategory):
 		platform = catlist.main_category
-	genre: Optional[str] = catlist.genre
-	subgenre: Optional[str] = catlist.subgenre
+	genre: str | None = catlist.genre
+	subgenre: str | None = catlist.subgenre
 	category = None
 	definite_platform = True
 	definite_category = False

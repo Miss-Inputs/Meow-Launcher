@@ -69,7 +69,7 @@ ccs64_cart_types = {
 	55: 'Silverrock',
 }
 
-def get_commodore_64_software(game: 'ROMGame', headered: bool) -> Optional[Software]:
+def get_commodore_64_software(game: 'ROMGame', headered: bool) -> Software | None:
 	if headered:
 		#Skip CRT header
 		data = cast(FileROM, game.rom).read(seek_to=64)

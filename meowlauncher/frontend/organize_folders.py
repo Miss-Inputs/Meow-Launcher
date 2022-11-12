@@ -208,7 +208,7 @@ def main() -> None:
 		else:
 			name = 'By ' + key
 
-		missing_value: Optional[str]
+		missing_value: str | None
 		if '--missing-value' in sys.argv:
 			missing_value_arg_index = sys.argv.index('--missing-value')
 			missing_value = sys.argv[missing_value_arg_index + 1]

@@ -25,9 +25,9 @@ class Language():
 @dataclass(frozen=True)
 class Region():
 	name: str
-	short_code: Optional[str] = field(compare=False)
-	tv_system: Optional[TVSystem] = field(compare=False)
-	inferred_language: Optional[str] = field(compare=False) #This is just a singular language that can be inferred from software being released in this region, if zero or more than one language can be inferred it is left as none
+	short_code: str | None = field(compare=False)
+	tv_system: TVSystem | None = field(compare=False)
+	inferred_language: str | None = field(compare=False) #This is just a singular language that can be inferred from software being released in this region, if zero or more than one language can be inferred it is left as none
 
 	def __str__(self) -> str:
 		return self.name
@@ -289,7 +289,7 @@ languages_by_english_name = {language.english_name: language for language in lan
 regions_by_name = {region.name: region for region in regions}
 regions_by_short_code = {region.short_code: region for region in regions}
 
-def get_language_by_short_code(code: str, case_insensitive: bool=False) -> Optional[Language]:
+def get_language_by_short_code(code: str, case_insensitive: bool=False) -> Language | None:
 	if case_insensitive:
 		code = code.lower()
 	for language in languages:
@@ -300,7 +300,7 @@ def get_language_by_short_code(code: str, case_insensitive: bool=False) -> Optio
 
 	return None
 
-def get_language_by_english_name(name: str, case_insensitive: bool=False) -> Optional[Language]:
+def get_language_by_english_name(name: str, case_insensitive: bool=False) -> Language | None:
 	if case_insensitive:
 		name = name.lower()
 	for language in languages:
@@ -309,14 +309,14 @@ def get_language_by_english_name(name: str, case_insensitive: bool=False) -> Opt
 
 	return None
 
-def get_region_by_name(name: str) -> Optional[Region]:
+def get_region_by_name(name: str) -> Region | None:
 	for region in regions:
 		if region.name == name:
 			return region
 
 	return None
 
-def get_region_by_short_code(short_code: str, case_insensitive: bool=False) -> Optional[Region]:
+def get_region_by_short_code(short_code: str, case_insensitive: bool=False) -> Region | None:
 	if case_insensitive:
 		short_code = short_code.lower()
 	for region in regions:
@@ -327,7 +327,7 @@ def get_region_by_short_code(short_code: str, case_insensitive: bool=False) -> O
 
 	return None
 
-def get_common_language_from_regions(region_list: Collection[Region]) -> Optional[Language]:
+def get_common_language_from_regions(region_list: Collection[Region]) -> Language | None:
 	"""If all the regions here have the same language, we can infer the language of the game. Otherwise, we sorta can't
 	e.g. We know (USA, Australia) is English, but (Japan, USA) could be Japanese or English"""
 	inferred_languages = {region.inferred_language for region in region_list} #Use set here to do the dirty work of finding a unique value
@@ -343,7 +343,7 @@ def get_common_language_from_regions(region_list: Collection[Region]) -> Optiona
 
 	return None
 
-def get_tv_system_from_regions(region_list: Collection[Region]) -> Optional[TVSystem]:
+def get_tv_system_from_regions(region_list: Collection[Region]) -> TVSystem | None:
 	tv_systems = {region.tv_system for region in region_list if region.tv_system is not None}
 	if not tv_systems:
 		return None

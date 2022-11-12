@@ -31,7 +31,7 @@ _nintendo_licensee_codes = load_dict(None, 'nintendo_licensee_codes')
 
 #For DSiWare, we can get public.sav and private.sav filesize, and that tells us if SaveType = Internal or Nothing. But we won't worry about DSiWare for now
 
-def _load_tdb() -> Optional[TDB]:
+def _load_tdb() -> TDB | None:
 	if 'DS' not in platform_configs:
 		return None
 
@@ -102,7 +102,7 @@ def _parse_dsi_region_flags(region_flags: int) -> Collection[Region]:
 		regions.add(regions_by_name['Korea'])
 	return regions
 
-def _add_banner_title_metadata(metadata: 'Metadata', banner_title: str, language: Optional[str]=None) -> None:
+def _add_banner_title_metadata(metadata: 'Metadata', banner_title: str, language: str | None=None) -> None:
 	lines = banner_title.splitlines()
 	metadata_name = 'Banner Title'
 	if language:

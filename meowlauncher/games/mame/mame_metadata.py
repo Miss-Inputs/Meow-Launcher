@@ -34,7 +34,7 @@ __doc__ = """I still want to dismantle this class with the fury of a thousand su
 #Also shocktro has a set 2 (shocktroa), and shocktr2 has a bootleg (lans2004), so I should look into if those clones don't save either. They probably don't, though, and it's probably best to expect that something doesn't save and just playing it like any other arcade game, rather than thinking it does and then finding out the hard way that it doesn't. I mean, you could always use savestates, I guess. If those are supported. Might not be. That's another story.
 _not_actually_save_supported = {'diggerma', 'neobombe', 'pbobbl2n', 'popbounc', 'shocktro', 'shocktr2', 'irrmaze'}
 
-def _format_count(list_of_something: Iterable[Any]) -> Optional[str]:
+def _format_count(list_of_something: Iterable[Any]) -> str | None:
 	counter = Counter(list_of_something)
 	if len(counter) == 1:
 		if next(iter(counter.keys()), None) is None:
@@ -64,7 +64,7 @@ class CPU():
 		return ('{0:.' + str(precision) + 'g} Hz').format(hertz)
 
 	@property
-	def formatted_clock_speed(self) -> Optional[str]:
+	def formatted_clock_speed(self) -> str | None:
 		if self.clock_speed:
 			return CPU.format_clock_speed(self.clock_speed)
 		return None
@@ -78,15 +78,15 @@ class CPUInfo():
 		return len(self.cpus)
 
 	@property
-	def chip_names(self) -> Optional[str]:
+	def chip_names(self) -> str | None:
 		return _format_count(cpu.chip_name for cpu in self.cpus)
 
 	@property
-	def clock_speeds(self) -> Optional[str]:
+	def clock_speeds(self) -> str | None:
 		return _format_count(cpu.formatted_clock_speed for cpu in self.cpus)
 
 	@property
-	def tags(self) -> Optional[str]:
+	def tags(self) -> str | None:
 		return _format_count(cpu.tag for cpu in self.cpus)
 
 class Display():
@@ -94,8 +94,8 @@ class Display():
 		self.type = xml.attrib['type']
 		self.tag = xml.attrib['tag']
 		try:
-			self.width: Optional[int] = int(xml.attrib['width'])
-			self.height: Optional[int] = int(xml.attrib['height'])
+			self.width: int | None = int(xml.attrib['width'])
+			self.height: int | None = int(xml.attrib['height'])
 		except KeyError:
 			self.width = None
 			self.height = None
@@ -116,7 +116,7 @@ class Display():
 		return self.type.capitalize()
 
 	@property
-	def formatted_refresh_rate(self) -> Optional[str]:
+	def formatted_refresh_rate(self) -> str | None:
 		if self.refresh_rate:
 			return CPU.format_clock_speed(self.refresh_rate)
 		return None
@@ -144,23 +144,23 @@ class DisplayCollection():
 		return len(self.displays)
 
 	@property
-	def resolutions(self) -> Optional[str]:
+	def resolutions(self) -> str | None:
 		return _format_count(display.resolution for display in self.displays if display.resolution)
 
 	@property
-	def refresh_rates(self) -> Optional[str]:
+	def refresh_rates(self) -> str | None:
 		return _format_count(display.formatted_refresh_rate for display in self.displays if display.formatted_refresh_rate)
 
 	@property
-	def aspect_ratios(self) -> Optional[str]:
+	def aspect_ratios(self) -> str | None:
 		return _format_count(f'{display.aspect_ratio[0]:.0f}:{display.aspect_ratio[1]:.0f}' for display in self.displays if display.aspect_ratio)
 
 	@property
-	def display_types(self) -> Optional[str]:
+	def display_types(self) -> str | None:
 		return _format_count(display.type for display in self.displays if display.type)
 
 	@property
-	def display_tags(self) -> Optional[str] :
+	def display_tags(self) -> str | None :
 		return _format_count(display.tag for display in self.displays if display.tag)
 
 def add_save_type(game: 'MAMEGame') -> None:
@@ -215,7 +215,7 @@ def add_status(machine: Machine, metadata: 'Metadata') -> None:
 	if unemulated_features:
 		metadata.specific_info['MAME Unemulated Features'] = unemulated_features
 
-def add_metadata_from_category(game: 'MAMEGame', category: Optional[MachineCategory]) -> None:
+def add_metadata_from_category(game: 'MAMEGame', category: MachineCategory | None) -> None:
 	if not category:
 		#Not in catlist or user doesn't have catlist
 		return

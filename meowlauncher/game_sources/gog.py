@@ -16,7 +16,7 @@ from meowlauncher.util.desktop_files import has_been_done
 
 logger = logging.getLogger(__name__)
 
-def look_in_linux_gog_folder(folder: Path) -> Optional[GOGGame]:
+def look_in_linux_gog_folder(folder: Path) -> GOGGame | None:
 	gameinfo_path = folder.joinpath('gameinfo')
 	if not gameinfo_path.is_file():
 		return None
@@ -40,8 +40,8 @@ def look_in_linux_gog_folder(folder: Path) -> Optional[GOGGame]:
 
 	return None
 
-def look_in_windows_gog_folder(folder: Path) -> Optional[WindowsGOGGame]:
-	info_file: Optional[Path] = None
+def look_in_windows_gog_folder(folder: Path) -> WindowsGOGGame | None:
+	info_file: Path | None = None
 	game_id: str
 	for file in folder.iterdir():
 		if file.name.startswith('goggame-') and file.suffix == '.info':

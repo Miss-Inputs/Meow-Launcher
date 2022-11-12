@@ -18,7 +18,7 @@ LibretroDatabaseType = Mapping[Union[int, str], GameType]
 _MutableLibretroDatabaseType = MutableMapping[Union[int, str], _MutableGameType]
 
 _rom_line = re.compile(r'(?<=\(|\s)(?P<attrib>\w+)\s+(?:"(?P<value>[^"]+)"|(?P<rawvalue>\S+))(?:\s+|\))')
-def _parse_rom_line(line: str) -> Optional[RomType]:
+def _parse_rom_line(line: str) -> RomType | None:
 	start = line[:5]
 	if start != 'rom (':
 		return None
@@ -42,7 +42,7 @@ def parse_libretro_dat(path: Path) -> tuple[Mapping[str, Union[int, str]], Seque
 	with path.open('rt', encoding='utf-8') as file:
 		game: _MutableGameType = {}
 		inside_header = False
-		rom_giant_line: Optional[str] = None #Just concat everything in between rom ( ) on multiple lines so we can parse it that way
+		rom_giant_line: str | None = None #Just concat everything in between rom ( ) on multiple lines so we can parse it that way
 		roms: MutableSequence[RomType] = []
 		for line in file:
 			line = line.strip()
@@ -112,7 +112,7 @@ def parse_libretro_dat(path: Path) -> tuple[Mapping[str, Union[int, str]], Seque
 	return header, games
 
 @functools.cache
-def parse_all_dats_for_system(name: str, use_serial: bool) -> Optional[LibretroDatabaseType]:
+def parse_all_dats_for_system(name: str, use_serial: bool) -> LibretroDatabaseType | None:
 	relevant_dats = []
 
 	libretro_database_path = main_config.libretro_database_path

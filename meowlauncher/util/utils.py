@@ -114,7 +114,7 @@ def title_word(s: str) -> str:
 	actual_word_parts = re.split(r"([\w']+)", s)
 	return ''.join(part.capitalize() for part in actual_word_parts)
 
-def remove_capital_article(s: Optional[str]) -> str:
+def remove_capital_article(s: str | None) -> str:
 	if not s:
 		return ''
 
@@ -139,7 +139,7 @@ def byteswap(b: bytes) -> bytes:
 	return bytes(byte_array)
 
 _dict_line_regex = re.compile(r'(?P<kquote>\'|\"|)(?P<key>.+?)(?P=kquote):\s*(?P<vquote>\'|\")(?P<value>.+?)(?P=vquote),?(?:\s*#.+)?$')
-def load_dict(subpackage: Optional[str], resource: str) -> Mapping[Union[int, str], str]:
+def load_dict(subpackage: str | None, resource: str) -> Mapping[Union[int, str], str]:
 	d = {}
 	package = 'meowlauncher.data'
 	if subpackage:
@@ -155,13 +155,13 @@ def load_dict(subpackage: Optional[str], resource: str) -> Mapping[Union[int, st
 			d[key] = match['value']
 	return d
 
-def load_list(subpackage: Optional[str], resource: str) -> Sequence[str]:
+def load_list(subpackage: str | None, resource: str) -> Sequence[str]:
 	package = 'meowlauncher.data'
 	if subpackage:
 		package += '.' + subpackage
 	return tuple(line for line in (line.split('#', 1)[0] for line in importlib.resources.read_text(package, resource + '.list').splitlines()) if line)
 
-def load_json(subpackage: Optional[str], resource: str) -> Any:
+def load_json(subpackage: str | None, resource: str) -> Any:
 	package = 'meowlauncher.data'
 	if subpackage:
 		package += '.' + subpackage

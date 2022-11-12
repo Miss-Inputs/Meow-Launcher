@@ -92,7 +92,7 @@ else:
 #TODO: Move more of this to SteamGame
 
 def process_launchers(game: 'SteamGame', launch: Mapping[bytes, Mapping[bytes, Any]]) -> None:
-	launch_items: MutableMapping[Optional[str], list[LauncherInfo]] = {}
+	launch_items: MutableMapping[str | None, list[LauncherInfo]] = {}
 	#user_config = game.app_state.get('UserConfig')
 	#installed_betakey = user_config.get('betakey') if user_config else None
 	for launch_item in launch.values():
@@ -102,7 +102,7 @@ def process_launchers(game: 'SteamGame', launch: Mapping[bytes, Mapping[bytes, A
 		#Actually, sometimes the key doesn't start at 0, which is weird, but anyway it still doesn't really mean much, it just means we can't get the first item by getting key 0
 
 		executable_name = launch_item.get(b'executable')
-		exe: Optional[PurePath] = None
+		exe: PurePath | None = None
 		if executable_name:
 			exe_name: str = executable_name.decode('utf-8', errors='backslashreplace')
 			if exe_name.startswith('steam://open'):
@@ -110,7 +110,7 @@ def process_launchers(game: 'SteamGame', launch: Mapping[bytes, Mapping[bytes, A
 				continue
 			exe = PurePath(exe_name.replace('\\', '/'))
 		
-		args: Optional[str] = None
+		args: str | None = None
 		executable_arguments = launch_item.get(b'arguments')
 		if executable_arguments:
 			if isinstance(executable_arguments, appinfo.Integer):
@@ -119,12 +119,12 @@ def process_launchers(game: 'SteamGame', launch: Mapping[bytes, Mapping[bytes, A
 				args = executable_arguments.decode('utf-8', errors='backslashreplace')
 
 		description = launch_item.get(b'description')
-		launcher_description: Optional[str] = None
+		launcher_description: str | None = None
 		if description:
 			launcher_description = description.decode('utf-8', errors='backslashreplace')
 
 		launch_type = launch_item.get(b'type')
-		launcher_type: Optional[str] = None
+		launcher_type: str | None = None
 		if launch_type:
 			launcher_type = launch_type.decode('utf-8', errors='backslashreplace')
 		
@@ -646,7 +646,7 @@ def process_game(appid: int, folder: Path, app_state: Mapping[str, Any]) -> 'Ste
 	if not game.launchers:
 		raise NotActuallyLaunchableGameException('Game cannot be launched')
 
-	launcher: Optional[LauncherInfo] = next(iter(game.launchers.values())) #Hmm
+	launcher: LauncherInfo | None = next(iter(game.launchers.values())) #Hmm
 	tools = steam_installation.steamplay_compat_tools
 	override = False
 	if appid_str in steamplay_overrides:

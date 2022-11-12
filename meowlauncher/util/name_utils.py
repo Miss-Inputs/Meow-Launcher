@@ -1,6 +1,5 @@
 import re
 from collections.abc import Collection
-from typing import Optional
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.data.name_cleanup.capitalized_words_in_names import \
@@ -14,7 +13,7 @@ fluff_editions = {'GOTY', 'Game of the Year', 'Definitive', 'Enhanced', 'Special
 demo_suffixes = {'Demo', 'Playable Teaser'}
 name_suffixes = demo_suffixes.union({'Beta', 'GOTY', "Director's Cut", 'Unstable', 'Complete', 'Complete Collection', "Developer's Cut"}).union({e + ' Edition' for e in fluff_editions})
 _name_suffix_matcher = re.compile(r'(?: | - |: )?(?:The )?(' + '|'.join(name_suffixes) + ')$', re.RegexFlag.IGNORECASE)
-def normalize_name_case(name: str, name_to_test_for_upper: Optional[str]=None) -> str:
+def normalize_name_case(name: str, name_to_test_for_upper: str | None=None) -> str:
 	if not name_to_test_for_upper:
 		name_to_test_for_upper = name
 
@@ -55,21 +54,21 @@ def fix_name(name: str) -> str:
 	return name
 
 tool_names = ('settings', 'setup', 'config', 'dedicated server', 'editor')
-def is_probably_related_tool(name: Optional[str]) -> bool:
+def is_probably_related_tool(name: str | None) -> bool:
 	if not name:
 		return False
 	lower = name.lower()
 	return any(tool_name in lower for tool_name in tool_names)
 
 mode_names = ('safe mode', 'play windowed', 'launch fullscreen', 'launch windowed')
-def is_probably_different_mode(name: Optional[str]) -> bool: 
+def is_probably_different_mode(name: str | None) -> bool: 
 	if not name:
 		return False
 	lower = name.lower()
 	return any(mode_name in lower for mode_name in mode_names)
 
 document_names = ('faq', 'manual', 'map of avernum', 'reference card')
-def is_probably_documentation(name: Optional[str]) -> bool:
+def is_probably_documentation(name: str | None) -> bool:
 	if not name:
 		return False
 	lower = name.lower()
@@ -111,7 +110,7 @@ def normalize_name(name: str, care_about_spaces: bool=True, normalize_words: boo
 	return name
 
 dont_capitalize_these = {'the', 'a', 'an', 'and', 'or', 'at', 'with', 'to', 'of', 'is'}
-def _title_case_sentence_part(s: str, words_to_ignore_case: Optional[Collection[str]]=None) -> str:
+def _title_case_sentence_part(s: str, words_to_ignore_case: Collection[str] | None=None) -> str:
 	words = re.split(' ', s)
 	if not words_to_ignore_case:
 		words_to_ignore_case = set()
@@ -128,6 +127,6 @@ def _title_case_sentence_part(s: str, words_to_ignore_case: Optional[Collection[
 			titled_words.append(title_word(word))
 	return ' '.join(titled_words)
 
-def title_case(s: str, words_to_ignore_case: Optional[Collection[str]]=None) -> str:
+def title_case(s: str, words_to_ignore_case: Collection[str] | None=None) -> str:
 	sentence_parts = re.split(r'(\s+-\s+|:\s+)', s)
 	return ''.join(_title_case_sentence_part(part, words_to_ignore_case) for part in sentence_parts)

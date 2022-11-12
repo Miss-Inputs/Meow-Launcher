@@ -56,7 +56,7 @@ def _parse_gba_header(metadata: 'Metadata', header: bytes) -> None:
 	#Checksum (see ROMniscience for how to calculate it, because I don't feel like describing it all in a single line of comment): 0xbd
 	#Reserved: 0xbe - 0xc0
 
-def _look_for_sound_drivers_in_cart(entire_cart: bytes) -> Optional[str]:
+def _look_for_sound_drivers_in_cart(entire_cart: bytes) -> str | None:
 	#Because I can
 	mp2k_selectsong = b'\x00\xb5\x00\x04\x07J\x08I@\x0b@\x18\x83\x88Y\x00\xc9\x18\x89\x00\x89\x18\nh\x01h\x10\x1c\x00\xf0'
 	mp2k_new_selectsong = b'\x00\xb5\x00\x04\x07K\x08I@\x0b@\x18\x82\x88Q\x00\x89\x18\x89\x00\xc9\x18\nh\x01h\x10\x1c\x00\xf0'

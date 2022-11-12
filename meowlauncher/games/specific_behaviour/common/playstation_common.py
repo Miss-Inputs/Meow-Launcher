@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class PlayStationCategory(NamedTuple):
 	cat: str
-	metadata_category: Optional[str] #What we might like to set metadata.categories to
+	metadata_category: str | None #What we might like to set metadata.categories to
 
 categories = {
 	'AP': PlayStationCategory('Photo App', 'Applications'),

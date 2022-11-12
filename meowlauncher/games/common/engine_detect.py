@@ -22,7 +22,7 @@ from .pc_common_metadata import get_exe_properties
 if TYPE_CHECKING:
 	from meowlauncher.metadata import Metadata
 
-def _try_detect_unity(folder: Path, metadata: Optional['Metadata'], executable: Optional['Path']) -> Optional[str]:
+def _try_detect_unity(folder: Path, metadata: Optional['Metadata'], executable: Optional['Path']) -> str | None:
 	if folder.joinpath('Build', 'UnityLoader.js').is_file():
 		#Web version of Unity, there should be some .unityweb files here
 		if metadata:
@@ -236,7 +236,7 @@ def _try_detect_adobe_air(folder: Path, metadata: Optional['Metadata']) -> bool:
 
 	return False
 
-def _try_detect_nw(folder: Path, metadata: Optional['Metadata']) -> Optional[str]:
+def _try_detect_nw(folder: Path, metadata: Optional['Metadata']) -> str | None:
 	if not folder.joinpath('nw.pak').is_file() and not folder.joinpath('nw_100_percent.pak').is_file() and not folder.joinpath('nw_200_percent.pak').is_file():
 		return None
 	
@@ -290,7 +290,7 @@ def _try_detect_nw(folder: Path, metadata: Optional['Metadata']) -> Optional[str
 
 	return 'nw.js'
 
-def _try_detect_rpg_maker_200x(folder: Path, metadata: Optional['Metadata'], executable: Optional[Path]) -> Optional[str]:
+def _try_detect_rpg_maker_200x(folder: Path, metadata: Optional['Metadata'], executable: Path | None) -> str | None:
 	rpg_rt_ini_path = folder / 'RPG_RT.ini' #This should always be here I think?
 	if rpg_rt_ini_path.is_file():
 		if metadata:
@@ -342,7 +342,7 @@ def _try_detect_rpg_maker_200x(folder: Path, metadata: Optional['Metadata'], exe
 	return None
 
 version_tuple_definition = re.compile(r'^version_tuple\s*=\s*\((.+?)\)$')
-def _try_detect_renpy(folder: Path, metadata: Optional['Metadata']) -> Optional[str]:
+def _try_detect_renpy(folder: Path, metadata: Optional['Metadata']) -> str | None:
 	renpy_folder = folder / 'renpy'
 	if renpy_folder.is_dir():
 		if metadata:
@@ -392,7 +392,7 @@ def _try_detect_rpg_paper_maker(folder: Path) -> bool:
 	except FileNotFoundError:
 		return False
 
-def _try_detect_rpg_maker_xp_vx(folder: Path, metadata: Optional['Metadata'], executable: Optional[Path]) -> Optional[str]:
+def _try_detect_rpg_maker_xp_vx(folder: Path, metadata: Optional['Metadata'], executable: Path | None) -> str | None:
 	engine_versions = {'rgss1': 'RPG Maker XP', 'rgss2': 'RPG Maker VX', 'rgss3': 'RPG Maker VX Ace'}
 	mkxp_path = folder / 'mkxp.conf'
 	engine = None
@@ -468,7 +468,7 @@ def _try_detect_rpg_maker_xp_vx(folder: Path, metadata: Optional['Metadata'], ex
 
 	return None
 
-def _try_detect_cryengine(folder: Path) -> Optional[str]:
+def _try_detect_cryengine(folder: Path) -> str | None:
 	cryengine32_path = folder.joinpath('Bin32', 'CrySystem.dll')
 	cryengine64_path = folder.joinpath('Bin64', 'CrySystem.dll')
 	if cryengine64_path.is_file():
@@ -519,7 +519,7 @@ def _try_detect_jackbox_games(folder: Path, metadata: Optional['Metadata']) -> b
 		return True
 	return False
 
-def _try_detect_piko_mednafen(folder: Path, metadata: Optional['Metadata']) -> Optional[str]:
+def _try_detect_piko_mednafen(folder: Path, metadata: Optional['Metadata']) -> str | None:
 	"""Piko's fork of Mednafen for emulated rereleases, probably has an actual name, but I don't know/care (also it is not really an engine)"""
 	data_path = folder / 'res' / 'data'
 	game_path = folder / 'res' / 'game'
@@ -576,7 +576,7 @@ def _try_detect_piko_mednafen(folder: Path, metadata: Optional['Metadata']) -> O
 		return "Piko's Mednafen fork"
 	return None
 
-def _try_detect_engines_from_filenames(folder: Path) -> Optional[str]:
+def _try_detect_engines_from_filenames(folder: Path) -> str | None:
 	dir_entries = set(folder.iterdir())
 	files = {f.name.lower() for f in dir_entries if f.is_file()}
 
@@ -627,7 +627,7 @@ def _try_detect_engines_from_filenames(folder: Path) -> Optional[str]:
 	
 	return None
 
-def try_detect_engine_from_exe_properties(exe_path: Path, metadata: Optional['Metadata']) -> Optional[str]:
+def try_detect_engine_from_exe_properties(exe_path: Path, metadata: Optional['Metadata']) -> str | None:
 	if exe_path.suffix.lower() != '.exe':
 		#Since .dll can't be launched, exe would be the only valid extension for this
 		return None
@@ -649,7 +649,7 @@ def try_detect_engine_from_exe_properties(exe_path: Path, metadata: Optional['Me
 
 	return None
 
-def try_detect_engine_from_exe(exe_path: Path, metadata: Optional['Metadata']) -> Optional[str]:
+def try_detect_engine_from_exe(exe_path: Path, metadata: Optional['Metadata']) -> str | None:
 	engine = try_detect_engine_from_exe_properties(exe_path, metadata)
 	if engine:
 		return engine
@@ -675,7 +675,7 @@ def try_detect_engine_from_exe(exe_path: Path, metadata: Optional['Metadata']) -
 
 	return None
 
-def try_and_detect_engine_from_folder(folder: Path, metadata: 'Metadata'|None=None, executable: Optional[Path]=None) -> Optional[str]:
+def try_and_detect_engine_from_folder(folder: Path, metadata: 'Metadata'|None=None, executable: Path | None=None) -> str | None:
 	#Get the most likely things out of the way first
 	unity_version = _try_detect_unity(folder, metadata, executable)
 	if unity_version:
@@ -732,7 +732,7 @@ def try_and_detect_engine_from_folder(folder: Path, metadata: 'Metadata'|None=No
 	
 	return None
 
-def detect_engine_recursively(folder: Path, metadata: Optional['Metadata']=None) -> Optional[str]:
+def detect_engine_recursively(folder: Path, metadata: Optional['Metadata']=None) -> str | None:
 	#This can be slow, so maybe you should avoid using it
 	engine = try_and_detect_engine_from_folder(folder, metadata)
 	if engine:

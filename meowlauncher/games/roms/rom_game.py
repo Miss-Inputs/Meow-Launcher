@@ -43,7 +43,7 @@ class ROMGame(EmulatedGame):
 		self.platform = platform
 		self.filename_tags = find_filename_tags_at_end(rom.path.stem)
 
-		self.exception_reason: Optional[BaseException] = None
+		self.exception_reason: BaseException | None = None
 	
 	def __str__(self) -> str:
 		return self.name

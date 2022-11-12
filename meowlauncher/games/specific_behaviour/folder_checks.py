@@ -5,7 +5,7 @@ if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom import FolderROM
 
 
-def is_wii_homebrew_folder(folder: 'FolderROM') -> Optional[MediaType]:
+def is_wii_homebrew_folder(folder: 'FolderROM') -> MediaType | None:
 	have_boot_dol = False
 	have_meta_xml = False
 	for f in folder.path.iterdir():
@@ -21,7 +21,7 @@ def is_wii_homebrew_folder(folder: 'FolderROM') -> Optional[MediaType]:
 	#I dunno if icon is always there, so we will leave that alone
 	return MediaType.Digital if (have_meta_xml and have_boot_dol) else None
 
-def is_wii_u_folder(folder: 'FolderROM') -> Optional[MediaType]:
+def is_wii_u_folder(folder: 'FolderROM') -> MediaType | None:
 	#If we find a digital dump we stop there instead of descending into it
 	#Note: If there are two rpxes (I swear I've seen that once) you want the one referred to in cos.xml, is that file always there?
 	code_subfolder = folder.get_subfolder('code')
@@ -33,7 +33,7 @@ def is_wii_u_folder(folder: 'FolderROM') -> Optional[MediaType]:
 				return MediaType.Digital
 	return None
 
-def is_ps3_folder(folder: 'FolderROM') -> Optional[MediaType]:
+def is_ps3_folder(folder: 'FolderROM') -> MediaType | None:
 	usrdir_subfolder = folder.get_subfolder('USRDIR')
 	param_sfo = folder.get_file('PARAM.SFO')
 	if param_sfo and usrdir_subfolder:
@@ -55,7 +55,7 @@ def is_ps3_folder(folder: 'FolderROM') -> Optional[MediaType]:
 		return MediaType.OpticalDisc
 	return None
 
-def is_psp_homebrew_folder(folder: 'FolderROM') -> Optional[MediaType]:
+def is_psp_homebrew_folder(folder: 'FolderROM') -> MediaType | None:
 	pbp = folder.get_file('EBOOT.PBP')
 	if pbp:
 		folder.relevant_files['pbp'] = pbp

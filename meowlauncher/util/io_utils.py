@@ -1,5 +1,4 @@
 import pathlib
-from typing import Optional
 
 
 def ensure_exist(path: pathlib.Path) -> None:
@@ -16,7 +15,7 @@ def read_file(path: pathlib.Path, seek_to: int=0, amount: int=-1) -> bytes:
 
 		return f.read(amount)
 
-def sanitize_name(s: Optional[str], safe_for_fat32: bool=False, no_janky_chars: bool=True) -> str:
+def sanitize_name(s: str | None, safe_for_fat32: bool=False, no_janky_chars: bool=True) -> str:
 	"""Get rid of any characters that should never be a folder/filename, or would be a bad idea to have in a filename, or may cause more trouble than it's worth in a filename"""
 	if not s:
 		return 'Nothing'

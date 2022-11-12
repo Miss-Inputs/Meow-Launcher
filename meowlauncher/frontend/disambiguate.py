@@ -8,7 +8,7 @@ import sys
 import time
 from collections.abc import Callable, Collection, MutableMapping, Iterable
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.output.desktop_files import (id_section_name,
@@ -23,13 +23,13 @@ from meowlauncher.util.utils import NoNonsenseConfigParser
 if TYPE_CHECKING:
 	import configparser
 
-FormatFunction = Callable[[str, str], Optional[str]]
+FormatFunction = Callable[[str, str], str | None]
 DesktopWithPath = tuple[Path, 'configparser.RawConfigParser']
 
 super_debug = '--super-debug' in sys.argv
 disambiguity_section_name = section_prefix + 'Disambiguity'
 
-def _update_name(desktop: DesktopWithPath, disambiguator: Optional[str], disambiguation_method: str) -> None:
+def _update_name(desktop: DesktopWithPath, disambiguator: str | None, disambiguation_method: str) -> None:
 	#TODO: Encapsulate accessing .desktop files better, this module shouldn't know about them
 	if not disambiguator:
 		return
@@ -61,7 +61,7 @@ def _update_name(desktop: DesktopWithPath, disambiguator: Optional[str], disambi
 		copymode(desktop[0], new_path)
 		desktop[0].unlink()
 
-def _resolve_duplicates_by_metadata(group: Collection[DesktopWithPath], field: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name) -> None:
+def _resolve_duplicates_by_metadata(group: Collection[DesktopWithPath], field: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name) -> None:
 	value_counter = collections.Counter(get_field(d[1], field, field_section) for d in group)
 	for dup in group:
 		field_value = get_field(dup[1], field, field_section)
@@ -137,7 +137,7 @@ def _resolve_duplicates_by_date(group: Collection[DesktopWithPath]) -> None:
 		if year is None and month is None and day is None:
 			continue
 
-		disambiguator: MutableMapping[str, Optional[str]] = {'Day': None, 'Month': None, 'Year': None}
+		disambiguator: MutableMapping[str, str | None] = {'Day': None, 'Month': None, 'Year': None}
 		#TODO: Use a dataclass there
 		disambiguated = False
 		if year_counter[year] != len(group):
@@ -178,7 +178,7 @@ def _resolve_duplicates_by_date(group: Collection[DesktopWithPath]) -> None:
 
 			_update_name(dup, '(' + date_string + ')', 'date')
 
-def _resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name) -> None:
+def _resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name) -> None:
 	if method == 'tags':
 		_resolve_duplicates_by_filename_tags(group)
 	elif method == 'dev-status':
@@ -188,7 +188,7 @@ def _resolve_duplicates(group: Collection[DesktopWithPath], method: str, format_
 	else:
 		_resolve_duplicates_by_metadata(group, method, format_function, ignore_missing_values, field_section)
 
-def _fix_duplicate_names(method: str, format_function: Optional[FormatFunction]=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name) -> None:
+def _fix_duplicate_names(method: str, format_function: FormatFunction | None=None, ignore_missing_values: bool=False, field_section: str=metadata_section_name) -> None:
 	#TODO: output_folder needs to be unambigulously Path, that's the issue here
 	files = ((cast(Path, path), get_desktop(path)) for path in main_config.output_folder.iterdir())
 	if method == 'dev-status':
@@ -213,7 +213,7 @@ def _fix_duplicate_names(method: str, format_function: Optional[FormatFunction]=
 		else:
 			_resolve_duplicates(v, method, format_function, ignore_missing_values, field_section)
 
-def _revision_disambiguate(rev: str, _) -> Optional[str]:
+def _revision_disambiguate(rev: str, _) -> str | None:
 	if rev == '0':
 		return None
 
@@ -222,7 +222,7 @@ def _revision_disambiguate(rev: str, _) -> Optional[str]:
 
 	return f'(Rev {rev})'
 
-def _arcade_system_disambiguate(arcade_system: Optional[str], name: str) -> Optional[str]:
+def _arcade_system_disambiguate(arcade_system: str | None, name: str) -> str | None:
 	if arcade_system == name + ' Hardware':
 		#Avoid "Cool Game (Cool Game Hardware)" where there exists a "Cool Game (Interesting Alternate Hardware)"
 		return None

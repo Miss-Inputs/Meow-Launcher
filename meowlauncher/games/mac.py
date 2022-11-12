@@ -212,7 +212,7 @@ class MacApp(ManuallySpecifiedGame):
 		self.hfv_path = cast(Path, self.cd_path) if self.is_on_cd else Path(info['hfv_path'])
 		
 	@property
-	def _carbon_path(self) -> Optional[PathInsideHFS]:
+	def _carbon_path(self) -> PathInsideHFS | None:
 		if not self.path.endswith('.app'):
 			return None
 		try:
@@ -247,7 +247,7 @@ class MacApp(ManuallySpecifiedGame):
 		return does_exist(self.hfv_path, PathInsideHFS(self.path))
 
 	@property
-	def base_folder(self) -> Optional[Path]:
+	def base_folder(self) -> Path | None:
 		return None
 
 	@property

@@ -1,7 +1,6 @@
 import logging
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Optional
 
 from meowlauncher import input_metadata
 from meowlauncher.common_types import SaveType
@@ -85,14 +84,14 @@ class ScummVMGame(Game):
 		return scummvm_config.scummvm_engines
 
 	@property
-	def engine(self) -> Optional[str]:
+	def engine(self) -> str | None:
 		engine_id = self.options.get('engineid')
 		if engine_id:
 			return self._engine_list_to_use().get(engine_id, engine_id)
 		return None
 
 	@property
-	def path(self) -> Optional[Path]:
+	def path(self) -> Path | None:
 		pathstr = self.options.get('path')
 		if not pathstr:
 			return None
@@ -101,7 +100,7 @@ class ScummVMGame(Game):
 		return path / filename if filename else path
 
 	@property
-	def language(self) -> Optional[Language]:
+	def language(self) -> Language | None:
 		language_code = self.options.get('language')
 		if not language_code:
 			return None
@@ -144,7 +143,7 @@ class ScummVMGame(Game):
 		return lang
 
 	@property
-	def original_platform(self) -> Optional[str]:
+	def original_platform(self) -> str | None:
 		platform = self.options.get('platform')
 		if not platform:
 			return None

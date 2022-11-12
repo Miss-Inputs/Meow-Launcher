@@ -312,7 +312,7 @@ def _list_cnmt(cnmt: Cnmt, rom: 'FileROM', metadata: 'Metadata', files: Mapping[
 				#We have icons and a NACP! WOOOOO
 				#The icons match up with the titles that exist in the titles section, not SupportedLanguageFlag
 				icons = {}
-				nacp: Optional[bytes] = None
+				nacp: bytes | None = None
 				for control_nca_filename, control_nca_file in control_nca_files.items():
 					if not nacp and control_nca_filename == 'control.nacp':
 						#We would expect only one
@@ -386,7 +386,7 @@ def _list_psf0(rom: 'FileROM') -> Mapping[str, tuple[int, int]]:
 		files[name.decode('utf-8', errors='backslashreplace')] = (offset + data_offset, size)
 	return files
 
-def _choose_main_cnmt(cnmts: Collection[Cnmt]) -> Optional[Cnmt]:
+def _choose_main_cnmt(cnmts: Collection[Cnmt]) -> Cnmt | None:
 	if not cnmts:
 		return None
 	if len(cnmts) == 1:

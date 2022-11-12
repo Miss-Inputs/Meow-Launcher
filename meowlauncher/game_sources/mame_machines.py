@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from collections.abc import Iterator, Sequence
-from typing import Optional
 
 from meowlauncher.common_types import EmulationStatus
 from meowlauncher.config.emulator_config import emulator_configs
@@ -38,7 +37,7 @@ class MAME(GameSource):
 		super().__init__()
 		self.driver_list = driver_list
 		self.source_file = source_file
-		self.emu: Optional[ConfiguredMAME] = None
+		self.emu: ConfiguredMAME | None = None
 		try:
 			mame_config = emulator_configs.get('MAME')
 			if mame_config:
@@ -65,7 +64,7 @@ class MAME(GameSource):
 			return False
 		return default_mame_executable.verifyroms(game_id)
 
-	def _process_machine(self, machine: Machine) -> Optional[MAMELauncher]:
+	def _process_machine(self, machine: Machine) -> MAMELauncher | None:
 		assert self.emu, 'MAME._process_machine should never be called without checking is_available! What the'
 		if machine.source_file in main_config.skipped_source_files:
 			return None
@@ -135,7 +134,7 @@ class MAMEInbuiltGames(GameSource):
 	def __init__(self) -> None:
 		super().__init__()
 		self.blank_platform_config = PlatformConfig('MAME', set(), (), {})
-		self.emu: Optional[ConfiguredMAME] = None
+		self.emu: ConfiguredMAME | None = None
 		try:
 			mame_config = emulator_configs.get('MAME')
 			if mame_config:
@@ -158,7 +157,7 @@ class MAMEInbuiltGames(GameSource):
 	def no_longer_exists(self, game_id: str) -> bool:
 		return not default_mame_executable or not default_mame_executable.verifyroms(game_id.split(':')[0])
 
-	def _process_inbuilt_game(self, machine_name: str, inbuilt_game: InbuiltGame, bios_name: str=None) -> Optional[MAMEInbuiltLauncher]:
+	def _process_inbuilt_game(self, machine_name: str, inbuilt_game: InbuiltGame, bios_name: str=None) -> MAMEInbuiltLauncher | None:
 		assert self.emu, 'MAMEInbuiltGames._process_inbuilt_game should never be called without checking is_available! What the'
 		if not default_mame_executable.verifyroms(machine_name):
 			return None

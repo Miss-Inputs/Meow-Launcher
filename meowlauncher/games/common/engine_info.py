@@ -109,8 +109,8 @@ def add_metadata_for_adobe_air(root_path: Path, application_xml: Path, metadata:
 		metadata.specific_info['Start Visible?'] = initial_window.findtext('visible') == 'true'
 	icon = app_xml.find('icon')
 	if icon:
-		best_icon: Optional[str] = None
-		best_icon_size: Optional[int] = None
+		best_icon: str | None = None
+		best_icon_size: int | None = None
 		for child in icon:
 			size = child.tag.rsplit('x', 1)[-1] if 'x' in child.tag else None
 			if not best_icon or not best_icon_size:

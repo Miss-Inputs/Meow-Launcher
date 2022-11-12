@@ -43,7 +43,7 @@ _rom_layouts = {
 
 @dataclass(frozen=True)
 class ROMType():
-	expansion_chip: Optional[SNESExpansionChip] = None
+	expansion_chip: SNESExpansionChip | None = None
 	has_ram: bool = False
 	has_battery: bool = False
 	has_rtc: bool = False		
@@ -309,7 +309,7 @@ def _add_satellaview_metadata(rom: 'FileROM', metadata: 'Metadata') -> None:
 		metadata.specific_info['Day'] = header_data.get('Day') #hmm… unfortunately it doesn't have a nice year for us to use
 		metadata.specific_info['Month'] = header_data.get('Month')
 
-def find_equivalent_snes_arcade(name: str) -> Optional[Machine]:
+def find_equivalent_snes_arcade(name: str) -> Machine | None:
 	if not default_mame_executable:
 		#CBF tbhkthbai
 		return None

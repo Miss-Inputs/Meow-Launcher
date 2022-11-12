@@ -24,7 +24,7 @@ class DuckStationCompatibility(Enum):
 	DoesNotBoot = 1
 	Unknown = 0
 
-def find_duckstation_compat_info(product_code: str) -> Optional[DuckStationCompatibility]:
+def find_duckstation_compat_info(product_code: str) -> DuckStationCompatibility | None:
 	compat_xml_path = _duckstation_config.options.get('compatibility_xml_path')
 	if not compat_xml_path:
 		return None

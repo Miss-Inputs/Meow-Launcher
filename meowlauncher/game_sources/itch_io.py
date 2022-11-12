@@ -4,7 +4,6 @@ import datetime
 import logging
 import time
 from pathlib import Path
-from typing import Optional
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.itch import ItchGame
@@ -12,7 +11,7 @@ from meowlauncher.util.desktop_files import has_been_done
 
 logger = logging.getLogger(__name__)
 
-def scan_itch_dir(path: Path) -> Optional[ItchGame]:
+def scan_itch_dir(path: Path) -> ItchGame | None:
 	if not path.joinpath('.itch').is_dir():
 		return None
 

@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 class ZXHardware(NamedTuple):
 	machine: ZXMachine
-	expansion: Optional[ZXExpansion]
+	expansion: ZXExpansion | None
 
 _zx_hardware: dict[int, ZXHardware] = {
 	#For .z80 header
@@ -95,7 +95,7 @@ def add_speccy_software_list_metadata(software: 'Software', metadata: 'Metadata'
 		#Disk has no autorun menu, requires loading each game from Basic.
 		metadata.add_notes(usage)
 
-def _machine_from_tag(tag: str) -> Optional[ZXMachine]:
+def _machine_from_tag(tag: str) -> ZXMachine | None:
 	if tag == '(+2)':
 		return ZXMachine.SpectrumPlus2
 	if tag == '(+2a)':

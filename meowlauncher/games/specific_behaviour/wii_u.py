@@ -54,7 +54,7 @@ class WiiUVirtualConsolePlatform(Enum):
 	GBA = 'GBA'
 	PCEngine = 'PCEngine'
 
-def _load_tdb() -> Optional[TDB]:
+def _load_tdb() -> TDB | None:
 	if not 'Wii U' in platform_configs:
 		return None
 	tdb_path = platform_configs['Wii U'].options.get('tdb_path')

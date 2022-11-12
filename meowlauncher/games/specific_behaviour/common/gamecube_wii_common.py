@@ -1,7 +1,6 @@
 import logging
 import os
 from enum import Enum
-from typing import Optional
 from xml.etree import ElementTree
 
 from meowlauncher.config.platform_config import platform_configs
@@ -22,7 +21,7 @@ class NintendoDiscRegion(Enum):
 	RegionFree = 3  # Seemingly Wii only
 	NTSC_K = 4  # Seemingly Wii only
 
-def _load_tdb() -> Optional[TDB]:
+def _load_tdb() -> TDB | None:
 	if 'Wii' not in platform_configs:
 		return None
 

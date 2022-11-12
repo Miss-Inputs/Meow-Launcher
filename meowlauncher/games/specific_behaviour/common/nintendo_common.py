@@ -110,10 +110,10 @@ def add_ratings_info(metadata: 'Metadata', ratings: NintendoAgeRatings) -> None:
 
 	metadata.specific_info['Age Rating'] = ratings.common_rating
 
-def add_info_from_local_titles(metadata: 'Metadata', short_titles: Mapping[str, str], long_titles: Mapping[str, str], publishers: Mapping[str, Optional[str]], region_codes: Collection[WiiU3DSRegionCode]) -> None:
+def add_info_from_local_titles(metadata: 'Metadata', short_titles: Mapping[str, str], long_titles: Mapping[str, str], publishers: Mapping[str, str | None], region_codes: Collection[WiiU3DSRegionCode]) -> None:
 	local_short_title = None
 	local_long_title = None
-	local_publisher: Optional[str] = None
+	local_publisher: str | None = None
 	if WiiU3DSRegionCode.RegionFree in region_codes or WiiU3DSRegionCode.USA in region_codes or WiiU3DSRegionCode.Europe in region_codes:
 		#We shouldn't assume that Europe is English-speaking but we're going to
 		local_short_title = short_titles.get('English')

@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 #The reason why we don't simply find this at the time of the launcher is so that we can try using the serieses present in other launchers that have been already generated as a hint for what serieses exist and hence what we should try and detect, or something like that I guess
 
-SeriesWithSeriesIndex = tuple[Optional[str], Optional[Union[int, str]]]
+SeriesWithSeriesIndex = tuple[str | None, Optional[Union[int, str]]]
 
 probably_not_series_index_threshold = 20
 #Assume that a number over this is probably not referring to the nth or higher entry in the series, but is probably just any old number that means something else
@@ -121,7 +121,7 @@ def _get_usable_name(desktop: 'RawConfigParser') -> str:
 	assert name, 'What the heck get_usable_name encountered a desktop with no name'
 	return name
 
-def _add_series(desktop: 'RawConfigParser', path: Path, series: Optional[str], series_index: Optional[Union[str, int]]=None) -> None:
+def _add_series(desktop: 'RawConfigParser', path: Path, series: str | None, series_index: Optional[Union[str, int]]=None) -> None:
 	#TODO: Encapsulate this better
 	metadata_section_with_prefix = section_prefix + metadata_section_name
 	if metadata_section_with_prefix not in desktop:

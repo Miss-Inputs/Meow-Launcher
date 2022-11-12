@@ -22,7 +22,7 @@ class ManuallySpecifiedGame(EmulatedGame, ABC):
 		self.is_on_cd: bool = info.get('is_on_cd', False)
 		self.path: str = info['path'] #Could be a host path (e.g. DOS) or could be some special path particular to that platform (e.g. Mac using PathInsideHFS, DOS using paths inside CDs when is_on_cd)
 		self.args = info.get('args', [])
-		self.cd_path: Optional[Path] = None
+		self.cd_path: Path | None = None
 		self.other_cd_paths: Collection[PurePath] = set() #Could be None I guess, if cd_path not in info
 		if 'cd_path' in info:
 			_cd_paths = info['cd_path'] if isinstance(info['cd_path'], list) else [info['cd_path']]
@@ -41,7 +41,7 @@ class ManuallySpecifiedGame(EmulatedGame, ABC):
 		return f'{self.path} ({self.name})'
 
 	@property
-	def base_folder(self) -> Optional[Path]:
+	def base_folder(self) -> Path | None:
 		"""
 		Might want to override this in subclass, returns a folder on the host that might have other files related to the game (CD images, etc)
 		Return None if this is not relevant

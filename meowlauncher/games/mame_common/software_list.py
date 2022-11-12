@@ -18,7 +18,7 @@ from .mame_utils import consistentify_manufacturer, image_config_keys
 SoftwareCustomMatcher = Callable[..., bool] #Actually the first argument is SoftwarePart and then variable arguments after that, which I can't specify right now… maybe that's a sign I'm doing it wrong
 
 _is_release_date_with_thing_at_end = re.compile(r'\d{8}\s\(\w+\)')
-def _parse_release_date(release_info: str) -> Optional[Date]:
+def _parse_release_date(release_info: str) -> Date | None:
 	if _is_release_date_with_thing_at_end.match(release_info):
 		release_info = release_info[:8]
 
@@ -62,7 +62,7 @@ def _add_alt_titles(metadata: Metadata, alt_title: str) -> None:
 		else:
 			metadata.add_alternate_name(piece)
 
-def _parse_size_attribute(attrib: Optional[str]) -> Optional[int]:
+def _parse_size_attribute(attrib: str | None) -> int | None:
 	if not attrib:
 		return None
 	return int(attrib, 16 if attrib.startswith('0x') else 10)
@@ -74,7 +74,7 @@ class DataAreaROM():
 	#Other properties as defined in DTD: length (what's the difference with size?), loadflag (probably not needed for our purposes)
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str | None:
 		return self.xml.attrib.get('name')
 
 	@property
@@ -86,18 +86,18 @@ class DataAreaROM():
 		return self.xml.attrib.get('status', 'good')
 
 	@property
-	def crc32(self) -> Optional[str]:
+	def crc32(self) -> str | None:
 		return self.xml.attrib.get('crc')
 	
 	@property
-	def sha1(self) -> Optional[str]:
+	def sha1(self) -> str | None:
 		return self.xml.attrib.get('sha1')
 
 	@property
 	def offset(self) -> int:
 		return _parse_size_attribute(self.xml.attrib.get('offset')) or 0
 
-	def matches(self, crc32: Optional[str], sha1: Optional[str]) -> bool:
+	def matches(self, crc32: str | None, sha1: str | None) -> bool:
 		if not self.sha1 and not self.crc32:
 			#Dunno what to do with roms like these that just have a loadflag attribute and no content, maybe something fancy is supposed to happen
 			return False
@@ -117,7 +117,7 @@ class DataArea():
 		self.roms = {DataAreaROM(rom_xml, self) for rom_xml in self.xml.iterfind('rom')}
 
 	@property
-	def size(self) -> Optional[int]:
+	def size(self) -> int | None:
 		return _parse_size_attribute(self.xml.attrib.get('size', '0'))
 
 	@property
@@ -163,11 +163,11 @@ class DiskAreaDisk():
 		self.disk_area = disk_area
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str | None:
 		return self.xml.attrib.get('name')
 
 	@property
-	def sha1(self) -> Optional[str]:
+	def sha1(self) -> str | None:
 		return self.xml.attrib.get('sha1')
 
 	@property
@@ -185,7 +185,7 @@ class DiskArea():
 		self.disks = {DiskAreaDisk(disk_xml, self) for disk_xml in self.xml.iterfind('disk')}
 
 	@property
-	def name(self) -> Optional[str]:
+	def name(self) -> str | None:
 		return self.xml.attrib.get('name')
 	#No size attribute
 
@@ -202,7 +202,7 @@ class SoftwarePart():
 		self.disk_areas = {disk_area.name: disk_area for disk_area in (DiskArea(disk_area_xml, self) for disk_area_xml in self.xml.iterfind('diskarea'))}
 
 	@cached_property
-	def name(self) -> Optional[str]:
+	def name(self) -> str | None:
 		return self.xml.attrib.get('name')
 
 	@property
@@ -227,7 +227,7 @@ class SoftwarePart():
 			return all(disk_area.not_dumped for disk_area in self.disk_areas.values())
 		return False
 
-	def get_feature(self, name: str) -> Optional[str]:
+	def get_feature(self, name: str) -> str | None:
 		for feature in self.xml.iterfind('feature'):
 			if feature.attrib.get('name') == name:
 				return feature.attrib.get('value')
@@ -235,7 +235,7 @@ class SoftwarePart():
 		return None
 
 	@property
-	def interface(self) -> Optional[str]:
+	def interface(self) -> str | None:
 		return self.xml.attrib.get('interface')
 	
 	def matches(self, args: 'SoftwareMatcherArgs') -> bool:
@@ -307,7 +307,7 @@ class Software():
 		#Not actually sure what happens in this scenario with multiple parts, or somehow no parts
 		return all(part.not_dumped for part in self.parts.values())
 
-	def get_part(self, name: Optional[str]=None) -> SoftwarePart:
+	def get_part(self, name: str | None=None) -> SoftwarePart:
 		#TODO: Name should not be optional and we should get rid of get_part_feature and has_data_area from this
 		if name:
 			return self.parts[name]
@@ -316,18 +316,18 @@ class Software():
 			raise KeyError('nope') #Should this even happen?
 		return SoftwarePart(first_part, self)
 
-	def get_info(self, name: str) -> Optional[str]:
+	def get_info(self, name: str) -> str | None:
 		#Don't need this anymore, really
 		return self.infos.get(name)
 
-	def get_shared_feature(self, name: str) -> Optional[str]:
+	def get_shared_feature(self, name: str) -> str | None:
 		for info in self.xml.iterfind('sharedfeat'):
 			if info.attrib.get('name') == name:
 				return info.attrib.get('value')
 
 		return None
 
-	def get_part_feature(self, name: str) -> Optional[str]:
+	def get_part_feature(self, name: str) -> str | None:
 		#Hmm we should remove this, it doesn't make sense here
 		return self.get_part().get_feature(name)
 
@@ -355,7 +355,7 @@ class Software():
 		return compat.split(',')
 
 	@property
-	def parent_name(self) -> Optional[str]:
+	def parent_name(self) -> str | None:
 		return self.xml.attrib.get('cloneof')
 
 	@property
@@ -365,7 +365,7 @@ class Software():
 		return self.software_list.get_software(self.parent_name)
 
 	@property
-	def serial(self) -> Optional[str]:
+	def serial(self) -> str | None:
 		return self.infos.get('serial')
 
 	def add_standard_metadata(self, metadata: Metadata) -> None:
@@ -407,7 +407,7 @@ class Software():
 				metadata.release_date = year
 
 		release = self.infos.get('release')
-		release_date: Optional[Date] = None
+		release_date: Date | None = None
 		if release:
 			release_date = _parse_release_date(release)
 
@@ -455,9 +455,9 @@ class Software():
 
 @dataclass(frozen=True)
 class SoftwareMatcherArgs():
-	crc32: Optional[str]
-	sha1: Optional[str]
-	size: Optional[int]
+	crc32: str | None
+	sha1: str | None
+	size: int | None
 	reader: Optional[Callable[[int, int], bytes]]
 
 class SoftwareList():
@@ -476,10 +476,10 @@ class SoftwareList():
 		return self.xml.getroot().attrib['name']
 
 	@property
-	def description(self) -> Optional[str]:
+	def description(self) -> str | None:
 		return self.xml.getroot().attrib.get('description')
 
-	def get_software(self, name: str) -> Optional[Software]:
+	def get_software(self, name: str) -> Software | None:
 		#for software in self.xml.iterfind('software'):
 		#	if software.attrib.get('name') == name:
 		#		return Software(software, self)
@@ -498,13 +498,13 @@ class SoftwareList():
 		for part in self.iter_all_parts_with_custom_matcher(matcher, args):
 			yield part.software
 
-	def find_software_part_with_custom_matcher(self, matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Optional[SoftwarePart]:
+	def find_software_part_with_custom_matcher(self, matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> SoftwarePart | None:
 		return next(self.iter_all_parts_with_custom_matcher(matcher, args), None)
 
-	def find_software_with_custom_matcher(self, matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Optional[Software]:
+	def find_software_with_custom_matcher(self, matcher: SoftwareCustomMatcher, args: Sequence[Any]) -> Software | None:
 		return next(self.iter_all_software_with_custom_matcher(matcher, args), None)
 		
-	def find_software_part(self, args: SoftwareMatcherArgs) -> Optional[SoftwarePart]:
+	def find_software_part(self, args: SoftwareMatcherArgs) -> SoftwarePart | None:
 		# for software_xml in self.xml.iterfind('software'):
 		# 	software = Software(software_xml, self)
 		for software in self.software.values():
@@ -513,7 +513,7 @@ class SoftwareList():
 					return part
 		return None
 
-	def find_software(self, args: SoftwareMatcherArgs) -> Optional[Software]:
+	def find_software(self, args: SoftwareMatcherArgs) -> Software | None:
 		part = self.find_software_part(args)
 		if part:
 			return part.software

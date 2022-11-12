@@ -20,11 +20,11 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-def _load_tdb() -> Optional[TDB]:
+def _load_tdb() -> TDB | None:
 	if 'PS3' not in platform_configs:
 		return None
 
-	tdb_path = cast(Optional[Path], platform_configs['PS3'].options.get('tdb_path'))
+	tdb_path = cast(Path | None, platform_configs['PS3'].options.get('tdb_path'))
 	if not tdb_path:
 		return None
 
@@ -100,7 +100,7 @@ class RPCS3Compatibility(Enum):
 	Playable = 4
 	#There is no perfect? Not yet comfy saying anything is I guess
 
-def get_rpcs3_compat(product_code: str) -> Optional[RPCS3Compatibility]:
+def get_rpcs3_compat(product_code: str) -> RPCS3Compatibility | None:
 	compat_db_path = Path('~/.config/rpcs3/GuiConfigs/compat_database.dat').expanduser()
 	if hasattr(get_rpcs3_compat, 'db'):
 		db = get_rpcs3_compat.db #type: ignore[attr-defined]

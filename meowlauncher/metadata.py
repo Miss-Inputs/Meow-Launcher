@@ -65,24 +65,24 @@ class Date():
 
 class Metadata():
 	def __init__(self) -> None:
-		self.platform: Optional[str] = None
+		self.platform: str | None = None
 		self.categories: Sequence[str] = [] #TODO: I kinda want this to be a union with Sequence | str | None, if we can do that
-		self.release_date: Optional[Date] = None
-		self.emulator_name: Optional[str] = None #TODO: Begone with this, if we are doing things correctly, or rather once we are, make_linux_desktop will set it automatically to whatever Runner object is used
+		self.release_date: Date | None = None
+		self.emulator_name: str | None = None #TODO: Begone with this, if we are doing things correctly, or rather once we are, make_linux_desktop will set it automatically to whatever Runner object is used
 
-		self.genre: Optional[str] = None
-		self.subgenre: Optional[str] = None
+		self.genre: str | None = None
+		self.subgenre: str | None = None
 		self.languages: Collection[Language] = set() #TODO: Should this be mutable?
-		self.developer: Optional[str] = None
-		self.publisher: Optional[str] = None
+		self.developer: str | None = None
+		self.publisher: str | None = None
 		self.save_type = SaveType.Unknown
-		self.product_code: Optional[str] = None
+		self.product_code: str | None = None
 		self.regions: Collection[Region] = set() #TODO: Should this be mutable?
-		self.media_type: Optional[MediaType] = None
-		self.notes: Optional[str] = None
-		self.disc_number: Optional[int] = None
-		self.disc_total: Optional[int] = None
-		self.series: Optional[str] = None
+		self.media_type: MediaType | None = None
+		self.notes: str | None = None
+		self.disc_number: int | None = None
+		self.disc_total: int | None = None
+		self.series: str | None = None
 		self.series_index: Union[str, int, None] = None
 
 		self.input_info = InputInfo() #hmm…
@@ -109,7 +109,7 @@ class Metadata():
 			return
 		self.names[field] = name
 
-	def add_notes(self, notes: Optional[str]) -> None:
+	def add_notes(self, notes: str | None) -> None:
 		if not notes:
 			return
 		if not self.notes:

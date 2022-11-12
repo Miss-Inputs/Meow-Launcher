@@ -178,7 +178,7 @@ def look_for_icon_for_file(path: Path) -> Optional[Union[Path, 'Image.Image']]:
 	parent_folder = path.parent
 	return next((f for f in parent_folder.iterdir() if f.stem.lower() == path.stem.lower() and f.suffix[1:].lower() in icon_extensions), look_for_icon_in_folder(parent_folder, False))
 
-def look_for_icon_in_folder(folder: Path, look_for_any_ico: bool=True) -> Optional[Path]:
+def look_for_icon_in_folder(folder: Path, look_for_any_ico: bool=True) -> Path | None:
 	for f in folder.iterdir():
 		if f.name == 'gfw_high.ico':
 			#Some kind of older GOG icon? Except not in actual GOG games, just stuff that was distributed elsewhere I guess

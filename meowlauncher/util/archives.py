@@ -8,7 +8,6 @@ import zipfile
 import zlib
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Optional
 
 from meowlauncher.common_types import ByteAmount
 
@@ -43,7 +42,7 @@ except (subprocess.CalledProcessError, OSError):
 	have_7z_command = False
 
 #compressed_list is only used in CompressedROM, so we can be useful and get the size and CRC so we don't have to read the archive twice, if possible
-FilenameWithMaybeSizeAndCRC = tuple[str, Optional[ByteAmount], Optional[int]]
+FilenameWithMaybeSizeAndCRC = tuple[str, ByteAmount | None, int | None]
 
 compressed_exts = {'7z', 'zip', 'gz', 'bz2', 'xz', 'tar', 'tgz', 'tbz', 'txz', 'rar'}
 
@@ -77,7 +76,7 @@ def subprocess_sevenzip_list(path: str) -> Iterator[FilenameWithMaybeSizeAndCRC]
 		raise BadSubprocessedArchiveError(f'{path}: {proc.returncode} {proc.stdout} {proc.stderr}')
 
 	found_inner_files = False
-	inner_filename: Optional[str] = None
+	inner_filename: str | None = None
 	size = None
 	crc = None
 	is_directory = False

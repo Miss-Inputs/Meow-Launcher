@@ -1,6 +1,5 @@
 import logging
 from collections.abc import Collection, Mapping
-from typing import Optional
 from xml.etree import ElementTree
 
 from meowlauncher.common_types import SaveType
@@ -21,7 +20,7 @@ class TDB():
 		#Can assume all genres not in maingenres are subgenres
 		self.genres = {main_genre.attrib['name']: [subgenre.attrib['name'] for subgenre in main_genre.iterfind('subgenre')] for main_genre in genre_element.iterfind('maingenre')}
 
-	def find_game(self, search_key: str) -> Optional[ElementTree.Element]:
+	def find_game(self, search_key: str) -> ElementTree.Element | None:
 		return next((game for game in self.xml.iterfind('game') if game.findtext('id') == search_key), None)
 		
 	def _organize_genres(self, genres: Collection[str]) -> Mapping[str, Collection[str]]:
@@ -172,7 +171,7 @@ def _add_info_from_tdb_entry(tdb: TDB, db_entry: ElementTree.Element, metadata: 
 				metadata.specific_info['Optional Additional Controls'] = optional_controls
 				metadata.specific_info['Required Additional Controls'] = required_controls
 
-def add_info_from_tdb(tdb: Optional[TDB], metadata: Metadata, search_key: str) -> None:
+def add_info_from_tdb(tdb: TDB | None, metadata: Metadata, search_key: str) -> None:
 	if not tdb:
 		return
 

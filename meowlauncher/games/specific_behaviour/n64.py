@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-def _get_mupen64plus_database_location() -> Optional[Path]:
+def _get_mupen64plus_database_location() -> Path | None:
 	config_location = Path('~/.config/mupen64plus/mupen64plus.cfg').expanduser()
 	try:
 		with config_location.open('rt', encoding='utf-8') as config_file:

@@ -90,7 +90,7 @@ class FileROM(ROM):
 
 		self._store_entire_file: bool = False
 		self._entire_file: bytes = b''
-		self._crc32: Optional[int] = None
+		self._crc32: int | None = None
 		self.header_length_for_crc_calculation: int = 0
 
 	@property
@@ -281,7 +281,7 @@ class FolderROM(ROM):
 	def __init__(self, path: Path) -> None:
 		super().__init__(path)
 		self.relevant_files: MutableMapping[str, Path] = {}
-		self.media_type: Optional[MediaType] = None
+		self.media_type: MediaType | None = None
 		self.ignore_name = False
 
 	@property
@@ -292,7 +292,7 @@ class FolderROM(ROM):
 	def contained_files(self) -> Collection[Path]:
 		return set(self.path.rglob('*'))
 
-	def get_subfolder(self, subpath: str, ignore_case: bool=False) -> Optional[Path]:
+	def get_subfolder(self, subpath: str, ignore_case: bool=False) -> Path | None:
 		path = self.path.joinpath(subpath)
 		if path.is_dir():
 			return path
@@ -302,7 +302,7 @@ class FolderROM(ROM):
 					return f
 		return None
 	
-	def get_file(self, subpath: str, ignore_case: bool=False) -> Optional[Path]:
+	def get_file(self, subpath: str, ignore_case: bool=False) -> Path | None:
 		path = self.path.joinpath(subpath)
 		if path.is_file():
 			return path

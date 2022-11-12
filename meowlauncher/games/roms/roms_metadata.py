@@ -188,7 +188,7 @@ def _add_metadata_from_libretro_database_entry(metadata: 'Metadata', database: L
 	return False
 
 def _add_metadata_from_libretro_database(game: 'ROMGame') -> None:
-	key: Union[Optional[str], int]
+	key: Union[str | None, int]
 	if game.platform.dat_uses_serial:
 		key = game.metadata.product_code
 	elif isinstance(game.rom, FileROM):

@@ -47,7 +47,7 @@ def convert_rgb5a3(colour: int) -> tuple[int, int, int, int]:
 		blue = convert5BitColor(colour & 0b0_00000_00000_11111)
 	return (red, green, blue, alpha)
 
-def parse_gamecube_banner_text(metadata: Metadata, banner_bytes: bytes, encoding: str, lang: Optional[str]=None) -> None:
+def parse_gamecube_banner_text(metadata: Metadata, banner_bytes: bytes, encoding: str, lang: str | None=None) -> None:
 	short_title_line_1 = banner_bytes[0:0x20].rstrip(b'\0 ').decode(encoding, 'backslashreplace')
 	short_title_line_2 = banner_bytes[0x20:0x40].rstrip(b'\0 ').decode(encoding, 'backslashreplace')
 	title_line_1 = banner_bytes[0x40:0x80].rstrip(b'\0 ').decode(encoding, 'backslashreplace')
