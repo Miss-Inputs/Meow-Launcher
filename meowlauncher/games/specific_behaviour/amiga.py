@@ -1,5 +1,5 @@
 from collections.abc import Collection
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
 	from meowlauncher.games.mame_common.software_list import Software
@@ -36,7 +36,7 @@ def add_amiga_metadata_from_software_list(software: 'Software', metadata: 'Metad
 	if chipset:
 		metadata.specific_info['Chipset'] = chipset
 
-def _machine_from_tag(tag: str) -> Optional[str | Collection[str]]:
+def _machine_from_tag(tag: str) -> str | Collection[str] | None:
 	#As listed in TOSEC naming convention
 	tag = tag[1:-1]
 
@@ -49,7 +49,7 @@ def _machine_from_tag(tag: str) -> Optional[str | Collection[str]]:
 		return tag.split('-')
 	return None
 
-def _chipset_from_tag(tag: str) -> Optional[str | Collection[str]]:
+def _chipset_from_tag(tag: str) -> str | Collection[str] | None:
 	if tag == 'AGA':
 		return 'AGA'
 	if tag == '(OCS-AGA)':

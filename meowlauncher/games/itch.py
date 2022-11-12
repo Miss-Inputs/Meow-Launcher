@@ -274,7 +274,7 @@ class ItchGame(Game):
 				continue
 			self._make_exe_launcher(flavour, path, windows_info)
 
-def get_launch_params(flavour: str, exe_path: Path, windows_info: Optional[Mapping[str, bool]]) -> Optional[tuple[LaunchCommand, str | None]]:
+def get_launch_params(flavour: str, exe_path: Path, windows_info: Mapping[str, bool] | None) -> tuple[LaunchCommand, str | None] | None:
 	if flavour in {'linux', 'script'}:
 		#ez pez
 		return LaunchCommand(str(exe_path), []), None

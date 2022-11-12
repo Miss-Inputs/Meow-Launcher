@@ -220,7 +220,7 @@ class MacApp(ManuallySpecifiedGame):
 			this_path = get_path(v, PathInsideHFS(self.path))
 			if isinstance(this_path, machfs.Folder):
 				basename = self.path.split(':')[-1].removesuffix('.app')
-				contents = this_path['Contents']
+				contents: machfs.Folder = this_path['Contents']
 				if 'MacOSClassic' in contents:
 					return PathInsideHFS(self.path + ':Contents:MacOSClassic:' + basename)
 				if 'MacOS' in contents:
@@ -230,7 +230,7 @@ class MacApp(ManuallySpecifiedGame):
 		return None
 
 	@cached_property
-	def _file(self) -> Optional[Union['machfs.Folder', 'machfs.File']]:
+	def _file(self) -> 'machfs.Folder' | 'machfs.File' | None:
 		try:
 			v = _machfs_read_file(self.hfv_path)
 			carbon_path = self._carbon_path

@@ -1,7 +1,7 @@
 import statistics
 from collections.abc import Collection, Mapping, Sequence
 from enum import Enum, IntFlag, auto
-from typing import TYPE_CHECKING, NamedTuple, Optional
+from typing import TYPE_CHECKING, NamedTuple
 
 if TYPE_CHECKING:
 	from meowlauncher.metadata import Metadata
@@ -55,7 +55,7 @@ class NintendoAgeRatings():
 	def _get_rating_value(byte: int) -> int:
 		return byte & 0b0001_1111
 
-	def get_rating(self, index: int) -> Optional[int | AgeRatingStatus | None]:
+	def get_rating(self, index: int) -> int | AgeRatingStatus | None:
 		byte = self.bytes[index]
 		status = self._get_rating_status(byte)
 		if status == AgeRatingStatus.Present:
@@ -69,7 +69,7 @@ class NintendoAgeRatings():
 		return [b if status == AgeRatingStatus.Present else status for b, status in ((b, self._get_rating_status(b)) for b in self.bytes) if status != AgeRatingStatus.Missing]
 
 	@property
-	def common_rating(self) -> Optional[int | AgeRatingStatus]:
+	def common_rating(self) -> int | AgeRatingStatus | None:
 		'If there is only one rating or they are all the same, this covers that; otherwise if ratings boards disagree this is probably the best way to interpret that situation'
 		all_present_ratings = self.all_present_ratings
 		try:
@@ -80,7 +80,7 @@ class NintendoAgeRatings():
 			except ValueError:
 				return None
 
-	def __getitem__(self, index: int)  -> Optional[int | AgeRatingStatus | None]:
+	def __getitem__(self, index: int)  -> int | AgeRatingStatus | None:
 		byte = self.bytes[index]
 		status = self._get_rating_status(byte)
 		if status == AgeRatingStatus.Present:

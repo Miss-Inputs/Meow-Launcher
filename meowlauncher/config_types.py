@@ -2,10 +2,9 @@ from collections.abc import Collection, Mapping, Sequence
 from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
-from typing import Optional, Union
 
 #For type checking… hmm…
-TypeOfConfigValue = Optional[Union[bool, str, Path, int, str, Sequence[str], Sequence[Path]]]
+TypeOfConfigValue = bool | str | Path | int | str | Sequence[str] | Sequence[Path] | None
 
 class ConfigValueType(Enum):
 	"""TODO: This should be thrown out the window, and we should use typing hints + introspection instead"""

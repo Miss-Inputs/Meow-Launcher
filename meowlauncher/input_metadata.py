@@ -1,5 +1,4 @@
 from collections.abc import Collection, MutableSequence
-from typing import Optional, Union
 
 from meowlauncher.util.utils import pluralize
 
@@ -221,7 +220,7 @@ class InputInfo():
 		#Allows us to say that something explicitly has 0 inputs, admittedly not used opften
 		self._is_inited = False
 
-	def add_option(self, inputs: Union[Collection[Controller], Controller]) -> None:
+	def add_option(self, inputs: Collection[Controller] | Controller) -> None:
 		#TODO: Should inputs ever really be iterable? Or should I be using CombinedController in those instances (SCV, ScummVM, Atari 8 bit)
 		opt = InputOption()
 		opt.inputs = list(inputs) if isinstance(inputs, Collection) else [inputs]
@@ -238,5 +237,5 @@ class InputInfo():
 	def has_standard_inputs(self) -> bool:
 		return any(option.is_standard for option in self.input_options) or not self.input_options
 
-	def describe(self) -> Optional[Collection[str]]:
+	def describe(self) -> Collection[str] | None:
 		return {opt.describe().capitalize() for opt in self.input_options} if self.input_options else {'Nothing'}

@@ -170,7 +170,7 @@ def get_icon_inside_exe(path: str) -> Optional['Image.Image']:
 			pass
 	return None
 
-def look_for_icon_for_file(path: Path) -> Optional[Union[Path, 'Image.Image']]:
+def look_for_icon_for_file(path: Path) -> Path | 'Image.Image' | None:
 	exe_icon = get_icon_inside_exe(str(path))
 	if exe_icon:
 		return exe_icon
