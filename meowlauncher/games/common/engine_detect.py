@@ -649,7 +649,7 @@ def try_detect_engine_from_exe_properties(exe_path: Path, metadata: Optional['Me
 
 	return None
 
-def try_detect_engine_from_exe(exe_path: Path, metadata: Optional['Metadata']) -> str | None:
+def try_detect_engine_from_exe(exe_path: Path, metadata: 'Metadata | None') -> str | None:
 	engine = try_detect_engine_from_exe_properties(exe_path, metadata)
 	if engine:
 		return engine
@@ -675,7 +675,7 @@ def try_detect_engine_from_exe(exe_path: Path, metadata: Optional['Metadata']) -
 
 	return None
 
-def try_and_detect_engine_from_folder(folder: Path, metadata: 'Metadata'|None=None, executable: Path | None=None) -> str | None:
+def try_and_detect_engine_from_folder(folder: Path, metadata: 'Metadata | None'=None, executable: Path | None=None) -> str | None:
 	#Get the most likely things out of the way first
 	unity_version = _try_detect_unity(folder, metadata, executable)
 	if unity_version:

@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 #Hmm, are other extensions going to work as icons in a file manager
 icon_extensions = {'png', 'ico', 'xpm', 'svg'}
 
-def _get_pe_string_table(pe: 'pefile.PE') -> 'Mapping[str, str]' | None:
+def _get_pe_string_table(pe: 'pefile.PE') -> 'Mapping[str, str] | None':
 	try:
 		for file_info in pe.FileInfo:
 			for info in file_info:
@@ -41,7 +41,7 @@ def _get_pe_string_table(pe: 'pefile.PE') -> 'Mapping[str, str]' | None:
 		pass
 	return None
 
-def get_exe_properties(path: str) -> tuple['Mapping[str, str]' | None, datetime.datetime | None]:
+def get_exe_properties(path: str) -> tuple['Mapping[str, str] | None', datetime.datetime | None]:
 	if have_pefile:
 		try:
 			pe = pefile.PE(path, fast_load=True)
@@ -98,7 +98,7 @@ def add_metadata_for_raw_exe(path: str, metadata: 'Metadata') -> None:
 def _pe_directory_to_dict(directory: 'pefile.ResourceDirData') -> 'Mapping[str | int, pefile.ResourceDirEntryData]':
 	return {entry.name if entry.name else entry.id: _pe_directory_to_dict(entry.directory) if hasattr(entry, 'directory') else entry for entry in directory.entries}
 
-def _get_pe_resources(pe: 'pefile.PE', resource_type: int) -> 'Mapping[str | int, pefile.ResourceDirEntryData]' | None:
+def _get_pe_resources(pe: 'pefile.PE', resource_type: int) -> 'Mapping[str | int, pefile.ResourceDirEntryData] | None':
 	if not hasattr(pe, 'DIRECTORY_ENTRY_RESOURCE'):
 		#weirdo has no resources
 		return None
@@ -107,7 +107,7 @@ def _get_pe_resources(pe: 'pefile.PE', resource_type: int) -> 'Mapping[str | int
 			return _pe_directory_to_dict(entry.directory)
 	return None
 
-def _get_first_pe_resource(resource_dict: 'Mapping[str | int, pefile.ResourceDirEntryData]') -> tuple[str | int | None, 'pefile.ResourceDirEntryData' | None]:
+def _get_first_pe_resource(resource_dict: 'Mapping[str | int, pefile.ResourceDirEntryData]') -> tuple[str | int | None, 'pefile.ResourceDirEntryData | None']:
 	for k, v in resource_dict.items():
 		if isinstance(v, Mapping):
 			return _get_first_pe_resource(v)
@@ -154,7 +154,7 @@ def get_icon_from_pe(pe: 'pefile.PE') -> Optional[Image.Image]:
 	ico = header + data
 	return Image.open(io.BytesIO(ico))
 
-def get_icon_inside_exe(path: str) -> Optional['Image.Image']:
+def get_icon_inside_exe(path: str) -> 'Image.Image | None':
 	if have_pefile:
 		try:
 			pe = pefile.PE(path, fast_load=True)
@@ -170,7 +170,7 @@ def get_icon_inside_exe(path: str) -> Optional['Image.Image']:
 			pass
 	return None
 
-def look_for_icon_for_file(path: Path) -> Path | 'Image.Image' | None:
+def look_for_icon_for_file(path: Path) -> 'Path | Image.Image | None':
 	exe_icon = get_icon_inside_exe(str(path))
 	if exe_icon:
 		return exe_icon

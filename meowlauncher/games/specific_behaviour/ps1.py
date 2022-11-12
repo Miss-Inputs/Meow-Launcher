@@ -46,7 +46,7 @@ def find_duckstation_compat_info(product_code: str) -> DuckStationCompatibility 
 			pass
 	return None
 
-def get_duckstation_db_info(product_code: str) -> 'Mapping[Any, Any]' | None:
+def get_duckstation_db_info(product_code: str) -> 'Mapping[Any, Any] | None':
 	gamedb_path = _duckstation_config.options.get('gamedb_path')
 	if not gamedb_path:
 		return None
@@ -65,7 +65,7 @@ def get_duckstation_db_info(product_code: str) -> 'Mapping[Any, Any]' | None:
 			return db_game
 	return None
 
-def _add_duckstation_db_info(db_entry: Mapping[Any, Any], metadata: 'Metadata') -> None:
+def _add_duckstation_db_info(db_entry: 'Mapping[Any, Any]', metadata: 'Metadata') -> None:
 	metadata.add_alternate_name(db_entry['name'], 'DuckStation Database Name')
 	languages = db_entry.get('languages')
 	if languages:

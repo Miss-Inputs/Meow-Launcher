@@ -153,7 +153,7 @@ def add_apploader_date(header: bytes, metadata: Metadata) -> None:
 	except ValueError:
 		pass
 
-def _add_gamecube_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes, tgc_data: 'Mapping[str, int]' | None=None) -> None:
+def _add_gamecube_disc_metadata(rom: FileROM, metadata: Metadata, header: bytes, tgc_data: 'Mapping[str, int] | None'=None) -> None:
 	#TODO: Use namedtuple/dataclass for tgc_data
 	metadata.platform = 'GameCube'
 

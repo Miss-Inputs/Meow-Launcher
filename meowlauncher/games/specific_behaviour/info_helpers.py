@@ -203,7 +203,7 @@ filename_tag_info_funcs: Mapping[str, Callable[[Sequence[str], 'Metadata'], None
 	'Atari ST': add_atari_st_info
 }
 
-arcade_machine_finders: Mapping[str, Callable[[str], 'Machine' | None]] = {
+arcade_machine_finders: Mapping[str, Callable[[str], 'Machine | None']] = {
 	'Mega Drive': find_equivalent_mega_drive_arcade,
 	'NES': find_equivalent_nes_arcade,
 	'PC Engine': find_equivalent_pc_engine_arcade,

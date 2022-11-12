@@ -230,7 +230,7 @@ class MacApp(ManuallySpecifiedGame):
 		return None
 
 	@cached_property
-	def _file(self) -> 'machfs.Folder' | 'machfs.File' | None:
+	def _file(self) -> 'machfs.Folder | machfs.File | None':
 		try:
 			v = _machfs_read_file(self.hfv_path)
 			carbon_path = self._carbon_path

@@ -234,7 +234,7 @@ class StellaDB():
 
 	__instance = None
 	@staticmethod
-	def get_stella_db() -> 'Mapping[str, Mapping[str, str]]' | None:
+	def get_stella_db() -> 'Mapping[str, Mapping[str, str]] | None':
 		if StellaDB.__instance is None:
 			StellaDB.__instance = StellaDB.__StellaDB()
 		return StellaDB.__instance.db

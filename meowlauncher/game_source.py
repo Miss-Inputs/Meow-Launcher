@@ -60,7 +60,7 @@ class CompoundGameSource(GameSource, ABC):
 
 EmulatorType_co = TypeVar('EmulatorType_co', bound=Emulator['EmulatedGame'], covariant=True)
 class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType_co]):
-	def __init__(self, platform_config: 'PlatformConfig', platform: 'ChooseableEmulatedPlatform', emulators: 'Mapping[str, EmulatorType_co]', libretro_cores: 'Mapping[str, LibretroCore]' | None=None) -> None:
+	def __init__(self, platform_config: 'PlatformConfig', platform: 'ChooseableEmulatedPlatform', emulators: 'Mapping[str, EmulatorType_co]', libretro_cores: 'Mapping[str, LibretroCore] | None'=None) -> None:
 		self.platform_config = platform_config
 		self.platform = platform
 		self.emulators = emulators

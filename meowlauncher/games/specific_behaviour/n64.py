@@ -43,7 +43,7 @@ def _get_mupen64plus_database_location() -> Path | None:
 	return None
 
 @lru_cache(maxsize=1)
-def _get_mupen64plus_database() -> 'Mapping[str, Mapping[str, str]]' | None:
+def _get_mupen64plus_database() -> 'Mapping[str, Mapping[str, str]] | None':
 	location = _get_mupen64plus_database_location()
 	if not location:
 		return None
@@ -86,7 +86,7 @@ def parse_n64_header(metadata: 'Metadata', header: bytes) -> None:
 		pass
 	metadata.specific_info['Revision'] = header[63]
 
-def add_info_from_database_entry(metadata: 'Metadata', database_entry: Mapping[str, str]) -> None:
+def add_info_from_database_entry(metadata: 'Metadata', database_entry: 'Mapping[str, str]') -> None:
 	#Keys: {'SaveType', 'Biopak', 'GoodName', 'SiDmaDuration', 'Players', 'DisableExtraMem', 'Mempak', 'Cheat0', 'Transferpak', 'CRC', 'Status', 'Rumble', 'CountPerOp'}
 	#CRC is just the N64 checksum from the ROM header so I dunno if that's any use
 	#Stuff like SiDmaDuration and CountPerOp and DisableExtraMem should be applied automatically by Mupen64Plus I would think (and be irrelevant for other emulators)

@@ -164,7 +164,7 @@ class SteamInstallation():
 		return tools
 
 	@property
-	def steamplay_whitelist(self) -> Mapping[str, str]:
+	def steamplay_whitelist(self) -> 'Mapping[str, str]':
 		extended = self._steamplay_appinfo_extended
 		if not extended:
 			return {}
@@ -190,7 +190,7 @@ class SteamInstallation():
 				return path
 		return None
 
-	def look_for_icon(self, icon_hash: str) -> 'Image.Image' | Path | None:
+	def look_for_icon(self, icon_hash: str) -> 'Image.Image | Path | None':
 		icon_hash = icon_hash.lower()
 		for icon_path in self.icon_folder.iterdir():
 			if icon_path.stem.lower() == icon_hash and icon_path.suffix in {'.ico', '.png', '.zip'}:

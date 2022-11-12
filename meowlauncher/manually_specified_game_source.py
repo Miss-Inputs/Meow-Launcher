@@ -36,7 +36,7 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 		super().__init__(platform_config, self.platform, emulators_dict)
 
 		self._app_list_path = config_dir.joinpath(self.platform.json_name + '.json')
-		self._app_list: 'Sequence[Mapping[str, Any]]' | None = None
+		self._app_list: 'Sequence[Mapping[str, Any]] | None' = None
 		try:
 			self._is_available = bool(platform_config.chosen_emulators)
 			self._app_list = json.loads(self._app_list_path.read_bytes())

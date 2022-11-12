@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 	from collections.abc import Mapping
 
 class EmulatorLauncher(Launcher, ABC):
-	def __init__(self, game: 'EmulatedGame', emulator: 'ConfiguredEmulator', platform_config: 'Mapping[str, TypeOfConfigValue]' | None=None) -> None:
+	def __init__(self, game: 'EmulatedGame', emulator: 'ConfiguredEmulator', platform_config: 'Mapping[str, TypeOfConfigValue] | None'=None) -> None:
 		self.game: 'EmulatedGame' = game
 		self.runner: 'ConfiguredEmulator' = emulator
 		self.platform_config = platform_config if platform_config else {}

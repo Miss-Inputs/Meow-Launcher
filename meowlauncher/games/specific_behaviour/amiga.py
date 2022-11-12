@@ -36,7 +36,7 @@ def add_amiga_metadata_from_software_list(software: 'Software', metadata: 'Metad
 	if chipset:
 		metadata.specific_info['Chipset'] = chipset
 
-def _machine_from_tag(tag: str) -> str | 'Collection[str]' | None:
+def _machine_from_tag(tag: str) -> 'str | Collection[str] | None':
 	#As listed in TOSEC naming convention
 	tag = tag[1:-1]
 
@@ -49,7 +49,7 @@ def _machine_from_tag(tag: str) -> str | 'Collection[str]' | None:
 		return tag.split('-')
 	return None
 
-def _chipset_from_tag(tag: str) -> str | 'Collection[str]' | None:
+def _chipset_from_tag(tag: str) -> 'str | Collection[str] | None':
 	if tag == 'AGA':
 		return 'AGA'
 	if tag == '(OCS-AGA)':
