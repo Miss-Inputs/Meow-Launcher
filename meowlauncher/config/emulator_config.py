@@ -1,4 +1,3 @@
-from collections.abc import Mapping
 from typing import TYPE_CHECKING
 
 from meowlauncher.common_paths import config_dir
@@ -12,11 +11,12 @@ from ._config_utils import parse_value
 
 if TYPE_CHECKING:
 	import configparser
+	from collections.abc import Mapping
+
 
 _emulator_config_path = config_dir.joinpath('emulators.ini')
 
-
-def _get_config(parser: 'configparser.RawConfigParser', config_name: str, default_exe_name: str, configs: Mapping[str, RunnerConfigValue]) -> EmulatorConfig:
+def _get_config(parser: 'configparser.RawConfigParser', config_name: str, default_exe_name: str, configs: 'Mapping[str, RunnerConfigValue]') -> EmulatorConfig:
 	options = {}
 		
 	if config_name in parser:

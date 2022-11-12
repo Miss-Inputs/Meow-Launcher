@@ -1,13 +1,14 @@
 from abc import ABC
-from collections.abc import Callable, Collection, Mapping, MutableMapping
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.config_types import ConfigValueType, TypeOfConfigValue
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom import ROM, FolderROM
+	from collections.abc import Callable, Collection, Mapping, MutableMapping
+
 
 @dataclass(frozen=True)
 class PlatformConfigValue():
@@ -17,10 +18,10 @@ class PlatformConfigValue():
 	description: str
 
 class ChooseableEmulatedPlatform(ABC):
-	def __init__(self, valid_emulator_names: Collection[str], name: str, options: Optional[Mapping[str, PlatformConfigValue]]) -> None:
+	def __init__(self, valid_emulator_names: 'Collection[str]', name: str, options: 'Mapping[str, PlatformConfigValue]' | None) -> None:
 		self.valid_emulator_names = valid_emulator_names
 		self.name = name
-		self.options: MutableMapping[str, PlatformConfigValue] = {} #But please don't mutate it if you are not a subclass in the __init__ method
+		self.options: 'MutableMapping[str, PlatformConfigValue]' = {} #But please don't mutate it if you are not a subclass in the __init__ method
 		if options:
 			self.options.update(options)
 
@@ -28,7 +29,7 @@ class ChooseableEmulatedPlatform(ABC):
 		return self.name.__hash__()
 		
 class StandardEmulatedPlatform(ChooseableEmulatedPlatform):
-	def __init__(self, name: str, mame_drivers: Collection[str], software_list_names: Collection[str], emulators: Collection[str], file_types: Mapping[MediaType, Collection[str]]|None=None, options: Mapping[str, PlatformConfigValue]|None=None, is_virtual: bool=False, dat_names: Collection[str]|None=None, dat_uses_serial: bool=False, databases_are_byteswapped: bool=False, autodetect_tv_type: bool=False, folder_check: Callable[['FolderROM'], MediaType | None]|None=None):
+	def __init__(self, name: str, mame_drivers: 'Collection[str]', software_list_names: 'Collection[str]', emulators: 'Collection[str]', file_types: 'Mapping[MediaType, Collection[str]]'|None=None, options: 'Mapping[str, PlatformConfigValue]' | None=None, is_virtual: bool=False, dat_names: 'Collection[str]' | None=None, dat_uses_serial: bool=False, databases_are_byteswapped: bool=False, autodetect_tv_type: bool=False, folder_check: 'Callable[[FolderROM], MediaType | None]' | None=None):
 		super().__init__(emulators, name, options)
 		self.mame_drivers = mame_drivers #Parent drivers that represent this system
 		self.software_list_names = software_list_names
@@ -52,6 +53,6 @@ class StandardEmulatedPlatform(ChooseableEmulatedPlatform):
 
 class ManuallySpecifiedPlatform(ChooseableEmulatedPlatform):
 	#TODO: Not necessarily emulated! But it does need to be treated as a platform, so like I dunno, maybe we just pretend it is and that works out
-	def __init__(self, name: str, json_name: str, emulators: Collection[str], options: Mapping[str, PlatformConfigValue]=None):
+	def __init__(self, name: str, json_name: str, emulators: 'Collection[str]', options: 'Mapping[str, PlatformConfigValue]' | None=None):
 		super().__init__(emulators, name, options)
 		self.json_name = json_name

@@ -1,4 +1,3 @@
-from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -7,14 +6,15 @@ from meowlauncher.config_types import ConfigValueType, TypeOfConfigValue
 
 if TYPE_CHECKING:
 	import configparser
+	from collections.abc import Sequence
 
 
-def parse_string_list(value: str) -> Sequence[str]:
+def parse_string_list(value: str) -> 'Sequence[str]':
 	if not value:
 		return ()
 	return tuple(item for item in value.split(';') if item)
 
-def parse_path_list(value: str) -> Sequence[Path]:
+def parse_path_list(value: str) -> 'Sequence[Path]':
 	if not value:
 		return ()
 	return tuple(Path(p).expanduser() for p in parse_string_list(value))

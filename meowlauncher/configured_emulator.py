@@ -1,4 +1,3 @@
-from collections.abc import Mapping
 from typing import TYPE_CHECKING
 
 from meowlauncher.config_types import EmulatorConfig, TypeOfConfigValue
@@ -9,6 +8,7 @@ from .emulator import (Emulator, LibretroCore, LibretroFrontend,
 
 if TYPE_CHECKING:
 	from meowlauncher.games.roms.rom import ROM
+	from collections.abc import Mapping
 
 	from .emulated_game import EmulatedGame
 	from .launch_command import LaunchCommand
@@ -19,7 +19,7 @@ class ConfiguredEmulator(ConfiguredRunner):
 		self.config: EmulatorConfig = config
 		super().__init__(emulator, config)
 
-	def get_launch_command_for_game(self, game: 'EmulatedGame', platform_config_options: Mapping[str, TypeOfConfigValue]) -> 'LaunchCommand':
+	def get_launch_command_for_game(self, game: 'EmulatedGame', platform_config_options: 'Mapping[str, TypeOfConfigValue]') -> 'LaunchCommand':
 		assert self.runner.launch_command_func, 'launch_command_func should never have been left as None'
 		command = self.runner.launch_command_func(game, platform_config_options, self.config)
 		return self.set_wrapper_options(command)
@@ -61,7 +61,7 @@ class LibretroCoreWithFrontend(ConfiguredStandardEmulator):
 		core_as_emulator = StandardEmulator(display_name, core.status, '', core.launch_command_func, core.supported_extensions, frontend.supported_compression, host_platform=frontend.host_platform)
 		super().__init__(core_as_emulator, combined_config)
 
-	def get_launch_command_for_game(self, game: 'EmulatedGame', platform_config_options: Mapping[str, TypeOfConfigValue]) -> 'LaunchCommand':
+	def get_launch_command_for_game(self, game: 'EmulatedGame', platform_config_options: 'Mapping[str, TypeOfConfigValue]') -> 'LaunchCommand':
 		if self.core.launch_command_func:
 			#A libretro core having a launch_command_func is only useful to raise EmulationNotSupportedException therefore we ignore the return value, then we can reuse the same launch command func for a libretro core and the standalone emulator and that should probably work in most cases, and if it doesn't, we can just do command_lines.blah_libretro
 			self.core.launch_command_func(game, platform_config_options, self.core_config)

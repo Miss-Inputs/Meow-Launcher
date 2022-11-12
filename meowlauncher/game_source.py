@@ -1,6 +1,5 @@
 import logging
 from abc import ABC, abstractmethod
-from collections.abc import Iterator, Mapping, Sequence
 from typing import TYPE_CHECKING, Generic, TypeVar, Union
 
 from meowlauncher.emulator import Emulator
@@ -11,6 +10,7 @@ if TYPE_CHECKING:
 	from meowlauncher.emulated_platform import ChooseableEmulatedPlatform
 	from meowlauncher.emulator import LibretroCore
 	from meowlauncher.launcher import Launcher
+	from collections.abc import Iterator, Mapping, Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -39,17 +39,17 @@ class GameSource(ABC):
 	#TODO: Should have has_been_done somewhere in here? Maybe
 
 	@abstractmethod
-	def iter_launchers(self) -> Iterator['Launcher']:
+	def iter_launchers(self) -> 'Iterator[Launcher]':
 		pass
 
 	def __hash__(self) -> int:
 		return self.name.__hash__()
 
 class CompoundGameSource(GameSource, ABC):
-	def __init__(self, sources: Sequence[GameSource]) -> None:
+	def __init__(self, sources: 'Sequence[GameSource]') -> None:
 		self.sources = sources
 
-	def iter_launchers(self) -> Iterator['Launcher']:
+	def iter_launchers(self) -> 'Iterator[Launcher]':
 		for source in self.sources:
 			if source.is_available:
 				yield from source.iter_launchers()
@@ -60,13 +60,13 @@ class CompoundGameSource(GameSource, ABC):
 
 EmulatorType_co = TypeVar('EmulatorType_co', bound=Emulator['EmulatedGame'], covariant=True)
 class ChooseableEmulatorGameSource(GameSource, ABC, Generic[EmulatorType_co]):
-	def __init__(self, platform_config: 'PlatformConfig', platform: 'ChooseableEmulatedPlatform', emulators: Mapping[str, EmulatorType_co], libretro_cores: Mapping[str, 'LibretroCore']=None) -> None:
+	def __init__(self, platform_config: 'PlatformConfig', platform: 'ChooseableEmulatedPlatform', emulators: 'Mapping[str, EmulatorType_co]', libretro_cores: 'Mapping[str, LibretroCore]' | None=None) -> None:
 		self.platform_config = platform_config
 		self.platform = platform
 		self.emulators = emulators
 		self.libretro_cores = libretro_cores
 	
-	def iter_chosen_emulators(self) -> Iterator[Union[EmulatorType_co, 'LibretroCore']]:
+	def iter_chosen_emulators(self) -> 'Iterator[Union[EmulatorType_co, LibretroCore]]':
 		for emulator_name in self.platform_config.chosen_emulators:
 			emulator = self.libretro_cores.get(emulator_name.removesuffix(' (libretro)')) if \
 				(self.libretro_cores and emulator_name.endswith(' (libretro)')) else \

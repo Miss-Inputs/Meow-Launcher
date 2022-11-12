@@ -1,7 +1,6 @@
 import os
 import re
 import tempfile
-from collections.abc import Collection
 from functools import cache
 from pathlib import PurePath
 from typing import TYPE_CHECKING, Optional
@@ -17,6 +16,7 @@ from meowlauncher.util.utils import find_filename_tags_at_end
 from .rom import ROM, CompressedROM
 
 if TYPE_CHECKING:
+	from collections.abc import Collection
 	from meowlauncher.config_types import PlatformConfig
 	from meowlauncher.configured_emulator import ConfiguredStandardEmulator
 	from meowlauncher.emulated_platform import StandardEmulatedPlatform
@@ -32,7 +32,7 @@ def _software_list_product_code_matcher(part: 'SoftwarePart', product_code: str)
 	return product_code in part_code.split(', ')
 
 @cache
-def _software_lists_for_platform(platform: 'StandardEmulatedPlatform') -> Collection['SoftwareList']:
+def _software_lists_for_platform(platform: 'StandardEmulatedPlatform') -> 'Collection[SoftwareList]':
 	return set(iter_software_lists_by_name(platform.software_list_names))
 
 class ROMGame(EmulatedGame):
@@ -58,7 +58,7 @@ class ROMGame(EmulatedGame):
 		return name
 
 	@property
-	def related_software_lists(self) -> Collection['SoftwareList']:
+	def related_software_lists(self) -> 'Collection[SoftwareList]':
 		#TODO: I don't like this being here but 2600/C64/GB/Intellivision/NES needs it for now I guess
 		return _software_lists_for_platform(self.platform)
 

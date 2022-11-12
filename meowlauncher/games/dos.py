@@ -1,5 +1,4 @@
 import os
-from collections.abc import Mapping
 from pathlib import Path, PurePath
 from typing import TYPE_CHECKING, Any
 
@@ -9,11 +8,12 @@ from meowlauncher.manually_specified_game import ManuallySpecifiedGame
 
 if TYPE_CHECKING:
 	from meowlauncher.config_types import PlatformConfig
+	from collections.abc import Mapping
 
 dos_config = platform_configs.get('DOS')
 
 class DOSApp(ManuallySpecifiedGame):
-	def __init__(self, info: Mapping[str, Any], platform_config: 'PlatformConfig'):
+	def __init__(self, info: 'Mapping[str, Any]', platform_config: 'PlatformConfig'):
 		super().__init__(info, platform_config)
 		if self.is_on_cd:
 			self.path = self.path.replace('/', '\\')

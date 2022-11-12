@@ -1,8 +1,7 @@
 import json
 import logging
 from abc import ABC
-from collections.abc import Iterator, Mapping, Sequence
-from typing import TYPE_CHECKING, Any, Generic, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Generic, TypeVar
 
 from meowlauncher.common_paths import config_dir
 from meowlauncher.config.emulator_config import emulator_configs
@@ -17,6 +16,7 @@ from meowlauncher.manually_specified_game import (ManuallySpecifiedGame,
 
 if TYPE_CHECKING:
 	from .emulator import Emulator
+	from collections.abc import Iterator, Mapping, Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 	#TODO: This shouldn't necessarily subclass ChooseableEmulatorGameSource
 	#Leave no_longer_exists to the subclasses as they may like to have custom logic
 
-	def __init__(self, platform_name: str, app_type: type[ManuallySpecifiedGameType_co], launcher_type: type[ManuallySpecifiedLauncher], emulators_dict: Mapping[str, 'Emulator[ManuallySpecifiedGameType_co]']) -> None:
+	def __init__(self, platform_name: str, app_type: type[ManuallySpecifiedGameType_co], launcher_type: type[ManuallySpecifiedLauncher], emulators_dict: 'Mapping[str, Emulator[ManuallySpecifiedGameType_co]]') -> None:
 		self.platform = manually_specified_platforms[platform_name] #TODO: Might not always be a thing
 		self._app_type = app_type
 		self._launcher_type = launcher_type
@@ -36,7 +36,7 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 		super().__init__(platform_config, self.platform, emulators_dict)
 
 		self._app_list_path = config_dir.joinpath(self.platform.json_name + '.json')
-		self._app_list: Optional[Sequence[Mapping[str, Any]]] = None
+		self._app_list: 'Sequence[Mapping[str, Any]]' | None = None
 		try:
 			self._is_available = bool(platform_config.chosen_emulators)
 			self._app_list = json.loads(self._app_list_path.read_bytes())
@@ -80,7 +80,7 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 
 		return self._launcher_type(app, emulator, self.platform_config)
 
-	def _process_app(self, app_info: Mapping[str, Any]) -> ManuallySpecifiedLauncher | None:
+	def _process_app(self, app_info: 'Mapping[str, Any]') -> ManuallySpecifiedLauncher | None:
 		app = self._app_type(app_info, self.platform_config)
 		try:
 			if not app.is_valid:
@@ -94,7 +94,7 @@ class ManuallySpecifiedGameSource(ChooseableEmulatorGameSource, ABC, Generic[Man
 			return None
 
 	#Return value here could be a generic type value I suppose, if you were into that sort of thing
-	def iter_launchers(self) -> Iterator[ManuallySpecifiedLauncher]:
+	def iter_launchers(self) -> 'Iterator[ManuallySpecifiedLauncher]':
 		assert self._app_list is not None, '_app_list is None, ManuallySpecifiedGameSource.get_launchers should not be called without checking .is_available()'
 		for app in self._app_list:
 			try:

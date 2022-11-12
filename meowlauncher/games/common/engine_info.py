@@ -4,7 +4,6 @@ import io
 import json
 import re
 import zipfile
-from collections.abc import Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 from xml.etree import ElementTree
@@ -20,6 +19,7 @@ except ModuleNotFoundError:
 
 if TYPE_CHECKING:
 	from meowlauncher.metadata import Metadata
+	from collections.abc import Mapping
 
 def add_unity_metadata(data_folder: Path, metadata: 'Metadata') -> None:
 	icon_path = data_folder.joinpath('Resources', 'UnityPlayer.png')
@@ -130,7 +130,7 @@ def add_metadata_for_adobe_air(root_path: Path, application_xml: Path, metadata:
 		if best_icon:
 			metadata.images['Icon'] = root_path / best_icon
 
-def add_metadata_from_nw_package_json(package_json: Mapping[str, Any], metadata: 'Metadata') -> None:
+def add_metadata_from_nw_package_json(package_json: 'Mapping[str, Any]', metadata: 'Metadata') -> None:
 	#main might come in handy (index.html, etc)
 	#no-edit-menu and position maybe not
 	#single-instance, dom_storage_quota, maybe? I dunno
@@ -231,7 +231,7 @@ def add_gamemaker_metadata(folder: Path, metadata: 'Metadata') -> None:
 		metadata.images['Icon'] = icon_path
 
 def add_metadata_from_pixel_game_maker_mv_info_json(info_json_path: Path, metadata: 'Metadata') -> None:
-	info: Mapping[str, str] = json.loads(info_json_path.read_bytes())
+	info: 'Mapping[str, str]' = json.loads(info_json_path.read_bytes())
 	title = info.get('title')
 	author = info.get('author')
 	genre = info.get('genre')

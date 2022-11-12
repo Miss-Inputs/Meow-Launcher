@@ -4,7 +4,7 @@ import logging
 import struct
 from collections.abc import Mapping
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional
 
 try:
 	import pefile
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 #Hmm, are other extensions going to work as icons in a file manager
 icon_extensions = {'png', 'ico', 'xpm', 'svg'}
 
-def _get_pe_string_table(pe: 'pefile.PE') -> Optional[Mapping[str, str]]:
+def _get_pe_string_table(pe: 'pefile.PE') -> 'Mapping[str, str]' | None:
 	try:
 		for file_info in pe.FileInfo:
 			for info in file_info:
@@ -41,7 +41,7 @@ def _get_pe_string_table(pe: 'pefile.PE') -> Optional[Mapping[str, str]]:
 		pass
 	return None
 
-def get_exe_properties(path: str) -> tuple[Optional[Mapping[str, str]], Optional[datetime.datetime]]:
+def get_exe_properties(path: str) -> tuple['Mapping[str, str]' | None, datetime.datetime | None]:
 	if have_pefile:
 		try:
 			pe = pefile.PE(path, fast_load=True)
@@ -95,10 +95,10 @@ def add_metadata_for_raw_exe(path: str, metadata: 'Metadata') -> None:
 			if guessed_date.is_better_than(metadata.release_date):
 				metadata.release_date = guessed_date
 
-def _pe_directory_to_dict(directory: 'pefile.ResourceDirData') -> Mapping[Union[str, int], 'pefile.ResourceDirEntryData']:
+def _pe_directory_to_dict(directory: 'pefile.ResourceDirData') -> 'Mapping[str | int, pefile.ResourceDirEntryData]':
 	return {entry.name if entry.name else entry.id: _pe_directory_to_dict(entry.directory) if hasattr(entry, 'directory') else entry for entry in directory.entries}
 
-def _get_pe_resources(pe: 'pefile.PE', resource_type: int) -> Optional[Mapping[Union[str, int], 'pefile.ResourceDirEntryData']]:
+def _get_pe_resources(pe: 'pefile.PE', resource_type: int) -> 'Mapping[str | int, pefile.ResourceDirEntryData]' | None:
 	if not hasattr(pe, 'DIRECTORY_ENTRY_RESOURCE'):
 		#weirdo has no resources
 		return None
@@ -107,14 +107,14 @@ def _get_pe_resources(pe: 'pefile.PE', resource_type: int) -> Optional[Mapping[U
 			return _pe_directory_to_dict(entry.directory)
 	return None
 
-def _get_first_pe_resource(resource_dict: Mapping[Union[str, int], 'pefile.ResourceDirEntryData']) -> tuple[Union[str, int, None], Optional['pefile.ResourceDirEntryData']]:
+def _get_first_pe_resource(resource_dict: 'Mapping[str | int, pefile.ResourceDirEntryData]') -> tuple[str | int | None, 'pefile.ResourceDirEntryData' | None]:
 	for k, v in resource_dict.items():
 		if isinstance(v, Mapping):
 			return _get_first_pe_resource(v)
 		return k, v
 	return None, None
 
-def _parse_pe_group_icon_directory(data: bytes) -> Mapping[int, Mapping[str, int]]:
+def _parse_pe_group_icon_directory(data: bytes) -> 'Mapping[int, Mapping[str, int]]':
 	#TODO: Use dataclass
 	struct_format = '<BBBBHHIH'
 	_, _, count = struct.unpack('<HHH', data[:6]) #don't need type I think
