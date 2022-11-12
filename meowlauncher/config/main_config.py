@@ -1,3 +1,5 @@
+from functools import wraps
+import inspect
 import logging
 import sys
 from collections.abc import Collection, Mapping, MutableMapping
@@ -6,6 +8,7 @@ from pathlib import Path, PurePath
 from meowlauncher.common_paths import config_dir, data_dir
 from meowlauncher.config_types import ConfigValueType, TypeOfConfigValue
 from meowlauncher.util.io_utils import ensure_exist
+from meowlauncher.util.name_utils import sentence_case
 from meowlauncher.util.utils import NoNonsenseConfigParser
 
 from ._config_utils import (ConfigValue, parse_path_list, parse_string_list,
@@ -179,3 +182,16 @@ class Config():
 		return Config.__instance
 
 main_config = Config().getConfig()
+
+def configoption(section: str, readable_name: str | None = None):
+	"""TODO: It's a surprise tool that will help us later"""
+	def deco(func): #TODO: Because we put properties on Callable that aren't there, this would be a pain in the arse to type hint…
+		@wraps(func)
+		def inner():
+			func.section = section
+			func.readable_name = readable_name or sentence_case(func.__name__)
+			func.description = func.__doc__ or func.readable_name
+			func.type = inspect.get_annotations(func)['return']
+			return func
+		return inner
+	return deco

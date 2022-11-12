@@ -130,3 +130,8 @@ def _title_case_sentence_part(s: str, words_to_ignore_case: Collection[str] | No
 def title_case(s: str, words_to_ignore_case: Collection[str] | None=None) -> str:
 	sentence_parts = re.split(r'(\s+-\s+|:\s+)', s)
 	return ''.join(_title_case_sentence_part(part, words_to_ignore_case) for part in sentence_parts)
+
+def sentence_case(s: str) -> str:
+	words = s.lower().split(' ')
+	return ' '.join([words[0].title(), ' '] + words[1:])
+	
