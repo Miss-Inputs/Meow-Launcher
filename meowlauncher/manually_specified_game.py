@@ -2,7 +2,7 @@ import os
 from abc import ABC, abstractmethod
 from collections.abc import Collection, Mapping
 from pathlib import Path, PurePath
-from typing import TYPE_CHECKING, Any, Optional, final
+from typing import TYPE_CHECKING, Any, final
 
 from meowlauncher.common_types import MediaType
 from meowlauncher.emulated_game import EmulatedGame

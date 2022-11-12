@@ -5,17 +5,17 @@ import os
 import re
 from collections.abc import Mapping, MutableMapping, MutableSequence, Sequence
 from pathlib import Path
-from typing import Optional, Union, cast
+from typing import cast
 
 from meowlauncher.config.main_config import main_config
 
 #TODO: Probs should be using dataclasses or whatever for this
 RomType = Mapping[str, str]
-GameValueType = Union[int, str, Sequence[RomType]]
+GameValueType = int | str | Sequence[RomType]
 GameType = Mapping[str, GameValueType]
 _MutableGameType = MutableMapping[str, GameValueType]
-LibretroDatabaseType = Mapping[Union[int, str], GameType]
-_MutableLibretroDatabaseType = MutableMapping[Union[int, str], _MutableGameType]
+LibretroDatabaseType = Mapping[int | str, GameType]
+_MutableLibretroDatabaseType = MutableMapping[int | str, _MutableGameType]
 
 _rom_line = re.compile(r'(?<=\(|\s)(?P<attrib>\w+)\s+(?:"(?P<value>[^"]+)"|(?P<rawvalue>\S+))(?:\s+|\))')
 def _parse_rom_line(line: str) -> RomType | None:
@@ -35,10 +35,10 @@ def _parse_rom_line(line: str) -> RomType | None:
 	return rom
 
 _attribute_line = re.compile(r'(?P<key>\w+)\s+(?:"(?P<value>[^"]*)"|(?P<intvalue>\d+))')
-def parse_libretro_dat(path: Path) -> tuple[Mapping[str, Union[int, str]], Sequence[GameType]]:
+def parse_libretro_dat(path: Path) -> tuple[Mapping[str, int | str], Sequence[GameType]]:
 	#TODO: Probably split this up in two methods, one to parse the header and one to parse the rest of it, once we have that much lines
 	games: MutableSequence[GameType] = []
-	header: MutableMapping[str, Union[int, str]] = {}
+	header: MutableMapping[str, int | str] = {}
 	with path.open('rt', encoding='utf-8') as file:
 		game: _MutableGameType = {}
 		inside_header = False
@@ -151,7 +151,7 @@ def parse_all_dats_for_system(name: str, use_serial: bool) -> LibretroDatabaseTy
 				#Narrator: It does happen
 				continue
 			for rom in cast(Sequence[RomType], roms):
-				key: Union[int, str, None] = rom.get('serial') if use_serial else int(rom.get('crc', '0'), 16)
+				key: int | str | None = rom.get('serial') if use_serial else int(rom.get('crc', '0'), 16)
 				if not key: #crc should never be 0 so it's okay to not just check for none
 					#print("Surely this also should not happen", dat, game)
 					#Ah… this happens with PS1 hacks which use the crc of the whole bin

@@ -1,6 +1,6 @@
 from collections.abc import Collection
 from enum import Enum, auto
-from typing import Optional, cast
+from typing import cast
 from dataclasses import dataclass, field
 
 __doc__ = """For autodetecting regions, languages, etc from filenames

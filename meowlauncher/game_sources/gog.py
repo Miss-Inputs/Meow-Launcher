@@ -6,7 +6,7 @@ import os
 import time
 from collections.abc import Collection
 from pathlib import Path
-from typing import Optional, cast
+from typing import cast
 
 from meowlauncher.config.main_config import main_config
 from meowlauncher.games.gog import (DOSBoxGOGGame, GOGGame, GOGGameInfo,
