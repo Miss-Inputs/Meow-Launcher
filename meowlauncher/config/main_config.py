@@ -1,8 +1,8 @@
-from functools import wraps
 import inspect
 import logging
 import sys
 from collections.abc import Collection, Mapping, MutableMapping
+from functools import wraps
 from pathlib import Path, PurePath
 
 from meowlauncher.common_paths import config_dir, data_dir
